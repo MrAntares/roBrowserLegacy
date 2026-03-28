@@ -8,21 +8,21 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
-	'use strict';
+'use strict';
 
-	var MapPreferences = require('Preferences/Map');
+import glMatrix from 'Utils/gl-matrix';
+import MapPreferences from 'Preferences/Map';
 
-	/**
+/**
 	 * Global methods
 	 */
-	var vec4 = glMatrix.vec4;
-	var _pos = new Float32Array(4);
-	var _size = new Float32Array(2);
-	var dpr = window.devicePixelRatio || 1;
+	const vec4 = glMatrix.vec4;
+	const _pos = new Float32Array(4);
+	const _size = new Float32Array(2);
+	const dpr = window.devicePixelRatio || 1;
 
-	var procCanvas = document.createElement('canvas');
-	var procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+	let procCanvas = document.createElement('canvas');
+	let procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
 	// Some helper for Firefox to render text-border
 	if (typeof CanvasRenderingContext2D !== 'undefined') {
@@ -53,10 +53,10 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	 * For more informations, check :
 	 * http://forum.robrowser.com/index.php?topic=32200
 	 */
-	var _isUglyShadow = (function isUglyGPUShadow() {
-		var fontSize = 12 * dpr;
-		var text = 'Testing';
-		var width, height, percent;
+	let _isUglyShadow = (function isUglyGPUShadow() {
+		let fontSize = 12 * dpr;
+		let text = 'Testing';
+		let width, height, percent;
 
 		// Create canvas
 		procCtx.font = fontSize + 'px Arial';
@@ -81,11 +81,11 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		procCtx.fillText(text, 5, 0);
 
 		// Read canvas pixels and get the average black
-		var imageData = procCtx.getImageData(0, 0, width, height);
-		var pixels = imageData.data;
-		var i,
+		let imageData = procCtx.getImageData(0, 0, width, height);
+		let pixels = imageData.data;
+		let i,
 			count = pixels.length;
-		var total = 0;
+		let total = 0;
 
 		for (i = 0; i < count; i += 4) {
 			total += ((255 - pixels[i]) / 255) * pixels[i + 3];
@@ -165,10 +165,10 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		style = style || this.STYLE.DEFAULT;
 
 		// Setup variables
-		var lines = new Array(2);
-		var fontSize = 12 * dpr;
-		var ctx = this.ctx;
-		var start_x =
+		let lines = new Array(2);
+		let fontSize = 12 * dpr;
+		let ctx = this.ctx;
+		let start_x =
 			(this.emblem &&
 			(style === this.STYLE.DEFAULT ||
 				style === this.STYLE.ADMIN ||
@@ -176,8 +176,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 				style === this.STYLE.NPC)
 				? 26
 				: 0) + 5;
-		var width, height;
-		var paddingTop = 5;
+		let width, height;
+		let paddingTop = 5;
 
 		// Skip the "#" in the pseudo
 		lines[0] = this.fakename ? this.fakename.split('#')[0] : this.name.split('#')[0];
@@ -233,7 +233,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		}
 
 		// Setup the canvas
-		var fontBold = MapPreferences.showname ? 'bold ' : '';
+		let fontBold = MapPreferences.showname ? 'bold ' : '';
 		ctx.font = fontBold + fontSize + 'px Arial';
 
 		width = Math.max(ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width) + start_x + 5;
@@ -250,8 +250,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 				style === this.STYLE.NPC)
 		) {
 			if (this.emblem.isAnimated) {
-				var fw = this.emblem.frameWidth;
-				var fh = this.emblem.frameHeight;
+				let fw = this.emblem.frameWidth;
+				let fh = this.emblem.frameHeight;
 				ctx.drawImage(this.emblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
 			} else {
 				ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
@@ -259,7 +259,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		}
 
 		// TODO: complete the color list in the Entity display
-		var color = 'white';
+		let color = 'white';
 		switch (style) {
 			case this.STYLE.MOB:
 				color = '#ffc6c6';
@@ -275,8 +275,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 				break;
 		}
 
-		var fontBold = MapPreferences.showname ? 'bold ' : '';
-		ctx.font = fontBold + fontSize + 'px Arial';
+		let fontBold2 = MapPreferences.showname ? 'bold ' : '';
+		ctx.font = fontBold2 + fontSize + 'px Arial';
 		ctx.textBaseline = 'top';
 
 		// Shadow renderer
@@ -338,26 +338,26 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	 * Rendering GUI
 	 */
 	Display.prototype.render = function (matrix) {
-		var z;
+		let z;
 		if (this.emblem && this.emblem.isAnimated) {
-			var paddingTop = 5;
-			var now = Date.now();
+			let paddingTop = 5;
+			let now = Date.now();
 
-			var currentFrameIndex = this.emblem.currentFrame || 0;
-			var frameDelay = this.emblem.frameDelays ? this.emblem.frameDelays[currentFrameIndex] : 100;
+			let currentFrameIndex = this.emblem.currentFrame || 0;
+			let frameDelay = this.emblem.frameDelays ? this.emblem.frameDelays[currentFrameIndex] : 100;
 
 			if (now - this.emblem.lastFrameChange >= frameDelay) {
 				this.emblem.lastFrameChange = now;
 
-				var fw = this.emblem.frameWidth;
-				var fh = this.emblem.frameHeight;
-				var fpr = this.emblem.framesPerRow || Math.floor(this.emblem.width / fw);
-				var total = this.emblem.frameCount || fpr * Math.floor(this.emblem.height / fh);
+				let fw = this.emblem.frameWidth;
+				let fh = this.emblem.frameHeight;
+				let fpr = this.emblem.framesPerRow || Math.floor(this.emblem.width / fw);
+				let total = this.emblem.frameCount || fpr * Math.floor(this.emblem.height / fh);
 
 				this.emblem.currentFrame = (this.emblem.currentFrame + 1) % total;
 
-				var col = this.emblem.currentFrame % fpr;
-				var row = Math.floor(this.emblem.currentFrame / fpr);
+				let col = this.emblem.currentFrame % fpr;
+				let row = Math.floor(this.emblem.currentFrame / fpr);
 
 				this.ctx.save();
 				this.ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -368,7 +368,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 			}
 		}
 
-		var canvas = this.canvas;
+		let canvas = this.canvas;
 		// Cast position
 		_pos[0] = 0.0;
 		_pos[1] = -0.5;
@@ -376,8 +376,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		_pos[3] = 1.0;
 
 		// Set the viewport
-		_size[0] = Renderer.width / 2;
-		_size[1] = Renderer.height / 2;
+		_size[0] = window.innerWidth / 2;
+		_size[1] = window.innerHeight / 2;
 
 		// Project point to scene
 		vec4.transformMat4(_pos, _pos, matrix);
@@ -399,9 +399,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	};
 
 	/**
-	 * Exporting
+	 * Export ing
 	 */
-	return function Init() {
+	export default function Init() {
 		this.display = new Display();
 	};
-});

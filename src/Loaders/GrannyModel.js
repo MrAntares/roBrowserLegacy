@@ -13,15 +13,18 @@
 //Figure out how to decompress.
 //Figure out how to use this structure tree that granny has by default for each sections information.
 
-define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (BinaryReader, glMatrix) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+import glMatrix from 'Utils/gl-matrix';
+import 'Utils/CRC32';
+
+/**
 	 * Import
 	 */
-	var vec3 = glMatrix.vec3;
-	var mat3 = glMatrix.mat3;
-	var mat4 = glMatrix.mat4;
+	let vec3 = glMatrix.vec3;
+	let mat3 = glMatrix.mat3;
+	let mat4 = glMatrix.mat4;
 
 	/**
 	 * Model class loader
@@ -510,9 +513,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {ArrayBuffer} data
 	 */
 	GR2.prototype.load = function Load(data) {
-		var fp, header, name;
-		var i, count;
-		var textures, nodes, posKeyframes, volumebox;
+		let fp, header, name;
+		let i, count;
+		let textures, nodes, posKeyframes, volumebox;
 
 		// Read header.
 		fp = new BinaryReader(data);
@@ -545,7 +548,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 				return true;
 			}
 
-			var data = new BinaryReader(fp.buffer, this.DataOffset, this.DataSize);
+			let data = new BinaryReader(fp.buffer, this.DataOffset, this.DataSize);
 			// TODO Create an output buffer the size of ExpandedDataSize for copying uncompressed data into.
 
 			switch (this.Format) {
@@ -683,8 +686,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 		this.Marshalled = null;
 		this.IsUserMemory = null;
 		this.ConversionBuffer = null;
-		var SectionArrayAddress = 0x20 + this.Header.SectionArrayOffset;
-		var crc = fp.CRC32(SectionArrayAddress);
+		let SectionArrayAddress = 0x20 + this.Header.SectionArrayOffset;
+		let crc = fp.CRC32(SectionArrayAddress);
 
 		console.error(crc == this.Header.CRC ? 'CRC Matches' : 'CRC Not Match');
 		fp.seek(SectionArrayAddress);
@@ -790,7 +793,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {number} height
 	 */
 	GR2.prototype.createInstance = function CreateInstance(model, width, height) {
-		var matrix = mat4.create();
+		let matrix = mat4.create();
 
 		mat4.identity(matrix);
 		mat4.translate(matrix, matrix, [model.position[0] + width, model.position[1], model.position[2] + height]);
@@ -806,11 +809,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * Calculate model bounding box
 	 */
 	GR2.prototype.calcBoundingBox = function CalcBoundingBox() {
-		var i, j, count;
-		var box = this.box;
-		var matrix = mat4.create();
-		var nodes = this.nodes;
-		var min = Math.min,
+		let i, j, count;
+		let box = this.box;
+		let matrix = mat4.create();
+		let nodes = this.nodes;
+		let min = Math.min,
 			max = Math.max;
 		count = nodes.length;
 
@@ -832,14 +835,14 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * Compile Model
 	 */
 	GR2.prototype.compile = function Compile() {
-		var nodes = this.nodes;
-		var instances = this.instances;
+		let nodes = this.nodes;
+		let instances = this.instances;
 
-		var node_count = nodes.length;
-		var instance_count = instances.length;
-		var i, j, k;
+		let node_count = nodes.length;
+		let instance_count = instances.length;
+		let i, j, k;
 
-		var meshes = new Array(node_count * instance_count);
+		let meshes = new Array(node_count * instance_count);
 
 		// Generate Mesh
 		for (i = 0, k = 0; i < node_count; ++i) {
@@ -862,11 +865,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {boolean} only
 	 */
 	GR2.Node = function Node(gr2, fp, only) {
-		var i,
+		let i,
 			j,
 			count,
 			version = gr2.version;
-		var textures, vertices, tvertices, faces, posKeyframes, rotKeyframes;
+		let textures, vertices, tvertices, faces, posKeyframes, rotKeyframes;
 
 		// Read initialised
 		this.main = gr2;
@@ -980,15 +983,15 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 */
 	GR2.Node.prototype.calcBoundingBox = function NodeCalcBoundingBox(_matrix) {
 		// Define variables
-		var i, j, count;
-		var v = vec3.create();
-		var box = this.box;
-		var nodes = this.main.nodes;
-		var matrix = mat4.create();
-		var vertices = this.vertices;
-		var max = Math.max,
+		let i, j, count;
+		let v = vec3.create();
+		let box = this.box;
+		let nodes = this.main.nodes;
+		let matrix = mat4.create();
+		let vertices = this.vertices;
+		let max = Math.max,
 			min = Math.min;
-		var x, y, z;
+		let x, y, z;
 
 		// Find position
 		mat4.copy(this.matrix, _matrix);
@@ -1047,21 +1050,21 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {mat4} instance_matrix
 	 */
 	GR2.Node.prototype.compile = function (instance_matrix) {
-		var matrix;
-		var modelViewMat = mat4.create();
-		var normalMat = mat4.create();
+		let matrix;
+		let modelViewMat = mat4.create();
+		let normalMat = mat4.create();
 
-		var textures = this.textures;
-		var faces = this.faces;
-		var vertices = this.vertices;
+		let textures = this.textures;
+		let faces = this.faces;
+		let vertices = this.vertices;
 
-		var mesh = {};
-		var mesh_size = [];
+		let mesh = {};
+		let mesh_size = [];
 
-		var vert, face_normal;
-		var shadeGroup = new Array(32);
-		var shadeGroupUsed = new Array(32);
-		var i, x, y, z, count;
+		let vert, face_normal;
+		let shadeGroup = new Array(32);
+		let shadeGroupUsed = new Array(32);
+		let i, x, y, z, count;
 
 		// Calculate matrix
 		matrix = mat4.create();
@@ -1141,7 +1144,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {Float32Array[]} out
 	 */
 	GR2.Node.prototype.calcNormal_NONE = function calcNormalNone(out) {
-		var i, count;
+		let i, count;
 		for (i = 1, count = out.length; i < count; i += 3) {
 			out[i] = -1;
 		}
@@ -1155,11 +1158,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {Array} groupUsed
 	 */
 	GR2.Node.prototype.calcNormal_FLAT = function calcNormalFlat(out, normalMat, groupUsed) {
-		var i, j, count;
-		var face;
-		var temp_vec = vec3.create();
-		var faces = this.faces;
-		var vertices = this.vertices;
+		let i, j, count;
+		let face;
+		let temp_vec = vec3.create();
+		let faces = this.faces;
+		let vertices = this.vertices;
 
 		for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
 			face = faces[i];
@@ -1186,11 +1189,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {Array} group
 	 */
 	GR2.Node.prototype.calcNormal_SMOOTH = function calcNormalSmooth(normal, groupUsed, group) {
-		var i, j, k, l, v, x, y, z, len;
-		var size = this.vertices.length;
-		var faces = this.faces;
-		var face, norm;
-		var count = faces.length;
+		let i, j, k, l, v, x, y, z, len;
+		let size = this.vertices.length;
+		let faces = this.faces;
+		let face, norm;
+		let count = faces.length;
 
 		for (j = 0; j < 32; ++j) {
 			// Group not used, skip it
@@ -1235,13 +1238,13 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {Array} mesh
 	 */
 	GR2.Node.prototype.generate_mesh_FLAT = function generateMeshFlat(vert, norm, mesh) {
-		var a, b, o, i, j, k, t, count;
-		var faces = this.faces;
-		var textures = this.textures;
-		var tver = this.tvertices;
-		var alpha = this.main.alpha;
-		var offset = [];
-		var face, idx, tidx, out;
+		let a, b, o, i, j, k, t, count;
+		let faces = this.faces;
+		let textures = this.textures;
+		let tver = this.tvertices;
+		let alpha = this.main.alpha;
+		let offset = [];
+		let face, idx, tidx, out;
 
 		// Setup mesh slot array
 		for (i = 0, count = textures.length; i < count; ++i) {
@@ -1282,13 +1285,13 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	 * @param {Array} mesh
 	 */
 	GR2.Node.prototype.generate_mesh_SMOOTH = function generateMeshSmooth(vert, shadeGroup, mesh) {
-		var a, b, o, i, j, t, count;
-		var faces = this.faces;
-		var textures = this.textures;
-		var tver = this.tvertices;
-		var alpha = this.main.alpha;
-		var offset = [];
-		var norm, face, idx, tidx, out;
+		let a, b, o, i, j, t, count;
+		let faces = this.faces;
+		let textures = this.textures;
+		let tver = this.tvertices;
+		let alpha = this.main.alpha;
+		let offset = [];
+		let norm, face, idx, tidx, out;
 
 		// Setup mesh slot array
 		for (i = 0, count = textures.length; i < count; ++i) {
@@ -1324,7 +1327,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix', 'Utils/CRC32'], function (Binar
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return GR2;
-});
+	export default GR2;

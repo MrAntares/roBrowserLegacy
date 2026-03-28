@@ -7,8 +7,7 @@
  *
  * @author Vincent Thibault
  */
-define(function () {
-	'use strict';
+'use strict';
 
 	/**
 	 * @Constructor
@@ -94,8 +93,4 @@ define(function () {
 		this.index = 0;
 	};
 
-	/**
-	 * Exports
-	 */
-	return History;
-});
+	export default History;

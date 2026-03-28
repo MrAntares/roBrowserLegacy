@@ -7,38 +7,42 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], function (WebGL, Texture, glMatrix, Client) {
-	'use strict';
+'use strict';
 
-	/**
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+
+/**
 	 * @var {WebGLProgram}
 	 */
-	var _program;
+	let _program;
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer;
+	let _buffer;
 
 	/**
 	 * @var {mat4}
 	 */
-	var mat4 = glMatrix.mat4;
+	let mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	var _matrix = mat4.create();
+	let _matrix = mat4.create();
 
 	/**
 	 * @var {number}
 	 */
-	var _verticeCount = 0;
+	let _verticeCount = 0;
 
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader = `
+	let _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -80,7 +84,7 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = `
+	let _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -122,11 +126,11 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @returns {Float32Array} buffer array
 	 */
 	function generateMagicRing() {
-		var i, a, b;
-		var total = 20;
-		var bottom = [];
-		var top = [];
-		var mesh = [];
+		let i, a, b;
+		let total = 20;
+		let bottom = [];
+		let top = [];
+		let mesh = [];
 
 		for (i = 0; i <= total; i++) {
 			a = (i + 0.0) / total;
@@ -174,7 +178,7 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {object} webgl context
 	 */
 	MagicRing.prototype.init = function init(gl) {
-		var self = this;
+		let self = this;
 
 		Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
@@ -199,8 +203,8 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {object} wegl context
 	 */
 	MagicRing.prototype.render = function render(gl, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		let uniform = _program.uniform;
+		let attribute = _program.attribute;
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -231,7 +235,7 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {object} webgl context
 	 */
 	MagicRing.init = function init(gl) {
-		var vertices = generateMagicRing();
+		let vertices = generateMagicRing();
 		_verticeCount = vertices.length / 5;
 
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
@@ -267,7 +271,7 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {object} webgl context
 	 */
 	MagicRing.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
+		let uniform = _program.uniform;
 
 		mat4.identity(_matrix);
 		mat4.rotateY(_matrix, _matrix, (tick / 4 / 180) * Math.PI);
@@ -301,7 +305,6 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return MagicRing;
-});
+	export default MagicRing;

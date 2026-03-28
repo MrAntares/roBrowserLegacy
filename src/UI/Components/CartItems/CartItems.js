@@ -9,29 +9,27 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var ItemType = require('DB/Items/ItemType');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
-	var Session = require('Engine/SessionStorage');
-	var htmlText = require('text!./CartItems.html');
-	var cssText = require('text!./CartItems.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import ItemType from 'DB/Items/ItemType';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
+import Session from 'Engine/SessionStorage';
+import htmlText from './CartItems.html?raw';
+import cssText from './CartItems.css?raw';
+import Storage from 'UI/Components/Storage/Storage';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import Equipment from 'UI/Components/Equipment/Equipment';
 
 	/**
 	 * Create Component
@@ -525,13 +523,11 @@ define(function (require) {
 
 				switch (data.from) {
 					case 'Storage':
-						getModule('UI/Components/Storage/Storage').reqMoveItemToCart(item.index, parseInt(count, 10));
+						Storage.reqMoveItemToCart(item.index, parseInt(count, 10));
 						break;
 
 					case 'Inventory':
-						getModule('UI/Components/Inventory/Inventory')
-							.getUI()
-							.reqMoveItemToCart(item.index, parseInt(count, 10));
+						Inventory.getUI().reqMoveItemToCart(item.index, parseInt(count, 10));
 						break;
 				}
 			};
@@ -540,11 +536,11 @@ define(function (require) {
 
 		switch (data.from) {
 			case 'Storage':
-				getModule('UI/Components/Storage/Storage').reqMoveItemToCart(item.index, 1);
+				Storage.reqMoveItemToCart(item.index, 1);
 				break;
 
 			case 'Inventory':
-				getModule('UI/Components/Inventory/Inventory').getUI().reqMoveItemToCart(item.index, 1);
+				Inventory.getUI().reqMoveItemToCart(item.index, 1);
 				break;
 		}
 
@@ -693,8 +689,6 @@ define(function (require) {
 		ItemInfo.uid = item.ITID;
 		ItemInfo.setItem(item);
 
-		var Equipment = getModule('UI/Components/Equipment/Equipment');
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
 		// Check if there is an equipped item in the same location
 		var compareItem = Equipment.getUI().isInEquipList(item.location);
 
@@ -713,8 +707,6 @@ define(function (require) {
 	 * Alt Right Click Request Transfer
 	 */
 	function transferItemToOtherUI(item) {
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
-		var Storage = getModule('UI/Components/Storage/Storage');
 		var isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
 		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 
@@ -754,5 +746,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(CartItems);
-});
+	export default UIManager.addComponent(CartItems);

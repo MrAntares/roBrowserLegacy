@@ -8,21 +8,20 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var ShortcutMapper = require('./JoystickShortcutMapper');
-	var Interaction = require('./JoystickInteractionService');
-	var SetManager = require('./JoystickSetManager');
-	var JoystickUIRenderer = require('./JoystickUIRenderer');
-	var SelectionUI = require('./JoystickSelectionUI');
+import ShortcutMapper from './JoystickShortcutMapper';
+import Interaction from './JoystickInteractionService';
+import SetManager from './JoystickSetManager';
+import JoystickUIRenderer from './JoystickUIRenderer';
+import SelectionUI from './JoystickSelectionUI';
 
-	var clickLock = false;
-	var lockTimeout = 200;
+let clickLock = false;
+let lockTimeout = 200;
 
 	function setClickLock() {
-		clickLock = true;
-		setTimeout(function () {
+	clickLock = true;
+	setTimeout(function () {
 			clickLock = false;
 		}, lockTimeout);
 	}
@@ -186,5 +185,4 @@ define(function (require) {
 		}
 	};
 
-	return ButtonInput;
-});
+	export default ButtonInput;

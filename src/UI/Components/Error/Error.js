@@ -8,20 +8,16 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var _htmlText = require('text!./Error.html');
-	var _cssText = require('text!./Error.css');
-	var jQuery = require('Vendors/jquery');
+import _htmlText from './Error.html?raw';
+import _cssText from './Error.css?raw';
+import jQuery from 'Vendors/jquery';
 
-	/**
+/**
 	 * Error Namespace
 	 */
-	var Error = {};
+	let Error = {};
 
 	/**
 	 * Initialize Metaling
@@ -30,7 +26,7 @@ define(function (require) {
 		this.ui = jQuery(_htmlText);
 
 		// Add view to html
-		var style = jQuery('style:first');
+		let style = jQuery('style:first');
 		if (!style.length) {
 			style = jQuery('<style type="text/css"></style>').appendTo('head');
 		}
@@ -47,7 +43,7 @@ define(function (require) {
 	 */
 	Error.addTrace = function addTrace(error) {
 		console.error(error);
-		var url = requirejs.toUrl(''); // global
+		let url = requirejs.toUrl(''); // global
 		error = error.stack || error;
 
 		url = url.replace(/\/([^\/]+)$/g, '/');
@@ -65,5 +61,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return Error;
-});
+export default Error;

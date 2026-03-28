@@ -8,11 +8,9 @@
  *
  * @author MrUnzO
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+	export default {
 		PM_FEEDING: 0,
 		PM_HUNTING: 1,
 		PM_DANGER: 2,
@@ -25,4 +23,3 @@ define(function () {
 		PM_PERFORMANCE3: 9,
 		PM_CONNENCT: 10
 	};
-});

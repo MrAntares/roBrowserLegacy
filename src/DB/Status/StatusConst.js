@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-define(function () {
-	'use strict';
+'use strict';
 
-	return {
+	export default {
 		BLANK: -1,
 		PROVOKE: 0,
 		ENDURE: 1,
@@ -1420,4 +1419,3 @@ define(function () {
 		//Technical - must be largest value
 		MAX: 1450
 	};
-});

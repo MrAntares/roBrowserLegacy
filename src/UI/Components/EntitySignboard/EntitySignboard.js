@@ -7,22 +7,18 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./EntitySignboard.html');
-	var cssText = require('text!./EntitySignboard.css');
-	var Client = require('Core/Client');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './EntitySignboard.html?raw';
+import cssText from './EntitySignboard.css?raw';
+import Client from 'Core/Client';
 
-	/**
+/**
 	 * Createcomponent
 	 */
-	var EntitySignboard = new UIComponent('EntitySignboard', htmlText, cssText);
+	let EntitySignboard = new UIComponent('EntitySignboard', htmlText, cssText);
 
 	/**
 	 * @var {boolean} do not focus this UI
@@ -69,7 +65,7 @@ define(function (require) {
 		this.ui.find('.title, .overlay').text(title);
 		this.ui.find('.title').show();
 
-		var self = this;
+		let self = this;
 
 		// show overlay when mouse over .title
 		this.ui.find('.title').hover(function () {
@@ -96,7 +92,7 @@ define(function (require) {
 	EntitySignboard.setIconOnly = function setIconOnly(icon_location) {
 		this.ui.find('.title').hide();
 		this.ui.find('.overlay').hide();
-		var self = this;
+		let self = this;
 		Client.loadFile(icon_location, function (icon_location) {
 			self.ui
 				.find('button')
@@ -118,5 +114,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(EntitySignboard);
-});
+export default UIManager.addComponent(EntitySignboard);

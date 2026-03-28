@@ -7,11 +7,9 @@
  *
  * @author Vincent Thibault, Antares
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+	export default {
 		0: 'Novice',
 		1: 'Swordman',
 		2: 'Mage',
@@ -3750,4 +3748,3 @@ define(function () {
 		10252: '4_bonfire',
 		10253: 'clear_npc'
 	};
-});

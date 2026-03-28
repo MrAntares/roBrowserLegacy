@@ -7,31 +7,27 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Navigation = require('UI/Components/Navigation/Navigation');
-	var htmlText = require('text!./NpcBox.html');
-	var cssText = require('text!./NpcBox.css');
+import jQuery from 'Utils/jquery';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Navigation from 'UI/Components/Navigation/Navigation';
+import htmlText from './NpcBox.html?raw';
+import cssText from './NpcBox.css?raw';
 
-	/**
+/**
 	 * Create NpcBox component
 	 */
-	var NpcBox = new UIComponent('NpcBox', htmlText, cssText);
+	let NpcBox = new UIComponent('NpcBox', htmlText, cssText);
 
 	/**
 	 * @var {boolean} does the box need to be clean up?
 	 */
-	var _needCleanUp = false;
+	let _needCleanUp = false;
 
 	/**
 	 * @var {integer} NPC GID
@@ -135,7 +131,7 @@ define(function (require) {
 
 		// Add click handler for item links
 		this.ui.on('click', '.item-link', function (event) {
-			var itemId = parseInt(jQuery(this).data('item-id'), 10);
+			let itemId = parseInt(jQuery(this).data('item-id'), 10);
 			if (!itemId) {
 				return;
 			}
@@ -154,8 +150,8 @@ define(function (require) {
 
 		// Add click handler for navi links
 		this.ui.on('click', '.navi-link', function (event) {
-			var naviInfo = jQuery(this).data('navi-info');
-			var displayName = jQuery(this).data('navi-name');
+			let naviInfo = jQuery(this).data('navi-info');
+			let displayName = jQuery(this).data('navi-name');
 
 			if (!naviInfo) {
 				return;
@@ -188,7 +184,7 @@ define(function (require) {
 		NpcBox.ownerID = 0;
 
 		// Cutin system
-		var cutin = document.getElementById('cutin');
+		let cutin = document.getElementById('cutin');
 		if (cutin) {
 			document.body.removeChild(cutin);
 		}
@@ -235,7 +231,7 @@ define(function (require) {
 	 * @param {number} gid - npc id
 	 */
 	NpcBox.setText = function SetText(text, gid) {
-		var content = this.ui.find('.content');
+		let content = this.ui.find('.content');
 		NpcBox.ownerID = gid;
 
 		if (_needCleanUp) {
@@ -293,5 +289,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(NpcBox);
-});
+export default UIManager.addComponent(NpcBox);

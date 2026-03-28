@@ -7,26 +7,22 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./SkillDescription.html');
-	var cssText = require('text!./SkillDescription.css');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './SkillDescription.html?raw';
+import cssText from './SkillDescription.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var SkillDescription = new UIComponent('SkillDescription', htmlText, cssText);
+	let SkillDescription = new UIComponent('SkillDescription', htmlText, cssText);
 
 	/**
 	 * SkillDescription unique id
@@ -47,7 +43,7 @@ define(function (require) {
 	 */
 	SkillDescription.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		var events = jQuery._data(window, 'events').keydown;
+		let events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 	};
 
@@ -89,5 +85,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(SkillDescription);
-});
+export default UIManager.addComponent(SkillDescription);

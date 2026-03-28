@@ -6,38 +6,34 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var ItemType = require('DB/Items/ItemType');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var CartItems = require('UI/Components/CartItems/CartItems');
-	var VendingModelMessage = require('UI/Components/Vending/VendingModelMessage/VendingModelMessage');
-	var htmlText = require('text!./Vending.html');
-	var cssText = require('text!./Vending.css');
-	var Renderer = require('Renderer/Renderer');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import ItemType from 'DB/Items/ItemType';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import VendingModelMessage from 'UI/Components/Vending/VendingModelMessage/VendingModelMessage';
+import htmlText from './Vending.html?raw';
+import cssText from './Vending.css?raw';
+import Renderer from 'Renderer/Renderer';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo';
 
-	/**
+/**
 	 * Create NPC Menu component
 	 */
-	var Vending = new UIComponent('Vending', htmlText, cssText);
+	let Vending = new UIComponent('Vending', htmlText, cssText);
 
 	Vending.isOpen = false;
 	Vending.Type = {
@@ -57,7 +53,7 @@ define(function (require) {
 	/**
 	 * @var {Preferences}
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'Vending',
 		{
 			inputWindow: {
@@ -78,20 +74,20 @@ define(function (require) {
 	/**
 	 * @var {Array} item list
 	 */
-	var _input = [];
+	let _input = [];
 
 	/**
 	 * @var {Array} output list
 	 */
-	var _output = [];
-	var _slots = 0;
+	let _output = [];
+	let _slots = 0;
 
 	/**
 	 * @var {number} type (buy/sell)
 	 */
-	var _type;
+	let _type;
 
-	var _shopname = '';
+	let _shopname = '';
 
 	function isItemStackable(item) {
 		if (
@@ -111,9 +107,9 @@ define(function (require) {
 	 * Initialize component
 	 */
 	Vending.init = function init() {
-		var ui = this.ui;
-		var InputWindow = ui.find('.InputWindow');
-		var OutputWindow = ui.find('.OutputWindow');
+		let ui = this.ui;
+		let InputWindow = ui.find('.InputWindow');
+		let OutputWindow = ui.find('.OutputWindow');
 
 		// Client do not send packet
 		//ui.find('.btn.cancel').click(this.remove.bind(this));
@@ -123,7 +119,7 @@ define(function (require) {
 		});
 		this.ui.find('.btn.cancel').click(function (e) {
 			e.stopImmediatePropagation();
-			var pkt;
+			let pkt;
 			if (_type === Vending.Type.VENDING_STORE) {
 				pkt = new PACKET.CZ.REQ_OPENSTORE2();
 			} else {
@@ -173,8 +169,8 @@ define(function (require) {
 	 * Player should not be able to move when the store is opened
 	 */
 	Vending.onAppend = function onAppend() {
-		var InputWindow = this.ui.find('.InputWindow');
-		var OutputWindow = this.ui.find('.OutputWindow');
+		let InputWindow = this.ui.find('.InputWindow');
+		let OutputWindow = this.ui.find('.OutputWindow');
 
 		InputWindow.css({
 			top: Math.min(
@@ -249,8 +245,8 @@ define(function (require) {
 	Vending.onRemove = function onRemove() {
 		VendingModelMessage.onRemove(); //remove message if show
 
-		var InputWindow = this.ui.find('.InputWindow');
-		var OutputWindow = this.ui.find('.OutputWindow');
+		let InputWindow = this.ui.find('.InputWindow');
+		let OutputWindow = this.ui.find('.OutputWindow');
 
 		_input.length = 0;
 		_output.length = 0;
@@ -290,8 +286,8 @@ define(function (require) {
 	 * @param {Array} item list
 	 */
 	Vending.setList = function setList(items) {
-		var i, count;
-		var it, item, out, content;
+		let i, count;
+		let it, item, out, content;
 
 		this.ui.find('.content').empty();
 
@@ -337,17 +333,17 @@ define(function (require) {
 	 * @return {string}
 	 */
 	function prettyZeny(val, useStyle) {
-		var list = val.toString().split('');
-		var i,
+		let list = val.toString().split('');
+		let i,
 			count = list.length;
-		var str = '';
+		let str = '';
 
 		for (i = 0; i < count; i++) {
 			str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 		}
 
 		if (useStyle) {
-			var style = [
+			let style = [
 				'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
 				'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
 				'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
@@ -372,10 +368,10 @@ define(function (require) {
 	 * @param {Item} item info
 	 */
 	function addItem(content, item, isinput) {
-		var it = DB.getItemInfo(item.ITID);
-		var element = content.find('.item[data-index=' + item.index + ']:first');
-		var price;
-		var textPrice = DB.getMessage(1721);
+		let it = DB.getItemInfo(item.ITID);
+		let element = content.find('.item[data-index=' + item.index + ']:first');
+		let price;
+		let textPrice = DB.getMessage(1721);
 
 		// 0 as amount ? remove it
 		if (item.count === 0) {
@@ -400,7 +396,7 @@ define(function (require) {
 
 		// Create it
 		if (isinput == true) {
-			var itemObj = jQuery(
+			let itemObj = jQuery(
 				'<div class="item input" draggable="true" data-index="' +
 					item.index +
 					'">' +
@@ -411,7 +407,7 @@ define(function (require) {
 					'</div>'
 			);
 		} else {
-			var itemObj = jQuery(
+			let itemObj = jQuery(
 				'<div class="item-container">' +
 					'<div class="item output" draggable="true" data-index="' +
 					item.index +
@@ -468,8 +464,8 @@ define(function (require) {
 	 * @param {number} item index
 	 * @param {number} amount
 	 */
-	var transferItem = (function transferItemQuantityClosure() {
-		var tmpItem = {};
+	let transferItem = (function transferItemQuantityClosure() {
+		let tmpItem = {};
 
 		return function transferItem(fromContent, toContent, isAdding, index, count) {
 			// Add item to the list
@@ -525,7 +521,7 @@ define(function (require) {
 	 * @param {boolean} add the content to the output box ?
 	 */
 	function requestMoveItem(index, fromContent, toContent, isAdding) {
-		var item, count, item_price;
+		let item, count, item_price;
 
 		item = isAdding ? _input[index] : _output[index];
 
@@ -609,7 +605,7 @@ define(function (require) {
 	 * @param {jQueryEvent} event
 	 */
 	function onDrop(event) {
-		var data;
+		let data;
 
 		event.stopImmediatePropagation();
 
@@ -640,8 +636,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var item = _input[index];
+		let index = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		let item = _input[index];
 
 		if (!item) {
 			return false;
@@ -664,7 +660,7 @@ define(function (require) {
 	 * Select an item, put it on the other box
 	 */
 	function onItemSelected() {
-		var input, from, to;
+		let input, from, to;
 
 		if (_type === Vending.Type.BUY || _type === Vending.Type.VENDING_STORE) {
 			return;
@@ -700,7 +696,7 @@ define(function (require) {
 	 * Update scroll by block (32px)
 	 */
 	function onScroll(event) {
-		var delta;
+		let delta;
 
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
@@ -719,8 +715,8 @@ define(function (require) {
 	 * Start dragging an item
 	 */
 	function onDragStart(event) {
-		var container, img, url;
-		var InputWindow, OutputWindow;
+		let container, img, url;
+		let InputWindow, OutputWindow;
 
 		InputWindow = Vending.ui.find('.InputWindow:first').get(0);
 		OutputWindow = Vending.ui.find('.OutputWindow:first').get(0);
@@ -749,17 +745,17 @@ define(function (require) {
 	 * Extend InputWindow size
 	 */
 	function onResizeInput() {
-		var InputWindow = Vending.ui.find('.InputWindow');
-		var content = InputWindow.find('.container .content');
-		var top = InputWindow.position().top;
-		var left = InputWindow.position().left;
-		var lastHeight = 0;
-		var _Interval;
+		let InputWindow = Vending.ui.find('.InputWindow');
+		let content = InputWindow.find('.container .content');
+		let top = InputWindow.position().top;
+		let left = InputWindow.position().left;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraY = 31 + 19 - 30;
+			let extraY = 31 + 19 - 30;
 
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			h = Math.min(Math.max(h, 2), 6);
@@ -829,8 +825,8 @@ define(function (require) {
 	};
 
 	Vending.onSubmit = function onSubmit() {
-		var output;
-		var i,
+		let output;
+		let i,
 			count,
 			shopname,
 			limitZeny,
@@ -853,7 +849,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt;
+		let pkt;
 		if (_type === Vending.Type.VENDING_STORE) {
 			pkt = new PACKET.CZ.REQ_OPENSTORE2();
 		} else {
@@ -886,7 +882,7 @@ define(function (require) {
 	};
 
 	function countSlotsUsed() {
-		var count = 0;
+		let count = 0;
 		_output.forEach(item => {
 			if (item.count > 0) {
 				count++;
@@ -907,8 +903,8 @@ define(function (require) {
 			return;
 		}
 
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item =
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item =
 			_type == Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
@@ -916,8 +912,8 @@ define(function (require) {
 		}
 
 		// Get back data
-		var pos = jQuery(this).position();
-		var overlay = Vending.ui.find('.overlay');
+		let pos = jQuery(this).position();
+		let overlay = Vending.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -935,5 +931,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(Vending);
-});
+export default UIManager.addComponent(Vending);

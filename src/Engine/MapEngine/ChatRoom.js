@@ -7,27 +7,26 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import EntityManager from 'Renderer/EntityManager';
+import ChatRoomCreate from 'UI/Components/ChatRoomCreate/ChatRoomCreate';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var EntityManager = require('Renderer/EntityManager');
-	var ChatRoomCreate = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
-	var ChatRoom = require('UI/Components/ChatRoom/ChatRoom');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Session = require('Engine/SessionStorage');
-
 	/**
 	 * Request a chat room
 	 * PACKET.CZ.CREATE_CHATROOM
 	 */
 	ChatRoomCreate.requestRoom = function requestRoom() {
-		var pkt = new PACKET.CZ.CREATE_CHATROOM();
+		let pkt = new PACKET.CZ.CREATE_CHATROOM();
 		pkt.size = this.limit;
 		pkt.type = this.type;
 		pkt.passwd = this.password;
@@ -40,7 +39,7 @@ define(function (require) {
 	 * PACKET.CZ.CHANGE_CHATROOM
 	 */
 	ChatRoom.changeChatRoom = function changeChatRoom() {
-		var pkt = new PACKET.CZ.CHANGE_CHATROOM();
+		let pkt = new PACKET.CZ.CHANGE_CHATROOM();
 		/*
 		this.size         = 0;
 		this.type         = 0;
@@ -55,7 +54,7 @@ define(function (require) {
 	 * PACKET.CZ.REQ_ROLE_CHANGE
 	 */
 	ChatRoom.requestRoleChange = function requestRoleChange() {
-		var pkt = new PACKET.CZ.REQ_ROLE_CHANGE();
+		let pkt = new PACKET.CZ.REQ_ROLE_CHANGE();
 		/*
 			this.role       = 0;
 			this.name       = '';
@@ -68,7 +67,7 @@ define(function (require) {
 	 * PACKET.CZ.REQ_EXPEL_MEMBER
 	 */
 	ChatRoom.requestExpelMember = function requestExpelMember() {
-		var pkt = new PACKET.CZ.REQ_EXPEL_MEMBER();
+		let pkt = new PACKET.CZ.REQ_EXPEL_MEMBER();
 		/*
 			this.name       = '';
 		*/
@@ -80,7 +79,7 @@ define(function (require) {
 	 * PACKET.CZ.EXIT_ROOM
 	 */
 	ChatRoom.exitRoom = function exitRoom() {
-		var pkt = new PACKET.CZ.EXIT_ROOM();
+		let pkt = new PACKET.CZ.EXIT_ROOM();
 		Network.sendPacket(pkt);
 	};
 
@@ -128,7 +127,7 @@ define(function (require) {
 	 *  7 = unsuitable job class
 	 */
 	function onEnterRoomResult(pkt) {
-		var error = 67;
+		let error = 67;
 		switch (pkt.result) {
 			// full
 			case 0:
@@ -230,7 +229,7 @@ define(function (require) {
 	 */
 	function onRoomEnter(pkt) {
 		//this.roomID       = fp.readULong();
-		var i,
+		let i,
 			count = pkt.memberList.length;
 		ChatRoom.members = new Array(count);
 
@@ -257,7 +256,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.ACK_CREATE_CHATROOM, onCreateRoomResult);
 		//Network.hookPacket(PACKET.ZC.ROOM_NEWENTRY,     Display); //This is holded up at Entity.js
 		Network.hookPacket(PACKET.ZC.CHANGE_CHATROOM, onRoomUpdate);
@@ -268,4 +267,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.MEMBER_EXIT, onMemberLeave);
 		Network.hookPacket(PACKET.ZC.REFUSE_ENTER_ROOM, onEnterRoomResult);
 	};
-});

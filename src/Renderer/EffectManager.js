@@ -5,34 +5,33 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Load dependencies
-	 */
-	const EffectDB = require('DB/Effects/EffectTable');
-	const SkillEffect = require('DB/Skills/SkillEffect');
-	const SkillUnit = require('DB/Skills/SkillUnit');
-	const SU = require('DB/Skills/SkillUnitConst');
-	const ItemEffect = require('DB/Items/ItemEffect');
-	const Commands = require('Controls/ProcessCommand');
-	const Events = require('Core/Events');
-	const Configs = require('Core/Configs');
-	const Cylinder = require('Renderer/Effects/Cylinder');
-	const StrEffect = require('Renderer/Effects/StrEffect');
-	const RsmEffect = require('Renderer/Effects/RsmEffect');
-	const TwoDEffect = require('Renderer/Effects/TwoDEffect');
-	const ThreeDEffect = require('Renderer/Effects/ThreeDEffect');
-	const Entity = require('Renderer/Entity/Entity');
-	const EntityManager = require('Renderer/EntityManager');
-	const Renderer = require('Renderer/Renderer');
-	const Altitude = require('Renderer/Map/Altitude');
-	const Sound = require('Audio/SoundManager');
-	const Preferences = require('Preferences/Map');
-	const QuadHorn = require('Renderer/Effects/QuadHorn');
-	const Session = require('Engine/SessionStorage');
-	var GraphicsSettings = require('Preferences/Graphics');
+/**
+ * Load dependencies
+ */
+import EffectDB from 'DB/Effects/EffectTable';
+import SkillEffect from 'DB/Skills/SkillEffect';
+import SkillUnit from 'DB/Skills/SkillUnit';
+import SU from 'DB/Skills/SkillUnitConst';
+import ItemEffect from 'DB/Items/ItemEffect';
+import Commands from 'Controls/ProcessCommand';
+import Events from 'Core/Events';
+import Configs from 'Core/Configs';
+import Cylinder from 'Renderer/Effects/Cylinder';
+import StrEffect from 'Renderer/Effects/StrEffect';
+import RsmEffect from 'Renderer/Effects/RsmEffect';
+import TwoDEffect from 'Renderer/Effects/TwoDEffect';
+import ThreeDEffect from 'Renderer/Effects/ThreeDEffect';
+import Entity from 'Renderer/Entity/Entity';
+import EntityManager from 'Renderer/EntityManager';
+import Renderer from 'Renderer/Renderer';
+import Altitude from 'Renderer/Map/Altitude';
+import Sound from 'Audio/SoundManager';
+import Preferences from 'Preferences/Map';
+import QuadHorn from 'Renderer/Effects/QuadHorn';
+import Session from 'Engine/SessionStorage';
+import GraphicsSettings from 'Preferences/Graphics';
 
 	/**
 	 * @type {object} saved webgl context
@@ -1252,5 +1251,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return EffectManager;
-});
+export default EffectManager;

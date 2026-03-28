@@ -7,21 +7,17 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var UIManager = require('UI/UIManager');
-	var WinPopup = require('UI/Components/WinPopup');
-	var jQuery = require('Utils/jquery');
+import DB from 'DB/DBManager';
+import UIManager from 'UI/UIManager';
+import WinPopup from 'UI/Components/WinPopup';
+import jQuery from 'Utils/jquery';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var WinPrompt = WinPopup.clone('WinPrompt');
+	let WinPrompt = WinPopup.clone('WinPrompt');
 
 	/**
 	 * Initialize popup
@@ -81,5 +77,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(WinPrompt);
-});
+export default UIManager.addComponent(WinPrompt);

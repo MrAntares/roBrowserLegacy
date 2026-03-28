@@ -6,12 +6,10 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var currentSet = 1;
-
-	return {
+let currentSet = 1;
+export default {
 		getCurrentSet: function () {
 			return currentSet;
 		},
@@ -22,4 +20,3 @@ define(function (require) {
 			currentSet = currentSet === 1 ? 2 : 1;
 		}
 	};
-});

@@ -8,13 +8,14 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/jquery'], function (jQuery) {
-	'use strict';
+'use strict';
+
+import jQuery from 'Utils/jquery';
 
 	/**
 	 * Keys Constants
 	 */
-	var KEYS = {
+	let KEYS = {
 		// Special Keys
 		CTRL: false,
 		SHIFT: false,
@@ -162,7 +163,7 @@ define(['Utils/jquery'], function (jQuery) {
 		writable: false,
 		enumerable: false,
 		value: function toReadableKey(keyId) {
-			var keys, i, count;
+			let keys, i, count;
 
 			keys = Object.keys(this);
 			count = keys.length;
@@ -187,8 +188,8 @@ define(['Utils/jquery'], function (jQuery) {
 		writable: false,
 		enumerable: false,
 		value: function getKeyIdString(shortcut) {
-			var str = [];
-			var tmp = this.toReadableKey(parseInt(shortcut.key, 10));
+			let str = [];
+			let tmp = this.toReadableKey(parseInt(shortcut.key, 10));
 
 			if (shortcut.alt) {
 				str.push('ALT');
@@ -229,7 +230,6 @@ define(['Utils/jquery'], function (jQuery) {
 	});
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return KEYS;
-});
+	export default KEYS;

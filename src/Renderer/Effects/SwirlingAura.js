@@ -15,38 +15,37 @@
  *   where SinLimit = 90° + (i - 10) * 9°
  * - Render: base ring at distance, top offset by rotated height
  */
-define([
-	'text!./SwirlingAura.vs',
-	'text!./SwirlingAura.fs',
-	'Utils/WebGL',
-	'Utils/Texture',
-	'Utils/gl-matrix',
-	'Core/Client',
-	'Renderer/Map/Altitude',
-	'Renderer/SpriteRenderer'
-], function (_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Altitude, SpriteRenderer) {
-	'use strict';
+'use strict';
 
-	var mat4 = glMatrix.mat4;
+import _vertexShader from './SwirlingAura.vs?raw';
+import _fragmentShader from './SwirlingAura.fs?raw';
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Altitude from 'Renderer/Map/Altitude';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+
+let mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {WebGLProgram}
 	 */
-	var _program;
+	let _program;
 
 	/**
 	 * @var {mat4}
 	 */
-	var _modelMatrix = mat4.create();
+	let _modelMatrix = mat4.create();
 
 	/**
 	 * Constants from original inspiration game
 	 */
-	var E_DIVISION = 21; // Number of divisions (0-20)
-	var FULL_DISPLAY_ANGLE = 315; // 315° arc
-	var DEG_TO_RAD = Math.PI / 180;
-	var STRIDE = 5; // x, y, z, u, v
-	var VERTICES_PER_BAND = E_DIVISION * 2;
+	let E_DIVISION = 21; // Number of divisions (0-20)
+	let FULL_DISPLAY_ANGLE = 315; // 315° arc
+	let DEG_TO_RAD = Math.PI / 180;
+	let STRIDE = 5; // x, y, z, u, v
+	let VERTICES_PER_BAND = E_DIVISION * 2;
 
 	/**
 	 * SwirlingAura constructor
@@ -63,7 +62,7 @@ define([
 		this.sizeType = sizeType || 4; // 4 = blue, 7 = green
 
 		// Scale factor: original inspiration game units to world units
-		var GAME_TO_WORLD = 0.1 * 2.2; // Adjusted for visual match
+		let GAME_TO_WORLD = 0.1 * 2.2; // Adjusted for visual match
 
 		// Color based on m_size (4 = blue, 7 = green)
 		if (this.sizeType === 7) {
@@ -76,7 +75,7 @@ define([
 		this.alphaB = 120 / 255;
 
 		// Create THREE bands with different parameters
-		var INNER_CIRCLE_SCALE = 0.6;
+		let INNER_CIRCLE_SCALE = 0.6;
 		this.bands = [];
 		for (var ec = 0; ec < 3; ec++) {
 			this.bands.push({
@@ -109,19 +108,19 @@ define([
 	 * Update height profile for a band
 	 */
 	SwirlingAura.prototype.updateHeightProfile = function (band) {
-		var middle = 10;
-		var step = 9; // 90 / 10 = 9 degrees
+		let middle = 10;
+		let step = 9; // 90 / 10 = 9 degrees
 
 		for (var i = 0; i < E_DIVISION; i++) {
 			if (band.flag1[i] === 0) {
 				// SinLimit = 90° + (i - middle) * step
-				var sinLimit = (90 + (i - middle) * step) * DEG_TO_RAD;
-				var sinLimitValue = Math.sin(sinLimit);
-				var maxPossible = band.maxHeight * sinLimitValue;
+				let sinLimit = (90 + (i - middle) * step) * DEG_TO_RAD;
+				let sinLimitValue = Math.sin(sinLimit);
+				let maxPossible = band.maxHeight * sinLimitValue;
 
 				if (band.process <= 90) {
 					// Build up phase: height = max_height * sin(SinLimit) * sin(process°)
-					var sinProcess = Math.sin(band.process * DEG_TO_RAD);
+					let sinProcess = Math.sin(band.process * DEG_TO_RAD);
 					band.height[i] = band.maxHeight * sinLimitValue * sinProcess;
 				}
 
@@ -140,33 +139,33 @@ define([
 	 * fill mesh for a single band
 	 */
 	SwirlingAura.prototype.fillBandMesh = function (band) {
-		var verts = this.vertices;
-		var cosRise = Math.cos(band.riseAngle);
-		var sinRise = Math.sin(band.riseAngle);
-		var offset = 0;
+		let verts = this.vertices;
+		let cosRise = Math.cos(band.riseAngle);
+		let sinRise = Math.sin(band.riseAngle);
+		let offset = 0;
 
 		for (var k = 0; k < E_DIVISION; k++) {
 			// Calculate angle for this division
-			var angle = (band.rotStart + k * this.basicAngle) * DEG_TO_RAD;
-			var cosAngle = Math.cos(angle);
-			var sinAngle = Math.sin(angle);
+			let angle = (band.rotStart + k * this.basicAngle) * DEG_TO_RAD;
+			let cosAngle = Math.cos(angle);
+			let sinAngle = Math.sin(angle);
 
 			// Calculate base and top vertices
-			var baseX = band.distance * cosAngle;
-			var baseZ = band.distance * sinAngle;
-			var h = band.height[k];
+			let baseX = band.distance * cosAngle;
+			let baseZ = band.distance * sinAngle;
+			let h = band.height[k];
 
 			// Calculate top vertex offset based on rise angle
-			var Rx = cosRise * h;
-			var Ry = sinRise * h;
+			let Rx = cosRise * h;
+			let Ry = sinRise * h;
 
 			// Top vertex position
-			var topX = baseX + Rx * cosAngle;
-			var topY = -Ry;
-			var topZ = baseZ + Rx * sinAngle;
+			let topX = baseX + Rx * cosAngle;
+			let topY = -Ry;
+			let topZ = baseZ + Rx * sinAngle;
 
 			// Texture coordinate u based on division index
-			var u = k / (E_DIVISION - 1);
+			let u = k / (E_DIVISION - 1);
 
 			// Vértice Base (Inner)
 			verts[offset++] = baseX;
@@ -188,12 +187,12 @@ define([
 	 * Generate index buffer
 	 */
 	SwirlingAura.prototype.generateIndices = function () {
-		var indices = [];
+		let indices = [];
 		for (var k = 0; k < E_DIVISION - 1; k++) {
-			var i0 = k * 2; // Base of current
-			var i1 = k * 2 + 1; // Top of current
-			var i2 = k * 2 + 2; // Base of next
-			var i3 = k * 2 + 3; // Top of next
+			let i0 = k * 2; // Base of current
+			let i1 = k * 2 + 1; // Top of current
+			let i2 = k * 2 + 2; // Base of next
+			let i3 = k * 2 + 3; // Top of next
 			// Two triangles: (i0, i1, i2) and (i1, i3, i2)
 			indices.push(i0, i1, i2, i1, i3, i2);
 		}
@@ -204,12 +203,12 @@ define([
 	 * Initialize instance
 	 */
 	SwirlingAura.prototype.init = function init(gl) {
-		var self = this;
+		let self = this;
 
 		// Create vertex buffers for each band
 		this.buffers = [];
 		for (var i = 0; i < this.bands.length; i++) {
-			var buf = gl.createBuffer();
+			let buf = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, buf);
 			// Allocate buffer with initial size (will be updated each frame)
 			gl.bufferData(gl.ARRAY_BUFFER, this.vertices.byteLength, gl.DYNAMIC_DRAW);
@@ -217,7 +216,7 @@ define([
 		}
 
 		// Create shared index buffer
-		var indices = this.generateIndices();
+		let indices = this.generateIndices();
 		this.indexBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
@@ -253,11 +252,11 @@ define([
 	 * Render all three bands
 	 */
 	SwirlingAura.prototype.render = function render(gl, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		let uniform = _program.uniform;
+		let attribute = _program.attribute;
 
 		// Get ground height
-		var groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
+		let groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
 
 		// Build model matrix
 		mat4.identity(_modelMatrix);
@@ -268,11 +267,11 @@ define([
 
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
-		var self = this;
+		let self = this;
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			// Render each band
 			for (var ec = 0; ec < self.bands.length; ec++) {
-				var band = self.bands[ec];
+				let band = self.bands[ec];
 				if (!band.life) {
 					continue;
 				}
@@ -330,7 +329,7 @@ define([
 	 * Before render setup
 	 */
 	SwirlingAura.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
+		let uniform = _program.uniform;
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
 		gl.useProgram(_program);
@@ -357,6 +356,4 @@ define([
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 	};
-
-	return SwirlingAura;
-});
+export default SwirlingAura;

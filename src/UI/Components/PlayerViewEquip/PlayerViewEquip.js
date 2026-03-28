@@ -8,18 +8,17 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'PlayerViewEquip';
+import PlayerViewEquipV0 from './PlayerViewEquipV0/PlayerViewEquipV0'; // equip
+import PlayerViewEquipV1 from './PlayerViewEquipV1/PlayerViewEquipV1'; // equip + costume (headgears + robe)
+import PlayerViewEquipV2 from './PlayerViewEquipV2/PlayerViewEquipV2'; // equip + costume (full)
 
-	var PlayerViewEquipV0 = require('./PlayerViewEquipV0/PlayerViewEquipV0'); // equip
-	var PlayerViewEquipV1 = require('./PlayerViewEquipV1/PlayerViewEquipV1'); // equip + costume (headgears + robe)
-	var PlayerViewEquipV2 = require('./PlayerViewEquipV2/PlayerViewEquipV2'); // equip + costume (full)
+import UIVersionManager from 'UI/UIVersionManager';
+import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler';
 
-	var UIVersionManager = require('UI/UIVersionManager');
-	var DB = require('DB/DBManager');
-	var KEYS = require('Controls/KeyEventHandler');
+var publicName = 'PlayerViewEquip';
 
 	var versionInfo = {
 		default: PlayerViewEquipV0,
@@ -53,5 +52,4 @@ define(function (require) {
 		};
 	};
 
-	return PlayerViewEquipController;
-});
+	export default PlayerViewEquipController;

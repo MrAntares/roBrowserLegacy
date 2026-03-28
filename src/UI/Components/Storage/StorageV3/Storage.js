@@ -5,28 +5,25 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var ItemType = require('DB/Items/ItemType');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var StorageFilter = require('./StorageFilter');
-	var htmlText = require('text!./Storage.html');
-	var cssText = require('text!./Storage.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import ItemType from 'DB/Items/ItemType';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import StorageFilter from './StorageFilter';
+import htmlText from './Storage.html?raw';
+import cssText from './Storage.css?raw';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import Inventory from 'UI/Components/Inventory/Inventory';
 
 	/**
 	 * Create Component
@@ -673,8 +670,6 @@ define(function (require) {
 	}
 
 	Storage.transferItemToOtherUI = function transferItemToOtherUI(item) {
-		var CartItems = getModule('UI/Components/CartItems/CartItems');
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
 		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
 		if (!item) {
@@ -695,5 +690,4 @@ define(function (require) {
 	Storage.reqRemoveItem = function reqRemoveItem() {};
 	Storage.reqMoveItemToCart = function reqMoveItemToCart() {};
 
-	return UIManager.addComponent(Storage);
-});
+	export default UIManager.addComponent(Storage);

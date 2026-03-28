@@ -28,68 +28,71 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Plugins are loaded from configs
-	 */
-	var Configs = require('Core/Configs');
+import Configs from 'Core/Configs';
 
-	/**
-	 * Plugin namespace
-	 */
-	var Plugins = {};
+/**
+ * Plugin namespace
+ */
+var Plugins = {};
 
-	/**
-	 * @var {Array} plugin list
-	 */
-	Plugins.list = [];
+/**
+ * @var {Array} plugin list
+ */
+Plugins.list = [];
 
-	/**
-	 * Initialize plugins
-	 */
-	Plugins.init = function init(context) {
-		var paths = [];
-		var params = [];
-		var i, count;
+/**
+ * Initialize plugins
+ */
+Plugins.init = function init(context) {
+	var paths = [];
+	var params = [];
+	var i, count;
 
-		this.list = Configs.get('plugins', {});
+	this.list = Configs.get('plugins', {});
 
-		for (const [pluginName, value] of Object.entries(this.list)) {
-			if (typeof value === 'string' || value instanceof String) {
-				// Only Path is provided as string
-				paths.push('./' + value);
-				params.push(null);
-			} else if (typeof value === 'object' && value !== null) {
-				// Path and parameters are provided as well
-				if (value.path) {
-					paths.push('./' + value.path);
+	for (const [pluginName, value] of Object.entries(this.list)) {
+		if (typeof value === 'string' || value instanceof String) {
+			// Only Path is provided as string
+			paths.push('./' + value);
+			params.push(null);
+		} else if (typeof value === 'object' && value !== null) {
+			// Path and parameters are provided as well
+			if (value.path) {
+				paths.push('./' + value.path);
 
-					if (value.pars) {
-						params.push(value.pars);
-					} else {
-						params.push(null);
-					}
+				if (value.pars) {
+					params.push(value.pars);
+				} else {
+					params.push(null);
 				}
 			}
 		}
+	}
 
-		count = paths.length;
+	count = paths.length;
 
-		require(paths, function () {
-			for (i = 0; i < count; ++i) {
-				if (arguments[i](params[i])) {
-					console.log('[PluginManager] Initialized plugin: ' + paths[i]);
-				} else {
-					console.error('[PluginManager] Failed to intialize plugin: ' + paths[i]);
+	// Dynamic plugin loading in ESM
+	paths.forEach((path, i) => {
+		import(/* @vite-ignore */ path)
+			.then(module => {
+				const plugin = module.default || module;
+				if (typeof plugin === 'function') {
+					if (plugin(params[i])) {
+						console.log('[PluginManager] Initialized plugin: ' + path);
+					} else {
+						console.error('[PluginManager] Failed to intialize plugin: ' + path);
+					}
 				}
-			}
-		});
-	};
+			})
+			.catch(err => {
+				console.error('[PluginManager] Error loading plugin: ' + path, err);
+			});
+	});
+};
 
-	/**
-	 * Export
-	 */
-	return Plugins;
-});
+/**
+ * Export
+ */
+export default Plugins;

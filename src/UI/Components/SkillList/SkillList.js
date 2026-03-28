@@ -6,18 +6,15 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'SkillList';
+import SkillList from './SkillList/SkillList';
+import SkillListV0 from './SkillListV0/SkillListV0';
+import UIVersionManager from 'UI/UIVersionManager';
+import KEYS from 'Controls/KeyEventHandler';
 
-	var SkillList = require('./SkillList/SkillList');
-	var SkillListV0 = require('./SkillListV0/SkillListV0');
-
-	var UIVersionManager = require('UI/UIVersionManager');
-	var KEYS = require('Controls/KeyEventHandler');
-
-	var versionInfo = {
+let publicName = 'SkillList';
+	let versionInfo = {
 		default: SkillListV0,
 		common: {
 			20090601: SkillList
@@ -26,14 +23,14 @@ define(function (require) {
 		prere: {}
 	};
 
-	var Controller = UIVersionManager.getUIController(publicName, versionInfo);
-	var _selectUIVersion = Controller.selectUIVersion;
+	let Controller = UIVersionManager.getUIController(publicName, versionInfo);
+	let _selectUIVersion = Controller.selectUIVersion;
 
 	// Extend default UI selector
 	Controller.selectUIVersion = function () {
 		_selectUIVersion();
 
-		var component = Controller.getUI();
+		let component = Controller.getUI();
 
 		// Escape to close the UI
 		component.onKeyDown = function onKeyDown(e) {
@@ -44,6 +41,4 @@ define(function (require) {
 			}
 		};
 	};
-
-	return Controller;
-});
+export default Controller;

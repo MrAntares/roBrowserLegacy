@@ -5,41 +5,37 @@
  *
  * @author IssID
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var EntityManager = require('Renderer/EntityManager');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
-	var htmlText = require('text!./HomunInformations.html');
-	var cssText = require('text!./HomunInformations.css');
-	var Session = require('Engine/SessionStorage');
-	var AIDriver = require('Core/AIDriver');
-	var Configs = require('Core/Configs');
-	var PACKETVER = require('Network/PacketVerManager');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import EntityManager from 'Renderer/EntityManager';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
+import htmlText from './HomunInformations.html?raw';
+import cssText from './HomunInformations.css?raw';
+import Session from 'Engine/SessionStorage';
+import AIDriver from 'Core/AIDriver';
+import Configs from 'Core/Configs';
+import PACKETVER from 'Network/PacketVerManager';
 
-	var autoFeedInterval;
-	var autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled
-	var autoFeedPercent = 30;
+let autoFeedInterval;
+	let autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled
+	let autoFeedPercent = 30;
 
 	/**
 	 * Create Component
 	 */
-	var HomunInformations = new UIComponent('HomunInformations', htmlText, cssText);
+	let HomunInformations = new UIComponent('HomunInformations', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Window preferences (localStorage)
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'HomunInformations',
 		{
 			x: 100,
@@ -133,7 +129,7 @@ define(function (require) {
 		}
 
 		// check current player
-		var player = Session.Entity;
+		let player = Session.Entity;
 		if (!player) {
 			return;
 		}
@@ -145,7 +141,7 @@ define(function (require) {
 		if (!Session.homunId) {
 			return;
 		}
-		var entity = EntityManager.get(Session.homunId);
+		let entity = EntityManager.get(Session.homunId);
 		if (!entity) {
 			return;
 		}
@@ -309,8 +305,8 @@ define(function (require) {
 	 * @param val2
 	 */
 	HomunInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
-		var perc = Math.floor((val * 100) / val2);
-		var color = perc < 25 ? 'red' : 'blue';
+		let perc = Math.floor((val * 100) / val2);
+		let color = perc < 25 ? 'red' : 'blue';
 		this.ui.find('.' + type + '_value').text(val);
 		this.ui.find('.' + type + '_max_value').text(val2);
 		this.ui.find('.' + type + '_perc').text(perc + '%');
@@ -375,12 +371,12 @@ define(function (require) {
 			return;
 		}
 
-		var canvasExp = this.ui.find('.block2 canvas.life.title_exp');
-		var ctx = canvasExp.get(0).getContext('2d');
+		let canvasExp = this.ui.find('.block2 canvas.life.title_exp');
+		let ctx = canvasExp.get(0).getContext('2d');
 
-		var width = 60,
+		let width = 60,
 			height = 5;
-		var exp_per = exp / maxEXP;
+		let exp_per = exp / maxEXP;
 
 		// // border
 		// ctx.fillStyle = '#10189c';
@@ -406,12 +402,12 @@ define(function (require) {
 			return;
 		}
 
-		var canvasHunger = this.ui.find('.block2 canvas.life.title_hunger');
-		var ctx = canvasHunger.get(0).getContext('2d');
+		let canvasHunger = this.ui.find('.block2 canvas.life.title_hunger');
+		let ctx = canvasHunger.get(0).getContext('2d');
 
-		var width = 60,
+		let width = 60,
 			height = 5;
-		var hunger_per = val / 100;
+		let hunger_per = val / 100;
 
 		// // border
 		// ctx.fillStyle = '#10189c';
@@ -437,7 +433,7 @@ define(function (require) {
 			AIDriver.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.homunId) {
-					var entity = EntityManager.get(Session.homunId);
+					let entity = EntityManager.get(Session.homunId);
 					if (entity) {
 						AIDriver.exec('AI(' + Session.homunId + ')');
 					}
@@ -487,7 +483,7 @@ define(function (require) {
 	 * Request to modify homun's name
 	 */
 	function onChangeName() {
-		var input = HomunInformations.ui.find('.name');
+		let input = HomunInformations.ui.find('.name');
 		HomunInformations.reqNameEdit(input.val());
 	}
 
@@ -522,5 +518,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(HomunInformations);
-});
+export default UIManager.addComponent(HomunInformations);

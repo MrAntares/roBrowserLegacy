@@ -7,28 +7,24 @@
  *
  * @author IssID
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./FPS.html');
-	var cssText = require('text!./FPS.css');
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './FPS.html?raw';
+import cssText from './FPS.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var FPS = new UIComponent('FPS', htmlText, cssText);
+	let FPS = new UIComponent('FPS', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Graphics
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'FPS',
 		{
 			show: false,
@@ -64,11 +60,11 @@ define(function (require) {
 			left: _preferences.x
 		});
 
-		var fpsEl = this.ui.find('#fpsCounter');
-		var startTime = 0;
-		var frame = 0;
-		var lastValue = null;
-		var lastClass = null;
+		let fpsEl = this.ui.find('#fpsCounter');
+		let startTime = 0;
+		let frame = 0;
+		let lastValue = null;
+		let lastClass = null;
 
 		function getFPSClass(value, frameLimit) {
 			if (value >= frameLimit - (10 / frameLimit) * 100) {
@@ -85,7 +81,7 @@ define(function (require) {
 			if (time - startTime < 1000) {
 				return;
 			}
-			var value = +(frame / ((time - startTime) / 1000)).toFixed(1);
+			let value = +(frame / ((time - startTime) / 1000)).toFixed(1);
 
 			// Update text only if changed
 			if (value !== lastValue) {
@@ -93,8 +89,8 @@ define(function (require) {
 				lastValue = value;
 			}
 
-			var limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
-			var cls = getFPSClass(value, limit);
+			let limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
+			let cls = getFPSClass(value, limit);
 
 			// Update class only if changed
 			if (cls !== lastClass) {
@@ -138,5 +134,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(FPS);
-});
+export default UIManager.addComponent(FPS);

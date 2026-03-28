@@ -6,24 +6,20 @@
  * @author Alisonrag
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
 
-	var htmlText = require('text!./Rodex.html');
-	var cssText = require('text!./Rodex.css');
+import htmlText from './Rodex.html?raw';
+import cssText from './Rodex.css?raw';
 
 	/**
 	 * Create Component
@@ -410,5 +406,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Rodex);
-});
+	export default UIManager.addComponent(Rodex);

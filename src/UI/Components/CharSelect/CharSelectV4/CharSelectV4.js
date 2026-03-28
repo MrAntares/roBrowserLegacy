@@ -7,38 +7,34 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var MonsterTable = require('DB/Monsters/MonsterTable');
-	var Preferences = require('Core/Preferences');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var StatusConst = require('DB/Status/StatusState');
-	var Camera = require('Renderer/Camera');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./CharSelectV4.html');
-	var cssText = require('text!./CharSelectV4.css');
-	var Client = require('Core/Client');
-	var jQuery = require('Utils/jquery');
-	var WinLoginV2Background = require('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background');
+import DB from 'DB/DBManager';
+import MonsterTable from 'DB/Monsters/MonsterTable';
+import Preferences from 'Core/Preferences';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import StatusConst from 'DB/Status/StatusState';
+import Camera from 'Renderer/Camera';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './CharSelectV4.html?raw';
+import cssText from './CharSelectV4.css?raw';
+import Client from 'Core/Client';
+import jQuery from 'Utils/jquery';
+import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Background';
 
-	/**
+/**
 	 * Create Chararacter Selection namespace
 	 */
-	var CharSelectV4 = new UIComponent('CharSelectV4', htmlText, cssText);
+	let CharSelectV4 = new UIComponent('CharSelectV4', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} save preferences for the last index
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'CharSelectV4',
 		{
 			index: 0
@@ -49,57 +45,57 @@ define(function (require) {
 	/**
 	 * @var {number} max slots
 	 */
-	var _maxSlots = 15;
+	let _maxSlots = 15;
 
 	/**
 	 * var {Array} list of characters
 	 */
-	var _list = [];
+	let _list = [];
 
 	/**
 	 * @var {Array} list of characters (index by slot)
 	 */
-	var _slots = [];
+	let _slots = [];
 
 	/**
 	 * @var {Array} list of entities (index by slot)
 	 */
-	var _entitySlots = [];
+	let _entitySlots = [];
 
 	/**
 	 * @var {number} selector index
 	 */
-	var _index = 0;
+	let _index = 0;
 
 	/**
 	 * @var {Array} canvas context
 	 */
-	var _ctx = [];
+	let _ctx = [];
 
 	/**
 	 * var {number} sex
 	 */
-	var _sex = 0;
+	let _sex = 0;
 
 	/**
 	 * var for background change
 	 */
-	var img = 0;
-	var _curindex = 0;
-	var shouldRunBackgroundChange = false;
+	let img = 0;
+	let _curindex = 0;
+	let shouldRunBackgroundChange = false;
 
 	let countdownInterval; // Variable to hold the interval
 
 	/**
 	 * var {boolean} disable input
 	 */
-	var _disable_UI = false;
+	let _disable_UI = false;
 
 	/**
 	 * Initialize UI
 	 */
 	CharSelectV4.init = function Init() {
-		var ui = this.ui;
+		let ui = this.ui;
 
 		// Bind buttons
 		ui.find('.ok').click(connect);
@@ -223,7 +219,7 @@ define(function (require) {
 		_list.length = 0;
 
 		if (pkt.charInfo) {
-			var i,
+			let i,
 				count = pkt.charInfo.length;
 			for (i = 0; i < count; ++i) {
 				CharSelectV4.addCharacter(pkt.charInfo[i]);
@@ -255,7 +251,7 @@ define(function (require) {
 	 * Countdown for delay in deletion
 	 */
 	function updateAllVisibleCountdowns() {
-		var charselectready = CharSelectV4.ui;
+		let charselectready = CharSelectV4.ui;
 		if (charselectready) {
 			const visibleCountdowns = document.querySelectorAll('.timedelete:not(.hidden)');
 
@@ -301,16 +297,16 @@ define(function (require) {
 	 */
 	CharSelectV4.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 		this.on('keydown');
-		var deleteReservedDate = pkt.DeleteReservedDate;
-		var result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
-		var info = _slots[_index];
+		let deleteReservedDate = pkt.DeleteReservedDate;
+		let result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
+		let info = _slots[_index];
 
 		switch (result) {
 			case 0: // 0: An unknown error has occurred.
 				return;
 
 			case 1: // 1: none/success
-				var now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+				let now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
 				info.DeleteDate = deleteReservedDate + now;
 				requestdelete(_index, deleteReservedDate);
 				break;
@@ -407,8 +403,8 @@ define(function (require) {
 					_preferences.index = 0;
 				}
 
-				var i = 0;
-				var count = _list.length;
+				let i = 0;
+				let count = _list.length;
 
 				while (i < count) {
 					if (_list[i].CharNum === _index) {
@@ -569,11 +565,11 @@ define(function (require) {
 	 * @param {number} index
 	 */
 	function moveCursorTo(index) {
-		var ui = CharSelectV4.ui;
-		var $charinfo = ui.find('.charinfo');
+		let ui = CharSelectV4.ui;
+		let $charinfo = ui.find('.charinfo');
 
-		var entity = _slots[_index];
-		var prevIndex = _index;
+		let entity = _slots[_index];
+		let prevIndex = _index;
 		// Update the flag based on whether an entity is present
 		shouldRunBackgroundChange = false;
 
@@ -583,7 +579,7 @@ define(function (require) {
 			});
 		}
 
-		var slotIndex = (_index = index > _maxSlots ? _maxSlots : index < 0 ? 0 : index);
+		let slotIndex = (_index = index > _maxSlots ? _maxSlots : index < 0 ? 0 : index);
 
 		// Not found, just clean up.
 		entity = _slots[_index];
@@ -593,7 +589,7 @@ define(function (require) {
 			ui.find('.canceldelete').hide();
 			ui.find('.finaldelete').hide();
 			ui.find('.ok').hide();
-			var countdown = document.querySelector('.timedelete.slot' + _index);
+			let countdown = document.querySelector('.timedelete.slot' + _index);
 			if (countdown) {
 				countdown.setAttribute('data-duration', 0);
 				countdown.classList.add('hidden');
@@ -610,7 +606,7 @@ define(function (require) {
 			changeBackgroundEverySecond();
 		}
 
-		var info = _slots[_index];
+		let info = _slots[_index];
 		// Bind new value
 		if (info.DeleteDate) {
 			ui.find('.delete').hide();
@@ -639,9 +635,9 @@ define(function (require) {
 	}
 
 	function changeBackgroundEverySecond() {
-		var UIready = CharSelectV4.ui;
+		let UIready = CharSelectV4.ui;
 		if (UIready) {
-			var backgroundchange = CharSelectV4.ui.find('#slot' + _curindex);
+			let backgroundchange = CharSelectV4.ui.find('#slot' + _curindex);
 			if (backgroundchange && shouldRunBackgroundChange === true) {
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'select_character_ver3/img_slot_select' + img + '.bmp',
@@ -718,7 +714,7 @@ define(function (require) {
 	 * Render sprites to canvas
 	 */
 	function render() {
-		var i, count, idx;
+		let i, count, idx;
 
 		Camera.direction = 4;
 		idx = Math.floor(_index / _maxSlots) * _maxSlots;
@@ -741,5 +737,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(CharSelectV4);
-});
+export default UIManager.addComponent(CharSelectV4);

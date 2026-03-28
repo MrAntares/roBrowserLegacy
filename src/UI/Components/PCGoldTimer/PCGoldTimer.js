@@ -6,24 +6,21 @@
  * @author Alisonrag
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./PCGoldTimer.html');
-	var cssText = require('text!./PCGoldTimer.css');
-	var PACKET = require('Network/PacketStructure');
-	var Network = require('Network/NetworkManager');
-	var Client = require('Core/Client');
-	var DB = require('DB/DBManager');
-	var Session = require('Engine/SessionStorage');
-	var MAX_GOLDPC_VAR = 300;
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './PCGoldTimer.html?raw';
+import cssText from './PCGoldTimer.css?raw';
+import PACKET from 'Network/PacketStructure';
+import Network from 'Network/NetworkManager';
+import Client from 'Core/Client';
+import DB from 'DB/DBManager';
+import Session from 'Engine/SessionStorage';
 
-	var _data = {
+let MAX_GOLDPC_VAR = 300;
+
+	let _data = {
 		isActive: 0,
 		mode: 0,
 		point: 0,
@@ -34,7 +31,7 @@ define(function (require) {
 	/**
 	 * Create Component
 	 */
-	var PCGoldTimer = new UIComponent('PCGoldTimer', htmlText, cssText);
+	let PCGoldTimer = new UIComponent('PCGoldTimer', htmlText, cssText);
 
 	/**
 	 * Apply preferences once append to body
@@ -97,7 +94,7 @@ define(function (require) {
 
 	function onClickPCGoldTimer() {
 		// send CZ_DYNAMICNPC_CREATE_REQUEST packet to server
-		var packet = new PACKET.CZ.DYNAMICNPC_CREATE_REQUEST();
+		let packet = new PACKET.CZ.DYNAMICNPC_CREATE_REQUEST();
 		packet.name = 'GOLDPCCAFE';
 		Network.sendPacket(packet);
 	}
@@ -148,5 +145,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(PCGoldTimer);
-});
+export default UIManager.addComponent(PCGoldTimer);

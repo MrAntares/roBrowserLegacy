@@ -7,30 +7,26 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Preferences = require('Core/Preferences');
-	var AudioSettings = require('Preferences/Audio');
-	var AudioManager = require('Audio/BGM');
-	var SoundManager = require('Audio/SoundManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./SoundOption.html');
-	var cssText = require('text!./SoundOption.css');
+import Preferences from 'Core/Preferences';
+import AudioSettings from 'Preferences/Audio';
+import AudioManager from 'Audio/BGM';
+import SoundManager from 'Audio/SoundManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './SoundOption.html?raw';
+import cssText from './SoundOption.css?raw';
 
-	/**
+/**
 	 * Create Sound Settings Component
 	 */
-	var SoundOption = new UIComponent('SoundOption', htmlText, cssText);
+	let SoundOption = new UIComponent('SoundOption', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} window option
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'SoundOption',
 		{
 			x: 300,
@@ -109,7 +105,7 @@ define(function (require) {
 	 * Toggle sound (on/off)
 	 */
 	function onToggleSound() {
-		var oldVolume = AudioSettings.Sound.volume;
+		let oldVolume = AudioSettings.Sound.volume;
 		AudioSettings.Sound.play = this.checked;
 
 		if (AudioSettings.Sound.play) {
@@ -150,5 +146,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(SoundOption);
-});
+export default UIManager.addComponent(SoundOption);

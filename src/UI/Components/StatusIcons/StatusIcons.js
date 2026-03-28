@@ -7,27 +7,23 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var StatusTable = require('DB/Status/StatusInfo');
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Texture = require('Utils/Texture');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ScreenEffectManager = require('Renderer/ScreenEffectManager');
-	var cssText = require('text!./StatusIcons.css');
+import StatusTable from 'DB/Status/StatusInfo';
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Texture from 'Utils/Texture';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ScreenEffectManager from 'Renderer/ScreenEffectManager';
+import cssText from './StatusIcons.css?raw';
 
-	/**
+/**
 	 * Create component
 	 */
-	var StatusIcons = new UIComponent('StatusIcons', null, cssText);
+	let StatusIcons = new UIComponent('StatusIcons', null, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -42,17 +38,17 @@ define(function (require) {
 	/**
 	 * @var {Array} status list
 	 */
-	var _status = {};
+	let _status = {};
 
 	/**
 	 * @var {int} last updated time
 	 */
-	var _last_updated_time = Date.now();
+	let _last_updated_time = Date.now();
 
 	/**
 	 * @var {int} render wait time
 	 */
-	var _render_time = 500;
+	let _render_time = 500;
 
 	/**
 	 * Initialize component
@@ -142,26 +138,26 @@ define(function (require) {
 			return;
 		}
 
-		var canvas = document.createElement('canvas');
+		let canvas = document.createElement('canvas');
 		canvas.width = 32;
 		canvas.height = 32;
-		var ctx = canvas.getContext('2d');
+		let ctx = canvas.getContext('2d');
 
 		ctx.save();
 		ctx.translate(0, 32); // Move to left
 		ctx.scale(1, -1); // flip vertical  (official client does)
 
 		// resize with scale
-		var scale = Math.min(32 / img.width, 32 / img.height);
-		var width = img.width * scale;
-		var height = img.height * scale;
-		var x = (32 - width) / 2;
-		var y = (32 - height) / 2;
+		let scale = Math.min(32 / img.width, 32 / img.height);
+		let width = img.width * scale;
+		let height = img.height * scale;
+		let x = (32 - width) / 2;
+		let y = (32 - height) / 2;
 
 		ctx.drawImage(img, x, y, width, height);
 		ctx.restore();
 
-		var resizedImg = new Image();
+		let resizedImg = new Image();
 		resizedImg.src = canvas.toDataURL();
 		resizedImg.onload = function () {
 			_status[index].img = resizedImg;
@@ -175,8 +171,8 @@ define(function (require) {
 	 * Used when one element is removed.
 	 */
 	function resetElementsPosition() {
-		var element, i, count, x, y;
-		var elements = StatusIcons.ui.find('.state');
+		let element, i, count, x, y;
+		let elements = StatusIcons.ui.find('.state');
 
 		count = elements.length;
 		x = 0;
@@ -204,7 +200,7 @@ define(function (require) {
 			return;
 		}
 
-		var element = _status[index].element;
+		let element = _status[index].element;
 
 		if (element && element.parentNode) {
 			element.parentNode.removeChild(element);
@@ -221,7 +217,7 @@ define(function (require) {
 	 * @param {number} index
 	 */
 	function createElement(index) {
-		var state, canvas;
+		let state, canvas;
 
 		state = document.createElement('div');
 		state.className = 'state';
@@ -238,8 +234,8 @@ define(function (require) {
 
 		// Add description
 		if (StatusTable[index].descript) {
-			var i, count, time;
-			var info, lines;
+			let i, count, time;
+			let info, lines;
 
 			info = document.createElement('div');
 			info.className = 'description';
@@ -248,7 +244,7 @@ define(function (require) {
 			count = lines.length;
 
 			for (i = 0; i < count; ++i) {
-				var line = document.createElement('div');
+				let line = document.createElement('div');
 				line.textContent = lines[i][0];
 
 				// Custom color
@@ -277,9 +273,9 @@ define(function (require) {
 	 * @param {CanvasElement}
 	 */
 	function addElement(element) {
-		var x, y, count;
-		var elements = StatusIcons.ui.find('.state');
-		var max = ((Renderer.height - 166) / 36) | 0;
+		let x, y, count;
+		let elements = StatusIcons.ui.find('.state');
+		let max = ((Renderer.height - 166) / 36) | 0;
 
 		count = elements.length;
 		x = ((count / max) | 0) * 45;
@@ -298,8 +294,8 @@ define(function (require) {
 	 * @param {number} tick
 	 */
 	function renderStatus(status, now) {
-		var start, end, perc;
-		var color, ctx;
+		let start, end, perc;
+		let color, ctx;
 
 		if (!status.img) {
 			return;
@@ -333,9 +329,9 @@ define(function (require) {
 		if (status.time && status.timeTick + 1000 < now) {
 			status.timeTick = now;
 
-			var tick = ((end - now) / 1000) | 0;
-			var seconds = tick % 60;
-			var minutes = (tick / 60) | 0;
+			let tick = ((end - now) / 1000) | 0;
+			let seconds = tick % 60;
+			let minutes = (tick / 60) | 0;
 
 			status.time.textContent =
 				now >= end || end === Infinity
@@ -353,8 +349,8 @@ define(function (require) {
 	 * @param {number} tick
 	 */
 	function rendering(tick) {
-		var i, count;
-		var indexes;
+		let i, count;
+		let indexes;
 
 		indexes = Object.keys(_status);
 		count = indexes.length;
@@ -371,5 +367,4 @@ define(function (require) {
 	/**
 	 * Create component and return it
 	 */
-	return UIManager.addComponent(StatusIcons);
-});
+export default UIManager.addComponent(StatusIcons);

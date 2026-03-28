@@ -7,15 +7,16 @@
  *
  * @author Alison Serafim
  */
-define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
-	'use strict';
+'use strict';
 
-	/**
+import glMatrix from 'Utils/gl-matrix';
+
+/**
 	 * Global methods
 	 */
-	var vec4 = glMatrix.vec4;
-	var _pos = new Float32Array(4);
-	var _size = new Float32Array(2);
+	const vec4 = glMatrix.vec4;
+	const _pos = new Float32Array(4);
+	const _size = new Float32Array(2);
 
 	/**
 	 * Emblem class
@@ -53,11 +54,11 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	 * Update Emblem
 	 */
 	Emblem.prototype.update = function update() {
-		var width = 24,
+		let width = 24,
 			height = 24;
 
 		// Init variables
-		var ctx = this.ctx;
+		let ctx = this.ctx;
 
 		// Set size
 		ctx.canvas.width = width;
@@ -75,8 +76,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	 * @param {mat4} matrix
 	 */
 	Emblem.prototype.render = function Render(matrix) {
-		var canvas = this.canvas;
-		var z;
+		let canvas = this.canvas;
+		let z;
 
 		// Cast position
 		_pos[0] = 0.0;
@@ -85,8 +86,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 		_pos[3] = 1.0;
 
 		// Set the viewport
-		_size[0] = Renderer.width / 2;
-		_size[1] = Renderer.height / 2;
+		_size[0] = window.innerWidth / 2;
+		_size[1] = window.innerHeight / 2;
 
 		// Project point to scene
 		vec4.transformMat4(_pos, _pos, matrix);
@@ -106,10 +107,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer'], function (glMatrix, Renderer) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return function Init() {
+	export default function Init() {
 		this.emblem = new Emblem();
 		this.emblem.entity = this;
 	};
-});

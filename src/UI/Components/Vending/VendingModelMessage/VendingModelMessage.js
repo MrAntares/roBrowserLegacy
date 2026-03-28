@@ -5,23 +5,19 @@
  *
  * @author Francisco Wallison
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./VendingModelMessage.html');
-	var cssText = require('text!./VendingModelMessage.css');
+import DB from 'DB/DBManager';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './VendingModelMessage.html?raw';
+import cssText from './VendingModelMessage.css?raw';
 
-	/**
+/**
 	 * Create VendingModelMessage namespace
 	 */
-	var VendingModelMessage = new UIComponent('VendingModelMessage', htmlText, cssText);
+	let VendingModelMessage = new UIComponent('VendingModelMessage', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -58,5 +54,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(VendingModelMessage);
-});
+export default UIManager.addComponent(VendingModelMessage);

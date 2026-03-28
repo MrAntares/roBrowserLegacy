@@ -6,16 +6,15 @@
  * @author Alisonrag
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PCGoldTimer from 'UI/Components/PCGoldTimer/PCGoldTimer';
+
+/**
 	 * Load dependencies
 	 */
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PCGoldTimer = require('UI/Components/PCGoldTimer/PCGoldTimer');
-
 	/**
 	 * Send Packets
 	 */
@@ -39,7 +38,6 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.GOLDPCCAFE_POINT, onPCGoldTimerPoint);
 	};
-});

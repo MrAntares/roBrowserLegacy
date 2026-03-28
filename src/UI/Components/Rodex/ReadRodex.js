@@ -6,22 +6,17 @@
  * @author Alisonrag
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Client = require('Core/Client');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ReadRodex.html');
-	var cssText = require('text!./ReadRodex.css');
-	var Rodex = require('UI/Components/Rodex/Rodex');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Client from 'Core/Client';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './ReadRodex.html?raw';
+import cssText from './ReadRodex.css?raw';
+import Rodex from 'UI/Components/Rodex/Rodex';
 
 	/**
 	 * Create Component
@@ -51,11 +46,11 @@ define(function (require) {
 
 		ReadRodex.ui.css({
 			top: Math.min(
-				Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('top'), 10)),
+				Math.max(0, parseInt(Rodex.ui.css('top'), 10)),
 				Renderer.height - ReadRodex.ui.height()
 			),
 			left: Math.min(
-				Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('left'), 10)) + 310,
+				Math.max(0, parseInt(Rodex.ui.css('left'), 10)) + 310,
 				Renderer.width - ReadRodex.ui.width()
 			)
 		});
@@ -191,5 +186,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ReadRodex);
-});
+	export default UIManager.addComponent(ReadRodex);

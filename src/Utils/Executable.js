@@ -10,8 +10,8 @@
  * @author Vincent Thibault
  */
 
-define(['./BinaryReader'], function (BinaryReader) {
-	'use strict';
+import BinaryReader from './BinaryReader';
+'use strict';
 
 	/**
 	 * Binary data of the executable
@@ -92,8 +92,7 @@ define(['./BinaryReader'], function (BinaryReader) {
 	/**
 	 * Exports
 	 */
-	return {
+	export default {
 		getDate: getDate,
 		isROExec: isROExec
 	};
-});

@@ -1,23 +1,9 @@
 'use strict';
 
-define(['exports', 'Utils/WebGL', 'Renderer/Effects/Tiles'], function (exports, _WebGL, _Tiles) {
-	'use strict';
+import WebGL from 'Utils/WebGL';
+import { FlatTexture } from 'Renderer/Effects/Tiles';
 
-	Object.defineProperty(exports, '__esModule', {
-		value: true
-	});
-
-	var _WebGL2 = _interopRequireDefault(_WebGL);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule
-			? obj
-			: {
-					default: obj
-				};
-	}
-
-	var _SpiderWebVertexShader = `
+let _SpiderWebVertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -40,7 +26,7 @@ define(['exports', 'Utils/WebGL', 'Renderer/Effects/Tiles'], function (exports, 
             vTextureCoord  = aTextureCoord;
         }
 `;
-	var _SpiderWebFragmentShader = `
+let _SpiderWebFragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -59,27 +45,25 @@ define(['exports', 'Utils/WebGL', 'Renderer/Effects/Tiles'], function (exports, 
             fragColor = textureSample;
         }
 `;
-	var _lpNum = 0;
+let _lpNum = 0;
 
-	class SpiderWeb extends (0, _Tiles.FlatTexture)('data/texture/effect/spiderweb.tga', 128) {
-		static createShaderProgram(gl) {
-			return _WebGL2.default.createShaderProgram(gl, _SpiderWebVertexShader, _SpiderWebFragmentShader);
-		}
-
-		constructor() {
-			super(...arguments);
-			this.ix = ++_lpNum;
-		}
-
-		render(gl, tick) {
-			var oddEven = this.ix % 2 === 0 ? Math.PI : 0;
-			var sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
-			gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
-			gl.uniform1f(this.constructor._program.uniform.uSize, 1.5 + 0.05 * sizeMult);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		}
+class SpiderWeb extends FlatTexture('data/texture/effect/spiderweb.tga', 128) {
+	static createShaderProgram(gl) {
+		return WebGL.createShaderProgram(gl, _SpiderWebVertexShader, _SpiderWebFragmentShader);
 	}
 
-	return SpiderWeb;
-});
+	constructor() {
+		super(...arguments);
+		this.ix = ++_lpNum;
+	}
+
+	render(gl, tick) {
+		let oddEven = this.ix % 2 === 0 ? Math.PI : 0;
+		let sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
+		gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
+		gl.uniform1f(this.constructor._program.uniform.uSize, 1.5 + 0.05 * sizeMult);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+	}
+}
+export default SpiderWeb;

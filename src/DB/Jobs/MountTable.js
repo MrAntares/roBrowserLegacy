@@ -7,11 +7,11 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['./JobConst'], function (JobId) {
-	'use strict';
+import JobId from './JobConst';
 
-	var MountTable = {};
+	let MountTable = {};
 
 	// MountTable[<Base job>]       = <Mount job>
 
@@ -50,5 +50,5 @@ define(['./JobConst'], function (JobId) {
 	MountTable[JobId.DRAGON_KNIGHT] = JobId.DRAGON_KNIGHT2;
 	MountTable[JobId.IMPERIAL_GUARD] = JobId.IMPERIAL_GUARD2;
 
-	return MountTable;
-});
+	export default MountTable;
+

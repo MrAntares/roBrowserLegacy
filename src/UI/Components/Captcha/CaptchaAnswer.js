@@ -7,30 +7,26 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var htmlText = require('text!./CaptchaAnswer.html');
-	var cssText = require('text!./CaptchaAnswer.css');
-	var DB = require('DB/DBManager');
+import jQuery from 'Utils/jquery';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import htmlText from './CaptchaAnswer.html?raw';
+import cssText from './CaptchaAnswer.css?raw';
+import DB from 'DB/DBManager';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var CaptchaAnswer = new UIComponent('CaptchaAnswer', htmlText, cssText);
+	let CaptchaAnswer = new UIComponent('CaptchaAnswer', htmlText, cssText);
 
 	/**
 	 * Preferences
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'CaptchaAnswer',
 		{
 			x: 230,
@@ -39,7 +35,7 @@ define(function (require) {
 		2.0
 	);
 
-	var timer = null;
+	let timer = null;
 
 	/**
 	 * Initialize GUI
@@ -47,10 +43,10 @@ define(function (require) {
 	CaptchaAnswer.init = function Init() {
 		this.draggable('.titlebar');
 
-		var self = this;
+		let self = this;
 
 		this.ui.find('.ok').click(function () {
-			var answer = self.ui.find('.answer_input').val();
+			let answer = self.ui.find('.answer_input').val();
 			if (answer && answer.length > 0 && self.onSend) {
 				self.onSend(answer);
 			}
@@ -74,10 +70,10 @@ define(function (require) {
 	CaptchaAnswer.setImage = function SetImage(imageData) {
 		// imageData is expected to be Uint8Array or Blob usually, need to convert to URL
 		// If it's pure binary from packet, we might need conversion
-		var blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO
-		var url = URL.createObjectURL(blob);
+		let blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO
+		let url = URL.createObjectURL(blob);
 
-		var img = jQuery('<img/>').attr('src', url);
+		let img = jQuery('<img/>').attr('src', url);
 		this.ui.find('.preview_box').empty().append(img);
 	};
 
@@ -165,5 +161,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(CaptchaAnswer);
-});
+export default UIManager.addComponent(CaptchaAnswer);

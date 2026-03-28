@@ -7,25 +7,21 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var KEYS = require('Controls/KeyEventHandler');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./Bank.html');
-	var cssText = require('text!./Bank.css');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import KEYS from 'Controls/KeyEventHandler';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './Bank.html?raw';
+import cssText from './Bank.css?raw';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 	/**
 	 * Create Component
@@ -380,5 +376,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Bank);
-});
+	export default UIManager.addComponent(Bank);

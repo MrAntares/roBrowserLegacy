@@ -7,18 +7,17 @@
  *
  * @author Vincent Thibault
  */
-define([
-	'Utils/gl-matrix',
-	'Utils/PathFinding',
-	'Controls/MouseEventHandler',
-	'Renderer/Effects/Shaders/VerticalFlip'
-], function (glMatrix, PathFinding, Mouse, VerticalFlip) {
-	'use strict';
+'use strict';
+
+import glMatrix from 'Vendors/gl-matrix';
+import PathFinding from 'Utils/PathFinding';
+import Mouse from 'Controls/MouseEventHandler';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 
 	/**
 	 * Altitude Namespace
 	 */
-	var Altitude = {};
+	let Altitude = {};
 
 	/**
 	 * @var {number} map width
@@ -49,12 +48,12 @@ define([
 	/**
 	 * @var {array} Cells where stored altitude
 	 */
-	var _cells = null;
+	let _cells = null;
 
 	/**
 	 * @var {array} Altitudes cells type
 	 */
-	var _types = null;
+	let _types = null;
 
 	/**
 	 * Initialize Altitude mesh
@@ -64,10 +63,10 @@ define([
 	 */
 	Altitude.init = function init(data) {
 		// Extract 'type' from cells
-		var cells = data.cells;
-		var i,
+		let cells = data.cells;
+		let i,
 			count = cells.length / 5;
-		var types = new Uint8Array(count);
+		let types = new Uint8Array(count);
 
 		for (i = 0; i < count; ++i) {
 			types[i] = cells[i * 5 + 4];
@@ -96,10 +95,10 @@ define([
 	 * @return {Array} cell
 	 */
 	Altitude.getCell = (function getCellClosure() {
-		var tmp = new Float32Array(5);
+		let tmp = new Float32Array(5);
 
 		return function getCell(x, y) {
-			var index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
+			let index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
 
 			tmp[0] = _cells[index + 0];
 			tmp[1] = _cells[index + 1];
@@ -135,7 +134,7 @@ define([
 			return 0.0;
 		}
 
-		var index, x1, x2;
+		let index, x1, x2;
 
 		// Should be at the middle of the cell
 		x += 0.5;
@@ -193,17 +192,17 @@ define([
 	 * @return {bool} success
 	 */
 	Altitude.intersect = (function intersectClosure() {
-		var mat4 = glMatrix.mat4;
-		var vec3 = glMatrix.vec3;
-		var vec4 = glMatrix.vec4;
+		let mat4 = glMatrix.mat4;
+		let vec3 = glMatrix.vec3;
+		let vec4 = glMatrix.vec4;
 
-		var _from = vec3.create();
-		var _to = vec4.create();
-		var _unit = vec3.create();
-		var _matrix = mat4.create();
+		let _from = vec3.create();
+		let _to = vec4.create();
+		let _unit = vec3.create();
+		let _matrix = mat4.create();
 
 		return function intersect(modelView, projection, out) {
-			var i,
+			let i,
 				count = Altitude.MAX_INTERSECT_COUNT;
 
 			// Extract camera position
@@ -264,19 +263,19 @@ define([
 	 * @param {number} plane size
 	 */
 	Altitude.generatePlane = (function generatePlaneClosure() {
-		var buffer1x1 = new Float32Array(1 * 1 * 30);
-		var buffer5x5 = new Float32Array(5 * 5 * 30);
-		var buffer7x7 = new Float32Array(7 * 7 * 30);
-		var buffer13x13 = new Float32Array(13 * 13 * 30);
+		let buffer1x1 = new Float32Array(1 * 1 * 30);
+		let buffer5x5 = new Float32Array(5 * 5 * 30);
+		let buffer7x7 = new Float32Array(7 * 7 * 30);
+		let buffer13x13 = new Float32Array(13 * 13 * 30);
 
 		return function generatePlane(pos_x, pos_y, size) {
 			if (!_cells) {
 				return null;
 			}
 
-			var x, y, index, i;
-			var buffer;
-			var middle = Math.floor(size / 2);
+			let x, y, index, i;
+			let buffer;
+			let middle = Math.floor(size / 2);
 
 			pos_x = Math.floor(pos_x);
 			pos_y = Math.floor(pos_y);
@@ -350,7 +349,7 @@ define([
 	})();
 
 	Altitude.getCellsInSquareRange = function getCellsInSquareRangeClosure(x, y, range) {
-		var cells = [];
+		let cells = [];
 
 		// get all cells in square range and return x, y if is in  and walkable
 		for (var i = x - range; i <= x + range; ++i) {
@@ -365,7 +364,6 @@ define([
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return Altitude;
-});
+	export default Altitude;

@@ -7,12 +7,13 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var SetManager = require('./JoystickSetManager');
+import SetManager from './JoystickSetManager';
+import ShortCut from 'UI/Components/ShortCut/ShortCut';
+import JoystickUIRenderer from './JoystickUIRenderer';
 
-	var slotMapping = [
+let slotMapping = [
 		// L1 group (slots 0-3): Y, X, B, A
 		0, 1, 2, 3,
 		// L2 group (slots 4-7): Y, X, B, A
@@ -38,10 +39,10 @@ define(function (require) {
 	];
 
 	function getGroup(btn) {
-		var l1 = btn[4] === 'holding';
-		var r1 = btn[5] === 'holding';
-		var l2 = btn[6] === 'holding';
-		var r2 = btn[7] === 'holding';
+		let l1 = btn[4] === 'holding';
+		let r1 = btn[5] === 'holding';
+		let l2 = btn[6] === 'holding';
+		let r2 = btn[7] === 'holding';
 
 		if (l1 && r1 && !l2 && !r2) {
 			return 'L1R1';
@@ -62,19 +63,19 @@ define(function (require) {
 	}
 
 	function getIndexFromButtons(btn, set) {
-		var group = getGroup(btn);
+		let group = getGroup(btn);
 		if (group === '') {
 			return -1;
 		}
 
-		var a = btn[0] !== 'unpressed';
-		var b = btn[1] !== 'unpressed';
-		var x = btn[2] !== 'unpressed';
-		var y = btn[3] !== 'unpressed';
+		let a = btn[0] !== 'unpressed';
+		let b = btn[1] !== 'unpressed';
+		let x = btn[2] !== 'unpressed';
+		let y = btn[3] !== 'unpressed';
 
-		var slot = -1;
-		var tab = 1;
-		var offset = 0;
+		let slot = -1;
+		let tab = 1;
+		let offset = 0;
 
 		if (set === 2) {
 			offset = 2;
@@ -137,22 +138,19 @@ define(function (require) {
 
 	function prepare() {
 		if (!this.__loaded) {
-			var ShortCut = require('UI/Components/ShortCut/ShortCut');
-			var JoystickUIRenderer = require('./JoystickUIRenderer');
-
-			var oldonChange = ShortCut.onChange;
+			let oldonChange = ShortCut.onChange;
 			ShortCut.onChange = function (index, isSkill, ID, count) {
 				oldonChange.call(ShortCut, index, isSkill, ID, count);
 				JoystickUIRenderer.updateByIndex(index);
 			};
 
-			var oldSetList = ShortCut.setList;
+			let oldSetList = ShortCut.setList;
 			ShortCut.setList = function (list) {
 				oldSetList.call(ShortCut, list);
 				JoystickUIRenderer.sync();
 			};
 
-			var oldSetElement = ShortCut.setElement;
+			let oldSetElement = ShortCut.setElement;
 			ShortCut.setElement = function (isSkill, ID, count) {
 				oldSetElement.call(ShortCut, isSkill, ID, count);
 				JoystickUIRenderer.updateById(ID);
@@ -160,18 +158,16 @@ define(function (require) {
 			this.__loaded = true;
 		}
 	}
-
-	return {
+export default {
 		slotMap: slotMapping,
 		prepare: prepare,
 		getGroup: getGroup,
 		getShortcutIndex: function (btn) {
-			var set = SetManager.getCurrentSet();
-			var idx = getIndexFromButtons(btn, set);
+			let set = SetManager.getCurrentSet();
+			let idx = getIndexFromButtons(btn, set);
 			if (idx === -1) {
 				return -1;
 			}
 			return idx;
 		}
 	};
-});

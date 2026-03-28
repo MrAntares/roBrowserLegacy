@@ -8,29 +8,27 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Sound from 'Audio/SoundManager';
+import BGM from 'Audio/BGM';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import Renderer from 'Renderer/Renderer';
+import NpcBox from 'UI/Components/NpcBox/NpcBox';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu';
+import WinPopup from 'UI/Components/WinPopup/WinPopup';
+import MiniMap from 'UI/Components/MiniMap/MiniMap';
+
+/**
 	 * Load dependencies
 	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Sound = require('Audio/SoundManager');
-	var BGM = require('Audio/BGM');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var Renderer = require('Renderer/Renderer');
-	var NpcBox = require('UI/Components/NpcBox/NpcBox');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var NpcMenu = require('UI/Components/NpcMenu/NpcMenu');
-	var WinPopup = require('UI/Components/WinPopup/WinPopup');
-
 	// Version Dependent UIs
-	var MiniMap = require('UI/Components/MiniMap/MiniMap');
-
 	/**
 	 * NPC write a message
 	 *
@@ -74,7 +72,7 @@ define(function (require) {
 			NpcBox.remove();
 			NpcMenu.remove();
 
-			var cutin = document.getElementById('cutin');
+			let cutin = document.getElementById('cutin');
 			if (cutin && cutin.parentNode) {
 				document.body.removeChild(cutin);
 			}
@@ -122,7 +120,7 @@ define(function (require) {
 				NpcBox.remove();
 			}
 
-			var pkt = new PACKET.CZ.CHOOSE_MENU();
+			let pkt = new PACKET.CZ.CHOOSE_MENU();
 			pkt.NAID = NAID;
 			pkt.num = index;
 			Network.sendPacket(pkt);
@@ -135,8 +133,8 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.OPEN_EDITDLG or PACKET.ZC.OPEN_EDITDLGSTR
 	 */
 	function onInputAppear(pkt) {
-		var type = pkt instanceof PACKET.ZC.OPEN_EDITDLGSTR ? 'text' : 'number';
-		var id = pkt.NAID;
+		let type = pkt instanceof PACKET.ZC.OPEN_EDITDLGSTR ? 'text' : 'number';
+		let id = pkt.NAID;
 
 		InputBox.onAppend = function OnAppend() {
 			InputBox.setType(type, true);
@@ -158,7 +156,7 @@ define(function (require) {
 
 		InputBox.onSubmitRequest = function OnSubmitRequest(data) {
 			InputBox.remove();
-			var pkt;
+			let pkt;
 
 			switch (type) {
 				case 'text':
@@ -185,8 +183,8 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.SELECT_DEALTYPE
 	 */
 	function onDealSelection(pkt) {
-		var WinDeal = WinPopup.clone('WinDeal');
-		var NAID = pkt.NAID;
+		let WinDeal = WinPopup.clone('WinDeal');
+		let NAID = pkt.NAID;
 
 		WinDeal.init = function Init() {
 			this.draggable();
@@ -206,7 +204,7 @@ define(function (require) {
 					.data('down', 'btn_buy_b.bmp')
 					.one('click', function () {
 						WinDeal.remove();
-						var _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
+						let _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
 						_pkt.type = 0;
 						_pkt.NAID = NAID;
 						Network.sendPacket(_pkt);
@@ -220,7 +218,7 @@ define(function (require) {
 					.data('down', 'btn_sell_b.bmp')
 					.one('click', function () {
 						WinDeal.remove();
-						var _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
+						let _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
 						_pkt.type = 1;
 						_pkt.NAID = NAID;
 						Network.sendPacket(_pkt);
@@ -248,7 +246,7 @@ define(function (require) {
 	 */
 	function onCutin(pkt) {
 		// Only one instance of cutin
-		var cutin = document.getElementById('cutin');
+		let cutin = document.getElementById('cutin');
 		if (cutin) {
 			document.body.removeChild(cutin);
 		}
@@ -263,7 +261,7 @@ define(function (require) {
 		}
 
 		Client.loadFile(DB.INTERFACE_PATH + 'illust/' + pkt.imageName, function (url) {
-			var img = new Image();
+			let img = new Image();
 			img.decoding = 'async';
 			img.src = url;
 			img.style.position = 'absolute';
@@ -339,11 +337,11 @@ define(function (require) {
 	 */
 	function onProgressBar(pkt) {
 		Session.Entity.cast.onComplete = function () {
-			var pkt = new PACKET.CZ.PROGRESS();
+			let pkt = new PACKET.CZ.PROGRESS();
 			Network.sendPacket(pkt);
 		};
 
-		var rgb =
+		let rgb =
 			'rgb(' +
 			[(pkt.color & 0x00ff0000) >> 16, (pkt.color & 0x0000ff00) >> 8, pkt.color & 0x000000ff].join(',') +
 			')';
@@ -403,7 +401,7 @@ define(function (require) {
 	 * @param {number} NAID - npc id
 	 */
 	NpcBox.onNextPressed = function onNextPressed(NAID) {
-		var pkt = new PACKET.CZ.REQ_NEXT_SCRIPT();
+		let pkt = new PACKET.CZ.REQ_NEXT_SCRIPT();
 		pkt.NAID = NAID;
 		Network.sendPacket(pkt);
 	};
@@ -414,7 +412,7 @@ define(function (require) {
 	 * @param {number} NAID - npc id
 	 */
 	NpcBox.onClosePressed = function onClosePressed(NAID) {
-		var pkt = new PACKET.CZ.CLOSE_DIALOG();
+		let pkt = new PACKET.CZ.CLOSE_DIALOG();
 		pkt.NAID = NAID;
 		Network.sendPacket(pkt);
 
@@ -424,7 +422,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function NPCEngine() {
+export default function NPCEngine() {
 		Network.hookPacket(PACKET.ZC.SAY_DIALOG, onMessage);
 		Network.hookPacket(PACKET.ZC.WAIT_DIALOG, onNextAppear);
 		Network.hookPacket(PACKET.ZC.CLOSE_DIALOG, onCloseAppear);
@@ -442,4 +440,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.CLOSE_SCRIPT, onCloseScript);
 		Network.hookPacket(PACKET.ZC.DYNAMICNPC_CREATE_RESULT, onDynamicNPCCreateRequest);
 	};
-});

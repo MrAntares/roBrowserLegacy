@@ -7,52 +7,48 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var QuestHelper = require('./QuestHelper');
-	var QuestWindow = require('./QuestWindow');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var htmlText = require('text!./Quest.html');
-	var cssText = require('text!./Quest.css');
-	var jQuery = require('Utils/jquery');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Session = require('Engine/SessionStorage');
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import QuestHelper from './QuestHelper';
+import QuestWindow from './QuestWindow';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import htmlText from './Quest.html?raw';
+import cssText from './Quest.css?raw';
+import jQuery from 'Utils/jquery';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var Quest = new UIComponent('Quest', htmlText, cssText);
+	let Quest = new UIComponent('Quest', htmlText, cssText);
 
 	/**
 	 * @var {Array} quest list
 	 */
-	var _questList = [];
+	let _questList = [];
 
 	/**
 	 * @var {Array} quest list
 	 */
-	var _questNotShowList = [];
+	let _questNotShowList = [];
 
 	/**
 	 * @var {string} _active_menu active click menu
 	 */
-	var _active_menu = 'active';
+	let _active_menu = 'active';
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'Quest',
 		{
 			x: 200,
@@ -93,7 +89,7 @@ define(function (require) {
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		var checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
+		let checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp',
@@ -363,14 +359,14 @@ define(function (require) {
 	};
 
 	function onClickMenu(e) {
-		var quest_element = jQuery(e.currentTarget);
+		let quest_element = jQuery(e.currentTarget);
 
 		if (_active_menu == quest_element.attr('id')) {
 			return;
 		}
 		_active_menu = quest_element.attr('id');
 
-		var background_image = '';
+		let background_image = '';
 		Quest.ui.find('#active-quest-list').hide();
 		Quest.ui.find('#inactive-quest-list').hide();
 		Quest.ui.find('#feature-quest-list').hide();
@@ -404,7 +400,7 @@ define(function (require) {
 	}
 
 	function onClickQuestCheckbox() {
-		var checkbox_background;
+		let checkbox_background;
 		if (_preferences.showwindow) {
 			checkbox_background = 'checkbox_off';
 			QuestWindow.ui.hide();
@@ -424,17 +420,17 @@ define(function (require) {
 	}
 
 	function onClickQuestToggle(e) {
-		var toggle_element = jQuery(e.currentTarget);
+		let toggle_element = jQuery(e.currentTarget);
 		let tid = toggle_element.attr('id');
 		let id = tid.replace('qid', '');
-		var _pkt = new PACKET.CZ.ACTIVE_QUEST();
+		let _pkt = new PACKET.CZ.ACTIVE_QUEST();
 		_pkt.questID = _questList[id].questID;
 		_pkt.active = _questList[id].active == 1 ? 0 : 1;
 		Network.sendPacket(_pkt);
 	}
 
 	function onClickQuestDisplay(e) {
-		var display_element = jQuery(e.currentTarget);
+		let display_element = jQuery(e.currentTarget);
 		let cid = display_element.attr('id');
 		let id = cid.replace('sid', '');
 		let iid = parseInt(Number(id));
@@ -483,7 +479,6 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(Quest);
-});
+	export default UIManager.addComponent(Quest);

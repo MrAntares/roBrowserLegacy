@@ -9,10 +9,11 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryReader'], function (BinaryReader) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+
+/**
 	 * Str class loader
 	 *
 	 * @param {ArrayBuffer} data - optional
@@ -33,7 +34,7 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * @param {ArrayBuffer} data
 	 */
 	STR.prototype.load = function load(data) {
-		var fp, i;
+		let fp, i;
 
 		fp = new BinaryReader(data);
 		this.header = fp.readBinaryString(4);
@@ -67,7 +68,7 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * @param {string} texturePath
 	 */
 	function STRLayer(fp, texturePath) {
-		var i;
+		let i;
 
 		this.texcnt = fp.readLong();
 		this.texname = new Array(this.texcnt);
@@ -129,7 +130,6 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return STR;
-});
+	export default STR;

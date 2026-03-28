@@ -7,22 +7,18 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./WinPopup.html');
-	var cssText = require('text!./WinPopup.css');
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './WinPopup.html?raw';
+import cssText from './WinPopup.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var WinPopup = new UIComponent('WinPopup', htmlText, cssText);
+	let WinPopup = new UIComponent('WinPopup', htmlText, cssText);
 
 	/**
 	 * Initialize popup
@@ -38,5 +34,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(WinPopup);
-});
+export default UIManager.addComponent(WinPopup);

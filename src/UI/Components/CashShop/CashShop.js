@@ -7,37 +7,33 @@
  *
  * @author Stephen-A
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var jQuery = require('Utils/jquery');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var KEYS = require('Controls/KeyEventHandler');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Renderer = require('Renderer/Renderer');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./CashShop.html');
-	var cssText = require('text!./CashShop.css');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import jQuery from 'Utils/jquery';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import KEYS from 'Controls/KeyEventHandler';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Renderer from 'Renderer/Renderer';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './CashShop.html?raw';
+import cssText from './CashShop.css?raw';
 
-	var CashShop = new UIComponent('CashShop', htmlText, cssText);
+let CashShop = new UIComponent('CashShop', htmlText, cssText);
 
 	/**
 	 * Store cash shop items
 	 */
 	CashShop.list = [];
 
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'CashShop',
 		{
 			x: 80,
@@ -116,7 +112,7 @@ define(function (require) {
 	CashShop.init = function init() {
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
 		this.ui.find('.titlebar .close').click(function () {
-			var pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
+			let pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
 			Network.sendPacket(pkt);
 			CashShop.remove();
 		});
@@ -274,7 +270,7 @@ define(function (require) {
 
 	CashShop.onKeyDown = function onKeyDown(event) {
 		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
-			var pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
+			let pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
 			Network.sendPacket(pkt);
 			CashShop.remove();
 		}
@@ -296,8 +292,8 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	CashShop.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list;
+		let i, count;
+		let list;
 
 		if (CashShop.isSearch) {
 			list = CashShop.csListItemSearchResult;
@@ -448,10 +444,10 @@ define(function (require) {
 
 	CashShop.renderCashShopItems = function renderCashShopItems(items) {
 		this.ui.find('#panel-items').empty();
-		var content = this.ui.find('#panel-items');
+		let content = this.ui.find('#panel-items');
 		for (var i = 0; i < items.length; i++) {
 			let item = structuredClone(items[i]);
-			var it = DB.getItemInfo(item.itemId);
+			let it = DB.getItemInfo(item.itemId);
 			content.append(
 				`<div class="item" draggable="true" title="${it.identifiedDisplayName}" data-index="${item.itemId}" data-background="cashshop/img_shop_itembg.bmp">
 					<div class="top-con">
@@ -481,7 +477,7 @@ define(function (require) {
 		CashShop.isFirstPage = true;
 		CashShop.isLastPage = items.length >= CashShop.pageLimit ? false : true;
 
-		var content = CashShop.ui.find('.panel-pagination');
+		let content = CashShop.ui.find('.panel-pagination');
 		const arrowsL = CashShop.isFirstPage ? 'off' : 'on';
 		const arrowsR = CashShop.isLastPage ? 'off' : 'on';
 
@@ -511,8 +507,8 @@ define(function (require) {
 	};
 
 	CashShop.paginationOffsetLimit = function paginationOffsetLimit() {
-		var start = (CashShop.currentPage - 1) * CashShop.pageLimit;
-		var end = CashShop.pageLimit * CashShop.currentPage;
+		let start = (CashShop.currentPage - 1) * CashShop.pageLimit;
+		let end = CashShop.pageLimit * CashShop.currentPage;
 		CashShop.pageOffset = start;
 		CashShop.pageEnd = end;
 	};
@@ -525,7 +521,7 @@ define(function (require) {
 		if (items.length === 0) {
 			return;
 		}
-		var content = CashShop.ui.find('.panel-pagination');
+		let content = CashShop.ui.find('.panel-pagination');
 
 		CashShop.isFirstPage = false;
 		CashShop.isLastPage = false;
@@ -589,13 +585,13 @@ define(function (require) {
 		CashShop.activeCashMenu = 9;
 		if (val && CashShop.cashShopListItem.length > 0) {
 			for (var i = 0; i < CashShop.cashShopListItem.length; ++i) {
-				var items = CashShop.cashShopListItem[i].items;
+				let items = CashShop.cashShopListItem[i].items;
 				for (var iit = 0; iit < items.length; ++iit) {
 					items[iit].tab = CashShop.cashShopListItem[i].tabNum;
-					var it = DB.getItemInfo(items[iit].itemId);
+					let it = DB.getItemInfo(items[iit].itemId);
 
 					if (it.identifiedDisplayName) {
-						var matches = new RegExp(val).test(it.identifiedDisplayName.toLowerCase());
+						let matches = new RegExp(val).test(it.identifiedDisplayName.toLowerCase());
 						if (matches) {
 							newList.push(items[iit]);
 						}
@@ -620,8 +616,8 @@ define(function (require) {
 	}
 
 	function onClickActionCounterButtonCart(e) {
-		var counter = e.currentTarget.dataset.index;
-		var itemId = jQuery(e.currentTarget).closest('.item').data('index');
+		let counter = e.currentTarget.dataset.index;
+		let itemId = jQuery(e.currentTarget).closest('.item').data('index');
 		const itemCart = CashShop.cartItem.find(i => i.itemId === itemId);
 
 		if (itemCart.amount >= 99 && counter === 'up') {
@@ -647,8 +643,8 @@ define(function (require) {
 	}
 
 	function onClickDeleteItemInCart(e) {
-		var item = jQuery(e.currentTarget).closest('.item');
-		var itemId = item.data('index');
+		let item = jQuery(e.currentTarget).closest('.item');
+		let itemId = item.data('index');
 
 		CashShop.cartItem = CashShop.cartItem.filter(item => item.itemId != itemId);
 		item.remove();
@@ -675,7 +671,7 @@ define(function (require) {
 	}
 
 	function onDropToCart(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -698,12 +694,12 @@ define(function (require) {
 	}
 
 	function addItemToCart(itemId, amount = 1) {
-		var html = '';
-		var it = DB.getItemInfo(itemId);
-		var content = CashShop.ui.find('.panel-cart');
+		let html = '';
+		let it = DB.getItemInfo(itemId);
+		let content = CashShop.ui.find('.panel-cart');
 		const itemCart = CashShop.cartItem.find(i => i.itemId === itemId);
-		var item = [];
-		var tab = 0;
+		let item = [];
+		let tab = 0;
 
 		if (CashShop.activeCashMenu !== 9) {
 			item = CashShop.cashShopListItem[CashShop.activeCashMenu].items.find(i => i.itemId === itemId);
@@ -784,8 +780,8 @@ define(function (require) {
 
 		UIManager.showPromptBox('Are you sure you want to buy this items?', 'ok', 'cancel', function () {
 			if (CashShop.cartItem.length > 0) {
-				var pkt = new PACKET.CZ.SE_PC_BUY_CASHITEM_LIST();
-				var useFreePoints = CashShop.ui.find('#use-free-points').val() || 0;
+				let pkt = new PACKET.CZ.SE_PC_BUY_CASHITEM_LIST();
+				let useFreePoints = CashShop.ui.find('#use-free-points').val() || 0;
 				if (useFreePoints >= 0 && useFreePoints <= CashShop.kafraPoints) {
 					pkt.kafraPoints = useFreePoints;
 					pkt.item_list = CashShop.cartItem;
@@ -803,9 +799,9 @@ define(function (require) {
 	 * Menu navigation
 	 */
 	function onClickMenu(e) {
-		var contentMenu = CashShop.ui.find('#panel-menu');
-		var contentListItem = CashShop.ui.find('.panel-items');
-		var selectedMenu = e.currentTarget.dataset.index.toUpperCase();
+		let contentMenu = CashShop.ui.find('#panel-menu');
+		let contentListItem = CashShop.ui.find('.panel-items');
+		let selectedMenu = e.currentTarget.dataset.index.toUpperCase();
 
 		CashShop.ui.find('#cashshop-search').val('');
 
@@ -833,10 +829,10 @@ define(function (require) {
 	}
 
 	function onMouseMoveTab(event) {
-		var overlay = CashShop.ui.find('.overlay');
-		var offset = CashShop.ui.offset();
-		var x = event.pageX - offset.left;
-		var y = event.pageY - offset.top - 30;
+		let overlay = CashShop.ui.find('.overlay');
+		let offset = CashShop.ui.offset();
+		let x = event.pageX - offset.left;
+		let y = event.pageY - offset.top - 30;
 
 		overlay.css({
 			top: y + 'px',
@@ -845,8 +841,8 @@ define(function (require) {
 	}
 
 	function onMouseOverTab() {
-		var title = this.getAttribute('data-title');
-		var overlay = CashShop.ui.find('.overlay');
+		let title = this.getAttribute('data-title');
+		let overlay = CashShop.ui.find('.overlay');
 		overlay.text(title).show();
 	}
 
@@ -858,16 +854,16 @@ define(function (require) {
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = CashShop.getItemByIndex(index);
+		let index = parseInt(this.getAttribute('data-index'), 10);
+		let item = CashShop.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.querySelector('.item-left-img').style.backgroundImage.match(/\(([^\)]+)/)[1];
+		let img = new Image();
+		let url = this.querySelector('.item-left-img').style.backgroundImage.match(/\(([^\)]+)/)[1];
 		img.decoding = 'async';
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
@@ -897,8 +893,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = CashShop.getItemByIndex(index);
+		let index = parseInt(this.getAttribute('data-index'), 10);
+		let item = CashShop.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -910,7 +906,7 @@ define(function (require) {
 			return false;
 		}
 
-		var it = DB.getItemInfo(item.itemId);
+		let it = DB.getItemInfo(item.itemId);
 		it.ITID = item.itemId;
 		it.IsIdentified = true;
 
@@ -929,6 +925,4 @@ define(function (require) {
 		event.stopImmediatePropagation();
 		return false;
 	}
-
-	return UIManager.addComponent(CashShop);
-});
+export default UIManager.addComponent(CashShop);

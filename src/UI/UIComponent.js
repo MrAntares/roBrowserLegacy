@@ -7,22 +7,21 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var CommonCSS = require('text!./Common.css');
-	var jQuery = require('Utils/jquery');
-	var Cursor = require('./CursorManager');
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Events = require('Core/Events');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIPreferences = require('Preferences/UI');
-	var Session = require('Engine/SessionStorage');
-	var Targa = require('Loaders/Targa');
-	var Renderer = require('Renderer/Renderer');
-	var getModule = require;
+import CommonCSS from './Common.css?raw';
+import jQuery from 'Utils/jquery';
+import Cursor from './CursorManager';
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Events from 'Core/Events';
+import Mouse from 'Controls/MouseEventHandler';
+import UIPreferences from 'Preferences/UI';
+import Session from 'Engine/SessionStorage';
+import Targa from 'Loaders/Targa';
+import Renderer from 'Renderer/Renderer';
+import EntityManager from 'Renderer/EntityManager';
+import ScrollBar from './Scrollbar';
 
 	/**
 	 * Create a component
@@ -131,7 +130,7 @@ define(function (require) {
 					if (_intersect) {
 						Mouse.intersect = false;
 						Cursor.setType(Cursor.ACTION.DEFAULT);
-						getModule('Renderer/EntityManager').setOverEntity(null);
+						EntityManager.setOverEntity(null);
 					}
 				}
 			});
@@ -145,7 +144,7 @@ define(function (require) {
 						if (!Session.FreezeUI) {
 							Mouse.intersect = true;
 						}
-						getModule('Renderer/EntityManager').setOverEntity(null);
+						EntityManager.setOverEntity(null);
 					}
 				}
 			});
@@ -157,7 +156,7 @@ define(function (require) {
 					_enter = 0;
 					if (_intersect) {
 						Mouse.intersect = true;
-						getModule('Renderer/EntityManager').setOverEntity(null);
+						EntityManager.setOverEntity(null);
 					}
 				}
 			});
@@ -267,7 +266,6 @@ define(function (require) {
 				return;
 			}
 
-			var ScrollBar = require('UI/Scrollbar');
 
 			function checkScrollbars(root) {
 				jQuery(root)
@@ -875,5 +873,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return UIComponent;
-});
+	export default UIComponent;

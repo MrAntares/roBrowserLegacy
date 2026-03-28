@@ -4,20 +4,24 @@
  * Floating mini-window for a single party member.
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var DB = require('DB/DBManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./PartyMemberExternal.html');
-	var cssText = require('text!./PartyMemberExternal.css');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import DB from 'DB/DBManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './PartyMemberExternal.html?raw';
+import cssText from './PartyMemberExternal.css?raw';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import PartyFriendsV1 from 'UI/Components/PartyFriends/PartyFriendsV1/PartyFriendsV1';
+import Camera from 'Renderer/Camera';
+import Rodex from 'UI/Components/Rodex/Rodex';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 
 	/**
 	 * Create Component
@@ -37,12 +41,10 @@ define(function (require) {
 			event.preventDefault();
 			event.stopPropagation();
 
-			var ContextMenu = getModule('UI/Components/ContextMenu/ContextMenu');
 			if (ContextMenu) {
 				ContextMenu.remove();
 			}
 
-			var SkillTargetSelection = getModule('UI/Components/SkillTargetSelection/SkillTargetSelection');
 			if (SkillTargetSelection && SkillTargetSelection.__active) {
 				if (event.which === 1 && self._player && self._player.state === 0) {
 					SkillTargetSelection.intersectEntityId(self._aid);
@@ -53,7 +55,6 @@ define(function (require) {
 			}
 
 			// Block dragging when UI is locked
-			var PartyFriendsV1 = getModule('UI/Components/PartyFriends/PartyFriendsV1/PartyFriendsV1');
 			if (PartyFriendsV1 && PartyFriendsV1.isLocked && PartyFriendsV1.isLocked()) {
 				event.stopImmediatePropagation();
 			}
@@ -65,18 +66,15 @@ define(function (require) {
 			event.stopImmediatePropagation();
 
 			// Prevent camera rotation from sticking
-			var Camera = getModule('Renderer/Camera');
 			if (Camera && Camera.rotate) {
 				Camera.rotate(false);
 			}
 
 			// Block context menu when UI is locked
-			var PartyFriendsV1 = getModule('UI/Components/PartyFriends/PartyFriendsV1/PartyFriendsV1');
 			if (PartyFriendsV1 && PartyFriendsV1.isLocked && PartyFriendsV1.isLocked()) {
 				return false;
 			}
 
-			var ContextMenu = getModule('UI/Components/ContextMenu/ContextMenu');
 			if (!ContextMenu) {
 				return false;
 			}
@@ -89,24 +87,21 @@ define(function (require) {
 				if (!self._player) {
 					return;
 				}
-				var Rodex = getModule('UI/Components/Rodex/Rodex');
 				if (Rodex) {
 					Rodex.requestOpenWriteRodex(self._player.characterName);
 				}
 			});
 
-			var Session = getModule('Engine/SessionStorage');
 			var isMe = self._player && Session && self._player.AID === Session.AID;
 
 			if (isMe) {
 				// Self: Leave party
 				ContextMenu.addElement(DB.getMessage(2055), function () {
 					UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', function () {
-						var PartyUI = getModule('UI/Components/PartyFriends/PartyFriends');
-						if (PartyUI && PartyUI.onRequestLeave) {
-							PartyUI.onRequestLeave();
+						if (PartyFriends && PartyFriends.onRequestLeave) {
+							PartyFriends.onRequestLeave();
 						} else {
-							var ui = PartyUI ? PartyUI.getUI() : null;
+							var ui = PartyFriends ? PartyFriends.getUI() : null;
 							if (ui && ui.onRequestLeave) {
 								ui.onRequestLeave();
 							}
@@ -119,9 +114,12 @@ define(function (require) {
 					if (!self._player) {
 						return;
 					}
-					var WhisperBox = getModule('UI/Components/WhisperBox/WhisperBox');
 					if (WhisperBox) {
 						WhisperBox.show(self._player.characterName);
+					} else if (ChatBox) {
+						// Fallback to chatbox if whisperbox is not available
+						ChatBox.ui.find('.username').val(self._player.characterName);
+						ChatBox.ui.find('.message').select();
 					}
 				});
 			}
@@ -311,5 +309,4 @@ define(function (require) {
 	/**
 	 * Exports
 	 */
-	return UIManager.addComponent(PartyMemberExternal);
-});
+	export default UIManager.addComponent(PartyMemberExternal);

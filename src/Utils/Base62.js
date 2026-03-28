@@ -7,15 +7,13 @@
  *
  * @author Alisonrag
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	var base62_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	const base62_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 	// encode
 	function encode(number) {
-		var result = '';
+		let result = '';
 		while (number > 0) {
 			result = base62_alphabet[number % 62] + result;
 			number = Math.floor(number / 62);
@@ -35,9 +33,8 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return {
+	export default {
 		encode: encode,
 		decode: decode,
 		base62_alphabet: base62_alphabet
 	};
-});

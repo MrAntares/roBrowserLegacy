@@ -5,17 +5,15 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	var AE = {
+	let AE = {
 		PROJECTILE: {},
 		SPAWN: {}
 	};
 
 	// We don't have a complete job const table with monster and other ids, so i put this here. When we do have it, replace with the Job Const require.
-	var JOB = {
+	let JOB = {
 		ARCHER_GUARDIAN: 1285,
 		ARCHER_SKELETON: 1016,
 		G_ARCHER_SKELETON: 1420,
@@ -138,7 +136,7 @@ define(function () {
 	};
 
 	// Arrow projectile
-	AE.PROJECTILE[JOB.ARCHER_GUARDIAN] =
+		AE.PROJECTILE[JOB.ARCHER_GUARDIAN] =
 		AE.PROJECTILE[JOB.ARCHER_SKELETON] =
 		AE.PROJECTILE[JOB.G_ARCHER_SKELETON] =
 		AE.PROJECTILE[JOB.MUTANT_ARCHER_SKELETON] =
@@ -258,5 +256,4 @@ define(function () {
 		AE.SPAWN[JOB.MD_G_ENTWEIHEN_M] =
 			'ef_entweihen_attack';
 
-	return AE;
-});
+	export default AE;

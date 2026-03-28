@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	return {
+export default {
 		NONE: 0,
 		SHORTSWORD: 1,
 		SWORD: 2,
@@ -117,4 +116,3 @@ define(function () {
 		FOXTAIL_METAL: 102,
 		MAX: 103
 	};
-});

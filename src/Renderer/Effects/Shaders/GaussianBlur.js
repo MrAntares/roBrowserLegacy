@@ -6,22 +6,18 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var GraphicsSettings = require('Preferences/Graphics');
-	var WebGL = require('Utils/WebGL');
-	var PostProcess = require('Renderer/Effects/PostProcess');
+import GraphicsSettings from 'Preferences/Graphics';
+import WebGL from 'Utils/WebGL';
+import PostProcess from 'Renderer/Effects/PostProcess';
+import commonVS from './GLSL/Common.vs?raw';
+import blurFS from './GLSL/GaussianBlur.fs?raw';
 
-	var _program, _buffer;
-
-	var commonVS = require('text!./GLSL/Common.vs');
-
+let _program, _buffer;
 	/**
 	 * Fragment Shader: Single-Pass Gaussian Blur
 	 */
-	var blurFS = require('text!./GLSL/GaussianBlur.fs');
-
 	function GaussianBlur() {}
 
 	/**
@@ -39,13 +35,13 @@ define(function (require) {
 
 		gl.useProgram(_program);
 
-		var focusRadius = GraphicsSettings.blurArea / 100;
-		var focusFalloff = 0.5;
+		let focusRadius = GraphicsSettings.blurArea / 100;
+		let focusFalloff = 0.5;
 
 		gl.uniform1f(_program.uniform.uFocusRadius, focusRadius);
 		gl.uniform1f(_program.uniform.uFocusFalloff, focusFalloff);
 
-		var boxsampleFactor = GraphicsSettings.blurIntensity;
+		let boxsampleFactor = GraphicsSettings.blurIntensity;
 
 		gl.uniform2f(
 			_program.uniform.uTexelSize,
@@ -54,7 +50,7 @@ define(function (require) {
 		);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		var posLoc = _program.attribute.aPosition;
+		let posLoc = _program.attribute.aPosition;
 		gl.enableVertexAttribArray(posLoc);
 		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
@@ -77,7 +73,7 @@ define(function (require) {
 			console.error('Error compiling Lens Blur shader.', e);
 			return;
 		}
-		var quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+		let quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
@@ -98,6 +94,4 @@ define(function (require) {
 		}
 		_program = _buffer = null;
 	};
-
-	return GaussianBlur;
-});
+export default GaussianBlur;

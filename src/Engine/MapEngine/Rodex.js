@@ -6,22 +6,21 @@
  * @author Alisonrag
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import RodexIcon from 'UI/Components/Rodex/RodexIcon';
+import Rodex from 'UI/Components/Rodex/Rodex';
+import ReadRodex from 'UI/Components/Rodex/ReadRodex';
+import WriteRodex from 'UI/Components/Rodex/WriteRodex';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var RodexIcon = require('UI/Components/Rodex/RodexIcon');
-	var Rodex = require('UI/Components/Rodex/Rodex');
-	var ReadRodex = require('UI/Components/Rodex/ReadRodex');
-	var WriteRodex = require('UI/Components/Rodex/WriteRodex');
-
 	/**
 	 * Send Packets
 	 */
@@ -417,7 +416,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.RODEX_ICON, rodexIcon);
 		Network.hookPacket(PACKET.ZC.ACK_RODEX_LIST, rodexList);
 		Network.hookPacket(PACKET.ZC.ACK_RODEX_LIST2, rodexList);
@@ -437,4 +436,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME, rodexCharacterInfo);
 		Network.hookPacket(PACKET.ZC.CHECK_RECEIVE_CHARACTER_NAME2, rodexCharacterInfo);
 	};
-});

@@ -6,45 +6,46 @@
  * - Emits 2 flakes per 25ms tick until the last 160 ticks of its lifetime.
  * - Each flake is a no-master particle that falls straight down and fades in/out.
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Session = require('Engine/SessionStorage');
-	var getModule = require;
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
 
-	// The official client uses 25ms rag ticks for weather effects.
-	var RAG_TICK_MS = 25;
+let MapRenderer;
+import('Renderer/MapRenderer').then(m => MapRenderer = m.default);
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Altitude from 'Renderer/Map/Altitude';
+import Session from 'Engine/SessionStorage';
+
+// The official client uses 25ms rag ticks for weather effects.
+	let RAG_TICK_MS = 25;
 	// Stop() shortens remaining time to ~1000 ticks.
-	var FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
+	let FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
 
 	// Emitter behavior
-	var EMIT_PER_TICK = 2;
-	var EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
+	let EMIT_PER_TICK = 2;
+	let EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
 
 	// Flake behavior
-	var FLAKE_LIFE_MS = 320 * RAG_TICK_MS;
-	var FLAKE_FADEIN_MS = 10 * RAG_TICK_MS;
-	var FLAKE_FADEOUT_START_MS = (FLAKE_LIFE_MS * 4) / 5; // last 1/5 of life
+	let FLAKE_LIFE_MS = 320 * RAG_TICK_MS;
+	let FLAKE_FADEIN_MS = 10 * RAG_TICK_MS;
+	let FLAKE_FADEOUT_START_MS = (FLAKE_LIFE_MS * 4) / 5; // last 1/5 of life
 
 	// Spatial tuning in map-cell units.
 	// Original client scatters within ~300 internal units around the player and spawns ~100 units above ground.
 	// roBrowser scales gat/world heights by 0.2 (1 cell ~= 5 internal units), so:
 	// 300 / 5 ~= 60 cells radius, 100 / 5 ~= 20 cells height.
-	var SCATTER_RADIUS_CELLS = 60;
-	var SPAWN_HEIGHT_MIN_CELLS = 18;
-	var SPAWN_HEIGHT_MAX_CELLS = 22;
+	let SCATTER_RADIUS_CELLS = 60;
+	let SPAWN_HEIGHT_MIN_CELLS = 18;
+	let SPAWN_HEIGHT_MAX_CELLS = 22;
 
 	// Fall speed in cells per rag tick (original -0.5 internal units/tick => 0.1 cells/tick).
-	var FALL_SPEED_CELLS_PER_TICK = 0.1;
-	var FALL_SPEED_CELLS_PER_MS = FALL_SPEED_CELLS_PER_TICK / RAG_TICK_MS;
+	let FALL_SPEED_CELLS_PER_TICK = 0.1;
+	let FALL_SPEED_CELLS_PER_MS = FALL_SPEED_CELLS_PER_TICK / RAG_TICK_MS;
 
 	// Official snow assets are stored under the "effect" sprite folder.
 	// (Same folder used by ThreeDEffect: data/sprite/ÀÌÆÑÆ®/)
-	var SPR_PATH = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/ef_snow';
+	let SPR_PATH = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/ef_snow';
 
 	// SINGLETON STATE
 	let _instance = null;
@@ -103,8 +104,8 @@ define(function (require) {
 	 * snow is still running, but if it is in its 300‑tick fade‑out tail, revive it.
 	 */
 	SnowWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		var now = Params.Inst.startTick || Renderer.tick;
-		var currentMap = getModule('Renderer/MapRenderer').currentMap;
+		let now = Params.Inst.startTick || Renderer.tick;
+		let currentMap = MapRenderer ? MapRenderer.currentMap : '';
 
 		// If map changed, force new instance
 		if (_mapName !== currentMap) {
@@ -132,7 +133,7 @@ define(function (require) {
 		}
 
 		// Clean up if map changed abruptly
-		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
+		if (_mapName !== (MapRenderer ? MapRenderer.currentMap : '')) {
 			_instance = null;
 			return;
 		}
@@ -159,7 +160,7 @@ define(function (require) {
 			return;
 		}
 
-		var now = tick || Renderer.tick;
+		let now = tick || Renderer.tick;
 		// The render loop will handle the fade out and eventual cleanup.
 		if (_instance.endTick === -1) {
 			_instance.endTick = now + FADEOUT_TAIL_MS;
@@ -175,22 +176,22 @@ define(function (require) {
 			return;
 		}
 
-		var px = Session.Entity.position[0];
-		var py = Session.Entity.position[1];
+		let px = Session.Entity.position[0];
+		let py = Session.Entity.position[1];
 
-		var theta = Math.random() * Math.PI * 2;
-		var radius = Math.random() * SCATTER_RADIUS_CELLS;
-		var ox = Math.cos(theta) * radius;
-		var oy = Math.sin(theta) * radius;
+		let theta = Math.random() * Math.PI * 2;
+		let radius = Math.random() * SCATTER_RADIUS_CELLS;
+		let ox = Math.cos(theta) * radius;
+		let oy = Math.sin(theta) * radius;
 
-		var x = px + ox;
-		var y = py + oy;
+		let x = px + ox;
+		let y = py + oy;
 
-		var groundZ = Altitude.getCellHeight(x, y);
-		var spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
+		let groundZ = Altitude.getCellHeight(x, y);
+		let spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
 		// In RO Browser coordinates, higher altitude is larger Z (falcon gliding adds +Z).
 		// Spawn above ground by adding height, then fall by decreasing Z.
-		var z = groundZ + spawnHeight;
+		let z = groundZ + spawnHeight;
 
 		this.flakes.push({
 			spawnTick: spawnTick,
@@ -213,8 +214,8 @@ define(function (require) {
 		SpriteRenderer.sprite = spr.frames[layer.index];
 		SpriteRenderer.palette = pal.palette;
 
-		var index = layer.index;
-		var is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
+		let index = layer.index;
+		let is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
 
 		if (!is_rgba) {
 			SpriteRenderer.image.palette = pal.texture;
@@ -224,9 +225,9 @@ define(function (require) {
 			index += spr.old_rgba_index;
 		}
 
-		var frame = spr.frames[index];
-		var width = frame.width * layer.scale[0] * sizeScale;
-		var height = frame.height * layer.scale[1] * sizeScale;
+		let frame = spr.frames[index];
+		let width = frame.width * layer.scale[0] * sizeScale;
+		let height = frame.height * layer.scale[1] * sizeScale;
 
 		if (layer.is_mirror) {
 			width = -width;
@@ -254,8 +255,8 @@ define(function (require) {
 		}
 		// Always fetch from Client cache so MemoryManager knows it's still used.
 		// This prevents long-lived weather effects from having their SPR textures evicted.
-		var spr = Client.loadFile(SPR_PATH + '.spr', null, null, { to_rgba: true });
-		var act = Client.loadFile(SPR_PATH + '.act');
+		let spr = Client.loadFile(SPR_PATH + '.spr', null, null, { to_rgba: true });
+		let act = Client.loadFile(SPR_PATH + '.act');
 
 		if (!spr || !act) {
 			return;
@@ -265,7 +266,7 @@ define(function (require) {
 		this.act = act;
 
 		// Effect lifetime / emission gating.
-		var remaining = Infinity;
+		let remaining = Infinity;
 		if (this.endTick > 0) {
 			remaining = this.endTick - tick;
 			if (remaining <= 0) {
@@ -274,15 +275,15 @@ define(function (require) {
 			}
 		}
 
-		var allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
+		let allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
 		if (allowEmit) {
-			var ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
+			let ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
 			if (ticksToEmit > 0) {
 				for (var i = 0; i < ticksToEmit; i++) {
 					if (_isStopping) {
 						break;
 					}
-					var emitTick = this.lastEmitTick + i * RAG_TICK_MS;
+					let emitTick = this.lastEmitTick + i * RAG_TICK_MS;
 					this.spawnFlake(emitTick);
 					this.spawnFlake(emitTick);
 				}
@@ -291,13 +292,13 @@ define(function (require) {
 		}
 
 		// Render flakes
-		var action = act.actions[0];
-		var frameDelay = Math.max(action.delay || 150, 1);
-		var frameCount = action.animations.length || 1;
+		let action = act.actions[0];
+		let frameDelay = Math.max(action.delay || 150, 1);
+		let frameCount = action.animations.length || 1;
 
 		for (var f = this.flakes.length - 1; f >= 0; f--) {
-			var flake = this.flakes[f];
-			var age = tick - flake.spawnTick;
+			let flake = this.flakes[f];
+			let age = tick - flake.spawnTick;
 
 			if (age >= FLAKE_LIFE_MS) {
 				this.flakes.splice(f, 1);
@@ -309,7 +310,7 @@ define(function (require) {
 			flake._lastTick = tick;
 
 			// Alpha fade in/out
-			var alpha = 1.0;
+			let alpha = 1.0;
 			if (age < FLAKE_FADEIN_MS) {
 				alpha = age / FLAKE_FADEIN_MS;
 			} else if (age > FLAKE_FADEOUT_START_MS) {
@@ -322,12 +323,12 @@ define(function (require) {
 			SpriteRenderer.zIndex = 0;
 
 			// Pick animation frame (simple time-based repeat).
-			var frameIndex = Math.floor(age / frameDelay) % frameCount;
-			var animation = action.animations[frameIndex];
+			let frameIndex = Math.floor(age / frameDelay) % frameCount;
+			let animation = action.animations[frameIndex];
 
-			var layers = animation.layers;
-			var pal = spr;
-			var pos = [0, 0];
+			let layers = animation.layers;
+			let pal = spr;
+			let pos = [0, 0];
 			for (var l = 0; l < layers.length; l++) {
 				renderLayer(layers[l], spr, pal, flake.size, pos, alpha);
 			}
@@ -338,6 +339,4 @@ define(function (require) {
 		this.ready = false;
 		this.flakes = [];
 	};
-
-	return SnowWeatherEffect;
-});
+export default SnowWeatherEffect;

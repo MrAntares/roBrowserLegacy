@@ -1,9 +1,9 @@
 /**
  * WorldMap data
  */
-define([], function () {
-	'use strict';
-	return [
+'use strict';
+
+	export default [
 		// #region Midgard
 		{
 			id: 'worldmap.jpg',
@@ -2055,4 +2055,3 @@ define([], function () {
 		}
 		// #endregion
 	];
-});

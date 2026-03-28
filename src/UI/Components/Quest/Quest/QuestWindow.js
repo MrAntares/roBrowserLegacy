@@ -7,19 +7,15 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Preferences = require('Core/Preferences');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./QuestWindow.html');
-	var cssText = require('text!./QuestWindow.css');
+import Preferences from 'Core/Preferences';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './QuestWindow.html?raw';
+import cssText from './QuestWindow.css?raw';
 
-	var _preferences = Preferences.get(
+let _preferences = Preferences.get(
 		'Quest',
 		{
 			x: 200,
@@ -33,7 +29,7 @@ define(function (require) {
 	/**
 	 * Create Component
 	 */
-	var QuestWindow = new UIComponent('QuestWindow', htmlText, cssText);
+	let QuestWindow = new UIComponent('QuestWindow', htmlText, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -134,7 +130,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(QuestWindow);
-});
+	export default UIManager.addComponent(QuestWindow);

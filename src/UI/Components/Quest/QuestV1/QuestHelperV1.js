@@ -7,33 +7,29 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Navigation = require('UI/Components/Navigation/Navigation');
-	var jQuery = require('Utils/jquery');
-	var htmlText = require('text!./QuestHelperV1.html');
-	var cssText = require('text!./QuestHelperV1.css');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Navigation from 'UI/Components/Navigation/Navigation';
+import jQuery from 'Utils/jquery';
+import htmlText from './QuestHelperV1.html?raw';
+import cssText from './QuestHelperV1.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var QuestHelperV1 = new UIComponent('QuestHelperV1', htmlText, cssText);
+	let QuestHelperV1 = new UIComponent('QuestHelperV1', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'QuestHelperV1',
 		{
 			x: 200,
@@ -127,7 +123,7 @@ define(function (require) {
 
 		// Add click handler for item links
 		this.ui.on('click', '.item-link', function (event) {
-			var itemId = parseInt(jQuery(this).data('item-id'), 10);
+			let itemId = parseInt(jQuery(this).data('item-id'), 10);
 			if (!itemId) {
 				return;
 			}
@@ -146,8 +142,8 @@ define(function (require) {
 
 		// Add click handler for navi links
 		this.ui.on('click', '.navi-link', function (event) {
-			var naviInfo = jQuery(this).data('navi-info');
-			var displayName = jQuery(this).data('navi-name');
+			let naviInfo = jQuery(this).data('navi-info');
+			let displayName = jQuery(this).data('navi-name');
 
 			if (!naviInfo) {
 				return;
@@ -250,13 +246,12 @@ define(function (require) {
 	}
 
 	function onSelectMonster(e) {
-		var selected_monster = jQuery(e.currentTarget);
+		let selected_monster = jQuery(e.currentTarget);
 		QuestHelperV1.ui.find('.killed').html(selected_monster.attr('current'));
 		QuestHelperV1.ui.find('.limited').html(selected_monster.attr('max'));
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(QuestHelperV1);
-});
+	export default UIManager.addComponent(QuestHelperV1);

@@ -1,36 +1,35 @@
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var WebGL = require('Utils/WebGL');
-	var Texture = require('Utils/Texture');
-	var glMatrix = require('Utils/gl-matrix');
-	var Client = require('Core/Client');
-	var Camera = require('Renderer/Camera');
-	var Configs = require('../../Core/Configs');
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Camera from 'Renderer/Camera';
+import Configs from '../../Core/Configs';
 
+// Load dependencies
 	/**
 	 * @var {WebGLTexture}
 	 */
-	var _texture;
+	let _texture;
 
 	/**
 	 * @var {WebGLProgram}
 	 */
-	var _program;
+	let _program;
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer;
+	let _buffer;
 
 	/**
 	 * @var {mat4}
 	 */
-	var mat4 = glMatrix.mat4;
+	let mat4 = glMatrix.mat4;
 
-	var _rotationMatrices = (function () {
-		var matrices = [];
+	let _rotationMatrices = (function () {
+		let matrices = [];
 		for (var i = 0; i < 5; i++) {
 			matrices.push({
 				posMat: mat4.create(),
@@ -40,12 +39,12 @@ define(function (require) {
 		return matrices;
 	})();
 
-	var _textureMatrix = mat4.create();
+	let _textureMatrix = mat4.create();
 
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader = `
+	let _vertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -83,7 +82,7 @@ define(function (require) {
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = `
+	let _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;    
@@ -142,8 +141,8 @@ define(function (require) {
 
 		Client.loadFile('data/texture/effect/thunder_center.bmp', function (buffer) {
 			Texture.load(buffer, function () {
-				var enableMipmap = Configs.get('enableMipmap');
-				var ctx = this.getContext('2d');
+				let enableMipmap = Configs.get('enableMipmap');
+				let ctx = this.getContext('2d');
 				ctx.save();
 				ctx.translate(this.width / 2, this.height / 2);
 				// ctx.rotate( 45 / 180 * Math.PI);
@@ -184,20 +183,20 @@ define(function (require) {
 	};
 
 	SpiritSphere.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		let uniform = _program.uniform;
+		let attribute = _program.attribute;
 		gl.useProgram(_program);
 
-		var _matrix, offset;
+		let _matrix, offset;
 		for (var i = 0, _len = _rotationMatrices.length; i < _len; i++) {
-			var vcRad = ((Camera.angle[0] - 90) * Math.PI) / 180;
-			var hcRad = (Camera.angle[1] * Math.PI) / 180;
+			let vcRad = ((Camera.angle[0] - 90) * Math.PI) / 180;
+			let hcRad = (Camera.angle[1] * Math.PI) / 180;
 			offset = (i * 2 * Math.PI) / _rotationMatrices.length;
-			var rotRad = offset - (tick / 64 / 180) * Math.PI;
+			let rotRad = offset - (tick / 64 / 180) * Math.PI;
 
 			//_matrix = _rotationMatrices[i].texMat;
 			//mat4.identity(_matrix);
-			var textureMatrix = mat4.create();
+			let textureMatrix = mat4.create();
 			mat4.rotateX(_rotationMatrices[i].texMat, textureMatrix, vcRad);
 			mat4.rotateY(_rotationMatrices[i].texMat, _rotationMatrices[i].texMat, hcRad - rotRad);
 
@@ -226,7 +225,7 @@ define(function (require) {
 	};
 
 	SpiritSphere.prototype.render = function render(gl, tick) {
-		var uniform = _program.uniform;
+		let uniform = _program.uniform;
 
 		gl.uniform3fv(uniform.uPosition, this.position);
 
@@ -236,7 +235,7 @@ define(function (require) {
 
 		gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
 
-		var _matrix;
+		let _matrix;
 		for (var i = this.num; i > 0; i--) {
 			_matrix = _rotationMatrices[i % _rotationMatrices.length];
 
@@ -300,7 +299,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return SpiritSphere;
-});
+	export default SpiritSphere;

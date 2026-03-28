@@ -6,10 +6,9 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define([], function () {
-	'use strict';
+'use strict';
 
-	var MapInfo = {
+	let MapInfo = {
 		'1@gol1.rsw': {
 			backgroundBmp: 'dungeon',
 			signName: {
@@ -8401,5 +8400,4 @@ define([], function () {
 		}
 	};
 
-	return MapInfo;
-});
+	export default MapInfo;

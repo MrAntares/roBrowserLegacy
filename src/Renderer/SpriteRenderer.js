@@ -7,24 +7,23 @@
  *
  * @author Vincent Thibault
  */
-define([
-	'Utils/WebGL',
-	'Utils/gl-matrix',
-	'./Camera',
-	'text!./SpriteRenderer.vs',
-	'text!./SpriteRenderer.fs'
-], function (WebGL, glMatrix, Camera, _vertexShader, _fragmentShader) {
-	'use strict';
+'use strict';
 
-	/**
+import WebGL from 'Utils/WebGL';
+import glMatrix from 'Utils/gl-matrix';
+import Camera from './Camera';
+import _vertexShader from './SpriteRenderer.vs?raw';
+import _fragmentShader from './SpriteRenderer.fs?raw';
+
+/**
 	 * Import
 	 */
-	var mat4 = glMatrix.mat4;
+	let mat4 = glMatrix.mat4;
 
 	/**
 	 * Sprite Renderer NameSpace
 	 */
-	var SpriteRenderer = {};
+	let SpriteRenderer = {};
 
 	/**
 	 * @var {function} functions to use to render
@@ -108,93 +107,93 @@ define([
 	/**
 	 * @var {WebGLProgram}
 	 */
-	var _program = null;
+	let _program = null;
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer = null;
+	let _buffer = null;
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _ctx = null;
+	let _ctx = null;
 
 	/**
 	 * @var {WebGLRenderingContext} 3d context
 	 */
-	var _gl = null;
+	let _gl = null;
 
 	/**
 	 * @var {number} group id
 	 * Used to know if we have to bind texture again
 	 */
-	var _groupId = 0;
+	let _groupId = 0;
 
 	/**
 	 * @var {number} last group id
 	 */
-	var _lastGroupId = 0;
+	let _lastGroupId = 0;
 
 	/**
 	 * @var {number} last shadow used
 	 */
-	var _shadow = null;
+	let _shadow = null;
 
 	/**
 	 * @var {number} last rotation angle used
 	 */
-	var _angle = null;
+	let _angle = null;
 
 	/**
 	 * @var {number} last depth operation
 	 */
-	var _depth = null;
+	let _depth = null;
 
 	/**
 	 * @var {boolean} cached disable depth correction state
 	 */
-	var _disableDepthCorrection = false;
+	let _disableDepthCorrection = false;
 
 	/**
 	 * @var {boolean} cached depth mask state
 	 */
-	var _depthMask = true;
+	let _depthMask = true;
 
 	/**
 	 * @var {boolean} cached depth test state
 	 */
-	var _depthTest = true;
+	let _depthTest = true;
 
 	/**
 	 * @var {object} last texture used
 	 */
-	var _texture = null;
+	let _texture = null;
 
 	/**
 	 * @var {boolean} do we use palette ?
 	 */
-	var _usepal = null;
+	let _usepal = null;
 
 	/**
 	 * @var {Uint16Array} position in 2D canvas
 	 */
-	var _pos = new Int16Array(2);
+	let _pos = new Int16Array(2);
 
 	/**
 	 * @var {mat4} last generated matrix (used for rotation)
 	 */
-	var _matrix = new Float32Array(4 * 4);
+	let _matrix = new Float32Array(4 * 4);
 
 	/**
 	 * @var {Float32Array[2]} sprite size
 	 */
-	var _size = new Float32Array(2);
+	let _size = new Float32Array(2);
 
 	/**
 	 * @var {Float32Array[2]} sprite offset position
 	 */
-	var _offset = new Float32Array(2);
+	let _offset = new Float32Array(2);
 
 	/**
 	 * Initialize SpriteRenderer Renderer
@@ -228,8 +227,8 @@ define([
 	 * @param {object} fog structure
 	 */
 	SpriteRenderer.bind3DContext = function Bind3dContext(gl, modelView, projection, fog) {
-		var attribute = _program.attribute;
-		var uniform = _program.uniform;
+		let attribute = _program.attribute;
+		let uniform = _program.uniform;
 
 		gl.useProgram(_program);
 		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
@@ -276,7 +275,7 @@ define([
 	 * @param {object} gl context
 	 */
 	SpriteRenderer.unbind = function unBind(gl) {
-		var attribute = _program.attribute;
+		let attribute = _program.attribute;
 
 		gl.disableVertexAttribArray(attribute.aPosition);
 		gl.disableVertexAttribArray(attribute.aTextureCoord);
@@ -311,9 +310,9 @@ define([
 		// gl.uniform* seems to be expensive
 		// cache values to avoid flooding the GPU and reducing perf.
 
-		var uniform = _program.uniform;
-		var gl = _gl;
-		var use_pal = this.image.palette !== null;
+		let uniform = _program.uniform;
+		let gl = _gl;
+		let use_pal = this.image.palette !== null;
 
 		if (isBlendModeOne) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -342,7 +341,7 @@ define([
 			gl.uniform1f(uniform.uSpriteRendererDepth, (_depth = this.depth));
 		}
 
-		var disableDepthCorrection = !!this.disableDepthCorrection;
+		let disableDepthCorrection = !!this.disableDepthCorrection;
 		if (_disableDepthCorrection !== disableDepthCorrection) {
 			_disableDepthCorrection = disableDepthCorrection;
 			gl.uniform1i(uniform.uDisableDepthCorrection, disableDepthCorrection);
@@ -399,9 +398,9 @@ define([
 			return;
 		}
 
-		var prevDepthTest = _depthTest;
-		var prevDepthMask = _depthMask;
-		var prevDepthCorrection = this.disableDepthCorrection;
+		let prevDepthTest = _depthTest;
+		let prevDepthMask = _depthMask;
+		let prevDepthCorrection = this.disableDepthCorrection;
 
 		if (_depthTest !== depthTest) {
 			_depthTest = depthTest;
@@ -447,8 +446,8 @@ define([
 	/**
 	 * Render in 2D
 	 */
-	var RenderCanvas2D = (function RenderCanvas2DClosure() {
-		var canvas, ctx, imageData;
+	const RenderCanvas2D = (function RenderCanvas2DClosure() {
+		let canvas, ctx, imageData;
 
 		canvas = document.createElement('canvas');
 		ctx = canvas.getContext('2d');
@@ -462,11 +461,11 @@ define([
 				return;
 			}
 
-			var scale_x, scale_y;
-			var x, y, _x, _y, width, height, outputWidth;
-			var pal, frame, color;
-			var input, output32;
-			var r, g, b, a, inRow, outRow;
+			let scale_x, scale_y;
+			let x, y, _x, _y, width, height, outputWidth;
+			let pal, frame, color;
+			let input, output32;
+			let r, g, b, a, inRow, outRow;
 
 			scale_x = 1.0;
 			scale_y = 1.0;
@@ -507,13 +506,13 @@ define([
 
 			// Pre-calculate color multipliers for 32-bit assembly
 			// Avoid repeated array lookups inside the inner loop.
-			var r_mul = color[0],
+			let r_mul = color[0],
 				g_mul = color[1],
 				b_mul = color[2],
 				a_mul = color[3];
 
 			// Fast path: no color modulation (identity)
-			var isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
+			let isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
 
 			// RGBA images
 			if (this.sprite.type === 1) {
@@ -525,14 +524,14 @@ define([
 				 *            1 load + 1 store per pixel in the fast path.
 				 * Reduces memory writes and bounds checks inside the inner loop.
 				 */
-				var input32 = new Uint32Array(input.buffer);
+				let input32 = new Uint32Array(input.buffer);
 
 				for (y = 0; y < height; ++y) {
 					outRow = y * outputWidth;
 					inRow = y * width;
 
 					for (x = 0; x < width; ++x) {
-						var pixel = input32[inRow + x];
+						let pixel = input32[inRow + x];
 						if (pixel === 0) {
 							// Transparent skip behavior due n*0 = 0
 							output32[outRow + x] = 0;
@@ -561,14 +560,14 @@ define([
 				// Pre-calculate a color-modulated 32-bit palette for this frame.
 				// WHY: Avoid per-pixel palette lookups and color multiplications.
 				// Cost: O(256) setup, O(pixels) usage.
-				var pal32 = new Uint32Array(256);
+				let pal32 = new Uint32Array(256);
 				for (var i = 0; i < 256; i++) {
 					if (i === 0) {
 						// Transparent skip behavior due n*0 = 0
 						pal32[i] = 0;
 						continue;
 					}
-					var pIdx = i * 4;
+					let pIdx = i * 4;
 					r = (pal[pIdx + 0] * r_mul) | 0;
 					g = (pal[pIdx + 1] * g_mul) | 0;
 					b = (pal[pIdx + 2] * b_mul) | 0;
@@ -603,7 +602,6 @@ define([
 	})();
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return SpriteRenderer;
-});
+	export default SpriteRenderer;

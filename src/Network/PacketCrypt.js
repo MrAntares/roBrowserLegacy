@@ -17,8 +17,8 @@
  * @author Vincent Thibault
  */
 
-define(['Core/Configs'], function (Configs) {
-	'use strict';
+import Configs from 'Core/Configs';
+'use strict';
 
 	/**
 	 * @var {integer} Keys to shuffle the packet
@@ -573,8 +573,7 @@ define(['Core/Configs'], function (Configs) {
 	/**
 	 * Export
 	 */
-	return {
+	export default {
 		init: Init,
 		process: Process
 	};
-});

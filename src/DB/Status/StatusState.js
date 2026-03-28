@@ -7,11 +7,11 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['DB/Status/StatusConst'], function (StatusConst) {
-	'use strict';
+import StatusConst from './StatusConst';
 
-	return {
+	export default {
 		BodyState: {
 			STONE: 1,
 			FREEZE: 2,
@@ -93,4 +93,3 @@ define(['DB/Status/StatusConst'], function (StatusConst) {
 
 		Status: StatusConst
 	};
-});

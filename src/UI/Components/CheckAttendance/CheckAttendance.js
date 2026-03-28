@@ -7,43 +7,39 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var htmlText = require('text!./CheckAttendance.html');
-	var cssText = require('text!./CheckAttendance.css');
-	var jQuery = require('Utils/jquery');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import htmlText from './CheckAttendance.html?raw';
+import cssText from './CheckAttendance.css?raw';
+import jQuery from 'Utils/jquery';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var CheckAttendance = new UIComponent('CheckAttendance', htmlText, cssText);
+	let CheckAttendance = new UIComponent('CheckAttendance', htmlText, cssText);
 
 	/**
 	 * @var {object} _checkAttendanceData
 	 */
-	var _checkAttendanceData;
+	let _checkAttendanceData;
 
 	/**
 	 * @var {object} _CheckAttendanceInfo
 	 */
-	var _CheckAttendanceInfo;
+	let _CheckAttendanceInfo;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'CheckAttendance',
 		{
 			x: 200,
@@ -109,7 +105,7 @@ define(function (require) {
 		if (this.ui.is(':visible')) {
 			this.ui.hide();
 		} else {
-			var _pkt = new PACKET.CZ.UI_OPEN();
+			let _pkt = new PACKET.CZ.UI_OPEN();
 			_pkt.UIType = 5;
 			Network.sendPacket(_pkt);
 		}
@@ -130,7 +126,7 @@ define(function (require) {
 		let attendance_count = 0;
 		let current_day = 1;
 		if (_CheckAttendanceInfo.Config) {
-			var regex = /(\d{4})(\d{2})(\d{2})/;
+			let regex = /(\d{4})(\d{2})(\d{2})/;
 			let start = regex.exec(_CheckAttendanceInfo.Config.StartDate);
 			let end = regex.exec(_CheckAttendanceInfo.Config.EndDate);
 			let period_string = `Event Period: From ${start[2]}/${start[3]} ~ Until ${end[2]}/${end[3]} (Month/Day) 24:00`;
@@ -228,7 +224,7 @@ define(function (require) {
 	 */
 	function onClickAttendance(e) {
 		// send reward request
-		var toggle_element = jQuery(e.currentTarget);
+		let toggle_element = jQuery(e.currentTarget);
 		let id = toggle_element.attr('id');
 		CheckAttendance.ui.find('#' + id + ' .checked-hidden').attr('class', 'checked');
 		let completed_div = '<div class="completed" data-background="check_attendance/bt_slot_complete.tga"></div>';
@@ -236,12 +232,11 @@ define(function (require) {
 		let current_day = parseInt(_checkAttendanceData / 10) + 1;
 		let total_days_string = `${current_day} Day attendance success`;
 		CheckAttendance.ui.find('.total-days').html(total_days_string);
-		var _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
+		let _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
 		Network.sendPacket(_pkt);
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(CheckAttendance);
-});
+	export default UIManager.addComponent(CheckAttendance);

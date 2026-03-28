@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+
+/**
 	 * Load dependencies
 	 */
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-
 	function onAllAchievementList(pkt) {}
 
 	function onAchievementUpdate(pkt) {}
@@ -24,9 +23,8 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.ALL_ACH_LIST, onAllAchievementList);
 		Network.hookPacket(PACKET.ZC.ACH_UPDATE, onAchievementUpdate);
 		Network.hookPacket(PACKET.ZC.REQ_ACH_REWARD_ACK, onRequestAchievementRewardACK);
 	};
-});

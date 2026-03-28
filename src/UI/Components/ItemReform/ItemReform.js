@@ -5,39 +5,35 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var EffectConst = require('DB/Effects/EffectConst');
-	var ItemType = require('DB/Items/ItemType');
-	var Session = require('Engine/SessionStorage');
-	var Network = require('Network/NetworkManager');
-	var EffectManager = require('Renderer/EffectManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var NpcBox = require('UI/Components/NpcBox/NpcBox');
-	var Client = require('Core/Client');
-	var KEYS = require('Controls/KeyEventHandler');
-	var htmlText = require('text!./ItemReform.html');
-	var cssText = require('text!./ItemReform.css');
-	var PACKET = require('Network/PacketStructure');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import EffectConst from 'DB/Effects/EffectConst';
+import ItemType from 'DB/Items/ItemType';
+import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager';
+import EffectManager from 'Renderer/EffectManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import NpcBox from 'UI/Components/NpcBox/NpcBox';
+import Client from 'Core/Client';
+import KEYS from 'Controls/KeyEventHandler';
+import htmlText from './ItemReform.html?raw';
+import cssText from './ItemReform.css?raw';
+import PACKET from 'Network/PacketStructure';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var ItemReform = new UIComponent('ItemReform', htmlText, cssText);
+	let ItemReform = new UIComponent('ItemReform', htmlText, cssText);
 
-	var ReformInfo = {};
-	var SelectedReformInfo = {};
+	let ReformInfo = {};
+	let SelectedReformInfo = {};
 
 	const ReformUIState = {
 		itemId: 0,
@@ -60,7 +56,7 @@ define(function (require) {
 	 */
 	ItemReform.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		var events = jQuery._data(window, 'events').keydown;
+		let events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		ItemReform.ui.find('.information_details').hide();
@@ -122,8 +118,8 @@ define(function (require) {
 	 * @returns {Array<Item>}
 	 */
 	function GetInventoryItemsById(id) {
-		var items = [];
-		var list = Inventory.getUI().list;
+		let items = [];
+		let list = Inventory.getUI().list;
 
 		for (var i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -146,7 +142,7 @@ define(function (require) {
 			// Assume lapine_list is already loaded and available
 			let reformids = DB.findReformListByItemID(pkt.ITID);
 
-			var item = Inventory.getUI().getItemById(pkt.ITID);
+			let item = Inventory.getUI().getItemById(pkt.ITID);
 
 			if (!item) {
 				return false;
@@ -249,8 +245,8 @@ define(function (require) {
 	 * Handles the selection of a material in the UI.
 	 */
 	function onMaterialSelect() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -274,8 +270,8 @@ define(function (require) {
 			.find('.item')
 			.removeClass('selected')
 			.each(function () {
-				var resetIdx = parseInt(this.getAttribute('data-index'), 10);
-				var resetItem = Inventory.getUI().getItemByIndex(resetIdx);
+				let resetIdx = parseInt(this.getAttribute('data-index'), 10);
+				let resetItem = Inventory.getUI().getItemByIndex(resetIdx);
 				if (resetItem) {
 					Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
 						availableMatList
@@ -302,8 +298,8 @@ define(function (require) {
 			return false;
 		}
 
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -324,8 +320,8 @@ define(function (require) {
 			return false;
 		}
 
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -469,7 +465,7 @@ define(function (require) {
 	function onHoverDetails(event) {
 		if (SelectedReformInfo) {
 			// InformationString array
-			var infoText = SelectedReformInfo.InformationString.join('\n');
+			let infoText = SelectedReformInfo.InformationString.join('\n');
 
 			// Display the information in NpcBox
 			NpcBox.append();
@@ -477,9 +473,9 @@ define(function (require) {
 
 			NpcBox.ui.css('height', '150px');
 			NpcBox.ui.find('.border').css('height', '139px');
-			var infoDetails = ItemReform.ui.find('.information_details');
-			var offset = infoDetails.offset();
-			var height = infoDetails.outerHeight();
+			let infoDetails = ItemReform.ui.find('.information_details');
+			let offset = infoDetails.offset();
+			let height = infoDetails.outerHeight();
 
 			// Initial position update
 			function updateNpcBoxPosition(e) {
@@ -524,7 +520,7 @@ define(function (require) {
 					let item = Inventory.getUI().getItemByIndex(pkt.index);
 
 					// Show Success effect
-					var EF_Init_Par = {
+					let EF_Init_Par = {
 						effectId: EffectConst.EF_NEW_SUCCESS,
 						ownerAID: Session.AID
 					};
@@ -563,7 +559,7 @@ define(function (require) {
 	function onRequestReformClose() {
 		ItemReform.remove();
 
-		var pkt = new PACKET.CZ.CLOSE_REFORM_UI();
+		let pkt = new PACKET.CZ.CLOSE_REFORM_UI();
 		Network.sendPacket(pkt);
 	}
 
@@ -579,7 +575,7 @@ define(function (require) {
 	 * Handles the item reform request by preparing and sending the packet.
 	 */
 	function onRequestItemReform() {
-		var pkt;
+		let pkt;
 		pkt = new PACKET.CZ.ITEM_REFORM();
 		pkt.ITID = ReformUIState.itemId;
 		pkt.index = ReformUIState.index;
@@ -591,8 +587,8 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver(event) {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item;
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item;
 
 		if (this.classList.contains('dummy')) {
 			// Get the item using item.ITID as the only member
@@ -605,7 +601,7 @@ define(function (require) {
 		}
 
 		// Get back data
-		var overlay = ItemReform.ui.find('.overlay');
+		let overlay = ItemReform.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -618,7 +614,7 @@ define(function (require) {
 		}
 
 		// Get the offset of the UI container
-		var uiOffset = ItemReform.ui.offset();
+		let uiOffset = ItemReform.ui.offset();
 
 		// Update overlay position based on mouse coordinates and UI offset
 		function updateOverlayPosition(e) {
@@ -654,8 +650,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item;
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item;
 
 		if (this.classList.contains('dummy')) {
 			// Get the item using item.ITID as the only member
@@ -702,7 +698,7 @@ define(function (require) {
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		var compareItem = Equipment.getUI().isInEquipList(item.location);
+		let compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -724,5 +720,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ItemReform);
-});
+export default UIManager.addComponent(ItemReform);

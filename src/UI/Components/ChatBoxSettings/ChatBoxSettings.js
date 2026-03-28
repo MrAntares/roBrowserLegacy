@@ -6,22 +6,18 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var Client = require('Core/Client');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ChatBoxSettings.html');
-	var cssText = require('text!./ChatBoxSettings.css');
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import Client from 'Core/Client';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './ChatBoxSettings.html?raw';
+import cssText from './ChatBoxSettings.css?raw';
 	/**
 	 * Create Component
 	 */
@@ -214,5 +210,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ChatBoxSettings);
-});
+	export default UIManager.addComponent(ChatBoxSettings);

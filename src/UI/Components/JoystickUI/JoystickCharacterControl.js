@@ -7,24 +7,23 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Session = require('Engine/SessionStorage');
-	var EntityManager = require('Renderer/EntityManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var glMatrix = require('Vendors/gl-matrix');
-	var Camera = require('Renderer/Camera');
-	var PathFinding = require('Utils/PathFinding');
-	var Target = require('./JoystickTargetService');
+import Session from 'Engine/SessionStorage';
+import EntityManager from 'Renderer/EntityManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import glMatrix from 'Vendors/gl-matrix';
+import Camera from 'Renderer/Camera';
+import PathFinding from 'Utils/PathFinding';
+import Target from './JoystickTargetService';
 
-	var direction = glMatrix.vec2.create();
-	var rotate = glMatrix.mat2.create();
+let direction = glMatrix.vec2.create();
+	let rotate = glMatrix.mat2.create();
 
 	function move(x, y) {
-		var player = Session.Entity;
+		let player = Session.Entity;
 		if (!player) {
 			return;
 		}
@@ -36,10 +35,10 @@ define(function (require) {
 		glMatrix.mat2.rotate(rotate, rotate, ((-Camera.direction * 45) / 180) * Math.PI);
 		glMatrix.vec2.transformMat2(direction, direction, rotate);
 
-		var nx = Math.round(player.position[0] + direction[0] * 3);
-		var ny = Math.round(player.position[1] + direction[1] * 3);
+		let nx = Math.round(player.position[0] + direction[0] * 3);
+		let ny = Math.round(player.position[1] + direction[1] * 3);
 
-		var movePacket = PACKETVER.value >= 20180307 ? new PACKET.CZ.REQUEST_MOVE2() : new PACKET.CZ.REQUEST_MOVE();
+		let movePacket = PACKETVER.value >= 20180307 ? new PACKET.CZ.REQUEST_MOVE2() : new PACKET.CZ.REQUEST_MOVE();
 
 		movePacket.dest[0] = nx;
 		movePacket.dest[1] = ny;
@@ -48,26 +47,26 @@ define(function (require) {
 	}
 
 	function attack() {
-		var Player = Session.Entity;
+		let Player = Session.Entity;
 		if (!Player) {
 			return;
 		}
 
-		var target = Target.getEntity();
+		let target = Target.getEntity();
 		if (!target) {
 			return;
 		}
 
 		Target.focus(target);
 
-		var entityFocus = EntityManager.getFocusEntity();
+		let entityFocus = EntityManager.getFocusEntity();
 		if (!entityFocus) {
 			return;
 		}
 
-		var pkt;
-		var out = [];
-		var count = PathFinding.search(
+		let pkt;
+		let out = [];
+		let count = PathFinding.search(
 			Player.position[0] | 0,
 			Player.position[1] | 0,
 			entityFocus.position[0] | 0,
@@ -106,25 +105,23 @@ define(function (require) {
 	}
 
 	function pickUp() {
-		var Player = Session.Entity;
+		let Player = Session.Entity;
 		if (!Player) {
 			return;
 		}
 
-		var item = EntityManager.getClosestEntity(Player, EntityManager.TYPE_ITEM);
+		let item = EntityManager.getClosestEntity(Player, EntityManager.TYPE_ITEM);
 		if (!item) {
 			return;
 		}
 
-		var pkt = PACKETVER.value >= 20180307 ? new PACKET.CZ.ITEM_PICKUP2() : new PACKET.CZ.ITEM_PICKUP();
+		let pkt = PACKETVER.value >= 20180307 ? new PACKET.CZ.ITEM_PICKUP2() : new PACKET.CZ.ITEM_PICKUP();
 
 		pkt.ITAID = item.GID;
 		Network.sendPacket(pkt);
 	}
-
-	return {
+export default {
 		attack: attack,
 		pickUp: pickUp,
 		move: move
 	};
-});

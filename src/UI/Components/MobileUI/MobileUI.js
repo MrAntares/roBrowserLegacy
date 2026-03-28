@@ -6,34 +6,34 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
 + */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var jQuery = require('Utils/jquery');
-	var Context = require('Core/Context');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PACKET = require('Network/PacketStructure');
-	var EntityManager = require('Renderer/EntityManager');
-	var Network = require('Network/NetworkManager');
-	var PathFinding = require('Utils/PathFinding');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Events = require('Core/Events');
-	var htmlText = require('text!./MobileUI.html');
-	var cssText = require('text!./MobileUI.css');
-	var glMatrix = require('Vendors/gl-matrix');
-	var Camera = require('Renderer/Camera');
-	var KEYS = require('Controls/KeyEventHandler');
-	var vec2 = glMatrix.vec2;
-	var mat2 = glMatrix.mat2;
+import jQuery from 'Utils/jquery';
+import Context from 'Core/Context';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import PACKETVER from 'Network/PacketVerManager';
+import PACKET from 'Network/PacketStructure';
+import EntityManager from 'Renderer/EntityManager';
+import Network from 'Network/NetworkManager';
+import PathFinding from 'Utils/PathFinding';
+import Altitude from 'Renderer/Map/Altitude';
+import Events from 'Core/Events';
+import htmlText from './MobileUI.html?raw';
+import cssText from './MobileUI.css?raw';
+import glMatrix from 'Vendors/gl-matrix';
+import Camera from 'Renderer/Camera';
+import KEYS from 'Controls/KeyEventHandler';
+
+let vec2 = glMatrix.vec2;
+	let mat2 = glMatrix.mat2;
 
 	// Object to initialize
-	var direction = vec2.create();
-	var rotate = mat2.create();
+	let direction = vec2.create();
+	let rotate = mat2.create();
 
 	//Configure keys here
 	/*var MOVE = {
@@ -47,41 +47,41 @@ define(function (require) {
 	//var KeyEvent = {}; // UNUSED
 
 	//Memory
-	var targetPos = [0, 0];
+	let targetPos = [0, 0];
 
 	//var keysDownTimeout = null; // UNUSED
-	var movementTimer = null; // Timer for continuous joystick movement
+	let movementTimer = null; // Timer for continuous joystick movement
 
 	/**
 	 * Create Component
 	 */
-	var MobileUI = new UIComponent('MobileUI', htmlText, cssText);
+	let MobileUI = new UIComponent('MobileUI', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} window preferences
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'MobileUI',
 		{
 			x: 0,
 			y: 0,
 			zIndex: 1000,
-			width: Renderer.width,
-			height: Renderer.height,
+			width: window.innerWidth,
+			height: window.innerHeight,
 			show: false
 		},
 		1.0
 	);
 
-	var showButtons = false;
-	var autoTargetTimer;
+	let showButtons = false;
+	let autoTargetTimer;
 	const C_AUTOTARGET_DELAY = 500; //in ms. Lower values increase targeting frequency, but might cause performance drop when there are many enemies around!
 
-	var centerX, centerY;
-	var maxDistance = 0;
+	let centerX, centerY;
+	let maxDistance = 0;
 	// var lastSentMove = Date.now(); // UNUSED
-	var normalizedX = 0; // Current normalized x-axis input
-	var normalizedY = 0; // Current normalized y-axis input
+	let normalizedX = 0; // Current normalized x-axis input
+	let normalizedY = 0; // Current normalized y-axis input
 
 	/**
 	 * Initialize UI
@@ -350,7 +350,7 @@ define(function (require) {
 	 * @param {number} keyId
 	 */
 	function keyPress(k) {
-		var roWindow = window;
+		let roWindow = window;
 		roWindow.document.getElementsByTagName('body')[0].focus();
 		roWindow.dispatchEvent(
 			new KeyboardEvent('keydown', {
@@ -553,7 +553,7 @@ define(function (require) {
 			MobileUI.ui.find('#toggleAutoFollowButton').removeClass('active');
 			Session.autoFollow = false;
 		} else {
-			var entityFocus = EntityManager.getFocusEntity();
+			let entityFocus = EntityManager.getFocusEntity();
 			if (entityFocus) {
 				MobileUI.ui.find('#toggleAutoFollowButton').addClass('active');
 				Session.autoFollow = true;
@@ -567,10 +567,10 @@ define(function (require) {
 	 * Attacks a targeted enemy (if present)
 	 */
 	function attackTargeted() {
-		var main = Session.Entity;
-		var pkt;
+		let main = Session.Entity;
+		let pkt;
 
-		var entityFocus = EntityManager.getFocusEntity();
+		let entityFocus = EntityManager.getFocusEntity();
 
 		if (!entityFocus || entityFocus.action === entityFocus.ACTION.DIE) {
 			//If no target, try picking one first
@@ -579,8 +579,8 @@ define(function (require) {
 		}
 
 		if (entityFocus) {
-			var out = [];
-			var count = PathFinding.search(
+			let out = [];
+			let count = PathFinding.search(
 				main.position[0] | 0,
 				main.position[1] | 0,
 				entityFocus.position[0] | 0,
@@ -626,11 +626,11 @@ define(function (require) {
 	 * Automatically targeting the closest enemy
 	 */
 	function autoTarget() {
-		var Player = Session.Entity;
+		let Player = Session.Entity;
 
-		var entityFocus = EntityManager.getFocusEntity();
+		let entityFocus = EntityManager.getFocusEntity();
 
-		var closestEntity = EntityManager.getClosestEntity(Player, Session.Entity.constructor.TYPE_MOB);
+		let closestEntity = EntityManager.getClosestEntity(Player, Session.Entity.constructor.TYPE_MOB);
 
 		if (closestEntity) {
 			if (entityFocus && closestEntity.GID !== entityFocus.GID) {
@@ -681,19 +681,19 @@ define(function (require) {
 	 */
 	function onAutoFollow() {
 		if (Session.autoFollow) {
-			var player = Session.Entity;
-			var target = Session.autoFollowTarget;
+			let player = Session.Entity;
+			let target = Session.autoFollowTarget;
 
-			var dx = Math.abs(player.position[0] - target.position[0]);
-			var dy = Math.abs(player.position[1] - target.position[1]);
+			let dx = Math.abs(player.position[0] - target.position[0]);
+			let dy = Math.abs(player.position[1] - target.position[1]);
 
 			// Use square based range check instead of Pythagorean because of diagonals
 			if (dx > 1 || dy > 1) {
-				var dest = [0, 0];
+				let dest = [0, 0];
 
 				// If there is valid cell send move packet
 				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
-					var pkt;
+					let pkt;
 					if (PACKETVER.value >= 20180307) {
 						pkt = new PACKET.CZ.REQUEST_MOVE2();
 					} else {
@@ -728,8 +728,8 @@ define(function (require) {
 		}
 
 		// if the distance between Session.Entity and closestItem is greater then 2 so walk to the item
-		var dx = Math.abs(player.position[0] - closestItem.position[0]);
-		var dy = Math.abs(player.position[1] - closestItem.position[1]);
+		let dx = Math.abs(player.position[0] - closestItem.position[0]);
+		let dy = Math.abs(player.position[1] - closestItem.position[1]);
 		if (dx < 0) {
 			dx = -dx;
 		}
@@ -738,11 +738,11 @@ define(function (require) {
 		}
 
 		if ((dx < dy ? dy : dx) > 2) {
-			var dest = [0, 0];
+			let dest = [0, 0];
 
 			// If there is valid cell send move packet
 			if (checkFreeCell(Math.round(closestItem.position[0]), Math.round(closestItem.position[1]), 1, dest)) {
-				var pkt;
+				let pkt;
 				if (PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.REQUEST_MOVE2();
 				} else {
@@ -996,9 +996,9 @@ define(function (require) {
 	 * @param {array} out
 	 */
 	function checkFreeCell(x, y, range, out) {
-		var _x, _y, r;
-		var d_x = Session.Entity.position[0] < x ? -1 : 1;
-		var d_y = Session.Entity.position[1] < y ? -1 : 1;
+		let _x, _y, r;
+		let d_x = Session.Entity.position[0] < x ? -1 : 1;
+		let d_y = Session.Entity.position[1] < y ? -1 : 1;
 
 		// Search possible positions
 		for (r = 0; r <= range; ++r) {
@@ -1028,7 +1028,7 @@ define(function (require) {
 			return false;
 		}
 
-		var free = true;
+		let free = true;
 
 		EntityManager.forEach(function (entity) {
 			if (
@@ -1121,5 +1121,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(MobileUI);
-});
+export default UIManager.addComponent(MobileUI);

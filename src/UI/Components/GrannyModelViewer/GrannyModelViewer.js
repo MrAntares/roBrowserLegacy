@@ -8,32 +8,30 @@
  * @author Vincent Thibault
  * @author Liam Mitchell
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import glMatrix from 'Utils/gl-matrix';
+import Configs from 'Core/Configs';
+import Client from 'Core/Client';
+import GrannyModel from 'Loaders/GrannyModel';
+import Renderer from 'Renderer/Renderer';
+import ModelRenderer from 'Renderer/Map/Models';
+import Camera from 'Renderer/Camera';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './GrannyModelViewer.html?raw';
+import cssText from './GrannyModelViewer.css?raw';
+
+/**
 	 * Load dependencies
 	 */
-	var glMatrix = require('Utils/gl-matrix');
-	var Configs = require('Core/Configs');
-	var Client = require('Core/Client');
-	var GrannyModel = require('Loaders/GrannyModel');
-	var Renderer = require('Renderer/Renderer');
-	var ModelRenderer = require('Renderer/Map/Models');
-	var Camera = require('Renderer/Camera');
-
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./GrannyModelViewer.html');
-	var cssText = require('text!./GrannyModelViewer.css');
-
-	var mat4 = glMatrix.mat4;
-	var mat3 = glMatrix.mat3;
+	let mat4 = glMatrix.mat4;
+	let mat3 = glMatrix.mat3;
 
 	/**
 	 * @var {object} fog structure
 	 */
-	var _fog = {
+	let _fog = {
 		use: false,
 		exist: true,
 		far: 30,
@@ -45,9 +43,9 @@ define(function (require) {
 	/**
 	 * @var {object} light structure
 	 */
-	var _light = {
+	let _light = {
 		opacity: 1.0,
-		ambient: new Float32Array([1, 1, 1]),
+		ambient: new Float32Array([Math.PI, Math.PI, Math.PI]),
 		diffuse: new Float32Array([0, 0, 0]),
 		direction: new Float32Array([0, 1, 0])
 	};
@@ -55,7 +53,7 @@ define(function (require) {
 	/**
 	 * @var {object} model global parameters
 	 */
-	var _GlobalParameters = {
+	let _GlobalParameters = {
 		position: new Float32Array(3),
 		rotation: new Float32Array(3),
 		scale: new Float32Array([-0.075, -0.075, 0.075]),
@@ -65,22 +63,22 @@ define(function (require) {
 	/**
 	 * @var {mat4} model view mat
 	 */
-	var _modelView = new Float32Array(4 * 4);
+	let _modelView = new Float32Array(4 * 4);
 
 	/**
 	 * @var {mat3} normal Mat
 	 */
-	var _normalMat = new Float32Array(3 * 3);
+	let _normalMat = new Float32Array(3 * 3);
 
 	/**
 	 * @var {object} current model
 	 */
-	var _model = null;
+	let _model = null;
 
 	/**
 	 * Create GRFViewer component
 	 */
-	var Viewer = new UIComponent('GRFViewer', htmlText, cssText);
+	let Viewer = new UIComponent('GRFViewer', htmlText, cssText);
 
 	/**
 	 * Initialize Component
@@ -100,7 +98,7 @@ define(function (require) {
 		if (!Configs.get('API')) {
 			initDropDown(this.ui.find('select').get(0));
 		} else {
-			var hash = decodeURIComponent(location.hash);
+			let hash = decodeURIComponent(location.hash);
 			location.hash = hash;
 			loadModel(hash.substr(1));
 		}
@@ -114,8 +112,8 @@ define(function (require) {
 	function initDropDown(select) {
 		// Search RSMs from the client
 		Client.search(/data\\[^\0]+\.gr2/gi, function (list) {
-			var i, count;
-			var hash;
+			let i, count;
+			let hash;
 
 			// Add selection
 			for (i = 0, count = list.length; i < count; ++i) {
@@ -149,7 +147,7 @@ define(function (require) {
 	 * Stop to render
 	 */
 	function stop() {
-		var gl = Renderer.getContext();
+		let gl = Renderer.getContext();
 
 		Renderer.stop();
 		ModelRenderer.free(gl);
@@ -167,14 +165,14 @@ define(function (require) {
 		Client.getFile(filename, function (buf) {
 			_model = new GrannyModel(buf);
 
-			var data;
-			var i, count, j, size, total, offset, length, pos;
-			var objects = [],
+			let data;
+			let i, count, j, size, total, offset, length, pos;
+			let objects = [],
 				infos = [],
 				meshes,
 				index,
 				object;
-			var buffer;
+			let buffer;
 
 			// Create model in world
 			_GlobalParameters.filename = filename.replace('data/model/', '');
@@ -285,5 +283,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(Viewer);
-});
+export default UIManager.addComponent(Viewer);

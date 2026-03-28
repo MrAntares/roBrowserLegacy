@@ -9,32 +9,29 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Vending = require('UI/Components/Vending/Vending');
-	var htmlText = require('text!./VendingShop.html');
-	var cssText = require('text!./VendingShop.css');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Vending from 'UI/Components/Vending/Vending';
+import htmlText from './VendingShop.html?raw';
+import cssText from './VendingShop.css?raw';
+import VendingReport from 'UI/Components/VendingReport/VendingReport';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var VendingShop = new UIComponent('VendingShop', htmlText, cssText);
+	let VendingShop = new UIComponent('VendingShop', htmlText, cssText);
 
 	/**
 	 * @var {enum} Store type
@@ -52,17 +49,17 @@ define(function (require) {
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	var _realSize = 0;
+	let _realSize = 0;
 
 	/**
 	 * @var {number} type (buy/sell)
 	 */
-	var _type;
+	let _type;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'VendingShop',
 		{
 			x: 200,
@@ -173,8 +170,8 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	VendingShop.getItemById = function GetItemById(id) {
-		var i, count;
-		var list = VendingShop.list;
+		let i, count;
+		let list = VendingShop.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -192,8 +189,8 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	VendingShop.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list = VendingShop.list;
+		let i, count;
+		let list = VendingShop.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -209,7 +206,7 @@ define(function (require) {
 	 * if the item index is exist you should clear it;[skybook888]
 	 */
 	VendingShop.setItems = function setItems(items) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = items.length; i < count; ++i) {
 			if (this.addItemSub(items[i])) {
@@ -226,7 +223,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	VendingShop.addItem = function AddItem(item) {
-		var object = this.getItemByIndex(item.index);
+		let object = this.getItemByIndex(item.index);
 
 		if (object) {
 			object.count += item.count;
@@ -246,8 +243,8 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	VendingShop.addItemSub = function AddItemSub(item) {
-		var it = DB.getItemInfo(item.ITID);
-		var content = this.ui.find('.container .content');
+		let it = DB.getItemInfo(item.ITID);
+		let content = this.ui.find('.container .content');
 
 		content.append(
 			'<div class="item" data-index="' +
@@ -287,8 +284,8 @@ define(function (require) {
 	 * @param {number} count
 	 */
 	VendingShop.removeItem = function RemoveItem(index, count) {
-		var i, ctr;
-		var item = this.getItemByIndex(index);
+		let i, ctr;
+		let item = this.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
 		// do not remove item from inventory
@@ -297,7 +294,7 @@ define(function (require) {
 		}
 
 		// Sold Message
-		var msg = DB.getMessage(231).replace('%s', DB.getItemName(item)).replace('%d', count);
+		let msg = DB.getMessage(231).replace('%s', DB.getItemName(item)).replace('%d', count);
 		ChatBox.addText(msg, ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 
 		if (item.count) {
@@ -323,7 +320,7 @@ define(function (require) {
 			this.onSubmit();
 		}
 		/*
-		var content = this.ui.find('.container .content');
+		let content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -338,7 +335,7 @@ define(function (require) {
 	 * @param {number} count
 	 */
 	VendingShop.updateItem = function UpdateItem(index, count) {
-		var item = this.getItemByIndex(index);
+		let item = this.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -356,7 +353,7 @@ define(function (require) {
 		this.list.splice(this.list.indexOf(item), 1);
 		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		var content = this.ui.find('.container .content');
+		let content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -370,17 +367,17 @@ define(function (require) {
 	 * @return {string}
 	 */
 	function prettyZeny(val, useStyle) {
-		var list = val.toString().split('');
-		var i,
+		let list = val.toString().split('');
+		let i,
 			count = list.length;
-		var str = '';
+		let str = '';
 
 		for (i = 0; i < count; i++) {
 			str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 		}
 
 		if (useStyle) {
-			var style = [
+			let style = [
 				'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
 				'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
 				'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
@@ -410,7 +407,7 @@ define(function (require) {
 	 * Hide/show inventory's content
 	 */
 	function onToggleReduction() {
-		var ui = VendingShop.ui;
+		let ui = VendingShop.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
@@ -429,8 +426,8 @@ define(function (require) {
 	function requestFilter() {
 		VendingShop.ui.find('.container .content').empty();
 
-		var list = VendingShop.list;
-		var i, count;
+		let list = VendingShop.list;
+		let i, count;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			VendingShop.addItemSub(list[i]);
@@ -451,7 +448,7 @@ define(function (require) {
 	 * Block the scroll to move 32px at each move
 	 */
 	function onScroll(event) {
-		var delta;
+		let delta;
 
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
@@ -471,16 +468,16 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = VendingShop.getItemByIndex(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item = VendingShop.getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var pos = jQuery(this).position();
-		var overlay = VendingShop.ui.find('.overlay');
+		let pos = jQuery(this).position();
+		let overlay = VendingShop.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -522,8 +519,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = VendingShop.getItemByIndex(index);
+		let index = parseInt(this.getAttribute('data-index'), 10);
+		let item = VendingShop.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -547,8 +544,8 @@ define(function (require) {
 	 * Ask to use an item
 	 */
 	function onItemUsed(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = VendingShop.getItemByIndex(index);
+		let index = parseInt(this.getAttribute('data-index'), 10);
+		let item = VendingShop.getItemByIndex(index);
 
 		if (item) {
 			VendingShop.useItem(item);
@@ -563,7 +560,7 @@ define(function (require) {
 	 * Submit data to send items
 	 */
 	VendingShop.onSubmit = function onSubmit() {
-		var pkt;
+		let pkt;
 		if (_type === VendingShop.Type.VENDING_LIST) {
 			pkt = new PACKET.CZ.REQ_CLOSESTORE();
 		} else {
@@ -574,7 +571,6 @@ define(function (require) {
 
 		// Vending Report upon closing the store
 		if (_type === VendingShop.Type.VENDING_LIST && PACKETVER.value >= 20141016) {
-			var VendingReport = require('UI/Components/VendingReport/VendingReport');
 			VendingReport.append();
 		}
 	};
@@ -582,5 +578,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(VendingShop);
-});
+export default UIManager.addComponent(VendingShop);

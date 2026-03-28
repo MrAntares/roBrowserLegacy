@@ -8,10 +8,11 @@
  * @author Vincent Thibault
  */
 
-define(['./WeaponType'], function (WeaponType) {
-	'use strict';
+'use strict';
 
-	var WeaponSound = {};
+import WeaponType from './WeaponType';
+
+var WeaponSound = {};
 
 	WeaponSound[WeaponType.NONE] = ['_hit_fist1.wav', '_hit_fist2.wav', '_hit_fist3.wav', '_hit_fist4.wav'];
 	WeaponSound[WeaponType.SHORTSWORD] = ['_hit_sword.wav']; // at some point this was _hit_dagger.wav but now it is _hit_short_sword.wav
@@ -46,5 +47,4 @@ define(['./WeaponType'], function (WeaponType) {
 	WeaponSound[WeaponType.SWORD_AXE] = ['_hit_sword.wav'];
 	WeaponSound[WeaponType.MAX] = ['_hit_mace.wav'];
 
-	return WeaponSound;
-});
+export default WeaponSound;

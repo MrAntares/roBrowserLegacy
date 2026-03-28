@@ -6,31 +6,30 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import Session from 'Engine/SessionStorage';
+import Bank from 'UI/Components/Bank/Bank';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var Session = require('Engine/SessionStorage');
-	var Bank = require('UI/Components/Bank/Bank');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-
 	/**
 	 * Engine namespace
 	 */
-	var BankEngine = {};
+	let BankEngine = {};
 
 	/**
 	 * Open Bank and request to server bank details
 	 */
 	function onOpenBank(pkt) {
-		var pkt = new PACKET.CZ.REQ_BANKING_CHECK();
-		pkt.AID = Session.AID;
-		Network.sendPacket(pkt);
+		let send_pkt = new PACKET.CZ.REQ_BANKING_CHECK();
+		send_pkt.AID = Session.AID;
+		Network.sendPacket(send_pkt);
 	}
 
 	/**
@@ -40,8 +39,8 @@ define(function (require) {
 	 */
 	function onBankInfo(pkt) {
 		if (!Bank.__active) {
-			var inbank = Bank.ui.find('.inbank.currency');
-			var onhand = Bank.ui.find('.onhand.currency');
+			let inbank = Bank.ui.find('.inbank.currency');
+			let onhand = Bank.ui.find('.onhand.currency');
 			if (inbank) {
 				inbank.text(formatNumberWithCommas(pkt.money) + 'z');
 			}
@@ -80,8 +79,8 @@ define(function (require) {
 			return;
 		}
 
-		var input = Bank.ui.find('.depo');
-		var error = Bank.ui.find('.errorupdate');
+		let input = Bank.ui.find('.depo');
+		let error = Bank.ui.find('.errorupdate');
 
 		switch (pkt.reason) {
 			case 0: // Success - we just update the bank currency visuals
@@ -118,8 +117,8 @@ define(function (require) {
 	 * Update bank from deposit or withdrawal
 	 */
 	function UpdateBank(money, zeny) {
-		var inbank = Bank.ui.find('.inbank.currency');
-		var onhand = Bank.ui.find('.onhand.currency');
+		let inbank = Bank.ui.find('.inbank.currency');
+		let onhand = Bank.ui.find('.onhand.currency');
 		if (inbank) {
 			inbank.text(formatNumberWithCommas(money) + 'z');
 		}
@@ -138,8 +137,8 @@ define(function (require) {
 			return;
 		}
 
-		var input = Bank.ui.find('.depo');
-		var error = Bank.ui.find('.errorupdate');
+		let input = Bank.ui.find('.depo');
+		let error = Bank.ui.find('.errorupdate');
 
 		switch (pkt.reason) {
 			case 0: // Success - we just update the bank currency visuals
@@ -178,5 +177,4 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return BankEngine;
-});
+export default BankEngine;

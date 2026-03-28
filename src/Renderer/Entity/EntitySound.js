@@ -7,10 +7,11 @@
  *
  * @author Vincent Thibault
  */
-define(['Audio/SoundManager'], function (SoundManager) {
-	'use strict';
+'use strict';
 
-	/**
+import SoundManager from 'Audio/SoundManager';
+
+/**
 	 * @Constructor
 	 */
 	function Sound() {
@@ -77,7 +78,7 @@ define(['Audio/SoundManager'], function (SoundManager) {
 			return;
 		}
 
-		var count = Math.floor(anim / size);
+		let count = Math.floor(anim / size);
 
 		if (this._animCounter !== count) {
 			this.free();
@@ -88,8 +89,7 @@ define(['Audio/SoundManager'], function (SoundManager) {
 	/**
 	 * Initialize and export methods
 	 */
-	return function init() {
+export default function init() {
 		this.sound = new Sound();
 		this.sound.entity = this;
 	};
-});

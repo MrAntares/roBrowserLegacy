@@ -7,25 +7,23 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var EffectConst = require('DB/Effects/EffectConst');
-	var Renderer = require('Renderer/Renderer');
-	var WeatherTable = require('DB/Effects/WeatherEffect');
-	var SnowWeather = require('Renderer/Effects/SnowWeather');
-	var RainWeather = require('Renderer/Effects/RainWeather');
-	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
-	var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
-	var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
-	var Poison = require('Renderer/Effects/PoisonEffect');
-	var Blind = require('Renderer/Effects/Shaders/Blind');
-	var VerticalFlip = require('Renderer/Effects/Shaders/VerticalFlip');
-	var EFST = require('DB/Status/StatusConst');
-	var Session = require('Engine/SessionStorage');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var getModule = require;
+import EffectConst from 'DB/Effects/EffectConst';
+import Renderer from 'Renderer/Renderer';
+import WeatherTable from 'DB/Effects/WeatherEffect';
+import SnowWeather from 'Renderer/Effects/SnowWeather';
+import RainWeather from 'Renderer/Effects/RainWeather';
+import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect';
+import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect';
+import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
+import Poison from 'Renderer/Effects/PoisonEffect';
+import Blind from 'Renderer/Effects/Shaders/Blind';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
+import EFST from 'DB/Status/StatusConst';
+import Session from 'Engine/SessionStorage';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import MapRenderer from 'Renderer/MapRenderer';
 
 	var isMapflagEffect = false;
 
@@ -241,10 +239,9 @@ define(function (require) {
 			clearInterval(ScreenEffectManager._nightInterval);
 			ScreenEffectManager._nightInterval = null;
 		}
-		var mapRenderer = getModule('Renderer/MapRenderer');
 		ScreenEffectManager._nightInterval = setInterval(function () {
-			var diffuse = mapRenderer.diffuse;
-			var light = mapRenderer.light;
+			var diffuse = MapRenderer.diffuse;
+			var light = MapRenderer.light;
 			var step = 0.005;
 
 			if (night) {
@@ -281,5 +278,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return ScreenEffectManager;
-});
+	export default ScreenEffectManager;

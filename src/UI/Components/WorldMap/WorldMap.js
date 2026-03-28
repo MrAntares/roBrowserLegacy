@@ -5,24 +5,23 @@
  *
  * @author IssID
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	const DB = require('DB/DBManager');
-	const Client = require('Core/Client');
-	const Configs = require('Core/Configs');
-	const Preferences = require('Core/Preferences');
-	const KEYS = require('Controls/KeyEventHandler');
-	const Renderer = require('Renderer/Renderer');
-	const MapRenderer = require('Renderer/MapRenderer');
-	const UIManager = require('UI/UIManager');
-	const UIComponent = require('UI/UIComponent');
-	const Session = require('Engine/SessionStorage');
-	const MAPS = require('DB/Map/WorldMap');
-	const htmlText = require('text!./WorldMap.html');
-	const cssText = require('text!./WorldMap.css');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Configs from 'Core/Configs';
+import Preferences from 'Core/Preferences';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import MapRenderer from 'Renderer/MapRenderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Session from 'Engine/SessionStorage';
+import MAPS from 'DB/Map/WorldMap';
+import htmlText from './WorldMap.html?raw';
+import cssText from './WorldMap.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
 	const WorldMap = new UIComponent('WorldMap', htmlText, cssText);
@@ -35,8 +34,8 @@ define(function (require) {
 		{
 			x: 0,
 			y: 0,
-			width: Renderer.width,
-			height: Renderer.height,
+			width: window.innerWidth,
+			height: window.innerHeight,
 			show: false
 		},
 		1.0
@@ -127,8 +126,8 @@ define(function (require) {
 	function resizeMap() {
 		const mapContainer = WorldMap.ui.find('.map-view');
 
-		const currentwidth = Renderer.width;
-		const currentheight = Renderer.height - C_TITLEBARHEIGHT;
+		const currentwidth = (typeof Renderer !== 'undefined' && Renderer.width) || window.innerWidth;
+		const currentheight = ((typeof Renderer !== 'undefined' && Renderer.height) || window.innerHeight) - C_TITLEBARHEIGHT;
 
 		const xmult = currentwidth / C_BASEWIDTH;
 		const ymult = currentheight / C_BASEHEIGHT;
@@ -307,7 +306,7 @@ define(function (require) {
 
 				el.id = section.id;
 
-				var sectionType = section.type !== undefined ? section.type : 0;
+				let sectionType = section.type !== undefined ? section.type : 0;
 
 				// connected dungeons logic
 				if (sectionType === 0 && dgMapPositions[section.index]) {
@@ -668,5 +667,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(WorldMap);
-});
+export default UIManager.addComponent(WorldMap);

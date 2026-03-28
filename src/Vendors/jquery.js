@@ -8,6 +8,7 @@
  * @author Vincent Thibault
  */
 
-define( ['jquery'], function( jQuery ){
-	return jQuery.noConflict( true );
-});
+import jQuery from 'jquery';
+
+
+export default jQuery.noConflict( true );

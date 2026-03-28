@@ -6,15 +6,14 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Session = require('Engine/SessionStorage');
-	var EntityManager = require('Renderer/EntityManager');
-	var ControlsSettings = require('Preferences/Controls');
+import Session from 'Engine/SessionStorage';
+import EntityManager from 'Renderer/EntityManager';
+import ControlsSettings from 'Preferences/Controls';
 
-	function getEntityInContext() {
-		var target = null;
+function getEntityInContext() {
+		let target = null;
 		if (ControlsSettings.attackTargetMode === 1) {
 			// Lowest HP first
 			target = EntityManager.getLowestHpEntity(Session.Entity, Session.Entity.constructor.TYPE_MOB);
@@ -33,7 +32,7 @@ define(function (require) {
 	}
 
 	function focusTarget(entity) {
-		var focus = EntityManager.getFocusEntity();
+		let focus = EntityManager.getFocusEntity();
 		if (!focus || focus.action === focus.ACTION.DIE) {
 			focus = EntityManager.getFocusEntity();
 		}
@@ -47,9 +46,7 @@ define(function (require) {
 			EntityManager.setFocusEntity(entity);
 		}
 	}
-
-	return {
+export default {
 		getEntity: getEntityInContext,
 		focus: focusTarget
 	};
-});

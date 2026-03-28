@@ -7,29 +7,25 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Altitude = require('Renderer/Map/Altitude');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var WorldMap = require('UI/Components/WorldMap/WorldMap');
-	var htmlText = require('text!./MiniMapV2.html');
-	var cssText = require('text!./MiniMapV2.css');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Altitude from 'Renderer/Map/Altitude';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import WorldMap from 'UI/Components/WorldMap/WorldMap';
+import htmlText from './MiniMapV2.html?raw';
+import cssText from './MiniMapV2.css?raw';
 
-	/**
+/**
 	 * Create MiniMap component
 	 */
-	var MiniMapV2 = new UIComponent('MiniMapV2', htmlText, cssText);
+	let MiniMapV2 = new UIComponent('MiniMapV2', htmlText, cssText);
 
 	/**
 	 * Mouse cant cross this UI
@@ -44,7 +40,7 @@ define(function (require) {
 	/**
 	 * @var {Preferences}
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'MiniMapV2',
 		{
 			zoom: 0,
@@ -57,27 +53,27 @@ define(function (require) {
 	/**
 	 * @var {Object} member colors cache
 	 */
-	var _memberColors = {};
+	let _memberColors = {};
 
 	/**
 	 * @var {Array} party members marker
 	 */
-	var _party = [];
+	let _party = [];
 
 	/**
 	 * @var {Array} guild members marker
 	 */
-	var _guild = [];
+	let _guild = [];
 
 	/**
 	 * @var {Array} others markers
 	 */
-	var _markers = [];
+	let _markers = [];
 
 	/**
 	 * @var {Array} others towninfo
 	 */
-	var _towninfo = [];
+	let _towninfo = [];
 
 	/**
 	 * Async image create helper
@@ -91,33 +87,33 @@ define(function (require) {
 	/**
 	 * @var {Image} arrow image
 	 */
-	var _arrow = createAsyncImage();
+	let _arrow = createAsyncImage();
 
 	/**
 	 * @var {Image} map information images
 	 */
-	var _toolDealer = createAsyncImage();
-	var _weaponDealer = createAsyncImage();
-	var _armorDealer = createAsyncImage();
-	var _blacksmith = createAsyncImage();
-	var _guide = createAsyncImage();
-	var _inn = createAsyncImage();
-	var _kafra = createAsyncImage();
+	let _toolDealer = createAsyncImage();
+	let _weaponDealer = createAsyncImage();
+	let _armorDealer = createAsyncImage();
+	let _blacksmith = createAsyncImage();
+	let _guide = createAsyncImage();
+	let _inn = createAsyncImage();
+	let _kafra = createAsyncImage();
 
 	/**
 	 * @var {Image} minimap image
 	 */
-	var _map = createAsyncImage();
+	let _map = createAsyncImage();
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _ctx;
+	let _ctx;
 
 	/**
 	 * @var {List} Zoom values
 	 */
-	var _zoomFactor = [1, 10, 6, 3, 2];
+	let _zoomFactor = [1, 10, 6, 3, 2];
 
 	/**
 	 * Initialize minimap
@@ -205,7 +201,7 @@ define(function (require) {
 
 		_towninfo = DB.getTownInfo(mapname.replace(/\..*/, ''));
 
-		var path = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapname.replace(/\..*/, '.bmp');
+		let path = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapname.replace(/\..*/, '.bmp');
 		path = path.replace(/\//g, '\\'); // normalize path separator
 		path = DB.mapalias[path] || path;
 
@@ -242,7 +238,7 @@ define(function (require) {
 	};
 
 	MiniMapV2.addPartyMemberMark = function addPartyMemberMark(key, x, y) {
-		var i,
+		let i,
 			count = _party.length;
 
 		for (i = 0; i < count; ++i) {
@@ -269,8 +265,8 @@ define(function (require) {
 		if (_memberColors[key]) {
 			return _memberColors[key];
 		}
-		var r = Math.random;
-		var color = 'rgb(' + [(r() * 255) | 0, (r() * 255) | 0, (r() * 255) | 0] + ')';
+		let r = Math.random;
+		let color = 'rgb(' + [(r() * 255) | 0, (r() * 255) | 0, (r() * 255) | 0] + ')';
 		_memberColors[key] = color;
 		return color;
 	};
@@ -281,7 +277,7 @@ define(function (require) {
 	 * @param {number} key account id
 	 */
 	MiniMapV2.removePartyMemberMark = function removePartyMemberMark(key) {
-		var i,
+		let i,
 			count = _party.length;
 
 		for (i = 0; i < count; ++i) {
@@ -300,7 +296,7 @@ define(function (require) {
 	 * @param {number} y position
 	 */
 	MiniMapV2.addGuildMemberMark = function addGuildMemberMark(key, x, y) {
-		var i,
+		let i,
 			count = _guild.length;
 
 		for (i = 0; i < count; ++i) {
@@ -324,7 +320,7 @@ define(function (require) {
 	 * @param {number} key account id
 	 */
 	MiniMapV2.removeGuildMemberMark = function removeGuildMemberMark(key) {
-		var i,
+		let i,
 			count = _guild.length;
 
 		for (i = 0; i < count; ++i) {
@@ -344,9 +340,9 @@ define(function (require) {
 	 * @param {Array} color
 	 */
 	MiniMapV2.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
-		var i,
+		let i,
 			count = _markers.length;
-		var color = [(lcolor & 0x00ff0000) >> 16, (lcolor & 0x0000ff00) >> 8, lcolor & 0x000000ff];
+		let color = [(lcolor & 0x00ff0000) >> 16, (lcolor & 0x0000ff00) >> 8, lcolor & 0x000000ff];
 
 		for (i = 0; i < count; ++i) {
 			if (_markers[i].key === key) {
@@ -373,7 +369,7 @@ define(function (require) {
 	 * @param {number} key id
 	 */
 	MiniMapV2.removeNpcMark = function removeNPCMark(key) {
-		var i,
+		let i,
 			count = _markers.length;
 
 		for (i = 0; i < count; ++i) {
@@ -433,10 +429,10 @@ define(function (require) {
 	/**
 	 * Render GUI
 	 */
-	var render = (function renderClosure() {
-		var ZOOM_SIZE = 20;
-		var max, start_x, start_y, zoom, f;
-		var pos;
+	let render = (function renderClosure() {
+		let ZOOM_SIZE = 20;
+		let max, start_x, start_y, zoom, f;
+		let pos;
 
 		function projectX(x) {
 			if (zoom === 1) {
@@ -453,8 +449,8 @@ define(function (require) {
 		}
 
 		return function render(tick) {
-			var width, height, i, count;
-			var dot;
+			let width, height, i, count;
+			let dot;
 
 			width = Altitude.width;
 			height = Altitude.height;
@@ -497,7 +493,7 @@ define(function (require) {
 				for (i = 0; i < count; ++i) {
 					dot = _towninfo[i];
 
-					var img;
+					let img;
 					switch (dot.Type) {
 						case 0:
 							img = _toolDealer;
@@ -613,5 +609,4 @@ define(function (require) {
 	/**
 	 * Create component and return it
 	 */
-	return UIManager.addComponent(MiniMapV2);
-});
+export default UIManager.addComponent(MiniMapV2);

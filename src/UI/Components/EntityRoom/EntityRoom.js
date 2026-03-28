@@ -7,21 +7,17 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./EntityRoom.html');
-	var cssText = require('text!./EntityRoom.css');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './EntityRoom.html?raw';
+import cssText from './EntityRoom.css?raw';
 
-	/**
+/**
 	 * Createcomponent
 	 */
-	var EntityRoom = new UIComponent('EntityRoom', htmlText, cssText);
+	let EntityRoom = new UIComponent('EntityRoom', htmlText, cssText);
 
 	/**
 	 * @var {boolean} do not focus this UI
@@ -74,5 +70,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(EntityRoom);
-});
+export default UIManager.addComponent(EntityRoom);

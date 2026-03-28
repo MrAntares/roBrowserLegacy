@@ -7,11 +7,9 @@
  *
  * @author Vincent Thibault, Antares
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+	export default {
 		NOVICE: 0,
 		SWORDMAN: 1,
 		MAGICIAN: 2,
@@ -350,4 +348,3 @@ define(function () {
 		ALITEA_RIDING: 4360,
 		JOB_2004_LAST: 4361
 	};
-});

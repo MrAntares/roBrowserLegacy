@@ -6,27 +6,24 @@
  * @author Alisonrag
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Session = require('Engine/SessionStorage');
-	var MonsterTable = require('DB/Monsters/MonsterTable');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Client = require('Core/Client');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./WriteRodex.html');
-	var cssText = require('text!./WriteRodex.css');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
+import MonsterTable from 'DB/Monsters/MonsterTable';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Client from 'Core/Client';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './WriteRodex.html?raw';
+import cssText from './WriteRodex.css?raw';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import Rodex from 'UI/Components/Rodex/Rodex';
+import Inventory from 'UI/Components/Inventory/Inventory';
 
 	/**
 	 * Create Component
@@ -58,11 +55,11 @@ define(function (require) {
 
 		WriteRodex.ui.css({
 			top: Math.min(
-				Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('top'), 10)) - 20,
+				Math.max(0, parseInt(Rodex.ui.css('top'), 10)) - 20,
 				Renderer.height - WriteRodex.ui.height()
 			),
 			left: Math.min(
-				Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('left'), 10)) + 330,
+				Math.max(0, parseInt(Rodex.ui.css('left'), 10)) + 330,
 				Renderer.width - WriteRodex.ui.width()
 			)
 		});
@@ -340,10 +337,7 @@ define(function (require) {
 				InputBox.remove();
 				switch (data.from) {
 					case 'Inventory':
-						getModule('UI/Components/Inventory/Inventory').reqMoveItemToWriteRodex(
-							item.index,
-							parseInt(count, 10)
-						);
+						Inventory.reqMoveItemToWriteRodex(item.index, parseInt(count, 10));
 						break;
 					default:
 					//cant do this action
@@ -354,7 +348,7 @@ define(function (require) {
 
 		switch (data.from) {
 			case 'Inventory':
-				getModule('UI/Components/Inventory/Inventory').reqMoveItemToWriteRodex(item.index, 1);
+				Inventory.reqMoveItemToWriteRodex(item.index, 1);
 				break;
 			default:
 			//cant do this action
@@ -478,5 +472,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(WriteRodex);
-});
+	export default UIManager.addComponent(WriteRodex);

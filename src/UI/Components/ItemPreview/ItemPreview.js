@@ -5,60 +5,57 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Camera = require('Renderer/Camera');
-	var Session = require('Engine/SessionStorage');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ItemPreview.html');
-	var cssText = require('text!./ItemPreview.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import EquipLocation from 'DB/Items/EquipmentLocation';
+import Renderer from 'Renderer/Renderer';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Camera from 'Renderer/Camera';
+import Session from 'Engine/SessionStorage';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './ItemPreview.html?raw';
+import cssText from './ItemPreview.css?raw';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Entity from 'Renderer/Entity/Entity';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var ItemPreview = new UIComponent('ItemPreview', htmlText, cssText);
+	let ItemPreview = new UIComponent('ItemPreview', htmlText, cssText);
 
 	/**
 	 * @var {CanvasRenderingContext2D}
 	 */
-	var _ctx;
+	let _ctx;
 
 	/**
 	 * @var {number} direction
 	 */
-	var _direction = 0;
+	let _direction = 0;
 
 	/**
 	 * @var {number} preview location bitmask
 	 */
-	var _previewLocation = 0;
+	let _previewLocation = 0;
 
 	/**
 	 * @var {number} preview sprite id
 	 */
-	var _previewSpriteId = 0;
+	let _previewSpriteId = 0;
 
 	/**
 	 * @var {boolean} render state
 	 */
-	var _rendering = false;
+	let _rendering = false;
 
 	/**
 	 * @var {number} ItemPreview unique id
 	 */
 	ItemPreview.uid = -1;
 
-	var _remove = false;
+	let _remove = false;
 
 	/**
 	 * Initialize UI
@@ -93,13 +90,11 @@ define(function (require) {
 	 * Once append
 	 */
 	ItemPreview.onAppend = function onAppend() {
-		var ItemInfo = getModule('UI/Components/ItemInfo/ItemInfo');
-
 		if (ItemInfo.ui) {
-			var itemInfoPosition = ItemInfo.ui.offset();
-			var itemInfoWidth = ItemInfo.ui.outerWidth();
-			var left = itemInfoPosition.left + itemInfoWidth + 10;
-			var top = itemInfoPosition.top;
+			let itemInfoPosition = ItemInfo.ui.offset();
+			let itemInfoWidth = ItemInfo.ui.outerWidth();
+			let left = itemInfoPosition.left + itemInfoWidth + 10;
+			let top = itemInfoPosition.top;
 
 			if (left + this.ui.outerWidth() > Renderer.width) {
 				left = Math.max(0, itemInfoPosition.left - this.ui.outerWidth() - 10);
@@ -142,7 +137,7 @@ define(function (require) {
 	 * @param {object} item
 	 */
 	ItemPreview.setItem = function setItem(item) {
-		var it = DB.getItemInfo(item.ITID);
+		let it = DB.getItemInfo(item.ITID);
 
 		this.item = item;
 		_previewLocation = getItemLocation(item);
@@ -215,10 +210,10 @@ define(function (require) {
 	/**
 	 * Rendering character
 	 */
-	var renderPreview = (function renderPreviewClosure() {
-		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		var _savedColor = new Float32Array(4);
-		var _animation = {
+	let renderPreview = (function renderPreviewClosure() {
+		let _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		let _savedColor = new Float32Array(4);
+		let _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -239,8 +234,7 @@ define(function (require) {
 				return;
 			}
 
-			var Entity = getModule('Renderer/Entity/Entity');
-			var previewCharacter = new Entity();
+			let previewCharacter = new Entity();
 			previewCharacter.set({
 				GID: Session.Entity.GID + '_PREVIEW',
 				objecttype: previewCharacter.constructor.TYPE_PC,
@@ -311,5 +305,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ItemPreview);
-});
+export default UIManager.addComponent(ItemPreview);

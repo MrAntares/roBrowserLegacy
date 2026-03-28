@@ -8,10 +8,12 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatrix) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+import glMatrix from 'Utils/gl-matrix';
+
+/**
 	 * World class loader
 	 *
 	 * @param {ArrayBuffer} data - optional
@@ -81,9 +83,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {ArrayBuffer} data
 	 */
 	RSW.prototype.load = function Load(data) {
-		var header, version;
-		var i, count;
-		var fp;
+		let header, version;
+		let i, count;
+		let fp;
 
 		// Read header.
 		fp = new BinaryReader(data);
@@ -168,11 +170,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Read Object
-		var models = this.models;
-		var lights = this.lights;
-		var sounds = this.sounds;
-		var effects = this.effects;
-		var m = 0,
+		let models = this.models;
+		let lights = this.lights;
+		let sounds = this.sounds;
+		let effects = this.effects;
+		let m = 0,
 			l = 0,
 			s = 0,
 			e = 0;
@@ -254,7 +256,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return RSW;
-});
+	export default RSW;

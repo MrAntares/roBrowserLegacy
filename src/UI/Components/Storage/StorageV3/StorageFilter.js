@@ -5,19 +5,18 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./StorageFilter.html');
-	var cssText = require('text!./StorageFilter.css');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './StorageFilter.html?raw';
+import cssText from './StorageFilter.css?raw';
 
 	/**
 	 * Create StorageFilter "class"
@@ -305,5 +304,4 @@ define(function (require) {
 	};
 
 	// Return the constructor
-	return StorageFilter;
-});
+	export default StorageFilter;

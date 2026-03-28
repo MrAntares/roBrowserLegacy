@@ -7,22 +7,19 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var glMatrix = require('Utils/gl-matrix');
-	var Renderer = require('Renderer/Renderer');
-	var Client = require('Core/Client');
-	var DB = require('DB/DBManager');
-	var EntityRoom = require('UI/Components/EntityRoom/EntityRoom');
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import DB from 'DB/DBManager';
+import EntityRoom from 'UI/Components/EntityRoom/EntityRoom';
 
-	/**
+/**
 	 * Private methods
 	 */
-	var vec4 = glMatrix.vec4;
-	var _pos = new Float32Array(4);
-	var _size = new Float32Array(2);
+	const vec4 = glMatrix.vec4;
+	const _pos = new Float32Array(4);
+	const _size = new Float32Array(2);
 
 	/**
 	 * @Constructor Room
@@ -58,10 +55,10 @@ define(function (require) {
 	 * @param {bool} is clickable ?
 	 */
 	Room.prototype.create = function create(title, id, type, clickable) {
-		var self = this;
+		let self = this;
 
 		function init() {
-			var filename = 'chat_open';
+			let filename = 'chat_open';
 
 			switch (type) {
 				case Room.Type.PUBLIC_CHAT:
@@ -127,8 +124,8 @@ define(function (require) {
 	 * @param {mat4} matrix
 	 */
 	Room.prototype.render = function render(matrix) {
-		var ui = this.node.ui[0];
-		var z;
+		let ui = this.node.ui[0];
+		let z;
 
 		// Cast position
 		_pos[0] = 0.0;
@@ -137,8 +134,8 @@ define(function (require) {
 		_pos[3] = 1.0;
 
 		// Set the viewport
-		_size[0] = Renderer.width / 2;
-		_size[1] = Renderer.height / 2;
+		_size[0] = window.innerWidth / 2;
+		_size[1] = window.innerHeight / 2;
 
 		// Project point to scene
 		vec4.transformMat4(_pos, _pos, matrix);
@@ -155,7 +152,6 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return function Init() {
+	export default function Init() {
 		this.room = new Room(this);
 	};
-});

@@ -1,17 +1,10 @@
-/**
- * App/Online.js
- *
- * Start roBrowser
- *
- * This file is part of ROBrowser, (http://www.robrowser.com/).
- *
- * @author Vincent Thibault
- */
+'use strict';
 
-window.roInitSpinner = {
+import GameEngine from 'Engine/GameEngine';
+import Plugins from 'Plugins/PluginManager';
+
+export const roInitSpinner = {
 	add: function () {
-		'use strict';
-
 		// Loading spinner ring
 		var loading = document.createElement('div');
 		loading.id = 'loading-element';
@@ -55,43 +48,20 @@ window.roInitSpinner = {
 		// when we remove the spinner later.
 		document.head.appendChild(document.createElement('style'));
 		// We also need to store a direct reference, because iframe messes with document
-		window.roInitSpinner.styleElem = document.head.appendChild(loadingStyle);
-		window.roInitSpinner.divElem = document.body.appendChild(loading);
+		roInitSpinner.styleElem = document.head.appendChild(loadingStyle);
+		roInitSpinner.divElem = document.body.appendChild(loading);
 	},
 	remove: function () {
-		'use strict';
-
-		window.roInitSpinner.styleElem?.remove();
-		window.roInitSpinner.divElem?.remove();
+		roInitSpinner.styleElem?.remove();
+		roInitSpinner.divElem?.remove();
 	}
 };
 
-// Add spinner before starting the require chain to let the user know things are happening in the background
-window.roInitSpinner.add();
+window.roInitSpinner = roInitSpinner;
 
-// Errors Handler (hack)
-require.onError = function (err) {
-	'use strict';
-
-	if (require.defined('UI/Components/Error/Error')) {
-		require('UI/Components/Error/Error').addTrace(err);
-		return;
-	}
-
-	require(['UI/Components/Error/Error'], function (Errors) {
-		Errors.addTrace(err);
-	});
-};
-
-require({
-	urlArgs: window.ROConfig.version,
-	baseUrl: '../../src/',
-	paths: {
-		text: 'Vendors/text.require',
-		jquery: 'Vendors/jquery-1.9.1'
-	}
-}, ['Engine/GameEngine', 'Plugins/PluginManager'], function (GameEngine, Plugins) {
-	'use strict';
+export function init() {
+	// Add spinner before starting the engine
+	roInitSpinner.add();
 
 	Plugins.init();
 	GameEngine.init();
@@ -99,4 +69,11 @@ require({
 	window.onbeforeunload = function () {
 		return 'Are you sure to exit roBrowser ?';
 	};
-});
+}
+
+export default {
+	init: init,
+	roInitSpinner: roInitSpinner
+};
+
+init();

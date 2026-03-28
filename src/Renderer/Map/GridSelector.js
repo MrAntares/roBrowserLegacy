@@ -7,42 +7,41 @@
  *
  * @author Vincent Thibault
  */
-define([
-	'Renderer/Map/Altitude',
-	'Core/Client',
-	'Utils/WebGL',
-	'Utils/Texture',
-	'Core/Configs',
-	'text!./GridSelector.vs',
-	'text!./GridSelector.fs'
-], function (Altitude, Client, WebGL, Texture, Configs, _vertexShader, _fragmentShader) {
-	'use strict';
+'use strict';
 
-	/**
+import Altitude from 'Renderer/Map/Altitude';
+import Client from 'Core/Client';
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import Configs from 'Core/Configs';
+import _vertexShader from './GridSelector.vs?raw';
+import _fragmentShader from './GridSelector.fs?raw';
+
+/**
 	 * @var {WebGLProgram}
 	 */
-	var _program = null;
+	let _program = null;
 
 	/**
 	 * param {WebGLBuffer}
 	 */
-	var _buffer = null;
+	let _buffer = null;
 
 	/**
 	 * @var {WebGLTexture} texture of the grid
 	 */
-	var _texture = null;
+	let _texture = null;
 
 	/**
 	 * @var {string} last position rendered
 	 */
-	var _xy = null;
+	let _xy = null;
 
 	/**
 	 * WebGL buffer array
 	 * x, y, z, u, v
 	 */
-	var _buffer_data = new Float32Array([
+	let _buffer_data = new Float32Array([
 		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0
 	]);
 
@@ -58,9 +57,9 @@ define([
 					return;
 				}
 
-				var canvas = document.createElement('canvas');
-				var ctx = canvas.getContext('2d');
-				var enableMipmap = Configs.get('enableMipmap');
+				let canvas = document.createElement('canvas');
+				let ctx = canvas.getContext('2d');
+				let enableMipmap = Configs.get('enableMipmap');
 
 				canvas.width = WebGL.toPowerOfTwo(this.width);
 				canvas.height = WebGL.toPowerOfTwo(this.height);
@@ -107,9 +106,9 @@ define([
 			return;
 		}
 
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
-		var z;
+		let uniform = _program.uniform;
+		let attribute = _program.attribute;
+		let z;
 
 		gl.useProgram(_program);
 
@@ -185,11 +184,10 @@ define([
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return {
+	export default {
 		init: init,
 		free: free,
 		render: render
 	};
-});

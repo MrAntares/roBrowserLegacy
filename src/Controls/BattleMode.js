@@ -7,23 +7,19 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var KEYS = require('Controls/KeyEventHandler');
-	var ProcessCommand = require('Controls/ProcessCommand');
-	var Preferences = require('Preferences/ShortCutControls');
-	var UIManager = require('UI/UIManager');
+import KEYS from 'Controls/KeyEventHandler';
+import ProcessCommand from 'Controls/ProcessCommand';
+import Preferences from 'Preferences/ShortCutControls';
+import UIManager from 'UI/UIManager';
 
 	/**
 	 * Create Namespace
 	 */
-	var BattleMode = {};
+	let BattleMode = {};
 
-	var KeyTable = getKeyTable();
+	let KeyTable = getKeyTable();
 
 	/**
 	 * Update key table if setting changes
@@ -33,7 +29,7 @@ define(function (require) {
 	};
 
 	BattleMode.getKeyName = function (keyId) {
-		var keyName = keyId;
+		let keyName = keyId;
 
 		if (KEYS.SHIFT) {
 			keyName = 'SHIFT-' + keyName;
@@ -59,14 +55,14 @@ define(function (require) {
 	 * @return {boolean} is shortcut found ?
 	 */
 	BattleMode.process = function process(keyId) {
-		var keyName = BattleMode.getKeyName(keyId);
+		let keyName = BattleMode.getKeyName(keyId);
 
-		var key = KeyTable[keyName];
+		let key = KeyTable[keyName];
 		if (key) {
 			if (key.component === '_SLASHCOMMAND') {
 				ProcessCommand.processCommand(key.cmd);
 			} else {
-				var component = UIManager.getComponent(key.component);
+				let component = UIManager.getComponent(key.component);
 				if (component.onShortCut) {
 					component.onShortCut(key);
 				}
@@ -84,8 +80,8 @@ define(function (require) {
 	 * @return {string} readable key pressed
 	 */
 	BattleMode.shortcutToKeyString = function shortcutToKeyString(component, cmd) {
-		var keys, shortcut;
-		var i, count;
+		let keys, shortcut;
+		let i, count;
 
 		keys = Object.keys(KeyTable);
 		count = keys.length;
@@ -94,8 +90,8 @@ define(function (require) {
 			shortcut = KeyTable[keys[i]];
 
 			if (shortcut.component === component && shortcut.cmd === cmd) {
-				var str = [];
-				var tmp = KEYS.toReadableKey(parseInt(keys[i], 10));
+				let str = [];
+				let tmp = KEYS.toReadableKey(parseInt(keys[i], 10));
 
 				if (shortcut.alt) {
 					str.push('ALT');
@@ -124,17 +120,17 @@ define(function (require) {
 	 *	Translates the shortcut table into directly indexable format for event processing
 	 */
 	function getKeyTable() {
-		var keySettings = {};
+		let keySettings = {};
 
-		var ShortCuts = Preferences.ShortCuts;
+		let ShortCuts = Preferences.ShortCuts;
 
 		if (ShortCuts) {
 			Object.keys(ShortCuts).forEach(SC => {
 				// Get initial settings
-				var key = ShortCuts[SC].init.key;
-				var shift = ShortCuts[SC].init.shift;
-				var alt = ShortCuts[SC].init.alt;
-				var ctrl = ShortCuts[SC].init.ctrl;
+				let key = ShortCuts[SC].init.key;
+				let shift = ShortCuts[SC].init.shift;
+				let alt = ShortCuts[SC].init.alt;
+				let ctrl = ShortCuts[SC].init.ctrl;
 
 				// Get custom settings
 				if (ShortCuts[SC].cust) {
@@ -146,7 +142,7 @@ define(function (require) {
 
 				// Only add if key is defined
 				if (key) {
-					var keyName = key;
+					let keyName = key;
 
 					if (shift) {
 						keyName = 'SHIFT-' + keyName;
@@ -166,7 +162,6 @@ define(function (require) {
 	}
 
 	/**
-	 * Exports
+	 * Export
 	 */
-	return BattleMode;
-});
+	export default BattleMode;

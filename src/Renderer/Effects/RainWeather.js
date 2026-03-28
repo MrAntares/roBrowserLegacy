@@ -10,45 +10,46 @@
  * - Added procedural audio system for Rain and Thunder (Web Audio API).
  * - Added lightning visual effect using the existing overlay system.
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Camera = require('Renderer/Camera');
-	var Preferences = require('Preferences/Audio');
-	var Session = require('Engine/SessionStorage');
-	var getModule = require;
+import Renderer from 'Renderer/Renderer';
 
-	var RAG_TICK_MS = 25;
-	var FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
+let MapRenderer;
+import('Renderer/MapRenderer').then(m => MapRenderer = m.default);
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Altitude from 'Renderer/Map/Altitude';
+import Camera from 'Renderer/Camera';
+import Preferences from 'Preferences/Audio';
+import Session from 'Engine/SessionStorage';
+
+let RAG_TICK_MS = 25;
+	let FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
 
 	// Emission control.
-	var EMIT_PER_TICK = 10;
-	var EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
-	var MAX_DROPS = 1100;
+	let EMIT_PER_TICK = 10;
+	let EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
+	let MAX_DROPS = 1100;
 
 	// Spawn volume around player (in map cells). Large enough to cover the view.
-	var SCATTER_RADIUS_CELLS = 70;
-	var SPAWN_HEIGHT_MIN_CELLS = 22;
-	var SPAWN_HEIGHT_MAX_CELLS = 42;
+	let SCATTER_RADIUS_CELLS = 70;
+	let SPAWN_HEIGHT_MIN_CELLS = 22;
+	let SPAWN_HEIGHT_MAX_CELLS = 42;
 
 	// Base wind, slowly varying over time (cells per rag tick).
-	var WIND_STRENGTH_BASE = 0.14;
-	var WIND_STRENGTH_VAR = 0.06;
-	var WIND_ANGLE_MAX_RAD = 0.55; // ~31deg sideways
+	let WIND_STRENGTH_BASE = 0.14;
+	let WIND_STRENGTH_VAR = 0.06;
+	let WIND_ANGLE_MAX_RAD = 0.55; // ~31deg sideways
 
 	// Thunderstorm
-	var THUNDER_MIN_INTERVAL = 5000;
-	var THUNDER_MAX_INTERVAL = 60000;
-	var FLASH_FADE_IN = 50;
-	var FLASH_FADE_OUT = 300;
-	var RAIN_VOLUME = 0.03;
+	let THUNDER_MIN_INTERVAL = 5000;
+	let THUNDER_MAX_INTERVAL = 60000;
+	let FLASH_FADE_IN = 50;
+	let FLASH_FADE_OUT = 300;
+	let RAIN_VOLUME = 0.03;
 
 	// Depth layers: far/mid/near.
 	// Each layer defines relative look and speed.
-	var LAYERS = [
+	let LAYERS = [
 		{
 			weight: 0.55,
 			speedTick: [0.35, 0.55],
@@ -76,9 +77,9 @@ define(function (require) {
 	];
 
 	// Precompute CDF for layer picking.
-	var _layerCDF = (function () {
-		var out = [];
-		var acc = 0;
+	let _layerCDF = (function () {
+		let out = [];
+		let acc = 0;
 		for (var i = 0; i < LAYERS.length; i++) {
 			acc += LAYERS[i].weight;
 			out.push(acc);
@@ -87,14 +88,14 @@ define(function (require) {
 	})();
 
 	// Procedural raindrop sprite (1x16 alpha‑gradient texture stretched into streaks).
-	var _dropFrame = null;
+	let _dropFrame = null;
 	// Full-screen grey filter (1x1 texture).
-	var _filterFrame = null;
+	let _filterFrame = null;
 	// Ground splash texture (16x16 soft disc).
-	var _splashFrame = null;
-	var SPLASH_LIFE_MS = 220;
-	var SPLASH_SIZE_PX = [10, 18];
-	var SPLASH_ALPHA = 0.45;
+	let _splashFrame = null;
+	let SPLASH_LIFE_MS = 220;
+	let SPLASH_SIZE_PX = [10, 18];
+	let SPLASH_ALPHA = 0.45;
 
 	// SINGLETON STATE
 	let _instance = null;
@@ -107,21 +108,21 @@ define(function (require) {
 		}
 
 		_dropFrame = null;
-		var tex = gl.createTexture();
+		let tex = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, tex);
 
 		// Build a 1x16 vertical gradient (top transparent → bright core → soft tail).
-		var h = 16;
-		var data = new Uint8Array(h * 4);
+		let h = 16;
+		let data = new Uint8Array(h * 4);
 		for (var i = 0; i < h; i++) {
-			var t = i / (h - 1);
+			let t = i / (h - 1);
 			// Ramp up to full alpha, then taper slightly.
-			var a = Math.min(1, t / 0.7);
+			let a = Math.min(1, t / 0.7);
 			if (t > 0.7) {
 				a *= 1 - ((t - 0.7) / 0.3) * 0.35;
 			}
-			var alphaByte = Math.max(0, Math.min(255, Math.floor(a * 255)));
-			var idx = i * 4;
+			let alphaByte = Math.max(0, Math.min(255, Math.floor(a * 255)));
+			let idx = i * 4;
 			data[idx + 0] = 255;
 			data[idx + 1] = 255;
 			data[idx + 2] = 255;
@@ -143,7 +144,7 @@ define(function (require) {
 		}
 		_filterFrame = null;
 
-		var tex = gl.createTexture();
+		let tex = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, tex);
 		gl.texImage2D(
 			gl.TEXTURE_2D,
@@ -170,27 +171,27 @@ define(function (require) {
 		}
 		_splashFrame = null;
 
-		var w = 16,
+		let w = 16,
 			h = 16;
-		var data = new Uint8Array(w * h * 4);
-		var cx = (w - 1) / 2;
-		var cy = (h - 1) / 2;
-		var maxR = Math.min(cx, cy);
+		let data = new Uint8Array(w * h * 4);
+		let cx = (w - 1) / 2;
+		let cy = (h - 1) / 2;
+		let maxR = Math.min(cx, cy);
 
 		for (var y = 0; y < h; y++) {
 			for (var x = 0; x < w; x++) {
-				var dx = x - cx;
-				var dy = y - cy;
-				var r = Math.sqrt(dx * dx + dy * dy) / maxR;
-				var a = 0;
+				let dx = x - cx;
+				let dy = y - cy;
+				let r = Math.sqrt(dx * dx + dy * dy) / maxR;
+				let a = 0;
 				if (r <= 1) {
 					// Soft disc with slight ring emphasis.
 					a = Math.exp(-r * r * 2.8);
-					var ring = Math.exp(-Math.pow((r - 0.65) / 0.12, 2));
+					let ring = Math.exp(-Math.pow((r - 0.65) / 0.12, 2));
 					a = Math.max(a, ring * 0.9);
 				}
-				var alphaByte = Math.max(0, Math.min(255, Math.floor(a * 255)));
-				var idx = (y * w + x) * 4;
+				let alphaByte = Math.max(0, Math.min(255, Math.floor(a * 255)));
+				let idx = (y * w + x) * 4;
 				data[idx + 0] = 255;
 				data[idx + 1] = 255;
 				data[idx + 2] = 255;
@@ -198,7 +199,7 @@ define(function (require) {
 			}
 		}
 
-		var tex = gl.createTexture();
+		let tex = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, tex);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -214,7 +215,7 @@ define(function (require) {
 	}
 
 	function pickLayerIndex() {
-		var r = Math.random() * _layerCDF[_layerCDF.length - 1];
+		let r = Math.random() * _layerCDF[_layerCDF.length - 1];
 		for (var i = 0; i < _layerCDF.length; i++) {
 			if (r <= _layerCDF[i]) {
 				return i;
@@ -225,19 +226,19 @@ define(function (require) {
 
 	function computeGlobalWind(tick) {
 		// Slow oscillation: changes over ~10s.
-		var t = tick * 0.00012;
-		var strengthTick = WIND_STRENGTH_BASE + WIND_STRENGTH_VAR * Math.sin(t * 2.3);
-		var angleCam = Math.sin(t * 1.1) * WIND_ANGLE_MAX_RAD;
-		var camXTick = Math.cos(angleCam) * strengthTick;
-		var camYTick = Math.sin(angleCam) * strengthTick * 0.35;
+		let t = tick * 0.00012;
+		let strengthTick = WIND_STRENGTH_BASE + WIND_STRENGTH_VAR * Math.sin(t * 2.3);
+		let angleCam = Math.sin(t * 1.1) * WIND_ANGLE_MAX_RAD;
+		let camXTick = Math.cos(angleCam) * strengthTick;
+		let camYTick = Math.sin(angleCam) * strengthTick * 0.35;
 
 		// Convert camera‑space wind to world‑space so on‑screen direction stays consistent
 		// even when the camera rotates.
-		var yawRad = (((Camera.angle && Camera.angle[1]) || 0) * Math.PI) / 180;
-		var cosYaw = Math.cos(yawRad);
-		var sinYaw = Math.sin(yawRad);
-		var xTick = camXTick * cosYaw + camYTick * sinYaw;
-		var yTick = -camXTick * sinYaw + camYTick * cosYaw;
+		let yawRad = (((Camera.angle && Camera.angle[1]) || 0) * Math.PI) / 180;
+		let cosYaw = Math.cos(yawRad);
+		let sinYaw = Math.sin(yawRad);
+		let xTick = camXTick * cosYaw + camYTick * sinYaw;
+		let yTick = -camXTick * sinYaw + camYTick * cosYaw;
 		return {
 			camXTick: camXTick,
 			camYTick: camYTick,
@@ -259,21 +260,21 @@ define(function (require) {
 	 */
 	function computeDropTilt(vx, vy, speedMs) {
 		// Velocity in world coords (cells/ms). Falling decreases world Z.
-		var vz = -speedMs;
+		let vz = -speedMs;
 
 		// Convert to map coords expected by Camera.modelView / Project().
-		var mx = vx;
-		var my = -vz; // = speedMs, positive when falling down.
-		var mz = vy;
+		let mx = vx;
+		let my = -vz; // = speedMs, positive when falling down.
+		let mz = vy;
 
-		var m = Camera.modelView;
+		let m = Camera.modelView;
 		if (!m) {
 			return 0;
 		}
 
 		// View‑space velocity (w=0 ignores translation).
-		var vxView = m[0] * mx + m[4] * my + m[8] * mz;
-		var vyView = m[1] * mx + m[5] * my + m[9] * mz;
+		let vxView = m[0] * mx + m[4] * my + m[8] * mz;
+		let vyView = m[1] * mx + m[5] * my + m[9] * mz;
 
 		if (Math.abs(vxView) < 0.000001 && Math.abs(vyView) < 0.000001) {
 			return 0;
@@ -305,7 +306,7 @@ define(function (require) {
 
 		// Try start audio feature
 		try {
-			var AudioContext = window.AudioContext || window.webkitAudioContext;
+			let AudioContext = window.AudioContext || window.webkitAudioContext;
 			if (AudioContext) {
 				this.audioCtx = new AudioContext();
 				this.initRainSound();
@@ -331,26 +332,26 @@ define(function (require) {
 			return;
 		}
 
-		var ctx = this.audioCtx;
-		var bufferSize = 2 * ctx.sampleRate;
-		var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-		var output = buffer.getChannelData(0);
+		let ctx = this.audioCtx;
+		let bufferSize = 2 * ctx.sampleRate;
+		let buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+		let output = buffer.getChannelData(0);
 
 		// Generate white noise
 		for (var i = 0; i < bufferSize; i++) {
 			output[i] = Math.random() * 2 - 1;
 		}
 
-		var whiteNoise = ctx.createBufferSource();
+		let whiteNoise = ctx.createBufferSource();
 		whiteNoise.buffer = buffer;
 		whiteNoise.loop = true;
 
 		// Low pass filter
-		var rainFilter = ctx.createBiquadFilter();
+		let rainFilter = ctx.createBiquadFilter();
 		rainFilter.type = 'lowpass';
 		rainFilter.frequency.value = 400;
 
-		var gainNode = ctx.createGain();
+		let gainNode = ctx.createGain();
 		gainNode.gain.value = RAIN_VOLUME * Preferences.Sound.volume;
 
 		whiteNoise.connect(rainFilter);
@@ -426,24 +427,24 @@ define(function (require) {
 			this.audioCtx.resume();
 		}
 
-		var ctx = this.audioCtx;
-		var bufferSize = ctx.sampleRate * 2;
-		var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-		var data = buffer.getChannelData(0);
+		let ctx = this.audioCtx;
+		let bufferSize = ctx.sampleRate * 2;
+		let buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+		let data = buffer.getChannelData(0);
 
 		for (let i = 0; i < bufferSize; i++) {
 			data[i] = (Math.random() * 2 - 1) * Math.exp(-i / bufferSize);
 		}
 
-		var source = ctx.createBufferSource();
+		let source = ctx.createBufferSource();
 		source.buffer = buffer;
 
-		var filter = ctx.createBiquadFilter();
+		let filter = ctx.createBiquadFilter();
 		filter.type = 'lowpass';
 		filter.frequency.value = 300;
 
 		// add gain to thunderstorm
-		var thunderGain = ctx.createGain();
+		let thunderGain = ctx.createGain();
 		thunderGain.gain.setValueAtTime(0.8 * Preferences.Sound.volume, ctx.currentTime);
 		thunderGain.gain.exponentialRampToValueAtTime(0.01 * Preferences.Sound.volume, ctx.currentTime + 1.5);
 
@@ -473,8 +474,8 @@ define(function (require) {
 	};
 
 	RainWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		var now = Params.Inst.startTick || Renderer.tick;
-		var currentMap = getModule('Renderer/MapRenderer').currentMap;
+		let now = Params.Inst.startTick || Renderer.tick;
+		let currentMap = MapRenderer ? MapRenderer.currentMap : '';
 
 		if (_mapName !== currentMap) {
 			_instance = null;
@@ -500,7 +501,7 @@ define(function (require) {
 		}
 
 		// Clean up if map changed
-		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
+		if (_mapName !== (MapRenderer ? MapRenderer.currentMap : '')) {
 			_instance = null;
 			return;
 		}
@@ -524,7 +525,7 @@ define(function (require) {
 			return;
 		}
 
-		var now = tick || Renderer.tick;
+		let now = tick || Renderer.tick;
 		if (_instance.endTick === -1) {
 			_isStopping = true;
 			_instance.endTick = now + FADEOUT_TAIL_MS;
@@ -536,40 +537,40 @@ define(function (require) {
 			return;
 		}
 
-		var layerIndex = pickLayerIndex();
-		var layer = LAYERS[layerIndex];
+		let layerIndex = pickLayerIndex();
+		let layer = LAYERS[layerIndex];
 
-		var px = Session.Entity.position[0];
-		var py = Session.Entity.position[1];
+		let px = Session.Entity.position[0];
+		let py = Session.Entity.position[1];
 
-		var theta = Math.random() * Math.PI * 2;
-		var radius = Math.random() * SCATTER_RADIUS_CELLS;
-		var ox = Math.cos(theta) * radius;
-		var oy = Math.sin(theta) * radius;
+		let theta = Math.random() * Math.PI * 2;
+		let radius = Math.random() * SCATTER_RADIUS_CELLS;
+		let ox = Math.cos(theta) * radius;
+		let oy = Math.sin(theta) * radius;
 
 		// Shift spawn slightly upwind so streaks drift through view.
-		var spawnHeight = randRange(SPAWN_HEIGHT_MIN_CELLS, SPAWN_HEIGHT_MAX_CELLS);
-		var upwindX = -this._wind.xTick * spawnHeight * 0.6;
-		var upwindY = -this._wind.yTick * spawnHeight * 0.6;
+		let spawnHeight = randRange(SPAWN_HEIGHT_MIN_CELLS, SPAWN_HEIGHT_MAX_CELLS);
+		let upwindX = -this._wind.xTick * spawnHeight * 0.6;
+		let upwindY = -this._wind.yTick * spawnHeight * 0.6;
 
-		var x = px + ox + upwindX;
-		var y = py + oy + upwindY;
+		let x = px + ox + upwindX;
+		let y = py + oy + upwindY;
 
-		var groundZ = Altitude.getCellHeight(x, y);
-		var z = groundZ + spawnHeight;
+		let groundZ = Altitude.getCellHeight(x, y);
+		let z = groundZ + spawnHeight;
 
 		// Per-drop speed / size.
-		var speedTick = randRange(layer.speedTick[0], layer.speedTick[1]);
-		var speedMs = speedTick / RAG_TICK_MS;
-		var widthPx = randRange(layer.widthPx[0], layer.widthPx[1]);
-		var lengthPx = randRange(layer.lengthPx[0], layer.lengthPx[1]);
+		let speedTick = randRange(layer.speedTick[0], layer.speedTick[1]);
+		let speedMs = speedTick / RAG_TICK_MS;
+		let widthPx = randRange(layer.widthPx[0], layer.widthPx[1]);
+		let lengthPx = randRange(layer.lengthPx[0], layer.lengthPx[1]);
 
 		// Small per-drop wind jitter around global wind.
-		var windJitterXMs = (Math.random() - 0.5) * 0.002;
-		var windJitterYMs = (Math.random() - 0.5) * 0.002;
+		let windJitterXMs = (Math.random() - 0.5) * 0.002;
+		let windJitterYMs = (Math.random() - 0.5) * 0.002;
 
 		// Per-drop tilt jitter (base tilt computed each frame for camera correctness).
-		var tiltJitter = randRange(-4, 4);
+		let tiltJitter = randRange(-4, 4);
 
 		this.drops.push({
 			spawnTick: spawnTick,
@@ -610,7 +611,7 @@ define(function (require) {
 		this._wind = computeGlobalWind(tick);
 
 		// --- ThunderStorm system (Visual and Sound) ---
-		var now = Date.now();
+		let now = Date.now();
 
 		// check if need to flash on thunderstorm
 		if (!this.isFlashing && now >= this.nextLightningTime) {
@@ -623,15 +624,15 @@ define(function (require) {
 		}
 
 		// common grey filter
-		var overlayR = 0.65;
-		var overlayG = 0.67;
-		var overlayB = 0.7;
-		var overlayA = 0.14;
+		let overlayR = 0.65;
+		let overlayG = 0.67;
+		let overlayB = 0.7;
+		let overlayA = 0.14;
 
 		// flash filter
 		if (this.isFlashing) {
-			var elapsed = now - this.flashStartTime;
-			var flashAlpha = 0;
+			let elapsed = now - this.flashStartTime;
+			let flashAlpha = 0;
 
 			if (this.flashMultiCount === 2) {
 				// --- Double Flash (Strobe) ---
@@ -645,11 +646,11 @@ define(function (require) {
 				}
 				// 160ms+: Another Flash (Main)
 				else {
-					var elapsed2 = elapsed - 160;
+					let elapsed2 = elapsed - 160;
 					if (elapsed2 < FLASH_FADE_IN) {
 						flashAlpha = (elapsed2 / FLASH_FADE_IN) * 0.8;
 					} else if (elapsed2 < FLASH_FADE_IN + FLASH_FADE_OUT) {
-						var p = (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT;
+						let p = (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT;
 						flashAlpha = 0.8 * (1 - p);
 					} else {
 						this.isFlashing = false;
@@ -662,7 +663,7 @@ define(function (require) {
 					flashAlpha = (elapsed / FLASH_FADE_IN) * 0.8;
 				} else if (elapsed < FLASH_FADE_IN + FLASH_FADE_OUT) {
 					// Fade Out
-					var p = (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT;
+					let p = (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT;
 					flashAlpha = 0.8 * (1 - p);
 				} else {
 					// end
@@ -683,7 +684,7 @@ define(function (require) {
 		if (_filterFrame) {
 			// skip rain fade out to visual storm
 			if (this.endTick > 0 && !this.isFlashing) {
-				var tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
+				let tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
 				overlayA *= tail;
 			}
 
@@ -709,7 +710,7 @@ define(function (require) {
 		}
 
 		// Effect lifetime / emission gating.
-		var remaining = Infinity;
+		let remaining = Infinity;
 		if (this.endTick > 0) {
 			remaining = this.endTick - tick;
 			if (remaining <= 0) {
@@ -718,12 +719,12 @@ define(function (require) {
 			}
 		}
 
-		var allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
+		let allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
 		if (allowEmit) {
-			var ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
+			let ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
 			if (ticksToEmit > 0) {
 				for (var i = 0; i < ticksToEmit; i++) {
-					var emitTick = this.lastEmitTick + i * RAG_TICK_MS;
+					let emitTick = this.lastEmitTick + i * RAG_TICK_MS;
 					if (_isStopping) {
 						break;
 					}
@@ -736,8 +737,8 @@ define(function (require) {
 		}
 
 		for (var d = this.drops.length - 1; d >= 0; d--) {
-			var drop = this.drops[d];
-			var age = tick - drop.spawnTick;
+			let drop = this.drops[d];
+			let age = tick - drop.spawnTick;
 
 			// Ended or hit ground.
 			if (drop.z <= drop.groundZ + 0.05) {
@@ -761,21 +762,21 @@ define(function (require) {
 				continue;
 			}
 
-			var dt = tick - (drop._lastTick || drop.spawnTick);
+			let dt = tick - (drop._lastTick || drop.spawnTick);
 			drop._lastTick = tick;
 
 			// Update fall + coherent wind drift. Drift is recomputed from the current
 			// global wind so on-screen slant stays stable under camera rotation.
-			var windXMs = this._wind.xMs + (drop.windJitterXMs || 0);
-			var windYMs = this._wind.yMs + (drop.windJitterYMs || 0);
+			let windXMs = this._wind.xMs + (drop.windJitterXMs || 0);
+			let windYMs = this._wind.yMs + (drop.windJitterYMs || 0);
 
 			drop.z -= drop.speedMs * dt;
 			drop.x += windXMs * dt;
 			drop.y += windYMs * dt;
 
 			// Progress through fall (0..1).
-			var denom = drop.spawnZ - drop.groundZ;
-			var progress = denom > 0.0001 ? (drop.spawnZ - drop.z) / denom : 0;
+			let denom = drop.spawnZ - drop.groundZ;
+			let progress = denom > 0.0001 ? (drop.spawnZ - drop.z) / denom : 0;
 			if (progress < 0) {
 				progress = 0;
 			}
@@ -784,7 +785,7 @@ define(function (require) {
 			}
 
 			// Fade by progress to avoid popping.
-			var alpha = drop.alphaScale;
+			let alpha = drop.alphaScale;
 			if (progress < 0.08) {
 				alpha *= progress / 0.08;
 			} else if (progress > 0.85) {
@@ -818,16 +819,16 @@ define(function (require) {
 		// Render splashes after drops so they sit on top of the ground.
 		if (_splashFrame && this.splashes.length) {
 			for (var s = this.splashes.length - 1; s >= 0; s--) {
-				var splash = this.splashes[s];
-				var splashAge = tick - splash.startTick;
+				let splash = this.splashes[s];
+				let splashAge = tick - splash.startTick;
 				if (splashAge >= splash.lifeMs) {
 					this.splashes.splice(s, 1);
 					continue;
 				}
 
-				var sp = splashAge / splash.lifeMs;
-				var splashAlpha = SPLASH_ALPHA * (1 - sp);
-				var splashSize = splash.maxSizePx * (0.6 + sp * 0.8);
+				let sp = splashAge / splash.lifeMs;
+				let splashAlpha = SPLASH_ALPHA * (1 - sp);
+				let splashSize = splash.maxSizePx * (0.6 + sp * 0.8);
 
 				SpriteRenderer.image.palette = null;
 				SpriteRenderer.sprite = _splashFrame;
@@ -868,6 +869,4 @@ define(function (require) {
 		this.splashes = [];
 		this.ready = false;
 	};
-
-	return RainWeatherEffect;
-});
+export default RainWeatherEffect;

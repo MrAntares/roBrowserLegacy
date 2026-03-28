@@ -7,25 +7,21 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./RefineWeaponSelection.html');
-	var cssText = require('text!./RefineWeaponSelection.css');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './RefineWeaponSelection.html?raw';
+import cssText from './RefineWeaponSelection.css?raw';
 
-	/**
+/**
 	 * Create RefineWeaponSelection namespace
 	 */
-	var RefineWeaponSelection = new UIComponent('RefineWeaponSelection', htmlText, cssText);
+	let RefineWeaponSelection = new UIComponent('RefineWeaponSelection', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -63,8 +59,8 @@ define(function (require) {
 	 * @param {Array} list object to display
 	 */
 	RefineWeaponSelection.setList = function setList(list) {
-		var i, count;
-		var item, it, file, name, refine;
+		let i, count;
+		let item, it, file, name, refine;
 
 		RefineWeaponSelection.list.empty();
 		RefineWeaponSelection.ItemList = [];
@@ -133,7 +129,7 @@ define(function (require) {
 	 * Select a server, callback
 	 */
 	RefineWeaponSelection.getItemByIndex = function getItemByIndex(index) {
-		var list = RefineWeaponSelection.ItemList;
+		let list = RefineWeaponSelection.ItemList;
 
 		for (var i = 0; i < list.length; i++) {
 			if (RefineWeaponSelection.ItemList[i].index == index) {
@@ -166,5 +162,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(RefineWeaponSelection);
-});
+export default UIManager.addComponent(RefineWeaponSelection);

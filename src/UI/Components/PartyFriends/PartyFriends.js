@@ -4,15 +4,14 @@
  * Manage interface for parties and friends - Version Router
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'PartyFriends';
+import PartyFriendsV0 from './PartyFriendsV0/PartyFriendsV0';
+import PartyFriendsV1 from './PartyFriendsV1/PartyFriendsV1';
 
-	var PartyFriendsV0 = require('./PartyFriendsV0/PartyFriendsV0');
-	var PartyFriendsV1 = require('./PartyFriendsV1/PartyFriendsV1');
+import UIVersionManager from 'UI/UIVersionManager';
 
-	var UIVersionManager = require('UI/UIVersionManager');
+var publicName = 'PartyFriends';
 
 	var versionInfo = {
 		default: PartyFriendsV0,
@@ -51,5 +50,4 @@ define(function (require) {
 		if (ui && ui.toggle) ui.toggle();
 	};
 
-	return controller;
-});
+export default controller;

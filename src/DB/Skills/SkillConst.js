@@ -7,11 +7,9 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+	export default {
 		NV_BASIC: 1,
 		SM_SWORD: 2,
 		SM_TWOHAND: 3,
@@ -1813,4 +1811,3 @@ define(function () {
 		EFST_DRESS_UP: 12000,
 		EFST_999: 12999
 	};
-});

@@ -7,12 +7,9 @@
  *
  * @author Stefan Goessner/2006
  */
+'use strict';
 
-
-define(function () {
-    'use strict';
-
-    return {
+	export default {
         xml2json: function(xml, tab = "") {
             var X = {
                 toObj: function (xml) {
@@ -201,4 +198,3 @@ define(function () {
             return tab ? xml.replace(/\t/g, tab) : xml.replace(/\t|\n/g, "");
         }
     }
-});

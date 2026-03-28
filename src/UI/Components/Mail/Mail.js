@@ -6,28 +6,24 @@
  * @author Francisco Wallison
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./Mail.html');
-	var cssText = require('text!./Mail.css');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './Mail.html?raw';
+import cssText from './Mail.css?raw';
 
 	/**
 	 * Create Component
@@ -904,5 +900,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Mail);
-});
+	export default UIManager.addComponent(Mail);

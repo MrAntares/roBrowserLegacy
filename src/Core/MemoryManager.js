@@ -10,39 +10,40 @@
  * @author Vincent Thibault
  */
 
-define(['Core/MemoryItem'], function (MemoryItem) {
-	'use strict';
+'use strict';
+
+import MemoryItem from 'Core/MemoryItem';
 
 	/**
 	 * List of files in memory
 	 * @var List MemoryItem
 	 */
-	var _memory = {};
+	let _memory = {};
 
 	/**
 	 * Remove files from memory if not used until a period of time
 	 * @var {number}
 	 */
-	var _rememberTime = 30 * 1000; // 30s
+	let _rememberTime = 30 * 1000; // 30s
 
 	/**
 	 * @var {number} last time we clean up variables
 	 */
-	var _lastCheckTick = 0;
+	let _lastCheckTick = 0;
 
 	/**
 	 * @var {number} perform the clean up every 10 secs
 	 */
-	var _cleanUpInterval = 10 * 1000;
+	let _cleanUpInterval = 10 * 1000;
 
 	/**
 	 * Async cleanup state tracking.
 	 * These variables are used to split memory cleanup into small chunks
 	 * to avoid blocking the main thread during large clean operations.
 	 */
-	var _cleaningInProgress = false; // Prevents multiple clean cycles running at the same time
-	var _cleanIndex = 0; // Tracks the current cleanup position
-	var _filesToClean = []; // List of memory entries scheduled for removal
+	let _cleaningInProgress = false; // Prevents multiple clean cycles running at the same time
+	let _cleanIndex = 0; // Tracks the current cleanup position
+	let _filesToClean = []; // List of memory entries scheduled for removal
 
 	/**
 	 * Get back data from memory
@@ -53,7 +54,7 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 	 * @return mixed data
 	 */
 	function get(filename, onload, onerror) {
-		var item;
+		let item;
 
 		// Not in memory yet, create slot
 		if (!_memory[filename]) {
@@ -115,9 +116,9 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 			return;
 		}
 
-		var keys, item;
-		var i, count, tick;
-		var files = [];
+		let keys, item;
+		let i, count, tick;
+		let files = [];
 		_filesToClean = []; // Reset pending cleanup list
 
 		keys = Object.keys(_memory);
@@ -142,9 +143,9 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 
 		// Perform cleanup incrementally during idle time to reduce frame drops
 		requestIdleCallback(function cleanChunk(deadline) {
-			var processed = 0;
+			let processed = 0;
 			// Limit the number of removals per idle callback
-			var maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
+			let maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
 
 			while (_cleanIndex < _filesToClean.length && processed < maxProcess && deadline.timeRemaining() > 0) {
 				remove(gl, _filesToClean[_cleanIndex]);
@@ -185,11 +186,11 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 			return;
 		}
 
-		var file = get(filename);
-		var ext = '';
-		var i, count;
+		let file = get(filename);
+		let ext = '';
+		let i, count;
 
-		var matches = filename.match(/\.[^.]+$/);
+		let matches = filename.match(/\.[^.]+$/);
 
 		if (matches) {
 			ext = matches.toString().toLowerCase();
@@ -245,7 +246,7 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 	/**
 	 * Export methods
 	 */
-	return {
+	export default {
 		get: get,
 		set: set,
 		clean: clean,
@@ -253,4 +254,3 @@ define(['Core/MemoryItem'], function (MemoryItem) {
 		exist: exist,
 		search: search
 	};
-});

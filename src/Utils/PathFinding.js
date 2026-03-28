@@ -11,11 +11,10 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	// World object
-	var GAT = {
+// World object
+	let GAT = {
 		width: 0,
 		height: 0,
 		cells: null,
@@ -28,11 +27,11 @@ define(function () {
 	const MOVE_DIAGONAL_COST = 14;
 
 	// Memory
-	var _heap = new Uint32Array(MAX_HEAP);
-	var _heap_clean = new Uint32Array(MAX_HEAP);
+	let _heap = new Uint32Array(MAX_HEAP);
+	let _heap_clean = new Uint32Array(MAX_HEAP);
 
-	var short_clean = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	var char_clean = new Uint8Array(MAX_WALKPATH * MAX_WALKPATH);
+	let short_clean = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
+	let char_clean = new Uint8Array(MAX_WALKPATH * MAX_WALKPATH);
 
 	// struct tmp_path {
 	/* short   */ var _x = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
@@ -59,7 +58,7 @@ define(function () {
 	 * @param {number} index
 	 */
 	function push_heap_path(heap, index) {
-		var i,
+		let i,
 			h = heap[0]++;
 
 		for (i = (h - 1) >> 1; h > 0 && _cost[index] < _cost[heap[i + 1]]; i = (h - 1) >> 1) {
@@ -78,7 +77,7 @@ define(function () {
 	 * @param {number} index
 	 */
 	function update_heap_path(heap, index) {
-		var i, h, cost;
+		let i, h, cost;
 
 		h = 0;
 		for (h = 0; h < heap[0] && heap[h + 1] !== index; ++h) {
@@ -106,7 +105,7 @@ define(function () {
 	 * @return {number}
 	 */
 	function pop_heap_path(heap) {
-		var i, h, k, ret, last, cost;
+		let i, h, k, ret, last, cost;
 
 		if (heap[0] <= 0) {
 			return -1;
@@ -150,8 +149,8 @@ define(function () {
 	 * @param {number} cost
 	 */
 	function add_path(heap, x, y, dist, before, x1, y1) {
-		var i = calc_index(x, y);
-		var cost = dist + calc_cost(i, x1, y1);
+		let i = calc_index(x, y);
+		let cost = dist + calc_cost(i, x1, y1);
 		if (_x[i] === x && _y[i] === y) {
 			if (_dist[i] > dist) {
 				_dist[i] = dist;
@@ -208,8 +207,8 @@ define(function () {
 	 * @param {number} range
 	 */
 	function searchLong(x0, y0, x1, y1, range, out) {
-		var i, dx, dy, x, y, rx, ry;
-		var result = {
+		let i, dx, dy, x, y, rx, ry;
+		let result = {
 			success: false,
 			inRange: false,
 			targetCell: [x0, y0],
@@ -299,18 +298,18 @@ define(function () {
 	 * @param {Array} out
 	 */
 	function search(x0, y0, x1, y1, range, out) {
-		var heap;
-		var x, y, i, j, currentNode, sizeX, sizeY;
-		var error, dirFlag, pathLen, dist, cost, finalLen, skip;
+		let heap;
+		let x, y, i, j, currentNode, sizeX, sizeY;
+		let error, dirFlag, pathLen, dist, cost, finalLen, skip;
 
 		// Import world
-		var width = GAT.width;
-		var height = GAT.height;
-		var types = GAT.cells;
-		var TYPE = GAT.type;
+		let width = GAT.width;
+		let height = GAT.height;
+		let types = GAT.cells;
+		let TYPE = GAT.type;
 
 		// Direct search
-		var result = searchLong(x0, y0, x1, y1, range, out);
+		let result = searchLong(x0, y0, x1, y1, range, out);
 		if (result.success) {
 			return result.pathLength + 1;
 		}
@@ -417,7 +416,7 @@ define(function () {
 		for (i = currentNode, j = pathLen - 1; j >= 0; i = _before[i], j--) {
 			if (skip) {
 				// Check direct path when previous cell was skipped
-				var cellResult = searchLong(_x[i], _y[i], x1, y1, range, []);
+				let cellResult = searchLong(_x[i], _y[i], x1, y1, range, []);
 				if (!(cellResult.success && cellResult.inRange)) {
 					skip = false;
 				}
@@ -454,8 +453,8 @@ define(function () {
 	 * @param {number} range
 	 */
 	function searchLongIgnoreCellType(x0, y0, x1, y1, range, out) {
-		var i, dx, dy, x, y, rx, ry;
-		var result = {
+		let i, dx, dy, x, y, rx, ry;
+		let result = {
 			success: false,
 			inRange: false,
 			targetCell: [x0, y0],
@@ -525,7 +524,7 @@ define(function () {
 	}
 
 	// Exports
-	return {
+export default {
 		search: search,
 		searchLong: searchLong,
 		setGat: setGat,
@@ -534,4 +533,3 @@ define(function () {
 		MAX_HEAP: MAX_HEAP,
 		MAX_WALKPATH: MAX_WALKPATH
 	};
-});

@@ -7,11 +7,11 @@
  *
  * @author Vincent Thibault, Antares, MrUnzO
  */
+'use strict';
 
-define(['./JobConst'], function (JobId) {
-	'use strict';
+import JobId from './JobConst';
 
-	var JobHitSoundTable = {};
+	let JobHitSoundTable = {};
 
 	JobHitSoundTable[JobId.NOVICE] = ['player_clothes.wav'];
 
@@ -305,5 +305,4 @@ define(['./JobConst'], function (JobId) {
 	duplicateEntry(JobId.FROG_OBORO, JobId.FROG_OBORO_B);
 	duplicateEntry(JobId.PECO_REBELLION, JobId.PECO_REBELLION_B);
 
-	return JobHitSoundTable;
-});
+	export default JobHitSoundTable;

@@ -8,33 +8,33 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var WebGL = require('Utils/WebGL');
-	var Client = require('Core/Client');
-	var Configs = require('Core/Configs');
-	var Sprite = require('Loaders/Sprite');
-	var Action = require('Loaders/Action');
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var MapPreferences = require('Preferences/Map');
-	var DB = require('DB/DBManager');
-	var Sound = require('Audio/SoundManager');
-	var EffectManager = require('Renderer/EffectManager');
-	var MemoryManager = require('Core/MemoryManager');
-	var Entity = require('Renderer/Entity/Entity');
-	var GraphicsSettings = require('Preferences/Graphics');
-	var PACKETVER = require('Network/PacketVerManager');
-	var EndureSound = 'player_metal.wav';
-	var dpr = window.devicePixelRatio || 1;
+import WebGL from 'Utils/WebGL';
+import Client from 'Core/Client';
+import Configs from 'Core/Configs';
+import Sprite from 'Loaders/Sprite';
+import Action from 'Loaders/Action';
+import Renderer from 'Renderer/Renderer';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import MapPreferences from 'Preferences/Map';
+import DB from 'DB/DBManager';
+import Sound from 'Audio/SoundManager';
+import EffectManager from 'Renderer/EffectManager';
+import MemoryManager from 'Core/MemoryManager';
+import Entity from 'Renderer/Entity/Entity';
+import GraphicsSettings from 'Preferences/Graphics';
+import PACKETVER from 'Network/PacketVerManager';
 
-	var procCanvas = document.createElement('canvas');
-	var procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+// Load dependencies
+	let EndureSound = 'player_metal.wav';
+	let dpr = window.devicePixelRatio || 1;
 
-	var _skin = 0;
-	var _damageSkins = {
+	let procCanvas = document.createElement('canvas');
+	let procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+
+	let _skin = 0;
+	let _damageSkins = {
 		0: {
 			// DT_Default
 			BaseNumber: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xfd\xc0\xda.spr',
@@ -60,7 +60,7 @@ define(function (require) {
 			BaseBlue: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumberH_BMSG.spr'
 		}
 	};
-	var _loadedSkinsData = {};
+	let _loadedSkinsData = {};
 
 	/**
 	 * Damage Namespace
@@ -94,12 +94,12 @@ define(function (require) {
 	};
 
 	// Damage suffix status
-	var _enableSuffix = false;
+	let _enableSuffix = false;
 
 	/**
 	 * @var {string} Sprite of the damage sprite
 	 */
-	var _msgNames = {
+	let _msgNames = {
 		0: 'miss',
 		1: 'guard',
 		2: 'crit',
@@ -111,25 +111,25 @@ define(function (require) {
 	/**
 	 * @var {Damage[]} List of damages
 	 */
-	var _list = [];
+	let _list = [];
 
 	/**
 	 * @var previus combo time
 	 */
-	var prevCombo = [];
+	let prevCombo = [];
 
 	/**
 	 * Convert sprite to image Data
 	 * @param {object} gl - WebGL context
 	 */
 	Damage.init = function init(gl) {
-		var confChange = !(_enableSuffix === Configs.get('enableDmgSuffix'));
+		let confChange = !(_enableSuffix === Configs.get('enableDmgSuffix'));
 
 		_enableSuffix = Configs.get('enableDmgSuffix');
 
-		var totalSkins = Object.keys(_damageSkins).length;
+		let totalSkins = Object.keys(_damageSkins).length;
 
-		var num_count = _enableSuffix ? 12 : 10;
+		let num_count = _enableSuffix ? 12 : 10;
 
 		if (PACKETVER.value < 20220821 && Object.keys(_loadedSkinsData).length > 0 && !confChange) {
 			return;
@@ -140,8 +140,8 @@ define(function (require) {
 		}
 
 		Object.keys(_damageSkins).forEach(function (skinIdStr) {
-			var skinId = parseInt(skinIdStr, 10);
-			var currentSkin = _damageSkins[skinId];
+			let skinId = parseInt(skinIdStr, 10);
+			let currentSkin = _damageSkins[skinId];
 
 			if (_loadedSkinsData[skinId] && !confChange) {
 				return;
@@ -157,7 +157,7 @@ define(function (require) {
 				msgBlue: {}
 			};
 
-			var skinData = _loadedSkinsData[skinId];
+			let skinData = _loadedSkinsData[skinId];
 
 			Client.getFiles(
 				[
@@ -167,8 +167,8 @@ define(function (require) {
 					currentSkin.BaseNumber.replace('.spr', '.act')
 				],
 				function (numbers, msg, bluemsg, numbersAct) {
-					var sprNumbers, sprMsg, sprBlue, actNumbers;
-					var enableMipmap = Configs.get('enableMipmap');
+					let sprNumbers, sprMsg, sprBlue, actNumbers;
+					let enableMipmap = Configs.get('enableMipmap');
 
 					// Load it properly later using webgl
 					MemoryManager.remove(gl, msg);
@@ -203,9 +203,9 @@ define(function (require) {
 					for (var i = 0; i < 6; i++) {
 						//msg.spr miss crit lucky...
 
-						var source = sprMsg.getCanvasFromFrame(i);
-						var canvas = document.createElement('canvas');
-						var ctx = canvas.getContext('2d');
+						let source = sprMsg.getCanvasFromFrame(i);
+						let canvas = document.createElement('canvas');
+						let ctx = canvas.getContext('2d');
 
 						canvas.width = WebGL.toPowerOfTwo(source.width) * dpr;
 						canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
@@ -236,9 +236,9 @@ define(function (require) {
 					for (var i = 0; i < 6; i++) {
 						//bluemsg.spr miss crit lucky...
 
-						var source = sprBlue.getCanvasFromFrame(i);
-						var canvas = document.createElement('canvas');
-						var ctx = canvas.getContext('2d');
+						let source = sprBlue.getCanvasFromFrame(i);
+						let canvas = document.createElement('canvas');
+						let ctx = canvas.getContext('2d');
 
 						canvas.width = WebGL.toPowerOfTwo(source.width) * dpr;
 						canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
@@ -289,8 +289,8 @@ define(function (require) {
 			_skin = 0;
 		}
 
-		var skinData = _loadedSkinsData[_skin];
-		var numbersData, msgData, msgBlueData;
+		let skinData = _loadedSkinsData[_skin];
+		let numbersData, msgData, msgBlueData;
 		if (skinData) {
 			numbersData = skinData.numbers;
 			msgData = skinData.msg;
@@ -316,12 +316,12 @@ define(function (require) {
 		// Can't render floating points
 		damage = Math.floor(damage);
 
-		var PADDING = 2;
-		var i, count, start_x, start_y;
-		var frame;
+		let PADDING = 2;
+		let i, count, start_x, start_y;
+		let frame;
 
-		var numbers;
-		var suffix = null;
+		let numbers;
+		let suffix = null;
 
 		if (_enableSuffix) {
 			// Check for large numbers and convert accordingly
@@ -341,12 +341,12 @@ define(function (require) {
 			numbers.push(suffix);
 		}
 
-		var width = 0;
-		var height = 0;
-		var gl = Renderer.gl;
-		var texture;
+		let width = 0;
+		let height = 0;
+		let gl = Renderer.gl;
+		let texture;
 
-		var obj = new Damage();
+		let obj = new Damage();
 
 		obj.type = type || (damage ? Damage.TYPE.DAMAGE : Damage.TYPE.MISS);
 		if (entity.objecttype === entity.constructor.TYPE_PC) {
@@ -386,7 +386,7 @@ define(function (require) {
 			obj.color[2] = 0.15;
 
 			// Add CRIT background
-			var bgObj = new Damage();
+			let bgObj = new Damage();
 			bgObj.type = Damage.TYPE.CRIT;
 			bgObj.color = [0.66, 0.66, 0.66, 1.0];
 			bgObj.delay = 1500;
@@ -400,7 +400,7 @@ define(function (require) {
 			_list.push(bgObj);
 
 			// Add hit effect
-			var EF_Init_Par = {
+			let EF_Init_Par = {
 				effectId: 1,
 				ownerAID: entity.GID,
 				position: entity.position,
@@ -414,7 +414,7 @@ define(function (require) {
 			obj.color[2] = 1.0;
 
 			// Add Blue CRIT background
-			var bgObj = new Damage();
+			let bgObj = new Damage();
 			bgObj.type = obj.type;
 			bgObj.color = [0.66, 0.66, 0.66, 1.0];
 			bgObj.delay = 1500;
@@ -453,8 +453,8 @@ define(function (require) {
 		}
 
 		// Set canvas size (pow of 2 for webgl).
-		var finalWidth = WebGL.toPowerOfTwo(width) * dpr;
-		var finalHeight = WebGL.toPowerOfTwo(height) * dpr;
+		let finalWidth = WebGL.toPowerOfTwo(width) * dpr;
+		let finalHeight = WebGL.toPowerOfTwo(height) * dpr;
 
 		if (procCanvas.width !== finalWidth || procCanvas.height !== finalHeight) {
 			procCanvas.width = finalWidth;
@@ -477,7 +477,7 @@ define(function (require) {
 
 		texture = gl.createTexture();
 
-		var enableMipmap = Configs.get('enableMipmap');
+		let enableMipmap = Configs.get('enableMipmap');
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, procCanvas);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -491,7 +491,7 @@ define(function (require) {
 		obj.height = finalHeight;
 		obj.isDisposable = true;
 
-		var hitSound;
+		let hitSound;
 		if (entity.objecttype === Entity.TYPE_PC) {
 			hitSound = DB.getJobHitSound(entity._job);
 		} else {
@@ -546,11 +546,11 @@ define(function (require) {
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.image.palette = null;
 
-		var i, count, perc;
-		var damage;
-		var size;
+		let i, count, perc;
+		let damage;
+		let size;
 
-		var skinData = _loadedSkinsData[_skin];
+		let skinData = _loadedSkinsData[_skin];
 
 		// Render all list
 		for (i = 0, count = _list.length; i < count; ++i) {
@@ -599,10 +599,10 @@ define(function (require) {
 			else if (damage.type & Damage.TYPE.DAMAGE || damage.type & Damage.TYPE.CRIT) {
 				size = (1 - perc) * 4;
 
-				var motionType = GraphicsSettings.damageMotion || 0;
+				let motionType = GraphicsSettings.damageMotion || 0;
 
 				// Base Z arc (Bounce)
-				var zArc = Math.sin(-Math.PI / 2 + Math.PI * (0.5 + perc * 1.5)) * 5;
+				let zArc = Math.sin(-Math.PI / 2 + Math.PI * (0.5 + perc * 1.5)) * 5;
 
 				switch (motionType) {
 					case 1: // Left (Drift X Negative)
@@ -693,7 +693,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return Damage;
-});
+	export default Damage;

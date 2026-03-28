@@ -7,41 +7,37 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var QuestHelper = require('./QuestHelperV1');
-	var htmlText = require('text!./QuestV1.html');
-	var cssText = require('text!./QuestV1.css');
-	var jQuery = require('Utils/jquery');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Session = require('Engine/SessionStorage');
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import QuestHelper from './QuestHelperV1';
+import htmlText from './QuestV1.html?raw';
+import cssText from './QuestV1.css?raw';
+import jQuery from 'Utils/jquery';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var QuestV1 = new UIComponent('QuestV1', htmlText, cssText);
+	let QuestV1 = new UIComponent('QuestV1', htmlText, cssText);
 
 	/**
 	 * @var {number} index of selection
 	 */
-	var _index = -1;
+	let _index = -1;
 
 	/**
 	 * @var {Array} quest list
 	 */
-	var _questList = [];
+	let _questList = [];
 
 	/**
 	 * @var {Array} quest list
@@ -51,12 +47,12 @@ define(function (require) {
 	/**
 	 * @var {string} _active_menu active click menu
 	 */
-	var _active_menu = 'active';
+	let _active_menu = 'active';
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'QuestV1',
 		{
 			x: 200,
@@ -298,14 +294,14 @@ define(function (require) {
 	};
 
 	function onClickMenu(e) {
-		var quest_element = jQuery(e.currentTarget);
+		let quest_element = jQuery(e.currentTarget);
 
 		if (_active_menu == quest_element.attr('id')) {
 			return;
 		}
 		_active_menu = quest_element.attr('id');
 
-		var background_image = '';
+		let background_image = '';
 		QuestV1.ui.find('#active-quest-list').hide();
 		QuestV1.ui.find('#inactive-quest-list').hide();
 		QuestV1.ui.find('#all-quest-list').hide();
@@ -334,7 +330,7 @@ define(function (require) {
 	}
 
 	function onClickQuest(e) {
-		var toggle_element = jQuery(e.currentTarget);
+		let toggle_element = jQuery(e.currentTarget);
 		let tid = toggle_element.attr('id');
 		let id = tid.replace('qid', '');
 		if (_index > -1) {
@@ -346,10 +342,10 @@ define(function (require) {
 	}
 
 	function onClickQuestToggle(e) {
-		var toggle_element = jQuery(e.currentTarget);
+		let toggle_element = jQuery(e.currentTarget);
 		let tid = toggle_element.attr('id');
 		let id = tid.replace('qid', '');
-		var _pkt = new PACKET.CZ.ACTIVE_QUEST();
+		let _pkt = new PACKET.CZ.ACTIVE_QUEST();
 		_pkt.questID = _questList[id].questID;
 		_pkt.active = _questList[id].active == 1 ? 0 : 1;
 		Network.sendPacket(_pkt);
@@ -383,7 +379,6 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(QuestV1);
-});
+	export default UIManager.addComponent(QuestV1);

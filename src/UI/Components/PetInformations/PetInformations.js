@@ -7,31 +7,27 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./PetInformations.html');
-	var cssText = require('text!./PetInformations.css');
-	var PACKETVER = require('Network/PacketVerManager');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './PetInformations.html?raw';
+import cssText from './PetInformations.css?raw';
+import PACKETVER from 'Network/PacketVerManager';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var PetInformations = new UIComponent('PetInformations', htmlText, cssText);
+	let PetInformations = new UIComponent('PetInformations', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Window preferences
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'PetInformations',
 		{
 			x: 100,
@@ -44,7 +40,7 @@ define(function (require) {
 	/**
 	 * Auto Feed Flag
 	 */
-	var petAutoFeeding = 0;
+	let petAutoFeeding = 0;
 
 	/**
 	 * Initialize component
@@ -241,7 +237,7 @@ define(function (require) {
 	 * Request to modify pet's name
 	 */
 	function onChangeName() {
-		var input = PetInformations.ui.find('.name');
+		let input = PetInformations.ui.find('.name');
 		PetInformations.reqNameEdit(input.val());
 	}
 
@@ -274,5 +270,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(PetInformations);
-});
+export default UIManager.addComponent(PetInformations);

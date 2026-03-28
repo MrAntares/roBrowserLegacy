@@ -1,7 +1,6 @@
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var WebGL = require('Utils/WebGL');
+import WebGL from 'Utils/WebGL';
 
 	var _vertexShader = `
         #version 300 es
@@ -45,7 +44,7 @@ define(function (require) {
 
 	var _cache = {};
 
-	return function (name, spec) {
+	export default function (name, spec) {
 		var _program, _buffer;
 		if (_cache[name]) {
 			return _cache[name];
@@ -142,5 +141,4 @@ define(function (require) {
 		};
 
 		return FlatColorTile;
-	};
-});
+	}

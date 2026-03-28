@@ -7,17 +7,13 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Client = require('Core/Client');
-	var jQuery = require('Utils/jquery');
-	var html2canvas = require('Vendors/html2canvas');
-	var KEYS = require('Controls/KeyEventHandler');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+import Client from 'Core/Client';
+import jQuery from 'Utils/jquery';
+import html2canvas from 'Vendors/html2canvas';
+import KEYS from 'Controls/KeyEventHandler';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 	/**
 	 * Key Listener
@@ -35,7 +31,7 @@ define(function (require) {
 	/**
 	 * Initiate methods
 	 */
-	var ScreenShot = {};
+	let ScreenShot = {};
 
 	/**
 	 * Take a ScreenShot
@@ -56,12 +52,12 @@ define(function (require) {
 	 * @param {canvasElement} canvas
 	 */
 	ScreenShot.process = function processScreenShot(canvas) {
-		var context, date, timezone;
-		var x, y;
+		let context, date, timezone;
+		let x, y;
 
 		// Create a date to add to canvas
-		var tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
-		var localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
+		let tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
+		let localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
 		localISOTime = localISOTime.replace('T', ' ');
 		timezone = new Date().getTimezoneOffset() / 60;
 		date = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
@@ -83,7 +79,7 @@ define(function (require) {
 		Client.loadFile(
 			'data/texture/scr_logo.bmp',
 			function (url) {
-				var img = new Image();
+				let img = new Image();
 				img.decoding = 'async';
 				img.src = url;
 				img.onload = function () {
@@ -106,8 +102,8 @@ define(function (require) {
 	 * @param {string} date
 	 */
 	ScreenShot.display = function displayScreenShot(canvas, date) {
-		var binary, data, url;
-		var i, count;
+		let binary, data, url;
+		let i, count;
 
 		// We decode the base64 to get the binary of the png
 		binary = atob(canvas.toDataURL('image/png').replace(/^data[^,]+,/, ''));
@@ -138,7 +134,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Exports
+	 * Export
 	 */
-	return ScreenShot;
-});
+	export default ScreenShot;

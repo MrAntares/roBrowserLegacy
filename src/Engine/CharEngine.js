@@ -9,61 +9,58 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load modules
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Configs = require('Core/Configs');
-	var Events = require('Core/Events');
-	var Sound = require('Audio/SoundManager');
-	var BGM = require('Audio/BGM');
-	var Session = require('Engine/SessionStorage');
-	var MapEngine = require('Engine/MapEngine');
-	var Network = require('Network/NetworkManager');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PACKET = require('Network/PacketStructure');
-	var UIManager = require('UI/UIManager');
-	var Background = require('UI/Background');
-	var PincodeWindow = require('UI/Components/PincodeWindow/PincodeWindow');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var JoystickUI = require('UI/Components/JoystickUI/JoystickUI');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Configs from 'Core/Configs';
+import Events from 'Core/Events';
+import Sound from 'Audio/SoundManager';
+import BGM from 'Audio/BGM';
+import Session from 'Engine/SessionStorage';
+import MapEngine from 'Engine/MapEngine';
+import Network from 'Network/NetworkManager';
+import PACKETVER from 'Network/PacketVerManager';
+import PACKET from 'Network/PacketStructure';
+import UIManager from 'UI/UIManager';
+import Background from 'UI/Background';
+import PincodeWindow from 'UI/Components/PincodeWindow/PincodeWindow';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import JoystickUI from 'UI/Components/JoystickUI/JoystickUI';
+import CharSelect from 'UI/Components/CharSelect/CharSelect';
+import CharCreate from 'UI/Components/CharCreate/CharCreate';
 
+// Load modules
 	// Version Dependent UIs
-	var CharSelect = require('UI/Components/CharSelect/CharSelect');
-	var CharCreate = require('UI/Components/CharCreate/CharCreate');
-
 	/**
 	 * @var {object} server data
 	 */
-	var _server = null;
+	let _server = null;
 
 	/**
 	 * @var {number} where to create character ?
 	 */
-	var _creationSlot = 0;
+	let _creationSlot = 0;
 
 	/**
 	 * @var {number} times attempted to provide pin code.
 	 */
-	var _pincodeAttempts = 0;
+	let _pincodeAttempts = 0;
 
 	/**
 	 * @var {boolean} are we currently attempting to authenticate a pin code reset?
 	 */
-	var _inAuthPincodeReset = false;
+	let _inAuthPincodeReset = false;
 
 	/**
 	 * @var {boolean} are we resetting a pincode?
 	 */
-	var _resettingPincode = false;
+	let _resettingPincode = false;
 
 	/**
 	 * @var {boolean} are we creating a pincode?
 	 */
-	var _creatingPincode = false;
+	let _creatingPincode = false;
 
 	/*
 	 * Connect to char server
@@ -78,9 +75,9 @@ define(function (require) {
 		_server = server;
 
 		// Connect to char server
-		var forceAddress = Configs.get('forceUseAddress');
-		var server_info = Configs.getServer();
-		var ip = forceAddress ? server_info.address : Network.utils.longToIP(server.ip);
+		let forceAddress = Configs.get('forceUseAddress');
+		let server_info = Configs.getServer();
+		let ip = forceAddress ? server_info.address : Network.utils.longToIP(server.ip);
 		Network.connect(ip, server.port, function (success) {
 			// Fail to connect...
 			if (!success) {
@@ -89,7 +86,7 @@ define(function (require) {
 			}
 
 			// Success, try to connect
-			var pkt = new PACKET.CH.ENTER();
+			let pkt = new PACKET.CH.ENTER();
 			pkt.AID = Session.AID;
 			pkt.AuthCode = Session.AuthCode;
 			pkt.userLevel = Session.UserLevel;
@@ -147,7 +144,7 @@ define(function (require) {
 	 * Request to go back to Login Window
 	 */
 	function onExitRequest() {
-		getModule('Engine/LoginEngine').reload();
+		import('Engine/LoginEngine').then(m => m.default.reload());
 	}
 
 	/**
@@ -160,7 +157,7 @@ define(function (require) {
 		pkt.sex = Session.Sex;
 
 		// Start sending ping
-		var ping = new PACKET.CZ.PING();
+		let ping = new PACKET.CZ.PING();
 		ping.AID = Session.AID;
 		Network.setPing(function () {
 			Network.sendPacket(ping);
@@ -170,13 +167,13 @@ define(function (require) {
 		Session.hasCart = false;
 
 		// Reset Announcement component
-		var Announce = UIManager.getComponent('Announce');
+		let Announce = UIManager.getComponent('Announce');
 		if (Announce) {
 			Announce.remove();
 		}
 
 		// Reset MapName component
-		var MapName = UIManager.getComponent('MapName');
+		let MapName = UIManager.getComponent('MapName');
 		if (MapName) {
 			MapName.remove();
 			MapName.resetState();
@@ -185,7 +182,7 @@ define(function (require) {
 		UIManager.getComponent('WinLoading').remove();
 
 		// Initialize window
-		var ChSel = CharSelect.getUI();
+		let ChSel = CharSelect.getUI();
 		ChSel.onExitRequest = onExitRequest;
 		ChSel.onConnectRequest = onConnectRequest;
 		ChSel.onCreateRequest = onCreateRequest;
@@ -219,7 +216,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.HC.REFUSE_ENTER
 	 */
 	function onConnectionRefused(pkt) {
-		var msg_id;
+		let msg_id;
 
 		switch (pkt.ErrorCode) {
 			default:
@@ -270,7 +267,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CH.DELETE_CHAR3_CANCEL();
+		let pkt = new PACKET.CH.DELETE_CHAR3_CANCEL();
 		pkt.GID = charID;
 		Network.sendPacket(pkt);
 	}
@@ -285,7 +282,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CH.DELETE_CHAR3_RESERVED();
+		let pkt = new PACKET.CH.DELETE_CHAR3_RESERVED();
 		pkt.GID = charID;
 		Network.sendPacket(pkt);
 	}
@@ -296,13 +293,13 @@ define(function (require) {
 	 * @param {number} charID - Character ID
 	 */
 	function onDeleteRequest(charID) {
-		var _ui_box;
-		var _inputValue;
-		var _overlay;
-		var _time_end;
-		var _render = false;
-		var _canvas, _ctx, _width, _height;
-		var _TimeOut;
+		let _ui_box;
+		let _inputValue;
+		let _overlay;
+		let _time_end;
+		let _render = false;
+		let _canvas, _ctx, _width, _height;
+		let _TimeOut;
 
 		// Delete the character
 		function deleteCharacter() {
@@ -387,8 +384,8 @@ define(function (require) {
 		// Rendering
 		function render() {
 			// Calculate percent
-			var time_left = _time_end - Date.now();
-			var percent = Math.round(100 - time_left / 100);
+			let time_left = _time_end - Date.now();
+			let percent = Math.round(100 - time_left / 100);
 
 			// Delete character
 			if (percent >= 100) {
@@ -423,7 +420,7 @@ define(function (require) {
 	 * @param {object} PACKET.HC.DELETE_CHAR3 <GID> <Result>
 	 */
 	function onDeleteAnswer(pkt) {
-		var result;
+		let result;
 		if (PACKETVER.value <= 20100803) {
 			// Email deletion result
 			result = typeof pkt.ErrorCode === 'undefined' ? -1 : pkt.ErrorCode;
@@ -440,8 +437,8 @@ define(function (require) {
 	 * @param {number} index - slot where to create character
 	 */
 	function onCreateRequest(index) {
-		var ChSel = CharSelect.getUI();
-		var ChCre = CharCreate.getUI();
+		let ChSel = CharSelect.getUI();
+		let ChCre = CharCreate.getUI();
 		_creationSlot = index;
 		ChSel.remove();
 		ChCre.setAccountSex(Session.Sex);
@@ -469,7 +466,7 @@ define(function (require) {
 	 * @param {number} sex - sex
 	 */
 	function onCharCreationRequest(name, Str, Agi, Vit, Int, Dex, Luk, hair, color, job, sex) {
-		var pkt;
+		let pkt;
 
 		// Old Packet required stats
 		if (PACKETVER.value < 20120307) {
@@ -503,7 +500,7 @@ define(function (require) {
 	 */
 	function onCreationSuccess(pkt) {
 		CharCreate.getUI().remove();
-		var ChSel = CharSelect.getUI();
+		let ChSel = CharSelect.getUI();
 		ChSel.addCharacter(pkt.charinfo);
 		ChSel.append();
 	}
@@ -514,7 +511,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.HC.REFUSE_MAKECHAR
 	 */
 	function onCreationFail(pkt) {
-		var msg_id;
+		let msg_id;
 
 		switch (pkt.ErrorCode) {
 			case 0x00:
@@ -539,7 +536,7 @@ define(function (require) {
 	}
 
 	/*function sendPincodeRequest() {
-		var pkt;
+		let pkt;
 
 		pkt = new PACKET.CH.PINCODE_REQUEST();
 		pkt.AID = Session.AID;
@@ -548,7 +545,7 @@ define(function (require) {
 	}*/ // UNUSED
 
 	function onPincodeCheckRequest(pincode) {
-		var pkt;
+		let pkt;
 
 		pkt = new PACKET.CH.PINCODE_CHECK();
 		pkt.AID = Session.AID;
@@ -558,7 +555,7 @@ define(function (require) {
 	}
 
 	function onPincodeCreate(pincode, bad) {
-		var pkt;
+		let pkt;
 
 		_creatingPincode = true;
 
@@ -570,7 +567,7 @@ define(function (require) {
 	}
 
 	function onPincodeReset(oldpin, newpin) {
-		var pkt;
+		let pkt;
 
 		_inAuthPincodeReset = false;
 		_resettingPincode = true;
@@ -737,7 +734,7 @@ define(function (require) {
 		UIManager.getComponent('WinLoading').append();
 		Session.Character = entity;
 
-		var pkt = new PACKET.CH.SELECT_CHAR();
+		let pkt = new PACKET.CH.SELECT_CHAR();
 		pkt.CharNum = entity.CharNum;
 		Network.sendPacket(pkt);
 	}
@@ -779,10 +776,9 @@ define(function (require) {
 	 */
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return {
+	export default {
 		init: init,
 		reload: reload
 	};
-});

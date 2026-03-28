@@ -5,30 +5,26 @@
  *
  * @author Francisco Wallison
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Mouse = require('Controls/MouseEventHandler');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var MakeModelMessage = require('UI/Components/MakeItemSelection/ItemConvertSelection/MakeModelMessage/MakeModelMessage');
-	var htmlText = require('text!./ConvertItems.html');
-	var cssText = require('text!./ConvertItems.css');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Mouse from 'Controls/MouseEventHandler';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection';
+import MakeModelMessage from 'UI/Components/MakeItemSelection/ItemConvertSelection/MakeModelMessage/MakeModelMessage';
+import htmlText from './ConvertItems.html?raw';
+import cssText from './ConvertItems.css?raw';
 
-	/**
+/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'ConvertItems',
 		{
 			x: 200,
@@ -41,7 +37,7 @@ define(function (require) {
 	/**
 	 * Create ConvertItems namespace
 	 */
-	var ConvertItems = new UIComponent('ConvertItems', htmlText, cssText);
+	let ConvertItems = new UIComponent('ConvertItems', htmlText, cssText);
 
 	/**
 	 * Store Convert Items items
@@ -91,7 +87,7 @@ define(function (require) {
 	};
 
 	ConvertItems.addItem = function addItem(item) {
-		var it = DB.getItemInfo(item.ITID);
+		let it = DB.getItemInfo(item.ITID);
 
 		this.ui
 			.find('.container .content')
@@ -131,7 +127,7 @@ define(function (require) {
 	 * @param {number} count
 	 */
 	ConvertItems.updateItem = function UpdateItem(index, count) {
-		var item = this.getItemByIndex(index);
+		let item = this.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -149,7 +145,7 @@ define(function (require) {
 		this.material.splice(this.material.indexOf(item), 1);
 		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		var content = this.ui.find('.container .content');
+		let content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -162,8 +158,8 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	ConvertItems.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list = ConvertItems.material;
+		let i, count;
+		let list = ConvertItems.material;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -176,7 +172,7 @@ define(function (require) {
 
 	ConvertItems.validItemSend = function validItemSend(valid_material) {
 		ConvertItems.remove();
-		getModule('UI/Components/MakeItemSelection/ItemListWindowSelection').remove();
+		ItemListWindowSelection.remove();
 		MakeModelMessage.remove();
 
 		let inforMaterialList = {
@@ -185,9 +181,7 @@ define(function (require) {
 			MaterialList: valid_material ? this.material : []
 		};
 
-		getModule('UI/Components/MakeItemSelection/ItemListWindowSelection').onItemListWindowSelected(
-			inforMaterialList
-		);
+		ItemListWindowSelection.onItemListWindowSelected(inforMaterialList);
 	};
 
 	function onMessageModel(event) {
@@ -204,14 +198,14 @@ define(function (require) {
 	 * Extend ConvertItems window size
 	 */
 	function onResize() {
-		var ui = ConvertItems.ui;
-		var top = ui.position().top;
-		var lastHeight = 0;
-		var _Interval;
+		let ui = ConvertItems.ui;
+		let top = ui.position().top;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraY = 31 + 19 - 30;
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let extraY = 31 + 19 - 30;
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			h = Math.min(Math.max(h, 8), 17);
@@ -268,7 +262,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	ConvertItems.addMaterial = function AddMaterial(item) {
-		var object = getItemIndexById(item.index);
+		let object = getItemIndexById(item.index);
 
 		if (object < 0) {
 			if (this.addItem(item)) {
@@ -285,8 +279,8 @@ define(function (require) {
 	 * @param {number} index in Storage
 	 */
 	ConvertItems.removeItem = function removeItem(index, count) {
-		var i = getItemIndexById(index);
-		var item;
+		let i = getItemIndexById(index);
+		let item;
 
 		// Not found
 		if (i < 0) {
@@ -321,16 +315,16 @@ define(function (require) {
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(index);
+		let index = parseInt(this.getAttribute('data-index'), 10);
+		let i = getItemIndexById(index);
 
 		if (i === -1) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		let img = new Image();
+		let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
 		img.decoding = 'async';
 		img.src = url;
@@ -357,8 +351,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(index);
+		let index = parseInt(this.getAttribute('data-index'), 10);
+		let i = getItemIndexById(index);
 
 		if (i === -1) {
 			return false;
@@ -390,7 +384,7 @@ define(function (require) {
 	 * @param {number} item id
 	 */
 	function getItemIndexById(index) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = ConvertItems.material.length; i < count; ++i) {
 			if (ConvertItems.material[i].index === index) {
@@ -407,7 +401,7 @@ define(function (require) {
 	 * @param {event}
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -422,7 +416,7 @@ define(function (require) {
 
 		item = data.data;
 		// validar se esta marcado
-		var valid_select_all = !getModule('UI/Components/MakeItemSelection/ItemListWindowSelection').getSelectAll();
+		let valid_select_all = !ItemListWindowSelection.getSelectAll();
 
 		if (item.count > 1 && valid_select_all) {
 			InputBox.append();
@@ -430,10 +424,7 @@ define(function (require) {
 			InputBox.onSubmitRequest = function OnSubmitRequest(count) {
 				InputBox.remove();
 
-				getModule('UI/Components/MakeItemSelection/ItemListWindowSelection').removeItem(
-					item.index,
-					parseInt(count, 10)
-				);
+				ItemListWindowSelection.removeItem(item.index, parseInt(count, 10));
 
 				item.count = parseInt(count, 10);
 				ConvertItems.addMaterial(item);
@@ -441,7 +432,7 @@ define(function (require) {
 			return false;
 		}
 
-		getModule('UI/Components/MakeItemSelection/ItemListWindowSelection').removeItem(item.index, item.count);
+		ItemListWindowSelection.removeItem(item.index, item.count);
 
 		ConvertItems.addMaterial(item);
 		return false;
@@ -459,7 +450,7 @@ define(function (require) {
 	 * Update scroll by block (32px)
 	 */
 	function onScroll(event) {
-		var delta;
+		let delta;
 
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
@@ -478,8 +469,8 @@ define(function (require) {
 	 * Mouse over item, display name and informations
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let i = getItemIndexById(idx);
 
 		// Not found
 		if (i < 0) {
@@ -487,9 +478,9 @@ define(function (require) {
 		}
 
 		// Get back data
-		var item = ConvertItems.material[i];
-		var pos = jQuery(this).position();
-		var overlay = ConvertItems.ui.find('.overlay');
+		let item = ConvertItems.material[i];
+		let pos = jQuery(this).position();
+		let overlay = ConvertItems.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -506,5 +497,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(ConvertItems);
-});
+export default UIManager.addComponent(ConvertItems);

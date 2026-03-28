@@ -7,31 +7,29 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Configs from 'Core/Configs';
+import Renderer from 'Renderer/Renderer';
+import EffectManager from 'Renderer/EffectManager';
+import StrEffect from 'Renderer/Effects/StrEffect';
+import Camera from 'Renderer/Camera';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './StrViewer.html?raw';
+import cssText from './StrViewer.css?raw';
+
+/**
 	 * Load dependencies
 	 */
-	var glMatrix = require('Utils/gl-matrix');
-	var Client = require('Core/Client');
-	var Configs = require('Core/Configs');
-	var Renderer = require('Renderer/Renderer');
-	var EffectManager = require('Renderer/EffectManager');
-	var StrEffect = require('Renderer/Effects/StrEffect');
-	var Camera = require('Renderer/Camera');
-
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./StrViewer.html');
-	var cssText = require('text!./StrViewer.css');
-
-	var mat4 = glMatrix.mat4;
+	let mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {object} fog structure
 	 */
-	var _fog = {
+	let _fog = {
 		use: false,
 		exist: true,
 		far: 30,
@@ -43,17 +41,17 @@ define(function (require) {
 	/**
 	 * @var {object} model View mat
 	 */
-	var _modelView = mat4.create();
+	let _modelView = mat4.create();
 
 	/**
 	 * @var {StrEffect} current effect
 	 */
-	var _strObject = null;
+	let _strObject = null;
 
 	/**
 	 * Create GRFViewer component
 	 */
-	var Viewer = new UIComponent('StrViewer', htmlText, cssText);
+	let Viewer = new UIComponent('StrViewer', htmlText, cssText);
 
 	/**
 	 * Initialize Component
@@ -76,7 +74,7 @@ define(function (require) {
 		if (!Configs.get('API')) {
 			initDropDown(this.ui.find('select').get(0));
 		} else {
-			var hash = decodeURIComponent(location.hash);
+			let hash = decodeURIComponent(location.hash);
 			location.hash = hash;
 			loadEffect(hash.substr(1));
 		}
@@ -90,8 +88,8 @@ define(function (require) {
 	function initDropDown(select) {
 		// Search RSMs from the client
 		Client.search(/data\\[^\0]+\.str/gi, function (list) {
-			var i, count;
-			var hash;
+			let i, count;
+			let hash;
 
 			list.sort();
 
@@ -163,7 +161,7 @@ define(function (require) {
 	 * Stop to render
 	 */
 	function stop() {
-		var gl = Renderer.getContext();
+		let gl = Renderer.getContext();
 
 		Renderer.stop();
 		EffectManager.free(gl);
@@ -197,5 +195,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(Viewer);
-});
+export default UIManager.addComponent(Viewer);

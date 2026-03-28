@@ -6,29 +6,28 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import jQuery from 'Utils/jquery';
+import Network from 'Network/NetworkManager';
+import PACKETVER from 'Network/PacketVerManager';
+import PACKET from 'Network/PacketStructure';
+import Storage from 'UI/Components/Storage/Storage';
+
+/**
 	 * Load dependencies
 	 */
-	var jQuery = require('Utils/jquery');
-	var Network = require('Network/NetworkManager');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PACKET = require('Network/PacketStructure');
-	var Storage = require('UI/Components/Storage/Storage');
-
 	/*
 	 * This will hold the items to append to storage
 	 * Since STORE_EQUIPMENT_ITEMLIST packets are sent before NOTIFY_STOREITEM_COUNTINFO
 	 * And they are only sent if theres item's on storage!
 	 */
-	var itemBuffer = [];
+	let itemBuffer = [];
 
 	/**
 	 * Holds the name for the Inventory type received from server
 	 */
-	var InvTypeName = '';
+	let InvTypeName = '';
 
 	/**
 	 * Get storage informations
@@ -90,7 +89,7 @@ define(function (require) {
 	 * PACKET.CZ.CLOSE_STORE
 	 */
 	Storage.onClosePressed = function onClosePressed() {
-		var pkt = new PACKET.CZ.CLOSE_STORE();
+		let pkt = new PACKET.CZ.CLOSE_STORE();
 		Network.sendPacket(pkt);
 
 		Storage.getUI().remove();
@@ -105,7 +104,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt;
+		let pkt;
 		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE2();
 		} else {
@@ -121,7 +120,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.MOVE_ITEM_FROM_CART_TO_STORE();
+		let pkt = new PACKET.CZ.MOVE_ITEM_FROM_CART_TO_STORE();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -136,7 +135,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt;
+		let pkt;
 		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY2();
 		} else {
@@ -152,7 +151,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_CART();
+		let pkt = new PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_CART();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -196,7 +195,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function StorageEngine() {
+export default function StorageEngine() {
 		Network.hookPacket(PACKET.ZC.STORE_NORMAL_ITEMLIST, onStorageList);
 		Network.hookPacket(PACKET.ZC.STORE_NORMAL_ITEMLIST2, onStorageList);
 		Network.hookPacket(PACKET.ZC.STORE_NORMAL_ITEMLIST3, onStorageList);
@@ -216,4 +215,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.SPLIT_SEND_ITEMLIST_SET, onItemListSet);
 		Network.hookPacket(PACKET.ZC.SPLIT_SEND_ITEMLIST_RESULT, onItemListResult);
 	};
-});

@@ -7,54 +7,91 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Import
-	 */
-	var Renderer = require('Renderer/Renderer');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Session = require('Engine/SessionStorage');
-	var Client = require('Core/Client');
-	var glMatrix = require('Utils/gl-matrix');
-	var vec3 = glMatrix.vec3;
-	var mat4 = glMatrix.mat4;
+import Altitude from 'Renderer/Map/Altitude';
+import Session from 'Engine/SessionStorage';
+import Client from 'Core/Client';
+import glMatrix from 'Utils/gl-matrix';
 
-	/**
-	 * @constructor Entity
-	 * @param {object} data - entity data to bind with
-	 */
-	function Entity(data) {
-		// Extend Entity
-		require('Controls/EntityControl').call(this);
-		require('./EntityAction').call(this);
-		require('./EntityCast').call(this);
-		require('./EntityLife').call(this);
-		require('./EntityDisplay').call(this);
-		require('./EntityDialog').call(this);
-		require('./EntitySound').call(this);
-		require('./EntityView').call(this);
-		require('./EntityWalk').call(this);
-		require('./EntityRender').call(this);
-		require('./EntityRoom').call(this);
-		require('./EntityState').call(this);
-		require('./EntityAttachments').call(this);
-		require('./EntityAnimations').call(this);
-		require('./EntityAura').call(this);
-		require('./EntityDropEffect').call(this);
-		require('./EntityEmblem').call(this);
+// Example mixins (these would be imported from other files)
+import entityControl from 'Controls/EntityControl';
+import entityAction from './EntityAction';
+import entityCast from './EntityCast';
+import entityLife from './EntityLife';
+import entityDisplay from './EntityDisplay';
+import entityDialog from './EntityDialog';
+import entitySound from './EntitySound';
+import entityView from './EntityView';
+import entityWalk from './EntityWalk';
+import entityRender from './EntityRender';
+import entityRoom from './EntityRoom';
+import entityState from './EntityState';
+import entityAttachments from './EntityAttachments';
+import entityAnimations from './EntityAnimations';
+import entityAura from './EntityAura';
+import entityDropEffect from './EntityDropEffect';
+import entityEmblem from './EntityEmblem';
+import EntityManager from 'Renderer/EntityManager';
 
-		this.boundingRect = { x1: 0, y1: 0, x2: 0, y2: 0 };
-		this.matrix = mat4.create();
-		this.position = vec3.create();
+let vec3 = glMatrix.vec3;
+let mat4 = glMatrix.mat4;
 
-		// Bind data
-		if (data) {
-			this.clean();
-			this.set(data);
-		}
-	}
+
+// Mixin utility function
+function applyMixins(target, ...mixins) {
+  mixins.forEach(mixin => {
+    Object.getOwnPropertyNames(mixin.prototype).forEach(name => {
+      if (name !== 'constructor') {
+        target.prototype[name] = mixin.prototype[name];
+      }
+    });
+  });
+}
+
+// Base Entity class
+class Entity {
+    constructor(data) {
+        // Initialize properties
+        this.boundingRect = { x1: 0, y1: 0, x2: 0, y2: 0 };
+        this.matrix = mat4.create();
+        this.position = vec3.create();
+
+        // Apply mixins (adds methods from each module)
+        entityControl.call(this);
+        entityAction.call(this);
+        entityCast.call(this);
+        entityLife.call(this);
+        entityDisplay.call(this);
+        entityDialog.call(this);
+        entitySound.call(this);
+        entityView.call(this);
+        entityWalk.call(this);
+        entityRender.call(this);
+        entityRoom.call(this);
+        entityState.call(this);
+        entityAttachments.call(this);
+        entityAnimations.call(this);
+        entityAura.call(this);
+        entityDropEffect.call(this);
+        entityEmblem.call(this);
+
+        // Bind data
+        if (data) {
+            this.clean();
+            this.set(data);
+        }
+    }
+    // Placeholder for clean() and set() methods
+    clean() {
+        // Reset or clear entity state
+    }
+
+    set(data) {
+        // Bind data properties to the entity
+        Object.assign(this, data);
+    }
+}
 
 	/**
 	 * Constantes
@@ -203,8 +240,8 @@ define(function (require) {
 	 * Initialized Entity data
 	 */
 	Entity.prototype.set = function Set(unit) {
-		var keys;
-		var i, count;
+		let keys;
+		let i, count;
 
 		// Erase previous data
 		this.direction = 4;
@@ -224,9 +261,9 @@ define(function (require) {
 
 		// Apply any pending transformations that arrived before entity spawned
 		// We must do this BEFORE setting the job, so UpdateBody knows if it's a transform.
-		var pendingTrans = require('Renderer/EntityManager').pendingTransformations;
+		let pendingTrans = EntityManager.pendingTransformations;
 		if (unit.GID && pendingTrans && unit.GID in pendingTrans) {
-			var pending = pendingTrans[unit.GID];
+			let pending = pendingTrans[unit.GID];
 			if (pending.monster_transform !== undefined) {
 				this._monster_transform = pending.monster_transform;
 			}
@@ -263,7 +300,7 @@ define(function (require) {
 				// roBrowser has a special type for warp.
 				case 'objecttype':
 					this.objecttype = unit.job === 45 ? Entity.TYPE_WARP : unit.objecttype;
-					require('./EntityAction').call(this);
+					entityAction.call(this);
 					break;
 
 				// Already set
@@ -290,7 +327,7 @@ define(function (require) {
 					break;
 
 				case 'state':
-					var actions = [this.ACTION.IDLE, this.ACTION.DIE, this.ACTION.SIT];
+					let actions = [this.ACTION.IDLE, this.ACTION.DIE, this.ACTION.SIT];
 					this.setAction({
 						action: actions[unit.state],
 						frame: 0,
@@ -439,14 +476,14 @@ define(function (require) {
 		switch (type) {
 			case Entity.VT.OUTOFSIGHT:
 				this.clean();
-				this.remove_tick = +Renderer.tick;
+				this.remove_tick = +Date.now();
 				this.remove_delay = 1000;
 				break;
 
 			case Entity.VT.DEAD:
-				var is_pc = this.objecttype === Entity.TYPE_PC;
-				var is_falcon = this.objecttype === Entity.TYPE_FALCON;
-				var is_wug = this.objecttype === Entity.TYPE_WUG;
+				let is_pc = this.objecttype === Entity.TYPE_PC;
+				let is_falcon = this.objecttype === Entity.TYPE_FALCON;
+				let is_wug = this.objecttype === Entity.TYPE_WUG;
 				if (!is_falcon) {
 					this.setAction({
 						action: this.ACTION.DIE,
@@ -458,7 +495,7 @@ define(function (require) {
 
 					if (!is_pc && !is_wug) {
 						this.clean();
-						this.remove_tick = +Renderer.tick;
+						this.remove_tick = +Date.now();
 						this.remove_delay = 5000;
 					}
 				}
@@ -470,7 +507,7 @@ define(function (require) {
 			//case Entity.VT.TRICKDEAD: break;
 			default: // No other way ?
 				this.clean();
-				this.remove_tick = Renderer.tick;
+				this.remove_tick = Date.now();
 				this.remove_delay = 0;
 				break;
 		}
@@ -483,9 +520,9 @@ define(function (require) {
 	 * @param {number} to_y
 	 */
 	Entity.prototype.lookTo = function LookTo(to_x, to_y) {
-		var x = Math.round(to_x - this.position[0]);
-		var y = Math.round(to_y - this.position[1]);
-		var dir;
+		let x = Math.round(to_x - this.position[0]);
+		let y = Math.round(to_y - this.position[1]);
+		let dir;
 
 		if (x >= 1) {
 			dir = y >= 1 ? 5 : y === 0 ? 6 : 7;
@@ -497,7 +534,7 @@ define(function (require) {
 			dir = y >= 1 ? 3 : y === 0 ? 2 : 1;
 		}
 
-		var prevDirection = this.direction;
+		let prevDirection = this.direction;
 		if (prevDirection === dir) {
 			// turn head straight
 			this.headDir = 0;
@@ -552,7 +589,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return Entity;
-});
+	export default Entity;

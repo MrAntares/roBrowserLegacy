@@ -7,31 +7,28 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var Client = require('Core/Client');
-	var Events = require('Core/Events');
-	var Preferences = require('Core/Preferences');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Mouse = require('Controls/MouseEventHandler');
-	var Cursor = require('UI/CursorManager');
-	var BattleMode = require('Controls/BattleMode');
-	var History = require('./History');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
-	var htmlText = require('text!./ChatBox.html');
-	var cssText = require('text!./ChatBox.css');
-	var Commands = require('Controls/ProcessCommand');
-	var ChatBoxSettings = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import Client from 'Core/Client';
+import Events from 'Core/Events';
+import Preferences from 'Core/Preferences';
+import KEYS from 'Controls/KeyEventHandler';
+import Mouse from 'Controls/MouseEventHandler';
+import Cursor from 'UI/CursorManager';
+import BattleMode from 'Controls/BattleMode';
+import History from './History';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
+import htmlText from './ChatBox.html?raw';
+import cssText from './ChatBox.css?raw';
+import Commands from 'Controls/ProcessCommand';
+import ChatBoxSettings from 'UI/Components/ChatBoxSettings/ChatBoxSettings';
+import Configs from 'Core/Configs';
+import EntityManager from 'Renderer/EntityManager';
 
 	/**
 	 * @var {number} max message in the chatbox
@@ -221,7 +218,7 @@ define(function (require) {
 			return false;
 		});
 
-		if (require('Core/Configs').get('restoreChatFocus', false)) {
+		if (Configs.get('restoreChatFocus', false)) {
 			this.ui.find('.input-chatbox').blur(
 				function () {
 					Events.setTimeout(
@@ -437,7 +434,7 @@ define(function (require) {
 					if (_tabIntersect) {
 						Mouse.intersect = false;
 						Cursor.setType(Cursor.ACTION.DEFAULT);
-						getModule('Renderer/EntityManager').setOverEntity(null);
+						EntityManager.setOverEntity(null);
 					}
 				}
 			});
@@ -447,7 +444,7 @@ define(function (require) {
 					_tabEnter--;
 					if (_tabEnter === 0 && _tabIntersect) {
 						Mouse.intersect = true;
-						getModule('Renderer/EntityManager').setOverEntity(null);
+						EntityManager.setOverEntity(null);
 					}
 				}
 			});
@@ -1702,7 +1699,7 @@ define(function (require) {
 			return;
 		} // item not found
 
-		let ItemInfo = getModule('UI/Components/ItemInfo/ItemInfo');
+		let ItemInfo = UIManager.getComponent('ItemInfo');
 
 		ItemInfo.append();
 		ItemInfo.setItem(item);
@@ -1720,7 +1717,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Create componentand export it
+	 * Create component and export it
 	 */
-	return UIManager.addComponent(ChatBox);
-});
+	export default UIManager.addComponent(ChatBox);

@@ -7,13 +7,14 @@
  *
  * @author Vincent Thibault
  */
-define(['Core/Preferences'], function (Preferences) {
-	'use strict';
+'use strict';
+
+import Preferences from 'Core/Preferences';
 
 	/**
 	 * Export
 	 */
-	return Preferences.get(
+export default Preferences.get(
 		'Audio',
 		{
 			BGM: {
@@ -28,4 +29,3 @@ define(['Core/Preferences'], function (Preferences) {
 		},
 		1.0
 	);
-});

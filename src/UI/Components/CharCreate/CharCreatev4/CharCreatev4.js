@@ -7,47 +7,43 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./CharCreatev4.html');
-	var cssText = require('text!./CharCreatev4.css');
-	var Client = require('Core/Client');
+import DB from 'DB/DBManager';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './CharCreatev4.html?raw';
+import cssText from './CharCreatev4.css?raw';
+import Client from 'Core/Client';
 
-	/**
+/**
 	 * Create Chararacter Selection namespace
 	 */
-	var CharCreatev4 = new UIComponent('CharCreatev4', htmlText, cssText);
+	let CharCreatev4 = new UIComponent('CharCreatev4', htmlText, cssText);
 
 	/**
 	 * @var {boolean} account sex
 	 */
-	var _accountSex = 0;
+	let _accountSex = 0;
 
 	/**
 	 * @var for hairstylelist
 	 */
-	var _race = 'human';
-	var _gender = 'male';
-	var _prevhead = 1;
-	var _curhead = 1;
-	var _prevcolor = 0;
-	var _curcolor = 0;
+	let _race = 'human';
+	let _gender = 'male';
+	let _prevhead = 1;
+	let _curhead = 1;
+	let _prevcolor = 0;
+	let _curcolor = 0;
 
 	/**
 	 * @var {object} chargen info
 	 */
-	var _chargen = {
+	let _chargen = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -57,7 +53,7 @@ define(function (require) {
 	/**
 	 * @var {object} doram info
 	 */
-	var _doram = {
+	let _doram = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -67,7 +63,7 @@ define(function (require) {
 	/**
 	 * @var {object} model info
 	 */
-	var _model = {
+	let _model = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -129,31 +125,31 @@ define(function (require) {
 		this.ui.find('.make').click(create);
 
 		/* Msgstring Texts */
-		var title = this.ui.find('.title');
+		let title = this.ui.find('.title');
 		title.text(DB.getMessage(3356 - 1));
 
-		var human_title = this.ui.find('.human_title');
+		let human_title = this.ui.find('.human_title');
 		human_title.text(DB.getMessage(3017 - 1));
 
-		var human_desc = this.ui.find('.human_desc');
+		let human_desc = this.ui.find('.human_desc');
 		human_desc.text(DB.getMessage(3021 - 1));
 
-		var doram_title = this.ui.find('.doram_title');
+		let doram_title = this.ui.find('.doram_title');
 		doram_title.text(DB.getMessage(3019 - 1));
 
-		var doram_desc = this.ui.find('.doram_desc');
+		let doram_desc = this.ui.find('.doram_desc');
 		doram_desc.text(DB.getMessage(3022 - 1));
 
-		var hair_style = this.ui.find('.hair_style_title');
+		let hair_style = this.ui.find('.hair_style_title');
 		hair_style.text(DB.getMessage(3347 - 1));
 
-		var hair_color = this.ui.find('.hair_color_title');
+		let hair_color = this.ui.find('.hair_color_title');
 		hair_color.text(DB.getMessage(3348 - 1));
 
-		var return_msg = this.ui.find('.return');
+		let return_msg = this.ui.find('.return');
 		return_msg.text(DB.getMessage(3352 - 1));
 
-		var create_msg = this.ui.find('.make');
+		let create_msg = this.ui.find('.make');
 		create_msg.text(DB.getMessage(3346 - 1));
 	};
 
@@ -236,8 +232,8 @@ define(function (require) {
 	 * Update model hairstyle
 	 */
 	function updateHStyle(event) {
-		var type = 'head';
-		var value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
+		let type = 'head';
+		let value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
 
 		_prevhead = _model.entity.head;
 		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_hairstyle_normal.bmp', function (dataURI) {
@@ -253,8 +249,8 @@ define(function (require) {
 	 * Update model haircolor
 	 */
 	function updateHColor(event) {
-		var type = 'headpalette';
-		var value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
+		let type = 'headpalette';
+		let value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
 
 		_prevcolor = _model.entity.headpalette;
 
@@ -274,9 +270,9 @@ define(function (require) {
 	 * Update model race
 	 */
 	function updateRace() {
-		var select = CharCreatev4.ui.find('.race').filter(':checked');
-		var type = 'race';
-		var value = 0;
+		let select = CharCreatev4.ui.find('.race').filter(':checked');
+		let type = 'race';
+		let value = 0;
 
 		if (select[0].id === 'human_race') {
 			Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/img_human_on.bmp', function (dataURI) {
@@ -370,7 +366,7 @@ define(function (require) {
 	 * Send back informations to send the packet
 	 */
 	function create() {
-		var ui = CharCreatev4.ui;
+		let ui = CharCreatev4.ui;
 
 		CharCreatev4.onCharCreationRequest(
 			ui.find('#char_name').val(),
@@ -440,10 +436,10 @@ define(function (require) {
 
 			case 'direction':
 				if (increment === 0) {
-					var dir = _model.entity.direction + 1;
+					let dir = _model.entity.direction + 1;
 					_model.entity.direction = dir;
 				} else {
-					var dir = _model.entity.direction - 1;
+					let dir = _model.entity.direction - 1;
 					_model.entity.direction = dir;
 				}
 				break;
@@ -545,5 +541,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(CharCreatev4);
-});
+export default UIManager.addComponent(CharCreatev4);

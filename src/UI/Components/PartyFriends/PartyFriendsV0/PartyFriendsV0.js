@@ -7,31 +7,27 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var Session = require('Engine/SessionStorage');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PartyHelper = require('../PartyHelper/PartyHelper');
-	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
-	var Mail = require('UI/Components/Mail/Mail');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
-	var htmlText = require('text!./PartyFriendsV0.html');
-	var cssText = require('text!./PartyFriendsV0.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import Session from 'Engine/SessionStorage';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import PACKETVER from 'Network/PacketVerManager';
+import PartyHelper from '../PartyHelper/PartyHelper';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
+import Mail from 'UI/Components/Mail/Mail';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import htmlText from './PartyFriendsV0.html?raw';
+import cssText from './PartyFriendsV0.css?raw';
 
 	/**
 	 * Create Component
@@ -808,7 +804,6 @@ define(function (require) {
 
 		_index = PartyFriendsV0.ui.find(this.parentNode).find('.node').index(this);
 
-		var SkillTargetSelection = getModule('UI/Components/SkillTargetSelection/SkillTargetSelection');
 		if (SkillTargetSelection.intersectEntityId) {
 			var entityId = _preferences.friend ? _friends[_index].AID : _party[_index].AID;
 			SkillTargetSelection.intersectEntityId(entityId);
@@ -900,5 +895,4 @@ define(function (require) {
 	/**
 	 * Storing Requirement
 	 */
-	return UIManager.addComponent(PartyFriendsV0);
-});
+	export default UIManager.addComponent(PartyFriendsV0);

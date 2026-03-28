@@ -8,18 +8,16 @@
  *
  * @author AoShinHo
  */
-define([
-	'text!./GLSL/VerticalFlip.vs',
-	'text!./GLSL/VerticalFlip.fs',
-	'Utils/WebGL',
-	'Renderer/Effects/PostProcess'
-], function (vs, fs, WebGL, PostProcess) {
-	'use strict';
 
-	var _program, _buffer;
-	var _active = false;
+import vs from './GLSL/VerticalFlip.vs?raw';
+import fs from './GLSL/VerticalFlip.fs?raw';
+import WebGL from 'Utils/WebGL';
+import PostProcess from 'Renderer/Effects/PostProcess';
 
-	return {
+let _program, _buffer;
+let _active = false;
+
+export default {
 		/**
 		 * Initializes shaders and buffers
 		 */
@@ -63,7 +61,7 @@ define([
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
 			// Position Attribute (X, Y)
-			var posLoc = _program.attribute.aPosition;
+			let posLoc = _program.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 0);
 
@@ -107,4 +105,3 @@ define([
 			_active = bool;
 		}
 	};
-});

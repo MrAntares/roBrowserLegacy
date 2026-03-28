@@ -9,10 +9,9 @@
  * @author Vincent Thibault
  */
 
-define(['./PacketStructure'], function (PACKET) {
-	'use strict';
+import PACKET from './PacketStructure';
 
-	return {
+export default {
 		// BASE PACKET VERSION
 		0: [
 			[PACKET.CZ.ENTER, 0x0072, 19, 2, 6, 10, 14, 18],
@@ -5953,4 +5952,3 @@ define(['./PacketStructure'], function (PACKET) {
 			[PACKET.CZ.SSILIST_ITEM_CLICK, 0x083c, 12, 0]
 		]
 	};
-});

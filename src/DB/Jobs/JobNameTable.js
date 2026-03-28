@@ -7,11 +7,11 @@
  *
  * @author Vincent Thibault, Antares
  */
+'use strict';
 
-define(['./JobConst'], function (JobId) {
-	'use strict';
+import JobId from './JobConst';
 
-	var JobNameTable = {};
+	let JobNameTable = {};
 
 	JobNameTable[JobId.NOVICE] = '\xC3\xCA\xBA\xB8\xC0\xDA';
 
@@ -337,5 +337,4 @@ define(['./JobConst'], function (JobId) {
 	duplicateEntry(JobId.FROG_OBORO, JobId.FROG_OBORO_B);
 	duplicateEntry(JobId.PECO_REBELLION, JobId.PECO_REBELLION_B);
 
-	return JobNameTable;
-});
+	export default JobNameTable;

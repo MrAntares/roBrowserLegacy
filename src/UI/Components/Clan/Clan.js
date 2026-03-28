@@ -7,26 +7,22 @@
  *
  * @author @vthibault, @Javierlog08, @scriptord3
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var KEYS = require('Controls/KeyEventHandler');
-	var Session = require('Engine/SessionStorage');
-	var Preferences = require('Core/Preferences');
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./Clan.html');
-	var cssText = require('text!./Clan.css');
+import KEYS from 'Controls/KeyEventHandler';
+import Session from 'Engine/SessionStorage';
+import Preferences from 'Core/Preferences';
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './Clan.html?raw';
+import cssText from './Clan.css?raw';
 
-	/**
+/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'Clan',
 		{
 			x: 150,
@@ -38,7 +34,7 @@ define(function (require) {
 	/**
 	 * Create Component
 	 */
-	var Clan = new UIComponent('Clan', htmlText, cssText);
+	let Clan = new UIComponent('Clan', htmlText, cssText);
 
 	/**
 	 * Initialize component
@@ -125,7 +121,7 @@ define(function (require) {
 	 * @param {object} data
 	 */
 	Clan.setData = function setData(clan) {
-		var general = this.ui.find('.content.info');
+		let general = this.ui.find('.content.info');
 
 		general.find('.name .value').text(clan.name);
 		general.find('.level .value').text(clan.level);
@@ -147,7 +143,7 @@ define(function (require) {
 	 * @param {object} members
 	 */
 	Clan.setMembersCount = function setMembersCount(members) {
-		var general = this.ui.find('.content.info');
+		let general = this.ui.find('.content.info');
 
 		general.find('.members .online').text(members.membersOnline);
 		general.find('.members .maxMember').text(members.membersTotal);
@@ -159,7 +155,7 @@ define(function (require) {
 	 * @param {Integer} id
 	 */
 	Clan.setIllust = function setIllust(id) {
-		var self = this;
+		let self = this;
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'clan_system/clan_illust' + id.toString().padStart(2, '0') + '.bmp',
 			function (data) {
@@ -177,7 +173,7 @@ define(function (require) {
 	 * @param {Integer} id
 	 */
 	Clan.setEmblem = function setEmblem(id) {
-		var self = this;
+		let self = this;
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'clan_system/clan_emblem' + id.toString().padStart(2, '0') + '.bmp',
 			function (data) {
@@ -195,7 +191,7 @@ define(function (require) {
 	 * @param {Array} Clan list
 	 */
 	Clan.setRelations = function setRelations(type, clans) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = clans.length; i < count; ++i) {
 			this.addRelation(type, clans[i]);
@@ -208,9 +204,9 @@ define(function (require) {
 	 * @param {object} Clan
 	 */
 	Clan.addRelation = function addRelation(type, clan) {
-		var list = this.ui.find('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
+		let list = this.ui.find('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
 		list.empty();
-		var div = document.createElement('div');
+		let div = document.createElement('div');
 
 		div.setAttribute('data-Clan-id', clan);
 		div.textContent = clan;
@@ -233,5 +229,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(Clan);
-});
+export default UIManager.addComponent(Clan);

@@ -6,16 +6,14 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var InputService = require('./JoystickInputService');
+import InputService from './JoystickInputService';
 
-	var timeoutHandle = null;
-	var POLL_RATE_ACTIVE = 100; // 10 FPS
-	var POLL_RATE_IDLE = 1000; // 1 FPS
-
-	return {
+let timeoutHandle = null;
+	let POLL_RATE_ACTIVE = 100; // 10 FPS
+	let POLL_RATE_IDLE = 1000; // 1 FPS
+export default {
 		start: function () {
 			if (timeoutHandle) {
 				return;
@@ -23,10 +21,10 @@ define(function (require) {
 			this.run();
 		},
 		run: function () {
-			var isConnected = InputService.update();
+			let isConnected = InputService.update();
 
-			var nextDelay = isConnected ? POLL_RATE_ACTIVE : POLL_RATE_IDLE;
-			var self = this;
+			let nextDelay = isConnected ? POLL_RATE_ACTIVE : POLL_RATE_IDLE;
+			let self = this;
 			timeoutHandle = setTimeout(function () {
 				self.run();
 			}, nextDelay);
@@ -38,4 +36,3 @@ define(function (require) {
 			}
 		}
 	};
-});

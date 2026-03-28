@@ -6,21 +6,20 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Session = require('Engine/SessionStorage');
+import Renderer from 'Renderer/Renderer';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Session from 'Engine/SessionStorage';
 
-	var _filterFrame = null;
-	var _active = false;
+let _filterFrame = null;
+	let _active = false;
 
 	function ensureFilterFrame(gl) {
 		if (_filterFrame && _filterFrame.texture && gl.isTexture(_filterFrame.texture)) {
 			return;
 		}
-		var tex = gl.createTexture();
+		let tex = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, tex);
 		gl.texImage2D(
 			gl.TEXTURE_2D,
@@ -73,6 +72,4 @@ define(function (require) {
 	PoisonEffect.isActive = function isActive() {
 		return _active;
 	};
-
-	return PoisonEffect;
-});
+export default PoisonEffect;

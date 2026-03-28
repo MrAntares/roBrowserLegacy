@@ -7,20 +7,18 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import jQuery from 'Utils/jquery';
+import Quest from 'UI/Components/Quest/Quest';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var jQuery = require('Utils/jquery');
-
 	// Version Dependent UIs
-	var Quest = require('UI/Components/Quest/Quest');
-
 	/**
 	 * Quest List
 	 *
@@ -30,7 +28,7 @@ define(function (require) {
 		let quest_list = [];
 		for (let i = 0; i < pkt.questCount; i++) {
 			let quest = pkt.QuestList[i];
-			var quest_info = DB.getQuestInfo(quest.questID);
+			let quest_info = DB.getQuestInfo(quest.questID);
 			let local_quest = {
 				questID: quest.questID,
 				title: quest_info.Title || '',
@@ -79,7 +77,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ADD_QUEST3
 	 */
 	function onAddQuest(pkt) {
-		var quest_info = DB.getQuestInfo(pkt.questID);
+		let quest_info = DB.getQuestInfo(pkt.questID);
 		let quest = {
 			questID: pkt.questID,
 			title: quest_info.Title || '',
@@ -136,7 +134,7 @@ define(function (require) {
 					Quest.getUI().updateMissionHunt(local_hunt, local_hunt.questID, ID);
 				} else {
 					// create new one
-					var quest_info = DB.getQuestInfo(local_hunt.questID);
+					let quest_info = DB.getQuestInfo(local_hunt.questID);
 					let local_quest = {
 						questID: local_hunt.questID,
 						title: quest_info.Title ? jQuery.escape(quest_info.Title) : '',
@@ -201,7 +199,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.ALL_QUEST_LIST, onAllQuestList);
 		Network.hookPacket(PACKET.ZC.ALL_QUEST_MISSION, onAllQuestList);
 		Network.hookPacket(PACKET.ZC.ALL_QUEST_LIST_V2, onAllQuestList);
@@ -217,4 +215,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.ACTIVE_QUEST, onActiveQuest);
 		Network.hookPacket(PACKET.ZC.DEL_QUEST, onDeleteQuest);
 	};
-});

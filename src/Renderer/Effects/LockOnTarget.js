@@ -7,45 +7,44 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var WebGL = require('Utils/WebGL');
-	var Texture = require('Utils/Texture');
-	var glMatrix = require('Utils/gl-matrix');
-	var Client = require('Core/Client');
-	var Configs = require('../../Core/Configs');
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Configs from '../../Core/Configs';
 
+// Load dependencies
 	/**
 	 * @var {WebGLTexture}
 	 */
-	var _texture;
+	let _texture;
 
 	/**
 	 * @var {WebGLProgram}
 	 */
-	var _program;
+	let _program;
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer;
+	let _buffer;
 
 	/**
 	 * @var {mat4}
 	 */
-	var mat4 = glMatrix.mat4;
+	let mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	var _matrix = mat4.create();
+	let _matrix = mat4.create();
 
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader = `
+	let _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -76,7 +75,7 @@ define(function (require) {
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = `
+	let _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -146,8 +145,8 @@ define(function (require) {
 	 * @param {object} wegl context
 	 */
 	LockOnTarget.prototype.render = function render(gl, tick) {
-		var time = tick - this.startTick;
-		var color = 20 - (Math.floor(time / 20) % 20);
+		let time = tick - this.startTick;
+		let color = 20 - (Math.floor(time / 20) % 20);
 		color /= 20;
 
 		// Animation
@@ -185,8 +184,8 @@ define(function (require) {
 
 		Client.loadFile('data/texture/effect/lockon128.tga', function (buffer) {
 			Texture.load(buffer, function () {
-				var enableMipmap = Configs.get('enableMipmap');
-				var ctx = this.getContext('2d');
+				let enableMipmap = Configs.get('enableMipmap');
+				let ctx = this.getContext('2d');
 				ctx.save();
 				ctx.translate(this.width / 2, this.height / 2);
 				ctx.rotate((45 / 180) * Math.PI);
@@ -242,8 +241,8 @@ define(function (require) {
 	 * @param {object} webgl context
 	 */
 	LockOnTarget.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		let uniform = _program.uniform;
+		let attribute = _program.attribute;
 
 		mat4.identity(_matrix);
 		mat4.rotateY(_matrix, _matrix, (tick / 4 / 180) * Math.PI);
@@ -287,7 +286,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return LockOnTarget;
-});
+	export default LockOnTarget;

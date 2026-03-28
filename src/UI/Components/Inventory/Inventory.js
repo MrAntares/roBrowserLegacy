@@ -8,20 +8,18 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
+
+import InventoryV0 from './InventoryV0/InventoryV0';
+import InventoryV1 from './InventoryV1/InventoryV1';
+import InventoryV2 from './InventoryV2/InventoryV2';
+import InventoryV3 from './InventoryV3/InventoryV3';
+
+import UIVersionManager from 'UI/UIVersionManager';
+import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler';
 
 	var publicName = 'Inventory';
-
-	var InventoryV0 = require('./InventoryV0/InventoryV0'); // Basic Inventory
-	var InventoryV1 = require('./InventoryV1/InventoryV1'); // Favorite Tab
-	var InventoryV2 = require('./InventoryV2/InventoryV2'); // Equipment Switch
-	var InventoryV3 = require('./InventoryV3/InventoryV3'); // Inventory Expansion
-
-	var UIVersionManager = require('UI/UIVersionManager');
-	var DB = require('DB/DBManager');
-	var KEYS = require('Controls/KeyEventHandler');
-
 	var versionInfo = {
 		default: InventoryV0, // Basic Inventory
 		common: {
@@ -55,5 +53,4 @@ define(function (require) {
 		};
 	};
 
-	return InventoryController;
-});
+	export default InventoryController;

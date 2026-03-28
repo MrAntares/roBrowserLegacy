@@ -7,37 +7,35 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import EffectManager from 'Renderer/EffectManager';
+import EffectTable from 'DB/Effects/EffectTable';
+import EC from 'DB/Effects/EffectConst';
+import EntityManager from 'Renderer/EntityManager';
+import Entity from 'Renderer/Entity/Entity';
+import Session from 'Engine/SessionStorage';
+import Camera from 'Renderer/Camera';
+import MapControl from 'Controls/MapControl';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './EffectViewer.html?raw';
+import cssText from './EffectViewer.css?raw';
+
+/**
 	 * Load dependencies
 	 */
-	var glMatrix = require('Utils/gl-matrix');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var EffectManager = require('Renderer/EffectManager');
-	var EffectTable = require('DB/Effects/EffectTable');
-	var EC = require('DB/Effects/EffectConst');
-	var EntityManager = require('Renderer/EntityManager');
-	var Entity = require('Renderer/Entity/Entity');
-	var Session = require('Engine/SessionStorage');
-	var Camera = require('Renderer/Camera');
-	var MapControl = require('Controls/MapControl');
-	var Mouse = require('Controls/MouseEventHandler');
-
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./EffectViewer.html');
-	var cssText = require('text!./EffectViewer.css');
-
-	var mat4 = glMatrix.mat4;
+	let mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {object} fog structure
 	 */
-	var _fog = {
+	let _fog = {
 		use: false,
 		exist: true,
 		far: 30,
@@ -46,12 +44,12 @@ define(function (require) {
 		color: new Float32Array([1, 1, 1])
 	};
 
-	var _selectedEffect = null;
+	let _selectedEffect = null;
 
 	/**
 	 * Create GRFViewer component
 	 */
-	var Viewer = new UIComponent('EffectViewer', htmlText, cssText);
+	let Viewer = new UIComponent('EffectViewer', htmlText, cssText);
 
 	/**
 	 * Initialize Component
@@ -89,7 +87,7 @@ define(function (require) {
 	 * @param {HTMLElement} drop down
 	 */
 	function initDropDown(select, button) {
-		var hash = decodeURIComponent(location.hash);
+		let hash = decodeURIComponent(location.hash);
 		if (hash) {
 			hash = hash.substring(1);
 			_selectedEffect = hash;
@@ -104,7 +102,7 @@ define(function (require) {
 		}
 
 		for (const effectId of Object.keys(EffectTable)) {
-			var ef_name = getKeyByValue(EC, effectId);
+			let ef_name = getKeyByValue(EC, effectId);
 			select.add(
 				new Option(
 					ef_name !== undefined ? effectId + ' (' + ef_name + ')' : effectId,
@@ -156,7 +154,7 @@ define(function (require) {
 	 * Stop to render
 	 */
 	function stop() {
-		var gl = Renderer.getContext();
+		let gl = Renderer.getContext();
 
 		Renderer.stop();
 		EffectManager.free(gl);
@@ -173,7 +171,7 @@ define(function (require) {
 		// Clear screen, update camera
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		Camera.update(tick);
-		var modelView = Camera.modelView;
+		let modelView = Camera.modelView;
 		EffectManager.render(gl, modelView, Camera.projection, _fog, tick, false);
 		EffectManager.render(gl, modelView, Camera.projection, _fog, tick, true);
 	}
@@ -201,8 +199,8 @@ define(function (require) {
 		this.zoomFinal = 125;
 	};
 	Camera.rotate = function Rotate(active) {
-		var action = this.action;
-		var tick = Date.now();
+		let action = this.action;
+		let tick = Date.now();
 
 		if (!active) {
 			action.active = false;
@@ -221,5 +219,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(Viewer);
-});
+export default UIManager.addComponent(Viewer);

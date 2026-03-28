@@ -5,19 +5,18 @@
  *
  * @author Vincent Thibault, Antares
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import Sound from 'Audio/SoundManager';
+import StatusConst from 'DB/Status/StatusState';
+import MountTable from 'DB/Jobs/MountTable';
+import AllMountTable from 'DB/Jobs/AllMountTable';
+import Session from 'Engine/SessionStorage';
+import Emotions from 'DB/Emotions';
+
+/**
 	 * Load dependencies
 	 */
-	var Sound = require('Audio/SoundManager');
-	var StatusConst = require('DB/Status/StatusState');
-	var MountTable = require('DB/Jobs/MountTable');
-	var AllMountTable = require('DB/Jobs/AllMountTable');
-	var Session = require('Engine/SessionStorage');
-	var Emotions = require('DB/Emotions');
-
 	/**
 	 * Calculate new color
 	 */
@@ -48,7 +47,7 @@ define(function (require) {
 			this._flashColor[3];
 	}
 
-	var _stateToVirtue = {};
+	let _stateToVirtue = {};
 	_stateToVirtue[StatusConst.Status.TWOHANDQUICKEN] = StatusConst.OPT3.QUICKEN;
 	_stateToVirtue[StatusConst.Status.SPEARQUICKEN] = StatusConst.OPT3.QUICKEN;
 	_stateToVirtue[StatusConst.Status.LKCONCENTRATION] = StatusConst.OPT3.QUICKEN;
@@ -81,7 +80,7 @@ define(function (require) {
 		if (state === 0) {
 			return;
 		}
-		var value = _stateToVirtue[state];
+		let value = _stateToVirtue[state];
 		if (value === undefined) {
 			console.error('toggleState: unknown state', state);
 			return;
@@ -97,7 +96,7 @@ define(function (require) {
 		if (state === 0) {
 			return false;
 		}
-		var value = _stateToVirtue[state];
+		let value = _stateToVirtue[state];
 		if (value === undefined) {
 			console.error('toggleState: unknown state', state);
 			return false;
@@ -362,7 +361,7 @@ define(function (require) {
 	 * @param {number} new value
 	 */
 	function updateEffectState(value) {
-		var costume = 0;
+		let costume = 0;
 
 		if (this._allRidingState) {
 			// Preserve riding constume
@@ -378,7 +377,7 @@ define(function (require) {
 		// Riding
 		// ------------------------
 
-		var RIDING =
+		let RIDING =
 			StatusConst.EffectState.RIDING |
 			StatusConst.EffectState.DRAGON1 |
 			StatusConst.EffectState.DRAGON2 |
@@ -488,11 +487,11 @@ define(function (require) {
 	}
 
 	function updateAllRidingState(value) {
-		var costume = 0;
+		let costume = 0;
 		// ------------------------
 		// Riding
 		// ------------------------
-		var EFFECT =
+		let EFFECT =
 			StatusConst.EffectState.RIDING |
 			StatusConst.EffectState.DRAGON1 |
 			StatusConst.EffectState.DRAGON2 |
@@ -543,7 +542,7 @@ define(function (require) {
 	/**
 	 * Hooking, export
 	 */
-	return function Init() {
+export default function Init() {
 		this._bodyStateColor = new Float32Array([1, 1, 1, 1]);
 		this._healthStateColor = new Float32Array([1, 1, 1, 1]);
 		this._effectStateColor = new Float32Array([1, 1, 1, 1]);
@@ -592,4 +591,3 @@ define(function (require) {
 		this.getOpt3 = getOpt3;
 		this.recalculateBlendingColor = recalculateBlendingColor;
 	};
-});

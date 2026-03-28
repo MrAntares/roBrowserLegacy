@@ -7,21 +7,16 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 *  Load dependencies
-	 */
-	var PathFinding = require('Utils/PathFinding');
-	var Renderer = require('Renderer/Renderer');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Session = require('Engine/SessionStorage');
+import PathFinding from 'Utils/PathFinding';
+import Altitude from 'Renderer/Map/Altitude';
+import Session from 'Engine/SessionStorage';
 
-	/**
+/**
 	 * Direction look up table
 	 */
-	var DIRECTION = [
+	const DIRECTION = [
 		[1, 2, 3],
 		[0, 0, 4],
 		[7, 6, 5]
@@ -43,27 +38,27 @@ define(function (require) {
 			return baseSpeed || 0;
 		}
 
-		var duration = 0;
+		let duration = 0;
 
 		// First Segment: Exact float distance
 		// path[0/1] is the integer start cell, but startPos is the entity's actual float position.
 		// path[2/3] is the first target cell.
-		var sx = startPos ? startPos[0] : path[0];
-		var sy = startPos ? startPos[1] : path[1];
-		var ex = path[2];
-		var ey = path[3];
+		let sx = startPos ? startPos[0] : path[0];
+		let sy = startPos ? startPos[1] : path[1];
+		let ex = path[2];
+		let ey = path[3];
 
-		var dx = ex - sx;
-		var dy = ey - sy;
-		var distFirst = Math.sqrt(dx * dx + dy * dy);
+		let dx = ex - sx;
+		let dy = ey - sy;
+		let distFirst = Math.sqrt(dx * dx + dy * dy);
 
 		duration += distFirst * baseSpeed;
 
 		// Remaining Segments: Grid logic
 		// Starts from index 2 (node 1 to node 2)
-		for (var i = 2; i < total - 2; i += 2) {
-			var segDx = path[i + 2] - path[i];
-			var segDy = path[i + 3] - path[i + 1];
+		for (let i = 2; i < total - 2; i += 2) {
+			let segDx = path[i + 2] - path[i];
+			let segDy = path[i + 3] - path[i + 1];
 
 			if (segDx && segDy) {
 				// Diagonal
@@ -86,7 +81,7 @@ define(function (require) {
 			return nowTick;
 		}
 
-		var elapsed = Session.serverTick - moveStartTime;
+		let elapsed = Session.serverTick - moveStartTime;
 		if (!isFinite(elapsed) || elapsed <= 0) {
 			return nowTick;
 		}
@@ -131,8 +126,8 @@ define(function (require) {
 		// atan2: 0=+X (east), PI/2=+Y (north), PI=-X (west), -PI/2=-Y (south)
 		// We need: 6=east, 4=north, 2=west, 0=south (RO direction indexing).
 		// Formula: dir = ((-angle)/(PI/4) + 6) mod 8
-		var angle = Math.atan2(dy, dx);
-		var dir = (-angle / (Math.PI / 4) + 6) % 8;
+		let angle = Math.atan2(dy, dx);
+		let dir = (-angle / (Math.PI / 4) + 6) % 8;
 		if (dir < 0) {
 			dir += 8;
 		}
@@ -167,7 +162,7 @@ define(function (require) {
 		isAttacking = false,
 		moveStartTime
 	) {
-		var hadRoute = this.walk && this.walk.total > 0;
+		let hadRoute = this.walk && this.walk.total > 0;
 
 		this.resetRoute(hadRoute);
 
@@ -175,7 +170,7 @@ define(function (require) {
 
 		// calculate overshoot (only falcon)
 		if (this.objecttype === this.constructor.TYPE_FALCON && isOverShoot) {
-			var OverShootPosition = calculateOverShot(from_x, from_y, to_x, to_y);
+			let OverShootPosition = calculateOverShot(from_x, from_y, to_x, to_y);
 			to_x = OverShootPosition[0];
 			to_y = OverShootPosition[1];
 		}
@@ -185,9 +180,9 @@ define(function (require) {
 			return;
 		}
 
-		var path = this.walk.path;
-		var total = 0;
-		var result = PathFinding.searchLongIgnoreCellType(
+		let path = this.walk.path;
+		let total = 0;
+		let result = PathFinding.searchLongIgnoreCellType(
 			from_x | 0,
 			from_y | 0,
 			to_x | 0,
@@ -205,9 +200,9 @@ define(function (require) {
 		this.walk.total = total * 2;
 		if (total > 0) {
 			this.walk.pos.set(this.position);
-			var nowTick = Renderer.tick;
-			var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
-			var isPlayerLike =
+			let nowTick = Date.now();
+			let pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
+			let isPlayerLike =
 				this.objecttype === this.constructor.TYPE_PC ||
 				this.objecttype === this.constructor.TYPE_DISGUISED ||
 				this.objecttype === this.constructor.TYPE_PET ||
@@ -216,8 +211,8 @@ define(function (require) {
 			// For non-player entities we only fast-forward up to one step worth of time.
 			// Their client-side path can diverge from the server due to dynamic obstacles,
 			// and over-fast-forwarding makes STOPMOVE snaps more visible.
-			var maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
-			var startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+			let maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
+			let startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
 			this.walk.tick = this.walk.prevTick = startTick;
 
 			// Keep distance accumulation if we were already walking to avoid animation restarts.
@@ -228,13 +223,13 @@ define(function (require) {
 
 			// Initialize facing for the first segment (continuous heading handled in walkProcess).
 			if (this.walk.total >= 2) {
-				var firstX0 = this.walk.path[2];
-				var firstY0 = this.walk.path[3];
-				var initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
+				let firstX0 = this.walk.path[2];
+				let firstY0 = this.walk.path[3];
+				let initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
 				this.direction = quantizeDir(initDir0);
 			}
 
-			var action = this.ACTION.WALK;
+			let action = this.ACTION.WALK;
 			if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) {
 				// falcon: action.walk = gliding
 				action = this.ACTION.IDLE;
@@ -247,13 +242,13 @@ define(function (require) {
 					repeat: true,
 					play: true,
 					next: {
-						delay: Renderer.tick + 200,
+						delay: Date.now() + 200,
 						action: this.ACTION.ATTACK,
 						frame: 0,
 						repeat: false,
 						play: true,
 						next: {
-							delay: Renderer.tick + 432,
+							delay: Date.now() + 432,
 							action: this.ACTION.IDLE,
 							frame: 0,
 							repeat: true,
@@ -280,7 +275,7 @@ define(function (require) {
 					repeat: true,
 					play: true,
 					next: {
-						delay: Renderer.tick + 432,
+						delay: Date.now() + 432,
 						action: this.ACTION.IDLE,
 						frame: 0,
 						repeat: false,
@@ -325,29 +320,29 @@ define(function (require) {
 			return;
 		}
 
-		var hadRoute = this.walk && this.walk.total > 0;
-		var wasWalkingAction = this.action === this.ACTION.WALK;
+		let hadRoute = this.walk && this.walk.total > 0;
+		let wasWalkingAction = this.action === this.ACTION.WALK;
 
 		this.resetRoute(hadRoute);
 
-		var path = this.walk.path;
-		var total = PathFinding.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
+		let path = this.walk.path;
+		let total = PathFinding.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
 
 		this.walk.index = 1 * 2; // skip first index
 		this.walk.total = total * 2;
 
 		if (total) {
 			this.walk.pos.set(this.position);
-			var nowTick = Renderer.tick;
-			var pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
-			var isPlayerLike =
+			let nowTick = Date.now();
+			let pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
+			let isPlayerLike =
 				this.objecttype === this.constructor.TYPE_PC ||
 				this.objecttype === this.constructor.TYPE_DISGUISED ||
 				this.objecttype === this.constructor.TYPE_PET ||
 				this.objecttype === this.constructor.TYPE_HOM ||
 				this.objecttype === this.constructor.TYPE_MERC;
-			var maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
-			var startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+			let maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
+			let startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
 			this.walk.tick = this.walk.prevTick = startTick;
 
 			if (!hadRoute) {
@@ -357,9 +352,9 @@ define(function (require) {
 
 			// Initialize facing for the first segment (continuous heading handled in walkProcess).
 			if (this.walk.total >= 2) {
-				var firstX1 = this.walk.path[2];
-				var firstY1 = this.walk.path[3];
-				var initDir1 = offsetToFloatDir(firstX1 - this.position[0], firstY1 - this.position[1]);
+				let firstX1 = this.walk.path[2];
+				let firstY1 = this.walk.path[3];
+				let initDir1 = offsetToFloatDir(firstX1 - this.position[0], firstY1 - this.position[1]);
 				this.direction = quantizeDir(initDir1);
 			}
 			this.headDir = 0;
@@ -380,14 +375,14 @@ define(function (require) {
 	 * Process walking
 	 */
 	function walkProcess() {
-		var pos = this.position;
-		var walk = this.walk;
-		var path = walk.path;
-		var index = walk.index;
-		var total = walk.total;
+		let pos = this.position;
+		let walk = this.walk;
+		let path = walk.path;
+		let index = walk.index;
+		let total = walk.total;
 
-		var TICK = Renderer.tick;
-		var falconGliding = 5;
+		let TICK = Date.now();
+		let falconGliding = 5;
 
 		if (total == 0) {
 			return;
@@ -399,8 +394,8 @@ define(function (require) {
 			this.objecttype !== this.constructor.TYPE_FALCON &&
 			this.objecttype !== this.constructor.TYPE_WUG
 		) {
-			var actionName = 'UNKNOWN';
-			for (var key in this.ACTION) {
+			let actionName = 'UNKNOWN';
+			for (let key in this.ACTION) {
 				if (this.ACTION[key] === this.action) {
 					actionName = key;
 					break;
@@ -427,16 +422,16 @@ define(function (require) {
 			this.objecttype === this.constructor.TYPE_FALCON ||
 			this.objecttype === this.constructor.TYPE_WUG
 		) {
-			var getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
-				var duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
+			let getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
+				let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
 				if (!duration || duration < 1) {
 					duration = 1;
 				}
 				return duration;
 			};
 
-			var finishWalk = function finishWalk() {
-				var cellHeight =
+			let finishWalk = function finishWalk() {
+				let cellHeight =
 					this.objecttype == this.constructor.TYPE_FALCON
 						? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5
 						: Altitude.getCellHeight(path[total - 2], path[total - 1]);
@@ -453,7 +448,7 @@ define(function (require) {
 						repeat: false,
 						play: true,
 						next: {
-							delay: Renderer.tick + 432,
+							delay: Date.now() + 432,
 							action: this.ACTION.IDLE,
 							frame: 0,
 							repeat: false,
@@ -487,16 +482,16 @@ define(function (require) {
 				return;
 			}
 
-			var startX = walk.pos[0];
-			var startY = walk.pos[1];
-			var nextX = path[index + 0];
-			var nextY = path[index + 1];
-			var dx = nextX - startX;
-			var dy = nextY - startY;
-			var speed = getSegmentDuration(dx, dy, walk.speed);
-			var segmentStart = walk.tick || TICK;
-			var segmentEnd = segmentStart + speed;
-			var traveledDist = 0;
+			let startX = walk.pos[0];
+			let startY = walk.pos[1];
+			let nextX = path[index + 0];
+			let nextY = path[index + 1];
+			let dx = nextX - startX;
+			let dy = nextY - startY;
+			let speed = getSegmentDuration(dx, dy, walk.speed);
+			let segmentStart = walk.tick || TICK;
+			let segmentEnd = segmentStart + speed;
+			let traveledDist = 0;
 
 			// If we were paused by another action, keep segment timing in sync.
 			if (
@@ -533,10 +528,10 @@ define(function (require) {
 			}
 
 			// Interpolate current segment
-			var duration = Math.max(segmentEnd - segmentStart, 1);
-			var t = Math.min(Math.max((TICK - segmentStart) / duration, 0), 1);
-			var newX = startX + dx * t;
-			var newY = startY + dy * t;
+			let duration = Math.max(segmentEnd - segmentStart, 1);
+			let t = Math.min(Math.max((TICK - segmentStart) / duration, 0), 1);
+			let newX = startX + dx * t;
+			let newY = startY + dy * t;
 
 			traveledDist += Math.sqrt(
 				(newX - walk.lastPos[0]) * (newX - walk.lastPos[0]) +
@@ -545,7 +540,7 @@ define(function (require) {
 			walk.lastPos[0] = newX;
 			walk.lastPos[1] = newY;
 
-			var cellHeight =
+			let cellHeight =
 				this.objecttype == this.constructor.TYPE_FALCON
 					? Altitude.getCellHeight(newX, newY) + falconGliding
 					: Altitude.getCellHeight(newX, newY);
@@ -558,28 +553,28 @@ define(function (require) {
 			// Later segments snap to discrete 8-way direction based on the segment offset.
 			if (index < total) {
 				if (index === 2) {
-					var remDx = nextX - newX;
-					var remDy = nextY - newY;
+					let remDx = nextX - newX;
+					let remDy = nextY - newY;
 
 					// If we're effectively at the next tile (fast-forwarded/last frame),
 					// fall back to the segment's discrete direction instead of defaulting south.
 					if (Math.abs(remDx) < 0.001 && Math.abs(remDy) < 0.001) {
-						var prevTileX0 = path[index - 2];
-						var prevTileY0 = path[index - 1];
-						var segDx0 = nextX - prevTileX0;
-						var segDy0 = nextY - prevTileY0;
-						var dirRow0 = DIRECTION[segDx0 + 1];
+						let prevTileX0 = path[index - 2];
+						let prevTileY0 = path[index - 1];
+						let segDx0 = nextX - prevTileX0;
+						let segDy0 = nextY - prevTileY0;
+						let dirRow0 = DIRECTION[segDx0 + 1];
 						if (dirRow0 && typeof dirRow0[segDy0 + 1] !== 'undefined') {
 							this.direction = dirRow0[segDy0 + 1];
 						}
 					} else {
-						var contDir = offsetToFloatDir(remDx, remDy);
+						let contDir = offsetToFloatDir(remDx, remDy);
 						this.direction = quantizeDir(contDir);
 					}
 				} else {
-					var segDx = Math.round(nextX - startX);
-					var segDy = Math.round(nextY - startY);
-					var dirRow = DIRECTION[segDx + 1];
+					let segDx = Math.round(nextX - startX);
+					let segDy = Math.round(nextY - startY);
+					let dirRow = DIRECTION[segDx + 1];
 					if (dirRow && typeof dirRow[segDy + 1] !== 'undefined') {
 						this.direction = dirRow[segDy + 1];
 					}
@@ -591,7 +586,7 @@ define(function (require) {
 			walk.tick = segmentStart;
 			walk.prevTick = TICK;
 
-			var reachedEnd = index >= total - 2 && t >= 0.999 && TICK >= segmentEnd;
+			let reachedEnd = index >= total - 2 && t >= 0.999 && TICK >= segmentEnd;
 
 			if (!reachedEnd) {
 				return;
@@ -612,13 +607,13 @@ define(function (require) {
 	// Companions walk is passively, don't need complexity or lower walk delay
 	function entitiesWalkProcess() {
 		// Use owner's actual current position
-		var ownerCellX = this.position[0];
-		var ownerCellY = this.position[1];
+		let ownerCellX = this.position[0];
+		let ownerCellY = this.position[1];
 
 		if (
 			this.falcon &&
 			!this.falcon.isAttacking &&
-			(!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1000 < Renderer.tick)
+			(!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1000 < Date.now())
 		) {
 			let range = 2;
 			let distance = Math.floor(this.distance(this, this.falcon));
@@ -626,12 +621,12 @@ define(function (require) {
 				return;
 			}
 
-			var targetChanged = this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY;
+			let targetChanged = this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY;
 			if (targetChanged) {
 				this.falcon.walk.speed = Math.max(this.walk.speed - 50, 1);
 				this.falcon._followTargetX = ownerCellX;
 				this.falcon._followTargetY = ownerCellY;
-				this.falcon.walk.lastWalkTick = Renderer.tick;
+				this.falcon.walk.lastWalkTick = Date.now();
 				this.falcon.walkToNonWalkableGround(
 					this.falcon.position[0],
 					this.falcon.position[1],
@@ -640,7 +635,7 @@ define(function (require) {
 					range - 1,
 					false,
 					false,
-					Renderer.tick
+					Date.now()
 				);
 			}
 		}
@@ -648,7 +643,7 @@ define(function (require) {
 		if (
 			this.wug &&
 			!this.wug.isAttacking &&
-			(!this.wug.walk.lastWalkTick || this.wug.walk.lastWalkTick + 1000 < Renderer.tick)
+			(!this.wug.walk.lastWalkTick || this.wug.walk.lastWalkTick + 1000 < Date.now())
 		) {
 			let range = 4;
 			let distance = Math.floor(this.distance(this, this.wug));
@@ -656,12 +651,12 @@ define(function (require) {
 				return;
 			}
 
-			var targetChanged = this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY;
+			let targetChanged = this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY;
 			if (targetChanged) {
 				this.wug.walk.speed = Math.max(this.walk.speed - 50, 1);
 				this.wug._followTargetX = ownerCellX;
 				this.wug._followTargetY = ownerCellY;
-				this.wug.walk.lastWalkTick = Renderer.tick;
+				this.wug.walk.lastWalkTick = Date.now();
 				this.wug.walkToNonWalkableGround(
 					this.wug.position[0],
 					this.wug.position[1],
@@ -670,7 +665,7 @@ define(function (require) {
 					range - 1,
 					false,
 					false,
-					Renderer.tick
+					Date.now()
 				);
 			}
 		}
@@ -695,8 +690,8 @@ define(function (require) {
 	}
 
 	function calculateOverShot(from_x, from_y, to_x, to_y) {
-		var overshot = 5;
-		var over_x = to_x,
+		let overshot = 5;
+		let over_x = to_x,
 			over_y = to_y;
 		if (from_x > to_x && from_y > to_y) {
 			//Quadrant 3
@@ -745,7 +740,7 @@ define(function (require) {
 	/**
 	 * Initialize and export methods
 	 */
-	return function Init() {
+	export default function Init() {
 		this.onWalkEnd = function onWalkEnd() {};
 		this.walk = new WalkStructure();
 		this.walkTo = walkTo;
@@ -755,4 +750,3 @@ define(function (require) {
 		this.resetRoute = resetRoute;
 		this.distance = distance;
 	};
-});

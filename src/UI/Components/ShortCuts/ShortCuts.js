@@ -6,25 +6,21 @@
  * @author Francisco Wallison
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Emoticons = require('UI/Components/Emoticons/Emoticons');
-	var htmlText = require('text!./ShortCuts.html');
-	var cssText = require('text!./ShortCuts.css');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Emoticons from 'UI/Components/Emoticons/Emoticons';
+import htmlText from './ShortCuts.html?raw';
+import cssText from './ShortCuts.css?raw';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import ProcessCommand from 'Controls/ProcessCommand';
 
 	/**
 	 * Create Component
@@ -325,7 +321,7 @@ define(function (require) {
 
 		// Process commands
 		if (command[0] == '/') {
-			getModule('Controls/ProcessCommand').processCommand.call(ChatBox, command.substr(1));
+			ProcessCommand.processCommand.call(ChatBox, command.substr(1));
 			return;
 		}
 
@@ -394,5 +390,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ShortCuts);
-});
+	export default UIManager.addComponent(ShortCuts);

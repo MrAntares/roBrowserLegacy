@@ -5,23 +5,22 @@
  *
  * @author Vincent Thibault
  */
-define([
-	'Utils/WebGL',
-	'Utils/gl-matrix',
-	'Core/Client',
-	'Renderer/Camera',
-	'Renderer/SpriteRenderer',
-	'text!./Cylinder.vs',
-	'text!./Cylinder.fs'
-], function (WebGL, glMatrix, Client, Camera, SpriteRenderer, _vertexShader, _fragmentShader) {
-	'use strict';
+'use strict';
 
-	/**
+import WebGL from 'Utils/WebGL';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Camera from 'Renderer/Camera';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import _vertexShader from './Cylinder.vs?raw';
+import _fragmentShader from './Cylinder.fs?raw';
+
+/**
 	 * @var {WebGLProgram}
 	 */
-	var _program;
+	let _program;
 
-	var blendMode = {};
+	let blendMode = {};
 
 	/**
 	 * @var {WebGLBuffer}
@@ -31,12 +30,12 @@ define([
 	/**
 	 * @var {mat4}
 	 */
-	var mat4 = glMatrix.mat4;
+	let mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	var _matrix = mat4.create();
+	let _matrix = mat4.create();
 
 	/**
 	 * @var {number}
@@ -54,10 +53,10 @@ define([
 	 * @returns {Float32Array} buffer array
 	 */
 	function generateCylinder(totalCircleSides, circleSides, repeatTextureX) {
-		var i, a, b;
-		var bottom = [];
-		var top = [];
-		var mesh = [];
+		let i, a, b;
+		let bottom = [];
+		let top = [];
+		let mesh = [];
 
 		for (i = 0; i <= circleSides; i++) {
 			a = (i + 0.0) / totalCircleSides;
@@ -101,11 +100,11 @@ define([
 	 * @param {number} End tick
 	 */
 	function Cylinder(effect, EF_Inst_Par, EF_Init_Par) {
-		var position = EF_Inst_Par.position;
-		var otherPosition = EF_Inst_Par.otherPosition;
-		var direction = EF_Inst_Par.direction;
-		var startTick = EF_Inst_Par.startTick;
-		var endTick = EF_Inst_Par.endTick;
+		let position = EF_Inst_Par.position;
+		let otherPosition = EF_Inst_Par.otherPosition;
+		let direction = EF_Inst_Par.direction;
+		let startTick = EF_Inst_Par.startTick;
+		let endTick = EF_Inst_Par.endTick;
 
 		this.semiCircle = effect.semiCircle ? false : true;
 
@@ -158,8 +157,8 @@ define([
 
 		if (effect.rotateToTarget) {
 			this.rotateToTarget = true;
-			var x = this.otherPosition[0] - this.position[0];
-			var y = this.otherPosition[1] - this.position[1];
+			let x = this.otherPosition[0] - this.position[0];
+			let y = this.otherPosition[1] - this.position[1];
 			this.angleY += 90 - Math.atan2(y, x) * (180 / Math.PI);
 		}
 
@@ -194,7 +193,7 @@ define([
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
 
-		var self = this;
+		let self = this;
 		Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
 				self.texture = texture;
@@ -218,10 +217,10 @@ define([
 	 * @param {object} wegl context
 	 */
 	Cylinder.prototype.render = function render(gl, tick) {
-		var renderCount = tick - this.startTick;
-		var duration = this.endTick - this.startTick;
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		let renderCount = tick - this.startTick;
+		let duration = this.endTick - this.startTick;
+		let uniform = _program.uniform;
+		let attribute = _program.attribute;
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -273,11 +272,11 @@ define([
 			}
 		} else if (this.animation == 4) {
 			gl.uniform1f(uniform.uHeight, this.height);
-			var bottomSize = (renderCount / duration) * this.bottomSize;
+			let bottomSize = (renderCount / duration) * this.bottomSize;
 			if (bottomSize < 0) {
 				bottomSize = 0;
 			}
-			var topSize = (renderCount / duration) * this.topSize;
+			let topSize = (renderCount / duration) * this.topSize;
 			if (topSize < 0) {
 				topSize = 0;
 			}
@@ -313,7 +312,7 @@ define([
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 
-		var currentPosition = [this.position[0], this.position[1], this.position[2]];
+		let currentPosition = [this.position[0], this.position[1], this.position[2]];
 
 		if (
 			this.rotate ||
@@ -340,10 +339,10 @@ define([
 			}
 
 			if (this.rotateWithCamera || this.fixedPerspective) {
-				var magic = this.posY;
+				let magic = this.posY;
 
 				if (this.fixedPerspective) {
-					var vcRad = ((Camera.angle[0] - 180) * Math.PI) / 180;
+					let vcRad = ((Camera.angle[0] - 180) * Math.PI) / 180;
 					if (this.posZ) {
 						currentPosition[2] += this.posZ * Math.cos(vcRad) - this.posY * Math.sin(vcRad);
 						magic = this.posY * Math.sin(vcRad) + this.posZ * Math.sin(vcRad);
@@ -351,7 +350,7 @@ define([
 					mat4.rotateX(_matrix, _matrix, vcRad);
 				}
 
-				var hcRad = (Camera.angle[1] * Math.PI) / 180;
+				let hcRad = (Camera.angle[1] * Math.PI) / 180;
 				if (this.posX || this.posY) {
 					currentPosition[0] += this.posX * Math.cos(hcRad) - magic * Math.sin(hcRad);
 					currentPosition[1] += magic * Math.cos(hcRad) + this.posX * Math.sin(hcRad);
@@ -374,7 +373,7 @@ define([
 
 		gl.uniform3fv(uniform.uPosition, currentPosition);
 
-		var self = this;
+		let self = this;
 		SpriteRenderer.runWithDepth(true, false, true, function () {
 			gl.drawArrays(gl.TRIANGLES, 0, self.verticeCount);
 		});
@@ -434,7 +433,7 @@ define([
 	 * @param {object} webgl context
 	 */
 	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
+		let uniform = _program.uniform;
 
 		gl.useProgram(_program);
 
@@ -465,7 +464,6 @@ define([
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return Cylinder;
-});
+	export default Cylinder;

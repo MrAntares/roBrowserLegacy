@@ -7,29 +7,27 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var ItemType = require('DB/Items/ItemType');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./SwitchEquip.html');
-	var cssText = require('text!./SwitchEquip.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import EquipLocation from 'DB/Items/EquipmentLocation';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import ItemType from 'DB/Items/ItemType';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './SwitchEquip.html?raw';
+import cssText from './SwitchEquip.css?raw';
+import Entity from 'Renderer/Entity/Entity';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import Inventory from 'UI/Components/Inventory/Inventory';
 
 	/**
 	 * Create Component
@@ -66,7 +64,6 @@ define(function (require) {
 		});
 
 		// Set the active tab based on Equipment UI's current tab
-		var Equipment = require('UI/Components/Equipment/Equipment');
 		var currentEquipTabId = Equipment.getUI().getCurrentTabId();
 
 		// Set the active tab and content div based on EquipmentV2's current tab
@@ -107,7 +104,6 @@ define(function (require) {
 	 */
 	SwitchEquip.onAppend = function onAppend() {
 		// Set the active tab based on Equipment UI's current tab
-		var Equipment = require('UI/Components/Equipment/Equipment');
 		var currentEquipTabId = Equipment.getUI().getCurrentTabId();
 
 		// Set the active tab and content div based on EquipmentV2's current tab
@@ -236,7 +232,6 @@ define(function (require) {
 		};
 
 		return function swaprender() {
-			var Entity = getModule('Renderer/Entity/Entity');
 			var swap_character = new Entity();
 			swap_character.set({
 				GID: Session.Entity.GID + '_SWAPEQUIP',
@@ -250,7 +245,6 @@ define(function (require) {
 				bodypalette: Session.Entity.bodypalette
 			});
 
-			var Equipment = require('UI/Components/Equipment/Equipment');
 			var currentEquipTabId = Equipment.getUI().getCurrentTabId();
 
 			// General Tab only shows normal headgears
@@ -537,7 +531,6 @@ define(function (require) {
 	 * @returns {number} The sprite number of the item in the specified location, or 0 if not equipped
 	 */
 	SwitchEquip.checkEquipLoc = function checkEquipLoc(location) {
-		var Inventory = require('UI/Components/Inventory/Inventory');
 
 		var switchList = Inventory.getUI().equipswitchlist;
 		for (var i = 0; i < switchList.length; i++) {
@@ -594,5 +587,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(SwitchEquip);
-});
+	export default UIManager.addComponent(SwitchEquip);

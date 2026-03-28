@@ -5,32 +5,28 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var ItemType = require('DB/Items/ItemType');
-	var Network = require('Network/NetworkManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Client = require('Core/Client');
-	var KEYS = require('Controls/KeyEventHandler');
-	var htmlText = require('text!./LaphineUpg.html');
-	var cssText = require('text!./LaphineUpg.css');
-	var PACKET = require('Network/PacketStructure');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import ItemType from 'DB/Items/ItemType';
+import Network from 'Network/NetworkManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Client from 'Core/Client';
+import KEYS from 'Controls/KeyEventHandler';
+import htmlText from './LaphineUpg.html?raw';
+import cssText from './LaphineUpg.css?raw';
+import PACKET from 'Network/PacketStructure';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var LaphineUpg = new UIComponent('LaphineUpg', htmlText, cssText);
+	let LaphineUpg = new UIComponent('LaphineUpg', htmlText, cssText);
 
 	/**
 	 * @var {number} LaphineUpg
@@ -62,7 +58,7 @@ define(function (require) {
 	 */
 	LaphineUpg.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		var events = jQuery._data(window, 'events').keydown;
+		let events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		LaphineUpg.ui.find('.some_notifs').hide();
@@ -99,7 +95,7 @@ define(function (require) {
 	 * Initialize UI
 	 */
 	LaphineUpg.init = function init() {
-		var ui = this.ui;
+		let ui = this.ui;
 
 		// UI initializations
 		ui.find('.submit_button_disabled').hide();
@@ -236,13 +232,13 @@ define(function (require) {
 	 * Updates the Laphine UI with the current state information.
 	 */
 	function onUpdateLaphineUpgUI() {
-		var item = Inventory.getUI().getItemById(LaphineUpgUIState.itemId);
+		let item = Inventory.getUI().getItemById(LaphineUpgUIState.itemId);
 
 		if (!item) {
 			return false;
 		}
 
-		var ui = LaphineUpg.ui;
+		let ui = LaphineUpg.ui;
 		ui.find('.item_text').text(DB.getItemName(item));
 		ui.find('.mat_info_list').text(LaphineUpgUIState.needSourceString);
 	}
@@ -254,8 +250,8 @@ define(function (require) {
 	 * @returns {Array<Item>}
 	 */
 	function GetInventoryItemsById(id) {
-		var items = [];
-		var list = Inventory.getUI().list;
+		let items = [];
+		let list = Inventory.getUI().list;
 
 		for (var i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -369,7 +365,7 @@ define(function (require) {
 	function onRequestLaphineUpgClose() {
 		LaphineUpg.remove();
 
-		var pkt = new PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE();
+		let pkt = new PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE();
 		Network.sendPacket(pkt);
 	}
 
@@ -377,14 +373,14 @@ define(function (require) {
 	 * Handles the selection of an item from the available materials list.
 	 */
 	function onItemSelect() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
 		}
 
-		var ui = LaphineUpg.ui;
+		let ui = LaphineUpg.ui;
 		ui.find('.name').removeClass('selected');
 		ui.find('.item[data-index="' + item.index + '"] .name').addClass('selected');
 	}
@@ -396,7 +392,7 @@ define(function (require) {
 		// Check if there's a currently selected item in the .name class
 		let selectedItem = LaphineUpg.ui.find('.item .name.selected');
 		let idx;
-		var ui = LaphineUpg.ui;
+		let ui = LaphineUpg.ui;
 
 		if (selectedItem.length > 0) {
 			idx = parseInt(selectedItem.closest('.item').data('index'), 10);
@@ -463,7 +459,7 @@ define(function (require) {
 		// Add the item index
 		LaphineUpg.submittedIndex = item.index;
 
-		var ui = LaphineUpg.ui;
+		let ui = LaphineUpg.ui;
 		ui.find('.submit_button_enabled').show();
 		ui.find('.submit_button_disabled').hide();
 		ui.find('.make_disabled').hide();
@@ -519,7 +515,7 @@ define(function (require) {
 			// Remove the item from the DOM
 			jQuery(element).remove();
 
-			var ui = LaphineUpg.ui;
+			let ui = LaphineUpg.ui;
 			ui.find('.submit_button_enabled').show();
 			ui.find('.submit_button_disabled').hide();
 			ui.find('.make_disabled').show();
@@ -573,7 +569,7 @@ define(function (require) {
 	 * Handles showing of message for notifications.
 	 */
 	function showMessage(message) {
-		var ui = LaphineUpg.ui;
+		let ui = LaphineUpg.ui;
 		ui.find('.info_msg').empty().text(message);
 		ui.find('.some_notifs').show();
 	}
@@ -588,13 +584,13 @@ define(function (require) {
 			return false;
 		}
 
-		var pkt;
+		let pkt;
 		pkt = new PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM();
 		pkt.itemId = LaphineUpgUIState.itemId;
 		pkt.item_index = LaphineUpg.submittedIndex;
 		Network.sendPacket(pkt);
 
-		var ui = LaphineUpg.ui;
+		let ui = LaphineUpg.ui;
 		ui.find('.make_enabled').hide();
 		ui.find('.make_disabled').show();
 	}
@@ -603,25 +599,25 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var pos = jQuery(this);
-		var overlay = LaphineUpg.ui.find('.overlay');
+		let pos = jQuery(this);
+		let overlay = LaphineUpg.ui.find('.overlay');
 
 		// Determine the immediate parent container explicitly based on the context
-		var parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
-		var itemPos = pos.position();
-		var containerPos = parentContainer.position();
+		let parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
+		let itemPos = pos.position();
+		let containerPos = parentContainer.position();
 
 		// Calculate the desired position of the overlay relative to the container
-		var top = itemPos.top - overlay.outerHeight() + 25;
-		var left = itemPos.left;
+		let top = itemPos.top - overlay.outerHeight() + 25;
+		let left = itemPos.left;
 
 		// Display box
 		overlay.show();
@@ -642,7 +638,7 @@ define(function (require) {
 	 * Hide the item name
 	 */
 	function onItemOut() {
-		var ui = LaphineUpg.ui;
+		let ui = LaphineUpg.ui;
 		ui.find('.overlay').hide();
 	}
 
@@ -658,16 +654,16 @@ define(function (require) {
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(index);
+		let index = parseInt(this.getAttribute('data-index'), 10);
+		let item = Inventory.getUI().getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.querySelector('.icon')
+		let img = new Image();
+		let url = this.querySelector('.icon')
 			.style.backgroundImage.match(/\((.*?)\)/)[1]
 			.replace(/('|")/g, '');
 		img.decoding = 'async';
@@ -702,8 +698,8 @@ define(function (require) {
 	 * @param {event}
 	 */
 	function onSubmitItemDrop(event) {
-		var item, data;
-		var ui = LaphineUpg.ui;
+		let item, data;
+		let ui = LaphineUpg.ui;
 		event.stopImmediatePropagation();
 
 		try {
@@ -758,7 +754,7 @@ define(function (require) {
 	 * @param {event}
 	 */
 	function onRemoveSubmitDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -789,8 +785,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -816,7 +812,7 @@ define(function (require) {
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		var compareItem = Equipment.getUI().isInEquipList(item.location);
+		let compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -838,5 +834,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(LaphineUpg);
-});
+export default UIManager.addComponent(LaphineUpg);

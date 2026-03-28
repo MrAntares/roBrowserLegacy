@@ -8,18 +8,20 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatrix) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+import glMatrix from 'Utils/gl-matrix';
+
+/**
 	 * Import
 	 */
-	var vec3 = glMatrix.vec3;
-	var mat3 = glMatrix.mat3;
-	var mat4 = glMatrix.mat4;
+	let vec3 = glMatrix.vec3;
+	let mat3 = glMatrix.mat3;
+	let mat4 = glMatrix.mat4;
 
 	// Cached has animation check
-	var _hasanimation = false;
+	let _hasanimation = false;
 
 	/**
 	 * Model class loader
@@ -58,11 +60,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {ArrayBuffer} data
 	 */
 	RSM.prototype.load = function Load(data) {
-		var fp, header;
-		var i, count;
-		var nodes, posKeyframes, volumebox;
-		var textures = [];
-		var additionalTextures = [];
+		let fp, header;
+		let i, count;
+		let nodes, posKeyframes, volumebox;
+		let textures = [];
+		let additionalTextures = [];
 
 		// Read header.
 		fp = new BinaryReader(data);
@@ -193,7 +195,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {number} height
 	 */
 	RSM.prototype.createInstance = function CreateInstance(model, width, height) {
-		var matrix = mat4.create();
+		let matrix = mat4.create();
 
 		mat4.identity(matrix);
 		mat4.translate(matrix, matrix, [model.position[0] + width, model.position[1], model.position[2] + height]);
@@ -223,11 +225,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * Calculate model bounding box
 	 */
 	RSM.prototype.calcBoundingBox = function CalcBoundingBox() {
-		var i, j, count;
-		var box = this.box;
-		var matrix = mat4.create();
-		var nodes = this.nodes;
-		var min = Math.min,
+		let i, j, count;
+		let box = this.box;
+		let matrix = mat4.create();
+		let nodes = this.nodes;
+		let min = Math.min,
 			max = Math.max;
 		count = nodes.length;
 
@@ -249,14 +251,14 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * Compile Model
 	 */
 	RSM.prototype.compile = function Compile() {
-		var nodes = this.nodes;
-		var instances = this.instances;
+		let nodes = this.nodes;
+		let instances = this.instances;
 
-		var node_count = nodes.length;
-		var instance_count = instances.length;
-		var i, j, k;
+		let node_count = nodes.length;
+		let instance_count = instances.length;
+		let i, j, k;
 
-		var meshes = new Array(node_count * instance_count);
+		let meshes = new Array(node_count * instance_count);
 
 		// Generate Mesh
 		for (i = 0, k = 0; i < node_count; ++i) {
@@ -282,7 +284,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		for (var i = 0; i < this.nodes.length; i++) {
-			var node = this.nodes[i];
+			let node = this.nodes[i];
 			if (
 				(node.rotKeyframes && node.rotKeyframes.length > 0) ||
 				(node.posKeyframes && node.posKeyframes.length > 0) ||
@@ -303,13 +305,13 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {boolean} only
 	 */
 	RSM.Node = function Node(rsm, fp, only) {
-		var i,
+		let i,
 			j,
 			k,
 			count,
 			version = rsm.version;
-		var vertices, tvertices, faces, posKeyframes, rotKeyframes, scaleKeyFrames, textureKeyFrameGroup;
-		var textures = [];
+		let vertices, tvertices, faces, posKeyframes, rotKeyframes, scaleKeyFrames, textureKeyFrameGroup;
+		let textures = [];
 		// Read initialised
 		this.main = rsm;
 		this.is_only = only;
@@ -388,7 +390,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		faces = new Array(count);
 
 		for (i = 0; i < count; ++i) {
-			var len = -1;
+			let len = -1;
 			if (version >= 2.2) {
 				len = fp.readLong();
 			}
@@ -461,8 +463,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			textureKeyFrameGroup = new Array(count);
 
 			for (i = 0; i < count; ++i) {
-				var textureId = fp.readLong();
-				var amountTextureAnimations = fp.readLong();
+				let textureId = fp.readLong();
+				let amountTextureAnimations = fp.readLong();
 
 				// Initialize textureKeyFrameGroup[i] if it doesn't exist
 				if (!textureKeyFrameGroup[i]) {
@@ -475,8 +477,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 				}
 
 				for (j = 0; j < amountTextureAnimations; ++j) {
-					var type = fp.readLong();
-					var amountFrames = fp.readLong();
+					let type = fp.readLong();
+					let amountFrames = fp.readLong();
 
 					// Initialize textureKeyFrameGroup[i][textureId][type] if it doesn't exist
 					if (!textureKeyFrameGroup[i][textureId][type]) {
@@ -512,15 +514,15 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 */
 	RSM.Node.prototype.calcBoundingBox = function NodeCalcBoundingBox(_matrix) {
 		// Define variables
-		var i, j, count;
-		var v = vec3.create();
-		var box = this.box;
-		var nodes = this.main.nodes;
-		var matrix = mat4.create();
-		var vertices = this.vertices;
-		var max = Math.max,
+		let i, j, count;
+		let v = vec3.create();
+		let box = this.box;
+		let nodes = this.main.nodes;
+		let matrix = mat4.create();
+		let vertices = this.vertices;
+		let max = Math.max,
 			min = Math.min;
-		var x, y, z;
+		let x, y, z;
 
 		// Find position
 		mat4.copy(this.matrix, _matrix);
@@ -579,21 +581,21 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {mat4} instance_matrix
 	 */
 	RSM.Node.prototype.compile = function (instance_matrix) {
-		var matrix;
-		var modelViewMat = mat4.create();
-		var normalMat = mat4.create();
+		let matrix;
+		let modelViewMat = mat4.create();
+		let normalMat = mat4.create();
 
-		var textures = this.textures;
-		var faces = this.faces;
-		var vertices = this.vertices;
+		let textures = this.textures;
+		let faces = this.faces;
+		let vertices = this.vertices;
 
-		var mesh = {};
-		var mesh_size = [];
+		let mesh = {};
+		let mesh_size = [];
 
-		var vert, face_normal;
-		var shadeGroup = new Array(32);
-		var shadeGroupUsed = new Array(32);
-		var i, x, y, z, count;
+		let vert, face_normal;
+		let shadeGroup = new Array(32);
+		let shadeGroupUsed = new Array(32);
+		let i, x, y, z, count;
 
 		// Calculate matrix
 		matrix = mat4.create();
@@ -685,8 +687,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Find surrounding keyframes
-		var prev = keyframes[0];
-		var next = null;
+		let prev = keyframes[0];
+		let next = null;
 
 		for (var i = 0; i < keyframes.length; i++) {
 			if (keyframes[i].frame > frame) {
@@ -701,12 +703,12 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Calculate interpolation factor
-		var frameDiff = next.frame - prev.frame;
+		let frameDiff = next.frame - prev.frame;
 		if (frameDiff === 0) {
 			return prev.q;
 		}
 
-		var t = (frame - prev.frame) / frameDiff;
+		let t = (frame - prev.frame) / frameDiff;
 
 		// SLERP between quaternions
 		return slerpQuat(prev.q, next.q, t);
@@ -716,23 +718,23 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * SLERP quaternion interpolation
 	 */
 	function slerpQuat(q1, q2, t) {
-		var result = new Float32Array(4);
+		let result = new Float32Array(4);
 
-		var dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
+		let dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
 
-		var q2Sign = 1;
+		let q2Sign = 1;
 		if (dot < 0) {
 			dot = -dot;
 			q2Sign = -1;
 		}
 
-		var scale0, scale1;
+		let scale0, scale1;
 		if (dot > 0.9995) {
 			scale0 = 1.0 - t;
 			scale1 = t * q2Sign;
 		} else {
-			var theta = Math.acos(dot);
-			var sinTheta = Math.sin(theta);
+			let theta = Math.acos(dot);
+			let sinTheta = Math.sin(theta);
 			scale0 = Math.sin((1.0 - t) * theta) / sinTheta;
 			scale1 = (Math.sin(t * theta) / sinTheta) * q2Sign;
 		}
@@ -763,8 +765,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Find surrounding keyframes
-		var prev = keyframes[0];
-		var next = null;
+		let prev = keyframes[0];
+		let next = null;
 
 		for (var i = 0; i < keyframes.length; i++) {
 			if (keyframes[i].frame > frame) {
@@ -779,12 +781,12 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Calculate interpolation factor
-		var frameDiff = next.frame - prev.frame;
+		let frameDiff = next.frame - prev.frame;
 		if (frameDiff === 0) {
 			return [prev.px, prev.py, prev.pz];
 		}
 
-		var t = (frame - prev.frame) / frameDiff;
+		let t = (frame - prev.frame) / frameDiff;
 
 		// Linear interpolation
 		return [
@@ -812,8 +814,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Find surrounding keyframes
-		var prev = keyframes[0];
-		var next = null;
+		let prev = keyframes[0];
+		let next = null;
 
 		for (var i = 0; i < keyframes.length; i++) {
 			if (keyframes[i].Frame > frame) {
@@ -828,12 +830,12 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Calculate interpolation factor
-		var frameDiff = next.Frame - prev.Frame;
+		let frameDiff = next.Frame - prev.Frame;
 		if (frameDiff === 0) {
 			return prev.Scale;
 		}
 
-		var t = (frame - prev.Frame) / frameDiff;
+		let t = (frame - prev.Frame) / frameDiff;
 
 		// Linear interpolation
 		return [
@@ -851,21 +853,21 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {number} animLen - Total animation length
 	 */
 	RSM.Node.prototype.compileAtFrame = function (instance_matrix, frame, animLen) {
-		var matrix;
-		var modelViewMat = mat4.create();
-		var normalMat = mat4.create();
+		let matrix;
+		let modelViewMat = mat4.create();
+		let normalMat = mat4.create();
 
-		var textures = this.textures;
-		var faces = this.faces;
-		var vertices = this.vertices;
+		let textures = this.textures;
+		let faces = this.faces;
+		let vertices = this.vertices;
 
-		var mesh = {};
-		var mesh_size = [];
+		let mesh = {};
+		let mesh_size = [];
 
-		var vert, face_normal;
-		var shadeGroup = new Array(32);
-		var shadeGroupUsed = new Array(32);
-		var i, x, y, z, count;
+		let vert, face_normal;
+		let shadeGroup = new Array(32);
+		let shadeGroupUsed = new Array(32);
+		let i, x, y, z, count;
 
 		// Calculate animated matrix
 		matrix = mat4.create();
@@ -873,11 +875,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		mat4.translate(matrix, matrix, [-this.main.box.center[0], -this.main.box.max[1], -this.main.box.center[2]]);
 
 		// Calculate node transform matrix with animation
-		var nodeMatrix = mat4.create();
+		let nodeMatrix = mat4.create();
 		mat4.identity(nodeMatrix);
 
 		// Position animation
-		var animPos = getPositionAtFrame(this.posKeyframes, frame, animLen);
+		let animPos = getPositionAtFrame(this.posKeyframes, frame, animLen);
 		if (animPos) {
 			mat4.translate(nodeMatrix, nodeMatrix, animPos);
 		} else {
@@ -885,7 +887,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Rotation animation
-		var animRot = getRotationAtFrame(this.rotKeyframes, frame, animLen);
+		let animRot = getRotationAtFrame(this.rotKeyframes, frame, animLen);
 		if (animRot) {
 			mat4.rotateQuat(nodeMatrix, nodeMatrix, animRot);
 		} else if (this.rotKeyframes && this.rotKeyframes.length > 0) {
@@ -895,7 +897,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 		}
 
 		// Scale animation
-		var animScale = getScaleAtFrame(this.scaleKeyFrames, frame, animLen);
+		let animScale = getScaleAtFrame(this.scaleKeyFrames, frame, animLen);
 		if (animScale) {
 			mat4.scale(nodeMatrix, nodeMatrix, animScale);
 		} else {
@@ -976,15 +978,15 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {number} frame - Animation frame
 	 */
 	RSM.prototype.compileAtFrame = function CompileAtFrame(frame) {
-		var nodes = this.nodes;
-		var instances = this.instances;
-		var animLen = this.animLen || 1;
+		let nodes = this.nodes;
+		let instances = this.instances;
+		let animLen = this.animLen || 1;
 
-		var node_count = nodes.length;
-		var instance_count = instances.length;
-		var i, j, k;
+		let node_count = nodes.length;
+		let instance_count = instances.length;
+		let i, j, k;
 
-		var meshes = new Array(node_count * instance_count);
+		let meshes = new Array(node_count * instance_count);
 
 		// Generate Mesh at frame
 		for (i = 0, k = 0; i < node_count; ++i) {
@@ -1005,7 +1007,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {Float32Array[]} out
 	 */
 	RSM.Node.prototype.calcNormal_NONE = function calcNormalNone(out) {
-		var i, count;
+		let i, count;
 		for (i = 1, count = out.length; i < count; i += 3) {
 			out[i] = -1;
 		}
@@ -1019,11 +1021,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {Array} groupUsed
 	 */
 	RSM.Node.prototype.calcNormal_FLAT = function calcNormalFlat(out, normalMat, groupUsed) {
-		var i, j, count;
-		var face;
-		var temp_vec = vec3.create();
-		var faces = this.faces;
-		var vertices = this.vertices;
+		let i, j, count;
+		let face;
+		let temp_vec = vec3.create();
+		let faces = this.faces;
+		let vertices = this.vertices;
 
 		for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
 			face = faces[i];
@@ -1050,11 +1052,11 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {Array} group
 	 */
 	RSM.Node.prototype.calcNormal_SMOOTH = function calcNormalSmooth(normal, groupUsed, group) {
-		var i, j, k, l, v, x, y, z, len;
-		var size = this.vertices.length;
-		var faces = this.faces;
-		var face, norm;
-		var count = faces.length;
+		let i, j, k, l, v, x, y, z, len;
+		let size = this.vertices.length;
+		let faces = this.faces;
+		let face, norm;
+		let count = faces.length;
 
 		for (j = 0; j < 32; ++j) {
 			// Group not used, skip it
@@ -1099,13 +1101,13 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {Array} mesh
 	 */
 	RSM.Node.prototype.generate_mesh_FLAT = function generateMeshFlat(vert, norm, mesh) {
-		var a, b, o, i, j, k, t, count;
-		var faces = this.faces;
-		var textures = this.textures;
-		var tver = this.tvertices;
-		var alpha = this.main.alpha;
-		var offset = [];
-		var face, idx, tidx, out;
+		let a, b, o, i, j, k, t, count;
+		let faces = this.faces;
+		let textures = this.textures;
+		let tver = this.tvertices;
+		let alpha = this.main.alpha;
+		let offset = [];
+		let face, idx, tidx, out;
 
 		// Setup mesh slot array
 		for (i = 0, count = textures.length; i < count; ++i) {
@@ -1146,13 +1148,13 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @param {Array} mesh
 	 */
 	RSM.Node.prototype.generate_mesh_SMOOTH = function generateMeshSmooth(vert, shadeGroup, mesh) {
-		var a, b, o, i, j, t, count;
-		var faces = this.faces;
-		var textures = this.textures;
-		var tver = this.tvertices;
-		var alpha = this.main.alpha;
-		var offset = [];
-		var norm, face, idx, tidx, out;
+		let a, b, o, i, j, t, count;
+		let faces = this.faces;
+		let textures = this.textures;
+		let tver = this.tvertices;
+		let alpha = this.main.alpha;
+		let offset = [];
+		let norm, face, idx, tidx, out;
 
 		// Setup mesh slot array
 		for (i = 0, count = textures.length; i < count; ++i) {
@@ -1188,7 +1190,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return RSM;
-});
+	export default RSM;

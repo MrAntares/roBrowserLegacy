@@ -8,10 +8,11 @@
  * @created MrUnzO
  */
 
-define(['./WeaponType'], function (WeaponType) {
-	'use strict';
+'use strict';
 
-	var WeaponTrail = {};
+import WeaponType from './WeaponType';
+
+var WeaponTrail = {};
 
 	WeaponTrail[WeaponType.NONE] = '';
 	WeaponTrail[WeaponType.SHORTSWORD] = '_\xb4\xdc\xb0\xcb_\xb0\xcb\xb1\xa4'; //_´Ü°Ë_°Ë±¤ - dagger_trail
@@ -44,5 +45,4 @@ define(['./WeaponType'], function (WeaponType) {
 	WeaponTrail[WeaponType.SHORTSWORD_AXE] = '_\xb4\xdc\xb0\xcb\x5f\xb5\xb5\xb3\xa2_\xb0\xcb\xb1\xa4';
 	WeaponTrail[WeaponType.SWORD_AXE] = '_\xb0\xcb\x5f\xb5\xb5\xb3\xa2_\xb0\xcb\xb1\xa4';
 
-	return WeaponTrail;
-});
+export default WeaponTrail;

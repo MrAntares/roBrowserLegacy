@@ -7,30 +7,26 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var htmlText = require('text!./CaptchaUpload.html');
-	var cssText = require('text!./CaptchaUpload.css');
+import jQuery from 'Utils/jquery';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import htmlText from './CaptchaUpload.html?raw';
+import cssText from './CaptchaUpload.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var CaptchaUpload = new UIComponent('CaptchaUpload', htmlText, cssText);
+	let CaptchaUpload = new UIComponent('CaptchaUpload', htmlText, cssText);
 
 	/**
 	 * Preferences
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'CaptchaUpload',
 		{
 			x: 230,
@@ -43,7 +39,7 @@ define(function (require) {
 	 * Initialize GUI
 	 */
 	CaptchaUpload.init = function Init() {
-		var selfCaptchaUpload = this;
+		let selfCaptchaUpload = this;
 		this.ui.find('.close').click(this.remove.bind(this));
 		this.draggable('.titlebar');
 
@@ -54,15 +50,15 @@ define(function (require) {
 
 		// File Input Change
 		this.ui.find('#captcha_file_input').change(function (evt) {
-			var file = evt.target.files[0];
+			let file = evt.target.files[0];
 			if (file) {
 				// show the file name in the input
 				selfCaptchaUpload.ui.find('#captcha_file_text').val(file.name);
 
 				// show the image in the preview box
-				var reader = new FileReader();
+				let reader = new FileReader();
 				reader.onload = function (e) {
-					var img = jQuery('<img/>').attr('src', e.target.result);
+					let img = jQuery('<img/>').attr('src', e.target.result);
 					selfCaptchaUpload.ui.find('.preview_box').empty().append(img);
 				};
 				reader.readAsDataURL(file);
@@ -162,5 +158,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(CaptchaUpload);
-});
+export default UIManager.addComponent(CaptchaUpload);

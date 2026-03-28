@@ -7,23 +7,21 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import glMatrix from 'Utils/gl-matrix';
+import Camera from 'Renderer/Camera';
+import Client from 'Core/Client';
+import StatusConst from 'DB/Status/StatusState';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Ground from 'Renderer/Map/Ground';
+import Altitude from 'Renderer/Map/Altitude';
+import Session from 'Engine/SessionStorage';
+import JobId from 'DB/Jobs/JobConst';
+
+/**
 	 * Load dependencies
 	 */
-	var glMatrix = require('Utils/gl-matrix');
-	var Camera = require('Renderer/Camera');
-	var Client = require('Core/Client');
-	var StatusConst = require('DB/Status/StatusState');
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Ground = require('Renderer/Map/Ground');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Session = require('Engine/SessionStorage');
-	var JobId = require('DB/Jobs/JobConst');
-
 	// Official client uses: floor(dist * 0.37 * 4 / motionSpeed) % motionCount
 	// where dist is in the client's internal move units (not map-cell units).
 	// In roBrowser, `entity.walk.dist` is accumulated in *map cells*.
@@ -58,7 +56,7 @@ define(function (require) {
 		// Render it only if visible
 		if (this.effectColor[3]) {
 			this.renderEntity();
-			this.attachments.render(Renderer.tick);
+			this.attachments.render(Date.now());
 		}
 
 		// Update character UI (life, dialog, etc.)
@@ -72,11 +70,11 @@ define(function (require) {
 	 * @param {mat4} modelView
 	 * @param {mat4} projection
 	 */
-	var renderGUI = (function renderGUIClosure() {
-		var mat4 = glMatrix.mat4;
-		var vec4 = glMatrix.vec4;
-		var _matrix = mat4.create();
-		var _vector = vec4.create();
+	let renderGUI = (function renderGUIClosure() {
+		let mat4 = glMatrix.mat4;
+		let vec4 = glMatrix.vec4;
+		let _matrix = mat4.create();
+		let _vector = vec4.create();
 
 		return function renderGUI(entity, modelView, projection) {
 			// Move to camera
@@ -140,11 +138,11 @@ define(function (require) {
 	 * @param {Entity}
 	 * @param {mat4}
 	 */
-	var calculateBoundingRect = (function calculateBoundingRectClosure() {
-		var vec4 = glMatrix.vec4;
-		var size = glMatrix.vec2.create();
-		var vector = vec4.create();
-		var out = vec4.create();
+	let calculateBoundingRect = (function calculateBoundingRectClosure() {
+		let vec4 = glMatrix.vec4;
+		let size = glMatrix.vec2.create();
+		let vector = vec4.create();
+		let out = vec4.create();
 
 		function projectPoint(x, y, matrix) {
 			vector[0] = x;
@@ -160,14 +158,14 @@ define(function (require) {
 		}
 
 		return function calculateBoundingRect(entity, matrix) {
-			var minSize, fx, fy;
-			var tmp, rect;
+			let minSize, fx, fy;
+			let tmp, rect;
 
 			fx = entity.xSize / 175;
 			fy = entity.ySize / 175;
 
-			size[0] = Renderer.width * 0.5;
-			size[1] = Renderer.height * 0.5;
+			size[0] = window.innerWidth * 0.5;
+			size[1] = window.innerHeight * 0.5;
 
 			rect = entity.boundingRect;
 			minSize = entity.objecttype === entity.constructor.TYPE_ITEM ? 30 : 60;
@@ -213,8 +211,8 @@ define(function (require) {
 	/**
 	 * Render Entity
 	 */
-	var renderEntity = (function renderEntityClosure() {
-		var _position = new Int32Array(2);
+	let renderEntity = (function renderEntityClosure() {
+		let _position = new Int32Array(2);
 
 		return function renderEntity() {
 			if (this.hideEntity) {
@@ -225,21 +223,21 @@ define(function (require) {
 			SpriteRenderer.shadow = Ground.getShadowFactor(this.position[0], this.position[1]);
 			SpriteRenderer.zIndex = 1;
 
-			var animation = this.animation;
-			var Entity = this.constructor;
+			let animation = this.animation;
+			let Entity = this.constructor;
 			_position[0] = 0;
 			_position[1] = 0;
 
 			// Animation change ! Get it now
-			if (animation.save && animation.delay < Renderer.tick) {
+			if (animation.save && animation.delay < Date.now()) {
 				this.setAction(animation.save);
 			}
 
 			// Avoid look up, render as IDLE all not supported frames
-			var action = this.action < 0 ? this.ACTION.IDLE : this.action;
-			var direction = (Camera.direction + this.direction + 8) % 8;
-			var behind = direction > 1 && direction < 6;
-			var self = this;
+			let action = this.action < 0 ? this.ACTION.IDLE : this.action;
+			let direction = (Camera.direction + this.direction + 8) % 8;
+			let behind = direction > 1 && direction < 6;
+			let self = this;
 
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45 && !this.hideShadow) {
@@ -257,7 +255,7 @@ define(function (require) {
 
 			SpriteRenderer.position.set(self.position);
 			// Render attachments that should appear behind the entity first
-			this.attachments.renderBefore(Renderer.tick);
+			this.attachments.renderBefore(Date.now());
 			SpriteRenderer.zIndex = 1;
 
 			// ------------------------------------------------------------------
@@ -282,9 +280,9 @@ define(function (require) {
 					// depthWrite = allow entity to occlude others
 					// depthCorrection ENABLED (required for isometric depth)
 					SpriteRenderer.runWithDepth(true, true, false, function () {
-						var cartidx;
+						let cartidx;
 						// madogear don't appear costumes
-						var RIDING_STATUS =
+						let RIDING_STATUS =
 							self.effectState &
 								(StatusConst.EffectState.RIDING |
 									StatusConst.EffectState.DRAGON1 |
@@ -296,8 +294,8 @@ define(function (require) {
 
 						function robeCorrection(lookingFront) {
 							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
-								var HEAD_SIZE = 64;
-								var COMPENSATION = 25;
+								let HEAD_SIZE = 64;
+								let COMPENSATION = 25;
 								if (
 									self.robeHeight +
 										(self.action === self.ACTION.SIT
@@ -369,7 +367,7 @@ define(function (require) {
 						renderElement(self, self.files.body, 'body', _position, true);
 
 						// Isometric Projection Body Offset
-						var bodyZOffset = 250;
+						let bodyZOffset = 250;
 						if (RIDING_STATUS) {
 							bodyZOffset *= 2;
 							if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) {
@@ -474,11 +472,11 @@ define(function (require) {
 	 * @param {vec2}   position (reference)
 	 * @param {boolean} is_main - true if it's the main element (body)
 	 */
-	var renderElement = (function renderElementClosure() {
-		var _position = new Int32Array(2);
+	let renderElement = (function renderElementClosure() {
+		let _position = new Int32Array(2);
 
 		return function renderElement(entity, files, type, position, is_main) {
-			var isBlendModeOne = false;
+			let isBlendModeOne = false;
 
 			// Nothing to render
 			if (typeof files === 'undefined' || !files.spr || !files.act) {
@@ -486,8 +484,8 @@ define(function (require) {
 			}
 
 			// Get back sprite and act
-			var spr = Client.loadFile(files.spr);
-			var act = Client.loadFile(files.act);
+			let spr = Client.loadFile(files.spr);
+			let act = Client.loadFile(files.act);
 
 			// Not loaded yet
 			if (!spr || !act) {
@@ -495,10 +493,10 @@ define(function (require) {
 			}
 
 			// If palette, load palette, else get back sprite palette
-			var pal = (files.pal && Client.loadFile(files.pal)) || spr;
+			let pal = (files.pal && Client.loadFile(files.pal)) || spr;
 
 			// Obtain animations from the action and direction.
-			var action =
+			let action =
 				act.actions[
 					(entity.action * 8 + // Action
 						((Camera.direction + entity.direction + 8) % 8)) % // Direction
@@ -506,9 +504,9 @@ define(function (require) {
 				]; // Avoid overflow on action (ex: if there is just one action)
 
 			// Find animation
-			var animation_id = calcAnimation(entity, action, type, Renderer.tick - entity.animation.tick);
-			var animation = action.animations[animation_id];
-			var layers = animation.layers;
+			let animation_id = calcAnimation(entity, action, type, Date.now() - entity.animation.tick);
+			let animation = action.animations[animation_id];
+			let layers = animation.layers;
 
 			// Play sound
 			if (animation.sound > -1) {
@@ -524,7 +522,7 @@ define(function (require) {
 			}
 
 			if (type === 'cart' || type === 'cartshadow') {
-				var direction = (Camera.direction + entity.direction + 8) % 8;
+				let direction = (Camera.direction + entity.direction + 8) % 8;
 
 				switch (direction) {
 					case 0:
@@ -624,16 +622,16 @@ define(function (require) {
 		}
 
 		// To avoid look up
-		var ACTION = entity.ACTION;
-		var action = entity.action;
-		var animation = entity.animation;
-		var animCount = act.animations.length;
-		var animSize = animCount;
-		var animLastIndex = animSize - 1;
-		var isIdle = action === ACTION.IDLE || action === ACTION.SIT;
-		var delay = getAnimationDelay(type, entity, act);
-		var headDir = 0;
-		var anim = 0;
+		let ACTION = entity.ACTION;
+		let action = entity.action;
+		let animation = entity.animation;
+		let animCount = act.animations.length;
+		let animSize = animCount;
+		let animLastIndex = animSize - 1;
+		let isIdle = action === ACTION.IDLE || action === ACTION.SIT;
+		let delay = getAnimationDelay(type, entity, act);
+		let headDir = 0;
+		let anim = 0;
 
 		//overrides
 		if (animation.length) {
@@ -686,7 +684,7 @@ define(function (require) {
 		// stepSize * 0.37 * 4 * 24, so we divide by act.delay (ms).
 		// Apply to all sprite parts so hats/weapons stay in phase with the body.
 		if (action === ACTION.WALK && entity.walk && entity.objecttype !== entity.constructor.TYPE_FALCON) {
-			var motionCount = animCount || 1;
+			let motionCount = animCount || 1;
 			if (animation.length) {
 				motionCount = animation.length;
 			}
@@ -694,12 +692,12 @@ define(function (require) {
 
 			// motionSpeed is the per-action delay from the .act file.
 			// Cache a shared walk phase per render tick so all parts stay in step.
-			var motionSpeed = Math.max(act.delay || 1, 1);
-			var phase;
-			var nowTick = Renderer.tick;
-			var havePhaseThisTick =
+			let motionSpeed = Math.max(act.delay || 1, 1);
+			let phase;
+			let nowTick = Date.now();
+			let havePhaseThisTick =
 				entity.walk._motionPhaseTick === nowTick && typeof entity.walk._motionPhase === 'number';
-			var isBodyPart = type === 'body';
+			let isBodyPart = type === 'body';
 
 			// Body is authoritative for motionSpeed; recompute when we render it.
 			if (!havePhaseThisTick || isBodyPart) {
@@ -710,7 +708,7 @@ define(function (require) {
 				phase = entity.walk._motionPhase;
 			}
 
-			var motion = Math.floor(phase);
+			let motion = Math.floor(phase);
 			motion %= motionCount;
 			motion += motionCount * headDir; // keep head dir offset handling consistent
 			motion += animation.frame;
@@ -741,7 +739,7 @@ define(function (require) {
 		anim += animation.frame; // previous frame
 		anim %= animSize; // avoid overflow
 
-		var lastFrame = animation.frame + animSize - 1;
+		let lastFrame = animation.frame + animSize - 1;
 
 		if (type === 'body' && anim >= lastFrame) {
 			animation.frame = anim = lastFrame;
@@ -775,8 +773,8 @@ define(function (require) {
 		SpriteRenderer.sprite = spr.frames[layer.index];
 		SpriteRenderer.palette = pal.palette;
 
-		var index = layer.index + 0;
-		var is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
+		let index = layer.index + 0;
+		let is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
 
 		if (!is_rgba) {
 			SpriteRenderer.image.palette = pal.texture;
@@ -794,9 +792,9 @@ define(function (require) {
 			return;
 		}
 
-		var frame = spr.frames[index];
-		var width = frame.width;
-		var height = frame.height;
+		let frame = spr.frames[index];
+		let width = frame.width;
+		let height = frame.height;
 
 		// Apply the scale
 		width *= layer.scale[0] * size;
@@ -804,8 +802,8 @@ define(function (require) {
 
 		// Get the entity bounding rect
 		if (type === 'body') {
-			var w = (frame.originalWidth * layer.scale[0] * size) / 2;
-			var h = (frame.originalHeight * layer.scale[1] * size) / 2;
+			let w = (frame.originalWidth * layer.scale[0] * size) / 2;
+			let h = (frame.originalHeight * layer.scale[1] * size) / 2;
 
 			this.boundingRect.x1 = Math.min(this.boundingRect.x1, layer.pos[0] + pos[0] - w);
 			this.boundingRect.y1 = Math.max(this.boundingRect.y1, -(layer.pos[1] + pos[1]) + h);
@@ -838,7 +836,7 @@ define(function (require) {
 
 		// apply disapear
 		if (this.remove_tick) {
-			SpriteRenderer.color[3] *= 1 - (Renderer.tick - this.remove_tick) / this.remove_delay;
+			SpriteRenderer.color[3] *= 1 - (Date.now() - this.remove_tick) / this.remove_delay;
 		}
 
 		// Store shader info
@@ -856,11 +854,10 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return function Init() {
+	export default function Init() {
 		this.render = render;
 		this.renderLayer = renderLayer;
 		this.renderEntity = renderEntity;
 	};
-});

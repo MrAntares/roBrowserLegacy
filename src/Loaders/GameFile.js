@@ -7,15 +7,13 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflate', 'Utils/CodepageManager'], function (
-	GameFileDecrypt,
-	BinaryReader,
-	Struct,
-	Inflate,
-	TextEncoding
-) {
-	'use strict';
+import GameFileDecrypt from './GameFileDecrypt';
+import BinaryReader from 'Utils/BinaryReader';
+import Struct from 'Utils/Struct';
+import Inflate from 'Utils/Inflate';
+import TextEncoding from 'Utils/CodepageManager';
 
 	/**
 	 * GRF Constructor
@@ -31,11 +29,8 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	/**
 	 * @var {File System} Nodejs
 	 */
-	var fs = self.requireNode && self.requireNode('fs');
+	let fs = self.requireNode && self.requireNode('fs');
 
-	/**
-	 * GRF Constants
-	 */
 	/**
 	 * GRF Constants
 	 */
@@ -51,7 +46,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	/**
 	 * Extensions that should skip full encryption (only header encryption)
 	 */
-	var SKIP_EXTENSIONS = /\.(gnd|gat|act|str)$/i;
+	let SKIP_EXTENSIONS = /\.(gnd|gat|act|str)$/i;
 
 	/**
 	 * GRF Structures
@@ -94,18 +89,18 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		this.reader = new FileReaderSync();
 
 		// Local object
-		var buffer, fp;
-		var header, entries, table;
-		var reader = this.reader;
-		var data, out;
-		var i, count;
+		let buffer, fp;
+		let header, entries, table;
+		let reader = this.reader;
+		let data, out;
+		let i, count;
 
 		// Helper
 		file.slice = file.slice || file.webkitSlice || file.mozSlice;
 		reader.load = function (start, len) {
 			// node.js
 			if (fs && file.fd) {
-				var buf = new Buffer(len);
+				let buf = new Buffer(len);
 				fs.readSync(file.fd, buf, 0, len, start);
 				return new Uint8Array(buf).buffer;
 			}
@@ -124,7 +119,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 		header = fp.readStruct(GRF.struct_header);
 
 		header.signature = String.fromCharCode.apply(null, header.signature);
-		var nullPos = header.signature.indexOf('\0');
+		let nullPos = header.signature.indexOf('\0');
 		if (nullPos !== -1) {
 			header.signature = header.signature.substr(0, nullPos);
 		}
@@ -167,7 +162,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 
 		// Load Table Info
 		// 0x300 has a unknown Int32 field before the fileTable
-		var table_offset = header.file_table_offset + GRF.struct_header.size;
+		let table_offset = header.file_table_offset + GRF.struct_header.size;
 		if (header.version === GRF.VERSION_300) {
 			table_offset += 4;
 		}
@@ -213,8 +208,8 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	 */
 	function loadEntries(out, count, version) {
 		// Read all entries
-		var i, pos, start, end;
-		var entries = new Array(count);
+		let i, pos, start, end;
+		let entries = new Array(count);
 
 		for (i = 0, pos = 0; i < count; ++i) {
 			start = pos;
@@ -252,10 +247,10 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	 * @param {function} callback
 	 */
 	GRF.prototype.decodeEntry = function DecodeEntry(buffer, entry, callback) {
-		var out;
-		var data = new Uint8Array(buffer);
-		var isEncrypted = entry.type !== GRF.FILELIST_TYPE_FILE;
-		var handled = false;
+		let out;
+		let data = new Uint8Array(buffer);
+		let isEncrypted = entry.type !== GRF.FILELIST_TYPE_FILE;
+		let handled = false;
 
 		// Decode the file
 		if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_MIXED) {
@@ -309,9 +304,9 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	 */
 	GRF.prototype.getFile = function getFile(filename, callback) {
 		// Not case sensitive...
-		var path = filename.toLowerCase();
-		var entry, blob;
-		var reader;
+		let path = filename.toLowerCase();
+		let entry, blob;
+		let reader;
 
 		entry = this.search(path);
 
@@ -324,7 +319,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 
 			// node.js
 			if (fs && this.file.fd) {
-				var buffer = new Buffer(entry.length_aligned);
+				let buffer = new Buffer(entry.length_aligned);
 				fs.readSync(this.file.fd, buffer, 0, entry.length_aligned, entry.offset + GRF.struct_header.size);
 				this.decodeEntry(new Uint8Array(buffer).buffer, entry, callback);
 				return true;
@@ -337,7 +332,7 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 
 			// Load into memory
 			if (self.FileReader) {
-				var grf = this;
+				let grf = this;
 
 				reader = new FileReader();
 				reader.onload = function () {
@@ -359,7 +354,6 @@ define(['./GameFileDecrypt', 'Utils/BinaryReader', 'Utils/Struct', 'Utils/Inflat
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return GRF;
-});
+	export default GRF;

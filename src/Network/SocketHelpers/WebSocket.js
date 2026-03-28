@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
 	/**
 	 * HTML5 WebSocket System
@@ -85,5 +84,4 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return Socket;
-});
+	export default Socket;

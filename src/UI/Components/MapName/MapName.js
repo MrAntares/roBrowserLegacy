@@ -7,24 +7,20 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./MapName.html');
-	var cssText = require('text!./MapName.css');
-	var Client = require('Core/Client');
-	var Events = require('Core/Events');
+import DB from 'DB/DBManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './MapName.html?raw';
+import cssText from './MapName.css?raw';
+import Client from 'Core/Client';
+import Events from 'Core/Events';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var MapName = new UIComponent('MapName', htmlText, cssText);
+	let MapName = new UIComponent('MapName', htmlText, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -34,14 +30,14 @@ define(function (require) {
 	/**
 	 * @var {array} _mapinfo
 	 */
-	var _mapinfo = [];
+	let _mapinfo = [];
 
 	/**
 	 * Previous map check vars
 	 */
-	var _currMap = '';
-	var _prevMap = '';
-	var _newMap = false;
+	let _currMap = '';
+	let _prevMap = '';
+	let _newMap = false;
 
 	/**
 	 * Initialize UI
@@ -58,11 +54,11 @@ define(function (require) {
 				opacity: 1
 			});
 
-			var fadeTime = 1000;
-			var fadeCycle = 20;
-			var removeTime = 5000;
-			var fadeProgress = 0;
-			var fadeTimeout = null;
+			let fadeTime = 1000;
+			let fadeCycle = 20;
+			let removeTime = 5000;
+			let fadeProgress = 0;
+			let fadeTimeout = null;
 
 			function fade() {
 				fadeProgress += fadeCycle;
@@ -94,6 +90,9 @@ define(function (require) {
 	 * @param {string} mapname
 	 */
 	MapName.setMap = function setMap(mapname) {
+		if (!this.ui) {
+			this.prepare();
+		}
 		_prevMap = _currMap;
 		_currMap = mapname;
 		_newMap = _currMap !== _prevMap;
@@ -115,14 +114,14 @@ define(function (require) {
 			MapName.ui.find('.mapbg').css('backgroundImage', 'none');
 		}
 
-		var mapsubtitle = MapName.ui.find('.mapsubtitle');
+		let mapsubtitle = MapName.ui.find('.mapsubtitle');
 		if (_mapinfo && _mapinfo.signName && _mapinfo.signName.subTitle) {
 			mapsubtitle.text(_mapinfo.signName.subTitle);
 		} else {
 			mapsubtitle.empty();
 		}
 
-		var maptitle = MapName.ui.find('.maptitle');
+		let maptitle = MapName.ui.find('.maptitle');
 		if (_mapinfo && _mapinfo.signName && _mapinfo.signName.mainTitle) {
 			maptitle.text(_mapinfo.signName.mainTitle);
 		} else {
@@ -134,8 +133,11 @@ define(function (require) {
 	 * Remove MapName from window (and so clean up items)
 	 */
 	MapName.onRemove = function OnRemove() {
-		var maptitle = MapName.ui.find('.maptitle');
-		var mapsubtitle = MapName.ui.find('.mapsubtitle');
+		if (!this.ui) {
+			return;
+		}
+		let maptitle = MapName.ui.find('.maptitle');
+		let mapsubtitle = MapName.ui.find('.mapsubtitle');
 
 		// Clean up
 		MapName.ui.find('.mapbg').css('backgroundImage', 'none');
@@ -157,5 +159,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(MapName);
-});
+export default UIManager.addComponent(MapName);

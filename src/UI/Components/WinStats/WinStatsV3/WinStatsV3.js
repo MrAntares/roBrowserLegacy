@@ -7,32 +7,27 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var UIComponent = require('UI/UIComponent');
-	var UIManager = require('UI/UIManager');
-	var Session = require('Engine/SessionStorage');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import UIComponent from 'UI/UIComponent';
+import UIManager from 'UI/UIManager';
+import Session from 'Engine/SessionStorage';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import htmlText from './WinStatsV3.html?raw';
+import cssText from './WinStatsV3.css?raw';
 
-	var htmlText = require('text!./WinStatsV3.html');
-	var cssText = require('text!./WinStatsV3.css');
-
-	/**
+/**
 	 * Create component
 	 */
-	var WinStatsV3 = new UIComponent('WinStatsV3', htmlText, cssText);
+	let WinStatsV3 = new UIComponent('WinStatsV3', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'WinStatsV3',
 		{
 			x: 0,
@@ -116,7 +111,7 @@ define(function (require) {
 	 * Execute elements in memory
 	 */
 	WinStatsV3.onAppend = function onAppend() {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = this.stack.length; i < count; ++i) {
 			this.update.apply(this, this.stack[i]);
@@ -142,7 +137,7 @@ define(function (require) {
 	 * @param {number} val2 (optional)
 	 */
 	WinStatsV3.update = function update(type, val) {
-		var str;
+		let str;
 
 		if (!this.__loaded) {
 			this.stack.push(arguments);
@@ -269,9 +264,9 @@ define(function (require) {
 	 * Display or not status window
 	 */
 	function toggleTraits() {
-		var status = WinStatsV3.ui.find('.traits_component');
-		var self = WinStatsV3.ui.find('.view_traits');
-		var state = status.is(':visible') ? 'on' : 'off';
+		let status = WinStatsV3.ui.find('.traits_component');
+		let self = WinStatsV3.ui.find('.view_traits');
+		let state = status.is(':visible') ? 'on' : 'off';
 
 		status.toggle();
 
@@ -322,6 +317,4 @@ define(function (require) {
 	 * Abstract method to define
 	 */
 	WinStatsV3.onRequestUpdate = function onRequestUpdate(/*id, amount*/) {};
-
-	return UIManager.addComponent(WinStatsV3);
-});
+export default UIManager.addComponent(WinStatsV3);

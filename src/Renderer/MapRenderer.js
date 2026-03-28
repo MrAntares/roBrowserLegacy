@@ -7,59 +7,52 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
 
-	/**
-	 * Load dependencies
-	 */
-	const getModule = require;
-	var Thread = require('Core/Thread');
-	var SoundManager = require('Audio/SoundManager');
-	var BGM = require('Audio/BGM');
-	var DB = require('DB/DBManager');
-	var UIManager = require('UI/UIManager');
-	var Background = require('UI/Background');
-	var Cursor = require('UI/CursorManager');
-	var Session = require('Engine/SessionStorage');
-	var MemoryManager = require('Core/MemoryManager');
-	var Mouse = require('Controls/MouseEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var EntityManager = require('Renderer/EntityManager');
-	var GridSelector = require('Renderer/Map/GridSelector');
-	var Ground = require('Renderer/Map/Ground');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Water = require('Renderer/Map/Water');
-	var Models = require('Renderer/Map/Models');
-	var AnimatedModels = require('Renderer/Map/AnimatedModels');
-	var Sounds = require('Renderer/Map/Sounds');
-	var Effects = require('Renderer/Map/Effects');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var EffectManager = require('Renderer/EffectManager');
-	var SignboardManager = require('Renderer/SignboardManager');
-	var ScreenEffectManager = require('Renderer/ScreenEffectManager');
-	var Sky = require('Renderer/Effects/Sky');
-	var Damage = require('Renderer/Effects/Damage');
-	var GraphicsSettings = require('Preferences/Graphics');
-	var MapPreferences = require('Preferences/Map');
-	const glMatrix = require('Utils/gl-matrix');
-	const PACKETVER = require('Network/PacketVerManager');
-	var JoystickUI = require('UI/Components/JoystickUI/JoystickUI');
+import Thread from 'Core/Thread';
+import SoundManager from 'Audio/SoundManager';
+import BGM from 'Audio/BGM';
+import DB from 'DB/DBManager';
+import UIManager from 'UI/UIManager';
+import Background from 'UI/Background';
+import Cursor from 'UI/CursorManager';
+import Session from 'Engine/SessionStorage';
+import MemoryManager from 'Core/MemoryManager';
+import Mouse from 'Controls/MouseEventHandler';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import EntityManager from 'Renderer/EntityManager';
+import GridSelector from 'Renderer/Map/GridSelector';
+import Ground from 'Renderer/Map/Ground';
+import Altitude from 'Renderer/Map/Altitude';
+import Water from 'Renderer/Map/Water';
+import Models from 'Renderer/Map/Models';
+import AnimatedModels from 'Renderer/Map/AnimatedModels';
+import Sounds from 'Renderer/Map/Sounds';
+import Effects from 'Renderer/Map/Effects';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import EffectManager from 'Renderer/EffectManager';
+import SignboardManager from 'Renderer/SignboardManager';
+import ScreenEffectManager from 'Renderer/ScreenEffectManager';
+import Sky from 'Renderer/Effects/Sky';
+import Damage from 'Renderer/Effects/Damage';
+import GraphicsSettings from 'Preferences/Graphics';
+import MapPreferences from 'Preferences/Map';
+import glMatrix from 'Utils/gl-matrix';
+import PACKETVER from 'Network/PacketVerManager';
+import JoystickUI from 'UI/Components/JoystickUI/JoystickUI';
 
-	var PostProcess = require('Renderer/Effects/PostProcess');
-	var Bloom = require('Renderer/Effects/Shaders/Bloom');
-	var VerticalFlip = require('Renderer/Effects/Shaders/VerticalFlip');
-	var GaussianBlur = require('Renderer/Effects/Shaders/GaussianBlur');
-	var CAS = require('Renderer/Effects/Shaders/CAS');
-	var FXAA = require('Renderer/Effects/Shaders/FXAA');
-	var Vibrance = require('Renderer/Effects/Shaders/Vibrance');
-	var Cartoon = require('Renderer/Effects/Shaders/Cartoon');
-	var Blind = require('Renderer/Effects/Shaders/Blind');
+import PostProcess from 'Renderer/Effects/PostProcess';
+import Bloom from 'Renderer/Effects/Shaders/Bloom';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
+import GaussianBlur from 'Renderer/Effects/Shaders/GaussianBlur';
+import CAS from 'Renderer/Effects/Shaders/CAS';
+import FXAA from 'Renderer/Effects/Shaders/FXAA';
+import Vibrance from 'Renderer/Effects/Shaders/Vibrance';
+import Cartoon from 'Renderer/Effects/Shaders/Cartoon';
+import Blind from 'Renderer/Effects/Shaders/Blind';
 
-	var Upsampling = require('Renderer/Effects/Shaders/Upsampling');
-
-	var WebGL = require('Utils/WebGL');
+import Upsampling from 'Renderer/Effects/Shaders/Upsampling';
+import WebGL from 'Utils/WebGL';
 
 	const mat4 = glMatrix.mat4;
 
@@ -507,5 +500,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return MapRenderer;
-});
+	export default MapRenderer;

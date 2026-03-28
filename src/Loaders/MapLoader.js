@@ -8,10 +8,11 @@
  * @author Vincent Thibault
  */
 
-define(['Core/FileManager'], function (FileManager) {
-	'use strict';
+'use strict';
 
-	/**
+import FileManager from 'Core/FileManager';
+
+/**
 	 * Helper to load list
 	 *
 	 * @param {array} file list to load
@@ -40,7 +41,7 @@ define(['Core/FileManager'], function (FileManager) {
 	 * Start to load the list
 	 */
 	Loader.prototype.start = function start() {
-		var i;
+		let i;
 		this.offset = 0;
 
 		// No files...
@@ -65,7 +66,7 @@ define(['Core/FileManager'], function (FileManager) {
 			return;
 		}
 
-		var filename = this.list.shift();
+		let filename = this.list.shift();
 		FileManager.load(
 			filename,
 			function (data) {
@@ -132,7 +133,7 @@ define(['Core/FileManager'], function (FileManager) {
 	 * @param {number} percent
 	 */
 	MapLoader.prototype.setProgress = function setProgress(percent) {
-		var progress = Math.min(100, Math.floor(percent));
+		let progress = Math.min(100, Math.floor(percent));
 
 		if (progress !== this.progress) {
 			if (this.onprogress) {
@@ -151,8 +152,8 @@ define(['Core/FileManager'], function (FileManager) {
 		// Initialize the loading
 		this.setProgress(0);
 
-		var loader = this;
-		var world;
+		let loader = this;
+		let world;
 
 		//  Get file path (if it's a copy of a file)
 		function getFilePath(path) {
@@ -203,7 +204,7 @@ define(['Core/FileManager'], function (FileManager) {
 			if (ground && ground.version >= 1.8) {
 				world.water = ground.water;
 			}
-			var compiledGround = ground.compile(world.water.level, world.water.waveHeight);
+			let compiledGround = ground.compile(world.water.level, world.water.waveHeight);
 
 			// Just to approximate, guess we have 2 textures for each models
 			// To get a more linear loading
@@ -239,12 +240,12 @@ define(['Core/FileManager'], function (FileManager) {
 	 * @param {function} callback
 	 */
 	MapLoader.prototype.loadGroundTextures = function LoadGroundTextures(world, ground, callback) {
-		var i, count;
-		var textures = [];
+		let i, count;
+		let textures = [];
 
 		// Get water textures
 		if (ground.waterVertCount) {
-			var path = 'data\\texture\\\xbf\xf6\xc5\xcd/water' + world.water.type;
+			let path = 'data\\texture\\\xbf\xf6\xc5\xcd/water' + world.water.type;
 			for (i = 0; i < 32; ++i) {
 				textures.push(path + (i < 10 ? '0' + i : i) + '.jpg');
 			}
@@ -256,7 +257,7 @@ define(['Core/FileManager'], function (FileManager) {
 		}
 
 		// Start loading
-		var loader = new Loader(textures);
+		let loader = new Loader(textures);
 
 		// On progress
 		loader.onprogress = function OnProgress() {
@@ -280,8 +281,8 @@ define(['Core/FileManager'], function (FileManager) {
 	 * @returns {object} compiled mesh
 	 */
 	MapLoader.prototype.loadModels = function LoadModels(models, ground) {
-		var i, count;
-		var files = [];
+		let i, count;
+		let files = [];
 
 		// Get a list of files to load
 		for (i = 0, count = models.length; i < count; ++i) {
@@ -292,7 +293,7 @@ define(['Core/FileManager'], function (FileManager) {
 			}
 		}
 
-		var loader = new Loader(files);
+		let loader = new Loader(files);
 
 		// Update the progressbar
 		loader.onprogress = function () {
@@ -301,7 +302,7 @@ define(['Core/FileManager'], function (FileManager) {
 
 		// Start creating instances
 		loader.onload = function (objects, filenames) {
-			var i, count, pos;
+			let i, count, pos;
 
 			for (i = 0, count = models.length; i < count; ++i) {
 				pos = filenames.indexOf(models[i].filename);
@@ -335,12 +336,12 @@ define(['Core/FileManager'], function (FileManager) {
 	 * @param {Array} objects list
 	 */
 	MapLoader.prototype.compileModels = function CompileModels(objects) {
-		var i, j, count, size, bufferSize;
-		var object, nodes, meshes;
-		var index;
-		var progress = this.progress;
-		var models = [];
-		var animatedModels = [];
+		let i, j, count, size, bufferSize;
+		let object, nodes, meshes;
+		let index;
+		let progress = this.progress;
+		let models = [];
+		let animatedModels = [];
 
 		bufferSize = 0;
 
@@ -389,7 +390,7 @@ define(['Core/FileManager'], function (FileManager) {
 	 * @return {number}
 	 */
 	function SortMeshByTextures(a, b) {
-		var reg_tga = /\.tga$/i;
+		let reg_tga = /\.tga$/i;
 
 		if (a.texture.match(reg_tga)) {
 			return 1;
@@ -421,14 +422,14 @@ define(['Core/FileManager'], function (FileManager) {
 	 * @param {number} BufferSize
 	 */
 	MapLoader.prototype.mergeMeshes = function MergeMeshes(objects, bufferSize) {
-		var i, j, count, size, offset;
-		var object, texture;
-		var textures = [],
+		let i, j, count, size, offset;
+		let object, texture;
+		let textures = [],
 			infos = [];
-		var buffer;
+		let buffer;
 
-		var fcount = 1 / 9;
-		var progress = this.progress;
+		let fcount = 1 / 9;
+		let progress = this.progress;
 
 		// Create buffer where to concat meshes
 		buffer = new Float32Array(bufferSize);
@@ -466,7 +467,7 @@ define(['Core/FileManager'], function (FileManager) {
 		}
 
 		// Load texture
-		var loader = new Loader(textures);
+		let loader = new Loader(textures);
 
 		// On Progress
 		loader.onprogress = function (index, count) {
@@ -476,7 +477,7 @@ define(['Core/FileManager'], function (FileManager) {
 		// Once texture loaded, push the textures
 		// in the resulted mesh, and send it back
 		loader.onload = function (textures, filenames) {
-			var i, count, pos;
+			let i, count, pos;
 
 			for (i = 0, count = infos.length; i < count; ++i) {
 				pos = filenames.indexOf(infos[i].filename);
@@ -506,10 +507,10 @@ define(['Core/FileManager'], function (FileManager) {
 	 */
 	MapLoader.prototype.sendAnimatedModels = function SendAnimatedModels(animatedModels) {
 		for (var i = 0; i < animatedModels.length; i++) {
-			var model = animatedModels[i];
+			let model = animatedModels[i];
 
 			// Serialize model data for transfer
-			var modelData = {
+			let modelData = {
 				filename: model.filename,
 				animLen: model.animLen,
 				frameRatePerSecond: model.frameRatePerSecond || 30,
@@ -534,7 +535,7 @@ define(['Core/FileManager'], function (FileManager) {
 
 			// Serialize nodes
 			for (var k = 0; k < model.nodes.length; k++) {
-				var node = model.nodes[k];
+				let node = model.nodes[k];
 
 				modelData.nodes.push({
 					name: node.name,
@@ -561,7 +562,6 @@ define(['Core/FileManager'], function (FileManager) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return MapLoader;
-});
+	export default MapLoader;

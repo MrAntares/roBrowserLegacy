@@ -8,10 +8,11 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryReader'], function (BinaryReader) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+
+/**
 	 * Sprite Constructor
 	 *
 	 * @param {ArrayBuffer} data - optional data to work with
@@ -83,10 +84,10 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Parse SPR indexed images
 	 */
 	SPR.prototype.readIndexedImage = function readIndexedImage() {
-		var pal_count = this.indexed_count;
-		var fp = this.fp;
-		var i, width, height;
-		var frames = this.frames;
+		let pal_count = this.indexed_count;
+		let fp = this.fp;
+		let i, width, height;
+		let frames = this.frames;
 
 		for (i = 0; i < pal_count; ++i) {
 			width = fp.readUShort();
@@ -106,10 +107,10 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Parse SPR indexed images encoded with RLE
 	 */
 	SPR.prototype.readIndexedImageRLE = function readIndexedImageRLE() {
-		var pal_count = this.indexed_count;
-		var fp = this.fp;
-		var i, width, height, size, data, index, c, count, j, end;
-		var frames = this.frames;
+		let pal_count = this.indexed_count;
+		let fp = this.fp;
+		let i, width, height, size, data, index, c, count, j, end;
+		let frames = this.frames;
 
 		for (i = 0; i < pal_count; ++i) {
 			width = fp.readUShort();
@@ -148,11 +149,11 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Parse SPR rgba images
 	 */
 	SPR.prototype.readRgbaImage = function readRGBAImage() {
-		var rgba = this.rgba_count;
-		var index = this.rgba_index;
-		var fp = this.fp;
-		var frames = this.frames;
-		var i, width, height;
+		let rgba = this.rgba_count;
+		let index = this.rgba_index;
+		let fp = this.fp;
+		let frames = this.frames;
+		let i, width, height;
 
 		for (i = 0; i < rgba; ++i) {
 			width = fp.readShort();
@@ -181,7 +182,7 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * The exact byte layout depends on the chosen packing below.
 	 */
 	SPR.prototype.convert32bPal = function convert32bPal(pal, flip = false) {
-		var pal32 = new Uint32Array(256);
+		let pal32 = new Uint32Array(256);
 		for (let i = 0; i < 256; i++) {
 			let r = pal[i * 4 + 0];
 			let g = pal[i * 4 + 1];
@@ -206,10 +207,10 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * (why keep palette for hat/weapon/shield/monster ?)
 	 */
 	SPR.prototype.switchToRGBA = function switchToRGBA() {
-		var frames = this.frames,
+		let frames = this.frames,
 			pal = this.palette;
 		// Create a lookup table of Uint32 colors to speed up conversion
-		var pal32 = this.convert32bPal(pal, false);
+		let pal32 = this.convert32bPal(pal, false);
 		for (let i = 0; i < this.indexed_count; ++i) {
 			let frame = frames[i];
 			if (frame.type !== SPR.TYPE_PAL) {
@@ -260,9 +261,9 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * @return {HTMLElement} canvas
 	 */
 	SPR.prototype.getCanvasFromFrame = function getCanvasFromFrame(index) {
-		var canvas = document.createElement('canvas');
-		var ctx = canvas.getContext('2d');
-		var frame = this.frames[index];
+		let canvas = document.createElement('canvas');
+		let ctx = canvas.getContext('2d');
+		let frame = this.frames[index];
 
 		// Missing/empty frame?
 		if (!frame || frame.width <= 0 || frame.height <= 0) {
@@ -279,12 +280,12 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 			return canvas; // Return error image. Caller expects a canvas..
 		}
 
-		var width = (canvas.width = frame.width);
-		var height = (canvas.height = frame.height);
-		var imageData = ctx.createImageData(width, height);
+		let width = (canvas.width = frame.width);
+		let height = (canvas.height = frame.height);
+		let imageData = ctx.createImageData(width, height);
 
 		// Use a 32-bit view to write pixels to the ImageData buffer efficiently
-		var data32 = new Uint32Array(imageData.data.buffer);
+		let data32 = new Uint32Array(imageData.data.buffer);
 
 		// RGBA
 		if (frame.type === SPR.TYPE_RGBA) {
@@ -333,13 +334,13 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Compile a SPR file
 	 */
 	SPR.prototype.compile = function compile() {
-		var frames = this.frames;
-		var frame;
-		var i,
+		let frames = this.frames;
+		let frame;
+		let i,
 			count = frames.length;
-		var data, width, height, gl_width, gl_height, start_x, start_y;
-		var out;
-		var output = new Array(count);
+		let data, width, height, gl_width, gl_height, start_x, start_y;
+		let out;
+		let output = new Array(count);
 
 		for (i = 0; i < count; ++i) {
 			// Avoid look up
@@ -435,6 +436,4 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 			old_rgba_index: this._indexed_count
 		};
 	};
-
-	return SPR;
-});
+export default SPR;

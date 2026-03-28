@@ -7,34 +7,30 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var StatusConst = require('DB/Status/StatusState');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var ItemType = require('DB/Items/ItemType');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var UIVersionManager = require('UI/UIVersionManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var CartItems = require('UI/Components/CartItems/CartItems');
-	var WinStats = require('UI/Components/WinStats/WinStats');
-	var htmlText = require('text!./EquipmentV0.html');
-	var cssText = require('text!./EquipmentV0.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import StatusConst from 'DB/Status/StatusState';
+import EquipLocation from 'DB/Items/EquipmentLocation';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import ItemType from 'DB/Items/ItemType';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import UIVersionManager from 'UI/UIVersionManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import WinStats from 'UI/Components/WinStats/WinStats';
+import htmlText from './EquipmentV0.html?raw';
+import cssText from './EquipmentV0.css?raw';
+import Inventory from 'UI/Components/Inventory/Inventory';
 
 	/**
 	 * Create Component
@@ -315,8 +311,6 @@ define(function (require) {
 					.css('backgroundImage', 'url(' + data + ')');
 			}.bind(this)
 		);
-
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
 
 		if (!Inventory.getUI().equippedItems.includes(item.index)) {
 			Inventory.getUI().equippedItems.push(item.index);
@@ -704,5 +698,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(EquipmentV0);
-});
+	export default UIManager.addComponent(EquipmentV0);

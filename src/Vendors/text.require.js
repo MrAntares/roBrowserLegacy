@@ -8,10 +8,11 @@
   define, window, process, Packages,
   java, location, Components, FileUtils */
 
-define(['module'], function (module) {
-    'use strict';
+'use strict';
 
-    var text, fs, Cc, Ci, xpcIsWindows,
+import module from 'module';
+
+let text, fs, Cc, Ci, xpcIsWindows,
         progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
@@ -31,7 +32,7 @@ define(['module'], function (module) {
             //is an HTML document, only the part inside the body tag is returned.
             if (content) {
                 content = content.replace(xmlRegExp, "");
-                var matches = content.match(bodyRegExp);
+                let matches = content.match(bodyRegExp);
                 if (matches) {
                     content = matches[1];
                 }
@@ -54,7 +55,7 @@ define(['module'], function (module) {
 
         createXhr: masterConfig.createXhr || function () {
             //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
-            var xhr, i, progId;
+            let xhr, i, progId;
             if (typeof XMLHttpRequest !== "undefined") {
                 return new XMLHttpRequest();
             } else if (typeof ActiveXObject !== "undefined") {
@@ -83,7 +84,7 @@ define(['module'], function (module) {
          * where strip is a boolean.
          */
         parseName: function (name) {
-            var modName, ext, temp,
+            let modName, ext, temp,
                 strip = false,
                 index = name.indexOf("."),
                 isRelative = name.indexOf('./') === 0 ||
@@ -127,7 +128,7 @@ define(['module'], function (module) {
          * @returns Boolean
          */
         useXhr: function (url, protocol, hostname, port) {
-            var uProtocol, uHostName, uPort,
+            let uProtocol, uHostName, uPort,
                 match = text.xdRegExp.exec(url);
             if (!match) {
                 return true;
@@ -169,7 +170,7 @@ define(['module'], function (module) {
 
             masterConfig.isBuild = config.isBuild;
 
-            var parsed = text.parseName(name),
+            let parsed = text.parseName(name),
                 nonStripName = parsed.moduleName +
                     (parsed.ext ? '.' + parsed.ext : ''),
                 url = req.toUrl(nonStripName),
@@ -205,7 +206,7 @@ define(['module'], function (module) {
 
         write: function (pluginName, moduleName, write, config) {
             if (buildMap.hasOwnProperty(moduleName)) {
-                var content = text.jsEscape(buildMap[moduleName]);
+                let content = text.jsEscape(buildMap[moduleName]);
                 write.asModule(pluginName + "!" + moduleName,
                                "define(function () { return '" +
                                    content +
@@ -214,7 +215,7 @@ define(['module'], function (module) {
         },
 
         writeFile: function (pluginName, moduleName, req, write, config) {
-            var parsed = text.parseName(moduleName),
+            let parsed = text.parseName(moduleName),
                 extPart = parsed.ext ? '.' + parsed.ext : '',
                 nonStripName = parsed.moduleName + extPart,
                 //Use a '.js' file name so that it indicates it is a
@@ -228,7 +229,7 @@ define(['module'], function (module) {
                 //Use own write() method to construct full module value.
                 //But need to create shell that translates writeFile's
                 //write() to the right interface.
-                var textWrite = function (contents) {
+                let textWrite = function (contents) {
                     return write(fileName, contents);
                 };
                 textWrite.asModule = function (moduleName, contents) {
@@ -250,7 +251,7 @@ define(['module'], function (module) {
 
         text.get = function (url, callback, errback) {
             try {
-                var file = fs.readFileSync(url, 'utf8');
+                let file = fs.readFileSync(url, 'utf8');
                 //Remove BOM (Byte Mark Order) from utf8 files if it is there.
                 if (file.indexOf('\uFEFF') === 0) {
                     file = file.substring(1);
@@ -263,7 +264,7 @@ define(['module'], function (module) {
     } else if (masterConfig.env === 'xhr' || (!masterConfig.env &&
             text.createXhr())) {
         text.get = function (url, callback, errback, headers) {
-            var xhr = text.createXhr(), header;
+            let xhr = text.createXhr(), header;
             xhr.open('GET', url, true);
 
             //Allow plugins direct access to xhr headers
@@ -281,7 +282,7 @@ define(['module'], function (module) {
             }
 
             xhr.onreadystatechange = function (evt) {
-                var status, err;
+                let status, err;
                 //Do not explicitly handle errors, those should be
                 //visible via console output in the browser.
                 if (xhr.readyState === 4) {
@@ -306,7 +307,7 @@ define(['module'], function (module) {
             typeof Packages !== 'undefined' && typeof java !== 'undefined')) {
         //Why Java, why is this so awkward?
         text.get = function (url, callback) {
-            var stringBuffer, line,
+            let stringBuffer, line,
                 encoding = "utf-8",
                 file = new java.io.File(url),
                 lineSeparator = java.lang.System.getProperty("line.separator"),
@@ -353,7 +354,7 @@ define(['module'], function (module) {
         xpcIsWindows = ('@mozilla.org/windows-registry-key;1' in Cc);
 
         text.get = function (url, callback) {
-            var inStream, convertStream, fileObj,
+            let inStream, convertStream, fileObj,
                 readData = {};
 
             if (xpcIsWindows) {
@@ -382,5 +383,4 @@ define(['module'], function (module) {
             }
         };
     }
-    return text;
-});
+export default text;

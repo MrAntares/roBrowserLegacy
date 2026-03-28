@@ -8,20 +8,17 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'WinStats';
+import WinStats from './WinStats/WinStats';
+import WinStatsV1 from './WinStatsV1/WinStatsV1';
+import WinStatsV2 from './WinStatsV2/WinStatsV2';
+import WinStatsV3 from './WinStatsV3/WinStatsV3';
+import UIVersionManager from 'UI/UIVersionManager';
+import KEYS from 'Controls/KeyEventHandler';
 
-	var WinStats = require('./WinStats/WinStats');
-	var WinStatsV1 = require('./WinStatsV1/WinStatsV1');
-	var WinStatsV2 = require('./WinStatsV2/WinStatsV2');
-	var WinStatsV3 = require('./WinStatsV3/WinStatsV3');
-
-	var UIVersionManager = require('UI/UIVersionManager');
-	var KEYS = require('Controls/KeyEventHandler');
-
-	var versionInfo = {
+let publicName = 'WinStats';
+	let versionInfo = {
 		default: WinStats,
 		common: {
 			20200520: WinStatsV3,
@@ -32,14 +29,14 @@ define(function (require) {
 		prere: {}
 	};
 
-	var WinStatsController = UIVersionManager.getUIController(publicName, versionInfo);
-	var _selectUIVersion = WinStatsController.selectUIVersion;
+	let WinStatsController = UIVersionManager.getUIController(publicName, versionInfo);
+	let _selectUIVersion = WinStatsController.selectUIVersion;
 
 	// Extend default UI selector
 	WinStatsController.selectUIVersion = function () {
 		_selectUIVersion();
 
-		var component = WinStatsController.getUI();
+		let component = WinStatsController.getUI();
 
 		// Escape to close the UI
 		component.onKeyDown = function onKeyDown(e) {
@@ -50,6 +47,4 @@ define(function (require) {
 			}
 		};
 	};
-
-	return WinStatsController;
-});
+export default WinStatsController;

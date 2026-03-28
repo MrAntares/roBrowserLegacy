@@ -7,68 +7,65 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var EmoticonsDB = require('DB/Emotions');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var htmlText = require('text!./Emoticons.html');
-	var cssText = require('text!./Emoticons.css');
+import EmoticonsDB from 'DB/Emotions';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Entity from 'Renderer/Entity/Entity';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import htmlText from './Emoticons.html?raw';
+import cssText from './Emoticons.css?raw';
+import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var Emoticons = new UIComponent('Emoticons', htmlText, cssText);
+	let Emoticons = new UIComponent('Emoticons', htmlText, cssText);
 
 	/**
 	 * @var {number} page index
 	 */
-	var _page = 0;
+	let _page = 0;
 
 	/**
 	 * @var {number} emoticons per page
 	 */
-	var EMOTICONS_PER_PAGE = 30;
+	let EMOTICONS_PER_PAGE = 30;
 
 	/**
 	 * @var {number} total pages
 	 */
-	var TOTAL_PAGES = 0;
+	let TOTAL_PAGES = 0;
 
 	/**
 	 * @var {number} emoticons count
 	 */
-	var EMOTICONS_COUNT = Object.keys(EmoticonsDB.order).length;
+	let EMOTICONS_COUNT = Object.keys(EmoticonsDB.order).length;
 
 	/**
 	 * @var {object} emoticons action file
 	 */
-	var _action;
+	let _action;
 
 	/**
 	 * @var {object} emoticons sprite
 	 */
-	var _sprite;
+	let _sprite;
 
 	/**
 	 * @var {Entity} Helper to render sprites
 	 */
-	var _entity = new Entity();
+	let _entity = new Entity();
 
 	/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'Emoticons',
 		{
 			x: 600,
@@ -200,10 +197,8 @@ define(function (require) {
 	 * Display the command shortcut in the ShortCuts
 	 */
 	function onSelectEmoticon() {
-		var idx = this.getAttribute('data-index');
-		var cmd = EmoticonsDB.names[idx];
-		var ShortCuts = require('UI/Components/ShortCuts/ShortCuts');
-
+		let idx = this.getAttribute('data-index');
+		let cmd = EmoticonsDB.names[idx];
 		if (cmd && ShortCuts.ui.is(':visible')) {
 			if (ShortCuts.ui.find('.input_alt_focus').length) {
 				ShortCuts.ui
@@ -218,8 +213,8 @@ define(function (require) {
 	 * Do an emoticon
 	 */
 	function onPlayEmoticon() {
-		var idx = this.getAttribute('data-index');
-		var cmd = EmoticonsDB.names[idx];
+		let idx = this.getAttribute('data-index');
+		let cmd = EmoticonsDB.names[idx];
 
 		ChatBox.ui.find('.input .message').val('/' + cmd);
 		ChatBox.submit();
@@ -231,14 +226,14 @@ define(function (require) {
 	 * @param {jQuery object} content
 	 */
 	function refreshList(content) {
-		var canvas, ctx;
-		var animation, animations, layers;
-		var i, count;
+		let canvas, ctx;
+		let animation, animations, layers;
+		let i, count;
 
-		var index = EMOTICONS_PER_PAGE * _page;
-		var end = Math.min(EMOTICONS_COUNT, index + EMOTICONS_PER_PAGE);
-		var pos = [0, 0];
-		var emo;
+		let index = EMOTICONS_PER_PAGE * _page;
+		let end = Math.min(EMOTICONS_COUNT, index + EMOTICONS_PER_PAGE);
+		let pos = [0, 0];
+		let emo;
 
 		content.empty();
 
@@ -270,7 +265,6 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(Emoticons);
-});
+	export default UIManager.addComponent(Emoticons);

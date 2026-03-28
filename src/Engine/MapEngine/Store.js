@@ -7,25 +7,24 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import EntityManager from 'Renderer/EntityManager';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import NpcStore from 'UI/Components/NpcStore/NpcStore';
+import Vending from 'UI/Components/Vending/Vending';
+import VendingReport from 'UI/Components/VendingReport/VendingReport';
+import VendingShop from 'UI/Components/VendingShop/VendingShop';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var Session = require('Engine/SessionStorage');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var EntityManager = require('Renderer/EntityManager');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var NpcStore = require('UI/Components/NpcStore/NpcStore');
-	var Vending = require('UI/Components/Vending/Vending');
-	var VendingReport = require('UI/Components/VendingReport/VendingReport');
-	var VendingShop = require('UI/Components/VendingShop/VendingShop');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-
 	/**
 	 * Received items list to buy from cash npc
 	 *
@@ -36,14 +35,14 @@ define(function (require) {
 		NpcStore.setType(NpcStore.Type.CASH_SHOP);
 		NpcStore.setList(pkt.itemList);
 
-		var entity = Session.Entity;
+		let entity = Session.Entity;
 		NpcStore.ui.find('.cashuser .buyer').text(entity ? entity.display.name : '');
 		NpcStore.ui.find('.cashuser .cashpoints').text(pkt.KafraPoint);
 
 		NpcStore.onSubmit = function (itemList) {
 			// add prompt confirmation first later...
-			var i, count;
-			var pkt;
+			let i, count;
+			let pkt;
 
 			pkt = new PACKET.CZ.PC_BUY_CASH_POINT_ITEM();
 			count = itemList.length;
@@ -103,8 +102,8 @@ define(function (require) {
 		NpcStore.setType(NpcStore.Type.BUY);
 		NpcStore.setList(pkt.itemList);
 		NpcStore.onSubmit = function (itemList) {
-			var i, count;
-			var pkt;
+			let i, count;
+			let pkt;
 
 			pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST();
 			count = itemList.length;
@@ -130,8 +129,8 @@ define(function (require) {
 		NpcStore.setType(NpcStore.Type.BARTER_MARKET);
 		NpcStore.setList(pkt.itemList);
 		NpcStore.onSubmit = function (itemList) {
-			var i, count;
-			var pkt;
+			let i, count;
+			let pkt;
 
 			pkt = new PACKET.CZ.NPC_BARTER_MARKET_PURCHASE();
 			count = itemList.length;
@@ -161,8 +160,8 @@ define(function (require) {
 		NpcStore.setType(NpcStore.Type.BARTER_MARKET_EXTENDED);
 		NpcStore.setList(pkt.itemList);
 		NpcStore.onSubmit = function (itemList) {
-			var i, count;
-			var pkt;
+			let i, count;
+			let pkt;
 
 			pkt = new PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_PURCHASE();
 			count = itemList.length;
@@ -303,8 +302,8 @@ define(function (require) {
 		NpcStore.setType(NpcStore.Type.SELL);
 		NpcStore.setList(pkt.itemList);
 		NpcStore.onSubmit = function (itemList) {
-			var i, count;
-			var pkt;
+			let i, count;
+			let pkt;
 
 			pkt = new PACKET.CZ.PC_SELL_ITEMLIST();
 			count = itemList.length;
@@ -350,15 +349,15 @@ define(function (require) {
 		NpcStore.setList(_pkt.itemList);
 
 		// Get seller name
-		var entity = EntityManager.get(_pkt.AID);
+		let entity = EntityManager.get(_pkt.AID);
 		NpcStore.ui.find('.seller').text(entity ? entity.display.name : '');
 
 		// Bying items
 		NpcStore.onSubmit = function (itemList) {
 			NpcStore.remove();
 
-			var i, count;
-			var pkt;
+			let i, count;
+			let pkt;
 
 			if (_pkt instanceof PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3) {
 				pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC2();
@@ -396,15 +395,15 @@ define(function (require) {
 		NpcStore.setPriceLimit(_pkt.limitZeny);
 
 		// Get seller name
-		var entity = EntityManager.get(_pkt.AID);
+		let entity = EntityManager.get(_pkt.AID);
 		NpcStore.ui.find('.seller').text(entity ? entity.display.name : '');
 
 		// Bying items
 		NpcStore.onSubmit = function (itemList) {
 			NpcStore.remove();
 
-			var i, count;
-			var pkt;
+			let i, count;
+			let pkt;
 
 			pkt = new PACKET.CZ.REQ_TRADE_BUYING_STORE();
 			pkt.UniqueID = _pkt.UniqueID;
@@ -529,7 +528,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.PC_CASH_POINT_ITEMLIST, onBuyCashList);
 		Network.hookPacket(PACKET.ZC.PC_CASH_POINT_UPDATE, onBuyCashResult);
 		Network.hookPacket(PACKET.ZC.PC_PURCHASE_ITEMLIST, onBuyList);
@@ -559,4 +558,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO, onBarterBuyList);
 		Network.hookPacket(PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO, onExpandedBarterBuyList);
 	};
-});

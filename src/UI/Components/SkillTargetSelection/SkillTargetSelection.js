@@ -7,26 +7,22 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var SkillInfo = require('DB/Skills/SkillInfo');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Mouse = require('Controls/MouseEventHandler');
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var EntityManager = require('Renderer/EntityManager');
-	var Session = require('Engine/SessionStorage');
-	var Controls = require('Preferences/Controls');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Cursor = require('UI/CursorManager');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import KEYS from 'Controls/KeyEventHandler';
+import Mouse from 'Controls/MouseEventHandler';
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import Entity from 'Renderer/Entity/Entity';
+import EntityManager from 'Renderer/EntityManager';
+import Session from 'Engine/SessionStorage';
+import Controls from 'Preferences/Controls';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Cursor from 'UI/CursorManager';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 
 	/**
 	 * Create Announce component
@@ -421,7 +417,7 @@ define(function (require) {
 		if (Session.mapState.isPVP) {
 			if (
 				Session.hasParty &&
-				getModule('UI/Components/PartyFriends/PartyFriends').isGroupMember(entity.display.name)
+				PartyFriends.isGroupMember(entity.display.name)
 			) {
 				return false;
 			}
@@ -447,5 +443,4 @@ define(function (require) {
 	/**
 	 * Create component and return it
 	 */
-	return UIManager.addComponent(SkillTargetSelection);
-});
+	export default UIManager.addComponent(SkillTargetSelection);

@@ -6,18 +6,15 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'Quest';
+import Quest from './Quest/Quest';
+import QuestV1 from './QuestV1/QuestV1';
+import UIVersionManager from 'UI/UIVersionManager';
+import KEYS from 'Controls/KeyEventHandler';
 
-	var Quest = require('./Quest/Quest');
-	var QuestV1 = require('./QuestV1/QuestV1');
-
-	var UIVersionManager = require('UI/UIVersionManager');
-	var KEYS = require('Controls/KeyEventHandler');
-
-	var versionInfo = {
+let publicName = 'Quest';
+	let versionInfo = {
 		default: QuestV1,
 		common: {
 			20180307: Quest
@@ -26,14 +23,14 @@ define(function (require) {
 		prere: {}
 	};
 
-	var Controller = UIVersionManager.getUIController(publicName, versionInfo);
-	var _selectUIVersion = Controller.selectUIVersion;
+	let Controller = UIVersionManager.getUIController(publicName, versionInfo);
+	let _selectUIVersion = Controller.selectUIVersion;
 
 	// Extend default UI selector
 	Controller.selectUIVersion = function () {
 		_selectUIVersion();
 
-		var component = Controller.getUI();
+		let component = Controller.getUI();
 
 		// Escape to close the UI
 		component.onKeyDown = function onKeyDown(e) {
@@ -44,6 +41,4 @@ define(function (require) {
 			}
 		};
 	};
-
-	return Controller;
-});
+export default Controller;

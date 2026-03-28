@@ -7,9 +7,7 @@
  *
  * @author Vincent Thibault
  */
-
-define(function () {
-	'use strict';
+'use strict';
 
 	var Weather = {};
 
@@ -42,5 +40,5 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return Weather;
-});
+	export default Weather;
+

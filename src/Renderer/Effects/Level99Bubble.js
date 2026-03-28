@@ -13,37 +13,36 @@
  * - Alpha: clamp(250 + 25*(y + 20), 0, 250)
  * - Color: (80,80,255), additive blend
  */
-define([
-	'text!./Level99Bubble.vs',
-	'text!./Level99Bubble.fs',
-	'Utils/WebGL',
-	'Utils/Texture',
-	'Utils/gl-matrix',
-	'Core/Client',
-	'Renderer/Camera',
-	'Renderer/Map/Altitude',
-	'Renderer/SpriteRenderer'
-], function (_vertexShader, _fragmentShader, WebGL, Texture, glMatrix, Client, Camera, Altitude, SpriteRenderer) {
-	'use strict';
+'use strict';
 
-	var DEG_TO_RAD = Math.PI / 180;
-	var GAME_TO_WORLD = 0.1 * 2.2;
-	var NUM_COLUMNS = 4; // 4 emitter columns
-	var ANCHORS_PER_COL = 4; // B_pre, B_now, T_pre, T_now
-	var BASE_LIFT = 0.05;
-	var DEBUG_UI_ID = 'lvl99bubble-debug';
+import _vertexShader from './Level99Bubble.vs?raw';
+import _fragmentShader from './Level99Bubble.fs?raw';
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Camera from 'Renderer/Camera';
+import Altitude from 'Renderer/Map/Altitude';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
 
-	var REF_RADIUS = 2.4; // Billboard radius
-	var REF_SPEED = 0.15; // Fall speed per frame
-	var REF_DRIFT_K = 0.15; // Jitter amplitude (±0.15)
-	var REF_SEED_MAX = 99; // Max spawn height
-	var REF_RESET_Y = -30; // Reset threshold
-	var REF_ALPHA_OFFSET = 20; // Alpha formula offset
-	var REF_ALPHA_GAIN = 30; // Alpha formula gain (default request)
+let DEG_TO_RAD = Math.PI / 180;
+	let GAME_TO_WORLD = 0.1 * 2.2;
+	let NUM_COLUMNS = 4; // 4 emitter columns
+	let ANCHORS_PER_COL = 4; // B_pre, B_now, T_pre, T_now
+	let BASE_LIFT = 0.05;
+	let DEBUG_UI_ID = 'lvl99bubble-debug';
+
+	let REF_RADIUS = 2.4; // Billboard radius
+	let REF_SPEED = 0.15; // Fall speed per frame
+	let REF_DRIFT_K = 0.15; // Jitter amplitude (±0.15)
+	let REF_SEED_MAX = 99; // Max spawn height
+	let REF_RESET_Y = -30; // Reset threshold
+	let REF_ALPHA_OFFSET = 20; // Alpha formula offset
+	let REF_ALPHA_GAIN = 30; // Alpha formula gain (default request)
 
 	// Sign patterns for the 4 anchors per column
 	// B_pre: (+kx, +kz), B_now: (-kx, -kz), T_pre: (+kx, -kz), T_now: (-kx, +kz)
-	var ANCHOR_SIGNS = [
+	let ANCHOR_SIGNS = [
 		{ kx: 1, kz: 1 }, // B_pre
 		{ kx: -1, kz: -1 }, // B_now
 		{ kx: 1, kz: -1 }, // T_pre
@@ -52,7 +51,7 @@ define([
 
 	// Phase index pairs for each anchor (pa, pb from reference)
 	// B_pre: (0,2), B_now: (4,6), T_pre: (8,10), T_now: (12,14)
-	var ANCHOR_PHASE_OFFSETS = [
+	let ANCHOR_PHASE_OFFSETS = [
 		{ pa: 0, pb: 2 },
 		{ pa: 4, pb: 6 },
 		{ pa: 8, pb: 10 },
@@ -60,7 +59,7 @@ define([
 	];
 
 	// Runtime-tunable config (temporary debug UI below)
-	var debugConfig = {
+	let debugConfig = {
 		scaleMult: 0.6,
 		seedMax: REF_SEED_MAX,
 		ghostSeedMax: 60,
@@ -74,12 +73,12 @@ define([
 		floorLimit: Math.abs(REF_RESET_Y)
 	};
 
-	var _program;
-	var _buffer;
+	let _program;
+	let _buffer;
 
 	// Unit square corners for billboard (centered at origin)
 	// Order: bottom-left, bottom-right, top-right, top-left
-	var BILLBOARD_CORNERS = [
+	let BILLBOARD_CORNERS = [
 		{ x: -1, y: -1 },
 		{ x: 1, y: -1 },
 		{ x: 1, y: 1 },
@@ -103,9 +102,9 @@ define([
 	 * Returns { angle, target }
 	 */
 	function advancePhase(current, target) {
-		var diff = target - current;
+		let diff = target - current;
 		diff = ((diff + 540) % 360) - 180; // Wrap to [-180,180]
-		var step = 2 + Math.random(); // 2–3 degrees/frame
+		let step = 2 + Math.random(); // 2–3 degrees/frame
 
 		if (Math.abs(diff) <= step) {
 			current = target;
@@ -155,7 +154,7 @@ define([
 		// Default to flag1 = 1 (blue variant) unless explicitly overridden
 		this.flag1 = flag1 === 0 || flag1 ? flag1 : 1;
 
-		var isGhost = this.flag1 === 11 || this.flag1 === 3;
+		let isGhost = this.flag1 === 11 || this.flag1 === 3;
 
 		// Reference values in robrowser units
 		this.baseRadius = this.flag1 === 1 ? REF_RADIUS : isGhost ? 3.2 : 0.8;
@@ -169,9 +168,9 @@ define([
 
 		// Initialize columns (emitters)
 		this.columns = [];
-		var numCols = isGhost ? 1 : NUM_COLUMNS; // Ghost uses only 1 column
+		let numCols = isGhost ? 1 : NUM_COLUMNS; // Ghost uses only 1 column
 		for (var ec = 0; ec < numCols; ec++) {
-			var column = {
+			let column = {
 				life: true,
 				anchors: [],
 				// 16 phases per column: pairs for each anchor's X and Z
@@ -187,7 +186,7 @@ define([
 
 			// Create 4 anchors per column
 			for (var a = 0; a < ANCHORS_PER_COL; a++) {
-				var anchor = createAnchor(isGhost, this.seedMax);
+				let anchor = createAnchor(isGhost, this.seedMax);
 				column.anchors.push(anchor);
 			}
 
@@ -204,7 +203,7 @@ define([
 	}
 
 	Level99Bubble.prototype.init = function init(gl) {
-		var self = this;
+		let self = this;
 
 		Client.loadFile('data/texture/effect/' + this.textureName, function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
@@ -225,9 +224,9 @@ define([
 	 * Full above y=-offset, fades out by y=-(offset + 250/gain)
 	 */
 	Level99Bubble.prototype.computeAlpha = function computeAlpha(localY) {
-		var offset = debugConfig.alphaOffset;
-		var gain = debugConfig.alphaGain;
-		var alpha255 = 250 + gain * (localY + offset);
+		let offset = debugConfig.alphaOffset;
+		let gain = debugConfig.alphaGain;
+		let alpha255 = 250 + gain * (localY + offset);
 		alpha255 = Math.max(0, Math.min(250, alpha255));
 		return alpha255 / 255;
 	};
@@ -237,7 +236,7 @@ define([
 	 */
 	Level99Bubble.prototype.updatePhases = function updatePhases(column) {
 		for (var i = 0; i < 16; i++) {
-			var result = advancePhase(column.phases[i], column.phaseTargets[i]);
+			let result = advancePhase(column.phases[i], column.phaseTargets[i]);
 			column.phases[i] = result.angle;
 			column.phaseTargets[i] = result.target;
 		}
@@ -251,14 +250,14 @@ define([
 	 * - Reset when y < resetY: x=z=0, y=rand[0,seedMax], reseed phases
 	 */
 	Level99Bubble.prototype.updateAnchor = function updateAnchor(column, anchorIndex) {
-		var anchor = column.anchors[anchorIndex];
-		var signs = ANCHOR_SIGNS[anchorIndex];
-		var phaseOffsets = ANCHOR_PHASE_OFFSETS[anchorIndex];
+		let anchor = column.anchors[anchorIndex];
+		let signs = ANCHOR_SIGNS[anchorIndex];
+		let phaseOffsets = ANCHOR_PHASE_OFFSETS[anchorIndex];
 
 		// Apply jitter only when below ground (y < 0)
 		if (anchor.y < 0) {
-			var phaseA = column.phases[phaseOffsets.pa] * DEG_TO_RAD;
-			var phaseB = column.phases[phaseOffsets.pb] * DEG_TO_RAD;
+			let phaseA = column.phases[phaseOffsets.pa] * DEG_TO_RAD;
+			let phaseB = column.phases[phaseOffsets.pb] * DEG_TO_RAD;
 			anchor.x += signs.kx * this.driftK * Math.sin(phaseA);
 			anchor.z += signs.kz * this.driftK * Math.sin(phaseB);
 		}
@@ -267,7 +266,7 @@ define([
 		anchor.y -= this.fallSpeed * debugConfig.fallSpeedMult;
 
 		// Reset when below threshold
-		var resetLimit = this.resetY * debugConfig.respawnDepthMult;
+		let resetLimit = this.resetY * debugConfig.respawnDepthMult;
 		if (anchor.y < resetLimit) {
 			anchor.x = 0;
 			anchor.z = 0;
@@ -321,22 +320,22 @@ define([
 			return;
 		}
 
-		var uniform = _program.uniform;
+		let uniform = _program.uniform;
 
 		// Get ground position (world coordinates)
-		var groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
-		var basePos = [this.position[0] + 0.5, -groundZ - BASE_LIFT, this.position[1] + 0.5];
+		let groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
+		let basePos = [this.position[0] + 0.5, -groundZ - BASE_LIFT, this.position[1] + 0.5];
 
 		// Camera orientation for billboarding
-		var viewPitch = Camera.angle[0];
-		var viewYaw = Camera.angle[1];
-		var beta = ((360 - viewPitch + 90) % 360) * DEG_TO_RAD;
-		var alpha = ((360 - viewYaw) % 360) * DEG_TO_RAD;
+		let viewPitch = Camera.angle[0];
+		let viewYaw = Camera.angle[1];
+		let beta = ((360 - viewPitch + 90) % 360) * DEG_TO_RAD;
+		let alpha = ((360 - viewYaw) % 360) * DEG_TO_RAD;
 
-		var sinBeta = Math.sin(beta);
-		var cosBeta = Math.cos(beta);
-		var sinAlpha = Math.sin(alpha);
-		var cosAlpha = Math.cos(alpha);
+		let sinBeta = Math.sin(beta);
+		let cosBeta = Math.cos(beta);
+		let sinAlpha = Math.sin(alpha);
+		let cosAlpha = Math.cos(alpha);
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -346,11 +345,11 @@ define([
 		}
 
 		// Current billboard radius (in world units)
-		var radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
+		let radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
 
 		// Process each column
 		for (var ec = 0; ec < this.columns.length; ec++) {
-			var column = this.columns[ec];
+			let column = this.columns[ec];
 			if (!column.life) {
 				continue;
 			}
@@ -363,33 +362,33 @@ define([
 				// Update anchor position (jitter + drift + reset)
 				this.updateAnchor(column, ai);
 
-				var anchor = column.anchors[ai];
+				let anchor = column.anchors[ai];
 
 				// Convert anchor position to world units
-				var anchorWorldX = anchor.x * GAME_TO_WORLD;
-				var anchorWorldY = anchor.y * GAME_TO_WORLD;
-				var anchorWorldZ = anchor.z * GAME_TO_WORLD;
+				let anchorWorldX = anchor.x * GAME_TO_WORLD;
+				let anchorWorldY = anchor.y * GAME_TO_WORLD;
+				let anchorWorldZ = anchor.z * GAME_TO_WORLD;
 
 				// Build billboard quad corners around anchor
 				for (var k = 0; k < BILLBOARD_CORNERS.length; k++) {
-					var corner = BILLBOARD_CORNERS[k];
+					let corner = BILLBOARD_CORNERS[k];
 
 					// Local billboard coordinates (unit square scaled by radius)
-					var localX = corner.x * radius;
-					var localZ = corner.y * radius;
+					let localX = corner.x * radius;
+					let localZ = corner.y * radius;
 
 					// Apply R_x(beta) - pitch rotation
-					var ry = -localZ * sinBeta;
-					var rz = localZ * cosBeta;
+					let ry = -localZ * sinBeta;
+					let rz = localZ * cosBeta;
 
 					// Apply R_y(alpha) - yaw rotation
-					var rx = localX * cosAlpha + rz * sinAlpha;
+					let rx = localX * cosAlpha + rz * sinAlpha;
 					rz = -localX * sinAlpha + rz * cosAlpha;
 
 					// Final world position = base + anchor offset + billboard corner
-					var finalX = basePos[0] + anchorWorldX + rx;
-					var finalY = basePos[1] + anchorWorldY + ry;
-					var finalZ = basePos[2] + anchorWorldZ + rz;
+					let finalX = basePos[0] + anchorWorldX + rx;
+					let finalY = basePos[1] + anchorWorldY + ry;
+					let finalZ = basePos[2] + anchorWorldZ + rz;
 
 					this.tmpPoints[k][0] = finalX;
 					this.tmpPoints[k][1] = finalY;
@@ -403,7 +402,7 @@ define([
 				}
 
 				// Compute alpha based on anchor height
-				var alphaValue = this.computeAlpha(anchor.y);
+				let alphaValue = this.computeAlpha(anchor.y);
 				if (alphaValue <= 0) {
 					continue;
 				}
@@ -413,7 +412,7 @@ define([
 				// Update GPU buffer with quad vertex data (6 vertices * (3 pos + 2 uv) = 30 floats)
 				gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
 
-				var self = this;
+				let self = this;
 				SpriteRenderer.runWithDepth(true, false, false, function () {
 					for (var pass = 0; pass < self.passCount; pass++) {
 						gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, alphaValue);
@@ -426,9 +425,9 @@ define([
 	};
 
 	Level99Bubble.prototype.renderBackground = function renderBackground(gl, basePos) {
-		var uniform = _program.uniform;
-		var radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
-		var height = this.seedMax * GAME_TO_WORLD;
+		let uniform = _program.uniform;
+		let radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
+		let height = this.seedMax * GAME_TO_WORLD;
 
 		function drawQuad(v0, v1, v2, v3) {
 			// Reuse tmpPoints
@@ -451,12 +450,12 @@ define([
 			});
 		}
 
-		var x0 = basePos[0] - radius;
-		var x1 = basePos[0] + radius;
-		var z0 = basePos[2] - radius;
-		var z1 = basePos[2] + radius;
-		var y0 = basePos[1];
-		var y1 = basePos[1] + height;
+		let x0 = basePos[0] - radius;
+		let x1 = basePos[0] + radius;
+		let z0 = basePos[2] - radius;
+		let z1 = basePos[2] + radius;
+		let y0 = basePos[1];
+		let y1 = basePos[1] + height;
 
 		// Bottom
 		drawQuad.call(this, [x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]);
@@ -502,8 +501,8 @@ define([
 	};
 
 	Level99Bubble.beforeRender = function beforeRender(gl, modelView, projection, fog) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		let uniform = _program.uniform;
+		let attribute = _program.attribute;
 
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
@@ -542,7 +541,7 @@ define([
 			return;
 		}
 
-		var container = document.createElement('div');
+		let container = document.createElement('div');
 		container.id = DEBUG_UI_ID;
 		container.style.position = 'fixed';
 		container.style.bottom = '12px';
@@ -555,25 +554,25 @@ define([
 		container.style.font = '12px sans-serif';
 		container.style.pointerEvents = 'auto';
 
-		var title = document.createElement('div');
+		let title = document.createElement('div');
 		title.textContent = 'L99 Bubble Debug';
 		title.style.marginBottom = '6px';
 		title.style.fontWeight = 'bold';
 		container.appendChild(title);
 
 		function addSlider(labelText, min, max, step, value, onChange) {
-			var row = document.createElement('div');
+			let row = document.createElement('div');
 			row.style.display = 'flex';
 			row.style.alignItems = 'center';
 			row.style.gap = '6px';
 			row.style.marginBottom = '4px';
 
-			var label = document.createElement('span');
+			let label = document.createElement('span');
 			label.textContent = labelText;
 			label.style.whiteSpace = 'nowrap';
 			row.appendChild(label);
 
-			var input = document.createElement('input');
+			let input = document.createElement('input');
 			input.type = 'range';
 			input.min = min;
 			input.max = max;
@@ -585,7 +584,7 @@ define([
 			});
 			row.appendChild(input);
 
-			var valLabel = document.createElement('span');
+			let valLabel = document.createElement('span');
 			valLabel.textContent = value;
 			input.addEventListener('input', function () {
 				valLabel.textContent = input.value;
@@ -596,13 +595,13 @@ define([
 		}
 
 		function addCheckbox(labelText, checked, onChange) {
-			var row = document.createElement('div');
+			let row = document.createElement('div');
 			row.style.display = 'flex';
 			row.style.alignItems = 'center';
 			row.style.gap = '6px';
 			row.style.marginBottom = '4px';
 
-			var input = document.createElement('input');
+			let input = document.createElement('input');
 			input.type = 'checkbox';
 			input.checked = checked;
 			input.addEventListener('change', function () {
@@ -610,7 +609,7 @@ define([
 			});
 			row.appendChild(input);
 
-			var label = document.createElement('span');
+			let label = document.createElement('span');
 			label.textContent = labelText;
 			row.appendChild(label);
 
@@ -655,6 +654,4 @@ define([
 	// Initialize temporary debug UI once
 	// Temporarily disabled; will be re-enabled via a future interface
 	// ensureDebugUI();
-
-	return Level99Bubble;
-});
+export default Level99Bubble;

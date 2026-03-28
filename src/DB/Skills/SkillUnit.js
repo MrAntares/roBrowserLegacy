@@ -7,11 +7,12 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['./SkillUnitConst', 'DB/Effects/EffectConst'], function (SU, EC) {
-	'use strict'; // Tofix
+import SU from './SkillUnitConst';
+import EC from 'DB/Effects/EffectConst';
 
-	var SkillUnit = {};
+	let SkillUnit = {};
 
 	SkillUnit[SU.UNT_SAFETYWALL] = EC.EF_GLASSWALL2;
 	SkillUnit[SU.UNT_FIREWALL] = EC.EF_FIREWALL;
@@ -127,5 +128,4 @@ define(['./SkillUnitConst', 'DB/Effects/EffectConst'], function (SU, EC) {
 	SkillUnit[SU.UNT_MAGMA_ERUPTION] = EC.EF_NONE; // Todo
 	SkillUnit[SU.UNT_B_TRAP] = EC.EF_NONE; // Todo
 
-	return SkillUnit;
-});
+	export default SkillUnit;

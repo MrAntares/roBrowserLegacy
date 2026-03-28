@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
 	/**
 	 * Object stored in cache
@@ -113,7 +112,7 @@ define(function () {
 	 * @param {mixed} data
 	 */
 	MemoryItem.prototype.onload = function onLoad(data) {
-		var i, size;
+		let i, size;
 
 		this._data = data;
 		this.complete = true;
@@ -133,7 +132,7 @@ define(function () {
 	 * @param {string} error - optional
 	 */
 	MemoryItem.prototype.onerror = function OnError(error) {
-		var i, size;
+		let i, size;
 
 		this._error = error;
 		this.complete = true;
@@ -150,5 +149,4 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return MemoryItem;
-});
+	export default MemoryItem;

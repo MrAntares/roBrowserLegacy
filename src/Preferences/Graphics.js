@@ -7,8 +7,8 @@
  *
  * @author Vincent Thibault
  */
-define(['Core/Preferences'], function (Preferences) {
-	'use strict';
+import Preferences from 'Core/Preferences';
+'use strict';
 
 	var defaultGraphicsSettings = {
 		/**
@@ -84,5 +84,4 @@ define(['Core/Preferences'], function (Preferences) {
 	var GraphicsSettings = Preferences.get('Graphics', defaultGraphicsSettings, 1.1);
 	GraphicsSettings.defaults = cleanDefaults;
 
-	return GraphicsSettings;
-});
+	export default GraphicsSettings;

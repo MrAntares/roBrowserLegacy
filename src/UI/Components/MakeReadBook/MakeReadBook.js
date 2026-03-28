@@ -9,36 +9,34 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./MakeReadBook.html');
-	var cssText = require('text!./MakeReadBook.css');
-	var Sprite = require('Loaders/Sprite');
-	var Client = require('Core/Client');
-	var TextEncoding = require('Utils/CodepageManager');
-	var Announce = require('UI/Components/Announce/Announce');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './MakeReadBook.html?raw';
+import cssText from './MakeReadBook.css?raw';
+import Sprite from 'Loaders/Sprite';
+import Client from 'Core/Client';
+import TextEncoding from 'Utils/CodepageManager';
+import Announce from 'UI/Components/Announce/Announce';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
-	var sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
+let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 	/**
 	 * Create Component
 	 */
-	var MakeReadBook = new UIComponent('MakeReadBook', htmlText, cssText);
+	let MakeReadBook = new UIComponent('MakeReadBook', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _BOOK_INFORMATION = Preferences.get(
+	let _BOOK_INFORMATION = Preferences.get(
 		'_BOOK_INFORMATION',
 		{
 			itid: 0,
@@ -61,12 +59,12 @@ define(function (require) {
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	var _realSize = 0;
+	let _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'MakeReadBook',
 		{
 			x: 0,
@@ -84,7 +82,7 @@ define(function (require) {
 	);
 
 	MakeReadBook.startBook = function startBook(inforBook, item) {
-		var it = DB.getItemInfo(item.ITID);
+		let it = DB.getItemInfo(item.ITID);
 
 		_BOOK_INFORMATION['title'] = it.identifiedDisplayName;
 		let addColor = inforBook.substr(1, 7);
@@ -148,23 +146,23 @@ define(function (require) {
 			],
 			function (spr_close, spr_highlighter, spr_previous, spr_next) {
 				// close
-				var sprite_close = new Sprite(spr_close);
-				var canvas;
+				let sprite_close = new Sprite(spr_close);
+				let canvas;
 				canvas = sprite_close.getCanvasFromFrame(0);
 				canvas.className = 'clone_book event_add_cursor';
 				MakeReadBook.ui.find('.footer').find('canvas').remove();
 				MakeReadBook.ui.find('.footer').append(canvas);
-				var cloneBook = MakeReadBook.ui.find('.clone_book');
+				let cloneBook = MakeReadBook.ui.find('.clone_book');
 				cloneBook.click(onClose);
 
 				// highlighter
-				var sprite_highlighter = new Sprite(spr_highlighter);
-				var canvas;
-				canvas = sprite_highlighter.getCanvasFromFrame(0);
-				canvas.className = 'highlighter event_add_cursor';
+				let sprite_highlighter = new Sprite(spr_highlighter);
+				let canvas2;
+				canvas2 = sprite_highlighter.getCanvasFromFrame(0);
+				canvas2.className = 'highlighter event_add_cursor';
 				MakeReadBook.ui.find('#highlighter').find('canvas').remove();
-				MakeReadBook.ui.find('#highlighter').append(canvas);
-				var highlighter = MakeReadBook.ui.find('.highlighter');
+				MakeReadBook.ui.find('#highlighter').append(canvas2);
+				let highlighter = MakeReadBook.ui.find('.highlighter');
 				highlighter
 					.mouseover(function (e) {
 						e.stopImmediatePropagation();
@@ -184,12 +182,12 @@ define(function (require) {
 				// remove canvas next and previous
 				MakeReadBook.ui.find('#next_previous').find('canvas').remove();
 				// previous
-				var sprite_previous = new Sprite(spr_previous);
-				var canvas;
-				canvas = sprite_previous.getCanvasFromFrame(0);
-				canvas.className = 'previous_btn event_add_cursor';
-				MakeReadBook.ui.find('#next_previous').append(canvas);
-				var previous_btn = MakeReadBook.ui.find('.previous_btn');
+				let sprite_previous = new Sprite(spr_previous);
+				let canvas3;
+				canvas3 = sprite_previous.getCanvasFromFrame(0);
+				canvas3.className = 'previous_btn event_add_cursor';
+				MakeReadBook.ui.find('#next_previous').append(canvas3);
+				let previous_btn = MakeReadBook.ui.find('.previous_btn');
 				previous_btn
 					.mouseover(function (e) {
 						e.stopImmediatePropagation();
@@ -201,12 +199,12 @@ define(function (require) {
 					});
 
 				// next
-				var sprite_next = new Sprite(spr_next);
-				var canvas;
-				canvas = sprite_next.getCanvasFromFrame(0);
-				canvas.className = 'next_btn event_add_cursor';
-				MakeReadBook.ui.find('#next_previous').append(canvas);
-				var next_btn = MakeReadBook.ui.find('.next_btn');
+				let sprite_next = new Sprite(spr_next);
+				let canvas4;
+				canvas4 = sprite_next.getCanvasFromFrame(0);
+				canvas4.className = 'next_btn event_add_cursor';
+				MakeReadBook.ui.find('#next_previous').append(canvas4);
+				let next_btn = MakeReadBook.ui.find('.next_btn');
 				next_btn
 					.mouseover(function (e) {
 						e.stopImmediatePropagation();
@@ -389,10 +387,10 @@ define(function (require) {
 
 	function page() {
 		MakeReadBook.ui.find('#textBook').text('');
-		var textBody = MakeReadBook.ui.find('#textBook');
+		let textBody = MakeReadBook.ui.find('#textBook');
 
 		for (
-			var i = _BOOK_INFORMATION['page'] * 1;
+			let i = _BOOK_INFORMATION['page'] * 1;
 			i < _BOOK_INFORMATION['pagesize'] && i < (_BOOK_INFORMATION['page'] + 1) * 1;
 			i++
 		) {
@@ -420,20 +418,20 @@ define(function (require) {
 	 */
 	/*function onResize()
 	 {
-		 var ui      = MakeReadBook.ui;
-		 var top     = ui.position().top;
-		 var left    = ui.position().left;
-		 var lastWidth  = 0;
-		 var lastHeight = 0;
-		 var _Interval;
+		 let ui      = MakeReadBook.ui;
+		 let top     = ui.position().top;
+		 let left    = ui.position().left;
+		 let lastWidth  = 0;
+		 let lastHeight = 0;
+		 let _Interval;
 
 		 function resizing()
 		 {
-			 var extraX = 23 + 16 + 16 - 30;
-			 var extraY = 31 + 19 - 30;
+			 let extraX = 23 + 16 + 16 - 30;
+			 let extraY = 31 + 19 - 30;
 
-			 var w = Math.floor( (Mouse.screen.x - left - extraX) / 32 );
-			 var h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
+			 let w = Math.floor( (Mouse.screen.x - left - extraX) / 32 );
+			 let h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
 
 			 // Maximum and minimum window size
 			 w = Math.min( Math.max(w, 6), 9);
@@ -463,5 +461,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(MakeReadBook);
-});
+export default UIManager.addComponent(MakeReadBook);

@@ -7,11 +7,9 @@
  *
  * @author Alison Serafim
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+	export default {
 		MapProperty: {
 			// seems to be used only 0, 1 and 3
 			NOTHING: 0,
@@ -65,4 +63,3 @@ define(function () {
 			SUNMOONSTAR_MIRACLE: 1 << 10
 		}
 	};
-});

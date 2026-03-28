@@ -7,58 +7,48 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
+import jQuery from 'Utils/jquery';
+import Configs from 'Core/Configs';
+import Client from 'Core/Client';
+import Thread from 'Core/Thread';
+import Memory from 'Core/MemoryManager';
+import Events from 'Core/Events';
+import KEYS from 'Controls/KeyEventHandler';
+import Sprite from 'Loaders/Sprite';
+import Targa from 'Loaders/Targa';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './GrfViewer.html?raw';
+import cssText from './GrfViewer.css?raw';
+import History from './History';
+import '../../../../applications/api/api';
 
-	var Configs = require('Core/Configs');
-	var Client = require('Core/Client');
-	var Thread = require('Core/Thread');
-	var Memory = require('Core/MemoryManager');
-	var Events = require('Core/Events');
-
-	var KEYS = require('Controls/KeyEventHandler');
-
-	var Sprite = require('Loaders/Sprite');
-	var Targa = require('Loaders/Targa');
-
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-
-	var htmlText = require('text!./GrfViewer.html');
-	var cssText = require('text!./GrfViewer.css');
-	var History = require('./History');
-
-	// Ugly, require api.js to display models and map
-	require('../../../../applications/api/api');
-
+// Ugly, require api.js to display models and map
 	/**
 	 * Create GRFViewer component
 	 */
-	var Viewer = new UIComponent('GRFViewer', htmlText, cssText);
+	let Viewer = new UIComponent('GRFViewer', htmlText, cssText);
 
 	/**
 	 * @var {number} The display is done asynchronus, keep reference of the thread
 	 */
-	var _thread = 0;
+	let _thread = 0;
 
 	/**
 	 * @var {number} action id, to stop doing things when the action change
 	 */
-	var _actionID = 0;
+	let _actionID = 0;
 
 	/**
 	 * Initialize Component
 	 */
 	Viewer.init = function init() {
-		var ui = this.ui;
+		let ui = this.ui;
 
 		Thread.hook('THREAD_READY', function () {
-			var remoteClient = Configs.get('remoteClient');
+			let remoteClient = Configs.get('remoteClient');
 			if (remoteClient) {
 				Thread.send('SET_HOST', remoteClient);
 				Client.init([]);
@@ -69,15 +59,15 @@ define(function (require) {
 		jQuery('head:first').append(
 			'<style type="text/css">' +
 				'	#previous { background-image:url(' +
-				require.toUrl('./Icons/arw-left.png') +
+				new URL('./Icons/arw-left.png', import.meta.url).href +
 				'); }' +
 				'	#next     { background-image:url(' +
-				require.toUrl('./Icons/arw-right.png') +
+				new URL('./Icons/arw-right.png', import.meta.url).href +
 				'); }' +
 				'	#progress { background-image:url(' +
-				require.toUrl('./Icons/load.gif') +
+				new URL('./Icons/load.gif', import.meta.url).href +
 				'); }' +
-				'</style>'
+			'</style>'
 		);
 
 		// Drag drop the GRF.
@@ -141,12 +131,12 @@ define(function (require) {
 	 * Initialize tool bar
 	 */
 	function initToolBar() {
-		var ui = Viewer.ui;
+		let ui = Viewer.ui;
 
 		// Path submit
 		ui.find('#path').keydown(function (event) {
 			if (event.which === KEYS.ENTER) {
-				var value = this.value.replace(/^\s+|\s+$/g, '');
+				let value = this.value.replace(/^\s+|\s+$/g, '');
 				if (value.substr(-1) !== '/') {
 					value += '/';
 				}
@@ -156,7 +146,7 @@ define(function (require) {
 
 		// History before
 		ui.find('#previous').click(function () {
-			var path = History.previous();
+			let path = History.previous();
 			if (path) {
 				moveToDirectory(path, false);
 			}
@@ -164,7 +154,7 @@ define(function (require) {
 
 		// History after
 		ui.find('#next').click(function () {
-			var path = History.next();
+			let path = History.next();
 			if (path) {
 				moveToDirectory(path, false);
 			}
@@ -180,7 +170,7 @@ define(function (require) {
 			})
 			.keydown(function (event) {
 				if (event.which === KEYS.ENTER) {
-					var value = this.value.replace(/^\s+|\s+$/g, '');
+					let value = this.value.replace(/^\s+|\s+$/g, '');
 					if (value.length > 2) {
 						moveToDirectory('search/' + value, true);
 					}
@@ -195,13 +185,13 @@ define(function (require) {
 	 * @param {object} event
 	 */
 	function showContextMenu(iconElement, event) {
-		var contextmenu = Viewer.ui.find('#contextmenu');
-		var overlay = Viewer.ui.find('.overlay');
-		var header = contextmenu.find('.header:first');
-		var open = contextmenu.find('.open:first');
-		var save = contextmenu.find('.save:first');
-		var info = contextmenu.find('.info:first');
-		var icon = jQuery(iconElement);
+		let contextmenu = Viewer.ui.find('#contextmenu');
+		let overlay = Viewer.ui.find('.overlay');
+		let header = contextmenu.find('.header:first');
+		let open = contextmenu.find('.open:first');
+		let save = contextmenu.find('.save:first');
+		let info = contextmenu.find('.info:first');
+		let icon = jQuery(iconElement);
 
 		contextmenu
 			.css({
@@ -256,7 +246,7 @@ define(function (require) {
 
 			Client.getFile(icon.data('path'), function (buffer) {
 				// Create temporary url, move to it and release it
-				var url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
+				let url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
 				save.attr({ href: url, download: icon.text().trim() });
 			});
 		}
@@ -329,9 +319,9 @@ define(function (require) {
 		}
 
 		// Build regex
-		var ui = Viewer.ui;
-		var directory = path.replace(/\//g, '\\\\');
-		var reg = directory + '([^(\\0|\\\\)]+)';
+		let ui = Viewer.ui;
+		let directory = path.replace(/\//g, '\\\\');
+		let reg = directory + '([^(\\0|\\\\)]+)';
 
 		// Clean windows
 		ui.find('#path').val(path);
@@ -349,7 +339,7 @@ define(function (require) {
 		ui.find('#info').hide();
 
 		// Changing action to avoid conflict
-		var actionID = ++_actionID;
+		let actionID = ++_actionID;
 
 		// Send request
 		Client.search(new RegExp(reg, 'gi'), function (list) {
@@ -368,10 +358,10 @@ define(function (require) {
 	 */
 	function search(keyword) {
 		// Escape regex, and complete it
-		var search = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
-		var reg = 'data\\\\([^(\\0\\)]+)?' + search + '([^(\\0|\\\\)]+)?';
-		var ui = Viewer.ui;
-		var actionID = ++_actionID;
+		let search = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
+		let reg = 'data\\\\([^(\\0\\)]+)?' + search + '([^(\\0|\\\\)]+)?';
+		let ui = Viewer.ui;
+		let actionID = ++_actionID;
 
 		// Clean path
 		ui.find('.icon').remove();
@@ -397,7 +387,7 @@ define(function (require) {
 	 * @return {number}
 	 */
 	function sortFiles(a, b) {
-		var _a, _b;
+		let _a, _b;
 		a = a.replace(/.*\\/, '');
 		b = b.replace(/.*\\/, '');
 		_a = a.indexOf('.') !== -1;
@@ -426,8 +416,8 @@ define(function (require) {
 			return;
 		}
 
-		var i, count;
-		var type,
+		let i, count;
+		let type,
 			reg = /(.*\\)/;
 
 		i = 0;
@@ -435,8 +425,8 @@ define(function (require) {
 
 		// Avoid freeze, stream to display files
 		function streamExecute() {
-			var j;
-			var html = '';
+			let j;
+			let html = '';
 
 			for (j = 0; j < 200 && i + j < count; ++j) {
 				type = getFileIcon(list[j + i]);
@@ -447,7 +437,7 @@ define(function (require) {
 					list[j + i] +
 					'">' +
 					'	<img src="' +
-					require.toUrl('./Icons/' + type + '.png') +
+					new URL('./Icons/' + type + '.png', import.meta.url).href +
 					'" width="48" height="48"/><br/>' +
 					list[j + i].replace(reg, '') +
 					'</div>';
@@ -473,8 +463,8 @@ define(function (require) {
 	 * @return {string} icon name
 	 */
 	function getFileIcon(filename) {
-		var ext = filename.split(/\.([^\.]+)$/)[1] || 'dir';
-		var img = 'file';
+		let ext = filename.split(/\.([^\.]+)$/)[1] || 'dir';
+		let img = 'file';
 
 		switch (ext.toLowerCase()) {
 			case 'dir':
@@ -527,7 +517,7 @@ define(function (require) {
 	 */
 	function displayImagesThumbnail() {
 		// Stored action to know if user act during the process
-		var actionID = _actionID + 0;
+		let actionID = _actionID + 0;
 
 		function cleanUp() {
 			URL.revokeObjectURL(this.src);
@@ -539,9 +529,9 @@ define(function (require) {
 				return;
 			}
 
-			var nodes = jQuery('.img:lt(5)');
-			var load = 0;
-			var total = nodes.length;
+			let nodes = jQuery('.img:lt(5)');
+			let load = 0;
+			let total = nodes.length;
 
 			// All thumbnails are already rendered
 			if (!total) {
@@ -550,18 +540,18 @@ define(function (require) {
 
 			// Work with current loaded files
 			nodes.each(function () {
-				var self = jQuery(this);
+				let self = jQuery(this);
 
 				Client.getFile(self.data('path'), function (data) {
 					// Clean from memory...
 					Memory.remove(self.data('path'));
 					self.removeClass('img').addClass('thumb');
 
-					var url = getImageThumbnail(self.data('path'), data);
+					let url = getImageThumbnail(self.data('path'), data);
 
 					// Display image
 					if (url) {
-						var img = self.find('img:first').get(0);
+						let img = self.find('img:first').get(0);
 						if (url.match(/^blob\:/)) {
 							img.onload = img.onerror = img.onabort = cleanUp;
 						}
@@ -588,22 +578,22 @@ define(function (require) {
 	 * @return {string|null} url generated
 	 */
 	function getImageThumbnail(filename, data) {
-		var canvas;
-		var ext = filename.substr(-3).toLowerCase();
+		let canvas;
+		let ext = filename.substr(-3).toLowerCase();
 
 		switch (ext) {
 			// Sprite support
 			case 'spr':
-				var spr = new Sprite(data);
+				let spr = new Sprite(data);
 				canvas = spr.getCanvasFromFrame(0);
 				return canvas.toDataURL();
 
 			// Palette support
 			case 'pal':
 				canvas = document.createElement('canvas');
-				var ctx = canvas.getContext('2d');
-				var imageData, i, count;
-				var palette = new Uint8Array(data);
+				let ctx = canvas.getContext('2d');
+				let imageData, i, count;
+				let palette = new Uint8Array(data);
 
 				// 16 * 16 = 256
 				canvas.width = 16;
@@ -622,7 +612,7 @@ define(function (require) {
 
 			// Targa support
 			case 'tga':
-				var tga = new Targa();
+				let tga = new Targa();
 				tga.load(new Uint8Array(data));
 				return tga.getDataURL();
 
@@ -643,15 +633,15 @@ define(function (require) {
 	 * User click on an audio file, play it
 	 */
 	function onAudioClick() {
-		var ui = Viewer.ui;
-		var path = this.getAttribute('data-path');
-		var box = ui.find('#preview .box');
+		let ui = Viewer.ui;
+		let path = this.getAttribute('data-path');
+		let box = ui.find('#preview .box');
 
 		ui.find('#progress').show();
 
 		Client.loadFile(path, function (url) {
 			// Create audio
-			var audio = document.createElement('audio');
+			let audio = document.createElement('audio');
 			audio.src = url;
 			audio.controls = true;
 			audio.play();
@@ -677,18 +667,18 @@ define(function (require) {
 	 * User click on an image, render it
 	 */
 	function onImageClick() {
-		var ui = Viewer.ui;
-		var path = this.getAttribute('data-path');
-		var box = ui.find('#preview .box');
+		let ui = Viewer.ui;
+		let path = this.getAttribute('data-path');
+		let box = ui.find('#preview .box');
 		ui.find('#progress').show();
 
 		Client.getFile(path, function (data) {
-			var i, count, canvas;
+			let i, count, canvas;
 
 			switch (path.substr(-3)) {
 				// Sprite support
 				case 'spr':
-					var spr = new Sprite(data);
+					let spr = new Sprite(data);
 					box.css('top', 200);
 
 					for (i = 0, count = spr.frames.length; i < count; ++i) {
@@ -701,9 +691,9 @@ define(function (require) {
 
 				// Palette support
 				case 'pal':
-					var palette = new Uint8Array(data);
+					let palette = new Uint8Array(data);
 					canvas = document.createElement('canvas');
-					var ctx = canvas.getContext('2d');
+					let ctx = canvas.getContext('2d');
 
 					canvas.width = 128;
 					canvas.height = 128;
@@ -718,15 +708,15 @@ define(function (require) {
 
 				// Targa support
 				case 'tga':
-					var tga = new Targa();
+					let tga = new Targa();
 					tga.load(new Uint8Array(data));
 					box.css('top', jQuery(window).height() / 2 - 64).append(tga.getCanvas());
 					break;
 
 				// Image Support
 				default:
-					var url = URL.createObjectURL(new Blob([data], { type: 'image/' + path.substr(-3) }));
-					var img = new Image();
+					let url = URL.createObjectURL(new Blob([data], { type: 'image/' + path.substr(-3) }));
+					let img = new Image();
 					img.decoding = 'async';
 					img.src = url;
 					img.onload = function () {
@@ -750,11 +740,11 @@ define(function (require) {
 	/**
 	 * User click on a model, render it using ModelViewer
 	 */
-	var onObjectClick = (function onObjectClickClosure() {
-		var ready = false;
-		var element = document.createElement('div');
+	let onObjectClick = (function onObjectClickClosure() {
+		let ready = false;
+		let element = document.createElement('div');
 
-		var App = new ROBrowser({
+		let App = new ROBrowser({
 			target: element,
 			type: ROBrowser.TYPE.FRAME,
 			application: ROBrowser.APP.MODELVIEWER,
@@ -803,8 +793,8 @@ define(function (require) {
 		}
 
 		return function onObjectClick() {
-			var ui = Viewer.ui;
-			var path = this.getAttribute('data-path').replace(/\\/g, '/');
+			let ui = Viewer.ui;
+			let path = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			// Show iframe
 			ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
@@ -844,11 +834,11 @@ define(function (require) {
 	/**
 	 * User click on an effect, render it using StrViewer
 	 */
-	var onEffectClick = (function onEffectClickClosure() {
-		var ready = false;
-		var element = document.createElement('div');
+	let onEffectClick = (function onEffectClickClosure() {
+		let ready = false;
+		let element = document.createElement('div');
 
-		var App = new ROBrowser({
+		let App = new ROBrowser({
 			target: element,
 			type: ROBrowser.TYPE.FRAME,
 			application: ROBrowser.APP.STRVIEWER,
@@ -897,8 +887,8 @@ define(function (require) {
 		}
 
 		return function onEffectClick() {
-			var ui = Viewer.ui;
-			var path = this.getAttribute('data-path').replace(/\\/g, '/');
+			let ui = Viewer.ui;
+			let path = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			// Show iframe
 			ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
@@ -937,11 +927,11 @@ define(function (require) {
 	/**
 	 * User click on a map, render it using MapViewer
 	 */
-	var onWorldClick = (function onWorldClick() {
-		var ready = false;
-		var element = document.createElement('div');
+	let onWorldClick = (function onWorldClick() {
+		let ready = false;
+		let element = document.createElement('div');
 
-		var App = new ROBrowser({
+		let App = new ROBrowser({
 			target: element,
 			type: ROBrowser.TYPE.FRAME,
 			application: ROBrowser.APP.MAPVIEWER,
@@ -1003,8 +993,8 @@ define(function (require) {
 		}
 
 		return function onWorldClick() {
-			var ui = Viewer.ui;
-			var path = this.getAttribute('data-path').replace(/\\/g, '/');
+			let ui = Viewer.ui;
+			let path = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			ui.find('#progress').show();
 			element.style.display = 'block';
@@ -1058,10 +1048,10 @@ define(function (require) {
 	 *  User click on text, display it
 	 */
 	function onTextClick() {
-		var ui = Viewer.ui;
-		var path = this.getAttribute('data-path');
-		var progress = ui.find('#progress');
-		var box = ui.find('#preview .box');
+		let ui = Viewer.ui;
+		let path = this.getAttribute('data-path');
+		let progress = ui.find('#progress');
+		let box = ui.find('#preview .box');
 
 		progress.show();
 
@@ -1097,11 +1087,11 @@ define(function (require) {
 	/**
 	 * User click on a Granny model, render it using GrannyModelViewer
 	 */
-	var onGrannyClick = (function onGrannyClickClosure() {
-		var ready = false;
-		var element = document.createElement('div');
+	let onGrannyClick = (function onGrannyClickClosure() {
+		let ready = false;
+		let element = document.createElement('div');
 
-		var App = new ROBrowser({
+		let App = new ROBrowser({
 			target: element,
 			type: ROBrowser.TYPE.FRAME,
 			application: ROBrowser.APP.GRANNYMODELVIEWER,
@@ -1155,7 +1145,7 @@ define(function (require) {
 			//UNDER DEVELOPMENT!!!
 
 			/*var ui    = Viewer.ui;
-			var path  = this.getAttribute('data-path').replace(/\\/g, '/');
+			let path  = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			// Show iframe
 			ui.find('#preview .box').css('top', (jQuery(window).height()-400)* 0.5 );
@@ -1197,5 +1187,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(Viewer);
-});
+export default UIManager.addComponent(Viewer);

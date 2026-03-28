@@ -8,18 +8,19 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var MemoryManager = require('Core/MemoryManager');
-	var Graphics = require('Preferences/Graphics');
-	var Sprite = require('Loaders/Sprite');
-	var Action = require('Loaders/Action');
-	var Preferences = require('Preferences/Controls');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import MemoryManager from 'Core/MemoryManager';
+import Graphics from 'Preferences/Graphics';
+import Sprite from 'Loaders/Sprite';
+import Action from 'Loaders/Action';
+import Preferences from 'Preferences/Controls';
+import EntityManager from 'Renderer/EntityManager';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Mouse from 'Controls/MouseEventHandler';
 
 	/**
 	 * Cursor Constructor
@@ -140,8 +141,6 @@ define(function (require) {
 	ActionInformations[Cursor.ACTION.TARGET] = { drawX: 20, drawY: 50, startX: 20, startY: 28, delayMult: 0.5 };
 	ActionInformations[Cursor.ACTION.NOWALK] = { drawX: 13, drawY: 25, startX: 14, startY: 6, delayMult: 1.0 };
 
-	var EntityManager, Entity, SpriteRenderer, Mouse;
-
 	/**
 	 * Load cursor data (action, sprite)
 	 */
@@ -170,11 +169,6 @@ define(function (require) {
 			createSpriteSheet();
 			fn();
 		});
-
-		EntityManager = getModule('Renderer/EntityManager');
-		Entity = getModule('Renderer/Entity/Entity');
-		SpriteRenderer = getModule('Renderer/SpriteRenderer');
-		Mouse = getModule('Controls/MouseEventHandler');
 	};
 
 	/**
@@ -576,5 +570,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return Cursor;
-});
+	export default Cursor;

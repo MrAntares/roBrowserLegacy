@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	return {
+export default {
 		HEAD_BOTTOM: 1 << 0,
 		WEAPON: 1 << 1,
 		GARMENT: 1 << 2,
@@ -35,4 +34,3 @@ define(function () {
 		SHADOW_R_ACCESSORY_SHADOW: 1 << 20,
 		SHADOW_L_ACCESSORY_SHADOW: 1 << 21
 	};
-});

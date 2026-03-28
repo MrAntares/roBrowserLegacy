@@ -7,26 +7,22 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./MakeArrowSelection.html');
-	var cssText = require('text!./MakeArrowSelection.css');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './MakeArrowSelection.html?raw';
+import cssText from './MakeArrowSelection.css?raw';
 
-	/**
+/**
 	 * Create MakeArrowSelection namespace
 	 */
-	var MakeArrowSelection = new UIComponent('MakeArrowSelection', htmlText, cssText);
+	let MakeArrowSelection = new UIComponent('MakeArrowSelection', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -64,8 +60,8 @@ define(function (require) {
 	 * @param {Array} list object to display
 	 */
 	MakeArrowSelection.setList = function setList(list) {
-		var i, count;
-		var item, it, file, name;
+		let i, count;
+		let item, it, file, name;
 
 		MakeArrowSelection.list.empty();
 
@@ -156,5 +152,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(MakeArrowSelection);
-});
+export default UIManager.addComponent(MakeArrowSelection);

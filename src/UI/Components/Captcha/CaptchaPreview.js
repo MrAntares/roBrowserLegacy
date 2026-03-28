@@ -7,29 +7,25 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var htmlText = require('text!./CaptchaPreview.html');
-	var cssText = require('text!./CaptchaPreview.css');
-	var jQuery = require('Utils/jquery');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import htmlText from './CaptchaPreview.html?raw';
+import cssText from './CaptchaPreview.css?raw';
+import jQuery from 'Utils/jquery';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var CaptchaPreview = new UIComponent('CaptchaPreview', htmlText, cssText);
+	let CaptchaPreview = new UIComponent('CaptchaPreview', htmlText, cssText);
 
 	/**
 	 * Preferences
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'CaptchaPreview',
 		{
 			x: 230,
@@ -76,15 +72,14 @@ define(function (require) {
 	CaptchaPreview.setImage = function SetImage(imageData) {
 		// imageData is expected to be Uint8Array or Blob usually, need to convert to URL
 		// If it's pure binary from packet, we might need conversion
-		var blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO
-		var url = URL.createObjectURL(blob);
+		let blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO
+		let url = URL.createObjectURL(blob);
 
-		var img = jQuery('<img/>').attr('src', url);
+		let img = jQuery('<img/>').attr('src', url);
 		this.ui.find('.preview_box').empty().append(img);
 	};
 
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(CaptchaPreview);
-});
+export default UIManager.addComponent(CaptchaPreview);

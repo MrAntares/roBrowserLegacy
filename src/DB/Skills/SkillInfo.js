@@ -7,10 +7,12 @@
  *
  * @author Vincent Thibault
  */
-define(['./SkillConst', 'DB/Jobs/JobConst'], function (SK, JobId) {
-	'use strict';
+'use strict';
 
-	var SkillInfo = {};
+import SK from './SkillConst';
+import JobId from 'DB/Jobs/JobConst';
+
+	let SkillInfo = {};
 
 	((SkillInfo[SK.SN_WINDWALK] = {
 		Name: 'SN_WINDWALK',
@@ -13636,5 +13638,4 @@ define(['./SkillConst', 'DB/Jobs/JobConst'], function (SK, JobId) {
 			]
 		}));
 
-	return SkillInfo;
-});
+	export default SkillInfo;

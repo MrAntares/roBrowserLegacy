@@ -7,15 +7,16 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable) {
-	'use strict';
+import JobId from './JobConst';
+import JobNameTable from './JobNameTable';
 
-	var WeaponJobTable = {};
+	let WeaponJobTable = {};
 
 	// Extend
-	var keys = Object.keys(JobNameTable);
-	var i,
+	let keys = Object.keys(JobNameTable);
+	let i,
 		count = keys.length;
 
 	for (i = 0; i < count; ++i) {
@@ -23,8 +24,8 @@ define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable) {
 	}
 
 	function duplicateEntry(origin) {
-		var value = JobNameTable[origin];
-		var i,
+		let value = JobNameTable[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {
@@ -211,5 +212,4 @@ define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable) {
 	);
 
 	// Exports
-	return WeaponJobTable;
-});
+	export default WeaponJobTable;

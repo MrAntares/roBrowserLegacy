@@ -6,32 +6,31 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var $ = require('Utils/jquery');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ShortCutControls = require('Preferences/ShortCutControls');
-	var BattleMode = require('Controls/BattleMode');
-	var htmlText = require('text!./ShortCutOption.html');
-	var cssText = require('text!./ShortCutOption.css');
-	var Controls = require('Preferences/Controls');
+import $ from 'Utils/jquery';
+import KEYS from 'Controls/KeyEventHandler';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ShortCutControls from 'Preferences/ShortCutControls';
+import BattleMode from 'Controls/BattleMode';
+import htmlText from './ShortCutOption.html?raw';
+import cssText from './ShortCutOption.css?raw';
+import Controls from 'Preferences/Controls';
 
-	var ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
+let ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 
-	var ShortCuts = ShortCutControls.ShortCuts;
-	var ShortCutsTemp = {};
+	let ShortCuts = ShortCutControls.ShortCuts;
+	let ShortCutsTemp = {};
 
 	ShortCutOption.isCapturing = false;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'ShortCutOption',
 		{
 			x: 300,
@@ -48,7 +47,7 @@ define(function (require) {
 			ShortCutOption.remove();
 		});
 		this.ui.find('.tabs').on('click', 'button', function () {
-			var tab = $(this).data('index');
+			let tab = $(this).data('index');
 			ShortCutOption.ui.find('.selectedtab').removeClass('selectedtab');
 			ShortCutOption.ui.find('.' + tab).addClass('selectedtab');
 		});
@@ -114,7 +113,7 @@ define(function (require) {
 	ShortCutOption.onKeyDown = function (event) {
 		if (ShortCutOption.isCapturing) {
 			if (16 != event.which && 17 != event.which && 18 != event.which) {
-				var box = ShortCutOption.ui.find('td.selected');
+				let box = ShortCutOption.ui.find('td.selected');
 
 				if (tempMatch(event.which)) {
 					return (alert('Key already assigned!'), false);
@@ -161,7 +160,7 @@ define(function (require) {
 	 * Updates the key list on the UI
 	 */
 	function updateKeyList() {
-		var $shortcut = ShortCutOption.ui.find('td[data-button]');
+		let $shortcut = ShortCutOption.ui.find('td[data-button]');
 		for (var i = 0; i < $shortcut.length; i++) {
 			if (getKey($shortcut.eq(i).data('button'))) {
 				$shortcut
@@ -219,7 +218,7 @@ define(function (require) {
 		$('#ShortCutOption td.changed').removeClass('changed');
 
 		// Update ShortCut tooltips if the component is loaded
-		var ShortCut = UIManager.getComponent('ShortCut');
+		let ShortCut = UIManager.getComponent('ShortCut');
 		if (ShortCut && ShortCut.updateAllTooltips) {
 			ShortCut.updateAllTooltips();
 		}
@@ -326,8 +325,8 @@ define(function (require) {
 	 * Checks if there is a match in the temporary settings
 	 */
 	function tempMatch(key) {
-		var TempState = {};
-		var match = false;
+		let TempState = {};
+		let match = false;
 
 		Object.keys(ShortCuts).forEach(SC => {
 			// Copy current settings
@@ -376,6 +375,4 @@ define(function (require) {
 
 		return match;
 	}
-
-	return UIManager.addComponent(ShortCutOption);
-});
+export default UIManager.addComponent(ShortCutOption);

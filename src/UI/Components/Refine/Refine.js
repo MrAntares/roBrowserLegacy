@@ -5,61 +5,57 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Configs = require('Core/Configs');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Announce = require('UI/Components/Announce/Announce');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./Refine.html');
-	var cssText = require('text!./Refine.css');
+import DB from 'DB/DBManager';
+import Configs from 'Core/Configs';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Announce from 'UI/Components/Announce/Announce';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './Refine.html?raw';
+import cssText from './Refine.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var Refine = new UIComponent('Refine', htmlText, cssText);
+	let Refine = new UIComponent('Refine', htmlText, cssText);
 
 	/**
 	 * Blacksmtith's Blessing ItemID
 	 */
-	var BSB_ITID = 6635;
+	let BSB_ITID = 6635;
 
 	/**
 	 * Variables for current Refine Session
 	 */
-	var refiningMaterials = [];
-	var blacksmithBlessing = 0;
-	var refine_item_index = 0;
-	var refine_item_mat = 0;
-	var refine_fee = 0;
-	var refine_bsb = 0;
-	var refine_result = 0;
-	var refine_result_div = '';
-	var refine_can_cont = 0;
-	var refine_no_mats = 0;
-	var refine_no_zeny = 0;
-	var refine_no_bsb = 0;
-	var refine_item_broken = 0;
-	var refine_new_mats = 0;
-	var refine_ongoing = 0;
-	var initialsuccess;
-	var currentLoopHandle;
+	let refiningMaterials = [];
+	let blacksmithBlessing = 0;
+	let refine_item_index = 0;
+	let refine_item_mat = 0;
+	let refine_fee = 0;
+	let refine_bsb = 0;
+	let refine_result = 0;
+	let refine_result_div = '';
+	let refine_can_cont = 0;
+	let refine_no_mats = 0;
+	let refine_no_zeny = 0;
+	let refine_no_bsb = 0;
+	let refine_item_broken = 0;
+	let refine_new_mats = 0;
+	let refine_ongoing = 0;
+	let initialsuccess;
+	let currentLoopHandle;
 	Refine.imageLoopTimeout = 0;
 	Refine.messageTimeOut = 0;
 	Refine.hammer = 0;
@@ -177,9 +173,9 @@ define(function (require) {
 		this.draggable(this.ui.find('.titlebar'));
 
 		// Update success div text
-		var successdiv = this.ui.find('.success');
-		var initialValue = 0;
-		var successtext = DB.getMessage(3724);
+		let successdiv = this.ui.find('.success');
+		let initialValue = 0;
+		let successtext = DB.getMessage(3724);
 		initialsuccess = successtext.replace('%d%', `<span class="number">${initialValue}</span>`);
 		successdiv.html(initialsuccess);
 
@@ -278,15 +274,15 @@ define(function (require) {
 
 		Refine.append();
 
-		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		let isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 
 		if (!isInventoryOpen) {
 			Inventory.getUI().toggle();
 		}
 
-		var RefineInfoPos = Refine.ui.offset();
-		var RefineWidth = Refine.ui.outerWidth();
-		var RefineHeight = Refine.ui.outerHeight() - Inventory.getUI().ui.outerHeight();
+		let RefineInfoPos = Refine.ui.offset();
+		let RefineWidth = Refine.ui.outerWidth();
+		let RefineHeight = Refine.ui.outerHeight() - Inventory.getUI().ui.outerHeight();
 
 		Inventory.getUI().ui.css({
 			position: 'absolute',
@@ -303,7 +299,7 @@ define(function (require) {
 	function onRefineClose() {
 		Refine.remove();
 
-		var pkt = new PACKET.CZ.CLOSE_REFINING_UI();
+		let pkt = new PACKET.CZ.CLOSE_REFINING_UI();
 		Network.sendPacket(pkt);
 
 		return false;
@@ -356,7 +352,7 @@ define(function (require) {
 	 * @param {event}
 	 */
 	function onItemDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -380,7 +376,7 @@ define(function (require) {
 	 * Handles sending the server packet request to refine an item
 	 */
 	Refine.onRequestItemRefine = function onRequestItemRefine(item) {
-		var pkt;
+		let pkt;
 		pkt = new PACKET.CZ.REFINING_SELECT_ITEM();
 		pkt.index = item.index;
 		Network.sendPacket(pkt);
@@ -398,14 +394,14 @@ define(function (require) {
 
 		if (pkt && pkt.MaterialInfo.length > 0) {
 			// Check if there is already an item in refine UI
-			var existingItem = Refine.ui.find('.item_to_refine .item');
+			let existingItem = Refine.ui.find('.item_to_refine .item');
 			if (existingItem.length > 0) {
 				// Remove existing item from refine UI
 				onRemoveItem(false);
 			}
 
 			refine_item_index = pkt.itemIndex;
-			var item = Inventory.getUI().getItemByIndex(pkt.itemIndex);
+			let item = Inventory.getUI().getItemByIndex(pkt.itemIndex);
 
 			refiningMaterials = pkt.MaterialInfo;
 			blacksmithBlessing = pkt.blacksmithBlessing;
@@ -415,12 +411,12 @@ define(function (require) {
 
 				// Clear any existing timeout
 				clearTimeout(Refine.imageLoopTimeout);
-				var isbsbenabled = blacksmithBlessing ? 'a' : 'b';
+				let isbsbenabled = blacksmithBlessing ? 'a' : 'b';
 				controlPhase('ready' + isbsbenabled, false, 250);
 			}
 
-			var it = DB.getItemInfo(item.ITID);
-			var content = Refine.ui.find('.item_to_refine');
+			let it = DB.getItemInfo(item.ITID);
+			let content = Refine.ui.find('.item_to_refine');
 
 			content.append(
 				'<div class="item" data-index="' +
@@ -454,13 +450,13 @@ define(function (require) {
 				);
 			}
 
-			var itemname = Refine.ui.find('.item_to_refine_name');
+			let itemname = Refine.ui.find('.item_to_refine_name');
 			itemname.text(DB.getItemName(item));
 
 			// Select previously selected material if available
 			if (Refine.hammer >= 1 && refine_item_mat) {
-				var materialFound = false; // Flag to track if the material was found
-				var item, material;
+				let materialFound = false; // Flag to track if the material was found
+				let item, material;
 
 				for (var i = 0; i < refiningMaterials.length; i++) {
 					material = refiningMaterials[i];
@@ -509,10 +505,10 @@ define(function (require) {
 		// Update materials
 		for (var i = 0; i < refiningMaterials.length; i++) {
 			(function (i) {
-				var material = refiningMaterials[i];
-				var it = DB.getItemInfo(material.itemId);
-				var item = Inventory.getUI().getItemById(material.itemId);
-				var materialDiv = Refine.ui.find('.material_' + i);
+				let material = refiningMaterials[i];
+				let it = DB.getItemInfo(material.itemId);
+				let item = Inventory.getUI().getItemById(material.itemId);
+				let materialDiv = Refine.ui.find('.material_' + i);
 
 				// Clear previous items
 				materialDiv.empty();
@@ -538,8 +534,8 @@ define(function (require) {
 					}
 				);
 
-				var count = item ? item.count : 0;
-				var countmsg = materialDiv.find('.item[data-index="' + material.itemId + '"] .mat_count');
+				let count = item ? item.count : 0;
+				let countmsg = materialDiv.find('.item[data-index="' + material.itemId + '"] .mat_count');
 				// Wrap the count in a span if it's 0
 				if (count === 0) {
 					countmsg.html('<span style="color: #ce1029;">' + count + '</span>/1');
@@ -549,9 +545,9 @@ define(function (require) {
 
 				// Material Selection upon clicking
 				materialDiv.find('.icon').click(function () {
-					var itemId = material.itemId;
-					var item = Inventory.getUI().getItemById(itemId);
-					var count = item ? item.count : 0;
+					let itemId = material.itemId;
+					let item = Inventory.getUI().getItemById(itemId);
+					let count = item ? item.count : 0;
 
 					if (count === 0) {
 						return false;
@@ -569,7 +565,7 @@ define(function (require) {
 					materialDiv.closest('.mat_overlay').addClass('selected'); // Add selected class to the parent overlay
 
 					// Clone the material and append it to the selected_mat
-					var clonedMaterial = materialDiv.find('.item').clone();
+					let clonedMaterial = materialDiv.find('.item').clone();
 					clonedMaterial.find('.mat_count').remove(); // Remove mat_count from the clone
 
 					Refine.ui.find('.selected_mat').empty().append(clonedMaterial);
@@ -594,9 +590,9 @@ define(function (require) {
 
 		// Update blacksmith blessing if applicable
 		if (blacksmithBlessing) {
-			var bsbDiv = Refine.ui.find('.bsb_overlay .bsb');
-			var bsbItem = DB.getItemInfo(BSB_ITID);
-			var item = Inventory.getUI().getItemById(BSB_ITID);
+			let bsbDiv = Refine.ui.find('.bsb_overlay .bsb');
+			let bsbItem = DB.getItemInfo(BSB_ITID);
+			let item = Inventory.getUI().getItemById(BSB_ITID);
 			bsbDiv.append(
 				'<div class="item" data-index="' +
 					BSB_ITID +
@@ -617,8 +613,8 @@ define(function (require) {
 				}
 			);
 
-			var bsbcount = item ? item.count : 0;
-			var bsbcountmsg = bsbDiv.find('.item[data-index="' + BSB_ITID + '"] .mat_count');
+			let bsbcount = item ? item.count : 0;
+			let bsbcountmsg = bsbDiv.find('.item[data-index="' + BSB_ITID + '"] .mat_count');
 			// Wrap the count in a span if it's 0
 			if (bsbcount === 0) {
 				bsbcountmsg.html('<span style="color: #ce1029;">' + bsbcount + '</span>/' + blacksmithBlessing);
@@ -628,11 +624,11 @@ define(function (require) {
 
 			// Add select functionality
 			bsbDiv.find('.icon').click(function () {
-				var item = Inventory.getUI().getItemById(BSB_ITID);
-				var bsbcount = item ? item.count : 0;
+				let item = Inventory.getUI().getItemById(BSB_ITID);
+				let bsbcount = item ? item.count : 0;
 
 				if (bsbcount >= blacksmithBlessing) {
-					var bsbOverlay = bsbDiv.closest('.bsb_overlay');
+					let bsbOverlay = bsbDiv.closest('.bsb_overlay');
 
 					if (bsbOverlay.hasClass('selected')) {
 						bsbOverlay.removeClass('selected');
@@ -643,7 +639,7 @@ define(function (require) {
 						bsbOverlay.addClass('selected'); // Add selected class to the parent overlay
 
 						// Clone the blacksmith blessing and append it to the selected_mat
-						var clonedBSB = bsbDiv.find('.item').clone();
+						let clonedBSB = bsbDiv.find('.item').clone();
 						clonedBSB.find('.mat_count').remove(); // Remove mat_count from the clone
 
 						Refine.ui.find('.bsb_selected').empty().append(clonedBSB);
@@ -665,7 +661,7 @@ define(function (require) {
 	 * Handles update of variables for UI changes based on Refine result
 	 */
 	function selectMaterial(material, item) {
-		var count = item ? item.count || 0 : 0;
+		let count = item ? item.count || 0 : 0;
 
 		// Initial assumption that refining can continue
 		refine_can_cont = 1;
@@ -680,8 +676,8 @@ define(function (require) {
 
 		// Check for BSB
 		if (refine_bsb) {
-			var bsbinInventory = Inventory.getUI().getItemById(BSB_ITID);
-			var bsbCount = bsbinInventory ? bsbinInventory.count || 0 : 0;
+			let bsbinInventory = Inventory.getUI().getItemById(BSB_ITID);
+			let bsbCount = bsbinInventory ? bsbinInventory.count || 0 : 0;
 
 			if (!bsbinInventory || bsbCount < refine_bsb) {
 				refine_no_bsb = 1; // No more BSB
@@ -718,23 +714,23 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var it = DB.getItemInfo(idx);
+		let idx = parseInt(this.getAttribute('data-index'), 10);
+		let it = DB.getItemInfo(idx);
 
 		if (!idx) {
 			return false;
 		}
 
 		// Get the position relative to the .item element
-		var pos = jQuery(this).offset();
-		var overlay = Refine.ui.find('.overlay');
+		let pos = jQuery(this).offset();
+		let overlay = Refine.ui.find('.overlay');
 
 		// Determine the immediate parent container explicitly based on the context
-		var parentContainer = jQuery(this).closest('.materials, .refine_cont');
-		var containerOffset = parentContainer.offset();
+		let parentContainer = jQuery(this).closest('.materials, .refine_cont');
+		let containerOffset = parentContainer.offset();
 
 		// Calculate the desired position of the overlay relative to the container
-		var top, left;
+		let top, left;
 		if (parentContainer.hasClass('materials')) {
 			top = pos.top - containerOffset.top + 30;
 			left = pos.left - containerOffset.left + jQuery(this).outerWidth() - 39;
@@ -839,8 +835,8 @@ define(function (require) {
 	 * @param {string} type - The type of message ('error' or 'info')
 	 */
 	function showMessage(messageID, timeout, type) {
-		var message = DB.getMessage(messageID);
-		var messageClass;
+		let message = DB.getMessage(messageID);
+		let messageClass;
 
 		switch (type) {
 			case 'error':
@@ -877,8 +873,8 @@ define(function (require) {
 	 * Send the server request to refine the item
 	 */
 	function onRequestRefine() {
-		var item = Inventory.getUI().getItemByIndex(refine_item_index);
-		var material = Inventory.getUI().getItemById(refine_item_mat);
+		let item = Inventory.getUI().getItemByIndex(refine_item_index);
+		let material = Inventory.getUI().getItemById(refine_item_mat);
 
 		if (!item) {
 			return false;
@@ -910,7 +906,7 @@ define(function (require) {
 		refine_ongoing = 1;
 
 		// Send request to server
-		var pkt;
+		let pkt;
 		pkt = new PACKET.CZ.REQ_REFINING();
 		pkt.index = refine_item_index;
 		pkt.itemId = refine_item_mat;
@@ -928,7 +924,7 @@ define(function (require) {
 			Refine.ui.find('.back_button').hide();
 			Refine.ui.find('.refine_cont').hide();
 
-			var item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
+			let item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
 			if (item) {
 				item.RefiningLevel = pkt.RefiningLevel;
 				Inventory.getUI().addItem(item);
@@ -962,7 +958,7 @@ define(function (require) {
 	 * Handles animation for failure and pass to UI if downgrade or fail
 	 */
 	function onShowFailure(result) {
-		var showResult = result === 2 ? 'downgrade' : 'fail';
+		let showResult = result === 2 ? 'downgrade' : 'fail';
 
 		onAnimateResult('fail', function () {
 			onUpdateRefineUI(showResult);
@@ -1127,7 +1123,7 @@ define(function (require) {
 	 * Check if the item being refined is broken
 	 */
 	function onCheckItemBroken() {
-		var refineditem = Inventory.getUI().getItemByIndex(refine_item_index);
+		let refineditem = Inventory.getUI().getItemByIndex(refine_item_index);
 		if (!refineditem) {
 			refine_result_div = 'fail_refine_cont_disabled';
 			Refine.ui.find('.item_to_refine_name').text(DB.getMessage(3246));
@@ -1149,7 +1145,7 @@ define(function (require) {
 
 		if (!refine_item_broken) {
 			onPopulateMaterials();
-			var isbsbenabled = blacksmithBlessing ? 'a' : 'b';
+			let isbsbenabled = blacksmithBlessing ? 'a' : 'b';
 			controlPhase('ready' + isbsbenabled, false, 250);
 		} else {
 			onRemoveItem(true);
@@ -1165,9 +1161,9 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var ITID = parseInt(this.getAttribute('data-index'), 10);
+		let ITID = parseInt(this.getAttribute('data-index'), 10);
 		// Materials have item.ID as data-index, Item to be refine has item.index as data-index
-		var item = Inventory.getUI().getItemById(ITID)
+		let item = Inventory.getUI().getItemById(ITID)
 			? Inventory.getUI().getItemById(ITID)
 			: Inventory.getUI().getItemByIndex(ITID);
 
@@ -1195,7 +1191,7 @@ define(function (require) {
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		var compareItem = Equipment.getUI().isInEquipList(item.location);
+		let compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -1234,9 +1230,9 @@ define(function (require) {
 			return;
 		}
 
-		var rect = Refine.ui[0].getBoundingClientRect();
-		var mouseX = event.clientX || event.originalEvent.clientX;
-		var mouseY = event.clientY || event.originalEvent.clientY;
+		let rect = Refine.ui[0].getBoundingClientRect();
+		let mouseX = event.clientX || event.originalEvent.clientX;
+		let mouseY = event.clientY || event.originalEvent.clientY;
 
 		if (mouseX < rect.left || mouseX > rect.right || mouseY < rect.top || mouseY > rect.bottom) {
 			onRemoveItem(true);
@@ -1283,5 +1279,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Refine);
-});
+export default UIManager.addComponent(Refine);

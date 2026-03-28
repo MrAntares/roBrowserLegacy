@@ -7,26 +7,22 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Events = require('Core/Events');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ItemObtain.html');
-	var cssText = require('text!./ItemObtain.css');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Events from 'Core/Events';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './ItemObtain.html?raw';
+import cssText from './ItemObtain.css?raw';
 
-	/**
+/**
 	 * Create component
 	 */
-	var ItemObtain = new UIComponent('ItemObtain', htmlText, cssText);
+	let ItemObtain = new UIComponent('ItemObtain', htmlText, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -41,12 +37,12 @@ define(function (require) {
 	/**
 	 * @var {TimeOut} timer
 	 */
-	var _timer = 0;
+	let _timer = 0;
 
 	/**
 	 * @var {number} time to display
 	 */
-	var _life = 5 * 1000;
+	let _life = 5 * 1000;
 
 	/**
 	 * Initialize component
@@ -85,9 +81,9 @@ define(function (require) {
 	 * @param {object} item
 	 */
 	ItemObtain.set = function set(item) {
-		var it = DB.getItemInfo(item.ITID);
-		var display = DB.getItemName(item, { showItemSlots: false, showItemOptions: false });
-		var resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
+		let it = DB.getItemInfo(item.ITID);
+		let display = DB.getItemName(item, { showItemSlots: false, showItemOptions: false });
+		let resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
 
 		this.placeOnTop();
 
@@ -120,5 +116,4 @@ define(function (require) {
 	/**
 	 * Create component and return it
 	 */
-	return UIManager.addComponent(ItemObtain);
-});
+export default UIManager.addComponent(ItemObtain);

@@ -7,35 +7,31 @@
  *
  * @author [Your Name]
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var MiniMap = require('UI/Components/MiniMap/MiniMap');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var jQuery = require('Utils/jquery');
-	var htmlText = require('text!./Roulette.html');
-	var cssText = require('text!./Roulette.css');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import MiniMap from 'UI/Components/MiniMap/MiniMap';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import jQuery from 'Utils/jquery';
+import htmlText from './Roulette.html?raw';
+import cssText from './Roulette.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var Roulette = new UIComponent('Roulette', htmlText, cssText);
+	let Roulette = new UIComponent('Roulette', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	let _preferences = Preferences.get(
 		'Roulette',
 		{
 			x: 200,
@@ -48,7 +44,7 @@ define(function (require) {
 	/**
 	 * @var {object} Roulette data
 	 */
-	var _rouletteInfo = {
+	let _rouletteInfo = {
 		step: 0,
 		idx: 0,
 		goldPoint: 0,
@@ -61,7 +57,7 @@ define(function (require) {
 	/**
 	 * @var {boolean} Is spinning
 	 */
-	var _isSpinning = false;
+	let _isSpinning = false;
 
 	/**
 	 * Initialize UI
@@ -91,13 +87,13 @@ define(function (require) {
 	/**
 	 * @var {number} Timeout ID for server response
 	 */
-	var _responseTimeout = null;
+	let _responseTimeout = null;
 
 	/**
 	 * Click on roulette icon
 	 */
 	function onClickIcon() {
-		var pkt = new PACKET.CZ.REQ_OPEN_ROULETTE();
+		let pkt = new PACKET.CZ.REQ_OPEN_ROULETTE();
 		Network.sendPacket(pkt);
 
 		// Clear any existing timeout
@@ -137,12 +133,12 @@ define(function (require) {
 		}
 
 		// Try to add button with retry logic
-		var attempts = 0;
-		var maxAttempts = 20;
+		let attempts = 0;
+		let maxAttempts = 20;
 
-		var tryAddButton = function () {
+		let tryAddButton = function () {
 			attempts++;
-			var miniMapComponent = MiniMap.getUI();
+			let miniMapComponent = MiniMap.getUI();
 
 			if (miniMapComponent && miniMapComponent.ui) {
 				clearTimeout(retryTimeout);
@@ -152,7 +148,7 @@ define(function (require) {
 			}
 		};
 
-		var retryTimeout = setTimeout(tryAddButton, 100);
+		let retryTimeout = setTimeout(tryAddButton, 100);
 	};
 
 	/**
@@ -166,10 +162,10 @@ define(function (require) {
 				miniMapUI.on('click', '.rouletteIcon', onClickIcon);
 
 				// Load roulette icon
-				var iconPath = 'basic_interface/roullette/RoulletteIcon.bmp';
+				let iconPath = 'basic_interface/roullette/RoulletteIcon.bmp';
 
 				Client.loadFile(DB.INTERFACE_PATH + iconPath, function (data) {
-					var btn = miniMapUI.find('.rouletteIcon');
+					let btn = miniMapUI.find('.rouletteIcon');
 					btn.css({
 						backgroundImage: 'url(' + data + ')',
 						backgroundSize: 'contain',
@@ -224,7 +220,7 @@ define(function (require) {
 		Roulette.ui.hide();
 
 		// Send close packet to server
-		var pkt = new PACKET.CZ.REQ_CLOSE_ROULETTE();
+		let pkt = new PACKET.CZ.REQ_CLOSE_ROULETTE();
 		Network.sendPacket(pkt);
 	};
 
@@ -237,7 +233,7 @@ define(function (require) {
 		}
 
 		// Send spin request packet to server
-		var pkt = new PACKET.CZ.REQ_GENERATE_ROULETTE();
+		let pkt = new PACKET.CZ.REQ_GENERATE_ROULETTE();
 		Network.sendPacket(pkt);
 	};
 
@@ -279,21 +275,21 @@ define(function (require) {
 	 * Generate wheel slots from items
 	 */
 	Roulette.generateWheelSlots = function generateWheelSlots() {
-		var wheelSlots = this.ui.find('.wheel-slots');
+		let wheelSlots = this.ui.find('.wheel-slots');
 		wheelSlots.empty();
 
-		var items = _rouletteInfo.items || [];
-		var numSlots = items.length || 10; // Default 10 slots
+		let items = _rouletteInfo.items || [];
+		let numSlots = items.length || 10; // Default 10 slots
 
 		for (var i = 0; i < numSlots; i++) {
-			var angle = (360 / numSlots) * i;
-			var distance = 120; // Distance from center
-			var radian = (angle - 90) * (Math.PI / 180);
+			let angle = (360 / numSlots) * i;
+			let distance = 120; // Distance from center
+			let radian = (angle - 90) * (Math.PI / 180);
 
-			var x = distance * Math.cos(radian);
-			var y = distance * Math.sin(radian);
+			let x = distance * Math.cos(radian);
+			let y = distance * Math.sin(radian);
 
-			var slot = jQuery('<div class="wheel-slot"></div>');
+			let slot = jQuery('<div class="wheel-slot"></div>');
 			slot.attr('data-index', i);
 			slot.css({
 				transform: 'translate(' + x + 'px, ' + y + 'px) rotate(' + angle + 'deg)'
@@ -301,12 +297,12 @@ define(function (require) {
 
 			// Add item icon if available
 			if (items[i]) {
-				var itemId = items[i].itemId || items[i].item_id || items[i].ItemID;
+				let itemId = items[i].itemId || items[i].item_id || items[i].ItemID;
 				if (itemId) {
 					Client.loadFile(
 						DB.INTERFACE_PATH + 'item/' + itemId + '.bmp',
 						function (slot, data) {
-							var icon = jQuery('<div class="item-icon"></div>');
+							let icon = jQuery('<div class="item-icon"></div>');
 							icon.css('backgroundImage', 'url(' + data + ')');
 							slot.append(icon);
 						}.bind(this, slot)
@@ -329,13 +325,13 @@ define(function (require) {
 		_isSpinning = true;
 		this.ui.find('.btn-spin').prop('disabled', true);
 
-		var wheelSlots = this.ui.find('.wheel-slots');
-		var numSlots = _rouletteInfo.items.length || 10;
-		var degreesPerSlot = 360 / numSlots;
+		let wheelSlots = this.ui.find('.wheel-slots');
+		let numSlots = _rouletteInfo.items.length || 10;
+		let degreesPerSlot = 360 / numSlots;
 
 		// Calculate final rotation
 		// Add multiple full rotations (5) plus the target slot
-		var targetRotation = 360 * 5 + resultIndex * degreesPerSlot;
+		let targetRotation = 360 * 5 + resultIndex * degreesPerSlot;
 
 		wheelSlots.css({
 			transform: 'translate(-50%, -50%) rotate(' + targetRotation + 'deg)'
@@ -353,12 +349,12 @@ define(function (require) {
 	 * Show result after spin
 	 */
 	Roulette.showResult = function showResult(resultIndex) {
-		var resultDisplay = this.ui.find('.result-item');
+		let resultDisplay = this.ui.find('.result-item');
 		resultDisplay.empty();
 
 		if (_rouletteInfo.items[resultIndex]) {
-			var item = _rouletteInfo.items[resultIndex];
-			var itemId = item.itemId || item.item_id || item.ItemID;
+			let item = _rouletteInfo.items[resultIndex];
+			let itemId = item.itemId || item.item_id || item.ItemID;
 
 			if (itemId) {
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + itemId + '.bmp', function (data) {
@@ -412,13 +408,12 @@ define(function (require) {
 	 * Request to receive the roulette item
 	 */
 	Roulette.requestReceiveItem = function requestReceiveItem(condition) {
-		var pkt = new PACKET.CZ.RECV_ROULETTE_ITEM();
+		let pkt = new PACKET.CZ.RECV_ROULETTE_ITEM();
 		pkt.condition = condition || 0; // 0 = normal, 1 = losing
 		Network.sendPacket(pkt);
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(Roulette);
-});
+	export default UIManager.addComponent(Roulette);

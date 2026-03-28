@@ -8,13 +8,14 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/jquery'], function (jQuery) {
-	'use strict';
+'use strict';
+
+import jQuery from 'Utils/jquery';
 
 	/**
 	 * Mouse object
 	 */
-	var Mouse = {};
+	let Mouse = {};
 
 	/**
 	 * Mouse screen position (2D)
@@ -60,7 +61,6 @@ define(['Utils/jquery'], function (jQuery) {
 	});
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return Mouse;
-});
+	export default Mouse;

@@ -7,24 +7,20 @@
  *
  * @author Disaml
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./PincodeWindow.html');
-	var cssText = require('text!./PincodeWindow.css');
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './PincodeWindow.html?raw';
+import cssText from './PincodeWindow.css?raw';
 
-	/**
+/**
 	 * Pincode Window namespace
 	 */
-	var PincodeWindow = new UIComponent('PincodeWindow', htmlText, cssText);
+	let PincodeWindow = new UIComponent('PincodeWindow', htmlText, cssText);
 
 	/**
 	 * @var {Preference} window preferences
@@ -34,19 +30,19 @@ define(function (require) {
         y: 320
     }, 1.0);
 
-    var sel_input = 0;
+    let sel_input = 0;
 
-    var _checkpass = '';
+    let _checkpass = '';
 
-    var _newpass = '';
+    let _newpass = '';
 
-    var _pass = '';
+    let _pass = '';
 
-    var _keypad = undefined;
+    let _keypad = undefined;
 
-    var _currentSeed = undefined;
+    let _currentSeed = undefined;
 
-    var _resetstate = 0;*/ // UNUSED
+    let _resetstate = 0;*/ // UNUSED
 
 	PincodeWindow.resetUI = function resetUI() {
 		PincodeWindow._resetstate = 0;
@@ -85,31 +81,31 @@ define(function (require) {
 	};
 
 	function shuffleUsingKeypad(keypad) {
-		var ui = PincodeWindow.ui;
+		let ui = PincodeWindow.ui;
 		if (!ui || !keypad) {
 			return;
 		}
 		for (var loc = 0; loc < 10; loc++) {
-			var posBtn = ui.find('.btn.num' + loc);
+			let posBtn = ui.find('.btn.num' + loc);
 			if (!posBtn || posBtn.length === 0) {
 				continue;
 			}
 
-			var el = posBtn[0];
-			var off = posBtn.offset();
+			let el = posBtn[0];
+			let off = posBtn.offset();
 			el.__original_x_pos = off.left;
 			el.__original_y_pos = off.top;
 		}
 		for (var loc = 0; loc < 10; loc++) {
-			var d = keypad[loc];
-			var btn = ui.find('.btn.num' + d);
+			let d = keypad[loc];
+			let btn = ui.find('.btn.num' + d);
 			if (!btn || btn.length === 0) {
 				continue;
 			}
 
-			var targetEl = ui.find('.btn.num' + loc)[0];
-			var target_x = targetEl.__original_x_pos;
-			var target_y = targetEl.__original_y_pos;
+			let targetEl = ui.find('.btn.num' + loc)[0];
+			let target_x = targetEl.__original_x_pos;
+			let target_y = targetEl.__original_y_pos;
 			btn.offset({
 				left: target_x,
 				top: target_y
@@ -131,7 +127,7 @@ define(function (require) {
 	 * Initialize UI
 	 */
 	PincodeWindow.init = function init() {
-		var ui = this.ui;
+		let ui = this.ui;
 
 		this.ui.css({
 			top: (Renderer.height - 358) / 2,
@@ -294,7 +290,7 @@ define(function (require) {
 	 * Called by the parent when we have received a pincode reset request from the server.
 	 */
 	PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
-		var ui = PincodeWindow.ui;
+		let ui = PincodeWindow.ui;
 		if (
 			PincodeWindow._resetstate === 3 &&
 			typeof PincodeWindow.onPincodeReset === 'function' &&
@@ -413,13 +409,13 @@ define(function (require) {
 	};
 
 	function generateKeypad(_userseed) {
-		var tab = new Uint8Array([0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9]); // This is a char array in rathena. (So 1 byte values.)
-		var keypad = new Uint8Array([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]); // This is a char array in rathena. (So 1 byte values.)
+		let tab = new Uint8Array([0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9]); // This is a char array in rathena. (So 1 byte values.)
+		let keypad = new Uint8Array([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]); // This is a char array in rathena. (So 1 byte values.)
 		const multiplier = parseInt('0x3498', 16);
 		const baseSeed = parseInt('0x881234', 16);
-		var i = 0;
-		var pos = 0;
-		var userSeed = new Uint32Array([_userseed]); // It's tempting to make this a regular var, but we need the truncating behavior of an int32 for the pad generation.
+		let i = 0;
+		let pos = 0;
+		let userSeed = new Uint32Array([_userseed]); // It's tempting to make this a regular var, but we need the truncating behavior of an int32 for the pad generation.
 
 		// Set up onetime pad.
 		for (i = 1; i < 10; i++) {
@@ -441,19 +437,19 @@ define(function (require) {
 	}
 
 	function encryptPincode(pincode) {
-		var intCode = 0;
-		var strCode = '';
+		let intCode = 0;
+		let strCode = '';
 		//var keypad = undefined; //UNUSED
-		var i = 0;
-		var x = 0;
-		var out = '';
+		let i = 0;
+		let x = 0;
+		let out = '';
 
 		intCode = Number.parseInt(pincode);
 		if (isNaN(intCode) === false && Number.isSafeInteger(intCode) === true) {
 			if (intCode >= 0 && intCode < 1000000 && pincode.length >= 4 && pincode.length <= 6) {
 				// Get intCode into a parseable string.
-				for (var i = pincode.length - 1; i > 0; i--) {
-					if (intCode < Math.pow(10, i)) {
+				for (var ic = pincode.length - 1; ic > 0; ic--) {
+					if (intCode < Math.pow(10, ic)) {
 						strCode += '0';
 					}
 				}
@@ -475,9 +471,9 @@ define(function (require) {
 	}
 
 	function success() {
-		var passEnc = PincodeWindow._pass;
-		var checkPassEnc = PincodeWindow._checkpass;
-		var newPassEnc = PincodeWindow._newpass;
+		let passEnc = PincodeWindow._pass;
+		let checkPassEnc = PincodeWindow._checkpass;
+		let newPassEnc = PincodeWindow._newpass;
 
 		if (PincodeWindow._keypad !== undefined) {
 			if (PincodeWindow._pass !== undefined && PincodeWindow._pass !== '') {
@@ -565,14 +561,14 @@ define(function (require) {
 	};
 
 	function render(tick) {
-		var num = (
+		let num = (
 			PincodeWindow.sel_input === 1
 				? PincodeWindow._newpass
 				: PincodeWindow.sel_input === 2
 					? PincodeWindow._checkpass
 					: PincodeWindow._pass
 		).length;
-		var str = '';
+		let str = '';
 
 		for (var x = 0; x < num; x++) {
 			str += '*';
@@ -586,5 +582,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(PincodeWindow);
-});
+export default UIManager.addComponent(PincodeWindow);

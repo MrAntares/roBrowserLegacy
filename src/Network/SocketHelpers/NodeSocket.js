@@ -9,8 +9,7 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
 	/**
 	 * Nodejs TCP Socket
@@ -79,5 +78,4 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return Socket;
-});
+	export default Socket;

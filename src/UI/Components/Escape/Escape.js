@@ -7,26 +7,22 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var SoundOption = require('UI/Components/SoundOption/SoundOption');
-	var GraphicsOption = require('UI/Components/GraphicsOption/GraphicsOption');
-	var ShortCutOption = require('UI/Components/ShortCutOption/ShortCutOption');
-	var htmlText = require('text!./Escape.html');
-	var cssText = require('text!./Escape.css');
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import SoundOption from 'UI/Components/SoundOption/SoundOption';
+import GraphicsOption from 'UI/Components/GraphicsOption/GraphicsOption';
+import ShortCutOption from 'UI/Components/ShortCutOption/ShortCutOption';
+import htmlText from './Escape.html?raw';
+import cssText from './Escape.css?raw';
 
-	/**
+/**
 	 * Create Escape window component
 	 */
-	var Escape = new UIComponent('Escape', htmlText, cssText);
+	let Escape = new UIComponent('Escape', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -156,5 +152,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Escape);
-});
+export default UIManager.addComponent(Escape);

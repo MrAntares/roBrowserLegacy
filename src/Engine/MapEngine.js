@@ -9,111 +9,134 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Load dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Configs = require('Core/Configs');
-	var SoundManager = require('Audio/SoundManager');
-	var BGM = require('Audio/BGM');
-	var Events = require('Core/Events');
-	var Session = require('Engine/SessionStorage');
-	var Network = require('Network/NetworkManager');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PACKET = require('Network/PacketStructure');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var MapRenderer = require('Renderer/MapRenderer');
-	var EntityManager = require('Renderer/EntityManager');
-	var Entity = require('Renderer/Entity/Entity');
-	var Altitude = require('Renderer/Map/Altitude');
-	var MapControl = require('Controls/MapControl');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var EffectManager = require('Renderer/EffectManager');
-	var Background = require('UI/Background');
-	var Escape = require('UI/Components/Escape/Escape');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var ChatBoxSettings = require('UI/Components/ChatBoxSettings/ChatBoxSettings');
-	var StatusConst = require('DB/Status/StatusState');
-	var CheckAttendance = require('UI/Components/CheckAttendance/CheckAttendance');
-	var WinStats = require('UI/Components/WinStats/WinStats');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var Storage = require('UI/Components/Storage/Storage');
-	var CartItems = require('UI/Components/CartItems/CartItems');
-	var Vending = require('UI/Components/Vending/Vending');
-	var VendingReport = require('UI/Components/VendingReport/VendingReport');
-	var ChangeCart = require('UI/Components/ChangeCart/ChangeCart');
-	var ShortCut = require('UI/Components/ShortCut/ShortCut');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var SwitchEquip = require('UI/Components/SwitchEquip/SwitchEquip');
-	var ShortCuts = require('UI/Components/ShortCuts/ShortCuts');
-	var StatusIcons = require('UI/Components/StatusIcons/StatusIcons');
-	var ChatRoomCreate = require('UI/Components/ChatRoomCreate/ChatRoomCreate');
-	var Emoticons = require('UI/Components/Emoticons/Emoticons');
-	var FPS = require('UI/Components/FPS/FPS');
-	var PartyFriends = require('UI/Components/PartyFriends/PartyFriends');
-	var Guild = require('UI/Components/Guild/Guild');
-	var WorldMap = require('UI/Components/WorldMap/WorldMap');
-	var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
-	var MobileUI = require('UI/Components/MobileUI/MobileUI');
-	var CashShop = require('UI/Components/CashShop/CashShop');
-	var Bank = require('UI/Components/Bank/Bank');
-	var ItemReform = require('UI/Components/ItemReform/ItemReform');
-	var LaphineSys = require('UI/Components/LaphineSys/LaphineSys');
-	var LaphineUpg = require('UI/Components/LaphineUpg/LaphineUpg');
-	var Rodex = require('UI/Components/Rodex/Rodex');
-	var RodexIcon = require('UI/Components/Rodex/RodexIcon');
-	var Roulette = require('UI/Components/Roulette/Roulette');
-	var PCGoldTimer = require('UI/Components/PCGoldTimer/PCGoldTimer');
-	var Refine = require('UI/Components/Refine/Refine');
-	var Reputation = require('UI/Components/Reputation/Reputation');
-	var PetInformations = require('UI/Components/PetInformations/PetInformations');
-	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
-	var MapName = require('UI/Components/MapName/MapName');
-	var Announce = require('UI/Components/Announce/Announce');
-	var Navigation = require('UI/Components/Navigation/Navigation');
-	var CaptchaUpload = require('UI/Components/Captcha/CaptchaUpload');
-	var CaptchaSelector = require('UI/Components/Captcha/CaptchaSelector');
-	var CaptchaAnswer = require('UI/Components/Captcha/CaptchaAnswer');
-	var CaptchaPreview = require('UI/Components/Captcha/CaptchaPreview');
-	var Clan = require('UI/Components/Clan/Clan');
-	var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
-	var PluginManager = require('Plugins/PluginManager');
-	var SignboardManager = require('Renderer/SignboardManager');
-	var PvPTimer = require('UI/Components/PvPTimer/PvPTimer');
-	var PvPCount = require('UI/Components/PvPCount/PvPCount');
-	// Version Dependent UIs
-	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
-	var MiniMap = require('UI/Components/MiniMap/MiniMap');
-	var SkillList = require('UI/Components/SkillList/SkillList');
-	var Quest = require('UI/Components/Quest/Quest');
-	var PlayerViewEquip = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
-	var JoystickUI = require('UI/Components/JoystickUI/JoystickUI');
-	var CashShopIcon = require('UI/Components/CashShopIcon/CashShopIcon');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Configs from 'Core/Configs';
+import SoundManager from 'Audio/SoundManager';
+import BGM from 'Audio/BGM';
+import Events from 'Core/Events';
+import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager';
+import PACKETVER from 'Network/PacketVerManager';
+import PACKET from 'Network/PacketStructure';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import MapRenderer from 'Renderer/MapRenderer';
+import EntityManager from 'Renderer/EntityManager';
+import Entity from 'Renderer/Entity/Entity';
+import Altitude from 'Renderer/Map/Altitude';
+import MapControl from 'Controls/MapControl';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import EffectManager from 'Renderer/EffectManager';
+import Background from 'UI/Background';
+import Escape from 'UI/Components/Escape/Escape';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import ChatBoxSettings from 'UI/Components/ChatBoxSettings/ChatBoxSettings';
+import StatusConst from 'DB/Status/StatusState';
+import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance';
+import WinStats from 'UI/Components/WinStats/WinStats';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import Storage from 'UI/Components/Storage/Storage';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import Vending from 'UI/Components/Vending/Vending';
+import VendingReport from 'UI/Components/VendingReport/VendingReport';
+import ChangeCart from 'UI/Components/ChangeCart/ChangeCart';
+import ShortCut from 'UI/Components/ShortCut/ShortCut';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip';
+import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
+import StatusIcons from 'UI/Components/StatusIcons/StatusIcons';
+import ChatRoomCreate from 'UI/Components/ChatRoomCreate/ChatRoomCreate';
+import Emoticons from 'UI/Components/Emoticons/Emoticons';
+import FPS from 'UI/Components/FPS/FPS';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
+import Guild from 'UI/Components/Guild/Guild';
+import WorldMap from 'UI/Components/WorldMap/WorldMap';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
+import MobileUI from 'UI/Components/MobileUI/MobileUI';
+import CashShop from 'UI/Components/CashShop/CashShop';
+import Bank from 'UI/Components/Bank/Bank';
+import ItemReform from 'UI/Components/ItemReform/ItemReform';
+import LaphineSys from 'UI/Components/LaphineSys/LaphineSys';
+import LaphineUpg from 'UI/Components/LaphineUpg/LaphineUpg';
+import Rodex from 'UI/Components/Rodex/Rodex';
+import RodexIcon from 'UI/Components/Rodex/RodexIcon';
+import Roulette from 'UI/Components/Roulette/Roulette';
+import PCGoldTimer from 'UI/Components/PCGoldTimer/PCGoldTimer';
+import Refine from 'UI/Components/Refine/Refine';
+import Reputation from 'UI/Components/Reputation/Reputation';
+import PetInformations from 'UI/Components/PetInformations/PetInformations';
+import HomunInformations from 'UI/Components/HomunInformations/HomunInformations';
+import MapName from 'UI/Components/MapName/MapName';
+import Announce from 'UI/Components/Announce/Announce';
+import Navigation from 'UI/Components/Navigation/Navigation';
+import CaptchaUpload from 'UI/Components/Captcha/CaptchaUpload';
+import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector';
+import CaptchaAnswer from 'UI/Components/Captcha/CaptchaAnswer';
+import CaptchaPreview from 'UI/Components/Captcha/CaptchaPreview';
+import Clan from 'UI/Components/Clan/Clan';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
+import PluginManager from 'Plugins/PluginManager';
+import SignboardManager from 'Renderer/SignboardManager';
+import PvPTimer from 'UI/Components/PvPTimer/PvPTimer';
+import PvPCount from 'UI/Components/PvPCount/PvPCount';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo';
+import MiniMap from 'UI/Components/MiniMap/MiniMap';
+import SkillList from 'UI/Components/SkillList/SkillList';
+import Quest from 'UI/Components/Quest/Quest';
+import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip';
+import JoystickUI from 'UI/Components/JoystickUI/JoystickUI';
+import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon';
+
+import MainEngine from './MapEngine/Main';
+import MapStateEngine from './MapEngine/MapState';
+import NPCEngine from './MapEngine/NPC';
+import EntityEngine from './MapEngine/Entity';
+import ItemEngine from './MapEngine/Item';
+import MailEngine from './MapEngine/Mail';
+import PrivateMessageEngine from './MapEngine/PrivateMessage';
+import StorageEngine from './MapEngine/Storage';
+import GroupEngine from './MapEngine/Group';
+import GuildEngine from './MapEngine/Guild';
+import SkillEngine from './MapEngine/Skill';
+import ChatRoomEngine from './MapEngine/ChatRoom';
+import PetEngine from './MapEngine/Pet';
+import HomunEngine from './MapEngine/Homun';
+import MercenaryEngine from './MapEngine/Mercenary';
+import StoreEngine from './MapEngine/Store';
+import TradeEngine from './MapEngine/Trade';
+import FriendsEngine from './MapEngine/Friends';
+import UIOpenEngine from './MapEngine/UIOpen';
+import QuestEngine from './MapEngine/Quest';
+import RodexEngine from './MapEngine/Rodex';
+import RouletteEngine from './MapEngine/Roulette';
+import PCGoldTimerEngine from './MapEngine/PCGoldTimer';
+import CaptchaEngine from './MapEngine/Captcha';
+import ClanEngine from './MapEngine/Clan';
+import CashShopEngine from './MapEngine/CashShop';
+import BankEngine from './MapEngine/Bank';
 
 	/**
 	 * @var {string mapname}
 	 */
-	var _mapName = '';
+	let _mapName = '';
 
 	/**
 	 * @var {boolean} is initialized
 	 */
-	var _isInitialised = false;
+	let _isInitialised = false;
 
 	/**
 	 * @namespace MapEngine
 	 */
-	var MapEngine = {};
+	let MapEngine = {};
 
-	var snCounter = 0;
-	var chatLines = 0;
+	let snCounter = 0;
+	let chatLines = 0;
 
 	/**
 	 * @var {boolean} do we need to update UI versions?
@@ -131,9 +154,9 @@ define(function (require) {
 		_mapName = mapName;
 
 		// Connect to char server
-		var forceAddress = Configs.get('forceUseAddress');
-		var server_info = Configs.getServer();
-		var current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
+		let forceAddress = Configs.get('forceUseAddress');
+		let server_info = Configs.getServer();
+		let current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
 		Network.connect(
 			current_ip,
 			port,
@@ -148,7 +171,7 @@ define(function (require) {
 				}
 
 				// Success, try to login.
-				var pkt;
+				let pkt;
 				if (PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.ENTER2();
 				} else {
@@ -169,11 +192,11 @@ define(function (require) {
 					}
 				});
 
-				var hbt = new PACKET.CZ.HBT();
-				var is_sec_hbt = Configs.get('sec_HBT', null);
+				let hbt = new PACKET.CZ.HBT();
+				let is_sec_hbt = Configs.get('sec_HBT', null);
 
 				// Ping
-				var ping, SP;
+				let ping, SP;
 				SP = Session.ping;
 
 				if (PACKETVER.value >= 20180307) {
@@ -181,7 +204,7 @@ define(function (require) {
 				} else {
 					ping = new PACKET.CZ.REQUEST_TIME();
 				}
-				var startTick = Date.now();
+				let startTick = Date.now();
 				Network.setPing(function () {
 					if (is_sec_hbt) {
 						Network.sendPacket(hbt);
@@ -248,37 +271,37 @@ define(function (require) {
 			Network.hookPacket(PACKET.ZC.CONFIG, onConfig);
 
 			// Extend controller
-			require('./MapEngine/Main').call();
-			require('./MapEngine/MapState').call();
-			require('./MapEngine/NPC').call();
-			require('./MapEngine/Entity').call();
-			require('./MapEngine/Item').call();
-			require('./MapEngine/Mail').call();
-			require('./MapEngine/PrivateMessage').call();
-			require('./MapEngine/Storage').call();
-			require('./MapEngine/Group').init();
-			require('./MapEngine/Guild').init();
-			require('./MapEngine/Skill').call();
-			require('./MapEngine/ChatRoom').call();
-			require('./MapEngine/Pet').call();
-			require('./MapEngine/Homun').call();
-			require('./MapEngine/Mercenary').call();
-			require('./MapEngine/Store').call();
-			require('./MapEngine/Trade').call();
-			require('./MapEngine/Friends').init();
-			require('./MapEngine/UIOpen').call();
-			require('./MapEngine/Quest').call();
-			require('./MapEngine/Rodex').call();
-			require('./MapEngine/Roulette').call();
-			require('./MapEngine/PCGoldTimer').call();
-			require('./MapEngine/Captcha').call();
-			require('./MapEngine/Clan').call();
+			MainEngine();
+			MapStateEngine();
+			NPCEngine();
+			EntityEngine();
+			ItemEngine();
+			MailEngine();
+			PrivateMessageEngine();
+			StorageEngine();
+			GroupEngine.init();
+			GuildEngine.init();
+			SkillEngine();
+			ChatRoomEngine();
+			PetEngine();
+			HomunEngine();
+			MercenaryEngine();
+			StoreEngine();
+			TradeEngine();
+			FriendsEngine.init();
+			UIOpenEngine();
+			QuestEngine();
+			RodexEngine();
+			RouletteEngine();
+			PCGoldTimerEngine();
+			CaptchaEngine();
+			ClanEngine();
 			if (Configs.get('enableCashShop')) {
-				require('./MapEngine/CashShop').call();
+				CashShopEngine();
 			}
 
 			if (Configs.get('enableBank')) {
-				require('./MapEngine/Bank').init();
+				BankEngine.init();
 			}
 
 			// Prepare UI
@@ -374,6 +397,7 @@ define(function (require) {
 			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
 			Escape.onResurectionRequest = onResurectionRequest;
 			ChatBox.onRequestTalk = onRequestTalk;
+			WhisperBox.onRequestTalk = onRequestTalk;
 		}
 
 		// Init selected UIs when needed
@@ -396,7 +420,7 @@ define(function (require) {
 			Equipment.getUI().onEquipItem = onEquipItem;
 			Equipment.getUI().onRemoveOption = onRemoveOption;
 			Inventory.getUI().onUseItem = onUseItem;
-			Inventory.getUI().onEquipItem = onEquipItem;
+			Equipment.getUI().onEquipItem = onEquipItem;
 
 			// Avoid zone server change init
 			MapEngine.needsUIVerUpdate = false;
@@ -408,7 +432,7 @@ define(function (require) {
 	 * TODO: check the time ?
 	 */
 	function onPong(pkt) {
-		var SP = Session.ping;
+		let SP = Session.ping;
 
 		SP.returned = true;
 		SP.pongTime = 0;
@@ -421,7 +445,7 @@ define(function (require) {
 	 * Ping from server?
 	 */
 	function onPingLive(pkt) {
-		var pong_pkt = new PACKET.CZ.PING_LIVE();
+		let pong_pkt = new PACKET.CZ.PING_LIVE();
 		Network.sendPacket(pong_pkt);
 	}
 
@@ -738,7 +762,7 @@ define(function (require) {
 	 * Ask the server to disconnect
 	 */
 	function onExitRequest() {
-		var pkt = new PACKET.CZ.REQUEST_QUIT();
+		let pkt = new PACKET.CZ.REQUEST_QUIT();
 		Network.sendPacket(pkt);
 
 		// Wait a second, if no answer from the server, then close it.
@@ -766,6 +790,7 @@ define(function (require) {
 			ShortCut.saveToServer();
 		}
 
+		WhisperBox.clearAll();
 		UIManager.removeComponents();
 		Network.close();
 		Renderer.stop();
@@ -775,10 +800,10 @@ define(function (require) {
 		if (PACKETVER.value < 20181114) {
 			Background.remove();
 			Background.setImage('bgi_temp.bmp', function () {
-				require('Engine/GameEngine').reload();
+				import('Engine/GameEngine').then(m => m.default.reload());
 			});
 		} else {
-			require('Engine/GameEngine').reload();
+			import('Engine/GameEngine').then(m => m.default.reload());
 		}
 	}
 
@@ -786,7 +811,7 @@ define(function (require) {
 	 * Try to return to char-server
 	 */
 	function onRestartRequest() {
-		var pkt = new PACKET.CZ.RESTART();
+		let pkt = new PACKET.CZ.RESTART();
 		pkt.type = 1;
 		Network.sendPacket(pkt);
 	}
@@ -795,7 +820,7 @@ define(function (require) {
 	 * Go back to save point request
 	 */
 	function onReturnSavePointRequest() {
-		var pkt = new PACKET.CZ.RESTART();
+		let pkt = new PACKET.CZ.RESTART();
 		pkt.type = 0;
 		Network.sendPacket(pkt);
 	}
@@ -804,7 +829,7 @@ define(function (require) {
 	 * Resurection feature
 	 */
 	function onResurectionRequest() {
-		var pkt = new PACKET.CZ.STANDING_RESURRECTION();
+		let pkt = new PACKET.CZ.STANDING_RESURRECTION();
 		Network.sendPacket(pkt);
 	}
 
@@ -818,7 +843,8 @@ define(function (require) {
 			// Have to wait 10sec
 			ChatBox.addText(DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		} else {
-			require('Engine/MapEngine/Guild').guild_id = 0;
+			WhisperBox.clearAll();
+			GuildEngine.guild_id = 0;
 			BasicInfo.getUI().remove();
 			PlayerViewEquip.getUI().remove();
 			StatusIcons.clean();
@@ -841,6 +867,7 @@ define(function (require) {
 		switch (pkt.result) {
 			// Disconnect
 			case 0:
+				WhisperBox.clearAll();
 				BasicInfo.getUI().remove();
 				PlayerViewEquip.getUI().remove();
 				StatusIcons.clean();
@@ -869,9 +896,9 @@ define(function (require) {
 	 * @param {number} target
 	 */
 	function onRequestTalk(user, text, target) {
-		var pkt;
-		var flag_party = text[0] === '%' || KEYS.CTRL;
-		var flag_guild =
+		let pkt;
+		let flag_party = text[0] === '%' || KEYS.CTRL;
+		let flag_guild =
 			text[0] === '$' ||
 			(KEYS.ALT &&
 				!(
@@ -890,7 +917,7 @@ define(function (require) {
 		text = text.replace(/^(\$|%)/, '');
 
 		// Private messages
-		if (user.length) {
+		if (user && user.length) {
 			pkt = new PACKET.CZ.WHISPER();
 			pkt.receiver = user;
 			pkt.msg = text;
@@ -950,19 +977,19 @@ define(function (require) {
 	 * Remove cart/peco/falcon
 	 */
 	function onRemoveOption() {
-		var pkt = new PACKET.CZ.REQ_CARTOFF();
+		let pkt = new PACKET.CZ.REQ_CARTOFF();
 		Network.sendPacket(pkt);
 	}
 
 	/**
 	 * @var {number} walk timer
 	 */
-	var _walkTimer = null;
+	let _walkTimer = null;
 
 	/**
 	 * @var {number} Last delay to walk
 	 */
-	var _walkLastTick = 0;
+	let _walkLastTick = 0;
 
 	/**
 	 * Ask to move
@@ -974,7 +1001,7 @@ define(function (require) {
 		if (Session.Entity.action === Session.Entity.ACTION.SIT || KEYS.SHIFT) {
 			Session.Entity.lookTo(Mouse.world.x, Mouse.world.y);
 
-			var pkt;
+			let pkt;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION2();
 			} else {
@@ -1006,13 +1033,13 @@ define(function (require) {
 			return;
 		}
 
-		var isWalkable = Mouse.world.x > -1 && Mouse.world.y > -1;
-		var isCurrentPos =
+		let isWalkable = Mouse.world.x > -1 && Mouse.world.y > -1;
+		let isCurrentPos =
 			Math.round(Session.Entity.position[0]) === Mouse.world.x &&
 			Math.round(Session.Entity.position[1]) === Mouse.world.y;
 
 		if (isWalkable && !isCurrentPos) {
-			var pkt;
+			let pkt;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.REQUEST_MOVE2();
 			} else {
@@ -1040,9 +1067,9 @@ define(function (require) {
 	 * @param {array} out
 	 */
 	function checkFreeCell(x, y, range, out) {
-		var _x, _y, r;
-		var d_x = Session.Entity.position[0] < x ? -1 : 1;
-		var d_y = Session.Entity.position[1] < y ? -1 : 1;
+		let _x, _y, r;
+		let d_x = Session.Entity.position[0] < x ? -1 : 1;
+		let d_y = Session.Entity.position[1] < y ? -1 : 1;
 
 		// Search possible positions
 		for (r = 0; r <= range; ++r) {
@@ -1072,7 +1099,7 @@ define(function (require) {
 			return false;
 		}
 
-		var free = true;
+		let free = true;
 
 		EntityManager.forEach(function (entity) {
 			if (
@@ -1118,7 +1145,7 @@ define(function (require) {
 	 * @param {number} amount
 	 */
 	function onRequestStatUpdate(id, amount) {
-		var pkt = new PACKET.CZ.STATUS_CHANGE();
+		let pkt = new PACKET.CZ.STATUS_CHANGE();
 		pkt.statusID = id;
 		pkt.changeAmount = amount;
 
@@ -1133,7 +1160,7 @@ define(function (require) {
 	 */
 	function onDropItem(index, count) {
 		if (count) {
-			var pkt;
+			let pkt;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.ITEM_THROW2();
 			} else {
@@ -1160,7 +1187,7 @@ define(function (require) {
 			return false;
 		}
 
-		var pkt;
+		let pkt;
 		if (PACKETVER.value >= 20180307) {
 			// not sure - this date is when the shuffle packets stoped
 			pkt = new PACKET.CZ.USE_ITEM2();
@@ -1179,7 +1206,7 @@ define(function (require) {
 	 * @param {number} where to equip
 	 */
 	function onEquipItem(index, location) {
-		var pkt = new PACKET.CZ.REQ_WEAR_EQUIP();
+		let pkt = new PACKET.CZ.REQ_WEAR_EQUIP();
 		pkt.index = index;
 		pkt.wearLocation = location;
 		Network.sendPacket(pkt);
@@ -1191,7 +1218,7 @@ define(function (require) {
 	 * @param {number} index to unequip
 	 */
 	function onUnEquip(index) {
-		var pkt = new PACKET.CZ.REQ_TAKEOFF_EQUIP();
+		let pkt = new PACKET.CZ.REQ_TAKEOFF_EQUIP();
 		pkt.index = index;
 		Network.sendPacket(pkt);
 	}
@@ -1200,7 +1227,7 @@ define(function (require) {
 	 * Add Switch Equip
 	 */
 	function onAddSwitchEquip(index, location) {
-		var pkt = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD();
+		let pkt = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD();
 		pkt.index = index;
 		pkt.wearLocation = location;
 		Network.sendPacket(pkt);
@@ -1210,7 +1237,7 @@ define(function (require) {
 	 * Remove Switch Equip
 	 */
 	function onRemoveSwitchEquip(index) {
-		var pkt = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE();
+		let pkt = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE();
 		pkt.index = index;
 		Network.sendPacket(pkt);
 	}
@@ -1222,7 +1249,7 @@ define(function (require) {
 	 * @param {number} val
 	 */
 	function onConfigUpdate(type, val) {
-		var pkt = new PACKET.CZ.CONFIG();
+		let pkt = new PACKET.CZ.CONFIG();
 		pkt.Config = type;
 		pkt.Value = val;
 		Network.sendPacket(pkt);
@@ -1232,13 +1259,11 @@ define(function (require) {
 	 * Go back from map-server to char-server
 	 */
 	function onRestart() {
-		require('Engine/CharEngine').reload();
+		import('Engine/CharEngine').then(m => m.default.reload());
 	}
 
 	/**
 	 * Export
 	 */
 	MapEngine.onMapChange = onMapChange;
-
-	return MapEngine;
-});
+export default MapEngine;

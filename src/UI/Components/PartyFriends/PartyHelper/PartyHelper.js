@@ -7,18 +7,15 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var jQuery = require('Utils/jquery');
-	var PACKETVER = require('Network/PacketVerManager');
-	var htmlText = require('text!./PartyHelper.html');
-	var cssText = require('text!./PartyHelper.css');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import jQuery from 'Utils/jquery';
+import PACKETVER from 'Network/PacketVerManager';
+import htmlText from './PartyHelper.html?raw';
+import cssText from './PartyHelper.css?raw';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
 
 	/**
 	 * Create Component
@@ -89,7 +86,6 @@ define(function (require) {
 			off.classList.add('on');
 
 			// Save preferences immediately
-			var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
 			var prefs = WhisperBox.preferences;
 
 			prefs.open1to1Stranger =
@@ -362,5 +358,4 @@ define(function (require) {
 	/**
 	 * Export component
 	 */
-	return UIManager.addComponent(PartyHelper);
-});
+	export default UIManager.addComponent(PartyHelper);

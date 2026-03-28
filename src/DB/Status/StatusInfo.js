@@ -7,20 +7,20 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['./StatusConst'], function (SC) {
-	'use strict';
+import SC from './StatusConst';
 
 	// Hardcoded color
-	var COLOR_TITLE_BUFF = 'rgb(155, 202, 155)';
-	var COLOR_TITLE_DEBUFF = 'rgb(250, 100, 100)';
-	var COLOR_TITLE_TOGGLE = 'rgb(190, 190, 250)';
-	var COLOR_SYSTEM = 'rgb(255, 255,   0)';
-	var COLOR_TIME = 'rgb(255, 176,  98)';
+	const COLOR_TITLE_BUFF = 'rgb(155, 202, 155)';
+	const COLOR_TITLE_DEBUFF = 'rgb(250, 100, 100)';
+	const COLOR_TITLE_TOGGLE = 'rgb(190, 190, 250)';
+	const COLOR_SYSTEM = 'rgb(255, 255,   0)';
+	const COLOR_TIME = 'rgb(255, 176,  98)';
 
 	// TODO: find icon status: 40-49 | 60 | 63-64 | 66-67 | 70-86 | 88-89 | 64-621 | ???
 
-	var StatusInfo = {};
+	const StatusInfo = {};
 
 	StatusInfo[SC.OVERTHRUSTMAX] = {
 		icon: '\x69\x5f\xbf\xc0\xb9\xf6\xb8\xc6\xbd\xba.tga',
@@ -3200,5 +3200,4 @@ define(['./StatusConst'], function (SC) {
 		]
 	};
 
-	return StatusInfo;
-});
+	export default StatusInfo;

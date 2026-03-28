@@ -6,16 +6,15 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Dependencies
-	var DB = require('DB/DBManager');
+import DB from 'DB/DBManager';
 
+// Dependencies
 	/**
 	 * MapPathFinder namespace
 	 */
-	var MapPathFinder = {};
+	let MapPathFinder = {};
 
 	/**
 	 * Find a path between maps using Dijkstra's algorithm
@@ -70,8 +69,8 @@ define(function (require) {
 		}
 
 		// Get navigation data
-		var naviLinkTable = DB.getNaviLinkTable();
-		var naviLinkDistanceTable = DB.getNaviLinkDistanceTable();
+		let naviLinkTable = DB.getNaviLinkTable();
+		let naviLinkDistanceTable = DB.getNaviLinkDistanceTable();
 
 		// Check if we have navigation data
 		if (!naviLinkTable || !naviLinkTable.length) {
@@ -79,20 +78,20 @@ define(function (require) {
 		}
 
 		// Build a graph of map connections
-		var graph = {};
-		var warpDetails = {};
+		let graph = {};
+		let warpDetails = {};
 
 		// Process NaviLinkTable to build the graph
 		for (var i = 0; i < naviLinkTable.length; i++) {
-			var warp = naviLinkTable[i];
+			let warp = naviLinkTable[i];
 			if (!warp || warp.length < 11) {
 				continue;
 			}
 
-			var srcMap = warp[0];
-			var warpId = warp[1];
-			var warpType = warp[2];
-			var destMap = warp[8];
+			let srcMap = warp[0];
+			let warpId = warp[1];
+			let warpType = warp[2];
+			let destMap = warp[8];
 
 			// Skip invalid warps or warps of types not in warpTypes
 			if (!srcMap || !destMap || warpTypes.indexOf(warpType) === -1) {
@@ -114,7 +113,7 @@ define(function (require) {
 			}
 
 			// Store warp details for later use
-			var warpKey = srcMap + '_' + warpId;
+			let warpKey = srcMap + '_' + warpId;
 			warpDetails[warpKey] = {
 				id: warpId,
 				type: warpType,
@@ -133,10 +132,10 @@ define(function (require) {
 		if (naviLinkDistanceTable && naviLinkDistanceTable.length) {
 			for (var i = 0; i < naviLinkDistanceTable.length; i++) {
 				if (typeof naviLinkDistanceTable[i] === 'string') {
-					var mapName = naviLinkDistanceTable[i];
+					let mapName = naviLinkDistanceTable[i];
 					if (i + 2 < naviLinkDistanceTable.length) {
 						//var numLinks = naviLinkDistanceTable[i + 1]; // UNUSED
-						var linksData = naviLinkDistanceTable[i + 2];
+						let linksData = naviLinkDistanceTable[i + 2];
 
 						if (Array.isArray(linksData)) {
 							// Process each link
@@ -145,9 +144,9 @@ define(function (require) {
 									continue;
 								}
 
-								var linkId = linksData[j][0];
-								var warpKey = mapName + '_' + linkId;
-								var warpInfo = warpDetails[warpKey];
+								let linkId = linksData[j][0];
+								let warpKey = mapName + '_' + linkId;
+								let warpInfo = warpDetails[warpKey];
 
 								if (!warpInfo) {
 									continue;
@@ -160,11 +159,11 @@ define(function (require) {
 
 								// Process destinations from this link
 								for (var k = 1; k < linksData[j].length; k++) {
-									var destData = linksData[j][k];
+									let destData = linksData[j][k];
 									if (Array.isArray(destData) && destData.length >= 3) {
-										var destMapName = destData[0];
-										var hopCount = destData[1];
-										var pathCost = destData[2];
+										let destMapName = destData[0];
+										let hopCount = destData[1];
+										let pathCost = destData[2];
 
 										// Skip empty destinations
 										if (!destMapName) {
@@ -203,13 +202,13 @@ define(function (require) {
 		// Add distance from start position to warps in the start map
 		if (graph[startMap]) {
 			for (var destMap in graph[startMap]) {
-				var warpId = graph[startMap][destMap].warpId;
-				var warpKey = startMap + '_' + warpId;
-				var warpInfo = warpDetails[warpKey];
+				let warpId = graph[startMap][destMap].warpId;
+				let warpKey = startMap + '_' + warpId;
+				let warpInfo = warpDetails[warpKey];
 
 				if (warpInfo) {
 					// Calculate distance from start position to this warp
-					var distanceToWarp = Math.sqrt(
+					let distanceToWarp = Math.sqrt(
 						Math.pow(warpInfo.srcX - startX, 2) + Math.pow(warpInfo.srcY - startY, 2)
 					);
 
@@ -220,10 +219,10 @@ define(function (require) {
 		}
 
 		// Dijkstra's algorithm to find the shortest path
-		var distances = {};
-		var hopCounts = {}; // Track hop counts separately
-		var previous = {};
-		var unvisited = new Set();
+		let distances = {};
+		let hopCounts = {}; // Track hop counts separately
+		let previous = {};
+		let unvisited = new Set();
 
 		// Initialize distances and hop counts
 		for (var map in graph) {
@@ -245,9 +244,9 @@ define(function (require) {
 		// Main Dijkstra loop
 		while (unvisited.size > 0) {
 			// Find the unvisited node with the smallest hop count, then smallest distance
-			var current = null;
-			var smallestHopCount = Infinity;
-			var smallestDistance = Infinity;
+			let current = null;
+			let smallestHopCount = Infinity;
+			let smallestDistance = Infinity;
 
 			for (var map of unvisited) {
 				if (
@@ -276,8 +275,8 @@ define(function (require) {
 						continue;
 					}
 
-					var newHopCount = hopCounts[current] + (graph[current][neighbor].hopCount || 1);
-					var newDistance = distances[current] + graph[current][neighbor].distance;
+					let newHopCount = hopCounts[current] + (graph[current][neighbor].hopCount || 1);
+					let newDistance = distances[current] + graph[current][neighbor].distance;
 
 					// If we found a path with fewer hops, or same hops but shorter distance
 					if (
@@ -301,8 +300,8 @@ define(function (require) {
 		}
 
 		// Reconstruct the path
-		var path = [];
-		var current = endMap;
+		let path = [];
+		let current = endMap;
 
 		// Add the final destination
 		path.unshift({
@@ -314,15 +313,15 @@ define(function (require) {
 
 		// Build the path in reverse
 		while (current !== startMap) {
-			var prevInfo = previous[current];
+			let prevInfo = previous[current];
 			if (!prevInfo) {
 				break;
 			}
 
-			var prevMap = prevInfo.map;
-			var warpId = prevInfo.warpId;
-			var warpKey = prevMap + '_' + warpId;
-			var warpInfo = warpDetails[warpKey];
+			let prevMap = prevInfo.map;
+			let warpId = prevInfo.warpId;
+			let warpKey = prevMap + '_' + warpId;
+			let warpInfo = warpDetails[warpKey];
 
 			if (!warpInfo) {
 				break;
@@ -341,6 +340,4 @@ define(function (require) {
 
 		return path;
 	};
-
-	return MapPathFinder;
-});
+export default MapPathFinder;

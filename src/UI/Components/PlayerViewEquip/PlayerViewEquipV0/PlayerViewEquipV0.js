@@ -7,26 +7,22 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./PlayerViewEquipV0.html');
-	var cssText = require('text!./PlayerViewEquipV0.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import EquipLocation from 'DB/Items/EquipmentLocation';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './PlayerViewEquipV0.html?raw';
+import cssText from './PlayerViewEquipV0.css?raw';
+import Entity from 'Renderer/Entity/Entity';
 
 	/**
 	 * Create Component
@@ -245,7 +241,6 @@ define(function (require) {
 		};
 
 		return function renderCharacter() {
-			var Entity = getModule('Renderer/Entity/Entity');
 			var show_character = new Entity();
 			show_character.set({
 				GID: charName + '_EQUIP',
@@ -443,5 +438,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(PlayerViewEquipV0);
-});
+	export default UIManager.addComponent(PlayerViewEquipV0);

@@ -7,16 +7,16 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var ButtonInput = require('./JoystickButtonInput');
-	var AxisInput = require('./JoystickAxisInput');
-	var JoystickUIRenderer = require('./JoystickUIRenderer');
-	var ControlsSettings = require('Preferences/Controls');
-	var hideTimeout = false;
+import ButtonInput from './JoystickButtonInput';
+import AxisInput from './JoystickAxisInput';
+import JoystickUIRenderer from './JoystickUIRenderer';
+import JoystickModule from './JoystickModule';
+import ControlsSettings from 'Preferences/Controls';
 
-	return {
+let hideTimeout = false;
+export default {
 		active: false,
 		buttonStates: {},
 
@@ -40,17 +40,17 @@ define(function (require) {
 			if (!gp) {
 				return null;
 			}
-			var states = {
+			let states = {
 				buttons: [],
 				axes: []
 			};
-			var self = this;
+			let self = this;
 
 			// Process Buttons with 3-state logic
 			gp.buttons.forEach(function (btn, index) {
-				var isPressed = btn.pressed;
-				var prevState = self.buttonStates[index] || 'unpressed';
-				var newState = 'unpressed';
+				let isPressed = btn.pressed;
+				let prevState = self.buttonStates[index] || 'unpressed';
+				let newState = 'unpressed';
 				if (isPressed) {
 					newState = prevState === 'unpressed' ? 'pressed' : 'holding';
 				}
@@ -65,9 +65,9 @@ define(function (require) {
 		},
 
 		update: function () {
-			var gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+			let gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
 
-			var activeGamepad = null;
+			let activeGamepad = null;
 			for (var i = 0; i < gamepads.length; i++) {
 				if (gamepads[i]) {
 					activeGamepad = gamepads[i];
@@ -81,17 +81,17 @@ define(function (require) {
 				}
 				return false;
 			}
-			var states = this.getStates(activeGamepad);
+			let states = this.getStates(activeGamepad);
 
-			var anyActivity = false;
+			let anyActivity = false;
 
 			if (!states) {
 				this.active = false;
 				return false;
 			}
 
-			var buttonsActive = ButtonInput.update(states.buttons);
-			var axisActive = AxisInput.update(states.axes);
+			let buttonsActive = ButtonInput.update(states.buttons);
+			let axisActive = AxisInput.update(states.axes);
 
 			if (buttonsActive || axisActive) {
 				anyActivity = true;
@@ -104,7 +104,7 @@ define(function (require) {
 
 			if (!anyActivity && this.active && !hideTimeout) {
 				hideTimeout = true;
-				var self = this;
+				let self = this;
 				this.active = false;
 				setTimeout(function () {
 					hideTimeout = false;
@@ -119,15 +119,14 @@ define(function (require) {
 		},
 
 		_onConnect: function () {
-			require('./JoystickModule').prepare();
+			JoystickModule.prepare();
 			this.active = true;
 			JoystickUIRenderer.show();
 		},
 
 		_onDisconnect: function () {
-			require('./JoystickModule').dispose();
+			JoystickModule.dispose();
 			this.active = false;
 			JoystickUIRenderer.hide();
 		}
 	};
-});

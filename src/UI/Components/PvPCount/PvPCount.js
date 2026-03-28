@@ -6,42 +6,39 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Client from 'Core/Client';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Entity from 'Renderer/Entity/Entity';
+import Sound from 'Audio/SoundManager';
+import html from './PvPCount.html?raw';
+import css from './PvPCount.css?raw';
 
-	// Emoticons-style rendering stack
-	var Client = require('Core/Client');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var Sound = require('Audio/SoundManager');
-
-	var html = require('text!./PvPCount.html');
-	var css = require('text!./PvPCount.css');
-
-	var PvPCount = new UIComponent('PvPCount', html, css);
+// Emoticons-style rendering stack
+	let PvPCount = new UIComponent('PvPCount', html, css);
 
 	/* ================= CONFIG (OG values) ================= */
 
 	//var DIGIT_STEP = 45; // UNUSED
-	var RANK_W = 240,
+	let RANK_W = 240,
 		RANK_H = 96;
-	var RANK_Y = 52;
+	let RANK_Y = 52;
 
 	/* ================= CANVASES ================= */
 
-	var _rankCanvas, _rankCtx;
+	let _rankCanvas, _rankCtx;
 
 	/* ================= ACT / SPR ================= */
 
-	var _rankfontAct, _rankfontSpr;
+	let _rankfontAct, _rankfontSpr;
 
-	var _layerEntity = new Entity();
+	let _layerEntity = new Entity();
 
-	var ranking = 0;
-	var total = 0;
+	let ranking = 0;
+	let total = 0;
 
 	/**
 	 * Initialize UI
@@ -108,7 +105,7 @@ define(function (require) {
 	 * @returns {Object[]}
 	 */
 	function pickLayers(act, actionId) {
-		var a = act.actions[actionId];
+		let a = act.actions[actionId];
 		if (!a || !a.animations || !a.animations.length) {
 			return null;
 		}
@@ -116,7 +113,7 @@ define(function (require) {
 	}
 
 	function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
-		var layers = pickLayers(act, actionId);
+		let layers = pickLayers(act, actionId);
 		if (!layers) {
 			return;
 		}
@@ -143,18 +140,18 @@ define(function (require) {
 
 		_rankCtx.clearRect(0, 0, RANK_W, RANK_H);
 
-		var parts = text.split('/');
-		var ranking = parts[0];
-		var total = parts[1];
-		var step = 28; // Compact spacing
-		var slashStep = 28;
+		let parts = text.split('/');
+		let ranking = parts[0];
+		let total = parts[1];
+		let step = 28; // Compact spacing
+		let slashStep = 28;
 
 		// Calculate total width to center it
-		var totalWidth = ranking.length * step + slashStep + total.length * step;
-		var x = (RANK_W - totalWidth) >> 1;
+		let totalWidth = ranking.length * step + slashStep + total.length * step;
+		let x = (RANK_W - totalWidth) >> 1;
 
 		// 1. Render Ranking (Higher)
-		var i, a;
+		let i, a;
 		for (i = 0; i < ranking.length; i++) {
 			a = rankCharToAction(ranking[i]);
 			if (!isNaN(a)) {
@@ -187,5 +184,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(PvPCount);
-});
+export default UIManager.addComponent(PvPCount);

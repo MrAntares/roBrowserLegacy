@@ -1,30 +1,17 @@
-/**
- * UI/Components/ChatRoom/ChatRoom.js
- *
- * Chat room box UI
- *
- * This file is part of ROBrowser, (http://www.robrowser.com/).
- *
- * @author Vincent Thibault
- */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Preferences = require('Core/Preferences');
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var Session = require('Engine/SessionStorage');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ChatRoom.html');
-	var cssText = require('text!./ChatRoom.css');
-	var getModule = require;
+import Preferences from 'Core/Preferences';
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import Session from 'Engine/SessionStorage';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './ChatRoom.html?raw';
+import cssText from './ChatRoom.css?raw';
+import ProcessCommand from 'Controls/ProcessCommand';
 
 	/**
 	 * Create Component
@@ -176,7 +163,7 @@ define(function (require) {
 
 		// Process commands
 		if (message[0] === '/') {
-			getModule('Controls/ProcessCommand').processCommand.call(ChatBox, message.substr(1));
+			ProcessCommand.processCommand.call(ChatBox, message.substr(1));
 			ui.find('.send input[name=message]').val('');
 			return true;
 		}
@@ -305,5 +292,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ChatRoom);
-});
+	export default UIManager.addComponent(ChatRoom);

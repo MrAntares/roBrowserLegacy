@@ -7,46 +7,49 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var glMatrix = require('Utils/gl-matrix');
-	var PathFinding = require('Utils/PathFinding');
-	var DB = require('DB/DBManager');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Mouse = require('Controls/MouseEventHandler');
-	var Preferences = require('Preferences/Controls');
-	var Camera = require('Renderer/Camera');
-	var Session = require('Engine/SessionStorage');
-	var Friends = require('Engine/MapEngine/Friends');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PACKET = require('Network/PacketStructure');
-	var Network = require('Network/NetworkManager');
-	var Cursor = require('UI/CursorManager');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ChatRoom = require('UI/Components/ChatRoom/ChatRoom');
-	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
-	var Pet = require('UI/Components/PetInformations/PetInformations');
-	var Trade = require('UI/Components/Trade/Trade');
-	var NpcBox = require('UI/Components/NpcBox/NpcBox');
-	var Altitude = require('Renderer/Map/Altitude');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var getModule = require;
+import glMatrix from 'Utils/gl-matrix';
+import PathFinding from 'Utils/PathFinding';
+import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler';
+import Mouse from 'Controls/MouseEventHandler';
+import Preferences from 'Preferences/Controls';
+import Camera from 'Renderer/Camera';
+import Session from 'Engine/SessionStorage';
+import Friends from 'Engine/MapEngine/Friends';
+import PACKETVER from 'Network/PacketVerManager';
+import PACKET from 'Network/PacketStructure';
+import Network from 'Network/NetworkManager';
+import Cursor from 'UI/CursorManager';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
+import Pet from 'UI/Components/PetInformations/PetInformations';
+import Trade from 'UI/Components/Trade/Trade';
+import NpcBox from 'UI/Components/NpcBox/NpcBox';
+import Altitude from 'Renderer/Map/Altitude';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector';
+import Guild from 'Engine/MapEngine/Guild';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
+import Group from 'Engine/MapEngine/Group';
+import HomunInformations from 'UI/Components/HomunInformations/HomunInformations';
+import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations';
 
 	/**
 	 * Import
 	 */
-	var mat4 = glMatrix.mat4;
-	var vec2 = glMatrix.vec2;
-	var _matrix = mat4.create();
+	let mat4 = glMatrix.mat4;
+	let vec2 = glMatrix.vec2;
+	let _matrix = mat4.create();
 
 	/*
 	 * When mouse is over
 	 */
 	function onMouseOver() {
-		var Entity = this.constructor;
+		let Entity = this.constructor;
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PET:
@@ -99,7 +102,7 @@ define(function (require) {
 			case this.display.TYPE.NONE:
 				this.display.load = this.display.TYPE.LOADING;
 
-				var pkt;
+				let pkt;
 				if (PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.REQNAME2();
 				} else {
@@ -143,8 +146,8 @@ define(function (require) {
 	 *
 	 */
 	function onMouseDown() {
-		var Entity = this.constructor;
-		var pkt;
+		let Entity = this.constructor;
+		let pkt;
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PET:
@@ -207,7 +210,7 @@ define(function (require) {
 				return true;
 
 			case Entity.TYPE_WARP:
-				var i = 1,
+				let i = 1,
 					out = [],
 					j,
 					x,
@@ -240,7 +243,7 @@ define(function (require) {
 
 			case Entity.TYPE_PC:
 				if (Session.captchaGetIdOnEntityClick) {
-					getModule('UI/Components/Captcha/CaptchaSelector').addPlayer(this.GID);
+					CaptchaSelector.addPlayer(this.GID);
 				}
 				return true;
 		}
@@ -258,8 +261,8 @@ define(function (require) {
 	 *
 	 */
 	function onContextMenu() {
-		var Entity = this.constructor;
-		var entity = this;
+		let Entity = this.constructor;
+		let entity = this;
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PET:
@@ -296,7 +299,7 @@ define(function (require) {
 					if (Session.guildRight & 0x01 && !this.GUID) {
 						// Send (%s) a Guild invitation
 						ContextMenu.addElement(DB.getMessage(382).replace('%s', this.display.name), function () {
-							getModule('Engine/MapEngine/Guild').requestPlayerInvitation(entity.GID);
+							Guild.requestPlayerInvitation(entity.GID);
 						});
 					}
 
@@ -305,19 +308,19 @@ define(function (require) {
 
 						// Set this guild as an Alliance
 						ContextMenu.addElement(DB.getMessage(399).replace('%s', this.display.name), function () {
-							getModule('Engine/MapEngine/Guild').requestAlliance(entity.GID);
+							Guild.requestAlliance(entity.GID);
 						});
 
 						// Set this guild as an Antagonist
 						ContextMenu.addElement(DB.getMessage(403).replace('%s', this.display.name), function () {
-							getModule('Engine/MapEngine/Guild').requestHostility(entity.GID);
+							Guild.requestHostility(entity.GID);
 						});
 					}
 				}
 
 				// Open 1:1Chat
 				ContextMenu.addElement(DB.getMessage(360), function () {
-					getModule('UI/Components/PartyFriends/PartyFriends').onOpenChat1to1(entity.display.name);
+					PartyFriends.onOpenChat1to1(entity.display.name);
 				});
 
 				if (!Friends.isFriend(this.display.name)) {
@@ -330,7 +333,7 @@ define(function (require) {
 				if (Session.hasParty && Session.isPartyLeader) {
 					ContextMenu.nextGroup();
 					ContextMenu.addElement(DB.getMessage(88).replace('%s', this.display.name), function () {
-						getModule('Engine/MapEngine/Group').onRequestInvitation(entity.GID, entity.display.name);
+						Group.onRequestInvitation(entity.GID, entity.display.name);
 					});
 				}
 
@@ -343,18 +346,18 @@ define(function (require) {
 					ContextMenu.remove();
 					ContextMenu.append();
 					ContextMenu.addElement('View Status', function () {
-						getModule('UI/Components/HomunInformations/HomunInformations').ui.toggle();
+						HomunInformations.ui.toggle();
 					});
 					ContextMenu.addElement('Feed', function () {
-						getModule('UI/Components/HomunInformations/HomunInformations').reqHomunFeed();
+						HomunInformations.reqHomunFeed();
 					});
 					if (localStorage.getItem('HOM_AGGRESSIVE') == 0) {
 						ContextMenu.addElement('Assist', function () {
-							getModule('UI/Components/HomunInformations/HomunInformations').toggleAggressive();
+							HomunInformations.toggleAggressive();
 						});
 					} else {
 						ContextMenu.addElement('Stand By', function () {
-							getModule('UI/Components/HomunInformations/HomunInformations').toggleAggressive();
+							HomunInformations.toggleAggressive();
 						});
 					}
 				}
@@ -365,15 +368,15 @@ define(function (require) {
 					ContextMenu.remove();
 					ContextMenu.append();
 					ContextMenu.addElement('View Status', function () {
-						getModule('UI/Components/MercenaryInformations/MercenaryInformations').ui.toggle();
+						MercenaryInformations.ui.toggle();
 					});
 					if (localStorage.getItem('MER_AGGRESSIVE') == 0) {
 						ContextMenu.addElement('Assist', function () {
-							getModule('UI/Components/MercenaryInformations/MercenaryInformations').toggleAggressive();
+							MercenaryInformations.toggleAggressive();
 						});
 					} else {
 						ContextMenu.addElement('Stand By', function () {
-							getModule('UI/Components/MercenaryInformations/MercenaryInformations').toggleAggressive();
+							MercenaryInformations.toggleAggressive();
 						});
 					}
 				}
@@ -387,9 +390,9 @@ define(function (require) {
 	 * Focus the entity
 	 */
 	function onFocus() {
-		var Entity = this.constructor;
-		var main = Session.Entity;
-		var pkt;
+		let Entity = this.constructor;
+		let main = Session.Entity;
+		let pkt;
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PC:
@@ -421,8 +424,8 @@ define(function (require) {
 				});
 
 				if (!Session.TouchTargeting && !Session.autoFollow) {
-					var out = [];
-					var count = PathFinding.search(
+					let out = [];
+					let count = PathFinding.search(
 						main.position[0] | 0,
 						main.position[1] | 0,
 						this.position[0] | 0,
@@ -490,7 +493,7 @@ define(function (require) {
 	 * Lost focus on entity
 	 */
 	function onFocusEnd() {
-		var Entity = this.constructor;
+		let Entity = this.constructor;
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PC:
@@ -517,8 +520,8 @@ define(function (require) {
 	 * Open entity room (chat room, shop, ...)
 	 */
 	function onRoomEnter() {
-		var pkt;
-		var Room = this.room.constructor;
+		let pkt;
+		let Room = this.room.constructor;
 
 		switch (this.room.type) {
 			case Room.Type.SELL_SHOP:
@@ -552,7 +555,7 @@ define(function (require) {
 
 				InputBox.append();
 				InputBox.setType('pass', false);
-				var self = this;
+				let self = this;
 				InputBox.onSubmitRequest = function (pass) {
 					InputBox.remove();
 					pkt.passwd = pass;
@@ -576,7 +579,7 @@ define(function (require) {
 		else if (Session.mapState.isPVP) {
 			if (
 				Session.hasParty &&
-				getModule('UI/Components/PartyFriends/PartyFriends').isGroupMember(this.display.name)
+				PartyFriends.isGroupMember(this.display.name)
 			) {
 				return false;
 			}
@@ -596,9 +599,9 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return function Init() {
+	export default function Init() {
 		this.onMouseOver = onMouseOver;
 		this.onMouseOut = onMouseOut;
 		this.onMouseDown = onMouseDown;
@@ -609,4 +612,3 @@ define(function (require) {
 		this.onContextMenu = onContextMenu;
 		this.canAttackEntity = canAttackEntity;
 	};
-});

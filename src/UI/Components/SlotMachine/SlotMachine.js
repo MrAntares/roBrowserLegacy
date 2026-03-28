@@ -8,55 +8,51 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Client = require('Core/Client');
-	var Events = require('Core/Events');
-	var Renderer = require('Renderer/Renderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
+import jQuery from 'Utils/jquery';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Client from 'Core/Client';
+import Events from 'Core/Events';
+import Renderer from 'Renderer/Renderer';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
 
-	/**
+/**
 	 * Create SlotMachine UI
 	 */
-	var SlotMachine = new UIComponent('SlotMachine');
+	let SlotMachine = new UIComponent('SlotMachine');
 
 	/**
 	 * @var {Sprite,Action} objects
 	 */
-	var _sprite, _action;
+	let _sprite, _action;
 
 	/**
 	 * @var {number} type
 	 */
-	var _type = 0;
+	let _type = 0;
 
 	/**
 	 * @var {boolean} result
 	 */
-	var _result = false;
+	let _result = false;
 
 	/**
 	 * @var {CanvasRenderingContext2D}
 	 */
-	var _ctx;
+	let _ctx;
 
 	/**
 	 * @var {Entity}
 	 */
-	var _entity = new Entity();
+	let _entity = new Entity();
 
 	/**
 	 * @var {number} start tick
 	 */
-	var _start = 0;
+	let _start = 0;
 
 	/**
 	 * Initialize UI
@@ -136,12 +132,12 @@ define(function (require) {
 	/**
 	 * Rendering animation
 	 */
-	var rendering = (function renderingClosure() {
-		var position = new Uint16Array([0, 0]);
+	let rendering = (function renderingClosure() {
+		let position = new Uint16Array([0, 0]);
 
 		return function rendering() {
-			var i, count, max;
-			var action, animation, anim;
+			let i, count, max;
+			let action, animation, anim;
 
 			switch (_type) {
 				case 0: // waiting
@@ -197,7 +193,6 @@ define(function (require) {
 	SlotMachine.onTry = function onTry() {};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(SlotMachine);
-});
+	export default UIManager.addComponent(SlotMachine);

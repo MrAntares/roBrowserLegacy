@@ -7,32 +7,28 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./CharCreatev3.html');
-	var cssText = require('text!./CharCreatev3.css');
-	var Client = require('Core/Client');
+import DB from 'DB/DBManager';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './CharCreatev3.html?raw';
+import cssText from './CharCreatev3.css?raw';
+import Client from 'Core/Client';
 
 	/**
 	 * Create Chararacter Selection namespace
 	 */
-	var CharCreatev3 = new UIComponent('CharCreatev3', htmlText, cssText);
+	let CharCreatev3 = new UIComponent('CharCreatev3', htmlText, cssText);
 
 	/**
 	 * @var {boolean} account sex
 	 */
-	var _accountSex = 0;
+	let _accountSex = 0;
 
 	const TYPE = {
 		RACE: 1,
@@ -91,7 +87,7 @@ define(function (require) {
 	/**
 	 * @var {object} chargen info
 	 */
-	var _human = {
+	let _human = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -101,7 +97,7 @@ define(function (require) {
 	/**
 	 * @var {object} doram info
 	 */
-	var _doram = {
+	let _doram = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -111,7 +107,7 @@ define(function (require) {
 	/**
 	 * @var {object} model info
 	 */
-	var _model = {
+	let _model = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -277,10 +273,10 @@ define(function (require) {
 	 * Update model race
 	 */
 	/*function updateRace (){
-		var select = CharCreatev3.ui.find('.race_select .race input.radio').filter(':checked');
-		var type = TYPE.RACE;
-		var race = RACE.HUMAN;
-		var marker = DB.INTERFACE_PATH + "make_character/select_mark_cha_create.bmp";
+		let select = CharCreatev3.ui.find('.race_select .race input.radio').filter(':checked');
+		let type = TYPE.RACE;
+		let race = RACE.HUMAN;
+		let marker = DB.INTERFACE_PATH + "make_character/select_mark_cha_create.bmp";
 
 		if (select[0].id === "human") {
 			Client.loadFile( marker, function(dataURI) {
@@ -305,7 +301,7 @@ define(function (require) {
 	 * Send back informations to send the packet
 	 */
 	function create() {
-		var charname = CharCreatev3.ui.find('#char_name').val();
+		let charname = CharCreatev3.ui.find('#char_name').val();
 
 		CharCreatev3.onCharCreationRequest(
 			charname,
@@ -389,25 +385,25 @@ define(function (require) {
 				break;
 
 			case TYPE.HEAD:
-				var tmpval = _model.entity.head + value;
-				if (tmpval > CAP[_model.entity.job].HEAD.MAX) {
-					tmpval = CAP[_model.entity.job].HEAD.MIN;
+				let headval = _model.entity.head + value;
+				if (headval > CAP[_model.entity.job].HEAD.MAX) {
+					headval = CAP[_model.entity.job].HEAD.MIN;
 				}
-				if (tmpval < CAP[_model.entity.job].HEAD.MIN) {
-					tmpval = CAP[_model.entity.job].HEAD.MAX;
+				if (headval < CAP[_model.entity.job].HEAD.MIN) {
+					headval = CAP[_model.entity.job].HEAD.MAX;
 				}
-				_model.entity.head = tmpval;
+				_model.entity.head = headval;
 				break;
 
 			case TYPE.HEADPALETTE:
-				var tmpval = _model.entity.headpalette + value;
-				if (tmpval > CAP[_model.entity.job].HEADPALETTE.MAX) {
-					tmpval = CAP[_model.entity.job].HEADPALETTE.MIN;
+				let headpaletteval = _model.entity.headpalette + value;
+				if (headpaletteval > CAP[_model.entity.job].HEADPALETTE.MAX) {
+					headpaletteval = CAP[_model.entity.job].HEADPALETTE.MIN;
 				}
-				if (tmpval < CAP[_model.entity.job].HEADPALETTE.MIN) {
-					tmpval = CAP[_model.entity.job].HEADPALETTE.MAX;
+				if (headpaletteval < CAP[_model.entity.job].HEADPALETTE.MIN) {
+					headpaletteval = CAP[_model.entity.job].HEADPALETTE.MAX;
 				}
-				_model.entity.headpalette = tmpval;
+				_model.entity.headpalette = headpaletteval;
 				break;
 
 			case TYPE.DEFAULT:
@@ -474,5 +470,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(CharCreatev3);
-});
+export default UIManager.addComponent(CharCreatev3);

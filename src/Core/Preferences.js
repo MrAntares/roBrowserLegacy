@@ -7,18 +7,17 @@
  *
  * @author Vincent Thibault
  */
-define(function () {
-	'use strict';
+'use strict';
 
-	var Storage = {
+	let Storage = {
 		get: function Get(key, fn) {
-			var out = {};
+			let out = {};
 			out[key] = localStorage.getItem(key);
 			fn(out);
 		},
 		set: function Set(obj, fn) {
-			var keys = Object.keys(obj);
-			var i, count;
+			let keys = Object.keys(obj);
+			let i, count;
 
 			for (i = 0, count = keys.length; i < count; ++i) {
 				localStorage.setItem(keys[i], obj[keys[i]]);
@@ -39,8 +38,8 @@ define(function () {
 	 */
 	function get(key, def, version) {
 		Storage.get(key, function (value) {
-			var data, keys;
-			var i, count;
+			let data, keys;
+			let i, count;
 
 			version = version || 0.0;
 
@@ -77,11 +76,11 @@ define(function () {
 	 * @param {object} value to store
 	 */
 	function save(data) {
-		var key = data._key;
+		let key = data._key;
 		delete data._key;
 		delete data.save;
 
-		var store = {};
+		let store = {};
 		store[key] = JSON.stringify(data);
 
 		Storage.set(store);
@@ -98,10 +97,9 @@ define(function () {
 	}
 
 	/**
-	 *
+	 * Export
 	 */
-	return {
+	export default {
 		get: get,
 		save: save
 	};
-});

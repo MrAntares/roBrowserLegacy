@@ -6,22 +6,21 @@
  * @author Alison Serafim
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import MapState from 'DB/Map/MapState';
+import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PvPTimer from 'UI/Components/PvPTimer/PvPTimer';
+import PvPCount from 'UI/Components/PvPCount/PvPCount';
+
+/**
 	 * Load dependencies
 	 */
-	var MapState = require('DB/Map/MapState');
-	var Session = require('Engine/SessionStorage');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PvPTimer = require('UI/Components/PvPTimer/PvPTimer');
-	var PvPCount = require('UI/Components/PvPCount/PvPCount');
-
-	var MapProperty = MapState.MapProperty;
-	var MapType = MapState.MapType;
-	var MapFlag = MapState.MapFlag;
+	let MapProperty = MapState.MapProperty;
+	let MapType = MapState.MapType;
+	let MapFlag = MapState.MapFlag;
 
 	/**
 	 * Define Map Properties
@@ -73,11 +72,10 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MapStateEngine() {
+export default function MapStateEngine() {
 		Network.hookPacket(PACKET.ZC.NOTIFY_MAPPROPERTY, onMapProperty); // map property
 		Network.hookPacket(PACKET.ZC.NOTIFY_MAPPROPERTY2, onMapType); // map type
 		Network.hookPacket(PACKET.ZC.MAPPROPERTY_R2, onMapProperty); // map property + flag
 		Network.hookPacket(PACKET.ZC.MAPPROPERTY, onMapProperty);
 		Network.hookPacket(PACKET.ZC.NOTIFY_RANKING, onNotifyRanking);
 	};
-});

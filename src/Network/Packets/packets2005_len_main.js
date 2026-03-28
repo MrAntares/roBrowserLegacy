@@ -14,8 +14,7 @@
  * @author Alison Serafim
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
 	let length_list = new Array();
 
@@ -1933,7 +1932,6 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return {
+	export default {
 		init: init
 	};
-});

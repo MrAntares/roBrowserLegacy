@@ -8,10 +8,11 @@
  *
  */
 
-define(['./SkillConst'], function (SK) {
-	'use strict';
+'use strict';
 
-	var SkillAction = {};
+import SK from './SkillConst';
+
+	let SkillAction = {};
 
 	//Default skill action
 	SkillAction['DEFAULT'] = function (entity, tick) {
@@ -632,5 +633,4 @@ define(['./SkillConst'], function (SK) {
 		SkillAction[SK.SU_STOOP] =
 			false;
 
-	return SkillAction;
-});
+	export default SkillAction;

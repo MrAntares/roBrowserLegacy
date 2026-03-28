@@ -7,33 +7,29 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var htmlText = require('text!./MakeItemSelection.html');
-	var cssText = require('text!./MakeItemSelection.css');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import htmlText from './MakeItemSelection.html?raw';
+import cssText from './MakeItemSelection.css?raw';
 
-	/**
+/**
 	 * Create MakeItemSelection namespace
 	 */
-	var MakeItemSelection = new UIComponent('MakeItemSelection', htmlText, cssText);
+	let MakeItemSelection = new UIComponent('MakeItemSelection', htmlText, cssText);
 
-	var validMultipleMaterials = [
+	let validMultipleMaterials = [
 		1000 //star crumb
 	];
 
-	var validSingleMaterials = [
+	let validSingleMaterials = [
 		997, //great nature
 		996, //rough wind
 		995, //mystic frozen
@@ -83,8 +79,8 @@ define(function (require) {
 	 * @param {Array} list object to display
 	 */
 	MakeItemSelection.setList = function setList(list) {
-		var i, count;
-		var item, it, file, name, showMaterials;
+		let i, count;
+		let item, it, file, name, showMaterials;
 
 		MakeItemSelection.list.empty();
 		this.ui.find('.list').css('backgroundColor', '#f7f7f7');
@@ -119,8 +115,8 @@ define(function (require) {
 	 * @param {Array} list object to display
 	 */
 	MakeItemSelection.setCookingList = function setCookingList(list, mkType) {
-		var i, count;
-		var item, it, file, name;
+		let i, count;
+		let item, it, file, name;
 
 		MakeItemSelection.list.empty();
 		this.ui.find('.list').css('backgroundColor', '#f7f7f7');
@@ -175,7 +171,7 @@ define(function (require) {
 	 * @param {number} index in list
 	 */
 	MakeItemSelection.advance = function advance() {
-		var it, title, metal;
+		let it, title, metal;
 		MakeItemSelection.list.empty();
 		it = DB.getItemInfo(this.index);
 		title = it.identifiedDisplayName + ' ' + DB.getMessage(426);
@@ -249,7 +245,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	MakeItemSelection.addMaterial = function AddMaterial(item, from) {
-		var singleMatUsed = false;
+		let singleMatUsed = false;
 		this.material.forEach(item => {
 			if (validSingleMaterials.includes(item.ITID)) {
 				singleMatUsed = true;
@@ -277,8 +273,8 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	MakeItemSelection.addItemSub = function AddItemSub(item) {
-		var it = DB.getItemInfo(item.ITID);
-		var content = this.ui.find('.materials');
+		let it = DB.getItemInfo(item.ITID);
+		let content = this.ui.find('.materials');
 
 		content.append(
 			'<div class="item" data-index="' +
@@ -315,7 +311,7 @@ define(function (require) {
 	 * @param {event}
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -362,5 +358,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(MakeItemSelection);
-});
+export default UIManager.addComponent(MakeItemSelection);

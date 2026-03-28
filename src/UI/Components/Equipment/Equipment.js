@@ -8,21 +8,19 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
+
+import EquipmentV0 from './EquipmentV0/EquipmentV0';
+import EquipmentV1 from './EquipmentV1/EquipmentV1';
+import EquipmentV2 from './EquipmentV2/EquipmentV2';
+import EquipmentV3 from './EquipmentV3/EquipmentV3';
+import EquipmentV4 from './EquipmentV4/EquipmentV4';
+
+import UIVersionManager from 'UI/UIVersionManager';
+import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler';
 
 	var publicName = 'Equipment';
-
-	var EquipmentV0 = require('./EquipmentV0/EquipmentV0'); // equip
-	var EquipmentV1 = require('./EquipmentV1/EquipmentV1'); // equip + costume
-	var EquipmentV2 = require('./EquipmentV2/EquipmentV2'); // equip + costume + title (not implemented)
-	var EquipmentV3 = require('./EquipmentV3/EquipmentV3'); // EquipmentV2 + Switch Equip
-	var EquipmentV4 = require('./EquipmentV4/EquipmentV4'); // EquipmentV3 + Switch Damage Skin
-
-	var UIVersionManager = require('UI/UIVersionManager');
-	var DB = require('DB/DBManager');
-	var KEYS = require('Controls/KeyEventHandler');
-
 	var versionInfo = {
 		default: EquipmentV0,
 		common: {
@@ -57,5 +55,4 @@ define(function (require) {
 		};
 	};
 
-	return EquipmentController;
-});
+	export default EquipmentController;

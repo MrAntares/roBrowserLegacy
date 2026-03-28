@@ -7,38 +7,41 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var ShortCut = require('UI/Components/ShortCut/ShortCut');
-	var InventoryUI = require('UI/Components/Inventory/Inventory');
-	var ItemType = require('DB/Items/ItemType');
-	var Character = require('./JoystickCharacterControl');
-	var Target = require('./JoystickTargetService');
-	var Cursor = require('./JoystickMouseCursorAdapter');
-	var jQuery = require('Utils/jquery');
-	var ControlsSettings = require('Preferences/Controls');
-	var SelectionUI = require('./JoystickSelectionUI');
+import ShortCut from 'UI/Components/ShortCut/ShortCut';
+import InventoryUI from 'UI/Components/Inventory/Inventory';
+import ItemType from 'DB/Items/ItemType';
+import Character from './JoystickCharacterControl';
+import Target from './JoystickTargetService';
+import Cursor from './JoystickMouseCursorAdapter';
+import jQuery from 'Utils/jquery';
+import ControlsSettings from 'Preferences/Controls';
+import SelectionUI from './JoystickSelectionUI';
+import Input from './JoystickInputService';
+import DB from 'DB/DBManager';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import ShortcutMapper from './JoystickShortcutMapper';
 
-	return {
+	export default {
 		prepare: function () {},
 
 		dispose: function () {},
 		cancelQuick: false,
 		executeShortcut: function (index, group) {
-			var shortcut = ShortCut.getList()[index];
+			let shortcut = ShortCut.getList()[index];
 			if (!shortcut) {
 				return;
 			}
 
 			if (!shortcut.isSkill) {
-				var item = InventoryUI.getUI().getItemById(shortcut.ID);
+				let item = InventoryUI.getUI().getItemById(shortcut.ID);
 				if (!item || item.count === 0) {
 					return;
 				}
 			} // Move mouse to target entity position
 			else if (ControlsSettings.attackTargetMode) {
-				var targetEntity = Target.getEntity();
+				let targetEntity = Target.getEntity();
 				if (targetEntity) {
 					Cursor.moveMouseToEntity(targetEntity);
 				}
@@ -55,10 +58,7 @@ define(function (require) {
 
 				function waitforRelease() {
 					setTimeout(function () {
-						var Input = require('./JoystickInputService');
-						var ShortcutMapper = require('./JoystickShortcutMapper');
-
-						var buttons = Input.buttonStates;
+						let buttons = Input.buttonStates;
 						if (ShortcutMapper.getGroup(buttons) !== group) {
 							Cursor.quickCastClick();
 						} else if (!this.cancelQuick) {
@@ -71,12 +71,12 @@ define(function (require) {
 		},
 
 		openSelectionWindow: function (draggableElement) {
-			var index = parseInt(draggableElement.getAttribute('data-index'), 10);
-			var isSkill = draggableElement.closest('.skill');
-			var itemData;
+			let index = parseInt(draggableElement.getAttribute('data-index'), 10);
+			let isSkill = draggableElement.closest('.skill');
+			let itemData;
 
 			if (!isSkill) {
-				var item = InventoryUI.getUI().getItemByIndex(index);
+				let item = InventoryUI.getUI().getItemByIndex(index);
 				if (item) {
 					if (
 						item.type === ItemType.UNKNOWN ||
@@ -92,17 +92,17 @@ define(function (require) {
 						isSkill: false,
 						ID: item.ITID,
 						value: item.count,
-						name: require('DB/DBManager').getItemName(item)
+						name: DB.getItemName(item)
 					};
 				}
 			} else {
-				var skill = ShortCut.getSkillById(index);
+				let skill = ShortCut.getSkillById(index);
 				if (skill) {
 					itemData = {
 						isSkill: true,
 						ID: skill.SKID,
 						value: skill.selectedLevel ? skill.selectedLevel : skill.level,
-						name: require('DB/Skills/SkillInfo')[skill.SKID].SkillName
+						name: SkillInfo[skill.SKID].SkillName
 					};
 				}
 			}
@@ -163,4 +163,3 @@ define(function (require) {
 			Character.move(x, y);
 		}
 	};
-});

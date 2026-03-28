@@ -6,9 +6,12 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable) {
-	'use strict';
-	var PalNameTable = {};
+'use strict';
+
+import JobId from './JobConst';
+import JobNameTable from './JobNameTable';
+
+	let PalNameTable = {};
 	PalNameTable[JobId.NOVICE] = JobNameTable[JobId.NOVICE];
 
 	PalNameTable[JobId.SWORDMAN] = JobNameTable[JobId.SWORDMAN];
@@ -299,5 +302,5 @@ define(['./JobConst', './JobNameTable'], function (JobId, JobNameTable) {
 	duplicateEntry(JobId.PECO_REBELLION, JobId.PECO_REBELLION_B);
 	duplicateEntry(JobId.SOUL_REAPER2, JobId.SOUL_REAPER2_B);
 	duplicateEntry(JobId.STAR_EMPEROR2, JobId.STAR_EMPEROR2_B);
-	return PalNameTable;
-});
+	
+	export default PalNameTable;

@@ -7,11 +7,11 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['./JobConst'], function (JobId) {
-	'use strict';
+import JobId from './JobConst';
 
-	return [
+	export default [
 		JobId.NOVICE_B,
 		JobId.SUPERNOVICE_B,
 
@@ -107,4 +107,4 @@ define(['./JobConst'], function (JobId) {
 
 		JobId.DO_SUMMONER_B
 	];
-});
+

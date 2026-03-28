@@ -9,37 +9,38 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var ItemType = require('DB/Items/ItemType');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var CartItems = require('UI/Components/CartItems/CartItems');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var Storage = require('UI/Components/Storage/Storage');
-	var SwitchEquip = require('UI/Components/SwitchEquip/SwitchEquip');
-	var UIVersionManager = require('UI/UIVersionManager');
-	var htmlText = require('text!./InventoryV3.html');
-	var cssText = require('text!./InventoryV3.css');
-	var getModule = require;
-	var Configs = require('Core/Configs');
-	var PACKETVER = require('Network/PacketVerManager');
+import DB from 'DB/DBManager';
+import ItemType from 'DB/Items/ItemType';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import Storage from 'UI/Components/Storage/Storage';
+import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip';
+import UIVersionManager from 'UI/UIVersionManager';
+import htmlText from './InventoryV3.html?raw';
+import cssText from './InventoryV3.css?raw';
+import Configs from 'Core/Configs';
+import PACKETVER from 'Network/PacketVerManager';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo';
+import Refine from 'UI/Components/Refine/Refine';
+import EnchantGrade from 'UI/Components/EnchantGrade/EnchantGrade';
+import EnchantUI from 'UI/Components/Enchant/Enchant';
+import Mail from 'UI/Components/Mail/Mail';
+import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 
 	/**
 	 * Create Component
@@ -258,7 +259,6 @@ define(function (require) {
 				break;
 		}
 
-		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
 		if (changeUI) {
 			// Only applicable to BasicInfoV4 and BasicInfoV5
@@ -279,7 +279,6 @@ define(function (require) {
 			this.ui.find('.new_item').css('backgroundImage', '');
 		}
 
-		var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
 		if (changeUI) {
 			// Only applicable to BasicInfoV4 and BasicInfoV5
@@ -453,7 +452,7 @@ define(function (require) {
 		var object = this.getItemByIndex(item.index);
 		var hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
 		if (hasRefineFlag) {
-			var Refine = getModule('UI/Components/Refine/Refine');
+			// Refine is already imported
 		}
 
 		// Check if the item was equipped
@@ -465,7 +464,6 @@ define(function (require) {
 			// Mark as new item
 			InventoryV3.newItems.push(item.index);
 
-			var BasicInfo = getModule('UI/Components/BasicInfo/BasicInfo');
 			var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
 			if (changeUI) {
 				// Only applicable to BasicInfoV4 and BasicInfoV5
@@ -709,16 +707,16 @@ define(function (require) {
 	InventoryV3.useItem = function UseItem(item) {
 		var hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
 		if (hasRefineFlag) {
-			var Refine = getModule('UI/Components/Refine/Refine');
+			// Refine is already imported
 		}
 
 		var hasEnchantGradeFlag = PACKETVER.value >= 20200916;
 		if (hasEnchantGradeFlag) {
-			var EnchantGrade = getModule('UI/Components/EnchantGrade/EnchantGrade');
+			// EnchantGrade is already imported
 		}
 		var hasEnchantFlag = PACKETVER.value >= 20211103;
 		if (hasEnchantFlag) {
-			var EnchantUI = getModule('UI/Components/Enchant/Enchant');
+			// EnchantUI is already imported
 		}
 
 		switch (item.type) {
@@ -912,19 +910,19 @@ define(function (require) {
 
 				switch (data.from) {
 					case 'Storage':
-						getModule('UI/Components/Storage/Storage').reqRemoveItem(item.index, parseInt(count, 10));
+						Storage.reqRemoveItem(item.index, parseInt(count, 10));
 						break;
 
 					case 'CartItems':
-						getModule('UI/Components/CartItems/CartItems').reqRemoveItem(item.index, parseInt(count, 10));
+						CartItems.reqRemoveItem(item.index, parseInt(count, 10));
 						break;
 
 					case 'Mail':
-						getModule('UI/Components/Mail/Mail').reqRemoveItem(item.index, parseInt(count, 10));
+						Mail.reqRemoveItem(item.index, parseInt(count, 10));
 						break;
 
 					case 'WriteRodex':
-						getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex(
+						WriteRodex.requestRemoveItemRodex(
 							item.index,
 							parseInt(count, 10)
 						);
@@ -936,19 +934,19 @@ define(function (require) {
 
 		switch (data.from) {
 			case 'Storage':
-				getModule('UI/Components/Storage/Storage').reqRemoveItem(item.index, 1);
+				Storage.reqRemoveItem(item.index, 1);
 				break;
 
 			case 'CartItems':
-				getModule('UI/Components/CartItems/CartItems').reqRemoveItem(item.index, 1);
+				CartItems.reqRemoveItem(item.index, 1);
 				break;
 
 			case 'Mail':
-				getModule('UI/Components/Mail/Mail').reqRemoveItem(item.index, 1);
+				Mail.reqRemoveItem(item.index, 1);
 				break;
 
 			case 'WriteRodex':
-				getModule('UI/Components/Rodex/WriteRodex').requestRemoveItemRodex(item.index, 1);
+				WriteRodex.requestRemoveItemRodex(item.index, 1);
 				break;
 		}
 
@@ -1532,5 +1530,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(InventoryV3);
-});
+	export default UIManager.addComponent(InventoryV3);

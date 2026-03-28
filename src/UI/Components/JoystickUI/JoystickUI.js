@@ -7,20 +7,20 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var JoystickModule = require('./JoystickModule');
-	var JoystickSelectionUI = require('./JoystickSelectionUI');
-	var htmlText = require('text!./JoystickUI.html');
-	var cssText = require('text!./JoystickUI.css');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import JoystickModule from './JoystickModule';
+import JoystickSelectionUI from './JoystickSelectionUI';
+import htmlText from './JoystickUI.html?raw';
+import cssText from './JoystickUI.css?raw';
+import JoystickUIRenderer from './JoystickUIRenderer';
 
-	var JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
+let JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
 
 	JoystickUI.onAppend = function () {
-		require('./JoystickUIRenderer').attach(this.ui);
+		JoystickUIRenderer.attach(this.ui);
 		this.ui.hide();
 		JoystickSelectionUI.append();
 	};
@@ -40,6 +40,4 @@ define(function (require) {
 	JoystickUI.hide = function () {
 		this.ui.hide();
 	};
-
-	return UIManager.addComponent(JoystickUI);
-});
+export default UIManager.addComponent(JoystickUI);

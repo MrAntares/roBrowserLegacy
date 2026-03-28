@@ -1,27 +1,28 @@
-define([
-	'Utils/WebGL',
-	'Core/Client',
-	'Renderer/SpriteRenderer',
-	'Renderer/EntityManager',
-	'Renderer/Map/Altitude',
-	'Renderer/Camera'
-], function (WebGL, Client, SpriteRenderer, EntityManager, Altitude, Camera) {
-	'use strict';
+'use strict';
 
-	function randBetween(minimum, maximum) {
+import WebGL from 'Utils/WebGL';
+import Client from 'Core/Client';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import EntityManager from 'Renderer/EntityManager';
+import Altitude from 'Renderer/Map/Altitude';
+import Camera from 'Renderer/Camera';
+import GroundEffect from 'Renderer/Effects/GroundEffect';
+import Entity from 'Renderer/Entity/Entity';
+
+function randBetween(minimum, maximum) {
 		return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 	}
 
-	var blendMode = {};
+	let blendMode = {};
 
-	var _soulStrikeFirstEffect = null;
+	let _soulStrikeFirstEffect = null;
 
 	function ThreeDEffect(effect, EF_Inst_Par, EF_Init_Par) {
-		var position = EF_Inst_Par.position;
-		var otherPosition = EF_Inst_Par.otherPosition;
-		var startTick = EF_Inst_Par.startTick;
-		var endTick = EF_Inst_Par.endTick;
-		var AID = EF_Init_Par.ownerAID;
+		let position = EF_Inst_Par.position;
+		let otherPosition = EF_Inst_Par.otherPosition;
+		let startTick = EF_Inst_Par.startTick;
+		let endTick = EF_Inst_Par.endTick;
+		let AID = EF_Init_Par.ownerAID;
 
 		this.AID = AID;
 		this.ownerEntity = EF_Init_Par.ownerEntity;
@@ -128,14 +129,14 @@ define([
 			this.posxEnd = randBetween(-effect.posxRandDiff, effect.posxRandDiff);
 		}
 		if (effect.posxStartRand) {
-			var posxStartRandMiddle = effect.posxStartRandMiddle ? effect.posxStartRandMiddle : 0;
+			let posxStartRandMiddle = effect.posxStartRandMiddle ? effect.posxStartRandMiddle : 0;
 			this.posxStart = randBetween(
 				posxStartRandMiddle - effect.posxStartRand,
 				posxStartRandMiddle + effect.posxStartRand
 			);
 		}
 		if (effect.posxEndRand) {
-			var posxEndRandMiddle = effect.posxEndRandMiddle ? effect.posxEndRandMiddle : 0;
+			let posxEndRandMiddle = effect.posxEndRandMiddle ? effect.posxEndRandMiddle : 0;
 			this.posxEnd = randBetween(posxEndRandMiddle - effect.posxEndRand, posxEndRandMiddle + effect.posxEndRand);
 		}
 		this.posxSmooth = effect.posxSmooth ? true : false;
@@ -162,14 +163,14 @@ define([
 			this.posyEnd = randBetween(-effect.posyRandDiff, effect.posyRandDiff);
 		}
 		if (effect.posyStartRand) {
-			var posyStartRandMiddle = effect.posyStartRandMiddle ? effect.posyStartRandMiddle : 0;
+			let posyStartRandMiddle = effect.posyStartRandMiddle ? effect.posyStartRandMiddle : 0;
 			this.posyStart = randBetween(
 				posyStartRandMiddle - effect.posyStartRand,
 				posyStartRandMiddle + effect.posyStartRand
 			);
 		}
 		if (effect.posyEndRand) {
-			var posyEndRandMiddle = effect.posyEndRandMiddle ? effect.posyEndRandMiddle : 0;
+			let posyEndRandMiddle = effect.posyEndRandMiddle ? effect.posyEndRandMiddle : 0;
 			this.posyEnd = randBetween(posyEndRandMiddle - effect.posyEndRand, posyEndRandMiddle + effect.posyEndRand);
 		}
 		this.posySmooth = effect.posySmooth ? true : false;
@@ -196,14 +197,14 @@ define([
 			this.poszEnd = randBetween(-effect.poszRandDiff, effect.poszRandDiff);
 		}
 		if (effect.poszStartRand) {
-			var poszStartRandMiddle = effect.poszStartRandMiddle ? effect.poszStartRandMiddle : 0;
+			let poszStartRandMiddle = effect.poszStartRandMiddle ? effect.poszStartRandMiddle : 0;
 			this.poszStart = randBetween(
 				poszStartRandMiddle - effect.poszStartRand,
 				poszStartRandMiddle + effect.poszStartRand
 			);
 		}
 		if (effect.poszEndRand) {
-			var poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
+			let poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
 			this.poszEnd = randBetween(poszEndRandMiddle - effect.poszEndRand, poszEndRandMiddle + effect.poszEndRand);
 		}
 
@@ -218,12 +219,12 @@ define([
 
 		this.poszSmooth = effect.poszSmooth ? true : false;
 		if (effect.fromSrc) {
-			var randStart = [
+			let randStart = [
 				effect.posxStartRand ? randBetween(-effect.posxStartRand, effect.posxStartRand) : 0,
 				effect.posyStartRand ? randBetween(-effect.posyStartRand, effect.posyStartRand) : 0,
 				effect.poszStartRand ? randBetween(-effect.poszStartRand, effect.poszStartRand) : 0
 			];
-			var randEnd = [
+			let randEnd = [
 				effect.posxEndRand ? randBetween(-effect.posxEndRand, effect.posxEndRand) : 0,
 				effect.posyEndRand ? randBetween(-effect.posyEndRand, effect.posyEndRand) : 0,
 				effect.poszEndRand ? randBetween(-effect.poszEndRand, effect.poszEndRand) : 0
@@ -237,12 +238,12 @@ define([
 			this.poszEnd = otherPosition[2] - position[2] + this.zOffset + this.zOffsetEnd + randEnd[2];
 		}
 		if (effect.toSrc) {
-			var randStart = [
+			let randStart = [
 				effect.posxStartRand ? randBetween(-effect.posxStartRand, effect.posxStartRand) : 0,
 				effect.posyStartRand ? randBetween(-effect.posyStartRand, effect.posyStartRand) : 0,
 				effect.poszStartRand ? randBetween(-effect.poszStartRand, effect.poszStartRand) : 0
 			];
-			var randEnd = [
+			let randEnd = [
 				effect.posxEndRand ? randBetween(-effect.posxEndRand, effect.posxEndRand) : 0,
 				effect.posyEndRand ? randBetween(-effect.posyEndRand, effect.posyEndRand) : 0,
 				effect.poszEndRand ? randBetween(-effect.poszEndRand, effect.poszEndRand) : 0
@@ -310,12 +311,12 @@ define([
 			this.sizeEndY = this.sizeStartX;
 		}
 		if (effect.sizeRandX) {
-			var sizeRandXMiddle = effect.sizeRandXMiddle ? effect.sizeRandXMiddle : 100;
+			let sizeRandXMiddle = effect.sizeRandXMiddle ? effect.sizeRandXMiddle : 100;
 			this.sizeStartX = randBetween(sizeRandXMiddle - effect.sizeRandX, sizeRandXMiddle + effect.sizeRandX);
 			this.sizeEndX = this.sizeStartX;
 		}
 		if (effect.sizeRandY) {
-			var sizeRandYMiddle = effect.sizeRandYMiddle ? effect.sizeRandYMiddle : 100;
+			let sizeRandYMiddle = effect.sizeRandYMiddle ? effect.sizeRandYMiddle : 100;
 			this.sizeStartY = randBetween(sizeRandYMiddle - effect.sizeRandY, sizeRandYMiddle + effect.sizeRandY);
 			this.sizeEndY = this.sizeStartY;
 		}
@@ -324,8 +325,7 @@ define([
 		this.rotate = effect.rotate ? true : false;
 		this.toAngle = effect.toAngle ? effect.toAngle : 0;
 		if (this.shadowTexture) {
-			var GroundEffect = require('Renderer/Effects/GroundEffect');
-			require('Renderer/EffectManager').add(new GroundEffect(this.posxStart, this.posyStart), 1000000);
+			import('Renderer/EffectManager').then(m => m.default.add(new GroundEffect(this.posxStart, this.posyStart), 1000000));
 		}
 		this.startTick = startTick;
 		this.endTick = endTick;
@@ -334,8 +334,8 @@ define([
 
 		if (effect.rotateToTarget) {
 			this.rotateToTarget = true;
-			var x = this.posxEnd - this.posxStart;
-			var y = this.posyEnd - this.posyStart;
+			let x = this.posxEnd - this.posxStart;
+			let y = this.posyEnd - this.posyStart;
 			this.angle += 90 - Math.atan2(y, x) * (180 / Math.PI);
 		}
 
@@ -343,17 +343,17 @@ define([
 
 		if (effect.soulStrikePattern || effect.drainPattern) {
 			if (!EF_Inst_Par.duplicateID || effect.drainPattern) {
-				var hitIndex = Math.floor((this.startTick / effect.duration) % 5);
+				let hitIndex = Math.floor((this.startTick / effect.duration) % 5);
 
 				if (effect.drainPattern) {
 					hitIndex = EF_Inst_Par.duplicateID + 1;
 				}
 
-				var offsetAngle = hitIndex * 72;
-				var offsetRadius = 2;
+				let offsetAngle = hitIndex * 72;
+				let offsetRadius = 2;
 
-				var offsetX = Math.cos((offsetAngle * Math.PI) / 180) * offsetRadius;
-				var offsetY = Math.sin((offsetAngle * Math.PI) / 180) * offsetRadius;
+				let offsetX = Math.cos((offsetAngle * Math.PI) / 180) * offsetRadius;
+				let offsetY = Math.sin((offsetAngle * Math.PI) / 180) * offsetRadius;
 
 				this._soulOffsetX = offsetX;
 				this._soulOffsetY = offsetY;
@@ -363,7 +363,7 @@ define([
 				this._soulAngle = offsetAngle;
 				_soulStrikeFirstEffect = this;
 			} else {
-				var firstEffect = _soulStrikeFirstEffect;
+				let firstEffect = _soulStrikeFirstEffect;
 				if (firstEffect) {
 					this._soulOffsetX = firstEffect._soulOffsetX;
 					this._soulOffsetY = firstEffect._soulOffsetY;
@@ -384,9 +384,9 @@ define([
 	ThreeDEffect.prototype.init = function init(gl) {
 		this.loadedTextures = 0;
 		this.textureList = [];
-		var self = this;
+		let self = this;
 		if (this.textureNameList.length > 0) {
-			var textureCount = this.textureNameList.length;
+			let textureCount = this.textureNameList.length;
 
 			for (let i = 0; i < textureCount; i++) {
 				Client.loadFile('data/texture/' + this.textureNameList[i], function (buffer) {
@@ -427,9 +427,9 @@ define([
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 
-		var start = tick - this.startTick;
-		var end = this.endTick - this.startTick;
-		var steps = (start / end) * 100;
+		let start = tick - this.startTick;
+		let end = this.endTick - this.startTick;
+		let steps = (start / end) * 100;
 
 		if (steps > 100) {
 			steps = 100;
@@ -462,7 +462,7 @@ define([
 		SpriteRenderer.image.texture = this.texture;
 		SpriteRenderer.zIndex = this.zIndex;
 
-		var posDelta = 0;
+		let posDelta = 0;
 
 		if (this.rotatePosX > 0) {
 			posDelta =
@@ -474,20 +474,20 @@ define([
 		} else {
 			if (this.posxSmooth) {
 				if (this.posxStart != this.posxEnd) {
-					var csJ = steps * 0.09 + 1;
-					var csK = Math.log10(csJ);
-					var csL = this.posxEnd - this.posxStart;
-					var csM = this.posxStart;
-					var csN = csK * csL + csM;
+					let csJ = steps * 0.09 + 1;
+					let csK = Math.log10(csJ);
+					let csL = this.posxEnd - this.posxStart;
+					let csM = this.posxStart;
+					let csN = csK * csL + csM;
 					posDelta = csN;
 				} else {
 					posDelta = this.posxStart;
 				}
 			} else {
 				if (this.posxStart != this.posxEnd) {
-					var csL = (this.posxEnd - this.posxStart) / 100;
-					var csM = this.posxStart;
-					var csN = steps * csL + csM;
+					let csL = (this.posxEnd - this.posxStart) / 100;
+					let csM = this.posxStart;
+					let csN = steps * csL + csM;
 					posDelta = csN;
 				} else {
 					posDelta = this.posxStart;
@@ -504,20 +504,20 @@ define([
 		} else {
 			if (this.posySmooth) {
 				if (this.posyStart != this.posyEnd) {
-					var csJ = steps * 0.09 + 1;
-					var csK = Math.log10(csJ);
-					var csL = this.posyEnd - this.posyStart;
-					var csM = this.posyStart;
-					var csN = csK * csL + csM;
+					let csJ = steps * 0.09 + 1;
+					let csK = Math.log10(csJ);
+					let csL = this.posyEnd - this.posyStart;
+					let csM = this.posyStart;
+					let csN = csK * csL + csM;
 					posDelta = csN;
 				} else {
 					posDelta = this.posyStart;
 				}
 			} else {
 				if (this.posyStart != this.posyEnd) {
-					var csL = (this.posyEnd - this.posyStart) / 100;
-					var csM = this.posyStart;
-					var csN = steps * csL + csM;
+					let csL = (this.posyEnd - this.posyStart) / 100;
+					let csM = this.posyStart;
+					let csN = steps * csL + csM;
 					posDelta = csN;
 				} else {
 					posDelta = this.posyStart;
@@ -528,7 +528,7 @@ define([
 		posDelta = 0;
 
 		if (this.retreat !== 0) {
-			var linearX, linearY;
+			let linearX, linearY;
 
 			if (this.posxStart != this.posxEnd) {
 				linearX = steps * ((this.posxEnd - this.posxStart) / 100) + this.posxStart;
@@ -542,14 +542,14 @@ define([
 				linearY = this.posyStart;
 			}
 
-			var dx = this.posxEnd - this.posxStart;
-			var dy = this.posyEnd - this.posyStart;
-			var dist = Math.sqrt(dx * dx + dy * dy);
+			let dx = this.posxEnd - this.posxStart;
+			let dy = this.posyEnd - this.posyStart;
+			let dist = Math.sqrt(dx * dx + dy * dy);
 
 			if (dist > 0.001) {
 				dx = dx / dist;
 				dy = dy / dist;
-				var retreatFactor = Math.sin((steps * Math.PI) / 100) * this.retreat;
+				let retreatFactor = Math.sin((steps * Math.PI) / 100) * this.retreat;
 				linearX = linearX - dx * retreatFactor;
 				linearY = linearY - dy * retreatFactor;
 			}
@@ -559,20 +559,20 @@ define([
 
 		if (this.poszSmooth) {
 			if (this.poszStart != this.poszEnd) {
-				var csJ = steps * 0.09 + 1;
-				var csK = Math.log10(csJ);
-				var csL = this.poszEnd - this.poszStart;
-				var csM = this.poszStart;
-				var csN = csK * csL + csM;
+				let csJ = steps * 0.09 + 1;
+				let csK = Math.log10(csJ);
+				let csL = this.poszEnd - this.poszStart;
+				let csM = this.poszStart;
+				let csN = csK * csL + csM;
 				posDelta = csN;
 			} else {
 				posDelta = this.poszStart;
 			}
 		} else {
 			if (this.poszStart != this.poszEnd) {
-				var csL = (this.poszEnd - this.poszStart) / 100;
-				var csM = this.poszStart;
-				var csN = steps * csL + csM;
+				let csL = (this.poszEnd - this.poszStart) / 100;
+				let csM = this.poszStart;
+				let csN = steps * csL + csM;
 				posDelta = csN;
 			} else {
 				posDelta = this.poszStart;
@@ -589,7 +589,7 @@ define([
 			SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[0]);
 		}
 
-		var alpha = this.alphaMax;
+		let alpha = this.alphaMax;
 
 		if (this.fadeIn && start < end / 4) {
 			alpha = (start * this.alphaMax) / (end / 4);
@@ -609,42 +609,42 @@ define([
 		SpriteRenderer.color[0] = this.red;
 		SpriteRenderer.color[1] = this.green;
 		SpriteRenderer.color[2] = this.blue;
-		var sizeX, sizeY;
+		let sizeX, sizeY;
 
 		if (this.sizeSmooth) {
 			if (this.sizeEndX != this.sizeStartX) {
-				var csJ = steps * 0.09 + 1;
-				var csK = Math.log10(csJ);
-				var csL = this.sizeEndX - this.sizeStartX;
-				var csM = this.sizeStartX;
-				var csN = csK * csL + csM;
+				let csJ = steps * 0.09 + 1;
+				let csK = Math.log10(csJ);
+				let csL = this.sizeEndX - this.sizeStartX;
+				let csM = this.sizeStartX;
+				let csN = csK * csL + csM;
 				sizeX = csN;
 			} else {
 				sizeX = this.sizeStartX;
 			}
 			if (this.sizeEndY != this.sizeStartY) {
-				var ctf = steps * 0.09 + 1;
-				var ctg = Math.log10(ctf);
-				var cth = this.sizeEndY - this.sizeStartY;
-				var cti = this.sizeStartY;
-				var ctj = ctg * cth + cti;
+				let ctf = steps * 0.09 + 1;
+				let ctg = Math.log10(ctf);
+				let cth = this.sizeEndY - this.sizeStartY;
+				let cti = this.sizeStartY;
+				let ctj = ctg * cth + cti;
 				sizeY = ctj;
 			} else {
 				sizeY = this.sizeStartY;
 			}
 		} else {
 			if (this.sizeEndX != this.sizeStartX) {
-				var csL = (this.sizeEndX - this.sizeStartX) / 100;
-				var csM = this.sizeStartX;
-				var csN = steps * csL + csM;
+				let csL = (this.sizeEndX - this.sizeStartX) / 100;
+				let csM = this.sizeStartX;
+				let csN = steps * csL + csM;
 				sizeX = csN;
 			} else {
 				sizeX = this.sizeStartX;
 			}
 			if (this.sizeEndY != this.sizeStartY) {
-				var cth = (this.sizeEndY - this.sizeStartY) / 100;
-				var cti = this.sizeStartY;
-				var ctj = steps * cth + cti;
+				let cth = (this.sizeEndY - this.sizeStartY) / 100;
+				let cti = this.sizeStartY;
+				let ctj = steps * cth + cti;
 				sizeY = ctj;
 			} else {
 				sizeY = this.sizeStartY;
@@ -655,32 +655,34 @@ define([
 		SpriteRenderer.size[1] = sizeY;
 
 		if (this.rotate) {
-			var angleStep = (this.toAngle - this.angle) / 100;
-			var startAngle = this.angle;
-			var angle = steps * angleStep + startAngle;
+			let angleStep = (this.toAngle - this.angle) / 100;
+			let startAngle = this.angle;
+			let angle = steps * angleStep + startAngle;
 			SpriteRenderer.angle = this.rotateWithCamera ? angle + Camera.angle[1] : angle;
 		} else {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 
 		if (this.shadowTexture) {
-			var effectName = require('Renderer/EffectManager').get(1000000);
-			if (effectName) {
-				if (this.endTick < tick) {
-					require('Renderer/EffectManager').remove(effectName, 1000000);
-				} else {
-					effectName.position = new Int16Array([
-						SpriteRenderer.position[0],
-						SpriteRenderer.position[1],
-						Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[1])
-					]);
+			import('Renderer/EffectManager').then(m => {
+				const EffectManager = m.default;
+				let effectName = EffectManager.get(1000000);
+				if (effectName) {
+					if (this.endTick < tick) {
+						EffectManager.remove(effectName, 1000000);
+					} else {
+						effectName.position = new Int16Array([
+							SpriteRenderer.position[0],
+							SpriteRenderer.position[1],
+							Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[1])
+						]);
+					}
 				}
-			}
+			});
 		}
 		if (this.actRessource && this.spriteRessource) {
-			var entity = this.ownerEntity;
+			let entity = this.ownerEntity;
 			if (!entity) {
-				var Entity = require('Renderer/Entity/Entity');
 				entity = new Entity();
 				entity.GID = this.AID;
 				entity.position = this.position;
@@ -689,20 +691,20 @@ define([
 				EntityManager.add(entity);
 				this.ownerEntity = entity;
 			}
-			var actions =
+			let actions =
 				this.actRessource.actions[
 					(entity.action * 8 + ((Camera.direction + entity.direction + 8) % 8)) %
 						this.actRessource.actions.length
 				];
-			var animations;
-			var delay = this.sprDelay || actions.delay;
+			let animations;
+			let delay = this.sprDelay || actions.delay;
 			if (this.playSprite) {
 				animations =
 					actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
 			} else {
 				animations = actions.animations[0];
 			}
-			var layers = animations.layers;
+			let layers = animations.layers;
 			let i = 0;
 			let layercount = layers.length;
 			do {
@@ -720,8 +722,8 @@ define([
 				renderer.color[2] = 1.0;
 				renderer.color[3] = 1.0;
 
-				var layer = layers[i];
-				var ctE = new Int16Array(2);
+				let layer = layers[i];
+				let ctE = new Int16Array(2);
 				ctE[0] = 0;
 				ctE[1] = 0;
 				if (animations.pos.length) {
@@ -732,8 +734,8 @@ define([
 				renderer.image.palette = null;
 				renderer.sprite = this.spriteRessource.frames[layer.index];
 				renderer.palette = this.spriteRessource.palette;
-				var ctF = layer.index + 0;
-				var ctG = layer.spr_type === 1 || this.spriteRessource.rgba_index === 0;
+				let ctF = layer.index + 0;
+				let ctG = layer.spr_type === 1 || this.spriteRessource.rgba_index === 0;
 				if (!ctG) {
 					renderer.image.palette = this.spriteRessource.texture;
 					renderer.image.size[0] = this.spriteRessource.frames[ctF].width;
@@ -741,9 +743,9 @@ define([
 				} else if (layer.spr_type === 1) {
 					ctF += this.spriteRessource.old_rgba_index;
 				}
-				var frame = this.spriteRessource.frames[ctF];
-				var width = frame.width;
-				var height = frame.height;
+				let frame = this.spriteRessource.frames[ctF];
+				let width = frame.width;
+				let height = frame.height;
 				width *= (layer.scale[0] / 100) * sizeX;
 				height *= (layer.scale[1] / 100) * sizeY;
 				if (layer.is_mirror) {
@@ -824,5 +826,4 @@ define([
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		SpriteRenderer.unbind(gl);
 	};
-	return ThreeDEffect;
-});
+export default ThreeDEffect;

@@ -7,22 +7,18 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var Events = require('Core/Events');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
+import jQuery from 'Utils/jquery';
+import Events from 'Core/Events';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
 
-	/**
+/**
 	 * Create Announce component
 	 */
-	var Announce = new UIComponent('Announce');
+	let Announce = new UIComponent('Announce');
 
 	/**
 	 * Mouse can cross this UI
@@ -37,12 +33,12 @@ define(function (require) {
 	/**
 	 * @var {TimeOut} timer
 	 */
-	var _timer = 0;
+	let _timer = 0;
 
 	/**
 	 * @var {number} how many time the announce is display (20secs)
 	 */
-	var _life = 20 * 1000;
+	let _life = 20 * 1000;
 
 	/**
 	 * Initialize component
@@ -84,13 +80,13 @@ define(function (require) {
 	 * @param {string} color
 	 */
 	Announce.set = function set(text, color, allowNewlines = false) {
-		var fontSize = 12;
-		var maxWidth = 500;
-		var lines = [];
+		let fontSize = 12;
+		let maxWidth = 500;
+		let lines = [];
 
-		var width = 0;
-		var result;
-		var i, j, count;
+		let width = 0;
+		let result;
+		let i, j, count;
 
 		this.ctx.font = fontSize + 'px Arial';
 
@@ -161,5 +157,4 @@ define(function (require) {
 	/**
 	 * Create component and return it
 	 */
-	return UIManager.addComponent(Announce);
-});
+export default UIManager.addComponent(Announce);

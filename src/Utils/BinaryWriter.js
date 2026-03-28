@@ -10,8 +10,9 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/CodepageManager'], function (TextEncoding) {
-	'use strict';
+'use strict';
+
+import TextEncoding from 'Utils/CodepageManager';
 
 	/**
 	 * Extend DataView to add position
@@ -21,8 +22,8 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 	 * @param {boolean} littleEndian (if true use LE encode order)
 	 */
 	DataView.prototype.setPos = function SetPos(offset, value, littleEndian) {
-		var x = value[0];
-		var y = value[1];
+		let x = value[0];
+		let y = value[1];
 
 		if (littleEndian) {
 			this.setInt8(offset + 0, x >> 2, true);
@@ -47,8 +48,8 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 			str = String(str).substr(0, len);
 		}
 
-		var i, count;
-		var data = TextEncoding.encode(str, 'utf-8'); // default ROBrowser charset to accept multi-language
+		let i, count;
+		let data = TextEncoding.encode(str, 'utf-8');
 
 		// fuck it, need to rebuild the buffer
 		if (!len && data.length > str.length) {
@@ -180,8 +181,8 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 	 * @return {BinaryWriter}
 	 */
 	BinaryWriter.prototype.setUint64 = BinaryWriter.prototype.writeUInt64 = function setUint64(value) {
-		var low = 0;
-		var high = 0;
+		let low = 0;
+		let high = 0;
 
 		if (typeof value === 'bigint') {
 			low = Number(value & 0xffffffffn);
@@ -239,8 +240,8 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 			str = String(str).substr(0, length);
 		}
 
-		var data = TextEncoding.encode(str, 'utf-8'); // default ROBrowser charset to accept multi-language
-		var i,
+		let data = TextEncoding.encode(str, 'utf-8');
+		let i,
 			count = length || data.length;
 
 		// TODO: make it better.
@@ -248,7 +249,7 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 		// So we need to create another buffer with the new size for it
 		if (!length && data.length > str.length) {
 			// create new buffer
-			var uint8 = new Uint8Array(this.buffer.byteLength + (data.length - str.length));
+			let uint8 = new Uint8Array(this.buffer.byteLength + (data.length - str.length));
 
 			// copy the old one and use the new one
 			uint8.set(new Uint8Array(this.buffer), 0);
@@ -305,7 +306,7 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 	 * @return {BinaryWriter}
 	 */
 	BinaryWriter.prototype.setBuffer = BinaryWriter.prototype.writeBuffer = function setBuffer(buffer) {
-		var data = new Uint8Array(this.buffer);
+		let data = new Uint8Array(this.buffer);
 		data.set(new Uint8Array(buffer), this.offset);
 
 		this.offset += buffer.byteLength;
@@ -330,7 +331,7 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 	 * @return {BinaryWriter}
 	 */
 	BinaryWriter.prototype.setPos = BinaryWriter.prototype.writePos = function setPos(xy) {
-		var x = xy[0],
+		let x = xy[0],
 			y = xy[1];
 
 		this.view.setInt8(this.offset++, x >> 2, true);
@@ -341,7 +342,6 @@ define(['Utils/CodepageManager'], function (TextEncoding) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return BinaryWriter;
-});
+	export default BinaryWriter;

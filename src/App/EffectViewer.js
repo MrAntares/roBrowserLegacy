@@ -8,32 +8,12 @@
  * @author Vincent Thibault
  */
 
-// Errors Handler (hack)
-require.onError = function (err) {
-	'use strict';
+import Configs from 'Core/Configs';
+import Thread from 'Core/Thread';
+import Client from 'Core/Client';
+import EffectViewer from 'UI/Components/EffectViewer/EffectViewer';
 
-	if (require.defined('UI/Components/Error/Error')) {
-		require('UI/Components/Error/Error').addTrace(err);
-		return;
-	}
-
-	require(['UI/Components/Error/Error'], function (Errors) {
-		Errors.addTrace(err);
-	});
-};
-
-require({
-	baseUrl: '../../src/',
-	paths: {
-		text: 'Vendors/text.require',
-		jquery: 'Vendors/jquery-1.9.1'
-	}
-}, ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/EffectViewer/EffectViewer'], function (
-	Configs,
-	Thread,
-	Client,
-	EffectViewer
-) {
+export default function init() {
 	'use strict';
 
 	function onAPIMessage(event) {
@@ -74,4 +54,4 @@ require({
 		Client.init([]);
 	});
 	Thread.init();
-});
+}

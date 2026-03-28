@@ -8,11 +8,12 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType) {
-	'use strict';
+import JobId from './JobConst';
+import WeaponType from 'DB/Items/WeaponType';
 
-	var WeaponAction = {};
+	let WeaponAction = {};
 
 	WeaponAction[JobId.NOVICE] = [
 		new (function () {
@@ -525,5 +526,5 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType) {
 	/**
 	 * Exports
 	 */
-	return WeaponAction;
-});
+	export default WeaponAction;
+

@@ -7,24 +7,20 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./WinList.html');
-	var cssText = require('text!./WinList.css');
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './WinList.html?raw';
+import cssText from './WinList.css?raw';
 
-	/**
+/**
 	 * Create WinList namespace
 	 */
-	var WinList = new UIComponent('WinList', htmlText, cssText);
+	let WinList = new UIComponent('WinList', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -52,7 +48,7 @@ define(function (require) {
 	 * @param {Array} list object to display
 	 */
 	WinList.setList = function setList(list) {
-		var i, count;
+		let i, count;
 
 		this.list = list;
 		this.ui_list.empty();
@@ -150,5 +146,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(WinList);
-});
+export default UIManager.addComponent(WinList);

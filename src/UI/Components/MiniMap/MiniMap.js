@@ -6,17 +6,14 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'MiniMap';
+import MiniMap from './MiniMap/MiniMap';
+import MiniMapV2 from './MiniMapV2/MiniMapV2';
+import UIVersionManager from 'UI/UIVersionManager';
 
-	var MiniMap = require('./MiniMap/MiniMap');
-	var MiniMapV2 = require('./MiniMapV2/MiniMapV2');
-
-	var UIVersionManager = require('UI/UIVersionManager');
-
-	var versionInfo = {
+let publicName = 'MiniMap';
+	let versionInfo = {
 		default: MiniMap,
 		common: {
 			20180124: MiniMapV2
@@ -25,15 +22,13 @@ define(function (require) {
 		prere: {}
 	};
 
-	var Controller = UIVersionManager.getUIController(publicName, versionInfo);
+	let Controller = UIVersionManager.getUIController(publicName, versionInfo);
 
 	/**
 	 * Proxy for getMemberColor
 	 */
 	Controller.getMemberColor = function getMemberColor(key) {
-		var ui = Controller.getUI();
+		let ui = Controller.getUI();
 		return ui && ui.getMemberColor ? ui.getMemberColor(key) : 'white';
 	};
-
-	return Controller;
-});
+export default Controller;

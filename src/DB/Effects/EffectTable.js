@@ -6,8 +6,63 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
+
+import RainWeatherEffect from 'Renderer/Effects/RainWeather';
+import SnowWeatherEffect from 'Renderer/Effects/SnowWeather';
+import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect';
+import Camera from 'Renderer/Camera';
+import SwirlingAura from 'Renderer/Effects/SwirlingAura';
+import GroundAura from 'Renderer/Effects/GroundAura';
+import Level99Bubble from 'Renderer/Effects/Level99Bubble';
+
+import SongEffects from 'Renderer/Effects/Songs';
+import SoundManager from 'Audio/SoundManager';
+import Events from 'Core/Events';
+import DB from 'DB/DBManager';
+import Session from 'Engine/SessionStorage';
+import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
+import FlatColorTile from 'Renderer/Effects/FlatColorTile';
+import LockOnTarget from 'Renderer/Effects/LockOnTarget';
+import LPEffect from 'Renderer/Effects/LPEffect';
+import MagicRing from 'Renderer/Effects/MagicRing';
+import MagicTarget from 'Renderer/Effects/MagicTarget';
+import Poison from 'Renderer/Effects/PoisonEffect';
+import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect';
+import PropertyGround from 'Renderer/Effects/PropertyGround';
+import QuadHorn from 'Renderer/Effects/QuadHorn';
+import Blind from 'Renderer/Effects/Shaders/Blind';
+import SpiderWeb from 'Renderer/Effects/SpiderWeb';
+import SpiritSphere from 'Renderer/Effects/SpiritSphere';
+import WarlockSphere from 'Renderer/Effects/WarlockSphere';
+import Altitude from 'Renderer/Map/Altitude';
+import Renderer from 'Renderer/Renderer';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+
+const ServiceEffects = SongEffects.ServiceEffects;
+const getBragiSpellNote = SongEffects.getBragiSpellNote;
+const DissonanceEffects = SongEffects.DissonanceEffects;
+const LullabyEffects = SongEffects.LullabyEffects;
+const MrKimEffects = SongEffects.MrKimEffects;
+const EtChaosEffects = SongEffects.EtChaosEffects;
+const DrumEffects = SongEffects.DrumEffects;
+const NibelungEffects = SongEffects.NibelungEffects;
+const LokiEffects = SongEffects.LokiEffects;
+const AbyssEffects = SongEffects.AbyssEffects;
+const SiegfiedEffects = SongEffects.SiegfiedEffects;
+const WhistleEffects = SongEffects.WhistleEffects;
+const SinEffects = SongEffects.SinEffects;
+const AppleEffects = SongEffects.AppleEffects;
+const UglyEffects = SongEffects.UglyEffects;
+const HummingEffects = SongEffects.HummingEffects;
+const ForgetEffects = SongEffects.ForgetEffects;
+const FortuneEffects = SongEffects.FortuneEffects;
+const GospelEffects = SongEffects.GospelEffects;
+const FogEffects = SongEffects.FogEffects;
+const GravityEffects = SongEffects.GravityEffects;
+const EvillandEffects = SongEffects.EvillandEffects;
+
+export default {
 
 	/// Common parameters
 	///
@@ -374,11 +429,10 @@ define(function (require) {
 	///   if set to true the effect will play repeatedly until removed
 
 	// Song requirements
-	const SongEffects = require('Renderer/Effects/Songs');
-	const ServiceEffects = SongEffects.ServiceEffects;
-	const getBragiSpellNote = SongEffects.getBragiSpellNote;
+	// (moved to top imports)
 
-	return {
+	// return { // changed to export default { at the top
+
 		0: [
 			{
 				//EF_HIT1	Regular hit
@@ -2230,7 +2284,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var LockOnTarget = require('Renderer/Effects/LockOnTarget');
+					// var LockOnTarget = require('Renderer/Effects/LockOnTarget');
 					this.add(
 						new LockOnTarget(Params.Init.ownerEntity, Params.Inst.startTick, Params.Inst.endTick),
 						Params
@@ -2576,7 +2630,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					var duration = 200;
 					Camera.setQuake(start, duration);
@@ -2716,7 +2770,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 600;
 					Camera.setQuake(start);
 				}
@@ -2889,7 +2943,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 350;
 					Camera.setQuake(start);
 				}
@@ -3095,7 +3149,7 @@ define(function (require) {
 				attachedEntity: true,
 				func: function (Params) {
 					var entity = Params.Init.ownerEntity;
-					var Renderer = require('Renderer/Renderer');
+					// var Renderer = require('Renderer/Renderer');
 					var delay = Params.Inst.startTick - Renderer.tick;
 
 					entity.animations.add(function (tick) {
@@ -3351,8 +3405,8 @@ define(function (require) {
 				//EF_HEAVENDRIVE
 				type: 'FUNC',
 				func: function (Params) {
-					var QuadHorn = require('Renderer/Effects/QuadHorn');
-					var Altitude = require('Renderer/Map/Altitude');
+					// var QuadHorn = require('Renderer/Effects/QuadHorn');
+					// var Altitude = require('Renderer/Map/Altitude');
 					for (let i = -2; i <= 2; i++) {
 						for (let j = -2; j <= 2; j++) {
 							var newParams = {
@@ -3406,7 +3460,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					var duration = 200;
 					Camera.setQuake(start, duration);
@@ -3569,7 +3623,6 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var RainWeatherEffect = require('Renderer/Effects/RainWeather');
 					RainWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -3580,7 +3633,6 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var SnowWeatherEffect = require('Renderer/Effects/SnowWeather');
 					SnowWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -3592,7 +3644,6 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
 					SakuraWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -3689,7 +3740,6 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					var duration = 200;
 					Camera.setQuake(start, duration);
@@ -3831,7 +3881,6 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var SwirlingAura = require('Renderer/Effects/SwirlingAura');
 					this.add(
 						new SwirlingAura(Params.Init.ownerEntity.position, 'ring_blue.tga', Params.Inst.startTick),
 						Params
@@ -3847,7 +3896,6 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var GroundAura = require('Renderer/Effects/GroundAura');
 					this.add(
 						new GroundAura(
 							Params.Init.ownerEntity.position,
@@ -3868,7 +3916,6 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Level99Bubble = require('Renderer/Effects/Level99Bubble');
 					// Default to blue variant (flag1 = 1) unless overridden
 					var flag1 = 1;
 
@@ -4137,7 +4184,6 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 200;
 					var duration = 200;
 					Camera.setQuake(start, duration);
@@ -4697,7 +4743,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var SpiritSphere = require('Renderer/Effects/SpiritSphere');
+					// var SpiritSphere = require('Renderer/Effects/SpiritSphere');
 					var spiritNum = Params.Init.spiritNum || 0;
 					var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
 					this.add(Spheres, Params);
@@ -4711,7 +4757,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+					// var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
 					CloudWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -4723,7 +4769,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+					// var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
 					CloudWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -4762,7 +4808,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+					// var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
 					CloudWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -4796,7 +4842,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var PropertyGround = require('Renderer/Effects/PropertyGround');
+					// var PropertyGround = require('Renderer/Effects/PropertyGround');
 					this.add(
 						new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_red', Params.Inst.startTick),
 						Params
@@ -4810,7 +4856,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var PropertyGround = require('Renderer/Effects/PropertyGround');
+					// var PropertyGround = require('Renderer/Effects/PropertyGround');
 					this.add(
 						new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_blue', Params.Inst.startTick),
 						Params
@@ -4824,7 +4870,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var PropertyGround = require('Renderer/Effects/PropertyGround');
+					// var PropertyGround = require('Renderer/Effects/PropertyGround');
 					this.add(
 						new PropertyGround(Params.Inst.position, 3.0, 1.0, 2, 'ring_yellow', Params.Inst.startTick),
 						Params
@@ -4839,7 +4885,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var LPEffect = require('Renderer/Effects/LPEffect');
+					// var LPEffect = require('Renderer/Effects/LPEffect');
 					this.add(new LPEffect(Params.Inst.position, Params.Inst.startTick), Params);
 				}
 			}
@@ -5302,7 +5348,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var DissonanceEffects = require('Renderer/Effects/Songs').DissonanceEffects;
+					// var DissonanceEffects = require('Renderer/Effects/Songs').DissonanceEffects;
 					DissonanceEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5325,7 +5371,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var LullabyEffects = require('Renderer/Effects/Songs').LullabyEffects;
+					// var LullabyEffects = require('Renderer/Effects/Songs').LullabyEffects;
 					LullabyEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5348,7 +5394,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var MrKimEffects = require('Renderer/Effects/Songs').MrKimEffects;
+					// var MrKimEffects = require('Renderer/Effects/Songs').MrKimEffects;
 					MrKimEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5371,7 +5417,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var EtChaosEffects = require('Renderer/Effects/Songs').EtChaosEffects;
+					// var EtChaosEffects = require('Renderer/Effects/Songs').EtChaosEffects;
 					EtChaosEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5394,7 +5440,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var DrumEffects = require('Renderer/Effects/Songs').DrumEffects;
+					// var DrumEffects = require('Renderer/Effects/Songs').DrumEffects;
 					DrumEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5417,7 +5463,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var NibelungEffects = require('Renderer/Effects/Songs').NibelungEffects;
+					// var NibelungEffects = require('Renderer/Effects/Songs').NibelungEffects;
 					NibelungEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5440,7 +5486,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var LokiEffects = require('Renderer/Effects/Songs').LokiEffects;
+					// var LokiEffects = require('Renderer/Effects/Songs').LokiEffects;
 					LokiEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5463,7 +5509,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var AbyssEffects = require('Renderer/Effects/Songs').AbyssEffects();
+					// var AbyssEffects = require('Renderer/Effects/Songs').AbyssEffects();
 					AbyssEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5486,7 +5532,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var SiegfiedEffects = require('Renderer/Effects/Songs').SiegfiedEffects;
+					// var SiegfiedEffects = require('Renderer/Effects/Songs').SiegfiedEffects;
 					SiegfiedEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5509,7 +5555,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var WhistleEffects = require('Renderer/Effects/Songs').WhistleEffects;
+					// var WhistleEffects = require('Renderer/Effects/Songs').WhistleEffects;
 					WhistleEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5532,7 +5578,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var SinEffects = require('Renderer/Effects/Songs').SinEffects;
+					// var SinEffects = require('Renderer/Effects/Songs').SinEffects;
 					SinEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5581,7 +5627,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var AppleEffects = require('Renderer/Effects/Songs').AppleEffects;
+					// var AppleEffects = require('Renderer/Effects/Songs').AppleEffects;
 					AppleEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5596,7 +5642,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var UglyEffects = require('Renderer/Effects/Songs').UglyEffects;
+					// var UglyEffects = require('Renderer/Effects/Songs').UglyEffects;
 					UglyEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5619,7 +5665,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var HummingEffects = require('Renderer/Effects/Songs').HummingEffects;
+					// var HummingEffects = require('Renderer/Effects/Songs').HummingEffects;
 					HummingEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5642,7 +5688,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var ForgetEffects = require('Renderer/Effects/Songs').ForgetEffects;
+					// var ForgetEffects = require('Renderer/Effects/Songs').ForgetEffects;
 					ForgetEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5665,7 +5711,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var FortuneEffects = require('Renderer/Effects/Songs').FortuneEffects;
+					// var FortuneEffects = require('Renderer/Effects/Songs').FortuneEffects;
 					FortuneEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5701,11 +5747,11 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Session = require('Engine/SessionStorage');
+					// var Session = require('Engine/SessionStorage');
 					if (Params.Init.ownerAID == Session.Entity.GID) {
 						var self = this;
-						var DB = require('DB/DBManager');
-						var ChatBox = require('UI/Components/ChatBox/ChatBox');
+						// var DB = require('DB/DBManager');
+						// var ChatBox = require('UI/Components/ChatBox/ChatBox');
 						var msg = DB.getRandomJoke();
 						if (msg) {
 							ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
@@ -5721,11 +5767,11 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Session = require('Engine/SessionStorage');
+					// var Session = require('Engine/SessionStorage');
 					if (Params.Init.ownerAID == Session.Entity.GID) {
 						var self = this;
-						var DB = require('DB/DBManager');
-						var ChatBox = require('UI/Components/ChatBox/ChatBox');
+						// var DB = require('DB/DBManager');
+						// var ChatBox = require('UI/Components/ChatBox/ChatBox');
 						var msg = DB.getRandomScream();
 						if (msg) {
 							ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
@@ -5741,7 +5787,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
+					// var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
 					PokJukWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -5795,7 +5841,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 132;
 					Camera.setQuake(start);
 				}
@@ -6970,7 +7016,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
+					// var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
 					SakuraWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -6983,7 +7029,7 @@ define(function (require) {
 				attachedEntity: false,
 				wav: '_blind',
 				func: function (Params) {
-					var Blind = require('Renderer/Effects/Shaders/Blind');
+					// var Blind = require('Renderer/Effects/Shaders/Blind');
 					Blind.setActive(true);
 				}
 				/*file: 'effect/fullb.tga',
@@ -6997,7 +7043,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var Poison = require('Renderer/Effects/PoisonEffect');
+					// var Poison = require('Renderer/Effects/PoisonEffect');
 					Poison.setActive(true);
 				}
 			}
@@ -7307,7 +7353,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 500;
 					Camera.setQuake(start);
 				}
@@ -7360,7 +7406,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var GospelEffects = require('Renderer/Effects/Songs').GospelEffects;
+					// var GospelEffects = require('Renderer/Effects/Songs').GospelEffects;
 					GospelEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -7473,7 +7519,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 300;
 					Camera.setQuake(start);
 				}
@@ -7549,7 +7595,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 300;
 					Camera.setQuake(start);
 				}
@@ -7615,7 +7661,7 @@ define(function (require) {
 				wav: 'effect/\xb4\xde\xba\xfb\xbc\xbc\xb7\xb9\xb3\xaa\xb5\xa5',
 				attachedEntity: false,
 				func: function (Params) {
-					var FlatColorTile = require('Renderer/Effects/FlatColorTile');
+					// var FlatColorTile = require('Renderer/Effects/FlatColorTile');
 					var BlueTile = FlatColorTile('salmon', { r: 0xff / 255, g: 0x8a / 255, b: 0xbb / 255, a: 0.6 });
 					this.add(new BlueTile(Params.Inst.position, Params.Inst.startTick), Params);
 				}
@@ -7703,7 +7749,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var SpiderWeb = require('Renderer/Effects/SpiderWeb');
+					// var SpiderWeb = require('Renderer/Effects/SpiderWeb');
 					this.add(new SpiderWeb(Params.Inst.position, Params.Inst.startTick), Params);
 				}
 			}
@@ -7716,7 +7762,7 @@ define(function (require) {
 				attachedEntity: false,
 				func: function (Params) {
 					var self = this;
-					var FogEffects = require('Renderer/Effects/Songs').FogEffects;
+					// var FogEffects = require('Renderer/Effects/Songs').FogEffects;
 					FogEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -8889,7 +8935,7 @@ define(function (require) {
 				attachedEntity: true,
 				func: function (Params) {
 					var entity = Params.Init.ownerEntity;
-					var MagicRing = require('Renderer/Effects/MagicRing');
+					// var MagicRing = require('Renderer/Effects/MagicRing');
 					this.add(new MagicRing(entity, 2.45, 0.8, 2.8, 'ring_jadu', Params.Inst.startTick + 10000), Params);
 				}
 			}
@@ -8914,7 +8960,7 @@ define(function (require) {
 				attachedEntity: true,
 				func: function (Params) {
 					var entity = Params.Init.ownerEntity;
-					var Events = require('Core/Events');
+					// var Events = require('Core/Events');
 					var duration = 500;
 					var count = 50;
 					var delay = duration / count;
@@ -8949,7 +8995,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var SpiritSphere = require('Renderer/Effects/SpiritSphere');
+					// var SpiritSphere = require('Renderer/Effects/SpiritSphere');
 					var spiritNum = Params.Init.spiritNum || 0;
 					var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
 					this.add(Spheres, Params);
@@ -8998,7 +9044,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 132;
 					Camera.setQuake(start);
 				}
@@ -9011,7 +9057,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var MagicTarget = require('Renderer/Effects/MagicTarget');
+					// var MagicTarget = require('Renderer/Effects/MagicTarget');
 
 					this.add(
 						new MagicTarget(
@@ -9035,7 +9081,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+					// var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
 					CloudWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -9047,7 +9093,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+					// var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
 					CloudWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -9088,7 +9134,7 @@ define(function (require) {
 				attachedEntity: true,
 				func: function (Params) {
 					var self = this;
-					var GravityEffects = require('Renderer/Effects/Songs').GravityEffects;
+					// var GravityEffects = require('Renderer/Effects/Songs').GravityEffects;
 					GravityEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -9098,7 +9144,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					var duration = 200;
 					Camera.setQuake(start, duration);
@@ -9351,7 +9397,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick + 200;
 					Camera.setQuake(start);
 				}
@@ -9420,7 +9466,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					var duration = 200;
 					Camera.setQuake(start, duration);
@@ -9631,7 +9677,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+					// var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
 					CloudWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -9959,7 +10005,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var SpiritSphere = require('Renderer/Effects/SpiritSphere');
+					// var SpiritSphere = require('Renderer/Effects/SpiritSphere');
 					var spiritNum = Params.Init.spiritNum || 0;
 					var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, true);
 					this.add(Spheres, Params);
@@ -10193,7 +10239,7 @@ define(function (require) {
 				duplicate: 3,
 				timeBetweenDupli: 35,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					Camera.setQuake(start);
 				}
@@ -10214,7 +10260,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					Camera.setQuake(start);
 				}
@@ -10265,7 +10311,7 @@ define(function (require) {
 				//file: 'status-curse',
 				func: function (Params) {
 					var self = this;
-					var EvillandEffects = require('Renderer/Effects/Songs').EvillandEffects;
+					// var EvillandEffects = require('Renderer/Effects/Songs').EvillandEffects;
 					EvillandEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -10382,7 +10428,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+					// var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
 					CloudWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -10394,7 +10440,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
+					// var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
 					CloudWeatherEffect.startOrRestart(Params);
 				}
 			}
@@ -10619,7 +10665,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					var duration = 200;
 					Camera.setQuake(start, duration);
@@ -11754,7 +11800,7 @@ define(function (require) {
 				attachedEntity: true,
 				func: function (Params) {
 					var entity = Params.Init.ownerEntity;
-					var Events = require('Core/Events');
+					// var Events = require('Core/Events');
 					var duration = 500;
 					var count = 8;
 					var delay = duration / count;
@@ -11991,7 +12037,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var SpiritSphere = require('Renderer/Effects/SpiritSphere');
+					// var SpiritSphere = require('Renderer/Effects/SpiritSphere');
 					var spiritNum = Params.Init.spiritNum || 0;
 					var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
 					this.add(Spheres, Params);
@@ -13156,19 +13202,19 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function MaximizePowerSounds(Params) {
-					var Events = require('Core/Events');
-					var Soundd = require('Audio/SoundManager');
+					// var Events = require('Core/Events');
+					// var Soundd = require('Audio/SoundManager');
 					Events.setTimeout(function () {
-						Soundd.play('effect/black_maximize_power_circle.wav');
+						SoundManager.play('effect/black_maximize_power_circle.wav');
 					}, 1);
 					Events.setTimeout(function () {
-						Soundd.play('effect/black_maximize_power_sword.wav');
+						SoundManager.play('effect/black_maximize_power_sword.wav');
 					}, 550);
 					Events.setTimeout(function () {
-						Soundd.play('effect/black_maximize_power_sword.wav');
+						SoundManager.play('effect/black_maximize_power_sword.wav');
 					}, 700);
 					Events.setTimeout(function () {
-						Soundd.play('effect/black_maximize_power_sword_bic.wav');
+						SoundManager.play('effect/black_maximize_power_sword_bic.wav');
 					}, 950);
 				}
 			}
@@ -13506,7 +13552,7 @@ define(function (require) {
 				attachedEntity: true,
 				func: function (Params) {
 					var entity = Params.Init.ownerEntity;
-					var Events = require('Core/Events');
+					// var Events = require('Core/Events');
 					var duration = 500;
 					var count = 8;
 					var delay = duration / count;
@@ -13686,7 +13732,7 @@ define(function (require) {
 				attachedEntity: true,
 				func: function (Params) {
 					var entity = Params.Init.ownerEntity;
-					var Events = require('Core/Events');
+					// var Events = require('Core/Events');
 					var duration = 500;
 					var count = 8;
 					var delay = duration / count;
@@ -14259,7 +14305,7 @@ define(function (require) {
 						spheres.push(entity.Summon5);
 					}
 
-					var WarlockSphere = require('Renderer/Effects/WarlockSphere');
+					// var WarlockSphere = require('Renderer/Effects/WarlockSphere');
 					var wl_spheres = new WarlockSphere(entity, spheres);
 
 					this.add(wl_spheres, Params);
@@ -14272,7 +14318,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					Camera.setQuake(start);
 				}
@@ -14284,7 +14330,7 @@ define(function (require) {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var Camera = require('Renderer/Camera');
+					// var Camera = require('Renderer/Camera');
 					var start = Params.Inst.startTick;
 					var duration = 50;
 					Camera.setQuake(start, duration);
@@ -14491,4 +14537,4 @@ define(function (require) {
 			}
 		]
 	};
-});
+

@@ -8,89 +8,87 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	/**
-	 * @var {object} global configs
-	 */
-	var _global = {};
+/**
+ * @var {object} global configs
+ */
+var _global = {};
 
-	/**
-	 * @var {object} server configs
-	 */
-	var _server = {};
+/**
+ * @var {object} server configs
+ */
+var _server = {};
 
-	/**
-	 * Constructor
-	 * Apply configs
-	 */
-	(function init(configs) {
-		if (typeof configs !== 'object') {
-			return;
-		}
-
-		var keys = Object.keys(configs);
-		var i, count;
-
-		for (i = 0, count = keys.length; i < count; ++i) {
-			set(keys[i], configs[keys[i]]);
-		}
-	})(window.ROConfig);
-
-	/**
-	 * Set a config
-	 *
-	 * @param {string} key name
-	 * @param {?} data
-	 */
-	function set(key, value) {
-		_global[key] = value;
+/**
+ * Constructor
+ * Apply configs
+ */
+(function init(configs) {
+	if (typeof configs !== 'object') {
+		return;
 	}
 
-	/**
-	 * Get the value of a config
-	 *
-	 * @param {string} key name
-	 * @param {?} default data value
-	 * @return {?} data
-	 */
-	function get(key, defaultValue) {
-		if (key in _server) {
-			return _server[key];
-		}
+	var keys = Object.keys(configs);
+	var i, count;
 
-		if (key in _global) {
-			return _global[key];
-		}
+	for (i = 0, count = keys.length; i < count; ++i) {
+		set(keys[i], configs[keys[i]]);
+	}
+})(window.ROConfig);
 
-		return defaultValue;
+/**
+ * Set a config
+ *
+ * @param {string} key name
+ * @param {?} data
+ */
+function set(key, value) {
+	_global[key] = value;
+}
+
+/**
+ * Get the value of a config
+ *
+ * @param {string} key name
+ * @param {?} default data value
+ * @return {?} data
+ */
+function get(key, defaultValue) {
+	if (key in _server) {
+		return _server[key];
 	}
 
-	/**
-	 * Store the server informations
-	 *
-	 * @param {object} server config
-	 */
-	function setServer(server) {
-		_server = server;
+	if (key in _global) {
+		return _global[key];
 	}
 
-	/**
-	 * Return the server informations
-	 *
-	 */
-	function getServer() {
-		return _server;
-	}
+	return defaultValue;
+}
 
-	/**
-	 * Export
-	 */
-	return {
-		get: get,
-		set: set,
-		setServer: setServer,
-		getServer: getServer
-	};
-});
+/**
+ * Store the server informations
+ *
+ * @param {object} server config
+ */
+function setServer(server) {
+	_server = server;
+}
+
+/**
+ * Return the server informations
+ *
+ */
+function getServer() {
+	return _server;
+}
+
+/**
+ * Export
+ */
+export default {
+	get: get,
+	set: set,
+	setServer: setServer,
+	getServer: getServer
+};

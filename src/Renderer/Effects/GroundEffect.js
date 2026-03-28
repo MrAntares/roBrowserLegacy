@@ -1,18 +1,17 @@
-define(['Utils/WebGL', 'Utils/gl-matrix', 'DB/Skills/SkillConst', 'Core/Client', 'Renderer/Map/Altitude'], function (
-	WebGL,
-	glMatrix,
-	SkillID,
-	Client,
-	Altitude
-) {
-	'use strict';
+'use strict';
 
-	var _texture;
-	var _program;
-	var mat4 = glMatrix.mat4;
-	var _matrix = mat4.create();
+import WebGL from 'Utils/WebGL';
+import glMatrix from 'Utils/gl-matrix';
+import SkillID from 'DB/Skills/SkillConst';
+import Client from 'Core/Client';
+import Altitude from 'Renderer/Map/Altitude';
 
-	var _vertexShader = `
+let _texture;
+	let _program;
+	let mat4 = glMatrix.mat4;
+	let _matrix = mat4.create();
+
+	let _vertexShader = `
         #version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -30,7 +29,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'DB/Skills/SkillConst', 'Core/Client',
 		}
 	`;
 
-	var _fragmentShader = `
+	let _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -69,7 +68,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'DB/Skills/SkillConst', 'Core/Client',
 	}
 
 	GroundEffect.prototype.init = function init(gl) {
-		var plane = Altitude.generatePlane(this.x, this.y, this.size);
+		let plane = Altitude.generatePlane(this.x, this.y, this.size);
 		this.buffer = gl.createBuffer();
 		this.vertCount = plane.length / 5;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
@@ -83,7 +82,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'DB/Skills/SkillConst', 'Core/Client',
 	};
 
 	GroundEffect.prototype.render = function render(gl, tick) {
-		var attribute = _program.attribute;
+		let attribute = _program.attribute;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
@@ -122,8 +121,8 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'DB/Skills/SkillConst', 'Core/Client',
 	};
 
 	GroundEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		let uniform = _program.uniform;
+		let attribute = _program.attribute;
 
 		gl.depthMask(false);
 		mat4.identity(_matrix);
@@ -149,6 +148,4 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'DB/Skills/SkillConst', 'Core/Client',
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	};
-
-	return GroundEffect;
-});
+export default GroundEffect;

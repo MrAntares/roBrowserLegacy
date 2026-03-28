@@ -4,23 +4,22 @@
  * Handles the UI for selecting a shortcut slot when an item/skill is selected via Context Menu.
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ShortCut = require('UI/Components/ShortCut/ShortCut');
-	var jQuery = require('Utils/jquery');
-	var htmlText = require('text!./JoystickSelectionUI.html');
-	var cssText = require('text!./JoystickSelectionUI.css');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ShortCut from 'UI/Components/ShortCut/ShortCut';
+import jQuery from 'Utils/jquery';
+import htmlText from './JoystickSelectionUI.html?raw';
+import cssText from './JoystickSelectionUI.css?raw';
 
-	var JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssText);
+let JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssText);
 
 	// State variables
-	var currentTab = 0;
-	var slotInTab = 0;
-	var itemData = null;
-	var clickLock = null;
+	let currentTab = 0;
+	let slotInTab = 0;
+	let itemData = null;
+	let clickLock = null;
 
 	// Internal Helper: Debounce for gamepad input
 	function setClickInterval() {
@@ -38,7 +37,7 @@ define(function (require) {
 
 	// Internal Helper: Get Combo String
 	function getJoystickComboForSlot(slotIndex) {
-		var combos = {
+		let combos = {
 			0: 'L1+Y',
 			1: 'L1+X',
 			2: 'L1+B',
@@ -84,20 +83,20 @@ define(function (require) {
 	}
 
 	function updateGrid() {
-		var grid = JoystickSelectionUI.ui.find('.shortcut-grid');
+		let grid = JoystickSelectionUI.ui.find('.shortcut-grid');
 		grid.empty();
 
-		var startIdx = currentTab * 9;
+		let startIdx = currentTab * 9;
 
 		for (var i = 0; i < 9; i++) {
-			var globalIndex = startIdx + i;
-			var slot = ShortCut.getList()[globalIndex];
-			var isEmpty = !slot || (!slot.isSkill && !slot.ID);
+			let globalIndex = startIdx + i;
+			let slot = ShortCut.getList()[globalIndex];
+			let isEmpty = !slot || (!slot.isSkill && !slot.ID);
 
-			var joystickCombo = getJoystickComboForSlot(globalIndex);
-			var displayText = joystickCombo || i + 1;
+			let joystickCombo = getJoystickComboForSlot(globalIndex);
+			let displayText = joystickCombo || i + 1;
 
-			var slotDiv = jQuery('<div class="slot-btn" data-index="' + i + '">' + displayText + '</div>');
+			let slotDiv = jQuery('<div class="slot-btn" data-index="' + i + '">' + displayText + '</div>');
 
 			if (isEmpty) {
 				slotDiv.addClass('empty');
@@ -110,23 +109,23 @@ define(function (require) {
 	}
 
 	function updateSelection() {
-		var grid = JoystickSelectionUI.ui.find('.shortcut-grid');
+		let grid = JoystickSelectionUI.ui.find('.shortcut-grid');
 		grid.find('.slot-btn').removeClass('selected');
 		grid.find('.slot-btn[data-index="' + slotInTab + '"]').addClass('selected');
 	}
 
 	function updateTabButtons() {
-		var tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
+		let tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
 		tabButtons.find('.tab-btn').removeClass('active');
 		tabButtons.find('.tab-btn[data-tab="' + currentTab + '"]').addClass('active');
 	}
 
 	function createTabButtons() {
-		var tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
+		let tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
 		tabButtons.empty();
 
 		for (var t = 0; t < 4; t++) {
-			var tabBtn = jQuery('<button class="tab-btn" data-tab="' + t + '">Tab ' + (t + 1) + '</button>');
+			let tabBtn = jQuery('<button class="tab-btn" data-tab="' + t + '">Tab ' + (t + 1) + '</button>');
 			tabButtons.append(tabBtn);
 		}
 	}
@@ -136,8 +135,8 @@ define(function (require) {
 			return;
 		}
 
-		var row = currentTab;
-		var pos = row * 9 + slotInTab;
+		let row = currentTab;
+		let pos = row * 9 + slotInTab;
 
 		ShortCut.removeElement(itemData.isSkill, itemData.ID, row, itemData.value);
 		ShortCut.addElement(pos, itemData.isSkill, itemData.ID, itemData.value);
@@ -263,6 +262,4 @@ define(function (require) {
 	JoystickSelectionUI.active = function () {
 		return this.ui && this.ui.is(':visible');
 	};
-
-	return UIManager.addComponent(JoystickSelectionUI);
-});
+export default UIManager.addComponent(JoystickSelectionUI);

@@ -6,11 +6,9 @@
  * @author Vincent Thibault
  * (auto-generated)
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+export default {
 		1: '\xc3\xb5\xbb\xe7\xb3\xaf\xb0\xb3',
 		2: '\xb8\xf0\xc7\xe8\xb0\xa1\xb9\xe8\xb3\xb6',
 		3: '\xc5\xb8\xb6\xf4\xc3\xb5\xbb\xe7\xc0\xc7\xb3\xaf\xb0\xb3',
@@ -216,4 +214,3 @@ define(function () {
 		204: 'GreatDevilWing2',
 		999: 'LAST'
 	};
-});

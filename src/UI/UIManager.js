@@ -7,16 +7,14 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var jQuery = require('Utils/jquery');
-	var UIComponent = require('./UIComponent');
-	var UIVersionManager = require('./UIVersionManager');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import UIComponent from './UIComponent';
+import UIVersionManager from './UIVersionManager';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import GameEngine from 'Engine/GameEngine';
 
 	/**
 	 * User Interface Manager
@@ -158,7 +156,7 @@ define(function (require) {
 					.one('click', function () {
 						overlay.remove();
 						WinError.remove();
-						getModule('Engine/GameEngine').reload();
+						GameEngine.reload();
 					})
 					.each(this.parseHTML)
 			);
@@ -170,7 +168,7 @@ define(function (require) {
 				case KEYS.ESCAPE:
 					overlay.remove();
 					this.remove();
-					getModule('Engine/GameEngine').reload();
+					GameEngine.reload();
 			}
 		};
 
@@ -312,5 +310,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return UIManager;
-});
+	export default UIManager;

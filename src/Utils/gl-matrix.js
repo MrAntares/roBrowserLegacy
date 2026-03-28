@@ -7,11 +7,9 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define( ['Vendors/gl-matrix'], function( glMatrix )
-{
-	'use strict';
-
+import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendors/gl-matrix';
 
 	/**
 	 * Calculate a normal from the three givens vectors
@@ -42,11 +40,15 @@ define( ['Vendors/gl-matrix'], function( glMatrix )
 		z3 = x1 * y2 - y1 * x2;
 
 		// vec3.normalize()
-		len = 1 / Math.sqrt(x3*x3 + y3*y3 + z3*z3);
-
-		out[0] = x3 * len;
-		out[1] = y3 * len;
-		out[2] = z3 * len;
+		const dist = x3*x3 + y3*y3 + z3*z3;
+		if (dist > 0) {
+			len = 1 / Math.sqrt(dist);
+			out[0] = x3 * len;
+			out[1] = y3 * len;
+			out[2] = z3 * len;
+		} else {
+			out[0] = 0; out[1] = 0; out[2] = 0;
+		}
 
 		return out;
 	};
@@ -80,10 +82,15 @@ define( ['Vendors/gl-matrix'], function( glMatrix )
 			y3  = z1 * x2 - x1 * z2;
 			z3  = x1 * y2 - y1 * x2;
 			//vec3.normalize(v1);
-			len = 1 / Math.sqrt(x3*x3 + y3*y3 + z3*z3);
-			x   = x3 * len;
-			y   = y3 * len;
-			z   = z3 * len;
+			const dist1 = x3*x3 + y3*y3 + z3*z3;
+			if (dist1 > 0) {
+				len = 1 / Math.sqrt(dist1);
+				x   = x3 * len;
+				y   = y3 * len;
+				z   = z3 * len;
+			} else {
+				x = 0; y = 0; z = 0;
+			}
 
 		//vec3.calcNormal( c, d, a, tmp );
 			//vec3.subtract( a, d, v1 );
@@ -95,18 +102,24 @@ define( ['Vendors/gl-matrix'], function( glMatrix )
 			y3  = z1 * x2 - x1 * z2;
 			z3  = x1 * y2 - y1 * x2;
 			//vec3.normalize(v1);
-			len = 1 / Math.sqrt(x3*x3 + y3*y3 + z3*z3);
-
-		//vec3.add( out, tmp); (apply the normalize at the same time)
-		x  += x3 * len;
-		y  += y3 * len;
-		z  += z3 * len;
+			const dist2 = x3*x3 + y3*y3 + z3*z3;
+			if (dist2 > 0) {
+				len = 1 / Math.sqrt(dist2);
+				x  += x3 * len;
+				y  += y3 * len;
+				z  += z3 * len;
+			}
 
 		//vec3.normalize(out);
-		len    = 1 / Math.sqrt(x*x + y*y + z*z);
-		out[0] = x * len;
-		out[1] = y * len;
-		out[2] = z * len;
+		const distOut = x*x + y*y + z*z;
+		if (distOut > 0) {
+			len    = 1 / Math.sqrt(distOut);
+			out[0] = x * len;
+			out[1] = y * len;
+			out[2] = z * len;
+		} else {
+			out[0] = 0; out[1] = 0; out[2] = 0;
+		}
 
 		return out;
 	};
@@ -267,6 +280,45 @@ define( ['Vendors/gl-matrix'], function( glMatrix )
 
 
 	/**
+	 * Perspective matrix (Legacy RoBrowser version)
+	 *
+	 * @param {number} fovy
+	 * @param {number} aspect
+	 * @param {number} near
+	 * @param {number} far
+	 * @param {mat4} [dest]
+	 *
+	 * @returns {mat4} dest
+	 */
+	glMatrix.mat4.perspective = function (fovy, aspect, near, far, dest) {
+		if (!dest) { dest = glMatrix.mat4.create(); }
+		var top = near * Math.tan(fovy * Math.PI / 360.0),
+			right = top * aspect;
+		return glMatrix.mat4.frustum(dest, -right, right, -top, top, near, far);
+	};
+
+
+	/**
+	 * Multiplies a vec3 by a mat4
+	 * The last component of the vec3 is assumed to be 1.0
+	 * 
+	 * @param {vec3} vec 3 position vector
+	 * @param {mat4} mat 4x4 matrix
+	 * 
+	 * @returns {vec3} resulting vector
+	 */
+	glMatrix.mat4.multiplyVec3 = function(vec, mat) {
+		const out = new Float32Array(3);
+		const x = vec[0], y = vec[1], z = vec[2];
+
+		out[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
+		out[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
+		out[2] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
+		return out;
+	};
+
+
+	/**
 	 * Calculates the inverse of the upper 3x3 elements of a mat4 and copies the result into a mat3
 	 * The resulting matrix is useful for calculating transformed normals
 	 *
@@ -307,48 +359,5 @@ define( ['Vendors/gl-matrix'], function( glMatrix )
 		return dest;
 	};
 
-
-	/**
-	 * Old version - new one seems buggy
-	 * Generates a perspective projection matrix with the given bounds
-	 *
-	 * @param {number} fovy Vertical field of view
-	 * @param {number} aspect Aspect ratio. typically viewport width/height
-	 * @param {number} near Near bound of the frustum
-	 * @param {number} far Far bound of the frustum
-	 * @param {mat4} [dest] mat4 frustum matrix will be written into
-	 *
-	 * @returns {mat4} dest if specified, a new mat4 otherwise
-	 */
-	glMatrix.mat4.perspective = function (fovy, aspect, near, far, dest) {
-		var top = near * Math.tan(fovy * Math.PI / 360.0),
-			right = top * aspect;
-		return glMatrix.mat4.frustum(dest, -right, right, -top, top, near, far);
-	};
-
-
-	/**
-	 * Multiplies a vec3 by a mat4
-	 * The last component of the vec3 is assumed to be 1.0
-	 * 
-	 * @param {vec3} vec 3 position vector
-	 * @param {mat4} mat 4x4 matrix
-	 * 
-	 * @returns {vec3} resulting vector
-	 */
-	glMatrix.mat4.multiplyVec3 = function(vec, mat) {
-		const out = new Float32Array(3);
-		const x = vec[0], y = vec[1], z = vec[2];
-
-		out[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
-		out[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
-		out[2] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
-		return out;
-	};
-
-
-	/**
-	 * Export
-	 */
-	return glMatrix;
-});
+export { glMatrix, vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat };
+export default glMatrix;

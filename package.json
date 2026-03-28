@@ -2,10 +2,10 @@
 	"name": "robrowser",
 	"version": "1.0.0",
 	"scripts": {
-		"serve": "live-server ./dist/Web",
-		"live": "live-server . --open=./applications/browser-examples",
-		"pwa": "live-server . --open=./applications/pwa",
-		"tools": "live-server . --open=./applications/tools",
+		"serve": "vite preview",
+		"live": "vite --open applications/browser-examples/index.html",
+		"pwa": "vite --open applications/pwa/index.html",
+		"tools": "vite --open applications/tools/index.html",
 		"nw": "nw .",
 		"build": "node ./applications/tools/builder-web.js",
 		"build:online": "npm run build -- -O",
@@ -24,6 +24,9 @@
 		"lint": "eslint src/**/*.js",
 		"lint:fix": "eslint src/**/*.js --fix",
 		"lint:check": "eslint src/**/*.js --max-warnings 0",
+		"dev": "vite",
+		"build:vite": "vite build",
+		"preview": "vite preview",
 		"format": "prettier --write \"src/**/*.js\"",
 		"format:check": "prettier --check \"src/**/*.js\"",
 		"ci": "npm run lint && npm run format:check"
@@ -31,15 +34,16 @@
 	"author": "Vincent Thibault",
 	"license": "GNU GPL V3",
 	"devDependencies": {
+		"@rollup/plugin-alias": "^6.0.0",
 		"eslint": "^8.57.1",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-requirejs": "^4.0.1",
-		"live-server": "^1.2.2",
 		"nw": "^0.99.0-sdk",
 		"nwjs-builder-phoenix": "^1.15.0",
 		"prettier": "^3.8.1",
 		"requirejs": "^2.3.6",
-		"terser": "^5.19.4"
+		"terser": "^5.19.4",
+		"vite": "^8.0.1"
 	},
 	"build": {
 		"nwVersion": "stable",
@@ -58,5 +62,8 @@
 		"frame": true,
 		"icon": "icon.png"
 	},
-	"main": "applications/nwjs/index.html"
+	"main": "applications/nwjs/index.html",
+	"dependencies": {
+		"bson": "^7.2.0"
+	}
 }

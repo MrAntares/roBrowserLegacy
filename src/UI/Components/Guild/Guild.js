@@ -7,37 +7,32 @@
  *
  * @author @vthibault, @Javierlog08, @scriptord3
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var SkillInfo = require('DB/Skills/SkillInfo');
-	var jQuery = require('Utils/jquery');
-	var KEYS = require('Controls/KeyEventHandler');
-	var MonsterTable = require('DB/Monsters/MonsterTable');
-	var Session = require('Engine/SessionStorage');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Camera = require('Renderer/Camera');
-	var Renderer = require('Renderer/Renderer');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var SkillDescription = require('UI/Components/SkillDescription/SkillDescription');
-	var htmlText = require('text!./Guild.html');
-	var cssText = require('text!./Guild.css');
+import DB from 'DB/DBManager';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import jQuery from 'Utils/jquery';
+import KEYS from 'Controls/KeyEventHandler';
+import MonsterTable from 'DB/Monsters/MonsterTable';
+import Session from 'Engine/SessionStorage';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Camera from 'Renderer/Camera';
+import Renderer from 'Renderer/Renderer';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import SkillDescription from 'UI/Components/SkillDescription/SkillDescription';
+import htmlText from './Guild.html?raw';
+import cssText from './Guild.css?raw';
+import WinStats from 'UI/Components/WinStats/WinStats';
 
-	var WinStats = require('UI/Components/WinStats/WinStats');
-
-	/**
+/**
 	 * @var {Preferences} structure
 	 */
 	/*var _preferences = Preferences.get('Guild', {
@@ -49,7 +44,7 @@ define(function (require) {
 	 * Flags to check access
 	 * (Look up for Type)
 	 */
-	var AccessTypeBit = {
+	let AccessTypeBit = {
 		0: 0x00, // General
 		1: 0x01, // Members
 		2: 0x02, // Position
@@ -62,66 +57,66 @@ define(function (require) {
 	/**
 	 * Create Component
 	 */
-	var Guild = new UIComponent('Guild', htmlText, cssText);
+	let Guild = new UIComponent('Guild', htmlText, cssText);
 
 	/**
 	 * View template
 	 */
-	var MemberView, PositionView, ExpelView;
+	let MemberView, PositionView, ExpelView;
 
 	/**
 	 * @var {Array} position list
 	 */
-	var _positions = [];
+	let _positions = [];
 
 	/**
 	 * @var {Array} members list
 	 */
-	var _members = [];
+	let _members = [];
 
 	/**
 	 * @var {Array} Skill List
 	 * { SKID, type, level, spcost, attackRange, skillName, upgradable }
 	 */
-	var _skills = [];
+	let _skills = [];
 
 	/**
 	 * @var {jQuery} level up button reference
 	 */
-	var _btnIncSkill;
+	let _btnIncSkill;
 
 	/**
 	 * @var {number} skill points
 	 */
-	var _skpoints = 0;
+	let _skpoints = 0;
 
 	/**
 	 * @var {jQuery} button that appeared when level up
 	 */
-	var _btnLevelUp;
+	let _btnLevelUp;
 
-	var lArrow, rArrow;
+	let lArrow, rArrow;
 
 	/**
 	 * @var {number} total guild exp
 	 */
-	var _totalExp = 0;
+	let _totalExp = 0;
 
 	/**
 	 * @var {number} access to guild tab
 	 */
-	var _guildAccess = 0;
+	let _guildAccess = 0;
 
 	/**
 	 * @var {string} checkbox images
 	 */
-	var _checkbox_off, _checkbox_on;
+	let _checkbox_off, _checkbox_on;
 
 	/**
 	 * Initialize component
 	 */
 	Guild.init = function init() {
-		var ui = this.ui;
+		let ui = this.ui;
 
 		MemberView = this.ui.find('.MemberView').remove();
 		PositionView = this.ui.find('.PositionView').remove();
@@ -164,8 +159,8 @@ define(function (require) {
 
 		// Antagonist/Ally
 		ui.find('.content.info .ally_list, .content.info .hostile_list').on('contextmenu', 'div', function () {
-			var relation = this.parentNode.classList.contains('ally_list') ? 0 : 1;
-			var guild_id = parseInt(this.getAttribute('data-guild-id'), 10);
+			let relation = this.parentNode.classList.contains('ally_list') ? 0 : 1;
+			let guild_id = parseInt(this.getAttribute('data-guild-id'), 10);
 
 			ui.find('.content.info .ally_list div, .content.info .hostile_list div').removeClass('active');
 			this.classList.add('active');
@@ -184,9 +179,9 @@ define(function (require) {
 				this.classList.add('active');
 			})
 			.on('contextmenu', 'td.name', function () {
-				var index = this.parentNode.getAttribute('data-index');
-				var member = _members[index];
-				var isSelf = member.AID === Session.AID && member.GID === Session.GID;
+				let index = this.parentNode.getAttribute('data-index');
+				let member = _members[index];
+				let isSelf = member.AID === Session.AID && member.GID === Session.GID;
 
 				ContextMenu.remove();
 				ContextMenu.append();
@@ -257,7 +252,7 @@ define(function (require) {
 				((this.files[0].type === 'image/bmp' && this.files[0].size < 1783) ||
 					(this.files[0].type === 'image/gif' && this.files[0].size < 50000))
 			) {
-				var reader = new FileReader();
+				let reader = new FileReader();
 				reader.onload = function (e) {
 					Guild.onSendEmblem(new Uint8Array(e.target.result));
 				};
@@ -362,7 +357,7 @@ define(function (require) {
 	 * @param {object} data
 	 */
 	Guild.setGuildInformations = function setGuildInformations(info) {
-		var general = this.ui.find('.content.info');
+		let general = this.ui.find('.content.info');
 
 		general.find('.name .value').text(info.guildname);
 		general.find('.level .value').text(info.level);
@@ -407,7 +402,7 @@ define(function (require) {
 	 * @param {Array} guild list
 	 */
 	Guild.setRelations = function setRelations(guilds) {
-		var i, count;
+		let i, count;
 
 		this.ui.find('.ally_list, .hostile_list').empty();
 
@@ -422,12 +417,12 @@ define(function (require) {
 	 * @param {object} guild
 	 */
 	Guild.addRelation = function addRelation(guild) {
-		var list = this.ui.find('.' + (guild.relation === 0 ? 'ally' : 'hostile') + '_list');
-		var div = document.createElement('div');
+		let addRelationList = this.ui.find('.' + (guild.relation === 0 ? 'ally' : 'hostile') + '_list');
+		let div = document.createElement('div');
 
 		div.setAttribute('data-guild-id', guild.GDID);
 		div.textContent = guild.guildName;
-		list.append(div);
+		addRelationList.append(div);
 	};
 
 	/**
@@ -437,8 +432,8 @@ define(function (require) {
 	 * @param {number} relation
 	 */
 	Guild.removeRelation = function removeRelation(guild_id, relation) {
-		var list = this.ui.find('.content.info .' + (relation === 0 ? 'ally' : 'hostile') + '_list');
-		list.find('div[data-guild-id="' + guild_id + '"]').remove();
+		let removeRelationList = this.ui.find('.content.info .' + (relation === 0 ? 'ally' : 'hostile') + '_list');
+		removeRelationList.find('div[data-guild-id="' + guild_id + '"]').remove();
 	};
 
 	/**
@@ -447,7 +442,7 @@ define(function (require) {
 	 * @param {Array} member list
 	 */
 	Guild.setMembers = function setMembers(members) {
-		var i, count, online;
+		let i, count, online;
 
 		count = members.length;
 		_members.length = 0;
@@ -478,7 +473,7 @@ define(function (require) {
 	 * @param {object} member
 	 */
 	Guild.setMember = function setMember(member) {
-		var i, count, view;
+		let i, count, view;
 
 		// Search for duplicate entry
 		for (i = 0, count = _members.length; i < count; ++i) {
@@ -510,7 +505,7 @@ define(function (require) {
 		if (_positions[member.GPositionID]) {
 			if (Session.isGuildMaster && member.GPositionID !== 0) {
 				// Don't let GM change it's own position. Causes bugs.
-				var selectElement = '<select class="changePosition member_' + member.AID + '_' + member.GID + '">';
+				let selectElement = '<select class="changePosition member_' + member.AID + '_' + member.GID + '">';
 				_positions.forEach((position, key) => {
 					selectElement +=
 						'<option value="' +
@@ -562,8 +557,8 @@ define(function (require) {
 	 * @param {object} member
 	 */
 	Guild.updateMemberStatus = function updateMemberStatus(member) {
-		var i, count, view;
-		var online = 0;
+		let i, count, view;
+		let online = 0;
 
 		// Search for duplicate entry
 		for (i = 0, count = _members.length; i < count; ++i) {
@@ -615,7 +610,7 @@ define(function (require) {
 	 * @param {number} position id
 	 */
 	Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, validate) {
-		var i, count;
+		let i, count;
 
 		// Search the member.
 		for (i = 0, count = _members.length; i < count; ++i) {
@@ -640,8 +635,8 @@ define(function (require) {
 	 * @param {boolean} erase array ?
 	 */
 	Guild.setPositions = function setPositions(positions, erase) {
-		var i, count;
-		var rank;
+		let i, count;
+		let rank;
 
 		if (erase) {
 			_positions.length = positions.length;
@@ -673,8 +668,8 @@ define(function (require) {
 	 * @param {Array} position list
 	 */
 	Guild.setPositionsName = function setPositionsName(positions) {
-		var i, count;
-		var rank;
+		let i, count;
+		let rank;
 
 		for (i = 0, count = positions.length; i < count; ++i) {
 			rank = positions[i];
@@ -693,8 +688,8 @@ define(function (require) {
 	 * Update guild positions view
 	 */
 	Guild.updatePositionView = function updatePositionView() {
-		var i, count;
-		var view, rank, container;
+		let i, count;
+		let view, rank, container;
 
 		count = _positions.length;
 		container = this.ui.find('.content.positions tbody');
@@ -731,7 +726,7 @@ define(function (require) {
 	 * Add skills to the list
 	 */
 	Guild.setSkills = function setSkills(skills) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = _skills.length; i < count; ++i) {
 			this.onUpdateSkill(_skills[i].SKID, 0);
@@ -762,10 +757,10 @@ define(function (require) {
 			return;
 		}
 
-		var sk = SkillInfo[skill.SKID];
-		var levelup = _btnIncSkill.clone(true);
-		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		var element = jQuery(
+		let sk = SkillInfo[skill.SKID];
+		let levelup = _btnIncSkill.clone(true);
+		let className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		let element = jQuery(
 			'<tr class="skill id' +
 				skill.SKID +
 				' ' +
@@ -841,8 +836,8 @@ define(function (require) {
 	 * @param {object} skill : { SKID, level, spcost, attackRange, upgradable }
 	 */
 	Guild.updateSkill = function updateSkill(skill) {
-		var target = getSkillById(skill.SKID);
-		var element;
+		let target = getSkillById(skill.SKID);
+		let element;
 
 		if (!target) {
 			return;
@@ -883,7 +878,7 @@ define(function (require) {
 	 * @param {number} skill id
 	 */
 	Guild.useSkillID = function useSkillID(id, level) {
-		var skill = getSkillById(id);
+		let skill = getSkillById(id);
 		if (!skill || !skill.level || !skill.type) {
 			return;
 		}
@@ -917,7 +912,7 @@ define(function (require) {
 	 * @param {number} skill points count
 	 */
 	Guild.setPoints = function SetPoints(amount) {
-		var i, count;
+		let i, count;
 		this.ui.find('.skpoints_count').text(amount);
 
 		// Do not need to update the UI
@@ -952,7 +947,7 @@ define(function (require) {
 	 * @returns {Skill}
 	 */
 	function getSkillById(id) {
-		var i,
+		let i,
 			count = _skills.length;
 
 		for (i = 0; i < count; ++i) {
@@ -968,7 +963,7 @@ define(function (require) {
 	 * Request to upgrade a skill
 	 */
 	function onRequestSkillUp() {
-		var index = this.parentNode.parentNode.getAttribute('data-index');
+		let index = this.parentNode.parentNode.getAttribute('data-index');
 		Guild.onIncreaseSkill(parseInt(index, 10));
 	}
 
@@ -976,7 +971,7 @@ define(function (require) {
 	 * Request to use a skill
 	 */
 	function onRequestUseSkill() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -989,8 +984,8 @@ define(function (require) {
 	 * Request to get skill info (right click on a skill)
 	 */
 	function onRequestSkillInfo() {
-		var main = jQuery(this).parent();
-		var skill;
+		let main = jQuery(this).parent();
+		let skill;
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -1013,7 +1008,7 @@ define(function (require) {
 	 * Focus a skill in the list (background color changed)
 	 */
 	function onSkillFocus() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -1027,15 +1022,15 @@ define(function (require) {
 	 * Start to drag a skill (to put it on the hotkey UI ?)
 	 */
 	function onSkillDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var skill = getSkillById(index);
+		let index = parseInt(this.getAttribute('data-index'), 10);
+		let skill = getSkillById(index);
 
 		// Can't drag a passive skill (or disabled)
 		if (!skill || !skill.level || !skill.type) {
 			return stopPropagation(event);
 		}
 
-		var img = new Image();
+		let img = new Image();
 		img.decoding = 'async';
 		img.src = this.firstChild.firstChild.src;
 
@@ -1060,19 +1055,19 @@ define(function (require) {
 	}
 
 	function skillLevelSelectUp(skill) {
-		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		let level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level) {
 			skill.selectedLevel = level + 1;
-			var element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
+			let element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
 
 	function skillLevelSelectDown(skill) {
-		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		let level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1) {
 			skill.selectedLevel = level - 1;
-			var element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
+			let element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
@@ -1084,7 +1079,7 @@ define(function (require) {
 	 * @param {string} notice content
 	 */
 	Guild.setNotice = function setNotice(subject, notice) {
-		var element = this.ui.find('.content.notice');
+		let element = this.ui.find('.content.notice');
 
 		element.find('.subject').val(subject);
 		element.find('.notice').val(notice);
@@ -1096,8 +1091,8 @@ define(function (require) {
 	 * @param {Array} expel list
 	 */
 	Guild.setExpelList = function setExpelList(list) {
-		var i, count;
-		var container, element;
+		let i, count;
+		let container, element;
 
 		container = this.ui.find('.content.history tbody');
 		container.empty();
@@ -1133,7 +1128,7 @@ define(function (require) {
 	 * Change tab
 	 */
 	function onChangeTab(event) {
-		var tab = parseInt(this.getAttribute('data-flag'), 10);
+		let tab = parseInt(this.getAttribute('data-flag'), 10);
 
 		if (!event.isTrigger) {
 			// Can't open this tab
@@ -1167,8 +1162,8 @@ define(function (require) {
 	 * @param {number} virtue [-100, 100]
 	 */
 	function renderTendency(honor, virtue) {
-		var canvas = Guild.ui.find('.content.info .tendency canvas').get(0);
-		var ctx = canvas.getContext('2d');
+		let canvas = Guild.ui.find('.content.info .tendency canvas').get(0);
+		let ctx = canvas.getContext('2d');
 
 		// Border
 		ctx.fillStyle = '#cecfce';
@@ -1197,16 +1192,16 @@ define(function (require) {
 	 *
 	 * @param {number} tick
 	 */
-	var renderMemberFaces = (function renderMemberFacesClosure() {
-		var lastTick = 0;
+	let renderMemberFaces = (function renderMemberFacesClosure() {
+		let lastTick = 0;
 
 		return function renderMemberFaces(tick) {
 			if (tick < lastTick + 1000) {
 				return;
 			}
 
-			var canvas, ctx;
-			var i, count;
+			let canvas, ctx;
+			let i, count;
 
 			lastTick = tick;
 			canvas = Guild.ui.find('.content.members canvas');
@@ -1231,12 +1226,12 @@ define(function (require) {
 	 * Validate a change (notice, position, etc.)
 	 */
 	function onValidate() {
-		var activeTab = Guild.ui.find('.content:visible').get(0).className;
+		let activeTab = Guild.ui.find('.content:visible').get(0).className;
 		activeTab = activeTab.replace(/content/g, '').replace(/^\s+|\s+$/gm, '');
 
 		switch (activeTab) {
 			case 'members':
-				var list = [];
+				let list = [];
 
 				_members.forEach(member => {
 					list.push({
@@ -1250,10 +1245,10 @@ define(function (require) {
 				break;
 
 			case 'positions':
-				var i, count;
-				var position, positions;
-				var right, posName, payRate;
-				var list = [];
+				let i, count;
+				let position, positions;
+				let right, posName, payRate;
+				let positionList = [];
 
 				positions = Guild.ui.find('.PositionView');
 
@@ -1277,7 +1272,7 @@ define(function (require) {
 						_positions[i].posName !== posName ||
 						_positions[i].payRate !== payRate
 					) {
-						list.push({
+						positionList.push({
 							positionID: _positions[i].positionID,
 							ranking: _positions[i].ranking,
 							right: right,
@@ -1287,12 +1282,12 @@ define(function (require) {
 					}
 				}
 
-				Guild.onPositionUpdateRequest(list);
+				Guild.onPositionUpdateRequest(positionList);
 				break;
 
 			case 'notice':
-				var subject = Guild.ui.find('.content.notice input').val();
-				var content = Guild.ui.find('.content.notice textarea').val();
+				let subject = Guild.ui.find('.content.notice input').val();
+				let content = Guild.ui.find('.content.notice textarea').val();
 
 				Guild.onNoticeUpdateRequest(subject, content);
 				break;
@@ -1400,5 +1395,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(Guild);
-});
+export default UIManager.addComponent(Guild);

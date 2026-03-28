@@ -7,10 +7,9 @@
  *
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	return {
+export default {
 		EF_NONE: -1,
 		EF_HIT1: 0,
 		EF_HIT2: 1,
@@ -1166,5 +1165,4 @@ define(function () {
 		EF_UI_ENCHANT_RESET_FAIL: 1883,
 		// ALWAYS UPDATE TO LARGEST ID + 1
 		EF_MAX: 1884
-	};
-});
+};

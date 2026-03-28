@@ -6,17 +6,13 @@
  * @author Alisonrag
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./RodexIcon.html');
-	var cssText = require('text!./RodexIcon.css');
-	var Rodex = require('UI/Components/Rodex/Rodex');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './RodexIcon.html?raw';
+import cssText from './RodexIcon.css?raw';
+import Rodex from 'UI/Components/Rodex/Rodex';
 
 	/**
 	 * Create Component
@@ -49,5 +45,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(RodexIcon);
-});
+	export default UIManager.addComponent(RodexIcon);
