@@ -56,6 +56,10 @@ MapViewer.init = function Init() {
 				if (typeof event.data !== 'object') {
 					return;
 				}
+				// Only accept messages from the parent window or opener (the page that loaded us)
+				if (event.source !== window.parent && event.source !== window.opener) {
+					return;
+				}
 
 				switch (event.data.type) {
 					case 'init':

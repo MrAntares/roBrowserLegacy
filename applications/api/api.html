@@ -28,18 +28,29 @@
 		<link rel="apple-touch-icon" href="./icon.png" />
 
 		<script type="module">
-			addEventListener('message', function OnMessage(event) {
-				removeEventListener('message', OnMessage, false);
+			addEventListener(
+				'message',
+				function OnMessage(event) {
+					// Only accept messages from the parent window or opener (the page that loaded us)
+					if (event.source !== window.parent && event.source !== window.opener) {
+						return;
+					}
 
-				window.ROConfig = event.data;
+					removeEventListener('message', OnMessage, false);
 
-				// Load the engine entry point as an ES6 module
-				import('/src/main.js').then(() => {
-					event.source.postMessage('ready', '*');
-				}).catch(err => {
-					console.error('Failed to load roBrowser engine:', err);
-				});
-			}, false);
+					window.ROConfig = event.data;
+
+					// Load the engine entry point as an ES6 module
+					import('/src/main.js')
+						.then(() => {
+							event.source.postMessage('ready', '*');
+						})
+						.catch(err => {
+							console.error('Failed to load roBrowser engine:', err);
+						});
+				},
+				false
+			);
 		</script>
 	</head>
 </html>

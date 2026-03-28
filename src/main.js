@@ -27,27 +27,27 @@ function launch(config) {
 			break;
 
 		case APP.MAPVIEWER:
-			import('App/MapViewer').then((mod) => mod.default());
+			import('App/MapViewer').then(mod => mod.default());
 			break;
 
 		case APP.GRFVIEWER:
-			import('App/GrfViewer').then((mod) => mod.default());
+			import('App/GrfViewer').then(mod => mod.default());
 			break;
 
 		case APP.MODELVIEWER:
-			import('App/ModelViewer').then((mod) => mod.default());
+			import('App/ModelViewer').then(mod => mod.default());
 			break;
 
 		case APP.STRVIEWER:
-			import('App/StrViewer').then((mod) => mod.default());
+			import('App/StrViewer').then(mod => mod.default());
 			break;
 
 		case APP.GRANNYMODELVIEWER:
-			import('App/GrannyModelViewer').then((mod) => mod.default());
+			import('App/GrannyModelViewer').then(mod => mod.default());
 			break;
 
 		case APP.EFFECTVIEWER:
-			import('App/EffectViewer').then((mod) => mod.default());
+			import('App/EffectViewer').then(mod => mod.default());
 			break;
 
 		default:
@@ -65,7 +65,11 @@ if (window.ROConfig) {
 	launch(window.ROConfig);
 } else {
 	// Wait for configuration via postMessage (API mode)
-	const onMessage = (event) => {
+	const onMessage = event => {
+		// Only accept messages from the parent window or opener (the page that loaded us)
+		if (event.source !== window.parent && event.source !== window.opener) {
+			return;
+		}
 		if (event.data && (event.data.application || event.data.servers)) {
 			window.ROConfig = event.data;
 			launch(window.ROConfig);
