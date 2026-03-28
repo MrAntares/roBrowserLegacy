@@ -10,78 +10,78 @@
 
 'use strict';
 
-	/**
-	 * HTML5 WebSocket System
-	 *
-	 * @param {string} url
-	 */
-	function Socket(host, port, proxy) {
-		let url = 'ws://' + host + ':' + port + '/';
-		const self = this;
-		this.connected = false;
+/**
+ * HTML5 WebSocket System
+ *
+ * @param {string} url
+ */
+function Socket(host, port, proxy) {
+	let url = 'ws://' + host + ':' + port + '/';
+	const self = this;
+	this.connected = false;
 
-		// Use of a proxy
-		if (proxy) {
-			url = proxy;
+	// Use of a proxy
+	if (proxy) {
+		url = proxy;
 
-			if (!url.match(/\/$/)) {
-				url += '/';
-			}
-
-			url += host + ':' + port;
+		if (!url.match(/\/$/)) {
+			url += '/';
 		}
 
-		// Open Websocket
-		this.ws = new WebSocket(url);
-		this.ws.binaryType = 'arraybuffer';
-
-		this.ws.onopen = function OnOpen() {
-			self.connected = true;
-			self.onComplete(true);
-		};
-
-		this.ws.onerror = function OnError() {
-			if (!self.connected) {
-				self.onComplete(false);
-			}
-		};
-
-		this.ws.onmessage = function OnMessage(event) {
-			self.onMessage(event.data);
-		};
-
-		this.ws.onclose = function OnClose() {
-			self.connected = false;
-			this.close();
-
-			if (self.onClose) {
-				self.onClose();
-			}
-		};
+		url += host + ':' + port;
 	}
 
-	/**
-	 * Sending packet to applet
-	 *
-	 * @param {ArrayBuffer} buffer
-	 */
-	Socket.prototype.send = function Send(buffer) {
-		if (this.connected) {
-			this.ws.send(buffer);
+	// Open Websocket
+	this.ws = new WebSocket(url);
+	this.ws.binaryType = 'arraybuffer';
+
+	this.ws.onopen = function OnOpen() {
+		self.connected = true;
+		self.onComplete(true);
+	};
+
+	this.ws.onerror = function OnError() {
+		if (!self.connected) {
+			self.onComplete(false);
 		}
 	};
 
-	/**
-	 * Closing connection to server
-	 */
-	Socket.prototype.close = function Close() {
-		if (this.connected) {
-			this.ws.close();
-			this.connected = false;
-		}
+	this.ws.onmessage = function OnMessage(event) {
+		self.onMessage(event.data);
 	};
 
-	/**
-	 * Export
-	 */
-	export default Socket;
+	this.ws.onclose = function OnClose() {
+		self.connected = false;
+		this.close();
+
+		if (self.onClose) {
+			self.onClose();
+		}
+	};
+}
+
+/**
+ * Sending packet to applet
+ *
+ * @param {ArrayBuffer} buffer
+ */
+Socket.prototype.send = function Send(buffer) {
+	if (this.connected) {
+		this.ws.send(buffer);
+	}
+};
+
+/**
+ * Closing connection to server
+ */
+Socket.prototype.close = function Close() {
+	if (this.connected) {
+		this.ws.close();
+		this.connected = false;
+	}
+};
+
+/**
+ * Export
+ */
+export default Socket;

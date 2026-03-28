@@ -21,145 +21,145 @@ import htmlText from './ItemSelection.html?raw';
 import cssText from './ItemSelection.css?raw';
 
 /**
-	 * Create ItemSelection namespace
-	 */
-	const ItemSelection = new UIComponent('ItemSelection', htmlText, cssText);
+ * Create ItemSelection namespace
+ */
+const ItemSelection = new UIComponent('ItemSelection', htmlText, cssText);
 
-	/**
-	 * Initialize UI
-	 */
-	ItemSelection.init = function init() {
-		// Show at center.
-		this.ui.css({
-			top: (Renderer.height - 200) / 2,
-			left: (Renderer.width - 200) / 2
-		});
+/**
+ * Initialize UI
+ */
+ItemSelection.init = function init() {
+	// Show at center.
+	this.ui.css({
+		top: (Renderer.height - 200) / 2,
+		left: (Renderer.width - 200) / 2
+	});
 
-		this.list = this.ui.find('.list:first');
-		this.index = 0;
+	this.list = this.ui.find('.list:first');
+	this.index = 0;
 
-		this.draggable(this.ui.find('.head'));
+	this.draggable(this.ui.find('.head'));
 
-		// Click Events
-		this.ui.find('.ok').click(this.selectIndex.bind(this));
-		this.ui.find('.cancel').click(
-			function () {
-				this.index = -1;
-				this.selectIndex();
-			}.bind(this)
-		);
+	// Click Events
+	this.ui.find('.ok').click(this.selectIndex.bind(this));
+	this.ui.find('.cancel').click(
+		function () {
+			this.index = -1;
+			this.selectIndex();
+		}.bind(this)
+	);
 
-		// Bind events
-		this.ui.on('dblclick', '.item', this.selectIndex.bind(this)).on('mousedown', '.item', function () {
-			ItemSelection.setIndex(Math.floor(this.getAttribute('data-index')));
-		});
-	};
+	// Bind events
+	this.ui.on('dblclick', '.item', this.selectIndex.bind(this)).on('mousedown', '.item', function () {
+		ItemSelection.setIndex(Math.floor(this.getAttribute('data-index')));
+	});
+};
 
-	/**
-	 * Add elements to the list
-	 *
-	 * @param {Array} list object to display
-	 */
-	ItemSelection.setList = function setList(list, isSkill) {
-		let i, count;
-		let item, it, file, name;
+/**
+ * Add elements to the list
+ *
+ * @param {Array} list object to display
+ */
+ItemSelection.setList = function setList(list, isSkill) {
+	let i, count;
+	let item, it, file, name;
 
-		ItemSelection.list.empty();
+	ItemSelection.list.empty();
 
-		for (i = 0, count = list.length; i < count; ++i) {
-			if (isSkill) {
-				if (list[i] > 0 && list[i] in SkillInfo) {
-					item = SkillInfo[list[i]];
-					file = item.Name;
-					name = item.SkillName;
+	for (i = 0, count = list.length; i < count; ++i) {
+		if (isSkill) {
+			if (list[i] > 0 && list[i] in SkillInfo) {
+				item = SkillInfo[list[i]];
+				file = item.Name;
+				name = item.SkillName;
+				addElement(DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
+			}
+			// else: skip empty
+		} else {
+			item = Inventory.getUI().getItemByIndex(list[i]);
+			if (item) {
+				it = DB.getItemInfo(item.ITID);
+				if (it) {
+					file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
+					name = DB.getItemName(item, {
+						showItemGrade: false,
+						showItemSlots: false,
+						showItemOptions: false
+					});
 					addElement(DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
-				}
-				// else: skip empty
-			} else {
-				item = Inventory.getUI().getItemByIndex(list[i]);
-				if (item) {
-					it = DB.getItemInfo(item.ITID);
-					if (it) {
-						file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
-						name = DB.getItemName(item, {
-							showItemGrade: false,
-							showItemSlots: false,
-							showItemOptions: false
-						});
-						addElement(DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
-					}
 				}
 			}
 		}
-
-		this.setIndex(list[0]);
-	};
-
-	/**
-	 * Add an element to the list
-	 *
-	 * @param {string} image url
-	 * @param {index} index in list
-	 * @param {string} element name
-	 */
-	function addElement(url, index, name) {
-		ItemSelection.list.append(
-			'<div class="item" data-index="' +
-				index +
-				'">' +
-				'<div class="icon"></div>' +
-				'<span class="name">' +
-				jQuery.escape(name) +
-				'</span>' +
-				'</div>'
-		);
-
-		Client.loadFile(url, function (data) {
-			ItemSelection.list.find('div[data-index=' + index + '] .icon').css('backgroundImage', 'url(' + data + ')');
-		});
 	}
 
-	/**
-	 * Change selection
-	 *
-	 * @param {number} id in list
-	 */
-	ItemSelection.setIndex = function setIndex(id) {
-		this.list.find('div[data-index=' + this.index + ']').css('backgroundColor', 'transparent');
-		this.list.find('div[data-index=' + id + ']').css('backgroundColor', '#cde0ff');
-		this.index = id;
-	};
+	this.setIndex(list[0]);
+};
 
-	/**
-	 * Select a server, callback
-	 */
-	ItemSelection.selectIndex = function selectIndex() {
-		this.onIndexSelected(this.index);
-		this.remove();
-	};
+/**
+ * Add an element to the list
+ *
+ * @param {string} image url
+ * @param {index} index in list
+ * @param {string} element name
+ */
+function addElement(url, index, name) {
+	ItemSelection.list.append(
+		'<div class="item" data-index="' +
+			index +
+			'">' +
+			'<div class="icon"></div>' +
+			'<span class="name">' +
+			jQuery.escape(name) +
+			'</span>' +
+			'</div>'
+	);
 
-	/**
-	 * Free variables once removed from HTML
-	 */
-	ItemSelection.onRemove = function onRemove() {
-		this.index = 0;
-	};
+	Client.loadFile(url, function (data) {
+		ItemSelection.list.find('div[data-index=' + index + '] .icon').css('backgroundImage', 'url(' + data + ')');
+	});
+}
 
-	/**
-	 * Set new window name
-	 *
-	 * @param {string} title
-	 */
-	ItemSelection.setTitle = function setTitle(title) {
-		this.ui.find('.head .text').text(title);
-	};
+/**
+ * Change selection
+ *
+ * @param {number} id in list
+ */
+ItemSelection.setIndex = function setIndex(id) {
+	this.list.find('div[data-index=' + this.index + ']').css('backgroundColor', 'transparent');
+	this.list.find('div[data-index=' + id + ']').css('backgroundColor', '#cde0ff');
+	this.index = id;
+};
 
-	/**
-	 * Functions to define
-	 */
-	ItemSelection.onIndexSelected = function onIndexSelected() {};
+/**
+ * Select a server, callback
+ */
+ItemSelection.selectIndex = function selectIndex() {
+	this.onIndexSelected(this.index);
+	this.remove();
+};
 
-	/**
-	 * Create component based on view file and export it
-	 */
+/**
+ * Free variables once removed from HTML
+ */
+ItemSelection.onRemove = function onRemove() {
+	this.index = 0;
+};
+
+/**
+ * Set new window name
+ *
+ * @param {string} title
+ */
+ItemSelection.setTitle = function setTitle(title) {
+	this.ui.find('.head .text').text(title);
+};
+
+/**
+ * Functions to define
+ */
+ItemSelection.onIndexSelected = function onIndexSelected() {};
+
+/**
+ * Create component based on view file and export it
+ */
 export default UIManager.addComponent(ItemSelection);

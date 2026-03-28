@@ -18,174 +18,174 @@ import htmlText from './NpcMenu.html?raw';
 import cssText from './NpcMenu.css?raw';
 
 /**
-	 * Create NPC Menu component
-	 */
-	const NpcMenu = new UIComponent('NpcMenu', htmlText, cssText);
+ * Create NPC Menu component
+ */
+const NpcMenu = new UIComponent('NpcMenu', htmlText, cssText);
 
-	/**
-	 * @var {number} index selected in menu
-	 */
-	let _index = 0;
+/**
+ * @var {number} index selected in menu
+ */
+let _index = 0;
 
-	/**
-	 * @var {number} NPC ID
-	 */
-	let _ownerID = 0;
+/**
+ * @var {number} NPC ID
+ */
+let _ownerID = 0;
 
-	/**
-	 * Initialize component
-	 */
-	NpcMenu.init = function init() {
-		this.ui.find('.ok').click(validate.bind(this));
-		this.ui.find('.cancel').click(cancel.bind(this));
+/**
+ * Initialize component
+ */
+NpcMenu.init = function init() {
+	this.ui.find('.ok').click(validate.bind(this));
+	this.ui.find('.cancel').click(cancel.bind(this));
 
-		this.ui.css({
-			top: Math.max(376, Renderer.height / 2 + 76),
-			left: Math.max(Renderer.width / 3, 20)
+	this.ui.css({
+		top: Math.max(376, Renderer.height / 2 + 76),
+		left: Math.max(Renderer.width / 3, 20)
+	});
+
+	this.draggable();
+
+	const self = this;
+	this.ui
+		.find('.content')
+
+		// Manage indexes
+		.on('mousedown', 'div', function (event) {
+			selectIndex.call(self, jQuery(this));
+		})
+
+		// Select index
+		.on('dblclick', 'div', validate.bind(this))
+
+		// Stop drag drop
+		.mousedown(function (event) {
+			event.stopImmediatePropagation();
+			return false;
 		});
+};
 
-		this.draggable();
+/**
+ * Clean up events
+ */
+NpcMenu.onRemove = function onRemove() {
+	this.ui.find('.content').empty();
+};
 
-		const self = this;
-		this.ui
-			.find('.content')
+/**
+ * Bind KeyDown event
+ */
+NpcMenu.onKeyDown = function onKeyDown(event) {
+	let count, top;
+	let content;
+	if (!this.ui.is(':visible')) {
+		return true;
+	}
+	switch (event.which) {
+		case KEYS.SPACE: // Same as Enter
+		case KEYS.ENTER:
+			validate.call(this);
+			break;
 
-			// Manage indexes
-			.on('mousedown', 'div', function (event) {
-				selectIndex.call(self, jQuery(this));
-			})
+		case KEYS.ESCAPE:
+			cancel.call(this);
+			break;
 
-			// Select index
-			.on('dblclick', 'div', validate.bind(this))
+		case KEYS.UP:
+			count = this.ui.find('.content div').length;
+			_index = Math.max(_index - 1, 0);
 
-			// Stop drag drop
-			.mousedown(function (event) {
-				event.stopImmediatePropagation();
-				return false;
-			});
-	};
+			this.ui.find('.content div').removeClass('selected');
+			this.ui.find('.content div:eq(' + _index + ')').addClass('selected');
 
-	/**
-	 * Clean up events
-	 */
-	NpcMenu.onRemove = function onRemove() {
-		this.ui.find('.content').empty();
-	};
+			content = this.ui.find('.content')[0];
+			top = _index * 20;
 
-	/**
-	 * Bind KeyDown event
-	 */
-	NpcMenu.onKeyDown = function onKeyDown(event) {
-		let count, top;
-		let content;
-		if (!this.ui.is(':visible')) {
-			return true;
-		}
-		switch (event.which) {
-			case KEYS.SPACE: // Same as Enter
-			case KEYS.ENTER:
-				validate.call(this);
-				break;
-
-			case KEYS.ESCAPE:
-				cancel.call(this);
-				break;
-
-			case KEYS.UP:
-				count = this.ui.find('.content div').length;
-				_index = Math.max(_index - 1, 0);
-
-				this.ui.find('.content div').removeClass('selected');
-				this.ui.find('.content div:eq(' + _index + ')').addClass('selected');
-
-				content = this.ui.find('.content')[0];
-				top = _index * 20;
-
-				if (top < content.scrollTop) {
-					content.scrollTop = top;
-				}
-				break;
-
-			case KEYS.DOWN:
-				count = this.ui.find('.content div').length;
-				_index = Math.min(_index + 1, count - 1);
-
-				this.ui.find('.content div').removeClass('selected');
-				this.ui.find('.content div:eq(' + _index + ')').addClass('selected');
-
-				content = this.ui.find('.content')[0];
-				top = _index * 20;
-
-				if (top >= content.scrollTop + 80) {
-					content.scrollTop = top - 60;
-				}
-				break;
-
-			default:
-				return true;
-		}
-
-		event.stopImmediatePropagation();
-		return false;
-	};
-
-	/**
-	 * Initialize menu
-	 *
-	 * @param {string} menu
-	 * @param {number} gid - npc id
-	 */
-	NpcMenu.setMenu = function SetMenu(menu, gid) {
-		let content, list;
-		let i, j, count;
-
-		content = this.ui.find('.content');
-		list = menu.split(':');
-		_ownerID = gid;
-		_index = 0;
-
-		content.empty();
-
-		for (i = 0, j = 0, count = list.length; i < count; ++i) {
-			// Don't display empty menu
-			if (list[i].length) {
-				jQuery('<div/>').text(list[i]).data('index', j++).appendTo(content);
+			if (top < content.scrollTop) {
+				content.scrollTop = top;
 			}
+			break;
+
+		case KEYS.DOWN:
+			count = this.ui.find('.content div').length;
+			_index = Math.min(_index + 1, count - 1);
+
+			this.ui.find('.content div').removeClass('selected');
+			this.ui.find('.content div:eq(' + _index + ')').addClass('selected');
+
+			content = this.ui.find('.content')[0];
+			top = _index * 20;
+
+			if (top >= content.scrollTop + 80) {
+				content.scrollTop = top - 60;
+			}
+			break;
+
+		default:
+			return true;
+	}
+
+	event.stopImmediatePropagation();
+	return false;
+};
+
+/**
+ * Initialize menu
+ *
+ * @param {string} menu
+ * @param {number} gid - npc id
+ */
+NpcMenu.setMenu = function SetMenu(menu, gid) {
+	let content, list;
+	let i, j, count;
+
+	content = this.ui.find('.content');
+	list = menu.split(':');
+	_ownerID = gid;
+	_index = 0;
+
+	content.empty();
+
+	for (i = 0, j = 0, count = list.length; i < count; ++i) {
+		// Don't display empty menu
+		if (list[i].length) {
+			jQuery('<div/>').text(list[i]).data('index', j++).appendTo(content);
 		}
-
-		content.find('div:first').addClass('selected');
-	};
-
-	/**
-	 * Submit an index
-	 */
-	function validate() {
-		this.onSelectMenu(_ownerID, _index + 1);
 	}
 
-	/**
-	 * Pressed cancel, client send "255" as value
-	 */
-	function cancel() {
-		this.onSelectMenu(_ownerID, 255);
-	}
+	content.find('div:first').addClass('selected');
+};
 
-	/**
-	 * Select an index, change background color
-	 */
-	function selectIndex($this) {
-		this.ui.find('.content div').removeClass('selected');
-		$this.addClass('selected');
+/**
+ * Submit an index
+ */
+function validate() {
+	this.onSelectMenu(_ownerID, _index + 1);
+}
 
-		_index = parseInt($this.data('index'), 10);
-	}
+/**
+ * Pressed cancel, client send "255" as value
+ */
+function cancel() {
+	this.onSelectMenu(_ownerID, 255);
+}
 
-	/**
-	 * Abstract callback to define
-	 */
-	NpcMenu.onSelectMenu = function OnSelectMenu(/*gid, index*/) {};
+/**
+ * Select an index, change background color
+ */
+function selectIndex($this) {
+	this.ui.find('.content div').removeClass('selected');
+	$this.addClass('selected');
 
-	/**
-	 * Create componentand export it
-	 */
+	_index = parseInt($this.data('index'), 10);
+}
+
+/**
+ * Abstract callback to define
+ */
+NpcMenu.onSelectMenu = function OnSelectMenu(/*gid, index*/) {};
+
+/**
+ * Create componentand export it
+ */
 export default UIManager.addComponent(NpcMenu);

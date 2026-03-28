@@ -20,213 +20,211 @@ import htmlText from './Clan.html?raw';
 import cssText from './Clan.css?raw';
 
 /**
-	 * @var {Preferences} structure
-	 */
-	const _preferences = Preferences.get(
-		'Clan',
-		{
-			x: 150,
-			y: 150
-		},
-		1.0
-	);
+ * @var {Preferences} structure
+ */
+const _preferences = Preferences.get(
+	'Clan',
+	{
+		x: 150,
+		y: 150
+	},
+	1.0
+);
 
-	/**
-	 * Create Component
-	 */
-	const Clan = new UIComponent('Clan', htmlText, cssText);
+/**
+ * Create Component
+ */
+const Clan = new UIComponent('Clan', htmlText, cssText);
 
-	/**
-	 * Initialize component
-	 */
-	Clan.init = function init() {
-		this.ui.find('.titlebar .close').mousedown(stopPropagation).click(Clan.toggle.bind(this));
-		this.draggable(this.ui.find('.titlebar'));
+/**
+ * Initialize component
+ */
+Clan.init = function init() {
+	this.ui.find('.titlebar .close').mousedown(stopPropagation).click(Clan.toggle.bind(this));
+	this.draggable(this.ui.find('.titlebar'));
 
-		this.ui.hide();
-	};
+	this.ui.hide();
+};
 
-	/**
-	 * Removing Clan
-	 */
-	Clan.onRemove = function onRemove() {
-		// save preferences
-		_preferences.x = this.ui.position().left;
-		_preferences.y = this.ui.position().top;
-		_preferences.save();
-	};
+/**
+ * Removing Clan
+ */
+Clan.onRemove = function onRemove() {
+	// save preferences
+	_preferences.x = this.ui.position().left;
+	_preferences.y = this.ui.position().top;
+	_preferences.save();
+};
 
-	/**
-	 * Process shortcut
-	 *
-	 * @param {object} key
-	 */
-	Clan.onShortCut = function onShurtCut(key) {
-		switch (key.cmd) {
-			case 'TOGGLE':
-				this.toggle();
-				break;
-		}
-	};
-
-	/**
-	 * Toggle Clan UI
-	 */
-	Clan.toggle = function onToggle() {
-		if (!Session.hasClan) {
-			return;
-		}
-
-		if (this.ui.is(':visible')) {
-			this.hide();
-		} else {
-			this.show();
-		}
-	};
-
-	/**
-	 * Process keydown
-	 *
-	 * @param {object} event
-	 */
-	Clan.onKeyDown = function onKeyDown(event) {
-		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+/**
+ * Process shortcut
+ *
+ * @param {object} key
+ */
+Clan.onShortCut = function onShurtCut(key) {
+	switch (key.cmd) {
+		case 'TOGGLE':
 			this.toggle();
-		}
-	};
+			break;
+	}
+};
 
-	/**
-	 * Show Clan element
-	 */
-	Clan.show = function show() {
-		this.focus();
-
-		if (this.ui.is(':visible')) {
-			return;
-		}
-
-		this.ui.show();
-	};
-
-	/**
-	 * Hide Clan element
-	 */
-	Clan.hide = function hide() {
-		this.ui.hide();
-	};
-
-	/**
-	 * Update General Clan infos
-	 *
-	 * @param {object} data
-	 */
-	Clan.setData = function setData(clan) {
-		const general = this.ui.find('.content.info');
-
-		general.find('.name .value').text(clan.name);
-		general.find('.level .value').text(clan.level);
-		general.find('.master .value').text(clan.master);
-		general.find('.members .online').text(clan.membersOnline);
-		general.find('.members .maxMember').text(clan.membersTotal);
-		general
-			.find('.territory .value')
-			.text(
-				clan.territory.replace('.gat', '').charAt(0).toUpperCase() + clan.territory.replace('.gat', '').slice(1)
-			);
-
-		//Clan.onRequestClanEmblem(clan.GDID, clan.emblemVersion, Clan.setEmblem.bind(this));
-	};
-
-	/**
-	 * Set members count
-	 *
-	 * @param {object} members
-	 */
-	Clan.setMembersCount = function setMembersCount(members) {
-		const general = this.ui.find('.content.info');
-
-		general.find('.members .online').text(members.membersOnline);
-		general.find('.members .maxMember').text(members.membersTotal);
-	};
-
-	/**
-	 * Set clan illust
-	 *
-	 * @param {Integer} id
-	 */
-	Clan.setIllust = function setIllust(id) {
-		const self = this;
-		Client.loadFile(
-			DB.INTERFACE_PATH + 'clan_system/clan_illust' + id.toString().padStart(2, '0') + '.bmp',
-			function (data) {
-				self.ui
-					.find('.content.info')
-					.find('.clan_illust')
-					.css('backgroundImage', 'url(' + data + ')');
-			}
-		);
-	};
-
-	/**
-	 * Set Clan emblem
-	 *
-	 * @param {Integer} id
-	 */
-	Clan.setEmblem = function setEmblem(id) {
-		const self = this;
-		Client.loadFile(
-			DB.INTERFACE_PATH + 'clan_system/clan_emblem' + id.toString().padStart(2, '0') + '.bmp',
-			function (data) {
-				self.ui
-					.find('.content.info')
-					.find('.emblem_container')
-					.css('backgroundImage', 'url(' + data + ')');
-			}
-		);
-	};
-
-	/**
-	 * Add Clan relation (ally / enemy)
-	 *
-	 * @param {Array} Clan list
-	 */
-	Clan.setRelations = function setRelations(type, clans) {
-		let i, count;
-
-		for (i = 0, count = clans.length; i < count; ++i) {
-			this.addRelation(type, clans[i]);
-		}
-	};
-
-	/**
-	 * Add a relation
-	 *
-	 * @param {object} Clan
-	 */
-	Clan.addRelation = function addRelation(type, clan) {
-		const list = this.ui.find('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
-		list.empty();
-		const div = document.createElement('div');
-
-		div.setAttribute('data-Clan-id', clan);
-		div.textContent = clan;
-		list.append(div);
-	};
-
-	Clan.leave = function leave() {
-		Session.hasClan = false;
-		this.ui.hide();
-	};
-
-	/**
-	 * Stop propagation of events
-	 */
-	function stopPropagation(event) {
-		event.stopImmediatePropagation();
-		return false;
+/**
+ * Toggle Clan UI
+ */
+Clan.toggle = function onToggle() {
+	if (!Session.hasClan) {
+		return;
 	}
 
-	/**
-	 * Create componentand export it
-	 */
+	if (this.ui.is(':visible')) {
+		this.hide();
+	} else {
+		this.show();
+	}
+};
+
+/**
+ * Process keydown
+ *
+ * @param {object} event
+ */
+Clan.onKeyDown = function onKeyDown(event) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+		this.toggle();
+	}
+};
+
+/**
+ * Show Clan element
+ */
+Clan.show = function show() {
+	this.focus();
+
+	if (this.ui.is(':visible')) {
+		return;
+	}
+
+	this.ui.show();
+};
+
+/**
+ * Hide Clan element
+ */
+Clan.hide = function hide() {
+	this.ui.hide();
+};
+
+/**
+ * Update General Clan infos
+ *
+ * @param {object} data
+ */
+Clan.setData = function setData(clan) {
+	const general = this.ui.find('.content.info');
+
+	general.find('.name .value').text(clan.name);
+	general.find('.level .value').text(clan.level);
+	general.find('.master .value').text(clan.master);
+	general.find('.members .online').text(clan.membersOnline);
+	general.find('.members .maxMember').text(clan.membersTotal);
+	general
+		.find('.territory .value')
+		.text(clan.territory.replace('.gat', '').charAt(0).toUpperCase() + clan.territory.replace('.gat', '').slice(1));
+
+	//Clan.onRequestClanEmblem(clan.GDID, clan.emblemVersion, Clan.setEmblem.bind(this));
+};
+
+/**
+ * Set members count
+ *
+ * @param {object} members
+ */
+Clan.setMembersCount = function setMembersCount(members) {
+	const general = this.ui.find('.content.info');
+
+	general.find('.members .online').text(members.membersOnline);
+	general.find('.members .maxMember').text(members.membersTotal);
+};
+
+/**
+ * Set clan illust
+ *
+ * @param {Integer} id
+ */
+Clan.setIllust = function setIllust(id) {
+	const self = this;
+	Client.loadFile(
+		DB.INTERFACE_PATH + 'clan_system/clan_illust' + id.toString().padStart(2, '0') + '.bmp',
+		function (data) {
+			self.ui
+				.find('.content.info')
+				.find('.clan_illust')
+				.css('backgroundImage', 'url(' + data + ')');
+		}
+	);
+};
+
+/**
+ * Set Clan emblem
+ *
+ * @param {Integer} id
+ */
+Clan.setEmblem = function setEmblem(id) {
+	const self = this;
+	Client.loadFile(
+		DB.INTERFACE_PATH + 'clan_system/clan_emblem' + id.toString().padStart(2, '0') + '.bmp',
+		function (data) {
+			self.ui
+				.find('.content.info')
+				.find('.emblem_container')
+				.css('backgroundImage', 'url(' + data + ')');
+		}
+	);
+};
+
+/**
+ * Add Clan relation (ally / enemy)
+ *
+ * @param {Array} Clan list
+ */
+Clan.setRelations = function setRelations(type, clans) {
+	let i, count;
+
+	for (i = 0, count = clans.length; i < count; ++i) {
+		this.addRelation(type, clans[i]);
+	}
+};
+
+/**
+ * Add a relation
+ *
+ * @param {object} Clan
+ */
+Clan.addRelation = function addRelation(type, clan) {
+	const list = this.ui.find('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
+	list.empty();
+	const div = document.createElement('div');
+
+	div.setAttribute('data-Clan-id', clan);
+	div.textContent = clan;
+	list.append(div);
+};
+
+Clan.leave = function leave() {
+	Session.hasClan = false;
+	this.ui.hide();
+};
+
+/**
+ * Stop propagation of events
+ */
+function stopPropagation(event) {
+	event.stopImmediatePropagation();
+	return false;
+}
+
+/**
+ * Create componentand export it
+ */
 export default UIManager.addComponent(Clan);

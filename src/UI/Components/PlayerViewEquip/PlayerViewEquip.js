@@ -20,36 +20,36 @@ import KEYS from 'Controls/KeyEventHandler';
 
 const publicName = 'PlayerViewEquip';
 
-	const versionInfo = {
-		default: PlayerViewEquipV0,
-		common: {
-			20150225: PlayerViewEquipV2,
-			20101124: PlayerViewEquipV1
-		},
-		re: {},
-		prere: {}
-	};
+const versionInfo = {
+	default: PlayerViewEquipV0,
+	common: {
+		20150225: PlayerViewEquipV2,
+		20101124: PlayerViewEquipV1
+	},
+	re: {},
+	prere: {}
+};
 
-	const PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
+const PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	const _selectUIVersion = PlayerViewEquipController.selectUIVersion;
+const _selectUIVersion = PlayerViewEquipController.selectUIVersion;
 
-	// Extend default UI selector
-	PlayerViewEquipController.selectUIVersion = function () {
-		_selectUIVersion();
+// Extend default UI selector
+PlayerViewEquipController.selectUIVersion = function () {
+	_selectUIVersion();
 
-		//Add selected UI to item owner name update queue
-		const component = PlayerViewEquipController.getUI();
-		DB.UpdateOwnerName.PlayerViewEquip = component.onUpdateOwnerName;
+	//Add selected UI to item owner name update queue
+	const component = PlayerViewEquipController.getUI();
+	DB.UpdateOwnerName.PlayerViewEquip = component.onUpdateOwnerName;
 
-		// Escape to close the UI
-		component.onKeyDown = function onKeyDown(e) {
-			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
-				if (typeof component.remove === 'function') {
-					component.remove();
-				}
+	// Escape to close the UI
+	component.onKeyDown = function onKeyDown(e) {
+		if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
+			if (typeof component.remove === 'function') {
+				component.remove();
 			}
-		};
+		}
 	};
+};
 
-	export default PlayerViewEquipController;
+export default PlayerViewEquipController;

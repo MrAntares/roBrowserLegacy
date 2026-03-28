@@ -91,4 +91,3 @@ export default {
 	init: init,
 	toggle: toggleConsole
 };
-

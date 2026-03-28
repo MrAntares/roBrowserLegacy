@@ -21,283 +21,283 @@ import htmlText from './PetEvolution.html?raw';
 import cssText from './PetEvolution.css?raw';
 
 /**
-	 * Create Component
-	 */
-	const PetEvolution = new UIComponent('PetEvolution', htmlText, cssText);
+ * Create Component
+ */
+const PetEvolution = new UIComponent('PetEvolution', htmlText, cssText);
 
-	/**
-	 * Variables
-	 */
-	let currentMaterials = [];
-	let targetEvoPetEggId = 0;
+/**
+ * Variables
+ */
+let currentMaterials = [];
+let targetEvoPetEggId = 0;
 
-	/**
-	 * @var {Preferences} Window preferences
-	 */
-	const _preferences = Preferences.get(
-		'PetEvolution',
-		{
-			x: 200,
-			y: 200,
-			show: true
-		},
-		1.0
-	);
+/**
+ * @var {Preferences} Window preferences
+ */
+const _preferences = Preferences.get(
+	'PetEvolution',
+	{
+		x: 200,
+		y: 200,
+		show: true
+	},
+	1.0
+);
 
-	/**
-	 * Initialize component
-	 */
-	PetEvolution.init = function init() {
-		this.draggable(this.ui.find('.titlebar'));
+/**
+ * Initialize component
+ */
+PetEvolution.init = function init() {
+	this.draggable(this.ui.find('.titlebar'));
 
-		this.ui.find('.base').mousedown(stopPropagation);
-		this.ui.find('.close').click(onClose);
-		this.ui.find('.big_cancel').click(onClose);
-		this.ui.find('.evolve').click(onRequestEvolve);
-	};
+	this.ui.find('.base').mousedown(stopPropagation);
+	this.ui.find('.close').click(onClose);
+	this.ui.find('.big_cancel').click(onClose);
+	this.ui.find('.evolve').click(onRequestEvolve);
+};
 
-	PetEvolution.onAppend = function onAppend() {};
+PetEvolution.onAppend = function onAppend() {};
 
-	/**
-	 * Once remove from body, save user preferences
-	 */
-	PetEvolution.onRemove = function onRemove() {
-		// Save preferences
-		_preferences.show = this.ui.is(':visible');
-		_preferences.y = parseInt(this.ui.css('top'), 10);
-		_preferences.x = parseInt(this.ui.css('left'), 10);
-		_preferences.save();
+/**
+ * Once remove from body, save user preferences
+ */
+PetEvolution.onRemove = function onRemove() {
+	// Save preferences
+	_preferences.show = this.ui.is(':visible');
+	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.save();
 
-		// Clear variables
-		currentMaterials = [];
-		targetEvoPetEggId = 0;
-	};
+	// Clear variables
+	currentMaterials = [];
+	targetEvoPetEggId = 0;
+};
 
-	/**
-	 * Update UI
-	 *
-	 * @param {object} pet evolution info
-	 */
-	PetEvolution.SetInfo = function SetInfo(baseJobID) {
-		const baseData = DB.getPetByJobID(baseJobID);
+/**
+ * Update UI
+ *
+ * @param {object} pet evolution info
+ */
+PetEvolution.SetInfo = function SetInfo(baseJobID) {
+	const baseData = DB.getPetByJobID(baseJobID);
 
-		if (!baseData) {
-			console.warn('Pet Base Data data not found');
-			return;
-		}
-
-		const evoData = DB.getPetByEggID(Number(Object.keys(baseData.Evolution)[0]));
-		if (!evoData) {
-			console.warn('Evo Data data not found');
-			return;
-		}
-
-		Client.loadFile('data/texture/userinterface/illust/' + baseData.PetIllust, function (url) {
-			PetEvolution.ui.find('.base_pet_illust').css('backgroundImage', 'url(' + url + ')');
-		});
-		Client.loadFile('data/texture/userinterface/illust/' + evoData.PetIllust, function (url) {
-			PetEvolution.ui.find('.target_pet_illust').css('backgroundImage', 'url(' + url + ')');
-		});
-
-		targetEvoPetEggId = evoData.PetEggID;
-
-		PetEvolution.ui.find('.base_petEggId').text(baseData.PetString).attr('data-index', baseData.PetEggID);
-		PetEvolution.ui.find('.target_petEggId').text(evoData.PetString).attr('data-index', evoData.PetEggID);
-
-		// Add ItemInfo
-		PetEvolution.ui.find('.base_petEggId').click(onItemInfo);
-		PetEvolution.ui.find('.target_petEggId').click(onItemInfo);
-
-		// === Evolution Requirements ===
-		const reqBox = PetEvolution.ui.find('.evo_requirements');
-		reqBox.empty();
-
-		const targetEggID = Number(Object.keys(baseData.Evolution)[0]);
-		const materials = baseData.Evolution[targetEggID];
-
-		// Save materials for later checks
-		currentMaterials = materials;
-
-		// Title
-		const title = document.createElement('div');
-		title.className = 'evo_requirements_title';
-		title.textContent = DB.getMessage(2569);
-		reqBox.append(title);
-
-		// Spacer / empty row
-		const spacer = document.createElement('div');
-		spacer.className = 'evo_requirement_spacer';
-		spacer.style.height = '20px';
-		reqBox.append(spacer);
-
-		// Materials
-		materials.forEach(mat => {
-			const item = DB.getItemInfo(mat.MaterialID);
-			const itemName = item ? item.identifiedDisplayName || item.Name : `Item ${mat.MaterialID}`;
-
-			const row = document.createElement('div');
-			row.className = 'evo_requirement_row';
-
-			// Create clickable item name span
-			const nameSpan = document.createElement('span');
-			nameSpan.className = 'evo_item_name';
-			nameSpan.textContent = itemName;
-			nameSpan.setAttribute('data-index', mat.MaterialID);
-			nameSpan.style.cursor = 'pointer';
-			nameSpan.addEventListener('click', onItemInfo);
-
-			// Create amount span
-			const amountSpan = document.createElement('span');
-			amountSpan.className = 'evo_item_amount';
-			amountSpan.textContent = ` - ${mat.Amount} ea`;
-
-			// Append spans to row
-			row.appendChild(nameSpan);
-			row.appendChild(amountSpan);
-
-			reqBox.append(row);
-		});
-
-		// Spacer / empty row
-		const spacer2 = document.createElement('div');
-		spacer2.className = 'evo_requirement_spacer2';
-		spacer2.style.height = '35px';
-		reqBox.append(spacer2);
-
-		// Title
-		const title2 = document.createElement('div');
-		title2.className = 'evo_requirements_title2';
-		title2.textContent = DB.getMessage(2570);
-		reqBox.append(title2);
-	};
-
-	/**
-	 * Check if player has enough materials for evolution
-	 *
-	 * @return {boolean} True if player has enough materials, false otherwise
-	 */
-	PetEvolution.hasEnoughMaterials = function () {
-		if (!currentMaterials) {
-			return false;
-		}
-
-		for (const mat of currentMaterials) {
-			const item = Inventory.getUI().getItemById(mat.MaterialID);
-			const count = item ? item.count : 0;
-
-			if (count < mat.Amount) {
-				return false;
-			}
-		}
-
-		return true;
-	};
-
-	/**
-	 * Send a request to evolve the pet.
-	 * If the player has enough materials, send a PACKET.CZ.PET_EVOLUTION packet.
-	 * If the player does not have enough materials, display an error message.
-	 */
-	function onRequestEvolve() {
-		if (PetEvolution.hasEnoughMaterials() === true) {
-			const pkt = new PACKET.CZ.PET_EVOLUTION();
-			pkt.evolutionPetEggITID = targetEvoPetEggId;
-			Network.sendPacket(pkt);
-		} else {
-			ChatBox.addText(DB.getMessage(2574), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		}
+	if (!baseData) {
+		console.warn('Pet Base Data data not found');
+		return;
 	}
 
-	/**
-	 * Closing window
-	 */
-	function onClose() {
-		PetEvolution.ui.hide();
-
-		// Clear variables
-		currentMaterials = [];
-		targetEvoPetEggId = 0;
+	const evoData = DB.getPetByEggID(Number(Object.keys(baseData.Evolution)[0]));
+	if (!evoData) {
+		console.warn('Evo Data data not found');
+		return;
 	}
 
-	/**
-	 * Stop event propagation
-	 */
-	function stopPropagation(event) {
-		event.stopImmediatePropagation();
+	Client.loadFile('data/texture/userinterface/illust/' + baseData.PetIllust, function (url) {
+		PetEvolution.ui.find('.base_pet_illust').css('backgroundImage', 'url(' + url + ')');
+	});
+	Client.loadFile('data/texture/userinterface/illust/' + evoData.PetIllust, function (url) {
+		PetEvolution.ui.find('.target_pet_illust').css('backgroundImage', 'url(' + url + ')');
+	});
+
+	targetEvoPetEggId = evoData.PetEggID;
+
+	PetEvolution.ui.find('.base_petEggId').text(baseData.PetString).attr('data-index', baseData.PetEggID);
+	PetEvolution.ui.find('.target_petEggId').text(evoData.PetString).attr('data-index', evoData.PetEggID);
+
+	// Add ItemInfo
+	PetEvolution.ui.find('.base_petEggId').click(onItemInfo);
+	PetEvolution.ui.find('.target_petEggId').click(onItemInfo);
+
+	// === Evolution Requirements ===
+	const reqBox = PetEvolution.ui.find('.evo_requirements');
+	reqBox.empty();
+
+	const targetEggID = Number(Object.keys(baseData.Evolution)[0]);
+	const materials = baseData.Evolution[targetEggID];
+
+	// Save materials for later checks
+	currentMaterials = materials;
+
+	// Title
+	const title = document.createElement('div');
+	title.className = 'evo_requirements_title';
+	title.textContent = DB.getMessage(2569);
+	reqBox.append(title);
+
+	// Spacer / empty row
+	const spacer = document.createElement('div');
+	spacer.className = 'evo_requirement_spacer';
+	spacer.style.height = '20px';
+	reqBox.append(spacer);
+
+	// Materials
+	materials.forEach(mat => {
+		const item = DB.getItemInfo(mat.MaterialID);
+		const itemName = item ? item.identifiedDisplayName || item.Name : `Item ${mat.MaterialID}`;
+
+		const row = document.createElement('div');
+		row.className = 'evo_requirement_row';
+
+		// Create clickable item name span
+		const nameSpan = document.createElement('span');
+		nameSpan.className = 'evo_item_name';
+		nameSpan.textContent = itemName;
+		nameSpan.setAttribute('data-index', mat.MaterialID);
+		nameSpan.style.cursor = 'pointer';
+		nameSpan.addEventListener('click', onItemInfo);
+
+		// Create amount span
+		const amountSpan = document.createElement('span');
+		amountSpan.className = 'evo_item_amount';
+		amountSpan.textContent = ` - ${mat.Amount} ea`;
+
+		// Append spans to row
+		row.appendChild(nameSpan);
+		row.appendChild(amountSpan);
+
+		reqBox.append(row);
+	});
+
+	// Spacer / empty row
+	const spacer2 = document.createElement('div');
+	spacer2.className = 'evo_requirement_spacer2';
+	spacer2.style.height = '35px';
+	reqBox.append(spacer2);
+
+	// Title
+	const title2 = document.createElement('div');
+	title2.className = 'evo_requirements_title2';
+	title2.textContent = DB.getMessage(2570);
+	reqBox.append(title2);
+};
+
+/**
+ * Check if player has enough materials for evolution
+ *
+ * @return {boolean} True if player has enough materials, false otherwise
+ */
+PetEvolution.hasEnoughMaterials = function () {
+	if (!currentMaterials) {
 		return false;
 	}
 
-	/**
-	 * Get item info (open description window)
-	 */
-	function onItemInfo(event) {
-		event.stopImmediatePropagation();
+	for (const mat of currentMaterials) {
+		const item = Inventory.getUI().getItemById(mat.MaterialID);
+		const count = item ? item.count : 0;
 
-		const ITID = parseInt(this.getAttribute('data-index'), 10);
-		const item = DB.getItemInfo(ITID);
-
-		// Hack
-		item.ITID = ITID;
-		item.IsIdentified = 1;
-
-		if (!item) {
+		if (count < mat.Amount) {
 			return false;
 		}
+	}
 
-		// Don't add the same UI twice, remove it
-		if (ItemInfo.uid === item.ITID) {
-			ItemInfo.remove();
-			return false;
-		}
+	return true;
+};
 
-		// Add ui to window
-		ItemInfo.append();
-		ItemInfo.uid = item.ITID;
-		ItemInfo.setItem(item);
+/**
+ * Send a request to evolve the pet.
+ * If the player has enough materials, send a PACKET.CZ.PET_EVOLUTION packet.
+ * If the player does not have enough materials, display an error message.
+ */
+function onRequestEvolve() {
+	if (PetEvolution.hasEnoughMaterials() === true) {
+		const pkt = new PACKET.CZ.PET_EVOLUTION();
+		pkt.evolutionPetEggITID = targetEvoPetEggId;
+		Network.sendPacket(pkt);
+	} else {
+		ChatBox.addText(DB.getMessage(2574), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+	}
+}
 
+/**
+ * Closing window
+ */
+function onClose() {
+	PetEvolution.ui.hide();
+
+	// Clear variables
+	currentMaterials = [];
+	targetEvoPetEggId = 0;
+}
+
+/**
+ * Stop event propagation
+ */
+function stopPropagation(event) {
+	event.stopImmediatePropagation();
+	return false;
+}
+
+/**
+ * Get item info (open description window)
+ */
+function onItemInfo(event) {
+	event.stopImmediatePropagation();
+
+	const ITID = parseInt(this.getAttribute('data-index'), 10);
+	const item = DB.getItemInfo(ITID);
+
+	// Hack
+	item.ITID = ITID;
+	item.IsIdentified = 1;
+
+	if (!item) {
 		return false;
 	}
 
-	/**
-	 * Handle the result of a pet evolution request
-	 * @param {PACKET.ZC.PET_EVOLUTION} pkt
-	 */
-	function onPetEvolveResult(pkt) {
-		if (pkt) {
-			switch (pkt.result) {
-				case 0: // Unknown Error
-					ChatBox.addText(DB.getMessage(2571), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-					break;
-				case 1: // No pet can be summoned.
-					ChatBox.addText(DB.getMessage(2572), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-					break;
-				case 2: // It is not requested petal
-					ChatBox.addText(DB.getMessage(2573), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-					break;
-				case 3:
-				case 4: // Lack of required materials for evolution
-					ChatBox.addText(DB.getMessage(2575), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-					break;
-				case 5: // Pet can only be evolved when intimacy is Loyal
-					ChatBox.addText(DB.getMessage(2576), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-					break;
-				case 6: // Success
-					if (PetEvolution.ui) {
-						PetEvolution.ui.hide();
-					}
-					break;
-				default:
-					break;
-			}
-		}
+	// Don't add the same UI twice, remove it
+	if (ItemInfo.uid === item.ITID) {
+		ItemInfo.remove();
+		return false;
 	}
 
-	/**
-	 * Packet Hooks to functions
-	 */
-	Network.hookPacket(PACKET.ZC.PET_EVOLUTION_RESULT, onPetEvolveResult);
+	// Add ui to window
+	ItemInfo.append();
+	ItemInfo.uid = item.ITID;
+	ItemInfo.setItem(item);
 
-	/**
-	 * Create component and export it
-	 */
+	return false;
+}
+
+/**
+ * Handle the result of a pet evolution request
+ * @param {PACKET.ZC.PET_EVOLUTION} pkt
+ */
+function onPetEvolveResult(pkt) {
+	if (pkt) {
+		switch (pkt.result) {
+			case 0: // Unknown Error
+				ChatBox.addText(DB.getMessage(2571), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				break;
+			case 1: // No pet can be summoned.
+				ChatBox.addText(DB.getMessage(2572), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				break;
+			case 2: // It is not requested petal
+				ChatBox.addText(DB.getMessage(2573), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				break;
+			case 3:
+			case 4: // Lack of required materials for evolution
+				ChatBox.addText(DB.getMessage(2575), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				break;
+			case 5: // Pet can only be evolved when intimacy is Loyal
+				ChatBox.addText(DB.getMessage(2576), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+				break;
+			case 6: // Success
+				if (PetEvolution.ui) {
+					PetEvolution.ui.hide();
+				}
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+/**
+ * Packet Hooks to functions
+ */
+Network.hookPacket(PACKET.ZC.PET_EVOLUTION_RESULT, onPetEvolveResult);
+
+/**
+ * Create component and export it
+ */
 export default UIManager.addComponent(PetEvolution);

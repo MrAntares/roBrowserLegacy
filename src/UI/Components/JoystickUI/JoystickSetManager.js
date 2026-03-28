@@ -10,13 +10,13 @@
 
 let currentSet = 1;
 export default {
-		getCurrentSet: function () {
-			return currentSet;
-		},
-		set: function (n) {
-			currentSet = n === 1 || n === 2 ? n : currentSet;
-		},
-		toggle: function () {
-			currentSet = currentSet === 1 ? 2 : 1;
-		}
-	};
+	getCurrentSet: function () {
+		return currentSet;
+	},
+	set: function (n) {
+		currentSet = n === 1 || n === 2 ? n : currentSet;
+	},
+	toggle: function () {
+		currentSet = currentSet === 1 ? 2 : 1;
+	}
+};

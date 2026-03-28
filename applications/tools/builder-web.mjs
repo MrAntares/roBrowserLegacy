@@ -1,11 +1,11 @@
-import fs from 'fs';  
-import path from 'path';  
-import { fileURLToPath } from 'url';  
-import { createRequire } from 'module';  
-  
-const __filename = fileURLToPath(import.meta.url);  
-const __dirname = path.dirname(__filename);  
-const require = createRequire(import.meta.url);  
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const require = createRequire(import.meta.url);
 const pkg = JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url)));
 
 const startTime = Date.now();
@@ -115,17 +115,17 @@ async function compile(appName, isMinify) {
 			resolve: {
 				alias: aliases
 			},
-			worker: {  
-				rollupOptions: {  
-					output: {  
-						entryFileNames: '[name].js',  
-					}  
-				}  
-			},  
+			worker: {
+				rollupOptions: {
+					output: {
+						entryFileNames: '[name].js'
+					}
+				}
+			},
 			build: {
 				outDir: outDir,
 				emptyOutDir: false,
-				assetsInlineLimit: 1024 *1024,
+				assetsInlineLimit: 1024 * 1024,
 				rollupOptions: {
 					input: entry,
 					output: {

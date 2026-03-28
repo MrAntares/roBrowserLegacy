@@ -180,4 +180,3 @@ Particle.prototype.update = function move(tick, x, y, width, height) {
  * Export class
  */
 export default Particle;
-

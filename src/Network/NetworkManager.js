@@ -124,10 +124,7 @@ function connect(host, port, callback, isZone) {
 			}
 		}
 
-		console.log(
-			'%c[Network] ' + msg + ' to connect to ' + host + ':' + port,
-			'font-weight:bold;color:' + color
-		);
+		console.log('%c[Network] ' + msg + ' to connect to ' + host + ':' + port, 'font-weight:bold;color:' + color);
 		callback.call(this, success);
 	};
 }
@@ -307,12 +304,7 @@ function receive(buf) {
 			//	packet.Struct.call(packet.instance, fp, offset); //this causes packet conflicts where the same type of packets following eachother copy the previous packet's variables with the previous values
 			//}
 
-			console.log(
-				'%c[Network] Recv:',
-				'color:#900090',
-				packet.instance,
-				packet.callback ? '' : '(no callback)'
-			);
+			console.log('%c[Network] Recv:', 'color:#900090', packet.instance, packet.callback ? '' : '(no callback)');
 
 			// Call controller
 			if (packet.callback) {
@@ -496,4 +488,3 @@ const Network = (function Network() {
 })();
 
 export default Network;
-

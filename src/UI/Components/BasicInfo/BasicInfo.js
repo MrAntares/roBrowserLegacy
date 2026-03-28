@@ -18,21 +18,21 @@ import BasicInfoV5 from './BasicInfoV5/BasicInfoV5';
 import UIVersionManager from 'UI/UIVersionManager';
 
 const publicName = 'BasicInfo';
-	const versionInfo = {
-		default: BasicInfoV0,
-		common: {
-			20200520: BasicInfoV5, // not sure the exact client date that started supporting 4th Jobs
-			20180124: BasicInfoV4,
-			20160101: BasicInfoV3,
-			20090601: BasicInfo
-		},
-		re: {},
-		prere: {},
-		job: {
-			Fourth_Class: BasicInfoV5,
-			default: BasicInfoV4
-		}
-	};
+const versionInfo = {
+	default: BasicInfoV0,
+	common: {
+		20200520: BasicInfoV5, // not sure the exact client date that started supporting 4th Jobs
+		20180124: BasicInfoV4,
+		20160101: BasicInfoV3,
+		20090601: BasicInfo
+	},
+	re: {},
+	prere: {},
+	job: {
+		Fourth_Class: BasicInfoV5,
+		default: BasicInfoV4
+	}
+};
 
-	const BasicInfoController = UIVersionManager.getUIController(publicName, versionInfo);
+const BasicInfoController = UIVersionManager.getUIController(publicName, versionInfo);
 export default BasicInfoController;

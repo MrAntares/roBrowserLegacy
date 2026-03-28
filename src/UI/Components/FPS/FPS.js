@@ -17,121 +17,121 @@ import htmlText from './FPS.html?raw';
 import cssText from './FPS.css?raw';
 
 /**
-	 * Create Component
-	 */
-	const FPS = new UIComponent('FPS', htmlText, cssText);
+ * Create Component
+ */
+const FPS = new UIComponent('FPS', htmlText, cssText);
 
-	/**
-	 * @var {Preferences} Graphics
-	 */
-	const _preferences = Preferences.get(
-		'FPS',
-		{
-			show: false,
-			x: 300,
-			y: 300
-		},
-		1.1
-	);
+/**
+ * @var {Preferences} Graphics
+ */
+const _preferences = Preferences.get(
+	'FPS',
+	{
+		show: false,
+		x: 300,
+		y: 300
+	},
+	1.1
+);
 
-	/**
-	 * Initialize UI
-	 */
-	FPS.init = function Init() {
-		this.ui.find('.base').mousedown(function (event) {
-			event.stopImmediatePropagation();
-			return false;
-		});
+/**
+ * Initialize UI
+ */
+FPS.init = function Init() {
+	this.ui.find('.base').mousedown(function (event) {
+		event.stopImmediatePropagation();
+		return false;
+	});
 
-		this.ui.find('.close').click(this.remove.bind(this));
+	this.ui.find('.close').click(this.remove.bind(this));
 
-		this.draggable(this.ui.find('.titlebar'));
-	};
+	this.draggable(this.ui.find('.titlebar'));
+};
 
-	/**
-	 * When appended to DOM
-	 */
-	FPS.onAppend = function OnAppend() {
-		// Apply preferences
-		this.ui.toggle(_preferences.show);
+/**
+ * When appended to DOM
+ */
+FPS.onAppend = function OnAppend() {
+	// Apply preferences
+	this.ui.toggle(_preferences.show);
 
-		this.ui.css({
-			top: _preferences.y,
-			left: _preferences.x
-		});
+	this.ui.css({
+		top: _preferences.y,
+		left: _preferences.x
+	});
 
-		const fpsEl = this.ui.find('#fpsCounter');
-		let startTime = 0;
-		let frame = 0;
-		let lastValue = null;
-		let lastClass = null;
+	const fpsEl = this.ui.find('#fpsCounter');
+	let startTime = 0;
+	let frame = 0;
+	let lastValue = null;
+	let lastClass = null;
 
-		function getFPSClass(value, frameLimit) {
-			if (value >= frameLimit - (10 / frameLimit) * 100) {
-				return 'fps-good';
-			}
-			if (value >= 15) {
-				return 'fps-warn';
-			}
-			return 'fps-bad';
+	function getFPSClass(value, frameLimit) {
+		if (value >= frameLimit - (10 / frameLimit) * 100) {
+			return 'fps-good';
+		}
+		if (value >= 15) {
+			return 'fps-warn';
+		}
+		return 'fps-bad';
+	}
+
+	function tick(time) {
+		frame++;
+		if (time - startTime < 1000) {
+			return;
+		}
+		const value = +(frame / ((time - startTime) / 1000)).toFixed(1);
+
+		// Update text only if changed
+		if (value !== lastValue) {
+			fpsEl.text(value);
+			lastValue = value;
 		}
 
-		function tick(time) {
-			frame++;
-			if (time - startTime < 1000) {
-				return;
-			}
-			const value = +(frame / ((time - startTime) / 1000)).toFixed(1);
+		const limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
+		const cls = getFPSClass(value, limit);
 
-			// Update text only if changed
-			if (value !== lastValue) {
-				fpsEl.text(value);
-				lastValue = value;
-			}
-
-			const limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
-			const cls = getFPSClass(value, limit);
-
-			// Update class only if changed
-			if (cls !== lastClass) {
-				this.ui.removeClass('fps-good fps-warn fps-bad').addClass(cls);
-				lastClass = cls;
-			}
-
-			startTime = time;
-			frame = 0;
+		// Update class only if changed
+		if (cls !== lastClass) {
+			this.ui.removeClass('fps-good fps-warn fps-bad').addClass(cls);
+			lastClass = cls;
 		}
-		// Passive FPS listener (no render logic impact)
-		Renderer.render(tick.bind(this));
-	};
 
-	/**
-	 * Once remove, save preferences
-	 */
-	FPS.onRemove = function onRemove() {
-		_preferences.x = parseInt(this.ui.css('left'), 10);
-		_preferences.y = parseInt(this.ui.css('top'), 10);
-		_preferences.show = this.ui.is(':visible');
-		_preferences.save();
-	};
+		startTime = time;
+		frame = 0;
+	}
+	// Passive FPS listener (no render logic impact)
+	Renderer.render(tick.bind(this));
+};
 
-	/**
-	 * Show/Hide UI
-	 */
-	FPS.toggle = function toggle(isVisible) {
-		_preferences.x = parseInt(this.ui.css('left'), 10);
-		_preferences.y = parseInt(this.ui.css('top'), 10);
-		_preferences.show = isVisible;
-		_preferences.save();
+/**
+ * Once remove, save preferences
+ */
+FPS.onRemove = function onRemove() {
+	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.show = this.ui.is(':visible');
+	_preferences.save();
+};
 
-		this.ui.toggle();
+/**
+ * Show/Hide UI
+ */
+FPS.toggle = function toggle(isVisible) {
+	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.show = isVisible;
+	_preferences.save();
 
-		if (this.ui.is(':visible')) {
-			this.focus();
-		}
-	};
+	this.ui.toggle();
 
-	/**
-	 * Create component and export it
-	 */
+	if (this.ui.is(':visible')) {
+		this.focus();
+	}
+};
+
+/**
+ * Create component and export it
+ */
 export default UIManager.addComponent(FPS);

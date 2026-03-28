@@ -39,4 +39,3 @@ WinLoginV2Background.onAppend = function onAppend() {
  * Create component based on view file and export it
  */
 export default UIManager.addComponent(WinLoginV2Background);
-

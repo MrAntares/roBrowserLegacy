@@ -89,4 +89,3 @@ export default {
 	captchaGetIdOnFloorClick: false,
 	captchaGetIdOnFloorRange: 1
 };
-

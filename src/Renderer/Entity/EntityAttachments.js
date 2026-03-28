@@ -267,10 +267,14 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 			} catch (e) {
 				console.error('STR attachment error:', e);
 				// Ensure WebGL state is restored even on error
-				if (gl) {StrEffect.afterRender(gl);}
+				if (gl) {
+					StrEffect.afterRender(gl);
+				}
 			}
 
-			if (gl) {SpriteRenderer.bind3DContext(gl, Camera.modelView, Camera.projection, _defaultFog);}
+			if (gl) {
+				SpriteRenderer.bind3DContext(gl, Camera.modelView, Camera.projection, _defaultFog);
+			}
 
 			if (!strEffect.persistent && strEffect.needCleanUp) {
 				return true;

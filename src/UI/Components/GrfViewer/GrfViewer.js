@@ -26,1125 +26,1125 @@ import History from './History';
 import '../../../../applications/api/api';
 
 // Ugly, require api.js to display models and map
-	/**
-	 * Create GRFViewer component
-	 */
-	const Viewer = new UIComponent('GRFViewer', htmlText, cssText);
+/**
+ * Create GRFViewer component
+ */
+const Viewer = new UIComponent('GRFViewer', htmlText, cssText);
 
-	/**
-	 * @var {number} The display is done asynchronus, keep reference of the thread
-	 */
-	let _thread = 0;
+/**
+ * @var {number} The display is done asynchronus, keep reference of the thread
+ */
+let _thread = 0;
 
-	/**
-	 * @var {number} action id, to stop doing things when the action change
-	 */
-	let _actionID = 0;
+/**
+ * @var {number} action id, to stop doing things when the action change
+ */
+let _actionID = 0;
 
-	/**
-	 * Initialize Component
-	 */
-	Viewer.init = function init() {
-		const ui = this.ui;
+/**
+ * Initialize Component
+ */
+Viewer.init = function init() {
+	const ui = this.ui;
 
-		Thread.hook('THREAD_READY', function () {
-			const remoteClient = Configs.get('remoteClient');
-			if (remoteClient) {
-				Thread.send('SET_HOST', remoteClient);
-				Client.init([]);
+	Thread.hook('THREAD_READY', function () {
+		const remoteClient = Configs.get('remoteClient');
+		if (remoteClient) {
+			Thread.send('SET_HOST', remoteClient);
+			Client.init([]);
+		}
+	});
+	Thread.init();
+
+	jQuery('head:first').append(
+		'<style type="text/css">' +
+			'	#previous { background-image:url(' +
+			new URL('./Icons/arw-left.png', import.meta.url).href +
+			'); }' +
+			'	#next     { background-image:url(' +
+			new URL('./Icons/arw-right.png', import.meta.url).href +
+			'); }' +
+			'	#progress { background-image:url(' +
+			new URL('./Icons/load.gif', import.meta.url).href +
+			'); }' +
+			'</style>'
+	);
+
+	// Drag drop the GRF.
+	ui.find('#info')
+		.on('dragover', function () {
+			this.style.backgroundColor = '#DFD';
+			return false;
+		})
+		.on('dragleave', function () {
+			this.style.backgroundColor = '#EEE';
+			return false;
+		})
+		.on('drop', function (event) {
+			this.style.backgroundColor = '#EEE';
+			processGRF(event.originalEvent);
+			return false;
+		});
+
+	// Load GRFs
+	ui.find('#file').change(processGRF);
+	ui.find('#info button').mousedown(function () {
+		ui.find('#file').click();
+	});
+
+	// Bind icons events
+	ui.on('click', '.directory', onDirectoryClick)
+		.on('click', '.audio', onAudioClick)
+		.on('click', '.img, .thumb', onImageClick)
+		.on('click', '.txt', onTextClick)
+		.on('click', '.map', onWorldClick)
+		.on('click', '.3d', onObjectClick)
+		.on('click', '.gr2', onGrannyClick)
+		.on('click', '.fx', onEffectClick)
+		.on('contextmenu', '.icon', function (event) {
+			showContextMenu(this, event);
+			return false;
+		});
+
+	// Initialize toolbar
+	initToolBar();
+
+	// Initialize history
+	History.init(ui.find('#previous'), ui.find('#next'));
+
+	// Renderer is not rendering, causing issue in src/UI/UIComponents.js#212
+	// Trigger manually the event.
+	setTimeout(function () {
+		Events.process(100);
+	}, 10);
+};
+
+/**
+ * Once append to body, initialize elements
+ */
+Viewer.onAppend = function onAppend() {
+	document.body.style.backgroundColor = 'white';
+	moveToDirectory('/', true);
+};
+
+/**
+ * Initialize tool bar
+ */
+function initToolBar() {
+	const ui = Viewer.ui;
+
+	// Path submit
+	ui.find('#path').keydown(function (event) {
+		if (event.which === KEYS.ENTER) {
+			let value = this.value.replace(/^\s+|\s+$/g, '');
+			if (value.substr(-1) !== '/') {
+				value += '/';
+			}
+			moveToDirectory(value, true);
+		}
+	});
+
+	// History before
+	ui.find('#previous').click(function () {
+		const path = History.previous();
+		if (path) {
+			moveToDirectory(path, false);
+		}
+	});
+
+	// History after
+	ui.find('#next').click(function () {
+		const path = History.next();
+		if (path) {
+			moveToDirectory(path, false);
+		}
+	});
+
+	// Search toolbar
+	ui.find('#search')
+		.focus(function () {
+			this.value = '';
+		})
+		.blur(function () {
+			this.value = this.value || 'Search...';
+		})
+		.keydown(function (event) {
+			if (event.which === KEYS.ENTER) {
+				const value = this.value.replace(/^\s+|\s+$/g, '');
+				if (value.length > 2) {
+					moveToDirectory('search/' + value, true);
+				}
 			}
 		});
-		Thread.init();
+}
 
-		jQuery('head:first').append(
-			'<style type="text/css">' +
-				'	#previous { background-image:url(' +
-				new URL('./Icons/arw-left.png', import.meta.url).href +
-				'); }' +
-				'	#next     { background-image:url(' +
-				new URL('./Icons/arw-right.png', import.meta.url).href +
-				'); }' +
-				'	#progress { background-image:url(' +
-				new URL('./Icons/load.gif', import.meta.url).href +
-				'); }' +
-			'</style>'
+/**
+ * Context Menu feature
+ *
+ * @param {HTMLElement} icon
+ * @param {object} event
+ */
+function showContextMenu(iconElement, event) {
+	const contextmenu = Viewer.ui.find('#contextmenu');
+	const overlay = Viewer.ui.find('.overlay');
+	const header = contextmenu.find('.header:first');
+	const open = contextmenu.find('.open:first');
+	const save = contextmenu.find('.save:first');
+	const info = contextmenu.find('.info:first');
+	const icon = jQuery(iconElement);
+
+	contextmenu
+		.css({
+			left: event.pageX,
+			top: event.pageY
+		})
+		.show();
+
+	overlay
+		.one('mousedown', function () {
+			contextmenu.hide();
+			overlay.hide();
+		})
+		.show();
+
+	// Clean up
+	open.removeClass('disable').off('mousedown');
+	save.removeClass('disable').off('mousedown');
+	info.removeClass('disable').off('mousedown');
+	save.off('click');
+
+	//Header
+	header.get(0).innerHTML = 'Path: ' + icon.data('path');
+	header.get(0).style.backgroundColor = null;
+	header.click(function () {
+		navigator.clipboard.writeText(icon.data('path'));
+		header.get(0).innerHTML = 'Copied: ' + icon.data('path');
+		header.get(0).style.backgroundColor = '#AAFFAA';
+	});
+
+	// Open
+	if (icon.hasClass('file')) {
+		open.addClass('disable');
+	} else {
+		open.one('mousedown', function () {
+			icon.click();
+			overlay.mousedown();
+		});
+	}
+
+	// Save
+	if (icon.hasClass('directory')) {
+		save.addClass('disable');
+		save.click(function () {
+			return false;
+		});
+		save.get(0).removeAttribute('download');
+	} else {
+		save.one('mouseup', function () {
+			overlay.mousedown();
+		});
+
+		Client.getFile(icon.data('path'), function (buffer) {
+			// Create temporary url, move to it and release it
+			const url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
+			save.attr({ href: url, download: icon.text().trim() });
+		});
+	}
+
+	// Properties
+	// not supported yet.
+	info.addClass('disable');
+}
+
+/**
+ * Move to a path
+ *
+ * @param {string} path to move
+ * @param {boolean} save in history
+ */
+function moveToDirectory(path, save) {
+	path = decodeURIComponent(path) || '/';
+	path = path.replace(/\\/g, '/');
+
+	if (path.substr(0, 1) === '/') {
+		path = path.substr(1);
+	}
+
+	if (path.match(/^search\//)) {
+		search(path.substr(7));
+	} else {
+		showDirectory(path);
+	}
+
+	// Update history
+	if (save) {
+		History.push(path);
+	}
+}
+
+/**
+ * Load GRF files
+ *
+ * @param {object} event
+ * @return {boolean} false
+ */
+function processGRF(event) {
+	Viewer.ui.find('#progress').show();
+
+	Client.onFilesLoaded = function () {
+		moveToDirectory('data/', true);
+	};
+	Client.init((event.dataTransfer || event.target).files);
+
+	event.preventDefault();
+	event.stopPropagation();
+	return false;
+}
+
+/**
+ * Move to a specify path
+ *
+ * @param {string} path
+ */
+function showDirectory(path) {
+	// Stop displaying
+	clearTimeout(_thread);
+
+	// Clean up Input
+	path = decodeURIComponent(path) || '/';
+	path = path.replace(/\\/g, '/');
+
+	if (path.substr(0, 1) === '/') {
+		path = path.substr(1);
+	}
+
+	// Build regex
+	const ui = Viewer.ui;
+	const directory = path.replace(/\//g, '\\\\');
+	const reg = directory + '([^(\\0|\\\\)]+)';
+
+	// Clean windows
+	ui.find('#path').val(path);
+	ui.find('.icon').remove();
+	ui.find('#progress').show();
+	ui.find('#msg').hide();
+
+	// Go back to the home
+	if (!path.length) {
+		ui.find('#info').show();
+		renderFiles(['data']);
+		return;
+	}
+
+	ui.find('#info').hide();
+
+	// Changing action to avoid conflict
+	const actionID = ++_actionID;
+
+	// Send request
+	Client.search(new RegExp(reg, 'gi'), function (list) {
+		// Organize files and directory and render them
+		if (actionID === _actionID) {
+			list.sort(sortFiles);
+			renderFiles(list);
+		}
+	});
+}
+
+/**
+ * Search files (apply a regex on fileList) and show the result
+ *
+ * @param {string} keyword
+ */
+function search(keyword) {
+	// Escape regex, and complete it
+	const search = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
+	const reg = 'data\\\\([^(\\0\\)]+)?' + search + '([^(\\0|\\\\)]+)?';
+	const ui = Viewer.ui;
+	const actionID = ++_actionID;
+
+	// Clean path
+	ui.find('.icon').remove();
+	ui.find('#progress').show();
+	ui.find('#info').hide();
+	ui.find('#msg').hide();
+
+	// Send request
+	Client.search(new RegExp(reg, 'gi'), function (list) {
+		if (actionID === _actionID) {
+			list.sort(sortFiles);
+			renderFiles(list);
+		}
+	});
+}
+
+/**
+ * Organize file listing
+ * Directory first, and organized by alpha
+ *
+ * @param {string} a file's name
+ * @param {string} b file's name
+ * @return {number}
+ */
+function sortFiles(a, b) {
+	let _a, _b;
+	a = a.replace(/.*\\/, '');
+	b = b.replace(/.*\\/, '');
+	_a = a.indexOf('.') !== -1;
+	_b = b.indexOf('.') !== -1;
+
+	if (_a === _b) {
+		return a > b ? 1 : -1;
+	}
+	if (_a) {
+		return 1;
+	}
+	return -1;
+}
+
+/**
+ * Showing file list on the screen
+ *
+ * @param {Array} list of files and directories
+ */
+function renderFiles(list) {
+	Viewer.ui.find('#progress').hide();
+
+	// No file in directory ? (or error : the file isn't a directory)
+	if (!list.length) {
+		Viewer.ui.find('#msg').text('No file found.').show();
+		return;
+	}
+
+	let i, count;
+	let type,
+		reg = /(.*\\)/;
+
+	i = 0;
+	count = list.length;
+
+	// Avoid freeze, stream to display files
+	function streamExecute() {
+		let j;
+		let html = '';
+
+		for (j = 0; j < 200 && i + j < count; ++j) {
+			type = getFileIcon(list[j + i]);
+			html +=
+				'<div class="icon ' +
+				type +
+				'" data-path="' +
+				list[j + i] +
+				'">' +
+				'	<img src="' +
+				new URL('./Icons/' + type + '.png', import.meta.url).href +
+				'" width="48" height="48"/><br/>' +
+				list[j + i].replace(reg, '') +
+				'</div>';
+		}
+
+		jQuery(html).appendTo('#grfviewer');
+
+		i += j;
+
+		if (i < count) {
+			_thread = setTimeout(streamExecute, 4);
+		}
+	}
+
+	streamExecute();
+	displayImagesThumbnail();
+}
+
+/**
+ * Get file thumbnail based on its extention
+ *
+ * @param {string} filename
+ * @return {string} icon name
+ */
+function getFileIcon(filename) {
+	const ext = filename.split(/\.([^\.]+)$/)[1] || 'dir';
+	let img = 'file';
+
+	switch (ext.toLowerCase()) {
+		case 'dir':
+			img = 'directory';
+			break;
+
+		case 'xml':
+		case 'txt':
+		case 'lua':
+			img = 'txt';
+			break;
+
+		case 'jpg':
+		case 'bmp':
+		case 'tga':
+		case 'jpeg':
+		case 'spr':
+		case 'pal':
+			img = 'img';
+			break;
+
+		case 'wav':
+		case 'mp3':
+			img = 'audio';
+			break;
+
+		case 'gr2':
+			img = 'gr2';
+			break;
+
+		case 'rsm':
+		case 'rsm2':
+			img = '3d';
+			break;
+
+		case 'rsw':
+			img = 'map';
+			break;
+
+		case 'str':
+			img = 'fx';
+			break;
+	}
+
+	return img;
+}
+
+/**
+ * Display real thumbnails for each known file
+ */
+function displayImagesThumbnail() {
+	// Stored action to know if user act during the process
+	const actionID = _actionID + 0;
+
+	function cleanUp() {
+		URL.revokeObjectURL(this.src);
+	}
+
+	function process() {
+		// Stop here if we change page.
+		if (actionID !== _actionID) {
+			return;
+		}
+
+		const nodes = jQuery('.img:lt(5)');
+		let load = 0;
+		const total = nodes.length;
+
+		// All thumbnails are already rendered
+		if (!total) {
+			return;
+		}
+
+		// Work with current loaded files
+		nodes.each(function () {
+			const self = jQuery(this);
+
+			Client.getFile(self.data('path'), function (data) {
+				// Clean from memory...
+				Memory.remove(self.data('path'));
+				self.removeClass('img').addClass('thumb');
+
+				const url = getImageThumbnail(self.data('path'), data);
+
+				// Display image
+				if (url) {
+					const img = self.find('img:first').get(0);
+					if (url.match(/^blob\:/)) {
+						img.onload = img.onerror = img.onabort = cleanUp;
+					}
+					img.decoding = 'async';
+					img.src = url;
+				}
+
+				// Fetch next range.
+				if (++load >= total) {
+					setTimeout(process, 4);
+				}
+			});
+		});
+	}
+
+	process();
+}
+
+/**
+ * Generate thumbnail for a file
+ *
+ * @param {string} filename
+ * @param {ArrayBuffer} data
+ * @return {string|null} url generated
+ */
+function getImageThumbnail(filename, data) {
+	let canvas;
+	const ext = filename.substr(-3).toLowerCase();
+
+	switch (ext) {
+		// Sprite support
+		case 'spr':
+			const spr = new Sprite(data);
+			canvas = spr.getCanvasFromFrame(0);
+			return canvas.toDataURL();
+
+		// Palette support
+		case 'pal':
+			canvas = document.createElement('canvas');
+			const ctx = canvas.getContext('2d');
+			let imageData, i, count;
+			const palette = new Uint8Array(data);
+
+			// 16 * 16 = 256
+			canvas.width = 16;
+			canvas.height = 16;
+			imageData = ctx.createImageData(canvas.width, canvas.height);
+
+			for (i = 0, count = imageData.data.length; i < count; i += 4) {
+				imageData.data[i + 0] = palette[i + 0];
+				imageData.data[i + 1] = palette[i + 1];
+				imageData.data[i + 2] = palette[i + 2];
+				imageData.data[i + 3] = 255;
+			}
+
+			ctx.putImageData(imageData, 0, 0);
+			return canvas.toDataURL();
+
+		// Targa support
+		case 'tga':
+			const tga = new Targa();
+			tga.load(new Uint8Array(data));
+			return tga.getDataURL();
+
+		// Image Support
+		default:
+			return URL.createObjectURL(new Blob([data], { type: 'image/' + ext }));
+	}
+}
+
+/**
+ * User click on directory, open it
+ */
+function onDirectoryClick() {
+	moveToDirectory(this.getAttribute('data-path') + '/', true);
+}
+
+/**
+ * User click on an audio file, play it
+ */
+function onAudioClick() {
+	const ui = Viewer.ui;
+	const path = this.getAttribute('data-path');
+	const box = ui.find('#preview .box');
+
+	ui.find('#progress').show();
+
+	Client.loadFile(path, function (url) {
+		// Create audio
+		const audio = document.createElement('audio');
+		audio.src = url;
+		audio.controls = true;
+		audio.play();
+
+		// Show it on a box
+		box.css('top', (jQuery(window).height() - 100) / 2).append(
+			jQuery(audio).click(function (event) {
+				event.stopPropagation();
+			})
 		);
 
-		// Drag drop the GRF.
-		ui.find('#info')
-			.on('dragover', function () {
-				this.style.backgroundColor = '#DFD';
-				return false;
-			})
-			.on('dragleave', function () {
-				this.style.backgroundColor = '#EEE';
-				return false;
-			})
-			.on('drop', function (event) {
-				this.style.backgroundColor = '#EEE';
-				processGRF(event.originalEvent);
-				return false;
+		ui.find('#progress').hide();
+		ui.find('#preview')
+			.show()
+			.one('click', function () {
+				jQuery(this).hide();
+				box.find('audio').unbind().remove();
 			});
-
-		// Load GRFs
-		ui.find('#file').change(processGRF);
-		ui.find('#info button').mousedown(function () {
-			ui.find('#file').click();
-		});
-
-		// Bind icons events
-		ui.on('click', '.directory', onDirectoryClick)
-			.on('click', '.audio', onAudioClick)
-			.on('click', '.img, .thumb', onImageClick)
-			.on('click', '.txt', onTextClick)
-			.on('click', '.map', onWorldClick)
-			.on('click', '.3d', onObjectClick)
-			.on('click', '.gr2', onGrannyClick)
-			.on('click', '.fx', onEffectClick)
-			.on('contextmenu', '.icon', function (event) {
-				showContextMenu(this, event);
-				return false;
-			});
-
-		// Initialize toolbar
-		initToolBar();
-
-		// Initialize history
-		History.init(ui.find('#previous'), ui.find('#next'));
-
-		// Renderer is not rendering, causing issue in src/UI/UIComponents.js#212
-		// Trigger manually the event.
-		setTimeout(function () {
-			Events.process(100);
-		}, 10);
-	};
-
-	/**
-	 * Once append to body, initialize elements
-	 */
-	Viewer.onAppend = function onAppend() {
-		document.body.style.backgroundColor = 'white';
-		moveToDirectory('/', true);
-	};
-
-	/**
-	 * Initialize tool bar
-	 */
-	function initToolBar() {
-		const ui = Viewer.ui;
-
-		// Path submit
-		ui.find('#path').keydown(function (event) {
-			if (event.which === KEYS.ENTER) {
-				let value = this.value.replace(/^\s+|\s+$/g, '');
-				if (value.substr(-1) !== '/') {
-					value += '/';
-				}
-				moveToDirectory(value, true);
-			}
-		});
-
-		// History before
-		ui.find('#previous').click(function () {
-			const path = History.previous();
-			if (path) {
-				moveToDirectory(path, false);
-			}
-		});
-
-		// History after
-		ui.find('#next').click(function () {
-			const path = History.next();
-			if (path) {
-				moveToDirectory(path, false);
-			}
-		});
-
-		// Search toolbar
-		ui.find('#search')
-			.focus(function () {
-				this.value = '';
-			})
-			.blur(function () {
-				this.value = this.value || 'Search...';
-			})
-			.keydown(function (event) {
-				if (event.which === KEYS.ENTER) {
-					const value = this.value.replace(/^\s+|\s+$/g, '');
-					if (value.length > 2) {
-						moveToDirectory('search/' + value, true);
-					}
-				}
-			});
-	}
-
-	/**
-	 * Context Menu feature
-	 *
-	 * @param {HTMLElement} icon
-	 * @param {object} event
-	 */
-	function showContextMenu(iconElement, event) {
-		const contextmenu = Viewer.ui.find('#contextmenu');
-		const overlay = Viewer.ui.find('.overlay');
-		const header = contextmenu.find('.header:first');
-		const open = contextmenu.find('.open:first');
-		const save = contextmenu.find('.save:first');
-		const info = contextmenu.find('.info:first');
-		const icon = jQuery(iconElement);
-
-		contextmenu
-			.css({
-				left: event.pageX,
-				top: event.pageY
-			})
-			.show();
-
-		overlay
-			.one('mousedown', function () {
-				contextmenu.hide();
-				overlay.hide();
-			})
-			.show();
-
-		// Clean up
-		open.removeClass('disable').off('mousedown');
-		save.removeClass('disable').off('mousedown');
-		info.removeClass('disable').off('mousedown');
-		save.off('click');
-
-		//Header
-		header.get(0).innerHTML = 'Path: ' + icon.data('path');
-		header.get(0).style.backgroundColor = null;
-		header.click(function () {
-			navigator.clipboard.writeText(icon.data('path'));
-			header.get(0).innerHTML = 'Copied: ' + icon.data('path');
-			header.get(0).style.backgroundColor = '#AAFFAA';
-		});
-
-		// Open
-		if (icon.hasClass('file')) {
-			open.addClass('disable');
-		} else {
-			open.one('mousedown', function () {
-				icon.click();
-				overlay.mousedown();
-			});
-		}
-
-		// Save
-		if (icon.hasClass('directory')) {
-			save.addClass('disable');
-			save.click(function () {
-				return false;
-			});
-			save.get(0).removeAttribute('download');
-		} else {
-			save.one('mouseup', function () {
-				overlay.mousedown();
-			});
-
-			Client.getFile(icon.data('path'), function (buffer) {
-				// Create temporary url, move to it and release it
-				const url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
-				save.attr({ href: url, download: icon.text().trim() });
-			});
-		}
-
-		// Properties
-		// not supported yet.
-		info.addClass('disable');
-	}
-
-	/**
-	 * Move to a path
-	 *
-	 * @param {string} path to move
-	 * @param {boolean} save in history
-	 */
-	function moveToDirectory(path, save) {
-		path = decodeURIComponent(path) || '/';
-		path = path.replace(/\\/g, '/');
-
-		if (path.substr(0, 1) === '/') {
-			path = path.substr(1);
-		}
-
-		if (path.match(/^search\//)) {
-			search(path.substr(7));
-		} else {
-			showDirectory(path);
-		}
-
-		// Update history
-		if (save) {
-			History.push(path);
-		}
-	}
-
-	/**
-	 * Load GRF files
-	 *
-	 * @param {object} event
-	 * @return {boolean} false
-	 */
-	function processGRF(event) {
-		Viewer.ui.find('#progress').show();
-
-		Client.onFilesLoaded = function () {
-			moveToDirectory('data/', true);
-		};
-		Client.init((event.dataTransfer || event.target).files);
-
-		event.preventDefault();
-		event.stopPropagation();
-		return false;
-	}
-
-	/**
-	 * Move to a specify path
-	 *
-	 * @param {string} path
-	 */
-	function showDirectory(path) {
-		// Stop displaying
-		clearTimeout(_thread);
-
-		// Clean up Input
-		path = decodeURIComponent(path) || '/';
-		path = path.replace(/\\/g, '/');
-
-		if (path.substr(0, 1) === '/') {
-			path = path.substr(1);
-		}
-
-		// Build regex
-		const ui = Viewer.ui;
-		const directory = path.replace(/\//g, '\\\\');
-		const reg = directory + '([^(\\0|\\\\)]+)';
-
-		// Clean windows
-		ui.find('#path').val(path);
-		ui.find('.icon').remove();
-		ui.find('#progress').show();
-		ui.find('#msg').hide();
-
-		// Go back to the home
-		if (!path.length) {
-			ui.find('#info').show();
-			renderFiles(['data']);
-			return;
-		}
-
-		ui.find('#info').hide();
-
-		// Changing action to avoid conflict
-		const actionID = ++_actionID;
-
-		// Send request
-		Client.search(new RegExp(reg, 'gi'), function (list) {
-			// Organize files and directory and render them
-			if (actionID === _actionID) {
-				list.sort(sortFiles);
-				renderFiles(list);
-			}
-		});
-	}
-
-	/**
-	 * Search files (apply a regex on fileList) and show the result
-	 *
-	 * @param {string} keyword
-	 */
-	function search(keyword) {
-		// Escape regex, and complete it
-		const search = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
-		const reg = 'data\\\\([^(\\0\\)]+)?' + search + '([^(\\0|\\\\)]+)?';
-		const ui = Viewer.ui;
-		const actionID = ++_actionID;
-
-		// Clean path
-		ui.find('.icon').remove();
-		ui.find('#progress').show();
-		ui.find('#info').hide();
-		ui.find('#msg').hide();
-
-		// Send request
-		Client.search(new RegExp(reg, 'gi'), function (list) {
-			if (actionID === _actionID) {
-				list.sort(sortFiles);
-				renderFiles(list);
-			}
-		});
-	}
-
-	/**
-	 * Organize file listing
-	 * Directory first, and organized by alpha
-	 *
-	 * @param {string} a file's name
-	 * @param {string} b file's name
-	 * @return {number}
-	 */
-	function sortFiles(a, b) {
-		let _a, _b;
-		a = a.replace(/.*\\/, '');
-		b = b.replace(/.*\\/, '');
-		_a = a.indexOf('.') !== -1;
-		_b = b.indexOf('.') !== -1;
-
-		if (_a === _b) {
-			return a > b ? 1 : -1;
-		}
-		if (_a) {
-			return 1;
-		}
-		return -1;
-	}
-
-	/**
-	 * Showing file list on the screen
-	 *
-	 * @param {Array} list of files and directories
-	 */
-	function renderFiles(list) {
-		Viewer.ui.find('#progress').hide();
-
-		// No file in directory ? (or error : the file isn't a directory)
-		if (!list.length) {
-			Viewer.ui.find('#msg').text('No file found.').show();
-			return;
-		}
-
-		let i, count;
-		let type,
-			reg = /(.*\\)/;
-
-		i = 0;
-		count = list.length;
-
-		// Avoid freeze, stream to display files
-		function streamExecute() {
-			let j;
-			let html = '';
-
-			for (j = 0; j < 200 && i + j < count; ++j) {
-				type = getFileIcon(list[j + i]);
-				html +=
-					'<div class="icon ' +
-					type +
-					'" data-path="' +
-					list[j + i] +
-					'">' +
-					'	<img src="' +
-					new URL('./Icons/' + type + '.png', import.meta.url).href +
-					'" width="48" height="48"/><br/>' +
-					list[j + i].replace(reg, '') +
-					'</div>';
-			}
-
-			jQuery(html).appendTo('#grfviewer');
-
-			i += j;
-
-			if (i < count) {
-				_thread = setTimeout(streamExecute, 4);
-			}
-		}
-
-		streamExecute();
-		displayImagesThumbnail();
-	}
-
-	/**
-	 * Get file thumbnail based on its extention
-	 *
-	 * @param {string} filename
-	 * @return {string} icon name
-	 */
-	function getFileIcon(filename) {
-		const ext = filename.split(/\.([^\.]+)$/)[1] || 'dir';
-		let img = 'file';
-
-		switch (ext.toLowerCase()) {
-			case 'dir':
-				img = 'directory';
-				break;
-
-			case 'xml':
-			case 'txt':
-			case 'lua':
-				img = 'txt';
-				break;
-
-			case 'jpg':
-			case 'bmp':
-			case 'tga':
-			case 'jpeg':
-			case 'spr':
-			case 'pal':
-				img = 'img';
-				break;
-
-			case 'wav':
-			case 'mp3':
-				img = 'audio';
-				break;
-
-			case 'gr2':
-				img = 'gr2';
-				break;
-
-			case 'rsm':
-			case 'rsm2':
-				img = '3d';
-				break;
-
-			case 'rsw':
-				img = 'map';
-				break;
-
-			case 'str':
-				img = 'fx';
-				break;
-		}
-
-		return img;
-	}
-
-	/**
-	 * Display real thumbnails for each known file
-	 */
-	function displayImagesThumbnail() {
-		// Stored action to know if user act during the process
-		const actionID = _actionID + 0;
-
-		function cleanUp() {
-			URL.revokeObjectURL(this.src);
-		}
-
-		function process() {
-			// Stop here if we change page.
-			if (actionID !== _actionID) {
-				return;
-			}
-
-			const nodes = jQuery('.img:lt(5)');
-			let load = 0;
-			const total = nodes.length;
-
-			// All thumbnails are already rendered
-			if (!total) {
-				return;
-			}
-
-			// Work with current loaded files
-			nodes.each(function () {
-				const self = jQuery(this);
-
-				Client.getFile(self.data('path'), function (data) {
-					// Clean from memory...
-					Memory.remove(self.data('path'));
-					self.removeClass('img').addClass('thumb');
-
-					const url = getImageThumbnail(self.data('path'), data);
-
-					// Display image
-					if (url) {
-						const img = self.find('img:first').get(0);
-						if (url.match(/^blob\:/)) {
-							img.onload = img.onerror = img.onabort = cleanUp;
-						}
-						img.decoding = 'async';
-						img.src = url;
-					}
-
-					// Fetch next range.
-					if (++load >= total) {
-						setTimeout(process, 4);
-					}
-				});
-			});
-		}
-
-		process();
-	}
-
-	/**
-	 * Generate thumbnail for a file
-	 *
-	 * @param {string} filename
-	 * @param {ArrayBuffer} data
-	 * @return {string|null} url generated
-	 */
-	function getImageThumbnail(filename, data) {
-		let canvas;
-		const ext = filename.substr(-3).toLowerCase();
-
-		switch (ext) {
+	});
+}
+
+/**
+ * User click on an image, render it
+ */
+function onImageClick() {
+	const ui = Viewer.ui;
+	const path = this.getAttribute('data-path');
+	const box = ui.find('#preview .box');
+	ui.find('#progress').show();
+
+	Client.getFile(path, function (data) {
+		let i, count, canvas;
+
+		switch (path.substr(-3)) {
 			// Sprite support
 			case 'spr':
 				const spr = new Sprite(data);
-				canvas = spr.getCanvasFromFrame(0);
-				return canvas.toDataURL();
+				box.css('top', 200);
+
+				for (i = 0, count = spr.frames.length; i < count; ++i) {
+					canvas = spr.getCanvasFromFrame(i);
+					if (canvas) {
+						box.append(canvas);
+					}
+				}
+				break;
 
 			// Palette support
 			case 'pal':
+				const palette = new Uint8Array(data);
 				canvas = document.createElement('canvas');
 				const ctx = canvas.getContext('2d');
-				let imageData, i, count;
-				const palette = new Uint8Array(data);
 
-				// 16 * 16 = 256
-				canvas.width = 16;
-				canvas.height = 16;
-				imageData = ctx.createImageData(canvas.width, canvas.height);
+				canvas.width = 128;
+				canvas.height = 128;
 
-				for (i = 0, count = imageData.data.length; i < count; i += 4) {
-					imageData.data[i + 0] = palette[i + 0];
-					imageData.data[i + 1] = palette[i + 1];
-					imageData.data[i + 2] = palette[i + 2];
-					imageData.data[i + 3] = 255;
+				for (i = 0, count = palette.length; i < count; i += 4) {
+					ctx.fillStyle = 'rgb(' + palette[i + 0] + ',' + palette[i + 1] + ',' + palette[i + 2] + ')';
+					ctx.fillRect((((i / 4) | 0) % 16) * 8, ((((i / 4) | 0) / 16) | 0) * 8, 8, 8);
 				}
 
-				ctx.putImageData(imageData, 0, 0);
-				return canvas.toDataURL();
+				box.css('top', jQuery(window).height() / 2 - 64).append(canvas);
+				break;
 
 			// Targa support
 			case 'tga':
 				const tga = new Targa();
 				tga.load(new Uint8Array(data));
-				return tga.getDataURL();
+				box.css('top', jQuery(window).height() / 2 - 64).append(tga.getCanvas());
+				break;
 
 			// Image Support
 			default:
-				return URL.createObjectURL(new Blob([data], { type: 'image/' + ext }));
+				const url = URL.createObjectURL(new Blob([data], { type: 'image/' + path.substr(-3) }));
+				const img = new Image();
+				img.decoding = 'async';
+				img.src = url;
+				img.onload = function () {
+					box.css('top', (jQuery(window).height() - this.height) / 2).append(this);
+
+					URL.revokeObjectURL(url);
+				};
+				break;
+		}
+
+		// Display progress bar
+		ui.find('#preview').show();
+		ui.find('#progress').hide();
+		ui.find('#preview').one('click', function () {
+			jQuery(this).hide();
+			box.find('img, canvas').remove();
+		});
+	});
+}
+
+/**
+ * User click on a model, render it using ModelViewer
+ */
+const onObjectClick = (function onObjectClickClosure() {
+	let ready = false;
+	const element = document.createElement('div');
+
+	const App = new ROBrowser({
+		target: element,
+		type: ROBrowser.TYPE.FRAME,
+		application: ROBrowser.APP.MODELVIEWER,
+		development: Configs.get('development', false),
+		api: true,
+		width: 500,
+		height: 400,
+		version: Configs.get('version', '')
+	});
+
+	// Ressource sharing
+	function onMessage(event) {
+		if (typeof event.data !== 'object') {
+			return;
+		}
+
+		switch (event.data.type) {
+			case 'SYNC':
+				ready = true;
+				App.onload();
+				break;
+
+			case 'SET_HOST':
+			case 'CLEAN_GRF':
+				return;
+
+			default:
+				Thread.send(event.data.type, event.data.data, function () {
+					App._APP.postMessage(
+						{
+							arguments: Array.prototype.slice.call(arguments, 0),
+							uid: event.data.uid
+						},
+						location.origin
+					);
+				});
 		}
 	}
 
-	/**
-	 * User click on directory, open it
-	 */
-	function onDirectoryClick() {
-		moveToDirectory(this.getAttribute('data-path') + '/', true);
+	// Wait for synchronisation with frame
+	function synchronise() {
+		if (!ready) {
+			App._APP.postMessage({ type: 'init' }, location.origin);
+			setTimeout(synchronise, 100);
+		}
 	}
 
-	/**
-	 * User click on an audio file, play it
-	 */
-	function onAudioClick() {
+	return function onObjectClick() {
 		const ui = Viewer.ui;
-		const path = this.getAttribute('data-path');
-		const box = ui.find('#preview .box');
+		const path = this.getAttribute('data-path').replace(/\\/g, '/');
+
+		// Show iframe
+		ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
+		element.style.display = 'block';
+
+		ui.find('#preview').show();
+
+		// Unload app
+		ui.find('#preview').one('click', function () {
+			ui.find('#preview').hide();
+			element.style.display = 'none';
+			App._APP.postMessage({ type: 'stop' }, location.origin);
+			window.removeEventListener('message', onMessage, false);
+		});
+
+		window.addEventListener('message', onMessage, false);
+
+		if (!ready) {
+			// Once app is ready
+			ui.find('#preview .box').append(element);
+
+			App.start();
+			App.onReady = function () {
+				App._APP.frameElement.style.border = '1px solid grey';
+				App._APP.frameElement.style.backgroundColor = '#45484d';
+				synchronise();
+			};
+			App.onload = function () {
+				App._APP.postMessage({ type: 'load', data: path }, location.origin);
+			};
+		} else {
+			App._APP.postMessage({ type: 'load', data: path }, location.origin);
+		}
+	};
+})();
+
+/**
+ * User click on an effect, render it using StrViewer
+ */
+const onEffectClick = (function onEffectClickClosure() {
+	let ready = false;
+	const element = document.createElement('div');
+
+	const App = new ROBrowser({
+		target: element,
+		type: ROBrowser.TYPE.FRAME,
+		application: ROBrowser.APP.STRVIEWER,
+		development: Configs.get('development', false),
+		api: true,
+		width: 400,
+		height: 400,
+		version: Configs.get('version', '')
+	});
+
+	// Ressource sharing
+	function onMessage(event) {
+		if (typeof event.data !== 'object') {
+			return;
+		}
+
+		switch (event.data.type) {
+			case 'SYNC':
+				ready = true;
+				App.onload();
+				break;
+
+			case 'SET_HOST':
+			case 'CLEAN_GRF':
+				return;
+
+			default:
+				Thread.send(event.data.type, event.data.data, function () {
+					App._APP.postMessage(
+						{
+							arguments: Array.prototype.slice.call(arguments, 0),
+							uid: event.data.uid
+						},
+						location.origin
+					);
+				});
+		}
+	}
+
+	// Wait for synchronisation with frame
+	function synchronise() {
+		if (!ready) {
+			App._APP.postMessage({ type: 'init' }, location.origin);
+			setTimeout(synchronise, 100);
+		}
+	}
+
+	return function onEffectClick() {
+		const ui = Viewer.ui;
+		const path = this.getAttribute('data-path').replace(/\\/g, '/');
+
+		// Show iframe
+		ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
+		ui.find('#preview').show();
+		element.style.display = 'block';
+
+		// Unload app
+		ui.find('#preview').one('click', function () {
+			ui.find('#preview').hide();
+			element.style.display = 'none';
+			App._APP.postMessage({ type: 'stop' }, location.origin);
+			window.removeEventListener('message', onMessage, false);
+		});
+
+		window.addEventListener('message', onMessage, false);
+
+		if (!ready) {
+			// Once app is ready
+			ui.find('#preview .box').append(element);
+
+			App.start();
+			App.onReady = function () {
+				App._APP.frameElement.style.border = '1px solid grey';
+				App._APP.frameElement.style.backgroundColor = 'black';
+				synchronise();
+			};
+			App.onload = function () {
+				App._APP.postMessage({ type: 'load', data: path }, location.origin);
+			};
+		} else {
+			App._APP.postMessage({ type: 'load', data: path }, location.origin);
+		}
+	};
+})();
+
+/**
+ * User click on a map, render it using MapViewer
+ */
+const onWorldClick = (function onWorldClick() {
+	let ready = false;
+	const element = document.createElement('div');
+
+	const App = new ROBrowser({
+		target: element,
+		type: ROBrowser.TYPE.FRAME,
+		application: ROBrowser.APP.MAPVIEWER,
+		development: Configs.get('development', false),
+		api: true,
+		width: 600,
+		height: 480,
+		version: Configs.get('version', '')
+	});
+
+	// Ressource sharing
+	function onMessage(event) {
+		if (typeof event.data !== 'object') {
+			return;
+		}
+
+		switch (event.data.type) {
+			case 'SYNC':
+				ready = true;
+				App.onload();
+				break;
+
+			case 'SET_HOST':
+			case 'CLEAN_GRF':
+				return;
+
+			default:
+				Thread.send(event.data.type, event.data.data, function () {
+					App._APP.postMessage(
+						{
+							arguments: Array.prototype.slice.call(arguments, 0),
+							uid: event.data.uid
+						},
+						location.origin
+					);
+				});
+		}
+	}
+
+	// Redirect Thread result to frame
+	function threadRedirect(type) {
+		Thread.hook(type, function (data) {
+			App._APP.postMessage(
+				{
+					type: type,
+					data: data
+				},
+				location.origin
+			);
+		});
+	}
+
+	// Wait for synchronisation with frame
+	function synchronise() {
+		if (!ready) {
+			App._APP.postMessage({ type: 'init' }, location.origin);
+			setTimeout(synchronise, 100);
+		}
+	}
+
+	return function onWorldClick() {
+		const ui = Viewer.ui;
+		const path = this.getAttribute('data-path').replace(/\\/g, '/');
 
 		ui.find('#progress').show();
+		element.style.display = 'block';
 
-		Client.loadFile(path, function (url) {
-			// Create audio
-			const audio = document.createElement('audio');
-			audio.src = url;
-			audio.controls = true;
-			audio.play();
+		// Show iframe
+		ui.find('#preview .box').css('top', (jQuery(window).height() - 480) * 0.5);
+		ui.find('#preview').show();
+		ui.find('#progress').hide();
+		document.body.style.overflow = 'hidden';
 
-			// Show it on a box
-			box.css('top', (jQuery(window).height() - 100) / 2).append(
-				jQuery(audio).click(function (event) {
+		// Unload app
+		ui.find('#preview').one('click', function () {
+			ui.find('#preview').hide();
+			document.body.style.overflow = 'auto';
+			element.style.display = 'none';
+
+			App._APP.postMessage({ type: 'stop' }, location.origin);
+			window.removeEventListener('message', onMessage, false);
+		});
+
+		window.addEventListener('message', onMessage, false);
+
+		if (!ready) {
+			// Once app is ready
+			ui.find('#preview .box').append(element);
+
+			App.start();
+			App.onReady = function () {
+				App._APP.frameElement.style.border = '1px solid grey';
+				App._APP.frameElement.style.backgroundColor = 'black';
+
+				// Hook Tread Map loading
+				threadRedirect('MAP_PROGRESS');
+				threadRedirect('MAP_WORLD');
+				threadRedirect('MAP_GROUND');
+				threadRedirect('MAP_ALTITUDE');
+				threadRedirect('MAP_MODELS');
+
+				synchronise();
+			};
+			App.onload = function () {
+				App._APP.postMessage({ type: 'load', data: path }, location.origin);
+			};
+		} else {
+			App._APP.postMessage({ type: 'load', data: path }, location.origin);
+		}
+	};
+})();
+
+/**
+ *  User click on text, display it
+ */
+function onTextClick() {
+	const ui = Viewer.ui;
+	const path = this.getAttribute('data-path');
+	const progress = ui.find('#progress');
+	const box = ui.find('#preview .box');
+
+	progress.show();
+
+	Client.loadFile(path, function (text) {
+		box.css('top', (jQuery(window).height() - 300) / 2).append(
+			jQuery('<pre/>')
+				.text(text)
+				.click(function (event) {
 					event.stopPropagation();
 				})
-			);
+				.css({
+					background: 'white',
+					width: '500px',
+					display: 'inline-block',
+					height: '300px',
+					overflow: 'scroll',
+					textAlign: 'left',
+					padding: '10px'
+				})
+		);
 
-			ui.find('#progress').hide();
-			ui.find('#preview')
-				.show()
-				.one('click', function () {
-					jQuery(this).hide();
-					box.find('audio').unbind().remove();
-				});
-		});
-	}
+		progress.hide();
 
-	/**
-	 * User click on an image, render it
-	 */
-	function onImageClick() {
-		const ui = Viewer.ui;
-		const path = this.getAttribute('data-path');
-		const box = ui.find('#preview .box');
-		ui.find('#progress').show();
-
-		Client.getFile(path, function (data) {
-			let i, count, canvas;
-
-			switch (path.substr(-3)) {
-				// Sprite support
-				case 'spr':
-					const spr = new Sprite(data);
-					box.css('top', 200);
-
-					for (i = 0, count = spr.frames.length; i < count; ++i) {
-						canvas = spr.getCanvasFromFrame(i);
-						if (canvas) {
-							box.append(canvas);
-						}
-					}
-					break;
-
-				// Palette support
-				case 'pal':
-					const palette = new Uint8Array(data);
-					canvas = document.createElement('canvas');
-					const ctx = canvas.getContext('2d');
-
-					canvas.width = 128;
-					canvas.height = 128;
-
-					for (i = 0, count = palette.length; i < count; i += 4) {
-						ctx.fillStyle = 'rgb(' + palette[i + 0] + ',' + palette[i + 1] + ',' + palette[i + 2] + ')';
-						ctx.fillRect((((i / 4) | 0) % 16) * 8, ((((i / 4) | 0) / 16) | 0) * 8, 8, 8);
-					}
-
-					box.css('top', jQuery(window).height() / 2 - 64).append(canvas);
-					break;
-
-				// Targa support
-				case 'tga':
-					const tga = new Targa();
-					tga.load(new Uint8Array(data));
-					box.css('top', jQuery(window).height() / 2 - 64).append(tga.getCanvas());
-					break;
-
-				// Image Support
-				default:
-					const url = URL.createObjectURL(new Blob([data], { type: 'image/' + path.substr(-3) }));
-					const img = new Image();
-					img.decoding = 'async';
-					img.src = url;
-					img.onload = function () {
-						box.css('top', (jQuery(window).height() - this.height) / 2).append(this);
-
-						URL.revokeObjectURL(url);
-					};
-					break;
-			}
-
-			// Display progress bar
-			ui.find('#preview').show();
-			ui.find('#progress').hide();
-			ui.find('#preview').one('click', function () {
-				jQuery(this).hide();
-				box.find('img, canvas').remove();
-			});
-		});
-	}
-
-	/**
-	 * User click on a model, render it using ModelViewer
-	 */
-	const onObjectClick = (function onObjectClickClosure() {
-		let ready = false;
-		const element = document.createElement('div');
-
-		const App = new ROBrowser({
-			target: element,
-			type: ROBrowser.TYPE.FRAME,
-			application: ROBrowser.APP.MODELVIEWER,
-			development: Configs.get('development', false),
-			api: true,
-			width: 500,
-			height: 400,
-			version: Configs.get('version', '')
-		});
-
-		// Ressource sharing
-		function onMessage(event) {
-			if (typeof event.data !== 'object') {
-				return;
-			}
-
-			switch (event.data.type) {
-				case 'SYNC':
-					ready = true;
-					App.onload();
-					break;
-
-				case 'SET_HOST':
-				case 'CLEAN_GRF':
-					return;
-
-				default:
-					Thread.send(event.data.type, event.data.data, function () {
-						App._APP.postMessage(
-							{
-								arguments: Array.prototype.slice.call(arguments, 0),
-								uid: event.data.uid
-							},
-							location.origin
-						);
-					});
-			}
-		}
-
-		// Wait for synchronisation with frame
-		function synchronise() {
-			if (!ready) {
-				App._APP.postMessage({ type: 'init' }, location.origin);
-				setTimeout(synchronise, 100);
-			}
-		}
-
-		return function onObjectClick() {
-			const ui = Viewer.ui;
-			const path = this.getAttribute('data-path').replace(/\\/g, '/');
-
-			// Show iframe
-			ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
-			element.style.display = 'block';
-
-			ui.find('#preview').show();
-
-			// Unload app
-			ui.find('#preview').one('click', function () {
+		ui.find('#preview')
+			.show()
+			.one('click', function () {
 				ui.find('#preview').hide();
-				element.style.display = 'none';
-				App._APP.postMessage({ type: 'stop' }, location.origin);
-				window.removeEventListener('message', onMessage, false);
+				box.find('pre').unbind().remove();
 			});
+	});
+}
 
-			window.addEventListener('message', onMessage, false);
+/**
+ * User click on a Granny model, render it using GrannyModelViewer
+ */
+const onGrannyClick = (function onGrannyClickClosure() {
+	let ready = false;
+	const element = document.createElement('div');
 
-			if (!ready) {
-				// Once app is ready
-				ui.find('#preview .box').append(element);
+	const App = new ROBrowser({
+		target: element,
+		type: ROBrowser.TYPE.FRAME,
+		application: ROBrowser.APP.GRANNYMODELVIEWER,
+		development: Configs.get('development', false),
+		api: true,
+		width: 500,
+		height: 400,
+		version: Configs.get('version', '')
+	});
 
-				App.start();
-				App.onReady = function () {
-					App._APP.frameElement.style.border = '1px solid grey';
-					App._APP.frameElement.style.backgroundColor = '#45484d';
-					synchronise();
-				};
-				App.onload = function () {
-					App._APP.postMessage({ type: 'load', data: path }, location.origin);
-				};
-			} else {
-				App._APP.postMessage({ type: 'load', data: path }, location.origin);
-			}
-		};
-	})();
-
-	/**
-	 * User click on an effect, render it using StrViewer
-	 */
-	const onEffectClick = (function onEffectClickClosure() {
-		let ready = false;
-		const element = document.createElement('div');
-
-		const App = new ROBrowser({
-			target: element,
-			type: ROBrowser.TYPE.FRAME,
-			application: ROBrowser.APP.STRVIEWER,
-			development: Configs.get('development', false),
-			api: true,
-			width: 400,
-			height: 400,
-			version: Configs.get('version', '')
-		});
-
-		// Ressource sharing
-		function onMessage(event) {
-			if (typeof event.data !== 'object') {
-				return;
-			}
-
-			switch (event.data.type) {
-				case 'SYNC':
-					ready = true;
-					App.onload();
-					break;
-
-				case 'SET_HOST':
-				case 'CLEAN_GRF':
-					return;
-
-				default:
-					Thread.send(event.data.type, event.data.data, function () {
-						App._APP.postMessage(
-							{
-								arguments: Array.prototype.slice.call(arguments, 0),
-								uid: event.data.uid
-							},
-							location.origin
-						);
-					});
-			}
-		}
-
-		// Wait for synchronisation with frame
-		function synchronise() {
-			if (!ready) {
-				App._APP.postMessage({ type: 'init' }, location.origin);
-				setTimeout(synchronise, 100);
-			}
-		}
-
-		return function onEffectClick() {
-			const ui = Viewer.ui;
-			const path = this.getAttribute('data-path').replace(/\\/g, '/');
-
-			// Show iframe
-			ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
-			ui.find('#preview').show();
-			element.style.display = 'block';
-
-			// Unload app
-			ui.find('#preview').one('click', function () {
-				ui.find('#preview').hide();
-				element.style.display = 'none';
-				App._APP.postMessage({ type: 'stop' }, location.origin);
-				window.removeEventListener('message', onMessage, false);
-			});
-
-			window.addEventListener('message', onMessage, false);
-
-			if (!ready) {
-				// Once app is ready
-				ui.find('#preview .box').append(element);
-
-				App.start();
-				App.onReady = function () {
-					App._APP.frameElement.style.border = '1px solid grey';
-					App._APP.frameElement.style.backgroundColor = 'black';
-					synchronise();
-				};
-				App.onload = function () {
-					App._APP.postMessage({ type: 'load', data: path }, location.origin);
-				};
-			} else {
-				App._APP.postMessage({ type: 'load', data: path }, location.origin);
-			}
-		};
-	})();
-
-	/**
-	 * User click on a map, render it using MapViewer
-	 */
-	const onWorldClick = (function onWorldClick() {
-		let ready = false;
-		const element = document.createElement('div');
-
-		const App = new ROBrowser({
-			target: element,
-			type: ROBrowser.TYPE.FRAME,
-			application: ROBrowser.APP.MAPVIEWER,
-			development: Configs.get('development', false),
-			api: true,
-			width: 600,
-			height: 480,
-			version: Configs.get('version', '')
-		});
-
-		// Ressource sharing
-		function onMessage(event) {
-			if (typeof event.data !== 'object') {
-				return;
-			}
-
-			switch (event.data.type) {
-				case 'SYNC':
-					ready = true;
-					App.onload();
-					break;
-
-				case 'SET_HOST':
-				case 'CLEAN_GRF':
-					return;
-
-				default:
-					Thread.send(event.data.type, event.data.data, function () {
-						App._APP.postMessage(
-							{
-								arguments: Array.prototype.slice.call(arguments, 0),
-								uid: event.data.uid
-							},
-							location.origin
-						);
-					});
-			}
-		}
-
-		// Redirect Thread result to frame
-		function threadRedirect(type) {
-			Thread.hook(type, function (data) {
-				App._APP.postMessage(
-					{
-						type: type,
-						data: data
-					},
-					location.origin
-				);
-			});
-		}
-
-		// Wait for synchronisation with frame
-		function synchronise() {
-			if (!ready) {
-				App._APP.postMessage({ type: 'init' }, location.origin);
-				setTimeout(synchronise, 100);
-			}
-		}
-
-		return function onWorldClick() {
-			const ui = Viewer.ui;
-			const path = this.getAttribute('data-path').replace(/\\/g, '/');
-
-			ui.find('#progress').show();
-			element.style.display = 'block';
-
-			// Show iframe
-			ui.find('#preview .box').css('top', (jQuery(window).height() - 480) * 0.5);
-			ui.find('#preview').show();
-			ui.find('#progress').hide();
-			document.body.style.overflow = 'hidden';
-
-			// Unload app
-			ui.find('#preview').one('click', function () {
-				ui.find('#preview').hide();
-				document.body.style.overflow = 'auto';
-				element.style.display = 'none';
-
-				App._APP.postMessage({ type: 'stop' }, location.origin);
-				window.removeEventListener('message', onMessage, false);
-			});
-
-			window.addEventListener('message', onMessage, false);
-
-			if (!ready) {
-				// Once app is ready
-				ui.find('#preview .box').append(element);
-
-				App.start();
-				App.onReady = function () {
-					App._APP.frameElement.style.border = '1px solid grey';
-					App._APP.frameElement.style.backgroundColor = 'black';
-
-					// Hook Tread Map loading
-					threadRedirect('MAP_PROGRESS');
-					threadRedirect('MAP_WORLD');
-					threadRedirect('MAP_GROUND');
-					threadRedirect('MAP_ALTITUDE');
-					threadRedirect('MAP_MODELS');
-
-					synchronise();
-				};
-				App.onload = function () {
-					App._APP.postMessage({ type: 'load', data: path }, location.origin);
-				};
-			} else {
-				App._APP.postMessage({ type: 'load', data: path }, location.origin);
-			}
-		};
-	})();
-
-	/**
-	 *  User click on text, display it
-	 */
-	function onTextClick() {
-		const ui = Viewer.ui;
-		const path = this.getAttribute('data-path');
-		const progress = ui.find('#progress');
-		const box = ui.find('#preview .box');
-
-		progress.show();
-
-		Client.loadFile(path, function (text) {
-			box.css('top', (jQuery(window).height() - 300) / 2).append(
-				jQuery('<pre/>')
-					.text(text)
-					.click(function (event) {
-						event.stopPropagation();
-					})
-					.css({
-						background: 'white',
-						width: '500px',
-						display: 'inline-block',
-						height: '300px',
-						overflow: 'scroll',
-						textAlign: 'left',
-						padding: '10px'
-					})
-			);
-
-			progress.hide();
-
-			ui.find('#preview')
-				.show()
-				.one('click', function () {
-					ui.find('#preview').hide();
-					box.find('pre').unbind().remove();
-				});
-		});
-	}
-
-	/**
-	 * User click on a Granny model, render it using GrannyModelViewer
-	 */
-	const onGrannyClick = (function onGrannyClickClosure() {
-		let ready = false;
-		const element = document.createElement('div');
-
-		const App = new ROBrowser({
-			target: element,
-			type: ROBrowser.TYPE.FRAME,
-			application: ROBrowser.APP.GRANNYMODELVIEWER,
-			development: Configs.get('development', false),
-			api: true,
-			width: 500,
-			height: 400,
-			version: Configs.get('version', '')
-		});
-
-		// Ressource sharing
-		function onMessage(event) {
-			if (typeof event.data !== 'object') {
-				return;
-			}
-
-			switch (event.data.type) {
-				case 'SYNC':
-					ready = true;
-					App.onload();
-					break;
-
-				case 'SET_HOST':
-				case 'CLEAN_GRF':
-					return;
-
-				default:
-					Thread.send(event.data.type, event.data.data, function () {
-						App._APP.postMessage(
-							{
-								arguments: Array.prototype.slice.call(arguments, 0),
-								uid: event.data.uid
-							},
-							location.origin
-						);
-					});
-			}
-		}
-
-		// Wait for synchronisation with frame
-		function synchronise() {
-			if (!ready) {
-				App._APP.postMessage({ type: 'init' }, location.origin);
-				setTimeout(synchronise, 100);
-			}
-		}
-
-		return function onGrannyClick() {
-			alert('This module is under development.');
+	// Ressource sharing
+	function onMessage(event) {
+		if (typeof event.data !== 'object') {
 			return;
-			//UNDER DEVELOPMENT!!!
+		}
 
-			/*var ui    = Viewer.ui;
+		switch (event.data.type) {
+			case 'SYNC':
+				ready = true;
+				App.onload();
+				break;
+
+			case 'SET_HOST':
+			case 'CLEAN_GRF':
+				return;
+
+			default:
+				Thread.send(event.data.type, event.data.data, function () {
+					App._APP.postMessage(
+						{
+							arguments: Array.prototype.slice.call(arguments, 0),
+							uid: event.data.uid
+						},
+						location.origin
+					);
+				});
+		}
+	}
+
+	// Wait for synchronisation with frame
+	function synchronise() {
+		if (!ready) {
+			App._APP.postMessage({ type: 'init' }, location.origin);
+			setTimeout(synchronise, 100);
+		}
+	}
+
+	return function onGrannyClick() {
+		alert('This module is under development.');
+		return;
+		//UNDER DEVELOPMENT!!!
+
+		/*var ui    = Viewer.ui;
 			let path  = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			// Show iframe
@@ -1181,10 +1181,10 @@ import '../../../../applications/api/api';
 			else {
 				App._APP.postMessage({ type:'load', data:path }, location.origin);
 			}*/
-		};
-	})();
+	};
+})();
 
-	/**
-	 * Stored component and return it
-	 */
+/**
+ * Stored component and return it
+ */
 export default UIManager.addComponent(Viewer);

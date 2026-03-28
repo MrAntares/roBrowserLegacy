@@ -232,4 +232,3 @@ WinLogin.onExitRequest = function onExitRequest() {};
  * Create component based on view file and export it
  */
 export default UIManager.addComponent(WinLogin);
-

@@ -16,71 +16,71 @@ import Entity from './Entity/Entity';
 import Altitude from 'Renderer/Map/Altitude';
 
 /**
-	 * Find an Entity and return its index
-	 *
-	 * @param {number} gid
-	 * @param {number} itemid
-	 * @param {boolean} identify
-	 * @param {number} count
-	 * @param {number} x
-	 * @param {number} y
-	 * @param {number} z
-	 * @param {number} dropeffectmode
-	 * @param {boolean} showdropeffect
-	 */
-	function add(gid, itemid, identify, count, x, y, z, dropeffectmode, showdropeffect) {
-		const it = DB.getItemInfo(itemid);
-		const path = DB.getItemPath(itemid, identify);
-		const entity = new Entity();
-		const name = identify ? it.identifiedDisplayName : it.unidentifiedDisplayName;
-		/*var dropEffectPostition = [x, y, z];*/ // UNUSED
-		entity.GID = gid;
-		entity.objecttype = Entity.TYPE_ITEM;
-		entity.position[0] = x;
-		entity.position[1] = y;
-		entity.position[2] = z;
+ * Find an Entity and return its index
+ *
+ * @param {number} gid
+ * @param {number} itemid
+ * @param {boolean} identify
+ * @param {number} count
+ * @param {number} x
+ * @param {number} y
+ * @param {number} z
+ * @param {number} dropeffectmode
+ * @param {boolean} showdropeffect
+ */
+function add(gid, itemid, identify, count, x, y, z, dropeffectmode, showdropeffect) {
+	const it = DB.getItemInfo(itemid);
+	const path = DB.getItemPath(itemid, identify);
+	const entity = new Entity();
+	const name = identify ? it.identifiedDisplayName : it.unidentifiedDisplayName;
+	/*var dropEffectPostition = [x, y, z];*/ // UNUSED
+	entity.GID = gid;
+	entity.objecttype = Entity.TYPE_ITEM;
+	entity.position[0] = x;
+	entity.position[1] = y;
+	entity.position[2] = z;
 
-		entity.display.load = entity.display.TYPE.COMPLETE;
-		entity.display.name = DB.getMessage(183).replace('%s', name).replace('%d', count);
-		entity.display.update(entity.display.STYLE.ITEM);
+	entity.display.load = entity.display.TYPE.COMPLETE;
+	entity.display.name = DB.getMessage(183).replace('%s', name).replace('%d', count);
+	entity.display.update(entity.display.STYLE.ITEM);
 
-		entity.files.body.spr = path + '.spr';
-		entity.files.body.act = path + '.act';
+	entity.files.body.spr = path + '.spr';
+	entity.files.body.act = path + '.act';
 
-		entity.files.shadow.size = 0.25;
+	entity.files.shadow.size = 0.25;
 
-		if (showdropeffect) {
-			entity.dropEffect.load(EffectManager, dropeffectmode);
-		}
-
-		// Item falling
-		entity.animations.add(function (tick) {
-			const level = Altitude.getCellHeight(entity.position[0], entity.position[1]);
-			entity.position[2] = Math.max(level, z - tick / 40);
-			return entity.position[2] === level;
-		});
-
-		EntityManager.add(entity);
+	if (showdropeffect) {
+		entity.dropEffect.load(EffectManager, dropeffectmode);
 	}
 
-	/**
-	 * Remove an object from ground
-	 *
-	 * @param {number} gid
-	 */
-	function remove(gid) {
-		const entity = EntityManager.get(gid);
-		if (entity) {
-			entity.dropEffect.remove(EffectManager);
-		}
+	// Item falling
+	entity.animations.add(function (tick) {
+		const level = Altitude.getCellHeight(entity.position[0], entity.position[1]);
+		entity.position[2] = Math.max(level, z - tick / 40);
+		return entity.position[2] === level;
+	});
 
-		EntityManager.remove(gid);
+	EntityManager.add(entity);
+}
+
+/**
+ * Remove an object from ground
+ *
+ * @param {number} gid
+ */
+function remove(gid) {
+	const entity = EntityManager.get(gid);
+	if (entity) {
+		entity.dropEffect.remove(EffectManager);
 	}
 
-	/**
-	 * Export 
-	 */
-	export default {
-		add: add,
-		remove: remove
-	};
+	EntityManager.remove(gid);
+}
+
+/**
+ * Export
+ */
+export default {
+	add: add,
+	remove: remove
+};

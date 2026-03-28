@@ -139,11 +139,7 @@ function parseCharList(fp, end) {
 	// Invalid blocksize...
 	if (!blockSize || length % blockSize) {
 		console.error(
-			'CHARACTER_INFO size error!! blockSize : "' +
-				blockSize +
-				'", list length: ' +
-				length +
-				', auto-detect...'
+			'CHARACTER_INFO size error!! blockSize : "' + blockSize + '", list length: ' + length + ', auto-detect...'
 		);
 
 		const knownSize = [106, 108, 112, 116, 124, 128, 132, 136, 140, 144, 145, 147, 155, 175];
@@ -318,7 +314,7 @@ function addSupport(date, list) {
 export default {
 	// Get Back data
 	get value() {
-		return _value > 0 ? _value : (window.ROConfig?.servers?.[0]?.packetver || window.ROConfig?.packetver || 0);
+		return _value > 0 ? _value : window.ROConfig?.servers?.[0]?.packetver || window.ROConfig?.packetver || 0;
 	},
 
 	set value(v) {
@@ -332,4 +328,3 @@ export default {
 	addSupport: addSupport,
 	parseCharInfo: parseCharList
 };
-

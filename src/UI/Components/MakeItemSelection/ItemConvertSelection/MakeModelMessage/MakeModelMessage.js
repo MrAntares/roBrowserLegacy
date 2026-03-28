@@ -15,37 +15,37 @@ import cssText from './MakeModelMessage.css?raw';
 import ConvertItems from 'UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems';
 
 /**
-	 * Create MakeModelMessage namespace
-	 */
-	const MakeModelMessage = new UIComponent('MakeModelMessage', htmlText, cssText);
+ * Create MakeModelMessage namespace
+ */
+const MakeModelMessage = new UIComponent('MakeModelMessage', htmlText, cssText);
 
-	/**
-	 * Initialize UI
-	 */
-	MakeModelMessage.init = function init() {
-		// Show at center.
-		this.ui.css({
-			top: (Renderer.height - 200) / 2,
-			left: (Renderer.width - 200) / 2
-		});
+/**
+ * Initialize UI
+ */
+MakeModelMessage.init = function init() {
+	// Show at center.
+	this.ui.css({
+		top: (Renderer.height - 200) / 2,
+		left: (Renderer.width - 200) / 2
+	});
 
-		this.ui.find('.ok').on('click', onSendMaterial);
-		this.ui.find('.cancel').on('click', onClose);
+	this.ui.find('.ok').on('click', onSendMaterial);
+	this.ui.find('.cancel').on('click', onClose);
 
-		this.draggable(this.ui.find('.titlebar'));
-	};
+	this.draggable(this.ui.find('.titlebar'));
+};
 
-	function onSendMaterial(event) {
-		event.stopImmediatePropagation();
-		ConvertItems.validItemSend(true);
-	}
+function onSendMaterial(event) {
+	event.stopImmediatePropagation();
+	ConvertItems.validItemSend(true);
+}
 
-	function onClose(event) {
-		event.stopImmediatePropagation();
-		ConvertItems.validItemSend(false);
-	}
+function onClose(event) {
+	event.stopImmediatePropagation();
+	ConvertItems.validItemSend(false);
+}
 
-	/**
-	 * Create component based on view file and export it
-	 */
+/**
+ * Create component based on view file and export it
+ */
 export default UIManager.addComponent(MakeModelMessage);

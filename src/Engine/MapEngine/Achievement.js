@@ -13,18 +13,18 @@ import Network from 'Network/NetworkManager';
 import PACKET from 'Network/PacketStructure';
 
 /**
-	 * Load dependencies
-	 */
-	function onAllAchievementList(pkt) {}
+ * Load dependencies
+ */
+function onAllAchievementList(pkt) {}
 
-	function onAchievementUpdate(pkt) {}
+function onAchievementUpdate(pkt) {}
 
-	function onRequestAchievementRewardACK(pkt) {}
-	/**
-	 * Initialize
-	 */
+function onRequestAchievementRewardACK(pkt) {}
+/**
+ * Initialize
+ */
 export default function MainEngine() {
-		Network.hookPacket(PACKET.ZC.ALL_ACH_LIST, onAllAchievementList);
-		Network.hookPacket(PACKET.ZC.ACH_UPDATE, onAchievementUpdate);
-		Network.hookPacket(PACKET.ZC.REQ_ACH_REWARD_ACK, onRequestAchievementRewardACK);
-	};
+	Network.hookPacket(PACKET.ZC.ALL_ACH_LIST, onAllAchievementList);
+	Network.hookPacket(PACKET.ZC.ACH_UPDATE, onAchievementUpdate);
+	Network.hookPacket(PACKET.ZC.REQ_ACH_REWARD_ACK, onRequestAchievementRewardACK);
+}

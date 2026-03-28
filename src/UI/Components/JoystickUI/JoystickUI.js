@@ -19,25 +19,25 @@ import JoystickUIRenderer from './JoystickUIRenderer';
 
 const JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
 
-	JoystickUI.onAppend = function () {
-		JoystickUIRenderer.attach(this.ui);
-		this.ui.hide();
-		JoystickSelectionUI.append();
-	};
+JoystickUI.onAppend = function () {
+	JoystickUIRenderer.attach(this.ui);
+	this.ui.hide();
+	JoystickSelectionUI.append();
+};
 
-	JoystickUI.onRemove = function () {
-		JoystickModule.dispose();
-	};
+JoystickUI.onRemove = function () {
+	JoystickModule.dispose();
+};
 
-	JoystickUI.onRestore = function () {
-		JoystickModule.prepare();
-	};
+JoystickUI.onRestore = function () {
+	JoystickModule.prepare();
+};
 
-	JoystickUI.show = function () {
-		this.ui.show();
-	};
+JoystickUI.show = function () {
+	this.ui.show();
+};
 
-	JoystickUI.hide = function () {
-		this.ui.hide();
-	};
+JoystickUI.hide = function () {
+	this.ui.hide();
+};
 export default UIManager.addComponent(JoystickUI);

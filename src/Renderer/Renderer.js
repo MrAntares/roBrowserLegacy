@@ -452,4 +452,3 @@ Renderer.stop = function stop(fn) {
  * Export
  */
 export default Renderer;
-

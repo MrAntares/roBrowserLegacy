@@ -15,18 +15,18 @@ import Interaction from './JoystickInteractionService';
 import ShortcutMapper from './JoystickShortcutMapper';
 import JoystickUIRenderer from './JoystickUIRenderer';
 
-	export default {
-		prepare: function () {
-			ShortcutMapper.prepare();
-			InputService.prepare();
-			Interaction.prepare();
-			Polling.start();
-			JoystickUIRenderer.hide();
-		},
-		dispose: function () {
-			Polling.stop();
-			Interaction.dispose();
-			InputService.dispose();
-			JoystickUIRenderer.dispose();
-		}
-	};
+export default {
+	prepare: function () {
+		ShortcutMapper.prepare();
+		InputService.prepare();
+		Interaction.prepare();
+		Polling.start();
+		JoystickUIRenderer.hide();
+	},
+	dispose: function () {
+		Polling.stop();
+		Interaction.dispose();
+		InputService.dispose();
+		JoystickUIRenderer.dispose();
+	}
+};

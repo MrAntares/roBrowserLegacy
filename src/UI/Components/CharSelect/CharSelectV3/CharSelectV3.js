@@ -26,749 +26,749 @@ import htmlText from './CharSelectV3.html?raw';
 import cssText from './CharSelectV3.css?raw';
 
 /**
-	 * Create Chararacter Selection namespace
-	 */
-	const CharSelectV3 = new UIComponent('CharSelectV3', htmlText, cssText);
+ * Create Chararacter Selection namespace
+ */
+const CharSelectV3 = new UIComponent('CharSelectV3', htmlText, cssText);
 
-	/**
-	 * @var {Preferences} save where the cursor position is
-	 */
-	const _preferences = Preferences.get(
-		'CharSelectV3',
-		{
-			index: 0
-		},
-		1.0
-	);
+/**
+ * @var {Preferences} save where the cursor position is
+ */
+const _preferences = Preferences.get(
+	'CharSelectV3',
+	{
+		index: 0
+	},
+	1.0
+);
 
-	/**
-	 * @var {number} max slots
-	 */
-	let _maxSlots = 3 * 9;
+/**
+ * @var {number} max slots
+ */
+let _maxSlots = 3 * 9;
 
-	/**
-	 * var {Array} list of characters
-	 */
-	const _list = [];
+/**
+ * var {Array} list of characters
+ */
+const _list = [];
 
-	/**
-	 * @var {Array} list of characters (index by slot)
-	 */
-	const _slots = [];
+/**
+ * @var {Array} list of characters (index by slot)
+ */
+const _slots = [];
 
-	/**
-	 * @var {Array} list of entities (index by slot)
-	 */
-	const _entitySlots = [];
+/**
+ * @var {Array} list of entities (index by slot)
+ */
+const _entitySlots = [];
 
-	/**
-	 * @var {number} selector index
-	 */
-	let _index = 0;
+/**
+ * @var {number} selector index
+ */
+let _index = 0;
 
-	/**
-	 * @var {Array} canvas context
-	 */
-	const _ctx = [];
+/**
+ * @var {Array} canvas context
+ */
+const _ctx = [];
 
-	/**
-	 * var {number} sex
-	 */
-	let _sex = 0;
+/**
+ * var {number} sex
+ */
+let _sex = 0;
 
-	/**
-	 * var {boolean} disable input
-	 */
-	let _disable_UI = false;
+/**
+ * var {boolean} disable input
+ */
+let _disable_UI = false;
 
-	/**
-	 * Initialize UI
-	 */
-	CharSelectV3.init = function Init() {
-		const ui = this.ui;
+/**
+ * Initialize UI
+ */
+CharSelectV3.init = function Init() {
+	const ui = this.ui;
 
-		ui.css({
-			top: (Renderer.height - 358) / 2,
-			left: (Renderer.width - 576) / 2
+	ui.css({
+		top: (Renderer.height - 358) / 2,
+		left: (Renderer.width - 576) / 2
+	});
+
+	// Bind buttons
+	ui.find('.ok').click(connect);
+	ui.find('.cancel').click(cancel);
+	ui.find('.make').click(create);
+	ui.find('.delete').click(reserve);
+	ui.find('.canceldelete').click(removedelete);
+	ui.find('.finaldelete').click(suppress);
+
+	ui.find('.arrow.left').mousedown(genericArrowDown(-1));
+	ui.find('.arrow.right').mousedown(genericArrowDown(+1));
+
+	// Bind canvas
+	ui.find('.slot1').mousedown(genericCanvasDown(0));
+	ui.find('.slot2').mousedown(genericCanvasDown(1));
+	ui.find('.slot3').mousedown(genericCanvasDown(2));
+
+	ui.find('.make1').mousedown(function (e) {
+		genericCanvasDown(0)(e);
+		create();
+	});
+	ui.find('.make2').mousedown(function (e) {
+		genericCanvasDown(1)(e);
+		create();
+	});
+	ui.find('.make3').mousedown(function (e) {
+		genericCanvasDown(2)(e);
+		create();
+	});
+
+	ui.find('canvas')
+		.dblclick(function () {
+			if (_slots[_index]) {
+				connect();
+			} else {
+				create();
+			}
+		})
+		.each(function () {
+			_ctx.push(this.getContext('2d'));
 		});
 
-		// Bind buttons
-		ui.find('.ok').click(connect);
-		ui.find('.cancel').click(cancel);
-		ui.find('.make').click(create);
-		ui.find('.delete').click(reserve);
-		ui.find('.canceldelete').click(removedelete);
-		ui.find('.finaldelete').click(suppress);
+	this.draggable();
+};
 
-		ui.find('.arrow.left').mousedown(genericArrowDown(-1));
-		ui.find('.arrow.right').mousedown(genericArrowDown(+1));
+/**
+ * Once append to body
+ */
+CharSelectV3.onAppend = function onAppend() {
+	_index = _preferences.index;
 
-		// Bind canvas
-		ui.find('.slot1').mousedown(genericCanvasDown(0));
-		ui.find('.slot2').mousedown(genericCanvasDown(1));
-		ui.find('.slot3').mousedown(genericCanvasDown(2));
+	this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
+	this.ui.find('.pageinfo .count').text(_maxSlots / 3);
 
-		ui.find('.make1').mousedown(function (e) {
-			genericCanvasDown(0)(e);
-			create();
-		});
-		ui.find('.make2').mousedown(function (e) {
-			genericCanvasDown(1)(e);
-			create();
-		});
-		ui.find('.make3').mousedown(function (e) {
-			genericCanvasDown(2)(e);
-			create();
-		});
+	// Update values
+	moveCursorTo(_index);
 
-		ui.find('canvas')
-			.dblclick(function () {
-				if (_slots[_index]) {
-					connect();
-				} else {
-					create();
-				}
-			})
-			.each(function () {
-				_ctx.push(this.getContext('2d'));
-			});
+	// Start rendering
+	Renderer.render(render);
+};
 
-		this.draggable();
-	};
+/**
+ * Stop rendering
+ */
+CharSelectV3.onRemove = function onRemove() {
+	_preferences.index = _index;
+	_preferences.save();
+	this.ui.find('.timedelete').hide().text('');
+	Renderer.stop();
+};
 
-	/**
-	 * Once append to body
-	 */
-	CharSelectV3.onAppend = function onAppend() {
-		_index = _preferences.index;
+/**
+ * Bind Key events
+ *
+ * @param {object} event
+ */
+CharSelectV3.onKeyDown = function onKeyDown(event) {
+	if (!this.ui.is(':visible')) {
+		return true;
+	}
+	switch (event.which) {
+		case KEYS.ESCAPE:
+			cancel();
+			break;
 
-		this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
-		this.ui.find('.pageinfo .count').text(_maxSlots / 3);
+		case KEYS.LEFT:
+			moveCursorTo(_index - 1);
+			break;
 
-		// Update values
-		moveCursorTo(_index);
+		case KEYS.RIGHT:
+			moveCursorTo(_index + 1);
+			break;
 
-		// Start rendering
-		Renderer.render(render);
-	};
+		case KEYS.SUPR:
+			if (_slots[_index]) {
+				suppress();
+			}
+			break;
 
-	/**
-	 * Stop rendering
-	 */
-	CharSelectV3.onRemove = function onRemove() {
-		_preferences.index = _index;
-		_preferences.save();
-		this.ui.find('.timedelete').hide().text('');
-		Renderer.stop();
-	};
+		case KEYS.ENTER:
+			if (_slots[_index]) {
+				connect();
+			} else {
+				create();
+			}
+			break;
 
-	/**
-	 * Bind Key events
-	 *
-	 * @param {object} event
-	 */
-	CharSelectV3.onKeyDown = function onKeyDown(event) {
-		if (!this.ui.is(':visible')) {
+		default:
 			return true;
+	}
+
+	event.stopImmediatePropagation();
+	return false;
+};
+
+/**
+ * Add players to window
+ *
+ * @param {object} pkt - packet structure
+ */
+CharSelectV3.setInfo = function setInfo(pkt) {
+	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 9); // default 9 ?
+	_sex = pkt.sex;
+	_slots.length = 0;
+	_entitySlots.length = 0;
+	_list.length = 0;
+
+	if (pkt.charInfo) {
+		let i,
+			count = pkt.charInfo.length;
+		for (i = 0; i < count; ++i) {
+			CharSelectV3.addCharacter(pkt.charInfo[i]);
+
+			// Guess the max slot
+			// required if the client is < 20100413 and have more than 9 slots
+			_maxSlots = Math.max(_maxSlots, Math.floor(pkt.charInfo[i].CharNum / 3 + 1) * 3);
 		}
-		switch (event.which) {
-			case KEYS.ESCAPE:
-				cancel();
-				break;
+	}
 
-			case KEYS.LEFT:
-				moveCursorTo(_index - 1);
-				break;
+	this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
 
-			case KEYS.RIGHT:
-				moveCursorTo(_index + 1);
-				break;
+	moveCursorTo(_index);
+};
 
-			case KEYS.SUPR:
-				if (_slots[_index]) {
-					suppress();
-				}
-				break;
+function drawBall(btnList, index, sel) {
+	btnList.append(
+		'<button class="btn_pageinfo' +
+			index +
+			'" data-background="select_character/page_ball_empty.bmp" data-hover="select_character/page_ball_empty.bmp" data-down="select_character/page_ball_fill.bmp"></button><img width="8px" />'
+	);
+	if (!sel) {
+		Client.loadFile(DB.INTERFACE_PATH + 'select_character/page_ball_empty.bmp', function (data) {
+			btnList.find('.btn_pageinfo' + index).css('backgroundImage', 'url("' + data + '")');
+		});
+	} else {
+		Client.loadFile(DB.INTERFACE_PATH + 'select_character/page_ball_fill.bmp', function (data) {
+			btnList.find('.btn_pageinfo' + index).css('backgroundImage', 'url("' + data + '")');
+		});
+	}
 
-			case KEYS.ENTER:
-				if (_slots[_index]) {
-					connect();
+	btnList.find('.btn_pageinfo' + index).css('border', '0');
+	btnList.find('.btn_pageinfo' + index).css('width', '8px');
+	btnList.find('.btn_pageinfo' + index).css('height', '8px');
+	btnList.find('.btn_pageinfo' + index).css('background-color', 'transparent');
+}
+
+/**
+ * Answer from server to delete a character
+ *
+ * @param {number} error id
+ */
+CharSelectV3.deleteAnswer = function DeleteAnswer(error) {
+	this.on('keydown');
+
+	switch (error) {
+		// Do nothing, just re-set the keydown
+		case -1:
+		case -2:
+			return;
+
+		// Success (clean up character)
+		case 1:
+			delete _slots[_index];
+			delete _entitySlots[_index];
+
+			let i = 0;
+			let count = _list.length;
+
+			while (i < count) {
+				if (_list[i].CharNum === _index) {
+					_list.splice(i, 1);
+					--count;
 				} else {
-					create();
+					i++;
 				}
-				break;
+			}
 
-			default:
-				return true;
+			// Refresh UI
+			moveCursorTo(_index);
+			this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
+			return;
+
+		default: // Others error ?
+		case 0:
+		case 2: // 2: Due to system settings can not be deleted.
+		case 6: // 6: Name does not match.
+			UIManager.showMessageBox(DB.getMessage(1821), 'ok');
+			return;
+		case 3: // 3: A database error occurred.
+			UIManager.showMessageBox(DB.getMessage(1817), 'ok');
+			return;
+		case 4: // 4: Deleting not yet possible time.
+			UIManager.showMessageBox(DB.getMessage(1820), 'ok');
+			return;
+		case 5: // 5: Date of birth do not match.
+			UIManager.showMessageBox(DB.getMessage(1822), 'ok');
+			return;
+		case 7: // 7: Character Deletion has failed because you have entered an incorrect e-mail address.
+			UIManager.showMessageBox(DB.getMessage(301), 'ok');
+			return;
+	}
+};
+
+/**
+ * Adding a Character to the list
+ *
+ * @param {object} character data
+ */
+CharSelectV3.addCharacter = function addCharacter(character) {
+	if (!('sex' in character) || character.sex === 99) {
+		character.sex = _sex;
+	}
+
+	//Adjust from remaining time to fixed datetime
+	if (character.DeleteDate) {
+		const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+		const timer =
+			(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
+				? character.DeleteDate + now
+				: character.DeleteDate;
+		character.DeleteDate = timer;
+	}
+
+	_list.push(character);
+	_slots[character.CharNum] = character;
+
+	_entitySlots[character.CharNum] = new Entity();
+	_entitySlots[character.CharNum].set(character);
+	_entitySlots[character.CharNum].effectState =
+		_entitySlots[character.CharNum]._effectState & ~StatusConst.EffectState.INVISIBLE;
+
+	if (_slots[character.CharNum].DeleteDate && Math.floor(_index / 3) == Math.floor(character.CharNum / 3)) {
+		const slotNum = ((character.CharNum + _maxSlots) % _maxSlots) + 1;
+		const countdown = this.ui.find('.timedelete.slot' + slotNum); // Adjusted selector
+		const entity = _entitySlots[character.CharNum];
+		if (countdown) {
+			countdown.attr('data-datetime', _slots[character.CharNum].DeleteDate);
+			countdown.text(formatDatetime(_slots[character.CharNum].DeleteDate));
+			countdown.show();
 		}
+		entity.setAction({
+			action: entity.ACTION.SIT,
+			frame: 0,
+			play: true,
+			repeat: true
+		});
+	}
+};
 
+/**
+ * Disable or Enable the UI.
+ *
+ * @param {boolean}
+ */
+CharSelectV3.setUIEnabled = function setUIEnabled(value) {
+	_disable_UI = !value;
+};
+
+/**
+ * Callback to use
+ */
+CharSelectV3.onExitRequest = function onExitRequest() {};
+CharSelectV3.onDeleteReqDelay = function onDeleteReqDelay() {};
+CharSelectV3.onCancelDeleteRequest = function onCancelDeleteRequest() {};
+CharSelectV3.onDeleteRequest = function onDeleteRequest() {};
+CharSelectV3.onCreateRequest = function onCreateRequest() {};
+CharSelectV3.onConnectRequest = function onConnectRequest() {};
+
+/**
+ * Generic method to handle mousedown on arrow
+ *
+ * @param {number} value to move
+ */
+function genericArrowDown(value) {
+	return function (event) {
+		moveCursorTo((_index + _maxSlots + value) % _maxSlots);
 		event.stopImmediatePropagation();
 		return false;
 	};
+}
 
-	/**
-	 * Add players to window
-	 *
-	 * @param {object} pkt - packet structure
-	 */
-	CharSelectV3.setInfo = function setInfo(pkt) {
-		_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 9); // default 9 ?
-		_sex = pkt.sex;
-		_slots.length = 0;
-		_entitySlots.length = 0;
-		_list.length = 0;
-
-		if (pkt.charInfo) {
-			let i,
-				count = pkt.charInfo.length;
-			for (i = 0; i < count; ++i) {
-				CharSelectV3.addCharacter(pkt.charInfo[i]);
-
-				// Guess the max slot
-				// required if the client is < 20100413 and have more than 9 slots
-				_maxSlots = Math.max(_maxSlots, Math.floor(pkt.charInfo[i].CharNum / 3 + 1) * 3);
-			}
-		}
-
-		this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
-
-		moveCursorTo(_index);
+/**
+ * Generic method to handle mousedown on arrow
+ *
+ * @param {number} value to move
+ */
+function genericCanvasDown(value) {
+	return function (event) {
+		moveCursorTo(Math.floor(_index / 3) * 3 + value);
+		event.stopImmediatePropagation();
+		return false;
 	};
+}
 
-	function drawBall(btnList, index, sel) {
-		btnList.append(
-			'<button class="btn_pageinfo' +
-				index +
-				'" data-background="select_character/page_ball_empty.bmp" data-hover="select_character/page_ball_empty.bmp" data-down="select_character/page_ball_fill.bmp"></button><img width="8px" />'
+/**
+ * Press "cancel" or ESCAPE key
+ */
+function cancel() {
+	if (_disable_UI === false) {
+		UIManager.showPromptBox(
+			DB.getMessage(17),
+			'ok',
+			'cancel',
+			function () {
+				CharSelectV3.onExitRequest();
+			},
+			null
 		);
-		if (!sel) {
-			Client.loadFile(DB.INTERFACE_PATH + 'select_character/page_ball_empty.bmp', function (data) {
-				btnList.find('.btn_pageinfo' + index).css('backgroundImage', 'url("' + data + '")');
-			});
-		} else {
-			Client.loadFile(DB.INTERFACE_PATH + 'select_character/page_ball_fill.bmp', function (data) {
-				btnList.find('.btn_pageinfo' + index).css('backgroundImage', 'url("' + data + '")');
-			});
-		}
-
-		btnList.find('.btn_pageinfo' + index).css('border', '0');
-		btnList.find('.btn_pageinfo' + index).css('width', '8px');
-		btnList.find('.btn_pageinfo' + index).css('height', '8px');
-		btnList.find('.btn_pageinfo' + index).css('background-color', 'transparent');
 	}
+}
 
-	/**
-	 * Answer from server to delete a character
-	 *
-	 * @param {number} error id
-	 */
-	CharSelectV3.deleteAnswer = function DeleteAnswer(error) {
-		this.on('keydown');
+/**
+ * Jumping to Character creation window
+ */
+function create() {
+	if (_disable_UI === false) {
+		CharSelectV3.onCreateRequest(_index);
+	}
+}
 
-		switch (error) {
-			// Do nothing, just re-set the keydown
-			case -1:
-			case -2:
-				return;
-
-			// Success (clean up character)
-			case 1:
-				delete _slots[_index];
-				delete _entitySlots[_index];
-
-				let i = 0;
-				let count = _list.length;
-
-				while (i < count) {
-					if (_list[i].CharNum === _index) {
-						_list.splice(i, 1);
-						--count;
-					} else {
-						i++;
-					}
-				}
-
-				// Refresh UI
-				moveCursorTo(_index);
-				this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
-				return;
-
-			default: // Others error ?
-			case 0:
-			case 2: // 2: Due to system settings can not be deleted.
-			case 6: // 6: Name does not match.
-				UIManager.showMessageBox(DB.getMessage(1821), 'ok');
-				return;
-			case 3: // 3: A database error occurred.
-				UIManager.showMessageBox(DB.getMessage(1817), 'ok');
-				return;
-			case 4: // 4: Deleting not yet possible time.
-				UIManager.showMessageBox(DB.getMessage(1820), 'ok');
-				return;
-			case 5: // 5: Date of birth do not match.
-				UIManager.showMessageBox(DB.getMessage(1822), 'ok');
-				return;
-			case 7: // 7: Character Deletion has failed because you have entered an incorrect e-mail address.
-				UIManager.showMessageBox(DB.getMessage(301), 'ok');
-				return;
+/**
+ * Select Player, connect
+ */
+function connect() {
+	if (_disable_UI === false) {
+		if (_slots[_index]) {
+			_preferences.index = _index;
+			_preferences.save();
+			CharSelectV3.onConnectRequest(_slots[_index]);
 		}
-	};
+	}
+}
 
-	/**
-	 * Adding a Character to the list
-	 *
-	 * @param {object} character data
-	 */
-	CharSelectV3.addCharacter = function addCharacter(character) {
-		if (!('sex' in character) || character.sex === 99) {
-			character.sex = _sex;
-		}
+/**
+ * Format delay date time
+ */
+function formatDatetime(epoch) {
+	const datetime = new Date(0);
+	datetime.setSeconds(epoch);
 
-		//Adjust from remaining time to fixed datetime
-		if (character.DeleteDate) {
-			const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+	const year = datetime.getFullYear();
+	const month = datetime.getMonth() + 1;
+	const day = datetime.getDate();
+	const hours = datetime.getHours();
+	const minutes = datetime.getMinutes();
+	const seconds = datetime.getSeconds();
+
+	// Use the msgstringtable
+	const formattedDatetime = DB.getMessage(2097)
+		.replace('%d', `${month}`)
+		.replace('%d', `${day}`)
+		.replace('%d', `${hours}`)
+		.replace('%d', `${minutes}`)
+		.replace('%d', `${seconds}`);
+
+	return formattedDatetime;
+}
+
+/**
+ * Result of Request in Deleting the Character
+ *
+ * @param {object} pkt - packet structure
+ */
+CharSelectV3.reqdeleteAnswer = function ReqDelAnswer(pkt) {
+	this.on('keydown');
+	const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+	const result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
+	const info = _slots[_index];
+
+	switch (result) {
+		case 0: // 0: An unknown error has occurred.
+			return;
+
+		case 1: // 1: none/success
+			//Adjust from remaining time to fixed datetime
 			const timer =
 				(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
-					? character.DeleteDate + now
-					: character.DeleteDate;
-			character.DeleteDate = timer;
-		}
+					? pkt.DeleteReservedDate + now
+					: pkt.DeleteReservedDate;
+			info.DeleteDate = timer;
+			requestdelete(_index, timer);
+			break;
 
-		_list.push(character);
-		_slots[character.CharNum] = character;
+		case 3: // 3: A database error occurred.
+			return;
 
-		_entitySlots[character.CharNum] = new Entity();
-		_entitySlots[character.CharNum].set(character);
-		_entitySlots[character.CharNum].effectState =
-			_entitySlots[character.CharNum]._effectState & ~StatusConst.EffectState.INVISIBLE;
+		case 4: // 4: To delete a character you must withdraw from the guild.
+			UIManager.showMessageBox(DB.getMessage(1818), 'ok');
+			break;
+		case 5: // 5: To delete a character you must withdraw from the party.
+			UIManager.showMessageBox(DB.getMessage(1819), 'ok');
+			break;
 
-		if (_slots[character.CharNum].DeleteDate && Math.floor(_index / 3) == Math.floor(character.CharNum / 3)) {
-			const slotNum = ((character.CharNum + _maxSlots) % _maxSlots) + 1;
-			const countdown = this.ui.find('.timedelete.slot' + slotNum); // Adjusted selector
-			const entity = _entitySlots[character.CharNum];
-			if (countdown) {
-				countdown.attr('data-datetime', _slots[character.CharNum].DeleteDate);
-				countdown.text(formatDatetime(_slots[character.CharNum].DeleteDate));
-				countdown.show();
-			}
-			entity.setAction({
-				action: entity.ACTION.SIT,
-				frame: 0,
-				play: true,
-				repeat: true
-			});
-		}
-	};
-
-	/**
-	 * Disable or Enable the UI.
-	 *
-	 * @param {boolean}
-	 */
-	CharSelectV3.setUIEnabled = function setUIEnabled(value) {
-		_disable_UI = !value;
-	};
-
-	/**
-	 * Callback to use
-	 */
-	CharSelectV3.onExitRequest = function onExitRequest() {};
-	CharSelectV3.onDeleteReqDelay = function onDeleteReqDelay() {};
-	CharSelectV3.onCancelDeleteRequest = function onCancelDeleteRequest() {};
-	CharSelectV3.onDeleteRequest = function onDeleteRequest() {};
-	CharSelectV3.onCreateRequest = function onCreateRequest() {};
-	CharSelectV3.onConnectRequest = function onConnectRequest() {};
-
-	/**
-	 * Generic method to handle mousedown on arrow
-	 *
-	 * @param {number} value to move
-	 */
-	function genericArrowDown(value) {
-		return function (event) {
-			moveCursorTo((_index + _maxSlots + value) % _maxSlots);
-			event.stopImmediatePropagation();
-			return false;
-		};
+		default:
+			return;
 	}
+};
 
-	/**
-	 * Generic method to handle mousedown on arrow
-	 *
-	 * @param {number} value to move
-	 */
-	function genericCanvasDown(value) {
-		return function (event) {
-			moveCursorTo(Math.floor(_index / 3) * 3 + value);
-			event.stopImmediatePropagation();
-			return false;
-		};
-	}
-
-	/**
-	 * Press "cancel" or ESCAPE key
-	 */
-	function cancel() {
-		if (_disable_UI === false) {
-			UIManager.showPromptBox(
-				DB.getMessage(17),
-				'ok',
-				'cancel',
-				function () {
-					CharSelectV3.onExitRequest();
-				},
-				null
-			);
+/**
+ * When successfully requested for character deletion
+ * Update UI and add timer
+ */
+function requestdelete(index, timer) {
+	const entity = _entitySlots[index];
+	let action;
+	// Add the timer
+	const countdown = CharSelectV3.ui.find('.timedelete.slot' + ((index % 3) + 1));
+	if (countdown) {
+		countdown.attr('data-datetime', timer);
+		countdown.text(formatDatetime(timer));
+		countdown.show();
+		if (Math.floor(Date.now() / 1000) > timer) {
+			countdown.removeClass('waitdelete').addClass('candelete');
+			action = entity.ACTION.DIE;
+		} else {
+			countdown.removeClass('candelete').addClass('waitdelete');
+			action = entity.ACTION.SIT;
 		}
 	}
 
-	/**
-	 * Jumping to Character creation window
-	 */
-	function create() {
-		if (_disable_UI === false) {
-			CharSelectV3.onCreateRequest(_index);
-		}
+	// Set action
+	entity.action = action;
+
+	// Adjust the buttons
+	CharSelectV3.ui.find('.delete').hide();
+	CharSelectV3.ui.find('.canceldelete').show();
+	if (Math.floor(Date.now() / 1000) > timer) {
+		CharSelectV3.ui.find('.finaldelete').show();
+	} else {
+		CharSelectV3.ui.find('.finaldelete').hide();
 	}
+}
 
-	/**
-	 * Select Player, connect
-	 */
-	function connect() {
-		if (_disable_UI === false) {
-			if (_slots[_index]) {
-				_preferences.index = _index;
-				_preferences.save();
-				CharSelectV3.onConnectRequest(_slots[_index]);
-			}
-		}
-	}
+/**
+ * Cancel reservation of character for deletion
+ * Update UI and remove timer
+ */
+function removedelete() {
+	if (_slots[_index]) {
+		// Delete here as well? Though server should tell us this
+		_slots[_index].DeleteDate = 0;
 
-	/**
-	 * Format delay date time
-	 */
-	function formatDatetime(epoch) {
-		const datetime = new Date(0);
-		datetime.setSeconds(epoch);
+		// Make it stand
+		_entitySlots[_index].action = _entitySlots[_index].ACTION.READYFIGHT;
+		render();
 
-		const year = datetime.getFullYear();
-		const month = datetime.getMonth() + 1;
-		const day = datetime.getDate();
-		const hours = datetime.getHours();
-		const minutes = datetime.getMinutes();
-		const seconds = datetime.getSeconds();
-
-		// Use the msgstringtable
-		const formattedDatetime = DB.getMessage(2097)
-			.replace('%d', `${month}`)
-			.replace('%d', `${day}`)
-			.replace('%d', `${hours}`)
-			.replace('%d', `${minutes}`)
-			.replace('%d', `${seconds}`);
-
-		return formattedDatetime;
-	}
-
-	/**
-	 * Result of Request in Deleting the Character
-	 *
-	 * @param {object} pkt - packet structure
-	 */
-	CharSelectV3.reqdeleteAnswer = function ReqDelAnswer(pkt) {
-		this.on('keydown');
-		const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-		const result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
-		const info = _slots[_index];
-
-		switch (result) {
-			case 0: // 0: An unknown error has occurred.
-				return;
-
-			case 1: // 1: none/success
-				//Adjust from remaining time to fixed datetime
-				const timer =
-					(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
-						? pkt.DeleteReservedDate + now
-						: pkt.DeleteReservedDate;
-				info.DeleteDate = timer;
-				requestdelete(_index, timer);
-				break;
-
-			case 3: // 3: A database error occurred.
-				return;
-
-			case 4: // 4: To delete a character you must withdraw from the guild.
-				UIManager.showMessageBox(DB.getMessage(1818), 'ok');
-				break;
-			case 5: // 5: To delete a character you must withdraw from the party.
-				UIManager.showMessageBox(DB.getMessage(1819), 'ok');
-				break;
-
-			default:
-				return;
-		}
-	};
-
-	/**
-	 * When successfully requested for character deletion
-	 * Update UI and add timer
-	 */
-	function requestdelete(index, timer) {
-		const entity = _entitySlots[index];
-		let action;
-		// Add the timer
-		const countdown = CharSelectV3.ui.find('.timedelete.slot' + ((index % 3) + 1));
-		if (countdown) {
-			countdown.attr('data-datetime', timer);
-			countdown.text(formatDatetime(timer));
-			countdown.show();
-			if (Math.floor(Date.now() / 1000) > timer) {
-				countdown.removeClass('waitdelete').addClass('candelete');
-				action = entity.ACTION.DIE;
-			} else {
-				countdown.removeClass('candelete').addClass('waitdelete');
-				action = entity.ACTION.SIT;
-			}
-		}
-
-		// Set action
-		entity.action = action;
+		// Remove the timer
+		const countdown = CharSelectV3.ui.find('.timedelete.slot' + ((_index % 3) + 1)); // Adjusted selector
+		countdown.attr('data-datetime', 0);
+		countdown.text(formatDatetime(''));
+		countdown.hide();
 
 		// Adjust the buttons
-		CharSelectV3.ui.find('.delete').hide();
-		CharSelectV3.ui.find('.canceldelete').show();
-		if (Math.floor(Date.now() / 1000) > timer) {
-			CharSelectV3.ui.find('.finaldelete').show();
-		} else {
-			CharSelectV3.ui.find('.finaldelete').hide();
-		}
-	}
+		CharSelectV3.ui.find('.canceldelete').hide();
+		CharSelectV3.ui.find('.finaldelete').hide();
+		CharSelectV3.ui.find('.delete').show();
 
-	/**
-	 * Cancel reservation of character for deletion
-	 * Update UI and remove timer
-	 */
-	function removedelete() {
+		// Send request to the server
+		CharSelectV3.onCancelDeleteRequest(_slots[_index].GID);
+	}
+}
+
+/**
+ * Request to delete a character
+ */
+function reserve() {
+	if (_disable_UI === false) {
 		if (_slots[_index]) {
-			// Delete here as well? Though server should tell us this
-			_slots[_index].DeleteDate = 0;
-
-			// Make it stand
-			_entitySlots[_index].action = _entitySlots[_index].ACTION.READYFIGHT;
-			render();
-
-			// Remove the timer
-			const countdown = CharSelectV3.ui.find('.timedelete.slot' + ((_index % 3) + 1)); // Adjusted selector
-			countdown.attr('data-datetime', 0);
-			countdown.text(formatDatetime(''));
-			countdown.hide();
-
-			// Adjust the buttons
-			CharSelectV3.ui.find('.canceldelete').hide();
-			CharSelectV3.ui.find('.finaldelete').hide();
-			CharSelectV3.ui.find('.delete').show();
-
-			// Send request to the server
-			CharSelectV3.onCancelDeleteRequest(_slots[_index].GID);
+			CharSelectV3.off('keydown');
+			CharSelectV3.onDeleteReqDelay(_slots[_index].GID);
 		}
 	}
+}
 
-	/**
-	 * Request to delete a character
-	 */
-	function reserve() {
-		if (_disable_UI === false) {
-			if (_slots[_index]) {
-				CharSelectV3.off('keydown');
-				CharSelectV3.onDeleteReqDelay(_slots[_index].GID);
-			}
+/**
+ * Delete a character
+ */
+function suppress() {
+	if (_disable_UI === false) {
+		if (_slots[_index]) {
+			CharSelectV3.off('keydown');
+			CharSelectV3.onDeleteRequest(_slots[_index].GID);
 		}
 	}
+}
 
-	/**
-	 * Delete a character
-	 */
-	function suppress() {
-		if (_disable_UI === false) {
-			if (_slots[_index]) {
-				CharSelectV3.off('keydown');
-				CharSelectV3.onDeleteRequest(_slots[_index].GID);
-			}
-		}
-	}
+/**
+ * Move cursor, update window value
+ *
+ * @param {number} index
+ */
+function moveCursorTo(index) {
+	const ui = CharSelectV3.ui;
+	const $charinfo = ui.find('.charinfo');
 
-	/**
-	 * Move cursor, update window value
-	 *
-	 * @param {number} index
-	 */
-	function moveCursorTo(index) {
-		const ui = CharSelectV3.ui;
-		const $charinfo = ui.find('.charinfo');
-
-		// Set the last entity to idle
-		let entity = _entitySlots[_index];
-		let info = _slots[_index];
-		let action;
-		if (entity) {
-			if (info.DeleteDate) {
-				action = entity.ACTION.SIT;
-			} else {
-				action = entity.ACTION.IDLE;
-			}
-
-			entity.setAction({
-				action: action,
-				frame: 0,
-				play: true,
-				repeat: true
-			});
-		}
-
-		// Move
-		_index = (index + _maxSlots) % _maxSlots;
-		ui.find('.box_select')
-			.removeClass('slot1 slot2 slot3')
-			.addClass('slot' + ((_index % 3) + 1));
-
-		// Set page
-		// clear pageinfo
-		ui.find('.pageinfo .pagebtn').text('');
-
-		// draw pageinfo button
-		for (var i = 1; i <= _maxSlots / 3; i++) {
-			if (Math.floor(_index / 3) + 1 === i) {
-				drawBall(ui.find('.pageinfo .pagebtn'), i, true);
-			} else {
-				drawBall(ui.find('.pageinfo .pagebtn'), i, false);
-			}
-		}
-		// pageinfo position center
-		ui.find('.pageinfo').css('left', 576 / 2 - (_maxSlots / 3) * 8);
-
-		// show make add button
-		let mix = (index + 1) % 3 === 0 ? index + 1 - 3 : index + 1 - ((index + 1) % 3);
-		mix = mix >= _maxSlots ? 0 : mix;
-		for (var i = 1; i <= 3; i++) {
-			ui.find('.make' + i).hide();
-			if (!_entitySlots[mix + (i - 1)]) {
-				ui.find('.make' + i).show();
-			}
-		}
-
-		// Update page deltimes
-		for (let i = 0; i < 3; i++) {
-			const tmpIndex = _index - (_index % 3) + i;
-			info = _slots[tmpIndex];
-			entity = _entitySlots[tmpIndex];
-			const countdown = CharSelectV3.ui.find('.timedelete.slot' + ((tmpIndex % 3) + 1));
-
-			if (info && entity) {
-				if (info.DeleteDate) {
-					countdown.attr('data-datetime', info.DeleteDate);
-					countdown.text(formatDatetime(info.DeleteDate));
-					countdown.show();
-					if (Math.floor(Date.now() / 1000) > info.DeleteDate) {
-						countdown.removeClass('waitdelete').addClass('candelete');
-					} else {
-						countdown.removeClass('candelete').addClass('waitdelete');
-					}
-					entity.action = entity.ACTION.SIT;
-				} else {
-					countdown.attr('data-datetime', 0);
-					countdown.text(formatDatetime(''));
-					countdown.hide();
-					entity.action = entity.ACTION.IDLE;
-				}
-			} else {
-				countdown.attr('data-datetime', 0);
-				countdown.text(formatDatetime(''));
-				countdown.hide();
-			}
-		}
-
-		// Not found, just clean up.
-		entity = _entitySlots[_index];
-		if (!entity) {
-			$charinfo.find('div').empty();
-			ui.find('.make').show();
-			ui.find('.delete').hide();
-			ui.find('.canceldelete').hide();
-			ui.find('.finaldelete').hide();
-			ui.find('.ok').hide();
-			return;
-		}
-
-		info = _slots[_index];
-		// Bind new value
+	// Set the last entity to idle
+	let entity = _entitySlots[_index];
+	let info = _slots[_index];
+	let action;
+	if (entity) {
 		if (info.DeleteDate) {
-			ui.find('.delete').hide();
-			ui.find('.canceldelete').show();
-			if (Math.floor(Date.now() / 1000) > info.DeleteDate) {
-				ui.find('.finaldelete').show();
-				action = entity.ACTION.DIE;
-			} else {
-				ui.find('.finaldelete').hide();
-				action = entity.ACTION.SIT;
-			}
-			ui.find('.make').hide();
-			ui.find('.ok').show();
+			action = entity.ACTION.SIT;
 		} else {
-			ui.find('.delete').show();
-			ui.find('.canceldelete').hide();
-			ui.find('.finaldelete').hide();
-			ui.find('.make').hide();
-			ui.find('.ok').show();
-			action = entity.ACTION.READYFIGHT;
+			action = entity.ACTION.IDLE;
 		}
 
-		// Animate the character
 		entity.setAction({
 			action: action,
 			frame: 0,
 			play: true,
 			repeat: true
 		});
-
-		info = _slots[_index];
-		$charinfo.find('.name').text(info.name);
-		$charinfo.find('.job').text(MonsterTable[info.job] || '');
-		$charinfo.find('.lvl').text(info.level);
-		$charinfo.find('.exp').text(info.exp);
-		$charinfo.find('.hp').text(info.hp);
-		$charinfo.find('.sp').text(info.sp);
-
-		//TODO: Check win_select.bmp size to insert it if needed ?
-		$charinfo.find('.map').text(DB.getMapName(info.lastMap, '') || '');
-		$charinfo.find('.str').text(info.Str);
-		$charinfo.find('.agi').text(info.Agi);
-		$charinfo.find('.vit').text(info.Vit);
-		$charinfo.find('.int').text(info.Int);
-		$charinfo.find('.dex').text(info.Dex);
-		$charinfo.find('.luk').text(info.Luk);
 	}
 
-	/**
-	 * Render sprites to canvas
-	 */
-	function render() {
-		let i, count, idx;
+	// Move
+	_index = (index + _maxSlots) % _maxSlots;
+	ui.find('.box_select')
+		.removeClass('slot1 slot2 slot3')
+		.addClass('slot' + ((_index % 3) + 1));
 
-		Camera.direction = 4;
-		idx = Math.floor(_index / 3) * 3;
-		count = _ctx.length;
+	// Set page
+	// clear pageinfo
+	ui.find('.pageinfo .pagebtn').text('');
 
-		for (i = 0; i < count; ++i) {
-			_ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);
+	// draw pageinfo button
+	for (var i = 1; i <= _maxSlots / 3; i++) {
+		if (Math.floor(_index / 3) + 1 === i) {
+			drawBall(ui.find('.pageinfo .pagebtn'), i, true);
+		} else {
+			drawBall(ui.find('.pageinfo .pagebtn'), i, false);
+		}
+	}
+	// pageinfo position center
+	ui.find('.pageinfo').css('left', 576 / 2 - (_maxSlots / 3) * 8);
 
-			if (_entitySlots[idx + i]) {
-				SpriteRenderer.bind2DContext(_ctx[i], 63, 130);
-				_entitySlots[idx + i].renderEntity();
-			}
+	// show make add button
+	let mix = (index + 1) % 3 === 0 ? index + 1 - 3 : index + 1 - ((index + 1) % 3);
+	mix = mix >= _maxSlots ? 0 : mix;
+	for (var i = 1; i <= 3; i++) {
+		ui.find('.make' + i).hide();
+		if (!_entitySlots[mix + (i - 1)]) {
+			ui.find('.make' + i).show();
 		}
 	}
 
-	/**
-	 * Create componentand export it
-	 */
+	// Update page deltimes
+	for (let i = 0; i < 3; i++) {
+		const tmpIndex = _index - (_index % 3) + i;
+		info = _slots[tmpIndex];
+		entity = _entitySlots[tmpIndex];
+		const countdown = CharSelectV3.ui.find('.timedelete.slot' + ((tmpIndex % 3) + 1));
+
+		if (info && entity) {
+			if (info.DeleteDate) {
+				countdown.attr('data-datetime', info.DeleteDate);
+				countdown.text(formatDatetime(info.DeleteDate));
+				countdown.show();
+				if (Math.floor(Date.now() / 1000) > info.DeleteDate) {
+					countdown.removeClass('waitdelete').addClass('candelete');
+				} else {
+					countdown.removeClass('candelete').addClass('waitdelete');
+				}
+				entity.action = entity.ACTION.SIT;
+			} else {
+				countdown.attr('data-datetime', 0);
+				countdown.text(formatDatetime(''));
+				countdown.hide();
+				entity.action = entity.ACTION.IDLE;
+			}
+		} else {
+			countdown.attr('data-datetime', 0);
+			countdown.text(formatDatetime(''));
+			countdown.hide();
+		}
+	}
+
+	// Not found, just clean up.
+	entity = _entitySlots[_index];
+	if (!entity) {
+		$charinfo.find('div').empty();
+		ui.find('.make').show();
+		ui.find('.delete').hide();
+		ui.find('.canceldelete').hide();
+		ui.find('.finaldelete').hide();
+		ui.find('.ok').hide();
+		return;
+	}
+
+	info = _slots[_index];
+	// Bind new value
+	if (info.DeleteDate) {
+		ui.find('.delete').hide();
+		ui.find('.canceldelete').show();
+		if (Math.floor(Date.now() / 1000) > info.DeleteDate) {
+			ui.find('.finaldelete').show();
+			action = entity.ACTION.DIE;
+		} else {
+			ui.find('.finaldelete').hide();
+			action = entity.ACTION.SIT;
+		}
+		ui.find('.make').hide();
+		ui.find('.ok').show();
+	} else {
+		ui.find('.delete').show();
+		ui.find('.canceldelete').hide();
+		ui.find('.finaldelete').hide();
+		ui.find('.make').hide();
+		ui.find('.ok').show();
+		action = entity.ACTION.READYFIGHT;
+	}
+
+	// Animate the character
+	entity.setAction({
+		action: action,
+		frame: 0,
+		play: true,
+		repeat: true
+	});
+
+	info = _slots[_index];
+	$charinfo.find('.name').text(info.name);
+	$charinfo.find('.job').text(MonsterTable[info.job] || '');
+	$charinfo.find('.lvl').text(info.level);
+	$charinfo.find('.exp').text(info.exp);
+	$charinfo.find('.hp').text(info.hp);
+	$charinfo.find('.sp').text(info.sp);
+
+	//TODO: Check win_select.bmp size to insert it if needed ?
+	$charinfo.find('.map').text(DB.getMapName(info.lastMap, '') || '');
+	$charinfo.find('.str').text(info.Str);
+	$charinfo.find('.agi').text(info.Agi);
+	$charinfo.find('.vit').text(info.Vit);
+	$charinfo.find('.int').text(info.Int);
+	$charinfo.find('.dex').text(info.Dex);
+	$charinfo.find('.luk').text(info.Luk);
+}
+
+/**
+ * Render sprites to canvas
+ */
+function render() {
+	let i, count, idx;
+
+	Camera.direction = 4;
+	idx = Math.floor(_index / 3) * 3;
+	count = _ctx.length;
+
+	for (i = 0; i < count; ++i) {
+		_ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);
+
+		if (_entitySlots[idx + i]) {
+			SpriteRenderer.bind2DContext(_ctx[i], 63, 130);
+			_entitySlots[idx + i].renderEntity();
+		}
+	}
+}
+
+/**
+ * Create componentand export it
+ */
 export default UIManager.addComponent(CharSelectV3);

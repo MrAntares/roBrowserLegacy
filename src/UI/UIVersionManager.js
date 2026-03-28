@@ -124,4 +124,3 @@ UIVersionManager.getInventoryVersion = function () {
 };
 
 export default UIVersionManager;
-

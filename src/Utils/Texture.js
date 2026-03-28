@@ -183,4 +183,3 @@ Texture.removeMagenta = function removeMagenta(canvas) {
  * Export
  */
 export default Texture;
-

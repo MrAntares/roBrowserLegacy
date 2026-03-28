@@ -16,104 +16,87 @@ import UIManager from 'UI/UIManager';
 import UIComponent from 'UI/UIComponent';
 
 /**
-	 * Create Announce component
-	 */
-	const Announce = new UIComponent('Announce');
+ * Create Announce component
+ */
+const Announce = new UIComponent('Announce');
 
-	/**
-	 * Mouse can cross this UI
-	 */
-	Announce.mouseMode = UIComponent.MouseMode.CROSS;
+/**
+ * Mouse can cross this UI
+ */
+Announce.mouseMode = UIComponent.MouseMode.CROSS;
 
-	/**
-	 * @var {boolean} do not focus this UI
-	 */
-	Announce.needFocus = false;
+/**
+ * @var {boolean} do not focus this UI
+ */
+Announce.needFocus = false;
 
-	/**
-	 * @var {TimeOut} timer
-	 */
-	let _timer = 0;
+/**
+ * @var {TimeOut} timer
+ */
+let _timer = 0;
 
-	/**
-	 * @var {number} how many time the announce is display (20secs)
-	 */
-	const _life = 20 * 1000;
+/**
+ * @var {number} how many time the announce is display (20secs)
+ */
+const _life = 20 * 1000;
 
-	/**
-	 * Initialize component
-	 */
-	Announce.init = function init() {
-		this.canvas = document.createElement('canvas');
-		this.ctx = this.canvas.getContext('2d');
-		this.ui = jQuery(this.canvas);
+/**
+ * Initialize component
+ */
+Announce.init = function init() {
+	this.canvas = document.createElement('canvas');
+	this.ctx = this.canvas.getContext('2d');
+	this.ui = jQuery(this.canvas);
 
-		this.ui.attr('id', 'Announce').css({
-			position: 'absolute',
-			top: 40,
-			zIndex: 40
-		});
-	};
+	this.ui.attr('id', 'Announce').css({
+		position: 'absolute',
+		top: 40,
+		zIndex: 40
+	});
+};
 
-	/**
-	 * Once removed from HTML, clean timer
-	 */
-	Announce.onRemove = function onRemove() {
-		if (_timer) {
-			Events.clearTimeout(_timer);
-			_timer = 0;
-		}
-		this.ui.remove(); // Remove from DOM
-	};
+/**
+ * Once removed from HTML, clean timer
+ */
+Announce.onRemove = function onRemove() {
+	if (_timer) {
+		Events.clearTimeout(_timer);
+		_timer = 0;
+	}
+	this.ui.remove(); // Remove from DOM
+};
 
-	/**
-	 * Timer end, cleaning announce
-	 */
-	Announce.timeEnd = function timeEnd() {
-		this.remove();
-	};
+/**
+ * Timer end, cleaning announce
+ */
+Announce.timeEnd = function timeEnd() {
+	this.remove();
+};
 
-	/**
-	 * Add an announce with text and color
-	 *
-	 * @param {string} text to display
-	 * @param {string} color
-	 */
-	Announce.set = function set(text, color, allowNewlines = false) {
-		const fontSize = 12;
-		const maxWidth = 500;
-		const lines = [];
+/**
+ * Add an announce with text and color
+ *
+ * @param {string} text to display
+ * @param {string} color
+ */
+Announce.set = function set(text, color, allowNewlines = false) {
+	const fontSize = 12;
+	const maxWidth = 500;
+	const lines = [];
 
-		const width = 0;
-		let result;
-		let i, j, count;
+	const width = 0;
+	let result;
+	let i, j, count;
 
-		this.ctx.font = fontSize + 'px Arial';
+	this.ctx.font = fontSize + 'px Arial';
 
-		if (allowNewlines) {
-			// Process '\n' explicitly as a new line
-			text.split('\n').forEach(line => {
-				const words = line.split(' ');
-				let currentLine = '';
-
-				words.forEach(word => {
-					const testLine = currentLine + word + ' ';
-					if (this.ctx.measureText(testLine).width > maxWidth) {
-						lines.push(currentLine.trim());
-						currentLine = word + ' ';
-					} else {
-						currentLine = testLine;
-					}
-				});
-
-				if (currentLine.trim()) {
-					lines.push(currentLine.trim());
-				}
-			});
-		} else {
-			// Ignore '\n' and wrap text as a single block
+	if (allowNewlines) {
+		// Process '\n' explicitly as a new line
+		text.split('\n').forEach(line => {
+			const words = line.split(' ');
 			let currentLine = '';
-			text.split(' ').forEach(word => {
+
+			words.forEach(word => {
 				const testLine = currentLine + word + ' ';
 				if (this.ctx.measureText(testLine).width > maxWidth) {
 					lines.push(currentLine.trim());
@@ -126,35 +109,52 @@ import UIComponent from 'UI/UIComponent';
 			if (currentLine.trim()) {
 				lines.push(currentLine.trim());
 			}
-		}
-
-		// Get new canvas size
-		this.canvas.width = 20 + Math.max(...lines.map(line => this.ctx.measureText(line).width));
-		this.canvas.height = 10 + (fontSize + 5) * lines.length;
-		this.canvas.style.left = `${(Renderer.width - this.canvas.width) >> 1}px`;
-
-		// Updating canvas size resets font value
-		this.ctx.font = fontSize + 'px Arial';
-
-		// Display background
-		this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
-		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-		// Display text
-		this.ctx.fillStyle = color || '#FFFF00';
-		lines.forEach((line, index) => {
-			this.ctx.fillText(line, 10, 5 + fontSize + (fontSize + 5) * index);
+		});
+	} else {
+		// Ignore '\n' and wrap text as a single block
+		let currentLine = '';
+		text.split(' ').forEach(word => {
+			const testLine = currentLine + word + ' ';
+			if (this.ctx.measureText(testLine).width > maxWidth) {
+				lines.push(currentLine.trim());
+				currentLine = word + ' ';
+			} else {
+				currentLine = testLine;
+			}
 		});
 
-		// Start timer
-		if (_timer) {
-			Events.clearTimeout(_timer);
+		if (currentLine.trim()) {
+			lines.push(currentLine.trim());
 		}
+	}
 
-		_timer = Events.setTimeout(this.timeEnd.bind(this), _life);
-	};
+	// Get new canvas size
+	this.canvas.width = 20 + Math.max(...lines.map(line => this.ctx.measureText(line).width));
+	this.canvas.height = 10 + (fontSize + 5) * lines.length;
+	this.canvas.style.left = `${(Renderer.width - this.canvas.width) >> 1}px`;
 
-	/**
-	 * Create component and return it
-	 */
+	// Updating canvas size resets font value
+	this.ctx.font = fontSize + 'px Arial';
+
+	// Display background
+	this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
+	this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+	// Display text
+	this.ctx.fillStyle = color || '#FFFF00';
+	lines.forEach((line, index) => {
+		this.ctx.fillText(line, 10, 5 + fontSize + (fontSize + 5) * index);
+	});
+
+	// Start timer
+	if (_timer) {
+		Events.clearTimeout(_timer);
+	}
+
+	_timer = Events.setTimeout(this.timeEnd.bind(this), _life);
+};
+
+/**
+ * Create component and return it
+ */
 export default UIManager.addComponent(Announce);

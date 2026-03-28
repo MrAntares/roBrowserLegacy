@@ -357,4 +357,3 @@ BasicInfoV0.update = function update(type, val1, val2) {
  * Create component and export it
  */
 export default UIManager.addComponent(BasicInfoV0);
-

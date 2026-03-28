@@ -27,4 +27,3 @@ const versionInfo = {
 const Controller = UIVersionManager.getUIController(publicName, versionInfo);
 
 export default Controller;
-

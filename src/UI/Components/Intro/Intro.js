@@ -120,7 +120,9 @@ Intro.init = function init() {
 	ui.find('.clean').click(function () {
 		const parent = jQuery(this).hide().parent();
 		parent.append(
-			'<span><img src="' + new URL('./images/loading.gif', import.meta.url).href + '"/> <i>Cleaning cache...</i></span>'
+			'<span><img src="' +
+				new URL('./images/loading.gif', import.meta.url).href +
+				'"/> <i>Cleaning cache...</i></span>'
 		);
 
 		FileSystem.cleanup(function () {
@@ -254,8 +256,12 @@ function preloadImages() {
 			'#intro .ribbon { background-image:url(' + new URL('./images/ribbon.png', import.meta.url).href + '); }',
 			'#intro .box { background-image:url(' + new URL('./images/box.jpg', import.meta.url).href + '); }',
 			'#intro .btn_play { background-image:url(' + new URL('./images/play.png', import.meta.url).href + '); }',
-			'#intro .btn_play:hover { background-image:url(' + new URL('./images/play-down.png', import.meta.url).href + '); }',
-			'#intro .btn_add { background-image:url(' + new URL('./images/add-server.jpg', import.meta.url).href + '); }',
+			'#intro .btn_play:hover { background-image:url(' +
+				new URL('./images/play-down.png', import.meta.url).href +
+				'); }',
+			'#intro .btn_add { background-image:url(' +
+				new URL('./images/add-server.jpg', import.meta.url).href +
+				'); }',
 			'#intro .btn_save { background-image:url(' + new URL('./images/save.jpg', import.meta.url).href + '); }',
 			'#intro .btn_delete { background-image:url(' + new URL('./images/delete.png', import.meta.url).href + '); }'
 		].join('\n')
@@ -385,4 +391,3 @@ Intro.onFilesSubmit = function OnFilesSubmit() {};
  * Stored component and return it
  */
 export default UIManager.addComponent(Intro);
-

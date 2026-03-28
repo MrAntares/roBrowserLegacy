@@ -9,43 +9,43 @@ import SpriteRenderer from 'Renderer/SpriteRenderer';
 import Configs from '../../Core/Configs';
 
 // Load dependencies
-	/**
-	 * @var {WebGLTexture}
-	 */
-	let _texture;
+/**
+ * @var {WebGLTexture}
+ */
+let _texture;
 
-	/**
-	 * @var {WebGLProgram}
-	 */
-	let _program;
+/**
+ * @var {WebGLProgram}
+ */
+let _program;
 
-	/**
-	 * @var {WebGLBuffer}
-	 */
-	let _buffer;
+/**
+ * @var {WebGLBuffer}
+ */
+let _buffer;
 
-	/**
-	 * @var {mat4}
-	 */
-	const mat4 = glMatrix.mat4;
+/**
+ * @var {mat4}
+ */
+const mat4 = glMatrix.mat4;
 
-	const _rotationMatrices = (function () {
-		const matrices = [];
-		for (let i = 0; i < 5; i++) {
-			matrices.push({
-				posMat: mat4.create(),
-				texMat: mat4.create()
-			});
-		}
-		return matrices;
-	})();
+const _rotationMatrices = (function () {
+	const matrices = [];
+	for (let i = 0; i < 5; i++) {
+		matrices.push({
+			posMat: mat4.create(),
+			texMat: mat4.create()
+		});
+	}
+	return matrices;
+})();
 
-	const _textureMatrix = mat4.create();
+const _textureMatrix = mat4.create();
 
-	/**
-	 * @var {string} Vertex Shader
-	 */
-	const _vertexShader = `
+/**
+ * @var {string} Vertex Shader
+ */
+const _vertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -80,10 +80,10 @@ import Configs from '../../Core/Configs';
             vTextureCoord  = aTextureCoord;
         }`;
 
-	/**
-	 * @var {string} Fragment Shader
-	 */
-	const _fragmentShader = `
+/**
+ * @var {string} Fragment Shader
+ */
+const _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -108,213 +108,213 @@ import Configs from '../../Core/Configs';
 
         }`;
 
-	const WLS = {
-		FIRE: 68, // WLS_FIRE
-		WIND: 69, // WLS_WIND
-		WATER: 70, // WLS_WATER
-		STONE: 71 // WLS_STONE
-	};
+const WLS = {
+	FIRE: 68, // WLS_FIRE
+	WIND: 69, // WLS_WIND
+	WATER: 70, // WLS_WATER
+	STONE: 71 // WLS_STONE
+};
 
-	const SphereFiles = [];
-	SphereFiles[WLS.FIRE] = 'fireorb.bmp';
-	SphereFiles[WLS.WIND] = 'lightningorb.bmp';
-	SphereFiles[WLS.WATER] = 'waterorb.bmp';
-	SphereFiles[WLS.STONE] = 'stoneorb.bmp';
+const SphereFiles = [];
+SphereFiles[WLS.FIRE] = 'fireorb.bmp';
+SphereFiles[WLS.WIND] = 'lightningorb.bmp';
+SphereFiles[WLS.WATER] = 'waterorb.bmp';
+SphereFiles[WLS.STONE] = 'stoneorb.bmp';
 
-	function WarlockSphere(entity, spheres) {
-		this.position = entity.position;
-		this.spheres = spheres ? spheres : [];
+function WarlockSphere(entity, spheres) {
+	this.position = entity.position;
+	this.spheres = spheres ? spheres : [];
 
-		this.initialAlpha = 0;
+	this.initialAlpha = 0;
+}
+
+WarlockSphere.prototype.init = function init(gl) {
+	this.ready = true;
+};
+
+WarlockSphere.prototype.free = function free(gl) {
+	this.ready = false;
+};
+
+WarlockSphere.renderBeforeEntities = false;
+
+WarlockSphere.init = function init(gl) {
+	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+	_buffer = gl.createBuffer();
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+	gl.bufferData(
+		gl.ARRAY_BUFFER,
+		new Float32Array([
+			-1.0, -1.0, 0.0, 0.0, +1.0, -1.0, 1.0, 0.0, +1.0, +1.0, 1.0, 1.0, +1.0, +1.0, 1.0, 1.0, -1.0, +1.0, 0.0,
+			1.0, -1.0, -1.0, 0.0, 0.0
+		]),
+		gl.STATIC_DRAW
+	);
+
+	Client.loadFile('data/texture/effect/thunder_center.bmp', function (buffer) {
+		Texture.load(buffer, function () {
+			const enableMipmap = Configs.get('enableMipmap');
+			const ctx = this.getContext('2d');
+			ctx.save();
+			ctx.translate(this.width / 2, this.height / 2);
+			// ctx.rotate( 45 / 180 * Math.PI);
+			ctx.translate(-this.width / 2, -this.height / 2);
+			ctx.drawImage(this, 0, 0);
+			ctx.restore();
+
+			_texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, _texture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			if (enableMipmap) {
+				gl.generateMipmap(gl.TEXTURE_2D);
+			}
+
+			WarlockSphere.ready = true;
+		});
+	});
+};
+
+WarlockSphere.free = function free(gl) {
+	if (_texture) {
+		gl.deleteTexture(_texture);
+		_texture = null;
 	}
 
-	WarlockSphere.prototype.init = function init(gl) {
-		this.ready = true;
-	};
+	if (_program) {
+		gl.deleteProgram(_program);
+		_program = null;
+	}
 
-	WarlockSphere.prototype.free = function free(gl) {
-		this.ready = false;
-	};
+	if (_buffer) {
+		gl.deleteBuffer(_buffer);
+	}
 
-	WarlockSphere.renderBeforeEntities = false;
+	this.ready = false;
+};
 
-	WarlockSphere.init = function init(gl) {
-		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-		_buffer = gl.createBuffer();
+WarlockSphere.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
+	const uniform = _program.uniform;
+	const attribute = _program.attribute;
+	gl.useProgram(_program);
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		gl.bufferData(
-			gl.ARRAY_BUFFER,
-			new Float32Array([
-				-1.0, -1.0, 0.0, 0.0, +1.0, -1.0, 1.0, 0.0, +1.0, +1.0, 1.0, 1.0, +1.0, +1.0, 1.0, 1.0, -1.0, +1.0, 0.0,
-				1.0, -1.0, -1.0, 0.0, 0.0
-			]),
-			gl.STATIC_DRAW
-		);
+	let _matrix, offset;
+	for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
+		const vcRad = ((Camera.angle[0] - 90) * Math.PI) / 180;
+		const hcRad = (Camera.angle[1] * Math.PI) / 180;
+		offset = (i * 2 * Math.PI) / _rotationMatrices.length;
+		const rotRad = offset - (tick / 64 / 180) * Math.PI;
 
-		Client.loadFile('data/texture/effect/thunder_center.bmp', function (buffer) {
-			Texture.load(buffer, function () {
-				const enableMipmap = Configs.get('enableMipmap');
-				const ctx = this.getContext('2d');
-				ctx.save();
-				ctx.translate(this.width / 2, this.height / 2);
-				// ctx.rotate( 45 / 180 * Math.PI);
-				ctx.translate(-this.width / 2, -this.height / 2);
-				ctx.drawImage(this, 0, 0);
-				ctx.restore();
+		//_matrix = _rotationMatrices[i].texMat;
+		//mat4.identity(_matrix);
+		const textureMatrix = mat4.create();
+		mat4.rotateX(_rotationMatrices[i].texMat, textureMatrix, vcRad);
+		mat4.rotateY(_rotationMatrices[i].texMat, _rotationMatrices[i].texMat, hcRad - rotRad);
 
-				_texture = gl.createTexture();
-				gl.bindTexture(gl.TEXTURE_2D, _texture);
-				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-				if (enableMipmap) {
-					gl.generateMipmap(gl.TEXTURE_2D);
-				}
+		_matrix = _rotationMatrices[i].posMat;
+		mat4.identity(_matrix);
+		mat4.rotateY(_matrix, _matrix, rotRad);
+	}
 
-				WarlockSphere.ready = true;
-			});
-		});
-	};
+	// Bind matrix
+	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 
-	WarlockSphere.free = function free(gl) {
-		if (_texture) {
-			gl.deleteTexture(_texture);
-			_texture = null;
-		}
+	// Texture
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, _texture);
+	gl.uniform1i(uniform.uDiffuse, 0);
 
-		if (_program) {
-			gl.deleteProgram(_program);
-			_program = null;
-		}
+	// Enable all attributes
+	gl.enableVertexAttribArray(attribute.aPosition);
+	gl.enableVertexAttribArray(attribute.aTextureCoord);
 
-		if (_buffer) {
-			gl.deleteBuffer(_buffer);
-		}
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
-		this.ready = false;
-	};
+	gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
+	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
+};
 
-	WarlockSphere.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		const uniform = _program.uniform;
-		const attribute = _program.attribute;
-		gl.useProgram(_program);
+WarlockSphere.prototype.render = function render(gl, tick) {
+	const uniform = _program.uniform;
 
-		let _matrix, offset;
-		for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
-			const vcRad = ((Camera.angle[0] - 90) * Math.PI) / 180;
-			const hcRad = (Camera.angle[1] * Math.PI) / 180;
-			offset = (i * 2 * Math.PI) / _rotationMatrices.length;
-			const rotRad = offset - (tick / 64 / 180) * Math.PI;
+	gl.uniform3fv(uniform.uPosition, this.position);
 
-			//_matrix = _rotationMatrices[i].texMat;
-			//mat4.identity(_matrix);
-			const textureMatrix = mat4.create();
-			mat4.rotateX(_rotationMatrices[i].texMat, textureMatrix, vcRad);
-			mat4.rotateY(_rotationMatrices[i].texMat, _rotationMatrices[i].texMat, hcRad - rotRad);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 
-			_matrix = _rotationMatrices[i].posMat;
-			mat4.identity(_matrix);
-			mat4.rotateY(_matrix, _matrix, rotRad);
-		}
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
-		// Bind matrix
-		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+	gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
 
-		// Texture
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, _texture);
-		gl.uniform1i(uniform.uDiffuse, 0);
+	let _matrix;
+	const self = this;
+	SpriteRenderer.runWithDepth(false, true, false, function () {
+		for (let i = self.spheres.length; i > 0; i--) {
+			_matrix = _rotationMatrices[i % _rotationMatrices.length];
 
-		// Enable all attributes
-		gl.enableVertexAttribArray(attribute.aPosition);
-		gl.enableVertexAttribArray(attribute.aTextureCoord);
+			gl.uniformMatrix4fv(uniform.uTextureRotMat, false, _matrix.texMat);
+			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix.posMat);
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-
-		gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
-		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-	};
-
-	WarlockSphere.prototype.render = function render(gl, tick) {
-		const uniform = _program.uniform;
-
-		gl.uniform3fv(uniform.uPosition, this.position);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-
-		gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
-
-		let _matrix;
-		const self = this;
-		SpriteRenderer.runWithDepth(false, true, false, function () {
-			for (let i = self.spheres.length; i > 0; i--) {
-				_matrix = _rotationMatrices[i % _rotationMatrices.length];
-
-				gl.uniformMatrix4fv(uniform.uTextureRotMat, false, _matrix.texMat);
-				gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix.posMat);
-
-				if (i > 10) {
-					if (self.isCoin) {
-						gl.uniform1f(uniform.uSize, 0.3);
-						gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.2 * self.initialAlpha]);
-					} else {
-						gl.uniform1f(uniform.uSize, 0.55);
-						gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 0.2 * self.initialAlpha]);
-					}
-
-					gl.uniform1f(uniform.uZIndex, 0.0);
-					gl.drawArrays(gl.TRIANGLES, 0, 6);
-				} else if (i > 5) {
-					if (self.isCoin) {
-						gl.uniform1f(uniform.uSize, 0.2);
-						gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.4 * self.initialAlpha]);
-					} else {
-						gl.uniform1f(uniform.uSize, 0.35);
-						gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 0.6 * self.initialAlpha]);
-					}
-
-					gl.uniform1f(uniform.uZIndex, 0.01);
-					gl.drawArrays(gl.TRIANGLES, 0, 6);
+			if (i > 10) {
+				if (self.isCoin) {
+					gl.uniform1f(uniform.uSize, 0.3);
+					gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.2 * self.initialAlpha]);
 				} else {
-					if (self.isCoin) {
-						gl.uniform1f(uniform.uSize, 0.1);
-						gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.6 * self.initialAlpha]);
-					} else {
-						gl.uniform1f(uniform.uSize, 0.25);
-						gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 1.0 * self.initialAlpha]);
-					}
-					gl.uniform1f(uniform.uZIndex, 0.02);
-					gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-					if (self.isCoin) {
-						gl.uniform1f(uniform.uSize, 0.05);
-						gl.uniform4fv(uniform.uColor, [1.0, 1.0, 0.7, 1.0 * self.initialAlpha]);
-					} else {
-						gl.uniform1f(uniform.uSize, 0.15);
-						gl.uniform4fv(uniform.uColor, [0.8, 0.8, 1.0, 1.0 * self.initialAlpha]);
-					}
-					gl.uniform1f(uniform.uZIndex, 0.03);
-					gl.drawArrays(gl.TRIANGLES, 0, 6);
+					gl.uniform1f(uniform.uSize, 0.55);
+					gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 0.2 * self.initialAlpha]);
 				}
+
+				gl.uniform1f(uniform.uZIndex, 0.0);
+				gl.drawArrays(gl.TRIANGLES, 0, 6);
+			} else if (i > 5) {
+				if (self.isCoin) {
+					gl.uniform1f(uniform.uSize, 0.2);
+					gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.4 * self.initialAlpha]);
+				} else {
+					gl.uniform1f(uniform.uSize, 0.35);
+					gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 0.6 * self.initialAlpha]);
+				}
+
+				gl.uniform1f(uniform.uZIndex, 0.01);
+				gl.drawArrays(gl.TRIANGLES, 0, 6);
+			} else {
+				if (self.isCoin) {
+					gl.uniform1f(uniform.uSize, 0.1);
+					gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.6 * self.initialAlpha]);
+				} else {
+					gl.uniform1f(uniform.uSize, 0.25);
+					gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 1.0 * self.initialAlpha]);
+				}
+				gl.uniform1f(uniform.uZIndex, 0.02);
+				gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+				if (self.isCoin) {
+					gl.uniform1f(uniform.uSize, 0.05);
+					gl.uniform4fv(uniform.uColor, [1.0, 1.0, 0.7, 1.0 * self.initialAlpha]);
+				} else {
+					gl.uniform1f(uniform.uSize, 0.15);
+					gl.uniform4fv(uniform.uColor, [0.8, 0.8, 1.0, 1.0 * self.initialAlpha]);
+				}
+				gl.uniform1f(uniform.uZIndex, 0.03);
+				gl.drawArrays(gl.TRIANGLES, 0, 6);
 			}
-		});
-
-		if (this.initialAlpha < 1) {
-			this.initialAlpha = Math.min(this.initialAlpha + 0.005, 1);
 		}
-	};
+	});
 
-	WarlockSphere.afterRender = function afterRender(gl) {
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.disableVertexAttribArray(_program.attribute.aPosition);
-		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
-	};
+	if (this.initialAlpha < 1) {
+		this.initialAlpha = Math.min(this.initialAlpha + 0.005, 1);
+	}
+};
 
-	/**
-	 * Export 
-	 */
-	export default WarlockSphere;
+WarlockSphere.afterRender = function afterRender(gl) {
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	gl.disableVertexAttribArray(_program.attribute.aPosition);
+	gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
+};
+
+/**
+ * Export
+ */
+export default WarlockSphere;

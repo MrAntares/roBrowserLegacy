@@ -14,29 +14,29 @@ import PACKET from 'Network/PacketStructure';
 import CashShop from 'UI/Components/CashShop/CashShop';
 
 /**
-	 * Load dependencies
-	 */
-	function onOpenCashShop(pkt) {
-		CashShop.readPoints(pkt.cashPoints, pkt.kafraPoints, pkt.tab);
-		CashShop.prepare();
-		CashShop.append();
-	}
+ * Load dependencies
+ */
+function onOpenCashShop(pkt) {
+	CashShop.readPoints(pkt.cashPoints, pkt.kafraPoints, pkt.tab);
+	CashShop.prepare();
+	CashShop.append();
+}
 
-	function onOpenReqCashShopItemList(pkt) {
-		CashShop.readCashShopItems(pkt);
-	}
+function onOpenReqCashShopItemList(pkt) {
+	CashShop.readCashShopItems(pkt);
+}
 
-	function onSuccessCashShopBuyList(pkt) {
-		CashShop.setSuccessCashShopUpdate(pkt);
-	}
+function onSuccessCashShopBuyList(pkt) {
+	CashShop.setSuccessCashShopUpdate(pkt);
+}
 
-	/**
-	 * Initialize
-	 */
+/**
+ * Initialize
+ */
 export default function MainEngine() {
-		Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN, onOpenCashShop);
-		Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN2, onOpenCashShop);
-		Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN3, onOpenCashShop); // old with no tab
-		Network.hookPacket(PACKET.ZC.ACK_SCHEDULER_CASHITEM, onOpenReqCashShopItemList);
-		Network.hookPacket(PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT, onSuccessCashShopBuyList);
-	};
+	Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN, onOpenCashShop);
+	Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN2, onOpenCashShop);
+	Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN3, onOpenCashShop); // old with no tab
+	Network.hookPacket(PACKET.ZC.ACK_SCHEDULER_CASHITEM, onOpenReqCashShopItemList);
+	Network.hookPacket(PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT, onSuccessCashShopBuyList);
+}

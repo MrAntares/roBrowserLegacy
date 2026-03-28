@@ -19,131 +19,131 @@ import htmlText from './SoundOption.html?raw';
 import cssText from './SoundOption.css?raw';
 
 /**
-	 * Create Sound Settings Component
-	 */
-	const SoundOption = new UIComponent('SoundOption', htmlText, cssText);
+ * Create Sound Settings Component
+ */
+const SoundOption = new UIComponent('SoundOption', htmlText, cssText);
 
-	/**
-	 * @var {Preferences} window option
-	 */
-	const _preferences = Preferences.get(
-		'SoundOption',
-		{
-			x: 300,
-			y: 300
-		},
-		1.0
-	);
+/**
+ * @var {Preferences} window option
+ */
+const _preferences = Preferences.get(
+	'SoundOption',
+	{
+		x: 300,
+		y: 300
+	},
+	1.0
+);
 
-	/**
-	 * Initialize UI
-	 */
-	SoundOption.init = function init() {
-		this.ui.find('.base').mousedown(stopPropagation);
-		this.ui.find('.close').click(onClose);
+/**
+ * Initialize UI
+ */
+SoundOption.init = function init() {
+	this.ui.find('.base').mousedown(stopPropagation);
+	this.ui.find('.close').click(onClose);
 
-		this.ui.find('.sound').change(onSoundVolumeUpdate);
-		this.ui.find('.bgm').change(onBGMVolumeUpdate);
+	this.ui.find('.sound').change(onSoundVolumeUpdate);
+	this.ui.find('.bgm').change(onBGMVolumeUpdate);
 
-		this.ui.find('.sound_state').change(onToggleSound);
-		this.ui.find('.bgm_state').change(onToggleBGM);
+	this.ui.find('.sound_state').change(onToggleSound);
+	this.ui.find('.bgm_state').change(onToggleBGM);
 
-		this.draggable(this.ui.find('.titlebar'));
-	};
+	this.draggable(this.ui.find('.titlebar'));
+};
 
-	/**
-	 * When append the element to html
-	 * Execute elements in memory
-	 */
-	SoundOption.onAppend = function onAppend() {
-		this.ui.css({
-			top: _preferences.y,
-			left: _preferences.x
-		});
+/**
+ * When append the element to html
+ * Execute elements in memory
+ */
+SoundOption.onAppend = function onAppend() {
+	this.ui.css({
+		top: _preferences.y,
+		left: _preferences.x
+	});
 
-		this.ui.find('.sound').val(AudioSettings.Sound.volume * 100);
-		this.ui.find('.bgm').val(AudioSettings.BGM.volume * 100);
-		this.ui.find('.sound_state')[0].checked = AudioSettings.Sound.play;
-		this.ui.find('.bgm_state')[0].checked = AudioSettings.BGM.play;
-	};
+	this.ui.find('.sound').val(AudioSettings.Sound.volume * 100);
+	this.ui.find('.bgm').val(AudioSettings.BGM.volume * 100);
+	this.ui.find('.sound_state')[0].checked = AudioSettings.Sound.play;
+	this.ui.find('.bgm_state')[0].checked = AudioSettings.BGM.play;
+};
 
-	/**
-	 * Once remove, save preferences
-	 */
-	SoundOption.onRemove = function onRemove() {
-		_preferences.x = parseInt(this.ui.css('left'), 10);
-		_preferences.y = parseInt(this.ui.css('top'), 10);
-		_preferences.save();
-	};
+/**
+ * Once remove, save preferences
+ */
+SoundOption.onRemove = function onRemove() {
+	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.save();
+};
 
-	/**
-	 * Stop event propagation
-	 */
-	function stopPropagation(event) {
-		event.stopImmediatePropagation();
-		return false;
-	}
+/**
+ * Stop event propagation
+ */
+function stopPropagation(event) {
+	event.stopImmediatePropagation();
+	return false;
+}
 
-	/**
-	 * Close the UI
-	 */
-	function onClose() {
-		SoundOption.remove();
-	}
+/**
+ * Close the UI
+ */
+function onClose() {
+	SoundOption.remove();
+}
 
-	/**
-	 * Update sound volume
-	 */
-	function onSoundVolumeUpdate() {
-		AudioSettings.Sound.volume = parseInt(this.value, 10) / 100;
-		AudioSettings.save();
+/**
+ * Update sound volume
+ */
+function onSoundVolumeUpdate() {
+	AudioSettings.Sound.volume = parseInt(this.value, 10) / 100;
+	AudioSettings.save();
 
+	SoundManager.setVolume(AudioSettings.Sound.volume);
+}
+
+/**
+ * Toggle sound (on/off)
+ */
+function onToggleSound() {
+	const oldVolume = AudioSettings.Sound.volume;
+	AudioSettings.Sound.play = this.checked;
+
+	if (AudioSettings.Sound.play) {
 		SoundManager.setVolume(AudioSettings.Sound.volume);
+	} else {
+		SoundManager.setVolume(0);
+		SoundManager.stop();
 	}
 
-	/**
-	 * Toggle sound (on/off)
-	 */
-	function onToggleSound() {
-		const oldVolume = AudioSettings.Sound.volume;
-		AudioSettings.Sound.play = this.checked;
+	AudioSettings.Sound.volume = oldVolume; // setVolume modify the value, get it back
+	AudioSettings.save();
+}
 
-		if (AudioSettings.Sound.play) {
-			SoundManager.setVolume(AudioSettings.Sound.volume);
-		} else {
-			SoundManager.setVolume(0);
-			SoundManager.stop();
-		}
+/**
+ * Update BGM volume
+ */
+function onBGMVolumeUpdate() {
+	AudioSettings.BGM.volume = parseInt(this.value, 10) / 100;
+	AudioSettings.save();
 
-		AudioSettings.Sound.volume = oldVolume; // setVolume modify the value, get it back
-		AudioSettings.save();
+	AudioManager.setVolume(AudioSettings.BGM.volume);
+}
+
+/**
+ * Toggle BGM (on/off)
+ */
+function onToggleBGM() {
+	AudioSettings.BGM.play = this.checked;
+	AudioSettings.save();
+
+	if (AudioSettings.BGM.play) {
+		AudioManager.play(AudioManager.filename);
+	} else {
+		AudioManager.stop();
 	}
+}
 
-	/**
-	 * Update BGM volume
-	 */
-	function onBGMVolumeUpdate() {
-		AudioSettings.BGM.volume = parseInt(this.value, 10) / 100;
-		AudioSettings.save();
-
-		AudioManager.setVolume(AudioSettings.BGM.volume);
-	}
-
-	/**
-	 * Toggle BGM (on/off)
-	 */
-	function onToggleBGM() {
-		AudioSettings.BGM.play = this.checked;
-		AudioSettings.save();
-
-		if (AudioSettings.BGM.play) {
-			AudioManager.play(AudioManager.filename);
-		} else {
-			AudioManager.stop();
-		}
-	}
-
-	/**
-	 * Create component and export it
-	 */
+/**
+ * Create component and export it
+ */
 export default UIManager.addComponent(SoundOption);

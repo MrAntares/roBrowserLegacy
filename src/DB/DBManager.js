@@ -2261,7 +2261,8 @@ function loadItemDBTable(filename, callback, onEnd) {
 
 				// create required functions in context
 				ctx.AddDBItemName = (baseItem, itemID) => {
-					const decoded_baseItem = baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
+					const decoded_baseItem =
+						baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
 					ItemDBNameTbl[decoded_baseItem] = itemID;
 					return 1;
 				};
@@ -2332,7 +2333,8 @@ function loadItemReformFile(filename, callback, onEnd) {
 					PreserveSocketItem,
 					PreserveGrade
 				) => {
-					const decoded_BaseItem = BaseItem && BaseItem.length > 1 ? userStringDecoder.decode(BaseItem) : null;
+					const decoded_BaseItem =
+						BaseItem && BaseItem.length > 1 ? userStringDecoder.decode(BaseItem) : null;
 					const decoded_ResultItem =
 						ResultItem && ResultItem.length > 1 ? userStringDecoder.decode(ResultItem) : null;
 					const decoded_RandomOptionCode =
@@ -2367,7 +2369,8 @@ function loadItemReformFile(filename, callback, onEnd) {
 				};
 
 				ctx.ReformInfoAddMaterial = (key, Material, Amount) => {
-					const decoded_Material = Material && Material.length > 1 ? userStringDecoder.decode(Material) : null;
+					const decoded_Material =
+						Material && Material.length > 1 ? userStringDecoder.decode(Material) : null;
 					ItemReformTable.ReformInfo[key].Materials.push({
 						Material: decoded_Material,
 						Amount: Amount,
@@ -2377,7 +2380,8 @@ function loadItemReformFile(filename, callback, onEnd) {
 				};
 
 				ctx.AddReformItem = (baseItem, itemID) => {
-					const decoded_baseItem = baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
+					const decoded_baseItem =
+						baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
 					if (!ItemReformTable.ReformItemList[decoded_baseItem]) {
 						ItemReformTable.ReformItemList[decoded_baseItem] = [];
 					}

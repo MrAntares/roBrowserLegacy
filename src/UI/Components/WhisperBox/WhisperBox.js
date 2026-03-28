@@ -71,14 +71,18 @@ WhisperBox.init = function () {
 	});
 
 	// Handle nickname clicks (open chat)
-	jQuery(document).on('click.whisperbox', '.whisperbox .nickname-link, .whisper-container .nickname-link', function (event) {
-		const nickname = jQuery(this).attr('data-nickname') || jQuery(this).data('nickname');
-		if (nickname) {
-			WhisperBox.show(nickname);
+	jQuery(document).on(
+		'click.whisperbox',
+		'.whisperbox .nickname-link, .whisper-container .nickname-link',
+		function (event) {
+			const nickname = jQuery(this).attr('data-nickname') || jQuery(this).data('nickname');
+			if (nickname) {
+				WhisperBox.show(nickname);
+			}
+			event.stopImmediatePropagation();
+			return false;
 		}
-		event.stopImmediatePropagation();
-		return false;
-	});
+	);
 };
 
 /**

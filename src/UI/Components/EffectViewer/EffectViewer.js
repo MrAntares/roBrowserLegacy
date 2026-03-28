@@ -28,195 +28,195 @@ import htmlText from './EffectViewer.html?raw';
 import cssText from './EffectViewer.css?raw';
 
 /**
-	 * Load dependencies
-	 */
-	const mat4 = glMatrix.mat4;
+ * Load dependencies
+ */
+const mat4 = glMatrix.mat4;
 
-	/**
-	 * @var {object} fog structure
-	 */
-	const _fog = {
-		use: false,
-		exist: true,
-		far: 30,
-		near: 180,
-		factor: 1.0,
-		color: new Float32Array([1, 1, 1])
+/**
+ * @var {object} fog structure
+ */
+const _fog = {
+	use: false,
+	exist: true,
+	far: 30,
+	near: 180,
+	factor: 1.0,
+	color: new Float32Array([1, 1, 1])
+};
+
+let _selectedEffect = null;
+
+/**
+ * Create GRFViewer component
+ */
+const Viewer = new UIComponent('EffectViewer', htmlText, cssText);
+
+/**
+ * Initialize Component
+ */
+Viewer.init = function Init() {
+	// Initialize WebGL
+	Renderer.init({
+		alpha: false,
+		depth: true,
+		stencil: false,
+		antialias: true,
+		premultipliedAlpha: false
+	});
+
+	Mouse.intersect = true;
+	MapControl.init();
+	Renderer.show();
+	EffectManager.init(Renderer.getContext());
+	SpriteRenderer.init(Renderer.getContext());
+	Client.init([]);
+
+	// We need an entity in order to apply effect
+	Session.Entity = new Entity({ PosDir: [0, 0, 0], position: [0, 0, 0], GID: 0 });
+	EntityManager.add(Session.Entity);
+	Camera.setTarget(Session.Entity);
+	Camera.init();
+
+	// Initialize the dropdown
+	initDropDown(this.ui.find('select').get(0), this.ui.find('button').get(0));
+};
+
+/**
+ * Initialise Drop Down list
+ *
+ * @param {HTMLElement} drop down
+ */
+function initDropDown(select, button) {
+	let hash = decodeURIComponent(location.hash);
+	if (hash) {
+		hash = hash.substring(1);
+		_selectedEffect = hash;
+	}
+
+	function getKeyByValue(object, value) {
+		if (isNaN(value)) {
+			return undefined;
+		} else {
+			return Object.keys(object).find(key => object[key] === Number(value));
+		}
+	}
+
+	for (const effectId of Object.keys(EffectTable)) {
+		const ef_name = getKeyByValue(EC, effectId);
+		select.add(
+			new Option(
+				ef_name !== undefined ? effectId + ' (' + ef_name + ')' : effectId,
+				effectId,
+				null,
+				_selectedEffect === effectId
+			),
+			null
+		);
+	}
+	select.onchange = function () {
+		_selectedEffect = this.value;
+		saveEffectId(_selectedEffect);
+		loadEffect(this.value);
 	};
 
-	let _selectedEffect = null;
-
-	/**
-	 * Create GRFViewer component
-	 */
-	const Viewer = new UIComponent('EffectViewer', htmlText, cssText);
-
-	/**
-	 * Initialize Component
-	 */
-	Viewer.init = function Init() {
-		// Initialize WebGL
-		Renderer.init({
-			alpha: false,
-			depth: true,
-			stencil: false,
-			antialias: true,
-			premultipliedAlpha: false
-		});
-
-		Mouse.intersect = true;
-		MapControl.init();
-		Renderer.show();
-		EffectManager.init(Renderer.getContext());
-		SpriteRenderer.init(Renderer.getContext());
-		Client.init([]);
-
-		// We need an entity in order to apply effect
-		Session.Entity = new Entity({ PosDir: [0, 0, 0], position: [0, 0, 0], GID: 0 });
-		EntityManager.add(Session.Entity);
-		Camera.setTarget(Session.Entity);
-		Camera.init();
-
-		// Initialize the dropdown
-		initDropDown(this.ui.find('select').get(0), this.ui.find('button').get(0));
+	button.onclick = function () {
+		loadEffect(_selectedEffect);
 	};
 
-	/**
-	 * Initialise Drop Down list
-	 *
-	 * @param {HTMLElement} drop down
-	 */
-	function initDropDown(select, button) {
-		let hash = decodeURIComponent(location.hash);
-		if (hash) {
-			hash = hash.substring(1);
-			_selectedEffect = hash;
-		}
+	loadEffect(0);
 
-		function getKeyByValue(object, value) {
-			if (isNaN(value)) {
-				return undefined;
-			} else {
-				return Object.keys(object).find(key => object[key] === Number(value));
-			}
-		}
+	Viewer.ui.find('.head').show();
+	select.focus();
+}
 
-		for (const effectId of Object.keys(EffectTable)) {
-			const ef_name = getKeyByValue(EC, effectId);
-			select.add(
-				new Option(
-					ef_name !== undefined ? effectId + ' (' + ef_name + ')' : effectId,
-					effectId,
-					null,
-					_selectedEffect === effectId
-				),
-				null
-			);
-		}
-		select.onchange = function () {
-			_selectedEffect = this.value;
-			saveEffectId(_selectedEffect);
-			loadEffect(this.value);
-		};
+function saveEffectId(effectId) {
+	location.hash = effectId;
+}
 
-		button.onclick = function () {
-			loadEffect(_selectedEffect);
-		};
+/**
+ * Start loading an effect
+ *
+ * @param {string} filename
+ */
+function loadEffect(effectId) {
+	stop();
+	Session.Entity.renderEntity();
+	EffectManager.spam({
+		effectId: effectId,
+		ownerAID: Session.Entity.GID,
+		otherAID: Session.Entity.GID,
+		position: Session.Entity.position
+	});
+	Renderer.render(render);
+}
 
-		loadEffect(0);
+/**
+ * Stop to render
+ */
+function stop() {
+	const gl = Renderer.getContext();
 
-		Viewer.ui.find('.head').show();
-		select.focus();
+	Renderer.stop();
+	EffectManager.free(gl);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+}
+
+/**
+ * Rendering scene
+ *
+ * @param {number} tick
+ * @param {object} webgl context
+ */
+function render(tick, gl) {
+	// Clear screen, update camera
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	Camera.update(tick);
+	const modelView = Camera.modelView;
+	EffectManager.render(gl, modelView, Camera.projection, _fog, tick, false);
+	EffectManager.render(gl, modelView, Camera.projection, _fog, tick, true);
+}
+
+/**
+ * Exports methods
+ */
+Viewer.loadEffect = loadEffect;
+Viewer.stop = stop;
+
+Camera.init = function Init() {
+	this.lastTick = Date.now();
+
+	this.angle[0] = this.range % 360.0;
+	this.angle[1] = this.rotationFrom % 360.0;
+	this.angleFinal[0] = this.range % 360.0;
+	this.angleFinal[1] = this.rotationFrom % 360.0;
+
+	this.position[0] = -this.target.position[0];
+	this.position[1] = -this.target.position[1];
+	this.position[2] = this.target.position[2];
+
+	this.altitudeRange = this.altitudeTo - this.altitudeFrom;
+
+	this.zoomFinal = 125;
+};
+Camera.rotate = function Rotate(active) {
+	const action = this.action;
+	const tick = Date.now();
+
+	if (!active) {
+		action.active = false;
+		return;
 	}
 
-	function saveEffectId(effectId) {
-		location.hash = effectId;
-	}
+	// Check for double click (reset angle and zoom)
+	// if (action.tick + 500 > tick) {
+	this.angleFinal[1] = 0.0;
+	action.x = Mouse.screen.x;
+	action.y = Mouse.screen.y;
+	action.tick = tick;
+	action.active = true;
+};
 
-	/**
-	 * Start loading an effect
-	 *
-	 * @param {string} filename
-	 */
-	function loadEffect(effectId) {
-		stop();
-		Session.Entity.renderEntity();
-		EffectManager.spam({
-			effectId: effectId,
-			ownerAID: Session.Entity.GID,
-			otherAID: Session.Entity.GID,
-			position: Session.Entity.position
-		});
-		Renderer.render(render);
-	}
-
-	/**
-	 * Stop to render
-	 */
-	function stop() {
-		const gl = Renderer.getContext();
-
-		Renderer.stop();
-		EffectManager.free(gl);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	}
-
-	/**
-	 * Rendering scene
-	 *
-	 * @param {number} tick
-	 * @param {object} webgl context
-	 */
-	function render(tick, gl) {
-		// Clear screen, update camera
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		Camera.update(tick);
-		const modelView = Camera.modelView;
-		EffectManager.render(gl, modelView, Camera.projection, _fog, tick, false);
-		EffectManager.render(gl, modelView, Camera.projection, _fog, tick, true);
-	}
-
-	/**
-	 * Exports methods
-	 */
-	Viewer.loadEffect = loadEffect;
-	Viewer.stop = stop;
-
-	Camera.init = function Init() {
-		this.lastTick = Date.now();
-
-		this.angle[0] = this.range % 360.0;
-		this.angle[1] = this.rotationFrom % 360.0;
-		this.angleFinal[0] = this.range % 360.0;
-		this.angleFinal[1] = this.rotationFrom % 360.0;
-
-		this.position[0] = -this.target.position[0];
-		this.position[1] = -this.target.position[1];
-		this.position[2] = this.target.position[2];
-
-		this.altitudeRange = this.altitudeTo - this.altitudeFrom;
-
-		this.zoomFinal = 125;
-	};
-	Camera.rotate = function Rotate(active) {
-		const action = this.action;
-		const tick = Date.now();
-
-		if (!active) {
-			action.active = false;
-			return;
-		}
-
-		// Check for double click (reset angle and zoom)
-		// if (action.tick + 500 > tick) {
-		this.angleFinal[1] = 0.0;
-		action.x = Mouse.screen.x;
-		action.y = Mouse.screen.y;
-		action.tick = tick;
-		action.active = true;
-	};
-
-	/**
-	 * Stored component and return it
-	 */
+/**
+ * Stored component and return it
+ */
 export default UIManager.addComponent(Viewer);

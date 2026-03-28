@@ -22,479 +22,477 @@ import htmlText from './ConvertItems.html?raw';
 import cssText from './ConvertItems.css?raw';
 
 /**
-	 * @var {Preference} structure to save
-	 */
-	const _preferences = Preferences.get(
-		'ConvertItems',
-		{
-			x: 200,
-			y: 500,
-			height: 8
-		},
-		1.0
+ * @var {Preference} structure to save
+ */
+const _preferences = Preferences.get(
+	'ConvertItems',
+	{
+		x: 200,
+		y: 500,
+		height: 8
+	},
+	1.0
+);
+
+/**
+ * Create ConvertItems namespace
+ */
+const ConvertItems = new UIComponent('ConvertItems', htmlText, cssText);
+
+/**
+ * Store Convert Items items
+ */
+ConvertItems.material = [];
+
+/**
+ * Initialize UI
+ */
+ConvertItems.init = function init() {
+	// Show at center.
+	this.ui.css({
+		top: (Renderer.height - 200) / 2,
+		left: (Renderer.width - 10) / 2
+	});
+
+	this.material = [];
+
+	this.draggable(this.ui.find('.head'));
+	this.ui.find('.footer .extend').mousedown(onResize);
+	this.ui.find('.trade').on('click', onMessageModel);
+	this.ui.find('.cancel').on('click', onClose);
+
+	resizeHeight(_preferences.height);
+
+	this.ui
+		.on('drop', onDrop)
+		.on('dragover', stopPropagation)
+
+		.find('.container .content')
+		.on('mousewheel DOMMouseScroll', onScroll)
+		.on('mouseover', '.item', onItemOver)
+		.on('mouseout', '.item', onItemOut)
+		.on('dragstart', '.item', onItemDragStart)
+		.on('dragend', '.item', onItemDragEnd)
+		.on('contextmenu', '.item', onItemInfo);
+
+	this.draggable(this.ui.find('.titlebar'));
+};
+
+/**
+ * Apply preferences once append to body
+ */
+ConvertItems.onAppend = function OnAppend() {
+	this.material = [];
+	this.ui.find('.item').remove();
+};
+
+ConvertItems.addItem = function addItem(item) {
+	const it = DB.getItemInfo(item.ITID);
+
+	this.ui
+		.find('.container .content')
+		.append(
+			'<div class="item" data-index="' +
+				item.index +
+				'" draggable="true">' +
+				'<div class="icon"></div>' +
+				'<div class="amount">' +
+				(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
+				'</div>' +
+				'<span class="name">' +
+				jQuery.escape(DB.getItemName(item)) +
+				'</span>' +
+				'</div>'
+		);
+
+	Client.loadFile(
+		DB.INTERFACE_PATH +
+			'item/' +
+			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+			'.bmp',
+		function (data) {
+			this.ui.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+		}.bind(this)
 	);
 
-	/**
-	 * Create ConvertItems namespace
-	 */
-	const ConvertItems = new UIComponent('ConvertItems', htmlText, cssText);
+	return true;
+};
 
-	/**
-	 * Store Convert Items items
-	 */
-	ConvertItems.material = [];
+/**
+ * Remove item from inventory
+ *
+ * @param {number} index in inventory
+ * @param {number} count
+ */
+ConvertItems.updateItem = function UpdateItem(index, count) {
+	const item = this.getItemByIndex(index);
 
-	/**
-	 * Initialize UI
-	 */
-	ConvertItems.init = function init() {
-		// Show at center.
-		this.ui.css({
-			top: (Renderer.height - 200) / 2,
-			left: (Renderer.width - 10) / 2
-		});
+	if (!item) {
+		return;
+	}
 
-		this.material = [];
+	item.count = item.count + count; // update item list
 
-		this.draggable(this.ui.find('.head'));
-		this.ui.find('.footer .extend').mousedown(onResize);
-		this.ui.find('.trade').on('click', onMessageModel);
-		this.ui.find('.cancel').on('click', onClose);
+	// Update quantity
+	if (item.count > 0) {
+		this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
+		return;
+	}
 
-		resizeHeight(_preferences.height);
+	// no quantity, remove
+	this.material.splice(this.material.indexOf(item), 1);
+	this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		this.ui
-			.on('drop', onDrop)
-			.on('dragover', stopPropagation)
+	const content = this.ui.find('.container .content');
+	if (content.height() === content[0].scrollHeight) {
+		this.ui.find('.hide').show();
+	}
+};
 
-			.find('.container .content')
-			.on('mousewheel DOMMouseScroll', onScroll)
-			.on('mouseover', '.item', onItemOver)
-			.on('mouseout', '.item', onItemOut)
-			.on('dragstart', '.item', onItemDragStart)
-			.on('dragend', '.item', onItemDragEnd)
-			.on('contextmenu', '.item', onItemInfo);
+/**
+ * Search in a list for an item by its index
+ *
+ * @param {number} index
+ * @returns {Item}
+ */
+ConvertItems.getItemByIndex = function getItemByIndex(index) {
+	let i, count;
+	const list = ConvertItems.material;
 
-		this.draggable(this.ui.find('.titlebar'));
+	for (i = 0, count = list.length; i < count; ++i) {
+		if (list[i].index === index) {
+			return list[i];
+		}
+	}
+
+	return null;
+};
+
+ConvertItems.validItemSend = function validItemSend(valid_material) {
+	ConvertItems.remove();
+	ItemListWindowSelection.remove();
+	MakeModelMessage.remove();
+
+	const inforMaterialList = {
+		Type: 0,
+		Action: valid_material ? 1 : 0,
+		MaterialList: valid_material ? this.material : []
 	};
 
-	/**
-	 * Apply preferences once append to body
-	 */
-	ConvertItems.onAppend = function OnAppend() {
-		this.material = [];
-		this.ui.find('.item').remove();
-	};
+	ItemListWindowSelection.onItemListWindowSelected(inforMaterialList);
+};
 
-	ConvertItems.addItem = function addItem(item) {
-		const it = DB.getItemInfo(item.ITID);
+function onMessageModel(event) {
+	event.stopImmediatePropagation();
+	MakeModelMessage.append();
+}
 
-		this.ui
-			.find('.container .content')
-			.append(
-				'<div class="item" data-index="' +
-					item.index +
-					'" draggable="true">' +
-					'<div class="icon"></div>' +
-					'<div class="amount">' +
-					(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
-					'</div>' +
-					'<span class="name">' +
-					jQuery.escape(DB.getItemName(item)) +
-					'</span>' +
-					'</div>'
-			);
+function onClose(event) {
+	event.stopImmediatePropagation();
+	ConvertItems.validItemSend(false);
+}
 
-		Client.loadFile(
-			DB.INTERFACE_PATH +
-				'item/' +
-				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-				'.bmp',
-			function (data) {
-				this.ui
-					.find('.item[data-index="' + item.index + '"] .icon')
-					.css('backgroundImage', 'url(' + data + ')');
-			}.bind(this)
-		);
+/**
+ * Extend ConvertItems window size
+ */
+function onResize() {
+	const ui = ConvertItems.ui;
+	const top = ui.position().top;
+	let lastHeight = 0;
+	let _Interval;
 
-		return true;
-	};
+	function resizing() {
+		const extraY = 31 + 19 - 30;
+		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
-	/**
-	 * Remove item from inventory
-	 *
-	 * @param {number} index in inventory
-	 * @param {number} count
-	 */
-	ConvertItems.updateItem = function UpdateItem(index, count) {
-		const item = this.getItemByIndex(index);
+		// Maximum and minimum window size
+		h = Math.min(Math.max(h, 8), 17);
 
-		if (!item) {
+		if (h === lastHeight) {
 			return;
 		}
 
-		item.count = item.count + count; // update item list
+		resizeHeight(h);
+		lastHeight = h;
+	}
 
-		// Update quantity
-		if (item.count > 0) {
-			this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
-			return;
+	// Start resizing
+	_Interval = setInterval(resizing, 30);
+
+	// Stop resizing on left click
+	jQuery(window).on('mouseup.resize', function (event) {
+		if (event.which === 1) {
+			clearInterval(_Interval);
+			jQuery(window).off('mouseup.resize');
 		}
+	});
+}
 
-		// no quantity, remove
-		this.material.splice(this.material.indexOf(item), 1);
-		this.ui.find('.item[data-index="' + item.index + '"]').remove();
+/**
+ * Extend ConvertItems window size
+ */
+function resizeHeight(height) {
+	height = Math.min(Math.max(height, 8), 17);
 
-		const content = this.ui.find('.container .content');
-		if (content.height() === content[0].scrollHeight) {
-			this.ui.find('.hide').show();
+	ConvertItems.ui.find('.container .content').css('height', height * 32);
+	ConvertItems.ui.css('height', 31 + 19 + height * 32);
+}
+
+/**
+ * Free variables once removed from HTML
+ */
+ConvertItems.onRemove = function onRemove() {
+	this.index = 0;
+};
+
+/**
+ * Set new window name
+ *
+ * @param {string} title
+ */
+ConvertItems.setTitle = function setTitle(title) {
+	this.ui.find('.head .text').text(title);
+};
+
+/**
+ * Insert material to creation
+ *
+ * @param {object} Item
+ */
+ConvertItems.addMaterial = function AddMaterial(item) {
+	const object = getItemIndexById(item.index);
+
+	if (object < 0) {
+		if (this.addItem(item)) {
+			this.material.push(item);
 		}
-	};
+	} else {
+		this.updateItem(item.index, item.count);
+	}
+};
 
-	/**
-	 * Search in a list for an item by its index
-	 *
-	 * @param {number} index
-	 * @returns {Item}
-	 */
-	ConvertItems.getItemByIndex = function getItemByIndex(index) {
-		let i, count;
-		const list = ConvertItems.material;
+/**
+ * Remove item from Storage
+ *
+ * @param {number} index in Storage
+ */
+ConvertItems.removeItem = function removeItem(index, count) {
+	const i = getItemIndexById(index);
+	let item;
 
-		for (i = 0, count = list.length; i < count; ++i) {
-			if (list[i].index === index) {
-				return list[i];
-			}
-		}
-
+	// Not found
+	if (i < 0) {
 		return null;
-	};
+	}
 
-	ConvertItems.validItemSend = function validItemSend(valid_material) {
-		ConvertItems.remove();
-		ItemListWindowSelection.remove();
-		MakeModelMessage.remove();
+	if (ConvertItems.material[i].count) {
+		ConvertItems.material[i].count -= count;
 
-		const inforMaterialList = {
-			Type: 0,
-			Action: valid_material ? 1 : 0,
-			MaterialList: valid_material ? this.material : []
+		if (ConvertItems.material[i].count > 0) {
+			this.ui.find('.item[data-index="' + index + '"] .count').text(ConvertItems.material[i].count);
+			return ConvertItems.material[i];
+		}
+	}
+
+	// Remove item
+	item = ConvertItems.material[i];
+	ConvertItems.material.splice(i, 1);
+	this.ui.find('.item[data-index="' + index + '"]').remove();
+
+	return item;
+};
+
+/**
+ * Mouse mouve out of an item, hide title description
+ */
+function onItemOut() {
+	ConvertItems.ui.find('.overlay').hide();
+}
+
+/**
+ * Start dragging an item
+ */
+function onItemDragStart(event) {
+	const index = parseInt(this.getAttribute('data-index'), 10);
+	const i = getItemIndexById(index);
+
+	if (i === -1) {
+		return;
+	}
+
+	// Set image to the drag drop element
+	const img = new Image();
+	let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+	url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
+	img.decoding = 'async';
+	img.src = url;
+
+	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
+	event.originalEvent.dataTransfer.setData(
+		'Text',
+		JSON.stringify(
+			(window._OBJ_DRAG_ = {
+				type: 'item',
+				from: 'ConvertItems',
+				data: ConvertItems.material[i]
+			})
+		)
+	);
+
+	onItemOut();
+}
+
+/**
+ * Display item description
+ *
+ */
+function onItemInfo(event) {
+	event.stopImmediatePropagation();
+
+	const index = parseInt(this.getAttribute('data-index'), 10);
+	const i = getItemIndexById(index);
+
+	if (i === -1) {
+		return false;
+	}
+
+	// Don't add the same UI twice, remove it
+	if (ItemInfo.uid === ConvertItems.material[i].ITID) {
+		ItemInfo.remove();
+	}
+
+	// Add ui to window
+	ItemInfo.append();
+	ItemInfo.uid = ConvertItems.material[i].ITID;
+	ItemInfo.setItem(ConvertItems.material[i]);
+
+	return false;
+}
+
+/**
+ * Stop the drag/drop on an item
+ */
+function onItemDragEnd() {
+	delete window._OBJ_DRAG_;
+}
+
+/**
+ * Get item index in list base on it's ID
+ *
+ * @param {number} item id
+ */
+function getItemIndexById(index) {
+	let i, count;
+
+	for (i = 0, count = ConvertItems.material.length; i < count; ++i) {
+		if (ConvertItems.material[i].index === index) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+/**
+ * Drop an item from storage to inventory
+ *
+ * @param {event}
+ */
+function onDrop(event) {
+	let item, data;
+
+	try {
+		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+	} catch (e) {}
+
+	event.stopImmediatePropagation();
+
+	// Just support items for now ?
+	if (!data || data.type !== 'item' || data.from !== 'ItemListWindowSelection') {
+		return false;
+	}
+
+	item = data.data;
+	// validar se esta marcado
+	const valid_select_all = !ItemListWindowSelection.getSelectAll();
+
+	if (item.count > 1 && valid_select_all) {
+		InputBox.append();
+		InputBox.setType('number', false, item.count);
+		InputBox.onSubmitRequest = function OnSubmitRequest(count) {
+			InputBox.remove();
+
+			ItemListWindowSelection.removeItem(item.index, parseInt(count, 10));
+
+			item.count = parseInt(count, 10);
+			ConvertItems.addMaterial(item);
 		};
-
-		ItemListWindowSelection.onItemListWindowSelected(inforMaterialList);
-	};
-
-	function onMessageModel(event) {
-		event.stopImmediatePropagation();
-		MakeModelMessage.append();
-	}
-
-	function onClose(event) {
-		event.stopImmediatePropagation();
-		ConvertItems.validItemSend(false);
-	}
-
-	/**
-	 * Extend ConvertItems window size
-	 */
-	function onResize() {
-		const ui = ConvertItems.ui;
-		const top = ui.position().top;
-		let lastHeight = 0;
-		let _Interval;
-
-		function resizing() {
-			const extraY = 31 + 19 - 30;
-			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
-
-			// Maximum and minimum window size
-			h = Math.min(Math.max(h, 8), 17);
-
-			if (h === lastHeight) {
-				return;
-			}
-
-			resizeHeight(h);
-			lastHeight = h;
-		}
-
-		// Start resizing
-		_Interval = setInterval(resizing, 30);
-
-		// Stop resizing on left click
-		jQuery(window).on('mouseup.resize', function (event) {
-			if (event.which === 1) {
-				clearInterval(_Interval);
-				jQuery(window).off('mouseup.resize');
-			}
-		});
-	}
-
-	/**
-	 * Extend ConvertItems window size
-	 */
-	function resizeHeight(height) {
-		height = Math.min(Math.max(height, 8), 17);
-
-		ConvertItems.ui.find('.container .content').css('height', height * 32);
-		ConvertItems.ui.css('height', 31 + 19 + height * 32);
-	}
-
-	/**
-	 * Free variables once removed from HTML
-	 */
-	ConvertItems.onRemove = function onRemove() {
-		this.index = 0;
-	};
-
-	/**
-	 * Set new window name
-	 *
-	 * @param {string} title
-	 */
-	ConvertItems.setTitle = function setTitle(title) {
-		this.ui.find('.head .text').text(title);
-	};
-
-	/**
-	 * Insert material to creation
-	 *
-	 * @param {object} Item
-	 */
-	ConvertItems.addMaterial = function AddMaterial(item) {
-		const object = getItemIndexById(item.index);
-
-		if (object < 0) {
-			if (this.addItem(item)) {
-				this.material.push(item);
-			}
-		} else {
-			this.updateItem(item.index, item.count);
-		}
-	};
-
-	/**
-	 * Remove item from Storage
-	 *
-	 * @param {number} index in Storage
-	 */
-	ConvertItems.removeItem = function removeItem(index, count) {
-		const i = getItemIndexById(index);
-		let item;
-
-		// Not found
-		if (i < 0) {
-			return null;
-		}
-
-		if (ConvertItems.material[i].count) {
-			ConvertItems.material[i].count -= count;
-
-			if (ConvertItems.material[i].count > 0) {
-				this.ui.find('.item[data-index="' + index + '"] .count').text(ConvertItems.material[i].count);
-				return ConvertItems.material[i];
-			}
-		}
-
-		// Remove item
-		item = ConvertItems.material[i];
-		ConvertItems.material.splice(i, 1);
-		this.ui.find('.item[data-index="' + index + '"]').remove();
-
-		return item;
-	};
-
-	/**
-	 * Mouse mouve out of an item, hide title description
-	 */
-	function onItemOut() {
-		ConvertItems.ui.find('.overlay').hide();
-	}
-
-	/**
-	 * Start dragging an item
-	 */
-	function onItemDragStart(event) {
-		const index = parseInt(this.getAttribute('data-index'), 10);
-		const i = getItemIndexById(index);
-
-		if (i === -1) {
-			return;
-		}
-
-		// Set image to the drag drop element
-		const img = new Image();
-		let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-		url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
-		img.decoding = 'async';
-		img.src = url;
-
-		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-		event.originalEvent.dataTransfer.setData(
-			'Text',
-			JSON.stringify(
-				(window._OBJ_DRAG_ = {
-					type: 'item',
-					from: 'ConvertItems',
-					data: ConvertItems.material[i]
-				})
-			)
-		);
-
-		onItemOut();
-	}
-
-	/**
-	 * Display item description
-	 *
-	 */
-	function onItemInfo(event) {
-		event.stopImmediatePropagation();
-
-		const index = parseInt(this.getAttribute('data-index'), 10);
-		const i = getItemIndexById(index);
-
-		if (i === -1) {
-			return false;
-		}
-
-		// Don't add the same UI twice, remove it
-		if (ItemInfo.uid === ConvertItems.material[i].ITID) {
-			ItemInfo.remove();
-		}
-
-		// Add ui to window
-		ItemInfo.append();
-		ItemInfo.uid = ConvertItems.material[i].ITID;
-		ItemInfo.setItem(ConvertItems.material[i]);
-
 		return false;
 	}
 
-	/**
-	 * Stop the drag/drop on an item
-	 */
-	function onItemDragEnd() {
-		delete window._OBJ_DRAG_;
+	ItemListWindowSelection.removeItem(item.index, item.count);
+
+	ConvertItems.addMaterial(item);
+	return false;
+}
+
+/**
+ * Stop event propagation
+ */
+function stopPropagation(event) {
+	event.stopImmediatePropagation();
+	return false;
+}
+
+/**
+ * Update scroll by block (32px)
+ */
+function onScroll(event) {
+	let delta;
+
+	if (event.originalEvent.wheelDelta) {
+		delta = event.originalEvent.wheelDelta / 120;
+		if (window.opera) {
+			delta = -delta;
+		}
+	} else if (event.originalEvent.detail) {
+		delta = -event.originalEvent.detail;
 	}
 
-	/**
-	 * Get item index in list base on it's ID
-	 *
-	 * @param {number} item id
-	 */
-	function getItemIndexById(index) {
-		let i, count;
+	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
+	return false;
+}
 
-		for (i = 0, count = ConvertItems.material.length; i < count; ++i) {
-			if (ConvertItems.material[i].index === index) {
-				return i;
-			}
-		}
+/**
+ * Mouse over item, display name and informations
+ */
+function onItemOver() {
+	const idx = parseInt(this.getAttribute('data-index'), 10);
+	const i = getItemIndexById(idx);
 
-		return -1;
+	// Not found
+	if (i < 0) {
+		return;
 	}
 
-	/**
-	 * Drop an item from storage to inventory
-	 *
-	 * @param {event}
-	 */
-	function onDrop(event) {
-		let item, data;
+	// Get back data
+	const item = ConvertItems.material[i];
+	const pos = jQuery(this).position();
+	const overlay = ConvertItems.ui.find('.overlay');
 
-		try {
-			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		} catch (e) {}
+	// Display box
+	overlay.show();
+	overlay.css({ top: pos.top - 10, left: pos.left + 35 });
+	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
 
-		event.stopImmediatePropagation();
-
-		// Just support items for now ?
-		if (!data || data.type !== 'item' || data.from !== 'ItemListWindowSelection') {
-			return false;
-		}
-
-		item = data.data;
-		// validar se esta marcado
-		const valid_select_all = !ItemListWindowSelection.getSelectAll();
-
-		if (item.count > 1 && valid_select_all) {
-			InputBox.append();
-			InputBox.setType('number', false, item.count);
-			InputBox.onSubmitRequest = function OnSubmitRequest(count) {
-				InputBox.remove();
-
-				ItemListWindowSelection.removeItem(item.index, parseInt(count, 10));
-
-				item.count = parseInt(count, 10);
-				ConvertItems.addMaterial(item);
-			};
-			return false;
-		}
-
-		ItemListWindowSelection.removeItem(item.index, item.count);
-
-		ConvertItems.addMaterial(item);
-		return false;
+	if (item.IsIdentified) {
+		overlay.removeClass('grey');
+	} else {
+		overlay.addClass('grey');
 	}
+}
 
-	/**
-	 * Stop event propagation
-	 */
-	function stopPropagation(event) {
-		event.stopImmediatePropagation();
-		return false;
-	}
-
-	/**
-	 * Update scroll by block (32px)
-	 */
-	function onScroll(event) {
-		let delta;
-
-		if (event.originalEvent.wheelDelta) {
-			delta = event.originalEvent.wheelDelta / 120;
-			if (window.opera) {
-				delta = -delta;
-			}
-		} else if (event.originalEvent.detail) {
-			delta = -event.originalEvent.detail;
-		}
-
-		this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
-		return false;
-	}
-
-	/**
-	 * Mouse over item, display name and informations
-	 */
-	function onItemOver() {
-		const idx = parseInt(this.getAttribute('data-index'), 10);
-		const i = getItemIndexById(idx);
-
-		// Not found
-		if (i < 0) {
-			return;
-		}
-
-		// Get back data
-		const item = ConvertItems.material[i];
-		const pos = jQuery(this).position();
-		const overlay = ConvertItems.ui.find('.overlay');
-
-		// Display box
-		overlay.show();
-		overlay.css({ top: pos.top - 10, left: pos.left + 35 });
-		overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
-
-		if (item.IsIdentified) {
-			overlay.removeClass('grey');
-		} else {
-			overlay.addClass('grey');
-		}
-	}
-
-	/**
-	 * Create component based on view file and export it
-	 */
+/**
+ * Create component based on view file and export it
+ */
 export default UIManager.addComponent(ConvertItems);

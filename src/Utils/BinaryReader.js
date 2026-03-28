@@ -10,7 +10,6 @@
  * @author Vincent Thibault
  */
 
-
 import Struct from './Struct';
 import TextEncoding from 'Utils/CodepageManager';
 

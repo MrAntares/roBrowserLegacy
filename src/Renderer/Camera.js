@@ -458,10 +458,7 @@ Camera.updateState = function UpdateState() {
 				Session.Entity.hideEntity = true;
 			}
 		}
-	} else if (
-		this.enable3RDPerson &&
-		this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM
-	) {
+	} else if (this.enable3RDPerson && this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM) {
 		if (this.state != this.states.third_person) {
 			import('Renderer/Renderer').then(Renderer => {
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_3RDPERSON;
@@ -563,4 +560,3 @@ Camera.update = function Update(tick) {
  * Export
  */
 export default Camera;
-

@@ -23,4 +23,3 @@ export default Preferences.get(
 	},
 	1.1
 );
-

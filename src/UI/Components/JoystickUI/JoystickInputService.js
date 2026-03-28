@@ -17,116 +17,116 @@ import ControlsSettings from 'Preferences/Controls';
 
 let hideTimeout = false;
 export default {
-		active: false,
-		buttonStates: {},
+	active: false,
+	buttonStates: {},
 
-		prepare: function () {
-			this._boundOnConnect = this._onConnect.bind(this);
-			this._boundOnDisconnect = this._onDisconnect.bind(this);
+	prepare: function () {
+		this._boundOnConnect = this._onConnect.bind(this);
+		this._boundOnDisconnect = this._onDisconnect.bind(this);
 
-			window.addEventListener('gamepadconnected', this._boundOnConnect);
-			window.addEventListener('gamepaddisconnected', this._boundOnDisconnect);
-		},
+		window.addEventListener('gamepadconnected', this._boundOnConnect);
+		window.addEventListener('gamepaddisconnected', this._boundOnDisconnect);
+	},
 
-		dispose: function () {
-			window.removeEventListener('gamepadconnected', this._boundOnConnect);
-			window.removeEventListener('gamepaddisconnected', this._boundOnDisconnect);
+	dispose: function () {
+		window.removeEventListener('gamepadconnected', this._boundOnConnect);
+		window.removeEventListener('gamepaddisconnected', this._boundOnDisconnect);
 
+		this.active = false;
+		this.buttonStates = {};
+	},
+
+	getStates: function (gp) {
+		if (!gp) {
+			return null;
+		}
+		const states = {
+			buttons: [],
+			axes: []
+		};
+		const self = this;
+
+		// Process Buttons with 3-state logic
+		gp.buttons.forEach(function (btn, index) {
+			const isPressed = btn.pressed;
+			const prevState = self.buttonStates[index] || 'unpressed';
+			let newState = 'unpressed';
+			if (isPressed) {
+				newState = prevState === 'unpressed' ? 'pressed' : 'holding';
+			}
+			self.buttonStates[index] = newState;
+			states.buttons[index] = newState;
+		});
+		// Process Axes
+		gp.axes.forEach(function (axis, index) {
+			states.axes[index] = Math.abs(axis) > ControlsSettings.joyDeadline ? axis : 0;
+		});
+		return states;
+	},
+
+	update: function () {
+		const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+
+		let activeGamepad = null;
+		for (let i = 0; i < gamepads.length; i++) {
+			if (gamepads[i]) {
+				activeGamepad = gamepads[i];
+				break;
+			}
+		}
+		if (!activeGamepad) {
+			if (this.active) {
+				this.active = false;
+				JoystickUIRenderer.hide();
+			}
+			return false;
+		}
+		const states = this.getStates(activeGamepad);
+
+		let anyActivity = false;
+
+		if (!states) {
 			this.active = false;
-			this.buttonStates = {};
-		},
+			return false;
+		}
 
-		getStates: function (gp) {
-			if (!gp) {
-				return null;
-			}
-			const states = {
-				buttons: [],
-				axes: []
-			};
+		const buttonsActive = ButtonInput.update(states.buttons);
+		const axisActive = AxisInput.update(states.axes);
+
+		if (buttonsActive || axisActive) {
+			anyActivity = true;
+		}
+
+		if (anyActivity && !this.active) {
+			JoystickUIRenderer.show();
+			this.active = true;
+		}
+
+		if (!anyActivity && this.active && !hideTimeout) {
+			hideTimeout = true;
 			const self = this;
-
-			// Process Buttons with 3-state logic
-			gp.buttons.forEach(function (btn, index) {
-				const isPressed = btn.pressed;
-				const prevState = self.buttonStates[index] || 'unpressed';
-				let newState = 'unpressed';
-				if (isPressed) {
-					newState = prevState === 'unpressed' ? 'pressed' : 'holding';
-				}
-				self.buttonStates[index] = newState;
-				states.buttons[index] = newState;
-			});
-			// Process Axes
-			gp.axes.forEach(function (axis, index) {
-				states.axes[index] = Math.abs(axis) > ControlsSettings.joyDeadline ? axis : 0;
-			});
-			return states;
-		},
-
-		update: function () {
-			const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-
-			let activeGamepad = null;
-			for (let i = 0; i < gamepads.length; i++) {
-				if (gamepads[i]) {
-					activeGamepad = gamepads[i];
-					break;
-				}
-			}
-			if (!activeGamepad) {
-				if (this.active) {
-					this.active = false;
+			this.active = false;
+			setTimeout(function () {
+				hideTimeout = false;
+				if (self.active === false) {
 					JoystickUIRenderer.hide();
 				}
-				return false;
-			}
-			const states = this.getStates(activeGamepad);
-
-			let anyActivity = false;
-
-			if (!states) {
-				this.active = false;
-				return false;
-			}
-
-			const buttonsActive = ButtonInput.update(states.buttons);
-			const axisActive = AxisInput.update(states.axes);
-
-			if (buttonsActive || axisActive) {
-				anyActivity = true;
-			}
-
-			if (anyActivity && !this.active) {
-				JoystickUIRenderer.show();
-				this.active = true;
-			}
-
-			if (!anyActivity && this.active && !hideTimeout) {
-				hideTimeout = true;
-				const self = this;
-				this.active = false;
-				setTimeout(function () {
-					hideTimeout = false;
-					if (self.active === false) {
-						JoystickUIRenderer.hide();
-					}
-				}, 30000);
-			} else if (!hideTimeout) {
-				this.active = true;
-			}
-			return true;
-		},
-
-		_onConnect: function () {
-			JoystickModule.prepare();
+			}, 30000);
+		} else if (!hideTimeout) {
 			this.active = true;
-			JoystickUIRenderer.show();
-		},
-
-		_onDisconnect: function () {
-			JoystickModule.dispose();
-			this.active = false;
-			JoystickUIRenderer.hide();
 		}
-	};
+		return true;
+	},
+
+	_onConnect: function () {
+		JoystickModule.prepare();
+		this.active = true;
+		JoystickUIRenderer.show();
+	},
+
+	_onDisconnect: function () {
+		JoystickModule.dispose();
+		this.active = false;
+		JoystickUIRenderer.hide();
+	}
+};

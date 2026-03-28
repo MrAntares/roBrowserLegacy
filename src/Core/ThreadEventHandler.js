@@ -12,7 +12,7 @@ import FileManager from 'Core/FileManager';
 import FileSystem from 'Core/FileSystem';
 import MapLoader from 'Loaders/MapLoader';
 
-'use strict';
+('use strict');
 
 /**
  *	Send an Error to main thread

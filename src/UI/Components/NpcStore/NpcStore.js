@@ -878,7 +878,9 @@ const transferItem = (function () {
 				addItem(toContent, outputItem);
 
 				// Then, update currency properties
-				const outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
+				const outputCurrencyDiv = NpcStore.ui.find(
+					`.OutputWindow .item[data-index="${index}"] .currency_amount`
+				);
 				const currencyItemDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_icon`);
 				const currencyItem = parseInt(currencyItemDiv.attr('data-item'), 10);
 				const currencyTotal = currencyAmount * outputItem.count;
@@ -911,7 +913,9 @@ const transferItem = (function () {
 				outputItem.total_weight = currencyItemWeight * outputItem.count;
 
 				const inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
-				const outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
+				const outputCurrencyDiv = NpcStore.ui.find(
+					`.OutputWindow .item[data-index="${index}"] .currency_amount`
+				);
 				const currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
 				const currencyTotal = currencyAmount * outputItem.count;
 
@@ -1187,11 +1191,11 @@ NpcStore.StoreClosePacket = function (type) {
 			default:
 				pkt = new PACKET.CZ.NPC_TRADE_QUIT();
 				break;
-				case NpcStore.Type.VENDING_STORE:
-				case NpcStore.Type.BUYING_STORE:
-					// Player stores don't use NPC close packets
-					_closePacketSent = true;
-					return;
+			case NpcStore.Type.VENDING_STORE:
+			case NpcStore.Type.BUYING_STORE:
+				// Player stores don't use NPC close packets
+				_closePacketSent = true;
+				return;
 		}
 	}
 	_closePacketSent = true;

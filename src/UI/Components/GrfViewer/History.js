@@ -10,97 +10,97 @@
 'use strict';
 
 /**
-	 * @var {Array} cache history
-	 */
-	const _history = [];
+ * @var {Array} cache history
+ */
+const _history = [];
 
-	/**
-	 * @var {number} position in history
-	 */
-	let _index = -1;
+/**
+ * @var {number} position in history
+ */
+let _index = -1;
 
-	/**
-	 * @var {object} previous jquery button
-	 */
-	let _previous;
+/**
+ * @var {object} previous jquery button
+ */
+let _previous;
 
-	/**
-	 * @var {object} next jquery button
-	 */
-	let _next;
+/**
+ * @var {object} next jquery button
+ */
+let _next;
 
-	/**
-	 * Initialize history with buttons
-	 *
-	 * @param {object} previous jquery button
-	 * @param {object} next jquery button
-	 */
-	function init(previous, next) {
-		_previous = previous;
-		_next = next;
+/**
+ * Initialize history with buttons
+ *
+ * @param {object} previous jquery button
+ * @param {object} next jquery button
+ */
+function init(previous, next) {
+	_previous = previous;
+	_next = next;
 
-		_previous.removeClass('on');
-		_next.removeClass('on');
-	}
+	_previous.removeClass('on');
+	_next.removeClass('on');
+}
 
-	/**
-	 * Set a new link to cache
-	 *
-	 * @param {string} link
-	 */
-	function push(link) {
-		_history.length = ++_index;
-		_history.push(link);
+/**
+ * Set a new link to cache
+ *
+ * @param {string} link
+ */
+function push(link) {
+	_history.length = ++_index;
+	_history.push(link);
 
-		_next.removeClass('on');
+	_next.removeClass('on');
 
-		if (_history.length > 1) {
-			_previous.addClass('on');
-		}
-	}
-
-	/**
-	 * Move forward in history
-	 *
-	 * @return {string} url
-	 */
-	function next() {
-		if (_index + 1 >= _history.length) {
-			return null;
-		}
-
+	if (_history.length > 1) {
 		_previous.addClass('on');
-		if (_index + 1 >= _history.length) {
-			_next.removeClass('on');
-		}
+	}
+}
 
-		return _history[++_index];
+/**
+ * Move forward in history
+ *
+ * @return {string} url
+ */
+function next() {
+	if (_index + 1 >= _history.length) {
+		return null;
 	}
 
-	/**
-	 * Move back to history
-	 *
-	 * @return {string} url
-	 */
-	function previous() {
-		if (_index - 1 < 0) {
-			return null;
-		}
-
-		_next.addClass('on');
-		if (_index - 2 < 0) {
-			_previous.removeClass('on');
-		}
-
-		return _history[--_index];
+	_previous.addClass('on');
+	if (_index + 1 >= _history.length) {
+		_next.removeClass('on');
 	}
 
-	/**
-	 * Export 
-	 */
-	export default {
-		push: push,
-		next: next,
-		previous: previous,
-		init: init
-	};
+	return _history[++_index];
+}
+
+/**
+ * Move back to history
+ *
+ * @return {string} url
+ */
+function previous() {
+	if (_index - 1 < 0) {
+		return null;
+	}
+
+	_next.addClass('on');
+	if (_index - 2 < 0) {
+		_previous.removeClass('on');
+	}
+
+	return _history[--_index];
+}
+
+/**
+ * Export
+ */
+export default {
+	push: push,
+	next: next,
+	previous: previous,
+	init: init
+};

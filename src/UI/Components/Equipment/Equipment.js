@@ -20,39 +20,39 @@ import UIVersionManager from 'UI/UIVersionManager';
 import DB from 'DB/DBManager';
 import KEYS from 'Controls/KeyEventHandler';
 
-	const publicName = 'Equipment';
-	const versionInfo = {
-		default: EquipmentV0,
-		common: {
-			20220831: EquipmentV4,
-			20170208: EquipmentV3,
-			20150225: EquipmentV2,
-			20101124: EquipmentV1
-		},
-		re: {},
-		prere: {}
-	};
+const publicName = 'Equipment';
+const versionInfo = {
+	default: EquipmentV0,
+	common: {
+		20220831: EquipmentV4,
+		20170208: EquipmentV3,
+		20150225: EquipmentV2,
+		20101124: EquipmentV1
+	},
+	re: {},
+	prere: {}
+};
 
-	const EquipmentController = UIVersionManager.getUIController(publicName, versionInfo);
+const EquipmentController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	const _selectUIVersion = EquipmentController.selectUIVersion;
+const _selectUIVersion = EquipmentController.selectUIVersion;
 
-	// Extend default UI selector
-	EquipmentController.selectUIVersion = function () {
-		_selectUIVersion();
+// Extend default UI selector
+EquipmentController.selectUIVersion = function () {
+	_selectUIVersion();
 
-		//Add selected UI to item owner name update queue
-		const component = EquipmentController.getUI();
-		DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
+	//Add selected UI to item owner name update queue
+	const component = EquipmentController.getUI();
+	DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
 
-		// Escape to close the UI
-		component.onKeyDown = function onKeyDown(e) {
-			if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
-				if (typeof component.toggle === 'function') {
-					component.toggle();
-				}
+	// Escape to close the UI
+	component.onKeyDown = function onKeyDown(e) {
+		if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
+			if (typeof component.toggle === 'function') {
+				component.toggle();
 			}
-		};
+		}
 	};
+};
 
-	export default EquipmentController;
+export default EquipmentController;

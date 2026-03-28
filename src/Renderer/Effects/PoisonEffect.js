@@ -13,63 +13,53 @@ import SpriteRenderer from 'Renderer/SpriteRenderer';
 import Session from 'Engine/SessionStorage';
 
 let _filterFrame = null;
-	let _active = false;
+let _active = false;
 
-	function ensureFilterFrame(gl) {
-		if (_filterFrame && _filterFrame.texture && gl.isTexture(_filterFrame.texture)) {
-			return;
-		}
-		const tex = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, tex);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			1,
-			1,
-			0,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			new Uint8Array([255, 255, 255, 255])
-		);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		_filterFrame = { texture: tex, width: 1, height: 1, type: 1 };
+function ensureFilterFrame(gl) {
+	if (_filterFrame && _filterFrame.texture && gl.isTexture(_filterFrame.texture)) {
+		return;
+	}
+	const tex = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, tex);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	_filterFrame = { texture: tex, width: 1, height: 1, type: 1 };
+}
+
+function PoisonEffect() {}
+
+PoisonEffect.render = function render(gl, modelView, projection, fog) {
+	if (!_active || !Session.Entity) {
+		return;
 	}
 
-	function PoisonEffect() {}
+	ensureFilterFrame(gl);
 
-	PoisonEffect.render = function render(gl, modelView, projection, fog) {
-		if (!_active || !Session.Entity) {
-			return;
-		}
+	SpriteRenderer.sprite = _filterFrame;
+	SpriteRenderer.image.texture = _filterFrame.texture;
 
-		ensureFilterFrame(gl);
+	SpriteRenderer.position[0] = Session.Entity.position[0];
+	SpriteRenderer.position[1] = Session.Entity.position[1];
+	SpriteRenderer.position[2] = Session.Entity.position[2];
 
-		SpriteRenderer.sprite = _filterFrame;
-		SpriteRenderer.image.texture = _filterFrame.texture;
+	SpriteRenderer.color[0] = 0.5;
+	SpriteRenderer.color[1] = 0.0;
+	SpriteRenderer.color[2] = 0.5;
+	SpriteRenderer.color[3] = 0.15;
 
-		SpriteRenderer.position[0] = Session.Entity.position[0];
-		SpriteRenderer.position[1] = Session.Entity.position[1];
-		SpriteRenderer.position[2] = Session.Entity.position[2];
+	SpriteRenderer.size[0] = 4000;
+	SpriteRenderer.size[1] = 4000;
+	SpriteRenderer.runWithDepth(false, false, true, function () {
+		SpriteRenderer.render(false);
+	});
+};
 
-		SpriteRenderer.color[0] = 0.5;
-		SpriteRenderer.color[1] = 0.0;
-		SpriteRenderer.color[2] = 0.5;
-		SpriteRenderer.color[3] = 0.15;
+PoisonEffect.setActive = function setActive(bool) {
+	_active = bool;
+};
 
-		SpriteRenderer.size[0] = 4000;
-		SpriteRenderer.size[1] = 4000;
-		SpriteRenderer.runWithDepth(false, false, true, function () {
-			SpriteRenderer.render(false);
-		});
-	};
-
-	PoisonEffect.setActive = function setActive(bool) {
-		_active = bool;
-	};
-
-	PoisonEffect.isActive = function isActive() {
-		return _active;
-	};
+PoisonEffect.isActive = function isActive() {
+	return _active;
+};
 export default PoisonEffect;

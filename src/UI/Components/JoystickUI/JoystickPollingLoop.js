@@ -11,28 +11,28 @@
 import InputService from './JoystickInputService';
 
 let timeoutHandle = null;
-	const POLL_RATE_ACTIVE = 100; // 10 FPS
-	const POLL_RATE_IDLE = 1000; // 1 FPS
+const POLL_RATE_ACTIVE = 100; // 10 FPS
+const POLL_RATE_IDLE = 1000; // 1 FPS
 export default {
-		start: function () {
-			if (timeoutHandle) {
-				return;
-			}
-			this.run();
-		},
-		run: function () {
-			const isConnected = InputService.update();
-
-			const nextDelay = isConnected ? POLL_RATE_ACTIVE : POLL_RATE_IDLE;
-			const self = this;
-			timeoutHandle = setTimeout(function () {
-				self.run();
-			}, nextDelay);
-		},
-		stop: function () {
-			if (timeoutHandle) {
-				clearTimeout(timeoutHandle);
-				timeoutHandle = null;
-			}
+	start: function () {
+		if (timeoutHandle) {
+			return;
 		}
-	};
+		this.run();
+	},
+	run: function () {
+		const isConnected = InputService.update();
+
+		const nextDelay = isConnected ? POLL_RATE_ACTIVE : POLL_RATE_IDLE;
+		const self = this;
+		timeoutHandle = setTimeout(function () {
+			self.run();
+		}, nextDelay);
+	},
+	stop: function () {
+		if (timeoutHandle) {
+			clearTimeout(timeoutHandle);
+			timeoutHandle = null;
+		}
+	}
+};
