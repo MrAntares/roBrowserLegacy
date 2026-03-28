@@ -26,7 +26,37 @@
 		<meta property="og:locale" content="en_US" />
 
 		<link rel="apple-touch-icon" href="./icon.png" />
-
+		<script type="text/javascript">
+			window.addEventListener("load", (event) => {
+				const url = new URL(window.location.href);
+				const path = url.pathname;
+				const projectRoot = path.split("/applications/")[0];
+				
+				const importMap = {
+					imports: {
+						"src/":			projectRoot + "src/",
+						"Audio/":		projectRoot + "src/Audio/",
+						"Controls/":	projectRoot + "src/Controls/",
+						"Core/":		projectRoot + "src/Core/",
+						"DB/":			projectRoot + "src/DB/",
+						"Engine/":		projectRoot + "src/Engine/",
+						"Loaders/":		projectRoot + "src/Loaders/",
+						"Network/":		projectRoot + "src/Network/",
+						"Plugins/":		projectRoot + "src/Plugins/",
+						"Preferences/":	projectRoot + "src/Preferences/",
+						"Renderer/":	projectRoot + "src/Renderer/",
+						"UI/":			projectRoot + "src/UI/",
+						"Utils/":		projectRoot + "src/Utils/",
+						"Vendors/":	projectRoot + "src/Vendors/"
+					}
+				};
+				
+				const s = document.createElement("script");
+				s.type = "importmap";
+				s.textContent = JSON.stringify(importMap);
+				document.currentScript.after(s);
+			});
+		</script>
 		<script type="module">
 			addEventListener(
 				'message',
@@ -41,7 +71,7 @@
 					window.ROConfig = event.data;
 
 					// Load the engine entry point as an ES6 module
-					import('../../src/main.js')
+					import('src/main.js')
 						.then(() => {
 							event.source.postMessage('ready', '*');
 						})
