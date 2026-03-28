@@ -46,8 +46,8 @@ module.exports = {
 		// USELESS RULES
 		// ======================
 		'no-useless-escape': 'warn',
-		'no-empty': 'warn',
-		'no-redeclare': 'warn',
+		'no-empty': 'error',
+		'no-redeclare': 'error',
 		'no-constant-condition': 'error',
 		'no-unused-vars': [
 			'warn',
