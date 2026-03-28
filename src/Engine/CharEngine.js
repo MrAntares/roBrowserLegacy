@@ -143,7 +143,7 @@ function reload() {
  * Request to go back to Login Window
  */
 function onExitRequest() {
-	import('Engine/LoginEngine').then(m => m.default.reload());
+	import('Engine/LoginEngine.js').then(m => m.default.reload());
 }
 
 /**

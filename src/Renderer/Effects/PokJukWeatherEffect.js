@@ -15,7 +15,7 @@
 import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
-import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
+import('Renderer/MapRenderer.js').then(m => (MapRenderer = m.default));
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Session from 'Engine/SessionStorage.js';
 import Sound from 'Audio/SoundManager.js';

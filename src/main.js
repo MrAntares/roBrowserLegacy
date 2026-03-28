@@ -27,27 +27,27 @@ function launch(config) {
 			break;
 
 		case APP.MAPVIEWER:
-			import('App/MapViewer').then(mod => mod.default());
+			import('App/MapViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.GRFVIEWER:
-			import('App/GrfViewer').then(mod => mod.default());
+			import('App/GrfViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.MODELVIEWER:
-			import('App/ModelViewer').then(mod => mod.default());
+			import('App/ModelViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.STRVIEWER:
-			import('App/StrViewer').then(mod => mod.default());
+			import('App/StrViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.GRANNYMODELVIEWER:
-			import('App/GrannyModelViewer').then(mod => mod.default());
+			import('App/GrannyModelViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.EFFECTVIEWER:
-			import('App/EffectViewer').then(mod => mod.default());
+			import('App/EffectViewer.js').then(mod => mod.default());
 			break;
 
 		default:

@@ -17,7 +17,7 @@ import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
-import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
+import('Renderer/MapRenderer.js').then(m => (MapRenderer = m.default));
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';

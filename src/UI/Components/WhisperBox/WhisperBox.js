@@ -60,7 +60,7 @@ WhisperBox.init = function () {
 		const match = jQuery(this).attr('data-item') || jQuery(this).data('item');
 		const item = DB.parseItemLink(match);
 		if (item) {
-			import('UI/Components/ItemInfo/ItemInfo').then(m => {
+			import('UI/Components/ItemInfo/ItemInfo.js').then(m => {
 				const ItemInfo = m.default;
 				ItemInfo.append();
 				ItemInfo.uid = item.ITID;
@@ -130,7 +130,7 @@ WhisperBox.show = function (nickname, bHasMessage) {
 	instance.$content = $ui.find('.content');
 	instance.$input = $ui.find('.input-whisper');
 
-	import('Engine/MapEngine/Friends').then(Friends => {
+	import('Engine/MapEngine/Friends.js').then(Friends => {
 		const isFriend = Friends && Friends.default.isFriend ? Friends.default.isFriend(nickname) : false;
 		$ui.find('.title').text('With ' + nickname + (isFriend ? ' (Friend)' : ''));
 	});

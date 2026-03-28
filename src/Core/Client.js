@@ -251,7 +251,7 @@ export const loadFile = (function loadFileClosure() {
 
 				// Load str textures
 				case 'str':
-					gl = (await import('Renderer/Renderer')).default.getContext();
+					gl = (await import('Renderer/Renderer.js')).default.getContext();
 					layers = data.layers;
 
 					for (i = 0; i < data.layernum; ++i) {
@@ -272,7 +272,7 @@ export const loadFile = (function loadFileClosure() {
 					return;
 
 				case 'spr':
-					gl = (await import('Renderer/Renderer')).default.getContext();
+					gl = (await import('Renderer/Renderer.js')).default.getContext();
 					frames = data.frames;
 					count = frames.length;
 
@@ -319,7 +319,7 @@ export const loadFile = (function loadFileClosure() {
 				// Build palette
 				case 'pal':
 					var enableMipmap = Configs.get('enableMipmap');
-					gl = (await import('Renderer/Renderer')).default.getContext();
+					gl = (await import('Renderer/Renderer.js')).default.getContext();
 					texture = gl.createTexture();
 					palette = new Uint8Array(data);
 

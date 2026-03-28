@@ -775,10 +775,10 @@ function onExitSuccess() {
 	if (PACKETVER.value < 20181114) {
 		Background.remove();
 		Background.setImage('bgi_temp.bmp', function () {
-			import('Engine/GameEngine').then(m => m.default.reload());
+			import('Engine/GameEngine.js').then(m => m.default.reload());
 		});
 	} else {
-		import('Engine/GameEngine').then(m => m.default.reload());
+		import('Engine/GameEngine.js').then(m => m.default.reload());
 	}
 }
 
@@ -1234,7 +1234,7 @@ function onConfigUpdate(type, val) {
  * Go back from map-server to char-server
  */
 function onRestart() {
-	import('Engine/CharEngine').then(m => m.default.reload());
+	import('Engine/CharEngine.js').then(m => m.default.reload());
 }
 
 /**
