@@ -33,7 +33,6 @@ import PACKET from 'Network/PacketStructure.js';
 import Network from 'Network/NetworkManager.js';
 import Events from 'Core/Events.js';
 import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector.js';
-import 'Controls/ScreenShot';
 
 /**
  * @var {int16[2]} screen position
