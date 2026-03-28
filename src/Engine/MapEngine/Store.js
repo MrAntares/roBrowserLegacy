@@ -237,6 +237,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 	function onBuyCashResult(pkt) {
 		if (NpcStore.getCurrentType() >= 4 && NpcStore.getCurrentType() != NpcStore.Type.CASH_SHOP) {
+			NpcStore.setClosePacketSent(true);
 			// Marketshop && Barter
 			NpcStore.remove();
 			NpcStore.closeStore();
@@ -325,6 +326,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * @param {object} pkt - PACKET_ZC.PC.SELL_RESULT
 	 */
 	function onSellResult(pkt) {
+		NpcStore.setClosePacketSent(true);
 		NpcStore.remove();
 
 		// success
@@ -354,6 +356,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 		// Bying items
 		NpcStore.onSubmit = function (itemList) {
+			NpcStore.setClosePacketSent(true);
 			NpcStore.remove();
 
 			let i, count;
@@ -400,6 +403,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 		// Bying items
 		NpcStore.onSubmit = function (itemList) {
+			NpcStore.setClosePacketSent(true);
 			NpcStore.remove();
 
 			let i, count;

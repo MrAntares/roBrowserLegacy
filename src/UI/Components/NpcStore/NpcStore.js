@@ -1147,8 +1147,6 @@ function onToggleSelectAmount() {
 NpcStore.closeStore = function () {
 	NpcStore.remove();
 	this.ui.find('.total').show();
-
-	NpcStore.StoreClosePacket(_type);
 };
 
 /**
@@ -1189,6 +1187,11 @@ NpcStore.StoreClosePacket = function (type) {
 			default:
 				pkt = new PACKET.CZ.NPC_TRADE_QUIT();
 				break;
+				case NpcStore.Type.VENDING_STORE:
+				case NpcStore.Type.BUYING_STORE:
+					// Player stores don't use NPC close packets
+					_closePacketSent = true;
+					return;
 		}
 	}
 	_closePacketSent = true;
@@ -1253,6 +1256,10 @@ NpcStore.onMarketShopResultUI = function (itemList) {
  * Exports
  */
 NpcStore.onSubmit = function onSubmit(/* itemList */) {};
+
+NpcStore.setClosePacketSent = function (bool) {
+	_closePacketSent = bool;
+};
 
 /**
  * Create componentand export it

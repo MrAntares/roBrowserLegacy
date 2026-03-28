@@ -335,6 +335,10 @@ ScrollBar.applyDOMScrollbar = function (element) {
 				poller = null;
 				return;
 			}
+
+			var delta = e.originalEvent.deltaY > 0 ? 1 : -1;
+			$element[0].scrollTop += delta * 20;
+
 			updateThumb();
 		}, 300);
 	};

@@ -50,9 +50,6 @@ import cssText from './NpcMenu.css?raw';
 		this.ui
 			.find('.content')
 
-			// Scroll feature should block at each line
-			.on('mousewheel DOMMouseScroll', onScroll)
-
 			// Manage indexes
 			.on('mousedown', 'div', function (event) {
 				selectIndex.call(self, jQuery(this));
@@ -181,25 +178,6 @@ import cssText from './NpcMenu.css?raw';
 		$this.addClass('selected');
 
 		_index = parseInt($this.data('index'), 10);
-	}
-
-	/**
-	 * Update scroll by block (20px)
-	 */
-	function onScroll(event) {
-		let delta;
-
-		if (event.originalEvent.wheelDelta) {
-			delta = event.originalEvent.wheelDelta / 120;
-			if (window.opera) {
-				delta = -delta;
-			}
-		} else if (event.originalEvent.detail) {
-			delta = -event.originalEvent.detail;
-		}
-
-		this.scrollTop = Math.floor(this.scrollTop / 20) * 20 - delta * 20;
-		return false;
 	}
 
 	/**
