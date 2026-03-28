@@ -8,18 +8,17 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import GameFile from 'Loaders/GameFile';
-import World from 'Loaders/World';
-import Ground from 'Loaders/Ground';
-import Altitude from 'Loaders/Altitude';
-import Model from 'Loaders/Model';
-import Sprite from 'Loaders/Sprite';
-import Action from 'Loaders/Action';
-import Str from 'Loaders/Str';
-import FileSystem from 'Core/FileSystem';
-import TextEncoding from 'Utils/CodepageManager';
+import GameFile from 'Loaders/GameFile.js';
+import World from 'Loaders/World.js';
+import Ground from 'Loaders/Ground.js';
+import Altitude from 'Loaders/Altitude.js';
+import Model from 'Loaders/Model.js';
+import Sprite from 'Loaders/Sprite.js';
+import Action from 'Loaders/Action.js';
+import Str from 'Loaders/Str.js';
+import FileSystem from 'Core/FileSystem.js';
+import TextEncoding from 'Utils/CodepageManager.js';
 
 // Load dependencies
 const fs = self.requireNode && self.requireNode('fs');

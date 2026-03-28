@@ -1,7 +1,6 @@
-'use strict';
 
-import * as Tiles from 'Renderer/Effects/Tiles';
-import FlatColorTile from 'Renderer/Effects/FlatColorTile';
+import * as Tiles from 'Renderer/Effects/Tiles.js';
+import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 
 export const DissonanceEffects = [
 	FlatColorTile('dissonance', {

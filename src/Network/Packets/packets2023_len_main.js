@@ -11,7 +11,6 @@
  * @author Alison Serafim
  */
 
-'use strict';
 
 const length_list = new Array();
 

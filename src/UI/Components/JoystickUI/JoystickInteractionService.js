@@ -7,21 +7,20 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import ShortCut from 'UI/Components/ShortCut/ShortCut';
-import InventoryUI from 'UI/Components/Inventory/Inventory';
-import ItemType from 'DB/Items/ItemType';
-import Character from './JoystickCharacterControl';
-import Target from './JoystickTargetService';
-import Cursor from './JoystickMouseCursorAdapter';
-import jQuery from 'Utils/jquery';
-import ControlsSettings from 'Preferences/Controls';
-import SelectionUI from './JoystickSelectionUI';
-import Input from './JoystickInputService';
-import DB from 'DB/DBManager';
-import SkillInfo from 'DB/Skills/SkillInfo';
-import ShortcutMapper from './JoystickShortcutMapper';
+import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import InventoryUI from 'UI/Components/Inventory/Inventory.js';
+import ItemType from 'DB/Items/ItemType.js';
+import Character from './JoystickCharacterControl.js';
+import Target from './JoystickTargetService.js';
+import Cursor from './JoystickMouseCursorAdapter.js';
+import jQuery from 'Utils/jquery.js';
+import ControlsSettings from 'Preferences/Controls.js';
+import SelectionUI from './JoystickSelectionUI.js';
+import Input from './JoystickInputService.js';
+import DB from 'DB/DBManager.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import ShortcutMapper from './JoystickShortcutMapper.js';
 
 export default {
 	prepare: function () {},

@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Clan from 'UI/Components/Clan/Clan';
-import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Clan from 'UI/Components/Clan/Clan.js';
+import Session from 'Engine/SessionStorage.js';
 
 /**
  * Load dependencies

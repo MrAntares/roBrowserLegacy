@@ -18,7 +18,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * Struct Constructor

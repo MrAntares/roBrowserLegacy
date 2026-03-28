@@ -9,9 +9,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import Configs from 'Core/Configs';
+import Configs from 'Core/Configs.js';
 
 /**
  * Memory to get back data

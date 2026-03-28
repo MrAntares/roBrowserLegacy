@@ -8,14 +8,13 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import BasicInfo from './BasicInfo/BasicInfo';
-import BasicInfoV0 from './BasicInfoV0/BasicInfoV0';
-import BasicInfoV3 from './BasicInfoV3/BasicInfoV3';
-import BasicInfoV4 from './BasicInfoV4/BasicInfoV4';
-import BasicInfoV5 from './BasicInfoV5/BasicInfoV5';
-import UIVersionManager from 'UI/UIVersionManager';
+import BasicInfo from './BasicInfo/BasicInfo.js';
+import BasicInfoV0 from './BasicInfoV0/BasicInfoV0.js';
+import BasicInfoV3 from './BasicInfoV3/BasicInfoV3.js';
+import BasicInfoV4 from './BasicInfoV4/BasicInfoV4.js';
+import BasicInfoV5 from './BasicInfoV5/BasicInfoV5.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'BasicInfo';
 const versionInfo = {

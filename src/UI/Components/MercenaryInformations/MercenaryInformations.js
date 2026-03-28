@@ -6,19 +6,18 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import EntityManager from 'Renderer/EntityManager';
-import KEYS from 'Controls/KeyEventHandler';
-import Session from 'Engine/SessionStorage';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
-import AIDriver from 'Core/AIDriver';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Session from 'Engine/SessionStorage.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
+import AIDriver from 'Core/AIDriver.js';
 import htmlText from './MercenaryInformations.html?raw';
 import cssText from './MercenaryInformations.css?raw';
 

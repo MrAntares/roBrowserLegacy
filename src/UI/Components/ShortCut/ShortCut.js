@@ -7,30 +7,29 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import SkillInfo from 'DB/Skills/SkillInfo';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Session from 'Engine/SessionStorage';
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
-import SkillDescription from 'UI/Components/SkillDescription/SkillDescription';
-import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
-import Guild from 'UI/Components/Guild/Guild';
-import ShortCutControls from 'Preferences/ShortCutControls';
-import KEYS from 'Controls/KeyEventHandler';
-import Configs from 'Core/Configs';
-import PACKETVER from 'Network/PacketVerManager';
-import SkillWindow from 'UI/Components/SkillList/SkillList';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Session from 'Engine/SessionStorage.js';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
+import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
+import Guild from 'UI/Components/Guild/Guild.js';
+import ShortCutControls from 'Preferences/ShortCutControls.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Configs from 'Core/Configs.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import SkillWindow from 'UI/Components/SkillList/SkillList.js';
 import htmlText from './ShortCut.html?raw';
 import cssText from './ShortCut.css?raw';
 

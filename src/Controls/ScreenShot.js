@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Client from 'Core/Client';
-import jQuery from 'Utils/jquery';
-import html2canvas from 'Vendors/html2canvas';
-import KEYS from 'Controls/KeyEventHandler';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Client from 'Core/Client.js';
+import jQuery from 'Utils/jquery.js';
+import html2canvas from 'Vendors/html2canvas.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Key Listener

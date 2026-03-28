@@ -9,17 +9,16 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 // Load dependencies
-import Executable from 'Utils/Executable';
-import Texture from 'Utils/Texture';
-import WebGL from 'Utils/WebGL';
-import Configs from './Configs';
-import Thread from './Thread';
-import Memory from './MemoryManager';
-import PACKETVER from 'Network/PacketVerManager';
-import GraphicsSettings from 'Preferences/Graphics';
+import Executable from 'Utils/Executable.js';
+import Texture from 'Utils/Texture.js';
+import WebGL from 'Utils/WebGL.js';
+import Configs from './Configs.js';
+import Thread from './Thread.js';
+import Memory from './MemoryManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 
 /**
  * Initialize Client

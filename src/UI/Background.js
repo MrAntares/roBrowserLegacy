@@ -8,15 +8,14 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * Load dependencies
  */
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Configs from 'Core/Configs';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
 
 /**
  * Background Namespace

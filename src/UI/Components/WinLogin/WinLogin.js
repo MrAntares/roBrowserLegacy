@@ -7,11 +7,10 @@
  *
  */
 
-'use strict';
 
-import WinLogin from './WinLogin/WinLogin';
-import WinLoginV2 from './WinLoginV2/WinLoginV2';
-import UIVersionManager from 'UI/UIVersionManager';
+import WinLogin from './WinLogin/WinLogin.js';
+import WinLoginV2 from './WinLoginV2/WinLoginV2.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'WinLogin';
 

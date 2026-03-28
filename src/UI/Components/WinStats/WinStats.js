@@ -8,14 +8,13 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import WinStats from './WinStats/WinStats';
-import WinStatsV1 from './WinStatsV1/WinStatsV1';
-import WinStatsV2 from './WinStatsV2/WinStatsV2';
-import WinStatsV3 from './WinStatsV3/WinStatsV3';
-import UIVersionManager from 'UI/UIVersionManager';
-import KEYS from 'Controls/KeyEventHandler';
+import WinStats from './WinStats/WinStats.js';
+import WinStatsV1 from './WinStatsV1/WinStatsV1.js';
+import WinStatsV2 from './WinStatsV2/WinStatsV2.js';
+import WinStatsV3 from './WinStatsV3/WinStatsV3.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 const publicName = 'WinStats';
 const versionInfo = {

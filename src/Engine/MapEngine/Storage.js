@@ -6,13 +6,12 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import Storage from 'UI/Components/Storage/Storage';
+import jQuery from 'Utils/jquery.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Storage from 'UI/Components/Storage/Storage.js';
 
 /**
  * Load dependencies

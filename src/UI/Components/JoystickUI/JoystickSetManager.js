@@ -6,7 +6,6 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
 let currentSet = 1;
 export default {

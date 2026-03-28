@@ -5,23 +5,22 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import EffectConst from 'DB/Effects/EffectConst';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import EffectManager from 'Renderer/EffectManager';
-import Client from 'Core/Client';
-import Session from 'Engine/SessionStorage';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Announce from 'UI/Components/Announce/Announce';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import DB from 'DB/DBManager.js';
+import EffectConst from 'DB/Effects/EffectConst.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import EffectManager from 'Renderer/EffectManager.js';
+import Client from 'Core/Client.js';
+import Session from 'Engine/SessionStorage.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Announce from 'UI/Components/Announce/Announce.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './EnchantGrade.html?raw';
 import cssText from './EnchantGrade.css?raw';
 

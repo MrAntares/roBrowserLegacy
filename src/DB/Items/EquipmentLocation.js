@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 export default {
 	HEAD_BOTTOM: 1 << 0,

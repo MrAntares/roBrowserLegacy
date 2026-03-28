@@ -6,38 +6,37 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import RainWeatherEffect from 'Renderer/Effects/RainWeather';
-import SnowWeatherEffect from 'Renderer/Effects/SnowWeather';
-import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect';
-import Camera from 'Renderer/Camera';
-import SwirlingAura from 'Renderer/Effects/SwirlingAura';
-import GroundAura from 'Renderer/Effects/GroundAura';
-import Level99Bubble from 'Renderer/Effects/Level99Bubble';
+import RainWeatherEffect from 'Renderer/Effects/RainWeather.js';
+import SnowWeatherEffect from 'Renderer/Effects/SnowWeather.js';
+import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect.js';
+import Camera from 'Renderer/Camera.js';
+import SwirlingAura from 'Renderer/Effects/SwirlingAura.js';
+import GroundAura from 'Renderer/Effects/GroundAura.js';
+import Level99Bubble from 'Renderer/Effects/Level99Bubble.js';
 
-import SongEffects from 'Renderer/Effects/Songs';
-import SoundManager from 'Audio/SoundManager';
-import Events from 'Core/Events';
-import DB from 'DB/DBManager';
-import Session from 'Engine/SessionStorage';
-import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
-import FlatColorTile from 'Renderer/Effects/FlatColorTile';
-import LockOnTarget from 'Renderer/Effects/LockOnTarget';
-import LPEffect from 'Renderer/Effects/LPEffect';
-import MagicRing from 'Renderer/Effects/MagicRing';
-import MagicTarget from 'Renderer/Effects/MagicTarget';
-import Poison from 'Renderer/Effects/PoisonEffect';
-import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect';
-import PropertyGround from 'Renderer/Effects/PropertyGround';
-import QuadHorn from 'Renderer/Effects/QuadHorn';
-import Blind from 'Renderer/Effects/Shaders/Blind';
-import SpiderWeb from 'Renderer/Effects/SpiderWeb';
-import SpiritSphere from 'Renderer/Effects/SpiritSphere';
-import WarlockSphere from 'Renderer/Effects/WarlockSphere';
-import Altitude from 'Renderer/Map/Altitude';
-import Renderer from 'Renderer/Renderer';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import SongEffects from 'Renderer/Effects/Songs.js';
+import SoundManager from 'Audio/SoundManager.js';
+import Events from 'Core/Events.js';
+import DB from 'DB/DBManager.js';
+import Session from 'Engine/SessionStorage.js';
+import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
+import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
+import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
+import LPEffect from 'Renderer/Effects/LPEffect.js';
+import MagicRing from 'Renderer/Effects/MagicRing.js';
+import MagicTarget from 'Renderer/Effects/MagicTarget.js';
+import Poison from 'Renderer/Effects/PoisonEffect.js';
+import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
+import PropertyGround from 'Renderer/Effects/PropertyGround.js';
+import QuadHorn from 'Renderer/Effects/QuadHorn.js';
+import Blind from 'Renderer/Effects/Shaders/Blind.js';
+import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
+import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
+import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Renderer from 'Renderer/Renderer.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 const ServiceEffects = SongEffects.ServiceEffects;
 const getBragiSpellNote = SongEffects.getBragiSpellNote;

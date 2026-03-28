@@ -5,23 +5,22 @@
  *
  * @author IssID
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import EntityManager from 'Renderer/EntityManager';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
 import htmlText from './HomunInformations.html?raw';
 import cssText from './HomunInformations.css?raw';
-import Session from 'Engine/SessionStorage';
-import AIDriver from 'Core/AIDriver';
-import Configs from 'Core/Configs';
-import PACKETVER from 'Network/PacketVerManager';
+import Session from 'Engine/SessionStorage.js';
+import AIDriver from 'Core/AIDriver.js';
+import Configs from 'Core/Configs.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 
 let autoFeedInterval;
 const autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled

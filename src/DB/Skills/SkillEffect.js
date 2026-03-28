@@ -41,9 +41,8 @@
  *
  */
 
-'use strict';
 
-import SK from './SkillConst';
+import SK from './SkillConst.js';
 
 const SkillEffect = {};
 

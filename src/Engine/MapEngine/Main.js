@@ -8,31 +8,30 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import StatusProperty from 'DB/Status/StatusProperty';
-import EffectConst from 'DB/Effects/EffectConst';
-import Session from 'Engine/SessionStorage';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import EntityManager from 'Renderer/EntityManager';
-import EffectManager from 'Renderer/EffectManager';
-import Renderer from 'Renderer/Renderer';
-import Damage from 'Renderer/Effects/Damage';
-import Altitude from 'Renderer/Map/Altitude';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
-import Announce from 'UI/Components/Announce/Announce';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import ChangeCart from 'UI/Components/ChangeCart/ChangeCart';
-import PartyUI from 'UI/Components/PartyFriends/PartyFriends';
-import PetMessageConst from 'DB/Pets/PetMessageConst';
-import uint32ToRGB from 'Utils/colors';
-import BasicInfo from 'UI/Components/BasicInfo/BasicInfo';
-import SkillList from 'UI/Components/SkillList/SkillList';
-import WinStats from 'UI/Components/WinStats/WinStats';
+import DB from 'DB/DBManager.js';
+import StatusProperty from 'DB/Status/StatusProperty.js';
+import EffectConst from 'DB/Effects/EffectConst.js';
+import Session from 'Engine/SessionStorage.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import EffectManager from 'Renderer/EffectManager.js';
+import Renderer from 'Renderer/Renderer.js';
+import Damage from 'Renderer/Effects/Damage.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
+import Announce from 'UI/Components/Announce/Announce.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import ChangeCart from 'UI/Components/ChangeCart/ChangeCart.js';
+import PartyUI from 'UI/Components/PartyFriends/PartyFriends.js';
+import PetMessageConst from 'DB/Pets/PetMessageConst.js';
+import uint32ToRGB from 'Utils/colors.js';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
+import SkillList from 'UI/Components/SkillList/SkillList.js';
+import WinStats from 'UI/Components/WinStats/WinStats.js';
 
 /**
  * Load dependencies

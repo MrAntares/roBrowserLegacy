@@ -8,9 +8,8 @@
  * @author Alison Serafim
  */
 
-'use strict';
 
-import WeaponType from './WeaponType';
+import WeaponType from './WeaponType.js';
 
 const WeaponTypeExpansion = {};
 

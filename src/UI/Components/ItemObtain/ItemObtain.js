@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Events from 'Core/Events';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Events from 'Core/Events.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './ItemObtain.html?raw';
 import cssText from './ItemObtain.css?raw';
 

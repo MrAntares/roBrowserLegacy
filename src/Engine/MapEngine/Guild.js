@@ -8,22 +8,21 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import Inflate from 'Utils/Inflate';
-import Texture from 'Utils/Texture';
-import BinaryWriter from 'Utils/BinaryWriter';
-import Session from 'Engine/SessionStorage';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import EntityManager from 'Renderer/EntityManager';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Guild from 'UI/Components/Guild/Guild';
-import UIManager from 'UI/UIManager';
-import Configs from 'Core/Configs';
-import MiniMap from 'UI/Components/MiniMap/MiniMap';
+import DB from 'DB/DBManager.js';
+import Inflate from 'Utils/Inflate.js';
+import Texture from 'Utils/Texture.js';
+import BinaryWriter from 'Utils/BinaryWriter.js';
+import Session from 'Engine/SessionStorage.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Guild from 'UI/Components/Guild/Guild.js';
+import UIManager from 'UI/UIManager.js';
+import Configs from 'Core/Configs.js';
+import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 
 /**
  * Load dependencies

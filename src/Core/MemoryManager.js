@@ -10,9 +10,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import MemoryItem from 'Core/MemoryItem';
+import MemoryItem from 'Core/MemoryItem.js';
 
 /**
  * List of files in memory

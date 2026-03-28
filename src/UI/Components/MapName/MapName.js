@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './MapName.html?raw';
 import cssText from './MapName.css?raw';
-import Client from 'Core/Client';
-import Events from 'Core/Events';
+import Client from 'Core/Client.js';
+import Events from 'Core/Events.js';
 
 /**
  * Create Component

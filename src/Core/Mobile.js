@@ -10,16 +10,15 @@
 // TODO: resize event on mobile keyboard bug
 // TODO: body overflow
 // TODO: responsive design
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Context from 'Core/Context';
-import Events from 'Core/Events';
-import Camera from 'Renderer/Camera';
-import Session from 'Engine/SessionStorage';
-import Mouse from 'Controls/MouseEventHandler';
-import KEYS from 'Controls/KeyEventHandler';
-import MobileUI from 'UI/Components/MobileUI/MobileUI';
+import jQuery from 'Utils/jquery.js';
+import Context from 'Core/Context.js';
+import Events from 'Core/Events.js';
+import Camera from 'Renderer/Camera.js';
+import Session from 'Engine/SessionStorage.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import MobileUI from 'UI/Components/MobileUI/MobileUI.js';
 
 /**
  * Import dependencies

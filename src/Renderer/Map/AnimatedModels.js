@@ -7,11 +7,11 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-import Client from 'Core/Client';
-import glMatrix from 'Utils/gl-matrix';
-import WebGL from 'Utils/WebGL';
-import Session from 'Engine/SessionStorage';
-import GraphicsSettings from 'Preferences/Graphics';
+import Client from 'Core/Client.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import WebGL from 'Utils/WebGL.js';
+import Session from 'Engine/SessionStorage.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 import _vertexShader from './AnimatedModels.vs?raw';
 import _fragmentShader from './AnimatedModels.fs?raw';
 

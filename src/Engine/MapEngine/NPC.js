@@ -8,22 +8,21 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import Sound from 'Audio/SoundManager';
-import BGM from 'Audio/BGM';
-import Client from 'Core/Client';
-import Session from 'Engine/SessionStorage';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Renderer from 'Renderer/Renderer';
-import NpcBox from 'UI/Components/NpcBox/NpcBox';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import NpcMenu from 'UI/Components/NpcMenu/NpcMenu';
-import WinPopup from 'UI/Components/WinPopup/WinPopup';
-import MiniMap from 'UI/Components/MiniMap/MiniMap';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import Sound from 'Audio/SoundManager.js';
+import BGM from 'Audio/BGM.js';
+import Client from 'Core/Client.js';
+import Session from 'Engine/SessionStorage.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Renderer from 'Renderer/Renderer.js';
+import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import WinPopup from 'UI/Components/WinPopup/WinPopup.js';
+import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 
 /**
  * Load dependencies

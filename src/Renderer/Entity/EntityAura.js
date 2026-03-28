@@ -18,11 +18,10 @@
  * @prop {number} homunLv - Homun class aura level
  * @prop {number} bossLv - Boss class aura level
  */
-'use strict';
 
-import EffectConst from 'DB/Effects/EffectConst';
-import /** @type {TMapPreferencesAura} */ MapPreferences from 'Preferences/Map';
-import Configs from 'Core/Configs';
+import EffectConst from 'DB/Effects/EffectConst.js';
+import /** @type {TMapPreferencesAura} */ MapPreferences from 'Preferences/Map.js';
+import Configs from 'Core/Configs.js';
 
 /** @type {TAuraSettings} */
 const _auraSettings = {

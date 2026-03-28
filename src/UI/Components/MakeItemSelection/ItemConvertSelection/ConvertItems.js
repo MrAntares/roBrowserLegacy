@@ -5,19 +5,18 @@
  *
  * @author Francisco Wallison
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import Preferences from 'Core/Preferences';
-import Mouse from 'Controls/MouseEventHandler';
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection';
-import MakeModelMessage from 'UI/Components/MakeItemSelection/ItemConvertSelection/MakeModelMessage/MakeModelMessage';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import Preferences from 'Core/Preferences.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection.js';
+import MakeModelMessage from 'UI/Components/MakeItemSelection/ItemConvertSelection/MakeModelMessage/MakeModelMessage.js';
 import htmlText from './ConvertItems.html?raw';
 import cssText from './ConvertItems.css?raw';
 

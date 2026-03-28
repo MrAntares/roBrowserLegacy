@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import WebGL from 'Utils/WebGL.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import _vertexShader from './Water.vs?raw';
 import _fragmentShader from './Water.fs?raw';
 

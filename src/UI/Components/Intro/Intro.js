@@ -8,22 +8,21 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * Dependencies
  */
-import jQuery from 'Utils/jquery';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import jQuery from 'Utils/jquery.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './Intro.html?raw';
 import cssText from './Intro.css?raw';
-import Context from 'Core/Context';
-import Configs from 'Core/Configs';
-import Particle from './Particle';
-import Preferences from './Preferences';
-import FileSystem from './FileSystem';
+import Context from 'Core/Context.js';
+import Configs from 'Core/Configs.js';
+import Particle from './Particle.js';
+import Preferences from './Preferences.js';
+import FileSystem from './FileSystem.js';
 
 /**
  * Create Intro component

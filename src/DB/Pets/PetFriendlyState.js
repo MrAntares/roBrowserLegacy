@@ -8,7 +8,6 @@
  * @author MrUnzO
  */
 
-'use strict';
 
 export default {
 	PET_ASHAMED: 0,

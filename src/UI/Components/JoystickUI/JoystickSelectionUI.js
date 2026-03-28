@@ -4,12 +4,11 @@
  * Handles the UI for selecting a shortcut slot when an item/skill is selected via Context Menu.
  *
  */
-'use strict';
 
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ShortCut from 'UI/Components/ShortCut/ShortCut';
-import jQuery from 'Utils/jquery';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import jQuery from 'Utils/jquery.js';
 import htmlText from './JoystickSelectionUI.html?raw';
 import cssText from './JoystickSelectionUI.css?raw';
 

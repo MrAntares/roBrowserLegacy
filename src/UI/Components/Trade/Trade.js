@@ -5,19 +5,18 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Session from 'Engine/SessionStorage';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Session from 'Engine/SessionStorage.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import htmlText from './Trade.html?raw';
 import cssText from './Trade.css?raw';
 

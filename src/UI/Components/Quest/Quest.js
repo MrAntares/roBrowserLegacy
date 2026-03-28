@@ -6,12 +6,11 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import Quest from './Quest/Quest';
-import QuestV1 from './QuestV1/QuestV1';
-import UIVersionManager from 'UI/UIVersionManager';
-import KEYS from 'Controls/KeyEventHandler';
+import Quest from './Quest/Quest.js';
+import QuestV1 from './QuestV1/QuestV1.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 const publicName = 'Quest';
 const versionInfo = {

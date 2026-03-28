@@ -8,19 +8,18 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import MemoryManager from 'Core/MemoryManager';
-import Graphics from 'Preferences/Graphics';
-import Sprite from 'Loaders/Sprite';
-import Action from 'Loaders/Action';
-import Preferences from 'Preferences/Controls';
-import EntityManager from 'Renderer/EntityManager';
-import Entity from 'Renderer/Entity/Entity';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Mouse from 'Controls/MouseEventHandler';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import MemoryManager from 'Core/MemoryManager.js';
+import Graphics from 'Preferences/Graphics.js';
+import Sprite from 'Loaders/Sprite.js';
+import Action from 'Loaders/Action.js';
+import Preferences from 'Preferences/Controls.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
 
 /**
  * Cursor Constructor

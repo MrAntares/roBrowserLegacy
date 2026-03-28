@@ -6,24 +6,23 @@
  * @author Alisonrag
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Session from 'Engine/SessionStorage';
-import MonsterTable from 'DB/Monsters/MonsterTable';
-import jQuery from 'Utils/jquery';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Client from 'Core/Client';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Session from 'Engine/SessionStorage.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
+import jQuery from 'Utils/jquery.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Client from 'Core/Client.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './WriteRodex.html?raw';
 import cssText from './WriteRodex.css?raw';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import Rodex from 'UI/Components/Rodex/Rodex';
-import Inventory from 'UI/Components/Inventory/Inventory';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import Rodex from 'UI/Components/Rodex/Rodex.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
 
 /**
  * Create Component

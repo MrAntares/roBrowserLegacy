@@ -7,17 +7,16 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import StatusTable from 'DB/Status/StatusInfo';
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Texture from 'Utils/Texture';
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ScreenEffectManager from 'Renderer/ScreenEffectManager';
+import StatusTable from 'DB/Status/StatusInfo.js';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Texture from 'Utils/Texture.js';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import cssText from './StatusIcons.css?raw';
 
 /**

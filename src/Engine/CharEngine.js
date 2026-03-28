@@ -9,26 +9,25 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import Configs from 'Core/Configs';
-import Events from 'Core/Events';
-import Sound from 'Audio/SoundManager';
-import BGM from 'Audio/BGM';
-import Session from 'Engine/SessionStorage';
-import MapEngine from 'Engine/MapEngine';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import UIManager from 'UI/UIManager';
-import Background from 'UI/Background';
-import PincodeWindow from 'UI/Components/PincodeWindow/PincodeWindow';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import JoystickUI from 'UI/Components/JoystickUI/JoystickUI';
-import CharSelect from 'UI/Components/CharSelect/CharSelect';
-import CharCreate from 'UI/Components/CharCreate/CharCreate';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import Configs from 'Core/Configs.js';
+import Events from 'Core/Events.js';
+import Sound from 'Audio/SoundManager.js';
+import BGM from 'Audio/BGM.js';
+import Session from 'Engine/SessionStorage.js';
+import MapEngine from 'Engine/MapEngine.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import UIManager from 'UI/UIManager.js';
+import Background from 'UI/Background.js';
+import PincodeWindow from 'UI/Components/PincodeWindow/PincodeWindow.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import JoystickUI from 'UI/Components/JoystickUI/JoystickUI.js';
+import CharSelect from 'UI/Components/CharSelect/CharSelect.js';
+import CharCreate from 'UI/Components/CharCreate/CharCreate.js';
 
 // Load modules
 // Version Dependent UIs

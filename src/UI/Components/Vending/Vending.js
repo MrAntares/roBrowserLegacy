@@ -6,29 +6,28 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import ItemType from 'DB/Items/ItemType';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Session from 'Engine/SessionStorage';
-import Mouse from 'Controls/MouseEventHandler';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import CartItems from 'UI/Components/CartItems/CartItems';
-import VendingModelMessage from 'UI/Components/Vending/VendingModelMessage/VendingModelMessage';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import ItemType from 'DB/Items/ItemType.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Session from 'Engine/SessionStorage.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
+import VendingModelMessage from 'UI/Components/Vending/VendingModelMessage/VendingModelMessage.js';
 import htmlText from './Vending.html?raw';
 import cssText from './Vending.css?raw';
-import Renderer from 'Renderer/Renderer';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import BasicInfo from 'UI/Components/BasicInfo/BasicInfo';
+import Renderer from 'Renderer/Renderer.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 
 /**
  * Create NPC Menu component

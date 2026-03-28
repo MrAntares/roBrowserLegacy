@@ -7,21 +7,20 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import KEYS from 'Controls/KeyEventHandler';
-import jQuery from 'Utils/jquery';
-import Preferences from 'Core/Preferences';
-import Session from 'Engine/SessionStorage';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import jQuery from 'Utils/jquery.js';
+import Preferences from 'Core/Preferences.js';
+import Session from 'Engine/SessionStorage.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './Bank.html?raw';
 import cssText from './Bank.css?raw';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Create Component

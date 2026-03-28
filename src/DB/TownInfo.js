@@ -7,7 +7,6 @@
  *
  * @author Scriptor
  */
-'use strict';
 
 const exports = {};
 

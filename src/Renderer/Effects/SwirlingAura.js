@@ -15,16 +15,15 @@
  *   where SinLimit = 90° + (i - 10) * 9°
  * - Render: base ring at distance, top offset by rotated height
  */
-'use strict';
 
 import _vertexShader from './SwirlingAura.vs?raw';
 import _fragmentShader from './SwirlingAura.fs?raw';
-import WebGL from 'Utils/WebGL';
-import Texture from 'Utils/Texture';
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
-import Altitude from 'Renderer/Map/Altitude';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import WebGL from 'Utils/WebGL.js';
+import Texture from 'Utils/Texture.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 const mat4 = glMatrix.mat4;
 

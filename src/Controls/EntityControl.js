@@ -7,36 +7,35 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import PathFinding from 'Utils/PathFinding';
-import DB from 'DB/DBManager';
-import KEYS from 'Controls/KeyEventHandler';
-import Mouse from 'Controls/MouseEventHandler';
-import Preferences from 'Preferences/Controls';
-import Camera from 'Renderer/Camera';
-import Session from 'Engine/SessionStorage';
-import Friends from 'Engine/MapEngine/Friends';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import Network from 'Network/NetworkManager';
-import Cursor from 'UI/CursorManager';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
-import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
-import Pet from 'UI/Components/PetInformations/PetInformations';
-import Trade from 'UI/Components/Trade/Trade';
-import NpcBox from 'UI/Components/NpcBox/NpcBox';
-import Altitude from 'Renderer/Map/Altitude';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector';
-import Guild from 'Engine/MapEngine/Guild';
-import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
-import Group from 'Engine/MapEngine/Group';
-import HomunInformations from 'UI/Components/HomunInformations/HomunInformations';
-import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations';
+import glMatrix from 'Utils/gl-matrix.js';
+import PathFinding from 'Utils/PathFinding.js';
+import DB from 'DB/DBManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import Preferences from 'Preferences/Controls.js';
+import Camera from 'Renderer/Camera.js';
+import Session from 'Engine/SessionStorage.js';
+import Friends from 'Engine/MapEngine/Friends.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Network from 'Network/NetworkManager.js';
+import Cursor from 'UI/CursorManager.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
+import Pet from 'UI/Components/PetInformations/PetInformations.js';
+import Trade from 'UI/Components/Trade/Trade.js';
+import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector.js';
+import Guild from 'Engine/MapEngine/Guild.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
+import Group from 'Engine/MapEngine/Group.js';
+import HomunInformations from 'UI/Components/HomunInformations/HomunInformations.js';
+import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations.js';
 
 /**
  * Import

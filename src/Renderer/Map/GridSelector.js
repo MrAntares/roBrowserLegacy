@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Altitude from 'Renderer/Map/Altitude';
-import Client from 'Core/Client';
-import WebGL from 'Utils/WebGL';
-import Texture from 'Utils/Texture';
-import Configs from 'Core/Configs';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Client from 'Core/Client.js';
+import WebGL from 'Utils/WebGL.js';
+import Texture from 'Utils/Texture.js';
+import Configs from 'Core/Configs.js';
 import _vertexShader from './GridSelector.vs?raw';
 import _fragmentShader from './GridSelector.fs?raw';
 

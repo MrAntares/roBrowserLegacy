@@ -9,18 +9,17 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 // Load dependencies
-import Configs from 'Core/Configs';
-import BinaryReader from 'Utils/BinaryReader';
-import PACKETVER from './PacketVerManager';
-import PacketVersions from './PacketVersions';
-import PacketRegister from './PacketRegister';
-import PacketCrypt from './PacketCrypt';
-import PacketLength from './PacketLength';
-import WebSocket from './SocketHelpers/WebSocket';
-import NodeSocket from './SocketHelpers/NodeSocket';
+import Configs from 'Core/Configs.js';
+import BinaryReader from 'Utils/BinaryReader.js';
+import PACKETVER from './PacketVerManager.js';
+import PacketVersions from './PacketVersions.js';
+import PacketRegister from './PacketRegister.js';
+import PacketCrypt from './PacketCrypt.js';
+import PacketLength from './PacketLength.js';
+import WebSocket from './SocketHelpers/WebSocket.js';
+import NodeSocket from './SocketHelpers/NodeSocket.js';
 
 /**
  * Sockets list

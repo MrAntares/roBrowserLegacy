@@ -7,19 +7,18 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
+import DB from 'DB/DBManager.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
 import htmlText from './CheckAttendance.html?raw';
 import cssText from './CheckAttendance.css?raw';
-import jQuery from 'Utils/jquery';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import jQuery from 'Utils/jquery.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Create Component

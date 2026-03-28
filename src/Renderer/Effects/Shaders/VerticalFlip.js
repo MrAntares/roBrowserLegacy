@@ -11,8 +11,8 @@
 
 import vs from './GLSL/VerticalFlip.vs?raw';
 import fs from './GLSL/VerticalFlip.fs?raw';
-import WebGL from 'Utils/WebGL';
-import PostProcess from 'Renderer/Effects/PostProcess';
+import WebGL from 'Utils/WebGL.js';
+import PostProcess from 'Renderer/Effects/PostProcess.js';
 
 let _program, _buffer;
 let _active = false;

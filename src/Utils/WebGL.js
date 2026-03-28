@@ -10,10 +10,9 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import Texture from 'Utils/Texture';
-import Configs from 'Core/Configs';
+import Texture from 'Utils/Texture.js';
+import Configs from 'Core/Configs.js';
 
 /**
  * Get WebGL Context

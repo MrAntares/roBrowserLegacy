@@ -8,16 +8,15 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import KEYS from 'Controls/KeyEventHandler';
-import Mouse from 'Controls/MouseEventHandler';
-import Events from 'Core/Events';
-import Preferences from 'Preferences/Camera';
-import Session from 'Engine/SessionStorage';
-import glMatrix from 'Utils/gl-matrix';
-import Configs from 'Core/Configs';
-import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import Events from 'Core/Events.js';
+import Preferences from 'Preferences/Camera.js';
+import Session from 'Engine/SessionStorage.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Configs from 'Core/Configs.js';
+import DB from 'DB/DBManager.js';
 
 const { mat4, mat3, vec2, vec3 } = glMatrix;
 const _position = vec3.create();

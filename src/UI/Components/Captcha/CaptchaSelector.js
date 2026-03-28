@@ -7,19 +7,18 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import jQuery from 'Utils/jquery.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './CaptchaSelector.html?raw';
 import cssText from './CaptchaSelector.css?raw';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import EntityManager from 'Renderer/EntityManager';
-import Session from 'Engine/SessionStorage';
-import DB from 'DB/DBManager';
-import MonsterTable from 'DB/Monsters/MonsterTable';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Session from 'Engine/SessionStorage.js';
+import DB from 'DB/DBManager.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
 
 /**
  * Create Component

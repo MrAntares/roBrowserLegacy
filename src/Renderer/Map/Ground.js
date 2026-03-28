@@ -7,12 +7,11 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import Texture from 'Utils/Texture';
-import Preferences from 'Preferences/Map';
-import Configs from 'Core/Configs';
+import WebGL from 'Utils/WebGL.js';
+import Texture from 'Utils/Texture.js';
+import Preferences from 'Preferences/Map.js';
+import Configs from 'Core/Configs.js';
 import _vertexShader from './Ground.vs?raw';
 import _fragmentShader from './Ground.fs?raw';
 

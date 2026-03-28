@@ -8,9 +8,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import PACKET from './PacketStructure';
+import PACKET from './PacketStructure.js';
 
 export default {
 	0x69: PACKET.AC.ACCEPT_LOGIN, // ok

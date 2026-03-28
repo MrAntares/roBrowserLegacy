@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  * (auto-generated)
  */
-'use strict';
 
 export default {
 	1: '\xc3\xb5\xbb\xe7\xb3\xaf\xb0\xb3',

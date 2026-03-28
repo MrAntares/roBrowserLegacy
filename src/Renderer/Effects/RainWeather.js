@@ -10,17 +10,16 @@
  * - Added procedural audio system for Rain and Thunder (Web Audio API).
  * - Added lightning visual effect using the existing overlay system.
  */
-'use strict';
 
-import Renderer from 'Renderer/Renderer';
+import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
 import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Altitude from 'Renderer/Map/Altitude';
-import Camera from 'Renderer/Camera';
-import Preferences from 'Preferences/Audio';
-import Session from 'Engine/SessionStorage';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Camera from 'Renderer/Camera.js';
+import Preferences from 'Preferences/Audio.js';
+import Session from 'Engine/SessionStorage.js';
 
 const RAG_TICK_MS = 25;
 const FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;

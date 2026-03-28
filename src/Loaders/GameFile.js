@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import GameFileDecrypt from './GameFileDecrypt';
-import BinaryReader from 'Utils/BinaryReader';
-import Struct from 'Utils/Struct';
-import Inflate from 'Utils/Inflate';
-import TextEncoding from 'Utils/CodepageManager';
+import GameFileDecrypt from './GameFileDecrypt.js';
+import BinaryReader from 'Utils/BinaryReader.js';
+import Struct from 'Utils/Struct.js';
+import Inflate from 'Utils/Inflate.js';
+import TextEncoding from 'Utils/CodepageManager.js';
 
 /**
  * GRF Constructor

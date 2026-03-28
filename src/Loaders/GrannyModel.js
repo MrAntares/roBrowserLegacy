@@ -13,10 +13,9 @@
 //Figure out how to decompress.
 //Figure out how to use this structure tree that granny has by default for each sections information.
 
-'use strict';
 
-import BinaryReader from 'Utils/BinaryReader';
-import glMatrix from 'Utils/gl-matrix';
+import BinaryReader from 'Utils/BinaryReader.js';
+import glMatrix from 'Utils/gl-matrix.js';
 import 'Utils/CRC32';
 
 /**

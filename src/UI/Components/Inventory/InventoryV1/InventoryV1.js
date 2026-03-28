@@ -9,31 +9,30 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import CartItems from 'UI/Components/CartItems/CartItems';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import Storage from 'UI/Components/Storage/Storage';
-import UIVersionManager from 'UI/UIVersionManager';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import Storage from 'UI/Components/Storage/Storage.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 import htmlText from './InventoryV1.html?raw';
 import cssText from './InventoryV1.css?raw';
-import BasicInfo from 'UI/Components/BasicInfo/BasicInfo';
-import Mail from 'UI/Components/Mail/Mail';
-import WriteRodex from 'UI/Components/Rodex/WriteRodex';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
+import Mail from 'UI/Components/Mail/Mail.js';
+import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
 
 /**
  * Create Component

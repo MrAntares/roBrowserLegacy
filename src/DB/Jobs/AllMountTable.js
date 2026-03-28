@@ -7,9 +7,8 @@
  *
  * @author Antares
  */
-'use strict';
 
-import JobId from './JobConst';
+import JobId from './JobConst.js';
 
 const AllMountTable = {};
 

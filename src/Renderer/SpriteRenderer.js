@@ -7,11 +7,10 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import glMatrix from 'Utils/gl-matrix';
-import Camera from './Camera';
+import WebGL from 'Utils/WebGL.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Camera from './Camera.js';
 import _vertexShader from './SpriteRenderer.vs?raw';
 import _fragmentShader from './SpriteRenderer.fs?raw';
 

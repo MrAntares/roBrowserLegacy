@@ -7,16 +7,15 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
+import jQuery from 'Utils/jquery.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
 import htmlText from './CaptchaAnswer.html?raw';
 import cssText from './CaptchaAnswer.css?raw';
-import DB from 'DB/DBManager';
+import DB from 'DB/DBManager.js';
 
 /**
  * Create Component

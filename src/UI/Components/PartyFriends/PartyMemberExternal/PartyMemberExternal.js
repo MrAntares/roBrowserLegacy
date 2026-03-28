@@ -4,24 +4,23 @@
  * Floating mini-window for a single party member.
  *
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import DB from 'DB/DBManager';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import DB from 'DB/DBManager.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './PartyMemberExternal.html?raw';
 import cssText from './PartyMemberExternal.css?raw';
-import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
-import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
-import PartyFriendsV1 from 'UI/Components/PartyFriends/PartyFriendsV1/PartyFriendsV1';
-import Camera from 'Renderer/Camera';
-import Rodex from 'UI/Components/Rodex/Rodex';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Session from 'Engine/SessionStorage';
-import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
-import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
+import PartyFriendsV1 from 'UI/Components/PartyFriends/PartyFriendsV1/PartyFriendsV1.js';
+import Camera from 'Renderer/Camera.js';
+import Rodex from 'UI/Components/Rodex/Rodex.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Session from 'Engine/SessionStorage.js';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 
 /**
  * Create Component

@@ -7,15 +7,14 @@
  *
  * @author @vthibault, @Javierlog08, @scriptord3
  */
-'use strict';
 
-import KEYS from 'Controls/KeyEventHandler';
-import Session from 'Engine/SessionStorage';
-import Preferences from 'Core/Preferences';
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Session from 'Engine/SessionStorage.js';
+import Preferences from 'Core/Preferences.js';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './Clan.html?raw';
 import cssText from './Clan.css?raw';
 

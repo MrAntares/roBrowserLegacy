@@ -1,7 +1,6 @@
-'use strict';
 
 import jQuery from 'jquery';
-import DB from 'DB/DBManager';
+import DB from 'DB/DBManager.js';
 
 /**
  * Overwrite text() to support npc code

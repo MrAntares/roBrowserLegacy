@@ -6,10 +6,9 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import JobId from './JobConst';
-import JobNameTable from './JobNameTable';
+import JobId from './JobConst.js';
+import JobNameTable from './JobNameTable.js';
 
 const PalNameTable = {};
 PalNameTable[JobId.NOVICE] = JobNameTable[JobId.NOVICE];

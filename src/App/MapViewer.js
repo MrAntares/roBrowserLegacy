@@ -8,20 +8,20 @@
  * @author Vincent Thibault
  */
 
-import Queue from 'Utils/Queue';
-import Configs from 'Core/Configs';
-import Client from 'Core/Client';
-import Thread from 'Core/Thread';
-import BGM from 'Audio/BGM';
-import Session from 'Engine/SessionStorage';
-import Renderer from 'Renderer/Renderer';
-import MapRenderer from 'Renderer/MapRenderer';
-import Camera from 'Renderer/Camera';
-import Altitude from 'Renderer/Map/Altitude';
-import Entity from 'Renderer/Entity/Entity';
-import Mouse from 'Controls/MouseEventHandler';
-import MapControl from 'Controls/MapControl';
-import Intro from 'UI/Components/Intro/Intro';
+import Queue from 'Utils/Queue.js';
+import Configs from 'Core/Configs.js';
+import Client from 'Core/Client.js';
+import Thread from 'Core/Thread.js';
+import BGM from 'Audio/BGM.js';
+import Session from 'Engine/SessionStorage.js';
+import Renderer from 'Renderer/Renderer.js';
+import MapRenderer from 'Renderer/MapRenderer.js';
+import Camera from 'Renderer/Camera.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import MapControl from 'Controls/MapControl.js';
+import Intro from 'UI/Components/Intro/Intro.js';
 
 /**
  * MapViewer namespace

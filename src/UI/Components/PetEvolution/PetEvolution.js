@@ -5,18 +5,17 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './PetEvolution.html?raw';
 import cssText from './PetEvolution.css?raw';
 

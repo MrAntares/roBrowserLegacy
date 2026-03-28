@@ -9,38 +9,37 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import CartItems from 'UI/Components/CartItems/CartItems';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import Storage from 'UI/Components/Storage/Storage';
-import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip';
-import UIVersionManager from 'UI/UIVersionManager';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import Storage from 'UI/Components/Storage/Storage.js';
+import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 import htmlText from './InventoryV3.html?raw';
 import cssText from './InventoryV3.css?raw';
-import Configs from 'Core/Configs';
-import PACKETVER from 'Network/PacketVerManager';
-import BasicInfo from 'UI/Components/BasicInfo/BasicInfo';
-import Refine from 'UI/Components/Refine/Refine';
-import EnchantGrade from 'UI/Components/EnchantGrade/EnchantGrade';
-import EnchantUI from 'UI/Components/Enchant/Enchant';
-import Mail from 'UI/Components/Mail/Mail';
-import WriteRodex from 'UI/Components/Rodex/WriteRodex';
+import Configs from 'Core/Configs.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
+import Refine from 'UI/Components/Refine/Refine.js';
+import EnchantGrade from 'UI/Components/EnchantGrade/EnchantGrade.js';
+import EnchantUI from 'UI/Components/Enchant/Enchant.js';
+import Mail from 'UI/Components/Mail/Mail.js';
+import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
 
 /**
  * Create Component

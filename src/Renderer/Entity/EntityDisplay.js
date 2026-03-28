@@ -8,10 +8,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import MapPreferences from 'Preferences/Map';
+import glMatrix from 'Utils/gl-matrix.js';
+import MapPreferences from 'Preferences/Map.js';
 
 /**
  * Global methods

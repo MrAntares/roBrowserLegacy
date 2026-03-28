@@ -7,20 +7,19 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import MonsterTable from 'DB/Monsters/MonsterTable';
-import Preferences from 'Core/Preferences';
-import KEYS from 'Controls/KeyEventHandler';
-import Renderer from 'Renderer/Renderer';
-import Entity from 'Renderer/Entity/Entity';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import StatusConst from 'DB/Status/StatusState';
-import Camera from 'Renderer/Camera';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import PACKETVER from 'Network/PacketVerManager';
+import DB from 'DB/DBManager.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
+import Preferences from 'Core/Preferences.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Renderer from 'Renderer/Renderer.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import StatusConst from 'DB/Status/StatusState.js';
+import Camera from 'Renderer/Camera.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import htmlText from './CharSelectV2.html?raw';
 import cssText from './CharSelectV2.css?raw';
 

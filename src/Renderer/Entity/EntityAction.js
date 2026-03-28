@@ -12,10 +12,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import DB from 'DB/DBManager';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import DB from 'DB/DBManager.js';
 
 /**
  * Action frames

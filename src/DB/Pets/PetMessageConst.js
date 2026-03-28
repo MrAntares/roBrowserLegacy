@@ -8,7 +8,6 @@
  *
  * @author MrUnzO
  */
-'use strict';
 
 export default {
 	PM_FEEDING: 0,

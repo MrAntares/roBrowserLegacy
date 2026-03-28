@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import StatusConst from './StatusConst';
+import StatusConst from './StatusConst.js';
 
 export default {
 	BodyState: {

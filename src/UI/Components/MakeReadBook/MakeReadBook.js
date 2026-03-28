@@ -9,22 +9,21 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './MakeReadBook.html?raw';
 import cssText from './MakeReadBook.css?raw';
-import Sprite from 'Loaders/Sprite';
-import Client from 'Core/Client';
-import TextEncoding from 'Utils/CodepageManager';
-import Announce from 'UI/Components/Announce/Announce';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Sprite from 'Loaders/Sprite.js';
+import Client from 'Core/Client.js';
+import TextEncoding from 'Utils/CodepageManager.js';
+import Announce from 'UI/Components/Announce/Announce.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 const sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 

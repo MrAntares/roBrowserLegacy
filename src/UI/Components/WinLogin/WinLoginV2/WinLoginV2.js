@@ -8,21 +8,20 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * Dependencies
  */
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import Configs from 'Core/Configs';
-import Preferences from 'Core/Preferences';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
+import Preferences from 'Core/Preferences.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './WinLoginV2.html?raw';
 import cssText from './WinLoginV2.css?raw';
-import WinLoginV2Background from './WinLoginV2Background';
+import WinLoginV2Background from './WinLoginV2Background.js';
 
 /**
  * Create WinLogin namespace

@@ -1,4 +1,3 @@
-'use strict';
 
 function pastel_colour(seed) {
 	const baseRed = 0;

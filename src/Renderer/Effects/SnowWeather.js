@@ -6,16 +6,15 @@
  * - Emits 2 flakes per 25ms tick until the last 160 ticks of its lifetime.
  * - Each flake is a no-master particle that falls straight down and fades in/out.
  */
-'use strict';
 
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
 import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Altitude from 'Renderer/Map/Altitude';
-import Session from 'Engine/SessionStorage';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Session from 'Engine/SessionStorage.js';
 
 // The official client uses 25ms rag ticks for weather effects.
 const RAG_TICK_MS = 25;

@@ -8,10 +8,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import JobId from './JobConst';
-import WeaponType from 'DB/Items/WeaponType';
+import JobId from './JobConst.js';
+import WeaponType from 'DB/Items/WeaponType.js';
 
 const WeaponAction = {};
 

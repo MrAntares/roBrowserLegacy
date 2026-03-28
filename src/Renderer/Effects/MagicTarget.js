@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import glMatrix from 'Utils/gl-matrix';
-import SkillId from 'DB/Skills/SkillConst';
-import Client from 'Core/Client';
-import Altitude from 'Renderer/Map/Altitude';
-import Session from 'Engine/SessionStorage';
-import Camera from 'Renderer/Camera';
+import WebGL from 'Utils/WebGL.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import SkillId from 'DB/Skills/SkillConst.js';
+import Client from 'Core/Client.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Session from 'Engine/SessionStorage.js';
+import Camera from 'Renderer/Camera.js';
 
 // Load dependencies
 /**

@@ -6,40 +6,39 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import SkillId from 'DB/Skills/SkillConst';
-import SkillInfo from 'DB/Skills/SkillInfo';
-import EffectConst from 'DB/Effects/EffectConst';
-import PathFinding from 'Utils/PathFinding';
-import Session from 'Engine/SessionStorage';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import EntityManager from 'Renderer/EntityManager';
-import EffectManager from 'Renderer/EffectManager';
-import Altitude from 'Renderer/Map/Altitude';
-import ShortCut from 'UI/Components/ShortCut/ShortCut';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
-import Guild from 'UI/Components/Guild/Guild';
-import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
-import ItemSelection from 'UI/Components/ItemSelection/ItemSelection';
-import MakeArrowSelection from 'UI/Components/MakeArrowSelection/MakeArrowSelection';
-import RefineWeaponSelection from 'UI/Components/RefineWeaponSelection/RefineWeaponSelection';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import NpcMenu from 'UI/Components/NpcMenu/NpcMenu';
-import Sense from 'UI/Components/Sense/Sense';
-import Announce from 'UI/Components/Announce/Announce';
-import Renderer from 'Renderer/Renderer';
-import SkillWindow from 'UI/Components/SkillList/SkillList';
+import DB from 'DB/DBManager.js';
+import SkillId from 'DB/Skills/SkillConst.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import EffectConst from 'DB/Effects/EffectConst.js';
+import PathFinding from 'Utils/PathFinding.js';
+import Session from 'Engine/SessionStorage.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import EffectManager from 'Renderer/EffectManager.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
+import Guild from 'UI/Components/Guild/Guild.js';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
+import ItemSelection from 'UI/Components/ItemSelection/ItemSelection.js';
+import MakeArrowSelection from 'UI/Components/MakeArrowSelection/MakeArrowSelection.js';
+import RefineWeaponSelection from 'UI/Components/RefineWeaponSelection/RefineWeaponSelection.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import Sense from 'UI/Components/Sense/Sense.js';
+import Announce from 'UI/Components/Announce/Announce.js';
+import Renderer from 'Renderer/Renderer.js';
+import SkillWindow from 'UI/Components/SkillList/SkillList.js';
 
-import SnowWeatherEffect from 'Renderer/Effects/SnowWeather';
-import RainWeatherEffect from 'Renderer/Effects/RainWeather';
-import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect';
-import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect';
-import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
+import SnowWeatherEffect from 'Renderer/Effects/SnowWeather.js';
+import RainWeatherEffect from 'Renderer/Effects/RainWeather.js';
+import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
+import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect.js';
+import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 
 /**
  * Load dependencies

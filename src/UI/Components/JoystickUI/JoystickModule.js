@@ -7,13 +7,12 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import Polling from './JoystickPollingLoop';
-import InputService from './JoystickInputService';
-import Interaction from './JoystickInteractionService';
-import ShortcutMapper from './JoystickShortcutMapper';
-import JoystickUIRenderer from './JoystickUIRenderer';
+import Polling from './JoystickPollingLoop.js';
+import InputService from './JoystickInputService.js';
+import Interaction from './JoystickInteractionService.js';
+import ShortcutMapper from './JoystickShortcutMapper.js';
+import JoystickUIRenderer from './JoystickUIRenderer.js';
 
 export default {
 	prepare: function () {

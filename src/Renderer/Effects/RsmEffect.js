@@ -3,15 +3,14 @@
  *
  * Rendering Rsm,Rsm2 File object with animation support
  */
-'use strict';
 
 import _vertexShader from './RsmEffect.vs?raw';
 import _fragmentShader from './RsmEffect.fs?raw';
-import WebGL from 'Utils/WebGL';
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
-import Model from 'Loaders/Model';
-import Renderer from 'Renderer/Renderer';
+import WebGL from 'Utils/WebGL.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
+import Model from 'Loaders/Model.js';
+import Renderer from 'Renderer/Renderer.js';
 
 let _program = null;
 const _normalMat = new Float32Array(3 * 3);

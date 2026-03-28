@@ -8,23 +8,22 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import Client from 'Core/Client';
-import Configs from 'Core/Configs';
-import Sprite from 'Loaders/Sprite';
-import Action from 'Loaders/Action';
-import Renderer from 'Renderer/Renderer';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import MapPreferences from 'Preferences/Map';
-import DB from 'DB/DBManager';
-import Sound from 'Audio/SoundManager';
-import EffectManager from 'Renderer/EffectManager';
-import MemoryManager from 'Core/MemoryManager';
-import Entity from 'Renderer/Entity/Entity';
-import GraphicsSettings from 'Preferences/Graphics';
-import PACKETVER from 'Network/PacketVerManager';
+import WebGL from 'Utils/WebGL.js';
+import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
+import Sprite from 'Loaders/Sprite.js';
+import Action from 'Loaders/Action.js';
+import Renderer from 'Renderer/Renderer.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import MapPreferences from 'Preferences/Map.js';
+import DB from 'DB/DBManager.js';
+import Sound from 'Audio/SoundManager.js';
+import EffectManager from 'Renderer/EffectManager.js';
+import MemoryManager from 'Core/MemoryManager.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 
 // Load dependencies
 const EndureSound = 'player_metal.wav';

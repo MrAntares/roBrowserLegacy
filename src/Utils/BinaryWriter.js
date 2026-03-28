@@ -10,9 +10,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import TextEncoding from 'Utils/CodepageManager';
+import TextEncoding from 'Utils/CodepageManager.js';
 
 /**
  * Extend DataView to add position

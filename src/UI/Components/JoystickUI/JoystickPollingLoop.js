@@ -6,9 +6,8 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import InputService from './JoystickInputService';
+import InputService from './JoystickInputService.js';
 
 let timeoutHandle = null;
 const POLL_RATE_ACTIVE = 100; // 10 FPS

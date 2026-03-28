@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 export default {
 	1: '\xb0\xa1\xb5\xe5',

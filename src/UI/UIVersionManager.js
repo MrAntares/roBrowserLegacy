@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import Configs from 'Core/Configs';
-import PacketVerManager from 'Network/PacketVerManager';
+import Configs from 'Core/Configs.js';
+import PacketVerManager from 'Network/PacketVerManager.js';
 
 const UIVersionManager = {};
 const _UIAliases = {};

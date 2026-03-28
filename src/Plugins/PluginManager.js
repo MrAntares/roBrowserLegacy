@@ -28,9 +28,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import Configs from 'Core/Configs';
+import Configs from 'Core/Configs.js';
 
 /**
  * Plugin namespace

@@ -6,14 +6,13 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Client from 'Core/Client';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Entity from 'Renderer/Entity/Entity';
-import Sound from 'Audio/SoundManager';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Client from 'Core/Client.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import Sound from 'Audio/SoundManager.js';
 import html from './PvPCount.html?raw';
 import css from './PvPCount.css?raw';
 

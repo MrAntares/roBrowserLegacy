@@ -6,17 +6,16 @@
  * @author Alisonrag
  *
  */
-'use strict';
 
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './PCGoldTimer.html?raw';
 import cssText from './PCGoldTimer.css?raw';
-import PACKET from 'Network/PacketStructure';
-import Network from 'Network/NetworkManager';
-import Client from 'Core/Client';
-import DB from 'DB/DBManager';
-import Session from 'Engine/SessionStorage';
+import PACKET from 'Network/PacketStructure.js';
+import Network from 'Network/NetworkManager.js';
+import Client from 'Core/Client.js';
+import DB from 'DB/DBManager.js';
+import Session from 'Engine/SessionStorage.js';
 
 const MAX_GOLDPC_VAR = 300;
 

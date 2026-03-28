@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import BinaryReader from 'Utils/BinaryReader';
-import glMatrix from 'Utils/gl-matrix';
+import BinaryReader from 'Utils/BinaryReader.js';
+import glMatrix from 'Utils/gl-matrix.js';
 
 /**
  * World class loader

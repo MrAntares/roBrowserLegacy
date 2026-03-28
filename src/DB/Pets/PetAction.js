@@ -7,7 +7,6 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 export default {
 	10001: '\xB8\xF3\xBD\xBA\xC5\xCD/BAPHOMET_\xBB\xC1\xB4\xD9\xB1\xB8\xB8\xF0\xC0\xDA.act',

@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import DB from 'DB/DBManager';
+import glMatrix from 'Utils/gl-matrix.js';
+import DB from 'DB/DBManager.js';
 
 /**
  * Global methods

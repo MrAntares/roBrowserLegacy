@@ -6,11 +6,10 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import GraphicsSettings from 'Preferences/Graphics';
-import WebGL from 'Utils/WebGL';
-import PostProcess from 'Renderer/Effects/PostProcess';
+import GraphicsSettings from 'Preferences/Graphics.js';
+import WebGL from 'Utils/WebGL.js';
+import PostProcess from 'Renderer/Effects/PostProcess.js';
 import commonVS from './GLSL/Common.vs?raw';
 import blurFS from './GLSL/GaussianBlur.fs?raw';
 

@@ -9,24 +9,23 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Vending from 'UI/Components/Vending/Vending';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Vending from 'UI/Components/Vending/Vending.js';
 import htmlText from './VendingShop.html?raw';
 import cssText from './VendingShop.css?raw';
-import VendingReport from 'UI/Components/VendingReport/VendingReport';
+import VendingReport from 'UI/Components/VendingReport/VendingReport.js';
 
 /**
  * Create Component

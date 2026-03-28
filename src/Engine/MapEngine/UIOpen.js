@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Configs from 'Core/Configs';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance';
-import EnchantGradeUI from 'UI/Components/EnchantGrade/EnchantGrade';
-import EnchantUI from 'UI/Components/Enchant/Enchant';
+import Configs from 'Core/Configs.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance.js';
+import EnchantGradeUI from 'UI/Components/EnchantGrade/EnchantGrade.js';
+import EnchantUI from 'UI/Components/Enchant/Enchant.js';
 
 /**
  * Load dependencies

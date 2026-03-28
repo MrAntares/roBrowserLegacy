@@ -7,14 +7,13 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import UIComponent from './UIComponent';
-import UIVersionManager from './UIVersionManager';
-import KEYS from 'Controls/KeyEventHandler';
-import Renderer from 'Renderer/Renderer';
-import GameEngine from 'Engine/GameEngine';
+import jQuery from 'Utils/jquery.js';
+import UIComponent from './UIComponent.js';
+import UIVersionManager from './UIVersionManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Renderer from 'Renderer/Renderer.js';
+import GameEngine from 'Engine/GameEngine.js';
 
 /**
  * User Interface Manager

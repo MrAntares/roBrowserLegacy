@@ -8,9 +8,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import WeaponType from './WeaponType';
+import WeaponType from './WeaponType.js';
 
 const WeaponSound = {};
 

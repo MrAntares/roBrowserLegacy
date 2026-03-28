@@ -8,7 +8,7 @@
  * @author MrUnzO
  */
 
-import Emotion from 'DB/EmotionsConst';
+import Emotion from 'DB/EmotionsConst.js';
 
 const petEmotionTable = [
 	[

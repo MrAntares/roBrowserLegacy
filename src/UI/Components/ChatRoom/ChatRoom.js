@@ -1,17 +1,16 @@
-'use strict';
 
-import Preferences from 'Core/Preferences';
-import jQuery from 'Utils/jquery';
-import Renderer from 'Renderer/Renderer';
-import Session from 'Engine/SessionStorage';
-import Mouse from 'Controls/MouseEventHandler';
-import KEYS from 'Controls/KeyEventHandler';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import Preferences from 'Core/Preferences.js';
+import jQuery from 'Utils/jquery.js';
+import Renderer from 'Renderer/Renderer.js';
+import Session from 'Engine/SessionStorage.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './ChatRoom.html?raw';
 import cssText from './ChatRoom.css?raw';
-import ProcessCommand from 'Controls/ProcessCommand';
+import ProcessCommand from 'Controls/ProcessCommand.js';
 
 /**
  * Create Component

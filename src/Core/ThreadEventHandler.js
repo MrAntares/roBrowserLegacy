@@ -8,9 +8,9 @@
  * @author Vincent Thibault
  */
 
-import FileManager from 'Core/FileManager';
-import FileSystem from 'Core/FileSystem';
-import MapLoader from 'Loaders/MapLoader';
+import FileManager from 'Core/FileManager.js';
+import FileSystem from 'Core/FileSystem.js';
+import MapLoader from 'Loaders/MapLoader.js';
 
 ('use strict');
 

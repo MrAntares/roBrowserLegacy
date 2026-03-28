@@ -7,7 +7,6 @@
  *
  * @author MrUnzO
  */
-'use strict';
 
 export default {
 	ET_SURPRISE: 0,

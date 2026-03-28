@@ -7,20 +7,19 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Session from 'Engine/SessionStorage';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import EntityManager from 'Renderer/EntityManager';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import NpcStore from 'UI/Components/NpcStore/NpcStore';
-import Vending from 'UI/Components/Vending/Vending';
-import VendingReport from 'UI/Components/VendingReport/VendingReport';
-import VendingShop from 'UI/Components/VendingShop/VendingShop';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import DB from 'DB/DBManager.js';
+import Session from 'Engine/SessionStorage.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import NpcStore from 'UI/Components/NpcStore/NpcStore.js';
+import Vending from 'UI/Components/Vending/Vending.js';
+import VendingReport from 'UI/Components/VendingReport/VendingReport.js';
+import VendingShop from 'UI/Components/VendingShop/VendingShop.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Load dependencies

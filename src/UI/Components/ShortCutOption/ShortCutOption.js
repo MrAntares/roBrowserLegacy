@@ -6,19 +6,18 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import $ from 'Utils/jquery';
-import KEYS from 'Controls/KeyEventHandler';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ShortCutControls from 'Preferences/ShortCutControls';
-import BattleMode from 'Controls/BattleMode';
+import $ from 'Utils/jquery.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ShortCutControls from 'Preferences/ShortCutControls.js';
+import BattleMode from 'Controls/BattleMode.js';
 import htmlText from './ShortCutOption.html?raw';
 import cssText from './ShortCutOption.css?raw';
-import Controls from 'Preferences/Controls';
+import Controls from 'Preferences/Controls.js';
 
 const ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 

@@ -7,22 +7,21 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import SkillInfo from 'DB/Skills/SkillInfo';
-import KEYS from 'Controls/KeyEventHandler';
-import Mouse from 'Controls/MouseEventHandler';
-import jQuery from 'Utils/jquery';
-import Renderer from 'Renderer/Renderer';
-import Entity from 'Renderer/Entity/Entity';
-import EntityManager from 'Renderer/EntityManager';
-import Session from 'Engine/SessionStorage';
-import Controls from 'Preferences/Controls';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Cursor from 'UI/CursorManager';
-import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
+import DB from 'DB/DBManager.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import jQuery from 'Utils/jquery.js';
+import Renderer from 'Renderer/Renderer.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Session from 'Engine/SessionStorage.js';
+import Controls from 'Preferences/Controls.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Cursor from 'UI/CursorManager.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 
 /**
  * Create Announce component

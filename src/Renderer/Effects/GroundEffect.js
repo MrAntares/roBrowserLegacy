@@ -1,10 +1,9 @@
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import glMatrix from 'Utils/gl-matrix';
-import SkillID from 'DB/Skills/SkillConst';
-import Client from 'Core/Client';
-import Altitude from 'Renderer/Map/Altitude';
+import WebGL from 'Utils/WebGL.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import SkillID from 'DB/Skills/SkillConst.js';
+import Client from 'Core/Client.js';
+import Altitude from 'Renderer/Map/Altitude.js';
 
 let _texture;
 let _program;

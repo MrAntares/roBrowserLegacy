@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
+import glMatrix from 'Utils/gl-matrix.js';
 
 /**
  * Global methods

@@ -7,31 +7,30 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Configs from 'Core/Configs';
-import PACKETVER from 'Network/PacketVerManager';
-import MonsterTable from 'DB/Monsters/MonsterTable';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Session from 'Engine/SessionStorage';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
-import Guild from 'UI/Components/Guild/Guild';
-import Bank from 'UI/Components/Bank/Bank';
-import Escape from 'UI/Components/Escape/Escape';
-import WorldMap from 'UI/Components/WorldMap/WorldMap';
-import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance';
-import Rodex from 'UI/Components/Rodex/Rodex';
-import WinStats from 'UI/Components/WinStats/WinStats';
-import Navigation from 'UI/Components/Navigation/Navigation';
-import SkillList from 'UI/Components/SkillList/SkillList';
-import Quest from 'UI/Components/Quest/Quest';
+import DB from 'DB/DBManager.js';
+import Configs from 'Core/Configs.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Session from 'Engine/SessionStorage.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
+import Guild from 'UI/Components/Guild/Guild.js';
+import Bank from 'UI/Components/Bank/Bank.js';
+import Escape from 'UI/Components/Escape/Escape.js';
+import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
+import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance.js';
+import Rodex from 'UI/Components/Rodex/Rodex.js';
+import WinStats from 'UI/Components/WinStats/WinStats.js';
+import Navigation from 'UI/Components/Navigation/Navigation.js';
+import SkillList from 'UI/Components/SkillList/SkillList.js';
+import Quest from 'UI/Components/Quest/Quest.js';
 import htmlText from './BasicInfoV4.html?raw';
 import cssText from './BasicInfoV4.css?raw';
 

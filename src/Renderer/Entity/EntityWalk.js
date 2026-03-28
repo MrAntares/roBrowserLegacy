@@ -7,11 +7,10 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import PathFinding from 'Utils/PathFinding';
-import Altitude from 'Renderer/Map/Altitude';
-import Session from 'Engine/SessionStorage';
+import PathFinding from 'Utils/PathFinding.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Session from 'Engine/SessionStorage.js';
 
 /**
  * Direction look up table

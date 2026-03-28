@@ -1,6 +1,5 @@
-'use strict';
 
-import WebGL from 'Utils/WebGL';
+import WebGL from 'Utils/WebGL.js';
 
 const _vertexShader = `
         #version 300 es

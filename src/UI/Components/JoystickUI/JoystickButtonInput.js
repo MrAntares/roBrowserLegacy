@@ -8,13 +8,12 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import ShortcutMapper from './JoystickShortcutMapper';
-import Interaction from './JoystickInteractionService';
-import SetManager from './JoystickSetManager';
-import JoystickUIRenderer from './JoystickUIRenderer';
-import SelectionUI from './JoystickSelectionUI';
+import ShortcutMapper from './JoystickShortcutMapper.js';
+import Interaction from './JoystickInteractionService.js';
+import SetManager from './JoystickSetManager.js';
+import JoystickUIRenderer from './JoystickUIRenderer.js';
+import SelectionUI from './JoystickSelectionUI.js';
 
 let clickLock = false;
 const lockTimeout = 200;

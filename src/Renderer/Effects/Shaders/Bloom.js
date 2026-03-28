@@ -9,11 +9,10 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import GraphicsSettings from 'Preferences/Graphics';
-import WebGL from 'Utils/WebGL';
-import PostProcess from 'Renderer/Effects/PostProcess';
+import GraphicsSettings from 'Preferences/Graphics.js';
+import WebGL from 'Utils/WebGL.js';
+import PostProcess from 'Renderer/Effects/PostProcess.js';
 import commonVS from './GLSL/Common.vs?raw';
 import prefilterFS from './GLSL/Bloom.fs?raw';
 import compositeFS from './GLSL/BloomUpsampling.fs?raw';

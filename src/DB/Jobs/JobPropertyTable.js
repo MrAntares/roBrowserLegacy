@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault, Antares
  */
-'use strict';
 
-import JOB from './JobConst';
+import JOB from './JobConst.js';
 
 // Job Property Table
 const JPT = {};

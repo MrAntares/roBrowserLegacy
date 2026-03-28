@@ -7,21 +7,20 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 import CommonCSS from './Common.css?raw';
-import jQuery from 'Utils/jquery';
-import Cursor from './CursorManager';
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import Events from 'Core/Events';
-import Mouse from 'Controls/MouseEventHandler';
-import UIPreferences from 'Preferences/UI';
-import Session from 'Engine/SessionStorage';
-import Targa from 'Loaders/Targa';
-import Renderer from 'Renderer/Renderer';
-import EntityManager from 'Renderer/EntityManager';
-import ScrollBar from './Scrollbar';
+import jQuery from 'Utils/jquery.js';
+import Cursor from './CursorManager.js';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import Events from 'Core/Events.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIPreferences from 'Preferences/UI.js';
+import Session from 'Engine/SessionStorage.js';
+import Targa from 'Loaders/Targa.js';
+import Renderer from 'Renderer/Renderer.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import ScrollBar from './Scrollbar.js';
 
 /**
  * Create a component

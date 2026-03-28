@@ -7,11 +7,10 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import SetManager from './JoystickSetManager';
-import ShortCut from 'UI/Components/ShortCut/ShortCut';
-import JoystickUIRenderer from './JoystickUIRenderer';
+import SetManager from './JoystickSetManager.js';
+import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import JoystickUIRenderer from './JoystickUIRenderer.js';
 
 const slotMapping = [
 	// L1 group (slots 0-3): Y, X, B, A

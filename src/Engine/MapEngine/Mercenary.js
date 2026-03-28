@@ -6,17 +6,16 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Session from 'Engine/SessionStorage';
-import EntityManager from 'Renderer/EntityManager';
-import UIManager from 'UI/UIManager';
-import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations';
-import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
-import Mouse from 'Controls/MouseEventHandler';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Session from 'Engine/SessionStorage.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import UIManager from 'UI/UIManager.js';
+import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations.js';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
+import Mouse from 'Controls/MouseEventHandler.js';
 
 /**
  * Load dependencies

@@ -8,15 +8,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import WeatherTable from 'DB/Effects/WeatherEffect';
-import Client from 'Core/Client';
-import Session from 'Engine/SessionStorage';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import WebGL from 'Utils/WebGL.js';
+import WeatherTable from 'DB/Effects/WeatherEffect.js';
+import Client from 'Core/Client.js';
+import Session from 'Engine/SessionStorage.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
-import { vec3 } from 'Utils/gl-matrix';
+import { vec3 } from 'Utils/gl-matrix.js';
 
 /**
  * @var {number} number of clouds to render

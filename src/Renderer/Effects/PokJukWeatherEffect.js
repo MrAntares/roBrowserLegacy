@@ -11,15 +11,14 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import Renderer from 'Renderer/Renderer';
+import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
 import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Session from 'Engine/SessionStorage';
-import Sound from 'Audio/SoundManager';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Session from 'Engine/SessionStorage.js';
+import Sound from 'Audio/SoundManager.js';
 
 // SINGLETON STATE
 let _instance = null;

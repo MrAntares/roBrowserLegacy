@@ -8,30 +8,29 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import Configs from 'Core/Configs';
-import EquipLocation from 'DB/Items/EquipmentLocation';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import ItemObject from 'Renderer/ItemObject';
-import Altitude from 'Renderer/Map/Altitude';
-import Session from 'Engine/SessionStorage';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import ItemObtain from 'UI/Components/ItemObtain/ItemObtain';
-import ItemSelection from 'UI/Components/ItemSelection/ItemSelection';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import CartItems from 'UI/Components/CartItems/CartItems';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip';
-import Refine from 'UI/Components/Refine/Refine';
-import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip';
-import Storage from 'UI/Components/Storage/Storage';
-import MakeItemSelection from 'UI/Components/MakeItemSelection/MakeItemSelection';
-import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection';
-import EffectManager from 'Renderer/EffectManager';
+import DB from 'DB/DBManager.js';
+import Configs from 'Core/Configs.js';
+import EquipLocation from 'DB/Items/EquipmentLocation.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import ItemObject from 'Renderer/ItemObject.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Session from 'Engine/SessionStorage.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import ItemObtain from 'UI/Components/ItemObtain/ItemObtain.js';
+import ItemSelection from 'UI/Components/ItemSelection/ItemSelection.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip.js';
+import Refine from 'UI/Components/Refine/Refine.js';
+import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
+import Storage from 'UI/Components/Storage/Storage.js';
+import MakeItemSelection from 'UI/Components/MakeItemSelection/MakeItemSelection.js';
+import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection.js';
+import EffectManager from 'Renderer/EffectManager.js';
 
 /**
  * Load dependencies

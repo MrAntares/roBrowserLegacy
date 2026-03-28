@@ -9,13 +9,12 @@
  * @author Liam Mitchell
  */
 
-import Configs from 'Core/Configs';
-import Thread from 'Core/Thread';
-import Client from 'Core/Client';
-import GrannyModelViewer from 'UI/Components/GrannyModelViewer/GrannyModelViewer';
+import Configs from 'Core/Configs.js';
+import Thread from 'Core/Thread.js';
+import Client from 'Core/Client.js';
+import GrannyModelViewer from 'UI/Components/GrannyModelViewer/GrannyModelViewer.js';
 
 export default function init() {
-	'use strict';
 
 	function onAPIMessage(event) {
 		if (typeof event.data !== 'object') {

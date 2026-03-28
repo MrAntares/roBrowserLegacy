@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 //  effectId: hitEffectId: effectIdOnCaster: beginCastEffectId:
-'use strict';
 
 const ItemEffect = {};
 

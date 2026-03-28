@@ -6,27 +6,26 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
 + */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Context from 'Core/Context';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Preferences from 'Core/Preferences';
-import Session from 'Engine/SessionStorage';
-import Renderer from 'Renderer/Renderer';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import EntityManager from 'Renderer/EntityManager';
-import Network from 'Network/NetworkManager';
-import PathFinding from 'Utils/PathFinding';
-import Altitude from 'Renderer/Map/Altitude';
-import Events from 'Core/Events';
+import jQuery from 'Utils/jquery.js';
+import Context from 'Core/Context.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Preferences from 'Core/Preferences.js';
+import Session from 'Engine/SessionStorage.js';
+import Renderer from 'Renderer/Renderer.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Network from 'Network/NetworkManager.js';
+import PathFinding from 'Utils/PathFinding.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Events from 'Core/Events.js';
 import htmlText from './MobileUI.html?raw';
 import cssText from './MobileUI.css?raw';
-import glMatrix from 'Vendors/gl-matrix';
-import Camera from 'Renderer/Camera';
-import KEYS from 'Controls/KeyEventHandler';
+import glMatrix from 'Vendors/gl-matrix.js';
+import Camera from 'Renderer/Camera.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 const vec2 = glMatrix.vec2;
 const mat2 = glMatrix.mat2;

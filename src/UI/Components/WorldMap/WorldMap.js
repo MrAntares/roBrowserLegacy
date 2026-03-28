@@ -5,19 +5,18 @@
  *
  * @author IssID
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import Configs from 'Core/Configs';
-import Preferences from 'Core/Preferences';
-import KEYS from 'Controls/KeyEventHandler';
-import Renderer from 'Renderer/Renderer';
-import MapRenderer from 'Renderer/MapRenderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Session from 'Engine/SessionStorage';
-import MAPS from 'DB/Map/WorldMap';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
+import Preferences from 'Core/Preferences.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Renderer from 'Renderer/Renderer.js';
+import MapRenderer from 'Renderer/MapRenderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Session from 'Engine/SessionStorage.js';
+import MAPS from 'DB/Map/WorldMap.js';
 import htmlText from './WorldMap.html?raw';
 import cssText from './WorldMap.css?raw';
 

@@ -6,13 +6,12 @@
  * @author Alisonrag
  *
  */
-'use strict';
 
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './RodexIcon.html?raw';
 import cssText from './RodexIcon.css?raw';
-import Rodex from 'UI/Components/Rodex/Rodex';
+import Rodex from 'UI/Components/Rodex/Rodex.js';
 
 /**
  * Create Component

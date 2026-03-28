@@ -5,19 +5,18 @@
  *
  * @author Francisco Wallison
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import Preferences from 'Core/Preferences';
-import ConvertItems from 'UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems';
-import Mouse from 'Controls/MouseEventHandler';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Inventory from 'UI/Components/Inventory/Inventory';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import Preferences from 'Core/Preferences.js';
+import ConvertItems from 'UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
 import htmlText from './ItemListWindowSelection.html?raw';
 import cssText from './ItemListWindowSelection.css?raw';
 

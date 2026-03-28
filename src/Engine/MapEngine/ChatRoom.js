@@ -7,16 +7,15 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import EntityManager from 'Renderer/EntityManager';
-import ChatRoomCreate from 'UI/Components/ChatRoomCreate/ChatRoomCreate';
-import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Session from 'Engine/SessionStorage';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import ChatRoomCreate from 'UI/Components/ChatRoomCreate/ChatRoomCreate.js';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Session from 'Engine/SessionStorage.js';
 
 /**
  * Load dependencies
