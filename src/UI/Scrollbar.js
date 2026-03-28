@@ -339,8 +339,9 @@ define(['Utils/jquery', 'Utils/Texture', 'DB/DBManager', 'Core/Client'], functio
 				return;
 			}
 
-			var delta = e.originalEvent.deltaY;
-			$element[0].scrollTop += delta;
+			var delta = e.originalEvent.deltaY > 0 ? 1 : -1;
+			$element[0].scrollTop += delta * 20;
+
 			updateThumb();
 			e.preventDefault();
 			e.stopPropagation();

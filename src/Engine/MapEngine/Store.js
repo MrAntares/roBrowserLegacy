@@ -238,6 +238,7 @@ define(function (require) {
 
 	function onBuyCashResult(pkt) {
 		if (NpcStore.getCurrentType() >= 4 && NpcStore.getCurrentType() != NpcStore.Type.CASH_SHOP) {
+			NpcStore.setClosePacketSent(true);
 			// Marketshop && Barter
 			NpcStore.remove();
 			NpcStore.closeStore();
@@ -326,6 +327,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET_ZC.PC.SELL_RESULT
 	 */
 	function onSellResult(pkt) {
+		NpcStore.setClosePacketSent(true);
 		NpcStore.remove();
 
 		// success
@@ -355,6 +357,7 @@ define(function (require) {
 
 		// Bying items
 		NpcStore.onSubmit = function (itemList) {
+			NpcStore.setClosePacketSent(true);
 			NpcStore.remove();
 
 			var i, count;
@@ -401,6 +404,7 @@ define(function (require) {
 
 		// Bying items
 		NpcStore.onSubmit = function (itemList) {
+			NpcStore.setClosePacketSent(true);
 			NpcStore.remove();
 
 			var i, count;

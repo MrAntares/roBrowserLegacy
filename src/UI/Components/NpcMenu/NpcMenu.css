@@ -27,13 +27,18 @@
 	padding-top: 5px;
 }
 
+#NpcMenu .middle {
+	display: flex;
+	flex: 1;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
 #NpcMenu .content {
 	white-space: pre-wrap;
 	background-color: #f9f9f9;
 	width: 260px;
 	height: 80px;
-	overflow-x: hidden;
-	overflow-y: auto;
 	padding-left: 3px;
 	margin-top: 5px;
 }
