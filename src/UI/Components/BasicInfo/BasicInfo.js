@@ -8,20 +8,17 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'BasicInfo';
+import BasicInfo from './BasicInfo/BasicInfo';
+import BasicInfoV0 from './BasicInfoV0/BasicInfoV0';
+import BasicInfoV3 from './BasicInfoV3/BasicInfoV3';
+import BasicInfoV4 from './BasicInfoV4/BasicInfoV4';
+import BasicInfoV5 from './BasicInfoV5/BasicInfoV5';
+import UIVersionManager from 'UI/UIVersionManager';
 
-	var BasicInfo = require('./BasicInfo/BasicInfo');
-	var BasicInfoV0 = require('./BasicInfoV0/BasicInfoV0');
-	var BasicInfoV3 = require('./BasicInfoV3/BasicInfoV3');
-	var BasicInfoV4 = require('./BasicInfoV4/BasicInfoV4');
-	var BasicInfoV5 = require('./BasicInfoV5/BasicInfoV5');
-
-	var UIVersionManager = require('UI/UIVersionManager');
-
-	var versionInfo = {
+const publicName = 'BasicInfo';
+	const versionInfo = {
 		default: BasicInfoV0,
 		common: {
 			20200520: BasicInfoV5, // not sure the exact client date that started supporting 4th Jobs
@@ -37,7 +34,5 @@ define(function (require) {
 		}
 	};
 
-	var BasicInfoController = UIVersionManager.getUIController(publicName, versionInfo);
-
-	return BasicInfoController;
-});
+	const BasicInfoController = UIVersionManager.getUIController(publicName, versionInfo);
+export default BasicInfoController;

@@ -12,42 +12,43 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Session = require('Engine/SessionStorage');
-	var getModule = require;
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
 
-	// Constants based on RO Client behavior
-	var RAG_TICK_MS = 25;
-	var FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
+let MapRenderer;
+import('Renderer/MapRenderer').then(m => MapRenderer = m.default);
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Altitude from 'Renderer/Map/Altitude';
+import Session from 'Engine/SessionStorage';
+
+// Constants based on RO Client behavior
+	const RAG_TICK_MS = 25;
+	const FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
 
 	// Emission settings (Reduced quantity compared to snow)
 	// Snow is 2 per tick. Sakura/Maple is roughly 1 every 2 calls in C++, so ~1 per 150ms.
-	var EMIT_INTERVAL_MS = 150;
-	var EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
+	const EMIT_INTERVAL_MS = 150;
+	const EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
 
 	// Lifetime
-	var LEAVE_LIFE_MS = 600 * RAG_TICK_MS; // Lasts a bit longer to allow slow falling
-	var LEAVE_FADEIN_MS = 20 * RAG_TICK_MS;
-	var LEAVE_FADEOUT_START_MS = (LEAVE_LIFE_MS * 4) / 5;
+	const LEAVE_LIFE_MS = 600 * RAG_TICK_MS; // Lasts a bit longer to allow slow falling
+	const LEAVE_FADEIN_MS = 20 * RAG_TICK_MS;
+	const LEAVE_FADEOUT_START_MS = (LEAVE_LIFE_MS * 4) / 5;
 
 	// Spatial constants
-	var SCATTER_RADIUS_CELLS = 70;
-	var SPAWN_HEIGHT_MIN_CELLS = 32;
-	var SPAWN_HEIGHT_MAX_CELLS = 42;
+	const SCATTER_RADIUS_CELLS = 70;
+	const SPAWN_HEIGHT_MIN_CELLS = 32;
+	const SPAWN_HEIGHT_MAX_CELLS = 42;
 
 	// Effect IDs
-	var EF_SAKURA = 163;
-	var EF_MAPLE = 333;
+	const EF_SAKURA = 163;
+	const EF_MAPLE = 333;
 
 	// Paths
-	var PATH_SAKURA = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/sakura01';
-	var PATH_MAPLE = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb4\xdc\xc7\xb3';
+	const PATH_SAKURA = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/sakura01';
+	const PATH_MAPLE = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb4\xdc\xc7\xb3';
 
 	// SINGLETON STATE
 	let _instance = null;
@@ -92,8 +93,8 @@ define(function (require) {
 	};
 
 	SakuraWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		var now = Params.Inst.startTick || Renderer.tick;
-		var currentMap = getModule('Renderer/MapRenderer').currentMap;
+		const now = Params.Inst.startTick || Renderer.tick;
+		const currentMap = MapRenderer ? MapRenderer.currentMap : '';
 
 		if (_mapName !== currentMap) {
 			_instance = null;
@@ -104,7 +105,7 @@ define(function (require) {
 		// If instance exists and is valid
 		if (_instance && !_instance.needCleanUp) {
 			// Check if we are switching from Sakura to Maple or vice versa
-			var isNewMaple = Params.Inst.effectID === EF_MAPLE;
+			const isNewMaple = Params.Inst.effectID === EF_MAPLE;
 			if (_instance.isMaple !== isNewMaple) {
 				_instance = null; // Force recreate if type changed
 			} else {
@@ -126,7 +127,7 @@ define(function (require) {
 			return;
 		}
 
-		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
+		if (_mapName !== (MapRenderer ? MapRenderer.currentMap : '')) {
 			_instance = null;
 			return;
 		}
@@ -148,7 +149,7 @@ define(function (require) {
 		if (!_instance) {
 			return;
 		}
-		var now = tick || Renderer.tick;
+		const now = tick || Renderer.tick;
 		if (_instance.endTick === -1) {
 			_instance.endTick = now + FADEOUT_TAIL_MS;
 			_isStopping = true;
@@ -160,33 +161,33 @@ define(function (require) {
 			return;
 		}
 
-		var px = Session.Entity.position[0];
-		var py = Session.Entity.position[1];
+		const px = Session.Entity.position[0];
+		const py = Session.Entity.position[1];
 
 		// Random position around player
-		var theta = Math.random() * Math.PI * 2;
-		var radius = Math.random() * SCATTER_RADIUS_CELLS;
-		var x = px + Math.cos(theta) * radius;
-		var y = py + Math.sin(theta) * radius;
+		const theta = Math.random() * Math.PI * 2;
+		const radius = Math.random() * SCATTER_RADIUS_CELLS;
+		const x = px + Math.cos(theta) * radius;
+		const y = py + Math.sin(theta) * radius;
 
-		var groundZ = Altitude.getCellHeight(x, y);
-		var spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
-		var z = groundZ + spawnHeight;
+		const groundZ = Altitude.getCellHeight(x, y);
+		const spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
+		const z = groundZ + spawnHeight;
 
 		// Speed
 		// Sakura: (random(2)+2)*0.1f -> 0.2 to 0.3 internal units
 		// Maple:  (random(4)+2)*0.03f -> 0.06 to 0.18 internal units (Much slower)
-		var fallSpeedBase = this.isMaple ? (2 + Math.random() * 4) * 0.03 : (2 + Math.random() * 2) * 0.1;
+		const fallSpeedBase = this.isMaple ? (2 + Math.random() * 4) * 0.03 : (2 + Math.random() * 2) * 0.1;
 
 		// Convert to roBrowser scale
 		// Snow was 0.1 cells/tick.
-		var fallSpeed = fallSpeedBase * 0.5; // Tweak this multiplier to taste
+		const fallSpeed = fallSpeedBase * 0.5; // Tweak this multiplier to taste
 
 		// Sway Amplitude Factors
 		// Sakura: X=0.24, Z=0.30
 		// Maple:  X=0.12, Z=0.15
-		var swayFactorX = this.isMaple ? 0.12 : 0.24;
-		var swayFactorY = this.isMaple ? 0.15 : 0.3;
+		const swayFactorX = this.isMaple ? 0.12 : 0.24;
+		const swayFactorY = this.isMaple ? 0.15 : 0.3;
 
 		this.leaves.push({
 			spawnTick: spawnTick,
@@ -242,16 +243,16 @@ define(function (require) {
 			return;
 		}
 
-		var path = this.isMaple ? PATH_MAPLE : PATH_SAKURA;
-		var spr = Client.loadFile(path + '.spr', null, null, { to_rgba: true });
-		var act = Client.loadFile(path + '.act');
+		const path = this.isMaple ? PATH_MAPLE : PATH_SAKURA;
+		const spr = Client.loadFile(path + '.spr', null, null, { to_rgba: true });
+		const act = Client.loadFile(path + '.act');
 
 		if (!spr || !act) {
 			return;
 		}
 
 		// Emission
-		var remaining = Infinity;
+		let remaining = Infinity;
 		if (this.endTick > 0) {
 			remaining = this.endTick - tick;
 			if (remaining <= 0) {
@@ -260,7 +261,7 @@ define(function (require) {
 			}
 		}
 
-		var allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
+		const allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
 		if (allowEmit) {
 			// Check if enough time passed for next spawn
 			if (tick - this.lastEmitTick >= EMIT_INTERVAL_MS) {
@@ -273,14 +274,14 @@ define(function (require) {
 		}
 
 		// Update & Render leaves
-		var action = act.actions[0];
-		var frameDelay = Math.max(action.delay || 150, 1);
+		const action = act.actions[0];
+		const frameDelay = Math.max(action.delay || 150, 1);
 		// Maple acts often have only 1 frame simple rotation, Sakura has animation.
-		var frameCount = action.animations.length || 1;
+		const frameCount = action.animations.length || 1;
 
-		for (var f = this.leaves.length - 1; f >= 0; f--) {
-			var leave = this.leaves[f];
-			var age = tick - leave.spawnTick;
+		for (let f = this.leaves.length - 1; f >= 0; f--) {
+			const leave = this.leaves[f];
+			const age = tick - leave.spawnTick;
 
 			if (age >= LEAVE_LIFE_MS) {
 				this.leaves.splice(f, 1);
@@ -288,17 +289,17 @@ define(function (require) {
 			}
 
 			// 1. Update Sway Angles
-			var resX = updateSwayAngle(leave.angX, leave.targetX);
+			const resX = updateSwayAngle(leave.angX, leave.targetX);
 			leave.angX = resX.c;
 			leave.targetX = resX.t;
 
-			var resY = updateSwayAngle(leave.angY, leave.targetY);
+			const resY = updateSwayAngle(leave.angY, leave.targetY);
 			leave.angY = resY.c;
 			leave.targetY = resY.t;
 
 			// 2. Calculate Position
 			// Vertical Fall
-			var dt = tick - leave._lastTick;
+			const dt = tick - leave._lastTick;
 			leave.z -= leave.speed * (dt / RAG_TICK_MS); // Scale speed by delta
 
 			// Horizontal Sway (Sinusoidal offset from base position)
@@ -308,12 +309,12 @@ define(function (require) {
 			// Let's emulate accumulation or simple offset. Simple offset is smoother for web.
 			// But to match the "drifting" feel, we drift the BaseX/Y.
 
-			var radX = (leave.angX * Math.PI) / 180;
-			var radY = (leave.angY * Math.PI) / 180;
+			const radX = (leave.angX * Math.PI) / 180;
+			const radY = (leave.angY * Math.PI) / 180;
 
 			// Drift the center slightly based on wind (Sway Factor)
-			var driftX = leave.swayFacX * Math.sin(radX);
-			var driftY = leave.swayFacY * Math.sin(radY);
+			const driftX = leave.swayFacX * Math.sin(radX);
+			const driftY = leave.swayFacY * Math.sin(radY);
 
 			// Apply drift to current position
 			leave.x += driftX * 0.1; // Scale down for smoothness
@@ -322,9 +323,9 @@ define(function (require) {
 			leave._lastTick = tick;
 
 			// 3. Render
-			var alpha = 1.0;
+			let alpha = 1.0;
 
-			var alphaCap = 1.0;
+			let alphaCap = 1.0;
 			if (!this.isMaple) {
 				alphaCap = 0.5;
 			}
@@ -343,13 +344,13 @@ define(function (require) {
 			SpriteRenderer.position[2] = leave.z;
 			SpriteRenderer.zIndex = 0;
 
-			var frameIndex = Math.floor(age / frameDelay) % frameCount;
-			var animation = action.animations[frameIndex];
-			var layers = animation.layers;
-			var pal = spr;
-			var pos = [0, 0];
+			const frameIndex = Math.floor(age / frameDelay) % frameCount;
+			const animation = action.animations[frameIndex];
+			const layers = animation.layers;
+			const pal = spr;
+			const pos = [0, 0];
 
-			for (var l = 0; l < layers.length; l++) {
+			for (let l = 0; l < layers.length; l++) {
 				renderLayer(layers[l], spr, pal, leave.size, pos, alpha);
 			}
 		}
@@ -370,8 +371,8 @@ define(function (require) {
 		SpriteRenderer.sprite = spr.frames[layer.index];
 		SpriteRenderer.palette = pal.palette;
 
-		var index = layer.index;
-		var is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
+		let index = layer.index;
+		const is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
 
 		if (!is_rgba) {
 			SpriteRenderer.image.palette = pal.texture;
@@ -381,9 +382,9 @@ define(function (require) {
 			index += spr.old_rgba_index;
 		}
 
-		var frame = spr.frames[index];
-		var width = frame.width * layer.scale[0] * sizeScale;
-		var height = frame.height * layer.scale[1] * sizeScale;
+		const frame = spr.frames[index];
+		let width = frame.width * layer.scale[0] * sizeScale;
+		const height = frame.height * layer.scale[1] * sizeScale;
 
 		if (layer.is_mirror) {
 			width = -width;
@@ -402,6 +403,4 @@ define(function (require) {
 
 		SpriteRenderer.render(false);
 	}
-
-	return SakuraWeatherEffect;
-});
+export default SakuraWeatherEffect;

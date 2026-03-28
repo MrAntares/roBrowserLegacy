@@ -7,32 +7,47 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	const DB = require('DB/DBManager');
-	const Emotions = require('DB/Emotions');
-	const BGM = require('Audio/BGM');
-	const Sound = require('Audio/SoundManager');
-	const Session = require('Engine/SessionStorage');
-	const PACKET = require('Network/PacketStructure');
-	const PACKETVER = require('Network/PacketVerManager');
-	const Network = require('Network/NetworkManager');
-	const ControlPreferences = require('Preferences/Controls');
-	const UIPreferences = require('Preferences/UI');
-	const AudioPreferences = require('Preferences/Audio');
-	const MapPreferences = require('Preferences/Map');
-	const CameraPreferences = require('Preferences/Camera');
-	const Renderer = require('Renderer/Renderer');
-	const Configs = require('Core/Configs');
-	const EffectConst = require('DB/Effects/EffectConst');
-	const StatusState = require('DB/Status/StatusState');
-	const getModule = require;
+import DB from 'DB/DBManager';
+import Emotions from 'DB/Emotions';
+import BGM from 'Audio/BGM';
+import Sound from 'Audio/SoundManager';
+import Session from 'Engine/SessionStorage';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import Network from 'Network/NetworkManager';
+import ControlPreferences from 'Preferences/Controls';
+import UIPreferences from 'Preferences/UI';
+import AudioPreferences from 'Preferences/Audio';
+import MapPreferences from 'Preferences/Map';
+import CameraPreferences from 'Preferences/Camera';
+import Renderer from 'Renderer/Renderer';
+import Configs from 'Core/Configs';
+import EffectConst from 'DB/Effects/EffectConst';
+import StatusState from 'DB/Status/StatusState';
+import EntityManager from 'Renderer/EntityManager';
+import EffectManager from 'Renderer/EffectManager';
+import MapRenderer from 'Renderer/MapRenderer';
+import ChatRoomCreate from 'UI/Components/ChatRoomCreate/ChatRoomCreate';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
+import Group from 'Engine/MapEngine/Group';
+import Friends from 'Engine/MapEngine/Friends';
+import Guild from 'Engine/MapEngine/Guild';
+import HomunInformations from 'UI/Components/HomunInformations/HomunInformations';
+import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations';
+import CaptchaUpload from 'UI/Components/Captcha/CaptchaUpload';
+import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector';
+import SnowWeather from 'Renderer/Effects/SnowWeather';
+import RainWeather from 'Renderer/Effects/RainWeather';
+import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect';
+import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect';
+import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 	let aliases = {};
 
-	let CommandStore = {
+	const CommandStore = {
 		sound: {
 			description: 'Toggles playing of sound effects',
 			callback: function () {
@@ -95,8 +110,6 @@ define(function (require) {
 				MapPreferences.aura = isSimplified ? 1 : 2;
 				MapPreferences.save();
 
-				var EntityManager = getModule('Renderer/EntityManager');
-				var EffectManager = getModule('Renderer/EffectManager');
 				EntityManager.forEach(function (entity) {
 					entity.aura.load(EffectManager);
 				});
@@ -117,8 +130,6 @@ define(function (require) {
 				MapPreferences.aura = MapPreferences.aura ? 0 : 1;
 				MapPreferences.save();
 
-				var EntityManager = getModule('Renderer/EntityManager');
-				var EffectManager = getModule('Renderer/EffectManager');
 				EntityManager.forEach(function (entity) {
 					entity.aura.load(EffectManager);
 				});
@@ -131,8 +142,6 @@ define(function (require) {
 				this.addText(DB.getMessage(722 + MapPreferences.showname), this.TYPE.INFO);
 				MapPreferences.showname = !MapPreferences.showname;
 				MapPreferences.save();
-
-				var EntityManager = getModule('Renderer/EntityManager');
 
 				// update all display names
 				EntityManager.forEach(function (entity) {
@@ -174,7 +183,7 @@ define(function (require) {
 			description: 'Cycles the posterization effect of the lightmap: on, off, off with gamma correction',
 			callback: function () {
 				MapPreferences.smoothlight = (MapPreferences.smoothlight + 1) % 3;
-				var messages = ['Posterization On', 'Smoothlight On', 'Smoothlight On with Gamma Correction'];
+				const messages = ['Posterization On', 'Smoothlight On', 'Smoothlight On with Gamma Correction'];
 				this.addText(messages[MapPreferences.smoothlight], this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				MapPreferences.save();
 				return;
@@ -241,7 +250,7 @@ define(function (require) {
 		stand: {
 			description: 'Makes your character sit or stand',
 			callback: function () {
-				var pkt;
+				let pkt;
 				if (PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.REQUEST_ACT2();
 				} else {
@@ -261,7 +270,7 @@ define(function (require) {
 		doridori: {
 			description: "Moves your character's head from side to side",
 			callback: function () {
-				var pkt;
+				let pkt;
 				Session.Entity.headDir = Session.Entity.headDir === 1 ? 2 : 1;
 				if (PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.CHANGE_DIRECTION2();
@@ -297,7 +306,7 @@ define(function (require) {
 		bangbang: {
 			description: 'Rotates your character clockwise',
 			callback: function () {
-				var pkt;
+				let pkt;
 				Session.Entity.direction = (Session.Entity.direction + 1) % 8;
 				if (PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.CHANGE_DIRECTION2();
@@ -314,7 +323,7 @@ define(function (require) {
 		bingbing: {
 			description: 'Rotates your character counterclockwise',
 			callback: function () {
-				var pkt;
+				let pkt;
 				Session.Entity.direction = (Session.Entity.direction + 7) % 8;
 				if (PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.CHANGE_DIRECTION2();
@@ -331,7 +340,7 @@ define(function (require) {
 		where: {
 			description: "Shows your character's location as a map name and set of coordinates",
 			callback: function () {
-				const currentMap = getModule('Renderer/MapRenderer').currentMap;
+				const currentMap = MapRenderer.currentMap;
 				this.addText(
 					DB.getMapName(currentMap) +
 						'(' +
@@ -350,7 +359,7 @@ define(function (require) {
 		who: {
 			description: 'Shows the current number of players on the server',
 			callback: function () {
-				var pkt = new PACKET.CZ.REQ_USER_COUNT();
+				const pkt = new PACKET.CZ.REQ_USER_COUNT();
 				Network.sendPacket(pkt);
 				return;
 			},
@@ -360,7 +369,7 @@ define(function (require) {
 		memo: {
 			description: 'Memorizes a location for use with the Warp Portal skill',
 			callback: function () {
-				var pkt = new PACKET.CZ.REMEMBER_WARPPOINT();
+				const pkt = new PACKET.CZ.REMEMBER_WARPPOINT();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -369,7 +378,7 @@ define(function (require) {
 		chat: {
 			description: 'Creates a chat room',
 			callback: function () {
-				getModule('UI/Components/ChatRoomCreate/ChatRoomCreate').show();
+				ChatRoomCreate.show();
 				return;
 			}
 		},
@@ -377,7 +386,7 @@ define(function (require) {
 		q: {
 			description: 'Leaves a chat room',
 			callback: function () {
-				getModule('UI/Components/ChatRoom/ChatRoom').remove();
+				ChatRoom.remove();
 				return;
 			}
 		},
@@ -385,7 +394,7 @@ define(function (require) {
 		leave: {
 			description: 'Allows one to leave a party',
 			callback: function () {
-				getModule('Engine/MapEngine/Group').onRequestLeave();
+				Group.onRequestLeave();
 				return;
 			}
 		},
@@ -393,9 +402,9 @@ define(function (require) {
 		invite: {
 			description: '"<name>" Invite a person to your party. Works across different maps',
 			callback: function (text) {
-				var matches = text.match(/^invite\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^invite\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					getModule('Engine/MapEngine/Group').onRequestInvitation(0, matches[2]);
+					Group.onRequestInvitation(0, matches[2]);
 					return;
 				}
 			}
@@ -404,9 +413,9 @@ define(function (require) {
 		organize: {
 			description: 'Creates a party named <Party Name>',
 			callback: function (text) {
-				var matches = text.match(/^organize\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^organize\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					getModule('Engine/MapEngine/Group').onRequestCreationEasy(matches[2]);
+					Group.onRequestCreationEasy(matches[2]);
 					return;
 				}
 			}
@@ -415,7 +424,7 @@ define(function (require) {
 		hi: {
 			description: 'Sends the specified message to everyone on your friend list',
 			callback: function () {
-				getModule('Engine/MapEngine/Friends').sayHi();
+				Friends.sayHi();
 				return;
 			}
 		},
@@ -424,9 +433,9 @@ define(function (require) {
 			description:
 				"Creates a guild named <Guild Name>. This requires an Emperium to be in the creator's inventory",
 			callback: function (text) {
-				var matches = text.match(/^guild\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^guild\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					getModule('Engine/MapEngine/Guild').createGuild(matches[2]);
+					Guild.createGuild(matches[2]);
 					return;
 				}
 			}
@@ -435,9 +444,9 @@ define(function (require) {
 		breakguild: {
 			description: 'Disbands a guild. Can only be used by the guild leader. All members must be expelled first',
 			callback: function (text) {
-				var matches = text.match(/^breakguild\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^breakguild\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					getModule('Engine/MapEngine/Guild').breakGuild(matches[2]);
+					Guild.breakGuild(matches[2]);
 					return;
 				}
 			}
@@ -446,7 +455,7 @@ define(function (require) {
 		alchemist: {
 			description: 'Shows the top 10 brewing Alchemists in the server.',
 			callback: function () {
-				var pkt = new PACKET.CZ.ALCHEMIST_RANK();
+				const pkt = new PACKET.CZ.ALCHEMIST_RANK();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -455,7 +464,7 @@ define(function (require) {
 		blacksmith: {
 			description: 'Shows the top 10 forging/upgrading Blacksmiths in the server',
 			callback: function () {
-				var pkt = new PACKET.CZ.BLACKSMITH_RANK();
+				const pkt = new PACKET.CZ.BLACKSMITH_RANK();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -464,7 +473,7 @@ define(function (require) {
 		taekwon: {
 			description: 'Shows the top 10 TaeKwon Kids based on completion of TaeKwon Missions in the server',
 			callback: function () {
-				var pkt = new PACKET.CZ.TAEKWON_RANK();
+				const pkt = new PACKET.CZ.TAEKWON_RANK();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -475,10 +484,10 @@ define(function (require) {
 			callback: function () {
 				Session.homCustomAI = !Session.homCustomAI;
 				if (Session.homCustomAI) {
-					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
+					HomunInformations.resetAI();
 					this.addText(DB.getMessage(1024), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				} else {
-					getModule('UI/Components/HomunInformations/HomunInformations').resetAI();
+					HomunInformations.resetAI();
 					this.addText(DB.getMessage(1023), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				}
 				return;
@@ -491,9 +500,9 @@ define(function (require) {
 				Session.merCustomAI = !Session.merCustomAI;
 				if (Session.merCustomAI) {
 					this.addText(DB.getMessage(1274), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
-					getModule('UI/Components/MercenaryInformations/MercenaryInformations').resetAI();
+					MercenaryInformations.resetAI();
 				} else {
-					getModule('UI/Components/MercenaryInformations/MercenaryInformations').resetAI();
+					MercenaryInformations.resetAI();
 					this.addText(DB.getMessage(1273), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				}
 				return;
@@ -502,7 +511,7 @@ define(function (require) {
 		call: {
 			description: 'Toggles the ability to be Urgent Called.',
 			callback: function () {
-				var pkt = new PACKET.CZ.CONFIG();
+				const pkt = new PACKET.CZ.CONFIG();
 				pkt.Config = 1;
 				pkt.Value = !Session.Entity.call_flag ? 1 : 0;
 				Network.sendPacket(pkt);
@@ -513,8 +522,8 @@ define(function (require) {
 		cl: {
 			description: 'Sends a message to the player clan.',
 			callback: function (text) {
-				var pkt = new PACKET.CZ.CLAN_CHAT();
-				var matches = text.match(/(^cl)\s+(.*)/);
+				const pkt = new PACKET.CZ.CLAN_CHAT();
+				const matches = text.match(/(^cl)\s+(.*)/);
 				if (matches && matches[2]) {
 					pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
 					Network.sendPacket(pkt);
@@ -529,9 +538,9 @@ define(function (require) {
 		broadcast: {
 			description: 'Sends a broadcast message with your name (yellow).',
 			callback: function (text) {
-				var matches = text.match(/(^broadcast|^b)\s+(.*)/);
+				const matches = text.match(/(^broadcast|^b)\s+(.*)/);
 				if (matches && matches[2]) {
-					var pkt = new PACKET.CZ.BROADCAST();
+					const pkt = new PACKET.CZ.BROADCAST();
 					pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -542,9 +551,9 @@ define(function (require) {
 		nb: {
 			description: 'Sends a broadcast message without your name (yellow).',
 			callback: function (text) {
-				var matches = text.match(/(^nb)\s+(.*)/);
+				const matches = text.match(/(^nb)\s+(.*)/);
 				if (matches && matches[2]) {
-					var pkt = new PACKET.CZ.BROADCAST();
+					const pkt = new PACKET.CZ.BROADCAST();
 					pkt.msg = matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -554,9 +563,9 @@ define(function (require) {
 		localbroadcast: {
 			description: 'Sends a local broadcast message with your name. (yellow)',
 			callback: function (text) {
-				var matches = text.match(/(^localbroadcast|^lb)\s+(.*)/);
+				const matches = text.match(/(^localbroadcast|^lb)\s+(.*)/);
 				if (matches && matches[2]) {
-					var pkt = new PACKET.CZ.LOCALBROADCAST();
+					const pkt = new PACKET.CZ.LOCALBROADCAST();
 					pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -567,9 +576,9 @@ define(function (require) {
 		nlb: {
 			description: 'Sends a local broadcast message without your name. (yellow)',
 			callback: function (text) {
-				var matches = text.match(/(^nlb)\s+(.*)/);
+				const matches = text.match(/(^nlb)\s+(.*)/);
 				if (matches && matches[2]) {
-					var pkt = new PACKET.CZ.LOCALBROADCAST();
+					const pkt = new PACKET.CZ.LOCALBROADCAST();
 					pkt.msg = matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -579,9 +588,9 @@ define(function (require) {
 		mapmove: {
 			description: 'Move to map x y.',
 			callback: function (text) {
-				var matches = text.match(/(^mapmove|^mm)\s+([\w.]+)\s+(\d+)\s+(\d+)/);
+				const matches = text.match(/(^mapmove|^mm)\s+([\w.]+)\s+(\d+)\s+(\d+)/);
 				if (matches) {
-					var pkt = new PACKET.CZ.MOVETO_MAP();
+					const pkt = new PACKET.CZ.MOVETO_MAP();
 					pkt.mapName = matches[2];
 					pkt.xPos = parseInt(matches[3], 10);
 					pkt.yPos = parseInt(matches[4], 10);
@@ -594,9 +603,9 @@ define(function (require) {
 		shift: {
 			description: 'Warp to a character.',
 			callback: function (text) {
-				var matches = text.match(/^shift\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^shift\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					var pkt = new PACKET.CZ.SHIFT();
+					const pkt = new PACKET.CZ.SHIFT();
 					pkt.CharacterName = matches[2].trim();
 					Network.sendPacket(pkt);
 					return;
@@ -606,9 +615,9 @@ define(function (require) {
 		summon: {
 			description: 'Recall a player to your position.',
 			callback: function (text) {
-				var matches = text.match(/^summon\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^summon\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					var pkt = new PACKET.CZ.RECALL_GID();
+					const pkt = new PACKET.CZ.RECALL_GID();
 					pkt.CharacterName = matches[2].trim();
 					Network.sendPacket(pkt);
 					return;
@@ -618,9 +627,9 @@ define(function (require) {
 		recall: {
 			description: 'Recall a player by account name.',
 			callback: function (text) {
-				var matches = text.match(/^recall\s+(.*)/);
+				const matches = text.match(/^recall\s+(.*)/);
 				if (matches && matches[1]) {
-					var pkt = new PACKET.CZ.RECALL();
+					const pkt = new PACKET.CZ.RECALL();
 					pkt.AccountName = matches[1].trim();
 					Network.sendPacket(pkt);
 					return;
@@ -631,7 +640,7 @@ define(function (require) {
 			description: 'Toggle Perfect Hide.',
 			callback: function () {
 				// Server handles toggle state
-				var pkt = new PACKET.CZ.CHANGE_EFFECTSTATE();
+				const pkt = new PACKET.CZ.CHANGE_EFFECTSTATE();
 				pkt.EffectState = StatusState.EffectState.INVISIBLE;
 				Network.sendPacket(pkt);
 				return;
@@ -640,9 +649,9 @@ define(function (require) {
 		kill: {
 			description: 'Disconnect a player (needs account id).',
 			callback: function (text) {
-				var matches = text.match(/(^kill)\s+(\d+)/);
+				const matches = text.match(/(^kill)\s+(\d+)/);
 				if (matches) {
-					var pkt = new PACKET.CZ.DISCONNECT_CHARACTER();
+					const pkt = new PACKET.CZ.DISCONNECT_CHARACTER();
 					pkt.AID = matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -652,7 +661,7 @@ define(function (require) {
 		killall: {
 			description: 'Disconnect all players.',
 			callback: function () {
-				var pkt = new PACKET.CZ.DISCONNECT_ALL_CHARACTER();
+				const pkt = new PACKET.CZ.DISCONNECT_ALL_CHARACTER();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -660,9 +669,9 @@ define(function (require) {
 		item: {
 			description: 'Create Item or Monster (uses AEGIS name).',
 			callback: function (text) {
-				var matches = text.match(/(^item|^monster)\s+(")?([^"]+)(")?/);
+				const matches = text.match(/(^item|^monster)\s+(")?([^"]+)(")?/);
 				if (matches && matches[3]) {
-					var pkt = new PACKET.CZ.ITEM_CREATE();
+					const pkt = new PACKET.CZ.ITEM_CREATE();
 					pkt.itemName = matches[3];
 					Network.sendPacket(pkt);
 					return;
@@ -673,7 +682,7 @@ define(function (require) {
 		resetstate: {
 			description: 'Reset Stats.',
 			callback: function () {
-				var pkt = new PACKET.CZ.RESET();
+				const pkt = new PACKET.CZ.RESET();
 				pkt.type = 0;
 				Network.sendPacket(pkt);
 				return;
@@ -682,7 +691,7 @@ define(function (require) {
 		resetskill: {
 			description: 'Reset Skills.',
 			callback: function () {
-				var pkt = new PACKET.CZ.RESET();
+				const pkt = new PACKET.CZ.RESET();
 				pkt.type = 1;
 				Network.sendPacket(pkt);
 				return;
@@ -691,9 +700,9 @@ define(function (require) {
 		remove: {
 			description: 'Remove a player (need account name)',
 			callback: function (text) {
-				var matches = text.match(/(^remove)\s+(.*)/);
+				const matches = text.match(/(^remove)\s+(.*)/);
 				if (matches) {
-					var pkt = new PACKET.CZ.REMOVE_AID();
+					const pkt = new PACKET.CZ.REMOVE_AID();
 					pkt.AccountName = matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -703,9 +712,9 @@ define(function (require) {
 		changemaptype: {
 			description: 'Change a cell type (x,y,type).',
 			callback: function (text) {
-				var matches = text.match(/(^changemaptype|cmt)\s+(\d+)\s+(\d+)\s+(\d+)/);
+				const matches = text.match(/(^changemaptype|cmt)\s+(\d+)\s+(\d+)\s+(\d+)/);
 				if (matches) {
-					var pkt = new PACKET.CZ.MOVETO_MAP();
+					const pkt = new PACKET.CZ.MOVETO_MAP();
 					pkt.xPos = matches[2];
 					pkt.yPos = matches[3];
 					pkt.type = matches[4];
@@ -718,9 +727,9 @@ define(function (require) {
 		check: {
 			description: 'Check stats of a player (GM command).',
 			callback: function (text) {
-				var matches = text.match(/^check\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^check\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					var pkt = new PACKET.CZ.REQ_STATUS_GM();
+					const pkt = new PACKET.CZ.REQ_STATUS_GM();
 					pkt.CharName = matches[2].trim();
 					Session.gmCheckTarget = pkt.CharName;
 					Network.sendPacket(pkt);
@@ -731,7 +740,6 @@ define(function (require) {
 		macro_register: {
 			description: 'Open the interface to upload image to captcha system',
 			callback: function () {
-				var CaptchaUpload = getModule('UI/Components/Captcha/CaptchaUpload');
 				CaptchaUpload.prepare();
 				CaptchaUpload.append();
 			},
@@ -740,7 +748,6 @@ define(function (require) {
 		macro_detector: {
 			description: 'Open the macro detector interface',
 			callback: function () {
-				var CaptchaSelector = getModule('UI/Components/Captcha/CaptchaSelector');
 				CaptchaSelector.prepare();
 				CaptchaSelector.append();
 			},
@@ -749,9 +756,9 @@ define(function (require) {
 		macro_preview: {
 			description: 'Request to preview a captcha image',
 			callback: function (text) {
-				var matches = text.match(/^macro_preview\s+(\d+)/);
+				const matches = text.match(/^macro_preview\s+(\d+)/);
 				if (matches && matches[1]) {
-					var pkt = new PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR();
+					const pkt = new PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR();
 					pkt.captchaID = matches[1];
 					Network.sendPacket(pkt);
 				}
@@ -813,8 +820,8 @@ define(function (require) {
 		CommandStore.weather = {
 			description: 'Dev-only weather toggle. Usage: /weather snow|rain|leaves|sakura|fireworks|cloud|cloud2|off',
 			callback: function (text) {
-				var args = text.trim().split(/\s+/).slice(1);
-				var mode = (args[0] || '').toLowerCase();
+				const args = text.trim().split(/\s+/).slice(1);
+				const mode = (args[0] || '').toLowerCase();
 
 				if (!mode || mode === 'help') {
 					this.addText(
@@ -829,8 +836,7 @@ define(function (require) {
 					return;
 				}
 
-				var ownerAID = Session.Entity.GID || Session.GID || Session.AID;
-				var EffectManager = getModule('Renderer/EffectManager');
+				const ownerAID = Session.Entity.GID || Session.GID || Session.AID;
 
 				if (mode === 'snow' || mode === 'on') {
 					EffectManager.spam({
@@ -896,14 +902,8 @@ define(function (require) {
 				}
 
 				if (mode === 'off' || mode === 'stop' || mode === 'clear') {
-					var SnowWeatherEffect = getModule('Renderer/Effects/SnowWeather');
-					var RainWeatherEffect = getModule('Renderer/Effects/RainWeather');
-					var SakuraWeatherEffect = getModule('Renderer/Effects/SakuraWeatherEffect');
-					var PokJukWeatherEffect = getModule('Renderer/Effects/PokJukWeatherEffect');
-					var CloudWeatherEffect = getModule('Renderer/Effects/CloudWeatherEffect');
-
-					SnowWeatherEffect.stop(ownerAID, Renderer.tick);
-					RainWeatherEffect.stop(ownerAID, Renderer.tick);
+					SnowWeather.stop(ownerAID, Renderer.tick);
+					RainWeather.stop(ownerAID, Renderer.tick);
 					SakuraWeatherEffect.stop(ownerAID, Renderer.tick);
 					PokJukWeatherEffect.stop(ownerAID, Renderer.tick);
 					CloudWeatherEffect.stop(ownerAID, Renderer.tick);
@@ -925,9 +925,9 @@ define(function (require) {
 	 * Load aliases
 	 */
 	function loadAliases() {
-		for (var cmd in CommandStore) {
+		for (const cmd in CommandStore) {
 			if (CommandStore[cmd].aliases) {
-				for (var i = 0; i < CommandStore[cmd].aliases.length; i++) {
+				for (let i = 0; i < CommandStore[cmd].aliases.length; i++) {
 					aliases[CommandStore[cmd].aliases[i]] = cmd;
 				}
 			}
@@ -940,21 +940,21 @@ define(function (require) {
 	 * Process command
 	 */
 	function processCommand(text) {
-		var cmd = text.split(' ')[0];
-		var pkt, matches;
+		const cmd = text.split(' ')[0];
+		let pkt, matches;
 
 		// Check if the command exists in the store
 		if (CommandStore[cmd]) {
 			CommandStore[cmd].callback.call(this, text);
 		} else if (aliases[cmd]) {
-			var parentCommand = aliases[cmd];
+			const parentCommand = aliases[cmd];
 			CommandStore[parentCommand].callback.call(this, text);
 		} else {
 			// /str+
 			// TODO: do we have to spam the server with "1" unit or do we have to fix the servers code ?
 			matches = text.match(/^(\w{3})\+ (\d+)$/);
 			if (matches) {
-				let pos = ['str', 'agi', 'vit', 'int', 'dex', 'luk'].indexOf(matches[1]);
+				const pos = ['str', 'agi', 'vit', 'int', 'dex', 'luk'].indexOf(matches[1]);
 				if (pos > -1 && matches[2] !== 0) {
 					pkt = new PACKET.CZ.STATUS_CHANGE();
 					pkt.statusID = pos + 13;
@@ -965,7 +965,7 @@ define(function (require) {
 			}
 
 			if (matches) {
-				let pos = ['pow', 'sta', 'wis', 'spl', 'con', 'crt'].indexOf(matches[1]);
+				const pos = ['pow', 'sta', 'wis', 'spl', 'con', 'crt'].indexOf(matches[1]);
 				if (pos > -1 && matches[2] !== 0) {
 					pkt = new PACKET.CZ.STATUS_CHANGE();
 					pkt.statusID = pos + 219;
@@ -992,7 +992,6 @@ define(function (require) {
 	 * Add a command to the store
 	 */
 	function addCommand(name, description = '', callback = () => {}, aliases = [], custom = true) {
-		const ChatBox = getModule('UI/Components/ChatBox/ChatBox');
 		callback = callback.bind(ChatBox);
 
 		CommandStore[name] = {
@@ -1020,7 +1019,10 @@ define(function (require) {
 		loadAliases();
 	}
 
-	return {
+	/**
+	 * Export Methods
+	 */
+	export default {
 		processCommand: processCommand,
 		add: addCommand,
 		remove: removeCommand,
@@ -1029,4 +1031,3 @@ define(function (require) {
 		},
 		reloadAliases: reloadAliases
 	};
-});

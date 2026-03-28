@@ -7,27 +7,31 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], function (WebGL, Texture, glMatrix, Client) {
-	'use strict';
+'use strict';
 
-	/**
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+
+/**
 	 * @var {WebGLProgram}
 	 */
-	var _program;
+	let _program;
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer;
+	let _buffer;
 
 	/**
 	 * @var {mat4}
 	 */
-	var mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
-	var _rotationMatrices = (function () {
-		var matrices = [];
-		for (var i = 0; i < 16; i++) {
+	const _rotationMatrices = (function () {
+		const matrices = [];
+		for (let i = 0; i < 16; i++) {
 			matrices.push(mat4.create());
 		}
 		return matrices;
@@ -36,12 +40,12 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	/**
 	 * @var {number}
 	 */
-	var _verticeCount = 0;
+	let _verticeCount = 0;
 
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader = `
+	const _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -83,7 +87,7 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = `
+	const _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -125,11 +129,11 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @returns {Float32Array} buffer array
 	 */
 	function generatePropertyGround() {
-		var i, a, b;
-		var total = 20;
-		var bottom = [];
-		var top = [];
-		var mesh = [];
+		let i, a, b;
+		const total = 20;
+		const bottom = [];
+		const top = [];
+		const mesh = [];
 
 		for (i = 0; i <= total; i++) {
 			a = (i + 0.0) / total;
@@ -162,7 +166,7 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {string} texture name
 	 * @param {number} game tick
 	 */
-	var _num = 0;
+	let _num = 0;
 	function PropertyGround(position, topSize, bottomSize, height, textureName, tick) {
 		this.position = position;
 		this.topSize = topSize;
@@ -180,7 +184,7 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {object} webgl context
 	 */
 	PropertyGround.prototype.init = function init(gl) {
-		var self = this;
+		const self = this;
 
 		Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
@@ -205,9 +209,9 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {object} wegl context
 	 */
 	PropertyGround.prototype.render = function render(gl, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
-		var sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+		let sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
 		if (sizeMult < 0.5) {
 			sizeMult = 0.5;
 		}
@@ -239,7 +243,7 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {object} webgl context
 	 */
 	PropertyGround.init = function init(gl) {
-		var vertices = generatePropertyGround();
+		const vertices = generatePropertyGround();
 		_verticeCount = vertices.length / 5;
 
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
@@ -275,10 +279,10 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	 * @param {object} webgl context
 	 */
 	PropertyGround.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
+		const uniform = _program.uniform;
 
-		var _matrix, offset;
-		for (var i = 0, _len = _rotationMatrices.length; i < _len; i++) {
+		let _matrix, offset;
+		for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
 			_matrix = _rotationMatrices[i];
 			mat4.identity(_matrix);
 			offset = (i * 2 * Math.PI) / _rotationMatrices.length;
@@ -313,7 +317,6 @@ define(['Utils/WebGL', 'Utils/Texture', 'Utils/gl-matrix', 'Core/Client'], funct
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return PropertyGround;
-});
+	export default PropertyGround;

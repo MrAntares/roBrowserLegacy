@@ -7,15 +7,15 @@
  *
  * @author Vincent Thibault, Antares
  */
+'use strict';
 
-define(['./JobConst'], function (JOB) {
-	'use strict';
+import JOB from './JobConst';
 
 	// Job Property Table
-	var JPT = {};
+	const JPT = {};
 
 	// INIT with empty just in case something is missed later...
-	Object.values(JobId).forEach(ID => {
+	Object.values(JOB).forEach(ID => {
 		JPT[ID] = DJP();
 	});
 
@@ -502,5 +502,4 @@ define(['./JobConst'], function (JOB) {
 	JPT[JOB.SPIRIT_HANDLER] = DJP(0, 1, 0, 0, 1, 0, 0, 0, 0, 0, JOB.DO_SUMMONER, JOB.SPIRIT_HANDLER);
 	JPT[JOB.SKY_EMPEROR2] = DJP(1, 0, 0, 0, 0, 0, 1, 0, 0, 1, JOB.TAEKWON, JOB.STAR, JOB.STAR_EMPEROR, JOB.SKY_EMPEROR);
 
-	return JPT;
-});
+	export default JPT;

@@ -7,47 +7,44 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var UIManager = require('UI/UIManager');
-	var Cursor = require('UI/CursorManager');
-	var Entity = require('Renderer/Entity/Entity');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var Mouse = require('Controls/MouseEventHandler');
-	var Mobile = require('Core/Mobile');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var EntityManager = require('Renderer/EntityManager');
-	var Session = require('Engine/SessionStorage');
-	var Preferences = require('Preferences/Controls');
-	var KEYS = require('Controls/KeyEventHandler');
-	var AIDriver = require('Core/AIDriver');
-	var Altitude = require('Renderer/Map/Altitude');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PACKET = require('Network/PacketStructure');
-	var Network = require('Network/NetworkManager');
-	var Events = require('Core/Events');
-	var getModule = require;
-
-	require('Controls/ScreenShot');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import UIManager from 'UI/UIManager';
+import Cursor from 'UI/CursorManager';
+import Entity from 'Renderer/Entity/Entity';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import Mouse from 'Controls/MouseEventHandler';
+import Mobile from 'Core/Mobile';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import EntityManager from 'Renderer/EntityManager';
+import Session from 'Engine/SessionStorage';
+import Preferences from 'Preferences/Controls';
+import KEYS from 'Controls/KeyEventHandler';
+import AIDriver from 'Core/AIDriver';
+import Altitude from 'Renderer/Map/Altitude';
+import PACKETVER from 'Network/PacketVerManager';
+import PACKET from 'Network/PacketStructure';
+import Network from 'Network/NetworkManager';
+import Events from 'Core/Events';
+import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector';
+import 'Controls/ScreenShot';
 
 	/**
 	 * @var {int16[2]} screen position
 	 */
-	var _rightClickPosition = new Int16Array(2);
+	const _rightClickPosition = new Int16Array(2);
 
 	/**
 	 * @namespace MapControl
 	 */
-	var MapControl = {};
+	const MapControl = {};
 
 	/**
 	 * Callback used when requesting to move somewhere
@@ -85,14 +82,14 @@ define(function (require) {
 	 * What to do when clicking on the map ?
 	 */
 	function onMouseDown(event) {
-		var action = (event && event.which) || 1;
+		const action = (event && event.which) || 1;
 
 		if (!Mouse.intersect) {
 			return;
 		}
 
-		var entityFocus = EntityManager.getFocusEntity();
-		var entityOver = EntityManager.getOverEntity();
+		const entityFocus = EntityManager.getFocusEntity();
+		const entityOver = EntityManager.getOverEntity();
 
 		switch (action) {
 			// Left click
@@ -112,7 +109,7 @@ define(function (require) {
 					Session.moveAction = null;
 					Session.autoFollow = false;
 
-					var stop = false;
+					let stop = false;
 					if (entityOver != Session.Entity) {
 						if (entityFocus && entityFocus != entityOver) {
 							if (!(Session.TouchTargeting && !entityOver)) {
@@ -147,7 +144,7 @@ define(function (require) {
 				_rightClickPosition[1] = Mouse.screen.y;
 
 				if (Session.captchaGetIdOnFloorClick) {
-					getModule('UI/Components/Captcha/CaptchaSelector').requestPlayersIds(Mouse.world.x, Mouse.world.y);
+					CaptchaSelector.requestPlayersIds(Mouse.world.x, Mouse.world.y);
 				}
 
 				if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
@@ -194,8 +191,8 @@ define(function (require) {
 	 * What to do when stop clicking on the map ?
 	 */
 	function onMouseUp(event) {
-		var entity, ET;
-		var action = (event && event.which) || 1;
+		let entity, ET;
+		const action = (event && event.which) || 1;
 
 		// Not rendering yet
 		if (!Mouse.intersect) {
@@ -265,7 +262,7 @@ define(function (require) {
 		}
 		// Zooming on the scene
 		// Cross browser delta
-		var delta;
+		let delta;
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
 			if (window.opera) {
@@ -290,7 +287,7 @@ define(function (require) {
 	 * Drop items to the map
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -323,7 +320,7 @@ define(function (require) {
 		}
 
 		// Item Drop Lock
-		var InventoryVersion = UIManager.getComponent('Inventory').name;
+		const InventoryVersion = UIManager.getComponent('Inventory').name;
 		if (InventoryVersion !== 'InventoryV0' && Inventory.getUI().itemlock === true) {
 			return false;
 		}
@@ -353,19 +350,19 @@ define(function (require) {
 	 */
 	function onAutoFollow() {
 		if (Session.autoFollow) {
-			var player = Session.Entity;
-			var target = Session.autoFollowTarget;
+			const player = Session.Entity;
+			const target = Session.autoFollowTarget;
 
-			var dx = Math.abs(player.position[0] - target.position[0]);
-			var dy = Math.abs(player.position[1] - target.position[1]);
+			const dx = Math.abs(player.position[0] - target.position[0]);
+			const dy = Math.abs(player.position[1] - target.position[1]);
 
 			// Use square based range check instead of Pythagorean because of diagonals
 			if (dx > 1 || dy > 1) {
-				var dest = [0, 0];
+				const dest = [0, 0];
 
 				// If there is valid cell send move packet
 				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
-					var pkt;
+					let pkt;
 					if (PACKETVER.value >= 20180307) {
 						pkt = new PACKET.CZ.REQUEST_MOVE2();
 					} else {
@@ -389,9 +386,9 @@ define(function (require) {
 	 * @param {array} out
 	 */
 	function checkFreeCell(x, y, range, out) {
-		var _x, _y, r;
-		var d_x = Session.Entity.position[0] < x ? -1 : 1;
-		var d_y = Session.Entity.position[1] < y ? -1 : 1;
+		let _x, _y, r;
+		const d_x = Session.Entity.position[0] < x ? -1 : 1;
+		const d_y = Session.Entity.position[1] < y ? -1 : 1;
 
 		// Search possible positions
 		for (r = 0; r <= range; ++r) {
@@ -421,7 +418,7 @@ define(function (require) {
 			return false;
 		}
 
-		var free = true;
+		let free = true;
 
 		EntityManager.forEach(function (entity) {
 			if (
@@ -442,7 +439,6 @@ define(function (require) {
 	}
 
 	/**
-	 *  Exports
+	 * Export
 	 */
-	return MapControl;
-});
+	export default MapControl;

@@ -7,52 +7,48 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var QuestHelper = require('./QuestHelper');
-	var QuestWindow = require('./QuestWindow');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var htmlText = require('text!./Quest.html');
-	var cssText = require('text!./Quest.css');
-	var jQuery = require('Utils/jquery');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Session = require('Engine/SessionStorage');
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import QuestHelper from './QuestHelper';
+import QuestWindow from './QuestWindow';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import htmlText from './Quest.html?raw';
+import cssText from './Quest.css?raw';
+import jQuery from 'Utils/jquery';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var Quest = new UIComponent('Quest', htmlText, cssText);
+	const Quest = new UIComponent('Quest', htmlText, cssText);
 
 	/**
 	 * @var {Array} quest list
 	 */
-	var _questList = [];
+	let _questList = [];
 
 	/**
 	 * @var {Array} quest list
 	 */
-	var _questNotShowList = [];
+	const _questNotShowList = [];
 
 	/**
 	 * @var {string} _active_menu active click menu
 	 */
-	var _active_menu = 'active';
+	let _active_menu = 'active';
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Quest',
 		{
 			x: 200,
@@ -93,7 +89,7 @@ define(function (require) {
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		var checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
+		const checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp',
@@ -177,7 +173,7 @@ define(function (require) {
 	Quest.setQuestList = function setQuestList(quests) {
 		_questList = quests;
 		Quest.ClearQuestList();
-		for (let questID in quests) {
+		for (const questID in quests) {
 			Quest.addQuestToUI(quests[questID]);
 		}
 		QuestWindow.ClearQuestList();
@@ -218,9 +214,9 @@ define(function (require) {
 			_questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
 		}
 
-		let mob_name = _questList[questID].hunt_list[huntID].mobName;
-		let quest_info = DB.getQuestInfo(questID);
-		let chat_quest_text = `Mission [${quest_info.Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
+		const mob_name = _questList[questID].hunt_list[huntID].mobName;
+		const quest_info = DB.getQuestInfo(questID);
+		const chat_quest_text = `Mission [${quest_info.Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
 		let self_msg;
 		if (_questList[questID].hunt_list[huntID].maxCount == _questList[questID].hunt_list[huntID].huntCount) {
 			self_msg = `${mob_name} [Completed]`;
@@ -263,7 +259,7 @@ define(function (require) {
 	 * @param {number} ID
 	 */
 	Quest.getQuestIDByServerID = function getQuestIDByServerID(ID) {
-		for (var key in _questList) {
+		for (const key in _questList) {
 			if (typeof _questList[key].hunt_list[ID] !== 'undefined') {
 				return key;
 			}
@@ -283,13 +279,13 @@ define(function (require) {
 	Quest.addQuestToUI = function addQuest(quest) {
 		let ul_id = '';
 		let li_text = '';
-		let toggle_id = 'qid' + quest.questID;
-		let show_id = 'sid' + quest.questID;
-		let title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
-		let summary = quest.summary.length > 30 ? quest.summary.substr(0, 30) + '...' : quest.summary;
-		let bt_check = _questNotShowList.includes(parseInt(Number(quest.questID))) ? 'bt_check_off' : 'bt_check_on';
+		const toggle_id = 'qid' + quest.questID;
+		const show_id = 'sid' + quest.questID;
+		const title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
+		const summary = quest.summary.length > 30 ? quest.summary.substr(0, 30) + '...' : quest.summary;
+		const bt_check = _questNotShowList.includes(parseInt(Number(quest.questID))) ? 'bt_check_off' : 'bt_check_on';
 
-		let epoch_seconds = new Date() / 1000;
+		const epoch_seconds = new Date() / 1000;
 		if (quest.end_time > 0 && quest.end_time > epoch_seconds) {
 			ul_id = '#cooldown-quest-list';
 			li_text =
@@ -338,7 +334,7 @@ define(function (require) {
 					if (e.target.tagName.toLowerCase() == 'button') {
 						return;
 					}
-					let element = jQuery(e.currentTarget);
+					const element = jQuery(e.currentTarget);
 					if (element.attr('class') == 'quest-item') {
 						QuestHelper.clearQuestDesc();
 						QuestHelper.setQuestInfo(quest);
@@ -363,14 +359,14 @@ define(function (require) {
 	};
 
 	function onClickMenu(e) {
-		var quest_element = jQuery(e.currentTarget);
+		const quest_element = jQuery(e.currentTarget);
 
 		if (_active_menu == quest_element.attr('id')) {
 			return;
 		}
 		_active_menu = quest_element.attr('id');
 
-		var background_image = '';
+		let background_image = '';
 		Quest.ui.find('#active-quest-list').hide();
 		Quest.ui.find('#inactive-quest-list').hide();
 		Quest.ui.find('#feature-quest-list').hide();
@@ -404,7 +400,7 @@ define(function (require) {
 	}
 
 	function onClickQuestCheckbox() {
-		var checkbox_background;
+		let checkbox_background;
 		if (_preferences.showwindow) {
 			checkbox_background = 'checkbox_off';
 			QuestWindow.ui.hide();
@@ -424,24 +420,24 @@ define(function (require) {
 	}
 
 	function onClickQuestToggle(e) {
-		var toggle_element = jQuery(e.currentTarget);
-		let tid = toggle_element.attr('id');
-		let id = tid.replace('qid', '');
-		var _pkt = new PACKET.CZ.ACTIVE_QUEST();
+		const toggle_element = jQuery(e.currentTarget);
+		const tid = toggle_element.attr('id');
+		const id = tid.replace('qid', '');
+		const _pkt = new PACKET.CZ.ACTIVE_QUEST();
 		_pkt.questID = _questList[id].questID;
 		_pkt.active = _questList[id].active == 1 ? 0 : 1;
 		Network.sendPacket(_pkt);
 	}
 
 	function onClickQuestDisplay(e) {
-		var display_element = jQuery(e.currentTarget);
-		let cid = display_element.attr('id');
-		let id = cid.replace('sid', '');
-		let iid = parseInt(Number(id));
+		const display_element = jQuery(e.currentTarget);
+		const cid = display_element.attr('id');
+		const id = cid.replace('sid', '');
+		const iid = parseInt(Number(id));
 
 		let checkbox_background = '';
 		if (_questNotShowList.includes(iid)) {
-			let index = _questNotShowList.indexOf(iid);
+			const index = _questNotShowList.indexOf(iid);
 			_questNotShowList.splice(index, 1);
 			checkbox_background = 'bt_check_on';
 		} else {
@@ -483,7 +479,6 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(Quest);
-});
+	export default UIManager.addComponent(Quest);

@@ -7,283 +7,279 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
 
-	/**
-	 * Load dependencies
-	 */
-	var KEYS = require('Controls/KeyEventHandler');
-	var Mouse = require('Controls/MouseEventHandler');
-	var Events = require('Core/Events');
-	var Preferences = require('Preferences/Camera');
-	var Session = require('Engine/SessionStorage');
-	var glMatrix = require('Utils/gl-matrix');
-	var Configs = require('Core/Configs');
-	var mat4 = glMatrix.mat4;
-	var mat3 = glMatrix.mat3;
-	var vec2 = glMatrix.vec2;
-	var vec3 = glMatrix.vec3;
-	var _position = vec3.create();
-	var DB = require('DB/DBManager');
-	var getModule = require;
+'use strict';
 
-	/**
-	 * @var {number} camera min-max constants
-	 */
-	const C_MIN_ZOOM = 1;
-	const C_MAX_ZOOM = 5;
+import KEYS from 'Controls/KeyEventHandler';
+import Mouse from 'Controls/MouseEventHandler';
+import Events from 'Core/Events';
+import Preferences from 'Preferences/Camera';
+import Session from 'Engine/SessionStorage';
+import glMatrix from 'Utils/gl-matrix';
+import Configs from 'Core/Configs';
+import DB from 'DB/DBManager';
 
-	const C_MIN_V_ANGLE_ISOMETRIC = 190;
-	const C_MAX_V_ANGLE_ISOMETRIC = 270;
+const { mat4, mat3, vec2, vec3 } = glMatrix;
+const _position = vec3.create();
 
-	const C_THIRDPERSON_TRESHOLD_ZOOM = 1;
-	const C_MIN_V_ANGLE_3RDPERSON = 175;
-	const C_MAX_V_ANGLE_3RDPERSON = 270;
+/**
+ * @var {number} camera min-max constants
+ */
+const C_MIN_ZOOM = 1;
+const C_MAX_ZOOM = 5;
 
-	const C_MIN_V_ANGLE_1STPERSON = 90;
-	const C_MAX_V_ANGLE_1STPERSON = 270;
+const C_MIN_V_ANGLE_ISOMETRIC = 190;
+const C_MAX_V_ANGLE_ISOMETRIC = 270;
 
-	const C_QUAKE_MULT = 0.1;
+const C_THIRDPERSON_TRESHOLD_ZOOM = 1;
+const C_MIN_V_ANGLE_3RDPERSON = 175;
+const C_MAX_V_ANGLE_3RDPERSON = 270;
 
-	/**
-	 * Camera Namespace
-	 */
-	var Camera = {};
+const C_MIN_V_ANGLE_1STPERSON = 90;
+const C_MAX_V_ANGLE_1STPERSON = 270;
 
-	/**
-	 * Projection matrix
-	 * @var {mat4} projection
-	 */
-	Camera.projection = mat4.create();
+const C_QUAKE_MULT = 0.1;
 
-	/**
-	 * ModelView matrix
-	 * @var {mat4} modelView
-	 */
-	Camera.modelView = mat4.create();
+/**
+ * Camera Namespace
+ */
+const Camera = {};
 
-	/**
-	 * ModelView matrix
-	 * @var {mat4} modelView
-	 */
-	Camera.normalMat = mat3.create();
+/**
+ * Projection matrix
+ * @var {mat4} projection
+ */
+Camera.projection = mat4.create();
 
-	/**
-	 * @var {number} zoom
-	 */
-	Camera.zoom = Preferences.zoom;
+/**
+ * ModelView matrix
+ * @var {mat4} modelView
+ */
+Camera.modelView = mat4.create();
 
-	/**
-	 * @var {number} zoomFinal
-	 */
-	Camera.zoomFinal = Preferences.zoom;
+/**
+ * ModelView matrix
+ * @var {mat4} modelView
+ */
+Camera.normalMat = mat3.create();
 
-	/**
-	 * @var {vec2} angle rotation
-	 */
-	Camera.angle = vec2.create();
+/**
+ * @var {number} zoom
+ */
+Camera.zoom = Preferences.zoom;
 
-	/**
-	 * @var {vec2} angle final rotation
-	 */
-	Camera.angleFinal = vec2.create();
+/**
+ * @var {number} zoomFinal
+ */
+Camera.zoomFinal = Preferences.zoom;
 
-	/**
-	 * @var {vec3}
-	 */
-	Camera.position = vec3.create();
+/**
+ * @var {vec2} angle rotation
+ */
+Camera.angle = vec2.create();
 
-	/**
-	 * @var {Entity} Entity currently attached by the camera
-	 */
-	Camera.target = null;
+/**
+ * @var {vec2} angle final rotation
+ */
+Camera.angleFinal = vec2.create();
 
-	/**
-	 * @var {number}
-	 */
-	Camera.lastTick = 0;
+/**
+ * @var {vec3}
+ */
+Camera.position = vec3.create();
 
-	/**
-	 * @var {number} camera min-max variables
-	 */
-	Camera.MIN_ZOOM = C_MIN_ZOOM;
-	Camera.MAX_ZOOM = C_MAX_ZOOM;
-	Camera.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
-	Camera.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
+/**
+ * @var {Entity} Entity currently attached by the camera
+ */
+Camera.target = null;
 
-	/**
-	 * @var {number} Camera direction
-	 */
-	Camera.direction = 0;
-	Camera.altitudeFrom = 0;
-	Camera.altitudeTo = -65;
-	Camera.altitudeRange = 15;
-	Camera.rotationFrom = -360;
-	Camera.rotationTo = 360;
-	Camera.range = 230; //240;
-	Camera.zoomStep = 15;
-	Camera.zoomStepMult = 1;
+/**
+ * @var {number}
+ */
+Camera.lastTick = 0;
 
-	/**
-	 * @var {number} current map
-	 */
-	Camera.currentMap = '';
+/**
+ * @var {number} camera min-max variables
+ */
+Camera.MIN_ZOOM = C_MIN_ZOOM;
+Camera.MAX_ZOOM = C_MAX_ZOOM;
+Camera.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
+Camera.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
 
-	// Indoor Params
-	Camera.indoorRotationFrom = -60;
-	Camera.indoorRotationTo = -25;
-	Camera.indoorRange = 240;
+/**
+ * @var {number} Camera direction
+ */
+Camera.direction = 0;
+Camera.altitudeFrom = 0;
+Camera.altitudeTo = -65;
+Camera.altitudeRange = 15;
+Camera.rotationFrom = -360;
+Camera.rotationTo = 360;
+Camera.range = 230; //240;
+Camera.zoomStep = 15;
+Camera.zoomStepMult = 1;
 
-	/**
-	 * @var {number} camera zoom indoor
-	 */
-	Camera.MAX_ZOOM_INDOOR = 2.5;
+/**
+ * @var {number} current map
+ */
+Camera.currentMap = '';
 
-	/**
-	 * @var {number} min camera altitude indoor
-	 */
-	Camera.MIN_ALTITUDE_INDOOR = 220;
+// Indoor Params
+Camera.indoorRotationFrom = -60;
+Camera.indoorRotationTo = -25;
+Camera.indoorRange = 240;
 
-	/**
-	 * @var {number} max camera altitude indoor
-	 */
-	Camera.MAX_ALTITUDE_INDOOR = 240;
+/**
+ * @var {number} camera zoom indoor
+ */
+Camera.MAX_ZOOM_INDOOR = 2.5;
 
-	Camera.enable3RDPerson = false;
-	Camera.enable1STPerson = false;
+/**
+ * @var {number} min camera altitude indoor
+ */
+Camera.MIN_ALTITUDE_INDOOR = 220;
 
-	Camera.state = -1;
+/**
+ * @var {number} max camera altitude indoor
+ */
+Camera.MAX_ALTITUDE_INDOOR = 240;
 
-	Camera.states = {
-		isometric: 0,
-		third_person: 1,
-		first_person: 2
-	};
+Camera.enable3RDPerson = false;
+Camera.enable1STPerson = false;
 
-	/**
-	 * @var {object} Camera action informations (right click)
-	 */
-	Camera.action = {
-		active: false,
-		tick: 0,
-		x: 0,
-		y: 0
-	};
+Camera.state = -1;
 
-	Camera.quakes = [];
+Camera.states = {
+	isometric: 0,
+	third_person: 1,
+	first_person: 2
+};
 
-	/**
-	 * Attach player
-	 *
-	 * @param {object} target - Entity player to attach
-	 */
-	Camera.setTarget = function SetTarget(target) {
-		this.target = target;
-	};
+/**
+ * @var {object} Camera action informations (right click)
+ */
+Camera.action = {
+	active: false,
+	tick: 0,
+	x: 0,
+	y: 0
+};
 
-	/**
-	 * Get camera latitude
-	 *
-	 * @return {number} latitude
-	 */
-	Camera.getLatitude = function GetLatitude() {
-		return this.angle[0] - 180.0;
-	};
+Camera.quakes = [];
 
-	/**
-	 * Set screen quake
-	 *
-	 * @param {number} Start tick
-	 * @param {number} Duration
-	 * @param {number} X axis amount
-	 * @param {number} Y axis amount
-	 * @param {number} Z axis amount
-	 */
-	Camera.setQuake = function SetQuake(start, duration, xAmt, yAmt, zAmt) {
-		var quake = {};
-		quake.startTick = start;
-		quake.duration = duration || 650;
-		quake.sideQuake = xAmt || 1.0;
-		quake.latitudeQuake = yAmt || 0.2;
-		quake.zoomQuake = zAmt || 0.24;
-		quake.active = true;
+/**
+ * Attach player
+ *
+ * @param {object} target - Entity player to attach
+ */
+Camera.setTarget = function SetTarget(target) {
+	this.target = target;
+};
 
-		this.quakes.push(quake);
-	};
+/**
+ * Get camera latitude
+ *
+ * @return {number} latitude
+ */
+Camera.getLatitude = function GetLatitude() {
+	return this.angle[0] - 180.0;
+};
 
-	/**
-	 * Set screen quake
-	 *
-	 * @param {number} Start tick
-	 * @param {number} Duration
-	 * @param {number} X axis amount
-	 * @param {number} Y axis amount
-	 * @param {number} Z axis amount
-	 */
-	Camera.processQuake = function processQuake(tick) {
-		for (var i = 0; i < this.quakes.length; i++) {
-			if (this.quakes[i].active) {
-				if (this.quakes[i].startTick <= tick) {
-					if (this.quakes[i].startTick + this.quakes[i].duration > tick) {
-						/*var step = (tick - this.quakes[i].startTick) / this.quakes[i].duration;*/ // UNUSED
+/**
+ * Set screen quake
+ *
+ * @param {number} Start tick
+ * @param {number} Duration
+ * @param {number} X axis amount
+ * @param {number} Y axis amount
+ * @param {number} Z axis amount
+ */
+Camera.setQuake = function SetQuake(start, duration, xAmt, yAmt, zAmt) {
+	const quake = {};
+	quake.startTick = start;
+	quake.duration = duration || 650;
+	quake.sideQuake = xAmt || 1.0;
+	quake.latitudeQuake = yAmt || 0.2;
+	quake.zoomQuake = zAmt || 0.24;
+	quake.active = true;
 
-						this.position[0] +=
-							((Math.random() * 5 - 2.5) / 10 + this.quakes[i].sideQuake) *
-							Math.cos(this.angle[1] * (Math.PI / 180)) *
-							C_QUAKE_MULT;
-						this.position[1] +=
-							((Math.random() * 5 - 2.5) / 10 + this.quakes[i].sideQuake) *
-							-Math.sin(this.angle[1] * (Math.PI / 180)) *
-							C_QUAKE_MULT;
-						this.quakes[i].sideQuake *= -1;
+	this.quakes.push(quake);
+};
 
-						this.zoom += ((Math.random() * 5 - 2.5) / 10 + this.quakes[i].zoomQuake) * C_QUAKE_MULT;
-						this.quakes[i].zoomQuake *= -1;
+/**
+ * Set screen quake
+ *
+ * @param {number} Start tick
+ * @param {number} Duration
+ * @param {number} X axis amount
+ * @param {number} Y axis amount
+ * @param {number} Z axis amount
+ */
+Camera.processQuake = function processQuake(tick) {
+	for (let i = 0; i < this.quakes.length; i++) {
+		if (this.quakes[i].active) {
+			if (this.quakes[i].startTick <= tick) {
+				if (this.quakes[i].startTick + this.quakes[i].duration > tick) {
+					/*var step = (tick - this.quakes[i].startTick) / this.quakes[i].duration;*/ // UNUSED
 
-						this.angle[0] += ((Math.random() * 5 - 2.5) / 15 + this.quakes[i].latitudeQuake) * C_QUAKE_MULT;
-						this.quakes[i].latitudeQuake *= -1;
-					} else {
-						this.quakes[i].active = false;
-					}
+					this.position[0] +=
+						((Math.random() * 5 - 2.5) / 10 + this.quakes[i].sideQuake) *
+						Math.cos(this.angle[1] * (Math.PI / 180)) *
+						C_QUAKE_MULT;
+					this.position[1] +=
+						((Math.random() * 5 - 2.5) / 10 + this.quakes[i].sideQuake) *
+						-Math.sin(this.angle[1] * (Math.PI / 180)) *
+						C_QUAKE_MULT;
+					this.quakes[i].sideQuake *= -1;
+
+					this.zoom += ((Math.random() * 5 - 2.5) / 10 + this.quakes[i].zoomQuake) * C_QUAKE_MULT;
+					this.quakes[i].zoomQuake *= -1;
+
+					this.angle[0] += ((Math.random() * 5 - 2.5) / 15 + this.quakes[i].latitudeQuake) * C_QUAKE_MULT;
+					this.quakes[i].latitudeQuake *= -1;
+				} else {
+					this.quakes[i].active = false;
 				}
-			} else {
-				this.quakes.splice(i, 1);
 			}
-		}
-	};
-
-	/**
-	 * Initialize Camera
-	 */
-	Camera.init = function Init() {
-		Camera.enable3RDPerson = Configs.get('ThirdPersonCamera', false);
-		Camera.enable1STPerson = Configs.get('FirstPersonCamera', false);
-		Camera.MAX_ZOOM = Configs.get('CameraMaxZoomOut', C_MAX_ZOOM);
-
-		this.lastTick = Date.now();
-
-		this.angle[0] = this.range % 360.0; //240.0;
-		this.angle[1] = this.rotationFrom % 360.0;
-		this.angleFinal[0] = this.range % 360.0;
-		this.angleFinal[1] = this.rotationFrom % 360.0;
-
-		this.position[0] = -this.target.position[0];
-		this.position[1] = -this.target.position[1];
-		this.position[2] = this.target.position[2];
-
-		this.altitudeRange = this.altitudeTo - this.altitudeFrom;
-
-		if (this.enable1STPerson) {
-			this.MIN_ZOOM = 0;
-		} else if (this.enable3RDPerson) {
-			this.MIN_ZOOM = 0.2;
 		} else {
-			this.MIN_ZOOM = C_MIN_ZOOM;
+			this.quakes.splice(i, 1);
 		}
+	}
+};
 
-		this.currentMap = getModule('Renderer/MapRenderer').currentMap;
+/**
+ * Initialize Camera
+ */
+Camera.init = function Init() {
+	Camera.enable3RDPerson = Configs.get('ThirdPersonCamera', false);
+	Camera.enable1STPerson = Configs.get('FirstPersonCamera', false);
+	Camera.MAX_ZOOM = Configs.get('CameraMaxZoomOut', C_MAX_ZOOM);
 
+	this.lastTick = Date.now();
+
+	this.angle[0] = this.range % 360.0; //240.0;
+	this.angle[1] = this.rotationFrom % 360.0;
+	this.angleFinal[0] = this.range % 360.0;
+	this.angleFinal[1] = this.rotationFrom % 360.0;
+
+	this.position[0] = -this.target.position[0];
+	this.position[1] = -this.target.position[1];
+	this.position[2] = this.target.position[2];
+
+	this.altitudeRange = this.altitudeTo - this.altitudeFrom;
+
+	if (this.enable1STPerson) {
+		this.MIN_ZOOM = 0;
+	} else if (this.enable3RDPerson) {
+		this.MIN_ZOOM = 0.2;
+	} else {
+		this.MIN_ZOOM = C_MIN_ZOOM;
+	}
+
+	// This may cause circular dependency if treated synchronously in ESM.
+	// But since this is a method, we assume dependencies are ready later.
+	import('Renderer/MapRenderer').then(MapRenderer => {
+		this.currentMap = MapRenderer.default.currentMap;
 		if (DB.isIndoor(this.currentMap)) {
 			this.zoomFinal = Preferences.indoorZoom || 125;
 			this.angleFinal[0] = 230;
@@ -291,278 +287,280 @@ define(function (require) {
 		} else {
 			this.zoomFinal = Preferences.zoom || 125;
 		}
+	});
+};
 
-		//this.updateState();
+/**
+ * Save the camera settings
+ */
+Camera.save = (function SaveClosure() {
+	let _pending = false;
+
+	function save() {
+		_pending = false;
+		if (!DB.isIndoor(Camera.currentMap)) {
+			Preferences.zoom = Camera.zoomFinal;
+		} else {
+			Preferences.indoorZoom = Camera.zoomFinal;
+		}
+		Preferences.save();
+	}
+
+	return function saving() {
+		// Save camera settings after 3 seconds
+		if (!_pending) {
+			Events.setTimeout(save, 3000);
+			_pending = true;
+		}
 	};
+})();
 
-	/**
-	 * Save the camera settings
-	 */
-	Camera.save = (function SaveClosure() {
-		var _pending = false;
+/**
+ * Rotate the camera
+ *
+ * @param {boolean} active - is mouse down ?
+ */
+Camera.rotate = function Rotate(active) {
+	const action = this.action;
+	const tick = Date.now();
 
-		function save() {
-			_pending = false;
-			if (!DB.isIndoor(Camera.currentMap)) {
-				Preferences.zoom = Camera.zoomFinal;
-			} else {
-				Preferences.indoorZoom = Camera.zoomFinal;
-			}
-			Preferences.save();
-		}
+	if (!active) {
+		action.active = false;
+		return;
+	}
 
-		return function saving() {
-			// Save camera settings after 3 seconds
-			if (!_pending) {
-				Events.setTimeout(save, 3000);
-				_pending = true;
-			}
-		};
-	})();
+	// Check for double click (reset angle and zoom)
+	if (
+		action.tick + 500 > tick &&
+		Math.abs(action.x - Mouse.screen.x) < 10 && // Check the mouse position to avoid bug while rotating
+		Math.abs(action.y - Mouse.screen.y) < 10
+	) {
+		// to fast the camera...
 
-	/**
-	 * Rotate the camera
-	 *
-	 * @param {boolean} active - is mouse down ?
-	 */
-	Camera.rotate = function Rotate(active) {
-		var action = this.action;
-		var tick = Date.now();
-
-		if (!active) {
-			action.active = false;
-			return;
-		}
-
-		// Check for double click (reset angle and zoom)
-		if (
-			action.tick + 500 > tick &&
-			Math.abs(action.x - Mouse.screen.x) < 10 && // Check the mouse position to avoid bug while rotating
-			Math.abs(action.y - Mouse.screen.y) < 10
-		) {
-			// to fast the camera...
-
-			if (KEYS.SHIFT) {
-				if (DB.isIndoor(this.currentMap)) {
-					this.angleFinal[0] = +this.indoorRange;
-				} else {
-					this.angleFinal[0] = +this.range;
-				}
-			}
-			if (KEYS.CTRL) {
-				this.zoomFinal = 125.0;
-			} else {
-				if (DB.isIndoor(this.currentMap)) {
-					this.angleFinal[1] = this.indoorRotationTo;
-				} else {
-					this.angleFinal[1] = 0.0;
-				}
-			}
-		}
-
-		// Save position and tick (for double click)
-		action.x = Mouse.screen.x;
-		action.y = Mouse.screen.y;
-		action.tick = tick;
-		action.active = true;
-	};
-
-	/**
-	 * Process action when right click is down
-	 */
-	Camera.processMouseAction = function ProcessMouseAction() {
-		// Rotate Z
 		if (KEYS.SHIFT) {
+			if (DB.isIndoor(this.currentMap)) {
+				this.angleFinal[0] = +this.indoorRange;
+			} else {
+				this.angleFinal[0] = +this.range;
+			}
+		}
+		if (KEYS.CTRL) {
+			this.zoomFinal = 125.0;
+		} else {
+			if (DB.isIndoor(this.currentMap)) {
+				this.angleFinal[1] = this.indoorRotationTo;
+			} else {
+				this.angleFinal[1] = 0.0;
+			}
+		}
+	}
+
+	// Save position and tick (for double click)
+	action.x = Mouse.screen.x;
+	action.y = Mouse.screen.y;
+	action.tick = tick;
+	action.active = true;
+};
+
+/**
+ * Process action when right click is down
+ */
+Camera.processMouseAction = function ProcessMouseAction() {
+	// Rotate Z
+	if (KEYS.SHIFT) {
+		this.angleFinal[0] += ((Mouse.screen.y - this.action.y) / Mouse.screen.height) * 300;
+		if (DB.isIndoor(this.currentMap)) {
+			this.angleFinal[0] = Math.max(this.angleFinal[0], this.MIN_ALTITUDE_INDOOR);
+			this.angleFinal[0] = Math.min(this.angleFinal[0], this.MAX_ALTITUDE_INDOOR);
+		} else {
+			this.angleFinal[0] = Math.max(this.angleFinal[0], this.MIN_V_ANGLE);
+			this.angleFinal[0] = Math.min(this.angleFinal[0], this.MAX_V_ANGLE);
+		}
+	}
+
+	// Zoom
+	else if (KEYS.CTRL) {
+		this.zoomFinal -= (Mouse.screen.y - this.action.y) * ((this.zoomStep * this.zoomStepMult) / 10);
+		if (DB.isIndoor(this.currentMap)) {
+			this.zoomFinal = Math.min(this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM_INDOOR);
+		} else {
+			this.zoomFinal = Math.min(this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM);
+		}
+		this.zoomFinal = Math.max(this.zoomFinal, Math.abs(this.altitudeRange) * this.MIN_ZOOM);
+	}
+
+	// Rotate
+	else {
+		this.angleFinal[1] -= ((Mouse.screen.x - this.action.x) / Mouse.screen.width) * 720;
+
+		if (this.angle[1] > 180 && this.angleFinal[1] > 180) {
+			this.angle[1] -= 360;
+			this.angleFinal[1] -= 360;
+		} else if (this.angle[1] < -180 && this.angleFinal[1]) {
+			this.angle[1] += 360;
+			this.angleFinal[1] += 360;
+		}
+
+		if (DB.isIndoor(this.currentMap)) {
+			this.angleFinal[1] = Math.max(this.angleFinal[1], this.indoorRotationFrom);
+			this.angleFinal[1] = Math.min(this.angleFinal[1], this.indoorRotationTo);
+		} else {
+			this.angleFinal[1] = Math.max(this.angleFinal[1], this.rotationFrom);
+			this.angleFinal[1] = Math.min(this.angleFinal[1], this.rotationTo);
+		}
+
+		if (this.state == this.states.first_person || this.state == this.states.third_person) {
 			this.angleFinal[0] += ((Mouse.screen.y - this.action.y) / Mouse.screen.height) * 300;
-			if (DB.isIndoor(this.currentMap)) {
-				this.angleFinal[0] = Math.max(this.angleFinal[0], this.MIN_ALTITUDE_INDOOR);
-				this.angleFinal[0] = Math.min(this.angleFinal[0], this.MAX_ALTITUDE_INDOOR);
-			} else {
-				this.angleFinal[0] = Math.max(this.angleFinal[0], this.MIN_V_ANGLE);
-				this.angleFinal[0] = Math.min(this.angleFinal[0], this.MAX_V_ANGLE);
-			}
+			this.angleFinal[0] = Math.max(this.angleFinal[0], this.MIN_V_ANGLE);
+			this.angleFinal[0] = Math.min(this.angleFinal[0], this.MAX_V_ANGLE);
+		}
+	}
+
+	// Update last check
+	this.action.x = +Mouse.screen.x;
+	this.action.y = +Mouse.screen.y;
+	this.updateState();
+	this.save();
+};
+
+/**
+ * Process a MouseWheel, zoom.
+ *
+ * @param {number} delta (zoom)
+ */
+Camera.setZoom = function SetZoom(delta) {
+	if (delta) {
+		this.zoomFinal += delta * this.zoomStep * this.zoomStepMult;
+		if (DB.isIndoor(this.currentMap)) {
+			this.zoomFinal = Math.min(this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM_INDOOR);
+		} else {
+			this.zoomFinal = Math.min(this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM);
 		}
 
-		// Zoom
-		else if (KEYS.CTRL) {
-			this.zoomFinal -= (Mouse.screen.y - this.action.y) * ((this.zoomStep * this.zoomStepMult) / 10);
-			if (DB.isIndoor(this.currentMap)) {
-				this.zoomFinal = Math.min(this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM_INDOOR);
-			} else {
-				this.zoomFinal = Math.min(this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM);
-			}
-			this.zoomFinal = Math.max(this.zoomFinal, Math.abs(this.altitudeRange) * this.MIN_ZOOM);
-		}
-
-		// Rotate
-		else {
-			this.angleFinal[1] -= ((Mouse.screen.x - this.action.x) / Mouse.screen.width) * 720;
-
-			if (this.angle[1] > 180 && this.angleFinal[1] > 180) {
-				this.angle[1] -= 360;
-				this.angleFinal[1] -= 360;
-			} else if (this.angle[1] < -180 && this.angleFinal[1]) {
-				this.angle[1] += 360;
-				this.angleFinal[1] += 360;
-			}
-
-			if (DB.isIndoor(this.currentMap)) {
-				this.angleFinal[1] = Math.max(this.angleFinal[1], this.indoorRotationFrom);
-				this.angleFinal[1] = Math.min(this.angleFinal[1], this.indoorRotationTo);
-			} else {
-				this.angleFinal[1] = Math.max(this.angleFinal[1], this.rotationFrom);
-				this.angleFinal[1] = Math.min(this.angleFinal[1], this.rotationTo);
-			}
-
-			if (this.state == this.states.first_person || this.state == this.states.third_person) {
-				this.angleFinal[0] += ((Mouse.screen.y - this.action.y) / Mouse.screen.height) * 300;
-				this.angleFinal[0] = Math.max(this.angleFinal[0], this.MIN_V_ANGLE);
-				this.angleFinal[0] = Math.min(this.angleFinal[0], this.MAX_V_ANGLE);
-			}
-		}
-
-		// Update last check
-		this.action.x = +Mouse.screen.x;
-		this.action.y = +Mouse.screen.y;
+		this.zoomFinal = Math.max(this.zoomFinal, Math.abs(this.altitudeRange) * this.MIN_ZOOM);
 		this.updateState();
 		this.save();
-	};
+	}
+};
 
-	/**
-	 * Process a MouseWheel, zoom.
-	 *
-	 * @param {number} delta (zoom)
-	 */
-	Camera.setZoom = function SetZoom(delta) {
-		if (delta) {
-			this.zoomFinal += delta * this.zoomStep * this.zoomStepMult;
-			if (DB.isIndoor(this.currentMap)) {
-				this.zoomFinal = Math.min(this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM_INDOOR);
-			} else {
-				this.zoomFinal = Math.min(this.zoomFinal, Math.abs(this.altitudeRange) * this.MAX_ZOOM);
-			}
-
-			this.zoomFinal = Math.max(this.zoomFinal, Math.abs(this.altitudeRange) * this.MIN_ZOOM);
-			this.updateState();
-			this.save();
-		}
-	};
-
-	Camera.updateState = function UpdateState() {
-		if (this.enable1STPerson && this.zoomFinal == 0) {
-			if (this.state != this.states.first_person) {
-				let Renderer = require('Renderer/Renderer');
+Camera.updateState = function UpdateState() {
+	if (this.enable1STPerson && this.zoomFinal == 0) {
+		if (this.state != this.states.first_person) {
+			import('Renderer/Renderer').then(Renderer => {
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_1STPERSON;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_1STPERSON;
-				Renderer.vFov = 50;
-				Renderer.resize();
-				this.zoomStepMult = 0.3;
-				this.state = this.states.first_person;
-				if (Session.Entity) {
-					Session.Entity.hideEntity = true;
-				}
+				Renderer.default.vFov = 50;
+				Renderer.default.resize();
+			});
+			this.zoomStepMult = 0.3;
+			this.state = this.states.first_person;
+			if (Session.Entity) {
+				Session.Entity.hideEntity = true;
 			}
-		} else if (
-			this.enable3RDPerson &&
-			this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM
-		) {
-			if (this.state != this.states.third_person) {
-				let Renderer = require('Renderer/Renderer');
+		}
+	} else if (
+		this.enable3RDPerson &&
+		this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM
+	) {
+		if (this.state != this.states.third_person) {
+			import('Renderer/Renderer').then(Renderer => {
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_3RDPERSON;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_3RDPERSON;
-				Renderer.vFov = 30;
-				Renderer.resize();
-				this.zoomStepMult = 0.3;
-				this.state = this.states.third_person;
-				if (Session.Entity) {
-					Session.Entity.hideEntity = false;
-				}
+				Renderer.default.vFov = 30;
+				Renderer.default.resize();
+			});
+			this.zoomStepMult = 0.3;
+			this.state = this.states.third_person;
+			if (Session.Entity) {
+				Session.Entity.hideEntity = false;
 			}
-		} else {
-			if (this.state != this.states.isometric) {
-				let Renderer = require('Renderer/Renderer');
+		}
+	} else {
+		if (this.state != this.states.isometric) {
+			import('Renderer/Renderer').then(Renderer => {
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
-				Renderer.vFov = 15;
-				Renderer.resize();
-				this.zoomStepMult = 1;
-				this.state = this.states.isometric;
-				if (Session.Entity) {
-					Session.Entity.hideEntity = false;
-				}
+				Renderer.default.vFov = 15;
+				Renderer.default.resize();
+			});
+			this.zoomStepMult = 1;
+			this.state = this.states.isometric;
+			if (Session.Entity) {
+				Session.Entity.hideEntity = false;
 			}
 		}
-	};
+	}
+};
 
-	/**
-	 * Update the camera
-	 *
-	 * @param {number} tick
-	 */
-	Camera.update = function Update(tick) {
-		var lerp = Math.min((tick - this.lastTick) * 0.006, 1.0);
-		this.lastTick = tick;
+/**
+ * Update the camera
+ *
+ * @param {number} tick
+ */
+Camera.update = function Update(tick) {
+	const lerp = Math.min((tick - this.lastTick) * 0.006, 1.0);
+	this.lastTick = tick;
 
-		// Update camera from mouse movement
-		if (this.action.x !== -1 && this.action.y !== -1 && this.action.active) {
-			this.processMouseAction();
-		}
+	// Update camera from mouse movement
+	if (this.action.x !== -1 && this.action.y !== -1 && this.action.active) {
+		this.processMouseAction();
+	}
 
-		// Screen quake
-		this.processQuake(tick);
+	// Screen quake
+	this.processQuake(tick);
 
-		// Move Camera
-		if (Preferences.smooth && this.state != this.states.first_person) {
-			this.position[0] += (-this.target.position[0] - this.position[0]) * lerp;
-			this.position[1] += (-this.target.position[1] - this.position[1]) * lerp;
-			this.position[2] += (this.target.position[2] - this.position[2]) * lerp;
-		} else {
-			this.position[0] = -this.target.position[0];
-			this.position[1] = -this.target.position[1];
-			this.position[2] = this.target.position[2];
-		}
+	// Move Camera
+	if (Preferences.smooth && this.state != this.states.first_person) {
+		this.position[0] += (-this.target.position[0] - this.position[0]) * lerp;
+		this.position[1] += (-this.target.position[1] - this.position[1]) * lerp;
+		this.position[2] += (this.target.position[2] - this.position[2]) * lerp;
+	} else {
+		this.position[0] = -this.target.position[0];
+		this.position[1] = -this.target.position[1];
+		this.position[2] = this.target.position[2];
+	}
 
-		// Zoom
-		this.zoom += (this.zoomFinal - this.zoom) * lerp * 2.0;
+	// Zoom
+	this.zoom += (this.zoomFinal - this.zoom) * lerp * 2.0;
 
-		var zOffset = 0;
-		if (this.state == this.states.first_person) {
-			zOffset = 2;
-		} else if (
-			this.state == this.states.third_person &&
-			this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM
-		) {
-			zOffset = 1.5;
-		}
+	let zOffset = 0;
+	if (this.state == this.states.first_person) {
+		zOffset = 2;
+	} else if (
+		this.state == this.states.third_person &&
+		this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM
+	) {
+		zOffset = 1.5;
+	}
 
-		// Angle
-		this.angle[0] += (this.angleFinal[0] - this.angle[0]) * lerp * 2.0;
-		this.angle[1] += (this.angleFinal[1] - this.angle[1]) * lerp * 2.0;
-		this.angle[0] %= 360;
-		this.angle[1] %= 360;
+	// Angle
+	this.angle[0] += (this.angleFinal[0] - this.angle[0]) * lerp * 2.0;
+	this.angle[1] += (this.angleFinal[1] - this.angle[1]) * lerp * 2.0;
+	this.angle[0] %= 360;
+	this.angle[1] %= 360;
 
-		// Find Camera direction (for NPC direction)
-		this.direction = Math.floor((this.angle[1] + 22.5) / 45) % 8;
+	// Find Camera direction (for NPC direction)
+	this.direction = Math.floor((this.angle[1] + 22.5) / 45) % 8;
 
-		// Calculate new modelView mat
-		var matrix = this.modelView;
-		mat4.identity(matrix);
-		mat4.translateZ(matrix, (this.altitudeFrom - this.zoom) / 2);
-		mat4.rotateX(matrix, matrix, (this.angle[0] / 180) * Math.PI);
-		mat4.rotateY(matrix, matrix, (this.angle[1] / 180) * Math.PI);
+	// Calculate new modelView mat
+	const matrix = this.modelView;
+	mat4.identity(matrix);
+	mat4.translateZ(matrix, (this.altitudeFrom - this.zoom) / 2);
+	mat4.rotateX(matrix, matrix, (this.angle[0] / 180) * Math.PI);
+	mat4.rotateY(matrix, matrix, (this.angle[1] / 180) * Math.PI);
 
-		// Center of the cell and inversed Y-Z axis
-		_position[0] = this.position[0] - 0.5;
-		_position[1] = this.position[2] + zOffset;
-		_position[2] = this.position[1] - 0.5;
-		mat4.translate(matrix, matrix, _position);
+	// Center of the cell and inversed Y-Z axis
+	_position[0] = this.position[0] - 0.5;
+	_position[1] = this.position[2] + zOffset;
+	_position[2] = this.position[1] - 0.5;
+	mat4.translate(matrix, matrix, _position);
 
-		mat4.toInverseMat3(matrix, this.normalMat);
-		mat3.transpose(this.normalMat, this.normalMat);
-	};
+	mat4.toInverseMat3(matrix, this.normalMat);
+	mat3.transpose(this.normalMat, this.normalMat);
+};
 
-	/**
-	 * Export
-	 */
-	return Camera;
-});
+/**
+ * Export
+ */
+export default Camera;
+

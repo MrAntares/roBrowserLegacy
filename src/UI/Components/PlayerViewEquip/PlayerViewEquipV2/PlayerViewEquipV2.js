@@ -7,36 +7,32 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./PlayerViewEquipV2.html');
-	var cssText = require('text!./PlayerViewEquipV2.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import EquipLocation from 'DB/Items/EquipmentLocation';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './PlayerViewEquipV2.html?raw';
+import cssText from './PlayerViewEquipV2.css?raw';
+import Entity from 'Renderer/Entity/Entity';
 
 	/**
 	 * Create Component
 	 */
-	var PlayerViewEquipV2 = new UIComponent('PlayerViewEquipV2', htmlText, cssText);
+	const PlayerViewEquipV2 = new UIComponent('PlayerViewEquipV2', htmlText, cssText);
 
 	/**
 	 * @var {Preference} window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'PlayerViewEquipV2',
 		{
 			x: 480,
@@ -48,29 +44,29 @@ define(function (require) {
 	/**
 	 * @var {Array} equipment list
 	 */
-	var _list = {};
+	let _list = {};
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _vieweqctx = [];
+	const _vieweqctx = [];
 
 	/**
 	 * @var {Value} tab
 	 */
-	var tabLinks = new Array();
-	var contentDivs = new Array();
-	var currentTabId = 'vieweqgeneral'; // Variable to store the current tab's ID
+	const tabLinks = new Array();
+	const contentDivs = new Array();
+	let currentTabId = 'vieweqgeneral'; // Variable to store the current tab's ID
 
 	/**
 	 *  @var {Value} packets
 	 */
-	var charName;
-	var jobID;
-	var headID;
-	var sexID;
-	var bodypalID;
-	var headpalID;
+	let charName;
+	let jobID;
+	let headID;
+	let sexID;
+	let bodypalID;
+	let headpalID;
 
 	/**
 	 * Initialize UI
@@ -80,10 +76,10 @@ define(function (require) {
 		_vieweqctx.push(this.ui.find('canvas')[1].getContext('2d'));
 
 		// Grab the tab links and content divs from the page
-		var tabListItems = document.getElementById('vieweqtabs').childNodes;
+		const tabListItems = document.getElementById('vieweqtabs').childNodes;
 		for (var i = 0; i < tabListItems.length; i++) {
 			if (tabListItems[i].nodeName == 'DIV') {
-				var tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
+				const tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
 				var id = getHash(tabLink.getAttribute('href'));
 				tabLinks[id] = tabLink;
 				contentDivs[id] = document.getElementById(id);
@@ -144,11 +140,11 @@ define(function (require) {
 	 * Show the selected tab and hide others
 	 */
 	function showTab() {
-		var selectedId = getHash(this.getAttribute('href'));
+		const selectedId = getHash(this.getAttribute('href'));
 
 		// Highlight the selected tab, and dim all others.
 		// Also show the selected content div, and hide all others.
-		for (var id in contentDivs) {
+		for (const id in contentDivs) {
 			if (id == selectedId) {
 				tabLinks[id].className = 'vieweqtab selected';
 				contentDivs[id].className = 'vieweqcontent';
@@ -173,7 +169,7 @@ define(function (require) {
 	 * @returns {HTMLElement} The first child element with the specified tag name
 	 */
 	function getFirstChildWithTagName(element, tagName) {
-		for (var i = 0; i < element.childNodes.length; i++) {
+		for (let i = 0; i < element.childNodes.length; i++) {
 			if (element.childNodes[i].nodeName == tagName.toUpperCase()) {
 				return element.childNodes[i];
 			}
@@ -187,7 +183,7 @@ define(function (require) {
 	 * @returns {string} The hash part of the URL
 	 */
 	function getHash(url) {
-		var hashPos = url.lastIndexOf('#');
+		const hashPos = url.lastIndexOf('#');
 		return url.substring(hashPos + 1);
 	}
 
@@ -231,7 +227,7 @@ define(function (require) {
 	 * @param {Item} item
 	 */
 	PlayerViewEquipV2.equip = function equip(item, location) {
-		var it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 
 		if (arguments.length === 1) {
 			if ('WearState' in item) {
@@ -245,7 +241,7 @@ define(function (require) {
 		_list[item.index] = item;
 
 		function add3Dots(string, limit) {
-			var dots = '...';
+			const dots = '...';
 			if (string.length > limit) {
 				string = string.substring(0, limit) + dots;
 			}
@@ -329,9 +325,9 @@ define(function (require) {
 	 * Rendering character
 	 */
 	var renderCharacter = (function renderCharacterClosure() {
-		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		var _savedColor = new Float32Array(4);
-		var _animation = {
+		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		const _savedColor = new Float32Array(4);
+		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -342,8 +338,7 @@ define(function (require) {
 		};
 
 		return function renderCharacter() {
-			var Entity = getModule('Renderer/Entity/Entity');
-			var show_character = new Entity();
+			const show_character = new Entity();
 			show_character.set({
 				GID: charName + '_EQUIP',
 				objecttype: show_character.constructor.TYPE_PC,
@@ -382,8 +377,8 @@ define(function (require) {
 			show_character.animation = _animation;
 
 			// Rendering
-			for (var i = 0; i < _vieweqctx.length; i++) {
-				var ctx = _vieweqctx[i];
+			for (let i = 0; i < _vieweqctx.length; i++) {
+				const ctx = _vieweqctx[i];
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				show_character.renderEntity(ctx);
@@ -398,7 +393,7 @@ define(function (require) {
 	 * @returns {string} selector
 	 */
 	function getSelectorFromLocation(location) {
-		var selector = [];
+		const selector = [];
 
 		if (location & EquipLocation.HEAD_TOP) {
 			selector.push('.head_top');
@@ -482,8 +477,8 @@ define(function (require) {
 	 * Right click on an item
 	 */
 	function onEquipmentInfo(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = _list[index];
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = _list[index];
 
 		if (item) {
 			// Don't add the same UI twice, remove it
@@ -507,16 +502,16 @@ define(function (require) {
 	 * When mouse is over an equipment, display the item name
 	 */
 	function onEquipmentOver() {
-		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var item = _list[idx];
+		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const item = _list[idx];
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = PlayerViewEquipV2.ui.find('.overlay');
-		var pos = jQuery(this).position();
+		const overlay = PlayerViewEquipV2.ui.find('.overlay');
+		const pos = jQuery(this).position();
 
 		// Possible jquery error
 		if (!pos.top && !pos.left) {
@@ -540,8 +535,8 @@ define(function (require) {
 	 * Update the owner name for the equipment items
 	 */
 	PlayerViewEquipV2.onUpdateOwnerName = function () {
-		for (var index in _list) {
-			var item = _list[index];
+		for (const index in _list) {
+			const item = _list[index];
 			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				PlayerViewEquipV2.ui
 					.find('.item[data-index="' + index + '"] .itemName')
@@ -556,8 +551,8 @@ define(function (require) {
 	 * @returns {number} The number of equipment items
 	 */
 	PlayerViewEquipV2.getNumber = function () {
-		var num = 0;
-		for (var key in _list) {
+		let num = 0;
+		for (const key in _list) {
 			if (_list[key].location && _list[key].location != EquipLocation.AMMO) {
 				num++;
 			}
@@ -572,7 +567,7 @@ define(function (require) {
 	 * @returns {number} The sprite number of the item in the specified location, or 0 if not equipped
 	 */
 	PlayerViewEquipV2.checkEquipLoc = function checkEquipLoc(location) {
-		for (var key in _list) {
+		for (const key in _list) {
 			if (_list[key].equipped & location) {
 				return _list[key].wItemSpriteNumber;
 			}
@@ -584,5 +579,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(PlayerViewEquipV2);
-});
+	export default UIManager.addComponent(PlayerViewEquipV2);

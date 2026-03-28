@@ -6,32 +6,29 @@
  * @author Alisonrag
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Session = require('Engine/SessionStorage');
-	var MonsterTable = require('DB/Monsters/MonsterTable');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Client = require('Core/Client');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./WriteRodex.html');
-	var cssText = require('text!./WriteRodex.css');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
+import MonsterTable from 'DB/Monsters/MonsterTable';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Client from 'Core/Client';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './WriteRodex.html?raw';
+import cssText from './WriteRodex.css?raw';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import Rodex from 'UI/Components/Rodex/Rodex';
+import Inventory from 'UI/Components/Inventory/Inventory';
 
 	/**
 	 * Create Component
 	 */
-	var WriteRodex = new UIComponent('WriteRodex', htmlText, cssText);
+	const WriteRodex = new UIComponent('WriteRodex', htmlText, cssText);
 	WriteRodex.list = [];
 	WriteRodex.receiver = null;
 	WriteRodex.tax = 0;
@@ -39,7 +36,7 @@ define(function (require) {
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'WriteRodex',
 		{
 			show: false
@@ -58,11 +55,11 @@ define(function (require) {
 
 		WriteRodex.ui.css({
 			top: Math.min(
-				Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('top'), 10)) - 20,
+				Math.max(0, parseInt(Rodex.ui.css('top'), 10)) - 20,
 				Renderer.height - WriteRodex.ui.height()
 			),
 			left: Math.min(
-				Math.max(0, parseInt(getModule('UI/Components/Rodex/Rodex').ui.css('left'), 10)) + 330,
+				Math.max(0, parseInt(Rodex.ui.css('left'), 10)) + 330,
 				Renderer.width - WriteRodex.ui.width()
 			)
 		});
@@ -95,7 +92,7 @@ define(function (require) {
 	};
 
 	WriteRodex.characterInfo = function characterInfo(pkt) {
-		let text = 'Lv' + pkt.level + '<br>' + MonsterTable[pkt.Job] + '<br>' + pkt.CharID;
+		const text = 'Lv' + pkt.level + '<br>' + MonsterTable[pkt.Job] + '<br>' + pkt.CharID;
 		WriteRodex.ui.find('.validate-name').hide();
 		WriteRodex.ui.find('.baloon').html(text).show();
 		WriteRodex.ui.find('.name').prop('type', 'none');
@@ -130,8 +127,8 @@ define(function (require) {
 			ChatBox.addText(DB.getMessage(2611), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
-		let receiver = WriteRodex.receiver;
-		let sender = Session.Character.name;
+		const receiver = WriteRodex.receiver;
+		const sender = Session.Character.name;
 		let zeny = parseInt(WriteRodex.ui.find('.value').val(), 10);
 		zeny = isNaN(zeny) ? 0 : zeny;
 		zeny = zeny < 0 ? 0 : zeny;
@@ -141,23 +138,23 @@ define(function (require) {
 			return;
 		}
 
-		let title =
+		const title =
 			WriteRodex.ui
 				.find('.title-text')
 				.val()
 				.replace(/^(\$|\%)/, '')
 				.replace(/\t/g, '')
 				.substring(0, 23) + String.fromCharCode(0);
-		let body =
+		const body =
 			WriteRodex.ui
 				.find('.content-text')
 				.val()
 				.replace(/^(\$|\%)/, '')
 				.replace(/\t/g, '')
 				.substring(0, 499) + String.fromCharCode(0);
-		let Titlelength = title.length;
-		let Bodylength = body.length;
-		let CharID = WriteRodex.CharID;
+		const Titlelength = title.length;
+		const Bodylength = body.length;
+		const CharID = WriteRodex.CharID;
 		WriteRodex.requestSendRodex(receiver, sender, zeny, Titlelength, Bodylength, CharID, title, body);
 		WriteRodex.requestCancelWriteRodex();
 	}
@@ -168,8 +165,8 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	WriteRodex.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list = WriteRodex.list;
+		let i, count;
+		const list = WriteRodex.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -181,7 +178,7 @@ define(function (require) {
 	};
 
 	WriteRodex.addItem = function addItem(item) {
-		var object = WriteRodex.getItemByIndex(item.index);
+		let object = WriteRodex.getItemByIndex(item.index);
 
 		if (object) {
 			object.count += item.count;
@@ -192,8 +189,8 @@ define(function (require) {
 		object = jQuery.extend({}, item);
 		WriteRodex.list.push(object);
 
-		var it = DB.getItemInfo(item.ITID);
-		var content = this.ui.find('.items .item-list');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.items .item-list');
 
 		content.append(
 			'<div class="item" data-index="' +
@@ -218,7 +215,7 @@ define(function (require) {
 			}
 		);
 
-		let item_div = content.find('.item[data-index="' + item.index + '"]');
+		const item_div = content.find('.item[data-index="' + item.index + '"]');
 		item_div
 			.on('mouseover', onItemOver)
 			.on('mouseout', onItemOut)
@@ -237,7 +234,7 @@ define(function (require) {
 	 * @param {number} count
 	 */
 	WriteRodex.removeItem = function RemoveItem(index, count, weight) {
-		var item = WriteRodex.getItemByIndex(index);
+		const item = WriteRodex.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
 		// do not remove item from inventory
@@ -265,7 +262,7 @@ define(function (require) {
 	};
 
 	WriteRodex.updateTax = function updateTax() {
-		let total_items = WriteRodex.list.length;
+		const total_items = WriteRodex.list.length;
 		let tax = total_items * 2500;
 		let zeny = parseInt(WriteRodex.ui.find('.value').val(), 10);
 		zeny = isNaN(zeny) ? 0 : zeny;
@@ -288,10 +285,10 @@ define(function (require) {
 	};
 
 	function prettifyZeny(value) {
-		var num = String(value);
-		var i = 0,
+		const num = String(value);
+		let i = 0,
 			len = num.length;
-		var out = '';
+		let out = '';
 
 		while (i < len) {
 			out = num[len - i - 1] + out;
@@ -306,7 +303,7 @@ define(function (require) {
 
 	function onClickValidateName(e) {
 		e.stopImmediatePropagation();
-		let name = WriteRodex.ui.find('.name').val();
+		const name = WriteRodex.ui.find('.name').val();
 		WriteRodex.validateName(name.replace(/^(\$|\%)/, '').replace(/\t/g, ''));
 	}
 
@@ -316,7 +313,7 @@ define(function (require) {
 	 * @param {event}
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -340,10 +337,7 @@ define(function (require) {
 				InputBox.remove();
 				switch (data.from) {
 					case 'Inventory':
-						getModule('UI/Components/Inventory/Inventory').reqMoveItemToWriteRodex(
-							item.index,
-							parseInt(count, 10)
-						);
+						Inventory.reqMoveItemToWriteRodex(item.index, parseInt(count, 10));
 						break;
 					default:
 					//cant do this action
@@ -354,7 +348,7 @@ define(function (require) {
 
 		switch (data.from) {
 			case 'Inventory':
-				getModule('UI/Components/Inventory/Inventory').reqMoveItemToWriteRodex(item.index, 1);
+				Inventory.reqMoveItemToWriteRodex(item.index, 1);
 				break;
 			default:
 			//cant do this action
@@ -374,16 +368,16 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = WriteRodex.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = WriteRodex.getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var pos = jQuery(this).position();
-		var overlay = WriteRodex.ui.find('.overlay');
+		const pos = jQuery(this).position();
+		const overlay = WriteRodex.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -408,16 +402,16 @@ define(function (require) {
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = WriteRodex.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = WriteRodex.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const img = new Image();
+		const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		img.decoding = 'async';
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
@@ -450,8 +444,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = WriteRodex.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = WriteRodex.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -478,5 +472,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(WriteRodex);
-});
+	export default UIManager.addComponent(WriteRodex);

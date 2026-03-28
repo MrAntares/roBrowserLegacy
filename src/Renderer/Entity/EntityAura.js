@@ -18,15 +18,14 @@
  * @prop {number} homunLv - Homun class aura level
  * @prop {number} bossLv - Boss class aura level
  */
-define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'], function (
-	EffectConst,
-	/** @type {TMapPreferencesAura} */ MapPreferences,
-	Configs
-) {
-	'use strict';
+'use strict';
 
-	/** @type {TAuraSettings} */
-	var _auraSettings = {
+import EffectConst from 'DB/Effects/EffectConst';
+import /** @type {TMapPreferencesAura} */ MapPreferences from 'Preferences/Map';
+import Configs from 'Core/Configs';
+
+/** @type {TAuraSettings} */
+	const _auraSettings = {
 		defaultLv: 99
 		// babyLv: 99, // TODO implement other aura levels
 		// secondLv: 99,
@@ -35,9 +34,9 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'], function (
 		// bossLv: 99,
 	};
 
-	var normalEffects = [EffectConst.EF_LEVEL99, EffectConst.EF_LEVEL99_2, EffectConst.EF_LEVEL99_3];
+	const normalEffects = [EffectConst.EF_LEVEL99, EffectConst.EF_LEVEL99_2, EffectConst.EF_LEVEL99_3];
 
-	var simpleEffects = [EffectConst.EF_LEVEL99_3];
+	const simpleEffects = [EffectConst.EF_LEVEL99_3];
 
 	/**
 	 * Aura class
@@ -55,10 +54,10 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'], function (
 	 * Show aura
 	 */
 	Aura.prototype.load = function load(effectManager) {
-		var server = Configs.getServer(); // find aura from servers config
+		const server = Configs.getServer(); // find aura from servers config
 
 		/** @type {TAuraSettings} - merge server aura config with default settings */
-		var settings =
+		const settings =
 			server != null ? Object.assign({}, _auraSettings, server.aura) : Object.assign({}, _auraSettings);
 
 		// check if qualifies for aura and /aura2 preference
@@ -77,7 +76,7 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'], function (
 				if (!this.isLoaded) {
 					// aura is already loaded
 					// select effects based on /aura preference
-					var effects = MapPreferences.aura < 2 ? simpleEffects : normalEffects;
+					const effects = MapPreferences.aura < 2 ? simpleEffects : normalEffects;
 					// add aura effects
 					for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) {
 						effectManager.spam({
@@ -130,9 +129,8 @@ define(['DB/Effects/EffectConst', 'Preferences/Map', 'Core/Configs'], function (
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return function init() {
+	export default function init() {
 		this.aura = new Aura(this);
 	};
-});

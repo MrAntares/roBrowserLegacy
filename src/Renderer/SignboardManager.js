@@ -1,22 +1,22 @@
 // src/Renderer/SignboardManager.js
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var SignboardManager = {};
-	var signboards = [];
-	var glMatrix = require('Utils/gl-matrix');
-	var mat4 = glMatrix.mat4;
-	var vec4 = glMatrix.vec4;
-	var Renderer = require('Renderer/Renderer');
-	var DB = require('DB/DBManager');
-	var _pos = new Float32Array(4);
-	var _size = new Float32Array(2);
+import glMatrix from 'Utils/gl-matrix';
+import Renderer from 'Renderer/Renderer';
+import DB from 'DB/DBManager';
+import EntitySignboard from 'UI/Components/EntitySignboard/EntitySignboard';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
+
+const SignboardManager = {};
+	let signboards = [];
+	const mat4 = glMatrix.mat4;
+	const vec4 = glMatrix.vec4;
+	const _pos = new Float32Array(4);
+	const _size = new Float32Array(2);
 
 	SignboardManager.add = function (x, y, signboardData) {
-		var EntitySignboard = require('UI/Components/EntitySignboard/EntitySignboard');
-
 		// Clone the UI component
-		var signboardUI = EntitySignboard.clone('EntitySignboard', true);
+		const signboardUI = EntitySignboard.clone('EntitySignboard', true);
 		signboardData.icon_location = signboardData.icon_location.replace(
 			'\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba' + '\\',
 			''
@@ -53,12 +53,12 @@ define(function (require) {
 	};
 
 	SignboardManager.render = function (gl, modelView, projection) {
-		var _matrix = mat4.create();
-		var _vector = vec4.create();
+		const _matrix = mat4.create();
+		const _vector = vec4.create();
 
 		signboards.forEach(signboard => {
-			var ui = signboard.ui.ui[0];
-			var z;
+			const ui = signboard.ui.ui[0];
+			let z;
 
 			// Calculate world position
 			_vector[0] = signboard.x + 0.5;
@@ -100,7 +100,7 @@ define(function (require) {
 
 			// Check if the Vertical Flip (Illusion effect) is active
 			// If true, invert the Y coordinate relative to the renderer height
-			if (require('Renderer/Effects/Shaders/VerticalFlip').isActive()) {
+			if (VerticalFlip.isActive()) {
 				_pos[1] = Renderer.height - _pos[1];
 			}
 
@@ -113,6 +113,4 @@ define(function (require) {
 		signboards.forEach(signboard => signboard.ui.remove());
 		signboards = [];
 	};
-
-	return SignboardManager;
-});
+export default SignboardManager;

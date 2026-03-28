@@ -8,29 +8,27 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import UIManager from 'UI/UIManager';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var UIManager = require('UI/UIManager');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var PartyFriends = require('UI/Components/PartyFriends/PartyFriends');
-	var getModule = require;
-
 	/**
 	 * Create namespace
 	 */
-	var FriendEngine = {};
+	const FriendEngine = {};
 
 	/**
 	 * @var {Array} list of friends
 	 */
-	var _friends = [];
+	let _friends = [];
 
 	/**
 	 * Initialzing engine
@@ -45,7 +43,7 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.DELETE_FRIENDS, onFriendRemoved);
 
 		// Hook UI
-		var FriendUI = PartyFriends.getUI();
+		const FriendUI = PartyFriends.getUI();
 		FriendUI.onRequestNewFriend = FriendEngine.addFriend;
 		FriendUI.onRemoveFriend = FriendEngine.removeFriend;
 	};
@@ -64,7 +62,7 @@ define(function (require) {
 	 * @param {string} name
 	 */
 	FriendEngine.addFriend = function addFriend(name) {
-		var pkt = new PACKET.CZ.ADD_FRIENDS();
+		const pkt = new PACKET.CZ.ADD_FRIENDS();
 		pkt.name = name;
 
 		Network.sendPacket(pkt);
@@ -76,7 +74,7 @@ define(function (require) {
 	 * @param {number} index
 	 */
 	FriendEngine.removeFriend = function removeFriend(index) {
-		var pkt = new PACKET.CZ.DELETE_FRIENDS();
+		const pkt = new PACKET.CZ.DELETE_FRIENDS();
 		pkt.AID = _friends[index].AID;
 		pkt.GID = _friends[index].GID;
 
@@ -91,7 +89,7 @@ define(function (require) {
 	 * @param {number} answer
 	 */
 	FriendEngine.answerFriendRequest = function answerFriendRequest(AID, GID, result) {
-		var pkt = new PACKET.CZ.ACK_REQ_ADD_FRIENDS();
+		const pkt = new PACKET.CZ.ACK_REQ_ADD_FRIENDS();
 		pkt.ReqAID = AID;
 		pkt.ReqGID = GID;
 		pkt.Result = result;
@@ -106,7 +104,7 @@ define(function (require) {
 	 * @return {boolean} is friend
 	 */
 	FriendEngine.isFriend = function isFriend(name) {
-		var i,
+		let i,
 			count = _friends.length;
 
 		for (i = 0; i < count; ++i) {
@@ -122,9 +120,9 @@ define(function (require) {
 	 * Say hi to all your friends
 	 */
 	FriendEngine.sayHi = function sayHi() {
-		var i,
+		let i,
 			count = _friends.length;
-		var pkt = new PACKET.CZ.WHISPER();
+		const pkt = new PACKET.CZ.WHISPER();
 
 		pkt.msg = '(Hi) *^_^*';
 
@@ -155,7 +153,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.FRIENDS_STATE
 	 */
 	function onFriendUpdate(pkt) {
-		var idx = getFriendIndex(pkt.AID, pkt.GID);
+		const idx = getFriendIndex(pkt.AID, pkt.GID);
 
 		if (idx > -1) {
 			_friends[idx].State = pkt.State;
@@ -192,7 +190,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ADD_FRIENDS_LIST
 	 */
 	function onFriendAdded(pkt) {
-		var idx;
+		let idx;
 
 		switch (pkt.Result) {
 			case 0: // "You have become friends with (%s)."
@@ -246,7 +244,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.DELETE_FRIENDS
 	 */
 	function onFriendRemoved(pkt) {
-		var idx = getFriendIndex(pkt.AID, pkt.GID);
+		const idx = getFriendIndex(pkt.AID, pkt.GID);
 
 		if (idx > -1) {
 			_friends.splice(idx, 1);
@@ -262,7 +260,7 @@ define(function (require) {
 	 * @returns {number} index in array
 	 */
 	function getFriendIndex(AID, GID) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = _friends.length; i < count; ++i) {
 			if (_friends[i].AID === AID && _friends[i].GID === GID) {
@@ -274,7 +272,6 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return FriendEngine;
-});
+	export default FriendEngine;

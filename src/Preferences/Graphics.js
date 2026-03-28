@@ -7,10 +7,10 @@
  *
  * @author Vincent Thibault
  */
-define(['Core/Preferences'], function (Preferences) {
-	'use strict';
+import Preferences from 'Core/Preferences';
+'use strict';
 
-	var defaultGraphicsSettings = {
+	const defaultGraphicsSettings = {
 		/**
 		 * Game size
 		 */
@@ -80,9 +80,8 @@ define(['Core/Preferences'], function (Preferences) {
 	/**
 	 * Export
 	 */
-	var cleanDefaults = JSON.parse(JSON.stringify(defaultGraphicsSettings));
-	var GraphicsSettings = Preferences.get('Graphics', defaultGraphicsSettings, 1.1);
+	const cleanDefaults = JSON.parse(JSON.stringify(defaultGraphicsSettings));
+	const GraphicsSettings = Preferences.get('Graphics', defaultGraphicsSettings, 1.1);
 	GraphicsSettings.defaults = cleanDefaults;
 
-	return GraphicsSettings;
-});
+	export default GraphicsSettings;

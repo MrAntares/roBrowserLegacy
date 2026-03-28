@@ -7,28 +7,27 @@
  *
  * @author Vincent Thibault
  */
-define(function () {
-	'use strict';
+'use strict';
 
-	/**
+/**
 	 * @var {Array} cache history
 	 */
-	var _history = [];
+	const _history = [];
 
 	/**
 	 * @var {number} position in history
 	 */
-	var _index = -1;
+	let _index = -1;
 
 	/**
 	 * @var {object} previous jquery button
 	 */
-	var _previous;
+	let _previous;
 
 	/**
 	 * @var {object} next jquery button
 	 */
-	var _next;
+	let _next;
 
 	/**
 	 * Initialize history with buttons
@@ -97,12 +96,11 @@ define(function () {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return {
+	export default {
 		push: push,
 		next: next,
 		previous: previous,
 		init: init
 	};
-});

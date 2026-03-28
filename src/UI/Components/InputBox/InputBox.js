@@ -7,25 +7,21 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var DB = require('DB/DBManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./InputBox.html');
-	var cssText = require('text!./InputBox.css');
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import DB from 'DB/DBManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './InputBox.html?raw';
+import cssText from './InputBox.css?raw';
 
 	/**
 	 * Create NpcBox component
 	 */
-	var InputBox = new UIComponent('InputBox', htmlText, cssText);
+	const InputBox = new UIComponent('InputBox', htmlText, cssText);
 
 	/**
 	 * Initialize GUI
@@ -53,7 +49,7 @@ define(function (require) {
 	 * Should append data, focus, select text, etc...
 	 */
 	InputBox.onAppend = function OnAppend() {
-		var input = this.ui.find('input');
+		const input = this.ui.find('input');
 		if (input.length) {
 			input.focus();
 			if (input.val()) {
@@ -94,7 +90,7 @@ define(function (require) {
 	 * @param {ClickEvent}
 	 */
 	function validate() {
-		var text = this.ui.find('input').val();
+		let text = this.ui.find('input').val();
 
 		if (!this.isPersistent || text.length) {
 			if (this.ui.hasClass('number')) {
@@ -185,5 +181,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(InputBox);
-});
+	export default UIManager.addComponent(InputBox);

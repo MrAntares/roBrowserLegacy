@@ -7,13 +7,14 @@
  *
  * @author Vincent Thibault
  */
-define(['Core/Preferences'], function (Preferences) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Export
+import Preferences from 'Core/Preferences';
+
+/**
+	 * Export 
 	 */
-	return Preferences.get(
+	export default Preferences.get(
 		'Map',
 		{
 			/**
@@ -74,4 +75,3 @@ define(['Core/Preferences'], function (Preferences) {
 		},
 		1.1
 	);
-});

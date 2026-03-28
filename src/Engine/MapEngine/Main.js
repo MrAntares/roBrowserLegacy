@@ -8,38 +8,36 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import StatusProperty from 'DB/Status/StatusProperty';
+import EffectConst from 'DB/Effects/EffectConst';
+import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import EntityManager from 'Renderer/EntityManager';
+import EffectManager from 'Renderer/EffectManager';
+import Renderer from 'Renderer/Renderer';
+import Damage from 'Renderer/Effects/Damage';
+import Altitude from 'Renderer/Map/Altitude';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
+import Announce from 'UI/Components/Announce/Announce';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import ChangeCart from 'UI/Components/ChangeCart/ChangeCart';
+import PartyUI from 'UI/Components/PartyFriends/PartyFriends';
+import PetMessageConst from 'DB/Pets/PetMessageConst';
+import uint32ToRGB from 'Utils/colors';
+import BasicInfo from 'UI/Components/BasicInfo/BasicInfo';
+import SkillList from 'UI/Components/SkillList/SkillList';
+import WinStats from 'UI/Components/WinStats/WinStats';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var StatusProperty = require('DB/Status/StatusProperty');
-	var EffectConst = require('DB/Effects/EffectConst');
-	var Session = require('Engine/SessionStorage');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var EntityManager = require('Renderer/EntityManager');
-	var EffectManager = require('Renderer/EffectManager');
-	var Renderer = require('Renderer/Renderer');
-	var Damage = require('Renderer/Effects/Damage');
-	var Altitude = require('Renderer/Map/Altitude');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var ChatRoom = require('UI/Components/ChatRoom/ChatRoom');
-	var Announce = require('UI/Components/Announce/Announce');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var ChangeCart = require('UI/Components/ChangeCart/ChangeCart');
-	var PartyUI = require('UI/Components/PartyFriends/PartyFriends');
-	var PetMessageConst = require('DB/Pets/PetMessageConst');
-	var uint32ToRGB = require('Utils/colors');
-
 	// Version Dependent UIs
-	var BasicInfo = require('UI/Components/BasicInfo/BasicInfo');
-	var SkillList = require('UI/Components/SkillList/SkillList');
-	var WinStats = require('UI/Components/WinStats/WinStats');
-
 	/**
 	 * Move main player to the position specify
 	 *
@@ -87,7 +85,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ATTACK_FAILURE_FOR_DISTANCE
 	 */
 	function onPlayerTooFarToAttack(pkt) {
-		var entity = EntityManager.get(pkt.targetAID);
+		const entity = EntityManager.get(pkt.targetAID);
 		if (entity) {
 			entity.onFocus();
 		}
@@ -203,7 +201,7 @@ define(function (require) {
 	 * Generic function
 	 */
 	function onParameterChange(pkt) {
-		var amount = 0,
+		let amount = 0,
 			type;
 
 		if (pkt.hasOwnProperty('varID')) {
@@ -273,7 +271,7 @@ define(function (require) {
 						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_DANGER, hunger);
 
-						var pkt = new PACKET.CZ.PET_ACT();
+						const pkt = new PACKET.CZ.PET_ACT();
 						pkt.data = talk;
 						Network.sendPacket(pkt);
 						Session.pet.lastTalk = Date.now();
@@ -286,7 +284,7 @@ define(function (require) {
 						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_DEAD, hunger);
 
-						var pkt = new PACKET.CZ.PET_ACT();
+						const pkt = new PACKET.CZ.PET_ACT();
 						pkt.data = talk;
 						Network.sendPacket(pkt);
 						Session.pet.lastTalk = Date.now();
@@ -347,7 +345,7 @@ define(function (require) {
 					const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 					const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_LEVELUP, hunger);
 
-					var pkt = new PACKET.CZ.PET_ACT();
+					const pkt = new PACKET.CZ.PET_ACT();
 					pkt.data = talk;
 					Network.sendPacket(pkt);
 					Session.pet.lastTalk = Date.now();
@@ -613,7 +611,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.BROADCAST
 	 */
 	function onGlobalAnnounce(pkt) {
-		var color;
+		let color;
 
 		if (pkt.fontColor) {
 			color =
@@ -698,10 +696,10 @@ define(function (require) {
 	 */
 	function onRecovery(pkt) {
 		switch (pkt.varID) {
-			case StatusProperty.HP:
+			case StatusProperty.HP: {
 				Damage.add(pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL);
 
-				var EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_HPTIME,
 					ownerAID: Session.Entity.GID
 				};
@@ -715,10 +713,11 @@ define(function (require) {
 					BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 				}
 				break;
+			}
 
-			case StatusProperty.SP:
+			case StatusProperty.SP: {
 				Damage.add(pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL | Damage.TYPE.SP);
-				var EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_SPTIME,
 					ownerAID: Session.Entity.GID
 				};
@@ -732,11 +731,12 @@ define(function (require) {
 					BasicInfo.getUI().update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
 				}
 				break;
+			}
 		}
 	}
 
 	function onRank(pkt) {
-		var message = '';
+		let message = '';
 
 		//Header
 		message += '=========== ';
@@ -759,7 +759,7 @@ define(function (require) {
 		ChatBox.addText(message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG);
 
 		//List
-		for (var i = 0; i < 10; ++i) {
+		for (let i = 0; i < 10; ++i) {
 			let name, point;
 			name = pkt?.Name?.[i] ?? 'None';
 			point = pkt?.Point?.[i] ?? 0;
@@ -843,16 +843,16 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ACK_STATUS_GM
 	 */
 	function onGMCheckStatus(pkt) {
-		var yellow = '#ffff00';
-		var green = '#00ff17';
-		var sp = function (n) {
+		const yellow = '#ffff00';
+		const green = '#00ff17';
+		const sp = function (n) {
 			return '\u00A0'.repeat(n);
 		};
-		var pad = function (n, w) {
+		const pad = function (n, w) {
 			return String(n).padStart(w || 3, '\u00A0');
 		};
 
-		var targetName = Session.gmCheckTarget || 'Unknown';
+		const targetName = Session.gmCheckTarget || 'Unknown';
 		ChatBox.addText('[ ' + targetName + ' ]', ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG, green);
 		ChatBox.addText(
 			sp(13) +
@@ -958,7 +958,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.NOTIFY_PLAYERMOVE, onPlayerMove);
 		Network.hookPacket(PACKET.ZC.PAR_CHANGE, onParameterChange);
 		Network.hookPacket(PACKET.ZC.LONGPAR_CHANGE, onParameterChange);
@@ -991,4 +991,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.PERSONAL_INFORMATION2, onRatesInfo);
 		Network.hookPacket(PACKET.ZC.ACK_STATUS_GM, onGMCheckStatus);
 	};
-});

@@ -8,10 +8,11 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryReader'], function (BinaryReader) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+
+/**
 	 * Sprite Constructor
 	 *
 	 * @param {ArrayBuffer} data - optional data to work with
@@ -83,10 +84,10 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Parse SPR indexed images
 	 */
 	SPR.prototype.readIndexedImage = function readIndexedImage() {
-		var pal_count = this.indexed_count;
-		var fp = this.fp;
-		var i, width, height;
-		var frames = this.frames;
+		const pal_count = this.indexed_count;
+		const fp = this.fp;
+		let i, width, height;
+		const frames = this.frames;
 
 		for (i = 0; i < pal_count; ++i) {
 			width = fp.readUShort();
@@ -106,10 +107,10 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Parse SPR indexed images encoded with RLE
 	 */
 	SPR.prototype.readIndexedImageRLE = function readIndexedImageRLE() {
-		var pal_count = this.indexed_count;
-		var fp = this.fp;
-		var i, width, height, size, data, index, c, count, j, end;
-		var frames = this.frames;
+		const pal_count = this.indexed_count;
+		const fp = this.fp;
+		let i, width, height, size, data, index, c, count, j, end;
+		const frames = this.frames;
 
 		for (i = 0; i < pal_count; ++i) {
 			width = fp.readUShort();
@@ -148,11 +149,11 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Parse SPR rgba images
 	 */
 	SPR.prototype.readRgbaImage = function readRGBAImage() {
-		var rgba = this.rgba_count;
-		var index = this.rgba_index;
-		var fp = this.fp;
-		var frames = this.frames;
-		var i, width, height;
+		const rgba = this.rgba_count;
+		const index = this.rgba_index;
+		const fp = this.fp;
+		const frames = this.frames;
+		let i, width, height;
 
 		for (i = 0; i < rgba; ++i) {
 			width = fp.readShort();
@@ -181,12 +182,12 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * The exact byte layout depends on the chosen packing below.
 	 */
 	SPR.prototype.convert32bPal = function convert32bPal(pal, flip = false) {
-		var pal32 = new Uint32Array(256);
+		const pal32 = new Uint32Array(256);
 		for (let i = 0; i < 256; i++) {
-			let r = pal[i * 4 + 0];
-			let g = pal[i * 4 + 1];
-			let b = pal[i * 4 + 2];
-			let a = i === 0 ? 0 : 255; // A? A = 255
+			const r = pal[i * 4 + 0];
+			const g = pal[i * 4 + 1];
+			const b = pal[i * 4 + 2];
+			const a = i === 0 ? 0 : 255; // A? A = 255
 
 			// If flip=true, we prepare the integer to be written as ABGR in memory
 			// effectively resulting in RGBA sequence in Little Endian systems.
@@ -206,23 +207,23 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * (why keep palette for hat/weapon/shield/monster ?)
 	 */
 	SPR.prototype.switchToRGBA = function switchToRGBA() {
-		var frames = this.frames,
+		const frames = this.frames,
 			pal = this.palette;
 		// Create a lookup table of Uint32 colors to speed up conversion
-		var pal32 = this.convert32bPal(pal, false);
+		const pal32 = this.convert32bPal(pal, false);
 		for (let i = 0; i < this.indexed_count; ++i) {
-			let frame = frames[i];
+			const frame = frames[i];
 			if (frame.type !== SPR.TYPE_PAL) {
 				continue;
 			}
 
-			let width = frame.width,
+			const width = frame.width,
 				height = frame.height;
-			let data = frame.data; // Uint8 indexes
-			let out = new Uint8Array(width * height * 4);
+			const data = frame.data; // Uint8 indexes
+			const out = new Uint8Array(width * height * 4);
 
 			// We map a Uint32View to the output buffer to write 4 bytes at once
-			let out32 = new Uint32Array(out.buffer);
+			const out32 = new Uint32Array(out.buffer);
 
 			/**
 			 * OLD LOGIC:
@@ -235,8 +236,8 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 			 */
 			for (let y = 0; y < height; ++y) {
 				// reverse height
-				let srcRowStart = y * width;
-				let dstRowStart = (height - y - 1) * width;
+				const srcRowStart = y * width;
+				const dstRowStart = (height - y - 1) * width;
 
 				for (let x = 0; x < width; ++x) {
 					// Single 32-bit assignment from pre-calculated palette table
@@ -260,15 +261,15 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * @return {HTMLElement} canvas
 	 */
 	SPR.prototype.getCanvasFromFrame = function getCanvasFromFrame(index) {
-		var canvas = document.createElement('canvas');
-		var ctx = canvas.getContext('2d');
-		var frame = this.frames[index];
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		const frame = this.frames[index];
 
 		// Missing/empty frame?
 		if (!frame || frame.width <= 0 || frame.height <= 0) {
 			// Create a red X on a 30x30 canvas as error image
-			let size = 30;
-			let fontSize = Math.floor(size * 0.8);
+			const size = 30;
+			const fontSize = Math.floor(size * 0.8);
 			canvas.width = canvas.height = size;
 			ctx.fillStyle = 'red';
 			ctx.textAlign = 'center';
@@ -279,21 +280,21 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 			return canvas; // Return error image. Caller expects a canvas..
 		}
 
-		var width = (canvas.width = frame.width);
-		var height = (canvas.height = frame.height);
-		var imageData = ctx.createImageData(width, height);
+		const width = (canvas.width = frame.width);
+		const height = (canvas.height = frame.height);
+		const imageData = ctx.createImageData(width, height);
 
 		// Use a 32-bit view to write pixels to the ImageData buffer efficiently
-		var data32 = new Uint32Array(imageData.data.buffer);
+		const data32 = new Uint32Array(imageData.data.buffer);
 
 		// RGBA
 		if (frame.type === SPR.TYPE_RGBA) {
-			let frameData32 = new Uint32Array(frame.data.buffer);
+			const frameData32 = new Uint32Array(frame.data.buffer);
 			for (let y = 0; y < height; ++y) {
-				let srcRow = y * width;
-				let dstRow = (height - y - 1) * width; // Flip Y
+				const srcRow = y * width;
+				const dstRow = (height - y - 1) * width; // Flip Y
 				for (let x = 0; x < width; ++x) {
-					let pixel = frameData32[srcRow + x];
+					const pixel = frameData32[srcRow + x];
 
 					/**
 					 * OLD LOGIC: Manual assignments for each channel (ImageData.data[j+0] = ...).
@@ -313,12 +314,12 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 		// Palette
 		else {
 			// Convert palette to 32bit using flip=true for ABGR order (Little Endian -> RGBA)
-			let pal32 = this.convert32bPal(this.palette, true);
+			const pal32 = this.convert32bPal(this.palette, true);
 			for (let y = 0; y < height; ++y) {
 				// reverse height
-				let rowStart = y * width;
+				const rowStart = y * width;
 				for (let x = 0; x < width; ++x) {
-					let idx = frame.data[rowStart + x];
+					const idx = frame.data[rowStart + x];
 					data32[rowStart + x] = pal32[idx];
 				}
 			}
@@ -333,13 +334,13 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Compile a SPR file
 	 */
 	SPR.prototype.compile = function compile() {
-		var frames = this.frames;
-		var frame;
-		var i,
+		const frames = this.frames;
+		let frame;
+		let i,
 			count = frames.length;
-		var data, width, height, gl_width, gl_height, start_x, start_y;
-		var out;
-		var output = new Array(count);
+		let data, width, height, gl_width, gl_height, start_x, start_y;
+		let out;
+		const output = new Array(count);
 
 		for (i = 0; i < count; ++i) {
 			// Avoid look up
@@ -357,18 +358,18 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 			// If palette.
 			if (frame.type === SPR.TYPE_PAL) {
 				// Pre-calculate the palette with flip=true for fast checking
-				let pal32 = this.convert32bPal(this.palette, true);
+				const pal32 = this.convert32bPal(this.palette, true);
 
 				// This creates values in 0xAABBGGRR format (Little Endian).
 				// Magenta (R=255, G=0, B=255, A=255) becomes 0xFFFF00FF.
-				let MAGENTA = 0xffff00ff;
+				const MAGENTA = 0xffff00ff;
 
 				out = new Uint8Array(gl_width * gl_height);
 				for (let y = 0; y < height; ++y) {
-					let srcRow = y * width;
-					let dstRow = (y + start_y) * gl_width + start_x; // precomputed destination row offset
+					const srcRow = y * width;
+					const dstRow = (y + start_y) * gl_width + start_x; // precomputed destination row offset
 					for (let x = 0; x < width; ++x) {
-						let idx = data[srcRow + x];
+						const idx = data[srcRow + x];
 
 						// Fast transparency check using pre-calculated 32-bit palette
 						// OLD: O(pixels * 3)
@@ -387,14 +388,14 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 			else {
 				out = new Uint8Array(gl_width * gl_height * 4);
 				// Use 32-bit views destination for maximum throughput
-				let out32 = new Uint32Array(out.buffer);
+				const out32 = new Uint32Array(out.buffer);
 
 				for (let y = 0; y < height; ++y) {
-					let srcRow = (height - y - 1) * width * 4;
-					let dstRow = (y + start_y) * gl_width + start_x;
+					const srcRow = (height - y - 1) * width * 4;
+					const dstRow = (y + start_y) * gl_width + start_x;
 
 					for (let x = 0; x < width; ++x) {
-						let srcIdx = srcRow + x * 4;
+						const srcIdx = srcRow + x * 4;
 
 						/**
 						 * OLD LOGIC: Manual per-channel assignments (out[dst+0]=... out[dst+3]=...). 4 loads + 4 stores + branches.
@@ -403,13 +404,13 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 
 						// Set all colors to 0 if alpha is also 0
 						// This fixes white outlines appearing on RGBA sprites
-						let a = data[srcIdx];
+						const a = data[srcIdx];
 						if (a === 0) {
 							out32[dstRow + x] = 0; // Fully transparent pixel
 						} else {
-							let r = data[srcIdx + 3];
-							let g = data[srcIdx + 2];
-							let b = data[srcIdx + 1];
+							const r = data[srcIdx + 3];
+							const g = data[srcIdx + 2];
+							const b = data[srcIdx + 1];
 							// Writing (A<<24 | B<<16 | G<<8 | R) produces LE memory bytes [R, G, B, A], which matches Canvas ImageData (RGBA).
 							// Reconstruct as 32-bit integer (A B G R -> 0xAABBGGRR)
 							out32[dstRow + x] = (a << 24) | (b << 16) | (g << 8) | r;
@@ -435,6 +436,4 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 			old_rgba_index: this._indexed_count
 		};
 	};
-
-	return SPR;
-});
+export default SPR;

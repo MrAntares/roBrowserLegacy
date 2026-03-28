@@ -6,33 +6,29 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var EntityManager = require('Renderer/EntityManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var VendingShop = require('UI/Components/VendingShop/VendingShop');
-	var htmlText = require('text!./VendingReport.html');
-	var cssText = require('text!./VendingReport.css');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import EntityManager from 'Renderer/EntityManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import VendingShop from 'UI/Components/VendingShop/VendingShop';
+import htmlText from './VendingReport.html?raw';
+import cssText from './VendingReport.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var VendingReport = new UIComponent('VendingReport', htmlText, cssText);
+	const VendingReport = new UIComponent('VendingReport', htmlText, cssText);
 
 	/**
 	 * Store bought items
 	 */
-	var VendingReportTable = {
+	const VendingReportTable = {
 		list: [],
 		_nextIndex: 0
 	};
@@ -47,7 +43,7 @@ define(function (require) {
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'VendingReport',
 		{
 			x: 200,
@@ -209,8 +205,8 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	VendingReport.addItemSub = function addItemSub(item) {
-		var it = DB.getItemInfo(item.ITID);
-		var content = this.ui.find('.container .content');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.container .content');
 
 		content.append(
 			'<div class="item" data-ITID="' +
@@ -261,17 +257,17 @@ define(function (require) {
 	 * @return {string}
 	 */
 	function prettyZeny(val, useStyle) {
-		var list = val.toString().split('');
-		var i,
+		const list = val.toString().split('');
+		let i,
 			count = list.length;
-		var str = '';
+		let str = '';
 
 		for (i = 0; i < count; i++) {
 			str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 		}
 
 		if (useStyle) {
-			var style = [
+			const style = [
 				'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
 				'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
 				'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
@@ -337,16 +333,16 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-id'), 10);
-		var item = VendingReport.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-id'), 10);
+		const item = VendingReport.getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var pos = jQuery(this).position();
-		var overlay = VendingReport.ui.find('.overlay');
+		const pos = jQuery(this).position();
+		const overlay = VendingReport.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -371,8 +367,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-id'), 10);
-		var item = VendingReport.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-id'), 10);
+		const item = VendingReport.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -399,8 +395,8 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	VendingReport.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list = VendingReportTable.list;
+		let i, count;
+		const list = VendingReportTable.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].reportId === index) {
@@ -443,5 +439,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(VendingReport);
-});
+export default UIManager.addComponent(VendingReport);

@@ -3,14 +3,21 @@
  *
  * Manage entity special animations
  *
+/**
+ * Renderer/EntityAnimations.js
+ *
+ * Manage entity special animations
+ *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
-define(['Renderer/Renderer'], function (Renderer) {
-	'use strict';
+'use strict';
 
-	/**
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+
+/**
 	 * @Constructor
 	 * @param {object} Entity
 	 */
@@ -35,7 +42,7 @@ define(['Renderer/Renderer'], function (Renderer) {
 	 * Process events
 	 */
 	Animations.prototype.process = function process() {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = this.list.length; i < count; ++i) {
 			if (this.list[i].callback(Renderer.tick - this.list[i].tick)) {
@@ -52,8 +59,6 @@ define(['Renderer/Renderer'], function (Renderer) {
 	Animations.prototype.free = function free() {
 		this.list.length = 0;
 	};
-
-	return function init() {
+export default function init() {
 		this.animations = new Animations(this);
 	};
-});

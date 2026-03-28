@@ -7,10 +7,9 @@
  *
  * @author Scriptor
  */
+'use strict';
 
-define(function () {
-	'use strict';
-	var exports = {};
+	const exports = {};
 
 	exports['einbech'] = [
 		{
@@ -1362,5 +1361,4 @@ define(function () {
 		}
 	];
 
-	return exports;
-});
+	export default exports;

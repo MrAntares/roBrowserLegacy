@@ -5,45 +5,41 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var htmlText = require('text!./Trade.html');
-	var cssText = require('text!./Trade.css');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import htmlText from './Trade.html?raw';
+import cssText from './Trade.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var Trade = new UIComponent('Trade', htmlText, cssText);
+	const Trade = new UIComponent('Trade', htmlText, cssText);
 
 	/**
 	 * @var {Object} queue, item waiting from server an answer
 	 */
-	var _tmpCount = {};
+	let _tmpCount = {};
 
 	/**
 	 * @var {Array} list of items to send
 	 */
-	var _send = [];
+	const _send = [];
 
 	/**
 	 * @var {object} list of items to received
 	 */
-	var _recv = [];
+	const _recv = [];
 
 	/**
 	 * @var {string} trade title
@@ -123,10 +119,10 @@ define(function (require) {
 			return;
 		}
 
-		var item = jQuery.extend({}, Inventory.getUI().removeItem(index, _tmpCount[index]));
-		var it = DB.getItemInfo(item.ITID);
-		var idx = _send.push(item) - 1;
-		var box = this.ui.find('.box.send');
+		const item = jQuery.extend({}, Inventory.getUI().removeItem(index, _tmpCount[index]));
+		const it = DB.getItemInfo(item.ITID);
+		const idx = _send.push(item) - 1;
+		const box = this.ui.find('.box.send');
 		item.count = _tmpCount[index];
 
 		box.append(
@@ -166,9 +162,9 @@ define(function (require) {
 			return;
 		}
 
-		var it = DB.getItemInfo(item.ITID);
-		var idx = _recv.push(item) - 1;
-		var box = this.ui.find('.box.recv');
+		const it = DB.getItemInfo(item.ITID);
+		const idx = _recv.push(item) - 1;
+		const box = this.ui.find('.box.recv');
 
 		box.append(
 			'<div class="item" data-index="' +
@@ -202,10 +198,10 @@ define(function (require) {
 	 * @return {string}
 	 */
 	function prettifyZeny(value) {
-		var num = String(value);
-		var i = 0,
+		const num = String(value);
+		let i = 0,
 			len = num.length;
-		var out = '';
+		let out = '';
 
 		while (i < len) {
 			out = num[len - i - 1] + out;
@@ -283,7 +279,7 @@ define(function (require) {
 	 */
 	function onConclude() {
 		// Send zeny value before concluding
-		var zeny = parseInt(Trade.ui.find('.zeny.send').val(), 10) || 0;
+		let zeny = parseInt(Trade.ui.find('.zeny.send').val(), 10) || 0;
 		zeny = Math.min(Math.max(0, zeny), Session.zeny);
 
 		onRequestAddItem(0, zeny);
@@ -303,7 +299,7 @@ define(function (require) {
 	 * Drop from inventory to storage
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -323,7 +319,7 @@ define(function (require) {
 			InputBox.append();
 			InputBox.setType('number', false, item.count);
 			InputBox.onSubmitRequest = function OnSubmitRequest(count) {
-				var value = parseInt(count, 10) || 0;
+				let value = parseInt(count, 10) || 0;
 				value = Math.min(Math.max(value, 0), item.count); // cap
 
 				InputBox.remove();
@@ -344,16 +340,16 @@ define(function (require) {
 	 * When mouse is over an item, show title
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
 
 		if (!item) {
 			return;
 		}
 
-		var $e = jQuery(this);
-		var pos = $e.parent().position();
-		var overlay = Trade.ui.find('.overlay');
+		const $e = jQuery(this);
+		const pos = $e.parent().position();
+		const overlay = Trade.ui.find('.overlay');
 
 		pos.left += $e.position().left;
 		pos.top += $e.position().top;
@@ -381,8 +377,8 @@ define(function (require) {
 	 * Display ItemInfo UI
 	 */
 	function onItemInfo(event) {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
 
 		if (!item) {
 			return stopPropagation(event);
@@ -412,5 +408,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Trade);
-});
+export default UIManager.addComponent(Trade);

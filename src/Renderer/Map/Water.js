@@ -7,63 +7,62 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Water.fs'], function (
-	WebGL,
-	SpriteRenderer,
-	_vertexShader,
-	_fragmentShader
-) {
-	'use strict';
+'use strict';
 
-	/**
+import WebGL from 'Utils/WebGL';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import _vertexShader from './Water.vs?raw';
+import _fragmentShader from './Water.fs?raw';
+
+/**
 	 * @var {WebGLProgram}
 	 */
-	var _program = null;
+	let _program = null;
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer = null;
+	let _buffer = null;
 
 	/**
 	 * @var {number} total vertices
 	 */
-	var _vertCount = 0;
+	let _vertCount = 0;
 
 	/**
 	 * @var {Array} textures list
 	 */
-	var _textures = new Array(32);
+	const _textures = new Array(32);
 
 	/**
 	 * @var {number} wave speed
 	 */
-	var _waveSpeed = 0;
+	let _waveSpeed = 0;
 
 	/**
 	 * @var {number} wave height
 	 */
-	var _waveHeight = 0;
+	let _waveHeight = 0;
 
 	/**
 	 * @var {number} wave pitch
 	 */
-	var _wavePitch = 0;
+	let _wavePitch = 0;
 
 	/**
 	 * @var {number} water height
 	 */
-	var _waterLevel = 0;
+	let _waterLevel = 0;
 
 	/**
 	 * @var {number} animation speed
 	 */
-	var _animSpeed = 0;
+	let _animSpeed = 0;
 
 	/**
 	 * @var {number} water opacity
 	 */
-	var _waterOpacity = 0.9;
+	let _waterOpacity = 0.9;
 
 	/**
 	 * Initialize water data
@@ -72,7 +71,7 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 	 * @param {object} water data
 	 */
 	function init(gl, water) {
-		var i;
+		let i;
 
 		// Water informations
 		_vertCount = water.vertCount;
@@ -124,9 +123,9 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 			return;
 		}
 
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
-		var frame = tick / (1000 / 60); // 60fps
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+		const frame = tick / (1000 / 60); // 60fps
 
 		gl.useProgram(_program);
 
@@ -180,7 +179,7 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 	 * @param {object} gl context
 	 */
 	function free(gl) {
-		var i;
+		let i;
 
 		if (_buffer) {
 			gl.deleteBuffer(_buffer);
@@ -201,11 +200,10 @@ define(['Utils/WebGL', 'Renderer/SpriteRenderer', 'text!./Water.vs', 'text!./Wat
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return {
+	export default {
 		init: init,
 		free: free,
 		render: render
 	};
-});

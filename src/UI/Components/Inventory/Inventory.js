@@ -8,21 +8,19 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'Inventory';
+import InventoryV0 from './InventoryV0/InventoryV0';
+import InventoryV1 from './InventoryV1/InventoryV1';
+import InventoryV2 from './InventoryV2/InventoryV2';
+import InventoryV3 from './InventoryV3/InventoryV3';
 
-	var InventoryV0 = require('./InventoryV0/InventoryV0'); // Basic Inventory
-	var InventoryV1 = require('./InventoryV1/InventoryV1'); // Favorite Tab
-	var InventoryV2 = require('./InventoryV2/InventoryV2'); // Equipment Switch
-	var InventoryV3 = require('./InventoryV3/InventoryV3'); // Inventory Expansion
+import UIVersionManager from 'UI/UIVersionManager';
+import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler';
 
-	var UIVersionManager = require('UI/UIVersionManager');
-	var DB = require('DB/DBManager');
-	var KEYS = require('Controls/KeyEventHandler');
-
-	var versionInfo = {
+	const publicName = 'Inventory';
+	const versionInfo = {
 		default: InventoryV0, // Basic Inventory
 		common: {
 			20181219: InventoryV3, // Inventory Expansion
@@ -33,16 +31,16 @@ define(function (require) {
 		prere: {}
 	};
 
-	var InventoryController = UIVersionManager.getUIController(publicName, versionInfo);
+	const InventoryController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	var _selectUIVersion = InventoryController.selectUIVersion;
+	const _selectUIVersion = InventoryController.selectUIVersion;
 
 	// Extend default UI selector
 	InventoryController.selectUIVersion = function () {
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
-		var component = InventoryController.getUI();
+		const component = InventoryController.getUI();
 		DB.UpdateOwnerName.Inventory = component.onUpdateOwnerName;
 
 		// Escape to close the UI
@@ -55,5 +53,4 @@ define(function (require) {
 		};
 	};
 
-	return InventoryController;
-});
+	export default InventoryController;

@@ -5,39 +5,35 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var EffectConst = require('DB/Effects/EffectConst');
-	var ItemType = require('DB/Items/ItemType');
-	var Session = require('Engine/SessionStorage');
-	var Network = require('Network/NetworkManager');
-	var EffectManager = require('Renderer/EffectManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var NpcBox = require('UI/Components/NpcBox/NpcBox');
-	var Client = require('Core/Client');
-	var KEYS = require('Controls/KeyEventHandler');
-	var htmlText = require('text!./ItemReform.html');
-	var cssText = require('text!./ItemReform.css');
-	var PACKET = require('Network/PacketStructure');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import EffectConst from 'DB/Effects/EffectConst';
+import ItemType from 'DB/Items/ItemType';
+import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager';
+import EffectManager from 'Renderer/EffectManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import NpcBox from 'UI/Components/NpcBox/NpcBox';
+import Client from 'Core/Client';
+import KEYS from 'Controls/KeyEventHandler';
+import htmlText from './ItemReform.html?raw';
+import cssText from './ItemReform.css?raw';
+import PACKET from 'Network/PacketStructure';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var ItemReform = new UIComponent('ItemReform', htmlText, cssText);
+	const ItemReform = new UIComponent('ItemReform', htmlText, cssText);
 
-	var ReformInfo = {};
-	var SelectedReformInfo = {};
+	let ReformInfo = {};
+	let SelectedReformInfo = {};
 
 	const ReformUIState = {
 		itemId: 0,
@@ -60,7 +56,7 @@ define(function (require) {
 	 */
 	ItemReform.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		var events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		ItemReform.ui.find('.information_details').hide();
@@ -122,10 +118,10 @@ define(function (require) {
 	 * @returns {Array<Item>}
 	 */
 	function GetInventoryItemsById(id) {
-		var items = [];
-		var list = Inventory.getUI().list;
+		const items = [];
+		const list = Inventory.getUI().list;
 
-		for (var i = 0, count = list.length; i < count; ++i) {
+		for (let i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
 				items.push(list[i]);
 			}
@@ -144,9 +140,9 @@ define(function (require) {
 			SelectedReformInfo = {};
 
 			// Assume lapine_list is already loaded and available
-			let reformids = DB.findReformListByItemID(pkt.ITID);
+			const reformids = DB.findReformListByItemID(pkt.ITID);
 
-			var item = Inventory.getUI().getItemById(pkt.ITID);
+			const item = Inventory.getUI().getItemById(pkt.ITID);
 
 			if (!item) {
 				return false;
@@ -169,7 +165,7 @@ define(function (require) {
 	 * Checks inventory items against reform criteria.
 	 */
 	function checkReformCriteria() {
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 		availableMatList.empty(); // Clear the list before populating
 
 		let availableMats = 0;
@@ -214,11 +210,11 @@ define(function (require) {
 	 * Handles the addition of an item in the UI from the available materials list.
 	 */
 	function onAddMaterialItem(item) {
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 
-		let it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 		// Add item details
-		let newItem = jQuery(
+		const newItem = jQuery(
 			'<div class="item" data-index="' +
 				item.index +
 				'">' +
@@ -249,8 +245,8 @@ define(function (require) {
 	 * Handles the selection of a material in the UI.
 	 */
 	function onMaterialSelect() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -268,14 +264,14 @@ define(function (require) {
 		// Update UI
 		UpdatePossibleReformUI(item, SelectedReformInfo);
 
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 
 		availableMatList
 			.find('.item')
 			.removeClass('selected')
 			.each(function () {
-				var resetIdx = parseInt(this.getAttribute('data-index'), 10);
-				var resetItem = Inventory.getUI().getItemByIndex(resetIdx);
+				const resetIdx = parseInt(this.getAttribute('data-index'), 10);
+				const resetItem = Inventory.getUI().getItemByIndex(resetIdx);
 				if (resetItem) {
 					Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
 						availableMatList
@@ -302,14 +298,14 @@ define(function (require) {
 			return false;
 		}
 
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
 		}
 
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 
 		Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item_over.bmp', function (data) {
 			availableMatList.find('.item[data-index="' + item.index + '"]').css('backgroundImage', 'url(' + data + ')');
@@ -324,14 +320,14 @@ define(function (require) {
 			return false;
 		}
 
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
 		}
 
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 
 		Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
 			availableMatList.find('.item[data-index="' + item.index + '"]').css('backgroundImage', 'url(' + data + ')');
@@ -349,7 +345,7 @@ define(function (require) {
 		ItemReform.ui.find('.information_details').show();
 
 		// Determine the result item first
-		let resultItem = { ...item }; // Shallow copy of the item
+		const resultItem = { ...item }; // Shallow copy of the item
 		// Changes in the result item
 		resultItem.ITID = info.ResultItemId;
 		resultItem.RefiningLevel = item.RefiningLevel + info.ChangeRefineValue;
@@ -365,10 +361,10 @@ define(function (require) {
 
 		// Update UI
 		// Result Item
-		let result_it = DB.getItemInfo(resultItem.ITID);
-		let resultItemDiv = ItemReform.ui.find('.result_item');
+		const result_it = DB.getItemInfo(resultItem.ITID);
+		const resultItemDiv = ItemReform.ui.find('.result_item');
 
-		let result_item_view = jQuery(
+		const result_item_view = jQuery(
 			'<div class="item resultitem" data-index="' + resultItem.ITID + '">' + '<div class="icon"></div>' + '</div>'
 		);
 		resultItemDiv.empty().append(result_item_view);
@@ -380,10 +376,10 @@ define(function (require) {
 		});
 
 		// Base Item
-		let it = DB.getItemInfo(item.ITID);
-		let baseItemDiv = ItemReform.ui.find('.base_item');
+		const it = DB.getItemInfo(item.ITID);
+		const baseItemDiv = ItemReform.ui.find('.base_item');
 
-		let base_item_view = jQuery(
+		const base_item_view = jQuery(
 			'<div class="item "data-index="' + item.index + '">' + '<div class="icon"></div>' + '</div>'
 		);
 		baseItemDiv.empty().append(base_item_view);
@@ -400,22 +396,22 @@ define(function (require) {
 			.text(DB.getItemName(resultItem, { showItemOptions: false }));
 
 		// Populate Material List
-		let materialDiv = ItemReform.ui.find('.material_list');
+		const materialDiv = ItemReform.ui.find('.material_list');
 
 		// Clear the existing items if needed
 		materialDiv.empty();
 
 		// Sort the materials in ascending order based on MaterialItemID
-		let sortedMaterials = info.Materials.slice().sort((a, b) => a.MaterialItemID - b.MaterialItemID);
+		const sortedMaterials = info.Materials.slice().sort((a, b) => a.MaterialItemID - b.MaterialItemID);
 
 		// Limit to a maximum of 6 items if needed
-		let limitedMaterials = sortedMaterials.slice(0, 6);
+		const limitedMaterials = sortedMaterials.slice(0, 6);
 
 		let withenoughMat = 0;
 		// Iterate through each material in the sorted array
 		limitedMaterials.forEach(material => {
-			let mat_it = DB.getItemInfo(material.MaterialItemID);
-			let mat_item = Inventory.getUI().getItemById(material.MaterialItemID);
+			const mat_it = DB.getItemInfo(material.MaterialItemID);
+			const mat_item = Inventory.getUI().getItemById(material.MaterialItemID);
 			let inventory_mat_count;
 
 			if (!mat_item) {
@@ -429,10 +425,10 @@ define(function (require) {
 				withenoughMat++;
 			}
 
-			let itemClass = inventory_mat_count >= material.Amount ? '' : 'red';
+			const itemClass = inventory_mat_count >= material.Amount ? '' : 'red';
 
 			// Create a new div for each material
-			let newMat = jQuery(
+			const newMat = jQuery(
 				'<div class="item dummy" data-index="' +
 					material.MaterialItemID +
 					'">' +
@@ -469,7 +465,7 @@ define(function (require) {
 	function onHoverDetails(event) {
 		if (SelectedReformInfo) {
 			// InformationString array
-			var infoText = SelectedReformInfo.InformationString.join('\n');
+			const infoText = SelectedReformInfo.InformationString.join('\n');
 
 			// Display the information in NpcBox
 			NpcBox.append();
@@ -477,9 +473,9 @@ define(function (require) {
 
 			NpcBox.ui.css('height', '150px');
 			NpcBox.ui.find('.border').css('height', '139px');
-			var infoDetails = ItemReform.ui.find('.information_details');
-			var offset = infoDetails.offset();
-			var height = infoDetails.outerHeight();
+			const infoDetails = ItemReform.ui.find('.information_details');
+			const offset = infoDetails.offset();
+			const height = infoDetails.outerHeight();
 
 			// Initial position update
 			function updateNpcBoxPosition(e) {
@@ -521,10 +517,10 @@ define(function (require) {
 		if (pkt) {
 			switch (pkt.result) {
 				case 0:
-					let item = Inventory.getUI().getItemByIndex(pkt.index);
+					const item = Inventory.getUI().getItemByIndex(pkt.index);
 
 					// Show Success effect
-					var EF_Init_Par = {
+					const EF_Init_Par = {
 						effectId: EffectConst.EF_NEW_SUCCESS,
 						ownerAID: Session.AID
 					};
@@ -563,7 +559,7 @@ define(function (require) {
 	function onRequestReformClose() {
 		ItemReform.remove();
 
-		var pkt = new PACKET.CZ.CLOSE_REFORM_UI();
+		const pkt = new PACKET.CZ.CLOSE_REFORM_UI();
 		Network.sendPacket(pkt);
 	}
 
@@ -579,7 +575,7 @@ define(function (require) {
 	 * Handles the item reform request by preparing and sending the packet.
 	 */
 	function onRequestItemReform() {
-		var pkt;
+		let pkt;
 		pkt = new PACKET.CZ.ITEM_REFORM();
 		pkt.ITID = ReformUIState.itemId;
 		pkt.index = ReformUIState.index;
@@ -591,8 +587,8 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver(event) {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item;
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		let item;
 
 		if (this.classList.contains('dummy')) {
 			// Get the item using item.ITID as the only member
@@ -605,7 +601,7 @@ define(function (require) {
 		}
 
 		// Get back data
-		var overlay = ItemReform.ui.find('.overlay');
+		const overlay = ItemReform.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -618,7 +614,7 @@ define(function (require) {
 		}
 
 		// Get the offset of the UI container
-		var uiOffset = ItemReform.ui.offset();
+		const uiOffset = ItemReform.ui.offset();
 
 		// Update overlay position based on mouse coordinates and UI offset
 		function updateOverlayPosition(e) {
@@ -654,8 +650,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item;
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		let item;
 
 		if (this.classList.contains('dummy')) {
 			// Get the item using item.ITID as the only member
@@ -702,7 +698,7 @@ define(function (require) {
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		var compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -724,5 +720,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ItemReform);
-});
+export default UIManager.addComponent(ItemReform);

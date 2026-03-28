@@ -7,49 +7,45 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var ChatRoom = require('UI/Components/ChatRoom/ChatRoom');
-	var Client = require('Core/Client');
-	var DB = require('DB/DBManager');
-	var htmlText = require('text!./ChangeCart.html');
-	var cssText = require('text!./ChangeCart.css');
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
+import Client from 'Core/Client';
+import DB from 'DB/DBManager';
+import htmlText from './ChangeCart.html?raw';
+import cssText from './ChangeCart.css?raw';
 
-	// Config
-	var CART_LIMIT = 13;
+// Config
+	const CART_LIMIT = 13;
 
 	/**
 	 * Create Component
 	 */
-	var ChangeCart = new UIComponent('ChangeCart', htmlText, cssText);
+	const ChangeCart = new UIComponent('ChangeCart', htmlText, cssText);
 
 	/**
 	 * @var {object} data info
 	 */
-	var _carts = {};
-	var _layerEntity = new Entity();
+	const _carts = {};
+	const _layerEntity = new Entity();
 
 	/**
 	 * Initialize UI
 	 */
 	ChangeCart.init = function init() {
-		var carts = this.ui.find('.cart');
-		var canvases = this.ui.find('.canvas');
+		const carts = this.ui.find('.cart');
+		const canvases = this.ui.find('.canvas');
 
 		this.ui.css({
 			top: (Renderer.height - 100) / 2.0,
@@ -75,10 +71,10 @@ define(function (require) {
 	 * Load Carts assets
 	 */
 	function loadCartData() {
-		var i;
+		let i;
 		for (i = 0; i <= CART_LIMIT; ++i) {
 			(function (id) {
-				var path = DB.getCartPath(id);
+				const path = DB.getCartPath(id);
 				Client.loadFiles([path + '.spr', path + '.act'], function (spr, act) {
 					_carts[id] = {
 						spr: spr,
@@ -97,7 +93,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.REQ_CHANGECART();
+		const pkt = new PACKET.CZ.REQ_CHANGECART();
 		pkt.num = num;
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
@@ -118,7 +114,7 @@ define(function (require) {
 
 		this.ui.show();
 
-		var msg = 'Change Cart!!';
+		const msg = 'Change Cart!!';
 
 		if (ChatRoom.isOpen) {
 			ChatRoom.message(msg);
@@ -195,7 +191,7 @@ define(function (require) {
 	 * @returns {Object[]}
 	 */
 	function pickLayers(act, actionId) {
-		var a = act.actions[actionId];
+		const a = act.actions[actionId];
 		if (!a || !a.animations || !a.animations.length) {
 			return null;
 		}
@@ -206,7 +202,7 @@ define(function (require) {
 	 * Draw action to canvas
 	 */
 	function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
-		var layers = pickLayers(act, actionId);
+		const layers = pickLayers(act, actionId);
 		if (!layers) {
 			return;
 		}
@@ -214,7 +210,7 @@ define(function (require) {
 		// Gravity fonts: no anchor correction
 		SpriteRenderer.bind2DContext(ctx, x, y);
 
-		for (var i = 0; i < layers.length; i++) {
+		for (let i = 0; i < layers.length; i++) {
 			_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
 		}
 	}
@@ -223,17 +219,17 @@ define(function (require) {
 	 * Rendering the Carts
 	 */
 	function render(tick) {
-		var canvases = ChangeCart.ui.find('.canvas:visible');
+		const canvases = ChangeCart.ui.find('.canvas:visible');
 
 		canvases.each(function () {
-			var id = this.getAttribute('data-id');
-			var data = _carts[id];
+			const id = this.getAttribute('data-id');
+			const data = _carts[id];
 
 			if (!data || !data.spr || !data.act) {
 				return;
 			}
 
-			var ctx = this.getContext('2d');
+			const ctx = this.getContext('2d');
 			ctx.clearRect(0, 0, this.width, this.height);
 
 			// Cart is rendered with Action 0 (Idle)
@@ -249,7 +245,7 @@ define(function (require) {
 			// EntityRender uses: (entity.action * 8 + ((Camera.direction + entity.direction + 8) % 8)) % act.actions.length
 			// Let's try idle (0) and direction (0) -> 0.
 			// Or maybe direction 0 looks best in UI.
-			var actionId = 0; // (0 * 8 + 0)
+			const actionId = 0; // (0 * 8 + 0)
 
 			drawActionToCanvas(ctx, data.act, data.spr, actionId, this.width / 2, this.height + 10);
 		});
@@ -258,5 +254,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ChangeCart);
-});
+export default UIManager.addComponent(ChangeCart);

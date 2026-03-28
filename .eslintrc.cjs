@@ -1,35 +1,27 @@
+// .eslintrc.cjs
 /**
  * ESLint Configuration for roBrowserLegacy
  *
- * This config enforces ES5 syntax with AMD modules and Allman brace style
+ * This config enforces ES6+ module syntax with Vite bundler
  */
 module.exports = {
 	env: {
 		browser: true,
-		es6: true,
-		amd: true
+		es2020: true
 	},
 	extends: ['eslint:recommended', 'prettier'],
-	plugins: ['requirejs'],
 	parserOptions: {
-		ecmaVersion: 2020, // Optional Chaining (?.) and Nullish Coalescing (??) support
-		sourceType: 'script'
+		ecmaVersion: 2020,
+		sourceType: 'module'
 	},
 	globals: {
-		define: 'readonly',
-		require: 'readonly',
-		requirejs: 'readonly',
+		// removido: define, require, requirejs (não usa mais AMD)
 		jQuery: 'readonly',
 		$: 'readonly',
-		console: 'readonly',
-		FileReaderSync: 'readonly', // Lint flagged it as warning
-		importScripts: 'readonly', // Lint flagged it as warning
-		Buffer: 'readonly', // Node.js function
-
-		// Global RO config
+		FileReaderSync: 'readonly',
+		importScripts: 'readonly',
+		Buffer: 'readonly',
 		ROConfig: 'readonly',
-
-		// BinaryReader global vars
 		SEEK_CUR: 'readonly',
 		SEEK_SET: 'readonly',
 		SEEK_END: 'readonly'
@@ -80,15 +72,12 @@ module.exports = {
 		'no-unused-expressions': 'warn',
 
 		// ======================
-		// HARDCORE VARIABLE QUALITY (adjust if too many warnings)
+		// VARIABLE QUALITY
 		// ======================
 		'no-shadow': 'warn',
 		'block-scoped-var': 'warn',
-
-		// We are not ready for theses yet..
-		//'prefer-const': 'warn',
-		//'vars-on-top': 'warn',
-		//'no-magic-numbers': ['warn', {} ], // Need to find the right ignores
+		'no-var': 'warn', // force let/const
+		'prefer-const': 'warn', // force const
 
 		// ======================
 		// LESS NOISE FOR LEGACY
@@ -101,11 +90,9 @@ module.exports = {
 		// DEBUG
 		// ======================
 		'no-console': 'off',
-		'no-debugger': 'warn',
-
-		// ======================
-		// STRICT MODE
-		// ======================
-		strict: ['error', 'function']
-	}
+		'no-debugger': 'warn'
+	},
+	ignorePatterns: [
+		'src/Vendors/**' // não lint em código third-party
+	]
 };

@@ -7,16 +7,15 @@
  *
  * @author Vincent Thibault
  */
-define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity', 'Renderer/Map/Altitude'], function (
-	DB,
-	EntityManager,
-	EffectManager,
-	Entity,
-	Altitude
-) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import EntityManager from './EntityManager';
+import EffectManager from './EffectManager';
+import Entity from './Entity/Entity';
+import Altitude from 'Renderer/Map/Altitude';
+
+/**
 	 * Find an Entity and return its index
 	 *
 	 * @param {number} gid
@@ -30,10 +29,10 @@ define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity',
 	 * @param {boolean} showdropeffect
 	 */
 	function add(gid, itemid, identify, count, x, y, z, dropeffectmode, showdropeffect) {
-		var it = DB.getItemInfo(itemid);
-		var path = DB.getItemPath(itemid, identify);
-		var entity = new Entity();
-		var name = identify ? it.identifiedDisplayName : it.unidentifiedDisplayName;
+		const it = DB.getItemInfo(itemid);
+		const path = DB.getItemPath(itemid, identify);
+		const entity = new Entity();
+		const name = identify ? it.identifiedDisplayName : it.unidentifiedDisplayName;
 		/*var dropEffectPostition = [x, y, z];*/ // UNUSED
 		entity.GID = gid;
 		entity.objecttype = Entity.TYPE_ITEM;
@@ -56,7 +55,7 @@ define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity',
 
 		// Item falling
 		entity.animations.add(function (tick) {
-			var level = Altitude.getCellHeight(entity.position[0], entity.position[1]);
+			const level = Altitude.getCellHeight(entity.position[0], entity.position[1]);
 			entity.position[2] = Math.max(level, z - tick / 40);
 			return entity.position[2] === level;
 		});
@@ -70,17 +69,18 @@ define(['DB/DBManager', './EntityManager', './EffectManager', './Entity/Entity',
 	 * @param {number} gid
 	 */
 	function remove(gid) {
-		var entity = EntityManager.get(gid);
-		entity.dropEffect.remove(EffectManager);
+		const entity = EntityManager.get(gid);
+		if (entity) {
+			entity.dropEffect.remove(EffectManager);
+		}
 
 		EntityManager.remove(gid);
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return {
+	export default {
 		add: add,
 		remove: remove
 	};
-});

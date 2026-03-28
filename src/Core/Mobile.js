@@ -10,39 +10,39 @@
 // TODO: resize event on mobile keyboard bug
 // TODO: body overflow
 // TODO: responsive design
-define(function (require) {
-	'use strict';
+'use strict';
+
+import jQuery from 'Utils/jquery';
+import Context from 'Core/Context';
+import Events from 'Core/Events';
+import Camera from 'Renderer/Camera';
+import Session from 'Engine/SessionStorage';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import MobileUI from 'UI/Components/MobileUI/MobileUI';
 
 	/**
 	 * Import dependencies
 	 */
-	var jQuery = require('Utils/jquery');
-	var Context = require('Core/Context');
-	var Events = require('Core/Events');
-	var Camera = require('Renderer/Camera');
-	var Session = require('Engine/SessionStorage');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-
 	/**
 	 * @namespace Mobile
 	 */
-	var Mobile = {};
+	const Mobile = {};
 
 	/**
 	 * @var {boolean} is doing a gesture ?
 	 */
-	var _processGesture = false;
+	let _processGesture = false;
 
 	/**
 	 * @var {number} save angle and scale value
 	 */
-	var _scale, _angle, _touches, _intersect;
+	let _scale, _angle, _touches, _intersect;
 
 	/**
 	 * Timer to detect delayed click
 	 */
-	var _timer = -1;
+	let _timer = -1;
 
 	/**
 	 * Initialize
@@ -53,8 +53,8 @@ define(function (require) {
 	 * Remove autofocus on mobile.
 	 * Let the user decide to focus an input/textarea by himself
 	 */
-	var remoteAutoFocus = (function removeAutoFocusClosure() {
-		var _done = false;
+	const remoteAutoFocus = (function removeAutoFocusClosure() {
+		let _done = false;
 
 		return function removeAutoFocus() {
 			if (_done) {
@@ -74,8 +74,8 @@ define(function (require) {
 	 * @return {number} distance
 	 */
 	function touchDistance(touches) {
-		var x = touches[0].pageX - touches[1].pageX;
-		var y = touches[0].pageY - touches[1].pageY;
+		const x = touches[0].pageX - touches[1].pageX;
+		const y = touches[0].pageY - touches[1].pageY;
 
 		return Math.sqrt(x * x + y * y);
 	}
@@ -87,8 +87,8 @@ define(function (require) {
 	 * @return {number} rotation angle
 	 */
 	function touchAngle(touches) {
-		var x = touches[0].pageX - touches[1].pageX;
-		var y = touches[0].pageY - touches[1].pageY;
+		const x = touches[0].pageX - touches[1].pageX;
+		const y = touches[0].pageY - touches[1].pageY;
 
 		return (Math.atan2(y, x) * 180) / Math.PI;
 	}
@@ -100,8 +100,8 @@ define(function (require) {
 	 * @param {TouchList} new touches
 	 */
 	function touchTranslationX(oldTouches, touches) {
-		var x1 = touches[0].pageX - oldTouches[0].pageX;
-		var x2 = touches[1].pageX - oldTouches[1].pageX;
+		const x1 = touches[0].pageX - oldTouches[0].pageX;
+		const x2 = touches[1].pageX - oldTouches[1].pageX;
 
 		if (
 			x1 &&
@@ -122,8 +122,8 @@ define(function (require) {
 	 * @param {TouchList} new touches
 	 */
 	function touchTranslationY(oldTouches, touches) {
-		var y1 = touches[0].pageY - oldTouches[0].pageY;
-		var y2 = touches[1].pageY - oldTouches[1].pageY;
+		const y1 = touches[0].pageY - oldTouches[0].pageY;
+		const y2 = touches[1].pageY - oldTouches[1].pageY;
 
 		if (
 			y1 &&
@@ -141,7 +141,7 @@ define(function (require) {
 	 * Start touching the screen
 	 * Process gesture, or action
 	 */
-	var onTouchStart = (function onTouchStartClosure() {
+	const onTouchStart = (function onTouchStartClosure() {
 		function delayedClick() {
 			// Only process mousedown if not doing a gesture
 			if (!_processGesture) {
@@ -224,7 +224,7 @@ define(function (require) {
 	function onTouchMove(event) {
 		event.stopImmediatePropagation();
 
-		var touches = event.originalEvent.touches;
+		const touches = event.originalEvent.touches;
 
 		Mouse.screen.x = touches[0].pageX;
 		Mouse.screen.y = touches[0].pageY;
@@ -234,10 +234,10 @@ define(function (require) {
 			return;
 		}
 
-		var scale = touchDistance(touches) - _scale;
+		const scale = touchDistance(touches) - _scale;
 		//var angle = touchAngle(touches) / _angle;
-		var x = Math.abs(touchTranslationX(_touches, touches));
-		var y = Math.abs(touchTranslationY(_touches, touches));
+		const x = Math.abs(touchTranslationX(_touches, touches));
+		const y = Math.abs(touchTranslationY(_touches, touches));
 
 		if (!Camera.action.active && (x > 10 || y > 10)) {
 			KEYS.SHIFT = y > x;
@@ -274,7 +274,6 @@ define(function (require) {
 
 		if (Session.Playing) {
 			//Already playing, don't wait for map change, just show it
-			var MobileUI = require('UI/Components/MobileUI/MobileUI');
 			MobileUI.show();
 		}
 	}
@@ -283,7 +282,6 @@ define(function (require) {
 	jQuery(window).on('touchstart', onTouchStart).on('touchend', onTouchEnd).on('touchmove', onTouchMove);
 
 	/**
-	 * Exports
+	 * Export
 	 */
-	return Mobile;
-});
+	export default Mobile;

@@ -7,44 +7,40 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var StatusConst = require('DB/Status/StatusState');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var ItemType = require('DB/Items/ItemType');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var UIVersionManager = require('UI/UIVersionManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var CartItems = require('UI/Components/CartItems/CartItems');
-	var WinStats = require('UI/Components/WinStats/WinStats');
-	var htmlText = require('text!./EquipmentV0.html');
-	var cssText = require('text!./EquipmentV0.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import StatusConst from 'DB/Status/StatusState';
+import EquipLocation from 'DB/Items/EquipmentLocation';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import ItemType from 'DB/Items/ItemType';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import UIVersionManager from 'UI/UIVersionManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import WinStats from 'UI/Components/WinStats/WinStats';
+import htmlText from './EquipmentV0.html?raw';
+import cssText from './EquipmentV0.css?raw';
+import Inventory from 'UI/Components/Inventory/Inventory';
 
 	/**
 	 * Create Component
 	 */
-	var EquipmentV0 = new UIComponent('EquipmentV0', htmlText, cssText);
+	const EquipmentV0 = new UIComponent('EquipmentV0', htmlText, cssText);
 
 	/**
 	 * @var {Preference} window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'EquipmentV0',
 		{
 			x: 480,
@@ -59,22 +55,22 @@ define(function (require) {
 	/**
 	 * @var {Array} equipment list
 	 */
-	var _list = {};
+	let _list = {};
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _ctx;
+	let _ctx;
 
 	/**
 	 * @var {boolean} show equipment to other people ?
 	 */
-	var _showEquip = false;
+	let _showEquip = false;
 
 	/**
 	 * @var {jQuery} button that appeared when level up
 	 */
-	var _btnLevelUp;
+	let _btnLevelUp;
 
 	/**
 	 * Initialize UI
@@ -140,7 +136,7 @@ define(function (require) {
 	}
 
 	function onRemoveOption() {
-		var pkt = new PACKET.CZ.REQ_CARTOFF();
+		const pkt = new PACKET.CZ.REQ_CARTOFF();
 		Network.sendPacket(pkt);
 	}
 
@@ -262,7 +258,7 @@ define(function (require) {
 	 * @param {Item} item
 	 */
 	EquipmentV0.equip = function equip(item, location) {
-		var it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 		_list[item.index] = item;
 
 		if (arguments.length === 1) {
@@ -316,8 +312,6 @@ define(function (require) {
 			}.bind(this)
 		);
 
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
-
 		if (!Inventory.getUI().equippedItems.includes(item.index)) {
 			Inventory.getUI().equippedItems.push(item.index);
 		}
@@ -330,8 +324,8 @@ define(function (require) {
 	 * @param {number} item location
 	 */
 	EquipmentV0.unEquip = function unEquip(index, location) {
-		var selector = getSelectorFromLocation(location);
-		var item = _list[index];
+		const selector = getSelectorFromLocation(location);
+		const item = _list[index];
 
 		this.ui.find(selector).empty();
 		delete _list[index];
@@ -360,9 +354,9 @@ define(function (require) {
 	 * Display or not status window
 	 */
 	function toggleStatus() {
-		var self = EquipmentV0.ui.find('.view_status');
-		var status = WinStats.getUI().ui;
-		var state = status.is(':visible') ? 'on' : 'off';
+		const self = EquipmentV0.ui.find('.view_status');
+		const status = WinStats.getUI().ui;
+		const state = status.is(':visible') ? 'on' : 'off';
 
 		if (status.is(':visible')) {
 			status.hide();
@@ -386,12 +380,12 @@ define(function (require) {
 	 * Rendering character
 	 */
 	var renderCharacter = (function renderCharacterClosure() {
-		var _lastState = 0;
-		var _hasCart = 0;
+		let _lastState = 0;
+		let _hasCart = 0;
 
-		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		var _savedColor = new Float32Array(4);
-		var _animation = {
+		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		const _savedColor = new Float32Array(4);
+		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -402,7 +396,7 @@ define(function (require) {
 		};
 
 		// Current removable options
-		var HasAttachmentState =
+		const HasAttachmentState =
 			StatusConst.EffectState.FALCON |
 			StatusConst.EffectState.RIDING |
 			StatusConst.EffectState.DRAGON1 |
@@ -417,7 +411,7 @@ define(function (require) {
 			StatusConst.EffectState.CART4 |
 			StatusConst.EffectState.CART5;
 
-		var HasCartState =
+		const HasCartState =
 			StatusConst.EffectState.CART1 |
 			StatusConst.EffectState.CART2 |
 			StatusConst.EffectState.CART3 |
@@ -425,11 +419,11 @@ define(function (require) {
 			StatusConst.EffectState.CART5;
 
 		return function renderCharacter() {
-			var character = Session.Entity;
-			var direction = character.direction;
-			var headDir = character.headDir;
-			var action = character.action;
-			var animation = character.animation;
+			const character = Session.Entity;
+			const direction = character.direction;
+			const headDir = character.headDir;
+			const action = character.action;
+			const animation = character.animation;
 
 			// If state change, we have to check if the new option is removable.
 			if (character.effectState !== _lastState || _hasCart !== character.hasCart) {
@@ -480,7 +474,7 @@ define(function (require) {
 	 * @returns {string} selector
 	 */
 	function getSelectorFromLocation(location) {
-		var selector = [];
+		const selector = [];
 
 		if (location & EquipLocation.HEAD_TOP) {
 			selector.push('.head_top');
@@ -524,8 +518,8 @@ define(function (require) {
 	 */
 	function onDragOver(event) {
 		if (window._OBJ_DRAG_) {
-			var data = window._OBJ_DRAG_;
-			var item, selector, ui;
+			const data = window._OBJ_DRAG_;
+			let item, selector, ui;
 
 			// Just support items for now ?
 			if (data.type === 'item') {
@@ -565,7 +559,7 @@ define(function (require) {
 	 * Drop an item in the equipment, equip it if possible
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -596,8 +590,8 @@ define(function (require) {
 	 * Right click on an item
 	 */
 	function onEquipmentInfo(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = _list[index];
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = _list[index];
 
 		if (item) {
 			// Don't add the same UI twice, remove it
@@ -621,7 +615,7 @@ define(function (require) {
 	 * Double click on an equipment to remove it
 	 */
 	function onEquipmentUnEquip() {
-		var index = parseInt(this.getAttribute('data-index'), 10);
+		const index = parseInt(this.getAttribute('data-index'), 10);
 		EquipmentV0.onUnEquip(index);
 		EquipmentV0.ui.find('.overlay').hide();
 	}
@@ -630,16 +624,16 @@ define(function (require) {
 	 * When mouse is over an equipment, display the item name
 	 */
 	function onEquipmentOver() {
-		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var item = _list[idx];
+		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const item = _list[idx];
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = EquipmentV0.ui.find('.overlay');
-		var pos = jQuery(this).position();
+		const overlay = EquipmentV0.ui.find('.overlay');
+		const pos = jQuery(this).position();
 
 		// Possible jquery error
 		if (!pos.top && !pos.left) {
@@ -660,8 +654,8 @@ define(function (require) {
 	}
 
 	EquipmentV0.onUpdateOwnerName = function () {
-		for (var index in _list) {
-			var item = _list[index];
+		for (const index in _list) {
+			const item = _list[index];
 			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				EquipmentV0.ui
 					.find('.item[data-index="' + index + '"] .itemName')
@@ -671,8 +665,8 @@ define(function (require) {
 	};
 
 	EquipmentV0.getNumber = function () {
-		var num = 0;
-		for (var key in _list) {
+		let num = 0;
+		for (const key in _list) {
 			if (_list[key].location && _list[key].location != EquipLocation.AMMO) {
 				num++;
 			}
@@ -704,5 +698,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(EquipmentV0);
-});
+	export default UIManager.addComponent(EquipmentV0);

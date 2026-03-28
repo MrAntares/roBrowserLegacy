@@ -1,4 +1,3 @@
-define([], function () {
 "use strict";
 var iconv = (() => {
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -5882,5 +5881,4 @@ buffer/index.js:
 safe-buffer/index.js:
   (*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> *)
 */
-    return iconv;
-});
+    export default iconv;

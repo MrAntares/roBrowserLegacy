@@ -8,23 +8,24 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var MemoryManager = require('Core/MemoryManager');
-	var Graphics = require('Preferences/Graphics');
-	var Sprite = require('Loaders/Sprite');
-	var Action = require('Loaders/Action');
-	var Preferences = require('Preferences/Controls');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import MemoryManager from 'Core/MemoryManager';
+import Graphics from 'Preferences/Graphics';
+import Sprite from 'Loaders/Sprite';
+import Action from 'Loaders/Action';
+import Preferences from 'Preferences/Controls';
+import EntityManager from 'Renderer/EntityManager';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Mouse from 'Controls/MouseEventHandler';
 
 	/**
 	 * Cursor Constructor
 	 */
-	var Cursor = {};
+	const Cursor = {};
 
 	/**
 	 * Cursor animation Constant
@@ -71,62 +72,62 @@ define(function (require) {
 	/**
 	 * @var {integer} Cursor.ACTION.* constant
 	 */
-	var _type = Cursor.ACTION.DEFAULT;
+	let _type = Cursor.ACTION.DEFAULT;
 
 	/**
 	 * @var {integer} tick
 	 */
-	var _tick = 0;
+	let _tick = 0;
 
 	/**
 	 * @var {boolean} repeat animation ?
 	 */
-	var _norepeat = false;
+	let _norepeat = false;
 
 	/**
 	 * @var {integer} animation frame
 	 */
-	var _animation = 0;
+	let _animation = 0;
 
 	/**
 	 * @var {boolean} play animation ?
 	 */
-	var _play = true;
+	let _play = true;
 
 	/**
 	 * @var {number} last style id rendered
 	 */
-	var _lastStyleId = -1;
+	let _lastStyleId = -1;
 
 	/**
 	 * @var {number} last rendered position x
 	 */
-	var _lastX = 0;
+	let _lastX = 0;
 
 	/**
 	 * @var {number} last renderer position y
 	 */
-	var _lastY = 0;
+	let _lastY = 0;
 
 	/**
 	 * @var {Array} css style list
 	 */
-	var _compiledStyle = [];
+	let _compiledStyle = [];
 
 	/**
 	 * @var {Sprite} sprite
 	 */
-	var _sprite;
+	let _sprite;
 
 	/**
 	 * @var {Action} action
 	 */
-	var _action;
+	let _action;
 
 	/**
 	 * @var {reference} selector
 	 */
-	var _selector;
+	let _selector;
 
 	/**
 	 * Define sprite informations (hardcoded)
@@ -139,8 +140,6 @@ define(function (require) {
 	ActionInformations[Cursor.ACTION.PICK] = { drawX: 20, drawY: 40, startX: 15, startY: 15, delayMult: 1.0 };
 	ActionInformations[Cursor.ACTION.TARGET] = { drawX: 20, drawY: 50, startX: 20, startY: 28, delayMult: 0.5 };
 	ActionInformations[Cursor.ACTION.NOWALK] = { drawX: 13, drawY: 25, startX: 14, startY: 6, delayMult: 1.0 };
-
-	var EntityManager, Entity, SpriteRenderer, Mouse;
 
 	/**
 	 * Load cursor data (action, sprite)
@@ -170,11 +169,6 @@ define(function (require) {
 			createSpriteSheet();
 			fn();
 		});
-
-		EntityManager = getModule('Renderer/EntityManager');
-		Entity = getModule('Renderer/Entity/Entity');
-		SpriteRenderer = getModule('Renderer/SpriteRenderer');
-		Mouse = getModule('Controls/MouseEventHandler');
 	};
 
 	/**
@@ -318,11 +312,11 @@ define(function (require) {
 	 * during the rendering loop
 	 */
 	function preCompiledAnimations() {
-		var i, j, k, count, size, total, pos;
-		var action, animation, info;
-		var canvas, ctx, entity;
-		var binary, data, dataURI;
-		var dataURIList, position;
+		let i, j, k, count, size, total, pos;
+		let action, animation, info;
+		let canvas, ctx, entity;
+		let binary, data, dataURI;
+		let dataURIList, position;
 
 		// Start initializing variables
 		canvas = document.createElement('canvas');
@@ -378,7 +372,7 @@ define(function (require) {
 
 				dataURIList.push(dataURI);
 
-				var blobURL = URL.createObjectURL(new Blob([data.buffer], { type: 'image/png' }));
+				const blobURL = URL.createObjectURL(new Blob([data.buffer], { type: 'image/png' }));
 
 				_compiledStyle.push(blobURL);
 			}
@@ -392,22 +386,22 @@ define(function (require) {
 	 * and then creates a Blob URL to display the sprite sheet.
 	 */
 	function createSpriteSheet() {
-		var spriteWidth = 50,
+		const spriteWidth = 50,
 			spriteHeight = 50;
-		var totalSprites = _compiledStyle.length;
-		var spriteSheetWidth = totalSprites * spriteWidth;
-		var spriteSheetHeight = spriteHeight;
+		const totalSprites = _compiledStyle.length;
+		const spriteSheetWidth = totalSprites * spriteWidth;
+		const spriteSheetHeight = spriteHeight;
 
 		// Create a canvas to hold the sprite sheet
-		var spriteSheetCanvas = document.createElement('canvas');
+		const spriteSheetCanvas = document.createElement('canvas');
 		spriteSheetCanvas.width = spriteSheetWidth;
 		spriteSheetCanvas.height = spriteSheetHeight;
-		var ctx = spriteSheetCanvas.getContext('2d');
+		const ctx = spriteSheetCanvas.getContext('2d');
 
-		var imagesLoaded = 0;
+		let imagesLoaded = 0;
 
 		function drawSprite(n) {
-			var img = new Image();
+			const img = new Image();
 			img.decoding = 'async';
 			img.onload = function () {
 				ctx.drawImage(img, n * spriteWidth, 0, spriteWidth, spriteHeight);
@@ -421,26 +415,26 @@ define(function (require) {
 
 		function finalizeSpriteSheet() {
 			// Convert the sprite sheet canvas to a data URL
-			var spriteSheetDataURL = spriteSheetCanvas.toDataURL('image/png');
+			const spriteSheetDataURL = spriteSheetCanvas.toDataURL('image/png');
 
 			// Create a Blob from the sprite sheet data URL
-			var binary = atob(spriteSheetDataURL.split(',')[1]);
-			var array = [];
-			for (var i = 0; i < binary.length; i++) {
+			const binary = atob(spriteSheetDataURL.split(',')[1]);
+			const array = [];
+			for (let i = 0; i < binary.length; i++) {
 				array.push(binary.charCodeAt(i));
 			}
-			var blob = new Blob([new Uint8Array(array)], { type: 'image/png' });
-			var spriteSheetBlobURL = URL.createObjectURL(blob);
+			const blob = new Blob([new Uint8Array(array)], { type: 'image/png' });
+			const spriteSheetBlobURL = URL.createObjectURL(blob);
 
 			// Append the sprite sheet to the DOM
-			var imageElem = jQuery('<img class="cursor__sprite" src="' + spriteSheetBlobURL + '">');
+			const imageElem = jQuery('<img class="cursor__sprite" src="' + spriteSheetBlobURL + '">');
 			imageElem.one('load', function (e) {
 				URL.revokeObjectURL(e.target.src);
 			});
 			jQuery('.cursor').append(imageElem);
 		}
 
-		for (var i = 0; i < totalSprites; i++) {
+		for (let i = 0; i < totalSprites; i++) {
 			drawSprite(i);
 		}
 	}
@@ -495,16 +489,16 @@ define(function (require) {
 			}
 		}
 
-		let info = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
-		let action = _action.actions[_type] || _action.actions[Cursor.ACTION.DEFAULT];
+		const info = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
+		const action = _action.actions[_type] || _action.actions[Cursor.ACTION.DEFAULT];
 		let anim = _animation;
-		let delay = action.delay * info.delayMult;
+		const delay = action.delay * info.delayMult;
 		let x = info.startX;
 		let y = info.startY;
 		let animation;
 
 		if (_play) {
-			let frame = Math.floor((tick - _tick) / delay);
+			const frame = Math.floor((tick - _tick) / delay);
 			anim = _norepeat ? Math.min(frame, action.animations.length - 1) : frame % action.animations.length;
 		}
 
@@ -519,7 +513,7 @@ define(function (require) {
 		}
 
 		if (Cursor.magnetism && !Cursor.blockMagnetism) {
-			let entity = EntityManager.getOverEntity();
+			const entity = EntityManager.getOverEntity();
 			if (entity) {
 				switch (entity.objecttype) {
 					case Entity.TYPE_MOB:
@@ -561,12 +555,12 @@ define(function (require) {
 			_lastX = x;
 			_lastY = y;
 
-			let cursorSprite = document.querySelector('.cursor__sprite');
+			const cursorSprite = document.querySelector('.cursor__sprite');
 			if (cursorSprite) {
 				cursorSprite.style.left = `${-_lastStyleId * 50}px`;
 			}
 
-			let cursor = document.querySelector('.cursor');
+			const cursor = document.querySelector('.cursor');
 			if (cursor) {
 				cursor.style.transform = `translate(-${_lastX}px, -${_lastY}px)`;
 			}
@@ -576,5 +570,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return Cursor;
-});
+	export default Cursor;

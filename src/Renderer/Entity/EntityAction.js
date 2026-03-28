@@ -3,14 +3,21 @@
  *
  * Manage entity action
  *
+/**
+ * Renderer/EntityAction.js
+ *
+ * Manage entity action
+ *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
  */
-define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
-	'use strict';
+'use strict';
 
-	/**
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import DB from 'DB/DBManager';
+
+/**
 	 * Action frames
 	 */
 	function Action() {
@@ -56,7 +63,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
 	 * @param {object} option
 	 */
 	function setAction(option) {
-		var anim = this.animation;
+		const anim = this.animation;
 
 		if (option.delay) {
 			anim.delay = option.delay + 0;
@@ -66,7 +73,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
 			// Know attack frame based on weapon type
 			if (option.action === this.ACTION.ATTACK) {
 				if (this.objecttype === this.constructor.TYPE_PC) {
-					var attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
+					const attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
 					option.action = [this.ACTION.ATTACK1, this.ACTION.ATTACK2, this.ACTION.ATTACK3][attack];
 				}
 
@@ -77,10 +84,10 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
 			}
 
 			// FIX: Detect the walk animation change and reset pathfinding route
-			var wasWalking = this.action === this.ACTION.WALK;
-			var newAction =
+			const wasWalking = this.action === this.ACTION.WALK;
+			const newAction =
 				option.action === -1 || typeof option.action === 'undefined' ? this.ACTION.IDLE : option.action;
-			var willWalk = newAction === this.ACTION.WALK;
+			const willWalk = newAction === this.ACTION.WALK;
 
 			if (
 				wasWalking &&
@@ -94,7 +101,7 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
 			}
 
 			this.action = newAction;
-			anim.tick = Renderer.tick + 0;
+			anim.tick = Date.now() + 0;
 			anim.delay = 0;
 			anim.frame = option.frame || 0;
 			anim.speed = option.speed || false;
@@ -112,11 +119,11 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
 	/**
 	 * Initialize Entity action
 	 */
-	return function Init() {
+export default function Init() {
 		this.ACTION = new Action();
 		this.animation = new Animation();
 		this.setAction = setAction;
-		var Entity = this.constructor;
+		const Entity = this.constructor;
 
 		switch (this.objecttype) {
 			// Define action, base on type
@@ -239,4 +246,3 @@ define(['Renderer/Renderer', 'DB/DBManager'], function (Renderer, DB) {
 				break;
 		}
 	};
-});

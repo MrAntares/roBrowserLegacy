@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 //  effectId: hitEffectId: effectIdOnCaster: beginCastEffectId:
-define(function () {
-	'use strict';
+'use strict';
 
-	var ItemEffect = {};
+	const ItemEffect = {};
 
 	//Type 1
 	ItemEffect[501] = { effectId: 204 }; //Red Potion
@@ -474,5 +473,4 @@ define(function () {
 	ItemEffect[662] = { effectId: 507 }; //Authoritative Badge
 	ItemEffect[12262] = { effectId: 507 }; //Authoritative Badge
 
-	return ItemEffect;
-});
+	export default ItemEffect;

@@ -8,8 +8,7 @@
  * @author MrUnzO
  */
 
-define(['DB/EmotionsConst'], function (Emotion) {
-	'use strict';
+import Emotion from 'DB/EmotionsConst';
 
 	const petEmotionTable = [
 		[
@@ -161,5 +160,4 @@ define(['DB/EmotionsConst'], function (Emotion) {
 		]
 	];
 
-	return petEmotionTable;
-});
+	export default petEmotionTable;

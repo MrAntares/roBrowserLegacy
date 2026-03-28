@@ -9,35 +9,36 @@
  * @author Vincent Thibault
  */
 
-define(['require', 'Core/Configs'], function (require, Configs) {
-	'use strict';
+'use strict';
+
+import Configs from 'Core/Configs';
 
 	/**
 	 * Memory to get back data
 	 * @var List
 	 */
-	var _memory = {};
+	const _memory = {};
 
 	/**
 	 * List of hook callback
 	 * @var List
 	 */
-	var _hook = {};
+	const _hook = {};
 
 	/**
 	 * @var {number} uid
 	 */
-	var _uid = 0;
+	let _uid = 0;
 
 	/**
 	 * @var {mixed} origin for security
 	 */
-	var _origin = [];
+	let _origin = [];
 
 	/**
 	 * @var {window|Worker} context to send data to
 	 */
-	var _source = null;
+	let _source = null;
 
 	/**
 	 * Send data to thread
@@ -46,11 +47,11 @@ define(['require', 'Core/Configs'], function (require, Configs) {
 	 * @param {mixed} data
 	 * @param {function} callback
 	 */
-	var Send = (function SendClosure() {
-		var _input = { type: '', data: null, uid: 0 };
+	const Send = (function SendClosure() {
+		const _input = { type: '', data: null, uid: 0 };
 
 		return function Send(type, data, callback) {
-			var uid = 0;
+			let uid = 0;
 
 			if (callback) {
 				uid = ++_uid;
@@ -72,8 +73,8 @@ define(['require', 'Core/Configs'], function (require, Configs) {
 	 * @param {object} event
 	 */
 	function Receive(event) {
-		var uid = event.data.uid;
-		var type = event.data.type;
+		const uid = event.data.uid;
+		const type = event.data.type;
 
 		// Direct callback
 		if (uid in _memory) {
@@ -113,8 +114,7 @@ define(['require', 'Core/Configs'], function (require, Configs) {
 	 */
 	function Init() {
 		if (!_source) {
-			var url = Configs.get('development') ? './ThreadEventHandler.js' : './../../ThreadEventHandler.js';
-			_source = new Worker(require.toUrl(url) + '?' + Configs.get('version', ''));
+			_source = new Worker(new URL('./ThreadEventHandler.js', import.meta.url), { type: 'module' });
 		}
 
 		// Worker context
@@ -130,12 +130,11 @@ define(['require', 'Core/Configs'], function (require, Configs) {
 	}
 
 	/**
-	 * Exports
+	 * Export
 	 */
-	return {
+	export default {
 		send: Send,
 		hook: Hook,
 		init: Init,
 		delegate: Delegate
 	};
-});

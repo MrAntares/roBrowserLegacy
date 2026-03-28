@@ -8,10 +8,9 @@
  * @author Vincent Thibault, Thapakorn Tantirattanapong
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	return {
+export default {
 		1: 'MaxHP +%d', //Max HP: ^000088+%d^000000",
 		2: 'MaxSP +%d', //Max SP: ^000088+%d^000000",
 		3: 'STR +%d', //Str: ^000088+%d^000000",
@@ -205,4 +204,3 @@ define(function () {
 		191: 'MDEF against Medium size monster +%d%%', // "RDMOPT_MDAMAGE_SIZE_MIDIUM_USER",
 		192: 'MDEF against Large size monster +%d%%' // "RDMOPT_MDAMAGE_SIZE_LARGE_USER",
 	};
-});

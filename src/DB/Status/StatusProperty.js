@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-define(function () {
-	'use strict';
+'use strict';
 
-	return {
+	export default {
 		SPEED: 0x00,
 		EXP: 0x01,
 		JOBEXP: 0x02,
@@ -240,4 +239,3 @@ define(function () {
 		VAR_SP_UCON: 0xfb,
 		VAR_SP_UCRT: 0xfc
 	};
-});

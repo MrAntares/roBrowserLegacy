@@ -5,32 +5,29 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var ItemType = require('DB/Items/ItemType');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./Storage.html');
-	var cssText = require('text!./Storage.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import ItemType from 'DB/Items/ItemType';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './Storage.html?raw';
+import cssText from './Storage.css?raw';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import Inventory from 'UI/Components/Inventory/Inventory';
 
 	/**
 	 * Create Component
 	 */
-	var Storage = new UIComponent('Storage', htmlText, cssText);
+	const Storage = new UIComponent('Storage', htmlText, cssText);
 
 	/**
 	 * Tab constant
@@ -48,12 +45,12 @@ define(function (require) {
 	/**
 	 * @var {Array} inventory items
 	 */
-	var _list = [];
+	const _list = [];
 
 	/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Storage',
 		{
 			x: 200,
@@ -124,7 +121,7 @@ define(function (require) {
 	 * @param {Array} item list
 	 */
 	Storage.setItems = function setItems(items) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = items.length; i < count; ++i) {
 			if (this.addItemSub(items[i])) {
@@ -139,7 +136,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	Storage.addItem = function addItem(item) {
-		var i = getItemIndexById(item.index);
+		const i = getItemIndexById(item.index);
 
 		// Found, update quantity
 		if (i > -1) {
@@ -159,7 +156,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	Storage.addItemSub = function addItemSub(item) {
-		var tab;
+		let tab;
 
 		switch (item.type) {
 			case ItemType.HEALING:
@@ -198,7 +195,7 @@ define(function (require) {
 		}
 
 		if (tab === _preferences.tab) {
-			var it = DB.getItemInfo(item.ITID);
+			const it = DB.getItemInfo(item.ITID);
 
 			this.ui
 				.find('.container .content')
@@ -238,8 +235,8 @@ define(function (require) {
 	 * @param {number} index in Storage
 	 */
 	Storage.removeItem = function removeItem(index, count) {
-		var i = getItemIndexById(index);
-		var item;
+		const i = getItemIndexById(index);
+		let item;
 
 		// Not found
 		if (i < 0) {
@@ -291,14 +288,14 @@ define(function (require) {
 	 * Extend Storage window size
 	 */
 	function onResize() {
-		var ui = Storage.ui;
-		var top = ui.position().top;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = Storage.ui;
+		const top = ui.position().top;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraY = 31 + 19 - 30;
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			const extraY = 31 + 19 - 30;
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			h = Math.min(Math.max(h, 8), 17);
@@ -337,7 +334,7 @@ define(function (require) {
 	 * Modify tab, filter display entries
 	 */
 	function onSwitchTab() {
-		var idx = jQuery(this).index();
+		const idx = jQuery(this).index();
 		_preferences.tab = idx;
 
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (idx + 1) + '.bmp', function (data) {
@@ -350,7 +347,7 @@ define(function (require) {
 	 * Drop from inventory to storage
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -397,7 +394,7 @@ define(function (require) {
 	 */
 	function requestFilter() {
 		Storage.ui.find('.container .content').empty();
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = _list.length; i < count; ++i) {
 			Storage.addItemSub(_list[i]);
@@ -410,7 +407,7 @@ define(function (require) {
 	 * @param {number} item id
 	 */
 	function getItemIndexById(index) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = _list.length; i < count; ++i) {
 			if (_list[i].index === index) {
@@ -425,7 +422,7 @@ define(function (require) {
 	 * Update scroll by block (32px)
 	 */
 	function onScroll(event) {
-		var delta;
+		let delta;
 
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
@@ -444,8 +441,8 @@ define(function (require) {
 	 * Mouse over item, display name and informations
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(idx);
 
 		// Not found
 		if (i < 0) {
@@ -453,9 +450,9 @@ define(function (require) {
 		}
 
 		// Get back data
-		var item = _list[i];
-		var pos = jQuery(this).position();
-		var overlay = Storage.ui.find('.overlay');
+		const item = _list[i];
+		const pos = jQuery(this).position();
+		const overlay = Storage.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -480,16 +477,16 @@ define(function (require) {
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(index);
 
 		if (i === -1) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const img = new Image();
+		let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		url = url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
 		img.decoding = 'async';
 		img.src = url;
@@ -523,8 +520,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(index);
 
 		if (i === -1) {
 			return false;
@@ -554,16 +551,14 @@ define(function (require) {
 	 * Alt Right Click Request Transfer
 	 */
 	function transferItemToOtherUI(item) {
-		var CartItems = getModule('UI/Components/CartItems/CartItems');
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
-		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
-		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
+		const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		const isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
 
 		if (!item) {
 			return false;
 		}
 
-		var count = item.count || 1;
+		const count = item.count || 1;
 
 		if (isInventoryOpen) {
 			Storage.reqRemoveItem(item.index, count);
@@ -586,5 +581,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Storage);
-});
+	export default UIManager.addComponent(Storage);

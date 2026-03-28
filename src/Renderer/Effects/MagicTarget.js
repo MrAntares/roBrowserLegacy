@@ -7,42 +7,41 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var WebGL = require('Utils/WebGL');
-	var glMatrix = require('Utils/gl-matrix');
-	var SkillId = require('DB/Skills/SkillConst');
-	var Client = require('Core/Client');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Session = require('Engine/SessionStorage');
-	var Camera = require('Renderer/Camera');
+import WebGL from 'Utils/WebGL';
+import glMatrix from 'Utils/gl-matrix';
+import SkillId from 'DB/Skills/SkillConst';
+import Client from 'Core/Client';
+import Altitude from 'Renderer/Map/Altitude';
+import Session from 'Engine/SessionStorage';
+import Camera from 'Renderer/Camera';
 
+// Load dependencies
 	/**
 	 * @var {WebGLTexture}
 	 */
-	var _texture;
+	let _texture;
 
 	/**
 	 * @var {WebGLProgram}
 	 */
-	var _program;
+	let _program;
 
 	/**
 	 * @var {mat4}
 	 */
-	var mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	var _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	/**
 	 * @var {object} CastSize for each skill
 	 */
-	var CastSize = {};
+	const CastSize = {};
 
 	//Traps officially don't display their AoE size when casted on the ground
 	CastSize[SkillId.CR_SLIMPITCHER] = [7];
@@ -148,7 +147,7 @@ define(function (require) {
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader = `
+	const _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -175,7 +174,7 @@ define(function (require) {
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = `
+	const _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -248,7 +247,7 @@ define(function (require) {
 	 * @param {object} webgl context
 	 */
 	MagicTarget.prototype.init = function init(gl) {
-		var data = Altitude.generatePlane(this.x, this.y, this.size);
+		const data = Altitude.generatePlane(this.x, this.y, this.size);
 		this.buffer = gl.createBuffer();
 		this.vertCount = data.length / 5;
 
@@ -274,7 +273,7 @@ define(function (require) {
 	 * @param {object} wegl context
 	 */
 	MagicTarget.prototype.render = function render(gl, tick) {
-		var attribute = _program.attribute;
+		const attribute = _program.attribute;
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
@@ -333,8 +332,8 @@ define(function (require) {
 	 * @param {object} webgl context
 	 */
 	MagicTarget.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		mat4.identity(_matrix);
 		mat4.rotateZ(_matrix, _matrix, (((tick / 1000) * 40) / 180) * Math.PI);
@@ -373,7 +372,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return MagicTarget;
-});
+	export default MagicTarget;

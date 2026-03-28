@@ -7,11 +7,11 @@
  *
  * @author Antares
  */
+'use strict';
 
-define(['./JobConst'], function (JobId) {
-	'use strict';
+import JobId from './JobConst';
 
-	var AllMountTable = {};
+	const AllMountTable = {};
 
 	//REGULAR
 	AllMountTable[JobId.NOVICE] = JobId.PORING_NOVICE;
@@ -169,8 +169,8 @@ define(['./JobConst'], function (JobId) {
 	AllMountTable[JobId.STAR_EMPEROR_B] = JobId.STAR_EMPEROR2_B;
 
 	function duplicateEntry(origin) {
-		var value = AllMountTable[origin];
-		var i,
+		const value = AllMountTable[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {
@@ -209,5 +209,4 @@ define(['./JobConst'], function (JobId) {
 	duplicateEntry(JobId.ROYAL_GUARD, JobId.ROYAL_GUARD2_2ND);
 	duplicateEntry(JobId.SHADOW_CHASER, JobId.SHADOW_CHASER_2ND);
 
-	return AllMountTable;
-});
+	export default AllMountTable;

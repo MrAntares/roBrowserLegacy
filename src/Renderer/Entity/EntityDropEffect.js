@@ -7,10 +7,11 @@
  *
  * @author Bastien Bruant
  */
-define(['DB/Effects/EffectConst'], function (EffectConst) {
-	'use strict';
+'use strict';
 
-	const dropEffects = [
+import EffectConst from 'DB/Effects/EffectConst';
+
+const dropEffects = [
 		EffectConst.DROPEFFECT_PINK,
 		EffectConst.DROPEFFECT_BLUE,
 		EffectConst.DROPEFFECT_YELLOW,
@@ -37,7 +38,7 @@ define(['DB/Effects/EffectConst'], function (EffectConst) {
 		// TODO the dropEffectMode 0 means that we need to get the EffectID from the lua file
 		// Right now, it's only used for cards and they all have the pink drop effect.
 		// But we should load the EffectID from ItemInfo.lua when we implement it.
-		var effect = dropEffects[dropEffectMode];
+		const effect = dropEffects[dropEffectMode];
 
 		// check if drop effect is valid
 		if (!effect) {
@@ -84,9 +85,8 @@ define(['DB/Effects/EffectConst'], function (EffectConst) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return function init() {
+	export default function init() {
 		this.dropEffect = new DropEffect(this);
 	};
-});

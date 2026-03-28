@@ -7,25 +7,24 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import CaptchaUpload from 'UI/Components/Captcha/CaptchaUpload';
+import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector';
+import CaptchaAnswer from 'UI/Components/Captcha/CaptchaAnswer';
+import CaptchaPreview from 'UI/Components/Captcha/CaptchaPreview';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import DB from 'DB/DBManager';
+
+/**
 	 * Load dependencies
 	 */
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var CaptchaUpload = require('UI/Components/Captcha/CaptchaUpload');
-	var CaptchaSelector = require('UI/Components/Captcha/CaptchaSelector');
-	var CaptchaAnswer = require('UI/Components/Captcha/CaptchaAnswer');
-	var CaptchaPreview = require('UI/Components/Captcha/CaptchaPreview');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var DB = require('DB/DBManager');
-
 	/**
 	 * Captcha data
 	 */
-	var captcha = {
+	const captcha = {
 		captchaKey: null,
 		imageSize: null,
 		currentOffset: 0,
@@ -55,14 +54,14 @@ define(function (require) {
 		// 1 = fail
 		if (pkt.captchaFlag === 0) {
 			// upload captcha in chunks of 1024 bytes
-			let totalChunks = Math.ceil(CaptchaUpload.imageData.byteLength / 1024);
+			const totalChunks = Math.ceil(CaptchaUpload.imageData.byteLength / 1024);
 			let currentChunk = 0;
-			let buffer = CaptchaUpload.imageData.buffer;
+			const buffer = CaptchaUpload.imageData.buffer;
 			let offset = 0;
 
 			while (currentChunk < totalChunks) {
-				let chunkSize = Math.min(1024, buffer.byteLength - offset);
-				let chunk = buffer.slice(offset, offset + chunkSize);
+				const chunkSize = Math.min(1024, buffer.byteLength - offset);
+				const chunk = buffer.slice(offset, offset + chunkSize);
 				CaptchaUpload.uploadCaptcha(pkt.captchaKey, chunk);
 				offset += chunkSize;
 				currentChunk++;
@@ -136,7 +135,7 @@ define(function (require) {
 				CaptchaAnswer.setImage(imageData);
 				CaptchaAnswer.setData(3, 60); // if is not different from default the server dont send the information
 				CaptchaAnswer.onSend = function (answer) {
-					var pkt = new PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR();
+					const pkt = new PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR();
 					pkt.answer = answer;
 					Network.sendPacket(pkt);
 				};
@@ -225,7 +224,7 @@ define(function (require) {
 	 * Upload captcha to server
 	 */
 	function uploadCaptcha(captchaKey, imageData) {
-		var pkt = new PACKET.CZ.UPLOAD_MACRO_DETECTOR_CAPTCHA();
+		const pkt = new PACKET.CZ.UPLOAD_MACRO_DETECTOR_CAPTCHA();
 		pkt.captchaKey = captchaKey;
 		pkt.imageData = imageData;
 		Network.sendPacket(pkt);
@@ -238,7 +237,7 @@ define(function (require) {
 	 * @param {string} answer
 	 */
 	async function requestUploadCaptcha(size, answer) {
-		var pkt = new PACKET.CZ.REQ_UPLOAD_MACRO_DETECTOR();
+		const pkt = new PACKET.CZ.REQ_UPLOAD_MACRO_DETECTOR();
 		pkt.imageSize = size;
 		pkt.answer = answer;
 		Network.sendPacket(pkt);
@@ -250,7 +249,7 @@ define(function (require) {
 	 * @param {number} AID
 	 */
 	function sendCaptchaToPlayer(AID) {
-		var pkt = new PACKET.CZ.REQ_APPLY_MACRO_DETECTOR();
+		const pkt = new PACKET.CZ.REQ_APPLY_MACRO_DETECTOR();
 		pkt.AID = AID;
 		Network.sendPacket(pkt);
 	}
@@ -263,7 +262,7 @@ define(function (require) {
 	 * @param {number} RadiusRange
 	 */
 	function requestPlayersIdsInRange(xPos, yPos, RadiusRange) {
-		var pkt = new PACKET.CZ.REQ_PLAYER_AID_IN_RANGE();
+		const pkt = new PACKET.CZ.REQ_PLAYER_AID_IN_RANGE();
 		pkt.xPos = xPos;
 		pkt.yPos = yPos;
 		pkt.RadiusRange = RadiusRange;
@@ -352,7 +351,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.ACK_UPLOAD_MACRO_DETECTOR, onAckUpload);
 		Network.hookPacket(PACKET.ZC.COMPLETE_UPLOAD_MACRO_DETECTOR_CAPTCHA, onCompleteUpload);
 		Network.hookPacket(PACKET.ZC.ACK_APPLY_MACRO_DETECTOR, onAckApply);
@@ -371,4 +370,3 @@ define(function (require) {
 		CaptchaSelector.requestPlayersIdsInRange = requestPlayersIdsInRange;
 		CaptchaSelector.sendCaptchaToPlayer = sendCaptchaToPlayer;
 	};
-});

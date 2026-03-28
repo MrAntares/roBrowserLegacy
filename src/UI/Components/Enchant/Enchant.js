@@ -3,34 +3,33 @@
  *
  * Enchant UI Window
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var EffectDB = require('DB/Effects/EffectTable');
-	var EffectConst = require('DB/Effects/EffectConst');
-	var Camera = require('Renderer/Camera');
-	var Renderer = require('Renderer/Renderer');
-	var StrEffect = require('Renderer/Effects/StrEffect');
-	var WebGL = require('Utils/WebGL');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var Session = require('Engine/SessionStorage');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var KEYS = require('Controls/KeyEventHandler');
-	var htmlText = require('text!./Enchant.html');
-	var cssText = require('text!./Enchant.css');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import EffectDB from 'DB/Effects/EffectTable';
+import EffectConst from 'DB/Effects/EffectConst';
+import Camera from 'Renderer/Camera';
+import Renderer from 'Renderer/Renderer';
+import StrEffect from 'Renderer/Effects/StrEffect';
+import WebGL from 'Utils/WebGL';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import Session from 'Engine/SessionStorage';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import KEYS from 'Controls/KeyEventHandler';
+import htmlText from './Enchant.html?raw';
+import cssText from './Enchant.css?raw';
 
-	var Enchant = new UIComponent('Enchant', htmlText, cssText);
+const Enchant = new UIComponent('Enchant', htmlText, cssText);
 
-	var EnchantState = {
+	const EnchantState = {
 		groupId: 0,
 		group: null,
 		item: null,
@@ -43,7 +42,7 @@ define(function (require) {
 		pendingLock: false
 	};
 
-	var EnchantAssets = {
+	const EnchantAssets = {
 		subpage: {
 			normal: null,
 			upgrade: null,
@@ -63,9 +62,9 @@ define(function (require) {
 		}
 	};
 
-	var DEFAULT_INTRO_DURATION_MS = 2000;
+	const DEFAULT_INTRO_DURATION_MS = 2000;
 
-	var EnchantEffectState = {
+	const EnchantEffectState = {
 		introEndAt: 0,
 		resultTimer: null,
 		overlayTimer: null,
@@ -80,9 +79,9 @@ define(function (require) {
 		fallbackPosition: [0, 0, 0]
 	};
 
-	var EnchantEffectDurations = {};
+	const EnchantEffectDurations = {};
 
-	var EnchantEffectGroups = {
+	const EnchantEffectGroups = {
 		enchant: {
 			intro: EffectConst.EF_UI_ENCHANT_INTRO_YELLOW,
 			success: EffectConst.EF_UI_ENCHANT_SUCCESS,
@@ -100,10 +99,10 @@ define(function (require) {
 		}
 	};
 
-	var ENCHANT_OVERLAY_ALPHA = 0.5;
-	var ENCHANT_OVERLAY_COLOR = new Float32Array([0, 0, 0, ENCHANT_OVERLAY_ALPHA]);
+	const ENCHANT_OVERLAY_ALPHA = 0.5;
+	const ENCHANT_OVERLAY_COLOR = new Float32Array([0, 0, 0, ENCHANT_OVERLAY_ALPHA]);
 
-	var EnchantEffectFog = {
+	const EnchantEffectFog = {
 		use: false,
 		exist: true,
 		far: 30,
@@ -151,8 +150,8 @@ define(function (require) {
 	}
 
 	function getBaseSlotCount(item) {
-		var it = DB.getItemInfo(item.ITID);
-		var slotCount = it && it.slotCount ? parseInt(it.slotCount, 10) : 0;
+		const it = DB.getItemInfo(item.ITID);
+		const slotCount = it && it.slotCount ? parseInt(it.slotCount, 10) : 0;
 		return isNaN(slotCount) ? 0 : slotCount;
 	}
 
@@ -164,7 +163,7 @@ define(function (require) {
 		if (!item || !item.Options) {
 			return false;
 		}
-		for (var i = 1; i < item.Options.length; i++) {
+		for (let i = 1; i < item.Options.length; i++) {
 			if (item.Options[i] && item.Options[i].index > 0) {
 				return true;
 			}
@@ -176,9 +175,9 @@ define(function (require) {
 		if (!item || !group || !group.targetItems) {
 			return false;
 		}
-		var baseName = DB.getBasefromItemID(item.ITID);
-		for (var i = 0; i < group.targetItems.length; i++) {
-			var target = group.targetItems[i];
+		const baseName = DB.getBasefromItemID(item.ITID);
+		for (let i = 0; i < group.targetItems.length; i++) {
+			const target = group.targetItems[i];
 			if (target.id && target.id === item.ITID) {
 				return true;
 			}
@@ -190,10 +189,10 @@ define(function (require) {
 	}
 
 	function getNextEnchantSlot(item, group) {
-		var slotOrder = group && group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
-		var baseSlots = getBaseSlotCount(item);
-		for (var i = 0; i < slotOrder.length; i++) {
-			var slotNum = slotOrder[i];
+		const slotOrder = group && group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
+		const baseSlots = getBaseSlotCount(item);
+		for (let i = 0; i < slotOrder.length; i++) {
+			const slotNum = slotOrder[i];
 			if (slotNum < baseSlots) {
 				continue;
 			}
@@ -205,24 +204,24 @@ define(function (require) {
 	}
 
 	function getUpgradeCandidates(item, group) {
-		var candidates = [];
-		var slotOrder = group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
-		var baseSlots = getBaseSlotCount(item);
-		for (var i = 0; i < slotOrder.length; i++) {
-			var slotNum = slotOrder[i];
+		const candidates = [];
+		const slotOrder = group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
+		const baseSlots = getBaseSlotCount(item);
+		for (let i = 0; i < slotOrder.length; i++) {
+			const slotNum = slotOrder[i];
 			if (slotNum < baseSlots) {
 				continue;
 			}
-			var slotData = group.slots[slotNum];
+			const slotData = group.slots[slotNum];
 			if (!slotData || !slotData.upgrade) {
 				continue;
 			}
-			var currentId = getSlotValue(item, slotNum);
+			const currentId = getSlotValue(item, slotNum);
 			if (!currentId) {
 				continue;
 			}
-			var baseName = DB.getBasefromItemID(currentId);
-			var entry = baseName ? slotData.upgrade[baseName] : null;
+			const baseName = DB.getBasefromItemID(currentId);
+			const entry = baseName ? slotData.upgrade[baseName] : null;
 			if (!entry) {
 				continue;
 			}
@@ -237,7 +236,7 @@ define(function (require) {
 	}
 
 	function setStatus(message, isError) {
-		var status = Enchant.ui.find('.status');
+		const status = Enchant.ui.find('.status');
 		status.text(message || '');
 		status.toggleClass('error', !!isError);
 	}
@@ -250,9 +249,9 @@ define(function (require) {
 		if (!Enchant.ui || !text) {
 			return;
 		}
-		var overlay = Enchant.ui.find('.overlay');
-		var uiOffset = Enchant.ui.offset();
-		var targetOffset = target.offset();
+		const overlay = Enchant.ui.find('.overlay');
+		const uiOffset = Enchant.ui.offset();
+		const targetOffset = target.offset();
 		overlay.text(text);
 		overlay.css({
 			top: targetOffset.top - uiOffset.top,
@@ -287,8 +286,8 @@ define(function (require) {
 		if (!Enchant.ui) {
 			return;
 		}
-		var target = Enchant.ui.find('.subpage');
-		var skin = EnchantAssets.subpage.normal;
+		const target = Enchant.ui.find('.subpage');
+		let skin = EnchantAssets.subpage.normal;
 		if (EnchantState.action === 'upgrade' && EnchantAssets.subpage.upgrade) {
 			skin = EnchantAssets.subpage.upgrade;
 		} else if (EnchantState.action === 'reset' && EnchantAssets.subpage.reset) {
@@ -303,8 +302,8 @@ define(function (require) {
 		if (!Enchant.ui) {
 			return;
 		}
-		var target = Enchant.ui.find('.action_tabs');
-		var skin = EnchantAssets.menuTabs[EnchantState.action] || EnchantAssets.menuTabs.random;
+		const target = Enchant.ui.find('.action_tabs');
+		const skin = EnchantAssets.menuTabs[EnchantState.action] || EnchantAssets.menuTabs.random;
 		if (skin) {
 			target.css('backgroundImage', 'url(' + skin + ')');
 		}
@@ -325,7 +324,7 @@ define(function (require) {
 	}
 
 	function bindActionButtonSkin() {
-		var button = Enchant.ui.find('.action_btn');
+		const button = Enchant.ui.find('.action_btn');
 		button.off('.enchant_skin');
 		button.on('mouseover.enchant_skin', function () {
 			if (!EnchantAssets.actionButton.hover || button.hasClass('disabled')) {
@@ -349,7 +348,7 @@ define(function (require) {
 			if (button.hasClass('disabled')) {
 				return;
 			}
-			var skin = EnchantAssets.actionButton.hover || EnchantAssets.actionButton.normal;
+			const skin = EnchantAssets.actionButton.hover || EnchantAssets.actionButton.normal;
 			button.css('backgroundImage', 'url(' + skin + ')');
 		});
 	}
@@ -358,7 +357,7 @@ define(function (require) {
 		if (!Enchant.ui || !Enchant.ui.length) {
 			return;
 		}
-		var root = Enchant.ui[0];
+		const root = Enchant.ui[0];
 		root.style.setProperty('--enchant-scroll-up', 'url(' + up + ')');
 		root.style.setProperty('--enchant-scroll-down', 'url(' + down + ')');
 		root.style.setProperty('--enchant-scroll-track', 'url(' + bg + ')');
@@ -432,7 +431,7 @@ define(function (require) {
 		if (EnchantEffectState.overlayProgram && EnchantEffectState.overlayBuffer) {
 			return;
 		}
-		var vertexShader =
+		const vertexShader =
 			'\
 #version 300 es\n\
 #pragma vscode_glsllint_stage : vert\n\
@@ -441,7 +440,7 @@ in vec2 aPosition;\n\
 void main() {\n\
 	gl_Position = vec4(aPosition, 0.0, 1.0);\n\
 }\n';
-		var fragmentShader =
+		const fragmentShader =
 			'\
 #version 300 es\n\
 #pragma vscode_glsllint_stage : frag\n\
@@ -459,7 +458,7 @@ void main() {\n\
 
 	function renderEffectOverlay(gl) {
 		ensureOverlayProgram(gl);
-		var program = EnchantEffectState.overlayProgram;
+		const program = EnchantEffectState.overlayProgram;
 		if (!program) {
 			return;
 		}
@@ -483,8 +482,8 @@ void main() {\n\
 		}
 		gl.disable(gl.DEPTH_TEST);
 		StrEffect.beforeRender(gl, Camera.modelView, Camera.projection, EnchantEffectFog, tick);
-		var anchor = getEffectAnchorPosition();
-		var remaining = [];
+		const anchor = getEffectAnchorPosition();
+		const remaining = [];
 		EnchantEffectState.activeEffects.forEach(function (effect) {
 			if (!effect) {
 				return;
@@ -508,26 +507,26 @@ void main() {\n\
 		if (!effectId) {
 			return;
 		}
-		var effectList = EffectDB[effectId];
+		const effectList = EffectDB[effectId];
 		if (!effectList || !effectList.length) {
 			return;
 		}
-		var anchor = getEffectAnchorPosition();
-		var startTick = Renderer && Renderer.tick ? Renderer.tick : Date.now();
+		const anchor = getEffectAnchorPosition();
+		const startTick = Renderer && Renderer.tick ? Renderer.tick : Date.now();
 		effectList.forEach(function (effect) {
 			if (!effect || effect.type !== 'STR' || !effect.file) {
 				return;
 			}
-			var filename = 'data/texture/effect/' + effect.file + '.str';
-			var texturePath = effect.texturePath || '';
-			var strEffect = new StrEffect(filename, anchor, startTick, texturePath);
+			const filename = 'data/texture/effect/' + effect.file + '.str';
+			const texturePath = effect.texturePath || '';
+			const strEffect = new StrEffect(filename, anchor, startTick, texturePath);
 			EnchantEffectState.activeEffects.push(strEffect);
 		});
 		ensureEffectRenderActive();
 	}
 
 	function showEffectOverlay() {
-		var overlay = ensureEffectOverlay();
+		const overlay = ensureEffectOverlay();
 		if (EnchantEffectState.overlayActive) {
 			overlay.show();
 			return;
@@ -563,7 +562,7 @@ void main() {\n\
 		if (EnchantEffectState.overlayTimer) {
 			clearTimeout(EnchantEffectState.overlayTimer);
 		}
-		var timeout = Math.max(Number(delay) || 0, 0);
+		const timeout = Math.max(Number(delay) || 0, 0);
 		EnchantEffectState.overlayTimer = setTimeout(function () {
 			hideEffectOverlay();
 		}, timeout);
@@ -583,22 +582,22 @@ void main() {\n\
 		if (Object.prototype.hasOwnProperty.call(EnchantEffectDurations, effectId)) {
 			return;
 		}
-		var effectList = EffectDB[effectId];
+		const effectList = EffectDB[effectId];
 		if (!effectList || !effectList.length) {
 			EnchantEffectDurations[effectId] = DEFAULT_INTRO_DURATION_MS;
 			return;
 		}
-		var effect = effectList[0];
+		const effect = effectList[0];
 		if (!effect || effect.type !== 'STR' || !effect.file) {
 			EnchantEffectDurations[effectId] = DEFAULT_INTRO_DURATION_MS;
 			return;
 		}
-		var filename = 'data/texture/effect/' + effect.file + '.str';
-		var texturePath = effect.texturePath || '';
+		const filename = 'data/texture/effect/' + effect.file + '.str';
+		const texturePath = effect.texturePath || '';
 		Client.loadFile(
 			filename,
 			function (strFile) {
-				var duration = DEFAULT_INTRO_DURATION_MS;
+				let duration = DEFAULT_INTRO_DURATION_MS;
 				if (strFile && strFile.fps) {
 					duration = Math.ceil((strFile.maxKey / strFile.fps) * 1000);
 				}
@@ -611,7 +610,7 @@ void main() {\n\
 
 	function preloadEnchantEffectDurations() {
 		Object.keys(EnchantEffectGroups).forEach(function (key) {
-			var group = EnchantEffectGroups[key];
+			const group = EnchantEffectGroups[key];
 			cacheEffectDuration(group.intro);
 			cacheEffectDuration(group.success);
 			cacheEffectDuration(group.fail);
@@ -630,8 +629,8 @@ void main() {\n\
 	}
 
 	function playIntroEffect(action) {
-		var group = getEffectGroup(action);
-		var effects = EnchantEffectGroups[group];
+		const group = getEffectGroup(action);
+		const effects = EnchantEffectGroups[group];
 		if (!effects || !effects.intro) {
 			return;
 		}
@@ -647,17 +646,17 @@ void main() {\n\
 	}
 
 	function playResultEffect(action, success) {
-		var group = getEffectGroup(action);
-		var effects = EnchantEffectGroups[group];
+		const group = getEffectGroup(action);
+		const effects = EnchantEffectGroups[group];
 		if (!effects) {
 			return;
 		}
-		var effectId = success ? effects.success : effects.fail;
+		const effectId = success ? effects.success : effects.fail;
 		if (!effectId) {
 			return;
 		}
 		cacheEffectDuration(effectId);
-		var delay = Math.max(EnchantEffectState.introEndAt - Date.now(), 0);
+		const delay = Math.max(EnchantEffectState.introEndAt - Date.now(), 0);
 		if (EnchantEffectState.resultTimer) {
 			clearTimeout(EnchantEffectState.resultTimer);
 		}
@@ -674,11 +673,11 @@ void main() {\n\
 	}
 
 	function loadItemIcon(target, itemId, isIdentified) {
-		var it = DB.getItemInfo(itemId);
+		const it = DB.getItemInfo(itemId);
 		if (!it) {
 			return;
 		}
-		var name = isIdentified !== false ? it.identifiedResourceName : it.unidentifiedResourceName;
+		const name = isIdentified !== false ? it.identifiedResourceName : it.unidentifiedResourceName;
 		if (!name) {
 			return;
 		}
@@ -688,11 +687,11 @@ void main() {\n\
 	}
 
 	function loadItemCollection(target, itemId, isIdentified) {
-		var it = DB.getItemInfo(itemId);
+		const it = DB.getItemInfo(itemId);
 		if (!it) {
 			return;
 		}
-		var name = isIdentified !== false ? it.identifiedResourceName : it.unidentifiedResourceName;
+		const name = isIdentified !== false ? it.identifiedResourceName : it.unidentifiedResourceName;
 		if (!name) {
 			return;
 		}
@@ -721,7 +720,7 @@ void main() {\n\
 	}
 
 	function getItemDisplayName(itemId, fallback) {
-		var info = DB.getItemInfo(itemId);
+		const info = DB.getItemInfo(itemId);
 		if (info && info.identifiedDisplayName) {
 			return info.identifiedDisplayName;
 		}
@@ -739,7 +738,7 @@ void main() {\n\
 	}
 
 	function hasEnoughZeny(zeny) {
-		var cost = Number(zeny) || 0;
+		const cost = Number(zeny) || 0;
 		if (cost <= 0) {
 			return true;
 		}
@@ -750,22 +749,22 @@ void main() {\n\
 		if (!materials || !materials.length) {
 			return true;
 		}
-		var inventoryUI = Inventory.getUI && Inventory.getUI();
+		const inventoryUI = Inventory.getUI && Inventory.getUI();
 		if (!inventoryUI || !inventoryUI.getItemById) {
 			return false;
 		}
-		for (var i = 0; i < materials.length; i++) {
-			var mat = materials[i];
-			var required = Number(mat.count) || 0;
+		for (let i = 0; i < materials.length; i++) {
+			const mat = materials[i];
+			const required = Number(mat.count) || 0;
 			if (required <= 0) {
 				continue;
 			}
-			var matId = resolveMaterialId(mat);
+			const matId = resolveMaterialId(mat);
 			if (!matId) {
 				return false;
 			}
-			var inventoryItem = inventoryUI.getItemById(matId);
-			var current = inventoryItem ? inventoryItem.count : 0;
+			const inventoryItem = inventoryUI.getItemById(matId);
+			const current = inventoryItem ? inventoryItem.count : 0;
 			if (current < required) {
 				return false;
 			}
@@ -778,23 +777,23 @@ void main() {\n\
 	}
 
 	function renderMaterials(materials) {
-		var list = Enchant.ui.find('.material_list');
+		const list = Enchant.ui.find('.material_list');
 		list.empty();
 		if (!materials || !materials.length) {
 			return;
 		}
-		var inventoryUI = Inventory.getUI && Inventory.getUI();
+		const inventoryUI = Inventory.getUI && Inventory.getUI();
 		materials.forEach(function (mat) {
-			var entry = jQuery('<div class="material"></div>');
-			var icon = jQuery('<div class="icon"></div>');
-			var name = jQuery('<div class="name"></div>');
-			var count = jQuery('<div class="count"></div>');
-			var matId = resolveMaterialId(mat);
-			var label = matId ? getItemDisplayName(matId, mat.base) : mat.base || 'Unknown';
-			var current = 0;
-			var required = Number(mat.count) || 0;
+			const entry = jQuery('<div class="material"></div>');
+			const icon = jQuery('<div class="icon"></div>');
+			const name = jQuery('<div class="name"></div>');
+			const count = jQuery('<div class="count"></div>');
+			const matId = resolveMaterialId(mat);
+			const label = matId ? getItemDisplayName(matId, mat.base) : mat.base || 'Unknown';
+			let current = 0;
+			const required = Number(mat.count) || 0;
 			if (matId && inventoryUI && inventoryUI.getItemById) {
-				var inventoryItem = inventoryUI.getItemById(matId);
+				const inventoryItem = inventoryUI.getItemById(matId);
 				current = inventoryItem ? inventoryItem.count : 0;
 			}
 			name.text(label);
@@ -817,21 +816,21 @@ void main() {\n\
 	}
 
 	function renderEnchantList(entries, selectedKey) {
-		var list = Enchant.ui.find('.enchant_list');
+		const list = Enchant.ui.find('.enchant_list');
 		list.empty();
 		if (!entries || !entries.length) {
 			return;
 		}
 		entries.forEach(function (entry) {
-			var row = jQuery('<div class="enchant_entry"></div>');
-			var icon = jQuery('<div class="entry_icon"></div>');
-			var text = jQuery('<div class="entry_text"></div>');
-			var name = jQuery('<div class="entry_name"></div>');
-			var itid = entry.id || (entry.base ? DB.getItemIdfromBase(entry.base) : 0);
+			const row = jQuery('<div class="enchant_entry"></div>');
+			const icon = jQuery('<div class="entry_icon"></div>');
+			const text = jQuery('<div class="entry_text"></div>');
+			const name = jQuery('<div class="entry_name"></div>');
+			const itid = entry.id || (entry.base ? DB.getItemIdfromBase(entry.base) : 0);
 			name.text(entry.label || '');
 			text.append(name);
 			if (entry.subLabel) {
-				var sub = jQuery('<div class="entry_sub"></div>');
+				const sub = jQuery('<div class="entry_sub"></div>');
 				sub.text(entry.subLabel);
 				text.append(sub);
 			}
@@ -854,7 +853,7 @@ void main() {\n\
 	}
 
 	function renderItemList() {
-		var list = Enchant.ui.find('.item_list');
+		const list = Enchant.ui.find('.item_list');
 		list.empty();
 
 		if (!EnchantState.group) {
@@ -862,14 +861,14 @@ void main() {\n\
 			return;
 		}
 
-		var inventoryUI = Inventory.getUI && Inventory.getUI();
-		var items = inventoryUI && inventoryUI.list ? inventoryUI.list : [];
-		var selectedIndex = EnchantState.item ? EnchantState.item.index : 0;
-		var selectedValid = false;
-		var candidates = [];
+		const inventoryUI = Inventory.getUI && Inventory.getUI();
+		const items = inventoryUI && inventoryUI.list ? inventoryUI.list : [];
+		let selectedIndex = EnchantState.item ? EnchantState.item.index : 0;
+		let selectedValid = false;
+		const candidates = [];
 
 		items.forEach(function (item) {
-			var result = validateItem(item);
+			const result = validateItem(item);
 			if (!result.ok) {
 				return;
 			}
@@ -894,12 +893,12 @@ void main() {\n\
 		}
 
 		candidates.forEach(function (item) {
-			var entry = jQuery('<button class="item_entry"></button>');
-			var slot = jQuery('<div class="item_slot"></div>');
-			var info = jQuery('<div class="item_info"></div>');
-			var name = jQuery('<div class="item_name"></div>');
-			var grade = jQuery('<div class="item_grade"></div>');
-			var itemName = DB.getItemName(item, {
+			const entry = jQuery('<button class="item_entry"></button>');
+			const slot = jQuery('<div class="item_slot"></div>');
+			const info = jQuery('<div class="item_info"></div>');
+			const name = jQuery('<div class="item_name"></div>');
+			const grade = jQuery('<div class="item_grade"></div>');
+			const itemName = DB.getItemName(item, {
 				showItemRefine: true,
 				showItemGrade: false,
 				showItemOptions: false
@@ -926,7 +925,7 @@ void main() {\n\
 	}
 
 	function renderItemPreview() {
-		var preview = Enchant.ui.find('.preview_item');
+		const preview = Enchant.ui.find('.preview_item');
 		preview.css('backgroundImage', '');
 		if (!EnchantState.item) {
 			return;
@@ -935,21 +934,21 @@ void main() {\n\
 	}
 
 	function renderSlots() {
-		var list = Enchant.ui.find('.slot_list');
-		var empty = list.find('.slot_empty');
+		const list = Enchant.ui.find('.slot_list');
+		let empty = list.find('.slot_empty');
 		if (!empty.length) {
 			empty = jQuery('<div class="slot_empty">Select an item</div>');
 			list.append(empty);
 		}
-		var hasItem = !!(EnchantState.item && EnchantState.group);
+		const hasItem = !!(EnchantState.item && EnchantState.group);
 		empty.toggle(!hasItem);
 
-		var baseSlots = hasItem ? getBaseSlotCount(EnchantState.item) : 0;
+		const baseSlots = hasItem ? getBaseSlotCount(EnchantState.item) : 0;
 		list.find('.slot_entry').each(function () {
-			var entry = jQuery(this);
-			var slotNum = parseInt(entry.attr('data-slot'), 10);
-			var icon = entry.find('.slot_icon');
-			var slotItem = hasItem ? getSlotValue(EnchantState.item, slotNum) : 0;
+			const entry = jQuery(this);
+			const slotNum = parseInt(entry.attr('data-slot'), 10);
+			const icon = entry.find('.slot_icon');
+			const slotItem = hasItem ? getSlotValue(EnchantState.item, slotNum) : 0;
 			entry.toggleClass('locked', hasItem && slotNum < baseSlots);
 			entry.toggleClass('active', hasItem && slotNum === EnchantState.selectedSlot);
 			entry.toggleClass('empty', !slotItem);
@@ -963,7 +962,7 @@ void main() {\n\
 
 	function updateTabs(availability) {
 		Enchant.ui.find('.action_tabs .tab').each(function () {
-			var action = this.dataset.action;
+			const action = this.dataset.action;
 			jQuery(this).toggleClass('active', EnchantState.action === action);
 			jQuery(this).toggleClass('disabled', availability && availability[action] === false);
 		});
@@ -977,8 +976,8 @@ void main() {\n\
 	}
 
 	function updateActionButton(enabled) {
-		var button = Enchant.ui.find('.action_btn');
-		var label = EnchantState.action === 'reset' ? 'Reset' : 'Enchant';
+		const button = Enchant.ui.find('.action_btn');
+		const label = EnchantState.action === 'reset' ? 'Reset' : 'Enchant';
 		button.text('');
 		button.attr('title', label);
 		button.toggleClass('disabled', !enabled);
@@ -986,30 +985,30 @@ void main() {\n\
 	}
 
 	function renderCosts(rate, zeny, materials) {
-		var zenyText = zeny != null ? formatZeny(zeny) : '';
+		const zenyText = zeny != null ? formatZeny(zeny) : '';
 		Enchant.ui.find('.zeny_cost').text(zenyText);
 		renderMaterials(materials);
 	}
 
 	function refreshActionContent() {
-		var group = EnchantState.group;
-		var item = EnchantState.item;
-		var actionReady = false;
-		var availability = {
+		const group = EnchantState.group;
+		const item = EnchantState.item;
+		let actionReady = false;
+		const availability = {
 			random: false,
 			perfect: false,
 			upgrade: false,
 			reset: false
 		};
-		var listEntries = [];
-		var selectedKey = null;
+		let listEntries = [];
+		let selectedKey = null;
 
 		Enchant.ui.find('.upgrade_result').text('');
 
 		if (group && item) {
-			var slotNum = getNextEnchantSlot(item, group);
-			var slotData = slotNum !== null ? group.slots[slotNum] : null;
-			var baseSlots = getBaseSlotCount(item);
+			const slotNum = getNextEnchantSlot(item, group);
+			const slotData = slotNum !== null ? group.slots[slotNum] : null;
+			const baseSlots = getBaseSlotCount(item);
 
 			if (slotData && slotData.random && Object.keys(slotData.random).length) {
 				availability.random = true;
@@ -1018,13 +1017,13 @@ void main() {\n\
 				availability.perfect = true;
 			}
 
-			var upgradeCandidates = getUpgradeCandidates(item, group);
+			const upgradeCandidates = getUpgradeCandidates(item, group);
 			if (upgradeCandidates.length) {
 				availability.upgrade = true;
 			}
 
-			var hasEnchant = false;
-			var slotOrder = group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
+			let hasEnchant = false;
+			const slotOrder = group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
 			slotOrder.forEach(function (orderSlot) {
 				if (orderSlot >= baseSlots && getSlotValue(item, orderSlot)) {
 					hasEnchant = true;
@@ -1035,7 +1034,7 @@ void main() {\n\
 			}
 
 			if (!availability[EnchantState.action]) {
-				var nextAction = Object.keys(availability).find(function (key) {
+				const nextAction = Object.keys(availability).find(function (key) {
 					return availability[key];
 				});
 				EnchantState.action = nextAction || EnchantState.action;
@@ -1047,17 +1046,17 @@ void main() {\n\
 			if (EnchantState.action === 'random') {
 				EnchantState.selectedSlot = slotNum;
 				if (slotData) {
-					var grade = getItemGrade(item);
-					var bonus = slotData.gradeBonus ? slotData.gradeBonus[grade] || 0 : 0;
-					var baseRate = slotData.successRate || 0;
-					var totalRate = Math.min(baseRate + bonus, 100000);
-					var require = slotData.require || { zeny: 0, materials: [] };
+					const grade = getItemGrade(item);
+					const bonus = slotData.gradeBonus ? slotData.gradeBonus[grade] || 0 : 0;
+					const baseRate = slotData.successRate || 0;
+					const totalRate = Math.min(baseRate + bonus, 100000);
+					const require = slotData.require || { zeny: 0, materials: [] };
 					renderCosts(totalRate, require.zeny, require.materials);
 					actionReady = availability.random && canAffordCost(require.zeny, require.materials);
 					if (slotData.random) {
-						var randomList = slotData.random[grade] || slotData.random[0] || [];
+						const randomList = slotData.random[grade] || slotData.random[0] || [];
 						listEntries = randomList.map(function (entry) {
-							var label = entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base;
+							const label = entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base;
 							return {
 								key: entry.id || entry.base || label,
 								id: entry.id,
@@ -1074,14 +1073,14 @@ void main() {\n\
 
 			if (EnchantState.action === 'perfect') {
 				EnchantState.selectedSlot = slotNum;
-				var select = Enchant.ui.find('.perfect_select');
+				const select = Enchant.ui.find('.perfect_select');
 				select.empty();
-				var perfectEntries = [];
+				const perfectEntries = [];
 				if (slotData && slotData.perfect) {
-					var perfectList = Object.keys(slotData.perfect);
+					const perfectList = Object.keys(slotData.perfect);
 					perfectList.forEach(function (key) {
-						var entry = slotData.perfect[key];
-						var label = entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base;
+						const entry = slotData.perfect[key];
+						const label = entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base;
 						select.append('<option value="' + key + '">' + label + '</option>');
 						perfectEntries.push({
 							key: key,
@@ -1093,7 +1092,7 @@ void main() {\n\
 					if (perfectList.length) {
 						if (EnchantState.selectedPerfect && slotData.perfect[EnchantState.selectedPerfect]) {
 							select.val(EnchantState.selectedPerfect);
-							var selected = slotData.perfect[EnchantState.selectedPerfect];
+							const selected = slotData.perfect[EnchantState.selectedPerfect];
 							renderCosts(100000, selected.zeny, selected.materials);
 							actionReady = availability.perfect && canAffordCost(selected.zeny, selected.materials);
 							selectedKey = EnchantState.selectedPerfect;
@@ -1112,16 +1111,16 @@ void main() {\n\
 			}
 
 			if (EnchantState.action === 'upgrade') {
-				var upgradeSelect = Enchant.ui.find('.upgrade_select');
+				const upgradeSelect = Enchant.ui.find('.upgrade_select');
 				upgradeSelect.empty();
-				var upgradeEntries = [];
+				const upgradeEntries = [];
 				if (upgradeCandidates.length) {
 					upgradeCandidates.forEach(function (candidate) {
-						var currentName = getItemDisplayName(candidate.currentId, candidate.baseName);
-						var resultId = candidate.entry.result
+						const currentName = getItemDisplayName(candidate.currentId, candidate.baseName);
+						const resultId = candidate.entry.result
 							? candidate.entry.result.id || DB.getItemIdfromBase(candidate.entry.result.base)
 							: 0;
-						var resultName = resultId
+						const resultName = resultId
 							? getItemDisplayName(resultId, candidate.entry.result.base)
 							: candidate.entry.result
 								? candidate.entry.result.base
@@ -1153,7 +1152,7 @@ void main() {\n\
 						EnchantState.selectedUpgradeSlot = upgradeCandidates[0].slotNum;
 					}
 					upgradeSelect.val(EnchantState.selectedUpgradeSlot);
-					var selectedEntry = upgradeCandidates.find(function (candidate) {
+					const selectedEntry = upgradeCandidates.find(function (candidate) {
 						return candidate.slotNum === EnchantState.selectedUpgradeSlot;
 					});
 					if (selectedEntry) {
@@ -1219,11 +1218,11 @@ void main() {\n\
 		if (!isTargetItem(item, EnchantState.group)) {
 			return { ok: false, message: 'Item is not valid for this enchant group.' };
 		}
-		var refine = item.RefiningLevel || item.refiningLevel || 0;
+		const refine = item.RefiningLevel || item.refiningLevel || 0;
 		if (refine < EnchantState.group.condition.minRefine) {
 			return { ok: false, message: 'Refine level too low.' };
 		}
-		var grade = getItemGrade(item);
+		const grade = getItemGrade(item);
 		if (grade < EnchantState.group.condition.minGrade) {
 			return { ok: false, message: 'Enchant grade too low.' };
 		}
@@ -1234,22 +1233,22 @@ void main() {\n\
 	}
 
 	function getInventoryItemByIndex(index) {
-		var inventoryUI = Inventory.getUI && Inventory.getUI();
+		const inventoryUI = Inventory.getUI && Inventory.getUI();
 		return inventoryUI && inventoryUI.getItemByIndex ? inventoryUI.getItemByIndex(index) : null;
 	}
 
 	function resolveItemContext(target) {
-		var node = jQuery(target);
-		var slotEntry = node.closest('.slot_entry');
+		const node = jQuery(target);
+		const slotEntry = node.closest('.slot_entry');
 		if (slotEntry.length) {
 			if (!EnchantState.item) {
 				return null;
 			}
-			var slotNum = parseInt(slotEntry.attr('data-slot'), 10);
+			const slotNum = parseInt(slotEntry.attr('data-slot'), 10);
 			if (isNaN(slotNum)) {
 				return null;
 			}
-			var slotItemId = getSlotValue(EnchantState.item, slotNum);
+			const slotItemId = getSlotValue(EnchantState.item, slotNum);
 			if (!slotItemId) {
 				return null;
 			}
@@ -1261,12 +1260,12 @@ void main() {\n\
 			};
 		}
 
-		var itemEntry = node.closest('.item_entry');
+		const itemEntry = node.closest('.item_entry');
 		if (itemEntry.length) {
-			var index = parseInt(itemEntry.attr('data-index'), 10);
-			var invItem = !isNaN(index) ? getInventoryItemByIndex(index) : null;
+			const index = parseInt(itemEntry.attr('data-index'), 10);
+			let invItem = !isNaN(index) ? getInventoryItemByIndex(index) : null;
 			if (!invItem) {
-				var itemId = parseInt(node.attr('data-itid'), 10);
+				const itemId = parseInt(node.attr('data-itid'), 10);
 				if (!isNaN(itemId) && itemId) {
 					invItem = { ITID: itemId, IsIdentified: 1 };
 				}
@@ -1279,10 +1278,10 @@ void main() {\n\
 			};
 		}
 
-		var materialIcon = node.closest('.material .icon');
+		const materialIcon = node.closest('.material .icon');
 		if (materialIcon.length) {
-			var matId = parseInt(materialIcon.attr('data-itid'), 10);
-			var matItem = !isNaN(matId) && matId ? { ITID: matId, IsIdentified: 1 } : null;
+			const matId = parseInt(materialIcon.attr('data-itid'), 10);
+			const matItem = !isNaN(matId) && matId ? { ITID: matId, IsIdentified: 1 } : null;
 			return {
 				item: matItem,
 				label: materialIcon.attr('data-name') || '',
@@ -1291,10 +1290,10 @@ void main() {\n\
 			};
 		}
 
-		var enchantEntry = node.closest('.enchant_entry');
+		const enchantEntry = node.closest('.enchant_entry');
 		if (enchantEntry.length) {
-			var enchantId = parseInt(enchantEntry.attr('data-itid'), 10);
-			var enchantItem = !isNaN(enchantId) && enchantId ? { ITID: enchantId, IsIdentified: 1 } : null;
+			const enchantId = parseInt(enchantEntry.attr('data-itid'), 10);
+			const enchantItem = !isNaN(enchantId) && enchantId ? { ITID: enchantId, IsIdentified: 1 } : null;
 			return {
 				item: enchantItem,
 				label: enchantEntry.attr('data-name') || '',
@@ -1307,11 +1306,11 @@ void main() {\n\
 	}
 
 	function onIconOver(event) {
-		var context = resolveItemContext(event.currentTarget);
+		const context = resolveItemContext(event.currentTarget);
 		if (!context) {
 			return;
 		}
-		var label = context.label;
+		let label = context.label;
 		if (context.item) {
 			label = DB.getItemName(context.item, { showItemOptions: false });
 		}
@@ -1328,7 +1327,7 @@ void main() {\n\
 	function onIconInfo(event) {
 		event.preventDefault();
 		event.stopImmediatePropagation();
-		var context = resolveItemContext(event.currentTarget);
+		const context = resolveItemContext(event.currentTarget);
 		if (context && context.item) {
 			showItemInfo(context.item);
 		}
@@ -1336,7 +1335,7 @@ void main() {\n\
 	}
 
 	function onActionSelect(event) {
-		var action = event.currentTarget.dataset.action;
+		const action = event.currentTarget.dataset.action;
 		if (jQuery(event.currentTarget).hasClass('disabled')) {
 			return;
 		}
@@ -1355,18 +1354,18 @@ void main() {\n\
 	}
 
 	function onEnchantListSelect(event) {
-		var entry = jQuery(event.currentTarget);
+		const entry = jQuery(event.currentTarget);
 		if (entry.hasClass('disabled')) {
 			return;
 		}
-		var key = entry.attr('data-key');
+		const key = entry.attr('data-key');
 		if (EnchantState.action === 'perfect') {
 			EnchantState.selectedPerfect = key;
 			refreshUI();
 			return;
 		}
 		if (EnchantState.action === 'upgrade') {
-			var slotNum = parseInt(key, 10);
+			const slotNum = parseInt(key, 10);
 			if (!isNaN(slotNum)) {
 				EnchantState.selectedUpgradeSlot = slotNum;
 				refreshUI();
@@ -1375,13 +1374,13 @@ void main() {\n\
 	}
 
 	function onItemSelect(event) {
-		var entry = jQuery(event.currentTarget);
-		var index = parseInt(entry.attr('data-index'), 10);
+		const entry = jQuery(event.currentTarget);
+		const index = parseInt(entry.attr('data-index'), 10);
 		if (isNaN(index)) {
 			return;
 		}
-		var inventoryUI = Inventory.getUI && Inventory.getUI();
-		var item = inventoryUI && inventoryUI.getItemByIndex ? inventoryUI.getItemByIndex(index) : null;
+		const inventoryUI = Inventory.getUI && Inventory.getUI();
+		const item = inventoryUI && inventoryUI.getItemByIndex ? inventoryUI.getItemByIndex(index) : null;
 		if (!item) {
 			return;
 		}
@@ -1396,9 +1395,9 @@ void main() {\n\
 			setStatus('Select an item first.', true);
 			return;
 		}
-		var pkt;
-		var slotNum = EnchantState.selectedSlot;
-		var itemIndex = EnchantState.itemIndex;
+		let pkt;
+		const slotNum = EnchantState.selectedSlot;
+		const itemIndex = EnchantState.itemIndex;
 
 		if (EnchantState.action === 'random') {
 			if (slotNum === null) {
@@ -1413,9 +1412,9 @@ void main() {\n\
 				setStatus('Select a perfect enchant.', true);
 				return;
 			}
-			var slotData = EnchantState.group.slots[slotNum];
-			var perfectEntry = slotData ? slotData.perfect[EnchantState.selectedPerfect] : null;
-			var perfectId = perfectEntry ? perfectEntry.id || DB.getItemIdfromBase(perfectEntry.base) : 0;
+			const slotData = EnchantState.group.slots[slotNum];
+			const perfectEntry = slotData ? slotData.perfect[EnchantState.selectedPerfect] : null;
+			const perfectId = perfectEntry ? perfectEntry.id || DB.getItemIdfromBase(perfectEntry.base) : 0;
 			if (!perfectEntry || !perfectId) {
 				setStatus('Invalid perfect enchant selection.', true);
 				return;
@@ -1463,8 +1462,8 @@ void main() {\n\
 			return;
 		}
 		if (action === 'reset') {
-			var baseSlots = getBaseSlotCount(item);
-			var slotOrder =
+			const baseSlots = getBaseSlotCount(item);
+			const slotOrder =
 				EnchantState.group && EnchantState.group.slotOrder && EnchantState.group.slotOrder.length
 					? EnchantState.group.slotOrder
 					: [0, 1, 2, 3];
@@ -1484,8 +1483,8 @@ void main() {\n\
 		if (!EnchantState.pending) {
 			return;
 		}
-		var message = DB.getMessage(pkt.msgId) || 'Enchant result: ' + pkt.msgId;
-		var isSuccess = pkt.msgId === 3857;
+		const message = DB.getMessage(pkt.msgId) || 'Enchant result: ' + pkt.msgId;
+		const isSuccess = pkt.msgId === 3857;
 		ChatBox.addText(message, ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 		playResultEffect(EnchantState.pending.action, isSuccess);
 		if (isSuccess) {
@@ -1508,7 +1507,7 @@ void main() {\n\
 			return;
 		}
 		if (PACKETVER.value >= 20211103) {
-			var pkt = new PACKET.CZ.CLOSE_UI_ENCHANT();
+			const pkt = new PACKET.CZ.CLOSE_UI_ENCHANT();
 			Network.sendPacket(pkt);
 		}
 		Enchant.remove();
@@ -1650,7 +1649,7 @@ void main() {\n\
 	};
 
 	Enchant.onRequestItemEnchant = function onRequestItemEnchant(item) {
-		var result = validateItem(item);
+		const result = validateItem(item);
 		if (!result.ok) {
 			setStatus(result.message, true);
 			return;
@@ -1669,6 +1668,4 @@ void main() {\n\
 	};
 
 	Network.hookPacket(PACKET.ZC.RESPONSE_ENCHANT, onEnchantResult);
-
-	return UIManager.addComponent(Enchant);
-});
+export default UIManager.addComponent(Enchant);

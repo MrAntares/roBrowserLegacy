@@ -1,13 +1,11 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('Vendors/lodash')) :
-		typeof define === 'function' && define.amd ? define(['exports', 'Vendors/lodash'], factory) :
-			(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory((global["wasmoon-lua5"] = global["wasmoon-lua5"] || {}, global["wasmoon-lua5"]["1"] = {}), global.lodash));
-})(this, (function (exports, lodash) {
-	'use strict';
+import lodash from 'lodash';
 
-	var _documentCurrentScript = typeof document !== 'undefined' ? document.currentScript : null;
+'use strict';
+var exports = {};
+
+	const _documentCurrentScript = typeof document !== 'undefined' ? document.currentScript : null;
 	function _interopNamespaceDefault(e) {
-		var n = Object.create(null);
+		const n = Object.create(null);
 		if (e) {
 			Object.keys(e).forEach(function (k) {
 				if (k !== 'default') {
@@ -2408,19 +2406,25 @@
 		}
 	}
 
-	exports.JsType = JsType;
-	exports.LUA_ENVIRONINDEX = LUA_ENVIRONINDEX;
-	exports.LUA_GLOBALSINDEX = LUA_GLOBALSINDEX;
-	exports.LUA_IDSIZE = LUA_IDSIZE;
-	exports.LUA_MULTRET = LUA_MULTRET;
-	exports.LUA_REGISTRYINDEX = LUA_REGISTRYINDEX;
-	exports.Lua = Lua;
-	exports.LuaApi = LuaApi;
-	exports.LuaGlobal = LuaGlobal;
-	exports.LuaMultiReturn = MultiReturn;
-	exports.LuaThread = LuaThread;
-	exports.LuaTimeoutError = LuaTimeoutError;
-	exports.PointerSize = PointerSize;
-	exports.mapTransform = mapTransform;
-
-}));
+	export default {
+		JsType: JsType,
+		LUA_ENVIRONINDEX: LUA_ENVIRONINDEX,
+		LUA_GLOBALSINDEX: LUA_GLOBALSINDEX,
+		LUA_IDSIZE: LUA_IDSIZE,
+		LUA_MULTRET: LUA_MULTRET,
+		LUA_REGISTRYINDEX: LUA_REGISTRYINDEX,
+		Lua: Lua,
+		LuaApi: LuaApi,
+		LuaGlobal: LuaGlobal,
+		LuaMultiReturn: MultiReturn,
+		LuaThread: LuaThread,
+		LuaTimeoutError: LuaTimeoutError,
+		PointerSize: PointerSize,
+		mapTransform: mapTransform,
+		LuaReturn: exports.LuaReturn,
+		LuaType: exports.LuaType,
+		LuaEventCodes: exports.LuaEventCodes,
+		LuaEventMasks: exports.LuaEventMasks,
+		LuaLibraries: exports.LuaLibraries,
+		DictType: exports.DictType
+	};

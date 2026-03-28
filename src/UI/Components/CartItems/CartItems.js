@@ -9,34 +9,32 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var ItemType = require('DB/Items/ItemType');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
-	var Session = require('Engine/SessionStorage');
-	var htmlText = require('text!./CartItems.html');
-	var cssText = require('text!./CartItems.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import ItemType from 'DB/Items/ItemType';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
+import Session from 'Engine/SessionStorage';
+import htmlText from './CartItems.html?raw';
+import cssText from './CartItems.css?raw';
+import Storage from 'UI/Components/Storage/Storage';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import Equipment from 'UI/Components/Equipment/Equipment';
 
 	/**
 	 * Create Component
 	 */
-	var CartItems = new UIComponent('CartItems', htmlText, cssText);
+	const CartItems = new UIComponent('CartItems', htmlText, cssText);
 
 	/**
 	 * Store inventory items
@@ -46,12 +44,12 @@ define(function (require) {
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	var _realSize = 0;
+	let _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CartItems',
 		{
 			x: 200,
@@ -201,8 +199,8 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	CartItems.getItemById = function GetItemById(id) {
-		var i, count;
-		var list = CartItems.list;
+		let i, count;
+		const list = CartItems.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -220,8 +218,8 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	CartItems.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list = CartItems.list;
+		let i, count;
+		const list = CartItems.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -237,12 +235,12 @@ define(function (require) {
 	 * if the item index is exist you should clear it;[skybook888]
 	 */
 	CartItems.setItems = function SetItems(items) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = items.length; i < count; ++i) {
-			var object = this.getItemByIndex(items[i].index);
+			const object = this.getItemByIndex(items[i].index);
 			if (object) {
-				var item = this.removeItem(object.index, object.count);
+				const item = this.removeItem(object.index, object.count);
 			}
 			if (this.addItemSub(items[i])) {
 				this.list.push(items[i]);
@@ -263,7 +261,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	CartItems.addItem = function AddItem(item) {
-		var object = this.getItemByIndex(item.index);
+		let object = this.getItemByIndex(item.index);
 
 		if (object) {
 			object.count += item.count;
@@ -289,8 +287,8 @@ define(function (require) {
 			return false;
 		}
 
-		var it = DB.getItemInfo(item.ITID);
-		var content = this.ui.find('.container .content');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.container .content');
 
 		content.append(
 			'<div class="item" data-index="' +
@@ -344,7 +342,7 @@ define(function (require) {
 	 * @param {number} count
 	 */
 	CartItems.removeItem = function RemoveItem(index, count) {
-		var item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
 		// do not remove item from inventory
@@ -364,7 +362,7 @@ define(function (require) {
 		this.list.splice(this.list.indexOf(item), 1);
 		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		var content = this.ui.find('.container .content');
+		const content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -379,7 +377,7 @@ define(function (require) {
 	 * @param {number} count
 	 */
 	CartItems.updateItem = function UpdateItem(index, count) {
-		var item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -397,7 +395,7 @@ define(function (require) {
 		this.list.splice(this.list.indexOf(item), 1);
 		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		var content = this.ui.find('.container .content');
+		const content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -415,21 +413,21 @@ define(function (require) {
 	 * Extend inventory window size
 	 */
 	function onResize() {
-		var ui = CartItems.ui;
-		var content = ui.find('.container .content');
-		var hide = ui.find('.hide');
-		var top = ui.position().top;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = CartItems.ui;
+		const content = ui.find('.container .content');
+		const hide = ui.find('.hide');
+		const top = ui.position().top;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraX = 23 + 16 + 16 - 30;
-			var extraY = 31 + 19 - 30;
+			const extraX = 23 + 16 + 16 - 30;
+			const extraY = 31 + 19 - 30;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 6), 9);
@@ -467,7 +465,7 @@ define(function (require) {
 	 * Hide/show inventory's content
 	 */
 	function onToggleReduction() {
-		var ui = CartItems.ui;
+		const ui = CartItems.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
@@ -501,7 +499,7 @@ define(function (require) {
 	 * @param {event}
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -525,13 +523,11 @@ define(function (require) {
 
 				switch (data.from) {
 					case 'Storage':
-						getModule('UI/Components/Storage/Storage').reqMoveItemToCart(item.index, parseInt(count, 10));
+						Storage.reqMoveItemToCart(item.index, parseInt(count, 10));
 						break;
 
 					case 'Inventory':
-						getModule('UI/Components/Inventory/Inventory')
-							.getUI()
-							.reqMoveItemToCart(item.index, parseInt(count, 10));
+						Inventory.getUI().reqMoveItemToCart(item.index, parseInt(count, 10));
 						break;
 				}
 			};
@@ -540,11 +536,11 @@ define(function (require) {
 
 		switch (data.from) {
 			case 'Storage':
-				getModule('UI/Components/Storage/Storage').reqMoveItemToCart(item.index, 1);
+				Storage.reqMoveItemToCart(item.index, 1);
 				break;
 
 			case 'Inventory':
-				getModule('UI/Components/Inventory/Inventory').getUI().reqMoveItemToCart(item.index, 1);
+				Inventory.getUI().reqMoveItemToCart(item.index, 1);
 				break;
 		}
 
@@ -555,7 +551,7 @@ define(function (require) {
 	 * Block the scroll to move 32px at each move
 	 */
 	function onScroll(event) {
-		var delta;
+		let delta;
 
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
@@ -575,8 +571,8 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = CartItems.getItemByIndex(idx);
 
 		if (!item) {
 			return;
@@ -592,8 +588,8 @@ define(function (require) {
 		}
 
 		// Get back data
-		var pos = jQuery(this).position();
-		var overlay = CartItems.ui.find('.overlay');
+		const pos = jQuery(this).position();
+		const overlay = CartItems.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -618,16 +614,16 @@ define(function (require) {
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = CartItems.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const img = new Image();
+		const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		img.decoding = 'async';
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
@@ -660,8 +656,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = CartItems.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -693,10 +689,8 @@ define(function (require) {
 		ItemInfo.uid = item.ITID;
 		ItemInfo.setItem(item);
 
-		var Equipment = getModule('UI/Components/Equipment/Equipment');
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
 		// Check if there is an equipped item in the same location
-		var compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -713,16 +707,14 @@ define(function (require) {
 	 * Alt Right Click Request Transfer
 	 */
 	function transferItemToOtherUI(item) {
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
-		var Storage = getModule('UI/Components/Storage/Storage');
-		var isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
-		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		const isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
+		const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 
 		if (!item) {
 			return false;
 		}
 
-		var count = item.count || 1;
+		const count = item.count || 1;
 
 		if (isStorageOpen) {
 			Storage.reqAddItemFromCart(item.index, count);
@@ -737,8 +729,8 @@ define(function (require) {
 	 * Ask to use an item
 	 */
 	function onItemUsed(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = CartItems.getItemByIndex(index);
 
 		if (item) {
 			CartItems.useItem(item);
@@ -754,5 +746,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(CartItems);
-});
+	export default UIManager.addComponent(CartItems);

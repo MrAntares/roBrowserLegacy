@@ -7,27 +7,23 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var SkillInfo = require('DB/Skills/SkillInfo');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var htmlText = require('text!./ItemSelection.html');
-	var cssText = require('text!./ItemSelection.css');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import htmlText from './ItemSelection.html?raw';
+import cssText from './ItemSelection.css?raw';
 
-	/**
+/**
 	 * Create ItemSelection namespace
 	 */
-	var ItemSelection = new UIComponent('ItemSelection', htmlText, cssText);
+	const ItemSelection = new UIComponent('ItemSelection', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -65,8 +61,8 @@ define(function (require) {
 	 * @param {Array} list object to display
 	 */
 	ItemSelection.setList = function setList(list, isSkill) {
-		var i, count;
-		var item, it, file, name;
+		let i, count;
+		let item, it, file, name;
 
 		ItemSelection.list.empty();
 
@@ -166,5 +162,4 @@ define(function (require) {
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(ItemSelection);
-});
+export default UIManager.addComponent(ItemSelection);

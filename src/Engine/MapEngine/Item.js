@@ -8,47 +8,45 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import Configs from 'Core/Configs';
+import EquipLocation from 'DB/Items/EquipmentLocation';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import ItemObject from 'Renderer/ItemObject';
+import Altitude from 'Renderer/Map/Altitude';
+import Session from 'Engine/SessionStorage';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import ItemObtain from 'UI/Components/ItemObtain/ItemObtain';
+import ItemSelection from 'UI/Components/ItemSelection/ItemSelection';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip';
+import Refine from 'UI/Components/Refine/Refine';
+import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip';
+import Storage from 'UI/Components/Storage/Storage';
+import MakeItemSelection from 'UI/Components/MakeItemSelection/MakeItemSelection';
+import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection';
+import EffectManager from 'Renderer/EffectManager';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var Configs = require('Core/Configs');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
-	var ItemObject = require('Renderer/ItemObject');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Session = require('Engine/SessionStorage');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var ItemObtain = require('UI/Components/ItemObtain/ItemObtain');
-	var ItemSelection = require('UI/Components/ItemSelection/ItemSelection');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var CartItems = require('UI/Components/CartItems/CartItems');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var PlayerViewEquip = require('UI/Components/PlayerViewEquip/PlayerViewEquip');
 	if (Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
-		var Refine = require('UI/Components/Refine/Refine');
 	}
-	var SwitchEquip = require('UI/Components/SwitchEquip/SwitchEquip');
-	var Storage = require('UI/Components/Storage/Storage');
-	var MakeItemSelection = require('UI/Components/MakeItemSelection/MakeItemSelection');
-	var ItemListWindowSelection = require('UI/Components/MakeItemSelection/ItemListWindowSelection');
-
-	var EffectManager = require('Renderer/EffectManager');
-
 	/**
 	 * Spam an item on the map
 	 *
 	 * @param {object} pkt - PACKET.ZC.ITEM_ENTRY
 	 */
 	function onItemExistInGround(pkt) {
-		var x = pkt.xPos - 0.5 + pkt.subX / 12;
-		var y = pkt.yPos - 0.5 + pkt.subY / 12;
-		var z = Altitude.getCellHeight(x, y);
+		const x = pkt.xPos - 0.5 + pkt.subX / 12;
+		const y = pkt.yPos - 0.5 + pkt.subY / 12;
+		const z = Altitude.getCellHeight(x, y);
 
 		ItemObject.add(pkt.ITAID, pkt.ITID, pkt.IsIdentified, pkt.count, x, y, z);
 	}
@@ -59,9 +57,9 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.ITEM_FALL_ENTRY
 	 */
 	function onItemSpamInGround(pkt) {
-		var x = pkt.xPos - 0.5 + pkt.subX / 12;
-		var y = pkt.yPos - 0.5 + pkt.subY / 12;
-		var z = Altitude.getCellHeight(x, y) + 5.0;
+		const x = pkt.xPos - 0.5 + pkt.subX / 12;
+		const y = pkt.yPos - 0.5 + pkt.subY / 12;
+		const z = Altitude.getCellHeight(x, y) + 5.0;
 
 		ItemObject.add(
 			pkt.ITAID,
@@ -100,7 +98,7 @@ define(function (require) {
 		ItemObtain.append();
 		ItemObtain.set(pkt);
 
-		var getTextItem = DB.getItemName(pkt, { showItemOptions: false });
+		const getTextItem = DB.getItemName(pkt, { showItemOptions: false });
 
 		ChatBox.addText(
 			DB.getMessage(153).replace('%s', getTextItem).replace('%d', pkt.count),
@@ -136,12 +134,12 @@ define(function (require) {
 	 */
 	function onEquipementTakeOff(pkt) {
 		if (pkt.result) {
-			var item = Equipment.getUI().unEquip(pkt.index, pkt.wearLocation);
+			const item = Equipment.getUI().unEquip(pkt.index, pkt.wearLocation);
 
 			if (item) {
 				item.WearState = 0;
 
-				var it = DB.getItemInfo(item.ITID);
+				const it = DB.getItemInfo(item.ITID);
 				ChatBox.addText(
 					it.identifiedDisplayName + ' ' + DB.getMessage(171),
 					ChatBox.TYPE.ERROR,
@@ -200,15 +198,15 @@ define(function (require) {
 	 */
 	function onItemEquip(pkt) {
 		if (pkt.result == 1) {
-			var item = Inventory.getUI().removeItem(pkt.index, 1);
+			const item = Inventory.getUI().removeItem(pkt.index, 1);
 			Equipment.getUI().equip(item, pkt.wearLocation);
 			ChatBox.addText(DB.getItemName(item) + ' ' + DB.getMessage(170), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 			// Variables for Headgear Checks
-			var CostumeCheckTop = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
-			var CostumeCheckMid = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
-			var CostumeCheckBot = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
-			var CostumeCheckRobe = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
+			const CostumeCheckTop = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
+			const CostumeCheckMid = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
+			const CostumeCheckBot = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
+			const CostumeCheckRobe = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
 
 			// Display
 			if (pkt.wearLocation & EquipLocation.HEAD_TOP) {
@@ -275,7 +273,7 @@ define(function (require) {
 	 * @param {number} account id
 	 */
 	Equipment.onCheckPlayerEquipment = function onCheckPlayerEquipment(AID) {
-		var pkt = new PACKET.CZ.EQUIPWIN_MICROSCOPE();
+		const pkt = new PACKET.CZ.EQUIPWIN_MICROSCOPE();
 		pkt.AID = AID;
 		Network.sendPacket(pkt);
 	};
@@ -298,14 +296,14 @@ define(function (require) {
 	 * @param {object} pkt - PACKET_ZC_EQUIP_ARROW
 	 */
 	function onArrowEquipped(pkt) {
-		var item = Inventory.getUI().getItemByIndex(pkt.index);
+		const item = Inventory.getUI().getItemByIndex(pkt.index);
 		Equipment.getUI().equip(item, EquipLocation.AMMO);
 	}
 
 	/**
 	 * @var {object} item
 	 */
-	var _cardComposition;
+	let _cardComposition;
 
 	/**
 	 * Ask to get a list of equipments where we can put a card
@@ -314,7 +312,7 @@ define(function (require) {
 	 */
 	function onUseCard(index) {
 		_cardComposition = index;
-		var pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION_LIST();
+		const pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION_LIST();
 		pkt.cardIndex = index;
 		Network.sendPacket(pkt);
 	}
@@ -329,14 +327,14 @@ define(function (require) {
 			return;
 		}
 
-		var card = Inventory.getUI().getItemByIndex(_cardComposition);
+		const card = Inventory.getUI().getItemByIndex(_cardComposition);
 
 		ItemSelection.append();
 		ItemSelection.setList(pkt.ITIDList);
 		ItemSelection.setTitle(DB.getMessage(522) + '(' + DB.getItemInfo(card.ITID).identifiedDisplayName + ')');
 		ItemSelection.onIndexSelected = function (index) {
 			if (index >= 0) {
-				var pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION();
+				const pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION();
 				pkt.cardIndex = _cardComposition;
 				pkt.equipIndex = index;
 				Network.sendPacket(pkt);
@@ -354,11 +352,11 @@ define(function (require) {
 	function onItemCompositionResult(pkt) {
 		switch (pkt.result) {
 			case 0: // success
-				var item = Inventory.getUI().removeItem(pkt.equipIndex, 1);
-				var card = Inventory.getUI().removeItem(pkt.cardIndex, 1);
+				const item = Inventory.getUI().removeItem(pkt.equipIndex, 1);
+				const card = Inventory.getUI().removeItem(pkt.cardIndex, 1);
 
 				if (item) {
-					for (var i = 0; i < 4; ++i) {
+					for (let i = 0; i < 4; ++i) {
 						if (!item.slot['card' + (i + 1)]) {
 							item.slot['card' + (i + 1)] = card.ITID;
 							break;
@@ -383,7 +381,7 @@ define(function (require) {
 		if (Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
 			Refine.onRefineResult(pkt);
 		} else {
-			var item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
+			const item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
 			if (item) {
 				item.RefiningLevel = pkt.RefiningLevel;
 				Inventory.getUI().addItem(item);
@@ -442,7 +440,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.MOVE_ITEM_FROM_CART_TO_BODY();
+		const pkt = new PACKET.CZ.MOVE_ITEM_FROM_CART_TO_BODY();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -453,7 +451,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_CART();
+		const pkt = new PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_CART();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -464,7 +462,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.REQ_ADD_ITEM_RODEX();
+		const pkt = new PACKET.CZ.REQ_ADD_ITEM_RODEX();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -501,7 +499,7 @@ define(function (require) {
 		MakeItemSelection.setTitle(DB.getMessage(425));
 		MakeItemSelection.onIndexSelected = function (index, material) {
 			if (index >= -1) {
-				var pkt = new PACKET.CZ.REQMAKINGITEM();
+				const pkt = new PACKET.CZ.REQMAKINGITEM();
 				pkt.itemList.ITID = index;
 				pkt.itemList.material_ID = {};
 				pkt.itemList.material_ID[0] = material[0] && material[0].ITID ? material[0].ITID : 0;
@@ -528,7 +526,7 @@ define(function (require) {
 	 * @param {object} inforMaterialList
 	 */
 	ItemListWindowSelection.onItemListWindowSelected = function onItemListWindowSelected(inforMaterialList) {
-		var pkt;
+		let pkt;
 		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.ITEMLISTWIN_RES2();
 		} else {
@@ -570,7 +568,7 @@ define(function (require) {
 		MakeItemSelection.setTitle(DB.getMessage(425));
 		MakeItemSelection.onIndexSelected = function (index, material, mkType) {
 			if (index >= -1) {
-				var pkt = new PACKET.CZ.REQ_MAKINGITEM();
+				const pkt = new PACKET.CZ.REQ_MAKINGITEM();
 				pkt.mkType = mkType;
 				pkt.id = index;
 				Network.sendPacket(pkt);
@@ -585,8 +583,8 @@ define(function (require) {
 	 */
 	function onBodyItemSize(pkt) {
 		if (pkt) {
-			var baselimit = 100; // Base Limit
-			var newlimit = baselimit + pkt.type;
+			const baselimit = 100; // Base Limit
+			const newlimit = baselimit + pkt.type;
 			Inventory.getUI().ui.find('.mcnt').text(newlimit);
 		}
 	}
@@ -658,7 +656,7 @@ define(function (require) {
 	function onFavItemList(pkt) {
 		if (pkt) {
 			// So if favorite is 0, we send 1 to change item.PlaceETCTab to 1
-			var isfavitem = pkt.favorite ? 0 : 1;
+			const isfavitem = pkt.favorite ? 0 : 1;
 			Inventory.getUI().updatePlaceETCTab(pkt.index, isfavitem);
 		}
 	}
@@ -716,7 +714,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function ItemEngine() {
+export default function ItemEngine() {
 		Network.hookPacket(PACKET.ZC.ITEM_ENTRY, onItemExistInGround);
 		Network.hookPacket(PACKET.ZC.ITEM_FALL_ENTRY, onItemSpamInGround);
 		Network.hookPacket(PACKET.ZC.ITEM_FALL_ENTRY2, onItemSpamInGround);
@@ -792,4 +790,3 @@ define(function (require) {
 		Inventory.getUI().onUseCard = onUseCard;
 		Inventory.getUI().reqMoveItemToCart = reqMoveItemToCart;
 	};
-});

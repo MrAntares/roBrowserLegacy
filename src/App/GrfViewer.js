@@ -8,27 +8,9 @@
  * @author Vincent Thibault
  */
 
-// Errors Handler (hack)
-require.onError = function (err) {
-	'use strict';
+import GRFViewer from 'UI/Components/GrfViewer/GrfViewer';
 
-	if (require.defined('UI/Components/Error/Error')) {
-		require('UI/Components/Error/Error').addTrace(err);
-		return;
-	}
-
-	require(['UI/Components/Error/Error'], function (Errors) {
-		Errors.addTrace(err);
-	});
-};
-
-require({
-	baseUrl: '../../src/',
-	paths: {
-		text: 'Vendors/text.require',
-		jquery: 'Vendors/jquery-1.9.1'
-	}
-}, ['UI/Components/GrfViewer/GrfViewer'], function (GRFViewer) {
+export default function init() {
 	'use strict';
 
 	GRFViewer.append();
@@ -36,4 +18,4 @@ require({
 	window.onbeforeunload = function () {
 		return 'Are you sure to exit ?';
 	};
-});
+}

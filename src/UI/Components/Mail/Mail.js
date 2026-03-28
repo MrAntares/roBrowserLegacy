@@ -6,33 +6,29 @@
  * @author Francisco Wallison
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var InputBox = require('UI/Components/InputBox/InputBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./Mail.html');
-	var cssText = require('text!./Mail.css');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import InputBox from 'UI/Components/InputBox/InputBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './Mail.html?raw';
+import cssText from './Mail.css?raw';
 
 	/**
 	 * Create Component
 	 */
-	var Mail = new UIComponent('Mail', htmlText, cssText);
+	const Mail = new UIComponent('Mail', htmlText, cssText);
 
 	/**
 	 * Store Mail items
@@ -50,12 +46,12 @@ define(function (require) {
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	var _realSize = 0;
+	const _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Mail',
 		{
 			x: 0,
@@ -122,7 +118,7 @@ define(function (require) {
 	 * @param {object} Item
 	 */
 	Mail.addItemSub = function AddItemSub(Index) {
-		let item = _preferences.item_add_email;
+		const item = _preferences.item_add_email;
 		if (item.index !== Index) {
 			return false;
 		}
@@ -132,8 +128,8 @@ define(function (require) {
 			return false;
 		}
 
-		var it = DB.getItemInfo(item.ITID);
-		var content = this.ui.find('.container_item');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.container_item');
 		this.ui.find('.item').remove();
 		content.append(
 			'<div class="item" data-index="' +
@@ -264,7 +260,7 @@ define(function (require) {
 	 * @returns {Item}
 	 */
 	Mail.getItemByIndex = function getItemByIndex(index) {
-		var list = _preferences.item_add_email;
+		const list = _preferences.item_add_email;
 
 		if (list.index == index) {
 			return list;
@@ -369,7 +365,7 @@ define(function (require) {
 	}
 
 	function createMailList() {
-		var content = Mail.ui.find('.list_item_mail');
+		const content = Mail.ui.find('.list_item_mail');
 		Mail.ui.find('.item_mail').remove();
 
 		if (Mail.list.length == 0) {
@@ -377,20 +373,20 @@ define(function (require) {
 		}
 
 		for (
-			var i = Mail.page * Mail.pageSize;
+			let i = Mail.page * Mail.pageSize;
 			i < Mail.list.mailList.length && i < (Mail.page + 1) * Mail.pageSize;
 			i++
 		) {
-			let from_name =
+			const from_name =
 				Mail.list.mailList[i].FromName.length > 15
 					? Mail.list.mailList[i].FromName.substring(0, 15) + '...'
 					: Mail.list.mailList[i].FromName;
-			let header =
+			const header =
 				Mail.list.mailList[i].HEADER.length > 23
 					? Mail.list.mailList[i].HEADER.substring(0, 23) + '...'
 					: Mail.list.mailList[i].HEADER;
-			let mailId = Mail.list.mailList[i].MailID;
-			let isOpen = Mail.list.mailList[i].isOpen;
+			const mailId = Mail.list.mailList[i].MailID;
+			const isOpen = Mail.list.mailList[i].isOpen;
 			content.append(
 				`<div class="item_mail">
 					<div class="envelop" style="flex: 1;">
@@ -461,7 +457,7 @@ define(function (require) {
 		if (Mail.list.length == 0) {
 			return;
 		}
-		let mailLength = Mail.list.mailList.length;
+		const mailLength = Mail.list.mailList.length;
 
 		if (!(Mail.page > mailLength / Mail.pageSize - 1)) {
 			addEventNextAndPrevAdd('next');
@@ -481,8 +477,8 @@ define(function (require) {
 	}
 
 	function addEventNextAndPrevAdd(eventName) {
-		var overlay = Mail.ui.find('.prev_next .overlay_' + eventName + '');
-		var text = Mail.ui.find('.prev_next .' + eventName + ' span');
+		const overlay = Mail.ui.find('.prev_next .overlay_' + eventName + '');
+		const text = Mail.ui.find('.prev_next .' + eventName + ' span');
 		text.addClass('event_add_cursor');
 		overlay.text(text.text());
 
@@ -500,8 +496,8 @@ define(function (require) {
 
 	function addEventNextAndPrevRemove(eventName) {
 		// Get back data
-		var overlay = Mail.ui.find('.prev_next .overlay_' + eventName + '');
-		var text = Mail.ui.find('.prev_next .' + eventName + ' span');
+		const overlay = Mail.ui.find('.prev_next .overlay_' + eventName + '');
+		const text = Mail.ui.find('.prev_next .' + eventName + ' span');
 		// Display box
 		overlay.hide();
 		text.removeClass('event_add_cursor');
@@ -533,7 +529,7 @@ define(function (require) {
 			return;
 		}
 
-		let send_message = {
+		const send_message = {
 			ReceiveName: to,
 			Header: title,
 			msg_len: message.length,
@@ -617,7 +613,7 @@ define(function (require) {
 	 * Drop an item in the equipment, equip it if possible
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -672,15 +668,15 @@ define(function (require) {
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = Mail.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Mail.getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = Mail.ui.find('.container_item .overlay');
+		const overlay = Mail.ui.find('.container_item .overlay');
 
 		// Display box
 		overlay.show();
@@ -704,16 +700,16 @@ define(function (require) {
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = Mail.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = Mail.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const img = new Image();
+		const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		img.decoding = 'async';
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
@@ -746,8 +742,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = Mail.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = Mail.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -784,10 +780,10 @@ define(function (require) {
 	 * @return {string}
 	 */
 	function prettifyZeny(value) {
-		var num = String(value);
-		var i = 0,
+		const num = String(value);
+		let i = 0,
 			len = num.length;
-		var out = '';
+		let out = '';
 
 		while (i < len) {
 			out = num[len - i - 1] + out;
@@ -808,15 +804,15 @@ define(function (require) {
 	 */
 	function formateDeleteTime(value) {
 		// convert unix timestamp to milliseconds
-		var ts_ms = value * 1000;
+		const ts_ms = value * 1000;
 		// initialize new Date object
-		var date_ob = new Date(ts_ms);
+		const date_ob = new Date(ts_ms);
 		// year as 4 digits (YYYY)
-		var year = date_ob.getFullYear();
+		const year = date_ob.getFullYear();
 		// month as 2 digits (MM)
-		var month = ('0' + (date_ob.getMonth() + 1)).slice(-2);
+		const month = ('0' + (date_ob.getMonth() + 1)).slice(-2);
 		// date as 2 digits (DD)
-		var date = ('0' + date_ob.getDate()).slice(-2);
+		const date = ('0' + date_ob.getDate()).slice(-2);
 
 		return month + ' ' + date + ' ' + (year + '').substring(2, 4);
 	}
@@ -832,7 +828,7 @@ define(function (require) {
 	 */
 	function onDropText(event) {
 		event.stopImmediatePropagation();
-		var data;
+		let data;
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 		} catch (e) {
@@ -852,14 +848,14 @@ define(function (require) {
 	 * Extend Mail window size
 	 */
 	function onResize() {
-		var ui = Mail.ui;
-		var top = ui.position().top;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = Mail.ui;
+		const top = ui.position().top;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraY = 31 + 19 - 30;
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			const extraY = 31 + 19 - 30;
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			h = Math.min(Math.max(h, 8), 17);
@@ -904,5 +900,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Mail);
-});
+	export default UIManager.addComponent(Mail);

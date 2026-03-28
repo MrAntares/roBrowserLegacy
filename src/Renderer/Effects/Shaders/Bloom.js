@@ -9,35 +9,31 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var GraphicsSettings = require('Preferences/Graphics');
-	var WebGL = require('Utils/WebGL');
-	var PostProcess = require('Renderer/Effects/PostProcess');
+import GraphicsSettings from 'Preferences/Graphics';
+import WebGL from 'Utils/WebGL';
+import PostProcess from 'Renderer/Effects/PostProcess';
+import commonVS from './GLSL/Common.vs?raw';
+import prefilterFS from './GLSL/Bloom.fs?raw';
+import compositeFS from './GLSL/BloomUpsampling.fs?raw';
 
-	var _programs = {};
-	var _buffer;
-	var _internalFbo;
-	var _downsampleFactor = 0.25; // 25% resolution for performance and softer blur
+let _programs = {};
+	let _buffer;
+	let _internalFbo;
+	const _downsampleFactor = 0.25; // 25% resolution for performance and softer blur
 
 	/**
 	 * Vertex Shader: Common quad
 	 */
-	var commonVS = require('text!./GLSL/Common.vs');
-
 	/**
 	 * Pass 1 Shader: Extract brightness (Threshold)
 	 * This runs on the small internal FBO.
 	 */
-	var prefilterFS = require('text!./GLSL/Bloom.fs');
-
 	/**
 	 * Pass 2 Shader: Composite
 	 * Mixes the sharp original scene with the blurred bloom texture.
 	 */
-	var compositeFS = require('text!./GLSL/BloomUpsampling.fs');
-
 	/**
 	 * @constructor Bloom
 	 */
@@ -63,7 +59,7 @@ define(function (require) {
 		// Update uniforms
 		gl.uniform1f(_programs.prefilter.uniform.uBloomThreshold, 0.88);
 		gl.uniform1f(_programs.prefilter.uniform.uBloomSoftKnee, 0.45);
-		var boxsampleFactor = 4.0;
+		const boxsampleFactor = 4.0;
 		gl.uniform2f(
 			_programs.prefilter.uniform.uTexelSize,
 			(1.0 / _internalFbo.width) * boxsampleFactor,
@@ -71,7 +67,7 @@ define(function (require) {
 		);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		var posLoc = _programs.prefilter.attribute.aPosition;
+		let posLoc = _programs.prefilter.attribute.aPosition;
 		gl.enableVertexAttribArray(posLoc);
 		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
@@ -126,7 +122,7 @@ define(function (require) {
 			return;
 		}
 
-		var quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+		const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
@@ -176,6 +172,4 @@ define(function (require) {
 		}
 		_internalFbo = null;
 	};
-
-	return Bloom;
-});
+export default Bloom;

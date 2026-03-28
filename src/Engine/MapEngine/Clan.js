@@ -7,24 +7,23 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Clan from 'UI/Components/Clan/Clan';
+import Session from 'Engine/SessionStorage';
+
+/**
 	 * Load dependencies
 	 */
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Clan = require('UI/Components/Clan/Clan');
-	var Session = require('Engine/SessionStorage');
-
 	/**
 	 * Clan data
 	 */
-	var clan = {};
+	let clan = {};
 
-	var RELATIONSHIP = {
+	const RELATIONSHIP = {
 		ALLY: 0,
 		ENEMY: 1
 	};
@@ -97,7 +96,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_CLAN_CHAT
 	 */
 	function onNotifyClanChat(pkt) {
-		let clan_message =
+		const clan_message =
 			pkt.memberName && pkt.memberName?.length > 0 ? pkt.memberName + ': ' + pkt.message : pkt.message;
 		ChatBox.addText(clan_message, ChatBox.TYPE.CLAN, ChatBox.FILTER.CLAN);
 	}
@@ -105,10 +104,9 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.CLANINFO, onClanInfo);
 		Network.hookPacket(PACKET.ZC.NOTIFY_CLAN_CONNECTINFO, onNotifyClanConnectInfo);
 		Network.hookPacket(PACKET.ZC.ACK_CLAN_LEAVE, onAckClanLeave);
 		Network.hookPacket(PACKET.ZC.NOTIFY_CLAN_CHAT, onNotifyClanChat);
 	};
-});

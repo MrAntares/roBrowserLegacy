@@ -7,26 +7,22 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var Preferences = require('Core/Preferences');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ChatRoomCreate.html');
-	var cssText = require('text!./ChatRoomCreate.css');
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import Preferences from 'Core/Preferences';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './ChatRoomCreate.html?raw';
+import cssText from './ChatRoomCreate.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var ChatRoomCreate = new UIComponent('ChatRoomCreate', htmlText, cssText);
+	const ChatRoomCreate = new UIComponent('ChatRoomCreate', htmlText, cssText);
 
 	/**
 	 * @var {string} chat room title
@@ -53,7 +49,7 @@ define(function (require) {
 	/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ChatRoomCreate',
 		{
 			x: 480,
@@ -96,7 +92,7 @@ define(function (require) {
 		});
 
 		// Escape key order
-		var events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 	};
 
@@ -190,11 +186,11 @@ define(function (require) {
 		this.password = this.ui.find('input[name=password]').val();
 
 		if (this.title.length < 1) {
-			var overlay = document.createElement('div');
+			const overlay = document.createElement('div');
 			overlay.className = 'win_popup_overlay';
 			document.body.appendChild(overlay);
 
-			var popup = UIManager.showMessageBox(
+			const popup = UIManager.showMessageBox(
 				DB.getMessage(13),
 				'ok',
 				function () {
@@ -222,5 +218,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ChatRoomCreate);
-});
+export default UIManager.addComponent(ChatRoomCreate);

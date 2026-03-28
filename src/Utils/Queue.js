@@ -1,62 +1,48 @@
+'use strict';
+
 /**
- * Utils/Queue.js
+ * Queue Constructor
  *
- * Queue System
- *
- * Helper to manage queue
- *
- * This file is part of ROBrowser, (http://www.robrowser.com/).
- *
- * @author Vincent Thibault
  */
+function Queue() {
+	this.list = [];
+}
 
-define(function () {
-	'use strict';
+/**
+ * Add function to queue
+ *
+ * @param {function} callback
+ */
+Queue.prototype.add = function Add(callback) {
+	this.list.push(callback);
+};
 
-	/**
-	 * Queue Constructor
-	 *
-	 */
-	function Queue() {
-		this.list = [];
+/**
+ * Continue the queue
+ */
+Queue.prototype._next = function _Next() {
+	if (this.list.length) {
+		this.list.shift().call(this);
 	}
+};
 
-	/**
-	 * Add function to queue
-	 *
-	 * @param {function} callback
-	 */
-	Queue.prototype.add = function Add(callback) {
-		this.list.push(callback);
-	};
-
-	/**
-	 * Continue the queue
-	 */
-	Queue.prototype._next = function _Next() {
-		if (this.list.length) {
-			this.list.shift().call(this);
-		}
-	};
-
-	/**
-	 * To avoid problem with constructor, define it
-	 */
-	Object.defineProperty(Queue.prototype, 'next', {
-		get: function () {
-			return this._next.bind(this);
-		}
-	});
-
-	/**
-	 * Start running queue
-	 */
-	Queue.prototype.run = function Run() {
-		this.next();
-	};
-
-	/**
-	 * Export
-	 */
-	return Queue;
+/**
+ * To avoid problem with constructor, define it
+ */
+Object.defineProperty(Queue.prototype, 'next', {
+	get: function () {
+		return this._next.bind(this);
+	}
 });
+
+/**
+ * Start running queue
+ */
+Queue.prototype.run = function Run() {
+	this.next();
+};
+
+/**
+ * Export
+ */
+export default Queue;

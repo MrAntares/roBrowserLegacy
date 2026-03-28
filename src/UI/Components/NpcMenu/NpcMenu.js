@@ -7,34 +7,30 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./NpcMenu.html');
-	var cssText = require('text!./NpcMenu.css');
+import jQuery from 'Utils/jquery';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './NpcMenu.html?raw';
+import cssText from './NpcMenu.css?raw';
 
-	/**
+/**
 	 * Create NPC Menu component
 	 */
-	var NpcMenu = new UIComponent('NpcMenu', htmlText, cssText);
+	const NpcMenu = new UIComponent('NpcMenu', htmlText, cssText);
 
 	/**
 	 * @var {number} index selected in menu
 	 */
-	var _index = 0;
+	let _index = 0;
 
 	/**
 	 * @var {number} NPC ID
 	 */
-	var _ownerID = 0;
+	let _ownerID = 0;
 
 	/**
 	 * Initialize component
@@ -50,7 +46,7 @@ define(function (require) {
 
 		this.draggable();
 
-		var self = this;
+		const self = this;
 		this.ui
 			.find('.content')
 
@@ -80,8 +76,8 @@ define(function (require) {
 	 * Bind KeyDown event
 	 */
 	NpcMenu.onKeyDown = function onKeyDown(event) {
-		var count, top;
-		var content;
+		let count, top;
+		let content;
 		if (!this.ui.is(':visible')) {
 			return true;
 		}
@@ -140,8 +136,8 @@ define(function (require) {
 	 * @param {number} gid - npc id
 	 */
 	NpcMenu.setMenu = function SetMenu(menu, gid) {
-		var content, list;
-		var i, j, count;
+		let content, list;
+		let i, j, count;
 
 		content = this.ui.find('.content');
 		list = menu.split(':');
@@ -192,5 +188,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(NpcMenu);
-});
+export default UIManager.addComponent(NpcMenu);

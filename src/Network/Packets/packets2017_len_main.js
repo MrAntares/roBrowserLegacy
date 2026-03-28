@@ -14,10 +14,9 @@
  * @author Alison Serafim
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	let length_list = new Array();
+	const length_list = new Array();
 
 	function init(packetver) {
 		// Packet: 0x0064
@@ -9101,7 +9100,6 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return {
+	export default {
 		init: init
 	};
-});

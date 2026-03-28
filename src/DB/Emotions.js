@@ -7,14 +7,12 @@
  *
  * @author Vincent Thibault
  */
-
-define(function () {
-	'use strict';
+'use strict';
 
 	/// Enum Emotions
 	/// [ <index in sprite>,  <index in interface> { <high priority shortcut>, <other shortcut>}]
 
-	var list = [
+	const list = [
 		// ET_SURPRISE = 0
 		[0, 0, '!'],
 
@@ -280,11 +278,11 @@ define(function () {
 		[86, -1]
 	];
 
-	var i, j, count, size;
-	var commands = {};
-	var names = {};
-	var indexes = {};
-	var order = {};
+	let i, j, count, size;
+	const commands = {};
+	const names = {};
+	const indexes = {};
+	const order = {};
 
 	for (i = 0, count = list.length; i < count; ++i) {
 		size = list[i].length;
@@ -308,10 +306,10 @@ define(function () {
 	/**
 	 * Exports
 	 */
-	return {
+	export default {
 		commands: commands,
 		names: names,
 		indexes: indexes,
 		order: order
 	};
-});
+

@@ -1,7 +1,9 @@
-define(['./SkillConst', 'DB/Jobs/JobConst'], function (SK, JobId) {
-	'use strict';
+'use strict';
 
-	var SkillTreeView = {};
+import SK from './SkillConst';
+import JobId from 'DB/Jobs/JobConst';
+
+	const SkillTreeView = {};
 
 	((SkillTreeView[JobId.NOVICE] = {
 		list: 1,
@@ -1650,8 +1652,8 @@ define(['./SkillConst', 'DB/Jobs/JobConst'], function (SK, JobId) {
 		}));
 
 	function duplicateEntry(origin) {
-		var value = SkillTreeView[origin];
-		var i,
+		const value = SkillTreeView[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {
@@ -1789,5 +1791,5 @@ define(['./SkillConst', 'DB/Jobs/JobConst'], function (SK, JobId) {
 	duplicateEntry(JobId.DRAGON_KNIGHT, JobId.DRAGON_KNIGHT2);
 	duplicateEntry(JobId.IMPERIAL_GUARD, JobId.IMPERIAL_GUARD2);
 	duplicateEntry(JobId.SKY_EMPEROR, JobId.SKY_EMPEROR2);
-	return SkillTreeView;
-});
+	
+	export default SkillTreeView;

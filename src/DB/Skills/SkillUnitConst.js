@@ -6,11 +6,9 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+	export default {
 		UNT_SAFETYWALL: 126, //0x7E
 		UNT_FIREWALL: 127, //0x7F
 		UNT_WARPPORTAL: 128, //0x80
@@ -196,4 +194,3 @@ define(function () {
 
 		UNT_MAX: 400 //0x190
 	};
-});

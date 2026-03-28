@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	return {
+export default {
 		HEALING: 0,
 		UNKNOWN: 1,
 		USABLE: 2,
@@ -27,4 +26,3 @@ define(function () {
 		CASH: 18,
 		SEARCH: 99 // used to filter search results in Storage
 	};
-});

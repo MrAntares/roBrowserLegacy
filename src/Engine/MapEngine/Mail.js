@@ -6,19 +6,18 @@
  * @author Francisco Wallison
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import Mail from 'UI/Components/Mail/Mail';
+import ReadMail from 'UI/Components/Mail/ReadMail';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var Mail = require('UI/Components/Mail/Mail');
-	var ReadMail = require('UI/Components/Mail/ReadMail');
-
 	/**
 	 * Request to send mail
 	 *
@@ -30,7 +29,7 @@ define(function (require) {
 	///    	msg_len
 	/// 	msg
 	Mail.parseMailSend = function parseMailSend(mail) {
-		var pkt = new PACKET.CZ.MAIL_SEND();
+		const pkt = new PACKET.CZ.MAIL_SEND();
 
 		pkt.ReceiveName = mail.ReceiveName.replace(/^(\$|\%)/, '').replace(/\t/g, '');
 		pkt.Header = mail.Header.replace(/^(\$|\%)/, '');
@@ -49,7 +48,7 @@ define(function (require) {
 	///     1 = remove item
 	///     2 = remove zeny
 	Mail.parseMailWinopen = function parseMailWinopen(type) {
-		var pkt = new PACKET.CZ.MAIL_RESET_ITEM();
+		const pkt = new PACKET.CZ.MAIL_RESET_ITEM();
 		pkt.Type = type;
 		Network.sendPacket(pkt);
 	};
@@ -67,7 +66,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.MAIL_ADD_ITEM();
+		const pkt = new PACKET.CZ.MAIL_ADD_ITEM();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -79,7 +78,7 @@ define(function (require) {
 	 * @param {int} MailID
 	 */
 	Mail.parseMailgetattach = function parseMailgetattach(MailID) {
-		var pkt = new PACKET.CZ.MAIL_GET_ITEM();
+		const pkt = new PACKET.CZ.MAIL_GET_ITEM();
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
 	};
@@ -89,7 +88,7 @@ define(function (require) {
 	 * CZ_MAIL_GET_LIST
 	 */
 	Mail.parseMailrefreshinbox = function parseMailrefreshinbox() {
-		var pkt = new PACKET.CZ.MAIL_GET_LIST();
+		const pkt = new PACKET.CZ.MAIL_GET_LIST();
 		Network.sendPacket(pkt);
 	};
 
@@ -100,7 +99,7 @@ define(function (require) {
 	 * @param {string} ReceiveName
 	 */
 	Mail.returnMail = function returnMail(MailID, ReceiveName) {
-		var pkt = new PACKET.CZ.REQ_MAIL_RETURN();
+		const pkt = new PACKET.CZ.REQ_MAIL_RETURN();
 		pkt.MailID = MailID;
 		pkt.ReceiveName = ReceiveName;
 		Network.sendPacket(pkt);
@@ -112,10 +111,10 @@ define(function (require) {
 	 * @param {int} MailID
 	 */
 	Mail.openMail = function openMail(MailID) {
-		var pkt = new PACKET.CZ.MAIL_OPEN();
+		const pkt = new PACKET.CZ.MAIL_OPEN();
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
-		let updateMail = {
+		const updateMail = {
 			MailID: MailID,
 			isOpen: 1
 		};
@@ -128,7 +127,7 @@ define(function (require) {
 	 * @param {int} MailID
 	 */
 	Mail.deleteMail = function deleteMail(MailID) {
-		var pkt = new PACKET.CZ.MAIL_DELETE();
+		const pkt = new PACKET.CZ.MAIL_DELETE();
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
 	};
@@ -242,7 +241,7 @@ define(function (require) {
 	 * @param {object} result
 	 */
 	function mailNew(result) {
-		let newMail = {
+		const newMail = {
 			DeleteTime: new Date().getTime() / 1000,
 			FromName: result.FromName,
 			HEADER: result.Header,
@@ -284,7 +283,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MailEngine() {
+export default function MailEngine() {
 		Network.hookPacket(PACKET.ZC.MAIL_WINDOWS, openWindowsMail);
 		Network.hookPacket(PACKET.ZC.MAIL_REQ_GET_LIST, mailRefreshinbox);
 		Network.hookPacket(PACKET.ZC.ACK_MAIL_ADD_ITEM, mailSetattachment);
@@ -295,4 +294,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.ACK_MAIL_RETURN, mailReturn);
 		Network.hookPacket(PACKET.ZC.MAIL_REQ_GET_ITEM, mailGetItem);
 	};
-});

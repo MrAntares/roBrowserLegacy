@@ -8,10 +8,11 @@
  * @author Alison Serafim
  */
 
-define(['./WeaponType'], function (WeaponType) {
-	'use strict';
+'use strict';
 
-	var WeaponTypeExpansion = {};
+import WeaponType from './WeaponType';
+
+const WeaponTypeExpansion = {};
 
 	WeaponTypeExpansion[WeaponType.Main_Gauche] = WeaponType.SHORTSWORD;
 	WeaponTypeExpansion[WeaponType.Stiletto] = WeaponType.SHORTSWORD;
@@ -86,5 +87,5 @@ define(['./WeaponType'], function (WeaponType) {
 	WeaponTypeExpansion[WeaponType.CandyCaneRod] = WeaponType.ROD;
 	WeaponTypeExpansion[WeaponType.FOXTAIL_METAL] = WeaponType.ROD;
 
-	return WeaponTypeExpansion;
-});
+export default WeaponTypeExpansion;
+

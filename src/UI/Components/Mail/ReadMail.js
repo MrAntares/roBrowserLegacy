@@ -6,31 +6,27 @@
  * @author Francisco Wallison
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ReadMail.html');
-	var cssText = require('text!./ReadMail.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Mail from 'UI/Components/Mail/Mail';
+import htmlText from './ReadMail.html?raw';
+import cssText from './ReadMail.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var ReadMail = new UIComponent('ReadMail', htmlText, cssText);
+	const ReadMail = new UIComponent('ReadMail', htmlText, cssText);
 
 	/**
 	 * Store ReadMail items
@@ -40,12 +36,12 @@ define(function (require) {
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	var _realSize = 0;
+	const _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ReadMail',
 		{
 			x: 0,
@@ -78,11 +74,11 @@ define(function (require) {
 
 		ReadMail.ui.css({
 			top: Math.min(
-				Math.max(0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('top'), 10)),
+				Math.max(0, parseInt(Mail.ui.css('top'), 10)),
 				Renderer.height - ReadMail.ui.height()
 			),
 			left: Math.min(
-				Math.max(0, parseInt(getModule('UI/Components/Mail/Mail').ui.css('left'), 10)) + 300,
+				Math.max(0, parseInt(Mail.ui.css('left'), 10)) + 300,
 				Renderer.width - ReadMail.ui.width()
 			)
 		});
@@ -112,9 +108,9 @@ define(function (require) {
 	ReadMail.openEmail = function openEmail(inforMail) {
 		ReadMail.remove();
 		ReadMail.append();
-		let textSender = inforMail.FromName;
-		let textTitle = inforMail.Header;
-		let textMessage = inforMail.msg === '(no message)' ? '' : inforMail.msg;
+		const textSender = inforMail.FromName;
+		const textTitle = inforMail.Header;
+		const textMessage = inforMail.msg === '(no message)' ? '' : inforMail.msg;
 
 		this.ui.find('.text_sender').text(textSender);
 		this.ui.find('.text_title').text(textTitle);
@@ -143,11 +139,11 @@ define(function (require) {
 
 	function addItemSub(itemMail) {
 		removeValueItemZeny();
-		var zenyItemContainer = ReadMail.ui.find('.zeny_item_container');
+		const zenyItemContainer = ReadMail.ui.find('.zeny_item_container');
 		if (itemMail.ITID != 0 && itemMail.count > 0) {
-			let item = itemMail;
-			var it = DB.getItemInfo(item.ITID);
-			var content = ReadMail.ui.find('.container_item');
+			const item = itemMail;
+			const it = DB.getItemInfo(item.ITID);
+			const content = ReadMail.ui.find('.container_item');
 			content.append(
 				'<div class="item" data-index="' +
 					item.index +
@@ -201,8 +197,8 @@ define(function (require) {
 		ReadMail.ui.find('.zeny_item_infor').click(function (event) {
 			event.stopImmediatePropagation();
 			if (!validItemMoneyExists()) {
-				let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
-				getModule('UI/Components/Mail/Mail').parseMailgetattach(mailID);
+				const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+				Mail.parseMailgetattach(mailID);
 			}
 		});
 	}
@@ -220,14 +216,14 @@ define(function (require) {
 	 */
 	function onItemOver(event) {
 		event.stopImmediatePropagation();
-		var item = _preferences.item_add_email;
+		const item = _preferences.item_add_email;
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = ReadMail.ui.find('.container_item .overlay');
+		const overlay = ReadMail.ui.find('.container_item .overlay');
 
 		// Display box
 		overlay.show();
@@ -246,7 +242,7 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var item = _preferences.item_add_email;
+		const item = _preferences.item_add_email;
 		if (!item) {
 			return false;
 		}
@@ -267,16 +263,16 @@ define(function (require) {
 
 	function replyMail(event) {
 		event.stopImmediatePropagation();
-		let textSender = ReadMail.ui.find('.text_sender').text();
-		getModule('UI/Components/Mail/Mail').replyNewMail(textSender);
+		const textSender = ReadMail.ui.find('.text_sender').text();
+		Mail.replyNewMail(textSender);
 	}
 
 	function deleteMail(event) {
 		event.stopImmediatePropagation();
 
 		if (validItemMoneyExists()) {
-			let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
-			getModule('UI/Components/Mail/Mail').deleteMail(mailID);
+			const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+			Mail.deleteMail(mailID);
 		} else {
 			ChatBox.addText(DB.getMessage(1105), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		}
@@ -294,9 +290,9 @@ define(function (require) {
 
 	function returnMail(event) {
 		event.stopImmediatePropagation();
-		let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
-		let textSender = ReadMail.ui.find('.text_sender').text();
-		getModule('UI/Components/Mail/Mail').returnMail(mailID, textSender);
+		const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+		const textSender = ReadMail.ui.find('.text_sender').text();
+		Mail.returnMail(mailID, textSender);
 	}
 
 	/**
@@ -304,15 +300,15 @@ define(function (require) {
 	 */
 	/*function onResize()
 	 {
-		var ui         = ReadMail.ui;
-		var top        = ui.position().top;
-		var lastHeight = 0;
-		var _Interval;
+		let ui         = ReadMail.ui;
+		let top        = ui.position().top;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing()
 		{
-			var extraY = 31 + 19 - 30;
-			var h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
+			let extraY = 31 + 19 - 30;
+			let h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
 
 			// Maximum and minimum window size
 			h = Math.min( Math.max(h, 8), 17);
@@ -344,10 +340,10 @@ define(function (require) {
 	 * @return {string}
 	 */
 	function prettifyZeny(value) {
-		var num = String(value);
-		var i = 0,
+		const num = String(value);
+		let i = 0,
 			len = num.length;
-		var out = '';
+		let out = '';
 
 		while (i < len) {
 			out = num[len - i - 1] + out;
@@ -372,5 +368,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ReadMail);
-});
+export default UIManager.addComponent(ReadMail);

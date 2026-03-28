@@ -7,37 +7,33 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var MonsterTable = require('DB/Monsters/MonsterTable');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var StatusConst = require('DB/Status/StatusState');
-	var Camera = require('Renderer/Camera');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var PACKETVER = require('Network/PacketVerManager');
-	var htmlText = require('text!./CharSelectV3.html');
-	var cssText = require('text!./CharSelectV3.css');
+import DB from 'DB/DBManager';
+import MonsterTable from 'DB/Monsters/MonsterTable';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import StatusConst from 'DB/Status/StatusState';
+import Camera from 'Renderer/Camera';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import PACKETVER from 'Network/PacketVerManager';
+import htmlText from './CharSelectV3.html?raw';
+import cssText from './CharSelectV3.css?raw';
 
-	/**
+/**
 	 * Create Chararacter Selection namespace
 	 */
-	var CharSelectV3 = new UIComponent('CharSelectV3', htmlText, cssText);
+	const CharSelectV3 = new UIComponent('CharSelectV3', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} save where the cursor position is
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CharSelectV3',
 		{
 			index: 0
@@ -48,48 +44,48 @@ define(function (require) {
 	/**
 	 * @var {number} max slots
 	 */
-	var _maxSlots = 3 * 9;
+	let _maxSlots = 3 * 9;
 
 	/**
 	 * var {Array} list of characters
 	 */
-	var _list = [];
+	const _list = [];
 
 	/**
 	 * @var {Array} list of characters (index by slot)
 	 */
-	var _slots = [];
+	const _slots = [];
 
 	/**
 	 * @var {Array} list of entities (index by slot)
 	 */
-	var _entitySlots = [];
+	const _entitySlots = [];
 
 	/**
 	 * @var {number} selector index
 	 */
-	var _index = 0;
+	let _index = 0;
 
 	/**
 	 * @var {Array} canvas context
 	 */
-	var _ctx = [];
+	const _ctx = [];
 
 	/**
 	 * var {number} sex
 	 */
-	var _sex = 0;
+	let _sex = 0;
 
 	/**
 	 * var {boolean} disable input
 	 */
-	var _disable_UI = false;
+	let _disable_UI = false;
 
 	/**
 	 * Initialize UI
 	 */
 	CharSelectV3.init = function Init() {
-		var ui = this.ui;
+		const ui = this.ui;
 
 		ui.css({
 			top: (Renderer.height - 358) / 2,
@@ -223,7 +219,7 @@ define(function (require) {
 		_list.length = 0;
 
 		if (pkt.charInfo) {
-			var i,
+			let i,
 				count = pkt.charInfo.length;
 			for (i = 0; i < count; ++i) {
 				CharSelectV3.addCharacter(pkt.charInfo[i]);
@@ -280,8 +276,8 @@ define(function (require) {
 				delete _slots[_index];
 				delete _entitySlots[_index];
 
-				var i = 0;
-				var count = _list.length;
+				let i = 0;
+				let count = _list.length;
 
 				while (i < count) {
 					if (_list[i].CharNum === _index) {
@@ -330,8 +326,8 @@ define(function (require) {
 
 		//Adjust from remaining time to fixed datetime
 		if (character.DeleteDate) {
-			var now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-			var timer =
+			const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+			const timer =
 				(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
 					? character.DeleteDate + now
 					: character.DeleteDate;
@@ -463,7 +459,7 @@ define(function (require) {
 		const seconds = datetime.getSeconds();
 
 		// Use the msgstringtable
-		let formattedDatetime = DB.getMessage(2097)
+		const formattedDatetime = DB.getMessage(2097)
 			.replace('%d', `${month}`)
 			.replace('%d', `${day}`)
 			.replace('%d', `${hours}`)
@@ -480,9 +476,9 @@ define(function (require) {
 	 */
 	CharSelectV3.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 		this.on('keydown');
-		var now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-		var result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
-		var info = _slots[_index];
+		const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+		const result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
+		const info = _slots[_index];
 
 		switch (result) {
 			case 0: // 0: An unknown error has occurred.
@@ -490,7 +486,7 @@ define(function (require) {
 
 			case 1: // 1: none/success
 				//Adjust from remaining time to fixed datetime
-				var timer =
+				const timer =
 					(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
 						? pkt.DeleteReservedDate + now
 						: pkt.DeleteReservedDate;
@@ -607,13 +603,13 @@ define(function (require) {
 	 * @param {number} index
 	 */
 	function moveCursorTo(index) {
-		var ui = CharSelectV3.ui;
-		var $charinfo = ui.find('.charinfo');
+		const ui = CharSelectV3.ui;
+		const $charinfo = ui.find('.charinfo');
 
 		// Set the last entity to idle
-		var entity = _entitySlots[_index];
-		var info = _slots[_index];
-		var action;
+		let entity = _entitySlots[_index];
+		let info = _slots[_index];
+		let action;
 		if (entity) {
 			if (info.DeleteDate) {
 				action = entity.ACTION.SIT;
@@ -651,7 +647,7 @@ define(function (require) {
 		ui.find('.pageinfo').css('left', 576 / 2 - (_maxSlots / 3) * 8);
 
 		// show make add button
-		var mix = (index + 1) % 3 === 0 ? index + 1 - 3 : index + 1 - ((index + 1) % 3);
+		let mix = (index + 1) % 3 === 0 ? index + 1 - 3 : index + 1 - ((index + 1) % 3);
 		mix = mix >= _maxSlots ? 0 : mix;
 		for (var i = 1; i <= 3; i++) {
 			ui.find('.make' + i).hide();
@@ -662,7 +658,7 @@ define(function (require) {
 
 		// Update page deltimes
 		for (let i = 0; i < 3; i++) {
-			let tmpIndex = _index - (_index % 3) + i;
+			const tmpIndex = _index - (_index % 3) + i;
 			info = _slots[tmpIndex];
 			entity = _entitySlots[tmpIndex];
 			const countdown = CharSelectV3.ui.find('.timedelete.slot' + ((tmpIndex % 3) + 1));
@@ -734,7 +730,7 @@ define(function (require) {
 			repeat: true
 		});
 
-		var info = _slots[_index];
+		info = _slots[_index];
 		$charinfo.find('.name').text(info.name);
 		$charinfo.find('.job').text(MonsterTable[info.job] || '');
 		$charinfo.find('.lvl').text(info.level);
@@ -756,7 +752,7 @@ define(function (require) {
 	 * Render sprites to canvas
 	 */
 	function render() {
-		var i, count, idx;
+		let i, count, idx;
 
 		Camera.direction = 4;
 		idx = Math.floor(_index / 3) * 3;
@@ -775,5 +771,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(CharSelectV3);
-});
+export default UIManager.addComponent(CharSelectV3);

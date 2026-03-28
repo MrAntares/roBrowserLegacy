@@ -11,14 +11,13 @@
  * @author Vincent Thibault
  */
 
-define([
-	'Core/Client',
-	'Preferences/Audio',
-	'Core/MemoryManager',
-	'Utils/gl-matrix',
-	'Engine/SessionStorage'
-], function (Client, Preferences, Memory, glMatrix, Session) {
-	'use strict';
+'use strict';
+
+import Client from 'Core/Client';
+import Preferences from 'Preferences/Audio';
+import Memory from 'Core/MemoryManager';
+import glMatrix from 'Utils/gl-matrix';
+import Session from 'Engine/SessionStorage';
 
 	const C_MAX_SOUND_INSTANCES = 10; //starting max, later balanced based on mediaPlayerCount
 	const C_MAX_CACHED_SOUND_INSTANCES = 30; //starting max, later balanced based on mediaPlayerCount
@@ -29,22 +28,22 @@ define([
 	/**
 	 * Sound memory
 	 */
-	var _sounds = {};
+	const _sounds = {};
 
 	/**
 	 * Re-usable sounds
 	 */
-	var _cache = {};
+	const _cache = {};
 
 	/**
 	 * @Number of existing HTML Media players in the DOM
 	 */
-	var mediaPlayerCount = 0;
+	let mediaPlayerCount = 0;
 
 	/**
 	 * @Constructor
 	 */
-	var SoundManager = {};
+	const SoundManager = {};
 
 	/**
 	 * @var {float} sound volume
@@ -59,7 +58,7 @@ define([
 	 * @param {optional|number} vol (volume)
 	 */
 	SoundManager.play = function play(filename, vol) {
-		var volume;
+		let volume;
 
 		// Sound volume * Global volume
 		if (vol) {
@@ -80,7 +79,7 @@ define([
 		}
 
 		// Re-usable sound
-		var sound = getSoundFromCache(filename);
+		const sound = getSoundFromCache(filename);
 		if (sound) {
 			sound.volume = Math.min(volume, 1.0);
 			sound._volume = volume;
@@ -92,7 +91,7 @@ define([
 
 		// Get the sound from client.
 		Client.loadFile('data/wav/' + filename, function (url) {
-			var sound;
+			let sound;
 			if (!(filename in _sounds)) {
 				return;
 			}
@@ -141,12 +140,12 @@ define([
 	 * @param {optional|string} filename to stop
 	 */
 	SoundManager.stop = function stop(filename) {
-		var i, count, list;
+		let i, count, list;
 
 		if (filename) {
 			if (filename in _sounds) {
 				while (_sounds[filename].instances.length > 0) {
-					var sound = _sounds[filename].instances.shift();
+					const sound = _sounds[filename].instances.shift();
 					sound.pause();
 					sound.remove();
 					mediaPlayerCount--;
@@ -159,7 +158,7 @@ define([
 		// Remove from memory
 		Object.keys(_sounds).forEach(key => {
 			while (_sounds[key].instances.length > 0) {
-				var sound = _sounds[key].instances.shift();
+				const sound = _sounds[key].instances.shift();
 				sound.pause();
 				sound.remove();
 				mediaPlayerCount--;
@@ -199,7 +198,7 @@ define([
 	 */
 	function onSoundEnded() {
 		if (_sounds[this.filename]) {
-			var pos = _sounds[this.filename].instances.indexOf(this);
+			const pos = _sounds[this.filename].instances.indexOf(this);
 
 			if (pos !== -1) {
 				_sounds[this.filename].instances.splice(pos, 1);
@@ -216,7 +215,7 @@ define([
 	 * Clear sound from dom on error
 	 */
 	function onSoundError() {
-		var pos = _sounds[this.filename].instances.indexOf(this);
+		const pos = _sounds[this.filename].instances.indexOf(this);
 
 		if (pos !== -1) {
 			_sounds[this.filename].instances.splice(pos, 1);
@@ -264,7 +263,7 @@ define([
 	 * @param {Audio} sound element
 	 */
 	function getSoundFromCache(filename) {
-		var out = null;
+		let out = null;
 
 		if (filename in _cache) {
 			if (_cache[filename].instances.length > 0) {
@@ -285,7 +284,7 @@ define([
 	 */
 	function cleanupCache(sound) {
 		if (sound.filename && sound.filename in _cache && _cache[sound.filename].instances.length > 0) {
-			var pos = _cache[sound.filename].instances.indexOf(sound);
+			const pos = _cache[sound.filename].instances.indexOf(sound);
 
 			if (pos !== -1) {
 				_cache[sound.filename].instances.splice(pos, 1);
@@ -309,7 +308,6 @@ define([
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return SoundManager;
-});
+	export default SoundManager;

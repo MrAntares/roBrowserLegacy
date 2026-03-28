@@ -7,40 +7,36 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var KEYS = require('Controls/KeyEventHandler');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./Bank.html');
-	var cssText = require('text!./Bank.css');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import KEYS from 'Controls/KeyEventHandler';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './Bank.html?raw';
+import cssText from './Bank.css?raw';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 	/**
 	 * Create Component
 	 */
-	var Bank = new UIComponent('Bank', htmlText, cssText);
+	const Bank = new UIComponent('Bank', htmlText, cssText);
 
 	/**
 	 *  Max Int
 	 */
-	var maxInt = 2147483647;
+	const maxInt = 2147483647;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Bank',
 		{
 			x: 230,
@@ -135,7 +131,7 @@ define(function (require) {
 	 * Input box auto select
 	 */
 	function selectAllText() {
-		var input = Bank.ui.find('.depo');
+		const input = Bank.ui.find('.depo');
 		input.select();
 	}
 
@@ -144,7 +140,7 @@ define(function (require) {
 	 * Most checks and error messages were from client
 	 */
 	function CheckValue(value) {
-		var error = Bank.ui.find('.errorupdate');
+		const error = Bank.ui.find('.errorupdate');
 
 		if (value === '') {
 			// Input is blank
@@ -189,7 +185,7 @@ define(function (require) {
 	 * Send Request to server to deposit
 	 */
 	function sendDepositRequest(value) {
-		var input = Bank.ui.find('.depo');
+		const input = Bank.ui.find('.depo');
 
 		if (CheckValue(value) === false) {
 			input.val('');
@@ -198,13 +194,13 @@ define(function (require) {
 
 		if (value === 'MAX') {
 			// Input is MAX (Deposit max zeny value)
-			var inbank = Bank.ui.find('.inbank.currency').text();
-			var getval = parseInt(getIntValueFromFormattedString(inbank));
+			const inbank = Bank.ui.find('.inbank.currency').text();
+			const getval = parseInt(getIntValueFromFormattedString(inbank));
 			if (Session.zeny + getval > maxInt && getval < maxInt) {
 				value = parseInt(maxInt) - getval;
 			} else {
 				if (Session.zeny === 0) {
-					var error = Bank.ui.find('.errorupdate');
+					const error = Bank.ui.find('.errorupdate');
 					if (error) {
 						error.text(DB.getMessage(2785));
 					}
@@ -217,7 +213,7 @@ define(function (require) {
 			}
 		}
 
-		var pkt = new PACKET.CZ.REQ_BANKING_DEPOSIT();
+		const pkt = new PACKET.CZ.REQ_BANKING_DEPOSIT();
 		pkt.AID = Session.AID;
 		pkt.money = value;
 		Network.sendPacket(pkt);
@@ -229,8 +225,8 @@ define(function (require) {
 	 * Send Request to server to withdraw
 	 */
 	function sendWithdrawRequest(value) {
-		var input = Bank.ui.find('.depo');
-		var error = Bank.ui.find('.errorupdate');
+		const input = Bank.ui.find('.depo');
+		const error = Bank.ui.find('.errorupdate');
 
 		if (CheckValue(value) === false) {
 			input.val('');
@@ -238,8 +234,8 @@ define(function (require) {
 		}
 
 		if (value === 'MAX') {
-			var inbank = Bank.ui.find('.inbank.currency').text();
-			var getval = parseInt(getIntValueFromFormattedString(inbank));
+			const inbank = Bank.ui.find('.inbank.currency').text();
+			const getval = parseInt(getIntValueFromFormattedString(inbank));
 			if (Session.zeny + getval > maxInt && Session.zeny < maxInt) {
 				value = parseInt(maxInt) - Session.zeny;
 			} else if (getval === 0) {
@@ -263,7 +259,7 @@ define(function (require) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.REQ_BANKING_WITHDRAW();
+		const pkt = new PACKET.CZ.REQ_BANKING_WITHDRAW();
 		pkt.AID = Session.AID;
 		pkt.money = value;
 		Network.sendPacket(pkt);
@@ -295,7 +291,7 @@ define(function (require) {
 	 */
 	Bank.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		var events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		// Apply preferences
@@ -304,7 +300,7 @@ define(function (require) {
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		var input = Bank.ui.find('.depo');
+		const input = Bank.ui.find('.depo');
 		input.val('');
 		input.focus();
 	};
@@ -349,7 +345,7 @@ define(function (require) {
 	 * Request to open bank
 	 */
 	function reqOpenBank() {
-		var pkt = new PACKET.CZ.REQ_BANK_OPEN();
+		const pkt = new PACKET.CZ.REQ_BANK_OPEN();
 		pkt.AID = Session.AID;
 		Network.sendPacket(pkt);
 	}
@@ -358,7 +354,7 @@ define(function (require) {
 	 * Request to close bank
 	 */
 	function reqCloseBank() {
-		var pkt = new PACKET.CZ.REQ_BANK_CLOSE();
+		const pkt = new PACKET.CZ.REQ_BANK_CLOSE();
 		pkt.AID = Session.AID;
 		Network.sendPacket(pkt);
 	}
@@ -373,12 +369,11 @@ define(function (require) {
 		_preferences.save();
 
 		//Cleanup
-		var error = Bank.ui.find('.errorupdate');
+		const error = Bank.ui.find('.errorupdate');
 		error.empty();
 	};
 
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Bank);
-});
+	export default UIManager.addComponent(Bank);

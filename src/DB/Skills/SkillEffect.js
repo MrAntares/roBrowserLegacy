@@ -41,10 +41,11 @@
  *
  */
 
-define(['./SkillConst'], function (SK) {
-	'use strict';
+'use strict';
 
-	var SkillEffect = {};
+import SK from './SkillConst';
+
+	const SkillEffect = {};
 
 	// Swordman
 	SkillEffect[SK.SM_BASH] = { beginCastEffectId: 16, hitEffectId: 1 }; //Bash
@@ -1181,5 +1182,4 @@ define(['./SkillConst'], function (SK) {
 	SkillEffect[SK.GD_EMERGENCYCALL] = {}; //Urgent Call
 	SkillEffect[SK.GD_ITEMEMERGENCYCALL] = {}; //Item Emergency Call
 
-	return SkillEffect;
-});
+	export default SkillEffect;

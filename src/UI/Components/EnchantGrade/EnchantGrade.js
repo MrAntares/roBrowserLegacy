@@ -5,34 +5,30 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var EffectConst = require('DB/Effects/EffectConst');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var EffectManager = require('Renderer/EffectManager');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Announce = require('UI/Components/Announce/Announce');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Equipment = require('UI/Components/Equipment/Equipment');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ItemCompare = require('UI/Components/ItemCompare/ItemCompare');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./EnchantGrade.html');
-	var cssText = require('text!./EnchantGrade.css');
+import DB from 'DB/DBManager';
+import EffectConst from 'DB/Effects/EffectConst';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import EffectManager from 'Renderer/EffectManager';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Announce from 'UI/Components/Announce/Announce';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Equipment from 'UI/Components/Equipment/Equipment';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './EnchantGrade.html?raw';
+import cssText from './EnchantGrade.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var EnchantGrade = new UIComponent('EnchantGrade', htmlText, cssText);
+	const EnchantGrade = new UIComponent('EnchantGrade', htmlText, cssText);
 
 	/**
 	 * Variables for current EnchantGrade Session
@@ -159,15 +155,15 @@ define(function (require) {
 	EnchantGrade.onOpenEnchantGradeUI = function onOpenEnchantGradeUI() {
 		EnchantGrade.append();
 
-		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 
 		if (!isInventoryOpen) {
 			Inventory.getUI().toggle();
 		}
 
-		var EnchantGradeInfoPos = EnchantGrade.ui.offset();
-		var EnchantGradeWidth = EnchantGrade.ui.outerWidth();
-		var EnchantGradeHeight = EnchantGrade.ui.outerHeight() - Inventory.getUI().ui.outerHeight();
+		const EnchantGradeInfoPos = EnchantGrade.ui.offset();
+		const EnchantGradeWidth = EnchantGrade.ui.outerWidth();
+		const EnchantGradeHeight = EnchantGrade.ui.outerHeight() - Inventory.getUI().ui.outerHeight();
 
 		Inventory.getUI().ui.css({
 			position: 'absolute',
@@ -184,7 +180,7 @@ define(function (require) {
 	function onEnchantGradeClose() {
 		EnchantGrade.remove();
 
-		var pkt = new PACKET.CZ.GRADE_ENCHANT_CLOSE_UI();
+		const pkt = new PACKET.CZ.GRADE_ENCHANT_CLOSE_UI();
 		Network.sendPacket(pkt);
 
 		return false;
@@ -206,7 +202,7 @@ define(function (require) {
 		}
 
 		let currentImageIndex = 0;
-		let imageArray = images[phase];
+		const imageArray = images[phase];
 
 		if (!imageArray) {
 			console.error('Invalid phase:', phase);
@@ -259,7 +255,7 @@ define(function (require) {
 	 * @param {event}
 	 */
 	function onItemDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -283,7 +279,7 @@ define(function (require) {
 	 * Handles sending the server packet request to EnchantGrade an item
 	 */
 	EnchantGrade.onRequestItemEnchantGrade = function onRequestItemEnchantGrade(item) {
-		var pkt;
+		let pkt;
 		pkt = new PACKET.CZ.GRADE_ENCHANT_SELECT_EQUIPMENT();
 		pkt.index = item.index;
 		Network.sendPacket(pkt);
@@ -314,7 +310,7 @@ define(function (require) {
 			disableDropProxy();
 
 			// Check if there is already an item in EnchantGrade UI
-			var existingItem = EnchantGrade.ui.find('.enchant_container .item');
+			const existingItem = EnchantGrade.ui.find('.enchant_container .item');
 			if (existingItem.length > 0) {
 				// Remove existing item from EnchantGrade UI
 				onRemoveItem();
@@ -322,7 +318,7 @@ define(function (require) {
 
 			EnchantGrade_item_index = pkt.index;
 			EnchantGrade_current_success = pkt.success_chance;
-			var item = Inventory.getUI().getItemByIndex(pkt.index);
+			const item = Inventory.getUI().getItemByIndex(pkt.index);
 
 			gradingMaterials = pkt.materialList;
 
@@ -333,8 +329,8 @@ define(function (require) {
 			clearTimeout(EnchantGrade.imageLoopTimeout['idle']);
 			controlPhase('idle', true, 225, '.grade_tank_container');
 
-			var it = DB.getItemInfo(item.ITID);
-			var content = EnchantGrade.ui.find('.enchant_container');
+			const it = DB.getItemInfo(item.ITID);
+			const content = EnchantGrade.ui.find('.enchant_container');
 
 			// Notification Area
 			EnchantGrade_can_cont = EnchantGrade_current_success > 0 ? true : false;
@@ -374,11 +370,11 @@ define(function (require) {
 			}
 
 			// Update success chance
-			var gradeChance = EnchantGrade.ui.find('.probability');
+			const gradeChance = EnchantGrade.ui.find('.probability');
 			gradeChance.text(EnchantGrade_current_success + '%');
 
 			// Update zeny cost Area
-			var zenyCost = EnchantGrade.ui.find('.zeny_cost_container');
+			const zenyCost = EnchantGrade.ui.find('.zeny_cost_container');
 			zenyCost.text('0');
 
 			// Blessing Info
@@ -509,11 +505,11 @@ define(function (require) {
 		EnchantGrade.ui.find('.material_slot').empty();
 
 		// Update materials
-		for (var i = 0; i < gradingMaterials.length; i++) {
+		for (let i = 0; i < gradingMaterials.length; i++) {
 			(function (i) {
-				var material = gradingMaterials[i];
-				var it = DB.getItemInfo(material.itemId);
-				var materialDiv = EnchantGrade.ui.find('.material_slot' + (i + 1));
+				const material = gradingMaterials[i];
+				const it = DB.getItemInfo(material.itemId);
+				const materialDiv = EnchantGrade.ui.find('.material_slot' + (i + 1));
 
 				// Clear previous items
 				materialDiv.empty();
@@ -602,23 +598,23 @@ define(function (require) {
 
 				// Read data from selected material
 				EnchantGrade_item_mat = Number(this.dataset.index);
-				let material_ITID = Number(this.dataset.itemid);
-				let material_amount = Number(this.dataset.amount);
-				let price = Number(this.dataset.price);
+				const material_ITID = Number(this.dataset.itemid);
+				const material_amount = Number(this.dataset.amount);
+				const price = Number(this.dataset.price);
 				//let downgrade = Number(this.dataset.downgrade); // UNUSED
-				let breakable = Number(this.dataset.breakable);
+				const breakable = Number(this.dataset.breakable);
 
 				// Variable to track insufficiency
 				let insufficent = false;
 
 				// Update Zeny Cost
-				let zenyCost = EnchantGrade.ui.find('.zeny_cost_container');
+				const zenyCost = EnchantGrade.ui.find('.zeny_cost_container');
 				zenyCost.text(price);
 
 				// Check Selected Material Requirements
 				// Material Count Check
-				var item = Inventory.getUI().getItemById(material_ITID);
-				var material_count = item ? item.count : 0;
+				const item = Inventory.getUI().getItemById(material_ITID);
+				const material_count = item ? item.count : 0;
 
 				if (!item || material_count < material_amount) {
 					// If no item or insufficient count
@@ -644,7 +640,7 @@ define(function (require) {
 
 				// Update Start if with enough Materials and Zeny
 				if (insufficent === false) {
-					let startButton = EnchantGrade.ui.find('.start_grade');
+					const startButton = EnchantGrade.ui.find('.start_grade');
 					startButton.off('click');
 					if (EnchantGrade_can_cont === true) {
 						// Update start button
@@ -728,7 +724,7 @@ define(function (require) {
 	 */
 	function onRequestEnchantGrade() {
 		UIManager.showPromptBox(DB.getMessage(3823), 'ok', 'cancel', function () {
-			var pkt = new PACKET.CZ.GRADE_ENCHANT_REQ();
+			const pkt = new PACKET.CZ.GRADE_ENCHANT_REQ();
 			pkt.index = EnchantGrade_item_index;
 			pkt.material_index = EnchantGrade_item_mat;
 			pkt.blessing_flag = EnchantGrade_blessing_used ? 1 : 0;
@@ -780,7 +776,7 @@ define(function (require) {
 			});
 
 			// Update item in Inventory
-			var item = Inventory.getUI().removeItem(pkt.index, 1);
+			const item = Inventory.getUI().removeItem(pkt.index, 1);
 			if (item) {
 				// Update grade level
 				item.enchantgrade = pkt.grade;
@@ -819,9 +815,9 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var ITID = parseInt(this.getAttribute('data-index'), 10);
+		const ITID = parseInt(this.getAttribute('data-index'), 10);
 		// Materials have item.ID as data-index, Item to be EnchantGrade has item.index as data-index
-		var item = Inventory.getUI().getItemById(ITID)
+		const item = Inventory.getUI().getItemById(ITID)
 			? Inventory.getUI().getItemById(ITID)
 			: Inventory.getUI().getItemByIndex(ITID);
 
@@ -849,7 +845,7 @@ define(function (require) {
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		var compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -884,9 +880,9 @@ define(function (require) {
 	 * End of dragging an item
 	 */
 	function onItemDragEnd(event) {
-		var rect = EnchantGrade.ui[0].getBoundingClientRect();
-		var mouseX = event.clientX || event.originalEvent.clientX;
-		var mouseY = event.clientY || event.originalEvent.clientY;
+		const rect = EnchantGrade.ui[0].getBoundingClientRect();
+		const mouseX = event.clientX || event.originalEvent.clientX;
+		const mouseY = event.clientY || event.originalEvent.clientY;
 
 		if (mouseX < rect.left || mouseX > rect.right || mouseY < rect.top || mouseY > rect.bottom) {
 			onRemoveItem();
@@ -899,8 +895,8 @@ define(function (require) {
 	 */
 	function onBroadcastEnchantGradeResult(pkt) {
 		if (pkt) {
-			let item = DB.getItemInfo(pkt.itemId);
-			let itemName = item.identifiedDisplayName;
+			const item = DB.getItemInfo(pkt.itemId);
+			const itemName = item.identifiedDisplayName;
 			let messageID;
 			switch (pkt.status) {
 				case 0: // Failure
@@ -913,7 +909,7 @@ define(function (require) {
 					break;
 			}
 
-			let message = DB.getMessage(messageID)
+			const message = DB.getMessage(messageID)
 				.replace('%s', pkt.char_name)
 				.replace('%s', GradeMapping[pkt.grade])
 				.replace('%s', itemName);
@@ -952,5 +948,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(EnchantGrade);
-});
+export default UIManager.addComponent(EnchantGrade);

@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	var Context = {};
+const Context = {};
 
 	/**
 	 * Get Informations about current Context
@@ -34,7 +33,7 @@ define(function () {
 	 */
 	Context.requestFullScreen = function RequestFullScreen() {
 		if (!Context.isFullScreen()) {
-			var element = document.documentElement;
+			const element = document.documentElement;
 
 			if (element.requestFullscreen) {
 				element.requestFullscreen();
@@ -66,7 +65,7 @@ define(function () {
 	 * (2D graphics, 3D graphics, Threads, File API, ...)
 	 */
 	Context.checkSupport = function CheckSupport() {
-		var div, canvas, element, gl, i;
+		let div, canvas, element, gl, i;
 
 		// Drag drop
 		div = document.createElement('div');
@@ -86,7 +85,7 @@ define(function () {
 		}
 
 		element = document.createElement('canvas');
-		var contextNames = ['webgl2', 'experimental-webgl2'];
+		const contextNames = ['webgl2', 'experimental-webgl2'];
 
 		for (i = 0; i < contextNames.length; ++i) {
 			try {
@@ -123,5 +122,4 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return Context;
-});
+	export default Context;

@@ -8,14 +8,16 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatrix) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+import glMatrix from 'Utils/gl-matrix';
+
+/**
 	 * Import
 	 */
-	var vec3 = glMatrix.vec3;
-	var vec4 = glMatrix.vec4;
+	const vec3 = glMatrix.vec3;
+	const vec4 = glMatrix.vec4;
 
 	/**
 	 * Ground class loader
@@ -35,7 +37,7 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 */
 	GND.prototype.load = function load(data) {
 		this.fp = new BinaryReader(data);
-		var header = this.fp.readBinaryString(4);
+		const header = this.fp.readBinaryString(4);
 
 		if (header !== 'GRGN') {
 			throw new Error('GND::load() - Invalid header "' + header + '"');
@@ -66,10 +68,10 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 			};
 			if (this.version >= 1.9) {
 				this.water.Zones = [];
-				var count = this.water.splitWidth * this.water.splitHeight;
+				const count = this.water.splitWidth * this.water.splitHeight;
 
 				for (let i = 0; i < count; i++) {
-					var waterSub = {
+					const waterSub = {
 						level: this.fp.readFloat(),
 						type: this.fp.readLong(),
 						waveHeight: this.fp.readFloat(),
@@ -87,9 +89,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * Loading textures
 	 */
 	GND.prototype.parseTextures = function parseTextures() {
-		var i, j, pos, count, length;
-		var textures, indexes;
-		var texture;
+		let i, j, pos, count, length;
+		let textures, indexes;
+		let texture;
 
 		count = this.fp.readULong();
 		length = this.fp.readULong();
@@ -120,12 +122,12 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 */
 	GND.prototype.parseLightmaps = function parseLightmaps() {
 		// Load info
-		var fp = this.fp;
-		var count = fp.readLong();
-		var per_cell_x = fp.readLong();
-		var per_cell_y = fp.readLong();
-		var size_cell = fp.readLong();
-		var per_cell = per_cell_x * per_cell_y * size_cell;
+		const fp = this.fp;
+		const count = fp.readLong();
+		const per_cell_x = fp.readLong();
+		const per_cell_y = fp.readLong();
+		const size_cell = fp.readLong();
+		const per_cell = per_cell_x * per_cell_y * size_cell;
 
 		this.lightmap = {
 			per_cell: per_cell,
@@ -142,26 +144,26 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @return Tiles[]
 	 */
 	GND.prototype.parseTiles = function parseTiles() {
-		var i, count;
-		var tiles;
-		var fp = this.fp;
+		let i, count;
+		let tiles;
+		const fp = this.fp;
 
 		count = fp.readULong();
 		tiles = new Array(count);
 
 		// Texture atlas stuff
-		var ATLAS_COLS = Math.round(Math.sqrt(this.textures.length));
-		var ATLAS_ROWS = Math.ceil(Math.sqrt(this.textures.length));
-		var ATLAS_WIDTH = Math.pow(2, Math.ceil(Math.log(ATLAS_COLS * 258) / Math.log(2)));
-		var ATLAS_HEIGHT = Math.pow(2, Math.ceil(Math.log(ATLAS_ROWS * 258) / Math.log(2)));
-		var ATLAS_FACTOR_U = (ATLAS_COLS * 258) / ATLAS_WIDTH;
-		var ATLAS_FACTOR_V = (ATLAS_ROWS * 258) / ATLAS_HEIGHT;
-		var ATLAS_PX_U = 1 / 258;
-		var ATLAS_PX_V = 1 / 258;
+		const ATLAS_COLS = Math.round(Math.sqrt(this.textures.length));
+		const ATLAS_ROWS = Math.ceil(Math.sqrt(this.textures.length));
+		const ATLAS_WIDTH = Math.pow(2, Math.ceil(Math.log(ATLAS_COLS * 258) / Math.log(2)));
+		const ATLAS_HEIGHT = Math.pow(2, Math.ceil(Math.log(ATLAS_ROWS * 258) / Math.log(2)));
+		const ATLAS_FACTOR_U = (ATLAS_COLS * 258) / ATLAS_WIDTH;
+		const ATLAS_FACTOR_V = (ATLAS_ROWS * 258) / ATLAS_HEIGHT;
+		const ATLAS_PX_U = 1 / 258;
+		const ATLAS_PX_V = 1 / 258;
 
 		function ATLAS_GENERATE(tile) {
-			var u = tile.texture % ATLAS_COLS;
-			var v = Math.floor(tile.texture / ATLAS_COLS);
+			const u = tile.texture % ATLAS_COLS;
+			const v = Math.floor(tile.texture / ATLAS_COLS);
 			tile.u1 = ((u + tile.u1 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U) / ATLAS_COLS;
 			tile.u2 = ((u + tile.u2 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U) / ATLAS_COLS;
 			tile.u3 = ((u + tile.u3 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U) / ATLAS_COLS;
@@ -202,9 +204,9 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @return Surfaces[]
 	 */
 	GND.prototype.parseSurfaces = function parseSurfaces() {
-		var i, count;
-		var surfaces;
-		var fp = this.fp;
+		let i, count;
+		let surfaces;
+		const fp = this.fp;
 
 		count = this.width * this.height;
 		surfaces = new Array(count);
@@ -227,8 +229,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @return {Uint8Array} pixels
 	 */
 	GND.prototype.createLightmapImage = function createLightmapImage() {
-		var i, count, width, height, _width, _height, x, y, _x, _y, idx, pos, per_cell;
-		var lightmap, data, out;
+		let i, count, width, height, _width, _height, x, y, _x, _y, idx, pos, per_cell;
+		let lightmap, data, out;
 
 		lightmap = this.lightmap;
 		count = lightmap.count;
@@ -267,8 +269,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @return {Uint8Array} pixels
 	 */
 	GND.prototype.createTilesColorImage = function createTilesColorImage() {
-		var x, y, width, height;
-		var data, cell, surfaces, tiles;
+		let x, y, width, height;
+		let data, cell, surfaces, tiles;
 
 		width = this.width;
 		height = this.height;
@@ -296,8 +298,8 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * Create ShadowMap data (only used to render shadow on Entities)
 	 */
 	GND.prototype.createShadowmapData = function createShadowmapData() {
-		var width, height, x, y, i, j, index, per_cell;
-		var data, out, cell, tiles, surfaces;
+		let width, height, x, y, i, j, index, per_cell;
+		let data, out, cell, tiles, surfaces;
 
 		width = this.width;
 		height = this.height;
@@ -341,21 +343,21 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 * @return normals[]
 	 */
 	GND.prototype.getSmoothNormal = function getSmoothNormal() {
-		var x, y;
-		var surfaces = this.surfaces;
-		var tiles = this.tiles;
-		var width = this.width;
-		var height = this.height;
-		var a = vec3.create(),
+		let x, y;
+		const surfaces = this.surfaces;
+		const tiles = this.tiles;
+		const width = this.width;
+		const height = this.height;
+		let a = vec3.create(),
 			b = vec3.create(),
 			c = vec3.create(),
 			d = vec3.create(),
 			n;
-		var count = width * height;
-		var tmp = new Array(count);
-		var normals = new Array(count);
-		var empty_vec = vec3.create();
-		var cell;
+		const count = width * height;
+		const tmp = new Array(count);
+		const normals = new Array(count);
+		const empty_vec = vec3.create();
+		let cell;
 
 		// Calculate normal for each cells
 		for (y = 0; y < height; ++y) {
@@ -435,29 +437,29 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	 */
 	GND.prototype.compile = function compile(WATER_LEVEL, WATER_HEIGHT) {
 		// Shortcut access
-		var width = this.width,
+		const width = this.width,
 			height = this.height;
-		var surfaces = this.surfaces,
+		const surfaces = this.surfaces,
 			tiles = this.tiles;
 
 		// Normals
-		var normals = this.getSmoothNormal();
+		const normals = this.getSmoothNormal();
 
 		// Pre-defined vars
-		var tile, cell_a, cell_b, n, h_a, h_b;
-		var x, y;
+		let tile, cell_a, cell_b, n, h_a, h_b;
+		let x, y;
 
 		// Water
-		var water = [],
+		const water = [],
 			mesh = [];
 
 		// Lightmap Stuff
-		var l = {};
-		var lightmap = this.createLightmapImage();
-		var l_count_w = Math.round(Math.sqrt(this.lightmap.count));
-		var l_count_h = Math.ceil(Math.sqrt(this.lightmap.count));
-		var l_width = Math.pow(2, Math.ceil(Math.log(l_count_w * 8) / Math.log(2)));
-		var l_height = Math.pow(2, Math.ceil(Math.log(l_count_h * 8) / Math.log(2)));
+		const l = {};
+		const lightmap = this.createLightmapImage();
+		const l_count_w = Math.round(Math.sqrt(this.lightmap.count));
+		const l_count_h = Math.ceil(Math.sqrt(this.lightmap.count));
+		const l_width = Math.pow(2, Math.ceil(Math.log(l_count_w * 8) / Math.log(2)));
+		const l_height = Math.pow(2, Math.ceil(Math.log(l_count_h * 8) / Math.log(2)));
 		function lightmap_atlas(i) {
 			l.u1 = (((i % l_count_w) + 0.125) / l_count_w) * ((l_count_w * 8) / l_width);
 			l.u2 = (((i % l_count_w) + 0.875) / l_count_w) * ((l_count_w * 8) / l_width);
@@ -790,7 +792,6 @@ define(['Utils/BinaryReader', 'Utils/gl-matrix'], function (BinaryReader, glMatr
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return GND;
-});
+	export default GND;

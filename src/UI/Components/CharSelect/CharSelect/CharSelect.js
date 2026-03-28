@@ -7,35 +7,31 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var MonsterTable = require('DB/Monsters/MonsterTable');
-	var Preferences = require('Core/Preferences');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var StatusConst = require('DB/Status/StatusState');
-	var Camera = require('Renderer/Camera');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./CharSelect.html');
-	var cssText = require('text!./CharSelect.css');
+import DB from 'DB/DBManager';
+import MonsterTable from 'DB/Monsters/MonsterTable';
+import Preferences from 'Core/Preferences';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import StatusConst from 'DB/Status/StatusState';
+import Camera from 'Renderer/Camera';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './CharSelect.html?raw';
+import cssText from './CharSelect.css?raw';
 
-	/**
+/**
 	 * Create Chararacter Selection namespace
 	 */
-	var CharSelect = new UIComponent('CharSelect', htmlText, cssText);
+	const CharSelect = new UIComponent('CharSelect', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} save where the cursor position is
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CharSelect',
 		{
 			index: 0
@@ -46,48 +42,48 @@ define(function (require) {
 	/**
 	 * @var {number} max slots
 	 */
-	var _maxSlots = 3 * 9;
+	let _maxSlots = 3 * 9;
 
 	/**
 	 * var {Array} list of characters
 	 */
-	var _list = [];
+	const _list = [];
 
 	/**
 	 * @var {Array} list of characters (index by slot)
 	 */
-	var _slots = [];
+	const _slots = [];
 
 	/**
 	 * @var {Array} list of entities (index by slot)
 	 */
-	var _entitySlots = [];
+	const _entitySlots = [];
 
 	/**
 	 * @var {number} selector index
 	 */
-	var _index = 0;
+	let _index = 0;
 
 	/**
 	 * @var {Array} canvas context
 	 */
-	var _ctx = [];
+	const _ctx = [];
 
 	/**
 	 * var {number} sex
 	 */
-	var _sex = 0;
+	let _sex = 0;
 
 	/**
 	 * var {boolean} disable input
 	 */
-	var _disable_UI = false;
+	let _disable_UI = false;
 
 	/**
 	 * Initialize UI
 	 */
 	CharSelect.init = function Init() {
-		var ui = this.ui;
+		const ui = this.ui;
 
 		ui.css({
 			top: (Renderer.height - 342) / 2,
@@ -205,7 +201,7 @@ define(function (require) {
 		_list.length = 0;
 
 		if (pkt.charInfo) {
-			var i,
+			let i,
 				count = pkt.charInfo.length;
 			for (i = 0; i < count; ++i) {
 				CharSelect.addCharacter(pkt.charInfo[i]);
@@ -240,8 +236,8 @@ define(function (require) {
 				delete _slots[_index];
 				delete _entitySlots[_index];
 
-				var i = 0;
-				var count = _list.length;
+				let i = 0;
+				let count = _list.length;
 
 				while (i < count) {
 					if (_list[i].CharNum === _index) {
@@ -383,11 +379,11 @@ define(function (require) {
 	 * @param {number} index
 	 */
 	function moveCursorTo(index) {
-		var ui = CharSelect.ui;
-		var $charinfo = ui.find('.charinfo');
+		const ui = CharSelect.ui;
+		const $charinfo = ui.find('.charinfo');
 
 		// Set the last entity to idle
-		var entity = _entitySlots[_index];
+		let entity = _entitySlots[_index];
 		if (entity) {
 			entity.setAction({
 				action: entity.ACTION.IDLE,
@@ -429,7 +425,7 @@ define(function (require) {
 		ui.find('.delete').show();
 		ui.find('.ok').show();
 
-		var info = _slots[_index];
+		const info = _slots[_index];
 		$charinfo.find('.name').text(info.name);
 		$charinfo.find('.job').text(MonsterTable[info.job] || '');
 		$charinfo.find('.lvl').text(info.level);
@@ -449,7 +445,7 @@ define(function (require) {
 	 * Render sprites to canvas
 	 */
 	function render() {
-		var i, count, idx;
+		let i, count, idx;
 
 		Camera.direction = 4;
 		idx = Math.floor(_index / 3) * 3;
@@ -468,5 +464,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(CharSelect);
-});
+export default UIManager.addComponent(CharSelect);

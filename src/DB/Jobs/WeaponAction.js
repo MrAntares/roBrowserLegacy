@@ -8,11 +8,12 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType) {
-	'use strict';
+import JobId from './JobConst';
+import WeaponType from 'DB/Items/WeaponType';
 
-	var WeaponAction = {};
+	const WeaponAction = {};
 
 	WeaponAction[JobId.NOVICE] = [
 		new (function () {
@@ -318,8 +319,8 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType) {
 	];
 
 	function duplicateEntry(origin) {
-		var value = WeaponAction[origin];
-		var i,
+		const value = WeaponAction[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {
@@ -525,5 +526,5 @@ define(['./JobConst', 'DB/Items/WeaponType'], function (JobId, WeaponType) {
 	/**
 	 * Exports
 	 */
-	return WeaponAction;
-});
+	export default WeaponAction;
+

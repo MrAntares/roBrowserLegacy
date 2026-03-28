@@ -7,19 +7,15 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Preferences = require('Core/Preferences');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./QuestWindow.html');
-	var cssText = require('text!./QuestWindow.css');
+import Preferences from 'Core/Preferences';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './QuestWindow.html?raw';
+import cssText from './QuestWindow.css?raw';
 
-	var _preferences = Preferences.get(
+const _preferences = Preferences.get(
 		'Quest',
 		{
 			x: 200,
@@ -33,7 +29,7 @@ define(function (require) {
 	/**
 	 * Create Component
 	 */
-	var QuestWindow = new UIComponent('QuestWindow', htmlText, cssText);
+	const QuestWindow = new UIComponent('QuestWindow', htmlText, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -77,7 +73,7 @@ define(function (require) {
 	 */
 	QuestWindow.setQuestList = function setQuestList(quests, questNotShowList) {
 		let $already_show = 0;
-		for (let questID in quests) {
+		for (const questID in quests) {
 			if (!questNotShowList.includes(quests[questID].questID)) {
 				if (!isInCooldown(quests[questID])) {
 					if (quests[questID].active == 1 && $already_show < 4) {
@@ -93,7 +89,7 @@ define(function (require) {
 		if (quest.end_time == 0) {
 			return false;
 		}
-		let epoch_seconds = new Date() / 1000;
+		const epoch_seconds = new Date() / 1000;
 		if (quest.end_time > epoch_seconds) {
 			return true;
 		}
@@ -110,7 +106,7 @@ define(function (require) {
 		title = quest.title.length > 25 ? quest.title.substr(0, 25) + '...' : quest.title;
 		summary = quest.summary.length > 25 ? quest.summary.substr(0, 25) + '...' : quest.summary;
 		let list = '';
-		for (let huntID in quest.hunt_list) {
+		for (const huntID in quest.hunt_list) {
 			list +=
 				'<li>' +
 				quest.hunt_list[huntID].mobName +
@@ -134,7 +130,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(QuestWindow);
-});
+	export default UIManager.addComponent(QuestWindow);

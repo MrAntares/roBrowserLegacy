@@ -8,43 +8,40 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Load dependencies
-	 */
-	var WebGL = require('Utils/WebGL');
-	var WeatherTable = require('DB/Effects/WeatherEffect');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var vec3 = require('Utils/gl-matrix').vec3;
+import WebGL from 'Utils/WebGL';
+import WeatherTable from 'DB/Effects/WeatherEffect';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+
+import { vec3 } from 'Utils/gl-matrix';
 
 	/**
 	 * @var {number} number of clouds to render
 	 */
-	var MAX_CLOUDS = 150;
+	const MAX_CLOUDS = 150;
 
 	/**
 	 * @var {Array} clouds particles
 	 */
-	var _clouds = new Array(MAX_CLOUDS);
+	const _clouds = new Array(MAX_CLOUDS);
 
 	/**
 	 * @var {Array} textures list
 	 */
-	var _textures = [];
+	const _textures = [];
 
 	/**
 	 * @var {vec4} RGBA color
 	 */
-	var _color = null;
+	let _color = null;
 
 	/**
 	 * @var {boolean} display clouds ?
 	 */
-	var _display = true;
+	let _display = true;
 
 	/**
 	 * Prepare cloud data
@@ -53,8 +50,8 @@ define(function (require) {
 	 * @param {string} mapname
 	 */
 	function init(gl, mapname) {
-		var color;
-		var i;
+		let color;
+		let i;
 
 		// Not found on weather, black sky, no cloud.
 		if (!WeatherTable.sky[mapname]) {
@@ -102,7 +99,7 @@ define(function (require) {
 	 * Set up cloud data
 	 */
 	function setUpCloudData() {
-		var i;
+		let i;
 
 		// Add sprites to scene
 		for (i = 0; i < MAX_CLOUDS; i++) {
@@ -130,7 +127,7 @@ define(function (require) {
 	 * Initialize cloud element
 	 */
 	function cloudInit(cloud) {
-		var pos = Session.Entity.position;
+		const pos = Session.Entity.position;
 
 		cloud.position[0] = pos[0] + ((Math.random() * 35) | 0) * (Math.random() > 0.5 ? 1 : -1);
 		cloud.position[1] = pos[1] + ((Math.random() * 35) | 0) * (Math.random() > 0.5 ? 1 : -1);
@@ -158,7 +155,7 @@ define(function (require) {
 			return;
 		}
 
-		var i, cloud, opacity;
+		let i, cloud, opacity;
 
 		// Init program - interact with environment (use depth test + ray-plane)
 		SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
@@ -215,11 +212,10 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return {
+	export default {
 		init: init,
 		setUpCloudData: setUpCloudData,
 		render: render
 	};
-});

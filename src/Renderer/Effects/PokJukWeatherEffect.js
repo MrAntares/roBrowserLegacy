@@ -11,26 +11,27 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Renderer = require('Renderer/Renderer');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Session = require('Engine/SessionStorage');
-	var Sound = require('Audio/SoundManager');
-	var getModule = require;
+import Renderer from 'Renderer/Renderer';
 
-	// SINGLETON STATE
+let MapRenderer;
+import('Renderer/MapRenderer').then(m => MapRenderer = m.default);
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Session from 'Engine/SessionStorage';
+import Sound from 'Audio/SoundManager';
+
+// SINGLETON STATE
 	let _instance = null;
 	let _mapName = '';
 	let _whiteTexture = null;
 
 	// Explosion height in game units
-	var EXPLOSION_ALTITUDE = 8.0;
-	var PARTICLE_SIZE = 6;
+	const EXPLOSION_ALTITUDE = 8.0;
+	const PARTICLE_SIZE = 6;
 
-	var FIRE_LIFE_MS = 50;
-	var EXPLOSION_LIFE_MS = 1000;
+	const FIRE_LIFE_MS = 50;
+	const EXPLOSION_LIFE_MS = 1000;
 
 	function PokJukWeatherEffect(Params) {
 		this.fireworks = [];
@@ -46,17 +47,17 @@ define(function (require) {
 			return;
 		}
 
-		var canvas = document.createElement('canvas');
+		const canvas = document.createElement('canvas');
 		canvas.width = PARTICLE_SIZE;
 		canvas.height = PARTICLE_SIZE;
-		var ctx = canvas.getContext('2d');
+		const ctx = canvas.getContext('2d');
 
-		var center = PARTICLE_SIZE / 2;
-		var radius = center - 1;
+		const center = PARTICLE_SIZE / 2;
+		const radius = center - 1;
 
 		ctx.clearRect(0, 0, PARTICLE_SIZE, PARTICLE_SIZE);
 
-		var gradient = ctx.createRadialGradient(center, center, 0, center, center, radius);
+		const gradient = ctx.createRadialGradient(center, center, 0, center, center, radius);
 		gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
 		gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.8)');
 		gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
@@ -78,19 +79,19 @@ define(function (require) {
 		if (!Session.Entity) {
 			return;
 		}
-		var pPos = Session.Entity.position;
+		const pPos = Session.Entity.position;
 
 		// Spawn random number of fireworks (1 or 3)
-		var numFireworks = Math.floor(Math.random() * 3) + 1;
-		for (var ec = 0; ec < numFireworks; ec++) {
-			var firework = this.createFirework(pPos);
+		const numFireworks = Math.floor(Math.random() * 3) + 1;
+		for (let ec = 0; ec < numFireworks; ec++) {
+			const firework = this.createFirework(pPos);
 			firework.process -= ec * 100;
 			this.fireworks.push(firework);
 		}
 	};
 
 	PokJukWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		var currentMap = getModule('Renderer/MapRenderer').currentMap;
+		const currentMap = MapRenderer ? MapRenderer.currentMap : '';
 
 		if (_mapName !== currentMap || !_instance) {
 			_instance = new PokJukWeatherEffect(Params);
@@ -101,7 +102,7 @@ define(function (require) {
 	};
 
 	PokJukWeatherEffect.prototype.createFirework = function () {
-		var pPos = Session.Entity.position;
+		const pPos = Session.Entity.position;
 		return {
 			process: -(600 + Math.floor(Math.random() * 400)),
 			// Start near player
@@ -127,7 +128,7 @@ define(function (require) {
 			return;
 		}
 
-		if (_mapName !== getModule('Renderer/MapRenderer').currentMap) {
+		if (_mapName !== (MapRenderer ? MapRenderer.currentMap : '')) {
 			_instance = null;
 			return;
 		}
@@ -145,8 +146,8 @@ define(function (require) {
 	};
 
 	PokJukWeatherEffect.prototype.render = function (gl, tick) {
-		for (var i = 0; i < this.fireworks.length; i++) {
-			var fw = this.fireworks[i];
+		for (let i = 0; i < this.fireworks.length; i++) {
+			const fw = this.fireworks[i];
 			this.updateFirework(fw);
 			this.drawFirework(fw);
 		}
@@ -164,8 +165,8 @@ define(function (require) {
 			if (fw.state === 0) {
 				// ASCENT PHASE
 				fw.posNow[2] += 0.04;
-				var ascentProgress = Math.max(0, Math.min(1, (fw.posNow[2] - fw.startAlt) / EXPLOSION_ALTITUDE));
-				var arcProgress = Math.pow(Math.max(0, (ascentProgress - 0.3) / 0.7), 2);
+				const ascentProgress = Math.max(0, Math.min(1, (fw.posNow[2] - fw.startAlt) / EXPLOSION_ALTITUDE));
+				const arcProgress = Math.pow(Math.max(0, (ascentProgress - 0.3) / 0.7), 2);
 				fw.posNow[0] += arcProgress * fw.arcAmplitude * fw.arcDirection * 0.02;
 				fw.alpha = Math.floor(Math.min(ascentProgress * 255 * 2, 255));
 
@@ -176,7 +177,7 @@ define(function (require) {
 					fw.explosionTimer = 0;
 					fw.lastWaveTime = -50;
 					// Generate burst particles
-					for (var p = 0; p < 30; p++) {
+					for (let p = 0; p < 30; p++) {
 						this.addParticleWave(fw, true);
 					}
 				}
@@ -185,7 +186,7 @@ define(function (require) {
 				fw.explosionTimer += 16;
 				if (fw.explosionTimer < EXPLOSION_LIFE_MS) {
 					if (fw.explosionTimer - fw.lastWaveTime >= FIRE_LIFE_MS) {
-						var colorType = Math.floor(Math.random() * 5);
+						const colorType = Math.floor(Math.random() * 5);
 						for (var i = 0; i < 15; i++) {
 							this.addParticleWave(fw, false, colorType);
 						}
@@ -195,9 +196,9 @@ define(function (require) {
 						fw.lastWaveTime = fw.explosionTimer;
 					}
 				}
-				var active = 0;
-				for (var j = 0; j < fw.particles.length; j++) {
-					var p = fw.particles[j];
+				let active = 0;
+				for (let j = 0; j < fw.particles.length; j++) {
+					const p = fw.particles[j];
 					if (p.alpha <= 0) {
 						continue;
 					}
@@ -218,11 +219,11 @@ define(function (require) {
 	};
 
 	PokJukWeatherEffect.prototype.addParticleWave = function (fw, isGunpowder, colorType) {
-		var phi = Math.random() * Math.PI * 2;
-		var theta = Math.random() * Math.PI;
-		var speed = isGunpowder ? 0.02 + Math.random() * 0.04 : 0.08 + Math.random() * 0.07;
+		const phi = Math.random() * Math.PI * 2;
+		const theta = Math.random() * Math.PI;
+		const speed = isGunpowder ? 0.02 + Math.random() * 0.04 : 0.08 + Math.random() * 0.07;
 
-		var zOffset = isGunpowder ? 0.5 : 0;
+		const zOffset = isGunpowder ? 0.5 : 0;
 
 		fw.particles.push({
 			pos: [fw.posNow[0], fw.posNow[1], fw.posNow[2] + zOffset],
@@ -246,10 +247,10 @@ define(function (require) {
 		if (fw.state === 0) {
 			this.renderParticle(fw.posNow, fw.alpha, 255, 255, 255, fw.size);
 		} else {
-			for (var i = 0; i < fw.particles.length; i++) {
-				var p = fw.particles[i];
+			for (let i = 0; i < fw.particles.length; i++) {
+				const p = fw.particles[i];
 				if (p.alpha > 0) {
-					var r, g, b;
+					let r, g, b;
 					switch (p.colorType) {
 						case 0:
 							r = 100;
@@ -306,6 +307,4 @@ define(function (require) {
 		_instance = null;
 		_mapName = '';
 	};
-
-	return PokJukWeatherEffect;
-});
+export default PokJukWeatherEffect;

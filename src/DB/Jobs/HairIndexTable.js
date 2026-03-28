@@ -7,11 +7,9 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return [
+	export default [
 		// Human_F
 		[2, 2, 4, 7, 1, 5, 3, 6, 12, 10, 9, 11, 8],
 
@@ -24,4 +22,3 @@ define(function () {
 		// Doram_M
 		[0, 1, 2, 3, 4, 5, 6]
 	];
-});

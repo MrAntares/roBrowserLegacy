@@ -7,11 +7,9 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	var Weather = {};
+	const Weather = {};
 
 	// Sky and clouds features
 	Weather.sky = {};
@@ -42,5 +40,5 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return Weather;
-});
+	export default Weather;
+

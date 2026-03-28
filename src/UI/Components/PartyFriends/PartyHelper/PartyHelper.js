@@ -7,23 +7,20 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var jQuery = require('Utils/jquery');
-	var PACKETVER = require('Network/PacketVerManager');
-	var htmlText = require('text!./PartyHelper.html');
-	var cssText = require('text!./PartyHelper.css');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import jQuery from 'Utils/jquery';
+import PACKETVER from 'Network/PacketVerManager';
+import htmlText from './PartyHelper.html?raw';
+import cssText from './PartyHelper.css?raw';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
 
 	/**
 	 * Create Component
 	 */
-	var PartyHelper = new UIComponent('PartyHelper', htmlText, cssText);
+	const PartyHelper = new UIComponent('PartyHelper', htmlText, cssText);
 
 	/**
 	 * Window type constants
@@ -38,7 +35,7 @@ define(function (require) {
 	/**
 	 * Current window type
 	 */
-	var _type = PartyHelper.Type.CREATE;
+	let _type = PartyHelper.Type.CREATE;
 
 	/**
 	 * Initialize component event listeners
@@ -75,8 +72,8 @@ define(function (require) {
 
 		// Setting-row toggle handler (WhisperBox preferences)
 		this.ui.on('mousedown', '.setting-row', function (event) {
-			var on = this.querySelector('.on');
-			var off = this.querySelector('.off');
+			const on = this.querySelector('.on');
+			const off = this.querySelector('.off');
 
 			if (!on || !off) {
 				return;
@@ -89,8 +86,7 @@ define(function (require) {
 			off.classList.add('on');
 
 			// Save preferences immediately
-			var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
-			var prefs = WhisperBox.preferences;
+			const prefs = WhisperBox.preferences;
 
 			prefs.open1to1Stranger =
 				parseInt(PartyHelper.ui.find('.open1to1Stranger .on').attr('data-value'), 10) === 1;
@@ -113,9 +109,9 @@ define(function (require) {
 				return;
 			}
 
-			var off = this;
-			var on = this.parentNode.getElementsByClassName('on')[0];
-			var tmp;
+			const off = this;
+			const on = this.parentNode.getElementsByClassName('on')[0];
+			let tmp;
 
 			on.className = 'off';
 			off.className = 'on';
@@ -137,7 +133,7 @@ define(function (require) {
 		this.draggable(this.ui.find('.titlebar'));
 
 		// Close on Esc key
-		var self = this;
+		const self = this;
 		this._onKeyDown = function (event) {
 			if (event.which === 27) {
 				// Escape
@@ -152,7 +148,7 @@ define(function (require) {
 	 * Position UI relative to PartyFriends window
 	 */
 	PartyHelper.onAppend = function onAppend() {
-		var base = UIManager.getComponent('PartyFriends').ui;
+		const base = UIManager.getComponent('PartyFriends').ui;
 
 		this.ui.find('.party-content, .friend-content').hide();
 		this.ui.find('.name').val('');
@@ -245,7 +241,7 @@ define(function (require) {
 	 */
 	PartyHelper.setOptions = function setOptions(options, editable) {
 		function swap(off) {
-			var on, tmp;
+			let on, tmp;
 			on = off.parentNode.querySelector('.on');
 
 			on.className = 'off';
@@ -256,10 +252,10 @@ define(function (require) {
 			off.style.backgroundImage = tmp;
 		}
 
-		var list = ['exp_share', 'item_share', 'item_sharing_type'];
-		var i,
+		const list = ['exp_share', 'item_share', 'item_sharing_type'];
+		let i,
 			count = list.length;
-		var element;
+		let element;
 
 		for (i = 0; i < count; ++i) {
 			if (options[list[i]] === undefined) {
@@ -285,20 +281,20 @@ define(function (require) {
 	 */
 	PartyHelper.setFriendOptions = function setFriendOptions(options) {
 		function swap(off) {
-			var on = off.parentNode.querySelector('.on');
+			const on = off.parentNode.querySelector('.on');
 			on.className = 'off';
 			off.className = 'on';
 		}
 
-		var list = ['open1to1Stranger', 'open1to1Friend', 'alarm1to1'];
-		var i,
+		const list = ['open1to1Stranger', 'open1to1Friend', 'alarm1to1'];
+		let i,
 			count = list.length;
 
 		for (i = 0; i < count; ++i) {
-			var value = options[list[i]] === true || options[list[i]] == 1;
-			var row = this.ui.find('.' + list[i]);
-			var on = row.find('.on')[0];
-			var off = row.find('.off')[0];
+			const value = options[list[i]] === true || options[list[i]] == 1;
+			const row = this.ui.find('.' + list[i]);
+			const on = row.find('.on')[0];
+			const off = row.find('.off')[0];
 
 			if (on && value !== (on.dataset.value == 1)) {
 				swap(off);
@@ -318,7 +314,7 @@ define(function (require) {
 	 * Validate and process form data
 	 */
 	function onValidate() {
-		var name, PartyFriends;
+		let name, PartyFriends;
 		PartyFriends = UIManager.getComponent('PartyFriends');
 
 		switch (_type) {
@@ -362,5 +358,4 @@ define(function (require) {
 	/**
 	 * Export component
 	 */
-	return UIManager.addComponent(PartyHelper);
-});
+	export default UIManager.addComponent(PartyHelper);

@@ -7,15 +7,17 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMatrix, Renderer, DB) {
-	'use strict';
+'use strict';
 
-	/**
+import glMatrix from 'Utils/gl-matrix';
+import DB from 'DB/DBManager';
+
+/**
 	 * Global methods
 	 */
-	var vec4 = glMatrix.vec4;
-	var _pos = new Float32Array(4);
-	var _size = new Float32Array(2);
+	const vec4 = glMatrix.vec4;
+	const _pos = new Float32Array(4);
+	const _size = new Float32Array(2);
 
 	/**
 	 * Life class
@@ -60,9 +62,9 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	 * Update life
 	 */
 	Life.prototype.update = function update() {
-		var width = 60,
+		let width = 60,
 			height = 5;
-		var Entity = this.entity.constructor;
+		const Entity = this.entity.constructor;
 
 		// Don't display it, if negatives values.
 		if (this.hp < 0 || this.hp_max < 0) {
@@ -72,15 +74,15 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 
 		// Init variables
 		this.display = true;
-		var ctx = this.ctx;
-		var hp_per = this.hp / this.hp_max;
-		var sp = this.sp > -1 && this.sp_max > -1;
-		var sp_per = this.sp / this.sp_max;
-		var ap = this.ap > -1 && this.ap_max > -1;
-		var ap_per = this.ap / this.ap_max;
+		const ctx = this.ctx;
+		const hp_per = this.hp / this.hp_max;
+		const sp = this.sp > -1 && this.sp_max > -1;
+		const sp_per = this.sp / this.sp_max;
+		const ap = this.ap > -1 && this.ap_max > -1;
+		const ap_per = this.ap / this.ap_max;
 
-		var hunger = this.hunger > -1 && this.hunger_max > -1;
-		var hunger_per = this.hunger / this.hunger_max;
+		const hunger = this.hunger > -1 && this.hunger_max > -1;
+		const hunger_per = this.hunger / this.hunger_max;
 
 		if (sp) {
 			height += 4;
@@ -154,8 +156,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	 * @param {mat4} matrix
 	 */
 	Life.prototype.render = function Render(matrix) {
-		var canvas = this.canvas;
-		var z;
+		const canvas = this.canvas;
+		let z;
 
 		// Cast position
 		_pos[0] = 0.0;
@@ -164,8 +166,8 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 		_pos[3] = 1.0;
 
 		// Set the viewport
-		_size[0] = Renderer.width / 2;
-		_size[1] = Renderer.height / 2;
+		_size[0] = window.innerWidth / 2;
+		_size[1] = window.innerHeight / 2;
 
 		// Project point to scene
 		vec4.transformMat4(_pos, _pos, matrix);
@@ -177,8 +179,10 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 
 		// Check if the Vertical Flip (Illusion effect) is active
 		// If true, invert the Y coordinate relative to the renderer height
-		if (require('Renderer/Effects/Shaders/VerticalFlip').isActive()) {
-			_pos[1] = Renderer.height - _pos[1];
+		// Using a dynamic check or window access to avoid cycle if possible, 
+		// but usually Shaders don't import Renderer.
+		if (window.VerticalFlip && window.VerticalFlip.isActive()) {
+			_pos[1] = window.innerHeight - _pos[1];
 		}
 
 		canvas.style.top = (_pos[1] | 0) + 'px';
@@ -193,8 +197,7 @@ define(['Utils/gl-matrix', 'Renderer/Renderer', 'DB/DBManager'], function (glMat
 	/**
 	 * Export
 	 */
-	return function Init() {
+	export default function Init() {
 		this.life = new Life();
 		this.life.entity = this;
 	};
-});

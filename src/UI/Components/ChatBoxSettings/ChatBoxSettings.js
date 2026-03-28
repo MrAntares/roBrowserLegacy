@@ -6,26 +6,22 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var Client = require('Core/Client');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ChatBoxSettings.html');
-	var cssText = require('text!./ChatBoxSettings.css');
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import Client from 'Core/Client';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './ChatBoxSettings.html?raw';
+import cssText from './ChatBoxSettings.css?raw';
 	/**
 	 * Create Component
 	 */
-	var ChatBoxSettings = new UIComponent('ChatBoxSettings', htmlText, cssText);
+	const ChatBoxSettings = new UIComponent('ChatBoxSettings', htmlText, cssText);
 
 	/**
 	 * @var {boolean} is ChatBoxSettings open ? (Temporary fix)
@@ -39,7 +35,7 @@ define(function (require) {
 	/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ChatBoxSettings',
 		{
 			x: 480,
@@ -60,7 +56,7 @@ define(function (require) {
 			ChatBoxSettings.ui.hide();
 		});
 
-		var list = this.ui.find('.listoption');
+		const list = this.ui.find('.listoption');
 
 		this.ui.on('click', '.content .listoption button', onClickOption);
 		this.draggable(this.ui.find('.titlebar'));
@@ -87,9 +83,9 @@ define(function (require) {
 	ChatBoxSettings.onKeyDown = function onKeyDown(event) {};
 
 	function onClickOption(evt) {
-		var _elem = jQuery(evt.currentTarget);
-		var _dataId = _elem.data('id');
-		var isOn = false;
+		const _elem = jQuery(evt.currentTarget);
+		const _dataId = _elem.data('id');
+		let isOn = false;
 
 		if (!_elem) {
 			return;
@@ -113,7 +109,7 @@ define(function (require) {
 		);
 
 		if (!isNaN(_dataId)) {
-			var idsIndex = ChatBoxSettings.tabOption[ChatBoxSettings.activeTab].indexOf(_dataId);
+			const idsIndex = ChatBoxSettings.tabOption[ChatBoxSettings.activeTab].indexOf(_dataId);
 
 			if (idsIndex > -1) {
 				ChatBoxSettings.tabOption[ChatBoxSettings.activeTab].splice(idsIndex, 1);
@@ -127,19 +123,19 @@ define(function (require) {
 	 * Resize ChatBoxSettings
 	 */
 	function onResize() {
-		var ui = ChatBoxSettings.ui;
-		var top = ui.position().top;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = ChatBoxSettings.ui;
+		const top = ui.position().top;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizeProcess() {
-			var extraX = 23 + 16 + 16 - 30;
-			var extraY = 31 + 19 - 30;
+			const extraX = 23 + 16 + 16 - 30;
+			const extraY = 31 + 19 - 30;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 7), 14);
@@ -175,8 +171,8 @@ define(function (require) {
 	};
 
 	ChatBoxSettings.updateTab = function updateTab(tabID, tabName) {
-		var optList = ChatBoxSettings.tabOption[tabID];
-		var elems = this.ui.find('.content .listoption button');
+		const optList = ChatBoxSettings.tabOption[tabID];
+		const elems = this.ui.find('.content .listoption button');
 
 		this.activeTab = tabID;
 
@@ -188,8 +184,8 @@ define(function (require) {
 		});
 
 		this.ui.find('.content .listoption button').each(function () {
-			var _elem = jQuery(this);
-			var id = _elem.data('id');
+			const _elem = jQuery(this);
+			const id = _elem.data('id');
 
 			if (optList.includes(id)) {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (data) {
@@ -214,5 +210,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ChatBoxSettings);
-});
+	export default UIManager.addComponent(ChatBoxSettings);

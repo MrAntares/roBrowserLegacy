@@ -5,29 +5,25 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./PetEvolution.html');
-	var cssText = require('text!./PetEvolution.css');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './PetEvolution.html?raw';
+import cssText from './PetEvolution.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var PetEvolution = new UIComponent('PetEvolution', htmlText, cssText);
+	const PetEvolution = new UIComponent('PetEvolution', htmlText, cssText);
 
 	/**
 	 * Variables
@@ -38,7 +34,7 @@ define(function (require) {
 	/**
 	 * @var {Preferences} Window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'PetEvolution',
 		{
 			x: 200,
@@ -204,7 +200,7 @@ define(function (require) {
 	 */
 	function onRequestEvolve() {
 		if (PetEvolution.hasEnoughMaterials() === true) {
-			var pkt = new PACKET.CZ.PET_EVOLUTION();
+			const pkt = new PACKET.CZ.PET_EVOLUTION();
 			pkt.evolutionPetEggITID = targetEvoPetEggId;
 			Network.sendPacket(pkt);
 		} else {
@@ -237,8 +233,8 @@ define(function (require) {
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var ITID = parseInt(this.getAttribute('data-index'), 10);
-		var item = DB.getItemInfo(ITID);
+		const ITID = parseInt(this.getAttribute('data-index'), 10);
+		const item = DB.getItemInfo(ITID);
 
 		// Hack
 		item.ITID = ITID;
@@ -304,5 +300,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(PetEvolution);
-});
+export default UIManager.addComponent(PetEvolution);

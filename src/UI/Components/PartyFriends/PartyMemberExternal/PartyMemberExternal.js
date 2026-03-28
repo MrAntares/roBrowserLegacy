@@ -4,25 +4,29 @@
  * Floating mini-window for a single party member.
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var DB = require('DB/DBManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./PartyMemberExternal.html');
-	var cssText = require('text!./PartyMemberExternal.css');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import DB from 'DB/DBManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './PartyMemberExternal.html?raw';
+import cssText from './PartyMemberExternal.css?raw';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import PartyFriendsV1 from 'UI/Components/PartyFriends/PartyFriendsV1/PartyFriendsV1';
+import Camera from 'Renderer/Camera';
+import Rodex from 'UI/Components/Rodex/Rodex';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 
 	/**
 	 * Create Component
 	 */
-	var PartyMemberExternal = new UIComponent('PartyMemberExternal', htmlText, cssText);
+	const PartyMemberExternal = new UIComponent('PartyMemberExternal', htmlText, cssText);
 
 	// No module-level variables for state!
 
@@ -30,19 +34,17 @@ define(function (require) {
 	 * Initialize the component
 	 */
 	PartyMemberExternal.init = function init() {
-		var self = this;
+		const self = this;
 
 		this.ui.on('mousedown', function (event) {
 			self._lastPos = self.ui.position();
 			event.preventDefault();
 			event.stopPropagation();
 
-			var ContextMenu = getModule('UI/Components/ContextMenu/ContextMenu');
 			if (ContextMenu) {
 				ContextMenu.remove();
 			}
 
-			var SkillTargetSelection = getModule('UI/Components/SkillTargetSelection/SkillTargetSelection');
 			if (SkillTargetSelection && SkillTargetSelection.__active) {
 				if (event.which === 1 && self._player && self._player.state === 0) {
 					SkillTargetSelection.intersectEntityId(self._aid);
@@ -53,7 +55,6 @@ define(function (require) {
 			}
 
 			// Block dragging when UI is locked
-			var PartyFriendsV1 = getModule('UI/Components/PartyFriends/PartyFriendsV1/PartyFriendsV1');
 			if (PartyFriendsV1 && PartyFriendsV1.isLocked && PartyFriendsV1.isLocked()) {
 				event.stopImmediatePropagation();
 			}
@@ -65,18 +66,15 @@ define(function (require) {
 			event.stopImmediatePropagation();
 
 			// Prevent camera rotation from sticking
-			var Camera = getModule('Renderer/Camera');
 			if (Camera && Camera.rotate) {
 				Camera.rotate(false);
 			}
 
 			// Block context menu when UI is locked
-			var PartyFriendsV1 = getModule('UI/Components/PartyFriends/PartyFriendsV1/PartyFriendsV1');
 			if (PartyFriendsV1 && PartyFriendsV1.isLocked && PartyFriendsV1.isLocked()) {
 				return false;
 			}
 
-			var ContextMenu = getModule('UI/Components/ContextMenu/ContextMenu');
 			if (!ContextMenu) {
 				return false;
 			}
@@ -89,24 +87,21 @@ define(function (require) {
 				if (!self._player) {
 					return;
 				}
-				var Rodex = getModule('UI/Components/Rodex/Rodex');
 				if (Rodex) {
 					Rodex.requestOpenWriteRodex(self._player.characterName);
 				}
 			});
 
-			var Session = getModule('Engine/SessionStorage');
-			var isMe = self._player && Session && self._player.AID === Session.AID;
+			const isMe = self._player && Session && self._player.AID === Session.AID;
 
 			if (isMe) {
 				// Self: Leave party
 				ContextMenu.addElement(DB.getMessage(2055), function () {
 					UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', function () {
-						var PartyUI = getModule('UI/Components/PartyFriends/PartyFriends');
-						if (PartyUI && PartyUI.onRequestLeave) {
-							PartyUI.onRequestLeave();
+						if (PartyFriends && PartyFriends.onRequestLeave) {
+							PartyFriends.onRequestLeave();
 						} else {
-							var ui = PartyUI ? PartyUI.getUI() : null;
+							const ui = PartyFriends ? PartyFriends.getUI() : null;
 							if (ui && ui.onRequestLeave) {
 								ui.onRequestLeave();
 							}
@@ -119,9 +114,12 @@ define(function (require) {
 					if (!self._player) {
 						return;
 					}
-					var WhisperBox = getModule('UI/Components/WhisperBox/WhisperBox');
 					if (WhisperBox) {
 						WhisperBox.show(self._player.characterName);
+					} else if (ChatBox) {
+						// Fallback to chatbox if whisperbox is not available
+						ChatBox.ui.find('.username').val(self._player.characterName);
+						ChatBox.ui.find('.message').select();
 					}
 				});
 			}
@@ -183,14 +181,14 @@ define(function (require) {
 	 * @param {object} player
 	 */
 	PartyMemberExternal.update = function update(player) {
-		var ui = this.ui;
-		var level = player.baseLevel || player.level || player.Level || 0;
-		var jobID = player.class_ || player.job || player.Job || 0;
-		var state = player.state || 0;
-		var role = player.role || 0;
+		const ui = this.ui;
+		const level = player.baseLevel || player.level || player.Level || 0;
+		const jobID = player.class_ || player.job || player.Job || 0;
+		const state = player.state || 0;
+		const role = player.role || 0;
 
-		var isOnline = state === 0;
-		var isLeader = role === 0;
+		const isOnline = state === 0;
+		const isLeader = role === 0;
 
 		ui.find('.name').text(player.characterName);
 		ui.find('.level').text('Lv. ' + level);
@@ -203,9 +201,9 @@ define(function (require) {
 		);
 
 		// Job Icon
-		var jobIcon = ui.find('.job-icon');
-		var isDead = !!player.isDead;
-		var asset = isDead ? 'icon_jobs_' + jobID + '_die.bmp' : 'icon_jobs_' + jobID + '.bmp';
+		const jobIcon = ui.find('.job-icon');
+		const isDead = !!player.isDead;
+		const asset = isDead ? 'icon_jobs_' + jobID + '_die.bmp' : 'icon_jobs_' + jobID + '.bmp';
 
 		Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/' + asset, function (url) {
 			jobIcon.css('backgroundImage', 'url(' + url + ')');
@@ -220,11 +218,11 @@ define(function (require) {
 		}
 
 		// Tooltip and UI Text
-		var mapDisplay = DB.getMapName(player.mapName || '');
-		var tooltipText = 'Lv.' + level + ' ' + player.characterName + '(' + mapDisplay + ')';
+		const mapDisplay = DB.getMapName(player.mapName || '');
+		const tooltipText = 'Lv.' + level + ' ' + player.characterName + '(' + mapDisplay + ')';
 		this.ui.attr('data-tooltip', tooltipText);
 
-		var memberColor = isOnline ? 'white' : '#adadad';
+		const memberColor = isOnline ? 'white' : '#adadad';
 		ui.find('.name').text(player.characterName).css('color', memberColor);
 		ui.find('.map')
 			.text('(' + mapDisplay + ')')
@@ -240,9 +238,9 @@ define(function (require) {
 	 * Custom RO-style tooltips
 	 */
 	function onTooltipShow(event) {
-		var text = jQuery(this).attr('data-tooltip');
+		const text = jQuery(this).attr('data-tooltip');
 		if (text) {
-			var tooltip = jQuery('#ro-tooltip-party');
+			let tooltip = jQuery('#ro-tooltip-party');
 			if (!tooltip.length) {
 				tooltip = jQuery('<div id="ro-tooltip-party" class="ro-tooltip"></div>').appendTo('body');
 			}
@@ -251,7 +249,7 @@ define(function (require) {
 	}
 
 	function onTooltipMove(event) {
-		var tooltip = jQuery('#ro-tooltip-party');
+		const tooltip = jQuery('#ro-tooltip-party');
 		if (tooltip.hasClass('show')) {
 			tooltip.css({
 				top: event.clientY + 15,
@@ -280,9 +278,9 @@ define(function (require) {
 	 * @param {number} maxhp
 	 */
 	function updateCanvasLife(node, hp, maxhp) {
-		var hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-		var lifeRatio = hasLife ? hp / maxhp : 0;
-		var barVisibility = 'visible'; // Always visible
+		const hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
+		const lifeRatio = hasLife ? hp / maxhp : 0;
+		const barVisibility = 'visible'; // Always visible
 
 		node.find('.hp-bar-container').css('visibility', barVisibility);
 
@@ -290,7 +288,7 @@ define(function (require) {
 			var canvas = node.find('canvas').get(0);
 			if (canvas) {
 				var ctx = canvas.getContext('2d');
-				var width = Math.floor(lifeRatio * 75);
+				const width = Math.floor(lifeRatio * 75);
 				canvas.width = 75;
 				canvas.height = 5;
 				ctx.clearRect(0, 0, 75, 5);
@@ -311,5 +309,4 @@ define(function (require) {
 	/**
 	 * Exports
 	 */
-	return UIManager.addComponent(PartyMemberExternal);
-});
+	export default UIManager.addComponent(PartyMemberExternal);

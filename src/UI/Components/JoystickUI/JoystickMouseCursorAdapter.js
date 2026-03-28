@@ -7,21 +7,21 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var glMatrix = require('Vendors/gl-matrix');
-	var Camera = require('Renderer/Camera');
-	var ControlsSettings = require('Preferences/Controls');
-	var jQuery = require('Utils/jquery');
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import glMatrix from 'Vendors/gl-matrix';
+import Camera from 'Renderer/Camera';
+import ControlsSettings from 'Preferences/Controls';
+import jQuery from 'Utils/jquery';
+import Interaction from './JoystickInteractionService';
 
-	function move(dx, dy) {
+function move(dx, dy) {
 		Mouse.screen.x = Math.max(0, Math.min(Renderer.width, Mouse.screen.x + dx * ControlsSettings.joySense));
 		Mouse.screen.y = Math.max(0, Math.min(Renderer.height, Mouse.screen.y + dy * ControlsSettings.joySense));
 
-		var cursor = document.querySelector('.cursor');
+		const cursor = document.querySelector('.cursor');
 		if (cursor) {
 			cursor.style.left = Mouse.screen.x + 'px';
 			cursor.style.top = Mouse.screen.y + 'px';
@@ -33,12 +33,12 @@ define(function (require) {
 			return;
 		}
 
-		var mat4 = glMatrix.mat4;
-		var vec4 = glMatrix.vec4;
+		const mat4 = glMatrix.mat4;
+		const vec4 = glMatrix.vec4;
 
-		var _matrix = mat4.create();
-		var _vector = vec4.create();
-		var _pos = vec4.create();
+		const _matrix = mat4.create();
+		const _vector = vec4.create();
+		const _pos = vec4.create();
 
 		// Transform entity position to screen coordinates
 		_vector[0] = entity.position[0] + 0.5;
@@ -73,9 +73,9 @@ define(function (require) {
 		vec4.transformMat4(_pos, _pos, _matrix);
 
 		// Calculate screen position
-		var z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
-		var screenX = Renderer.width / 2 + Math.round((Renderer.width / 2) * (_pos[0] * z));
-		var screenY = Renderer.height / 2 - Math.round((Renderer.height / 2) * (_pos[1] * z));
+		const z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
+		const screenX = Renderer.width / 2 + Math.round((Renderer.width / 2) * (_pos[0] * z));
+		let screenY = Renderer.height / 2 - Math.round((Renderer.height / 2) * (_pos[1] * z));
 
 		screenY = screenY - 13;
 
@@ -84,7 +84,7 @@ define(function (require) {
 		Mouse.screen.y = screenY;
 
 		// Update cursor visual position
-		var _selector = document.querySelector('.cursor');
+		const _selector = document.querySelector('.cursor');
 		if (_selector) {
 			_selector.style.left = screenX + 'px';
 			_selector.style.top = screenY + 'px';
@@ -92,15 +92,15 @@ define(function (require) {
 	}
 
 	function leftClick(click = false) {
-		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		const el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
 		if (!el) {
 			handleWorldLeftClick();
 			return;
 		}
 
-		if (ControlsSettings.joyDisableVirtualMouse) return;
+		if (ControlsSettings.joyDisableVirtualMouse) {return;}
 
-		var eventOptions = {
+		const eventOptions = {
 			bubbles: true,
 			cancelable: true,
 			view: window,
@@ -118,22 +118,22 @@ define(function (require) {
 	}
 
 	function rightClick(holding = false) {
-		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
-		var isCanvas = el && el.tagName.toLowerCase() === 'canvas';
+		const el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		const isCanvas = el && el.tagName.toLowerCase() === 'canvas';
 		if (!el || isCanvas) {
 			handleWorldRightClick();
 			return;
 		}
 		if (holding) {
-			var draggableElement = el.closest('.item, .skill');
+			const draggableElement = el.closest('.item, .skill');
 			if (draggableElement) {
-				if (require('./JoystickInteractionService').openSelectionWindow(draggableElement)) {
+				if (Interaction.openSelectionWindow(draggableElement)) {
 					return;
 				}
 			}
 		}
 
-		if (ControlsSettings.joyDisableVirtualMouse) return;
+		if (ControlsSettings.joyDisableVirtualMouse) {return;}
 
 		el.dispatchEvent(
 			new MouseEvent('mousedown', {
@@ -208,11 +208,11 @@ define(function (require) {
 	}
 
 	function contextMenu() {
-		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
-		var draggableElement = el.closest('.item, .skill');
+		const el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		const draggableElement = el.closest('.item, .skill');
 
 		if (el && draggableElement) {
-			var contextMenuEvent = new MouseEvent('contextmenu', {
+			const contextMenuEvent = new MouseEvent('contextmenu', {
 				bubbles: true,
 				cancelable: true,
 				view: window,
@@ -228,13 +228,13 @@ define(function (require) {
 	}
 
 	function navigateDraggableItems(direction) {
-		var el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		const el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
 
-		var container = el.closest('.item, .skill');
+		const container = el.closest('.item, .skill');
 
 		if (!container) {
 			// Fall back to regular arrow key navigation
-			var keyCode;
+			let keyCode;
 			switch (direction) {
 				case 'up':
 					keyCode = 38;
@@ -256,38 +256,38 @@ define(function (require) {
 			return;
 		}
 
-		var $container = jQuery(container);
-		var allDraggables = $container.find('.item, .skill').not('.tabs button, .tab-btn');
+		const $container = jQuery(container);
+		let allDraggables = $container.find('.item, .skill').not('.tabs button, .tab-btn');
 
 		if (allDraggables.length === 0) {
 			allDraggables = jQuery('.item:visible, .skill:visible').not('.tabs button, .tab-btn');
 		}
 
 		// Check if we're in a skill container by looking for skill-specific structure
-		var isSkillContainer =
+		const isSkillContainer =
 			(container.id && container.id.indexOf('positionSkills') === 0) ||
 			container.querySelector(
 				'#positionSkills1, #positionSkills2, #positionSkills3, #positionSkills4, #positionSkills5'
 			) ||
 			container.closest('.skillCol') !== null;
 
-		var draggableElement = container.closest('.item, .skill');
+		const draggableElement = container.closest('.item, .skill');
 
-		var currentIndex = allDraggables.index(draggableElement);
-		var newIndex = currentIndex;
+		const currentIndex = allDraggables.index(draggableElement);
+		let newIndex = currentIndex;
 
 		// Use fixed grid width based on container type
-		var GRID_WIDTH;
+		let GRID_WIDTH;
 		if (isSkillContainer) {
 			// Skills always use fixed 7-column grid
 			GRID_WIDTH = 7;
 		} else {
 			// Items: calculate based on container width and icon size
-			var containerWidth = $container.width() || 200;
-			var iconElement = jQuery(draggableElement).find('.icon');
-			var iconWidth = iconElement.width() || 24; // .icon has fixed 24px width
-			var iconMargin = 4; // margin from CSS: margin: 4px 4px 4px 4px
-			var totalIconWidth = iconWidth + iconMargin * 2;
+			const containerWidth = $container.width() || 200;
+			const iconElement = jQuery(draggableElement).find('.icon');
+			const iconWidth = iconElement.width() || 24; // .icon has fixed 24px width
+			const iconMargin = 4; // margin from CSS: margin: 4px 4px 4px 4px
+			const totalIconWidth = iconWidth + iconMargin * 2;
 			GRID_WIDTH = Math.max(6, Math.min(8, Math.floor(containerWidth / totalIconWidth)));
 		}
 
@@ -310,18 +310,18 @@ define(function (require) {
 		newIndex = Math.max(0, Math.min(allDraggables.length - 1, newIndex));
 
 		if (newIndex !== currentIndex && newIndex < allDraggables.length) {
-			var targetElement = allDraggables.eq(newIndex);
-			var targetOffset = targetElement.offset();
+			const targetElement = allDraggables.eq(newIndex);
+			const targetOffset = targetElement.offset();
 
 			if (targetOffset) {
-				var targetCenterX = targetOffset.left + targetElement.outerWidth() / 2;
-				var targetCenterY = targetOffset.top + targetElement.outerHeight() / 2;
+				const targetCenterX = targetOffset.left + targetElement.outerWidth() / 2;
+				const targetCenterY = targetOffset.top + targetElement.outerHeight() / 2;
 
 				// Move mouse to target element
 				Mouse.screen.x = targetCenterX;
 				Mouse.screen.y = targetCenterY;
 
-				var _selector = document.querySelector('.cursor');
+				const _selector = document.querySelector('.cursor');
 				if (_selector) {
 					_selector.style.left = targetCenterX + 'px';
 					_selector.style.top = targetCenterY + 'px';
@@ -344,8 +344,7 @@ define(function (require) {
 			}, 100);
 		}, 100);
 	}
-
-	return {
+export default {
 		quickCastClick: quickCastClick,
 		moveMouseToEntity: moveMouseToEntity,
 		navigateDraggableItems: navigateDraggableItems,
@@ -358,4 +357,3 @@ define(function (require) {
 		leftClick: leftClick,
 		rightClick: rightClick
 	};
-});

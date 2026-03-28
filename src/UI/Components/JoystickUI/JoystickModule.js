@@ -7,16 +7,15 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Polling = require('./JoystickPollingLoop');
-	var InputService = require('./JoystickInputService');
-	var Interaction = require('./JoystickInteractionService');
-	var ShortcutMapper = require('./JoystickShortcutMapper');
-	var JoystickUIRenderer = require('./JoystickUIRenderer');
+import Polling from './JoystickPollingLoop';
+import InputService from './JoystickInputService';
+import Interaction from './JoystickInteractionService';
+import ShortcutMapper from './JoystickShortcutMapper';
+import JoystickUIRenderer from './JoystickUIRenderer';
 
-	return {
+	export default {
 		prepare: function () {
 			ShortcutMapper.prepare();
 			InputService.prepare();
@@ -31,4 +30,3 @@ define(function (require) {
 			JoystickUIRenderer.dispose();
 		}
 	};
-});

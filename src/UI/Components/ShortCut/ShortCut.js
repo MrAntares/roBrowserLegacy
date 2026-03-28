@@ -7,63 +7,58 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var ItemType = require('DB/Items/ItemType');
-	var SkillInfo = require('DB/Skills/SkillInfo');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
-	var SkillDescription = require('UI/Components/SkillDescription/SkillDescription');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var Guild = require('UI/Components/Guild/Guild');
-	var ShortCutControls = require('Preferences/ShortCutControls');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Configs = require('Core/Configs');
-	var PACKETVER = require('Network/PacketVerManager');
+import DB from 'DB/DBManager';
+import ItemType from 'DB/Items/ItemType';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
+import SkillDescription from 'UI/Components/SkillDescription/SkillDescription';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import Guild from 'UI/Components/Guild/Guild';
+import ShortCutControls from 'Preferences/ShortCutControls';
+import KEYS from 'Controls/KeyEventHandler';
+import Configs from 'Core/Configs';
+import PACKETVER from 'Network/PacketVerManager';
+import SkillWindow from 'UI/Components/SkillList/SkillList';
+import htmlText from './ShortCut.html?raw';
+import cssText from './ShortCut.css?raw';
 
-	// Version Dependent UIs
-	var SkillWindow = require('UI/Components/SkillList/SkillList');
-
-	var htmlText = require('text!./ShortCut.html');
-	var cssText = require('text!./ShortCut.css');
+// Version Dependent UIs
 	/**
 	 * Create Component
 	 */
-	var ShortCut = new UIComponent('ShortCut', htmlText, cssText);
+	const ShortCut = new UIComponent('ShortCut', htmlText, cssText);
 
 	/**
 	 * @var {Array} ShortCut list
 	 */
-	var _list = [];
+	const _list = [];
 
 	/**
 	 * @var {number} max number of rows
 	 */
-	var _rowCount = 0;
+	let _rowCount = 0;
 
 	/**
 	 * @var {object} server load hotkeys
 	 */
-	var _lastServerHotkeys = null;
+	let _lastServerHotkeys = null;
 
 	/**
 	 * @var {Preference} structure to save informations about shortcut
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ShortCut',
 		{
 			x: 480,
@@ -195,7 +190,7 @@ define(function (require) {
 	};
 
 	ShortCut.getSkillById = function getSkillById(id) {
-		var skill;
+		let skill;
 
 		if (id > 10000 && id < 10100) {
 			skill = Guild.getSkillById(id);
@@ -217,8 +212,8 @@ define(function (require) {
 	 * @param {Array} shortcut list
 	 */
 	ShortCut.setList = function setList(list) {
-		var i, count;
-		var skill;
+		let i, count;
+		let skill;
 
 		this.ui.find('.container').empty();
 		_list.length = list.length;
@@ -257,17 +252,17 @@ define(function (require) {
 	 * Update tooltip for empty slots with hotkey only
 	 */
 	function updateEmptySlotTooltips() {
-		var i, size;
+		let i, size;
 		// Get all containers, not just those in _list
-		var containers = ShortCut.ui.find('.container');
+		const containers = ShortCut.ui.find('.container');
 		size = containers.length;
 
 		for (i = 0; i < size; ++i) {
-			var ui = containers.eq(i);
+			const ui = containers.eq(i);
 
 			// Only update empty slots - store hotkey as data attribute
 			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID)) {
-				var hotkey = getHotKeyString(i);
+				const hotkey = getHotKeyString(i);
 				if (hotkey) {
 					ui.attr('data-tooltip', hotkey);
 				}
@@ -280,10 +275,10 @@ define(function (require) {
 	 * Called when hotkey settings change
 	 */
 	ShortCut.updateAllTooltips = function updateAllTooltips() {
-		var i, size;
+		let i, size;
 		for (i = 0, size = _list.length; i < size; ++i) {
-			var ui = ShortCut.ui.find('.container:eq(' + i + ')');
-			var hotkey = getHotKeyString(i);
+			const ui = ShortCut.ui.find('.container:eq(' + i + ')');
+			const hotkey = getHotKeyString(i);
 
 			// Update empty slots
 			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID)) {
@@ -293,18 +288,18 @@ define(function (require) {
 			}
 			// Update filled slots
 			else if (_list[i] && (_list[i].isSkill || _list[i].ID)) {
-				var name = '';
+				let name = '';
 				if (_list[i].isSkill && SkillInfo[_list[i].ID]) {
 					name = SkillInfo[_list[i].ID].SkillName;
 				} else if (_list[i].ID) {
-					var item = Inventory.getUI().getItemById(_list[i].ID);
+					const item = Inventory.getUI().getItemById(_list[i].ID);
 					if (item) {
 						name = DB.getItemName(item);
 					}
 				}
 
 				if (name) {
-					var tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
+					const tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
 					ui.attr('data-tooltip', tooltipText);
 				}
 			}
@@ -318,7 +313,7 @@ define(function (require) {
 	 * @return {string} hotkey string or empty string
 	 */
 	function getHotKeyString(index) {
-		var shortcutKeys = [
+		const shortcutKeys = [
 			'F1_1',
 			'F1_2',
 			'F1_3',
@@ -361,23 +356,23 @@ define(function (require) {
 			return '';
 		}
 
-		var scKey = shortcutKeys[index];
-		var shortcut = ShortCutControls.ShortCuts[scKey];
+		const scKey = shortcutKeys[index];
+		const shortcut = ShortCutControls.ShortCuts[scKey];
 
 		if (!shortcut) {
 			return '';
 		}
 
-		var key = shortcut.cust ? shortcut.cust.key : shortcut.init.key;
-		var alt = shortcut.cust ? shortcut.cust.alt : shortcut.init.alt;
-		var ctrl = shortcut.cust ? shortcut.cust.ctrl : shortcut.init.ctrl;
-		var shift = shortcut.cust ? shortcut.cust.shift : shortcut.init.shift;
+		const key = shortcut.cust ? shortcut.cust.key : shortcut.init.key;
+		const alt = shortcut.cust ? shortcut.cust.alt : shortcut.init.alt;
+		const ctrl = shortcut.cust ? shortcut.cust.ctrl : shortcut.init.ctrl;
+		const shift = shortcut.cust ? shortcut.cust.shift : shortcut.init.shift;
 
 		if (!key) {
 			return '';
 		}
 
-		var hotkeyStr = '';
+		let hotkeyStr = '';
 		if (alt) {
 			hotkeyStr += 'ALT + ';
 		}
@@ -396,31 +391,31 @@ define(function (require) {
 	 * Show fixed tooltip on container hover
 	 */
 	function onContainerMouseEnter(event) {
-		var container = jQuery(this);
-		var tooltipText = container.attr('data-tooltip');
+		const container = jQuery(this);
+		const tooltipText = container.attr('data-tooltip');
 
 		if (tooltipText) {
-			var tooltip = jQuery('.shortcut-tooltip');
-			var shortcutUI = ShortCut.ui;
-			var shortcutPos = shortcutUI.offset();
-			var shortcutWidth = shortcutUI.outerWidth();
-			var shortcutHeight = shortcutUI.outerHeight();
+			const tooltip = jQuery('.shortcut-tooltip');
+			const shortcutUI = ShortCut.ui;
+			const shortcutPos = shortcutUI.offset();
+			const shortcutWidth = shortcutUI.outerWidth();
+			const shortcutHeight = shortcutUI.outerHeight();
 
 			tooltip.text(tooltipText);
 			tooltip.addClass('show');
 
 			// Calculate tooltip dimensions
-			var tooltipWidth = tooltip.outerWidth();
-			var tooltipHeight = tooltip.outerHeight();
+			const tooltipWidth = tooltip.outerWidth();
+			const tooltipHeight = tooltip.outerHeight();
 
 			// Check if there's enough space below
-			var windowHeight = jQuery(window).height();
-			var spaceBelow = windowHeight - (shortcutPos.top + shortcutHeight);
-			var showAbove = spaceBelow < tooltipHeight + 10;
+			const windowHeight = jQuery(window).height();
+			const spaceBelow = windowHeight - (shortcutPos.top + shortcutHeight);
+			const showAbove = spaceBelow < tooltipHeight + 10;
 
 			// Position tooltip centered horizontally
-			var left = shortcutPos.left + shortcutWidth / 2 - tooltipWidth / 2;
-			var top;
+			const left = shortcutPos.left + shortcutWidth / 2 - tooltipWidth / 2;
+			let top;
 
 			if (showAbove) {
 				// Position above ShortCut
@@ -438,12 +433,12 @@ define(function (require) {
 	 * Hide fixed tooltip on container leave
 	 */
 	function onContainerMouseLeave(event) {
-		var tooltip = jQuery('.shortcut-tooltip');
+		const tooltip = jQuery('.shortcut-tooltip');
 		tooltip.removeClass('show');
 	}
 
 	ShortCut.setElement = function setElement(isSkill, ID, count) {
-		var i, size;
+		let i, size;
 
 		for (i = 0, size = _list.length; i < size; ++i) {
 			if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID) {
@@ -468,13 +463,13 @@ define(function (require) {
 	 * Resizing hotkey window
 	 */
 	function onResize(event) {
-		var ui = ShortCut.ui;
-		var top = ui.position().top;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = ShortCut.ui;
+		const top = ui.position().top;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var h = Math.floor((Mouse.screen.y - top) / 34 + 1);
+			let h = Math.floor((Mouse.screen.y - top) / 34 + 1);
 
 			// Maximum and minimum window size
 			h = Math.min(Math.max(h, 1), _rowCount);
@@ -512,8 +507,8 @@ define(function (require) {
 	 * @param {number} count or level
 	 */
 	ShortCut.addElement = function addElement(index, isSkill, ID, count) {
-		var file, name;
-		var ui = ShortCut.ui.find('.container:eq(' + index + ')').empty();
+		let file, name;
+		const ui = ShortCut.ui.find('.container:eq(' + index + ')').empty();
 
 		if (!_list[index]) {
 			_list[index] = {};
@@ -533,14 +528,14 @@ define(function (require) {
 			}
 		} else {
 			_list[index].count = count;
-			var item = Inventory.getUI().getItemById(ID);
+			const item = Inventory.getUI().getItemById(ID);
 
 			// Do not display items not in inventory
 			if (!item) {
 				return;
 			}
 
-			var it = DB.getItemInfo(ID);
+			const it = DB.getItemInfo(ID);
 			file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
 			name = DB.getItemName(item);
 
@@ -561,8 +556,8 @@ define(function (require) {
 		}
 
 		// Get hotkey for this slot
-		var hotkey = getHotKeyString(index);
-		var tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
+		const hotkey = getHotKeyString(index);
+		const tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
 
 		Client.loadFile(DB.INTERFACE_PATH + 'item/' + file + '.bmp', function (url) {
 			ui.html(
@@ -591,18 +586,18 @@ define(function (require) {
 		}
 
 		_list[index].Delay = Renderer.tick + delay;
-		var ui = ShortCut.ui.find('.container:eq(' + index + ')');
+		const ui = ShortCut.ui.find('.container:eq(' + index + ')');
 		ui.find('.cooldown-overlay').remove();
 
-		var overlay = jQuery('<div class="cooldown-overlay"></div>');
+		const overlay = jQuery('<div class="cooldown-overlay"></div>');
 		ui.find('.icon').append(overlay);
 		ui.find('.img').css('filter', 'none');
 
-		var animationId;
+		let animationId;
 
 		function updateCooldown() {
-			var now = Renderer.tick;
-			var remaining = _list[index].Delay - now;
+			const now = Renderer.tick;
+			const remaining = _list[index].Delay - now;
 
 			if (remaining <= 0 || !_list[index].Delay) {
 				overlay.remove();
@@ -613,8 +608,8 @@ define(function (require) {
 				return;
 			}
 
-			var percentage = remaining / delay;
-			var degrees = (1 - percentage) * 360;
+			const percentage = remaining / delay;
+			const degrees = (1 - percentage) * 360;
 			overlay.css(
 				'background',
 				'conic-gradient(transparent 0deg, transparent ' + degrees + 'deg, rgba(0,0,0,0.75) ' + degrees + 'deg)'
@@ -662,7 +657,7 @@ define(function (require) {
 	 * @param {number} amount (optional)
 	 */
 	ShortCut.removeElement = function removeElement(isSkill, ID, row, amount) {
-		var i, count;
+		let i, count;
 
 		// Do not need to modify empty slot
 		if (!ID) {
@@ -692,9 +687,9 @@ define(function (require) {
 	 * and skill window to save to shortcut ?
 	 */
 	function onDrop(event) {
-		var data, element;
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var row = Math.floor(index / 9);
+		let data, element;
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const row = Math.floor(index / 9);
 
 		event.stopImmediatePropagation();
 
@@ -763,7 +758,7 @@ define(function (require) {
 	 * to change prosition in the shortcut.
 	 */
 	function onDragStart(event) {
-		var img, index;
+		let img, index;
 
 		index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		this.classList.add('hide');
@@ -791,8 +786,8 @@ define(function (require) {
 	 * using right click on it.
 	 */
 	function onElementInfo(event) {
-		var index = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var element = _list[index];
+		const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const element = _list[index];
 
 		event.stopImmediatePropagation();
 
@@ -825,7 +820,7 @@ define(function (require) {
 	 * Click on a shortcut
 	 */
 	function onUseShortCut() {
-		var index = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		clickElement(index);
 	}
 
@@ -835,7 +830,7 @@ define(function (require) {
 	 * @param {number} shortcut index
 	 */
 	function clickElement(index) {
-		var shortcut = _list[index];
+		const shortcut = _list[index];
 
 		SkillTargetSelection.remove();
 
@@ -851,7 +846,7 @@ define(function (require) {
 
 		// Use the item
 		else {
-			var item = Inventory.getUI().getItemById(_list[index].ID);
+			const item = Inventory.getUI().getItemById(_list[index].ID);
 			if (item) {
 				Inventory.getUI().useItem(item);
 			}
@@ -914,7 +909,7 @@ define(function (require) {
 	};
 
 	function onUpdateOwnerName() {
-		for (var index in _list) {
+		for (const index in _list) {
 			if (!_list[index].isSkill) {
 				ShortCut.setElement(false, _list[index].ID, _list[index].count);
 			}
@@ -932,7 +927,7 @@ define(function (require) {
 	ShortCut.onChange = function OnConfigUpdate(/*index, isSkill, ID, count*/) {};
 
 	function convertHotkeysToServerFormat() {
-		var serverData = {
+		const serverData = {
 			Type: 1,
 			data: {
 				EmotionHotkey: [],
@@ -942,7 +937,7 @@ define(function (require) {
 			}
 		};
 
-		var emotionKeys = [
+		const emotionKeys = [
 			'Macro1',
 			'Macro2',
 			'Macro3',
@@ -955,13 +950,13 @@ define(function (require) {
 			'Macro10'
 		];
 		emotionKeys.forEach(function (key, index) {
-			var shortcut = ShortCutControls.ShortCuts[key];
+			const shortcut = ShortCutControls.ShortCuts[key];
 			if (shortcut && shortcut.cust && shortcut.cust.emotion) {
 				serverData.data.EmotionHotkey[index] = shortcut.cust.emotion;
 			}
 		});
 
-		var shortcutKeys = [
+		const shortcutKeys = [
 			'F1_1',
 			'F1_2',
 			'F1_3',
@@ -1001,9 +996,9 @@ define(function (require) {
 		];
 
 		shortcutKeys.forEach(function (key, index) {
-			var shortcut = ShortCutControls.ShortCuts[key];
+			const shortcut = ShortCutControls.ShortCuts[key];
 			if (shortcut) {
-				var keyData = shortcut.cust || shortcut.init;
+				const keyData = shortcut.cust || shortcut.init;
 				serverData.data.UserHotkey_V2.SkillBar_1Tab.push({
 					desc: 'Skill ' + (index + 1),
 					index: index,
@@ -1022,7 +1017,7 @@ define(function (require) {
 		}
 
 		if (serverData.data.EmotionHotkey) {
-			var emotionKeys = [
+			const emotionKeys = [
 				'Macro1',
 				'Macro2',
 				'Macro3',
@@ -1045,7 +1040,7 @@ define(function (require) {
 		}
 
 		if (serverData.data.UserHotkey_V2 && serverData.data.UserHotkey_V2.SkillBar_1Tab) {
-			var shortcutKeys = [
+			const shortcutKeys = [
 				'F1_1',
 				'F1_2',
 				'F1_3',
@@ -1086,7 +1081,7 @@ define(function (require) {
 
 			serverData.data.UserHotkey_V2.SkillBar_1Tab.forEach(function (skillData) {
 				if (skillData && skillData.index < shortcutKeys.length) {
-					var key = shortcutKeys[skillData.index];
+					const key = shortcutKeys[skillData.index];
 					if (key && skillData.key1) {
 						if (!ShortCutControls.ShortCuts[key].cust) {
 							ShortCutControls.ShortCuts[key].cust = {};
@@ -1107,20 +1102,20 @@ define(function (require) {
 
 	ShortCut.saveToServer = function () {
 		if (PACKETVER.value >= 20170315 && Session.WebToken) {
-			var hotkeys = JSON.stringify(convertHotkeysToServerFormat());
+			const hotkeys = JSON.stringify(convertHotkeysToServerFormat());
 			if (!haveHotkeysChanged(hotkeys)) {
 				return;
 			}
 
-			var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+			const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
-			var formData = new FormData();
+			const formData = new FormData();
 			formData.append('AID', Session.AID);
 			formData.append('WorldName', Session.ServerName);
 			formData.append('AuthToken', Session.WebToken);
 			formData.append('data', hotkeys);
 
-			var xhr = new XMLHttpRequest();
+			const xhr = new XMLHttpRequest();
 			xhr.open('POST', webAddress + '/userconfig/save', true);
 			xhr.onload = function () {
 				if (xhr.status === 200) {
@@ -1133,19 +1128,19 @@ define(function (require) {
 
 	ShortCut.loadFromServer = function (callback) {
 		if (PACKETVER.value >= 20170315 && Session.WebToken) {
-			var webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+			const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
-			var formData = new FormData();
+			const formData = new FormData();
 			formData.append('AID', Session.AID);
 			formData.append('WorldName', Session.ServerName);
 			formData.append('AuthToken', Session.WebToken);
 
-			var xhr = new XMLHttpRequest();
+			const xhr = new XMLHttpRequest();
 			xhr.open('POST', webAddress + '/userconfig/load', true);
 			xhr.onload = function () {
 				if (xhr.status === 200) {
 					try {
-						var serverData = JSON.parse(xhr.responseText);
+						const serverData = JSON.parse(xhr.responseText);
 						_lastServerHotkeys = JSON.parse(JSON.stringify(serverData));
 						convertHotkeysFromServerFormat(serverData);
 						if (callback) {
@@ -1167,5 +1162,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ShortCut);
-});
+export default UIManager.addComponent(ShortCut);

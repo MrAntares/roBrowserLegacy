@@ -10,13 +10,15 @@
  * @author Vincent Thibault
  */
 
-define(['Core/Client', 'Preferences/Audio'], function (Client, Preferences) {
-	'use strict';
+'use strict';
+
+import Client from 'Core/Client';
+import Preferences from 'Preferences/Audio';
 
 	/**
 	 * BGM NameSpace
 	 */
-	var BGM = {};
+	const BGM = {};
 
 	BGM.filename = null;
 	BGM.volume = Preferences.BGM.volume;
@@ -58,8 +60,8 @@ define(['Core/Client', 'Preferences/Audio'], function (Client, Preferences) {
 	 * @param {Array} extensions list
 	 */
 	BGM.setAvailableExtensions = function setAvailableExtensions(extensions) {
-		var i, count;
-		var audio = this.audio;
+		let i, count;
+		const audio = this.audio;
 
 		if (!extensions || !extensions.length) {
 			extensions = ['mp3'];
@@ -152,7 +154,6 @@ define(['Core/Client', 'Preferences/Audio'], function (Client, Preferences) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return BGM;
-});
+	export default BGM;

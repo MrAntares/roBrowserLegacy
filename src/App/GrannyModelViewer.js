@@ -9,32 +9,12 @@
  * @author Liam Mitchell
  */
 
-// Errors Handler (hack)
-require.onError = function (err) {
-	'use strict';
+import Configs from 'Core/Configs';
+import Thread from 'Core/Thread';
+import Client from 'Core/Client';
+import GrannyModelViewer from 'UI/Components/GrannyModelViewer/GrannyModelViewer';
 
-	if (require.defined('UI/Components/Error/Error')) {
-		require('UI/Components/Error/Error').addTrace(err);
-		return;
-	}
-
-	require(['UI/Components/Error/Error'], function (Errors) {
-		Errors.addTrace(err);
-	});
-};
-
-require({
-	baseUrl: '../../src/',
-	paths: {
-		text: 'Vendors/text.require',
-		jquery: 'Vendors/jquery-1.9.1'
-	}
-}, ['Core/Configs', 'Core/Thread', 'Core/Client', 'UI/Components/GrannyModelViewer/GrannyModelViewer'], function (
-	Configs,
-	Thread,
-	Client,
-	GrannyModelViewer
-) {
+export default function init() {
 	'use strict';
 
 	function onAPIMessage(event) {
@@ -75,4 +55,4 @@ require({
 		Client.init([]);
 	});
 	Thread.init();
-});
+}

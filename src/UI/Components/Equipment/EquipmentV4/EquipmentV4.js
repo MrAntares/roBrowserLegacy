@@ -7,47 +7,44 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var StatusConst = require('DB/Status/StatusState');
-	var EquipLocation = require('DB/Items/EquipmentLocation');
-	var Network = require('Network/NetworkManager');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PACKET = require('Network/PacketStructure');
-	var ItemType = require('DB/Items/ItemType');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Session = require('Engine/SessionStorage');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var UIVersionManager = require('UI/UIVersionManager');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var CartItems = require('UI/Components/CartItems/CartItems');
-	var SwitchEquip = require('UI/Components/SwitchEquip/SwitchEquip');
-	var WinStats = require('UI/Components/WinStats/WinStats');
-	var GraphicsSettings = require('Preferences/Graphics');
-	var htmlText = require('text!./EquipmentV4.html');
-	var cssText = require('text!./EquipmentV4.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import StatusConst from 'DB/Status/StatusState';
+import EquipLocation from 'DB/Items/EquipmentLocation';
+import Network from 'Network/NetworkManager';
+import PACKETVER from 'Network/PacketVerManager';
+import PACKET from 'Network/PacketStructure';
+import ItemType from 'DB/Items/ItemType';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import UIVersionManager from 'UI/UIVersionManager';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import CartItems from 'UI/Components/CartItems/CartItems';
+import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip';
+import WinStats from 'UI/Components/WinStats/WinStats';
+import GraphicsSettings from 'Preferences/Graphics';
+import htmlText from './EquipmentV4.html?raw';
+import cssText from './EquipmentV4.css?raw';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import Entity from 'Renderer/Entity/Entity';
 
 	/**
 	 * Create Component
 	 */
-	var EquipmentV4 = new UIComponent('EquipmentV4', htmlText, cssText);
+	const EquipmentV4 = new UIComponent('EquipmentV4', htmlText, cssText);
 
 	/**
 	 * @var {Preference} window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'EquipmentV4',
 		{
 			x: 480,
@@ -67,40 +64,40 @@ define(function (require) {
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _ctx = [];
+	const _ctx = [];
 
 	/**
 	 * @var {boolean} show equipment to other people ?
 	 */
-	var _showEquip = false;
+	let _showEquip = false;
 
 	/**
 	 * @var {boolean} show costume ?
 	 */
-	var _hideCostume = false;
+	let _hideCostume = false;
 
 	/**
 	 * @var {number} title id
 	 */
-	var _currentTitleId = 0;
+	let _currentTitleId = 0;
 
 	/**
 	 * @var {jQuery} button that appeared when level up
 	 */
-	var _btnLevelUp;
+	let _btnLevelUp;
 
 	/**
 	 * @var {jQuery} variable for UI tabs
 	 */
-	var tabLinks = new Array();
-	var contentDivs = new Array();
-	var currentTabId = 'general'; // Variable to store the current tab's ID
+	const tabLinks = new Array();
+	const contentDivs = new Array();
+	let currentTabId = 'general'; // Variable to store the current tab's ID
 
 	/**
 	 * @var {jQuery} variable for Switch Equip
 	 */
-	var switchappend;
-	var switchUIopen;
+	let switchappend;
+	let switchUIopen;
 
 	/**
 	 * Initialize UI
@@ -110,10 +107,10 @@ define(function (require) {
 		_ctx.push(this.ui.find('canvas')[1].getContext('2d'));
 
 		// Grab the tab links and content divs from the page
-		var tabListItems = document.getElementById('tabs').childNodes;
+		const tabListItems = document.getElementById('tabs').childNodes;
 		for (var i = 0; i < tabListItems.length; i++) {
 			if (tabListItems[i].nodeName == 'DIV') {
-				var tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
+				const tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
 				var id = getHash(tabLink.getAttribute('href'));
 				tabLinks[id] = tabLink;
 				contentDivs[id] = document.getElementById(id);
@@ -208,7 +205,7 @@ define(function (require) {
 		EquipmentV4.ui.find('.show_costume').next('span').hide();
 
 		// Damage Skin Settings
-		var buttons = this.ui.find('#damageskin .skin-option');
+		const buttons = this.ui.find('#damageskin .skin-option');
 		buttons.each(function () {
 			jQuery(this)
 				.attr('data-background', 'showdamage/btn_damage.bmp')
@@ -218,21 +215,21 @@ define(function (require) {
 		buttons.each(this.parseHTML);
 		buttons.off('mouseup');
 		buttons.on('mousedown', function (event) {
-			var skinId = parseInt(this.getAttribute('data-skin'), 10);
+			const skinId = parseInt(this.getAttribute('data-skin'), 10);
 			EquipmentV4.setDamageSkin(skinId);
 		});
-		var savedSkin = GraphicsSettings.damageSkin;
+		let savedSkin = GraphicsSettings.damageSkin;
 		savedSkin = savedSkin !== undefined && savedSkin !== null ? savedSkin : 0;
 		EquipmentV4.setDamageSkin(savedSkin);
 
 		// Damage Motion Settings
-		var motionChecks = this.ui.find('.motion-check');
+		const motionChecks = this.ui.find('.motion-check');
 		motionChecks.each(this.parseHTML);
 		motionChecks.on('mousedown', function () {
-			var motionId = parseInt(this.getAttribute('data-motion'), 10);
+			const motionId = parseInt(this.getAttribute('data-motion'), 10);
 			EquipmentV4.setDamageMotion(motionId);
 		});
-		var savedMotion = GraphicsSettings.damageMotion;
+		let savedMotion = GraphicsSettings.damageMotion;
 		savedMotion = savedMotion !== undefined && savedMotion !== null ? savedMotion : 0;
 		EquipmentV4.setDamageMotion(savedMotion);
 	};
@@ -241,23 +238,23 @@ define(function (require) {
 	 * Title Functions.
 	 */
 	EquipmentV4.loadTitles = function () {
-		var titleList = this.ui.find('#title_list');
+		const titleList = this.ui.find('#title_list');
 		titleList.empty();
 
-		var removeTitleText = DB.getMessage(2686) || 'Remove Title';
-		var removeSelectedClass = _currentTitleId === 0 ? ' selected' : '';
-		var removeElement = jQuery(
+		const removeTitleText = DB.getMessage(2686) || 'Remove Title';
+		const removeSelectedClass = _currentTitleId === 0 ? ' selected' : '';
+		const removeElement = jQuery(
 			'<div class="title-option' + removeSelectedClass + '" data-title="0">' + removeTitleText + '</div>'
 		);
 		titleList.append(removeElement);
 
-		var allTitles = DB.getAllTitles();
-		for (var titleId in allTitles) {
+		const allTitles = DB.getAllTitles();
+		for (const titleId in allTitles) {
 			if (allTitles.hasOwnProperty(titleId)) {
 				// TODO: Check if player finished achievment for title
-				var titleName = allTitles[titleId];
-				var selectedClass = parseInt(titleId) === _currentTitleId ? ' selected' : '';
-				var titleElement = jQuery(
+				const titleName = allTitles[titleId];
+				const selectedClass = parseInt(titleId) === _currentTitleId ? ' selected' : '';
+				const titleElement = jQuery(
 					'<div class="title-option' +
 						selectedClass +
 						'" data-title="' +
@@ -274,13 +271,13 @@ define(function (require) {
 		titleList.on('click', '.title-option', function (e) {
 			e.preventDefault();
 			e.stopPropagation();
-			var titleId = parseInt(this.getAttribute('data-title'));
+			const titleId = parseInt(this.getAttribute('data-title'));
 			EquipmentV4.selectTitle(titleId);
 		});
 	};
 
 	EquipmentV4.selectTitle = function (titleId) {
-		var pkt = new PACKET.CZ.REQ_CHANGE_TITLE();
+		const pkt = new PACKET.CZ.REQ_CHANGE_TITLE();
 		pkt.title_id = titleId;
 		Network.sendPacket(pkt);
 	};
@@ -296,11 +293,11 @@ define(function (require) {
 	 * @return {boolean} false to stop the browser from following the link
 	 */
 	function showTab() {
-		var selectedId = getHash(this.getAttribute('href'));
+		const selectedId = getHash(this.getAttribute('href'));
 
 		// Highlight the selected tab, and dim all others.
 		// Also show the selected content div, and hide all others.
-		for (var id in contentDivs) {
+		for (const id in contentDivs) {
 			if (id == selectedId) {
 				tabLinks[id].className = 'tab selected';
 				contentDivs[id].className = 'content';
@@ -354,7 +351,7 @@ define(function (require) {
 	 * @param {string} tagName - The tag name of the child element to find.
 	 */
 	function getFirstChildWithTagName(element, tagName) {
-		for (var i = 0; i < element.childNodes.length; i++) {
+		for (let i = 0; i < element.childNodes.length; i++) {
 			if (element.childNodes[i].nodeName == tagName.toUpperCase()) {
 				return element.childNodes[i];
 			}
@@ -368,7 +365,7 @@ define(function (require) {
 	 * @return {string} The hash part of the URL.
 	 */
 	function getHash(url) {
-		var hashPos = url.lastIndexOf('#');
+		const hashPos = url.lastIndexOf('#');
 		return url.substring(hashPos + 1);
 	}
 
@@ -394,7 +391,7 @@ define(function (require) {
 	}
 
 	function onRemoveOption() {
-		var pkt = new PACKET.CZ.REQ_CARTOFF();
+		const pkt = new PACKET.CZ.REQ_CARTOFF();
 		Network.sendPacket(pkt);
 	}
 
@@ -525,7 +522,7 @@ define(function (require) {
 	 * @param {Item} item
 	 */
 	EquipmentV4.equip = function equip(item, location) {
-		var it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 		item.equipped = location;
 		EquipmentV4._itemlist[item.index] = item;
 
@@ -583,8 +580,6 @@ define(function (require) {
 			);
 		}
 
-		var Inventory = getModule('UI/Components/Inventory/Inventory');
-
 		if (!Inventory.getUI().equippedItems.includes(item.index)) {
 			Inventory.getUI().equippedItems.push(item.index);
 		}
@@ -603,8 +598,8 @@ define(function (require) {
 	 * @param {number} item location
 	 */
 	EquipmentV4.unEquip = function unEquip(index, location) {
-		var selector = getSelectorFromLocation(location);
-		var item = EquipmentV4._itemlist[index];
+		const selector = getSelectorFromLocation(location);
+		const item = EquipmentV4._itemlist[index];
 		item.equipped = 0;
 
 		this.ui.find(selector).empty();
@@ -628,7 +623,7 @@ define(function (require) {
 	 * @returns {item.wItemSpriteNumber} Object with { item }
 	 */
 	EquipmentV4.checkEquipLoc = function checkEquipLoc(location) {
-		for (var key in EquipmentV4._itemlist) {
+		for (const key in EquipmentV4._itemlist) {
 			if (EquipmentV4._itemlist[key].location & location) {
 				return EquipmentV4._itemlist[key].wItemSpriteNumber;
 			}
@@ -649,9 +644,9 @@ define(function (require) {
 	 * Display or not status window
 	 */
 	function toggleStatus() {
-		var self = EquipmentV4.ui.find('.view_status');
-		var status = WinStats.getUI().ui;
-		var state = status.is(':visible') ? 'on' : 'off';
+		const self = EquipmentV4.ui.find('.view_status');
+		const status = WinStats.getUI().ui;
+		const state = status.is(':visible') ? 'on' : 'off';
 
 		status.toggle();
 
@@ -678,12 +673,12 @@ define(function (require) {
 	 * Rendering character
 	 */
 	var renderCharacter = (function renderCharacterClosure() {
-		var _lastState = 0;
-		var _hasCart = 0;
+		let _lastState = 0;
+		let _hasCart = 0;
 
-		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		var _savedColor = new Float32Array(4);
-		var _animation = {
+		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		const _savedColor = new Float32Array(4);
+		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -694,7 +689,7 @@ define(function (require) {
 		};
 
 		// Current removable options
-		var HasAttachmentState =
+		const HasAttachmentState =
 			StatusConst.EffectState.FALCON |
 			StatusConst.EffectState.RIDING |
 			StatusConst.EffectState.DRAGON1 |
@@ -709,7 +704,7 @@ define(function (require) {
 			StatusConst.EffectState.CART4 |
 			StatusConst.EffectState.CART5;
 
-		var HasCartState =
+		const HasCartState =
 			StatusConst.EffectState.CART1 |
 			StatusConst.EffectState.CART2 |
 			StatusConst.EffectState.CART3 |
@@ -717,8 +712,7 @@ define(function (require) {
 			StatusConst.EffectState.CART5;
 
 		return function renderCharacter() {
-			var Entity = getModule('Renderer/Entity/Entity');
-			var equip_character = new Entity();
+			const equip_character = new Entity();
 			equip_character.set({
 				GID: Session.Entity.GID + '_EQUIP',
 				objecttype: equip_character.constructor.TYPE_PC,
@@ -775,8 +769,8 @@ define(function (require) {
 			equip_character.animation = _animation;
 
 			// Rendering
-			for (var i = 0; i < _ctx.length; i++) {
-				var ctx = _ctx[i];
+			for (let i = 0; i < _ctx.length; i++) {
+				const ctx = _ctx[i];
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				equip_character.renderEntity(ctx);
@@ -791,7 +785,7 @@ define(function (require) {
 	 * @returns {string} selector
 	 */
 	function getSelectorFromLocation(location) {
-		var selector = [];
+		const selector = [];
 
 		if (location & EquipLocation.HEAD_TOP) {
 			selector.push('.head_top');
@@ -867,8 +861,8 @@ define(function (require) {
 	 */
 	function onDragOver(event) {
 		if (window._OBJ_DRAG_) {
-			var data = window._OBJ_DRAG_;
-			var item, selector, ui;
+			const data = window._OBJ_DRAG_;
+			let item, selector, ui;
 
 			// Just support items for now ?
 			if (data.type === 'item') {
@@ -908,7 +902,7 @@ define(function (require) {
 	 * Drop an item in the equipment, equip it if possible
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -939,8 +933,8 @@ define(function (require) {
 	 * Right click on an item
 	 */
 	function onEquipmentInfo(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = EquipmentV4._itemlist[index];
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = EquipmentV4._itemlist[index];
 
 		if (item) {
 			// Don't add the same UI twice, remove it
@@ -964,7 +958,7 @@ define(function (require) {
 	 * Double click on an equipment to remove it
 	 */
 	function onEquipmentUnEquip() {
-		var index = parseInt(this.getAttribute('data-index'), 10);
+		const index = parseInt(this.getAttribute('data-index'), 10);
 		EquipmentV4.onUnEquip(index);
 		EquipmentV4.ui.find('.overlay').hide();
 	}
@@ -973,16 +967,16 @@ define(function (require) {
 	 * When mouse is over an equipment, display the item name
 	 */
 	function onEquipmentOver() {
-		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var item = EquipmentV4._itemlist[idx];
+		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const item = EquipmentV4._itemlist[idx];
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = EquipmentV4.ui.find('.overlay');
-		var pos = jQuery(this).position();
+		const overlay = EquipmentV4.ui.find('.overlay');
+		const pos = jQuery(this).position();
 
 		// Possible jquery error
 		if (!pos.top && !pos.left) {
@@ -1006,8 +1000,8 @@ define(function (require) {
 	 * Updates the owner name of items in the Equipment window.
 	 */
 	EquipmentV4.onUpdateOwnerName = function () {
-		for (var index in EquipmentV4._itemlist) {
-			var item = EquipmentV4._itemlist[index];
+		for (const index in EquipmentV4._itemlist) {
+			const item = EquipmentV4._itemlist[index];
 			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				EquipmentV4.ui
 					.find('.item[data-index="' + index + '"] .itemName')
@@ -1022,8 +1016,8 @@ define(function (require) {
 	 * @return {number} The number of equipped items.
 	 */
 	EquipmentV4.getNumber = function () {
-		var num = 0;
-		for (var key in EquipmentV4._itemlist) {
+		let num = 0;
+		for (const key in EquipmentV4._itemlist) {
 			if (EquipmentV4._itemlist[key].location && EquipmentV4._itemlist[key].location != EquipLocation.AMMO) {
 				num++;
 			}
@@ -1050,8 +1044,8 @@ define(function (require) {
 	 * Parse Damage Skin Selector.
 	 */
 	EquipmentV4.setDamageSkin = function setDamageSkin(skinId) {
-		var buttons = this.ui.find('#damageskin .skin-option');
-		var buttonSelected = this.ui.find('#damageskin .skin-option[data-skin=' + skinId + ']');
+		const buttons = this.ui.find('#damageskin .skin-option');
+		const buttonSelected = this.ui.find('#damageskin .skin-option[data-skin=' + skinId + ']');
 
 		GraphicsSettings.damageSkin = skinId;
 		GraphicsSettings.save();
@@ -1083,13 +1077,13 @@ define(function (require) {
 		GraphicsSettings.damageMotion = motionId;
 		GraphicsSettings.save();
 
-		var checkboxes = this.ui.find('.motion-check');
+		const checkboxes = this.ui.find('.motion-check');
 
 		checkboxes.each(function () {
-			var btn = jQuery(this);
-			var btnId = parseInt(btn.attr('data-motion'), 10);
+			const btn = jQuery(this);
+			const btnId = parseInt(btn.attr('data-motion'), 10);
 
-			var bgImage = btnId === motionId ? 'checkbox_1.bmp' : 'checkbox_0.bmp';
+			const bgImage = btnId === motionId ? 'checkbox_1.bmp' : 'checkbox_0.bmp';
 
 			Client.loadFile(DB.INTERFACE_PATH + bgImage, function (data) {
 				btn.css('backgroundImage', 'url(' + data + ')');
@@ -1104,7 +1098,7 @@ define(function (require) {
 	 * @return {Object} The item in the equip switch list if found, otherwise 0
 	 */
 	EquipmentV4.isInEquipList = function (data) {
-		for (var key in EquipmentV4._itemlist) {
+		for (const key in EquipmentV4._itemlist) {
 			if (EquipmentV4._itemlist[key].location & data) {
 				return EquipmentV4._itemlist[key];
 			}
@@ -1117,11 +1111,11 @@ define(function (require) {
 	 * Equips all items in _itemlist to SwitchEquip.
 	 */
 	EquipmentV4.equipItemsToSwitch = function () {
-		var equipmentKeys = Object.keys(EquipmentV4._itemlist);
+		const equipmentKeys = Object.keys(EquipmentV4._itemlist);
 
-		for (var i = 0; i < equipmentKeys.length; i++) {
-			var key = equipmentKeys[i];
-			var equipmentItem = EquipmentV4._itemlist[key];
+		for (let i = 0; i < equipmentKeys.length; i++) {
+			const key = equipmentKeys[i];
+			const equipmentItem = EquipmentV4._itemlist[key];
 
 			// Check if the item's location is not in SwitchEquip._list
 			if (equipmentItem.location) {
@@ -1142,5 +1136,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(EquipmentV4);
-});
+	export default UIManager.addComponent(EquipmentV4);

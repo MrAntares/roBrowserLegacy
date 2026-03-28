@@ -7,37 +7,33 @@
  *
  * @author Vincent Thibault
 + */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var SkillInfo = require('DB/Skills/SkillInfo');
-	var SkillTreeView = require('DB/Skills/SkillTreeView');
-	var Session = require('Engine/SessionStorage');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var SkillDescription = require('UI/Components/SkillDescription/SkillDescription');
-	var htmlText = require('text!./SkillListV0.html');
-	var cssText = require('text!./SkillListV0.css');
+import DB from 'DB/DBManager';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import SkillTreeView from 'DB/Skills/SkillTreeView';
+import Session from 'Engine/SessionStorage';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import SkillDescription from 'UI/Components/SkillDescription/SkillDescription';
+import htmlText from './SkillListV0.html?raw';
+import cssText from './SkillListV0.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var SkillListV0 = new UIComponent('SkillListV0', htmlText, cssText);
+	const SkillListV0 = new UIComponent('SkillListV0', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'SkillListV0',
 		{
 			x: 100,
@@ -55,34 +51,34 @@ define(function (require) {
 	 * @var {Array} Skill List
 	 * { SKID, type, level, spcost, attackRange, skillName, upgradable }
 	 */
-	var _list = [];
+	const _list = [];
 
 	/**
 	 * @var {jQuery} level up button reference
 	 */
-	var _btnIncSkill;
+	let _btnIncSkill;
 
 	/**
 	 * @var {number} skill points
 	 */
-	var _points = 0;
+	let _points = 0;
 
-	var totalCounter = 0;
+	let totalCounter = 0;
 
 	/**
 	 * @var {jQuery} button that appeared when level up
 	 */
-	var _btnLevelUp;
+	let _btnLevelUp;
 
-	var lArrow, rArrow;
+	let lArrow, rArrow;
 
-	var skillPosition = [];
+	let skillPosition = [];
 
-	var skillDependencyTree = [];
+	const skillDependencyTree = [];
 
-	var rememberChoice = [];
+	let rememberChoice = [];
 
-	var hasSkills = [];
+	const hasSkills = [];
 
 	/**
 	 * Initialize UI
@@ -198,8 +194,8 @@ define(function (require) {
 		SkillListV0.ui.find('.upgradable').removeClass('upgradable');
 
 		// Use original job for skill access if the character is transformed
-		var skillJobId = Session.Character.job;
-		var originalJobId = Session.Entity._job;
+		let skillJobId = Session.Character.job;
+		const originalJobId = Session.Entity._job;
 		if (originalJobId && originalJobId !== Session.Character.job) {
 			skillJobId = originalJobId;
 		}
@@ -207,7 +203,7 @@ define(function (require) {
 		skillPosition = getSkillPosition(skillJobId);
 		createSkillDependencyTree();
 
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = _list.length; i < count; ++i) {
 			this.onUpdateSkill(_list[i].SKID, 0);
@@ -240,7 +236,7 @@ define(function (require) {
 					return;
 				}
 
-				var sk = SkillInfo[skid];
+				const sk = SkillInfo[skid];
 
 				skillDependencyTree[skid] = {
 					dependency: [],
@@ -259,15 +255,15 @@ define(function (require) {
 	}
 
 	function specifyRequirements(skillId, count = null) {
-		var showAll = true; // todo debug show all dependency
+		const showAll = true; // todo debug show all dependency
 
-		var skdt = skillDependencyTree[skillId];
+		const skdt = skillDependencyTree[skillId];
 
 		if (skdt?.dependency || count != null) {
-			var element = '<div class="counterSkill">' + count + '</div>';
+			const element = '<div class="counterSkill">' + count + '</div>';
 			skillPosition.forEach(function (items, list) {
 				if (items[skillId] !== undefined) {
-					var skillbox = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
+					const skillbox = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
 					if (skillbox.children().hasClass('disabled') || showAll) {
 						skillbox.addClass('needleSkill');
 						if (count !== null) {
@@ -289,20 +285,20 @@ define(function (require) {
 	 * get and show remember choice skills
 	 */
 	function onRememberChoice() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
 		}
-		var skillId = parseInt(main.data('index'), 10);
+		const skillId = parseInt(main.data('index'), 10);
 
 		rememberChoice = setRememberChoice(skillId);
 
 		// show choice
 		rememberChoice.forEach(function (item, skId) {
 			if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
-				var sk = skillDependencyTree[skId];
-				var skillbox = SkillListV0.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
+				const sk = skillDependencyTree[skId];
+				const skillbox = SkillListV0.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
 				if (skillbox.find('.current').text() != sk.MaxLv) {
 					totalCounter += rememberChoice[skId]['count'];
 					skillbox.children().removeClass('disabled');
@@ -324,10 +320,10 @@ define(function (require) {
 	 * @returns {*[]}
 	 */
 	function setRememberChoice(skillId, count = null, isQuest = false) {
-		var sk = SkillInfo[skillId];
+		const sk = SkillInfo[skillId];
 
 		if (!isQuest && sk['Type'] === 'Quest') {
-			var skill = getSkillById(skillId);
+			const skill = getSkillById(skillId);
 			isQuest = !skill?.level || skill?.level <= 0;
 		}
 
@@ -370,11 +366,11 @@ define(function (require) {
 	 * @returns {*[]}
 	 */
 	function getSkillPosition(JobId) {
-		var positions = [];
+		const positions = [];
 		positions[SkillTreeView[JobId]['list']] = SkillTreeView[JobId];
 
 		if (SkillTreeView[JobId]['beforeJob'] !== null) {
-			var beforeJob = SkillTreeView[JobId]['beforeJob'];
+			const beforeJob = SkillTreeView[JobId]['beforeJob'];
 			getSkillPosition(beforeJob).forEach(function (items, list) {
 				positions[list] = positions[list] ? Object.assign(positions[list], items) : items;
 			});
@@ -412,10 +408,10 @@ define(function (require) {
 	SkillListV0.prepareSkillTree = function prepareSkillTree(items, list) {
 		Object.entries(items).forEach(entry => {
 			const [key, value] = entry;
-			var sk = SkillInfo[key];
-			var className = 'disabled';
+			const sk = SkillInfo[key];
+			const className = 'disabled';
 			if (sk !== undefined) {
-				var element = jQuery(
+				const element = jQuery(
 					'<div class="skill id' +
 						key +
 						' ' +
@@ -457,7 +453,7 @@ define(function (require) {
 				});
 
 				if (value !== undefined) {
-					var box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + value);
+					const box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + value);
 					// show added cells
 					if (key < 41) {
 						box.parent().show();
@@ -476,10 +472,10 @@ define(function (require) {
 	};
 
 	SkillListV0.addSkillBig = function addSkillBig(skill) {
-		var sk = SkillInfo[skill.SKID];
-		var levelup = _btnIncSkill.clone(true);
-		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		var element = jQuery(
+		const sk = SkillInfo[skill.SKID];
+		const levelup = _btnIncSkill.clone(true);
+		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		const element = jQuery(
 			'<div class="skill id' +
 				skill.SKID +
 				' ' +
@@ -523,7 +519,7 @@ define(function (require) {
 
 		skillPosition.forEach(function (items, list) {
 			if (items[skill.SKID] !== undefined) {
-				var box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skill.SKID]);
+				const box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skill.SKID]);
 				if (!box.is(':empty')) {
 					box.empty();
 				}
@@ -541,10 +537,10 @@ define(function (require) {
 	};
 
 	SkillListV0.addSkillMini = function addSkillMini(skill) {
-		var sk = SkillInfo[skill.SKID];
-		var levelup = _btnIncSkill.clone(true);
-		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		var element = jQuery(
+		const sk = SkillInfo[skill.SKID];
+		const levelup = _btnIncSkill.clone(true);
+		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		const element = jQuery(
 			'<tr class="skill id' +
 				skill.SKID +
 				' ' +
@@ -620,8 +616,8 @@ define(function (require) {
 	 * @param {object} skill : { SKID, level, spcost, attackRange, upgradable }
 	 */
 	SkillListV0.updateSkill = function updateSkill(skill) {
-		var target = getSkillById(skill.SKID);
-		var element;
+		const target = getSkillById(skill.SKID);
+		let element;
 
 		if (!target) {
 			return;
@@ -662,7 +658,7 @@ define(function (require) {
 	 * @param {number} skill id
 	 */
 	SkillListV0.useSkillID = function useSkillID(id, level) {
-		var skill = getSkillById(id);
+		const skill = getSkillById(id);
 
 		if (!skill || !skill.level || !skill.type) {
 			return;
@@ -697,7 +693,7 @@ define(function (require) {
 	 * @param {number} skill points count
 	 */
 	SkillListV0.setPoints = function SetPoints(amount) {
-		var i, count;
+		let i, count;
 		this.ui.find('.skpoints_count').text(amount);
 
 		// Do not need to update the UI
@@ -740,7 +736,7 @@ define(function (require) {
 	 * @returns {Skill}
 	 */
 	function getSkillById(id) {
-		var i,
+		let i,
 			count = _list.length;
 
 		for (i = 0; i < count; ++i) {
@@ -756,19 +752,19 @@ define(function (require) {
 	 * Extend SkillListV0 window size
 	 */
 	function onResize() {
-		var ui = SkillListV0.ui;
-		var top = ui.position().top;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = SkillListV0.ui;
+		const top = ui.position().top;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraX = -6;
-			var extraY = 32;
+			const extraX = -6;
+			const extraY = 32;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 8), 8);
@@ -847,7 +843,7 @@ define(function (require) {
 	 * Request to upgrade a skill
 	 */
 	function onRequestSkillUp() {
-		var index = this.parentNode.parentNode.getAttribute('data-index');
+		const index = this.parentNode.parentNode.getAttribute('data-index');
 		SkillListV0.onIncreaseSkill(parseInt(index, 10));
 	}
 
@@ -855,7 +851,7 @@ define(function (require) {
 	 * Request to use a skill
 	 */
 	function onRequestUseSkill() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -865,10 +861,10 @@ define(function (require) {
 	}
 
 	function onApplyChoice() {
-		var applyArr = [];
+		const applyArr = [];
 		rememberChoice.forEach(function (item, skillId) {
 			applyArr[skillId] = 0;
-			var level = hasSkills?.[skillId]?.level ?? 0;
+			const level = hasSkills?.[skillId]?.level ?? 0;
 
 			if (item.count > level) {
 				applyArr[skillId] = item.count - level;
@@ -878,7 +874,7 @@ define(function (require) {
 		});
 
 		applyArr.forEach(function (c, k) {
-			for (var i = 0; i < c; i++) {
+			for (let i = 0; i < c; i++) {
 				SkillListV0.onIncreaseSkill(parseInt(k, 10));
 			}
 		});
@@ -893,7 +889,7 @@ define(function (require) {
 	 */
 	function onResetChoice() {
 		rememberChoice.forEach(function (count, skillId) {
-			var skillbox = SkillListV0.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
+			const skillbox = SkillListV0.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
 			if (!hasSkills?.[skillId]?.level) {
 				skillbox.children().addClass('disabled');
 			}
@@ -916,12 +912,12 @@ define(function (require) {
 	 * Show backlight
 	 */
 	function onNecessarySkills() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
 		}
-		var skillId = parseInt(main.data('index'), 10);
+		const skillId = parseInt(main.data('index'), 10);
 		specifyRequirements(skillId);
 	}
 
@@ -937,16 +933,16 @@ define(function (require) {
 	 * Request to get skill info (right click on a skill)
 	 */
 	function onRequestSkillInfo() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
 		}
 
-		var id = parseInt(main.data('index'), 10);
-		var skill = getSkillById(id);
+		const id = parseInt(main.data('index'), 10);
+		const skill = getSkillById(id);
 
-		var skillID = skill?.SKID ?? id;
+		const skillID = skill?.SKID ?? id;
 
 		// Don't add the same UI twice, remove it
 		if (SkillDescription.uid === skillID) {
@@ -980,7 +976,7 @@ define(function (require) {
 	 * Focus a skill in the list (background color changed)
 	 */
 	function onSkillFocus() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -994,15 +990,15 @@ define(function (require) {
 	 * Start to drag a skill (to put it on the hotkey UI ?)
 	 */
 	function onSkillDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var skill = getSkillById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const skill = getSkillById(index);
 
 		// Can't drag a passive skill (or disabled)
 		if (!skill || !skill.level || !skill.type) {
 			return stopPropagation(event);
 		}
 
-		var img = new Image();
+		const img = new Image();
 		img.decoding = 'async';
 		img.src = jQuery(this).find('.icon img').attr('src');
 
@@ -1027,19 +1023,19 @@ define(function (require) {
 	}
 
 	function skillLevelSelectUp(skill) {
-		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level) {
 			skill.selectedLevel = level + 1;
-			var element = SkillListV0.ui.find('.skill.id' + skill.SKID);
+			const element = SkillListV0.ui.find('.skill.id' + skill.SKID);
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
 
 	function skillLevelSelectDown(skill) {
-		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1) {
 			skill.selectedLevel = level - 1;
-			var element = SkillListV0.ui.find('.skill.id' + skill.SKID);
+			const element = SkillListV0.ui.find('.skill.id' + skill.SKID);
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
@@ -1055,5 +1051,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(SkillListV0);
-});
+export default UIManager.addComponent(SkillListV0);

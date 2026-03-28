@@ -7,23 +7,18 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var UIComponent = require('UI/UIComponent');
-	var UIManager = require('UI/UIManager');
-	var Session = require('Engine/SessionStorage');
+import UIComponent from 'UI/UIComponent';
+import UIManager from 'UI/UIManager';
+import Session from 'Engine/SessionStorage';
+import htmlText from './WinStatsV1.html?raw';
+import cssText from './WinStatsV1.css?raw';
 
-	var htmlText = require('text!./WinStatsV1.html');
-	var cssText = require('text!./WinStatsV1.css');
-
-	/**
+/**
 	 * Create component
 	 */
-	var WinStatsV1 = new UIComponent('WinStatsV1', htmlText, cssText);
+	const WinStatsV1 = new UIComponent('WinStatsV1', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -64,7 +59,7 @@ define(function (require) {
 	 * Execute elements in memory
 	 */
 	WinStatsV1.onAppend = function onAppend() {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = this.stack.length; i < count; ++i) {
 			this.update.apply(this, this.stack[i]);
@@ -81,7 +76,7 @@ define(function (require) {
 	 * @param {number} val2 (optional)
 	 */
 	WinStatsV1.update = function update(type, val) {
-		var str;
+		let str;
 
 		if (!this.__loaded) {
 			this.stack.push(arguments);
@@ -166,6 +161,4 @@ define(function (require) {
 	 * Abstract method to define
 	 */
 	WinStatsV1.onRequestUpdate = function onRequestUpdate(/*id, amount*/) {};
-
-	return UIManager.addComponent(WinStatsV1);
-});
+export default UIManager.addComponent(WinStatsV1);

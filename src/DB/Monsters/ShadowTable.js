@@ -7,11 +7,9 @@
  *
  * @author Vincent Thibault
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+	export default {
 		111: 0.0,
 		139: 0.0,
 		1004: 0.5,
@@ -364,4 +362,3 @@ define(function () {
 		6049: 1.2,
 		6051: 1.2
 	};
-});

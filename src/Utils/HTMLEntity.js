@@ -8,12 +8,11 @@
  * @author Alisonrag
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	function decodeHTMLEntities(str) {
+function decodeHTMLEntities(str) {
 		// this prevents any overhead from creating the object each time
-		let element = document.createElement('div');
+		const element = document.createElement('div');
 		if (str && typeof str === 'string') {
 			element.innerHTML = str;
 
@@ -28,9 +27,8 @@ define(function () {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return {
+	export default {
 		decodeHTMLEntities: decodeHTMLEntities
 	};
-});

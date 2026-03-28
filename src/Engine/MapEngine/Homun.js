@@ -46,28 +46,27 @@
  * @prop {number} sp
  * @prop {number} sp_max
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import Session from 'Engine/SessionStorage';
+import EntityManager from 'Renderer/EntityManager';
+import UIManager from 'UI/UIManager';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import HomunInformations from 'UI/Components/HomunInformations/HomunInformations';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
+import Mouse from 'Controls/MouseEventHandler';
+import StatusProperty from 'DB/Status/StatusProperty';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var Session = require('Engine/SessionStorage');
-	var EntityManager = require('Renderer/EntityManager');
-	var UIManager = require('UI/UIManager');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var HomunInformations = require('UI/Components/HomunInformations/HomunInformations');
-	var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
-	var Mouse = require('Controls/MouseEventHandler');
-	var StatusProperty = require('DB/Status/StatusProperty');
-
 	/**
 	 * @type {THomunPacket} cached homunculus information
 	 */
-	var _info = {};
+	let _info = {};
 
 	/**
 	 * Get own homunculus information from server
@@ -81,7 +80,7 @@ define(function (require) {
 			return;
 		}
 
-		var entity = EntityManager.get(Session.homunId);
+		const entity = EntityManager.get(Session.homunId);
 
 		if (!entity) {
 			return;
@@ -132,7 +131,7 @@ define(function (require) {
 		// UI update
 		HomunInformations.setInformations(pkt);
 
-		var entity = EntityManager.get(Session.homunId);
+		const entity = EntityManager.get(Session.homunId);
 
 		if (!entity) {
 			return;
@@ -192,7 +191,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.CHANGESTATE_HOMUN
 	 */
 	function onHomunInformationUpdate(pkt) {
-		var entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 
 		if (entity) {
 			switch (pkt.state) {
@@ -221,7 +220,7 @@ define(function (require) {
 	HomunInformations.reqHomunFeed = function reqHomunFeed() {
 		// Are you sure you want to feed your homunculus ?
 		UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', function () {
-			var pkt = new PACKET.CZ.COMMAND_MER();
+			const pkt = new PACKET.CZ.COMMAND_MER();
 			pkt.type = 0x22f;
 			pkt.command = 1;
 			Network.sendPacket(pkt);
@@ -229,7 +228,7 @@ define(function (require) {
 	};
 
 	HomunInformations.sendHomunFeed = function sendHomunFeed() {
-		var pkt = new PACKET.CZ.COMMAND_MER();
+		const pkt = new PACKET.CZ.COMMAND_MER();
 		pkt.type = 0x22f;
 		pkt.command = 1;
 		Network.sendPacket(pkt);
@@ -238,7 +237,7 @@ define(function (require) {
 	HomunInformations.reqDeleteHomun = function reqDeleteHomun() {
 		// Are you sure that you want to delete?
 		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
-			var pkt = new PACKET.CZ.COMMAND_MER();
+			const pkt = new PACKET.CZ.COMMAND_MER();
 			pkt.type = 0x22f;
 			pkt.command = 2;
 			Network.sendPacket(pkt);
@@ -255,7 +254,7 @@ define(function (require) {
 	 *     2 = delete
 	 */
 	HomunInformations.reqHomunAction = function reqHomunAction(cmd) {
-		var pkt = new PACKET.CZ.COMMAND_MER(cmd);
+		const pkt = new PACKET.CZ.COMMAND_MER(cmd);
 		pkt.type = 0;
 		pkt.command = cmd;
 		Network.sendPacket(pkt);
@@ -265,7 +264,7 @@ define(function (require) {
 	 * @param gid
 	 */
 	HomunInformations.reqMoveToOwner = function reqMoveToOwner(gid) {
-		var pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
+		const pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
 		pkt.GID = gid;
 		Network.sendPacket(pkt);
 	};
@@ -275,7 +274,7 @@ define(function (require) {
 	 * @param targetGID
 	 */
 	HomunInformations.reqAttack = function reqAttack(GID, targetGID) {
-		var pkt = new PACKET.CZ.REQUEST_ACTNPC();
+		const pkt = new PACKET.CZ.REQUEST_ACTNPC();
 		pkt.GID = GID;
 		pkt.targetGID = targetGID;
 		pkt.action = 0;
@@ -286,7 +285,7 @@ define(function (require) {
 	 * @param GID
 	 */
 	HomunInformations.reqMoveTo = function reqMoveTo(GID, x = 0, y = 0) {
-		var pkt = new PACKET.CZ.REQUEST_MOVENPC();
+		const pkt = new PACKET.CZ.REQUEST_MOVENPC();
 		pkt.GID = GID;
 		pkt.dest[0] = x > 0 ? x : Mouse.world.x;
 		pkt.dest[1] = y > 0 ? y : Mouse.world.y;
@@ -300,7 +299,7 @@ define(function (require) {
 	 */
 	HomunInformations.reqNameEdit = function reqNameEdit(name) {
 		//msg 2904(2903)
-		var pkt = new PACKET.CZ.RENAME_MER();
+		const pkt = new PACKET.CZ.RENAME_MER();
 		pkt.name = name;
 		Network.sendPacket(pkt);
 	};
@@ -331,7 +330,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function NPCEngine() {
+export default function NPCEngine() {
 		Network.hookPacket(PACKET.ZC.PROPERTY_HOMUN, onHomunInformation);
 		Network.hookPacket(PACKET.ZC.PROPERTY_HOMUN2, onHomunInformation);
 		Network.hookPacket(PACKET.ZC.PROPERTY_HOMUN3, onHomunInformation);
@@ -349,4 +348,3 @@ define(function (require) {
 		// Network.hookPacket( PACKET.ZC.MER_PAR_CHANGE, testing);
 		// Network.hookPacket( PACKET.ZC.HOMUN_ACT, onHomunAction);
 	};
-});

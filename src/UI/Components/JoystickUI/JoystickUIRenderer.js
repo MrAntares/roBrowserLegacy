@@ -7,35 +7,38 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var ShortCut = require('UI/Components/ShortCut/ShortCut');
-	var InventoryUI = require('UI/Components/Inventory/Inventory');
-	var SetManager = require('./JoystickSetManager');
-	var jQuery = require('Utils/jquery');
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var ControlsSettings = require('Preferences/Controls');
+import ShortCut from 'UI/Components/ShortCut/ShortCut';
+import InventoryUI from 'UI/Components/Inventory/Inventory';
+import SetManager from './JoystickSetManager';
+import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import ControlsSettings from 'Preferences/Controls';
+import ItemType from 'DB/Items/ItemType';
+import JoystickShortcutMapper from './JoystickShortcutMapper';
+import JoystickInputService from './JoystickInputService';
+import SkillInfo from 'DB/Skills/SkillInfo';
 
-	var ui = null;
-	var setIndicator = null;
+let ui = null;
+	let setIndicator = null;
 
 	function setupUIHide() {
-		var lastMouseX = 0;
-		var lastMouseY = 0;
+		let lastMouseX = 0;
+		let lastMouseY = 0;
 
 		function onMouseMove(event) {
 			if (!ui || !ui.is(':visible')) {
 				return;
 			}
 
-			var deltaX = Math.abs(event.clientX - lastMouseX);
-			var deltaY = Math.abs(event.clientY - lastMouseY);
+			const deltaX = Math.abs(event.clientX - lastMouseX);
+			const deltaY = Math.abs(event.clientY - lastMouseY);
 
 			if ((deltaX > 5 || deltaY > 5) && ControlsSettings.joyAutoHide) {
 				hide();
-				require('./JoystickInputService').active = false;
+				JoystickInputService.active = false;
 			}
 			lastMouseX = event.clientX;
 			lastMouseY = event.clientY;
@@ -51,12 +54,12 @@ define(function (require) {
 	}
 
 	function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
-		var item = ShortCut.getList()[shortcutIndex];
+		const item = ShortCut.getList()[shortcutIndex];
 
-		var $slot = ui.find('.slot').eq(joystickSlotIndex);
-		var $icon = $slot.find('.icon');
-		var $img = $icon.find('.img');
-		var $amount = $icon.find('.amount');
+		const $slot = ui.find('.slot').eq(joystickSlotIndex);
+		const $icon = $slot.find('.icon');
+		const $img = $icon.find('.img');
+		const $amount = $icon.find('.amount');
 
 		if (!item || item.ID === 0) {
 			$icon.hide();
@@ -68,7 +71,7 @@ define(function (require) {
 		$icon.show();
 
 		if (item.isSkill && item.count) {
-			var skillInfo = require('DB/Skills/SkillInfo')[item.ID];
+			const skillInfo = SkillInfo[item.ID];
 			if (skillInfo) {
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + skillInfo.Name + '.bmp', function (url) {
 					$img.css('backgroundImage', 'url(' + url + ')');
@@ -76,14 +79,13 @@ define(function (require) {
 				});
 			}
 		} else {
-			var inventoryItem = InventoryUI.getUI().getItemById(item.ID);
+			const inventoryItem = InventoryUI.getUI().getItemById(item.ID);
 			if (inventoryItem) {
-				var itemInfo = DB.getItemInfo(item.ID);
-				var fileName = inventoryItem.IsIdentified
+				const itemInfo = DB.getItemInfo(item.ID);
+				const fileName = inventoryItem.IsIdentified
 					? itemInfo.identifiedResourceName
 					: itemInfo.unidentifiedResourceName;
-				var count = inventoryItem.count;
-				var ItemType = require('DB/Items/ItemType');
+				let count = inventoryItem.count;
 				if (
 					(inventoryItem.type === ItemType.WEAPON ||
 						inventoryItem.type === ItemType.ARMOR ||
@@ -104,10 +106,10 @@ define(function (require) {
 		if (!ui) {
 			return;
 		}
-		var startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
-		for (var i = 0; i < 20; i++) {
-			var shortcutIndex = require('./JoystickShortcutMapper').slotMap[startIdx + i];
-			var shortcut = ShortCut.getList()[shortcutIndex];
+		const startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
+		for (let i = 0; i < 20; i++) {
+			const shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
+			const shortcut = ShortCut.getList()[shortcutIndex];
 			if (shortcut && shortcut.ID === Id) {
 				updateJoystickSlot(i, shortcutIndex);
 			}
@@ -118,9 +120,9 @@ define(function (require) {
 		if (!ui) {
 			return;
 		}
-		var startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
-		for (var i = 0; i < 20; i++) {
-			var shortcutIndex = require('./JoystickShortcutMapper').slotMap[startIdx + i];
+		const startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
+		for (let i = 0; i < 20; i++) {
+			const shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
 			if (shortcutIndex === index) {
 				updateJoystickSlot(i, shortcutIndex);
 			}
@@ -132,9 +134,9 @@ define(function (require) {
 			return;
 		}
 
-		var startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
-		for (var i = 0; i < 20; i++) {
-			var shortcutIndex = require('./JoystickShortcutMapper').slotMap[startIdx + i];
+		const startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
+		for (let i = 0; i < 20; i++) {
+			const shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
 			updateJoystickSlot(i, shortcutIndex);
 		}
 	}
@@ -151,11 +153,11 @@ define(function (require) {
 		if (!ui) {
 			return;
 		}
-		var containers = ui.find('.group-container');
+		const containers = ui.find('.group-container');
 
 		containers.removeClass('active');
 
-		var activeGroup = require('./JoystickShortcutMapper').getGroup(buttons);
+		const activeGroup = JoystickShortcutMapper.getGroup(buttons);
 
 		if (activeGroup !== '') {
 			ui.find('[data-group="' + activeGroup + '"]').addClass('active');
@@ -178,8 +180,7 @@ define(function (require) {
 		hide();
 		jQuery(document).off('mousemove.joystick');
 	}
-
-	return {
+export default {
 		attach: attach,
 		dispose: dispose,
 		sync: sync,
@@ -190,4 +191,3 @@ define(function (require) {
 		show: show,
 		hide: hide
 	};
-});

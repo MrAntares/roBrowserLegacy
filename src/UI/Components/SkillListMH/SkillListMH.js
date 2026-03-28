@@ -5,33 +5,29 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var SkillInfo = require('DB/Skills/SkillInfo');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var SkillDescription = require('UI/Components/SkillDescription/SkillDescription');
-	var htmlText = require('text!./SkillListMH.html');
-	var cssText = require('text!./SkillListMH.css');
+import DB from 'DB/DBManager';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import SkillDescription from 'UI/Components/SkillDescription/SkillDescription';
+import htmlText from './SkillListMH.html?raw';
+import cssText from './SkillListMH.css?raw';
 
-	/**
+/**
 	 * Create Component base class
 	 */
 	function SkillListMH(type) {
 		// Create component
-		var name = 'SkillList' + (type === 'homunculus' ? 'HOM' : 'MER');
+		const name = 'SkillList' + (type === 'homunculus' ? 'HOM' : 'MER');
 		UIComponent.call(this, name, htmlText, cssText);
 
 		// Initialize variables
@@ -62,7 +58,7 @@ define(function (require) {
 	 * Initialize UI
 	 */
 	SkillListMH.prototype.init = function init() {
-		var self = this;
+		const self = this;
 
 		this.ui.find('.titlebar .text').text(this.type === 'homunculus' ? 'Homunculus Skills' : 'Mercenary Skills');
 
@@ -73,19 +69,19 @@ define(function (require) {
 
 		this.ui.find('.footer .extend').mousedown(function (event) {
 			event.stopImmediatePropagation();
-			var ui = self.ui;
-			var top = ui.position().top;
-			var left = ui.position().left;
-			var lastWidth = 0;
-			var lastHeight = 0;
-			var _Interval;
+			const ui = self.ui;
+			const top = ui.position().top;
+			const left = ui.position().left;
+			let lastWidth = 0;
+			let lastHeight = 0;
+			let _Interval;
 
 			function resizing() {
-				var extraX = -6;
-				var extraY = 32;
+				const extraX = -6;
+				const extraY = 32;
 
-				var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
-				var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+				let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
+				let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 				// Maximum and minimum window size
 				w = Math.min(Math.max(w, 8), 8);
@@ -120,7 +116,7 @@ define(function (require) {
 		// Get level up button
 		this.btnIncSkill = this.ui.find('.btn.levelup').detach();
 		this.btnIncSkill.click(function () {
-			var index = this.parentNode.parentNode.getAttribute('data-index');
+			const index = this.parentNode.parentNode.getAttribute('data-index');
 			self.onIncreaseSkill(parseInt(index, 10));
 		});
 
@@ -140,15 +136,15 @@ define(function (require) {
 		// Bind skills
 		this.ui
 			.on('dblclick', '.skill .icon, .skill .name', function () {
-				var main = jQuery(this).parent();
+				let main = jQuery(this).parent();
 				if (!main.hasClass('skill')) {
 					main = main.parent();
 				}
 				self.useSkillID(parseInt(main.data('index'), 10));
 			})
 			.on('contextmenu', '.skill .icon, .skill .name', function () {
-				var main = jQuery(this).parent();
-				var skill;
+				let main = jQuery(this).parent();
+				let skill;
 
 				if (!main.hasClass('skill')) {
 					main = main.parent();
@@ -169,7 +165,7 @@ define(function (require) {
 				return false;
 			})
 			.on('mousedown', '.selectable', function () {
-				var main = jQuery(this).parent();
+				let main = jQuery(this).parent();
 
 				if (!main.hasClass('skill')) {
 					main = main.parent();
@@ -179,8 +175,8 @@ define(function (require) {
 				main.addClass('selected');
 			})
 			.on('dragstart', '.skill', function (event) {
-				var index = parseInt(this.getAttribute('data-index'), 10);
-				var skill = self.getSkillById(index);
+				const index = parseInt(this.getAttribute('data-index'), 10);
+				const skill = self.getSkillById(index);
 
 				// Can't drag a passive skill (or disabled)
 				if (!skill || !skill.level || !skill.type) {
@@ -188,7 +184,7 @@ define(function (require) {
 					return false;
 				}
 
-				var img = new Image();
+				const img = new Image();
 				img.decoding = 'async';
 				img.src = this.firstChild.firstChild.src;
 
@@ -293,7 +289,7 @@ define(function (require) {
 	 * Add skills to the list
 	 */
 	SkillListMH.prototype.setSkills = function setSkills(skills) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = this.list.length; i < count; ++i) {
 			this.onUpdateSkill(this.list[i].SKID, 0);
@@ -322,10 +318,10 @@ define(function (require) {
 			return;
 		}
 
-		var sk = SkillInfo[skill.SKID];
-		var levelup = this.btnIncSkill.clone(true);
-		var className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		var element = jQuery(
+		const sk = SkillInfo[skill.SKID];
+		const levelup = this.btnIncSkill.clone(true);
+		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		const element = jQuery(
 			'<tr class="skill id' +
 				skill.SKID +
 				' ' +
@@ -398,8 +394,8 @@ define(function (require) {
 	 * Update skill
 	 */
 	SkillListMH.prototype.updateSkill = function updateSkill(skill) {
-		var target = this.getSkillById(skill.SKID);
-		var element;
+		const target = this.getSkillById(skill.SKID);
+		let element;
 
 		if (!target) {
 			return;
@@ -438,7 +434,7 @@ define(function (require) {
 	 * Use a skill by its id
 	 */
 	SkillListMH.prototype.useSkillID = function useSkillID(id, level) {
-		var skill = this.getSkillById(id);
+		const skill = this.getSkillById(id);
 
 		if (!skill || !skill.level || !skill.type) {
 			return;
@@ -469,7 +465,7 @@ define(function (require) {
 	 * Set skill points amount
 	 */
 	SkillListMH.prototype.setPoints = function setPoints(amount) {
-		var i, count;
+		let i, count;
 		this.ui.find('.skpoints_count').text(amount);
 
 		// Do not need to update the UI
@@ -501,7 +497,7 @@ define(function (require) {
 	 * Find a skill by it's id
 	 */
 	SkillListMH.prototype.getSkillById = function getSkillById(id) {
-		var i,
+		let i,
 			count = this.list.length;
 
 		for (i = 0; i < count; ++i) {
@@ -524,7 +520,7 @@ define(function (require) {
 	 * Request to upgrade a skill
 	 */
 	SkillListMH.prototype.onRequestSkillUp = function onRequestSkillUp() {
-		var index = this.parentNode.parentNode.getAttribute('data-index');
+		const index = this.parentNode.parentNode.getAttribute('data-index');
 		this.onIncreaseSkill(parseInt(index, 10));
 	};
 
@@ -532,7 +528,7 @@ define(function (require) {
 	 * Request to use a skill
 	 */
 	SkillListMH.prototype.onRequestUseSkill = function onRequestUseSkill() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -545,8 +541,8 @@ define(function (require) {
 	 * Request to get skill info
 	 */
 	SkillListMH.prototype.onRequestSkillInfo = function onRequestSkillInfo() {
-		var main = jQuery(this).parent();
-		var skill;
+		let main = jQuery(this).parent();
+		let skill;
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -569,7 +565,7 @@ define(function (require) {
 	 * Focus a skill
 	 */
 	SkillListMH.prototype.onSkillFocus = function onSkillFocus() {
-		var main = jQuery(this).parent();
+		let main = jQuery(this).parent();
 
 		if (!main.hasClass('skill')) {
 			main = main.parent();
@@ -583,15 +579,15 @@ define(function (require) {
 	 * Start to drag a skill
 	 */
 	SkillListMH.prototype.onSkillDragStart = function onSkillDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var skill = this.getSkillById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const skill = this.getSkillById(index);
 
 		// Can't drag a passive skill (or disabled)
 		if (!skill || !skill.level || !skill.type) {
 			return stopPropagation(event);
 		}
 
-		var img = new Image();
+		const img = new Image();
 		img.decoding = 'async';
 		img.src = this.firstChild.firstChild.src;
 
@@ -616,19 +612,19 @@ define(function (require) {
 	};
 
 	SkillListMH.prototype.skillLevelSelectUp = function skillLevelSelectUp(skill) {
-		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level) {
 			skill.selectedLevel = level + 1;
-			var element = this.ui.find('.skill.id' + skill.SKID + ':first');
+			const element = this.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	};
 
 	SkillListMH.prototype.skillLevelSelectDown = function skillLevelSelectDown(skill) {
-		var level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1) {
 			skill.selectedLevel = level - 1;
-			var element = this.ui.find('.skill.id' + skill.SKID + ':first');
+			const element = this.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	};
@@ -643,12 +639,11 @@ define(function (require) {
 	/**
 	 * Create instances
 	 */
-	var homSkills = new SkillListMH('homunculus');
-	var merSkills = new SkillListMH('mercenary');
+	const homSkills = new SkillListMH('homunculus');
+	const merSkills = new SkillListMH('mercenary');
 
 	// Register both instances with UIManager and export it
-	return {
+export default {
 		homunculus: UIManager.addComponent(homSkills),
 		mercenary: UIManager.addComponent(merSkills)
 	};
-});

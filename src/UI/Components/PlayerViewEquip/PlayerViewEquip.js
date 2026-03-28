@@ -8,20 +8,19 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'PlayerViewEquip';
+import PlayerViewEquipV0 from './PlayerViewEquipV0/PlayerViewEquipV0'; // equip
+import PlayerViewEquipV1 from './PlayerViewEquipV1/PlayerViewEquipV1'; // equip + costume (headgears + robe)
+import PlayerViewEquipV2 from './PlayerViewEquipV2/PlayerViewEquipV2'; // equip + costume (full)
 
-	var PlayerViewEquipV0 = require('./PlayerViewEquipV0/PlayerViewEquipV0'); // equip
-	var PlayerViewEquipV1 = require('./PlayerViewEquipV1/PlayerViewEquipV1'); // equip + costume (headgears + robe)
-	var PlayerViewEquipV2 = require('./PlayerViewEquipV2/PlayerViewEquipV2'); // equip + costume (full)
+import UIVersionManager from 'UI/UIVersionManager';
+import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler';
 
-	var UIVersionManager = require('UI/UIVersionManager');
-	var DB = require('DB/DBManager');
-	var KEYS = require('Controls/KeyEventHandler');
+const publicName = 'PlayerViewEquip';
 
-	var versionInfo = {
+	const versionInfo = {
 		default: PlayerViewEquipV0,
 		common: {
 			20150225: PlayerViewEquipV2,
@@ -31,16 +30,16 @@ define(function (require) {
 		prere: {}
 	};
 
-	var PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
+	const PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	var _selectUIVersion = PlayerViewEquipController.selectUIVersion;
+	const _selectUIVersion = PlayerViewEquipController.selectUIVersion;
 
 	// Extend default UI selector
 	PlayerViewEquipController.selectUIVersion = function () {
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
-		var component = PlayerViewEquipController.getUI();
+		const component = PlayerViewEquipController.getUI();
 		DB.UpdateOwnerName.PlayerViewEquip = component.onUpdateOwnerName;
 
 		// Escape to close the UI
@@ -53,5 +52,4 @@ define(function (require) {
 		};
 	};
 
-	return PlayerViewEquipController;
-});
+	export default PlayerViewEquipController;

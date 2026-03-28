@@ -5,15 +5,19 @@
  *
  * @author MrUnzO
  */
-define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Utils/Texture'], function (WebGL, glMatrix, Client, Texture) {
-	'use strict';
+'use strict';
 
-	var _program;
-	var mat4 = glMatrix.mat4;
+import WebGL from 'Utils/WebGL';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Texture from 'Utils/Texture';
 
-	var blendMode = {};
+let _program;
+	const mat4 = glMatrix.mat4;
 
-	var _vertexShader = `
+	const blendMode = {};
+
+	const _vertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -43,7 +47,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Utils/Texture'], funct
 		}
 	`;
 
-	var _fragmentShader = `
+	const _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -86,7 +90,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Utils/Texture'], funct
 		0.0, 1.0, 0.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0
 	];
 
-	var texCoords = [
+	const texCoords = [
 		0, 0, 1, 0, 1, 1,
 
 		0, 0, 1, 1, 0, 1,
@@ -156,7 +160,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Utils/Texture'], funct
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoordBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
 
-		var self = this;
+		const self = this;
 		Client.loadFile('data/texture/' + this.textureFile, function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
 				self.texture = texture;
@@ -171,10 +175,10 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Utils/Texture'], funct
 	};
 
 	QuadHorn.prototype.render = function render(gl, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
-		var deltaStart = (tick - this.startTick) / 1000.0;
-		var deltaEnd = (tick - this.endTick) / 1000.0;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+		const deltaStart = (tick - this.startTick) / 1000.0;
+		const deltaEnd = (tick - this.endTick) / 1000.0;
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -303,7 +307,7 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Utils/Texture'], funct
 	};
 
 	QuadHorn.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		gl.useProgram(_program);
 
@@ -325,6 +329,4 @@ define(['Utils/WebGL', 'Utils/gl-matrix', 'Core/Client', 'Utils/Texture'], funct
 		gl.disableVertexAttribArray(_program.attribute.aColor);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	};
-
-	return QuadHorn;
-});
+export default QuadHorn;

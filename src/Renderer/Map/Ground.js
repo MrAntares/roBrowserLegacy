@@ -7,63 +7,62 @@
  *
  * @author Vincent Thibault
  */
-define([
-	'Utils/WebGL',
-	'Utils/Texture',
-	'Preferences/Map',
-	'Core/Configs',
-	'text!./Ground.vs',
-	'text!./Ground.fs'
-], function (WebGL, Texture, Preferences, Configs, _vertexShader, _fragmentShader) {
-	'use strict';
+'use strict';
 
-	var procCanvas = document.createElement('canvas');
-	var procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import Preferences from 'Preferences/Map';
+import Configs from 'Core/Configs';
+import _vertexShader from './Ground.vs?raw';
+import _fragmentShader from './Ground.fs?raw';
+
+	const procCanvas = document.createElement('canvas');
+	const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
 	/**
 	 * @var {WebGLProgram}
 	 */
-	var _program = null;
+	let _program = null;
 
 	/**
 	 * @var {WebGBLuffer}
 	 */
-	var _buffer = null;
+	let _buffer = null;
 
 	/**
 	 * @var {WebGLTexture}
 	 */
-	var _lightmap = null;
+	let _lightmap = null;
 
 	/**
 	 * @var {WebGLTexture}
 	 */
-	var _tileColor = null;
+	let _tileColor = null;
 
 	/**
 	 * @var {WebGLTexture}
 	 */
-	var _textureAtlas = null;
+	let _textureAtlas = null;
 
 	/**
 	 * @var {WebGLTexture}
 	 */
-	var _shadowMap = null;
+	let _shadowMap = null;
 
 	/**
 	 * @var {number} total vertices count
 	 */
-	var _vertCount = 0;
+	let _vertCount = 0;
 
 	/**
 	 * @var {number} Ground width
 	 */
-	var _width = 0;
+	let _width = 0;
 
 	/**
 	 * @var {number} Ground height
 	 */
-	var _height = 0;
+	let _height = 0;
 
 	/**
 	 * Render ground
@@ -76,8 +75,8 @@ define([
 	 * @param {object} light structure
 	 */
 	function render(gl, modelView, projection, normalMat, fog, light) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		gl.useProgram(_program);
 
@@ -154,8 +153,8 @@ define([
 	 * @param {number} size
 	 */
 	function initLightmap(gl, lightmap, size) {
-		var width, height;
-		var enableMipmap = Configs.get('enableMipmap');
+		let width, height;
+		const enableMipmap = Configs.get('enableMipmap');
 
 		width = WebGL.toPowerOfTwo(Math.round(Math.sqrt(size)) * 8);
 		height = WebGL.toPowerOfTwo(Math.ceil(Math.sqrt(size)) * 8);
@@ -190,16 +189,16 @@ define([
 			return;
 		}
 
-		var _width, _height, i, count;
-		var enableMipmap = Configs.get('enableMipmap');
+		let _width, _height, i, count;
+		const enableMipmap = Configs.get('enableMipmap');
 
 		if (procCanvas.width !== width || procCanvas.height !== height) {
 			procCanvas.width = width;
 			procCanvas.height = height;
 		}
 
-		var imageData = procCtx.createImageData(width, height);
-		var data = imageData.data;
+		const imageData = procCtx.createImageData(width, height);
+		const data = imageData.data;
 		count = data.length;
 
 		// Set Image pixel
@@ -211,10 +210,10 @@ define([
 		// Build Image with power of two texture * 2 (to smooth)
 		_width = WebGL.toPowerOfTwo(width);
 		_height = WebGL.toPowerOfTwo(height);
-		var smooth = document.createElement('canvas');
+		const smooth = document.createElement('canvas');
 		smooth.width = _width;
 		smooth.height = _height;
-		var ctx = smooth.getContext('2d');
+		const ctx = smooth.getContext('2d');
 
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, _width, _height);
@@ -260,7 +259,7 @@ define([
 	 * @param {Array} textures 's filename
 	 */
 	function initTextures(gl, textures) {
-		var i, count, width, height, _width, loaded;
+		let i, count, width, height, _width, loaded;
 
 		// Find texture size
 		count = textures.length;
@@ -278,8 +277,8 @@ define([
 
 		function onTextureCompleteBuildAtlas(success, i) {
 			if (success) {
-				var x = (i % _width) * 258;
-				var y = Math.floor(i / _width) * 258;
+				const x = (i % _width) * 258;
+				const y = Math.floor(i / _width) * 258;
 				procCtx.drawImage(this, x + 0, y + 0, 258, 258); // generate border
 				procCtx.drawImage(this, x + 1, y + 1, 256, 256);
 			}
@@ -312,7 +311,7 @@ define([
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-		var enableMipmap = Configs.get('enableMipmap');
+		const enableMipmap = Configs.get('enableMipmap');
 		if (enableMipmap) {
 			gl.generateMipmap(gl.TEXTURE_2D);
 		}
@@ -396,7 +395,7 @@ define([
 			return 1.0;
 		}
 
-		var _x,
+		let _x,
 			_y,
 			factor = 0;
 
@@ -424,12 +423,11 @@ define([
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return {
+	export default {
 		init: init,
 		free: free,
 		render: render,
 		getShadowFactor: getShadowFactor
 	};
-});

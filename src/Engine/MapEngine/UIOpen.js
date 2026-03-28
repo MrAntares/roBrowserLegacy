@@ -7,19 +7,19 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Configs = require('Core/Configs');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var PACKETVER = require('Network/PacketVerManager');
+import Configs from 'Core/Configs';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import PACKETVER from 'Network/PacketVerManager';
+import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance';
+import EnchantGradeUI from 'UI/Components/EnchantGrade/EnchantGrade';
+import EnchantUI from 'UI/Components/Enchant/Enchant';
 
-	/**
+/**
 	 * Load dependencies
 	 */
-	var PACKET = require('Network/PacketStructure');
-
 	/**
 	 * Received data and request to open a specific UI
 	 *
@@ -44,7 +44,6 @@ define(function (require) {
 		switch (pkt.ui_type) {
 			case 7:
 				if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
-					var CheckAttendance = require('UI/Components/CheckAttendance/CheckAttendance');
 					CheckAttendance.prepare();
 					CheckAttendance.setData(pkt.data);
 					CheckAttendance.cleanUI();
@@ -55,14 +54,12 @@ define(function (require) {
 				break;
 			case 8:
 				if (PACKETVER.value >= 20200724) {
-					var EnchantGradeUI = require('UI/Components/EnchantGrade/EnchantGrade');
 					EnchantGradeUI.prepare();
 					EnchantGradeUI.onOpenEnchantGradeUI();
 				}
 				break;
 			case 10:
 				if (PACKETVER.value >= 20211103) {
-					var EnchantUI = require('UI/Components/Enchant/Enchant');
 					EnchantUI.prepare();
 					EnchantUI.onOpenEnchantUI(pkt.data);
 				}
@@ -75,8 +72,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.UI_OPEN, onUIOpen);
 		Network.hookPacket(PACKET.ZC.UI_OPEN_V3, onUIOpen);
 	};
-});

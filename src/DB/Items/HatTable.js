@@ -7,10 +7,9 @@
  * (auto-generated)
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
-	return {
+export default {
 		1: '_\xb0\xed\xb1\xdb',
 		2: '_\xb0\xed\xbe\xe7\xc0\xcc\xb8\xd3\xb8\xae\xb6\xec',
 		3: '_\xb1\xdb\xb7\xa1\xbd\xba',
@@ -2414,4 +2413,3 @@ define(function () {
 		2416: '_Poenetentia_H_Crown',
 		2417: '_C_Tiger_Muffler_MSP'
 	};
-});

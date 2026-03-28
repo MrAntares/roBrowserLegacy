@@ -8,22 +8,20 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'Equipment';
+import EquipmentV0 from './EquipmentV0/EquipmentV0';
+import EquipmentV1 from './EquipmentV1/EquipmentV1';
+import EquipmentV2 from './EquipmentV2/EquipmentV2';
+import EquipmentV3 from './EquipmentV3/EquipmentV3';
+import EquipmentV4 from './EquipmentV4/EquipmentV4';
 
-	var EquipmentV0 = require('./EquipmentV0/EquipmentV0'); // equip
-	var EquipmentV1 = require('./EquipmentV1/EquipmentV1'); // equip + costume
-	var EquipmentV2 = require('./EquipmentV2/EquipmentV2'); // equip + costume + title (not implemented)
-	var EquipmentV3 = require('./EquipmentV3/EquipmentV3'); // EquipmentV2 + Switch Equip
-	var EquipmentV4 = require('./EquipmentV4/EquipmentV4'); // EquipmentV3 + Switch Damage Skin
+import UIVersionManager from 'UI/UIVersionManager';
+import DB from 'DB/DBManager';
+import KEYS from 'Controls/KeyEventHandler';
 
-	var UIVersionManager = require('UI/UIVersionManager');
-	var DB = require('DB/DBManager');
-	var KEYS = require('Controls/KeyEventHandler');
-
-	var versionInfo = {
+	const publicName = 'Equipment';
+	const versionInfo = {
 		default: EquipmentV0,
 		common: {
 			20220831: EquipmentV4,
@@ -35,16 +33,16 @@ define(function (require) {
 		prere: {}
 	};
 
-	var EquipmentController = UIVersionManager.getUIController(publicName, versionInfo);
+	const EquipmentController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	var _selectUIVersion = EquipmentController.selectUIVersion;
+	const _selectUIVersion = EquipmentController.selectUIVersion;
 
 	// Extend default UI selector
 	EquipmentController.selectUIVersion = function () {
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
-		var component = EquipmentController.getUI();
+		const component = EquipmentController.getUI();
 		DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
 
 		// Escape to close the UI
@@ -57,5 +55,4 @@ define(function (require) {
 		};
 	};
 
-	return EquipmentController;
-});
+	export default EquipmentController;

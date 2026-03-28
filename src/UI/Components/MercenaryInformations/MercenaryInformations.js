@@ -6,35 +6,31 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var EntityManager = require('Renderer/EntityManager');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Session = require('Engine/SessionStorage');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
-	var AIDriver = require('Core/AIDriver');
-	var htmlText = require('text!./MercenaryInformations.html');
-	var cssText = require('text!./MercenaryInformations.css');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import EntityManager from 'Renderer/EntityManager';
+import KEYS from 'Controls/KeyEventHandler';
+import Session from 'Engine/SessionStorage';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
+import AIDriver from 'Core/AIDriver';
+import htmlText from './MercenaryInformations.html?raw';
+import cssText from './MercenaryInformations.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var MercenaryInformations = new UIComponent('MercenaryInformations', htmlText, cssText);
+	const MercenaryInformations = new UIComponent('MercenaryInformations', htmlText, cssText);
 
 	/**
 	 * @var {Preferences}
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'MercenaryInformations',
 		{
 			x: 100,
@@ -173,11 +169,11 @@ define(function (require) {
 			return '0';
 		}
 
-		var now = Date.now() / 1000;
-		var remaining = Math.max(0, timestamp - now);
+		const now = Date.now() / 1000;
+		const remaining = Math.max(0, timestamp - now);
 
-		var hours = Math.floor(remaining / 3600);
-		var minutes = Math.floor((remaining % 3600) / 60);
+		const hours = Math.floor(remaining / 3600);
+		const minutes = Math.floor((remaining % 3600) / 60);
 
 		return hours + 'h ' + minutes + 'm';
 	};
@@ -192,18 +188,18 @@ define(function (require) {
 			return;
 		}
 
-		var now = Date.now() / 1000;
-		var remaining = Math.max(0, timestamp - now);
-		var TOTAL_DURATION = 30 * 60; // 30 minutes in seconds
-		var time_per = remaining / TOTAL_DURATION;
+		const now = Date.now() / 1000;
+		const remaining = Math.max(0, timestamp - now);
+		const TOTAL_DURATION = 30 * 60; // 30 minutes in seconds
+		const time_per = remaining / TOTAL_DURATION;
 
 		// Update text
 		this.ui.find('.block2 .timeleft').text(this.formatExpireDate(timestamp));
 
 		// Update bar
-		var canvas = this.ui.find('canvas.life.title_timeleft')[0];
-		var ctx = canvas.getContext('2d');
-		var width = 60,
+		const canvas = this.ui.find('canvas.life.title_timeleft')[0];
+		const ctx = canvas.getContext('2d');
+		const width = 60,
 			height = 5;
 
 		// empty
@@ -228,11 +224,11 @@ define(function (require) {
 		this.ui.find('.block2 .kills').text(kills);
 
 		// Update bar
-		var canvas = this.ui.find('canvas.life.title_kills')[0];
-		var ctx = canvas.getContext('2d');
-		var width = 60,
+		const canvas = this.ui.find('canvas.life.title_kills')[0];
+		const ctx = canvas.getContext('2d');
+		const width = 60,
 			height = 5;
-		var kills_per = (kills % 50) / 50;
+		const kills_per = (kills % 50) / 50;
 
 		// empty
 		ctx.fillStyle = '#424242';
@@ -275,8 +271,8 @@ define(function (require) {
 	 * Set hp and sp bar
 	 */
 	MercenaryInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
-		var perc = Math.floor((val * 100) / val2);
-		var color = perc < 25 ? 'red' : 'blue';
+		const perc = Math.floor((val * 100) / val2);
+		const color = perc < 25 ? 'red' : 'blue';
 
 		this.ui.find('.' + type + '_bar_perc .' + type + '_value').text(val);
 		this.ui.find('.' + type + '_bar_perc .' + type + '_max_value').text(val2);
@@ -314,7 +310,7 @@ define(function (require) {
 	 * Toggle Aggressive
 	 */
 	MercenaryInformations.toggleAggressive = function toggleAggressive() {
-		let agr = localStorage.getItem('MER_AGGRESSIVE') == 0 ? 1 : 0;
+		const agr = localStorage.getItem('MER_AGGRESSIVE') == 0 ? 1 : 0;
 		localStorage.setItem('MER_AGGRESSIVE', agr);
 	};
 
@@ -326,7 +322,7 @@ define(function (require) {
 			AIDriver.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.mercId) {
-					var entity = EntityManager.get(Session.mercId);
+					const entity = EntityManager.get(Session.mercId);
 					if (entity) {
 						AIDriver.exec('AI(' + Session.mercId + ')', false);
 					}
@@ -356,7 +352,7 @@ define(function (require) {
 	 * Set target for mercenary to attack
 	 */
 	MercenaryInformations.setTarget = function setTarget(targetId) {
-		var entity = EntityManager.get(Session.mercId);
+		const entity = EntityManager.get(Session.mercId);
 		if (!entity) {
 			return;
 		}
@@ -380,7 +376,6 @@ define(function (require) {
 	MercenaryInformations.reqMoveToOwner = function reqMoveToOwner() {};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(MercenaryInformations);
-});
+	export default UIManager.addComponent(MercenaryInformations);

@@ -7,41 +7,37 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var QuestHelper = require('./QuestHelperV1');
-	var htmlText = require('text!./QuestV1.html');
-	var cssText = require('text!./QuestV1.css');
-	var jQuery = require('Utils/jquery');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var Session = require('Engine/SessionStorage');
+import DB from 'DB/DBManager';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import QuestHelper from './QuestHelperV1';
+import htmlText from './QuestV1.html?raw';
+import cssText from './QuestV1.css?raw';
+import jQuery from 'Utils/jquery';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import Session from 'Engine/SessionStorage';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var QuestV1 = new UIComponent('QuestV1', htmlText, cssText);
+	const QuestV1 = new UIComponent('QuestV1', htmlText, cssText);
 
 	/**
 	 * @var {number} index of selection
 	 */
-	var _index = -1;
+	let _index = -1;
 
 	/**
 	 * @var {Array} quest list
 	 */
-	var _questList = [];
+	let _questList = [];
 
 	/**
 	 * @var {Array} quest list
@@ -51,12 +47,12 @@ define(function (require) {
 	/**
 	 * @var {string} _active_menu active click menu
 	 */
-	var _active_menu = 'active';
+	let _active_menu = 'active';
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'QuestV1',
 		{
 			x: 200,
@@ -174,7 +170,7 @@ define(function (require) {
 	QuestV1.setQuestList = function setQuestList(quests) {
 		_questList = quests;
 		QuestV1.ClearQuestList();
-		for (let questID in quests) {
+		for (const questID in quests) {
 			QuestV1.addQuestToUI(quests[questID]);
 		}
 	};
@@ -211,9 +207,9 @@ define(function (require) {
 			_questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
 		}
 
-		let mob_name = _questList[questID].hunt_list[huntID].mobName;
-		let quest_info = DB.getQuestInfo(questID);
-		let chat_quest_text = `Mission [${quest_info.Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
+		const mob_name = _questList[questID].hunt_list[huntID].mobName;
+		const quest_info = DB.getQuestInfo(questID);
+		const chat_quest_text = `Mission [${quest_info.Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
 		let self_msg;
 		if (_questList[questID].hunt_list[huntID].maxCount == _questList[questID].hunt_list[huntID].huntCount) {
 			self_msg = `${mob_name} [Completed]`;
@@ -254,7 +250,7 @@ define(function (require) {
 	 * @param {number} ID
 	 */
 	QuestV1.getQuestIDByServerID = function getQuestIDByServerID(ID) {
-		for (var key in _questList) {
+		for (const key in _questList) {
 			if (typeof _questList[key].hunt_list[ID] !== 'undefined') {
 				return key;
 			}
@@ -272,11 +268,11 @@ define(function (require) {
 	};
 
 	QuestV1.addQuestToUI = function addQuest(quest) {
-		let toggle_id = 'qid' + quest.questID;
-		let title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
-		let pattern = /^ico\_/; // new system ico_xx.bmp - not supported on this version
-		let quest_icon = pattern.test(quest.icon) ? 'SG_FEEL.bmp' : quest.icon;
-		let li_text =
+		const toggle_id = 'qid' + quest.questID;
+		const title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
+		const pattern = /^ico\_/; // new system ico_xx.bmp - not supported on this version
+		const quest_icon = pattern.test(quest.icon) ? 'SG_FEEL.bmp' : quest.icon;
+		const li_text =
 			'<li id="' +
 			toggle_id +
 			'" class="quest-item ' +
@@ -287,7 +283,7 @@ define(function (require) {
 			title +
 			'</span> </div></li>';
 
-		let ul_id = quest.active == 1 ? '#active-quest-list' : '#inactive-quest-list';
+		const ul_id = quest.active == 1 ? '#active-quest-list' : '#inactive-quest-list';
 
 		this.ui.find(ul_id).append(li_text);
 		this.ui.find('#' + toggle_id).on('contextmenu', onClickQuestToggle);
@@ -298,14 +294,14 @@ define(function (require) {
 	};
 
 	function onClickMenu(e) {
-		var quest_element = jQuery(e.currentTarget);
+		const quest_element = jQuery(e.currentTarget);
 
 		if (_active_menu == quest_element.attr('id')) {
 			return;
 		}
 		_active_menu = quest_element.attr('id');
 
-		var background_image = '';
+		let background_image = '';
 		QuestV1.ui.find('#active-quest-list').hide();
 		QuestV1.ui.find('#inactive-quest-list').hide();
 		QuestV1.ui.find('#all-quest-list').hide();
@@ -334,9 +330,9 @@ define(function (require) {
 	}
 
 	function onClickQuest(e) {
-		var toggle_element = jQuery(e.currentTarget);
-		let tid = toggle_element.attr('id');
-		let id = tid.replace('qid', '');
+		const toggle_element = jQuery(e.currentTarget);
+		const tid = toggle_element.attr('id');
+		const id = tid.replace('qid', '');
 		if (_index > -1) {
 			QuestV1.ui.find('.qid' + _index).css('background-color', 'white');
 			QuestV1.ui.find('#qid' + _index).css('background-color', 'white');
@@ -346,10 +342,10 @@ define(function (require) {
 	}
 
 	function onClickQuestToggle(e) {
-		var toggle_element = jQuery(e.currentTarget);
-		let tid = toggle_element.attr('id');
-		let id = tid.replace('qid', '');
-		var _pkt = new PACKET.CZ.ACTIVE_QUEST();
+		const toggle_element = jQuery(e.currentTarget);
+		const tid = toggle_element.attr('id');
+		const id = tid.replace('qid', '');
+		const _pkt = new PACKET.CZ.ACTIVE_QUEST();
 		_pkt.questID = _questList[id].questID;
 		_pkt.active = _questList[id].active == 1 ? 0 : 1;
 		Network.sendPacket(_pkt);
@@ -383,7 +379,6 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(QuestV1);
-});
+	export default UIManager.addComponent(QuestV1);

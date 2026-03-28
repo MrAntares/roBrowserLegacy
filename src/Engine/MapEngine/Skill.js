@@ -6,42 +6,45 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import SkillId from 'DB/Skills/SkillConst';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import EffectConst from 'DB/Effects/EffectConst';
+import PathFinding from 'Utils/PathFinding';
+import Session from 'Engine/SessionStorage';
+import Network from 'Network/NetworkManager';
+import PACKETVER from 'Network/PacketVerManager';
+import PACKET from 'Network/PacketStructure';
+import EntityManager from 'Renderer/EntityManager';
+import EffectManager from 'Renderer/EffectManager';
+import Altitude from 'Renderer/Map/Altitude';
+import ShortCut from 'UI/Components/ShortCut/ShortCut';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import Guild from 'UI/Components/Guild/Guild';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
+import ItemSelection from 'UI/Components/ItemSelection/ItemSelection';
+import MakeArrowSelection from 'UI/Components/MakeArrowSelection/MakeArrowSelection';
+import RefineWeaponSelection from 'UI/Components/RefineWeaponSelection/RefineWeaponSelection';
+import Inventory from 'UI/Components/Inventory/Inventory';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu';
+import Sense from 'UI/Components/Sense/Sense';
+import Announce from 'UI/Components/Announce/Announce';
+import Renderer from 'Renderer/Renderer';
+import SkillWindow from 'UI/Components/SkillList/SkillList';
+
+import SnowWeatherEffect from 'Renderer/Effects/SnowWeather';
+import RainWeatherEffect from 'Renderer/Effects/RainWeather';
+import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect';
+import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect';
+import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var SkillId = require('DB/Skills/SkillConst');
-	var SkillInfo = require('DB/Skills/SkillInfo');
-	var EffectConst = require('DB/Effects/EffectConst');
-	var PathFinding = require('Utils/PathFinding');
-	var Session = require('Engine/SessionStorage');
-	var Network = require('Network/NetworkManager');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PACKET = require('Network/PacketStructure');
-	var EntityManager = require('Renderer/EntityManager');
-	var EffectManager = require('Renderer/EffectManager');
-	var Altitude = require('Renderer/Map/Altitude');
-	var ShortCut = require('UI/Components/ShortCut/ShortCut');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var Guild = require('UI/Components/Guild/Guild');
-	var SkillListMH = require('UI/Components/SkillListMH/SkillListMH');
-	var ItemSelection = require('UI/Components/ItemSelection/ItemSelection');
-	var MakeArrowSelection = require('UI/Components/MakeArrowSelection/MakeArrowSelection');
-	var RefineWeaponSelection = require('UI/Components/RefineWeaponSelection/RefineWeaponSelection');
-	var Inventory = require('UI/Components/Inventory/Inventory');
-	var NpcMenu = require('UI/Components/NpcMenu/NpcMenu');
-	var Sense = require('UI/Components/Sense/Sense');
-	var Announce = require('UI/Components/Announce/Announce');
-	var Renderer = require('Renderer/Renderer');
-	var getModule = require;
-
 	// Version Dependent UIs
-	var SkillWindow = require('UI/Components/SkillList/SkillList');
-
 	/**
 	 * Spam an effect
 	 *
@@ -59,7 +62,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_EFFECT
 	 */
 	function onSpecialEffect(pkt) {
-		var EnumEffect = [
+		const EnumEffect = [
 			EffectConst.EF_ANGEL,
 			EffectConst.EF_JOBLVUP,
 			EffectConst.EF_REFINEFAIL,
@@ -73,7 +76,7 @@ define(function (require) {
 		];
 
 		if (EnumEffect[pkt.effectID] > -1) {
-			var EF_Init_Par = {
+			const EF_Init_Par = {
 				effectId: EnumEffect[pkt.effectID],
 				ownerAID: pkt.AID
 			};
@@ -91,31 +94,26 @@ define(function (require) {
 		// Weather toggles: some servers use NOTIFY_EFFECT3 with numdata=0 to stop. rAthena don't send it as default.
 		if (typeof pkt.numdata !== 'undefined') {
 			if (pkt.effectID === EffectConst.EF_SNOW) {
-				var SnowWeatherEffect = getModule('Renderer/Effects/SnowWeather');
 				if (pkt.numdata <= 0) {
 					SnowWeatherEffect.stop(pkt.AID, Renderer.tick);
 					return;
 				}
 			} else if (pkt.effectID === EffectConst.EF_RAIN) {
-				var RainWeatherEffect = getModule('Renderer/Effects/RainWeather');
 				if (pkt.numdata <= 0) {
 					RainWeatherEffect.stop(pkt.AID, Renderer.tick);
 					return;
 				}
 			} else if (pkt.effectID === EffectConst.EF_POKJUK) {
-				var PokJukWeatherEffect = getModule('Renderer/Effects/PokJukWeatherEffect');
 				if (pkt.numdata <= 0) {
 					PokJukWeatherEffect.stop(pkt.AID, Renderer.tick);
 					return;
 				}
 			} else if (pkt.effectID === EffectConst.EF_MAPLE || pkt.effectID === EffectConst.EF_SAKURA) {
-				var SakuraWeatherEffect = getModule('Renderer/Effects/SakuraWeatherEffect');
 				if (pkt.numdata <= 0) {
 					SakuraWeatherEffect.stop(pkt.AID, Renderer.tick);
 					return;
 				}
 			} else if (pkt.effectID === EffectConst.EF_CLOUD || pkt.effectID === EffectConst.EF_CLOUD2) {
-				var CloudWeatherEffect = getModule('Renderer/Effects/CloudWeatherEffect');
 				if (pkt.numdata <= 0) {
 					CloudWeatherEffect.stop(pkt.AID, Renderer.tick);
 					return;
@@ -123,7 +121,7 @@ define(function (require) {
 			}
 		}
 
-		var EF_Init_Par = {
+		const EF_Init_Par = {
 			effectId: pkt.effectID,
 			ownerAID: pkt.AID
 		};
@@ -137,7 +135,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_GROUNDSKILL
 	 */
 	function onSkillToGround(pkt) {
-		var position = new Array(3);
+		const position = new Array(3);
 		position[0] = pkt.xPos;
 		position[1] = pkt.yPos;
 		position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
@@ -156,9 +154,9 @@ define(function (require) {
 			return;
 		}
 
-		var error = 0;
+		let error = 0;
 		/*var entity = Session.Entity;
-		var srcEntity = EntityManager.get(entity.GID);*/
+		let srcEntity = EntityManager.get(entity.GID);*/
 		if (pkt.NUM) {
 			switch (pkt.SKID) {
 				default:
@@ -309,7 +307,7 @@ define(function (require) {
 		ItemSelection.setTitle(DB.getMessage(521));
 		ItemSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				var pkt = new PACKET.CZ.REQ_ITEMIDENTIFY();
+				const pkt = new PACKET.CZ.REQ_ITEMIDENTIFY();
 				pkt.index = index;
 				Network.sendPacket(pkt);
 			}
@@ -332,7 +330,7 @@ define(function (require) {
 				ChatBox.addText(DB.getMessage(491), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 				// Remove old item
-				var item = Inventory.getUI().removeItem(pkt.index, 1);
+				const item = Inventory.getUI().removeItem(pkt.index, 1);
 
 				// Add new item updated
 				if (item) {
@@ -362,7 +360,7 @@ define(function (require) {
 		ItemSelection.setTitle(DB.getMessage(697));
 		ItemSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				var pkt = new PACKET.CZ.SELECTAUTOSPELL();
+				const pkt = new PACKET.CZ.SELECTAUTOSPELL();
 				pkt.SKID = index;
 				Network.sendPacket(pkt);
 			}
@@ -379,7 +377,7 @@ define(function (require) {
 
 		pkt.AID.forEach(tgtAID => {
 			if (tgtAID > 0) {
-				var EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_LINELINK,
 					ownerAID: pkt.myAID,
 					otherAID: tgtAID,
@@ -406,7 +404,7 @@ define(function (require) {
 		ItemSelection.setTitle(DB.getMessage(697));
 		ItemSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				var pkt = new PACKET.CZ.SKILL_SELECT_RESPONSE();
+				const pkt = new PACKET.CZ.SKILL_SELECT_RESPONSE();
 				pkt.SKID = index;
 				pkt.why = 0; // Currently unused on server side (clif_parse_SkillSelectMenu)
 				Network.sendPacket(pkt);
@@ -424,15 +422,15 @@ define(function (require) {
 		NpcMenu.onSelectMenu = function (skillid, index) {
 			NpcMenu.remove();
 
-			var _pkt = new PACKET.CZ.SELECT_WARPPOINT();
+			const _pkt = new PACKET.CZ.SELECT_WARPPOINT();
 			_pkt.SKID = skillid;
 			_pkt.mapName = pkt.mapName[index - 1] || 'cancel';
 			Network.sendPacket(_pkt);
 		};
 
 		NpcMenu.onAppend = function () {
-			var i, count;
-			var mapNames = [];
+			let i, count;
+			const mapNames = [];
 
 			for (i = 0, count = pkt.mapName.length; i < count; ++i) {
 				mapNames[i] = DB.getMapName(pkt.mapName[i], pkt.mapName[i]);
@@ -499,7 +497,7 @@ define(function (require) {
 		MakeArrowSelection.setTitle('LIST');
 		MakeArrowSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				var pkt = new PACKET.CZ.REQ_MAKINGARROW();
+				const pkt = new PACKET.CZ.REQ_MAKINGARROW();
 				pkt.id = index;
 				Network.sendPacket(pkt);
 			}
@@ -521,7 +519,7 @@ define(function (require) {
 		RefineWeaponSelection.setTitle(DB.getMessage(910));
 		RefineWeaponSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				var pkt = new PACKET.CZ.REQ_WEAPONREFINE();
+				const pkt = new PACKET.CZ.REQ_WEAPONREFINE();
 				pkt.Index = index;
 				Network.sendPacket(pkt);
 			}
@@ -545,7 +543,7 @@ define(function (require) {
 			if (index >= -1) {
 				const item = RefineWeaponSelection.getItemByIndex(index);
 
-				var pkt = new PACKET.CZ.REQ_ITEMREPAIR();
+				const pkt = new PACKET.CZ.REQ_ITEMREPAIR();
 				pkt.index = index;
 				pkt.itemId = item.ITID;
 				pkt.RefiningLevel = item.RefiningLevel;
@@ -565,7 +563,7 @@ define(function (require) {
 	 * @param {number} count / level
 	 */
 	ShortCut.onChange = function onChange(index, isSkill, ID, count) {
-		var pkt;
+		let pkt;
 		if (PACKETVER.value >= 20190522) {
 			pkt = new PACKET.CZ.SHORTCUT_KEY_CHANGE2();
 		} else {
@@ -589,7 +587,7 @@ define(function (require) {
 	 * @param {number} skill id
 	 */
 	function onIncreaseSkill(SKID) {
-		var pkt = new PACKET.CZ.UPGRADE_SKILLLEVEL();
+		const pkt = new PACKET.CZ.UPGRADE_SKILLLEVEL();
 		pkt.SKID = SKID;
 
 		Network.sendPacket(pkt);
@@ -607,11 +605,11 @@ define(function (require) {
 	 * @param {optional|number} target game id
 	 */
 	function onUseSkill(id, level, targetID) {
-		var entity, skill, target, pkt, out;
-		var count, range;
+		let entity, skill, target, pkt, out;
+		let count, range;
 
-		var isHomun = id > SkillId.HOMUN_BEGIN && id < SkillId.HOMUN_LAST;
-		var isMerc = id > SkillId.MERCENARY_BEGIN && id < SkillId.MERCENARY_LAST;
+		const isHomun = id > SkillId.HOMUN_BEGIN && id < SkillId.HOMUN_LAST;
+		const isMerc = id > SkillId.MERCENARY_BEGIN && id < SkillId.MERCENARY_LAST;
 
 		// Not used so far
 		//var isElem = (id > SkillId.ELEMENTAL_BEGIN && id < SkillId.ELEMENTAL_LAST);
@@ -664,7 +662,7 @@ define(function (require) {
 
 		if (id === SkillId.MC_CHANGECART) {
 			if (Session.Entity.hasCart == true) {
-				getModule('UI/Components/ChangeCart/ChangeCart').onChangeCartSkill();
+				UIManager.getComponent('ChangeCart').onChangeCartSkill();
 			}
 		}
 
@@ -719,10 +717,10 @@ define(function (require) {
 	 * @param {number} position y
 	 */
 	SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y) {
-		var pos, entity, pkt, out, skill;
-		var count, range;
+		let pos, entity, pkt, out, skill;
+		let count, range;
 
-		var isHomun = id > 8000 && id < 8044;
+		const isHomun = id > 8000 && id < 8044;
 
 		if (isHomun) {
 			entity = EntityManager.get(Session.homunId);
@@ -804,13 +802,13 @@ define(function (require) {
 		EffectManager.remove(null, pkt.AID, [228, 504, 629, 833]);
 
 		if (pkt.num > 0) {
-			var entity = EntityManager.get(pkt.AID);
+			const entity = EntityManager.get(pkt.AID);
 			if (entity) {
-				var isMonk = entity._job && [15, 4016, 4038, 4070, 4077, 4106].includes(entity._job); //Monk classes
-				var isGS = entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job); //Gunslinger classes
-				var isRG = entity._job && [4066, 4082, 4083, 4102, 4110].includes(entity._job); //Royal Guard
+				const isMonk = entity._job && [15, 4016, 4038, 4070, 4077, 4106].includes(entity._job); //Monk classes
+				const isGS = entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job); //Gunslinger classes
+				const isRG = entity._job && [4066, 4082, 4083, 4102, 4110].includes(entity._job); //Royal Guard
 
-				var EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_CHOOKGI,
 					ownerAID: pkt.AID,
 					spiritNum: pkt.num
@@ -839,9 +837,9 @@ define(function (require) {
 		EffectManager.remove(null, pkt.AID, [749]);
 
 		if (pkt.num > 0 && pkt.state > 0) {
-			var entity = EntityManager.get(pkt.AID);
+			const entity = EntityManager.get(pkt.AID);
 			if (entity) {
-				var EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_MILSHIELD_STR,
 					ownerAID: pkt.AID,
 					spiritNum: pkt.num
@@ -853,10 +851,10 @@ define(function (require) {
 	}
 
 	function onTaekwonMission(pkt) {
-		var total = 100;
-		var message = DB.getMessage(927);
-		var percent = Math.floor((pkt.star / total) * 100);
-		var color = '#F8F8FF'; //GhostWhite
+		const total = 100;
+		let message = DB.getMessage(927);
+		const percent = Math.floor((pkt.star / total) * 100);
+		const color = '#F8F8FF'; //GhostWhite
 
 		message = message.replace('%s', pkt.monsterName);
 		message = message.replace('%d%', percent);
@@ -867,9 +865,9 @@ define(function (require) {
 	}
 
 	function onMessageSkill(pkt) {
-		var message = DB.getMessage(pkt.MSGID);
-		var color = '#B8BEEB';
-		var name = SkillInfo[pkt.SKID].SkillName;
+		let message = DB.getMessage(pkt.MSGID);
+		const color = '#B8BEEB';
+		const name = SkillInfo[pkt.SKID].SkillName;
 		message = `[${name}] ${message}`;
 
 		ChatBox.addText(message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG, color);
@@ -888,7 +886,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function SkillEngine() {
+export default function SkillEngine() {
 		hookSkillWindow();
 
 		Network.hookPacket(PACKET.ZC.SKILLINFO_LIST, onSkillList);
@@ -928,4 +926,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.MONSTER_INFO, onSense);
 		Network.hookPacket(PACKET.ZC.DEVOTIONLIST, onDevotionList);
 	};
-});

@@ -5,26 +5,25 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var Mouse = require('Controls/MouseEventHandler');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var htmlText = require('text!./StorageFilter.html');
-	var cssText = require('text!./StorageFilter.css');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import Mouse from 'Controls/MouseEventHandler';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import htmlText from './StorageFilter.html?raw';
+import cssText from './StorageFilter.css?raw';
 
 	/**
 	 * Create StorageFilter "class"
 	 * Inherit from UIComponent
 	 */
 	function StorageFilter(tabId) {
-		var prefName = 'StorageFilter_' + tabId;
+		const prefName = 'StorageFilter_' + tabId;
 		UIComponent.call(this, prefName, htmlText, cssText);
 
 		this.onRemove = function () {
@@ -64,7 +63,7 @@ define(function (require) {
 	 * Initialize the component
 	 */
 	StorageFilter.prototype.init = function Init() {
-		var self = this; // Store 'this' for event handlers
+		const self = this; // Store 'this' for event handlers
 
 		this.ui.find('.titlebar .right .close').click(function () {
 			self.remove(); // .remove() is inherited from UIComponent
@@ -99,7 +98,7 @@ define(function (require) {
 		this.ui.find('.titlebar .text').text(title);
 		this.ui.find('.content').empty();
 
-		var i, count;
+		let i, count;
 		for (i = 0, count = this._list.length; i < count; ++i) {
 			this.renderItem(this._list[i]);
 		}
@@ -109,8 +108,8 @@ define(function (require) {
 	 * Renders a single item in the content area
 	 */
 	StorageFilter.prototype.renderItem = function RenderItem(item) {
-		var it = DB.getItemInfo(item.ITID);
-		var self = this; // for Client.loadFile callback
+		const it = DB.getItemInfo(item.ITID);
+		const self = this; // for Client.loadFile callback
 
 		this.ui
 			.find('.content')
@@ -151,14 +150,14 @@ define(function (require) {
 	};
 
 	StorageFilter.prototype.onItemOver = function onItemOver(event) {
-		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
-		var item = this.getItemFromIndex(index);
+		const index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
+		const item = this.getItemFromIndex(index);
 		if (!item) {
 			return;
 		}
 
-		var pos = jQuery(event.currentTarget).position();
-		var overlay = this.ui.find('.overlay');
+		const pos = jQuery(event.currentTarget).position();
+		const overlay = this.ui.find('.overlay');
 
 		overlay.show();
 		overlay.css({ top: pos.top - 10, left: pos.left + 35 });
@@ -171,14 +170,14 @@ define(function (require) {
 	};
 
 	StorageFilter.prototype.onItemDragStart = function onItemDragStart(event) {
-		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
-		var item = this.getItemFromIndex(index);
+		const index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
+		const item = this.getItemFromIndex(index);
 		if (!item) {
 			return;
 		}
 
-		var img = new Image();
-		var url = event.currentTarget.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/\"/g, '');
+		const img = new Image();
+		const url = event.currentTarget.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/\"/g, '');
 		img.src = url;
 
 		event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
@@ -201,8 +200,8 @@ define(function (require) {
 
 	StorageFilter.prototype.onItemInfo = function onItemInfo(event) {
 		event.stopImmediatePropagation();
-		var index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
-		var item = this.getItemFromIndex(index);
+		const index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
+		const item = this.getItemFromIndex(index);
 		if (!item) {
 			return false;
 		}
@@ -233,15 +232,15 @@ define(function (require) {
 	};
 
 	StorageFilter.prototype.onResize = function onResize() {
-		var self = this;
-		var ui = this.ui;
-		var top = ui.position().top;
-		var lastHeight = 0;
-		var _Interval;
-		var extraY = 17 + 19;
+		const self = this;
+		const ui = this.ui;
+		const top = ui.position().top;
+		let lastHeight = 0;
+		let _Interval;
+		const extraY = 17 + 19;
 
 		function resizing() {
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 			h = Math.min(Math.max(h, 4), 10);
 
 			if (h === lastHeight) {
@@ -268,8 +267,8 @@ define(function (require) {
 	};
 
 	StorageFilter.prototype.removeItem = function RemoveItem(index, count) {
-		var i = -1;
-		for (var j = 0, count_ = this._list.length; j < count_; ++j) {
+		let i = -1;
+		for (let j = 0, count_ = this._list.length; j < count_; ++j) {
 			if (this._list[j].index === index) {
 				i = j;
 				break;
@@ -279,7 +278,7 @@ define(function (require) {
 			return;
 		}
 
-		var item = this._list[i];
+		const item = this._list[i];
 		if (item.count) {
 			item.count -= count;
 			if (item.count > 0) {
@@ -293,7 +292,7 @@ define(function (require) {
 	};
 
 	StorageFilter.prototype.addItem = function AddItem(item) {
-		for (var j = 0, count_ = this._list.length; j < count_; ++j) {
+		for (let j = 0, count_ = this._list.length; j < count_; ++j) {
 			if (this._list[j].index === item.index) {
 				this._list[j].count += item.count;
 				this.ui.find('.item[data-index="' + item.index + '"] .count').text(this._list[j].count);
@@ -305,5 +304,4 @@ define(function (require) {
 	};
 
 	// Return the constructor
-	return StorageFilter;
-});
+	export default StorageFilter;

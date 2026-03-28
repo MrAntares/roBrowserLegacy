@@ -8,62 +8,61 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var _htmlText = require('text!./Error.html');
-	var _cssText = require('text!./Error.css');
-	var jQuery = require('Vendors/jquery');
+import _htmlText from './Error.html?raw';
+import _cssText from './Error.css?raw';
+import jQuery from 'Vendors/jquery';
 
-	/**
-	 * Error Namespace
-	 */
-	var Error = {};
+import _htmlText from './Error.html?raw';
+import _cssText from './Error.css?raw';
+import jQuery from 'Vendors/jquery';
 
-	/**
-	 * Initialize Metaling
-	 */
-	Error.init = function init() {
-		this.ui = jQuery(_htmlText);
+/**
+ * Error Namespace
+ */
+let Error = {};
 
-		// Add view to html
-		var style = jQuery('style:first');
-		if (!style.length) {
-			style = jQuery('<style type="text/css"></style>').appendTo('head');
-		}
-		style.append('\n' + _cssText);
-		jQuery('body').html(this.ui);
+/**
+ * Initialize Metaling
+ */
+Error.init = function init() {
+	this.ui = jQuery(_htmlText);
 
-		this.ui.css('backgroundImage', 'url(' + require.toUrl('./error.png') + ')');
-	};
+	// Add view to html
+	let style = jQuery('style:first');
+	if (!style.length) {
+		style = jQuery('<style type="text/css"></style>').appendTo('head');
+	}
+	style.append('\n' + _cssText);
+	jQuery('body').html(this.ui);
 
-	/**
-	 * Add trace info to UI
-	 *
-	 * @param {Error} error
-	 */
-	Error.addTrace = function addTrace(error) {
-		console.error(error);
-		var url = requirejs.toUrl(''); // global
-		error = error.stack || error;
+	this.ui.css('backgroundImage', 'url(' + new URL('./error.png', import.meta.url).href + ')');
+};
 
-		url = url.replace(/\/([^\/]+)$/g, '/');
-		error = error.replace(/\n/g, '<br/>');
-		error = error.replace(new RegExp(url, 'g'), '');
-		error = error.replace(/\?[^\:]+/g, '');
+/**
+ * Add trace info to UI
+ *
+ * @param {Error} error
+ */
+Error.addTrace = function addTrace(error) {
+	console.error(error);
+	let url = new URL('../../../', import.meta.url).href;
+	error = error.stack || error;
 
-		if (!this.ui) {
-			this.init();
-		}
+	url = url.replace(/\/([^\/]+)$/g, '/');
+	error = error.replace(/\n/g, '<br/>');
+	error = error.replace(new RegExp(url, 'g'), '');
+	error = error.replace(/\?[^\:]+/g, '');
 
-		this.ui.find('.trace').append(error + '<br />');
-	};
+	if (!this.ui) {
+		this.init();
+	}
 
-	/**
-	 * Stored component and return it
-	 */
-	return Error;
-});
+	this.ui.find('.trace').append(error + '<br />');
+};
+
+/**
+ * Stored component and return it
+ */
+export default Error;

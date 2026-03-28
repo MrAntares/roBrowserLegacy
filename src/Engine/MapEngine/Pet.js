@@ -8,41 +8,41 @@
  * @author Vincent Thibault
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import Client from 'Core/Client';
+import Session from 'Engine/SessionStorage';
+import EntityManager from 'Renderer/EntityManager';
+import UIManager from 'UI/UIManager';
+import SlotMachine from 'UI/Components/SlotMachine/SlotMachine';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import ItemSelection from 'UI/Components/ItemSelection/ItemSelection';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import PetInformations from 'UI/Components/PetInformations/PetInformations';
+import Emotions from 'DB/Emotions';
+import PetMessageConst from 'DB/Pets/PetMessageConst';
+import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
+
+/**
 	 * Load dependencies
 	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var Client = require('Core/Client');
-	var Session = require('Engine/SessionStorage');
-	var EntityManager = require('Renderer/EntityManager');
-	var UIManager = require('UI/UIManager');
-	var SlotMachine = require('UI/Components/SlotMachine/SlotMachine');
-	var SkillTargetSelection = require('UI/Components/SkillTargetSelection/SkillTargetSelection');
-	var ItemSelection = require('UI/Components/ItemSelection/ItemSelection');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var PetInformations = require('UI/Components/PetInformations/PetInformations');
-	var Emotions = require('DB/Emotions');
-	var PetMessageConst = require('DB/Pets/PetMessageConst');
-
 	/**
 	 * Server ask to select a monster
 	 *
 	 * @param {object} pkt - PACKET.ZC.START_CAPTURE
 	 */
 	function onStartCapture(pkt) {
-		var fakeSkill = { SKID: -10, level: 0 };
+		const fakeSkill = { SKID: -10, level: 0 };
 
 		SkillTargetSelection.append();
 		SkillTargetSelection.set(fakeSkill, SkillTargetSelection.TYPE.PET, 'Capture Monster');
 		SkillTargetSelection.onPetSelected = function onPetSelected(gid) {
 			SlotMachine.append();
 			SlotMachine.onTry = function onTry() {
-				var pkt = new PACKET.CZ.TRYCAPTURE_MONSTER();
+				const pkt = new PACKET.CZ.TRYCAPTURE_MONSTER();
 				pkt.targetAID = gid;
 				Network.sendPacket(pkt);
 			};
@@ -73,7 +73,7 @@ define(function (require) {
 		ItemSelection.setTitle(DB.getMessage(599));
 		ItemSelection.onIndexSelected = function (index) {
 			if (index > -1) {
-				var pkt = new PACKET.CZ.SELECT_PETEGG();
+				const pkt = new PACKET.CZ.SELECT_PETEGG();
 				pkt.index = index;
 				Network.sendPacket(pkt);
 			}
@@ -90,7 +90,7 @@ define(function (require) {
 		PetInformations.setInformations(pkt);
 
 		if (Session.petId) {
-			var entity = EntityManager.get(Session.petId);
+			const entity = EntityManager.get(Session.petId);
 			if (entity) {
 				const oldHungry = Session.pet.hungry || pkt.nFullness;
 				Session.pet.job = pkt.job;
@@ -130,12 +130,12 @@ define(function (require) {
 			const emotion = DB.getPetEmotion(hunger, friendly, PetMessageConst.PM_FEEDING);
 
 			if (emotion > 0) {
-				var pkt = new PACKET.CZ.PET_ACT();
+				const pkt = new PACKET.CZ.PET_ACT();
 				pkt.data = emotion + '2'; // don't know what is the last digit but it needed. @MrUnzO
 				Network.sendPacket(pkt);
 			}
 			if (Session.pet.friendly > 900) {
-				var pkt = new PACKET.CZ.PET_ACT();
+				const pkt = new PACKET.CZ.PET_ACT();
 				pkt.data = talk;
 				Network.sendPacket(pkt);
 			}
@@ -147,7 +147,7 @@ define(function (require) {
 	 *
 	 */
 	function petTalk(GID, msg) {
-		var entity = EntityManager.get(GID);
+		const entity = EntityManager.get(GID);
 		ChatBox.addText(entity.display.name + ' : ' + msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT);
 		entity.dialog.set(msg);
 	}
@@ -158,8 +158,8 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.CHANGESTATE_PET
 	 */
 	function onPetInformationUpdate(pkt) {
-		var entity = EntityManager.get(pkt.GID);
-		var path;
+		const entity = EntityManager.get(pkt.GID);
+		let path;
 
 		if (!entity) {
 			return;
@@ -206,7 +206,7 @@ define(function (require) {
 				break;
 
 			case 4: /// 4 = performance (data = 1~3: normal, 4: special)
-				var action = [entity.ACTION.PERF1, entity.ACTION.PERF2, entity.ACTION.PERF3, entity.ACTION.SPECIAL];
+				const action = [entity.ACTION.PERF1, entity.ACTION.PERF2, entity.ACTION.PERF3, entity.ACTION.SPECIAL];
 				entity.setAction({
 					action: action[(pkt.data - 1 + action.length) % action.length],
 					frame: 0,
@@ -232,7 +232,7 @@ define(function (require) {
 	 * @param {object} pkt - PACKET.ZC.PET_ACT
 	 */
 	function onPetAction(pkt) {
-		var entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 		if (!entity) {
 			return;
 		}
@@ -260,7 +260,7 @@ define(function (require) {
 	PetInformations.reqPetFeed = function reqPetFeed() {
 		// Are you sure you want to feed your pet ?
 		UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', function () {
-			var pkt = new PACKET.CZ.COMMAND_PET();
+			const pkt = new PACKET.CZ.COMMAND_PET();
 			pkt.cSub = 1;
 			Network.sendPacket(pkt);
 		});
@@ -270,7 +270,7 @@ define(function (require) {
 	 * Client request to do a performance
 	 */
 	PetInformations.reqPetAction = function reqPetAction() {
-		var pkt = new PACKET.CZ.COMMAND_PET();
+		const pkt = new PACKET.CZ.COMMAND_PET();
 		pkt.cSub = 2;
 		Network.sendPacket(pkt);
 	};
@@ -279,7 +279,7 @@ define(function (require) {
 	 * Qpet -> Egg
 	 */
 	PetInformations.reqBackToEgg = function reqBackToEgg() {
-		var pkt = new PACKET.CZ.COMMAND_PET();
+		const pkt = new PACKET.CZ.COMMAND_PET();
 		pkt.cSub = 3;
 		Network.sendPacket(pkt);
 
@@ -290,7 +290,7 @@ define(function (require) {
 	 * UnEquip pet accessory
 	 */
 	PetInformations.reqUnEquipPet = function reqUnEquipPet() {
-		var pkt = new PACKET.CZ.COMMAND_PET();
+		const pkt = new PACKET.CZ.COMMAND_PET();
 		pkt.cSub = 4;
 		Network.sendPacket(pkt);
 	};
@@ -301,7 +301,7 @@ define(function (require) {
 	 * @param {string} new pet name
 	 */
 	PetInformations.reqNameEdit = function reqNameEdit(name) {
-		var pkt = new PACKET.CZ.RENAME_PET();
+		const pkt = new PACKET.CZ.RENAME_PET();
 		pkt.szName = name;
 		Network.sendPacket(pkt);
 	};
@@ -321,7 +321,6 @@ define(function (require) {
 			return;
 		} else {
 			// Call Evolution UI
-			var PetEvolution = require('UI/Components/PetEvolution/PetEvolution');
 			PetEvolution.prepare();
 			PetEvolution.SetInfo(baseJobID);
 			PetEvolution.append();
@@ -335,7 +334,7 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function NPCEngine() {
+export default function NPCEngine() {
 		Network.hookPacket(PACKET.ZC.START_CAPTURE, onStartCapture);
 		Network.hookPacket(PACKET.ZC.TRYCAPTURE_MONSTER, onCaptureResult);
 		Network.hookPacket(PACKET.ZC.PETEGG_LIST, onPetList);
@@ -344,4 +343,3 @@ define(function (require) {
 		Network.hookPacket(PACKET.ZC.CHANGESTATE_PET, onPetInformationUpdate);
 		Network.hookPacket(PACKET.ZC.PET_ACT, onPetAction);
 	};
-});

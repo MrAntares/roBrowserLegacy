@@ -7,49 +7,48 @@
  *
  * @author Vincent Thibault
  */
-define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-matrix', 'Core/Client'], function (
-	_vertexShader,
-	_fragmentShader,
-	WebGL,
-	glMatrix,
-	Client
-) {
-	'use strict';
+'use strict';
 
-	var mat4 = glMatrix.mat4;
+import _vertexShader from './StrEffect.vs?raw';
+import _fragmentShader from './StrEffect.fs?raw';
+import WebGL from 'Utils/WebGL';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+
+const mat4 = glMatrix.mat4;
 
 	/**
 	 * Look up table D3DX => OPENGL
 	 */
-	var D3DBLEND = {};
+	const D3DBLEND = {};
 
 	/**
 	 * @var {WebGLProgram}
 	 */
-	var _program = null;
+	let _program = null;
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer = null;
+	let _buffer = null;
 
 	/**
 	 * @var {float[16]} buffer
 	 */
-	var _bufferData = new Float32Array(4 * 4);
+	const _bufferData = new Float32Array(4 * 4);
 
 	/**
 	 * @var mat4 matrix to generate rotation
 	 */
-	var _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	/**
 	 * @var {number} last angle
 	 */
-	var _lastAngle = -1;
+	let _lastAngle = -1;
 
 	// Pixel to world conversion for attachment offsets
-	var PIXEL_TO_WORLD_Z = 1.0 / 5.0;
+	const PIXEL_TO_WORLD_Z = 1.0 / 5.0;
 
 	/**
 	 * StrEffect constructor
@@ -101,7 +100,7 @@ define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-m
 	 * @param {number} tick
 	 */
 	StrEffect.prototype.render = (function renderClosure() {
-		var anim = {
+		const anim = {
 			frame: 0,
 			type: 0,
 			aniframe: 0,
@@ -136,8 +135,8 @@ define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-m
 		}
 
 		return function render(gl, tick) {
-			var strFile, layer;
-			var i, keyIndex;
+			let strFile, layer;
+			let i, keyIndex;
 
 			// Follow entity position for attachments
 			if (this.ownerEntity && this.ownerEntity.position) {
@@ -167,7 +166,7 @@ define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-m
 				this._lastValidAnim = {};
 			}
 
-			var anyFreshFrame = false;
+			let anyFreshFrame = false;
 
 			for (i = 0; i < strFile.layernum; i++) {
 				layer = strFile.layers[i];
@@ -213,11 +212,11 @@ define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-m
 	 * @param {StrAnimation} animation object
 	 */
 	StrEffect.prototype.renderAnimation = function renderAnimation(gl, material, anim) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		// Hat effects: Scale with entity size
-		var sizeScale = 1.0;
+		let sizeScale = 1.0;
 		if (this.ownerEntity) {
 			sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
 		}
@@ -249,8 +248,8 @@ define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-m
 			_lastAngle = anim.angle;
 		}
 
-		var spriteOffset = new Float32Array(2);
-		var verticalBase = 0.5;
+		const spriteOffset = new Float32Array(2);
+		let verticalBase = 0.5;
 
 		if (this.ownerEntity) {
 			// Attachment: center at (320,320), apply offsets, scale with entity
@@ -293,11 +292,11 @@ define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-m
 	 * @param {object} animation structure
 	 */
 	function calculateAnimation(layer, keyIndex, result) {
-		var i, delta;
-		var animations, from, to;
-		var lastFrame = 0;
-		var lastSource = 0;
-		var fromId = -1,
+		let i, delta;
+		let animations, from, to;
+		let lastFrame = 0;
+		let lastSource = 0;
+		let fromId = -1,
 			toId = -1;
 
 		animations = layer.animations;
@@ -463,8 +462,8 @@ define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-m
 	 * @param {number} tick
 	 */
 	StrEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		gl.depthMask(false);
 		gl.useProgram(_program);
@@ -501,7 +500,6 @@ define(['text!./StrEffect.vs', 'text!./StrEffect.fs', 'Utils/WebGL', 'Utils/gl-m
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return StrEffect;
-});
+	export default StrEffect;

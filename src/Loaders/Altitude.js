@@ -8,10 +8,11 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryReader'], function (BinaryReader) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+
+/**
 	 * Altitude Constructor
 	 *
 	 * @param {ArrayBuffer} data
@@ -65,8 +66,8 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * @param {ArrayBuffer} data
 	 */
 	GAT.prototype.load = function load(data) {
-		var fp, header, cells;
-		var version, width, height, i, count;
+		let fp, header, cells;
+		let version, width, height, i, count;
 
 		fp = new BinaryReader(data);
 		header = fp.readBinaryString(4);
@@ -113,7 +114,6 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	};
 
 	/**
-	 * Exports
+	 * Export s
 	 */
-	return GAT;
-});
+	export default GAT;

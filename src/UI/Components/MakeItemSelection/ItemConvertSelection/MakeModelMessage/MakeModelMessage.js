@@ -5,23 +5,19 @@
  *
  * @author Francisco Wallison
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./MakeModelMessage.html');
-	var cssText = require('text!./MakeModelMessage.css');
-	var getModule = require;
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './MakeModelMessage.html?raw';
+import cssText from './MakeModelMessage.css?raw';
+import ConvertItems from 'UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems';
 
-	/**
+/**
 	 * Create MakeModelMessage namespace
 	 */
-	var MakeModelMessage = new UIComponent('MakeModelMessage', htmlText, cssText);
+	const MakeModelMessage = new UIComponent('MakeModelMessage', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -41,16 +37,15 @@ define(function (require) {
 
 	function onSendMaterial(event) {
 		event.stopImmediatePropagation();
-		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems').validItemSend(true);
+		ConvertItems.validItemSend(true);
 	}
 
 	function onClose(event) {
 		event.stopImmediatePropagation();
-		getModule('UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems').validItemSend(false);
+		ConvertItems.validItemSend(false);
 	}
 
 	/**
 	 * Create component based on view file and export it
 	 */
-	return UIManager.addComponent(MakeModelMessage);
-});
+export default UIManager.addComponent(MakeModelMessage);

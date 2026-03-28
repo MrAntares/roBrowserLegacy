@@ -1,6 +1,4 @@
-define(function(){
-
-var html2canvas;
+let html2canvas;
 
 /**
   @license html2canvas v0.34 <http://html2canvas.hertzen.com>
@@ -20,7 +18,7 @@ var html2canvas;
  */
 "use strict";
 
-var _html2canvas = {},
+let _html2canvas = {},
 previousElement,
 computedCSS;
 
@@ -51,7 +49,7 @@ _html2canvas.Util.backgroundImage = function (src) {
 };
 
 _html2canvas.Util.Bounds = function getBounds (el) {
-    var clientRect,
+    let clientRect,
     bounds = {};
 
     if (el.getBoundingClientRect){
@@ -75,10 +73,10 @@ _html2canvas.Util.Bounds = function getBounds (el) {
 _html2canvas.Util.getCSS = function (el, attribute) {
     // return $(el).css(attribute);
 
-    var val;
+    let val;
 
     function toPX( attribute, val ) {
-        var rsLeft = el.runtimeStyle && el.runtimeStyle[ attribute ],
+        let rsLeft = el.runtimeStyle && el.runtimeStyle[ attribute ],
         left,
         style = el.style;
 
@@ -133,7 +131,7 @@ _html2canvas.Util.getCSS = function (el, attribute) {
             val[ 1 ] = ( val[1] === undefined ) ? val[0] : val[1]; // IE 9 doesn't return double digit always
             val[ 1 ] = ( val[1].indexOf( "%" ) === -1 ) ? toPX(  attribute + "Y", val[ 1 ] ) : val[ 1 ];
         } else if ( /border(Top|Bottom)(Left|Right)Radius/.test( attribute) ) {
-            var arr = val.split(" ");
+            let arr = val.split(" ");
             if ( arr.length <= 1 ) {
                 arr[ 1 ] = arr[ 0 ];
             }
@@ -186,7 +184,7 @@ _html2canvas.Util.getCSS = function (el, attribute) {
 _html2canvas.Util.BackgroundPosition = function ( el, bounds, image ) {
     // TODO add support for multi image backgrounds
 
-    var bgposition =  _html2canvas.Util.getCSS( el, "backgroundPosition" ) ,
+    let bgposition =  _html2canvas.Util.getCSS( el, "backgroundPosition" ) ,
     topPos,
     left,
     percentage,
@@ -248,17 +246,17 @@ _html2canvas.Util.Extend = function (options, defaults) {
 _html2canvas.Util.Children = function( elem ) {
 
 
-    var children;
+    let children;
     try {
 
         children = (elem.nodeName && elem.nodeName.toUpperCase() === "IFRAME") ?
         elem.contentDocument || elem.contentWindow.document : (function( array ){
-            var ret = [];
+            let ret = [];
 
             if ( array !== null ) {
 
                 (function( first, second ) {
-                    var i = first.length,
+                    let i = first.length,
                     j = 0;
 
                     if ( typeof second.length === "number" ) {
@@ -305,7 +303,7 @@ _html2canvas.Util.Children = function( elem ) {
 
 _html2canvas.Generate = {};
 
-var reGradients = [
+let reGradients = [
     /^(-webkit-linear-gradient)\(([a-z\s]+)([\w\d\.\s,%\(\)]+)\)$/,
     /^(-o-linear-gradient)\(([a-z\s]+)([\w\d\.\s,%\(\)]+)\)$/,
     /^(-webkit-gradient)\((linear|radial),\s((?:\d{1,3}%?)\s(?:\d{1,3}%?),\s(?:\d{1,3}%?)\s(?:\d{1,3}%?))([\w\d\.\s,%\(\)-]+)\)$/,
@@ -322,7 +320,7 @@ var reGradients = [
  * TODO: Maybe some RegExp optimizations are possible ;o)
  */
 _html2canvas.Generate.parseGradient = function(css, bounds) {
-    var gradient, i, len = reGradients.length, m1, stop, m2, m2Len, step, m3;
+    let gradient, i, len = reGradients.length, m1, stop, m2, m2Len, step, m3;
 
     for(i = 0; i < len; i+=1){
         m1 = css.match(reGradients[i]);
@@ -524,18 +522,18 @@ _html2canvas.Generate.parseGradient = function(css, bounds) {
                         case 'farthest-corner':
                         case 'cover': // is equivalent to farthest-corner
                         case '': // mozilla removes "cover" from definition :(
-                            var tl = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.cy, 2));
-                            var tr = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
-                            var br = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
-                            var bl = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.cy, 2));
+                            let tl = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.cy, 2));
+                            let tr = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
+                            let br = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
+                            let bl = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.cy, 2));
                             gradient.rx = gradient.ry = Math.max(tl, tr, br, bl);
                             break;
                         case 'closest-corner':
-                            var tl = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.cy, 2));
-                            var tr = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
-                            var br = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
-                            var bl = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.cy, 2));
-                            gradient.rx = gradient.ry = Math.min(tl, tr, br, bl);
+                            let tl2 = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.cy, 2));
+                            let tr2 = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
+                            let br2 = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
+                            let bl2 = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.cy, 2));
+                            gradient.rx = gradient.ry = Math.min(tl2, tr2, br2, bl2);
                             break;
                         case 'farthest-side':
                             if(m2[0] === 'circle'){
@@ -618,7 +616,7 @@ _html2canvas.Generate.parseGradient = function(css, bounds) {
 };
 
 _html2canvas.Generate.Gradient = function(src, bounds) {
-    var canvas = document.createElement('canvas'),
+    let canvas = document.createElement('canvas'),
     ctx = canvas.getContext('2d'),
     gradient, grad, i, len, img;
 
@@ -667,7 +665,7 @@ _html2canvas.Generate.Gradient = function(src, bounds) {
         } else if(gradient.type === 'ellipse'){
 
             // draw circle
-            var canvasRadial = document.createElement('canvas'),
+            let canvasRadial = document.createElement('canvas'),
                 ctxRadial = canvasRadial.getContext('2d'),
                 ri = Math.max(gradient.rx, gradient.ry),
                 di = ri * 2, imgRadial;
@@ -708,7 +706,7 @@ _html2canvas.Generate.Gradient = function(src, bounds) {
 };
 
 _html2canvas.Generate.ListAlpha = function(number) {
-    var tmp = "",
+    let tmp = "",
     modulus;
 
     do {
@@ -721,7 +719,7 @@ _html2canvas.Generate.ListAlpha = function(number) {
 };
 
 _html2canvas.Generate.ListRoman = function(number) {
-    var romanArray = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"],
+    let romanArray = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"],
     decimal = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1],
     roman = "",
     v,
@@ -758,10 +756,10 @@ _html2canvas.Generate.ListRoman = function(number) {
 _html2canvas.Parse = function ( images, options ) {
     window.scroll(0,0);
 
-    var support = {
+    let support = {
         rangeBounds: false,
         svgRendering: options.svgRendering && (function( ){
-            var img = new Image(),
+            let img = new Image(),
             canvas = document.createElement("canvas"),
             ctx = (canvas.getContext === undefined) ? false : canvas.getContext("2d");
             if (ctx === false) {
@@ -857,9 +855,9 @@ _html2canvas.Parse = function ( images, options ) {
 
 
     /*
-    var rootStack = new this.storageContext($(document).width(),$(document).height());
+    let rootStack = new this.storageContext($(document).width(),$(document).height());
     rootStack.opacity = this.getCSS(this.element,"opacity");
-    var stack = this.newElement(this.element,rootStack);
+    let stack = this.newElement(this.element,rootStack);
 
 
     this.parseElement(this.element,stack);
@@ -868,9 +866,9 @@ _html2canvas.Parse = function ( images, options ) {
 
 
 
-    var getCSS = _html2canvas.Util.getCSS;
+    let getCSS = _html2canvas.Util.getCSS;
     function getCSSInt(element, attribute) {
-        var val = parseInt(getCSS(element, attribute), 10);
+        let val = parseInt(getCSS(element, attribute), 10);
         return (isNaN(val)) ? 0 : val; // borders in old IE are throwing 'medium' for demo.html
     }
 
@@ -917,7 +915,7 @@ _html2canvas.Parse = function ( images, options ) {
         }
 
 
-        var container = doc.createElement('div'),
+        let container = doc.createElement('div'),
         img = doc.createElement('img'),
         span = doc.createElement('span'),
         baseline,
@@ -989,7 +987,7 @@ _html2canvas.Parse = function ( images, options ) {
 
 
     function renderText(el, textNode, stack) {
-        var ctx = stack.ctx,
+        let ctx = stack.ctx,
         family = getCSS(el, "fontFamily"),
         size = getCSS(el, "fontSize"),
         color = getCSS(el, "color"),
@@ -1162,7 +1160,7 @@ _html2canvas.Parse = function ( images, options ) {
     }
 
     function listPosition (element, val) {
-        var boundElement = doc.createElement( "boundelement" ),
+        let boundElement = doc.createElement( "boundelement" ),
         type,
         bounds;
 
@@ -1189,7 +1187,7 @@ _html2canvas.Parse = function ( images, options ) {
 
     
     function elementIndex( el ) {
-        var i = -1,
+        let i = -1,
         count = 1,
         childs = el.parentNode.childNodes;
 
@@ -1209,7 +1207,7 @@ _html2canvas.Parse = function ( images, options ) {
     function renderListItem(element, stack, elBounds) {
 
 
-        var position = getCSS(element, "listStylePosition"),
+        let position = getCSS(element, "listStylePosition"),
         x,
         y,
         type = getCSS(element, "listStyleType"),
@@ -1299,7 +1297,7 @@ _html2canvas.Parse = function ( images, options ) {
     }
 
     function loadImage (src){
-        var img = images[src];
+        let img = images[src];
         if (img && img.succeeded === true) {
             return img.img;
         } else {
@@ -1314,7 +1312,7 @@ _html2canvas.Parse = function ( images, options ) {
 
     function clipBounds(src, dst){
 
-        var x = Math.max(src.left, dst.left),
+        let x = Math.max(src.left, dst.left),
         y = Math.max(src.top, dst.top),
         x2 = Math.min((src.left + src.width), (dst.left + dst.width)),
         y2 = Math.min((src.top + src.height), (dst.top + dst.height));
@@ -1330,7 +1328,7 @@ _html2canvas.Parse = function ( images, options ) {
 
     function setZ(zIndex, parentZ){
         // TODO fix static elements overlapping relative/absolute elements under same stack, if they are defined after them
-        var newContext;
+        let newContext;
         if (!parentZ){
             newContext = h2czContext(0);
             return newContext;
@@ -1354,7 +1352,7 @@ _html2canvas.Parse = function ( images, options ) {
          *  TODO add support for different border-style's than solid
          */
 
-        var x = bounds.left,
+        let x = bounds.left,
         y = bounds.top,
         w = bounds.width,
         h = bounds.height,
@@ -1369,7 +1367,7 @@ _html2canvas.Parse = function ( images, options ) {
         borderArgs,
         borderBounds,
         borders = (function(el){
-            var borders = [],
+            let borders = [],
             sides = ["Top","Right","Bottom","Left"],
             s;
 
@@ -1385,7 +1383,7 @@ _html2canvas.Parse = function ( images, options ) {
         }(el)),
         // http://www.w3.org/TR/css3-background/#the-border-radius
         borderRadius = (function( el ) {
-            var borders = [],
+            let borders = [],
             sides = ["TopLeft","TopRight","BottomRight","BottomLeft"],
             s;
             
@@ -1518,7 +1516,7 @@ _html2canvas.Parse = function ( images, options ) {
                     if ( borderData.color !== "transparent" ){
                         ctx.setVariable( "fillStyle", borderData.color );
                         
-                        var shape = ctx.drawShape(),
+                        let shape = ctx.drawShape(),
                         numBorderArgs = borderArgs.length;
                         
                         for ( i = 0; i < numBorderArgs; i++ ) {
@@ -1545,7 +1543,7 @@ _html2canvas.Parse = function ( images, options ) {
 
     function renderFormValue (el, bounds, stack){
 
-        var valueWrap = doc.createElement('valuewrap'),
+        let valueWrap = doc.createElement('valuewrap'),
         cssArr = ['lineHeight','textAlign','fontFamily','color','fontSize','paddingLeft','paddingTop','width','height','border','borderLeftWidth','borderTopWidth'],
         i,
         textValue,
@@ -1618,7 +1616,7 @@ _html2canvas.Parse = function ( images, options ) {
 
 
     function renderBackgroundRepeat (ctx, image, x, y, width, height, elx, ely){
-        var sourceX = 0,
+        let sourceX = 0,
         sourceY=0;
         if (elx-x>0){
             sourceX = elx-x;
@@ -1645,7 +1643,7 @@ _html2canvas.Parse = function ( images, options ) {
 
     function renderBackgroundRepeatY (ctx, image, bgp, x, y, w, h){
 
-        var height,
+        let height,
         width = Math.min(image.width,w),bgy;
 
         bgp.top = bgp.top-Math.ceil(bgp.top/image.height)*image.height;
@@ -1668,7 +1666,7 @@ _html2canvas.Parse = function ( images, options ) {
 
     function renderBackgroundRepeatX(ctx, image, bgp, x, y, w, h){
 
-        var height = Math.min(image.height,h),
+        let height = Math.min(image.height,h),
         width,bgx;
 
 
@@ -1694,7 +1692,7 @@ _html2canvas.Parse = function ( images, options ) {
     function renderBackground(el,bounds,ctx){
 
         // TODO add support for multi background-images
-        var background_image = getCSS(el, "backgroundImage"),
+        let background_image = getCSS(el, "backgroundImage"),
         background_repeat = getCSS(el, "backgroundRepeat").split(",")[0],
         image,
         bgp,
@@ -1847,7 +1845,7 @@ _html2canvas.Parse = function ( images, options ) {
 
     function renderElement(el, parentStack){
 
-        var bounds = _html2canvas.Util.Bounds(el),
+        let bounds = _html2canvas.Util.Bounds(el),
         x = bounds.left,
         y = bounds.top,
         w = bounds.width,
@@ -2068,7 +2066,7 @@ _html2canvas.Parse = function ( images, options ) {
             ctx = stack.ctx;
 
             if ( !ignoreElementsRegExp.test( el.nodeName ) ) {
-                var elementChildren = _html2canvas.Util.Children( el ),
+                let elementChildren = _html2canvas.Util.Children( el ),
                 i,
                 node,
                 childrenLen;
@@ -2095,12 +2093,12 @@ _html2canvas.Parse = function ( images, options ) {
 
     if ( support.svgRendering ) {
         (function( body ){
-            var img = new Image(),
+            let img = new Image(),
             size =  docSize(),
             html = "";
 
             function parseDOM( el ) {
-                var children = _html2canvas.Util.Children( el ),
+                let children = _html2canvas.Util.Children( el ),
                 len = children.length,
                 attr,
                 a,
@@ -2195,7 +2193,7 @@ function h2czContext(zindex) {
 
 _html2canvas.Preload = function( options ) {
 
-    var images = {
+    let images = {
         numLoaded: 0,   // also failed are counted here
         numFailed: 0,
         numTotal: 0,
@@ -2226,7 +2224,7 @@ _html2canvas.Preload = function( options ) {
     function isSameOrigin(url){
         link.href = url;
         link.href = link.href; // YES, BELIEVE IT OR NOT, that is required for IE9 - http://jsfiddle.net/niklasvh/2e48b/
-        var origin = link.protocol + link.host;
+        let origin = link.protocol + link.host;
         return (origin === pageOrigin);
     }
 
@@ -2244,7 +2242,7 @@ _html2canvas.Preload = function( options ) {
 
     // TODO modify proxy to serve images with CORS enabled, where available
     function proxyGetImage(url, img, imageObj){
-        var callback_name,
+        let callback_name,
         scriptUrl = options.proxy,
         script;
 
@@ -2296,7 +2294,7 @@ _html2canvas.Preload = function( options ) {
         // if (!this.ignoreRe.test(el.nodeName)){
         //
         
-        var contents = _html2canvas.Util.Children(el),
+        let contents = _html2canvas.Util.Children(el),
         i,
         background_image,
         src,
@@ -2305,7 +2303,7 @@ _html2canvas.Preload = function( options ) {
 
         // Firefox fails with permission denied on pages with iframes
         try {
-            var contentsLen = contents.length;
+            let contentsLen = contents.length;
             for (i = 0;  i < contentsLen; i+=1 ){
                 // var ignRe = new RegExp("("+this.ignoreElements+")");
                 // if (!ignRe.test(element.nodeName)){
@@ -2385,7 +2383,7 @@ _html2canvas.Preload = function( options ) {
 
                 // let's try with proxy instead
                 if ( options.proxy ) {
-                    var src = img.src;
+                    let src = img.src;
                     img = new Image();
                     imageObj.img = img;
                     img.src = src;
@@ -2419,7 +2417,7 @@ _html2canvas.Preload = function( options ) {
 
     methods = {
         loadImage: function( src ) {
-            var img, imageObj;
+            let img, imageObj;
             if ( src && images[src] === undefined ) {
                 img = new Image();
                 if ( src.match(/data:image\/.*;base64,/i) ) {
@@ -2468,7 +2466,7 @@ _html2canvas.Preload = function( options ) {
 
         },
         cleanupDOM: function(cause) {
-            var img, src;
+            let img, src;
             if (!images.cleanupDone) {
                 if (cause && typeof cause === "string") {
                     h2clog("html2canvas: Cleanup because: " + cause);
@@ -2554,7 +2552,7 @@ _html2canvas.Preload = function( options ) {
   Released under MIT License
 */
 function h2cRenderContext(width, height) {
-    var storage = [];
+    let storage = [];
     return {
         storage: storage,
         width: width,
@@ -2568,7 +2566,7 @@ function h2cRenderContext(width, height) {
         },
         drawShape: function() {
           
-            var shape = [];
+            let shape = [];
             
             storage.push({
                 type: "function",
@@ -2638,10 +2636,10 @@ function h2cRenderContext(width, height) {
 _html2canvas.Renderer = function(parseQueue, options){
 
 
-    var queue = [];
+    let queue = [];
 
     function sortZ(zStack){
-        var subStacks = [],
+        let subStacks = [],
         stackValues = [],
         zStackChildren = zStack.children,
         s,
@@ -2706,7 +2704,7 @@ _html2canvas.Renderer = function(parseQueue, options){
 
 html2canvas = function( elements, opts ) {
 
-    var queue,
+    let queue,
     canvas,
     options = {
         // general
@@ -2807,7 +2805,7 @@ _html2canvas.Renderer.Canvas = function( options ) {
 
     options = options || {};
 
-    var doc = document,
+    let doc = document,
     canvas = options.canvas || doc.createElement('canvas'),
     usingFlashcanvas = false,
     _createCalled = false,
@@ -2822,11 +2820,11 @@ _html2canvas.Renderer.Canvas = function( options ) {
     } else if ( options.flashcanvas !== undefined ){
         usingFlashcanvas = true;
         h2clog("html2canvas: Renderer: canvas not available, using flashcanvas");
-        var script = doc.createElement("script");
+        let script = doc.createElement("script");
         script.src = options.flashcanvas;
 
         script.onload = (function(script, func){
-            var intervalFunc;
+            let intervalFunc;
 
             if (script.onload === undefined) {
                 // IE lack of support for script onload
@@ -2880,7 +2878,7 @@ _html2canvas.Renderer.Canvas = function( options ) {
                 return canvas;
             }
 
-            var ctx = canvas.getContext("2d"),
+            let ctx = canvas.getContext("2d"),
             storageContext,
             i,
             queueLen,
@@ -2947,7 +2945,7 @@ _html2canvas.Renderer.Canvas = function( options ) {
                                         
                                         ( function( args ) {
                                           
-                                            var i, len = args.length;
+                                            let i, len = args.length;
                                             ctx.beginPath();
                                             for ( i = 0; i < len; i++ ) {   
                                                 ctx[ args[ i ].name ].apply( ctx, args[ i ]['arguments'] );
@@ -3052,7 +3050,7 @@ _html2canvas.Renderer.SVG = function( options ) {
 
     options = options || {};
 
-    var doc = document,
+    let doc = document,
     svgNS = "http://www.w3.org/2000/svg",
     svg = doc.createElementNS(svgNS, "svg"),
     xlinkNS = "http://www.w3.org/1999/xlink",
@@ -3234,5 +3232,4 @@ _html2canvas.Renderer.SVG = function( options ) {
 
 };
 }(window, document));
-	return html2canvas;
-});
+export default html2canvas;

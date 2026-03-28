@@ -7,15 +7,17 @@
  *
  * @author Vincent Thibault
  */
-define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatrix, Events, Renderer) {
-	'use strict';
+'use strict';
 
-	/**
+import glMatrix from 'Utils/gl-matrix';
+import Events from 'Core/Events';
+
+/**
 	 * Global methods
 	 */
-	var vec4 = glMatrix.vec4;
-	var _pos = new Float32Array(4);
-	var _size = new Float32Array(2);
+	const vec4 = glMatrix.vec4;
+	const _pos = new Float32Array(4);
+	const _size = new Float32Array(2);
 
 	// Helper to render round rectangle
 	function roundRect(ctx, x, y, width, height, radius) {
@@ -56,19 +58,19 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	Dialog.prototype.set = function Set(text, fontColor) {
 		// Save info
 		this.text = text;
-		this.tick = Renderer.tick;
+		this.tick = Date.now();
 		this.display = true;
 
 		// Init variables
-		var ctx = this.ctx;
-		var max_width = 250;
-		var fontSize = 12;
-		var lines = [];
-		var width = 0,
+		const ctx = this.ctx;
+		const max_width = 250;
+		const fontSize = 12;
+		const lines = [];
+		let width = 0,
 			i,
 			j;
-		var result;
-		var color = fontColor || 'white';
+		let result;
+		const color = fontColor || 'white';
 
 		ctx.font = fontSize + 'px Arial';
 
@@ -160,8 +162,8 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	 * Rendering dialog box
 	 */
 	Dialog.prototype.render = function Render(matrix) {
-		var canvas = this.canvas;
-		var z;
+		const canvas = this.canvas;
+		let z;
 
 		// Cast position
 		_pos[0] = 0.0;
@@ -170,8 +172,8 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 		_pos[3] = 1.0;
 
 		// Set the viewport
-		_size[0] = Renderer.width / 2;
-		_size[1] = Renderer.height / 2;
+		_size[0] = window.innerWidth / 2;
+		_size[1] = window.innerHeight / 2;
 
 		// Project point to scene
 		vec4.transformMat4(_pos, _pos, matrix);
@@ -191,9 +193,8 @@ define(['Utils/gl-matrix', 'Core/Events', 'Renderer/Renderer'], function (glMatr
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return function Init() {
+	export default function Init() {
 		this.dialog = new Dialog();
 	};
-});

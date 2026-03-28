@@ -7,21 +7,19 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var jQuery = require('Utils/jquery');
-	var UIComponent = require('./UIComponent');
-	var UIVersionManager = require('./UIVersionManager');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var getModule = require;
+import jQuery from 'Utils/jquery';
+import UIComponent from './UIComponent';
+import UIVersionManager from './UIVersionManager';
+import KEYS from 'Controls/KeyEventHandler';
+import Renderer from 'Renderer/Renderer';
+import GameEngine from 'Engine/GameEngine';
 
 	/**
 	 * User Interface Manager
 	 */
-	var UIManager = {};
+	const UIManager = {};
 
 	/**
 	 * Components cache
@@ -51,7 +49,7 @@ define(function (require) {
 	 * @return {UIComponent} object
 	 */
 	UIManager.getComponent = function getComponent(name) {
-		var versionAlias = UIVersionManager.getUIAlias(name);
+		const versionAlias = UIVersionManager.getUIAlias(name);
 		if (versionAlias) {
 			name = versionAlias;
 		}
@@ -67,8 +65,8 @@ define(function (require) {
 	 * Remove all components in screen
 	 */
 	UIManager.removeComponents = function removeComponents() {
-		var keys = Object.keys(this.components);
-		var i,
+		const keys = Object.keys(this.components);
+		let i,
 			count = keys.length;
 
 		for (i = 0; i < count; ++i) {
@@ -84,14 +82,14 @@ define(function (require) {
 	 * @param {number} Game screen height
 	 */
 	UIManager.fixResizeOverflow = function fixResizeOverflow(WIDTH, HEIGHT) {
-		var keys = Object.keys(this.components);
-		var i,
+		const keys = Object.keys(this.components);
+		let i,
 			count = keys.length;
-		var ui;
-		var x, y, width, height;
+		let ui;
+		let x, y, width, height;
 
 		for (i = 0; i < count; ++i) {
-			var component = this.components[keys[i]];
+			const component = this.components[keys[i]];
 			ui = component.ui;
 
 			if (ui) {
@@ -137,7 +135,7 @@ define(function (require) {
 	 * @param {string} error message
 	 */
 	UIManager.showErrorBox = function showErrorBox(text) {
-		var WinError, overlay;
+		let WinError, overlay;
 
 		// Create popup
 		WinError = this.getComponent('WinPopup').clone('WinError');
@@ -158,7 +156,7 @@ define(function (require) {
 					.one('click', function () {
 						overlay.remove();
 						WinError.remove();
-						getModule('Engine/GameEngine').reload();
+						GameEngine.reload();
 					})
 					.each(this.parseHTML)
 			);
@@ -170,7 +168,7 @@ define(function (require) {
 				case KEYS.ESCAPE:
 					overlay.remove();
 					this.remove();
-					getModule('Engine/GameEngine').reload();
+					GameEngine.reload();
 			}
 		};
 
@@ -180,7 +178,7 @@ define(function (require) {
 
 		// Push the event to the top, stopImmediatePropagation will block every key down event.
 		WinError.onAppend = function () {
-			var events = jQuery._data(window, 'events').keydown;
+			const events = jQuery._data(window, 'events').keydown;
 			events.unshift(events.pop());
 		};
 
@@ -197,7 +195,7 @@ define(function (require) {
 	 * @param {function} callback once the button is pressed
 	 */
 	UIManager.showMessageBox = function showMessageBox(text, btn_name, callback, keydown) {
-		var WinMSG;
+		let WinMSG;
 
 		// Create popup
 		WinMSG = this.getComponent('WinPopup').clone('WinMSG');
@@ -245,7 +243,7 @@ define(function (require) {
 
 			// Push the event to the top, stopImmediatePropagation will block every key down.
 			WinMSG.onAppend = function () {
-				var events = jQuery._data(window, 'events').keydown;
+				const events = jQuery._data(window, 'events').keydown;
 				events.unshift(events.pop());
 			};
 		}
@@ -265,7 +263,7 @@ define(function (require) {
 	 * @param {function} callback when cancel is pressed
 	 */
 	UIManager.showPromptBox = function showPromptBox(text, btn_yes, btn_no, onYes, onNo) {
-		var WinPrompt;
+		let WinPrompt;
 
 		WinPrompt = this.getComponent('WinPopup').clone('WinPrompt');
 		WinPrompt.init = function Init() {
@@ -312,5 +310,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return UIManager;
-});
+	export default UIManager;

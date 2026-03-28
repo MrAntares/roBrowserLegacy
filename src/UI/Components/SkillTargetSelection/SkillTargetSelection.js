@@ -7,31 +7,27 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var SkillInfo = require('DB/Skills/SkillInfo');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Mouse = require('Controls/MouseEventHandler');
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var Entity = require('Renderer/Entity/Entity');
-	var EntityManager = require('Renderer/EntityManager');
-	var Session = require('Engine/SessionStorage');
-	var Controls = require('Preferences/Controls');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var Cursor = require('UI/CursorManager');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import SkillInfo from 'DB/Skills/SkillInfo';
+import KEYS from 'Controls/KeyEventHandler';
+import Mouse from 'Controls/MouseEventHandler';
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import Entity from 'Renderer/Entity/Entity';
+import EntityManager from 'Renderer/EntityManager';
+import Session from 'Engine/SessionStorage';
+import Controls from 'Preferences/Controls';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Cursor from 'UI/CursorManager';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 
 	/**
 	 * Create Announce component
 	 */
-	var SkillTargetSelection = new UIComponent('SkillTargetSelection');
+	const SkillTargetSelection = new UIComponent('SkillTargetSelection');
 
 	/**
 	 * Mouse can cross this UI
@@ -55,27 +51,27 @@ define(function (require) {
 	/**
 	 * @var {number} target type (see constants)
 	 */
-	var _flag = 0;
+	let _flag = 0;
 
 	/**
 	 * @var {Skill} skill structure
 	 */
-	var _skill;
+	let _skill;
 
 	/**
 	 * @var {CanvasElement} container for skill name
 	 */
-	var _skillName;
+	let _skillName;
 
 	/**
 	 * @var {CanvasElement} container for desciption
 	 */
-	var _description;
+	let _description;
 
 	/**
 	 * @var {CanvasElement} container for skill level
 	 */
-	var _skill_level;
+	let _skill_level;
 
 	/**
 	 * Initialize component
@@ -117,7 +113,7 @@ define(function (require) {
 	 * Append to body
 	 */
 	SkillTargetSelection.onAppend = function onAppend() {
-		var events;
+		let events;
 
 		if (!_skillName.parentNode) {
 			document.body.appendChild(_skillName);
@@ -197,7 +193,7 @@ define(function (require) {
 		}
 
 		if (Session.TouchTargeting) {
-			var entityFocus = EntityManager.getFocusEntity();
+			const entityFocus = EntityManager.getFocusEntity();
 			if (entityFocus) {
 				if (_flag & SkillTargetSelection.TYPE.PLACE) {
 					SkillTargetSelection.onUseSkillToPos(
@@ -227,7 +223,7 @@ define(function (require) {
 		EntityManager.setSupportPicking((_flag & SkillTargetSelection.TYPE.FRIEND) > 0);
 
 		// Render skillName
-		var sk = SkillInfo[skill.SKID];
+		const sk = SkillInfo[skill.SKID];
 		render(description || sk.SkillName, _skillName);
 		renderLevel(_skill.useLevel ? _skill.useLevel : _skill.level, _skill_level);
 
@@ -236,7 +232,7 @@ define(function (require) {
 	};
 
 	SkillTargetSelection.setSkillLevelDelta = function setSkillLevelDelta(delta) {
-		var sk = SkillInfo[_skill.SKID];
+		const sk = SkillInfo[_skill.SKID];
 		if (!sk.bSeperateLv) {
 			return;
 		}
@@ -261,8 +257,8 @@ define(function (require) {
 	 * @param {CanvasElement} canvas node
 	 */
 	function render(text, canvas) {
-		var fontSize = 12;
-		var ctx = canvas.getContext('2d');
+		const fontSize = 12;
+		const ctx = canvas.getContext('2d');
 
 		ctx.font = fontSize + 'px Arial';
 		canvas.width = ctx.measureText(text).width + 7 * 2;
@@ -289,8 +285,8 @@ define(function (require) {
 	 * @param {CanvasElement} canvas node
 	 */
 	function renderLevel(text, canvas) {
-		var fontSize = 24;
-		var ctx = canvas.getContext('2d');
+		const fontSize = 24;
+		const ctx = canvas.getContext('2d');
 
 		canvas.width = 35;
 		canvas.height = 35;
@@ -332,7 +328,7 @@ define(function (require) {
 		}
 
 		// Get entity
-		var entity = EntityManager.getOverEntity();
+		const entity = EntityManager.getOverEntity();
 
 		if (!entity) {
 			return false;
@@ -353,7 +349,7 @@ define(function (require) {
 	 * @param {object} entity
 	 */
 	function intersectEntity(entity) {
-		var target = 0;
+		let target = 0;
 
 		// Get target type
 		switch (entity.objecttype) {
@@ -408,7 +404,7 @@ define(function (require) {
 	 * (used in party UI)
 	 */
 	SkillTargetSelection.intersectEntityId = function intersectEntityId(id) {
-		var entity = EntityManager.get(id);
+		const entity = EntityManager.get(id);
 		if (entity) {
 			intersectEntity(entity);
 		}
@@ -421,7 +417,7 @@ define(function (require) {
 		if (Session.mapState.isPVP) {
 			if (
 				Session.hasParty &&
-				getModule('UI/Components/PartyFriends/PartyFriends').isGroupMember(entity.display.name)
+				PartyFriends.isGroupMember(entity.display.name)
 			) {
 				return false;
 			}
@@ -447,5 +443,4 @@ define(function (require) {
 	/**
 	 * Create component and return it
 	 */
-	return UIManager.addComponent(SkillTargetSelection);
-});
+	export default UIManager.addComponent(SkillTargetSelection);

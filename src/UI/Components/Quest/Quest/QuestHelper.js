@@ -7,33 +7,29 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var ItemInfo = require('UI/Components/ItemInfo/ItemInfo');
-	var Navigation = require('UI/Components/Navigation/Navigation');
-	var jQuery = require('Utils/jquery');
-	var htmlText = require('text!./QuestHelper.html');
-	var cssText = require('text!./QuestHelper.css');
+import DB from 'DB/DBManager';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import Navigation from 'UI/Components/Navigation/Navigation';
+import jQuery from 'Utils/jquery';
+import htmlText from './QuestHelper.html?raw';
+import cssText from './QuestHelper.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var QuestHelper = new UIComponent('QuestHelper', htmlText, cssText);
+	const QuestHelper = new UIComponent('QuestHelper', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Quest',
 		{
 			x: 200,
@@ -127,7 +123,7 @@ define(function (require) {
 
 		// Add click handler for item links
 		this.ui.on('click', '.item-link', function (event) {
-			var itemId = parseInt(jQuery(this).data('item-id'), 10);
+			const itemId = parseInt(jQuery(this).data('item-id'), 10);
 			if (!itemId) {
 				return;
 			}
@@ -146,8 +142,8 @@ define(function (require) {
 
 		// Add click handler for navi links
 		this.ui.on('click', '.navi-link', function (event) {
-			var naviInfo = jQuery(this).data('navi-info');
-			var displayName = jQuery(this).data('navi-name');
+			const naviInfo = jQuery(this).data('navi-info');
+			const displayName = jQuery(this).data('navi-name');
 
 			if (!naviInfo) {
 				return;
@@ -184,7 +180,7 @@ define(function (require) {
 			.find('.quest-info-description-panel-text .quest-ui-text-span')
 			.html(processText(quest.description));
 		let list = '';
-		for (let huntID in quest.hunt_list) {
+		for (const huntID in quest.hunt_list) {
 			list +=
 				'<li>' +
 				processText(quest.hunt_list[huntID].mobName) +
@@ -205,8 +201,8 @@ define(function (require) {
 		}
 
 		for (let i = 0; i < quest.reward_item_list.length; i++) {
-			let it = DB.getItemInfo(quest.reward_item_list[i].ItemID);
-			let item_li =
+			const it = DB.getItemInfo(quest.reward_item_list[i].ItemID);
+			const item_li =
 				'<li class="quest-reward-item-li"><div class="quest-reward-item" data-index="' +
 				quest.reward_item_list[i].ItemID +
 				'">' +
@@ -231,7 +227,7 @@ define(function (require) {
 		// TODO: quest.npc_spr
 
 		if (quest.end_time) {
-			var d = new Date(0);
+			const d = new Date(0);
 			d.setUTCSeconds(quest.end_time);
 			QuestHelper.ui.find('.quest-info-bottom-deadline-info-text').html('Deadline [' + d.toLocaleString() + ']');
 		}
@@ -286,7 +282,6 @@ define(function (require) {
 	}
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return UIManager.addComponent(QuestHelper);
-});
+	export default UIManager.addComponent(QuestHelper);

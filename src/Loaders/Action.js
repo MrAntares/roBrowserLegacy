@@ -8,10 +8,11 @@
  * @author Vincent Thibault
  */
 
-define(['Utils/BinaryReader'], function (BinaryReader) {
-	'use strict';
+'use strict';
 
-	/**
+import BinaryReader from 'Utils/BinaryReader';
+
+/**
 	 * Action class loader
 	 *
 	 * @param {ArrayBuffer} data - optional
@@ -33,7 +34,7 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * @param {ArrayBuffer} data
 	 */
 	ACT.prototype.load = function load(data) {
-		var i, count;
+		let i, count;
 
 		this.fp = new BinaryReader(data);
 		this.header = this.fp.readBinaryString(2);
@@ -67,9 +68,9 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Load Action part of ACT file
 	 */
 	ACT.prototype.readActions = function readActions() {
-		var i,
+		let i,
 			count = this.fp.readUShort();
-		var actions = this.actions;
+		const actions = this.actions;
 
 		// Unknown bytes...
 		this.fp.seek(10, SEEK_CUR);
@@ -87,10 +88,10 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 *	Load Animation part in ACT file
 	 */
 	ACT.prototype.readAnimations = function readAnimations() {
-		var fp = this.fp;
-		var i,
+		const fp = this.fp;
+		let i,
 			count = fp.readULong();
-		var anim = new Array(count);
+		const anim = new Array(count);
 
 		for (i = 0; i < count; ++i) {
 			// Unknown bytes
@@ -105,12 +106,12 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	 * Load ACT Layers
 	 */
 	ACT.prototype.readLayers = function readLayers() {
-		var fp = this.fp;
-		var count = fp.readULong();
-		var layers = new Array(count);
-		var layer, sound;
-		var version = this.version;
-		var i, pos;
+		const fp = this.fp;
+		let count = fp.readULong();
+		const layers = new Array(count);
+		let layer, sound;
+		const version = this.version;
+		let i, pos;
 
 		for (i = 0; i < count; ++i) {
 			layer = layers[i] = {
@@ -174,7 +175,6 @@ define(['Utils/BinaryReader'], function (BinaryReader) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return ACT;
-});
+	export default ACT;

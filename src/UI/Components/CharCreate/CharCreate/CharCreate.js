@@ -7,41 +7,37 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var Entity = require('Renderer/Entity/Entity');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Camera = require('Renderer/Camera');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./CharCreate.html');
-	var cssText = require('text!./CharCreate.css');
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import Entity from 'Renderer/Entity/Entity';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Camera from 'Renderer/Camera';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './CharCreate.html?raw';
+import cssText from './CharCreate.css?raw';
 
-	/**
+/**
 	 * Create Chararacter Selection namespace
 	 */
-	var CharCreate = new UIComponent('CharCreate', htmlText, cssText);
+	const CharCreate = new UIComponent('CharCreate', htmlText, cssText);
 
 	/**
 	 * @var {boolean} account sex
 	 */
-	var _accountSex = 0;
+	let _accountSex = 0;
 
 	/**
 	 * @var {canvas} graphics object
 	 */
-	var _graph;
+	let _graph;
 
 	/**
 	 * @var {object} chargen info
 	 */
-	var _chargen = {
+	const _chargen = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -147,7 +143,7 @@ define(function (require) {
 	 * Send back informations to send the packet
 	 */
 	function create() {
-		var ui = CharCreate.ui;
+		const ui = CharCreate.ui;
 
 		CharCreate.onCharCreationRequest(
 			ui.find('input').val(),
@@ -178,7 +174,7 @@ define(function (require) {
 	function updateCharacter(type, increment) {
 		switch (type) {
 			case 'head':
-				var head = _chargen.entity.head + increment;
+				let head = _chargen.entity.head + increment;
 
 				if (head < 2) {
 					head = 26;
@@ -210,7 +206,7 @@ define(function (require) {
 		}
 
 		// Relation table
-		var group = {
+		const group = {
 			str: 'int',
 			int: 'str',
 			vit: 'dex',
@@ -231,13 +227,13 @@ define(function (require) {
 	 */
 	function updateGraphic() {
 		// Update graphique.
-		var ctx = _graph;
-		var width = ctx.canvas.width;
-		var height = ctx.canvas.height;
-		var i,
+		const ctx = _graph;
+		const width = ctx.canvas.width;
+		const height = ctx.canvas.height;
+		let i,
 			x = width / 2,
 			y = height / 2;
-		var list = ['dex', 'agi', 'str', 'vit', 'luk', 'int'];
+		const list = ['dex', 'agi', 'str', 'vit', 'luk', 'int'];
 
 		ctx.clearRect(0, 0, width, height);
 		ctx.save();
@@ -286,5 +282,4 @@ define(function (require) {
 	/**
 	 * Create componentand export it
 	 */
-	return UIManager.addComponent(CharCreate);
-});
+export default UIManager.addComponent(CharCreate);

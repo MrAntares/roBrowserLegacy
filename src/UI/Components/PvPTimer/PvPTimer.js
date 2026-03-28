@@ -6,56 +6,53 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import Client from 'Core/Client';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import Entity from 'Renderer/Entity/Entity';
+import html from './PvPTimer.html?raw';
+import css from './PvPTimer.css?raw';
 
-	// Emoticons-style rendering stack
-	var Client = require('Core/Client');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var Entity = require('Renderer/Entity/Entity');
-
-	var html = require('text!./PvPTimer.html');
-	var css = require('text!./PvPTimer.css');
-
-	var PvPTimer = new UIComponent('PvPTimer', html, css);
+// Emoticons-style rendering stack
+	const PvPTimer = new UIComponent('PvPTimer', html, css);
 
 	/* ================= CONFIG (OG values) ================= */
 
 	// var DIGIT_STEP = 24; // UNUSED
 
-	var TIMER_W = 300,
+	const TIMER_W = 300,
 		TIMER_H = 110;
-	var TA_W = 360,
+	const TA_W = 360,
 		TA_H = 128; // Match CSS
 
 	// OG font baselines
-	var TIMER_Y = 60;
-	var TA_Y = 80;
+	const TIMER_Y = 60;
+	const TA_Y = 80;
 
 	/* ================= CANVASES ================= */
 
-	var _timerCanvas, _timerCtx;
-	var _taCanvas, _taCtx;
+	let _timerCanvas, _timerCtx;
+	let _taCanvas, _taCtx;
 
 	/* ================= ACT / SPR ================= */
 
-	var _timefontAct, _timefontSpr;
-	var _timeAtkAct, _timeAtkSpr;
+	let _timefontAct, _timefontSpr;
+	let _timeAtkAct, _timeAtkSpr;
 
 	/* ================= TIMER ================= */
 
-	var _timerInterval = null;
-	var _startTs = 0;
+	let _timerInterval = null;
+	let _startTs = 0;
 
-	var _layerEntity = new Entity();
+	const _layerEntity = new Entity();
 
-	var _taHideTimer = null;
+	let _taHideTimer = null;
 
 	// time attack is played once u get first place on first time
-	var isFirstTime = true;
+	let isFirstTime = true;
 
 	/**
 	 * Initialize UI
@@ -134,12 +131,12 @@ define(function (require) {
 	 * @returns {Object[]}
 	 */
 	function pickLayers(act, actionId, frameId) {
-		var a = act.actions[actionId];
+		const a = act.actions[actionId];
 		if (!a || !a.animations || !a.animations.length) {
 			return null;
 		}
 
-		var idx = frameId !== undefined ? frameId : (a.animations.length / 2) | 0;
+		const idx = frameId !== undefined ? frameId : (a.animations.length / 2) | 0;
 		if (idx >= a.animations.length) {
 			return null;
 		}
@@ -148,7 +145,7 @@ define(function (require) {
 	}
 
 	function drawActionToCanvas(ctx, act, spr, actionId, x, y, frameId) {
-		var layers = pickLayers(act, actionId, frameId);
+		const layers = pickLayers(act, actionId, frameId);
 		if (!layers) {
 			return;
 		}
@@ -156,7 +153,7 @@ define(function (require) {
 		// Gravity fonts: no anchor correction
 		SpriteRenderer.bind2DContext(ctx, x, y);
 
-		for (var i = 0; i < layers.length; i++) {
+		for (let i = 0; i < layers.length; i++) {
 			_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
 		}
 	}
@@ -175,18 +172,18 @@ define(function (require) {
 
 		_timerCtx.clearRect(0, 0, TIMER_W, TIMER_H);
 
-		var m = Math.floor(seconds / 60);
-		var s = seconds % 60;
+		const m = Math.floor(seconds / 60);
+		const s = seconds % 60;
 
-		var text = m == 0 ? String(s).padStart(2, '0') : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+		const text = m == 0 ? String(s).padStart(2, '0') : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 
-		var digitWidth = 50;
-		var totalWidth = m == 0 ? 2 * digitWidth : 5 * digitWidth;
+		const digitWidth = 50;
+		const totalWidth = m == 0 ? 2 * digitWidth : 5 * digitWidth;
 
-		var x = (TIMER_W - totalWidth) >> 1;
+		let x = (TIMER_W - totalWidth) >> 1;
 
-		for (var i = 0; i < text.length; i++) {
-			var a = timerCharToAction(text[i]);
+		for (let i = 0; i < text.length; i++) {
+			const a = timerCharToAction(text[i]);
 
 			if (!isNaN(a)) {
 				// Center '1' or narrow digits?
@@ -237,13 +234,13 @@ define(function (require) {
 
 		_taCtx.clearRect(0, 0, TA_W, TA_H);
 
-		var action = _timeAtkAct.actions[0];
+		const action = _timeAtkAct.actions[0];
 		if (!action || !action.animations) {
 			return;
 		}
 
-		var frame = 0;
-		var count = action.animations.length;
+		let frame = 0;
+		const count = action.animations.length;
 
 		function run() {
 			_taCtx.clearRect(0, 0, TA_W, TA_H);
@@ -266,5 +263,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(PvPTimer);
-});
+export default UIManager.addComponent(PvPTimer);

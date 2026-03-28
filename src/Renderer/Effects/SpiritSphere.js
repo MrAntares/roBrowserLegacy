@@ -1,37 +1,36 @@
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var WebGL = require('Utils/WebGL');
-	var Texture = require('Utils/Texture');
-	var glMatrix = require('Utils/gl-matrix');
-	var Client = require('Core/Client');
-	var Camera = require('Renderer/Camera');
-	var Configs = require('../../Core/Configs');
+import WebGL from 'Utils/WebGL';
+import Texture from 'Utils/Texture';
+import glMatrix from 'Utils/gl-matrix';
+import Client from 'Core/Client';
+import Camera from 'Renderer/Camera';
+import Configs from '../../Core/Configs';
 
+// Load dependencies
 	/**
 	 * @var {WebGLTexture}
 	 */
-	var _texture;
+	let _texture;
 
 	/**
 	 * @var {WebGLProgram}
 	 */
-	var _program;
+	let _program;
 
 	/**
 	 * @var {WebGLBuffer}
 	 */
-	var _buffer;
+	let _buffer;
 
 	/**
 	 * @var {mat4}
 	 */
-	var mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
-	var _rotationMatrices = (function () {
-		var matrices = [];
-		for (var i = 0; i < 5; i++) {
+	const _rotationMatrices = (function () {
+		const matrices = [];
+		for (let i = 0; i < 5; i++) {
 			matrices.push({
 				posMat: mat4.create(),
 				texMat: mat4.create()
@@ -40,12 +39,12 @@ define(function (require) {
 		return matrices;
 	})();
 
-	var _textureMatrix = mat4.create();
+	const _textureMatrix = mat4.create();
 
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	var _vertexShader = `
+	const _vertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -83,7 +82,7 @@ define(function (require) {
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	var _fragmentShader = `
+	const _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;    
@@ -142,8 +141,8 @@ define(function (require) {
 
 		Client.loadFile('data/texture/effect/thunder_center.bmp', function (buffer) {
 			Texture.load(buffer, function () {
-				var enableMipmap = Configs.get('enableMipmap');
-				var ctx = this.getContext('2d');
+				const enableMipmap = Configs.get('enableMipmap');
+				const ctx = this.getContext('2d');
 				ctx.save();
 				ctx.translate(this.width / 2, this.height / 2);
 				// ctx.rotate( 45 / 180 * Math.PI);
@@ -184,20 +183,20 @@ define(function (require) {
 	};
 
 	SpiritSphere.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		var uniform = _program.uniform;
-		var attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 		gl.useProgram(_program);
 
-		var _matrix, offset;
-		for (var i = 0, _len = _rotationMatrices.length; i < _len; i++) {
-			var vcRad = ((Camera.angle[0] - 90) * Math.PI) / 180;
-			var hcRad = (Camera.angle[1] * Math.PI) / 180;
+		let _matrix, offset;
+		for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
+			const vcRad = ((Camera.angle[0] - 90) * Math.PI) / 180;
+			const hcRad = (Camera.angle[1] * Math.PI) / 180;
 			offset = (i * 2 * Math.PI) / _rotationMatrices.length;
-			var rotRad = offset - (tick / 64 / 180) * Math.PI;
+			const rotRad = offset - (tick / 64 / 180) * Math.PI;
 
 			//_matrix = _rotationMatrices[i].texMat;
 			//mat4.identity(_matrix);
-			var textureMatrix = mat4.create();
+			const textureMatrix = mat4.create();
 			mat4.rotateX(_rotationMatrices[i].texMat, textureMatrix, vcRad);
 			mat4.rotateY(_rotationMatrices[i].texMat, _rotationMatrices[i].texMat, hcRad - rotRad);
 
@@ -226,7 +225,7 @@ define(function (require) {
 	};
 
 	SpiritSphere.prototype.render = function render(gl, tick) {
-		var uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		gl.uniform3fv(uniform.uPosition, this.position);
 
@@ -236,8 +235,8 @@ define(function (require) {
 
 		gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
 
-		var _matrix;
-		for (var i = this.num; i > 0; i--) {
+		let _matrix;
+		for (let i = this.num; i > 0; i--) {
 			_matrix = _rotationMatrices[i % _rotationMatrices.length];
 
 			gl.uniformMatrix4fv(uniform.uTextureRotMat, false, _matrix.texMat);
@@ -300,7 +299,6 @@ define(function (require) {
 	};
 
 	/**
-	 * Export
+	 * Export 
 	 */
-	return SpiritSphere;
-});
+	export default SpiritSphere;

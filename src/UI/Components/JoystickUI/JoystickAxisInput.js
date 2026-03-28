@@ -7,19 +7,19 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var Interaction = require('./JoystickInteractionService');
-	var ControlsSettings = require('Preferences/Controls');
+import Interaction from './JoystickInteractionService';
+import ControlsSettings from 'Preferences/Controls';
+import JoystickUIRenderer from './JoystickUIRenderer';
 
-	return {
+	export default {
 		update: function (axes) {
-			var active = false;
+			let active = false;
 
 			// Left stick = movement
-			var lx = axes[0];
-			var ly = axes[1];
+			let lx = axes[0];
+			let ly = axes[1];
 
 			if (ControlsSettings.joyReverseStick && axes.length >= 4) {
 				lx = axes[2];
@@ -34,8 +34,8 @@ define(function (require) {
 
 			// Right stick = cursor
 			if (axes.length >= 4) {
-				var rx = axes[2];
-				var ry = axes[3];
+				let rx = axes[2];
+				let ry = axes[3];
 
 				if (ControlsSettings.joyReverseStick) {
 					rx = axes[0];
@@ -49,10 +49,9 @@ define(function (require) {
 			}
 
 			if (active) {
-				require('./JoystickUIRenderer').show();
+				JoystickUIRenderer.show();
 			}
 
 			return active;
 		}
 	};
-});

@@ -7,9 +7,12 @@
  *
  * @author Vincent Thibault
  */
-define(['Core/Preferences', 'Controls/KeyEventHandler'], function (Preferences, KEYS) {
-	'use strict';
-	var ShortCuts = {};
+'use strict';
+
+import Preferences from 'Core/Preferences';
+import KEYS from 'Controls/KeyEventHandler';
+
+	const ShortCuts = {};
 	ShortCuts.F1_1 = {
 		init: { key: KEYS.F1, alt: false, ctrl: false, shift: false },
 		cust: false,
@@ -494,7 +497,6 @@ define(['Core/Preferences', 'Controls/KeyEventHandler'], function (Preferences, 
 		cmd: 'EXECUTE_FLAG_9'
 	};
 
-	var ShortCutControls = { ShortCuts: ShortCuts };
+	const ShortCutControls = { ShortCuts: ShortCuts };
 
-	return Preferences.get('ShortCutControls', ShortCutControls, 1.2);
-});
+	export default Preferences.get('ShortCutControls', ShortCutControls, 1.2);

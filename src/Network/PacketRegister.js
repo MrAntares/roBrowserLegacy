@@ -8,10 +8,11 @@
  * @author Vincent Thibault
  */
 
-define(['./PacketStructure'], function (PACKET) {
-	'use strict';
+'use strict';
 
-	return {
+import PACKET from './PacketStructure';
+
+export default {
 		0x69: PACKET.AC.ACCEPT_LOGIN, // ok
 		0x6a: PACKET.AC.REFUSE_LOGIN, // ok
 		0x6b: PACKET.HC.ACCEPT_ENTER_NEO_UNION, // ok
@@ -868,4 +869,3 @@ define(['./PacketStructure'], function (PACKET) {
 
 		0xb1a: PACKET.ZC.USESKILL_ACK3 // USE SKILL 3
 	};
-});

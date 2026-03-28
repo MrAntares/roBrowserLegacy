@@ -7,33 +7,29 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var jQuery = require('Utils/jquery');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./CaptchaSelector.html');
-	var cssText = require('text!./CaptchaSelector.css');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var EntityManager = require('Renderer/EntityManager');
-	var Session = require('Engine/SessionStorage');
-	var DB = require('DB/DBManager');
-	var MonsterTable = require('DB/Monsters/MonsterTable');
+import jQuery from 'Utils/jquery';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './CaptchaSelector.html?raw';
+import cssText from './CaptchaSelector.css?raw';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import EntityManager from 'Renderer/EntityManager';
+import Session from 'Engine/SessionStorage';
+import DB from 'DB/DBManager';
+import MonsterTable from 'DB/Monsters/MonsterTable';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var CaptchaSelector = new UIComponent('CaptchaSelector', htmlText, cssText);
+	const CaptchaSelector = new UIComponent('CaptchaSelector', htmlText, cssText);
 
 	/**
 	 * Preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CaptchaSelector',
 		{
 			x: 230,
@@ -45,22 +41,22 @@ define(function (require) {
 	/**
 	 * AID list
 	 */
-	var _aidList = [];
+	let _aidList = [];
 
 	/**
 	 * AID information
 	 */
-	var _aidInformation = [];
+	let _aidInformation = [];
 
 	/**
 	 * Range
 	 */
-	var _range = 1;
+	let _range = 1;
 
 	/**
 	 * Active
 	 */
-	var _active = false;
+	let _active = false;
 
 	/**
 	 * Initialize GUI
@@ -69,14 +65,14 @@ define(function (require) {
 		this.draggable('.titlebar');
 		this.ui.find('.close').click(this.remove.bind(this));
 
-		var self = this;
+		const self = this;
 
 		// Active Button
 		this.ui.find('.btn_active').click(function () {
 			_active = !_active;
 
 			if (_active) {
-				var type = self.ui.find('input[name="target_type"]:checked').val();
+				const type = self.ui.find('input[name="target_type"]:checked').val();
 				_range = parseInt(self.ui.find('.range_val').val(), 10) || 1;
 				_range = Math.min(Math.max(1, _range), 9);
 
@@ -176,7 +172,7 @@ define(function (require) {
 		this.cleanUIList();
 		_aidInformation = [];
 
-		let li_list = this.ui.find('.player_list li');
+		const li_list = this.ui.find('.player_list li');
 
 		// remove Session.Entity from players list
 		players = players.filter(function (aid) {
@@ -206,7 +202,7 @@ define(function (require) {
 
 		// add remove button click event
 		this.ui.find('.player_list li .remove').click(function () {
-			let aid = jQuery(this).data('aid');
+			const aid = jQuery(this).data('aid');
 			_aidList = _aidList.filter(function (item) {
 				return item !== aid;
 			});
@@ -218,10 +214,10 @@ define(function (require) {
 			.find('.player_list li')
 			.find('a')
 			.click(function () {
-				let aid = jQuery(this).data('aid');
-				let entity = EntityManager.get(aid);
-				let name = entity?.display?.name ?? 'Unknown';
-				let job = MonsterTable[entity?._job ?? 0] ?? 'Unknown';
+				const aid = jQuery(this).data('aid');
+				const entity = EntityManager.get(aid);
+				const name = entity?.display?.name ?? 'Unknown';
+				const job = MonsterTable[entity?._job ?? 0] ?? 'Unknown';
 				CaptchaSelector.ui.find('.character_info').find('.character-name').text(name);
 				CaptchaSelector.ui.find('.character_info').find('.character-job').text(job);
 
@@ -279,5 +275,4 @@ define(function (require) {
 	/**
 	 * Stored component and return it
 	 */
-	return UIManager.addComponent(CaptchaSelector);
-});
+export default UIManager.addComponent(CaptchaSelector);

@@ -8,10 +8,11 @@
  * @author Vincent Thibault
  */
 
-define(['./WeaponType'], function (WeaponType) {
-	'use strict';
+'use strict';
 
-	var WeaponName = {};
+import WeaponType from './WeaponType';
+
+const WeaponName = {};
 
 	WeaponName[WeaponType.NONE] = '';
 	WeaponName[WeaponType.SHORTSWORD] = '_\xb4\xdc\xb0\xcb';
@@ -44,5 +45,4 @@ define(['./WeaponType'], function (WeaponType) {
 	WeaponName[WeaponType.SHORTSWORD_AXE] = '_\xb4\xdc\xb0\xcb\x5f\xb5\xb5\xb3\xa2';
 	WeaponName[WeaponType.SWORD_AXE] = '_\xb0\xcb\x5f\xb5\xb5\xb3\xa2';
 
-	return WeaponName;
-});
+export default WeaponName;

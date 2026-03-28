@@ -7,56 +7,52 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Preferences = require('Core/Preferences');
-	var Client = require('Core/Client');
-	var Renderer = require('Renderer/Renderer');
-	var Session = require('Engine/SessionStorage');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var PACKETVER = require('Network/PacketVerManager');
-	var PartyHelper = require('../PartyHelper/PartyHelper');
-	var ContextMenu = require('UI/Components/ContextMenu/ContextMenu');
-	var Mail = require('UI/Components/Mail/Mail');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var WhisperBox = require('UI/Components/WhisperBox/WhisperBox');
-	var htmlText = require('text!./PartyFriendsV0.html');
-	var cssText = require('text!./PartyFriendsV0.css');
-	var getModule = require;
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Preferences from 'Core/Preferences';
+import Client from 'Core/Client';
+import Renderer from 'Renderer/Renderer';
+import Session from 'Engine/SessionStorage';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import PACKETVER from 'Network/PacketVerManager';
+import PartyHelper from '../PartyHelper/PartyHelper';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
+import Mail from 'UI/Components/Mail/Mail';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import htmlText from './PartyFriendsV0.html?raw';
+import cssText from './PartyFriendsV0.css?raw';
 
 	/**
 	 * Create Component
 	 */
-	var PartyFriendsV0 = new UIComponent('PartyFriendsV0', htmlText, cssText);
+	const PartyFriendsV0 = new UIComponent('PartyFriendsV0', htmlText, cssText);
 
 	/**
 	 * @var {number} index of selection
 	 */
-	var _index = -1;
+	let _index = -1;
 
 	/**
 	 * @var {Array} friends list
 	 */
-	var _friends = [];
+	const _friends = [];
 
 	/**
 	 * @var {Array} party list
 	 */
-	var _party = [];
+	const _party = [];
 
 	/**
 	 * @var {Object} party setup
 	 */
-	var _options = {
+	const _options = {
 		exp_share: 0,
 		item_share: 0,
 		item_sharing_type: 0
@@ -65,7 +61,7 @@ define(function (require) {
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'PartyFriendsV0',
 		{
 			x: 200,
@@ -235,9 +231,9 @@ define(function (require) {
 	 * @param {Array} friends list
 	 */
 	PartyFriendsV0.setFriends = function setFriends(friends) {
-		var i,
+		let i,
 			count = friends.length;
-		var ui = this.ui.find('.content .friend');
+		const ui = this.ui.find('.content .friend');
 
 		_friends.length = friends.length;
 		ui.empty();
@@ -266,7 +262,7 @@ define(function (require) {
 	 * @param {boolean} state
 	 */
 	PartyFriendsV0.updateFriendState = function updateFriendState(index, state) {
-		var node = this.ui.find('.content .friend .node:eq(' + index + ')');
+		const node = this.ui.find('.content .friend .node:eq(' + index + ')');
 
 		_friends[index].State = state;
 
@@ -311,7 +307,7 @@ define(function (require) {
 		_friends[idx].AID = friend.AID;
 		_friends[idx].State = friend.State || 0;
 
-		var node = this.ui.find('.content .friend .node:eq(' + idx + ')');
+		const node = this.ui.find('.content .friend .node:eq(' + idx + ')');
 		node.find('.name').text(friend.Name);
 
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (url) {
@@ -348,7 +344,7 @@ define(function (require) {
 		this.ui.find('.party.create').hide();
 		this.ui.find('.party.leave').show();
 
-		var i,
+		let i,
 			count = members.length;
 
 		_party.length = 0;
@@ -365,10 +361,10 @@ define(function (require) {
 	 * @param {object} player information
 	 */
 	PartyFriendsV0.addPartyMember = function addPartyMember(player) {
-		var role = player.role || player.Role || 0;
-		var i,
+		const role = player.role || player.Role || 0;
+		let i,
 			count = _party.length;
-		var node, texture, ctx;
+		let node, texture, ctx;
 
 		// Check if we are the leader
 		if (player.AID === Session.AID) {
@@ -468,7 +464,7 @@ define(function (require) {
 			return;
 		}
 
-		var i,
+		let i,
 			count = _party.length;
 
 		for (i = 0; i < count; ++i) {
@@ -511,9 +507,9 @@ define(function (require) {
 	 * @param {number} maxhp
 	 */
 	PartyFriendsV0.updateMemberLife = function updateMemberLife(AID, canvas, hp, maxhp) {
-		var i,
+		let i,
 			count = _party.length;
-		var node, ctx;
+		let node, ctx;
 
 		for (i = 0; i < count; ++i) {
 			// No GID data, so have to check for the online character in
@@ -555,7 +551,7 @@ define(function (require) {
 	 * @param {string} character name
 	 */
 	PartyFriendsV0.isGroupMember = function isGroupMember(characterName) {
-		let count = _party.length;
+		const count = _party.length;
 		for (let i = 0; i < count; ++i) {
 			// No GID, need to compare using charactername (wtf)
 			if (_party[i].characterName === characterName) {
@@ -570,19 +566,19 @@ define(function (require) {
 	 * Resizing UI
 	 */
 	function onResize() {
-		var ui = PartyFriendsV0.ui;
-		var top = ui.position().top;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = PartyFriendsV0.ui;
+		const top = ui.position().top;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraX = -20;
-			var extraY = 25 + 21;
+			const extraX = -20;
+			const extraY = 25 + 21;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 20);
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 20);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 20);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 20);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 12), 13);
@@ -637,7 +633,7 @@ define(function (require) {
 	 * Move to the other tab (Friend -> Party or Party -> Friend)
 	 */
 	function onChangeTab() {
-		var ui = PartyFriendsV0.ui;
+		const ui = PartyFriendsV0.ui;
 
 		_preferences.friend = !_preferences.friend;
 		_preferences.save();
@@ -678,7 +674,7 @@ define(function (require) {
 			return;
 		}
 
-		var text = _preferences.friend ? DB.getMessage(356) : DB.getMessage(363);
+		const text = _preferences.friend ? DB.getMessage(356) : DB.getMessage(363);
 
 		// Are you sure that you want to delete/expel ?
 		UIManager.showPromptBox(text, 'ok', 'cancel', function () {
@@ -699,7 +695,7 @@ define(function (require) {
 			return;
 		}
 
-		var name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
+		const name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
 
 		if (PACKETVER.value >= 20090617) {
 			WhisperBox.show(name);
@@ -803,14 +799,13 @@ define(function (require) {
 	 */
 	function onSelectionChange(event) {
 		PartyFriendsV0.ui.find('.content .name').removeClass('selection');
-		var node = jQuery(this);
+		const node = jQuery(this);
 		node.find('.name').addClass('selection');
 
 		_index = PartyFriendsV0.ui.find(this.parentNode).find('.node').index(this);
 
-		var SkillTargetSelection = getModule('UI/Components/SkillTargetSelection/SkillTargetSelection');
 		if (SkillTargetSelection.intersectEntityId) {
-			var entityId = _preferences.friend ? _friends[_index].AID : _party[_index].AID;
+			const entityId = _preferences.friend ? _friends[_index].AID : _party[_index].AID;
 			SkillTargetSelection.intersectEntityId(entityId);
 		}
 	}
@@ -838,7 +833,7 @@ define(function (require) {
 			return;
 		}
 
-		var type =
+		const type =
 			_preferences.friend && PACKETVER.value >= 20090617 ? PartyHelper.Type.FRIEND_SETUP : PartyHelper.Type.SETUP;
 		if (PartyHelper.__active && PartyHelper.getType() === type) {
 			PartyHelper.remove();
@@ -846,7 +841,7 @@ define(function (require) {
 		}
 		PartyHelper.append();
 		if (type === PartyHelper.Type.FRIEND_SETUP) {
-			var whisperPrefs = WhisperBox.preferences;
+			const whisperPrefs = WhisperBox.preferences;
 			PartyHelper.setType(PartyHelper.Type.FRIEND_SETUP);
 			PartyHelper.setFriendOptions(whisperPrefs);
 		} else {
@@ -900,5 +895,4 @@ define(function (require) {
 	/**
 	 * Storing Requirement
 	 */
-	return UIManager.addComponent(PartyFriendsV0);
-});
+	export default UIManager.addComponent(PartyFriendsV0);

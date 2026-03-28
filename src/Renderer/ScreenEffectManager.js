@@ -7,27 +7,25 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	// Load dependencies
-	var EffectConst = require('DB/Effects/EffectConst');
-	var Renderer = require('Renderer/Renderer');
-	var WeatherTable = require('DB/Effects/WeatherEffect');
-	var SnowWeather = require('Renderer/Effects/SnowWeather');
-	var RainWeather = require('Renderer/Effects/RainWeather');
-	var SakuraWeatherEffect = require('Renderer/Effects/SakuraWeatherEffect');
-	var PokJukWeatherEffect = require('Renderer/Effects/PokJukWeatherEffect');
-	var CloudWeatherEffect = require('Renderer/Effects/CloudWeatherEffect');
-	var Poison = require('Renderer/Effects/PoisonEffect');
-	var Blind = require('Renderer/Effects/Shaders/Blind');
-	var VerticalFlip = require('Renderer/Effects/Shaders/VerticalFlip');
-	var EFST = require('DB/Status/StatusConst');
-	var Session = require('Engine/SessionStorage');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var getModule = require;
+import EffectConst from 'DB/Effects/EffectConst';
+import Renderer from 'Renderer/Renderer';
+import WeatherTable from 'DB/Effects/WeatherEffect';
+import SnowWeather from 'Renderer/Effects/SnowWeather';
+import RainWeather from 'Renderer/Effects/RainWeather';
+import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect';
+import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect';
+import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
+import Poison from 'Renderer/Effects/PoisonEffect';
+import Blind from 'Renderer/Effects/Shaders/Blind';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
+import EFST from 'DB/Status/StatusConst';
+import Session from 'Engine/SessionStorage';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import MapRenderer from 'Renderer/MapRenderer';
 
-	var isMapflagEffect = false;
+	let isMapflagEffect = false;
 
 	/**
 	 * @var {number} _nightInterval
@@ -88,7 +86,7 @@ define(function (require) {
 		}
 
 		isMapflagEffect = false;
-		var Params = {
+		const Params = {
 			Inst: {
 				startTick: Renderer.tick,
 				endTick: -1
@@ -99,7 +97,7 @@ define(function (require) {
 			}
 		};
 
-		var weather = WeatherTable.effects[mapname].weather;
+		const weather = WeatherTable.effects[mapname].weather;
 		if (weather === 'snow') {
 			Params.Inst.effectId = EffectConst.EF_SNOW;
 			SnowWeather.startOrRestart(Params);
@@ -241,11 +239,10 @@ define(function (require) {
 			clearInterval(ScreenEffectManager._nightInterval);
 			ScreenEffectManager._nightInterval = null;
 		}
-		var mapRenderer = getModule('Renderer/MapRenderer');
 		ScreenEffectManager._nightInterval = setInterval(function () {
-			var diffuse = mapRenderer.diffuse;
-			var light = mapRenderer.light;
-			var step = 0.005;
+			const diffuse = MapRenderer.diffuse;
+			const light = MapRenderer.light;
+			const step = 0.005;
 
 			if (night) {
 				if (diffuse[0] > 0.5) {
@@ -267,7 +264,7 @@ define(function (require) {
 			light.env[1] = 1 - (1 - diffuse[1]) * (1 - light.ambient[1]);
 			light.env[2] = 1 - (1 - diffuse[2]) * (1 - light.ambient[2]);
 
-			var done = night
+			const done = night
 				? diffuse[0] <= 0.5 && diffuse[1] <= 0.5
 				: diffuse[0] >= light.diffuse[0] && diffuse[1] >= light.diffuse[1];
 
@@ -281,5 +278,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return ScreenEffectManager;
-});
+	export default ScreenEffectManager;

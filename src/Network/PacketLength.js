@@ -9,86 +9,61 @@
  * @author Alison Serafim
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	let packets_len = new Array();
+// Eagerly import all packet length definitions as ES modules
+const packetModules = import.meta.glob('./Packets/*_len_main.js', { eager: true });
 
-	/**
-	 * Get a Packet Length
-	 *
-	 * @param {number} packetver - packet version (clientdate)
-	 */
-	function init(packetver) {
-		var Lengths;
-		packetver = parseInt(packetver);
-		if (packetver >= 20250000) {
-			Lengths = require('./Packets/packets2025_len_main');
-		} else if (packetver >= 20240000) {
-			Lengths = require('./Packets/packets2024_len_main');
-		} else if (packetver >= 20230000) {
-			Lengths = require('./Packets/packets2023_len_main');
-		} else if (packetver >= 20220000) {
-			Lengths = require('./Packets/packets2022_len_main');
-		} else if (packetver >= 20210000) {
-			Lengths = require('./Packets/packets2021_len_main');
-		} else if (packetver >= 20200000) {
-			Lengths = require('./Packets/packets2020_len_main');
-		} else if (packetver >= 20190000) {
-			Lengths = require('./Packets/packets2019_len_main');
-		} else if (packetver >= 20180000) {
-			Lengths = require('./Packets/packets2018_len_main');
-		} else if (packetver >= 20170000) {
-			Lengths = require('./Packets/packets2017_len_main');
-		} else if (packetver >= 20160000) {
-			Lengths = require('./Packets/packets2016_len_main');
-		} else if (packetver >= 20150000) {
-			Lengths = require('./Packets/packets2015_len_main');
-		} else if (packetver >= 20140000) {
-			Lengths = require('./Packets/packets2014_len_main');
-		} else if (packetver >= 20130000) {
-			Lengths = require('./Packets/packets2013_len_main');
-		} else if (packetver >= 20120000) {
-			Lengths = require('./Packets/packets2012_len_main');
-		} else if (packetver >= 20110000) {
-			Lengths = require('./Packets/packets2011_len_main');
-		} else if (packetver >= 20100000) {
-			Lengths = require('./Packets/packets2010_len_main');
-		} else if (packetver >= 20090000) {
-			Lengths = require('./Packets/packets2009_len_main');
-		} else if (packetver >= 20080000) {
-			Lengths = require('./Packets/packets2008_len_main');
-		} else if (packetver >= 20070000) {
-			Lengths = require('./Packets/packets2007_len_main');
-		} else if (packetver >= 20060000) {
-			Lengths = require('./Packets/packets2006_len_main');
-		} else if (packetver >= 20050000) {
-			Lengths = require('./Packets/packets2005_len_main');
-		} else if (packetver >= 20040000) {
-			Lengths = require('./Packets/packets2004_len_main');
-		} else if (packetver >= 20030000) {
-			Lengths = require('./Packets/packets2003_len_main');
-		} else {
-			Lengths = require('./Packets/packets2003_len_main'); // Defaulting to 2003 if packetver is older or something weird.
+let packets_len = new Array();
+
+/**
+ * Get a Packet Length
+ *
+ * @param {number} packetver - packet version (clientdate)
+ */
+function init(packetver) {
+	let Lengths;
+	packetver = parseInt(packetver);
+
+	// Find the matching year for the packet version
+	const years = [
+		2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 
+		2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 
+		2009, 2008, 2007, 2006, 2005, 2004, 2003
+	];
+	
+	let selectedYear = 2003;
+	for (const year of years) {
+		if (packetver >= year * 10000) {
+			selectedYear = year;
+			break;
 		}
+	}
+
+	const modulePath = `./Packets/packets${selectedYear}_len_main.js`;
+	Lengths = packetModules[modulePath]?.default || packetModules[modulePath];
+
+	if (Lengths && typeof Lengths.init === 'function') {
 		packets_len = Lengths.init(packetver);
 		console.log('%c[Network] Packet Length initialized ', 'color:#007000', packetver);
+	} else {
+		console.error(`[Network] Failed to load packet lengths for year ${selectedYear} (path: ${modulePath})`);
 	}
+}
 
-	/**
-	 * Get a Packet Length
-	 *
-	 * @param {number} id - packet ID
-	 */
-	function getPacketLength(id) {
-		return packets_len[id] || false;
-	}
+/**
+ * Get a Packet Length
+ *
+ * @param {number} id - packet ID
+ */
+function getPacketLength(id) {
+	return packets_len[id] || false;
+}
 
-	/**
-	 * Export
-	 */
-	return {
-		init: init,
-		getPacketLength: getPacketLength
-	};
-});
+/**
+ * Export
+ */
+export default {
+	init: init,
+	getPacketLength: getPacketLength
+};

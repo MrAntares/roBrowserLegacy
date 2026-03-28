@@ -1,35 +1,22 @@
-/**
- * UI/Components/ChatRoom/ChatRoom.js
- *
- * Chat room box UI
- *
- * This file is part of ROBrowser, (http://www.robrowser.com/).
- *
- * @author Vincent Thibault
- */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var Preferences = require('Core/Preferences');
-	var jQuery = require('Utils/jquery');
-	var Renderer = require('Renderer/Renderer');
-	var Session = require('Engine/SessionStorage');
-	var Mouse = require('Controls/MouseEventHandler');
-	var KEYS = require('Controls/KeyEventHandler');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./ChatRoom.html');
-	var cssText = require('text!./ChatRoom.css');
-	var getModule = require;
+import Preferences from 'Core/Preferences';
+import jQuery from 'Utils/jquery';
+import Renderer from 'Renderer/Renderer';
+import Session from 'Engine/SessionStorage';
+import Mouse from 'Controls/MouseEventHandler';
+import KEYS from 'Controls/KeyEventHandler';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './ChatRoom.html?raw';
+import cssText from './ChatRoom.css?raw';
+import ProcessCommand from 'Controls/ProcessCommand';
 
 	/**
 	 * Create Component
 	 */
-	var ChatRoom = new UIComponent('ChatRoom', htmlText, cssText);
+	const ChatRoom = new UIComponent('ChatRoom', htmlText, cssText);
 
 	/**
 	 * @var {string} Chat Room title
@@ -69,7 +56,7 @@ define(function (require) {
 	/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ChatRoom',
 		{
 			x: 480,
@@ -144,8 +131,8 @@ define(function (require) {
 	 * Update ChatRoom parameters
 	 */
 	ChatRoom.updateChat = function updateChat() {
-		var members = '';
-		var i,
+		let members = '';
+		let i,
 			count = this.members.length;
 
 		this.ui.find('.titlebar .title').text(this.title);
@@ -166,8 +153,8 @@ define(function (require) {
 	 * Parse and send chat room messages
 	 */
 	function sendChatMessage() {
-		var ui = ChatRoom.ui;
-		var message = ui.find('.send input[name=message]').val();
+		const ui = ChatRoom.ui;
+		const message = ui.find('.send input[name=message]').val();
 
 		// Nothing to submit
 		if (message.length < 1) {
@@ -176,7 +163,7 @@ define(function (require) {
 
 		// Process commands
 		if (message[0] === '/') {
-			getModule('Controls/ProcessCommand').processCommand.call(ChatBox, message.substr(1));
+			ProcessCommand.processCommand.call(ChatBox, message.substr(1));
 			ui.find('.send input[name=message]').val('');
 			return true;
 		}
@@ -193,7 +180,7 @@ define(function (require) {
 	 */
 	ChatRoom.message = function displayMessage(message, type) {
 		// Escape html tag
-		var element = jQuery('<div/>');
+		const element = jQuery('<div/>');
 		element.text(message);
 
 		if (type) {
@@ -202,7 +189,7 @@ define(function (require) {
 			element.addClass('self');
 		}
 
-		var content = this.ui.find('.messages');
+		const content = this.ui.find('.messages');
 
 		// Append content, move to the bottom
 		content.append(element);
@@ -216,7 +203,7 @@ define(function (require) {
 	 * @param {string} member name
 	 */
 	ChatRoom.removeMember = function removeMember(name) {
-		var pos = this.members.indexOf(name);
+		const pos = this.members.indexOf(name);
 
 		if (pos > -1) {
 			this.members.splice(pos, 1);
@@ -252,19 +239,19 @@ define(function (require) {
 	 * Resize ChatRoom
 	 */
 	function onResize() {
-		var ui = ChatRoom.ui;
-		var top = ui.position().top;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = ChatRoom.ui;
+		const top = ui.position().top;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizeProcess() {
-			var extraX = 23 + 16 + 16 - 30;
-			var extraY = 31 + 19 - 30;
+			const extraX = 23 + 16 + 16 - 30;
+			const extraY = 31 + 19 - 30;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 7), 14);
@@ -305,5 +292,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(ChatRoom);
-});
+	export default UIManager.addComponent(ChatRoom);

@@ -6,31 +6,27 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./Reputation.html');
-	var cssText = require('text!./Reputation.css');
+import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './Reputation.html?raw';
+import cssText from './Reputation.css?raw';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var Reputation = new UIComponent('Reputation', htmlText, cssText);
+	const Reputation = new UIComponent('Reputation', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Reputation',
 		{
 			x: 400,
@@ -165,8 +161,8 @@ define(function (require) {
 	 * The option element will have the text content '<group.Name>'
 	 */
 	function buildGroupSelector() {
-		let groupSelector = Reputation.ui.find('#repute_groups');
-		let ReputeGroupTable = DB.getReputeGroup();
+		const groupSelector = Reputation.ui.find('#repute_groups');
+		const ReputeGroupTable = DB.getReputeGroup();
 
 		Object.entries(ReputeGroupTable).forEach(([groupIndex, group]) => {
 			const option = document.createElement('option');
@@ -542,7 +538,7 @@ define(function (require) {
 		const lowerQuery = query.toLowerCase();
 		//totalWrapper.hide();
 
-		let visibleIds = [];
+		const visibleIds = [];
 		items.each(function () {
 			const el = this;
 			const reputeId = Number(el.dataset.reputeId);
@@ -661,5 +657,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Reputation);
-});
+export default UIManager.addComponent(Reputation);

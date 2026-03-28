@@ -7,11 +7,9 @@
  *
  * @author MrUnzO
  */
+'use strict';
 
-define(function () {
-	'use strict';
-
-	return {
+	export default {
 		ET_SURPRISE: 0,
 		ET_QUESTION: 1,
 		ET_DELIGHT: 2,
@@ -94,4 +92,3 @@ define(function () {
 		ET_PANIC: 78,
 		ET_WHISP: 79
 	};
-});

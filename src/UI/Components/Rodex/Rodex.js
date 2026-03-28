@@ -6,29 +6,25 @@
  * @author Alisonrag
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var DB = require('DB/DBManager');
-	var jQuery = require('Utils/jquery');
-	var Client = require('Core/Client');
-	var Preferences = require('Core/Preferences');
-	var Renderer = require('Renderer/Renderer');
-	var KEYS = require('Controls/KeyEventHandler');
-	var ChatBox = require('UI/Components/ChatBox/ChatBox');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
+import DB from 'DB/DBManager';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import Preferences from 'Core/Preferences';
+import Renderer from 'Renderer/Renderer';
+import KEYS from 'Controls/KeyEventHandler';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
 
-	var htmlText = require('text!./Rodex.html');
-	var cssText = require('text!./Rodex.css');
+import htmlText from './Rodex.html?raw';
+import cssText from './Rodex.css?raw';
 
 	/**
 	 * Create Component
 	 */
-	var Rodex = new UIComponent('Rodex', htmlText, cssText);
+	const Rodex = new UIComponent('Rodex', htmlText, cssText);
 
 	/**
 	 * Store Rodex items
@@ -69,7 +65,7 @@ define(function (require) {
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Rodex',
 		{
 			x: 350,
@@ -140,7 +136,7 @@ define(function (require) {
 	};
 
 	Rodex.createRodexList = function createRodexList(tabID = 0, search = false, term = '') {
-		var content = Rodex.ui.find('.mail-list');
+		const content = Rodex.ui.find('.mail-list');
 		content.html('');
 		let mail_list = [];
 		if (search) {
@@ -156,19 +152,19 @@ define(function (require) {
 		if (mail_list.length == 0) {
 			return;
 		}
-		let start = Rodex.pageSize * Rodex.page;
+		const start = Rodex.pageSize * Rodex.page;
 
 		let total = 0;
 		for (let i = start; total < Rodex.pageSize && i < mail_list.length; i++) {
-			let mail = mail_list[i];
-			let mailID = mail.MailID;
-			let title = mail.title.length > 18 ? mail.title.substring(0, 18) + '...' : mail.title;
-			let sender = mail.SenderName.length > 18 ? mail.SenderName.substring(0, 18) + '...' : mail.SenderName;
-			let mail_image = mail.Isread ? 'icon_status_mail_read' : 'icon_status_mail_received';
-			let mail_content = Rodex.attachmentType[mail.type];
-			let remaining_days = parseInt(mail.expireDateTime / 60 / 60 / 24);
-			let openType = typeof mail.openType !== 'undefined' ? mail.openType : 0;
-			let mail_html =
+			const mail = mail_list[i];
+			const mailID = mail.MailID;
+			const title = mail.title.length > 18 ? mail.title.substring(0, 18) + '...' : mail.title;
+			const sender = mail.SenderName.length > 18 ? mail.SenderName.substring(0, 18) + '...' : mail.SenderName;
+			const mail_image = mail.Isread ? 'icon_status_mail_read' : 'icon_status_mail_received';
+			const mail_content = Rodex.attachmentType[mail.type];
+			const remaining_days = parseInt(mail.expireDateTime / 60 / 60 / 24);
+			const openType = typeof mail.openType !== 'undefined' ? mail.openType : 0;
+			const mail_html =
 				`
 			<li class="mail-item">
 				<div class="mail-checkbox" data-background="basic_interface/rodexsystem/renewal/checkbox_off.bmp">
@@ -227,7 +223,7 @@ define(function (require) {
 
 	Rodex.getAll = function getAll() {
 		for (let i = 0; i < Rodex.list.length; i++) {
-			let mail = Rodex.list[i];
+			const mail = Rodex.list[i];
 			if (mail.type > 0 && (mail.type == 4 || mail.type == 6)) {
 				Rodex.requestItemsFromRodex(mail.openType, mail.MailID);
 			}
@@ -239,7 +235,7 @@ define(function (require) {
 
 	Rodex.deleteAll = function deleteAll() {
 		for (let i = 0; i < Rodex.list.length; i++) {
-			let mail = Rodex.list[i];
+			const mail = Rodex.list[i];
 			if (mail.type == 0) {
 				// delete only empty mails
 				Rodex.requestDeleteRodex(mail.openType, mail.MailID);
@@ -333,9 +329,9 @@ define(function (require) {
 	function onClickTab(e) {
 		e.stopImmediatePropagation();
 		Rodex.page = 0;
-		let element = jQuery(e.currentTarget);
-		let tid = element.attr('id');
-		let id = tid.replace('tab_', '');
+		const element = jQuery(e.currentTarget);
+		const tid = element.attr('id');
+		const id = tid.replace('tab_', '');
 		Rodex.ui.find('.nav-item.active').removeClass('active');
 		element.addClass('active');
 		if (id >= 0 && id <= 2) {
@@ -383,7 +379,7 @@ define(function (require) {
 
 	function onClickSearchButton(e) {
 		e.stopImmediatePropagation();
-		let search = Rodex.ui.find('.search').val();
+		const search = Rodex.ui.find('.search').val();
 		Rodex.ui.find('.nav-item.active').removeClass('active');
 		Rodex.ui.find('#tab_3').addClass('active');
 		if (search.length > 2) {
@@ -393,22 +389,21 @@ define(function (require) {
 
 	function onClickReadMail(e) {
 		e.stopImmediatePropagation();
-		let element = jQuery(e.currentTarget);
-		let mid = element.attr('id');
-		let openType = element.attr('openType');
-		let id = mid.replace('mail_', '');
+		const element = jQuery(e.currentTarget);
+		const mid = element.attr('id');
+		const openType = element.attr('openType');
+		const id = mid.replace('mail_', '');
 		Rodex.requestReadRodex(openType, id);
 	}
 
 	function onClickReplyMail(e) {
 		e.stopImmediatePropagation();
-		let element = jQuery(e.currentTarget);
-		let sender = element.attr('sender');
+		const element = jQuery(e.currentTarget);
+		const sender = element.attr('sender');
 		Rodex.requestOpenWriteRodex(sender);
 	}
 
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(Rodex);
-});
+	export default UIManager.addComponent(Rodex);

@@ -6,102 +6,91 @@
  *
  * @author AoShinHo
  */
-define(function (require) {
-	'use strict';
 
-	var GraphicsSettings = require('Preferences/Graphics');
-	var WebGL = require('Utils/WebGL');
-	var PostProcess = require('Renderer/Effects/PostProcess');
+import GraphicsSettings from 'Preferences/Graphics';
+import WebGL from 'Utils/WebGL';
+import PostProcess from 'Renderer/Effects/PostProcess';
+import commonVS from './GLSL/Common.vs?raw';
+import compositeFS from './GLSL/CommonUpsampling.fs?raw';
 
-	var _program;
-	var _buffer;
+let _program;
+let _buffer;
 
-	/**
-	 * Vertex Shader: Common quad
-	 */
-	var commonVS = require('text!./GLSL/Common.vs');
+/**
+ * @constructor Upsampling
+ */
+function Upsampling() {}
 
-	/**
-	 * Fragment Shader: Upsample the scene.
-	 */
-	var compositeFS = require('text!./GLSL/CommonUpsampling.fs');
+/**
+ * Renders the Upsampling effect
+ * @param {WebGLRenderingContext} gl - WebGL Context
+ * @param {WebGLTexture} inputTexture - Low resolution scene texture
+ * @param {WebGLFramebuffer} outputFramebuffer - Destination (Screen or next effect)
+ */
+Upsampling.render = function render(gl, inputTexture, outputFbo) {
+	if (!_buffer || !_program || !Upsampling.isActive()) {
+		return;
+	}
+	PostProcess.beforeRenderPass(gl, outputFbo);
 
-	/**
-	 * @constructor Upsampling
-	 */
-	function Upsampling() {}
+	gl.useProgram(_program);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+	const posLoc = _program.attribute.aPosition;
+	gl.enableVertexAttribArray(posLoc);
+	gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-	/**
-	 * Renders the Upsampling effect
-	 * @param {WebGLRenderingContext} gl - WebGL Context
-	 * @param {WebGLTexture} inputTexture - Low resolution scene texture
-	 * @param {WebGLFramebuffer} outputFramebuffer - Destination (Screen or next effect)
-	 */
-	Upsampling.render = function render(gl, inputTexture, outputFbo) {
-		if (!_buffer || !_program || !Upsampling.isActive()) {
-			return;
-		}
-		PostProcess.beforeRenderPass(gl, outputFbo);
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, inputTexture);
 
-		gl.useProgram(_program);
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		let posLoc = _program.attribute.aPosition;
-		gl.enableVertexAttribArray(posLoc);
-		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, inputTexture);
+	gl.uniform1i(_program.uniform.uSceneTexture, 0);
 
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-		gl.uniform1i(_program.uniform.uSceneTexture, 0);
+	PostProcess.afterRenderPass(gl);
+};
 
-		gl.drawArrays(gl.TRIANGLES, 0, 6);
+/**
+ * Initializes shaders and buffers
+ */
+Upsampling.init = function init(gl) {
+	if (!gl) {
+		return;
+	}
 
-		PostProcess.afterRenderPass(gl);
-	};
+	try {
+		_program = WebGL.createShaderProgram(gl, commonVS, compositeFS);
+	} catch (e) {
+		console.error('Error compiling Upsampling shader.', e);
+		return;
+	}
 
-	/**
-	 * Initializes shaders and buffers
-	 */
-	Upsampling.init = function init(gl) {
-		if (!gl) {
-			return;
-		}
+	const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 
-		try {
-			_program = WebGL.createShaderProgram(gl, commonVS, compositeFS);
-		} catch (e) {
-			console.error('Error compiling Upsampling shader.', e);
-			return;
-		}
+	_buffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+	gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
+};
 
-		var quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+/** @returns {boolean} always false here */
+Upsampling.isActive = function isActive() {
+	return GraphicsSettings.performanceMode;
+};
 
-		_buffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
-	};
+/** @returns {WebGLProgram} The loaded shader program (returning one for validation check) */
+Upsampling.program = function program() {
+	return _program;
+};
 
-	/** @returns {boolean} always false here */
-	Upsampling.isActive = function isActive() {
-		return GraphicsSettings.performanceMode;
-	};
+/** Clears memory references */
+Upsampling.clean = function clean(gl) {
+	_program = null;
+	if (_buffer) {
+		gl.deleteBuffer(_buffer);
+	}
+	_buffer = null;
+};
 
-	/** @returns {WebGLProgram} The loaded shader program (returning one for validation check) */
-	Upsampling.program = function program() {
-		return _program;
-	};
-
-	/** Clears memory references */
-	Upsampling.clean = function clean(gl) {
-		_program = null;
-		if (_buffer) {
-			gl.deleteBuffer(_buffer);
-		}
-		_buffer = null;
-	};
-
-	return Upsampling;
-});
+export default Upsampling;

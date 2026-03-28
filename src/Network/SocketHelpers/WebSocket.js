@@ -8,8 +8,7 @@
  * @author Vincent Thibault
  */
 
-define(function () {
-	'use strict';
+'use strict';
 
 	/**
 	 * HTML5 WebSocket System
@@ -17,8 +16,8 @@ define(function () {
 	 * @param {string} url
 	 */
 	function Socket(host, port, proxy) {
-		var url = 'ws://' + host + ':' + port + '/';
-		var self = this;
+		let url = 'ws://' + host + ':' + port + '/';
+		const self = this;
 		this.connected = false;
 
 		// Use of a proxy
@@ -85,5 +84,4 @@ define(function () {
 	/**
 	 * Export
 	 */
-	return Socket;
-});
+	export default Socket;

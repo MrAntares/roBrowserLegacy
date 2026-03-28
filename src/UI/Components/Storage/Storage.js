@@ -8,17 +8,16 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	var publicName = 'Storage';
+import StorageV0 from './StorageV0/Storage'; // Basic Storage
+import StorageV3 from './StorageV3/Storage'; // Expanded Storage (search tab)
 
-	var StorageV0 = require('./StorageV0/Storage'); // Basic Storage
-	var StorageV3 = require('./StorageV3/Storage'); // Expanded Storage (search tab)
+import UIVersionManager from 'UI/UIVersionManager';
 
-	var UIVersionManager = require('UI/UIVersionManager');
+const publicName = 'Storage';
 
-	var versionInfo = {
+	const versionInfo = {
 		default: StorageV0, // Basic Storage
 		common: {
 			20181219: StorageV3 // Expanded Storage (search tab)
@@ -27,9 +26,9 @@ define(function (require) {
 		prere: {}
 	};
 
-	var StorageController = UIVersionManager.getUIController(publicName, versionInfo);
+	const StorageController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	var _selectUIVersion = StorageController.selectUIVersion;
+	const _selectUIVersion = StorageController.selectUIVersion;
 
 	// Extend default UI selector
 	StorageController.selectUIVersion = function () {
@@ -37,7 +36,7 @@ define(function (require) {
 	};
 
 	// Forward methods to the implementation
-	var _methods = ['reqAddItem', 'reqAddItemFromCart', 'reqRemoveItem', 'reqMoveItemToCart', 'onClosePressed'];
+	const _methods = ['reqAddItem', 'reqAddItemFromCart', 'reqRemoveItem', 'reqMoveItemToCart', 'onClosePressed'];
 
 	_methods.forEach(function (method) {
 		Object.defineProperty(StorageController, method, {
@@ -51,5 +50,4 @@ define(function (require) {
 		});
 	});
 
-	return StorageController;
-});
+	export default StorageController;

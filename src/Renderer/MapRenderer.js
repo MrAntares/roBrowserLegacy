@@ -7,66 +7,59 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
 
-	/**
-	 * Load dependencies
-	 */
-	const getModule = require;
-	var Thread = require('Core/Thread');
-	var SoundManager = require('Audio/SoundManager');
-	var BGM = require('Audio/BGM');
-	var DB = require('DB/DBManager');
-	var UIManager = require('UI/UIManager');
-	var Background = require('UI/Background');
-	var Cursor = require('UI/CursorManager');
-	var Session = require('Engine/SessionStorage');
-	var MemoryManager = require('Core/MemoryManager');
-	var Mouse = require('Controls/MouseEventHandler');
-	var Renderer = require('Renderer/Renderer');
-	var Camera = require('Renderer/Camera');
-	var EntityManager = require('Renderer/EntityManager');
-	var GridSelector = require('Renderer/Map/GridSelector');
-	var Ground = require('Renderer/Map/Ground');
-	var Altitude = require('Renderer/Map/Altitude');
-	var Water = require('Renderer/Map/Water');
-	var Models = require('Renderer/Map/Models');
-	var AnimatedModels = require('Renderer/Map/AnimatedModels');
-	var Sounds = require('Renderer/Map/Sounds');
-	var Effects = require('Renderer/Map/Effects');
-	var SpriteRenderer = require('Renderer/SpriteRenderer');
-	var EffectManager = require('Renderer/EffectManager');
-	var SignboardManager = require('Renderer/SignboardManager');
-	var ScreenEffectManager = require('Renderer/ScreenEffectManager');
-	var Sky = require('Renderer/Effects/Sky');
-	var Damage = require('Renderer/Effects/Damage');
-	var GraphicsSettings = require('Preferences/Graphics');
-	var MapPreferences = require('Preferences/Map');
-	const glMatrix = require('Utils/gl-matrix');
-	const PACKETVER = require('Network/PacketVerManager');
-	var JoystickUI = require('UI/Components/JoystickUI/JoystickUI');
+import Thread from 'Core/Thread';
+import SoundManager from 'Audio/SoundManager';
+import BGM from 'Audio/BGM';
+import DB from 'DB/DBManager';
+import UIManager from 'UI/UIManager';
+import Background from 'UI/Background';
+import Cursor from 'UI/CursorManager';
+import Session from 'Engine/SessionStorage';
+import MemoryManager from 'Core/MemoryManager';
+import Mouse from 'Controls/MouseEventHandler';
+import Renderer from 'Renderer/Renderer';
+import Camera from 'Renderer/Camera';
+import EntityManager from 'Renderer/EntityManager';
+import GridSelector from 'Renderer/Map/GridSelector';
+import Ground from 'Renderer/Map/Ground';
+import Altitude from 'Renderer/Map/Altitude';
+import Water from 'Renderer/Map/Water';
+import Models from 'Renderer/Map/Models';
+import AnimatedModels from 'Renderer/Map/AnimatedModels';
+import Sounds from 'Renderer/Map/Sounds';
+import Effects from 'Renderer/Map/Effects';
+import SpriteRenderer from 'Renderer/SpriteRenderer';
+import EffectManager from 'Renderer/EffectManager';
+import SignboardManager from 'Renderer/SignboardManager';
+import ScreenEffectManager from 'Renderer/ScreenEffectManager';
+import Sky from 'Renderer/Effects/Sky';
+import Damage from 'Renderer/Effects/Damage';
+import GraphicsSettings from 'Preferences/Graphics';
+import MapPreferences from 'Preferences/Map';
+import glMatrix from 'Utils/gl-matrix';
+import PACKETVER from 'Network/PacketVerManager';
+import JoystickUI from 'UI/Components/JoystickUI/JoystickUI';
 
-	var PostProcess = require('Renderer/Effects/PostProcess');
-	var Bloom = require('Renderer/Effects/Shaders/Bloom');
-	var VerticalFlip = require('Renderer/Effects/Shaders/VerticalFlip');
-	var GaussianBlur = require('Renderer/Effects/Shaders/GaussianBlur');
-	var CAS = require('Renderer/Effects/Shaders/CAS');
-	var FXAA = require('Renderer/Effects/Shaders/FXAA');
-	var Vibrance = require('Renderer/Effects/Shaders/Vibrance');
-	var Cartoon = require('Renderer/Effects/Shaders/Cartoon');
-	var Blind = require('Renderer/Effects/Shaders/Blind');
+import PostProcess from 'Renderer/Effects/PostProcess';
+import Bloom from 'Renderer/Effects/Shaders/Bloom';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
+import GaussianBlur from 'Renderer/Effects/Shaders/GaussianBlur';
+import CAS from 'Renderer/Effects/Shaders/CAS';
+import FXAA from 'Renderer/Effects/Shaders/FXAA';
+import Vibrance from 'Renderer/Effects/Shaders/Vibrance';
+import Cartoon from 'Renderer/Effects/Shaders/Cartoon';
+import Blind from 'Renderer/Effects/Shaders/Blind';
 
-	var Upsampling = require('Renderer/Effects/Shaders/Upsampling');
-
-	var WebGL = require('Utils/WebGL');
+import Upsampling from 'Renderer/Effects/Shaders/Upsampling';
+import WebGL from 'Utils/WebGL';
 
 	const mat4 = glMatrix.mat4;
 
 	/**
 	 * Renderer Namespace
 	 */
-	var MapRenderer = {};
+	const MapRenderer = {};
 
 	/**
 	 * @var {string} current map's name
@@ -145,7 +138,7 @@ define(function (require) {
 			this.currentMap = mapname;
 
 			// Parse the filename (ugly RO)
-			var filename = mapname.replace(/\.gat$/i, '.rsw');
+			const filename = mapname.replace(/\.gat$/i, '.rsw');
 
 			Background.setLoading(function () {
 				// Hooking Thread
@@ -165,7 +158,7 @@ define(function (require) {
 			return;
 		}
 
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 		EntityManager.free();
 		Damage.free(gl);
 		EffectManager.free(gl);
@@ -183,7 +176,7 @@ define(function (require) {
 	 * Clean up data
 	 */
 	MapRenderer.free = function Free() {
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		EntityManager.free();
 		GridSelector.free(gl);
@@ -238,8 +231,8 @@ define(function (require) {
 
 		// Calculate light direction
 		this.light.direction = new Float32Array(3);
-		var longitude = (this.light.longitude * Math.PI) / 180;
-		var latitude = (this.light.latitude * Math.PI) / 180;
+		const longitude = (this.light.longitude * Math.PI) / 180;
+		const latitude = (this.light.latitude * Math.PI) / 180;
 
 		const dirMat4 = mat4.create();
 		// Original client first rotates around X then Y, but then multiplies matrixes in reverse order
@@ -257,7 +250,7 @@ define(function (require) {
 	 * Received ground data from Thread
 	 */
 	function onGroundComplete(data) {
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		this.water.mesh = data.waterMesh;
 		this.water.vertCount = data.waterVertCount;
@@ -267,7 +260,7 @@ define(function (require) {
 
 		// Initialize sounds
 		this.sounds.forEach(sound => {
-			let tmp = -sound.pos[1];
+			const tmp = -sound.pos[1];
 			sound.pos[0] += data.width;
 			sound.pos[1] = sound.pos[2] + data.height;
 			sound.pos[2] = tmp;
@@ -280,7 +273,7 @@ define(function (require) {
 		this.effects.forEach(effect => {
 			// Note: effects objects do not need to be centered in a cell
 			// as we apply +0.5 in the shader, we have to revert it.
-			let tmp = -effect.pos[1] + 1; //WTF????????
+			const tmp = -effect.pos[1] + 1; //WTF????????
 			effect.pos[0] += data.width - 0.5;
 			effect.pos[1] = effect.pos[2] + data.height - 0.5;
 			effect.pos[2] = tmp;
@@ -298,7 +291,7 @@ define(function (require) {
 	 * Receiving parsed GAT from Thread
 	 */
 	function onAltitudeComplete(data) {
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 		Altitude.init(data);
 		GridSelector.init(gl);
 	}
@@ -314,7 +307,7 @@ define(function (require) {
 	 * Receiving animated RSM model from Thread
 	 */
 	function onAnimatedModelComplete(data) {
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 		AnimatedModels.add(gl, data);
 	}
 
@@ -343,8 +336,8 @@ define(function (require) {
 	 * Once the map finished to load
 	 */
 	function onMapComplete(success, error) {
-		var worldResource = this.currentMap.replace(/\.gat$/i, '.rsw');
-		var mapInfo = DB.getMap(worldResource);
+		const worldResource = this.currentMap.replace(/\.gat$/i, '.rsw');
+		const mapInfo = DB.getMap(worldResource);
 
 		// Problem during loading ?
 		if (!success) {
@@ -366,7 +359,7 @@ define(function (require) {
 
 		// Initialize renderers
 		Renderer.init();
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		SpriteRenderer.init(gl);
 		Sky.init(gl, worldResource);
@@ -397,16 +390,16 @@ define(function (require) {
 	 * @param {number} tick - game tick
 	 * @param {object} gl context
 	 */
-	var _pos = new Uint16Array(2);
+	const _pos = new Uint16Array(2);
 	MapRenderer.onRender = function OnRender(tick, gl) {
 		PostProcess.prepare(gl);
 
-		var fog = MapRenderer.fog;
+		const fog = MapRenderer.fog;
 		fog.use = MapPreferences.fog;
-		var light = MapRenderer.light;
+		const light = MapRenderer.light;
 
-		var modelView, projection, normalMat;
-		var x, y;
+		let modelView, projection, normalMat;
+		let x, y;
 
 		// Clean mouse position in world
 		Mouse.world.x = -1;
@@ -439,10 +432,10 @@ define(function (require) {
 			if (isWalkable) {
 				if (Session.captchaGetIdOnFloorClick) {
 					// render Grid Selector on floor range
-					let range = Session.captchaGetIdOnFloorRange;
+					const range = Session.captchaGetIdOnFloorRange;
 
 					// render on range
-					let cells = Altitude.getCellsInSquareRange(x, y, range);
+					const cells = Altitude.getCellsInSquareRange(x, y, range);
 					cells.forEach(cell => {
 						GridSelector.render(gl, modelView, projection, fog, cell.x, cell.y);
 					});
@@ -488,7 +481,7 @@ define(function (require) {
 
 		// Find entity over the cursor
 		if (Mouse.intersect) {
-			var entity = EntityManager.intersect();
+			const entity = EntityManager.intersect();
 			EntityManager.setOverEntity(entity);
 		}
 
@@ -507,5 +500,4 @@ define(function (require) {
 	/**
 	 * Export
 	 */
-	return MapRenderer;
-});
+	export default MapRenderer;

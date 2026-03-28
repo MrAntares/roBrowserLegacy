@@ -7,33 +7,32 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
-	 * Dependencies
-	 */
-	var FPS = require('UI/Components/FPS/FPS');
-	var Configs = require('Core/Configs');
-	var Context = require('Core/Context');
-	var Preferences = require('Core/Preferences');
-	var GraphicsSettings = require('Preferences/Graphics');
-	var Renderer = require('Renderer/Renderer');
-	var UIManager = require('UI/UIManager');
-	var UIComponent = require('UI/UIComponent');
-	var htmlText = require('text!./GraphicsOption.html');
-	var cssText = require('text!./GraphicsOption.css');
-	var jQuery = require('Utils/jquery');
+import FPS from 'UI/Components/FPS/FPS';
+import Configs from 'Core/Configs';
+import Context from 'Core/Context';
+import Preferences from 'Core/Preferences';
+import GraphicsSettings from 'Preferences/Graphics';
+import Renderer from 'Renderer/Renderer';
+import UIManager from 'UI/UIManager';
+import UIComponent from 'UI/UIComponent';
+import htmlText from './GraphicsOption.html?raw';
+import cssText from './GraphicsOption.css?raw';
+import jQuery from 'Utils/jquery';
+import Client from 'Core/Client';
+import MemoryManager from 'Core/MemoryManager';
+import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
-	/**
+/**
 	 * Create Component
 	 */
-	var GraphicsOption = new UIComponent('GraphicsOption', htmlText, cssText);
+	const GraphicsOption = new UIComponent('GraphicsOption', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Graphics
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'GraphicsOption',
 		{
 			x: 300,
@@ -192,12 +191,10 @@ define(function (require) {
 		if (GraphicsSettings.pixelPerfectSprites) {
 			// Only works to toggle on, because toggle off will not reload the sprites with the new settings
 			function reloadSprites() {
-				var Client = require('Core/Client');
-				var MemoryManager = require('Core/MemoryManager');
-				var gl = Renderer.getContext();
-				var sprFiles = MemoryManager.search(/\.spr$/i);
+				const gl = Renderer.getContext();
+				const sprFiles = MemoryManager.search(/\.spr$/i);
 				for (
-					var i = 0;
+					let i = 0;
 					i < sprFiles.length;
 					i++ // reloads spr memory cache
 				) {
@@ -206,7 +203,6 @@ define(function (require) {
 			}
 			reloadSprites();
 		} else {
-			var ChatBox = require('UI/Components/ChatBox/ChatBox');
 			ChatBox.addText(
 				'[System] Pixel Perfect is disabled. Reload the page (F5) to apply the changes.',
 				ChatBox.TYPE.INFO,
@@ -315,7 +311,7 @@ define(function (require) {
 	 * Resizing window size
 	 */
 	function onUpdateScreenSize() {
-		var isFullScreen = Context.isFullScreen();
+		const isFullScreen = Context.isFullScreen();
 
 		GraphicsSettings.screensize = this.value;
 		GraphicsSettings.save();
@@ -334,7 +330,7 @@ define(function (require) {
 
 		// Resizing
 		if (Context.Is.POPUP) {
-			var size = GraphicsSettings.screensize.split('x');
+			const size = GraphicsSettings.screensize.split('x');
 
 			// Only resize/move if needed
 			if (size[0] != window.innerWidth && size[1] != window.innerHeight) {
@@ -345,7 +341,7 @@ define(function (require) {
 	}
 
 	function onTabSwitch() {
-		var tabName = jQuery(this).data('tab');
+		const tabName = jQuery(this).data('tab');
 
 		GraphicsOption.ui.find('.tab-button').removeClass('selected');
 		jQuery(this).addClass('selected');
@@ -355,7 +351,7 @@ define(function (require) {
 	}
 
 	function onResetToDefaults() {
-		var defaultSettings = GraphicsSettings.defaults;
+		const defaultSettings = GraphicsSettings.defaults;
 
 		Object.keys(defaultSettings).forEach(function (key) {
 			if (defaultSettings.hasOwnProperty(key)) {
@@ -370,5 +366,4 @@ define(function (require) {
 	/**
 	 * Create component and export it
 	 */
-	return UIManager.addComponent(GraphicsOption);
-});
+export default UIManager.addComponent(GraphicsOption);

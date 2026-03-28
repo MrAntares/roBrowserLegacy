@@ -7,16 +7,15 @@
  *
  * @author Vincent Thibault
  */
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import CashShop from 'UI/Components/CashShop/CashShop';
+
+/**
 	 * Load dependencies
 	 */
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var CashShop = require('UI/Components/CashShop/CashShop');
-
 	function onOpenCashShop(pkt) {
 		CashShop.readPoints(pkt.cashPoints, pkt.kafraPoints, pkt.tab);
 		CashShop.prepare();
@@ -34,11 +33,10 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function MainEngine() {
+export default function MainEngine() {
 		Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN, onOpenCashShop);
 		Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN2, onOpenCashShop);
 		Network.hookPacket(PACKET.ZC.SE_CASHSHOP_OPEN3, onOpenCashShop); // old with no tab
 		Network.hookPacket(PACKET.ZC.ACK_SCHEDULER_CASHITEM, onOpenReqCashShopItemList);
 		Network.hookPacket(PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT, onSuccessCashShopBuyList);
 	};
-});

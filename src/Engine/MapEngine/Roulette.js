@@ -6,16 +6,15 @@
  * @author [Your Name]
  */
 
-define(function (require) {
-	'use strict';
+'use strict';
 
-	/**
+import Network from 'Network/NetworkManager';
+import PACKET from 'Network/PacketStructure';
+import Roulette from 'UI/Components/Roulette/Roulette';
+
+/**
 	 * Load dependencies
 	 */
-	var Network = require('Network/NetworkManager');
-	var PACKET = require('Network/PacketStructure');
-	var Roulette = require('UI/Components/Roulette/Roulette');
-
 	/**
 	 * Send Packets
 	 */
@@ -24,7 +23,7 @@ define(function (require) {
 	 * Request to Open Roulette
 	 */
 	/*function requestOpenRoulette() {
-		var pkt = new PACKET.CZ.REQ_OPEN_ROULETTE();
+		let pkt = new PACKET.CZ.REQ_OPEN_ROULETTE();
 		Network.sendPacket(pkt);
 	}*/ // UNUSED
 
@@ -32,7 +31,7 @@ define(function (require) {
 	 * Request Roulette Info
 	 */
 	/*function requestRouletteInfo() {
-		var pkt = new PACKET.CZ.REQ_ROULETTE_INFO();
+		let pkt = new PACKET.CZ.REQ_ROULETTE_INFO();
 		Network.sendPacket(pkt);
 	}*/ // UNUSED
 
@@ -40,7 +39,7 @@ define(function (require) {
 	 * Request to Close Roulette
 	 */
 	/*function requestCloseRoulette() {
-		var pkt = new PACKET.CZ.REQ_CLOSE_ROULETTE();
+		let pkt = new PACKET.CZ.REQ_CLOSE_ROULETTE();
 		Network.sendPacket(pkt);
 	}*/ // UNUSED
 
@@ -159,7 +158,7 @@ define(function (require) {
 				Roulette.onItemReceived(pkt);
 			}
 		} else {
-			var errorMsg = 'Failed to receive roulette item';
+			let errorMsg = 'Failed to receive roulette item';
 			switch (pkt.result) {
 				case 1:
 					errorMsg = 'Failed to receive item';
@@ -178,11 +177,10 @@ define(function (require) {
 	/**
 	 * Initialize
 	 */
-	return function RouletteEngine() {
+export default function RouletteEngine() {
 		Network.hookPacket(PACKET.ZC.ACK_OPEN_ROULETTE, onOpenRoulette);
 		Network.hookPacket(PACKET.ZC.ACK_ROULETTE_INFO, onRouletteInfo);
 		Network.hookPacket(PACKET.ZC.ACK_GENERATE_ROULETTE, onGenerateRoulette);
 		Network.hookPacket(PACKET.ZC.ACK_CLOSE_ROULETTE, onCloseRoulette);
 		Network.hookPacket(PACKET.ZC.RECV_ROULETTE_ITEM, onRecvRouletteItem);
 	};
-});
