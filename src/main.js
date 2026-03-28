@@ -23,7 +23,6 @@ function launch(config) {
 
 	switch (appId) {
 		case APP.ONLINE:
-			Online.init();
 			break;
 
 		case APP.MAPVIEWER:
@@ -52,7 +51,6 @@ function launch(config) {
 
 		default:
 			console.error('Unknown application ID:', appId);
-			Online.init();
 			break;
 	}
 }
