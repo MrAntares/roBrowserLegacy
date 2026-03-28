@@ -10,7 +10,6 @@
  * @author Vincent Thibault
  */
 
-
 import TextEncoding from 'Utils/CodepageManager.js';
 
 /**

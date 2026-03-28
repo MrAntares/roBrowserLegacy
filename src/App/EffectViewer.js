@@ -14,7 +14,6 @@ import Client from 'Core/Client.js';
 import EffectViewer from 'UI/Components/EffectViewer/EffectViewer.js';
 
 export default function init() {
-
 	function onAPIMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;

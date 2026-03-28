@@ -18,7 +18,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * Struct Constructor
  *

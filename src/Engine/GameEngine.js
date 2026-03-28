@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 // Load dependencies
 import jQuery from 'Utils/jquery.js';
 import Queue from 'Utils/Queue.js';

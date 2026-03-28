@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 export default {
 	1: '\xb0\xa1\xb5\xe5',
 	2: '\xb9\xf6\xc5\xac\xb7\xaf',

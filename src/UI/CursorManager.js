@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import MemoryManager from 'Core/MemoryManager.js';

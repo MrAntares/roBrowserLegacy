@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  */
 
-
 import DB from 'DB/DBManager.js';
 import SkillId from 'DB/Skills/SkillConst.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';

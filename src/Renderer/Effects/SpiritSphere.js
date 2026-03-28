@@ -1,4 +1,3 @@
-
 import WebGL from 'Utils/WebGL.js';
 import Texture from 'Utils/Texture.js';
 import glMatrix from 'Utils/gl-matrix.js';

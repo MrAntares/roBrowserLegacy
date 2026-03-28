@@ -14,7 +14,6 @@ import Client from 'Core/Client.js';
 import StrViewer from 'UI/Components/StrViewer/StrViewer.js';
 
 export default function init() {
-
 	function onAPIMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;

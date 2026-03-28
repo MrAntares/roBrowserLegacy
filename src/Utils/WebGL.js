@@ -10,7 +10,6 @@
  * @author Vincent Thibault
  */
 
-
 import Texture from 'Utils/Texture.js';
 import Configs from 'Core/Configs.js';
 

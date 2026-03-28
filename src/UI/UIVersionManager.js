@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import Configs from 'Core/Configs.js';
 import PacketVerManager from 'Network/PacketVerManager.js';
 

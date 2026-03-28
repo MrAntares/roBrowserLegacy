@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import GameFile from 'Loaders/GameFile.js';
 import World from 'Loaders/World.js';
 import Ground from 'Loaders/Ground.js';

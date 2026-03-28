@@ -11,7 +11,6 @@
  * @author Liam Mitchell
  */
 
-
 import BinaryReader from 'Utils/BinaryReader.js';
 
 /**

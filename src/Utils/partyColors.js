@@ -1,4 +1,3 @@
-
 function pastel_colour(seed) {
 	const baseRed = 0;
 	const baseGreen = 0;

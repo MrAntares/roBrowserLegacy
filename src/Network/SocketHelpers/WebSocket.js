@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * HTML5 WebSocket System
  *

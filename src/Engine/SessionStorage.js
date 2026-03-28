@@ -7,7 +7,6 @@
  * @author Vincent Thibault
  */
 
-
 export default {
 	isTouchDevice: false,
 	isRenewal: false,

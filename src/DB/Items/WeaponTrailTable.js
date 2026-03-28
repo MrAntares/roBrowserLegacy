@@ -8,7 +8,6 @@
  * @created MrUnzO
  */
 
-
 import WeaponType from './WeaponType.js';
 
 const WeaponTrail = {};

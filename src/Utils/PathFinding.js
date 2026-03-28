@@ -11,7 +11,6 @@
  * @author Vincent Thibault
  */
 
-
 // World object
 const GAT = {
 	width: 0,

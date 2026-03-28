@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';

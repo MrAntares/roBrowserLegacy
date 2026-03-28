@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 import Configs from 'Core/Configs.js';
 
 /**

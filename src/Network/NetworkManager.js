@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 // Load dependencies
 import Configs from 'Core/Configs.js';
 import BinaryReader from 'Utils/BinaryReader.js';

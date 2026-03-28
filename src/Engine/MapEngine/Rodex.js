@@ -6,7 +6,6 @@
  * @author Alisonrag
  */
 
-
 import DB from 'DB/DBManager.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Network from 'Network/NetworkManager.js';

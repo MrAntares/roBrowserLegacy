@@ -15,7 +15,6 @@ import Client from 'Core/Client.js';
 import GrannyModelViewer from 'UI/Components/GrannyModelViewer/GrannyModelViewer.js';
 
 export default function init() {
-
 	function onAPIMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;

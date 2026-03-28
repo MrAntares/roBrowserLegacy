@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 export default {
 	NONE: 0,
 	SHORTSWORD: 1,

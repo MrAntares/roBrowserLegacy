@@ -10,7 +10,6 @@
  * @author Vincent Thibault
  */
 
-
 import Targa from 'Loaders/Targa.js';
 import GIF from 'Vendors/libgif.js';
 

@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import Preferences from 'Core/Preferences.js';
 
 /**

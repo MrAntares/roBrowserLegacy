@@ -8,7 +8,6 @@
  *
  */
 
-
 import SK from './SkillConst.js';
 
 const SkillAction = {};

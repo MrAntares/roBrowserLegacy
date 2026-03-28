@@ -1,4 +1,3 @@
-
 import SK from './SkillConst.js';
 import JobId from 'DB/Jobs/JobConst.js';
 

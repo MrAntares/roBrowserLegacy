@@ -7,7 +7,6 @@
  *
  */
 
-
 export default {
 	EF_NONE: -1,
 	EF_HIT1: 0,

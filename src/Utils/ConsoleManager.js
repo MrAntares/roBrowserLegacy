@@ -8,7 +8,6 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-
 import Configs from 'Core/Configs.js';
 
 let _console;

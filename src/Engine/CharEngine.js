@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';

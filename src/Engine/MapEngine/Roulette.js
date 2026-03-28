@@ -6,7 +6,6 @@
  * @author [Your Name]
  */
 
-
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import Roulette from 'UI/Components/Roulette/Roulette.js';

@@ -11,7 +11,6 @@
 import GRFViewer from 'UI/Components/GrfViewer/GrfViewer.js';
 
 export default function init() {
-
 	GRFViewer.append();
 
 	window.onbeforeunload = function () {

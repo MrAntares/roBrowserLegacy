@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 import BinaryReader from 'Utils/BinaryReader.js';
 
 /**

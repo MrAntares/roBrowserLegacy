@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import DB from 'DB/DBManager.js';
 import Friends from 'Engine/MapEngine/Friends.js';
 import Network from 'Network/NetworkManager.js';
