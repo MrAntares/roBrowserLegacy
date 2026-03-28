@@ -14,7 +14,7 @@
 import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
-import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
+import('Renderer/MapRenderer.js').then(m => (MapRenderer = m.default));
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Camera from 'Renderer/Camera.js';

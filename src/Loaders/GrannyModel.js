@@ -15,7 +15,7 @@
 
 import BinaryReader from 'Utils/BinaryReader.js';
 import glMatrix from 'Utils/gl-matrix.js';
-import 'Utils/CRC32';
+import CRC32 from 'Utils/CRC32.js';
 
 /**
  * Import

@@ -3,7 +3,7 @@ import Texture from 'Utils/Texture.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Camera from 'Renderer/Camera.js';
-import Configs from '../../Core/Configs.js';
+import Configs from 'Core/Configs.js';
 
 // Load dependencies
 /**

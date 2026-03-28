@@ -15,7 +15,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
-import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
+import('Renderer/MapRenderer.js').then(m => (MapRenderer = m.default));
 
 import { vec3 } from 'Utils/gl-matrix.js';
 const FADEOUT_TAIL_MS = 2000;

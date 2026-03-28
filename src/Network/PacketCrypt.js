@@ -18,7 +18,6 @@
  */
 
 import Configs from 'Core/Configs.js';
-('use strict');
 
 /**
  * @var {integer} Keys to shuffle the packet
