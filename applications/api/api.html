@@ -41,7 +41,7 @@
 					window.ROConfig = event.data;
 
 					// Load the engine entry point as an ES6 module
-					import('/src/main.js')
+					import('../../src/main.js')
 						.then(() => {
 							event.source.postMessage('ready', '*');
 						})
