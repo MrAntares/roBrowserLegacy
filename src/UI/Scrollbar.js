@@ -238,12 +238,9 @@ ScrollBar.applyDOMScrollbar = function (element) {
 	$element.append($scrollbar);
 
 	// Prevent clicks and interactions from passing through to the game world
-	$scrollbar.on(
-		'mousedown mouseup click dblclick contextmenu pointerdown pointerup pointermove wheel',
-		function (e) {
-			e.stopPropagation();
-		}
-	);
+	$scrollbar.on('mousedown mouseup click dblclick contextmenu pointerdown pointerup pointermove wheel', function (e) {
+		e.stopPropagation();
+	});
 
 	// Apply background styles from skin
 	$upBtn.css({ 'background-image': 'url(' + skin.up + ')', 'background-color': 'transparent' });
@@ -335,10 +332,6 @@ ScrollBar.applyDOMScrollbar = function (element) {
 				poller = null;
 				return;
 			}
-
-			var delta = e.originalEvent.deltaY > 0 ? 1 : -1;
-			$element[0].scrollTop += delta * 20;
-
 			updateThumb();
 		}, 300);
 	};
@@ -353,8 +346,9 @@ ScrollBar.applyDOMScrollbar = function (element) {
 			return;
 		}
 
-		const delta = e.originalEvent.deltaY;
-		$element[0].scrollTop += delta;
+		const delta = e.originalEvent.deltaY > 0 ? 1 : -1;
+		$element[0].scrollTop += delta * 20;
+
 		updateThumb();
 		e.preventDefault();
 		e.stopPropagation();
