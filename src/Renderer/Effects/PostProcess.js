@@ -226,7 +226,6 @@ PostProcess.clean = function (gl) {
 
 	_readFbo = null;
 	_writeFbo = null;
-
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 };
 
