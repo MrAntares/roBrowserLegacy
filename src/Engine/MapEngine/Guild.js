@@ -32,12 +32,12 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	/**
 	 * Engine namespace
 	 */
-	let GuildEngine = {};
+	const GuildEngine = {};
 
 	/**
 	 * @var {Object} emblem list
 	 */
-	let _emblems = {};
+	const _emblems = {};
 
 	/**
 	 * Initialize engine
@@ -104,7 +104,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 			return;
 		}
 
-		let pkt = new PACKET.CZ.REQ_GUILD_MENU();
+		const pkt = new PACKET.CZ.REQ_GUILD_MENU();
 		pkt.Type = type;
 		Network.sendPacket(pkt);
 	};
@@ -165,24 +165,24 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 				return;
 			}
 
-			let webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+			const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
-			let formData = new FormData();
+			const formData = new FormData();
 			formData.append('GDID', guild_id);
 			formData.append('WorldName', Session.ServerName);
 			formData.append('AuthToken', Session.WebToken);
 			formData.append('AID', Session.AID);
 
-			let xhr = new XMLHttpRequest();
+			const xhr = new XMLHttpRequest();
 			xhr.open('POST', webAddress + '/emblem/download', true);
 			xhr.responseType = 'blob';
 
 			xhr.onload = function () {
 				if (xhr.status === 200) {
-					let contentType = xhr.getResponseHeader('Content-Type');
-					let isGif = contentType === 'image/gif';
+					const contentType = xhr.getResponseHeader('Content-Type');
+					const isGif = contentType === 'image/gif';
 					if (!isGif) {
-						let img = new Image();
+						const img = new Image();
 						img.onload = function () {
 							emblem.version = version;
 							emblem.image = img;
@@ -197,7 +197,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 							});
 						};
 						img.decoding = 'async';
-						let blobUrl = URL.createObjectURL(xhr.response);
+						const blobUrl = URL.createObjectURL(xhr.response);
 						// Load the emblem, remove magenta, free blob from memory
 						Texture.load(blobUrl, function () {
 							img.src = this.toDataURL();
@@ -206,8 +206,8 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 					} else {
 						Texture.processGifToSpriteSheet(xhr.response, function (sucess) {
 							if (sucess) {
-								let canvas = this;
-								let img = new Image();
+								const canvas = this;
+								const img = new Image();
 								img.onload = function () {
 									emblem.version = version;
 									emblem.image = img;
@@ -223,7 +223,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 									});
 								};
 								img.decoding = 'async';
-								let blobUrl = URL.createObjectURL(xhr.response);
+								const blobUrl = URL.createObjectURL(xhr.response);
 								// Load the emblem as img, remove magenta, free blob from memory
 								Texture.load(blobUrl, function () {
 									img.src = this.toDataURL();
@@ -238,7 +238,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 			xhr.send(formData);
 		} else {
 			// Ask for new version via Packet
-			let pkt = new PACKET.CZ.REQ_GUILD_EMBLEM_IMG();
+			const pkt = new PACKET.CZ.REQ_GUILD_EMBLEM_IMG();
 			pkt.GDID = guild_id;
 			Network.sendPacket(pkt);
 		}
@@ -258,7 +258,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {string} guild name
 	 */
 	GuildEngine.createGuild = function createGuild(name) {
-		let pkt = new PACKET.CZ.REQ_MAKE_GUILD();
+		const pkt = new PACKET.CZ.REQ_MAKE_GUILD();
 		pkt.GID = Session.GID;
 		pkt.GName = name;
 
@@ -271,7 +271,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {string} guild name
 	 */
 	GuildEngine.breakGuild = function breakGuild(name) {
-		let pkt = new PACKET.CZ.REQ_DISORGANIZE_GUILD();
+		const pkt = new PACKET.CZ.REQ_DISORGANIZE_GUILD();
 		pkt.key = name;
 
 		Network.sendPacket(pkt);
@@ -283,7 +283,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {Array} positions
 	 */
 	GuildEngine.requestPositionUpdate = function requestPositionUpdate(positions) {
-		let pkt = new PACKET.CZ.REG_CHANGE_GUILD_POSITIONINFO();
+		const pkt = new PACKET.CZ.REG_CHANGE_GUILD_POSITIONINFO();
 		pkt.memberList = positions;
 
 		Network.sendPacket(pkt);
@@ -295,7 +295,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {Array} positions
 	 */
 	GuildEngine.requestChangeMemberPos = function requestChangeMemberPos(memberInfo) {
-		let pkt = new PACKET.CZ.REQ_CHANGE_MEMBERPOS();
+		const pkt = new PACKET.CZ.REQ_CHANGE_MEMBERPOS();
 		pkt.memberInfo = memberInfo;
 
 		Network.sendPacket(pkt);
@@ -308,7 +308,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {string} content
 	 */
 	GuildEngine.requestNoticeUpdate = function requestNoticeUpdate(subject, content) {
-		let pkt = new PACKET.CZ.GUILD_NOTICE();
+		const pkt = new PACKET.CZ.GUILD_NOTICE();
 		pkt.GDID = GuildEngine.guild_id;
 		pkt.subject = subject;
 		pkt.notice = content;
@@ -322,7 +322,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {number} target account id
 	 */
 	GuildEngine.requestPlayerInvitation = function requestPlayerInvitation(AID) {
-		let pkt = new PACKET.CZ.REQ_JOIN_GUILD();
+		const pkt = new PACKET.CZ.REQ_JOIN_GUILD();
 		pkt.AID = AID;
 		pkt.MyAID = Session.AID;
 		pkt.MyGID = Session.GID;
@@ -336,7 +336,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {number} target account id
 	 */
 	GuildEngine.requestAlliance = function requestAlliance(AID) {
-		let pkt = new PACKET.CZ.REQ_ALLY_GUILD();
+		const pkt = new PACKET.CZ.REQ_ALLY_GUILD();
 		pkt.AID = AID;
 		pkt.MyAID = Session.AID;
 		pkt.MyGID = Session.GID;
@@ -350,7 +350,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {number} target account id
 	 */
 	GuildEngine.requestHostility = function requestHostility(AID) {
-		let pkt = new PACKET.CZ.REQ_HOSTILE_GUILD();
+		const pkt = new PACKET.CZ.REQ_HOSTILE_GUILD();
 		pkt.AID = AID;
 
 		Network.sendPacket(pkt);
@@ -364,7 +364,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {string} reason for the leave
 	 */
 	GuildEngine.requestLeave = function requestLeave(AID, GID, reason) {
-		let pkt = new PACKET.CZ.REQ_LEAVE_GUILD();
+		const pkt = new PACKET.CZ.REQ_LEAVE_GUILD();
 		pkt.GDID = GuildEngine.guild_id;
 		pkt.AID = AID;
 		pkt.GID = GID;
@@ -381,7 +381,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {string} reason to expel
 	 */
 	GuildEngine.requestMemberExpel = function requestMemberExpel(AID, GID, reason) {
-		let pkt = new PACKET.CZ.REQ_BAN_GUILD();
+		const pkt = new PACKET.CZ.REQ_BAN_GUILD();
 		pkt.GDID = GuildEngine.guild_id;
 		pkt.AID = AID;
 		pkt.GID = GID;
@@ -396,7 +396,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {number} account id
 	 */
 	GuildEngine.requestMemberInfo = function requestMemberInfo(AID) {
-		let pkt = new PACKET.CZ.REQ_OPEN_MEMBER_INFO();
+		const pkt = new PACKET.CZ.REQ_OPEN_MEMBER_INFO();
 		pkt.AID = AID;
 
 		Network.sendPacket(pkt);
@@ -409,7 +409,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {number} relation (0 = Ally, 1 = Enemy)
 	 */
 	GuildEngine.requestDeleteRelatedGuild = function requestDeleteRelatedGuild(guild_id, relation) {
-		let pkt = new PACKET.CZ.REQ_DELETE_RELATED_GUILD();
+		const pkt = new PACKET.CZ.REQ_DELETE_RELATED_GUILD();
 
 		pkt.OpponentGDID = guild_id;
 		pkt.Relation = relation;
@@ -433,7 +433,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 
 		return function sendEmblem(data) {
 			if (PACKETVER.value >= 20170315) {
-				let webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+				const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
 				function getFileType(data) {
 					// "GI" Magic Bytes check (same from src)
@@ -442,8 +442,8 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 					}
 					return { type: 'image/bmp', imgType: 'BMP' };
 				}
-				let fileInfo = getFileType(data);
-				let formData = new FormData();
+				const fileInfo = getFileType(data);
+				const formData = new FormData();
 				formData.append('GDID', Session.Entity.GUID);
 				formData.append('WorldName', Session.ServerName);
 				formData.append('AuthToken', Session.WebToken);
@@ -451,12 +451,12 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 				formData.append('Img', new Blob([data], { type: fileInfo.type }));
 				formData.append('ImgType', fileInfo.imgType);
 
-				let xhr = new XMLHttpRequest();
+				const xhr = new XMLHttpRequest();
 				xhr.open('POST', webAddress + '/emblem/upload', true);
 
 				xhr.onload = function () {
 					if (xhr.status === 200) {
-						let response = JSON.parse(xhr.responseText);
+						const response = JSON.parse(xhr.responseText);
 						console.log('Emblem uploaded successfully, version:', response.version);
 
 						GuildEngine.requestGuildEmblem(Session.Entity.GUID, response.version, function (image) {
@@ -467,8 +467,8 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 
 				xhr.send(formData);
 			} else {
-				let len = data.length;
-				let out = new BinaryWriter(2 + 1 + 2 + 2 + len + 4);
+				const len = data.length;
+				const out = new BinaryWriter(2 + 1 + 2 + 2 + len + 4);
 
 				// zlib compression
 				out.writeUChar(0x78);
@@ -480,7 +480,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 				out.view.setInt32(out.offset, adler32(data), false); // big endian
 
 				// send packet
-				let pkt = new PACKET.CZ.REGISTER_GUILD_EMBLEM_IMG();
+				const pkt = new PACKET.CZ.REGISTER_GUILD_EMBLEM_IMG();
 				pkt.img = out.buffer;
 				Network.sendPacket(pkt);
 			}
@@ -575,8 +575,8 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 *
 	 * @param {object} pkt - PACKET.ZC.GUILD_EMBLEM_IMG
 	 */
-	let onGuildEmblem = (function onGuildEmblemClosure() {
-		let data = new Uint8Array(2 * 1024);
+	const onGuildEmblem = (function onGuildEmblemClosure() {
+		const data = new Uint8Array(2 * 1024);
 
 		return function onGuildEmblem(pkt) {
 			let emblem, inflate, len, src, img;
@@ -774,11 +774,11 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {object} PACKET.ZC.REQ_JOIN_GUILD
 	 */
 	function onGuildInviteRequest(pkt) {
-		let guild_id = pkt.GDID;
+		const guild_id = pkt.GDID;
 
 		function answer(result) {
 			return function () {
-				let pkt = new PACKET.CZ.JOIN_GUILD();
+				const pkt = new PACKET.CZ.JOIN_GUILD();
 				pkt.GDID = guild_id;
 				pkt.answer = result;
 
@@ -911,11 +911,11 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {object} pkt - PACKET.ZC.REQ_ALLY_GUILD
 	 */
 	function onGuildAskForAlliance(pkt) {
-		let AID = pkt.otherAID;
+		const AID = pkt.otherAID;
 
 		function answer(result) {
 			return function () {
-				let pkt = new PACKET.CZ.ALLY_GUILD();
+				const pkt = new PACKET.CZ.ALLY_GUILD();
 				pkt.otherAID = AID;
 				pkt.answer = result;
 

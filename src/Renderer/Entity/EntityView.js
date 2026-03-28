@@ -96,8 +96,8 @@ import Session from 'Engine/SessionStorage';
 	 * Suppress head and accessory sprites (used for monster/transformation)
 	 */
 	function suppressHeadSprites() {
-		for (var i = 0, count = HeadParts.length; i < count; ++i) {
-			let part = HeadParts[i];
+		for (let i = 0, count = HeadParts.length; i < count; ++i) {
+			const part = HeadParts[i];
 			this.files[part].spr = null;
 			this.files[part].act = null;
 			if (part === 'head') {
@@ -150,13 +150,13 @@ import Session from 'Engine/SessionStorage';
 	/**
 	 * List of view parts that should be suppressed when transformed
 	 */
-	let HeadParts = ['head', 'accessory', 'accessory2', 'accessory3'];
+	const HeadParts = ['head', 'accessory', 'accessory2', 'accessory3'];
 
 	/**
 	 * Returns true if head sprites should be suppressed for the current state
 	 */
 	function shouldSuppressHead() {
-		let job = getEffectiveJob.call(this);
+		const job = getEffectiveJob.call(this);
 		return hasTransformation.call(this) || DB.isMonster(job) || job === 4356 || job === 4357;
 	}
 
@@ -180,7 +180,7 @@ import Session from 'Engine/SessionStorage';
 		let baseJob, path;
 		let Entity;
 		// Capture sequence number for stale callback detection
-		let transformationSeq = this._transformationSeq || 0;
+		const transformationSeq = this._transformationSeq || 0;
 
 		if (job < 0) {
 			return;
@@ -188,7 +188,7 @@ import Session from 'Engine/SessionStorage';
 
 		// Check if this is a transformation job (monster or form)
 		// If so, don't update _job - it should preserve the original job
-		let isTransformation = hasTransformation.call(this);
+		const isTransformation = hasTransformation.call(this);
 
 		// Avoid fuck*ng errors with mounts !
 		// Sometimes the server send us the job of the mount sprite instead
@@ -310,7 +310,7 @@ import Session from 'Engine/SessionStorage';
 		}
 
 		// Determine if we should suppress head NOW (before async operations)
-		let suppress = shouldSuppressHead.call(this);
+		const suppress = shouldSuppressHead.call(this);
 
 		// Loading
 		Client.loadFile(path + '.act');
@@ -318,10 +318,10 @@ import Session from 'Engine/SessionStorage';
 			path + '.spr',
 			function () {
 				// Check if callback is stale (transformation changed while callback was pending)
-				let isStaleCallback = this._transformationSeq && this._transformationSeq > transformationSeq;
+				const isStaleCallback = this._transformationSeq && this._transformationSeq > transformationSeq;
 
 				// Get current job considering transformations
-				let currentJob = getEffectiveJob.call(this);
+				const currentJob = getEffectiveJob.call(this);
 
 				// Only update if callback is valid
 				if (!isStaleCallback && job === currentJob) {
@@ -490,7 +490,7 @@ import Session from 'Engine/SessionStorage';
 				}
 
 				if (this.costume) {
-					let mountValue = this._allRidingState ? AllMountTable[look] : MountTable[look];
+					const mountValue = this._allRidingState ? AllMountTable[look] : MountTable[look];
 					if (
 						look > JobConst.COSTUME_SECOND_JOB_START &&
 						look < JobConst.COSTUME_SECOND_JOB_END &&
@@ -616,7 +616,7 @@ import Session from 'Engine/SessionStorage';
 	function UpdateGeneric(type, func, fallback) {
 		return function (val) {
 			let path;
-			let _this = this;
+			const _this = this;
 			let _val = val;
 
 			// Nothing to load
@@ -660,7 +660,7 @@ import Session from 'Engine/SessionStorage';
 						_this['_' + type] = _val;
 
 						// Head accessories should not be applied if they should be suppressed
-						let isAccessory = type === 'accessory' || type === 'accessory2' || type === 'accessory3';
+						const isAccessory = type === 'accessory' || type === 'accessory2' || type === 'accessory3';
 
 						if (!isAccessory || !shouldSuppressHead.call(_this)) {
 							_this.files[type].spr = path + '.spr';
@@ -712,7 +712,7 @@ import Session from 'Engine/SessionStorage';
 		this._transformationSeq++;
 
 		// Cache effective job
-		let oldEffectiveJob = this._effectiveJob;
+		const oldEffectiveJob = this._effectiveJob;
 		this._effectiveJob = getEffectiveJob.call(this);
 
 		// Only trigger UpdateBody if job actually changed
@@ -822,7 +822,7 @@ export default function Init() {
 		this._transformationSeq = 0;
 		this._effectiveJob = this._job;
 
-		let _this = this;
+		const _this = this;
 
 		// Transformation properties - consolidated setter logic
 		function createTransformationProperty(name) {
@@ -831,7 +831,7 @@ export default function Init() {
 					return _this['_' + name] || null;
 				},
 				set: function (value) {
-					let oldValue = _this['_' + name];
+					const oldValue = _this['_' + name];
 					if (value !== oldValue) {
 						_this['_' + name] = value;
 						onTransformationChange.call(_this);

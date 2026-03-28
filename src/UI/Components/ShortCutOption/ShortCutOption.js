@@ -20,9 +20,9 @@ import htmlText from './ShortCutOption.html?raw';
 import cssText from './ShortCutOption.css?raw';
 import Controls from 'Preferences/Controls';
 
-let ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
+const ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 
-	let ShortCuts = ShortCutControls.ShortCuts;
+	const ShortCuts = ShortCutControls.ShortCuts;
 	let ShortCutsTemp = {};
 
 	ShortCutOption.isCapturing = false;
@@ -30,7 +30,7 @@ let ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ShortCutOption',
 		{
 			x: 300,
@@ -47,7 +47,7 @@ let ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 			ShortCutOption.remove();
 		});
 		this.ui.find('.tabs').on('click', 'button', function () {
-			let tab = $(this).data('index');
+			const tab = $(this).data('index');
 			ShortCutOption.ui.find('.selectedtab').removeClass('selectedtab');
 			ShortCutOption.ui.find('.' + tab).addClass('selectedtab');
 		});
@@ -113,7 +113,7 @@ let ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 	ShortCutOption.onKeyDown = function (event) {
 		if (ShortCutOption.isCapturing) {
 			if (16 != event.which && 17 != event.which && 18 != event.which) {
-				let box = ShortCutOption.ui.find('td.selected');
+				const box = ShortCutOption.ui.find('td.selected');
 
 				if (tempMatch(event.which)) {
 					return (alert('Key already assigned!'), false);
@@ -160,8 +160,8 @@ let ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 	 * Updates the key list on the UI
 	 */
 	function updateKeyList() {
-		let $shortcut = ShortCutOption.ui.find('td[data-button]');
-		for (var i = 0; i < $shortcut.length; i++) {
+		const $shortcut = ShortCutOption.ui.find('td[data-button]');
+		for (let i = 0; i < $shortcut.length; i++) {
 			if (getKey($shortcut.eq(i).data('button'))) {
 				$shortcut
 					.eq(i)
@@ -218,7 +218,7 @@ let ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 		$('#ShortCutOption td.changed').removeClass('changed');
 
 		// Update ShortCut tooltips if the component is loaded
-		let ShortCut = UIManager.getComponent('ShortCut');
+		const ShortCut = UIManager.getComponent('ShortCut');
 		if (ShortCut && ShortCut.updateAllTooltips) {
 			ShortCut.updateAllTooltips();
 		}
@@ -325,7 +325,7 @@ let ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
 	 * Checks if there is a match in the temporary settings
 	 */
 	function tempMatch(key) {
-		let TempState = {};
+		const TempState = {};
 		let match = false;
 
 		Object.keys(ShortCuts).forEach(SC => {

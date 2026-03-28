@@ -21,22 +21,22 @@ import Configs from 'Core/Configs';
 /**
  * Background Namespace
  */
-var Background = {};
+const Background = {};
 
 /**
  * @var {jQuery object} Background canvas element
  */
-var _canvas = jQuery('<canvas/>').css({ position: 'absolute', top: 0, left: 0, zIndex: 5 });
+const _canvas = jQuery('<canvas/>').css({ position: 'absolute', top: 0, left: 0, zIndex: 5 });
 
 /**
  * @var {CanvasRenderingContext2D} Background context
  */
-var _ctx = _canvas[0].getContext('2d');
+const _ctx = _canvas[0].getContext('2d');
 
 /**
  * @var {jQuery} Background overlay (used for transition)
  */
-var _overlay = jQuery('<div/>').css({
+const _overlay = jQuery('<div/>').css({
 	position: 'absolute',
 	top: 0,
 	left: 0,
@@ -49,17 +49,17 @@ var _overlay = jQuery('<div/>').css({
  * Background loading progress
  * @var {number} percent
  */
-var _progress = -1;
+let _progress = -1;
 
 /**
  * @var {Image} Background Image
  */
-var _image = new Image();
+const _image = new Image();
 
 /**
  * Background loading screen
  */
-var _loading = [];
+let _loading = [];
 
 /**
  * Initialize Background component
@@ -67,7 +67,7 @@ var _loading = [];
  * @param {Array} loading - Array of loading filenames stored in clientinfo.xml
  */
 Background.init = function init(loading) {
-	var i;
+	let i;
 
 	_progress = 0;
 	_canvas.css('zIndex', 0);
@@ -107,7 +107,7 @@ Background.resize = function resize(width, height) {
  * @param {function} callback once the image is loaded (optional)
  */
 Background.setImage = function setImage(filename, callback) {
-	var exist = !!_canvas[0].parentNode;
+	const exist = !!_canvas[0].parentNode;
 	_progress = -1;
 
 	render();
@@ -150,7 +150,7 @@ Background.setImage = function setImage(filename, callback) {
  * @param {function} callback once the loading is display (optional)
  */
 Background.setLoading = function setLoading(callback) {
-	var index = Math.floor(Math.random() * _loading.length);
+	const index = Math.floor(Math.random() * _loading.length);
 
 	Background.setImage(_loading[index] || 'loading01.jpg', function () {
 		_canvas.css('zIndex', 999);
@@ -184,7 +184,7 @@ Background.remove = function remove(callback) {
  * @param {number} percent
  */
 Background.setPercent = function setPercent(percent) {
-	var x, y, width, height;
+	let x, y, width, height;
 
 	_progress = Math.min(Math.floor(percent), 100);
 
@@ -236,7 +236,7 @@ function render() {
  * @param {function} callback once the overlay hide the window
  */
 function transition(callback) {
-	var transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 500;
+	const transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 500;
 
 	_overlay
 		.stop()

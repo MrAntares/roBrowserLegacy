@@ -2629,8 +2629,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
-					var duration = 200;
+					const start = Params.Inst.startTick;
+					const duration = 200;
 					Camera.setQuake(start, duration);
 				}
 			}
@@ -2768,7 +2768,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 600;
+					const start = Params.Inst.startTick + 600;
 					Camera.setQuake(start);
 				}
 			}
@@ -2940,7 +2940,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 350;
+					const start = Params.Inst.startTick + 350;
 					Camera.setQuake(start);
 				}
 			}
@@ -3144,8 +3144,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var entity = Params.Init.ownerEntity;
-					var delay = Params.Inst.startTick - Renderer.tick;
+					const entity = Params.Init.ownerEntity;
+					const delay = Params.Inst.startTick - Renderer.tick;
 
 					entity.animations.add(function (tick) {
 						if (tick >= delay) {
@@ -3402,7 +3402,7 @@ export default {
 				func: function (Params) {
 					for (let i = -2; i <= 2; i++) {
 						for (let j = -2; j <= 2; j++) {
-							var newParams = {
+							const newParams = {
 								effect: {
 									type: 'QuadHorn',
 									textureFile: 'effect/stone.bmp',
@@ -3424,7 +3424,7 @@ export default {
 								Init: {},
 								Inst: {}
 							};
-							var newPos = [Params.Init.position[0] + i, Params.Init.position[1] + j];
+							const newPos = [Params.Init.position[0] + i, Params.Init.position[1] + j];
 							Object.assign(newParams.Init, Params.Init);
 							newParams.Init.position = [
 								newPos[0],
@@ -3453,8 +3453,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
-					var duration = 200;
+					const start = Params.Inst.startTick;
+					const duration = 200;
 					Camera.setQuake(start, duration);
 				}
 			}
@@ -3732,8 +3732,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
-					var duration = 200;
+					const start = Params.Inst.startTick;
+					const duration = 200;
 					Camera.setQuake(start, duration);
 				}
 			}
@@ -3909,7 +3909,7 @@ export default {
 				attachedEntity: true,
 				func: function (Params) {
 					// Default to blue variant (flag1 = 1) unless overridden
-					var flag1 = 1;
+					let flag1 = 1;
 
 					// Allow effect table or caller to override tint variant
 					if (typeof Params.effect.flag1 !== 'undefined') {
@@ -4176,8 +4176,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 200;
-					var duration = 200;
+					const start = Params.Inst.startTick + 200;
+					const duration = 200;
 					Camera.setQuake(start, duration);
 				}
 			}
@@ -4735,8 +4735,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var spiritNum = Params.Init.spiritNum || 0;
-					var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
+					const spiritNum = Params.Init.spiritNum || 0;
+					const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
 					this.add(Spheres, Params);
 				}
 			}
@@ -5331,7 +5331,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					DissonanceEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5353,7 +5353,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					LullabyEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5375,7 +5375,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					MrKimEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5397,7 +5397,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					EtChaosEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5419,7 +5419,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					DrumEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5441,7 +5441,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					NibelungEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5463,7 +5463,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					LokiEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5485,7 +5485,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					AbyssEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5507,7 +5507,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					SiegfiedEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5529,7 +5529,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					WhistleEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5551,7 +5551,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					SinEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5573,7 +5573,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					const bragiNoteEffect = getBragiSpellNote();
 					self.add(new bragiNoteEffect(Params.Inst.position, Params.Inst.startTick, 2), Params);
 				}
@@ -5599,7 +5599,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					AppleEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5613,7 +5613,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					UglyEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5635,7 +5635,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					HummingEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5657,7 +5657,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					ForgetEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5679,7 +5679,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					FortuneEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5701,7 +5701,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					ServiceEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -5716,8 +5716,8 @@ export default {
 				attachedEntity: true,
 				func: function (Params) {
 					if (Params.Init.ownerAID == Session.Entity.GID) {
-						var self = this;
-						var msg = DB.getRandomJoke();
+						const self = this;
+						const msg = DB.getRandomJoke();
 						if (msg) {
 							ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
 						}
@@ -5733,8 +5733,8 @@ export default {
 				attachedEntity: true,
 				func: function (Params) {
 					if (Params.Init.ownerAID == Session.Entity.GID) {
-						var self = this;
-						var msg = DB.getRandomScream();
+						const self = this;
+						const msg = DB.getRandomScream();
 						if (msg) {
 							ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
 						}
@@ -5802,7 +5802,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 132;
+					const start = Params.Inst.startTick + 132;
 					Camera.setQuake(start);
 				}
 			}
@@ -7094,7 +7094,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBodyColor(Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 					entity._flashColor[0] = 1.0;
 					entity._flashColor[1] = 1.0;
 					entity._flashColor[2] = 1.0;
@@ -7310,7 +7310,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 500;
+					const start = Params.Inst.startTick + 500;
 					Camera.setQuake(start);
 				}
 			}
@@ -7361,7 +7361,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					GospelEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -7448,7 +7448,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBodyColor(Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 					entity.animations.add(function (tick) {
 						if (tick < 1000) {
 							if (tick > 500) {
@@ -7474,7 +7474,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 300;
+					const start = Params.Inst.startTick + 300;
 					Camera.setQuake(start);
 				}
 			}
@@ -7549,7 +7549,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 300;
+					const start = Params.Inst.startTick + 300;
 					Camera.setQuake(start);
 				}
 			}
@@ -7614,7 +7614,7 @@ export default {
 				wav: 'effect/\xb4\xde\xba\xfb\xbc\xbc\xb7\xb9\xb3\xaa\xb5\xa5',
 				attachedEntity: false,
 				func: function (Params) {
-					var BlueTile = FlatColorTile('salmon', { r: 0xff / 255, g: 0x8a / 255, b: 0xbb / 255, a: 0.6 });
+					const BlueTile = FlatColorTile('salmon', { r: 0xff / 255, g: 0x8a / 255, b: 0xbb / 255, a: 0.6 });
 					this.add(new BlueTile(Params.Inst.position, Params.Inst.startTick), Params);
 				}
 			}
@@ -7674,7 +7674,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBodyColor(Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 					entity.animations.add(function (tick) {
 						if (tick < 1000) {
 							entity._flashColor[0] = Math.random();
@@ -7712,7 +7712,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: false,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					FogEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -7892,9 +7892,9 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectSmallTransition(Params) {
-					var entity = Params.Init.ownerEntity;
-					var xSize = entity.xSize;
-					var ySize = entity.ySize;
+					const entity = Params.Init.ownerEntity;
+					const xSize = entity.xSize;
+					const ySize = entity.ySize;
 
 					entity.animations.add(function (tick) {
 						entity.xSize = xSize + (2.5 - xSize) * (Math.min(tick, 300) / 300);
@@ -7912,7 +7912,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectSmall(Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 					entity.xSize = 2.5;
 					entity.ySize = 2.5;
 				}
@@ -7925,9 +7925,9 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBigTransition(Params) {
-					var entity = Params.Init.ownerEntity;
-					var xSize = entity.xSize;
-					var ySize = entity.ySize;
+					const entity = Params.Init.ownerEntity;
+					const xSize = entity.xSize;
+					const ySize = entity.ySize;
 
 					entity.animations.add(function (tick) {
 						entity.xSize = xSize + (7.5 - xSize) * (Math.min(tick, 300) / 300);
@@ -7945,7 +7945,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBig(Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 					entity.xSize = 7.5;
 					entity.ySize = 7.5;
 				}
@@ -8884,7 +8884,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 					this.add(new MagicRing(entity, 2.45, 0.8, 2.8, 'ring_jadu', Params.Inst.startTick + 10000), Params);
 				}
 			}
@@ -8908,10 +8908,10 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var entity = Params.Init.ownerEntity;
-					var duration = 500;
-					var count = 50;
-					var delay = duration / count;
+					const entity = Params.Init.ownerEntity;
+					const duration = 500;
+					const count = 50;
+					const delay = duration / count;
 
 					for (let i = 0; i < count; i++) {
 						var delta = 1;
@@ -8943,8 +8943,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var spiritNum = Params.Init.spiritNum || 0;
-					var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
+					const spiritNum = Params.Init.spiritNum || 0;
+					const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
 					this.add(Spheres, Params);
 				}
 			}
@@ -8991,7 +8991,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 132;
+					const start = Params.Inst.startTick + 132;
 					Camera.setQuake(start);
 				}
 			}
@@ -9076,7 +9076,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					GravityEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -9086,8 +9086,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
-					var duration = 200;
+					const start = Params.Inst.startTick;
+					const duration = 200;
 					Camera.setQuake(start, duration);
 				}
 			}
@@ -9338,7 +9338,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick + 200;
+					const start = Params.Inst.startTick + 200;
 					Camera.setQuake(start);
 				}
 			}
@@ -9406,8 +9406,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
-					var duration = 200;
+					const start = Params.Inst.startTick;
+					const duration = 200;
 					Camera.setQuake(start, duration);
 				}
 			}
@@ -9943,8 +9943,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var spiritNum = Params.Init.spiritNum || 0;
-					var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, true);
+					const spiritNum = Params.Init.spiritNum || 0;
+					const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, true);
 					this.add(Spheres, Params);
 				}
 			}
@@ -10176,7 +10176,7 @@ export default {
 				duplicate: 3,
 				timeBetweenDupli: 35,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
+					const start = Params.Inst.startTick;
 					Camera.setQuake(start);
 				}
 			}
@@ -10196,7 +10196,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
+					const start = Params.Inst.startTick;
 					Camera.setQuake(start);
 				}
 			}
@@ -10245,7 +10245,7 @@ export default {
 				attachedEntity: false,
 				//file: 'status-curse',
 				func: function (Params) {
-					var self = this;
+					const self = this;
 					EvillandEffects.forEach(function (effect) {
 						self.add(new effect(Params.Inst.position, Params.Inst.startTick), Params);
 					});
@@ -10597,8 +10597,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
-					var duration = 200;
+					const start = Params.Inst.startTick;
+					const duration = 200;
 					Camera.setQuake(start, duration);
 				}
 			}
@@ -11730,10 +11730,10 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var entity = Params.Init.ownerEntity;
-					var duration = 500;
-					var count = 8;
-					var delay = duration / count;
+					const entity = Params.Init.ownerEntity;
+					const duration = 500;
+					const count = 8;
+					const delay = duration / count;
 
 					for (let i = 0; i < count; i++) {
 						var delta = 1;
@@ -11814,7 +11814,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBodyColor(Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 					entity.animations.add(function (tick) {
 						if (!entity.cast.display) {
 							//we don't know cast time here so.. let's hack
@@ -11967,8 +11967,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var spiritNum = Params.Init.spiritNum || 0;
-					var Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
+					const spiritNum = Params.Init.spiritNum || 0;
+					const Spheres = new SpiritSphere(Params.Init.ownerEntity, spiritNum, false);
 					this.add(Spheres, Params);
 				}
 			}
@@ -12901,7 +12901,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBodyColor(Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 					entity._flashColor[0] = 1.0;
 					entity._flashColor[1] = 0.0;
 					entity._flashColor[2] = 0.0;
@@ -13267,7 +13267,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBodyColor(Params) {
-					var entity = Params.Init,
+					let entity = Params.Init,
 						ownerEntity;
 
 					entity.animations.add(function (tick) {
@@ -13369,7 +13369,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function EffectBodyColor(Params) {
-					var entity = Params.Init.ownerEntity;
+					const entity = Params.Init.ownerEntity;
 
 					entity.animations.add(function (tick) {
 						if (tick < 500) {
@@ -13478,10 +13478,10 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var entity = Params.Init.ownerEntity;
-					var duration = 500;
-					var count = 8;
-					var delay = duration / count;
+					const entity = Params.Init.ownerEntity;
+					const duration = 500;
+					const count = 8;
+					const delay = duration / count;
 
 					for (let i = 0; i < count; i++) {
 						var delta = 1;
@@ -13657,10 +13657,10 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var entity = Params.Init.ownerEntity;
-					var duration = 500;
-					var count = 8;
-					var delay = duration / count;
+					const entity = Params.Init.ownerEntity;
+					const duration = 500;
+					const count = 8;
+					const delay = duration / count;
 
 					for (let i = 0; i < count; i++) {
 						var delta = 1;
@@ -14212,8 +14212,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var entity = Params.Init.ownerEntity;
-					var spheres = [];
+					const entity = Params.Init.ownerEntity;
+					const spheres = [];
 					if (entity.Summon1) {
 						spheres.push(entity.Summon1);
 					}
@@ -14230,7 +14230,7 @@ export default {
 						spheres.push(entity.Summon5);
 					}
 
-					var wl_spheres = new WarlockSphere(entity, spheres);
+					const wl_spheres = new WarlockSphere(entity, spheres);
 
 					this.add(wl_spheres, Params);
 				}
@@ -14242,7 +14242,7 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
+					const start = Params.Inst.startTick;
 					Camera.setQuake(start);
 				}
 			}
@@ -14253,8 +14253,8 @@ export default {
 				type: 'FUNC',
 				attachedEntity: true,
 				func: function (Params) {
-					var start = Params.Inst.startTick;
-					var duration = 50;
+					const start = Params.Inst.startTick;
+					const duration = 50;
 					Camera.setQuake(start, duration);
 				}
 			}

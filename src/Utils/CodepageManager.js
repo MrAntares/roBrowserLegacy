@@ -15,7 +15,7 @@ import iconv from 'Vendors/iconv-lite';
  * @returns {string} Decoded string.
  */
 function smartDecode(bytes, fallback) {
-	let utf8 = iconv.decode(bytes, 'utf-8');
+	const utf8 = iconv.decode(bytes, 'utf-8');
 	if (!/�/.test(utf8)) {
 		return utf8;
 	}
@@ -25,12 +25,12 @@ function smartDecode(bytes, fallback) {
 /**
  * Exports
  */
-let CodepageManager = {
+const CodepageManager = {
 	/*
 	 * @param {string} charset - Charset to use for decoding.
 	 */
 	setCharset: function setCharset(charset) {
-		let supported = ['windows-1252', 'windows-949', 'windows-1251', 'windows-932']; // GRF Editor default charsets
+		const supported = ['windows-1252', 'windows-949', 'windows-1251', 'windows-932']; // GRF Editor default charsets
 		if (supported.indexOf(charset) === -1 && !this.warned) {
 			console.warn(
 				'%c[Warning] You are using a ' +

@@ -11,7 +11,7 @@
 
 import JobId from './JobConst';
 
-	let AllMountTable = {};
+	const AllMountTable = {};
 
 	//REGULAR
 	AllMountTable[JobId.NOVICE] = JobId.PORING_NOVICE;
@@ -169,8 +169,8 @@ import JobId from './JobConst';
 	AllMountTable[JobId.STAR_EMPEROR_B] = JobId.STAR_EMPEROR2_B;
 
 	function duplicateEntry(origin) {
-		var value = AllMountTable[origin];
-		var i,
+		const value = AllMountTable[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {

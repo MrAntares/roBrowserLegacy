@@ -44,9 +44,9 @@ import EffectManager from 'Renderer/EffectManager';
 	 * @param {object} pkt - PACKET.ZC.ITEM_ENTRY
 	 */
 	function onItemExistInGround(pkt) {
-		let x = pkt.xPos - 0.5 + pkt.subX / 12;
-		let y = pkt.yPos - 0.5 + pkt.subY / 12;
-		let z = Altitude.getCellHeight(x, y);
+		const x = pkt.xPos - 0.5 + pkt.subX / 12;
+		const y = pkt.yPos - 0.5 + pkt.subY / 12;
+		const z = Altitude.getCellHeight(x, y);
 
 		ItemObject.add(pkt.ITAID, pkt.ITID, pkt.IsIdentified, pkt.count, x, y, z);
 	}
@@ -57,9 +57,9 @@ import EffectManager from 'Renderer/EffectManager';
 	 * @param {object} pkt - PACKET.ZC.ITEM_FALL_ENTRY
 	 */
 	function onItemSpamInGround(pkt) {
-		let x = pkt.xPos - 0.5 + pkt.subX / 12;
-		let y = pkt.yPos - 0.5 + pkt.subY / 12;
-		let z = Altitude.getCellHeight(x, y) + 5.0;
+		const x = pkt.xPos - 0.5 + pkt.subX / 12;
+		const y = pkt.yPos - 0.5 + pkt.subY / 12;
+		const z = Altitude.getCellHeight(x, y) + 5.0;
 
 		ItemObject.add(
 			pkt.ITAID,
@@ -98,7 +98,7 @@ import EffectManager from 'Renderer/EffectManager';
 		ItemObtain.append();
 		ItemObtain.set(pkt);
 
-		let getTextItem = DB.getItemName(pkt, { showItemOptions: false });
+		const getTextItem = DB.getItemName(pkt, { showItemOptions: false });
 
 		ChatBox.addText(
 			DB.getMessage(153).replace('%s', getTextItem).replace('%d', pkt.count),
@@ -134,12 +134,12 @@ import EffectManager from 'Renderer/EffectManager';
 	 */
 	function onEquipementTakeOff(pkt) {
 		if (pkt.result) {
-			let item = Equipment.getUI().unEquip(pkt.index, pkt.wearLocation);
+			const item = Equipment.getUI().unEquip(pkt.index, pkt.wearLocation);
 
 			if (item) {
 				item.WearState = 0;
 
-				let it = DB.getItemInfo(item.ITID);
+				const it = DB.getItemInfo(item.ITID);
 				ChatBox.addText(
 					it.identifiedDisplayName + ' ' + DB.getMessage(171),
 					ChatBox.TYPE.ERROR,
@@ -198,15 +198,15 @@ import EffectManager from 'Renderer/EffectManager';
 	 */
 	function onItemEquip(pkt) {
 		if (pkt.result == 1) {
-			let item = Inventory.getUI().removeItem(pkt.index, 1);
+			const item = Inventory.getUI().removeItem(pkt.index, 1);
 			Equipment.getUI().equip(item, pkt.wearLocation);
 			ChatBox.addText(DB.getItemName(item) + ' ' + DB.getMessage(170), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 			// Variables for Headgear Checks
-			let CostumeCheckTop = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
-			let CostumeCheckMid = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
-			let CostumeCheckBot = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
-			let CostumeCheckRobe = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
+			const CostumeCheckTop = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
+			const CostumeCheckMid = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
+			const CostumeCheckBot = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
+			const CostumeCheckRobe = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
 
 			// Display
 			if (pkt.wearLocation & EquipLocation.HEAD_TOP) {
@@ -273,7 +273,7 @@ import EffectManager from 'Renderer/EffectManager';
 	 * @param {number} account id
 	 */
 	Equipment.onCheckPlayerEquipment = function onCheckPlayerEquipment(AID) {
-		let pkt = new PACKET.CZ.EQUIPWIN_MICROSCOPE();
+		const pkt = new PACKET.CZ.EQUIPWIN_MICROSCOPE();
 		pkt.AID = AID;
 		Network.sendPacket(pkt);
 	};
@@ -296,7 +296,7 @@ import EffectManager from 'Renderer/EffectManager';
 	 * @param {object} pkt - PACKET_ZC_EQUIP_ARROW
 	 */
 	function onArrowEquipped(pkt) {
-		let item = Inventory.getUI().getItemByIndex(pkt.index);
+		const item = Inventory.getUI().getItemByIndex(pkt.index);
 		Equipment.getUI().equip(item, EquipLocation.AMMO);
 	}
 
@@ -312,7 +312,7 @@ import EffectManager from 'Renderer/EffectManager';
 	 */
 	function onUseCard(index) {
 		_cardComposition = index;
-		let pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION_LIST();
+		const pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION_LIST();
 		pkt.cardIndex = index;
 		Network.sendPacket(pkt);
 	}
@@ -327,14 +327,14 @@ import EffectManager from 'Renderer/EffectManager';
 			return;
 		}
 
-		let card = Inventory.getUI().getItemByIndex(_cardComposition);
+		const card = Inventory.getUI().getItemByIndex(_cardComposition);
 
 		ItemSelection.append();
 		ItemSelection.setList(pkt.ITIDList);
 		ItemSelection.setTitle(DB.getMessage(522) + '(' + DB.getItemInfo(card.ITID).identifiedDisplayName + ')');
 		ItemSelection.onIndexSelected = function (index) {
 			if (index >= 0) {
-				let pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION();
+				const pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION();
 				pkt.cardIndex = _cardComposition;
 				pkt.equipIndex = index;
 				Network.sendPacket(pkt);
@@ -352,11 +352,11 @@ import EffectManager from 'Renderer/EffectManager';
 	function onItemCompositionResult(pkt) {
 		switch (pkt.result) {
 			case 0: // success
-				let item = Inventory.getUI().removeItem(pkt.equipIndex, 1);
-				let card = Inventory.getUI().removeItem(pkt.cardIndex, 1);
+				const item = Inventory.getUI().removeItem(pkt.equipIndex, 1);
+				const card = Inventory.getUI().removeItem(pkt.cardIndex, 1);
 
 				if (item) {
-					for (var i = 0; i < 4; ++i) {
+					for (let i = 0; i < 4; ++i) {
 						if (!item.slot['card' + (i + 1)]) {
 							item.slot['card' + (i + 1)] = card.ITID;
 							break;
@@ -381,7 +381,7 @@ import EffectManager from 'Renderer/EffectManager';
 		if (Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
 			Refine.onRefineResult(pkt);
 		} else {
-			let item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
+			const item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
 			if (item) {
 				item.RefiningLevel = pkt.RefiningLevel;
 				Inventory.getUI().addItem(item);
@@ -440,7 +440,7 @@ import EffectManager from 'Renderer/EffectManager';
 			return;
 		}
 
-		let pkt = new PACKET.CZ.MOVE_ITEM_FROM_CART_TO_BODY();
+		const pkt = new PACKET.CZ.MOVE_ITEM_FROM_CART_TO_BODY();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -451,7 +451,7 @@ import EffectManager from 'Renderer/EffectManager';
 			return;
 		}
 
-		let pkt = new PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_CART();
+		const pkt = new PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_CART();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -462,7 +462,7 @@ import EffectManager from 'Renderer/EffectManager';
 			return;
 		}
 
-		let pkt = new PACKET.CZ.REQ_ADD_ITEM_RODEX();
+		const pkt = new PACKET.CZ.REQ_ADD_ITEM_RODEX();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -499,7 +499,7 @@ import EffectManager from 'Renderer/EffectManager';
 		MakeItemSelection.setTitle(DB.getMessage(425));
 		MakeItemSelection.onIndexSelected = function (index, material) {
 			if (index >= -1) {
-				let pkt = new PACKET.CZ.REQMAKINGITEM();
+				const pkt = new PACKET.CZ.REQMAKINGITEM();
 				pkt.itemList.ITID = index;
 				pkt.itemList.material_ID = {};
 				pkt.itemList.material_ID[0] = material[0] && material[0].ITID ? material[0].ITID : 0;
@@ -568,7 +568,7 @@ import EffectManager from 'Renderer/EffectManager';
 		MakeItemSelection.setTitle(DB.getMessage(425));
 		MakeItemSelection.onIndexSelected = function (index, material, mkType) {
 			if (index >= -1) {
-				let pkt = new PACKET.CZ.REQ_MAKINGITEM();
+				const pkt = new PACKET.CZ.REQ_MAKINGITEM();
 				pkt.mkType = mkType;
 				pkt.id = index;
 				Network.sendPacket(pkt);
@@ -583,8 +583,8 @@ import EffectManager from 'Renderer/EffectManager';
 	 */
 	function onBodyItemSize(pkt) {
 		if (pkt) {
-			let baselimit = 100; // Base Limit
-			let newlimit = baselimit + pkt.type;
+			const baselimit = 100; // Base Limit
+			const newlimit = baselimit + pkt.type;
 			Inventory.getUI().ui.find('.mcnt').text(newlimit);
 		}
 	}
@@ -656,7 +656,7 @@ import EffectManager from 'Renderer/EffectManager';
 	function onFavItemList(pkt) {
 		if (pkt) {
 			// So if favorite is 0, we send 1 to change item.PlaceETCTab to 1
-			let isfavitem = pkt.favorite ? 0 : 1;
+			const isfavitem = pkt.favorite ? 0 : 1;
 			Inventory.getUI().updatePlaceETCTab(pkt.index, isfavitem);
 		}
 	}

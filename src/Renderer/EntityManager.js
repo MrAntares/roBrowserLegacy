@@ -19,11 +19,11 @@ import GraphicsSettings from 'Preferences/Graphics';
 import Altitude from 'Renderer/Map/Altitude';
 import glMatrix from 'Utils/gl-matrix';
 
-let vec3 = glMatrix.vec3;
-let _list = [];
+const vec3 = glMatrix.vec3;
+const _list = [];
 
 // O(1) GID lookup map
-let _gidMap = new Map();
+const _gidMap = new Map();
 
 // Sort optimization flags
 let _renderSortDirty = true;
@@ -56,7 +56,7 @@ function getEntityIndex(gid) {
 		return -1;
 	}
 
-	let entity = _gidMap.get(gid);
+	const entity = _gidMap.get(gid);
 	if (!entity) {
 		return -1;
 	}
@@ -125,7 +125,7 @@ function getEntity(gid) {
  * Pending transformations that arrived before entity spawned
  * { GID: { monster_transform: value, active_monster_transform: value, job_transform: value } }
  */
-let pendingTransformations = {};
+const pendingTransformations = {};
 
 /**
  * Helper to safely store a pending transformation before entity spawns
@@ -153,7 +153,7 @@ function getEntityByCID(aid) {
 		return Session.Entity;
 	}
 
-	let index = getEntityIndexBy(e => e.AID, aid);
+	const index = getEntityIndexBy(e => e.AID, aid);
 	return index < 0 ? null : _list[index];
 }
 
@@ -164,7 +164,7 @@ function getEntityByCID(aid) {
  * @return {object}
  */
 function addEntity(entity) {
-	let existing = getEntityByGID(entity.GID);
+	const existing = getEntityByGID(entity.GID);
 	if (!existing) {
 		_list.push(entity);
 		_gidMap.set(entity.GID, entity);
@@ -205,12 +205,12 @@ function removeGID(gid) {
  * @param {number} gid
  */
 function removeEntity(gid) {
-	let entity = _gidMap.get(gid);
+	const entity = _gidMap.get(gid);
 
 	if (entity) {
 		entity.clean();
 		_gidMap.delete(gid);
-		let index = _list.indexOf(entity);
+		const index = _list.indexOf(entity);
 		if (index > -1) {
 			_list.splice(index, 1);
 		}
@@ -237,7 +237,7 @@ function getOverEntity() {
 let _saveShift = false;
 
 function setOverEntity(target) {
-	let current = _over;
+	const current = _over;
 
 	if (target === current && _saveShift === KEYS.SHIFT) {
 		return;
@@ -284,8 +284,8 @@ function setFocusEntity(entity) {
  * @param {Entity} b
  */
 function sort(a, b) {
-	let aDepth = a.depth + (a.GID % 100) / 1000;
-	let bDepth = b.depth + (b.GID % 100) / 1000;
+	const aDepth = a.depth + (a.GID % 100) / 1000;
+	const bDepth = b.depth + (b.GID % 100) / 1000;
 
 	return bDepth - aDepth;
 }
@@ -337,7 +337,7 @@ function sortByPriority(a, b) {
  */
 function render(gl, modelView, projection, fog, renderEffects) {
 	let i, count;
-	let tick = Date.now();
+	const tick = Date.now();
 
 	// Stop rendering if no units to render (should never happened...)
 	if (!_list.length) {
@@ -357,7 +357,7 @@ function render(gl, modelView, projection, fog, renderEffects) {
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 
 	// Pre-compute culling values outside the loop
-	let doCulling = GraphicsSettings.performanceMode;
+	const doCulling = GraphicsSettings.performanceMode;
 	let playerX, playerY, viewAreaSq;
 	if (doCulling && Session.Entity && Session.Entity.position) {
 		playerX = Session.Entity.position[0];
@@ -374,7 +374,7 @@ function render(gl, modelView, projection, fog, renderEffects) {
 			// Remove from list
 			if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
 				// Remove focus
-				let entityFocus = getFocusEntity();
+				const entityFocus = getFocusEntity();
 				if (entityFocus && entityFocus.GID === _list[i].GID) {
 					entityFocus.onFocusEnd();
 					setFocusEntity(null);
@@ -389,8 +389,8 @@ function render(gl, modelView, projection, fog, renderEffects) {
 				continue;
 			}
 			if (doCulling) {
-				let dx = _list[i].position[0] - playerX;
-				let dy = _list[i].position[1] - playerY;
+				const dx = _list[i].position[0] - playerX;
+				const dy = _list[i].position[1] - playerY;
 				if (dx * dx + dy * dy > viewAreaSq) {
 					continue;
 				}
@@ -423,8 +423,8 @@ function intersect() {
 		_lastSupportPriority = _supportPriority;
 	}
 
-	let x = Mouse.screen.x;
-	let y = Mouse.screen.y;
+	const x = Mouse.screen.x;
+	const y = Mouse.screen.y;
 
 	for (i = 0, count = _pickList.length; i < count; ++i) {
 		entity = _pickList[i];
@@ -455,10 +455,10 @@ function getClosestEntity(sourceEntity, type) {
 	let closestEntity = false;
 	let distance = Infinity;
 
-	let srcX = sourceEntity.position[0];
-	let srcY = sourceEntity.position[1];
-	let view_range = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
-	let viewRangeSq = view_range * view_range;
+	const srcX = sourceEntity.position[0];
+	const srcY = sourceEntity.position[1];
+	const view_range = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
+	const viewRangeSq = view_range * view_range;
 
 	_list.forEach(entity => {
 		if (
@@ -467,9 +467,9 @@ function getClosestEntity(sourceEntity, type) {
 			entity.action !== entity.ACTION.DIE &&
 			entity.remove_tick === 0
 		) {
-			let dx = entity.position[0] - srcX;
-			let dy = entity.position[1] - srcY;
-			let distSq = dx * dx + dy * dy;
+			const dx = entity.position[0] - srcX;
+			const dy = entity.position[1] - srcY;
+			const distSq = dx * dx + dy * dy;
 			if (distSq > viewRangeSq) {
 				return;
 			}
@@ -507,10 +507,10 @@ function getLowestHpEntity(sourceEntity, type) {
 	let lowestHpEntity = null;
 	let lowestHp = Infinity;
 
-	let srcX = sourceEntity.position[0];
-	let srcY = sourceEntity.position[1];
-	let view_range = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
-	let viewRangeSq = view_range * view_range;
+	const srcX = sourceEntity.position[0];
+	const srcY = sourceEntity.position[1];
+	const view_range = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
+	const viewRangeSq = view_range * view_range;
 
 	_list.forEach(entity => {
 		if (
@@ -521,9 +521,9 @@ function getLowestHpEntity(sourceEntity, type) {
 			entity.action !== entity.ACTION.DIE &&
 			entity.remove_tick === 0
 		) {
-			let dx = entity.position[0] - srcX;
-			let dy = entity.position[1] - srcY;
-			let distSq = dx * dx + dy * dy;
+			const dx = entity.position[0] - srcX;
+			const dy = entity.position[1] - srcY;
+			const distSq = dx * dx + dy * dy;
 			if (distSq > viewRangeSq) {
 				return;
 			}
@@ -545,8 +545,8 @@ function getLowestHpEntity(sourceEntity, type) {
  * @param {entity} to entity
  */
 function getPathDistance(fromEntity, toEntity) {
-	let out = [];
-	let count = PathFinding.search(
+	const out = [];
+	const count = PathFinding.search(
 		fromEntity.position[0] | 0,
 		fromEntity.position[1] | 0,
 		toEntity.position[0] | 0,
@@ -558,7 +558,7 @@ function getPathDistance(fromEntity, toEntity) {
 	return count;
 }
 
-let EntityManager = {
+const EntityManager = {
 	free: free,
 	add: addEntity,
 	remove: removeEntity,

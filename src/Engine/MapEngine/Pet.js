@@ -35,14 +35,14 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	 * @param {object} pkt - PACKET.ZC.START_CAPTURE
 	 */
 	function onStartCapture(pkt) {
-		let fakeSkill = { SKID: -10, level: 0 };
+		const fakeSkill = { SKID: -10, level: 0 };
 
 		SkillTargetSelection.append();
 		SkillTargetSelection.set(fakeSkill, SkillTargetSelection.TYPE.PET, 'Capture Monster');
 		SkillTargetSelection.onPetSelected = function onPetSelected(gid) {
 			SlotMachine.append();
 			SlotMachine.onTry = function onTry() {
-				let pkt = new PACKET.CZ.TRYCAPTURE_MONSTER();
+				const pkt = new PACKET.CZ.TRYCAPTURE_MONSTER();
 				pkt.targetAID = gid;
 				Network.sendPacket(pkt);
 			};
@@ -73,7 +73,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 		ItemSelection.setTitle(DB.getMessage(599));
 		ItemSelection.onIndexSelected = function (index) {
 			if (index > -1) {
-				let pkt = new PACKET.CZ.SELECT_PETEGG();
+				const pkt = new PACKET.CZ.SELECT_PETEGG();
 				pkt.index = index;
 				Network.sendPacket(pkt);
 			}
@@ -90,7 +90,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 		PetInformations.setInformations(pkt);
 
 		if (Session.petId) {
-			let entity = EntityManager.get(Session.petId);
+			const entity = EntityManager.get(Session.petId);
 			if (entity) {
 				const oldHungry = Session.pet.hungry || pkt.nFullness;
 				Session.pet.job = pkt.job;
@@ -130,12 +130,12 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 			const emotion = DB.getPetEmotion(hunger, friendly, PetMessageConst.PM_FEEDING);
 
 			if (emotion > 0) {
-				let pkt = new PACKET.CZ.PET_ACT();
+				const pkt = new PACKET.CZ.PET_ACT();
 				pkt.data = emotion + '2'; // don't know what is the last digit but it needed. @MrUnzO
 				Network.sendPacket(pkt);
 			}
 			if (Session.pet.friendly > 900) {
-				let pkt = new PACKET.CZ.PET_ACT();
+				const pkt = new PACKET.CZ.PET_ACT();
 				pkt.data = talk;
 				Network.sendPacket(pkt);
 			}
@@ -147,7 +147,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	 *
 	 */
 	function petTalk(GID, msg) {
-		let entity = EntityManager.get(GID);
+		const entity = EntityManager.get(GID);
 		ChatBox.addText(entity.display.name + ' : ' + msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT);
 		entity.dialog.set(msg);
 	}
@@ -158,7 +158,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	 * @param {object} pkt - PACKET.ZC.CHANGESTATE_PET
 	 */
 	function onPetInformationUpdate(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 		let path;
 
 		if (!entity) {
@@ -206,7 +206,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 				break;
 
 			case 4: /// 4 = performance (data = 1~3: normal, 4: special)
-				let action = [entity.ACTION.PERF1, entity.ACTION.PERF2, entity.ACTION.PERF3, entity.ACTION.SPECIAL];
+				const action = [entity.ACTION.PERF1, entity.ACTION.PERF2, entity.ACTION.PERF3, entity.ACTION.SPECIAL];
 				entity.setAction({
 					action: action[(pkt.data - 1 + action.length) % action.length],
 					frame: 0,
@@ -232,7 +232,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	 * @param {object} pkt - PACKET.ZC.PET_ACT
 	 */
 	function onPetAction(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 		if (!entity) {
 			return;
 		}
@@ -260,7 +260,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	PetInformations.reqPetFeed = function reqPetFeed() {
 		// Are you sure you want to feed your pet ?
 		UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', function () {
-			let pkt = new PACKET.CZ.COMMAND_PET();
+			const pkt = new PACKET.CZ.COMMAND_PET();
 			pkt.cSub = 1;
 			Network.sendPacket(pkt);
 		});
@@ -270,7 +270,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	 * Client request to do a performance
 	 */
 	PetInformations.reqPetAction = function reqPetAction() {
-		let pkt = new PACKET.CZ.COMMAND_PET();
+		const pkt = new PACKET.CZ.COMMAND_PET();
 		pkt.cSub = 2;
 		Network.sendPacket(pkt);
 	};
@@ -279,7 +279,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	 * Qpet -> Egg
 	 */
 	PetInformations.reqBackToEgg = function reqBackToEgg() {
-		let pkt = new PACKET.CZ.COMMAND_PET();
+		const pkt = new PACKET.CZ.COMMAND_PET();
 		pkt.cSub = 3;
 		Network.sendPacket(pkt);
 
@@ -290,7 +290,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	 * UnEquip pet accessory
 	 */
 	PetInformations.reqUnEquipPet = function reqUnEquipPet() {
-		let pkt = new PACKET.CZ.COMMAND_PET();
+		const pkt = new PACKET.CZ.COMMAND_PET();
 		pkt.cSub = 4;
 		Network.sendPacket(pkt);
 	};
@@ -301,7 +301,7 @@ import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
 	 * @param {string} new pet name
 	 */
 	PetInformations.reqNameEdit = function reqNameEdit(name) {
-		let pkt = new PACKET.CZ.RENAME_PET();
+		const pkt = new PACKET.CZ.RENAME_PET();
 		pkt.szName = name;
 		Network.sendPacket(pkt);
 	};

@@ -78,9 +78,9 @@ import glMatrix from 'Utils/gl-matrix';
 	 * @param {number} perc
 	 */
 	Cast.prototype.update = function Update(perc) {
-		let width = 60,
+		const width = 60,
 			height = 6;
-		let ctx = this.ctx;
+		const ctx = this.ctx;
 
 		// Border
 		ctx.fillStyle = '#10189c';
@@ -101,8 +101,8 @@ import glMatrix from 'Utils/gl-matrix';
 	 * @param {mat4} matrix
 	 */
 	Cast.prototype.render = function Render(matrix) {
-		let canvas = this.canvas;
-		let percent = +((Date.now() - this.tick) / this.delay).toFixed(2);
+		const canvas = this.canvas;
+		const percent = +((Date.now() - this.tick) / this.delay).toFixed(2);
 		let z;
 
 		// Cast complete remove it

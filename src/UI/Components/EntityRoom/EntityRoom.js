@@ -17,7 +17,7 @@ import cssText from './EntityRoom.css?raw';
 /**
 	 * Createcomponent
 	 */
-	let EntityRoom = new UIComponent('EntityRoom', htmlText, cssText);
+	const EntityRoom = new UIComponent('EntityRoom', htmlText, cssText);
 
 	/**
 	 * @var {boolean} do not focus this UI

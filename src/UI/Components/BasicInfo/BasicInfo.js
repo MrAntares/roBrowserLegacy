@@ -17,8 +17,8 @@ import BasicInfoV4 from './BasicInfoV4/BasicInfoV4';
 import BasicInfoV5 from './BasicInfoV5/BasicInfoV5';
 import UIVersionManager from 'UI/UIVersionManager';
 
-let publicName = 'BasicInfo';
-	let versionInfo = {
+const publicName = 'BasicInfo';
+	const versionInfo = {
 		default: BasicInfoV0,
 		common: {
 			20200520: BasicInfoV5, // not sure the exact client date that started supporting 4th Jobs
@@ -34,5 +34,5 @@ let publicName = 'BasicInfo';
 		}
 	};
 
-	let BasicInfoController = UIVersionManager.getUIController(publicName, versionInfo);
+	const BasicInfoController = UIVersionManager.getUIController(publicName, versionInfo);
 export default BasicInfoController;

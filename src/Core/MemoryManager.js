@@ -18,13 +18,13 @@ import MemoryItem from 'Core/MemoryItem';
 	 * List of files in memory
 	 * @var List MemoryItem
 	 */
-	let _memory = {};
+	const _memory = {};
 
 	/**
 	 * Remove files from memory if not used until a period of time
 	 * @var {number}
 	 */
-	let _rememberTime = 30 * 1000; // 30s
+	const _rememberTime = 30 * 1000; // 30s
 
 	/**
 	 * @var {number} last time we clean up variables
@@ -34,7 +34,7 @@ import MemoryItem from 'Core/MemoryItem';
 	/**
 	 * @var {number} perform the clean up every 10 secs
 	 */
-	let _cleanUpInterval = 10 * 1000;
+	const _cleanUpInterval = 10 * 1000;
 
 	/**
 	 * Async cleanup state tracking.
@@ -118,7 +118,7 @@ import MemoryItem from 'Core/MemoryItem';
 
 		let keys, item;
 		let i, count, tick;
-		let files = [];
+		const files = [];
 		_filesToClean = []; // Reset pending cleanup list
 
 		keys = Object.keys(_memory);
@@ -145,7 +145,7 @@ import MemoryItem from 'Core/MemoryItem';
 		requestIdleCallback(function cleanChunk(deadline) {
 			let processed = 0;
 			// Limit the number of removals per idle callback
-			let maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
+			const maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
 
 			while (_cleanIndex < _filesToClean.length && processed < maxProcess && deadline.timeRemaining() > 0) {
 				remove(gl, _filesToClean[_cleanIndex]);
@@ -186,11 +186,11 @@ import MemoryItem from 'Core/MemoryItem';
 			return;
 		}
 
-		let file = get(filename);
+		const file = get(filename);
 		let ext = '';
 		let i, count;
 
-		let matches = filename.match(/\.[^.]+$/);
+		const matches = filename.match(/\.[^.]+$/);
 
 		if (matches) {
 			ext = matches.toString().toLowerCase();

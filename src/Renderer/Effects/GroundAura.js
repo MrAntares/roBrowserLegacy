@@ -17,7 +17,7 @@ import Client from 'Core/Client';
 import Altitude from 'Renderer/Map/Altitude';
 import SpriteRenderer from 'Renderer/SpriteRenderer';
 
-let mat4 = glMatrix.mat4;
+const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {WebGLProgram}
@@ -83,7 +83,7 @@ let mat4 = glMatrix.mat4;
 	 * Initialize instance
 	 */
 	GroundAura.prototype.init = function init(gl) {
-		let self = this;
+		const self = this;
 
 		Client.loadFile('data/texture/effect/' + this.textureName, function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
@@ -101,23 +101,23 @@ let mat4 = glMatrix.mat4;
 	};
 
 	function calculateSize(self, aura, auraAngle, i) {
-		let sinRiseAngle = self.sinCache[aura[i].riseAngle]
+		const sinRiseAngle = self.sinCache[aura[i].riseAngle]
 			? self.sinCache[aura[i].riseAngle]
 			: (self.sinCache[aura[i].riseAngle] = Math.sin(aura[i].riseAngle));
 
-		let riseFactor = aura[i].distance * 0.1 * (sinRiseAngle + 1);
+		const riseFactor = aura[i].distance * 0.1 * (sinRiseAngle + 1);
 
 		let cos = self.cosCache[auraAngle]
 			? self.cosCache[auraAngle]
 			: (self.cosCache[auraAngle] = Math.cos(auraAngle));
-		let startX = cos * (aura[i].distance * 0.8 + riseFactor);
+		const startX = cos * (aura[i].distance * 0.8 + riseFactor);
 
 		auraAngle += 90;
 		if (auraAngle >= 360) {
 			auraAngle -= 360;
 		}
 		cos = self.cosCache[auraAngle] ? self.cosCache[auraAngle] : (self.cosCache[auraAngle] = Math.cos(auraAngle));
-		let endX = cos * (aura[i].distance * 0.8 + riseFactor);
+		const endX = cos * (aura[i].distance * 0.8 + riseFactor);
 
 		auraAngle += 90;
 		if (auraAngle >= 360) {
@@ -126,27 +126,27 @@ let mat4 = glMatrix.mat4;
 		let sin = self.sinCache[auraAngle]
 			? self.sinCache[auraAngle]
 			: (self.sinCache[auraAngle] = Math.sin(auraAngle));
-		let startY = sin * (aura[i].distance * 0.8 + riseFactor);
+		const startY = sin * (aura[i].distance * 0.8 + riseFactor);
 
 		auraAngle += 90;
 		if (auraAngle >= 360) {
 			auraAngle -= 360;
 		}
 		sin = self.sinCache[auraAngle] ? self.sinCache[auraAngle] : (self.sinCache[auraAngle] = Math.sin(auraAngle));
-		let endY = sin * (aura[i].distance * 0.8 + riseFactor);
+		const endY = sin * (aura[i].distance * 0.8 + riseFactor);
 
-		let width = Math.abs(endX - startX);
-		let height = Math.abs(endY - startY);
+		const width = Math.abs(endX - startX);
+		const height = Math.abs(endY - startY);
 
 		return [width, height];
 	}
 
 	GroundAura.prototype.render = function render(gl, tick) {
-		let uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-		for (var i = 0; i < this.aura.length; i++) {
+		for (let i = 0; i < this.aura.length; i++) {
 			this.aura[i].riseAngle += 3;
 			if (this.aura[i].riseAngle && !(this.aura[i].riseAngle % 180)) {
 				this.aura[i].direction *= -1;
@@ -165,22 +165,22 @@ let mat4 = glMatrix.mat4;
 		}
 
 		// Get ground height
-		let groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
+		const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
 
 		// World position with small lift to avoid z-fighting
-		let worldPos = [this.position[0], this.position[1], groundZ + 0.05];
+		const worldPos = [this.position[0], this.position[1], groundZ + 0.05];
 
 		gl.uniform3fv(uniform.uWorldPosition, worldPos);
-		let self = this;
+		const self = this;
 		SpriteRenderer.runWithDepth(true, false, false, function () {
-			for (var i = 0; i < self.aura.length; i++) {
+			for (let i = 0; i < self.aura.length; i++) {
 				if (!self.aura[i].life) {
 					continue;
 				}
 
-				let auraAngle = i * 23;
+				const auraAngle = i * 23;
 
-				let sizeModifier = calculateSize(self, self.aura, auraAngle, i);
+				const sizeModifier = calculateSize(self, self.aura, auraAngle, i);
 
 				self.aura[i].size[0] += (sizeModifier[0] * self.aura[i].direction) / (self.size / 2);
 				self.aura[i].size[1] += (sizeModifier[1] * self.aura[i].direction) / (self.size / 2);
@@ -202,7 +202,7 @@ let mat4 = glMatrix.mat4;
 	GroundAura.init = function init(gl) {
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 
-		let vertices = generateGroundQuad();
+		const vertices = generateGroundQuad();
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -230,8 +230,8 @@ let mat4 = glMatrix.mat4;
 	 * Before render setup
 	 */
 	GroundAura.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
 		gl.useProgram(_program);

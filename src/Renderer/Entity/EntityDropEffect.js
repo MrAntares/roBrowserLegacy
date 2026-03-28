@@ -38,7 +38,7 @@ const dropEffects = [
 		// TODO the dropEffectMode 0 means that we need to get the EffectID from the lua file
 		// Right now, it's only used for cards and they all have the pink drop effect.
 		// But we should load the EffectID from ItemInfo.lua when we implement it.
-		let effect = dropEffects[dropEffectMode];
+		const effect = dropEffects[dropEffectMode];
 
 		// check if drop effect is valid
 		if (!effect) {

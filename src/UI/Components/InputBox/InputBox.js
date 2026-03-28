@@ -21,7 +21,7 @@ import cssText from './InputBox.css?raw';
 	/**
 	 * Create NpcBox component
 	 */
-	var InputBox = new UIComponent('InputBox', htmlText, cssText);
+	const InputBox = new UIComponent('InputBox', htmlText, cssText);
 
 	/**
 	 * Initialize GUI
@@ -49,7 +49,7 @@ import cssText from './InputBox.css?raw';
 	 * Should append data, focus, select text, etc...
 	 */
 	InputBox.onAppend = function OnAppend() {
-		var input = this.ui.find('input');
+		const input = this.ui.find('input');
 		if (input.length) {
 			input.focus();
 			if (input.val()) {
@@ -90,7 +90,7 @@ import cssText from './InputBox.css?raw';
 	 * @param {ClickEvent}
 	 */
 	function validate() {
-		var text = this.ui.find('input').val();
+		let text = this.ui.find('input').val();
 
 		if (!this.isPersistent || text.length) {
 			if (this.ui.hasClass('number')) {

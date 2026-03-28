@@ -28,12 +28,12 @@ import cssText from './CharSelectV3.css?raw';
 /**
 	 * Create Chararacter Selection namespace
 	 */
-	let CharSelectV3 = new UIComponent('CharSelectV3', htmlText, cssText);
+	const CharSelectV3 = new UIComponent('CharSelectV3', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} save where the cursor position is
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CharSelectV3',
 		{
 			index: 0
@@ -49,17 +49,17 @@ import cssText from './CharSelectV3.css?raw';
 	/**
 	 * var {Array} list of characters
 	 */
-	let _list = [];
+	const _list = [];
 
 	/**
 	 * @var {Array} list of characters (index by slot)
 	 */
-	let _slots = [];
+	const _slots = [];
 
 	/**
 	 * @var {Array} list of entities (index by slot)
 	 */
-	let _entitySlots = [];
+	const _entitySlots = [];
 
 	/**
 	 * @var {number} selector index
@@ -69,7 +69,7 @@ import cssText from './CharSelectV3.css?raw';
 	/**
 	 * @var {Array} canvas context
 	 */
-	let _ctx = [];
+	const _ctx = [];
 
 	/**
 	 * var {number} sex
@@ -85,7 +85,7 @@ import cssText from './CharSelectV3.css?raw';
 	 * Initialize UI
 	 */
 	CharSelectV3.init = function Init() {
-		let ui = this.ui;
+		const ui = this.ui;
 
 		ui.css({
 			top: (Renderer.height - 358) / 2,
@@ -326,8 +326,8 @@ import cssText from './CharSelectV3.css?raw';
 
 		//Adjust from remaining time to fixed datetime
 		if (character.DeleteDate) {
-			let now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-			let timer =
+			const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+			const timer =
 				(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
 					? character.DeleteDate + now
 					: character.DeleteDate;
@@ -459,7 +459,7 @@ import cssText from './CharSelectV3.css?raw';
 		const seconds = datetime.getSeconds();
 
 		// Use the msgstringtable
-		let formattedDatetime = DB.getMessage(2097)
+		const formattedDatetime = DB.getMessage(2097)
 			.replace('%d', `${month}`)
 			.replace('%d', `${day}`)
 			.replace('%d', `${hours}`)
@@ -476,9 +476,9 @@ import cssText from './CharSelectV3.css?raw';
 	 */
 	CharSelectV3.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 		this.on('keydown');
-		let now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-		let result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
-		let info = _slots[_index];
+		const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+		const result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
+		const info = _slots[_index];
 
 		switch (result) {
 			case 0: // 0: An unknown error has occurred.
@@ -486,7 +486,7 @@ import cssText from './CharSelectV3.css?raw';
 
 			case 1: // 1: none/success
 				//Adjust from remaining time to fixed datetime
-				let timer =
+				const timer =
 					(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
 						? pkt.DeleteReservedDate + now
 						: pkt.DeleteReservedDate;
@@ -603,8 +603,8 @@ import cssText from './CharSelectV3.css?raw';
 	 * @param {number} index
 	 */
 	function moveCursorTo(index) {
-		let ui = CharSelectV3.ui;
-		let $charinfo = ui.find('.charinfo');
+		const ui = CharSelectV3.ui;
+		const $charinfo = ui.find('.charinfo');
 
 		// Set the last entity to idle
 		let entity = _entitySlots[_index];
@@ -658,7 +658,7 @@ import cssText from './CharSelectV3.css?raw';
 
 		// Update page deltimes
 		for (let i = 0; i < 3; i++) {
-			let tmpIndex = _index - (_index % 3) + i;
+			const tmpIndex = _index - (_index % 3) + i;
 			info = _slots[tmpIndex];
 			entity = _entitySlots[tmpIndex];
 			const countdown = CharSelectV3.ui.find('.timedelete.slot' + ((tmpIndex % 3) + 1));

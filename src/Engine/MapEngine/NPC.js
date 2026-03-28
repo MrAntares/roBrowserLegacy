@@ -72,7 +72,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 			NpcBox.remove();
 			NpcMenu.remove();
 
-			let cutin = document.getElementById('cutin');
+			const cutin = document.getElementById('cutin');
 			if (cutin && cutin.parentNode) {
 				document.body.removeChild(cutin);
 			}
@@ -120,7 +120,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 				NpcBox.remove();
 			}
 
-			let pkt = new PACKET.CZ.CHOOSE_MENU();
+			const pkt = new PACKET.CZ.CHOOSE_MENU();
 			pkt.NAID = NAID;
 			pkt.num = index;
 			Network.sendPacket(pkt);
@@ -133,8 +133,8 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {object} pkt - PACKET.ZC.OPEN_EDITDLG or PACKET.ZC.OPEN_EDITDLGSTR
 	 */
 	function onInputAppear(pkt) {
-		let type = pkt instanceof PACKET.ZC.OPEN_EDITDLGSTR ? 'text' : 'number';
-		let id = pkt.NAID;
+		const type = pkt instanceof PACKET.ZC.OPEN_EDITDLGSTR ? 'text' : 'number';
+		const id = pkt.NAID;
 
 		InputBox.onAppend = function OnAppend() {
 			InputBox.setType(type, true);
@@ -142,12 +142,12 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 			this.ui.find('input').focus();
 
 			this.ui.find('input').keydown(function (e) {
-				let enterKey = 13;
+				const enterKey = 13;
 				if (e.keyCode !== enterKey) {
 					return;
 				}
 
-				let text = InputBox.ui.find('input').val();
+				const text = InputBox.ui.find('input').val();
 				if (text.length > 0) {
 					InputBox.onSubmitRequest(text);
 				}
@@ -183,8 +183,8 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {object} pkt - PACKET.ZC.SELECT_DEALTYPE
 	 */
 	function onDealSelection(pkt) {
-		let WinDeal = WinPopup.clone('WinDeal');
-		let NAID = pkt.NAID;
+		const WinDeal = WinPopup.clone('WinDeal');
+		const NAID = pkt.NAID;
 
 		WinDeal.init = function Init() {
 			this.draggable();
@@ -204,7 +204,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 					.data('down', 'btn_buy_b.bmp')
 					.one('click', function () {
 						WinDeal.remove();
-						let _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
+						const _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
 						_pkt.type = 0;
 						_pkt.NAID = NAID;
 						Network.sendPacket(_pkt);
@@ -218,7 +218,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 					.data('down', 'btn_sell_b.bmp')
 					.one('click', function () {
 						WinDeal.remove();
-						let _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
+						const _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
 						_pkt.type = 1;
 						_pkt.NAID = NAID;
 						Network.sendPacket(_pkt);
@@ -246,7 +246,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 */
 	function onCutin(pkt) {
 		// Only one instance of cutin
-		let cutin = document.getElementById('cutin');
+		const cutin = document.getElementById('cutin');
 		if (cutin) {
 			document.body.removeChild(cutin);
 		}
@@ -261,7 +261,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 		}
 
 		Client.loadFile(DB.INTERFACE_PATH + 'illust/' + pkt.imageName, function (url) {
-			let img = new Image();
+			const img = new Image();
 			img.decoding = 'async';
 			img.src = url;
 			img.style.position = 'absolute';
@@ -337,11 +337,11 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 */
 	function onProgressBar(pkt) {
 		Session.Entity.cast.onComplete = function () {
-			let pkt = new PACKET.CZ.PROGRESS();
+			const pkt = new PACKET.CZ.PROGRESS();
 			Network.sendPacket(pkt);
 		};
 
-		let rgb =
+		const rgb =
 			'rgb(' +
 			[(pkt.color & 0x00ff0000) >> 16, (pkt.color & 0x0000ff00) >> 8, pkt.color & 0x000000ff].join(',') +
 			')';
@@ -401,7 +401,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {number} NAID - npc id
 	 */
 	NpcBox.onNextPressed = function onNextPressed(NAID) {
-		let pkt = new PACKET.CZ.REQ_NEXT_SCRIPT();
+		const pkt = new PACKET.CZ.REQ_NEXT_SCRIPT();
 		pkt.NAID = NAID;
 		Network.sendPacket(pkt);
 	};
@@ -412,7 +412,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap';
 	 * @param {number} NAID - npc id
 	 */
 	NpcBox.onClosePressed = function onClosePressed(NAID) {
-		let pkt = new PACKET.CZ.CLOSE_DIALOG();
+		const pkt = new PACKET.CZ.CLOSE_DIALOG();
 		pkt.NAID = NAID;
 		Network.sendPacket(pkt);
 

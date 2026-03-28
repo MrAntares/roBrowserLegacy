@@ -10,25 +10,25 @@
 
 'use strict';
 
-let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]);
+const codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]);
 
-	let _codeLenCodeLengths = new Uint32Array(19);
-	let _clean_codeLenCodeLengths = new Uint32Array(19);
-	let _codeLengths = new Uint8Array(640);
+	const _codeLenCodeLengths = new Uint32Array(19);
+	const _clean_codeLenCodeLengths = new Uint32Array(19);
+	const _codeLengths = new Uint8Array(640);
 
-	let lengthDecode = new Uint32Array([
+	const lengthDecode = new Uint32Array([
 		0x00003, 0x00004, 0x00005, 0x00006, 0x00007, 0x00008, 0x00009, 0x0000a, 0x1000b, 0x1000d, 0x1000f, 0x10011,
 		0x20013, 0x20017, 0x2001b, 0x2001f, 0x30023, 0x3002b, 0x30033, 0x3003b, 0x40043, 0x40053, 0x40063, 0x40073,
 		0x50083, 0x500a3, 0x500c3, 0x500e3, 0x00102, 0x00102, 0x00102
 	]);
 
-	let distDecode = new Uint32Array([
+	const distDecode = new Uint32Array([
 		0x00001, 0x00002, 0x00003, 0x00004, 0x10005, 0x10007, 0x20009, 0x2000d, 0x30011, 0x30019, 0x40021, 0x40031,
 		0x50041, 0x50061, 0x60081, 0x600c1, 0x70101, 0x70181, 0x80201, 0x80301, 0x90401, 0x90601, 0xa0801, 0xa0c01,
 		0xb1001, 0xb1801, 0xc2001, 0xc3001, 0xd4001, 0xd6001
 	]);
 
-	let fixedLitCodeTab = [
+	const fixedLitCodeTab = [
 		new Uint32Array([
 			0x70100, 0x80050, 0x80010, 0x80118, 0x70110, 0x80070, 0x80030, 0x900c0, 0x70108, 0x80060, 0x80020, 0x900a0,
 			0x80000, 0x80080, 0x80040, 0x900e0, 0x70104, 0x80058, 0x80018, 0x90090, 0x70114, 0x80078, 0x80038, 0x900d0,
@@ -77,7 +77,7 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 		9
 	];
 
-	let fixedDistCodeTab = [
+	const fixedDistCodeTab = [
 		new Uint32Array([
 			0x50000, 0x50010, 0x50008, 0x50018, 0x50004, 0x50014, 0x5000c, 0x5001c, 0x50002, 0x50012, 0x5000a, 0x5001a,
 			0x50006, 0x50016, 0x5000e, 0x00000, 0x50001, 0x50011, 0x50009, 0x50019, 0x50005, 0x50015, 0x5000d, 0x5001d,
@@ -94,8 +94,8 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 	function Inflate(bytes) {
 		let bytesPos = 0;
 
-		let cmf = bytes[bytesPos++];
-		let flg = bytes[bytesPos++];
+		const cmf = bytes[bytesPos++];
+		const flg = bytes[bytesPos++];
 		if (cmf === -1 || flg === -1) {
 			throw new Error('Invalid header in flate stream: ' + cmf + ', ' + flg);
 		}
@@ -140,7 +140,7 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 	Inflate.prototype.getBits = function Inflate_getBits(bits) {
 		let codeSize = this.codeSize;
 		let codeBuf = this.codeBuf;
-		let bytes = this.bytes;
+		const bytes = this.bytes;
 		let bytesPos = this.bytesPos;
 		let b;
 
@@ -166,11 +166,11 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 	 * @returns {number}
 	 */
 	Inflate.prototype.getCode = function Inflate_getCode(table) {
-		let codes = table[0];
-		let maxLen = table[1];
+		const codes = table[0];
+		const maxLen = table[1];
 		let codeSize = this.codeSize;
 		let codeBuf = this.codeBuf;
-		let bytes = this.bytes;
+		const bytes = this.bytes;
 		let bytesPos = this.bytesPos;
 
 		if (this.bytesLength <= bytesPos + (maxLen - codeSize) * 0.2) {
@@ -182,9 +182,9 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 			codeSize += 8;
 		}
 
-		let code = codes[codeBuf & ((1 << maxLen) - 1)];
-		let codeLen = code >> 16;
-		let codeVal = code & 0xffff;
+		const code = codes[codeBuf & ((1 << maxLen) - 1)];
+		const codeLen = code >> 16;
+		const codeVal = code & 0xffff;
 
 		if (codeSize === 0 || codeSize < codeLen || codeLen === 0) {
 			throw new Error('Bad encoding in flate stream ' + codeSize + ' ' + codeLen);
@@ -215,15 +215,15 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 		}
 
 		// build the table
-		let size = 1 << maxLen;
-		let codes = new Uint32Array(size);
-		for (var len = 1, code = 0, skip = 2; len <= maxLen; ++len, code <<= 1, skip <<= 1) {
-			for (var val = start; val < end; ++val) {
+		const size = 1 << maxLen;
+		const codes = new Uint32Array(size);
+		for (let len = 1, code = 0, skip = 2; len <= maxLen; ++len, code <<= 1, skip <<= 1) {
+			for (let val = start; val < end; ++val) {
 				if (lengths[val] === len) {
 					// bit-reverse the code
 					let code2 = 0;
 					let t = code;
-					let v = val - start;
+					const v = val - start;
 					for (i = 0; i < len; ++i) {
 						code2 = (code2 << 1) | (t & 1);
 						t >>= 1;
@@ -248,22 +248,22 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 	Inflate.prototype.readBlock = function Inflate_readBlock() {
 		// read block header
 		let hdr = this.getBits(3);
-		let stop = !!(hdr & 1);
+		const stop = !!(hdr & 1);
 		let len;
 		hdr >>= 1;
 
 		if (hdr === 0) {
 			// uncompressed block
-			let bytes = this.bytes;
+			const bytes = this.bytes;
 			let bytesPos = this.bytesPos;
-			let bytesLength = this.bytesLength;
+			const bytesLength = this.bytesLength;
 
 			if (bytesPos + 4 >= bytesLength) {
 				throw new Error('Bad block header in flate stream');
 			}
 
-			let blockLen = bytes[bytesPos++] | (bytes[bytesPos++] << 8);
-			let check = bytes[bytesPos++] | (bytes[bytesPos++] << 8);
+			const blockLen = bytes[bytesPos++] | (bytes[bytesPos++] << 8);
+			const check = bytes[bytesPos++] | (bytes[bytesPos++] << 8);
 
 			if (check !== (~blockLen & 0xffff)) {
 				throw new Error('Bad uncompressed block length in flate stream');
@@ -272,8 +272,8 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 			this.codeBuf = 0;
 			this.codeSize = 0;
 
-			let bufferPos = this.bufferPos;
-			let end = bufferPos + blockLen;
+			const bufferPos = this.bufferPos;
+			const end = bufferPos + blockLen;
 			this.bufferPos = end;
 
 			for (var n = bufferPos; n < end && bytesPos < bytesLength; ++n) {
@@ -294,9 +294,9 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 		} else if (hdr == 2) {
 			// compressed block, dynamic codes
 			let i;
-			let numLitCodes = this.getBits(5) + 257;
-			let numDistCodes = this.getBits(5) + 1;
-			let numCodeLenCodes = this.getBits(4) + 4;
+			const numLitCodes = this.getBits(5) + 257;
+			const numDistCodes = this.getBits(5) + 1;
+			const numCodeLenCodes = this.getBits(4) + 4;
 
 			// build the code lengths code table
 			_codeLenCodeLengths.set(_clean_codeLenCodeLengths);
@@ -304,16 +304,16 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 			for (i = 0; i < numCodeLenCodes; ++i) {
 				_codeLenCodeLengths[codeLenCodeMap[i]] = this.getBits(3);
 			}
-			let codeLenCodeTab = this.generateHuffmanTable(_codeLenCodeLengths, 0, 19);
+			const codeLenCodeTab = this.generateHuffmanTable(_codeLenCodeLengths, 0, 19);
 
 			// build the literal and distance code tables
 			len = 0;
 			let bitsLength, bitsOffset, what;
 			i = 0;
-			let codes = numLitCodes + numDistCodes;
+			const codes = numLitCodes + numDistCodes;
 			//var codeLengths = new Uint8Array(codes);
 			while (i < codes) {
-				let code = this.getCode(codeLenCodeTab);
+				const code = this.getCode(codeLenCodeTab);
 				if (code === 16) {
 					bitsLength = 2;
 					bitsOffset = 3;
@@ -343,7 +343,7 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 			throw new Error('Unknown block type in flate stream');
 		}
 
-		let buffer = this.buffer;
+		const buffer = this.buffer;
 		let pos = this.bufferPos;
 
 		// eslint-disable-next-line no-constant-condition
@@ -370,8 +370,8 @@ let codeLenCodeMap = new Uint32Array([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 1
 			if (code2 > 0) {
 				code2 = this.getBits(code2);
 			}
-			let dist = (code1 & 0xffff) + code2;
-			for (var k = 0; k < len; ++k, ++pos) {
+			const dist = (code1 & 0xffff) + code2;
+			for (let k = 0; k < len; ++k, ++pos) {
 				buffer[pos] = buffer[pos - dist];
 			}
 		}

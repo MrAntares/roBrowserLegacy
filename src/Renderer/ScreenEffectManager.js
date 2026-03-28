@@ -25,7 +25,7 @@ import Session from 'Engine/SessionStorage';
 import SpriteRenderer from 'Renderer/SpriteRenderer';
 import MapRenderer from 'Renderer/MapRenderer';
 
-	var isMapflagEffect = false;
+	let isMapflagEffect = false;
 
 	/**
 	 * @var {number} _nightInterval
@@ -86,7 +86,7 @@ import MapRenderer from 'Renderer/MapRenderer';
 		}
 
 		isMapflagEffect = false;
-		var Params = {
+		const Params = {
 			Inst: {
 				startTick: Renderer.tick,
 				endTick: -1
@@ -97,7 +97,7 @@ import MapRenderer from 'Renderer/MapRenderer';
 			}
 		};
 
-		var weather = WeatherTable.effects[mapname].weather;
+		const weather = WeatherTable.effects[mapname].weather;
 		if (weather === 'snow') {
 			Params.Inst.effectId = EffectConst.EF_SNOW;
 			SnowWeather.startOrRestart(Params);
@@ -240,9 +240,9 @@ import MapRenderer from 'Renderer/MapRenderer';
 			ScreenEffectManager._nightInterval = null;
 		}
 		ScreenEffectManager._nightInterval = setInterval(function () {
-			var diffuse = MapRenderer.diffuse;
-			var light = MapRenderer.light;
-			var step = 0.005;
+			const diffuse = MapRenderer.diffuse;
+			const light = MapRenderer.light;
+			const step = 0.005;
 
 			if (night) {
 				if (diffuse[0] > 0.5) {
@@ -264,7 +264,7 @@ import MapRenderer from 'Renderer/MapRenderer';
 			light.env[1] = 1 - (1 - diffuse[1]) * (1 - light.ambient[1]);
 			light.env[2] = 1 - (1 - diffuse[2]) * (1 - light.ambient[2]);
 
-			var done = night
+			const done = night
 				? diffuse[0] <= 0.5 && diffuse[1] <= 0.5
 				: diffuse[0] >= light.diffuse[0] && diffuse[1] >= light.diffuse[1];
 

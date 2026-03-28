@@ -13,12 +13,12 @@
 /**
  * @var {object} global configs
  */
-var _global = {};
+const _global = {};
 
 /**
  * @var {object} server configs
  */
-var _server = {};
+let _server = {};
 
 /**
  * Constructor
@@ -29,8 +29,8 @@ var _server = {};
 		return;
 	}
 
-	var keys = Object.keys(configs);
-	var i, count;
+	const keys = Object.keys(configs);
+	let i, count;
 
 	for (i = 0, count = keys.length; i < count; ++i) {
 		set(keys[i], configs[keys[i]]);

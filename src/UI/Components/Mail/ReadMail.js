@@ -26,7 +26,7 @@ import cssText from './ReadMail.css?raw';
 /**
 	 * Create Component
 	 */
-	let ReadMail = new UIComponent('ReadMail', htmlText, cssText);
+	const ReadMail = new UIComponent('ReadMail', htmlText, cssText);
 
 	/**
 	 * Store ReadMail items
@@ -36,12 +36,12 @@ import cssText from './ReadMail.css?raw';
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	let _realSize = 0;
+	const _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ReadMail',
 		{
 			x: 0,
@@ -108,9 +108,9 @@ import cssText from './ReadMail.css?raw';
 	ReadMail.openEmail = function openEmail(inforMail) {
 		ReadMail.remove();
 		ReadMail.append();
-		let textSender = inforMail.FromName;
-		let textTitle = inforMail.Header;
-		let textMessage = inforMail.msg === '(no message)' ? '' : inforMail.msg;
+		const textSender = inforMail.FromName;
+		const textTitle = inforMail.Header;
+		const textMessage = inforMail.msg === '(no message)' ? '' : inforMail.msg;
 
 		this.ui.find('.text_sender').text(textSender);
 		this.ui.find('.text_title').text(textTitle);
@@ -139,11 +139,11 @@ import cssText from './ReadMail.css?raw';
 
 	function addItemSub(itemMail) {
 		removeValueItemZeny();
-		let zenyItemContainer = ReadMail.ui.find('.zeny_item_container');
+		const zenyItemContainer = ReadMail.ui.find('.zeny_item_container');
 		if (itemMail.ITID != 0 && itemMail.count > 0) {
-			let item = itemMail;
-			let it = DB.getItemInfo(item.ITID);
-			let content = ReadMail.ui.find('.container_item');
+			const item = itemMail;
+			const it = DB.getItemInfo(item.ITID);
+			const content = ReadMail.ui.find('.container_item');
 			content.append(
 				'<div class="item" data-index="' +
 					item.index +
@@ -197,7 +197,7 @@ import cssText from './ReadMail.css?raw';
 		ReadMail.ui.find('.zeny_item_infor').click(function (event) {
 			event.stopImmediatePropagation();
 			if (!validItemMoneyExists()) {
-				let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+				const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
 				Mail.parseMailgetattach(mailID);
 			}
 		});
@@ -216,14 +216,14 @@ import cssText from './ReadMail.css?raw';
 	 */
 	function onItemOver(event) {
 		event.stopImmediatePropagation();
-		let item = _preferences.item_add_email;
+		const item = _preferences.item_add_email;
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		let overlay = ReadMail.ui.find('.container_item .overlay');
+		const overlay = ReadMail.ui.find('.container_item .overlay');
 
 		// Display box
 		overlay.show();
@@ -242,7 +242,7 @@ import cssText from './ReadMail.css?raw';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let item = _preferences.item_add_email;
+		const item = _preferences.item_add_email;
 		if (!item) {
 			return false;
 		}
@@ -263,7 +263,7 @@ import cssText from './ReadMail.css?raw';
 
 	function replyMail(event) {
 		event.stopImmediatePropagation();
-		let textSender = ReadMail.ui.find('.text_sender').text();
+		const textSender = ReadMail.ui.find('.text_sender').text();
 		Mail.replyNewMail(textSender);
 	}
 
@@ -271,7 +271,7 @@ import cssText from './ReadMail.css?raw';
 		event.stopImmediatePropagation();
 
 		if (validItemMoneyExists()) {
-			let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+			const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
 			Mail.deleteMail(mailID);
 		} else {
 			ChatBox.addText(DB.getMessage(1105), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
@@ -290,8 +290,8 @@ import cssText from './ReadMail.css?raw';
 
 	function returnMail(event) {
 		event.stopImmediatePropagation();
-		let mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
-		let textSender = ReadMail.ui.find('.text_sender').text();
+		const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
+		const textSender = ReadMail.ui.find('.text_sender').text();
 		Mail.returnMail(mailID, textSender);
 	}
 
@@ -340,7 +340,7 @@ import cssText from './ReadMail.css?raw';
 	 * @return {string}
 	 */
 	function prettifyZeny(value) {
-		let num = String(value);
+		const num = String(value);
 		let i = 0,
 			len = num.length;
 		let out = '';

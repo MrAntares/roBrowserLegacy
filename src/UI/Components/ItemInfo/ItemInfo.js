@@ -38,7 +38,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 /**
  * Create Component
  */
-let ItemInfo = new UIComponent('ItemInfo', htmlText, cssText);
+const ItemInfo = new UIComponent('ItemInfo', htmlText, cssText);
 
 /**
  * @let {Sprite,Action} objects
@@ -53,12 +53,12 @@ let _ctx;
 /**
  * @let {number} type
  */
-let _type = 0;
+const _type = 0;
 
 /**
  * @let {number} start tick
  */
-let _start = 0;
+const _start = 0;
 
 /**
  * @let {number} ItemInfo unique id
@@ -102,7 +102,7 @@ ItemInfo.onKeyDown = function onKeyDown(event) {
  */
 ItemInfo.onAppend = function onAppend() {
 	// Seems like "EscapeWindow" is execute first, push it before.
-	let events = jQuery._data(window, 'events').keydown;
+	const events = jQuery._data(window, 'events').keydown;
 	events.unshift(events.pop());
 	resize(ItemInfo.ui.find('.description-inner').height() + 45);
 };
@@ -163,10 +163,10 @@ ItemInfo.init = function init() {
  * @param {object} item
  */
 ItemInfo.setItem = function setItem(item) {
-	let it = DB.getItemInfo(item.ITID);
-	let ui = this.ui;
-	let cardList = ui.find('.cardlist .border');
-	let optionContainer = ui.find('.option-container');
+	const it = DB.getItemInfo(item.ITID);
+	const ui = this.ui;
+	const cardList = ui.find('.cardlist .border');
+	const optionContainer = ui.find('.option-container');
 
 	this.item = it;
 	Client.loadFile(
@@ -179,7 +179,7 @@ ItemInfo.setItem = function setItem(item) {
 		}
 	);
 
-	let itemName = DB.getItemName(item, { showItemOptions: false });
+	const itemName = DB.getItemName(item, { showItemOptions: false });
 
 	// Damaged status
 	if (item.IsDamaged) {
@@ -196,8 +196,8 @@ ItemInfo.setItem = function setItem(item) {
 		//Loop to Show Options
 		for (let i = 1; i <= 5; i++) {
 			if (item.Options[i].index > 0) {
-				let randomOptionName = DB.getOptionName(item.Options[i].index);
-				let optionList =
+				const randomOptionName = DB.getOptionName(item.Options[i].index);
+				const optionList =
 					'<div class="optionlist">' +
 					'<div class="border">' +
 					randomOptionName.replace('\%d', item.Options[i].value).replace('\%\%', '%') +
@@ -212,7 +212,7 @@ ItemInfo.setItem = function setItem(item) {
 	}
 
 	/* Grade System */
-	let container = ui.find('.container');
+	const container = ui.find('.container');
 	if (item.enchantgrade) {
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'basic_interface/collection_bg_g' + item.enchantgrade + '.bmp',
@@ -317,7 +317,7 @@ ItemInfo.setItem = function setItem(item) {
 				cardList.parent().hide();
 				break;
 			}
-			let slotCount = it.slotCount || 0;
+			const slotCount = it.slotCount || 0;
 			let i;
 
 			cardList.parent().show();
@@ -349,7 +349,7 @@ ItemInfo.setItem = function setItem(item) {
 function addCard(cardList, itemId, index, slotCount) {
 	let file,
 		name = '';
-	let card = DB.getItemInfo(itemId);
+	const card = DB.getItemInfo(itemId);
 
 	if (itemId && card) {
 		file = 'item/' + card.identifiedResourceName + '.bmp';
@@ -365,7 +365,7 @@ function addCard(cardList, itemId, index, slotCount) {
 	cardList.append('<div class="item" data-index="' + index + '">' + '<div class="icon"></div>' + name + '</div>');
 
 	Client.loadFile(DB.INTERFACE_PATH + file, function (data) {
-		let element = cardList.find('.item[data-index="' + index + '"] .icon');
+		const element = cardList.find('.item[data-index="' + index + '"] .icon');
 		element.css('backgroundImage', 'url(' + data + ')');
 
 		if (itemId && card) {
@@ -384,14 +384,14 @@ function addCard(cardList, itemId, index, slotCount) {
  * Extend ItemInfo window size
  */
 function onResize() {
-	let ui = ItemInfo.ui;
-	let top = ui.position().top;
-	let left = ui.position().left;
+	const ui = ItemInfo.ui;
+	const top = ui.position().top;
+	const left = ui.position().left;
 	let lastHeight = 0;
 	let _Interval;
 
 	function resizing() {
-		let h = Math.floor(Mouse.screen.y - top);
+		const h = Math.floor(Mouse.screen.y - top);
 		if (h === lastHeight) {
 			return;
 		}
@@ -417,12 +417,12 @@ function onResize() {
  * @param {number} height
  */
 function resize(height) {
-	let container = ItemInfo.ui.find('.container');
-	let description = ItemInfo.ui.find('.description');
-	let descriptionInner = ItemInfo.ui.find('.description-inner');
+	const container = ItemInfo.ui.find('.container');
+	const description = ItemInfo.ui.find('.description');
+	const descriptionInner = ItemInfo.ui.find('.description-inner');
 	let containerHeight = height;
-	let minHeight = 140;
-	let maxHeight = descriptionInner.height() + 45 > 140 ? Math.min(descriptionInner.height() + 45, 448) : 140;
+	const minHeight = 140;
+	const maxHeight = descriptionInner.height() + 45 > 140 ? Math.min(descriptionInner.height() + 45, 448) : 140;
 
 	if (containerHeight <= minHeight) {
 		containerHeight = minHeight;
@@ -441,14 +441,14 @@ function resize(height) {
 }
 
 function onUpdateOwnerName(pkt) {
-	let str = ItemInfo.ui.find('.owner-' + pkt.GID).text();
+	const str = ItemInfo.ui.find('.owner-' + pkt.GID).text();
 	ItemInfo.ui.find('.owner-' + pkt.GID).text(pkt.CName);
 
 	delete DB.UpdateOwnerName[pkt.GID];
 }
 
 function addEvent(item) {
-	let event = ItemInfo.ui.find('.event_view');
+	const event = ItemInfo.ui.find('.event_view');
 	if (!validateFieldsExist(event)) {
 		addEvent(item);
 	}
@@ -463,7 +463,7 @@ function addEvent(item) {
 			event.find('.view').show();
 			break;
 		case ItemType.ETC:
-			let filenameBook = `data/book/${item.ITID}.txt`;
+			const filenameBook = `data/book/${item.ITID}.txt`;
 			Client.loadFile(filenameBook, function (data) {
 				MakeReadBook.startBook(data, item);
 				eventsBooks();
@@ -477,7 +477,7 @@ function addEvent(item) {
 }
 
 function updatePreviewButton(item) {
-	let previewButton = ItemInfo.ui.find('.btn_mounting');
+	const previewButton = ItemInfo.ui.find('.btn_mounting');
 	if (!canPreviewItem(item)) {
 		previewButton.hide();
 		return;
@@ -496,8 +496,8 @@ function canPreviewItem(item) {
 		return false;
 	}
 
-	let location = getPreviewLocation(item);
-	let previewLocations =
+	const location = getPreviewLocation(item);
+	const previewLocations =
 		EquipLocation.HEAD_BOTTOM |
 		EquipLocation.HEAD_MID |
 		EquipLocation.HEAD_TOP |
@@ -510,7 +510,7 @@ function canPreviewItem(item) {
 		return false;
 	}
 
-	let it = DB.getItemInfo(item.ITID);
+	const it = DB.getItemInfo(item.ITID);
 	return getPreviewSpriteId(item, it) > 0;
 }
 
@@ -554,7 +554,7 @@ function toggleItemPreview(item) {
 }
 
 function eventsBooks() {
-	let event = ItemInfo.ui.find('.event_view');
+	const event = ItemInfo.ui.find('.event_view');
 
 	Client.getFiles(
 		['data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr', 'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.act'],
@@ -570,7 +570,7 @@ function eventsBooks() {
 			canvas = _sprite.getCanvasFromFrame(0);
 			canvas.className = 'book_open event_add_cursor';
 			event.append(canvas);
-			let bookOpen = ItemInfo.ui.find('.book_open');
+			const bookOpen = ItemInfo.ui.find('.book_open');
 			bookOpen
 				.mouseover(function (e) {
 					e.stopImmediatePropagation();
@@ -593,7 +593,7 @@ function eventsBooks() {
 			canvas.height = 15;
 			_ctx = canvas[0].getContext('2d');
 
-			let bookRead = ItemInfo.ui.find('.book_read');
+			const bookRead = ItemInfo.ui.find('.book_read');
 			bookRead
 				.mouseover(function (e) {
 					e.stopImmediatePropagation();
@@ -617,14 +617,14 @@ function eventsBooks() {
 /**
  * Rendering animation
  */
-let rendering = (function renderingClosure() {
-	let position = new Uint16Array([0, 0]);
+const rendering = (function renderingClosure() {
+	const position = new Uint16Array([0, 0]);
 
 	return function rendering() {
 		let i, count, max;
 		let action, animation, anim;
 
-		let _entity = new Entity();
+		const _entity = new Entity();
 		action = _action.actions[_type];
 		max = action.animations.length;
 		anim = Renderer.tick - _start;
@@ -653,7 +653,7 @@ let rendering = (function renderingClosure() {
 
 function validateFieldsExist(event) {
 	if (event.length === 0) {
-		let validExitElement =
+		const validExitElement =
 			'<div class="event_view">' +
 			'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>' +
 			'<span class="overlay_open" data-text="1294">' +
@@ -695,7 +695,7 @@ function validateFieldsExist(event) {
  */
 function onItemPreview(pkt) {
 	if (pkt) {
-		let item = Inventory.getUI().getItemByIndex(pkt.index);
+		const item = Inventory.getUI().getItemByIndex(pkt.index);
 
 		if (!item) {
 			return false;
@@ -721,7 +721,7 @@ function onItemPreview(pkt) {
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		let compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -739,7 +739,7 @@ function onItemPreview(pkt) {
  * @returns {string} html content
  */
 function buildMoveInfoTooltip(moveInfo) {
-	let lines = [];
+	const lines = [];
 
 	for (const entry of MOVE_INFO_MESSAGES) {
 		if (moveInfo[entry.key] === true) {

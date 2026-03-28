@@ -16,8 +16,8 @@
 	 * @param {string} url
 	 */
 	function Socket(host, port, proxy) {
-		var url = 'ws://' + host + ':' + port + '/';
-		var self = this;
+		let url = 'ws://' + host + ':' + port + '/';
+		const self = this;
 		this.connected = false;
 
 		// Use of a proxy

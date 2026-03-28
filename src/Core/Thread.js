@@ -17,13 +17,13 @@ import Configs from 'Core/Configs';
 	 * Memory to get back data
 	 * @var List
 	 */
-	let _memory = {};
+	const _memory = {};
 
 	/**
 	 * List of hook callback
 	 * @var List
 	 */
-	let _hook = {};
+	const _hook = {};
 
 	/**
 	 * @var {number} uid
@@ -47,8 +47,8 @@ import Configs from 'Core/Configs';
 	 * @param {mixed} data
 	 * @param {function} callback
 	 */
-	let Send = (function SendClosure() {
-		let _input = { type: '', data: null, uid: 0 };
+	const Send = (function SendClosure() {
+		const _input = { type: '', data: null, uid: 0 };
 
 		return function Send(type, data, callback) {
 			let uid = 0;
@@ -73,8 +73,8 @@ import Configs from 'Core/Configs';
 	 * @param {object} event
 	 */
 	function Receive(event) {
-		let uid = event.data.uid;
-		let type = event.data.type;
+		const uid = event.data.uid;
+		const type = event.data.type;
 
 		// Direct callback
 		if (uid in _memory) {

@@ -35,7 +35,7 @@ import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTarget
 /**
  * Create Component
  */
-let PartyFriendsV1 = new UIComponent('PartyFriendsV1', htmlText, cssText);
+const PartyFriendsV1 = new UIComponent('PartyFriendsV1', htmlText, cssText);
 let _detachedMembers = {}; // Map of AID -> Component
 
 /**
@@ -46,17 +46,17 @@ let _index = -1;
 /**
  * @let {Array} friends list
  */
-let _friends = [];
+const _friends = [];
 
 /**
  * @let {Array} party list
  */
-let _party = [];
+const _party = [];
 
 /**
  * @let {Object} party setup
  */
-let _options = {
+const _options = {
 	exp_share: 0,
 	item_share: 0,
 	item_sharing_type: 0
@@ -78,7 +78,7 @@ let _skipSaveOnRemove = false;
 /**
  * @let {Preferences} structure
  */
-let _preferences = Preferences.get(
+const _preferences = Preferences.get(
 	'PartyFriendsV1',
 	{
 		x: 200,
@@ -134,14 +134,14 @@ PartyFriendsV1.init = function init() {
 	// Save external window position when dragging ends
 	// If another window already exists at the new position, they swap.
 	PartyMemberExternal.onDragEnd = function (movedComponent) {
-		let pos = movedComponent.ui.position();
-		let oldPos = movedComponent._lastPos;
+		const pos = movedComponent.ui.position();
+		const oldPos = movedComponent._lastPos;
 
 		if (oldPos) {
-			for (let aid in _detachedMembers) {
-				let other = _detachedMembers[aid];
+			for (const aid in _detachedMembers) {
+				const other = _detachedMembers[aid];
 				if (other && other !== movedComponent && other.ui) {
-					let otherPos = other.ui.position();
+					const otherPos = other.ui.position();
 					// Check if they are at the same grid anchor (using a small 5px tolerance)
 					if (Math.abs(otherPos.left - pos.left) < 5 && Math.abs(otherPos.top - pos.top) < 5) {
 						// Swap: Move the existing window to the newly moved window's old position
@@ -172,8 +172,8 @@ function onMemberMouseDown(event) {
 		return;
 	}
 
-	let node = jQuery(this);
-	let AID = node.data('aid');
+	const node = jQuery(this);
+	const AID = node.data('aid');
 
 	// Suppress native drag and text selection
 	event.preventDefault();
@@ -181,7 +181,7 @@ function onMemberMouseDown(event) {
 	// Selection change immediately on mousedown
 	onSelectionChange.call(this, event);
 
-	let player = _party.find(member => member.AID == AID);
+	const player = _party.find(member => member.AID == AID);
 
 	if (!player) {
 		return;
@@ -211,10 +211,10 @@ function onMemberMouseDown(event) {
 		return;
 	}
 
-	let startX = event.pageX;
-	let startY = event.pageY;
+	const startX = event.pageX;
+	const startY = event.pageY;
 	let isDragging = false;
-	let threshold = 5;
+	const threshold = 5;
 	let ghostWrapper = null;
 	let ghostInner = null;
 
@@ -240,12 +240,12 @@ function onMemberMouseDown(event) {
 
 				ghostInner = ghostWrapper.find('.drag-ghost-wrapper');
 
-				let ghostContent = node.clone();
+				const ghostContent = node.clone();
 				ghostInner.find('.party').append(ghostContent);
 
 				// Canvas content isn't cloned, redraw if possible
-				let srcCanvas = node.find('canvas')[0];
-				let dstCanvas = ghostContent.find('canvas')[0];
+				const srcCanvas = node.find('canvas')[0];
+				const dstCanvas = ghostContent.find('canvas')[0];
 				if (srcCanvas && dstCanvas) {
 					dstCanvas.width = srcCanvas.width;
 					dstCanvas.height = srcCanvas.height;
@@ -281,10 +281,10 @@ function onMemberMouseDown(event) {
 		if (isDragging) {
 			upEvent.stopImmediatePropagation();
 
-			let ui = PartyFriendsV1.ui;
-			let offset = ui.offset();
-			let x = upEvent.pageX;
-			let y = upEvent.pageY;
+			const ui = PartyFriendsV1.ui;
+			const offset = ui.offset();
+			const x = upEvent.pageX;
+			const y = upEvent.pageY;
 
 			// Check if dropped outside (with a small 10px buffer)
 			if (
@@ -305,19 +305,19 @@ function onMemberMouseDown(event) {
  * Starts from left: 0, top: 100 and stacks vertically.
  */
 function getNextAvailableSlot() {
-	let startX = 0;
-	let startY = 100;
-	let stepY = 38 + 10; // external window height (38px) + gap (10px)
+	const startX = 0;
+	const startY = 100;
+	const stepY = 38 + 10; // external window height (38px) + gap (10px)
 	let currentY = startY;
 
 	// Simple search: check if any detached member is overlapping with the candidate Y coordinate at X=0
 	let found = true;
 	while (found) {
 		found = false;
-		for (let aid in _detachedMembers) {
-			let ext = _detachedMembers[aid];
+		for (const aid in _detachedMembers) {
+			const ext = _detachedMembers[aid];
 			if (ext && ext.ui) {
-				let pos = ext.ui.position();
+				const pos = ext.ui.position();
 				// If there's an existing window at this exact X and Y, move to the next slot
 				if (Math.abs(pos.left - startX) < 5 && Math.abs(pos.top - currentY) < 5) {
 					currentY += stepY;
@@ -336,15 +336,15 @@ function getNextAvailableSlot() {
  * ordered by the current party list.
  */
 function sortDetachedMembers() {
-	let startX = 0;
-	let startY = 100;
-	let stepY = 38 + 10;
+	const startX = 0;
+	const startY = 100;
+	const stepY = 38 + 10;
 	let currentY = startY;
 
 	// Iterate through the party list to maintain their order
 	for (let i = 0, count = _party.length; i < count; i++) {
-		let player = _party[i];
-		let external = _detachedMembers[player.AID];
+		const player = _party[i];
+		const external = _detachedMembers[player.AID];
 
 		if (external && external.ui) {
 			external.ui.css({
@@ -366,7 +366,7 @@ function detachMember(AID, player, x, y, restorePos) {
 		return;
 	}
 
-	let external = PartyMemberExternal.clone('PartyMemberExternal_' + AID, true);
+	const external = PartyMemberExternal.clone('PartyMemberExternal_' + AID, true);
 	external.name = 'PartyMemberExternal_' + AID; // Fix clone name overwrite
 	UIManager.addComponent(external);
 
@@ -393,7 +393,7 @@ function detachMember(AID, player, x, y, restorePos) {
 		initY = restorePos.y;
 	} else {
 		// All initial detaches (dragging out or menu) snap to the next available slot in the stack
-		let slot = getNextAvailableSlot();
+		const slot = getNextAvailableSlot();
 		initX = slot.x;
 		initY = slot.y;
 	}
@@ -411,7 +411,7 @@ function detachMember(AID, player, x, y, restorePos) {
  * Refresh the party list rendering
  */
 PartyFriendsV1.refreshPartyList = function refreshPartyList() {
-	let ui = this.ui.find('.content .party');
+	const ui = this.ui.find('.content .party');
 	ui.empty();
 
 	for (let i = 0; i < _party.length; i++) {
@@ -471,7 +471,7 @@ PartyFriendsV1.clean = function clean() {
 
 	// Remove detached windows; skip overwriting positions on logout
 	_skipSaveOnRemove = true;
-	for (let aid in _detachedMembers) {
+	for (const aid in _detachedMembers) {
 		if (_detachedMembers[aid]) {
 			_detachedMembers[aid].remove();
 		}
@@ -580,7 +580,7 @@ PartyFriendsV1.onKeyDown = function onKeyDown(event) {
 PartyFriendsV1.setFriends = function setFriends(friends) {
 	let i,
 		count = friends.length;
-	let ui = this.ui.find('.content .friend');
+	const ui = this.ui.find('.content .friend');
 
 	_friends.length = friends.length;
 	ui.empty();
@@ -609,7 +609,7 @@ PartyFriendsV1.setFriends = function setFriends(friends) {
  * @param {boolean} state
  */
 PartyFriendsV1.updateFriendState = function updateFriendState(index, state) {
-	let node = this.ui.find('.content .friend .node:eq(' + index + ')');
+	const node = this.ui.find('.content .friend .node:eq(' + index + ')');
 
 	_friends[index].State = state;
 
@@ -654,7 +654,7 @@ PartyFriendsV1.updateFriend = function updateFriend(idx, friend) {
 	_friends[idx].AID = friend.AID;
 	_friends[idx].State = friend.State || 0;
 
-	let node = this.ui.find('.content .friend .node:eq(' + idx + ')');
+	const node = this.ui.find('.content .friend .node:eq(' + idx + ')');
 	node.find('.name').text(friend.Name);
 
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (url) {
@@ -692,10 +692,10 @@ PartyFriendsV1.setParty = function setParty(name, members) {
 
 	let i,
 		count = members.length;
-	let newAIDs = {};
+	const newAIDs = {};
 
 	for (i = 0; i < count; i++) {
-		let member = members[i];
+		const member = members[i];
 		newAIDs[member.AID] = true;
 		PartyFriendsV1.addPartyMember(member);
 	}
@@ -704,7 +704,7 @@ PartyFriendsV1.setParty = function setParty(name, members) {
 	if (_party.length > 0 && count > 0) {
 		for (i = 0; i < _party.length; i++) {
 			if (!newAIDs[_party[i].AID]) {
-				let removed = _party.splice(i, 1)[0];
+				const removed = _party.splice(i, 1)[0];
 				this.ui.find('.content .party .node[data-aid="' + removed.AID + '"]').remove();
 				i--;
 			}
@@ -715,7 +715,7 @@ PartyFriendsV1.setParty = function setParty(name, members) {
 
 	// Garbage Collection: Remove windows for members who left the party
 	let removedCount = 0;
-	for (let aid in _detachedMembers) {
+	for (const aid in _detachedMembers) {
 		let foundInPacket = false;
 		for (i = 0; i < count; i++) {
 			if (members[i].AID == aid || String(members[i].AID) === aid) {
@@ -750,8 +750,8 @@ function restoreDetachedMember(player) {
 	}
 
 	if (_savedPositions === null) {
-		let key = 'PartyFriends_' + Session.Character.name + '_Detached';
-		let savedStr = localStorage.getItem(key);
+		const key = 'PartyFriends_' + Session.Character.name + '_Detached';
+		const savedStr = localStorage.getItem(key);
 		_savedPositions = {};
 		try {
 			if (savedStr) {
@@ -762,7 +762,7 @@ function restoreDetachedMember(player) {
 		}
 	}
 
-	let entry = _savedPositions[player.AID] || _savedPositions[String(player.AID)];
+	const entry = _savedPositions[player.AID] || _savedPositions[String(player.AID)];
 	if (entry) {
 		detachMember(player.AID, player, null, null, entry);
 	}
@@ -775,17 +775,17 @@ function restoreDetachedMember(player) {
  * @param {number} maxhp
  */
 function updateCanvasLife(node, hp, maxhp) {
-	let hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-	let lifeRatio = hasLife ? hp / maxhp : 0;
-	let barVisibility = hasLife ? 'visible' : 'hidden';
+	const hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
+	const lifeRatio = hasLife ? hp / maxhp : 0;
+	const barVisibility = hasLife ? 'visible' : 'hidden';
 
 	node.find('.hp-bar-container, .hp').css('visibility', barVisibility);
 
 	if (hasLife) {
-		let canvas = node.find('canvas').get(0);
+		const canvas = node.find('canvas').get(0);
 		if (canvas) {
-			let ctx = canvas.getContext('2d');
-			let width = Math.floor(lifeRatio * 75);
+			const ctx = canvas.getContext('2d');
+			const width = Math.floor(lifeRatio * 75);
 			canvas.width = 75;
 			canvas.height = 5;
 			ctx.clearRect(0, 0, 75, 5);
@@ -804,7 +804,7 @@ function updateCanvasLife(node, hp, maxhp) {
  * @param {object} player information
  */
 PartyFriendsV1.addPartyMember = function addPartyMember(player) {
-	let role = player.role || 0;
+	const role = player.role || 0;
 	let i,
 		count = _party.length;
 
@@ -828,7 +828,7 @@ PartyFriendsV1.addPartyMember = function addPartyMember(player) {
 	let hasChanged = false;
 
 	if (i < count) {
-		let old = _party[i];
+		const old = _party[i];
 
 		if (
 			old.baseLevel !== (player.baseLevel !== undefined ? player.baseLevel : old.baseLevel) ||
@@ -870,29 +870,29 @@ PartyFriendsV1.addPartyMember = function addPartyMember(player) {
  * @param {object} player
  */
 PartyFriendsV1.renderPartyMember = function renderPartyMember(player) {
-	let role = player.role || player.Role || 0;
-	let job = player.class_ || player.job || player.Job || 0;
-	let level = player.baseLevel || player.level || player.Level || 0;
-	let isDead = !!player.isDead;
-	let isOnline = player.state === 0;
-	let isDetached = !!_detachedMembers[player.AID];
+	const role = player.role || player.Role || 0;
+	const job = player.class_ || player.job || player.Job || 0;
+	const level = player.baseLevel || player.level || player.Level || 0;
+	const isDead = !!player.isDead;
+	const isOnline = player.state === 0;
+	const isDetached = !!_detachedMembers[player.AID];
 
-	let jobName = MonsterTable[job] || 'Unknown';
-	let mapDisplay = DB.getMapName(player.mapName);
+	const jobName = MonsterTable[job] || 'Unknown';
+	const mapDisplay = DB.getMapName(player.mapName);
 
 	// Get color from MiniMap
-	let color = MiniMap && MiniMap.getMemberColor ? MiniMap.getMemberColor(player.AID) : 'white';
+	const color = MiniMap && MiniMap.getMemberColor ? MiniMap.getMemberColor(player.AID) : 'white';
 	player.color = color;
 
-	let nameTooltip = player.characterName + ' (' + mapDisplay + ')';
+	const nameTooltip = player.characterName + ' (' + mapDisplay + ')';
 
-	let hasLife = !!(player.life && player.life.display);
+	const hasLife = !!(player.life && player.life.display);
 	// Use visibility (not display) so bar always occupies space, keeping status icon in a fixed position
-	let barVisibility = hasLife ? 'visible' : 'hidden';
+	const barVisibility = hasLife ? 'visible' : 'hidden';
 
-	let memberColor = isOnline ? player.color || '#333' : '#848ca5';
+	const memberColor = isOnline ? player.color || '#333' : '#848ca5';
 
-	let html =
+	const html =
 		'<div class="node' +
 		(role === 0 ? ' leader' : '') +
 		(isOnline ? ' online' : '') +
@@ -965,7 +965,7 @@ PartyFriendsV1.renderPartyMember = function renderPartyMember(player) {
 	}
 
 	// Load Status Icon
-	let statusFile = 'icon_party_' + (player.AID == Session.AID ? 'me.bmp' : isOnline ? 'on.bmp' : 'off.bmp');
+	const statusFile = 'icon_party_' + (player.AID == Session.AID ? 'me.bmp' : isOnline ? 'on.bmp' : 'off.bmp');
 	Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/' + statusFile, function (url) {
 		node.find('.status-icon').css('backgroundImage', 'url(' + url + ')');
 	});
@@ -983,7 +983,7 @@ PartyFriendsV1.renderPartyMember = function renderPartyMember(player) {
 PartyFriendsV1.removePartyMember = function removePartyMember(AID, characterName) {
 	if (AID === Session.AID) {
 		// Remove all detached external windows
-		for (let aid in _detachedMembers) {
+		for (const aid in _detachedMembers) {
 			if (_detachedMembers[aid]) {
 				// Prevent onRemove from clearing preferences during global cleanup
 				_detachedMembers[aid].onRemove = function () {
@@ -1113,7 +1113,7 @@ PartyFriendsV1.updateMemberLife = function updateMemberLife(AID, canvas, hp, max
 	}
 
 	// Update main UI node if it exists
-	let node = this.ui.find('.content .party .node[data-aid="' + AID + '"]');
+	const node = this.ui.find('.content .party .node[data-aid="' + AID + '"]');
 	if (node.length) {
 		updateCanvasLife(node, hp, maxhp);
 	}
@@ -1144,7 +1144,7 @@ PartyFriendsV1.setOptions = function setOptions(exp_share, item_share, item_shar
  * @param {string} character name
  */
 PartyFriendsV1.isGroupMember = function isGroupMember(characterName) {
-	let count = _party.length;
+	const count = _party.length;
 	for (let i = 0; i < count; ++i) {
 		// No GID, need to compare using charactername (wtf)
 		if (_party[i].characterName === characterName) {
@@ -1159,15 +1159,15 @@ PartyFriendsV1.isGroupMember = function isGroupMember(characterName) {
  * Resizing UI
  */
 function onResize() {
-	let top = PartyFriendsV1.ui.position().top;
-	let left = PartyFriendsV1.ui.position().left;
+	const top = PartyFriendsV1.ui.position().top;
+	const left = PartyFriendsV1.ui.position().left;
 	let lastWidth = 0;
 	let lastHeight = 0;
 	let _Interval;
 
 	function resizing() {
-		let extraX = -20;
-		let extraY = 25 + 21;
+		const extraX = -20;
+		const extraY = 25 + 21;
 
 		let w = Math.floor((Mouse.screen.x - left - extraX) / 20);
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 20);
@@ -1225,7 +1225,7 @@ function onToggleLock() {
  * Move to the other tab (Friend -> Party or Party -> Friend)
  */
 function onChangeTab() {
-	let ui = PartyFriendsV1.ui;
+	const ui = PartyFriendsV1.ui;
 
 	_preferences.friend = !_preferences.friend;
 	_preferences.save();
@@ -1267,7 +1267,7 @@ function onRequestRemoveSelection() {
 		return;
 	}
 
-	let text = _preferences.friend ? DB.getMessage(356) : DB.getMessage(363);
+	const text = _preferences.friend ? DB.getMessage(356) : DB.getMessage(363);
 
 	// Are you sure that you want to delete/expel ?
 	UIManager.showPromptBox(text, 'ok', 'cancel', function () {
@@ -1288,7 +1288,7 @@ function onRequestPrivateMessage() {
 		return;
 	}
 
-	let name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
+	const name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
 	WhisperBox.show(name);
 }
 
@@ -1328,7 +1328,7 @@ function onRightClickInfo(event) {
 	ContextMenu.append();
 
 	if (_preferences.friend) {
-		let friend = _friends[_index];
+		const friend = _friends[_index];
 		if (!friend) {
 			return false;
 		}
@@ -1338,14 +1338,14 @@ function onRightClickInfo(event) {
 			ContextMenu.addElement(DB.getMessage(351), onRequestRemoveSelection);
 		}
 	} else {
-		let player = _party[_index];
+		const player = _party[_index];
 		if (!player) {
 			return false;
 		}
 
-		let isMe = player.AID === Session.AID;
-		let isLeader = Session.isPartyLeader;
-		let isOnline = player.state === 0;
+		const isMe = player.AID === Session.AID;
+		const isLeader = Session.isPartyLeader;
+		const isOnline = player.state === 0;
 
 		// All party members (including self) have "Send Message" (Mail)
 		ContextMenu.addElement(DB.getMessage(98), onOpenMailCreationWindow);
@@ -1429,16 +1429,16 @@ function onRequestPartyDelegation() {
  */
 function onSelectionChange(event) {
 	PartyFriendsV1.ui.find('.node').removeClass('selection');
-	let node = jQuery(this);
+	const node = jQuery(this);
 	node.addClass('selection');
 
-	let AID = node.data('aid');
+	const AID = node.data('aid');
 	_index = -1;
 
 	if (_preferences.friend) {
 		_index = PartyFriendsV1.ui.find(this.parentNode).find('.node').index(this);
 	} else {
-		let player = _party.find(member => member.AID == AID);
+		const player = _party.find(member => member.AID == AID);
 		_index = _party.indexOf(player);
 	}
 }
@@ -1499,7 +1499,7 @@ function onOpenPartyOptionWindow() {
 			return;
 		}
 
-		let whisperPrefs = WhisperBox.preferences;
+		const whisperPrefs = WhisperBox.preferences;
 
 		PartyHelper.append();
 		PartyHelper.setType(PartyHelper.Type.FRIEND_SETUP);
@@ -1537,7 +1537,7 @@ function onTooltipShow(event) {
 	}
 	event.__tooltipHandled = true;
 
-	let text = jQuery(this).attr('data-tooltip');
+	const text = jQuery(this).attr('data-tooltip');
 	if (text) {
 		let tooltip = jQuery('#ro-tooltip-party');
 		if (!tooltip.length) {
@@ -1553,7 +1553,7 @@ function onTooltipMove(event) {
 	}
 	event.__tooltipMoved = true;
 
-	let tooltip = jQuery('#ro-tooltip-party');
+	const tooltip = jQuery('#ro-tooltip-party');
 	if (tooltip.hasClass('show')) {
 		tooltip.css({
 			top: event.clientY + 15,
@@ -1586,14 +1586,14 @@ PartyFriendsV1.saveDetachedMembers = function () {
 		return;
 	}
 
-	let key = 'PartyFriends_' + Session.Character.name + '_Detached';
-	let saved = {};
+	const key = 'PartyFriends_' + Session.Character.name + '_Detached';
+	const saved = {};
 	let count = 0;
 
-	for (let aid in _detachedMembers) {
-		let ext = _detachedMembers[aid];
+	for (const aid in _detachedMembers) {
+		const ext = _detachedMembers[aid];
 		if (ext && ext.ui) {
-			let pos = ext.ui.position();
+			const pos = ext.ui.position();
 			saved[aid] = { x: pos.left, y: pos.top };
 			count++;
 		}

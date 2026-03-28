@@ -32,7 +32,7 @@ import _fragmentShader from './Water.fs?raw';
 	/**
 	 * @var {Array} textures list
 	 */
-	let _textures = new Array(32);
+	const _textures = new Array(32);
 
 	/**
 	 * @var {number} wave speed
@@ -123,9 +123,9 @@ import _fragmentShader from './Water.fs?raw';
 			return;
 		}
 
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
-		let frame = tick / (1000 / 60); // 60fps
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+		const frame = tick / (1000 / 60); // 60fps
 
 		gl.useProgram(_program);
 

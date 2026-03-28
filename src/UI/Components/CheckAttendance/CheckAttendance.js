@@ -24,7 +24,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 /**
 	 * Create Component
 	 */
-	let CheckAttendance = new UIComponent('CheckAttendance', htmlText, cssText);
+	const CheckAttendance = new UIComponent('CheckAttendance', htmlText, cssText);
 
 	/**
 	 * @var {object} _checkAttendanceData
@@ -39,7 +39,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CheckAttendance',
 		{
 			x: 200,
@@ -105,7 +105,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		if (this.ui.is(':visible')) {
 			this.ui.hide();
 		} else {
-			let _pkt = new PACKET.CZ.UI_OPEN();
+			const _pkt = new PACKET.CZ.UI_OPEN();
 			_pkt.UIType = 5;
 			Network.sendPacket(_pkt);
 		}
@@ -126,24 +126,24 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		let attendance_count = 0;
 		let current_day = 1;
 		if (_CheckAttendanceInfo.Config) {
-			let regex = /(\d{4})(\d{2})(\d{2})/;
-			let start = regex.exec(_CheckAttendanceInfo.Config.StartDate);
-			let end = regex.exec(_CheckAttendanceInfo.Config.EndDate);
-			let period_string = `Event Period: From ${start[2]}/${start[3]} ~ Until ${end[2]}/${end[3]} (Month/Day) 24:00`;
+			const regex = /(\d{4})(\d{2})(\d{2})/;
+			const start = regex.exec(_CheckAttendanceInfo.Config.StartDate);
+			const end = regex.exec(_CheckAttendanceInfo.Config.EndDate);
+			const period_string = `Event Period: From ${start[2]}/${start[3]} ~ Until ${end[2]}/${end[3]} (Month/Day) 24:00`;
 			this.ui.find('.top-panel-period').html(period_string);
 
 			if (_checkAttendanceData >= 0) {
 				already_requested = _checkAttendanceData % 10;
 				attendance_count = parseInt(_checkAttendanceData / 10);
 				current_day = attendance_count + 1;
-				let total_days_string =
+				const total_days_string =
 					attendance_count >= 20 || already_requested
 						? `${attendance_count} Day attendance success`
 						: `Click the item to claim day ${current_day} reward`;
 
-				let end_date = new Date(`${end[1]}-${end[2]}-${end[3]}`);
-				let now_date = new Date();
-				let remaining_days = Math.round(
+				const end_date = new Date(`${end[1]}-${end[2]}-${end[3]}`);
+				const now_date = new Date();
+				const remaining_days = Math.round(
 					Math.abs((end_date.getTime() - now_date.getTime()) / (1000 * 3600 * 24))
 				);
 
@@ -154,16 +154,16 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 		if (_CheckAttendanceInfo.Rewards) {
 			for (let i = 0; i < 20; i++) {
-				let item = DB.getItemInfo(_CheckAttendanceInfo.Rewards[i].item_id);
-				let day = i + 1;
-				let background =
+				const item = DB.getItemInfo(_CheckAttendanceInfo.Rewards[i].item_id);
+				const day = i + 1;
+				const background =
 					!already_requested && day == current_day
 						? 'data-background="check_attendance/bt_slot_a.bmp" data-down="check_attendance/bt_slot_press.bmp"'
 						: '';
-				let checked = day <= attendance_count ? 'checked' : 'checked-hidden';
-				let slot_off = already_requested ? attendance_count - 1 : attendance_count;
-				let slot_complete_string = day > slot_off ? 'bt_slot_complete' : 'bt_slot_off';
-				let item_slot =
+				const checked = day <= attendance_count ? 'checked' : 'checked-hidden';
+				const slot_off = already_requested ? attendance_count - 1 : attendance_count;
+				const slot_complete_string = day > slot_off ? 'bt_slot_complete' : 'bt_slot_off';
+				const item_slot =
 					'<li id="attendance_day_' +
 					i +
 					'" class="attendance-item"' +
@@ -224,15 +224,15 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 */
 	function onClickAttendance(e) {
 		// send reward request
-		let toggle_element = jQuery(e.currentTarget);
-		let id = toggle_element.attr('id');
+		const toggle_element = jQuery(e.currentTarget);
+		const id = toggle_element.attr('id');
 		CheckAttendance.ui.find('#' + id + ' .checked-hidden').attr('class', 'checked');
-		let completed_div = '<div class="completed" data-background="check_attendance/bt_slot_complete.tga"></div>';
+		const completed_div = '<div class="completed" data-background="check_attendance/bt_slot_complete.tga"></div>';
 		CheckAttendance.ui.find('#' + id).append(completed_div);
-		let current_day = parseInt(_checkAttendanceData / 10) + 1;
-		let total_days_string = `${current_day} Day attendance success`;
+		const current_day = parseInt(_checkAttendanceData / 10) + 1;
+		const total_days_string = `${current_day} Day attendance success`;
 		CheckAttendance.ui.find('.total-days').html(total_days_string);
-		let _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
+		const _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
 		Network.sendPacket(_pkt);
 	}
 

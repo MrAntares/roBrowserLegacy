@@ -66,7 +66,7 @@ import FileManager from 'Core/FileManager';
 			return;
 		}
 
-		let filename = this.list.shift();
+		const filename = this.list.shift();
 		FileManager.load(
 			filename,
 			function (data) {
@@ -133,7 +133,7 @@ import FileManager from 'Core/FileManager';
 	 * @param {number} percent
 	 */
 	MapLoader.prototype.setProgress = function setProgress(percent) {
-		let progress = Math.min(100, Math.floor(percent));
+		const progress = Math.min(100, Math.floor(percent));
 
 		if (progress !== this.progress) {
 			if (this.onprogress) {
@@ -152,7 +152,7 @@ import FileManager from 'Core/FileManager';
 		// Initialize the loading
 		this.setProgress(0);
 
-		let loader = this;
+		const loader = this;
 		let world;
 
 		//  Get file path (if it's a copy of a file)
@@ -204,7 +204,7 @@ import FileManager from 'Core/FileManager';
 			if (ground && ground.version >= 1.8) {
 				world.water = ground.water;
 			}
-			let compiledGround = ground.compile(world.water.level, world.water.waveHeight);
+			const compiledGround = ground.compile(world.water.level, world.water.waveHeight);
 
 			// Just to approximate, guess we have 2 textures for each models
 			// To get a more linear loading
@@ -241,11 +241,11 @@ import FileManager from 'Core/FileManager';
 	 */
 	MapLoader.prototype.loadGroundTextures = function LoadGroundTextures(world, ground, callback) {
 		let i, count;
-		let textures = [];
+		const textures = [];
 
 		// Get water textures
 		if (ground.waterVertCount) {
-			let path = 'data\\texture\\\xbf\xf6\xc5\xcd/water' + world.water.type;
+			const path = 'data\\texture\\\xbf\xf6\xc5\xcd/water' + world.water.type;
 			for (i = 0; i < 32; ++i) {
 				textures.push(path + (i < 10 ? '0' + i : i) + '.jpg');
 			}
@@ -257,7 +257,7 @@ import FileManager from 'Core/FileManager';
 		}
 
 		// Start loading
-		let loader = new Loader(textures);
+		const loader = new Loader(textures);
 
 		// On progress
 		loader.onprogress = function OnProgress() {
@@ -282,7 +282,7 @@ import FileManager from 'Core/FileManager';
 	 */
 	MapLoader.prototype.loadModels = function LoadModels(models, ground) {
 		let i, count;
-		let files = [];
+		const files = [];
 
 		// Get a list of files to load
 		for (i = 0, count = models.length; i < count; ++i) {
@@ -293,7 +293,7 @@ import FileManager from 'Core/FileManager';
 			}
 		}
 
-		let loader = new Loader(files);
+		const loader = new Loader(files);
 
 		// Update the progressbar
 		loader.onprogress = function () {
@@ -339,9 +339,9 @@ import FileManager from 'Core/FileManager';
 		let i, j, count, size, bufferSize;
 		let object, nodes, meshes;
 		let index;
-		let progress = this.progress;
-		let models = [];
-		let animatedModels = [];
+		const progress = this.progress;
+		const models = [];
+		const animatedModels = [];
 
 		bufferSize = 0;
 
@@ -390,7 +390,7 @@ import FileManager from 'Core/FileManager';
 	 * @return {number}
 	 */
 	function SortMeshByTextures(a, b) {
-		let reg_tga = /\.tga$/i;
+		const reg_tga = /\.tga$/i;
 
 		if (a.texture.match(reg_tga)) {
 			return 1;
@@ -424,12 +424,12 @@ import FileManager from 'Core/FileManager';
 	MapLoader.prototype.mergeMeshes = function MergeMeshes(objects, bufferSize) {
 		let i, j, count, size, offset;
 		let object, texture;
-		let textures = [],
+		const textures = [],
 			infos = [];
 		let buffer;
 
-		let fcount = 1 / 9;
-		let progress = this.progress;
+		const fcount = 1 / 9;
+		const progress = this.progress;
 
 		// Create buffer where to concat meshes
 		buffer = new Float32Array(bufferSize);
@@ -467,7 +467,7 @@ import FileManager from 'Core/FileManager';
 		}
 
 		// Load texture
-		let loader = new Loader(textures);
+		const loader = new Loader(textures);
 
 		// On Progress
 		loader.onprogress = function (index, count) {
@@ -506,11 +506,11 @@ import FileManager from 'Core/FileManager';
 	 * @param {Array} animatedModels - RSM objects with animation
 	 */
 	MapLoader.prototype.sendAnimatedModels = function SendAnimatedModels(animatedModels) {
-		for (var i = 0; i < animatedModels.length; i++) {
-			let model = animatedModels[i];
+		for (let i = 0; i < animatedModels.length; i++) {
+			const model = animatedModels[i];
 
 			// Serialize model data for transfer
-			let modelData = {
+			const modelData = {
 				filename: model.filename,
 				animLen: model.animLen,
 				frameRatePerSecond: model.frameRatePerSecond || 30,
@@ -529,13 +529,13 @@ import FileManager from 'Core/FileManager';
 			};
 
 			// Serialize instances
-			for (var j = 0; j < model.instances.length; j++) {
+			for (let j = 0; j < model.instances.length; j++) {
 				modelData.instances.push(Array.from(model.instances[j]));
 			}
 
 			// Serialize nodes
-			for (var k = 0; k < model.nodes.length; k++) {
-				let node = model.nodes[k];
+			for (let k = 0; k < model.nodes.length; k++) {
+				const node = model.nodes[k];
 
 				modelData.nodes.push({
 					name: node.name,

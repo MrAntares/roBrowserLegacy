@@ -13,7 +13,7 @@
 import JobId from './JobConst';
 import WeaponType from 'DB/Items/WeaponType';
 
-	let WeaponAction = {};
+	const WeaponAction = {};
 
 	WeaponAction[JobId.NOVICE] = [
 		new (function () {
@@ -319,8 +319,8 @@ import WeaponType from 'DB/Items/WeaponType';
 	];
 
 	function duplicateEntry(origin) {
-		var value = WeaponAction[origin];
-		var i,
+		const value = WeaponAction[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {

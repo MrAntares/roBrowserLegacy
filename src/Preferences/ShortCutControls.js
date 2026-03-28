@@ -9,10 +9,10 @@
  */
 'use strict';
 
-import Preferences from "Core/Preferences";
-import KEYS from "Controls/KeyEventHandler";
+import Preferences from 'Core/Preferences';
+import KEYS from 'Controls/KeyEventHandler';
 
-	let ShortCuts = {};
+	const ShortCuts = {};
 	ShortCuts.F1_1 = {
 		init: { key: KEYS.F1, alt: false, ctrl: false, shift: false },
 		cust: false,
@@ -497,6 +497,6 @@ import KEYS from "Controls/KeyEventHandler";
 		cmd: 'EXECUTE_FLAG_9'
 	};
 
-	let ShortCutControls = { ShortCuts: ShortCuts };
+	const ShortCutControls = { ShortCuts: ShortCuts };
 
 	export default Preferences.get('ShortCutControls', ShortCutControls, 1.2);

@@ -21,8 +21,8 @@ import MapPreferences from 'Preferences/Map';
 	const _size = new Float32Array(2);
 	const dpr = window.devicePixelRatio || 1;
 
-	let procCanvas = document.createElement('canvas');
-	let procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+	const procCanvas = document.createElement('canvas');
+	const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
 	// Some helper for Firefox to render text-border
 	if (typeof CanvasRenderingContext2D !== 'undefined') {
@@ -53,9 +53,9 @@ import MapPreferences from 'Preferences/Map';
 	 * For more informations, check :
 	 * http://forum.robrowser.com/index.php?topic=32200
 	 */
-	let _isUglyShadow = (function isUglyGPUShadow() {
-		let fontSize = 12 * dpr;
-		let text = 'Testing';
+	const _isUglyShadow = (function isUglyGPUShadow() {
+		const fontSize = 12 * dpr;
+		const text = 'Testing';
 		let width, height, percent;
 
 		// Create canvas
@@ -81,8 +81,8 @@ import MapPreferences from 'Preferences/Map';
 		procCtx.fillText(text, 5, 0);
 
 		// Read canvas pixels and get the average black
-		let imageData = procCtx.getImageData(0, 0, width, height);
-		let pixels = imageData.data;
+		const imageData = procCtx.getImageData(0, 0, width, height);
+		const pixels = imageData.data;
 		let i,
 			count = pixels.length;
 		let total = 0;
@@ -165,10 +165,10 @@ import MapPreferences from 'Preferences/Map';
 		style = style || this.STYLE.DEFAULT;
 
 		// Setup variables
-		let lines = new Array(2);
-		let fontSize = 12 * dpr;
-		let ctx = this.ctx;
-		let start_x =
+		const lines = new Array(2);
+		const fontSize = 12 * dpr;
+		const ctx = this.ctx;
+		const start_x =
 			(this.emblem &&
 			(style === this.STYLE.DEFAULT ||
 				style === this.STYLE.ADMIN ||
@@ -177,7 +177,7 @@ import MapPreferences from 'Preferences/Map';
 				? 26
 				: 0) + 5;
 		let width, height;
-		let paddingTop = 5;
+		const paddingTop = 5;
 
 		// Skip the "#" in the pseudo
 		lines[0] = this.fakename ? this.fakename.split('#')[0] : this.name.split('#')[0];
@@ -233,7 +233,7 @@ import MapPreferences from 'Preferences/Map';
 		}
 
 		// Setup the canvas
-		let fontBold = MapPreferences.showname ? 'bold ' : '';
+		const fontBold = MapPreferences.showname ? 'bold ' : '';
 		ctx.font = fontBold + fontSize + 'px Arial';
 
 		width = Math.max(ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width) + start_x + 5;
@@ -250,8 +250,8 @@ import MapPreferences from 'Preferences/Map';
 				style === this.STYLE.NPC)
 		) {
 			if (this.emblem.isAnimated) {
-				let fw = this.emblem.frameWidth;
-				let fh = this.emblem.frameHeight;
+				const fw = this.emblem.frameWidth;
+				const fh = this.emblem.frameHeight;
 				ctx.drawImage(this.emblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
 			} else {
 				ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
@@ -275,7 +275,7 @@ import MapPreferences from 'Preferences/Map';
 				break;
 		}
 
-		let fontBold2 = MapPreferences.showname ? 'bold ' : '';
+		const fontBold2 = MapPreferences.showname ? 'bold ' : '';
 		ctx.font = fontBold2 + fontSize + 'px Arial';
 		ctx.textBaseline = 'top';
 
@@ -340,24 +340,24 @@ import MapPreferences from 'Preferences/Map';
 	Display.prototype.render = function (matrix) {
 		let z;
 		if (this.emblem && this.emblem.isAnimated) {
-			let paddingTop = 5;
-			let now = Date.now();
+			const paddingTop = 5;
+			const now = Date.now();
 
-			let currentFrameIndex = this.emblem.currentFrame || 0;
-			let frameDelay = this.emblem.frameDelays ? this.emblem.frameDelays[currentFrameIndex] : 100;
+			const currentFrameIndex = this.emblem.currentFrame || 0;
+			const frameDelay = this.emblem.frameDelays ? this.emblem.frameDelays[currentFrameIndex] : 100;
 
 			if (now - this.emblem.lastFrameChange >= frameDelay) {
 				this.emblem.lastFrameChange = now;
 
-				let fw = this.emblem.frameWidth;
-				let fh = this.emblem.frameHeight;
-				let fpr = this.emblem.framesPerRow || Math.floor(this.emblem.width / fw);
-				let total = this.emblem.frameCount || fpr * Math.floor(this.emblem.height / fh);
+				const fw = this.emblem.frameWidth;
+				const fh = this.emblem.frameHeight;
+				const fpr = this.emblem.framesPerRow || Math.floor(this.emblem.width / fw);
+				const total = this.emblem.frameCount || fpr * Math.floor(this.emblem.height / fh);
 
 				this.emblem.currentFrame = (this.emblem.currentFrame + 1) % total;
 
-				let col = this.emblem.currentFrame % fpr;
-				let row = Math.floor(this.emblem.currentFrame / fpr);
+				const col = this.emblem.currentFrame % fpr;
+				const row = Math.floor(this.emblem.currentFrame / fpr);
 
 				this.ctx.save();
 				this.ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -368,7 +368,7 @@ import MapPreferences from 'Preferences/Map';
 			}
 		}
 
-		let canvas = this.canvas;
+		const canvas = this.canvas;
 		// Cast position
 		_pos[0] = 0.0;
 		_pos[1] = -0.5;

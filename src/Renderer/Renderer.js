@@ -30,7 +30,7 @@ const { mat4 } = glMatrix;
 /**
  * Renderer Namespace
  */
-var Renderer = {};
+const Renderer = {};
 
 /**
  * @var {HTML5 canvas}
@@ -100,7 +100,7 @@ Renderer.renderCallbacks = [];
 /**
  * Shime for requestAnimationFrame
  */
-var _requestAnimationFrame =
+const _requestAnimationFrame =
 	window.requestAnimationFrame ||
 	window.webkitRequestAnimationFrame ||
 	window.mozRequestAnimationFrame ||
@@ -112,7 +112,7 @@ var _requestAnimationFrame =
 /**
  * Shime for cancelAnimationFrame
  */
-var _cancelAnimationFrame =
+const _cancelAnimationFrame =
 	window.cancelAnimationFrame ||
 	window.webkitCancelAnimationFrame ||
 	window.mozCancelAnimationFrame ||
@@ -152,7 +152,7 @@ Renderer.init = function init(param) {
 		this.resize();
 	}
 
-	var gl = this.gl;
+	const gl = this.gl;
 	this.isWebGL2 = WebGL.isWebGL2(gl);
 
 	gl.clearDepth(1.0);
@@ -199,7 +199,7 @@ Renderer.onContextRestored = function (event) {
 		this.errorOverlay.style.display = 'none';
 	}
 
-	var gl = this.gl;
+	const gl = this.gl;
 
 	// Re-detect capabilities
 	this.isWebGL2 = WebGL.isWebGL2(gl);
@@ -263,7 +263,7 @@ Renderer.resize = function resize() {
 		return;
 	}
 
-	var width,
+	let width,
 		height,
 		quality,
 		dpr = window.devicePixelRatio || 1;
@@ -317,7 +317,7 @@ Renderer._render = function render(time) {
 	}
 
 	// time: DOMHighResTimeStamp (from rAF) or undefined if fallback
-	var now = typeof time === 'number' ? time : Date.now();
+	const now = typeof time === 'number' ? time : Date.now();
 
 	// bind cache for scheduling (avoid new bind each frame)
 	if (!this._renderBound) {
@@ -335,8 +335,8 @@ Renderer._render = function render(time) {
 
 	// Throttle when frameLimit > 0
 	if (this.frameLimit > 0) {
-		var interval = 1000 / this.frameLimit;
-		var elapsed = now - this._lastFrameTime;
+		const interval = 1000 / this.frameLimit;
+		const elapsed = now - this._lastFrameTime;
 
 		if (elapsed < interval) {
 			// Not enough time elapsed for next allowed frame — schedule next rAF and exit
@@ -353,7 +353,7 @@ Renderer._render = function render(time) {
 	}
 
 	// Use Date.now for serverTick and Events processing, to keep existing behavior intact
-	var newTick = Date.now();
+	const newTick = Date.now();
 
 	// Increment serverTick with delta
 	Session.serverTick += newTick - this.tick;
@@ -365,7 +365,7 @@ Renderer._render = function render(time) {
 	Events.process(this.tick);
 
 	// Execute render callbacks
-	var i, count;
+	let i, count;
 	for (i = 0, count = this.renderCallbacks.length; i < count; ++i) {
 		try {
 			this.renderCallbacks[i](this.tick, this.gl);
@@ -442,7 +442,7 @@ Renderer.stop = function stop(fn) {
 		}
 		return;
 	}
-	var pos = this.renderCallbacks.indexOf(fn);
+	const pos = this.renderCallbacks.indexOf(fn);
 	if (pos > -1) {
 		this.renderCallbacks.splice(pos, 1);
 	}

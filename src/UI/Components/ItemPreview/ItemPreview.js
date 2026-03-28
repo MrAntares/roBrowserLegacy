@@ -23,7 +23,7 @@ import Entity from 'Renderer/Entity/Entity';
 /**
 	 * Create Component
 	 */
-	let ItemPreview = new UIComponent('ItemPreview', htmlText, cssText);
+	const ItemPreview = new UIComponent('ItemPreview', htmlText, cssText);
 
 	/**
 	 * @var {CanvasRenderingContext2D}
@@ -91,8 +91,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 */
 	ItemPreview.onAppend = function onAppend() {
 		if (ItemInfo.ui) {
-			let itemInfoPosition = ItemInfo.ui.offset();
-			let itemInfoWidth = ItemInfo.ui.outerWidth();
+			const itemInfoPosition = ItemInfo.ui.offset();
+			const itemInfoWidth = ItemInfo.ui.outerWidth();
 			let left = itemInfoPosition.left + itemInfoWidth + 10;
 			let top = itemInfoPosition.top;
 
@@ -137,7 +137,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @param {object} item
 	 */
 	ItemPreview.setItem = function setItem(item) {
-		let it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 
 		this.item = item;
 		_previewLocation = getItemLocation(item);
@@ -210,10 +210,10 @@ import Entity from 'Renderer/Entity/Entity';
 	/**
 	 * Rendering character
 	 */
-	let renderPreview = (function renderPreviewClosure() {
-		let _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		let _savedColor = new Float32Array(4);
-		let _animation = {
+	const renderPreview = (function renderPreviewClosure() {
+		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		const _savedColor = new Float32Array(4);
+		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -234,7 +234,7 @@ import Entity from 'Renderer/Entity/Entity';
 				return;
 			}
 
-			let previewCharacter = new Entity();
+			const previewCharacter = new Entity();
 			previewCharacter.set({
 				GID: Session.Entity.GID + '_PREVIEW',
 				objecttype: previewCharacter.constructor.TYPE_PC,

@@ -22,7 +22,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer';
 /**
 	 * Create SlotMachine UI
 	 */
-	let SlotMachine = new UIComponent('SlotMachine');
+	const SlotMachine = new UIComponent('SlotMachine');
 
 	/**
 	 * @var {Sprite,Action} objects
@@ -47,7 +47,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer';
 	/**
 	 * @var {Entity}
 	 */
-	let _entity = new Entity();
+	const _entity = new Entity();
 
 	/**
 	 * @var {number} start tick
@@ -132,8 +132,8 @@ import SpriteRenderer from 'Renderer/SpriteRenderer';
 	/**
 	 * Rendering animation
 	 */
-	let rendering = (function renderingClosure() {
-		let position = new Uint16Array([0, 0]);
+	const rendering = (function renderingClosure() {
+		const position = new Uint16Array([0, 0]);
 
 		return function rendering() {
 			let i, count, max;

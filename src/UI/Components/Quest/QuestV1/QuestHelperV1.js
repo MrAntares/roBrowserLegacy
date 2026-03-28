@@ -24,12 +24,12 @@ import cssText from './QuestHelperV1.css?raw';
 /**
 	 * Create Component
 	 */
-	let QuestHelperV1 = new UIComponent('QuestHelperV1', htmlText, cssText);
+	const QuestHelperV1 = new UIComponent('QuestHelperV1', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'QuestHelperV1',
 		{
 			x: 200,
@@ -123,7 +123,7 @@ import cssText from './QuestHelperV1.css?raw';
 
 		// Add click handler for item links
 		this.ui.on('click', '.item-link', function (event) {
-			let itemId = parseInt(jQuery(this).data('item-id'), 10);
+			const itemId = parseInt(jQuery(this).data('item-id'), 10);
 			if (!itemId) {
 				return;
 			}
@@ -142,8 +142,8 @@ import cssText from './QuestHelperV1.css?raw';
 
 		// Add click handler for navi links
 		this.ui.on('click', '.navi-link', function (event) {
-			let naviInfo = jQuery(this).data('navi-info');
-			let displayName = jQuery(this).data('navi-name');
+			const naviInfo = jQuery(this).data('navi-info');
+			const displayName = jQuery(this).data('navi-name');
 
 			if (!naviInfo) {
 				return;
@@ -180,7 +180,7 @@ import cssText from './QuestHelperV1.css?raw';
 		QuestHelperV1.ui.find('.objective').html(processText(quest.description));
 		let list = '<select class="monster-select">';
 		let first = true;
-		for (let huntID in quest.hunt_list) {
+		for (const huntID in quest.hunt_list) {
 			if (first) {
 				QuestHelperV1.ui.find('.killed').html(quest.hunt_list[huntID].huntCount);
 				QuestHelperV1.ui.find('.limited').html(quest.hunt_list[huntID].maxCount);
@@ -246,7 +246,7 @@ import cssText from './QuestHelperV1.css?raw';
 	}
 
 	function onSelectMonster(e) {
-		let selected_monster = jQuery(e.currentTarget);
+		const selected_monster = jQuery(e.currentTarget);
 		QuestHelperV1.ui.find('.killed').html(selected_monster.attr('current'));
 		QuestHelperV1.ui.find('.limited').html(selected_monster.attr('max'));
 	}

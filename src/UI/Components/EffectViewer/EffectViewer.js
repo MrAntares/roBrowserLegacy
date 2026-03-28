@@ -30,12 +30,12 @@ import cssText from './EffectViewer.css?raw';
 /**
 	 * Load dependencies
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {object} fog structure
 	 */
-	let _fog = {
+	const _fog = {
 		use: false,
 		exist: true,
 		far: 30,
@@ -49,7 +49,7 @@ import cssText from './EffectViewer.css?raw';
 	/**
 	 * Create GRFViewer component
 	 */
-	let Viewer = new UIComponent('EffectViewer', htmlText, cssText);
+	const Viewer = new UIComponent('EffectViewer', htmlText, cssText);
 
 	/**
 	 * Initialize Component
@@ -102,7 +102,7 @@ import cssText from './EffectViewer.css?raw';
 		}
 
 		for (const effectId of Object.keys(EffectTable)) {
-			let ef_name = getKeyByValue(EC, effectId);
+			const ef_name = getKeyByValue(EC, effectId);
 			select.add(
 				new Option(
 					ef_name !== undefined ? effectId + ' (' + ef_name + ')' : effectId,
@@ -154,7 +154,7 @@ import cssText from './EffectViewer.css?raw';
 	 * Stop to render
 	 */
 	function stop() {
-		let gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		Renderer.stop();
 		EffectManager.free(gl);
@@ -171,7 +171,7 @@ import cssText from './EffectViewer.css?raw';
 		// Clear screen, update camera
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		Camera.update(tick);
-		let modelView = Camera.modelView;
+		const modelView = Camera.modelView;
 		EffectManager.render(gl, modelView, Camera.projection, _fog, tick, false);
 		EffectManager.render(gl, modelView, Camera.projection, _fog, tick, true);
 	}
@@ -199,8 +199,8 @@ import cssText from './EffectViewer.css?raw';
 		this.zoomFinal = 125;
 	};
 	Camera.rotate = function Rotate(active) {
-		let action = this.action;
-		let tick = Date.now();
+		const action = this.action;
+		const tick = Date.now();
 
 		if (!active) {
 			action.active = false;

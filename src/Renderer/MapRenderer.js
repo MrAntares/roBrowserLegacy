@@ -59,7 +59,7 @@ import WebGL from 'Utils/WebGL';
 	/**
 	 * Renderer Namespace
 	 */
-	var MapRenderer = {};
+	const MapRenderer = {};
 
 	/**
 	 * @var {string} current map's name
@@ -138,7 +138,7 @@ import WebGL from 'Utils/WebGL';
 			this.currentMap = mapname;
 
 			// Parse the filename (ugly RO)
-			var filename = mapname.replace(/\.gat$/i, '.rsw');
+			const filename = mapname.replace(/\.gat$/i, '.rsw');
 
 			Background.setLoading(function () {
 				// Hooking Thread
@@ -158,7 +158,7 @@ import WebGL from 'Utils/WebGL';
 			return;
 		}
 
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 		EntityManager.free();
 		Damage.free(gl);
 		EffectManager.free(gl);
@@ -176,7 +176,7 @@ import WebGL from 'Utils/WebGL';
 	 * Clean up data
 	 */
 	MapRenderer.free = function Free() {
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		EntityManager.free();
 		GridSelector.free(gl);
@@ -231,8 +231,8 @@ import WebGL from 'Utils/WebGL';
 
 		// Calculate light direction
 		this.light.direction = new Float32Array(3);
-		var longitude = (this.light.longitude * Math.PI) / 180;
-		var latitude = (this.light.latitude * Math.PI) / 180;
+		const longitude = (this.light.longitude * Math.PI) / 180;
+		const latitude = (this.light.latitude * Math.PI) / 180;
 
 		const dirMat4 = mat4.create();
 		// Original client first rotates around X then Y, but then multiplies matrixes in reverse order
@@ -250,7 +250,7 @@ import WebGL from 'Utils/WebGL';
 	 * Received ground data from Thread
 	 */
 	function onGroundComplete(data) {
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		this.water.mesh = data.waterMesh;
 		this.water.vertCount = data.waterVertCount;
@@ -260,7 +260,7 @@ import WebGL from 'Utils/WebGL';
 
 		// Initialize sounds
 		this.sounds.forEach(sound => {
-			let tmp = -sound.pos[1];
+			const tmp = -sound.pos[1];
 			sound.pos[0] += data.width;
 			sound.pos[1] = sound.pos[2] + data.height;
 			sound.pos[2] = tmp;
@@ -273,7 +273,7 @@ import WebGL from 'Utils/WebGL';
 		this.effects.forEach(effect => {
 			// Note: effects objects do not need to be centered in a cell
 			// as we apply +0.5 in the shader, we have to revert it.
-			let tmp = -effect.pos[1] + 1; //WTF????????
+			const tmp = -effect.pos[1] + 1; //WTF????????
 			effect.pos[0] += data.width - 0.5;
 			effect.pos[1] = effect.pos[2] + data.height - 0.5;
 			effect.pos[2] = tmp;
@@ -291,7 +291,7 @@ import WebGL from 'Utils/WebGL';
 	 * Receiving parsed GAT from Thread
 	 */
 	function onAltitudeComplete(data) {
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 		Altitude.init(data);
 		GridSelector.init(gl);
 	}
@@ -307,7 +307,7 @@ import WebGL from 'Utils/WebGL';
 	 * Receiving animated RSM model from Thread
 	 */
 	function onAnimatedModelComplete(data) {
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 		AnimatedModels.add(gl, data);
 	}
 
@@ -336,8 +336,8 @@ import WebGL from 'Utils/WebGL';
 	 * Once the map finished to load
 	 */
 	function onMapComplete(success, error) {
-		var worldResource = this.currentMap.replace(/\.gat$/i, '.rsw');
-		var mapInfo = DB.getMap(worldResource);
+		const worldResource = this.currentMap.replace(/\.gat$/i, '.rsw');
+		const mapInfo = DB.getMap(worldResource);
 
 		// Problem during loading ?
 		if (!success) {
@@ -359,7 +359,7 @@ import WebGL from 'Utils/WebGL';
 
 		// Initialize renderers
 		Renderer.init();
-		var gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		SpriteRenderer.init(gl);
 		Sky.init(gl, worldResource);
@@ -390,16 +390,16 @@ import WebGL from 'Utils/WebGL';
 	 * @param {number} tick - game tick
 	 * @param {object} gl context
 	 */
-	var _pos = new Uint16Array(2);
+	const _pos = new Uint16Array(2);
 	MapRenderer.onRender = function OnRender(tick, gl) {
 		PostProcess.prepare(gl);
 
-		var fog = MapRenderer.fog;
+		const fog = MapRenderer.fog;
 		fog.use = MapPreferences.fog;
-		var light = MapRenderer.light;
+		const light = MapRenderer.light;
 
-		var modelView, projection, normalMat;
-		var x, y;
+		let modelView, projection, normalMat;
+		let x, y;
 
 		// Clean mouse position in world
 		Mouse.world.x = -1;
@@ -432,10 +432,10 @@ import WebGL from 'Utils/WebGL';
 			if (isWalkable) {
 				if (Session.captchaGetIdOnFloorClick) {
 					// render Grid Selector on floor range
-					let range = Session.captchaGetIdOnFloorRange;
+					const range = Session.captchaGetIdOnFloorRange;
 
 					// render on range
-					let cells = Altitude.getCellsInSquareRange(x, y, range);
+					const cells = Altitude.getCellsInSquareRange(x, y, range);
 					cells.forEach(cell => {
 						GridSelector.render(gl, modelView, projection, fog, cell.x, cell.y);
 					});
@@ -481,7 +481,7 @@ import WebGL from 'Utils/WebGL';
 
 		// Find entity over the cursor
 		if (Mouse.intersect) {
-			var entity = EntityManager.intersect();
+			const entity = EntityManager.intersect();
 			EntityManager.setOverEntity(entity);
 		}
 

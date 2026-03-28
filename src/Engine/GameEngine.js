@@ -37,23 +37,23 @@ import PACKETVER from 'Network/PacketVerManager';
 /**
  * @var {Array} Login server list
  */
-var _servers = [];
+let _servers = [];
 
 /**
  * @var {server} the previously selected server (if set)
  */
-var _previous_server = undefined;
+let _previous_server = undefined;
 
 /**
  * @var {boolean} is thread ready ? (fix)
  */
-var _thread_ready = false;
+let _thread_ready = false;
 
 /**
  * Load files.
  */
 function loadFiles(callback) {
-	var q = new Queue();
+	const q = new Queue();
 
 	// Start Intro, wait the user to add files
 	q.add(function () {
@@ -132,7 +132,7 @@ export function init() {
 	ConsoleManager.init();
 	ConsoleManager.toggle();
 
-	var q = new Queue();
+	const q = new Queue();
 
 	// Waiting for the Thread to be ready
 	q.add(function () {
@@ -196,8 +196,8 @@ export function reload() {
 
 function onReload() {
 	// Display server list
-	var list = new Array(_servers.length);
-	var i,
+	const list = new Array(_servers.length);
+	let i,
 		count = list.length;
 
 	// WTF no servers ?
@@ -279,7 +279,7 @@ function onExit() {
  * @param {function} callback
  */
 function loadClientInfo(callback) {
-	var servers = Configs.get('servers', 'data/clientinfo.xml');
+	const servers = Configs.get('servers', 'data/clientinfo.xml');
 
 	if (servers instanceof Array) {
 		_servers = servers;
@@ -293,19 +293,19 @@ function loadClientInfo(callback) {
 		function (xml) {
 			// $.parseXML() don't parse buggy xml (and a lot of clientinfo.xml are not properly write)...
 			xml = xml.replace(/^.*<\?xml/, '<?xml');
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(xml, 'application/xml');
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(xml, 'application/xml');
 
-			var connections = jQuery(doc).find('clientinfo connection');
-			var stop = connections.length - 1;
-			var list = [];
+			const connections = jQuery(doc).find('clientinfo connection');
+			const stop = connections.length - 1;
+			const list = [];
 
 			if (!connections.length) {
 				callback();
 			}
 
 			connections.each(function (index, element) {
-				var connection = jQuery(element);
+				const connection = jQuery(element);
 
 				list.push(connection.find('display:first').text());
 				_servers.push({
@@ -319,7 +319,7 @@ function loadClientInfo(callback) {
 					registrationweb: connection.find('registrationweb:first').text(),
 					renewal: ['true', '1', 1, true].includes(connection.find('renewal:first').text().toLowerCase()),
 					adminList: (function () {
-						var list = [];
+						const list = [];
 						connection.find('yellow admin, aid admin').each(function () {
 							list.push(parseInt(this.textContent, 10));
 						});

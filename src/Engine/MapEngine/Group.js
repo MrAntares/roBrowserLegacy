@@ -28,7 +28,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 /**
  * Party namespace
  */
-let GroupEngine = {};
+const GroupEngine = {};
 
 /**
  * @var {string} temporary variable to store party name
@@ -60,7 +60,7 @@ GroupEngine.init = function init() {
 	Network.hookPacket(PACKET.ZC.ACK_MAKE_GROUP, onPartyCreate);
 	Network.hookPacket(PACKET.ZC.GROUP_ISALIVE, onPartyIsAlive);
 
-	let PartyUI = PartyFriends.getUI();
+	const PartyUI = PartyFriends.getUI();
 
 	PartyUI.onExpelMember = GroupEngine.onRequestExpel;
 	PartyUI.onRequestChangeLeader = GroupEngine.onRequestChangeLeader;
@@ -82,7 +82,7 @@ GroupEngine.onRequestCreationEasy = function onRequestPartyCreationEasy(name) {
 
 	_partyName = name;
 
-	let pkt = new PACKET.CZ.MAKE_GROUP();
+	const pkt = new PACKET.CZ.MAKE_GROUP();
 	pkt.groupName = name;
 	Network.sendPacket(pkt);
 };
@@ -100,7 +100,7 @@ GroupEngine.onRequestCreation = function onRequestPartyCreation(name, pickupRule
 	}
 
 	_partyName = name;
-	let pkt = new PACKET.CZ.MAKE_GROUP2();
+	const pkt = new PACKET.CZ.MAKE_GROUP2();
 	pkt.groupName = name;
 	this.ItemPickupRule = pickupRule;
 	this.ItemDivisionRule = divisionRule;
@@ -125,11 +125,11 @@ GroupEngine.onRequestInvitation = function onRequestPartyInvitation(AID, pseudo)
 	);
 
 	if (PACKETVER.value >= 20130529) {
-		let pkt = new PACKET.CZ.PARTY_JOIN_REQ();
+		const pkt = new PACKET.CZ.PARTY_JOIN_REQ();
 		pkt.characterName = pseudo;
 		Network.sendPacket(pkt);
 	} else {
-		let pkt = new PACKET.CZ.REQ_JOIN_GROUP();
+		const pkt = new PACKET.CZ.REQ_JOIN_GROUP();
 		pkt.AID = AID;
 		pkt.CharName = pseudo;
 		Network.sendPacket(pkt);
@@ -144,7 +144,7 @@ GroupEngine.onRequestLeave = function onRequestPartyLeave() {
 		return;
 	}
 
-	let pkt = new PACKET.CZ.REQ_LEAVE_GROUP();
+	const pkt = new PACKET.CZ.REQ_LEAVE_GROUP();
 	Network.sendPacket(pkt);
 };
 
@@ -159,7 +159,7 @@ GroupEngine.onRequestExpel = function onRequestPartyExpel(AID, pseudo) {
 		return;
 	}
 
-	let pkt = new PACKET.CZ.REQ_EXPEL_GROUP_MEMBER();
+	const pkt = new PACKET.CZ.REQ_EXPEL_GROUP_MEMBER();
 	pkt.AID = AID;
 	pkt.characterName = pseudo;
 	Network.sendPacket(pkt);
@@ -177,7 +177,7 @@ GroupEngine.onRequestInfoUpdate = function onRequestPartyInfoUpdate(expOption, p
 		return;
 	}
 
-	let pkt = new PACKET.CZ.GROUPINFO_CHANGE_V2();
+	const pkt = new PACKET.CZ.GROUPINFO_CHANGE_V2();
 	pkt.expOption = expOption;
 	pkt.ItemPickupRule = pickupRule;
 	pkt.ItemDivisionRule = divisionRule;
@@ -194,7 +194,7 @@ GroupEngine.onRequestChangeLeader = function onRequestChangePartyLeader(AID) {
 		return;
 	}
 
-	let pkt = new PACKET.CZ.CHANGE_GROUP_MASTER();
+	const pkt = new PACKET.CZ.CHANGE_GROUP_MASTER();
 	pkt.AID = AID;
 	Network.sendPacket(pkt);
 };
@@ -217,8 +217,8 @@ function onPartyCreate(pkt) {
 			// Otherwise, perform conditional initialization (e.g. on server versions where this arrives first)
 			Session.hasParty = true;
 
-			let entity = Session.Entity;
-			let memberData = {
+			const entity = Session.Entity;
+			const memberData = {
 				AID: Session.AID,
 				characterName: entity.display.name,
 				role: 0, // leader
@@ -304,7 +304,7 @@ function onPartyList(pkt) {
  * @param {object} pkt - PACKET.ZC.ADD_MEMBER_TO_GROUP
  */
 function onPartyMemberJoin(pkt) {
-	let entity = EntityManager.get(pkt.AID);
+	const entity = EntityManager.get(pkt.AID);
 
 	if (entity) {
 		if (entity.life.display) {
@@ -319,7 +319,7 @@ function onPartyMemberJoin(pkt) {
 		}
 	}
 
-	let PartyUI = PartyFriends.getUI();
+	const PartyUI = PartyFriends.getUI();
 
 	if (pkt.AID === Session.AID) {
 		Session.hasParty = true;
@@ -363,7 +363,7 @@ function onPartyMemberLeave(pkt) {
  * @param {object} pkt - PACKET.ZC.NOTIFY_HP_TO_GROUPM
  */
 function onMemberLifeUpdate(pkt) {
-	let entity = EntityManager.get(pkt.AID);
+	const entity = EntityManager.get(pkt.AID);
 
 	if (entity) {
 		entity.life.hp = pkt.hp;
@@ -382,7 +382,7 @@ function onMemberLifeUpdate(pkt) {
  * @param {object} pkt - PACKET.ZC.NOTIFY_CHAT_PARTY
  */
 function onMemberTalk(pkt) {
-	let entity = EntityManager.get(pkt.AID);
+	const entity = EntityManager.get(pkt.AID);
 
 	if (entity) {
 		entity.dialog.set(pkt.msg);
@@ -451,11 +451,11 @@ function onPartyConfig(pkt) {
  * @param {object} pkt - PACKET.ZC.PARTY_JOIN_REQ
  */
 function onPartyInvitationRequest(packet) {
-	let GRID = packet.GRID;
+	const GRID = packet.GRID;
 
 	function onAnswer(accept) {
 		return function () {
-			let pkt = new PACKET.CZ.PARTY_JOIN_REQ_ACK();
+			const pkt = new PACKET.CZ.PARTY_JOIN_REQ_ACK();
 			pkt.GRID = GRID;
 			pkt.bAccept = accept;
 			Network.sendPacket(pkt);

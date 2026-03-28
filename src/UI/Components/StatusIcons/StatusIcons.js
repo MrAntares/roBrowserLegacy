@@ -23,7 +23,7 @@ import cssText from './StatusIcons.css?raw';
 /**
 	 * Create component
 	 */
-	let StatusIcons = new UIComponent('StatusIcons', null, cssText);
+	const StatusIcons = new UIComponent('StatusIcons', null, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -48,7 +48,7 @@ import cssText from './StatusIcons.css?raw';
 	/**
 	 * @var {int} render wait time
 	 */
-	let _render_time = 500;
+	const _render_time = 500;
 
 	/**
 	 * Initialize component
@@ -138,26 +138,26 @@ import cssText from './StatusIcons.css?raw';
 			return;
 		}
 
-		let canvas = document.createElement('canvas');
+		const canvas = document.createElement('canvas');
 		canvas.width = 32;
 		canvas.height = 32;
-		let ctx = canvas.getContext('2d');
+		const ctx = canvas.getContext('2d');
 
 		ctx.save();
 		ctx.translate(0, 32); // Move to left
 		ctx.scale(1, -1); // flip vertical  (official client does)
 
 		// resize with scale
-		let scale = Math.min(32 / img.width, 32 / img.height);
-		let width = img.width * scale;
-		let height = img.height * scale;
-		let x = (32 - width) / 2;
-		let y = (32 - height) / 2;
+		const scale = Math.min(32 / img.width, 32 / img.height);
+		const width = img.width * scale;
+		const height = img.height * scale;
+		const x = (32 - width) / 2;
+		const y = (32 - height) / 2;
 
 		ctx.drawImage(img, x, y, width, height);
 		ctx.restore();
 
-		let resizedImg = new Image();
+		const resizedImg = new Image();
 		resizedImg.src = canvas.toDataURL();
 		resizedImg.onload = function () {
 			_status[index].img = resizedImg;
@@ -172,7 +172,7 @@ import cssText from './StatusIcons.css?raw';
 	 */
 	function resetElementsPosition() {
 		let element, i, count, x, y;
-		let elements = StatusIcons.ui.find('.state');
+		const elements = StatusIcons.ui.find('.state');
 
 		count = elements.length;
 		x = 0;
@@ -200,7 +200,7 @@ import cssText from './StatusIcons.css?raw';
 			return;
 		}
 
-		let element = _status[index].element;
+		const element = _status[index].element;
 
 		if (element && element.parentNode) {
 			element.parentNode.removeChild(element);
@@ -244,7 +244,7 @@ import cssText from './StatusIcons.css?raw';
 			count = lines.length;
 
 			for (i = 0; i < count; ++i) {
-				let line = document.createElement('div');
+				const line = document.createElement('div');
 				line.textContent = lines[i][0];
 
 				// Custom color
@@ -274,8 +274,8 @@ import cssText from './StatusIcons.css?raw';
 	 */
 	function addElement(element) {
 		let x, y, count;
-		let elements = StatusIcons.ui.find('.state');
-		let max = ((Renderer.height - 166) / 36) | 0;
+		const elements = StatusIcons.ui.find('.state');
+		const max = ((Renderer.height - 166) / 36) | 0;
 
 		count = elements.length;
 		x = ((count / max) | 0) * 45;
@@ -329,9 +329,9 @@ import cssText from './StatusIcons.css?raw';
 		if (status.time && status.timeTick + 1000 < now) {
 			status.timeTick = now;
 
-			let tick = ((end - now) / 1000) | 0;
-			let seconds = tick % 60;
-			let minutes = (tick / 60) | 0;
+			const tick = ((end - now) / 1000) | 0;
+			const seconds = tick % 60;
+			const minutes = (tick / 60) | 0;
 
 			status.time.textContent =
 				now >= end || end === Infinity
@@ -355,7 +355,7 @@ import cssText from './StatusIcons.css?raw';
 		indexes = Object.keys(_status);
 		count = indexes.length;
 
-		let time_now = Date.now();
+		const time_now = Date.now();
 		if (time_now - _last_updated_time > _render_time) {
 			_last_updated_time = time_now;
 			for (i = 0; i < count; ++i) {

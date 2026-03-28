@@ -55,7 +55,7 @@ import EntityRoom from 'UI/Components/EntityRoom/EntityRoom';
 	 * @param {bool} is clickable ?
 	 */
 	Room.prototype.create = function create(title, id, type, clickable) {
-		let self = this;
+		const self = this;
 
 		function init() {
 			let filename = 'chat_open';
@@ -124,7 +124,7 @@ import EntityRoom from 'UI/Components/EntityRoom/EntityRoom';
 	 * @param {mat4} matrix
 	 */
 	Room.prototype.render = function render(matrix) {
-		let ui = this.node.ui[0];
+		const ui = this.node.ui[0];
 		let z;
 
 		// Cast position

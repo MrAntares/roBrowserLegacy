@@ -44,7 +44,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * Flags to check access
 	 * (Look up for Type)
 	 */
-	let AccessTypeBit = {
+	const AccessTypeBit = {
 		0: 0x00, // General
 		1: 0x01, // Members
 		2: 0x02, // Position
@@ -57,7 +57,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	/**
 	 * Create Component
 	 */
-	let Guild = new UIComponent('Guild', htmlText, cssText);
+	const Guild = new UIComponent('Guild', htmlText, cssText);
 
 	/**
 	 * View template
@@ -67,18 +67,18 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	/**
 	 * @var {Array} position list
 	 */
-	let _positions = [];
+	const _positions = [];
 
 	/**
 	 * @var {Array} members list
 	 */
-	let _members = [];
+	const _members = [];
 
 	/**
 	 * @var {Array} Skill List
 	 * { SKID, type, level, spcost, attackRange, skillName, upgradable }
 	 */
-	let _skills = [];
+	const _skills = [];
 
 	/**
 	 * @var {jQuery} level up button reference
@@ -116,7 +116,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * Initialize component
 	 */
 	Guild.init = function init() {
-		let ui = this.ui;
+		const ui = this.ui;
 
 		MemberView = this.ui.find('.MemberView').remove();
 		PositionView = this.ui.find('.PositionView').remove();
@@ -159,8 +159,8 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 
 		// Antagonist/Ally
 		ui.find('.content.info .ally_list, .content.info .hostile_list').on('contextmenu', 'div', function () {
-			let relation = this.parentNode.classList.contains('ally_list') ? 0 : 1;
-			let guild_id = parseInt(this.getAttribute('data-guild-id'), 10);
+			const relation = this.parentNode.classList.contains('ally_list') ? 0 : 1;
+			const guild_id = parseInt(this.getAttribute('data-guild-id'), 10);
 
 			ui.find('.content.info .ally_list div, .content.info .hostile_list div').removeClass('active');
 			this.classList.add('active');
@@ -179,9 +179,9 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 				this.classList.add('active');
 			})
 			.on('contextmenu', 'td.name', function () {
-				let index = this.parentNode.getAttribute('data-index');
-				let member = _members[index];
-				let isSelf = member.AID === Session.AID && member.GID === Session.GID;
+				const index = this.parentNode.getAttribute('data-index');
+				const member = _members[index];
+				const isSelf = member.AID === Session.AID && member.GID === Session.GID;
 
 				ContextMenu.remove();
 				ContextMenu.append();
@@ -252,7 +252,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 				((this.files[0].type === 'image/bmp' && this.files[0].size < 1783) ||
 					(this.files[0].type === 'image/gif' && this.files[0].size < 50000))
 			) {
-				let reader = new FileReader();
+				const reader = new FileReader();
 				reader.onload = function (e) {
 					Guild.onSendEmblem(new Uint8Array(e.target.result));
 				};
@@ -357,7 +357,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {object} data
 	 */
 	Guild.setGuildInformations = function setGuildInformations(info) {
-		let general = this.ui.find('.content.info');
+		const general = this.ui.find('.content.info');
 
 		general.find('.name .value').text(info.guildname);
 		general.find('.level .value').text(info.level);
@@ -417,8 +417,8 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {object} guild
 	 */
 	Guild.addRelation = function addRelation(guild) {
-		let addRelationList = this.ui.find('.' + (guild.relation === 0 ? 'ally' : 'hostile') + '_list');
-		let div = document.createElement('div');
+		const addRelationList = this.ui.find('.' + (guild.relation === 0 ? 'ally' : 'hostile') + '_list');
+		const div = document.createElement('div');
 
 		div.setAttribute('data-guild-id', guild.GDID);
 		div.textContent = guild.guildName;
@@ -432,7 +432,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {number} relation
 	 */
 	Guild.removeRelation = function removeRelation(guild_id, relation) {
-		let removeRelationList = this.ui.find('.content.info .' + (relation === 0 ? 'ally' : 'hostile') + '_list');
+		const removeRelationList = this.ui.find('.content.info .' + (relation === 0 ? 'ally' : 'hostile') + '_list');
 		removeRelationList.find('div[data-guild-id="' + guild_id + '"]').remove();
 	};
 
@@ -757,10 +757,10 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 			return;
 		}
 
-		let sk = SkillInfo[skill.SKID];
-		let levelup = _btnIncSkill.clone(true);
-		let className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		let element = jQuery(
+		const sk = SkillInfo[skill.SKID];
+		const levelup = _btnIncSkill.clone(true);
+		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		const element = jQuery(
 			'<tr class="skill id' +
 				skill.SKID +
 				' ' +
@@ -836,7 +836,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {object} skill : { SKID, level, spcost, attackRange, upgradable }
 	 */
 	Guild.updateSkill = function updateSkill(skill) {
-		let target = getSkillById(skill.SKID);
+		const target = getSkillById(skill.SKID);
 		let element;
 
 		if (!target) {
@@ -878,7 +878,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {number} skill id
 	 */
 	Guild.useSkillID = function useSkillID(id, level) {
-		let skill = getSkillById(id);
+		const skill = getSkillById(id);
 		if (!skill || !skill.level || !skill.type) {
 			return;
 		}
@@ -963,7 +963,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * Request to upgrade a skill
 	 */
 	function onRequestSkillUp() {
-		let index = this.parentNode.parentNode.getAttribute('data-index');
+		const index = this.parentNode.parentNode.getAttribute('data-index');
 		Guild.onIncreaseSkill(parseInt(index, 10));
 	}
 
@@ -1022,15 +1022,15 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * Start to drag a skill (to put it on the hotkey UI ?)
 	 */
 	function onSkillDragStart(event) {
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let skill = getSkillById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const skill = getSkillById(index);
 
 		// Can't drag a passive skill (or disabled)
 		if (!skill || !skill.level || !skill.type) {
 			return stopPropagation(event);
 		}
 
-		let img = new Image();
+		const img = new Image();
 		img.decoding = 'async';
 		img.src = this.firstChild.firstChild.src;
 
@@ -1055,19 +1055,19 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	}
 
 	function skillLevelSelectUp(skill) {
-		let level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level) {
 			skill.selectedLevel = level + 1;
-			let element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
+			const element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
 
 	function skillLevelSelectDown(skill) {
-		let level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1) {
 			skill.selectedLevel = level - 1;
-			let element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
+			const element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
@@ -1079,7 +1079,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {string} notice content
 	 */
 	Guild.setNotice = function setNotice(subject, notice) {
-		let element = this.ui.find('.content.notice');
+		const element = this.ui.find('.content.notice');
 
 		element.find('.subject').val(subject);
 		element.find('.notice').val(notice);
@@ -1128,7 +1128,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * Change tab
 	 */
 	function onChangeTab(event) {
-		let tab = parseInt(this.getAttribute('data-flag'), 10);
+		const tab = parseInt(this.getAttribute('data-flag'), 10);
 
 		if (!event.isTrigger) {
 			// Can't open this tab
@@ -1162,8 +1162,8 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {number} virtue [-100, 100]
 	 */
 	function renderTendency(honor, virtue) {
-		let canvas = Guild.ui.find('.content.info .tendency canvas').get(0);
-		let ctx = canvas.getContext('2d');
+		const canvas = Guild.ui.find('.content.info .tendency canvas').get(0);
+		const ctx = canvas.getContext('2d');
 
 		// Border
 		ctx.fillStyle = '#cecfce';
@@ -1192,7 +1192,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 *
 	 * @param {number} tick
 	 */
-	let renderMemberFaces = (function renderMemberFacesClosure() {
+	const renderMemberFaces = (function renderMemberFacesClosure() {
 		let lastTick = 0;
 
 		return function renderMemberFaces(tick) {
@@ -1231,7 +1231,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 
 		switch (activeTab) {
 			case 'members':
-				let list = [];
+				const list = [];
 
 				_members.forEach(member => {
 					list.push({
@@ -1248,7 +1248,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 				let i, count;
 				let position, positions;
 				let right, posName, payRate;
-				let positionList = [];
+				const positionList = [];
 
 				positions = Guild.ui.find('.PositionView');
 
@@ -1286,8 +1286,8 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 				break;
 
 			case 'notice':
-				let subject = Guild.ui.find('.content.notice input').val();
-				let content = Guild.ui.find('.content.notice textarea').val();
+				const subject = Guild.ui.find('.content.notice input').val();
+				const content = Guild.ui.find('.content.notice textarea').val();
 
 				Guild.onNoticeUpdateRequest(subject, content);
 				break;

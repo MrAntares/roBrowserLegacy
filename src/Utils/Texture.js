@@ -18,10 +18,10 @@ import GIF from 'Vendors/libgif';
 /**
  * Namespace
  */
-var Texture = {};
+const Texture = {};
 
-var procCanvas = document.createElement('canvas');
-var procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+const procCanvas = document.createElement('canvas');
+const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
 /**
  * Texture Constructor
@@ -30,7 +30,7 @@ var procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
  * @param {function} oncomplete callback
  */
 Texture.load = function load(data, oncomplete) {
-	var args = Array.prototype.slice.call(arguments, 2);
+	const args = Array.prototype.slice.call(arguments, 2);
 
 	// Possible missing textures on loaders
 	if (!data) {
@@ -42,7 +42,7 @@ Texture.load = function load(data, oncomplete) {
 	// TGA Support
 	if (data instanceof ArrayBuffer) {
 		try {
-			var tga = new Targa();
+			const tga = new Targa();
 			tga.load(new Uint8Array(data));
 			args.unshift(true);
 			oncomplete.apply(tga.getCanvas(), args);
@@ -55,7 +55,7 @@ Texture.load = function load(data, oncomplete) {
 	}
 
 	// Regular images
-	var img = new Image();
+	const img = new Image();
 	img.decoding = 'async';
 	img.src = data;
 	img.onload = function OnLoadClosure() {
@@ -64,8 +64,8 @@ Texture.load = function load(data, oncomplete) {
 			URL.revokeObjectURL(data);
 		}
 
-		var canvas = document.createElement('canvas');
-		var ctx = canvas.getContext('2d', { willReadFrequently: true });
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
 		canvas.width = this.width;
 		canvas.height = this.height;
@@ -80,14 +80,14 @@ Texture.load = function load(data, oncomplete) {
 
 // Creates a canvas spritesheet with gif metadata to animate in guild display
 Texture.processGifToSpriteSheet = function processGifToSpriteSheet(buffer, callback) {
-	var args = Array.prototype.slice.call(arguments, 2);
-	var dummyParent = document.createElement('div');
-	var img = new Image();
+	const args = Array.prototype.slice.call(arguments, 2);
+	const dummyParent = document.createElement('div');
+	const img = new Image();
 	dummyParent.appendChild(img);
 
 	img.onload = function () {
 		try {
-			var gif = new GIF({
+			const gif = new GIF({
 				gif: img,
 				auto_play: false,
 				vp_w: img.width,
@@ -95,32 +95,32 @@ Texture.processGifToSpriteSheet = function processGifToSpriteSheet(buffer, callb
 			});
 
 			gif.load(function () {
-				var frameCount = gif.get_length();
-				var frameWidth = img.width;
-				var frameHeight = img.height;
+				const frameCount = gif.get_length();
+				const frameWidth = img.width;
+				const frameHeight = img.height;
 
-				var framesData = gif.get_frames();
-				var frameDelays = [];
+				const framesData = gif.get_frames();
+				const frameDelays = [];
 
-				var fLineCount = Math.ceil(Math.sqrt((frameCount * frameWidth) / frameHeight));
-				var spriteSheetWidth = fLineCount * frameWidth;
-				var spriteSheetHeight = Math.ceil(frameCount / fLineCount) * frameHeight;
+				const fLineCount = Math.ceil(Math.sqrt((frameCount * frameWidth) / frameHeight));
+				const spriteSheetWidth = fLineCount * frameWidth;
+				const spriteSheetHeight = Math.ceil(frameCount / fLineCount) * frameHeight;
 
-				var canvas = document.createElement('canvas');
+				const canvas = document.createElement('canvas');
 				canvas.width = spriteSheetWidth;
 				canvas.height = spriteSheetHeight;
-				var ctx = canvas.getContext('2d', {
+				const ctx = canvas.getContext('2d', {
 					willReadFrequently: true
 				});
 
-				for (var i = 0; i < frameCount; i++) {
-					var delay = framesData[i] && framesData[i].delay ? framesData[i].delay : 10;
+				for (let i = 0; i < frameCount; i++) {
+					const delay = framesData[i] && framesData[i].delay ? framesData[i].delay : 10;
 					frameDelays.push(delay * 10);
 
 					gif.move_to(i);
-					var frameCanvas = gif.get_canvas();
-					var row = Math.floor(i / fLineCount);
-					var col = i % fLineCount;
+					const frameCanvas = gif.get_canvas();
+					const row = Math.floor(i / fLineCount);
+					const col = i % fLineCount;
 					ctx.drawImage(frameCanvas, col * frameWidth, row * frameHeight);
 				}
 
@@ -144,7 +144,7 @@ Texture.processGifToSpriteSheet = function processGifToSpriteSheet(buffer, callb
 		}
 	};
 
-	var blob = new Blob([buffer], {
+	const blob = new Blob([buffer], {
 		type: 'image/gif'
 	});
 	img.src = URL.createObjectURL(blob);
@@ -156,8 +156,8 @@ Texture.processGifToSpriteSheet = function processGifToSpriteSheet(buffer, callb
  * @param {HTMLElement} canvas
  */
 Texture.removeMagenta = function removeMagenta(canvas) {
-	var w = canvas.width;
-	var h = canvas.height;
+	const w = canvas.width;
+	const h = canvas.height;
 
 	procCtx.clearRect(0, 0, w, h);
 
@@ -167,10 +167,10 @@ Texture.removeMagenta = function removeMagenta(canvas) {
 	}
 
 	procCtx.drawImage(canvas, 0, 0);
-	var imageData = procCtx.getImageData(0, 0, w, h);
-	var data = imageData.data;
+	const imageData = procCtx.getImageData(0, 0, w, h);
+	const data = imageData.data;
 
-	for (var i = 0; i < data.length; i += 4) {
+	for (let i = 0; i < data.length; i += 4) {
 		if (data[i] > 230 && data[i + 1] < 20 && data[i + 2] > 230) {
 			data[i] = data[i + 1] = data[i + 2] = data[i + 3] = 0;
 		}

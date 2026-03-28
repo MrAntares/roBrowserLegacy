@@ -18,7 +18,7 @@ import Preferences from 'Preferences/Audio';
 	/**
 	 * BGM NameSpace
 	 */
-	let BGM = {};
+	const BGM = {};
 
 	BGM.filename = null;
 	BGM.volume = Preferences.BGM.volume;
@@ -61,7 +61,7 @@ import Preferences from 'Preferences/Audio';
 	 */
 	BGM.setAvailableExtensions = function setAvailableExtensions(extensions) {
 		let i, count;
-		let audio = this.audio;
+		const audio = this.audio;
 
 		if (!extensions || !extensions.length) {
 			extensions = ['mp3'];

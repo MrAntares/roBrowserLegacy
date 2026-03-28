@@ -14,42 +14,42 @@
 /**
  * @param {Array} FileList
  */
-var _files = [];
+let _files = [];
 
 /**
  * @param {number} client total size (in octets)
  */
-var _clientSize = 0;
+let _clientSize = 0;
 
 /**
  * @param {number} progress octects when uploading
  */
-var _streamOffset = 0;
+let _streamOffset = 0;
 
 /**
  * @param {Object} Events list
  */
-var _events = {};
+const _events = {};
 
 /**
  * @param {FileSyStem} sync
  */
-var _fs_sync;
+let _fs_sync;
 
 /**
  * @param {FileSyStem} async (used for streaming)
  */
-var _fs;
+let _fs;
 
 /**
  * @param {boolean} is API available ? (do not need to check for the async)
  */
-var _available = !!(self.requestFileSystemSync || self.webkitRequestFileSystemSync);
+const _available = !!(self.requestFileSystemSync || self.webkitRequestFileSystemSync);
 
 /**
  * @param {boolean} save data to file system ?
  */
-var _save = false;
+let _save = false;
 
 /**
  * Initialize FileSystem API
@@ -59,7 +59,7 @@ var _save = false;
  * @param {Object} quota information
  */
 export function init(files, save, quota) {
-	var requestFileSystemSync, requestFileSystem;
+	let requestFileSystemSync, requestFileSystem;
 	_files = normalizeFilesPath(files);
 
 	if (!_available) {
@@ -72,7 +72,7 @@ export function init(files, save, quota) {
 	requestFileSystemSync = self.requestFileSystemSync || self.webkitRequestFileSystemSync;
 	requestFileSystem = self.requestFileSystem || self.webkitRequestFileSystem;
 
-	var size = _clientSize || quota.used || quota.remaining;
+	const size = _clientSize || quota.used || quota.remaining;
 
 	requestFileSystem(
 		self.TEMPORARY,
@@ -101,9 +101,9 @@ export function init(files, save, quota) {
  * @returns {array} normalized filelist
  */
 function normalizeFilesPath(files) {
-	var i, count;
-	var list = new Array(files.length);
-	var backslash = /\\\\/g;
+	let i, count;
+	const list = new Array(files.length);
+	const backslash = /\\\\/g;
 
 	for (i = 0, count = files.length; i < count; ++i) {
 		list[i] = files[i].file;
@@ -117,8 +117,8 @@ function normalizeFilesPath(files) {
  * Error Handler give a human error
  */
 function errorHandler(e) {
-	var msg = '';
-	var FileError = {
+	let msg = '';
+	const FileError = {
 		QUOTA_EXCEEDED_ERR: 22,
 		NOT_FOUND_ERR: 1,
 		SECURITY_ERR: 2,
@@ -154,7 +154,7 @@ function errorHandler(e) {
  * @returns {integer}
  */
 function calculateClientSize() {
-	var i, count;
+	let i, count;
 
 	_clientSize = 0;
 
@@ -169,16 +169,16 @@ function calculateClientSize() {
  * @param {number} index
  */
 function processUpload(index) {
-	var file = _files[index];
+	const file = _files[index];
 
 	// Finished.
 	if (index >= _files.length) {
-		var i, count;
+		let i, count;
 
 		// Move all files from the directory to root.
-		var tmpDir = _fs_sync.root.getDirectory('/__tmp_upload/', {});
-		var dirReader = tmpDir.createReader();
-		var entries = dirReader.readEntries();
+		const tmpDir = _fs_sync.root.getDirectory('/__tmp_upload/', {});
+		const dirReader = tmpDir.createReader();
+		const entries = dirReader.readEntries();
 
 		for (i = 0, count = entries.length; i < count; ++i) {
 			entries[i].moveTo(_fs_sync.root, entries[i].name);
@@ -208,10 +208,10 @@ function processUpload(index) {
 					processUpload(index + 1);
 				};
 
-				var last_tick = Date.now();
+				let last_tick = Date.now();
 				writer.onprogress = function (evt) {
 					// Do not spam the main thread
-					var now = Date.now();
+					const now = Date.now();
 					if (last_tick + 100 > now) {
 						return;
 					}
@@ -244,11 +244,11 @@ function processUpload(index) {
  * Build directory hierarchy
  */
 function buildHierarchy() {
-	var cache = {},
+	let cache = {},
 		keys;
-	var i = 0,
+	let i = 0,
 		count = _files.length;
-	var path,
+	let path,
 		filename = /\/?[^/]+$/;
 
 	// Extract directory from each file path
@@ -276,11 +276,11 @@ function buildHierarchy() {
  * Remove all files from FileSystem
  */
 export function cleanUp() {
-	var i, count;
-	var dirReader = _fs_sync.root.createReader();
-	var entries = dirReader.readEntries();
-	var retryCount = 0;
-	var maxRetries = 3;
+	let i, count;
+	const dirReader = _fs_sync.root.createReader();
+	const entries = dirReader.readEntries();
+	let retryCount = 0;
+	const maxRetries = 3;
 
 	function removeWithRetry(entry, callback) {
 		try {
@@ -342,7 +342,7 @@ export function getFileSync(filename) {
 	filename = filename.replace(/\\/g, '/');
 
 	if (!_available || _files.length) {
-		var i,
+		let i,
 			count = _files.length;
 
 		for (i = 0; i < count; ++i) {
@@ -355,7 +355,7 @@ export function getFileSync(filename) {
 		return null;
 	}
 
-	var fileEntry;
+	let fileEntry;
 
 	try {
 		fileEntry = _fs_sync.root.getFile(filename, { create: false });
@@ -382,7 +382,7 @@ export function getFile(filename, onload, onerror) {
 	filename = filename.replace(/\\/g, '/');
 
 	if (!_available || _files.length) {
-		var i,
+		let i,
 			count = _files.length;
 
 		for (i = 0; i < count; ++i) {
@@ -423,9 +423,9 @@ export function saveFile(filePath, buffer) {
 		return;
 	}
 
-	var filename = filePath.replace(/\\/g, '/');
-	var directories = filename.split('/').slice(0, -1);
-	var path = '';
+	const filename = filePath.replace(/\\/g, '/');
+	const directories = filename.split('/').slice(0, -1);
+	let path = '';
 
 	// Create hierarchy
 	while (directories.length) {
@@ -433,8 +433,8 @@ export function saveFile(filePath, buffer) {
 		_fs_sync.root.getDirectory(path, { create: true });
 	}
 
-	var fileEntry = _fs_sync.root.getFile(filename, { create: true });
-	var writer = fileEntry.createWriter();
+	const fileEntry = _fs_sync.root.getFile(filename, { create: true });
+	const writer = fileEntry.createWriter();
 
 	writer.write(new Blob([buffer]));
 }
@@ -445,8 +445,8 @@ export function saveFile(filePath, buffer) {
  * @param {RegExp|string} to match the filename
  */
 export function search(regex) {
-	var i, count;
-	var list = [];
+	let i, count;
+	const list = [];
 
 	if (!(regex instanceof RegExp)) {
 		regex = new RegExp('^' + regex.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1') + '$', 'i');
@@ -462,7 +462,7 @@ export function search(regex) {
 		return list;
 	}
 
-	var entries = _fs_sync.root.createReader().readEntries();
+	const entries = _fs_sync.root.createReader().readEntries();
 
 	for (i = 0, count = entries.length; i < count; ++i) {
 		if (entries[i].isFile && entries[i].name.match(regex)) {

@@ -35,7 +35,7 @@ _global.SEEK_END = SEEK_END;
  * @param {number} end optional
  */
 export default function BinaryReader(mixed, start, end) {
-	var buffer;
+	let buffer;
 
 	if (typeof mixed === 'string') {
 		const len = mixed.length;
@@ -87,7 +87,7 @@ BinaryReader.prototype.getUint8 =
  * @return int16
  */
 BinaryReader.prototype.getInt16 = BinaryReader.prototype.readShort = function getInt16() {
-	var data = this.view.getInt16(this.offset, true);
+	const data = this.view.getInt16(this.offset, true);
 	this.offset += 2;
 
 	return data;
@@ -98,7 +98,7 @@ BinaryReader.prototype.getInt16 = BinaryReader.prototype.readShort = function ge
  * @return Uint16
  */
 BinaryReader.prototype.getUint16 = BinaryReader.prototype.readUShort = function getUint16() {
-	var data = this.view.getUint16(this.offset, true);
+	const data = this.view.getUint16(this.offset, true);
 	this.offset += 2;
 
 	return data;
@@ -112,7 +112,7 @@ BinaryReader.prototype.getInt32 =
 	BinaryReader.prototype.readInt =
 	BinaryReader.prototype.readLong =
 		function getInt32() {
-			var data = this.view.getInt32(this.offset, true);
+			const data = this.view.getInt32(this.offset, true);
 			this.offset += 4;
 
 			return data;
@@ -126,7 +126,7 @@ BinaryReader.prototype.getUint32 =
 	BinaryReader.prototype.readUInt =
 	BinaryReader.prototype.readULong =
 		function getUint32() {
-			var data = this.view.getUint32(this.offset, true);
+			const data = this.view.getUint32(this.offset, true);
 			this.offset += 4;
 
 			return data;
@@ -137,7 +137,7 @@ BinaryReader.prototype.getUint32 =
  * @return float32
  */
 BinaryReader.prototype.getFloat32 = BinaryReader.prototype.readFloat = function getFloat32() {
-	var data = this.view.getFloat32(this.offset, true);
+	const data = this.view.getFloat32(this.offset, true);
 	this.offset += 4;
 
 	return data;
@@ -148,7 +148,7 @@ BinaryReader.prototype.getFloat32 = BinaryReader.prototype.readFloat = function 
  * @return Float64
  */
 BinaryReader.prototype.getFloat64 = BinaryReader.prototype.readDouble = function getFloat64() {
-	var data = this.view.getFloat64(this.offset, true);
+	const data = this.view.getFloat64(this.offset, true);
 	this.offset += 8;
 
 	return data;
@@ -262,12 +262,12 @@ BinaryReader.prototype.getStruct = BinaryReader.prototype.readStruct = function 
 		throw new Error('BinaryReader::getStruct() - Invalid data as argument');
 	}
 
-	var list = struct._list;
-	var name;
-	var out = {},
+	const list = struct._list;
+	let name;
+	let out = {},
 		current,
 		keys;
-	var i, j, count;
+	let i, j, count;
 
 	keys = Object.keys(list);
 	count = keys.length;
@@ -301,9 +301,9 @@ BinaryReader.prototype.seek = function seek(index, type) {
 };
 
 // Old compatibility for pos and pos2
-var bf_byteBuff = new ArrayBuffer(4);
-var bf_wba = new Int8Array(bf_byteBuff);
-var bf_wia = new Int32Array(bf_byteBuff);
+const bf_byteBuff = new ArrayBuffer(4);
+const bf_wba = new Int8Array(bf_byteBuff);
+const bf_wia = new Int32Array(bf_byteBuff);
 
 /**
  * Read Position from Buffer
@@ -311,7 +311,7 @@ var bf_wia = new Int32Array(bf_byteBuff);
  * @return array (pos_x, pos_y, direction)
  */
 BinaryReader.prototype.getPos = BinaryReader.prototype.readPos = function getPos() {
-	var p, dir, x, y;
+	let p, dir, x, y;
 
 	bf_wba[2] = this.getUint8();
 	bf_wba[1] = this.getUint8();
@@ -336,7 +336,7 @@ BinaryReader.prototype.getPos = BinaryReader.prototype.readPos = function getPos
  * @return array ( from_x, from_y, to_x, to_y )
  */
 BinaryReader.prototype.getPos2 = BinaryReader.prototype.readPos2 = function getPos2() {
-	var a, b, c, d, e, f;
+	let a, b, c, d, e, f;
 
 	a = this.getInt8();
 	b = this.getInt8();

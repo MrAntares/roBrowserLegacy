@@ -23,8 +23,8 @@
 
 	// decode
 	function decode(string) {
-		var result = 0;
-		for (var i = 0; i < string.length; i++) {
+		let result = 0;
+		for (let i = 0; i < string.length; i++) {
 			result = result * 62 + base62_alphabet.indexOf(string[i]);
 		}
 		return result;

@@ -33,19 +33,19 @@ Blind.render = function render(gl, inputTexture, outputFbo) {
 
 	gl.useProgram(_program);
 
-	let baseRadius = 0.2;
-	let baseFalloff = 0.5;
-	let zoom = Camera.zoomFinal;
+	const baseRadius = 0.2;
+	const baseFalloff = 0.5;
+	const zoom = Camera.zoomFinal;
 
-	let focusRadius = baseRadius + (63 - zoom) / 1000;
-	let focusFalloff = baseFalloff + (63 - zoom) / 1000;
+	const focusRadius = baseRadius + (63 - zoom) / 1000;
+	const focusFalloff = baseFalloff + (63 - zoom) / 1000;
 
 	gl.uniform1f(_program.uniform.uFocusRadius, focusRadius);
 	gl.uniform1f(_program.uniform.uFocusFalloff, focusFalloff);
 	gl.uniform2f(_program.uniform.uAspectRatio, gl.canvas.width / gl.canvas.height, 1.0);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	let posLoc = _program.attribute.aPosition;
+	const posLoc = _program.attribute.aPosition;
 	gl.enableVertexAttribArray(posLoc);
 	gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
@@ -68,7 +68,7 @@ Blind.init = function init(gl) {
 		console.error('Error compiling Blind shader.', e);
 		return;
 	}
-	let quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+	const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 	_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);

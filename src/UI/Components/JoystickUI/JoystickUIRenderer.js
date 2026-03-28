@@ -33,8 +33,8 @@ let ui = null;
 				return;
 			}
 
-			let deltaX = Math.abs(event.clientX - lastMouseX);
-			let deltaY = Math.abs(event.clientY - lastMouseY);
+			const deltaX = Math.abs(event.clientX - lastMouseX);
+			const deltaY = Math.abs(event.clientY - lastMouseY);
 
 			if ((deltaX > 5 || deltaY > 5) && ControlsSettings.joyAutoHide) {
 				hide();
@@ -54,12 +54,12 @@ let ui = null;
 	}
 
 	function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
-		let item = ShortCut.getList()[shortcutIndex];
+		const item = ShortCut.getList()[shortcutIndex];
 
-		let $slot = ui.find('.slot').eq(joystickSlotIndex);
-		let $icon = $slot.find('.icon');
-		let $img = $icon.find('.img');
-		let $amount = $icon.find('.amount');
+		const $slot = ui.find('.slot').eq(joystickSlotIndex);
+		const $icon = $slot.find('.icon');
+		const $img = $icon.find('.img');
+		const $amount = $icon.find('.amount');
 
 		if (!item || item.ID === 0) {
 			$icon.hide();
@@ -71,7 +71,7 @@ let ui = null;
 		$icon.show();
 
 		if (item.isSkill && item.count) {
-			let skillInfo = SkillInfo[item.ID];
+			const skillInfo = SkillInfo[item.ID];
 			if (skillInfo) {
 				Client.loadFile(DB.INTERFACE_PATH + 'item/' + skillInfo.Name + '.bmp', function (url) {
 					$img.css('backgroundImage', 'url(' + url + ')');
@@ -79,10 +79,10 @@ let ui = null;
 				});
 			}
 		} else {
-			let inventoryItem = InventoryUI.getUI().getItemById(item.ID);
+			const inventoryItem = InventoryUI.getUI().getItemById(item.ID);
 			if (inventoryItem) {
-				let itemInfo = DB.getItemInfo(item.ID);
-				let fileName = inventoryItem.IsIdentified
+				const itemInfo = DB.getItemInfo(item.ID);
+				const fileName = inventoryItem.IsIdentified
 					? itemInfo.identifiedResourceName
 					: itemInfo.unidentifiedResourceName;
 				let count = inventoryItem.count;
@@ -106,10 +106,10 @@ let ui = null;
 		if (!ui) {
 			return;
 		}
-		let startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
-		for (var i = 0; i < 20; i++) {
-			let shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
-			let shortcut = ShortCut.getList()[shortcutIndex];
+		const startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
+		for (let i = 0; i < 20; i++) {
+			const shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
+			const shortcut = ShortCut.getList()[shortcutIndex];
 			if (shortcut && shortcut.ID === Id) {
 				updateJoystickSlot(i, shortcutIndex);
 			}
@@ -120,9 +120,9 @@ let ui = null;
 		if (!ui) {
 			return;
 		}
-		let startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
-		for (var i = 0; i < 20; i++) {
-			let shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
+		const startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
+		for (let i = 0; i < 20; i++) {
+			const shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
 			if (shortcutIndex === index) {
 				updateJoystickSlot(i, shortcutIndex);
 			}
@@ -134,9 +134,9 @@ let ui = null;
 			return;
 		}
 
-		let startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
-		for (var i = 0; i < 20; i++) {
-			let shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
+		const startIdx = SetManager.getCurrentSet() === 1 ? 0 : 20;
+		for (let i = 0; i < 20; i++) {
+			const shortcutIndex = JoystickShortcutMapper.slotMap[startIdx + i];
 			updateJoystickSlot(i, shortcutIndex);
 		}
 	}
@@ -153,11 +153,11 @@ let ui = null;
 		if (!ui) {
 			return;
 		}
-		let containers = ui.find('.group-container');
+		const containers = ui.find('.group-container');
 
 		containers.removeClass('active');
 
-		let activeGroup = JoystickShortcutMapper.getGroup(buttons);
+		const activeGroup = JoystickShortcutMapper.getGroup(buttons);
 
 		if (activeGroup !== '') {
 			ui.find('[data-group="' + activeGroup + '"]').addClass('active');

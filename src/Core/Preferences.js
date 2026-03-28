@@ -9,14 +9,14 @@
  */
 'use strict';
 
-	let Storage = {
+	const Storage = {
 		get: function Get(key, fn) {
-			let out = {};
+			const out = {};
 			out[key] = localStorage.getItem(key);
 			fn(out);
 		},
 		set: function Set(obj, fn) {
-			let keys = Object.keys(obj);
+			const keys = Object.keys(obj);
 			let i, count;
 
 			for (i = 0, count = keys.length; i < count; ++i) {
@@ -76,11 +76,11 @@
 	 * @param {object} value to store
 	 */
 	function save(data) {
-		let key = data._key;
+		const key = data._key;
 		delete data._key;
 		delete data.save;
 
-		let store = {};
+		const store = {};
 		store[key] = JSON.stringify(data);
 
 		Storage.set(store);

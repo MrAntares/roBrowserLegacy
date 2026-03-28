@@ -17,7 +17,7 @@ import JoystickUIRenderer from './JoystickUIRenderer';
 import SelectionUI from './JoystickSelectionUI';
 
 let clickLock = false;
-let lockTimeout = 200;
+const lockTimeout = 200;
 
 	function setClickLock() {
 	clickLock = true;
@@ -26,7 +26,7 @@ let lockTimeout = 200;
 		}, lockTimeout);
 	}
 
-	var ButtonInput = {
+	const ButtonInput = {
 		update: function (buttons) {
 			if (clickLock) {
 				return false;
@@ -37,7 +37,7 @@ let lockTimeout = 200;
 				return false;
 			}
 
-			var pressed = false;
+			let pressed = false;
 
 			JoystickUIRenderer.updateVisuals(buttons);
 
@@ -59,7 +59,7 @@ let lockTimeout = 200;
 		},
 
 		_handleWorldActions: function (btn) {
-			var pressed = false;
+			let pressed = false;
 
 			if (ShortcutMapper.getGroup(btn) !== '') {
 				return false;
@@ -97,8 +97,8 @@ let lockTimeout = 200;
 		},
 
 		_handleSetChange: function (btn) {
-			var l2 = btn[6] === 'holding';
-			var r2 = btn[7] === 'holding';
+			const l2 = btn[6] === 'holding';
+			const r2 = btn[7] === 'holding';
 
 			if (l2 && r2) {
 				SetManager.toggle();
@@ -111,8 +111,8 @@ let lockTimeout = 200;
 		},
 
 		_handleSpecial: function (buttons) {
-			var pressed = false;
-			var selectPressed = buttons[8] === 'holding';
+			let pressed = false;
+			const selectPressed = buttons[8] === 'holding';
 
 			if (selectPressed) {
 				if (buttons[12] !== 'unpressed') {
@@ -175,7 +175,7 @@ let lockTimeout = 200;
 		},
 
 		_handleShortcuts: function (btn) {
-			var idx = ShortcutMapper.getShortcutIndex(btn);
+			const idx = ShortcutMapper.getShortcutIndex(btn);
 			if (idx !== -1) {
 				Interaction.executeShortcut(idx, ShortcutMapper.getGroup(btn));
 				setClickLock();

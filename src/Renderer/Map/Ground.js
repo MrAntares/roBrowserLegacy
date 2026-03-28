@@ -75,8 +75,8 @@ import _fragmentShader from './Ground.fs?raw';
 	 * @param {object} light structure
 	 */
 	function render(gl, modelView, projection, normalMat, fog, light) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		gl.useProgram(_program);
 
@@ -154,7 +154,7 @@ import _fragmentShader from './Ground.fs?raw';
 	 */
 	function initLightmap(gl, lightmap, size) {
 		let width, height;
-		let enableMipmap = Configs.get('enableMipmap');
+		const enableMipmap = Configs.get('enableMipmap');
 
 		width = WebGL.toPowerOfTwo(Math.round(Math.sqrt(size)) * 8);
 		height = WebGL.toPowerOfTwo(Math.ceil(Math.sqrt(size)) * 8);
@@ -190,15 +190,15 @@ import _fragmentShader from './Ground.fs?raw';
 		}
 
 		let _width, _height, i, count;
-		let enableMipmap = Configs.get('enableMipmap');
+		const enableMipmap = Configs.get('enableMipmap');
 
 		if (procCanvas.width !== width || procCanvas.height !== height) {
 			procCanvas.width = width;
 			procCanvas.height = height;
 		}
 
-		let imageData = procCtx.createImageData(width, height);
-		let data = imageData.data;
+		const imageData = procCtx.createImageData(width, height);
+		const data = imageData.data;
 		count = data.length;
 
 		// Set Image pixel
@@ -210,10 +210,10 @@ import _fragmentShader from './Ground.fs?raw';
 		// Build Image with power of two texture * 2 (to smooth)
 		_width = WebGL.toPowerOfTwo(width);
 		_height = WebGL.toPowerOfTwo(height);
-		let smooth = document.createElement('canvas');
+		const smooth = document.createElement('canvas');
 		smooth.width = _width;
 		smooth.height = _height;
-		let ctx = smooth.getContext('2d');
+		const ctx = smooth.getContext('2d');
 
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, _width, _height);
@@ -277,8 +277,8 @@ import _fragmentShader from './Ground.fs?raw';
 
 		function onTextureCompleteBuildAtlas(success, i) {
 			if (success) {
-				let x = (i % _width) * 258;
-				let y = Math.floor(i / _width) * 258;
+				const x = (i % _width) * 258;
+				const y = Math.floor(i / _width) * 258;
 				procCtx.drawImage(this, x + 0, y + 0, 258, 258); // generate border
 				procCtx.drawImage(this, x + 1, y + 1, 256, 256);
 			}
@@ -311,7 +311,7 @@ import _fragmentShader from './Ground.fs?raw';
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-		let enableMipmap = Configs.get('enableMipmap');
+		const enableMipmap = Configs.get('enableMipmap');
 		if (enableMipmap) {
 			gl.generateMipmap(gl.TEXTURE_2D);
 		}

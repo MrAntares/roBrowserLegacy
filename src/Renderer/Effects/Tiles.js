@@ -64,15 +64,15 @@ export const flatTextureFragmentShader = `
 `;
 
 export function loadTexture(gl, texture, cb) {
-	var _texture = gl.createTexture();
+	const _texture = gl.createTexture();
 
 	Client.loadFile(texture.filename, function (buffer) {
 		Texture.load(buffer, function (canvas) {
-			var enableMipmap = Configs.get('enableMipmap');
-			var size = texture.size;
+			const enableMipmap = Configs.get('enableMipmap');
+			const size = texture.size;
 			var canvas = document.createElement('canvas');
 			canvas.width = canvas.height = size;
-			var ctx = canvas.getContext('2d');
+			const ctx = canvas.getContext('2d');
 			ctx.save();
 			ctx.translate(canvas.width / 2, canvas.height / 2);
 			ctx.rotate(Math.PI);
@@ -102,7 +102,7 @@ export const FlatTexture = (textureFilename, size = 64) =>
 		}
 
 		static init(gl) {
-			var self = this;
+			const self = this;
 			this._program = this.createShaderProgram(gl);
 			this._buffer = gl.createBuffer();
 			this._texture = null;
@@ -148,8 +148,8 @@ export const FlatTexture = (textureFilename, size = 64) =>
 		}
 
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			var uniform = this._program.uniform;
-			var attribute = this._program.attribute;
+			const uniform = this._program.uniform;
+			const attribute = this._program.attribute;
 			gl.useProgram(this._program); // Bind matrix
 
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
@@ -198,7 +198,7 @@ export const FlatTexture = (textureFilename, size = 64) =>
 		}
 	};
 
-var _hoveringNum = 0;
+let _hoveringNum = 0;
 
 export const HoveringTexture = (textureFilename, effectSize = 1, alpha = 1) =>
 	class extends FlatTexture(textureFilename) {
@@ -210,9 +210,9 @@ export const HoveringTexture = (textureFilename, effectSize = 1, alpha = 1) =>
 		}
 
 		render(gl, tick) {
-			var oddEven = this.ix % 2 === 0 ? Math.PI : 0;
-			var heightMult = Math.sin(oddEven + tick / (540 * Math.PI));
-			var position = [this.position[0], this.position[1], this.position[2] + 0.4 - 0.2 * heightMult];
+			const oddEven = this.ix % 2 === 0 ? Math.PI : 0;
+			const heightMult = Math.sin(oddEven + tick / (540 * Math.PI));
+			const position = [this.position[0], this.position[1], this.position[2] + 0.4 - 0.2 * heightMult];
 			gl.uniform3fv(this.constructor._program.uniform.uPosition, position);
 			gl.uniform1f(this.constructor._program.uniform.uSize, this.effectSize);
 			gl.uniform1f(this.constructor._program.uniform.alpha, this.alpha);

@@ -38,12 +38,12 @@ import Entity from 'Renderer/Entity/Entity';
 	/**
 	 * Create Component
 	 */
-	var EquipmentV3 = new UIComponent('EquipmentV3', htmlText, cssText);
+	const EquipmentV3 = new UIComponent('EquipmentV3', htmlText, cssText);
 
 	/**
 	 * @var {Preference} window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'EquipmentV3',
 		{
 			x: 480,
@@ -63,35 +63,35 @@ import Entity from 'Renderer/Entity/Entity';
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _ctx = [];
+	const _ctx = [];
 
 	/**
 	 * @var {boolean} show equipment to other people ?
 	 */
-	var _showEquip = false;
+	let _showEquip = false;
 
 	/**
 	 * @var {jQuery} button that appeared when level up
 	 */
-	var _btnLevelUp;
+	let _btnLevelUp;
 
 	/**
 	 * @var {jQuery} variable for UI tabs
 	 */
-	var tabLinks = new Array();
-	var contentDivs = new Array();
-	var currentTabId = 'general'; // Variable to store the current tab's ID
+	const tabLinks = new Array();
+	const contentDivs = new Array();
+	let currentTabId = 'general'; // Variable to store the current tab's ID
 
 	/**
 	 * @var {jQuery} variable for Switch Equip
 	 */
-	var switchappend;
-	var switchUIopen;
+	let switchappend;
+	let switchUIopen;
 
 	/**
 	 * @var {number} title id
 	 */
-	var _currentTitleId = 0;
+	let _currentTitleId = 0;
 
 	/**
 	 * Initialize UI
@@ -101,10 +101,10 @@ import Entity from 'Renderer/Entity/Entity';
 		_ctx.push(this.ui.find('canvas')[1].getContext('2d'));
 
 		// Grab the tab links and content divs from the page
-		var tabListItems = document.getElementById('tabs').childNodes;
+		const tabListItems = document.getElementById('tabs').childNodes;
 		for (var i = 0; i < tabListItems.length; i++) {
 			if (tabListItems[i].nodeName == 'DIV') {
-				var tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
+				const tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
 				var id = getHash(tabLink.getAttribute('href'));
 				tabLinks[id] = tabLink;
 				contentDivs[id] = document.getElementById(id);
@@ -201,11 +201,11 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @return {boolean} false to stop the browser from following the link
 	 */
 	function showTab() {
-		var selectedId = getHash(this.getAttribute('href'));
+		const selectedId = getHash(this.getAttribute('href'));
 
 		// Highlight the selected tab, and dim all others.
 		// Also show the selected content div, and hide all others.
-		for (var id in contentDivs) {
+		for (const id in contentDivs) {
 			if (id == selectedId) {
 				tabLinks[id].className = 'tab selected';
 				contentDivs[id].className = 'content';
@@ -246,7 +246,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @param {string} tagName - The tag name of the child element to find.
 	 */
 	function getFirstChildWithTagName(element, tagName) {
-		for (var i = 0; i < element.childNodes.length; i++) {
+		for (let i = 0; i < element.childNodes.length; i++) {
 			if (element.childNodes[i].nodeName == tagName.toUpperCase()) {
 				return element.childNodes[i];
 			}
@@ -260,7 +260,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @return {string} The hash part of the URL.
 	 */
 	function getHash(url) {
-		var hashPos = url.lastIndexOf('#');
+		const hashPos = url.lastIndexOf('#');
 		return url.substring(hashPos + 1);
 	}
 
@@ -286,7 +286,7 @@ import Entity from 'Renderer/Entity/Entity';
 	}
 
 	function onRemoveOption() {
-		var pkt = new PACKET.CZ.REQ_CARTOFF();
+		const pkt = new PACKET.CZ.REQ_CARTOFF();
 		Network.sendPacket(pkt);
 	}
 
@@ -411,7 +411,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @param {Item} item
 	 */
 	EquipmentV3.equip = function equip(item, location) {
-		var it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 		item.equipped = location;
 		EquipmentV3._itemlist[item.index] = item;
 		function add3Dots(string, limit) {
@@ -486,8 +486,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @param {number} item location
 	 */
 	EquipmentV3.unEquip = function unEquip(index, location) {
-		var selector = getSelectorFromLocation(location);
-		var item = EquipmentV3._itemlist[index];
+		const selector = getSelectorFromLocation(location);
+		const item = EquipmentV3._itemlist[index];
 		item.equipped = 0;
 
 		this.ui.find(selector).empty();
@@ -511,7 +511,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @returns {item.wItemSpriteNumber} Object with { item }
 	 */
 	EquipmentV3.checkEquipLoc = function checkEquipLoc(location) {
-		for (var key in EquipmentV3._itemlist) {
+		for (const key in EquipmentV3._itemlist) {
 			if (EquipmentV3._itemlist[key].location & location) {
 				return EquipmentV3._itemlist[key].wItemSpriteNumber;
 			}
@@ -532,9 +532,9 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Display or not status window
 	 */
 	function toggleStatus() {
-		var self = EquipmentV3.ui.find('.view_status');
-		var status = WinStats.getUI().ui;
-		var state = status.is(':visible') ? 'on' : 'off';
+		const self = EquipmentV3.ui.find('.view_status');
+		const status = WinStats.getUI().ui;
+		const state = status.is(':visible') ? 'on' : 'off';
 
 		status.toggle();
 
@@ -554,12 +554,12 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Rendering character
 	 */
 	var renderCharacter = (function renderCharacterClosure() {
-		var _lastState = 0;
-		var _hasCart = 0;
+		let _lastState = 0;
+		let _hasCart = 0;
 
-		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		var _savedColor = new Float32Array(4);
-		var _animation = {
+		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		const _savedColor = new Float32Array(4);
+		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -570,7 +570,7 @@ import Entity from 'Renderer/Entity/Entity';
 		};
 
 		// Current removable options
-		var HasAttachmentState =
+		const HasAttachmentState =
 			StatusConst.EffectState.FALCON |
 			StatusConst.EffectState.RIDING |
 			StatusConst.EffectState.DRAGON1 |
@@ -585,7 +585,7 @@ import Entity from 'Renderer/Entity/Entity';
 			StatusConst.EffectState.CART4 |
 			StatusConst.EffectState.CART5;
 
-		var HasCartState =
+		const HasCartState =
 			StatusConst.EffectState.CART1 |
 			StatusConst.EffectState.CART2 |
 			StatusConst.EffectState.CART3 |
@@ -593,7 +593,7 @@ import Entity from 'Renderer/Entity/Entity';
 			StatusConst.EffectState.CART5;
 
 		return function renderCharacter() {
-			var equip_character = new Entity();
+			const equip_character = new Entity();
 			equip_character.set({
 				GID: Session.Entity.GID + '_EQUIP',
 				objecttype: equip_character.constructor.TYPE_PC,
@@ -650,8 +650,8 @@ import Entity from 'Renderer/Entity/Entity';
 			equip_character.animation = _animation;
 
 			// Rendering
-			for (var i = 0; i < _ctx.length; i++) {
-				var ctx = _ctx[i];
+			for (let i = 0; i < _ctx.length; i++) {
+				const ctx = _ctx[i];
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				equip_character.renderEntity(ctx);
@@ -666,7 +666,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @returns {string} selector
 	 */
 	function getSelectorFromLocation(location) {
-		var selector = [];
+		const selector = [];
 
 		if (location & EquipLocation.HEAD_TOP) {
 			selector.push('.head_top');
@@ -742,8 +742,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 */
 	function onDragOver(event) {
 		if (window._OBJ_DRAG_) {
-			var data = window._OBJ_DRAG_;
-			var item, selector, ui;
+			const data = window._OBJ_DRAG_;
+			let item, selector, ui;
 
 			// Just support items for now ?
 			if (data.type === 'item') {
@@ -783,7 +783,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Drop an item in the equipment, equip it if possible
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -814,8 +814,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Right click on an item
 	 */
 	function onEquipmentInfo(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = EquipmentV3._itemlist[index];
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = EquipmentV3._itemlist[index];
 
 		if (item) {
 			// Don't add the same UI twice, remove it
@@ -839,7 +839,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Double click on an equipment to remove it
 	 */
 	function onEquipmentUnEquip() {
-		var index = parseInt(this.getAttribute('data-index'), 10);
+		const index = parseInt(this.getAttribute('data-index'), 10);
 		EquipmentV3.onUnEquip(index);
 		EquipmentV3.ui.find('.overlay').hide();
 	}
@@ -848,16 +848,16 @@ import Entity from 'Renderer/Entity/Entity';
 	 * When mouse is over an equipment, display the item name
 	 */
 	function onEquipmentOver() {
-		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var item = EquipmentV3._itemlist[idx];
+		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const item = EquipmentV3._itemlist[idx];
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = EquipmentV3.ui.find('.overlay');
-		var pos = jQuery(this).position();
+		const overlay = EquipmentV3.ui.find('.overlay');
+		const pos = jQuery(this).position();
 
 		// Possible jquery error
 		if (!pos.top && !pos.left) {
@@ -881,8 +881,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Updates the owner name of items in the Equipment window.
 	 */
 	EquipmentV3.onUpdateOwnerName = function () {
-		for (var index in EquipmentV3._itemlist) {
-			var item = EquipmentV3._itemlist[index];
+		for (const index in EquipmentV3._itemlist) {
+			const item = EquipmentV3._itemlist[index];
 			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				EquipmentV3.ui
 					.find('.item[data-index="' + index + '"] .itemName')
@@ -897,8 +897,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @return {number} The number of equipped items.
 	 */
 	EquipmentV3.getNumber = function () {
-		var num = 0;
-		for (var key in EquipmentV3._itemlist) {
+		let num = 0;
+		for (const key in EquipmentV3._itemlist) {
 			if (EquipmentV3._itemlist[key].location && EquipmentV3._itemlist[key].location != EquipLocation.AMMO) {
 				num++;
 			}
@@ -925,23 +925,23 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Title Functions.
 	 */
 	EquipmentV3.loadTitles = function () {
-		var titleList = this.ui.find('#title_list');
+		const titleList = this.ui.find('#title_list');
 		titleList.empty();
 
-		var removeTitleText = DB.getMessage(2686) || 'Remove Title';
-		var removeSelectedClass = _currentTitleId === 0 ? ' selected' : '';
-		var removeElement = jQuery(
+		const removeTitleText = DB.getMessage(2686) || 'Remove Title';
+		const removeSelectedClass = _currentTitleId === 0 ? ' selected' : '';
+		const removeElement = jQuery(
 			'<div class="title-option' + removeSelectedClass + '" data-title="0">' + removeTitleText + '</div>'
 		);
 		titleList.append(removeElement);
 
-		var allTitles = DB.getAllTitles();
-		for (var titleId in allTitles) {
+		const allTitles = DB.getAllTitles();
+		for (const titleId in allTitles) {
 			if (allTitles.hasOwnProperty(titleId)) {
 				// TODO: Check if player finished achievment for title
-				var titleName = allTitles[titleId];
-				var selectedClass = parseInt(titleId) === _currentTitleId ? ' selected' : '';
-				var titleElement = jQuery(
+				const titleName = allTitles[titleId];
+				const selectedClass = parseInt(titleId) === _currentTitleId ? ' selected' : '';
+				const titleElement = jQuery(
 					'<div class="title-option' +
 						selectedClass +
 						'" data-title="' +
@@ -958,13 +958,13 @@ import Entity from 'Renderer/Entity/Entity';
 		titleList.on('click', '.title-option', function (e) {
 			e.preventDefault();
 			e.stopPropagation();
-			var titleId = parseInt(this.getAttribute('data-title'));
+			const titleId = parseInt(this.getAttribute('data-title'));
 			EquipmentV3.selectTitle(titleId);
 		});
 	};
 
 	EquipmentV3.selectTitle = function (titleId) {
-		var pkt = new PACKET.CZ.REQ_CHANGE_TITLE();
+		const pkt = new PACKET.CZ.REQ_CHANGE_TITLE();
 		pkt.title_id = titleId;
 		Network.sendPacket(pkt);
 	};
@@ -981,7 +981,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @return {Object} The item in the equip switch list if found, otherwise 0
 	 */
 	EquipmentV3.isInEquipList = function (data) {
-		for (var key in EquipmentV3._itemlist) {
+		for (const key in EquipmentV3._itemlist) {
 			if (EquipmentV3._itemlist[key].location & data) {
 				return EquipmentV3._itemlist[key];
 			}
@@ -994,11 +994,11 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Equips all items in _itemlist to SwitchEquip.
 	 */
 	EquipmentV3.equipItemsToSwitch = function () {
-		var equipmentKeys = Object.keys(EquipmentV3._itemlist);
+		const equipmentKeys = Object.keys(EquipmentV3._itemlist);
 
-		for (var i = 0; i < equipmentKeys.length; i++) {
-			var key = equipmentKeys[i];
-			var equipmentItem = EquipmentV3._itemlist[key];
+		for (let i = 0; i < equipmentKeys.length; i++) {
+			const key = equipmentKeys[i];
+			const equipmentItem = EquipmentV3._itemlist[key];
 
 			// Check if the item's location is not in SwitchEquip._list
 			if (equipmentItem.location) {

@@ -19,14 +19,14 @@ let MapRenderer;
 import('Renderer/MapRenderer').then(m => MapRenderer = m.default);
 
 import { vec3 } from 'Utils/gl-matrix';
-	let FADEOUT_TAIL_MS = 2000;
+	const FADEOUT_TAIL_MS = 2000;
 
 	// SINGLETON STATE
 	let _instance = null;
 	let _mapName = '';
 	let _isStopping = false;
 
-	let PROFILE_MAP = {
+	const PROFILE_MAP = {
 		229: { maxClouds: 40, overlay: true, speed: 0.05, area: 35, zindex: -125, cloudColor: [1.0, 1.0, 1.0, 0.58] }, // EF_CLOUD
 		230: { maxClouds: 60, overlay: false, speed: 0.05, area: 35, zindex: 40, cloudColor: [1.0, 1.0, 1.0, 0.58] }, // EF_CLOUD2
 		233: { maxClouds: 40, overlay: true, speed: 0.015, area: 45, zindex: 1, cloudColor: [0.47, 0.43, 0.39, 0.78] }, // EF_CLOUD3
@@ -70,8 +70,8 @@ import { vec3 } from 'Utils/gl-matrix';
 	};
 
 	CloudWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		let now = Params.Inst.startTick || Renderer.tick;
-		let currentMap = MapRenderer ? MapRenderer.currentMap : '';
+		const now = Params.Inst.startTick || Renderer.tick;
+		const currentMap = MapRenderer ? MapRenderer.currentMap : '';
 
 		if (_mapName !== currentMap) {
 			_instance = null;
@@ -114,7 +114,7 @@ import { vec3 } from 'Utils/gl-matrix';
 		if (!_instance) {
 			return;
 		}
-		let now = tick || Renderer.tick;
+		const now = tick || Renderer.tick;
 		if (_instance.endTick === -1) {
 			_isStopping = true;
 			_instance.endTick = now + FADEOUT_TAIL_MS;
@@ -122,15 +122,15 @@ import { vec3 } from 'Utils/gl-matrix';
 	};
 
 	CloudWeatherEffect.prototype.init = function init(now) {
-		let gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 		this._display = true;
 		this._color = this._profile.cloudColor;
 
 		if (!this._textures.length && this._display) {
-			let files = this.effectID === 233 ? ['fog1', 'fog2', 'fog3'] : ['cloud4', 'cloud1', 'cloud2'];
+			const files = this.effectID === 233 ? ['fog1', 'fog2', 'fog3'] : ['cloud4', 'cloud1', 'cloud2'];
 
 			this._textures.length = files.length;
-			for (var i = 0; i < files.length; i++) {
+			for (let i = 0; i < files.length; i++) {
 				this.loadCloudTexture(gl, i, files[i]);
 			}
 		}
@@ -138,7 +138,7 @@ import { vec3 } from 'Utils/gl-matrix';
 	};
 
 	CloudWeatherEffect.prototype.loadCloudTexture = function loadCloudTexture(gl, i, fileName) {
-		let self = this;
+		const self = this;
 		Client.loadFile('data/texture/effect/' + fileName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
 				self._textures[i] = texture;
@@ -147,7 +147,7 @@ import { vec3 } from 'Utils/gl-matrix';
 	};
 
 	CloudWeatherEffect.prototype.setUpCloudData = function setUpCloudData(now) {
-		for (var i = 0; i < this._profile.maxClouds; i++) {
+		for (let i = 0; i < this._profile.maxClouds; i++) {
 			if (!this._clouds[i]) {
 				this._clouds[i] = {
 					position: vec3.create(),
@@ -168,9 +168,9 @@ import { vec3 } from 'Utils/gl-matrix';
 	};
 
 	CloudWeatherEffect.prototype.cloudInit = function cloudInit(cloud, now) {
-		let pos = Session.Entity.position;
-		let area = this._profile.area;
-		let speed = this._profile.speed;
+		const pos = Session.Entity.position;
+		const area = this._profile.area;
+		const speed = this._profile.speed;
 
 		cloud.position[0] = pos[0] + ((Math.random() * area) | 0) * (Math.random() > 0.5 ? 1 : -1);
 		cloud.position[1] = pos[1] + ((Math.random() * area) | 0) * (Math.random() > 0.5 ? 1 : -1);
@@ -204,12 +204,12 @@ import { vec3 } from 'Utils/gl-matrix';
 		SpriteRenderer.image.palette = null;
 		SpriteRenderer.depth = 0;
 
-		let max = this._profile.maxClouds;
-		let overlay = this._profile.overlay;
-		let zindex = this._profile.zindex;
+		const max = this._profile.maxClouds;
+		const overlay = this._profile.overlay;
+		const zindex = this._profile.zindex;
 
-		for (var i = 0; i < max; i++) {
-			let cloud = this._clouds[i];
+		for (let i = 0; i < max; i++) {
+			const cloud = this._clouds[i];
 			let opacity;
 
 			// Appear

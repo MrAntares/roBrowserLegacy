@@ -38,12 +38,12 @@ import cssText from './ShortCut.css?raw';
 	/**
 	 * Create Component
 	 */
-	let ShortCut = new UIComponent('ShortCut', htmlText, cssText);
+	const ShortCut = new UIComponent('ShortCut', htmlText, cssText);
 
 	/**
 	 * @var {Array} ShortCut list
 	 */
-	let _list = [];
+	const _list = [];
 
 	/**
 	 * @var {number} max number of rows
@@ -58,7 +58,7 @@ import cssText from './ShortCut.css?raw';
 	/**
 	 * @var {Preference} structure to save informations about shortcut
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ShortCut',
 		{
 			x: 480,
@@ -254,15 +254,15 @@ import cssText from './ShortCut.css?raw';
 	function updateEmptySlotTooltips() {
 		let i, size;
 		// Get all containers, not just those in _list
-		let containers = ShortCut.ui.find('.container');
+		const containers = ShortCut.ui.find('.container');
 		size = containers.length;
 
 		for (i = 0; i < size; ++i) {
-			let ui = containers.eq(i);
+			const ui = containers.eq(i);
 
 			// Only update empty slots - store hotkey as data attribute
 			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID)) {
-				let hotkey = getHotKeyString(i);
+				const hotkey = getHotKeyString(i);
 				if (hotkey) {
 					ui.attr('data-tooltip', hotkey);
 				}
@@ -277,8 +277,8 @@ import cssText from './ShortCut.css?raw';
 	ShortCut.updateAllTooltips = function updateAllTooltips() {
 		let i, size;
 		for (i = 0, size = _list.length; i < size; ++i) {
-			let ui = ShortCut.ui.find('.container:eq(' + i + ')');
-			let hotkey = getHotKeyString(i);
+			const ui = ShortCut.ui.find('.container:eq(' + i + ')');
+			const hotkey = getHotKeyString(i);
 
 			// Update empty slots
 			if (!_list[i] || (!_list[i].isSkill && !_list[i].ID)) {
@@ -292,14 +292,14 @@ import cssText from './ShortCut.css?raw';
 				if (_list[i].isSkill && SkillInfo[_list[i].ID]) {
 					name = SkillInfo[_list[i].ID].SkillName;
 				} else if (_list[i].ID) {
-					let item = Inventory.getUI().getItemById(_list[i].ID);
+					const item = Inventory.getUI().getItemById(_list[i].ID);
 					if (item) {
 						name = DB.getItemName(item);
 					}
 				}
 
 				if (name) {
-					let tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
+					const tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
 					ui.attr('data-tooltip', tooltipText);
 				}
 			}
@@ -313,7 +313,7 @@ import cssText from './ShortCut.css?raw';
 	 * @return {string} hotkey string or empty string
 	 */
 	function getHotKeyString(index) {
-		let shortcutKeys = [
+		const shortcutKeys = [
 			'F1_1',
 			'F1_2',
 			'F1_3',
@@ -356,17 +356,17 @@ import cssText from './ShortCut.css?raw';
 			return '';
 		}
 
-		let scKey = shortcutKeys[index];
-		let shortcut = ShortCutControls.ShortCuts[scKey];
+		const scKey = shortcutKeys[index];
+		const shortcut = ShortCutControls.ShortCuts[scKey];
 
 		if (!shortcut) {
 			return '';
 		}
 
-		let key = shortcut.cust ? shortcut.cust.key : shortcut.init.key;
-		let alt = shortcut.cust ? shortcut.cust.alt : shortcut.init.alt;
-		let ctrl = shortcut.cust ? shortcut.cust.ctrl : shortcut.init.ctrl;
-		let shift = shortcut.cust ? shortcut.cust.shift : shortcut.init.shift;
+		const key = shortcut.cust ? shortcut.cust.key : shortcut.init.key;
+		const alt = shortcut.cust ? shortcut.cust.alt : shortcut.init.alt;
+		const ctrl = shortcut.cust ? shortcut.cust.ctrl : shortcut.init.ctrl;
+		const shift = shortcut.cust ? shortcut.cust.shift : shortcut.init.shift;
 
 		if (!key) {
 			return '';
@@ -391,30 +391,30 @@ import cssText from './ShortCut.css?raw';
 	 * Show fixed tooltip on container hover
 	 */
 	function onContainerMouseEnter(event) {
-		let container = jQuery(this);
-		let tooltipText = container.attr('data-tooltip');
+		const container = jQuery(this);
+		const tooltipText = container.attr('data-tooltip');
 
 		if (tooltipText) {
-			let tooltip = jQuery('.shortcut-tooltip');
-			let shortcutUI = ShortCut.ui;
-			let shortcutPos = shortcutUI.offset();
-			let shortcutWidth = shortcutUI.outerWidth();
-			let shortcutHeight = shortcutUI.outerHeight();
+			const tooltip = jQuery('.shortcut-tooltip');
+			const shortcutUI = ShortCut.ui;
+			const shortcutPos = shortcutUI.offset();
+			const shortcutWidth = shortcutUI.outerWidth();
+			const shortcutHeight = shortcutUI.outerHeight();
 
 			tooltip.text(tooltipText);
 			tooltip.addClass('show');
 
 			// Calculate tooltip dimensions
-			let tooltipWidth = tooltip.outerWidth();
-			let tooltipHeight = tooltip.outerHeight();
+			const tooltipWidth = tooltip.outerWidth();
+			const tooltipHeight = tooltip.outerHeight();
 
 			// Check if there's enough space below
-			let windowHeight = jQuery(window).height();
-			let spaceBelow = windowHeight - (shortcutPos.top + shortcutHeight);
-			let showAbove = spaceBelow < tooltipHeight + 10;
+			const windowHeight = jQuery(window).height();
+			const spaceBelow = windowHeight - (shortcutPos.top + shortcutHeight);
+			const showAbove = spaceBelow < tooltipHeight + 10;
 
 			// Position tooltip centered horizontally
-			let left = shortcutPos.left + shortcutWidth / 2 - tooltipWidth / 2;
+			const left = shortcutPos.left + shortcutWidth / 2 - tooltipWidth / 2;
 			let top;
 
 			if (showAbove) {
@@ -433,7 +433,7 @@ import cssText from './ShortCut.css?raw';
 	 * Hide fixed tooltip on container leave
 	 */
 	function onContainerMouseLeave(event) {
-		let tooltip = jQuery('.shortcut-tooltip');
+		const tooltip = jQuery('.shortcut-tooltip');
 		tooltip.removeClass('show');
 	}
 
@@ -463,8 +463,8 @@ import cssText from './ShortCut.css?raw';
 	 * Resizing hotkey window
 	 */
 	function onResize(event) {
-		let ui = ShortCut.ui;
-		let top = ui.position().top;
+		const ui = ShortCut.ui;
+		const top = ui.position().top;
 		let lastHeight = 0;
 		let _Interval;
 
@@ -508,7 +508,7 @@ import cssText from './ShortCut.css?raw';
 	 */
 	ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 		let file, name;
-		let ui = ShortCut.ui.find('.container:eq(' + index + ')').empty();
+		const ui = ShortCut.ui.find('.container:eq(' + index + ')').empty();
 
 		if (!_list[index]) {
 			_list[index] = {};
@@ -528,14 +528,14 @@ import cssText from './ShortCut.css?raw';
 			}
 		} else {
 			_list[index].count = count;
-			let item = Inventory.getUI().getItemById(ID);
+			const item = Inventory.getUI().getItemById(ID);
 
 			// Do not display items not in inventory
 			if (!item) {
 				return;
 			}
 
-			let it = DB.getItemInfo(ID);
+			const it = DB.getItemInfo(ID);
 			file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
 			name = DB.getItemName(item);
 
@@ -556,8 +556,8 @@ import cssText from './ShortCut.css?raw';
 		}
 
 		// Get hotkey for this slot
-		let hotkey = getHotKeyString(index);
-		let tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
+		const hotkey = getHotKeyString(index);
+		const tooltipText = hotkey ? '[ ' + hotkey + ' ] ' + name : name;
 
 		Client.loadFile(DB.INTERFACE_PATH + 'item/' + file + '.bmp', function (url) {
 			ui.html(
@@ -586,18 +586,18 @@ import cssText from './ShortCut.css?raw';
 		}
 
 		_list[index].Delay = Renderer.tick + delay;
-		let ui = ShortCut.ui.find('.container:eq(' + index + ')');
+		const ui = ShortCut.ui.find('.container:eq(' + index + ')');
 		ui.find('.cooldown-overlay').remove();
 
-		let overlay = jQuery('<div class="cooldown-overlay"></div>');
+		const overlay = jQuery('<div class="cooldown-overlay"></div>');
 		ui.find('.icon').append(overlay);
 		ui.find('.img').css('filter', 'none');
 
 		let animationId;
 
 		function updateCooldown() {
-			let now = Renderer.tick;
-			let remaining = _list[index].Delay - now;
+			const now = Renderer.tick;
+			const remaining = _list[index].Delay - now;
 
 			if (remaining <= 0 || !_list[index].Delay) {
 				overlay.remove();
@@ -608,8 +608,8 @@ import cssText from './ShortCut.css?raw';
 				return;
 			}
 
-			let percentage = remaining / delay;
-			let degrees = (1 - percentage) * 360;
+			const percentage = remaining / delay;
+			const degrees = (1 - percentage) * 360;
 			overlay.css(
 				'background',
 				'conic-gradient(transparent 0deg, transparent ' + degrees + 'deg, rgba(0,0,0,0.75) ' + degrees + 'deg)'
@@ -688,8 +688,8 @@ import cssText from './ShortCut.css?raw';
 	 */
 	function onDrop(event) {
 		let data, element;
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let row = Math.floor(index / 9);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const row = Math.floor(index / 9);
 
 		event.stopImmediatePropagation();
 
@@ -786,8 +786,8 @@ import cssText from './ShortCut.css?raw';
 	 * using right click on it.
 	 */
 	function onElementInfo(event) {
-		let index = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		let element = _list[index];
+		const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const element = _list[index];
 
 		event.stopImmediatePropagation();
 
@@ -820,7 +820,7 @@ import cssText from './ShortCut.css?raw';
 	 * Click on a shortcut
 	 */
 	function onUseShortCut() {
-		let index = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 		clickElement(index);
 	}
 
@@ -830,7 +830,7 @@ import cssText from './ShortCut.css?raw';
 	 * @param {number} shortcut index
 	 */
 	function clickElement(index) {
-		let shortcut = _list[index];
+		const shortcut = _list[index];
 
 		SkillTargetSelection.remove();
 
@@ -846,7 +846,7 @@ import cssText from './ShortCut.css?raw';
 
 		// Use the item
 		else {
-			let item = Inventory.getUI().getItemById(_list[index].ID);
+			const item = Inventory.getUI().getItemById(_list[index].ID);
 			if (item) {
 				Inventory.getUI().useItem(item);
 			}
@@ -909,7 +909,7 @@ import cssText from './ShortCut.css?raw';
 	};
 
 	function onUpdateOwnerName() {
-		for (var index in _list) {
+		for (const index in _list) {
 			if (!_list[index].isSkill) {
 				ShortCut.setElement(false, _list[index].ID, _list[index].count);
 			}
@@ -927,7 +927,7 @@ import cssText from './ShortCut.css?raw';
 	ShortCut.onChange = function OnConfigUpdate(/*index, isSkill, ID, count*/) {};
 
 	function convertHotkeysToServerFormat() {
-		let serverData = {
+		const serverData = {
 			Type: 1,
 			data: {
 				EmotionHotkey: [],
@@ -937,7 +937,7 @@ import cssText from './ShortCut.css?raw';
 			}
 		};
 
-		let emotionKeys = [
+		const emotionKeys = [
 			'Macro1',
 			'Macro2',
 			'Macro3',
@@ -950,13 +950,13 @@ import cssText from './ShortCut.css?raw';
 			'Macro10'
 		];
 		emotionKeys.forEach(function (key, index) {
-			let shortcut = ShortCutControls.ShortCuts[key];
+			const shortcut = ShortCutControls.ShortCuts[key];
 			if (shortcut && shortcut.cust && shortcut.cust.emotion) {
 				serverData.data.EmotionHotkey[index] = shortcut.cust.emotion;
 			}
 		});
 
-		let shortcutKeys = [
+		const shortcutKeys = [
 			'F1_1',
 			'F1_2',
 			'F1_3',
@@ -996,9 +996,9 @@ import cssText from './ShortCut.css?raw';
 		];
 
 		shortcutKeys.forEach(function (key, index) {
-			let shortcut = ShortCutControls.ShortCuts[key];
+			const shortcut = ShortCutControls.ShortCuts[key];
 			if (shortcut) {
-				let keyData = shortcut.cust || shortcut.init;
+				const keyData = shortcut.cust || shortcut.init;
 				serverData.data.UserHotkey_V2.SkillBar_1Tab.push({
 					desc: 'Skill ' + (index + 1),
 					index: index,
@@ -1017,7 +1017,7 @@ import cssText from './ShortCut.css?raw';
 		}
 
 		if (serverData.data.EmotionHotkey) {
-			let emotionKeys = [
+			const emotionKeys = [
 				'Macro1',
 				'Macro2',
 				'Macro3',
@@ -1040,7 +1040,7 @@ import cssText from './ShortCut.css?raw';
 		}
 
 		if (serverData.data.UserHotkey_V2 && serverData.data.UserHotkey_V2.SkillBar_1Tab) {
-			let shortcutKeys = [
+			const shortcutKeys = [
 				'F1_1',
 				'F1_2',
 				'F1_3',
@@ -1081,7 +1081,7 @@ import cssText from './ShortCut.css?raw';
 
 			serverData.data.UserHotkey_V2.SkillBar_1Tab.forEach(function (skillData) {
 				if (skillData && skillData.index < shortcutKeys.length) {
-					let key = shortcutKeys[skillData.index];
+					const key = shortcutKeys[skillData.index];
 					if (key && skillData.key1) {
 						if (!ShortCutControls.ShortCuts[key].cust) {
 							ShortCutControls.ShortCuts[key].cust = {};
@@ -1102,20 +1102,20 @@ import cssText from './ShortCut.css?raw';
 
 	ShortCut.saveToServer = function () {
 		if (PACKETVER.value >= 20170315 && Session.WebToken) {
-			let hotkeys = JSON.stringify(convertHotkeysToServerFormat());
+			const hotkeys = JSON.stringify(convertHotkeysToServerFormat());
 			if (!haveHotkeysChanged(hotkeys)) {
 				return;
 			}
 
-			let webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+			const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
-			let formData = new FormData();
+			const formData = new FormData();
 			formData.append('AID', Session.AID);
 			formData.append('WorldName', Session.ServerName);
 			formData.append('AuthToken', Session.WebToken);
 			formData.append('data', hotkeys);
 
-			let xhr = new XMLHttpRequest();
+			const xhr = new XMLHttpRequest();
 			xhr.open('POST', webAddress + '/userconfig/save', true);
 			xhr.onload = function () {
 				if (xhr.status === 200) {
@@ -1128,19 +1128,19 @@ import cssText from './ShortCut.css?raw';
 
 	ShortCut.loadFromServer = function (callback) {
 		if (PACKETVER.value >= 20170315 && Session.WebToken) {
-			let webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+			const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
-			let formData = new FormData();
+			const formData = new FormData();
 			formData.append('AID', Session.AID);
 			formData.append('WorldName', Session.ServerName);
 			formData.append('AuthToken', Session.WebToken);
 
-			let xhr = new XMLHttpRequest();
+			const xhr = new XMLHttpRequest();
 			xhr.open('POST', webAddress + '/userconfig/load', true);
 			xhr.onload = function () {
 				if (xhr.status === 200) {
 					try {
-						let serverData = JSON.parse(xhr.responseText);
+						const serverData = JSON.parse(xhr.responseText);
 						_lastServerHotkeys = JSON.parse(JSON.stringify(serverData));
 						convertHotkeysFromServerFormat(serverData);
 						if (callback) {

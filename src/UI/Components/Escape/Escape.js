@@ -22,7 +22,7 @@ import cssText from './Escape.css?raw';
 /**
 	 * Create Escape window component
 	 */
-	let Escape = new UIComponent('Escape', htmlText, cssText);
+	const Escape = new UIComponent('Escape', htmlText, cssText);
 
 	/**
 	 * Initialize UI

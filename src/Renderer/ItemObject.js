@@ -29,10 +29,10 @@ import Altitude from 'Renderer/Map/Altitude';
 	 * @param {boolean} showdropeffect
 	 */
 	function add(gid, itemid, identify, count, x, y, z, dropeffectmode, showdropeffect) {
-		let it = DB.getItemInfo(itemid);
-		let path = DB.getItemPath(itemid, identify);
-		let entity = new Entity();
-		let name = identify ? it.identifiedDisplayName : it.unidentifiedDisplayName;
+		const it = DB.getItemInfo(itemid);
+		const path = DB.getItemPath(itemid, identify);
+		const entity = new Entity();
+		const name = identify ? it.identifiedDisplayName : it.unidentifiedDisplayName;
 		/*var dropEffectPostition = [x, y, z];*/ // UNUSED
 		entity.GID = gid;
 		entity.objecttype = Entity.TYPE_ITEM;
@@ -55,7 +55,7 @@ import Altitude from 'Renderer/Map/Altitude';
 
 		// Item falling
 		entity.animations.add(function (tick) {
-			let level = Altitude.getCellHeight(entity.position[0], entity.position[1]);
+			const level = Altitude.getCellHeight(entity.position[0], entity.position[1]);
 			entity.position[2] = Math.max(level, z - tick / 40);
 			return entity.position[2] === level;
 		});
@@ -69,7 +69,7 @@ import Altitude from 'Renderer/Map/Altitude';
 	 * @param {number} gid
 	 */
 	function remove(gid) {
-		let entity = EntityManager.get(gid);
+		const entity = EntityManager.get(gid);
 		if (entity) {
 			entity.dropEffect.remove(EffectManager);
 		}

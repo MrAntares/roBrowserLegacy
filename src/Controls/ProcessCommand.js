@@ -47,7 +47,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 	let aliases = {};
 
-	let CommandStore = {
+	const CommandStore = {
 		sound: {
 			description: 'Toggles playing of sound effects',
 			callback: function () {
@@ -183,7 +183,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			description: 'Cycles the posterization effect of the lightmap: on, off, off with gamma correction',
 			callback: function () {
 				MapPreferences.smoothlight = (MapPreferences.smoothlight + 1) % 3;
-				let messages = ['Posterization On', 'Smoothlight On', 'Smoothlight On with Gamma Correction'];
+				const messages = ['Posterization On', 'Smoothlight On', 'Smoothlight On with Gamma Correction'];
 				this.addText(messages[MapPreferences.smoothlight], this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				MapPreferences.save();
 				return;
@@ -359,7 +359,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		who: {
 			description: 'Shows the current number of players on the server',
 			callback: function () {
-				let pkt = new PACKET.CZ.REQ_USER_COUNT();
+				const pkt = new PACKET.CZ.REQ_USER_COUNT();
 				Network.sendPacket(pkt);
 				return;
 			},
@@ -369,7 +369,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		memo: {
 			description: 'Memorizes a location for use with the Warp Portal skill',
 			callback: function () {
-				let pkt = new PACKET.CZ.REMEMBER_WARPPOINT();
+				const pkt = new PACKET.CZ.REMEMBER_WARPPOINT();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -402,7 +402,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		invite: {
 			description: '"<name>" Invite a person to your party. Works across different maps',
 			callback: function (text) {
-				let matches = text.match(/^invite\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^invite\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
 					Group.onRequestInvitation(0, matches[2]);
 					return;
@@ -413,7 +413,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		organize: {
 			description: 'Creates a party named <Party Name>',
 			callback: function (text) {
-				let matches = text.match(/^organize\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^organize\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
 					Group.onRequestCreationEasy(matches[2]);
 					return;
@@ -433,7 +433,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			description:
 				"Creates a guild named <Guild Name>. This requires an Emperium to be in the creator's inventory",
 			callback: function (text) {
-				let matches = text.match(/^guild\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^guild\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
 					Guild.createGuild(matches[2]);
 					return;
@@ -444,7 +444,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		breakguild: {
 			description: 'Disbands a guild. Can only be used by the guild leader. All members must be expelled first',
 			callback: function (text) {
-				let matches = text.match(/^breakguild\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^breakguild\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
 					Guild.breakGuild(matches[2]);
 					return;
@@ -455,7 +455,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		alchemist: {
 			description: 'Shows the top 10 brewing Alchemists in the server.',
 			callback: function () {
-				let pkt = new PACKET.CZ.ALCHEMIST_RANK();
+				const pkt = new PACKET.CZ.ALCHEMIST_RANK();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -464,7 +464,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		blacksmith: {
 			description: 'Shows the top 10 forging/upgrading Blacksmiths in the server',
 			callback: function () {
-				let pkt = new PACKET.CZ.BLACKSMITH_RANK();
+				const pkt = new PACKET.CZ.BLACKSMITH_RANK();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -473,7 +473,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		taekwon: {
 			description: 'Shows the top 10 TaeKwon Kids based on completion of TaeKwon Missions in the server',
 			callback: function () {
-				let pkt = new PACKET.CZ.TAEKWON_RANK();
+				const pkt = new PACKET.CZ.TAEKWON_RANK();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -511,7 +511,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		call: {
 			description: 'Toggles the ability to be Urgent Called.',
 			callback: function () {
-				let pkt = new PACKET.CZ.CONFIG();
+				const pkt = new PACKET.CZ.CONFIG();
 				pkt.Config = 1;
 				pkt.Value = !Session.Entity.call_flag ? 1 : 0;
 				Network.sendPacket(pkt);
@@ -522,8 +522,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		cl: {
 			description: 'Sends a message to the player clan.',
 			callback: function (text) {
-				let pkt = new PACKET.CZ.CLAN_CHAT();
-				let matches = text.match(/(^cl)\s+(.*)/);
+				const pkt = new PACKET.CZ.CLAN_CHAT();
+				const matches = text.match(/(^cl)\s+(.*)/);
 				if (matches && matches[2]) {
 					pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
 					Network.sendPacket(pkt);
@@ -538,9 +538,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		broadcast: {
 			description: 'Sends a broadcast message with your name (yellow).',
 			callback: function (text) {
-				let matches = text.match(/(^broadcast|^b)\s+(.*)/);
+				const matches = text.match(/(^broadcast|^b)\s+(.*)/);
 				if (matches && matches[2]) {
-					let pkt = new PACKET.CZ.BROADCAST();
+					const pkt = new PACKET.CZ.BROADCAST();
 					pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -551,9 +551,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		nb: {
 			description: 'Sends a broadcast message without your name (yellow).',
 			callback: function (text) {
-				let matches = text.match(/(^nb)\s+(.*)/);
+				const matches = text.match(/(^nb)\s+(.*)/);
 				if (matches && matches[2]) {
-					let pkt = new PACKET.CZ.BROADCAST();
+					const pkt = new PACKET.CZ.BROADCAST();
 					pkt.msg = matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -563,9 +563,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		localbroadcast: {
 			description: 'Sends a local broadcast message with your name. (yellow)',
 			callback: function (text) {
-				let matches = text.match(/(^localbroadcast|^lb)\s+(.*)/);
+				const matches = text.match(/(^localbroadcast|^lb)\s+(.*)/);
 				if (matches && matches[2]) {
-					let pkt = new PACKET.CZ.LOCALBROADCAST();
+					const pkt = new PACKET.CZ.LOCALBROADCAST();
 					pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -576,9 +576,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		nlb: {
 			description: 'Sends a local broadcast message without your name. (yellow)',
 			callback: function (text) {
-				let matches = text.match(/(^nlb)\s+(.*)/);
+				const matches = text.match(/(^nlb)\s+(.*)/);
 				if (matches && matches[2]) {
-					let pkt = new PACKET.CZ.LOCALBROADCAST();
+					const pkt = new PACKET.CZ.LOCALBROADCAST();
 					pkt.msg = matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -588,9 +588,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		mapmove: {
 			description: 'Move to map x y.',
 			callback: function (text) {
-				let matches = text.match(/(^mapmove|^mm)\s+([\w.]+)\s+(\d+)\s+(\d+)/);
+				const matches = text.match(/(^mapmove|^mm)\s+([\w.]+)\s+(\d+)\s+(\d+)/);
 				if (matches) {
-					let pkt = new PACKET.CZ.MOVETO_MAP();
+					const pkt = new PACKET.CZ.MOVETO_MAP();
 					pkt.mapName = matches[2];
 					pkt.xPos = parseInt(matches[3], 10);
 					pkt.yPos = parseInt(matches[4], 10);
@@ -603,9 +603,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		shift: {
 			description: 'Warp to a character.',
 			callback: function (text) {
-				let matches = text.match(/^shift\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^shift\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					let pkt = new PACKET.CZ.SHIFT();
+					const pkt = new PACKET.CZ.SHIFT();
 					pkt.CharacterName = matches[2].trim();
 					Network.sendPacket(pkt);
 					return;
@@ -615,9 +615,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		summon: {
 			description: 'Recall a player to your position.',
 			callback: function (text) {
-				let matches = text.match(/^summon\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^summon\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					let pkt = new PACKET.CZ.RECALL_GID();
+					const pkt = new PACKET.CZ.RECALL_GID();
 					pkt.CharacterName = matches[2].trim();
 					Network.sendPacket(pkt);
 					return;
@@ -627,9 +627,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		recall: {
 			description: 'Recall a player by account name.',
 			callback: function (text) {
-				let matches = text.match(/^recall\s+(.*)/);
+				const matches = text.match(/^recall\s+(.*)/);
 				if (matches && matches[1]) {
-					let pkt = new PACKET.CZ.RECALL();
+					const pkt = new PACKET.CZ.RECALL();
 					pkt.AccountName = matches[1].trim();
 					Network.sendPacket(pkt);
 					return;
@@ -640,7 +640,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			description: 'Toggle Perfect Hide.',
 			callback: function () {
 				// Server handles toggle state
-				let pkt = new PACKET.CZ.CHANGE_EFFECTSTATE();
+				const pkt = new PACKET.CZ.CHANGE_EFFECTSTATE();
 				pkt.EffectState = StatusState.EffectState.INVISIBLE;
 				Network.sendPacket(pkt);
 				return;
@@ -649,9 +649,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		kill: {
 			description: 'Disconnect a player (needs account id).',
 			callback: function (text) {
-				let matches = text.match(/(^kill)\s+(\d+)/);
+				const matches = text.match(/(^kill)\s+(\d+)/);
 				if (matches) {
-					let pkt = new PACKET.CZ.DISCONNECT_CHARACTER();
+					const pkt = new PACKET.CZ.DISCONNECT_CHARACTER();
 					pkt.AID = matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -661,7 +661,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		killall: {
 			description: 'Disconnect all players.',
 			callback: function () {
-				let pkt = new PACKET.CZ.DISCONNECT_ALL_CHARACTER();
+				const pkt = new PACKET.CZ.DISCONNECT_ALL_CHARACTER();
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -669,9 +669,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		item: {
 			description: 'Create Item or Monster (uses AEGIS name).',
 			callback: function (text) {
-				let matches = text.match(/(^item|^monster)\s+(")?([^"]+)(")?/);
+				const matches = text.match(/(^item|^monster)\s+(")?([^"]+)(")?/);
 				if (matches && matches[3]) {
-					let pkt = new PACKET.CZ.ITEM_CREATE();
+					const pkt = new PACKET.CZ.ITEM_CREATE();
 					pkt.itemName = matches[3];
 					Network.sendPacket(pkt);
 					return;
@@ -682,7 +682,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		resetstate: {
 			description: 'Reset Stats.',
 			callback: function () {
-				let pkt = new PACKET.CZ.RESET();
+				const pkt = new PACKET.CZ.RESET();
 				pkt.type = 0;
 				Network.sendPacket(pkt);
 				return;
@@ -691,7 +691,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		resetskill: {
 			description: 'Reset Skills.',
 			callback: function () {
-				let pkt = new PACKET.CZ.RESET();
+				const pkt = new PACKET.CZ.RESET();
 				pkt.type = 1;
 				Network.sendPacket(pkt);
 				return;
@@ -700,9 +700,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		remove: {
 			description: 'Remove a player (need account name)',
 			callback: function (text) {
-				let matches = text.match(/(^remove)\s+(.*)/);
+				const matches = text.match(/(^remove)\s+(.*)/);
 				if (matches) {
-					let pkt = new PACKET.CZ.REMOVE_AID();
+					const pkt = new PACKET.CZ.REMOVE_AID();
 					pkt.AccountName = matches[2];
 					Network.sendPacket(pkt);
 					return;
@@ -712,9 +712,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		changemaptype: {
 			description: 'Change a cell type (x,y,type).',
 			callback: function (text) {
-				let matches = text.match(/(^changemaptype|cmt)\s+(\d+)\s+(\d+)\s+(\d+)/);
+				const matches = text.match(/(^changemaptype|cmt)\s+(\d+)\s+(\d+)\s+(\d+)/);
 				if (matches) {
-					let pkt = new PACKET.CZ.MOVETO_MAP();
+					const pkt = new PACKET.CZ.MOVETO_MAP();
 					pkt.xPos = matches[2];
 					pkt.yPos = matches[3];
 					pkt.type = matches[4];
@@ -727,9 +727,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		check: {
 			description: 'Check stats of a player (GM command).',
 			callback: function (text) {
-				let matches = text.match(/^check\s+(")?([^"]+)(")?/);
+				const matches = text.match(/^check\s+(")?([^"]+)(")?/);
 				if (matches && matches[2]) {
-					let pkt = new PACKET.CZ.REQ_STATUS_GM();
+					const pkt = new PACKET.CZ.REQ_STATUS_GM();
 					pkt.CharName = matches[2].trim();
 					Session.gmCheckTarget = pkt.CharName;
 					Network.sendPacket(pkt);
@@ -756,9 +756,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		macro_preview: {
 			description: 'Request to preview a captcha image',
 			callback: function (text) {
-				let matches = text.match(/^macro_preview\s+(\d+)/);
+				const matches = text.match(/^macro_preview\s+(\d+)/);
 				if (matches && matches[1]) {
-					let pkt = new PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR();
+					const pkt = new PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR();
 					pkt.captchaID = matches[1];
 					Network.sendPacket(pkt);
 				}
@@ -820,8 +820,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		CommandStore.weather = {
 			description: 'Dev-only weather toggle. Usage: /weather snow|rain|leaves|sakura|fireworks|cloud|cloud2|off',
 			callback: function (text) {
-				let args = text.trim().split(/\s+/).slice(1);
-				let mode = (args[0] || '').toLowerCase();
+				const args = text.trim().split(/\s+/).slice(1);
+				const mode = (args[0] || '').toLowerCase();
 
 				if (!mode || mode === 'help') {
 					this.addText(
@@ -836,7 +836,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 					return;
 				}
 
-				let ownerAID = Session.Entity.GID || Session.GID || Session.AID;
+				const ownerAID = Session.Entity.GID || Session.GID || Session.AID;
 
 				if (mode === 'snow' || mode === 'on') {
 					EffectManager.spam({
@@ -925,9 +925,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Load aliases
 	 */
 	function loadAliases() {
-		for (var cmd in CommandStore) {
+		for (const cmd in CommandStore) {
 			if (CommandStore[cmd].aliases) {
-				for (var i = 0; i < CommandStore[cmd].aliases.length; i++) {
+				for (let i = 0; i < CommandStore[cmd].aliases.length; i++) {
 					aliases[CommandStore[cmd].aliases[i]] = cmd;
 				}
 			}
@@ -940,21 +940,21 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Process command
 	 */
 	function processCommand(text) {
-		let cmd = text.split(' ')[0];
+		const cmd = text.split(' ')[0];
 		let pkt, matches;
 
 		// Check if the command exists in the store
 		if (CommandStore[cmd]) {
 			CommandStore[cmd].callback.call(this, text);
 		} else if (aliases[cmd]) {
-			let parentCommand = aliases[cmd];
+			const parentCommand = aliases[cmd];
 			CommandStore[parentCommand].callback.call(this, text);
 		} else {
 			// /str+
 			// TODO: do we have to spam the server with "1" unit or do we have to fix the servers code ?
 			matches = text.match(/^(\w{3})\+ (\d+)$/);
 			if (matches) {
-				let pos = ['str', 'agi', 'vit', 'int', 'dex', 'luk'].indexOf(matches[1]);
+				const pos = ['str', 'agi', 'vit', 'int', 'dex', 'luk'].indexOf(matches[1]);
 				if (pos > -1 && matches[2] !== 0) {
 					pkt = new PACKET.CZ.STATUS_CHANGE();
 					pkt.statusID = pos + 13;
@@ -965,7 +965,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			}
 
 			if (matches) {
-				let pos = ['pow', 'sta', 'wis', 'spl', 'con', 'crt'].indexOf(matches[1]);
+				const pos = ['pow', 'sta', 'wis', 'spl', 'con', 'crt'].indexOf(matches[1]);
 				if (pos > -1 && matches[2] !== 0) {
 					pkt = new PACKET.CZ.STATUS_CHANGE();
 					pkt.statusID = pos + 219;

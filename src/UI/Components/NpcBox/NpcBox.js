@@ -22,7 +22,7 @@ import cssText from './NpcBox.css?raw';
 /**
 	 * Create NpcBox component
 	 */
-	let NpcBox = new UIComponent('NpcBox', htmlText, cssText);
+	const NpcBox = new UIComponent('NpcBox', htmlText, cssText);
 
 	/**
 	 * @var {boolean} does the box need to be clean up?
@@ -131,7 +131,7 @@ import cssText from './NpcBox.css?raw';
 
 		// Add click handler for item links
 		this.ui.on('click', '.item-link', function (event) {
-			let itemId = parseInt(jQuery(this).data('item-id'), 10);
+			const itemId = parseInt(jQuery(this).data('item-id'), 10);
 			if (!itemId) {
 				return;
 			}
@@ -150,8 +150,8 @@ import cssText from './NpcBox.css?raw';
 
 		// Add click handler for navi links
 		this.ui.on('click', '.navi-link', function (event) {
-			let naviInfo = jQuery(this).data('navi-info');
-			let displayName = jQuery(this).data('navi-name');
+			const naviInfo = jQuery(this).data('navi-info');
+			const displayName = jQuery(this).data('navi-name');
 
 			if (!naviInfo) {
 				return;
@@ -184,7 +184,7 @@ import cssText from './NpcBox.css?raw';
 		NpcBox.ownerID = 0;
 
 		// Cutin system
-		let cutin = document.getElementById('cutin');
+		const cutin = document.getElementById('cutin');
 		if (cutin) {
 			document.body.removeChild(cutin);
 		}
@@ -231,7 +231,7 @@ import cssText from './NpcBox.css?raw';
 	 * @param {number} gid - npc id
 	 */
 	NpcBox.setText = function SetText(text, gid) {
-		let content = this.ui.find('.content');
+		const content = this.ui.find('.content');
 		NpcBox.ownerID = gid;
 
 		if (_needCleanUp) {

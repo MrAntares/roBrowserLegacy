@@ -27,25 +27,25 @@ import htmlText from './ChangeCart.html?raw';
 import cssText from './ChangeCart.css?raw';
 
 // Config
-	let CART_LIMIT = 13;
+	const CART_LIMIT = 13;
 
 	/**
 	 * Create Component
 	 */
-	let ChangeCart = new UIComponent('ChangeCart', htmlText, cssText);
+	const ChangeCart = new UIComponent('ChangeCart', htmlText, cssText);
 
 	/**
 	 * @var {object} data info
 	 */
-	let _carts = {};
-	let _layerEntity = new Entity();
+	const _carts = {};
+	const _layerEntity = new Entity();
 
 	/**
 	 * Initialize UI
 	 */
 	ChangeCart.init = function init() {
-		let carts = this.ui.find('.cart');
-		let canvases = this.ui.find('.canvas');
+		const carts = this.ui.find('.cart');
+		const canvases = this.ui.find('.canvas');
 
 		this.ui.css({
 			top: (Renderer.height - 100) / 2.0,
@@ -74,7 +74,7 @@ import cssText from './ChangeCart.css?raw';
 		let i;
 		for (i = 0; i <= CART_LIMIT; ++i) {
 			(function (id) {
-				let path = DB.getCartPath(id);
+				const path = DB.getCartPath(id);
 				Client.loadFiles([path + '.spr', path + '.act'], function (spr, act) {
 					_carts[id] = {
 						spr: spr,
@@ -93,7 +93,7 @@ import cssText from './ChangeCart.css?raw';
 			return;
 		}
 
-		let pkt = new PACKET.CZ.REQ_CHANGECART();
+		const pkt = new PACKET.CZ.REQ_CHANGECART();
 		pkt.num = num;
 		Network.sendPacket(pkt);
 		ChangeCart.ui.hide();
@@ -114,7 +114,7 @@ import cssText from './ChangeCart.css?raw';
 
 		this.ui.show();
 
-		let msg = 'Change Cart!!';
+		const msg = 'Change Cart!!';
 
 		if (ChatRoom.isOpen) {
 			ChatRoom.message(msg);
@@ -191,7 +191,7 @@ import cssText from './ChangeCart.css?raw';
 	 * @returns {Object[]}
 	 */
 	function pickLayers(act, actionId) {
-		let a = act.actions[actionId];
+		const a = act.actions[actionId];
 		if (!a || !a.animations || !a.animations.length) {
 			return null;
 		}
@@ -202,7 +202,7 @@ import cssText from './ChangeCart.css?raw';
 	 * Draw action to canvas
 	 */
 	function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
-		let layers = pickLayers(act, actionId);
+		const layers = pickLayers(act, actionId);
 		if (!layers) {
 			return;
 		}
@@ -210,7 +210,7 @@ import cssText from './ChangeCart.css?raw';
 		// Gravity fonts: no anchor correction
 		SpriteRenderer.bind2DContext(ctx, x, y);
 
-		for (var i = 0; i < layers.length; i++) {
+		for (let i = 0; i < layers.length; i++) {
 			_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
 		}
 	}
@@ -219,17 +219,17 @@ import cssText from './ChangeCart.css?raw';
 	 * Rendering the Carts
 	 */
 	function render(tick) {
-		let canvases = ChangeCart.ui.find('.canvas:visible');
+		const canvases = ChangeCart.ui.find('.canvas:visible');
 
 		canvases.each(function () {
-			let id = this.getAttribute('data-id');
-			let data = _carts[id];
+			const id = this.getAttribute('data-id');
+			const data = _carts[id];
 
 			if (!data || !data.spr || !data.act) {
 				return;
 			}
 
-			let ctx = this.getContext('2d');
+			const ctx = this.getContext('2d');
 			ctx.clearRect(0, 0, this.width, this.height);
 
 			// Cart is rendered with Action 0 (Idle)
@@ -245,7 +245,7 @@ import cssText from './ChangeCart.css?raw';
 			// EntityRender uses: (entity.action * 8 + ((Camera.direction + entity.direction + 8) % 8)) % act.actions.length
 			// Let's try idle (0) and direction (0) -> 0.
 			// Or maybe direction 0 looks best in UI.
-			let actionId = 0; // (0 * 8 + 0)
+			const actionId = 0; // (0 * 8 + 0)
 
 			drawActionToCanvas(ctx, data.act, data.spr, actionId, this.width / 2, this.height + 10);
 		});

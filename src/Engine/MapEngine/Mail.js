@@ -29,7 +29,7 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 	///    	msg_len
 	/// 	msg
 	Mail.parseMailSend = function parseMailSend(mail) {
-		let pkt = new PACKET.CZ.MAIL_SEND();
+		const pkt = new PACKET.CZ.MAIL_SEND();
 
 		pkt.ReceiveName = mail.ReceiveName.replace(/^(\$|\%)/, '').replace(/\t/g, '');
 		pkt.Header = mail.Header.replace(/^(\$|\%)/, '');
@@ -48,7 +48,7 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 	///     1 = remove item
 	///     2 = remove zeny
 	Mail.parseMailWinopen = function parseMailWinopen(type) {
-		let pkt = new PACKET.CZ.MAIL_RESET_ITEM();
+		const pkt = new PACKET.CZ.MAIL_RESET_ITEM();
 		pkt.Type = type;
 		Network.sendPacket(pkt);
 	};
@@ -66,7 +66,7 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 			return;
 		}
 
-		let pkt = new PACKET.CZ.MAIL_ADD_ITEM();
+		const pkt = new PACKET.CZ.MAIL_ADD_ITEM();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -78,7 +78,7 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 	 * @param {int} MailID
 	 */
 	Mail.parseMailgetattach = function parseMailgetattach(MailID) {
-		let pkt = new PACKET.CZ.MAIL_GET_ITEM();
+		const pkt = new PACKET.CZ.MAIL_GET_ITEM();
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
 	};
@@ -88,7 +88,7 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 	 * CZ_MAIL_GET_LIST
 	 */
 	Mail.parseMailrefreshinbox = function parseMailrefreshinbox() {
-		let pkt = new PACKET.CZ.MAIL_GET_LIST();
+		const pkt = new PACKET.CZ.MAIL_GET_LIST();
 		Network.sendPacket(pkt);
 	};
 
@@ -99,7 +99,7 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 	 * @param {string} ReceiveName
 	 */
 	Mail.returnMail = function returnMail(MailID, ReceiveName) {
-		let pkt = new PACKET.CZ.REQ_MAIL_RETURN();
+		const pkt = new PACKET.CZ.REQ_MAIL_RETURN();
 		pkt.MailID = MailID;
 		pkt.ReceiveName = ReceiveName;
 		Network.sendPacket(pkt);
@@ -111,10 +111,10 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 	 * @param {int} MailID
 	 */
 	Mail.openMail = function openMail(MailID) {
-		let pkt = new PACKET.CZ.MAIL_OPEN();
+		const pkt = new PACKET.CZ.MAIL_OPEN();
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
-		let updateMail = {
+		const updateMail = {
 			MailID: MailID,
 			isOpen: 1
 		};
@@ -127,7 +127,7 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 	 * @param {int} MailID
 	 */
 	Mail.deleteMail = function deleteMail(MailID) {
-		let pkt = new PACKET.CZ.MAIL_DELETE();
+		const pkt = new PACKET.CZ.MAIL_DELETE();
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
 	};
@@ -241,7 +241,7 @@ import ReadMail from 'UI/Components/Mail/ReadMail';
 	 * @param {object} result
 	 */
 	function mailNew(result) {
-		let newMail = {
+		const newMail = {
 			DeleteTime: new Date().getTime() / 1000,
 			FromName: result.FromName,
 			HEADER: result.Header,

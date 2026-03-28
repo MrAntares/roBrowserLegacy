@@ -31,7 +31,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 /**
 	 * Create Component
 	 */
-	let VendingShop = new UIComponent('VendingShop', htmlText, cssText);
+	const VendingShop = new UIComponent('VendingShop', htmlText, cssText);
 
 	/**
 	 * @var {enum} Store type
@@ -59,7 +59,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'VendingShop',
 		{
 			x: 200,
@@ -109,8 +109,8 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 		});
 
 		_realSize = _preferences.reduce ? 0 : this.ui.height();
-		let messageText = DB.getMessage(226);
-		let titleShop = Vending._shopname.length > 25 ? Vending._shopname.substring(0, 25) + '...' : Vending._shopname;
+		const messageText = DB.getMessage(226);
+		const titleShop = Vending._shopname.length > 25 ? Vending._shopname.substring(0, 25) + '...' : Vending._shopname;
 		this.ui.find('.text.shopname').text(messageText + ' : ' + titleShop);
 	};
 
@@ -171,7 +171,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 */
 	VendingShop.getItemById = function GetItemById(id) {
 		let i, count;
-		let list = VendingShop.list;
+		const list = VendingShop.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -190,7 +190,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 */
 	VendingShop.getItemByIndex = function getItemByIndex(index) {
 		let i, count;
-		let list = VendingShop.list;
+		const list = VendingShop.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -243,8 +243,8 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 * @param {object} Item
 	 */
 	VendingShop.addItemSub = function AddItemSub(item) {
-		let it = DB.getItemInfo(item.ITID);
-		let content = this.ui.find('.container .content');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.container .content');
 
 		content.append(
 			'<div class="item" data-index="' +
@@ -285,7 +285,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 */
 	VendingShop.removeItem = function RemoveItem(index, count) {
 		let i, ctr;
-		let item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
 		// do not remove item from inventory
@@ -294,7 +294,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 		}
 
 		// Sold Message
-		let msg = DB.getMessage(231).replace('%s', DB.getItemName(item)).replace('%d', count);
+		const msg = DB.getMessage(231).replace('%s', DB.getItemName(item)).replace('%d', count);
 		ChatBox.addText(msg, ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 
 		if (item.count) {
@@ -335,7 +335,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 * @param {number} count
 	 */
 	VendingShop.updateItem = function UpdateItem(index, count) {
-		let item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -353,7 +353,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 		this.list.splice(this.list.indexOf(item), 1);
 		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		let content = this.ui.find('.container .content');
+		const content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -367,7 +367,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 * @return {string}
 	 */
 	function prettyZeny(val, useStyle) {
-		let list = val.toString().split('');
+		const list = val.toString().split('');
 		let i,
 			count = list.length;
 		let str = '';
@@ -377,7 +377,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 		}
 
 		if (useStyle) {
-			let style = [
+			const style = [
 				'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
 				'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
 				'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
@@ -407,7 +407,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 * Hide/show inventory's content
 	 */
 	function onToggleReduction() {
-		let ui = VendingShop.ui;
+		const ui = VendingShop.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
@@ -426,7 +426,7 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	function requestFilter() {
 		VendingShop.ui.find('.container .content').empty();
 
-		let list = VendingShop.list;
+		const list = VendingShop.list;
 		let i, count;
 
 		for (i = 0, count = list.length; i < count; ++i) {
@@ -468,16 +468,16 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = VendingShop.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = VendingShop.getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		let pos = jQuery(this).position();
-		let overlay = VendingShop.ui.find('.overlay');
+		const pos = jQuery(this).position();
+		const overlay = VendingShop.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -519,8 +519,8 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let item = VendingShop.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = VendingShop.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -544,8 +544,8 @@ import VendingReport from 'UI/Components/VendingReport/VendingReport';
 	 * Ask to use an item
 	 */
 	function onItemUsed(event) {
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let item = VendingShop.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = VendingShop.getItemByIndex(index);
 
 		if (item) {
 			VendingShop.useItem(item);

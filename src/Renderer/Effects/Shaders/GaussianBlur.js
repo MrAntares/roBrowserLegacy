@@ -35,13 +35,13 @@ let _program, _buffer;
 
 		gl.useProgram(_program);
 
-		let focusRadius = GraphicsSettings.blurArea / 100;
-		let focusFalloff = 0.5;
+		const focusRadius = GraphicsSettings.blurArea / 100;
+		const focusFalloff = 0.5;
 
 		gl.uniform1f(_program.uniform.uFocusRadius, focusRadius);
 		gl.uniform1f(_program.uniform.uFocusFalloff, focusFalloff);
 
-		let boxsampleFactor = GraphicsSettings.blurIntensity;
+		const boxsampleFactor = GraphicsSettings.blurIntensity;
 
 		gl.uniform2f(
 			_program.uniform.uTexelSize,
@@ -50,7 +50,7 @@ let _program, _buffer;
 		);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		let posLoc = _program.attribute.aPosition;
+		const posLoc = _program.attribute.aPosition;
 		gl.enableVertexAttribArray(posLoc);
 		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
@@ -73,7 +73,7 @@ let _program, _buffer;
 			console.error('Error compiling Lens Blur shader.', e);
 			return;
 		}
-		let quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+		const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);

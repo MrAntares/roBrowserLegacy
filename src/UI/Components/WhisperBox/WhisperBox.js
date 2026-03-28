@@ -58,8 +58,8 @@ WhisperBox.init = function () {
 
 	// Handle item link clicks (iteminfo)
 	jQuery(document).on('click.whisperbox', '.whisperbox .item-link, .whisper-container .item-link', function (event) {
-		var match = jQuery(this).attr('data-item') || jQuery(this).data('item');
-		var item = DB.parseItemLink(match);
+		const match = jQuery(this).attr('data-item') || jQuery(this).data('item');
+		const item = DB.parseItemLink(match);
 		if (item) {
 			import('UI/Components/ItemInfo/ItemInfo').then(m => {
 				const ItemInfo = m.default;
@@ -72,7 +72,7 @@ WhisperBox.init = function () {
 
 	// Handle nickname clicks (open chat)
 	jQuery(document).on('click.whisperbox', '.whisperbox .nickname-link, .whisper-container .nickname-link', function (event) {
-		var nickname = jQuery(this).attr('data-nickname') || jQuery(this).data('nickname');
+		const nickname = jQuery(this).attr('data-nickname') || jQuery(this).data('nickname');
 		if (nickname) {
 			WhisperBox.show(nickname);
 		}
@@ -85,8 +85,8 @@ WhisperBox.init = function () {
  * Clear all history and windows
  */
 WhisperBox.clearAll = function () {
-	var keys = Object.keys(this.instances);
-	for (var i = 0; i < keys.length; i++) {
+	const keys = Object.keys(this.instances);
+	for (let i = 0; i < keys.length; i++) {
 		this.instances[keys[i]].remove();
 	}
 	this.instances = {};
@@ -98,7 +98,7 @@ WhisperBox.clearAll = function () {
  * @param {boolean} [bHasMessage]
  */
 WhisperBox.show = function (nickname, bHasMessage) {
-	var self = this;
+	const self = this;
 	if (this.instances[nickname]) {
 		this.instances[nickname].ui.show();
 		this.instances[nickname].focus();
@@ -110,7 +110,7 @@ WhisperBox.show = function (nickname, bHasMessage) {
 		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
 	}
 
-	var instance = this.clone(nickname);
+	const instance = this.clone(nickname);
 	instance.nickname = nickname;
 
 	// Register with UIManager for global focus handling (z-index)
@@ -123,12 +123,12 @@ WhisperBox.show = function (nickname, bHasMessage) {
 	instance.append();
 
 	// Set cached elements and title
-	var $ui = instance.ui;
+	const $ui = instance.ui;
 	instance.$content = $ui.find('.content');
 	instance.$input = $ui.find('.input-whisper');
 
 	import('Engine/MapEngine/Friends').then(Friends => {
-		var isFriend = Friends && Friends.default.isFriend ? Friends.default.isFriend(nickname) : false;
+		const isFriend = Friends && Friends.default.isFriend ? Friends.default.isFriend(nickname) : false;
 		$ui.find('.title').text('With ' + nickname + (isFriend ? ' (Friend)' : ''));
 	});
 
@@ -185,24 +185,24 @@ WhisperBox.show = function (nickname, bHasMessage) {
 	// Force plain-text paste and length limit
 	instance.$input.on('paste', function (event) {
 		event.preventDefault();
-		var clipboard = (event.originalEvent || event).clipboardData;
-		var paste = clipboard ? clipboard.getData('text/plain') : '';
+		const clipboard = (event.originalEvent || event).clipboardData;
+		let paste = clipboard ? clipboard.getData('text/plain') : '';
 		if (!paste) {
 			return false;
 		}
 
 		paste = paste.replace(/\u00A0/g, ' ');
-		var currentText = extractChatMessage(jQuery(this));
-		var remaining = 100 - currentText.length;
+		const currentText = extractChatMessage(jQuery(this));
+		const remaining = 100 - currentText.length;
 		if (remaining <= 0) {
 			return false;
 		}
 
-		var toInsert = paste.substr(0, remaining);
+		const toInsert = paste.substr(0, remaining);
 		if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
 			document.execCommand('insertText', false, toInsert);
 		} else {
-			var selection = window.getSelection();
+			const selection = window.getSelection();
 			if (selection.rangeCount) {
 				selection.deleteFromDocument();
 				selection.getRangeAt(0).insertNode(document.createTextNode(toInsert));
@@ -219,7 +219,7 @@ WhisperBox.show = function (nickname, bHasMessage) {
 	initResizable(instance);
 
 	// Positioning with offspring offset
-	var offset = (this._spawnCounter % 10) * 20;
+	const offset = (this._spawnCounter % 10) * 20;
 	this._spawnCounter++;
 
 	$ui.css({
@@ -239,12 +239,12 @@ WhisperBox.show = function (nickname, bHasMessage) {
  * @param {string} color
  */
 WhisperBox.addText = function (nickname, text, color) {
-	var instance = this.instances[nickname] || this.show(nickname, true);
-	var override = false;
+	const instance = this.instances[nickname] || this.show(nickname, true);
+	let override = false;
 
 	// Convert item links to clickable spans
 	text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function (match) {
-		var item = DB.parseItemLink(match);
+		const item = DB.parseItemLink(match);
 		if (!item) {
 			return match;
 		}
@@ -258,9 +258,9 @@ WhisperBox.addText = function (nickname, text, color) {
 		);
 	});
 
-	var $content = instance.$content;
-	var isAtBottom = $content[0].scrollHeight - $content.scrollTop() <= $content.outerHeight() + 10;
-	var $div = jQuery('<div/>')
+	const $content = instance.$content;
+	const isAtBottom = $content[0].scrollHeight - $content.scrollTop() <= $content.outerHeight() + 10;
+	const $div = jQuery('<div/>')
 		.css('color', color || '#ffffff')
 		[override ? 'html' : 'text'](text);
 
@@ -281,8 +281,8 @@ WhisperBox.addText = function (nickname, text, color) {
  * @param {HTMLElement} el
  */
 function setCaretToEnd(el) {
-	var range = document.createRange();
-	var sel = window.getSelection();
+	const range = document.createRange();
+	const sel = window.getSelection();
 	range.selectNodeContents(el);
 	range.collapse(false);
 	sel.removeAllRanges();
@@ -295,9 +295,9 @@ function setCaretToEnd(el) {
  * @returns {string}
  */
 function extractChatMessage($input) {
-	var clone = $input.clone();
+	const clone = $input.clone();
 	clone.find('span.item-link').each(function () {
-		var data = jQuery(this).attr('data-item') || jQuery(this).data('item') || '';
+		const data = jQuery(this).attr('data-item') || jQuery(this).data('item') || '';
 		jQuery(this).replaceWith(document.createTextNode(data));
 	});
 
@@ -314,14 +314,14 @@ WhisperBox.onRequestTalk = function (nickname, text) {};
  * @param {UIComponent} instance
  */
 function initResizable(instance) {
-	var resizer = instance.ui.find('.resizer')[0];
+	const resizer = instance.ui.find('.resizer')[0];
 	if (!resizer) {
 		return;
 	}
 
-	var resize = function (e) {
-		var width = Math.max(150, e.pageX - instance.ui.offset().left);
-		var height = Math.max(100, e.pageY - instance.ui.offset().top);
+	const resize = function (e) {
+		const width = Math.max(150, e.pageX - instance.ui.offset().left);
+		const height = Math.max(100, e.pageY - instance.ui.offset().top);
 
 		instance.ui.css({
 			width: width + 'px',
@@ -331,7 +331,7 @@ function initResizable(instance) {
 		instance.$content[0].scrollTop = instance.$content[0].scrollHeight;
 	};
 
-	var stopResize = function () {
+	const stopResize = function () {
 		window.removeEventListener('mousemove', resize);
 		window.removeEventListener('mouseup', stopResize);
 	};

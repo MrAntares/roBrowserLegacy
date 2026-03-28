@@ -22,7 +22,7 @@ import cssText from './MakeArrowSelection.css?raw';
 /**
 	 * Create MakeArrowSelection namespace
 	 */
-	let MakeArrowSelection = new UIComponent('MakeArrowSelection', htmlText, cssText);
+	const MakeArrowSelection = new UIComponent('MakeArrowSelection', htmlText, cssText);
 
 	/**
 	 * Initialize UI

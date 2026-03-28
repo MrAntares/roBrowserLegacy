@@ -17,7 +17,7 @@ import jQuery from 'Utils/jquery';
 /**
 	 * Create Component
 	 */
-	let WinPrompt = WinPopup.clone('WinPrompt');
+	const WinPrompt = WinPopup.clone('WinPrompt');
 
 	/**
 	 * Initialize popup

@@ -19,7 +19,7 @@ import GameEngine from 'Engine/GameEngine';
 	/**
 	 * User Interface Manager
 	 */
-	var UIManager = {};
+	const UIManager = {};
 
 	/**
 	 * Components cache
@@ -49,7 +49,7 @@ import GameEngine from 'Engine/GameEngine';
 	 * @return {UIComponent} object
 	 */
 	UIManager.getComponent = function getComponent(name) {
-		var versionAlias = UIVersionManager.getUIAlias(name);
+		const versionAlias = UIVersionManager.getUIAlias(name);
 		if (versionAlias) {
 			name = versionAlias;
 		}
@@ -65,8 +65,8 @@ import GameEngine from 'Engine/GameEngine';
 	 * Remove all components in screen
 	 */
 	UIManager.removeComponents = function removeComponents() {
-		var keys = Object.keys(this.components);
-		var i,
+		const keys = Object.keys(this.components);
+		let i,
 			count = keys.length;
 
 		for (i = 0; i < count; ++i) {
@@ -82,14 +82,14 @@ import GameEngine from 'Engine/GameEngine';
 	 * @param {number} Game screen height
 	 */
 	UIManager.fixResizeOverflow = function fixResizeOverflow(WIDTH, HEIGHT) {
-		var keys = Object.keys(this.components);
-		var i,
+		const keys = Object.keys(this.components);
+		let i,
 			count = keys.length;
-		var ui;
-		var x, y, width, height;
+		let ui;
+		let x, y, width, height;
 
 		for (i = 0; i < count; ++i) {
-			var component = this.components[keys[i]];
+			const component = this.components[keys[i]];
 			ui = component.ui;
 
 			if (ui) {
@@ -135,7 +135,7 @@ import GameEngine from 'Engine/GameEngine';
 	 * @param {string} error message
 	 */
 	UIManager.showErrorBox = function showErrorBox(text) {
-		var WinError, overlay;
+		let WinError, overlay;
 
 		// Create popup
 		WinError = this.getComponent('WinPopup').clone('WinError');
@@ -178,7 +178,7 @@ import GameEngine from 'Engine/GameEngine';
 
 		// Push the event to the top, stopImmediatePropagation will block every key down event.
 		WinError.onAppend = function () {
-			var events = jQuery._data(window, 'events').keydown;
+			const events = jQuery._data(window, 'events').keydown;
 			events.unshift(events.pop());
 		};
 
@@ -195,7 +195,7 @@ import GameEngine from 'Engine/GameEngine';
 	 * @param {function} callback once the button is pressed
 	 */
 	UIManager.showMessageBox = function showMessageBox(text, btn_name, callback, keydown) {
-		var WinMSG;
+		let WinMSG;
 
 		// Create popup
 		WinMSG = this.getComponent('WinPopup').clone('WinMSG');
@@ -243,7 +243,7 @@ import GameEngine from 'Engine/GameEngine';
 
 			// Push the event to the top, stopImmediatePropagation will block every key down.
 			WinMSG.onAppend = function () {
-				var events = jQuery._data(window, 'events').keydown;
+				const events = jQuery._data(window, 'events').keydown;
 				events.unshift(events.pop());
 			};
 		}
@@ -263,7 +263,7 @@ import GameEngine from 'Engine/GameEngine';
 	 * @param {function} callback when cancel is pressed
 	 */
 	UIManager.showPromptBox = function showPromptBox(text, btn_yes, btn_no, onYes, onNo) {
-		var WinPrompt;
+		let WinPrompt;
 
 		WinPrompt = this.getComponent('WinPopup').clone('WinPrompt');
 		WinPrompt.init = function Init() {

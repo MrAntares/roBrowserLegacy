@@ -18,7 +18,7 @@ import cssText from './WinStatsV1.css?raw';
 /**
 	 * Create component
 	 */
-	let WinStatsV1 = new UIComponent('WinStatsV1', htmlText, cssText);
+	const WinStatsV1 = new UIComponent('WinStatsV1', htmlText, cssText);
 
 	/**
 	 * Initialize UI

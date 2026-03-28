@@ -27,7 +27,7 @@ import UIManager from 'UI/UIManager';
 	 * @param {string} randrom string
 	 */
 	function tradeGIDEncoding(GID) {
-		let table = 'ROHUTNASEW';
+		const table = 'ROHUTNASEW';
 		let str, out;
 		let i, count;
 
@@ -48,7 +48,7 @@ import UIManager from 'UI/UIManager';
 	function onTradeRequest(pkt) {
 		function answer(value) {
 			return function () {
-				let pkt = new PACKET.CZ.ACK_EXCHANGE_ITEM();
+				const pkt = new PACKET.CZ.ACK_EXCHANGE_ITEM();
 				pkt.result = value;
 				Network.sendPacket(pkt);
 			};
@@ -105,7 +105,7 @@ import UIManager from 'UI/UIManager';
 	 * @param {number} count
 	 */
 	Trade.reqAddItem = function reqAddItem(index, count) {
-		let pkt = new PACKET.CZ.ADD_EXCHANGE_ITEM();
+		const pkt = new PACKET.CZ.ADD_EXCHANGE_ITEM();
 		pkt.index = index;
 		pkt.count = count;
 
@@ -144,7 +144,7 @@ import UIManager from 'UI/UIManager';
 	 * Reject deal
 	 */
 	Trade.onCancel = function onCancel() {
-		let pkt = new PACKET.CZ.CANCEL_EXCHANGE_ITEM();
+		const pkt = new PACKET.CZ.CANCEL_EXCHANGE_ITEM();
 		Network.sendPacket(pkt);
 	};
 
@@ -162,7 +162,7 @@ import UIManager from 'UI/UIManager';
 	 * Conclude the deal
 	 */
 	Trade.onConclude = function onConclude() {
-		let pkt = new PACKET.CZ.CONCLUDE_EXCHANGE_ITEM();
+		const pkt = new PACKET.CZ.CONCLUDE_EXCHANGE_ITEM();
 		Network.sendPacket(pkt);
 	};
 
@@ -179,7 +179,7 @@ import UIManager from 'UI/UIManager';
 	 * Submit the trade
 	 */
 	Trade.onTradeSubmit = function onTradeSubmit() {
-		let pkt = new PACKET.CZ.EXEC_EXCHANGE_ITEM();
+		const pkt = new PACKET.CZ.EXEC_EXCHANGE_ITEM();
 		Network.sendPacket(pkt);
 	};
 
@@ -207,7 +207,7 @@ import UIManager from 'UI/UIManager';
 	 * @param {number} GID
 	 */
 	Trade.reqExchange = function requestExhange(GID, name) {
-		let pkt = new PACKET.CZ.REQ_EXCHANGE_ITEM();
+		const pkt = new PACKET.CZ.REQ_EXCHANGE_ITEM();
 		pkt.AID = GID;
 		Network.sendPacket(pkt);
 

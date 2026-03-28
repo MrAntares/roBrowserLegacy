@@ -26,7 +26,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	/**
 	 * Create Component
 	 */
-	var PartyMemberExternal = new UIComponent('PartyMemberExternal', htmlText, cssText);
+	const PartyMemberExternal = new UIComponent('PartyMemberExternal', htmlText, cssText);
 
 	// No module-level variables for state!
 
@@ -34,7 +34,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * Initialize the component
 	 */
 	PartyMemberExternal.init = function init() {
-		var self = this;
+		const self = this;
 
 		this.ui.on('mousedown', function (event) {
 			self._lastPos = self.ui.position();
@@ -92,7 +92,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 				}
 			});
 
-			var isMe = self._player && Session && self._player.AID === Session.AID;
+			const isMe = self._player && Session && self._player.AID === Session.AID;
 
 			if (isMe) {
 				// Self: Leave party
@@ -101,7 +101,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 						if (PartyFriends && PartyFriends.onRequestLeave) {
 							PartyFriends.onRequestLeave();
 						} else {
-							var ui = PartyFriends ? PartyFriends.getUI() : null;
+							const ui = PartyFriends ? PartyFriends.getUI() : null;
 							if (ui && ui.onRequestLeave) {
 								ui.onRequestLeave();
 							}
@@ -181,14 +181,14 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {object} player
 	 */
 	PartyMemberExternal.update = function update(player) {
-		var ui = this.ui;
-		var level = player.baseLevel || player.level || player.Level || 0;
-		var jobID = player.class_ || player.job || player.Job || 0;
-		var state = player.state || 0;
-		var role = player.role || 0;
+		const ui = this.ui;
+		const level = player.baseLevel || player.level || player.Level || 0;
+		const jobID = player.class_ || player.job || player.Job || 0;
+		const state = player.state || 0;
+		const role = player.role || 0;
 
-		var isOnline = state === 0;
-		var isLeader = role === 0;
+		const isOnline = state === 0;
+		const isLeader = role === 0;
 
 		ui.find('.name').text(player.characterName);
 		ui.find('.level').text('Lv. ' + level);
@@ -201,9 +201,9 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 		);
 
 		// Job Icon
-		var jobIcon = ui.find('.job-icon');
-		var isDead = !!player.isDead;
-		var asset = isDead ? 'icon_jobs_' + jobID + '_die.bmp' : 'icon_jobs_' + jobID + '.bmp';
+		const jobIcon = ui.find('.job-icon');
+		const isDead = !!player.isDead;
+		const asset = isDead ? 'icon_jobs_' + jobID + '_die.bmp' : 'icon_jobs_' + jobID + '.bmp';
 
 		Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/' + asset, function (url) {
 			jobIcon.css('backgroundImage', 'url(' + url + ')');
@@ -218,11 +218,11 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 		}
 
 		// Tooltip and UI Text
-		var mapDisplay = DB.getMapName(player.mapName || '');
-		var tooltipText = 'Lv.' + level + ' ' + player.characterName + '(' + mapDisplay + ')';
+		const mapDisplay = DB.getMapName(player.mapName || '');
+		const tooltipText = 'Lv.' + level + ' ' + player.characterName + '(' + mapDisplay + ')';
 		this.ui.attr('data-tooltip', tooltipText);
 
-		var memberColor = isOnline ? 'white' : '#adadad';
+		const memberColor = isOnline ? 'white' : '#adadad';
 		ui.find('.name').text(player.characterName).css('color', memberColor);
 		ui.find('.map')
 			.text('(' + mapDisplay + ')')
@@ -238,9 +238,9 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * Custom RO-style tooltips
 	 */
 	function onTooltipShow(event) {
-		var text = jQuery(this).attr('data-tooltip');
+		const text = jQuery(this).attr('data-tooltip');
 		if (text) {
-			var tooltip = jQuery('#ro-tooltip-party');
+			let tooltip = jQuery('#ro-tooltip-party');
 			if (!tooltip.length) {
 				tooltip = jQuery('<div id="ro-tooltip-party" class="ro-tooltip"></div>').appendTo('body');
 			}
@@ -249,7 +249,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	}
 
 	function onTooltipMove(event) {
-		var tooltip = jQuery('#ro-tooltip-party');
+		const tooltip = jQuery('#ro-tooltip-party');
 		if (tooltip.hasClass('show')) {
 			tooltip.css({
 				top: event.clientY + 15,
@@ -278,9 +278,9 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {number} maxhp
 	 */
 	function updateCanvasLife(node, hp, maxhp) {
-		var hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-		var lifeRatio = hasLife ? hp / maxhp : 0;
-		var barVisibility = 'visible'; // Always visible
+		const hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
+		const lifeRatio = hasLife ? hp / maxhp : 0;
+		const barVisibility = 'visible'; // Always visible
 
 		node.find('.hp-bar-container').css('visibility', barVisibility);
 
@@ -288,7 +288,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 			var canvas = node.find('canvas').get(0);
 			if (canvas) {
 				var ctx = canvas.getContext('2d');
-				var width = Math.floor(lifeRatio * 75);
+				const width = Math.floor(lifeRatio * 75);
 				canvas.width = 75;
 				canvas.height = 5;
 				ctx.clearRect(0, 0, 75, 5);

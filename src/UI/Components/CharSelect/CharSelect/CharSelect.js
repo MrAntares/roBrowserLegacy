@@ -26,12 +26,12 @@ import cssText from './CharSelect.css?raw';
 /**
 	 * Create Chararacter Selection namespace
 	 */
-	let CharSelect = new UIComponent('CharSelect', htmlText, cssText);
+	const CharSelect = new UIComponent('CharSelect', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} save where the cursor position is
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CharSelect',
 		{
 			index: 0
@@ -47,17 +47,17 @@ import cssText from './CharSelect.css?raw';
 	/**
 	 * var {Array} list of characters
 	 */
-	let _list = [];
+	const _list = [];
 
 	/**
 	 * @var {Array} list of characters (index by slot)
 	 */
-	let _slots = [];
+	const _slots = [];
 
 	/**
 	 * @var {Array} list of entities (index by slot)
 	 */
-	let _entitySlots = [];
+	const _entitySlots = [];
 
 	/**
 	 * @var {number} selector index
@@ -67,7 +67,7 @@ import cssText from './CharSelect.css?raw';
 	/**
 	 * @var {Array} canvas context
 	 */
-	let _ctx = [];
+	const _ctx = [];
 
 	/**
 	 * var {number} sex
@@ -83,7 +83,7 @@ import cssText from './CharSelect.css?raw';
 	 * Initialize UI
 	 */
 	CharSelect.init = function Init() {
-		let ui = this.ui;
+		const ui = this.ui;
 
 		ui.css({
 			top: (Renderer.height - 342) / 2,
@@ -379,8 +379,8 @@ import cssText from './CharSelect.css?raw';
 	 * @param {number} index
 	 */
 	function moveCursorTo(index) {
-		let ui = CharSelect.ui;
-		let $charinfo = ui.find('.charinfo');
+		const ui = CharSelect.ui;
+		const $charinfo = ui.find('.charinfo');
 
 		// Set the last entity to idle
 		let entity = _entitySlots[_index];
@@ -425,7 +425,7 @@ import cssText from './CharSelect.css?raw';
 		ui.find('.delete').show();
 		ui.find('.ok').show();
 
-		let info = _slots[_index];
+		const info = _slots[_index];
 		$charinfo.find('.name').text(info.name);
 		$charinfo.find('.job').text(MonsterTable[info.job] || '');
 		$charinfo.find('.lvl').text(info.level);

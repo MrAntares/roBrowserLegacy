@@ -41,7 +41,7 @@ import GraphicsSettings from 'Preferences/Graphics';
 	/**
 	 * @type {object} effect listing
 	 */
-	let _list = {};
+	const _list = {};
 
 	/**
 	 * @type {object} Effects namespace
@@ -218,7 +218,7 @@ import GraphicsSettings from 'Preferences/Graphics';
 
 			// Remove entity effects
 			if (!(AID == null)) {
-				var entity = EntityManager.get(AID);
+				const entity = EntityManager.get(AID);
 				if (entity) {
 					if (entity.objecttype === entity.constructor.TYPE_EFFECT) {
 						EntityManager.remove(AID); // Whole entity is an effect, just remove it
@@ -278,12 +278,12 @@ import GraphicsSettings from 'Preferences/Graphics';
 
 		// Calculate culling bounds
 		// Simple distance check from player
-		var center = [0, 0, 0];
+		let center = [0, 0, 0];
 		if (Session.Entity && Session.Entity.position) {
 			center = Session.Entity.position;
 		}
-		var area_size = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
-		var cullDistanceSq = area_size * area_size;
+		const area_size = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
+		const cullDistanceSq = area_size * area_size;
 
 		for (i = 0; i < count; ++i) {
 			list = _list[keys[i]];
@@ -310,22 +310,22 @@ import GraphicsSettings from 'Preferences/Graphics';
 						continue;
 					}
 
-					var effect = list[j];
-					var pos = effect._Params.Inst.position;
+					const effect = list[j];
+					const pos = effect._Params.Inst.position;
 
 					// Culling: If effect has position, check distance
 					// Some effects might track an entity, updating their position is usually done in render()
 					// so we might need to run a lightweight update if we cull rendering.
 					// However, most RO effects are static or simple.
 					if (pos) {
-						var distSq =
+						const distSq =
 							(pos[0] - center[0]) * (pos[0] - center[0]) + (pos[1] - center[1]) * (pos[1] - center[1]);
 						if (distSq > cullDistanceSq) {
 							// Cull this effect (don't render), but we must check lifecycle
 							// Check if effect is finished
 
 							// Simulate tick for removal
-							var shouldRemove = false;
+							let shouldRemove = false;
 							if (
 								effect._Params.Inst.duration > 0 &&
 								effect._Params.Inst.endTick > 0 &&

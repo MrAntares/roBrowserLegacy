@@ -22,12 +22,12 @@ import PACKETVER from 'Network/PacketVerManager';
 /**
 	 * Create Component
 	 */
-	let PetInformations = new UIComponent('PetInformations', htmlText, cssText);
+	const PetInformations = new UIComponent('PetInformations', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Window preferences
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'PetInformations',
 		{
 			x: 100,
@@ -237,7 +237,7 @@ import PACKETVER from 'Network/PacketVerManager';
 	 * Request to modify pet's name
 	 */
 	function onChangeName() {
-		let input = PetInformations.ui.find('.name');
+		const input = PetInformations.ui.find('.name');
 		PetInformations.reqNameEdit(input.val());
 	}
 

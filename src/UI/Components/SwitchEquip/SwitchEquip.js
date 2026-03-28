@@ -32,7 +32,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	/**
 	 * Create Component
 	 */
-	var SwitchEquip = new UIComponent('SwitchEquip', htmlText, cssText);
+	const SwitchEquip = new UIComponent('SwitchEquip', htmlText, cssText);
 
 	/**
 	 * @var {Array} switchequipment list
@@ -42,7 +42,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _swapctx = [];
+	const _swapctx = [];
 
 	/**
 	 * Initialize UI
@@ -64,7 +64,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 		});
 
 		// Set the active tab based on Equipment UI's current tab
-		var currentEquipTabId = Equipment.getUI().getCurrentTabId();
+		const currentEquipTabId = Equipment.getUI().getCurrentTabId();
 
 		// Set the active tab and content div based on EquipmentV2's current tab
 		SwitchEquip.showSwapTab(currentEquipTabId);
@@ -84,13 +84,13 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {string} tabId - The ID of the tab to show.
 	 */
 	SwitchEquip.showSwapTab = function showSwapTab(tabId) {
-		var swapTabId = 'swap' + tabId;
-		var swapContentDivs = {
+		const swapTabId = 'swap' + tabId;
+		const swapContentDivs = {
 			swapgeneral: document.getElementById('swapgeneral'),
 			swapcostume: document.getElementById('swapcostume')
 		};
 
-		for (var id in swapContentDivs) {
+		for (const id in swapContentDivs) {
 			if (id == swapTabId) {
 				swapContentDivs[id].classList.remove('hide');
 			} else {
@@ -104,7 +104,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 */
 	SwitchEquip.onAppend = function onAppend() {
 		// Set the active tab based on Equipment UI's current tab
-		var currentEquipTabId = Equipment.getUI().getCurrentTabId();
+		const currentEquipTabId = Equipment.getUI().getCurrentTabId();
 
 		// Set the active tab and content div based on EquipmentV2's current tab
 		SwitchEquip.showSwapTab(currentEquipTabId);
@@ -162,12 +162,12 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {boolean} inSwitchList
 	 */
 	SwitchEquip.equip = function equip(item, location, inSwitchList) {
-		var it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 		item.equipped = location;
 		SwitchEquip._list[item.index] = item;
 
 		function add3Dots(string, limit) {
-			var dots = '...';
+			const dots = '...';
 			if (string.length > limit) {
 				string = string.substring(0, limit) + dots;
 			}
@@ -191,7 +191,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp',
 			function (data) {
-				var button = this.ui.find('.item[data-index="' + item.index + '"] button');
+				const button = this.ui.find('.item[data-index="' + item.index + '"] button');
 				button.css('backgroundImage', 'url(' + data + ')');
 				if (!inSwitchList) {
 					button.css('filter', 'grayscale(100%)');
@@ -207,8 +207,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {number} item location
 	 */
 	SwitchEquip.unEquip = function unEquip(index, location) {
-		var selector = getSelectorFromLocation(location);
-		var item = SwitchEquip._list[index];
+		const selector = getSelectorFromLocation(location);
+		const item = SwitchEquip._list[index];
 		item.equipped = 0;
 
 		this.ui.find(selector).empty();
@@ -219,9 +219,9 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Rendering character
 	 */
 	var swaprender = (function swaprenderClosure() {
-		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		var _savedColor = new Float32Array(4);
-		var _animation = {
+		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		const _savedColor = new Float32Array(4);
+		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -232,7 +232,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 		};
 
 		return function swaprender() {
-			var swap_character = new Entity();
+			const swap_character = new Entity();
 			swap_character.set({
 				GID: Session.Entity.GID + '_SWAPEQUIP',
 				objecttype: swap_character.constructor.TYPE_PC,
@@ -245,7 +245,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 				bodypalette: Session.Entity.bodypalette
 			});
 
-			var currentEquipTabId = Equipment.getUI().getCurrentTabId();
+			const currentEquipTabId = Equipment.getUI().getCurrentTabId();
 
 			// General Tab only shows normal headgears
 			if (currentEquipTabId === 'general') {
@@ -273,8 +273,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 			swap_character.animation = _animation;
 
 			// Rendering
-			for (var i = 0; i < _swapctx.length; i++) {
-				var ctx = _swapctx[i];
+			for (let i = 0; i < _swapctx.length; i++) {
+				const ctx = _swapctx[i];
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				swap_character.renderEntity(ctx);
@@ -289,7 +289,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @returns {string} selector
 	 */
 	function getSelectorFromLocation(location) {
-		var selector = [];
+		const selector = [];
 
 		if (location & EquipLocation.HEAD_TOP) {
 			selector.push('.swap_head_top');
@@ -365,8 +365,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 */
 	function onDragOver(event) {
 		if (window._OBJ_DRAG_) {
-			var data = window._OBJ_DRAG_;
-			var item, selector, ui;
+			const data = window._OBJ_DRAG_;
+			let item, selector, ui;
 
 			// Just support items for now ?
 			if (data.type === 'item') {
@@ -404,7 +404,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Drop an item in the equipment, equip it if possible
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -432,8 +432,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Right click on an item
 	 */
 	function onSwitchEquipInfo(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = SwitchEquip._list[index];
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = SwitchEquip._list[index];
 
 		if (item) {
 			// Don't add the same UI twice, remove it
@@ -457,7 +457,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Double click on an equipment to remove it
 	 */
 	function onSwitchEquipUnEquip() {
-		var index = parseInt(this.getAttribute('data-index'), 10);
+		const index = parseInt(this.getAttribute('data-index'), 10);
 		SwitchEquip.onRemoveSwitchEquip(index);
 		SwitchEquip.ui.find('.switchoverlay').hide();
 	}
@@ -466,16 +466,16 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * When mouse is over an equipment, display the item name
 	 */
 	function onSwitchEquipOver() {
-		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var item = SwitchEquip._list[idx];
+		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const item = SwitchEquip._list[idx];
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = SwitchEquip.ui.find('.switchoverlay');
-		var pos = jQuery(this).position();
+		const overlay = SwitchEquip.ui.find('.switchoverlay');
+		const pos = jQuery(this).position();
 
 		// Possible jquery error
 		if (!pos.top && !pos.left) {
@@ -499,8 +499,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Update the owner name for the equipment items
 	 */
 	SwitchEquip.onUpdateOwnerName = function () {
-		for (var index in SwitchEquip._list) {
-			var item = SwitchEquip._list[index];
+		for (const index in SwitchEquip._list) {
+			const item = SwitchEquip._list[index];
 			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				SwitchEquip.ui
 					.find('.item[data-index="' + index + '"] .itemName')
@@ -515,8 +515,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @returns {number} The number of equipment items
 	 */
 	SwitchEquip.getNumber = function () {
-		var num = 0;
-		for (var key in SwitchEquip._list) {
+		let num = 0;
+		for (const key in SwitchEquip._list) {
 			if (SwitchEquip._list[key].location && SwitchEquip._list[key].location != EquipLocation.AMMO) {
 				num++;
 			}
@@ -532,9 +532,9 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 */
 	SwitchEquip.checkEquipLoc = function checkEquipLoc(location) {
 
-		var switchList = Inventory.getUI().equipswitchlist;
-		for (var i = 0; i < switchList.length; i++) {
-			var item = switchList[i];
+		const switchList = Inventory.getUI().equipswitchlist;
+		for (let i = 0; i < switchList.length; i++) {
+			const item = switchList[i];
 			if (item.location & location) {
 				return item.wItemSpriteNumber;
 			}
@@ -547,7 +547,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Send an equipment switch request to the server.
 	 */
 	function sendEquipSwitchRequest() {
-		var pkt = new PACKET.CZ.REQ_FULLSWITCH();
+		const pkt = new PACKET.CZ.REQ_FULLSWITCH();
 		Network.sendPacket(pkt);
 	}
 
@@ -560,7 +560,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 		sendEquipSwitchRequest();
 
 		// Disable the button
-		var button = document.getElementById('swap-button');
+		const button = document.getElementById('swap-button');
 		button.disabled = true;
 		button.classList.add('disabled');
 

@@ -13,7 +13,7 @@ import SetManager from './JoystickSetManager';
 import ShortCut from 'UI/Components/ShortCut/ShortCut';
 import JoystickUIRenderer from './JoystickUIRenderer';
 
-let slotMapping = [
+const slotMapping = [
 		// L1 group (slots 0-3): Y, X, B, A
 		0, 1, 2, 3,
 		// L2 group (slots 4-7): Y, X, B, A
@@ -39,10 +39,10 @@ let slotMapping = [
 	];
 
 	function getGroup(btn) {
-		let l1 = btn[4] === 'holding';
-		let r1 = btn[5] === 'holding';
-		let l2 = btn[6] === 'holding';
-		let r2 = btn[7] === 'holding';
+		const l1 = btn[4] === 'holding';
+		const r1 = btn[5] === 'holding';
+		const l2 = btn[6] === 'holding';
+		const r2 = btn[7] === 'holding';
 
 		if (l1 && r1 && !l2 && !r2) {
 			return 'L1R1';
@@ -63,15 +63,15 @@ let slotMapping = [
 	}
 
 	function getIndexFromButtons(btn, set) {
-		let group = getGroup(btn);
+		const group = getGroup(btn);
 		if (group === '') {
 			return -1;
 		}
 
-		let a = btn[0] !== 'unpressed';
-		let b = btn[1] !== 'unpressed';
-		let x = btn[2] !== 'unpressed';
-		let y = btn[3] !== 'unpressed';
+		const a = btn[0] !== 'unpressed';
+		const b = btn[1] !== 'unpressed';
+		const x = btn[2] !== 'unpressed';
+		const y = btn[3] !== 'unpressed';
 
 		let slot = -1;
 		let tab = 1;
@@ -138,19 +138,19 @@ let slotMapping = [
 
 	function prepare() {
 		if (!this.__loaded) {
-			let oldonChange = ShortCut.onChange;
+			const oldonChange = ShortCut.onChange;
 			ShortCut.onChange = function (index, isSkill, ID, count) {
 				oldonChange.call(ShortCut, index, isSkill, ID, count);
 				JoystickUIRenderer.updateByIndex(index);
 			};
 
-			let oldSetList = ShortCut.setList;
+			const oldSetList = ShortCut.setList;
 			ShortCut.setList = function (list) {
 				oldSetList.call(ShortCut, list);
 				JoystickUIRenderer.sync();
 			};
 
-			let oldSetElement = ShortCut.setElement;
+			const oldSetElement = ShortCut.setElement;
 			ShortCut.setElement = function (isSkill, ID, count) {
 				oldSetElement.call(ShortCut, isSkill, ID, count);
 				JoystickUIRenderer.updateById(ID);
@@ -163,8 +163,8 @@ export default {
 		prepare: prepare,
 		getGroup: getGroup,
 		getShortcutIndex: function (btn) {
-			let set = SetManager.getCurrentSet();
-			let idx = getIndexFromButtons(btn, set);
+			const set = SetManager.getCurrentSet();
+			const idx = getIndexFromButtons(btn, set);
 			if (idx === -1) {
 				return -1;
 			}

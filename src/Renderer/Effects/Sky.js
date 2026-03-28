@@ -21,17 +21,17 @@ import { vec3 } from 'Utils/gl-matrix';
 	/**
 	 * @var {number} number of clouds to render
 	 */
-	let MAX_CLOUDS = 150;
+	const MAX_CLOUDS = 150;
 
 	/**
 	 * @var {Array} clouds particles
 	 */
-	let _clouds = new Array(MAX_CLOUDS);
+	const _clouds = new Array(MAX_CLOUDS);
 
 	/**
 	 * @var {Array} textures list
 	 */
-	let _textures = [];
+	const _textures = [];
 
 	/**
 	 * @var {vec4} RGBA color
@@ -127,7 +127,7 @@ import { vec3 } from 'Utils/gl-matrix';
 	 * Initialize cloud element
 	 */
 	function cloudInit(cloud) {
-		let pos = Session.Entity.position;
+		const pos = Session.Entity.position;
 
 		cloud.position[0] = pos[0] + ((Math.random() * 35) | 0) * (Math.random() > 0.5 ? 1 : -1);
 		cloud.position[1] = pos[1] + ((Math.random() * 35) | 0) * (Math.random() > 0.5 ? 1 : -1);

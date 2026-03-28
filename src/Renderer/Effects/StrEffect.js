@@ -15,12 +15,12 @@ import WebGL from 'Utils/WebGL';
 import glMatrix from 'Utils/gl-matrix';
 import Client from 'Core/Client';
 
-let mat4 = glMatrix.mat4;
+const mat4 = glMatrix.mat4;
 
 	/**
 	 * Look up table D3DX => OPENGL
 	 */
-	let D3DBLEND = {};
+	const D3DBLEND = {};
 
 	/**
 	 * @var {WebGLProgram}
@@ -35,12 +35,12 @@ let mat4 = glMatrix.mat4;
 	/**
 	 * @var {float[16]} buffer
 	 */
-	let _bufferData = new Float32Array(4 * 4);
+	const _bufferData = new Float32Array(4 * 4);
 
 	/**
 	 * @var mat4 matrix to generate rotation
 	 */
-	let _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	/**
 	 * @var {number} last angle
@@ -48,7 +48,7 @@ let mat4 = glMatrix.mat4;
 	let _lastAngle = -1;
 
 	// Pixel to world conversion for attachment offsets
-	let PIXEL_TO_WORLD_Z = 1.0 / 5.0;
+	const PIXEL_TO_WORLD_Z = 1.0 / 5.0;
 
 	/**
 	 * StrEffect constructor
@@ -100,7 +100,7 @@ let mat4 = glMatrix.mat4;
 	 * @param {number} tick
 	 */
 	StrEffect.prototype.render = (function renderClosure() {
-		let anim = {
+		const anim = {
 			frame: 0,
 			type: 0,
 			aniframe: 0,
@@ -212,8 +212,8 @@ let mat4 = glMatrix.mat4;
 	 * @param {StrAnimation} animation object
 	 */
 	StrEffect.prototype.renderAnimation = function renderAnimation(gl, material, anim) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		// Hat effects: Scale with entity size
 		let sizeScale = 1.0;
@@ -248,7 +248,7 @@ let mat4 = glMatrix.mat4;
 			_lastAngle = anim.angle;
 		}
 
-		let spriteOffset = new Float32Array(2);
+		const spriteOffset = new Float32Array(2);
 		let verticalBase = 0.5;
 
 		if (this.ownerEntity) {
@@ -462,8 +462,8 @@ let mat4 = glMatrix.mat4;
 	 * @param {number} tick
 	 */
 	StrEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		gl.depthMask(false);
 		gl.useProgram(_program);

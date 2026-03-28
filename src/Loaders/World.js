@@ -170,10 +170,10 @@ import glMatrix from 'Utils/gl-matrix';
 		}
 
 		// Read Object
-		let models = this.models;
-		let lights = this.lights;
-		let sounds = this.sounds;
-		let effects = this.effects;
+		const models = this.models;
+		const lights = this.lights;
+		const sounds = this.sounds;
+		const effects = this.effects;
 		let m = 0,
 			l = 0,
 			s = 0,

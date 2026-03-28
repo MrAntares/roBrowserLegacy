@@ -21,12 +21,12 @@ import cssText from './CaptchaUpload.css?raw';
 /**
 	 * Create Component
 	 */
-	let CaptchaUpload = new UIComponent('CaptchaUpload', htmlText, cssText);
+	const CaptchaUpload = new UIComponent('CaptchaUpload', htmlText, cssText);
 
 	/**
 	 * Preferences
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CaptchaUpload',
 		{
 			x: 230,
@@ -39,7 +39,7 @@ import cssText from './CaptchaUpload.css?raw';
 	 * Initialize GUI
 	 */
 	CaptchaUpload.init = function Init() {
-		let selfCaptchaUpload = this;
+		const selfCaptchaUpload = this;
 		this.ui.find('.close').click(this.remove.bind(this));
 		this.draggable('.titlebar');
 
@@ -50,15 +50,15 @@ import cssText from './CaptchaUpload.css?raw';
 
 		// File Input Change
 		this.ui.find('#captcha_file_input').change(function (evt) {
-			let file = evt.target.files[0];
+			const file = evt.target.files[0];
 			if (file) {
 				// show the file name in the input
 				selfCaptchaUpload.ui.find('#captcha_file_text').val(file.name);
 
 				// show the image in the preview box
-				let reader = new FileReader();
+				const reader = new FileReader();
 				reader.onload = function (e) {
-					let img = jQuery('<img/>').attr('src', e.target.result);
+					const img = jQuery('<img/>').attr('src', e.target.result);
 					selfCaptchaUpload.ui.find('.preview_box').empty().append(img);
 				};
 				reader.readAsDataURL(file);
@@ -73,7 +73,7 @@ import cssText from './CaptchaUpload.css?raw';
 		// answer input change
 		this.ui.find('.answer_input').change(function () {
 			// if length is bigger then 16, then delete the extra characters
-			let answer_input = selfCaptchaUpload.ui.find('.answer_input');
+			const answer_input = selfCaptchaUpload.ui.find('.answer_input');
 			if (answer_input.val().length > 16) {
 				answer_input.val(answer_input.val().slice(0, 16));
 			}

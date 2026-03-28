@@ -17,12 +17,12 @@ import Struct from 'Utils/Struct';
 import Configs from 'Core/Configs';
 
 	let UNUSED_PACKET;
-	let NAME_LENGTH = 24; // Must be equal to same name var in mmo.h
-	let MAP_NAME_LENGTH = 11 + 1;
-	let MAP_NAME_LENGTH_EXT = MAP_NAME_LENGTH + 4;
-	let PACKET = {};
-	let RENEWAL = Configs.get('renewal') || false;
-	let CLASSIC = !RENEWAL; // For ease of reading checks
+	const NAME_LENGTH = 24; // Must be equal to same name var in mmo.h
+	const MAP_NAME_LENGTH = 11 + 1;
+	const MAP_NAME_LENGTH_EXT = MAP_NAME_LENGTH + 4;
+	const PACKET = {};
+	const RENEWAL = Configs.get('renewal') || false;
+	const CLASSIC = !RENEWAL; // For ease of reading checks
 	UNUSED_PACKET = PACKET;
 
 	PACKET.CA = {};
@@ -49,8 +49,8 @@ import Configs from 'Core/Configs';
 		this.clienttype = 0;
 	};
 	PACKET.CA.LOGIN.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24 + 24 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24 + 24 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x64);
 		pkt_buf.writeULong(this.Version);
@@ -69,8 +69,8 @@ import Configs from 'Core/Configs';
 		this.Sex = 0;
 	};
 	PACKET.CH.ENTER.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4 + 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4 + 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x65);
 		pkt_buf.writeULong(this.AID);
@@ -86,8 +86,8 @@ import Configs from 'Core/Configs';
 		this.CharNum = 0;
 	};
 	PACKET.CH.SELECT_CHAR.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x66);
 		pkt_buf.writeUChar(this.CharNum);
@@ -108,8 +108,8 @@ import Configs from 'Core/Configs';
 		this.head = 0;
 	};
 	PACKET.CH.MAKE_CHAR.prototype.build = function () {
-		let pkt_len = 2 + 24 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x67);
 		pkt_buf.writeString(this.name, 24);
@@ -131,8 +131,8 @@ import Configs from 'Core/Configs';
 		this.key = '';
 	};
 	PACKET.CH.DELETE_CHAR.prototype.build = function () {
-		let pkt_len = 2 + 4 + 40;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 40;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x68);
 		pkt_buf.writeULong(this.GID);
@@ -149,8 +149,8 @@ import Configs from 'Core/Configs';
 		this.Sex = 0;
 	};
 	PACKET.CZ.ENTER.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.AID, true);
@@ -165,8 +165,8 @@ import Configs from 'Core/Configs';
 	// 0x7d
 	PACKET.CZ.NOTIFY_ACTORINIT = function PACKET_CZ_NOTIFY_ACTORINIT() {};
 	PACKET.CZ.NOTIFY_ACTORINIT.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7d);
 		return pkt_buf;
@@ -177,8 +177,8 @@ import Configs from 'Core/Configs';
 		this.clientTime = 0;
 	};
 	PACKET.CZ.REQUEST_TIME.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.clientTime, true);
@@ -188,8 +188,8 @@ import Configs from 'Core/Configs';
 	// 0x844
 	PACKET.CZ.HBT = function PACKET_CZ_HBT() {};
 	PACKET.CZ.HBT.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0844);
 		return pkt_buf;
 	};
@@ -197,8 +197,8 @@ import Configs from 'Core/Configs';
 	// 0x82
 	PACKET.CZ.REQUEST_QUIT = function PACKET_CZ_REQUEST_QUIT() {};
 	PACKET.CZ.REQUEST_QUIT.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x82);
 		return pkt_buf;
@@ -209,8 +209,8 @@ import Configs from 'Core/Configs';
 		this.dest = [0, 0];
 	};
 	PACKET.CZ.REQUEST_MOVE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setPos(ver[3], this.dest, true);
@@ -223,8 +223,8 @@ import Configs from 'Core/Configs';
 		this.action = 0;
 	};
 	PACKET.CZ.REQUEST_ACT.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.targetGID, true);
@@ -237,9 +237,9 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.REQUEST_CHAT.prototype.build = function () {
-		let version = this.getPacketVersion();
-		let pkt_len = 2 + 2 + this.msg.length + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const version = this.getPacketVersion();
+		const pkt_len = 2 + 2 + this.msg.length + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(version[1]);
 		pkt_buf.writeShort(pkt_len);
@@ -254,8 +254,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.CONTACTNPC.prototype.build = function () {
-		let pkt_len = 2 + 4 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x90);
 		pkt_buf.writeULong(this.NAID);
@@ -268,8 +268,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQNAME.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.AID, true);
@@ -282,8 +282,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.WHISPER.prototype.build = function () {
-		let pkt_len = 2 + 2 + 24 + this.msg.length + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 24 + this.msg.length + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x96);
 		pkt_buf.writeShort(pkt_len);
@@ -298,10 +298,10 @@ import Configs from 'Core/Configs';
 		this.dir = 0;
 	};
 	PACKET.CZ.CHANGE_DIRECTION.prototype.build = function () {
-		let servDirection = [4, 3, 2, 1, 0, 7, 6, 5];
+		const servDirection = [4, 3, 2, 1, 0, 7, 6, 5];
 
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.headDir, true);
@@ -314,8 +314,8 @@ import Configs from 'Core/Configs';
 		this.ITAID = 0;
 	};
 	PACKET.CZ.ITEM_PICKUP.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.ITAID, true);
@@ -328,8 +328,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.ITEM_THROW.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint16(ver[3], this.Index, true);
@@ -343,8 +343,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.USE_ITEM.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint16(ver[3], this.index, true);
@@ -358,8 +358,8 @@ import Configs from 'Core/Configs';
 		this.wearLocation = 0;
 	};
 	PACKET.CZ.REQ_WEAR_EQUIP.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint16(ver[3], this.index, true);
@@ -376,8 +376,8 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.REQ_TAKEOFF_EQUIP.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xab);
 		pkt_buf.writeUShort(this.index);
@@ -389,8 +389,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.RESTART.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb2);
 		pkt_buf.writeUChar(this.type);
@@ -403,8 +403,8 @@ import Configs from 'Core/Configs';
 		this.num = 0;
 	};
 	PACKET.CZ.CHOOSE_MENU.prototype.build = function () {
-		let pkt_len = 2 + 4 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb8);
 		pkt_buf.writeULong(this.NAID);
@@ -417,8 +417,8 @@ import Configs from 'Core/Configs';
 		this.NAID = 0;
 	};
 	PACKET.CZ.REQ_NEXT_SCRIPT.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb9);
 		pkt_buf.writeULong(this.NAID);
@@ -428,8 +428,8 @@ import Configs from 'Core/Configs';
 	// 0xba
 	PACKET.CZ.REQ_STATUS = function PACKET_CZ_REQ_STATUS() {};
 	PACKET.CZ.REQ_STATUS.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xba);
 		return pkt_buf;
@@ -447,7 +447,7 @@ import Configs from 'Core/Configs';
 		} else {
 			pkt_len = 2 + 2 + 1;
 		}
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		if (this.statusID >= 219 && this.statusID <= 224) {
 			pkt_buf.writeShort(0xb24);
@@ -464,8 +464,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.REQ_EMOTION.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xbf);
 		pkt_buf.writeUChar(this.type);
@@ -475,8 +475,8 @@ import Configs from 'Core/Configs';
 	// 0xc1
 	PACKET.CZ.REQ_USER_COUNT = function PACKET_CZ_REQ_USER_COUNT() {};
 	PACKET.CZ.REQ_USER_COUNT.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xc1);
 		return pkt_buf;
@@ -488,8 +488,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.ACK_SELECT_DEALTYPE.prototype.build = function () {
-		let pkt_len = 2 + 4 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xc5);
 		pkt_buf.writeULong(this.NAID);
@@ -508,7 +508,7 @@ import Configs from 'Core/Configs';
 		} else {
 			pkt_len = 2 + 2 + this.itemList.length * 4;
 		}
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xc8);
 		pkt_buf.writeShort(pkt_len);
@@ -531,8 +531,8 @@ import Configs from 'Core/Configs';
 		this.itemList = [];
 	};
 	PACKET.CZ.PC_SELL_ITEMLIST.prototype.build = function () {
-		let pkt_len = 2 + 2 + this.itemList.length * 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.itemList.length * 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xc9);
 		pkt_buf.writeShort(pkt_len);
@@ -552,8 +552,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.SETTING_WHISPER_PC.prototype.build = function () {
-		let pkt_len = 2 + 24 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xcf);
 		pkt_buf.writeString(this.name, 24);
@@ -566,8 +566,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.SETTING_WHISPER_STATE.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xd0);
 		pkt_buf.writeUChar(this.type);
@@ -577,8 +577,8 @@ import Configs from 'Core/Configs';
 	// 0xd3
 	PACKET.CZ.REQ_WHISPER_LIST = function PACKET_CZ_REQ_WHISPER_LIST() {};
 	PACKET.CZ.REQ_WHISPER_LIST.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xd3);
 		return pkt_buf;
@@ -592,8 +592,8 @@ import Configs from 'Core/Configs';
 		this.title = '';
 	};
 	PACKET.CZ.CREATE_CHATROOM.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 1 + 8 + this.title.length;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 1 + 8 + this.title.length;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xd5);
 		pkt_buf.writeShort(pkt_len);
@@ -610,8 +610,8 @@ import Configs from 'Core/Configs';
 		this.passwd = '';
 	};
 	PACKET.CZ.REQ_ENTER_ROOM.prototype.build = function () {
-		let pkt_len = 2 + 4 + 8;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 8;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xd9);
 		pkt_buf.writeULong(this.roomID);
@@ -627,8 +627,8 @@ import Configs from 'Core/Configs';
 		this.title = '';
 	};
 	PACKET.CZ.CHANGE_CHATROOM.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 1 + 8 + this.title.length;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 1 + 8 + this.title.length;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xde);
 		pkt_buf.writeShort(pkt_len);
@@ -645,8 +645,8 @@ import Configs from 'Core/Configs';
 		this.name = '';
 	};
 	PACKET.CZ.REQ_ROLE_CHANGE.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xe0);
 		pkt_buf.writeULong(this.role);
@@ -659,8 +659,8 @@ import Configs from 'Core/Configs';
 		this.name = '';
 	};
 	PACKET.CZ.REQ_EXPEL_MEMBER.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xe2);
 		pkt_buf.writeString(this.name, 24);
@@ -670,8 +670,8 @@ import Configs from 'Core/Configs';
 	// 0xe3
 	PACKET.CZ.EXIT_ROOM = function PACKET_CZ_EXIT_ROOM() {};
 	PACKET.CZ.EXIT_ROOM.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xe3);
 		return pkt_buf;
@@ -682,8 +682,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_EXCHANGE_ITEM.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xe4);
 		pkt_buf.writeULong(this.AID);
@@ -695,8 +695,8 @@ import Configs from 'Core/Configs';
 		this.result = 0;
 	};
 	PACKET.CZ.ACK_EXCHANGE_ITEM.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xe6);
 		pkt_buf.writeUChar(this.result);
@@ -709,8 +709,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.ADD_EXCHANGE_ITEM.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xe8);
 		pkt_buf.writeShort(this.index);
@@ -721,8 +721,8 @@ import Configs from 'Core/Configs';
 	// 0xeb
 	PACKET.CZ.CONCLUDE_EXCHANGE_ITEM = function PACKET_CZ_CONCLUDE_EXCHANGE_ITEM() {};
 	PACKET.CZ.CONCLUDE_EXCHANGE_ITEM.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xeb);
 		return pkt_buf;
@@ -731,8 +731,8 @@ import Configs from 'Core/Configs';
 	// 0xed
 	PACKET.CZ.CANCEL_EXCHANGE_ITEM = function PACKET_CZ_CANCEL_EXCHANGE_ITEM() {};
 	PACKET.CZ.CANCEL_EXCHANGE_ITEM.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xed);
 		return pkt_buf;
@@ -741,8 +741,8 @@ import Configs from 'Core/Configs';
 	// 0xef
 	PACKET.CZ.EXEC_EXCHANGE_ITEM = function PACKET_CZ_EXEC_EXCHANGE_ITEM() {};
 	PACKET.CZ.EXEC_EXCHANGE_ITEM.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xef);
 		return pkt_buf;
@@ -754,8 +754,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.index, true);
@@ -769,8 +769,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.index, true);
@@ -781,8 +781,8 @@ import Configs from 'Core/Configs';
 	// 0xf7
 	PACKET.CZ.CLOSE_STORE = function PACKET_CZ_CLOSE_STORE() {};
 	PACKET.CZ.CLOSE_STORE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 
@@ -794,8 +794,8 @@ import Configs from 'Core/Configs';
 		this.groupName = '';
 	};
 	PACKET.CZ.MAKE_GROUP.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xf9);
 		pkt_buf.writeString(this.groupName, 24);
@@ -808,8 +808,8 @@ import Configs from 'Core/Configs';
 		this.CharName = '';
 	};
 	PACKET.CZ.REQ_JOIN_GROUP.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		if (ver[2] === 26) {
@@ -826,8 +826,8 @@ import Configs from 'Core/Configs';
 		this.answer = 0;
 	};
 	PACKET.CZ.JOIN_GROUP.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xff);
 		pkt_buf.writeULong(this.GRID);
@@ -838,8 +838,8 @@ import Configs from 'Core/Configs';
 	// 0x100
 	PACKET.CZ.REQ_LEAVE_GROUP = function PACKET_CZ_REQ_LEAVE_GROUP() {};
 	PACKET.CZ.REQ_LEAVE_GROUP.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x100);
 		return pkt_buf;
@@ -850,8 +850,8 @@ import Configs from 'Core/Configs';
 		this.expOption = 0;
 	};
 	PACKET.CZ.CHANGE_GROUPEXPOPTION.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x102);
 		pkt_buf.writeULong(this.expOption);
@@ -864,8 +864,8 @@ import Configs from 'Core/Configs';
 		this.characterName = '';
 	};
 	PACKET.CZ.REQ_EXPEL_GROUP_MEMBER.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x103);
 		pkt_buf.writeULong(this.AID);
@@ -878,8 +878,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.REQUEST_CHAT_PARTY.prototype.build = function () {
-		let pkt_len = 2 + 2 + this.msg.length + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.msg.length + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x108);
 		pkt_buf.writeShort(pkt_len);
@@ -892,8 +892,8 @@ import Configs from 'Core/Configs';
 		this.SKID = 0;
 	};
 	PACKET.CZ.UPGRADE_SKILLLEVEL.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x112);
 		pkt_buf.writeUShort(this.SKID);
@@ -907,8 +907,8 @@ import Configs from 'Core/Configs';
 		this.targetID = 0;
 	};
 	PACKET.CZ.USE_SKILL.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.selectedLevel, true);
@@ -925,8 +925,8 @@ import Configs from 'Core/Configs';
 		this.yPos = 0;
 	};
 	PACKET.CZ.USE_SKILL_TOGROUND.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.selectedLevel, true);
@@ -939,8 +939,8 @@ import Configs from 'Core/Configs';
 	// 0x118
 	PACKET.CZ.CANCEL_LOCKON = function PACKET_CZ_CANCEL_LOCKON() {};
 	PACKET.CZ.CANCEL_LOCKON.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x118);
 		return pkt_buf;
@@ -952,8 +952,8 @@ import Configs from 'Core/Configs';
 		this.mapName = '';
 	};
 	PACKET.CZ.SELECT_WARPPOINT.prototype.build = function () {
-		let pkt_len = 2 + 2 + 16;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 16;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x11b);
 		pkt_buf.writeUShort(this.SKID);
@@ -964,8 +964,8 @@ import Configs from 'Core/Configs';
 	// 0x11d
 	PACKET.CZ.REMEMBER_WARPPOINT = function PACKET_CZ_REMEMBER_WARPPOINT() {};
 	PACKET.CZ.REMEMBER_WARPPOINT.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x11d);
 		return pkt_buf;
@@ -977,8 +977,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_CART.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x126);
 		pkt_buf.writeShort(this.index);
@@ -992,8 +992,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MOVE_ITEM_FROM_CART_TO_BODY.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x127);
 		pkt_buf.writeShort(this.index);
@@ -1007,8 +1007,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_CART.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x128);
 		pkt_buf.writeShort(this.index);
@@ -1022,8 +1022,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MOVE_ITEM_FROM_CART_TO_STORE.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x129);
 		pkt_buf.writeShort(this.index);
@@ -1034,8 +1034,8 @@ import Configs from 'Core/Configs';
 	// 0x12a
 	PACKET.CZ.REQ_CARTOFF = function PACKET_CZ_REQ_CARTOFF() {};
 	PACKET.CZ.REQ_CARTOFF.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x12a);
 		return pkt_buf;
@@ -1044,8 +1044,8 @@ import Configs from 'Core/Configs';
 	// 0x12e
 	PACKET.CZ.REQ_CLOSESTORE = function PACKET_CZ_REQ_CLOSESTORE() {};
 	PACKET.CZ.REQ_CLOSESTORE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x12e);
 		return pkt_buf;
@@ -1058,8 +1058,8 @@ import Configs from 'Core/Configs';
 	};
 	PACKET.CZ.REQ_OPENSTORE.prototype.build = function () {
 		let i, count;
-		let pkt_len = 2 + 2 + 80 + this.storeList.length * 8;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 80 + this.storeList.length * 8;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x12f);
 		pkt_buf.writeShort(pkt_len);
@@ -1079,8 +1079,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_BUY_FROMMC.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x130);
 		pkt_buf.writeULong(this.AID);
@@ -1094,8 +1094,8 @@ import Configs from 'Core/Configs';
 	};
 	PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC.prototype.build = function () {
 		let i, count;
-		let pkt_len = 2 + 2 + 4 + this.itemList.length * 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + this.itemList.length * 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x134);
 		pkt_buf.writeShort(pkt_len);
@@ -1114,8 +1114,8 @@ import Configs from 'Core/Configs';
 		this.isTurnOn = 0;
 	};
 	PACKET.CZ.PKMODE_CHANGE.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x138);
 		pkt_buf.writeUChar(this.isTurnOn);
@@ -1128,8 +1128,8 @@ import Configs from 'Core/Configs';
 		this.value = 0;
 	};
 	PACKET.CZ.INPUT_EDITDLG.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x143);
 		pkt_buf.writeULong(this.NAID);
@@ -1142,8 +1142,8 @@ import Configs from 'Core/Configs';
 		this.NAID = 0;
 	};
 	PACKET.CZ.CLOSE_DIALOG.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x146);
 		pkt_buf.writeULong(this.NAID);
@@ -1153,8 +1153,8 @@ import Configs from 'Core/Configs';
 	// 0x14d
 	PACKET.CZ.REQ_GUILD_MENUINTERFACE = function PACKET_CZ_REQ_GUILD_MENUINTERFACE() {};
 	PACKET.CZ.REQ_GUILD_MENUINTERFACE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x14d);
 		return pkt_buf;
@@ -1165,8 +1165,8 @@ import Configs from 'Core/Configs';
 		this.Type = 0;
 	};
 	PACKET.CZ.REQ_GUILD_MENU.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x14f);
 		pkt_buf.writeLong(this.Type);
@@ -1178,8 +1178,8 @@ import Configs from 'Core/Configs';
 		this.GDID = 0;
 	};
 	PACKET.CZ.REQ_GUILD_EMBLEM_IMG.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x151);
 		pkt_buf.writeLong(this.GDID);
@@ -1191,8 +1191,8 @@ import Configs from 'Core/Configs';
 		this.img = null;
 	};
 	PACKET.CZ.REGISTER_GUILD_EMBLEM_IMG.prototype.build = function () {
-		let pkt_len = 2 + 2 + this.img.byteLength;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.img.byteLength;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x153);
 		pkt_buf.writeShort(pkt_len);
@@ -1207,8 +1207,8 @@ import Configs from 'Core/Configs';
 	};
 	PACKET.CZ.REQ_CHANGE_MEMBERPOS.prototype.build = function () {
 		let i, count;
-		let pkt_len = 2 + 2 + this.memberInfo.length * 12;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.memberInfo.length * 12;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x155);
 		pkt_buf.writeShort(pkt_len);
@@ -1227,8 +1227,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_OPEN_MEMBER_INFO.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x157);
 		pkt_buf.writeLong(this.AID);
@@ -1243,8 +1243,8 @@ import Configs from 'Core/Configs';
 		this.reasonDesc = '';
 	};
 	PACKET.CZ.REQ_LEAVE_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4 + 40;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4 + 40;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x159);
 		pkt_buf.writeULong(this.GDID);
@@ -1262,8 +1262,8 @@ import Configs from 'Core/Configs';
 		this.reasonDesc = '';
 	};
 	PACKET.CZ.REQ_BAN_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4 + 40;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4 + 40;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x15b);
 		pkt_buf.writeULong(this.GDID);
@@ -1278,8 +1278,8 @@ import Configs from 'Core/Configs';
 		this.key = '';
 	};
 	PACKET.CZ.REQ_DISORGANIZE_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 40;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 40;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x15d);
 		pkt_buf.writeString(this.key, 40);
@@ -1292,8 +1292,8 @@ import Configs from 'Core/Configs';
 	};
 	PACKET.CZ.REG_CHANGE_GUILD_POSITIONINFO.prototype.build = function () {
 		let i, count;
-		let pkt_len = 2 + 2 + this.memberList.length * 40;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.memberList.length * 40;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x161);
 		pkt_buf.writeShort(pkt_len);
@@ -1315,8 +1315,8 @@ import Configs from 'Core/Configs';
 		this.GName = '';
 	};
 	PACKET.CZ.REQ_MAKE_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x165);
 		pkt_buf.writeULong(this.GID);
@@ -1331,8 +1331,8 @@ import Configs from 'Core/Configs';
 		this.MyGID = 0;
 	};
 	PACKET.CZ.REQ_JOIN_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x168);
 		pkt_buf.writeULong(this.AID);
@@ -1347,8 +1347,8 @@ import Configs from 'Core/Configs';
 		this.answer = 0;
 	};
 	PACKET.CZ.JOIN_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x16b);
 		pkt_buf.writeULong(this.GDID);
@@ -1363,8 +1363,8 @@ import Configs from 'Core/Configs';
 		this.notice = '';
 	};
 	PACKET.CZ.GUILD_NOTICE.prototype.build = function () {
-		let pkt_len = 2 + 4 + 60 + 120;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 60 + 120;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x16e);
 		pkt_buf.writeULong(this.GDID);
@@ -1380,8 +1380,8 @@ import Configs from 'Core/Configs';
 		this.MyGID = 0;
 	};
 	PACKET.CZ.REQ_ALLY_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x170);
 		pkt_buf.writeULong(this.AID);
@@ -1396,8 +1396,8 @@ import Configs from 'Core/Configs';
 		this.answer = 0;
 	};
 	PACKET.CZ.ALLY_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x172);
 		pkt_buf.writeULong(this.otherAID);
@@ -1410,8 +1410,8 @@ import Configs from 'Core/Configs';
 		this.GID = 0;
 	};
 	PACKET.CZ.REQ_GUILD_MEMBER_INFO.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x175);
 		pkt_buf.writeLong(this.GID);
@@ -1423,8 +1423,8 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.REQ_ITEMIDENTIFY.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x178);
 		pkt_buf.writeShort(this.index);
@@ -1436,8 +1436,8 @@ import Configs from 'Core/Configs';
 		this.cardIndex = 0;
 	};
 	PACKET.CZ.REQ_ITEMCOMPOSITION_LIST.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x17a);
 		pkt_buf.writeShort(this.cardIndex);
@@ -1450,8 +1450,8 @@ import Configs from 'Core/Configs';
 		this.equipIndex = 0;
 	};
 	PACKET.CZ.REQ_ITEMCOMPOSITION.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x17c);
 		pkt_buf.writeShort(this.cardIndex);
@@ -1464,8 +1464,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.GUILD_CHAT.prototype.build = function () {
-		let pkt_len = 2 + 2 + this.msg.length + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.msg.length + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x17e);
 		pkt_buf.writeShort(pkt_len);
@@ -1478,8 +1478,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_HOSTILE_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x180);
 		pkt_buf.writeULong(this.AID);
@@ -1492,8 +1492,8 @@ import Configs from 'Core/Configs';
 		this.Relation = 0;
 	};
 	PACKET.CZ.REQ_DELETE_RELATED_GUILD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x183);
 		pkt_buf.writeULong(this.OpponentGDID);
@@ -1506,8 +1506,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.PING.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x187);
 		pkt_buf.writeULong(this.AID);
@@ -1519,8 +1519,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.REQ_DISCONNECT.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x18a);
 		pkt_buf.writeShort(this.type);
@@ -1532,8 +1532,8 @@ import Configs from 'Core/Configs';
 		this.itemList = {};
 	};
 	PACKET.CZ.REQMAKINGITEM.prototype.build = function () {
-		let pkt_len = PACKETVER.value >= 20181121 ? 18 : 10;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = PACKETVER.value >= 20181121 ? 18 : 10;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x18e);
 		if (PACKETVER.value >= 20181121) {
@@ -1559,8 +1559,8 @@ import Configs from 'Core/Configs';
 		this.contents = '';
 	};
 	PACKET.CZ.USE_SKILL_TOGROUNDMoreInfo.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.selectedLevel, true);
@@ -1576,8 +1576,8 @@ import Configs from 'Core/Configs';
 		this.GID = 0;
 	};
 	PACKET.CZ.REQNAME_BYGID.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.GID, true);
@@ -1587,8 +1587,8 @@ import Configs from 'Core/Configs';
 	// 0x9d4
 	PACKET.CZ.NPC_TRADE_QUIT = function PACKET_CZ_NPC_TRADE_QUIT() {};
 	PACKET.CZ.NPC_TRADE_QUIT.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9d4);
 		return pkt_buf;
@@ -1668,8 +1668,8 @@ import Configs from 'Core/Configs';
 	// 0x9d8
 	PACKET.CZ.NPC_MARKET_CLOSE = function PACKET_CZ_NPC_MARKET_CLOSE() {};
 	PACKET.CZ.NPC_MARKET_CLOSE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9d8);
 		return pkt_buf;
@@ -1680,8 +1680,8 @@ import Configs from 'Core/Configs';
 		this.targetAID = 0;
 	};
 	PACKET.CZ.TRYCAPTURE_MONSTER.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x19f);
 		pkt_buf.writeULong(this.targetAID);
@@ -1693,8 +1693,8 @@ import Configs from 'Core/Configs';
 		this.cSub = 0;
 	};
 	PACKET.CZ.COMMAND_PET.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1a1);
 		pkt_buf.writeChar(this.cSub);
@@ -1706,8 +1706,8 @@ import Configs from 'Core/Configs';
 		this.szName = '';
 	};
 	PACKET.CZ.RENAME_PET.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1a5);
 		pkt_buf.writeString(this.szName, 24);
@@ -1719,8 +1719,8 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.SELECT_PETEGG.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1a7);
 		pkt_buf.writeShort(this.index);
@@ -1732,8 +1732,8 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.PETEGG_INFO.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1a8);
 		pkt_buf.writeShort(this.index);
@@ -1745,8 +1745,8 @@ import Configs from 'Core/Configs';
 		this.data = 0;
 	};
 	PACKET.CZ.PET_ACT.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1a9);
 		pkt_buf.writeLong(this.data);
@@ -1762,7 +1762,7 @@ import Configs from 'Core/Configs';
 		if (PACKETVER.value >= 20181121) {
 			pkt_len += 2;
 		}
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1ae);
 		if (PACKETVER.value >= 20181121) {
@@ -1778,8 +1778,8 @@ import Configs from 'Core/Configs';
 		this.num = 0;
 	};
 	PACKET.CZ.REQ_CHANGECART.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1af);
 		pkt_buf.writeShort(this.num);
@@ -1793,8 +1793,8 @@ import Configs from 'Core/Configs';
 		this.storeList = [];
 	};
 	PACKET.CZ.REQ_OPENSTORE2.prototype.build = function () {
-		let pkt_len = 2 + 2 + 80 + 1 + this.storeList.length * 8;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 80 + 1 + this.storeList.length * 8;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		let i, count;
 
 		pkt_buf.writeShort(0x1b2);
@@ -1816,8 +1816,8 @@ import Configs from 'Core/Configs';
 		this.zeny = 0;
 	};
 	PACKET.CZ.GUILD_ZENY.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1b7);
 		pkt_buf.writeLong(this.zeny);
@@ -1829,8 +1829,8 @@ import Configs from 'Core/Configs';
 		this.CharacterName = '';
 	};
 	PACKET.CZ.SHIFT.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1bb);
 		pkt_buf.writeString(this.CharacterName, 24);
@@ -1842,8 +1842,8 @@ import Configs from 'Core/Configs';
 		this.Permission = 0;
 	};
 	PACKET.CA.REPLY_PNGAMEROOM.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1bf);
 		pkt_buf.writeUChar(this.Permission);
@@ -1853,8 +1853,8 @@ import Configs from 'Core/Configs';
 	// 0x1c0
 	PACKET.CZ.REQ_REMAINTIME = function PACKET_CZ_REQ_REMAINTIME() {};
 	PACKET.CZ.REQ_REMAINTIME.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1c0);
 		return pkt_buf;
@@ -1866,8 +1866,8 @@ import Configs from 'Core/Configs';
 		this.decCount = 0;
 	};
 	PACKET.CS.REQ_ENCRYPTION.prototype.build = function () {
-		let pkt_len = 2 + 1 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1c6);
 		pkt_buf.writeChar(this.encCount);
@@ -1880,8 +1880,8 @@ import Configs from 'Core/Configs';
 		this.result = 0;
 	};
 	PACKET.CZ.REQMAKINGHOMUN.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1ca);
 		pkt_buf.writeUChar(this.result);
@@ -1896,8 +1896,8 @@ import Configs from 'Core/Configs';
 		this.arg1 = 0;
 	};
 	PACKET.CZ.MONSTER_TALK.prototype.build = function () {
-		let pkt_len = 2 + 4 + 1 + 1 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 1 + 1 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1cb);
 		pkt_buf.writeULong(this.GID);
@@ -1912,8 +1912,8 @@ import Configs from 'Core/Configs';
 		this.SKID = 0;
 	};
 	PACKET.CZ.SELECTAUTOSPELL.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1ce);
 		pkt_buf.writeLong(this.SKID);
@@ -1926,8 +1926,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.INPUT_EDITDLGSTR.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4 + this.msg.length + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + this.msg.length + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1d5);
 		pkt_buf.writeShort(pkt_len);
@@ -1939,8 +1939,8 @@ import Configs from 'Core/Configs';
 	// 0x1db
 	PACKET.CA.REQ_HASH = function PACKET_CA_REQ_HASH() {};
 	PACKET.CA.REQ_HASH.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1db);
 		return pkt_buf;
@@ -1954,8 +1954,8 @@ import Configs from 'Core/Configs';
 		this.clienttype = 0;
 	};
 	PACKET.CA.LOGIN2.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24 + 16 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24 + 16 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1dd);
 		pkt_buf.writeULong(this.Version);
@@ -1994,8 +1994,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_ACCOUNTNAME.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.AID, true);
@@ -2009,8 +2009,8 @@ import Configs from 'Core/Configs';
 		this.answer = 0;
 	};
 	PACKET.CZ.JOIN_COUPLE.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1e3);
 		pkt_buf.writeULong(this.AID);
@@ -2024,8 +2024,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_JOIN_COUPLE.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1e5);
 		pkt_buf.writeULong(this.AID);
@@ -2035,8 +2035,8 @@ import Configs from 'Core/Configs';
 	// 0x1e7
 	PACKET.CZ.DORIDORI = function PACKET_CZ_DORIDORI() {};
 	PACKET.CZ.DORIDORI.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1e7);
 		return pkt_buf;
@@ -2049,8 +2049,8 @@ import Configs from 'Core/Configs';
 		this.ItemDivisionRule = 0;
 	};
 	PACKET.CZ.MAKE_GROUP2.prototype.build = function () {
-		let pkt_len = 2 + 24 + 1 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24 + 1 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1e8);
 		pkt_buf.writeString(this.groupName, 24);
@@ -2062,8 +2062,8 @@ import Configs from 'Core/Configs';
 	// 0x1ed
 	PACKET.CZ.CHOPOKGI = function PACKET_CZ_CHOPOKGI() {};
 	PACKET.CZ.CHOPOKGI.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1ed);
 		return pkt_buf;
@@ -2076,8 +2076,8 @@ import Configs from 'Core/Configs';
 		this.answer = 0;
 	};
 	PACKET.CZ.JOIN_BABY.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1f7);
 		pkt_buf.writeULong(this.AID);
@@ -2091,8 +2091,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_JOIN_BABY.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1f9);
 		pkt_buf.writeULong(this.AID);
@@ -2108,8 +2108,8 @@ import Configs from 'Core/Configs';
 		this.ClientInfo = 0;
 	};
 	PACKET.CA.LOGIN3.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24 + 16 + 1 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24 + 16 + 1 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1fa);
 		pkt_buf.writeULong(this.Version);
@@ -2126,8 +2126,8 @@ import Configs from 'Core/Configs';
 		this.key = '';
 	};
 	PACKET.CH.DELETE_CHAR2.prototype.build = function () {
-		let pkt_len = 2 + 4 + 50;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 50;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1fb);
 		pkt_buf.writeULong(this.GID);
@@ -2148,8 +2148,8 @@ import Configs from 'Core/Configs';
 		};
 	};
 	PACKET.CZ.REQ_ITEMREPAIR.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.writeShort(this.index);
@@ -2184,8 +2184,8 @@ import Configs from 'Core/Configs';
 		this.ID = '';
 	};
 	PACKET.CA.CONNECT_INFO_CHANGED.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x200);
 		pkt_buf.writeString(this.ID, 24);
@@ -2197,8 +2197,8 @@ import Configs from 'Core/Configs';
 		this.name = '';
 	};
 	PACKET.CZ.ADD_FRIENDS.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setString(ver[3], this.name, 24);
@@ -2211,8 +2211,8 @@ import Configs from 'Core/Configs';
 		this.GID = 0;
 	};
 	PACKET.CZ.DELETE_FRIENDS.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x203);
 		pkt_buf.writeULong(this.AID);
@@ -2225,8 +2225,8 @@ import Configs from 'Core/Configs';
 		this.HashValue = '';
 	};
 	PACKET.CA.EXE_HASHCHECK.prototype.build = function () {
-		let pkt_len = 2 + 16;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 16;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x204);
 		pkt_buf.writeBinaryString(this.HashValue, 16);
@@ -2240,8 +2240,8 @@ import Configs from 'Core/Configs';
 		this.Result = 0;
 	};
 	PACKET.CZ.ACK_REQ_ADD_FRIENDS.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.ReqAID, true);
@@ -2262,8 +2262,8 @@ import Configs from 'Core/Configs';
 		this.HashValue = '';
 	};
 	PACKET.CH.EXE_HASHCHECK.prototype.build = function () {
-		let pkt_len = 2 + 1 + 16;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1 + 16;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x20b);
 		pkt_buf.writeUChar(this.ClientType);
@@ -2277,8 +2277,8 @@ import Configs from 'Core/Configs';
 		this.HashValue = '';
 	};
 	PACKET.CZ.EXE_HASHCHECK.prototype.build = function () {
-		let pkt_len = 2 + 1 + 16;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1 + 16;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x20c);
 		pkt_buf.writeUChar(this.ClientType);
@@ -2292,8 +2292,8 @@ import Configs from 'Core/Configs';
 		this.GID = 0;
 	};
 	PACKET.CZ.REQ_PVPPOINT.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x20f);
 		pkt_buf.writeULong(this.AID);
@@ -2306,8 +2306,8 @@ import Configs from 'Core/Configs';
 		this.CharName = '';
 	};
 	PACKET.CZ.REQ_GIVE_MANNER_BYNAME.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x212);
 		pkt_buf.writeString(this.CharName, 24);
@@ -2319,8 +2319,8 @@ import Configs from 'Core/Configs';
 		this.CharName = '';
 	};
 	PACKET.CZ.REQ_STATUS_GM.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x213);
 		pkt_buf.writeString(this.CharName, 24);
@@ -2330,8 +2330,8 @@ import Configs from 'Core/Configs';
 	// 0x217
 	PACKET.CZ.BLACKSMITH_RANK = function PACKET_CZ_BLACKSMITH_RANK() {};
 	PACKET.CZ.BLACKSMITH_RANK.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x217);
 		return pkt_buf;
@@ -2340,8 +2340,8 @@ import Configs from 'Core/Configs';
 	// 0x218
 	PACKET.CZ.ALCHEMIST_RANK = function PACKET_CZ_ALCHEMIST_RANK() {};
 	PACKET.CZ.ALCHEMIST_RANK.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x218);
 		return pkt_buf;
@@ -2352,8 +2352,8 @@ import Configs from 'Core/Configs';
 		this.isLess = 0;
 	};
 	PACKET.CZ.LESSEFFECT.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x21d);
 		pkt_buf.writeLong(this.isLess);
@@ -2365,8 +2365,8 @@ import Configs from 'Core/Configs';
 		this.Index = 0;
 	};
 	PACKET.CZ.REQ_WEAPONREFINE.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x222);
 		pkt_buf.writeLong(this.Index);
@@ -2376,8 +2376,8 @@ import Configs from 'Core/Configs';
 	// 0x225
 	PACKET.CZ.TAEKWON_RANK = function PACKET_CZ_TAEKWON_RANK() {};
 	PACKET.CZ.TAEKWON_RANK.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x225);
 		return pkt_buf;
@@ -2388,8 +2388,8 @@ import Configs from 'Core/Configs';
 		this.AuthData = 0;
 	};
 	PACKET.CZ.ACK_GAME_GUARD.prototype.build = function () {
-		let pkt_len = 2 + 16;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 16;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x228);
 		pkt_buf.writeULong(this.AuthData[0]);
@@ -2405,8 +2405,8 @@ import Configs from 'Core/Configs';
 		this.command = 0;
 	};
 	PACKET.CZ.COMMAND_MER.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.type, true);
@@ -2419,8 +2419,8 @@ import Configs from 'Core/Configs';
 		this.name = '';
 	};
 	PACKET.CZ.RENAME_MER.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x231);
 		pkt_buf.writeString(this.name, 24);
@@ -2433,8 +2433,8 @@ import Configs from 'Core/Configs';
 		this.dest = [0, 0];
 	};
 	PACKET.CZ.REQUEST_MOVENPC.prototype.build = function () {
-		let pkt_len = 2 + 4 + 3;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 3;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x232);
 		pkt_buf.writeULong(this.GID);
@@ -2449,8 +2449,8 @@ import Configs from 'Core/Configs';
 		this.action = 0;
 	};
 	PACKET.CZ.REQUEST_ACTNPC.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x233);
 		pkt_buf.writeULong(this.GID);
@@ -2464,8 +2464,8 @@ import Configs from 'Core/Configs';
 		this.GID = 0;
 	};
 	PACKET.CZ.REQUEST_MOVETOOWNER.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x234);
 		pkt_buf.writeULong(this.GID);
@@ -2496,8 +2496,8 @@ import Configs from 'Core/Configs';
 	// 0x237
 	PACKET.CZ.RANKING_PK = function PACKET_CZ_RANKING_PK() {};
 	PACKET.CZ.RANKING_PK.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x237);
 		return pkt_buf;
@@ -2520,8 +2520,8 @@ import Configs from 'Core/Configs';
 		this.NewPassword = '';
 	};
 	PACKET.CZ.ACK_STORE_PASSWORD.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.Type, true);
@@ -2533,8 +2533,8 @@ import Configs from 'Core/Configs';
 	// 0x23f
 	PACKET.CZ.MAIL_GET_LIST = function PACKET_CZ_MAIL_GET_LIST() {};
 	PACKET.CZ.MAIL_GET_LIST.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x23f);
 		return pkt_buf;
@@ -2545,8 +2545,8 @@ import Configs from 'Core/Configs';
 		this.MailID = 0;
 	};
 	PACKET.CZ.MAIL_OPEN.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x241);
 		pkt_buf.writeLong(this.MailID);
@@ -2558,8 +2558,8 @@ import Configs from 'Core/Configs';
 		this.MailID = 0;
 	};
 	PACKET.CZ.MAIL_DELETE.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x243);
 		pkt_buf.writeLong(this.MailID);
@@ -2571,8 +2571,8 @@ import Configs from 'Core/Configs';
 		this.MailID = 0;
 	};
 	PACKET.CZ.MAIL_GET_ITEM.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x244);
 		pkt_buf.writeLong(this.MailID);
@@ -2584,8 +2584,8 @@ import Configs from 'Core/Configs';
 		this.Type = 0;
 	};
 	PACKET.CZ.MAIL_RESET_ITEM.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x246);
 		pkt_buf.writeShort(this.Type);
@@ -2598,8 +2598,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MAIL_ADD_ITEM.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.index, true);
@@ -2615,8 +2615,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.MAIL_SEND.prototype.build = function () {
-		let pkt_len = 2 + 2 + 24 + 40 + 1 + this.msg.length;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 24 + 40 + 1 + this.msg.length;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x248);
 		pkt_buf.writeShort(pkt_len);
@@ -2632,8 +2632,8 @@ import Configs from 'Core/Configs';
 		this.Type = 0;
 	};
 	PACKET.CZ.AUCTION_CREATE.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x24b);
 		pkt_buf.writeShort(this.Type);
@@ -2646,8 +2646,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.AUCTION_ADD_ITEM.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x24c);
 		pkt_buf.writeShort(this.index);
@@ -2662,8 +2662,8 @@ import Configs from 'Core/Configs';
 		this.DeleteHour = 0;
 	};
 	PACKET.CZ.AUCTION_ADD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x24d);
 		pkt_buf.writeULong(this.NowMoney);
@@ -2677,8 +2677,8 @@ import Configs from 'Core/Configs';
 		this.AuctionID = 0;
 	};
 	PACKET.CZ.AUCTION_ADD_CANCEL.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x24e);
 		pkt_buf.writeULong(this.AuctionID);
@@ -2691,8 +2691,8 @@ import Configs from 'Core/Configs';
 		this.Money = 0;
 	};
 	PACKET.CZ.AUCTION_BUY.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x24f);
 		pkt_buf.writeULong(this.AuctionID);
@@ -2708,8 +2708,8 @@ import Configs from 'Core/Configs';
 		this.Page = 0;
 	};
 	PACKET.CZ.AUCTION_ITEM_SEARCH.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4 + 24 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + 24 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x251);
 		pkt_buf.writeShort(this.Type);
@@ -2724,8 +2724,8 @@ import Configs from 'Core/Configs';
 		this.which = 0;
 	};
 	PACKET.CZ.AGREE_STARPLACE.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x254);
 		pkt_buf.writeChar(this.which);
@@ -2735,8 +2735,8 @@ import Configs from 'Core/Configs';
 	// 0x258
 	PACKET.CA.REQ_GAME_GUARD_CHECK = function PACKET_CA_REQ_GAME_GUARD_CHECK() {};
 	PACKET.CA.REQ_GAME_GUARD_CHECK.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x258);
 		return pkt_buf;
@@ -2748,8 +2748,8 @@ import Configs from 'Core/Configs';
 		this.id = 0;
 	};
 	PACKET.CZ.REQ_MAKINGITEM.prototype.build = function () {
-		let pkt_len = PACKETVER.value >= 20181121 ? 8 : 6;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = PACKETVER.value >= 20181121 ? 8 : 6;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x25b);
 		pkt_buf.writeShort(this.mkType);
@@ -2766,8 +2766,8 @@ import Configs from 'Core/Configs';
 		this.Type = 0;
 	};
 	PACKET.CZ.AUCTION_REQ_MY_INFO.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x25c);
 		pkt_buf.writeShort(this.Type);
@@ -2779,8 +2779,8 @@ import Configs from 'Core/Configs';
 		this.AuctionID = 0;
 	};
 	PACKET.CZ.AUCTION_REQ_MY_SELL_STOP.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x25d);
 		pkt_buf.writeULong(this.AuctionID);
@@ -2793,8 +2793,8 @@ import Configs from 'Core/Configs';
 		this.m_EKey = '';
 	};
 	PACKET.CA.ACK_LOGIN_OLDEKEY.prototype.build = function () {
-		let pkt_len = 2 + 9 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x264);
 		pkt_buf.writeBinaryString(this.m_SeedValue, 9);
@@ -2808,8 +2808,8 @@ import Configs from 'Core/Configs';
 		this.m_EKey = '';
 	};
 	PACKET.CA.ACK_LOGIN_NEWEKEY.prototype.build = function () {
-		let pkt_len = 2 + 9 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x265);
 		pkt_buf.writeBinaryString(this.m_SeedValue, 9);
@@ -2822,8 +2822,8 @@ import Configs from 'Core/Configs';
 		this.m_cardPass = '';
 	};
 	PACKET.CA.ACK_LOGIN_CARDPASS.prototype.build = function () {
-		let pkt_len = 2 + 28;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 28;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x266);
 		pkt_buf.writeString(this.m_cardPass, 28);
@@ -2837,8 +2837,8 @@ import Configs from 'Core/Configs';
 		this.E_mail = '';
 	};
 	PACKET.CA.ACK_LOGIN_ACCOUNT_INFO.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 34;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 34;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x271);
 		pkt_buf.writeShort(this.sex);
@@ -2853,8 +2853,8 @@ import Configs from 'Core/Configs';
 		this.ReceiveName = '';
 	};
 	PACKET.CZ.REQ_MAIL_RETURN.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x273);
 		pkt_buf.writeLong(this.MailID);
@@ -2873,8 +2873,8 @@ import Configs from 'Core/Configs';
 		this.iAccountSID = 0;
 	};
 	PACKET.CH.ENTER2.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4 + 2 + 1 + 16 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4 + 2 + 1 + 16 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x275);
 		pkt_buf.writeULong(this.AID);
@@ -2897,8 +2897,8 @@ import Configs from 'Core/Configs';
 		this.MacAdress = '';
 	};
 	PACKET.CA.LOGIN_PCBANG.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24 + 24 + 1 + 16 + 13;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24 + 24 + 1 + 16 + 13;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x277);
 		pkt_buf.writeULong(this.Version);
@@ -2913,8 +2913,8 @@ import Configs from 'Core/Configs';
 	// 0x279
 	PACKET.CZ.HUNTINGLIST = function PACKET_CZ_HUNTINGLIST() {};
 	PACKET.CZ.HUNTINGLIST.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x279);
 		return pkt_buf;
@@ -2929,8 +2929,8 @@ import Configs from 'Core/Configs';
 		this.macData = '';
 	};
 	PACKET.CA.LOGIN4.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24 + 16 + 1 + 13;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24 + 16 + 1 + 13;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x27c);
 		pkt_buf.writeULong(this.Version);
@@ -2947,8 +2947,8 @@ import Configs from 'Core/Configs';
 		this.nVer = 0;
 	};
 	PACKET.CA.CLIENT_TYPE.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x27f);
 		pkt_buf.writeShort(this.ClientType);
@@ -2961,8 +2961,8 @@ import Configs from 'Core/Configs';
 		this.PacketSwitch = 0;
 	};
 	PACKET.CZ.GANGSI_RANK.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x281);
 		pkt_buf.writeShort(this.PacketSwitch);
@@ -2974,8 +2974,8 @@ import Configs from 'Core/Configs';
 		this.Qanswer = 0;
 	};
 	PACKET.CZ.DEATH_QUESTION.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x286);
 		pkt_buf.writeShort(this.Qanswer);
@@ -2988,10 +2988,10 @@ import Configs from 'Core/Configs';
 		this.kafrapts = 0;
 	};
 	PACKET.CZ.PC_BUY_CASH_POINT_ITEM.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let itemSize = PACKETVER.value >= 20181121 ? 6 : 4;
-		let len = 10 + this.list.length * itemSize;
-		let pkt = new BinaryWriter(len);
+		const ver = this.getPacketVersion();
+		const itemSize = PACKETVER.value >= 20181121 ? 6 : 4;
+		const len = 10 + this.list.length * itemSize;
+		const pkt = new BinaryWriter(len);
 		pkt.writeShort(ver[1]); // cmd
 		if (PACKETVER.value < 20100803) {
 			// can only buy 1 item per packet
@@ -3026,8 +3026,8 @@ import Configs from 'Core/Configs';
 		this.ardwSelectedGID = 0;
 	};
 	PACKET.CH.SELECT_CHAR_GOINGTOBEUSED.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 36;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 36;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x28c);
 		pkt_buf.writeULong(this.dwAID);
@@ -3046,8 +3046,8 @@ import Configs from 'Core/Configs';
 		this.szCharName = '';
 	};
 	PACKET.CH.REQ_IS_VALID_CHARNAME.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x28d);
 		pkt_buf.writeULong(this.dwAID);
@@ -3061,8 +3061,8 @@ import Configs from 'Core/Configs';
 		this.dwGID = 0;
 	};
 	PACKET.CH.REQ_CHANGE_CHARNAME.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x28f);
 		pkt_buf.writeULong(this.dwGID);
@@ -3072,8 +3072,8 @@ import Configs from 'Core/Configs';
 	// 0x292
 	PACKET.CZ.STANDING_RESURRECTION = function PACKET_CZ_STANDING_RESURRECTION() {};
 	PACKET.CZ.STANDING_RESURRECTION.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x292);
 		return pkt_buf;
@@ -3084,8 +3084,8 @@ import Configs from 'Core/Configs';
 		this.command = 0;
 	};
 	PACKET.CZ.MER_COMMAND.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x29f);
 		pkt_buf.writeChar(this.command);
@@ -3099,8 +3099,8 @@ import Configs from 'Core/Configs';
 		this.targetID = 0;
 	};
 	UNUSED_PACKET.CZ.MER_USE_SKILL.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2a0);
 		pkt_buf.writeShort(this.selectedLevel);
@@ -3114,8 +3114,8 @@ import Configs from 'Core/Configs';
 		this.SKID = 0;
 	};
 	UNUSED_PACKET.CZ.MER_UPGRADE_SKILLLEVEL.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2a1);
 		pkt_buf.writeUShort(this.SKID);
@@ -3128,8 +3128,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.KSY_EVENT.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2a5);
 		pkt_buf.writeShort(this.index);
@@ -3144,8 +3144,8 @@ import Configs from 'Core/Configs';
 		this.NewPassword = '';
 	};
 	PACKET.CZ.ACK_CASH_PASSWORD.prototype.build = function () {
-		let pkt_len = 2 + 2 + 16 + 16;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 16 + 16;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2ab);
 		pkt_buf.writeShort(this.Type);
@@ -3165,8 +3165,8 @@ import Configs from 'Core/Configs';
 		this.isHanGameUser = 0;
 	};
 	PACKET.CA.LOGIN_HAN.prototype.build = function () {
-		let pkt_len = 2 + 4 + 24 + 24 + 1 + 16 + 13 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 24 + 24 + 1 + 16 + 13 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2b0);
 		pkt_buf.writeULong(this.Version);
@@ -3185,8 +3185,8 @@ import Configs from 'Core/Configs';
 		this.active = 0;
 	};
 	PACKET.CZ.ACTIVE_QUEST.prototype.build = function () {
-		let pkt_len = 2 + 4 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2b6);
 		pkt_buf.writeULong(this.questID);
@@ -3200,8 +3200,8 @@ import Configs from 'Core/Configs';
 		this.ShortCutKey = {};
 	};
 	PACKET.CZ.SHORTCUT_KEY_CHANGE1.prototype.build = function () {
-		let pkt_len = 2 + 2 + 1 + 4 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 1 + 4 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2ba);
 		pkt_buf.writeUShort(this.Index);
@@ -3216,8 +3216,8 @@ import Configs from 'Core/Configs';
 		this.ProtectFactor = 0;
 	};
 	PACKET.CZ.SRPACKETR2_START.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2c0);
 		pkt_buf.writeUShort(this.ProtectFactor);
@@ -3229,8 +3229,8 @@ import Configs from 'Core/Configs';
 		this.characterName = '';
 	};
 	PACKET.CZ.PARTY_JOIN_REQ.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.writeString(this.characterName, 24);
@@ -3243,8 +3243,8 @@ import Configs from 'Core/Configs';
 		this.bAccept = 0;
 	};
 	PACKET.CZ.PARTY_JOIN_REQ_ACK.prototype.build = function () {
-		let pkt_len = 2 + 4 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2c7);
 		pkt_buf.writeULong(this.GRID);
@@ -3257,8 +3257,8 @@ import Configs from 'Core/Configs';
 		this.bRefuseJoinMsg = 0;
 	};
 	PACKET.CZ.PARTY_CONFIG.prototype.build = function () {
-		let pkt_len = 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2c8);
 		pkt_buf.writeUChar(this.bRefuseJoinMsg);
@@ -3270,8 +3270,8 @@ import Configs from 'Core/Configs';
 		this.Command = 0;
 	};
 	PACKET.CZ.MEMORIALDUNGEON_COMMAND.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2cf);
 		pkt_buf.writeLong(this.Command);
@@ -3283,8 +3283,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.EQUIPWIN_MICROSCOPE.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2d6);
 		pkt_buf.writeULong(this.AID);
@@ -3297,8 +3297,8 @@ import Configs from 'Core/Configs';
 		this.Value = 0;
 	};
 	PACKET.CZ.CONFIG.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2d8);
 		pkt_buf.writeLong(this.Config);
@@ -3311,8 +3311,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.BATTLEFIELD_CHAT.prototype.build = function () {
-		let pkt_len = 2 + 2 + this.msg.length;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.msg.length;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2db);
 		pkt_buf.writeShort(pkt_len);
@@ -3325,8 +3325,8 @@ import Configs from 'Core/Configs';
 		this.IsBot = 0;
 	};
 	PACKET.CZ.BOT_CHECK.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2e6);
 		pkt_buf.writeLong(this.IsBot);
@@ -3336,8 +3336,8 @@ import Configs from 'Core/Configs';
 	// 0x2f1
 	PACKET.CZ.PROGRESS = function PACKET_CZ_PROGRESS() {};
 	PACKET.CZ.PROGRESS.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x2f1);
 		return pkt_buf;
@@ -3346,8 +3346,8 @@ import Configs from 'Core/Configs';
 	// 0x35c
 	PACKET.CZ.OPEN_SIMPLE_CASHSHOP_ITEMLIST = function PACKET_CZ_OPEN_SIMPLE_CASHSHOP_ITEMLIST() {};
 	PACKET.CZ.OPEN_SIMPLE_CASHSHOP_ITEMLIST.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x35c);
 		return pkt_buf;
@@ -3356,8 +3356,8 @@ import Configs from 'Core/Configs';
 	// 0x35e
 	PACKET.CZ.CLOSE_WINDOW = function PACKET_CZ_CLOSE_WINDOW() {};
 	PACKET.CZ.CLOSE_WINDOW.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x35e);
 		return pkt_buf;
@@ -3368,8 +3368,8 @@ import Configs from 'Core/Configs';
 		this.dest = [0, 0];
 	};
 	PACKET.CZ.REQUEST_MOVE2.prototype.build = function () {
-		let pkt_len = 2 + 3;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 3;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x35f);
 		pkt_buf.writePos(this.dest);
@@ -3381,8 +3381,8 @@ import Configs from 'Core/Configs';
 		this.clientTime = 0;
 	};
 	PACKET.CZ.REQUEST_TIME2.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.clientTime, true);
@@ -3395,10 +3395,10 @@ import Configs from 'Core/Configs';
 		this.dir = 0;
 	};
 	PACKET.CZ.CHANGE_DIRECTION2.prototype.build = function () {
-		let servDirection = [4, 3, 2, 1, 0, 7, 6, 5];
+		const servDirection = [4, 3, 2, 1, 0, 7, 6, 5];
 
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.headDir, true);
@@ -3411,8 +3411,8 @@ import Configs from 'Core/Configs';
 		this.ITAID = 0;
 	};
 	PACKET.CZ.ITEM_PICKUP2.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.ITAID, true);
@@ -3425,8 +3425,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.ITEM_THROW2.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint16(ver[3], this.Index, true);
@@ -3440,8 +3440,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_STORE2.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.index, true);
@@ -3455,8 +3455,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_BODY2.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(ver[3], this.index, true);
@@ -3472,7 +3472,7 @@ import Configs from 'Core/Configs';
 		this.yPos = 0;
 	};
 	PACKET.CZ.USE_SKILL_TOGROUND2.prototype.build = function () {
-		let pkt = new BinaryWriter(10);
+		const pkt = new BinaryWriter(10);
 
 		pkt.writeShort(0x0366);
 		pkt.writeShort(this.selectedLevel, true);
@@ -3487,8 +3487,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQNAME2.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.AID, true);
@@ -3500,8 +3500,8 @@ import Configs from 'Core/Configs';
 		this.GID = 0;
 	};
 	PACKET.CZ.REQNAME_BYGID2.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.GID, true);
@@ -3522,7 +3522,7 @@ import Configs from 'Core/Configs';
 		if (PACKETVER.value >= 20211103) {
 			pkt_len += 4;
 		}
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x436);
 		pkt_buf.writeULong(this.AID);
@@ -3542,8 +3542,8 @@ import Configs from 'Core/Configs';
 		this.action = 0;
 	};
 	PACKET.CZ.REQUEST_ACT2.prototype.build = function () {
-		let pkt_len = 2 + 4 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x437);
 		pkt_buf.writeULong(this.targetGID);
@@ -3558,8 +3558,8 @@ import Configs from 'Core/Configs';
 		this.targetID = 0;
 	};
 	PACKET.CZ.USE_SKILL2.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x438);
 		pkt_buf.writeShort(this.selectedLevel);
@@ -3574,8 +3574,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.USE_ITEM2.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x439);
 		pkt_buf.writeUShort(this.index);
@@ -3589,8 +3589,8 @@ import Configs from 'Core/Configs';
 		this.SKID = 0;
 	};
 	PACKET.CZ.SKILL_SELECT_RESPONSE.prototype.build = function () {
-		let pkt_len = 2 + 4 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x443);
 		pkt_buf.writeLong(this.why);
@@ -3604,8 +3604,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.SIMPLE_BUY_CASH_POINT_ITEM.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x445);
 		pkt_buf.writeUShort(this.ITID);
@@ -3616,8 +3616,8 @@ import Configs from 'Core/Configs';
 	// 0x447
 	PACKET.CZ.BLOCKING_PLAY_CANCEL = function PACKET_CZ_BLOCKING_PLAY_CANCEL() {};
 	PACKET.CZ.BLOCKING_PLAY_CANCEL.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x447);
 		return pkt_buf;
@@ -3628,8 +3628,8 @@ import Configs from 'Core/Configs';
 		this.clientVer = 0;
 	};
 	PACKET.CZ.CLIENT_VERSION.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x44a);
 		pkt_buf.writeLong(this.clientVer);
@@ -3639,8 +3639,8 @@ import Configs from 'Core/Configs';
 	// 0x44b
 	PACKET.CZ.CLOSE_SIMPLECASH_SHOP = function PACKET_CZ_CLOSE_SIMPLECASH_SHOP() {};
 	PACKET.CZ.CLOSE_SIMPLECASH_SHOP.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x44b);
 		return pkt_buf;
@@ -3649,8 +3649,8 @@ import Configs from 'Core/Configs';
 	// 0x7d1
 	PACKET.CZ.ES_GET_LIST = function PACKET_CZ_ES_GET_LIST() {};
 	PACKET.CZ.ES_GET_LIST.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7d1);
 		return pkt_buf;
@@ -3661,8 +3661,8 @@ import Configs from 'Core/Configs';
 		this.esNo = 0;
 	};
 	PACKET.CZ.ES_CHOOSE.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7d3);
 		pkt_buf.writeShort(this.esNo);
@@ -3674,8 +3674,8 @@ import Configs from 'Core/Configs';
 		this.esNo = 0;
 	};
 	PACKET.CZ.ES_CANCEL.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7d4);
 		pkt_buf.writeShort(this.esNo);
@@ -3689,8 +3689,8 @@ import Configs from 'Core/Configs';
 		this.ItemDivisionRule = 0;
 	};
 	PACKET.CZ.GROUPINFO_CHANGE_V2.prototype.build = function () {
-		let pkt_len = 2 + 4 + 1 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 1 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7d7);
 		pkt_buf.writeULong(this.expOption);
@@ -3704,8 +3704,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.CHANGE_GROUP_MASTER.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7da);
 		pkt_buf.writeULong(this.AID);
@@ -3717,8 +3717,8 @@ import Configs from 'Core/Configs';
 		this.Option = 0;
 	};
 	PACKET.CZ.SEEK_PARTY.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7dc);
 		pkt_buf.writeULong(this.Option);
@@ -3733,8 +3733,8 @@ import Configs from 'Core/Configs';
 		this.Option = 0;
 	};
 	PACKET.CZ.SEEK_PARTY_MEMBER.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 16 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 16 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7de);
 		pkt_buf.writeULong(this.Job);
@@ -3751,9 +3751,9 @@ import Configs from 'Core/Configs';
 		this.MaterialList = [];
 	};
 	PACKET.CZ.ITEMLISTWIN_RES.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt_len = 2 + 2 + 4 + 4 + this.MaterialList.length * 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const ver = this.getPacketVersion();
+		const pkt_len = 2 + 2 + 4 + 4 + this.MaterialList.length * 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(ver[1]);
 		pkt_buf.writeShort(pkt_len);
@@ -3775,8 +3775,8 @@ import Configs from 'Core/Configs';
 		this.szStringInfo = '';
 	};
 	PACKET.CH.ENTER_CHECKBOT.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4 + this.szStringInfo.length;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + this.szStringInfo.length;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7e5);
 		pkt_buf.writeShort(pkt_len);
@@ -3791,8 +3791,8 @@ import Configs from 'Core/Configs';
 		this.szStringInfo = '';
 	};
 	PACKET.CH.CHECKBOT.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7e7);
 		pkt_buf.writeShort(pkt_len);
@@ -3804,8 +3804,8 @@ import Configs from 'Core/Configs';
 	// 0x7ea
 	PACKET.CZ.BATTLE_FIELD_LIST = function PACKET_CZ_BATTLE_FIELD_LIST() {};
 	PACKET.CZ.BATTLE_FIELD_LIST.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7ea);
 		return pkt_buf;
@@ -3817,8 +3817,8 @@ import Configs from 'Core/Configs';
 		this.JoinTeam = 0;
 	};
 	PACKET.CZ.JOIN_BATTLE_FIELD.prototype.build = function () {
-		let pkt_len = 2 + 4 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7ec);
 		pkt_buf.writeULong(this.BFNO);
@@ -3831,8 +3831,8 @@ import Configs from 'Core/Configs';
 		this.BFNO = 0;
 	};
 	PACKET.CZ.CANCEL_BATTLE_FIELD.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7ee);
 		pkt_buf.writeULong(this.BFNO);
@@ -3845,8 +3845,8 @@ import Configs from 'Core/Configs';
 		this.PowerSwitch = 0;
 	};
 	PACKET.CZ.REQ_BATTLE_STATE_MONITOR.prototype.build = function () {
-		let pkt_len = 2 + 4 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7f0);
 		pkt_buf.writeULong(this.BFNO);
@@ -3859,8 +3859,8 @@ import Configs from 'Core/Configs';
 		this.TargetAID = 0;
 	};
 	PACKET.CZ.GM_FULLSTRIP.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x7f5);
 		pkt_buf.writeULong(this.TargetAID);
@@ -3874,8 +3874,8 @@ import Configs from 'Core/Configs';
 		this.itemList = [];
 	};
 	PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC2.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4 + 4 + this.itemList.length * 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + 4 + this.itemList.length * 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		let i, count;
 
 		pkt_buf.writeShort(0x801);
@@ -3895,8 +3895,8 @@ import Configs from 'Core/Configs';
 		this.RegisterInfo = {};
 	};
 	PACKET.CZ.PARTY_BOOKING_REQ_REGISTER.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 
@@ -3904,7 +3904,7 @@ import Configs from 'Core/Configs';
 			pkt.writeShort(this.RegisterInfo.Level);
 			pkt.writeShort(this.RegisterInfo.MapID);
 
-			for (var i = 0; i < 6; ++i) {
+			for (let i = 0; i < 6; ++i) {
 				pkt.writeShort(this.RegisterInfo.Job[i]);
 			}
 		} else {
@@ -3923,8 +3923,8 @@ import Configs from 'Core/Configs';
 		this.ResultCount = 0;
 	};
 	PACKET.CZ.PARTY_BOOKING_REQ_SEARCH.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.writeShort(this.Level);
@@ -3942,8 +3942,8 @@ import Configs from 'Core/Configs';
 	// 0x806
 	PACKET.CZ.PARTY_BOOKING_REQ_DELETE = function PACKET_CZ_PARTY_BOOKING_REQ_DELETE() {};
 	PACKET.CZ.PARTY_BOOKING_REQ_DELETE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		return pkt;
@@ -3954,8 +3954,8 @@ import Configs from 'Core/Configs';
 		this.Job = 0;
 	};
 	PACKET.CZ.PARTY_BOOKING_REQ_UPDATE.prototype.build = function () {
-		let pkt_len = 2 + 12;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 12;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x808);
 		pkt_buf.writeShort(this.Job[0]);
@@ -3966,8 +3966,8 @@ import Configs from 'Core/Configs';
 	// 0x80c
 	PACKET.CZ.SIMPLE_CASH_BTNSHOW = function PACKET_CZ_SIMPLE_CASH_BTNSHOW() {};
 	PACKET.CZ.SIMPLE_CASH_BTNSHOW.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x80c);
 		return pkt_buf;
@@ -3981,10 +3981,10 @@ import Configs from 'Core/Configs';
 		this.storeList = [];
 	};
 	PACKET.CZ.REQ_OPEN_BUYING_STORE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let item_len = PACKETVER.value >= 20181121 ? 10 : 8;
-		let pkt_len = 2 + 2 + 4 + 1 + 80 + this.storeList.length * item_len;
-		let pkt = new BinaryWriter(pkt_len);
+		const ver = this.getPacketVersion();
+		const item_len = PACKETVER.value >= 20181121 ? 10 : 8;
+		const pkt_len = 2 + 2 + 4 + 1 + 80 + this.storeList.length * item_len;
+		const pkt = new BinaryWriter(pkt_len);
 		let i, count;
 
 		pkt.writeShort(ver[1]); // header
@@ -4009,8 +4009,8 @@ import Configs from 'Core/Configs';
 	// 0x815
 	PACKET.CZ.REQ_CLOSE_BUYING_STORE = function PACKET_CZ_REQ_CLOSE_BUYING_STORE() {};
 	PACKET.CZ.REQ_CLOSE_BUYING_STORE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		return pkt;
@@ -4021,8 +4021,8 @@ import Configs from 'Core/Configs';
 		this.makerAID = 0;
 	};
 	PACKET.CZ.REQ_CLICK_TO_BUYING_STORE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.makerAID, true);
@@ -4036,9 +4036,9 @@ import Configs from 'Core/Configs';
 		this.itemList = [];
 	};
 	PACKET.CZ.REQ_TRADE_BUYING_STORE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let len = 2 + 2 + 4 + 4 + this.itemList.length * 6; // ver[2] = -1
-		let pkt = new BinaryWriter(len);
+		const ver = this.getPacketVersion();
+		const len = 2 + 2 + 4 + 4 + this.itemList.length * 6; // ver[2] = -1
+		const pkt = new BinaryWriter(len);
 		let i, count;
 
 		pkt.writeShort(ver[1]);
@@ -4083,13 +4083,13 @@ import Configs from 'Core/Configs';
 		this.count = fp.readUShort();
 		this.tabNum = fp.readUShort();
 		this.items = (function () {
-			let out = [];
+			const out = [];
 			let divider = 6; // original
 			if (PACKETVER.value >= 20181121 || PACKETVER.value >= 20180704 || PACKETVER.value >= 20181114) {
 				divider = 8;
 			}
-			let cnt = (end - fp.tell()) / divider;
-			for (var i = 0; i < cnt; ++i) {
+			const cnt = (end - fp.tell()) / divider;
+			for (let i = 0; i < cnt; ++i) {
 				out[i] = {};
 				if (PACKETVER.value >= 20181121 || PACKETVER.value >= 20180704 || PACKETVER.value >= 20181114) {
 					out[i].itemId = fp.readULong();
@@ -4140,7 +4140,7 @@ import Configs from 'Core/Configs';
 		this.tabid = 0;
 	};
 	PACKET.CZ.REQ_SE_CASH_TAB_CODE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(4);
+		const pkt_buf = new BinaryWriter(4);
 
 		pkt_buf.writeShort(0x846);
 		pkt_buf.setUint16(2, this.tabid, true);
@@ -4152,7 +4152,7 @@ import Configs from 'Core/Configs';
 	PACKET.CZ.SE_CASHSHOP_OPEN1.prototype.build = function () {
 		// var ver = this.getPacketVersion();
 		// var pkt_buf = new BinaryWriter(ver[2]);
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 
 		pkt_buf.writeShort(0x0844);
 		return pkt_buf;
@@ -4163,7 +4163,7 @@ import Configs from 'Core/Configs';
 		this.tab = 0;
 	};
 	PACKET.CZ.SE_CASHSHOP_OPEN2.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(6);
+		const pkt_buf = new BinaryWriter(6);
 
 		pkt_buf.writeShort(0xb6d);
 		pkt_buf.writeULong(this.tab);
@@ -4173,7 +4173,7 @@ import Configs from 'Core/Configs';
 	//0x08c9
 	PACKET.CZ.PC_CASH_POINT_ITEMLIST = function PACKET_CZ_PC_CASH_POINT_ITEMLIST() {};
 	PACKET.CZ.PC_CASH_POINT_ITEMLIST.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 
 		pkt_buf.writeShort(0x08c9);
 		return pkt_buf;
@@ -4182,7 +4182,7 @@ import Configs from 'Core/Configs';
 	//0x084a
 	PACKET.CZ.CASH_SHOP_CLOSE = function PACKET_CZ_CASH_SHOP_CLOSE() {};
 	PACKET.CZ.CASH_SHOP_CLOSE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 
 		pkt_buf.writeShort(0x84a);
 		return pkt_buf;
@@ -4193,8 +4193,8 @@ import Configs from 'Core/Configs';
 		this.OTPCode = '';
 	};
 	PACKET.CA.OTP_AUTH_REQ.prototype.build = function () {
-		let pkt_len = 2 + 7;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 7;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x822);
 		pkt_buf.writeString(this.OTPCode, 7);
@@ -4207,8 +4207,8 @@ import Configs from 'Core/Configs';
 		this.item_list = [];
 	};
 	PACKET.CZ.SE_PC_BUY_CASHITEM_LIST.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 4 + this.item_list.length * 10;
-		let pkt = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 4 + this.item_list.length * 10;
+		const pkt = new BinaryWriter(pkt_len);
 		let i, count;
 
 		pkt.writeShort(0x848);
@@ -4244,8 +4244,8 @@ import Configs from 'Core/Configs';
 		this.t1 = '';
 	};
 	PACKET.CA.SSO_LOGIN_REQa.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4 + 1 + 24 + 17 + 15 + this.t1.length;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + 1 + 24 + 17 + 15 + this.t1.length;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x825a);
 		pkt_buf.writeShort(pkt_len);
@@ -4269,8 +4269,8 @@ import Configs from 'Core/Configs';
 		this.t1 = '';
 	};
 	PACKET.CA.SSO_LOGIN_REQ.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4 + 1 + 24 + 27 + 17 + 15 + this.t1.length;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + 1 + 24 + 27 + 17 + 15 + this.t1.length;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x825);
 		pkt_buf.writeShort(pkt_len);
@@ -4289,8 +4289,8 @@ import Configs from 'Core/Configs';
 		this.GID = 0;
 	};
 	PACKET.CH.DELETE_CHAR3_RESERVED.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x827);
 		pkt_buf.writeULong(this.GID);
@@ -4303,8 +4303,8 @@ import Configs from 'Core/Configs';
 		this.Birth = '';
 	};
 	PACKET.CH.DELETE_CHAR3.prototype.build = function () {
-		let pkt_len = 2 + 4 + 6;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 6;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x829);
 		pkt_buf.writeULong(this.GID);
@@ -4317,8 +4317,8 @@ import Configs from 'Core/Configs';
 		this.GID = 0;
 	};
 	PACKET.CH.DELETE_CHAR3_CANCEL.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x82b);
 		pkt_buf.writeULong(this.GID);
@@ -4336,8 +4336,8 @@ import Configs from 'Core/Configs';
 	};
 	PACKET.CZ.SEARCH_STORE_INFO.prototype.build = function () {
 		let i, count, offset;
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setInt16(
@@ -4369,8 +4369,8 @@ import Configs from 'Core/Configs';
 	// 0x838
 	PACKET.CZ.SEARCH_STORE_INFO_NEXT_PAGE = function PACKET_CZ_SEARCH_STORE_INFO_NEXT_PAGE() {};
 	PACKET.CZ.SEARCH_STORE_INFO_NEXT_PAGE.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		return pkt;
@@ -4379,8 +4379,8 @@ import Configs from 'Core/Configs';
 	// 0x83b
 	PACKET.CZ.CLOSE_SEARCH_STORE_INFO = function PACKET_CZ_CLOSE_SEARCH_STORE_INFO() {};
 	PACKET.CZ.CLOSE_SEARCH_STORE_INFO.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		return pkt;
@@ -4393,8 +4393,8 @@ import Configs from 'Core/Configs';
 		this.ITID = 0;
 	};
 	PACKET.CZ.SSILIST_ITEM_CLICK.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.AID, true);
@@ -4410,8 +4410,8 @@ import Configs from 'Core/Configs';
 		this.mapListNum = 0;
 	};
 	PACKET.CH.SELECT_ACCESSIBLE_MAPNAME.prototype.build = function () {
-		let pkt_len = 2 + 1 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 1 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x841);
 		pkt_buf.writeUChar(this.CharNum);
@@ -4424,8 +4424,8 @@ import Configs from 'Core/Configs';
 		this.AID = '';
 	};
 	PACKET.CZ.REMOVE_AID_SSO.prototype.build = function () {
-		let ver = this.getPacketVersion();
-		let pkt = new BinaryWriter(ver[2]);
+		const ver = this.getPacketVersion();
+		const pkt = new BinaryWriter(ver[2]);
 
 		pkt.writeShort(ver[1]);
 		pkt.view.setUint32(ver[3], this.AID, true);
@@ -4437,8 +4437,8 @@ import Configs from 'Core/Configs';
 		this.PINCODE = '';
 	};
 	PACKET.CH.PINCODE_CHECK.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x8b8);
 		pkt_buf.writeULong(this.AID);
@@ -4453,8 +4453,8 @@ import Configs from 'Core/Configs';
 		this.NEW_PINCODE = '';
 	};
 	PACKET.CH.PINCODE_CHANGE.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x8be);
 		pkt_buf.writeULong(this.AID);
@@ -4469,8 +4469,8 @@ import Configs from 'Core/Configs';
 		this.PINCODE = '';
 	};
 	PACKET.CH.PINCODE_FIRST_PIN.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x8ba);
 		pkt_buf.writeULong(this.AID);
@@ -4483,8 +4483,8 @@ import Configs from 'Core/Configs';
 		this.AID = '';
 	};
 	PACKET.CH.PINCODE_REQUEST.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x8c5);
 		pkt_buf.writeULong(this.AID);
@@ -4499,8 +4499,8 @@ import Configs from 'Core/Configs';
 		this.head = 0;
 	};
 	PACKET.CH.MAKE_CHAR2.prototype.build = function () {
-		let pkt_len = 2 + 24 + 1 + 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24 + 1 + 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x970);
 		pkt_buf.writeString(this.name, 24);
@@ -5277,7 +5277,7 @@ import Configs from 'Core/Configs';
 	// 0xc6
 	PACKET.ZC.PC_PURCHASE_ITEMLIST = function PACKET_ZC_PC_PURCHASE_ITEMLIST(fp, end) {
 		this.itemList = (function () {
-			let item_size = PACKETVER.value >= 20181121 ? 13 : 11;
+			const item_size = PACKETVER.value >= 20181121 ? 13 : 11;
 			let i,
 				count = ((end - fp.tell()) / item_size) | 0,
 				out = new Array(count);
@@ -5767,8 +5767,8 @@ import Configs from 'Core/Configs';
 
 			count = 4;
 
-			let out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			const out = new Array(count);
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readBinaryString(16);
 			}
 			return out;
@@ -5784,8 +5784,8 @@ import Configs from 'Core/Configs';
 
 			count = ((end - fp.tell()) / 16) | 0;
 
-			let out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			const out = new Array(count);
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readBinaryString(16);
 			}
 			return out;
@@ -5962,7 +5962,7 @@ import Configs from 'Core/Configs';
 
 	// 0x136
 	PACKET.ZC.PC_PURCHASE_MYITEMLIST = function PACKET_ZC_PC_PURCHASE_MYITEMLIST(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.AID = fp.readULong();
 		this.itemList = (function () {
@@ -6291,7 +6291,7 @@ import Configs from 'Core/Configs';
 	// 0x163
 	PACKET.ZC.BAN_LIST = function PACKET_ZC_BAN_LIST(fp, end) {
 		this.banList = (function () {
-			let size = PACKETVER.max < 20100803 ? 88 : 64;
+			const size = PACKETVER.max < 20100803 ? 88 : 64;
 			let i,
 				count = ((end - fp.tell()) / size) | 0,
 				out = new Array(count);
@@ -6442,9 +6442,9 @@ import Configs from 'Core/Configs';
 	// 0x177
 	PACKET.ZC.ITEMIDENTIFY_LIST = function PACKET_ZC_ITEMIDENTIFY_LIST(fp, end) {
 		this.ITIDList = (function () {
-			let count = ((end - fp.tell()) / 2) | 0,
+			const count = ((end - fp.tell()) / 2) | 0,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readUShort();
 			}
 			return out;
@@ -6462,9 +6462,9 @@ import Configs from 'Core/Configs';
 	// 0x17b
 	PACKET.ZC.ITEMCOMPOSITION_LIST = function PACKET_ZC_ITEMCOMPOSITION_LIST(fp, end) {
 		this.ITIDList = (function () {
-			let count = ((end - fp.tell()) / 2) | 0,
+			const count = ((end - fp.tell()) / 2) | 0,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readUShort();
 			}
 			return out;
@@ -6583,7 +6583,7 @@ import Configs from 'Core/Configs';
 
 	// 0x18d
 	PACKET.ZC.MAKABLEITEMLIST = function PACKET_ZC_MAKABLEITEMLIST(fp, end) {
-		let size = PACKETVER.value >= 20181121 ? 16 : 8;
+		const size = PACKETVER.value >= 20181121 ? 16 : 8;
 		this.itemList = (function (size) {
 			let i,
 				count = ((end - fp.tell()) / size) | 0,
@@ -6753,7 +6753,7 @@ import Configs from 'Core/Configs';
 
 	// 0x1ad
 	PACKET.ZC.MAKINGARROW_LIST = function PACKET_ZC_MAKINGARROW_LIST(fp, end) {
-		let size = PACKETVER.value >= 20181121 ? 4 : 2;
+		const size = PACKETVER.value >= 20181121 ? 4 : 2;
 		this.arrowList = (function (size) {
 			let i,
 				count = ((end - fp.tell()) / size) | 0,
@@ -6941,9 +6941,9 @@ import Configs from 'Core/Configs';
 	// 0x1cd
 	PACKET.ZC.AUTOSPELLLIST = function PACKET_ZC_AUTOSPELLLIST(fp, end) {
 		this.SKID = (function () {
-			let count = 7,
+			const count = 7,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -6955,9 +6955,9 @@ import Configs from 'Core/Configs';
 	PACKET.ZC.DEVOTIONLIST = function PACKET_ZC_DEVOTIONLIST(fp, end) {
 		this.myAID = fp.readULong();
 		this.AID = (function () {
-			let count = 5,
+			const count = 5,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readULong();
 			}
 			return out;
@@ -7510,17 +7510,17 @@ import Configs from 'Core/Configs';
 	// 0x219
 	PACKET.ZC.BLACKSMITH_RANK = function PACKET_ZC_BLACKSMITH_RANK(fp, end) {
 		this.Name = (function () {
-			let count = 10,
+			const count = 10,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
 		this.Point = (function () {
-			let count = 10,
+			const count = 10,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -7531,17 +7531,17 @@ import Configs from 'Core/Configs';
 	// 0x21a
 	PACKET.ZC.ALCHEMIST_RANK = function PACKET_ZC_ALCHEMIST_RANK(fp, end) {
 		this.Name = (function () {
-			let count = 10,
+			const count = 10,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
 		this.Point = (function () {
-			let count = 10,
+			const count = 10,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -7627,17 +7627,17 @@ import Configs from 'Core/Configs';
 	// 0x226
 	PACKET.ZC.TAEKWON_RANK = function PACKET_ZC_TAEKWON_RANK(fp, end) {
 		this.Name = (function () {
-			let count = 10,
+			const count = 10,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
 		this.Point = (function () {
-			let count = 10,
+			const count = 10,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -7648,9 +7648,9 @@ import Configs from 'Core/Configs';
 	// 0x227
 	PACKET.ZC.GAME_GUARD = function PACKET_ZC_GAME_GUARD(fp, end) {
 		this.AuthData = (function () {
-			let count = 4,
+			const count = 4,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readULong();
 			}
 			return out;
@@ -7966,22 +7966,22 @@ import Configs from 'Core/Configs';
 	PACKET.ZC.MAKINGITEM_LIST = function PACKET_ZC_MAKINGITEM_LIST(fp, end) {
 		if (PACKETVER.value >= 20211103) {
 			this.makeItem = fp.readShort();
-			let size = PACKETVER.value >= 20181121 ? 4 : 2;
+			const size = PACKETVER.value >= 20181121 ? 4 : 2;
 			this.items = (function (size) {
-				let count = ((end - fp.tell()) / size) | 0,
+				const count = ((end - fp.tell()) / size) | 0,
 					out = new Array(count);
-				for (var i = 0; i < count; ++i) {
+				for (let i = 0; i < count; ++i) {
 					out[i] = {};
 					out[i].itemId = size == 4 ? fp.readULong() : fp.readUShort();
 				}
 				return out;
 			})(size);
 		} else {
-			let size = PACKETVER.value >= 20181121 ? 4 : 2;
+			const size = PACKETVER.value >= 20181121 ? 4 : 2;
 			this.idList = (function (size) {
-				let count = ((end - fp.tell()) / size) | 0,
+				const count = ((end - fp.tell()) / size) | 0,
 					out = new Array(count);
-				for (var i = 0; i < count; ++i) {
+				for (let i = 0; i < count; ++i) {
 					out[i] = size == 4 ? fp.readULong() : fp.readUShort();
 				}
 				return out;
@@ -8179,17 +8179,17 @@ import Configs from 'Core/Configs';
 	// 0x282
 	PACKET.ZC.GANGSI_RANK = function PACKET_ZC_GANGSI_RANK(fp, end) {
 		this.Name = (function () {
-			let count = 10,
+			const count = 10,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readString(NAME_LENGTH);
 			}
 			return out;
 		})();
 		this.Point = (function () {
-			let count = 10,
+			const count = 10,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -8224,9 +8224,9 @@ import Configs from 'Core/Configs';
 		this.KafraPoint = fp.readULong();
 		this.CashPoint = fp.readULong();
 		this.itemList = (function () {
-			let div = PACKETVER.value >= 20181121 ? 13 : 11;
-			let itemListLen = end - fp.tell();
-			let itemLen = itemListLen % 20 === 0 ? 20 : itemListLen % 18 == 0 ? 18 : div;
+			const div = PACKETVER.value >= 20181121 ? 13 : 11;
+			const itemListLen = end - fp.tell();
+			const itemLen = itemListLen % 20 === 0 ? 20 : itemListLen % 18 == 0 ? 18 : div;
 			let i,
 				count = ((end - fp.tell()) / itemLen) | 0,
 				out = new Array(count);
@@ -9023,9 +9023,9 @@ import Configs from 'Core/Configs';
 	PACKET.ZC.MAPPROPERTY = function PACKET_ZC_MAPPROPERTY(fp, end) {
 		this.type = fp.readShort();
 		this.mapInfoTable = (function () {
-			let count = ((end - fp.tell()) / 4) | 0,
+			const count = ((end - fp.tell()) / 4) | 0,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -9258,9 +9258,9 @@ import Configs from 'Core/Configs';
 	// 0x3dd
 	PACKET.AHC.GAME_GUARD = function PACKET_AHC_GAME_GUARD(fp, end) {
 		this.AuthData = (function () {
-			let count = 4,
+			const count = 4,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readULong();
 			}
 			return out;
@@ -9271,9 +9271,9 @@ import Configs from 'Core/Configs';
 	// 0x3de
 	PACKET.CAH.ACK_GAME_GUARD = function PACKET_CAH_ACK_GAME_GUARD(fp, end) {
 		this.AuthData = (function () {
-			let count = 4,
+			const count = 4,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readULong();
 			}
 			return out;
@@ -9311,9 +9311,9 @@ import Configs from 'Core/Configs';
 		this.state = fp.readUChar();
 		this.RemainMS = fp.readULong();
 		this.val = (function () {
-			let count = 3,
+			const count = 3,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -9339,9 +9339,9 @@ import Configs from 'Core/Configs';
 	PACKET.ZC.SKILL_SELECT_REQUEST = function PACKET_ZC_SKILL_SELECT_REQUEST(fp, end) {
 		this.why = fp.readLong();
 		this.SKID = (function () {
-			let count = ((end - fp.tell()) / 2) | 0,
+			const count = ((end - fp.tell()) / 2) | 0,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readUShort();
 			}
 			return out;
@@ -9787,7 +9787,7 @@ import Configs from 'Core/Configs';
 					out[i].slot.card4 = fp.readUShort();
 				}
 				if (PACKETVER.value >= 20150226) {
-					let option = new Struct('short index', 'short value', 'char param');
+					const option = new Struct('short index', 'short value', 'char param');
 					out[i].Options = [];
 					out[i].Options[1] = fp.readStruct(option);
 					out[i].Options[2] = fp.readStruct(option);
@@ -9830,9 +9830,9 @@ import Configs from 'Core/Configs';
 				out[i].Detail.Level = fp.readShort();
 				out[i].Detail.MapID = fp.readShort();
 				out[i].Detail.Job = (function () {
-					let count = 6,
+					const count = 6,
 						out = new Array(count);
-					for (var i = 0; i < count; ++i) {
+					for (let i = 0; i < count; ++i) {
 						out[i] = fp.readShort();
 					}
 					return out;
@@ -9930,7 +9930,7 @@ import Configs from 'Core/Configs';
 
 	// 0x813
 	PACKET.ZC.MYITEMLIST_BUYING_STORE = function PACKET_ZC_MYITEMLIST_BUYING_STORE(fp, end) {
-		let size = PACKETVER.value >= 20181121 ? 11 : 9;
+		const size = PACKETVER.value >= 20181121 ? 11 : 9;
 		this.AID = fp.readULong();
 		this.limitZeny = fp.readLong();
 		this.itemList = (function (size) {
@@ -9969,7 +9969,7 @@ import Configs from 'Core/Configs';
 		this.UniqueID = fp.readULong();
 		this.limitZeny = fp.readLong();
 
-		let itemSize = PACKETVER.value >= 20181121 ? 11 : 9;
+		const itemSize = PACKETVER.value >= 20181121 ? 11 : 9;
 		this.itemList = (function () {
 			let i,
 				count = ((end - fp.tell()) / itemSize) | 0,
@@ -10434,9 +10434,9 @@ import Configs from 'Core/Configs';
 		this.index = fp.readShort();
 		this.RemainMS = fp.readULong();
 		this.val = (function () {
-			let count = 3,
+			const count = 3,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -10490,8 +10490,8 @@ import Configs from 'Core/Configs';
 		this.favorite = 0;
 	};
 	PACKET.CZ.INVENTORY_TAB.prototype.build = function () {
-		let pkt_len = 5;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 5;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x907);
 		pkt_buf.writeShort(this.item_index);
@@ -10661,9 +10661,9 @@ import Configs from 'Core/Configs';
 		this.TotalMS = fp.readULong();
 		this.RemainMS = fp.readULong();
 		this.val = (function () {
-			let count = 3,
+			const count = 3,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -10678,9 +10678,9 @@ import Configs from 'Core/Configs';
 		this.TotalMS = fp.readULong();
 		this.RemainMS = fp.readULong();
 		this.val = (function () {
-			let count = 3,
+			const count = 3,
 				out = new Array(count);
-			for (var i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				out[i] = fp.readLong();
 			}
 			return out;
@@ -10723,8 +10723,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.CLAN_CHAT.prototype.build = function () {
-		let pkt_len = 2 + 2 + this.msg.length + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.msg.length + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x98d);
 		pkt_buf.writeShort(pkt_len);
@@ -11056,8 +11056,8 @@ import Configs from 'Core/Configs';
 		this.money = 0;
 	};
 	PACKET.CZ.REQ_BANKING_DEPOSIT.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9a7);
 		pkt_buf.writeLong(this.AID);
@@ -11081,8 +11081,8 @@ import Configs from 'Core/Configs';
 		this.money = 0;
 	};
 	PACKET.CZ.REQ_BANKING_WITHDRAW.prototype.build = function () {
-		let pkt_len = 2 + 4 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9a9);
 		pkt_buf.writeLong(this.AID);
@@ -11105,8 +11105,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_BANKING_CHECK.prototype.build = function () {
-		let pkt_len = 6;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 6;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9ab);
 		pkt_buf.writeULong(this.AID); // Write the aid
@@ -11119,8 +11119,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_BANK_OPEN.prototype.build = function () {
-		let pkt_len = 6;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 6;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9b6);
 		pkt_buf.writeULong(this.AID); // Write the aid
@@ -11139,8 +11139,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_BANK_CLOSE.prototype.build = function () {
-		let pkt_len = 6;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 6;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9b8);
 		pkt_buf.writeULong(this.AID); // Write the aid
@@ -11327,8 +11327,8 @@ import Configs from 'Core/Configs';
 		this.count = fp.readUChar();
 		this.IsEnd = fp.readUChar();
 		this.MailList = new Array();
-		for (var i = 0; i < this.count; i++) {
-			let Mail = {};
+		for (let i = 0; i < this.count; i++) {
+			const Mail = {};
 			Mail.openType = this.openType;
 			Mail.MailID = fp.readUInt64();
 			Mail.Isread = fp.readUChar();
@@ -11346,8 +11346,8 @@ import Configs from 'Core/Configs';
 	// 0xa70
 	PACKET.CZ.RANDOM_COMBINE_ITEM_UI_CLOSE = function PACKET_CZ_RANDOM_COMBINE_ITEM_UI_CLOSE() {};
 	PACKET.CZ.RANDOM_COMBINE_ITEM_UI_CLOSE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xa70);
 		return pkt_buf;
@@ -11359,8 +11359,8 @@ import Configs from 'Core/Configs';
 		this.count = fp.readUChar();
 		this.IsEnd = fp.readUChar();
 		this.MailList = new Array();
-		for (var i = 0; i < this.count; i++) {
-			let Mail = {};
+		for (let i = 0; i < this.count; i++) {
+			const Mail = {};
 			Mail.openType = this.openType;
 			Mail.MailID = fp.readUInt64();
 			Mail.Isread = fp.readUChar();
@@ -11379,9 +11379,9 @@ import Configs from 'Core/Configs';
 	PACKET.ZC.ACK_RODEX_LIST3 = function PACKET_ZC_ACK_RODEX_LIST3(fp, end) {
 		this.IsEnd = fp.readUChar();
 		this.MailList = new Array();
-		let len = end - fp.tell();
-		for (var i = 0; i < len; i += 41) {
-			let Mail = {};
+		const len = end - fp.tell();
+		for (let i = 0; i < len; i += 41) {
+			const Mail = {};
 			Mail.openType = fp.readUChar();
 			Mail.MailID = fp.readUInt64();
 			Mail.Isread = fp.readUChar();
@@ -11412,7 +11412,7 @@ import Configs from 'Core/Configs';
 		this.materialList = [];
 
 		while (fp.tell() + material_size <= end) {
-			let mat = {};
+			const mat = {};
 			mat.itemId = fp.readLong();
 			mat.amount = fp.readLong();
 			mat.price = fp.readLong();
@@ -11433,8 +11433,8 @@ import Configs from 'Core/Configs';
 		this.protect_flag = 0;
 	};
 	PACKET.CZ.GRADE_ENCHANT_REQ.prototype.build = function () {
-		let pkt_len = 2 + 2 + 4 + 1 + 4 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 4 + 1 + 4 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xb5b);
 		pkt_buf.writeShort(this.index);
 		pkt_buf.writeLong(this.material_index);
@@ -11447,8 +11447,8 @@ import Configs from 'Core/Configs';
 	// 0xb5c
 	PACKET.CZ.GRADE_ENCHANT_CLOSE_UI = function PACKET_CZ_GRADE_ENCHANT_CLOSE_UI() {};
 	PACKET.CZ.GRADE_ENCHANT_CLOSE_UI.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xb5c);
 		return pkt_buf;
 	};
@@ -11474,9 +11474,9 @@ import Configs from 'Core/Configs';
 	PACKET.ZC.ACK_RODEX_LIST4 = function PACKET_ZC_ACK_RODEX_LIST4(fp, end) {
 		this.IsEnd = fp.readUChar();
 		this.MailList = new Array();
-		let len = end - fp.tell();
-		for (var i = 0; i < len; i += 45) {
-			let Mail = {};
+		const len = end - fp.tell();
+		for (let i = 0; i < len; i += 45) {
+			const Mail = {};
 			Mail.openType = fp.readUChar();
 			Mail.MailID = fp.readUInt64();
 			Mail.Isread = fp.readUChar();
@@ -11509,9 +11509,9 @@ import Configs from 'Core/Configs';
 		this.ItemCnt = fp.readUChar();
 		this.Textcontent = fp.readString(this.TextcontentsLength);
 		this.ItemList = new Array();
-		let option = new Struct('short index', 'short value', 'char param');
-		for (var i = 0; i < this.ItemCnt; i++) {
-			let Item = {};
+		const option = new Struct('short index', 'short value', 'char param');
+		for (let i = 0; i < this.ItemCnt; i++) {
+			const Item = {};
 			Item.count = fp.readUShort();
 			Item.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 			Item.IsIdentified = fp.readUChar();
@@ -11546,9 +11546,9 @@ import Configs from 'Core/Configs';
 		this.ItemCnt = fp.readUChar();
 		this.Textcontent = fp.readString(this.TextcontentsLength);
 		this.ItemList = new Array();
-		let option = new Struct('short index', 'short value', 'char param');
-		for (var i = 0; i < this.ItemCnt; i++) {
-			let Item = {};
+		const option = new Struct('short index', 'short value', 'char param');
+		for (let i = 0; i < this.ItemCnt; i++) {
+			const Item = {};
 			Item.count = fp.readUShort();
 			Item.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 			Item.IsIdentified = fp.readUChar();
@@ -11615,7 +11615,7 @@ import Configs from 'Core/Configs';
 	// 0xa05
 	PACKET.ZC.ACK_ADD_ITEM_RODEX = function PACKET_ZC_ACK_ADD_ITEM_RODEX(fp, end) {
 		this.result = fp.readUChar();
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.index = fp.readShort();
 		this.count = fp.readShort();
@@ -11644,7 +11644,7 @@ import Configs from 'Core/Configs';
 	// 0xb3f
 	PACKET.ZC.ACK_ADD_ITEM_RODEX2 = function PACKET_ZC_ACK_ADD_ITEM_RODEX2(fp, end) {
 		this.result = fp.readUChar();
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.index = fp.readShort();
 		this.count = fp.readShort();
@@ -11704,8 +11704,8 @@ import Configs from 'Core/Configs';
 		this.MailID = 0;
 	};
 	PACKET.CZ.OPEN_RODEXBOX.prototype.build = function () {
-		let pkt_len = 2 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9e8);
 		pkt_buf.writeUChar(this.openType);
@@ -11717,8 +11717,8 @@ import Configs from 'Core/Configs';
 	// 0x9e9
 	PACKET.CZ.CLOSE_RODEXBOX = function PACKET_CZ_CLOSE_RODEXBOX() {};
 	PACKET.CZ.CLOSE_RODEXBOX.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x9e9);
 		return pkt_buf;
 	};
@@ -11729,8 +11729,8 @@ import Configs from 'Core/Configs';
 		this.MailID = 0;
 	};
 	PACKET.CZ.REQ_READ_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9ea);
 		pkt_buf.writeUChar(this.openType);
@@ -11745,8 +11745,8 @@ import Configs from 'Core/Configs';
 		this.MailID = 0;
 	};
 	PACKET.CZ.REQ_NEXT_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9ee);
 		pkt_buf.writeUChar(this.openType);
@@ -11761,8 +11761,8 @@ import Configs from 'Core/Configs';
 		this.MailID = 0;
 	};
 	PACKET.CZ.REQ_REFRESH_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9ef);
 		pkt_buf.writeUChar(this.openType);
@@ -11777,8 +11777,8 @@ import Configs from 'Core/Configs';
 		this.openType = 0;
 	};
 	PACKET.CZ.REQ_ZENY_FROM_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9f1);
 		pkt_buf.writeULong(this.MailID);
@@ -11793,8 +11793,8 @@ import Configs from 'Core/Configs';
 		this.openType = 0;
 	};
 	PACKET.CZ.REQ_ITEM_FROM_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9f3);
 		pkt_buf.writeULong(this.MailID);
@@ -11809,8 +11809,8 @@ import Configs from 'Core/Configs';
 		this.MailID = 0;
 	};
 	PACKET.CZ.REQ_DELETE_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 9;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 9;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9f5);
 		pkt_buf.writeUChar(this.openType);
@@ -11822,8 +11822,8 @@ import Configs from 'Core/Configs';
 	// 0xa03
 	PACKET.CZ.REQ_CANCEL_WRITE_RODEX = function PACKET_CZ_REQ_CANCEL_WRITE_RODEX() {};
 	PACKET.CZ.REQ_CANCEL_WRITE_RODEX.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xa03);
 		return pkt_buf;
 	};
@@ -11834,8 +11834,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.REQ_ADD_ITEM_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xa04);
 		pkt_buf.writeShort(this.index);
 		pkt_buf.writeShort(this.count);
@@ -11848,8 +11848,8 @@ import Configs from 'Core/Configs';
 		this.count = 0;
 	};
 	PACKET.CZ.REQ_REMOVE_RODEX_ITEM.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xa06);
 		pkt_buf.writeShort(this.index);
 		pkt_buf.writeShort(this.count);
@@ -11861,8 +11861,8 @@ import Configs from 'Core/Configs';
 		this.name = '';
 	};
 	PACKET.CZ.REQ_OPEN_WRITE_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0xa08);
 		pkt_buf.writeString(this.name, 24);
 		return pkt_buf;
@@ -11882,8 +11882,8 @@ import Configs from 'Core/Configs';
 		this.name = '';
 	};
 	PACKET.CZ.DYNAMICNPC_CREATE_REQUEST.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xa16);
 		pkt_buf.writeString(this.name, NAME_LENGTH);
@@ -11904,8 +11904,8 @@ import Configs from 'Core/Configs';
 		this.MailAccountID = 0;
 	};
 	PACKET.CZ.OPEN_ALL_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xac0);
 		pkt_buf.writeULong(this.MailID);
@@ -11924,8 +11924,8 @@ import Configs from 'Core/Configs';
 		this.MailAccountID = 0;
 	};
 	PACKET.CZ.UPDATE_ALL_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xac1);
 		pkt_buf.writeULong(this.MailID);
@@ -11948,8 +11948,8 @@ import Configs from 'Core/Configs';
 		this.body = '';
 	};
 	PACKET.CZ.REQ_SEND_RODEX.prototype.build = function () {
-		let pkt_len = 2 + 66 + this.Titlelength + this.Bodylength;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 66 + this.Titlelength + this.Bodylength;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9ec);
 		pkt_buf.writeShort(pkt_len);
@@ -11976,8 +11976,8 @@ import Configs from 'Core/Configs';
 		this.body = '';
 	};
 	PACKET.CZ.REQ_SEND_RODEX2.prototype.build = function () {
-		let pkt_len = 2 + 66 + this.Titlelength + this.Bodylength;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 66 + this.Titlelength + this.Bodylength;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xa6e);
 		pkt_buf.writeShort(pkt_len);
@@ -11998,8 +11998,8 @@ import Configs from 'Core/Configs';
 		this.name = '';
 	};
 	PACKET.CZ.CHECK_RECEIVE_CHARACTER_NAME.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xa13);
 		pkt_buf.writeString(this.name, 24);
@@ -12012,8 +12012,8 @@ import Configs from 'Core/Configs';
 		this.unknown = 1;
 	};
 	PACKET.CZ.CHECK_RODEX_RECEIVE.prototype.build = function () {
-		let pkt_len = 2 + 24 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb97);
 		pkt_buf.writeString(this.name, 24);
@@ -12154,9 +12154,9 @@ import Configs from 'Core/Configs';
 		this.evolutionPetEggITID = 0;
 	};
 	PACKET.CZ.PET_EVOLUTION.prototype.build = function () {
-		let isNew = PACKETVER.value >= 20181121;
-		let pkt_len = 2 + 2 + (isNew ? 4 : 2);
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const isNew = PACKETVER.value >= 20181121;
+		const pkt_len = 2 + 2 + (isNew ? 4 : 2);
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x9fb);
 		pkt_buf.writeShort(pkt_len);
@@ -12331,8 +12331,8 @@ import Configs from 'Core/Configs';
 		this.receiver = '';
 	};
 	PACKET.CZ.REQ_OPEN_WRITE_MAIL.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x64);
 		pkt_buf.writeString(this.receiver);
@@ -12341,7 +12341,7 @@ import Configs from 'Core/Configs';
 
 	// 0xa09
 	PACKET.ZC.ADD_EXCHANGE_ITEM3 = function PACKET_ZC_ADD_EXCHANGE_ITEM3(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.ITID = fp.readUShort();
 		this.type = fp.readUChar();
@@ -12366,7 +12366,7 @@ import Configs from 'Core/Configs';
 
 	// 0xa0a
 	PACKET.ZC.ADD_ITEM_TO_STORE3 = function PACKET_ZC_ADD_ITEM_TO_STORE3(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.index = fp.readShort();
 		this.count = fp.readLong();
@@ -12392,7 +12392,7 @@ import Configs from 'Core/Configs';
 
 	// 0xa0b
 	PACKET.ZC.ADD_ITEM_TO_CART3 = function PACKET_ZC_ADD_ITEM_TO_CART3(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.index = fp.readShort();
 		this.count = fp.readLong();
@@ -12418,7 +12418,7 @@ import Configs from 'Core/Configs';
 
 	//0xa0c
 	PACKET.ZC.ITEM_PICKUP_ACK6 = function PACKET_ZC_ITEM_PICKUP_ACK6(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.index = fp.readUShort();
 		this.count = fp.readUShort();
@@ -12447,7 +12447,7 @@ import Configs from 'Core/Configs';
 
 	//0xa0d
 	PACKET.ZC.EQUIPMENT_ITEMLIST5 = function PACKET_ZC_EQUIPMENT_ITEMLIST5(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 		this.ItemInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / 57) | 0,
@@ -12489,7 +12489,7 @@ import Configs from 'Core/Configs';
 
 	//0xa0f
 	PACKET.ZC.CART_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST5(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 		this.ItemInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / 57) | 0,
@@ -12531,7 +12531,7 @@ import Configs from 'Core/Configs';
 
 	// 0xa10
 	PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST5(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.Name = fp.readString(NAME_LENGTH);
 		this.ItemInfo = (function () {
@@ -12594,7 +12594,7 @@ import Configs from 'Core/Configs';
 		this.next_rank_points = fp.readBinaryString(); // <next_rank_points>.L // todo fix readLong to readBinaryString
 
 		// todo struct
-		let option = new Struct('int var1', 'short var2', 'bool var3', 'float var4', 'long var5');
+		const option = new Struct('int var1', 'short var2', 'bool var3', 'float var4', 'long var5');
 		// <struct ach_list_info *[]>.P
 		this.ach_list_info = {};
 		this.ach_list_info[1] = fp.readStruct(option);
@@ -12639,7 +12639,7 @@ import Configs from 'Core/Configs';
 		this.headpalette = fp.readShort();
 		this.bodypalette = fp.readShort();
 		this.sex = fp.readUChar();
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 		this.ItemInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / 57) | 0,
@@ -12701,8 +12701,8 @@ import Configs from 'Core/Configs';
 		this.title_id = 0;
 	};
 	PACKET.CZ.REQ_CHANGE_TITLE.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x0a2e);
 		pkt_buf.writeULong(this.title_id);
@@ -12712,7 +12712,7 @@ import Configs from 'Core/Configs';
 
 	// 0xa37
 	PACKET.ZC.ITEM_PICKUP_ACK7 = function PACKET_ZC_ITEM_PICKUP_ACK7(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 		this.index = fp.readUShort();
 		this.count = fp.readUShort();
 		this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
@@ -12750,8 +12750,8 @@ import Configs from 'Core/Configs';
 		this.Sex = 0;
 	};
 	PACKET.CH.MAKE_CHAR3.prototype.build = function () {
-		let pkt_len = 2 + 24 + 1 + 2 + 2 + 2 + 2 + 1; // Total 36 bytes
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24 + 1 + 2 + 2 + 2 + 2 + 1; // Total 36 bytes
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xa39);
 		pkt_buf.writeString(this.name, 24);
@@ -12829,14 +12829,14 @@ import Configs from 'Core/Configs';
 	};
 	PACKET.CZ.REQ_RANDOM_COMBINE_ITEM.prototype.build = function () {
 		let pkt_len;
-		let pkt_itemIdSize = PACKETVER.value >= 20181121 ? 4 : 2;
+		const pkt_itemIdSize = PACKETVER.value >= 20181121 ? 4 : 2;
 		pkt_len = 2 + 2 + pkt_itemIdSize + this.items.length * 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xa4f);
 		pkt_buf.writeShort(pkt_len);
 		PACKETVER.value >= 20181121 ? pkt_buf.writeLong(this.itemId) : pkt_buf.writeShort(this.itemId);
-		for (var i = 0; i < this.items.length; i++) {
+		for (let i = 0; i < this.items.length; i++) {
 			pkt_buf.writeShort(this.items[i].index);
 			pkt_buf.writeShort(this.items[i].count);
 		}
@@ -12855,7 +12855,7 @@ import Configs from 'Core/Configs';
 		this.UIType = 0;
 	};
 	PACKET.CZ.UI_OPEN.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(3);
+		const pkt_buf = new BinaryWriter(3);
 		pkt_buf.writeShort(0xa68);
 		pkt_buf.writeUChar(this.UIType);
 		return pkt_buf;
@@ -12882,7 +12882,7 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.REQUEST_RANDOM_ENCHANT.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(12);
+		const pkt_buf = new BinaryWriter(12);
 		pkt_buf.writeShort(0x0b9b);
 		pkt_buf.writeUInt64(this.enchant_group);
 		pkt_buf.writeShort(this.index);
@@ -12896,7 +12896,7 @@ import Configs from 'Core/Configs';
 		this.ITID = 0;
 	};
 	PACKET.CZ.REQUEST_PERFECT_ENCHANT.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(16);
+		const pkt_buf = new BinaryWriter(16);
 		pkt_buf.writeShort(0x0b9c);
 		pkt_buf.writeUInt64(this.enchant_group);
 		pkt_buf.writeShort(this.index);
@@ -12911,7 +12911,7 @@ import Configs from 'Core/Configs';
 		this.slot = 0;
 	};
 	PACKET.CZ.REQUEST_UPGRADE_ENCHANT.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(14);
+		const pkt_buf = new BinaryWriter(14);
 		pkt_buf.writeShort(0x0b9d);
 		pkt_buf.writeUInt64(this.enchant_group);
 		pkt_buf.writeShort(this.index);
@@ -12925,7 +12925,7 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.REQUEST_RESET_ENCHANT.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(12);
+		const pkt_buf = new BinaryWriter(12);
 		pkt_buf.writeShort(0x0b9e);
 		pkt_buf.writeUInt64(this.enchant_group);
 		pkt_buf.writeShort(this.index);
@@ -12942,7 +12942,7 @@ import Configs from 'Core/Configs';
 	// 0xba0
 	PACKET.CZ.CLOSE_UI_ENCHANT = function PACKET_CZ_CLOSE_UI_ENCHANT() {};
 	PACKET.CZ.CLOSE_UI_ENCHANT.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 		pkt_buf.writeShort(0x0ba0);
 		return pkt_buf;
 	};
@@ -12977,7 +12977,7 @@ import Configs from 'Core/Configs';
 
 	// 0xa96
 	PACKET.ZC.ADD_EXCHANGE_ITEM4 = function PACKET_ZC_ADD_EXCHANGE_ITEM4(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 		this.type = fp.readUChar();
@@ -13014,7 +13014,7 @@ import Configs from 'Core/Configs';
 		this.wearLocation = 0;
 	};
 	PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(8);
+		const pkt_buf = new BinaryWriter(8);
 
 		pkt_buf.writeShort(0xa97);
 		pkt_buf.writeUShort(this.index);
@@ -13036,7 +13036,7 @@ import Configs from 'Core/Configs';
 		this.wearLocation = 0;
 	};
 	PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(4);
+		const pkt_buf = new BinaryWriter(4);
 
 		pkt_buf.writeShort(0xa99);
 		pkt_buf.writeUShort(this.index);
@@ -13071,7 +13071,7 @@ import Configs from 'Core/Configs';
 	// 0xa9c - Equip switch request packet
 	PACKET.CZ.REQ_FULLSWITCH = function PACKET_CZ_REQ_FULLSWITCH() {};
 	PACKET.CZ.REQ_FULLSWITCH.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 
 		pkt_buf.writeShort(0xa9c); // Packet ID for equip switch request
 		return pkt_buf;
@@ -13092,7 +13092,7 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.REFINING_SELECT_ITEM.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(4);
+		const pkt_buf = new BinaryWriter(4);
 
 		pkt_buf.writeShort(0xaa1);
 		pkt_buf.writeShort(this.index);
@@ -13126,8 +13126,8 @@ import Configs from 'Core/Configs';
 		this.blacksmithBlessing = 0;
 	};
 	PACKET.CZ.REQ_REFINING.prototype.build = function () {
-		let pkt_len = PACKETVER.value >= 20181121 ? 9 : 7;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = PACKETVER.value >= 20181121 ? 9 : 7;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xaa3);
 		pkt_buf.writeShort(this.index);
@@ -13139,7 +13139,7 @@ import Configs from 'Core/Configs';
 	// 0xaa4
 	PACKET.CZ.CLOSE_REFINING_UI = function PACKET_CZ_CLOSE_REFINING_UI() {};
 	PACKET.CZ.CLOSE_REFINING_UI.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 
 		pkt_buf.writeShort(0xaa4);
 		return pkt_buf;
@@ -13196,8 +13196,8 @@ import Configs from 'Core/Configs';
 	// 0xab5
 	PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE = function PACKET_CZ_RANDOM_UPGRADE_ITEM_UI_CLOSE() {};
 	PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xab5);
 		return pkt_buf;
@@ -13210,10 +13210,10 @@ import Configs from 'Core/Configs';
 	};
 	PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM.prototype.build = function () {
 		let pkt_len;
-		let pkt_itemIdSize = PACKETVER.value >= 20181121 ? 4 : 2;
-		let pkt_index = 2;
+		const pkt_itemIdSize = PACKETVER.value >= 20181121 ? 4 : 2;
+		const pkt_index = 2;
 		pkt_len = 2 + pkt_itemIdSize + pkt_index;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xab6);
 		PACKETVER.value >= 20181121 ? pkt_buf.writeULong(this.itemId) : pkt_buf.writeUShort(this.itemId);
@@ -13401,7 +13401,7 @@ import Configs from 'Core/Configs';
 	// 0xaef
 	PACKET.CZ.REQ_CHECK_ATTENDANCE = function PACKET_CZ_REQ_CHECK_ATTENDANCE() {};
 	PACKET.CZ.REQ_CHECK_ATTENDANCE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 
 		pkt_buf.writeShort(0xaef);
 		return pkt_buf;
@@ -13416,7 +13416,7 @@ import Configs from 'Core/Configs';
 		this.unknown = 0;
 	};
 	PACKET.CZ.USE_SKILL_TOGROUND3.prototype.build = function () {
-		let pkt = new BinaryWriter(11);
+		const pkt = new BinaryWriter(11);
 
 		pkt.writeShort(0x0af4);
 		pkt.writeShort(this.selectedLevel, true);
@@ -13501,8 +13501,8 @@ import Configs from 'Core/Configs';
 		this.bodypalette = fp.readShort();
 		this.body2 = fp.readShort();
 		this.sex = fp.readUChar();
-		let option = new Struct('short index', 'short value', 'char param');
-		let item_size = 67;
+		const option = new Struct('short index', 'short value', 'char param');
+		const item_size = 67;
 		this.ItemInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / item_size) | 0,
@@ -13552,7 +13552,7 @@ import Configs from 'Core/Configs';
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL = function PACKET_ZC_SPLIT_SEND_ITEMLIST_NORMAL(fp, end) {
 		this.invType = fp.readUChar();
 
-		let item_size = PACKETVER.value >= 20181121 ? 34 : 24;
+		const item_size = PACKETVER.value >= 20181121 ? 34 : 24;
 		this.ItemInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / item_size) | 0,
@@ -13583,8 +13583,8 @@ import Configs from 'Core/Configs';
 	//0xb0a
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP = function PACKET_ZC_SPLIT_SEND_ITEMLIST_EQUIP(fp, end) {
 		this.invType = fp.readUChar();
-		let option = new Struct('short index', 'short value', 'char param');
-		let item_size = PACKETVER.value >= 20181121 ? 67 : 57;
+		const option = new Struct('short index', 'short value', 'char param');
+		const item_size = PACKETVER.value >= 20181121 ? 67 : 57;
 		this.ItemInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / item_size) | 0,
@@ -13662,14 +13662,14 @@ import Configs from 'Core/Configs';
 		this.itemList = [];
 	};
 	PACKET.CZ.NPC_BARTER_MARKET_PURCHASE.prototype.build = function () {
-		let item_size = PACKETVER.value >= 20181121 ? 14 : 12;
-		let pkt_len = 4 + this.itemList.length * item_size;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const item_size = PACKETVER.value >= 20181121 ? 14 : 12;
+		const pkt_len = 4 + this.itemList.length * item_size;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb0f);
 		pkt_buf.writeShort(pkt_len);
 
-		for (var i = 0; i < this.itemList.length; ++i) {
+		for (let i = 0; i < this.itemList.length; ++i) {
 			PACKETVER.value >= 20181121
 				? pkt_buf.writeULong(this.itemList[i].itemId)
 				: pkt_buf.writeUShort(this.itemList[i].itemId);
@@ -13689,7 +13689,7 @@ import Configs from 'Core/Configs';
 	// 0xb12
 	PACKET.CZ.NPC_BARTER_MARKET_CLOSE = function PACKET_CZ_NPC_BARTER_MARKET_CLOSE() {};
 	PACKET.CZ.NPC_BARTER_MARKET_CLOSE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 		pkt_buf.writeShort(0xb12);
 		return pkt_buf;
 	};
@@ -13697,7 +13697,7 @@ import Configs from 'Core/Configs';
 	// 0xb14
 	PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE = function PACKET_CZ_REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE() {};
 	PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 		pkt_buf.writeShort(0xb14);
 		return pkt_buf;
 	};
@@ -13712,7 +13712,7 @@ import Configs from 'Core/Configs';
 	// 0xb16
 	PACKET.CZ.REQ_EXTEND_BODYITEM_SIZE = function PACKET_CZ_REQ_EXTEND_BODYITEM_SIZE() {};
 	PACKET.CZ.REQ_EXTEND_BODYITEM_SIZE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 		pkt_buf.writeShort(0xb16);
 		return pkt_buf;
 	};
@@ -13732,7 +13732,7 @@ import Configs from 'Core/Configs';
 	// 0xb19
 	PACKET.CZ.CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE = function PACKET_CZ_CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE() {};
 	PACKET.CZ.CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 		pkt_buf.writeShort(0xb19);
 		return pkt_buf;
 	};
@@ -13740,7 +13740,7 @@ import Configs from 'Core/Configs';
 	// 0xb1c
 	PACKET.CZ.PING_LIVE = function PACKET_CZ_PING_LIVE() {};
 	PACKET.CZ.PING_LIVE.prototype.build = function () {
-		let pkt_buf = new BinaryWriter(2);
+		const pkt_buf = new BinaryWriter(2);
 		pkt_buf.writeShort(0xb1c);
 		return pkt_buf;
 	};
@@ -13775,8 +13775,8 @@ import Configs from 'Core/Configs';
 		this.tab = 0;
 	};
 	PACKET.CZ.SHORTCUT_KEY_CHANGE2.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 1 + 4 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 1 + 4 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb21);
 		pkt_buf.writeShort(this.tab);
@@ -13855,8 +13855,8 @@ import Configs from 'Core/Configs';
 		this.bodypalette = fp.readShort();
 		this.body2 = fp.readShort();
 		this.sex = fp.readUChar();
-		let option = new Struct('short index', 'short value', 'char param');
-		let item_size = 68;
+		const option = new Struct('short index', 'short value', 'char param');
+		const item_size = 68;
 		this.ItemInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / item_size) | 0,
@@ -13899,8 +13899,8 @@ import Configs from 'Core/Configs';
 	//0xb39
 	PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2 = function PACKET_ZC_SPLIT_SEND_ITEMLIST_EQUIP2(fp, end) {
 		this.invType = fp.readUChar();
-		let option = new Struct('short index', 'short value', 'char param');
-		let item_size = 68;
+		const option = new Struct('short index', 'short value', 'char param');
+		const item_size = 68;
 		this.ItemInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / item_size) | 0,
@@ -13957,7 +13957,7 @@ import Configs from 'Core/Configs';
 				out = new Array(count);
 			count = (end - fp.tell()) / (4 + 2 + 2 + 1 + 4 + 1 + 1 + 16 + 25 + 4 + 2 + 1 + 1); //Item options 25 bytes, (location viewSprite), itemId use Long now, grade
 
-			let option = new Struct('short index', 'short value', 'char param');
+			const option = new Struct('short index', 'short value', 'char param');
 
 			for (i = 0; i < count; ++i) {
 				out[i] = {};
@@ -13991,11 +13991,11 @@ import Configs from 'Core/Configs';
 
 	// 0xb40
 	PACKET.ZC.PC_PURCHASE_MYITEMLIST2 = function PACKET_ZC_PC_PURCHASE_MYITEMLIST2(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.AID = fp.readULong();
 		this.itemList = (function () {
-			let len = 4 + 2 + 2 + 1 + 4 + 1 + 1 + 16 + 25 + 1 + 1;
+			const len = 4 + 2 + 2 + 1 + 4 + 1 + 1 + 16 + 25 + 1 + 1;
 
 			let i,
 				count = ((end - fp.tell()) / len) | 0,
@@ -14030,7 +14030,7 @@ import Configs from 'Core/Configs';
 
 	// 0xb41
 	PACKET.ZC.ITEM_PICKUP_ACK8 = function PACKET_ZC_ITEM_PICKUP_ACK8(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 		this.index = fp.readUShort();
 		this.count = fp.readUShort();
 		this.ITID = fp.readULong();
@@ -14061,7 +14061,7 @@ import Configs from 'Core/Configs';
 
 	// 0xb42
 	PACKET.ZC.ADD_EXCHANGE_ITEM5 = function PACKET_ZC_ADD_EXCHANGE_ITEM5(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.ITID = fp.readULong();
 		this.type = fp.readUChar();
@@ -14088,7 +14088,7 @@ import Configs from 'Core/Configs';
 
 	// 0xb43
 	PACKET.ZC.CHANGE_ITEM_OPTION = function PACKET_ZC_CHANGE_ITEM_OPTION(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.index = fp.readShort();
 		this.isDamaged = fp.readChar();
@@ -14110,7 +14110,7 @@ import Configs from 'Core/Configs';
 
 	// 0xb44
 	PACKET.ZC.ADD_ITEM_TO_STORE4 = function PACKET_ZC_ADD_ITEM_TO_STORE4(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.index = fp.readShort();
 		this.count = fp.readLong();
@@ -14136,7 +14136,7 @@ import Configs from 'Core/Configs';
 
 	// 0xb45
 	PACKET.ZC.ADD_ITEM_TO_CART4 = function PACKET_ZC_ADD_ITEM_TO_CART4(fp, end) {
-		let option = new Struct('short index', 'short value', 'char param');
+		const option = new Struct('short index', 'short value', 'char param');
 
 		this.index = fp.readShort();
 		this.count = fp.readLong();
@@ -14186,14 +14186,14 @@ import Configs from 'Core/Configs';
 		this.itemList = [];
 	};
 	PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_PURCHASE.prototype.build = function () {
-		let item_size = PACKETVER.value >= 20181121 ? 12 : 10;
-		let pkt_len = 4 + this.itemList.length * item_size;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const item_size = PACKETVER.value >= 20181121 ? 12 : 10;
+		const pkt_len = 4 + this.itemList.length * item_size;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x0b57);
 		pkt_buf.writeShort(pkt_len);
 
-		for (var i = 0; i < this.itemList.length; ++i) {
+		for (let i = 0; i < this.itemList.length; ++i) {
 			PACKETVER.value >= 20181121
 				? pkt_buf.writeULong(this.itemList[i].itemId)
 				: pkt_buf.writeUShort(this.itemList[i].itemId);
@@ -14207,8 +14207,8 @@ import Configs from 'Core/Configs';
 	// 0xb58
 	PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_CLOSE = function PACKET_CZ_NPC_EXPANDED_BARTER_MARKET_CLOSE() {};
 	PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_CLOSE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb58);
 		return pkt_buf;
@@ -14219,8 +14219,8 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.GRADE_ENCHANT_SELECT_EQUIPMENT.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb59);
 		pkt_buf.writeUChar(this.index);
@@ -14327,7 +14327,7 @@ import Configs from 'Core/Configs';
 	// 0xb77
 	PACKET.ZC.PC_PURCHASE_ITEMLIST2 = function PACKET_ZC_PC_PURCHASE_ITEMLIST2(fp, end) {
 		this.itemList = (function () {
-			let item_size = 19;
+			const item_size = 19;
 			let i,
 				count = ((end - fp.tell()) / item_size) | 0,
 				out = new Array(count);
@@ -14348,7 +14348,7 @@ import Configs from 'Core/Configs';
 	// 0xb78
 	PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEMINFO(fp, end) {
 		this.itemList = (function () {
-			let item_size = PACKETVER.value >= 20181121 ? 31 : 27;
+			const item_size = PACKETVER.value >= 20181121 ? 31 : 27;
 			let i,
 				count = ((end - fp.tell()) / item_size) | 0,
 				out = new Array(count);
@@ -14372,13 +14372,13 @@ import Configs from 'Core/Configs';
 	// 0xb79
 	PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_EXPANDED_BARTER_MARKET_ITEMINFO(fp, end) {
 		// Ensure 'this' is properly bound and initialized
-		let self = this;
+		const self = this;
 
 		self.items_count = fp.readLong(); // Assign items_count to 'self' properly
 		self.itemList = (function () {
-			let item_size = PACKETVER.value >= 20181121 ? 32 : 30; // size of the `sub` structure
-			let sub2_size = PACKETVER.value >= 20181121 ? 12 : 10; // size of the `sub2` structure
-			let items = [];
+			const item_size = PACKETVER.value >= 20181121 ? 32 : 30; // size of the `sub` structure
+			const sub2_size = PACKETVER.value >= 20181121 ? 12 : 10; // size of the `sub2` structure
+			const items = [];
 
 			for (let i = 0; i < self.items_count; ++i) {
 				if (fp.tell() + item_size > end) {
@@ -14386,7 +14386,7 @@ import Configs from 'Core/Configs';
 					break;
 				}
 
-				let item = {};
+				const item = {};
 				item.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 				item.type = fp.readUShort();
 				item.amount = fp.readULong();
@@ -14404,7 +14404,7 @@ import Configs from 'Core/Configs';
 						break;
 					}
 
-					let currency = {};
+					const currency = {};
 					currency.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 					currency.refine_level = fp.readUShort();
 					currency.amount = fp.readULong();
@@ -14477,7 +14477,7 @@ import Configs from 'Core/Configs';
 	//0xb8d
 	PACKET.ZC.REPUTE_INFO = function PACKET_ZC_REPUTE_INFO(fp, end) {
 		this.success = fp.readUChar();
-		let repute_size = 16;
+		const repute_size = 16;
 		this.reputeInfo = (function () {
 			let i,
 				count = ((end - fp.tell()) / repute_size) | 0,
@@ -14509,8 +14509,8 @@ import Configs from 'Core/Configs';
 	// 0xb90
 	PACKET.CZ.CLOSE_REFORM_UI = function PACKET_CZ_CLOSE_REFORM_UI() {};
 	PACKET.CZ.CLOSE_REFORM_UI.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb90);
 		return pkt_buf;
@@ -14522,8 +14522,8 @@ import Configs from 'Core/Configs';
 		this.index = 0;
 	};
 	PACKET.CZ.ITEM_REFORM.prototype.build = function () {
-		let pkt_len = 2 + 4 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xb91);
 		pkt_buf.writeLong(this.ITID);
@@ -14582,8 +14582,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.BROADCAST.prototype.build = function () {
-		let pkt_len = 2 + 2 + this.msg.length + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.msg.length + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x99);
 		pkt_buf.writeShort(pkt_len);
@@ -14596,8 +14596,8 @@ import Configs from 'Core/Configs';
 		this.msg = '';
 	};
 	PACKET.CZ.LOCALBROADCAST.prototype.build = function () {
-		let pkt_len = 2 + 2 + this.msg.length + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + this.msg.length + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x19c);
 		pkt_buf.writeShort(pkt_len);
@@ -14612,8 +14612,8 @@ import Configs from 'Core/Configs';
 		this.yPos = 0;
 	};
 	PACKET.CZ.MOVETO_MAP.prototype.build = function () {
-		let pkt_len = 2 + 16 + 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 16 + 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x140);
 		pkt_buf.writeBinaryString(this.mapName, 16);
@@ -14627,8 +14627,8 @@ import Configs from 'Core/Configs';
 		this.CharacterName = '';
 	};
 	PACKET.CZ.RECALL_GID.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1bd);
 		pkt_buf.writeString(this.CharacterName, 24);
@@ -14640,8 +14640,8 @@ import Configs from 'Core/Configs';
 		this.AccountName = '';
 	};
 	PACKET.CZ.RECALL.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1bc);
 		pkt_buf.writeString(this.AccountName, 24);
@@ -14653,8 +14653,8 @@ import Configs from 'Core/Configs';
 		this.EffectState = 0;
 	};
 	PACKET.CZ.CHANGE_EFFECTSTATE.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x19d);
 		pkt_buf.writeLong(this.EffectState);
@@ -14666,8 +14666,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.DISCONNECT_CHARACTER.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xcc);
 		pkt_buf.writeULong(this.AID);
@@ -14677,8 +14677,8 @@ import Configs from 'Core/Configs';
 	// 0xce
 	PACKET.CZ.DISCONNECT_ALL_CHARACTER = function PACKET_CZ_DISCONNECT_ALL_CHARACTER() {};
 	PACKET.CZ.DISCONNECT_ALL_CHARACTER.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0xce);
 		return pkt_buf;
@@ -14689,8 +14689,8 @@ import Configs from 'Core/Configs';
 		this.itemName = '';
 	};
 	PACKET.CZ.ITEM_CREATE.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x13f);
 		pkt_buf.writeString(this.itemName, 24);
@@ -14702,8 +14702,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.RESET.prototype.build = function () {
-		let pkt_len = 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x197);
 		pkt_buf.writeShort(this.type);
@@ -14715,8 +14715,8 @@ import Configs from 'Core/Configs';
 		this.AccountName = '';
 	};
 	PACKET.CZ.REMOVE_AID.prototype.build = function () {
-		let pkt_len = 2 + 24;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 24;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x1ba);
 		pkt_buf.writeString(this.AccountName, 24);
@@ -14730,8 +14730,8 @@ import Configs from 'Core/Configs';
 		this.type = 0;
 	};
 	PACKET.CZ.CHANGE_MAPTYPE.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x198);
 		pkt_buf.writeShort(this.xPos);
@@ -14760,8 +14760,8 @@ import Configs from 'Core/Configs';
 		this.imageSize = 0;
 	};
 	PACKET.CZ.REQ_UPLOAD_MACRO_DETECTOR.prototype.build = function () {
-		let pkt_len = 2 + 16 + 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 16 + 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x0a52);
 		pkt_buf.writeString(this.answer, 16);
@@ -14783,9 +14783,9 @@ import Configs from 'Core/Configs';
 		this.imageData = null;
 	};
 	PACKET.CZ.UPLOAD_MACRO_DETECTOR_CAPTCHA.prototype.build = function () {
-		let imgLen = this.imageData ? this.imageData.byteLength : 0;
-		let pkt_len = 2 + 2 + 4 + imgLen;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const imgLen = this.imageData ? this.imageData.byteLength : 0;
+		const pkt_len = 2 + 2 + 4 + imgLen;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x0a54);
 		pkt_buf.writeShort(pkt_len);
@@ -14809,8 +14809,8 @@ import Configs from 'Core/Configs';
 		this.AID = 0;
 	};
 	PACKET.CZ.REQ_APPLY_MACRO_DETECTOR.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 
 		pkt_buf.writeShort(0x0a56);
 		pkt_buf.writeULong(this.AID);
@@ -14834,9 +14834,9 @@ import Configs from 'Core/Configs';
 	// 0x0a59
 	PACKET.ZC.APPLY_MACRO_DETECTOR_CAPTCHA = function PACKET_ZC_APPLY_MACRO_DETECTOR_CAPTCHA(fp, end) {
 		this.captchaKey = fp.readBinaryString(4);
-		let count = end - fp.tell();
+		const count = end - fp.tell();
 		this.imageData = new Uint8Array(count);
-		for (var i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			this.imageData[i] = fp.readUByte();
 		}
 	};
@@ -14845,8 +14845,8 @@ import Configs from 'Core/Configs';
 	// 0x0a5a
 	PACKET.CZ.COMPLETE_APPLY_MACRO_DETECTOR_CAPTCHA = function PACKET_CZ_COMPLETE_APPLY_MACRO_DETECTOR_CAPTCHA() {};
 	PACKET.CZ.COMPLETE_APPLY_MACRO_DETECTOR_CAPTCHA.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a5a);
 		return pkt_buf;
 	};
@@ -14864,8 +14864,8 @@ import Configs from 'Core/Configs';
 		this.answer = '';
 	};
 	PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR.prototype.build = function () {
-		let pkt_len = 2 + 16;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 16;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a5c);
 		pkt_buf.writeString(this.answer, 16);
 		return pkt_buf;
@@ -14883,8 +14883,8 @@ import Configs from 'Core/Configs';
 		this.captchaID = 0;
 	};
 	PACKET.CZ.REQ_PREVIEW_MACRO_DETECTOR.prototype.build = function () {
-		let pkt_len = 2 + 4;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 4;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a69);
 		pkt_buf.writeLong(this.captchaID);
 		return pkt_buf;
@@ -14902,9 +14902,9 @@ import Configs from 'Core/Configs';
 	// 0x0a6b
 	PACKET.ZC.PREVIEW_MACRO_DETECTOR_CAPTCHA = function PACKET_ZC_PREVIEW_MACRO_DETECTOR_CAPTCHA(fp, end) {
 		this.captchaKey = fp.readBinaryString(4);
-		let count = end - fp.tell();
+		const count = end - fp.tell();
 		this.imageData = new Uint8Array(count);
-		for (var i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			this.imageData[i] = fp.readUByte();
 		}
 	};
@@ -14917,8 +14917,8 @@ import Configs from 'Core/Configs';
 		this.RadiusRange = 0;
 	};
 	PACKET.CZ.REQ_PLAYER_AID_IN_RANGE.prototype.build = function () {
-		let pkt_len = 2 + 2 + 2 + 1;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2 + 2 + 2 + 1;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a6c);
 		pkt_buf.writeShort(this.xPos);
 		pkt_buf.writeShort(this.yPos);
@@ -14930,8 +14930,8 @@ import Configs from 'Core/Configs';
 	// 0x0a6d
 	PACKET.ZC.ACK_PLAYER_AID_IN_RANGE = function PACKET_ZC_ACK_PLAYER_AID_IN_RANGE(fp, end) {
 		this.AID = [];
-		let count = (end - fp.tell()) / 4;
-		for (var i = 0; i < count; ++i) {
+		const count = (end - fp.tell()) / 4;
+		for (let i = 0; i < count; ++i) {
 			this.AID.push(fp.readULong());
 		}
 	};
@@ -14942,8 +14942,8 @@ import Configs from 'Core/Configs';
 	// 0xA19 - CZ_REQ_OPEN_ROULETTE
 	PACKET.CZ.REQ_OPEN_ROULETTE = function PACKET_CZ_REQ_OPEN_ROULETTE() {};
 	PACKET.CZ.REQ_OPEN_ROULETTE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a19);
 		return pkt_buf;
 	};
@@ -14964,20 +14964,20 @@ import Configs from 'Core/Configs';
 	// 0xA1B - CZ_REQ_ROULETTE_INFO (request roulette item list)
 	PACKET.CZ.REQ_ROULETTE_INFO = function PACKET_CZ_REQ_ROULETTE_INFO() {};
 	PACKET.CZ.REQ_ROULETTE_INFO.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a1b);
 		return pkt_buf;
 	};
 
 	// 0xA1C - ZC_ACK_ROULETTE_INFO (roulette item list)
 	PACKET.ZC.ACK_ROULETTE_INFO = function PACKET_ZC_ACK_ROULETTE_INFO(fp, end) {
-		let size = fp.readUShort(); // 2 bytes - packet length
+		const size = fp.readUShort(); // 2 bytes - packet length
 		this.serial = fp.readULong(); // 4 bytes - RouletteSerial
 		this.items = [];
 		// Read items until end of packet (42 items max)
 		while (fp.tell() < end) {
-			let item = {};
+			const item = {};
 			item.row = fp.readUShort(); // 2 bytes
 			item.position = fp.readUShort(); // 2 bytes
 			item.itemId = fp.readUShort(); // 2 bytes
@@ -14990,8 +14990,8 @@ import Configs from 'Core/Configs';
 	// 0xA1D - CZ_REQ_CLOSE_ROULETTE
 	PACKET.CZ.REQ_CLOSE_ROULETTE = function PACKET_CZ_REQ_CLOSE_ROULETTE() {};
 	PACKET.CZ.REQ_CLOSE_ROULETTE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a1d);
 		return pkt_buf;
 	};
@@ -15005,8 +15005,8 @@ import Configs from 'Core/Configs';
 	// 0xA1F - CZ_REQ_GENERATE_ROULETTE (spin request)
 	PACKET.CZ.REQ_GENERATE_ROULETTE = function PACKET_CZ_REQ_GENERATE_ROULETTE() {};
 	PACKET.CZ.REQ_GENERATE_ROULETTE.prototype.build = function () {
-		let pkt_len = 2;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 2;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a1f);
 		return pkt_buf;
 	};
@@ -15028,8 +15028,8 @@ import Configs from 'Core/Configs';
 		this.condition = 0; // 0 = normal, 1 = losing
 	};
 	PACKET.CZ.RECV_ROULETTE_ITEM.prototype.build = function () {
-		let pkt_len = 3;
-		let pkt_buf = new BinaryWriter(pkt_len);
+		const pkt_len = 3;
+		const pkt_buf = new BinaryWriter(pkt_len);
 		pkt_buf.writeShort(0x0a21);
 		pkt_buf.writeUChar(this.condition);
 		return pkt_buf;

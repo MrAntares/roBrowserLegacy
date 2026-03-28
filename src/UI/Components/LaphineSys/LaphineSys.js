@@ -26,7 +26,7 @@ import PACKET from 'Network/PacketStructure';
 /**
 	 * Create Component
 	 */
-	let LaphineSys = new UIComponent('LaphineSys', htmlText, cssText);
+	const LaphineSys = new UIComponent('LaphineSys', htmlText, cssText);
 
 	/**
 	 * @var {number} LaphineSys
@@ -57,7 +57,7 @@ import PACKET from 'Network/PacketStructure';
 	 */
 	LaphineSys.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		let events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		LaphineSys.ui.find('.some_notifs').hide();
@@ -191,7 +191,7 @@ import PACKET from 'Network/PacketStructure';
 	function onOpenLaphineUI(pkt) {
 		if (pkt) {
 			// Assume lapine_list is already loaded and available
-			let laphineInfo = DB.getLaphineSysInfoById(pkt.itemId);
+			const laphineInfo = DB.getLaphineSysInfoById(pkt.itemId);
 
 			if (laphineInfo) {
 				// Update the state object
@@ -216,7 +216,7 @@ import PACKET from 'Network/PacketStructure';
 	 * Updates the Laphine UI with the current state information.
 	 */
 	function onUpdateLaphineUI() {
-		let item = Inventory.getUI().getItemById(LaphineUIState.itemId);
+		const item = Inventory.getUI().getItemById(LaphineUIState.itemId);
 
 		if (!item) {
 			return false;
@@ -234,10 +234,10 @@ import PACKET from 'Network/PacketStructure';
 	 * @returns {Array<Item>}
 	 */
 	function GetInventoryItemsById(id) {
-		let items = [];
-		let list = Inventory.getUI().list;
+		const items = [];
+		const list = Inventory.getUI().list;
 
-		for (var i = 0, count = list.length; i < count; ++i) {
+		for (let i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
 				items.push(list[i]);
 			}
@@ -250,13 +250,13 @@ import PACKET from 'Network/PacketStructure';
 	 * Populates the list of available materials.
 	 */
 	function populateAvailableMatList() {
-		let availableMatList = LaphineSys.ui.find('.available_mat_list');
+		const availableMatList = LaphineSys.ui.find('.available_mat_list');
 		availableMatList.empty(); // Clear the list before populating
 
 		LaphineUIState.sourceItems.forEach(sourceItem => {
-			let matchingItems = GetInventoryItemsById(sourceItem.id);
+			const matchingItems = GetInventoryItemsById(sourceItem.id);
 			matchingItems.forEach(inventoryItem => {
-				let count =
+				const count =
 					inventoryItem.type === ItemType.WEAPON || inventoryItem.type === ItemType.ARMOR
 						? 1
 						: inventoryItem.count;
@@ -269,7 +269,7 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the addition of an item in the UI from the available materials list.
 	 */
 	function onAddMaterialItem(item, inventory_count, source_needcount, source_iconname) {
-		let availableMatList = LaphineSys.ui.find('.available_mat_list');
+		const availableMatList = LaphineSys.ui.find('.available_mat_list');
 
 		// Determine if the item is selectable based on item type and corresponding criteria
 		let isSelectable;
@@ -281,11 +281,11 @@ import PACKET from 'Network/PacketStructure';
 			isSelectable = inventory_count >= source_needcount;
 		}
 
-		let draggableAttr = !isSelectable ? '' : 'draggable="true"';
-		let itemClass = isSelectable ? '' : 'unselectable';
+		const draggableAttr = !isSelectable ? '' : 'draggable="true"';
+		const itemClass = isSelectable ? '' : 'unselectable';
 
 		// Add item details
-		let newItem = jQuery(
+		const newItem = jQuery(
 			'<div class="item ' +
 				itemClass +
 				'" data-index="' +
@@ -343,7 +343,7 @@ import PACKET from 'Network/PacketStructure';
 	function onRequestLaphineClose() {
 		LaphineSys.remove();
 
-		let pkt = new PACKET.CZ.RANDOM_COMBINE_ITEM_UI_CLOSE();
+		const pkt = new PACKET.CZ.RANDOM_COMBINE_ITEM_UI_CLOSE();
 		Network.sendPacket(pkt);
 	}
 
@@ -356,8 +356,8 @@ import PACKET from 'Network/PacketStructure';
 			return false; // Exit the function early
 		}
 
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -371,15 +371,15 @@ import PACKET from 'Network/PacketStructure';
 	 * Submits a selected item and updates the UI accordingly.
 	 */
 	function onSubmitItem() {
-		let submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10);
-		let neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
+		const submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10);
+		const neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
 
 		if (submittedCount >= neededCount) {
 			return false;
 		}
 
 		// Check if there's a currently selected item in the .name class
-		let selectedItem = LaphineSys.ui.find('.item .name.selected');
+		const selectedItem = LaphineSys.ui.find('.item .name.selected');
 		let idx;
 
 		if (selectedItem.length > 0) {
@@ -388,7 +388,7 @@ import PACKET from 'Network/PacketStructure';
 			idx = parseInt(this.getAttribute('data-index'), 10);
 		}
 
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		// Ensure the item is valid
 		if (!item) {
@@ -401,7 +401,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Get the source item count from LaphineUIState.sourceItems
-		let sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
+		const sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
 		if (!sourceItem) {
 			return; // Source item not found
 		}
@@ -428,15 +428,15 @@ import PACKET from 'Network/PacketStructure';
 	}
 
 	function onUpdateSubmitList(item) {
-		let it = DB.getItemInfo(item.ITID);
-		let submittedMatList = LaphineSys.ui.find('.submitted_mat_list');
+		const it = DB.getItemInfo(item.ITID);
+		const submittedMatList = LaphineSys.ui.find('.submitted_mat_list');
 
-		let sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
+		const sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
 
 		// Determine the count based on item type
-		let itemCount = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : sourceItem.count;
+		const itemCount = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : sourceItem.count;
 
-		let newItem = jQuery(
+		const newItem = jQuery(
 			'<div class="item" data-index="' +
 				item.index +
 				'" draggable="true">' +
@@ -476,11 +476,11 @@ import PACKET from 'Network/PacketStructure';
 		});
 
 		// Update the count of submitted items
-		let submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10) + 1;
+		const submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10) + 1;
 		LaphineSys.ui.find('.mat_count_submitted').text(submittedCount);
 
 		// Check if the needed count is reached
-		let neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
+		const neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
 		if (submittedCount >= neededCount) {
 			LaphineSys.ui.find('.submit_button_enabled').hide();
 			LaphineSys.ui.find('.submit_button_disabled').show();
@@ -499,10 +499,10 @@ import PACKET from 'Network/PacketStructure';
 	 * Adjusts the layout of the submitted materials list.
 	 */
 	function adjustSubmittedMatList() {
-		let submittedMatList = LaphineSys.ui.find('.submitted_mat_list');
-		let items = submittedMatList.find('.item');
-		let numItems = items.length;
-		let numRows = Math.ceil(numItems / 5);
+		const submittedMatList = LaphineSys.ui.find('.submitted_mat_list');
+		const items = submittedMatList.find('.item');
+		const numItems = items.length;
+		const numRows = Math.ceil(numItems / 5);
 
 		// Adjust the top position based on the number of rows
 		submittedMatList.css('top', 145 - (numRows - 1) * 28); // Adjust the top position based on the number of rows
@@ -512,8 +512,8 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the removal of a submitted item and updates the UI accordingly.
 	 */
 	function onItemRemove() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (item) {
 			onRemoveItemSubmitList(item, this); // Pass the DOM element to the next function
@@ -521,7 +521,7 @@ import PACKET from 'Network/PacketStructure';
 	}
 
 	function onRemoveItemSubmitList(item, element = null) {
-		let itemIndex = LaphineSys.submittedItems.findIndex(submittedItem => submittedItem.index === item.index);
+		const itemIndex = LaphineSys.submittedItems.findIndex(submittedItem => submittedItem.index === item.index);
 		if (itemIndex !== -1) {
 			// Remove the item from the submitted items list
 			LaphineSys.submittedItems.splice(itemIndex, 1);
@@ -535,11 +535,11 @@ import PACKET from 'Network/PacketStructure';
 			jQuery(element).remove();
 
 			// Update the count of submitted items
-			let submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10) - 1;
+			const submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10) - 1;
 			LaphineSys.ui.find('.mat_count_submitted').text(submittedCount);
 
 			// Show the enabled submit button if the needed count is not reached
-			let neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
+			const neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
 			if (submittedCount < neededCount) {
 				LaphineSys.ui.find('.submit_button_enabled').show();
 				LaphineSys.ui.find('.submit_button_disabled').hide();
@@ -557,13 +557,13 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the changes in UI when submitting and removing item from submitted list.
 	 */
 	function updateAvailableMatList(itemId, itemIndex, countChange, increase) {
-		let availableMatList = LaphineSys.ui.find('.available_mat_list');
+		const availableMatList = LaphineSys.ui.find('.available_mat_list');
 		let itemExists = false;
 		let selectedItem = null;
 
 		availableMatList.find('.item').each(function () {
-			let idx = parseInt(jQuery(this).attr('data-index'), 10);
-			let item = Inventory.getUI().getItemByIndex(idx);
+			const idx = parseInt(jQuery(this).attr('data-index'), 10);
+			const item = Inventory.getUI().getItemByIndex(idx);
 
 			if (item.ITID === itemId && idx === itemIndex) {
 				itemExists = true;
@@ -589,12 +589,12 @@ import PACKET from 'Network/PacketStructure';
 
 		// If item doesn't exist and should be increased, add it back
 		if (increase && !itemExists) {
-			let item = Inventory.getUI().getItemByIndex(itemIndex);
+			const item = Inventory.getUI().getItemByIndex(itemIndex);
 			if (item) {
-				let inventory_count = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : item.count;
-				let sourceItem = LaphineUIState.sourceItems.find(sourceItem => sourceItem.id === itemId);
-				let source_needcount = sourceItem.count;
-				let source_iconname = sourceItem.name;
+				const inventory_count = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : item.count;
+				const sourceItem = LaphineUIState.sourceItems.find(sourceItem => sourceItem.id === itemId);
+				const source_needcount = sourceItem.count;
+				const source_iconname = sourceItem.name;
 
 				onAddMaterialItem(item, inventory_count, source_needcount, source_iconname);
 			}
@@ -622,7 +622,7 @@ import PACKET from 'Network/PacketStructure';
 		if (LaphineSys.submittedItems.length === LaphineUIState.needCount) {
 			// Iterate through the submitted items and add them to pkt.items
 			for (let i = 0; i < LaphineSys.submittedItems.length; i++) {
-				let submittedItem = LaphineSys.submittedItems[i];
+				const submittedItem = LaphineSys.submittedItems[i];
 				pkt.items.push({
 					index: submittedItem.index,
 					count: submittedItem.count
@@ -641,25 +641,25 @@ import PACKET from 'Network/PacketStructure';
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		let pos = jQuery(this);
-		let overlay = LaphineSys.ui.find('.overlay');
+		const pos = jQuery(this);
+		const overlay = LaphineSys.ui.find('.overlay');
 
 		// Determine the immediate parent container explicitly based on the context
-		let parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
-		let itemPos = pos.position();
-		let containerPos = parentContainer.position();
+		const parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
+		const itemPos = pos.position();
+		const containerPos = parentContainer.position();
 
 		// Calculate the desired position of the overlay relative to the container
-		let top = itemPos.top - overlay.outerHeight() + 25;
-		let left = itemPos.left;
+		const top = itemPos.top - overlay.outerHeight() + 25;
+		const left = itemPos.left;
 
 		// Display box
 		overlay.show();
@@ -695,16 +695,16 @@ import PACKET from 'Network/PacketStructure';
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		let img = new Image();
-		let url = this.querySelector('.icon')
+		const img = new Image();
+		const url = this.querySelector('.icon')
 			.style.backgroundImage.match(/\((.*?)\)/)[1]
 			.replace(/('|")/g, '');
 		img.decoding = 'async';
@@ -754,8 +754,8 @@ import PACKET from 'Network/PacketStructure';
 			return false;
 		}
 
-		let submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10);
-		let neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
+		const submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10);
+		const neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
 
 		if (submittedCount >= neededCount) {
 			return false;
@@ -767,7 +767,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Get the source item count from LaphineUIState.sourceItems
-		let sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
+		const sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
 		if (!sourceItem) {
 			return; // Source item not found
 		}
@@ -821,7 +821,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Locate the DOM element based on the item's index
-		let element = LaphineSys.ui.find(`.item[data-index="${item.index}"]`);
+		const element = LaphineSys.ui.find(`.item[data-index="${item.index}"]`);
 
 		onRemoveItemSubmitList(item, element.get(0)); // Pass the DOM element to the function
 	}
@@ -832,8 +832,8 @@ import PACKET from 'Network/PacketStructure';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -859,7 +859,7 @@ import PACKET from 'Network/PacketStructure';
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		let compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {

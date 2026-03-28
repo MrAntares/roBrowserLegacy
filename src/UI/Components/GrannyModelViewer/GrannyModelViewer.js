@@ -25,13 +25,13 @@ import cssText from './GrannyModelViewer.css?raw';
 /**
 	 * Load dependencies
 	 */
-	let mat4 = glMatrix.mat4;
-	let mat3 = glMatrix.mat3;
+	const mat4 = glMatrix.mat4;
+	const mat3 = glMatrix.mat3;
 
 	/**
 	 * @var {object} fog structure
 	 */
-	let _fog = {
+	const _fog = {
 		use: false,
 		exist: true,
 		far: 30,
@@ -43,7 +43,7 @@ import cssText from './GrannyModelViewer.css?raw';
 	/**
 	 * @var {object} light structure
 	 */
-	let _light = {
+	const _light = {
 		opacity: 1.0,
 		ambient: new Float32Array([Math.PI, Math.PI, Math.PI]),
 		diffuse: new Float32Array([0, 0, 0]),
@@ -53,7 +53,7 @@ import cssText from './GrannyModelViewer.css?raw';
 	/**
 	 * @var {object} model global parameters
 	 */
-	let _GlobalParameters = {
+	const _GlobalParameters = {
 		position: new Float32Array(3),
 		rotation: new Float32Array(3),
 		scale: new Float32Array([-0.075, -0.075, 0.075]),
@@ -63,12 +63,12 @@ import cssText from './GrannyModelViewer.css?raw';
 	/**
 	 * @var {mat4} model view mat
 	 */
-	let _modelView = new Float32Array(4 * 4);
+	const _modelView = new Float32Array(4 * 4);
 
 	/**
 	 * @var {mat3} normal Mat
 	 */
-	let _normalMat = new Float32Array(3 * 3);
+	const _normalMat = new Float32Array(3 * 3);
 
 	/**
 	 * @var {object} current model
@@ -78,7 +78,7 @@ import cssText from './GrannyModelViewer.css?raw';
 	/**
 	 * Create GRFViewer component
 	 */
-	let Viewer = new UIComponent('GRFViewer', htmlText, cssText);
+	const Viewer = new UIComponent('GRFViewer', htmlText, cssText);
 
 	/**
 	 * Initialize Component
@@ -98,7 +98,7 @@ import cssText from './GrannyModelViewer.css?raw';
 		if (!Configs.get('API')) {
 			initDropDown(this.ui.find('select').get(0));
 		} else {
-			let hash = decodeURIComponent(location.hash);
+			const hash = decodeURIComponent(location.hash);
 			location.hash = hash;
 			loadModel(hash.substr(1));
 		}
@@ -147,7 +147,7 @@ import cssText from './GrannyModelViewer.css?raw';
 	 * Stop to render
 	 */
 	function stop() {
-		let gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		Renderer.stop();
 		ModelRenderer.free(gl);

@@ -21,7 +21,7 @@ import cssText from './WinLoginV2Background.css?raw';
 /**
  * Create WinLogin namespace
  */
-var WinLoginV2Background = new UIComponent('WinLoginV2Background', htmlText, cssText);
+const WinLoginV2Background = new UIComponent('WinLoginV2Background', htmlText, cssText);
 
 /**
  * Initialize win_login UI - Inherit from UIComponent

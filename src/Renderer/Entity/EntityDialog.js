@@ -62,15 +62,15 @@ import Events from 'Core/Events';
 		this.display = true;
 
 		// Init variables
-		let ctx = this.ctx;
-		let max_width = 250;
-		let fontSize = 12;
-		let lines = [];
+		const ctx = this.ctx;
+		const max_width = 250;
+		const fontSize = 12;
+		const lines = [];
 		let width = 0,
 			i,
 			j;
 		let result;
-		let color = fontColor || 'white';
+		const color = fontColor || 'white';
 
 		ctx.font = fontSize + 'px Arial';
 
@@ -162,7 +162,7 @@ import Events from 'Core/Events';
 	 * Rendering dialog box
 	 */
 	Dialog.prototype.render = function Render(matrix) {
-		let canvas = this.canvas;
+		const canvas = this.canvas;
 		let z;
 
 		// Cast position

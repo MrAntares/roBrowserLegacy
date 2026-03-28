@@ -43,22 +43,22 @@ import Session from 'Engine/SessionStorage';
 		// First Segment: Exact float distance
 		// path[0/1] is the integer start cell, but startPos is the entity's actual float position.
 		// path[2/3] is the first target cell.
-		let sx = startPos ? startPos[0] : path[0];
-		let sy = startPos ? startPos[1] : path[1];
-		let ex = path[2];
-		let ey = path[3];
+		const sx = startPos ? startPos[0] : path[0];
+		const sy = startPos ? startPos[1] : path[1];
+		const ex = path[2];
+		const ey = path[3];
 
-		let dx = ex - sx;
-		let dy = ey - sy;
-		let distFirst = Math.sqrt(dx * dx + dy * dy);
+		const dx = ex - sx;
+		const dy = ey - sy;
+		const distFirst = Math.sqrt(dx * dx + dy * dy);
 
 		duration += distFirst * baseSpeed;
 
 		// Remaining Segments: Grid logic
 		// Starts from index 2 (node 1 to node 2)
 		for (let i = 2; i < total - 2; i += 2) {
-			let segDx = path[i + 2] - path[i];
-			let segDy = path[i + 3] - path[i + 1];
+			const segDx = path[i + 2] - path[i];
+			const segDy = path[i + 3] - path[i + 1];
 
 			if (segDx && segDy) {
 				// Diagonal
@@ -126,7 +126,7 @@ import Session from 'Engine/SessionStorage';
 		// atan2: 0=+X (east), PI/2=+Y (north), PI=-X (west), -PI/2=-Y (south)
 		// We need: 6=east, 4=north, 2=west, 0=south (RO direction indexing).
 		// Formula: dir = ((-angle)/(PI/4) + 6) mod 8
-		let angle = Math.atan2(dy, dx);
+		const angle = Math.atan2(dy, dx);
 		let dir = (-angle / (Math.PI / 4) + 6) % 8;
 		if (dir < 0) {
 			dir += 8;
@@ -162,7 +162,7 @@ import Session from 'Engine/SessionStorage';
 		isAttacking = false,
 		moveStartTime
 	) {
-		let hadRoute = this.walk && this.walk.total > 0;
+		const hadRoute = this.walk && this.walk.total > 0;
 
 		this.resetRoute(hadRoute);
 
@@ -170,7 +170,7 @@ import Session from 'Engine/SessionStorage';
 
 		// calculate overshoot (only falcon)
 		if (this.objecttype === this.constructor.TYPE_FALCON && isOverShoot) {
-			let OverShootPosition = calculateOverShot(from_x, from_y, to_x, to_y);
+			const OverShootPosition = calculateOverShot(from_x, from_y, to_x, to_y);
 			to_x = OverShootPosition[0];
 			to_y = OverShootPosition[1];
 		}
@@ -180,9 +180,9 @@ import Session from 'Engine/SessionStorage';
 			return;
 		}
 
-		let path = this.walk.path;
+		const path = this.walk.path;
 		let total = 0;
-		let result = PathFinding.searchLongIgnoreCellType(
+		const result = PathFinding.searchLongIgnoreCellType(
 			from_x | 0,
 			from_y | 0,
 			to_x | 0,
@@ -200,9 +200,9 @@ import Session from 'Engine/SessionStorage';
 		this.walk.total = total * 2;
 		if (total > 0) {
 			this.walk.pos.set(this.position);
-			let nowTick = Date.now();
-			let pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
-			let isPlayerLike =
+			const nowTick = Date.now();
+			const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
+			const isPlayerLike =
 				this.objecttype === this.constructor.TYPE_PC ||
 				this.objecttype === this.constructor.TYPE_DISGUISED ||
 				this.objecttype === this.constructor.TYPE_PET ||
@@ -211,8 +211,8 @@ import Session from 'Engine/SessionStorage';
 			// For non-player entities we only fast-forward up to one step worth of time.
 			// Their client-side path can diverge from the server due to dynamic obstacles,
 			// and over-fast-forwarding makes STOPMOVE snaps more visible.
-			let maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
-			let startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+			const maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
+			const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
 			this.walk.tick = this.walk.prevTick = startTick;
 
 			// Keep distance accumulation if we were already walking to avoid animation restarts.
@@ -223,9 +223,9 @@ import Session from 'Engine/SessionStorage';
 
 			// Initialize facing for the first segment (continuous heading handled in walkProcess).
 			if (this.walk.total >= 2) {
-				let firstX0 = this.walk.path[2];
-				let firstY0 = this.walk.path[3];
-				let initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
+				const firstX0 = this.walk.path[2];
+				const firstY0 = this.walk.path[3];
+				const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
 				this.direction = quantizeDir(initDir0);
 			}
 
@@ -320,29 +320,29 @@ import Session from 'Engine/SessionStorage';
 			return;
 		}
 
-		let hadRoute = this.walk && this.walk.total > 0;
-		let wasWalkingAction = this.action === this.ACTION.WALK;
+		const hadRoute = this.walk && this.walk.total > 0;
+		const wasWalkingAction = this.action === this.ACTION.WALK;
 
 		this.resetRoute(hadRoute);
 
-		let path = this.walk.path;
-		let total = PathFinding.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
+		const path = this.walk.path;
+		const total = PathFinding.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
 
 		this.walk.index = 1 * 2; // skip first index
 		this.walk.total = total * 2;
 
 		if (total) {
 			this.walk.pos.set(this.position);
-			let nowTick = Date.now();
-			let pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
-			let isPlayerLike =
+			const nowTick = Date.now();
+			const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
+			const isPlayerLike =
 				this.objecttype === this.constructor.TYPE_PC ||
 				this.objecttype === this.constructor.TYPE_DISGUISED ||
 				this.objecttype === this.constructor.TYPE_PET ||
 				this.objecttype === this.constructor.TYPE_HOM ||
 				this.objecttype === this.constructor.TYPE_MERC;
-			let maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
-			let startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+			const maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
+			const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
 			this.walk.tick = this.walk.prevTick = startTick;
 
 			if (!hadRoute) {
@@ -352,9 +352,9 @@ import Session from 'Engine/SessionStorage';
 
 			// Initialize facing for the first segment (continuous heading handled in walkProcess).
 			if (this.walk.total >= 2) {
-				let firstX1 = this.walk.path[2];
-				let firstY1 = this.walk.path[3];
-				let initDir1 = offsetToFloatDir(firstX1 - this.position[0], firstY1 - this.position[1]);
+				const firstX1 = this.walk.path[2];
+				const firstY1 = this.walk.path[3];
+				const initDir1 = offsetToFloatDir(firstX1 - this.position[0], firstY1 - this.position[1]);
 				this.direction = quantizeDir(initDir1);
 			}
 			this.headDir = 0;
@@ -375,14 +375,14 @@ import Session from 'Engine/SessionStorage';
 	 * Process walking
 	 */
 	function walkProcess() {
-		let pos = this.position;
-		let walk = this.walk;
-		let path = walk.path;
+		const pos = this.position;
+		const walk = this.walk;
+		const path = walk.path;
 		let index = walk.index;
-		let total = walk.total;
+		const total = walk.total;
 
-		let TICK = Date.now();
-		let falconGliding = 5;
+		const TICK = Date.now();
+		const falconGliding = 5;
 
 		if (total == 0) {
 			return;
@@ -395,7 +395,7 @@ import Session from 'Engine/SessionStorage';
 			this.objecttype !== this.constructor.TYPE_WUG
 		) {
 			let actionName = 'UNKNOWN';
-			for (let key in this.ACTION) {
+			for (const key in this.ACTION) {
 				if (this.ACTION[key] === this.action) {
 					actionName = key;
 					break;
@@ -422,7 +422,7 @@ import Session from 'Engine/SessionStorage';
 			this.objecttype === this.constructor.TYPE_FALCON ||
 			this.objecttype === this.constructor.TYPE_WUG
 		) {
-			let getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
+			const getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
 				let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
 				if (!duration || duration < 1) {
 					duration = 1;
@@ -430,8 +430,8 @@ import Session from 'Engine/SessionStorage';
 				return duration;
 			};
 
-			let finishWalk = function finishWalk() {
-				let cellHeight =
+			const finishWalk = function finishWalk() {
+				const cellHeight =
 					this.objecttype == this.constructor.TYPE_FALCON
 						? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5
 						: Altitude.getCellHeight(path[total - 2], path[total - 1]);
@@ -528,10 +528,10 @@ import Session from 'Engine/SessionStorage';
 			}
 
 			// Interpolate current segment
-			let duration = Math.max(segmentEnd - segmentStart, 1);
-			let t = Math.min(Math.max((TICK - segmentStart) / duration, 0), 1);
-			let newX = startX + dx * t;
-			let newY = startY + dy * t;
+			const duration = Math.max(segmentEnd - segmentStart, 1);
+			const t = Math.min(Math.max((TICK - segmentStart) / duration, 0), 1);
+			const newX = startX + dx * t;
+			const newY = startY + dy * t;
 
 			traveledDist += Math.sqrt(
 				(newX - walk.lastPos[0]) * (newX - walk.lastPos[0]) +
@@ -540,7 +540,7 @@ import Session from 'Engine/SessionStorage';
 			walk.lastPos[0] = newX;
 			walk.lastPos[1] = newY;
 
-			let cellHeight =
+			const cellHeight =
 				this.objecttype == this.constructor.TYPE_FALCON
 					? Altitude.getCellHeight(newX, newY) + falconGliding
 					: Altitude.getCellHeight(newX, newY);
@@ -553,28 +553,28 @@ import Session from 'Engine/SessionStorage';
 			// Later segments snap to discrete 8-way direction based on the segment offset.
 			if (index < total) {
 				if (index === 2) {
-					let remDx = nextX - newX;
-					let remDy = nextY - newY;
+					const remDx = nextX - newX;
+					const remDy = nextY - newY;
 
 					// If we're effectively at the next tile (fast-forwarded/last frame),
 					// fall back to the segment's discrete direction instead of defaulting south.
 					if (Math.abs(remDx) < 0.001 && Math.abs(remDy) < 0.001) {
-						let prevTileX0 = path[index - 2];
-						let prevTileY0 = path[index - 1];
-						let segDx0 = nextX - prevTileX0;
-						let segDy0 = nextY - prevTileY0;
-						let dirRow0 = DIRECTION[segDx0 + 1];
+						const prevTileX0 = path[index - 2];
+						const prevTileY0 = path[index - 1];
+						const segDx0 = nextX - prevTileX0;
+						const segDy0 = nextY - prevTileY0;
+						const dirRow0 = DIRECTION[segDx0 + 1];
 						if (dirRow0 && typeof dirRow0[segDy0 + 1] !== 'undefined') {
 							this.direction = dirRow0[segDy0 + 1];
 						}
 					} else {
-						let contDir = offsetToFloatDir(remDx, remDy);
+						const contDir = offsetToFloatDir(remDx, remDy);
 						this.direction = quantizeDir(contDir);
 					}
 				} else {
-					let segDx = Math.round(nextX - startX);
-					let segDy = Math.round(nextY - startY);
-					let dirRow = DIRECTION[segDx + 1];
+					const segDx = Math.round(nextX - startX);
+					const segDy = Math.round(nextY - startY);
+					const dirRow = DIRECTION[segDx + 1];
 					if (dirRow && typeof dirRow[segDy + 1] !== 'undefined') {
 						this.direction = dirRow[segDy + 1];
 					}
@@ -586,7 +586,7 @@ import Session from 'Engine/SessionStorage';
 			walk.tick = segmentStart;
 			walk.prevTick = TICK;
 
-			let reachedEnd = index >= total - 2 && t >= 0.999 && TICK >= segmentEnd;
+			const reachedEnd = index >= total - 2 && t >= 0.999 && TICK >= segmentEnd;
 
 			if (!reachedEnd) {
 				return;
@@ -607,21 +607,21 @@ import Session from 'Engine/SessionStorage';
 	// Companions walk is passively, don't need complexity or lower walk delay
 	function entitiesWalkProcess() {
 		// Use owner's actual current position
-		let ownerCellX = this.position[0];
-		let ownerCellY = this.position[1];
+		const ownerCellX = this.position[0];
+		const ownerCellY = this.position[1];
 
 		if (
 			this.falcon &&
 			!this.falcon.isAttacking &&
 			(!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1000 < Date.now())
 		) {
-			let range = 2;
-			let distance = Math.floor(this.distance(this, this.falcon));
+			const range = 2;
+			const distance = Math.floor(this.distance(this, this.falcon));
 			if (distance < range) {
 				return;
 			}
 
-			let targetChanged = this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY;
+			const targetChanged = this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY;
 			if (targetChanged) {
 				this.falcon.walk.speed = Math.max(this.walk.speed - 50, 1);
 				this.falcon._followTargetX = ownerCellX;
@@ -645,13 +645,13 @@ import Session from 'Engine/SessionStorage';
 			!this.wug.isAttacking &&
 			(!this.wug.walk.lastWalkTick || this.wug.walk.lastWalkTick + 1000 < Date.now())
 		) {
-			let range = 4;
-			let distance = Math.floor(this.distance(this, this.wug));
+			const range = 4;
+			const distance = Math.floor(this.distance(this, this.wug));
 			if (distance < range) {
 				return;
 			}
 
-			let targetChanged = this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY;
+			const targetChanged = this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY;
 			if (targetChanged) {
 				this.wug.walk.speed = Math.max(this.walk.speed - 50, 1);
 				this.wug._followTargetX = ownerCellX;
@@ -690,7 +690,7 @@ import Session from 'Engine/SessionStorage';
 	}
 
 	function calculateOverShot(from_x, from_y, to_x, to_y) {
-		let overshot = 5;
+		const overshot = 5;
 		let over_x = to_x,
 			over_y = to_y;
 		if (from_x > to_x && from_y > to_y) {

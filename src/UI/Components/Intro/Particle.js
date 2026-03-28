@@ -55,7 +55,7 @@ Particle.init = function init(count, canvas) {
 		this.ready = true;
 	};
 
-	for (var i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		this.list[i] = new Particle(this.width, this.height);
 	}
 
@@ -75,8 +75,8 @@ Particle.stop = function stop() {
  * Render particles
  */
 Particle.render = function render() {
-	var now = Date.now();
-	var i, count;
+	const now = Date.now();
+	let i, count;
 
 	this.ctx.clearRect(0, 0, this.width, this.height);
 	if (this.bg.ready) {
@@ -127,9 +127,9 @@ Particle.prototype.reset = function reset(width, height) {
  * @param {Canvas2DContext}
  */
 Particle.prototype.render = function render(ctx) {
-	var opacity = Math.floor((1 - this.ratio / this.life) * 100) * 0.01;
-	var radius = this.r * opacity;
-	var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, Math.max(radius, 0.5));
+	const opacity = Math.floor((1 - this.ratio / this.life) * 100) * 0.01;
+	const radius = this.r * opacity;
+	const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, Math.max(radius, 0.5));
 
 	ctx.beginPath();
 	ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
@@ -153,7 +153,7 @@ Particle.prototype.render = function render(ctx) {
  * @param {number} height
  */
 Particle.prototype.update = function move(tick, x, y, width, height) {
-	var f = (tick / 60) * 2; // speed / 2
+	const f = (tick / 60) * 2; // speed / 2
 
 	this.x += Math.cos((this.ratio / this.life) * this.dx * 2) * f;
 	this.y += Math.sin((this.ratio / this.life) * this.dy * 2) * f;

@@ -23,7 +23,7 @@ import Client from 'Core/Client';
 /**
 	 * Create Chararacter Selection namespace
 	 */
-	let CharCreatev4 = new UIComponent('CharCreatev4', htmlText, cssText);
+	const CharCreatev4 = new UIComponent('CharCreatev4', htmlText, cssText);
 
 	/**
 	 * @var {boolean} account sex
@@ -43,7 +43,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {object} chargen info
 	 */
-	let _chargen = {
+	const _chargen = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -53,7 +53,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {object} doram info
 	 */
-	let _doram = {
+	const _doram = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -63,7 +63,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {object} model info
 	 */
-	let _model = {
+	const _model = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -125,31 +125,31 @@ import Client from 'Core/Client';
 		this.ui.find('.make').click(create);
 
 		/* Msgstring Texts */
-		let title = this.ui.find('.title');
+		const title = this.ui.find('.title');
 		title.text(DB.getMessage(3356 - 1));
 
-		let human_title = this.ui.find('.human_title');
+		const human_title = this.ui.find('.human_title');
 		human_title.text(DB.getMessage(3017 - 1));
 
-		let human_desc = this.ui.find('.human_desc');
+		const human_desc = this.ui.find('.human_desc');
 		human_desc.text(DB.getMessage(3021 - 1));
 
-		let doram_title = this.ui.find('.doram_title');
+		const doram_title = this.ui.find('.doram_title');
 		doram_title.text(DB.getMessage(3019 - 1));
 
-		let doram_desc = this.ui.find('.doram_desc');
+		const doram_desc = this.ui.find('.doram_desc');
 		doram_desc.text(DB.getMessage(3022 - 1));
 
-		let hair_style = this.ui.find('.hair_style_title');
+		const hair_style = this.ui.find('.hair_style_title');
 		hair_style.text(DB.getMessage(3347 - 1));
 
-		let hair_color = this.ui.find('.hair_color_title');
+		const hair_color = this.ui.find('.hair_color_title');
 		hair_color.text(DB.getMessage(3348 - 1));
 
-		let return_msg = this.ui.find('.return');
+		const return_msg = this.ui.find('.return');
 		return_msg.text(DB.getMessage(3352 - 1));
 
-		let create_msg = this.ui.find('.make');
+		const create_msg = this.ui.find('.make');
 		create_msg.text(DB.getMessage(3346 - 1));
 	};
 
@@ -232,8 +232,8 @@ import Client from 'Core/Client';
 	 * Update model hairstyle
 	 */
 	function updateHStyle(event) {
-		let type = 'head';
-		let value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
+		const type = 'head';
+		const value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
 
 		_prevhead = _model.entity.head;
 		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_hairstyle_normal.bmp', function (dataURI) {
@@ -249,8 +249,8 @@ import Client from 'Core/Client';
 	 * Update model haircolor
 	 */
 	function updateHColor(event) {
-		let type = 'headpalette';
-		let value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
+		const type = 'headpalette';
+		const value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
 
 		_prevcolor = _model.entity.headpalette;
 
@@ -270,8 +270,8 @@ import Client from 'Core/Client';
 	 * Update model race
 	 */
 	function updateRace() {
-		let select = CharCreatev4.ui.find('.race').filter(':checked');
-		let type = 'race';
+		const select = CharCreatev4.ui.find('.race').filter(':checked');
+		const type = 'race';
 		let value = 0;
 
 		if (select[0].id === 'human_race') {
@@ -366,7 +366,7 @@ import Client from 'Core/Client';
 	 * Send back informations to send the packet
 	 */
 	function create() {
-		let ui = CharCreatev4.ui;
+		const ui = CharCreatev4.ui;
 
 		CharCreatev4.onCharCreationRequest(
 			ui.find('#char_name').val(),
@@ -436,10 +436,10 @@ import Client from 'Core/Client';
 
 			case 'direction':
 				if (increment === 0) {
-					let dir = _model.entity.direction + 1;
+					const dir = _model.entity.direction + 1;
 					_model.entity.direction = dir;
 				} else {
-					let dir = _model.entity.direction - 1;
+					const dir = _model.entity.direction - 1;
 					_model.entity.direction = dir;
 				}
 				break;

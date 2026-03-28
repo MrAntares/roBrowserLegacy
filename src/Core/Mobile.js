@@ -27,7 +27,7 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 	/**
 	 * @namespace Mobile
 	 */
-	let Mobile = {};
+	const Mobile = {};
 
 	/**
 	 * @var {boolean} is doing a gesture ?
@@ -53,7 +53,7 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 	 * Remove autofocus on mobile.
 	 * Let the user decide to focus an input/textarea by himself
 	 */
-	let remoteAutoFocus = (function removeAutoFocusClosure() {
+	const remoteAutoFocus = (function removeAutoFocusClosure() {
 		let _done = false;
 
 		return function removeAutoFocus() {
@@ -74,8 +74,8 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 	 * @return {number} distance
 	 */
 	function touchDistance(touches) {
-		let x = touches[0].pageX - touches[1].pageX;
-		let y = touches[0].pageY - touches[1].pageY;
+		const x = touches[0].pageX - touches[1].pageX;
+		const y = touches[0].pageY - touches[1].pageY;
 
 		return Math.sqrt(x * x + y * y);
 	}
@@ -87,8 +87,8 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 	 * @return {number} rotation angle
 	 */
 	function touchAngle(touches) {
-		let x = touches[0].pageX - touches[1].pageX;
-		let y = touches[0].pageY - touches[1].pageY;
+		const x = touches[0].pageX - touches[1].pageX;
+		const y = touches[0].pageY - touches[1].pageY;
 
 		return (Math.atan2(y, x) * 180) / Math.PI;
 	}
@@ -100,8 +100,8 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 	 * @param {TouchList} new touches
 	 */
 	function touchTranslationX(oldTouches, touches) {
-		let x1 = touches[0].pageX - oldTouches[0].pageX;
-		let x2 = touches[1].pageX - oldTouches[1].pageX;
+		const x1 = touches[0].pageX - oldTouches[0].pageX;
+		const x2 = touches[1].pageX - oldTouches[1].pageX;
 
 		if (
 			x1 &&
@@ -122,8 +122,8 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 	 * @param {TouchList} new touches
 	 */
 	function touchTranslationY(oldTouches, touches) {
-		let y1 = touches[0].pageY - oldTouches[0].pageY;
-		let y2 = touches[1].pageY - oldTouches[1].pageY;
+		const y1 = touches[0].pageY - oldTouches[0].pageY;
+		const y2 = touches[1].pageY - oldTouches[1].pageY;
 
 		if (
 			y1 &&
@@ -141,7 +141,7 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 	 * Start touching the screen
 	 * Process gesture, or action
 	 */
-	let onTouchStart = (function onTouchStartClosure() {
+	const onTouchStart = (function onTouchStartClosure() {
 		function delayedClick() {
 			// Only process mousedown if not doing a gesture
 			if (!_processGesture) {
@@ -224,7 +224,7 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 	function onTouchMove(event) {
 		event.stopImmediatePropagation();
 
-		let touches = event.originalEvent.touches;
+		const touches = event.originalEvent.touches;
 
 		Mouse.screen.x = touches[0].pageX;
 		Mouse.screen.y = touches[0].pageY;
@@ -234,10 +234,10 @@ import MobileUI from 'UI/Components/MobileUI/MobileUI';
 			return;
 		}
 
-		let scale = touchDistance(touches) - _scale;
+		const scale = touchDistance(touches) - _scale;
 		//var angle = touchAngle(touches) / _angle;
-		let x = Math.abs(touchTranslationX(_touches, touches));
-		let y = Math.abs(touchTranslationY(_touches, touches));
+		const x = Math.abs(touchTranslationX(_touches, touches));
+		const y = Math.abs(touchTranslationY(_touches, touches));
 
 		if (!Camera.action.active && (x > 10 || y > 10)) {
 			KEYS.SHIFT = y > x;

@@ -20,7 +20,7 @@ import cssText from './WinList.css?raw';
 /**
 	 * Create WinList namespace
 	 */
-	let WinList = new UIComponent('WinList', htmlText, cssText);
+	const WinList = new UIComponent('WinList', htmlText, cssText);
 
 	/**
 	 * Initialize UI

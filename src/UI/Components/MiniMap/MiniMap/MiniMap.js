@@ -24,7 +24,7 @@ import cssText from './MiniMap.css?raw';
 /**
 	 * Create MiniMap component
 	 */
-	let MiniMap = new UIComponent('MiniMap', htmlText, cssText);
+	const MiniMap = new UIComponent('MiniMap', htmlText, cssText);
 
 	/**
 	 * Mouse cant cross this UI
@@ -39,7 +39,7 @@ import cssText from './MiniMap.css?raw';
 	/**
 	 * @var {Preferences}
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'MiniMap',
 		{
 			zoom: 0,
@@ -51,22 +51,22 @@ import cssText from './MiniMap.css?raw';
 	/**
 	 * @var {Object} member colors cache
 	 */
-	let _memberColors = {};
+	const _memberColors = {};
 
 	/**
 	 * @var {Array} party members marker
 	 */
-	let _party = [];
+	const _party = [];
 
 	/**
 	 * @var {Array} guild members marker
 	 */
-	let _guild = [];
+	const _guild = [];
 
 	/**
 	 * @var {Array} others markers
 	 */
-	let _markers = [];
+	const _markers = [];
 
 	/**
 	 * @var {Array} others towninfo
@@ -85,23 +85,23 @@ import cssText from './MiniMap.css?raw';
 	/**
 	 * @var {Image} arrow image
 	 */
-	let _arrow = createAsyncImage();
+	const _arrow = createAsyncImage();
 
 	/**
 	 * @var {Image} map information images
 	 */
-	let _toolDealer = createAsyncImage();
-	let _weaponDealer = createAsyncImage();
-	let _armorDealer = createAsyncImage();
-	let _blacksmith = createAsyncImage();
-	let _guide = createAsyncImage();
-	let _inn = createAsyncImage();
-	let _kafra = createAsyncImage();
+	const _toolDealer = createAsyncImage();
+	const _weaponDealer = createAsyncImage();
+	const _armorDealer = createAsyncImage();
+	const _blacksmith = createAsyncImage();
+	const _guide = createAsyncImage();
+	const _inn = createAsyncImage();
+	const _kafra = createAsyncImage();
 
 	/**
 	 * @var {Image} minimap image
 	 */
-	let _map = createAsyncImage();
+	const _map = createAsyncImage();
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
@@ -111,7 +111,7 @@ import cssText from './MiniMap.css?raw';
 	/**
 	 * @var {List} Zoom values
 	 */
-	let _zoomFactor = [1, 10, 6, 3, 2];
+	const _zoomFactor = [1, 10, 6, 3, 2];
 
 	/**
 	 * Initialize minimap
@@ -250,8 +250,8 @@ import cssText from './MiniMap.css?raw';
 		if (_memberColors[key]) {
 			return _memberColors[key];
 		}
-		let r = Math.random;
-		let color = 'rgb(' + [(r() * 255) | 0, (r() * 255) | 0, (r() * 255) | 0] + ')';
+		const r = Math.random;
+		const color = 'rgb(' + [(r() * 255) | 0, (r() * 255) | 0, (r() * 255) | 0] + ')';
 		_memberColors[key] = color;
 		return color;
 	};
@@ -327,7 +327,7 @@ import cssText from './MiniMap.css?raw';
 	MiniMap.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
 		let i,
 			count = _markers.length;
-		let color = [(lcolor & 0x00ff0000) >> 16, (lcolor & 0x0000ff00) >> 8, lcolor & 0x000000ff];
+		const color = [(lcolor & 0x00ff0000) >> 16, (lcolor & 0x0000ff00) >> 8, lcolor & 0x000000ff];
 
 		for (i = 0; i < count; ++i) {
 			if (_markers[i].key === key) {
@@ -403,8 +403,8 @@ import cssText from './MiniMap.css?raw';
 	/**
 	 * Render GUI
 	 */
-	let render = (function renderClosure() {
-		let ZOOM_SIZE = 20;
+	const render = (function renderClosure() {
+		const ZOOM_SIZE = 20;
 		let max, start_x, start_y, zoom, f;
 		let pos;
 

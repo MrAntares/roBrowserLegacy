@@ -63,7 +63,7 @@ import DB from 'DB/DBManager';
 	 * @param {object} option
 	 */
 	function setAction(option) {
-		let anim = this.animation;
+		const anim = this.animation;
 
 		if (option.delay) {
 			anim.delay = option.delay + 0;
@@ -73,7 +73,7 @@ import DB from 'DB/DBManager';
 			// Know attack frame based on weapon type
 			if (option.action === this.ACTION.ATTACK) {
 				if (this.objecttype === this.constructor.TYPE_PC) {
-					let attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
+					const attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
 					option.action = [this.ACTION.ATTACK1, this.ACTION.ATTACK2, this.ACTION.ATTACK3][attack];
 				}
 
@@ -84,10 +84,10 @@ import DB from 'DB/DBManager';
 			}
 
 			// FIX: Detect the walk animation change and reset pathfinding route
-			let wasWalking = this.action === this.ACTION.WALK;
-			let newAction =
+			const wasWalking = this.action === this.ACTION.WALK;
+			const newAction =
 				option.action === -1 || typeof option.action === 'undefined' ? this.ACTION.IDLE : option.action;
-			let willWalk = newAction === this.ACTION.WALK;
+			const willWalk = newAction === this.ACTION.WALK;
 
 			if (
 				wasWalking &&
@@ -123,7 +123,7 @@ export default function Init() {
 		this.ACTION = new Action();
 		this.animation = new Animation();
 		this.setAction = setAction;
-		let Entity = this.constructor;
+		const Entity = this.constructor;
 
 		switch (this.objecttype) {
 			// Define action, base on type

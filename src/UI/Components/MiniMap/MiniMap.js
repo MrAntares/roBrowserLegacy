@@ -12,8 +12,8 @@ import MiniMap from './MiniMap/MiniMap';
 import MiniMapV2 from './MiniMapV2/MiniMapV2';
 import UIVersionManager from 'UI/UIVersionManager';
 
-let publicName = 'MiniMap';
-	let versionInfo = {
+const publicName = 'MiniMap';
+	const versionInfo = {
 		default: MiniMap,
 		common: {
 			20180124: MiniMapV2
@@ -22,13 +22,13 @@ let publicName = 'MiniMap';
 		prere: {}
 	};
 
-	let Controller = UIVersionManager.getUIController(publicName, versionInfo);
+	const Controller = UIVersionManager.getUIController(publicName, versionInfo);
 
 	/**
 	 * Proxy for getMemberColor
 	 */
 	Controller.getMemberColor = function getMemberColor(key) {
-		let ui = Controller.getUI();
+		const ui = Controller.getUI();
 		return ui && ui.getMemberColor ? ui.getMemberColor(key) : 'white';
 	};
 export default Controller;

@@ -22,7 +22,7 @@ import cssText from './Clan.css?raw';
 /**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Clan',
 		{
 			x: 150,
@@ -34,7 +34,7 @@ import cssText from './Clan.css?raw';
 	/**
 	 * Create Component
 	 */
-	let Clan = new UIComponent('Clan', htmlText, cssText);
+	const Clan = new UIComponent('Clan', htmlText, cssText);
 
 	/**
 	 * Initialize component
@@ -121,7 +121,7 @@ import cssText from './Clan.css?raw';
 	 * @param {object} data
 	 */
 	Clan.setData = function setData(clan) {
-		let general = this.ui.find('.content.info');
+		const general = this.ui.find('.content.info');
 
 		general.find('.name .value').text(clan.name);
 		general.find('.level .value').text(clan.level);
@@ -143,7 +143,7 @@ import cssText from './Clan.css?raw';
 	 * @param {object} members
 	 */
 	Clan.setMembersCount = function setMembersCount(members) {
-		let general = this.ui.find('.content.info');
+		const general = this.ui.find('.content.info');
 
 		general.find('.members .online').text(members.membersOnline);
 		general.find('.members .maxMember').text(members.membersTotal);
@@ -155,7 +155,7 @@ import cssText from './Clan.css?raw';
 	 * @param {Integer} id
 	 */
 	Clan.setIllust = function setIllust(id) {
-		let self = this;
+		const self = this;
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'clan_system/clan_illust' + id.toString().padStart(2, '0') + '.bmp',
 			function (data) {
@@ -173,7 +173,7 @@ import cssText from './Clan.css?raw';
 	 * @param {Integer} id
 	 */
 	Clan.setEmblem = function setEmblem(id) {
-		let self = this;
+		const self = this;
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'clan_system/clan_emblem' + id.toString().padStart(2, '0') + '.bmp',
 			function (data) {
@@ -204,9 +204,9 @@ import cssText from './Clan.css?raw';
 	 * @param {object} Clan
 	 */
 	Clan.addRelation = function addRelation(type, clan) {
-		let list = this.ui.find('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
+		const list = this.ui.find('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
 		list.empty();
-		let div = document.createElement('div');
+		const div = document.createElement('div');
 
 		div.setAttribute('data-Clan-id', clan);
 		div.textContent = clan;

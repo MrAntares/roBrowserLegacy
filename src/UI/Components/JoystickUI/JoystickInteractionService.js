@@ -29,19 +29,19 @@ import ShortcutMapper from './JoystickShortcutMapper';
 		dispose: function () {},
 		cancelQuick: false,
 		executeShortcut: function (index, group) {
-			let shortcut = ShortCut.getList()[index];
+			const shortcut = ShortCut.getList()[index];
 			if (!shortcut) {
 				return;
 			}
 
 			if (!shortcut.isSkill) {
-				let item = InventoryUI.getUI().getItemById(shortcut.ID);
+				const item = InventoryUI.getUI().getItemById(shortcut.ID);
 				if (!item || item.count === 0) {
 					return;
 				}
 			} // Move mouse to target entity position
 			else if (ControlsSettings.attackTargetMode) {
-				let targetEntity = Target.getEntity();
+				const targetEntity = Target.getEntity();
 				if (targetEntity) {
 					Cursor.moveMouseToEntity(targetEntity);
 				}
@@ -58,7 +58,7 @@ import ShortcutMapper from './JoystickShortcutMapper';
 
 				function waitforRelease() {
 					setTimeout(function () {
-						let buttons = Input.buttonStates;
+						const buttons = Input.buttonStates;
 						if (ShortcutMapper.getGroup(buttons) !== group) {
 							Cursor.quickCastClick();
 						} else if (!this.cancelQuick) {
@@ -71,12 +71,12 @@ import ShortcutMapper from './JoystickShortcutMapper';
 		},
 
 		openSelectionWindow: function (draggableElement) {
-			let index = parseInt(draggableElement.getAttribute('data-index'), 10);
-			let isSkill = draggableElement.closest('.skill');
+			const index = parseInt(draggableElement.getAttribute('data-index'), 10);
+			const isSkill = draggableElement.closest('.skill');
 			let itemData;
 
 			if (!isSkill) {
-				let item = InventoryUI.getUI().getItemByIndex(index);
+				const item = InventoryUI.getUI().getItemByIndex(index);
 				if (item) {
 					if (
 						item.type === ItemType.UNKNOWN ||
@@ -96,7 +96,7 @@ import ShortcutMapper from './JoystickShortcutMapper';
 					};
 				}
 			} else {
-				let skill = ShortCut.getSkillById(index);
+				const skill = ShortCut.getSkillById(index);
 				if (skill) {
 					itemData = {
 						isSkill: true,

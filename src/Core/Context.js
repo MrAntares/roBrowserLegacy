@@ -10,7 +10,7 @@
 
 'use strict';
 
-let Context = {};
+const Context = {};
 
 	/**
 	 * Get Informations about current Context
@@ -33,7 +33,7 @@ let Context = {};
 	 */
 	Context.requestFullScreen = function RequestFullScreen() {
 		if (!Context.isFullScreen()) {
-			let element = document.documentElement;
+			const element = document.documentElement;
 
 			if (element.requestFullscreen) {
 				element.requestFullscreen();
@@ -85,7 +85,7 @@ let Context = {};
 		}
 
 		element = document.createElement('canvas');
-		let contextNames = ['webgl2', 'experimental-webgl2'];
+		const contextNames = ['webgl2', 'experimental-webgl2'];
 
 		for (i = 0; i < contextNames.length; ++i) {
 			try {

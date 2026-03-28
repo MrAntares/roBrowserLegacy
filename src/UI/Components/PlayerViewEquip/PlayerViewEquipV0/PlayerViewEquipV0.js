@@ -27,12 +27,12 @@ import Entity from 'Renderer/Entity/Entity';
 	/**
 	 * Create Component
 	 */
-	var PlayerViewEquipV0 = new UIComponent('PlayerViewEquipV0', htmlText, cssText);
+	const PlayerViewEquipV0 = new UIComponent('PlayerViewEquipV0', htmlText, cssText);
 
 	/**
 	 * @var {Preference} window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'PlayerViewEquipV0',
 		{
 			x: 480,
@@ -44,22 +44,22 @@ import Entity from 'Renderer/Entity/Entity';
 	/**
 	 * @var {Array} equipment list
 	 */
-	var _list = {};
+	let _list = {};
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _vieweqctx;
+	let _vieweqctx;
 
 	/**
 	 *  @var {Value} packets
 	 */
-	var charName;
-	var jobID;
-	var headID;
-	var sexID;
-	var bodypalID;
-	var headpalID;
+	let charName;
+	let jobID;
+	let headID;
+	let sexID;
+	let bodypalID;
+	let headpalID;
 
 	/**
 	 * Initialize UI
@@ -130,7 +130,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @param {Item} item
 	 */
 	PlayerViewEquipV0.equip = function equip(item, location) {
-		var it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 
 		if (arguments.length === 1) {
 			if ('WearState' in item) {
@@ -144,7 +144,7 @@ import Entity from 'Renderer/Entity/Entity';
 		_list[item.index] = item;
 
 		function add3Dots(string, limit) {
-			var dots = '...';
+			const dots = '...';
 			if (string.length > limit) {
 				string = string.substring(0, limit) + dots;
 			}
@@ -228,9 +228,9 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Rendering character
 	 */
 	var renderCharacter = (function renderCharacterClosure() {
-		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		var _savedColor = new Float32Array(4);
-		var _animation = {
+		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		const _savedColor = new Float32Array(4);
+		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -241,7 +241,7 @@ import Entity from 'Renderer/Entity/Entity';
 		};
 
 		return function renderCharacter() {
-			var show_character = new Entity();
+			const show_character = new Entity();
 			show_character.set({
 				GID: charName + '_EQUIP',
 				objecttype: show_character.constructor.TYPE_PC,
@@ -270,7 +270,7 @@ import Entity from 'Renderer/Entity/Entity';
 			show_character.animation = _animation;
 
 			// Sprite Render
-			var ctx = _vieweqctx;
+			const ctx = _vieweqctx;
 			SpriteRenderer.bind2DContext(ctx, 30, 130);
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			show_character.renderEntity(ctx);
@@ -284,7 +284,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @returns {string} selector
 	 */
 	function getSelectorFromLocation(location) {
-		var selector = [];
+		const selector = [];
 
 		if (location & EquipLocation.HEAD_TOP) {
 			selector.push('.head_top');
@@ -336,8 +336,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Right click on an item
 	 */
 	function onEquipmentInfo(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = _list[index];
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = _list[index];
 
 		if (item) {
 			// Don't add the same UI twice, remove it
@@ -361,16 +361,16 @@ import Entity from 'Renderer/Entity/Entity';
 	 * When mouse is over an equipment, display the item name
 	 */
 	function onEquipmentOver() {
-		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var item = _list[idx];
+		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const item = _list[idx];
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = PlayerViewEquipV0.ui.find('.overlay');
-		var pos = jQuery(this).position();
+		const overlay = PlayerViewEquipV0.ui.find('.overlay');
+		const pos = jQuery(this).position();
 
 		// Possible jquery error
 		if (!pos.top && !pos.left) {
@@ -394,8 +394,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Update the owner name for the equipment items
 	 */
 	PlayerViewEquipV0.onUpdateOwnerName = function () {
-		for (var index in _list) {
-			var item = _list[index];
+		for (const index in _list) {
+			const item = _list[index];
 			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				PlayerViewEquipV0.ui
 					.find('.item[data-index="' + index + '"] .itemName')
@@ -410,8 +410,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @returns {number} The number of equipment items
 	 */
 	PlayerViewEquipV0.getNumber = function () {
-		var num = 0;
-		for (var key in _list) {
+		let num = 0;
+		for (const key in _list) {
 			if (_list[key].location && _list[key].location != EquipLocation.AMMO) {
 				num++;
 			}
@@ -426,7 +426,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @returns {number} The sprite number of the item in the specified location, or 0 if not equipped
 	 */
 	PlayerViewEquipV0.checkEquipLoc = function checkEquipLoc(location) {
-		for (var key in _list) {
+		for (const key in _list) {
 			if (_list[key].equipped & location) {
 				return _list[key].wItemSpriteNumber;
 			}

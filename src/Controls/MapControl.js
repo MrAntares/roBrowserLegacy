@@ -39,12 +39,12 @@ import 'Controls/ScreenShot';
 	/**
 	 * @var {int16[2]} screen position
 	 */
-	let _rightClickPosition = new Int16Array(2);
+	const _rightClickPosition = new Int16Array(2);
 
 	/**
 	 * @namespace MapControl
 	 */
-	let MapControl = {};
+	const MapControl = {};
 
 	/**
 	 * Callback used when requesting to move somewhere
@@ -82,14 +82,14 @@ import 'Controls/ScreenShot';
 	 * What to do when clicking on the map ?
 	 */
 	function onMouseDown(event) {
-		let action = (event && event.which) || 1;
+		const action = (event && event.which) || 1;
 
 		if (!Mouse.intersect) {
 			return;
 		}
 
-		let entityFocus = EntityManager.getFocusEntity();
-		let entityOver = EntityManager.getOverEntity();
+		const entityFocus = EntityManager.getFocusEntity();
+		const entityOver = EntityManager.getOverEntity();
 
 		switch (action) {
 			// Left click
@@ -192,7 +192,7 @@ import 'Controls/ScreenShot';
 	 */
 	function onMouseUp(event) {
 		let entity, ET;
-		let action = (event && event.which) || 1;
+		const action = (event && event.which) || 1;
 
 		// Not rendering yet
 		if (!Mouse.intersect) {
@@ -320,7 +320,7 @@ import 'Controls/ScreenShot';
 		}
 
 		// Item Drop Lock
-		let InventoryVersion = UIManager.getComponent('Inventory').name;
+		const InventoryVersion = UIManager.getComponent('Inventory').name;
 		if (InventoryVersion !== 'InventoryV0' && Inventory.getUI().itemlock === true) {
 			return false;
 		}
@@ -350,15 +350,15 @@ import 'Controls/ScreenShot';
 	 */
 	function onAutoFollow() {
 		if (Session.autoFollow) {
-			let player = Session.Entity;
-			let target = Session.autoFollowTarget;
+			const player = Session.Entity;
+			const target = Session.autoFollowTarget;
 
-			let dx = Math.abs(player.position[0] - target.position[0]);
-			let dy = Math.abs(player.position[1] - target.position[1]);
+			const dx = Math.abs(player.position[0] - target.position[0]);
+			const dy = Math.abs(player.position[1] - target.position[1]);
 
 			// Use square based range check instead of Pythagorean because of diagonals
 			if (dx > 1 || dy > 1) {
-				let dest = [0, 0];
+				const dest = [0, 0];
 
 				// If there is valid cell send move packet
 				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
@@ -387,8 +387,8 @@ import 'Controls/ScreenShot';
 	 */
 	function checkFreeCell(x, y, range, out) {
 		let _x, _y, r;
-		let d_x = Session.Entity.position[0] < x ? -1 : 1;
-		let d_y = Session.Entity.position[1] < y ? -1 : 1;
+		const d_x = Session.Entity.position[0] < x ? -1 : 1;
+		const d_y = Session.Entity.position[1] < y ? -1 : 1;
 
 		// Search possible positions
 		for (r = 0; r <= range; ++r) {

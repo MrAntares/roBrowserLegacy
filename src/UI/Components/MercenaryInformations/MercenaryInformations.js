@@ -25,12 +25,12 @@ import cssText from './MercenaryInformations.css?raw';
 /**
 	 * Create Component
 	 */
-	let MercenaryInformations = new UIComponent('MercenaryInformations', htmlText, cssText);
+	const MercenaryInformations = new UIComponent('MercenaryInformations', htmlText, cssText);
 
 	/**
 	 * @var {Preferences}
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'MercenaryInformations',
 		{
 			x: 100,
@@ -169,11 +169,11 @@ import cssText from './MercenaryInformations.css?raw';
 			return '0';
 		}
 
-		let now = Date.now() / 1000;
-		let remaining = Math.max(0, timestamp - now);
+		const now = Date.now() / 1000;
+		const remaining = Math.max(0, timestamp - now);
 
-		let hours = Math.floor(remaining / 3600);
-		let minutes = Math.floor((remaining % 3600) / 60);
+		const hours = Math.floor(remaining / 3600);
+		const minutes = Math.floor((remaining % 3600) / 60);
 
 		return hours + 'h ' + minutes + 'm';
 	};
@@ -188,18 +188,18 @@ import cssText from './MercenaryInformations.css?raw';
 			return;
 		}
 
-		let now = Date.now() / 1000;
-		let remaining = Math.max(0, timestamp - now);
-		let TOTAL_DURATION = 30 * 60; // 30 minutes in seconds
-		let time_per = remaining / TOTAL_DURATION;
+		const now = Date.now() / 1000;
+		const remaining = Math.max(0, timestamp - now);
+		const TOTAL_DURATION = 30 * 60; // 30 minutes in seconds
+		const time_per = remaining / TOTAL_DURATION;
 
 		// Update text
 		this.ui.find('.block2 .timeleft').text(this.formatExpireDate(timestamp));
 
 		// Update bar
-		let canvas = this.ui.find('canvas.life.title_timeleft')[0];
-		let ctx = canvas.getContext('2d');
-		let width = 60,
+		const canvas = this.ui.find('canvas.life.title_timeleft')[0];
+		const ctx = canvas.getContext('2d');
+		const width = 60,
 			height = 5;
 
 		// empty
@@ -224,11 +224,11 @@ import cssText from './MercenaryInformations.css?raw';
 		this.ui.find('.block2 .kills').text(kills);
 
 		// Update bar
-		let canvas = this.ui.find('canvas.life.title_kills')[0];
-		let ctx = canvas.getContext('2d');
-		let width = 60,
+		const canvas = this.ui.find('canvas.life.title_kills')[0];
+		const ctx = canvas.getContext('2d');
+		const width = 60,
 			height = 5;
-		let kills_per = (kills % 50) / 50;
+		const kills_per = (kills % 50) / 50;
 
 		// empty
 		ctx.fillStyle = '#424242';
@@ -271,8 +271,8 @@ import cssText from './MercenaryInformations.css?raw';
 	 * Set hp and sp bar
 	 */
 	MercenaryInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
-		let perc = Math.floor((val * 100) / val2);
-		let color = perc < 25 ? 'red' : 'blue';
+		const perc = Math.floor((val * 100) / val2);
+		const color = perc < 25 ? 'red' : 'blue';
 
 		this.ui.find('.' + type + '_bar_perc .' + type + '_value').text(val);
 		this.ui.find('.' + type + '_bar_perc .' + type + '_max_value').text(val2);
@@ -310,7 +310,7 @@ import cssText from './MercenaryInformations.css?raw';
 	 * Toggle Aggressive
 	 */
 	MercenaryInformations.toggleAggressive = function toggleAggressive() {
-		let agr = localStorage.getItem('MER_AGGRESSIVE') == 0 ? 1 : 0;
+		const agr = localStorage.getItem('MER_AGGRESSIVE') == 0 ? 1 : 0;
 		localStorage.setItem('MER_AGGRESSIVE', agr);
 	};
 
@@ -322,7 +322,7 @@ import cssText from './MercenaryInformations.css?raw';
 			AIDriver.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.mercId) {
-					let entity = EntityManager.get(Session.mercId);
+					const entity = EntityManager.get(Session.mercId);
 					if (entity) {
 						AIDriver.exec('AI(' + Session.mercId + ')', false);
 					}
@@ -352,7 +352,7 @@ import cssText from './MercenaryInformations.css?raw';
 	 * Set target for mercenary to attack
 	 */
 	MercenaryInformations.setTarget = function setTarget(targetId) {
-		let entity = EntityManager.get(Session.mercId);
+		const entity = EntityManager.get(Session.mercId);
 		if (!entity) {
 			return;
 		}

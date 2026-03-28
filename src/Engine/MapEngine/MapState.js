@@ -18,9 +18,9 @@ import PvPCount from 'UI/Components/PvPCount/PvPCount';
 /**
 	 * Load dependencies
 	 */
-	let MapProperty = MapState.MapProperty;
-	let MapType = MapState.MapType;
-	let MapFlag = MapState.MapFlag;
+	const MapProperty = MapState.MapProperty;
+	const MapType = MapState.MapType;
+	const MapFlag = MapState.MapFlag;
 
 	/**
 	 * Define Map Properties

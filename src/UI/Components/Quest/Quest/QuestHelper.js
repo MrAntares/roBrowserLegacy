@@ -24,12 +24,12 @@ import cssText from './QuestHelper.css?raw';
 /**
 	 * Create Component
 	 */
-	let QuestHelper = new UIComponent('QuestHelper', htmlText, cssText);
+	const QuestHelper = new UIComponent('QuestHelper', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Quest',
 		{
 			x: 200,
@@ -123,7 +123,7 @@ import cssText from './QuestHelper.css?raw';
 
 		// Add click handler for item links
 		this.ui.on('click', '.item-link', function (event) {
-			let itemId = parseInt(jQuery(this).data('item-id'), 10);
+			const itemId = parseInt(jQuery(this).data('item-id'), 10);
 			if (!itemId) {
 				return;
 			}
@@ -142,8 +142,8 @@ import cssText from './QuestHelper.css?raw';
 
 		// Add click handler for navi links
 		this.ui.on('click', '.navi-link', function (event) {
-			let naviInfo = jQuery(this).data('navi-info');
-			let displayName = jQuery(this).data('navi-name');
+			const naviInfo = jQuery(this).data('navi-info');
+			const displayName = jQuery(this).data('navi-name');
 
 			if (!naviInfo) {
 				return;
@@ -180,7 +180,7 @@ import cssText from './QuestHelper.css?raw';
 			.find('.quest-info-description-panel-text .quest-ui-text-span')
 			.html(processText(quest.description));
 		let list = '';
-		for (let huntID in quest.hunt_list) {
+		for (const huntID in quest.hunt_list) {
 			list +=
 				'<li>' +
 				processText(quest.hunt_list[huntID].mobName) +
@@ -201,8 +201,8 @@ import cssText from './QuestHelper.css?raw';
 		}
 
 		for (let i = 0; i < quest.reward_item_list.length; i++) {
-			let it = DB.getItemInfo(quest.reward_item_list[i].ItemID);
-			let item_li =
+			const it = DB.getItemInfo(quest.reward_item_list[i].ItemID);
+			const item_li =
 				'<li class="quest-reward-item-li"><div class="quest-reward-item" data-index="' +
 				quest.reward_item_list[i].ItemID +
 				'">' +
@@ -227,7 +227,7 @@ import cssText from './QuestHelper.css?raw';
 		// TODO: quest.npc_spr
 
 		if (quest.end_time) {
-			let d = new Date(0);
+			const d = new Date(0);
 			d.setUTCSeconds(quest.end_time);
 			QuestHelper.ui.find('.quest-info-bottom-deadline-info-text').html('Deadline [' + d.toLocaleString() + ']');
 		}

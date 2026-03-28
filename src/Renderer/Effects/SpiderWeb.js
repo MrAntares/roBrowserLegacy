@@ -3,7 +3,7 @@
 import WebGL from 'Utils/WebGL';
 import { FlatTexture } from 'Renderer/Effects/Tiles';
 
-let _SpiderWebVertexShader = `
+const _SpiderWebVertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -26,7 +26,7 @@ let _SpiderWebVertexShader = `
             vTextureCoord  = aTextureCoord;
         }
 `;
-let _SpiderWebFragmentShader = `
+const _SpiderWebFragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -58,8 +58,8 @@ class SpiderWeb extends FlatTexture('data/texture/effect/spiderweb.tga', 128) {
 	}
 
 	render(gl, tick) {
-		let oddEven = this.ix % 2 === 0 ? Math.PI : 0;
-		let sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
+		const oddEven = this.ix % 2 === 0 ? Math.PI : 0;
+		const sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
 		gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
 		gl.uniform1f(this.constructor._program.uniform.uSize, 1.5 + 0.05 * sizeMult);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);

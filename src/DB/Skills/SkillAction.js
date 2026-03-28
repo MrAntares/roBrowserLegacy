@@ -12,7 +12,7 @@
 
 import SK from './SkillConst';
 
-	let SkillAction = {};
+	const SkillAction = {};
 
 	//Default skill action
 	SkillAction['DEFAULT'] = function (entity, tick) {

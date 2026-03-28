@@ -78,7 +78,7 @@ import SoundManager from 'Audio/SoundManager';
 			return;
 		}
 
-		let count = Math.floor(anim / size);
+		const count = Math.floor(anim / size);
 
 		if (this._animCounter !== count) {
 			this.free();

@@ -24,12 +24,12 @@ import MonsterTable from 'DB/Monsters/MonsterTable';
 /**
 	 * Create Component
 	 */
-	let CaptchaSelector = new UIComponent('CaptchaSelector', htmlText, cssText);
+	const CaptchaSelector = new UIComponent('CaptchaSelector', htmlText, cssText);
 
 	/**
 	 * Preferences
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CaptchaSelector',
 		{
 			x: 230,
@@ -65,14 +65,14 @@ import MonsterTable from 'DB/Monsters/MonsterTable';
 		this.draggable('.titlebar');
 		this.ui.find('.close').click(this.remove.bind(this));
 
-		let self = this;
+		const self = this;
 
 		// Active Button
 		this.ui.find('.btn_active').click(function () {
 			_active = !_active;
 
 			if (_active) {
-				let type = self.ui.find('input[name="target_type"]:checked').val();
+				const type = self.ui.find('input[name="target_type"]:checked').val();
 				_range = parseInt(self.ui.find('.range_val').val(), 10) || 1;
 				_range = Math.min(Math.max(1, _range), 9);
 
@@ -172,7 +172,7 @@ import MonsterTable from 'DB/Monsters/MonsterTable';
 		this.cleanUIList();
 		_aidInformation = [];
 
-		let li_list = this.ui.find('.player_list li');
+		const li_list = this.ui.find('.player_list li');
 
 		// remove Session.Entity from players list
 		players = players.filter(function (aid) {
@@ -202,7 +202,7 @@ import MonsterTable from 'DB/Monsters/MonsterTable';
 
 		// add remove button click event
 		this.ui.find('.player_list li .remove').click(function () {
-			let aid = jQuery(this).data('aid');
+			const aid = jQuery(this).data('aid');
 			_aidList = _aidList.filter(function (item) {
 				return item !== aid;
 			});
@@ -214,10 +214,10 @@ import MonsterTable from 'DB/Monsters/MonsterTable';
 			.find('.player_list li')
 			.find('a')
 			.click(function () {
-				let aid = jQuery(this).data('aid');
-				let entity = EntityManager.get(aid);
-				let name = entity?.display?.name ?? 'Unknown';
-				let job = MonsterTable[entity?._job ?? 0] ?? 'Unknown';
+				const aid = jQuery(this).data('aid');
+				const entity = EntityManager.get(aid);
+				const name = entity?.display?.name ?? 'Unknown';
+				const job = MonsterTable[entity?._job ?? 0] ?? 'Unknown';
 				CaptchaSelector.ui.find('.character_info').find('.character-name').text(name);
 				CaptchaSelector.ui.find('.character_info').find('.character-job').text(job);
 

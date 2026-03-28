@@ -34,7 +34,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	/**
 	 * Create Component
 	 */
-	var CartItems = new UIComponent('CartItems', htmlText, cssText);
+	const CartItems = new UIComponent('CartItems', htmlText, cssText);
 
 	/**
 	 * Store inventory items
@@ -44,12 +44,12 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	var _realSize = 0;
+	let _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CartItems',
 		{
 			x: 200,
@@ -199,8 +199,8 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * @returns {Item}
 	 */
 	CartItems.getItemById = function GetItemById(id) {
-		var i, count;
-		var list = CartItems.list;
+		let i, count;
+		const list = CartItems.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -218,8 +218,8 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * @returns {Item}
 	 */
 	CartItems.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list = CartItems.list;
+		let i, count;
+		const list = CartItems.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -235,12 +235,12 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * if the item index is exist you should clear it;[skybook888]
 	 */
 	CartItems.setItems = function SetItems(items) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = items.length; i < count; ++i) {
-			var object = this.getItemByIndex(items[i].index);
+			const object = this.getItemByIndex(items[i].index);
 			if (object) {
-				var item = this.removeItem(object.index, object.count);
+				const item = this.removeItem(object.index, object.count);
 			}
 			if (this.addItemSub(items[i])) {
 				this.list.push(items[i]);
@@ -261,7 +261,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * @param {object} Item
 	 */
 	CartItems.addItem = function AddItem(item) {
-		var object = this.getItemByIndex(item.index);
+		let object = this.getItemByIndex(item.index);
 
 		if (object) {
 			object.count += item.count;
@@ -287,8 +287,8 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 			return false;
 		}
 
-		var it = DB.getItemInfo(item.ITID);
-		var content = this.ui.find('.container .content');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.container .content');
 
 		content.append(
 			'<div class="item" data-index="' +
@@ -342,7 +342,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * @param {number} count
 	 */
 	CartItems.removeItem = function RemoveItem(index, count) {
-		var item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
 		// do not remove item from inventory
@@ -362,7 +362,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 		this.list.splice(this.list.indexOf(item), 1);
 		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		var content = this.ui.find('.container .content');
+		const content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -377,7 +377,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * @param {number} count
 	 */
 	CartItems.updateItem = function UpdateItem(index, count) {
-		var item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -395,7 +395,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 		this.list.splice(this.list.indexOf(item), 1);
 		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		var content = this.ui.find('.container .content');
+		const content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -413,21 +413,21 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * Extend inventory window size
 	 */
 	function onResize() {
-		var ui = CartItems.ui;
-		var content = ui.find('.container .content');
-		var hide = ui.find('.hide');
-		var top = ui.position().top;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = CartItems.ui;
+		const content = ui.find('.container .content');
+		const hide = ui.find('.hide');
+		const top = ui.position().top;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraX = 23 + 16 + 16 - 30;
-			var extraY = 31 + 19 - 30;
+			const extraX = 23 + 16 + 16 - 30;
+			const extraY = 31 + 19 - 30;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 6), 9);
@@ -465,7 +465,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * Hide/show inventory's content
 	 */
 	function onToggleReduction() {
-		var ui = CartItems.ui;
+		const ui = CartItems.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
@@ -499,7 +499,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * @param {event}
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -551,7 +551,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * Block the scroll to move 32px at each move
 	 */
 	function onScroll(event) {
-		var delta;
+		let delta;
 
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
@@ -571,8 +571,8 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = CartItems.getItemByIndex(idx);
 
 		if (!item) {
 			return;
@@ -588,8 +588,8 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 		}
 
 		// Get back data
-		var pos = jQuery(this).position();
-		var overlay = CartItems.ui.find('.overlay');
+		const pos = jQuery(this).position();
+		const overlay = CartItems.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -614,16 +614,16 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = CartItems.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const img = new Image();
+		const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		img.decoding = 'async';
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
@@ -656,8 +656,8 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = CartItems.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -690,7 +690,7 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		var compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -707,14 +707,14 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * Alt Right Click Request Transfer
 	 */
 	function transferItemToOtherUI(item) {
-		var isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
-		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		const isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
+		const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 
 		if (!item) {
 			return false;
 		}
 
-		var count = item.count || 1;
+		const count = item.count || 1;
 
 		if (isStorageOpen) {
 			Storage.reqAddItemFromCart(item.index, count);
@@ -729,8 +729,8 @@ import Equipment from 'UI/Components/Equipment/Equipment';
 	 * Ask to use an item
 	 */
 	function onItemUsed(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = CartItems.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = CartItems.getItemByIndex(index);
 
 		if (item) {
 			CartItems.useItem(item);

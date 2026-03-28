@@ -23,12 +23,12 @@ import cssText from './VendingReport.css?raw';
 /**
 	 * Create Component
 	 */
-	let VendingReport = new UIComponent('VendingReport', htmlText, cssText);
+	const VendingReport = new UIComponent('VendingReport', htmlText, cssText);
 
 	/**
 	 * Store bought items
 	 */
-	let VendingReportTable = {
+	const VendingReportTable = {
 		list: [],
 		_nextIndex: 0
 	};
@@ -43,7 +43,7 @@ import cssText from './VendingReport.css?raw';
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'VendingReport',
 		{
 			x: 200,
@@ -205,8 +205,8 @@ import cssText from './VendingReport.css?raw';
 	 * @param {object} Item
 	 */
 	VendingReport.addItemSub = function addItemSub(item) {
-		let it = DB.getItemInfo(item.ITID);
-		let content = this.ui.find('.container .content');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.container .content');
 
 		content.append(
 			'<div class="item" data-ITID="' +
@@ -257,7 +257,7 @@ import cssText from './VendingReport.css?raw';
 	 * @return {string}
 	 */
 	function prettyZeny(val, useStyle) {
-		let list = val.toString().split('');
+		const list = val.toString().split('');
 		let i,
 			count = list.length;
 		let str = '';
@@ -267,7 +267,7 @@ import cssText from './VendingReport.css?raw';
 		}
 
 		if (useStyle) {
-			let style = [
+			const style = [
 				'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
 				'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
 				'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
@@ -333,16 +333,16 @@ import cssText from './VendingReport.css?raw';
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		let idx = parseInt(this.getAttribute('data-id'), 10);
-		let item = VendingReport.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-id'), 10);
+		const item = VendingReport.getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		let pos = jQuery(this).position();
-		let overlay = VendingReport.ui.find('.overlay');
+		const pos = jQuery(this).position();
+		const overlay = VendingReport.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -367,8 +367,8 @@ import cssText from './VendingReport.css?raw';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let index = parseInt(this.getAttribute('data-id'), 10);
-		let item = VendingReport.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-id'), 10);
+		const item = VendingReport.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -396,7 +396,7 @@ import cssText from './VendingReport.css?raw';
 	 */
 	VendingReport.getItemByIndex = function getItemByIndex(index) {
 		let i, count;
-		let list = VendingReportTable.list;
+		const list = VendingReportTable.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].reportId === index) {

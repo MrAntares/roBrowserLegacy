@@ -24,9 +24,9 @@ import Configs from 'Core/Configs';
  * @return {object} webgl context
  */
 export function getContext(canvas, parameters) {
-	var gl = null;
-	var names;
-	var i, count;
+	let gl = null;
+	let names;
+	let i, count;
 
 	// Default options
 	if (!parameters) {
@@ -79,7 +79,7 @@ export function getContext(canvas, parameters) {
  * @param {number} type (fragment or shader constant)
  */
 export function compileShader(gl, source, type) {
-	var shader, error;
+	let shader, error;
 
 	// Ensure #version is first token by trimming leading whitespace/BOM
 	if (source && source.charCodeAt(0) === 0xfeff) {
@@ -98,7 +98,7 @@ export function compileShader(gl, source, type) {
 		gl.deleteShader(shader);
 
 		// More descriptive error
-		var typeStr = type === gl.VERTEX_SHADER ? 'Vertex' : 'Fragment';
+		const typeStr = type === gl.VERTEX_SHADER ? 'Vertex' : 'Fragment';
 		throw new Error('WebGL::CompileShader() - Fail to compile ' + typeStr + ' shader: ' + error);
 	}
 
@@ -113,7 +113,7 @@ export function compileShader(gl, source, type) {
  * @param {string} fragmentShader
  */
 export function createShaderProgram(gl, vertexShader, fragmentShader) {
-	var shaderProgram, vs, fs, attrib, uniform, i, count, error;
+	let shaderProgram, vs, fs, attrib, uniform, i, count, error;
 
 	// Compile shader and attach them
 	try {
@@ -188,7 +188,7 @@ export function toPowerOfTwo(num) {
  * @param {function} callback once the image is on gpu
  */
 export function texture(gl, url, callback) {
-	var args = Array.prototype.slice.call(arguments, 3);
+	const args = Array.prototype.slice.call(arguments, 3);
 
 	Texture.load(url, function (success) {
 		if (!success) {
@@ -201,8 +201,8 @@ export function texture(gl, url, callback) {
 			return;
 		}
 		try {
-			var canvas, ctx, texture;
-			var enableMipmap = Configs.get('enableMipmap');
+			let canvas, ctx, texture;
+			const enableMipmap = Configs.get('enableMipmap');
 
 			canvas = document.createElement('canvas');
 			canvas.width = toPowerOfTwo(this.width);

@@ -40,17 +40,17 @@ let _ctx;
 /**
  * @let {number} type
  */
-let _type = 0;
+const _type = 0;
 
 /**
  * @let {number} start tick
  */
-let _start = 0;
+const _start = 0;
 
 /**
  * Create Component
  */
-let ItemCompare = new UIComponent('ItemCompare', htmlText, cssText);
+const ItemCompare = new UIComponent('ItemCompare', htmlText, cssText);
 
 /**
  * @let {number} ItemCompare unique id
@@ -78,13 +78,13 @@ ItemCompare.uid = -1;
  */
 ItemCompare.onAppend = function onAppend() {
 	// Seems like "EscapeWindow" is execute first, push it before.
-	let events = jQuery._data(window, 'events').keydown;
+	const events = jQuery._data(window, 'events').keydown;
 	events.unshift(events.pop());
 	resize(ItemCompare.ui.find('.description-inner').height() + 45);
 
 	// Position ItemCompare next to ItemInfo
-	let itemInfoPosition = ItemInfo.ui.offset();
-	let itemInfoWidth = ItemInfo.ui.outerWidth();
+	const itemInfoPosition = ItemInfo.ui.offset();
+	const itemInfoWidth = ItemInfo.ui.outerWidth();
 	ItemCompare.ui.css({
 		position: 'absolute',
 		top: itemInfoPosition.top ? itemInfoPosition.top : 200,
@@ -123,10 +123,10 @@ ItemCompare.init = function init() {
  * @param {object} item
  */
 ItemCompare.setItem = function setItem(item) {
-	let it = DB.getItemInfo(item.ITID);
-	let ui = this.ui;
-	let cardList = ui.find('.cardlist .border');
-	let optionContainer = ui.find('.option-container');
+	const it = DB.getItemInfo(item.ITID);
+	const ui = this.ui;
+	const cardList = ui.find('.cardlist .border');
+	const optionContainer = ui.find('.option-container');
 
 	this.item = it;
 	Client.loadFile(
@@ -139,7 +139,7 @@ ItemCompare.setItem = function setItem(item) {
 		}
 	);
 
-	let itemName = DB.getItemName(item, { showItemOptions: false });
+	const itemName = DB.getItemName(item, { showItemOptions: false });
 
 	// Damaged status
 	if (item.IsDamaged) {
@@ -156,8 +156,8 @@ ItemCompare.setItem = function setItem(item) {
 		//Loop to Show Options
 		for (let i = 1; i <= 5; i++) {
 			if (item.Options[i].index > 0) {
-				let randomOptionName = DB.getOptionName(item.Options[i].index);
-				let optionList =
+				const randomOptionName = DB.getOptionName(item.Options[i].index);
+				const optionList =
 					'<div class="optionlist">' +
 					'<div class="border">' +
 					randomOptionName.replace('\%d', item.Options[i].value).replace('\%\%', '%') +
@@ -207,7 +207,7 @@ ItemCompare.setItem = function setItem(item) {
 				cardList.parent().hide();
 				break;
 			}
-			let slotCount = it.slotCount || 0;
+			const slotCount = it.slotCount || 0;
 			let i;
 
 			cardList.parent().show();
@@ -239,7 +239,7 @@ ItemCompare.setItem = function setItem(item) {
 function addCard(cardList, itemId, index, slotCount) {
 	let file,
 		name = '';
-	let card = DB.getItemInfo(itemId);
+	const card = DB.getItemInfo(itemId);
 
 	if (itemId && card) {
 		file = 'item/' + card.identifiedResourceName + '.bmp';
@@ -255,7 +255,7 @@ function addCard(cardList, itemId, index, slotCount) {
 	cardList.append('<div class="item" data-index="' + index + '">' + '<div class="icon"></div>' + name + '</div>');
 
 	Client.loadFile(DB.INTERFACE_PATH + file, function (data) {
-		let element = cardList.find('.item[data-index="' + index + '"] .icon');
+		const element = cardList.find('.item[data-index="' + index + '"] .icon');
 		element.css('backgroundImage', 'url(' + data + ')');
 
 		if (itemId && card) {
@@ -274,14 +274,14 @@ function addCard(cardList, itemId, index, slotCount) {
  * Extend ItemCompare window size
  */
 function onResize() {
-	let ui = ItemCompare.ui;
-	let top = ui.position().top;
-	let left = ui.position().left;
+	const ui = ItemCompare.ui;
+	const top = ui.position().top;
+	const left = ui.position().left;
 	let lastHeight = 0;
 	let _Interval;
 
 	function resizing() {
-		let h = Math.floor(Mouse.screen.y - top);
+		const h = Math.floor(Mouse.screen.y - top);
 		if (h === lastHeight) {
 			return;
 		}
@@ -307,12 +307,12 @@ function onResize() {
  * @param {number} height
  */
 function resize(height) {
-	let container = ItemCompare.ui.find('.container');
-	let description = ItemCompare.ui.find('.description');
-	let descriptionInner = ItemCompare.ui.find('.description-inner');
+	const container = ItemCompare.ui.find('.container');
+	const description = ItemCompare.ui.find('.description');
+	const descriptionInner = ItemCompare.ui.find('.description-inner');
 	let containerHeight = height;
-	let minHeight = 120;
-	let maxHeight = descriptionInner.height() + 45 > 120 ? Math.min(descriptionInner.height() + 45, 448) : 120;
+	const minHeight = 120;
+	const maxHeight = descriptionInner.height() + 45 > 120 ? Math.min(descriptionInner.height() + 45, 448) : 120;
 
 	if (containerHeight <= minHeight) {
 		containerHeight = minHeight;
@@ -331,14 +331,14 @@ function resize(height) {
 }
 
 function onUpdateOwnerName(pkt) {
-	let str = ItemCompare.ui.find('.owner-' + pkt.GID).text();
+	const str = ItemCompare.ui.find('.owner-' + pkt.GID).text();
 	ItemCompare.ui.find('.owner-' + pkt.GID).text(pkt.CName);
 
 	delete DB.UpdateOwnerName[pkt.GID];
 }
 
 function addEvent(item) {
-	let event = ItemCompare.ui.find('.event_view');
+	const event = ItemCompare.ui.find('.event_view');
 	if (!validateFieldsExist(event)) {
 		addEvent(item);
 	}
@@ -353,7 +353,7 @@ function addEvent(item) {
 			event.find('.view').show();
 			break;
 		case ItemType.ETC:
-			let filenameBook = `data/book/${item.ITID}.txt`;
+			const filenameBook = `data/book/${item.ITID}.txt`;
 			Client.loadFile(filenameBook, function (data) {
 				MakeReadBook.startBook(data, item);
 				eventsBooks();
@@ -367,7 +367,7 @@ function addEvent(item) {
 }
 
 function eventsBooks() {
-	let event = ItemCompare.ui.find('.event_view');
+	const event = ItemCompare.ui.find('.event_view');
 
 	Client.getFiles(
 		['data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.spr', 'data/sprite/book/\xc3\xa5\xc0\xd0\xb1\xe2.act'],
@@ -383,7 +383,7 @@ function eventsBooks() {
 			canvas = _sprite.getCanvasFromFrame(0);
 			canvas.className = 'book_open event_add_cursor';
 			event.append(canvas);
-			let bookOpen = ItemCompare.ui.find('.book_open');
+			const bookOpen = ItemCompare.ui.find('.book_open');
 			bookOpen
 				.mouseover(function (e) {
 					e.stopImmediatePropagation();
@@ -406,7 +406,7 @@ function eventsBooks() {
 			canvas.height = 15;
 			_ctx = canvas[0].getContext('2d');
 
-			let bookRead = ItemCompare.ui.find('.book_read');
+			const bookRead = ItemCompare.ui.find('.book_read');
 			bookRead
 				.mouseover(function (e) {
 					e.stopImmediatePropagation();
@@ -430,14 +430,14 @@ function eventsBooks() {
 /**
  * Rendering animation
  */
-let rendering = (function renderingClosure() {
-	let position = new Uint16Array([0, 0]);
+const rendering = (function renderingClosure() {
+	const position = new Uint16Array([0, 0]);
 
 	return function rendering() {
 		let i, count, max;
 		let action, animation, anim;
 
-		let _entity = new Entity();
+		const _entity = new Entity();
 		action = _action.actions[_type];
 		max = action.animations.length;
 		anim = Renderer.tick - _start;
@@ -466,7 +466,7 @@ let rendering = (function renderingClosure() {
 
 function validateFieldsExist(event) {
 	if (event.length === 0) {
-		let validExitElement =
+		const validExitElement =
 			'<div class="event_view">' +
 			'<button class="view" data-background="btn_view.bmp" data-down="btn_view_a.bmp" data-hover="btn_view_b.bmp"></button>' +
 			'<span class="overlay_open" data-text="1294">' +

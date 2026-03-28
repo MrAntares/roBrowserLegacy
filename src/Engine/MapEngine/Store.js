@@ -35,7 +35,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		NpcStore.setType(NpcStore.Type.CASH_SHOP);
 		NpcStore.setList(pkt.itemList);
 
-		let entity = Session.Entity;
+		const entity = Session.Entity;
 		NpcStore.ui.find('.cashuser .buyer').text(entity ? entity.display.name : '');
 		NpcStore.ui.find('.cashuser .cashpoints').text(pkt.KafraPoint);
 
@@ -136,8 +136,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			count = itemList.length;
 
 			for (i = 0; i < count; ++i) {
-				let item = Inventory.getUI().getItemById(itemList[i].matcurrency);
-				let item_index = item ? item.index : -1;
+				const item = Inventory.getUI().getItemById(itemList[i].matcurrency);
+				const item_index = item ? item.index : -1;
 				pkt.itemList.push({
 					itemId: itemList[i].ITID,
 					amount: itemList[i].count,
@@ -349,7 +349,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		NpcStore.setList(_pkt.itemList);
 
 		// Get seller name
-		let entity = EntityManager.get(_pkt.AID);
+		const entity = EntityManager.get(_pkt.AID);
 		NpcStore.ui.find('.seller').text(entity ? entity.display.name : '');
 
 		// Bying items
@@ -395,7 +395,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		NpcStore.setPriceLimit(_pkt.limitZeny);
 
 		// Get seller name
-		let entity = EntityManager.get(_pkt.AID);
+		const entity = EntityManager.get(_pkt.AID);
 		NpcStore.ui.find('.seller').text(entity ? entity.display.name : '');
 
 		// Bying items

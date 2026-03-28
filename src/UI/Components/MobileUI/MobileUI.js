@@ -28,12 +28,12 @@ import glMatrix from 'Vendors/gl-matrix';
 import Camera from 'Renderer/Camera';
 import KEYS from 'Controls/KeyEventHandler';
 
-let vec2 = glMatrix.vec2;
-	let mat2 = glMatrix.mat2;
+const vec2 = glMatrix.vec2;
+	const mat2 = glMatrix.mat2;
 
 	// Object to initialize
-	let direction = vec2.create();
-	let rotate = mat2.create();
+	const direction = vec2.create();
+	const rotate = mat2.create();
 
 	//Configure keys here
 	/*var MOVE = {
@@ -47,7 +47,7 @@ let vec2 = glMatrix.vec2;
 	//var KeyEvent = {}; // UNUSED
 
 	//Memory
-	let targetPos = [0, 0];
+	const targetPos = [0, 0];
 
 	//var keysDownTimeout = null; // UNUSED
 	let movementTimer = null; // Timer for continuous joystick movement
@@ -55,12 +55,12 @@ let vec2 = glMatrix.vec2;
 	/**
 	 * Create Component
 	 */
-	let MobileUI = new UIComponent('MobileUI', htmlText, cssText);
+	const MobileUI = new UIComponent('MobileUI', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} window preferences
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'MobileUI',
 		{
 			x: 0,
@@ -350,7 +350,7 @@ let vec2 = glMatrix.vec2;
 	 * @param {number} keyId
 	 */
 	function keyPress(k) {
-		let roWindow = window;
+		const roWindow = window;
 		roWindow.document.getElementsByTagName('body')[0].focus();
 		roWindow.dispatchEvent(
 			new KeyboardEvent('keydown', {
@@ -444,7 +444,7 @@ let vec2 = glMatrix.vec2;
 	 * Toggles switch skill
 	 */
 	function switchSkillButtons() {
-		let skillSets = [
+		const skillSets = [
 			[
 				'#f1Button',
 				'#f2Button',
@@ -481,8 +481,8 @@ let vec2 = glMatrix.vec2;
 			['#aButton', '#sButton', '#dButton', '#fButton', '#gButton', '#hButton', '#jButton', '#kButton', '#lButton'] // Fourth skill set
 		];
 
-		let currentSetIndex = switchSkillButtons.currentSetIndex || 0; // Track current skill set
-		let nextSetIndex = (currentSetIndex + 1) % skillSets.length; // Cycle through skill sets
+		const currentSetIndex = switchSkillButtons.currentSetIndex || 0; // Track current skill set
+		const nextSetIndex = (currentSetIndex + 1) % skillSets.length; // Cycle through skill sets
 
 		//  Hide all skill sets
 		skillSets.flat().forEach(button => {
@@ -553,7 +553,7 @@ let vec2 = glMatrix.vec2;
 			MobileUI.ui.find('#toggleAutoFollowButton').removeClass('active');
 			Session.autoFollow = false;
 		} else {
-			let entityFocus = EntityManager.getFocusEntity();
+			const entityFocus = EntityManager.getFocusEntity();
 			if (entityFocus) {
 				MobileUI.ui.find('#toggleAutoFollowButton').addClass('active');
 				Session.autoFollow = true;
@@ -567,7 +567,7 @@ let vec2 = glMatrix.vec2;
 	 * Attacks a targeted enemy (if present)
 	 */
 	function attackTargeted() {
-		let main = Session.Entity;
+		const main = Session.Entity;
 		let pkt;
 
 		let entityFocus = EntityManager.getFocusEntity();
@@ -579,8 +579,8 @@ let vec2 = glMatrix.vec2;
 		}
 
 		if (entityFocus) {
-			let out = [];
-			let count = PathFinding.search(
+			const out = [];
+			const count = PathFinding.search(
 				main.position[0] | 0,
 				main.position[1] | 0,
 				entityFocus.position[0] | 0,
@@ -626,11 +626,11 @@ let vec2 = glMatrix.vec2;
 	 * Automatically targeting the closest enemy
 	 */
 	function autoTarget() {
-		let Player = Session.Entity;
+		const Player = Session.Entity;
 
-		let entityFocus = EntityManager.getFocusEntity();
+		const entityFocus = EntityManager.getFocusEntity();
 
-		let closestEntity = EntityManager.getClosestEntity(Player, Session.Entity.constructor.TYPE_MOB);
+		const closestEntity = EntityManager.getClosestEntity(Player, Session.Entity.constructor.TYPE_MOB);
 
 		if (closestEntity) {
 			if (entityFocus && closestEntity.GID !== entityFocus.GID) {
@@ -681,15 +681,15 @@ let vec2 = glMatrix.vec2;
 	 */
 	function onAutoFollow() {
 		if (Session.autoFollow) {
-			let player = Session.Entity;
-			let target = Session.autoFollowTarget;
+			const player = Session.Entity;
+			const target = Session.autoFollowTarget;
 
-			let dx = Math.abs(player.position[0] - target.position[0]);
-			let dy = Math.abs(player.position[1] - target.position[1]);
+			const dx = Math.abs(player.position[0] - target.position[0]);
+			const dy = Math.abs(player.position[1] - target.position[1]);
 
 			// Use square based range check instead of Pythagorean because of diagonals
 			if (dx > 1 || dy > 1) {
-				let dest = [0, 0];
+				const dest = [0, 0];
 
 				// If there is valid cell send move packet
 				if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
@@ -738,7 +738,7 @@ let vec2 = glMatrix.vec2;
 		}
 
 		if ((dx < dy ? dy : dx) > 2) {
-			let dest = [0, 0];
+			const dest = [0, 0];
 
 			// If there is valid cell send move packet
 			if (checkFreeCell(Math.round(closestItem.position[0]), Math.round(closestItem.position[1]), 1, dest)) {
@@ -997,8 +997,8 @@ let vec2 = glMatrix.vec2;
 	 */
 	function checkFreeCell(x, y, range, out) {
 		let _x, _y, r;
-		let d_x = Session.Entity.position[0] < x ? -1 : 1;
-		let d_y = Session.Entity.position[1] < y ? -1 : 1;
+		const d_x = Session.Entity.position[0] < x ? -1 : 1;
+		const d_y = Session.Entity.position[1] < y ? -1 : 1;
 
 		// Search possible positions
 		for (r = 0; r <= range; ++r) {

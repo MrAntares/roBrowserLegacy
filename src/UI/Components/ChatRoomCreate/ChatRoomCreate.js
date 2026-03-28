@@ -22,7 +22,7 @@ import cssText from './ChatRoomCreate.css?raw';
 /**
 	 * Create Component
 	 */
-	let ChatRoomCreate = new UIComponent('ChatRoomCreate', htmlText, cssText);
+	const ChatRoomCreate = new UIComponent('ChatRoomCreate', htmlText, cssText);
 
 	/**
 	 * @var {string} chat room title
@@ -49,7 +49,7 @@ import cssText from './ChatRoomCreate.css?raw';
 	/**
 	 * @var {Preference} structure to save
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ChatRoomCreate',
 		{
 			x: 480,
@@ -92,7 +92,7 @@ import cssText from './ChatRoomCreate.css?raw';
 		});
 
 		// Escape key order
-		let events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 	};
 
@@ -186,11 +186,11 @@ import cssText from './ChatRoomCreate.css?raw';
 		this.password = this.ui.find('input[name=password]').val();
 
 		if (this.title.length < 1) {
-			let overlay = document.createElement('div');
+			const overlay = document.createElement('div');
 			overlay.className = 'win_popup_overlay';
 			document.body.appendChild(overlay);
 
-			let popup = UIManager.showMessageBox(
+			const popup = UIManager.showMessageBox(
 				DB.getMessage(13),
 				'ok',
 				function () {

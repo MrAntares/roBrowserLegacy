@@ -14,7 +14,7 @@
 'use strict';
 
 // World object
-	let GAT = {
+	const GAT = {
 		width: 0,
 		height: 0,
 		cells: null,
@@ -27,19 +27,19 @@
 	const MOVE_DIAGONAL_COST = 14;
 
 	// Memory
-	let _heap = new Uint32Array(MAX_HEAP);
-	let _heap_clean = new Uint32Array(MAX_HEAP);
+	const _heap = new Uint32Array(MAX_HEAP);
+	const _heap_clean = new Uint32Array(MAX_HEAP);
 
-	let short_clean = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	let char_clean = new Uint8Array(MAX_WALKPATH * MAX_WALKPATH);
+	const short_clean = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
+	const char_clean = new Uint8Array(MAX_WALKPATH * MAX_WALKPATH);
 
 	// struct tmp_path {
-	/* short   */ var _x = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	/* short   */ var _y = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	/* short   */ var _dist = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	/* short   */ var _cost = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	/* short   */ var _before = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	/* boolean */ var _flag = new Uint8Array(MAX_WALKPATH * MAX_WALKPATH);
+	/* short   */ const _x = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
+	/* short   */ const _y = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
+	/* short   */ const _dist = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
+	/* short   */ const _cost = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
+	/* short   */ const _before = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
+	/* boolean */ const _flag = new Uint8Array(MAX_WALKPATH * MAX_WALKPATH);
 	// };
 
 	// Should be convert to inline code by the browser (V8)
@@ -149,8 +149,8 @@
 	 * @param {number} cost
 	 */
 	function add_path(heap, x, y, dist, before, x1, y1) {
-		let i = calc_index(x, y);
-		let cost = dist + calc_cost(i, x1, y1);
+		const i = calc_index(x, y);
+		const cost = dist + calc_cost(i, x1, y1);
 		if (_x[i] === x && _y[i] === y) {
 			if (_dist[i] > dist) {
 				_dist[i] = dist;
@@ -208,7 +208,7 @@
 	 */
 	function searchLong(x0, y0, x1, y1, range, out) {
 		let i, dx, dy, x, y, rx, ry;
-		let result = {
+		const result = {
 			success: false,
 			inRange: false,
 			targetCell: [x0, y0],
@@ -303,13 +303,13 @@
 		let error, dirFlag, pathLen, dist, cost, finalLen, skip;
 
 		// Import world
-		let width = GAT.width;
-		let height = GAT.height;
-		let types = GAT.cells;
-		let TYPE = GAT.type;
+		const width = GAT.width;
+		const height = GAT.height;
+		const types = GAT.cells;
+		const TYPE = GAT.type;
 
 		// Direct search
-		let result = searchLong(x0, y0, x1, y1, range, out);
+		const result = searchLong(x0, y0, x1, y1, range, out);
 		if (result.success) {
 			return result.pathLength + 1;
 		}
@@ -416,7 +416,7 @@
 		for (i = currentNode, j = pathLen - 1; j >= 0; i = _before[i], j--) {
 			if (skip) {
 				// Check direct path when previous cell was skipped
-				let cellResult = searchLong(_x[i], _y[i], x1, y1, range, []);
+				const cellResult = searchLong(_x[i], _y[i], x1, y1, range, []);
 				if (!(cellResult.success && cellResult.inRange)) {
 					skip = false;
 				}
@@ -454,7 +454,7 @@
 	 */
 	function searchLongIgnoreCellType(x0, y0, x1, y1, range, out) {
 		let i, dx, dy, x, y, rx, ry;
-		let result = {
+		const result = {
 			success: false,
 			inRange: false,
 			targetCell: [x0, y0],

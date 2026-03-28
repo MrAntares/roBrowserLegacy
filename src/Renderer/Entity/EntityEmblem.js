@@ -54,11 +54,11 @@ import glMatrix from 'Utils/gl-matrix';
 	 * Update Emblem
 	 */
 	Emblem.prototype.update = function update() {
-		let width = 24,
+		const width = 24,
 			height = 24;
 
 		// Init variables
-		let ctx = this.ctx;
+		const ctx = this.ctx;
 
 		// Set size
 		ctx.canvas.width = width;
@@ -76,7 +76,7 @@ import glMatrix from 'Utils/gl-matrix';
 	 * @param {mat4} matrix
 	 */
 	Emblem.prototype.render = function Render(matrix) {
-		let canvas = this.canvas;
+		const canvas = this.canvas;
 		let z;
 
 		// Cast position

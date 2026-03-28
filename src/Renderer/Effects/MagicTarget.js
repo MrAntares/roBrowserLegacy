@@ -31,17 +31,17 @@ import Camera from 'Renderer/Camera';
 	/**
 	 * @var {mat4}
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	let _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	/**
 	 * @var {object} CastSize for each skill
 	 */
-	let CastSize = {};
+	const CastSize = {};
 
 	//Traps officially don't display their AoE size when casted on the ground
 	CastSize[SkillId.CR_SLIMPITCHER] = [7];
@@ -147,7 +147,7 @@ import Camera from 'Renderer/Camera';
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	let _vertexShader = `
+	const _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -174,7 +174,7 @@ import Camera from 'Renderer/Camera';
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	let _fragmentShader = `
+	const _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -247,7 +247,7 @@ import Camera from 'Renderer/Camera';
 	 * @param {object} webgl context
 	 */
 	MagicTarget.prototype.init = function init(gl) {
-		let data = Altitude.generatePlane(this.x, this.y, this.size);
+		const data = Altitude.generatePlane(this.x, this.y, this.size);
 		this.buffer = gl.createBuffer();
 		this.vertCount = data.length / 5;
 
@@ -273,7 +273,7 @@ import Camera from 'Renderer/Camera';
 	 * @param {object} wegl context
 	 */
 	MagicTarget.prototype.render = function render(gl, tick) {
-		let attribute = _program.attribute;
+		const attribute = _program.attribute;
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
@@ -332,8 +332,8 @@ import Camera from 'Renderer/Camera';
 	 * @param {object} webgl context
 	 */
 	MagicTarget.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		mat4.identity(_matrix);
 		mat4.rotateZ(_matrix, _matrix, (((tick / 1000) * 40) / 180) * Math.PI);

@@ -9,7 +9,7 @@
  */
 'use strict';
 
-	var Weather = {};
+	const Weather = {};
 
 	// Sky and clouds features
 	Weather.sky = {};

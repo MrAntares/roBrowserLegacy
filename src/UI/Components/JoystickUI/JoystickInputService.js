@@ -40,16 +40,16 @@ export default {
 			if (!gp) {
 				return null;
 			}
-			let states = {
+			const states = {
 				buttons: [],
 				axes: []
 			};
-			let self = this;
+			const self = this;
 
 			// Process Buttons with 3-state logic
 			gp.buttons.forEach(function (btn, index) {
-				let isPressed = btn.pressed;
-				let prevState = self.buttonStates[index] || 'unpressed';
+				const isPressed = btn.pressed;
+				const prevState = self.buttonStates[index] || 'unpressed';
 				let newState = 'unpressed';
 				if (isPressed) {
 					newState = prevState === 'unpressed' ? 'pressed' : 'holding';
@@ -65,10 +65,10 @@ export default {
 		},
 
 		update: function () {
-			let gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+			const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
 
 			let activeGamepad = null;
-			for (var i = 0; i < gamepads.length; i++) {
+			for (let i = 0; i < gamepads.length; i++) {
 				if (gamepads[i]) {
 					activeGamepad = gamepads[i];
 					break;
@@ -81,7 +81,7 @@ export default {
 				}
 				return false;
 			}
-			let states = this.getStates(activeGamepad);
+			const states = this.getStates(activeGamepad);
 
 			let anyActivity = false;
 
@@ -90,8 +90,8 @@ export default {
 				return false;
 			}
 
-			let buttonsActive = ButtonInput.update(states.buttons);
-			let axisActive = AxisInput.update(states.axes);
+			const buttonsActive = ButtonInput.update(states.buttons);
+			const axisActive = AxisInput.update(states.axes);
 
 			if (buttonsActive || axisActive) {
 				anyActivity = true;
@@ -104,7 +104,7 @@ export default {
 
 			if (!anyActivity && this.active && !hideTimeout) {
 				hideTimeout = true;
-				let self = this;
+				const self = this;
 				this.active = false;
 				setTimeout(function () {
 					hideTimeout = false;

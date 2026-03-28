@@ -2,7 +2,7 @@
 
 import WebGL from 'Utils/WebGL';
 
-	var _vertexShader = `
+	const _vertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -29,7 +29,7 @@ import WebGL from 'Utils/WebGL';
         }
     `;
 
-	var _fragmentShader = `
+	const _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -42,10 +42,10 @@ import WebGL from 'Utils/WebGL';
         }
     `;
 
-	var _cache = {};
+	const _cache = {};
 
 	export default function (name, spec) {
-		var _program, _buffer;
+		let _program, _buffer;
 		if (_cache[name]) {
 			return _cache[name];
 		}
@@ -121,8 +121,8 @@ import WebGL from 'Utils/WebGL';
 		};
 
 		FlatColorTile.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-			var uniform = _program.uniform;
-			var attribute = _program.attribute;
+			const uniform = _program.uniform;
+			const attribute = _program.attribute;
 
 			gl.useProgram(_program);
 

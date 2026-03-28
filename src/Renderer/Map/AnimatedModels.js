@@ -15,18 +15,18 @@ import GraphicsSettings from 'Preferences/Graphics';
 import _vertexShader from './AnimatedModels.vs?raw';
 import _fragmentShader from './AnimatedModels.fs?raw';
 
-let mat3 = glMatrix.mat3;
-let mat4 = glMatrix.mat4;
-let vec3 = glMatrix.vec3;
-let quat = glMatrix.quat;
+const mat3 = glMatrix.mat3;
+const mat4 = glMatrix.mat4;
+const vec3 = glMatrix.vec3;
+const quat = glMatrix.quat;
 
 /**
  * Scratchpads to evade GC (Garbage Collector)
  */
-let _tempVec3 = vec3.create();
-let _tempVec3Scale = vec3.create();
-let _tempQuat = quat.create();
-let _tempMat4 = mat4.create();
+const _tempVec3 = vec3.create();
+const _tempVec3Scale = vec3.create();
+const _tempQuat = quat.create();
+const _tempMat4 = mat4.create();
 
 /**
  * Shader program
@@ -41,7 +41,7 @@ let _animatedModels = [];
 /**
  * Model shading types
  */
-let SHADING = {
+const SHADING = {
 	NONE: 0,
 	FLAT: 1,
 	SMOOTH: 2
@@ -81,15 +81,15 @@ function init(gl) {
  * Free resources
  */
 function free(gl) {
-	for (var i = 0; i < _animatedModels.length; i++) {
-		let model = _animatedModels[i];
+	for (let i = 0; i < _animatedModels.length; i++) {
+		const model = _animatedModels[i];
 		if (model.vao) {
 			gl.deleteVertexArray(model.vao);
 		}
 		if (model.buffer) {
 			gl.deleteBuffer(model.buffer);
 		}
-		for (var tex in model.textureObjects) {
+		for (const tex in model.textureObjects) {
 			if (model.textureObjects[tex]) {
 				gl.deleteTexture(model.textureObjects[tex]);
 			}
@@ -119,10 +119,10 @@ function add(gl, modelData) {
 	}
 
 	// Deserialize instances
-	let instances = [];
+	const instances = [];
 	for (let i = 0; i < modelData.instances.length; i++) {
-		let instArray = modelData.instances[i];
-		let matrix = mat4.create();
+		const instArray = modelData.instances[i];
+		const matrix = mat4.create();
 		for (let j = 0; j < 16; j++) {
 			matrix[j] = instArray[j];
 		}
@@ -130,16 +130,16 @@ function add(gl, modelData) {
 	}
 
 	// Deserialize nodes - convert arrays to Float32Arrays
-	let nodes = [];
+	const nodes = [];
 	let totalAnimationLength = 0;
 	let hasAnyAnimation = false;
 
 	for (let n = 0; n < modelData.nodes.length; n++) {
-		let srcNode = modelData.nodes[n];
+		const srcNode = modelData.nodes[n];
 		if (!isNodeStatic(srcNode)) {
 			hasAnyAnimation = true;
 		}
-		let node = {
+		const node = {
 			name: srcNode.name,
 			parentname: srcNode.parentname,
 			is_only: srcNode.is_only,
@@ -167,7 +167,7 @@ function add(gl, modelData) {
 		};
 		// Pre-calculate local matrix for static nodes
 		if (node._isStatic) {
-			let local = mat4.create();
+			const local = mat4.create();
 			mat4.identity(local);
 			mat4.translate(local, local, node.pos);
 			mat4.rotate(local, local, node.rotangle, node.rotaxis);
@@ -181,7 +181,7 @@ function add(gl, modelData) {
 
 		if (node.rotKeyframes) {
 			for (let rk = 0; rk < node.rotKeyframes.length; rk++) {
-				let kf = node.rotKeyframes[rk];
+				const kf = node.rotKeyframes[rk];
 				totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
 
 				if (kf.q) {
@@ -192,7 +192,7 @@ function add(gl, modelData) {
 
 		if (node.posKeyframes) {
 			for (let pk = 0; pk < node.posKeyframes.length; pk++) {
-				let kf = node.posKeyframes[pk];
+				const kf = node.posKeyframes[pk];
 				totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
 				kf._vec = vec3.fromValues(kf.px, kf.py, kf.pz);
 			}
@@ -200,7 +200,7 @@ function add(gl, modelData) {
 
 		if (node.scaleKeyFrames) {
 			for (let sk = 0; sk < node.scaleKeyFrames.length; sk++) {
-				let kf = node.scaleKeyFrames[sk];
+				const kf = node.scaleKeyFrames[sk];
 
 				totalAnimationLength = Math.max(totalAnimationLength, kf.Frame || 0);
 				kf._vec = vec3.fromValues(kf.Scale[0], kf.Scale[1], kf.Scale[2]);
@@ -215,13 +215,13 @@ function add(gl, modelData) {
 
 	// Build Mesh Layout Plan (Group by Texture -> Node -> Instance)
 	// This prevents rebuilding the array structure every frame.
-	let textureGroups = {};
+	const textureGroups = {};
 	let totalFloats = 0;
 
 	if (animLen === 0) {
 		// Find max frame from keyframes
 		for (let n = 0; n < nodes.length; n++) {
-			let node = nodes[n];
+			const node = nodes[n];
 			if (node.rotKeyframes) {
 				for (let rk = 0; rk < node.rotKeyframes.length; rk++) {
 					animLen = Math.max(animLen, node.rotKeyframes[rk].frame || 0);
@@ -243,12 +243,12 @@ function add(gl, modelData) {
 	}
 	// Calculate size per texture
 	// Iterate all nodes to find which textures they use and how many faces
-	for (var n = 0; n < nodes.length; n++) {
-		let node = nodes[n];
+	for (let n = 0; n < nodes.length; n++) {
+		const node = nodes[n];
 		// Count faces per texture for this node
-		let facesPerTex = {};
-		for (var f = 0; f < node.faces.length; f++) {
-			let tid = node.textures[node.faces[f].texid];
+		const facesPerTex = {};
+		for (let f = 0; f < node.faces.length; f++) {
+			const tid = node.textures[node.faces[f].texid];
 			if (!facesPerTex[tid]) {
 				facesPerTex[tid] = 0;
 			}
@@ -256,15 +256,15 @@ function add(gl, modelData) {
 		}
 
 		// Add to global texture groups
-		for (let tid in facesPerTex) {
+		for (const tid in facesPerTex) {
 			if (!textureGroups[tid]) {
 				textureGroups[tid] = { count: 0, writePlan: [] };
 			}
 
 			// For every instance of this node
 			for (let inst = 0; inst < instances.length; inst++) {
-				let vertCount = facesPerTex[tid] * 3; // 3 verts per face
-				let floatCount = vertCount * 9; // 9 floats per vert (3 pos, 3 norm, 2 uv, 1 alpha)
+				const vertCount = facesPerTex[tid] * 3; // 3 verts per face
+				const floatCount = vertCount * 9; // 9 floats per vert (3 pos, 3 norm, 2 uv, 1 alpha)
 
 				// Create a write instruction
 				textureGroups[tid].writePlan.push({
@@ -283,15 +283,15 @@ function add(gl, modelData) {
 	}
 
 	let currentOffset = 0;
-	let meshInfos = [];
+	const meshInfos = [];
 
-	for (let tid in textureGroups) {
-		let group = textureGroups[tid];
-		let startOffset = currentOffset;
+	for (const tid in textureGroups) {
+		const group = textureGroups[tid];
+		const startOffset = currentOffset;
 
 		// Record where each sub-mesh writes
 		for (let wp = 0; wp < group.writePlan.length; wp++) {
-			let plan = group.writePlan[wp];
+			const plan = group.writePlan[wp];
 			plan.targetOffset = currentOffset;
 			currentOffset += plan.faceCount * 3 * 9;
 		}
@@ -304,7 +304,7 @@ function add(gl, modelData) {
 	}
 
 	// Create Model Object
-	let animModel = {
+	const animModel = {
 		filename: modelData.filename,
 		animLen: animLen,
 		fps: modelData.frameRatePerSecond || 30,
@@ -348,7 +348,7 @@ function add(gl, modelData) {
 
 	// Load textures
 	for (let t = 0; t < modelData.textures.length; t++) {
-		let texturePath = 'data\\texture\\' + modelData.textures[t];
+		const texturePath = 'data\\texture\\' + modelData.textures[t];
 		loadTexture(gl, animModel, texturePath, t);
 	}
 
@@ -357,8 +357,8 @@ function add(gl, modelData) {
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
 
-	let attribute = _program.attribute;
-	let stride = 36; // 9 floats * 4 bytes
+	const attribute = _program.attribute;
+	const stride = 36; // 9 floats * 4 bytes
 
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, stride, 0);
@@ -402,7 +402,7 @@ function loadTexture(gl, model, path, index) {
  * SLERP quaternion interpolation
  */
 function slerpQuat(q1, q2, t) {
-	let result = new Float32Array(4);
+	const result = new Float32Array(4);
 
 	let dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
 
@@ -417,8 +417,8 @@ function slerpQuat(q1, q2, t) {
 		scale0 = 1.0 - t;
 		scale1 = t * q2Sign;
 	} else {
-		let theta = Math.acos(dot);
-		let sinTheta = Math.sin(theta);
+		const theta = Math.acos(dot);
+		const sinTheta = Math.sin(theta);
 		scale0 = Math.sin((1.0 - t) * theta) / sinTheta;
 		scale1 = (Math.sin(t * theta) / sinTheta) * q2Sign;
 	}
@@ -441,7 +441,7 @@ function getPositionAtFrame(keyframes, frame, out) {
 
 	let prev = keyframes[0],
 		next = null;
-	for (var i = 0; i < keyframes.length; i++) {
+	for (let i = 0; i < keyframes.length; i++) {
 		if (keyframes[i].frame > frame) {
 			next = keyframes[i];
 			break;
@@ -452,7 +452,7 @@ function getPositionAtFrame(keyframes, frame, out) {
 	if (!next) {
 		return prev._vec;
 	}
-	let t = (frame - prev.frame) / (next.frame - prev.frame);
+	const t = (frame - prev.frame) / (next.frame - prev.frame);
 	return vec3.lerp(out, prev._vec, next._vec, t);
 }
 
@@ -466,7 +466,7 @@ function getRotationAtFrame(keyframes, frame, out) {
 
 	let prev = keyframes[0],
 		next = null;
-	for (var i = 0; i < keyframes.length; i++) {
+	for (let i = 0; i < keyframes.length; i++) {
 		if (keyframes[i].frame > frame) {
 			next = keyframes[i];
 			break;
@@ -477,7 +477,7 @@ function getRotationAtFrame(keyframes, frame, out) {
 	if (!next) {
 		return prev._quat;
 	}
-	let t = (frame - prev.frame) / (next.frame - prev.frame);
+	const t = (frame - prev.frame) / (next.frame - prev.frame);
 	return quat.slerp(out, prev._quat, next._quat, t);
 }
 
@@ -491,8 +491,8 @@ function getScaleAtFrame(keyframes, frame, out) {
 
 	let prev = keyframes[0],
 		next = null;
-	for (var i = 0; i < keyframes.length; i++) {
-		let f = typeof keyframes[i].Frame !== 'undefined' ? keyframes[i].Frame : keyframes[i].frame;
+	for (let i = 0; i < keyframes.length; i++) {
+		const f = typeof keyframes[i].Frame !== 'undefined' ? keyframes[i].Frame : keyframes[i].frame;
 		if (f > frame) {
 			next = keyframes[i];
 			break;
@@ -504,10 +504,10 @@ function getScaleAtFrame(keyframes, frame, out) {
 		return prev._vec;
 	}
 
-	let fPrev = typeof prev.Frame !== 'undefined' ? prev.Frame : prev.frame;
-	let fNext = typeof next.Frame !== 'undefined' ? next.Frame : next.frame;
+	const fPrev = typeof prev.Frame !== 'undefined' ? prev.Frame : prev.frame;
+	const fNext = typeof next.Frame !== 'undefined' ? next.Frame : next.frame;
 
-	let t = (frame - fPrev) / (fNext - fPrev);
+	const t = (frame - fPrev) / (fNext - fPrev);
 	return vec3.lerp(out, prev._vec, next._vec, t);
 }
 
@@ -515,18 +515,18 @@ function getScaleAtFrame(keyframes, frame, out) {
  * Calculate face normal
  */
 function calcFaceNormal(v0, v1, v2) {
-	let ax = v1[0] - v0[0];
-	let ay = v1[1] - v0[1];
-	let az = v1[2] - v0[2];
-	let bx = v2[0] - v0[0];
-	let by = v2[1] - v0[1];
-	let bz = v2[2] - v0[2];
+	const ax = v1[0] - v0[0];
+	const ay = v1[1] - v0[1];
+	const az = v1[2] - v0[2];
+	const bx = v2[0] - v0[0];
+	const by = v2[1] - v0[1];
+	const bz = v2[2] - v0[2];
 
 	let nx = ay * bz - az * by;
 	let ny = az * bx - ax * bz;
 	let nz = ax * by - ay * bx;
 
-	let len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+	const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
 	if (len > 0) {
 		nx /= len;
 		ny /= len;
@@ -547,15 +547,15 @@ function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) 
 	// For non-uniform, we strictly need normal matrix, but RSMs usually handle normals simpler.
 	// Let's stick to standard logic: Extract rotation from finalMatrix.
 
-	let normalMat = node._cache.normalMat || mat4.create();
+	const normalMat = node._cache.normalMat || mat4.create();
 	node._cache.normalMat = normalMat;
 	mat4.extractRotation(normalMat, finalMatrix);
 
-	let m = finalMatrix;
-	let n = normalMat;
+	const m = finalMatrix;
+	const n = normalMat;
 
 	// Cache Matrix access
-	let m0 = m[0],
+	const m0 = m[0],
 		m1 = m[1],
 		m2 = m[2],
 		m4 = m[4],
@@ -567,7 +567,7 @@ function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) 
 		m12 = m[12],
 		m13 = m[13],
 		m14 = m[14];
-	let n0 = n[0],
+	const n0 = n[0],
 		n1 = n[1],
 		n2 = n[2],
 		n4 = n[4],
@@ -577,29 +577,29 @@ function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) 
 		n9 = n[9],
 		n10 = n[10];
 
-	let faces = node.faces;
-	let vertices = node.vertices;
-	let tvertices = node.tvertices;
-	let textures = node.textures;
-	let output = buffer;
+	const faces = node.faces;
+	const vertices = node.vertices;
+	const tvertices = node.tvertices;
+	const textures = node.textures;
+	const output = buffer;
 	let o = offset;
 
 	// Iterate faces, process only those matching textureId
-	for (var f = 0; f < faces.length; f++) {
-		let face = faces[f];
+	for (let f = 0; f < faces.length; f++) {
+		const face = faces[f];
 		if (textures[face.texid] !== textureId) {
 			continue;
 		}
 
 		// Compute Face Normal (using Original Vertices)
-		let v0 = vertices[face.vertidx[0]];
-		let v1 = vertices[face.vertidx[1]];
-		let v2 = vertices[face.vertidx[2]];
+		const v0 = vertices[face.vertidx[0]];
+		const v1 = vertices[face.vertidx[1]];
+		const v2 = vertices[face.vertidx[2]];
 
-		let ax = v1[0] - v0[0],
+		const ax = v1[0] - v0[0],
 			ay = v1[1] - v0[1],
 			az = v1[2] - v0[2];
-		let bx = v2[0] - v0[0],
+		const bx = v2[0] - v0[0],
 			by = v2[1] - v0[1],
 			bz = v2[2] - v0[2];
 
@@ -617,18 +617,18 @@ function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) 
 		}
 
 		// Transform Normal
-		let tnx = n0 * nx + n4 * ny + n8 * nz;
-		let tny = n1 * nx + n5 * ny + n9 * nz;
-		let tnz = n2 * nx + n6 * ny + n10 * nz;
+		const tnx = n0 * nx + n4 * ny + n8 * nz;
+		const tny = n1 * nx + n5 * ny + n9 * nz;
+		const tnz = n2 * nx + n6 * ny + n10 * nz;
 
 		// Process 3 Vertices
 		for (let vi = 0; vi < 3; vi++) {
-			let vIdx = face.vertidx[vi];
-			let tIdx = face.tvertidx[vi];
+			const vIdx = face.vertidx[vi];
+			const tIdx = face.tvertidx[vi];
 
-			let vx = vertices[vIdx][0];
-			let vy = vertices[vIdx][1];
-			let vz = vertices[vIdx][2];
+			const vx = vertices[vIdx][0];
+			const vy = vertices[vIdx][1];
+			const vz = vertices[vIdx][2];
 
 			// Position (Transformed)
 			output[o++] = m0 * vx + m4 * vy + m8 * vz + m12;
@@ -654,8 +654,8 @@ function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) 
  * Update model buffer at frame
  */
 function updateModelBuffer(gl, model, frame, force) {
-	let frameDuration = 1000 / (model.fps / (GraphicsSettings.performanceMode ? 2 : 1.14));
-	let currentAnimFrame = Math.floor(frame / frameDuration);
+	const frameDuration = 1000 / (model.fps / (GraphicsSettings.performanceMode ? 2 : 1.14));
+	const currentAnimFrame = Math.floor(frame / frameDuration);
 
 	if (!force && model.lastAnimFrame === currentAnimFrame && !model.staticModel) {
 		return;
@@ -668,18 +668,18 @@ function updateModelBuffer(gl, model, frame, force) {
 	model.lastAnimFrame = currentAnimFrame;
 	model.lastFrame = frame;
 
-	let box = model.box;
-	let nodeMap = model._nodeMap;
-	let globalMatrices = model._globalMatrices;
+	const box = model.box;
+	const nodeMap = model._nodeMap;
+	const globalMatrices = model._globalMatrices;
 
 	// 1. Update Matrix Hierarchy
 	for (let n = 0; n < model.nodes.length; n++) {
-		let node = model.nodes[n];
-		let globalMatrix = globalMatrices[n];
+		const node = model.nodes[n];
+		const globalMatrix = globalMatrices[n];
 
 		// Parent Transform
 		if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name) {
-			let parentIdx = nodeMap[node.parentname]._index;
+			const parentIdx = nodeMap[node.parentname]._index;
 			mat4.copy(globalMatrix, globalMatrices[parentIdx]);
 		} else {
 			mat4.identity(globalMatrix);
@@ -690,10 +690,10 @@ function updateModelBuffer(gl, model, frame, force) {
 			// Optimization: Use precalculated local matrix
 			mat4.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
 		} else {
-			let animPos = getPositionAtFrame(node.posKeyframes, frame, _tempVec3);
+			const animPos = getPositionAtFrame(node.posKeyframes, frame, _tempVec3);
 			mat4.translate(globalMatrix, globalMatrix, animPos || node.pos);
 
-			let animRot = getRotationAtFrame(node.rotKeyframes, frame, _tempQuat);
+			const animRot = getRotationAtFrame(node.rotKeyframes, frame, _tempQuat);
 			if (animRot) {
 				mat4.fromQuat(_tempMat4, animRot);
 				mat4.multiply(globalMatrix, globalMatrix, _tempMat4);
@@ -701,12 +701,12 @@ function updateModelBuffer(gl, model, frame, force) {
 				mat4.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
 			}
 
-			let animScale = getScaleAtFrame(node.scaleKeyFrames, frame, _tempVec3Scale);
+			const animScale = getScaleAtFrame(node.scaleKeyFrames, frame, _tempVec3Scale);
 			mat4.scale(globalMatrix, globalMatrix, animScale || node.scale);
 		}
 
 		// Final Node Matrix (Center correction + Offset)
-		let finalNodeMatrix = node._cache.final;
+		const finalNodeMatrix = node._cache.final;
 		mat4.identity(finalNodeMatrix);
 		mat4.translate(finalNodeMatrix, finalNodeMatrix, [-box.center[0], -box.max[1], -box.center[2]]);
 		mat4.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix); // Apply hierarchy
@@ -723,7 +723,7 @@ function updateModelBuffer(gl, model, frame, force) {
 	// 2. Pre-calculate Instance Matrices
 	// We do this to avoid recalculating Node * Instance for every texture group
 	for (let n = 0; n < model.nodes.length; n++) {
-		let node = model.nodes[n];
+		const node = model.nodes[n];
 		for (let i = 0; i < model.instances.length; i++) {
 			// Instance Final = InstanceWorld * NodeFinal
 			mat4.multiply(node._cache.instances[i], model.instances[i], node.finalMatrix);
@@ -732,18 +732,18 @@ function updateModelBuffer(gl, model, frame, force) {
 
 	// 3. Write Geometry to Buffer (Using WritePlan)
 	// This ensures the buffer is ordered by Texture, maximizing batching
-	let buffer = model._gpuBuffer;
-	let writePlans = model.writePlans;
+	const buffer = model._gpuBuffer;
+	const writePlans = model.writePlans;
 
-	for (let tid in writePlans) {
-		let group = writePlans[tid];
-		let plans = group.writePlan;
-		let textureId = parseInt(tid);
+	for (const tid in writePlans) {
+		const group = writePlans[tid];
+		const plans = group.writePlan;
+		const textureId = parseInt(tid);
 
 		for (let p = 0; p < plans.length; p++) {
-			let plan = plans[p];
-			let node = model.nodes[plan.nodeIndex];
-			let finalInstanceMatrix = node._cache.instances[plan.instanceIndex];
+			const plan = plans[p];
+			const node = model.nodes[plan.nodeIndex];
+			const finalInstanceMatrix = node._cache.instances[plan.instanceIndex];
 
 			transformAndWrite(node, finalInstanceMatrix, textureId, plan.targetOffset, buffer, model.alpha);
 		}
@@ -767,8 +767,8 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 		init(gl);
 	}
 
-	let uniform = _program.uniform;
-	let attribute = _program.attribute;
+	const uniform = _program.uniform;
+	const attribute = _program.attribute;
 
 	gl.useProgram(_program);
 
@@ -794,12 +794,12 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
 
-	let playerPos = Session.Entity.position;
+	const playerPos = Session.Entity.position;
 
 	// Render each animated model
-	for (var m = 0; m < _animatedModels.length; m++) {
-		let model = _animatedModels[m];
-		let frame = tick % (model.animLen || 1);
+	for (let m = 0; m < _animatedModels.length; m++) {
+		const model = _animatedModels[m];
+		const frame = tick % (model.animLen || 1);
 
 		updateModelBuffer(gl, model, frame, false);
 
@@ -809,9 +809,9 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 		gl.bindVertexArray(model.vao);
 
-		for (var i = 0; i < model.meshInfos.length; i++) {
-			let info = model.meshInfos[i];
-			let texture = model.textureObjects[info.textureIdx];
+		for (let i = 0; i < model.meshInfos.length; i++) {
+			const info = model.meshInfos[i];
+			const texture = model.textureObjects[info.textureIdx];
 
 			if (texture) {
 				gl.bindTexture(gl.TEXTURE_2D, texture);

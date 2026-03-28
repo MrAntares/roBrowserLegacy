@@ -17,7 +17,7 @@ import cssText from './ContextMenu.css?raw';
 	/**
 	 * Create Component
 	 */
-	var ContextMenu = new UIComponent('ContextMenu', '<div id="ContextMenu"><div class="menu"/></div>', cssText);
+	const ContextMenu = new UIComponent('ContextMenu', '<div id="ContextMenu"><div class="menu"/></div>', cssText);
 
 	/**
 	 * Initialize event handler
@@ -37,11 +37,11 @@ import cssText from './ContextMenu.css?raw';
 	 * Initialize UI
 	 */
 	ContextMenu.onAppend = function onAppend() {
-		var menu = this.ui.find('.menu');
-		var width = menu.width();
-		var height = menu.height();
-		var x = Mouse.screen.x;
-		var y = Mouse.screen.y;
+		const menu = this.ui.find('.menu');
+		const width = menu.width();
+		const height = menu.height();
+		let x = Mouse.screen.x;
+		let y = Mouse.screen.y;
 
 		if (Mouse.screen.x + width > Renderer.width) {
 			x = Mouse.screen.x - width;

@@ -12,7 +12,7 @@
 
 import WeaponType from './WeaponType';
 
-var WeaponSound = {};
+const WeaponSound = {};
 
 	WeaponSound[WeaponType.NONE] = ['attack_fist.wav'];
 	WeaponSound[WeaponType.SHORTSWORD] = ['attack_short_sword.wav', 'attack_short_sword_.wav'];

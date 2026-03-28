@@ -26,7 +26,7 @@ import PACKET from 'Network/PacketStructure';
 /**
 	 * Create Component
 	 */
-	let LaphineUpg = new UIComponent('LaphineUpg', htmlText, cssText);
+	const LaphineUpg = new UIComponent('LaphineUpg', htmlText, cssText);
 
 	/**
 	 * @var {number} LaphineUpg
@@ -58,7 +58,7 @@ import PACKET from 'Network/PacketStructure';
 	 */
 	LaphineUpg.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		let events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		LaphineUpg.ui.find('.some_notifs').hide();
@@ -95,7 +95,7 @@ import PACKET from 'Network/PacketStructure';
 	 * Initialize UI
 	 */
 	LaphineUpg.init = function init() {
-		let ui = this.ui;
+		const ui = this.ui;
 
 		// UI initializations
 		ui.find('.submit_button_disabled').hide();
@@ -206,7 +206,7 @@ import PACKET from 'Network/PacketStructure';
 			clearLaphineUpgUIState();
 
 			// Assume lapine_list is already loaded and available
-			let laphineUpgInfo = DB.getLaphineUpgInfoById(pkt.itemId);
+			const laphineUpgInfo = DB.getLaphineUpgInfoById(pkt.itemId);
 
 			if (laphineUpgInfo) {
 				// Update the state object
@@ -232,13 +232,13 @@ import PACKET from 'Network/PacketStructure';
 	 * Updates the Laphine UI with the current state information.
 	 */
 	function onUpdateLaphineUpgUI() {
-		let item = Inventory.getUI().getItemById(LaphineUpgUIState.itemId);
+		const item = Inventory.getUI().getItemById(LaphineUpgUIState.itemId);
 
 		if (!item) {
 			return false;
 		}
 
-		let ui = LaphineUpg.ui;
+		const ui = LaphineUpg.ui;
 		ui.find('.item_text').text(DB.getItemName(item));
 		ui.find('.mat_info_list').text(LaphineUpgUIState.needSourceString);
 	}
@@ -250,10 +250,10 @@ import PACKET from 'Network/PacketStructure';
 	 * @returns {Array<Item>}
 	 */
 	function GetInventoryItemsById(id) {
-		let items = [];
-		let list = Inventory.getUI().list;
+		const items = [];
+		const list = Inventory.getUI().list;
 
-		for (var i = 0, count = list.length; i < count; ++i) {
+		for (let i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
 				items.push(list[i]);
 			}
@@ -266,11 +266,11 @@ import PACKET from 'Network/PacketStructure';
 	 * Populates the list of available materials.
 	 */
 	function populateAvailableUpgMatList() {
-		let availableMatList = LaphineUpg.ui.find('.available_mat_list');
+		const availableMatList = LaphineUpg.ui.find('.available_mat_list');
 		availableMatList.empty(); // Clear the list before populating
 
 		LaphineUpgUIState.targetItems.forEach(targetItem => {
-			let matchingItems = GetInventoryItemsById(targetItem.id);
+			const matchingItems = GetInventoryItemsById(targetItem.id);
 			matchingItems.forEach(inventoryItem => {
 				let isValid = true;
 
@@ -287,7 +287,7 @@ import PACKET from 'Network/PacketStructure';
 					isValid = false;
 					// Check the options count
 					if (inventoryItem.Options) {
-						let numOfOptions = inventoryItem.Options.filter(Option => Option.index !== 0).length;
+						const numOfOptions = inventoryItem.Options.filter(Option => Option.index !== 0).length;
 						if (numOfOptions && numOfOptions >= LaphineUpgUIState.needoptionnummin) {
 							isValid = true;
 						}
@@ -296,13 +296,13 @@ import PACKET from 'Network/PacketStructure';
 
 				if (isValid) {
 					// We get icon name from item table instead because some targetItem.name are not identifiedResourceName
-					let it = DB.getItemInfo(targetItem.id);
+					const it = DB.getItemInfo(targetItem.id);
 
 					if (!it) {
 						return; // Skip this iteration of the inner forEach loop
 					}
 
-					let icon_name = it.identifiedResourceName;
+					const icon_name = it.identifiedResourceName;
 					onAddMaterialItem(inventoryItem, icon_name);
 				}
 			});
@@ -313,10 +313,10 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the addition of an item in the UI from the available materials list.
 	 */
 	function onAddMaterialItem(item, target_iconname) {
-		let availableMatList = LaphineUpg.ui.find('.available_mat_list');
+		const availableMatList = LaphineUpg.ui.find('.available_mat_list');
 
 		// Add item details
-		let newItem = jQuery(
+		const newItem = jQuery(
 			'<div class="item" data-index="' +
 				item.index +
 				'" draggable="true">' +
@@ -365,7 +365,7 @@ import PACKET from 'Network/PacketStructure';
 	function onRequestLaphineUpgClose() {
 		LaphineUpg.remove();
 
-		let pkt = new PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE();
+		const pkt = new PACKET.CZ.RANDOM_UPGRADE_ITEM_UI_CLOSE();
 		Network.sendPacket(pkt);
 	}
 
@@ -373,14 +373,14 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the selection of an item from the available materials list.
 	 */
 	function onItemSelect() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
 		}
 
-		let ui = LaphineUpg.ui;
+		const ui = LaphineUpg.ui;
 		ui.find('.name').removeClass('selected');
 		ui.find('.item[data-index="' + item.index + '"] .name').addClass('selected');
 	}
@@ -390,9 +390,9 @@ import PACKET from 'Network/PacketStructure';
 	 */
 	function onSubmitItem() {
 		// Check if there's a currently selected item in the .name class
-		let selectedItem = LaphineUpg.ui.find('.item .name.selected');
+		const selectedItem = LaphineUpg.ui.find('.item .name.selected');
 		let idx;
-		let ui = LaphineUpg.ui;
+		const ui = LaphineUpg.ui;
 
 		if (selectedItem.length > 0) {
 			idx = parseInt(selectedItem.closest('.item').data('index'), 10);
@@ -400,7 +400,7 @@ import PACKET from 'Network/PacketStructure';
 			idx = parseInt(this.getAttribute('data-index'), 10);
 		}
 
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		// Ensure the item is valid
 		if (!item) {
@@ -418,7 +418,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Get the target item from LaphineUpgUIState.targetItems
-		let targetItem = LaphineUpgUIState.targetItems.find(si => si.id === item.ITID);
+		const targetItem = LaphineUpgUIState.targetItems.find(si => si.id === item.ITID);
 		if (!targetItem) {
 			return; // Target item not found
 		}
@@ -430,10 +430,10 @@ import PACKET from 'Network/PacketStructure';
 	 * Updates the submit list with the given item.
 	 */
 	function onUpdateSubmitList(item) {
-		let it = DB.getItemInfo(item.ITID);
-		let submittedMatList = LaphineUpg.ui.find('.submitted_mat_list');
+		const it = DB.getItemInfo(item.ITID);
+		const submittedMatList = LaphineUpg.ui.find('.submitted_mat_list');
 
-		let newItem = jQuery(
+		const newItem = jQuery(
 			'<div class="item" data-index="' +
 				item.index +
 				'" draggable="true">' +
@@ -459,7 +459,7 @@ import PACKET from 'Network/PacketStructure';
 		// Add the item index
 		LaphineUpg.submittedIndex = item.index;
 
-		let ui = LaphineUpg.ui;
+		const ui = LaphineUpg.ui;
 		ui.find('.submit_button_enabled').show();
 		ui.find('.submit_button_disabled').hide();
 		ui.find('.make_disabled').hide();
@@ -477,7 +477,7 @@ import PACKET from 'Network/PacketStructure';
 	 */
 	function onCheckSubmittedItem(item) {
 		if (LaphineUpgUIState.notsocketenchantitem) {
-			let occupiedSlots = Object.values(item.slot).filter(slot => slot !== 0).length;
+			const occupiedSlots = Object.values(item.slot).filter(slot => slot !== 0).length;
 			if (occupiedSlots) {
 				showMessage(DB.getMessage(3646));
 			}
@@ -488,8 +488,8 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the removal of a submitted item and updates the UI accordingly.
 	 */
 	function onItemRemove() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (item) {
 			onRemoveItemSubmitList(item, this); // Pass the DOM element to the next function
@@ -502,7 +502,7 @@ import PACKET from 'Network/PacketStructure';
 	 * @param {HTMLElement|null} [element=null] - The DOM element corresponding to the item. If not provided, it will be found.
 	 */
 	function onRemoveItemSubmitList(item, element = null) {
-		let itemIndex = LaphineUpg.submittedIndex;
+		const itemIndex = LaphineUpg.submittedIndex;
 		if (itemIndex !== -1) {
 			// Remove the item from the submitted items list
 			LaphineUpg.submittedIndex = 0;
@@ -515,7 +515,7 @@ import PACKET from 'Network/PacketStructure';
 			// Remove the item from the DOM
 			jQuery(element).remove();
 
-			let ui = LaphineUpg.ui;
+			const ui = LaphineUpg.ui;
 			ui.find('.submit_button_enabled').show();
 			ui.find('.submit_button_disabled').hide();
 			ui.find('.make_disabled').show();
@@ -530,12 +530,12 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the changes in UI when submitting and removing item from submitted list.
 	 */
 	function updateAvailableMatList(itemId, itemIndex, remove) {
-		let availableMatList = LaphineUpg.ui.find('.available_mat_list');
+		const availableMatList = LaphineUpg.ui.find('.available_mat_list');
 		let itemExists = false;
 
 		availableMatList.find('.item').each(function () {
-			let idx = parseInt(jQuery(this).attr('data-index'), 10);
-			let item = Inventory.getUI().getItemByIndex(idx);
+			const idx = parseInt(jQuery(this).attr('data-index'), 10);
+			const item = Inventory.getUI().getItemByIndex(idx);
 
 			if (item.ITID === itemId && idx === itemIndex) {
 				itemExists = true;
@@ -547,18 +547,18 @@ import PACKET from 'Network/PacketStructure';
 
 		// If item doesn't exist and should be increased, add it back
 		if (!remove && !itemExists) {
-			let item = Inventory.getUI().getItemByIndex(itemIndex);
+			const item = Inventory.getUI().getItemByIndex(itemIndex);
 			if (item) {
-				let targetItem = LaphineUpgUIState.targetItems.find(targetItem => targetItem.id === itemId);
+				const targetItem = LaphineUpgUIState.targetItems.find(targetItem => targetItem.id === itemId);
 				if (targetItem) {
 					// We get icon name from item table instead because some targetItem.name are not identifiedResourceName
-					let it = DB.getItemInfo(targetItem.id);
+					const it = DB.getItemInfo(targetItem.id);
 
 					if (!it) {
 						return; // Skip
 					}
 
-					let icon_name = it.identifiedResourceName;
+					const icon_name = it.identifiedResourceName;
 					onAddMaterialItem(item, icon_name);
 				}
 			}
@@ -569,7 +569,7 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles showing of message for notifications.
 	 */
 	function showMessage(message) {
-		let ui = LaphineUpg.ui;
+		const ui = LaphineUpg.ui;
 		ui.find('.info_msg').empty().text(message);
 		ui.find('.some_notifs').show();
 	}
@@ -578,7 +578,7 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the synthesis request by preparing and sending the packet.
 	 */
 	function onRequestLaphineUpg() {
-		let item = Inventory.getUI().getItemByIndex(LaphineUpg.submittedIndex);
+		const item = Inventory.getUI().getItemByIndex(LaphineUpg.submittedIndex);
 
 		if (!item) {
 			return false;
@@ -590,7 +590,7 @@ import PACKET from 'Network/PacketStructure';
 		pkt.item_index = LaphineUpg.submittedIndex;
 		Network.sendPacket(pkt);
 
-		let ui = LaphineUpg.ui;
+		const ui = LaphineUpg.ui;
 		ui.find('.make_enabled').hide();
 		ui.find('.make_disabled').show();
 	}
@@ -599,25 +599,25 @@ import PACKET from 'Network/PacketStructure';
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		let pos = jQuery(this);
-		let overlay = LaphineUpg.ui.find('.overlay');
+		const pos = jQuery(this);
+		const overlay = LaphineUpg.ui.find('.overlay');
 
 		// Determine the immediate parent container explicitly based on the context
-		let parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
-		let itemPos = pos.position();
-		let containerPos = parentContainer.position();
+		const parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
+		const itemPos = pos.position();
+		const containerPos = parentContainer.position();
 
 		// Calculate the desired position of the overlay relative to the container
-		let top = itemPos.top - overlay.outerHeight() + 25;
-		let left = itemPos.left;
+		const top = itemPos.top - overlay.outerHeight() + 25;
+		const left = itemPos.left;
 
 		// Display box
 		overlay.show();
@@ -638,7 +638,7 @@ import PACKET from 'Network/PacketStructure';
 	 * Hide the item name
 	 */
 	function onItemOut() {
-		let ui = LaphineUpg.ui;
+		const ui = LaphineUpg.ui;
 		ui.find('.overlay').hide();
 	}
 
@@ -654,16 +654,16 @@ import PACKET from 'Network/PacketStructure';
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		let img = new Image();
-		let url = this.querySelector('.icon')
+		const img = new Image();
+		const url = this.querySelector('.icon')
 			.style.backgroundImage.match(/\((.*?)\)/)[1]
 			.replace(/('|")/g, '');
 		img.decoding = 'async';
@@ -699,7 +699,7 @@ import PACKET from 'Network/PacketStructure';
 	 */
 	function onSubmitItemDrop(event) {
 		let item, data;
-		let ui = LaphineUpg.ui;
+		const ui = LaphineUpg.ui;
 		event.stopImmediatePropagation();
 
 		try {
@@ -715,7 +715,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Check if there's a currently selected item in the .name class
-		let selectedItem = LaphineUpg.ui.find('.item .name.selected');
+		const selectedItem = LaphineUpg.ui.find('.item .name.selected');
 		let idx;
 
 		if (selectedItem.length > 0) {
@@ -740,7 +740,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Get the target item from LaphineUpgUIState.targetItems
-		let targetItem = LaphineUpgUIState.targetItems.find(si => si.id === item.ITID);
+		const targetItem = LaphineUpgUIState.targetItems.find(si => si.id === item.ITID);
 		if (!targetItem) {
 			return; // Target item not found
 		}
@@ -774,7 +774,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Locate the DOM element based on the item's index
-		let element = LaphineUpg.ui.find(`.item[data-index="${item.index}"]`);
+		const element = LaphineUpg.ui.find(`.item[data-index="${item.index}"]`);
 
 		onRemoveItemSubmitList(item, element.get(0)); // Pass the DOM element to the function
 	}
@@ -785,8 +785,8 @@ import PACKET from 'Network/PacketStructure';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -812,7 +812,7 @@ import PACKET from 'Network/PacketStructure';
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		let compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {

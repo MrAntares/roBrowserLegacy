@@ -7,16 +7,16 @@ import DB from 'DB/DBManager';
 import EntitySignboard from 'UI/Components/EntitySignboard/EntitySignboard';
 import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 
-let SignboardManager = {};
+const SignboardManager = {};
 	let signboards = [];
-	let mat4 = glMatrix.mat4;
-	let vec4 = glMatrix.vec4;
-	let _pos = new Float32Array(4);
-	let _size = new Float32Array(2);
+	const mat4 = glMatrix.mat4;
+	const vec4 = glMatrix.vec4;
+	const _pos = new Float32Array(4);
+	const _size = new Float32Array(2);
 
 	SignboardManager.add = function (x, y, signboardData) {
 		// Clone the UI component
-		let signboardUI = EntitySignboard.clone('EntitySignboard', true);
+		const signboardUI = EntitySignboard.clone('EntitySignboard', true);
 		signboardData.icon_location = signboardData.icon_location.replace(
 			'\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba' + '\\',
 			''
@@ -53,12 +53,12 @@ let SignboardManager = {};
 	};
 
 	SignboardManager.render = function (gl, modelView, projection) {
-		let _matrix = mat4.create();
-		let _vector = vec4.create();
+		const _matrix = mat4.create();
+		const _vector = vec4.create();
 
 		signboards.forEach(signboard => {
-			var ui = signboard.ui.ui[0];
-			var z;
+			const ui = signboard.ui.ui[0];
+			let z;
 
 			// Calculate world position
 			_vector[0] = signboard.x + 0.5;

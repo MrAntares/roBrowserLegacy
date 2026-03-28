@@ -23,13 +23,13 @@ import cssText from './MakeItemSelection.css?raw';
 /**
 	 * Create MakeItemSelection namespace
 	 */
-	let MakeItemSelection = new UIComponent('MakeItemSelection', htmlText, cssText);
+	const MakeItemSelection = new UIComponent('MakeItemSelection', htmlText, cssText);
 
-	let validMultipleMaterials = [
+	const validMultipleMaterials = [
 		1000 //star crumb
 	];
 
-	let validSingleMaterials = [
+	const validSingleMaterials = [
 		997, //great nature
 		996, //rough wind
 		995, //mystic frozen
@@ -273,8 +273,8 @@ import cssText from './MakeItemSelection.css?raw';
 	 * @param {object} Item
 	 */
 	MakeItemSelection.addItemSub = function AddItemSub(item) {
-		let it = DB.getItemInfo(item.ITID);
-		let content = this.ui.find('.materials');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.materials');
 
 		content.append(
 			'<div class="item" data-index="' +

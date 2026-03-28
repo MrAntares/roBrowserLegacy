@@ -62,7 +62,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_EFFECT
 	 */
 	function onSpecialEffect(pkt) {
-		let EnumEffect = [
+		const EnumEffect = [
 			EffectConst.EF_ANGEL,
 			EffectConst.EF_JOBLVUP,
 			EffectConst.EF_REFINEFAIL,
@@ -76,7 +76,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		];
 
 		if (EnumEffect[pkt.effectID] > -1) {
-			let EF_Init_Par = {
+			const EF_Init_Par = {
 				effectId: EnumEffect[pkt.effectID],
 				ownerAID: pkt.AID
 			};
@@ -121,7 +121,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 			}
 		}
 
-		let EF_Init_Par = {
+		const EF_Init_Par = {
 			effectId: pkt.effectID,
 			ownerAID: pkt.AID
 		};
@@ -135,7 +135,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_GROUNDSKILL
 	 */
 	function onSkillToGround(pkt) {
-		let position = new Array(3);
+		const position = new Array(3);
 		position[0] = pkt.xPos;
 		position[1] = pkt.yPos;
 		position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
@@ -307,7 +307,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		ItemSelection.setTitle(DB.getMessage(521));
 		ItemSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				let pkt = new PACKET.CZ.REQ_ITEMIDENTIFY();
+				const pkt = new PACKET.CZ.REQ_ITEMIDENTIFY();
 				pkt.index = index;
 				Network.sendPacket(pkt);
 			}
@@ -330,7 +330,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 				ChatBox.addText(DB.getMessage(491), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 				// Remove old item
-				let item = Inventory.getUI().removeItem(pkt.index, 1);
+				const item = Inventory.getUI().removeItem(pkt.index, 1);
 
 				// Add new item updated
 				if (item) {
@@ -360,7 +360,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		ItemSelection.setTitle(DB.getMessage(697));
 		ItemSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				let pkt = new PACKET.CZ.SELECTAUTOSPELL();
+				const pkt = new PACKET.CZ.SELECTAUTOSPELL();
 				pkt.SKID = index;
 				Network.sendPacket(pkt);
 			}
@@ -377,7 +377,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 
 		pkt.AID.forEach(tgtAID => {
 			if (tgtAID > 0) {
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_LINELINK,
 					ownerAID: pkt.myAID,
 					otherAID: tgtAID,
@@ -404,7 +404,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		ItemSelection.setTitle(DB.getMessage(697));
 		ItemSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				let pkt = new PACKET.CZ.SKILL_SELECT_RESPONSE();
+				const pkt = new PACKET.CZ.SKILL_SELECT_RESPONSE();
 				pkt.SKID = index;
 				pkt.why = 0; // Currently unused on server side (clif_parse_SkillSelectMenu)
 				Network.sendPacket(pkt);
@@ -422,7 +422,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		NpcMenu.onSelectMenu = function (skillid, index) {
 			NpcMenu.remove();
 
-			let _pkt = new PACKET.CZ.SELECT_WARPPOINT();
+			const _pkt = new PACKET.CZ.SELECT_WARPPOINT();
 			_pkt.SKID = skillid;
 			_pkt.mapName = pkt.mapName[index - 1] || 'cancel';
 			Network.sendPacket(_pkt);
@@ -430,7 +430,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 
 		NpcMenu.onAppend = function () {
 			let i, count;
-			let mapNames = [];
+			const mapNames = [];
 
 			for (i = 0, count = pkt.mapName.length; i < count; ++i) {
 				mapNames[i] = DB.getMapName(pkt.mapName[i], pkt.mapName[i]);
@@ -497,7 +497,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		MakeArrowSelection.setTitle('LIST');
 		MakeArrowSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				let pkt = new PACKET.CZ.REQ_MAKINGARROW();
+				const pkt = new PACKET.CZ.REQ_MAKINGARROW();
 				pkt.id = index;
 				Network.sendPacket(pkt);
 			}
@@ -519,7 +519,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		RefineWeaponSelection.setTitle(DB.getMessage(910));
 		RefineWeaponSelection.onIndexSelected = function (index) {
 			if (index >= -1) {
-				let pkt = new PACKET.CZ.REQ_WEAPONREFINE();
+				const pkt = new PACKET.CZ.REQ_WEAPONREFINE();
 				pkt.Index = index;
 				Network.sendPacket(pkt);
 			}
@@ -543,7 +543,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 			if (index >= -1) {
 				const item = RefineWeaponSelection.getItemByIndex(index);
 
-				let pkt = new PACKET.CZ.REQ_ITEMREPAIR();
+				const pkt = new PACKET.CZ.REQ_ITEMREPAIR();
 				pkt.index = index;
 				pkt.itemId = item.ITID;
 				pkt.RefiningLevel = item.RefiningLevel;
@@ -587,7 +587,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 	 * @param {number} skill id
 	 */
 	function onIncreaseSkill(SKID) {
-		let pkt = new PACKET.CZ.UPGRADE_SKILLLEVEL();
+		const pkt = new PACKET.CZ.UPGRADE_SKILLLEVEL();
 		pkt.SKID = SKID;
 
 		Network.sendPacket(pkt);
@@ -608,8 +608,8 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		let entity, skill, target, pkt, out;
 		let count, range;
 
-		let isHomun = id > SkillId.HOMUN_BEGIN && id < SkillId.HOMUN_LAST;
-		let isMerc = id > SkillId.MERCENARY_BEGIN && id < SkillId.MERCENARY_LAST;
+		const isHomun = id > SkillId.HOMUN_BEGIN && id < SkillId.HOMUN_LAST;
+		const isMerc = id > SkillId.MERCENARY_BEGIN && id < SkillId.MERCENARY_LAST;
 
 		// Not used so far
 		//var isElem = (id > SkillId.ELEMENTAL_BEGIN && id < SkillId.ELEMENTAL_LAST);
@@ -720,7 +720,7 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		let pos, entity, pkt, out, skill;
 		let count, range;
 
-		let isHomun = id > 8000 && id < 8044;
+		const isHomun = id > 8000 && id < 8044;
 
 		if (isHomun) {
 			entity = EntityManager.get(Session.homunId);
@@ -802,13 +802,13 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		EffectManager.remove(null, pkt.AID, [228, 504, 629, 833]);
 
 		if (pkt.num > 0) {
-			let entity = EntityManager.get(pkt.AID);
+			const entity = EntityManager.get(pkt.AID);
 			if (entity) {
-				let isMonk = entity._job && [15, 4016, 4038, 4070, 4077, 4106].includes(entity._job); //Monk classes
-				let isGS = entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job); //Gunslinger classes
-				let isRG = entity._job && [4066, 4082, 4083, 4102, 4110].includes(entity._job); //Royal Guard
+				const isMonk = entity._job && [15, 4016, 4038, 4070, 4077, 4106].includes(entity._job); //Monk classes
+				const isGS = entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job); //Gunslinger classes
+				const isRG = entity._job && [4066, 4082, 4083, 4102, 4110].includes(entity._job); //Royal Guard
 
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_CHOOKGI,
 					ownerAID: pkt.AID,
 					spiritNum: pkt.num
@@ -837,9 +837,9 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 		EffectManager.remove(null, pkt.AID, [749]);
 
 		if (pkt.num > 0 && pkt.state > 0) {
-			let entity = EntityManager.get(pkt.AID);
+			const entity = EntityManager.get(pkt.AID);
 			if (entity) {
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_MILSHIELD_STR,
 					ownerAID: pkt.AID,
 					spiritNum: pkt.num
@@ -851,10 +851,10 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 	}
 
 	function onTaekwonMission(pkt) {
-		let total = 100;
+		const total = 100;
 		let message = DB.getMessage(927);
-		let percent = Math.floor((pkt.star / total) * 100);
-		let color = '#F8F8FF'; //GhostWhite
+		const percent = Math.floor((pkt.star / total) * 100);
+		const color = '#F8F8FF'; //GhostWhite
 
 		message = message.replace('%s', pkt.monsterName);
 		message = message.replace('%d%', percent);
@@ -866,8 +866,8 @@ import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
 
 	function onMessageSkill(pkt) {
 		let message = DB.getMessage(pkt.MSGID);
-		let color = '#B8BEEB';
-		let name = SkillInfo[pkt.SKID].SkillName;
+		const color = '#B8BEEB';
+		const name = SkillInfo[pkt.SKID].SkillName;
 		message = `[${name}] ${message}`;
 
 		ChatBox.addText(message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG, color);

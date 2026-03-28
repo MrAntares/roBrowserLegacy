@@ -28,7 +28,7 @@ import FileSystem from './FileSystem';
 /**
  * Create Intro component
  */
-var Intro = new UIComponent('Intro', htmlText, cssText);
+const Intro = new UIComponent('Intro', htmlText, cssText);
 
 /**
  * @var {FileList}
@@ -63,13 +63,13 @@ Intro.init = function init() {
 		Configs.set('_serverEditMode', true);
 	}
 
-	var ui = this.ui;
+	const ui = this.ui;
 
 	preloadImages();
 
 	// About page
 	ui.find('.btn_about').mousedown(function () {
-		var $about = ui.find('.overlay.about');
+		const $about = ui.find('.overlay.about');
 		$about
 			.show()
 			.animate({ opacity: 1 }, 200)
@@ -118,7 +118,7 @@ Intro.init = function init() {
 
 	// Clean cache
 	ui.find('.clean').click(function () {
-		var parent = jQuery(this).hide().parent();
+		const parent = jQuery(this).hide().parent();
 		parent.append(
 			'<span><img src="' + new URL('./images/loading.gif', import.meta.url).href + '"/> <i>Cleaning cache...</i></span>'
 		);
@@ -152,8 +152,8 @@ Intro.init = function init() {
 
 	// Add Server
 	ui.find('.btn_add').on('click', function () {
-		var $serverlist = ui.find('.servers');
-		var count = $serverlist.find('tr').length;
+		const $serverlist = ui.find('.servers');
+		const count = $serverlist.find('tr').length;
 		$serverlist.append(
 			'<tr>' +
 				'	<td><input type="text" class="display" value="Server ' +
@@ -202,7 +202,7 @@ Intro.onAppend = function onAppend() {
 	this.ui.find('.clean').hide();
 	FileSystem.getSize(
 		function (used) {
-			var msg = '';
+			let msg = '';
 
 			if (used) {
 				if (used > 1024 * 1024 * 1024) {
@@ -220,8 +220,8 @@ Intro.onAppend = function onAppend() {
 	);
 
 	// Hook resize
-	var $window = jQuery(window);
-	var $intro = this.ui.find('.intro');
+	const $window = jQuery(window);
+	const $intro = this.ui.find('.intro');
 	$window.on('resize.intro', function () {
 		$intro.css(
 			'transform',
@@ -267,7 +267,7 @@ function preloadImages() {
 	Intro.ui.find('.btn_settings img').attr('src', new URL('./images/settings.png', import.meta.url).href);
 
 	// Preload image
-	var img = new Image();
+	const img = new Image();
 	img.decoding = 'async';
 	img.src = new URL('./images/play-down.png', import.meta.url).href;
 }
@@ -278,13 +278,13 @@ function preloadImages() {
  * @return {boolean} false
  */
 function process(event) {
-	var i, count;
+	let i, count;
 
-	var _dir_count = 0;
-	var _dir_loaded = 0;
-	var _file_count = 0;
-	var _file_loaded = 0;
-	var _files = [];
+	let _dir_count = 0;
+	let _dir_loaded = 0;
+	let _file_count = 0;
+	let _file_loaded = 0;
+	const _files = [];
 
 	event.stopImmediatePropagation();
 	jQuery(this).removeClass('over');
@@ -310,7 +310,7 @@ function process(event) {
 		} else if (entry.isDirectory) {
 			++_dir_count;
 			entry.createReader().readEntries(function (entries) {
-				for (var i = 0, count = entries.length; i < count; ++i) {
+				for (let i = 0, count = entries.length; i < count; ++i) {
 					recursiveReader(entries[i], skip);
 				}
 				if (++_dir_loaded === _dir_count && _file_loaded === _file_count) {
@@ -325,7 +325,7 @@ function process(event) {
 		// In wekit we select the folder, not files.
 		// we have to rewrite the relativePath to remove the main folder from it
 		if (this.files.length) {
-			var token =
+			const token =
 				'webkitRelativePath' in this.files[0]
 					? 'webkitRelativePath'
 					: 'relativePath' in this.files[0]
@@ -333,7 +333,7 @@ function process(event) {
 						: null;
 			if (token) {
 				count = this.files.length;
-				var baseFolder = /^[^(\/|\\)]+(\/|\\)/;
+				const baseFolder = /^[^(\/|\\)]+(\/|\\)/;
 
 				for (i = 0; i < count; ++i) {
 					this.files[i].fullPath = this.files[i][token].replace(baseFolder, '');
@@ -347,14 +347,14 @@ function process(event) {
 
 	// drag drop
 	if (event.originalEvent.dataTransfer) {
-		var data = event.originalEvent.dataTransfer;
+		const data = event.originalEvent.dataTransfer;
 
 		// Read directory content
 		if (data.items && data.items.length && data.items[0].webkitGetAsEntry) {
 			// If select a directory, have to remove the root folder for all files
 			// inside this directory
-			var skip = 1;
-			var entry = data.items[0].webkitGetAsEntry();
+			let skip = 1;
+			const entry = data.items[0].webkitGetAsEntry();
 			if (data.items.length === 1 && entry.isDirectory) {
 				skip = entry.fullPath.split('/')[1].length + 2;
 			}

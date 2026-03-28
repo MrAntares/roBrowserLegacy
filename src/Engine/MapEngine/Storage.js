@@ -89,7 +89,7 @@ import Storage from 'UI/Components/Storage/Storage';
 	 * PACKET.CZ.CLOSE_STORE
 	 */
 	Storage.onClosePressed = function onClosePressed() {
-		let pkt = new PACKET.CZ.CLOSE_STORE();
+		const pkt = new PACKET.CZ.CLOSE_STORE();
 		Network.sendPacket(pkt);
 
 		Storage.getUI().remove();
@@ -120,7 +120,7 @@ import Storage from 'UI/Components/Storage/Storage';
 			return;
 		}
 
-		let pkt = new PACKET.CZ.MOVE_ITEM_FROM_CART_TO_STORE();
+		const pkt = new PACKET.CZ.MOVE_ITEM_FROM_CART_TO_STORE();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -151,7 +151,7 @@ import Storage from 'UI/Components/Storage/Storage';
 			return;
 		}
 
-		let pkt = new PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_CART();
+		const pkt = new PACKET.CZ.MOVE_ITEM_FROM_STORE_TO_CART();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);

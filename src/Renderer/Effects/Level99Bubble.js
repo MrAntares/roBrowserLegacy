@@ -25,24 +25,24 @@ import Camera from 'Renderer/Camera';
 import Altitude from 'Renderer/Map/Altitude';
 import SpriteRenderer from 'Renderer/SpriteRenderer';
 
-let DEG_TO_RAD = Math.PI / 180;
-	let GAME_TO_WORLD = 0.1 * 2.2;
-	let NUM_COLUMNS = 4; // 4 emitter columns
-	let ANCHORS_PER_COL = 4; // B_pre, B_now, T_pre, T_now
-	let BASE_LIFT = 0.05;
-	let DEBUG_UI_ID = 'lvl99bubble-debug';
+const DEG_TO_RAD = Math.PI / 180;
+	const GAME_TO_WORLD = 0.1 * 2.2;
+	const NUM_COLUMNS = 4; // 4 emitter columns
+	const ANCHORS_PER_COL = 4; // B_pre, B_now, T_pre, T_now
+	const BASE_LIFT = 0.05;
+	const DEBUG_UI_ID = 'lvl99bubble-debug';
 
-	let REF_RADIUS = 2.4; // Billboard radius
-	let REF_SPEED = 0.15; // Fall speed per frame
-	let REF_DRIFT_K = 0.15; // Jitter amplitude (±0.15)
-	let REF_SEED_MAX = 99; // Max spawn height
-	let REF_RESET_Y = -30; // Reset threshold
-	let REF_ALPHA_OFFSET = 20; // Alpha formula offset
-	let REF_ALPHA_GAIN = 30; // Alpha formula gain (default request)
+	const REF_RADIUS = 2.4; // Billboard radius
+	const REF_SPEED = 0.15; // Fall speed per frame
+	const REF_DRIFT_K = 0.15; // Jitter amplitude (±0.15)
+	const REF_SEED_MAX = 99; // Max spawn height
+	const REF_RESET_Y = -30; // Reset threshold
+	const REF_ALPHA_OFFSET = 20; // Alpha formula offset
+	const REF_ALPHA_GAIN = 30; // Alpha formula gain (default request)
 
 	// Sign patterns for the 4 anchors per column
 	// B_pre: (+kx, +kz), B_now: (-kx, -kz), T_pre: (+kx, -kz), T_now: (-kx, +kz)
-	let ANCHOR_SIGNS = [
+	const ANCHOR_SIGNS = [
 		{ kx: 1, kz: 1 }, // B_pre
 		{ kx: -1, kz: -1 }, // B_now
 		{ kx: 1, kz: -1 }, // T_pre
@@ -51,7 +51,7 @@ let DEG_TO_RAD = Math.PI / 180;
 
 	// Phase index pairs for each anchor (pa, pb from reference)
 	// B_pre: (0,2), B_now: (4,6), T_pre: (8,10), T_now: (12,14)
-	let ANCHOR_PHASE_OFFSETS = [
+	const ANCHOR_PHASE_OFFSETS = [
 		{ pa: 0, pb: 2 },
 		{ pa: 4, pb: 6 },
 		{ pa: 8, pb: 10 },
@@ -59,7 +59,7 @@ let DEG_TO_RAD = Math.PI / 180;
 	];
 
 	// Runtime-tunable config (temporary debug UI below)
-	let debugConfig = {
+	const debugConfig = {
 		scaleMult: 0.6,
 		seedMax: REF_SEED_MAX,
 		ghostSeedMax: 60,
@@ -78,7 +78,7 @@ let DEG_TO_RAD = Math.PI / 180;
 
 	// Unit square corners for billboard (centered at origin)
 	// Order: bottom-left, bottom-right, top-right, top-left
-	let BILLBOARD_CORNERS = [
+	const BILLBOARD_CORNERS = [
 		{ x: -1, y: -1 },
 		{ x: 1, y: -1 },
 		{ x: 1, y: 1 },
@@ -104,7 +104,7 @@ let DEG_TO_RAD = Math.PI / 180;
 	function advancePhase(current, target) {
 		let diff = target - current;
 		diff = ((diff + 540) % 360) - 180; // Wrap to [-180,180]
-		let step = 2 + Math.random(); // 2–3 degrees/frame
+		const step = 2 + Math.random(); // 2–3 degrees/frame
 
 		if (Math.abs(diff) <= step) {
 			current = target;
@@ -154,7 +154,7 @@ let DEG_TO_RAD = Math.PI / 180;
 		// Default to flag1 = 1 (blue variant) unless explicitly overridden
 		this.flag1 = flag1 === 0 || flag1 ? flag1 : 1;
 
-		let isGhost = this.flag1 === 11 || this.flag1 === 3;
+		const isGhost = this.flag1 === 11 || this.flag1 === 3;
 
 		// Reference values in robrowser units
 		this.baseRadius = this.flag1 === 1 ? REF_RADIUS : isGhost ? 3.2 : 0.8;
@@ -168,9 +168,9 @@ let DEG_TO_RAD = Math.PI / 180;
 
 		// Initialize columns (emitters)
 		this.columns = [];
-		let numCols = isGhost ? 1 : NUM_COLUMNS; // Ghost uses only 1 column
-		for (var ec = 0; ec < numCols; ec++) {
-			let column = {
+		const numCols = isGhost ? 1 : NUM_COLUMNS; // Ghost uses only 1 column
+		for (let ec = 0; ec < numCols; ec++) {
+			const column = {
 				life: true,
 				anchors: [],
 				// 16 phases per column: pairs for each anchor's X and Z
@@ -179,14 +179,14 @@ let DEG_TO_RAD = Math.PI / 180;
 			};
 
 			// Initialize phases with random values [0, 360)
-			for (var p = 0; p < 16; p++) {
+			for (let p = 0; p < 16; p++) {
 				column.phases[p] = randRange(0, 360);
 				column.phaseTargets[p] = randRange(0, 360);
 			}
 
 			// Create 4 anchors per column
-			for (var a = 0; a < ANCHORS_PER_COL; a++) {
-				let anchor = createAnchor(isGhost, this.seedMax);
+			for (let a = 0; a < ANCHORS_PER_COL; a++) {
+				const anchor = createAnchor(isGhost, this.seedMax);
 				column.anchors.push(anchor);
 			}
 
@@ -203,7 +203,7 @@ let DEG_TO_RAD = Math.PI / 180;
 	}
 
 	Level99Bubble.prototype.init = function init(gl) {
-		let self = this;
+		const self = this;
 
 		Client.loadFile('data/texture/effect/' + this.textureName, function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
@@ -224,8 +224,8 @@ let DEG_TO_RAD = Math.PI / 180;
 	 * Full above y=-offset, fades out by y=-(offset + 250/gain)
 	 */
 	Level99Bubble.prototype.computeAlpha = function computeAlpha(localY) {
-		let offset = debugConfig.alphaOffset;
-		let gain = debugConfig.alphaGain;
+		const offset = debugConfig.alphaOffset;
+		const gain = debugConfig.alphaGain;
 		let alpha255 = 250 + gain * (localY + offset);
 		alpha255 = Math.max(0, Math.min(250, alpha255));
 		return alpha255 / 255;
@@ -235,8 +235,8 @@ let DEG_TO_RAD = Math.PI / 180;
 	 * Update all phases in a column (advance toward random targets)
 	 */
 	Level99Bubble.prototype.updatePhases = function updatePhases(column) {
-		for (var i = 0; i < 16; i++) {
-			let result = advancePhase(column.phases[i], column.phaseTargets[i]);
+		for (let i = 0; i < 16; i++) {
+			const result = advancePhase(column.phases[i], column.phaseTargets[i]);
 			column.phases[i] = result.angle;
 			column.phaseTargets[i] = result.target;
 		}
@@ -250,14 +250,14 @@ let DEG_TO_RAD = Math.PI / 180;
 	 * - Reset when y < resetY: x=z=0, y=rand[0,seedMax], reseed phases
 	 */
 	Level99Bubble.prototype.updateAnchor = function updateAnchor(column, anchorIndex) {
-		let anchor = column.anchors[anchorIndex];
-		let signs = ANCHOR_SIGNS[anchorIndex];
-		let phaseOffsets = ANCHOR_PHASE_OFFSETS[anchorIndex];
+		const anchor = column.anchors[anchorIndex];
+		const signs = ANCHOR_SIGNS[anchorIndex];
+		const phaseOffsets = ANCHOR_PHASE_OFFSETS[anchorIndex];
 
 		// Apply jitter only when below ground (y < 0)
 		if (anchor.y < 0) {
-			let phaseA = column.phases[phaseOffsets.pa] * DEG_TO_RAD;
-			let phaseB = column.phases[phaseOffsets.pb] * DEG_TO_RAD;
+			const phaseA = column.phases[phaseOffsets.pa] * DEG_TO_RAD;
+			const phaseB = column.phases[phaseOffsets.pb] * DEG_TO_RAD;
 			anchor.x += signs.kx * this.driftK * Math.sin(phaseA);
 			anchor.z += signs.kz * this.driftK * Math.sin(phaseB);
 		}
@@ -266,7 +266,7 @@ let DEG_TO_RAD = Math.PI / 180;
 		anchor.y -= this.fallSpeed * debugConfig.fallSpeedMult;
 
 		// Reset when below threshold
-		let resetLimit = this.resetY * debugConfig.respawnDepthMult;
+		const resetLimit = this.resetY * debugConfig.respawnDepthMult;
 		if (anchor.y < resetLimit) {
 			anchor.x = 0;
 			anchor.z = 0;
@@ -320,22 +320,22 @@ let DEG_TO_RAD = Math.PI / 180;
 			return;
 		}
 
-		let uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		// Get ground position (world coordinates)
-		let groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
-		let basePos = [this.position[0] + 0.5, -groundZ - BASE_LIFT, this.position[1] + 0.5];
+		const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
+		const basePos = [this.position[0] + 0.5, -groundZ - BASE_LIFT, this.position[1] + 0.5];
 
 		// Camera orientation for billboarding
-		let viewPitch = Camera.angle[0];
-		let viewYaw = Camera.angle[1];
-		let beta = ((360 - viewPitch + 90) % 360) * DEG_TO_RAD;
-		let alpha = ((360 - viewYaw) % 360) * DEG_TO_RAD;
+		const viewPitch = Camera.angle[0];
+		const viewYaw = Camera.angle[1];
+		const beta = ((360 - viewPitch + 90) % 360) * DEG_TO_RAD;
+		const alpha = ((360 - viewYaw) % 360) * DEG_TO_RAD;
 
-		let sinBeta = Math.sin(beta);
-		let cosBeta = Math.cos(beta);
-		let sinAlpha = Math.sin(alpha);
-		let cosAlpha = Math.cos(alpha);
+		const sinBeta = Math.sin(beta);
+		const cosBeta = Math.cos(beta);
+		const sinAlpha = Math.sin(alpha);
+		const cosAlpha = Math.cos(alpha);
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -345,11 +345,11 @@ let DEG_TO_RAD = Math.PI / 180;
 		}
 
 		// Current billboard radius (in world units)
-		let radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
+		const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
 
 		// Process each column
 		for (var ec = 0; ec < this.columns.length; ec++) {
-			let column = this.columns[ec];
+			const column = this.columns[ec];
 			if (!column.life) {
 				continue;
 			}
@@ -362,33 +362,33 @@ let DEG_TO_RAD = Math.PI / 180;
 				// Update anchor position (jitter + drift + reset)
 				this.updateAnchor(column, ai);
 
-				let anchor = column.anchors[ai];
+				const anchor = column.anchors[ai];
 
 				// Convert anchor position to world units
-				let anchorWorldX = anchor.x * GAME_TO_WORLD;
-				let anchorWorldY = anchor.y * GAME_TO_WORLD;
-				let anchorWorldZ = anchor.z * GAME_TO_WORLD;
+				const anchorWorldX = anchor.x * GAME_TO_WORLD;
+				const anchorWorldY = anchor.y * GAME_TO_WORLD;
+				const anchorWorldZ = anchor.z * GAME_TO_WORLD;
 
 				// Build billboard quad corners around anchor
-				for (var k = 0; k < BILLBOARD_CORNERS.length; k++) {
-					let corner = BILLBOARD_CORNERS[k];
+				for (let k = 0; k < BILLBOARD_CORNERS.length; k++) {
+					const corner = BILLBOARD_CORNERS[k];
 
 					// Local billboard coordinates (unit square scaled by radius)
-					let localX = corner.x * radius;
-					let localZ = corner.y * radius;
+					const localX = corner.x * radius;
+					const localZ = corner.y * radius;
 
 					// Apply R_x(beta) - pitch rotation
-					let ry = -localZ * sinBeta;
+					const ry = -localZ * sinBeta;
 					let rz = localZ * cosBeta;
 
 					// Apply R_y(alpha) - yaw rotation
-					let rx = localX * cosAlpha + rz * sinAlpha;
+					const rx = localX * cosAlpha + rz * sinAlpha;
 					rz = -localX * sinAlpha + rz * cosAlpha;
 
 					// Final world position = base + anchor offset + billboard corner
-					let finalX = basePos[0] + anchorWorldX + rx;
-					let finalY = basePos[1] + anchorWorldY + ry;
-					let finalZ = basePos[2] + anchorWorldZ + rz;
+					const finalX = basePos[0] + anchorWorldX + rx;
+					const finalY = basePos[1] + anchorWorldY + ry;
+					const finalZ = basePos[2] + anchorWorldZ + rz;
 
 					this.tmpPoints[k][0] = finalX;
 					this.tmpPoints[k][1] = finalY;
@@ -402,7 +402,7 @@ let DEG_TO_RAD = Math.PI / 180;
 				}
 
 				// Compute alpha based on anchor height
-				let alphaValue = this.computeAlpha(anchor.y);
+				const alphaValue = this.computeAlpha(anchor.y);
 				if (alphaValue <= 0) {
 					continue;
 				}
@@ -412,9 +412,9 @@ let DEG_TO_RAD = Math.PI / 180;
 				// Update GPU buffer with quad vertex data (6 vertices * (3 pos + 2 uv) = 30 floats)
 				gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
 
-				let self = this;
+				const self = this;
 				SpriteRenderer.runWithDepth(true, false, false, function () {
-					for (var pass = 0; pass < self.passCount; pass++) {
+					for (let pass = 0; pass < self.passCount; pass++) {
 						gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, alphaValue);
 						gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.002 + ai * 0.0001 + pass * 0.00005);
 						gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -425,14 +425,14 @@ let DEG_TO_RAD = Math.PI / 180;
 	};
 
 	Level99Bubble.prototype.renderBackground = function renderBackground(gl, basePos) {
-		let uniform = _program.uniform;
-		let radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
-		let height = this.seedMax * GAME_TO_WORLD;
+		const uniform = _program.uniform;
+		const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
+		const height = this.seedMax * GAME_TO_WORLD;
 
 		function drawQuad(v0, v1, v2, v3) {
 			// Reuse tmpPoints
 			// v0..v3: [x,y,z]
-			for (var i = 0; i < 3; i++) {
+			for (let i = 0; i < 3; i++) {
 				this.tmpPoints[0][i] = v0[i];
 				this.tmpPoints[1][i] = v1[i];
 				this.tmpPoints[2][i] = v2[i];
@@ -450,12 +450,12 @@ let DEG_TO_RAD = Math.PI / 180;
 			});
 		}
 
-		let x0 = basePos[0] - radius;
-		let x1 = basePos[0] + radius;
-		let z0 = basePos[2] - radius;
-		let z1 = basePos[2] + radius;
-		let y0 = basePos[1];
-		let y1 = basePos[1] + height;
+		const x0 = basePos[0] - radius;
+		const x1 = basePos[0] + radius;
+		const z0 = basePos[2] - radius;
+		const z1 = basePos[2] + radius;
+		const y0 = basePos[1];
+		const y1 = basePos[1] + height;
 
 		// Bottom
 		drawQuad.call(this, [x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]);
@@ -501,8 +501,8 @@ let DEG_TO_RAD = Math.PI / 180;
 	};
 
 	Level99Bubble.beforeRender = function beforeRender(gl, modelView, projection, fog) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
@@ -541,7 +541,7 @@ let DEG_TO_RAD = Math.PI / 180;
 			return;
 		}
 
-		let container = document.createElement('div');
+		const container = document.createElement('div');
 		container.id = DEBUG_UI_ID;
 		container.style.position = 'fixed';
 		container.style.bottom = '12px';
@@ -554,25 +554,25 @@ let DEG_TO_RAD = Math.PI / 180;
 		container.style.font = '12px sans-serif';
 		container.style.pointerEvents = 'auto';
 
-		let title = document.createElement('div');
+		const title = document.createElement('div');
 		title.textContent = 'L99 Bubble Debug';
 		title.style.marginBottom = '6px';
 		title.style.fontWeight = 'bold';
 		container.appendChild(title);
 
 		function addSlider(labelText, min, max, step, value, onChange) {
-			let row = document.createElement('div');
+			const row = document.createElement('div');
 			row.style.display = 'flex';
 			row.style.alignItems = 'center';
 			row.style.gap = '6px';
 			row.style.marginBottom = '4px';
 
-			let label = document.createElement('span');
+			const label = document.createElement('span');
 			label.textContent = labelText;
 			label.style.whiteSpace = 'nowrap';
 			row.appendChild(label);
 
-			let input = document.createElement('input');
+			const input = document.createElement('input');
 			input.type = 'range';
 			input.min = min;
 			input.max = max;
@@ -584,7 +584,7 @@ let DEG_TO_RAD = Math.PI / 180;
 			});
 			row.appendChild(input);
 
-			let valLabel = document.createElement('span');
+			const valLabel = document.createElement('span');
 			valLabel.textContent = value;
 			input.addEventListener('input', function () {
 				valLabel.textContent = input.value;
@@ -595,13 +595,13 @@ let DEG_TO_RAD = Math.PI / 180;
 		}
 
 		function addCheckbox(labelText, checked, onChange) {
-			let row = document.createElement('div');
+			const row = document.createElement('div');
 			row.style.display = 'flex';
 			row.style.alignItems = 'center';
 			row.style.gap = '6px';
 			row.style.marginBottom = '4px';
 
-			let input = document.createElement('input');
+			const input = document.createElement('input');
 			input.type = 'checkbox';
 			input.checked = checked;
 			input.addEventListener('change', function () {
@@ -609,7 +609,7 @@ let DEG_TO_RAD = Math.PI / 180;
 			});
 			row.appendChild(input);
 
-			let label = document.createElement('span');
+			const label = document.createElement('span');
 			label.textContent = labelText;
 			row.appendChild(label);
 

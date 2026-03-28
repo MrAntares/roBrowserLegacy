@@ -7,13 +7,13 @@
  */
 'use strict';
 
-	let AE = {
+	const AE = {
 		PROJECTILE: {},
 		SPAWN: {}
 	};
 
 	// We don't have a complete job const table with monster and other ids, so i put this here. When we do have it, replace with the Job Const require.
-	let JOB = {
+	const JOB = {
 		ARCHER_GUARDIAN: 1285,
 		ARCHER_SKELETON: 1016,
 		G_ARCHER_SKELETON: 1420,

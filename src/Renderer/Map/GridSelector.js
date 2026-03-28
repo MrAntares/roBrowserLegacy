@@ -41,7 +41,7 @@ import _fragmentShader from './GridSelector.fs?raw';
 	 * WebGL buffer array
 	 * x, y, z, u, v
 	 */
-	let _buffer_data = new Float32Array([
+	const _buffer_data = new Float32Array([
 		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0
 	]);
 
@@ -57,9 +57,9 @@ import _fragmentShader from './GridSelector.fs?raw';
 					return;
 				}
 
-				let canvas = document.createElement('canvas');
-				let ctx = canvas.getContext('2d');
-				let enableMipmap = Configs.get('enableMipmap');
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d');
+				const enableMipmap = Configs.get('enableMipmap');
 
 				canvas.width = WebGL.toPowerOfTwo(this.width);
 				canvas.height = WebGL.toPowerOfTwo(this.height);
@@ -106,8 +106,8 @@ import _fragmentShader from './GridSelector.fs?raw';
 			return;
 		}
 
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 		let z;
 
 		gl.useProgram(_program);

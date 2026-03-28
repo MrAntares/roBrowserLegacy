@@ -19,17 +19,17 @@ function Events() {}
 /**
  * @var {Array} events list
  */
-var _events = [];
+const _events = [];
 
 /**
  * @var {number} game tick (get from rendering loop)
  */
-var _tick = 0;
+let _tick = 0;
 
 /**
  * @var {number} unique id
  */
-var _uid = 0;
+let _uid = 0;
 
 /**
  * Alias for setTimeout using the rendering loop getting
@@ -40,8 +40,8 @@ var _uid = 0;
  * @return {?} event unique id
  */
 Events.setTimeout = function setTimeout(callback, delay) {
-	var i, count, tick;
-	var event;
+	let i, count, tick;
+	let event;
 
 	tick = _tick + delay;
 	event = { callback: callback, tick: tick, uid: _uid++ };
@@ -65,7 +65,7 @@ Events.setTimeout = function setTimeout(callback, delay) {
  * @param {?} event unique id
  */
 Events.clearTimeout = function clearTimeout(uid) {
-	var i,
+	let i,
 		count = _events.length;
 
 	// Find the event and remove it
@@ -83,7 +83,7 @@ Events.clearTimeout = function clearTimeout(uid) {
  * @param {number} game tick
  */
 Events.process = function process(tick) {
-	var count = _events.length;
+	let count = _events.length;
 
 	// Execute time out events.
 	while (count > 0) {

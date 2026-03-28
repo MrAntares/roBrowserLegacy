@@ -33,43 +33,43 @@ import EntityManager from 'Renderer/EntityManager';
 	/**
 	 * @var {number} max message in the chatbox
 	 */
-	var MAX_MSG = 400;
-	var MAX_LENGTH = 100;
-	var MAGIC_NUMBER = 3 * 14;
+	const MAX_MSG = 400;
+	const MAX_LENGTH = 100;
+	const MAGIC_NUMBER = 3 * 14;
 
 	/**
 	 * @var {History} message cached in history
 	 */
-	var _historyMessage = new History();
+	const _historyMessage = new History();
 
 	/**
 	 * @var {History} nickname cached in history
 	 */
-	var _historyNickName = new History(true);
+	const _historyNickName = new History(true);
 
 	/**
 	 * @var {number} Chatbox position's index
 	 */
-	var _heightIndex = 2;
+	let _heightIndex = 2;
 
 	/**
 	 * Buffer para acumular mensagens antes de adicionar ao DOM.
 	 * @private
 	 * @type {ChatMessage[]}
 	 */
-	var _messageBuffer = [];
+	let _messageBuffer = [];
 
 	/**
 	 * Flag que indica se um requestAnimationFrame foi agendado para processar o buffer.
 	 * @private
 	 * @type {boolean}
 	 */
-	var _rafScheduled = false;
+	let _rafScheduled = false;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ChatBox',
 		{
 			x: 0,
@@ -90,7 +90,7 @@ import EntityManager from 'Renderer/EntityManager';
 	/**
 	 * Create Basic Info component
 	 */
-	var ChatBox = new UIComponent('ChatBox', htmlText, cssText);
+	const ChatBox = new UIComponent('ChatBox', htmlText, cssText);
 
 	/**
 	 * Constants
@@ -223,9 +223,9 @@ import EntityManager from 'Renderer/EntityManager';
 				function () {
 					Events.setTimeout(
 						function () {
-							var active = document.activeElement;
-							var movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
-							var isTextInput =
+							const active = document.activeElement;
+							const movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
+							const isTextInput =
 								active && active.tagName && active.tagName.match(/input|select|textarea/i);
 							if (!movedInsideChatbox && !isTextInput) {
 								this.ui.find('.input-chatbox').focus();
@@ -239,9 +239,9 @@ import EntityManager from 'Renderer/EntityManager';
 
 		// Move caret to end of text
 		this.ui.find('.input-chatbox').on('click focus', function () {
-			var element = this;
-			var range = document.createRange();
-			var selection = window.getSelection();
+			const element = this;
+			const range = document.createRange();
+			const selection = window.getSelection();
 
 			range.selectNodeContents(element);
 			range.collapse(false);
@@ -251,7 +251,7 @@ import EntityManager from 'Renderer/EntityManager';
 		this.ui.find('.input-chatbox')[0].maxLength = MAX_LENGTH;
 
 		this.ui.find('.input-chatbox').on('input', function (event) {
-			var currentText = extractChatMessage(jQuery(this));
+			const currentText = extractChatMessage(jQuery(this));
 			if (currentText.length >= MAX_LENGTH) {
 				// cap message to maximun lenght
 				event.preventDefault();
@@ -260,7 +260,7 @@ import EntityManager from 'Renderer/EntityManager';
 		});
 
 		this.ui.find('.input-chatbox').on('keydown', function (event) {
-			var currentText = extractChatMessage(jQuery(this));
+			const currentText = extractChatMessage(jQuery(this));
 			// Block texting after reach max_lenght
 			if (currentText.length >= MAX_LENGTH) {
 				const allowedKeys = [
@@ -292,27 +292,27 @@ import EntityManager from 'Renderer/EntityManager';
 				// Contenteditable ignores maxLength; enforce plain-text paste + length limit.
 				event.preventDefault();
 
-				var clipboard = (event.originalEvent || event).clipboardData;
-				var pastedText = clipboard ? clipboard.getData('text/plain') : '';
+				const clipboard = (event.originalEvent || event).clipboardData;
+				let pastedText = clipboard ? clipboard.getData('text/plain') : '';
 				if (!pastedText) {
 					return false;
 				}
 
 				pastedText = pastedText.replace(/\u00A0/g, ' ');
 
-				var currentText = extractChatMessage(this.ui.find('.input-chatbox'));
-				var remaining = MAX_LENGTH - currentText.length;
+				const currentText = extractChatMessage(this.ui.find('.input-chatbox'));
+				const remaining = MAX_LENGTH - currentText.length;
 				if (remaining <= 0) {
 					return false;
 				}
 
-				var toInsert = pastedText.substr(0, remaining);
+				const toInsert = pastedText.substr(0, remaining);
 
 				// Insert at caret if possible; fallback to append.
 				if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
 					document.execCommand('insertText', false, toInsert);
 				} else {
-					var node = document.createTextNode(toInsert);
+					const node = document.createTextNode(toInsert);
 					this.ui.find('.input-chatbox')[0].appendChild(node);
 				}
 
@@ -324,10 +324,10 @@ import EntityManager from 'Renderer/EntityManager';
 			function () {
 				Events.setTimeout(
 					function () {
-						var active = document.activeElement;
-						var movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
-						var isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
-						var isChatMessage = active === this.ui.find('.input-chatbox')[0];
+						const active = document.activeElement;
+						const movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
+						const isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
+						const isChatMessage = active === this.ui.find('.input-chatbox')[0];
 						if (!movedInsideChatbox && !isTextInput && !isChatMessage) {
 							this.ui.find('.input .username').focus();
 						}
@@ -355,11 +355,11 @@ import EntityManager from 'Renderer/EntityManager';
 		this.ui
 			.find('.input .list')
 			.click(function () {
-				var names = _historyNickName.list;
-				var i,
+				const names = _historyNickName.list;
+				let i,
 					count = names.length;
-				var pos = jQuery(this).offset();
-				var ui = ContextMenu.ui.find('.menu');
+				const pos = jQuery(this).offset();
+				const ui = ContextMenu.ui.find('.menu');
 
 				if (!count) {
 					ChatBox.addText(DB.getMessage(192), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
@@ -392,8 +392,8 @@ import EntityManager from 'Renderer/EntityManager';
 		this.ui
 			.find('.input .filter')
 			.click(function () {
-				var pos = jQuery(this).offset();
-				var ui = ContextMenu.ui.find('.menu');
+				const pos = jQuery(this).offset();
+				const ui = ContextMenu.ui.find('.menu');
 
 				ContextMenu.remove();
 				ContextMenu.append();
@@ -424,7 +424,7 @@ import EntityManager from 'Renderer/EntityManager';
 		this.ui.find('.content').on('mousewheel DOMMouseScroll', onScroll);
 		// Tabs should behave like "UI" (no entity hover / map cursor changes), but opttab remains click-through.
 		(function initTabHoverBlock() {
-			var _tabIntersect,
+			let _tabIntersect,
 				_tabEnter = 0;
 
 			ChatBox.ui.on('mouseenter', 'table.header tr td.tab, table.header tr td.tab *', function () {
@@ -514,7 +514,7 @@ import EntityManager from 'Renderer/EntityManager';
 
 		this.ui.on('click', 'table.header tr td.tab', function (event) {
 			event.stopImmediatePropagation();
-			var currentElem = event.currentTarget;
+			const currentElem = event.currentTarget;
 			if (ChatBox.activeTab !== currentElem.dataset.tab - 1) {
 				ChatBox.switchTab(currentElem.dataset.tab);
 			}
@@ -539,7 +539,7 @@ import EntityManager from 'Renderer/EntityManager';
 
 		if (_preferences.tabs.length > 0 && _preferences.tabs.length == _preferences.tabOption.length) {
 			// Load saved tabs
-			for (var i = 0; i < _preferences.tabs.length; i++) {
+			for (let i = 0; i < _preferences.tabs.length; i++) {
 				if (_preferences.tabs[i] && _preferences.tabOption[i]) {
 					ChatBox.addNewTab(_preferences.tabs[i].name, _preferences.tabOption[i]);
 				}
@@ -551,7 +551,7 @@ import EntityManager from 'Renderer/EntityManager';
 			}
 		} else {
 			// Default tabs
-			var firstTab = ChatBox.addNewTab(DB.getMessage(1291), [
+			const firstTab = ChatBox.addNewTab(DB.getMessage(1291), [
 				ChatBox.FILTER.PUBLIC_LOG,
 				ChatBox.FILTER.PUBLIC_CHAT,
 				ChatBox.FILTER.WHISPER,
@@ -597,7 +597,7 @@ import EntityManager from 'Renderer/EntityManager';
 	 * Clean up the box
 	 */
 	ChatBox.clean = function Clean() {
-		var matches, i, count;
+		let matches, i, count;
 
 		matches = this.ui
 			.find('.content')
@@ -619,7 +619,7 @@ import EntityManager from 'Renderer/EntityManager';
 	};
 
 	ChatBox.toggleChatBattleOption = function toggleChatBattleOption() {
-		var tabName = this.ui.find('.header tr td div.on input').val();
+		const tabName = this.ui.find('.header tr td div.on input').val();
 		ChatBoxSettings.toggle();
 		ChatBoxSettings.updateTab(this.activeTab, tabName);
 	};
@@ -628,8 +628,8 @@ import EntityManager from 'Renderer/EntityManager';
 		this.ui.find('table.header tr td.tab[data-tab="' + this.activeTab + '"]').remove();
 		this.ui.find('.body .content[data-content="' + this.activeTab + '"]').remove();
 
-		var tabName = '';
-		var _elem = this.ui.find('table.header tr td.tab');
+		let tabName = '';
+		let _elem = this.ui.find('table.header tr td.tab');
 		_elem = this.ui.find('table.header tr td.tab')[_elem.length - 1];
 
 		// Use delete instead of splice to avoid ID messup and make our life eastier.
@@ -675,10 +675,10 @@ import EntityManager from 'Renderer/EntityManager';
 			];
 		}
 
-		var tabName = name;
-		var tabID = ++this.lastTabID;
+		const tabName = name;
+		const tabID = ++this.lastTabID;
 
-		var tab = {};
+		const tab = {};
 		tab.id = tabID;
 		tab.name = tabName;
 
@@ -719,7 +719,7 @@ import EntityManager from 'Renderer/EntityManager';
 	};
 
 	ChatBox.switchTab = function switchTab(tabID) {
-		var tabName = '';
+		let tabName = '';
 
 		this.ui.find('table.header tr td.tab div').removeClass('on');
 		this.ui.find('.body .content').removeClass('active');
@@ -743,7 +743,7 @@ import EntityManager from 'Renderer/EntityManager';
 		this.ui.find('.input').hide();
 		this.ui.find('.battlemode').show();
 
-		var content = this.ui.find('.content.active');
+		const content = this.ui.find('.content.active');
 		content[0].scrollTop = content[0].scrollHeight;
 	};
 
@@ -815,15 +815,15 @@ import EntityManager from 'Renderer/EntityManager';
 	 * @return {boolean}
 	 */
 	ChatBox.onKeyDown = function OnKeyDown(event) {
-		var messageBox = this.ui.find('.input-chatbox');
-		var nickBox = this.ui.find('.input .username');
+		const messageBox = this.ui.find('.input-chatbox');
+		const nickBox = this.ui.find('.input .username');
 		this.ui.find('.header tr td div.on input').on('keyup', function () {
 			ChatBoxSettings.updateTab(ChatBox.activeTab, this.value);
 		});
 
-		var activeElement = document.activeElement;
-		var isChatInputFocused = activeElement === messageBox[0] || activeElement === nickBox[0];
-		var isOtherTextInputFocused =
+		const activeElement = document.activeElement;
+		const isChatInputFocused = activeElement === messageBox[0] || activeElement === nickBox[0];
+		const isOtherTextInputFocused =
 			activeElement &&
 			!isChatInputFocused &&
 			((activeElement.tagName && activeElement.tagName.match(/input|select|textarea/i)) ||
@@ -866,7 +866,7 @@ import EntityManager from 'Renderer/EntityManager';
 					// Allow CTRL-combinations (shortcuts) to work while chat is open,
 					// but preserve common text-editing combos inside the input.
 					if (event.ctrlKey || KEYS.CTRL) {
-						var isEditingCombo =
+						const isEditingCombo =
 							event.which === KEYS.C ||
 							event.which === KEYS.V ||
 							event.which === KEYS.X ||
@@ -895,7 +895,7 @@ import EntityManager from 'Renderer/EntityManager';
 					// Allow ALT-combinations to work while chat is open, but keep basic
 					// caret/navigation keys local to the input.
 					if (event.altKey || KEYS.ALT) {
-						var isAltEditingCombo =
+						const isAltEditingCombo =
 							event.which === KEYS.LEFT ||
 							event.which === KEYS.RIGHT ||
 							event.which === KEYS.UP ||
@@ -1050,7 +1050,7 @@ import EntityManager from 'Renderer/EntityManager';
 	};
 
 	ChatBox.toggleChat = function toggleChat() {
-		var messageBox = this.ui.find('.input-chatbox');
+		const messageBox = this.ui.find('.input-chatbox');
 
 		if (document.activeElement.tagName === 'INPUT' && document.activeElement !== messageBox[0]) {
 			return true;
@@ -1068,14 +1068,14 @@ import EntityManager from 'Renderer/EntityManager';
 	 * Process ChatBox message
 	 */
 	ChatBox.submit = function Submit() {
-		var input = this.ui.find('.input');
-		var $user = input.find('.username');
-		var $text = input.find('.input-chatbox');
+		const input = this.ui.find('.input');
+		const $user = input.find('.username');
+		const $text = input.find('.input-chatbox');
 
-		var user = $user.val();
-		var text = extractChatMessage($text);
-		var trimmedText = text.replace(/\u00A0/g, ' ').trim();
-		var isChatOn = false;
+		const user = $user.val();
+		const text = extractChatMessage($text);
+		const trimmedText = text.replace(/\u00A0/g, ' ').trim();
+		let isChatOn = false;
 
 		// Battle mode
 		if (!trimmedText.length) {
@@ -1085,7 +1085,7 @@ import EntityManager from 'Renderer/EntityManager';
 				isChatOn = true;
 				$text.focus();
 			}
-			var chatmode = isChatOn ? 'on' : 'off';
+			const chatmode = isChatOn ? 'on' : 'off';
 			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/chatmode_' + chatmode + '.bmp', function (data) {
 				ChatBox.ui.find('.chat-function .chatmode').css('backgroundImage', 'url(' + data + ')');
 			});
@@ -1120,14 +1120,14 @@ import EntityManager from 'Renderer/EntityManager';
 	 * Replaces `.item-link` spans with their `data-item` payload and strips any remaining markup.
 	 */
 	function extractChatMessage($input) {
-		var clone = $input.clone();
+		const clone = $input.clone();
 
 		clone.find('span.item-link').each(function () {
-			var itemData = jQuery(this).attr('data-item') || jQuery(this).data('item') || '';
+			const itemData = jQuery(this).attr('data-item') || jQuery(this).data('item') || '';
 			jQuery(this).replaceWith(document.createTextNode(itemData));
 		});
 
-		var result = clone.text();
+		let result = clone.text();
 		result = result.replace(/\u00A0/g, ' ');
 		return result;
 	}
@@ -1144,8 +1144,8 @@ import EntityManager from 'Renderer/EntityManager';
 	ChatBox.addText = function addText(text, colorType, filterType, color, override) {
 		// parse as many <ITEMLINK> or <ITEML> as possible and replace with clickable item link, but first decode the link to get the item id
 		text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function (match) {
-			let item = DB.parseItemLink(match);
-			let span =
+			const item = DB.parseItemLink(match);
+			const span =
 				'<span data-item="' +
 				match +
 				'" class="item-link" style="color:#FFFF63;">&lt;' +
@@ -1188,15 +1188,15 @@ import EntityManager from 'Renderer/EntityManager';
 		}
 
 		// Process all messages in the buffer
-		var messages = _messageBuffer.slice();
+		const messages = _messageBuffer.slice();
 		_messageBuffer = [];
 
 		// Group messages by tab to minimize DOM operations
-		var messagesByTab = {};
+		const messagesByTab = {};
 
 		messages.forEach(function (msg) {
 			ChatBox.tabs.forEach(function (tab, TabNum) {
-				var chatTabOption = ChatBoxSettings.tabOption[TabNum];
+				const chatTabOption = ChatBoxSettings.tabOption[TabNum];
 
 				if (!chatTabOption.includes(msg.filterType)) {
 					return;
@@ -1212,15 +1212,15 @@ import EntityManager from 'Renderer/EntityManager';
 
 		// Add messages of each tab at once
 		Object.keys(messagesByTab).forEach(function (TabNum) {
-			var content = ChatBox.ui.find('.content[data-content="' + TabNum + '"]');
-			var fragment = document.createDocumentFragment();
+			const content = ChatBox.ui.find('.content[data-content="' + TabNum + '"]');
+			const fragment = document.createDocumentFragment();
 
 			// Get scroll state before adding messages
-			var wasAtBottom = shouldScrollDownBeforeAdd(content[0], content.height());
+			const wasAtBottom = shouldScrollDownBeforeAdd(content[0], content.height());
 
 			messagesByTab[TabNum].forEach(function (msg) {
-				var color = msg.color || getColorForType(msg.colorType);
-				var div = jQuery('<div/>').css('color', color)[!msg.override ? 'text' : 'html'](msg.text)[0];
+				const color = msg.color || getColorForType(msg.colorType);
+				const div = jQuery('<div/>').css('color', color)[!msg.override ? 'text' : 'html'](msg.text)[0];
 				fragment.appendChild(div);
 			});
 
@@ -1229,10 +1229,10 @@ import EntityManager from 'Renderer/EntityManager';
 
 			// Clean up old messages
 			while (content[0].childElementCount > MAX_MSG) {
-				var element = content[0].firstElementChild;
-				var matches = element.innerHTML.match(/(blob:[^"]+)/g);
+				const element = content[0].firstElementChild;
+				const matches = element.innerHTML.match(/(blob:[^"]+)/g);
 				if (matches) {
-					for (var i = 0; i < matches.length; i++) {
+					for (let i = 0; i < matches.length; i++) {
 						window.URL.revokeObjectURL(matches[i]);
 					}
 				}
@@ -1298,9 +1298,9 @@ import EntityManager from 'Renderer/EntityManager';
 	 * Change chatbox's height
 	 */
 	ChatBox.updateHeight = function changeHeight(AlwaysVisible) {
-		var HeightList = [0, 0, MAGIC_NUMBER, MAGIC_NUMBER * 2, MAGIC_NUMBER * 3, MAGIC_NUMBER * 4, MAGIC_NUMBER * 5];
-		var content = this.ui.find('.contentwrapper');
-		var bottomBefore = getChatBottomAnchorPx(this.ui, this.__lastBottomY);
+		const HeightList = [0, 0, MAGIC_NUMBER, MAGIC_NUMBER * 2, MAGIC_NUMBER * 3, MAGIC_NUMBER * 4, MAGIC_NUMBER * 5];
+		const content = this.ui.find('.contentwrapper');
+		const bottomBefore = getChatBottomAnchorPx(this.ui, this.__lastBottomY);
 
 		_heightIndex = (_heightIndex + 1) % HeightList.length;
 
@@ -1331,31 +1331,31 @@ import EntityManager from 'Renderer/EntityManager';
 
 		// Keep the input/battlemode bar at the same screen position.
 		if (_heightIndex !== 0 && isFinite(bottomBefore)) {
-			var bottomAfter = getChatBottomAnchorPx(this.ui, bottomBefore);
+			const bottomAfter = getChatBottomAnchorPx(this.ui, bottomBefore);
 			if (isFinite(bottomAfter)) {
-				var top = parseInt(this.ui.css('top'), 10);
+				let top = parseInt(this.ui.css('top'), 10);
 				top = isFinite(top) ? top : 0;
 				this.ui.css('top', top + (bottomBefore - bottomAfter));
 				this.__lastBottomY = bottomBefore;
 			}
 		}
 
-		var active = this.ui.find('.content[data-content="' + this.activeTab + '"]')[0];
+		const active = this.ui.find('.content[data-content="' + this.activeTab + '"]')[0];
 		if (active) {
 			active.scrollTop = active.scrollHeight;
 		}
 	};
 
 	function getChatBottomAnchorPx($ui, fallback) {
-		var bar = $ui.find('.input:visible');
+		let bar = $ui.find('.input:visible');
 		if (bar.length) {
-			var rect = bar[0].getBoundingClientRect();
+			const rect = bar[0].getBoundingClientRect();
 			return rect.bottom;
 		}
 
 		bar = $ui.find('.battlemode:visible');
 		if (bar.length) {
-			var rect2 = bar[0].getBoundingClientRect();
+			const rect2 = bar[0].getBoundingClientRect();
 			return rect2.bottom;
 		}
 
@@ -1371,17 +1371,17 @@ import EntityManager from 'Renderer/EntityManager';
 			return false;
 		}
 
-		var sel = window.getSelection();
+		const sel = window.getSelection();
 		if (!sel || sel.rangeCount < 1) {
 			return false;
 		}
 
-		var range = sel.getRangeAt(0);
+		const range = sel.getRangeAt(0);
 		if (!range) {
 			return false;
 		}
 
-		var anchorNode = sel.anchorNode || range.startContainer;
+		const anchorNode = sel.anchorNode || range.startContainer;
 		if (!anchorNode) {
 			return false;
 		}
@@ -1397,14 +1397,14 @@ import EntityManager from 'Renderer/EntityManager';
 		}
 
 		// Only do this when there is more than one visual line.
-		var text = extractChatMessage(jQuery(inputEl));
-		var hasNewline = text.indexOf('\n') > -1;
-		var hasOverflow = inputEl.scrollHeight > inputEl.clientHeight + 1;
+		const text = extractChatMessage(jQuery(inputEl));
+		const hasNewline = text.indexOf('\n') > -1;
+		const hasOverflow = inputEl.scrollHeight > inputEl.clientHeight + 1;
 		if (!hasNewline && !hasOverflow) {
 			return false;
 		}
 
-		var caretRect;
+		let caretRect;
 		try {
 			caretRect =
 				range.getClientRects && range.getClientRects().length
@@ -1418,7 +1418,7 @@ import EntityManager from 'Renderer/EntityManager';
 			return true;
 		}
 
-		var inputRect = inputEl.getBoundingClientRect ? inputEl.getBoundingClientRect() : null;
+		const inputRect = inputEl.getBoundingClientRect ? inputEl.getBoundingClientRect() : null;
 		if (!inputRect) {
 			return true;
 		}
@@ -1448,11 +1448,11 @@ import EntityManager from 'Renderer/EntityManager';
 	 * Save chat from current tab into a file.
 	 */
 	ChatBox.saveCurrentTabChat = function saveCurrentTabChat() {
-		var timezone, date, data, url;
+		let timezone, date, data, url;
 
 		// Create a date
-		var tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
-		var localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
+		const tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
+		let localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
 		localISOTime = localISOTime.replace('T', ' ');
 		timezone = new Date().getTimezoneOffset() / 60;
 		date = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
@@ -1488,8 +1488,8 @@ import EntityManager from 'Renderer/EntityManager';
 	 * Update scroll by block (14px)
 	 */
 	function onScroll(event) {
-		var delta;
-		var lineHeight;
+		let delta;
+		let lineHeight;
 
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
@@ -1510,7 +1510,7 @@ import EntityManager from 'Renderer/EntityManager';
 	 */
 	function onDropText(event) {
 		event.stopImmediatePropagation();
-		var data;
+		let data;
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 		} catch (e) {
@@ -1553,7 +1553,7 @@ import EntityManager from 'Renderer/EntityManager';
 	 */
 	function onChangeTargetMessage(type) {
 		return function onChangeTargetMessageClosure() {
-			var $input = ChatBox.ui.find('.input-chatbox');
+			const $input = ChatBox.ui.find('.input-chatbox');
 
 			$input.removeClass('guild party');
 
@@ -1578,8 +1578,8 @@ import EntityManager from 'Renderer/EntityManager';
 	}
 
 	function clampChatFontScale(scale) {
-		var allowed = [1.0, 1.2, 1.4];
-		var i,
+		const allowed = [1.0, 1.2, 1.4];
+		let i,
 			best = allowed[0],
 			bestDist = Infinity;
 
@@ -1589,7 +1589,7 @@ import EntityManager from 'Renderer/EntityManager';
 		}
 
 		for (i = 0; i < allowed.length; ++i) {
-			var dist = Math.abs(allowed[i] - scale);
+			const dist = Math.abs(allowed[i] - scale);
 			if (dist < bestDist) {
 				bestDist = dist;
 				best = allowed[i];
@@ -1600,7 +1600,7 @@ import EntityManager from 'Renderer/EntityManager';
 	}
 
 	function getScrollLineHeightPx(element) {
-		var style, lh;
+		let style, lh;
 
 		try {
 			style = window.getComputedStyle(element);
@@ -1614,14 +1614,14 @@ import EntityManager from 'Renderer/EntityManager';
 	}
 
 	ChatBox.applyFontScale = function applyFontScale() {
-		var scale = clampChatFontScale(_preferences.fontScale || 1.0);
-		var baseFont = 12;
-		var baseLineHeight = 14;
-		var baseInputLineHeight = 18;
+		const scale = clampChatFontScale(_preferences.fontScale || 1.0);
+		const baseFont = 12;
+		const baseLineHeight = 14;
+		const baseInputLineHeight = 18;
 
-		var fontSize = Math.max(10, Math.round(baseFont * scale));
-		var lineHeight = Math.max(12, Math.round(baseLineHeight * scale));
-		var inputLineHeight = Math.max(14, Math.round(baseInputLineHeight * scale));
+		const fontSize = Math.max(10, Math.round(baseFont * scale));
+		const lineHeight = Math.max(12, Math.round(baseLineHeight * scale));
+		const inputLineHeight = Math.max(14, Math.round(baseInputLineHeight * scale));
 
 		_preferences.fontScale = scale;
 
@@ -1642,21 +1642,21 @@ import EntityManager from 'Renderer/EntityManager';
 	};
 
 	function makeResizableDiv() {
-		var resizer = ChatBox.ui.find('.event_add_cursor')[0];
+		const resizer = ChatBox.ui.find('.event_add_cursor')[0];
 		if (!resizer) {
 			return;
 		}
 
-		var originalHeight = 0;
-		var originalAnchorY = 0;
-		var originalMouseY = 0;
+		let originalHeight = 0;
+		let originalAnchorY = 0;
+		let originalMouseY = 0;
 
-		var fixHeight = function fixHeight(height) {
+		const fixHeight = function fixHeight(height) {
 			return Math.floor(height / MAGIC_NUMBER) * MAGIC_NUMBER;
 		};
 
-		var resize = function resize(e) {
-			var height = fixHeight(originalHeight - (e.pageY - originalMouseY));
+		const resize = function resize(e) {
+			let height = fixHeight(originalHeight - (e.pageY - originalMouseY));
 			// Clamp to supported height steps (keep in sync with updateHeight()).
 			height = Math.max(MAGIC_NUMBER, Math.min(MAGIC_NUMBER * 5, height));
 
@@ -1664,13 +1664,13 @@ import EntityManager from 'Renderer/EntityManager';
 			ChatBox.ui.find('.contentwrapper').height(height);
 			_heightIndex = Math.max(2, Math.min(6, height / MAGIC_NUMBER + 1));
 
-			var active = ChatBox.ui.find('.content[data-content="' + ChatBox.activeTab + '"]')[0];
+			const active = ChatBox.ui.find('.content[data-content="' + ChatBox.activeTab + '"]')[0];
 			if (active) {
 				active.scrollTop = active.scrollHeight;
 			}
 		};
 
-		var stopResize = function stopResize() {
+		const stopResize = function stopResize() {
 			window.removeEventListener('mousemove', resize);
 			window.removeEventListener('mouseup', stopResize);
 		};
@@ -1694,12 +1694,12 @@ import EntityManager from 'Renderer/EntityManager';
 			return false;
 		}
 
-		let item = DB.parseItemLink(jQuery(this).data('item'));
+		const item = DB.parseItemLink(jQuery(this).data('item'));
 		if (!item) {
 			return;
 		} // item not found
 
-		let ItemInfo = UIManager.getComponent('ItemInfo');
+		const ItemInfo = UIManager.getComponent('ItemInfo');
 
 		ItemInfo.append();
 		ItemInfo.setItem(item);
@@ -1707,7 +1707,7 @@ import EntityManager from 'Renderer/EntityManager';
 
 	ChatBox.insertText = function (text) {
 		// Find chat input
-		var input = this.ui.find('.input-chatbox');
+		const input = this.ui.find('.input-chatbox');
 
 		// Append text
 		input.append(document.createTextNode(text));

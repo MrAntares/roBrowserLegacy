@@ -23,17 +23,17 @@ import Configs from 'Core/Configs';
 	/**
 	 * @var {integer} Keys to shuffle the packet
 	 */
-	var _keys = new Uint32Array(3);
+	const _keys = new Uint32Array(3);
 
 	/**
 	 * @var {boolean} is encryption available ?
 	 */
-	var _available = false;
+	let _available = false;
 
 	/**
 	 * @var {List} date => encryption keys
 	 */
-	var KeysTable = {
+	const KeysTable = {
 		20101123: [0x49357d72, 0x22c370a1, 0x5f836591],
 		20101124: [0x49357d72, 0x22c370a1, 0x5f836591],
 		20101126: [0x49357d72, 0x22c370a1, 0x5f836591],
@@ -493,17 +493,17 @@ import Configs from 'Core/Configs';
 	 *
 	 * @returns a * b
 	 */
-	var imul;
+	let imul;
 
 	// Check for support and kick out Safari bug
 	if (Math.imul && Math.imul(0xffffffff, 5) === -5) {
 		imul = Math.imul;
 	} else {
 		imul = function imul(a, b) {
-			var ah = (a >>> 16) & 0xffff;
-			var al = a & 0xffff;
-			var bh = (b >>> 16) & 0xffff;
-			var bl = b & 0xffff;
+			const ah = (a >>> 16) & 0xffff;
+			const al = a & 0xffff;
+			const bh = (b >>> 16) & 0xffff;
+			const bl = b & 0xffff;
 			// the shift by 0 fixes the sign on the high part
 			// the final |0 converts the unsigned value into a signed value
 			return (al * bl + (((ah * bl + al * bh) << 16) >>> 0)) | 0;
@@ -514,7 +514,7 @@ import Configs from 'Core/Configs';
 	 * Initialize to get keys for packet encryption
 	 */
 	function Init() {
-		var packetKeys;
+		let packetKeys;
 
 		_available = false;
 		packetKeys = Configs.get('packetKeys');
@@ -528,7 +528,7 @@ import Configs from 'Core/Configs';
 			_available = true;
 			_keys.set(packetKeys);
 		} else {
-			var date, key;
+			let date, key;
 
 			// Define a date or use the defined packetver ?
 			if (typeof packetKeys === 'number') {
@@ -558,7 +558,7 @@ import Configs from 'Core/Configs';
 	 */
 	function Process(view) {
 		if (_available) {
-			var cmd = view.getInt16(0, true);
+			let cmd = view.getInt16(0, true);
 
 			// Update key
 			_keys[0] = (imul(_keys[0], _keys[1]) + _keys[2]) & 0xffffffff;

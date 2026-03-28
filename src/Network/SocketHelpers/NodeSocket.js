@@ -17,7 +17,7 @@
 	 * @param {string} url
 	 */
 	function Socket(host, port) {
-		var self = this;
+		const self = this;
 		this.connected = false;
 		this.socket = window.requireNode('net').connect(port, host);
 

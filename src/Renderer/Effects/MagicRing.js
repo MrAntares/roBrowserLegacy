@@ -27,12 +27,12 @@ import Client from 'Core/Client';
 	/**
 	 * @var {mat4}
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	let _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	/**
 	 * @var {number}
@@ -42,7 +42,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	let _vertexShader = `
+	const _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -84,7 +84,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	let _fragmentShader = `
+	const _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -127,10 +127,10 @@ import Client from 'Core/Client';
 	 */
 	function generateMagicRing() {
 		let i, a, b;
-		let total = 20;
-		let bottom = [];
-		let top = [];
-		let mesh = [];
+		const total = 20;
+		const bottom = [];
+		const top = [];
+		const mesh = [];
 
 		for (i = 0; i <= total; i++) {
 			a = (i + 0.0) / total;
@@ -178,7 +178,7 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	MagicRing.prototype.init = function init(gl) {
-		let self = this;
+		const self = this;
 
 		Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
@@ -203,8 +203,8 @@ import Client from 'Core/Client';
 	 * @param {object} wegl context
 	 */
 	MagicRing.prototype.render = function render(gl, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -235,7 +235,7 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	MagicRing.init = function init(gl) {
-		let vertices = generateMagicRing();
+		const vertices = generateMagicRing();
 		_verticeCount = vertices.length / 5;
 
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
@@ -271,7 +271,7 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	MagicRing.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		mat4.identity(_matrix);
 		mat4.rotateY(_matrix, _matrix, (tick / 4 / 180) * Math.PI);

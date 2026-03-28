@@ -80,7 +80,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 			return;
 		}
 
-		let entity = EntityManager.get(Session.homunId);
+		const entity = EntityManager.get(Session.homunId);
 
 		if (!entity) {
 			return;
@@ -131,7 +131,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 		// UI update
 		HomunInformations.setInformations(pkt);
 
-		let entity = EntityManager.get(Session.homunId);
+		const entity = EntityManager.get(Session.homunId);
 
 		if (!entity) {
 			return;
@@ -191,7 +191,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	 * @param {object} pkt - PACKET.ZC.CHANGESTATE_HOMUN
 	 */
 	function onHomunInformationUpdate(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 
 		if (entity) {
 			switch (pkt.state) {
@@ -220,7 +220,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	HomunInformations.reqHomunFeed = function reqHomunFeed() {
 		// Are you sure you want to feed your homunculus ?
 		UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', function () {
-			let pkt = new PACKET.CZ.COMMAND_MER();
+			const pkt = new PACKET.CZ.COMMAND_MER();
 			pkt.type = 0x22f;
 			pkt.command = 1;
 			Network.sendPacket(pkt);
@@ -228,7 +228,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	};
 
 	HomunInformations.sendHomunFeed = function sendHomunFeed() {
-		let pkt = new PACKET.CZ.COMMAND_MER();
+		const pkt = new PACKET.CZ.COMMAND_MER();
 		pkt.type = 0x22f;
 		pkt.command = 1;
 		Network.sendPacket(pkt);
@@ -237,7 +237,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	HomunInformations.reqDeleteHomun = function reqDeleteHomun() {
 		// Are you sure that you want to delete?
 		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
-			let pkt = new PACKET.CZ.COMMAND_MER();
+			const pkt = new PACKET.CZ.COMMAND_MER();
 			pkt.type = 0x22f;
 			pkt.command = 2;
 			Network.sendPacket(pkt);
@@ -254,7 +254,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	 *     2 = delete
 	 */
 	HomunInformations.reqHomunAction = function reqHomunAction(cmd) {
-		let pkt = new PACKET.CZ.COMMAND_MER(cmd);
+		const pkt = new PACKET.CZ.COMMAND_MER(cmd);
 		pkt.type = 0;
 		pkt.command = cmd;
 		Network.sendPacket(pkt);
@@ -264,7 +264,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	 * @param gid
 	 */
 	HomunInformations.reqMoveToOwner = function reqMoveToOwner(gid) {
-		let pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
+		const pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
 		pkt.GID = gid;
 		Network.sendPacket(pkt);
 	};
@@ -274,7 +274,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	 * @param targetGID
 	 */
 	HomunInformations.reqAttack = function reqAttack(GID, targetGID) {
-		let pkt = new PACKET.CZ.REQUEST_ACTNPC();
+		const pkt = new PACKET.CZ.REQUEST_ACTNPC();
 		pkt.GID = GID;
 		pkt.targetGID = targetGID;
 		pkt.action = 0;
@@ -285,7 +285,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	 * @param GID
 	 */
 	HomunInformations.reqMoveTo = function reqMoveTo(GID, x = 0, y = 0) {
-		let pkt = new PACKET.CZ.REQUEST_MOVENPC();
+		const pkt = new PACKET.CZ.REQUEST_MOVENPC();
 		pkt.GID = GID;
 		pkt.dest[0] = x > 0 ? x : Mouse.world.x;
 		pkt.dest[1] = y > 0 ? y : Mouse.world.y;
@@ -299,7 +299,7 @@ import StatusProperty from 'DB/Status/StatusProperty';
 	 */
 	HomunInformations.reqNameEdit = function reqNameEdit(name) {
 		//msg 2904(2903)
-		let pkt = new PACKET.CZ.RENAME_MER();
+		const pkt = new PACKET.CZ.RENAME_MER();
 		pkt.name = name;
 		Network.sendPacket(pkt);
 	};

@@ -19,7 +19,7 @@ let _filterFrame = null;
 		if (_filterFrame && _filterFrame.texture && gl.isTexture(_filterFrame.texture)) {
 			return;
 		}
-		let tex = gl.createTexture();
+		const tex = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, tex);
 		gl.texImage2D(
 			gl.TEXTURE_2D,

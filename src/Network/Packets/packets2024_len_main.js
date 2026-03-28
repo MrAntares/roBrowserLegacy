@@ -13,7 +13,7 @@
 
 'use strict';
 
-	let length_list = new Array();
+	const length_list = new Array();
 
 	function init(packetver) {
 		// Packet: 0x0064

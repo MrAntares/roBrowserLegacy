@@ -20,8 +20,8 @@ import UIVersionManager from 'UI/UIVersionManager';
 import DB from 'DB/DBManager';
 import KEYS from 'Controls/KeyEventHandler';
 
-	var publicName = 'Equipment';
-	var versionInfo = {
+	const publicName = 'Equipment';
+	const versionInfo = {
 		default: EquipmentV0,
 		common: {
 			20220831: EquipmentV4,
@@ -33,16 +33,16 @@ import KEYS from 'Controls/KeyEventHandler';
 		prere: {}
 	};
 
-	var EquipmentController = UIVersionManager.getUIController(publicName, versionInfo);
+	const EquipmentController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	var _selectUIVersion = EquipmentController.selectUIVersion;
+	const _selectUIVersion = EquipmentController.selectUIVersion;
 
 	// Extend default UI selector
 	EquipmentController.selectUIVersion = function () {
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
-		var component = EquipmentController.getUI();
+		const component = EquipmentController.getUI();
 		DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
 
 		// Escape to close the UI

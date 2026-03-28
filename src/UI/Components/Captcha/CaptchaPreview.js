@@ -20,12 +20,12 @@ import jQuery from 'Utils/jquery';
 /**
 	 * Create Component
 	 */
-	let CaptchaPreview = new UIComponent('CaptchaPreview', htmlText, cssText);
+	const CaptchaPreview = new UIComponent('CaptchaPreview', htmlText, cssText);
 
 	/**
 	 * Preferences
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CaptchaPreview',
 		{
 			x: 230,
@@ -72,10 +72,10 @@ import jQuery from 'Utils/jquery';
 	CaptchaPreview.setImage = function SetImage(imageData) {
 		// imageData is expected to be Uint8Array or Blob usually, need to convert to URL
 		// If it's pure binary from packet, we might need conversion
-		let blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO
-		let url = URL.createObjectURL(blob);
+		const blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO
+		const url = URL.createObjectURL(blob);
 
-		let img = jQuery('<img/>').attr('src', url);
+		const img = jQuery('<img/>').attr('src', url);
 		this.ui.find('.preview_box').empty().append(img);
 	};
 

@@ -27,7 +27,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	/**
 	 * Create Announce component
 	 */
-	var SkillTargetSelection = new UIComponent('SkillTargetSelection');
+	const SkillTargetSelection = new UIComponent('SkillTargetSelection');
 
 	/**
 	 * Mouse can cross this UI
@@ -51,27 +51,27 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	/**
 	 * @var {number} target type (see constants)
 	 */
-	var _flag = 0;
+	let _flag = 0;
 
 	/**
 	 * @var {Skill} skill structure
 	 */
-	var _skill;
+	let _skill;
 
 	/**
 	 * @var {CanvasElement} container for skill name
 	 */
-	var _skillName;
+	let _skillName;
 
 	/**
 	 * @var {CanvasElement} container for desciption
 	 */
-	var _description;
+	let _description;
 
 	/**
 	 * @var {CanvasElement} container for skill level
 	 */
-	var _skill_level;
+	let _skill_level;
 
 	/**
 	 * Initialize component
@@ -113,7 +113,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * Append to body
 	 */
 	SkillTargetSelection.onAppend = function onAppend() {
-		var events;
+		let events;
 
 		if (!_skillName.parentNode) {
 			document.body.appendChild(_skillName);
@@ -193,7 +193,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 		}
 
 		if (Session.TouchTargeting) {
-			var entityFocus = EntityManager.getFocusEntity();
+			const entityFocus = EntityManager.getFocusEntity();
 			if (entityFocus) {
 				if (_flag & SkillTargetSelection.TYPE.PLACE) {
 					SkillTargetSelection.onUseSkillToPos(
@@ -223,7 +223,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 		EntityManager.setSupportPicking((_flag & SkillTargetSelection.TYPE.FRIEND) > 0);
 
 		// Render skillName
-		var sk = SkillInfo[skill.SKID];
+		const sk = SkillInfo[skill.SKID];
 		render(description || sk.SkillName, _skillName);
 		renderLevel(_skill.useLevel ? _skill.useLevel : _skill.level, _skill_level);
 
@@ -232,7 +232,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	};
 
 	SkillTargetSelection.setSkillLevelDelta = function setSkillLevelDelta(delta) {
-		var sk = SkillInfo[_skill.SKID];
+		const sk = SkillInfo[_skill.SKID];
 		if (!sk.bSeperateLv) {
 			return;
 		}
@@ -257,8 +257,8 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {CanvasElement} canvas node
 	 */
 	function render(text, canvas) {
-		var fontSize = 12;
-		var ctx = canvas.getContext('2d');
+		const fontSize = 12;
+		const ctx = canvas.getContext('2d');
 
 		ctx.font = fontSize + 'px Arial';
 		canvas.width = ctx.measureText(text).width + 7 * 2;
@@ -285,8 +285,8 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {CanvasElement} canvas node
 	 */
 	function renderLevel(text, canvas) {
-		var fontSize = 24;
-		var ctx = canvas.getContext('2d');
+		const fontSize = 24;
+		const ctx = canvas.getContext('2d');
 
 		canvas.width = 35;
 		canvas.height = 35;
@@ -328,7 +328,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 		}
 
 		// Get entity
-		var entity = EntityManager.getOverEntity();
+		const entity = EntityManager.getOverEntity();
 
 		if (!entity) {
 			return false;
@@ -349,7 +349,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {object} entity
 	 */
 	function intersectEntity(entity) {
-		var target = 0;
+		let target = 0;
 
 		// Get target type
 		switch (entity.objecttype) {
@@ -404,7 +404,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * (used in party UI)
 	 */
 	SkillTargetSelection.intersectEntityId = function intersectEntityId(id) {
-		var entity = EntityManager.get(id);
+		const entity = EntityManager.get(id);
 		if (entity) {
 			intersectEntity(entity);
 		}

@@ -15,7 +15,7 @@ import jQuery from 'Utils/jquery';
 	/**
 	 * Mouse object
 	 */
-	let Mouse = {};
+	const Mouse = {};
 
 	/**
 	 * Mouse screen position (2D)

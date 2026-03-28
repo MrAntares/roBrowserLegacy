@@ -17,7 +17,7 @@ import UIManager from 'UI/UIManager';
 	/**
 	 * Create Namespace
 	 */
-	let BattleMode = {};
+	const BattleMode = {};
 
 	let KeyTable = getKeyTable();
 
@@ -55,14 +55,14 @@ import UIManager from 'UI/UIManager';
 	 * @return {boolean} is shortcut found ?
 	 */
 	BattleMode.process = function process(keyId) {
-		let keyName = BattleMode.getKeyName(keyId);
+		const keyName = BattleMode.getKeyName(keyId);
 
-		let key = KeyTable[keyName];
+		const key = KeyTable[keyName];
 		if (key) {
 			if (key.component === '_SLASHCOMMAND') {
 				ProcessCommand.processCommand(key.cmd);
 			} else {
-				let component = UIManager.getComponent(key.component);
+				const component = UIManager.getComponent(key.component);
 				if (component.onShortCut) {
 					component.onShortCut(key);
 				}
@@ -90,8 +90,8 @@ import UIManager from 'UI/UIManager';
 			shortcut = KeyTable[keys[i]];
 
 			if (shortcut.component === component && shortcut.cmd === cmd) {
-				let str = [];
-				let tmp = KEYS.toReadableKey(parseInt(keys[i], 10));
+				const str = [];
+				const tmp = KEYS.toReadableKey(parseInt(keys[i], 10));
 
 				if (shortcut.alt) {
 					str.push('ALT');
@@ -120,9 +120,9 @@ import UIManager from 'UI/UIManager';
 	 *	Translates the shortcut table into directly indexable format for event processing
 	 */
 	function getKeyTable() {
-		let keySettings = {};
+		const keySettings = {};
 
-		let ShortCuts = Preferences.ShortCuts;
+		const ShortCuts = Preferences.ShortCuts;
 
 		if (ShortCuts) {
 			Object.keys(ShortCuts).forEach(SC => {

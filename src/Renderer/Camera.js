@@ -43,7 +43,7 @@ const C_QUAKE_MULT = 0.1;
 /**
  * Camera Namespace
  */
-var Camera = {};
+const Camera = {};
 
 /**
  * Projection matrix
@@ -195,7 +195,7 @@ Camera.getLatitude = function GetLatitude() {
  * @param {number} Z axis amount
  */
 Camera.setQuake = function SetQuake(start, duration, xAmt, yAmt, zAmt) {
-	var quake = {};
+	const quake = {};
 	quake.startTick = start;
 	quake.duration = duration || 650;
 	quake.sideQuake = xAmt || 1.0;
@@ -216,7 +216,7 @@ Camera.setQuake = function SetQuake(start, duration, xAmt, yAmt, zAmt) {
  * @param {number} Z axis amount
  */
 Camera.processQuake = function processQuake(tick) {
-	for (var i = 0; i < this.quakes.length; i++) {
+	for (let i = 0; i < this.quakes.length; i++) {
 		if (this.quakes[i].active) {
 			if (this.quakes[i].startTick <= tick) {
 				if (this.quakes[i].startTick + this.quakes[i].duration > tick) {
@@ -294,7 +294,7 @@ Camera.init = function Init() {
  * Save the camera settings
  */
 Camera.save = (function SaveClosure() {
-	var _pending = false;
+	let _pending = false;
 
 	function save() {
 		_pending = false;
@@ -321,8 +321,8 @@ Camera.save = (function SaveClosure() {
  * @param {boolean} active - is mouse down ?
  */
 Camera.rotate = function Rotate(active) {
-	var action = this.action;
-	var tick = Date.now();
+	const action = this.action;
+	const tick = Date.now();
 
 	if (!active) {
 		action.active = false;
@@ -498,7 +498,7 @@ Camera.updateState = function UpdateState() {
  * @param {number} tick
  */
 Camera.update = function Update(tick) {
-	var lerp = Math.min((tick - this.lastTick) * 0.006, 1.0);
+	const lerp = Math.min((tick - this.lastTick) * 0.006, 1.0);
 	this.lastTick = tick;
 
 	// Update camera from mouse movement
@@ -523,7 +523,7 @@ Camera.update = function Update(tick) {
 	// Zoom
 	this.zoom += (this.zoomFinal - this.zoom) * lerp * 2.0;
 
-	var zOffset = 0;
+	let zOffset = 0;
 	if (this.state == this.states.first_person) {
 		zOffset = 2;
 	} else if (
@@ -543,7 +543,7 @@ Camera.update = function Update(tick) {
 	this.direction = Math.floor((this.angle[1] + 22.5) / 45) % 8;
 
 	// Calculate new modelView mat
-	var matrix = this.modelView;
+	const matrix = this.modelView;
 	mat4.identity(matrix);
 	mat4.translateZ(matrix, (this.altitudeFrom - this.zoom) / 2);
 	mat4.rotateX(matrix, matrix, (this.angle[0] / 180) * Math.PI);

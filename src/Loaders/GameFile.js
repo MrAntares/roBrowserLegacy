@@ -29,7 +29,7 @@ import TextEncoding from 'Utils/CodepageManager';
 	/**
 	 * @var {File System} Nodejs
 	 */
-	let fs = self.requireNode && self.requireNode('fs');
+	const fs = self.requireNode && self.requireNode('fs');
 
 	/**
 	 * GRF Constants
@@ -46,7 +46,7 @@ import TextEncoding from 'Utils/CodepageManager';
 	/**
 	 * Extensions that should skip full encryption (only header encryption)
 	 */
-	let SKIP_EXTENSIONS = /\.(gnd|gat|act|str)$/i;
+	const SKIP_EXTENSIONS = /\.(gnd|gat|act|str)$/i;
 
 	/**
 	 * GRF Structures
@@ -91,7 +91,7 @@ import TextEncoding from 'Utils/CodepageManager';
 		// Local object
 		let buffer, fp;
 		let header, entries, table;
-		let reader = this.reader;
+		const reader = this.reader;
 		let data, out;
 		let i, count;
 
@@ -100,7 +100,7 @@ import TextEncoding from 'Utils/CodepageManager';
 		reader.load = function (start, len) {
 			// node.js
 			if (fs && file.fd) {
-				let buf = new Buffer(len);
+				const buf = new Buffer(len);
 				fs.readSync(file.fd, buf, 0, len, start);
 				return new Uint8Array(buf).buffer;
 			}
@@ -119,7 +119,7 @@ import TextEncoding from 'Utils/CodepageManager';
 		header = fp.readStruct(GRF.struct_header);
 
 		header.signature = String.fromCharCode.apply(null, header.signature);
-		let nullPos = header.signature.indexOf('\0');
+		const nullPos = header.signature.indexOf('\0');
 		if (nullPos !== -1) {
 			header.signature = header.signature.substr(0, nullPos);
 		}
@@ -209,7 +209,7 @@ import TextEncoding from 'Utils/CodepageManager';
 	function loadEntries(out, count, version) {
 		// Read all entries
 		let i, pos, start, end;
-		let entries = new Array(count);
+		const entries = new Array(count);
 
 		for (i = 0, pos = 0; i < count; ++i) {
 			start = pos;
@@ -248,8 +248,8 @@ import TextEncoding from 'Utils/CodepageManager';
 	 */
 	GRF.prototype.decodeEntry = function DecodeEntry(buffer, entry, callback) {
 		let out;
-		let data = new Uint8Array(buffer);
-		let isEncrypted = entry.type !== GRF.FILELIST_TYPE_FILE;
+		const data = new Uint8Array(buffer);
+		const isEncrypted = entry.type !== GRF.FILELIST_TYPE_FILE;
 		let handled = false;
 
 		// Decode the file
@@ -304,7 +304,7 @@ import TextEncoding from 'Utils/CodepageManager';
 	 */
 	GRF.prototype.getFile = function getFile(filename, callback) {
 		// Not case sensitive...
-		let path = filename.toLowerCase();
+		const path = filename.toLowerCase();
 		let entry, blob;
 		let reader;
 
@@ -319,7 +319,7 @@ import TextEncoding from 'Utils/CodepageManager';
 
 			// node.js
 			if (fs && this.file.fd) {
-				let buffer = new Buffer(entry.length_aligned);
+				const buffer = new Buffer(entry.length_aligned);
 				fs.readSync(this.file.fd, buffer, 0, entry.length_aligned, entry.offset + GRF.struct_header.size);
 				this.decodeEntry(new Uint8Array(buffer).buffer, entry, callback);
 				return true;
@@ -332,7 +332,7 @@ import TextEncoding from 'Utils/CodepageManager';
 
 			// Load into memory
 			if (self.FileReader) {
-				let grf = this;
+				const grf = this;
 
 				reader = new FileReader();
 				reader.onload = function () {

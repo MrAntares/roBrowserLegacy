@@ -19,8 +19,8 @@ import UIVersionManager from 'UI/UIVersionManager';
 import DB from 'DB/DBManager';
 import KEYS from 'Controls/KeyEventHandler';
 
-	var publicName = 'Inventory';
-	var versionInfo = {
+	const publicName = 'Inventory';
+	const versionInfo = {
 		default: InventoryV0, // Basic Inventory
 		common: {
 			20181219: InventoryV3, // Inventory Expansion
@@ -31,16 +31,16 @@ import KEYS from 'Controls/KeyEventHandler';
 		prere: {}
 	};
 
-	var InventoryController = UIVersionManager.getUIController(publicName, versionInfo);
+	const InventoryController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	var _selectUIVersion = InventoryController.selectUIVersion;
+	const _selectUIVersion = InventoryController.selectUIVersion;
 
 	// Extend default UI selector
 	InventoryController.selectUIVersion = function () {
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
-		var component = InventoryController.getUI();
+		const component = InventoryController.getUI();
 		DB.UpdateOwnerName.Inventory = component.onUpdateOwnerName;
 
 		// Escape to close the UI

@@ -24,12 +24,12 @@ import cssText from './StrViewer.css?raw';
 /**
 	 * Load dependencies
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {object} fog structure
 	 */
-	let _fog = {
+	const _fog = {
 		use: false,
 		exist: true,
 		far: 30,
@@ -41,7 +41,7 @@ import cssText from './StrViewer.css?raw';
 	/**
 	 * @var {object} model View mat
 	 */
-	let _modelView = mat4.create();
+	const _modelView = mat4.create();
 
 	/**
 	 * @var {StrEffect} current effect
@@ -51,7 +51,7 @@ import cssText from './StrViewer.css?raw';
 	/**
 	 * Create GRFViewer component
 	 */
-	let Viewer = new UIComponent('StrViewer', htmlText, cssText);
+	const Viewer = new UIComponent('StrViewer', htmlText, cssText);
 
 	/**
 	 * Initialize Component
@@ -74,7 +74,7 @@ import cssText from './StrViewer.css?raw';
 		if (!Configs.get('API')) {
 			initDropDown(this.ui.find('select').get(0));
 		} else {
-			let hash = decodeURIComponent(location.hash);
+			const hash = decodeURIComponent(location.hash);
 			location.hash = hash;
 			loadEffect(hash.substr(1));
 		}
@@ -161,7 +161,7 @@ import cssText from './StrViewer.css?raw';
 	 * Stop to render
 	 */
 	function stop() {
-		let gl = Renderer.getContext();
+		const gl = Renderer.getContext();
 
 		Renderer.stop();
 		EffectManager.free(gl);

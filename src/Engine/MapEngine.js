@@ -133,7 +133,7 @@ import BankEngine from './MapEngine/Bank';
 	/**
 	 * @namespace MapEngine
 	 */
-	let MapEngine = {};
+	const MapEngine = {};
 
 	let snCounter = 0;
 	let chatLines = 0;
@@ -154,9 +154,9 @@ import BankEngine from './MapEngine/Bank';
 		_mapName = mapName;
 
 		// Connect to char server
-		let forceAddress = Configs.get('forceUseAddress');
-		let server_info = Configs.getServer();
-		let current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
+		const forceAddress = Configs.get('forceUseAddress');
+		const server_info = Configs.getServer();
+		const current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
 		Network.connect(
 			current_ip,
 			port,
@@ -192,8 +192,8 @@ import BankEngine from './MapEngine/Bank';
 					}
 				});
 
-				let hbt = new PACKET.CZ.HBT();
-				let is_sec_hbt = Configs.get('sec_HBT', null);
+				const hbt = new PACKET.CZ.HBT();
+				const is_sec_hbt = Configs.get('sec_HBT', null);
 
 				// Ping
 				let ping, SP;
@@ -204,7 +204,7 @@ import BankEngine from './MapEngine/Bank';
 				} else {
 					ping = new PACKET.CZ.REQUEST_TIME();
 				}
-				let startTick = Date.now();
+				const startTick = Date.now();
 				Network.setPing(function () {
 					if (is_sec_hbt) {
 						Network.sendPacket(hbt);
@@ -432,7 +432,7 @@ import BankEngine from './MapEngine/Bank';
 	 * TODO: check the time ?
 	 */
 	function onPong(pkt) {
-		let SP = Session.ping;
+		const SP = Session.ping;
 
 		SP.returned = true;
 		SP.pongTime = 0;
@@ -445,7 +445,7 @@ import BankEngine from './MapEngine/Bank';
 	 * Ping from server?
 	 */
 	function onPingLive(pkt) {
-		let pong_pkt = new PACKET.CZ.PING_LIVE();
+		const pong_pkt = new PACKET.CZ.PING_LIVE();
 		Network.sendPacket(pong_pkt);
 	}
 
@@ -661,8 +661,8 @@ import BankEngine from './MapEngine/Bank';
 			const signboards = DB.getAllSignboardsForMap(mapName);
 
 			if (signboards) {
-				for (let x in signboards) {
-					for (let y in signboards[x]) {
+				for (const x in signboards) {
+					for (const y in signboards[x]) {
 						const signboardData = signboards[x][y];
 						SignboardManager.add(parseInt(x), parseInt(y), signboardData);
 					}
@@ -762,7 +762,7 @@ import BankEngine from './MapEngine/Bank';
 	 * Ask the server to disconnect
 	 */
 	function onExitRequest() {
-		let pkt = new PACKET.CZ.REQUEST_QUIT();
+		const pkt = new PACKET.CZ.REQUEST_QUIT();
 		Network.sendPacket(pkt);
 
 		// Wait a second, if no answer from the server, then close it.
@@ -811,7 +811,7 @@ import BankEngine from './MapEngine/Bank';
 	 * Try to return to char-server
 	 */
 	function onRestartRequest() {
-		let pkt = new PACKET.CZ.RESTART();
+		const pkt = new PACKET.CZ.RESTART();
 		pkt.type = 1;
 		Network.sendPacket(pkt);
 	}
@@ -820,7 +820,7 @@ import BankEngine from './MapEngine/Bank';
 	 * Go back to save point request
 	 */
 	function onReturnSavePointRequest() {
-		let pkt = new PACKET.CZ.RESTART();
+		const pkt = new PACKET.CZ.RESTART();
 		pkt.type = 0;
 		Network.sendPacket(pkt);
 	}
@@ -829,7 +829,7 @@ import BankEngine from './MapEngine/Bank';
 	 * Resurection feature
 	 */
 	function onResurectionRequest() {
-		let pkt = new PACKET.CZ.STANDING_RESURRECTION();
+		const pkt = new PACKET.CZ.STANDING_RESURRECTION();
 		Network.sendPacket(pkt);
 	}
 
@@ -897,8 +897,8 @@ import BankEngine from './MapEngine/Bank';
 	 */
 	function onRequestTalk(user, text, target) {
 		let pkt;
-		let flag_party = text[0] === '%' || KEYS.CTRL;
-		let flag_guild =
+		const flag_party = text[0] === '%' || KEYS.CTRL;
+		const flag_guild =
 			text[0] === '$' ||
 			(KEYS.ALT &&
 				!(
@@ -977,7 +977,7 @@ import BankEngine from './MapEngine/Bank';
 	 * Remove cart/peco/falcon
 	 */
 	function onRemoveOption() {
-		let pkt = new PACKET.CZ.REQ_CARTOFF();
+		const pkt = new PACKET.CZ.REQ_CARTOFF();
 		Network.sendPacket(pkt);
 	}
 
@@ -1033,8 +1033,8 @@ import BankEngine from './MapEngine/Bank';
 			return;
 		}
 
-		let isWalkable = Mouse.world.x > -1 && Mouse.world.y > -1;
-		let isCurrentPos =
+		const isWalkable = Mouse.world.x > -1 && Mouse.world.y > -1;
+		const isCurrentPos =
 			Math.round(Session.Entity.position[0]) === Mouse.world.x &&
 			Math.round(Session.Entity.position[1]) === Mouse.world.y;
 
@@ -1068,8 +1068,8 @@ import BankEngine from './MapEngine/Bank';
 	 */
 	function checkFreeCell(x, y, range, out) {
 		let _x, _y, r;
-		let d_x = Session.Entity.position[0] < x ? -1 : 1;
-		let d_y = Session.Entity.position[1] < y ? -1 : 1;
+		const d_x = Session.Entity.position[0] < x ? -1 : 1;
+		const d_y = Session.Entity.position[1] < y ? -1 : 1;
 
 		// Search possible positions
 		for (r = 0; r <= range; ++r) {
@@ -1145,7 +1145,7 @@ import BankEngine from './MapEngine/Bank';
 	 * @param {number} amount
 	 */
 	function onRequestStatUpdate(id, amount) {
-		let pkt = new PACKET.CZ.STATUS_CHANGE();
+		const pkt = new PACKET.CZ.STATUS_CHANGE();
 		pkt.statusID = id;
 		pkt.changeAmount = amount;
 
@@ -1206,7 +1206,7 @@ import BankEngine from './MapEngine/Bank';
 	 * @param {number} where to equip
 	 */
 	function onEquipItem(index, location) {
-		let pkt = new PACKET.CZ.REQ_WEAR_EQUIP();
+		const pkt = new PACKET.CZ.REQ_WEAR_EQUIP();
 		pkt.index = index;
 		pkt.wearLocation = location;
 		Network.sendPacket(pkt);
@@ -1218,7 +1218,7 @@ import BankEngine from './MapEngine/Bank';
 	 * @param {number} index to unequip
 	 */
 	function onUnEquip(index) {
-		let pkt = new PACKET.CZ.REQ_TAKEOFF_EQUIP();
+		const pkt = new PACKET.CZ.REQ_TAKEOFF_EQUIP();
 		pkt.index = index;
 		Network.sendPacket(pkt);
 	}
@@ -1227,7 +1227,7 @@ import BankEngine from './MapEngine/Bank';
 	 * Add Switch Equip
 	 */
 	function onAddSwitchEquip(index, location) {
-		let pkt = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD();
+		const pkt = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_ADD();
 		pkt.index = index;
 		pkt.wearLocation = location;
 		Network.sendPacket(pkt);
@@ -1237,7 +1237,7 @@ import BankEngine from './MapEngine/Bank';
 	 * Remove Switch Equip
 	 */
 	function onRemoveSwitchEquip(index) {
-		let pkt = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE();
+		const pkt = new PACKET.CZ.REQ_WEAR_SWITCHEQUIP_REMOVE();
 		pkt.index = index;
 		Network.sendPacket(pkt);
 	}
@@ -1249,7 +1249,7 @@ import BankEngine from './MapEngine/Bank';
 	 * @param {number} val
 	 */
 	function onConfigUpdate(type, val) {
-		let pkt = new PACKET.CZ.CONFIG();
+		const pkt = new PACKET.CZ.CONFIG();
 		pkt.Config = type;
 		pkt.Value = val;
 		Network.sendPacket(pkt);

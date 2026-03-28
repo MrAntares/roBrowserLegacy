@@ -24,7 +24,7 @@ import DB from 'DB/DBManager';
 	/**
 	 * Captcha data
 	 */
-	let captcha = {
+	const captcha = {
 		captchaKey: null,
 		imageSize: null,
 		currentOffset: 0,
@@ -54,14 +54,14 @@ import DB from 'DB/DBManager';
 		// 1 = fail
 		if (pkt.captchaFlag === 0) {
 			// upload captcha in chunks of 1024 bytes
-			let totalChunks = Math.ceil(CaptchaUpload.imageData.byteLength / 1024);
+			const totalChunks = Math.ceil(CaptchaUpload.imageData.byteLength / 1024);
 			let currentChunk = 0;
-			let buffer = CaptchaUpload.imageData.buffer;
+			const buffer = CaptchaUpload.imageData.buffer;
 			let offset = 0;
 
 			while (currentChunk < totalChunks) {
-				let chunkSize = Math.min(1024, buffer.byteLength - offset);
-				let chunk = buffer.slice(offset, offset + chunkSize);
+				const chunkSize = Math.min(1024, buffer.byteLength - offset);
+				const chunk = buffer.slice(offset, offset + chunkSize);
 				CaptchaUpload.uploadCaptcha(pkt.captchaKey, chunk);
 				offset += chunkSize;
 				currentChunk++;
@@ -135,7 +135,7 @@ import DB from 'DB/DBManager';
 				CaptchaAnswer.setImage(imageData);
 				CaptchaAnswer.setData(3, 60); // if is not different from default the server dont send the information
 				CaptchaAnswer.onSend = function (answer) {
-					let pkt = new PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR();
+					const pkt = new PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR();
 					pkt.answer = answer;
 					Network.sendPacket(pkt);
 				};
@@ -224,7 +224,7 @@ import DB from 'DB/DBManager';
 	 * Upload captcha to server
 	 */
 	function uploadCaptcha(captchaKey, imageData) {
-		let pkt = new PACKET.CZ.UPLOAD_MACRO_DETECTOR_CAPTCHA();
+		const pkt = new PACKET.CZ.UPLOAD_MACRO_DETECTOR_CAPTCHA();
 		pkt.captchaKey = captchaKey;
 		pkt.imageData = imageData;
 		Network.sendPacket(pkt);
@@ -237,7 +237,7 @@ import DB from 'DB/DBManager';
 	 * @param {string} answer
 	 */
 	async function requestUploadCaptcha(size, answer) {
-		let pkt = new PACKET.CZ.REQ_UPLOAD_MACRO_DETECTOR();
+		const pkt = new PACKET.CZ.REQ_UPLOAD_MACRO_DETECTOR();
 		pkt.imageSize = size;
 		pkt.answer = answer;
 		Network.sendPacket(pkt);
@@ -249,7 +249,7 @@ import DB from 'DB/DBManager';
 	 * @param {number} AID
 	 */
 	function sendCaptchaToPlayer(AID) {
-		let pkt = new PACKET.CZ.REQ_APPLY_MACRO_DETECTOR();
+		const pkt = new PACKET.CZ.REQ_APPLY_MACRO_DETECTOR();
 		pkt.AID = AID;
 		Network.sendPacket(pkt);
 	}
@@ -262,7 +262,7 @@ import DB from 'DB/DBManager';
 	 * @param {number} RadiusRange
 	 */
 	function requestPlayersIdsInRange(xPos, yPos, RadiusRange) {
-		let pkt = new PACKET.CZ.REQ_PLAYER_AID_IN_RANGE();
+		const pkt = new PACKET.CZ.REQ_PLAYER_AID_IN_RANGE();
 		pkt.xPos = xPos;
 		pkt.yPos = yPos;
 		pkt.RadiusRange = RadiusRange;

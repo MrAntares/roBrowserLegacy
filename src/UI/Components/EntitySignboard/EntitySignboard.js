@@ -18,7 +18,7 @@ import Client from 'Core/Client';
 /**
 	 * Createcomponent
 	 */
-	let EntitySignboard = new UIComponent('EntitySignboard', htmlText, cssText);
+	const EntitySignboard = new UIComponent('EntitySignboard', htmlText, cssText);
 
 	/**
 	 * @var {boolean} do not focus this UI
@@ -65,7 +65,7 @@ import Client from 'Core/Client';
 		this.ui.find('.title, .overlay').text(title);
 		this.ui.find('.title').show();
 
-		let self = this;
+		const self = this;
 
 		// show overlay when mouse over .title
 		this.ui.find('.title').hover(function () {
@@ -92,7 +92,7 @@ import Client from 'Core/Client';
 	EntitySignboard.setIconOnly = function setIconOnly(icon_location) {
 		this.ui.find('.title').hide();
 		this.ui.find('.overlay').hide();
-		let self = this;
+		const self = this;
 		Client.loadFile(icon_location, function (icon_location) {
 			self.ui
 				.find('button')

@@ -22,8 +22,8 @@ import TextEncoding from 'Utils/CodepageManager';
 	 * @param {boolean} littleEndian (if true use LE encode order)
 	 */
 	DataView.prototype.setPos = function SetPos(offset, value, littleEndian) {
-		let x = value[0];
-		let y = value[1];
+		const x = value[0];
+		const y = value[1];
 
 		if (littleEndian) {
 			this.setInt8(offset + 0, x >> 2, true);
@@ -49,7 +49,7 @@ import TextEncoding from 'Utils/CodepageManager';
 		}
 
 		let i, count;
-		let data = TextEncoding.encode(str, 'utf-8');
+		const data = TextEncoding.encode(str, 'utf-8');
 
 		// fuck it, need to rebuild the buffer
 		if (!len && data.length > str.length) {
@@ -73,7 +73,7 @@ import TextEncoding from 'Utils/CodepageManager';
 			str = String(str).substr(0, len);
 		}
 
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = str.length; i < count; ++i) {
 			this.setUint8(offset + i, str.charCodeAt(i) & 0xff);
@@ -240,7 +240,7 @@ import TextEncoding from 'Utils/CodepageManager';
 			str = String(str).substr(0, length);
 		}
 
-		let data = TextEncoding.encode(str, 'utf-8');
+		const data = TextEncoding.encode(str, 'utf-8');
 		let i,
 			count = length || data.length;
 
@@ -249,7 +249,7 @@ import TextEncoding from 'Utils/CodepageManager';
 		// So we need to create another buffer with the new size for it
 		if (!length && data.length > str.length) {
 			// create new buffer
-			let uint8 = new Uint8Array(this.buffer.byteLength + (data.length - str.length));
+			const uint8 = new Uint8Array(this.buffer.byteLength + (data.length - str.length));
 
 			// copy the old one and use the new one
 			uint8.set(new Uint8Array(this.buffer), 0);
@@ -281,7 +281,7 @@ import TextEncoding from 'Utils/CodepageManager';
 	) {
 		str = String(str);
 
-		let len = length ? Math.min(length, str.length) : str.length;
+		const len = length ? Math.min(length, str.length) : str.length;
 
 		const buf = new Uint8Array(len);
 
@@ -306,7 +306,7 @@ import TextEncoding from 'Utils/CodepageManager';
 	 * @return {BinaryWriter}
 	 */
 	BinaryWriter.prototype.setBuffer = BinaryWriter.prototype.writeBuffer = function setBuffer(buffer) {
-		let data = new Uint8Array(this.buffer);
+		const data = new Uint8Array(this.buffer);
 		data.set(new Uint8Array(buffer), this.offset);
 
 		this.offset += buffer.byteLength;
@@ -331,7 +331,7 @@ import TextEncoding from 'Utils/CodepageManager';
 	 * @return {BinaryWriter}
 	 */
 	BinaryWriter.prototype.setPos = BinaryWriter.prototype.writePos = function setPos(xy) {
-		let x = xy[0],
+		const x = xy[0],
 			y = xy[1];
 
 		this.view.setInt8(this.offset++, x >> 2, true);

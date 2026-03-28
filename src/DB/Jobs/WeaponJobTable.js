@@ -12,10 +12,10 @@
 import JobId from './JobConst';
 import JobNameTable from './JobNameTable';
 
-	let WeaponJobTable = {};
+	const WeaponJobTable = {};
 
 	// Extend
-	let keys = Object.keys(JobNameTable);
+	const keys = Object.keys(JobNameTable);
 	let i,
 		count = keys.length;
 
@@ -24,7 +24,7 @@ import JobNameTable from './JobNameTable';
 	}
 
 	function duplicateEntry(origin) {
-		let value = JobNameTable[origin];
+		const value = JobNameTable[origin];
 		let i,
 			count = arguments.length;
 

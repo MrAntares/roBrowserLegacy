@@ -16,8 +16,8 @@ function AIDriver() {}
 
 AIDriver.init = async function init() {};
 
-let msg = {};
-let resMsg = {};
+const msg = {};
+const resMsg = {};
 
 AIDriver.setmsg = function setmsg(homId, str) {
 	if (!msg[homId]) {
@@ -31,11 +31,11 @@ AIDriver.addCTX = function addAIctx() {
 	const scriptStartTime = Date.now();
 
 	// Prevents circular dependancy
-	let Homun = UIManager.getComponent('HomunInformations');
-	let Mercenary = UIManager.getComponent('MercenaryInformations');
+	const Homun = UIManager.getComponent('HomunInformations');
+	const Mercenary = UIManager.getComponent('MercenaryInformations');
 
 	function addCTX(lua, isHoAI = true) {
-		let ctx = lua.ctx;
+		const ctx = lua.ctx;
 
 		// Initialize AzzyAI timeouts variables and GetV adapter
 		lua.doStringSync(`
@@ -101,7 +101,7 @@ AIDriver.addCTX = function addAIctx() {
 		};
 
 		ctx.GetVJS = function (V_, id) {
-			let entity = EntityManager.get(Number(id));
+			const entity = EntityManager.get(Number(id));
 
 			switch (V_) {
 				case 0: // V_OWNER
@@ -212,7 +212,7 @@ AIDriver.addCTX = function addAIctx() {
 
 		ctx.GetActors = function () {
 			AIDriver.exec('status = MyState', isHoAI);
-			let res = [0];
+			const res = [0];
 			EntityManager.forEach(item => {
 				res.push(item.GID);
 			});
@@ -221,10 +221,10 @@ AIDriver.addCTX = function addAIctx() {
 				if (localStorage.getItem('AGGRESSIVE') == 1) {
 					let closest = 0;
 					let lastDist = 1000;
-					let thisentity = EntityManager.get(isHoAI ? Session.homunId : Session.mercId);
+					const thisentity = EntityManager.get(isHoAI ? Session.homunId : Session.mercId);
 					for (const item in res) {
 						if (item !== 0 && item !== Session.AID && item !== Session.homunId && item !== Session.mercId) {
-							let entity = EntityManager.get(Number(item));
+							const entity = EntityManager.get(Number(item));
 							if (
 								entity &&
 								(entity.objecttype === Session.Entity.constructor.TYPE_MOB ||
@@ -234,7 +234,7 @@ AIDriver.addCTX = function addAIctx() {
 								entity.action !== entity.ACTION.DIE &&
 								entity.isVisible()
 							) {
-								let dist = distance(
+								const dist = distance(
 									thisentity.position[0],
 									thisentity.position[1],
 									entity.position[0],
@@ -267,7 +267,7 @@ AIDriver.addCTX = function addAIctx() {
 
 		ctx.GetMsg = function GetMsgJS(id) {
 			if (id in msg) {
-				let res = msg[id];
+				const res = msg[id];
 				delete msg[id];
 				return res;
 			}
@@ -276,7 +276,7 @@ AIDriver.addCTX = function addAIctx() {
 
 		ctx.GetResMsg = function GetResMsg(id) {
 			if (id in resMsg) {
-				let res = resMsg[id];
+				const res = resMsg[id];
 				delete resMsg[id];
 				return res;
 			}
@@ -289,15 +289,15 @@ AIDriver.addCTX = function addAIctx() {
 			}
 			// check if is our homunculus
 			if (homunId === (isHoAI ? Session.homunId : Session.mercId)) {
-				let homun = EntityManager.get(Number(homunId));
-				let target = EntityManager.get(Number(targetID));
+				const homun = EntityManager.get(Number(homunId));
+				const target = EntityManager.get(Number(targetID));
 
 				if (!homun || !target) {
 					return 0;
 				}
 
 				// check range
-				let range = SkillInfo[skillId].AttackRange[level - 1] + 1 || homun.attack_range || 1;
+				const range = SkillInfo[skillId].AttackRange[level - 1] + 1 || homun.attack_range || 1;
 
 				if (
 					homun.position[0] > 0 &&
@@ -305,7 +305,7 @@ AIDriver.addCTX = function addAIctx() {
 					target.position[0] > 0 &&
 					target.position[1] > 0
 				) {
-					let dist = distance(homun.position[0], homun.position[1], target.position[0], target.position[1]);
+					const dist = distance(homun.position[0], homun.position[1], target.position[0], target.position[1]);
 					if (Configs.get('debugAI', false)) {
 						console.log('SkillObject - RANGE AND DISTANCE', range, dist);
 					}
@@ -346,7 +346,7 @@ AIDriver.addCTX = function addAIctx() {
 			// check if is our homunculus
 			if (homunId === (isHoAI ? Session.homunId : Session.mercId)) {
 				// check if homun is in a valid state to cast skill
-				let homun = EntityManager.get(Number(homunId));
+				const homun = EntityManager.get(Number(homunId));
 				if (homun && [0, 1, 4].includes(homun.action)) {
 					let pkt;
 					if (PACKETVER.value >= 20190904) {
@@ -374,7 +374,7 @@ AIDriver.addCTX = function addAIctx() {
 				}
 				return 0;
 			}
-			let entity = EntityManager.get(Number(id));
+			const entity = EntityManager.get(Number(id));
 
 			if (
 				entity &&
@@ -424,7 +424,7 @@ AIDriver.initAI = async function prepareAIFiles(onEnd) {
 	let loadPromises = [];
 	this.ready = false;
 	function preloadFiles(fileList, lua) {
-		let ctx = lua.ctx;
+		const ctx = lua.ctx;
 
 		function customRequire(modulePath, isJS = false) {
 			const promise = new Promise((resolve, reject) => {
@@ -471,13 +471,13 @@ AIDriver.initAI = async function prepareAIFiles(onEnd) {
 							if (Configs.get('debugAI', false)) {
 								console.log(`Loading file "${filename}"...`);
 							}
-							let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-							let str = TextEncoding.decode(buffer);
+							const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+							const str = TextEncoding.decode(buffer);
 
 							const nestedPromises = [];
 							for (const line of str.split('\n')) {
 								if (line.includes('dofile')) {
-									let loadFile = line
+									const loadFile = line
 										.replace('dofile', '')
 										.replaceAll('(', '')
 										.replaceAll(')', '')
@@ -519,13 +519,13 @@ AIDriver.initAI = async function prepareAIFiles(onEnd) {
 								if (Configs.get('debugAI', false)) {
 									console.log('Loading file "' + filename + '"...');
 								}
-								let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-								let text = TextEncoding.decode(buffer);
+								const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+								const text = TextEncoding.decode(buffer);
 
 								const nestedPromises = [];
 								for (const line of text.split('\n')) {
 									if (line.includes('dofile')) {
-										let loadFile = line
+										const loadFile = line
 											.replace('dofile', '')
 											.replaceAll('(', '')
 											.replaceAll(')', '')

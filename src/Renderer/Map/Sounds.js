@@ -15,8 +15,8 @@ import SoundManager from 'Audio/SoundManager';
 /**
 	 * Sound renderer namespace
 	 */
-	let vec2 = glMatrix.vec2;
-	let _list = [];
+	const vec2 = glMatrix.vec2;
+	const _list = [];
 
 	/**
 	 * Add 3D sound to the list
@@ -39,7 +39,7 @@ import SoundManager from 'Audio/SoundManager';
 	 */
 	function render(position, tick) {
 		_list.forEach(sound => {
-			var dist = Math.floor(vec2.dist(sound.pos, position));
+			const dist = Math.floor(vec2.dist(sound.pos, position));
 			if (sound.tick < tick && dist <= sound.range) {
 				SoundManager.playPosition(sound.file, sound.pos);
 				sound.tick = tick + sound.cycle * 1000;

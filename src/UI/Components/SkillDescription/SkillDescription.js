@@ -22,7 +22,7 @@ import cssText from './SkillDescription.css?raw';
 /**
 	 * Create Component
 	 */
-	let SkillDescription = new UIComponent('SkillDescription', htmlText, cssText);
+	const SkillDescription = new UIComponent('SkillDescription', htmlText, cssText);
 
 	/**
 	 * SkillDescription unique id
@@ -43,7 +43,7 @@ import cssText from './SkillDescription.css?raw';
 	 */
 	SkillDescription.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		let events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 	};
 

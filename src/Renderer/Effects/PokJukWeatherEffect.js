@@ -27,11 +27,11 @@ import Sound from 'Audio/SoundManager';
 	let _whiteTexture = null;
 
 	// Explosion height in game units
-	let EXPLOSION_ALTITUDE = 8.0;
-	let PARTICLE_SIZE = 6;
+	const EXPLOSION_ALTITUDE = 8.0;
+	const PARTICLE_SIZE = 6;
 
-	let FIRE_LIFE_MS = 50;
-	let EXPLOSION_LIFE_MS = 1000;
+	const FIRE_LIFE_MS = 50;
+	const EXPLOSION_LIFE_MS = 1000;
 
 	function PokJukWeatherEffect(Params) {
 		this.fireworks = [];
@@ -47,17 +47,17 @@ import Sound from 'Audio/SoundManager';
 			return;
 		}
 
-		let canvas = document.createElement('canvas');
+		const canvas = document.createElement('canvas');
 		canvas.width = PARTICLE_SIZE;
 		canvas.height = PARTICLE_SIZE;
-		let ctx = canvas.getContext('2d');
+		const ctx = canvas.getContext('2d');
 
-		let center = PARTICLE_SIZE / 2;
-		let radius = center - 1;
+		const center = PARTICLE_SIZE / 2;
+		const radius = center - 1;
 
 		ctx.clearRect(0, 0, PARTICLE_SIZE, PARTICLE_SIZE);
 
-		let gradient = ctx.createRadialGradient(center, center, 0, center, center, radius);
+		const gradient = ctx.createRadialGradient(center, center, 0, center, center, radius);
 		gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
 		gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.8)');
 		gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
@@ -79,19 +79,19 @@ import Sound from 'Audio/SoundManager';
 		if (!Session.Entity) {
 			return;
 		}
-		let pPos = Session.Entity.position;
+		const pPos = Session.Entity.position;
 
 		// Spawn random number of fireworks (1 or 3)
-		let numFireworks = Math.floor(Math.random() * 3) + 1;
-		for (var ec = 0; ec < numFireworks; ec++) {
-			let firework = this.createFirework(pPos);
+		const numFireworks = Math.floor(Math.random() * 3) + 1;
+		for (let ec = 0; ec < numFireworks; ec++) {
+			const firework = this.createFirework(pPos);
 			firework.process -= ec * 100;
 			this.fireworks.push(firework);
 		}
 	};
 
 	PokJukWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		let currentMap = MapRenderer ? MapRenderer.currentMap : '';
+		const currentMap = MapRenderer ? MapRenderer.currentMap : '';
 
 		if (_mapName !== currentMap || !_instance) {
 			_instance = new PokJukWeatherEffect(Params);
@@ -102,7 +102,7 @@ import Sound from 'Audio/SoundManager';
 	};
 
 	PokJukWeatherEffect.prototype.createFirework = function () {
-		let pPos = Session.Entity.position;
+		const pPos = Session.Entity.position;
 		return {
 			process: -(600 + Math.floor(Math.random() * 400)),
 			// Start near player
@@ -146,8 +146,8 @@ import Sound from 'Audio/SoundManager';
 	};
 
 	PokJukWeatherEffect.prototype.render = function (gl, tick) {
-		for (var i = 0; i < this.fireworks.length; i++) {
-			let fw = this.fireworks[i];
+		for (let i = 0; i < this.fireworks.length; i++) {
+			const fw = this.fireworks[i];
 			this.updateFirework(fw);
 			this.drawFirework(fw);
 		}
@@ -165,8 +165,8 @@ import Sound from 'Audio/SoundManager';
 			if (fw.state === 0) {
 				// ASCENT PHASE
 				fw.posNow[2] += 0.04;
-				let ascentProgress = Math.max(0, Math.min(1, (fw.posNow[2] - fw.startAlt) / EXPLOSION_ALTITUDE));
-				let arcProgress = Math.pow(Math.max(0, (ascentProgress - 0.3) / 0.7), 2);
+				const ascentProgress = Math.max(0, Math.min(1, (fw.posNow[2] - fw.startAlt) / EXPLOSION_ALTITUDE));
+				const arcProgress = Math.pow(Math.max(0, (ascentProgress - 0.3) / 0.7), 2);
 				fw.posNow[0] += arcProgress * fw.arcAmplitude * fw.arcDirection * 0.02;
 				fw.alpha = Math.floor(Math.min(ascentProgress * 255 * 2, 255));
 
@@ -177,7 +177,7 @@ import Sound from 'Audio/SoundManager';
 					fw.explosionTimer = 0;
 					fw.lastWaveTime = -50;
 					// Generate burst particles
-					for (var p = 0; p < 30; p++) {
+					for (let p = 0; p < 30; p++) {
 						this.addParticleWave(fw, true);
 					}
 				}
@@ -186,7 +186,7 @@ import Sound from 'Audio/SoundManager';
 				fw.explosionTimer += 16;
 				if (fw.explosionTimer < EXPLOSION_LIFE_MS) {
 					if (fw.explosionTimer - fw.lastWaveTime >= FIRE_LIFE_MS) {
-						let colorType = Math.floor(Math.random() * 5);
+						const colorType = Math.floor(Math.random() * 5);
 						for (var i = 0; i < 15; i++) {
 							this.addParticleWave(fw, false, colorType);
 						}
@@ -197,8 +197,8 @@ import Sound from 'Audio/SoundManager';
 					}
 				}
 				let active = 0;
-				for (var j = 0; j < fw.particles.length; j++) {
-					let p = fw.particles[j];
+				for (let j = 0; j < fw.particles.length; j++) {
+					const p = fw.particles[j];
 					if (p.alpha <= 0) {
 						continue;
 					}
@@ -219,11 +219,11 @@ import Sound from 'Audio/SoundManager';
 	};
 
 	PokJukWeatherEffect.prototype.addParticleWave = function (fw, isGunpowder, colorType) {
-		let phi = Math.random() * Math.PI * 2;
-		let theta = Math.random() * Math.PI;
-		let speed = isGunpowder ? 0.02 + Math.random() * 0.04 : 0.08 + Math.random() * 0.07;
+		const phi = Math.random() * Math.PI * 2;
+		const theta = Math.random() * Math.PI;
+		const speed = isGunpowder ? 0.02 + Math.random() * 0.04 : 0.08 + Math.random() * 0.07;
 
-		let zOffset = isGunpowder ? 0.5 : 0;
+		const zOffset = isGunpowder ? 0.5 : 0;
 
 		fw.particles.push({
 			pos: [fw.posNow[0], fw.posNow[1], fw.posNow[2] + zOffset],
@@ -247,8 +247,8 @@ import Sound from 'Audio/SoundManager';
 		if (fw.state === 0) {
 			this.renderParticle(fw.posNow, fw.alpha, 255, 255, 255, fw.size);
 		} else {
-			for (var i = 0; i < fw.particles.length; i++) {
-				let p = fw.particles[i];
+			for (let i = 0; i < fw.particles.length; i++) {
+				const p = fw.particles[i];
 				if (p.alpha > 0) {
 					let r, g, b;
 					switch (p.colorType) {

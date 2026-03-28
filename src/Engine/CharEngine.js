@@ -75,9 +75,9 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 		_server = server;
 
 		// Connect to char server
-		let forceAddress = Configs.get('forceUseAddress');
-		let server_info = Configs.getServer();
-		let ip = forceAddress ? server_info.address : Network.utils.longToIP(server.ip);
+		const forceAddress = Configs.get('forceUseAddress');
+		const server_info = Configs.getServer();
+		const ip = forceAddress ? server_info.address : Network.utils.longToIP(server.ip);
 		Network.connect(ip, server.port, function (success) {
 			// Fail to connect...
 			if (!success) {
@@ -86,7 +86,7 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 			}
 
 			// Success, try to connect
-			let pkt = new PACKET.CH.ENTER();
+			const pkt = new PACKET.CH.ENTER();
 			pkt.AID = Session.AID;
 			pkt.AuthCode = Session.AuthCode;
 			pkt.userLevel = Session.UserLevel;
@@ -157,7 +157,7 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 		pkt.sex = Session.Sex;
 
 		// Start sending ping
-		let ping = new PACKET.CZ.PING();
+		const ping = new PACKET.CZ.PING();
 		ping.AID = Session.AID;
 		Network.setPing(function () {
 			Network.sendPacket(ping);
@@ -167,13 +167,13 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 		Session.hasCart = false;
 
 		// Reset Announcement component
-		let Announce = UIManager.getComponent('Announce');
+		const Announce = UIManager.getComponent('Announce');
 		if (Announce) {
 			Announce.remove();
 		}
 
 		// Reset MapName component
-		let MapName = UIManager.getComponent('MapName');
+		const MapName = UIManager.getComponent('MapName');
 		if (MapName) {
 			MapName.remove();
 			MapName.resetState();
@@ -182,7 +182,7 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 		UIManager.getComponent('WinLoading').remove();
 
 		// Initialize window
-		let ChSel = CharSelect.getUI();
+		const ChSel = CharSelect.getUI();
 		ChSel.onExitRequest = onExitRequest;
 		ChSel.onConnectRequest = onConnectRequest;
 		ChSel.onCreateRequest = onCreateRequest;
@@ -267,7 +267,7 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 			return;
 		}
 
-		let pkt = new PACKET.CH.DELETE_CHAR3_CANCEL();
+		const pkt = new PACKET.CH.DELETE_CHAR3_CANCEL();
 		pkt.GID = charID;
 		Network.sendPacket(pkt);
 	}
@@ -282,7 +282,7 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 			return;
 		}
 
-		let pkt = new PACKET.CH.DELETE_CHAR3_RESERVED();
+		const pkt = new PACKET.CH.DELETE_CHAR3_RESERVED();
 		pkt.GID = charID;
 		Network.sendPacket(pkt);
 	}
@@ -304,12 +304,12 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 		// Delete the character
 		function deleteCharacter() {
 			if (PACKETVER.value > 20100803) {
-				let pkt = new PACKET.CH.DELETE_CHAR3();
+				const pkt = new PACKET.CH.DELETE_CHAR3();
 				pkt.GID = charID;
 				pkt.Birth = _inputValue.substring(2); // Server only needs the 6 digits
 				Network.sendPacket(pkt);
 			} else {
-				let pkt = new PACKET.CH.DELETE_CHAR();
+				const pkt = new PACKET.CH.DELETE_CHAR();
 				pkt.GID = charID;
 				pkt.key = _inputValue;
 				Network.sendPacket(pkt);
@@ -384,8 +384,8 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 		// Rendering
 		function render() {
 			// Calculate percent
-			let time_left = _time_end - Date.now();
-			let percent = Math.round(100 - time_left / 100);
+			const time_left = _time_end - Date.now();
+			const percent = Math.round(100 - time_left / 100);
 
 			// Delete character
 			if (percent >= 100) {
@@ -437,8 +437,8 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 	 * @param {number} index - slot where to create character
 	 */
 	function onCreateRequest(index) {
-		let ChSel = CharSelect.getUI();
-		let ChCre = CharCreate.getUI();
+		const ChSel = CharSelect.getUI();
+		const ChCre = CharCreate.getUI();
 		_creationSlot = index;
 		ChSel.remove();
 		ChCre.setAccountSex(Session.Sex);
@@ -500,7 +500,7 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 	 */
 	function onCreationSuccess(pkt) {
 		CharCreate.getUI().remove();
-		let ChSel = CharSelect.getUI();
+		const ChSel = CharSelect.getUI();
 		ChSel.addCharacter(pkt.charinfo);
 		ChSel.append();
 	}
@@ -734,7 +734,7 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate';
 		UIManager.getComponent('WinLoading').append();
 		Session.Character = entity;
 
-		let pkt = new PACKET.CH.SELECT_CHAR();
+		const pkt = new PACKET.CH.SELECT_CHAR();
 		pkt.CharNum = entity.CharNum;
 		Network.sendPacket(pkt);
 	}

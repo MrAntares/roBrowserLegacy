@@ -23,7 +23,7 @@ import Session from 'Engine/SessionStorage';
 	 */
 	let clan = {};
 
-	let RELATIONSHIP = {
+	const RELATIONSHIP = {
 		ALLY: 0,
 		ENEMY: 1
 	};
@@ -96,7 +96,7 @@ import Session from 'Engine/SessionStorage';
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_CLAN_CHAT
 	 */
 	function onNotifyClanChat(pkt) {
-		let clan_message =
+		const clan_message =
 			pkt.memberName && pkt.memberName?.length > 0 ? pkt.memberName + ': ' + pkt.message : pkt.message;
 		ChatBox.addText(clan_message, ChatBox.TYPE.CLAN, ChatBox.FILTER.CLAN);
 	}

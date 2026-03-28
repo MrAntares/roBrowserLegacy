@@ -27,12 +27,12 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 /**
 	 * Create Component
 	 */
-	let GraphicsOption = new UIComponent('GraphicsOption', htmlText, cssText);
+	const GraphicsOption = new UIComponent('GraphicsOption', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Graphics
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'GraphicsOption',
 		{
 			x: 300,
@@ -191,8 +191,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		if (GraphicsSettings.pixelPerfectSprites) {
 			// Only works to toggle on, because toggle off will not reload the sprites with the new settings
 			function reloadSprites() {
-				let gl = Renderer.getContext();
-				let sprFiles = MemoryManager.search(/\.spr$/i);
+				const gl = Renderer.getContext();
+				const sprFiles = MemoryManager.search(/\.spr$/i);
 				for (
 					let i = 0;
 					i < sprFiles.length;
@@ -311,7 +311,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Resizing window size
 	 */
 	function onUpdateScreenSize() {
-		let isFullScreen = Context.isFullScreen();
+		const isFullScreen = Context.isFullScreen();
 
 		GraphicsSettings.screensize = this.value;
 		GraphicsSettings.save();
@@ -330,7 +330,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 		// Resizing
 		if (Context.Is.POPUP) {
-			let size = GraphicsSettings.screensize.split('x');
+			const size = GraphicsSettings.screensize.split('x');
 
 			// Only resize/move if needed
 			if (size[0] != window.innerWidth && size[1] != window.innerHeight) {
@@ -341,7 +341,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	}
 
 	function onTabSwitch() {
-		let tabName = jQuery(this).data('tab');
+		const tabName = jQuery(this).data('tab');
 
 		GraphicsOption.ui.find('.tab-button').removeClass('selected');
 		jQuery(this).addClass('selected');
@@ -351,7 +351,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	}
 
 	function onResetToDefaults() {
-		let defaultSettings = GraphicsSettings.defaults;
+		const defaultSettings = GraphicsSettings.defaults;
 
 		Object.keys(defaultSettings).forEach(function (key) {
 			if (defaultSettings.hasOwnProperty(key)) {

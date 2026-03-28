@@ -30,7 +30,7 @@ import PACKET from 'Network/PacketStructure';
 /**
 	 * Create Component
 	 */
-	let ItemReform = new UIComponent('ItemReform', htmlText, cssText);
+	const ItemReform = new UIComponent('ItemReform', htmlText, cssText);
 
 	let ReformInfo = {};
 	let SelectedReformInfo = {};
@@ -56,7 +56,7 @@ import PACKET from 'Network/PacketStructure';
 	 */
 	ItemReform.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		let events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		ItemReform.ui.find('.information_details').hide();
@@ -118,10 +118,10 @@ import PACKET from 'Network/PacketStructure';
 	 * @returns {Array<Item>}
 	 */
 	function GetInventoryItemsById(id) {
-		let items = [];
-		let list = Inventory.getUI().list;
+		const items = [];
+		const list = Inventory.getUI().list;
 
-		for (var i = 0, count = list.length; i < count; ++i) {
+		for (let i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
 				items.push(list[i]);
 			}
@@ -140,9 +140,9 @@ import PACKET from 'Network/PacketStructure';
 			SelectedReformInfo = {};
 
 			// Assume lapine_list is already loaded and available
-			let reformids = DB.findReformListByItemID(pkt.ITID);
+			const reformids = DB.findReformListByItemID(pkt.ITID);
 
-			let item = Inventory.getUI().getItemById(pkt.ITID);
+			const item = Inventory.getUI().getItemById(pkt.ITID);
 
 			if (!item) {
 				return false;
@@ -165,7 +165,7 @@ import PACKET from 'Network/PacketStructure';
 	 * Checks inventory items against reform criteria.
 	 */
 	function checkReformCriteria() {
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 		availableMatList.empty(); // Clear the list before populating
 
 		let availableMats = 0;
@@ -210,11 +210,11 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the addition of an item in the UI from the available materials list.
 	 */
 	function onAddMaterialItem(item) {
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 
-		let it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 		// Add item details
-		let newItem = jQuery(
+		const newItem = jQuery(
 			'<div class="item" data-index="' +
 				item.index +
 				'">' +
@@ -245,8 +245,8 @@ import PACKET from 'Network/PacketStructure';
 	 * Handles the selection of a material in the UI.
 	 */
 	function onMaterialSelect() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
@@ -264,14 +264,14 @@ import PACKET from 'Network/PacketStructure';
 		// Update UI
 		UpdatePossibleReformUI(item, SelectedReformInfo);
 
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 
 		availableMatList
 			.find('.item')
 			.removeClass('selected')
 			.each(function () {
-				let resetIdx = parseInt(this.getAttribute('data-index'), 10);
-				let resetItem = Inventory.getUI().getItemByIndex(resetIdx);
+				const resetIdx = parseInt(this.getAttribute('data-index'), 10);
+				const resetItem = Inventory.getUI().getItemByIndex(resetIdx);
 				if (resetItem) {
 					Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
 						availableMatList
@@ -298,14 +298,14 @@ import PACKET from 'Network/PacketStructure';
 			return false;
 		}
 
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
 		}
 
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 
 		Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item_over.bmp', function (data) {
 			availableMatList.find('.item[data-index="' + item.index + '"]').css('backgroundImage', 'url(' + data + ')');
@@ -320,14 +320,14 @@ import PACKET from 'Network/PacketStructure';
 			return false;
 		}
 
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = Inventory.getUI().getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (!item) {
 			return false;
 		}
 
-		let availableMatList = ItemReform.ui.find('.available_material_list');
+		const availableMatList = ItemReform.ui.find('.available_material_list');
 
 		Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
 			availableMatList.find('.item[data-index="' + item.index + '"]').css('backgroundImage', 'url(' + data + ')');
@@ -345,7 +345,7 @@ import PACKET from 'Network/PacketStructure';
 		ItemReform.ui.find('.information_details').show();
 
 		// Determine the result item first
-		let resultItem = { ...item }; // Shallow copy of the item
+		const resultItem = { ...item }; // Shallow copy of the item
 		// Changes in the result item
 		resultItem.ITID = info.ResultItemId;
 		resultItem.RefiningLevel = item.RefiningLevel + info.ChangeRefineValue;
@@ -361,10 +361,10 @@ import PACKET from 'Network/PacketStructure';
 
 		// Update UI
 		// Result Item
-		let result_it = DB.getItemInfo(resultItem.ITID);
-		let resultItemDiv = ItemReform.ui.find('.result_item');
+		const result_it = DB.getItemInfo(resultItem.ITID);
+		const resultItemDiv = ItemReform.ui.find('.result_item');
 
-		let result_item_view = jQuery(
+		const result_item_view = jQuery(
 			'<div class="item resultitem" data-index="' + resultItem.ITID + '">' + '<div class="icon"></div>' + '</div>'
 		);
 		resultItemDiv.empty().append(result_item_view);
@@ -376,10 +376,10 @@ import PACKET from 'Network/PacketStructure';
 		});
 
 		// Base Item
-		let it = DB.getItemInfo(item.ITID);
-		let baseItemDiv = ItemReform.ui.find('.base_item');
+		const it = DB.getItemInfo(item.ITID);
+		const baseItemDiv = ItemReform.ui.find('.base_item');
 
-		let base_item_view = jQuery(
+		const base_item_view = jQuery(
 			'<div class="item "data-index="' + item.index + '">' + '<div class="icon"></div>' + '</div>'
 		);
 		baseItemDiv.empty().append(base_item_view);
@@ -396,22 +396,22 @@ import PACKET from 'Network/PacketStructure';
 			.text(DB.getItemName(resultItem, { showItemOptions: false }));
 
 		// Populate Material List
-		let materialDiv = ItemReform.ui.find('.material_list');
+		const materialDiv = ItemReform.ui.find('.material_list');
 
 		// Clear the existing items if needed
 		materialDiv.empty();
 
 		// Sort the materials in ascending order based on MaterialItemID
-		let sortedMaterials = info.Materials.slice().sort((a, b) => a.MaterialItemID - b.MaterialItemID);
+		const sortedMaterials = info.Materials.slice().sort((a, b) => a.MaterialItemID - b.MaterialItemID);
 
 		// Limit to a maximum of 6 items if needed
-		let limitedMaterials = sortedMaterials.slice(0, 6);
+		const limitedMaterials = sortedMaterials.slice(0, 6);
 
 		let withenoughMat = 0;
 		// Iterate through each material in the sorted array
 		limitedMaterials.forEach(material => {
-			let mat_it = DB.getItemInfo(material.MaterialItemID);
-			let mat_item = Inventory.getUI().getItemById(material.MaterialItemID);
+			const mat_it = DB.getItemInfo(material.MaterialItemID);
+			const mat_item = Inventory.getUI().getItemById(material.MaterialItemID);
 			let inventory_mat_count;
 
 			if (!mat_item) {
@@ -425,10 +425,10 @@ import PACKET from 'Network/PacketStructure';
 				withenoughMat++;
 			}
 
-			let itemClass = inventory_mat_count >= material.Amount ? '' : 'red';
+			const itemClass = inventory_mat_count >= material.Amount ? '' : 'red';
 
 			// Create a new div for each material
-			let newMat = jQuery(
+			const newMat = jQuery(
 				'<div class="item dummy" data-index="' +
 					material.MaterialItemID +
 					'">' +
@@ -465,7 +465,7 @@ import PACKET from 'Network/PacketStructure';
 	function onHoverDetails(event) {
 		if (SelectedReformInfo) {
 			// InformationString array
-			let infoText = SelectedReformInfo.InformationString.join('\n');
+			const infoText = SelectedReformInfo.InformationString.join('\n');
 
 			// Display the information in NpcBox
 			NpcBox.append();
@@ -473,9 +473,9 @@ import PACKET from 'Network/PacketStructure';
 
 			NpcBox.ui.css('height', '150px');
 			NpcBox.ui.find('.border').css('height', '139px');
-			let infoDetails = ItemReform.ui.find('.information_details');
-			let offset = infoDetails.offset();
-			let height = infoDetails.outerHeight();
+			const infoDetails = ItemReform.ui.find('.information_details');
+			const offset = infoDetails.offset();
+			const height = infoDetails.outerHeight();
 
 			// Initial position update
 			function updateNpcBoxPosition(e) {
@@ -517,10 +517,10 @@ import PACKET from 'Network/PacketStructure';
 		if (pkt) {
 			switch (pkt.result) {
 				case 0:
-					let item = Inventory.getUI().getItemByIndex(pkt.index);
+					const item = Inventory.getUI().getItemByIndex(pkt.index);
 
 					// Show Success effect
-					let EF_Init_Par = {
+					const EF_Init_Par = {
 						effectId: EffectConst.EF_NEW_SUCCESS,
 						ownerAID: Session.AID
 					};
@@ -559,7 +559,7 @@ import PACKET from 'Network/PacketStructure';
 	function onRequestReformClose() {
 		ItemReform.remove();
 
-		let pkt = new PACKET.CZ.CLOSE_REFORM_UI();
+		const pkt = new PACKET.CZ.CLOSE_REFORM_UI();
 		Network.sendPacket(pkt);
 	}
 
@@ -587,7 +587,7 @@ import PACKET from 'Network/PacketStructure';
 	 * Show item name when mouse is over
 	 */
 	function onItemOver(event) {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
 		let item;
 
 		if (this.classList.contains('dummy')) {
@@ -601,7 +601,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Get back data
-		let overlay = ItemReform.ui.find('.overlay');
+		const overlay = ItemReform.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -614,7 +614,7 @@ import PACKET from 'Network/PacketStructure';
 		}
 
 		// Get the offset of the UI container
-		let uiOffset = ItemReform.ui.offset();
+		const uiOffset = ItemReform.ui.offset();
 
 		// Update overlay position based on mouse coordinates and UI offset
 		function updateOverlayPosition(e) {
@@ -650,7 +650,7 @@ import PACKET from 'Network/PacketStructure';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let idx = parseInt(this.getAttribute('data-index'), 10);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
 		let item;
 
 		if (this.classList.contains('dummy')) {
@@ -698,7 +698,7 @@ import PACKET from 'Network/PacketStructure';
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		let compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {

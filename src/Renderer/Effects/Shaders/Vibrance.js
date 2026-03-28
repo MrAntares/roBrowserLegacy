@@ -31,7 +31,7 @@ let _program, _buffer;
 		gl.uniform3f(_program.uniform.uVibranceRGBBalance, 1.0, 1.0, 1.0);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		let posLoc = _program.attribute.aPosition;
+		const posLoc = _program.attribute.aPosition;
 		gl.enableVertexAttribArray(posLoc);
 		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
@@ -54,7 +54,7 @@ let _program, _buffer;
 			console.error('Error compiling Vibrance shader.', e);
 			return;
 		}
-		let quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+		const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);

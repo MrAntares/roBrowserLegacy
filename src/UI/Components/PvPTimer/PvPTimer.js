@@ -17,20 +17,20 @@ import html from './PvPTimer.html?raw';
 import css from './PvPTimer.css?raw';
 
 // Emoticons-style rendering stack
-	let PvPTimer = new UIComponent('PvPTimer', html, css);
+	const PvPTimer = new UIComponent('PvPTimer', html, css);
 
 	/* ================= CONFIG (OG values) ================= */
 
 	// var DIGIT_STEP = 24; // UNUSED
 
-	let TIMER_W = 300,
+	const TIMER_W = 300,
 		TIMER_H = 110;
-	let TA_W = 360,
+	const TA_W = 360,
 		TA_H = 128; // Match CSS
 
 	// OG font baselines
-	let TIMER_Y = 60;
-	let TA_Y = 80;
+	const TIMER_Y = 60;
+	const TA_Y = 80;
 
 	/* ================= CANVASES ================= */
 
@@ -47,7 +47,7 @@ import css from './PvPTimer.css?raw';
 	let _timerInterval = null;
 	let _startTs = 0;
 
-	let _layerEntity = new Entity();
+	const _layerEntity = new Entity();
 
 	let _taHideTimer = null;
 
@@ -131,12 +131,12 @@ import css from './PvPTimer.css?raw';
 	 * @returns {Object[]}
 	 */
 	function pickLayers(act, actionId, frameId) {
-		let a = act.actions[actionId];
+		const a = act.actions[actionId];
 		if (!a || !a.animations || !a.animations.length) {
 			return null;
 		}
 
-		let idx = frameId !== undefined ? frameId : (a.animations.length / 2) | 0;
+		const idx = frameId !== undefined ? frameId : (a.animations.length / 2) | 0;
 		if (idx >= a.animations.length) {
 			return null;
 		}
@@ -145,7 +145,7 @@ import css from './PvPTimer.css?raw';
 	}
 
 	function drawActionToCanvas(ctx, act, spr, actionId, x, y, frameId) {
-		let layers = pickLayers(act, actionId, frameId);
+		const layers = pickLayers(act, actionId, frameId);
 		if (!layers) {
 			return;
 		}
@@ -153,7 +153,7 @@ import css from './PvPTimer.css?raw';
 		// Gravity fonts: no anchor correction
 		SpriteRenderer.bind2DContext(ctx, x, y);
 
-		for (var i = 0; i < layers.length; i++) {
+		for (let i = 0; i < layers.length; i++) {
 			_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
 		}
 	}
@@ -172,18 +172,18 @@ import css from './PvPTimer.css?raw';
 
 		_timerCtx.clearRect(0, 0, TIMER_W, TIMER_H);
 
-		let m = Math.floor(seconds / 60);
-		let s = seconds % 60;
+		const m = Math.floor(seconds / 60);
+		const s = seconds % 60;
 
-		let text = m == 0 ? String(s).padStart(2, '0') : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+		const text = m == 0 ? String(s).padStart(2, '0') : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 
-		let digitWidth = 50;
-		let totalWidth = m == 0 ? 2 * digitWidth : 5 * digitWidth;
+		const digitWidth = 50;
+		const totalWidth = m == 0 ? 2 * digitWidth : 5 * digitWidth;
 
 		let x = (TIMER_W - totalWidth) >> 1;
 
-		for (var i = 0; i < text.length; i++) {
-			let a = timerCharToAction(text[i]);
+		for (let i = 0; i < text.length; i++) {
+			const a = timerCharToAction(text[i]);
 
 			if (!isNaN(a)) {
 				// Center '1' or narrow digits?
@@ -234,13 +234,13 @@ import css from './PvPTimer.css?raw';
 
 		_taCtx.clearRect(0, 0, TA_W, TA_H);
 
-		let action = _timeAtkAct.actions[0];
+		const action = _timeAtkAct.actions[0];
 		if (!action || !action.animations) {
 			return;
 		}
 
 		let frame = 0;
-		let count = action.animations.length;
+		const count = action.animations.length;
 
 		function run() {
 			_taCtx.clearRect(0, 0, TA_W, TA_H);

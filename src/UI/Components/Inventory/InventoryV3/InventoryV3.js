@@ -45,7 +45,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	/**
 	 * Create Component
 	 */
-	var InventoryV3 = new UIComponent('InventoryV3', htmlText, cssText);
+	const InventoryV3 = new UIComponent('InventoryV3', htmlText, cssText);
 
 	/**
 	 * Tab constant
@@ -76,12 +76,12 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	var _realSize = 0;
+	let _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'InventoryV3',
 		{
 			x: 0,
@@ -108,7 +108,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	InventoryV3.itemlock = _preferences.itemlock;
 	InventoryV3.itemcomp = _preferences.itemcomp;
 	InventoryV3.npcsalelock = _preferences.npcsalelock;
-	var lockOverlayTimeout;
+	let lockOverlayTimeout;
 
 	/**
 	 * Initialize UI
@@ -148,21 +148,21 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 
 		// Set initial selected tab based on _preferences.tab
 		jQuery('.tabs button').removeClass('selected');
-		var initialTab = this.ui.find('.tabs button').eq(_preferences.tab);
+		const initialTab = this.ui.find('.tabs button').eq(_preferences.tab);
 		initialTab.addClass('selected');
 
 		// Buttons
-		var lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
+		const lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
 		Client.loadFile(DB.INTERFACE_PATH + lockImg, function (data) {
 			InventoryV3.ui.find('.item_drop_lock').css('backgroundImage', 'url(' + data + ')');
 		});
 
-		var compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp';
+		const compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp';
 		Client.loadFile(DB.INTERFACE_PATH + compImg, function (data) {
 			InventoryV3.ui.find('.item_compare').css('backgroundImage', 'url(' + data + ')');
 		});
 
-		var lockSale = _preferences.npcsalelock
+		const lockSale = _preferences.npcsalelock
 			? InventoryV3.ui.find('.deallock_on')
 			: InventoryV3.ui.find('.deallock_off');
 		if (_preferences.tab != InventoryV3.TAB.FAV) {
@@ -259,7 +259,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 				break;
 		}
 
-		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+		const changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
 		if (changeUI) {
 			// Only applicable to BasicInfoV4 and BasicInfoV5
 			changeUI.hide();
@@ -279,7 +279,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 			this.ui.find('.new_item').css('backgroundImage', '');
 		}
 
-		var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+		const changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
 		if (changeUI) {
 			// Only applicable to BasicInfoV4 and BasicInfoV5
 			changeUI.hide();
@@ -316,21 +316,21 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Force scroll clamping
 	 */
 	InventoryV3.updateScroll = function updateScroll() {
-		var host = this.ui.find('.scroll-host');
+		const host = this.ui.find('.scroll-host');
 		if (host.length) {
-			var node = host[0];
-			var content = host.find('.content');
-			var ticker = 0;
+			const node = host[0];
+			const content = host.find('.content');
+			let ticker = 0;
 
-			var clamp = function () {
-				var maxScroll = Math.max(0, node.scrollHeight - node.clientHeight);
+			const clamp = function () {
+				const maxScroll = Math.max(0, node.scrollHeight - node.clientHeight);
 
 				// If we have items and the last item is not reaching the bottom of the host
 				// and we are scrolled down, pull the list down.
-				var lastItem = content.find('.item:last');
+				const lastItem = content.find('.item:last');
 				if (lastItem.length) {
-					var itemRect = lastItem[0].getBoundingClientRect();
-					var hostRect = node.getBoundingClientRect();
+					const itemRect = lastItem[0].getBoundingClientRect();
+					const hostRect = node.getBoundingClientRect();
 
 					// If the bottom of the list is above the bottom of the host, but we can scroll up...
 					if (itemRect.bottom < hostRect.bottom && node.scrollTop > 0) {
@@ -363,8 +363,8 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @returns {Item}
 	 */
 	InventoryV3.getItemById = function GetItemById(id) {
-		var i, count;
-		var list = InventoryV3.list;
+		let i, count;
+		const list = InventoryV3.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].ITID === id) {
@@ -382,8 +382,8 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @returns {Item}
 	 */
 	InventoryV3.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list = InventoryV3.list;
+		let i, count;
+		const list = InventoryV3.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -428,10 +428,10 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * if the item index is exist you should clear it;[skybook888]
 	 */
 	InventoryV3.setItems = function SetItems(items) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = items.length; i < count; ++i) {
-			var object = this.getItemByIndex(items[i].index);
+			const object = this.getItemByIndex(items[i].index);
 			if (object) {
 				this.removeItem(object.index, object.count);
 			}
@@ -449,14 +449,14 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {object} Item
 	 */
 	InventoryV3.addItem = function AddItem(item) {
-		var object = this.getItemByIndex(item.index);
-		var hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
+		let object = this.getItemByIndex(item.index);
+		const hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
 		if (hasRefineFlag) {
 			// Refine is already imported
 		}
 
 		// Check if the item was equipped
-		var equippedIndex = InventoryV3.equippedItems.indexOf(item.index);
+		const equippedIndex = InventoryV3.equippedItems.indexOf(item.index);
 		if (equippedIndex !== -1) {
 			// Remove from equipped tracker
 			InventoryV3.equippedItems.splice(equippedIndex, 1);
@@ -464,7 +464,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 			// Mark as new item
 			InventoryV3.newItems.push(item.index);
 
-			var changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
+			const changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
 			if (changeUI) {
 				// Only applicable to BasicInfoV4 and BasicInfoV5
 				changeUI.show();
@@ -472,10 +472,10 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		}
 
 		if (hasRefineFlag && Refine.isRefineOpen()) {
-			var refinecount = Refine.ui.find('.materials .item[data-index="' + item.ITID + '"] .mat_count');
-			var previousDataText = refinecount.text().split('/')[0];
-			var previousData = parseInt(previousDataText, 10);
-			var newCount = previousData + item.count;
+			const refinecount = Refine.ui.find('.materials .item[data-index="' + item.ITID + '"] .mat_count');
+			const previousDataText = refinecount.text().split('/')[0];
+			const previousData = parseInt(previousDataText, 10);
+			const newCount = previousData + item.count;
 			refinecount.empty().text(newCount + '/1');
 		}
 
@@ -529,7 +529,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {object} Item
 	 */
 	InventoryV3.addItemSub = function AddItemSub(item) {
-		var tab = getItemTab(item);
+		let tab = getItemTab(item);
 
 		if (item.PlaceETCTab) {
 			tab = InventoryV3.TAB.FAV;
@@ -542,7 +542,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		}
 
 		// Check once if this item is in the equip switch list
-		var isInSwitchList = InventoryV3.equipswitchlist.some(function (equipItem) {
+		const isInSwitchList = InventoryV3.equipswitchlist.some(function (equipItem) {
 			return equipItem.index === item.index;
 		});
 
@@ -552,8 +552,8 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		}
 
 		if (tab === _preferences.tab) {
-			var it = DB.getItemInfo(item.ITID);
-			var content = this.ui.find('.container .content');
+			const it = DB.getItemInfo(item.ITID);
+			const content = this.ui.find('.container .content');
 
 			content.append(
 				'<div class="item" data-index="' +
@@ -640,7 +640,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {number} count
 	 */
 	InventoryV3.removeItem = function RemoveItem(index, count) {
-		var item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
 		// do not remove item from inventory
@@ -675,7 +675,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {number} count
 	 */
 	InventoryV3.updateItem = function UpdateItem(index, count) {
-		var item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -705,16 +705,16 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {Item} item
 	 */
 	InventoryV3.useItem = function UseItem(item) {
-		var hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
+		const hasRefineFlag = Configs.get('enableRefineUI') || PACKETVER.value >= 20161012;
 		if (hasRefineFlag) {
 			// Refine is already imported
 		}
 
-		var hasEnchantGradeFlag = PACKETVER.value >= 20200916;
+		const hasEnchantGradeFlag = PACKETVER.value >= 20200916;
 		if (hasEnchantGradeFlag) {
 			// EnchantGrade is already imported
 		}
-		var hasEnchantFlag = PACKETVER.value >= 20211103;
+		const hasEnchantFlag = PACKETVER.value >= 20211103;
 		if (hasEnchantFlag) {
 			// EnchantUI is already imported
 		}
@@ -774,15 +774,15 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Extend inventory window size
 	 */
 	function onResize() {
-		var ui = InventoryV3.ui;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var _Interval;
+		const ui = InventoryV3.ui;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraX = 23 + 16 + 16 - 30;
+			const extraX = 23 + 16 + 16 - 30;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 6), 9);
@@ -811,7 +811,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Modify tab, filter display entries
 	 */
 	function onSwitchTab() {
-		var idx = jQuery(this).index();
+		const idx = jQuery(this).index();
 		_preferences.tab = parseInt(idx, 10);
 		requestFilter();
 
@@ -844,7 +844,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Hide/show inventory's content
 	 */
 	function onToggleReduction() {
-		var ui = InventoryV3.ui;
+		const ui = InventoryV3.ui;
 
 		if (_realSize) {
 			ui.find('.panel').show();
@@ -861,13 +861,13 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Update tab, reset inventory content
 	 */
 	function requestFilter() {
-		var host = InventoryV3.ui.find('.scroll-host');
+		const host = InventoryV3.ui.find('.scroll-host');
 		host.scrollTop(0);
 
 		InventoryV3.ui.find('.container .content').empty();
 
-		var list = InventoryV3.list;
-		var i, count;
+		const list = InventoryV3.list;
+		let i, count;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			InventoryV3.addItemSub(list[i]);
@@ -882,7 +882,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {event}
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -957,8 +957,8 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = InventoryV3.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = InventoryV3.getItemByIndex(idx);
 
 		if (!item) {
 			return;
@@ -974,8 +974,8 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		}
 
 		// Get back data
-		var pos = jQuery(this).position();
-		var overlay = InventoryV3.ui.find('.overlay');
+		const pos = jQuery(this).position();
+		const overlay = InventoryV3.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -1000,16 +1000,16 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = InventoryV3.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = InventoryV3.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.querySelector('.icon')
+		const img = new Image();
+		const url = this.querySelector('.icon')
 			.style.backgroundImage.match(/\((.*?)\)/)[1]
 			.replace(/('|")/g, '');
 		img.decoding = 'async';
@@ -1044,8 +1044,8 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = InventoryV3.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = InventoryV3.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -1078,7 +1078,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		var compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && InventoryV3.itemcomp) {
@@ -1095,14 +1095,14 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Alt Right Click Request Transfer
 	 */
 	function transferItemToOtherUI(item) {
-		var isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
-		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
+		const isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
+		const isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
 
 		if (!item) {
 			return false;
 		}
 
-		var count = item.count || 1;
+		const count = item.count || 1;
 
 		if (isStorageOpen) {
 			Storage.reqAddItem(item.index, count);
@@ -1117,8 +1117,8 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Ask to use an item
 	 */
 	function onItemUsed(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = InventoryV3.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = InventoryV3.getItemByIndex(index);
 
 		if (item) {
 			InventoryV3.useItem(item);
@@ -1135,21 +1135,21 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	function onItemClick(event) {
 		// Shift + LEFT CLICK → insert <ItemName> in chat
 		if (event.shiftKey && event.which === 1) {
-			var idx = parseInt(jQuery(this).attr('data-index'), 10);
-			var item = InventoryV3.getItemByIndex(idx);
+			const idx = parseInt(jQuery(this).attr('data-index'), 10);
+			const item = InventoryV3.getItemByIndex(idx);
 			if (!item) {
 				return false;
 			}
 
 			item.name = DB.getItemName(item);
-			var link =
+			const link =
 				'<span data-item="' +
 				DB.createItemLink(item) +
 				'" class="item-link" style="color:#A9B95F;">&lt;' +
 				item.name +
 				'&gt;</span>';
 
-			var msgBox = ChatBox.ui.find('.input-chatbox')[0];
+			const msgBox = ChatBox.ui.find('.input-chatbox')[0];
 			if (msgBox) {
 				msgBox.innerHTML += link + ' ';
 				msgBox.focus();
@@ -1165,7 +1165,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Handle drop event on tabs
 	 */
 	function onTabDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -1184,11 +1184,11 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		}
 
 		// Retrieve the data-tab attribute using native JavaScript
-		var targetTab = event.target.getAttribute('data-tab');
-		var itemfav = targetTab === 'fav' ? 0 : 1;
+		const targetTab = event.target.getAttribute('data-tab');
+		const itemfav = targetTab === 'fav' ? 0 : 1;
 
 		// Send Request to client
-		var pkt = new PACKET.CZ.INVENTORY_TAB();
+		const pkt = new PACKET.CZ.INVENTORY_TAB();
 		pkt.item_index = item.index;
 		pkt.favorite = itemfav;
 		Network.sendPacket(pkt);
@@ -1200,14 +1200,14 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {number} newValue - boolean for PlaceETCTab (1 or 0)
 	 */
 	InventoryV3.updatePlaceETCTab = function (itemIndex, newValue) {
-		var item = InventoryV3.getItemByIndex(itemIndex);
+		const item = InventoryV3.getItemByIndex(itemIndex);
 
 		if (!item) {
 			return;
 		}
 
 		if (newValue) {
-			var favoriteval;
+			let favoriteval;
 			switch (item.type) {
 				case ItemType.HEALING:
 				case ItemType.USABLE:
@@ -1245,11 +1245,11 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 */
 	function onInventoryExpand() {
 		// Hardcoded IDs in client
-		var itemIds = [25791, 25792, 25793];
-		var itemforexpand = null;
+		const itemIds = [25791, 25792, 25793];
+		let itemforexpand = null;
 
 		// Find the first non-null item
-		for (var i = 0; i < itemIds.length; i++) {
+		for (let i = 0; i < itemIds.length; i++) {
 			itemforexpand = InventoryV3.getItemById(itemIds[i]);
 			if (itemforexpand) {
 				break;
@@ -1263,7 +1263,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		}
 
 		// If item is present, send request to client
-		var pkt = new PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE();
+		const pkt = new PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE();
 		Network.sendPacket(pkt);
 	}
 
@@ -1317,7 +1317,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Sends a request to expand the inventory size.
 	 */
 	function InventoryExpandReq() {
-		var pkt = new PACKET.CZ.REQ_EXTEND_BODYITEM_SIZE();
+		const pkt = new PACKET.CZ.REQ_EXTEND_BODYITEM_SIZE();
 		Network.sendPacket(pkt);
 	}
 
@@ -1325,7 +1325,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Cancels the inventory expansion request.
 	 */
 	function InventoryExpandCancel() {
-		var pkt = new PACKET.CZ.CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE();
+		const pkt = new PACKET.CZ.CLOSE_MSGBOX_EXTEND_BODYITEM_SIZE();
 		Network.sendPacket(pkt);
 	}
 
@@ -1369,7 +1369,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		InventoryV3.itemlock = _preferences.itemlock;
 
 		// Determine the image path based on the toggled state
-		var lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
+		const lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
 
 		// Load the image and update the button background
 		Client.loadFile(DB.INTERFACE_PATH + lockImg, function (data) {
@@ -1389,7 +1389,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		InventoryV3.itemcomp = _preferences.itemcomp;
 
 		// Determine the image path based on the toggled state
-		var compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp';
+		const compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp';
 
 		// Load the image and update the button background
 		Client.loadFile(DB.INTERFACE_PATH + compImg, function (data) {
@@ -1433,20 +1433,20 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {number} index - The index of the item to add
 	 */
 	InventoryV3.addItemtoSwitch = function (index) {
-		var item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 		if (!item) {
 			console.warn('Item with index ' + index + ' not found in inventory.');
 			return;
 		}
 
 		// Check if an item with the same location already exists
-		var existingItemIndex = this.equipswitchlist.findIndex(function (existingItem) {
+		const existingItemIndex = this.equipswitchlist.findIndex(function (existingItem) {
 			return existingItem.location === item.location;
 		});
 
 		// If an item with the same location exists, unequip it and remove it from the list
 		if (existingItemIndex > -1) {
-			var existingItem = this.equipswitchlist[existingItemIndex];
+			const existingItem = this.equipswitchlist[existingItemIndex];
 			SwitchEquip.unEquip(existingItem.index, existingItem.location);
 			this.equipswitchlist.splice(existingItemIndex, 1);
 		}
@@ -1454,7 +1454,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		// Add the new item to the list
 		this.equipswitchlist.push(item);
 
-		var content = this.ui.find('.container .content');
+		const content = this.ui.find('.container .content');
 		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/bg_change.bmp', function (data) {
 			content.find('.item[data-index="' + item.index + '"] .switch1').css('backgroundImage', 'url(' + data + ')');
 		});
@@ -1472,24 +1472,24 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {number} index - The index of the item to remove.
 	 */
 	InventoryV3.removeItemFromSwitch = function (index) {
-		var item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 		if (!item) {
 			console.warn('Item with index ' + index + ' not found in inventory.');
 			return;
 		}
 
 		// Check if the item exists in the equip switch list
-		var existingItemIndex = this.equipswitchlist.findIndex(function (existingItem) {
+		const existingItemIndex = this.equipswitchlist.findIndex(function (existingItem) {
 			return existingItem.index === item.index;
 		});
 
 		if (existingItemIndex > -1) {
-			var content = this.ui.find('.container .content');
+			const content = this.ui.find('.container .content');
 			content.find('.item[data-index="' + item.index + '"] .switch1').css('backgroundImage', 'none');
 			content.find('.item[data-index="' + item.index + '"] .switch2').css('backgroundImage', 'none');
 
 			SwitchEquip.unEquip(item.index, item.location);
-			var removedItem = this.equipswitchlist.splice(existingItemIndex, 1)[0];
+			const removedItem = this.equipswitchlist.splice(existingItemIndex, 1)[0];
 
 			ChatBox.addText(DB.getItemName(item) + ' ' + DB.getMessage(3144), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
@@ -1505,10 +1505,10 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * Equip all items in the equip switch list
 	 */
 	InventoryV3.equipAllFromSwitchList = function equipAllFromSwitchList() {
-		var equipSwitchList = InventoryV3.equipswitchlist;
+		const equipSwitchList = InventoryV3.equipswitchlist;
 
-		for (var i = 0; i < equipSwitchList.length; i++) {
-			var item = equipSwitchList[i];
+		for (let i = 0; i < equipSwitchList.length; i++) {
+			const item = equipSwitchList[i];
 			if (item) {
 				SwitchEquip.equip(item, item.location, true);
 			}

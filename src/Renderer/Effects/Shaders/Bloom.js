@@ -21,7 +21,7 @@ import compositeFS from './GLSL/BloomUpsampling.fs?raw';
 let _programs = {};
 	let _buffer;
 	let _internalFbo;
-	let _downsampleFactor = 0.25; // 25% resolution for performance and softer blur
+	const _downsampleFactor = 0.25; // 25% resolution for performance and softer blur
 
 	/**
 	 * Vertex Shader: Common quad
@@ -59,7 +59,7 @@ let _programs = {};
 		// Update uniforms
 		gl.uniform1f(_programs.prefilter.uniform.uBloomThreshold, 0.88);
 		gl.uniform1f(_programs.prefilter.uniform.uBloomSoftKnee, 0.45);
-		let boxsampleFactor = 4.0;
+		const boxsampleFactor = 4.0;
 		gl.uniform2f(
 			_programs.prefilter.uniform.uTexelSize,
 			(1.0 / _internalFbo.width) * boxsampleFactor,
@@ -122,7 +122,7 @@ let _programs = {};
 			return;
 		}
 
-		let quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+		const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);

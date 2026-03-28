@@ -26,7 +26,7 @@ import Intro from 'UI/Components/Intro/Intro';
 /**
  * MapViewer namespace
  */
-var MapViewer = {};
+const MapViewer = {};
 
 /**
  * @var {object} Entity to target
@@ -45,9 +45,9 @@ MapViewer.init = function Init() {
 	// Increase max intersection test (because of the max zoom)
 	Altitude.MAX_INTERSECT_COUNT = 500;
 
-	var ready = false;
-	var maptoload = '';
-	var q = new Queue();
+	let ready = false;
+	let maptoload = '';
+	const q = new Queue();
 
 	// Resources sharing
 	if (Configs.get('API')) {
@@ -139,7 +139,7 @@ MapViewer.init = function Init() {
 
 		// Initialize dropdown
 		Client.search(/data\\([^\0]+\.rsw)/gi, function (mapList) {
-			var i, count;
+			let i, count;
 
 			mapList.sort();
 

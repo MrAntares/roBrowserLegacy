@@ -21,7 +21,7 @@ import cssText from './Sense.css?raw';
 /**
 	 * Create Component
 	 */
-	let Sense = new UIComponent('Sense', htmlText, cssText);
+	const Sense = new UIComponent('Sense', htmlText, cssText);
 
 	let Elements = [];
 	let Sizes = [];
@@ -30,7 +30,7 @@ import cssText from './Sense.css?raw';
 	/**
 	 * @var {object} model
 	 */
-	let _model = {
+	const _model = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -146,7 +146,7 @@ import cssText from './Sense.css?raw';
 		this.ui.find('#value_attr').text(Elements[pkt.property]);
 
 		//PROPS
-		let water = this.ui.find('#element_water');
+		const water = this.ui.find('#element_water');
 		water.removeClass('element_good');
 		water.removeClass('element_bad');
 		if (pkt.propertyTable.water < 100) {
@@ -156,7 +156,7 @@ import cssText from './Sense.css?raw';
 		}
 		water.text(DB.getMessage(415) + ': ' + pkt.propertyTable.water);
 
-		let wind = this.ui.find('#element_wind');
+		const wind = this.ui.find('#element_wind');
 		wind.removeClass('element_good');
 		wind.removeClass('element_bad');
 		if (pkt.propertyTable.wind < 100) {
@@ -166,7 +166,7 @@ import cssText from './Sense.css?raw';
 		}
 		wind.text(DB.getMessage(418) + ': ' + pkt.propertyTable.wind);
 
-		let dark = this.ui.find('#element_shadow');
+		const dark = this.ui.find('#element_shadow');
 		dark.removeClass('element_good');
 		dark.removeClass('element_bad');
 		if (pkt.propertyTable.dark < 100) {
@@ -176,7 +176,7 @@ import cssText from './Sense.css?raw';
 		}
 		dark.text(DB.getMessage(421) + ': ' + pkt.propertyTable.dark);
 
-		let earth = this.ui.find('#element_earth');
+		const earth = this.ui.find('#element_earth');
 		earth.removeClass('element_good');
 		earth.removeClass('element_bad');
 		if (pkt.propertyTable.earth < 100) {
@@ -186,7 +186,7 @@ import cssText from './Sense.css?raw';
 		}
 		earth.text(DB.getMessage(416) + ': ' + pkt.propertyTable.earth);
 
-		let poison = this.ui.find('#element_poison');
+		const poison = this.ui.find('#element_poison');
 		poison.removeClass('element_good');
 		poison.removeClass('element_bad');
 		if (pkt.propertyTable.poison < 100) {
@@ -196,7 +196,7 @@ import cssText from './Sense.css?raw';
 		}
 		poison.text(DB.getMessage(419) + ': ' + pkt.propertyTable.poison);
 
-		let mental = this.ui.find('#element_ghost');
+		const mental = this.ui.find('#element_ghost');
 		mental.removeClass('element_good');
 		mental.removeClass('element_bad');
 		if (pkt.propertyTable.mental < 100) {
@@ -206,7 +206,7 @@ import cssText from './Sense.css?raw';
 		}
 		mental.text(DB.getMessage(422) + ': ' + pkt.propertyTable.mental);
 
-		let fire = this.ui.find('#element_fire');
+		const fire = this.ui.find('#element_fire');
 		fire.removeClass('element_good');
 		fire.removeClass('element_bad');
 		if (pkt.propertyTable.fire < 100) {
@@ -216,7 +216,7 @@ import cssText from './Sense.css?raw';
 		}
 		fire.text(DB.getMessage(417) + ': ' + pkt.propertyTable.fire);
 
-		let saint = this.ui.find('#element_holy');
+		const saint = this.ui.find('#element_holy');
 		saint.removeClass('element_good');
 		saint.removeClass('element_bad');
 		if (pkt.propertyTable.saint < 100) {
@@ -226,7 +226,7 @@ import cssText from './Sense.css?raw';
 		}
 		saint.text(DB.getMessage(420) + ': ' + pkt.propertyTable.saint);
 
-		let undead = this.ui.find('#element_undead');
+		const undead = this.ui.find('#element_undead');
 		undead.removeClass('element_good');
 		undead.removeClass('element_bad');
 		if (pkt.propertyTable.undead < 100) {

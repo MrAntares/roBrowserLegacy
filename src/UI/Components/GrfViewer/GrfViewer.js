@@ -29,7 +29,7 @@ import '../../../../applications/api/api';
 	/**
 	 * Create GRFViewer component
 	 */
-	let Viewer = new UIComponent('GRFViewer', htmlText, cssText);
+	const Viewer = new UIComponent('GRFViewer', htmlText, cssText);
 
 	/**
 	 * @var {number} The display is done asynchronus, keep reference of the thread
@@ -45,10 +45,10 @@ import '../../../../applications/api/api';
 	 * Initialize Component
 	 */
 	Viewer.init = function init() {
-		let ui = this.ui;
+		const ui = this.ui;
 
 		Thread.hook('THREAD_READY', function () {
-			let remoteClient = Configs.get('remoteClient');
+			const remoteClient = Configs.get('remoteClient');
 			if (remoteClient) {
 				Thread.send('SET_HOST', remoteClient);
 				Client.init([]);
@@ -131,7 +131,7 @@ import '../../../../applications/api/api';
 	 * Initialize tool bar
 	 */
 	function initToolBar() {
-		let ui = Viewer.ui;
+		const ui = Viewer.ui;
 
 		// Path submit
 		ui.find('#path').keydown(function (event) {
@@ -146,7 +146,7 @@ import '../../../../applications/api/api';
 
 		// History before
 		ui.find('#previous').click(function () {
-			let path = History.previous();
+			const path = History.previous();
 			if (path) {
 				moveToDirectory(path, false);
 			}
@@ -154,7 +154,7 @@ import '../../../../applications/api/api';
 
 		// History after
 		ui.find('#next').click(function () {
-			let path = History.next();
+			const path = History.next();
 			if (path) {
 				moveToDirectory(path, false);
 			}
@@ -170,7 +170,7 @@ import '../../../../applications/api/api';
 			})
 			.keydown(function (event) {
 				if (event.which === KEYS.ENTER) {
-					let value = this.value.replace(/^\s+|\s+$/g, '');
+					const value = this.value.replace(/^\s+|\s+$/g, '');
 					if (value.length > 2) {
 						moveToDirectory('search/' + value, true);
 					}
@@ -185,13 +185,13 @@ import '../../../../applications/api/api';
 	 * @param {object} event
 	 */
 	function showContextMenu(iconElement, event) {
-		let contextmenu = Viewer.ui.find('#contextmenu');
-		let overlay = Viewer.ui.find('.overlay');
-		let header = contextmenu.find('.header:first');
-		let open = contextmenu.find('.open:first');
-		let save = contextmenu.find('.save:first');
-		let info = contextmenu.find('.info:first');
-		let icon = jQuery(iconElement);
+		const contextmenu = Viewer.ui.find('#contextmenu');
+		const overlay = Viewer.ui.find('.overlay');
+		const header = contextmenu.find('.header:first');
+		const open = contextmenu.find('.open:first');
+		const save = contextmenu.find('.save:first');
+		const info = contextmenu.find('.info:first');
+		const icon = jQuery(iconElement);
 
 		contextmenu
 			.css({
@@ -246,7 +246,7 @@ import '../../../../applications/api/api';
 
 			Client.getFile(icon.data('path'), function (buffer) {
 				// Create temporary url, move to it and release it
-				let url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
+				const url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
 				save.attr({ href: url, download: icon.text().trim() });
 			});
 		}
@@ -319,9 +319,9 @@ import '../../../../applications/api/api';
 		}
 
 		// Build regex
-		let ui = Viewer.ui;
-		let directory = path.replace(/\//g, '\\\\');
-		let reg = directory + '([^(\\0|\\\\)]+)';
+		const ui = Viewer.ui;
+		const directory = path.replace(/\//g, '\\\\');
+		const reg = directory + '([^(\\0|\\\\)]+)';
 
 		// Clean windows
 		ui.find('#path').val(path);
@@ -339,7 +339,7 @@ import '../../../../applications/api/api';
 		ui.find('#info').hide();
 
 		// Changing action to avoid conflict
-		let actionID = ++_actionID;
+		const actionID = ++_actionID;
 
 		// Send request
 		Client.search(new RegExp(reg, 'gi'), function (list) {
@@ -358,10 +358,10 @@ import '../../../../applications/api/api';
 	 */
 	function search(keyword) {
 		// Escape regex, and complete it
-		let search = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
-		let reg = 'data\\\\([^(\\0\\)]+)?' + search + '([^(\\0|\\\\)]+)?';
-		let ui = Viewer.ui;
-		let actionID = ++_actionID;
+		const search = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
+		const reg = 'data\\\\([^(\\0\\)]+)?' + search + '([^(\\0|\\\\)]+)?';
+		const ui = Viewer.ui;
+		const actionID = ++_actionID;
 
 		// Clean path
 		ui.find('.icon').remove();
@@ -463,7 +463,7 @@ import '../../../../applications/api/api';
 	 * @return {string} icon name
 	 */
 	function getFileIcon(filename) {
-		let ext = filename.split(/\.([^\.]+)$/)[1] || 'dir';
+		const ext = filename.split(/\.([^\.]+)$/)[1] || 'dir';
 		let img = 'file';
 
 		switch (ext.toLowerCase()) {
@@ -517,7 +517,7 @@ import '../../../../applications/api/api';
 	 */
 	function displayImagesThumbnail() {
 		// Stored action to know if user act during the process
-		let actionID = _actionID + 0;
+		const actionID = _actionID + 0;
 
 		function cleanUp() {
 			URL.revokeObjectURL(this.src);
@@ -529,9 +529,9 @@ import '../../../../applications/api/api';
 				return;
 			}
 
-			let nodes = jQuery('.img:lt(5)');
+			const nodes = jQuery('.img:lt(5)');
 			let load = 0;
-			let total = nodes.length;
+			const total = nodes.length;
 
 			// All thumbnails are already rendered
 			if (!total) {
@@ -540,18 +540,18 @@ import '../../../../applications/api/api';
 
 			// Work with current loaded files
 			nodes.each(function () {
-				let self = jQuery(this);
+				const self = jQuery(this);
 
 				Client.getFile(self.data('path'), function (data) {
 					// Clean from memory...
 					Memory.remove(self.data('path'));
 					self.removeClass('img').addClass('thumb');
 
-					let url = getImageThumbnail(self.data('path'), data);
+					const url = getImageThumbnail(self.data('path'), data);
 
 					// Display image
 					if (url) {
-						let img = self.find('img:first').get(0);
+						const img = self.find('img:first').get(0);
 						if (url.match(/^blob\:/)) {
 							img.onload = img.onerror = img.onabort = cleanUp;
 						}
@@ -579,21 +579,21 @@ import '../../../../applications/api/api';
 	 */
 	function getImageThumbnail(filename, data) {
 		let canvas;
-		let ext = filename.substr(-3).toLowerCase();
+		const ext = filename.substr(-3).toLowerCase();
 
 		switch (ext) {
 			// Sprite support
 			case 'spr':
-				let spr = new Sprite(data);
+				const spr = new Sprite(data);
 				canvas = spr.getCanvasFromFrame(0);
 				return canvas.toDataURL();
 
 			// Palette support
 			case 'pal':
 				canvas = document.createElement('canvas');
-				let ctx = canvas.getContext('2d');
+				const ctx = canvas.getContext('2d');
 				let imageData, i, count;
-				let palette = new Uint8Array(data);
+				const palette = new Uint8Array(data);
 
 				// 16 * 16 = 256
 				canvas.width = 16;
@@ -612,7 +612,7 @@ import '../../../../applications/api/api';
 
 			// Targa support
 			case 'tga':
-				let tga = new Targa();
+				const tga = new Targa();
 				tga.load(new Uint8Array(data));
 				return tga.getDataURL();
 
@@ -633,15 +633,15 @@ import '../../../../applications/api/api';
 	 * User click on an audio file, play it
 	 */
 	function onAudioClick() {
-		let ui = Viewer.ui;
-		let path = this.getAttribute('data-path');
-		let box = ui.find('#preview .box');
+		const ui = Viewer.ui;
+		const path = this.getAttribute('data-path');
+		const box = ui.find('#preview .box');
 
 		ui.find('#progress').show();
 
 		Client.loadFile(path, function (url) {
 			// Create audio
-			let audio = document.createElement('audio');
+			const audio = document.createElement('audio');
 			audio.src = url;
 			audio.controls = true;
 			audio.play();
@@ -667,9 +667,9 @@ import '../../../../applications/api/api';
 	 * User click on an image, render it
 	 */
 	function onImageClick() {
-		let ui = Viewer.ui;
-		let path = this.getAttribute('data-path');
-		let box = ui.find('#preview .box');
+		const ui = Viewer.ui;
+		const path = this.getAttribute('data-path');
+		const box = ui.find('#preview .box');
 		ui.find('#progress').show();
 
 		Client.getFile(path, function (data) {
@@ -678,7 +678,7 @@ import '../../../../applications/api/api';
 			switch (path.substr(-3)) {
 				// Sprite support
 				case 'spr':
-					let spr = new Sprite(data);
+					const spr = new Sprite(data);
 					box.css('top', 200);
 
 					for (i = 0, count = spr.frames.length; i < count; ++i) {
@@ -691,9 +691,9 @@ import '../../../../applications/api/api';
 
 				// Palette support
 				case 'pal':
-					let palette = new Uint8Array(data);
+					const palette = new Uint8Array(data);
 					canvas = document.createElement('canvas');
-					let ctx = canvas.getContext('2d');
+					const ctx = canvas.getContext('2d');
 
 					canvas.width = 128;
 					canvas.height = 128;
@@ -708,15 +708,15 @@ import '../../../../applications/api/api';
 
 				// Targa support
 				case 'tga':
-					let tga = new Targa();
+					const tga = new Targa();
 					tga.load(new Uint8Array(data));
 					box.css('top', jQuery(window).height() / 2 - 64).append(tga.getCanvas());
 					break;
 
 				// Image Support
 				default:
-					let url = URL.createObjectURL(new Blob([data], { type: 'image/' + path.substr(-3) }));
-					let img = new Image();
+					const url = URL.createObjectURL(new Blob([data], { type: 'image/' + path.substr(-3) }));
+					const img = new Image();
 					img.decoding = 'async';
 					img.src = url;
 					img.onload = function () {
@@ -740,11 +740,11 @@ import '../../../../applications/api/api';
 	/**
 	 * User click on a model, render it using ModelViewer
 	 */
-	let onObjectClick = (function onObjectClickClosure() {
+	const onObjectClick = (function onObjectClickClosure() {
 		let ready = false;
-		let element = document.createElement('div');
+		const element = document.createElement('div');
 
-		let App = new ROBrowser({
+		const App = new ROBrowser({
 			target: element,
 			type: ROBrowser.TYPE.FRAME,
 			application: ROBrowser.APP.MODELVIEWER,
@@ -793,8 +793,8 @@ import '../../../../applications/api/api';
 		}
 
 		return function onObjectClick() {
-			let ui = Viewer.ui;
-			let path = this.getAttribute('data-path').replace(/\\/g, '/');
+			const ui = Viewer.ui;
+			const path = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			// Show iframe
 			ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
@@ -834,11 +834,11 @@ import '../../../../applications/api/api';
 	/**
 	 * User click on an effect, render it using StrViewer
 	 */
-	let onEffectClick = (function onEffectClickClosure() {
+	const onEffectClick = (function onEffectClickClosure() {
 		let ready = false;
-		let element = document.createElement('div');
+		const element = document.createElement('div');
 
-		let App = new ROBrowser({
+		const App = new ROBrowser({
 			target: element,
 			type: ROBrowser.TYPE.FRAME,
 			application: ROBrowser.APP.STRVIEWER,
@@ -887,8 +887,8 @@ import '../../../../applications/api/api';
 		}
 
 		return function onEffectClick() {
-			let ui = Viewer.ui;
-			let path = this.getAttribute('data-path').replace(/\\/g, '/');
+			const ui = Viewer.ui;
+			const path = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			// Show iframe
 			ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
@@ -927,11 +927,11 @@ import '../../../../applications/api/api';
 	/**
 	 * User click on a map, render it using MapViewer
 	 */
-	let onWorldClick = (function onWorldClick() {
+	const onWorldClick = (function onWorldClick() {
 		let ready = false;
-		let element = document.createElement('div');
+		const element = document.createElement('div');
 
-		let App = new ROBrowser({
+		const App = new ROBrowser({
 			target: element,
 			type: ROBrowser.TYPE.FRAME,
 			application: ROBrowser.APP.MAPVIEWER,
@@ -993,8 +993,8 @@ import '../../../../applications/api/api';
 		}
 
 		return function onWorldClick() {
-			let ui = Viewer.ui;
-			let path = this.getAttribute('data-path').replace(/\\/g, '/');
+			const ui = Viewer.ui;
+			const path = this.getAttribute('data-path').replace(/\\/g, '/');
 
 			ui.find('#progress').show();
 			element.style.display = 'block';
@@ -1048,10 +1048,10 @@ import '../../../../applications/api/api';
 	 *  User click on text, display it
 	 */
 	function onTextClick() {
-		let ui = Viewer.ui;
-		let path = this.getAttribute('data-path');
-		let progress = ui.find('#progress');
-		let box = ui.find('#preview .box');
+		const ui = Viewer.ui;
+		const path = this.getAttribute('data-path');
+		const progress = ui.find('#progress');
+		const box = ui.find('#preview .box');
 
 		progress.show();
 
@@ -1087,11 +1087,11 @@ import '../../../../applications/api/api';
 	/**
 	 * User click on a Granny model, render it using GrannyModelViewer
 	 */
-	let onGrannyClick = (function onGrannyClickClosure() {
+	const onGrannyClick = (function onGrannyClickClosure() {
 		let ready = false;
-		let element = document.createElement('div');
+		const element = document.createElement('div');
 
-		let App = new ROBrowser({
+		const App = new ROBrowser({
 			target: element,
 			type: ROBrowser.TYPE.FRAME,
 			application: ROBrowser.APP.GRANNYMODELVIEWER,

@@ -17,7 +17,7 @@ import ConvertItems from 'UI/Components/MakeItemSelection/ItemConvertSelection/C
 /**
 	 * Create MakeModelMessage namespace
 	 */
-	let MakeModelMessage = new UIComponent('MakeModelMessage', htmlText, cssText);
+	const MakeModelMessage = new UIComponent('MakeModelMessage', htmlText, cssText);
 
 	/**
 	 * Initialize UI

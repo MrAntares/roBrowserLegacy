@@ -22,7 +22,7 @@ import cssText from './CharCreatev2.css?raw';
 /**
 	 * Create Chararacter Selection namespace
 	 */
-	let CharCreatev2 = new UIComponent('CharCreatev2', htmlText, cssText);
+	const CharCreatev2 = new UIComponent('CharCreatev2', htmlText, cssText);
 
 	/**
 	 * @var {boolean} account sex
@@ -32,7 +32,7 @@ import cssText from './CharCreatev2.css?raw';
 	/**
 	 * @var {object} chargen info
 	 */
-	let _chargen = {
+	const _chargen = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -136,7 +136,7 @@ import cssText from './CharCreatev2.css?raw';
 	 * Send back informations to send the packet
 	 */
 	function create() {
-		let ui = CharCreatev2.ui;
+		const ui = CharCreatev2.ui;
 
 		CharCreatev2.onCharCreationRequest(
 			ui.find('input').val(),

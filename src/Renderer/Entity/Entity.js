@@ -34,8 +34,8 @@ import entityDropEffect from './EntityDropEffect';
 import entityEmblem from './EntityEmblem';
 import EntityManager from 'Renderer/EntityManager';
 
-let vec3 = glMatrix.vec3;
-let mat4 = glMatrix.mat4;
+const vec3 = glMatrix.vec3;
+const mat4 = glMatrix.mat4;
 
 
 // Mixin utility function
@@ -261,9 +261,9 @@ class Entity {
 
 		// Apply any pending transformations that arrived before entity spawned
 		// We must do this BEFORE setting the job, so UpdateBody knows if it's a transform.
-		let pendingTrans = EntityManager.pendingTransformations;
+		const pendingTrans = EntityManager.pendingTransformations;
 		if (unit.GID && pendingTrans && unit.GID in pendingTrans) {
-			let pending = pendingTrans[unit.GID];
+			const pending = pendingTrans[unit.GID];
 			if (pending.monster_transform !== undefined) {
 				this._monster_transform = pending.monster_transform;
 			}
@@ -327,7 +327,7 @@ class Entity {
 					break;
 
 				case 'state':
-					let actions = [this.ACTION.IDLE, this.ACTION.DIE, this.ACTION.SIT];
+					const actions = [this.ACTION.IDLE, this.ACTION.DIE, this.ACTION.SIT];
 					this.setAction({
 						action: actions[unit.state],
 						frame: 0,
@@ -481,9 +481,9 @@ class Entity {
 				break;
 
 			case Entity.VT.DEAD:
-				let is_pc = this.objecttype === Entity.TYPE_PC;
-				let is_falcon = this.objecttype === Entity.TYPE_FALCON;
-				let is_wug = this.objecttype === Entity.TYPE_WUG;
+				const is_pc = this.objecttype === Entity.TYPE_PC;
+				const is_falcon = this.objecttype === Entity.TYPE_FALCON;
+				const is_wug = this.objecttype === Entity.TYPE_WUG;
 				if (!is_falcon) {
 					this.setAction({
 						action: this.ACTION.DIE,
@@ -520,8 +520,8 @@ class Entity {
 	 * @param {number} to_y
 	 */
 	Entity.prototype.lookTo = function LookTo(to_x, to_y) {
-		let x = Math.round(to_x - this.position[0]);
-		let y = Math.round(to_y - this.position[1]);
+		const x = Math.round(to_x - this.position[0]);
+		const y = Math.round(to_y - this.position[1]);
 		let dir;
 
 		if (x >= 1) {
@@ -534,7 +534,7 @@ class Entity {
 			dir = y >= 1 ? 3 : y === 0 ? 2 : 1;
 		}
 
-		let prevDirection = this.direction;
+		const prevDirection = this.direction;
 		if (prevDirection === dir) {
 			// turn head straight
 			this.headDir = 0;

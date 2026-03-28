@@ -18,14 +18,14 @@ import html from './PvPCount.html?raw';
 import css from './PvPCount.css?raw';
 
 // Emoticons-style rendering stack
-	let PvPCount = new UIComponent('PvPCount', html, css);
+	const PvPCount = new UIComponent('PvPCount', html, css);
 
 	/* ================= CONFIG (OG values) ================= */
 
 	//var DIGIT_STEP = 45; // UNUSED
-	let RANK_W = 240,
+	const RANK_W = 240,
 		RANK_H = 96;
-	let RANK_Y = 52;
+	const RANK_Y = 52;
 
 	/* ================= CANVASES ================= */
 
@@ -35,7 +35,7 @@ import css from './PvPCount.css?raw';
 
 	let _rankfontAct, _rankfontSpr;
 
-	let _layerEntity = new Entity();
+	const _layerEntity = new Entity();
 
 	let ranking = 0;
 	let total = 0;
@@ -105,7 +105,7 @@ import css from './PvPCount.css?raw';
 	 * @returns {Object[]}
 	 */
 	function pickLayers(act, actionId) {
-		let a = act.actions[actionId];
+		const a = act.actions[actionId];
 		if (!a || !a.animations || !a.animations.length) {
 			return null;
 		}
@@ -113,7 +113,7 @@ import css from './PvPCount.css?raw';
 	}
 
 	function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
-		let layers = pickLayers(act, actionId);
+		const layers = pickLayers(act, actionId);
 		if (!layers) {
 			return;
 		}
@@ -121,7 +121,7 @@ import css from './PvPCount.css?raw';
 		// Gravity fonts: no anchor correction
 		SpriteRenderer.bind2DContext(ctx, x, y);
 
-		for (var i = 0; i < layers.length; i++) {
+		for (let i = 0; i < layers.length; i++) {
 			_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
 		}
 	}
@@ -140,14 +140,14 @@ import css from './PvPCount.css?raw';
 
 		_rankCtx.clearRect(0, 0, RANK_W, RANK_H);
 
-		let parts = text.split('/');
-		let ranking = parts[0];
-		let total = parts[1];
-		let step = 28; // Compact spacing
-		let slashStep = 28;
+		const parts = text.split('/');
+		const ranking = parts[0];
+		const total = parts[1];
+		const step = 28; // Compact spacing
+		const slashStep = 28;
 
 		// Calculate total width to center it
-		let totalWidth = ranking.length * step + slashStep + total.length * step;
+		const totalWidth = ranking.length * step + slashStep + total.length * step;
 		let x = (RANK_W - totalWidth) >> 1;
 
 		// 1. Render Ranking (Higher)

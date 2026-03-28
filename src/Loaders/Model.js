@@ -16,12 +16,12 @@ import glMatrix from 'Utils/gl-matrix';
 /**
 	 * Import
 	 */
-	let vec3 = glMatrix.vec3;
-	let mat3 = glMatrix.mat3;
-	let mat4 = glMatrix.mat4;
+	const vec3 = glMatrix.vec3;
+	const mat3 = glMatrix.mat3;
+	const mat4 = glMatrix.mat4;
 
 	// Cached has animation check
-	let _hasanimation = false;
+	const _hasanimation = false;
 
 	/**
 	 * Model class loader
@@ -63,8 +63,8 @@ import glMatrix from 'Utils/gl-matrix';
 		let fp, header;
 		let i, count;
 		let nodes, posKeyframes, volumebox;
-		let textures = [];
-		let additionalTextures = [];
+		const textures = [];
+		const additionalTextures = [];
 
 		// Read header.
 		fp = new BinaryReader(data);
@@ -164,7 +164,7 @@ import glMatrix from 'Utils/gl-matrix';
 		if (this.version >= 2.3) {
 			for (i = 0; i < this.main_node.textures.length; i++) {
 				if (!this.textures.includes(this.main_node.textures[i])) {
-					let texture = this.main_node.textures[i];
+					const texture = this.main_node.textures[i];
 					this.textures.push(texture);
 					this.main_node.textures[i] = this.textures.indexOf(texture);
 				}
@@ -172,7 +172,7 @@ import glMatrix from 'Utils/gl-matrix';
 			this.nodes.forEach(node => {
 				for (i = 0; i < node.textures.length; i++) {
 					if (typeof node.textures[i] !== 'number') {
-						let texture = node.textures[i];
+						const texture = node.textures[i];
 						if (!this.textures.includes(texture)) {
 							this.textures.push(texture);
 						}
@@ -195,7 +195,7 @@ import glMatrix from 'Utils/gl-matrix';
 	 * @param {number} height
 	 */
 	RSM.prototype.createInstance = function CreateInstance(model, width, height) {
-		let matrix = mat4.create();
+		const matrix = mat4.create();
 
 		mat4.identity(matrix);
 		mat4.translate(matrix, matrix, [model.position[0] + width, model.position[1], model.position[2] + height]);
@@ -226,10 +226,10 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	RSM.prototype.calcBoundingBox = function CalcBoundingBox() {
 		let i, j, count;
-		let box = this.box;
-		let matrix = mat4.create();
-		let nodes = this.nodes;
-		let min = Math.min,
+		const box = this.box;
+		const matrix = mat4.create();
+		const nodes = this.nodes;
+		const min = Math.min,
 			max = Math.max;
 		count = nodes.length;
 
@@ -251,14 +251,14 @@ import glMatrix from 'Utils/gl-matrix';
 	 * Compile Model
 	 */
 	RSM.prototype.compile = function Compile() {
-		let nodes = this.nodes;
-		let instances = this.instances;
+		const nodes = this.nodes;
+		const instances = this.instances;
 
-		let node_count = nodes.length;
-		let instance_count = instances.length;
+		const node_count = nodes.length;
+		const instance_count = instances.length;
 		let i, j, k;
 
-		let meshes = new Array(node_count * instance_count);
+		const meshes = new Array(node_count * instance_count);
 
 		// Generate Mesh
 		for (i = 0, k = 0; i < node_count; ++i) {
@@ -283,8 +283,8 @@ import glMatrix from 'Utils/gl-matrix';
 			return true;
 		}
 
-		for (var i = 0; i < this.nodes.length; i++) {
-			let node = this.nodes[i];
+		for (let i = 0; i < this.nodes.length; i++) {
+			const node = this.nodes[i];
 			if (
 				(node.rotKeyframes && node.rotKeyframes.length > 0) ||
 				(node.posKeyframes && node.posKeyframes.length > 0) ||
@@ -463,8 +463,8 @@ import glMatrix from 'Utils/gl-matrix';
 			textureKeyFrameGroup = new Array(count);
 
 			for (i = 0; i < count; ++i) {
-				let textureId = fp.readLong();
-				let amountTextureAnimations = fp.readLong();
+				const textureId = fp.readLong();
+				const amountTextureAnimations = fp.readLong();
 
 				// Initialize textureKeyFrameGroup[i] if it doesn't exist
 				if (!textureKeyFrameGroup[i]) {
@@ -477,8 +477,8 @@ import glMatrix from 'Utils/gl-matrix';
 				}
 
 				for (j = 0; j < amountTextureAnimations; ++j) {
-					let type = fp.readLong();
-					let amountFrames = fp.readLong();
+					const type = fp.readLong();
+					const amountFrames = fp.readLong();
 
 					// Initialize textureKeyFrameGroup[i][textureId][type] if it doesn't exist
 					if (!textureKeyFrameGroup[i][textureId][type]) {
@@ -515,12 +515,12 @@ import glMatrix from 'Utils/gl-matrix';
 	RSM.Node.prototype.calcBoundingBox = function NodeCalcBoundingBox(_matrix) {
 		// Define variables
 		let i, j, count;
-		let v = vec3.create();
-		let box = this.box;
-		let nodes = this.main.nodes;
-		let matrix = mat4.create();
-		let vertices = this.vertices;
-		let max = Math.max,
+		const v = vec3.create();
+		const box = this.box;
+		const nodes = this.main.nodes;
+		const matrix = mat4.create();
+		const vertices = this.vertices;
+		const max = Math.max,
 			min = Math.min;
 		let x, y, z;
 
@@ -582,19 +582,19 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	RSM.Node.prototype.compile = function (instance_matrix) {
 		let matrix;
-		let modelViewMat = mat4.create();
-		let normalMat = mat4.create();
+		const modelViewMat = mat4.create();
+		const normalMat = mat4.create();
 
-		let textures = this.textures;
-		let faces = this.faces;
-		let vertices = this.vertices;
+		const textures = this.textures;
+		const faces = this.faces;
+		const vertices = this.vertices;
 
-		let mesh = {};
-		let mesh_size = [];
+		const mesh = {};
+		const mesh_size = [];
 
 		let vert, face_normal;
-		let shadeGroup = new Array(32);
-		let shadeGroupUsed = new Array(32);
+		const shadeGroup = new Array(32);
+		const shadeGroupUsed = new Array(32);
 		let i, x, y, z, count;
 
 		// Calculate matrix
@@ -690,7 +690,7 @@ import glMatrix from 'Utils/gl-matrix';
 		let prev = keyframes[0];
 		let next = null;
 
-		for (var i = 0; i < keyframes.length; i++) {
+		for (let i = 0; i < keyframes.length; i++) {
 			if (keyframes[i].frame > frame) {
 				next = keyframes[i];
 				break;
@@ -703,12 +703,12 @@ import glMatrix from 'Utils/gl-matrix';
 		}
 
 		// Calculate interpolation factor
-		let frameDiff = next.frame - prev.frame;
+		const frameDiff = next.frame - prev.frame;
 		if (frameDiff === 0) {
 			return prev.q;
 		}
 
-		let t = (frame - prev.frame) / frameDiff;
+		const t = (frame - prev.frame) / frameDiff;
 
 		// SLERP between quaternions
 		return slerpQuat(prev.q, next.q, t);
@@ -718,7 +718,7 @@ import glMatrix from 'Utils/gl-matrix';
 	 * SLERP quaternion interpolation
 	 */
 	function slerpQuat(q1, q2, t) {
-		let result = new Float32Array(4);
+		const result = new Float32Array(4);
 
 		let dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
 
@@ -733,8 +733,8 @@ import glMatrix from 'Utils/gl-matrix';
 			scale0 = 1.0 - t;
 			scale1 = t * q2Sign;
 		} else {
-			let theta = Math.acos(dot);
-			let sinTheta = Math.sin(theta);
+			const theta = Math.acos(dot);
+			const sinTheta = Math.sin(theta);
 			scale0 = Math.sin((1.0 - t) * theta) / sinTheta;
 			scale1 = (Math.sin(t * theta) / sinTheta) * q2Sign;
 		}
@@ -768,7 +768,7 @@ import glMatrix from 'Utils/gl-matrix';
 		let prev = keyframes[0];
 		let next = null;
 
-		for (var i = 0; i < keyframes.length; i++) {
+		for (let i = 0; i < keyframes.length; i++) {
 			if (keyframes[i].frame > frame) {
 				next = keyframes[i];
 				break;
@@ -781,12 +781,12 @@ import glMatrix from 'Utils/gl-matrix';
 		}
 
 		// Calculate interpolation factor
-		let frameDiff = next.frame - prev.frame;
+		const frameDiff = next.frame - prev.frame;
 		if (frameDiff === 0) {
 			return [prev.px, prev.py, prev.pz];
 		}
 
-		let t = (frame - prev.frame) / frameDiff;
+		const t = (frame - prev.frame) / frameDiff;
 
 		// Linear interpolation
 		return [
@@ -817,7 +817,7 @@ import glMatrix from 'Utils/gl-matrix';
 		let prev = keyframes[0];
 		let next = null;
 
-		for (var i = 0; i < keyframes.length; i++) {
+		for (let i = 0; i < keyframes.length; i++) {
 			if (keyframes[i].Frame > frame) {
 				next = keyframes[i];
 				break;
@@ -830,12 +830,12 @@ import glMatrix from 'Utils/gl-matrix';
 		}
 
 		// Calculate interpolation factor
-		let frameDiff = next.Frame - prev.Frame;
+		const frameDiff = next.Frame - prev.Frame;
 		if (frameDiff === 0) {
 			return prev.Scale;
 		}
 
-		let t = (frame - prev.Frame) / frameDiff;
+		const t = (frame - prev.Frame) / frameDiff;
 
 		// Linear interpolation
 		return [
@@ -854,19 +854,19 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	RSM.Node.prototype.compileAtFrame = function (instance_matrix, frame, animLen) {
 		let matrix;
-		let modelViewMat = mat4.create();
-		let normalMat = mat4.create();
+		const modelViewMat = mat4.create();
+		const normalMat = mat4.create();
 
-		let textures = this.textures;
-		let faces = this.faces;
-		let vertices = this.vertices;
+		const textures = this.textures;
+		const faces = this.faces;
+		const vertices = this.vertices;
 
-		let mesh = {};
-		let mesh_size = [];
+		const mesh = {};
+		const mesh_size = [];
 
 		let vert, face_normal;
-		let shadeGroup = new Array(32);
-		let shadeGroupUsed = new Array(32);
+		const shadeGroup = new Array(32);
+		const shadeGroupUsed = new Array(32);
 		let i, x, y, z, count;
 
 		// Calculate animated matrix
@@ -875,11 +875,11 @@ import glMatrix from 'Utils/gl-matrix';
 		mat4.translate(matrix, matrix, [-this.main.box.center[0], -this.main.box.max[1], -this.main.box.center[2]]);
 
 		// Calculate node transform matrix with animation
-		let nodeMatrix = mat4.create();
+		const nodeMatrix = mat4.create();
 		mat4.identity(nodeMatrix);
 
 		// Position animation
-		let animPos = getPositionAtFrame(this.posKeyframes, frame, animLen);
+		const animPos = getPositionAtFrame(this.posKeyframes, frame, animLen);
 		if (animPos) {
 			mat4.translate(nodeMatrix, nodeMatrix, animPos);
 		} else {
@@ -887,7 +887,7 @@ import glMatrix from 'Utils/gl-matrix';
 		}
 
 		// Rotation animation
-		let animRot = getRotationAtFrame(this.rotKeyframes, frame, animLen);
+		const animRot = getRotationAtFrame(this.rotKeyframes, frame, animLen);
 		if (animRot) {
 			mat4.rotateQuat(nodeMatrix, nodeMatrix, animRot);
 		} else if (this.rotKeyframes && this.rotKeyframes.length > 0) {
@@ -897,7 +897,7 @@ import glMatrix from 'Utils/gl-matrix';
 		}
 
 		// Scale animation
-		let animScale = getScaleAtFrame(this.scaleKeyFrames, frame, animLen);
+		const animScale = getScaleAtFrame(this.scaleKeyFrames, frame, animLen);
 		if (animScale) {
 			mat4.scale(nodeMatrix, nodeMatrix, animScale);
 		} else {
@@ -978,15 +978,15 @@ import glMatrix from 'Utils/gl-matrix';
 	 * @param {number} frame - Animation frame
 	 */
 	RSM.prototype.compileAtFrame = function CompileAtFrame(frame) {
-		let nodes = this.nodes;
-		let instances = this.instances;
-		let animLen = this.animLen || 1;
+		const nodes = this.nodes;
+		const instances = this.instances;
+		const animLen = this.animLen || 1;
 
-		let node_count = nodes.length;
-		let instance_count = instances.length;
+		const node_count = nodes.length;
+		const instance_count = instances.length;
 		let i, j, k;
 
-		let meshes = new Array(node_count * instance_count);
+		const meshes = new Array(node_count * instance_count);
 
 		// Generate Mesh at frame
 		for (i = 0, k = 0; i < node_count; ++i) {
@@ -1023,9 +1023,9 @@ import glMatrix from 'Utils/gl-matrix';
 	RSM.Node.prototype.calcNormal_FLAT = function calcNormalFlat(out, normalMat, groupUsed) {
 		let i, j, count;
 		let face;
-		let temp_vec = vec3.create();
-		let faces = this.faces;
-		let vertices = this.vertices;
+		const temp_vec = vec3.create();
+		const faces = this.faces;
+		const vertices = this.vertices;
 
 		for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
 			face = faces[i];
@@ -1053,10 +1053,10 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	RSM.Node.prototype.calcNormal_SMOOTH = function calcNormalSmooth(normal, groupUsed, group) {
 		let i, j, k, l, v, x, y, z, len;
-		let size = this.vertices.length;
-		let faces = this.faces;
+		const size = this.vertices.length;
+		const faces = this.faces;
 		let face, norm;
-		let count = faces.length;
+		const count = faces.length;
 
 		for (j = 0; j < 32; ++j) {
 			// Group not used, skip it
@@ -1102,11 +1102,11 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	RSM.Node.prototype.generate_mesh_FLAT = function generateMeshFlat(vert, norm, mesh) {
 		let a, b, o, i, j, k, t, count;
-		let faces = this.faces;
-		let textures = this.textures;
-		let tver = this.tvertices;
-		let alpha = this.main.alpha;
-		let offset = [];
+		const faces = this.faces;
+		const textures = this.textures;
+		const tver = this.tvertices;
+		const alpha = this.main.alpha;
+		const offset = [];
 		let face, idx, tidx, out;
 
 		// Setup mesh slot array
@@ -1149,11 +1149,11 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	RSM.Node.prototype.generate_mesh_SMOOTH = function generateMeshSmooth(vert, shadeGroup, mesh) {
 		let a, b, o, i, j, t, count;
-		let faces = this.faces;
-		let textures = this.textures;
-		let tver = this.tvertices;
-		let alpha = this.main.alpha;
-		let offset = [];
+		const faces = this.faces;
+		const textures = this.textures;
+		const tver = this.tvertices;
+		const alpha = this.main.alpha;
+		const offset = [];
 		let norm, face, idx, tidx, out;
 
 		// Setup mesh slot array

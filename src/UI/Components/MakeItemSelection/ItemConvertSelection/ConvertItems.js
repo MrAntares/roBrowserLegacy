@@ -24,7 +24,7 @@ import cssText from './ConvertItems.css?raw';
 /**
 	 * @var {Preference} structure to save
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ConvertItems',
 		{
 			x: 200,
@@ -37,7 +37,7 @@ import cssText from './ConvertItems.css?raw';
 	/**
 	 * Create ConvertItems namespace
 	 */
-	let ConvertItems = new UIComponent('ConvertItems', htmlText, cssText);
+	const ConvertItems = new UIComponent('ConvertItems', htmlText, cssText);
 
 	/**
 	 * Store Convert Items items
@@ -87,7 +87,7 @@ import cssText from './ConvertItems.css?raw';
 	};
 
 	ConvertItems.addItem = function addItem(item) {
-		let it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 
 		this.ui
 			.find('.container .content')
@@ -127,7 +127,7 @@ import cssText from './ConvertItems.css?raw';
 	 * @param {number} count
 	 */
 	ConvertItems.updateItem = function UpdateItem(index, count) {
-		let item = this.getItemByIndex(index);
+		const item = this.getItemByIndex(index);
 
 		if (!item) {
 			return;
@@ -145,7 +145,7 @@ import cssText from './ConvertItems.css?raw';
 		this.material.splice(this.material.indexOf(item), 1);
 		this.ui.find('.item[data-index="' + item.index + '"]').remove();
 
-		let content = this.ui.find('.container .content');
+		const content = this.ui.find('.container .content');
 		if (content.height() === content[0].scrollHeight) {
 			this.ui.find('.hide').show();
 		}
@@ -159,7 +159,7 @@ import cssText from './ConvertItems.css?raw';
 	 */
 	ConvertItems.getItemByIndex = function getItemByIndex(index) {
 		let i, count;
-		let list = ConvertItems.material;
+		const list = ConvertItems.material;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -175,7 +175,7 @@ import cssText from './ConvertItems.css?raw';
 		ItemListWindowSelection.remove();
 		MakeModelMessage.remove();
 
-		let inforMaterialList = {
+		const inforMaterialList = {
 			Type: 0,
 			Action: valid_material ? 1 : 0,
 			MaterialList: valid_material ? this.material : []
@@ -198,13 +198,13 @@ import cssText from './ConvertItems.css?raw';
 	 * Extend ConvertItems window size
 	 */
 	function onResize() {
-		let ui = ConvertItems.ui;
-		let top = ui.position().top;
+		const ui = ConvertItems.ui;
+		const top = ui.position().top;
 		let lastHeight = 0;
 		let _Interval;
 
 		function resizing() {
-			let extraY = 31 + 19 - 30;
+			const extraY = 31 + 19 - 30;
 			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
@@ -262,7 +262,7 @@ import cssText from './ConvertItems.css?raw';
 	 * @param {object} Item
 	 */
 	ConvertItems.addMaterial = function AddMaterial(item) {
-		let object = getItemIndexById(item.index);
+		const object = getItemIndexById(item.index);
 
 		if (object < 0) {
 			if (this.addItem(item)) {
@@ -279,7 +279,7 @@ import cssText from './ConvertItems.css?raw';
 	 * @param {number} index in Storage
 	 */
 	ConvertItems.removeItem = function removeItem(index, count) {
-		let i = getItemIndexById(index);
+		const i = getItemIndexById(index);
 		let item;
 
 		// Not found
@@ -315,15 +315,15 @@ import cssText from './ConvertItems.css?raw';
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let i = getItemIndexById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(index);
 
 		if (i === -1) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		let img = new Image();
+		const img = new Image();
 		let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
 		img.decoding = 'async';
@@ -351,8 +351,8 @@ import cssText from './ConvertItems.css?raw';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let i = getItemIndexById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(index);
 
 		if (i === -1) {
 			return false;
@@ -416,7 +416,7 @@ import cssText from './ConvertItems.css?raw';
 
 		item = data.data;
 		// validar se esta marcado
-		let valid_select_all = !ItemListWindowSelection.getSelectAll();
+		const valid_select_all = !ItemListWindowSelection.getSelectAll();
 
 		if (item.count > 1 && valid_select_all) {
 			InputBox.append();
@@ -469,8 +469,8 @@ import cssText from './ConvertItems.css?raw';
 	 * Mouse over item, display name and informations
 	 */
 	function onItemOver() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let i = getItemIndexById(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(idx);
 
 		// Not found
 		if (i < 0) {
@@ -478,9 +478,9 @@ import cssText from './ConvertItems.css?raw';
 		}
 
 		// Get back data
-		let item = ConvertItems.material[i];
-		let pos = jQuery(this).position();
-		let overlay = ConvertItems.ui.find('.overlay');
+		const item = ConvertItems.material[i];
+		const pos = jQuery(this).position();
+		const overlay = ConvertItems.ui.find('.overlay');
 
 		// Display box
 		overlay.show();

@@ -12,7 +12,7 @@
 /**
 	 * @var {Array} cache history
 	 */
-	let _history = [];
+	const _history = [];
 
 	/**
 	 * @var {number} position in history

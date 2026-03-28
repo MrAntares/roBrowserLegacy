@@ -36,12 +36,12 @@ import Entity from 'Renderer/Entity/Entity';
 	/**
 	 * Create Component
 	 */
-	var EquipmentV2 = new UIComponent('EquipmentV2', htmlText, cssText);
+	const EquipmentV2 = new UIComponent('EquipmentV2', htmlText, cssText);
 
 	/**
 	 * @var {Preference} window preferences
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'EquipmentV2',
 		{
 			x: 480,
@@ -56,26 +56,26 @@ import Entity from 'Renderer/Entity/Entity';
 	/**
 	 * @var {Array} equipment list
 	 */
-	var _list = {};
+	let _list = {};
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
 	 */
-	var _ctx = [];
+	const _ctx = [];
 
 	/**
 	 * @var {boolean} show equipment to other people ?
 	 */
-	var _showEquip = false;
+	let _showEquip = false;
 
 	/**
 	 * @var {jQuery} button that appeared when level up
 	 */
-	var _btnLevelUp;
+	let _btnLevelUp;
 
-	var tabLinks = new Array();
-	var contentDivs = new Array();
-	var currentTabId = 'general'; // Variable to store the current tab's ID
+	const tabLinks = new Array();
+	const contentDivs = new Array();
+	let currentTabId = 'general'; // Variable to store the current tab's ID
 
 	/**
 	 * Initialize UI
@@ -85,10 +85,10 @@ import Entity from 'Renderer/Entity/Entity';
 		_ctx.push(this.ui.find('canvas')[1].getContext('2d'));
 
 		// Grab the tab links and content divs from the page
-		var tabListItems = document.getElementById('tabs').childNodes;
+		const tabListItems = document.getElementById('tabs').childNodes;
 		for (var i = 0; i < tabListItems.length; i++) {
 			if (tabListItems[i].nodeName == 'DIV') {
-				var tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
+				const tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
 				var id = getHash(tabLink.getAttribute('href'));
 				tabLinks[id] = tabLink;
 				contentDivs[id] = document.getElementById(id);
@@ -174,11 +174,11 @@ import Entity from 'Renderer/Entity/Entity';
 	};
 
 	function showTab() {
-		var selectedId = getHash(this.getAttribute('href'));
+		const selectedId = getHash(this.getAttribute('href'));
 
 		// Highlight the selected tab, and dim all others.
 		// Also show the selected content div, and hide all others.
-		for (var id in contentDivs) {
+		for (const id in contentDivs) {
 			if (id == selectedId) {
 				tabLinks[id].className = 'tab selected';
 				contentDivs[id].className = 'content';
@@ -196,7 +196,7 @@ import Entity from 'Renderer/Entity/Entity';
 	}
 
 	function getFirstChildWithTagName(element, tagName) {
-		for (var i = 0; i < element.childNodes.length; i++) {
+		for (let i = 0; i < element.childNodes.length; i++) {
 			if (element.childNodes[i].nodeName == tagName.toUpperCase()) {
 				return element.childNodes[i];
 			}
@@ -204,7 +204,7 @@ import Entity from 'Renderer/Entity/Entity';
 	}
 
 	function getHash(url) {
-		var hashPos = url.lastIndexOf('#');
+		const hashPos = url.lastIndexOf('#');
 		return url.substring(hashPos + 1);
 	}
 
@@ -225,7 +225,7 @@ import Entity from 'Renderer/Entity/Entity';
 	}
 
 	function onRemoveOption() {
-		var pkt = new PACKET.CZ.REQ_CARTOFF();
+		const pkt = new PACKET.CZ.REQ_CARTOFF();
 		Network.sendPacket(pkt);
 	}
 
@@ -347,7 +347,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @param {Item} item
 	 */
 	EquipmentV2.equip = function equip(item, location) {
-		var it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 		item.equipped = location;
 		_list[item.index] = item;
 
@@ -406,8 +406,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @param {number} item location
 	 */
 	EquipmentV2.unEquip = function unEquip(index, location) {
-		var selector = getSelectorFromLocation(location);
-		var item = _list[index];
+		const selector = getSelectorFromLocation(location);
+		const item = _list[index];
 		item.equipped = 0;
 
 		this.ui.find(selector).empty();
@@ -431,7 +431,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @returns {item.wItemSpriteNumber} Object with { item }
 	 */
 	EquipmentV2.checkEquipLoc = function checkEquipLoc(location) {
-		for (var key in _list) {
+		for (const key in _list) {
 			if (_list[key].equipped & location) {
 				return _list[key].wItemSpriteNumber;
 			}
@@ -452,9 +452,9 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Display or not status window
 	 */
 	function toggleStatus() {
-		var self = EquipmentV2.ui.find('.view_status');
-		var status = WinStats.getUI().ui;
-		var state = status.is(':visible') ? 'on' : 'off';
+		const self = EquipmentV2.ui.find('.view_status');
+		const status = WinStats.getUI().ui;
+		const state = status.is(':visible') ? 'on' : 'off';
 
 		status.toggle();
 
@@ -474,12 +474,12 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Rendering character
 	 */
 	var renderCharacter = (function renderCharacterClosure() {
-		var _lastState = 0;
-		var _hasCart = 0;
+		let _lastState = 0;
+		let _hasCart = 0;
 
-		var _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		var _savedColor = new Float32Array(4);
-		var _animation = {
+		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		const _savedColor = new Float32Array(4);
+		const _animation = {
 			tick: 0,
 			frame: 0,
 			repeat: true,
@@ -490,7 +490,7 @@ import Entity from 'Renderer/Entity/Entity';
 		};
 
 		// Current removable options
-		var HasAttachmentState =
+		const HasAttachmentState =
 			StatusConst.EffectState.FALCON |
 			StatusConst.EffectState.RIDING |
 			StatusConst.EffectState.DRAGON1 |
@@ -505,7 +505,7 @@ import Entity from 'Renderer/Entity/Entity';
 			StatusConst.EffectState.CART4 |
 			StatusConst.EffectState.CART5;
 
-		var HasCartState =
+		const HasCartState =
 			StatusConst.EffectState.CART1 |
 			StatusConst.EffectState.CART2 |
 			StatusConst.EffectState.CART3 |
@@ -513,7 +513,7 @@ import Entity from 'Renderer/Entity/Entity';
 			StatusConst.EffectState.CART5;
 
 		return function renderCharacter() {
-			var equip_character = new Entity();
+			const equip_character = new Entity();
 			equip_character.set({
 				GID: Session.Entity.GID + '_EQUIP',
 				objecttype: equip_character.constructor.TYPE_PC,
@@ -570,8 +570,8 @@ import Entity from 'Renderer/Entity/Entity';
 			equip_character.animation = _animation;
 
 			// Rendering
-			for (var i = 0; i < _ctx.length; i++) {
-				var ctx = _ctx[i];
+			for (let i = 0; i < _ctx.length; i++) {
+				const ctx = _ctx[i];
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				equip_character.renderEntity(ctx);
@@ -586,7 +586,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * @returns {string} selector
 	 */
 	function getSelectorFromLocation(location) {
-		var selector = [];
+		const selector = [];
 
 		if (location & EquipLocation.HEAD_TOP) {
 			selector.push('.head_top');
@@ -662,8 +662,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 */
 	function onDragOver(event) {
 		if (window._OBJ_DRAG_) {
-			var data = window._OBJ_DRAG_;
-			var item, selector, ui;
+			const data = window._OBJ_DRAG_;
+			let item, selector, ui;
 
 			// Just support items for now ?
 			if (data.type === 'item') {
@@ -703,7 +703,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Drop an item in the equipment, equip it if possible
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -734,8 +734,8 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Right click on an item
 	 */
 	function onEquipmentInfo(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = _list[index];
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = _list[index];
 
 		if (item) {
 			// Don't add the same UI twice, remove it
@@ -759,7 +759,7 @@ import Entity from 'Renderer/Entity/Entity';
 	 * Double click on an equipment to remove it
 	 */
 	function onEquipmentUnEquip() {
-		var index = parseInt(this.getAttribute('data-index'), 10);
+		const index = parseInt(this.getAttribute('data-index'), 10);
 		EquipmentV2.onUnEquip(index);
 		EquipmentV2.ui.find('.overlay').hide();
 	}
@@ -768,16 +768,16 @@ import Entity from 'Renderer/Entity/Entity';
 	 * When mouse is over an equipment, display the item name
 	 */
 	function onEquipmentOver() {
-		var idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
-		var item = _list[idx];
+		const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
+		const item = _list[idx];
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var overlay = EquipmentV2.ui.find('.overlay');
-		var pos = jQuery(this).position();
+		const overlay = EquipmentV2.ui.find('.overlay');
+		const pos = jQuery(this).position();
 
 		// Possible jquery error
 		if (!pos.top && !pos.left) {
@@ -798,8 +798,8 @@ import Entity from 'Renderer/Entity/Entity';
 	}
 
 	EquipmentV2.onUpdateOwnerName = function () {
-		for (var index in _list) {
-			var item = _list[index];
+		for (const index in _list) {
+			const item = _list[index];
 			if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
 				EquipmentV2.ui
 					.find('.item[data-index="' + index + '"] .itemName')
@@ -809,8 +809,8 @@ import Entity from 'Renderer/Entity/Entity';
 	};
 
 	EquipmentV2.getNumber = function () {
-		var num = 0;
-		for (var key in _list) {
+		let num = 0;
+		for (const key in _list) {
 			if (_list[key].location && _list[key].location != EquipLocation.AMMO) {
 				num++;
 			}

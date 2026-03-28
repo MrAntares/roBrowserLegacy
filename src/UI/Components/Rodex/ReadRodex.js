@@ -21,7 +21,7 @@ import Rodex from 'UI/Components/Rodex/Rodex';
 	/**
 	 * Create Component
 	 */
-	var ReadRodex = new UIComponent('ReadRodex', htmlText, cssText);
+	const ReadRodex = new UIComponent('ReadRodex', htmlText, cssText);
 
 	ReadRodex.MailID = 0;
 	ReadRodex.openType = 0;
@@ -29,7 +29,7 @@ import Rodex from 'UI/Components/Rodex/Rodex';
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ReadRodex',
 		{
 			show: false
@@ -78,11 +78,11 @@ import Rodex from 'UI/Components/Rodex/Rodex';
 		this.ui.find('.get-zeny').on('click', onClickGetZeny);
 		this.ui.find('.delete').on('click', onClickDelete);
 		this.ui.find('.reply').on('click', onClickReply);
-		let content = ReadRodex.ui.find('.item-list');
+		const content = ReadRodex.ui.find('.item-list');
 		content.html('');
 		for (let i = 0; i < data.ItemList.length; i++) {
-			let item = data.ItemList[i];
-			let it = DB.getItemInfo(item.ITID);
+			const item = data.ItemList[i];
+			const it = DB.getItemInfo(item.ITID);
 			content.append(
 				'<div class="item" data-index="' +
 					i +
@@ -163,10 +163,10 @@ import Rodex from 'UI/Components/Rodex/Rodex';
 	 * @return {string}
 	 */
 	function prettifyZeny(value) {
-		var num = String(value);
-		var i = 0,
+		const num = String(value);
+		let i = 0,
 			len = num.length;
-		var out = '';
+		let out = '';
 
 		while (i < len) {
 			out = num[len - i - 1] + out;

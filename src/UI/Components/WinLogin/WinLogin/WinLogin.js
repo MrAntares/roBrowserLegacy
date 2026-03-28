@@ -26,12 +26,12 @@ import cssText from './WinLogin.css?raw';
 /**
  * Create WinLogin namespace
  */
-var WinLogin = new UIComponent('WinLogin', htmlText, cssText);
+const WinLogin = new UIComponent('WinLogin', htmlText, cssText);
 
 /**
  * @var {Preferences}
  */
-var _preferences = Preferences.get(
+const _preferences = Preferences.get(
 	'WinLogin',
 	{
 		saveID: true,
@@ -43,23 +43,23 @@ var _preferences = Preferences.get(
 /**
  * @var {jQuery} username input
  */
-var _inputUsername;
+let _inputUsername;
 
 /**
  * @var {jQuery} userpass input
  */
-var _inputPassword;
+let _inputPassword;
 
 /**
  * @var {jQuery} save login ?
  */
-var _buttonSave;
+let _buttonSave;
 
 /**
  * Initialize win_login UI - Inherit from UIComponent
  */
 WinLogin.init = function init() {
-	var ui = this.ui;
+	const ui = this.ui;
 
 	this.draggable();
 
@@ -172,8 +172,8 @@ function exit() {
  * @return {boolean} false
  */
 function connect() {
-	var user = _inputUsername.val();
-	var pass = _inputPassword.val();
+	const user = _inputUsername.val();
+	const pass = _inputPassword.val();
 
 	// Store variable in localStorage
 	if (_preferences.saveID) {
@@ -195,7 +195,7 @@ function connect() {
  * Signup button func that takes the player to the <registrationweb>
  */
 function signup() {
-	var url = Configs.get('registrationweb');
+	const url = Configs.get('registrationweb');
 
 	if (url) {
 		UIManager.showPromptBox(

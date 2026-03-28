@@ -26,7 +26,7 @@ import MapPathFinder from './MapPathFinder';
 /**
 	 * Create Navigation component
 	 */
-	let Navigation = new UIComponent('Navigation', htmlText, cssText);
+	const Navigation = new UIComponent('Navigation', htmlText, cssText);
 
 	/**
 	 * Async image create helper
@@ -40,23 +40,23 @@ import MapPathFinder from './MapPathFinder';
 	/**
 	 * @var {Image} arrow image
 	 */
-	let _arrow = createAsyncImage();
+	const _arrow = createAsyncImage();
 
 	/**
 	 * @var {Image} map information images
 	 */
-	let _toolDealer = createAsyncImage();
-	let _weaponDealer = createAsyncImage();
-	let _armorDealer = createAsyncImage();
-	let _blacksmith = createAsyncImage();
-	let _guide = createAsyncImage();
-	let _inn = createAsyncImage();
-	let _kafra = createAsyncImage();
+	const _toolDealer = createAsyncImage();
+	const _weaponDealer = createAsyncImage();
+	const _armorDealer = createAsyncImage();
+	const _blacksmith = createAsyncImage();
+	const _guide = createAsyncImage();
+	const _inn = createAsyncImage();
+	const _kafra = createAsyncImage();
 
 	/**
 	 * @var {Image} minimap image
 	 */
-	let _map = createAsyncImage();
+	const _map = createAsyncImage();
 
 	/**
 	 * @var {CanvasRenderingContext2D} canvas context
@@ -71,7 +71,7 @@ import MapPathFinder from './MapPathFinder';
 	/**
 	 * @var {Array} markers on the map
 	 */
-	let _markers = [];
+	const _markers = [];
 
 	/**
 	 * @var {Array} path points
@@ -86,7 +86,7 @@ import MapPathFinder from './MapPathFinder';
 	/**
 	 * @var {number} Minimum time between path recalculations (in ms)
 	 */
-	let _pathUpdateThrottle = 500; // Update at most every 500ms
+	const _pathUpdateThrottle = 500; // Update at most every 500ms
 
 	/**
 	 * @var {boolean} Lock for path update
@@ -163,7 +163,7 @@ import MapPathFinder from './MapPathFinder';
 	 */
 	function formatCoordinates(x, y, options) {
 		options = options || {};
-		let shouldFloor = options.floor !== false;
+		const shouldFloor = options.floor !== false;
 
 		if (shouldFloor) {
 			return Math.floor(x) + ',' + Math.floor(y);
@@ -229,22 +229,22 @@ import MapPathFinder from './MapPathFinder';
 	 */
 	function mapToScreen(x, y, width, height) {
 		// Calculate scaling to fit the map image to the view
-		let scaleX = width / _mapData.width;
-		let scaleY = height / _mapData.height;
-		let scale = Math.min(scaleX, scaleY);
+		const scaleX = width / _mapData.width;
+		const scaleY = height / _mapData.height;
+		const scale = Math.min(scaleX, scaleY);
 
 		// Calculate the scaled map dimensions
-		let mapWidth = _mapData.width * scale;
-		let mapHeight = _mapData.height * scale;
+		const mapWidth = _mapData.width * scale;
+		const mapHeight = _mapData.height * scale;
 
 		// Calculate offsets to center the map
-		let offsetX = (width - mapWidth) / 2;
-		let offsetY = (height - mapHeight) / 2;
+		const offsetX = (width - mapWidth) / 2;
+		const offsetY = (height - mapHeight) / 2;
 
 		// For the Y coordinate, we need to invert it because the game's coordinate system
 		// has Y increasing as you go south, but on the screen Y increases as you go down
-		let screenX = (x / _mapData.width) * mapWidth + offsetX;
-		let screenY = ((_mapData.height - y) / _mapData.height) * mapHeight + offsetY;
+		const screenX = (x / _mapData.width) * mapWidth + offsetX;
+		const screenY = ((_mapData.height - y) / _mapData.height) * mapHeight + offsetY;
 
 		return { x: screenX, y: screenY };
 	}
@@ -266,8 +266,8 @@ import MapPathFinder from './MapPathFinder';
 	 * @returns {Object} Current player position {x, y}
 	 */
 	function getPlayerPosition() {
-		let currentX = Math.ceil(Session.Entity.position[0]);
-		let currentY = Math.ceil(Session.Entity.position[1]);
+		const currentX = Math.ceil(Session.Entity.position[0]);
+		const currentY = Math.ceil(Session.Entity.position[1]);
 
 		return { x: currentX, y: currentY };
 	}
@@ -291,12 +291,12 @@ import MapPathFinder from './MapPathFinder';
 			_pathFindingWorker = new Worker(new URL('./PathFindingWorker.js', import.meta.url).href);
 			_pathFindingWorker.id = new Date().getTime().toString();
 			_pathFindingWorker.onmessage = function (e) {
-				let data = e.data;
+				const data = e.data;
 				switch (data.type) {
 					case 'pathResult':
 						_pathUpdateLock = false;
 						if (_finalTargetData && data.path && data.workerId === _pathFindingWorker.id) {
-							let mapName = getCurrentMap();
+							const mapName = getCurrentMap();
 							_path = data.path;
 							if (_path.length > 0) {
 								this.updateTargetText();
@@ -327,21 +327,21 @@ import MapPathFinder from './MapPathFinder';
 	 * @returns {Object} Map coordinates {x, y}
 	 */
 	Navigation.screenToMapCoordinates = function screenToMapCoordinates(screenX, screenY) {
-		let width = 280;
-		let height = 230;
+		const width = 280;
+		const height = 230;
 
 		// Calculate scaling to fit the map image to the view
-		let scaleX = width / _mapData.width;
-		let scaleY = height / _mapData.height;
-		let scale = Math.min(scaleX, scaleY);
+		const scaleX = width / _mapData.width;
+		const scaleY = height / _mapData.height;
+		const scale = Math.min(scaleX, scaleY);
 
 		// Calculate the scaled map dimensions
-		let scaledMapWidth = _mapData.width * scale;
-		let scaledMapHeight = _mapData.height * scale;
+		const scaledMapWidth = _mapData.width * scale;
+		const scaledMapHeight = _mapData.height * scale;
 
 		// Calculate offsets from the centered map
-		let offsetX = (width - scaledMapWidth) / 2;
-		let offsetY = (height - scaledMapHeight) / 2;
+		const offsetX = (width - scaledMapWidth) / 2;
+		const offsetY = (height - scaledMapHeight) / 2;
 
 		// Convert screen coordinates back to map coordinates
 		let mapX = ((screenX - offsetX) / scaledMapWidth) * _mapData.width;
@@ -370,7 +370,7 @@ import MapPathFinder from './MapPathFinder';
 		});
 
 		// Get canvas context
-		let canvas = document.createElement('canvas');
+		const canvas = document.createElement('canvas');
 		canvas.width = 280;
 		canvas.height = 230;
 		_ctx = canvas.getContext('2d');
@@ -419,7 +419,7 @@ import MapPathFinder from './MapPathFinder';
 		this.ui.find('.search-input').focus(
 			function () {
 				// If there are search results, show them when focusing the input
-				let resultsContainer = this.ui.find('.search-results');
+				const resultsContainer = this.ui.find('.search-results');
 				if (resultsContainer.length > 0 && resultsContainer.children().length > 0) {
 					resultsContainer.show();
 				}
@@ -458,7 +458,7 @@ import MapPathFinder from './MapPathFinder';
 		this.clearPath();
 
 		// Seems like "EscapeWindow" is execute first, push it before.
-		let events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		// Start rendering
@@ -468,11 +468,11 @@ import MapPathFinder from './MapPathFinder';
 		initializePathFindingWorker();
 
 		// Load the current map after initializing the worker
-		let mapName = getCurrentMap();
+		const mapName = getCurrentMap();
 		this.loadMap(mapName);
 
 		if (_finalTargetData) {
-			let currentPos = getPlayerPosition();
+			const currentPos = getPlayerPosition();
 			this.navigateTo({
 				startMap: mapName,
 				startX: currentPos.x,
@@ -497,15 +497,15 @@ import MapPathFinder from './MapPathFinder';
 	 * Handle search button click
 	 */
 	Navigation.onSearch = function onSearch() {
-		let query = this.ui.find('.search-input').val().trim();
-		let type = this.ui.find('.search-type').val();
+		const query = this.ui.find('.search-input').val().trim();
+		const type = this.ui.find('.search-type').val();
 
 		if (query.length < 2) {
 			return;
 		}
 
 		// Search for NPCs and MOBs
-		let results = DB.searchNavigation(query, type);
+		const results = DB.searchNavigation(query, type);
 
 		// Display search results
 		this.displaySearchResults(results);
@@ -535,16 +535,16 @@ import MapPathFinder from './MapPathFinder';
 		}
 
 		// Create results list
-		let resultsList = jQuery('<ul class="results-list"></ul>');
+		const resultsList = jQuery('<ul class="results-list"></ul>');
 		resultsContainer.append(resultsList);
 
 		// Add each result to the list
-		for (var i = 0; i < results.length; i++) {
-			let result = results[i];
-			let resultItem = jQuery('<li class="result-item"></li>');
+		for (let i = 0; i < results.length; i++) {
+			const result = results[i];
+			const resultItem = jQuery('<li class="result-item"></li>');
 
 			// Add type icon (NPC or MOB)
-			let typeIcon = result.type === 'NPC' ? 'npc_icon' : 'mob_icon';
+			const typeIcon = result.type === 'NPC' ? 'npc_icon' : 'mob_icon';
 			resultItem.append('<span class="result-type ' + typeIcon + '">' + result.type + '</span>');
 
 			// Add result name
@@ -586,8 +586,8 @@ import MapPathFinder from './MapPathFinder';
 		_isMapClickTarget = false;
 
 		// Get current map and position
-		let currentMap = getCurrentMap();
-		let currentPos = getPlayerPosition();
+		const currentMap = getCurrentMap();
+		const currentPos = getPlayerPosition();
 
 		// Use our unified navigation function
 		this.navigateTo({
@@ -615,8 +615,8 @@ import MapPathFinder from './MapPathFinder';
 	Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxRadius) {
 		// If the cell is already walkable, return it
 		if (x >= 0 && x < _mapData.width && y >= 0 && y < _mapData.height) {
-			let index = x + y * _mapData.width;
-			let cellType = _mapData.cellTypes[index];
+			const index = x + y * _mapData.width;
+			const cellType = _mapData.cellTypes[index];
 
 			if (cellType & _mapData.walkableType) {
 				return { x: x, y: y };
@@ -631,25 +631,25 @@ import MapPathFinder from './MapPathFinder';
 		// Search in increasing radius until we find a walkable cell or reach maxRadius
 		while (radius <= maxRadius) {
 			// Check cells in a square around the target
-			for (var offsetY = -radius; offsetY <= radius; offsetY++) {
-				for (var offsetX = -radius; offsetX <= radius; offsetX++) {
+			for (let offsetY = -radius; offsetY <= radius; offsetY++) {
+				for (let offsetX = -radius; offsetX <= radius; offsetX++) {
 					// Only check cells on the perimeter of the square
 					if (Math.abs(offsetX) !== radius && Math.abs(offsetY) !== radius) {
 						continue;
 					}
 
-					let cx = x + offsetX;
-					let cy = y + offsetY;
+					const cx = x + offsetX;
+					const cy = y + offsetY;
 
 					// Check if cell is within map bounds
 					if (cx >= 0 && cx < _mapData.width && cy >= 0 && cy < _mapData.height) {
-						let index = cx + cy * _mapData.width;
-						let cellType = _mapData.cellTypes[index];
+						const index = cx + cy * _mapData.width;
+						const cellType = _mapData.cellTypes[index];
 
 						// Check if cell is walkable
 						if (cellType & _mapData.walkableType) {
 							// Calculate distance to original point
-							let distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+							const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 							if (distance < bestDistance) {
 								bestDistance = distance;
 								bestCell = { x: cx, y: cy };
@@ -677,17 +677,17 @@ import MapPathFinder from './MapPathFinder';
 	 * @param {Object} event - Mouse event
 	 */
 	Navigation.onMapClick = function onMapClick(event) {
-		let mapDisplay = this.ui.find('.map-display');
-		let offset = mapDisplay.offset();
-		let x = Math.floor(event.pageX - offset.left);
-		let y = Math.floor(event.pageY - offset.top);
+		const mapDisplay = this.ui.find('.map-display');
+		const offset = mapDisplay.offset();
+		const x = Math.floor(event.pageX - offset.left);
+		const y = Math.floor(event.pageY - offset.top);
 
 		// Convert screen coordinates to map coordinates
-		let mapCoords = this.screenToMapCoordinates(x, y);
+		const mapCoords = this.screenToMapCoordinates(x, y);
 
 		// Get current map and position
-		let currentMap = getCurrentMap();
-		let currentPos = getPlayerPosition();
+		const currentMap = getCurrentMap();
+		const currentPos = getPlayerPosition();
 
 		// Set flag that this target was set by map click
 		_isMapClickTarget = true;
@@ -718,7 +718,7 @@ import MapPathFinder from './MapPathFinder';
 		}
 
 		// Ensure we have the map name without extension for loading
-		let mapBaseName = mapName.replace(/\..*/, '');
+		const mapBaseName = mapName.replace(/\..*/, '');
 
 		// Load town info
 		_towninfo = DB.getTownInfo(mapBaseName) || [];
@@ -756,13 +756,13 @@ import MapPathFinder from './MapPathFinder';
 						_mapData.cells = gatData.cells;
 
 						// Create cell types array for the worker and store in _mapData
-						let cellCount = gatData.width * gatData.height;
-						let cellTypes = new Uint8Array(cellCount);
+						const cellCount = gatData.width * gatData.height;
+						const cellTypes = new Uint8Array(cellCount);
 
 						// Extract cell types directly from GAT data
 						// Each cell in gatData has 5 values, with the type at index 4
-						for (var i = 0; i < cellCount; i++) {
-							let cellIndex = i * 5 + 4; // Get the type value (5th value in each cell)
+						for (let i = 0; i < cellCount; i++) {
+							const cellIndex = i * 5 + 4; // Get the type value (5th value in each cell)
 							cellTypes[i] = gatData.cells[cellIndex];
 						}
 
@@ -791,7 +791,7 @@ import MapPathFinder from './MapPathFinder';
 		this.ui.find('.target-info').hide();
 
 		// Update location title with current map name
-		let currentMap = getCurrentMap();
+		const currentMap = getCurrentMap();
 		if (currentMap) {
 			this.setLocationTitle(currentMap, null);
 		}
@@ -828,13 +828,13 @@ import MapPathFinder from './MapPathFinder';
 			return;
 		}
 
-		let width = 280;
-		let height = 230;
-		let ctx = _ctx;
+		const width = 280;
+		const height = 230;
+		const ctx = _ctx;
 
 		// Check if player position has changed
-		let currentMap = getCurrentMap();
-		let currentPos = getPlayerPosition();
+		const currentMap = getCurrentMap();
+		const currentPos = getPlayerPosition();
 		if (_finalTargetData && tick - _lastPathUpdate > _pathUpdateThrottle && !_pathUpdateLock) {
 			// Recalculate path if we have an end position, but throttle updates
 			this.navigateTo({
@@ -859,9 +859,9 @@ import MapPathFinder from './MapPathFinder';
 		// Draw the map image if loaded
 		if (_map.complete && _map.width) {
 			// Calculate scaling to fit the map image to the view
-			let scaleX = width / _mapData.width;
-			let scaleY = height / _mapData.height;
-			let scale = Math.min(scaleX, scaleY);
+			const scaleX = width / _mapData.width;
+			const scaleY = height / _mapData.height;
+			const scale = Math.min(scaleX, scaleY);
 
 			// Draw the map with proper scaling and position
 			ctx.save();
@@ -872,15 +872,15 @@ import MapPathFinder from './MapPathFinder';
 			ctx.restore();
 		}
 
-		let mapToScreenBound = (x, y) => {
+		const mapToScreenBound = (x, y) => {
 			return mapToScreen(x, y, width, height);
 		};
 
 		// Draw town info icons
 		if (_towninfo && _towninfo.length) {
 			for (var i = 0; i < _towninfo.length; i++) {
-				let info = _towninfo[i];
-				let pos = mapToScreenBound(info.X, info.Y);
+				const info = _towninfo[i];
+				const pos = mapToScreenBound(info.X, info.Y);
 
 				let img;
 				switch (info.Type) {
@@ -982,7 +982,7 @@ import MapPathFinder from './MapPathFinder';
 
 		// Draw end marker (target position)
 		if (_targetData) {
-			let lastPoint = mapToScreenBound(_targetData.x, _targetData.y);
+			const lastPoint = mapToScreenBound(_targetData.x, _targetData.y);
 			ctx.fillStyle = 'red';
 			ctx.beginPath();
 			ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
@@ -990,7 +990,7 @@ import MapPathFinder from './MapPathFinder';
 		}
 
 		// Draw start marker (player position)
-		let startPos = mapToScreenBound(currentPos.x, currentPos.y);
+		const startPos = mapToScreenBound(currentPos.x, currentPos.y);
 		// Draw player arrow if loaded
 		if (_arrow.complete && _arrow.width) {
 			ctx.save();
@@ -1004,8 +1004,8 @@ import MapPathFinder from './MapPathFinder';
 
 		// Draw custom markers
 		for (var i = 0; i < _markers.length; i++) {
-			let marker = _markers[i];
-			let pos = mapToScreenBound(marker.x, marker.y);
+			const marker = _markers[i];
+			const pos = mapToScreenBound(marker.x, marker.y);
 
 			ctx.fillStyle = marker.color;
 			ctx.beginPath();
@@ -1050,7 +1050,7 @@ import MapPathFinder from './MapPathFinder';
 			return;
 		}
 
-		let text = formatTargetCoordinates(x, y, options);
+		const text = formatTargetCoordinates(x, y, options);
 		this.ui.find('.target-coordinates').text(text);
 		this.ui.find('.target-coordinates').show();
 		this.ui.find('.target-info').show();
@@ -1061,7 +1061,7 @@ import MapPathFinder from './MapPathFinder';
 			return;
 		}
 
-		let targetCoordinates = this.ui.find('.target-coordinates');
+		const targetCoordinates = this.ui.find('.target-coordinates');
 
 		if (blinking) {
 			// Start blinking effect if not already blinking
@@ -1069,13 +1069,13 @@ import MapPathFinder from './MapPathFinder';
 				targetCoordinates.data('blinking', true);
 
 				// Store original color
-				let originalColor = targetCoordinates.css('color') || '#ffffff';
+				const originalColor = targetCoordinates.css('color') || '#ffffff';
 				targetCoordinates.data('originalColor', originalColor);
 
 				// Set up interval for fading effect
 				let fadeStep = 0;
 				let fadeDirection = -1; // Start by fading out
-				let fadeInterval = setInterval(function () {
+				const fadeInterval = setInterval(function () {
 					fadeStep += fadeDirection * 0.1;
 
 					// Change direction when reaching limits
@@ -1115,7 +1115,7 @@ import MapPathFinder from './MapPathFinder';
 			return;
 		}
 
-		let title = formatLocationTitle(currentMap, targetMap, displayName);
+		const title = formatLocationTitle(currentMap, targetMap, displayName);
 		this.ui.find('.location-title').text(title);
 	};
 
@@ -1131,7 +1131,7 @@ import MapPathFinder from './MapPathFinder';
 			return;
 		}
 
-		let text = formatCoordinates(x, y, options);
+		const text = formatCoordinates(x, y, options);
 		this.ui.find('.coordinates').text(text);
 	};
 
@@ -1161,7 +1161,7 @@ import MapPathFinder from './MapPathFinder';
 			return;
 		}
 
-		let text = formatCoordinates(x, y, options);
+		const text = formatCoordinates(x, y, options);
 		this.ui.find('.mouse-coordinates').text(text);
 	};
 
@@ -1180,20 +1180,20 @@ import MapPathFinder from './MapPathFinder';
 			_pathUpdateLock = true;
 
 			// Get warp information for the current map
-			let naviLinkTable = DB.getNaviLinkTable();
-			let currentMap = getCurrentMap();
-			let warps = [];
+			const naviLinkTable = DB.getNaviLinkTable();
+			const currentMap = getCurrentMap();
+			const warps = [];
 
 			// Process NaviLinkTable to find same-map warps
 			if (naviLinkTable && naviLinkTable.length) {
-				for (var i = 0; i < naviLinkTable.length; i++) {
-					let warp = naviLinkTable[i];
+				for (let i = 0; i < naviLinkTable.length; i++) {
+					const warp = naviLinkTable[i];
 					if (!warp || warp.length < 11) {
 						continue;
 					}
 
-					let srcMap = warp[0].replace(/\.gat$/, '').toLowerCase();
-					let destMap = warp[8].replace(/\.gat$/, '').toLowerCase();
+					const srcMap = warp[0].replace(/\.gat$/, '').toLowerCase();
+					const destMap = warp[8].replace(/\.gat$/, '').toLowerCase();
 
 					// Only include warps that start and end in the current map
 					if (srcMap === currentMap && destMap === currentMap) {
@@ -1249,8 +1249,8 @@ import MapPathFinder from './MapPathFinder';
 		this.ui.find('.target-info').hide();
 
 		// Get current map name and player position
-		let mapName = getCurrentMap();
-		let currentPos = getPlayerPosition();
+		const mapName = getCurrentMap();
+		const currentPos = getPlayerPosition();
 
 		// Use navigateTo to recalculate the path
 		if (_finalTargetData) {
@@ -1297,15 +1297,15 @@ import MapPathFinder from './MapPathFinder';
 	 * @param {MouseEvent} event - The mouse event
 	 */
 	Navigation.onMapMouseMove = function onMapMouseMove(event) {
-		let mapDisplay = this.ui.find('.map-display');
-		let offset = mapDisplay.offset();
-		let x = Math.floor(event.pageX - offset.left);
-		let y = Math.floor(event.pageY - offset.top);
+		const mapDisplay = this.ui.find('.map-display');
+		const offset = mapDisplay.offset();
+		const x = Math.floor(event.pageX - offset.left);
+		const y = Math.floor(event.pageY - offset.top);
 
 		// Convert screen coordinates to map coordinates
-		let mapCoords = this.screenToMapCoordinates(x, y);
-		let mapX = Math.floor(mapCoords.x);
-		let mapY = Math.floor(mapCoords.y);
+		const mapCoords = this.screenToMapCoordinates(x, y);
+		const mapX = Math.floor(mapCoords.x);
+		const mapY = Math.floor(mapCoords.y);
 
 		// Update the mouse coordinates display
 		this.ui.find('.mouse-info').show();
@@ -1328,22 +1328,22 @@ import MapPathFinder from './MapPathFinder';
 	 */
 	Navigation.setNaviInfo = function setNaviInfo(naviInfo, displayName) {
 		// Parse the NAVI info
-		let parts = naviInfo.split(',');
+		const parts = naviInfo.split(',');
 		if (parts.length < 3) {
 			return;
 		}
 
-		let mapName = parts[0];
-		let x = parseInt(parts[1], 10);
-		let y = parseInt(parts[2], 10);
+		const mapName = parts[0];
+		const x = parseInt(parts[1], 10);
+		const y = parseInt(parts[2], 10);
 
 		// Clear the search input
 		this.ui.find('.search-input').val('');
 		_isMapClickTarget = false;
 
 		// Get current map and position
-		let currentMap = getCurrentMap();
-		let currentPos = getPlayerPosition();
+		const currentMap = getCurrentMap();
+		const currentPos = getPlayerPosition();
 
 		// Use the unified navigation function
 		this.navigateTo({
@@ -1386,9 +1386,9 @@ import MapPathFinder from './MapPathFinder';
 	 */
 	Navigation.navigateTo = function navigateTo(options) {
 		// Normalize map names
-		let startMap = normalizeMapName(options.startMap);
-		let endMap = normalizeMapName(options.endMap);
-		let displayName = options.displayName;
+		const startMap = normalizeMapName(options.startMap);
+		const endMap = normalizeMapName(options.endMap);
+		const displayName = options.displayName;
 
 		if (
 			_finalTargetData &&
@@ -1419,7 +1419,7 @@ import MapPathFinder from './MapPathFinder';
 		}
 
 		// Cross-map navigation - find path to next warp
-		let path = MapPathFinder.findPathBetweenMaps(
+		const path = MapPathFinder.findPathBetweenMaps(
 			startMap,
 			options.startX,
 			options.startY,
@@ -1431,10 +1431,10 @@ import MapPathFinder from './MapPathFinder';
 
 		if (path && path.length > 0) {
 			// Get the first segment (path to next warp)
-			let target = path[0];
+			const target = path[0];
 
 			this.waitForMapData(function () {
-				let walkableCell = this.findClosestWalkableCell(target.x, target.y);
+				const walkableCell = this.findClosestWalkableCell(target.x, target.y);
 
 				// Find path
 				if (walkableCell) {

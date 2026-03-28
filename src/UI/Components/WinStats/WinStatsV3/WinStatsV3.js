@@ -22,12 +22,12 @@ import cssText from './WinStatsV3.css?raw';
 /**
 	 * Create component
 	 */
-	let WinStatsV3 = new UIComponent('WinStatsV3', htmlText, cssText);
+	const WinStatsV3 = new UIComponent('WinStatsV3', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'WinStatsV3',
 		{
 			x: 0,
@@ -264,9 +264,9 @@ import cssText from './WinStatsV3.css?raw';
 	 * Display or not status window
 	 */
 	function toggleTraits() {
-		let status = WinStatsV3.ui.find('.traits_component');
-		let self = WinStatsV3.ui.find('.view_traits');
-		let state = status.is(':visible') ? 'on' : 'off';
+		const status = WinStatsV3.ui.find('.traits_component');
+		const self = WinStatsV3.ui.find('.view_traits');
+		const state = status.is(':visible') ? 'on' : 'off';
 
 		status.toggle();
 

@@ -32,7 +32,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailID
 	 */
 	Rodex.openRodexBox = function openRodexBox(openType = 0, MailID = 0) {
-		let pkt = new PACKET.CZ.OPEN_RODEXBOX();
+		const pkt = new PACKET.CZ.OPEN_RODEXBOX();
 		pkt.openType = openType;
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
@@ -43,7 +43,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 *
 	 */
 	Rodex.closeRodexBox = function closeRodexBox() {
-		let pkt = new PACKET.CZ.CLOSE_RODEXBOX();
+		const pkt = new PACKET.CZ.CLOSE_RODEXBOX();
 		Network.sendPacket(pkt);
 	};
 
@@ -54,7 +54,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailID
 	 */
 	Rodex.requestReadRodex = function requestReadRodex(openType = 0, MailID = 0) {
-		let pkt = new PACKET.CZ.REQ_READ_RODEX();
+		const pkt = new PACKET.CZ.REQ_READ_RODEX();
 		pkt.openType = openType;
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
@@ -67,7 +67,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailID
 	 */
 	Rodex.requestNextRodexPage = function requestNextRodexPage(openType = 0, MailID = 0) {
-		let pkt = new PACKET.CZ.REQ_NEXT_RODEX();
+		const pkt = new PACKET.CZ.REQ_NEXT_RODEX();
 		pkt.openType = openType;
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
@@ -80,7 +80,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailID
 	 */
 	Rodex.requestRefreshRodexPage = function requestRefreshRodexPage(openType = 0, MailID = 0) {
-		let pkt = new PACKET.CZ.REQ_REFRESH_RODEX();
+		const pkt = new PACKET.CZ.REQ_REFRESH_RODEX();
 		pkt.openType = openType;
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
@@ -93,7 +93,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailID
 	 */
 	Rodex.requestZenyFromRodex = function requestZenyFromRodex(openType = 0, MailID = 0) {
-		let pkt = new PACKET.CZ.REQ_ZENY_FROM_RODEX();
+		const pkt = new PACKET.CZ.REQ_ZENY_FROM_RODEX();
 		pkt.openType = openType;
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
@@ -106,7 +106,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailID
 	 */
 	Rodex.requestItemsFromRodex = function requestItemsFromRodex(openType = 0, MailID = 0) {
-		let pkt = new PACKET.CZ.REQ_ITEM_FROM_RODEX();
+		const pkt = new PACKET.CZ.REQ_ITEM_FROM_RODEX();
 		pkt.openType = openType;
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
@@ -119,7 +119,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailID
 	 */
 	Rodex.requestDeleteRodex = function requestDeleteRodex(openType = 0, MailID = 0) {
-		let pkt = new PACKET.CZ.REQ_DELETE_RODEX();
+		const pkt = new PACKET.CZ.REQ_DELETE_RODEX();
 		pkt.openType = openType;
 		pkt.MailID = MailID;
 		Network.sendPacket(pkt);
@@ -130,7 +130,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 *
 	 */
 	WriteRodex.requestCancelWriteRodex = function requestCancelWriteRodex() {
-		let pkt = new PACKET.CZ.REQ_CANCEL_WRITE_RODEX();
+		const pkt = new PACKET.CZ.REQ_CANCEL_WRITE_RODEX();
 		Network.sendPacket(pkt);
 	};
 
@@ -141,7 +141,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} count
 	 */
 	WriteRodex.requestAddItemRodex = function requestAddItemRodex(index, count) {
-		let pkt = new PACKET.CZ.REQ_ADD_ITEM_RODEX();
+		const pkt = new PACKET.CZ.REQ_ADD_ITEM_RODEX();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -157,7 +157,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 		if (count <= 0) {
 			return;
 		}
-		let pkt = new PACKET.CZ.REQ_REMOVE_RODEX_ITEM();
+		const pkt = new PACKET.CZ.REQ_REMOVE_RODEX_ITEM();
 		pkt.index = index;
 		pkt.count = count;
 		Network.sendPacket(pkt);
@@ -169,7 +169,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {string} name
 	 */
 	Rodex.requestOpenWriteRodex = function requestOpenWriteRodex(name = '') {
-		let pkt = new PACKET.CZ.REQ_OPEN_WRITE_RODEX();
+		const pkt = new PACKET.CZ.REQ_OPEN_WRITE_RODEX();
 		pkt.name = name;
 		Network.sendPacket(pkt);
 	};
@@ -182,7 +182,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailAccountID
 	 */
 	Rodex.openAllRodex = function openAllRodex(MailID = 0, MailReturnID = 0, MailAccountID = 0) {
-		let pkt = new PACKET.CZ.OPEN_ALL_RODEX();
+		const pkt = new PACKET.CZ.OPEN_ALL_RODEX();
 		pkt.MailID = MailID;
 		pkt.MailReturnID = MailReturnID;
 		pkt.MailAccountID = MailAccountID;
@@ -197,7 +197,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {int} MailAccountID
 	 */
 	Rodex.updateAllRodex = function updateAllRodex(MailID = 0, MailReturnID = 0, MailAccountID = 0) {
-		let pkt = new PACKET.CZ.UPDATE_ALL_RODEX();
+		const pkt = new PACKET.CZ.UPDATE_ALL_RODEX();
 		pkt.MailID = MailID;
 		pkt.MailReturnID = MailReturnID;
 		pkt.MailAccountID = MailAccountID;
@@ -295,7 +295,7 @@ import WriteRodex from 'UI/Components/Rodex/WriteRodex';
 	 * @param {object} pkt - PACKET.ZC.ACK_READ_RODEX
 	 */
 	function rodexRead(pkt) {
-		let mail = Rodex.getMailByID(pkt.MailID);
+		const mail = Rodex.getMailByID(pkt.MailID);
 		ReadRodex.append();
 		ReadRodex.initData(pkt, mail);
 	}

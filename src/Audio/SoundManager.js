@@ -28,12 +28,12 @@ import Session from 'Engine/SessionStorage';
 	/**
 	 * Sound memory
 	 */
-	let _sounds = {};
+	const _sounds = {};
 
 	/**
 	 * Re-usable sounds
 	 */
-	let _cache = {};
+	const _cache = {};
 
 	/**
 	 * @Number of existing HTML Media players in the DOM
@@ -43,7 +43,7 @@ import Session from 'Engine/SessionStorage';
 	/**
 	 * @Constructor
 	 */
-	let SoundManager = {};
+	const SoundManager = {};
 
 	/**
 	 * @var {float} sound volume
@@ -79,7 +79,7 @@ import Session from 'Engine/SessionStorage';
 		}
 
 		// Re-usable sound
-		let sound = getSoundFromCache(filename);
+		const sound = getSoundFromCache(filename);
 		if (sound) {
 			sound.volume = Math.min(volume, 1.0);
 			sound._volume = volume;
@@ -145,7 +145,7 @@ import Session from 'Engine/SessionStorage';
 		if (filename) {
 			if (filename in _sounds) {
 				while (_sounds[filename].instances.length > 0) {
-					let sound = _sounds[filename].instances.shift();
+					const sound = _sounds[filename].instances.shift();
 					sound.pause();
 					sound.remove();
 					mediaPlayerCount--;
@@ -158,7 +158,7 @@ import Session from 'Engine/SessionStorage';
 		// Remove from memory
 		Object.keys(_sounds).forEach(key => {
 			while (_sounds[key].instances.length > 0) {
-				let sound = _sounds[key].instances.shift();
+				const sound = _sounds[key].instances.shift();
 				sound.pause();
 				sound.remove();
 				mediaPlayerCount--;
@@ -198,7 +198,7 @@ import Session from 'Engine/SessionStorage';
 	 */
 	function onSoundEnded() {
 		if (_sounds[this.filename]) {
-			let pos = _sounds[this.filename].instances.indexOf(this);
+			const pos = _sounds[this.filename].instances.indexOf(this);
 
 			if (pos !== -1) {
 				_sounds[this.filename].instances.splice(pos, 1);
@@ -215,7 +215,7 @@ import Session from 'Engine/SessionStorage';
 	 * Clear sound from dom on error
 	 */
 	function onSoundError() {
-		let pos = _sounds[this.filename].instances.indexOf(this);
+		const pos = _sounds[this.filename].instances.indexOf(this);
 
 		if (pos !== -1) {
 			_sounds[this.filename].instances.splice(pos, 1);
@@ -284,7 +284,7 @@ import Session from 'Engine/SessionStorage';
 	 */
 	function cleanupCache(sound) {
 		if (sound.filename && sound.filename in _cache && _cache[sound.filename].instances.length > 0) {
-			let pos = _cache[sound.filename].instances.indexOf(sound);
+			const pos = _cache[sound.filename].instances.indexOf(sound);
 
 			if (pos !== -1) {
 				_cache[sound.filename].instances.splice(pos, 1);

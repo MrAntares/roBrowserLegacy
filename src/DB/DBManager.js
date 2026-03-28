@@ -61,46 +61,46 @@ import PACKETVER from 'Network/PacketVerManager';
 /**
  * DB NameSpace
  */
-var DB = {};
+const DB = {};
 
 /**
  * @var {Object} lua instance
  */
-var lua;
-var HO_AI;
-var MER_AI;
-var default_HO_AI;
-var default_MER_AI;
+let lua;
+let HO_AI;
+let MER_AI;
+let default_HO_AI;
+let default_MER_AI;
 
 startLua();
 
 /**
  * @var {Array} message string
  */
-var MsgStringTable = [];
+const MsgStringTable = [];
 
 /**
  * @var {Array} message string
  */
-var JokeTable = [];
+const JokeTable = [];
 
 /**
  * @var {Array} message string
  */
-var ScreamTable = [];
+const ScreamTable = [];
 
 /**
  * @var {Array} map table
  * struct { string name; string mp3; object fog }
  */
-var MapTable = {};
+const MapTable = {};
 
-var SkillDescription = {};
+let SkillDescription = {};
 
 /**
  * @var {Array} ASCII sex
  */
-var SexTable = ['\xbf\xa9', '\xb3\xb2'];
+const SexTable = ['\xbf\xa9', '\xb3\xb2'];
 
 /**
  * @var {Array} file alias list
@@ -126,150 +126,150 @@ DB.LUA_PATH = 'data/luafiles514/lua files/';
  * @var Pet Talk
  * json object
  */
-var PetTalkTable = {};
+let PetTalkTable = {};
 
 /**
  * @var {Object} CheckAttendanceTable Attendance config
  */
-var CheckAttendanceTable = { Config: {}, Rewards: [] };
+const CheckAttendanceTable = { Config: {}, Rewards: [] };
 
 /**
  * @var {Array }buyingStoreItemList Table
  */
-var buyingStoreItemList = new Array();
+const buyingStoreItemList = new Array();
 
 /**
  * @var {Array} LaphineSysTable Table
  */
-var LaphineSysTable = [];
+const LaphineSysTable = [];
 
 /**
  * @var {Array} LaphineUpgTable Table
  */
-var LaphineUpgTable = [];
+const LaphineUpgTable = [];
 
 /**
  * @var ItemDBName Table
  * json object
  */
-var ItemDBNameTbl = {};
+const ItemDBNameTbl = {};
 
 /**
  * @var ItemReform Table
  * json object
  */
-var ItemReformTable = { ReformInfo: {}, ReformItemList: {} };
+const ItemReformTable = { ReformInfo: {}, ReformItemList: {} };
 
 /**
  * @var EnchantList Table
  * json object
  */
-var EnchantListTable = {};
+let EnchantListTable = {};
 
 /**
  * @var SignBoardTranslated Table
  */
-var SignBoardTranslatedTable = {};
+const SignBoardTranslatedTable = {};
 
 /**
  * @var SignBoard Table
  */
-var SignBoardTable = {};
+let SignBoardTable = {};
 
 /**
  * @var NaviMap Table
  */
-var NaviMapTable = {};
+const NaviMapTable = {};
 
 /**
  * @var NaviMob Table
  */
-var NaviMobTable = {};
+const NaviMobTable = {};
 
 /**
  * @var NaviNpc Table
  */
-var NaviNpcTable = {};
+const NaviNpcTable = {};
 
 /**
  * @var NaviLink Table
  */
-var NaviLinkTable = {};
+const NaviLinkTable = {};
 
 /**
  * @var NaviLinkDistance Table
  */
-var NaviLinkDistanceTable = {};
+const NaviLinkDistanceTable = {};
 
 /**
  * @var NaviNpcDistance Table
  */
-var NaviNpcDistanceTable = {};
+const NaviNpcDistanceTable = {};
 
 /**
  * @var QuestInfo Table
  */
-var QuestInfo = {};
+const QuestInfo = {};
 
 /**
  * @var Title Table
  */
-var TitleTable = {};
+const TitleTable = {};
 
 /**
  * @var User charpage init
  */
-var servers = Configs.get('servers', []);
-var langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 0) : 0;
+const servers = Configs.get('servers', []);
+const langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 0) : 0;
 
 // setup default encoding
-var userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
-var grfCharpage = 'windows-1252';
+const userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+const grfCharpage = 'windows-1252';
 TextEncoding.setCharset(grfCharpage);
 
 // create decoders
-let userStringDecoder = TextEncoding;
+const userStringDecoder = TextEncoding;
 
 /**
  * @var {Object} PetDBTable
  */
-var PetDBTable = {};
-var EggIDToJobID = {};
+let PetDBTable = {};
+let EggIDToJobID = {};
 
 /**
  * @var {Object} Reputation Table
  */
-var ReputeGroup = {};
-var ReputeInfo = {};
+const ReputeGroup = {};
+const ReputeInfo = {};
 
 /**
  * @var {Object} CSV Tables
  */
-var MsgEmotionCSV = {};
+const MsgEmotionCSV = {};
 
 /**
  * @var {Object} Hat Effect Tables
  */
-var HatEffectID = {};
-var HatEffectInfo = {};
-var FootPrintEffectInfo = {};
+const HatEffectID = {};
+const HatEffectInfo = {};
+const FootPrintEffectInfo = {};
 
 /**
  * @var {Array} CashShopBanner Table
  */
-var CashShopBannerTable = [];
+const CashShopBannerTable = [];
 
 /**
  * @var {Object} Ez2streffect Table
  */
-var Ez2streffect = {};
+const Ez2streffect = {};
 
 /**
  * Initialize DB
  */
 DB.init = function init() {
 	// Callback
-	var index = 0,
+	let index = 0,
 		count = 0;
 	function onLoad() {
 		count++;
@@ -341,8 +341,8 @@ DB.init = function init() {
 	// TODO: load these load files by PACKETVER
 	if (Configs.get('loadLua')) {
 		// Item
-		var iteminfoNames = [];
-		var customII = Configs.get('customItemInfo', []);
+		let iteminfoNames = [];
+		const customII = Configs.get('customItemInfo', []);
 
 		if (Array.isArray(customII) && customII.length > 0) {
 			// add custom client info table
@@ -906,12 +906,12 @@ function arrayBufferToBase64(buffer) {
 function getSystemAliases(basePath) {
 	basePath = basePath.replace(/\.(lub|lua)$/i, ''); // Prevents extension been passed
 
-	var suffixes = ['', '_true', '_sak', '_Sakray']; // Priority order
-	var extensions = ['.lub', '.lua'];
-	var fileList = [];
+	const suffixes = ['', '_true', '_sak', '_Sakray']; // Priority order
+	const extensions = ['.lub', '.lua'];
+	const fileList = [];
 
-	for (var s = 0; s < suffixes.length; s++) {
-		for (var e = 0; e < extensions.length; e++) {
+	for (let s = 0; s < suffixes.length; s++) {
+		for (let e = 0; e < extensions.length; e++) {
 			fileList.push(basePath + suffixes[s] + extensions[e]);
 		}
 	}
@@ -937,10 +937,10 @@ function loadTable(filename, separator, size, callback, onEnd, useCharPage = fal
 			data = TextEncoding.decode(data, useCharPage ? userCharpage : null);
 
 			// Remove commented lines
-			let content = ('\n' + data).replace(/\n(\/\/[^\n]+)/g, '');
-			let elements = content.split(separator);
-			let count = elements.length;
-			let args = new Array(size + 1);
+			const content = ('\n' + data).replace(/\n(\/\/[^\n]+)/g, '');
+			const elements = content.split(separator);
+			const count = elements.length;
+			const args = new Array(size + 1);
 
 			for (let i = 0; i < count; i++) {
 				if (i % size === 0) {
@@ -974,7 +974,7 @@ function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd) {
 		function (data) {
 			console.log('Loading file "' + filename + '"...');
 
-			let bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+			const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
 			let text = '';
 			let isBase64 = true;
 
@@ -994,19 +994,19 @@ function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd) {
 			const lines = text.split(/\r?\n/);
 			let index = 0;
 			for (let i = 0; i < lines.length; i++) {
-				let line = lines[i].trim();
+				const line = lines[i].trim();
 				if (!line || line.startsWith('//')) {
 					continue;
 				}
 
-				let parts = isBase64 ? line.split(',') : line.split('\t');
+				const parts = isBase64 ? line.split(',') : line.split('\t');
 				if (parts.length <= Math.max(keyIndex, valueIndex)) {
 					continue;
 				}
 
 				try {
 					// Decode columns from Base64
-					let value = isBase64 ? base64DecodeUtf8(parts[valueIndex].trim()) : parts[valueIndex].trim();
+					const value = isBase64 ? base64DecodeUtf8(parts[valueIndex].trim()) : parts[valueIndex].trim();
 					targetTable[index] = value;
 					index++;
 				} catch (e) {
@@ -1047,7 +1047,7 @@ function loadMoveInfoTable(onEnd) {
 		function (file) {
 			console.log('Loading file "ItemMoveInfoV5.txt"...');
 
-			var data = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+			let data = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 			data = TextEncoding.decode(data, userCharpage);
 			const lines = data.split(/\r?\n/);
 
@@ -1106,9 +1106,9 @@ function loadXMLFile(filename, callback, onEnd) {
 			let xml = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 			xml = TextEncoding.decode(xml, userCharpage);
 			xml = xml.replace(/^.*<\?xml/, '<?xml');
-			let parser = new DOMParser();
-			let parsedXML = parser.parseFromString(xml, 'application/xml');
-			let json = XmlParse.xml2json(parsedXML);
+			const parser = new DOMParser();
+			const parsedXML = parser.parseFromString(xml, 'application/xml');
+			const json = XmlParse.xml2json(parsedXML);
 			callback.call(null, json);
 			onEnd();
 		},
@@ -1131,19 +1131,19 @@ function loadBSONFile(filename, targetTable, onEnd) {
 			try {
 				console.log('Loading file "' + filename + '"...');
 
-				var bytes = new Uint8Array(arrayBuffer);
-				var offset = 0;
+				const bytes = new Uint8Array(arrayBuffer);
+				let offset = 0;
 
-				var docs = [];
+				const docs = [];
 
 				while (offset < bytes.length) {
-					var size =
+					const size =
 						bytes[offset] |
 						(bytes[offset + 1] << 8) |
 						(bytes[offset + 2] << 16) |
 						(bytes[offset + 3] << 24);
 
-					var slice = bytes.slice(offset, offset + size);
+					const slice = bytes.slice(offset, offset + size);
 					docs.push(BSON.deserialize(slice));
 
 					offset += size;
@@ -1151,7 +1151,7 @@ function loadBSONFile(filename, targetTable, onEnd) {
 
 				// ---- AS-IS TABLE HANDLING ----
 
-				var data;
+				let data;
 				if (docs.length === 1) {
 					data = docs[0]; // single root document
 				} else {
@@ -1159,13 +1159,13 @@ function loadBSONFile(filename, targetTable, onEnd) {
 				}
 
 				// Clear target table
-				for (var k in targetTable) {
+				for (const k in targetTable) {
 					delete targetTable[k];
 				}
 
 				// If root has exactly ONE key, unwrap it
 				if (typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length === 1) {
-					var rootKey = Object.keys(data)[0];
+					const rootKey = Object.keys(data)[0];
 					data = data[rootKey];
 				}
 
@@ -1187,7 +1187,7 @@ function loadBSONFile(filename, targetTable, onEnd) {
  * Mapping of effect name suffixes to SkillEffect field names.
  * Default is 'effectId'.
  */
-var SUFFIX_TO_FIELD = {
+const SUFFIX_TO_FIELD = {
 	hit: 'hitEffectId',
 	hitsub: 'hitEffectId',
 	target: 'hitEffectId',
@@ -1208,7 +1208,7 @@ var SUFFIX_TO_FIELD = {
 /**
  * Hardcoded mapping for specific effect names that override suffix logic.
  */
-var HARDCODED_FIELD_MAPPING = {
+const HARDCODED_FIELD_MAPPING = {
 	broken_limit_buff: 'effectId',
 	abyss_flame_target: 'hitEffectId'
 };
@@ -1217,22 +1217,22 @@ var HARDCODED_FIELD_MAPPING = {
  * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
  */
 function mergeEz2Effects(EffectTable, SkillEffect) {
-	var count = 0;
-	var skillCount = 0;
-	var skillBaseToId = {};
-	var effectNameToId = {};
-	var effectMetadata = {};
+	let count = 0;
+	let skillCount = 0;
+	const skillBaseToId = {};
+	const effectNameToId = {};
+	const effectMetadata = {};
 
 	// Pre-calculate SKID lookup maps for O(1) matching
-	var skidFuzzy = {};
-	for (var key in SKID) {
-		var upperKey = key.toUpperCase();
-		var val = SKID[key];
+	const skidFuzzy = {};
+	for (const key in SKID) {
+		const upperKey = key.toUpperCase();
+		const val = SKID[key];
 		skidFuzzy[upperKey] = val;
 
-		var lastUnderscore = -1;
+		let lastUnderscore = -1;
 		while ((lastUnderscore = upperKey.indexOf('_', lastUnderscore + 1)) !== -1) {
-			let suffix = upperKey.substring(lastUnderscore + 1);
+			const suffix = upperKey.substring(lastUnderscore + 1);
 			if (suffix && !skidFuzzy[suffix]) {
 				skidFuzzy[suffix] = val;
 			}
@@ -1245,14 +1245,14 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 	}
 
 	// Phase 1: Pre-Analysis and Anchoring
-	for (let effectName in Ez2streffect) {
-		let entry = Ez2streffect[effectName];
+	for (const effectName in Ez2streffect) {
+		const entry = Ez2streffect[effectName];
 		let baseName = effectName;
 		let isSuffixed = false;
 
 		let targetField = entry.IsToGround || entry.IsFloor ? 'groundEffectId' : 'effectId';
 
-		for (let suffix in SUFFIX_TO_FIELD) {
+		for (const suffix in SUFFIX_TO_FIELD) {
 			if (effectName.endsWith('_' + suffix)) {
 				baseName = effectName.slice(0, -(suffix.length + 1));
 				isSuffixed = true;
@@ -1265,12 +1265,12 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			targetField = HARDCODED_FIELD_MAPPING[effectName];
 		}
 
-		let filePath = entry.FilePath || '';
-		let soundPath = entry.SoundPath || '';
-		let pathParts = filePath ? filePath.split('\\') : [];
-		let lastSlashSound = soundPath.lastIndexOf('\\');
-		let soundFile = lastSlashSound !== -1 ? soundPath.substring(lastSlashSound + 1) : soundPath;
-		let soundBase = soundFile.replace(/\.wav$/i, '');
+		const filePath = entry.FilePath || '';
+		const soundPath = entry.SoundPath || '';
+		const pathParts = filePath ? filePath.split('\\') : [];
+		const lastSlashSound = soundPath.lastIndexOf('\\');
+		const soundFile = lastSlashSound !== -1 ? soundPath.substring(lastSlashSound + 1) : soundPath;
+		const soundBase = soundFile.replace(/\.wav$/i, '');
 
 		effectMetadata[effectName] = {
 			baseName: baseName,
@@ -1281,7 +1281,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		};
 
 		// Pass 1: Exact Name Match for Base
-		let skillId1 = findFuzzySkillId(baseName);
+		const skillId1 = findFuzzySkillId(baseName);
 		if (skillId1) {
 			effectNameToId[effectName] = skillId1;
 			continue;
@@ -1290,9 +1290,9 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		// Pass 2: Base Anchoring from Path (Non-suffixed only)
 		if (!isSuffixed) {
 			for (let i = 0, len = pathParts.length; i < len; i++) {
-				let segment = pathParts[i];
+				const segment = pathParts[i];
 				if (segment) {
-					let skillId2 = skillBaseToId[segment] || findFuzzySkillId(segment);
+					const skillId2 = skillBaseToId[segment] || findFuzzySkillId(segment);
 					if (skillId2) {
 						skillBaseToId[segment] = skillId2;
 						effectNameToId[effectName] = skillId2;
@@ -1304,15 +1304,15 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 	}
 
 	// Phase 2: Inheritance and Assignments
-	for (let effectName in Ez2streffect) {
-		let entry = Ez2streffect[effectName];
-		let meta = effectMetadata[effectName];
+	for (const effectName in Ez2streffect) {
+		const entry = Ez2streffect[effectName];
+		const meta = effectMetadata[effectName];
 		let skillId = effectNameToId[effectName];
 
 		// Pass 3: Path Fallback for unmapped
 		if (!skillId) {
 			for (let i = 0; i < meta.pathParts.length; i++) {
-				let segment = meta.pathParts[i] || '';
+				const segment = meta.pathParts[i] || '';
 				if (segment) {
 					skillId = skillBaseToId[segment] || findFuzzySkillId(segment);
 					if (skillId) {
@@ -1339,8 +1339,8 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		}
 
 		// Pass 5: EffectTable Assignment
-		let lastSlash = (entry.FilePath || '').lastIndexOf('\\');
-		let texturePath = lastSlash !== -1 ? entry.FilePath.substring(0, lastSlash + 1) : '';
+		const lastSlash = (entry.FilePath || '').lastIndexOf('\\');
+		const texturePath = lastSlash !== -1 ? entry.FilePath.substring(0, lastSlash + 1) : '';
 
 		EffectTable[effectName] = [
 			{
@@ -1360,8 +1360,8 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 
 		// Pass 6: SkillEffect Mapping with differentiated fields
 		if (skillId) {
-			let skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
-			let field = meta.field;
+			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
+			const field = meta.field;
 
 			if (skillEntry[field]) {
 				if (!Array.isArray(skillEntry[field])) {
@@ -1393,7 +1393,7 @@ function loadAttendanceFile(filename, callback, onEnd) {
 		filename,
 		async function (file) {
 			try {
-				let buffer = new Uint8Array(file);
+				const buffer = new Uint8Array(file);
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 				// create CheckAttendance required functions in context
@@ -1436,7 +1436,7 @@ function loadWorldMapInfo(basePath, onEnd) {
 	const files = ['worldviewdata_language.lub', 'worldviewdata_list.lub', 'worldviewdata_table.lub'];
 
 	const dirPath = basePath.endsWith('/') ? basePath : basePath + '/';
-	let loadedBuffers = [];
+	const loadedBuffers = [];
 
 	// Recursive loader to ensure sequential loading
 	function loadNext(index) {
@@ -1445,7 +1445,7 @@ function loadWorldMapInfo(basePath, onEnd) {
 			return;
 		}
 
-		let fullPath = dirPath + files[index];
+		const fullPath = dirPath + files[index];
 		console.log('Loading file "' + fullPath + '"...');
 
 		Client.loadFile(
@@ -1470,9 +1470,9 @@ function loadWorldMapInfo(basePath, onEnd) {
 
 			// Function to add a World Category (e.g., Midgard)
 			ctx.AddWorldMapCategory = (id, name, tableKey) => {
-				let decodedName = userStringDecoder.decode(name);
-				let decodedId = userStringDecoder.decode(id);
-				let decodedTableKey = userStringDecoder.decode(tableKey);
+				const decodedName = userStringDecoder.decode(name);
+				const decodedId = userStringDecoder.decode(id);
+				const decodedTableKey = userStringDecoder.decode(tableKey);
 
 				WorldMap.push({
 					id: decodedId || decodedTableKey, // fallback to table name if id missing
@@ -1498,16 +1498,16 @@ function loadWorldMapInfo(basePath, onEnd) {
 				level,
 				mapType
 			) => {
-				let decodedTableKey = userStringDecoder.decode(worldTableKey);
+				const decodedTableKey = userStringDecoder.decode(worldTableKey);
 				let decodedRsw = userStringDecoder.decode(rswName);
-				let decodedName = userStringDecoder.decode(nameDisplay, userCharpage);
-				let decodedLevel = level ? userStringDecoder.decode(level) : '';
+				const decodedName = userStringDecoder.decode(nameDisplay, userCharpage);
+				const decodedLevel = level ? userStringDecoder.decode(level) : '';
 
 				// Find the world this map belongs to
-				let world = WorldMap.find(w => w._tableKey === decodedTableKey);
+				const world = WorldMap.find(w => w._tableKey === decodedTableKey);
 
 				if (mapType === 1) {
-					let originalMap = world.maps.find(m => m.index === dgIndex && m.type === 0);
+					const originalMap = world.maps.find(m => m.index === dgIndex && m.type === 0);
 					if (originalMap) {
 						decodedRsw = originalMap.id;
 					} // Copy rsw name
@@ -1515,7 +1515,7 @@ function loadWorldMapInfo(basePath, onEnd) {
 
 				if (world) {
 					// clean .rsw extension for ID
-					let mapId = decodedRsw.toLowerCase().replace('.rsw', '').replace('.gat', '');
+					const mapId = decodedRsw.toLowerCase().replace('.rsw', '').replace('.gat', '');
 
 					world.maps.push({
 						index: dgIndex,
@@ -1536,8 +1536,8 @@ function loadWorldMapInfo(basePath, onEnd) {
 
 			// Mount and execute all files
 			for (let i = 0; i < loadedBuffers.length; i++) {
-				let f = loadedBuffers[i];
-				let buffer = f.data instanceof ArrayBuffer ? new Uint8Array(f.data) : f.data;
+				const f = loadedBuffers[i];
+				const buffer = f.data instanceof ArrayBuffer ? new Uint8Array(f.data) : f.data;
 				lua.mountFile(f.name, buffer);
 				await lua.doFile(f.name);
 			}
@@ -1624,7 +1624,7 @@ function loadTitleTable(filename, callback, onEnd) {
 		async function (file) {
 			try {
 				console.log('Loading file "' + filename + '"...');
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				const ctx = lua.ctx;
 
@@ -1682,7 +1682,7 @@ function loadTownInfoFile(filename, callback, onEnd) {
 		async function (file) {
 			console.log('Loading file "' + filename + '"...');
 			try {
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 
@@ -1727,7 +1727,7 @@ function loadQuestInfo(filename, callback, onEnd) {
 
 			try {
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
@@ -1930,7 +1930,7 @@ function loadItemInfo(filename, callback, onEnd) {
 			try {
 				console.log('Loading file "' + filename + '"...');
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 
@@ -2067,15 +2067,15 @@ function loadLaphineSysFile(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 
 				// create required functions in context
 				ctx.AddLaphineSysItem = (key, ItemID, NeedCount, NeedRefineMin, NeedRefineMax, NeedSource_String) => {
-					let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
-					let decoded_NeedSource_String =
+					const decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
+					const decoded_NeedSource_String =
 						NeedSource_String && NeedSource_String.length > 1
 							? userStringDecoder.decode(NeedSource_String, userCharpage)
 							: '';
@@ -2091,8 +2091,8 @@ function loadLaphineSysFile(filename, callback, onEnd) {
 				};
 
 				ctx.AddLaphineSysSourceItem = (key, name, count, ItemID) => {
-					let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
-					let decoded_name = name && name.length > 1 ? userStringDecoder.decode(name) : '';
+					const decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
+					const decoded_name = name && name.length > 1 ? userStringDecoder.decode(name) : '';
 					LaphineSysTable[decoded_key].SourceItems.push({
 						name: decoded_name,
 						count: count,
@@ -2155,7 +2155,7 @@ function loadLaphineUpgFile(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
@@ -2171,8 +2171,8 @@ function loadLaphineUpgFile(filename, callback, onEnd) {
 					NeedOptionNumMin,
 					NotSocketEnchantItem
 				) => {
-					let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
-					let decoded_NeedSource_String =
+					const decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
+					const decoded_NeedSource_String =
 						NeedSource_String && NeedSource_String.length > 1
 							? userStringDecoder.decode(NeedSource_String, userCharpage)
 							: '';
@@ -2191,8 +2191,8 @@ function loadLaphineUpgFile(filename, callback, onEnd) {
 				};
 
 				ctx.AddLaphineUpgradeTargetItem = (key, name, ItemID) => {
-					let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
-					let decoded_name = name && name.length > 1 ? userStringDecoder.decode(name) : '';
+					const decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
+					const decoded_name = name && name.length > 1 ? userStringDecoder.decode(name) : '';
 					LaphineUpgTable[decoded_key].TargetItems.push({
 						name: decoded_name,
 						id: ItemID
@@ -2254,14 +2254,14 @@ function loadItemDBTable(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 
 				// create required functions in context
 				ctx.AddDBItemName = (baseItem, itemID) => {
-					let decoded_baseItem = baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
+					const decoded_baseItem = baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
 					ItemDBNameTbl[decoded_baseItem] = itemID;
 					return 1;
 				};
@@ -2313,7 +2313,7 @@ function loadItemReformFile(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
@@ -2332,10 +2332,10 @@ function loadItemReformFile(filename, callback, onEnd) {
 					PreserveSocketItem,
 					PreserveGrade
 				) => {
-					let decoded_BaseItem = BaseItem && BaseItem.length > 1 ? userStringDecoder.decode(BaseItem) : null;
-					let decoded_ResultItem =
+					const decoded_BaseItem = BaseItem && BaseItem.length > 1 ? userStringDecoder.decode(BaseItem) : null;
+					const decoded_ResultItem =
 						ResultItem && ResultItem.length > 1 ? userStringDecoder.decode(ResultItem) : null;
-					let decoded_RandomOptionCode =
+					const decoded_RandomOptionCode =
 						RandomOptionCode && RandomOptionCode.length > 1
 							? userStringDecoder.decode(RandomOptionCode)
 							: null;
@@ -2360,14 +2360,14 @@ function loadItemReformFile(filename, callback, onEnd) {
 				};
 
 				ctx.ReformInfoAddInformationString = (key, string) => {
-					let decoded_string =
+					const decoded_string =
 						string && string.length > 1 ? userStringDecoder.decode(string, userCharpage) : null;
 					ItemReformTable.ReformInfo[key].InformationString.push(decoded_string);
 					return 1;
 				};
 
 				ctx.ReformInfoAddMaterial = (key, Material, Amount) => {
-					let decoded_Material = Material && Material.length > 1 ? userStringDecoder.decode(Material) : null;
+					const decoded_Material = Material && Material.length > 1 ? userStringDecoder.decode(Material) : null;
 					ItemReformTable.ReformInfo[key].Materials.push({
 						Material: decoded_Material,
 						Amount: Amount,
@@ -2377,7 +2377,7 @@ function loadItemReformFile(filename, callback, onEnd) {
 				};
 
 				ctx.AddReformItem = (baseItem, itemID) => {
-					let decoded_baseItem = baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
+					const decoded_baseItem = baseItem && baseItem.length > 1 ? userStringDecoder.decode(baseItem) : null;
 					if (!ItemReformTable.ReformItemList[decoded_baseItem]) {
 						ItemReformTable.ReformItemList[decoded_baseItem] = [];
 					}
@@ -2459,7 +2459,7 @@ function loadEnchantListFile(basePath, onEnd) {
 			try {
 				console.log('Loading file "' + defFile + '"...');
 
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 				const ctx = lua.ctx;
 
 				EnchantListTable = {};
@@ -2677,7 +2677,7 @@ function loadEnchantListFile(basePath, onEnd) {
 						try {
 							console.log('Loading file "' + listFile + '"...');
 
-							let listBuffer = fileList instanceof ArrayBuffer ? new Uint8Array(fileList) : fileList;
+							const listBuffer = fileList instanceof ArrayBuffer ? new Uint8Array(fileList) : fileList;
 							lua.mountFile('EnchantList.lub', listBuffer);
 							await lua.doFile('EnchantList.lub');
 
@@ -2966,15 +2966,15 @@ function loadSignBoardData(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 
 				// create required functions in context
 				ctx.AddSignBoardData = (key, translation) => {
-					let decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
-					let decoded_translation =
+					const decoded_key = key && key.length > 1 ? userStringDecoder.decode(key) : null;
+					const decoded_translation =
 						translation && translation.length > 1 ? userStringDecoder.decode(translation) : null;
 					SignBoardTranslatedTable[decoded_key] = decoded_translation;
 					return 1;
@@ -3027,24 +3027,24 @@ function loadSignBoardList(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// create signboard list
-				let signBoardList = [];
+				const signBoardList = [];
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 
 				// create required functions in context
 				ctx.AddSignBoard = (mapname, x, y, height, type, icon_location, description, color) => {
-					let decoded_mapname = mapname && mapname.length > 1 ? userStringDecoder.decode(mapname) : null;
-					let decoded_icon_location =
+					const decoded_mapname = mapname && mapname.length > 1 ? userStringDecoder.decode(mapname) : null;
+					const decoded_icon_location =
 						icon_location && icon_location.length > 1 ? userStringDecoder.decode(icon_location) : null;
-					let decoded_description =
+					const decoded_description =
 						description && description.length > 1
 							? userStringDecoder.decode(description, userCharpage)
 							: null;
-					let decoded_color = color && color.length > 1 ? userStringDecoder.decode(color) : null;
+					const decoded_color = color && color.length > 1 ? userStringDecoder.decode(color) : null;
 
 					signBoardList.push({
 						mapname: decoded_mapname,
@@ -3110,7 +3110,7 @@ function loadSignBoardList(filename, callback, onEnd) {
 function preprocessSignboardData(signboardArray) {
 	const signboardDict = {};
 
-	for (let signboard of signboardArray) {
+	for (const signboard of signboardArray) {
 		const { mapname, x, y } = signboard;
 		if (!signboardDict[mapname]) {
 			signboardDict[mapname] = {};
@@ -3139,21 +3139,21 @@ function loadWeaponTable(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 
 				// create required functions in context
 				ctx.AddWeaponName = (weaponID, weaponName) => {
-					let decoded_weaponName =
+					const decoded_weaponName =
 						weaponName && weaponName.length > 0 ? userStringDecoder.decode(weaponName) : '';
 					WeaponTable[weaponID] = decoded_weaponName;
 					return 1;
 				};
 
 				ctx.AddWeaponHitSound = (weaponID, soundFile) => {
-					let decoded_soundFile =
+					const decoded_soundFile =
 						soundFile && soundFile.length > 0 ? userStringDecoder.decode(soundFile) : '';
 					WeaponHitSoundTable[weaponID] = decoded_soundFile;
 					return 1;
@@ -3238,7 +3238,7 @@ function loadSkillInfoList(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
@@ -3407,7 +3407,7 @@ function loadSkillTreeView(filename, callback, onEnd) {
 		async function (file) {
 			try {
 				console.log(`Loading file "${DB.LUA_PATH}skillinfoz/jobinheritlist.lub"...`);
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// Mount and execute jobinheritlist.lub
 				lua.mountFile('jobinheritlist.lub', buffer);
@@ -3430,7 +3430,7 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 		async function (file) {
 			try {
 				console.log('Loading file "' + filename + '"...');
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 				const ctx = lua.ctx;
 				// Create automatic JT_ mappings
 				const jobIdWithJT = { ...JobId };
@@ -3594,7 +3594,7 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 function loadStateIconInfo(basePath, callback, onEnd) {
 	const files = ['efstids.lub', 'stateiconimginfo.lub', 'stateiconinfo.lub'];
 
-	let loadedBuffers = [];
+	const loadedBuffers = [];
 
 	const dirPath = basePath.endsWith('/') ? basePath : basePath + '/';
 
@@ -3604,7 +3604,7 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 			return;
 		}
 
-		let fullPath = dirPath + files[index];
+		const fullPath = dirPath + files[index];
 		console.log('Loading file "' + fullPath + '"...');
 
 		Client.loadFile(
@@ -3628,7 +3628,7 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 
 			ctx.mergeSC = (key, value) => {
 				// Keys might be passed as Uint8Array from Lua by Wasmoon
-				let safeKey =
+				const safeKey =
 					typeof key === 'string' ? key : key instanceof Uint8Array ? userStringDecoder.decode(key) : key;
 
 				if (
@@ -3662,7 +3662,7 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 				if (!StatusInfo[id]) {
 					return 0;
 				}
-				let text = userStringDecoder.decode(desc, userCharpage);
+				const text = userStringDecoder.decode(desc, userCharpage);
 				let color = null;
 				if (r >= 0 && g >= 0 && b >= 0) {
 					color = `rgb(${r}, ${g}, ${b})`;
@@ -3672,7 +3672,7 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 			};
 
 			ctx.SetStatusIcon = (id, iconName) => {
-				let icon = userStringDecoder.decode(iconName);
+				const icon = userStringDecoder.decode(iconName);
 				if (!StatusInfo[id]) {
 					StatusInfo[id] = { descript: [] };
 				}
@@ -3681,8 +3681,8 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 			};
 
 			for (let i = 0; i < loadedBuffers.length; i++) {
-				let f = loadedBuffers[i];
-				let buffer = f.data instanceof ArrayBuffer ? new Uint8Array(f.data) : f.data;
+				const f = loadedBuffers[i];
+				const buffer = f.data instanceof ArrayBuffer ? new Uint8Array(f.data) : f.data;
 				lua.mountFile(f.name, buffer);
 				await lua.doFile(f.name);
 
@@ -3785,15 +3785,15 @@ function loadStateIconInfo(basePath, callback, onEnd) {
  * @author alisonrag
  */
 function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
-	let id_filename = file_list[0];
-	let value_table_filename = file_list[1];
+	const id_filename = file_list[0];
+	const value_table_filename = file_list[1];
 
 	try {
 		console.log('Loading file "' + id_filename + '"...');
 		Client.loadFile(id_filename, async function (file) {
 			try {
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 				// mount file
 				lua.mountFile(id_filename, buffer);
 				// execute file
@@ -3809,7 +3809,7 @@ function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
 			Client.loadFile(value_table_filename, async function (file) {
 				try {
 					// check if file is ArrayBuffer and convert to Uint8Array if necessary
-					let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+					const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 					// mount file
 					lua.mountFile(value_table_filename, buffer);
 					// execute file
@@ -3823,7 +3823,7 @@ function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
 
 		function parseTable() {
 			// declare the table object
-			let table = {};
+			const table = {};
 
 			// get context
 			const ctx = lua.ctx;
@@ -3897,7 +3897,7 @@ function loadLuaValue(file_path, variable_name, callback, onEnd) {
 		Client.loadFile(file_path, async function (file) {
 			try {
 				// Check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// Mount file
 				lua.mountFile(file_path, buffer);
@@ -4004,14 +4004,14 @@ function loadMapTbl(filename, callback, onEnd) {
 			try {
 				console.log('Loading file "' + filename + '"...');
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context, a proxy. It will be used to interact with lua conveniently
 				const ctx = lua.ctx;
 
 				// create mapInfo required functions in context
 				ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
-					let decoded_name = userStringDecoder.decode(name);
+					const decoded_name = userStringDecoder.decode(name);
 					MapInfo[decoded_name] = {
 						displayName: userStringDecoder.decode(displayName, userCharpage),
 						notifyEnter: notify_enter,
@@ -4026,10 +4026,10 @@ function loadMapTbl(filename, callback, onEnd) {
 				};
 
 				ctx.AddMapSignName = (name, subTitle, mainTitle) => {
-					let decoded_name = userStringDecoder.decode(name);
-					let decoded_subTitle =
+					const decoded_name = userStringDecoder.decode(name);
+					const decoded_subTitle =
 						subTitle && subTitle.length > 1 ? userStringDecoder.decode(subTitle, userCharpage) : null;
-					let decoded_mainTitle =
+					const decoded_mainTitle =
 						mainTitle && mainTitle.length > 1 ? userStringDecoder.decode(mainTitle, userCharpage) : null;
 					MapInfo[decoded_name].signName = {
 						subTitle: decoded_subTitle,
@@ -4039,7 +4039,7 @@ function loadMapTbl(filename, callback, onEnd) {
 				};
 
 				ctx.AddMapBackgroundBmp = (name, backgroundBmp) => {
-					let decoded_name = userStringDecoder.decode(name);
+					const decoded_name = userStringDecoder.decode(name);
 					MapInfo[decoded_name].backgroundBmp = backgroundBmp
 						? userStringDecoder.decode(backgroundBmp)
 						: 'field';
@@ -4084,7 +4084,7 @@ function loadPetInfo(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				lua.mountFile(filename, buffer);
 				await lua.doFile(filename);
@@ -4247,8 +4247,8 @@ function loadPetEvolution(filename, callback, onEnd) {
  * @param {string} factor
  */
 function parseFogEntry(index, key, near, far, color, factor) {
-	var int_color = parseInt(color, 16);
-	var map = MapTable[key] || (MapTable[key] = {});
+	const int_color = parseInt(color, 16);
+	const map = MapTable[key] || (MapTable[key] = {});
 
 	map.fog = {
 		near: parseFloat(near),
@@ -4266,7 +4266,7 @@ function parseFogEntry(index, key, near, far, color, factor) {
  */
 function parseIndoorEntry(index, key) {
 	key = key.replace('.gat', '.rsw');
-	var map = MapTable[key] || (MapTable[key] = {});
+	const map = MapTable[key] || (MapTable[key] = {});
 	map.indoor = true;
 }
 
@@ -4281,7 +4281,7 @@ function parseIndoorEntry(index, key) {
  * @param {string} summary
  */
 function parseQuestEntry(index, key, title, group, image, description, summary) {
-	var quest = QuestInfo[key] || (QuestInfo[key] = {});
+	const quest = QuestInfo[key] || (QuestInfo[key] = {});
 
 	quest.Title = title;
 	quest.Group = group;
@@ -4394,13 +4394,13 @@ DB.getBodyPath = function getBodyPath(id, sex, alternative = -1, cashMountCostum
 	// PC
 	if (DB.isPlayer(id)) {
 		// DORAM
-		var result = DB.isDoram(id)
+		let result = DB.isDoram(id)
 			? 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/'
 			: 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/';
 		result += SexTable[sex] + '/';
 
 		if (PACKETVER.value > 20141022 && alternative > 0 && id !== alternative) {
-			var use_costume =
+			const use_costume =
 				alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END;
 
 			if (use_costume) {
@@ -5135,7 +5135,7 @@ DB.getWeaponType = function getWeaponType(itemID, realType = false, considerDual
 
 	// look for classnum in ItemTable
 	if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-		let classNum = ItemTable[id].ClassNum;
+		const classNum = ItemTable[id].ClassNum;
 
 		// look for classNum in WeaponTypeExpansion
 		if (classNum in WeaponTypeExpansion) {
@@ -5246,7 +5246,7 @@ DB.getWeaponPath = function getWeaponPath(id, job, sex, leftid = false) {
 		return null;
 	}
 
-	var baseClass = WeaponJobTable[job] || WeaponJobTable[0];
+	const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
 	id = DB.getWeaponType(id);
 
@@ -5257,8 +5257,8 @@ DB.getWeaponPath = function getWeaponPath(id, job, sex, leftid = false) {
 		}
 
 		// Create dualhand Id
-		var right = Object.keys(WeaponType).find(key => WeaponType[key] === id);
-		var left = Object.keys(WeaponType).find(key => WeaponType[key] === leftid);
+		const right = Object.keys(WeaponType).find(key => WeaponType[key] === id);
+		const left = Object.keys(WeaponType).find(key => WeaponType[key] === leftid);
 		if (right && left) {
 			id = WeaponType[right + '_' + left];
 		}
@@ -5288,7 +5288,7 @@ DB.getWeaponTrail = function getWeaponTrail(id, job, sex) {
 
 	const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
-	let realId = DB.getWeaponType(id, true, true);
+	const realId = DB.getWeaponType(id, true, true);
 
 	return (
 		'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' +
@@ -5305,7 +5305,7 @@ DB.getWeaponTrail = function getWeaponTrail(id, job, sex) {
  * @param {number} cart id
  */
 DB.getCartPath = function getCartPath(num) {
-	var id = Math.max(Math.min(num, 13), 0); //cap 0-13
+	const id = Math.max(Math.min(num, 13), 0); //cap 0-13
 	return [
 		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbd\xb4\xb3\xeb\xbc\xd5\xbc\xf6\xb7\xb9',
 		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb9',
@@ -5329,7 +5329,7 @@ DB.getCartPath = function getCartPath(num) {
  * @param {number} weapon id
  */
 DB.getWeaponSound = function getWeaponSound(id) {
-	var type = DB.getWeaponType(id, true);
+	const type = DB.getWeaponType(id, true);
 	return WeaponSoundTable[type];
 };
 
@@ -5338,9 +5338,9 @@ DB.getWeaponSound = function getWeaponSound(id) {
  * @param {number} weapon id
  */
 DB.getWeaponHitSound = function getWeaponHitSound(id) {
-	var type = DB.getWeaponType(id, true, true);
+	const type = DB.getWeaponType(id, true, true);
 
-	let hitSound = WeaponHitSoundTable[type];
+	const hitSound = WeaponHitSoundTable[type];
 
 	// if array return random item
 	if (Array.isArray(hitSound)) {
@@ -5398,7 +5398,7 @@ DB.getWeaponViewID = function getWeaponViewID(id) {
  * @param {number} sex
  */
 DB.getWeaponAction = function getWeaponAction(id, job, sex) {
-	var type = DB.getWeaponType(id, true);
+	const type = DB.getWeaponType(id, true);
 
 	if (job in WeaponAction) {
 		if (WeaponAction[job] instanceof Array) {
@@ -5414,8 +5414,8 @@ DB.getWeaponAction = function getWeaponAction(id, job, sex) {
 };
 
 DB.mountWeapon = function mountWeapon(weaponID, shieldID) {
-	let _weapon = DB.getWeaponType(weaponID, true);
-	let _shield = DB.getWeaponType(shieldID, true);
+	const _weapon = DB.getWeaponType(weaponID, true);
+	const _shield = DB.getWeaponType(shieldID, true);
 
 	let weapon;
 
@@ -5482,7 +5482,7 @@ DB.isAssassin = function isAssassin(jobID) {
  * @return {object} item
  */
 DB.getItemInfo = (function getItemInfoClosure() {
-	var unknownItem = {
+	const unknownItem = {
 		unidentifiedDisplayName: 'Unknown Item',
 		unidentifiedResourceName: '\xbb\xe7\xb0\xfa',
 		unidentifiedDescriptionName: ['...'],
@@ -5494,7 +5494,7 @@ DB.getItemInfo = (function getItemInfoClosure() {
 	};
 
 	return function getItemInfo(itemid) {
-		var item = ItemTable[itemid] || unknownItem;
+		const item = ItemTable[itemid] || unknownItem;
 
 		if (!item._decoded) {
 			item.identifiedDescriptionName =
@@ -5526,7 +5526,7 @@ DB.getItemInfo = (function getItemInfoClosure() {
  * @return {string} path
  */
 DB.getItemPath = function getItemPath(itemid, identify) {
-	var it = DB.getItemInfo(itemid);
+	const it = DB.getItemInfo(itemid);
 	return (
 		'data/sprite/\xbe\xc6\xc0\xcc\xc5\xdb/' + (identify ? it.identifiedResourceName : it.unidentifiedResourceName)
 	);
@@ -5555,12 +5555,12 @@ DB.getItemName = function getItemName(item, options = {}) {
 		showItemOptions = true
 	} = options;
 
-	var it = DB.getItemInfo(item.ITID);
-	var str = '';
-	var prefix = '';
-	var postfix = '';
-	var showprefix = false;
-	var showpostfix = false;
+	const it = DB.getItemInfo(item.ITID);
+	let str = '';
+	let prefix = '';
+	let postfix = '';
+	let showprefix = false;
+	let showpostfix = false;
 
 	if (!item.IsIdentified) {
 		return it.unidentifiedDisplayName;
@@ -5571,16 +5571,16 @@ DB.getItemName = function getItemName(item, options = {}) {
 	}
 
 	if (item.enchantgrade && showItemGrade) {
-		let list = ['', 'D', 'C', 'B', 'A'];
+		const list = ['', 'D', 'C', 'B', 'A'];
 		str += '[' + list[item.enchantgrade] + '] ';
 	}
 
 	//Hide slots for forged weapons
-	var showslots = true;
+	let showslots = true;
 	if (item.slot) {
-		var very = '';
-		var name = '';
-		var elem = '';
+		let very = '';
+		let name = '';
+		let elem = '';
 
 		switch (item.slot.card1) {
 			case 0x00ff: // FORGE
@@ -5618,7 +5618,7 @@ DB.getItemName = function getItemName(item, options = {}) {
 					DB.UpdateOwnerName[GID] = function onUpdateOwnerName(pkt) {
 						delete DB.UpdateOwnerName[pkt.GID];
 						setTimeout(() => {
-							let elements = document.querySelectorAll('.owner-' + pkt.GID);
+							const elements = document.querySelectorAll('.owner-' + pkt.GID);
 							for (let i = 0; i < elements.length; i++) {
 								elements[i].innerText = pkt.CName;
 								elements[i].style.color = 'blue';
@@ -5642,7 +5642,7 @@ DB.getItemName = function getItemName(item, options = {}) {
 				var cardList = [];
 
 				for (let i = 1; i <= 4; ++i) {
-					var card = item.slot['card' + i];
+					const card = item.slot['card' + i];
 
 					if (card) {
 						//store order
@@ -5696,7 +5696,7 @@ DB.getItemName = function getItemName(item, options = {}) {
 	}
 
 	if (item.Options && showItemOptions) {
-		let numOfOptions = item.Options.filter(Option => Option?.index && Option?.index !== 0).length;
+		const numOfOptions = item.Options.filter(Option => Option?.index && Option?.index !== 0).length;
 		if (numOfOptions) {
 			str += ' [' + numOfOptions + ' Option]';
 		}
@@ -5741,8 +5741,8 @@ DB.getMessage = function getMessage(id, defaultText) {
 DB.getMessageEmotionCSV = function getMsgEmotionCSV(keyOrIndex) {
 	if (typeof keyOrIndex === 'number') {
 		// Get keys as array just for this lookup
-		let keys = Object.keys(MsgEmotionCSV);
-		let key = keys[keyOrIndex];
+		const keys = Object.keys(MsgEmotionCSV);
+		const key = keys[keyOrIndex];
 		return key ? MsgEmotionCSV[key] : null;
 	}
 	// string key lookup
@@ -5763,7 +5763,7 @@ DB.getSkillDescription = function getSkillDescription(id) {
  * @return {object}
  */
 DB.getMap = function getMap(mapname) {
-	var map = mapname.replace('.gat', '.rsw');
+	const map = mapname.replace('.gat', '.rsw');
 
 	return MapTable[map] || null;
 };
@@ -5779,7 +5779,7 @@ DB.getMapName = function getMapName(mapname, defaultName) {
 	if (!mapname) {
 		return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
 	}
-	var map = mapname.replace('.gat', '.rsw');
+	const map = mapname.replace('.gat', '.rsw');
 
 	if (!(map in MapTable) || !MapTable[map].name) {
 		return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
@@ -5827,7 +5827,7 @@ DB.getLaphineSysList = function getLaphineSysList() {
  * @returns LaphineSysTable[key] if itemId found
  */
 DB.getLaphineSysInfoById = function getLaphineSysInfoById(itemId) {
-	for (let key in LaphineSysTable) {
+	for (const key in LaphineSysTable) {
 		if (LaphineSysTable[key].ItemID === itemId) {
 			return LaphineSysTable[key];
 		}
@@ -5851,7 +5851,7 @@ DB.getLaphineUpgList = function getLaphineUpgList() {
  * @return {Object|null} The Laphine Upgrade information if found, or null if not found.
  */
 DB.getLaphineUpgInfoById = function getLaphineUpgInfoById(itemId) {
-	for (let key in LaphineUpgTable) {
+	for (const key in LaphineUpgTable) {
 		if (LaphineUpgTable[key].ItemID === itemId) {
 			return LaphineUpgTable[key];
 		}
@@ -5910,7 +5910,7 @@ DB.getItemIdfromBase = function getItemIdfromBase(baseItem) {
  * @return {string|null} The base item associated with the item ID, or null if not found.
  */
 DB.getBasefromItemID = function getBasefromItemID(itemId) {
-	for (let key in ItemDBNameTbl) {
+	for (const key in ItemDBNameTbl) {
 		if (ItemDBNameTbl[key] === itemId) {
 			return key;
 		}
@@ -5958,7 +5958,7 @@ DB.getReformInfo = function getReformInfo(reformId) {
  * @return {Array} An array of reform information objects.
  */
 DB.getAllReformInfos = function getAllReformInfos(reformIds) {
-	let reformInfos = [];
+	const reformInfos = [];
 
 	for (let i = 0; i < reformIds.length; i++) {
 		const reformId = reformIds[i];
@@ -5986,10 +5986,10 @@ DB.getAllReformInfos = function getAllReformInfos(reformIds) {
 DB.findSignboard = function findSignboard(mapname, x, y, tolerance = 1) {
 	const mapData = SignBoardTable[mapname];
 	if (mapData) {
-		for (let xKey in mapData) {
+		for (const xKey in mapData) {
 			if (Math.abs(x - xKey) <= tolerance) {
 				const yData = mapData[xKey];
-				for (let yKey in yData) {
+				for (const yKey in yData) {
 					if (Math.abs(y - yKey) <= tolerance) {
 						return yData[yKey];
 					}
@@ -6042,7 +6042,7 @@ DB.getNameByGID = function getNameByGID(GID) {
 	{
 		return;
 	}
-	var pkt;
+	let pkt;
 	if (PACKETVER.value >= 20180307) {
 		pkt = new PACKET.CZ.REQNAME_BYGID2();
 	} else {
@@ -6513,7 +6513,7 @@ DB.loadClanEmblem = function loadClanEmblem(clanId, callback) {
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'clan_system/clan_emblem' + clanId.toString().padStart(2, '0') + '.bmp',
 		function (dataURI) {
-			let img = new Image();
+			const img = new Image();
 			img.decoding = 'async';
 			img.src = dataURI; // String Base64
 
@@ -6535,10 +6535,10 @@ DB.loadClanEmblem = function loadClanEmblem(clanId, callback) {
  * @author alisonrag
  */
 DB.loadGroupEmblem = function loadGroupEmblem(groupId, callback) {
-	let extension = [22, 23, 24, 25].includes(groupId) ? 'gif' : 'bmp'; // for some reason 22 ~ 25 group emblem has .gif extension
+	const extension = [22, 23, 24, 25].includes(groupId) ? 'gif' : 'bmp'; // for some reason 22 ~ 25 group emblem has .gif extension
 
 	Client.loadFile(DB.INTERFACE_PATH + 'group/group_' + groupId + '.' + extension, function (dataURI) {
-		let img = new Image();
+		const img = new Image();
 		img.decoding = 'async';
 		img.src = dataURI; // String Base64
 
@@ -6573,7 +6573,7 @@ DB.loadMobEmblem = function loadMobEmblem(mobType, callback) {
 	}
 
 	Client.loadFile(DB.INTERFACE_PATH + monType, function (dataURI) {
-		let img = new Image();
+		const img = new Image();
 		img.decoding = 'async';
 		img.src = dataURI; // String Base64
 
@@ -6599,7 +6599,7 @@ function loadCashShopBanner(filename, callback, onEnd) {
 				console.log('Loading file "' + filename + '"...');
 
 				// check if file is ArrayBuffer and convert to Uint8Array if necessary
-				let buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
 				// get context
 				const ctx = lua.ctx;
@@ -6607,8 +6607,8 @@ function loadCashShopBanner(filename, callback, onEnd) {
 				// Define the function that Lua will call
 				// add_cashshop_banner( bitmap_name, url )
 				ctx.add_cashshop_banner = function (bitmap_name, url) {
-					let decoded_bmp = userStringDecoder.decode(bitmap_name);
-					let decoded_url = userStringDecoder.decode(url);
+					const decoded_bmp = userStringDecoder.decode(bitmap_name);
+					const decoded_url = userStringDecoder.decode(url);
 
 					CashShopBannerTable.push({
 						bmp: decoded_bmp,
@@ -6658,16 +6658,16 @@ DB.searchNavigation = function searchNavigation(query, type) {
 	}
 
 	query = query.toLowerCase();
-	var results = [];
+	const results = [];
 
 	// Search NPCs if type is ALL or NPC
 	if (type === 'ALL' || type === 'NPC') {
 		// NaviNpcTable structure: [["map_name", npc_id, npc_type, class_id, "npc_name", "", x, y], ...]
 		for (let i = 0; i < NaviNpcTable.length; i++) {
-			let npc = NaviNpcTable[i];
-			let mapName = npc[0];
-			let npcId = npc[1];
-			let npcName = npc[4] || '';
+			const npc = NaviNpcTable[i];
+			const mapName = npc[0];
+			const npcId = npc[1];
+			const npcName = npc[4] || '';
 
 			// Skip if no name
 			if (!npcName) {
@@ -6692,10 +6692,10 @@ DB.searchNavigation = function searchNavigation(query, type) {
 	if (type === 'ALL' || type === 'MOB') {
 		// NaviMobTable structure: [["map_name", spawn_id, mob_type, mob_class, "mob_name", "sprite_name", level, mob_info], ...]
 		for (let i = 0; i < NaviMobTable.length; i++) {
-			let mob = NaviMobTable[i];
-			let mapName = mob[0];
-			let mobId = mob[3]; // Using mob_class as the ID
-			let mobName = mob[4] || '';
+			const mob = NaviMobTable[i];
+			const mapName = mob[0];
+			const mobId = mob[3]; // Using mob_class as the ID
+			const mobName = mob[4] || '';
 
 			// Skip if no name
 			if (!mobName) {
@@ -6790,7 +6790,7 @@ DB.createItemLink = function createItemLink(item) {
 	// Encode item sprite number (optional, starts with &)
 	if (PACKETVER.value >= 20161116) {
 		data += '&';
-		let spriteNumber = item.wItemSpriteNumber ? item.wItemSpriteNumber : 0;
+		const spriteNumber = item.wItemSpriteNumber ? item.wItemSpriteNumber : 0;
 		data += Base62.encode(spriteNumber).padStart(2, '0');
 	}
 
@@ -6860,7 +6860,7 @@ DB.parseItemLink = function parseItemLink(itemLink) {
 		return null;
 	}
 
-	let item = {
+	const item = {
 		ITID: 512,
 		name: 'Unknown Item',
 		type: 1,
@@ -7050,7 +7050,7 @@ DB.getItemNameFromLink = function getItemNameFromLink(itemLink) {
 		return null;
 	}
 
-	let item = DB.parseItemLink(itemLink);
+	const item = DB.parseItemLink(itemLink);
 	return item.name;
 };
 

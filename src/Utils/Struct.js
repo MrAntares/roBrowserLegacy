@@ -26,14 +26,14 @@
  * @param {string[]} C like structure
  */
 export default function Struct() {
-	var args, unsigned;
-	var i,
+	let args, unsigned;
+	let i,
 		count,
 		total = 0,
 		size,
 		len;
-	var type, name, func;
-	var out = {};
+	let type, name, func;
+	const out = {};
 
 	len = arguments.length;
 

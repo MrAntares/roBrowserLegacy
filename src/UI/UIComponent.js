@@ -45,7 +45,7 @@ import ScrollBar from './Scrollbar';
 	/**
 	 * @var {jQueryElement} <style>
 	 */
-	var _style = jQuery('style:first');
+	let _style = jQuery('style:first');
 	if (!_style.length) {
 		_style = jQuery('<style type="text/css"></style>').appendTo('head');
 	}
@@ -80,7 +80,7 @@ import ScrollBar from './Scrollbar';
 	 */
 	UIComponent.prototype.needFocus = true;
 
-	var _snapCache = [];
+	let _snapCache = [];
 
 	/**
 	 * Prepare the component to be used
@@ -118,9 +118,9 @@ import ScrollBar from './Scrollbar';
 		// _enter variable is here to fix a recurrent bug in mouseenter and mouseleave
 		// when mouseenter can be triggered multiples time
 		if (this.mouseMode === UIComponent.MouseMode.STOP) {
-			var _intersect,
+			let _intersect,
 				_enter = 0;
-			let element = this.__mouseStopBlock || this.ui;
+			const element = this.__mouseStopBlock || this.ui;
 
 			// stop intersection
 			element.mouseenter(function () {
@@ -166,7 +166,7 @@ import ScrollBar from './Scrollbar';
 		}
 
 		if (this.mouseMode !== UIComponent.MouseMode.CROSS) {
-			let element = this.__mouseStopBlock || this.ui;
+			const element = this.__mouseStopBlock || this.ui;
 			// Do not cross
 			element.on('touchstart', function (event) {
 				event.stopImmediatePropagation();
@@ -229,7 +229,7 @@ import ScrollBar from './Scrollbar';
 		}
 
 		// Determine the target element
-		var $target;
+		let $target;
 		if (target) {
 			$target = jQuery(target);
 			if (!$target.length) {
@@ -260,7 +260,7 @@ import ScrollBar from './Scrollbar';
 		}
 
 		// Apply custom JS scrollbar to dynamically added overflowing containers
-		var self = this;
+		const self = this;
 		setTimeout(function () {
 			if (!self.ui || !self.ui.length) {
 				return;
@@ -279,7 +279,7 @@ import ScrollBar from './Scrollbar';
 							return true;
 						}
 
-						var oy = window.getComputedStyle(this).overflowY;
+						const oy = window.getComputedStyle(this).overflowY;
 						if (oy !== 'auto' && oy !== 'scroll') {
 							return false;
 						}
@@ -304,17 +304,17 @@ import ScrollBar from './Scrollbar';
 			}, 500);
 
 			// Re-apply if visibility or content changes
-			var observer = new MutationObserver(function (mutations) {
-				var needsCheck = false;
+			const observer = new MutationObserver(function (mutations) {
+				let needsCheck = false;
 				mutations.forEach(function (mutation) {
 					if (mutation.type === 'childList') {
 						needsCheck = true;
 					} else if (mutation.type === 'attributes') {
 						if (mutation.attributeName === 'style') {
-							var oldVal = mutation.oldValue || '';
-							var wasHidden =
+							const oldVal = mutation.oldValue || '';
+							const wasHidden =
 								oldVal.indexOf('display: none') !== -1 || oldVal.indexOf('display:none') !== -1;
-							var isHidden = mutation.target.style.display === 'none';
+							const isHidden = mutation.target.style.display === 'none';
 							if (wasHidden && !isHidden) {
 								needsCheck = true;
 							}
@@ -341,7 +341,7 @@ import ScrollBar from './Scrollbar';
 
 		//Fix position after append (screen changed since last time and it loads invalid positions)
 		if (this.ui) {
-			var x, y, width, height, WIDTH, HEIGHT;
+			let x, y, width, height, WIDTH, HEIGHT;
 			x = this.ui.offset().left;
 			y = this.ui.offset().top;
 			width = this.ui.width();
@@ -384,11 +384,11 @@ import ScrollBar from './Scrollbar';
 			return;
 		}
 
-		var components = this.manager.components;
-		var name,
+		const components = this.manager.components;
+		let name,
 			zIndex,
 			list = [];
-		var i, count, j;
+		let i, count, j;
 
 		// Store components zIndex in a list
 		for (name in components) {
@@ -427,8 +427,8 @@ import ScrollBar from './Scrollbar';
 			return;
 		}
 
-		var components = this.manager.components;
-		var name,
+		const components = this.manager.components;
+		let name,
 			zIndex,
 			list = [];
 
@@ -439,7 +439,7 @@ import ScrollBar from './Scrollbar';
 				list.push(zIndex);
 			}
 		}
-		let lastZIndex = Math.max(...list);
+		const lastZIndex = Math.max(...list);
 		this.ui.css('zIndex', lastZIndex + 1);
 	};
 
@@ -449,11 +449,11 @@ import ScrollBar from './Scrollbar';
 	 * @param {string} name - new component name
 	 */
 	UIComponent.prototype.clone = function clone(name, full) {
-		var ui = new UIComponent(name, this._htmlText, this._cssText);
+		const ui = new UIComponent(name, this._htmlText, this._cssText);
 
 		if (full) {
-			var keys = Object.keys(this);
-			var i,
+			const keys = Object.keys(this);
+			let i,
 				count = keys.length;
 
 			for (i = 0; i < count; ++i) {
@@ -498,11 +498,11 @@ import ScrollBar from './Scrollbar';
 	 * Drag an element
 	 */
 	UIComponent.prototype.draggable = function draggable(element) {
-		var container = jQuery(this.ui).filter(function () {
+		const container = jQuery(this.ui).filter(function () {
 			return this.nodeType === 1;
 		});
 
-		var component = this;
+		const component = this;
 
 		// Global variable
 		if (!element) {
@@ -528,8 +528,8 @@ import ScrollBar from './Scrollbar';
 				return;
 			}
 
-			var x, y, width, height, drag;
-			var startPos = container.position();
+			let x, y, width, height, drag;
+			const startPos = container.position();
 			x = startPos.left - Mouse.screen.x;
 			y = startPos.top - Mouse.screen.y;
 
@@ -538,24 +538,24 @@ import ScrollBar from './Scrollbar';
 
 			_snapCache = [];
 			if (UIPreferences.windowmagnet && component.manager) {
-				var containerParent = container.offsetParent();
-				var components = component.manager.components;
+				const containerParent = container.offsetParent();
+				const components = component.manager.components;
 
-				for (var name in components) {
-					var other = components[name];
+				for (const name in components) {
+					const other = components[name];
 
 					if (!other || other === component || !other.__active || !other.ui || !other.ui.length) {
 						continue;
 					}
 
-					var otherParent = other.ui.offsetParent();
+					const otherParent = other.ui.offsetParent();
 					if (containerParent.length && otherParent.length && otherParent[0] !== containerParent[0]) {
 						continue;
 					}
 
-					var oPos = other.ui.position();
-					var oW = other.ui.width();
-					var oH = other.ui.height();
+					const oPos = other.ui.position();
+					const oW = other.ui.width();
+					const oH = other.ui.height();
 
 					_snapCache.push({
 						left: oPos.left,
@@ -574,23 +574,23 @@ import ScrollBar from './Scrollbar';
 			jQuery(window).on('mouseup.dragdrop touchend.dragdrop', function (ev) {
 				if (ev.type === 'touchend' || ev.which === 1 || ev.isTrigger) {
 					if (component.gridSnap) {
-						var pos = container.position();
-						var gw = component.gridSnap.width;
-						var gh = component.gridSnap.height;
-						var padX = component.gridSnap.padX || 0;
-						var padY = component.gridSnap.padY || 0;
+						const pos = container.position();
+						const gw = component.gridSnap.width;
+						const gh = component.gridSnap.height;
+						const padX = component.gridSnap.padX || 0;
+						const padY = component.gridSnap.padY || 0;
 
-						var maxXIndex = Math.floor((Renderer.width - container.width() - padX) / gw);
-						var maxYIndex = Math.floor((Renderer.height - container.height() - padY) / gh);
+						const maxXIndex = Math.floor((Renderer.width - container.width() - padX) / gw);
+						const maxYIndex = Math.floor((Renderer.height - container.height() - padY) / gh);
 
-						var gridXIndex = Math.round((pos.left - padX) / gw);
-						var gridYIndex = Math.round((pos.top - padY) / gh);
+						let gridXIndex = Math.round((pos.left - padX) / gw);
+						let gridYIndex = Math.round((pos.top - padY) / gh);
 
 						gridXIndex = Math.max(0, Math.min(gridXIndex, maxXIndex));
 						gridYIndex = Math.max(0, Math.min(gridYIndex, maxYIndex));
 
-						var snappedX = gridXIndex * gw + padX;
-						var snappedY = gridYIndex * gh + padY;
+						const snappedX = gridXIndex * gw + padX;
+						const snappedY = gridYIndex * gh + padY;
 
 						container
 							.stop()
@@ -619,10 +619,10 @@ import ScrollBar from './Scrollbar';
 
 			// Process dragging
 			function dragging() {
-				var x_ = Mouse.screen.x + x;
-				var y_ = Mouse.screen.y + y;
-				var opacity = parseFloat(container.css('opacity') || 1) - 0.02;
-				var snapDistance = 10;
+				let x_ = Mouse.screen.x + x;
+				let y_ = Mouse.screen.y + y;
+				const opacity = parseFloat(container.css('opacity') || 1) - 0.02;
+				const snapDistance = 10;
 
 				if (component.magnet) {
 					component.magnet.TOP =
@@ -661,15 +661,15 @@ import ScrollBar from './Scrollbar';
 				}
 
 				if (UIPreferences.windowmagnet && component.manager) {
-					var lockX = component.magnet && (component.magnet.LEFT || component.magnet.RIGHT);
-					var lockY = component.magnet && (component.magnet.TOP || component.magnet.BOTTOM);
-					var snapX = null;
-					var snapY = null;
-					var snapXD = snapDistance + 1;
-					var snapYD = snapDistance + 1;
+					const lockX = component.magnet && (component.magnet.LEFT || component.magnet.RIGHT);
+					const lockY = component.magnet && (component.magnet.TOP || component.magnet.BOTTOM);
+					let snapX = null;
+					let snapY = null;
+					let snapXD = snapDistance + 1;
+					let snapYD = snapDistance + 1;
 
 					function checkX(val) {
-						var d = Math.abs(val - x_);
+						const d = Math.abs(val - x_);
 						if (d < snapXD) {
 							snapXD = d;
 							snapX = val;
@@ -677,7 +677,7 @@ import ScrollBar from './Scrollbar';
 					}
 
 					function checkY(val) {
-						var d = Math.abs(val - y_);
+						const d = Math.abs(val - y_);
 						if (d < snapYD) {
 							snapYD = d;
 							snapY = val;
@@ -688,9 +688,9 @@ import ScrollBar from './Scrollbar';
 						return !(endA + snapDistance < startB || endB + snapDistance < startA);
 					}
 
-					var len = _snapCache.length;
-					for (var i = 0; i < len; i++) {
-						var box = _snapCache[i];
+					const len = _snapCache.length;
+					for (let i = 0; i < len; i++) {
+						const box = _snapCache[i];
 
 						if (!lockX && isNear(y_, y_ + height, box.top, box.bottom)) {
 							checkX(box.left);
@@ -728,22 +728,22 @@ import ScrollBar from './Scrollbar';
 	 * Parse a component html view (data-* attributes)
 	 */
 	UIComponent.prototype.parseHTML = function parseHTML() {
-		var $node = jQuery(this);
-		var background = $node.data('background');
-		var preload = $node.data('preload');
-		var hover = $node.data('hover');
-		var down = $node.data('down');
-		var active = $node.data('active');
-		var msgId = $node.data('text');
+		const $node = jQuery(this);
+		const background = $node.data('background');
+		const preload = $node.data('preload');
+		const hover = $node.data('hover');
+		const down = $node.data('down');
+		const active = $node.data('active');
+		const msgId = $node.data('text');
 
-		var preloads, i, count;
+		let preloads, i, count;
 
-		var bg_uri = null;
-		var hover_uri = null;
-		var active_uri = null;
-		var down_uri = null;
+		let bg_uri = null;
+		let hover_uri = null;
+		let active_uri = null;
+		let down_uri = null;
 
-		var state = {
+		const state = {
 			hover: false,
 			down: false,
 			active: false
@@ -774,7 +774,7 @@ import ScrollBar from './Scrollbar';
 				bg_uri = dataURI;
 				if (dataURI instanceof ArrayBuffer) {
 					try {
-						var tga = new Targa();
+						const tga = new Targa();
 						tga.load(new Uint8Array(dataURI));
 						bg_uri = tga.getDataURL();
 					} catch (e) {
@@ -798,10 +798,10 @@ import ScrollBar from './Scrollbar';
 			});
 
 			// Watch for class changes
-			var observer = new MutationObserver(function (mutations) {
+			const observer = new MutationObserver(function (mutations) {
 				mutations.forEach(function (mutation) {
 					if (mutation.attributeName === 'class') {
-						var isActive = $node.hasClass('active');
+						const isActive = $node.hasClass('active');
 						if (state.active !== isActive) {
 							state.active = isActive;
 							updateBackground();

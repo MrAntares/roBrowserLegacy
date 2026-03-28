@@ -27,14 +27,14 @@ import GraphicsSettings from 'Preferences/Graphics';
 import PACKETVER from 'Network/PacketVerManager';
 
 // Load dependencies
-	let EndureSound = 'player_metal.wav';
-	let dpr = window.devicePixelRatio || 1;
+	const EndureSound = 'player_metal.wav';
+	const dpr = window.devicePixelRatio || 1;
 
-	let procCanvas = document.createElement('canvas');
-	let procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+	const procCanvas = document.createElement('canvas');
+	const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
 	let _skin = 0;
-	let _damageSkins = {
+	const _damageSkins = {
 		0: {
 			// DT_Default
 			BaseNumber: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xfd\xc0\xda.spr',
@@ -60,7 +60,7 @@ import PACKETVER from 'Network/PacketVerManager';
 			BaseBlue: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/NewNumberH_BMSG.spr'
 		}
 	};
-	let _loadedSkinsData = {};
+	const _loadedSkinsData = {};
 
 	/**
 	 * Damage Namespace
@@ -99,7 +99,7 @@ import PACKETVER from 'Network/PacketVerManager';
 	/**
 	 * @var {string} Sprite of the damage sprite
 	 */
-	let _msgNames = {
+	const _msgNames = {
 		0: 'miss',
 		1: 'guard',
 		2: 'crit',
@@ -111,25 +111,25 @@ import PACKETVER from 'Network/PacketVerManager';
 	/**
 	 * @var {Damage[]} List of damages
 	 */
-	let _list = [];
+	const _list = [];
 
 	/**
 	 * @var previus combo time
 	 */
-	let prevCombo = [];
+	const prevCombo = [];
 
 	/**
 	 * Convert sprite to image Data
 	 * @param {object} gl - WebGL context
 	 */
 	Damage.init = function init(gl) {
-		let confChange = !(_enableSuffix === Configs.get('enableDmgSuffix'));
+		const confChange = !(_enableSuffix === Configs.get('enableDmgSuffix'));
 
 		_enableSuffix = Configs.get('enableDmgSuffix');
 
-		let totalSkins = Object.keys(_damageSkins).length;
+		const totalSkins = Object.keys(_damageSkins).length;
 
-		let num_count = _enableSuffix ? 12 : 10;
+		const num_count = _enableSuffix ? 12 : 10;
 
 		if (PACKETVER.value < 20220821 && Object.keys(_loadedSkinsData).length > 0 && !confChange) {
 			return;
@@ -140,8 +140,8 @@ import PACKETVER from 'Network/PacketVerManager';
 		}
 
 		Object.keys(_damageSkins).forEach(function (skinIdStr) {
-			let skinId = parseInt(skinIdStr, 10);
-			let currentSkin = _damageSkins[skinId];
+			const skinId = parseInt(skinIdStr, 10);
+			const currentSkin = _damageSkins[skinId];
 
 			if (_loadedSkinsData[skinId] && !confChange) {
 				return;
@@ -157,7 +157,7 @@ import PACKETVER from 'Network/PacketVerManager';
 				msgBlue: {}
 			};
 
-			let skinData = _loadedSkinsData[skinId];
+			const skinData = _loadedSkinsData[skinId];
 
 			Client.getFiles(
 				[
@@ -168,7 +168,7 @@ import PACKETVER from 'Network/PacketVerManager';
 				],
 				function (numbers, msg, bluemsg, numbersAct) {
 					let sprNumbers, sprMsg, sprBlue, actNumbers;
-					let enableMipmap = Configs.get('enableMipmap');
+					const enableMipmap = Configs.get('enableMipmap');
 
 					// Load it properly later using webgl
 					MemoryManager.remove(gl, msg);
@@ -203,9 +203,9 @@ import PACKETVER from 'Network/PacketVerManager';
 					for (var i = 0; i < 6; i++) {
 						//msg.spr miss crit lucky...
 
-						let source = sprMsg.getCanvasFromFrame(i);
-						let canvas = document.createElement('canvas');
-						let ctx = canvas.getContext('2d');
+						const source = sprMsg.getCanvasFromFrame(i);
+						const canvas = document.createElement('canvas');
+						const ctx = canvas.getContext('2d');
 
 						canvas.width = WebGL.toPowerOfTwo(source.width) * dpr;
 						canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
@@ -236,9 +236,9 @@ import PACKETVER from 'Network/PacketVerManager';
 					for (var i = 0; i < 6; i++) {
 						//bluemsg.spr miss crit lucky...
 
-						let source = sprBlue.getCanvasFromFrame(i);
-						let canvas = document.createElement('canvas');
-						let ctx = canvas.getContext('2d');
+						const source = sprBlue.getCanvasFromFrame(i);
+						const canvas = document.createElement('canvas');
+						const ctx = canvas.getContext('2d');
 
 						canvas.width = WebGL.toPowerOfTwo(source.width) * dpr;
 						canvas.height = WebGL.toPowerOfTwo(source.height) * dpr;
@@ -316,7 +316,7 @@ import PACKETVER from 'Network/PacketVerManager';
 		// Can't render floating points
 		damage = Math.floor(damage);
 
-		let PADDING = 2;
+		const PADDING = 2;
 		let i, count, start_x, start_y;
 		let frame;
 
@@ -343,10 +343,10 @@ import PACKETVER from 'Network/PacketVerManager';
 
 		let width = 0;
 		let height = 0;
-		let gl = Renderer.gl;
+		const gl = Renderer.gl;
 		let texture;
 
-		let obj = new Damage();
+		const obj = new Damage();
 
 		obj.type = type || (damage ? Damage.TYPE.DAMAGE : Damage.TYPE.MISS);
 		if (entity.objecttype === entity.constructor.TYPE_PC) {
@@ -386,7 +386,7 @@ import PACKETVER from 'Network/PacketVerManager';
 			obj.color[2] = 0.15;
 
 			// Add CRIT background
-			let bgObj = new Damage();
+			const bgObj = new Damage();
 			bgObj.type = Damage.TYPE.CRIT;
 			bgObj.color = [0.66, 0.66, 0.66, 1.0];
 			bgObj.delay = 1500;
@@ -400,7 +400,7 @@ import PACKETVER from 'Network/PacketVerManager';
 			_list.push(bgObj);
 
 			// Add hit effect
-			let EF_Init_Par = {
+			const EF_Init_Par = {
 				effectId: 1,
 				ownerAID: entity.GID,
 				position: entity.position,
@@ -414,7 +414,7 @@ import PACKETVER from 'Network/PacketVerManager';
 			obj.color[2] = 1.0;
 
 			// Add Blue CRIT background
-			let bgObj = new Damage();
+			const bgObj = new Damage();
 			bgObj.type = obj.type;
 			bgObj.color = [0.66, 0.66, 0.66, 1.0];
 			bgObj.delay = 1500;
@@ -453,8 +453,8 @@ import PACKETVER from 'Network/PacketVerManager';
 		}
 
 		// Set canvas size (pow of 2 for webgl).
-		let finalWidth = WebGL.toPowerOfTwo(width) * dpr;
-		let finalHeight = WebGL.toPowerOfTwo(height) * dpr;
+		const finalWidth = WebGL.toPowerOfTwo(width) * dpr;
+		const finalHeight = WebGL.toPowerOfTwo(height) * dpr;
 
 		if (procCanvas.width !== finalWidth || procCanvas.height !== finalHeight) {
 			procCanvas.width = finalWidth;
@@ -477,7 +477,7 @@ import PACKETVER from 'Network/PacketVerManager';
 
 		texture = gl.createTexture();
 
-		let enableMipmap = Configs.get('enableMipmap');
+		const enableMipmap = Configs.get('enableMipmap');
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, procCanvas);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -550,7 +550,7 @@ import PACKETVER from 'Network/PacketVerManager';
 		let damage;
 		let size;
 
-		let skinData = _loadedSkinsData[_skin];
+		const skinData = _loadedSkinsData[_skin];
 
 		// Render all list
 		for (i = 0, count = _list.length; i < count; ++i) {
@@ -599,10 +599,10 @@ import PACKETVER from 'Network/PacketVerManager';
 			else if (damage.type & Damage.TYPE.DAMAGE || damage.type & Damage.TYPE.CRIT) {
 				size = (1 - perc) * 4;
 
-				let motionType = GraphicsSettings.damageMotion || 0;
+				const motionType = GraphicsSettings.damageMotion || 0;
 
 				// Base Z arc (Bounce)
-				let zArc = Math.sin(-Math.PI / 2 + Math.PI * (0.5 + perc * 1.5)) * 5;
+				const zArc = Math.sin(-Math.PI / 2 + Math.PI * (0.5 + perc * 1.5)) * 5;
 
 				switch (motionType) {
 					case 1: // Left (Drift X Negative)

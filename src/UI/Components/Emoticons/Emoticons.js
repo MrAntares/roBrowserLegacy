@@ -25,7 +25,7 @@ import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
 /**
 	 * Create Component
 	 */
-	let Emoticons = new UIComponent('Emoticons', htmlText, cssText);
+	const Emoticons = new UIComponent('Emoticons', htmlText, cssText);
 
 	/**
 	 * @var {number} page index
@@ -35,7 +35,7 @@ import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
 	/**
 	 * @var {number} emoticons per page
 	 */
-	let EMOTICONS_PER_PAGE = 30;
+	const EMOTICONS_PER_PAGE = 30;
 
 	/**
 	 * @var {number} total pages
@@ -45,7 +45,7 @@ import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
 	/**
 	 * @var {number} emoticons count
 	 */
-	let EMOTICONS_COUNT = Object.keys(EmoticonsDB.order).length;
+	const EMOTICONS_COUNT = Object.keys(EmoticonsDB.order).length;
 
 	/**
 	 * @var {object} emoticons action file
@@ -60,12 +60,12 @@ import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
 	/**
 	 * @var {Entity} Helper to render sprites
 	 */
-	let _entity = new Entity();
+	const _entity = new Entity();
 
 	/**
 	 * @var {Preference} structure to save
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Emoticons',
 		{
 			x: 600,
@@ -197,8 +197,8 @@ import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
 	 * Display the command shortcut in the ShortCuts
 	 */
 	function onSelectEmoticon() {
-		let idx = this.getAttribute('data-index');
-		let cmd = EmoticonsDB.names[idx];
+		const idx = this.getAttribute('data-index');
+		const cmd = EmoticonsDB.names[idx];
 		if (cmd && ShortCuts.ui.is(':visible')) {
 			if (ShortCuts.ui.find('.input_alt_focus').length) {
 				ShortCuts.ui
@@ -213,8 +213,8 @@ import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
 	 * Do an emoticon
 	 */
 	function onPlayEmoticon() {
-		let idx = this.getAttribute('data-index');
-		let cmd = EmoticonsDB.names[idx];
+		const idx = this.getAttribute('data-index');
+		const cmd = EmoticonsDB.names[idx];
 
 		ChatBox.ui.find('.input .message').val('/' + cmd);
 		ChatBox.submit();
@@ -231,8 +231,8 @@ import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
 		let i, count;
 
 		let index = EMOTICONS_PER_PAGE * _page;
-		let end = Math.min(EMOTICONS_COUNT, index + EMOTICONS_PER_PAGE);
-		let pos = [0, 0];
+		const end = Math.min(EMOTICONS_COUNT, index + EMOTICONS_PER_PAGE);
+		const pos = [0, 0];
 		let emo;
 
 		content.empty();

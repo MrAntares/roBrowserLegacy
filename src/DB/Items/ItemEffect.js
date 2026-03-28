@@ -10,7 +10,7 @@
 //  effectId: hitEffectId: effectIdOnCaster: beginCastEffectId:
 'use strict';
 
-	var ItemEffect = {};
+	const ItemEffect = {};
 
 	//Type 1
 	ItemEffect[501] = { effectId: 204 }; //Red Potion

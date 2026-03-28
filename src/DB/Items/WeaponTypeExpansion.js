@@ -12,7 +12,7 @@
 
 import WeaponType from './WeaponType';
 
-var WeaponTypeExpansion = {};
+const WeaponTypeExpansion = {};
 
 	WeaponTypeExpansion[WeaponType.Main_Gauche] = WeaponType.SHORTSWORD;
 	WeaponTypeExpansion[WeaponType.Stiletto] = WeaponType.SHORTSWORD;

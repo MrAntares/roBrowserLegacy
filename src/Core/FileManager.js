@@ -22,12 +22,12 @@ import FileSystem from 'Core/FileSystem';
 import TextEncoding from 'Utils/CodepageManager';
 
 // Load dependencies
-let fs = self.requireNode && self.requireNode('fs');
+const fs = self.requireNode && self.requireNode('fs');
 
 /**
  * FileManager namespace
  */
-let FileManager = {};
+const FileManager = {};
 
 /**
  * Where is the remote client located ?
@@ -132,7 +132,7 @@ FileManager.init = function Init(grfList) {
  */
 FileManager.addGameFile = function AddGameFile(file) {
 	try {
-		let grf = new GameFile();
+		const grf = new GameFile();
 		grf.load(file);
 
 		this.gameFiles.push(grf);
@@ -163,7 +163,7 @@ FileManager.clean = function Clean() {
 FileManager.search = function Search(regex) {
 	// Use hosted client (only one to be async ?)
 	if (!this.gameFiles.length && this.remoteClient) {
-		let req = new XMLHttpRequest();
+		const req = new XMLHttpRequest();
 		req.open('POST', this.remoteClient, false);
 		req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 		req.overrideMimeType('text/plain; charset=ISO-8859-1');
@@ -195,7 +195,7 @@ FileManager.get = function Get(filename, callback) {
 
 		// Found in file system, youhou !
 		function onFound(file) {
-			let reader = new FileReader();
+			const reader = new FileReader();
 			reader.onloadend = function onLoad(event) {
 				callback(event.target.result);
 			};
@@ -260,7 +260,7 @@ FileManager.getHTTP = function GetHTTP(filename, callback) {
 				}
 
 				// Detect HTML error pages returned with 200 status
-				var contentType = response.headers.get('content-type') || '';
+				const contentType = response.headers.get('content-type') || '';
 				if (contentType.indexOf('text/html') !== -1) {
 					throw new Error('Received HTML instead of binary data (likely 404 page)');
 				}
@@ -278,7 +278,7 @@ FileManager.getHTTP = function GetHTTP(filename, callback) {
 	}
 
 	// Fallback to XMLHttpRequest for older environments
-	let xhr = new XMLHttpRequest();
+	const xhr = new XMLHttpRequest();
 	xhr.open('GET', url, true);
 	xhr.responseType = 'arraybuffer';
 	xhr.onload = function () {
@@ -305,8 +305,8 @@ FileManager.getHTTP = function GetHTTP(filename, callback) {
  * Batch file loading - groups requests within a frame and sends them as one
  * Falls back to individual requests if batch endpoint is unavailable
  */
-var _batchQueue = [];
-var _batchTimer = null;
+const _batchQueue = [];
+let _batchTimer = null;
 
 FileManager.getBatchHTTP = function GetBatchHTTP(filename, callback) {
 	// Only batch when using remote client
@@ -318,9 +318,9 @@ FileManager.getBatchHTTP = function GetBatchHTTP(filename, callback) {
 	_batchQueue.push({ filename: filename, callback: callback });
 
 	if (!_batchTimer) {
-		var self = this;
+		const self = this;
 		_batchTimer = setTimeout(function () {
-			var queue = _batchQueue.splice(0);
+			const queue = _batchQueue.splice(0);
 			_batchTimer = null;
 
 			// Single file - no need to batch
@@ -329,7 +329,7 @@ FileManager.getBatchHTTP = function GetBatchHTTP(filename, callback) {
 				return;
 			}
 
-			var files = queue.map(function (q) {
+			const files = queue.map(function (q) {
 				return q.filename.replace(/\\/g, '/');
 			});
 
@@ -343,12 +343,12 @@ FileManager.getBatchHTTP = function GetBatchHTTP(filename, callback) {
 				})
 				.then(function (results) {
 					queue.forEach(function (q) {
-						var key = q.filename.replace(/\\/g, '/');
+						const key = q.filename.replace(/\\/g, '/');
 						if (results[key]) {
-							var binary = atob(results[key]);
-							var buffer = new ArrayBuffer(binary.length);
-							var view = new Uint8Array(buffer);
-							for (var i = 0; i < binary.length; i++) {
+							const binary = atob(results[key]);
+							const buffer = new ArrayBuffer(binary.length);
+							const view = new Uint8Array(buffer);
+							for (let i = 0; i < binary.length; i++) {
 								view[i] = binary.charCodeAt(i);
 							}
 							q.callback(buffer);
@@ -384,7 +384,7 @@ FileManager.load = function Load(filename, callback, args) {
 	filename = filename.replace(/^\s+|\s+$/g, '');
 
 	this.get(filename, function (buffer, error) {
-		let ext = filename
+		const ext = filename
 			.match(/.[^.]+$/)
 			.toString()
 			.substr(1)
@@ -436,7 +436,7 @@ FileManager.load = function Load(filename, callback, args) {
 
 				// Sprite
 				case 'spr':
-					let spr = new Sprite(buffer);
+					const spr = new Sprite(buffer);
 					if (args && args.to_rgba) {
 						spr.switchToRGBA();
 					}

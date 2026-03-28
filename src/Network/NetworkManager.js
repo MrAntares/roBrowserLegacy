@@ -26,13 +26,13 @@ import NodeSocket from './SocketHelpers/NodeSocket';
  * Sockets list
  * @var Socket[]
  */
-var _sockets = [];
+const _sockets = [];
 
 /**
  * Custom socket factory for plugins
  * @var function|null
  */
-var _socketFactory = null;
+let _socketFactory = null;
 
 /**
  * Default socket factory - creates NodeSocket or WebSocket based on environment.
@@ -43,7 +43,7 @@ var _socketFactory = null;
  * @return {Socket}
  */
 function defaultSocketFactory(host, port) {
-	var proxy = Configs.get('socketProxy', null);
+	const proxy = Configs.get('socketProxy', null);
 
 	if (NodeSocket.isSupported()) {
 		return new NodeSocket(host, port, proxy);
@@ -55,19 +55,19 @@ function defaultSocketFactory(host, port) {
  * Current Socket
  * @var Socket
  */
-var _socket = null;
+let _socket = null;
 
 /**
  * Buffer to use to read packets
  * @var buffer
  */
-var _save_buffer = null;
+let _save_buffer = null;
 
 /**
  * Defines if dump packets as hex string
  * @var packetDump
  */
-var packetDump = Configs.get('packetDump', false);
+const packetDump = Configs.get('packetDump', false);
 
 /**
  * Packets definition
@@ -98,13 +98,13 @@ Packets.list = [];
  * @param {boolean} is zone server ?
  */
 function connect(host, port, callback, isZone) {
-	var socket = _socketFactory ? _socketFactory(host, port) : defaultSocketFactory(host, port);
+	const socket = _socketFactory ? _socketFactory(host, port) : defaultSocketFactory(host, port);
 
 	socket.isZone = !!isZone;
 	socket.onClose = onClose;
 	socket.onComplete = function onComplete(success) {
-		var msg = 'Fail';
-		var color = 'red';
+		let msg = 'Fail';
+		let color = 'red';
 
 		if (success) {
 			msg = 'Success';
@@ -138,11 +138,11 @@ function connect(host, port, callback, isZone) {
  * @param Packet
  */
 function sendPacket(Packet) {
-	var pkt = Packet.build();
+	const pkt = Packet.build();
 
 	if (packetDump) {
-		let fp = new BinaryReader(pkt.buffer);
-		let id = fp.readUShort();
+		const fp = new BinaryReader(pkt.buffer);
+		const id = fp.readUShort();
 		console.log(
 			'%c[Network] Dump Send: \n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s',
 			'color:#007070',
@@ -225,14 +225,14 @@ read.callback = null;
  * @param {Uint8Array} buffer
  */
 function receive(buf) {
-	var id, packet, fp;
-	var length = 0;
-	var offset = 0;
-	var buffer;
+	let id, packet, fp;
+	let length = 0;
+	let offset = 0;
+	let buffer;
 
 	// Waiting for data ? concat the buffer
 	if (_save_buffer) {
-		var _data = new Uint8Array(_save_buffer.length + buf.byteLength);
+		const _data = new Uint8Array(_save_buffer.length + buf.byteLength);
 		_data.set(_save_buffer, 0);
 		_data.set(new Uint8Array(buf), _save_buffer.length);
 		buffer = _data.buffer;
@@ -287,7 +287,7 @@ function receive(buf) {
 			packet = Packets.list[id];
 
 			if (packetDump) {
-				let buffer_console = new Uint8Array(buffer, 0, length);
+				const buffer_console = new Uint8Array(buffer, 0, length);
 				console.log(
 					'%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s',
 					'color:#900090',
@@ -320,7 +320,7 @@ function receive(buf) {
 			}
 		} else {
 			if (packetDump) {
-				let unknown_buffer = new Uint8Array(buffer, 0, length);
+				const unknown_buffer = new Uint8Array(buffer, 0, length);
 				console.log(
 					'%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: [UNKNOWN]\nLength: %d\nContent:\n%s',
 					'color:#900090',
@@ -353,7 +353,7 @@ function receive(buf) {
  * Server ask to close the socket
  */
 function onClose() {
-	var idx = _sockets.indexOf(this);
+	const idx = _sockets.indexOf(this);
 
 	if (this === _socket) {
 		console.warn('[Network] Disconnect from server');
@@ -377,7 +377,7 @@ function onClose() {
  * Is this needed ?
  */
 function close() {
-	var idx;
+	let idx;
 
 	if (_socket) {
 		_socket.close();
@@ -438,9 +438,9 @@ function setSocketFactory(factory) {
  * @return {string} ip
  */
 function utilsLongToIP(long) {
-	var buf = new ArrayBuffer(4);
-	var uint8 = new Uint8Array(buf);
-	var uint32 = new Uint32Array(buf);
+	const buf = new ArrayBuffer(4);
+	const uint8 = new Uint8Array(buf);
+	const uint32 = new Uint32Array(buf);
 	uint32[0] = long;
 
 	return Array.prototype.join.call(uint8, '.');
@@ -459,8 +459,8 @@ function utilsBufferToHexString(buffer) {
  * Export
  */
 const Network = (function Network() {
-	var keys;
-	var i, count;
+	let keys;
+	let i, count;
 
 	// Add packet version
 	keys = Object.keys(PacketVersions);

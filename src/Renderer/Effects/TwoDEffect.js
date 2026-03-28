@@ -11,12 +11,12 @@ import Camera from 'Renderer/Camera';
 /**
 	 * @var {mat4}
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	let _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	function getRandomIntInclusive(min, max) {
 		min = Math.ceil(min);
@@ -24,13 +24,13 @@ import Camera from 'Renderer/Camera';
 		return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
 	}
 
-	let blendMode = {};
+	const blendMode = {};
 
 	function TwoDEffect(effect, EF_Inst_Par, EF_Init_Par) {
-		let position = EF_Inst_Par.position;
-		let startTick = EF_Inst_Par.startTick;
-		let endTick = EF_Inst_Par.endTick;
-		let AID = EF_Init_Par.ownerAID;
+		const position = EF_Inst_Par.position;
+		const startTick = EF_Inst_Par.startTick;
+		const endTick = EF_Inst_Par.endTick;
+		const AID = EF_Init_Par.ownerAID;
 
 		this.AID = AID;
 		this.ownerEntity = EF_Init_Par.ownerEntity;
@@ -97,7 +97,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.posxStartRand) {
-			let posxStartRandMiddle = effect.posxStartRandMiddle ? effect.posxStartRandMiddle : 0;
+			const posxStartRandMiddle = effect.posxStartRandMiddle ? effect.posxStartRandMiddle : 0;
 			this.posxStart = getRandomIntInclusive(
 				posxStartRandMiddle - effect.posxStartRand,
 				posxStartRandMiddle + effect.posxStartRand
@@ -105,7 +105,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.posxEndRand) {
-			let posxEndRandMiddle = effect.posxEndRandMiddle ? effect.posxEndRandMiddle : 0;
+			const posxEndRandMiddle = effect.posxEndRandMiddle ? effect.posxEndRandMiddle : 0;
 			this.posxEnd = getRandomIntInclusive(
 				posxEndRandMiddle - effect.posxEndRand,
 				posxEndRandMiddle + effect.posxEndRand
@@ -143,7 +143,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.posyStartRand) {
-			let posyStartRandMiddle = effect.posyStartRandMiddle ? effect.posyStartRandMiddle : 0;
+			const posyStartRandMiddle = effect.posyStartRandMiddle ? effect.posyStartRandMiddle : 0;
 			this.posyStart = getRandomIntInclusive(
 				posyStartRandMiddle - effect.posyStartRand,
 				posyStartRandMiddle + effect.posyStartRand
@@ -151,7 +151,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.posyEndRand) {
-			let posyEndRandMiddle = effect.posyEndRandMiddle ? effect.posyEndRandMiddle : 0;
+			const posyEndRandMiddle = effect.posyEndRandMiddle ? effect.posyEndRandMiddle : 0;
 			this.posyEnd = getRandomIntInclusive(
 				posyEndRandMiddle - effect.posyEndRand,
 				posyEndRandMiddle + effect.posyEndRand
@@ -189,7 +189,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.poszStartRand) {
-			let poszStartRandMiddle = effect.poszStartRandMiddle ? effect.poszStartRandMiddle : 0;
+			const poszStartRandMiddle = effect.poszStartRandMiddle ? effect.poszStartRandMiddle : 0;
 			this.poszStart = getRandomIntInclusive(
 				poszStartRandMiddle - effect.poszStartRand,
 				poszStartRandMiddle + effect.poszStartRand
@@ -197,7 +197,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.poszEndRand) {
-			let poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
+			const poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
 			this.poszEnd = getRandomIntInclusive(
 				poszEndRandMiddle - effect.poszEndRand,
 				poszEndRandMiddle + effect.poszEndRand
@@ -235,7 +235,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.offsetxStartRand) {
-			let offsetxStartRandMiddle = effect.offsetxStartRandMiddle ? effect.offsetxStartRandMiddle : 0;
+			const offsetxStartRandMiddle = effect.offsetxStartRandMiddle ? effect.offsetxStartRandMiddle : 0;
 			this.offsetxStart = getRandomIntInclusive(
 				offsetxStartRandMiddle - effect.offsetxStartRand,
 				offsetxStartRandMiddle + effect.offsetxStartRand
@@ -243,7 +243,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.offsetxEndRand) {
-			let offsetxEndRandMiddle = effect.offsetxEndRandMiddle ? effect.offsetxEndRandMiddle : 0;
+			const offsetxEndRandMiddle = effect.offsetxEndRandMiddle ? effect.offsetxEndRandMiddle : 0;
 			this.offsetxEnd = getRandomIntInclusive(
 				offsetxEndRandMiddle - effect.offsetxEndRand,
 				offsetxEndRandMiddle + effect.offsetxEndRand
@@ -281,7 +281,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.offsetyStartRand) {
-			let offsetyStartRandMiddle = effect.offsetyStartRandMiddle ? effect.offsetyStartRandMiddle : 0;
+			const offsetyStartRandMiddle = effect.offsetyStartRandMiddle ? effect.offsetyStartRandMiddle : 0;
 			this.offsetyStart = getRandomIntInclusive(
 				offsetyStartRandMiddle - effect.offsetyStartRand,
 				offsetyStartRandMiddle + effect.offsetyStartRand
@@ -289,7 +289,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.offsetyEndRand) {
-			let offsetyEndRandMiddle = effect.offsetyEndRandMiddle ? effect.offsetyEndRandMiddle : 0;
+			const offsetyEndRandMiddle = effect.offsetyEndRandMiddle ? effect.offsetyEndRandMiddle : 0;
 			this.offsetyEnd = getRandomIntInclusive(
 				offsetyEndRandMiddle - effect.offsetyEndRand,
 				offsetyEndRandMiddle + effect.offsetyEndRand
@@ -347,7 +347,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.sizeRandX) {
-			let sizeRandXMiddle = effect.sizeRandXMiddle ? effect.sizeRandXMiddle : 100;
+			const sizeRandXMiddle = effect.sizeRandXMiddle ? effect.sizeRandXMiddle : 100;
 			this.sizeStartX = getRandomIntInclusive(
 				sizeRandXMiddle - effect.sizeRandX,
 				sizeRandXMiddle + effect.sizeRandX
@@ -356,7 +356,7 @@ import Camera from 'Renderer/Camera';
 		}
 
 		if (effect.sizeRandY) {
-			let sizeRandYMiddle = effect.sizeRandYMiddle ? effect.sizeRandYMiddle : 100;
+			const sizeRandYMiddle = effect.sizeRandYMiddle ? effect.sizeRandYMiddle : 100;
 			this.sizeStartY = getRandomIntInclusive(
 				sizeRandYMiddle - effect.sizeRandY,
 				sizeRandYMiddle + effect.sizeRandY
@@ -377,8 +377,8 @@ import Camera from 'Renderer/Camera';
 
 		if (effect.rotateToTarget) {
 			this.rotateToTarget = true;
-			let x = this.posxEnd - this.posxStart;
-			let y = this.posyEnd - this.posyStart;
+			const x = this.posxEnd - this.posxStart;
+			const y = this.posyEnd - this.posyStart;
 			this.angle += 90 - Math.atan2(y, x) * (180 / Math.PI);
 		}
 
@@ -429,7 +429,7 @@ import Camera from 'Renderer/Camera';
 	}
 
 	TwoDEffect.prototype.init = function init(gl) {
-		let self = this;
+		const self = this;
 		Client.loadFile('data/texture/' + this.textureName, function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
 				self.texture = texture;
@@ -447,8 +447,8 @@ import Camera from 'Renderer/Camera';
 			return;
 		} //not yet
 
-		let start = tick - this.startTick;
-		let duration = this.endTick - this.startTick;
+		const start = tick - this.startTick;
+		const duration = this.endTick - this.startTick;
 		let steps = (start / duration) * 100;
 
 		if (steps > 100) {
@@ -464,26 +464,26 @@ import Camera from 'Renderer/Camera';
 		SpriteRenderer.image.texture = this.texture;
 		SpriteRenderer.zIndex = this.zIndex;
 
-		let cRad = (Camera.angle[1] * Math.PI) / 180;
+		const cRad = (Camera.angle[1] * Math.PI) / 180;
 
 		// Pos
 		let currentX = 0;
 		if (this.posxSmooth) {
 			if (this.posxStart != this.posxEnd) {
-				let step = steps * 0.09 + 1;
-				let smoothStep = Math.log10(step);
-				let distance = this.posxEnd - this.posxStart;
-				let start = this.posxStart;
-				let position = smoothStep * distance + start;
+				const step = steps * 0.09 + 1;
+				const smoothStep = Math.log10(step);
+				const distance = this.posxEnd - this.posxStart;
+				const start = this.posxStart;
+				const position = smoothStep * distance + start;
 				currentX = position;
 			} else {
 				currentX = this.posxStart;
 			}
 		} else {
 			if (this.posxStart != this.posxEnd) {
-				let distance = (this.posxEnd - this.posxStart) / 100;
-				let start = this.posxStart;
-				let position = steps * distance + start;
+				const distance = (this.posxEnd - this.posxStart) / 100;
+				const start = this.posxStart;
+				const position = steps * distance + start;
 				currentX = position;
 			} else {
 				currentX = this.posxStart;
@@ -493,20 +493,20 @@ import Camera from 'Renderer/Camera';
 		let currentY = 0;
 		if (this.posySmooth) {
 			if (this.posyStart != this.posyEnd) {
-				let step = steps * 0.09 + 1;
-				let smoothStep = Math.log10(step);
-				let distance = this.posyEnd - this.posyStart;
-				let start = this.posyStart;
-				let position = smoothStep * distance + start;
+				const step = steps * 0.09 + 1;
+				const smoothStep = Math.log10(step);
+				const distance = this.posyEnd - this.posyStart;
+				const start = this.posyStart;
+				const position = smoothStep * distance + start;
 				currentY = position;
 			} else {
 				currentY = this.posyStart;
 			}
 		} else {
 			if (this.posyStart != this.posyEnd) {
-				let distance = (this.posyEnd - this.posyStart) / 100;
-				let start = this.posyStart;
-				let position = steps * distance + start;
+				const distance = (this.posyEnd - this.posyStart) / 100;
+				const start = this.posyStart;
+				const position = steps * distance + start;
 				currentY = position;
 			} else {
 				currentY = this.posyStart;
@@ -520,20 +520,20 @@ import Camera from 'Renderer/Camera';
 		let currentZ = 0;
 		if (this.poszSmooth) {
 			if (this.poszStart != this.poszEnd) {
-				let step = steps * 0.09 + 1;
-				let smoothStep = Math.log10(step);
-				let distance = this.poszEnd - this.poszStart;
-				let start = this.poszStart;
-				let position = smoothStep * distance + start;
+				const step = steps * 0.09 + 1;
+				const smoothStep = Math.log10(step);
+				const distance = this.poszEnd - this.poszStart;
+				const start = this.poszStart;
+				const position = smoothStep * distance + start;
 				currentZ = position;
 			} else {
 				currentZ = this.poszStart;
 			}
 		} else {
 			if (this.poszStart != this.poszEnd) {
-				let distance = (this.poszEnd - this.poszStart) / 100;
-				let start = this.poszStart;
-				let position = steps * distance + start;
+				const distance = (this.poszEnd - this.poszStart) / 100;
+				const start = this.poszStart;
+				const position = steps * distance + start;
 				currentZ = position;
 			} else {
 				currentZ = this.poszStart;
@@ -545,20 +545,20 @@ import Camera from 'Renderer/Camera';
 		let currentOffsetX = 0;
 		if (this.offsetxSmooth) {
 			if (this.offsetxStart != this.offsetxEnd) {
-				let step = steps * 0.09 + 1;
-				let smoothStep = Math.log10(step);
-				let distance = this.offsetxEnd - this.offsetxStart;
-				let start = this.offsetxStart;
-				let offset = smoothStep * distance + start;
+				const step = steps * 0.09 + 1;
+				const smoothStep = Math.log10(step);
+				const distance = this.offsetxEnd - this.offsetxStart;
+				const start = this.offsetxStart;
+				const offset = smoothStep * distance + start;
 				currentOffsetX = offset;
 			} else {
 				currentOffsetX = this.offsetxStart;
 			}
 		} else {
 			if (this.offsetxStart != this.offsetxEnd) {
-				let distance = (this.offsetxEnd - this.offsetxStart) / 100;
-				let start = this.offsetxStart;
-				let offset = steps * distance + start;
+				const distance = (this.offsetxEnd - this.offsetxStart) / 100;
+				const start = this.offsetxStart;
+				const offset = steps * distance + start;
 				currentOffsetX = offset;
 			} else {
 				currentOffsetX = this.offsetxStart;
@@ -568,20 +568,20 @@ import Camera from 'Renderer/Camera';
 		let currentOffsetY = 0;
 		if (this.offsetySmooth) {
 			if (this.offsetyStart != this.offsetyEnd) {
-				let step = steps * 0.09 + 1;
-				let smoothStep = Math.log10(step);
-				let distance = this.offsetyEnd - this.offsetyStart;
-				let start = this.offsetyStart;
-				let offset = smoothStep * distance + start;
+				const step = steps * 0.09 + 1;
+				const smoothStep = Math.log10(step);
+				const distance = this.offsetyEnd - this.offsetyStart;
+				const start = this.offsetyStart;
+				const offset = smoothStep * distance + start;
 				currentOffsetY = offset;
 			} else {
 				currentOffsetY = this.offsetyStart;
 			}
 		} else {
 			if (this.offsetyStart != this.offsetyEnd) {
-				let distance = (this.offsetyEnd - this.offsetyStart) / 100;
-				let start = this.offsetyStart;
-				let offset = steps * distance + start;
+				const distance = (this.offsetyEnd - this.offsetyStart) / 100;
+				const start = this.offsetyStart;
+				const offset = steps * distance + start;
 				currentOffsetY = offset;
 			} else {
 				currentOffsetY = this.offsetyStart;
@@ -615,40 +615,40 @@ import Camera from 'Renderer/Camera';
 		let currentXSize, currentYSize;
 		if (this.sizeSmooth) {
 			if (this.sizeEndX != this.sizeStartX) {
-				let step = steps * 0.09 + 1;
-				let smoothStep = Math.log10(step);
-				let delta = this.sizeEndX - this.sizeStartX;
-				let start = this.sizeStartX;
-				let size = smoothStep * delta + start;
+				const step = steps * 0.09 + 1;
+				const smoothStep = Math.log10(step);
+				const delta = this.sizeEndX - this.sizeStartX;
+				const start = this.sizeStartX;
+				const size = smoothStep * delta + start;
 				currentXSize = size;
 			} else {
 				currentXSize = this.sizeStartX;
 			}
 
 			if (this.sizeEndY != this.sizeStartY) {
-				let step = steps * 0.09 + 1;
-				let smoothStep = Math.log10(step);
-				let delta = this.sizeEndY - this.sizeStartY;
-				let start = this.sizeStartY;
-				let size = smoothStep * delta + start;
+				const step = steps * 0.09 + 1;
+				const smoothStep = Math.log10(step);
+				const delta = this.sizeEndY - this.sizeStartY;
+				const start = this.sizeStartY;
+				const size = smoothStep * delta + start;
 				currentYSize = size;
 			} else {
 				currentYSize = this.sizeStartY;
 			}
 		} else {
 			if (this.sizeEndX != this.sizeStartX) {
-				let step = (this.sizeEndX - this.sizeStartX) / 100;
-				let start = this.sizeStartX;
-				let size = steps * step + start;
+				const step = (this.sizeEndX - this.sizeStartX) / 100;
+				const start = this.sizeStartX;
+				const size = steps * step + start;
 				currentXSize = size;
 			} else {
 				currentXSize = this.sizeStartX;
 			}
 
 			if (this.sizeEndY != this.sizeStartY) {
-				let step = (this.sizeEndY - this.sizeStartY) / 100;
-				let start = this.sizeStartY;
-				let size = steps * step + start;
+				const step = (this.sizeEndY - this.sizeStartY) / 100;
+				const start = this.sizeStartY;
+				const size = steps * step + start;
 				currentYSize = size;
 			} else {
 				currentYSize = this.sizeStartY;
@@ -660,9 +660,9 @@ import Camera from 'Renderer/Camera';
 
 		// Angle
 		if (this.rotate) {
-			let step = (this.toAngle - this.angle) / 100;
-			let startAngle = this.angle;
-			let angle = steps * step + startAngle;
+			const step = (this.toAngle - this.angle) / 100;
+			const startAngle = this.angle;
+			const angle = steps * step + startAngle;
 			SpriteRenderer.angle = angle;
 		} else {
 			SpriteRenderer.angle = this.angle;
@@ -677,7 +677,7 @@ import Camera from 'Renderer/Camera';
 			if (this.endTick < tick) {
 				this.ownerEntity.attachments.remove(this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate);
 			} else {
-				let attachment = this.ownerEntity.attachments.get(
+				const attachment = this.ownerEntity.attachments.get(
 					this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate
 				);
 				if (attachment) {

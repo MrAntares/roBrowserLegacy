@@ -12,7 +12,7 @@
 	/// Enum Emotions
 	/// [ <index in sprite>,  <index in interface> { <high priority shortcut>, <other shortcut>}]
 
-	let list = [
+	const list = [
 		// ET_SURPRISE = 0
 		[0, 0, '!'],
 
@@ -279,10 +279,10 @@
 	];
 
 	let i, j, count, size;
-	let commands = {};
-	let names = {};
-	let indexes = {};
-	let order = {};
+	const commands = {};
+	const names = {};
+	const indexes = {};
+	const order = {};
 
 	for (i = 0, count = list.length; i < count; ++i) {
 		size = list[i].length;

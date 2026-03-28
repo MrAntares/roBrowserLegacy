@@ -11,10 +11,10 @@
 
 'use strict';
 
-var mask = new Uint8Array([0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]);
-var tmp = new Uint8Array(8);
-var tmp2 = new Uint8Array(8);
-var clean = new Uint8Array(8);
+const mask = new Uint8Array([0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]);
+const tmp = new Uint8Array(8);
+const tmp2 = new Uint8Array(8);
+const clean = new Uint8Array(8);
 
 /**
  * Initial permutation (IP).
@@ -23,7 +23,7 @@ var clean = new Uint8Array(8);
  * @param {number} index
  */
 function initialPermutation(src, index) {
-	var i, j;
+	let i, j;
 
 	for (i = 0; i < 64; ++i) {
 		j = initialPermutation.table[i] - 1;
@@ -49,7 +49,7 @@ initialPermutation.table = new Uint8Array([
  * @param {number} index
  */
 function finalPermutation(src, index) {
-	var i, j;
+	let i, j;
 
 	for (i = 0; i < 64; ++i) {
 		j = finalPermutation.table[i] - 1;
@@ -75,7 +75,7 @@ finalPermutation.table = new Uint8Array([
  * @param {number} index
  */
 function transposition(src, index) {
-	var i, j;
+	let i, j;
 
 	for (i = 0; i < 32; ++i) {
 		j = transposition.table[i] - 1;
@@ -122,7 +122,7 @@ function expansion(src, index) {
  * @param {number} index
  */
 function substitutionBox(src, index) {
-	var i;
+	let i;
 
 	for (i = 0; i < 4; ++i) {
 		tmp[i] =
@@ -169,7 +169,7 @@ substitutionBox.table = [
  * @param {number} index
  */
 function roundFunction(src, index) {
-	for (var i = 0; i < 8; i++) {
+	for (let i = 0; i < 8; i++) {
 		tmp2[i] = src[index + i];
 	}
 
@@ -203,9 +203,9 @@ function decryptBlock(src, index) {
  * @param {number} entry_len
  */
 export function decodeFull(buf, len, entry_len) {
-	var nblocks = len >> 3;
-	var i, j;
-	var digits, cycle;
+	const nblocks = len >> 3;
+	let i, j;
+	let digits, cycle;
 
 	// compute number of digits of the entry length
 	digits = entry_len.toString().length;
@@ -245,8 +245,8 @@ export function decodeFull(buf, len, entry_len) {
  * @param {number} len
  */
 export function decodeHeader(buf, len) {
-	var nblocks = len >> 3;
-	var i;
+	const nblocks = len >> 3;
+	let i;
 
 	// first 20 blocks are all des-encrypted
 	for (i = 0; i < 20 && i < nblocks; ++i) {
@@ -281,9 +281,9 @@ function shuffleDec(src, index) {
  * @var {Uint8Array[]}
  */
 shuffleDec.table = (function init_substitution() {
-	var i, count;
-	var out = new Uint8Array(256);
-	var list = [0x00, 0x2b, 0x6c, 0x80, 0x01, 0x68, 0x48, 0x77, 0x60, 0xff, 0xb9, 0xc0, 0xfe, 0xeb];
+	let i, count;
+	const out = new Uint8Array(256);
+	const list = [0x00, 0x2b, 0x6c, 0x80, 0x01, 0x68, 0x48, 0x77, 0x60, 0xff, 0xb9, 0xc0, 0xfe, 0xeb];
 
 	for (i = 0; i < 256; ++i) {
 		out[i] = i;

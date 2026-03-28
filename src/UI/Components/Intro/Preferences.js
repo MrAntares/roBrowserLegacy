@@ -18,7 +18,7 @@ import Graphics from 'Preferences/Graphics';
 /**
  * Preferences structure
  */
-var _preferences = Preferences.get(
+const _preferences = Preferences.get(
 	'Window',
 	{
 		serverfile: 'clientinfo.xml',
@@ -65,10 +65,10 @@ function load(ui) {
 		ui.find('.save').attr('checked', _preferences.saveFiles ? 'checked' : false);
 	}
 
-	var i, count;
-	var serverlist = _preferences.serverlist;
-	var $servers = ui.find('.servers').empty();
-	var element = jQuery(
+	let i, count;
+	const serverlist = _preferences.serverlist;
+	const $servers = ui.find('.servers').empty();
+	const element = jQuery(
 		'<tr>' +
 			'	<td><input type="text" class="display"/></td>' +
 			'	<td><input type="text" class="address"/></td>' +
@@ -80,7 +80,7 @@ function load(ui) {
 	);
 
 	for (i = 0, count = serverlist.length; i < count; ++i) {
-		var server = element.clone();
+		const server = element.clone();
 
 		server.find('.display').val(serverlist[i].display);
 		server.find('.address').val(serverlist[i].address + ':' + serverlist[i].port);
@@ -105,10 +105,10 @@ function save(ui) {
 	Graphics.cursor = ui.find('.cursor-options:checked').length ? true : false;
 	_preferences.saveFiles = ui.find('.save:checked').length ? true : false;
 
-	var $servers = ui.find('.servers');
-	var i,
+	const $servers = ui.find('.servers');
+	let i,
 		count = $servers.find('tr').length;
-	var $server;
+	let $server;
 
 	if (Configs.get('_serverEditMode')) {
 		_preferences.serverdef = ui.find('.serverdef:checked').val();
@@ -144,7 +144,7 @@ function save(ui) {
  * Apply preferences
  */
 function apply() {
-	var isFullScreen = Context.isFullScreen();
+	const isFullScreen = Context.isFullScreen();
 
 	// Full Screen support
 	if (Graphics.screensize === 'full') {
@@ -158,7 +158,7 @@ function apply() {
 
 		// Resizing
 		if (Context.Is.POPUP) {
-			var size = Graphics.screensize.split('x');
+			const size = Graphics.screensize.split('x');
 
 			// Only resize/move if needed
 			if (size[0] != window.innerWidth && size[1] != window.innerHeight) {

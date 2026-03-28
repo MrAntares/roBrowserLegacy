@@ -85,7 +85,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {object} pkt - PACKET.ZC.ATTACK_FAILURE_FOR_DISTANCE
 	 */
 	function onPlayerTooFarToAttack(pkt) {
-		let entity = EntityManager.get(pkt.targetAID);
+		const entity = EntityManager.get(pkt.targetAID);
 		if (entity) {
 			entity.onFocus();
 		}
@@ -271,7 +271,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_DANGER, hunger);
 
-						let pkt = new PACKET.CZ.PET_ACT();
+						const pkt = new PACKET.CZ.PET_ACT();
 						pkt.data = talk;
 						Network.sendPacket(pkt);
 						Session.pet.lastTalk = Date.now();
@@ -284,7 +284,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_DEAD, hunger);
 
-						let pkt = new PACKET.CZ.PET_ACT();
+						const pkt = new PACKET.CZ.PET_ACT();
 						pkt.data = talk;
 						Network.sendPacket(pkt);
 						Session.pet.lastTalk = Date.now();
@@ -345,7 +345,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 					const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 					const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_LEVELUP, hunger);
 
-					let pkt = new PACKET.CZ.PET_ACT();
+					const pkt = new PACKET.CZ.PET_ACT();
 					pkt.data = talk;
 					Network.sendPacket(pkt);
 					Session.pet.lastTalk = Date.now();
@@ -699,7 +699,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 			case StatusProperty.HP: {
 				Damage.add(pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL);
 
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_HPTIME,
 					ownerAID: Session.Entity.GID
 				};
@@ -717,7 +717,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 
 			case StatusProperty.SP: {
 				Damage.add(pkt.amount, Session.Entity, Renderer.tick, null, Damage.TYPE.HEAL | Damage.TYPE.SP);
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_SPTIME,
 					ownerAID: Session.Entity.GID
 				};
@@ -759,7 +759,7 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 		ChatBox.addText(message, ChatBox.TYPE.ANNOUNCE, ChatBox.FILTER.PUBLIC_LOG);
 
 		//List
-		for (var i = 0; i < 10; ++i) {
+		for (let i = 0; i < 10; ++i) {
 			let name, point;
 			name = pkt?.Name?.[i] ?? 'None';
 			point = pkt?.Point?.[i] ?? 0;
@@ -843,16 +843,16 @@ import WinStats from 'UI/Components/WinStats/WinStats';
 	 * @param {object} pkt - PACKET.ZC.ACK_STATUS_GM
 	 */
 	function onGMCheckStatus(pkt) {
-		let yellow = '#ffff00';
-		let green = '#00ff17';
-		let sp = function (n) {
+		const yellow = '#ffff00';
+		const green = '#00ff17';
+		const sp = function (n) {
 			return '\u00A0'.repeat(n);
 		};
-		let pad = function (n, w) {
+		const pad = function (n, w) {
 			return String(n).padStart(w || 3, '\u00A0');
 		};
 
-		let targetName = Session.gmCheckTarget || 'Unknown';
+		const targetName = Session.gmCheckTarget || 'Unknown';
 		ChatBox.addText('[ ' + targetName + ' ]', ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG, green);
 		ChatBox.addText(
 			sp(13) +

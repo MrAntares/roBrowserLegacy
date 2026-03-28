@@ -27,12 +27,12 @@ import Client from 'Core/Client';
 	/**
 	 * @var {mat4}
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	let _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	/**
 	 * @var {number}
@@ -42,7 +42,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	let _vertexShader = `
+	const _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -84,7 +84,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	let _fragmentShader = `
+	const _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -127,10 +127,10 @@ import Client from 'Core/Client';
 	 */
 	function generateMagnumBreak() {
 		let i, a, b;
-		let total = 20;
-		let bottom = [];
-		let top = [];
-		let mesh = [];
+		const total = 20;
+		const bottom = [];
+		const top = [];
+		const mesh = [];
 
 		for (i = 0; i <= total; i++) {
 			a = (i + 0.0) / total;
@@ -180,7 +180,7 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	MagnumBreak.prototype.init = function init(gl) {
-		let self = this;
+		const self = this;
 
 		Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
@@ -205,8 +205,8 @@ import Client from 'Core/Client';
 	 * @param {object} wegl context
 	 */
 	MagnumBreak.prototype.render = function render(gl, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 		//var sizeMult = Math.sin(this.timer / (4 * Math.PI)) + 0.5; //var sizeMult = Math.sin(tick / (85 * Math.PI)) + 1.50;
 		let sizeMult = 0.15 + this.timer / 10;
 		if (sizeMult < 0.5) {
@@ -243,7 +243,7 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	MagnumBreak.init = function init(gl) {
-		let vertices = generateMagnumBreak();
+		const vertices = generateMagnumBreak();
 		_verticeCount = vertices.length / 5;
 
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
@@ -279,7 +279,7 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	MagnumBreak.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		mat4.identity(_matrix);
 		mat4.rotateY(_matrix, _matrix, (tick / 4 / 180) * Math.PI);

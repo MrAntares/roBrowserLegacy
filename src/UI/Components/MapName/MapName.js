@@ -20,7 +20,7 @@ import Events from 'Core/Events';
 /**
 	 * Create Component
 	 */
-	let MapName = new UIComponent('MapName', htmlText, cssText);
+	const MapName = new UIComponent('MapName', htmlText, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -54,9 +54,9 @@ import Events from 'Core/Events';
 				opacity: 1
 			});
 
-			let fadeTime = 1000;
-			let fadeCycle = 20;
-			let removeTime = 5000;
+			const fadeTime = 1000;
+			const fadeCycle = 20;
+			const removeTime = 5000;
 			let fadeProgress = 0;
 			let fadeTimeout = null;
 
@@ -114,14 +114,14 @@ import Events from 'Core/Events';
 			MapName.ui.find('.mapbg').css('backgroundImage', 'none');
 		}
 
-		let mapsubtitle = MapName.ui.find('.mapsubtitle');
+		const mapsubtitle = MapName.ui.find('.mapsubtitle');
 		if (_mapinfo && _mapinfo.signName && _mapinfo.signName.subTitle) {
 			mapsubtitle.text(_mapinfo.signName.subTitle);
 		} else {
 			mapsubtitle.empty();
 		}
 
-		let maptitle = MapName.ui.find('.maptitle');
+		const maptitle = MapName.ui.find('.maptitle');
 		if (_mapinfo && _mapinfo.signName && _mapinfo.signName.mainTitle) {
 			maptitle.text(_mapinfo.signName.mainTitle);
 		} else {
@@ -136,8 +136,8 @@ import Events from 'Core/Events';
 		if (!this.ui) {
 			return;
 		}
-		let maptitle = MapName.ui.find('.maptitle');
-		let mapsubtitle = MapName.ui.find('.mapsubtitle');
+		const maptitle = MapName.ui.find('.maptitle');
+		const mapsubtitle = MapName.ui.find('.mapsubtitle');
 
 		// Clean up
 		MapName.ui.find('.mapbg').css('backgroundImage', 'none');

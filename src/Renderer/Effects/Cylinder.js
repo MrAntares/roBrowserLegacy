@@ -20,7 +20,7 @@ import _fragmentShader from './Cylinder.fs?raw';
 	 */
 	let _program;
 
-	let blendMode = {};
+	const blendMode = {};
 
 	/**
 	 * @var {WebGLBuffer}
@@ -30,12 +30,12 @@ import _fragmentShader from './Cylinder.fs?raw';
 	/**
 	 * @var {mat4}
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	let _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	/**
 	 * @var {number}
@@ -54,9 +54,9 @@ import _fragmentShader from './Cylinder.fs?raw';
 	 */
 	function generateCylinder(totalCircleSides, circleSides, repeatTextureX) {
 		let i, a, b;
-		let bottom = [];
-		let top = [];
-		let mesh = [];
+		const bottom = [];
+		const top = [];
+		const mesh = [];
 
 		for (i = 0; i <= circleSides; i++) {
 			a = (i + 0.0) / totalCircleSides;
@@ -100,11 +100,11 @@ import _fragmentShader from './Cylinder.fs?raw';
 	 * @param {number} End tick
 	 */
 	function Cylinder(effect, EF_Inst_Par, EF_Init_Par) {
-		let position = EF_Inst_Par.position;
-		let otherPosition = EF_Inst_Par.otherPosition;
-		let direction = EF_Inst_Par.direction;
-		let startTick = EF_Inst_Par.startTick;
-		let endTick = EF_Inst_Par.endTick;
+		const position = EF_Inst_Par.position;
+		const otherPosition = EF_Inst_Par.otherPosition;
+		const direction = EF_Inst_Par.direction;
+		const startTick = EF_Inst_Par.startTick;
+		const endTick = EF_Inst_Par.endTick;
 
 		this.semiCircle = effect.semiCircle ? false : true;
 
@@ -157,8 +157,8 @@ import _fragmentShader from './Cylinder.fs?raw';
 
 		if (effect.rotateToTarget) {
 			this.rotateToTarget = true;
-			let x = this.otherPosition[0] - this.position[0];
-			let y = this.otherPosition[1] - this.position[1];
+			const x = this.otherPosition[0] - this.position[0];
+			const y = this.otherPosition[1] - this.position[1];
 			this.angleY += 90 - Math.atan2(y, x) * (180 / Math.PI);
 		}
 
@@ -193,7 +193,7 @@ import _fragmentShader from './Cylinder.fs?raw';
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
 
-		let self = this;
+		const self = this;
 		Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
 				self.texture = texture;
@@ -217,10 +217,10 @@ import _fragmentShader from './Cylinder.fs?raw';
 	 * @param {object} wegl context
 	 */
 	Cylinder.prototype.render = function render(gl, tick) {
-		let renderCount = tick - this.startTick;
-		let duration = this.endTick - this.startTick;
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const renderCount = tick - this.startTick;
+		const duration = this.endTick - this.startTick;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -312,7 +312,7 @@ import _fragmentShader from './Cylinder.fs?raw';
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 
-		let currentPosition = [this.position[0], this.position[1], this.position[2]];
+		const currentPosition = [this.position[0], this.position[1], this.position[2]];
 
 		if (
 			this.rotate ||
@@ -342,7 +342,7 @@ import _fragmentShader from './Cylinder.fs?raw';
 				let magic = this.posY;
 
 				if (this.fixedPerspective) {
-					let vcRad = ((Camera.angle[0] - 180) * Math.PI) / 180;
+					const vcRad = ((Camera.angle[0] - 180) * Math.PI) / 180;
 					if (this.posZ) {
 						currentPosition[2] += this.posZ * Math.cos(vcRad) - this.posY * Math.sin(vcRad);
 						magic = this.posY * Math.sin(vcRad) + this.posZ * Math.sin(vcRad);
@@ -350,7 +350,7 @@ import _fragmentShader from './Cylinder.fs?raw';
 					mat4.rotateX(_matrix, _matrix, vcRad);
 				}
 
-				let hcRad = (Camera.angle[1] * Math.PI) / 180;
+				const hcRad = (Camera.angle[1] * Math.PI) / 180;
 				if (this.posX || this.posY) {
 					currentPosition[0] += this.posX * Math.cos(hcRad) - magic * Math.sin(hcRad);
 					currentPosition[1] += magic * Math.cos(hcRad) + this.posX * Math.sin(hcRad);
@@ -373,7 +373,7 @@ import _fragmentShader from './Cylinder.fs?raw';
 
 		gl.uniform3fv(uniform.uPosition, currentPosition);
 
-		let self = this;
+		const self = this;
 		SpriteRenderer.runWithDepth(true, false, true, function () {
 			gl.drawArrays(gl.TRIANGLES, 0, self.verticeCount);
 		});
@@ -433,7 +433,7 @@ import _fragmentShader from './Cylinder.fs?raw';
 	 * @param {object} webgl context
 	 */
 	Cylinder.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		gl.useProgram(_program);
 

@@ -11,7 +11,7 @@
 import JobId from './JobConst';
 import JobNameTable from './JobNameTable';
 
-	let PalNameTable = {};
+	const PalNameTable = {};
 	PalNameTable[JobId.NOVICE] = JobNameTable[JobId.NOVICE];
 
 	PalNameTable[JobId.SWORDMAN] = JobNameTable[JobId.SWORDMAN];
@@ -207,8 +207,8 @@ import JobNameTable from './JobNameTable';
 	PalNameTable[JobId.SKY_EMPEROR2] = JobNameTable[JobId.SKY_EMPEROR2];
 
 	function duplicateEntry(origin) {
-		var value = JobNameTable[origin];
-		var i,
+		const value = JobNameTable[origin];
+		let i,
 			count = arguments.length;
 		for (i = 1; i < count; ++i) {
 			PalNameTable[arguments[i]] = value;

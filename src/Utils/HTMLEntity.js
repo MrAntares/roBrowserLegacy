@@ -12,7 +12,7 @@
 
 function decodeHTMLEntities(str) {
 		// this prevents any overhead from creating the object each time
-		let element = document.createElement('div');
+		const element = document.createElement('div');
 		if (str && typeof str === 'string') {
 			element.innerHTML = str;
 

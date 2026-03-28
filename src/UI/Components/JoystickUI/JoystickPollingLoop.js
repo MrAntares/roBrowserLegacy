@@ -11,8 +11,8 @@
 import InputService from './JoystickInputService';
 
 let timeoutHandle = null;
-	let POLL_RATE_ACTIVE = 100; // 10 FPS
-	let POLL_RATE_IDLE = 1000; // 1 FPS
+	const POLL_RATE_ACTIVE = 100; // 10 FPS
+	const POLL_RATE_IDLE = 1000; // 1 FPS
 export default {
 		start: function () {
 			if (timeoutHandle) {
@@ -21,10 +21,10 @@ export default {
 			this.run();
 		},
 		run: function () {
-			let isConnected = InputService.update();
+			const isConnected = InputService.update();
 
-			let nextDelay = isConnected ? POLL_RATE_ACTIVE : POLL_RATE_IDLE;
-			let self = this;
+			const nextDelay = isConnected ? POLL_RATE_ACTIVE : POLL_RATE_IDLE;
+			const self = this;
 			timeoutHandle = setTimeout(function () {
 				self.run();
 			}, nextDelay);

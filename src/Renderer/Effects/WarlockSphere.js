@@ -27,11 +27,11 @@ import Configs from '../../Core/Configs';
 	/**
 	 * @var {mat4}
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
-	let _rotationMatrices = (function () {
-		let matrices = [];
-		for (var i = 0; i < 5; i++) {
+	const _rotationMatrices = (function () {
+		const matrices = [];
+		for (let i = 0; i < 5; i++) {
 			matrices.push({
 				posMat: mat4.create(),
 				texMat: mat4.create()
@@ -40,12 +40,12 @@ import Configs from '../../Core/Configs';
 		return matrices;
 	})();
 
-	let _textureMatrix = mat4.create();
+	const _textureMatrix = mat4.create();
 
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	let _vertexShader = `
+	const _vertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -83,7 +83,7 @@ import Configs from '../../Core/Configs';
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	let _fragmentShader = `
+	const _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -108,14 +108,14 @@ import Configs from '../../Core/Configs';
 
         }`;
 
-	let WLS = {
+	const WLS = {
 		FIRE: 68, // WLS_FIRE
 		WIND: 69, // WLS_WIND
 		WATER: 70, // WLS_WATER
 		STONE: 71 // WLS_STONE
 	};
 
-	let SphereFiles = [];
+	const SphereFiles = [];
 	SphereFiles[WLS.FIRE] = 'fireorb.bmp';
 	SphereFiles[WLS.WIND] = 'lightningorb.bmp';
 	SphereFiles[WLS.WATER] = 'waterorb.bmp';
@@ -154,8 +154,8 @@ import Configs from '../../Core/Configs';
 
 		Client.loadFile('data/texture/effect/thunder_center.bmp', function (buffer) {
 			Texture.load(buffer, function () {
-				let enableMipmap = Configs.get('enableMipmap');
-				let ctx = this.getContext('2d');
+				const enableMipmap = Configs.get('enableMipmap');
+				const ctx = this.getContext('2d');
 				ctx.save();
 				ctx.translate(this.width / 2, this.height / 2);
 				// ctx.rotate( 45 / 180 * Math.PI);
@@ -196,20 +196,20 @@ import Configs from '../../Core/Configs';
 	};
 
 	WarlockSphere.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 		gl.useProgram(_program);
 
 		let _matrix, offset;
-		for (var i = 0, _len = _rotationMatrices.length; i < _len; i++) {
-			let vcRad = ((Camera.angle[0] - 90) * Math.PI) / 180;
-			let hcRad = (Camera.angle[1] * Math.PI) / 180;
+		for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
+			const vcRad = ((Camera.angle[0] - 90) * Math.PI) / 180;
+			const hcRad = (Camera.angle[1] * Math.PI) / 180;
 			offset = (i * 2 * Math.PI) / _rotationMatrices.length;
-			let rotRad = offset - (tick / 64 / 180) * Math.PI;
+			const rotRad = offset - (tick / 64 / 180) * Math.PI;
 
 			//_matrix = _rotationMatrices[i].texMat;
 			//mat4.identity(_matrix);
-			let textureMatrix = mat4.create();
+			const textureMatrix = mat4.create();
 			mat4.rotateX(_rotationMatrices[i].texMat, textureMatrix, vcRad);
 			mat4.rotateY(_rotationMatrices[i].texMat, _rotationMatrices[i].texMat, hcRad - rotRad);
 
@@ -238,7 +238,7 @@ import Configs from '../../Core/Configs';
 	};
 
 	WarlockSphere.prototype.render = function render(gl, tick) {
-		let uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		gl.uniform3fv(uniform.uPosition, this.position);
 
@@ -249,9 +249,9 @@ import Configs from '../../Core/Configs';
 		gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
 
 		let _matrix;
-		let self = this;
+		const self = this;
 		SpriteRenderer.runWithDepth(false, true, false, function () {
-			for (var i = self.spheres.length; i > 0; i--) {
+			for (let i = self.spheres.length; i > 0; i--) {
 				_matrix = _rotationMatrices[i % _rotationMatrices.length];
 
 				gl.uniformMatrix4fv(uniform.uTextureRotMat, false, _matrix.texMat);

@@ -23,7 +23,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	/**
 	 * Create namespace
 	 */
-	let FriendEngine = {};
+	const FriendEngine = {};
 
 	/**
 	 * @var {Array} list of friends
@@ -43,7 +43,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 		Network.hookPacket(PACKET.ZC.DELETE_FRIENDS, onFriendRemoved);
 
 		// Hook UI
-		let FriendUI = PartyFriends.getUI();
+		const FriendUI = PartyFriends.getUI();
 		FriendUI.onRequestNewFriend = FriendEngine.addFriend;
 		FriendUI.onRemoveFriend = FriendEngine.removeFriend;
 	};
@@ -62,7 +62,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {string} name
 	 */
 	FriendEngine.addFriend = function addFriend(name) {
-		let pkt = new PACKET.CZ.ADD_FRIENDS();
+		const pkt = new PACKET.CZ.ADD_FRIENDS();
 		pkt.name = name;
 
 		Network.sendPacket(pkt);
@@ -74,7 +74,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {number} index
 	 */
 	FriendEngine.removeFriend = function removeFriend(index) {
-		let pkt = new PACKET.CZ.DELETE_FRIENDS();
+		const pkt = new PACKET.CZ.DELETE_FRIENDS();
 		pkt.AID = _friends[index].AID;
 		pkt.GID = _friends[index].GID;
 
@@ -89,7 +89,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {number} answer
 	 */
 	FriendEngine.answerFriendRequest = function answerFriendRequest(AID, GID, result) {
-		let pkt = new PACKET.CZ.ACK_REQ_ADD_FRIENDS();
+		const pkt = new PACKET.CZ.ACK_REQ_ADD_FRIENDS();
 		pkt.ReqAID = AID;
 		pkt.ReqGID = GID;
 		pkt.Result = result;
@@ -122,7 +122,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	FriendEngine.sayHi = function sayHi() {
 		let i,
 			count = _friends.length;
-		let pkt = new PACKET.CZ.WHISPER();
+		const pkt = new PACKET.CZ.WHISPER();
 
 		pkt.msg = '(Hi) *^_^*';
 
@@ -153,7 +153,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {object} pkt - PACKET.ZC.FRIENDS_STATE
 	 */
 	function onFriendUpdate(pkt) {
-		let idx = getFriendIndex(pkt.AID, pkt.GID);
+		const idx = getFriendIndex(pkt.AID, pkt.GID);
 
 		if (idx > -1) {
 			_friends[idx].State = pkt.State;
@@ -244,7 +244,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
 	 * @param {object} pkt - PACKET.ZC.DELETE_FRIENDS
 	 */
 	function onFriendRemoved(pkt) {
-		let idx = getFriendIndex(pkt.AID, pkt.GID);
+		const idx = getFriendIndex(pkt.AID, pkt.GID);
 
 		if (idx > -1) {
 			_friends.splice(idx, 1);

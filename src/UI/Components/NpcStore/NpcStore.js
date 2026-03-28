@@ -32,7 +32,7 @@ import cssText from './NpcStore.css?raw';
 /**
  * Create NPC Menu component
  */
-let NpcStore = new UIComponent('NpcStore', htmlText, cssText);
+const NpcStore = new UIComponent('NpcStore', htmlText, cssText);
 
 /**
  * @let {enum} Store type
@@ -74,17 +74,17 @@ const initialPreferences = {
 /**
  * @let {Preferences}
  */
-let _preferences = Preferences.get('NpcStore', {}, 1.0);
+const _preferences = Preferences.get('NpcStore', {}, 1.0);
 
 /**
  * @let {Array} item list
  */
-let _input = [];
+const _input = [];
 
 /**
  * @let {Array} output list
  */
-let _output = [];
+const _output = [];
 
 /**
  * @let {number} type (buy/sell)
@@ -100,11 +100,11 @@ let _closePacketSent = false;
  * Initialize component
  */
 NpcStore.init = function init() {
-	let ui = this.ui;
-	let InputWindow = ui.find('.InputWindow');
-	let OutputWindow = ui.find('.OutputWindow');
-	let AvailableItemsWindow = ui.find('.AvailableItemsWindow');
-	let PurchaseResult = ui.find('.PurchaseResult');
+	const ui = this.ui;
+	const InputWindow = ui.find('.InputWindow');
+	const OutputWindow = ui.find('.OutputWindow');
+	const AvailableItemsWindow = ui.find('.AvailableItemsWindow');
+	const PurchaseResult = ui.find('.PurchaseResult');
 
 	ui.find('.btn.cancel').click(this.remove.bind(this));
 
@@ -174,7 +174,7 @@ NpcStore.onAppend = function onAppend() {
 	);
 
 	// Seems like "EscapeWindow" is execute first, push it before.
-	let events = jQuery._data(window, 'events').keydown;
+	const events = jQuery._data(window, 'events').keydown;
 	events.unshift(events.pop());
 };
 
@@ -182,15 +182,15 @@ NpcStore.onAppend = function onAppend() {
  * Released movement and save preferences
  */
 NpcStore.onRemove = function onRemove() {
-	let InputWindow = this.ui.find('.InputWindow');
-	let OutputWindow = this.ui.find('.OutputWindow');
-	let AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
-	let PurchaseResult = this.ui.find('.PurchaseResult');
+	const InputWindow = this.ui.find('.InputWindow');
+	const OutputWindow = this.ui.find('.OutputWindow');
+	const AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
+	const PurchaseResult = this.ui.find('.PurchaseResult');
 
 	_input.length = 0;
 	_output.length = 0;
 
-	let currentPref = getCurrentPref();
+	const currentPref = getCurrentPref();
 
 	currentPref.inputWindow.x = parseInt(InputWindow.css('left'), 10);
 	currentPref.inputWindow.y = parseInt(InputWindow.css('top'), 10);
@@ -284,12 +284,12 @@ NpcStore.setType = function setType(type) {
 
 	_type = type;
 
-	let currentPref = getCurrentPref();
+	const currentPref = getCurrentPref();
 
-	let InputWindow = this.ui.find('.InputWindow');
-	let OutputWindow = this.ui.find('.OutputWindow');
-	let AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
-	let PurchaseResult = this.ui.find('.PurchaseResult');
+	const InputWindow = this.ui.find('.InputWindow');
+	const OutputWindow = this.ui.find('.OutputWindow');
+	const AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
+	const PurchaseResult = this.ui.find('.PurchaseResult');
 
 	// Apply saved positions
 	InputWindow.css({ top: currentPref.inputWindow.y, left: currentPref.inputWindow.x });
@@ -395,11 +395,11 @@ NpcStore.setList = function setList(items) {
 			break;
 
 		case NpcStore.Type.SELL:
-			let InventoryVersion = UIManager.getComponent('Inventory').name;
+			const InventoryVersion = UIManager.getComponent('Inventory').name;
 			for (i = 0, count = items.length; i < count; ++i) {
 				it = Inventory.getUI().getItemByIndex(items[i].index);
 
-				let condition =
+				const condition =
 					InventoryVersion !== 'InventoryV0'
 						? it && (!Inventory.getUI().npcsalelock || it.PlaceETCTab < 1)
 						: it;
@@ -424,9 +424,9 @@ NpcStore.setList = function setList(items) {
 };
 
 NpcStore.setPriceLimit = function setPriceLimit(price) {
-	let prettyPrice = prettyZeny(price);
-	let text = DB.getMessage(1735);
-	let result = text.replace('%s', prettyPrice); // workaround
+	const prettyPrice = prettyZeny(price);
+	const text = DB.getMessage(1735);
+	const result = text.replace('%s', prettyPrice); // workaround
 	this.ui.find('.priceLimit').text(result);
 };
 
@@ -511,7 +511,7 @@ NpcStore.calculateWeight = function calculateWeight() {
  * @return {string}
  */
 function prettyZeny(val, useStyle) {
-	let list = val.toString().split('');
+	const list = val.toString().split('');
 	let i,
 		count = list.length;
 	let str = '';
@@ -521,7 +521,7 @@ function prettyZeny(val, useStyle) {
 	}
 
 	if (useStyle) {
-		let style = [
+		const style = [
 			'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
 			'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
 			'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
@@ -546,9 +546,9 @@ function prettyZeny(val, useStyle) {
  * @param {Item} item info
  */
 function addItem(content, item) {
-	let it = DB.getItemInfo(item.ITID);
-	let currencyit = DB.getItemInfo(item.currencyITID);
-	let element = content.find('.item[data-index=' + item.index + ']:first');
+	const it = DB.getItemInfo(item.ITID);
+	const currencyit = DB.getItemInfo(item.currencyITID);
+	const element = content.find('.item[data-index=' + item.index + ']:first');
 	let price;
 	let amountText;
 
@@ -588,7 +588,7 @@ function addItem(content, item) {
 			price += ' -> ' + prettyZeny(item.overchargeprice);
 		}
 
-		let buyingClass = _type == NpcStore.Type.BUYING_STORE ? ' amountBuying' : '';
+		const buyingClass = _type == NpcStore.Type.BUYING_STORE ? ' amountBuying' : '';
 		amountText = _type == NpcStore.Type.BUYING_STORE ? ' ea.' : '';
 		// Create it
 		content.append(
@@ -782,13 +782,13 @@ function resize(content, height) {
  * @param {jQueryElement} ui element
  */
 function onResize(ui) {
-	let top = ui.position().top;
-	let content = ui.find('.content:first');
+	const top = ui.position().top;
+	const content = ui.find('.content:first');
 	let lastHeight = 0;
 	let interval;
 
 	function resizing() {
-		let extraY = 31 + 19 - 30;
+		const extraY = 31 + 19 - 30;
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 		// Maximum and minimum window size
@@ -852,17 +852,17 @@ const transferItem = (function () {
 				return;
 			}
 
-			let originalCount = outputItem.count;
+			const originalCount = outputItem.count;
 			outputItem.count = Math.min(outputItem.count + count, inputItem.count); // Update count
 
 			if (_type === NpcStore.Type.BARTER_MARKET) {
 				// Calculate weight
-				let inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
-				let inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
-				let currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
-				let currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
-				let additionalWeight = currencyItemWeight * (outputItem.count - originalCount);
-				let expectedWeight = Session.Character.weight + NpcStore.calculateWeight() + additionalWeight;
+				const inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
+				const inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
+				const currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
+				const currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
+				const additionalWeight = currencyItemWeight * (outputItem.count - originalCount);
+				const expectedWeight = Session.Character.weight + NpcStore.calculateWeight() + additionalWeight;
 
 				if (expectedWeight > Session.Character.max_weight) {
 					ChatBox.addText(DB.getMessage(56), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
@@ -878,10 +878,10 @@ const transferItem = (function () {
 				addItem(toContent, outputItem);
 
 				// Then, update currency properties
-				let outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
-				let currencyItemDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_icon`);
-				let currencyItem = parseInt(currencyItemDiv.attr('data-item'), 10);
-				let currencyTotal = currencyAmount * outputItem.count;
+				const outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
+				const currencyItemDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_icon`);
+				const currencyItem = parseInt(currencyItemDiv.attr('data-item'), 10);
+				const currencyTotal = currencyAmount * outputItem.count;
 
 				outputCurrencyDiv.text(currencyTotal); // Update displayed currency total
 				outputItem.shopIndex = index; // Assign shop index
@@ -894,7 +894,7 @@ const transferItem = (function () {
 			}
 
 			if (typeof outputItem.maxCount !== 'undefined' && outputItem.count > outputItem.maxCount) {
-				let text = DB.getMessage(1739).replace('%d', outputItem.maxCount);
+				const text = DB.getMessage(1739).replace('%d', outputItem.maxCount);
 				ChatBox.addText(text, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			}
 		} else {
@@ -906,14 +906,14 @@ const transferItem = (function () {
 			outputItem.count -= count;
 
 			if (_type === NpcStore.Type.BARTER_MARKET) {
-				let inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
-				let currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
+				const inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
+				const currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
 				outputItem.total_weight = currencyItemWeight * outputItem.count;
 
-				let inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
-				let outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
-				let currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
-				let currencyTotal = currencyAmount * outputItem.count;
+				const inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
+				const outputCurrencyDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_amount`);
+				const currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
+				const currencyTotal = currencyAmount * outputItem.count;
 
 				outputCurrencyDiv.text(currencyTotal);
 				outputItem.matcurrencyamount = currencyTotal; // Update material currency amount
@@ -1013,8 +1013,8 @@ function onDrop(event) {
  * Get informations about an item
  */
 function onItemInfo(event) {
-	let index = parseInt(this.parentNode.getAttribute('data-index'), 10);
-	let item = _input[index];
+	const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
+	const item = _input[index];
 
 	event.stopImmediatePropagation();
 
@@ -1157,8 +1157,8 @@ NpcStore.closeStore = function () {
  * @param {String} type - The store type (e.g., NpcStore.Type.MARKETSHOP, etc.)
  */
 NpcStore.StoreClosePacket = function (type) {
-	let inputWindow = NpcStore.ui.find('.InputWindow');
-	let outputWindow = NpcStore.ui.find('.OutputWindow');
+	const inputWindow = NpcStore.ui.find('.InputWindow');
+	const outputWindow = NpcStore.ui.find('.OutputWindow');
 
 	// Also remove the input box, if present
 	InputBox.remove();
@@ -1221,11 +1221,11 @@ function getCurrentPref() {
  * @param {Array.<PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2.Item>} itemList
  */
 NpcStore.onMarketShopResultUI = function (itemList) {
-	let InputWindow = NpcStore.ui.find('.InputWindow');
-	let OutputWindow = NpcStore.ui.find('.OutputWindow');
-	let OutputWindowcontent = OutputWindow.find('.content');
-	let resultUI = NpcStore.ui.find('.PurchaseResult');
-	let resultUIcontent = resultUI.find('.content');
+	const InputWindow = NpcStore.ui.find('.InputWindow');
+	const OutputWindow = NpcStore.ui.find('.OutputWindow');
+	const OutputWindowcontent = OutputWindow.find('.content');
+	const resultUI = NpcStore.ui.find('.PurchaseResult');
+	const resultUIcontent = resultUI.find('.content');
 
 	// Update UI
 	InputWindow.hide();

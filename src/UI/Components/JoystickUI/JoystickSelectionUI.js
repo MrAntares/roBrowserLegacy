@@ -13,7 +13,7 @@ import jQuery from 'Utils/jquery';
 import htmlText from './JoystickSelectionUI.html?raw';
 import cssText from './JoystickSelectionUI.css?raw';
 
-let JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssText);
+const JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssText);
 
 	// State variables
 	let currentTab = 0;
@@ -37,7 +37,7 @@ let JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssTe
 
 	// Internal Helper: Get Combo String
 	function getJoystickComboForSlot(slotIndex) {
-		let combos = {
+		const combos = {
 			0: 'L1+Y',
 			1: 'L1+X',
 			2: 'L1+B',
@@ -83,20 +83,20 @@ let JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssTe
 	}
 
 	function updateGrid() {
-		let grid = JoystickSelectionUI.ui.find('.shortcut-grid');
+		const grid = JoystickSelectionUI.ui.find('.shortcut-grid');
 		grid.empty();
 
-		let startIdx = currentTab * 9;
+		const startIdx = currentTab * 9;
 
-		for (var i = 0; i < 9; i++) {
-			let globalIndex = startIdx + i;
-			let slot = ShortCut.getList()[globalIndex];
-			let isEmpty = !slot || (!slot.isSkill && !slot.ID);
+		for (let i = 0; i < 9; i++) {
+			const globalIndex = startIdx + i;
+			const slot = ShortCut.getList()[globalIndex];
+			const isEmpty = !slot || (!slot.isSkill && !slot.ID);
 
-			let joystickCombo = getJoystickComboForSlot(globalIndex);
-			let displayText = joystickCombo || i + 1;
+			const joystickCombo = getJoystickComboForSlot(globalIndex);
+			const displayText = joystickCombo || i + 1;
 
-			let slotDiv = jQuery('<div class="slot-btn" data-index="' + i + '">' + displayText + '</div>');
+			const slotDiv = jQuery('<div class="slot-btn" data-index="' + i + '">' + displayText + '</div>');
 
 			if (isEmpty) {
 				slotDiv.addClass('empty');
@@ -109,23 +109,23 @@ let JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssTe
 	}
 
 	function updateSelection() {
-		let grid = JoystickSelectionUI.ui.find('.shortcut-grid');
+		const grid = JoystickSelectionUI.ui.find('.shortcut-grid');
 		grid.find('.slot-btn').removeClass('selected');
 		grid.find('.slot-btn[data-index="' + slotInTab + '"]').addClass('selected');
 	}
 
 	function updateTabButtons() {
-		let tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
+		const tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
 		tabButtons.find('.tab-btn').removeClass('active');
 		tabButtons.find('.tab-btn[data-tab="' + currentTab + '"]').addClass('active');
 	}
 
 	function createTabButtons() {
-		let tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
+		const tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
 		tabButtons.empty();
 
-		for (var t = 0; t < 4; t++) {
-			let tabBtn = jQuery('<button class="tab-btn" data-tab="' + t + '">Tab ' + (t + 1) + '</button>');
+		for (let t = 0; t < 4; t++) {
+			const tabBtn = jQuery('<button class="tab-btn" data-tab="' + t + '">Tab ' + (t + 1) + '</button>');
 			tabButtons.append(tabBtn);
 		}
 	}
@@ -135,8 +135,8 @@ let JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssTe
 			return;
 		}
 
-		let row = currentTab;
-		let pos = row * 9 + slotInTab;
+		const row = currentTab;
+		const pos = row * 9 + slotInTab;
 
 		ShortCut.removeElement(itemData.isSkill, itemData.ID, row, itemData.value);
 		ShortCut.addElement(pos, itemData.isSkill, itemData.ID, itemData.value);

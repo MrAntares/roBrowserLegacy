@@ -15,7 +15,7 @@ import UIComponent from 'UI/UIComponent';
 import htmlText from './QuestWindow.html?raw';
 import cssText from './QuestWindow.css?raw';
 
-let _preferences = Preferences.get(
+const _preferences = Preferences.get(
 		'Quest',
 		{
 			x: 200,
@@ -29,7 +29,7 @@ let _preferences = Preferences.get(
 	/**
 	 * Create Component
 	 */
-	let QuestWindow = new UIComponent('QuestWindow', htmlText, cssText);
+	const QuestWindow = new UIComponent('QuestWindow', htmlText, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -73,7 +73,7 @@ let _preferences = Preferences.get(
 	 */
 	QuestWindow.setQuestList = function setQuestList(quests, questNotShowList) {
 		let $already_show = 0;
-		for (let questID in quests) {
+		for (const questID in quests) {
 			if (!questNotShowList.includes(quests[questID].questID)) {
 				if (!isInCooldown(quests[questID])) {
 					if (quests[questID].active == 1 && $already_show < 4) {
@@ -89,7 +89,7 @@ let _preferences = Preferences.get(
 		if (quest.end_time == 0) {
 			return false;
 		}
-		let epoch_seconds = new Date() / 1000;
+		const epoch_seconds = new Date() / 1000;
 		if (quest.end_time > epoch_seconds) {
 			return true;
 		}
@@ -106,7 +106,7 @@ let _preferences = Preferences.get(
 		title = quest.title.length > 25 ? quest.title.substr(0, 25) + '...' : quest.title;
 		summary = quest.summary.length > 25 ? quest.summary.substr(0, 25) + '...' : quest.summary;
 		let list = '';
-		for (let huntID in quest.hunt_list) {
+		for (const huntID in quest.hunt_list) {
 			list +=
 				'<li>' +
 				quest.hunt_list[huntID].mobName +

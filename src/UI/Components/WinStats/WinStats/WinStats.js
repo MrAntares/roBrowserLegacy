@@ -20,12 +20,12 @@ import cssText from './WinStats.css?raw';
 /**
 	 * Create component
 	 */
-	let WinStats = new UIComponent('WinStats', htmlText, cssText);
+	const WinStats = new UIComponent('WinStats', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'WinStats',
 		{
 			x: 0,

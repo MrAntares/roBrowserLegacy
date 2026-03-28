@@ -14,7 +14,7 @@ import DB from 'DB/DBManager';
 	/**
 	 * MapPathFinder namespace
 	 */
-	let MapPathFinder = {};
+	const MapPathFinder = {};
 
 	/**
 	 * Find a path between maps using Dijkstra's algorithm
@@ -69,8 +69,8 @@ import DB from 'DB/DBManager';
 		}
 
 		// Get navigation data
-		let naviLinkTable = DB.getNaviLinkTable();
-		let naviLinkDistanceTable = DB.getNaviLinkDistanceTable();
+		const naviLinkTable = DB.getNaviLinkTable();
+		const naviLinkDistanceTable = DB.getNaviLinkDistanceTable();
 
 		// Check if we have navigation data
 		if (!naviLinkTable || !naviLinkTable.length) {
@@ -78,20 +78,20 @@ import DB from 'DB/DBManager';
 		}
 
 		// Build a graph of map connections
-		let graph = {};
-		let warpDetails = {};
+		const graph = {};
+		const warpDetails = {};
 
 		// Process NaviLinkTable to build the graph
 		for (var i = 0; i < naviLinkTable.length; i++) {
-			let warp = naviLinkTable[i];
+			const warp = naviLinkTable[i];
 			if (!warp || warp.length < 11) {
 				continue;
 			}
 
-			let srcMap = warp[0];
-			let warpId = warp[1];
-			let warpType = warp[2];
-			let destMap = warp[8];
+			const srcMap = warp[0];
+			const warpId = warp[1];
+			const warpType = warp[2];
+			const destMap = warp[8];
 
 			// Skip invalid warps or warps of types not in warpTypes
 			if (!srcMap || !destMap || warpTypes.indexOf(warpType) === -1) {
@@ -113,7 +113,7 @@ import DB from 'DB/DBManager';
 			}
 
 			// Store warp details for later use
-			let warpKey = srcMap + '_' + warpId;
+			const warpKey = srcMap + '_' + warpId;
 			warpDetails[warpKey] = {
 				id: warpId,
 				type: warpType,
@@ -132,21 +132,21 @@ import DB from 'DB/DBManager';
 		if (naviLinkDistanceTable && naviLinkDistanceTable.length) {
 			for (var i = 0; i < naviLinkDistanceTable.length; i++) {
 				if (typeof naviLinkDistanceTable[i] === 'string') {
-					let mapName = naviLinkDistanceTable[i];
+					const mapName = naviLinkDistanceTable[i];
 					if (i + 2 < naviLinkDistanceTable.length) {
 						//var numLinks = naviLinkDistanceTable[i + 1]; // UNUSED
-						let linksData = naviLinkDistanceTable[i + 2];
+						const linksData = naviLinkDistanceTable[i + 2];
 
 						if (Array.isArray(linksData)) {
 							// Process each link
-							for (var j = 0; j < linksData.length; j++) {
+							for (let j = 0; j < linksData.length; j++) {
 								if (!Array.isArray(linksData[j]) || linksData[j].length < 2) {
 									continue;
 								}
 
-								let linkId = linksData[j][0];
-								let warpKey = mapName + '_' + linkId;
-								let warpInfo = warpDetails[warpKey];
+								const linkId = linksData[j][0];
+								const warpKey = mapName + '_' + linkId;
+								const warpInfo = warpDetails[warpKey];
 
 								if (!warpInfo) {
 									continue;
@@ -158,12 +158,12 @@ import DB from 'DB/DBManager';
 								}
 
 								// Process destinations from this link
-								for (var k = 1; k < linksData[j].length; k++) {
-									let destData = linksData[j][k];
+								for (let k = 1; k < linksData[j].length; k++) {
+									const destData = linksData[j][k];
 									if (Array.isArray(destData) && destData.length >= 3) {
-										let destMapName = destData[0];
-										let hopCount = destData[1];
-										let pathCost = destData[2];
+										const destMapName = destData[0];
+										const hopCount = destData[1];
+										const pathCost = destData[2];
 
 										// Skip empty destinations
 										if (!destMapName) {
@@ -201,14 +201,14 @@ import DB from 'DB/DBManager';
 
 		// Add distance from start position to warps in the start map
 		if (graph[startMap]) {
-			for (var destMap in graph[startMap]) {
-				let warpId = graph[startMap][destMap].warpId;
-				let warpKey = startMap + '_' + warpId;
-				let warpInfo = warpDetails[warpKey];
+			for (const destMap in graph[startMap]) {
+				const warpId = graph[startMap][destMap].warpId;
+				const warpKey = startMap + '_' + warpId;
+				const warpInfo = warpDetails[warpKey];
 
 				if (warpInfo) {
 					// Calculate distance from start position to this warp
-					let distanceToWarp = Math.sqrt(
+					const distanceToWarp = Math.sqrt(
 						Math.pow(warpInfo.srcX - startX, 2) + Math.pow(warpInfo.srcY - startY, 2)
 					);
 
@@ -219,10 +219,10 @@ import DB from 'DB/DBManager';
 		}
 
 		// Dijkstra's algorithm to find the shortest path
-		let distances = {};
-		let hopCounts = {}; // Track hop counts separately
-		let previous = {};
-		let unvisited = new Set();
+		const distances = {};
+		const hopCounts = {}; // Track hop counts separately
+		const previous = {};
+		const unvisited = new Set();
 
 		// Initialize distances and hop counts
 		for (var map in graph) {
@@ -269,14 +269,14 @@ import DB from 'DB/DBManager';
 
 			// Check all neighbors of current
 			if (graph[current]) {
-				for (var neighbor in graph[current]) {
+				for (const neighbor in graph[current]) {
 					// Skip if neighbor is not in our graph
 					if (!hopCounts.hasOwnProperty(neighbor)) {
 						continue;
 					}
 
-					let newHopCount = hopCounts[current] + (graph[current][neighbor].hopCount || 1);
-					let newDistance = distances[current] + graph[current][neighbor].distance;
+					const newHopCount = hopCounts[current] + (graph[current][neighbor].hopCount || 1);
+					const newDistance = distances[current] + graph[current][neighbor].distance;
 
 					// If we found a path with fewer hops, or same hops but shorter distance
 					if (
@@ -300,7 +300,7 @@ import DB from 'DB/DBManager';
 		}
 
 		// Reconstruct the path
-		let path = [];
+		const path = [];
 		let current = endMap;
 
 		// Add the final destination
@@ -313,15 +313,15 @@ import DB from 'DB/DBManager';
 
 		// Build the path in reverse
 		while (current !== startMap) {
-			let prevInfo = previous[current];
+			const prevInfo = previous[current];
 			if (!prevInfo) {
 				break;
 			}
 
-			let prevMap = prevInfo.map;
-			let warpId = prevInfo.warpId;
-			let warpKey = prevMap + '_' + warpId;
-			let warpInfo = warpDetails[warpKey];
+			const prevMap = prevInfo.map;
+			const warpId = prevInfo.warpId;
+			const warpKey = prevMap + '_' + warpId;
+			const warpInfo = warpDetails[warpKey];
 
 			if (!warpInfo) {
 				break;

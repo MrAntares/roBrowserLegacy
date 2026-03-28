@@ -13,21 +13,21 @@
 import Configs from 'Core/Configs';
 import PacketVerManager from 'Network/PacketVerManager';
 
-var UIVersionManager = {};
-var _UIAliases = {};
+const UIVersionManager = {};
+const _UIAliases = {};
 
 UIVersionManager.getUIAlias = function (name) {
 	return name in _UIAliases ? _UIAliases[name] : false;
 };
 
 UIVersionManager.selectUIVersion = function (publicName, versionInfo) {
-	var SelectedUI = versionInfo.default;
-	var _maxDate = 0;
+	let SelectedUI = versionInfo.default;
+	let _maxDate = 0;
 
 	function getUIbyGameMode(gameMode) {
 		if (typeof gameMode === 'object' && Object.keys(gameMode).length > 0) {
 			for (const [keydate, UI] of Object.entries(gameMode)) {
-				var dateNum = parseInt(keydate);
+				const dateNum = parseInt(keydate);
 				if (PacketVerManager.value >= dateNum && dateNum > _maxDate) {
 					SelectedUI = UI;
 					_maxDate = dateNum;
@@ -54,9 +54,9 @@ UIVersionManager.selectUIVersion = function (publicName, versionInfo) {
 };
 
 UIVersionManager.getUIController = function (publicName, versionInfo) {
-	var _selectedUI;
+	let _selectedUI;
 
-	var UIController = {};
+	const UIController = {};
 
 	UIController.selectUIVersion = function () {
 		_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);

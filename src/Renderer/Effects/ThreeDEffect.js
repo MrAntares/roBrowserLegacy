@@ -13,16 +13,16 @@ function randBetween(minimum, maximum) {
 		return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 	}
 
-	let blendMode = {};
+	const blendMode = {};
 
 	let _soulStrikeFirstEffect = null;
 
 	function ThreeDEffect(effect, EF_Inst_Par, EF_Init_Par) {
-		let position = EF_Inst_Par.position;
-		let otherPosition = EF_Inst_Par.otherPosition;
-		let startTick = EF_Inst_Par.startTick;
-		let endTick = EF_Inst_Par.endTick;
-		let AID = EF_Init_Par.ownerAID;
+		const position = EF_Inst_Par.position;
+		const otherPosition = EF_Inst_Par.otherPosition;
+		const startTick = EF_Inst_Par.startTick;
+		const endTick = EF_Inst_Par.endTick;
+		const AID = EF_Init_Par.ownerAID;
 
 		this.AID = AID;
 		this.ownerEntity = EF_Init_Par.ownerEntity;
@@ -129,14 +129,14 @@ function randBetween(minimum, maximum) {
 			this.posxEnd = randBetween(-effect.posxRandDiff, effect.posxRandDiff);
 		}
 		if (effect.posxStartRand) {
-			let posxStartRandMiddle = effect.posxStartRandMiddle ? effect.posxStartRandMiddle : 0;
+			const posxStartRandMiddle = effect.posxStartRandMiddle ? effect.posxStartRandMiddle : 0;
 			this.posxStart = randBetween(
 				posxStartRandMiddle - effect.posxStartRand,
 				posxStartRandMiddle + effect.posxStartRand
 			);
 		}
 		if (effect.posxEndRand) {
-			let posxEndRandMiddle = effect.posxEndRandMiddle ? effect.posxEndRandMiddle : 0;
+			const posxEndRandMiddle = effect.posxEndRandMiddle ? effect.posxEndRandMiddle : 0;
 			this.posxEnd = randBetween(posxEndRandMiddle - effect.posxEndRand, posxEndRandMiddle + effect.posxEndRand);
 		}
 		this.posxSmooth = effect.posxSmooth ? true : false;
@@ -163,14 +163,14 @@ function randBetween(minimum, maximum) {
 			this.posyEnd = randBetween(-effect.posyRandDiff, effect.posyRandDiff);
 		}
 		if (effect.posyStartRand) {
-			let posyStartRandMiddle = effect.posyStartRandMiddle ? effect.posyStartRandMiddle : 0;
+			const posyStartRandMiddle = effect.posyStartRandMiddle ? effect.posyStartRandMiddle : 0;
 			this.posyStart = randBetween(
 				posyStartRandMiddle - effect.posyStartRand,
 				posyStartRandMiddle + effect.posyStartRand
 			);
 		}
 		if (effect.posyEndRand) {
-			let posyEndRandMiddle = effect.posyEndRandMiddle ? effect.posyEndRandMiddle : 0;
+			const posyEndRandMiddle = effect.posyEndRandMiddle ? effect.posyEndRandMiddle : 0;
 			this.posyEnd = randBetween(posyEndRandMiddle - effect.posyEndRand, posyEndRandMiddle + effect.posyEndRand);
 		}
 		this.posySmooth = effect.posySmooth ? true : false;
@@ -197,14 +197,14 @@ function randBetween(minimum, maximum) {
 			this.poszEnd = randBetween(-effect.poszRandDiff, effect.poszRandDiff);
 		}
 		if (effect.poszStartRand) {
-			let poszStartRandMiddle = effect.poszStartRandMiddle ? effect.poszStartRandMiddle : 0;
+			const poszStartRandMiddle = effect.poszStartRandMiddle ? effect.poszStartRandMiddle : 0;
 			this.poszStart = randBetween(
 				poszStartRandMiddle - effect.poszStartRand,
 				poszStartRandMiddle + effect.poszStartRand
 			);
 		}
 		if (effect.poszEndRand) {
-			let poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
+			const poszEndRandMiddle = effect.poszEndRandMiddle ? effect.poszEndRandMiddle : 0;
 			this.poszEnd = randBetween(poszEndRandMiddle - effect.poszEndRand, poszEndRandMiddle + effect.poszEndRand);
 		}
 
@@ -219,12 +219,12 @@ function randBetween(minimum, maximum) {
 
 		this.poszSmooth = effect.poszSmooth ? true : false;
 		if (effect.fromSrc) {
-			let randStart = [
+			const randStart = [
 				effect.posxStartRand ? randBetween(-effect.posxStartRand, effect.posxStartRand) : 0,
 				effect.posyStartRand ? randBetween(-effect.posyStartRand, effect.posyStartRand) : 0,
 				effect.poszStartRand ? randBetween(-effect.poszStartRand, effect.poszStartRand) : 0
 			];
-			let randEnd = [
+			const randEnd = [
 				effect.posxEndRand ? randBetween(-effect.posxEndRand, effect.posxEndRand) : 0,
 				effect.posyEndRand ? randBetween(-effect.posyEndRand, effect.posyEndRand) : 0,
 				effect.poszEndRand ? randBetween(-effect.poszEndRand, effect.poszEndRand) : 0
@@ -238,12 +238,12 @@ function randBetween(minimum, maximum) {
 			this.poszEnd = otherPosition[2] - position[2] + this.zOffset + this.zOffsetEnd + randEnd[2];
 		}
 		if (effect.toSrc) {
-			let randStart = [
+			const randStart = [
 				effect.posxStartRand ? randBetween(-effect.posxStartRand, effect.posxStartRand) : 0,
 				effect.posyStartRand ? randBetween(-effect.posyStartRand, effect.posyStartRand) : 0,
 				effect.poszStartRand ? randBetween(-effect.poszStartRand, effect.poszStartRand) : 0
 			];
-			let randEnd = [
+			const randEnd = [
 				effect.posxEndRand ? randBetween(-effect.posxEndRand, effect.posxEndRand) : 0,
 				effect.posyEndRand ? randBetween(-effect.posyEndRand, effect.posyEndRand) : 0,
 				effect.poszEndRand ? randBetween(-effect.poszEndRand, effect.poszEndRand) : 0
@@ -311,12 +311,12 @@ function randBetween(minimum, maximum) {
 			this.sizeEndY = this.sizeStartX;
 		}
 		if (effect.sizeRandX) {
-			let sizeRandXMiddle = effect.sizeRandXMiddle ? effect.sizeRandXMiddle : 100;
+			const sizeRandXMiddle = effect.sizeRandXMiddle ? effect.sizeRandXMiddle : 100;
 			this.sizeStartX = randBetween(sizeRandXMiddle - effect.sizeRandX, sizeRandXMiddle + effect.sizeRandX);
 			this.sizeEndX = this.sizeStartX;
 		}
 		if (effect.sizeRandY) {
-			let sizeRandYMiddle = effect.sizeRandYMiddle ? effect.sizeRandYMiddle : 100;
+			const sizeRandYMiddle = effect.sizeRandYMiddle ? effect.sizeRandYMiddle : 100;
 			this.sizeStartY = randBetween(sizeRandYMiddle - effect.sizeRandY, sizeRandYMiddle + effect.sizeRandY);
 			this.sizeEndY = this.sizeStartY;
 		}
@@ -334,8 +334,8 @@ function randBetween(minimum, maximum) {
 
 		if (effect.rotateToTarget) {
 			this.rotateToTarget = true;
-			let x = this.posxEnd - this.posxStart;
-			let y = this.posyEnd - this.posyStart;
+			const x = this.posxEnd - this.posxStart;
+			const y = this.posyEnd - this.posyStart;
 			this.angle += 90 - Math.atan2(y, x) * (180 / Math.PI);
 		}
 
@@ -349,11 +349,11 @@ function randBetween(minimum, maximum) {
 					hitIndex = EF_Inst_Par.duplicateID + 1;
 				}
 
-				let offsetAngle = hitIndex * 72;
-				let offsetRadius = 2;
+				const offsetAngle = hitIndex * 72;
+				const offsetRadius = 2;
 
-				let offsetX = Math.cos((offsetAngle * Math.PI) / 180) * offsetRadius;
-				let offsetY = Math.sin((offsetAngle * Math.PI) / 180) * offsetRadius;
+				const offsetX = Math.cos((offsetAngle * Math.PI) / 180) * offsetRadius;
+				const offsetY = Math.sin((offsetAngle * Math.PI) / 180) * offsetRadius;
 
 				this._soulOffsetX = offsetX;
 				this._soulOffsetY = offsetY;
@@ -363,7 +363,7 @@ function randBetween(minimum, maximum) {
 				this._soulAngle = offsetAngle;
 				_soulStrikeFirstEffect = this;
 			} else {
-				let firstEffect = _soulStrikeFirstEffect;
+				const firstEffect = _soulStrikeFirstEffect;
 				if (firstEffect) {
 					this._soulOffsetX = firstEffect._soulOffsetX;
 					this._soulOffsetY = firstEffect._soulOffsetY;
@@ -384,9 +384,9 @@ function randBetween(minimum, maximum) {
 	ThreeDEffect.prototype.init = function init(gl) {
 		this.loadedTextures = 0;
 		this.textureList = [];
-		let self = this;
+		const self = this;
 		if (this.textureNameList.length > 0) {
-			let textureCount = this.textureNameList.length;
+			const textureCount = this.textureNameList.length;
 
 			for (let i = 0; i < textureCount; i++) {
 				Client.loadFile('data/texture/' + this.textureNameList[i], function (buffer) {
@@ -427,8 +427,8 @@ function randBetween(minimum, maximum) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 
-		let start = tick - this.startTick;
-		let end = this.endTick - this.startTick;
+		const start = tick - this.startTick;
+		const end = this.endTick - this.startTick;
 		let steps = (start / end) * 100;
 
 		if (steps > 100) {
@@ -455,7 +455,7 @@ function randBetween(minimum, maximum) {
 		}
 
 		if (this.textureList.length > 0) {
-			let frame = Math.floor((tick - this.startTick) / this.frameDelay) % this.textureList.length;
+			const frame = Math.floor((tick - this.startTick) / this.frameDelay) % this.textureList.length;
 			this.texture = this.textureList[frame];
 		}
 
@@ -474,20 +474,20 @@ function randBetween(minimum, maximum) {
 		} else {
 			if (this.posxSmooth) {
 				if (this.posxStart != this.posxEnd) {
-					let csJ = steps * 0.09 + 1;
-					let csK = Math.log10(csJ);
-					let csL = this.posxEnd - this.posxStart;
-					let csM = this.posxStart;
-					let csN = csK * csL + csM;
+					const csJ = steps * 0.09 + 1;
+					const csK = Math.log10(csJ);
+					const csL = this.posxEnd - this.posxStart;
+					const csM = this.posxStart;
+					const csN = csK * csL + csM;
 					posDelta = csN;
 				} else {
 					posDelta = this.posxStart;
 				}
 			} else {
 				if (this.posxStart != this.posxEnd) {
-					let csL = (this.posxEnd - this.posxStart) / 100;
-					let csM = this.posxStart;
-					let csN = steps * csL + csM;
+					const csL = (this.posxEnd - this.posxStart) / 100;
+					const csM = this.posxStart;
+					const csN = steps * csL + csM;
 					posDelta = csN;
 				} else {
 					posDelta = this.posxStart;
@@ -504,20 +504,20 @@ function randBetween(minimum, maximum) {
 		} else {
 			if (this.posySmooth) {
 				if (this.posyStart != this.posyEnd) {
-					let csJ = steps * 0.09 + 1;
-					let csK = Math.log10(csJ);
-					let csL = this.posyEnd - this.posyStart;
-					let csM = this.posyStart;
-					let csN = csK * csL + csM;
+					const csJ = steps * 0.09 + 1;
+					const csK = Math.log10(csJ);
+					const csL = this.posyEnd - this.posyStart;
+					const csM = this.posyStart;
+					const csN = csK * csL + csM;
 					posDelta = csN;
 				} else {
 					posDelta = this.posyStart;
 				}
 			} else {
 				if (this.posyStart != this.posyEnd) {
-					let csL = (this.posyEnd - this.posyStart) / 100;
-					let csM = this.posyStart;
-					let csN = steps * csL + csM;
+					const csL = (this.posyEnd - this.posyStart) / 100;
+					const csM = this.posyStart;
+					const csN = steps * csL + csM;
 					posDelta = csN;
 				} else {
 					posDelta = this.posyStart;
@@ -544,12 +544,12 @@ function randBetween(minimum, maximum) {
 
 			let dx = this.posxEnd - this.posxStart;
 			let dy = this.posyEnd - this.posyStart;
-			let dist = Math.sqrt(dx * dx + dy * dy);
+			const dist = Math.sqrt(dx * dx + dy * dy);
 
 			if (dist > 0.001) {
 				dx = dx / dist;
 				dy = dy / dist;
-				let retreatFactor = Math.sin((steps * Math.PI) / 100) * this.retreat;
+				const retreatFactor = Math.sin((steps * Math.PI) / 100) * this.retreat;
 				linearX = linearX - dx * retreatFactor;
 				linearY = linearY - dy * retreatFactor;
 			}
@@ -559,20 +559,20 @@ function randBetween(minimum, maximum) {
 
 		if (this.poszSmooth) {
 			if (this.poszStart != this.poszEnd) {
-				let csJ = steps * 0.09 + 1;
-				let csK = Math.log10(csJ);
-				let csL = this.poszEnd - this.poszStart;
-				let csM = this.poszStart;
-				let csN = csK * csL + csM;
+				const csJ = steps * 0.09 + 1;
+				const csK = Math.log10(csJ);
+				const csL = this.poszEnd - this.poszStart;
+				const csM = this.poszStart;
+				const csN = csK * csL + csM;
 				posDelta = csN;
 			} else {
 				posDelta = this.poszStart;
 			}
 		} else {
 			if (this.poszStart != this.poszEnd) {
-				let csL = (this.poszEnd - this.poszStart) / 100;
-				let csM = this.poszStart;
-				let csN = steps * csL + csM;
+				const csL = (this.poszEnd - this.poszStart) / 100;
+				const csM = this.poszStart;
+				const csN = steps * csL + csM;
 				posDelta = csN;
 			} else {
 				posDelta = this.poszStart;
@@ -613,38 +613,38 @@ function randBetween(minimum, maximum) {
 
 		if (this.sizeSmooth) {
 			if (this.sizeEndX != this.sizeStartX) {
-				let csJ = steps * 0.09 + 1;
-				let csK = Math.log10(csJ);
-				let csL = this.sizeEndX - this.sizeStartX;
-				let csM = this.sizeStartX;
-				let csN = csK * csL + csM;
+				const csJ = steps * 0.09 + 1;
+				const csK = Math.log10(csJ);
+				const csL = this.sizeEndX - this.sizeStartX;
+				const csM = this.sizeStartX;
+				const csN = csK * csL + csM;
 				sizeX = csN;
 			} else {
 				sizeX = this.sizeStartX;
 			}
 			if (this.sizeEndY != this.sizeStartY) {
-				let ctf = steps * 0.09 + 1;
-				let ctg = Math.log10(ctf);
-				let cth = this.sizeEndY - this.sizeStartY;
-				let cti = this.sizeStartY;
-				let ctj = ctg * cth + cti;
+				const ctf = steps * 0.09 + 1;
+				const ctg = Math.log10(ctf);
+				const cth = this.sizeEndY - this.sizeStartY;
+				const cti = this.sizeStartY;
+				const ctj = ctg * cth + cti;
 				sizeY = ctj;
 			} else {
 				sizeY = this.sizeStartY;
 			}
 		} else {
 			if (this.sizeEndX != this.sizeStartX) {
-				let csL = (this.sizeEndX - this.sizeStartX) / 100;
-				let csM = this.sizeStartX;
-				let csN = steps * csL + csM;
+				const csL = (this.sizeEndX - this.sizeStartX) / 100;
+				const csM = this.sizeStartX;
+				const csN = steps * csL + csM;
 				sizeX = csN;
 			} else {
 				sizeX = this.sizeStartX;
 			}
 			if (this.sizeEndY != this.sizeStartY) {
-				let cth = (this.sizeEndY - this.sizeStartY) / 100;
-				let cti = this.sizeStartY;
-				let ctj = steps * cth + cti;
+				const cth = (this.sizeEndY - this.sizeStartY) / 100;
+				const cti = this.sizeStartY;
+				const ctj = steps * cth + cti;
 				sizeY = ctj;
 			} else {
 				sizeY = this.sizeStartY;
@@ -655,9 +655,9 @@ function randBetween(minimum, maximum) {
 		SpriteRenderer.size[1] = sizeY;
 
 		if (this.rotate) {
-			let angleStep = (this.toAngle - this.angle) / 100;
-			let startAngle = this.angle;
-			let angle = steps * angleStep + startAngle;
+			const angleStep = (this.toAngle - this.angle) / 100;
+			const startAngle = this.angle;
+			const angle = steps * angleStep + startAngle;
 			SpriteRenderer.angle = this.rotateWithCamera ? angle + Camera.angle[1] : angle;
 		} else {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
@@ -666,7 +666,7 @@ function randBetween(minimum, maximum) {
 		if (this.shadowTexture) {
 			import('Renderer/EffectManager').then(m => {
 				const EffectManager = m.default;
-				let effectName = EffectManager.get(1000000);
+				const effectName = EffectManager.get(1000000);
 				if (effectName) {
 					if (this.endTick < tick) {
 						EffectManager.remove(effectName, 1000000);
@@ -691,22 +691,22 @@ function randBetween(minimum, maximum) {
 				EntityManager.add(entity);
 				this.ownerEntity = entity;
 			}
-			let actions =
+			const actions =
 				this.actRessource.actions[
 					(entity.action * 8 + ((Camera.direction + entity.direction + 8) % 8)) %
 						this.actRessource.actions.length
 				];
 			let animations;
-			let delay = this.sprDelay || actions.delay;
+			const delay = this.sprDelay || actions.delay;
 			if (this.playSprite) {
 				animations =
 					actions.animations[Math.floor((tick - this.startTick) / delay) % actions.animations.length];
 			} else {
 				animations = actions.animations[0];
 			}
-			let layers = animations.layers;
+			const layers = animations.layers;
 			let i = 0;
-			let layercount = layers.length;
+			const layercount = layers.length;
 			do {
 				let renderer;
 
@@ -722,8 +722,8 @@ function randBetween(minimum, maximum) {
 				renderer.color[2] = 1.0;
 				renderer.color[3] = 1.0;
 
-				let layer = layers[i];
-				let ctE = new Int16Array(2);
+				const layer = layers[i];
+				const ctE = new Int16Array(2);
 				ctE[0] = 0;
 				ctE[1] = 0;
 				if (animations.pos.length) {
@@ -735,7 +735,7 @@ function randBetween(minimum, maximum) {
 				renderer.sprite = this.spriteRessource.frames[layer.index];
 				renderer.palette = this.spriteRessource.palette;
 				let ctF = layer.index + 0;
-				let ctG = layer.spr_type === 1 || this.spriteRessource.rgba_index === 0;
+				const ctG = layer.spr_type === 1 || this.spriteRessource.rgba_index === 0;
 				if (!ctG) {
 					renderer.image.palette = this.spriteRessource.texture;
 					renderer.image.size[0] = this.spriteRessource.frames[ctF].width;
@@ -743,7 +743,7 @@ function randBetween(minimum, maximum) {
 				} else if (layer.spr_type === 1) {
 					ctF += this.spriteRessource.old_rgba_index;
 				}
-				let frame = this.spriteRessource.frames[ctF];
+				const frame = this.spriteRessource.frames[ctF];
 				let width = frame.width;
 				let height = frame.height;
 				width *= (layer.scale[0] / 100) * sizeX;

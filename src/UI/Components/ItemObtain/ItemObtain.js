@@ -22,7 +22,7 @@ import cssText from './ItemObtain.css?raw';
 /**
 	 * Create component
 	 */
-	let ItemObtain = new UIComponent('ItemObtain', htmlText, cssText);
+	const ItemObtain = new UIComponent('ItemObtain', htmlText, cssText);
 
 	/**
 	 * Mouse can cross this UI
@@ -42,7 +42,7 @@ import cssText from './ItemObtain.css?raw';
 	/**
 	 * @var {number} time to display
 	 */
-	let _life = 5 * 1000;
+	const _life = 5 * 1000;
 
 	/**
 	 * Initialize component
@@ -81,9 +81,9 @@ import cssText from './ItemObtain.css?raw';
 	 * @param {object} item
 	 */
 	ItemObtain.set = function set(item) {
-		let it = DB.getItemInfo(item.ITID);
-		let display = DB.getItemName(item, { showItemSlots: false, showItemOptions: false });
-		let resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
+		const it = DB.getItemInfo(item.ITID);
+		const display = DB.getItemName(item, { showItemSlots: false, showItemOptions: false });
+		const resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
 
 		this.placeOnTop();
 

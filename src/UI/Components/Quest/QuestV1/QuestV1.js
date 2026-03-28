@@ -27,7 +27,7 @@ import Session from 'Engine/SessionStorage';
 /**
 	 * Create Component
 	 */
-	let QuestV1 = new UIComponent('QuestV1', htmlText, cssText);
+	const QuestV1 = new UIComponent('QuestV1', htmlText, cssText);
 
 	/**
 	 * @var {number} index of selection
@@ -52,7 +52,7 @@ import Session from 'Engine/SessionStorage';
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'QuestV1',
 		{
 			x: 200,
@@ -170,7 +170,7 @@ import Session from 'Engine/SessionStorage';
 	QuestV1.setQuestList = function setQuestList(quests) {
 		_questList = quests;
 		QuestV1.ClearQuestList();
-		for (let questID in quests) {
+		for (const questID in quests) {
 			QuestV1.addQuestToUI(quests[questID]);
 		}
 	};
@@ -207,9 +207,9 @@ import Session from 'Engine/SessionStorage';
 			_questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
 		}
 
-		let mob_name = _questList[questID].hunt_list[huntID].mobName;
-		let quest_info = DB.getQuestInfo(questID);
-		let chat_quest_text = `Mission [${quest_info.Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
+		const mob_name = _questList[questID].hunt_list[huntID].mobName;
+		const quest_info = DB.getQuestInfo(questID);
+		const chat_quest_text = `Mission [${quest_info.Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
 		let self_msg;
 		if (_questList[questID].hunt_list[huntID].maxCount == _questList[questID].hunt_list[huntID].huntCount) {
 			self_msg = `${mob_name} [Completed]`;
@@ -250,7 +250,7 @@ import Session from 'Engine/SessionStorage';
 	 * @param {number} ID
 	 */
 	QuestV1.getQuestIDByServerID = function getQuestIDByServerID(ID) {
-		for (var key in _questList) {
+		for (const key in _questList) {
 			if (typeof _questList[key].hunt_list[ID] !== 'undefined') {
 				return key;
 			}
@@ -268,11 +268,11 @@ import Session from 'Engine/SessionStorage';
 	};
 
 	QuestV1.addQuestToUI = function addQuest(quest) {
-		let toggle_id = 'qid' + quest.questID;
-		let title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
-		let pattern = /^ico\_/; // new system ico_xx.bmp - not supported on this version
-		let quest_icon = pattern.test(quest.icon) ? 'SG_FEEL.bmp' : quest.icon;
-		let li_text =
+		const toggle_id = 'qid' + quest.questID;
+		const title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
+		const pattern = /^ico\_/; // new system ico_xx.bmp - not supported on this version
+		const quest_icon = pattern.test(quest.icon) ? 'SG_FEEL.bmp' : quest.icon;
+		const li_text =
 			'<li id="' +
 			toggle_id +
 			'" class="quest-item ' +
@@ -283,7 +283,7 @@ import Session from 'Engine/SessionStorage';
 			title +
 			'</span> </div></li>';
 
-		let ul_id = quest.active == 1 ? '#active-quest-list' : '#inactive-quest-list';
+		const ul_id = quest.active == 1 ? '#active-quest-list' : '#inactive-quest-list';
 
 		this.ui.find(ul_id).append(li_text);
 		this.ui.find('#' + toggle_id).on('contextmenu', onClickQuestToggle);
@@ -294,7 +294,7 @@ import Session from 'Engine/SessionStorage';
 	};
 
 	function onClickMenu(e) {
-		let quest_element = jQuery(e.currentTarget);
+		const quest_element = jQuery(e.currentTarget);
 
 		if (_active_menu == quest_element.attr('id')) {
 			return;
@@ -330,9 +330,9 @@ import Session from 'Engine/SessionStorage';
 	}
 
 	function onClickQuest(e) {
-		let toggle_element = jQuery(e.currentTarget);
-		let tid = toggle_element.attr('id');
-		let id = tid.replace('qid', '');
+		const toggle_element = jQuery(e.currentTarget);
+		const tid = toggle_element.attr('id');
+		const id = tid.replace('qid', '');
 		if (_index > -1) {
 			QuestV1.ui.find('.qid' + _index).css('background-color', 'white');
 			QuestV1.ui.find('#qid' + _index).css('background-color', 'white');
@@ -342,10 +342,10 @@ import Session from 'Engine/SessionStorage';
 	}
 
 	function onClickQuestToggle(e) {
-		let toggle_element = jQuery(e.currentTarget);
-		let tid = toggle_element.attr('id');
-		let id = tid.replace('qid', '');
-		let _pkt = new PACKET.CZ.ACTIVE_QUEST();
+		const toggle_element = jQuery(e.currentTarget);
+		const tid = toggle_element.attr('id');
+		const id = tid.replace('qid', '');
+		const _pkt = new PACKET.CZ.ACTIVE_QUEST();
 		_pkt.questID = _questList[id].questID;
 		_pkt.active = _questList[id].active == 1 ? 0 : 1;
 		Network.sendPacket(_pkt);

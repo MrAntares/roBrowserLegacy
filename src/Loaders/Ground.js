@@ -16,8 +16,8 @@ import glMatrix from 'Utils/gl-matrix';
 /**
 	 * Import
 	 */
-	let vec3 = glMatrix.vec3;
-	let vec4 = glMatrix.vec4;
+	const vec3 = glMatrix.vec3;
+	const vec4 = glMatrix.vec4;
 
 	/**
 	 * Ground class loader
@@ -37,7 +37,7 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	GND.prototype.load = function load(data) {
 		this.fp = new BinaryReader(data);
-		let header = this.fp.readBinaryString(4);
+		const header = this.fp.readBinaryString(4);
 
 		if (header !== 'GRGN') {
 			throw new Error('GND::load() - Invalid header "' + header + '"');
@@ -68,10 +68,10 @@ import glMatrix from 'Utils/gl-matrix';
 			};
 			if (this.version >= 1.9) {
 				this.water.Zones = [];
-				let count = this.water.splitWidth * this.water.splitHeight;
+				const count = this.water.splitWidth * this.water.splitHeight;
 
 				for (let i = 0; i < count; i++) {
-					let waterSub = {
+					const waterSub = {
 						level: this.fp.readFloat(),
 						type: this.fp.readLong(),
 						waveHeight: this.fp.readFloat(),
@@ -122,12 +122,12 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	GND.prototype.parseLightmaps = function parseLightmaps() {
 		// Load info
-		let fp = this.fp;
-		let count = fp.readLong();
-		let per_cell_x = fp.readLong();
-		let per_cell_y = fp.readLong();
-		let size_cell = fp.readLong();
-		let per_cell = per_cell_x * per_cell_y * size_cell;
+		const fp = this.fp;
+		const count = fp.readLong();
+		const per_cell_x = fp.readLong();
+		const per_cell_y = fp.readLong();
+		const size_cell = fp.readLong();
+		const per_cell = per_cell_x * per_cell_y * size_cell;
 
 		this.lightmap = {
 			per_cell: per_cell,
@@ -146,24 +146,24 @@ import glMatrix from 'Utils/gl-matrix';
 	GND.prototype.parseTiles = function parseTiles() {
 		let i, count;
 		let tiles;
-		let fp = this.fp;
+		const fp = this.fp;
 
 		count = fp.readULong();
 		tiles = new Array(count);
 
 		// Texture atlas stuff
-		let ATLAS_COLS = Math.round(Math.sqrt(this.textures.length));
-		let ATLAS_ROWS = Math.ceil(Math.sqrt(this.textures.length));
-		let ATLAS_WIDTH = Math.pow(2, Math.ceil(Math.log(ATLAS_COLS * 258) / Math.log(2)));
-		let ATLAS_HEIGHT = Math.pow(2, Math.ceil(Math.log(ATLAS_ROWS * 258) / Math.log(2)));
-		let ATLAS_FACTOR_U = (ATLAS_COLS * 258) / ATLAS_WIDTH;
-		let ATLAS_FACTOR_V = (ATLAS_ROWS * 258) / ATLAS_HEIGHT;
-		let ATLAS_PX_U = 1 / 258;
-		let ATLAS_PX_V = 1 / 258;
+		const ATLAS_COLS = Math.round(Math.sqrt(this.textures.length));
+		const ATLAS_ROWS = Math.ceil(Math.sqrt(this.textures.length));
+		const ATLAS_WIDTH = Math.pow(2, Math.ceil(Math.log(ATLAS_COLS * 258) / Math.log(2)));
+		const ATLAS_HEIGHT = Math.pow(2, Math.ceil(Math.log(ATLAS_ROWS * 258) / Math.log(2)));
+		const ATLAS_FACTOR_U = (ATLAS_COLS * 258) / ATLAS_WIDTH;
+		const ATLAS_FACTOR_V = (ATLAS_ROWS * 258) / ATLAS_HEIGHT;
+		const ATLAS_PX_U = 1 / 258;
+		const ATLAS_PX_V = 1 / 258;
 
 		function ATLAS_GENERATE(tile) {
-			let u = tile.texture % ATLAS_COLS;
-			let v = Math.floor(tile.texture / ATLAS_COLS);
+			const u = tile.texture % ATLAS_COLS;
+			const v = Math.floor(tile.texture / ATLAS_COLS);
 			tile.u1 = ((u + tile.u1 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U) / ATLAS_COLS;
 			tile.u2 = ((u + tile.u2 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U) / ATLAS_COLS;
 			tile.u3 = ((u + tile.u3 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U) / ATLAS_COLS;
@@ -206,7 +206,7 @@ import glMatrix from 'Utils/gl-matrix';
 	GND.prototype.parseSurfaces = function parseSurfaces() {
 		let i, count;
 		let surfaces;
-		let fp = this.fp;
+		const fp = this.fp;
 
 		count = this.width * this.height;
 		surfaces = new Array(count);
@@ -344,19 +344,19 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	GND.prototype.getSmoothNormal = function getSmoothNormal() {
 		let x, y;
-		let surfaces = this.surfaces;
-		let tiles = this.tiles;
-		let width = this.width;
-		let height = this.height;
+		const surfaces = this.surfaces;
+		const tiles = this.tiles;
+		const width = this.width;
+		const height = this.height;
 		let a = vec3.create(),
 			b = vec3.create(),
 			c = vec3.create(),
 			d = vec3.create(),
 			n;
-		let count = width * height;
-		let tmp = new Array(count);
-		let normals = new Array(count);
-		let empty_vec = vec3.create();
+		const count = width * height;
+		const tmp = new Array(count);
+		const normals = new Array(count);
+		const empty_vec = vec3.create();
 		let cell;
 
 		// Calculate normal for each cells
@@ -437,29 +437,29 @@ import glMatrix from 'Utils/gl-matrix';
 	 */
 	GND.prototype.compile = function compile(WATER_LEVEL, WATER_HEIGHT) {
 		// Shortcut access
-		let width = this.width,
+		const width = this.width,
 			height = this.height;
-		let surfaces = this.surfaces,
+		const surfaces = this.surfaces,
 			tiles = this.tiles;
 
 		// Normals
-		let normals = this.getSmoothNormal();
+		const normals = this.getSmoothNormal();
 
 		// Pre-defined vars
 		let tile, cell_a, cell_b, n, h_a, h_b;
 		let x, y;
 
 		// Water
-		let water = [],
+		const water = [],
 			mesh = [];
 
 		// Lightmap Stuff
-		let l = {};
-		let lightmap = this.createLightmapImage();
-		let l_count_w = Math.round(Math.sqrt(this.lightmap.count));
-		let l_count_h = Math.ceil(Math.sqrt(this.lightmap.count));
-		let l_width = Math.pow(2, Math.ceil(Math.log(l_count_w * 8) / Math.log(2)));
-		let l_height = Math.pow(2, Math.ceil(Math.log(l_count_h * 8) / Math.log(2)));
+		const l = {};
+		const lightmap = this.createLightmapImage();
+		const l_count_w = Math.round(Math.sqrt(this.lightmap.count));
+		const l_count_h = Math.ceil(Math.sqrt(this.lightmap.count));
+		const l_width = Math.pow(2, Math.ceil(Math.log(l_count_w * 8) / Math.log(2)));
+		const l_height = Math.pow(2, Math.ceil(Math.log(l_count_h * 8) / Math.log(2)));
 		function lightmap_atlas(i) {
 			l.u1 = (((i % l_count_w) + 0.125) / l_count_w) * ((l_count_w * 8) / l_width);
 			l.u2 = (((i % l_count_w) + 0.875) / l_count_w) * ((l_count_w * 8) / l_width);

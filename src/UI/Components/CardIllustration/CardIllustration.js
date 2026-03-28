@@ -19,7 +19,7 @@ import cssText from './CardIllustration.css?raw';
 /**
 	 * Create Component
 	 */
-	let CardIllustration = new UIComponent('CardIllustration', htmlText, cssText);
+	const CardIllustration = new UIComponent('CardIllustration', htmlText, cssText);
 
 	/**
 	 * Initialize events

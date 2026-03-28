@@ -20,7 +20,7 @@ import cssText from './CashShopIcon.css?raw';
 /**
 	 * Create Component
 	 */
-	let CashShopIcon = new UIComponent('CashShopIcon', htmlText, cssText);
+	const CashShopIcon = new UIComponent('CashShopIcon', htmlText, cssText);
 
 	/**
 	 * Apply preferences once append to body
@@ -31,16 +31,16 @@ import cssText from './CashShopIcon.css?raw';
 
 	CashShopIcon.onClickCashShopIcon = function onClickCashShopIcon() {
 		if (CashShop.ui.is(':visible')) {
-			let pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
+			const pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
 			Network.sendPacket(pkt);
 			CashShop.remove();
 		} else {
 			if (PACKETVER.value >= 20191224) {
-				let pkt = new PACKET.CZ.SE_CASHSHOP_OPEN2();
+				const pkt = new PACKET.CZ.SE_CASHSHOP_OPEN2();
 				pkt.tab = 0;
 				Network.sendPacket(pkt);
 			} else {
-				let pkt = new PACKET.CZ.SE_CASHSHOP_OPEN1();
+				const pkt = new PACKET.CZ.SE_CASHSHOP_OPEN1();
 				Network.sendPacket(pkt);
 			}
 		}

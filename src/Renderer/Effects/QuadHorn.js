@@ -13,11 +13,11 @@ import Client from 'Core/Client';
 import Texture from 'Utils/Texture';
 
 let _program;
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
-	let blendMode = {};
+	const blendMode = {};
 
-	let _vertexShader = `
+	const _vertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -47,7 +47,7 @@ let _program;
 		}
 	`;
 
-	let _fragmentShader = `
+	const _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -90,7 +90,7 @@ let _program;
 		0.0, 1.0, 0.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0
 	];
 
-	let texCoords = [
+	const texCoords = [
 		0, 0, 1, 0, 1, 1,
 
 		0, 0, 1, 1, 0, 1,
@@ -160,7 +160,7 @@ let _program;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoordBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
 
-		let self = this;
+		const self = this;
 		Client.loadFile('data/texture/' + this.textureFile, function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
 				self.texture = texture;
@@ -175,10 +175,10 @@ let _program;
 	};
 
 	QuadHorn.prototype.render = function render(gl, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
-		let deltaStart = (tick - this.startTick) / 1000.0;
-		let deltaEnd = (tick - this.endTick) / 1000.0;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+		const deltaStart = (tick - this.startTick) / 1000.0;
+		const deltaEnd = (tick - this.endTick) / 1000.0;
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -307,7 +307,7 @@ let _program;
 	};
 
 	QuadHorn.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		gl.useProgram(_program);
 

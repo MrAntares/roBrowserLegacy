@@ -19,12 +19,12 @@ import cssText from './FPS.css?raw';
 /**
 	 * Create Component
 	 */
-	let FPS = new UIComponent('FPS', htmlText, cssText);
+	const FPS = new UIComponent('FPS', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Graphics
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'FPS',
 		{
 			show: false,
@@ -60,7 +60,7 @@ import cssText from './FPS.css?raw';
 			left: _preferences.x
 		});
 
-		let fpsEl = this.ui.find('#fpsCounter');
+		const fpsEl = this.ui.find('#fpsCounter');
 		let startTime = 0;
 		let frame = 0;
 		let lastValue = null;
@@ -81,7 +81,7 @@ import cssText from './FPS.css?raw';
 			if (time - startTime < 1000) {
 				return;
 			}
-			let value = +(frame / ((time - startTime) / 1000)).toFixed(1);
+			const value = +(frame / ((time - startTime) / 1000)).toFixed(1);
 
 			// Update text only if changed
 			if (value !== lastValue) {
@@ -89,8 +89,8 @@ import cssText from './FPS.css?raw';
 				lastValue = value;
 			}
 
-			let limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
-			let cls = getFPSClass(value, limit);
+			const limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : value;
+			const cls = getFPSClass(value, limit);
 
 			// Update class only if changed
 			if (cls !== lastClass) {

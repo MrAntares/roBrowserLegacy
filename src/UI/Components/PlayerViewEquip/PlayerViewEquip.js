@@ -18,9 +18,9 @@ import UIVersionManager from 'UI/UIVersionManager';
 import DB from 'DB/DBManager';
 import KEYS from 'Controls/KeyEventHandler';
 
-var publicName = 'PlayerViewEquip';
+const publicName = 'PlayerViewEquip';
 
-	var versionInfo = {
+	const versionInfo = {
 		default: PlayerViewEquipV0,
 		common: {
 			20150225: PlayerViewEquipV2,
@@ -30,16 +30,16 @@ var publicName = 'PlayerViewEquip';
 		prere: {}
 	};
 
-	var PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
+	const PlayerViewEquipController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	var _selectUIVersion = PlayerViewEquipController.selectUIVersion;
+	const _selectUIVersion = PlayerViewEquipController.selectUIVersion;
 
 	// Extend default UI selector
 	PlayerViewEquipController.selectUIVersion = function () {
 		_selectUIVersion();
 
 		//Add selected UI to item owner name update queue
-		var component = PlayerViewEquipController.getUI();
+		const component = PlayerViewEquipController.getUI();
 		DB.UpdateOwnerName.PlayerViewEquip = component.onUpdateOwnerName;
 
 		// Escape to close the UI

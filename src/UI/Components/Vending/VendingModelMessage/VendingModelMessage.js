@@ -17,7 +17,7 @@ import cssText from './VendingModelMessage.css?raw';
 /**
 	 * Create VendingModelMessage namespace
 	 */
-	let VendingModelMessage = new UIComponent('VendingModelMessage', htmlText, cssText);
+	const VendingModelMessage = new UIComponent('VendingModelMessage', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -39,7 +39,7 @@ import cssText from './VendingModelMessage.css?raw';
 	VendingModelMessage.setInit = function setInit(numMessage) {
 		VendingModelMessage.append();
 		VendingModelMessage.ui.show();
-		let messageText = DB.getMessage(numMessage);
+		const messageText = DB.getMessage(numMessage);
 		VendingModelMessage.ui.find('.message').text(messageText);
 	};
 

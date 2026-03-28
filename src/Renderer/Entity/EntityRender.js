@@ -70,11 +70,11 @@ import JobId from 'DB/Jobs/JobConst';
 	 * @param {mat4} modelView
 	 * @param {mat4} projection
 	 */
-	let renderGUI = (function renderGUIClosure() {
-		let mat4 = glMatrix.mat4;
-		let vec4 = glMatrix.vec4;
-		let _matrix = mat4.create();
-		let _vector = vec4.create();
+	const renderGUI = (function renderGUIClosure() {
+		const mat4 = glMatrix.mat4;
+		const vec4 = glMatrix.vec4;
+		const _matrix = mat4.create();
+		const _vector = vec4.create();
 
 		return function renderGUI(entity, modelView, projection) {
 			// Move to camera
@@ -138,11 +138,11 @@ import JobId from 'DB/Jobs/JobConst';
 	 * @param {Entity}
 	 * @param {mat4}
 	 */
-	let calculateBoundingRect = (function calculateBoundingRectClosure() {
-		let vec4 = glMatrix.vec4;
-		let size = glMatrix.vec2.create();
-		let vector = vec4.create();
-		let out = vec4.create();
+	const calculateBoundingRect = (function calculateBoundingRectClosure() {
+		const vec4 = glMatrix.vec4;
+		const size = glMatrix.vec2.create();
+		const vector = vec4.create();
+		const out = vec4.create();
 
 		function projectPoint(x, y, matrix) {
 			vector[0] = x;
@@ -211,8 +211,8 @@ import JobId from 'DB/Jobs/JobConst';
 	/**
 	 * Render Entity
 	 */
-	let renderEntity = (function renderEntityClosure() {
-		let _position = new Int32Array(2);
+	const renderEntity = (function renderEntityClosure() {
+		const _position = new Int32Array(2);
 
 		return function renderEntity() {
 			if (this.hideEntity) {
@@ -223,8 +223,8 @@ import JobId from 'DB/Jobs/JobConst';
 			SpriteRenderer.shadow = Ground.getShadowFactor(this.position[0], this.position[1]);
 			SpriteRenderer.zIndex = 1;
 
-			let animation = this.animation;
-			let Entity = this.constructor;
+			const animation = this.animation;
+			const Entity = this.constructor;
 			_position[0] = 0;
 			_position[1] = 0;
 
@@ -234,10 +234,10 @@ import JobId from 'DB/Jobs/JobConst';
 			}
 
 			// Avoid look up, render as IDLE all not supported frames
-			let action = this.action < 0 ? this.ACTION.IDLE : this.action;
-			let direction = (Camera.direction + this.direction + 8) % 8;
-			let behind = direction > 1 && direction < 6;
-			let self = this;
+			const action = this.action < 0 ? this.ACTION.IDLE : this.action;
+			const direction = (Camera.direction + this.direction + 8) % 8;
+			const behind = direction > 1 && direction < 6;
+			const self = this;
 
 			// Render shadow (shadow isn't render when player is sit or dead).
 			if (action !== this.ACTION.DIE && action !== this.ACTION.SIT && this.job !== 45 && !this.hideShadow) {
@@ -282,7 +282,7 @@ import JobId from 'DB/Jobs/JobConst';
 					SpriteRenderer.runWithDepth(true, true, false, function () {
 						let cartidx;
 						// madogear don't appear costumes
-						let RIDING_STATUS =
+						const RIDING_STATUS =
 							self.effectState &
 								(StatusConst.EffectState.RIDING |
 									StatusConst.EffectState.DRAGON1 |
@@ -294,8 +294,8 @@ import JobId from 'DB/Jobs/JobConst';
 
 						function robeCorrection(lookingFront) {
 							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
-								let HEAD_SIZE = 64;
-								let COMPENSATION = 25;
+								const HEAD_SIZE = 64;
+								const COMPENSATION = 25;
 								if (
 									self.robeHeight +
 										(self.action === self.ACTION.SIT
@@ -472,8 +472,8 @@ import JobId from 'DB/Jobs/JobConst';
 	 * @param {vec2}   position (reference)
 	 * @param {boolean} is_main - true if it's the main element (body)
 	 */
-	let renderElement = (function renderElementClosure() {
-		let _position = new Int32Array(2);
+	const renderElement = (function renderElementClosure() {
+		const _position = new Int32Array(2);
 
 		return function renderElement(entity, files, type, position, is_main) {
 			let isBlendModeOne = false;
@@ -484,8 +484,8 @@ import JobId from 'DB/Jobs/JobConst';
 			}
 
 			// Get back sprite and act
-			let spr = Client.loadFile(files.spr);
-			let act = Client.loadFile(files.act);
+			const spr = Client.loadFile(files.spr);
+			const act = Client.loadFile(files.act);
 
 			// Not loaded yet
 			if (!spr || !act) {
@@ -493,10 +493,10 @@ import JobId from 'DB/Jobs/JobConst';
 			}
 
 			// If palette, load palette, else get back sprite palette
-			let pal = (files.pal && Client.loadFile(files.pal)) || spr;
+			const pal = (files.pal && Client.loadFile(files.pal)) || spr;
 
 			// Obtain animations from the action and direction.
-			let action =
+			const action =
 				act.actions[
 					(entity.action * 8 + // Action
 						((Camera.direction + entity.direction + 8) % 8)) % // Direction
@@ -504,9 +504,9 @@ import JobId from 'DB/Jobs/JobConst';
 				]; // Avoid overflow on action (ex: if there is just one action)
 
 			// Find animation
-			let animation_id = calcAnimation(entity, action, type, Date.now() - entity.animation.tick);
-			let animation = action.animations[animation_id];
-			let layers = animation.layers;
+			const animation_id = calcAnimation(entity, action, type, Date.now() - entity.animation.tick);
+			const animation = action.animations[animation_id];
+			const layers = animation.layers;
 
 			// Play sound
 			if (animation.sound > -1) {
@@ -522,7 +522,7 @@ import JobId from 'DB/Jobs/JobConst';
 			}
 
 			if (type === 'cart' || type === 'cartshadow') {
-				let direction = (Camera.direction + entity.direction + 8) % 8;
+				const direction = (Camera.direction + entity.direction + 8) % 8;
 
 				switch (direction) {
 					case 0:
@@ -573,7 +573,7 @@ import JobId from 'DB/Jobs/JobConst';
 			}
 
 			// Render all frames
-			for (var i = 0, count = layers.length; i < count; ++i) {
+			for (let i = 0, count = layers.length; i < count; ++i) {
 				entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 			}
 
@@ -622,13 +622,13 @@ import JobId from 'DB/Jobs/JobConst';
 		}
 
 		// To avoid look up
-		let ACTION = entity.ACTION;
-		let action = entity.action;
-		let animation = entity.animation;
+		const ACTION = entity.ACTION;
+		const action = entity.action;
+		const animation = entity.animation;
 		let animCount = act.animations.length;
-		let animSize = animCount;
-		let animLastIndex = animSize - 1;
-		let isIdle = action === ACTION.IDLE || action === ACTION.SIT;
+		const animSize = animCount;
+		const animLastIndex = animSize - 1;
+		const isIdle = action === ACTION.IDLE || action === ACTION.SIT;
 		let delay = getAnimationDelay(type, entity, act);
 		let headDir = 0;
 		let anim = 0;
@@ -692,12 +692,12 @@ import JobId from 'DB/Jobs/JobConst';
 
 			// motionSpeed is the per-action delay from the .act file.
 			// Cache a shared walk phase per render tick so all parts stay in step.
-			let motionSpeed = Math.max(act.delay || 1, 1);
+			const motionSpeed = Math.max(act.delay || 1, 1);
 			let phase;
-			let nowTick = Date.now();
-			let havePhaseThisTick =
+			const nowTick = Date.now();
+			const havePhaseThisTick =
 				entity.walk._motionPhaseTick === nowTick && typeof entity.walk._motionPhase === 'number';
-			let isBodyPart = type === 'body';
+			const isBodyPart = type === 'body';
 
 			// Body is authoritative for motionSpeed; recompute when we render it.
 			if (!havePhaseThisTick || isBodyPart) {
@@ -739,7 +739,7 @@ import JobId from 'DB/Jobs/JobConst';
 		anim += animation.frame; // previous frame
 		anim %= animSize; // avoid overflow
 
-		let lastFrame = animation.frame + animSize - 1;
+		const lastFrame = animation.frame + animSize - 1;
 
 		if (type === 'body' && anim >= lastFrame) {
 			animation.frame = anim = lastFrame;
@@ -774,7 +774,7 @@ import JobId from 'DB/Jobs/JobConst';
 		SpriteRenderer.palette = pal.palette;
 
 		let index = layer.index + 0;
-		let is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
+		const is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
 
 		if (!is_rgba) {
 			SpriteRenderer.image.palette = pal.texture;
@@ -792,7 +792,7 @@ import JobId from 'DB/Jobs/JobConst';
 			return;
 		}
 
-		let frame = spr.frames[index];
+		const frame = spr.frames[index];
 		let width = frame.width;
 		let height = frame.height;
 
@@ -802,8 +802,8 @@ import JobId from 'DB/Jobs/JobConst';
 
 		// Get the entity bounding rect
 		if (type === 'body') {
-			let w = (frame.originalWidth * layer.scale[0] * size) / 2;
-			let h = (frame.originalHeight * layer.scale[1] * size) / 2;
+			const w = (frame.originalWidth * layer.scale[0] * size) / 2;
+			const h = (frame.originalHeight * layer.scale[1] * size) / 2;
 
 			this.boundingRect.x1 = Math.min(this.boundingRect.x1, layer.pos[0] + pos[0] - w);
 			this.boundingRect.y1 = Math.max(this.boundingRect.y1, -(layer.pos[1] + pos[1]) + h);

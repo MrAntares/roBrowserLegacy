@@ -12,7 +12,7 @@
 
 import WeaponType from './WeaponType';
 
-var WeaponTrail = {};
+const WeaponTrail = {};
 
 	WeaponTrail[WeaponType.NONE] = '';
 	WeaponTrail[WeaponType.SHORTSWORD] = '_\xb4\xdc\xb0\xcb_\xb0\xcb\xb1\xa4'; //_´Ü°Ë_°Ë±¤ - dagger_trail

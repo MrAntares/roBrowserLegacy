@@ -9,7 +9,7 @@
  */
 'use strict';
 
-	let exports = {};
+	const exports = {};
 
 	exports['einbech'] = [
 		{

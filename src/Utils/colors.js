@@ -7,8 +7,8 @@
 	 * @return {string} The color value in CSS 'rgb' format.
 	 */
 export default function uint32ToRGB(color) {
-		let red = color & 0xff;
-		let green = (color >> 8) & 0xff;
-		let blue = (color >> 16) & 0xff;
+		const red = color & 0xff;
+		const green = (color >> 8) & 0xff;
+		const blue = (color >> 16) & 0xff;
 		return `rgb(${red},${green},${blue})`;
 	};

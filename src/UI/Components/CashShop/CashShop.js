@@ -26,14 +26,14 @@ import UIComponent from 'UI/UIComponent';
 import htmlText from './CashShop.html?raw';
 import cssText from './CashShop.css?raw';
 
-let CashShop = new UIComponent('CashShop', htmlText, cssText);
+const CashShop = new UIComponent('CashShop', htmlText, cssText);
 
 	/**
 	 * Store cash shop items
 	 */
 	CashShop.list = [];
 
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CashShop',
 		{
 			x: 80,
@@ -112,7 +112,7 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	CashShop.init = function init() {
 		this.ui.find('.titlebar .base').mousedown(stopPropagation);
 		this.ui.find('.titlebar .close').click(function () {
-			let pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
+			const pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
 			Network.sendPacket(pkt);
 			CashShop.remove();
 		});
@@ -270,7 +270,7 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 
 	CashShop.onKeyDown = function onKeyDown(event) {
 		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
-			let pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
+			const pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
 			Network.sendPacket(pkt);
 			CashShop.remove();
 		}
@@ -390,7 +390,7 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 		CashShop.ui.find('#panel-menu .tab').removeClass('active');
 		CashShop.ui.find('#panel-menu .tab[data-index="' + CashShop.activeCashMenu + '"]').addClass('active');
 
-		let tab_items =
+		const tab_items =
 			CashShop.cashShopListItem[CashShop.activeCashMenu]?.items?.length >= 0
 				? CashShop.cashShopListItem[CashShop.activeCashMenu].items
 				: [];
@@ -444,10 +444,10 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 
 	CashShop.renderCashShopItems = function renderCashShopItems(items) {
 		this.ui.find('#panel-items').empty();
-		let content = this.ui.find('#panel-items');
-		for (var i = 0; i < items.length; i++) {
-			let item = structuredClone(items[i]);
-			let it = DB.getItemInfo(item.itemId);
+		const content = this.ui.find('#panel-items');
+		for (let i = 0; i < items.length; i++) {
+			const item = structuredClone(items[i]);
+			const it = DB.getItemInfo(item.itemId);
 			content.append(
 				`<div class="item" draggable="true" title="${it.identifiedDisplayName}" data-index="${item.itemId}" data-background="cashshop/img_shop_itembg.bmp">
 					<div class="top-con">
@@ -477,7 +477,7 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 		CashShop.isFirstPage = true;
 		CashShop.isLastPage = items.length >= CashShop.pageLimit ? false : true;
 
-		let content = CashShop.ui.find('.panel-pagination');
+		const content = CashShop.ui.find('.panel-pagination');
 		const arrowsL = CashShop.isFirstPage ? 'off' : 'on';
 		const arrowsR = CashShop.isLastPage ? 'off' : 'on';
 
@@ -507,21 +507,21 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	};
 
 	CashShop.paginationOffsetLimit = function paginationOffsetLimit() {
-		let start = (CashShop.currentPage - 1) * CashShop.pageLimit;
-		let end = CashShop.pageLimit * CashShop.currentPage;
+		const start = (CashShop.currentPage - 1) * CashShop.pageLimit;
+		const end = CashShop.pageLimit * CashShop.currentPage;
 		CashShop.pageOffset = start;
 		CashShop.pageEnd = end;
 	};
 
 	function onClickPagination(e) {
-		let index = parseInt(e.currentTarget.dataset.index);
-		let items = CashShop.isSearch
+		const index = parseInt(e.currentTarget.dataset.index);
+		const items = CashShop.isSearch
 			? CashShop.csListItemSearchResult
 			: CashShop.cashShopListItem[CashShop.activeCashMenu]?.items || [];
 		if (items.length === 0) {
 			return;
 		}
-		let content = CashShop.ui.find('.panel-pagination');
+		const content = CashShop.ui.find('.panel-pagination');
 
 		CashShop.isFirstPage = false;
 		CashShop.isLastPage = false;
@@ -578,20 +578,20 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	}
 
 	function onClickSearch() {
-		let val = CashShop.ui.find('.cashshop-search').val().toLowerCase();
-		let newList = [];
+		const val = CashShop.ui.find('.cashshop-search').val().toLowerCase();
+		const newList = [];
 
 		CashShop.isSearch = true;
 		CashShop.activeCashMenu = 9;
 		if (val && CashShop.cashShopListItem.length > 0) {
-			for (var i = 0; i < CashShop.cashShopListItem.length; ++i) {
-				let items = CashShop.cashShopListItem[i].items;
-				for (var iit = 0; iit < items.length; ++iit) {
+			for (let i = 0; i < CashShop.cashShopListItem.length; ++i) {
+				const items = CashShop.cashShopListItem[i].items;
+				for (let iit = 0; iit < items.length; ++iit) {
 					items[iit].tab = CashShop.cashShopListItem[i].tabNum;
-					let it = DB.getItemInfo(items[iit].itemId);
+					const it = DB.getItemInfo(items[iit].itemId);
 
 					if (it.identifiedDisplayName) {
-						let matches = new RegExp(val).test(it.identifiedDisplayName.toLowerCase());
+						const matches = new RegExp(val).test(it.identifiedDisplayName.toLowerCase());
 						if (matches) {
 							newList.push(items[iit]);
 						}
@@ -616,8 +616,8 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	}
 
 	function onClickActionCounterButtonCart(e) {
-		let counter = e.currentTarget.dataset.index;
-		let itemId = jQuery(e.currentTarget).closest('.item').data('index');
+		const counter = e.currentTarget.dataset.index;
+		const itemId = jQuery(e.currentTarget).closest('.item').data('index');
 		const itemCart = CashShop.cartItem.find(i => i.itemId === itemId);
 
 		if (itemCart.amount >= 99 && counter === 'up') {
@@ -643,8 +643,8 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	}
 
 	function onClickDeleteItemInCart(e) {
-		let item = jQuery(e.currentTarget).closest('.item');
-		let itemId = item.data('index');
+		const item = jQuery(e.currentTarget).closest('.item');
+		const itemId = item.data('index');
 
 		CashShop.cartItem = CashShop.cartItem.filter(item => item.itemId != itemId);
 		item.remove();
@@ -695,8 +695,8 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 
 	function addItemToCart(itemId, amount = 1) {
 		let html = '';
-		let it = DB.getItemInfo(itemId);
-		let content = CashShop.ui.find('.panel-cart');
+		const it = DB.getItemInfo(itemId);
+		const content = CashShop.ui.find('.panel-cart');
 		const itemCart = CashShop.cartItem.find(i => i.itemId === itemId);
 		let item = [];
 		let tab = 0;
@@ -767,7 +767,7 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	 * Add cash item in cart list
 	 */
 	function onClickActionAddCartItem(e) {
-		let itemId = parseInt(e.currentTarget.dataset.itemid);
+		const itemId = parseInt(e.currentTarget.dataset.itemid);
 		addItemToCart(itemId);
 	}
 
@@ -780,8 +780,8 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 
 		UIManager.showPromptBox('Are you sure you want to buy this items?', 'ok', 'cancel', function () {
 			if (CashShop.cartItem.length > 0) {
-				let pkt = new PACKET.CZ.SE_PC_BUY_CASHITEM_LIST();
-				let useFreePoints = CashShop.ui.find('#use-free-points').val() || 0;
+				const pkt = new PACKET.CZ.SE_PC_BUY_CASHITEM_LIST();
+				const useFreePoints = CashShop.ui.find('#use-free-points').val() || 0;
 				if (useFreePoints >= 0 && useFreePoints <= CashShop.kafraPoints) {
 					pkt.kafraPoints = useFreePoints;
 					pkt.item_list = CashShop.cartItem;
@@ -799,9 +799,9 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	 * Menu navigation
 	 */
 	function onClickMenu(e) {
-		let contentMenu = CashShop.ui.find('#panel-menu');
-		let contentListItem = CashShop.ui.find('.panel-items');
-		let selectedMenu = e.currentTarget.dataset.index.toUpperCase();
+		const contentMenu = CashShop.ui.find('#panel-menu');
+		const contentListItem = CashShop.ui.find('.panel-items');
+		const selectedMenu = e.currentTarget.dataset.index.toUpperCase();
 
 		CashShop.ui.find('#cashshop-search').val('');
 
@@ -812,7 +812,7 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 			contentMenu.find('.tab').removeClass('active');
 			e.currentTarget.classList.add('active');
 
-			let tab_items =
+			const tab_items =
 				CashShop.cashShopListItem[CashShop.activeCashMenu]?.items?.length >= 0
 					? CashShop.cashShopListItem[CashShop.activeCashMenu].items
 					: [];
@@ -829,10 +829,10 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	}
 
 	function onMouseMoveTab(event) {
-		let overlay = CashShop.ui.find('.overlay');
-		let offset = CashShop.ui.offset();
-		let x = event.pageX - offset.left;
-		let y = event.pageY - offset.top - 30;
+		const overlay = CashShop.ui.find('.overlay');
+		const offset = CashShop.ui.offset();
+		const x = event.pageX - offset.left;
+		const y = event.pageY - offset.top - 30;
 
 		overlay.css({
 			top: y + 'px',
@@ -841,8 +841,8 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	}
 
 	function onMouseOverTab() {
-		let title = this.getAttribute('data-title');
-		let overlay = CashShop.ui.find('.overlay');
+		const title = this.getAttribute('data-title');
+		const overlay = CashShop.ui.find('.overlay');
 		overlay.text(title).show();
 	}
 
@@ -854,16 +854,16 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let item = CashShop.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = CashShop.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		let img = new Image();
-		let url = this.querySelector('.item-left-img').style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const img = new Image();
+		const url = this.querySelector('.item-left-img').style.backgroundImage.match(/\(([^\)]+)/)[1];
 		img.decoding = 'async';
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
@@ -893,8 +893,8 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let item = CashShop.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = CashShop.getItemByIndex(index);
 
 		if (!item) {
 			return false;
@@ -906,7 +906,7 @@ let CashShop = new UIComponent('CashShop', htmlText, cssText);
 			return false;
 		}
 
-		let it = DB.getItemInfo(item.itemId);
+		const it = DB.getItemInfo(item.itemId);
 		it.ITID = item.itemId;
 		it.IsIdentified = true;
 

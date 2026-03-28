@@ -47,7 +47,7 @@ import Emotions from 'DB/Emotions';
 			this._flashColor[3];
 	}
 
-	let _stateToVirtue = {};
+	const _stateToVirtue = {};
 	_stateToVirtue[StatusConst.Status.TWOHANDQUICKEN] = StatusConst.OPT3.QUICKEN;
 	_stateToVirtue[StatusConst.Status.SPEARQUICKEN] = StatusConst.OPT3.QUICKEN;
 	_stateToVirtue[StatusConst.Status.LKCONCENTRATION] = StatusConst.OPT3.QUICKEN;
@@ -80,7 +80,7 @@ import Emotions from 'DB/Emotions';
 		if (state === 0) {
 			return;
 		}
-		let value = _stateToVirtue[state];
+		const value = _stateToVirtue[state];
 		if (value === undefined) {
 			console.error('toggleState: unknown state', state);
 			return;
@@ -96,7 +96,7 @@ import Emotions from 'DB/Emotions';
 		if (state === 0) {
 			return false;
 		}
-		let value = _stateToVirtue[state];
+		const value = _stateToVirtue[state];
 		if (value === undefined) {
 			console.error('toggleState: unknown state', state);
 			return false;
@@ -377,7 +377,7 @@ import Emotions from 'DB/Emotions';
 		// Riding
 		// ------------------------
 
-		let RIDING =
+		const RIDING =
 			StatusConst.EffectState.RIDING |
 			StatusConst.EffectState.DRAGON1 |
 			StatusConst.EffectState.DRAGON2 |
@@ -491,7 +491,7 @@ import Emotions from 'DB/Emotions';
 		// ------------------------
 		// Riding
 		// ------------------------
-		let EFFECT =
+		const EFFECT =
 			StatusConst.EffectState.RIDING |
 			StatusConst.EffectState.DRAGON1 |
 			StatusConst.EffectState.DRAGON2 |

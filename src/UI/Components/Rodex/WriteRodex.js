@@ -28,7 +28,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	/**
 	 * Create Component
 	 */
-	var WriteRodex = new UIComponent('WriteRodex', htmlText, cssText);
+	const WriteRodex = new UIComponent('WriteRodex', htmlText, cssText);
 	WriteRodex.list = [];
 	WriteRodex.receiver = null;
 	WriteRodex.tax = 0;
@@ -36,7 +36,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'WriteRodex',
 		{
 			show: false
@@ -92,7 +92,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	};
 
 	WriteRodex.characterInfo = function characterInfo(pkt) {
-		let text = 'Lv' + pkt.level + '<br>' + MonsterTable[pkt.Job] + '<br>' + pkt.CharID;
+		const text = 'Lv' + pkt.level + '<br>' + MonsterTable[pkt.Job] + '<br>' + pkt.CharID;
 		WriteRodex.ui.find('.validate-name').hide();
 		WriteRodex.ui.find('.baloon').html(text).show();
 		WriteRodex.ui.find('.name').prop('type', 'none');
@@ -127,8 +127,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 			ChatBox.addText(DB.getMessage(2611), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 			return;
 		}
-		let receiver = WriteRodex.receiver;
-		let sender = Session.Character.name;
+		const receiver = WriteRodex.receiver;
+		const sender = Session.Character.name;
 		let zeny = parseInt(WriteRodex.ui.find('.value').val(), 10);
 		zeny = isNaN(zeny) ? 0 : zeny;
 		zeny = zeny < 0 ? 0 : zeny;
@@ -138,23 +138,23 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 			return;
 		}
 
-		let title =
+		const title =
 			WriteRodex.ui
 				.find('.title-text')
 				.val()
 				.replace(/^(\$|\%)/, '')
 				.replace(/\t/g, '')
 				.substring(0, 23) + String.fromCharCode(0);
-		let body =
+		const body =
 			WriteRodex.ui
 				.find('.content-text')
 				.val()
 				.replace(/^(\$|\%)/, '')
 				.replace(/\t/g, '')
 				.substring(0, 499) + String.fromCharCode(0);
-		let Titlelength = title.length;
-		let Bodylength = body.length;
-		let CharID = WriteRodex.CharID;
+		const Titlelength = title.length;
+		const Bodylength = body.length;
+		const CharID = WriteRodex.CharID;
 		WriteRodex.requestSendRodex(receiver, sender, zeny, Titlelength, Bodylength, CharID, title, body);
 		WriteRodex.requestCancelWriteRodex();
 	}
@@ -165,8 +165,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @returns {Item}
 	 */
 	WriteRodex.getItemByIndex = function getItemByIndex(index) {
-		var i, count;
-		var list = WriteRodex.list;
+		let i, count;
+		const list = WriteRodex.list;
 
 		for (i = 0, count = list.length; i < count; ++i) {
 			if (list[i].index === index) {
@@ -178,7 +178,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	};
 
 	WriteRodex.addItem = function addItem(item) {
-		var object = WriteRodex.getItemByIndex(item.index);
+		let object = WriteRodex.getItemByIndex(item.index);
 
 		if (object) {
 			object.count += item.count;
@@ -189,8 +189,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 		object = jQuery.extend({}, item);
 		WriteRodex.list.push(object);
 
-		var it = DB.getItemInfo(item.ITID);
-		var content = this.ui.find('.items .item-list');
+		const it = DB.getItemInfo(item.ITID);
+		const content = this.ui.find('.items .item-list');
 
 		content.append(
 			'<div class="item" data-index="' +
@@ -215,7 +215,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 			}
 		);
 
-		let item_div = content.find('.item[data-index="' + item.index + '"]');
+		const item_div = content.find('.item[data-index="' + item.index + '"]');
 		item_div
 			.on('mouseover', onItemOver)
 			.on('mouseout', onItemOut)
@@ -234,7 +234,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {number} count
 	 */
 	WriteRodex.removeItem = function RemoveItem(index, count, weight) {
-		var item = WriteRodex.getItemByIndex(index);
+		const item = WriteRodex.getItemByIndex(index);
 
 		// Emulator failed to complete the operation
 		// do not remove item from inventory
@@ -262,7 +262,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	};
 
 	WriteRodex.updateTax = function updateTax() {
-		let total_items = WriteRodex.list.length;
+		const total_items = WriteRodex.list.length;
 		let tax = total_items * 2500;
 		let zeny = parseInt(WriteRodex.ui.find('.value').val(), 10);
 		zeny = isNaN(zeny) ? 0 : zeny;
@@ -285,10 +285,10 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	};
 
 	function prettifyZeny(value) {
-		var num = String(value);
-		var i = 0,
+		const num = String(value);
+		let i = 0,
 			len = num.length;
-		var out = '';
+		let out = '';
 
 		while (i < len) {
 			out = num[len - i - 1] + out;
@@ -303,7 +303,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 
 	function onClickValidateName(e) {
 		e.stopImmediatePropagation();
-		let name = WriteRodex.ui.find('.name').val();
+		const name = WriteRodex.ui.find('.name').val();
 		WriteRodex.validateName(name.replace(/^(\$|\%)/, '').replace(/\t/g, ''));
 	}
 
@@ -313,7 +313,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {event}
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 		event.stopImmediatePropagation();
 
 		try {
@@ -368,16 +368,16 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Show item name when mouse is over
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var item = WriteRodex.getItemByIndex(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = WriteRodex.getItemByIndex(idx);
 
 		if (!item) {
 			return;
 		}
 
 		// Get back data
-		var pos = jQuery(this).position();
-		var overlay = WriteRodex.ui.find('.overlay');
+		const pos = jQuery(this).position();
+		const overlay = WriteRodex.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -402,16 +402,16 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = WriteRodex.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = WriteRodex.getItemByIndex(index);
 
 		if (!item) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const img = new Image();
+		const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		img.decoding = 'async';
 		img.src = url.replace(/^\"/, '').replace(/\"$/, '');
 
@@ -444,8 +444,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var item = WriteRodex.getItemByIndex(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const item = WriteRodex.getItemByIndex(index);
 
 		if (!item) {
 			return false;

@@ -8,7 +8,7 @@
  */
 'use strict';
 
-	let MapInfo = {
+	const MapInfo = {
 		'1@gol1.rsw': {
 			backgroundBmp: 'dungeon',
 			signName: {

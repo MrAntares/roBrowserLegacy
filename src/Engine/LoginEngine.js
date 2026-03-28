@@ -38,7 +38,7 @@ import WinLogin from 'UI/Components/WinLogin/WinLogin';
 /**
  * Creating WinLoading
  */
-var WinLoading = WinPopup.clone('WinLoading');
+const WinLoading = WinPopup.clone('WinLoading');
 WinLoading.init = function () {
 	this.ui.css({ top: (Renderer.height - 120) / 1.5, left: (Renderer.width - 280) / 2.0 });
 	this.ui.find('.text').text(DB.getMessage(121));
@@ -48,25 +48,25 @@ UIManager.addComponent(WinLoading);
 /**
  * @var {object} server object stored in clientinfo.xml
  */
-var _server = null;
+let _server = null;
 
 /**
  * @var {array} char-servers list
  */
-var _charServers = [];
+let _charServers = [];
 
 /**
  * @var {string} Stored username to send as ping
  */
-var _loginID = '';
+let _loginID = '';
 
 /**
  * Init Game
  */
 function init(server) {
-	var charset;
-	var q = new Queue();
-	var old_server = _server;
+	let charset;
+	const q = new Queue();
+	const old_server = _server;
 
 	Configs.setServer(server);
 	UIManager.removeComponents();
@@ -85,10 +85,10 @@ function init(server) {
 	_server = server;
 
 	// Add support for "packetver" definition in Server listing
-	var packetver = String(Configs.get('packetver'));
-	var remoteClient = Configs.get('remoteClient');
-	var autoLogin = Configs.get('autoLogin');
-	var audioExt = Configs.get('BGMFileExtension');
+	const packetver = String(Configs.get('packetver'));
+	const remoteClient = Configs.get('remoteClient');
+	const autoLogin = Configs.get('autoLogin');
+	const audioExt = Configs.get('BGMFileExtension');
 
 	// Server packetver
 	if (packetver) {
@@ -204,15 +204,15 @@ function onConnectionRequest(username, password) {
 			return;
 		}
 
-		var pkt;
-		var hash = false;
+		let pkt;
+		let hash = false;
 
 		// Get client hash
 		if (Configs.get('calculateHash') && !Configs.get('development')) {
 			// Calucalte hash from files (slower, more "secure")
-			var files = Configs.get('hashFiles');
-			var fileStatus = 0;
-			var fileContents = [];
+			const files = Configs.get('hashFiles');
+			let fileStatus = 0;
+			const fileContents = [];
 
 			for (var i = 0; i < files.length; i++) {
 				var jsonFile = new XMLHttpRequest();
@@ -226,7 +226,7 @@ function onConnectionRequest(username, password) {
 					}
 
 					if (fileStatus == files.length) {
-						var contentString = fileContents.join('\r\n'); // Join strings with carrige return & newline
+						const contentString = fileContents.join('\r\n'); // Join strings with carrige return & newline
 						hash = MD5.hash(contentString); // Just hash the whole array
 						sendLogin();
 					}
@@ -242,8 +242,8 @@ function onConnectionRequest(username, password) {
 			if (hash) {
 				// Convert hexadecimal hash to binary
 				if (/^[a-f0-9]+$/i.test(hash)) {
-					var str = '';
-					var i,
+					let str = '';
+					let i,
 						count = hash.length;
 
 					for (i = 0; i < count; i += 2) {
@@ -315,9 +315,9 @@ function onConnectionAccepted(pkt) {
 	_charServers = pkt.ServerList;
 
 	// Build list of servers
-	var i,
+	let i,
 		count = _charServers.length;
-	var list = new Array(count);
+	const list = new Array(count);
 	for (i = 0; i < count; ++i) {
 		list[i] = _charServers[i].property ? DB.getMessage(482) + ' ' : '';
 		list[i] += _charServers[i].name;
@@ -348,7 +348,7 @@ function onConnectionAccepted(pkt) {
 	}
 
 	// Set ping
-	var ping = new PACKET.CA.CONNECT_INFO_CHANGED();
+	const ping = new PACKET.CA.CONNECT_INFO_CHANGED();
 	ping.ID = _loginID;
 	Network.setPing(function () {
 		Network.sendPacket(ping);
@@ -367,7 +367,7 @@ function onConnectionAccepted(pkt) {
  * @param {object} pkt - PACKET.AC.REFUSE_LOGIN
  */
 function onConnectionRefused(pkt) {
-	var error = 9;
+	let error = 9;
 	switch (pkt.ErrorCode) {
 		case 0:
 			error = 6;
@@ -456,7 +456,7 @@ function onConnectionRefused(pkt) {
  * @param {object} pkt - PACKET.SC.NOTIFY_BAN
  */
 function onServerClosed(pkt) {
-	var msg_id;
+	let msg_id;
 
 	switch (pkt.ErrorCode) {
 		default:

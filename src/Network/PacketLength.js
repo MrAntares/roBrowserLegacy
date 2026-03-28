@@ -22,7 +22,7 @@ let packets_len = new Array();
  * @param {number} packetver - packet version (clientdate)
  */
 function init(packetver) {
-	var Lengths;
+	let Lengths;
 	packetver = parseInt(packetver);
 
 	// Find the matching year for the packet version

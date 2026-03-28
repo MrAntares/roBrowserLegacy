@@ -64,7 +64,7 @@ import DB from 'DB/DBManager';
 	Life.prototype.update = function update() {
 		let width = 60,
 			height = 5;
-		let Entity = this.entity.constructor;
+		const Entity = this.entity.constructor;
 
 		// Don't display it, if negatives values.
 		if (this.hp < 0 || this.hp_max < 0) {
@@ -74,15 +74,15 @@ import DB from 'DB/DBManager';
 
 		// Init variables
 		this.display = true;
-		let ctx = this.ctx;
-		let hp_per = this.hp / this.hp_max;
-		let sp = this.sp > -1 && this.sp_max > -1;
-		let sp_per = this.sp / this.sp_max;
-		let ap = this.ap > -1 && this.ap_max > -1;
-		let ap_per = this.ap / this.ap_max;
+		const ctx = this.ctx;
+		const hp_per = this.hp / this.hp_max;
+		const sp = this.sp > -1 && this.sp_max > -1;
+		const sp_per = this.sp / this.sp_max;
+		const ap = this.ap > -1 && this.ap_max > -1;
+		const ap_per = this.ap / this.ap_max;
 
-		let hunger = this.hunger > -1 && this.hunger_max > -1;
-		let hunger_per = this.hunger / this.hunger_max;
+		const hunger = this.hunger > -1 && this.hunger_max > -1;
+		const hunger_per = this.hunger / this.hunger_max;
 
 		if (sp) {
 			height += 4;
@@ -156,7 +156,7 @@ import DB from 'DB/DBManager';
 	 * @param {mat4} matrix
 	 */
 	Life.prototype.render = function Render(matrix) {
-		let canvas = this.canvas;
+		const canvas = this.canvas;
 		let z;
 
 		// Cast position

@@ -11,17 +11,17 @@
 /**
  * @var {FileSystem}
  */
-var _fs;
+let _fs;
 
 /**
  * @var {TemporaryStorage} compatibility
  */
-var temporaryStorage = navigator.temporaryStorage || navigator.webkitTemporaryStorage;
+const temporaryStorage = navigator.temporaryStorage || navigator.webkitTemporaryStorage;
 
 /**
  * @var {RequestFileSystem} compatibility
  */
-var requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+const requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
 
 /**
  * Clean Up FileSystem files
@@ -30,7 +30,7 @@ var requestFileSystem = window.requestFileSystem || window.webkitRequestFileSyst
  */
 function cleanUp(callback) {
 	_fs.root.createReader().readEntries(function (entries) {
-		var i,
+		let i,
 			count = entries.length,
 			j = 0;
 

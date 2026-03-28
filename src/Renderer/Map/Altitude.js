@@ -17,7 +17,7 @@ import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 	/**
 	 * Altitude Namespace
 	 */
-	let Altitude = {};
+	const Altitude = {};
 
 	/**
 	 * @var {number} map width
@@ -63,10 +63,10 @@ import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 	 */
 	Altitude.init = function init(data) {
 		// Extract 'type' from cells
-		let cells = data.cells;
+		const cells = data.cells;
 		let i,
 			count = cells.length / 5;
-		let types = new Uint8Array(count);
+		const types = new Uint8Array(count);
 
 		for (i = 0; i < count; ++i) {
 			types[i] = cells[i * 5 + 4];
@@ -95,10 +95,10 @@ import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 	 * @return {Array} cell
 	 */
 	Altitude.getCell = (function getCellClosure() {
-		let tmp = new Float32Array(5);
+		const tmp = new Float32Array(5);
 
 		return function getCell(x, y) {
-			let index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
+			const index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
 
 			tmp[0] = _cells[index + 0];
 			tmp[1] = _cells[index + 1];
@@ -192,14 +192,14 @@ import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 	 * @return {bool} success
 	 */
 	Altitude.intersect = (function intersectClosure() {
-		let mat4 = glMatrix.mat4;
-		let vec3 = glMatrix.vec3;
-		let vec4 = glMatrix.vec4;
+		const mat4 = glMatrix.mat4;
+		const vec3 = glMatrix.vec3;
+		const vec4 = glMatrix.vec4;
 
-		let _from = vec3.create();
-		let _to = vec4.create();
-		let _unit = vec3.create();
-		let _matrix = mat4.create();
+		const _from = vec3.create();
+		const _to = vec4.create();
+		const _unit = vec3.create();
+		const _matrix = mat4.create();
 
 		return function intersect(modelView, projection, out) {
 			let i,
@@ -263,10 +263,10 @@ import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 	 * @param {number} plane size
 	 */
 	Altitude.generatePlane = (function generatePlaneClosure() {
-		let buffer1x1 = new Float32Array(1 * 1 * 30);
-		let buffer5x5 = new Float32Array(5 * 5 * 30);
-		let buffer7x7 = new Float32Array(7 * 7 * 30);
-		let buffer13x13 = new Float32Array(13 * 13 * 30);
+		const buffer1x1 = new Float32Array(1 * 1 * 30);
+		const buffer5x5 = new Float32Array(5 * 5 * 30);
+		const buffer7x7 = new Float32Array(7 * 7 * 30);
+		const buffer13x13 = new Float32Array(13 * 13 * 30);
 
 		return function generatePlane(pos_x, pos_y, size) {
 			if (!_cells) {
@@ -275,7 +275,7 @@ import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 
 			let x, y, index, i;
 			let buffer;
-			let middle = Math.floor(size / 2);
+			const middle = Math.floor(size / 2);
 
 			pos_x = Math.floor(pos_x);
 			pos_y = Math.floor(pos_y);
@@ -349,11 +349,11 @@ import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
 	})();
 
 	Altitude.getCellsInSquareRange = function getCellsInSquareRangeClosure(x, y, range) {
-		let cells = [];
+		const cells = [];
 
 		// get all cells in square range and return x, y if is in  and walkable
-		for (var i = x - range; i <= x + range; ++i) {
-			for (var j = y - range; j <= y + range; ++j) {
+		for (let i = x - range; i <= x + range; ++i) {
+			for (let j = y - range; j <= y + range; ++j) {
 				if (Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE) {
 					cells.push({ x: i, y: j });
 				}

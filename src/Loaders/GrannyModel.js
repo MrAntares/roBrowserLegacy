@@ -22,9 +22,9 @@ import 'Utils/CRC32';
 /**
 	 * Import
 	 */
-	let vec3 = glMatrix.vec3;
-	let mat3 = glMatrix.mat3;
-	let mat4 = glMatrix.mat4;
+	const vec3 = glMatrix.vec3;
+	const mat3 = glMatrix.mat3;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * Model class loader
@@ -548,7 +548,7 @@ import 'Utils/CRC32';
 				return true;
 			}
 
-			let data = new BinaryReader(fp.buffer, this.DataOffset, this.DataSize);
+			const data = new BinaryReader(fp.buffer, this.DataOffset, this.DataSize);
 			// TODO Create an output buffer the size of ExpandedDataSize for copying uncompressed data into.
 
 			switch (this.Format) {
@@ -611,7 +611,7 @@ import 'Utils/CRC32';
 		function Triple() {
 			if (arguments.length === 1) {
 				// Set from file pointer
-				let fp = arguments[0];
+				const fp = arguments[0];
 				return [fp.readFloat(), fp.readFloat(), fp.readFloat()];
 			} else if (arguments.length == 3) {
 				// Set from X,Y,Z etc
@@ -686,13 +686,13 @@ import 'Utils/CRC32';
 		this.Marshalled = null;
 		this.IsUserMemory = null;
 		this.ConversionBuffer = null;
-		let SectionArrayAddress = 0x20 + this.Header.SectionArrayOffset;
-		let crc = fp.CRC32(SectionArrayAddress);
+		const SectionArrayAddress = 0x20 + this.Header.SectionArrayOffset;
+		const crc = fp.CRC32(SectionArrayAddress);
 
 		console.error(crc == this.Header.CRC ? 'CRC Matches' : 'CRC Not Match');
 		fp.seek(SectionArrayAddress);
 		for (i = 0; i < this.Header.SectionArrayCount; i++) {
-			let s = new Section(fp);
+			const s = new Section(fp);
 			if (s.Format == GR2.COMPRESSION_TYPE.NoCompression) {
 				s.decompress(fp);
 			}
@@ -793,7 +793,7 @@ import 'Utils/CRC32';
 	 * @param {number} height
 	 */
 	GR2.prototype.createInstance = function CreateInstance(model, width, height) {
-		let matrix = mat4.create();
+		const matrix = mat4.create();
 
 		mat4.identity(matrix);
 		mat4.translate(matrix, matrix, [model.position[0] + width, model.position[1], model.position[2] + height]);
@@ -810,10 +810,10 @@ import 'Utils/CRC32';
 	 */
 	GR2.prototype.calcBoundingBox = function CalcBoundingBox() {
 		let i, j, count;
-		let box = this.box;
-		let matrix = mat4.create();
-		let nodes = this.nodes;
-		let min = Math.min,
+		const box = this.box;
+		const matrix = mat4.create();
+		const nodes = this.nodes;
+		const min = Math.min,
 			max = Math.max;
 		count = nodes.length;
 
@@ -835,14 +835,14 @@ import 'Utils/CRC32';
 	 * Compile Model
 	 */
 	GR2.prototype.compile = function Compile() {
-		let nodes = this.nodes;
-		let instances = this.instances;
+		const nodes = this.nodes;
+		const instances = this.instances;
 
-		let node_count = nodes.length;
-		let instance_count = instances.length;
+		const node_count = nodes.length;
+		const instance_count = instances.length;
 		let i, j, k;
 
-		let meshes = new Array(node_count * instance_count);
+		const meshes = new Array(node_count * instance_count);
 
 		// Generate Mesh
 		for (i = 0, k = 0; i < node_count; ++i) {
@@ -984,12 +984,12 @@ import 'Utils/CRC32';
 	GR2.Node.prototype.calcBoundingBox = function NodeCalcBoundingBox(_matrix) {
 		// Define variables
 		let i, j, count;
-		let v = vec3.create();
-		let box = this.box;
-		let nodes = this.main.nodes;
-		let matrix = mat4.create();
-		let vertices = this.vertices;
-		let max = Math.max,
+		const v = vec3.create();
+		const box = this.box;
+		const nodes = this.main.nodes;
+		const matrix = mat4.create();
+		const vertices = this.vertices;
+		const max = Math.max,
 			min = Math.min;
 		let x, y, z;
 
@@ -1051,19 +1051,19 @@ import 'Utils/CRC32';
 	 */
 	GR2.Node.prototype.compile = function (instance_matrix) {
 		let matrix;
-		let modelViewMat = mat4.create();
-		let normalMat = mat4.create();
+		const modelViewMat = mat4.create();
+		const normalMat = mat4.create();
 
-		let textures = this.textures;
-		let faces = this.faces;
-		let vertices = this.vertices;
+		const textures = this.textures;
+		const faces = this.faces;
+		const vertices = this.vertices;
 
-		let mesh = {};
-		let mesh_size = [];
+		const mesh = {};
+		const mesh_size = [];
 
 		let vert, face_normal;
-		let shadeGroup = new Array(32);
-		let shadeGroupUsed = new Array(32);
+		const shadeGroup = new Array(32);
+		const shadeGroupUsed = new Array(32);
 		let i, x, y, z, count;
 
 		// Calculate matrix
@@ -1160,9 +1160,9 @@ import 'Utils/CRC32';
 	GR2.Node.prototype.calcNormal_FLAT = function calcNormalFlat(out, normalMat, groupUsed) {
 		let i, j, count;
 		let face;
-		let temp_vec = vec3.create();
-		let faces = this.faces;
-		let vertices = this.vertices;
+		const temp_vec = vec3.create();
+		const faces = this.faces;
+		const vertices = this.vertices;
 
 		for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
 			face = faces[i];
@@ -1190,10 +1190,10 @@ import 'Utils/CRC32';
 	 */
 	GR2.Node.prototype.calcNormal_SMOOTH = function calcNormalSmooth(normal, groupUsed, group) {
 		let i, j, k, l, v, x, y, z, len;
-		let size = this.vertices.length;
-		let faces = this.faces;
+		const size = this.vertices.length;
+		const faces = this.faces;
 		let face, norm;
-		let count = faces.length;
+		const count = faces.length;
 
 		for (j = 0; j < 32; ++j) {
 			// Group not used, skip it
@@ -1239,11 +1239,11 @@ import 'Utils/CRC32';
 	 */
 	GR2.Node.prototype.generate_mesh_FLAT = function generateMeshFlat(vert, norm, mesh) {
 		let a, b, o, i, j, k, t, count;
-		let faces = this.faces;
-		let textures = this.textures;
-		let tver = this.tvertices;
-		let alpha = this.main.alpha;
-		let offset = [];
+		const faces = this.faces;
+		const textures = this.textures;
+		const tver = this.tvertices;
+		const alpha = this.main.alpha;
+		const offset = [];
 		let face, idx, tidx, out;
 
 		// Setup mesh slot array
@@ -1286,11 +1286,11 @@ import 'Utils/CRC32';
 	 */
 	GR2.Node.prototype.generate_mesh_SMOOTH = function generateMeshSmooth(vert, shadeGroup, mesh) {
 		let a, b, o, i, j, t, count;
-		let faces = this.faces;
-		let textures = this.textures;
-		let tver = this.tvertices;
-		let alpha = this.main.alpha;
-		let offset = [];
+		const faces = this.faces;
+		const textures = this.textures;
+		const tver = this.tvertices;
+		const alpha = this.main.alpha;
+		const offset = [];
 		let norm, face, idx, tidx, out;
 
 		// Setup mesh slot array

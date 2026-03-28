@@ -23,7 +23,7 @@ import cssText from './PetEvolution.css?raw';
 /**
 	 * Create Component
 	 */
-	let PetEvolution = new UIComponent('PetEvolution', htmlText, cssText);
+	const PetEvolution = new UIComponent('PetEvolution', htmlText, cssText);
 
 	/**
 	 * Variables
@@ -34,7 +34,7 @@ import cssText from './PetEvolution.css?raw';
 	/**
 	 * @var {Preferences} Window preferences
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'PetEvolution',
 		{
 			x: 200,
@@ -200,7 +200,7 @@ import cssText from './PetEvolution.css?raw';
 	 */
 	function onRequestEvolve() {
 		if (PetEvolution.hasEnoughMaterials() === true) {
-			let pkt = new PACKET.CZ.PET_EVOLUTION();
+			const pkt = new PACKET.CZ.PET_EVOLUTION();
 			pkt.evolutionPetEggITID = targetEvoPetEggId;
 			Network.sendPacket(pkt);
 		} else {
@@ -233,8 +233,8 @@ import cssText from './PetEvolution.css?raw';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let ITID = parseInt(this.getAttribute('data-index'), 10);
-		let item = DB.getItemInfo(ITID);
+		const ITID = parseInt(this.getAttribute('data-index'), 10);
+		const item = DB.getItemInfo(ITID);
 
 		// Hack
 		item.ITID = ITID;

@@ -38,7 +38,7 @@ function sendLog() {
  * @param {object} event - EventHandler
  */
 onmessage = function receive(event) {
-	var msg = event.data;
+	const msg = event.data;
 
 	switch (msg.type) {
 		// Modify client host

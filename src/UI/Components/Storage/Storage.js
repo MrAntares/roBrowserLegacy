@@ -15,9 +15,9 @@ import StorageV3 from './StorageV3/Storage'; // Expanded Storage (search tab)
 
 import UIVersionManager from 'UI/UIVersionManager';
 
-var publicName = 'Storage';
+const publicName = 'Storage';
 
-	var versionInfo = {
+	const versionInfo = {
 		default: StorageV0, // Basic Storage
 		common: {
 			20181219: StorageV3 // Expanded Storage (search tab)
@@ -26,9 +26,9 @@ var publicName = 'Storage';
 		prere: {}
 	};
 
-	var StorageController = UIVersionManager.getUIController(publicName, versionInfo);
+	const StorageController = UIVersionManager.getUIController(publicName, versionInfo);
 
-	var _selectUIVersion = StorageController.selectUIVersion;
+	const _selectUIVersion = StorageController.selectUIVersion;
 
 	// Extend default UI selector
 	StorageController.selectUIVersion = function () {
@@ -36,7 +36,7 @@ var publicName = 'Storage';
 	};
 
 	// Forward methods to the implementation
-	var _methods = ['reqAddItem', 'reqAddItemFromCart', 'reqRemoveItem', 'reqMoveItemToCart', 'onClosePressed'];
+	const _methods = ['reqAddItem', 'reqAddItemFromCart', 'reqRemoveItem', 'reqMoveItemToCart', 'onClosePressed'];
 
 	_methods.forEach(function (method) {
 		Object.defineProperty(StorageController, method, {

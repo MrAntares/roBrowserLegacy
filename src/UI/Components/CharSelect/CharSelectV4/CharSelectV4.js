@@ -29,12 +29,12 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 /**
 	 * Create Chararacter Selection namespace
 	 */
-	let CharSelectV4 = new UIComponent('CharSelectV4', htmlText, cssText);
+	const CharSelectV4 = new UIComponent('CharSelectV4', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} save preferences for the last index
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'CharSelectV4',
 		{
 			index: 0
@@ -50,17 +50,17 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 	/**
 	 * var {Array} list of characters
 	 */
-	let _list = [];
+	const _list = [];
 
 	/**
 	 * @var {Array} list of characters (index by slot)
 	 */
-	let _slots = [];
+	const _slots = [];
 
 	/**
 	 * @var {Array} list of entities (index by slot)
 	 */
-	let _entitySlots = [];
+	const _entitySlots = [];
 
 	/**
 	 * @var {number} selector index
@@ -70,7 +70,7 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 	/**
 	 * @var {Array} canvas context
 	 */
-	let _ctx = [];
+	const _ctx = [];
 
 	/**
 	 * var {number} sex
@@ -95,7 +95,7 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 	 * Initialize UI
 	 */
 	CharSelectV4.init = function Init() {
-		let ui = this.ui;
+		const ui = this.ui;
 
 		// Bind buttons
 		ui.find('.ok').click(connect);
@@ -239,7 +239,7 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 		const remainingSeconds = seconds % 60;
 
 		// Use the msgstringtable
-		let formattedDuration = DB.getMessage(3349)
+		const formattedDuration = DB.getMessage(3349)
 			.replace('%d', `${hours}`)
 			.replace('%d', `${minutes}`)
 			.replace('%d', `${remainingSeconds}`);
@@ -251,7 +251,7 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 	 * Countdown for delay in deletion
 	 */
 	function updateAllVisibleCountdowns() {
-		let charselectready = CharSelectV4.ui;
+		const charselectready = CharSelectV4.ui;
 		if (charselectready) {
 			const visibleCountdowns = document.querySelectorAll('.timedelete:not(.hidden)');
 
@@ -297,16 +297,16 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 	 */
 	CharSelectV4.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 		this.on('keydown');
-		let deleteReservedDate = pkt.DeleteReservedDate;
-		let result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
-		let info = _slots[_index];
+		const deleteReservedDate = pkt.DeleteReservedDate;
+		const result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
+		const info = _slots[_index];
 
 		switch (result) {
 			case 0: // 0: An unknown error has occurred.
 				return;
 
 			case 1: // 1: none/success
-				let now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+				const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
 				info.DeleteDate = deleteReservedDate + now;
 				requestdelete(_index, deleteReservedDate);
 				break;
@@ -565,11 +565,11 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 	 * @param {number} index
 	 */
 	function moveCursorTo(index) {
-		let ui = CharSelectV4.ui;
-		let $charinfo = ui.find('.charinfo');
+		const ui = CharSelectV4.ui;
+		const $charinfo = ui.find('.charinfo');
 
 		let entity = _slots[_index];
-		let prevIndex = _index;
+		const prevIndex = _index;
 		// Update the flag based on whether an entity is present
 		shouldRunBackgroundChange = false;
 
@@ -579,7 +579,7 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 			});
 		}
 
-		let slotIndex = (_index = index > _maxSlots ? _maxSlots : index < 0 ? 0 : index);
+		const slotIndex = (_index = index > _maxSlots ? _maxSlots : index < 0 ? 0 : index);
 
 		// Not found, just clean up.
 		entity = _slots[_index];
@@ -589,7 +589,7 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 			ui.find('.canceldelete').hide();
 			ui.find('.finaldelete').hide();
 			ui.find('.ok').hide();
-			let countdown = document.querySelector('.timedelete.slot' + _index);
+			const countdown = document.querySelector('.timedelete.slot' + _index);
 			if (countdown) {
 				countdown.setAttribute('data-duration', 0);
 				countdown.classList.add('hidden');
@@ -606,7 +606,7 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 			changeBackgroundEverySecond();
 		}
 
-		let info = _slots[_index];
+		const info = _slots[_index];
 		// Bind new value
 		if (info.DeleteDate) {
 			ui.find('.delete').hide();
@@ -635,9 +635,9 @@ import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Ba
 	}
 
 	function changeBackgroundEverySecond() {
-		let UIready = CharSelectV4.ui;
+		const UIready = CharSelectV4.ui;
 		if (UIready) {
-			let backgroundchange = CharSelectV4.ui.find('#slot' + _curindex);
+			const backgroundchange = CharSelectV4.ui.find('#slot' + _curindex);
 			if (backgroundchange && shouldRunBackgroundChange === true) {
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'select_character_ver3/img_slot_select' + img + '.bmp',

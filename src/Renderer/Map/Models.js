@@ -27,12 +27,12 @@ let _buffer = null;
 /**
  * @let {Array} list of meshes
  */
-let _objects = [];
+const _objects = [];
 
 /**
  * @let {Array} batched draw calls (grouped by texture)
  */
-let _batches = [];
+const _batches = [];
 
 /**
  * @let {boolean} whether all textures are loaded and batches are built
@@ -142,8 +142,8 @@ function init(gl, data) {
  * @param {object} light structure
  */
 function render(gl, modelView, projection, normalMat, fog, light) {
-	let uniform = _program.uniform;
-	let attribute = _program.attribute;
+	const uniform = _program.uniform;
+	const attribute = _program.attribute;
 	let i, count;
 
 	gl.useProgram(_program);

@@ -18,9 +18,9 @@ import Client from 'Core/Client';
 import DB from 'DB/DBManager';
 import Session from 'Engine/SessionStorage';
 
-let MAX_GOLDPC_VAR = 300;
+const MAX_GOLDPC_VAR = 300;
 
-	let _data = {
+	const _data = {
 		isActive: 0,
 		mode: 0,
 		point: 0,
@@ -31,7 +31,7 @@ let MAX_GOLDPC_VAR = 300;
 	/**
 	 * Create Component
 	 */
-	let PCGoldTimer = new UIComponent('PCGoldTimer', htmlText, cssText);
+	const PCGoldTimer = new UIComponent('PCGoldTimer', htmlText, cssText);
 
 	/**
 	 * Apply preferences once append to body
@@ -56,7 +56,7 @@ let MAX_GOLDPC_VAR = 300;
 			}
 
 			// set on click event
-			let container = this.ui.find('.container');
+			const container = this.ui.find('.container');
 			container.on('click', onClickPCGoldTimer);
 		} else {
 			// stop timer
@@ -94,7 +94,7 @@ let MAX_GOLDPC_VAR = 300;
 
 	function onClickPCGoldTimer() {
 		// send CZ_DYNAMICNPC_CREATE_REQUEST packet to server
-		let packet = new PACKET.CZ.DYNAMICNPC_CREATE_REQUEST();
+		const packet = new PACKET.CZ.DYNAMICNPC_CREATE_REQUEST();
 		packet.name = 'GOLDPCCAFE';
 		Network.sendPacket(packet);
 	}
@@ -104,7 +104,7 @@ let MAX_GOLDPC_VAR = 300;
 		this.timer = setInterval(
 			function () {
 				// timer display how many time is missing to reach 00:00 from 60:00
-				let millisecondsMissing = 60 * 60 * 1000 - (Date.now() - _data.startTime + _data.playedTime * 1000);
+				const millisecondsMissing = 60 * 60 * 1000 - (Date.now() - _data.startTime + _data.playedTime * 1000);
 				let text = this.formatTime(millisecondsMissing);
 
 				if (text.includes('-')) {
@@ -137,8 +137,8 @@ let MAX_GOLDPC_VAR = 300;
 
 	PCGoldTimer.formatTime = function formatTime(millisecondsMissing) {
 		// format time to 00:00
-		let minutes = Math.floor((millisecondsMissing % 3600000) / 60000);
-		let seconds = Math.floor((millisecondsMissing % 60000) / 1000);
+		const minutes = Math.floor((millisecondsMissing % 3600000) / 60000);
+		const seconds = Math.floor((millisecondsMissing % 60000) / 1000);
 		return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
 	};
 

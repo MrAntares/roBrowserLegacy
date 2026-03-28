@@ -15,8 +15,8 @@ import EffectManager from 'Renderer/EffectManager';
 	/**
 	 * Sound renderer namespace
 	 */
-	let vec3 = glMatrix.vec3;
-	let _list = [];
+	const vec3 = glMatrix.vec3;
+	const _list = [];
 
 	/**
 	 * Add 3D sound to the list
@@ -59,7 +59,7 @@ import EffectManager from 'Renderer/EffectManager';
 			// distance need to be less than 25 cells (seems like it's
 			// how the official client handle it).
 			if (!mapEffect.isVisible && vec3.dist(mapEffect.pos, position) < 25) {
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: mapEffect.id,
 					ownerAID: mapEffect.name,
 					position: mapEffect.pos,

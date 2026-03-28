@@ -14,8 +14,8 @@ import CharSelectV3 from './CharSelectV3/CharSelectV3';
 import CharSelectV4 from './CharSelectV4/CharSelectV4';
 import UIVersionManager from 'UI/UIVersionManager';
 
-let publicName = 'CharSelect';
-	let versionInfo = {
+const publicName = 'CharSelect';
+	const versionInfo = {
 		default: CharSelect,
 		common: {
 			20180124: CharSelectV4,
@@ -28,5 +28,5 @@ let publicName = 'CharSelect';
 		prere: {}
 	};
 
-	let Controller = UIVersionManager.getUIController(publicName, versionInfo);
+	const Controller = UIVersionManager.getUIController(publicName, versionInfo);
 export default Controller;

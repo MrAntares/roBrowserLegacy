@@ -17,7 +17,7 @@ import htmlText from './JoystickUI.html?raw';
 import cssText from './JoystickUI.css?raw';
 import JoystickUIRenderer from './JoystickUIRenderer';
 
-let JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
+const JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
 
 	JoystickUI.onAppend = function () {
 		JoystickUIRenderer.attach(this.ui);

@@ -20,7 +20,7 @@ import cssText from './NpcMenu.css?raw';
 /**
 	 * Create NPC Menu component
 	 */
-	let NpcMenu = new UIComponent('NpcMenu', htmlText, cssText);
+	const NpcMenu = new UIComponent('NpcMenu', htmlText, cssText);
 
 	/**
 	 * @var {number} index selected in menu
@@ -46,7 +46,7 @@ import cssText from './NpcMenu.css?raw';
 
 		this.draggable();
 
-		let self = this;
+		const self = this;
 		this.ui
 			.find('.content')
 

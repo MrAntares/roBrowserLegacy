@@ -15,7 +15,7 @@ import commonVS from './GLSL/Common.vs?raw';
 import fxaaFS from './GLSL/FXAA.fs?raw';
 
 let _program, _buffer;
-	let _fxaaEdgeThresholdMin = 0.0;
+	const _fxaaEdgeThresholdMin = 0.0;
 	function FXAA() {}
 
 	FXAA.render = function render(gl, inputTexture, outputFbo) {
@@ -33,7 +33,7 @@ let _program, _buffer;
 		gl.uniform2f(_program.uniform.uTexelSize, 1.0 / gl.canvas.width, 1.0 / gl.canvas.height);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		let posLoc = _program.attribute.aPosition;
+		const posLoc = _program.attribute.aPosition;
 		gl.enableVertexAttribArray(posLoc);
 		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
@@ -56,7 +56,7 @@ let _program, _buffer;
 			console.error('Error compiling FXAA shader.', e);
 			return;
 		}
-		let quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+		const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
 		_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);

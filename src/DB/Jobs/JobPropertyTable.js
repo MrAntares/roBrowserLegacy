@@ -9,13 +9,13 @@
  */
 'use strict';
 
-import JobId from './JobConst';
+import JOB from './JobConst';
 
 	// Job Property Table
-	let JPT = {};
+	const JPT = {};
 
 	// INIT with empty just in case something is missed later...
-	Object.values(JobId).forEach(ID => {
+	Object.values(JOB).forEach(ID => {
 		JPT[ID] = DJP();
 	});
 

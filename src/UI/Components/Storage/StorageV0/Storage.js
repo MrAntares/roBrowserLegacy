@@ -27,7 +27,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	/**
 	 * Create Component
 	 */
-	var Storage = new UIComponent('Storage', htmlText, cssText);
+	const Storage = new UIComponent('Storage', htmlText, cssText);
 
 	/**
 	 * Tab constant
@@ -45,12 +45,12 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	/**
 	 * @var {Array} inventory items
 	 */
-	var _list = [];
+	const _list = [];
 
 	/**
 	 * @var {Preference} structure to save
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Storage',
 		{
 			x: 200,
@@ -121,7 +121,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {Array} item list
 	 */
 	Storage.setItems = function setItems(items) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = items.length; i < count; ++i) {
 			if (this.addItemSub(items[i])) {
@@ -136,7 +136,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {object} Item
 	 */
 	Storage.addItem = function addItem(item) {
-		var i = getItemIndexById(item.index);
+		const i = getItemIndexById(item.index);
 
 		// Found, update quantity
 		if (i > -1) {
@@ -156,7 +156,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {object} Item
 	 */
 	Storage.addItemSub = function addItemSub(item) {
-		var tab;
+		let tab;
 
 		switch (item.type) {
 			case ItemType.HEALING:
@@ -195,7 +195,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 		}
 
 		if (tab === _preferences.tab) {
-			var it = DB.getItemInfo(item.ITID);
+			const it = DB.getItemInfo(item.ITID);
 
 			this.ui
 				.find('.container .content')
@@ -235,8 +235,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {number} index in Storage
 	 */
 	Storage.removeItem = function removeItem(index, count) {
-		var i = getItemIndexById(index);
-		var item;
+		const i = getItemIndexById(index);
+		let item;
 
 		// Not found
 		if (i < 0) {
@@ -288,14 +288,14 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Extend Storage window size
 	 */
 	function onResize() {
-		var ui = Storage.ui;
-		var top = ui.position().top;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = Storage.ui;
+		const top = ui.position().top;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraY = 31 + 19 - 30;
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			const extraY = 31 + 19 - 30;
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			h = Math.min(Math.max(h, 8), 17);
@@ -334,7 +334,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Modify tab, filter display entries
 	 */
 	function onSwitchTab() {
-		var idx = jQuery(this).index();
+		const idx = jQuery(this).index();
 		_preferences.tab = idx;
 
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (idx + 1) + '.bmp', function (data) {
@@ -347,7 +347,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Drop from inventory to storage
 	 */
 	function onDrop(event) {
-		var item, data;
+		let item, data;
 
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -394,7 +394,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 */
 	function requestFilter() {
 		Storage.ui.find('.container .content').empty();
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = _list.length; i < count; ++i) {
 			Storage.addItemSub(_list[i]);
@@ -407,7 +407,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * @param {number} item id
 	 */
 	function getItemIndexById(index) {
-		var i, count;
+		let i, count;
 
 		for (i = 0, count = _list.length; i < count; ++i) {
 			if (_list[i].index === index) {
@@ -422,7 +422,7 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Update scroll by block (32px)
 	 */
 	function onScroll(event) {
-		var delta;
+		let delta;
 
 		if (event.originalEvent.wheelDelta) {
 			delta = event.originalEvent.wheelDelta / 120;
@@ -441,8 +441,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Mouse over item, display name and informations
 	 */
 	function onItemOver() {
-		var idx = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(idx);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(idx);
 
 		// Not found
 		if (i < 0) {
@@ -450,9 +450,9 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 		}
 
 		// Get back data
-		var item = _list[i];
-		var pos = jQuery(this).position();
-		var overlay = Storage.ui.find('.overlay');
+		const item = _list[i];
+		const pos = jQuery(this).position();
+		const overlay = Storage.ui.find('.overlay');
 
 		// Display box
 		overlay.show();
@@ -477,16 +477,16 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Start dragging an item
 	 */
 	function onItemDragStart(event) {
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(index);
 
 		if (i === -1) {
 			return;
 		}
 
 		// Set image to the drag drop element
-		var img = new Image();
-		var url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+		const img = new Image();
+		let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
 		url = url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
 		img.decoding = 'async';
 		img.src = url;
@@ -520,8 +520,8 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		var index = parseInt(this.getAttribute('data-index'), 10);
-		var i = getItemIndexById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const i = getItemIndexById(index);
 
 		if (i === -1) {
 			return false;
@@ -551,14 +551,14 @@ import Inventory from 'UI/Components/Inventory/Inventory';
 	 * Alt Right Click Request Transfer
 	 */
 	function transferItemToOtherUI(item) {
-		var isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
-		var isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
+		const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		const isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
 
 		if (!item) {
 			return false;
 		}
 
-		var count = item.count || 1;
+		const count = item.count || 1;
 
 		if (isInventoryOpen) {
 			Storage.reqRemoveItem(item.index, count);

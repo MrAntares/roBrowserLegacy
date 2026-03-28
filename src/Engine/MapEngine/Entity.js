@@ -56,7 +56,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 */
 	// Version Dependent UIs
 	// Excludes for skill name display
-	let SkillNameDisplayExclude = [
+	const SkillNameDisplayExclude = [
 		//Hiding skills
 		SkillId.TF_HIDING,
 		SkillId.AS_CLOAKING,
@@ -88,7 +88,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	];
 
 	// Skills that display blue crit like combo damage
-	let SkillBlueCombo = [
+	const SkillBlueCombo = [
 		SkillId.TK_STORMKICK,
 		SkillId.TK_DOWNKICK,
 		SkillId.TK_TURNKICK,
@@ -105,7 +105,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	/**
 	 * List of players and the respective clan emblem
 	 */
-	let clanEmblems = {};
+	const clanEmblems = {};
 
 	/**
 	 * Spam an entity on the map
@@ -120,7 +120,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 			entity = new Entity();
 			entity.set(pkt);
 			if (pkt.job == 45) {
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					ownerAID: entity.GID,
 					position: entity.position
 				};
@@ -197,10 +197,10 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 				pkt.shield = 0;
 			}
 
-			let weaponType = DB.getWeaponType(pkt.weapon, true);
-			let viewId = DB.getWeaponViewID(pkt.weapon);
+			const weaponType = DB.getWeaponType(pkt.weapon, true);
+			const viewId = DB.getWeaponViewID(pkt.weapon);
 			if (DB.isAssassin(entity.job) && pkt.shield !== 0 && !DB.isShield(pkt.shield) && pkt.weapon !== 0) {
-				let secondaryWeaponType = DB.getWeaponType(pkt.shield, true);
+				const secondaryWeaponType = DB.getWeaponType(pkt.shield, true);
 				entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
 				entity.shield = 0;
 			} else if (DB.isKatar(weaponType)) {
@@ -230,7 +230,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 				pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY10 ||
 				pkt instanceof PACKET.ZC.NOTIFY_NEWENTRY11)
 		) {
-			let EF_Init_Par = {
+			const EF_Init_Par = {
 				ownerAID: entity.GID,
 				position: entity.position
 			};
@@ -258,7 +258,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 
 		// if it is listed in clanEmblems set emblem
 		if (entity.GID in clanEmblems) {
-			let clanId = clanEmblems[entity.GID];
+			const clanId = clanEmblems[entity.GID];
 			console.log('>> entity spam', entity.display.name);
 			DB.loadClanEmblem(clanId, function (image) {
 				entity.clanId = clanId;
@@ -298,11 +298,11 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_VANISH
 	 */
 	function onEntityVanish(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 		if (entity) {
 			if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {
 				//death animation only for myself
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_DEVIL,
 					ownerAID: entity.GID
 				};
@@ -336,7 +336,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 				case Entity.VT.EXIT:
 				case Entity.VT.TELEPORT:
 					if (!(entity._effectState & StatusState.EffectState.INVISIBLE)) {
-						let EF_Init_Par = { position: entity.position };
+						const EF_Init_Par = { position: entity.position };
 
 						if (PACKETVER.value < 20030715) {
 							EF_Init_Par.effectId = EffectConst.EF_TELEPORTATION;
@@ -393,7 +393,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_MOVE
 	 */
 	function onEntityMove(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 		if (entity) {
 			//entity.position[0] = pkt.MoveData[0];
 			//entity.position[1] = pkt.MoveData[1];
@@ -415,7 +415,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.STOPMOVE
 	 */
 	function onEntityStopMove(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
 			if (entity.action === entity.ACTION.WALK) {
 				entity.setAction({
@@ -439,7 +439,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET_ZC_HIGHJUMP
 	 */
 	function onEntityJump(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
 			entity.position[0] = pkt.xPos;
 			entity.position[1] = pkt.yPos;
@@ -453,12 +453,12 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.FASTMOVE
 	 */
 	function onEntityFastMove(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
 			entity.walkTo(entity.position[0], entity.position[1], pkt.targetXpos, pkt.targetYpos);
 
 			if (entity.walk.path.length) {
-				let speed = entity.walk.speed;
+				const speed = entity.walk.speed;
 				entity.walk.speed = 10;
 				entity.walk.onEnd = function onWalkEnd() {
 					entity.walk.speed = speed;
@@ -473,7 +473,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.EMOTION
 	 */
 	function onEntityEmotion(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 		if (entity && pkt.type in Emotions.indexes) {
 			entity.attachments.add({
 				frame: Emotions.indexes[pkt.type],
@@ -491,7 +491,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET_ZC_RESURRECTION
 	 */
 	function onEntityResurect(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 
 		if (!entity) {
 			return;
@@ -530,15 +530,15 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_ACT
 	 */
 	function onEntityAction(pkt) {
-		let srcEntity = EntityManager.get(pkt.GID);
+		const srcEntity = EntityManager.get(pkt.GID);
 		// Entity out of the screen ?
 		if (!srcEntity) {
 			return;
 		}
-		let dstEntity = EntityManager.get(pkt.targetGID);
+		const dstEntity = EntityManager.get(pkt.targetGID);
 		let target;
-		let srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
-		let srcWeaponLeft = srcEntity.shield ? srcEntity.shield : 0;
+		const srcWeapon = srcEntity.weapon ? srcEntity.weapon : 0;
+		const srcWeaponLeft = srcEntity.shield ? srcEntity.shield : 0;
 
 		srcEntity.targetGID = pkt.targetGID;
 
@@ -567,18 +567,18 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 				let soundTime = 0;
 				let delayTime = pkt.attackMT;
 
-				let WSnd = DB.getWeaponSound(srcWeapon);
+				const WSnd = DB.getWeaponSound(srcWeapon);
 				/*var weaponSound = WSnd ? WSnd[0] : false;
 				let weaponSoundRelease = WSnd ? WSnd[1] : false;*/ // UNUSED
 
-				let WSndL = DB.getWeaponSound(srcWeaponLeft);
+				const WSndL = DB.getWeaponSound(srcWeaponLeft);
 				/*var weaponSoundLeft = WSndL ? WSndL[0] : false;
 				let weaponSoundReleaseLeft = WSndL ? WSndL[1] : false;*/ // UNUSED
 
 				if (srcEntity.objecttype === Entity.TYPE_PC) {
 					const factorOfmotionSpeed = pkt.attackMT / AVG_ATTACK_SPEED;
 					const isDualWeapon = DB.isDualWeapon(srcEntity._job, srcEntity._sex, srcEntity.weapon);
-					let m_attackMotion = DB.getPCAttackMotion(
+					const m_attackMotion = DB.getPCAttackMotion(
 						srcEntity._job,
 						srcEntity._sex,
 						srcEntity.weapon,
@@ -594,7 +594,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 					if (DB.isBow(DB.getWeaponType(srcEntity.weapon, true))) {
 						delayTime = (m_attackMotion + 8 / m_motionSpeed) * m_motionSpeed * 24.0;
 						pkt.attackMT += delayTime;
-						let EF_Init_Par = {
+						const EF_Init_Par = {
 							effectId: 'ef_arrow_projectile',
 							ownerAID: dstEntity.GID,
 							otherAID: srcEntity.GID,
@@ -605,7 +605,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 					}
 				} else if (srcEntity.job in AttackEffect.PROJECTILE) {
 					// Non player projectiles
-					let EF_Init_Par = {
+					const EF_Init_Par = {
 						effectId: AttackEffect.PROJECTILE[srcEntity.job],
 						ownerAID: dstEntity.GID,
 						otherAID: srcEntity.GID,
@@ -615,7 +615,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 					EffectManager.spam(EF_Init_Par);
 				} else if (srcEntity.job in AttackEffect.SPAWN) {
 					// Non player special ranged attack
-					let EF_Init_Par = {
+					const EF_Init_Par = {
 						effectId: AttackEffect.SPAWN[srcEntity.job],
 						ownerAID: dstEntity.GID,
 						otherAID: srcEntity.GID,
@@ -648,7 +648,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 						dstEntity.objecttype === Entity.TYPE_NPC_BIONIC
 					) {
 						if (pkt.damage > 0) {
-							let EF_Init_Par = {
+							const EF_Init_Par = {
 								effectId: EffectConst.EF_HIT1,
 								ownerAID: pkt.targetGID,
 								startTick: Renderer.tick + pkt.attackMT
@@ -822,7 +822,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_HUNTING, hunger);
 
-						let talkPkt = new PACKET.CZ.PET_ACT();
+						const talkPkt = new PACKET.CZ.PET_ACT();
 						talkPkt.data = talk;
 						Network.sendPacket(talkPkt);
 						Session.pet.lastTalk = Date.now();
@@ -988,7 +988,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 */
 	function onEntityTalkColor(pkt) {
 		let entity;
-		let color =
+		const color =
 			'rgb(' +
 			[pkt.color & 0x000000ff, (pkt.color & 0x0000ff00) >> 8, (pkt.color & 0x00ff0000) >> 16].join(',') +
 			')'; // bgr to rgb.
@@ -1009,7 +1009,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.ACK_REQNAME
 	 */
 	function onEntityIdentity(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
 			if (entity.display.name) {
 				entity.display.fakename = pkt.CName;
@@ -1018,7 +1018,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 			}
 
 			if (PACKETVER.value >= 20170208 && pkt.TitleID > 0) {
-				let titleText = DB.getTitleString(pkt.TitleID);
+				const titleText = DB.getTitleString(pkt.TitleID);
 				entity.display.title_name = titleText;
 			} else {
 				entity.display.title_name = '';
@@ -1169,7 +1169,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_MONSTER_HP
 	 */
 	function onEntityLifeUpdate(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
 			entity.life.hp = pkt.hp;
 			entity.life.hp_max = pkt.maxhp;
@@ -1183,11 +1183,11 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.QUEST_NOTIFY_EFFECT
 	 */
 	function onEntityQuestNotifyEffect(pkt) {
-		let Entity = EntityManager.get(pkt.npcID);
+		const Entity = EntityManager.get(pkt.npcID);
 		let color = 0;
 
 		if (pkt.effect !== 9999) {
-			let emotionId = pkt.effect + 81;
+			const emotionId = pkt.effect + 81;
 
 			if (Entity && pkt.effect in Emotions.indexes) {
 				Entity.attachments.add({
@@ -1232,7 +1232,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.CHANGE_DIRECTION
 	 */
 	function onEntityDirectionChange(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
 			entity.direction = [4, 3, 2, 1, 0, 7, 6, 5][pkt.dir];
 			entity.headDir = pkt.headDir;
@@ -1245,7 +1245,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.SPRITE_CHANGE2
 	 */
 	function onEntityViewChange(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 
 		if (!entity) {
 			return;
@@ -1310,11 +1310,11 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 						pkt.value2 = 0;
 					}
 
-					let weaponType = DB.getWeaponType(pkt.value, true);
-					let viewId = DB.getWeaponViewID(pkt.value);
+					const weaponType = DB.getWeaponType(pkt.value, true);
+					const viewId = DB.getWeaponViewID(pkt.value);
 
 					if (DB.isAssassin(entity.job) && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
-						let secondaryWeaponType = DB.getWeaponType(pkt.value2, true);
+						const secondaryWeaponType = DB.getWeaponType(pkt.value2, true);
 						entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
 						entity.shield = 0;
 					} else if (DB.isKatar(weaponType)) {
@@ -1387,7 +1387,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.NPCSPRITE_CHANGE
 	 */
 	function onNPCViewChange(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 
 		// Type is fixed 1 and no other values. No need to do anything with it
 		if (entity) {
@@ -1401,8 +1401,8 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.USE_SKILL
 	 */
 	function onEntityUseSkill(pkt) {
-		let srcEntity = EntityManager.get(pkt.srcAID);
-		let dstEntity = EntityManager.get(pkt.targetAID);
+		const srcEntity = EntityManager.get(pkt.srcAID);
+		const dstEntity = EntityManager.get(pkt.targetAID);
 
 		// Don't display skill names for mobs and hiding skills
 		if (
@@ -1426,7 +1426,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		if (srcEntity) {
 			if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) {
 				if (pkt.SKID in SkillActionTable) {
-					let action = SkillActionTable[pkt.SKID];
+					const action = SkillActionTable[pkt.SKID];
 					if (action) {
 						srcEntity.setAction(action(srcEntity, Renderer.tick));
 					}
@@ -1458,7 +1458,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 
 			if (pkt.SKID === SkillId.GC_ROLLINGCUTTER) {
 				if (dstEntity.RollCounter) {
-					let EF_Init_Par = {
+					const EF_Init_Par = {
 						effectId: EffectConst.EF_ROLLING1 + dstEntity.RollCounter - 1,
 						ownerAID: dstEntity.GID
 					};
@@ -1469,7 +1469,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 
 			if (pkt.SKID === SkillId.TK_SEVENWIND) {
 				if (pkt.level) {
-					let EF_Init_Par = {
+					const EF_Init_Par = {
 						effectId: EffectConst.EF_BEGINASURA1 + pkt.level - 1,
 						ownerAID: dstEntity.GID
 					};
@@ -1502,7 +1502,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 */
 	function onSkillDisapear(pkt) {
 		EffectManager.remove(null, pkt.AID);
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
 			entity.remove();
 		}
@@ -1514,7 +1514,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.NOTIFY_SKILL
 	 */
 	function onEntityUseSkillToAttack(pkt) {
-		let SkillAction = {}; //Corresponds to e_damage_type in clif.hpp
+		const SkillAction = {}; //Corresponds to e_damage_type in clif.hpp
 		SkillAction.NORMAL = 0; /// damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
 		SkillAction.PICKUP_ITEM = 1; /// pick up item
 		SkillAction.SIT_DOWN = 2; /// sit down
@@ -1530,8 +1530,8 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		SkillAction.TOUCH = 12; /// (touch skill?)
 		SkillAction.MULTI_HIT_CRITICAL = 13; /// multi-hit critical
 
-		let srcEntity = EntityManager.get(pkt.AID);
-		let dstEntity = EntityManager.get(pkt.targetID);
+		const srcEntity = EntityManager.get(pkt.AID);
+		const dstEntity = EntityManager.get(pkt.targetID);
 		let srcWeapon;
 
 		if (srcEntity) {
@@ -1570,7 +1570,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 			//Action handling
 			if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) {
 				if (pkt.SKID in SkillActionTable) {
-					let action = SkillActionTable[pkt.SKID];
+					const action = SkillActionTable[pkt.SKID];
 					if (action) {
 						srcEntity.setAction(action(srcEntity, Renderer.tick));
 					}
@@ -1584,12 +1584,12 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 					Session.pet.friendly > 900 &&
 					(Session.pet.lastTalk || 0) + 10000 < Date.now()
 				) {
-					let talkRate = parseInt(Math.random() * 10);
+					const talkRate = parseInt(Math.random() * 10);
 					if (talkRate < 3) {
-						let hunger = DB.getPetHungryState(Session.pet.oldHungry);
-						let talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_HUNTING, hunger);
+						const hunger = DB.getPetHungryState(Session.pet.oldHungry);
+						const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_HUNTING, hunger);
 
-						let talkPkt = new PACKET.CZ.PET_ACT();
+						const talkPkt = new PACKET.CZ.PET_ACT();
 						talkPkt.data = talk;
 						Network.sendPacket(talkPkt);
 						Session.pet.lastTalk = Date.now();
@@ -1633,16 +1633,16 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		}
 
 		if (dstEntity) {
-			let target = pkt.damage ? dstEntity : srcEntity;
+			const target = pkt.damage ? dstEntity : srcEntity;
 
 			if (pkt.damage && target && !(srcEntity == dstEntity && pkt.action == SkillAction.SKILL)) {
 				// Will be hit actions
 				onEntityWillBeHitSub(pkt, dstEntity);
 
-				let isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
-				let isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
+				const isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
+				const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
 
-				let addDamage = function (i, startTick) {
+				const addDamage = function (i, startTick) {
 					if (pkt.damage) {
 						// Only if hits
 						EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID);
@@ -1675,7 +1675,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 					}
 				};
 
-				for (var i = 0; i < pkt.count; ++i) {
+				for (let i = 0; i < pkt.count; ++i) {
 					EffectManager.spamSkillBeforeHit(
 						pkt.SKID,
 						pkt.targetID,
@@ -1713,8 +1713,8 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		//     0 = yellow chat text "[src name] will use skill [skill name]."
 		//     1 = no text
 
-		let srcEntity = EntityManager.get(pkt.AID);
-		let dstEntity = EntityManager.get(pkt.targetID);
+		const srcEntity = EntityManager.get(pkt.AID);
+		const dstEntity = EntityManager.get(pkt.targetID);
 
 		if (!srcEntity) {
 			return;
@@ -1745,7 +1745,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		if (srcEntity.objecttype === Entity.TYPE_PC) {
 			//monsters don't use ACTION.SKILL animation
 
-			let action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
+			const action = (SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].ActionType) || 'SKILL';
 
 			srcEntity.setAction({
 				action: srcEntity.ACTION[action],
@@ -1806,7 +1806,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		if (dstEntity && dstEntity !== srcEntity) {
 			srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
 			if (pkt.delayTime) {
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_LOCKON,
 					ownerAID: dstEntity.GID,
 					position: dstEntity.position,
@@ -1818,7 +1818,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		} else if (pkt.xPos && pkt.yPos) {
 			srcEntity.lookTo(pkt.xPos, pkt.yPos);
 			if (pkt.delayTime) {
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_GROUNDSAMPLE,
 					skillId: pkt.SKID,
 					position: [pkt.xPos, pkt.yPos, Altitude.getCellHeight(pkt.yPos, pkt.yPos)],
@@ -1835,7 +1835,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 
 		// Cast aura
 		if (pkt.delayTime && !hideCastAura) {
-			let EF_Init_Par = {
+			const EF_Init_Par = {
 				effectId: EffectConst.EF_BEGINSPELL, // Default
 				ownerAID: srcEntity.GID,
 				position: srcEntity.position,
@@ -1885,7 +1885,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.DISPEL
 	 */
 	function onEntityCastCancel(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
 			entity.cast.clean();
 
@@ -1899,7 +1899,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 				// Autocounter hardcoded animation (any better place to put this?)
 				if (Session.underAutoCounter) {
 					if (Session.Entity.life.hp > 0) {
-						let EF_Init_Par = {
+						const EF_Init_Par = {
 							effectId: EffectConst.EF_AUTOCOUNTER,
 							ownerAID: pkt.AID
 						};
@@ -1918,13 +1918,13 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.MSG_STATE_CHANGE
 	 */
 	function onEntityStatusChange(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 
 		// Monster/Active monster transformations - special handling
 		if (pkt.index === StatusConst.MONSTER_TRANSFORM || pkt.index === StatusConst.ACTIVE_MONSTER_TRANSFORM) {
 			if (!entity) {
-				let isActive = pkt.state == 1 || (pkt.val && pkt.val[0] == 1);
-				let key =
+				const isActive = pkt.state == 1 || (pkt.val && pkt.val[0] == 1);
+				const key =
 					pkt.index === StatusConst.MONSTER_TRANSFORM ? 'monster_transform' : 'active_monster_transform';
 				EntityManager.storePendingTransform(pkt.AID, key, isActive ? (pkt.val ? pkt.val[0] : 0) : null);
 				return;
@@ -1933,7 +1933,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		// Job form transformations (WEREWOLF, WERERAPTOR)
 		else if (pkt.index === StatusConst.WEREWOLF || pkt.index === StatusConst.WERERAPTOR) {
 			if (!entity) {
-				let isActive = pkt.state == 1 || (pkt.val && pkt.val[0] == 1);
+				const isActive = pkt.state == 1 || (pkt.val && pkt.val[0] == 1);
 				EntityManager.storePendingTransform(
 					pkt.AID,
 					'job_transform',
@@ -1973,7 +1973,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 				break;
 
 			case StatusConst.HIDING: {
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_SUMMONSLAVE,
 					ownerAID: pkt.AID
 				};
@@ -2045,7 +2045,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 				break;
 
 			case StatusConst.RUN: { //state: 1 ON  0 OFF
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_STOPEFFECT,
 					ownerAID: pkt.AID
 				};
@@ -2060,7 +2060,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 			}
 
 			case StatusConst.TING: {
-				let EF_Init_Par = {
+				const EF_Init_Par = {
 					effectId: EffectConst.EF_QUAKEBODY,
 					ownerAID: pkt.AID
 				};
@@ -2238,7 +2238,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 			case StatusConst.MONSTER_TRANSFORM:
 				if (pkt.state == 1 || (pkt.val && pkt.val[0] == 1)) {
 					// Transform into monster
-					let monsterId = pkt.val ? pkt.val[0] : 0;
+					const monsterId = pkt.val ? pkt.val[0] : 0;
 					entity.monster_transform = monsterId;
 				} else {
 					// Remove monster transformation
@@ -2250,7 +2250,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 			case StatusConst.ACTIVE_MONSTER_TRANSFORM:
 				if (pkt.state == 1 || (pkt.val && pkt.val[0] == 1)) {
 					// Active transform into monster
-					let monsterId = pkt.val ? pkt.val[0] : 0;
+					const monsterId = pkt.val ? pkt.val[0] : 0;
 					entity.active_monster_transform = monsterId;
 				} else {
 					// Remove active monster transformation
@@ -2297,7 +2297,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 
 			case StatusConst.C_MARKER:
 				if (pkt.state == 1) {
-					let EF_Init_Par = {
+					const EF_Init_Par = {
 						effectId: 'ef_c_marker2',
 						ownerAID: pkt.AID
 					};
@@ -2371,7 +2371,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 			case StatusConst.ARCWANDCLAN:
 			case StatusConst.GOLDENMACECLAN:
 			case StatusConst.CROSSBOWCLAN:
-				let clanId = pkt.index - StatusConst.SWORDCLAN + 1;
+				const clanId = pkt.index - StatusConst.SWORDCLAN + 1;
 				DB.loadClanEmblem(clanId, function (image) {
 					entity.clanId = clanId;
 					entity.display.emblem = image;
@@ -2433,7 +2433,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	//Warlock sphere summons update
 	function updateWarlockSpheres(entity) {
 		if (entity.Summon1 || entity.Summon2 || entity.Summon3 || entity.Summon4 || entity.Summon5) {
-			let EF_Init_Par = {
+			const EF_Init_Par = {
 				effectId: 'temporary_warlock_sphere',
 				ownerAID: entity.GID,
 				persistent: false
@@ -2454,7 +2454,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.STATE_CHANGE
 	 */
 	function onEntityOptionChange(pkt) {
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 		if (!entity) {
 			return;
 		}
@@ -2592,7 +2592,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 			return;
 		}
 
-		let entity = EntityManager.get(pkt.makerAID);
+		const entity = EntityManager.get(pkt.makerAID);
 		if (entity) {
 			entity.room.remove();
 		}
@@ -2631,8 +2631,8 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.BLADESTOP
 	 */
 	function onBladeStopPacket(pkt) {
-		let srcEntity = EntityManager.get(pkt.srcAID);
-		let dstEntity = EntityManager.get(pkt.destAID);
+		const srcEntity = EntityManager.get(pkt.srcAID);
+		const dstEntity = EntityManager.get(pkt.destAID);
 		if (srcEntity && dstEntity) {
 			onBladeStopVisual(srcEntity, dstEntity, pkt.flag);
 			onBladeStopVisual(dstEntity, srcEntity, pkt.flag);
@@ -2709,7 +2709,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.MVP
 	 */
 	function onEntityMvpReward(pkt) {
-		let EF_Init_Par = {
+		const EF_Init_Par = {
 			effectId: EffectConst.EF_MVP,
 			ownerAID: pkt.AID
 		};
@@ -2722,7 +2722,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * @param {object} pkt - PACKET.ZC.MVP_GETTING_ITEM
 	 */
 	function onEntityMvpRewardItemMessage(pkt) {
-		let item = DB.getItemInfo(pkt.ITID);
+		const item = DB.getItemInfo(pkt.ITID);
 		ChatBox.addText(DB.getMessage(143), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 		ChatBox.addText(item.identifiedDisplayName, ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 	}
@@ -2736,7 +2736,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	function onEntityWillBeHitSub(pkt, dstEntity) {
 		// only if has damage > 0 and type is not endure and not lucky
 		if ((pkt.damage > 0 || pkt.leftDamage > 0) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
-			let count = pkt.count || 1;
+			const count = pkt.count || 1;
 
 			function impendingAttack() {
 				// Get hurt when attack happens
@@ -2773,7 +2773,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 				}
 			}
 
-			for (var i = 0; i < count; i++) {
+			for (let i = 0; i < count; i++) {
 				if (pkt.damage) {
 					Events.setTimeout(impendingAttack, pkt.attackMT + C_MULTIHIT_DELAY * i);
 				}
@@ -2793,7 +2793,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * Does player have a Token of Siegfried?
 	 */
 	function haveSiegfriedItem() {
-		let itemInfo = Inventory.getUI().getItemById(7621);
+		const itemInfo = Inventory.getUI().getItemById(7621);
 
 		if (Session.IsPKZone || Session.IsSiegeMode || Session.IsEventPVPMode) {
 			return false;
@@ -2817,7 +2817,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 
 		// Apply
 		if (NewState & Status) {
-			let EF_Init_Par = {
+			const EF_Init_Par = {
 				effectId: EffectId,
 				ownerAID: AID
 			};
@@ -2829,7 +2829,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 	 * Handle hat effect packet - add or remove hat effects on entity
 	 */
 	function onHatEffects(pkt) {
-		let entity = EntityManager.get(pkt.GID);
+		const entity = EntityManager.get(pkt.GID);
 		if (!entity) {
 			return;
 		}
@@ -2855,7 +2855,7 @@ import ScreenEffectManager from 'Renderer/ScreenEffectManager';
 		}
 
 		// Add new effects from packet
-		let effectIds = pkt.hatEffectIDs || [];
+		const effectIds = pkt.hatEffectIDs || [];
 		for (i = 0, count = effectIds.length; i < count; ++i) {
 			hatEffectID = effectIds[i];
 

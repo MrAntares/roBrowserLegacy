@@ -12,7 +12,7 @@
 
 import Configs from 'Core/Configs';
 
-var _console;
+let _console;
 
 function init() {
 	// Save original console
@@ -23,9 +23,9 @@ function init() {
  * Returns either the real or the dummy console based on configs
  */
 function toggleConsole() {
-	var optDev = Configs.get('development', false);
-	var optEC = Configs.get('enableConsole', false);
-	var optDC = Configs.get('disableConsole', false);
+	const optDev = Configs.get('development', false);
+	const optEC = Configs.get('enableConsole', false);
+	const optDC = Configs.get('disableConsole', false);
 
 	if (!optDC && (optDev || optEC)) {
 		_console.log(
@@ -51,7 +51,7 @@ function toggleConsole() {
 /**
  * Dummy function
  */
-var dummy = function () {
+const dummy = function () {
 	return true;
 };
 

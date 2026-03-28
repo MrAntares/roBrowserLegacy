@@ -25,7 +25,7 @@ import /** @type {TMapPreferencesAura} */ MapPreferences from 'Preferences/Map';
 import Configs from 'Core/Configs';
 
 /** @type {TAuraSettings} */
-	let _auraSettings = {
+	const _auraSettings = {
 		defaultLv: 99
 		// babyLv: 99, // TODO implement other aura levels
 		// secondLv: 99,
@@ -34,9 +34,9 @@ import Configs from 'Core/Configs';
 		// bossLv: 99,
 	};
 
-	let normalEffects = [EffectConst.EF_LEVEL99, EffectConst.EF_LEVEL99_2, EffectConst.EF_LEVEL99_3];
+	const normalEffects = [EffectConst.EF_LEVEL99, EffectConst.EF_LEVEL99_2, EffectConst.EF_LEVEL99_3];
 
-	let simpleEffects = [EffectConst.EF_LEVEL99_3];
+	const simpleEffects = [EffectConst.EF_LEVEL99_3];
 
 	/**
 	 * Aura class
@@ -54,10 +54,10 @@ import Configs from 'Core/Configs';
 	 * Show aura
 	 */
 	Aura.prototype.load = function load(effectManager) {
-		let server = Configs.getServer(); // find aura from servers config
+		const server = Configs.getServer(); // find aura from servers config
 
 		/** @type {TAuraSettings} - merge server aura config with default settings */
-		let settings =
+		const settings =
 			server != null ? Object.assign({}, _auraSettings, server.aura) : Object.assign({}, _auraSettings);
 
 		// check if qualifies for aura and /aura2 preference
@@ -76,7 +76,7 @@ import Configs from 'Core/Configs';
 				if (!this.isLoaded) {
 					// aura is already loaded
 					// select effects based on /aura preference
-					let effects = MapPreferences.aura < 2 ? simpleEffects : normalEffects;
+					const effects = MapPreferences.aura < 2 ? simpleEffects : normalEffects;
 					// add aura effects
 					for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) {
 						effectManager.spam({

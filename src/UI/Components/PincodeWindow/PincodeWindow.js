@@ -20,7 +20,7 @@ import cssText from './PincodeWindow.css?raw';
 /**
 	 * Pincode Window namespace
 	 */
-	let PincodeWindow = new UIComponent('PincodeWindow', htmlText, cssText);
+	const PincodeWindow = new UIComponent('PincodeWindow', htmlText, cssText);
 
 	/**
 	 * @var {Preference} window preferences
@@ -81,31 +81,31 @@ import cssText from './PincodeWindow.css?raw';
 	};
 
 	function shuffleUsingKeypad(keypad) {
-		let ui = PincodeWindow.ui;
+		const ui = PincodeWindow.ui;
 		if (!ui || !keypad) {
 			return;
 		}
 		for (var loc = 0; loc < 10; loc++) {
-			let posBtn = ui.find('.btn.num' + loc);
+			const posBtn = ui.find('.btn.num' + loc);
 			if (!posBtn || posBtn.length === 0) {
 				continue;
 			}
 
-			let el = posBtn[0];
-			let off = posBtn.offset();
+			const el = posBtn[0];
+			const off = posBtn.offset();
 			el.__original_x_pos = off.left;
 			el.__original_y_pos = off.top;
 		}
 		for (var loc = 0; loc < 10; loc++) {
-			let d = keypad[loc];
-			let btn = ui.find('.btn.num' + d);
+			const d = keypad[loc];
+			const btn = ui.find('.btn.num' + d);
 			if (!btn || btn.length === 0) {
 				continue;
 			}
 
-			let targetEl = ui.find('.btn.num' + loc)[0];
-			let target_x = targetEl.__original_x_pos;
-			let target_y = targetEl.__original_y_pos;
+			const targetEl = ui.find('.btn.num' + loc)[0];
+			const target_x = targetEl.__original_x_pos;
+			const target_y = targetEl.__original_y_pos;
 			btn.offset({
 				left: target_x,
 				top: target_y
@@ -127,7 +127,7 @@ import cssText from './PincodeWindow.css?raw';
 	 * Initialize UI
 	 */
 	PincodeWindow.init = function init() {
-		let ui = this.ui;
+		const ui = this.ui;
 
 		this.ui.css({
 			top: (Renderer.height - 358) / 2,
@@ -290,7 +290,7 @@ import cssText from './PincodeWindow.css?raw';
 	 * Called by the parent when we have received a pincode reset request from the server.
 	 */
 	PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
-		let ui = PincodeWindow.ui;
+		const ui = PincodeWindow.ui;
 		if (
 			PincodeWindow._resetstate === 3 &&
 			typeof PincodeWindow.onPincodeReset === 'function' &&
@@ -409,13 +409,13 @@ import cssText from './PincodeWindow.css?raw';
 	};
 
 	function generateKeypad(_userseed) {
-		let tab = new Uint8Array([0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9]); // This is a char array in rathena. (So 1 byte values.)
-		let keypad = new Uint8Array([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]); // This is a char array in rathena. (So 1 byte values.)
+		const tab = new Uint8Array([0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9]); // This is a char array in rathena. (So 1 byte values.)
+		const keypad = new Uint8Array([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]); // This is a char array in rathena. (So 1 byte values.)
 		const multiplier = parseInt('0x3498', 16);
 		const baseSeed = parseInt('0x881234', 16);
 		let i = 0;
 		let pos = 0;
-		let userSeed = new Uint32Array([_userseed]); // It's tempting to make this a regular var, but we need the truncating behavior of an int32 for the pad generation.
+		const userSeed = new Uint32Array([_userseed]); // It's tempting to make this a regular var, but we need the truncating behavior of an int32 for the pad generation.
 
 		// Set up onetime pad.
 		for (i = 1; i < 10; i++) {
@@ -448,7 +448,7 @@ import cssText from './PincodeWindow.css?raw';
 		if (isNaN(intCode) === false && Number.isSafeInteger(intCode) === true) {
 			if (intCode >= 0 && intCode < 1000000 && pincode.length >= 4 && pincode.length <= 6) {
 				// Get intCode into a parseable string.
-				for (var ic = pincode.length - 1; ic > 0; ic--) {
+				for (let ic = pincode.length - 1; ic > 0; ic--) {
 					if (intCode < Math.pow(10, ic)) {
 						strCode += '0';
 					}
@@ -561,7 +561,7 @@ import cssText from './PincodeWindow.css?raw';
 	};
 
 	function render(tick) {
-		let num = (
+		const num = (
 			PincodeWindow.sel_input === 1
 				? PincodeWindow._newpass
 				: PincodeWindow.sel_input === 2
@@ -570,7 +570,7 @@ import cssText from './PincodeWindow.css?raw';
 		).length;
 		let str = '';
 
-		for (var x = 0; x < num; x++) {
+		for (let x = 0; x < num; x++) {
 			str += '*';
 		}
 

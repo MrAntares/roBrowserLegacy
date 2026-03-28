@@ -40,7 +40,7 @@ ScrollBar.init = function Init() {
 	}
 
 	// List of skins to load
-	var skinsToLoad = [
+	const skinsToLoad = [
 		{
 			name: 'default',
 			files: [
@@ -73,24 +73,24 @@ ScrollBar.init = function Init() {
 		}
 	];
 
-	var loadedCount = 0;
+	let loadedCount = 0;
 
 	skinsToLoad.forEach(function (skinInfo) {
-		var files = skinInfo.files.filter(function (f) {
+		const files = skinInfo.files.filter(function (f) {
 			return f !== null;
 		});
 
 		Client.loadFiles(files, function () {
-			var args = arguments;
-			var down = args[0];
-			var mid = skinInfo.name === 'default' ? args[1] : null;
-			var up = skinInfo.name === 'default' ? args[2] : args[1];
+			const args = arguments;
+			const down = args[0];
+			const mid = skinInfo.name === 'default' ? args[1] : null;
+			const up = skinInfo.name === 'default' ? args[2] : args[1];
 
-			var baseDown = skinInfo.name === 'default' ? args[3] : null;
-			var baseMid = skinInfo.name === 'default' ? args[4] : null;
-			var baseUp = skinInfo.name === 'default' ? args[5] : null;
+			const baseDown = skinInfo.name === 'default' ? args[3] : null;
+			const baseMid = skinInfo.name === 'default' ? args[4] : null;
+			const baseUp = skinInfo.name === 'default' ? args[5] : null;
 
-			var finalizeSkin = function (thumbUrl) {
+			const finalizeSkin = function (thumbUrl) {
 				ScrollBar.skins[skinInfo.name] = {
 					name: skinInfo.name,
 					down: down,
@@ -113,14 +113,14 @@ ScrollBar.init = function Init() {
 
 			if (baseUp) {
 				// Use a small helper to avoid deep nesting of Texture.load calls
-				var loadedTextures = { down: null, mid: null, up: null };
-				var checkAllLoaded = function () {
+				const loadedTextures = { down: null, mid: null, up: null };
+				const checkAllLoaded = function () {
 					if (loadedTextures.down && loadedTextures.mid && loadedTextures.up) {
-						var base = document.createElement('canvas');
-						var ctx = base.getContext('2d');
-						var imgUp = loadedTextures.up;
-						var imgMid = loadedTextures.mid;
-						var imgDown = loadedTextures.down;
+						const base = document.createElement('canvas');
+						const ctx = base.getContext('2d');
+						const imgUp = loadedTextures.up;
+						const imgMid = loadedTextures.mid;
+						const imgDown = loadedTextures.down;
 
 						base.width = imgUp.width;
 						base.height = imgUp.height + imgMid.height + imgDown.height;
@@ -170,11 +170,11 @@ ScrollBar.init = function Init() {
  */
 ScrollBar.applyDOMScrollbar = function (element) {
 	if (element._roScrollbarApplied) {
-		var $wrapper = jQuery(element).children('.ro-custom-scrollbar');
+		const $wrapper = jQuery(element).children('.ro-custom-scrollbar');
 		if ($wrapper.length === 0) {
 			element._roScrollbarApplied = false;
 		} else {
-			var currentSkinName = element.dataset.scrollbarSkin || 'default';
+			const currentSkinName = element.dataset.scrollbarSkin || 'default';
 			if (element._roScrollbarSkin !== currentSkinName) {
 				// Skin changed, need to re-apply visuals
 				element._roScrollbarApplied = false;
@@ -196,9 +196,9 @@ ScrollBar.applyDOMScrollbar = function (element) {
 	}
 
 	element._roScrollbarApplied = true;
-	var $element = jQuery(element);
-	var skinName = element.dataset.scrollbarSkin || 'default';
-	var skin = ScrollBar.skins[skinName] || ScrollBar.skins['default'];
+	const $element = jQuery(element);
+	const skinName = element.dataset.scrollbarSkin || 'default';
+	const skin = ScrollBar.skins[skinName] || ScrollBar.skins['default'];
 
 	element._roScrollbarSkin = skinName;
 
@@ -217,18 +217,18 @@ ScrollBar.applyDOMScrollbar = function (element) {
 	});
 
 	// Build scrollbar DOM wrapper
-	var $scrollbar = jQuery('<div class="ro-custom-scrollbar skin-' + skinName + '"></div>');
-	var $upBtn = jQuery('<div class="btn-up"></div>');
-	var $track = jQuery('<div class="track"></div>');
-	var $thumb = jQuery('<div class="thumb"></div>');
-	var $downBtn = jQuery('<div class="btn-down"></div>');
+	const $scrollbar = jQuery('<div class="ro-custom-scrollbar skin-' + skinName + '"></div>');
+	const $upBtn = jQuery('<div class="btn-up"></div>');
+	const $track = jQuery('<div class="track"></div>');
+	const $thumb = jQuery('<div class="thumb"></div>');
+	const $downBtn = jQuery('<div class="btn-down"></div>');
 
-	var width = skin.width || 13;
+	const width = skin.width || 13;
 	$scrollbar.css('width', width + 'px');
 
 	if (skin.btnHeight || skin.btnWidth) {
-		var bHeight = skin.btnHeight || (skin.name === 'default' ? 12 : 13);
-		var bWidth = skin.btnWidth || width;
+		const bHeight = skin.btnHeight || (skin.name === 'default' ? 12 : 13);
+		const bWidth = skin.btnWidth || width;
 		$upBtn.css({ height: bHeight + 'px', width: bWidth + 'px', margin: '0 auto' });
 		$downBtn.css({ height: bHeight + 'px', width: bWidth + 'px', margin: '0 auto' });
 	}
@@ -268,7 +268,7 @@ ScrollBar.applyDOMScrollbar = function (element) {
 			'background-color': 'transparent'
 		});
 	} else {
-		var tWidth = skin.trackWidth || width;
+		const tWidth = skin.trackWidth || width;
 		$thumb.css({
 			'background-color': skin.colors.thumb || 'grey',
 			'-webkit-border-image': 'none',
@@ -277,16 +277,16 @@ ScrollBar.applyDOMScrollbar = function (element) {
 		});
 	}
 
-	var isDragging = false;
-	var startY = 0;
-	var startThumbY = 0;
+	let isDragging = false;
+	let startY = 0;
+	let startThumbY = 0;
 
 	/**
 	 * Update thumb position relative to scroll position
 	 */
-	var updateThumb = function () {
-		var h = $element[0].clientHeight;
-		var sh = $element[0].scrollHeight;
+	const updateThumb = function () {
+		const h = $element[0].clientHeight;
+		const sh = $element[0].scrollHeight;
 
 		if (sh <= h) {
 			$scrollbar.hide();
@@ -297,7 +297,7 @@ ScrollBar.applyDOMScrollbar = function (element) {
 		$scrollbar.show();
 		$element.css('padding-right', element._roOriginalPaddingRight + (skin.width || 13) + 'px');
 
-		var st = $element[0].scrollTop;
+		const st = $element[0].scrollTop;
 
 		// Sync wrapper size and position
 		$scrollbar.css({
@@ -306,23 +306,23 @@ ScrollBar.applyDOMScrollbar = function (element) {
 			right: '0px'
 		});
 
-		var trackHeight = $track.height();
+		const trackHeight = $track.height();
 		if (trackHeight <= 0) {
 			return;
 		}
 
-		var ratio = h / sh;
-		var thumbHeight = Math.max(10, Math.floor(trackHeight * ratio));
+		const ratio = h / sh;
+		const thumbHeight = Math.max(10, Math.floor(trackHeight * ratio));
 		$thumb.css('height', thumbHeight + 'px');
 
-		var maxScrollTop = sh - h;
-		var maxThumbTop = trackHeight - thumbHeight;
-		var thumbTop = (st / maxScrollTop) * maxThumbTop;
+		const maxScrollTop = sh - h;
+		const maxThumbTop = trackHeight - thumbHeight;
+		const thumbTop = (st / maxScrollTop) * maxThumbTop;
 
 		$thumb.css('top', thumbTop + 'px');
 	};
 
-	var poller = null;
+	let poller = null;
 
 	element._roScrollbarRestart = function () {
 		updateThumb();
@@ -343,13 +343,13 @@ ScrollBar.applyDOMScrollbar = function (element) {
 	element._roScrollbarRestart();
 
 	$element.on('wheel', function (e) {
-		var h = $element[0].clientHeight;
-		var sh = $element[0].scrollHeight;
+		const h = $element[0].clientHeight;
+		const sh = $element[0].scrollHeight;
 		if (sh <= h) {
 			return;
 		}
 
-		var delta = e.originalEvent.deltaY;
+		const delta = e.originalEvent.deltaY;
 		$element[0].scrollTop += delta;
 		updateThumb();
 		e.preventDefault();
@@ -386,18 +386,18 @@ ScrollBar.applyDOMScrollbar = function (element) {
 			return;
 		}
 
-		var h = $element[0].clientHeight;
-		var sh = $element[0].scrollHeight;
-		var trackHeight = $track.height();
-		var thumbHeight = $thumb.height();
+		const h = $element[0].clientHeight;
+		const sh = $element[0].scrollHeight;
+		const trackHeight = $track.height();
+		const thumbHeight = $thumb.height();
 
-		var maxScrollTop = sh - h;
-		var maxThumbTop = trackHeight - thumbHeight;
+		const maxScrollTop = sh - h;
+		const maxThumbTop = trackHeight - thumbHeight;
 
-		var deltaY = e.originalEvent.clientY - startY;
-		var newThumbTop = Math.max(0, Math.min(startThumbY + deltaY, maxThumbTop));
+		const deltaY = e.originalEvent.clientY - startY;
+		const newThumbTop = Math.max(0, Math.min(startThumbY + deltaY, maxThumbTop));
 
-		var percentage = newThumbTop / maxThumbTop;
+		const percentage = newThumbTop / maxThumbTop;
 		$element[0].scrollTop = percentage * maxScrollTop;
 		updateThumb();
 	});
@@ -417,8 +417,8 @@ ScrollBar.applyDOMScrollbar = function (element) {
 		if (e.target === $thumb[0]) {
 			return;
 		}
-		var clickY = e.offsetY;
-		var thumbTop = parseInt($thumb.css('top'), 10) || 0;
+		const clickY = e.offsetY;
+		const thumbTop = parseInt($thumb.css('top'), 10) || 0;
 		if (clickY < thumbTop) {
 			$element[0].scrollTop -= $element[0].clientHeight;
 		} else {

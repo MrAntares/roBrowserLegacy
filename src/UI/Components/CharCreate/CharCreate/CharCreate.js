@@ -22,7 +22,7 @@ import cssText from './CharCreate.css?raw';
 /**
 	 * Create Chararacter Selection namespace
 	 */
-	let CharCreate = new UIComponent('CharCreate', htmlText, cssText);
+	const CharCreate = new UIComponent('CharCreate', htmlText, cssText);
 
 	/**
 	 * @var {boolean} account sex
@@ -37,7 +37,7 @@ import cssText from './CharCreate.css?raw';
 	/**
 	 * @var {object} chargen info
 	 */
-	let _chargen = {
+	const _chargen = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -143,7 +143,7 @@ import cssText from './CharCreate.css?raw';
 	 * Send back informations to send the packet
 	 */
 	function create() {
-		let ui = CharCreate.ui;
+		const ui = CharCreate.ui;
 
 		CharCreate.onCharCreationRequest(
 			ui.find('input').val(),
@@ -206,7 +206,7 @@ import cssText from './CharCreate.css?raw';
 		}
 
 		// Relation table
-		let group = {
+		const group = {
 			str: 'int',
 			int: 'str',
 			vit: 'dex',
@@ -227,13 +227,13 @@ import cssText from './CharCreate.css?raw';
 	 */
 	function updateGraphic() {
 		// Update graphique.
-		let ctx = _graph;
-		let width = ctx.canvas.width;
-		let height = ctx.canvas.height;
+		const ctx = _graph;
+		const width = ctx.canvas.width;
+		const height = ctx.canvas.height;
 		let i,
 			x = width / 2,
 			y = height / 2;
-		let list = ['dex', 'agi', 'str', 'vit', 'luk', 'int'];
+		const list = ['dex', 'agi', 'str', 'vit', 'luk', 'int'];
 
 		ctx.clearRect(0, 0, width, height);
 		ctx.save();

@@ -11,7 +11,7 @@
 
 import JobId from './JobConst';
 
-	let JobHitSoundTable = {};
+	const JobHitSoundTable = {};
 
 	JobHitSoundTable[JobId.NOVICE] = ['player_clothes.wav'];
 
@@ -184,8 +184,8 @@ import JobId from './JobConst';
 	JobHitSoundTable[JobId.MEISTER2] = ['player_clothes.wav'];
 
 	function duplicateEntry(origin) {
-		var value = JobHitSoundTable[origin];
-		var i,
+		const value = JobHitSoundTable[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {

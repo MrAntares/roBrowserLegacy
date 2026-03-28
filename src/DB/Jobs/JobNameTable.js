@@ -11,7 +11,7 @@
 
 import JobId from './JobConst';
 
-	let JobNameTable = {};
+	const JobNameTable = {};
 
 	JobNameTable[JobId.NOVICE] = '\xC3\xCA\xBA\xB8\xC0\xDA';
 
@@ -222,8 +222,8 @@ import JobId from './JobConst';
 	JobNameTable[JobId.WERERAPTOR] = 'wereraptor';
 
 	function duplicateEntry(origin) {
-		var value = JobNameTable[origin];
-		var i,
+		const value = JobNameTable[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {

@@ -18,12 +18,12 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 /**
 	 * Import
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * Sprite Renderer NameSpace
 	 */
-	let SpriteRenderer = {};
+	const SpriteRenderer = {};
 
 	/**
 	 * @var {function} functions to use to render
@@ -178,22 +178,22 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 	/**
 	 * @var {Uint16Array} position in 2D canvas
 	 */
-	let _pos = new Int16Array(2);
+	const _pos = new Int16Array(2);
 
 	/**
 	 * @var {mat4} last generated matrix (used for rotation)
 	 */
-	let _matrix = new Float32Array(4 * 4);
+	const _matrix = new Float32Array(4 * 4);
 
 	/**
 	 * @var {Float32Array[2]} sprite size
 	 */
-	let _size = new Float32Array(2);
+	const _size = new Float32Array(2);
 
 	/**
 	 * @var {Float32Array[2]} sprite offset position
 	 */
-	let _offset = new Float32Array(2);
+	const _offset = new Float32Array(2);
 
 	/**
 	 * Initialize SpriteRenderer Renderer
@@ -227,8 +227,8 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 	 * @param {object} fog structure
 	 */
 	SpriteRenderer.bind3DContext = function Bind3dContext(gl, modelView, projection, fog) {
-		let attribute = _program.attribute;
-		let uniform = _program.uniform;
+		const attribute = _program.attribute;
+		const uniform = _program.uniform;
 
 		gl.useProgram(_program);
 		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
@@ -275,7 +275,7 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 	 * @param {object} gl context
 	 */
 	SpriteRenderer.unbind = function unBind(gl) {
-		let attribute = _program.attribute;
+		const attribute = _program.attribute;
 
 		gl.disableVertexAttribArray(attribute.aPosition);
 		gl.disableVertexAttribArray(attribute.aTextureCoord);
@@ -310,9 +310,9 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 		// gl.uniform* seems to be expensive
 		// cache values to avoid flooding the GPU and reducing perf.
 
-		let uniform = _program.uniform;
-		let gl = _gl;
-		let use_pal = this.image.palette !== null;
+		const uniform = _program.uniform;
+		const gl = _gl;
+		const use_pal = this.image.palette !== null;
 
 		if (isBlendModeOne) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -341,7 +341,7 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 			gl.uniform1f(uniform.uSpriteRendererDepth, (_depth = this.depth));
 		}
 
-		let disableDepthCorrection = !!this.disableDepthCorrection;
+		const disableDepthCorrection = !!this.disableDepthCorrection;
 		if (_disableDepthCorrection !== disableDepthCorrection) {
 			_disableDepthCorrection = disableDepthCorrection;
 			gl.uniform1i(uniform.uDisableDepthCorrection, disableDepthCorrection);
@@ -398,9 +398,9 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 			return;
 		}
 
-		let prevDepthTest = _depthTest;
-		let prevDepthMask = _depthMask;
-		let prevDepthCorrection = this.disableDepthCorrection;
+		const prevDepthTest = _depthTest;
+		const prevDepthMask = _depthMask;
+		const prevDepthCorrection = this.disableDepthCorrection;
 
 		if (_depthTest !== depthTest) {
 			_depthTest = depthTest;
@@ -506,13 +506,13 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 
 			// Pre-calculate color multipliers for 32-bit assembly
 			// Avoid repeated array lookups inside the inner loop.
-			let r_mul = color[0],
+			const r_mul = color[0],
 				g_mul = color[1],
 				b_mul = color[2],
 				a_mul = color[3];
 
 			// Fast path: no color modulation (identity)
-			let isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
+			const isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
 
 			// RGBA images
 			if (this.sprite.type === 1) {
@@ -524,14 +524,14 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 				 *            1 load + 1 store per pixel in the fast path.
 				 * Reduces memory writes and bounds checks inside the inner loop.
 				 */
-				let input32 = new Uint32Array(input.buffer);
+				const input32 = new Uint32Array(input.buffer);
 
 				for (y = 0; y < height; ++y) {
 					outRow = y * outputWidth;
 					inRow = y * width;
 
 					for (x = 0; x < width; ++x) {
-						let pixel = input32[inRow + x];
+						const pixel = input32[inRow + x];
 						if (pixel === 0) {
 							// Transparent skip behavior due n*0 = 0
 							output32[outRow + x] = 0;
@@ -560,14 +560,14 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
 				// Pre-calculate a color-modulated 32-bit palette for this frame.
 				// WHY: Avoid per-pixel palette lookups and color multiplications.
 				// Cost: O(256) setup, O(pixels) usage.
-				let pal32 = new Uint32Array(256);
-				for (var i = 0; i < 256; i++) {
+				const pal32 = new Uint32Array(256);
+				for (let i = 0; i < 256; i++) {
 					if (i === 0) {
 						// Transparent skip behavior due n*0 = 0
 						pal32[i] = 0;
 						continue;
 					}
-					let pIdx = i * 4;
+					const pIdx = i * 4;
 					r = (pal[pIdx + 0] * r_mul) | 0;
 					g = (pal[pIdx + 1] * g_mul) | 0;
 					b = (pal[pIdx + 2] * b_mul) | 0;

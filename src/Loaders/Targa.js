@@ -89,8 +89,8 @@ function checkHeader(header) {
  * @param {number} output buffer size
  */
 function decodeRLE(data, offset, pixelSize, outputSize) {
-	var pos, c, count, i;
-	var pixels, output;
+	let pos, c, count, i;
+	let pixels, output;
 
 	output = new Uint8Array(outputSize);
 	pixels = new Uint8Array(pixelSize);
@@ -133,7 +133,7 @@ function decodeRLE(data, offset, pixelSize, outputSize) {
  * @param {function} callback - callback to trigger when the file is loaded
  */
 Targa.prototype.open = function targaOpen(path, callback) {
-	var req,
+	let req,
 		tga = this;
 	req = new XMLHttpRequest();
 	req.responseType = 'arraybuffer';
@@ -155,7 +155,7 @@ Targa.prototype.open = function targaOpen(path, callback) {
  * @param {Uint8Array} data - TGA file buffer array
  */
 Targa.prototype.load = function targaLoad(data) {
-	var offset = 0;
+	let offset = 0;
 
 	// Not enough data to contain header ?
 	if (data.length < 0x12) {
@@ -199,14 +199,14 @@ Targa.prototype.load = function targaLoad(data) {
 
 	// Read palette
 	if (this.header.hasColorMap) {
-		let colorMapSize = this.header.colorMapLength * (this.header.colorMapDepth >> 3);
+		const colorMapSize = this.header.colorMapLength * (this.header.colorMapDepth >> 3);
 		this.palette = data.subarray(offset, offset + colorMapSize);
 		offset += colorMapSize;
 	}
 
-	var pixelSize = this.header.pixelDepth >> 3;
-	var imageSize = this.header.width * this.header.height;
-	var pixelTotal = imageSize * pixelSize;
+	const pixelSize = this.header.pixelDepth >> 3;
+	const imageSize = this.header.width * this.header.height;
+	const pixelTotal = imageSize * pixelSize;
 
 	// RLE encoded
 	if (this.header.hasEncoding) {
@@ -226,14 +226,14 @@ Targa.prototype.load = function targaLoad(data) {
  * @returns {object} imageData
  */
 Targa.prototype.getImageData = function targaGetImageData(imageData) {
-	var width = this.header.width;
-	var height = this.header.height;
+	const width = this.header.width;
+	const height = this.header.height;
 	// Create an imageData
 	if (!imageData) {
 		imageData = { width: width, height: height, data: new Uint8ClampedArray(width * height * 4) };
 	}
-	var origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
-	var x_start, x_step, x_end, y_start, y_step, y_end;
+	const origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
+	let x_start, x_step, x_end, y_start, y_step, y_end;
 
 	if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.TOP_RIGHT) {
 		y_start = 0;
@@ -255,32 +255,32 @@ Targa.prototype.getImageData = function targaGetImageData(imageData) {
 		x_end = -1;
 	}
 
-	var data = imageData.data;
-	var input = this.imageData;
-	var buffer32 = new Uint32Array(data.buffer);
-	var i = 0;
+	const data = imageData.data;
+	const input = this.imageData;
+	const buffer32 = new Uint32Array(data.buffer);
+	let i = 0;
 
 	switch (this.header.pixelDepth) {
 		case 8:
 			if (this.header.isGreyColor) {
 				// 8-bit grayscale
 				for (let y = y_start; y !== y_end; y += y_step) {
-					let rowOffset = y * width;
+					const rowOffset = y * width;
 					for (let x = x_start; x !== x_end; x += x_step) {
-						let v = input[i++];
+						const v = input[i++];
 						buffer32[rowOffset + x] = (255 << 24) | (v << 16) | (v << 8) | v;
 					}
 				}
 			} else {
 				// 8-bit indexed (paletted)
-				let colormap = this.palette;
+				const colormap = this.palette;
 				for (let y = y_start; y !== y_end; y += y_step) {
-					let rowOffset = y * width;
+					const rowOffset = y * width;
 					for (let x = x_start; x !== x_end; x += x_step) {
-						let idx = input[i++] * 3;
-						let b = colormap[idx + 0];
-						let g = colormap[idx + 1];
-						let r = colormap[idx + 2];
+						const idx = input[i++] * 3;
+						const b = colormap[idx + 0];
+						const g = colormap[idx + 1];
+						const r = colormap[idx + 2];
 						buffer32[rowOffset + x] = (255 << 24) | (b << 16) | (g << 8) | r;
 					}
 				}
@@ -291,25 +291,25 @@ Targa.prototype.getImageData = function targaGetImageData(imageData) {
 			if (this.header.isGreyColor) {
 				// 16-bit grayscale (intensity + alpha)
 				for (let y = y_start; y !== y_end; y += y_step) {
-					let rowOffset = y * width;
+					const rowOffset = y * width;
 					for (let x = x_start; x !== x_end; x += x_step) {
-						let intensity = input[i++];
-						let alpha = input[i++];
+						const intensity = input[i++];
+						const alpha = input[i++];
 						buffer32[rowOffset + x] = (alpha << 24) | (intensity << 16) | (intensity << 8) | intensity;
 					}
 				}
 			} else {
 				// 16-bit 5-5-5-1
 				for (let y = y_start; y !== y_end; y += y_step) {
-					let rowOffset = y * width;
+					const rowOffset = y * width;
 					for (let x = x_start; x !== x_end; x += x_step) {
-						let color = input[i] | (input[i + 1] << 8);
+						const color = input[i] | (input[i + 1] << 8);
 						i += 2;
 
-						let r = (color & 0x7c00) >> 7;
-						let g = (color & 0x03e0) >> 2;
-						let b = (color & 0x001f) >> 3;
-						let a = color & 0x8000 ? 255 : 0;
+						const r = (color & 0x7c00) >> 7;
+						const g = (color & 0x03e0) >> 2;
+						const b = (color & 0x001f) >> 3;
+						const a = color & 0x8000 ? 255 : 0;
 
 						buffer32[rowOffset + x] = (a << 24) | (b << 16) | (g << 8) | r;
 					}
@@ -318,27 +318,27 @@ Targa.prototype.getImageData = function targaGetImageData(imageData) {
 			break;
 		case 24:
 			for (let y = y_start; y !== y_end; y += y_step) {
-				let rowOffset = y * width;
+				const rowOffset = y * width;
 				for (let x = x_start; x !== x_end; x += x_step) {
-					let b = input[i++];
-					let g = input[i++];
-					let r = input[i++];
+					const b = input[i++];
+					const g = input[i++];
+					const r = input[i++];
 					buffer32[rowOffset + x] = (255 << 24) | (b << 16) | (g << 8) | r;
 				}
 			}
 			break;
 
 		case 32:
-			let MAGENTA_MASK = 0x00ff00ff;
-			let PIXEL_MASK = 0x00ffffff;
+			const MAGENTA_MASK = 0x00ff00ff;
+			const PIXEL_MASK = 0x00ffffff;
 			for (let y = y_start; y !== y_end; y += y_step) {
-				let rowOffset = y * width;
+				const rowOffset = y * width;
 				for (let x = x_start; x !== x_end; x += x_step) {
 					// BGRA to RGBA (or ABGR depending on endianness)
 					// TGA 32 is usually BGRA
 					// read as Uint32 (BGRA format input[i]=B, input[i+1]=G, input[i+2]=R, input[i+3]=A).
 					// Writing (A<<24 | B<<16 | G<<8 | R) produces LE memory bytes [R, G, B, A], which matches Canvas ImageData (RGBA).
-					let pixel = (input[i + 3] << 24) | (input[i] << 16) | (input[i + 1] << 8) | input[i + 2];
+					const pixel = (input[i + 3] << 24) | (input[i] << 16) | (input[i + 1] << 8) | input[i + 2];
 					i += 4;
 
 					buffer32[rowOffset + x] = (pixel & PIXEL_MASK) === MAGENTA_MASK ? 0 : pixel;
@@ -355,7 +355,7 @@ Targa.prototype.getImageData = function targaGetImageData(imageData) {
  * @returns {object} CanvasElement
  */
 Targa.prototype.getCanvas = function targaGetCanvas() {
-	var canvas, ctx, imageData;
+	let canvas, ctx, imageData;
 
 	canvas = document.createElement('canvas');
 	ctx = canvas.getContext('2d');

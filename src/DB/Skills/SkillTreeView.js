@@ -3,7 +3,7 @@
 import SK from './SkillConst';
 import JobId from 'DB/Jobs/JobConst';
 
-	let SkillTreeView = {};
+	const SkillTreeView = {};
 
 	((SkillTreeView[JobId.NOVICE] = {
 		list: 1,
@@ -1652,8 +1652,8 @@ import JobId from 'DB/Jobs/JobConst';
 		}));
 
 	function duplicateEntry(origin) {
-		var value = SkillTreeView[origin];
-		var i,
+		const value = SkillTreeView[origin];
+		let i,
 			count = arguments.length;
 
 		for (i = 1; i < count; ++i) {

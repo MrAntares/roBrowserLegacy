@@ -28,7 +28,7 @@ import Mouse from 'Controls/MouseEventHandler';
 	 */
 	function onMercenaryInit(pkt) {
 		Session.mercId = pkt.AID;
-		let entity = EntityManager.get(pkt.AID);
+		const entity = EntityManager.get(pkt.AID);
 
 		if (entity) {
 			entity.attack_range = pkt.ATKRange;
@@ -57,7 +57,7 @@ import Mouse from 'Controls/MouseEventHandler';
 	 * @param {object} pkt - PACKET.ZC.MER_PROPERTY
 	 */
 	function onMercenaryProperty(pkt) {
-		let entity = EntityManager.get(Session.mercId);
+		const entity = EntityManager.get(Session.mercId);
 
 		if (entity) {
 			entity.life.hp = pkt.hp;
@@ -80,7 +80,7 @@ import Mouse from 'Controls/MouseEventHandler';
 	 * @param {object} pkt - PACKET.ZC.MER_PAR_CHANGE
 	 */
 	function onParameterChange(pkt) {
-		let entity = EntityManager.get(Session.mercId);
+		const entity = EntityManager.get(Session.mercId);
 		if (!entity) {
 			return;
 		}
@@ -131,7 +131,7 @@ import Mouse from 'Controls/MouseEventHandler';
 	 */
 	MercenaryInformations.reqDeleteMercenary = function reqDeleteMercenary() {
 		UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
-			let pkt = new PACKET.CZ.MER_COMMAND();
+			const pkt = new PACKET.CZ.MER_COMMAND();
 			pkt.command = 2;
 			Network.sendPacket(pkt);
 		});
@@ -141,7 +141,7 @@ import Mouse from 'Controls/MouseEventHandler';
 	 * Request to move mercenary to owner
 	 */
 	MercenaryInformations.reqMoveToOwner = function reqMoveToOwner(gid) {
-		let pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
+		const pkt = new PACKET.CZ.REQUEST_MOVETOOWNER();
 		pkt.GID = gid;
 		Network.sendPacket(pkt);
 	};
@@ -150,7 +150,7 @@ import Mouse from 'Controls/MouseEventHandler';
 	 * Request mercenary to attack target
 	 */
 	MercenaryInformations.reqAttack = function reqAttack(GID, targetGID) {
-		let pkt = new PACKET.CZ.REQUEST_ACTNPC();
+		const pkt = new PACKET.CZ.REQUEST_ACTNPC();
 		pkt.GID = GID;
 		pkt.targetGID = targetGID;
 		pkt.action = 0;
@@ -161,7 +161,7 @@ import Mouse from 'Controls/MouseEventHandler';
 	 * Request mercenary to move to location
 	 */
 	MercenaryInformations.reqMoveTo = function reqMoveTo(GID, x = 0, y = 0) {
-		let pkt = new PACKET.CZ.REQUEST_MOVENPC();
+		const pkt = new PACKET.CZ.REQUEST_MOVENPC();
 		pkt.GID = GID;
 		pkt.dest[0] = x > 0 ? x : Mouse.world.x;
 		pkt.dest[1] = y > 0 ? y : Mouse.world.y;

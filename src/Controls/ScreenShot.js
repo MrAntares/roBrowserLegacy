@@ -31,7 +31,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	/**
 	 * Initiate methods
 	 */
-	let ScreenShot = {};
+	const ScreenShot = {};
 
 	/**
 	 * Take a ScreenShot
@@ -56,7 +56,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		let x, y;
 
 		// Create a date to add to canvas
-		let tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
+		const tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
 		let localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
 		localISOTime = localISOTime.replace('T', ' ');
 		timezone = new Date().getTimezoneOffset() / 60;
@@ -79,7 +79,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		Client.loadFile(
 			'data/texture/scr_logo.bmp',
 			function (url) {
-				let img = new Image();
+				const img = new Image();
 				img.decoding = 'async';
 				img.src = url;
 				img.onload = function () {

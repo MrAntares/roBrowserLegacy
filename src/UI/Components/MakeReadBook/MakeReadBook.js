@@ -26,17 +26,17 @@ import TextEncoding from 'Utils/CodepageManager';
 import Announce from 'UI/Components/Announce/Announce';
 import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
-let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
+const sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 	/**
 	 * Create Component
 	 */
-	let MakeReadBook = new UIComponent('MakeReadBook', htmlText, cssText);
+	const MakeReadBook = new UIComponent('MakeReadBook', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _BOOK_INFORMATION = Preferences.get(
+	const _BOOK_INFORMATION = Preferences.get(
 		'_BOOK_INFORMATION',
 		{
 			itid: 0,
@@ -59,12 +59,12 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	let _realSize = 0;
+	const _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'MakeReadBook',
 		{
 			x: 0,
@@ -82,21 +82,21 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 	);
 
 	MakeReadBook.startBook = function startBook(inforBook, item) {
-		let it = DB.getItemInfo(item.ITID);
+		const it = DB.getItemInfo(item.ITID);
 
 		_BOOK_INFORMATION['title'] = it.identifiedDisplayName;
-		let addColor = inforBook.substr(1, 7);
-		let validtext = inforBook.substr(7); // remover color background
+		const addColor = inforBook.substr(1, 7);
+		const validtext = inforBook.substr(7); // remover color background
 
-		let lineValidtext = validtext.split('\n');
-		let defoutValue = 15;
+		const lineValidtext = validtext.split('\n');
+		const defoutValue = 15;
 		let coutIndeNewText = 0;
 		let coutNewIndex = 0;
-		let contentsArray = [];
+		const contentsArray = [];
 
 		for (let index = 0; index < lineValidtext.length; index++) {
 			if (defoutValue + coutNewIndex > index) {
-				let addText =
+				const addText =
 					typeof contentsArray[coutIndeNewText] === 'undefined'
 						? '\n'
 						: contentsArray[coutIndeNewText] + '\n' + lineValidtext[index];
@@ -118,7 +118,7 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 			coutIndeNewText++;
 		}
 
-		let validNewBookOpen = _BOOK_INFORMATION['itid'] === item.ITID;
+		const validNewBookOpen = _BOOK_INFORMATION['itid'] === item.ITID;
 		_BOOK_INFORMATION['color'] = addColor;
 		_BOOK_INFORMATION['contents'] = contentsArray;
 		_BOOK_INFORMATION['pagesize'] = contentsArray.length; // length
@@ -146,23 +146,23 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 			],
 			function (spr_close, spr_highlighter, spr_previous, spr_next) {
 				// close
-				let sprite_close = new Sprite(spr_close);
+				const sprite_close = new Sprite(spr_close);
 				let canvas;
 				canvas = sprite_close.getCanvasFromFrame(0);
 				canvas.className = 'clone_book event_add_cursor';
 				MakeReadBook.ui.find('.footer').find('canvas').remove();
 				MakeReadBook.ui.find('.footer').append(canvas);
-				let cloneBook = MakeReadBook.ui.find('.clone_book');
+				const cloneBook = MakeReadBook.ui.find('.clone_book');
 				cloneBook.click(onClose);
 
 				// highlighter
-				let sprite_highlighter = new Sprite(spr_highlighter);
+				const sprite_highlighter = new Sprite(spr_highlighter);
 				let canvas2;
 				canvas2 = sprite_highlighter.getCanvasFromFrame(0);
 				canvas2.className = 'highlighter event_add_cursor';
 				MakeReadBook.ui.find('#highlighter').find('canvas').remove();
 				MakeReadBook.ui.find('#highlighter').append(canvas2);
-				let highlighter = MakeReadBook.ui.find('.highlighter');
+				const highlighter = MakeReadBook.ui.find('.highlighter');
 				highlighter
 					.mouseover(function (e) {
 						e.stopImmediatePropagation();
@@ -182,12 +182,12 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 				// remove canvas next and previous
 				MakeReadBook.ui.find('#next_previous').find('canvas').remove();
 				// previous
-				let sprite_previous = new Sprite(spr_previous);
+				const sprite_previous = new Sprite(spr_previous);
 				let canvas3;
 				canvas3 = sprite_previous.getCanvasFromFrame(0);
 				canvas3.className = 'previous_btn event_add_cursor';
 				MakeReadBook.ui.find('#next_previous').append(canvas3);
-				let previous_btn = MakeReadBook.ui.find('.previous_btn');
+				const previous_btn = MakeReadBook.ui.find('.previous_btn');
 				previous_btn
 					.mouseover(function (e) {
 						e.stopImmediatePropagation();
@@ -199,12 +199,12 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 					});
 
 				// next
-				let sprite_next = new Sprite(spr_next);
+				const sprite_next = new Sprite(spr_next);
 				let canvas4;
 				canvas4 = sprite_next.getCanvasFromFrame(0);
 				canvas4.className = 'next_btn event_add_cursor';
 				MakeReadBook.ui.find('#next_previous').append(canvas4);
-				let next_btn = MakeReadBook.ui.find('.next_btn');
+				const next_btn = MakeReadBook.ui.find('.next_btn');
 				next_btn
 					.mouseover(function (e) {
 						e.stopImmediatePropagation();
@@ -254,7 +254,7 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 	};
 
 	async function repeatedGreetingsLoop(book_information) {
-		let text1 = book_information.split('\n');
+		const text1 = book_information.split('\n');
 		for (let i = 0; i < text1.length; i++) {
 			if (_BOOK_INFORMATION['book_open']) {
 				break;
@@ -288,8 +288,8 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 	}
 
 	function cleanTextColor(text) {
-		let cout = text.split('^').length;
-		let array = text.split('^');
+		const cout = text.split('^').length;
+		const array = text.split('^');
 		let newMessage = '';
 
 		for (let index = 0; index < cout; index++) {
@@ -387,7 +387,7 @@ let sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 	function page() {
 		MakeReadBook.ui.find('#textBook').text('');
-		let textBody = MakeReadBook.ui.find('#textBook');
+		const textBody = MakeReadBook.ui.find('#textBook');
 
 		for (
 			let i = _BOOK_INFORMATION['page'] * 1;

@@ -15,7 +15,7 @@ import jQuery from 'Utils/jquery';
 	/**
 	 * Keys Constants
 	 */
-	let KEYS = {
+	const KEYS = {
 		// Special Keys
 		CTRL: false,
 		SHIFT: false,
@@ -188,8 +188,8 @@ import jQuery from 'Utils/jquery';
 		writable: false,
 		enumerable: false,
 		value: function getKeyIdString(shortcut) {
-			let str = [];
-			let tmp = this.toReadableKey(parseInt(shortcut.key, 10));
+			const str = [];
+			const tmp = this.toReadableKey(parseInt(shortcut.key, 10));
 
 			if (shortcut.alt) {
 				str.push('ALT');

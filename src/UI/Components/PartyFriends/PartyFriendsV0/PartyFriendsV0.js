@@ -32,27 +32,27 @@ import cssText from './PartyFriendsV0.css?raw';
 	/**
 	 * Create Component
 	 */
-	var PartyFriendsV0 = new UIComponent('PartyFriendsV0', htmlText, cssText);
+	const PartyFriendsV0 = new UIComponent('PartyFriendsV0', htmlText, cssText);
 
 	/**
 	 * @var {number} index of selection
 	 */
-	var _index = -1;
+	let _index = -1;
 
 	/**
 	 * @var {Array} friends list
 	 */
-	var _friends = [];
+	const _friends = [];
 
 	/**
 	 * @var {Array} party list
 	 */
-	var _party = [];
+	const _party = [];
 
 	/**
 	 * @var {Object} party setup
 	 */
-	var _options = {
+	const _options = {
 		exp_share: 0,
 		item_share: 0,
 		item_sharing_type: 0
@@ -61,7 +61,7 @@ import cssText from './PartyFriendsV0.css?raw';
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'PartyFriendsV0',
 		{
 			x: 200,
@@ -231,9 +231,9 @@ import cssText from './PartyFriendsV0.css?raw';
 	 * @param {Array} friends list
 	 */
 	PartyFriendsV0.setFriends = function setFriends(friends) {
-		var i,
+		let i,
 			count = friends.length;
-		var ui = this.ui.find('.content .friend');
+		const ui = this.ui.find('.content .friend');
 
 		_friends.length = friends.length;
 		ui.empty();
@@ -262,7 +262,7 @@ import cssText from './PartyFriendsV0.css?raw';
 	 * @param {boolean} state
 	 */
 	PartyFriendsV0.updateFriendState = function updateFriendState(index, state) {
-		var node = this.ui.find('.content .friend .node:eq(' + index + ')');
+		const node = this.ui.find('.content .friend .node:eq(' + index + ')');
 
 		_friends[index].State = state;
 
@@ -307,7 +307,7 @@ import cssText from './PartyFriendsV0.css?raw';
 		_friends[idx].AID = friend.AID;
 		_friends[idx].State = friend.State || 0;
 
-		var node = this.ui.find('.content .friend .node:eq(' + idx + ')');
+		const node = this.ui.find('.content .friend .node:eq(' + idx + ')');
 		node.find('.name').text(friend.Name);
 
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (url) {
@@ -344,7 +344,7 @@ import cssText from './PartyFriendsV0.css?raw';
 		this.ui.find('.party.create').hide();
 		this.ui.find('.party.leave').show();
 
-		var i,
+		let i,
 			count = members.length;
 
 		_party.length = 0;
@@ -361,10 +361,10 @@ import cssText from './PartyFriendsV0.css?raw';
 	 * @param {object} player information
 	 */
 	PartyFriendsV0.addPartyMember = function addPartyMember(player) {
-		var role = player.role || player.Role || 0;
-		var i,
+		const role = player.role || player.Role || 0;
+		let i,
 			count = _party.length;
-		var node, texture, ctx;
+		let node, texture, ctx;
 
 		// Check if we are the leader
 		if (player.AID === Session.AID) {
@@ -464,7 +464,7 @@ import cssText from './PartyFriendsV0.css?raw';
 			return;
 		}
 
-		var i,
+		let i,
 			count = _party.length;
 
 		for (i = 0; i < count; ++i) {
@@ -507,9 +507,9 @@ import cssText from './PartyFriendsV0.css?raw';
 	 * @param {number} maxhp
 	 */
 	PartyFriendsV0.updateMemberLife = function updateMemberLife(AID, canvas, hp, maxhp) {
-		var i,
+		let i,
 			count = _party.length;
-		var node, ctx;
+		let node, ctx;
 
 		for (i = 0; i < count; ++i) {
 			// No GID data, so have to check for the online character in
@@ -551,7 +551,7 @@ import cssText from './PartyFriendsV0.css?raw';
 	 * @param {string} character name
 	 */
 	PartyFriendsV0.isGroupMember = function isGroupMember(characterName) {
-		let count = _party.length;
+		const count = _party.length;
 		for (let i = 0; i < count; ++i) {
 			// No GID, need to compare using charactername (wtf)
 			if (_party[i].characterName === characterName) {
@@ -566,19 +566,19 @@ import cssText from './PartyFriendsV0.css?raw';
 	 * Resizing UI
 	 */
 	function onResize() {
-		var ui = PartyFriendsV0.ui;
-		var top = ui.position().top;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = PartyFriendsV0.ui;
+		const top = ui.position().top;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraX = -20;
-			var extraY = 25 + 21;
+			const extraX = -20;
+			const extraY = 25 + 21;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 20);
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 20);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 20);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 20);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 12), 13);
@@ -633,7 +633,7 @@ import cssText from './PartyFriendsV0.css?raw';
 	 * Move to the other tab (Friend -> Party or Party -> Friend)
 	 */
 	function onChangeTab() {
-		var ui = PartyFriendsV0.ui;
+		const ui = PartyFriendsV0.ui;
 
 		_preferences.friend = !_preferences.friend;
 		_preferences.save();
@@ -674,7 +674,7 @@ import cssText from './PartyFriendsV0.css?raw';
 			return;
 		}
 
-		var text = _preferences.friend ? DB.getMessage(356) : DB.getMessage(363);
+		const text = _preferences.friend ? DB.getMessage(356) : DB.getMessage(363);
 
 		// Are you sure that you want to delete/expel ?
 		UIManager.showPromptBox(text, 'ok', 'cancel', function () {
@@ -695,7 +695,7 @@ import cssText from './PartyFriendsV0.css?raw';
 			return;
 		}
 
-		var name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
+		const name = _preferences.friend ? _friends[_index].Name : _party[_index].characterName;
 
 		if (PACKETVER.value >= 20090617) {
 			WhisperBox.show(name);
@@ -799,13 +799,13 @@ import cssText from './PartyFriendsV0.css?raw';
 	 */
 	function onSelectionChange(event) {
 		PartyFriendsV0.ui.find('.content .name').removeClass('selection');
-		var node = jQuery(this);
+		const node = jQuery(this);
 		node.find('.name').addClass('selection');
 
 		_index = PartyFriendsV0.ui.find(this.parentNode).find('.node').index(this);
 
 		if (SkillTargetSelection.intersectEntityId) {
-			var entityId = _preferences.friend ? _friends[_index].AID : _party[_index].AID;
+			const entityId = _preferences.friend ? _friends[_index].AID : _party[_index].AID;
 			SkillTargetSelection.intersectEntityId(entityId);
 		}
 	}
@@ -833,7 +833,7 @@ import cssText from './PartyFriendsV0.css?raw';
 			return;
 		}
 
-		var type =
+		const type =
 			_preferences.friend && PACKETVER.value >= 20090617 ? PartyHelper.Type.FRIEND_SETUP : PartyHelper.Type.SETUP;
 		if (PartyHelper.__active && PartyHelper.getType() === type) {
 			PartyHelper.remove();
@@ -841,7 +841,7 @@ import cssText from './PartyFriendsV0.css?raw';
 		}
 		PartyHelper.append();
 		if (type === PartyHelper.Type.FRIEND_SETUP) {
-			var whisperPrefs = WhisperBox.preferences;
+			const whisperPrefs = WhisperBox.preferences;
 			PartyHelper.setType(PartyHelper.Type.FRIEND_SETUP);
 			PartyHelper.setFriendOptions(whisperPrefs);
 		} else {

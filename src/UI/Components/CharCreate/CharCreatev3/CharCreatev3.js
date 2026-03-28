@@ -23,7 +23,7 @@ import Client from 'Core/Client';
 	/**
 	 * Create Chararacter Selection namespace
 	 */
-	let CharCreatev3 = new UIComponent('CharCreatev3', htmlText, cssText);
+	const CharCreatev3 = new UIComponent('CharCreatev3', htmlText, cssText);
 
 	/**
 	 * @var {boolean} account sex
@@ -87,7 +87,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {object} chargen info
 	 */
-	let _human = {
+	const _human = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -97,7 +97,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {object} doram info
 	 */
-	let _doram = {
+	const _doram = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -107,7 +107,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {object} model info
 	 */
-	let _model = {
+	const _model = {
 		entity: new Entity(),
 		ctx: null,
 		render: false,
@@ -301,7 +301,7 @@ import Client from 'Core/Client';
 	 * Send back informations to send the packet
 	 */
 	function create() {
-		let charname = CharCreatev3.ui.find('#char_name').val();
+		const charname = CharCreatev3.ui.find('#char_name').val();
 
 		CharCreatev3.onCharCreationRequest(
 			charname,

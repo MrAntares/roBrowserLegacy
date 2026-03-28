@@ -28,9 +28,9 @@ import GraphicsSettings from 'Preferences/Graphics';
  * @param {Array} FileList to load
  */
 export function init(files) {
-	var i, count;
-	var packetver = Configs.get('packetver');
-	var remoteClient = Configs.get('remoteClient');
+	let i, count;
+	const packetver = Configs.get('packetver');
+	const remoteClient = Configs.get('remoteClient');
 
 	function OnDate(date) {
 		// Avoid errors
@@ -66,12 +66,12 @@ export function init(files) {
  * @param {Array} FileList
  */
 function savingFiles(files) {
-	var progressbar = document.createElement('div');
-	var info = document.createElement('div');
-	var last_tick = Date.now();
-	var list = [];
-	var i, count;
-	var temporaryStorage;
+	const progressbar = document.createElement('div');
+	const info = document.createElement('div');
+	let last_tick = Date.now();
+	const list = [];
+	let i, count;
+	let temporaryStorage;
 
 	if (files.length) {
 		// Progressbar
@@ -113,7 +113,7 @@ function savingFiles(files) {
 
 		// Get progress on saving the client
 		Thread.hook('CLIENT_SAVE_PROGRESS', function (data) {
-			var now = Date.now();
+			const now = Date.now();
 			if (last_tick + 400 < now) {
 				progressbar.style.width = data.total.perc + '%';
 				info.textContent = 'Saving fullclient... (' + data.total.perc + ' %)';
@@ -149,7 +149,7 @@ function savingFiles(files) {
 		};
 
 	temporaryStorage.queryUsageAndQuota(function (used, remaining) {
-		var quota = {
+		const quota = {
 			used: used,
 			remaining: remaining
 		};
@@ -177,7 +177,7 @@ function savingFiles(files) {
  * @param {Array} args - optional
  */
 export const getFile = (function getFilClosure() {
-	var _input = { filename: '', args: null };
+	const _input = { filename: '', args: null };
 
 	function callback(data, error, input) {
 		Memory.set(input.filename, data, error);
@@ -202,8 +202,8 @@ export const getFile = (function getFilClosure() {
  * @param {function} callback once loaded
  */
 export function getFiles(filenames, callback) {
-	var count, index;
-	var out;
+	let count, index;
+	let out;
 
 	function onload(data) {
 		out[index++] = data;
@@ -234,12 +234,12 @@ export function getFiles(filenames, callback) {
  * @param {Array} args - optional
  */
 export const loadFile = (function loadFileClosure() {
-	var _input = { filename: '', args: null };
+	const _input = { filename: '', args: null };
 
 	async function callback(data, error, input) {
-		var i, count, j, size;
-		var gl, frames, texture, layers, palette;
-		var precision;
+		let i, count, j, size;
+		let gl, frames, texture, layers, palette;
+		let precision;
 
 		if (data && !error) {
 			switch (input.filename.substr(-3)) {
@@ -369,8 +369,8 @@ export const loadFile = (function loadFileClosure() {
  * @param {function} callback once loaded
  */
 export function loadFiles(filenames, callback) {
-	var count, index;
-	var out;
+	let count, index;
+	let out;
 
 	function onload(data) {
 		out[index++] = data;

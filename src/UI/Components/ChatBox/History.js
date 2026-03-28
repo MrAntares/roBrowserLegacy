@@ -22,7 +22,7 @@
 	/**
 	 * @const {number} max message in history
 	 */
-	var CACHE_SIZE = 50;
+	const CACHE_SIZE = 50;
 
 	/**
 	 * @var {number} index in history
@@ -35,8 +35,8 @@
 	 * @param {string} message
 	 */
 	History.prototype.push = function push(message) {
-		var count = this.list.length;
-		var pos;
+		let count = this.list.length;
+		let pos;
 
 		if (!count || this.list[count - 1] !== message) {
 			// Remove duplicated key

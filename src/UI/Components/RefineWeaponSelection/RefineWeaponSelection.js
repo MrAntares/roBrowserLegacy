@@ -21,7 +21,7 @@ import cssText from './RefineWeaponSelection.css?raw';
 /**
 	 * Create RefineWeaponSelection namespace
 	 */
-	let RefineWeaponSelection = new UIComponent('RefineWeaponSelection', htmlText, cssText);
+	const RefineWeaponSelection = new UIComponent('RefineWeaponSelection', htmlText, cssText);
 
 	/**
 	 * Initialize UI
@@ -129,9 +129,9 @@ import cssText from './RefineWeaponSelection.css?raw';
 	 * Select a server, callback
 	 */
 	RefineWeaponSelection.getItemByIndex = function getItemByIndex(index) {
-		let list = RefineWeaponSelection.ItemList;
+		const list = RefineWeaponSelection.ItemList;
 
-		for (var i = 0; i < list.length; i++) {
+		for (let i = 0; i < list.length; i++) {
 			if (RefineWeaponSelection.ItemList[i].index == index) {
 				return RefineWeaponSelection.ItemList[i];
 			}

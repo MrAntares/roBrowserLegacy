@@ -12,7 +12,7 @@
 import SU from './SkillUnitConst';
 import EC from 'DB/Effects/EffectConst';
 
-	let SkillUnit = {};
+	const SkillUnit = {};
 
 	SkillUnit[SU.UNT_SAFETYWALL] = EC.EF_GLASSWALL2;
 	SkillUnit[SU.UNT_FIREWALL] = EC.EF_FIREWALL;

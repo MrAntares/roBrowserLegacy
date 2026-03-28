@@ -35,9 +35,9 @@ function getShouldOpenWhisperBox(nickname) {
 		return true;
 	}
 
-	var prefs = WhisperBox.preferences;
+	const prefs = WhisperBox.preferences;
 
-	var isFriend = Friends.isFriend(nickname);
+	const isFriend = Friends.isFriend(nickname);
 	return (isFriend && prefs.open1to1Friend) || (!isFriend && prefs.open1to1Stranger);
 }
 
@@ -47,9 +47,9 @@ function getShouldOpenWhisperBox(nickname) {
  * @param {object} pkt - PACKET.ZC.WHISPER
  */
 function onPrivateMessage(pkt) {
-	var isFriend = Friends.isFriend(pkt.sender);
-	var prefix = isFriend ? DB.getMessage(102) : 'From';
-	var msg = pkt.msg.replace(/\|\d{2}/, '');
+	const isFriend = Friends.isFriend(pkt.sender);
+	const prefix = isFriend ? DB.getMessage(102) : 'From';
+	const msg = pkt.msg.replace(/\|\d{2}/, '');
 
 	// Use WhisperBox if open or allowed by settings (version dependent)
 	if (getShouldOpenWhisperBox(pkt.sender)) {
@@ -80,8 +80,8 @@ function onPrivateMessage(pkt) {
  * @param {object} pkt - PACKET.ZC.ACK_WHISPER
  */
 function onPrivateMessageSent(pkt) {
-	var user = ChatBox.PrivateMessageStorage.nick;
-	var msg = ChatBox.PrivateMessageStorage.msg;
+	const user = ChatBox.PrivateMessageStorage.nick;
+	const msg = ChatBox.PrivateMessageStorage.msg;
 
 	if (pkt.result === 0) {
 		if (user && msg) {
@@ -101,7 +101,7 @@ function onPrivateMessageSent(pkt) {
 			}
 		}
 	} else {
-		var errorMsg = '(' + user + ') : ' + DB.getMessage(147 + pkt.result);
+		const errorMsg = '(' + user + ') : ' + DB.getMessage(147 + pkt.result);
 		ChatBox.addText(errorMsg, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
 	}
 
@@ -120,7 +120,7 @@ export default function PrivateMessageEngine() {
 
 	// Hook WhisperBox outbound messages
 	WhisperBox.onRequestTalk = function (nickname, text) {
-		var pkt = new PACKET.CZ.WHISPER();
+		const pkt = new PACKET.CZ.WHISPER();
 		pkt.receiver = nickname;
 		pkt.msg = text;
 		Network.sendPacket(pkt);

@@ -11,7 +11,7 @@
 
 import JobId from './JobConst';
 
-	let MountTable = {};
+	const MountTable = {};
 
 	// MountTable[<Base job>]       = <Mount job>
 

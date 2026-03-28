@@ -28,7 +28,7 @@ import cssText from './EnchantGrade.css?raw';
 /**
 	 * Create Component
 	 */
-	let EnchantGrade = new UIComponent('EnchantGrade', htmlText, cssText);
+	const EnchantGrade = new UIComponent('EnchantGrade', htmlText, cssText);
 
 	/**
 	 * Variables for current EnchantGrade Session
@@ -155,15 +155,15 @@ import cssText from './EnchantGrade.css?raw';
 	EnchantGrade.onOpenEnchantGradeUI = function onOpenEnchantGradeUI() {
 		EnchantGrade.append();
 
-		let isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 
 		if (!isInventoryOpen) {
 			Inventory.getUI().toggle();
 		}
 
-		let EnchantGradeInfoPos = EnchantGrade.ui.offset();
-		let EnchantGradeWidth = EnchantGrade.ui.outerWidth();
-		let EnchantGradeHeight = EnchantGrade.ui.outerHeight() - Inventory.getUI().ui.outerHeight();
+		const EnchantGradeInfoPos = EnchantGrade.ui.offset();
+		const EnchantGradeWidth = EnchantGrade.ui.outerWidth();
+		const EnchantGradeHeight = EnchantGrade.ui.outerHeight() - Inventory.getUI().ui.outerHeight();
 
 		Inventory.getUI().ui.css({
 			position: 'absolute',
@@ -180,7 +180,7 @@ import cssText from './EnchantGrade.css?raw';
 	function onEnchantGradeClose() {
 		EnchantGrade.remove();
 
-		let pkt = new PACKET.CZ.GRADE_ENCHANT_CLOSE_UI();
+		const pkt = new PACKET.CZ.GRADE_ENCHANT_CLOSE_UI();
 		Network.sendPacket(pkt);
 
 		return false;
@@ -202,7 +202,7 @@ import cssText from './EnchantGrade.css?raw';
 		}
 
 		let currentImageIndex = 0;
-		let imageArray = images[phase];
+		const imageArray = images[phase];
 
 		if (!imageArray) {
 			console.error('Invalid phase:', phase);
@@ -310,7 +310,7 @@ import cssText from './EnchantGrade.css?raw';
 			disableDropProxy();
 
 			// Check if there is already an item in EnchantGrade UI
-			let existingItem = EnchantGrade.ui.find('.enchant_container .item');
+			const existingItem = EnchantGrade.ui.find('.enchant_container .item');
 			if (existingItem.length > 0) {
 				// Remove existing item from EnchantGrade UI
 				onRemoveItem();
@@ -318,7 +318,7 @@ import cssText from './EnchantGrade.css?raw';
 
 			EnchantGrade_item_index = pkt.index;
 			EnchantGrade_current_success = pkt.success_chance;
-			let item = Inventory.getUI().getItemByIndex(pkt.index);
+			const item = Inventory.getUI().getItemByIndex(pkt.index);
 
 			gradingMaterials = pkt.materialList;
 
@@ -329,8 +329,8 @@ import cssText from './EnchantGrade.css?raw';
 			clearTimeout(EnchantGrade.imageLoopTimeout['idle']);
 			controlPhase('idle', true, 225, '.grade_tank_container');
 
-			let it = DB.getItemInfo(item.ITID);
-			let content = EnchantGrade.ui.find('.enchant_container');
+			const it = DB.getItemInfo(item.ITID);
+			const content = EnchantGrade.ui.find('.enchant_container');
 
 			// Notification Area
 			EnchantGrade_can_cont = EnchantGrade_current_success > 0 ? true : false;
@@ -370,11 +370,11 @@ import cssText from './EnchantGrade.css?raw';
 			}
 
 			// Update success chance
-			let gradeChance = EnchantGrade.ui.find('.probability');
+			const gradeChance = EnchantGrade.ui.find('.probability');
 			gradeChance.text(EnchantGrade_current_success + '%');
 
 			// Update zeny cost Area
-			let zenyCost = EnchantGrade.ui.find('.zeny_cost_container');
+			const zenyCost = EnchantGrade.ui.find('.zeny_cost_container');
 			zenyCost.text('0');
 
 			// Blessing Info
@@ -505,11 +505,11 @@ import cssText from './EnchantGrade.css?raw';
 		EnchantGrade.ui.find('.material_slot').empty();
 
 		// Update materials
-		for (var i = 0; i < gradingMaterials.length; i++) {
+		for (let i = 0; i < gradingMaterials.length; i++) {
 			(function (i) {
-				let material = gradingMaterials[i];
-				let it = DB.getItemInfo(material.itemId);
-				let materialDiv = EnchantGrade.ui.find('.material_slot' + (i + 1));
+				const material = gradingMaterials[i];
+				const it = DB.getItemInfo(material.itemId);
+				const materialDiv = EnchantGrade.ui.find('.material_slot' + (i + 1));
 
 				// Clear previous items
 				materialDiv.empty();
@@ -598,23 +598,23 @@ import cssText from './EnchantGrade.css?raw';
 
 				// Read data from selected material
 				EnchantGrade_item_mat = Number(this.dataset.index);
-				let material_ITID = Number(this.dataset.itemid);
-				let material_amount = Number(this.dataset.amount);
-				let price = Number(this.dataset.price);
+				const material_ITID = Number(this.dataset.itemid);
+				const material_amount = Number(this.dataset.amount);
+				const price = Number(this.dataset.price);
 				//let downgrade = Number(this.dataset.downgrade); // UNUSED
-				let breakable = Number(this.dataset.breakable);
+				const breakable = Number(this.dataset.breakable);
 
 				// Variable to track insufficiency
 				let insufficent = false;
 
 				// Update Zeny Cost
-				let zenyCost = EnchantGrade.ui.find('.zeny_cost_container');
+				const zenyCost = EnchantGrade.ui.find('.zeny_cost_container');
 				zenyCost.text(price);
 
 				// Check Selected Material Requirements
 				// Material Count Check
-				let item = Inventory.getUI().getItemById(material_ITID);
-				let material_count = item ? item.count : 0;
+				const item = Inventory.getUI().getItemById(material_ITID);
+				const material_count = item ? item.count : 0;
 
 				if (!item || material_count < material_amount) {
 					// If no item or insufficient count
@@ -640,7 +640,7 @@ import cssText from './EnchantGrade.css?raw';
 
 				// Update Start if with enough Materials and Zeny
 				if (insufficent === false) {
-					let startButton = EnchantGrade.ui.find('.start_grade');
+					const startButton = EnchantGrade.ui.find('.start_grade');
 					startButton.off('click');
 					if (EnchantGrade_can_cont === true) {
 						// Update start button
@@ -724,7 +724,7 @@ import cssText from './EnchantGrade.css?raw';
 	 */
 	function onRequestEnchantGrade() {
 		UIManager.showPromptBox(DB.getMessage(3823), 'ok', 'cancel', function () {
-			let pkt = new PACKET.CZ.GRADE_ENCHANT_REQ();
+			const pkt = new PACKET.CZ.GRADE_ENCHANT_REQ();
 			pkt.index = EnchantGrade_item_index;
 			pkt.material_index = EnchantGrade_item_mat;
 			pkt.blessing_flag = EnchantGrade_blessing_used ? 1 : 0;
@@ -776,7 +776,7 @@ import cssText from './EnchantGrade.css?raw';
 			});
 
 			// Update item in Inventory
-			let item = Inventory.getUI().removeItem(pkt.index, 1);
+			const item = Inventory.getUI().removeItem(pkt.index, 1);
 			if (item) {
 				// Update grade level
 				item.enchantgrade = pkt.grade;
@@ -815,9 +815,9 @@ import cssText from './EnchantGrade.css?raw';
 	function onItemInfo(event) {
 		event.stopImmediatePropagation();
 
-		let ITID = parseInt(this.getAttribute('data-index'), 10);
+		const ITID = parseInt(this.getAttribute('data-index'), 10);
 		// Materials have item.ID as data-index, Item to be EnchantGrade has item.index as data-index
-		let item = Inventory.getUI().getItemById(ITID)
+		const item = Inventory.getUI().getItemById(ITID)
 			? Inventory.getUI().getItemById(ITID)
 			: Inventory.getUI().getItemByIndex(ITID);
 
@@ -845,7 +845,7 @@ import cssText from './EnchantGrade.css?raw';
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		let compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.getUI().isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
 		if (compareItem && Inventory.getUI().itemcomp) {
@@ -880,9 +880,9 @@ import cssText from './EnchantGrade.css?raw';
 	 * End of dragging an item
 	 */
 	function onItemDragEnd(event) {
-		let rect = EnchantGrade.ui[0].getBoundingClientRect();
-		let mouseX = event.clientX || event.originalEvent.clientX;
-		let mouseY = event.clientY || event.originalEvent.clientY;
+		const rect = EnchantGrade.ui[0].getBoundingClientRect();
+		const mouseX = event.clientX || event.originalEvent.clientX;
+		const mouseY = event.clientY || event.originalEvent.clientY;
 
 		if (mouseX < rect.left || mouseX > rect.right || mouseY < rect.top || mouseY > rect.bottom) {
 			onRemoveItem();
@@ -895,8 +895,8 @@ import cssText from './EnchantGrade.css?raw';
 	 */
 	function onBroadcastEnchantGradeResult(pkt) {
 		if (pkt) {
-			let item = DB.getItemInfo(pkt.itemId);
-			let itemName = item.identifiedDisplayName;
+			const item = DB.getItemInfo(pkt.itemId);
+			const itemName = item.identifiedDisplayName;
 			let messageID;
 			switch (pkt.status) {
 				case 0: // Failure
@@ -909,7 +909,7 @@ import cssText from './EnchantGrade.css?raw';
 					break;
 			}
 
-			let message = DB.getMessage(messageID)
+			const message = DB.getMessage(messageID)
 				.replace('%s', pkt.char_name)
 				.replace('%s', GradeMapping[pkt.grade])
 				.replace('%s', itemName);

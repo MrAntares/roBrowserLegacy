@@ -10,7 +10,7 @@
 import Preferences from 'Core/Preferences';
 'use strict';
 
-	var defaultGraphicsSettings = {
+	const defaultGraphicsSettings = {
 		/**
 		 * Game size
 		 */
@@ -80,8 +80,8 @@ import Preferences from 'Core/Preferences';
 	/**
 	 * Export
 	 */
-	var cleanDefaults = JSON.parse(JSON.stringify(defaultGraphicsSettings));
-	var GraphicsSettings = Preferences.get('Graphics', defaultGraphicsSettings, 1.1);
+	const cleanDefaults = JSON.parse(JSON.stringify(defaultGraphicsSettings));
+	const GraphicsSettings = Preferences.get('Graphics', defaultGraphicsSettings, 1.1);
 	GraphicsSettings.defaults = cleanDefaults;
 
 	export default GraphicsSettings;

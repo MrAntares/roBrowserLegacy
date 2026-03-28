@@ -21,12 +21,12 @@ import cssText from './Reputation.css?raw';
 /**
 	 * Create Component
 	 */
-	let Reputation = new UIComponent('Reputation', htmlText, cssText);
+	const Reputation = new UIComponent('Reputation', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Window preferences
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Reputation',
 		{
 			x: 400,
@@ -161,8 +161,8 @@ import cssText from './Reputation.css?raw';
 	 * The option element will have the text content '<group.Name>'
 	 */
 	function buildGroupSelector() {
-		let groupSelector = Reputation.ui.find('#repute_groups');
-		let ReputeGroupTable = DB.getReputeGroup();
+		const groupSelector = Reputation.ui.find('#repute_groups');
+		const ReputeGroupTable = DB.getReputeGroup();
 
 		Object.entries(ReputeGroupTable).forEach(([groupIndex, group]) => {
 			const option = document.createElement('option');
@@ -538,7 +538,7 @@ import cssText from './Reputation.css?raw';
 		const lowerQuery = query.toLowerCase();
 		//totalWrapper.hide();
 
-		let visibleIds = [];
+		const visibleIds = [];
 		items.each(function () {
 			const el = this;
 			const reputeId = Number(el.dataset.reputeId);

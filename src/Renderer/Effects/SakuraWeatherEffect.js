@@ -24,31 +24,31 @@ import Altitude from 'Renderer/Map/Altitude';
 import Session from 'Engine/SessionStorage';
 
 // Constants based on RO Client behavior
-	let RAG_TICK_MS = 25;
-	let FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
+	const RAG_TICK_MS = 25;
+	const FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
 
 	// Emission settings (Reduced quantity compared to snow)
 	// Snow is 2 per tick. Sakura/Maple is roughly 1 every 2 calls in C++, so ~1 per 150ms.
-	let EMIT_INTERVAL_MS = 150;
-	let EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
+	const EMIT_INTERVAL_MS = 150;
+	const EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
 
 	// Lifetime
-	let LEAVE_LIFE_MS = 600 * RAG_TICK_MS; // Lasts a bit longer to allow slow falling
-	let LEAVE_FADEIN_MS = 20 * RAG_TICK_MS;
-	let LEAVE_FADEOUT_START_MS = (LEAVE_LIFE_MS * 4) / 5;
+	const LEAVE_LIFE_MS = 600 * RAG_TICK_MS; // Lasts a bit longer to allow slow falling
+	const LEAVE_FADEIN_MS = 20 * RAG_TICK_MS;
+	const LEAVE_FADEOUT_START_MS = (LEAVE_LIFE_MS * 4) / 5;
 
 	// Spatial constants
-	let SCATTER_RADIUS_CELLS = 70;
-	let SPAWN_HEIGHT_MIN_CELLS = 32;
-	let SPAWN_HEIGHT_MAX_CELLS = 42;
+	const SCATTER_RADIUS_CELLS = 70;
+	const SPAWN_HEIGHT_MIN_CELLS = 32;
+	const SPAWN_HEIGHT_MAX_CELLS = 42;
 
 	// Effect IDs
-	let EF_SAKURA = 163;
-	let EF_MAPLE = 333;
+	const EF_SAKURA = 163;
+	const EF_MAPLE = 333;
 
 	// Paths
-	let PATH_SAKURA = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/sakura01';
-	let PATH_MAPLE = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb4\xdc\xc7\xb3';
+	const PATH_SAKURA = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/sakura01';
+	const PATH_MAPLE = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb4\xdc\xc7\xb3';
 
 	// SINGLETON STATE
 	let _instance = null;
@@ -93,8 +93,8 @@ import Session from 'Engine/SessionStorage';
 	};
 
 	SakuraWeatherEffect.startOrRestart = function startOrRestart(Params) {
-		let now = Params.Inst.startTick || Renderer.tick;
-		let currentMap = MapRenderer ? MapRenderer.currentMap : '';
+		const now = Params.Inst.startTick || Renderer.tick;
+		const currentMap = MapRenderer ? MapRenderer.currentMap : '';
 
 		if (_mapName !== currentMap) {
 			_instance = null;
@@ -105,7 +105,7 @@ import Session from 'Engine/SessionStorage';
 		// If instance exists and is valid
 		if (_instance && !_instance.needCleanUp) {
 			// Check if we are switching from Sakura to Maple or vice versa
-			let isNewMaple = Params.Inst.effectID === EF_MAPLE;
+			const isNewMaple = Params.Inst.effectID === EF_MAPLE;
 			if (_instance.isMaple !== isNewMaple) {
 				_instance = null; // Force recreate if type changed
 			} else {
@@ -149,7 +149,7 @@ import Session from 'Engine/SessionStorage';
 		if (!_instance) {
 			return;
 		}
-		let now = tick || Renderer.tick;
+		const now = tick || Renderer.tick;
 		if (_instance.endTick === -1) {
 			_instance.endTick = now + FADEOUT_TAIL_MS;
 			_isStopping = true;
@@ -161,33 +161,33 @@ import Session from 'Engine/SessionStorage';
 			return;
 		}
 
-		let px = Session.Entity.position[0];
-		let py = Session.Entity.position[1];
+		const px = Session.Entity.position[0];
+		const py = Session.Entity.position[1];
 
 		// Random position around player
-		let theta = Math.random() * Math.PI * 2;
-		let radius = Math.random() * SCATTER_RADIUS_CELLS;
-		let x = px + Math.cos(theta) * radius;
-		let y = py + Math.sin(theta) * radius;
+		const theta = Math.random() * Math.PI * 2;
+		const radius = Math.random() * SCATTER_RADIUS_CELLS;
+		const x = px + Math.cos(theta) * radius;
+		const y = py + Math.sin(theta) * radius;
 
-		let groundZ = Altitude.getCellHeight(x, y);
-		let spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
-		let z = groundZ + spawnHeight;
+		const groundZ = Altitude.getCellHeight(x, y);
+		const spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
+		const z = groundZ + spawnHeight;
 
 		// Speed
 		// Sakura: (random(2)+2)*0.1f -> 0.2 to 0.3 internal units
 		// Maple:  (random(4)+2)*0.03f -> 0.06 to 0.18 internal units (Much slower)
-		let fallSpeedBase = this.isMaple ? (2 + Math.random() * 4) * 0.03 : (2 + Math.random() * 2) * 0.1;
+		const fallSpeedBase = this.isMaple ? (2 + Math.random() * 4) * 0.03 : (2 + Math.random() * 2) * 0.1;
 
 		// Convert to roBrowser scale
 		// Snow was 0.1 cells/tick.
-		let fallSpeed = fallSpeedBase * 0.5; // Tweak this multiplier to taste
+		const fallSpeed = fallSpeedBase * 0.5; // Tweak this multiplier to taste
 
 		// Sway Amplitude Factors
 		// Sakura: X=0.24, Z=0.30
 		// Maple:  X=0.12, Z=0.15
-		let swayFactorX = this.isMaple ? 0.12 : 0.24;
-		let swayFactorY = this.isMaple ? 0.15 : 0.3;
+		const swayFactorX = this.isMaple ? 0.12 : 0.24;
+		const swayFactorY = this.isMaple ? 0.15 : 0.3;
 
 		this.leaves.push({
 			spawnTick: spawnTick,
@@ -243,9 +243,9 @@ import Session from 'Engine/SessionStorage';
 			return;
 		}
 
-		let path = this.isMaple ? PATH_MAPLE : PATH_SAKURA;
-		let spr = Client.loadFile(path + '.spr', null, null, { to_rgba: true });
-		let act = Client.loadFile(path + '.act');
+		const path = this.isMaple ? PATH_MAPLE : PATH_SAKURA;
+		const spr = Client.loadFile(path + '.spr', null, null, { to_rgba: true });
+		const act = Client.loadFile(path + '.act');
 
 		if (!spr || !act) {
 			return;
@@ -261,7 +261,7 @@ import Session from 'Engine/SessionStorage';
 			}
 		}
 
-		let allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
+		const allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
 		if (allowEmit) {
 			// Check if enough time passed for next spawn
 			if (tick - this.lastEmitTick >= EMIT_INTERVAL_MS) {
@@ -274,14 +274,14 @@ import Session from 'Engine/SessionStorage';
 		}
 
 		// Update & Render leaves
-		let action = act.actions[0];
-		let frameDelay = Math.max(action.delay || 150, 1);
+		const action = act.actions[0];
+		const frameDelay = Math.max(action.delay || 150, 1);
 		// Maple acts often have only 1 frame simple rotation, Sakura has animation.
-		let frameCount = action.animations.length || 1;
+		const frameCount = action.animations.length || 1;
 
-		for (var f = this.leaves.length - 1; f >= 0; f--) {
-			let leave = this.leaves[f];
-			let age = tick - leave.spawnTick;
+		for (let f = this.leaves.length - 1; f >= 0; f--) {
+			const leave = this.leaves[f];
+			const age = tick - leave.spawnTick;
 
 			if (age >= LEAVE_LIFE_MS) {
 				this.leaves.splice(f, 1);
@@ -289,17 +289,17 @@ import Session from 'Engine/SessionStorage';
 			}
 
 			// 1. Update Sway Angles
-			let resX = updateSwayAngle(leave.angX, leave.targetX);
+			const resX = updateSwayAngle(leave.angX, leave.targetX);
 			leave.angX = resX.c;
 			leave.targetX = resX.t;
 
-			let resY = updateSwayAngle(leave.angY, leave.targetY);
+			const resY = updateSwayAngle(leave.angY, leave.targetY);
 			leave.angY = resY.c;
 			leave.targetY = resY.t;
 
 			// 2. Calculate Position
 			// Vertical Fall
-			let dt = tick - leave._lastTick;
+			const dt = tick - leave._lastTick;
 			leave.z -= leave.speed * (dt / RAG_TICK_MS); // Scale speed by delta
 
 			// Horizontal Sway (Sinusoidal offset from base position)
@@ -309,12 +309,12 @@ import Session from 'Engine/SessionStorage';
 			// Let's emulate accumulation or simple offset. Simple offset is smoother for web.
 			// But to match the "drifting" feel, we drift the BaseX/Y.
 
-			let radX = (leave.angX * Math.PI) / 180;
-			let radY = (leave.angY * Math.PI) / 180;
+			const radX = (leave.angX * Math.PI) / 180;
+			const radY = (leave.angY * Math.PI) / 180;
 
 			// Drift the center slightly based on wind (Sway Factor)
-			let driftX = leave.swayFacX * Math.sin(radX);
-			let driftY = leave.swayFacY * Math.sin(radY);
+			const driftX = leave.swayFacX * Math.sin(radX);
+			const driftY = leave.swayFacY * Math.sin(radY);
 
 			// Apply drift to current position
 			leave.x += driftX * 0.1; // Scale down for smoothness
@@ -344,13 +344,13 @@ import Session from 'Engine/SessionStorage';
 			SpriteRenderer.position[2] = leave.z;
 			SpriteRenderer.zIndex = 0;
 
-			let frameIndex = Math.floor(age / frameDelay) % frameCount;
-			let animation = action.animations[frameIndex];
-			let layers = animation.layers;
-			let pal = spr;
-			let pos = [0, 0];
+			const frameIndex = Math.floor(age / frameDelay) % frameCount;
+			const animation = action.animations[frameIndex];
+			const layers = animation.layers;
+			const pal = spr;
+			const pos = [0, 0];
 
-			for (var l = 0; l < layers.length; l++) {
+			for (let l = 0; l < layers.length; l++) {
 				renderLayer(layers[l], spr, pal, leave.size, pos, alpha);
 			}
 		}
@@ -372,7 +372,7 @@ import Session from 'Engine/SessionStorage';
 		SpriteRenderer.palette = pal.palette;
 
 		let index = layer.index;
-		let is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
+		const is_rgba = layer.spr_type === 1 || spr.rgba_index === 0;
 
 		if (!is_rgba) {
 			SpriteRenderer.image.palette = pal.texture;
@@ -382,9 +382,9 @@ import Session from 'Engine/SessionStorage';
 			index += spr.old_rgba_index;
 		}
 
-		let frame = spr.frames[index];
+		const frame = spr.frames[index];
 		let width = frame.width * layer.scale[0] * sizeScale;
-		let height = frame.height * layer.scale[1] * sizeScale;
+		const height = frame.height * layer.scale[1] * sizeScale;
 
 		if (layer.is_mirror) {
 			width = -width;

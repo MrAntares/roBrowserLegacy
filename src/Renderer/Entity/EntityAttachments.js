@@ -16,7 +16,7 @@ import Ground from 'Renderer/Map/Ground';
 import StrEffect from 'Renderer/Effects/StrEffect';
 
 // Default fog for STR attachments
-let _defaultFog = {
+const _defaultFog = {
 	use: false,
 	exist: false,
 	near: 30,
@@ -81,14 +81,14 @@ AttachmentManager.prototype.add = function add(attachment) {
 	// STR file attachment
 	if (attachment.strFile) {
 		attachment.isStr = true;
-		let strNormalized = attachment.strFile.replace(/\\/g, '/');
-		let lastSlash = strNormalized.lastIndexOf('/');
+		const strNormalized = attachment.strFile.replace(/\\/g, '/');
+		const lastSlash = strNormalized.lastIndexOf('/');
 		let strTexturePath = lastSlash >= 0 ? strNormalized.substring(0, lastSlash + 1) : '';
 
 		// FIXME: https://github.com/MrAntares/roBrowserLegacy/issues/856
 		strTexturePath = strTexturePath.replace(/^data\/texture\/effect\//, '');
 
-		let strEffect = new StrEffect(attachment.strFile, this.entity.position, Date.now(), strTexturePath);
+		const strEffect = new StrEffect(attachment.strFile, this.entity.position, Date.now(), strTexturePath);
 		strEffect.ownerEntity = this.entity;
 		strEffect.persistent = attachment.repeat !== false;
 		strEffect.xOffset = attachment.xOffset || 0;
@@ -165,7 +165,7 @@ AttachmentManager.prototype.removeIndex = function removeIndex(index) {
  * Render attachments filtered by renderBefore flag
  */
 AttachmentManager.prototype._renderFiltered = (function renderFilteredClosure() {
-	let effectColor = new Float32Array(4);
+	const effectColor = new Float32Array(4);
 
 	return function _renderFiltered(tick, renderBeforeEntity) {
 		if (!this.list.some(item => item.renderBefore === renderBeforeEntity)) {
@@ -246,9 +246,9 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 
 		// Render STR attachment
 		if (attachment.isStr && attachment.strEffect) {
-			let strEffect = attachment.strEffect;
+			const strEffect = attachment.strEffect;
 			// dynamic access to Renderer to avoid cycle
-			let gl = window.RO_RENDERER_GL || (window.Renderer && window.Renderer.gl);
+			const gl = window.RO_RENDERER_GL || (window.Renderer && window.Renderer.gl);
 
 			try {
 				strEffect.position = this.entity.position;
@@ -267,10 +267,10 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 			} catch (e) {
 				console.error('STR attachment error:', e);
 				// Ensure WebGL state is restored even on error
-				if (gl) StrEffect.afterRender(gl);
+				if (gl) {StrEffect.afterRender(gl);}
 			}
 
-			if (gl) SpriteRenderer.bind3DContext(gl, Camera.modelView, Camera.projection, _defaultFog);
+			if (gl) {SpriteRenderer.bind3DContext(gl, Camera.modelView, Camera.projection, _defaultFog);}
 
 			if (!strEffect.persistent && strEffect.needCleanUp) {
 				return true;
@@ -316,7 +316,7 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 
 		// repeat duplicate times
 		else if (attachment.duplicate > 0) {
-			let index = Math.floor((tick - attachment.startTick) / delay) % animations.length;
+			const index = Math.floor((tick - attachment.startTick) / delay) % animations.length;
 			layers = animations[index].layers;
 			if (index == animations.length - 1) {
 				attachment.duplicate--;
@@ -334,8 +334,8 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 		}
 
 		// Render layers with depth ordering (renderBefore behind, normal in front)
-		let self = this;
-		let zIdx = attachment.renderBefore ? 1 : 500;
+		const self = this;
+		const zIdx = attachment.renderBefore ? 1 : 500;
 
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			SpriteRenderer.zIndex = zIdx;

@@ -24,7 +24,7 @@ import cssText from './Trade.css?raw';
 /**
 	 * Create Component
 	 */
-	let Trade = new UIComponent('Trade', htmlText, cssText);
+	const Trade = new UIComponent('Trade', htmlText, cssText);
 
 	/**
 	 * @var {Object} queue, item waiting from server an answer
@@ -34,12 +34,12 @@ import cssText from './Trade.css?raw';
 	/**
 	 * @var {Array} list of items to send
 	 */
-	let _send = [];
+	const _send = [];
 
 	/**
 	 * @var {object} list of items to received
 	 */
-	let _recv = [];
+	const _recv = [];
 
 	/**
 	 * @var {string} trade title
@@ -119,10 +119,10 @@ import cssText from './Trade.css?raw';
 			return;
 		}
 
-		let item = jQuery.extend({}, Inventory.getUI().removeItem(index, _tmpCount[index]));
-		let it = DB.getItemInfo(item.ITID);
-		let idx = _send.push(item) - 1;
-		let box = this.ui.find('.box.send');
+		const item = jQuery.extend({}, Inventory.getUI().removeItem(index, _tmpCount[index]));
+		const it = DB.getItemInfo(item.ITID);
+		const idx = _send.push(item) - 1;
+		const box = this.ui.find('.box.send');
 		item.count = _tmpCount[index];
 
 		box.append(
@@ -162,9 +162,9 @@ import cssText from './Trade.css?raw';
 			return;
 		}
 
-		let it = DB.getItemInfo(item.ITID);
-		let idx = _recv.push(item) - 1;
-		let box = this.ui.find('.box.recv');
+		const it = DB.getItemInfo(item.ITID);
+		const idx = _recv.push(item) - 1;
+		const box = this.ui.find('.box.recv');
 
 		box.append(
 			'<div class="item" data-index="' +
@@ -198,7 +198,7 @@ import cssText from './Trade.css?raw';
 	 * @return {string}
 	 */
 	function prettifyZeny(value) {
-		let num = String(value);
+		const num = String(value);
 		let i = 0,
 			len = num.length;
 		let out = '';
@@ -340,16 +340,16 @@ import cssText from './Trade.css?raw';
 	 * When mouse is over an item, show title
 	 */
 	function onItemOver() {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
 
 		if (!item) {
 			return;
 		}
 
-		let $e = jQuery(this);
-		let pos = $e.parent().position();
-		let overlay = Trade.ui.find('.overlay');
+		const $e = jQuery(this);
+		const pos = $e.parent().position();
+		const overlay = Trade.ui.find('.overlay');
 
 		pos.left += $e.position().left;
 		pos.top += $e.position().top;
@@ -377,8 +377,8 @@ import cssText from './Trade.css?raw';
 	 * Display ItemInfo UI
 	 */
 	function onItemInfo(event) {
-		let idx = parseInt(this.getAttribute('data-index'), 10);
-		let item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
+		const idx = parseInt(this.getAttribute('data-index'), 10);
+		const item = this.parentNode.className.match(/send/i) ? _send[idx] : _recv[idx];
 
 		if (!item) {
 			return stopPropagation(event);

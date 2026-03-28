@@ -27,11 +27,11 @@ import Client from 'Core/Client';
 	/**
 	 * @var {mat4}
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
-	let _rotationMatrices = (function () {
-		let matrices = [];
-		for (var i = 0; i < 16; i++) {
+	const _rotationMatrices = (function () {
+		const matrices = [];
+		for (let i = 0; i < 16; i++) {
 			matrices.push(mat4.create());
 		}
 		return matrices;
@@ -45,7 +45,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	let _vertexShader = `
+	const _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -87,7 +87,7 @@ import Client from 'Core/Client';
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	let _fragmentShader = `
+	const _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -130,10 +130,10 @@ import Client from 'Core/Client';
 	 */
 	function generatePropertyGround() {
 		let i, a, b;
-		let total = 20;
-		let bottom = [];
-		let top = [];
-		let mesh = [];
+		const total = 20;
+		const bottom = [];
+		const top = [];
+		const mesh = [];
 
 		for (i = 0; i <= total; i++) {
 			a = (i + 0.0) / total;
@@ -184,7 +184,7 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	PropertyGround.prototype.init = function init(gl) {
-		let self = this;
+		const self = this;
 
 		Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function (buffer) {
 			WebGL.texture(gl, buffer, function (texture) {
@@ -209,8 +209,8 @@ import Client from 'Core/Client';
 	 * @param {object} wegl context
 	 */
 	PropertyGround.prototype.render = function render(gl, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 		let sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
 		if (sizeMult < 0.5) {
 			sizeMult = 0.5;
@@ -243,7 +243,7 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	PropertyGround.init = function init(gl) {
-		let vertices = generatePropertyGround();
+		const vertices = generatePropertyGround();
 		_verticeCount = vertices.length / 5;
 
 		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
@@ -279,10 +279,10 @@ import Client from 'Core/Client';
 	 * @param {object} webgl context
 	 */
 	PropertyGround.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
+		const uniform = _program.uniform;
 
 		let _matrix, offset;
-		for (var i = 0, _len = _rotationMatrices.length; i < _len; i++) {
+		for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
 			_matrix = _rotationMatrices[i];
 			mat4.identity(_matrix);
 			offset = (i * 2 * Math.PI) / _rotationMatrices.length;

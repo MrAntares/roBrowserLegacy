@@ -35,7 +35,7 @@ import Configs from 'Core/Configs';
 /**
  * Plugin namespace
  */
-var Plugins = {};
+const Plugins = {};
 
 /**
  * @var {Array} plugin list
@@ -46,9 +46,9 @@ Plugins.list = [];
  * Initialize plugins
  */
 Plugins.init = function init(context) {
-	var paths = [];
-	var params = [];
-	var i, count;
+	const paths = [];
+	const params = [];
+	let i, count;
 
 	this.list = Configs.get('plugins', {});
 

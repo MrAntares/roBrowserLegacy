@@ -28,12 +28,12 @@ import cssText from './SkillListV0.css?raw';
 /**
 	 * Create Component
 	 */
-	let SkillListV0 = new UIComponent('SkillListV0', htmlText, cssText);
+	const SkillListV0 = new UIComponent('SkillListV0', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} window preferences
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'SkillListV0',
 		{
 			x: 100,
@@ -51,7 +51,7 @@ import cssText from './SkillListV0.css?raw';
 	 * @var {Array} Skill List
 	 * { SKID, type, level, spcost, attackRange, skillName, upgradable }
 	 */
-	let _list = [];
+	const _list = [];
 
 	/**
 	 * @var {jQuery} level up button reference
@@ -74,11 +74,11 @@ import cssText from './SkillListV0.css?raw';
 
 	let skillPosition = [];
 
-	let skillDependencyTree = [];
+	const skillDependencyTree = [];
 
 	let rememberChoice = [];
 
-	let hasSkills = [];
+	const hasSkills = [];
 
 	/**
 	 * Initialize UI
@@ -195,7 +195,7 @@ import cssText from './SkillListV0.css?raw';
 
 		// Use original job for skill access if the character is transformed
 		let skillJobId = Session.Character.job;
-		let originalJobId = Session.Entity._job;
+		const originalJobId = Session.Entity._job;
 		if (originalJobId && originalJobId !== Session.Character.job) {
 			skillJobId = originalJobId;
 		}
@@ -236,7 +236,7 @@ import cssText from './SkillListV0.css?raw';
 					return;
 				}
 
-				let sk = SkillInfo[skid];
+				const sk = SkillInfo[skid];
 
 				skillDependencyTree[skid] = {
 					dependency: [],
@@ -255,15 +255,15 @@ import cssText from './SkillListV0.css?raw';
 	}
 
 	function specifyRequirements(skillId, count = null) {
-		let showAll = true; // todo debug show all dependency
+		const showAll = true; // todo debug show all dependency
 
-		let skdt = skillDependencyTree[skillId];
+		const skdt = skillDependencyTree[skillId];
 
 		if (skdt?.dependency || count != null) {
-			let element = '<div class="counterSkill">' + count + '</div>';
+			const element = '<div class="counterSkill">' + count + '</div>';
 			skillPosition.forEach(function (items, list) {
 				if (items[skillId] !== undefined) {
-					let skillbox = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
+					const skillbox = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
 					if (skillbox.children().hasClass('disabled') || showAll) {
 						skillbox.addClass('needleSkill');
 						if (count !== null) {
@@ -290,15 +290,15 @@ import cssText from './SkillListV0.css?raw';
 		if (!main.hasClass('skill')) {
 			main = main.parent();
 		}
-		let skillId = parseInt(main.data('index'), 10);
+		const skillId = parseInt(main.data('index'), 10);
 
 		rememberChoice = setRememberChoice(skillId);
 
 		// show choice
 		rememberChoice.forEach(function (item, skId) {
 			if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
-				let sk = skillDependencyTree[skId];
-				let skillbox = SkillListV0.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
+				const sk = skillDependencyTree[skId];
+				const skillbox = SkillListV0.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
 				if (skillbox.find('.current').text() != sk.MaxLv) {
 					totalCounter += rememberChoice[skId]['count'];
 					skillbox.children().removeClass('disabled');
@@ -320,10 +320,10 @@ import cssText from './SkillListV0.css?raw';
 	 * @returns {*[]}
 	 */
 	function setRememberChoice(skillId, count = null, isQuest = false) {
-		let sk = SkillInfo[skillId];
+		const sk = SkillInfo[skillId];
 
 		if (!isQuest && sk['Type'] === 'Quest') {
-			let skill = getSkillById(skillId);
+			const skill = getSkillById(skillId);
 			isQuest = !skill?.level || skill?.level <= 0;
 		}
 
@@ -366,11 +366,11 @@ import cssText from './SkillListV0.css?raw';
 	 * @returns {*[]}
 	 */
 	function getSkillPosition(JobId) {
-		let positions = [];
+		const positions = [];
 		positions[SkillTreeView[JobId]['list']] = SkillTreeView[JobId];
 
 		if (SkillTreeView[JobId]['beforeJob'] !== null) {
-			let beforeJob = SkillTreeView[JobId]['beforeJob'];
+			const beforeJob = SkillTreeView[JobId]['beforeJob'];
 			getSkillPosition(beforeJob).forEach(function (items, list) {
 				positions[list] = positions[list] ? Object.assign(positions[list], items) : items;
 			});
@@ -408,10 +408,10 @@ import cssText from './SkillListV0.css?raw';
 	SkillListV0.prepareSkillTree = function prepareSkillTree(items, list) {
 		Object.entries(items).forEach(entry => {
 			const [key, value] = entry;
-			let sk = SkillInfo[key];
-			let className = 'disabled';
+			const sk = SkillInfo[key];
+			const className = 'disabled';
 			if (sk !== undefined) {
-				let element = jQuery(
+				const element = jQuery(
 					'<div class="skill id' +
 						key +
 						' ' +
@@ -453,7 +453,7 @@ import cssText from './SkillListV0.css?raw';
 				});
 
 				if (value !== undefined) {
-					let box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + value);
+					const box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + value);
 					// show added cells
 					if (key < 41) {
 						box.parent().show();
@@ -472,10 +472,10 @@ import cssText from './SkillListV0.css?raw';
 	};
 
 	SkillListV0.addSkillBig = function addSkillBig(skill) {
-		let sk = SkillInfo[skill.SKID];
-		let levelup = _btnIncSkill.clone(true);
-		let className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		let element = jQuery(
+		const sk = SkillInfo[skill.SKID];
+		const levelup = _btnIncSkill.clone(true);
+		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		const element = jQuery(
 			'<div class="skill id' +
 				skill.SKID +
 				' ' +
@@ -519,7 +519,7 @@ import cssText from './SkillListV0.css?raw';
 
 		skillPosition.forEach(function (items, list) {
 			if (items[skill.SKID] !== undefined) {
-				let box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skill.SKID]);
+				const box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skill.SKID]);
 				if (!box.is(':empty')) {
 					box.empty();
 				}
@@ -537,10 +537,10 @@ import cssText from './SkillListV0.css?raw';
 	};
 
 	SkillListV0.addSkillMini = function addSkillMini(skill) {
-		let sk = SkillInfo[skill.SKID];
-		let levelup = _btnIncSkill.clone(true);
-		let className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		let element = jQuery(
+		const sk = SkillInfo[skill.SKID];
+		const levelup = _btnIncSkill.clone(true);
+		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		const element = jQuery(
 			'<tr class="skill id' +
 				skill.SKID +
 				' ' +
@@ -616,7 +616,7 @@ import cssText from './SkillListV0.css?raw';
 	 * @param {object} skill : { SKID, level, spcost, attackRange, upgradable }
 	 */
 	SkillListV0.updateSkill = function updateSkill(skill) {
-		let target = getSkillById(skill.SKID);
+		const target = getSkillById(skill.SKID);
 		let element;
 
 		if (!target) {
@@ -658,7 +658,7 @@ import cssText from './SkillListV0.css?raw';
 	 * @param {number} skill id
 	 */
 	SkillListV0.useSkillID = function useSkillID(id, level) {
-		let skill = getSkillById(id);
+		const skill = getSkillById(id);
 
 		if (!skill || !skill.level || !skill.type) {
 			return;
@@ -752,16 +752,16 @@ import cssText from './SkillListV0.css?raw';
 	 * Extend SkillListV0 window size
 	 */
 	function onResize() {
-		let ui = SkillListV0.ui;
-		let top = ui.position().top;
-		let left = ui.position().left;
+		const ui = SkillListV0.ui;
+		const top = ui.position().top;
+		const left = ui.position().left;
 		let lastWidth = 0;
 		let lastHeight = 0;
 		let _Interval;
 
 		function resizing() {
-			let extraX = -6;
-			let extraY = 32;
+			const extraX = -6;
+			const extraY = 32;
 
 			let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
 			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
@@ -843,7 +843,7 @@ import cssText from './SkillListV0.css?raw';
 	 * Request to upgrade a skill
 	 */
 	function onRequestSkillUp() {
-		let index = this.parentNode.parentNode.getAttribute('data-index');
+		const index = this.parentNode.parentNode.getAttribute('data-index');
 		SkillListV0.onIncreaseSkill(parseInt(index, 10));
 	}
 
@@ -861,10 +861,10 @@ import cssText from './SkillListV0.css?raw';
 	}
 
 	function onApplyChoice() {
-		let applyArr = [];
+		const applyArr = [];
 		rememberChoice.forEach(function (item, skillId) {
 			applyArr[skillId] = 0;
-			let level = hasSkills?.[skillId]?.level ?? 0;
+			const level = hasSkills?.[skillId]?.level ?? 0;
 
 			if (item.count > level) {
 				applyArr[skillId] = item.count - level;
@@ -874,7 +874,7 @@ import cssText from './SkillListV0.css?raw';
 		});
 
 		applyArr.forEach(function (c, k) {
-			for (var i = 0; i < c; i++) {
+			for (let i = 0; i < c; i++) {
 				SkillListV0.onIncreaseSkill(parseInt(k, 10));
 			}
 		});
@@ -889,7 +889,7 @@ import cssText from './SkillListV0.css?raw';
 	 */
 	function onResetChoice() {
 		rememberChoice.forEach(function (count, skillId) {
-			let skillbox = SkillListV0.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
+			const skillbox = SkillListV0.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
 			if (!hasSkills?.[skillId]?.level) {
 				skillbox.children().addClass('disabled');
 			}
@@ -917,7 +917,7 @@ import cssText from './SkillListV0.css?raw';
 		if (!main.hasClass('skill')) {
 			main = main.parent();
 		}
-		let skillId = parseInt(main.data('index'), 10);
+		const skillId = parseInt(main.data('index'), 10);
 		specifyRequirements(skillId);
 	}
 
@@ -939,10 +939,10 @@ import cssText from './SkillListV0.css?raw';
 			main = main.parent();
 		}
 
-		let id = parseInt(main.data('index'), 10);
-		let skill = getSkillById(id);
+		const id = parseInt(main.data('index'), 10);
+		const skill = getSkillById(id);
 
-		let skillID = skill?.SKID ?? id;
+		const skillID = skill?.SKID ?? id;
 
 		// Don't add the same UI twice, remove it
 		if (SkillDescription.uid === skillID) {
@@ -990,15 +990,15 @@ import cssText from './SkillListV0.css?raw';
 	 * Start to drag a skill (to put it on the hotkey UI ?)
 	 */
 	function onSkillDragStart(event) {
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let skill = getSkillById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const skill = getSkillById(index);
 
 		// Can't drag a passive skill (or disabled)
 		if (!skill || !skill.level || !skill.type) {
 			return stopPropagation(event);
 		}
 
-		let img = new Image();
+		const img = new Image();
 		img.decoding = 'async';
 		img.src = jQuery(this).find('.icon img').attr('src');
 
@@ -1023,19 +1023,19 @@ import cssText from './SkillListV0.css?raw';
 	}
 
 	function skillLevelSelectUp(skill) {
-		let level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level) {
 			skill.selectedLevel = level + 1;
-			let element = SkillListV0.ui.find('.skill.id' + skill.SKID);
+			const element = SkillListV0.ui.find('.skill.id' + skill.SKID);
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}
 
 	function skillLevelSelectDown(skill) {
-		let level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1) {
 			skill.selectedLevel = level - 1;
-			let element = SkillListV0.ui.find('.skill.id' + skill.SKID);
+			const element = SkillListV0.ui.find('.skill.id' + skill.SKID);
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	}

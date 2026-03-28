@@ -3,7 +3,7 @@
 import WebGL from 'Utils/WebGL';
 import { FlatTexture } from 'Renderer/Effects/Tiles';
 
-let _LPVertexShader = `
+const _LPVertexShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : vert
         precision highp float;
@@ -23,7 +23,7 @@ let _LPVertexShader = `
             vTextureCoord  = aTextureCoord;
         }
 `;
-let _LPFragmentShader = `
+const _LPFragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -53,8 +53,8 @@ class LPEffect extends FlatTexture('data/texture/effect/aaa copy.bmp') {
 	}
 
 	render(gl, tick) {
-		let oddEven = this.ix % 2 === 0 ? Math.PI : 0;
-		let sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
+		const oddEven = this.ix % 2 === 0 ? Math.PI : 0;
+		const sizeMult = Math.sin(oddEven + tick / (540 * Math.PI));
 		gl.uniform3fv(this.constructor._program.uniform.uPosition, this.position);
 		gl.uniform1f(this.constructor._program.uniform.uSize, 0.8 + 0.05 * sizeMult);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.constructor._buffer);

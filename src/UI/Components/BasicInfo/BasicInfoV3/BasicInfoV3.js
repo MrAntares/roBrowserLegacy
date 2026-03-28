@@ -35,7 +35,7 @@ import cssText from './BasicInfoV3.css?raw';
 /**
  * Create Basic Info component
  */
-let BasicInfoV3 = new UIComponent('BasicInfoV3', htmlText, cssText);
+const BasicInfoV3 = new UIComponent('BasicInfoV3', htmlText, cssText);
 
 /**
  * Stored data
@@ -50,7 +50,7 @@ BasicInfoV3.weight_max = 1;
 /**
  * @let {Preferences} structure
  */
-let _preferences = Preferences.get(
+const _preferences = Preferences.get(
 	'BasicInfoV3',
 	{
 		x: 0,
@@ -221,7 +221,7 @@ BasicInfoV3.toggleMode = function toggleMode() {
  */
 BasicInfoV3.toggleButtons = function toggleButtons(event) {
 	let type;
-	let $buttons = this.ui.find('.buttons');
+	const $buttons = this.ui.find('.buttons');
 
 	_preferences.buttons = !$buttons.is(':visible');
 

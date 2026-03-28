@@ -17,13 +17,13 @@ import Rodex from 'UI/Components/Rodex/Rodex';
 	/**
 	 * Create Component
 	 */
-	var RodexIcon = new UIComponent('RodexIcon', htmlText, cssText);
+	const RodexIcon = new UIComponent('RodexIcon', htmlText, cssText);
 
 	/**
 	 * Apply preferences once append to body
 	 */
 	RodexIcon.onAppend = function OnAppend() {
-		let icon = this.ui.find('.rodex-icon');
+		const icon = this.ui.find('.rodex-icon');
 		icon.on('click', onClickRodexIcon);
 		icon.focus();
 	};

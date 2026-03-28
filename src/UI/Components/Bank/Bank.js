@@ -26,17 +26,17 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	/**
 	 * Create Component
 	 */
-	var Bank = new UIComponent('Bank', htmlText, cssText);
+	const Bank = new UIComponent('Bank', htmlText, cssText);
 
 	/**
 	 *  Max Int
 	 */
-	var maxInt = 2147483647;
+	const maxInt = 2147483647;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Bank',
 		{
 			x: 230,
@@ -131,7 +131,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Input box auto select
 	 */
 	function selectAllText() {
-		var input = Bank.ui.find('.depo');
+		const input = Bank.ui.find('.depo');
 		input.select();
 	}
 
@@ -140,7 +140,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Most checks and error messages were from client
 	 */
 	function CheckValue(value) {
-		var error = Bank.ui.find('.errorupdate');
+		const error = Bank.ui.find('.errorupdate');
 
 		if (value === '') {
 			// Input is blank
@@ -185,7 +185,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Send Request to server to deposit
 	 */
 	function sendDepositRequest(value) {
-		var input = Bank.ui.find('.depo');
+		const input = Bank.ui.find('.depo');
 
 		if (CheckValue(value) === false) {
 			input.val('');
@@ -194,13 +194,13 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 
 		if (value === 'MAX') {
 			// Input is MAX (Deposit max zeny value)
-			var inbank = Bank.ui.find('.inbank.currency').text();
-			var getval = parseInt(getIntValueFromFormattedString(inbank));
+			const inbank = Bank.ui.find('.inbank.currency').text();
+			const getval = parseInt(getIntValueFromFormattedString(inbank));
 			if (Session.zeny + getval > maxInt && getval < maxInt) {
 				value = parseInt(maxInt) - getval;
 			} else {
 				if (Session.zeny === 0) {
-					var error = Bank.ui.find('.errorupdate');
+					const error = Bank.ui.find('.errorupdate');
 					if (error) {
 						error.text(DB.getMessage(2785));
 					}
@@ -213,7 +213,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			}
 		}
 
-		var pkt = new PACKET.CZ.REQ_BANKING_DEPOSIT();
+		const pkt = new PACKET.CZ.REQ_BANKING_DEPOSIT();
 		pkt.AID = Session.AID;
 		pkt.money = value;
 		Network.sendPacket(pkt);
@@ -225,8 +225,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Send Request to server to withdraw
 	 */
 	function sendWithdrawRequest(value) {
-		var input = Bank.ui.find('.depo');
-		var error = Bank.ui.find('.errorupdate');
+		const input = Bank.ui.find('.depo');
+		const error = Bank.ui.find('.errorupdate');
 
 		if (CheckValue(value) === false) {
 			input.val('');
@@ -234,8 +234,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		}
 
 		if (value === 'MAX') {
-			var inbank = Bank.ui.find('.inbank.currency').text();
-			var getval = parseInt(getIntValueFromFormattedString(inbank));
+			const inbank = Bank.ui.find('.inbank.currency').text();
+			const getval = parseInt(getIntValueFromFormattedString(inbank));
 			if (Session.zeny + getval > maxInt && Session.zeny < maxInt) {
 				value = parseInt(maxInt) - Session.zeny;
 			} else if (getval === 0) {
@@ -259,7 +259,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			return;
 		}
 
-		var pkt = new PACKET.CZ.REQ_BANKING_WITHDRAW();
+		const pkt = new PACKET.CZ.REQ_BANKING_WITHDRAW();
 		pkt.AID = Session.AID;
 		pkt.money = value;
 		Network.sendPacket(pkt);
@@ -291,7 +291,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 */
 	Bank.onAppend = function onAppend() {
 		// Seems like "EscapeWindow" is execute first, push it before.
-		var events = jQuery._data(window, 'events').keydown;
+		const events = jQuery._data(window, 'events').keydown;
 		events.unshift(events.pop());
 
 		// Apply preferences
@@ -300,7 +300,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		var input = Bank.ui.find('.depo');
+		const input = Bank.ui.find('.depo');
 		input.val('');
 		input.focus();
 	};
@@ -345,7 +345,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Request to open bank
 	 */
 	function reqOpenBank() {
-		var pkt = new PACKET.CZ.REQ_BANK_OPEN();
+		const pkt = new PACKET.CZ.REQ_BANK_OPEN();
 		pkt.AID = Session.AID;
 		Network.sendPacket(pkt);
 	}
@@ -354,7 +354,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Request to close bank
 	 */
 	function reqCloseBank() {
-		var pkt = new PACKET.CZ.REQ_BANK_CLOSE();
+		const pkt = new PACKET.CZ.REQ_BANK_CLOSE();
 		pkt.AID = Session.AID;
 		Network.sendPacket(pkt);
 	}
@@ -369,7 +369,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 		_preferences.save();
 
 		//Cleanup
-		var error = Bank.ui.find('.errorupdate');
+		const error = Bank.ui.find('.errorupdate');
 		error.empty();
 	};
 

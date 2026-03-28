@@ -41,15 +41,15 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 	/**
 	 * Import
 	 */
-	let mat4 = glMatrix.mat4;
-	let vec2 = glMatrix.vec2;
-	let _matrix = mat4.create();
+	const mat4 = glMatrix.mat4;
+	const vec2 = glMatrix.vec2;
+	const _matrix = mat4.create();
 
 	/*
 	 * When mouse is over
 	 */
 	function onMouseOver() {
-		let Entity = this.constructor;
+		const Entity = this.constructor;
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PET:
@@ -69,7 +69,7 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 					break;
 				}
 
-				let action = this.canAttackEntity() ? Cursor.ACTION.ATTACK : Cursor.ACTION.DEFAULT;
+				const action = this.canAttackEntity() ? Cursor.ACTION.ATTACK : Cursor.ACTION.DEFAULT;
 				Cursor.setType(action);
 				break;
 
@@ -146,7 +146,7 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 	 *
 	 */
 	function onMouseDown() {
-		let Entity = this.constructor;
+		const Entity = this.constructor;
 		let pkt;
 
 		switch (this.objecttype) {
@@ -261,8 +261,8 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 	 *
 	 */
 	function onContextMenu() {
-		let Entity = this.constructor;
-		let entity = this;
+		const Entity = this.constructor;
+		const entity = this;
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PET:
@@ -390,8 +390,8 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 	 * Focus the entity
 	 */
 	function onFocus() {
-		let Entity = this.constructor;
-		let main = Session.Entity;
+		const Entity = this.constructor;
+		const main = Session.Entity;
 		let pkt;
 
 		switch (this.objecttype) {
@@ -424,8 +424,8 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 				});
 
 				if (!Session.TouchTargeting && !Session.autoFollow) {
-					let out = [];
-					let count = PathFinding.search(
+					const out = [];
+					const count = PathFinding.search(
 						main.position[0] | 0,
 						main.position[1] | 0,
 						this.position[0] | 0,
@@ -493,7 +493,7 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 	 * Lost focus on entity
 	 */
 	function onFocusEnd() {
-		let Entity = this.constructor;
+		const Entity = this.constructor;
 
 		switch (this.objecttype) {
 			case Entity.TYPE_PC:
@@ -521,7 +521,7 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 	 */
 	function onRoomEnter() {
 		let pkt;
-		let Room = this.room.constructor;
+		const Room = this.room.constructor;
 
 		switch (this.room.type) {
 			case Room.Type.SELL_SHOP:
@@ -555,7 +555,7 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 
 				InputBox.append();
 				InputBox.setType('pass', false);
-				let self = this;
+				const self = this;
 				InputBox.onSubmitRequest = function (pass) {
 					InputBox.remove();
 					pkt.passwd = pass;

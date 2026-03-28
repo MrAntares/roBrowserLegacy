@@ -28,7 +28,7 @@ import Session from 'Engine/SessionStorage';
 /**
 	 * Create Component
 	 */
-	let Quest = new UIComponent('Quest', htmlText, cssText);
+	const Quest = new UIComponent('Quest', htmlText, cssText);
 
 	/**
 	 * @var {Array} quest list
@@ -38,7 +38,7 @@ import Session from 'Engine/SessionStorage';
 	/**
 	 * @var {Array} quest list
 	 */
-	let _questNotShowList = [];
+	const _questNotShowList = [];
 
 	/**
 	 * @var {string} _active_menu active click menu
@@ -48,7 +48,7 @@ import Session from 'Engine/SessionStorage';
 	/**
 	 * @var {Preferences} structure
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'Quest',
 		{
 			x: 200,
@@ -89,7 +89,7 @@ import Session from 'Engine/SessionStorage';
 			left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
 		});
 
-		let checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
+		const checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
 
 		Client.loadFile(
 			DB.INTERFACE_PATH + 'renew_questui/' + checkbox_background + '.bmp',
@@ -173,7 +173,7 @@ import Session from 'Engine/SessionStorage';
 	Quest.setQuestList = function setQuestList(quests) {
 		_questList = quests;
 		Quest.ClearQuestList();
-		for (let questID in quests) {
+		for (const questID in quests) {
 			Quest.addQuestToUI(quests[questID]);
 		}
 		QuestWindow.ClearQuestList();
@@ -214,9 +214,9 @@ import Session from 'Engine/SessionStorage';
 			_questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
 		}
 
-		let mob_name = _questList[questID].hunt_list[huntID].mobName;
-		let quest_info = DB.getQuestInfo(questID);
-		let chat_quest_text = `Mission [${quest_info.Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
+		const mob_name = _questList[questID].hunt_list[huntID].mobName;
+		const quest_info = DB.getQuestInfo(questID);
+		const chat_quest_text = `Mission [${quest_info.Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
 		let self_msg;
 		if (_questList[questID].hunt_list[huntID].maxCount == _questList[questID].hunt_list[huntID].huntCount) {
 			self_msg = `${mob_name} [Completed]`;
@@ -259,7 +259,7 @@ import Session from 'Engine/SessionStorage';
 	 * @param {number} ID
 	 */
 	Quest.getQuestIDByServerID = function getQuestIDByServerID(ID) {
-		for (var key in _questList) {
+		for (const key in _questList) {
 			if (typeof _questList[key].hunt_list[ID] !== 'undefined') {
 				return key;
 			}
@@ -279,13 +279,13 @@ import Session from 'Engine/SessionStorage';
 	Quest.addQuestToUI = function addQuest(quest) {
 		let ul_id = '';
 		let li_text = '';
-		let toggle_id = 'qid' + quest.questID;
-		let show_id = 'sid' + quest.questID;
-		let title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
-		let summary = quest.summary.length > 30 ? quest.summary.substr(0, 30) + '...' : quest.summary;
-		let bt_check = _questNotShowList.includes(parseInt(Number(quest.questID))) ? 'bt_check_off' : 'bt_check_on';
+		const toggle_id = 'qid' + quest.questID;
+		const show_id = 'sid' + quest.questID;
+		const title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
+		const summary = quest.summary.length > 30 ? quest.summary.substr(0, 30) + '...' : quest.summary;
+		const bt_check = _questNotShowList.includes(parseInt(Number(quest.questID))) ? 'bt_check_off' : 'bt_check_on';
 
-		let epoch_seconds = new Date() / 1000;
+		const epoch_seconds = new Date() / 1000;
 		if (quest.end_time > 0 && quest.end_time > epoch_seconds) {
 			ul_id = '#cooldown-quest-list';
 			li_text =
@@ -334,7 +334,7 @@ import Session from 'Engine/SessionStorage';
 					if (e.target.tagName.toLowerCase() == 'button') {
 						return;
 					}
-					let element = jQuery(e.currentTarget);
+					const element = jQuery(e.currentTarget);
 					if (element.attr('class') == 'quest-item') {
 						QuestHelper.clearQuestDesc();
 						QuestHelper.setQuestInfo(quest);
@@ -359,7 +359,7 @@ import Session from 'Engine/SessionStorage';
 	};
 
 	function onClickMenu(e) {
-		let quest_element = jQuery(e.currentTarget);
+		const quest_element = jQuery(e.currentTarget);
 
 		if (_active_menu == quest_element.attr('id')) {
 			return;
@@ -420,24 +420,24 @@ import Session from 'Engine/SessionStorage';
 	}
 
 	function onClickQuestToggle(e) {
-		let toggle_element = jQuery(e.currentTarget);
-		let tid = toggle_element.attr('id');
-		let id = tid.replace('qid', '');
-		let _pkt = new PACKET.CZ.ACTIVE_QUEST();
+		const toggle_element = jQuery(e.currentTarget);
+		const tid = toggle_element.attr('id');
+		const id = tid.replace('qid', '');
+		const _pkt = new PACKET.CZ.ACTIVE_QUEST();
 		_pkt.questID = _questList[id].questID;
 		_pkt.active = _questList[id].active == 1 ? 0 : 1;
 		Network.sendPacket(_pkt);
 	}
 
 	function onClickQuestDisplay(e) {
-		let display_element = jQuery(e.currentTarget);
-		let cid = display_element.attr('id');
-		let id = cid.replace('sid', '');
-		let iid = parseInt(Number(id));
+		const display_element = jQuery(e.currentTarget);
+		const cid = display_element.attr('id');
+		const id = cid.replace('sid', '');
+		const iid = parseInt(Number(id));
 
 		let checkbox_background = '';
 		if (_questNotShowList.includes(iid)) {
-			let index = _questNotShowList.indexOf(iid);
+			const index = _questNotShowList.indexOf(iid);
 			_questNotShowList.splice(index, 1);
 			checkbox_background = 'bt_check_on';
 		} else {

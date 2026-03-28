@@ -8,10 +8,10 @@ import Altitude from 'Renderer/Map/Altitude';
 
 let _texture;
 	let _program;
-	let mat4 = glMatrix.mat4;
-	let _matrix = mat4.create();
+	const mat4 = glMatrix.mat4;
+	const _matrix = mat4.create();
 
-	let _vertexShader = `
+	const _vertexShader = `
         #version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -29,7 +29,7 @@ let _texture;
 		}
 	`;
 
-	let _fragmentShader = `
+	const _fragmentShader = `
         #version 300 es
         #pragma vscode_glsllint_stage : frag
         precision highp float;
@@ -68,7 +68,7 @@ let _texture;
 	}
 
 	GroundEffect.prototype.init = function init(gl) {
-		let plane = Altitude.generatePlane(this.x, this.y, this.size);
+		const plane = Altitude.generatePlane(this.x, this.y, this.size);
 		this.buffer = gl.createBuffer();
 		this.vertCount = plane.length / 5;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
@@ -82,7 +82,7 @@ let _texture;
 	};
 
 	GroundEffect.prototype.render = function render(gl, tick) {
-		let attribute = _program.attribute;
+		const attribute = _program.attribute;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
@@ -121,8 +121,8 @@ let _texture;
 	};
 
 	GroundEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		gl.depthMask(false);
 		mat4.identity(_matrix);

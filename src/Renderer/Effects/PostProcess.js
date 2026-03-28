@@ -68,8 +68,8 @@ PostProcess.render = function (gl) {
 	this.swapBuffers();
 
 	for (let i = 0; i < _activeEffects.length; i++) {
-		let effect = _activeEffects[i];
-		let isLast = i === _activeEffects.length - 1;
+		const effect = _activeEffects[i];
+		const isLast = i === _activeEffects.length - 1;
 
 		// Destination: Screen (null) if last, otherwise the next offscreen buffer
 		const targetFbo = isLast ? null : _writeFbo;
@@ -113,7 +113,7 @@ PostProcess.afterRenderPass = function (gl) {
  * Swaps the read and write FBO references.
  */
 PostProcess.swapBuffers = function () {
-	let temp = _readFbo;
+	const temp = _readFbo;
 	_readFbo = _writeFbo;
 	_writeFbo = temp;
 };
@@ -122,9 +122,9 @@ PostProcess.swapBuffers = function () {
  * Ensures Ping-Pong buffers are created and resized if necessary.
  */
 PostProcess.validateBuffers = function (gl) {
-	let scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
-	let scaledWidth = Math.floor(gl.canvas.width * scale);
-	let scaledHeight = Math.floor(gl.canvas.height * scale);
+	const scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
+	const scaledWidth = Math.floor(gl.canvas.width * scale);
+	const scaledHeight = Math.floor(gl.canvas.height * scale);
 
 	if (!_readFbo || _readFbo.width !== scaledWidth || _readFbo.height !== scaledHeight) {
 		_readFbo = this.createFbo(gl, scaledWidth, scaledHeight, _readFbo);
@@ -175,9 +175,9 @@ PostProcess.restartModules = function restartModules(gl) {
  * Recreates the FBO when the window size changes
  */
 PostProcess.recreateFbo = function recreateFbo(gl, width, height) {
-	let scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
-	let scaledWidth = Math.floor(width * scale);
-	let scaledHeight = Math.floor(height * scale);
+	const scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
+	const scaledWidth = Math.floor(width * scale);
+	const scaledHeight = Math.floor(height * scale);
 
 	// Recreate global buffers
 	_readFbo = this.createFbo(gl, scaledWidth, scaledHeight, _readFbo);
@@ -275,11 +275,11 @@ PostProcess.createFramebuffer = function createFramebuffer(gl, width, height, ol
 			}
 		}
 
-		let fbo = gl.createFramebuffer();
+		const fbo = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
 		// Setup Texture where the scene will be drawn
-		let texture = gl.createTexture();
+		const texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
 
@@ -292,13 +292,13 @@ PostProcess.createFramebuffer = function createFramebuffer(gl, width, height, ol
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
 
 		// Setup Renderbuffer for depth testing (Z-buffer)
-		let rbo = gl.createRenderbuffer();
+		const rbo = gl.createRenderbuffer();
 		gl.bindRenderbuffer(gl.RENDERBUFFER, rbo);
 		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
 		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo);
 
 		// Validate Framebuffer state
-		let status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+		const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
 		if (status !== gl.FRAMEBUFFER_COMPLETE) {
 			throw new Error('WebGL::createFramebuffer() - Incomplete Framebuffer! Status: ' + status);
 		}

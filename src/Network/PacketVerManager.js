@@ -20,15 +20,15 @@ import PacketLength from 'Network/PacketLength';
  * PACKETVER range
  * @var integer
  */
-var _value = 0;
+let _value = 0;
 
 /**
  * Loop over version to find the good one
  * @return integer[] offset
  */
 function getPacketVersion() {
-	var versions = this.versions;
-	var i,
+	const versions = this.versions;
+	let i,
 		count = versions.length;
 
 	for (i = 0; i < count - 1; ++i) {
@@ -46,7 +46,7 @@ function getPacketVersion() {
  */
 function calculateBlockSize() {
 	// Not dependent of PACKETVER
-	var blockSize = 106;
+	let blockSize = 106;
 	blockSize += 2; // hairColor;
 	blockSize += 4; // unknown value
 
@@ -125,11 +125,11 @@ function parseCharList(fp, end) {
 		end = fp.length;
 	}
 
-	var i,
+	let i,
 		count,
 		out = [];
-	var blockSize = Configs.get('charBlockSize') || calculateBlockSize();
-	var length = end - fp.tell();
+	let blockSize = Configs.get('charBlockSize') || calculateBlockSize();
+	const length = end - fp.tell();
 
 	// Nothing to parse
 	if (length <= 0) {
@@ -146,8 +146,8 @@ function parseCharList(fp, end) {
 				', auto-detect...'
 		);
 
-		var knownSize = [106, 108, 112, 116, 124, 128, 132, 136, 140, 144, 145, 147, 155, 175];
-		var matches = [];
+		const knownSize = [106, 108, 112, 116, 124, 128, 132, 136, 140, 144, 145, 147, 155, 175];
+		const matches = [];
 
 		for (i = 0, count = knownSize.length; i < count; ++i) {
 			if (length % knownSize[i] === 0) {
@@ -294,8 +294,8 @@ function parseCharList(fp, end) {
  * @param {number[]} list of offsets
  */
 function addSupport(date, list) {
-	var packet, param;
-	var i,
+	let packet, param;
+	let i,
 		count = list.length;
 
 	for (i = 0; i < count; ++i) {

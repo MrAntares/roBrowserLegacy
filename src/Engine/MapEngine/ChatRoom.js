@@ -26,7 +26,7 @@ import Session from 'Engine/SessionStorage';
 	 * PACKET.CZ.CREATE_CHATROOM
 	 */
 	ChatRoomCreate.requestRoom = function requestRoom() {
-		let pkt = new PACKET.CZ.CREATE_CHATROOM();
+		const pkt = new PACKET.CZ.CREATE_CHATROOM();
 		pkt.size = this.limit;
 		pkt.type = this.type;
 		pkt.passwd = this.password;
@@ -39,7 +39,7 @@ import Session from 'Engine/SessionStorage';
 	 * PACKET.CZ.CHANGE_CHATROOM
 	 */
 	ChatRoom.changeChatRoom = function changeChatRoom() {
-		let pkt = new PACKET.CZ.CHANGE_CHATROOM();
+		const pkt = new PACKET.CZ.CHANGE_CHATROOM();
 		/*
 		this.size         = 0;
 		this.type         = 0;
@@ -54,7 +54,7 @@ import Session from 'Engine/SessionStorage';
 	 * PACKET.CZ.REQ_ROLE_CHANGE
 	 */
 	ChatRoom.requestRoleChange = function requestRoleChange() {
-		let pkt = new PACKET.CZ.REQ_ROLE_CHANGE();
+		const pkt = new PACKET.CZ.REQ_ROLE_CHANGE();
 		/*
 			this.role       = 0;
 			this.name       = '';
@@ -67,7 +67,7 @@ import Session from 'Engine/SessionStorage';
 	 * PACKET.CZ.REQ_EXPEL_MEMBER
 	 */
 	ChatRoom.requestExpelMember = function requestExpelMember() {
-		let pkt = new PACKET.CZ.REQ_EXPEL_MEMBER();
+		const pkt = new PACKET.CZ.REQ_EXPEL_MEMBER();
 		/*
 			this.name       = '';
 		*/
@@ -79,7 +79,7 @@ import Session from 'Engine/SessionStorage';
 	 * PACKET.CZ.EXIT_ROOM
 	 */
 	ChatRoom.exitRoom = function exitRoom() {
-		let pkt = new PACKET.CZ.EXIT_ROOM();
+		const pkt = new PACKET.CZ.EXIT_ROOM();
 		Network.sendPacket(pkt);
 	};
 

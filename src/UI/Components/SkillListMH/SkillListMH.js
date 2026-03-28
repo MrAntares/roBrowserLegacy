@@ -27,7 +27,7 @@ import cssText from './SkillListMH.css?raw';
 	 */
 	function SkillListMH(type) {
 		// Create component
-		let name = 'SkillList' + (type === 'homunculus' ? 'HOM' : 'MER');
+		const name = 'SkillList' + (type === 'homunculus' ? 'HOM' : 'MER');
 		UIComponent.call(this, name, htmlText, cssText);
 
 		// Initialize variables
@@ -58,7 +58,7 @@ import cssText from './SkillListMH.css?raw';
 	 * Initialize UI
 	 */
 	SkillListMH.prototype.init = function init() {
-		let self = this;
+		const self = this;
 
 		this.ui.find('.titlebar .text').text(this.type === 'homunculus' ? 'Homunculus Skills' : 'Mercenary Skills');
 
@@ -69,16 +69,16 @@ import cssText from './SkillListMH.css?raw';
 
 		this.ui.find('.footer .extend').mousedown(function (event) {
 			event.stopImmediatePropagation();
-			let ui = self.ui;
-			let top = ui.position().top;
-			let left = ui.position().left;
+			const ui = self.ui;
+			const top = ui.position().top;
+			const left = ui.position().left;
 			let lastWidth = 0;
 			let lastHeight = 0;
 			let _Interval;
 
 			function resizing() {
-				let extraX = -6;
-				let extraY = 32;
+				const extraX = -6;
+				const extraY = 32;
 
 				let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
 				let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
@@ -116,7 +116,7 @@ import cssText from './SkillListMH.css?raw';
 		// Get level up button
 		this.btnIncSkill = this.ui.find('.btn.levelup').detach();
 		this.btnIncSkill.click(function () {
-			let index = this.parentNode.parentNode.getAttribute('data-index');
+			const index = this.parentNode.parentNode.getAttribute('data-index');
 			self.onIncreaseSkill(parseInt(index, 10));
 		});
 
@@ -175,8 +175,8 @@ import cssText from './SkillListMH.css?raw';
 				main.addClass('selected');
 			})
 			.on('dragstart', '.skill', function (event) {
-				let index = parseInt(this.getAttribute('data-index'), 10);
-				let skill = self.getSkillById(index);
+				const index = parseInt(this.getAttribute('data-index'), 10);
+				const skill = self.getSkillById(index);
 
 				// Can't drag a passive skill (or disabled)
 				if (!skill || !skill.level || !skill.type) {
@@ -184,7 +184,7 @@ import cssText from './SkillListMH.css?raw';
 					return false;
 				}
 
-				let img = new Image();
+				const img = new Image();
 				img.decoding = 'async';
 				img.src = this.firstChild.firstChild.src;
 
@@ -318,10 +318,10 @@ import cssText from './SkillListMH.css?raw';
 			return;
 		}
 
-		let sk = SkillInfo[skill.SKID];
-		let levelup = this.btnIncSkill.clone(true);
-		let className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-		let element = jQuery(
+		const sk = SkillInfo[skill.SKID];
+		const levelup = this.btnIncSkill.clone(true);
+		const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
+		const element = jQuery(
 			'<tr class="skill id' +
 				skill.SKID +
 				' ' +
@@ -394,7 +394,7 @@ import cssText from './SkillListMH.css?raw';
 	 * Update skill
 	 */
 	SkillListMH.prototype.updateSkill = function updateSkill(skill) {
-		let target = this.getSkillById(skill.SKID);
+		const target = this.getSkillById(skill.SKID);
 		let element;
 
 		if (!target) {
@@ -434,7 +434,7 @@ import cssText from './SkillListMH.css?raw';
 	 * Use a skill by its id
 	 */
 	SkillListMH.prototype.useSkillID = function useSkillID(id, level) {
-		let skill = this.getSkillById(id);
+		const skill = this.getSkillById(id);
 
 		if (!skill || !skill.level || !skill.type) {
 			return;
@@ -520,7 +520,7 @@ import cssText from './SkillListMH.css?raw';
 	 * Request to upgrade a skill
 	 */
 	SkillListMH.prototype.onRequestSkillUp = function onRequestSkillUp() {
-		let index = this.parentNode.parentNode.getAttribute('data-index');
+		const index = this.parentNode.parentNode.getAttribute('data-index');
 		this.onIncreaseSkill(parseInt(index, 10));
 	};
 
@@ -579,15 +579,15 @@ import cssText from './SkillListMH.css?raw';
 	 * Start to drag a skill
 	 */
 	SkillListMH.prototype.onSkillDragStart = function onSkillDragStart(event) {
-		let index = parseInt(this.getAttribute('data-index'), 10);
-		let skill = this.getSkillById(index);
+		const index = parseInt(this.getAttribute('data-index'), 10);
+		const skill = this.getSkillById(index);
 
 		// Can't drag a passive skill (or disabled)
 		if (!skill || !skill.level || !skill.type) {
 			return stopPropagation(event);
 		}
 
-		let img = new Image();
+		const img = new Image();
 		img.decoding = 'async';
 		img.src = this.firstChild.firstChild.src;
 
@@ -612,19 +612,19 @@ import cssText from './SkillListMH.css?raw';
 	};
 
 	SkillListMH.prototype.skillLevelSelectUp = function skillLevelSelectUp(skill) {
-		let level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level) {
 			skill.selectedLevel = level + 1;
-			let element = this.ui.find('.skill.id' + skill.SKID + ':first');
+			const element = this.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	};
 
 	SkillListMH.prototype.skillLevelSelectDown = function skillLevelSelectDown(skill) {
-		let level = skill.selectedLevel ? skill.selectedLevel : skill.level;
+		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1) {
 			skill.selectedLevel = level - 1;
-			let element = this.ui.find('.skill.id' + skill.SKID + ':first');
+			const element = this.ui.find('.skill.id' + skill.SKID + ':first');
 			element.find('.level .current').text(skill.selectedLevel);
 		}
 	};
@@ -639,8 +639,8 @@ import cssText from './SkillListMH.css?raw';
 	/**
 	 * Create instances
 	 */
-	let homSkills = new SkillListMH('homunculus');
-	let merSkills = new SkillListMH('mercenary');
+	const homSkills = new SkillListMH('homunculus');
+	const merSkills = new SkillListMH('mercenary');
 
 	// Register both instances with UIManager and export it
 export default {

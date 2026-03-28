@@ -70,7 +70,7 @@ import BinaryReader from 'Utils/BinaryReader';
 	ACT.prototype.readActions = function readActions() {
 		let i,
 			count = this.fp.readUShort();
-		let actions = this.actions;
+		const actions = this.actions;
 
 		// Unknown bytes...
 		this.fp.seek(10, SEEK_CUR);
@@ -88,10 +88,10 @@ import BinaryReader from 'Utils/BinaryReader';
 	 *	Load Animation part in ACT file
 	 */
 	ACT.prototype.readAnimations = function readAnimations() {
-		let fp = this.fp;
+		const fp = this.fp;
 		let i,
 			count = fp.readULong();
-		let anim = new Array(count);
+		const anim = new Array(count);
 
 		for (i = 0; i < count; ++i) {
 			// Unknown bytes
@@ -106,11 +106,11 @@ import BinaryReader from 'Utils/BinaryReader';
 	 * Load ACT Layers
 	 */
 	ACT.prototype.readLayers = function readLayers() {
-		let fp = this.fp;
+		const fp = this.fp;
 		let count = fp.readULong();
-		let layers = new Array(count);
+		const layers = new Array(count);
 		let layer, sound;
-		let version = this.version;
+		const version = this.version;
 		let i, pos;
 
 		for (i = 0; i < count; ++i) {

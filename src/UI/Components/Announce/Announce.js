@@ -18,7 +18,7 @@ import UIComponent from 'UI/UIComponent';
 /**
 	 * Create Announce component
 	 */
-	let Announce = new UIComponent('Announce');
+	const Announce = new UIComponent('Announce');
 
 	/**
 	 * Mouse can cross this UI
@@ -38,7 +38,7 @@ import UIComponent from 'UI/UIComponent';
 	/**
 	 * @var {number} how many time the announce is display (20secs)
 	 */
-	let _life = 20 * 1000;
+	const _life = 20 * 1000;
 
 	/**
 	 * Initialize component
@@ -80,11 +80,11 @@ import UIComponent from 'UI/UIComponent';
 	 * @param {string} color
 	 */
 	Announce.set = function set(text, color, allowNewlines = false) {
-		let fontSize = 12;
-		let maxWidth = 500;
-		let lines = [];
+		const fontSize = 12;
+		const maxWidth = 500;
+		const lines = [];
 
-		let width = 0;
+		const width = 0;
 		let result;
 		let i, j, count;
 

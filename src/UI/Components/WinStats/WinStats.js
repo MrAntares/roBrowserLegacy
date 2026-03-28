@@ -17,8 +17,8 @@ import WinStatsV3 from './WinStatsV3/WinStatsV3';
 import UIVersionManager from 'UI/UIVersionManager';
 import KEYS from 'Controls/KeyEventHandler';
 
-let publicName = 'WinStats';
-	let versionInfo = {
+const publicName = 'WinStats';
+	const versionInfo = {
 		default: WinStats,
 		common: {
 			20200520: WinStatsV3,
@@ -29,14 +29,14 @@ let publicName = 'WinStats';
 		prere: {}
 	};
 
-	let WinStatsController = UIVersionManager.getUIController(publicName, versionInfo);
-	let _selectUIVersion = WinStatsController.selectUIVersion;
+	const WinStatsController = UIVersionManager.getUIController(publicName, versionInfo);
+	const _selectUIVersion = WinStatsController.selectUIVersion;
 
 	// Extend default UI selector
 	WinStatsController.selectUIVersion = function () {
 		_selectUIVersion();
 
-		let component = WinStatsController.getUI();
+		const component = WinStatsController.getUI();
 
 		// Escape to close the UI
 		component.onKeyDown = function onKeyDown(e) {

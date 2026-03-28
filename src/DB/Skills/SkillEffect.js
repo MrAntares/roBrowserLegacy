@@ -45,7 +45,7 @@
 
 import SK from './SkillConst';
 
-	let SkillEffect = {};
+	const SkillEffect = {};
 
 	// Swordman
 	SkillEffect[SK.SM_BASH] = { beginCastEffectId: 16, hitEffectId: 1 }; //Bash

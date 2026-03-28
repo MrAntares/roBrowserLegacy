@@ -12,7 +12,7 @@
 import SK from './SkillConst';
 import JobId from 'DB/Jobs/JobConst';
 
-	let SkillInfo = {};
+	const SkillInfo = {};
 
 	((SkillInfo[SK.SN_WINDWALK] = {
 		Name: 'SN_WINDWALK',

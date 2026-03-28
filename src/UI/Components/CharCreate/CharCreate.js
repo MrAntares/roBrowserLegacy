@@ -14,8 +14,8 @@ import CharCreateV3 from './CharCreatev3/CharCreatev3';
 import CharCreateV4 from './CharCreatev4/CharCreatev4';
 import UIVersionManager from 'UI/UIVersionManager';
 
-let publicName = 'CharCreate';
-	let versionInfo = {
+const publicName = 'CharCreate';
+	const versionInfo = {
 		default: CharCreate,
 		common: {
 			20180124: CharCreateV4,
@@ -26,5 +26,5 @@ let publicName = 'CharCreate';
 		prere: {}
 	};
 
-	let Controller = UIVersionManager.getUIController(publicName, versionInfo);
+	const Controller = UIVersionManager.getUIController(publicName, versionInfo);
 export default Controller;

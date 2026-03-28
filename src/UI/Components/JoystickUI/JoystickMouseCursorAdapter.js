@@ -21,7 +21,7 @@ function move(dx, dy) {
 		Mouse.screen.x = Math.max(0, Math.min(Renderer.width, Mouse.screen.x + dx * ControlsSettings.joySense));
 		Mouse.screen.y = Math.max(0, Math.min(Renderer.height, Mouse.screen.y + dy * ControlsSettings.joySense));
 
-		let cursor = document.querySelector('.cursor');
+		const cursor = document.querySelector('.cursor');
 		if (cursor) {
 			cursor.style.left = Mouse.screen.x + 'px';
 			cursor.style.top = Mouse.screen.y + 'px';
@@ -33,12 +33,12 @@ function move(dx, dy) {
 			return;
 		}
 
-		let mat4 = glMatrix.mat4;
-		let vec4 = glMatrix.vec4;
+		const mat4 = glMatrix.mat4;
+		const vec4 = glMatrix.vec4;
 
-		let _matrix = mat4.create();
-		let _vector = vec4.create();
-		let _pos = vec4.create();
+		const _matrix = mat4.create();
+		const _vector = vec4.create();
+		const _pos = vec4.create();
 
 		// Transform entity position to screen coordinates
 		_vector[0] = entity.position[0] + 0.5;
@@ -73,8 +73,8 @@ function move(dx, dy) {
 		vec4.transformMat4(_pos, _pos, _matrix);
 
 		// Calculate screen position
-		let z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
-		let screenX = Renderer.width / 2 + Math.round((Renderer.width / 2) * (_pos[0] * z));
+		const z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
+		const screenX = Renderer.width / 2 + Math.round((Renderer.width / 2) * (_pos[0] * z));
 		let screenY = Renderer.height / 2 - Math.round((Renderer.height / 2) * (_pos[1] * z));
 
 		screenY = screenY - 13;
@@ -84,7 +84,7 @@ function move(dx, dy) {
 		Mouse.screen.y = screenY;
 
 		// Update cursor visual position
-		let _selector = document.querySelector('.cursor');
+		const _selector = document.querySelector('.cursor');
 		if (_selector) {
 			_selector.style.left = screenX + 'px';
 			_selector.style.top = screenY + 'px';
@@ -92,15 +92,15 @@ function move(dx, dy) {
 	}
 
 	function leftClick(click = false) {
-		let el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		const el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
 		if (!el) {
 			handleWorldLeftClick();
 			return;
 		}
 
-		if (ControlsSettings.joyDisableVirtualMouse) return;
+		if (ControlsSettings.joyDisableVirtualMouse) {return;}
 
-		let eventOptions = {
+		const eventOptions = {
 			bubbles: true,
 			cancelable: true,
 			view: window,
@@ -118,14 +118,14 @@ function move(dx, dy) {
 	}
 
 	function rightClick(holding = false) {
-		let el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
-		let isCanvas = el && el.tagName.toLowerCase() === 'canvas';
+		const el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		const isCanvas = el && el.tagName.toLowerCase() === 'canvas';
 		if (!el || isCanvas) {
 			handleWorldRightClick();
 			return;
 		}
 		if (holding) {
-			let draggableElement = el.closest('.item, .skill');
+			const draggableElement = el.closest('.item, .skill');
 			if (draggableElement) {
 				if (Interaction.openSelectionWindow(draggableElement)) {
 					return;
@@ -133,7 +133,7 @@ function move(dx, dy) {
 			}
 		}
 
-		if (ControlsSettings.joyDisableVirtualMouse) return;
+		if (ControlsSettings.joyDisableVirtualMouse) {return;}
 
 		el.dispatchEvent(
 			new MouseEvent('mousedown', {
@@ -208,11 +208,11 @@ function move(dx, dy) {
 	}
 
 	function contextMenu() {
-		let el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
-		let draggableElement = el.closest('.item, .skill');
+		const el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		const draggableElement = el.closest('.item, .skill');
 
 		if (el && draggableElement) {
-			let contextMenuEvent = new MouseEvent('contextmenu', {
+			const contextMenuEvent = new MouseEvent('contextmenu', {
 				bubbles: true,
 				cancelable: true,
 				view: window,
@@ -228,9 +228,9 @@ function move(dx, dy) {
 	}
 
 	function navigateDraggableItems(direction) {
-		let el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
+		const el = document.elementFromPoint(Mouse.screen.x, Mouse.screen.y);
 
-		let container = el.closest('.item, .skill');
+		const container = el.closest('.item, .skill');
 
 		if (!container) {
 			// Fall back to regular arrow key navigation
@@ -256,7 +256,7 @@ function move(dx, dy) {
 			return;
 		}
 
-		let $container = jQuery(container);
+		const $container = jQuery(container);
 		let allDraggables = $container.find('.item, .skill').not('.tabs button, .tab-btn');
 
 		if (allDraggables.length === 0) {
@@ -264,16 +264,16 @@ function move(dx, dy) {
 		}
 
 		// Check if we're in a skill container by looking for skill-specific structure
-		let isSkillContainer =
+		const isSkillContainer =
 			(container.id && container.id.indexOf('positionSkills') === 0) ||
 			container.querySelector(
 				'#positionSkills1, #positionSkills2, #positionSkills3, #positionSkills4, #positionSkills5'
 			) ||
 			container.closest('.skillCol') !== null;
 
-		let draggableElement = container.closest('.item, .skill');
+		const draggableElement = container.closest('.item, .skill');
 
-		let currentIndex = allDraggables.index(draggableElement);
+		const currentIndex = allDraggables.index(draggableElement);
 		let newIndex = currentIndex;
 
 		// Use fixed grid width based on container type
@@ -283,11 +283,11 @@ function move(dx, dy) {
 			GRID_WIDTH = 7;
 		} else {
 			// Items: calculate based on container width and icon size
-			let containerWidth = $container.width() || 200;
-			let iconElement = jQuery(draggableElement).find('.icon');
-			let iconWidth = iconElement.width() || 24; // .icon has fixed 24px width
-			let iconMargin = 4; // margin from CSS: margin: 4px 4px 4px 4px
-			let totalIconWidth = iconWidth + iconMargin * 2;
+			const containerWidth = $container.width() || 200;
+			const iconElement = jQuery(draggableElement).find('.icon');
+			const iconWidth = iconElement.width() || 24; // .icon has fixed 24px width
+			const iconMargin = 4; // margin from CSS: margin: 4px 4px 4px 4px
+			const totalIconWidth = iconWidth + iconMargin * 2;
 			GRID_WIDTH = Math.max(6, Math.min(8, Math.floor(containerWidth / totalIconWidth)));
 		}
 
@@ -310,18 +310,18 @@ function move(dx, dy) {
 		newIndex = Math.max(0, Math.min(allDraggables.length - 1, newIndex));
 
 		if (newIndex !== currentIndex && newIndex < allDraggables.length) {
-			let targetElement = allDraggables.eq(newIndex);
-			let targetOffset = targetElement.offset();
+			const targetElement = allDraggables.eq(newIndex);
+			const targetOffset = targetElement.offset();
 
 			if (targetOffset) {
-				let targetCenterX = targetOffset.left + targetElement.outerWidth() / 2;
-				let targetCenterY = targetOffset.top + targetElement.outerHeight() / 2;
+				const targetCenterX = targetOffset.left + targetElement.outerWidth() / 2;
+				const targetCenterY = targetOffset.top + targetElement.outerHeight() / 2;
 
 				// Move mouse to target element
 				Mouse.screen.x = targetCenterX;
 				Mouse.screen.y = targetCenterY;
 
-				let _selector = document.querySelector('.cursor');
+				const _selector = document.querySelector('.cursor');
 				if (_selector) {
 					_selector.style.left = targetCenterX + 'px';
 					_selector.style.top = targetCenterY + 'px';

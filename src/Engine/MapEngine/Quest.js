@@ -25,11 +25,11 @@ import Quest from 'UI/Components/Quest/Quest';
 	 * @param {object} pkt - PACKET.ZC.ALL_QUEST_LIST_V4
 	 */
 	function onAllQuestList(pkt) {
-		let quest_list = [];
+		const quest_list = [];
 		for (let i = 0; i < pkt.questCount; i++) {
-			let quest = pkt.QuestList[i];
-			let quest_info = DB.getQuestInfo(quest.questID);
-			let local_quest = {
+			const quest = pkt.QuestList[i];
+			const quest_info = DB.getQuestInfo(quest.questID);
+			const local_quest = {
 				questID: quest.questID,
 				title: quest_info.Title || '',
 				summary: quest_info.Summary || '',
@@ -50,8 +50,8 @@ import Quest from 'UI/Components/Quest/Quest';
 			};
 			if (local_quest.count > 0) {
 				for (let i = 0; i < local_quest.count; i++) {
-					let hunt = quest.hunt[i];
-					let local_hunt = {
+					const hunt = quest.hunt[i];
+					const local_hunt = {
 						huntID: hunt.huntID || null,
 						huntIDCount: hunt.huntIDCount || 0,
 						mobType: hunt.mobType || null,
@@ -62,7 +62,7 @@ import Quest from 'UI/Components/Quest/Quest';
 						maxCount: hunt.maxCount || 0,
 						mobName: hunt.mobName || ''
 					};
-					let ID = hunt.huntID ? hunt.huntID : hunt.mobGID;
+					const ID = hunt.huntID ? hunt.huntID : hunt.mobGID;
 					local_quest.hunt_list[ID] = local_hunt; // prefer huntid over the mobGID
 				}
 			}
@@ -77,8 +77,8 @@ import Quest from 'UI/Components/Quest/Quest';
 	 * @param {object} pkt - PACKET.ZC.ADD_QUEST3
 	 */
 	function onAddQuest(pkt) {
-		let quest_info = DB.getQuestInfo(pkt.questID);
-		let quest = {
+		const quest_info = DB.getQuestInfo(pkt.questID);
+		const quest = {
 			questID: pkt.questID,
 			title: quest_info.Title || '',
 			summary: quest_info.Summary || '',
@@ -99,8 +99,8 @@ import Quest from 'UI/Components/Quest/Quest';
 		};
 		if (quest.count > 0) {
 			for (let i = 0; i < quest.count; i++) {
-				let hunt = pkt.hunt[i];
-				let local_hunt = {
+				const hunt = pkt.hunt[i];
+				const local_hunt = {
 					huntID: hunt.huntID || null,
 					huntIDCount: hunt.huntIDCount || 0,
 					mobType: hunt.mobType || null,
@@ -111,7 +111,7 @@ import Quest from 'UI/Components/Quest/Quest';
 					maxCount: hunt.maxCount || 0,
 					mobName: hunt.mobName || ''
 				};
-				let ID = hunt.huntID ? hunt.huntID : hunt.mobGID;
+				const ID = hunt.huntID ? hunt.huntID : hunt.mobGID;
 				quest.hunt_list[ID] = local_hunt; // prefer huntid over the mobGID
 			}
 		}
@@ -125,8 +125,8 @@ import Quest from 'UI/Components/Quest/Quest';
 	 */
 	function onUpdateMissionHunt(pkt) {
 		for (let i = 0; i < pkt.questCount; i++) {
-			let local_hunt = pkt.hunt[i];
-			let ID = local_hunt.huntID ? local_hunt.huntID : local_hunt.mobGID;
+			const local_hunt = pkt.hunt[i];
+			const ID = local_hunt.huntID ? local_hunt.huntID : local_hunt.mobGID;
 
 			if (local_hunt.questID !== undefined) {
 				// server sent info with questID
@@ -134,8 +134,8 @@ import Quest from 'UI/Components/Quest/Quest';
 					Quest.getUI().updateMissionHunt(local_hunt, local_hunt.questID, ID);
 				} else {
 					// create new one
-					let quest_info = DB.getQuestInfo(local_hunt.questID);
-					let local_quest = {
+					const quest_info = DB.getQuestInfo(local_hunt.questID);
+					const local_quest = {
 						questID: local_hunt.questID,
 						title: quest_info.Title ? jQuery.escape(quest_info.Title) : '',
 						summary: quest_info.Summary ? jQuery.escape(quest_info.Summary) : '',
@@ -169,7 +169,7 @@ import Quest from 'UI/Components/Quest/Quest';
 				}
 			} else {
 				// server sent info with huntID
-				let quest_saved_id = Quest.getUI().getQuestIDByServerID(ID);
+				const quest_saved_id = Quest.getUI().getQuestIDByServerID(ID);
 				if (quest_saved_id > 0) {
 					// update quest
 					Quest.getUI().updateMissionHunt(local_hunt, quest_saved_id, ID);

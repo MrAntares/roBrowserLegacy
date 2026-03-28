@@ -6,11 +6,11 @@ import Plugins from 'Plugins/PluginManager';
 export const roInitSpinner = {
 	add: function () {
 		// Loading spinner ring
-		var loading = document.createElement('div');
+		const loading = document.createElement('div');
 		loading.id = 'loading-element';
 		loading.className = 'lds-dual-ring';
 
-		var loadingStyle = document.createElement('style');
+		const loadingStyle = document.createElement('style');
 		loadingStyle.id = 'loading-style';
 		loadingStyle.textContent = `
 			.lds-dual-ring { color: #1c4c5b }

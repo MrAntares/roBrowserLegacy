@@ -17,7 +17,7 @@ import BinaryReader from './BinaryReader';
 	 * Binary data of the executable
 	 * @var {BinaryReader}
 	 */
-	var _fp;
+	let _fp;
 
 	/**
 	 * Initialize the executable
@@ -27,7 +27,7 @@ import BinaryReader from './BinaryReader';
 	 * @param {function} callback
 	 */
 	function getDate(executable, callback) {
-		var reader = new FileReader();
+		const reader = new FileReader();
 		reader.onload = function (event) {
 			_fp = new BinaryReader(event.target.result);
 			callback(getDateSub());
@@ -41,7 +41,7 @@ import BinaryReader from './BinaryReader';
 	 * @return {number}
 	 */
 	function getDateSub() {
-		var offset, date;
+		let offset, date;
 
 		if (!_fp) {
 			throw new Error('Executable::getDate() - Executable is not loaded yet, or not specified');

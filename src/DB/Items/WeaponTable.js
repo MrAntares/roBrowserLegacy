@@ -12,7 +12,7 @@
 
 import WeaponType from './WeaponType';
 
-var WeaponName = {};
+const WeaponName = {};
 
 	WeaponName[WeaponType.NONE] = '';
 	WeaponName[WeaponType.SHORTSWORD] = '_\xb4\xdc\xb0\xcb';

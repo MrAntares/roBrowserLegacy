@@ -25,12 +25,12 @@ import ProcessCommand from 'Controls/ProcessCommand';
 	/**
 	 * Create Component
 	 */
-	var ShortCuts = new UIComponent('ShortCuts', htmlText, cssText);
+	const ShortCuts = new UIComponent('ShortCuts', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _MACRO_INIT = Preferences.get(
+	const _MACRO_INIT = Preferences.get(
 		'_MACRO_CMD',
 		{
 			Num_1: '/hide',
@@ -48,7 +48,7 @@ import ProcessCommand from 'Controls/ProcessCommand';
 	);
 
 	// Fixed, can't change them
-	var _FLAG_INIT = {
+	const _FLAG_INIT = {
 		Num_1: 13, //ET_FLAG
 		Num_2: 35, //ET_INDONESIA_FLAG
 		Num_3: 48, // ET_PH_FLAG
@@ -68,12 +68,12 @@ import ProcessCommand from 'Controls/ProcessCommand';
 	/**
 	 * @var {number} used to remember the window height
 	 */
-	var _realSize = 0;
+	const _realSize = 0;
 
 	/**
 	 * @var {Preferences} structure
 	 */
-	var _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'ShortCuts',
 		{
 			x: 0,
@@ -263,21 +263,21 @@ import ProcessCommand from 'Controls/ProcessCommand';
 	 * Extend ShortCuts window size
 	 */
 	function onResize() {
-		var ui = ShortCuts.ui;
-		var content = ui.find('.container .content');
-		var hide = ui.find('.hide');
-		var top = ui.position().top;
-		var left = ui.position().left;
-		var lastWidth = 0;
-		var lastHeight = 0;
-		var _Interval;
+		const ui = ShortCuts.ui;
+		const content = ui.find('.container .content');
+		const hide = ui.find('.hide');
+		const top = ui.position().top;
+		const left = ui.position().left;
+		let lastWidth = 0;
+		let lastHeight = 0;
+		let _Interval;
 
 		function resizing() {
-			var extraX = 23 + 16 + 16 - 30;
-			var extraY = 31 + 19 - 30;
+			const extraX = 23 + 16 + 16 - 30;
+			const extraY = 31 + 19 - 30;
 
-			var w = Math.floor((Mouse.screen.x - left - extraX) / 32);
-			var h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+			let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
+			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
 			// Maximum and minimum window size
 			w = Math.min(Math.max(w, 6), 9);
@@ -312,7 +312,7 @@ import ProcessCommand from 'Controls/ProcessCommand';
 	}
 
 	function executeCmd(value) {
-		var command = _MACRO_INIT[`Num_${value}`];
+		const command = _MACRO_INIT[`Num_${value}`];
 
 		// Nothing to submit
 		if (command.length < 1 || command == '/hide') {
@@ -329,30 +329,30 @@ import ProcessCommand from 'Controls/ProcessCommand';
 	}
 
 	function executeFlag(value) {
-		var command = _FLAG_INIT[`Num_${value}`];
+		const command = _FLAG_INIT[`Num_${value}`];
 
 		// Nothing to submit
 		if (command.length < 1) {
 			return;
 		}
 
-		var pkt = new PACKET.CZ.REQ_EMOTION();
+		const pkt = new PACKET.CZ.REQ_EMOTION();
 		pkt.type = command;
 		Network.sendPacket(pkt);
 		return;
 	}
 
 	function loadValuesAlt() {
-		var length = Object.keys(_MACRO_INIT).length - 3;
+		const length = Object.keys(_MACRO_INIT).length - 3;
 		for (let index = 0; index < length; index++) {
-			var element = _MACRO_INIT[`Num_${index}`];
+			const element = _MACRO_INIT[`Num_${index}`];
 			jQuery(`#macro_${index}`).val(element);
 		}
 	}
 
 	function addValuesAlt(element) {
 		element.ui.find('.macro input').blur(function () {
-			var index = jQuery(this).attr('id').split('macro_')[1];
+			const index = jQuery(this).attr('id').split('macro_')[1];
 			_MACRO_INIT[`Num_${index}`] = this.value;
 			_MACRO_INIT.save();
 		});
@@ -363,7 +363,7 @@ import ProcessCommand from 'Controls/ProcessCommand';
 	 */
 	function onDropText(event) {
 		event.stopImmediatePropagation();
-		var data;
+		let data;
 		try {
 			data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 		} catch (e) {

@@ -21,13 +21,13 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	/**
 	 * Engine namespace
 	 */
-	let BankEngine = {};
+	const BankEngine = {};
 
 	/**
 	 * Open Bank and request to server bank details
 	 */
 	function onOpenBank(pkt) {
-		let send_pkt = new PACKET.CZ.REQ_BANKING_CHECK();
+		const send_pkt = new PACKET.CZ.REQ_BANKING_CHECK();
 		send_pkt.AID = Session.AID;
 		Network.sendPacket(send_pkt);
 	}
@@ -39,8 +39,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 */
 	function onBankInfo(pkt) {
 		if (!Bank.__active) {
-			let inbank = Bank.ui.find('.inbank.currency');
-			let onhand = Bank.ui.find('.onhand.currency');
+			const inbank = Bank.ui.find('.inbank.currency');
+			const onhand = Bank.ui.find('.onhand.currency');
 			if (inbank) {
 				inbank.text(formatNumberWithCommas(pkt.money) + 'z');
 			}
@@ -79,8 +79,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			return;
 		}
 
-		let input = Bank.ui.find('.depo');
-		let error = Bank.ui.find('.errorupdate');
+		const input = Bank.ui.find('.depo');
+		const error = Bank.ui.find('.errorupdate');
 
 		switch (pkt.reason) {
 			case 0: // Success - we just update the bank currency visuals
@@ -117,8 +117,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 	 * Update bank from deposit or withdrawal
 	 */
 	function UpdateBank(money, zeny) {
-		let inbank = Bank.ui.find('.inbank.currency');
-		let onhand = Bank.ui.find('.onhand.currency');
+		const inbank = Bank.ui.find('.inbank.currency');
+		const onhand = Bank.ui.find('.onhand.currency');
 		if (inbank) {
 			inbank.text(formatNumberWithCommas(money) + 'z');
 		}
@@ -137,8 +137,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox';
 			return;
 		}
 
-		let input = Bank.ui.find('.depo');
-		let error = Bank.ui.find('.errorupdate');
+		const input = Bank.ui.find('.depo');
+		const error = Bank.ui.find('.errorupdate');
 
 		switch (pkt.reason) {
 			case 0: // Success - we just update the bank currency visuals

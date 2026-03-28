@@ -19,11 +19,11 @@ import Camera from 'Renderer/Camera';
 import PathFinding from 'Utils/PathFinding';
 import Target from './JoystickTargetService';
 
-let direction = glMatrix.vec2.create();
-	let rotate = glMatrix.mat2.create();
+const direction = glMatrix.vec2.create();
+	const rotate = glMatrix.mat2.create();
 
 	function move(x, y) {
-		let player = Session.Entity;
+		const player = Session.Entity;
 		if (!player) {
 			return;
 		}
@@ -35,10 +35,10 @@ let direction = glMatrix.vec2.create();
 		glMatrix.mat2.rotate(rotate, rotate, ((-Camera.direction * 45) / 180) * Math.PI);
 		glMatrix.vec2.transformMat2(direction, direction, rotate);
 
-		let nx = Math.round(player.position[0] + direction[0] * 3);
-		let ny = Math.round(player.position[1] + direction[1] * 3);
+		const nx = Math.round(player.position[0] + direction[0] * 3);
+		const ny = Math.round(player.position[1] + direction[1] * 3);
 
-		let movePacket = PACKETVER.value >= 20180307 ? new PACKET.CZ.REQUEST_MOVE2() : new PACKET.CZ.REQUEST_MOVE();
+		const movePacket = PACKETVER.value >= 20180307 ? new PACKET.CZ.REQUEST_MOVE2() : new PACKET.CZ.REQUEST_MOVE();
 
 		movePacket.dest[0] = nx;
 		movePacket.dest[1] = ny;
@@ -47,26 +47,26 @@ let direction = glMatrix.vec2.create();
 	}
 
 	function attack() {
-		let Player = Session.Entity;
+		const Player = Session.Entity;
 		if (!Player) {
 			return;
 		}
 
-		let target = Target.getEntity();
+		const target = Target.getEntity();
 		if (!target) {
 			return;
 		}
 
 		Target.focus(target);
 
-		let entityFocus = EntityManager.getFocusEntity();
+		const entityFocus = EntityManager.getFocusEntity();
 		if (!entityFocus) {
 			return;
 		}
 
 		let pkt;
-		let out = [];
-		let count = PathFinding.search(
+		const out = [];
+		const count = PathFinding.search(
 			Player.position[0] | 0,
 			Player.position[1] | 0,
 			entityFocus.position[0] | 0,
@@ -105,17 +105,17 @@ let direction = glMatrix.vec2.create();
 	}
 
 	function pickUp() {
-		let Player = Session.Entity;
+		const Player = Session.Entity;
 		if (!Player) {
 			return;
 		}
 
-		let item = EntityManager.getClosestEntity(Player, EntityManager.TYPE_ITEM);
+		const item = EntityManager.getClosestEntity(Player, EntityManager.TYPE_ITEM);
 		if (!item) {
 			return;
 		}
 
-		let pkt = PACKETVER.value >= 20180307 ? new PACKET.CZ.ITEM_PICKUP2() : new PACKET.CZ.ITEM_PICKUP();
+		const pkt = PACKETVER.value >= 20180307 ? new PACKET.CZ.ITEM_PICKUP2() : new PACKET.CZ.ITEM_PICKUP();
 
 		pkt.ITAID = item.GID;
 		Network.sendPacket(pkt);

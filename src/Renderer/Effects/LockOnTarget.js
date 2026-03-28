@@ -34,17 +34,17 @@ import Configs from '../../Core/Configs';
 	/**
 	 * @var {mat4}
 	 */
-	let mat4 = glMatrix.mat4;
+	const mat4 = glMatrix.mat4;
 
 	/**
 	 * @var {mat4} rotation matrix
 	 */
-	let _matrix = mat4.create();
+	const _matrix = mat4.create();
 
 	/**
 	 * @var {string} Vertex Shader
 	 */
-	let _vertexShader = `
+	const _vertexShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : vert
 		precision highp float;
@@ -75,7 +75,7 @@ import Configs from '../../Core/Configs';
 	/**
 	 * @var {string} Fragment Shader
 	 */
-	let _fragmentShader = `
+	const _fragmentShader = `
 		#version 300 es
 		#pragma vscode_glsllint_stage : frag
 		precision highp float;
@@ -184,8 +184,8 @@ import Configs from '../../Core/Configs';
 
 		Client.loadFile('data/texture/effect/lockon128.tga', function (buffer) {
 			Texture.load(buffer, function () {
-				let enableMipmap = Configs.get('enableMipmap');
-				let ctx = this.getContext('2d');
+				const enableMipmap = Configs.get('enableMipmap');
+				const ctx = this.getContext('2d');
 				ctx.save();
 				ctx.translate(this.width / 2, this.height / 2);
 				ctx.rotate((45 / 180) * Math.PI);
@@ -241,8 +241,8 @@ import Configs from '../../Core/Configs';
 	 * @param {object} webgl context
 	 */
 	LockOnTarget.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		let uniform = _program.uniform;
-		let attribute = _program.attribute;
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
 		mat4.identity(_matrix);
 		mat4.rotateY(_matrix, _matrix, (tick / 4 / 180) * Math.PI);

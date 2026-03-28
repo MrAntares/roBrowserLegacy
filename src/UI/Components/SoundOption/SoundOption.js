@@ -21,12 +21,12 @@ import cssText from './SoundOption.css?raw';
 /**
 	 * Create Sound Settings Component
 	 */
-	let SoundOption = new UIComponent('SoundOption', htmlText, cssText);
+	const SoundOption = new UIComponent('SoundOption', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} window option
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'SoundOption',
 		{
 			x: 300,
@@ -105,7 +105,7 @@ import cssText from './SoundOption.css?raw';
 	 * Toggle sound (on/off)
 	 */
 	function onToggleSound() {
-		let oldVolume = AudioSettings.Sound.volume;
+		const oldVolume = AudioSettings.Sound.volume;
 		AudioSettings.Sound.play = this.checked;
 
 		if (AudioSettings.Sound.play) {

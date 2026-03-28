@@ -23,7 +23,7 @@ import cssText from './ItemSelection.css?raw';
 /**
 	 * Create ItemSelection namespace
 	 */
-	let ItemSelection = new UIComponent('ItemSelection', htmlText, cssText);
+	const ItemSelection = new UIComponent('ItemSelection', htmlText, cssText);
 
 	/**
 	 * Initialize UI

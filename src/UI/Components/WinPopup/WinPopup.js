@@ -18,7 +18,7 @@ import cssText from './WinPopup.css?raw';
 /**
 	 * Create Component
 	 */
-	let WinPopup = new UIComponent('WinPopup', htmlText, cssText);
+	const WinPopup = new UIComponent('WinPopup', htmlText, cssText);
 
 	/**
 	 * Initialize popup

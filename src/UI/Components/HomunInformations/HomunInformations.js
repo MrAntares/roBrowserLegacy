@@ -24,18 +24,18 @@ import Configs from 'Core/Configs';
 import PACKETVER from 'Network/PacketVerManager';
 
 let autoFeedInterval;
-	let autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled
-	let autoFeedPercent = 30;
+	const autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled
+	const autoFeedPercent = 30;
 
 	/**
 	 * Create Component
 	 */
-	let HomunInformations = new UIComponent('HomunInformations', htmlText, cssText);
+	const HomunInformations = new UIComponent('HomunInformations', htmlText, cssText);
 
 	/**
 	 * @var {Preferences} Window preferences (localStorage)
 	 */
-	let _preferences = Preferences.get(
+	const _preferences = Preferences.get(
 		'HomunInformations',
 		{
 			x: 100,
@@ -129,7 +129,7 @@ let autoFeedInterval;
 		}
 
 		// check current player
-		let player = Session.Entity;
+		const player = Session.Entity;
 		if (!player) {
 			return;
 		}
@@ -141,7 +141,7 @@ let autoFeedInterval;
 		if (!Session.homunId) {
 			return;
 		}
-		let entity = EntityManager.get(Session.homunId);
+		const entity = EntityManager.get(Session.homunId);
 		if (!entity) {
 			return;
 		}
@@ -305,8 +305,8 @@ let autoFeedInterval;
 	 * @param val2
 	 */
 	HomunInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
-		let perc = Math.floor((val * 100) / val2);
-		let color = perc < 25 ? 'red' : 'blue';
+		const perc = Math.floor((val * 100) / val2);
+		const color = perc < 25 ? 'red' : 'blue';
 		this.ui.find('.' + type + '_value').text(val);
 		this.ui.find('.' + type + '_max_value').text(val2);
 		this.ui.find('.' + type + '_perc').text(perc + '%');
@@ -371,12 +371,12 @@ let autoFeedInterval;
 			return;
 		}
 
-		let canvasExp = this.ui.find('.block2 canvas.life.title_exp');
-		let ctx = canvasExp.get(0).getContext('2d');
+		const canvasExp = this.ui.find('.block2 canvas.life.title_exp');
+		const ctx = canvasExp.get(0).getContext('2d');
 
-		let width = 60,
+		const width = 60,
 			height = 5;
-		let exp_per = exp / maxEXP;
+		const exp_per = exp / maxEXP;
 
 		// // border
 		// ctx.fillStyle = '#10189c';
@@ -402,12 +402,12 @@ let autoFeedInterval;
 			return;
 		}
 
-		let canvasHunger = this.ui.find('.block2 canvas.life.title_hunger');
-		let ctx = canvasHunger.get(0).getContext('2d');
+		const canvasHunger = this.ui.find('.block2 canvas.life.title_hunger');
+		const ctx = canvasHunger.get(0).getContext('2d');
 
-		let width = 60,
+		const width = 60,
 			height = 5;
-		let hunger_per = val / 100;
+		const hunger_per = val / 100;
 
 		// // border
 		// ctx.fillStyle = '#10189c';
@@ -424,7 +424,7 @@ let autoFeedInterval;
 	};
 
 	HomunInformations.toggleAggressive = function toggleAggressive() {
-		let agr = localStorage.getItem('HOM_AGGRESSIVE') == 0 ? 1 : 0;
+		const agr = localStorage.getItem('HOM_AGGRESSIVE') == 0 ? 1 : 0;
 		localStorage.setItem('HOM_AGGRESSIVE', agr);
 	};
 
@@ -433,7 +433,7 @@ let autoFeedInterval;
 			AIDriver.reset();
 			this.AILoop = setInterval(function () {
 				if (Session.homunId) {
-					let entity = EntityManager.get(Session.homunId);
+					const entity = EntityManager.get(Session.homunId);
 					if (entity) {
 						AIDriver.exec('AI(' + Session.homunId + ')');
 					}
@@ -483,7 +483,7 @@ let autoFeedInterval;
 	 * Request to modify homun's name
 	 */
 	function onChangeName() {
-		let input = HomunInformations.ui.find('.name');
+		const input = HomunInformations.ui.find('.name');
 		HomunInformations.reqNameEdit(input.val());
 	}
 
