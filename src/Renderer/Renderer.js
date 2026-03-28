@@ -442,7 +442,6 @@ Renderer.stop = function stop(fn) {
 		}
 		return;
 	}
-
 	var pos = this.renderCallbacks.indexOf(fn);
 	if (pos > -1) {
 		this.renderCallbacks.splice(pos, 1);

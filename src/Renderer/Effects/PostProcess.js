@@ -223,7 +223,6 @@ PostProcess.clean = function (gl) {
 			gl.deleteFramebuffer(_writeFbo.framebuffer);
 		}
 	}
-
 	_readFbo = null;
 	_writeFbo = null;
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
