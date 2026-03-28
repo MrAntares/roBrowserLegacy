@@ -7,34 +7,33 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import StatusConst from 'DB/Status/StatusState';
-import EquipLocation from 'DB/Items/EquipmentLocation';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import ItemType from 'DB/Items/ItemType';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Session from 'Engine/SessionStorage';
-import Renderer from 'Renderer/Renderer';
-import Camera from 'Renderer/Camera';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import UIVersionManager from 'UI/UIVersionManager';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import CartItems from 'UI/Components/CartItems/CartItems';
-import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip';
-import WinStats from 'UI/Components/WinStats/WinStats';
-import GraphicsSettings from 'Preferences/Graphics';
+import DB from 'DB/DBManager.js';
+import StatusConst from 'DB/Status/StatusState.js';
+import EquipLocation from 'DB/Items/EquipmentLocation.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import ItemType from 'DB/Items/ItemType.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Session from 'Engine/SessionStorage.js';
+import Renderer from 'Renderer/Renderer.js';
+import Camera from 'Renderer/Camera.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
+import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
+import WinStats from 'UI/Components/WinStats/WinStats.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 import htmlText from './EquipmentV4.html?raw';
 import cssText from './EquipmentV4.css?raw';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import Entity from 'Renderer/Entity/Entity';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import Entity from 'Renderer/Entity/Entity.js';
 
 /**
  * Create Component

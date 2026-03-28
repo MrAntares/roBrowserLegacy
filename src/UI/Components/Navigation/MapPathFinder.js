@@ -6,9 +6,8 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
+import DB from 'DB/DBManager.js';
 
 // Dependencies
 /**

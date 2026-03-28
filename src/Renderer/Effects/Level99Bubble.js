@@ -13,17 +13,16 @@
  * - Alpha: clamp(250 + 25*(y + 20), 0, 250)
  * - Color: (80,80,255), additive blend
  */
-'use strict';
 
 import _vertexShader from './Level99Bubble.vs?raw';
 import _fragmentShader from './Level99Bubble.fs?raw';
-import WebGL from 'Utils/WebGL';
-import Texture from 'Utils/Texture';
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
-import Camera from 'Renderer/Camera';
-import Altitude from 'Renderer/Map/Altitude';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import WebGL from 'Utils/WebGL.js';
+import Texture from 'Utils/Texture.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
+import Camera from 'Renderer/Camera.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 const DEG_TO_RAD = Math.PI / 180;
 const GAME_TO_WORLD = 0.1 * 2.2;

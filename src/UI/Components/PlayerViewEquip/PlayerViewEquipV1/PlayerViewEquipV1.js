@@ -7,22 +7,21 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import EquipLocation from 'DB/Items/EquipmentLocation';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Camera from 'Renderer/Camera';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import DB from 'DB/DBManager.js';
+import EquipLocation from 'DB/Items/EquipmentLocation.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Camera from 'Renderer/Camera.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './PlayerViewEquipV1.html?raw';
 import cssText from './PlayerViewEquipV1.css?raw';
-import Entity from 'Renderer/Entity/Entity';
+import Entity from 'Renderer/Entity/Entity.js';
 
 /**
  * Create Component

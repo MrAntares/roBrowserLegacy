@@ -8,12 +8,11 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Texture from 'Utils/Texture';
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
+import jQuery from 'Utils/jquery.js';
+import Texture from 'Utils/Texture.js';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
 
 /**
  * ScrollBar Namespace

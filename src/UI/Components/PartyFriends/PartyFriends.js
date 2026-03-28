@@ -4,12 +4,11 @@
  * Manage interface for parties and friends - Version Router
  *
  */
-'use strict';
 
-import PartyFriendsV0 from './PartyFriendsV0/PartyFriendsV0';
-import PartyFriendsV1 from './PartyFriendsV1/PartyFriendsV1';
+import PartyFriendsV0 from './PartyFriendsV0/PartyFriendsV0.js';
+import PartyFriendsV1 from './PartyFriendsV1/PartyFriendsV1.js';
 
-import UIVersionManager from 'UI/UIVersionManager';
+import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'PartyFriends';
 

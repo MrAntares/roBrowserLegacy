@@ -7,16 +7,15 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Inventory from 'UI/Components/Inventory/Inventory';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
 import htmlText from './MakeItemSelection.html?raw';
 import cssText from './MakeItemSelection.css?raw';
 

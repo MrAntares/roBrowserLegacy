@@ -7,33 +7,32 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import EquipLocation from 'DB/Items/EquipmentLocation';
-import Client from 'Core/Client';
-import KEYS from 'Controls/KeyEventHandler';
-import CardIllustration from 'UI/Components/CardIllustration/CardIllustration';
-import UIManager from 'UI/UIManager';
-import Mouse from 'Controls/MouseEventHandler';
-import UIComponent from 'UI/UIComponent';
-import Cursor from 'UI/CursorManager';
-import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
-import ItemPreview from 'UI/Components/ItemPreview/ItemPreview';
-import MakeReadBook from 'UI/Components/MakeReadBook/MakeReadBook';
-import Renderer from 'Renderer/Renderer';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Sprite from 'Loaders/Sprite';
-import Action from 'Loaders/Action';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import EquipLocation from 'DB/Items/EquipmentLocation.js';
+import Client from 'Core/Client.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import CardIllustration from 'UI/Components/CardIllustration/CardIllustration.js';
+import UIManager from 'UI/UIManager.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIComponent from 'UI/UIComponent.js';
+import Cursor from 'UI/CursorManager.js';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
+import ItemPreview from 'UI/Components/ItemPreview/ItemPreview.js';
+import MakeReadBook from 'UI/Components/MakeReadBook/MakeReadBook.js';
+import Renderer from 'Renderer/Renderer.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Sprite from 'Loaders/Sprite.js';
+import Action from 'Loaders/Action.js';
 import htmlText from './ItemInfo.html?raw';
 import cssText from './ItemInfo.css?raw';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Entity from 'Renderer/Entity/Entity';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import Inventory from 'UI/Components/Inventory/Inventory';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
 
 /**
  * Create Component

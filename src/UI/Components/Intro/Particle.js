@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * @Constructor

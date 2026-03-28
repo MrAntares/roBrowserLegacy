@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault, Antares
  */
-'use strict';
 
-import JobId from './JobConst';
+import JobId from './JobConst.js';
 
 const JobNameTable = {};
 

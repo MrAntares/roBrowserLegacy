@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Preferences from 'Core/Preferences';
-import KEYS from 'Controls/KeyEventHandler';
+import Preferences from 'Core/Preferences.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 const ShortCuts = {};
 ShortCuts.F1_1 = {

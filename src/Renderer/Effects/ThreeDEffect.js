@@ -1,13 +1,12 @@
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import Client from 'Core/Client';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import EntityManager from 'Renderer/EntityManager';
-import Altitude from 'Renderer/Map/Altitude';
-import Camera from 'Renderer/Camera';
-import GroundEffect from 'Renderer/Effects/GroundEffect';
-import Entity from 'Renderer/Entity/Entity';
+import WebGL from 'Utils/WebGL.js';
+import Client from 'Core/Client.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Camera from 'Renderer/Camera.js';
+import GroundEffect from 'Renderer/Effects/GroundEffect.js';
+import Entity from 'Renderer/Entity/Entity.js';
 
 function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));

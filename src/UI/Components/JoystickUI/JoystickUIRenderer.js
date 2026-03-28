@@ -7,19 +7,18 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import ShortCut from 'UI/Components/ShortCut/ShortCut';
-import InventoryUI from 'UI/Components/Inventory/Inventory';
-import SetManager from './JoystickSetManager';
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import ControlsSettings from 'Preferences/Controls';
-import ItemType from 'DB/Items/ItemType';
-import JoystickShortcutMapper from './JoystickShortcutMapper';
-import JoystickInputService from './JoystickInputService';
-import SkillInfo from 'DB/Skills/SkillInfo';
+import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import InventoryUI from 'UI/Components/Inventory/Inventory.js';
+import SetManager from './JoystickSetManager.js';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import ControlsSettings from 'Preferences/Controls.js';
+import ItemType from 'DB/Items/ItemType.js';
+import JoystickShortcutMapper from './JoystickShortcutMapper.js';
+import JoystickInputService from './JoystickInputService.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
 
 let ui = null;
 let setIndicator = null;

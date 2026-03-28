@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Events from 'Core/Events';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import jQuery from 'Utils/jquery.js';
+import Events from 'Core/Events.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 
 /**
  * Create Announce component

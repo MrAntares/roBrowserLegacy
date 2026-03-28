@@ -7,15 +7,14 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import glMatrix from 'Vendors/gl-matrix';
-import Camera from 'Renderer/Camera';
-import ControlsSettings from 'Preferences/Controls';
-import jQuery from 'Utils/jquery';
-import Interaction from './JoystickInteractionService';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import glMatrix from 'Vendors/gl-matrix.js';
+import Camera from 'Renderer/Camera.js';
+import ControlsSettings from 'Preferences/Controls.js';
+import jQuery from 'Utils/jquery.js';
+import Interaction from './JoystickInteractionService.js';
 
 function move(dx, dy) {
 	Mouse.screen.x = Math.max(0, Math.min(Renderer.width, Mouse.screen.x + dx * ControlsSettings.joySense));

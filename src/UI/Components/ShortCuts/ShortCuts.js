@@ -6,21 +6,20 @@
  * @author Francisco Wallison
  *
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Emoticons from 'UI/Components/Emoticons/Emoticons';
+import jQuery from 'Utils/jquery.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Emoticons from 'UI/Components/Emoticons/Emoticons.js';
 import htmlText from './ShortCuts.html?raw';
 import cssText from './ShortCuts.css?raw';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import ProcessCommand from 'Controls/ProcessCommand';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import ProcessCommand from 'Controls/ProcessCommand.js';
 
 /**
  * Create Component

@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import KEYS from 'Controls/KeyEventHandler';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Navigation from 'UI/Components/Navigation/Navigation';
+import jQuery from 'Utils/jquery.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Navigation from 'UI/Components/Navigation/Navigation.js';
 import htmlText from './NpcBox.html?raw';
 import cssText from './NpcBox.css?raw';
 

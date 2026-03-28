@@ -10,8 +10,8 @@
  * @author Vincent Thibault
  */
 
-import Struct from './Struct';
-import TextEncoding from 'Utils/CodepageManager';
+import Struct from './Struct.js';
+import TextEncoding from 'Utils/CodepageManager.js';
 
 /**
  * Binary Constant for BinaryReader::seek();

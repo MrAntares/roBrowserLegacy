@@ -8,9 +8,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import jQuery from 'Utils/jquery';
+import jQuery from 'Utils/jquery.js';
 
 /**
  * Mouse object

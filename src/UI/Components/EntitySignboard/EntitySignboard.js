@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './EntitySignboard.html?raw';
 import cssText from './EntitySignboard.css?raw';
-import Client from 'Core/Client';
+import Client from 'Core/Client.js';
 
 /**
  * Createcomponent

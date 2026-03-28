@@ -1,16 +1,15 @@
-'use strict';
 
-import DB from 'DB/DBManager';
-import Session from 'Engine/SessionStorage';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import SkillInfo from 'DB/Skills/SkillInfo';
-import EntityManager from 'Renderer/EntityManager';
-import Client from './Client';
-import Configs from './Configs';
-import UIManager from 'UI/UIManager';
-import TextEncoding from 'Utils/CodepageManager';
+import DB from 'DB/DBManager.js';
+import Session from 'Engine/SessionStorage.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Client from './Client.js';
+import Configs from './Configs.js';
+import UIManager from 'UI/UIManager.js';
+import TextEncoding from 'Utils/CodepageManager.js';
 
 function AIDriver() {}
 

@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import Events from 'Core/Events';
+import glMatrix from 'Utils/gl-matrix.js';
+import Events from 'Core/Events.js';
 
 /**
  * Global methods

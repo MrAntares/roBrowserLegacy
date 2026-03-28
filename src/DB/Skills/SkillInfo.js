@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import SK from './SkillConst';
-import JobId from 'DB/Jobs/JobConst';
+import SK from './SkillConst.js';
+import JobId from 'DB/Jobs/JobConst.js';
 
 const SkillInfo = {};
 

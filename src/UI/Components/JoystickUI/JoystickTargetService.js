@@ -6,11 +6,10 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import Session from 'Engine/SessionStorage';
-import EntityManager from 'Renderer/EntityManager';
-import ControlsSettings from 'Preferences/Controls';
+import Session from 'Engine/SessionStorage.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import ControlsSettings from 'Preferences/Controls.js';
 
 function getEntityInContext() {
 	let target = null;

@@ -10,7 +10,7 @@
  * @author Vincent Thibault
  */
 
-import BinaryReader from './BinaryReader';
+import BinaryReader from './BinaryReader.js';
 ('use strict');
 
 /**

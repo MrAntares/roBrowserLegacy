@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import UIComponent from 'UI/UIComponent';
-import UIManager from 'UI/UIManager';
-import Session from 'Engine/SessionStorage';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
+import UIComponent from 'UI/UIComponent.js';
+import UIManager from 'UI/UIManager.js';
+import Session from 'Engine/SessionStorage.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
 import htmlText from './WinStats.html?raw';
 import cssText from './WinStats.css?raw';
 

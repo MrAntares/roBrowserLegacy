@@ -6,11 +6,10 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import MiniMap from './MiniMap/MiniMap';
-import MiniMapV2 from './MiniMapV2/MiniMapV2';
-import UIVersionManager from 'UI/UIVersionManager';
+import MiniMap from './MiniMap/MiniMap.js';
+import MiniMapV2 from './MiniMapV2/MiniMapV2.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'MiniMap';
 const versionInfo = {

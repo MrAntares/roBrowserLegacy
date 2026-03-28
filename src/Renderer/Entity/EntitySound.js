@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import SoundManager from 'Audio/SoundManager';
+import SoundManager from 'Audio/SoundManager.js';
 
 /**
  * @Constructor

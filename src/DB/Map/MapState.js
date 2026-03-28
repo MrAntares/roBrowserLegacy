@@ -7,7 +7,6 @@
  *
  * @author Alison Serafim
  */
-'use strict';
 
 export default {
 	MapProperty: {

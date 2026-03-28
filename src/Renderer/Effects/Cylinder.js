@@ -5,13 +5,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
-import Camera from 'Renderer/Camera';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import WebGL from 'Utils/WebGL.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
+import Camera from 'Renderer/Camera.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import _vertexShader from './Cylinder.vs?raw';
 import _fragmentShader from './Cylinder.fs?raw';
 

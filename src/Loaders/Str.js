@@ -9,9 +9,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import BinaryReader from 'Utils/BinaryReader';
+import BinaryReader from 'Utils/BinaryReader.js';
 
 /**
  * Str class loader

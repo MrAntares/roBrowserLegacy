@@ -3,7 +3,7 @@
  * Entry point for roBrowserLegacy (ES6 version)
  * Centralized loader for all applications.
  */
-import Online from 'App/Online';
+import Online from 'App/Online.js';
 
 const APP = {
 	ONLINE: 1,

@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Preferences from 'Core/Preferences';
+import Preferences from 'Core/Preferences.js';
 
 /**
  * Export

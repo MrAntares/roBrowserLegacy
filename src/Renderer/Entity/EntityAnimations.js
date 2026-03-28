@@ -12,10 +12,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
 
 /**
  * @Constructor

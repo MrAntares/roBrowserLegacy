@@ -7,14 +7,13 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Preferences from 'Core/Preferences';
-import AudioSettings from 'Preferences/Audio';
-import AudioManager from 'Audio/BGM';
-import SoundManager from 'Audio/SoundManager';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import Preferences from 'Core/Preferences.js';
+import AudioSettings from 'Preferences/Audio.js';
+import AudioManager from 'Audio/BGM.js';
+import SoundManager from 'Audio/SoundManager.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './SoundOption.html?raw';
 import cssText from './SoundOption.css?raw';
 

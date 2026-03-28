@@ -12,16 +12,15 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
 import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Altitude from 'Renderer/Map/Altitude';
-import Session from 'Engine/SessionStorage';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Session from 'Engine/SessionStorage.js';
 
 // Constants based on RO Client behavior
 const RAG_TICK_MS = 25;

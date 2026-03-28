@@ -10,10 +10,9 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import Targa from 'Loaders/Targa';
-import GIF from 'Vendors/libgif';
+import Targa from 'Loaders/Targa.js';
+import GIF from 'Vendors/libgif.js';
 
 /**
  * Namespace

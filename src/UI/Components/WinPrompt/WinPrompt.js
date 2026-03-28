@@ -7,12 +7,11 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import UIManager from 'UI/UIManager';
-import WinPopup from 'UI/Components/WinPopup';
-import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager.js';
+import UIManager from 'UI/UIManager.js';
+import WinPopup from 'UI/Components/WinPopup.js';
+import jQuery from 'Utils/jquery.js';
 
 /**
  * Create Component

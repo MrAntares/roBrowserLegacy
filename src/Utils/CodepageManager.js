@@ -1,4 +1,4 @@
-import iconv from 'Vendors/iconv-lite';
+import iconv from 'Vendors/iconv-lite.js';
 
 /**
  * Smart decode helper.

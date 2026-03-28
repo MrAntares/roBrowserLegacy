@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Client from 'Core/Client';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Camera from 'Renderer/Camera';
-import Ground from 'Renderer/Map/Ground';
-import StrEffect from 'Renderer/Effects/StrEffect';
+import Client from 'Core/Client.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Camera from 'Renderer/Camera.js';
+import Ground from 'Renderer/Map/Ground.js';
+import StrEffect from 'Renderer/Effects/StrEffect.js';
 
 // Default fog for STR attachments
 const _defaultFog = {

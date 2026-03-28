@@ -7,7 +7,6 @@
  * (auto-generated)
  */
 
-'use strict';
 
 export default {
 	1: '_\xb0\xed\xb1\xdb',

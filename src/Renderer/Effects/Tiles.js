@@ -1,11 +1,10 @@
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import Texture from 'Utils/Texture';
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
-import Configs from 'Core/Configs';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import WebGL from 'Utils/WebGL.js';
+import Texture from 'Utils/Texture.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 const mat4 = glMatrix.mat4;
 

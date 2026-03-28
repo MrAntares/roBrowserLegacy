@@ -5,20 +5,19 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import EquipLocation from 'DB/Items/EquipmentLocation';
-import Renderer from 'Renderer/Renderer';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Camera from 'Renderer/Camera';
-import Session from 'Engine/SessionStorage';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import EquipLocation from 'DB/Items/EquipmentLocation.js';
+import Renderer from 'Renderer/Renderer.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Camera from 'Renderer/Camera.js';
+import Session from 'Engine/SessionStorage.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './ItemPreview.html?raw';
 import cssText from './ItemPreview.css?raw';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Entity from 'Renderer/Entity/Entity';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Entity from 'Renderer/Entity/Entity.js';
 
 /**
  * Create Component

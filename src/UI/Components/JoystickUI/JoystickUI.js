@@ -7,15 +7,14 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import JoystickModule from './JoystickModule';
-import JoystickSelectionUI from './JoystickSelectionUI';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import JoystickModule from './JoystickModule.js';
+import JoystickSelectionUI from './JoystickSelectionUI.js';
 import htmlText from './JoystickUI.html?raw';
 import cssText from './JoystickUI.css?raw';
-import JoystickUIRenderer from './JoystickUIRenderer';
+import JoystickUIRenderer from './JoystickUIRenderer.js';
 
 const JoystickUI = new UIComponent('JoystickUI', htmlText, cssText);
 

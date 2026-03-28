@@ -7,7 +7,6 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 export default {
 	SPEED: 0x00,

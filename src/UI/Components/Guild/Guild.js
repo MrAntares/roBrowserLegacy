@@ -7,30 +7,29 @@
  *
  * @author @vthibault, @Javierlog08, @scriptord3
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import SkillInfo from 'DB/Skills/SkillInfo';
-import jQuery from 'Utils/jquery';
-import KEYS from 'Controls/KeyEventHandler';
-import MonsterTable from 'DB/Monsters/MonsterTable';
-import Session from 'Engine/SessionStorage';
-import Entity from 'Renderer/Entity/Entity';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Camera from 'Renderer/Camera';
-import Renderer from 'Renderer/Renderer';
-import Preferences from 'Core/Preferences';
-import Client from 'Core/Client';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
-import SkillDescription from 'UI/Components/SkillDescription/SkillDescription';
+import DB from 'DB/DBManager.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import jQuery from 'Utils/jquery.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
+import Session from 'Engine/SessionStorage.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Camera from 'Renderer/Camera.js';
+import Renderer from 'Renderer/Renderer.js';
+import Preferences from 'Core/Preferences.js';
+import Client from 'Core/Client.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
+import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js';
 import htmlText from './Guild.html?raw';
 import cssText from './Guild.css?raw';
-import WinStats from 'UI/Components/WinStats/WinStats';
+import WinStats from 'UI/Components/WinStats/WinStats.js';
 
 /**
  * @var {Preferences} structure

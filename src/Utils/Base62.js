@@ -7,7 +7,6 @@
  *
  * @author Alisonrag
  */
-'use strict';
 
 const base62_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 

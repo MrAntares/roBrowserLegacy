@@ -7,28 +7,27 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Renderer from 'Renderer/Renderer';
-import Client from 'Core/Client';
-import Events from 'Core/Events';
-import Preferences from 'Core/Preferences';
-import KEYS from 'Controls/KeyEventHandler';
-import Mouse from 'Controls/MouseEventHandler';
-import Cursor from 'UI/CursorManager';
-import BattleMode from 'Controls/BattleMode';
-import History from './History';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Renderer from 'Renderer/Renderer.js';
+import Client from 'Core/Client.js';
+import Events from 'Core/Events.js';
+import Preferences from 'Core/Preferences.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import Cursor from 'UI/CursorManager.js';
+import BattleMode from 'Controls/BattleMode.js';
+import History from './History.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
 import htmlText from './ChatBox.html?raw';
 import cssText from './ChatBox.css?raw';
-import Commands from 'Controls/ProcessCommand';
-import ChatBoxSettings from 'UI/Components/ChatBoxSettings/ChatBoxSettings';
-import Configs from 'Core/Configs';
-import EntityManager from 'Renderer/EntityManager';
+import Commands from 'Controls/ProcessCommand.js';
+import ChatBoxSettings from 'UI/Components/ChatBoxSettings/ChatBoxSettings.js';
+import Configs from 'Core/Configs.js';
+import EntityManager from 'Renderer/EntityManager.js';
 
 /**
  * @var {number} max message in the chatbox

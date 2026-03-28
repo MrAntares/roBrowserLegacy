@@ -7,17 +7,16 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
-import Configs from 'Core/Configs';
-import Renderer from 'Renderer/Renderer';
-import EffectManager from 'Renderer/EffectManager';
-import StrEffect from 'Renderer/Effects/StrEffect';
-import Camera from 'Renderer/Camera';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
+import Renderer from 'Renderer/Renderer.js';
+import EffectManager from 'Renderer/EffectManager.js';
+import StrEffect from 'Renderer/Effects/StrEffect.js';
+import Camera from 'Renderer/Camera.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './StrViewer.html?raw';
 import cssText from './StrViewer.css?raw';
 

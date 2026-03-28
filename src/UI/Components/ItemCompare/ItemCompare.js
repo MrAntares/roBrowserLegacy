@@ -7,25 +7,24 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import Client from 'Core/Client';
-import CardIllustration from 'UI/Components/CardIllustration/CardIllustration';
-import UIManager from 'UI/UIManager';
-import Mouse from 'Controls/MouseEventHandler';
-import UIComponent from 'UI/UIComponent';
-import MakeReadBook from 'UI/Components/MakeReadBook/MakeReadBook';
-import Renderer from 'Renderer/Renderer';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Sprite from 'Loaders/Sprite';
-import Action from 'Loaders/Action';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import Client from 'Core/Client.js';
+import CardIllustration from 'UI/Components/CardIllustration/CardIllustration.js';
+import UIManager from 'UI/UIManager.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIComponent from 'UI/UIComponent.js';
+import MakeReadBook from 'UI/Components/MakeReadBook/MakeReadBook.js';
+import Renderer from 'Renderer/Renderer.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Sprite from 'Loaders/Sprite.js';
+import Action from 'Loaders/Action.js';
 import htmlText from './ItemCompare.html?raw';
 import cssText from './ItemCompare.css?raw';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Entity from 'Renderer/Entity/Entity';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Entity from 'Renderer/Entity/Entity.js';
 
 /**
  * @let {Sprite,Action} objects

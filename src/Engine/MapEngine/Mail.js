@@ -6,14 +6,13 @@
  * @author Francisco Wallison
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Mail from 'UI/Components/Mail/Mail';
-import ReadMail from 'UI/Components/Mail/ReadMail';
+import DB from 'DB/DBManager.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Mail from 'UI/Components/Mail/Mail.js';
+import ReadMail from 'UI/Components/Mail/ReadMail.js';
 
 /**
  * Load dependencies

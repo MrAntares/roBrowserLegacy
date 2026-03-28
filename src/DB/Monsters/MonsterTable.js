@@ -7,7 +7,6 @@
  *
  * @author Vincent Thibault, Antares
  */
-'use strict';
 
 export default {
 	0: 'Novice',

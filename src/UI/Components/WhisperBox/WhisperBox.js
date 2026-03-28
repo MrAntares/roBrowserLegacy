@@ -3,19 +3,18 @@
  *
  * Whisper windows for 1:1 chat
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import jQuery from 'Utils/jquery';
-import Events from 'Core/Events';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Preferences from 'Core/Preferences';
-import KEYS from 'Controls/KeyEventHandler';
-import Renderer from 'Renderer/Renderer';
-import History from '../ChatBox/History';
-import Sound from 'Audio/SoundManager';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import jQuery from 'Utils/jquery.js';
+import Events from 'Core/Events.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Preferences from 'Core/Preferences.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Renderer from 'Renderer/Renderer.js';
+import History from '../ChatBox/History.js';
+import Sound from 'Audio/SoundManager.js';
 import htmlText from './WhisperBox.html?raw';
 import cssText from './WhisperBox.css?raw';
 

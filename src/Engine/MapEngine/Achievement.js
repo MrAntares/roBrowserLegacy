@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
 
 /**
  * Load dependencies

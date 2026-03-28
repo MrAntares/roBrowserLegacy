@@ -7,7 +7,6 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 export default {
 	NV_BASIC: 1,

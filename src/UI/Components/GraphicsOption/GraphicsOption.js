@@ -7,22 +7,21 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import FPS from 'UI/Components/FPS/FPS';
-import Configs from 'Core/Configs';
-import Context from 'Core/Context';
-import Preferences from 'Core/Preferences';
-import GraphicsSettings from 'Preferences/Graphics';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import FPS from 'UI/Components/FPS/FPS.js';
+import Configs from 'Core/Configs.js';
+import Context from 'Core/Context.js';
+import Preferences from 'Core/Preferences.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './GraphicsOption.html?raw';
 import cssText from './GraphicsOption.css?raw';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import MemoryManager from 'Core/MemoryManager';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import MemoryManager from 'Core/MemoryManager.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Create Component

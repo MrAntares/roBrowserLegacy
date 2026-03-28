@@ -5,23 +5,22 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import Network from 'Network/NetworkManager';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import Client from 'Core/Client';
-import KEYS from 'Controls/KeyEventHandler';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import Network from 'Network/NetworkManager.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import Client from 'Core/Client.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 import htmlText from './LaphineSys.html?raw';
 import cssText from './LaphineSys.css?raw';
-import PACKET from 'Network/PacketStructure';
+import PACKET from 'Network/PacketStructure.js';
 
 /**
  * Create Component

@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * @var {FileSystem}

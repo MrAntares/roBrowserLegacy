@@ -6,17 +6,16 @@
  * @author Alisonrag
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import RodexIcon from 'UI/Components/Rodex/RodexIcon';
-import Rodex from 'UI/Components/Rodex/Rodex';
-import ReadRodex from 'UI/Components/Rodex/ReadRodex';
-import WriteRodex from 'UI/Components/Rodex/WriteRodex';
+import DB from 'DB/DBManager.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import RodexIcon from 'UI/Components/Rodex/RodexIcon.js';
+import Rodex from 'UI/Components/Rodex/Rodex.js';
+import ReadRodex from 'UI/Components/Rodex/ReadRodex.js';
+import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
 
 /**
  * Load dependencies

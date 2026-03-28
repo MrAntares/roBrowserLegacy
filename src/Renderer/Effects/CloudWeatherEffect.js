@@ -7,18 +7,17 @@
  *
  * @author Vincent Thibault(original), adapted by AoShinHo
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import Client from 'Core/Client';
-import Session from 'Engine/SessionStorage';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Renderer from 'Renderer/Renderer';
+import WebGL from 'Utils/WebGL.js';
+import Client from 'Core/Client.js';
+import Session from 'Engine/SessionStorage.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Renderer from 'Renderer/Renderer.js';
 
 let MapRenderer;
 import('Renderer/MapRenderer').then(m => (MapRenderer = m.default));
 
-import { vec3 } from 'Utils/gl-matrix';
+import { vec3 } from 'Utils/gl-matrix.js';
 const FADEOUT_TAIL_MS = 2000;
 
 // SINGLETON STATE

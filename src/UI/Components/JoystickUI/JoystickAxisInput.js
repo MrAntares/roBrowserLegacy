@@ -7,11 +7,10 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import Interaction from './JoystickInteractionService';
-import ControlsSettings from 'Preferences/Controls';
-import JoystickUIRenderer from './JoystickUIRenderer';
+import Interaction from './JoystickInteractionService.js';
+import ControlsSettings from 'Preferences/Controls.js';
+import JoystickUIRenderer from './JoystickUIRenderer.js';
 
 export default {
 	update: function (axes) {

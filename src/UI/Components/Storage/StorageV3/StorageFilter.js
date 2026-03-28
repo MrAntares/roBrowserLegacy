@@ -5,16 +5,15 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './StorageFilter.html?raw';
 import cssText from './StorageFilter.css?raw';
 

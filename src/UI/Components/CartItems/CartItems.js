@@ -9,27 +9,26 @@
  * In some cases the client will send packet twice.eg NORMAL_ITEMLIST4; fixit [skybook888]
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import ItemCompare from 'UI/Components/ItemCompare/ItemCompare';
-import Session from 'Engine/SessionStorage';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
+import Session from 'Engine/SessionStorage.js';
 import htmlText from './CartItems.html?raw';
 import cssText from './CartItems.css?raw';
-import Storage from 'UI/Components/Storage/Storage';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import Equipment from 'UI/Components/Equipment/Equipment';
+import Storage from 'UI/Components/Storage/Storage.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
 
 /**
  * Create Component

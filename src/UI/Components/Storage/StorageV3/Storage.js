@@ -5,25 +5,24 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Mouse from 'Controls/MouseEventHandler';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import StorageFilter from './StorageFilter';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import StorageFilter from './StorageFilter.js';
 import htmlText from './Storage.html?raw';
 import cssText from './Storage.css?raw';
-import CartItems from 'UI/Components/CartItems/CartItems';
-import Inventory from 'UI/Components/Inventory/Inventory';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
 
 /**
  * Create Component

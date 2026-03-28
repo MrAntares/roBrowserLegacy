@@ -9,31 +9,30 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 // Load dependencies
-import TextEncoding from 'Utils/CodepageManager';
-import DB from 'DB/DBManager';
-import BGM from 'Audio/BGM';
-import Sound from 'Audio/SoundManager';
-import Configs from 'Core/Configs';
-import Thread from 'Core/Thread';
-import Session from 'Engine/SessionStorage';
-import CharEngine from 'Engine/CharEngine';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import PluginManager from 'Plugins/PluginManager';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import WinList from 'UI/Components/WinList/WinList';
-import WinPopup from 'UI/Components/WinPopup/WinPopup';
-import Queue from 'Utils/Queue';
-import Background from 'UI/Background';
-import MD5 from 'Vendors/spark-md5.min';
+import TextEncoding from 'Utils/CodepageManager.js';
+import DB from 'DB/DBManager.js';
+import BGM from 'Audio/BGM.js';
+import Sound from 'Audio/SoundManager.js';
+import Configs from 'Core/Configs.js';
+import Thread from 'Core/Thread.js';
+import Session from 'Engine/SessionStorage.js';
+import CharEngine from 'Engine/CharEngine.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PluginManager from 'Plugins/PluginManager.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import WinList from 'UI/Components/WinList/WinList.js';
+import WinPopup from 'UI/Components/WinPopup/WinPopup.js';
+import Queue from 'Utils/Queue.js';
+import Background from 'UI/Background.js';
+import MD5 from 'Vendors/spark-md5.min.js';
 
 // Version Dependent UIs
-import WinLogin from 'UI/Components/WinLogin/WinLogin';
+import WinLogin from 'UI/Components/WinLogin/WinLogin.js';
 
 /**
  * Creating WinLoading

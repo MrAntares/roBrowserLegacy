@@ -8,17 +8,16 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import EquipmentV0 from './EquipmentV0/EquipmentV0';
-import EquipmentV1 from './EquipmentV1/EquipmentV1';
-import EquipmentV2 from './EquipmentV2/EquipmentV2';
-import EquipmentV3 from './EquipmentV3/EquipmentV3';
-import EquipmentV4 from './EquipmentV4/EquipmentV4';
+import EquipmentV0 from './EquipmentV0/EquipmentV0.js';
+import EquipmentV1 from './EquipmentV1/EquipmentV1.js';
+import EquipmentV2 from './EquipmentV2/EquipmentV2.js';
+import EquipmentV3 from './EquipmentV3/EquipmentV3.js';
+import EquipmentV4 from './EquipmentV4/EquipmentV4.js';
 
-import UIVersionManager from 'UI/UIVersionManager';
-import DB from 'DB/DBManager';
-import KEYS from 'Controls/KeyEventHandler';
+import UIVersionManager from 'UI/UIVersionManager.js';
+import DB from 'DB/DBManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 const publicName = 'Equipment';
 const versionInfo = {

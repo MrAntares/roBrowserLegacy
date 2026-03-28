@@ -7,12 +7,11 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
-import DB from 'DB/DBManager';
-import EntityRoom from 'UI/Components/EntityRoom/EntityRoom';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
+import DB from 'DB/DBManager.js';
+import EntityRoom from 'UI/Components/EntityRoom/EntityRoom.js';
 
 /**
  * Private methods

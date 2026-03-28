@@ -5,33 +5,32 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 /**
  * Load dependencies
  */
-import EffectDB from 'DB/Effects/EffectTable';
-import SkillEffect from 'DB/Skills/SkillEffect';
-import SkillUnit from 'DB/Skills/SkillUnit';
-import SU from 'DB/Skills/SkillUnitConst';
-import ItemEffect from 'DB/Items/ItemEffect';
-import Commands from 'Controls/ProcessCommand';
-import Events from 'Core/Events';
-import Configs from 'Core/Configs';
-import Cylinder from 'Renderer/Effects/Cylinder';
-import StrEffect from 'Renderer/Effects/StrEffect';
-import RsmEffect from 'Renderer/Effects/RsmEffect';
-import TwoDEffect from 'Renderer/Effects/TwoDEffect';
-import ThreeDEffect from 'Renderer/Effects/ThreeDEffect';
-import Entity from 'Renderer/Entity/Entity';
-import EntityManager from 'Renderer/EntityManager';
-import Renderer from 'Renderer/Renderer';
-import Altitude from 'Renderer/Map/Altitude';
-import Sound from 'Audio/SoundManager';
-import Preferences from 'Preferences/Map';
-import QuadHorn from 'Renderer/Effects/QuadHorn';
-import Session from 'Engine/SessionStorage';
-import GraphicsSettings from 'Preferences/Graphics';
+import EffectDB from 'DB/Effects/EffectTable.js';
+import SkillEffect from 'DB/Skills/SkillEffect.js';
+import SkillUnit from 'DB/Skills/SkillUnit.js';
+import SU from 'DB/Skills/SkillUnitConst.js';
+import ItemEffect from 'DB/Items/ItemEffect.js';
+import Commands from 'Controls/ProcessCommand.js';
+import Events from 'Core/Events.js';
+import Configs from 'Core/Configs.js';
+import Cylinder from 'Renderer/Effects/Cylinder.js';
+import StrEffect from 'Renderer/Effects/StrEffect.js';
+import RsmEffect from 'Renderer/Effects/RsmEffect.js';
+import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
+import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Renderer from 'Renderer/Renderer.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Sound from 'Audio/SoundManager.js';
+import Preferences from 'Preferences/Map.js';
+import QuadHorn from 'Renderer/Effects/QuadHorn.js';
+import Session from 'Engine/SessionStorage.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 
 /**
  * @type {object} saved webgl context

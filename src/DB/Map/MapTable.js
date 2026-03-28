@@ -6,7 +6,6 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
 const MapInfo = {
 	'1@gol1.rsw': {

@@ -7,16 +7,15 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import CaptchaUpload from 'UI/Components/Captcha/CaptchaUpload';
-import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector';
-import CaptchaAnswer from 'UI/Components/Captcha/CaptchaAnswer';
-import CaptchaPreview from 'UI/Components/Captcha/CaptchaPreview';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import CaptchaUpload from 'UI/Components/Captcha/CaptchaUpload.js';
+import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector.js';
+import CaptchaAnswer from 'UI/Components/Captcha/CaptchaAnswer.js';
+import CaptchaPreview from 'UI/Components/Captcha/CaptchaPreview.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import DB from 'DB/DBManager.js';
 
 /**
  * Load dependencies

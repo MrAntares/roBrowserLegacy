@@ -7,9 +7,8 @@
  *
  * @author Alison Serafim
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
+import glMatrix from 'Utils/gl-matrix.js';
 
 /**
  * Global methods

@@ -7,11 +7,11 @@
  * @author AoShinHo
  */
 
-import WebGL from 'Utils/WebGL';
-import Camera from 'Renderer/Camera';
+import WebGL from 'Utils/WebGL.js';
+import Camera from 'Renderer/Camera.js';
 import commonVS from './GLSL/Common.vs?raw';
 import blindFS from './GLSL/Blind.fs?raw';
-import PostProcess from 'Renderer/Effects/PostProcess';
+import PostProcess from 'Renderer/Effects/PostProcess.js';
 
 let _program, _buffer;
 let _active = false;

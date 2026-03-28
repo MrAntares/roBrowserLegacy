@@ -7,22 +7,21 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Configs from 'Core/Configs';
-import Client from 'Core/Client';
-import Thread from 'Core/Thread';
-import Memory from 'Core/MemoryManager';
-import Events from 'Core/Events';
-import KEYS from 'Controls/KeyEventHandler';
-import Sprite from 'Loaders/Sprite';
-import Targa from 'Loaders/Targa';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import jQuery from 'Utils/jquery.js';
+import Configs from 'Core/Configs.js';
+import Client from 'Core/Client.js';
+import Thread from 'Core/Thread.js';
+import Memory from 'Core/MemoryManager.js';
+import Events from 'Core/Events.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Sprite from 'Loaders/Sprite.js';
+import Targa from 'Loaders/Targa.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './GrfViewer.html?raw';
 import cssText from './GrfViewer.css?raw';
-import History from './History';
+import History from './History.js';
 import '../../../../applications/api/api';
 
 // Ugly, require api.js to display models and map

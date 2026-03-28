@@ -7,17 +7,16 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import Session from 'Engine/SessionStorage';
-import EntityManager from 'Renderer/EntityManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import glMatrix from 'Vendors/gl-matrix';
-import Camera from 'Renderer/Camera';
-import PathFinding from 'Utils/PathFinding';
-import Target from './JoystickTargetService';
+import Session from 'Engine/SessionStorage.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import glMatrix from 'Vendors/gl-matrix.js';
+import Camera from 'Renderer/Camera.js';
+import PathFinding from 'Utils/PathFinding.js';
+import Target from './JoystickTargetService.js';
 
 const direction = glMatrix.vec2.create();
 const rotate = glMatrix.mat2.create();

@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import SoundManager from 'Audio/SoundManager';
+import glMatrix from 'Utils/gl-matrix.js';
+import SoundManager from 'Audio/SoundManager.js';
 
 /**
  * Sound renderer namespace

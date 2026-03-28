@@ -6,14 +6,13 @@
  * @author Alison Serafim
  */
 
-'use strict';
 
-import MapState from 'DB/Map/MapState';
-import Session from 'Engine/SessionStorage';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PvPTimer from 'UI/Components/PvPTimer/PvPTimer';
-import PvPCount from 'UI/Components/PvPCount/PvPCount';
+import MapState from 'DB/Map/MapState.js';
+import Session from 'Engine/SessionStorage.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PvPTimer from 'UI/Components/PvPTimer/PvPTimer.js';
+import PvPCount from 'UI/Components/PvPCount/PvPCount.js';
 
 /**
  * Load dependencies

@@ -6,14 +6,13 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Session from 'Engine/SessionStorage';
-import Bank from 'UI/Components/Bank/Bank';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Session from 'Engine/SessionStorage.js';
+import Bank from 'UI/Components/Bank/Bank.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Load dependencies

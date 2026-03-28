@@ -9,12 +9,11 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import BinaryWriter from 'Utils/BinaryWriter';
-import PACKETVER from './PacketVerManager';
-import Struct from 'Utils/Struct';
-import Configs from 'Core/Configs';
+import BinaryWriter from 'Utils/BinaryWriter.js';
+import PACKETVER from './PacketVerManager.js';
+import Struct from 'Utils/Struct.js';
+import Configs from 'Core/Configs.js';
 
 let UNUSED_PACKET;
 const NAME_LENGTH = 24; // Must be equal to same name var in mmo.h

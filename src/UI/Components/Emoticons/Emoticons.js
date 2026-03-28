@@ -7,20 +7,19 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import EmoticonsDB from 'DB/Emotions';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Entity from 'Renderer/Entity/Entity';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
+import EmoticonsDB from 'DB/Emotions.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import htmlText from './Emoticons.html?raw';
 import cssText from './Emoticons.css?raw';
-import ShortCuts from 'UI/Components/ShortCuts/ShortCuts';
+import ShortCuts from 'UI/Components/ShortCuts/ShortCuts.js';
 
 /**
  * Create Component

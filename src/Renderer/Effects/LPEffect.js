@@ -1,7 +1,6 @@
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import { FlatTexture } from 'Renderer/Effects/Tiles';
+import WebGL from 'Utils/WebGL.js';
+import { FlatTexture } from 'Renderer/Effects/Tiles.js';
 
 const _LPVertexShader = `
         #version 300 es

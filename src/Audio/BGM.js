@@ -10,10 +10,9 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import Client from 'Core/Client';
-import Preferences from 'Preferences/Audio';
+import Client from 'Core/Client.js';
+import Preferences from 'Preferences/Audio.js';
 
 /**
  * BGM NameSpace

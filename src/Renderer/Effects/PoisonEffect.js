@@ -6,11 +6,10 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import Renderer from 'Renderer/Renderer';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Session from 'Engine/SessionStorage';
+import Renderer from 'Renderer/Renderer.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Session from 'Engine/SessionStorage.js';
 
 let _filterFrame = null;
 let _active = false;

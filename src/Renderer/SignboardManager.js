@@ -1,11 +1,10 @@
 // src/Renderer/SignboardManager.js
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import Renderer from 'Renderer/Renderer';
-import DB from 'DB/DBManager';
-import EntitySignboard from 'UI/Components/EntitySignboard/EntitySignboard';
-import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
+import glMatrix from 'Utils/gl-matrix.js';
+import Renderer from 'Renderer/Renderer.js';
+import DB from 'DB/DBManager.js';
+import EntitySignboard from 'UI/Components/EntitySignboard/EntitySignboard.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 
 const SignboardManager = {};
 let signboards = [];

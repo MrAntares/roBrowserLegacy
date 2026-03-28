@@ -7,11 +7,10 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Preferences from 'Core/Preferences';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import Preferences from 'Core/Preferences.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './QuestWindow.html?raw';
 import cssText from './QuestWindow.css?raw';
 

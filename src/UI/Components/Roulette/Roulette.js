@@ -7,19 +7,18 @@
  *
  * @author [Your Name]
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import MiniMap from 'UI/Components/MiniMap/MiniMap';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import jQuery from 'Utils/jquery';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import jQuery from 'Utils/jquery.js';
 import htmlText from './Roulette.html?raw';
 import cssText from './Roulette.css?raw';
 

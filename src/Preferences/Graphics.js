@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-import Preferences from 'Core/Preferences';
+import Preferences from 'Core/Preferences.js';
 ('use strict');
 
 const defaultGraphicsSettings = {

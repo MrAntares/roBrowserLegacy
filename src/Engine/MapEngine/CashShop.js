@@ -7,11 +7,10 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import CashShop from 'UI/Components/CashShop/CashShop';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import CashShop from 'UI/Components/CashShop/CashShop.js';
 
 /**
  * Load dependencies

@@ -17,7 +17,7 @@
  * @author Vincent Thibault
  */
 
-import Configs from 'Core/Configs';
+import Configs from 'Core/Configs.js';
 ('use strict');
 
 /**

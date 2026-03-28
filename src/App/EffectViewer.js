@@ -8,13 +8,12 @@
  * @author Vincent Thibault
  */
 
-import Configs from 'Core/Configs';
-import Thread from 'Core/Thread';
-import Client from 'Core/Client';
-import EffectViewer from 'UI/Components/EffectViewer/EffectViewer';
+import Configs from 'Core/Configs.js';
+import Thread from 'Core/Thread.js';
+import Client from 'Core/Client.js';
+import EffectViewer from 'UI/Components/EffectViewer/EffectViewer.js';
 
 export default function init() {
-	'use strict';
 
 	function onAPIMessage(event) {
 		if (typeof event.data !== 'object') {

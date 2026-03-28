@@ -1,11 +1,10 @@
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import Texture from 'Utils/Texture';
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
-import Camera from 'Renderer/Camera';
-import Configs from '../../Core/Configs';
+import WebGL from 'Utils/WebGL.js';
+import Texture from 'Utils/Texture.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
+import Camera from 'Renderer/Camera.js';
+import Configs from '../../Core/Configs.js';
 
 // Load dependencies
 /**

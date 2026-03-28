@@ -8,14 +8,13 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import UIManager from 'UI/UIManager';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import UIManager from 'UI/UIManager.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 
 /**
  * Load dependencies

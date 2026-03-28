@@ -9,30 +9,29 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 // Load dependencies
-import jQuery from 'Utils/jquery';
-import Queue from 'Utils/Queue';
-import Sound from 'Audio/SoundManager';
-import BGM from 'Audio/BGM';
-import DB from 'DB/DBManager';
-import Configs from 'Core/Configs';
-import Client from 'Core/Client';
-import Thread from 'Core/Thread';
-import Context from 'Core/Context';
-import LoginEngine from 'Engine/LoginEngine';
-import Network from 'Network/NetworkManager';
-import Renderer from 'Renderer/Renderer';
-import MapRenderer from 'Renderer/MapRenderer';
-import UIManager from 'UI/UIManager';
-import Cursor from 'UI/CursorManager';
-import Scrollbar from 'UI/Scrollbar';
-import Background from 'UI/Background';
-import Intro from 'UI/Components/Intro/Intro';
-import WinList from 'UI/Components/WinList/WinList';
-import ConsoleManager from 'Utils/ConsoleManager';
-import PACKETVER from 'Network/PacketVerManager';
+import jQuery from 'Utils/jquery.js';
+import Queue from 'Utils/Queue.js';
+import Sound from 'Audio/SoundManager.js';
+import BGM from 'Audio/BGM.js';
+import DB from 'DB/DBManager.js';
+import Configs from 'Core/Configs.js';
+import Client from 'Core/Client.js';
+import Thread from 'Core/Thread.js';
+import Context from 'Core/Context.js';
+import LoginEngine from 'Engine/LoginEngine.js';
+import Network from 'Network/NetworkManager.js';
+import Renderer from 'Renderer/Renderer.js';
+import MapRenderer from 'Renderer/MapRenderer.js';
+import UIManager from 'UI/UIManager.js';
+import Cursor from 'UI/CursorManager.js';
+import Scrollbar from 'UI/Scrollbar.js';
+import Background from 'UI/Background.js';
+import Intro from 'UI/Components/Intro/Intro.js';
+import WinList from 'UI/Components/WinList/WinList.js';
+import ConsoleManager from 'Utils/ConsoleManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 
 /**
  * @var {Array} Login server list

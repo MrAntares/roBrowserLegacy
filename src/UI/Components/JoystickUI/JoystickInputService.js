@@ -7,13 +7,12 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import ButtonInput from './JoystickButtonInput';
-import AxisInput from './JoystickAxisInput';
-import JoystickUIRenderer from './JoystickUIRenderer';
-import JoystickModule from './JoystickModule';
-import ControlsSettings from 'Preferences/Controls';
+import ButtonInput from './JoystickButtonInput.js';
+import AxisInput from './JoystickAxisInput.js';
+import JoystickUIRenderer from './JoystickUIRenderer.js';
+import JoystickModule from './JoystickModule.js';
+import ControlsSettings from 'Preferences/Controls.js';
 
 let hideTimeout = false;
 export default {

@@ -7,7 +7,6 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 export default [
 	// Human_F

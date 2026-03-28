@@ -6,7 +6,6 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
 export default {
 	UNT_SAFETYWALL: 126, //0x7E

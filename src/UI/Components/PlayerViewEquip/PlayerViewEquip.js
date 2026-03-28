@@ -8,15 +8,14 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import PlayerViewEquipV0 from './PlayerViewEquipV0/PlayerViewEquipV0'; // equip
-import PlayerViewEquipV1 from './PlayerViewEquipV1/PlayerViewEquipV1'; // equip + costume (headgears + robe)
-import PlayerViewEquipV2 from './PlayerViewEquipV2/PlayerViewEquipV2'; // equip + costume (full)
+import PlayerViewEquipV0 from './PlayerViewEquipV0/PlayerViewEquipV0.js'; // equip
+import PlayerViewEquipV1 from './PlayerViewEquipV1/PlayerViewEquipV1.js'; // equip + costume (headgears + robe)
+import PlayerViewEquipV2 from './PlayerViewEquipV2/PlayerViewEquipV2.js'; // equip + costume (full)
 
-import UIVersionManager from 'UI/UIVersionManager';
-import DB from 'DB/DBManager';
-import KEYS from 'Controls/KeyEventHandler';
+import UIVersionManager from 'UI/UIVersionManager.js';
+import DB from 'DB/DBManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 const publicName = 'PlayerViewEquip';
 

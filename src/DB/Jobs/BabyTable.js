@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import JobId from './JobConst';
+import JobId from './JobConst.js';
 
 export default [
 	JobId.NOVICE_B,

@@ -7,22 +7,21 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Preferences from 'Core/Preferences';
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import QuestHelper from './QuestHelperV1';
+import DB from 'DB/DBManager.js';
+import Preferences from 'Core/Preferences.js';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import QuestHelper from './QuestHelperV1.js';
 import htmlText from './QuestV1.html?raw';
 import cssText from './QuestV1.css?raw';
-import jQuery from 'Utils/jquery';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Session from 'Engine/SessionStorage';
+import jQuery from 'Utils/jquery.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Session from 'Engine/SessionStorage.js';
 
 /**
  * Create Component

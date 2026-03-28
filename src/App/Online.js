@@ -1,7 +1,6 @@
-'use strict';
 
-import GameEngine from 'Engine/GameEngine';
-import Plugins from 'Plugins/PluginManager';
+import GameEngine from 'Engine/GameEngine.js';
+import Plugins from 'Plugins/PluginManager.js';
 
 export const roInitSpinner = {
 	add: function () {

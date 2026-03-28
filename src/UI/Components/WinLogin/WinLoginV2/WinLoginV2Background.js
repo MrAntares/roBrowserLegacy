@@ -8,13 +8,12 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * Dependencies
  */
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './WinLoginV2Background.html?raw';
 import cssText from './WinLoginV2Background.css?raw';
 

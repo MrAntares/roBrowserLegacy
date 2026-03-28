@@ -6,12 +6,11 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import SkillList from './SkillList/SkillList';
-import SkillListV0 from './SkillListV0/SkillListV0';
-import UIVersionManager from 'UI/UIVersionManager';
-import KEYS from 'Controls/KeyEventHandler';
+import SkillList from './SkillList/SkillList.js';
+import SkillListV0 from './SkillListV0/SkillListV0.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 const publicName = 'SkillList';
 const versionInfo = {

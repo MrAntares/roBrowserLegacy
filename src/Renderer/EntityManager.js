@@ -9,15 +9,15 @@
  */
 
 // Load dependencies
-import Session from 'Engine/SessionStorage';
-import Entity from './Entity/Entity';
-import SpriteRenderer from './SpriteRenderer';
-import Mouse from 'Controls/MouseEventHandler';
-import KEYS from 'Controls/KeyEventHandler';
-import PathFinding from 'Utils/PathFinding';
-import GraphicsSettings from 'Preferences/Graphics';
-import Altitude from 'Renderer/Map/Altitude';
-import glMatrix from 'Utils/gl-matrix';
+import Session from 'Engine/SessionStorage.js';
+import Entity from './Entity/Entity.js';
+import SpriteRenderer from './SpriteRenderer.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import PathFinding from 'Utils/PathFinding.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import glMatrix from 'Utils/gl-matrix.js';
 
 const vec3 = glMatrix.vec3;
 const _list = [];

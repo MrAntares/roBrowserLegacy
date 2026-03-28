@@ -7,22 +7,21 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Preferences from 'Core/Preferences';
-import Session from 'Engine/SessionStorage';
-import Renderer from 'Renderer/Renderer';
-import Entity from 'Renderer/Entity/Entity';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import ChatRoom from 'UI/Components/ChatRoom/ChatRoom';
-import Client from 'Core/Client';
-import DB from 'DB/DBManager';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Preferences from 'Core/Preferences.js';
+import Session from 'Engine/SessionStorage.js';
+import Renderer from 'Renderer/Renderer.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
+import Client from 'Core/Client.js';
+import DB from 'DB/DBManager.js';
 import htmlText from './ChangeCart.html?raw';
 import cssText from './ChangeCart.css?raw';
 

@@ -7,23 +7,22 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 /**
  * Load dependencies
  */
-import WebGL from 'Utils/WebGL';
-import jQuery from 'Utils/jquery';
-import glMatrix from 'Utils/gl-matrix';
-import Configs from 'Core/Configs';
-import GraphicsSettings from 'Preferences/Graphics';
-import Events from 'Core/Events';
-import Background from 'UI/Background';
-import Cursor from 'UI/CursorManager';
-import Mouse from 'Controls/MouseEventHandler';
-import Camera from 'Renderer/Camera';
-import Session from 'Engine/SessionStorage';
-import PostProcess from 'Renderer/Effects/PostProcess';
+import WebGL from 'Utils/WebGL.js';
+import jQuery from 'Utils/jquery.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Configs from 'Core/Configs.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
+import Events from 'Core/Events.js';
+import Background from 'UI/Background.js';
+import Cursor from 'UI/CursorManager.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import Camera from 'Renderer/Camera.js';
+import Session from 'Engine/SessionStorage.js';
+import PostProcess from 'Renderer/Effects/PostProcess.js';
 
 const { mat4 } = glMatrix;
 

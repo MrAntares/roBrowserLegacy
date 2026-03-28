@@ -7,7 +7,6 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 /// Enum Emotions
 /// [ <index in sprite>,  <index in interface> { <high priority shortcut>, <other shortcut>}]

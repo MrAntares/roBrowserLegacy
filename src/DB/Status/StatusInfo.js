@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import SC from './StatusConst';
+import SC from './StatusConst.js';
 
 // Hardcoded color
 const COLOR_TITLE_BUFF = 'rgb(155, 202, 155)';

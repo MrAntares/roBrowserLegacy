@@ -7,9 +7,8 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendors/gl-matrix';
+import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendors/gl-matrix.js';
 
 	/**
 	 * Calculate a normal from the three givens vectors

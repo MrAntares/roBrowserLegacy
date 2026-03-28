@@ -3,27 +3,26 @@
  *
  * Enchant UI Window
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import EffectDB from 'DB/Effects/EffectTable';
-import EffectConst from 'DB/Effects/EffectConst';
-import Camera from 'Renderer/Camera';
-import Renderer from 'Renderer/Renderer';
-import StrEffect from 'Renderer/Effects/StrEffect';
-import WebGL from 'Utils/WebGL';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import PACKETVER from 'Network/PacketVerManager';
-import Session from 'Engine/SessionStorage';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import KEYS from 'Controls/KeyEventHandler';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import EffectDB from 'DB/Effects/EffectTable.js';
+import EffectConst from 'DB/Effects/EffectConst.js';
+import Camera from 'Renderer/Camera.js';
+import Renderer from 'Renderer/Renderer.js';
+import StrEffect from 'Renderer/Effects/StrEffect.js';
+import WebGL from 'Utils/WebGL.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import Session from 'Engine/SessionStorage.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 import htmlText from './Enchant.html?raw';
 import cssText from './Enchant.css?raw';
 

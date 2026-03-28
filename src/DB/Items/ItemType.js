@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 export default {
 	HEALING: 0,

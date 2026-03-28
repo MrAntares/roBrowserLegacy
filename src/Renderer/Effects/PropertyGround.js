@@ -7,12 +7,11 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import WebGL from 'Utils/WebGL';
-import Texture from 'Utils/Texture';
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
+import WebGL from 'Utils/WebGL.js';
+import Texture from 'Utils/Texture.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
 
 /**
  * @var {WebGLProgram}

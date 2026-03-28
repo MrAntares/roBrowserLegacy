@@ -7,22 +7,21 @@
  *
  * @author Stephen-A
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import jQuery from 'Utils/jquery';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import KEYS from 'Controls/KeyEventHandler';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Renderer from 'Renderer/Renderer';
-import Preferences from 'Core/Preferences';
-import Session from 'Engine/SessionStorage';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import jQuery from 'Utils/jquery.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Renderer from 'Renderer/Renderer.js';
+import Preferences from 'Core/Preferences.js';
+import Session from 'Engine/SessionStorage.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './CashShop.html?raw';
 import cssText from './CashShop.css?raw';
 

@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 export default {
 	501: { ClassNum: 0 },

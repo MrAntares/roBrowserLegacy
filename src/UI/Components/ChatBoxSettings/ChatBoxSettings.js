@@ -6,16 +6,15 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Preferences from 'Core/Preferences';
-import jQuery from 'Utils/jquery';
-import Renderer from 'Renderer/Renderer';
-import Client from 'Core/Client';
-import Mouse from 'Controls/MouseEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import Preferences from 'Core/Preferences.js';
+import jQuery from 'Utils/jquery.js';
+import Renderer from 'Renderer/Renderer.js';
+import Client from 'Core/Client.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './ChatBoxSettings.html?raw';
 import cssText from './ChatBoxSettings.css?raw';
 /**

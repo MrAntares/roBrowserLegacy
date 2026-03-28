@@ -6,14 +6,13 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Configs from 'Core/Configs';
-import Context from 'Core/Context';
-import Preferences from 'Core/Preferences';
-import Audio from 'Preferences/Audio';
-import Graphics from 'Preferences/Graphics';
+import jQuery from 'Utils/jquery.js';
+import Configs from 'Core/Configs.js';
+import Context from 'Core/Context.js';
+import Preferences from 'Core/Preferences.js';
+import Audio from 'Preferences/Audio.js';
+import Graphics from 'Preferences/Graphics.js';
 
 /**
  * Preferences structure

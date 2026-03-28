@@ -8,16 +8,15 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Client from 'Core/Client';
-import Events from 'Core/Events';
-import Renderer from 'Renderer/Renderer';
-import Entity from 'Renderer/Entity/Entity';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import jQuery from 'Utils/jquery.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Client from 'Core/Client.js';
+import Events from 'Core/Events.js';
+import Renderer from 'Renderer/Renderer.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 /**
  * Create SlotMachine UI

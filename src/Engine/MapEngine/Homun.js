@@ -46,19 +46,18 @@
  * @prop {number} sp
  * @prop {number} sp_max
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Session from 'Engine/SessionStorage';
-import EntityManager from 'Renderer/EntityManager';
-import UIManager from 'UI/UIManager';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import HomunInformations from 'UI/Components/HomunInformations/HomunInformations';
-import SkillListMH from 'UI/Components/SkillListMH/SkillListMH';
-import Mouse from 'Controls/MouseEventHandler';
-import StatusProperty from 'DB/Status/StatusProperty';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Session from 'Engine/SessionStorage.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import UIManager from 'UI/UIManager.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import HomunInformations from 'UI/Components/HomunInformations/HomunInformations.js';
+import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import StatusProperty from 'DB/Status/StatusProperty.js';
 
 /**
  * Load dependencies

@@ -8,18 +8,18 @@
  * @author Vincent Thibault
  */
 
-import DB from 'DB/DBManager';
-import Session from 'Engine/SessionStorage';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import EntityManager from 'Renderer/EntityManager';
-import MapRenderer from 'Renderer/MapRenderer';
-import UIManager from 'UI/UIManager';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import WorldMap from 'UI/Components/WorldMap/WorldMap';
-import MiniMap from 'UI/Components/MiniMap/MiniMap';
-import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
+import DB from 'DB/DBManager.js';
+import Session from 'Engine/SessionStorage.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import MapRenderer from 'Renderer/MapRenderer.js';
+import UIManager from 'UI/UIManager.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
+import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 
 /**
  * Load dependencies

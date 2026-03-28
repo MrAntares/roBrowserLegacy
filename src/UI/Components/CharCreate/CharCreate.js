@@ -6,13 +6,12 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import CharCreate from './CharCreate/CharCreate';
-import CharCreateV2 from './CharCreatev2/CharCreatev2';
-import CharCreateV3 from './CharCreatev3/CharCreatev3';
-import CharCreateV4 from './CharCreatev4/CharCreatev4';
-import UIVersionManager from 'UI/UIVersionManager';
+import CharCreate from './CharCreate/CharCreate.js';
+import CharCreateV2 from './CharCreatev2/CharCreatev2.js';
+import CharCreateV3 from './CharCreatev3/CharCreatev3.js';
+import CharCreateV4 from './CharCreatev4/CharCreatev4.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'CharCreate';
 const versionInfo = {

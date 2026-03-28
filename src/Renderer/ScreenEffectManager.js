@@ -7,23 +7,22 @@
  *
  * @author AoShinHo
  */
-'use strict';
 
-import EffectConst from 'DB/Effects/EffectConst';
-import Renderer from 'Renderer/Renderer';
-import WeatherTable from 'DB/Effects/WeatherEffect';
-import SnowWeather from 'Renderer/Effects/SnowWeather';
-import RainWeather from 'Renderer/Effects/RainWeather';
-import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect';
-import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect';
-import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect';
-import Poison from 'Renderer/Effects/PoisonEffect';
-import Blind from 'Renderer/Effects/Shaders/Blind';
-import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
-import EFST from 'DB/Status/StatusConst';
-import Session from 'Engine/SessionStorage';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import MapRenderer from 'Renderer/MapRenderer';
+import EffectConst from 'DB/Effects/EffectConst.js';
+import Renderer from 'Renderer/Renderer.js';
+import WeatherTable from 'DB/Effects/WeatherEffect.js';
+import SnowWeather from 'Renderer/Effects/SnowWeather.js';
+import RainWeather from 'Renderer/Effects/RainWeather.js';
+import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect.js';
+import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
+import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
+import Poison from 'Renderer/Effects/PoisonEffect.js';
+import Blind from 'Renderer/Effects/Shaders/Blind.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
+import EFST from 'DB/Status/StatusConst.js';
+import Session from 'Engine/SessionStorage.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import MapRenderer from 'Renderer/MapRenderer.js';
 
 let isMapflagEffect = false;
 

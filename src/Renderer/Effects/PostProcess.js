@@ -9,8 +9,8 @@
  * @author AoShinHo
  */
 
-import WebGL from 'Utils/WebGL';
-import GraphicsSettings from 'Preferences/Graphics';
+import WebGL from 'Utils/WebGL.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 
 let _effects = [];
 let _activeEffects = [];

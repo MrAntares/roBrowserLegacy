@@ -8,13 +8,12 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * Load dependencies
  */
-import Configs from 'Core/Configs';
-import PacketLength from 'Network/PacketLength';
+import Configs from 'Core/Configs.js';
+import PacketLength from 'Network/PacketLength.js';
 
 /**
  * PACKETVER range

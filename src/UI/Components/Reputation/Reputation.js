@@ -6,15 +6,14 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './Reputation.html?raw';
 import cssText from './Reputation.css?raw';
 

@@ -11,7 +11,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 // World object
 const GAT = {

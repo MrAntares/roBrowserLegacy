@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import EntityManager from './EntityManager';
-import EffectManager from './EffectManager';
-import Entity from './Entity/Entity';
-import Altitude from 'Renderer/Map/Altitude';
+import DB from 'DB/DBManager.js';
+import EntityManager from './EntityManager.js';
+import EffectManager from './EffectManager.js';
+import Entity from './Entity/Entity.js';
+import Altitude from 'Renderer/Map/Altitude.js';
 
 /**
  * Find an Entity and return its index

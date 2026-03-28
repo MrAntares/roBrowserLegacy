@@ -7,13 +7,12 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 import _vertexShader from './StrEffect.vs?raw';
 import _fragmentShader from './StrEffect.fs?raw';
-import WebGL from 'Utils/WebGL';
-import glMatrix from 'Utils/gl-matrix';
-import Client from 'Core/Client';
+import WebGL from 'Utils/WebGL.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Client from 'Core/Client.js';
 
 const mat4 = glMatrix.mat4;
 

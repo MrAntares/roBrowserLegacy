@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
 /**
  * Object stored in cache

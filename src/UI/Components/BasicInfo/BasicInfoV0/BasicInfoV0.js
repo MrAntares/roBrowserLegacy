@@ -7,26 +7,25 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import MonsterTable from 'DB/Monsters/MonsterTable';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
-import Session from 'Engine/SessionStorage';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import PartyFriends from 'UI/Components/PartyFriends/PartyFriends';
-import Guild from 'UI/Components/Guild/Guild';
-import ChatRoomCreate from 'UI/Components/ChatRoomCreate/ChatRoomCreate';
-import Escape from 'UI/Components/Escape/Escape';
-import WorldMap from 'UI/Components/WorldMap/WorldMap';
-import WinStats from 'UI/Components/WinStats/WinStats';
-import SkillList from 'UI/Components/SkillList/SkillList';
-import Quest from 'UI/Components/Quest/Quest';
+import DB from 'DB/DBManager.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+import Session from 'Engine/SessionStorage.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
+import Guild from 'UI/Components/Guild/Guild.js';
+import ChatRoomCreate from 'UI/Components/ChatRoomCreate/ChatRoomCreate.js';
+import Escape from 'UI/Components/Escape/Escape.js';
+import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
+import WinStats from 'UI/Components/WinStats/WinStats.js';
+import SkillList from 'UI/Components/SkillList/SkillList.js';
+import Quest from 'UI/Components/Quest/Quest.js';
 import htmlText from './BasicInfoV0.html?raw';
 import cssText from './BasicInfoV0.css?raw';
 

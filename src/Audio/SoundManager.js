@@ -11,13 +11,12 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import Client from 'Core/Client';
-import Preferences from 'Preferences/Audio';
-import Memory from 'Core/MemoryManager';
-import glMatrix from 'Utils/gl-matrix';
-import Session from 'Engine/SessionStorage';
+import Client from 'Core/Client.js';
+import Preferences from 'Preferences/Audio.js';
+import Memory from 'Core/MemoryManager.js';
+import glMatrix from 'Utils/gl-matrix.js';
+import Session from 'Engine/SessionStorage.js';
 
 const C_MAX_SOUND_INSTANCES = 10; //starting max, later balanced based on mediaPlayerCount
 const C_MAX_CACHED_SOUND_INSTANCES = 30; //starting max, later balanced based on mediaPlayerCount

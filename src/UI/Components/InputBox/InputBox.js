@@ -7,14 +7,13 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import Renderer from 'Renderer/Renderer';
-import KEYS from 'Controls/KeyEventHandler';
-import DB from 'DB/DBManager';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import jQuery from 'Utils/jquery.js';
+import Renderer from 'Renderer/Renderer.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import DB from 'DB/DBManager.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './InputBox.html?raw';
 import cssText from './InputBox.css?raw';
 

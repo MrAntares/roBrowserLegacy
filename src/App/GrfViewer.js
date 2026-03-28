@@ -8,10 +8,9 @@
  * @author Vincent Thibault
  */
 
-import GRFViewer from 'UI/Components/GrfViewer/GrfViewer';
+import GRFViewer from 'UI/Components/GrfViewer/GrfViewer.js';
 
 export default function init() {
-	'use strict';
 
 	GRFViewer.append();
 

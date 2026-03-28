@@ -6,11 +6,10 @@
  * @author [Your Name]
  */
 
-'use strict';
 
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Roulette from 'UI/Components/Roulette/Roulette';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Roulette from 'UI/Components/Roulette/Roulette.js';
 
 /**
  * Load dependencies

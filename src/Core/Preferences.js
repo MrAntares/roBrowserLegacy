@@ -7,7 +7,6 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 const Storage = {
 	get: function Get(key, fn) {

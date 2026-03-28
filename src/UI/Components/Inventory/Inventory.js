@@ -8,16 +8,15 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import InventoryV0 from './InventoryV0/InventoryV0';
-import InventoryV1 from './InventoryV1/InventoryV1';
-import InventoryV2 from './InventoryV2/InventoryV2';
-import InventoryV3 from './InventoryV3/InventoryV3';
+import InventoryV0 from './InventoryV0/InventoryV0.js';
+import InventoryV1 from './InventoryV1/InventoryV1.js';
+import InventoryV2 from './InventoryV2/InventoryV2.js';
+import InventoryV3 from './InventoryV3/InventoryV3.js';
 
-import UIVersionManager from 'UI/UIVersionManager';
-import DB from 'DB/DBManager';
-import KEYS from 'Controls/KeyEventHandler';
+import UIVersionManager from 'UI/UIVersionManager.js';
+import DB from 'DB/DBManager.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 const publicName = 'Inventory';
 const versionInfo = {

@@ -8,9 +8,8 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import FileManager from 'Core/FileManager';
+import FileManager from 'Core/FileManager.js';
 
 /**
  * Helper to load list

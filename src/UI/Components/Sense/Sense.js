@@ -7,14 +7,13 @@
  *
  *
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Renderer from 'Renderer/Renderer';
-import Entity from 'Renderer/Entity/Entity';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import DB from 'DB/DBManager.js';
+import Renderer from 'Renderer/Renderer.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './Sense.html?raw';
 import cssText from './Sense.css?raw';
 

@@ -7,17 +7,16 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Client from 'Core/Client';
-import DB from 'DB/DBManager';
-import ShadowTable from 'DB/Monsters/ShadowTable';
-import MountTable from 'DB/Jobs/MountTable';
-import AllMountTable from 'DB/Jobs/AllMountTable';
-import EntityAction from './EntityAction';
-import PACKETVER from 'Network/PacketVerManager';
-import JobConst from 'DB/Jobs/JobConst';
-import Session from 'Engine/SessionStorage';
+import Client from 'Core/Client.js';
+import DB from 'DB/DBManager.js';
+import ShadowTable from 'DB/Monsters/ShadowTable.js';
+import MountTable from 'DB/Jobs/MountTable.js';
+import AllMountTable from 'DB/Jobs/AllMountTable.js';
+import EntityAction from './EntityAction.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import JobConst from 'DB/Jobs/JobConst.js';
+import Session from 'Engine/SessionStorage.js';
 
 /**
  * Files to display a view

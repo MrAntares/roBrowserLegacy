@@ -1,7 +1,6 @@
 /**
  * WorldMap data
  */
-'use strict';
 
 export default [
 	// #region Midgard

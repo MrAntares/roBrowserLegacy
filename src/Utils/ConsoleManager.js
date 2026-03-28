@@ -8,9 +8,8 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-'use strict';
 
-import Configs from 'Core/Configs';
+import Configs from 'Core/Configs.js';
 
 let _console;
 

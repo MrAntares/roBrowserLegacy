@@ -7,25 +7,24 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import ItemType from 'DB/Items/ItemType';
-import Client from 'Core/Client';
-import Preferences from 'Core/Preferences';
-import Session from 'Engine/SessionStorage';
-import Mouse from 'Controls/MouseEventHandler';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Inventory from 'UI/Components/Inventory/Inventory';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
+import Client from 'Core/Client.js';
+import Preferences from 'Core/Preferences.js';
+import Session from 'Engine/SessionStorage.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
 import htmlText from './NpcStore.html?raw';
 import cssText from './NpcStore.css?raw';
 

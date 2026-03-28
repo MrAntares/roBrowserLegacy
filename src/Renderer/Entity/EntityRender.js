@@ -7,17 +7,16 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Utils/gl-matrix';
-import Camera from 'Renderer/Camera';
-import Client from 'Core/Client';
-import StatusConst from 'DB/Status/StatusState';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Ground from 'Renderer/Map/Ground';
-import Altitude from 'Renderer/Map/Altitude';
-import Session from 'Engine/SessionStorage';
-import JobId from 'DB/Jobs/JobConst';
+import glMatrix from 'Utils/gl-matrix.js';
+import Camera from 'Renderer/Camera.js';
+import Client from 'Core/Client.js';
+import StatusConst from 'DB/Status/StatusState.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Ground from 'Renderer/Map/Ground.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Session from 'Engine/SessionStorage.js';
+import JobId from 'DB/Jobs/JobConst.js';
 
 /**
  * Load dependencies

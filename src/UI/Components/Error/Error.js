@@ -8,15 +8,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
 import _htmlText from './Error.html?raw';
 import _cssText from './Error.css?raw';
-import jQuery from 'Vendors/jquery';
+import jQuery from 'Vendors/jquery.js';
 
 import _htmlText from './Error.html?raw';
 import _cssText from './Error.css?raw';
-import jQuery from 'Vendors/jquery';
+import jQuery from 'Vendors/jquery.js';
 
 /**
  * Error Namespace

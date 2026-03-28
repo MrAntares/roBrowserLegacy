@@ -7,16 +7,15 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import SkillInfo from 'DB/Skills/SkillInfo';
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Inventory from 'UI/Components/Inventory/Inventory';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
 import htmlText from './ItemSelection.html?raw';
 import cssText from './ItemSelection.css?raw';
 

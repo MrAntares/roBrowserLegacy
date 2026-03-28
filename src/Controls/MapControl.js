@@ -7,33 +7,32 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import jQuery from 'Utils/jquery';
-import DB from 'DB/DBManager';
-import UIManager from 'UI/UIManager';
-import Cursor from 'UI/CursorManager';
-import Entity from 'Renderer/Entity/Entity';
-import InputBox from 'UI/Components/InputBox/InputBox';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import Inventory from 'UI/Components/Inventory/Inventory';
-import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
-import Mouse from 'Controls/MouseEventHandler';
-import Mobile from 'Core/Mobile';
-import Renderer from 'Renderer/Renderer';
-import Camera from 'Renderer/Camera';
-import EntityManager from 'Renderer/EntityManager';
-import Session from 'Engine/SessionStorage';
-import Preferences from 'Preferences/Controls';
-import KEYS from 'Controls/KeyEventHandler';
-import AIDriver from 'Core/AIDriver';
-import Altitude from 'Renderer/Map/Altitude';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import Network from 'Network/NetworkManager';
-import Events from 'Core/Events';
-import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector';
+import jQuery from 'Utils/jquery.js';
+import DB from 'DB/DBManager.js';
+import UIManager from 'UI/UIManager.js';
+import Cursor from 'UI/CursorManager.js';
+import Entity from 'Renderer/Entity/Entity.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import Mobile from 'Core/Mobile.js';
+import Renderer from 'Renderer/Renderer.js';
+import Camera from 'Renderer/Camera.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import Session from 'Engine/SessionStorage.js';
+import Preferences from 'Preferences/Controls.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import AIDriver from 'Core/AIDriver.js';
+import Altitude from 'Renderer/Map/Altitude.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Network from 'Network/NetworkManager.js';
+import Events from 'Core/Events.js';
+import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector.js';
 import 'Controls/ScreenShot';
 
 /**

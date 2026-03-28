@@ -7,27 +7,26 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import EquipLocation from 'DB/Items/EquipmentLocation';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import ItemType from 'DB/Items/ItemType';
-import jQuery from 'Utils/jquery';
-import Client from 'Core/Client';
-import Session from 'Engine/SessionStorage';
-import Renderer from 'Renderer/Renderer';
-import Camera from 'Renderer/Camera';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import ItemInfo from 'UI/Components/ItemInfo/ItemInfo';
+import DB from 'DB/DBManager.js';
+import EquipLocation from 'DB/Items/EquipmentLocation.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import ItemType from 'DB/Items/ItemType.js';
+import jQuery from 'Utils/jquery.js';
+import Client from 'Core/Client.js';
+import Session from 'Engine/SessionStorage.js';
+import Renderer from 'Renderer/Renderer.js';
+import Camera from 'Renderer/Camera.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './SwitchEquip.html?raw';
 import cssText from './SwitchEquip.css?raw';
-import Entity from 'Renderer/Entity/Entity';
-import Equipment from 'UI/Components/Equipment/Equipment';
-import Inventory from 'UI/Components/Inventory/Inventory';
+import Entity from 'Renderer/Entity/Entity.js';
+import Equipment from 'UI/Components/Equipment/Equipment.js';
+import Inventory from 'UI/Components/Inventory/Inventory.js';
 
 /**
  * Create Component

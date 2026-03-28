@@ -8,7 +8,6 @@
  * @author Alisonrag
  */
 
-'use strict';
 
 function decodeHTMLEntities(str) {
 	// this prevents any overhead from creating the object each time

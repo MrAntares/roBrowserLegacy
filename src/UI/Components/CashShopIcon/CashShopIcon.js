@@ -6,14 +6,13 @@
  * @author Alisonrag
  *
  */
-'use strict';
 
-import CashShop from 'UI/Components/CashShop/CashShop';
-import Network from 'Network/NetworkManager';
-import PACKETVER from 'Network/PacketVerManager';
-import PACKET from 'Network/PacketStructure';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
+import CashShop from 'UI/Components/CashShop/CashShop.js';
+import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
 import htmlText from './CashShopIcon.html?raw';
 import cssText from './CashShopIcon.css?raw';
 

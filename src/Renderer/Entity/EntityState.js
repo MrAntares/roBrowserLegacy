@@ -5,14 +5,13 @@
  *
  * @author Vincent Thibault, Antares
  */
-'use strict';
 
-import Sound from 'Audio/SoundManager';
-import StatusConst from 'DB/Status/StatusState';
-import MountTable from 'DB/Jobs/MountTable';
-import AllMountTable from 'DB/Jobs/AllMountTable';
-import Session from 'Engine/SessionStorage';
-import Emotions from 'DB/Emotions';
+import Sound from 'Audio/SoundManager.js';
+import StatusConst from 'DB/Status/StatusState.js';
+import MountTable from 'DB/Jobs/MountTable.js';
+import AllMountTable from 'DB/Jobs/AllMountTable.js';
+import Session from 'Engine/SessionStorage.js';
+import Emotions from 'DB/Emotions.js';
 
 /**
  * Load dependencies

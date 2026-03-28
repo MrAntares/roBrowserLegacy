@@ -6,13 +6,12 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import CharSelect from './CharSelect/CharSelect';
-import CharSelectV2 from './CharSelectV2/CharSelectV2';
-import CharSelectV3 from './CharSelectV3/CharSelectV3';
-import CharSelectV4 from './CharSelectV4/CharSelectV4';
-import UIVersionManager from 'UI/UIVersionManager';
+import CharSelect from './CharSelect/CharSelect.js';
+import CharSelectV2 from './CharSelectV2/CharSelectV2.js';
+import CharSelectV3 from './CharSelectV3/CharSelectV3.js';
+import CharSelectV4 from './CharSelectV4/CharSelectV4.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'CharSelect';
 const versionInfo = {

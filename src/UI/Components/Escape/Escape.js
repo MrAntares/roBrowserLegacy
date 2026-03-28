@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import KEYS from 'Controls/KeyEventHandler';
-import Renderer from 'Renderer/Renderer';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import SoundOption from 'UI/Components/SoundOption/SoundOption';
-import GraphicsOption from 'UI/Components/GraphicsOption/GraphicsOption';
-import ShortCutOption from 'UI/Components/ShortCutOption/ShortCutOption';
+import KEYS from 'Controls/KeyEventHandler.js';
+import Renderer from 'Renderer/Renderer.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import SoundOption from 'UI/Components/SoundOption/SoundOption.js';
+import GraphicsOption from 'UI/Components/GraphicsOption/GraphicsOption.js';
+import ShortCutOption from 'UI/Components/ShortCutOption/ShortCutOption.js';
 import htmlText from './Escape.html?raw';
 import cssText from './Escape.css?raw';
 

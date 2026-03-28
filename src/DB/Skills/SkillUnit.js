@@ -7,10 +7,9 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import SU from './SkillUnitConst';
-import EC from 'DB/Effects/EffectConst';
+import SU from './SkillUnitConst.js';
+import EC from 'DB/Effects/EffectConst.js';
 
 const SkillUnit = {};
 

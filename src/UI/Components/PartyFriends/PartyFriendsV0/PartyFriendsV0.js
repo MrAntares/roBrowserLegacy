@@ -7,25 +7,24 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import jQuery from 'Utils/jquery';
-import Preferences from 'Core/Preferences';
-import Client from 'Core/Client';
-import Renderer from 'Renderer/Renderer';
-import Session from 'Engine/SessionStorage';
-import Mouse from 'Controls/MouseEventHandler';
-import KEYS from 'Controls/KeyEventHandler';
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import PACKETVER from 'Network/PacketVerManager';
-import PartyHelper from '../PartyHelper/PartyHelper';
-import ContextMenu from 'UI/Components/ContextMenu/ContextMenu';
-import Mail from 'UI/Components/Mail/Mail';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
-import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
+import DB from 'DB/DBManager.js';
+import jQuery from 'Utils/jquery.js';
+import Preferences from 'Core/Preferences.js';
+import Client from 'Core/Client.js';
+import Renderer from 'Renderer/Renderer.js';
+import Session from 'Engine/SessionStorage.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import KEYS from 'Controls/KeyEventHandler.js';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+import PartyHelper from '../PartyHelper/PartyHelper.js';
+import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
+import Mail from 'UI/Components/Mail/Mail.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox.js';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import htmlText from './PartyFriendsV0.html?raw';
 import cssText from './PartyFriendsV0.css?raw';
 

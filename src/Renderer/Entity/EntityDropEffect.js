@@ -7,9 +7,8 @@
  *
  * @author Bastien Bruant
  */
-'use strict';
 
-import EffectConst from 'DB/Effects/EffectConst';
+import EffectConst from 'DB/Effects/EffectConst.js';
 
 const dropEffects = [
 	EffectConst.DROPEFFECT_PINK,

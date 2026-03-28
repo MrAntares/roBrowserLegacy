@@ -8,13 +8,12 @@
  * @author Vincent Thibault
  */
 
-import Configs from 'Core/Configs';
-import Thread from 'Core/Thread';
-import Client from 'Core/Client';
-import StrViewer from 'UI/Components/StrViewer/StrViewer';
+import Configs from 'Core/Configs.js';
+import Thread from 'Core/Thread.js';
+import Client from 'Core/Client.js';
+import StrViewer from 'UI/Components/StrViewer/StrViewer.js';
 
 export default function init() {
-	'use strict';
 
 	function onAPIMessage(event) {
 		if (typeof event.data !== 'object') {

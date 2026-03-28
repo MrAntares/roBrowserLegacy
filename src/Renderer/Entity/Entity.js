@@ -7,32 +7,31 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import Altitude from 'Renderer/Map/Altitude';
-import Session from 'Engine/SessionStorage';
-import Client from 'Core/Client';
-import glMatrix from 'Utils/gl-matrix';
+import Altitude from 'Renderer/Map/Altitude.js';
+import Session from 'Engine/SessionStorage.js';
+import Client from 'Core/Client.js';
+import glMatrix from 'Utils/gl-matrix.js';
 
 // Example mixins (these would be imported from other files)
-import entityControl from 'Controls/EntityControl';
-import entityAction from './EntityAction';
-import entityCast from './EntityCast';
-import entityLife from './EntityLife';
-import entityDisplay from './EntityDisplay';
-import entityDialog from './EntityDialog';
-import entitySound from './EntitySound';
-import entityView from './EntityView';
-import entityWalk from './EntityWalk';
-import entityRender from './EntityRender';
-import entityRoom from './EntityRoom';
-import entityState from './EntityState';
-import entityAttachments from './EntityAttachments';
-import entityAnimations from './EntityAnimations';
-import entityAura from './EntityAura';
-import entityDropEffect from './EntityDropEffect';
-import entityEmblem from './EntityEmblem';
-import EntityManager from 'Renderer/EntityManager';
+import entityControl from 'Controls/EntityControl.js';
+import entityAction from './EntityAction.js';
+import entityCast from './EntityCast.js';
+import entityLife from './EntityLife.js';
+import entityDisplay from './EntityDisplay.js';
+import entityDialog from './EntityDialog.js';
+import entitySound from './EntitySound.js';
+import entityView from './EntityView.js';
+import entityWalk from './EntityWalk.js';
+import entityRender from './EntityRender.js';
+import entityRoom from './EntityRoom.js';
+import entityState from './EntityState.js';
+import entityAttachments from './EntityAttachments.js';
+import entityAnimations from './EntityAnimations.js';
+import entityAura from './EntityAura.js';
+import entityDropEffect from './EntityDropEffect.js';
+import entityEmblem from './EntityEmblem.js';
+import EntityManager from 'Renderer/EntityManager.js';
 
 const vec3 = glMatrix.vec3;
 const mat4 = glMatrix.mat4;

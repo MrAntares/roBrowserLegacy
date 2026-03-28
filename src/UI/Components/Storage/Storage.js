@@ -8,12 +8,11 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import StorageV0 from './StorageV0/Storage'; // Basic Storage
-import StorageV3 from './StorageV3/Storage'; // Expanded Storage (search tab)
+import StorageV0 from './StorageV0/Storage.js'; // Basic Storage
+import StorageV3 from './StorageV3/Storage.js'; // Expanded Storage (search tab)
 
-import UIVersionManager from 'UI/UIVersionManager';
+import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'Storage';
 

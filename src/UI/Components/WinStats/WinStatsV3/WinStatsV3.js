@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import DB from 'DB/DBManager';
-import Client from 'Core/Client';
-import UIComponent from 'UI/UIComponent';
-import UIManager from 'UI/UIManager';
-import Session from 'Engine/SessionStorage';
-import Preferences from 'Core/Preferences';
-import Renderer from 'Renderer/Renderer';
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import UIComponent from 'UI/UIComponent.js';
+import UIManager from 'UI/UIManager.js';
+import Session from 'Engine/SessionStorage.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
 import htmlText from './WinStatsV3.html?raw';
 import cssText from './WinStatsV3.css?raw';
 

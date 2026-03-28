@@ -7,12 +7,11 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import KEYS from 'Controls/KeyEventHandler';
-import ProcessCommand from 'Controls/ProcessCommand';
-import Preferences from 'Preferences/ShortCutControls';
-import UIManager from 'UI/UIManager';
+import KEYS from 'Controls/KeyEventHandler.js';
+import ProcessCommand from 'Controls/ProcessCommand.js';
+import Preferences from 'Preferences/ShortCutControls.js';
+import UIManager from 'UI/UIManager.js';
 
 /**
  * Create Namespace

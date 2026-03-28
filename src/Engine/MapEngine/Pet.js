@@ -8,23 +8,22 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import Client from 'Core/Client';
-import Session from 'Engine/SessionStorage';
-import EntityManager from 'Renderer/EntityManager';
-import UIManager from 'UI/UIManager';
-import SlotMachine from 'UI/Components/SlotMachine/SlotMachine';
-import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection';
-import ItemSelection from 'UI/Components/ItemSelection/ItemSelection';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import PetInformations from 'UI/Components/PetInformations/PetInformations';
-import Emotions from 'DB/Emotions';
-import PetMessageConst from 'DB/Pets/PetMessageConst';
-import PetEvolution from 'UI/Components/PetEvolution/PetEvolution';
+import DB from 'DB/DBManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import Client from 'Core/Client.js';
+import Session from 'Engine/SessionStorage.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import UIManager from 'UI/UIManager.js';
+import SlotMachine from 'UI/Components/SlotMachine/SlotMachine.js';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
+import ItemSelection from 'UI/Components/ItemSelection/ItemSelection.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import PetInformations from 'UI/Components/PetInformations/PetInformations.js';
+import Emotions from 'DB/Emotions.js';
+import PetMessageConst from 'DB/Pets/PetMessageConst.js';
+import PetEvolution from 'UI/Components/PetEvolution/PetEvolution.js';
 
 /**
  * Load dependencies

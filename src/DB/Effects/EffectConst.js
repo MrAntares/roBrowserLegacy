@@ -7,7 +7,6 @@
  *
  */
 
-'use strict';
 
 export default {
 	EF_NONE: -1,

@@ -6,13 +6,12 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  */
-'use strict';
 
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import Client from 'Core/Client';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
-import Entity from 'Renderer/Entity/Entity';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import Client from 'Core/Client.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Entity from 'Renderer/Entity/Entity.js';
 import html from './PvPTimer.html?raw';
 import css from './PvPTimer.css?raw';
 

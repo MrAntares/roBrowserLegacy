@@ -7,15 +7,14 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import UIManager from 'UI/UIManager';
-import UIComponent from 'UI/UIComponent';
-import jQuery from 'Utils/jquery';
-import PACKETVER from 'Network/PacketVerManager';
+import UIManager from 'UI/UIManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import jQuery from 'Utils/jquery.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import htmlText from './PartyHelper.html?raw';
 import cssText from './PartyHelper.css?raw';
-import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox.js';
 
 /**
  * Create Component

@@ -7,12 +7,11 @@
  *
  * @author Vincent Thibault
  */
-'use strict';
 
-import glMatrix from 'Vendors/gl-matrix';
-import PathFinding from 'Utils/PathFinding';
-import Mouse from 'Controls/MouseEventHandler';
-import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip';
+import glMatrix from 'Vendors/gl-matrix.js';
+import PathFinding from 'Utils/PathFinding.js';
+import Mouse from 'Controls/MouseEventHandler.js';
+import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 
 /**
  * Altitude Namespace

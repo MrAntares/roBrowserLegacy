@@ -9,7 +9,6 @@
  * @author Alison Serafim
  */
 
-'use strict';
 
 // Eagerly import all packet length definitions as ES modules
 const packetModules = import.meta.glob('./Packets/*_len_main.js', { eager: true });

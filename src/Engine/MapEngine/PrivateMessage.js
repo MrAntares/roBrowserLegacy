@@ -8,17 +8,16 @@
  * @author Vincent Thibault
  */
 
-'use strict';
 
-import DB from 'DB/DBManager';
-import Friends from 'Engine/MapEngine/Friends';
-import Network from 'Network/NetworkManager';
-import PACKET from 'Network/PacketStructure';
-import ChatBox from 'UI/Components/ChatBox/ChatBox';
-import WhisperBox from 'UI/Components/WhisperBox/WhisperBox';
-import Session from 'Engine/SessionStorage';
-import Preferences from 'Core/Preferences';
-import PACKETVER from 'Network/PacketVerManager';
+import DB from 'DB/DBManager.js';
+import Friends from 'Engine/MapEngine/Friends.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import WhisperBox from 'UI/Components/WhisperBox/WhisperBox.js';
+import Session from 'Engine/SessionStorage.js';
+import Preferences from 'Core/Preferences.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 
 /**
  * Check if WhisperBox should be used for a specific nickname

@@ -9,7 +9,7 @@
  * @author Vincent Thibault
  */
 
-import PACKET from './PacketStructure';
+import PACKET from './PacketStructure.js';
 
 export default {
 	// BASE PACKET VERSION
