@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * Object stored in cache
  * @var MemoryItem

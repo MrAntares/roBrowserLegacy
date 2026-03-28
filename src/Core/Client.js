@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 // Load dependencies
 import Executable from 'Utils/Executable.js';
 import Texture from 'Utils/Texture.js';

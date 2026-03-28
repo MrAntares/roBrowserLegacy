@@ -41,7 +41,6 @@
  *
  */
 
-
 import SK from './SkillConst.js';
 
 const SkillEffect = {};

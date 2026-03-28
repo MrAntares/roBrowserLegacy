@@ -14,7 +14,6 @@
  * @author Alison Serafim
  */
 
-
 const length_list = new Array();
 
 function init(packetver) {

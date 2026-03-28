@@ -8,7 +8,6 @@
  * @author Vincent Thibault, Thapakorn Tantirattanapong
  */
 
-
 export default {
 	1: 'MaxHP +%d', //Max HP: ^000088+%d^000000",
 	2: 'MaxSP +%d', //Max SP: ^000088+%d^000000",

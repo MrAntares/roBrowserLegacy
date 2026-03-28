@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * TGA Namespace
  * @constructor

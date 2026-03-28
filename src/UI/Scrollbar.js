@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import jQuery from 'Utils/jquery.js';
 import Texture from 'Utils/Texture.js';
 import DB from 'DB/DBManager.js';

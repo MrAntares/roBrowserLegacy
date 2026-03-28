@@ -10,7 +10,6 @@
  * @author Vincent Thibault
  */
 
-
 import MemoryItem from 'Core/MemoryItem.js';
 
 /**

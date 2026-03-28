@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * @var {object} global configs
  */

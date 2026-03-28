@@ -8,7 +8,6 @@
  * @author Alison Serafim
  */
 
-
 import WeaponType from './WeaponType.js';
 
 const WeaponTypeExpansion = {};

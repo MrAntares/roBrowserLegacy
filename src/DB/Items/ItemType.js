@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 export default {
 	HEALING: 0,
 	UNKNOWN: 1,

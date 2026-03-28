@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import BinaryReader from 'Utils/BinaryReader.js';
 import glMatrix from 'Utils/gl-matrix.js';
 

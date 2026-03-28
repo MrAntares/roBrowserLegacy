@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  */
 
-
 export default {
 	501: { ClassNum: 0 },
 	502: { ClassNum: 0 },

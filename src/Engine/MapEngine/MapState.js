@@ -6,7 +6,6 @@
  * @author Alison Serafim
  */
 
-
 import MapState from 'DB/Map/MapState.js';
 import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';

@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * @var {FileSystem}
  */

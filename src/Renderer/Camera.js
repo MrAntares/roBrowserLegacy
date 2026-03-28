@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import KEYS from 'Controls/KeyEventHandler.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import Events from 'Core/Events.js';

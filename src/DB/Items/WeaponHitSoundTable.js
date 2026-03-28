@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import WeaponType from './WeaponType.js';
 
 const WeaponSound = {};

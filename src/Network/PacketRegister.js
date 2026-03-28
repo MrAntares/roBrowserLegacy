@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import PACKET from './PacketStructure.js';
 
 export default {

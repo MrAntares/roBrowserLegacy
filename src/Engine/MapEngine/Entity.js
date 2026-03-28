@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  */
 
-
 import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
 import SkillId from 'DB/Skills/SkillConst.js';

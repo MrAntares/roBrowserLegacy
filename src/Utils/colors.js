@@ -1,4 +1,3 @@
-
 /**
  * Convert a uint32 color value from BGR format to RGB format.
  *

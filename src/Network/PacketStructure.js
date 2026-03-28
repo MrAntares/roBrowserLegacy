@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 import BinaryWriter from 'Utils/BinaryWriter.js';
 import PACKETVER from './PacketVerManager.js';
 import Struct from 'Utils/Struct.js';

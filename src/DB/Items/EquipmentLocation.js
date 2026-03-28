@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 export default {
 	HEAD_BOTTOM: 1 << 0,
 	WEAPON: 1 << 1,

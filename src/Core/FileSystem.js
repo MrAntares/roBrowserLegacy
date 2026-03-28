@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * @param {Array} FileList
  */

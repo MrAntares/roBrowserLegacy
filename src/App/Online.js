@@ -1,4 +1,3 @@
-
 import GameEngine from 'Engine/GameEngine.js';
 import Plugins from 'Plugins/PluginManager.js';
 

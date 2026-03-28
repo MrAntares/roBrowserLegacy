@@ -1,4 +1,3 @@
-
 import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import SkillID from 'DB/Skills/SkillConst.js';

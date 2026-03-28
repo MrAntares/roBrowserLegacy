@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import DB from 'DB/DBManager.js';
 import Inflate from 'Utils/Inflate.js';
 import Texture from 'Utils/Texture.js';

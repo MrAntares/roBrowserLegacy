@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  */
 
-
 import jQuery from 'Utils/jquery.js';
 import Configs from 'Core/Configs.js';
 import Context from 'Core/Context.js';

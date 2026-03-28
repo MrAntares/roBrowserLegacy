@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import FileManager from 'Core/FileManager.js';
 
 /**

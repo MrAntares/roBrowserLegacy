@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import EquipLocation from 'DB/Items/EquipmentLocation.js';

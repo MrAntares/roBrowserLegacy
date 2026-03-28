@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 // Load dependencies
 import TextEncoding from 'Utils/CodepageManager.js';
 import DB from 'DB/DBManager.js';

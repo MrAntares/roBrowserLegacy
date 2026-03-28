@@ -1,4 +1,3 @@
-
 import Preferences from 'Core/Preferences.js';
 import jQuery from 'Utils/jquery.js';
 import Renderer from 'Renderer/Renderer.js';

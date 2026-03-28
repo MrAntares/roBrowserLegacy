@@ -8,7 +8,6 @@
  * @author Alisonrag
  */
 
-
 function decodeHTMLEntities(str) {
 	// this prevents any overhead from creating the object each time
 	const element = document.createElement('div');

@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 const mask = new Uint8Array([0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]);
 const tmp = new Uint8Array(8);
 const tmp2 = new Uint8Array(8);

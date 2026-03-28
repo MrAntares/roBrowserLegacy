@@ -8,7 +8,6 @@
  * @author MrUnzO
  */
 
-
 export default {
 	PET_HUNGER: 0,
 	PET_HUNGRY: 1,

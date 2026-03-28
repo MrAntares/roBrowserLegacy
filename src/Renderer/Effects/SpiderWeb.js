@@ -1,4 +1,3 @@
-
 import WebGL from 'Utils/WebGL.js';
 import { FlatTexture } from 'Renderer/Effects/Tiles.js';
 

@@ -10,7 +10,6 @@
  * @author Vincent Thibault
  */
 
-
 import Client from 'Core/Client.js';
 import Preferences from 'Preferences/Audio.js';
 

@@ -6,7 +6,6 @@
  * @author Alisonrag
  */
 
-
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PCGoldTimer from 'UI/Components/PCGoldTimer/PCGoldTimer.js';

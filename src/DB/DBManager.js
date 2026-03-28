@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
 import TextEncoding from 'Utils/CodepageManager.js';

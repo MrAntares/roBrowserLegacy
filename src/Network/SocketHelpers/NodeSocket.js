@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * Nodejs TCP Socket
  *

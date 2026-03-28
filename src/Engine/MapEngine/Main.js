@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import DB from 'DB/DBManager.js';
 import StatusProperty from 'DB/Status/StatusProperty.js';
 import EffectConst from 'DB/Effects/EffectConst.js';

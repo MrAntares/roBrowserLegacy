@@ -6,7 +6,6 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';

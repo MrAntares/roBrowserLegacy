@@ -1,4 +1,3 @@
-
 import WebGL from 'Utils/WebGL.js';
 import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';

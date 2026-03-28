@@ -1,4 +1,3 @@
-
 import WebGL from 'Utils/WebGL.js';
 
 const _vertexShader = `

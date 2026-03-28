@@ -1,4 +1,3 @@
-
 import * as Tiles from 'Renderer/Effects/Tiles.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 
