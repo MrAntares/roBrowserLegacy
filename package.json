@@ -7,7 +7,7 @@
 		"pwa": "vite --open applications/pwa/index.html",
 		"tools": "vite --open applications/tools/index.html",
 		"nw": "nw .",
-		"build": "node ./applications/tools/builder-web.js",
+		"build": "node ./applications/tools/builder-web.mjs",
 		"build:online": "npm run build -- -O",
 		"build:mapviewer": "npm run build -- -V",
 		"build:grfviewer": "npm run build -- -G",
@@ -31,17 +31,18 @@
 		"format:check": "prettier --check \"src/**/*.js\"",
 		"ci": "npm run lint && npm run format:check"
 	},
+	"type": "module",
 	"author": "Vincent Thibault",
 	"license": "GNU GPL V3",
 	"devDependencies": {
 		"@rollup/plugin-alias": "^6.0.0",
+		"bson": "^7.2.0",
+		"lodash": "^4.17.23",
 		"eslint": "^8.57.1",
 		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-requirejs": "^4.0.1",
 		"nw": "^0.99.0-sdk",
 		"nwjs-builder-phoenix": "^1.15.0",
 		"prettier": "^3.8.1",
-		"requirejs": "^2.3.6",
 		"terser": "^5.19.4",
 		"vite": "^8.0.1"
 	},
@@ -62,8 +63,5 @@
 		"frame": true,
 		"icon": "icon.png"
 	},
-	"main": "applications/nwjs/index.html",
-	"dependencies": {
-		"bson": "^7.2.0"
-	}
+	"main": "applications/nwjs/index.html"
 }

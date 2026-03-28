@@ -1,12 +1,19 @@
-const fs = require('fs');
-const path = require('path');
-const pkg = require('../../package.json');
+import fs from 'fs';  
+import path from 'path';  
+import { fileURLToPath } from 'url';  
+import { createRequire } from 'module';  
+  
+const __filename = fileURLToPath(import.meta.url);  
+const __dirname = path.dirname(__filename);  
+const require = createRequire(import.meta.url);  
+const pkg = JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url)));
+
 const startTime = Date.now();
 const args = getArgs();
 
 const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 const dist = './dist/';
-const platform = 'Vite';
+const platform = 'Web';
 
 // Aliases (same as vite.config.js)
 const aliases = {
@@ -108,20 +115,34 @@ async function compile(appName, isMinify) {
 			resolve: {
 				alias: aliases
 			},
+			worker: {  
+				rollupOptions: {  
+					output: {  
+						entryFileNames: '[name].js',  
+					}  
+				}  
+			},  
 			build: {
 				outDir: outDir,
 				emptyOutDir: false,
-
+				assetsInlineLimit: 1024 *1024,
 				rollupOptions: {
 					input: entry,
 					output: {
 						format: 'es',
-						entryFileNames: appName + '.js',
+						entryFileNames: appName + '.js', //Online -> Online.js
 						codeSplitting: false,
 						banner: header
 					},
 					onwarn(warning, warn) {
-						if (warning.code === 'INEFFECTIVE_DYNAMIC_IMPORT' || warning.code === 'PLUGIN_TIMINGS') return;
+						if (
+							warning.code === 'INEFFECTIVE_DYNAMIC_IMPORT' ||
+							warning.code === 'PLUGIN_TIMINGS' ||
+							warning.code === 'MODULE_LEVEL_DIRECTIVE' ||
+							(warning.message &&
+								warning.message.includes('has been externalized for browser compatibility'))
+						)
+							return;
 						warn(warning);
 					}
 				},
