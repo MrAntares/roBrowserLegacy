@@ -276,7 +276,7 @@ Camera.init = function Init() {
 
 	// This may cause circular dependency if treated synchronously in ESM.
 	// But since this is a method, we assume dependencies are ready later.
-	import('Renderer/MapRenderer').then(MapRenderer => {
+	import('Renderer/MapRenderer.js').then(MapRenderer => {
 		this.currentMap = MapRenderer.default.currentMap;
 		if (DB.isIndoor(this.currentMap)) {
 			this.zoomFinal = Preferences.indoorZoom || 125;
@@ -444,7 +444,7 @@ Camera.setZoom = function SetZoom(delta) {
 Camera.updateState = function UpdateState() {
 	if (this.enable1STPerson && this.zoomFinal == 0) {
 		if (this.state != this.states.first_person) {
-			import('Renderer/Renderer').then(Renderer => {
+			import('Renderer/Renderer.js').then(Renderer => {
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_1STPERSON;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_1STPERSON;
 				Renderer.default.vFov = 50;
@@ -458,7 +458,7 @@ Camera.updateState = function UpdateState() {
 		}
 	} else if (this.enable3RDPerson && this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM) {
 		if (this.state != this.states.third_person) {
-			import('Renderer/Renderer').then(Renderer => {
+			import('Renderer/Renderer.js').then(Renderer => {
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_3RDPERSON;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_3RDPERSON;
 				Renderer.default.vFov = 30;
@@ -472,7 +472,7 @@ Camera.updateState = function UpdateState() {
 		}
 	} else {
 		if (this.state != this.states.isometric) {
-			import('Renderer/Renderer').then(Renderer => {
+			import('Renderer/Renderer.js').then(Renderer => {
 				this.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
 				Renderer.default.vFov = 15;

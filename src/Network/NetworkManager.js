@@ -352,7 +352,7 @@ function onClose() {
 			clearInterval(_socket.ping);
 		}
 
-		import('UI/UIManager').then(UIManager => {
+		import('UI/UIManager.js').then(UIManager => {
 			UIManager.default.showErrorBox('Disconnected from Server.');
 		});
 	}

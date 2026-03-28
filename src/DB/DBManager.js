@@ -449,8 +449,8 @@ DB.init = function init() {
 									Ez2streffect,
 									function () {
 										Promise.all([
-											import('DB/Effects/EffectTable'),
-											import('DB/Skills/SkillEffect')
+											import('DB/Effects/EffectTable.js'),
+											import('DB/Skills/SkillEffect.js')
 										]).then(([EffectTable, SkillEffect]) => {
 											mergeEz2Effects(EffectTable.default, SkillEffect.default);
 											bsonOnLoad();
@@ -783,7 +783,7 @@ DB.init = function init() {
 	}
 
 	Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
-	import('Core/AIDriver').then(module => {
+	import('Core/AIDriver.js').then(module => {
 		module.default.initAI(onLoad());
 	});
 };

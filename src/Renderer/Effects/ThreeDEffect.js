@@ -323,7 +323,7 @@ function ThreeDEffect(effect, EF_Inst_Par, EF_Init_Par) {
 	this.rotate = effect.rotate ? true : false;
 	this.toAngle = effect.toAngle ? effect.toAngle : 0;
 	if (this.shadowTexture) {
-		import('Renderer/EffectManager').then(m =>
+		import('Renderer/EffectManager.js').then(m =>
 			m.default.add(new GroundEffect(this.posxStart, this.posyStart), 1000000)
 		);
 	}
@@ -662,7 +662,7 @@ ThreeDEffect.prototype.render = function render(gl, tick) {
 	}
 
 	if (this.shadowTexture) {
-		import('Renderer/EffectManager').then(m => {
+		import('Renderer/EffectManager.js').then(m => {
 			const EffectManager = m.default;
 			const effectName = EffectManager.get(1000000);
 			if (effectName) {

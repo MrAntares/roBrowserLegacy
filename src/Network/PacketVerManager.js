@@ -151,7 +151,7 @@ function parseCharList(fp, end) {
 
 		// No result, or multiple ones...
 		if (matches.length !== 1) {
-			import('UI/UIManager').then(UIManager => {
+			import('UI/UIManager.js').then(UIManager => {
 				UIManager.default.showErrorBox(
 					'CHARACTER_INFO size error!! blockSize : "' +
 						blockSize +

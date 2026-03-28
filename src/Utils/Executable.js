@@ -11,7 +11,6 @@
  */
 
 import BinaryReader from './BinaryReader.js';
-('use strict');
 
 /**
  * Binary data of the executable

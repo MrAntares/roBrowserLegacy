@@ -271,7 +271,7 @@ function onConnectionRequest(username, password) {
  * Go back to intro window
  */
 function onExitRequest() {
-	import('Engine/GameEngine').then(GameEngine => {
+	import('Engine/GameEngine.js').then(GameEngine => {
 		GameEngine.default.reload();
 	});
 }
@@ -353,7 +353,7 @@ function onConnectionAccepted(pkt) {
 	});
 
 	if (PACKETVER.value >= 20170315 && Session.WebToken) {
-		import('UI/Components/ShortCut/ShortCut').then(ShortCut => {
+		import('UI/Components/ShortCut/ShortCut.js').then(ShortCut => {
 			ShortCut.default.loadFromServer();
 		});
 	}

@@ -296,7 +296,7 @@ Renderer.resize = function resize() {
 	PostProcess.recreateFbo(this.gl, width * dpr, height * dpr);
 
 	// Circular dependency handled with dynamic import
-	import('UI/UIManager').then(module => {
+	import('UI/UIManager.js').then(module => {
 		module.default.fixResizeOverflow(this.width, this.height);
 	});
 };
