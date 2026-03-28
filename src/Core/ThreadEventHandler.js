@@ -12,7 +12,6 @@ import FileManager from 'Core/FileManager.js';
 import FileSystem from 'Core/FileSystem.js';
 import MapLoader from 'Loaders/MapLoader.js';
 
-
 /**
  *	Send an Error to main thread
  *
