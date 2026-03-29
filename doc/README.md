@@ -12,10 +12,11 @@ This guide has the goal to help you to Setup/Play RoBrowser. If there's any trou
     - [3.3 Setup: Game Files](#33-setup-game-files)
     - [3.4 Setup: Game Server](#34-setup-game-server)
     - [3.5 Setup: RoBrowser](#35-setup-robrowser)
+    - [3.6 Build Information](#36-build-information)
 - [4. Serving and Running roBrowser](#4-serving-and-running-robrowser)
     - [4.1 Serving Game: Live Server/Production](#41-serving-game-live-serverproduction)
     - [4.2 Serving Game: Development](#42-serving-game-development)
-    - [4.3 Serving Game: using Browser](#43-serving-game-using-browser)
+    - [4.3 Building via CLI](#43-building-via-cli)
 - [5. Add game assets](#5-add-game-assets)
     - [Local Assets](#local-assets)
     - [Remote Client](#remote-client)
@@ -75,29 +76,29 @@ Currently tested browsers:
 > [!NOTE]
 > If you already have NodeJS LTS installed, [skip this step](#RoBrowser).
 
-Make sure you're running NodeJS LTS or 18 above. Validate your version using the command:
+Make sure you're running NodeJS LTS or 20 above. Validate your version using the command:
 
 ```shell
 node --version
 # v20.10.0 (example output)
 ```
 
-If your version is minor than 18 you can
+If your Node version is below 20, you can use NVM (Node Version Manager) to install a newer version.
 
-To install NVM you can use the command below:
+To install NVM:
 
 ```shell
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 ```
 
-After you install NVM, reopen your terminal and check if the installation was successful:
+After installing NVM, restart your terminal and verify the installation:
 
 ```bash
 nvm --version
 # 0.39.0
 ```
 
-Now you need to switch to the appropriate version to run **roBrowser** by using the command:
+Now install the latest LTS version of Node:
 
 ```bash
 nvm install --lts
@@ -105,7 +106,7 @@ nvm install --lts
 # Now using node v20.10.0 (npm v10.2.3)
 ```
 
-Just to make sure, check if the node changed to the specified version after installation:
+Verify that Node is at the correct version:
 
 ```bash
 node --version
@@ -157,7 +158,7 @@ First, you will need the project in your machine. You can fork your own version 
 git clone https://github.com/MrAntares/roBrowserLegacy.git
 ```
 
-Or you can just download our latest release [here.](ttps://github.com/MrAntares/roBrowserLegacy/archive/refs/heads/master.zip)
+Or you can just download our latest release [here.](https://github.com/MrAntares/roBrowserLegacy/archive/refs/heads/master.zip)
 
 Having the project extracted in your machine, you will need to install the node dependencies by running:
 
@@ -165,18 +166,60 @@ Having the project extracted in your machine, you will need to install the node 
 npm install
 ```
 
+## 3.6 Build Information
+
+The project uses a custom build system based on Vite and Rollup for bundling ES6 modules into optimized files for production.
+
+### Build Commands
+
+- `npm run build` - Build the default application (Online.js) using the custom builder.
+- `npm run build:all` - Build all applications.
+- `npm run build:all:minify` - Build all applications with minification enabled.
+- `npm run build:pwa` - Build the Progressive Web App (PWA) version, including manifest and service worker.
+- `npm run build:nw` - Build NW.js desktop executables for Windows (x86 and x64).
+
+### Specific Application Builds
+
+- `npm run build:online` - Build Online.js (full game client).
+- `npm run build:mapviewer` - Build MapViewer.js.
+- `npm run build:grfviewer` - Build GrfViewer.js.
+- `npm run build:modelviewer` - Build ModelViewer.js.
+- `npm run build:strviewer` - Build StrViewer.js.
+- `npm run build:effectviewer` - Build EffectViewer.js.
+- `npm run build:threadhandler` - Build ThreadEventHandler.js.
+- `npm run build:html` - Generate HTML files only.
+- `npm run build:ai` - Build AI scripts only.
+
+### Custom Builder Options
+
+The build system is powered by `applications/tools/builder-web.mjs`. You can run it directly:
+
+- `node ./applications/tools/builder-web.mjs` - Basic build (Online.js).
+- `node ./applications/tools/builder-web.mjs -O -T -H` - Build Online.js, ThreadEventHandler.js, and HTML.
+- `node ./applications/tools/builder-web.mjs --all` - Build all apps.
+- `node ./applications/tools/builder-web.mjs --all --m` - Build all with minification.
+
+Supported flags:
+
+- `--all` or `-a`: Build all applications.
+- `--m`: Enable minification with Terser.
+- Specific app flags: `-O` (Online), `-V` (MapViewer), `-G` (GrfViewer), `-M` (ModelViewer), `-S` (StrViewer), `-E` (EffectViewer), `-T` (ThreadEventHandler), `-H` (HTML), `-PWA` (PWA build).
+
+Output is generated in the `dist/Web/` directory for web builds and `dist/Desktop/` for NW.js builds.
+
 # 4. Serving and Running roBrowser
 
-Now we have everything to make our game run as expected. Before start, we have to start a web-server to host all our roBrowserLegacy. By default, our project already have one installed on the node dependencies, which is called `live-server`, configured under the project's [package.json](../package.json) pre-configured commands.
+Now we have everything to make our game run as expected. Before start, we have to start a web-server to host all our roBrowserLegacy. By default, our project already has one installed in the node dependencies as Vite dev server, configured under the project's [package.json](../package.json) pre-configured commands.
 
-Running the live server (browserless):
+Running the dev server:
 
 ```bash
 npm run live
 
 # robrowser@1.0.0 live
-# > live-server . --no-browser
-# Serving "." at http://127.0.0.1:8000
+# > vite --open applications/browser-examples/index.html
+#   VITE vX.X.X  ready in XXX ms
+#   ➜  Local:   http://localhost:3000/
 ```
 
 Or if you're using PHP or Ruby you can type any of these commands:
@@ -189,7 +232,7 @@ php -S 0.0.0.0:8000
 ruby -run -ehttpd . -p8000
 ```
 
-With any of them, you will be able to access `http://localhost:8000` with a proper web-server running locally.
+With Vite, access `http://localhost:3000`. With PHP or Ruby, access `http://localhost:8000`.
 
 ## 4.1 Serving Game: Live Server/Production
 
@@ -232,29 +275,40 @@ First, go to your roBrowserLegacy Folder:
 cd path/to/robrowserlegacy
 ```
 
-You can start the development build by typing:
+For a true development server with hot reload, use:
+
+```shell
+npm run live
+# > vite --open applications/browser-examples/index.html
+```
+
+Or run Vite directly:
+
+```shell
+npm run dev
+# > vite
+```
+
+`npm run serve` is a preview of the built app (not the full HMR dev mode):
 
 ```shell
 npm run serve
 # > robrowser@1.0.0 serve
-# > live-server ./dist/Web
-#
-# Serving "./dist/Web" at http://127.0.0.1:8080
+# > vite preview
+#   ➜  Local:   http://localhost:4173/
 ```
 
-Since we're under development purposes (modifying the source/testing) change in the roBrowser config inside the `dist/Web/index.html` with: `development: true`.
+Since we're under development purposes (modifying the source/testing), set `development: true` in `dist/Web/index.html` when using the preview mode.
 
-## 4.3 Serving Game: using Browser
+## 4.3 Building via CLI
 
-This step/section is only recommended for a "Live" server. It will only pack all the resource files into one file to speed up loading. Requires to set in the roBrowser config: `development: false,`.
+The browser-based builder from the RequireJS era has been removed. Use the CLI builder instead:
 
-For development purposes (modifying the source/testing) skip this section and set in the roBrowser config: `development: true,`. In development mode roBrowser will use the files directly from `src/`.
+```bash
+node ./applications/tools/builder-web.mjs --all
+```
 
-- Access `http://localhost:8000/tools/build/index.html` with your browser
-  ![](img/start-tools.png)
-- Click on "Online", compilation should take around 10~30secs. If it runs longer than 2 minutes there might be an issue.
-- Click on "Thread"
-- Copy/move the generated files into your web folder (`Online.js` and `ThreadEventHandler.js`)
+See Section 3.6 for all available build commands and flags.
 
 # 5. Add game assets
 
@@ -350,7 +404,7 @@ var ROConfig = {
 			desc: "roBrowser's demo server", // Description, can be anything
 			address: '127.0.0.1', // Must match your game server's
 			port: 6900, // Must match your game server's
-			langtype: 12, // Must match your game server's
+			langtype: 12, // Will determine your game files charpage
 			packetver: 20191223, // Must match your game server's
 			grfList: 'DATA.INI', // By default uses DATA.INI to get grf list, but you can define an array (grfList: ['custom.grf', 'palette.grf', 'data.grf'],) or a regex (grfList: /\.grf$/i,)
 			remoteClient: 'http://127.0.0.1/client', // Your remote client address. Defaults to https://grf.robrowser.com/
@@ -371,7 +425,6 @@ var ROConfig = {
 	skipIntro: false, // Skip intro page?
 	version: 20230927.0959, // Update this value every time you update your robrowser, to trigger a source refresh on every browser. Recommended to use a decimal timestamp (YYYYMMDD.hhmm), but can be anything
 	forceUseAddress: false, // Some times when connect to server, the server return 127.0.0.1 as IP to connect. This key force robrowse to ignore and use IP set at 'address'
-
 	worldMapSettings: {
 		// Settings for world map.
 		episode: 98, // Episode content to show (0-98, eg:14.2, default:98 = latest)
@@ -386,6 +439,7 @@ var ROConfig = {
 	enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
 	enableHomunAutoFeed: false, // Enable Homunculus Auto Feed for older PACKETVER than 20170920
 	loadLua: false, // Enable this option to load LUA tables (currently only item table) from client/System/...
+	customItemInfo: ['kRO.lua', 'jRO.lua', 'lua files514/iteminfo.lua'], // Customized iteminfo array-list, it loads using firt to last priority
 
 	//clientHash:    '113e195e6c051bb1cfb12a644bb084c5', // Set fixed client hash value here (less secure, for development only)
 	calculateHash: false, // When true, the client will calculate it's own hash and send that value (slower, more secure, only when development is false). Must provide the list of files in hashFiles!

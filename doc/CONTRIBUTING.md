@@ -23,6 +23,26 @@ Thank you for considering contributing to this project. This project is entirely
 
 Please refer to the [Getting started](./README.md) on how to set up your environment and start working on it.
 
+## Code Quality
+
+Before submitting a PR, make sure your code passes lint and format checks:
+
+```bash
+npm run lint          # Check for ESLint errors
+npm run lint:fix      # Auto-fix ESLint errors
+npm run format        # Format code with Prettier
+npm run format:check  # Check formatting without modifying
+npm run ci            # Run both lint and format checks (used in CI)
+```
+
+### Code Style Guidelines
+
+- Use ES6 `import`/`export` syntax (no AMD `define()`/`require()`)
+- Use `const` and `let` (no `var`)
+- Use single quotes, semicolons required
+- Do NOT use arrow functions, template literals, or async/await (project convention for consistency)
+- Use path aliases for imports (e.g., `import X from 'Utils/X.js'`) instead of relative paths
+
 ### How to file a pull request
 
 That will change on what your contribution is trying to achieve. Are you fixing a bug? Proposing an enhancement? Adding a new functionality?

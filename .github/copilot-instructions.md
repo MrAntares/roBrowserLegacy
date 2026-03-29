@@ -2,43 +2,94 @@
 
 ## Project Overview
 
-roBrowserLegacy is a web-based Ragnarok Online client built with ES5, AMD modules, and WebGL. The architecture follows a strict modular design separating game logic (engines, network, loaders), UI components, and core utilities.
+roBrowserLegacy is a comprehensive web-based Ragnarok Online client built with ES6 modules and WebGL, featuring a sophisticated modular architecture. The project supports multiple platforms (browser, PWA, NW.js desktop) and provides a complete game client experience with 8 distinct applications, 80+ UI components, and extensive network protocol support for 23+ game versions (2003-2025).
+
+### Key Statistics
+
+- **~40,000 lines** of ES6 modular code
+- **12 major subsystems** in src/ (App, Audio, Controls, Core, DB, Engine, Loaders, Network, Plugins, Preferences, Renderer, UI)
+- **80+ UI Components** covering full game interface (inventory, chat, skills, quests, etc.)
+- **40+ Renderer Effects** for visual systems (weather, auras, damage text, ground effects)
+- **16 Entity modules** for game object rendering pipeline
+- **27 MapEngine subsystems** for live game state management
+- **23 packet versions** supported (kRO 2003-2025)
+- **18+ build commands** for different compilation targets
+
+The architecture follows a strict separation of concerns: game logic (engines), network (packet handling), UI (component-based), and core utilities. The build system uses Vite with a custom builder for optimized ES module bundling.
 
 ## Key Architecture Patterns
 
-### AMD Modules (RequireJS)
+### ES6 Modules
 
-All source files use AMD with `define()` function. Each module explicitly lists dependencies:
+All source files use ES6 modules with `import`/`export` syntax. The build system bundles them into optimized ES modules for the browser using Vite and Rollup.
 
 ```javascript
-define(['Utils/BinaryReader', 'Core/Configs'], function (BinaryReader, Configs) {
+import { BinaryReader } from 'Utils/BinaryReader.js';
+import Configs from 'Core/Configs.js';
+
+export default function () {
 	// module code
-	return {
-		/* exports */
-	};
-});
+}
 ```
 
 - Base path for modules: `src/` (directory structure mirrors module paths)
 - Compiled output: `dist/Web/` for web, `dist/Desktop/` for NW.js
-- Never use CommonJS syntax; maintain AMD consistency
+- Build system uses Vite for bundling and optimization with custom builder script
+
+### Module Path Aliases
+
+The project uses path aliases for clean imports:
+
+| Alias       | Path                        |
+| ----------- | --------------------------- |
+| jquery      | src/Vendors/jquery-1.9.1.js |
+| App         | src/App/                    |
+| Audio       | src/Audio/                  |
+| Controls    | src/Controls/               |
+| Core        | src/Core/                   |
+| DB          | src/DB/                     |
+| Engine      | src/Engine/                 |
+| Loaders     | src/Loaders/                |
+| Network     | src/Network/                |
+| Plugins     | src/Plugins/                |
+| Preferences | src/Preferences/            |
+| Renderer    | src/Renderer/               |
+| UI          | src/UI/                     |
+| Utils       | src/Utils/                  |
+| Vendors     | src/Vendors/                |
+
+Example: `import Sprite from 'Loaders/Sprite.js';`
 
 ### Core Service Layers
 
-1. **Engine Layer** (`src/Engine/`): GameEngine, LoginEngine, MapEngine orchestrate game state
-2. **Network Layer** (`src/Network/`): NetworkManager handles WebSocket/TCP via wsProxy, packet encryption, version management
-3. **Loaders** (`src/Loaders/`): File parsers for GRF, SPR, ACT, STR (sprite data), models, maps
+1. **Engine Layer** (`src/Engine/`): GameEngine (global orchestrator), LoginEngine (authentication), MapEngine (27 subsystems for live game state)
+2. **Network Layer** (`src/Network/`): PacketRegister, PacketStructure, PacketCrypt, PacketVersions (23 versions), SocketHelpers (WebSocket/NodeSocket dual support)
+3. **Loaders** (`src/Loaders/`): GameFileDecrypt, Sprite, Action, Ground, Str, Model, Targa, World parsers for GRF assets
 4. **Database** (`src/DB/`): DBManager loads job/skill/monster/map metadata from JSON files
-5. **Renderer** (`src/Renderer/`): WebGL rendering with Three.js-like patterns for characters, maps, effects
-6. **UI** (`src/UI/`): Component-based UI system with manager classes (UIManager, CursorManager, Scrollbar)
-7. **Controls** (`src/Controls/`): Input handling - EntityControl, MapControl, KeyEventHandler, MouseEventHandler
+5. **Renderer** (`src/Renderer/`): WebGL rendering with MapRenderer, EntityManager, EffectManager, 40+ specialized effects
+6. **UI** (`src/UI/`): Component-based UI system with UIManager, UIVersionManager, 80+ components, CursorManager, Scrollbar
+7. **Controls** (`src/Controls/`): Input handling - EntityControl, MapControl, KeyEventHandler, MouseEventHandler, ProcessCommand
+8. **Audio** (`src/Audio/`): BGM.js, SoundManager.js for game audio
+9. **Preferences** (`src/Preferences/`): Audio, Graphics, Controls, UI, Camera, Map, ShortCutControls persistence
 
 ### Data Flow
 
-1. **Initialization**: GameEngine loads config → Client loads GRFs/executable → PACKETVER detected
-2. **Login**: LoginEngine → NetworkManager connects via WebSocket → authenticates
-3. **Map Entry**: MapEngine loads map/entity data → Renderer displays → Controls enable input
-4. **Runtime**: InputHandler → ProcessCommand → NetworkManager sends → packet handlers update state
+1. **Initialization**: GameEngine loads config → Client loads GRFs/executable → PacketVerManager detects PACKETVER from executable date
+2. **Login**: LoginEngine → NetworkManager connects via WebSocket (browser) or NodeSocket (NW.js) → authenticates with versioned packets
+3. **Map Entry**: MapEngine loads map/entity data → Renderer displays → Controls enable input → 27 MapEngine subsystems manage live state
+4. **Runtime**: InputHandler → ProcessCommand → NetworkManager sends → packet handlers update state → EntityManager updates → Renderer draws
+
+### Multi-Platform Support
+
+- **Browser**: WebSocket via wsProxy, ES modules loaded as `<script type='module'>`
+- **PWA**: Progressive Web App with manifest, service worker support
+- **NW.js Desktop**: Direct TCP via NodeSocket, packaged executables for Windows x86/x64
+
+### Plugin System
+
+- **PluginManager**: Loads and manages runtime plugins
+- **socketFactory**: Custom socket implementations (WebSocket, NodeSocket)
+- Extensible architecture for custom features
 
 ## Critical Files & Patterns
 
@@ -46,33 +97,87 @@ define(['Utils/BinaryReader', 'Core/Configs'], function (BinaryReader, Configs) 
 
 - **PacketRegister.js**: Maps packet IDs (0x69, 0x6a, etc.) to handlers
 - **PacketStructure.js**: Defines AC/ZC/HC packet schemas (client ↔ server communication)
-- **PacketVersions.js**: Per-version packet definitions; varies by kRO client date
+- **PacketVersions.js**: Per-version packet definitions; varies by kRO client date (23 versions: 2003-2025)
 - **PacketCrypt.js**: Packet encryption/decryption logic
-- Pattern: Add handler in PacketRegister, define structure, implement response in controller
+- **PacketVerManager.js**: Automatic PACKETVER detection from executable metadata
+- **SocketHelpers/**: WebSocket.js (browser), NodeSocket.js (NW.js desktop)
+- Pattern: Add handler in PacketRegister, define structure, implement response in appropriate engine/controller
 
 ### Entity System
 
 - **EntityControl.js**: Entity state, movement, animation
 - **CharEngine.js**: Character rendering pipeline
+- **EntityManager.js**: Maintains active entity pool with GID tracking
+- **16 specialized modules**: EntityRender, EntityWalk, EntityCast, EntityState, EntityLife, etc.
 - Entities identified by unique GID (global ID) and actor type
 
 ### Asset Loading
 
-- **Loaders/GameFileDecrypt.js**: Decrypt GRF files
+- **Loaders/GameFileDecrypt.js**: Decrypt GRF files (DES/RC4)
 - **Loaders/Action.js**: Parse .act (sprite animation frames)
 - **Loaders/Sprite.js**: Parse .spr (sprite texture/palette data)
 - **Loaders/Str.js**: Parse .str (map string/prop data)
 - **Loaders/Ground.js**: Parse .gat (map height/collision data)
+- **Loaders/Model.js**: Parse GrannyModel RSAC format
+- **Loaders/World.js**: Parse altitude maps
+- **Loaders/Targa.js**: Parse TGA image format
+
+### MapEngine Subsystems (27 controllers)
+
+- **Main.js**: Core game loop and state management
+- **Entity.js**: Main entity controller
+- **UIOpen.js**: UI component lifecycle
+- **MapState.js**: State persistence
+- **Achievement.js, Quest.js, Guild.js, Clan.js**: Progress systems
+- **Group.js, Friends.js, PrivateMessage.js**: Social features
+- **CashShop.js, Refine.js, Enchant.js, ItemCompare.js**: Commerce/crafting
+- **Homun.js, Pet.js, Mercenary.js**: Companion systems
+- **NPC.js, Store.js, Trade.js, Vending.js**: Interaction systems
+
+### UI Components (80+)
+
+- **Intro.js**: File upload & server selection
+- **WinList.js**: Character selection
+- **WinLogin.js**: Account authentication
+- **Inventory.js, Equipment.js, Storage.js, Bank.js, CashShop.js**: Item management
+- **ChatBox.js, ChatRoom.js, WhisperBox.js**: Communication
+- **NpcBox.js, NpcStore.js, NpcMenu.js**: NPC interaction
+- **SkillList.js, SkillDescription.js, SkillTargetSelection.js**: Skill system
+- **Quest.js, Mail.js, Rodex.js, Trade.js, Vending.js**: Game systems
+- **GrfViewer.js, ModelViewer.js, StrViewer.js**: Asset viewers
+- **Clan.js, Guild.js, PartyFriends.js**: Social systems
+- **MiniMap.js, WorldMap.js, Navigation.js**: Navigation
+- Plus many specialized components
+
+### Renderer Effects (40+)
+
+- **Weather effects**: Rain, snow, fog systems
+- **Aura effects**: Character auras and halos
+- **Damage text**: Floating damage numbers
+- **Ground effects**: Area-of-effect visuals
+- **Skill effects**: Spell animations and particles
+- **Screen effects**: Post-processing filters
+- **Signboard effects**: Entity nameplates and status
+
+### Preferences System (7 modules)
+
+- **Audio.js**: Sound and music settings
+- **Graphics.js**: Visual quality options
+- **Controls.js**: Input bindings
+- **UI.js**: Interface customization
+- **Camera.js**: Viewport controls
+- **Map.js**: Map display settings
+- **ShortCutControls.js**: Hotkey configuration
 
 ## Code Conventions
 
-### Style Rules (from .eslintrc.js)
+### Style Rules (from .eslintrc.cjs)
 
 - **Indentation**: Tab stops, width 4 spaces
 - **Quotes**: Single quotes (no template literals)
 - **Brace style**: Allman (opening brace on new line)
 - **Semicolons**: Required at end of statements
-- **ES5 syntax only**: No arrow functions, const/let, template literals, async/await
+- **ES6 modules and basic syntax**: Use import/export, const/let; avoid arrow functions, template literals, async/await
 
 ### Naming Conventions
 
@@ -87,24 +192,56 @@ define(['Utils/BinaryReader', 'Core/Configs'], function (BinaryReader, Configs) 
 - Return objects with public methods (closure pattern)
 - EventEmitter-style callbacks (jQuery.Deferred or simple callbacks)
 
+### Global Browser APIs
+
+- **ROConfig**: Runtime configuration object (loaded from Config.js + Config.local.js)
+- **$**: jQuery global
+- **FileReaderSync, importScripts**: Web Worker APIs
+- **Buffer, process**: Node.js fallbacks via requireNode
+
 ## Build & Compilation
 
 ### NPM Scripts
 
 ```bash
-npm run build              # Compile all modules (requires)
-npm run build:online       # Only Online.js
-npm run build:mapviewer    # Only MapViewer.js
-npm run lint              # ESLint check (src/**/*.js)
-npm run lint:fix          # Auto-fix ESLint errors
+npm run build              # Compile all modules using custom builder
+npm run build:online       # Build Online.js only
+npm run build:mapviewer    # Build MapViewer.js only
+npm run build:grfviewer    # Build GrfViewer.js only
+npm run build:modelviewer  # Build ModelViewer.js only
+npm run build:strviewer    # Build StrViewer.js only
+npm run build:effectviewer # Build EffectViewer.js only
+npm run build:threadhandler # Build ThreadEventHandler.js only
+npm run build:html         # Generate HTML only
+npm run build:ai           # Build AI scripts only
+npm run build:all          # Build all apps
+npm run build:all:minify   # Build all apps with minification
+npm run build:pwa          # Build PWA app with manifest
+npm run build:nw           # Build NW.js desktop executables
+npm run lint               # ESLint check (src/**/*.js)
+npm run lint:fix           # Auto-fix ESLint errors
+npm run format             # Format code with Prettier
+npm run format:check       # Check code formatting
+npm run ci                 # Run lint and format check
 ```
 
-### Build System (tools/builder-web.js)
+### Build System (applications/tools/builder-web.mjs)
 
-- Uses RequireJS optimizer to bundle AMD modules
+- Uses custom builder script with Vite to bundle ES6 modules into optimized ES modules for the browser
 - Entry points: `src/App/Online.js`, `src/App/MapViewer.js`, etc.
-- Output: Single minified/non-minified .js file per app
+- Output: Single bundled ES module file per app
 - Thread handler built separately for worker thread
+- Supports optional Terser minification with ASCII-only output
+- Auto-generates Config.js and HTML scaffolding
+- PWA manifest and icon generation for progressive web app builds
+- NW.js packaging for desktop executables (Windows x86/x64)
+
+### Key Modules Compiled into Apps
+
+- **Online.js**: Full game client - depends on all engines, network, UI
+- **MapViewer/ModelViewer/GrfViewer/StrViewer/EffectViewer**: Standalone asset viewers
+- **GrannyModelViewer.js**: 3D model viewer for Granny format
+- **ThreadEventHandler.js**: Web Worker for computations
 
 ### Key Modules Compiled into Apps
 
@@ -123,9 +260,16 @@ npm run lint:fix          # Auto-fix ESLint errors
 
 ### Bundled Libraries
 
-- RequireJS: Module loader and optimizer
+- Vite: Build tool and bundler for ES modules
 - Terser: JS minification
-- jQuery: DOM manipulation (vendored require.js wrapper)
+- jQuery: DOM manipulation (vendored)
+
+### Runtime Dependencies
+
+- **jQuery 1.9.1** (vendored in src/Vendors/)
+- **gl-matrix** - Math library (vendored)
+- **BSON** - Binary serialization
+- **Lodash** - Utility functions
 
 ## Packet & Version Management
 
@@ -137,23 +281,33 @@ npm run lint:fix          # Auto-fix ESLint errors
 - Location: `src/Network/PacketVersions.js` (large switch on date)
 - When adding packets: must account for multiple versions
 
-### Packet Structure Definition
+### Packet Versions Support
 
-```javascript
-// In PacketStructure.js
-ZC.NOTIFY_INITCHAR: {
-    index: 0x75,
-    length: 106,
-    fields: {
-        gid: [0, 4],        // bytes 0-3 (little-endian uint32)
-        x: [4, 2],
-        y: [6, 2],
-        // ...
-    }
-}
-```
+The client supports 23 different packet versions corresponding to kRO client updates from 2003 to 2025:
 
-## UIManager & Components Pattern
+- **2003-2004**: Early versions with basic packet structures
+- **2005-2008**: Introduction of extended features and new packet types
+- **2009-2012**: Major UI and gameplay additions
+- **2013-2016**: Modern features, cash shop, achievements
+- **2017-2020**: Advanced systems, homunculus, mercenaries
+- **2021-2025**: Latest updates with refined mechanics
+
+Each version has its own packet length definitions and encryption methods. The PacketVerManager automatically detects the version from the executable's timestamp and loads the appropriate definitions from `src/Network/PacketVersions/`.
+
+### Adding Support for New Packet Versions
+
+1. Create new file in `src/Network/PacketVersions/` (e.g., `packets2026_len_main.js`)
+2. Define packet lengths for all known packets in that version
+3. Update PacketVerManager.js to include the new date range
+4. Test against server with matching PACKETVER
+
+### Packet Encryption
+
+- **PacketCrypt.js**: Handles encryption/decryption for secure communication
+- **Version-specific keys**: Different encryption keys per client version
+- **Automatic negotiation**: Client and server agree on encryption method during handshake
+
+## Development Workflow
 
 ### Component Registration
 
@@ -173,9 +327,10 @@ ZC.NOTIFY_INITCHAR: {
 ### Local Development
 
 ```bash
-npm run live              # Live-server on current dir + browser-examples
-npm run pwa              # PWA app on live server
-npm run build && npm run serve  # Production setup
+npm run live              # Vite dev server on browser-examples
+npm run pwa               # Vite dev server on PWA
+npm run dev               # Vite dev server
+npm run build && npm run serve  # Build and preview production
 ```
 
 ### Browser Console Access
@@ -191,6 +346,145 @@ npm run build && npm run serve  # Production setup
 - **Rendering issues**: WebGL capability (need OpenGL ES 2.0), check Three.js integration
 - **Build errors**: Clear dist/, verify src/App/{name}.js exists
 
+## Advanced Features
+
+### Dual Environment Support
+
+- **Browser Mode**: Uses WebSocket via wsProxy for TCP packet translation
+- **NW.js Desktop**: Direct TCP connection via NodeSocket, bypassing WebSocket proxy
+- **Plugin System**: socketFactory allows custom socket implementations
+
+### Preferences Persistence
+
+- **7 Preference Modules**: Audio, Graphics, Controls, UI, Camera, Map, ShortCutControls
+- **Persistent Storage**: User settings saved across sessions
+- **Dynamic Loading**: Preferences applied at runtime
+
+### Audio System
+
+- **BGM.js**: Background music management
+- **SoundManager.js**: Sound effects and audio controls
+- **Format Support**: MP3 files with configurable extensions
+
+### Extended UI Features
+
+- **UIVersionManager**: Version-specific UI aliases for compatibility
+- **Component Lifecycle**: Managed through MapEngine/UIOpen subsystem
+- **80+ Components**: Comprehensive game interface coverage
+
+### MapEngine Architecture
+
+- **27 Specialized Controllers**: Handle different game aspects (Entity, NPC, Quest, Guild, etc.)
+- **State Persistence**: MapState.js manages game state across sessions
+- **Subsystem Pattern**: Each controller handles specific packet types and UI interactions
+
+### Entity Rendering Pipeline
+
+- **16 Entity Modules**: Specialized rendering for different entity types
+- **GID Tracking**: Unique global ID system for entity management
+- **Animation System**: Integrated with sprite and model loading
+
+### Renderer Effects System
+
+- **40+ Effects**: Weather, auras, damage text, ground effects, skill animations
+- **Post-Processing**: Screen effects and filters
+- **Performance Optimized**: WebGL-based rendering pipeline
+
+## Config System
+
+### Runtime Configuration
+
+- **Config.js**: Auto-generated default settings for servers, features, and preferences
+- **Config.local.js**: Optional overrides for local development (not committed)
+- **ROConfig**: Merged configuration object loaded at runtime
+- **Dynamic Loading**: Config loaded via script injection in generated HTML
+
+### Configuration Options
+
+- **servers**: Array of server definitions (address, port, version, etc.)
+- **packetDump**: Enable packet logging for debugging
+- **skipIntro**: Bypass intro screen for testing
+- **remoteClient**: GRF asset server URL
+- **plugins**: Runtime plugin configuration
+- **aura, autoLogin**: Game-specific settings
+
+## Common Development Tasks
+
+### Adding a New UI Component
+
+1. Create `src/UI/Components/NewComponent.js`
+2. Implement constructor, open(), close(), and shortcut methods
+3. Register with UIManager: `UIManager.addComponent('NewComponent', NewComponent)`
+4. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
+5. Test component lifecycle and z-ordering
+
+### Implementing a New Packet Handler
+
+1. Define packet structure in `src/Network/PacketStructure.js`
+2. Register handler in `src/Network/PacketRegister.js`
+3. Implement handler logic in appropriate engine (MapEngine, LoginEngine, etc.)
+4. Test with packetDump enabled in config
+5. Handle version-specific differences if needed
+
+### Creating a New Renderer Effect
+
+1. Create effect module in `src/Renderer/Effects/`
+2. Implement Effect class with update() and render() methods
+3. Register with EffectManager
+4. Add to appropriate effect list (weather, aura, etc.)
+5. Test performance impact and pooling
+
+### Adding Asset Loading Support
+
+1. Create loader in `src/Loaders/` (e.g., NewAsset.js)
+2. Implement parsing logic for file format
+3. Integrate with Client.js asset loading pipeline
+4. Add to DB if metadata needed
+5. Test with sample assets
+
+## Troubleshooting Guide
+
+### Build Issues
+
+- **Module not found**: Check path aliases and file extensions
+- **Vite errors**: Verify entry points exist in `applications/tools/builder-web.mjs`
+- **Minification fails**: Check for invalid JavaScript syntax
+
+### Runtime Issues
+
+- **WebGL context lost**: Handle context restoration in Renderer.js
+- **Packet desync**: Enable packetDump, compare with server logs
+- **Asset loading fails**: Check GRF paths, Remote Client configuration
+- **UI not rendering**: Verify component registration and z-index
+
+### Network Issues
+
+- **Connection fails**: Check wsProxy configuration, firewall settings
+- **PACKETVER mismatch**: Verify executable date matches server version
+- **Encryption errors**: Update PacketCrypt.js for new versions
+
+### Performance Issues
+
+- **Low FPS**: Profile WebGL calls, reduce effect complexity
+- **Memory leaks**: Check entity pooling, effect cleanup
+- **Large GRF loading**: Implement progressive loading
+
+## Security Considerations
+
+- **Packet encryption**: All network traffic uses version-specific encryption
+- **Asset integrity**: GRF files use DES/RC4 decryption
+- **Client validation**: Executable metadata verification for PACKETVER
+- **Config isolation**: Config.local.js not committed to prevent credential leaks
+
+## Glossary
+
+- **GID**: Global ID, unique identifier for game entities
+- **GRF**: Game Resource File, container format for Ragnarok assets
+- **PACKETVER**: Packet version, determines network protocol format
+- **wsProxy**: WebSocket proxy for TCP ↔ WebSocket translation
+- **Entity**: Game object (player, NPC, monster) with rendering and state
+- **Effect**: Visual effect (weather, auras, particles) managed by EffectManager
+
 ## When Adding Features
 
 1. **New packets**: Add struct to PacketStructure.js → register ID in PacketRegister.js → handle in appropriate engine/controller
@@ -201,193 +495,116 @@ npm run build && npm run serve  # Production setup
 ## Repository Structure Notes
 
 - `applications/`: HTML entry points, PWA config, NW.js desktop wrapper, tool builds
+    - `api/`: API endpoints for external integrations
+    - `browser-examples/`: Demo pages for different apps
+    - `nwjs/`: NW.js desktop application wrapper
+    - `pwa/`: Progressive Web App configuration
+    - `tools/`: Build scripts and utilities
 - `src/`: All source code (browser-executable after build)
-- `doc/`: Setup guides and documentation
+    - `App/`: 8 application entry points
+    - `Audio/`: Sound and music management
+    - `Controls/`: Input handling systems
+    - `Core/`: Core utilities and managers
+    - `DB/`: Game data and metadata
+    - `Engine/`: Game logic engines
+    - `Loaders/`: Asset parsers and loaders
+    - `Network/`: Packet handling and network communication
+    - `Plugins/`: Plugin system
+    - `Preferences/`: User settings persistence
+    - `Renderer/`: WebGL rendering pipeline
+    - `UI/`: User interface components
+    - `Utils/`: Utility functions
+    - `Vendors/`: Third-party libraries
 - `dist/`: Build output (generated, .gitignored)
+- `doc/`: Setup guides and documentation
 - `tools/`: Build scripts and converters (rarely modified)
 
 ## Important Gotchas
 
 - **PACKETVER mismatch**: Client and server packet definitions must align; debugging requires comparing hex packets
 - **GRF paths**: Case-sensitive on Linux; relative to Remote Client or local file list
-- **Module circular dependencies**: Rare but possible; check require order in define()
+- **Module circular dependencies**: Rare but possible; check import order
 - **Texture limits**: WebGL has max texture dimensions; large sprite sheets can fail
 - **UI Z-ordering**: Managed via CSS and component registration order, not trivial to debug
-
-# Encoding & Text Handling (CRITICAL)
-
-## Overview
-
-roBrowserLegacy uses **multiple encodings depending on data source**.
-There is **NO global encoding**.
-
-All encoding logic is centralized in:
-
-```javascript
-Utils / CodepageManager.js;
-```
-
----
-
-## Core Rule
-
-> **Never assume encoding. Always decode bytes with context.**
-
----
-
-## Data Encoding Contract
-
-### 1. Filesystem / GRF (filenames, lookup)
-
-- Encoding: `'windows-1252'`
-- Used for:
-    - GRF file paths
-    - filename lookup
-
-```javascript
-TextEncoding.setCharset('windows-1252');
-```
-
-**Reason:**
-Browser string handling and path lookup are more stable with windows-1252.
-
----
-
-### 2. User-facing text (DB, Lua, UI)
-
-- Encoding: `userCharpage`
-- Determined by:
-
-```javascript
-TextEncoding.detectEncodingByLangtype(langType);
-```
-
-Examples:
-
-- Korean → `windows-949` → langType 0
-- Russian → `windows-1251` → langType 5
-- Default → `windows-1252` → langType 1 or 12
-
-**Usage:**
-
-```javascript
-TextEncoding.decode(bytes, userCharpage);
-```
-
----
-
-### 3. Hybrid / Unknown data (network, binary blobs)
-
-- Attempt UTF-8 first
-- Fallback to user charset if invalid (each new instance of require() have the own userCharpage/default[windows-1252])
-
-```javascript
-TextEncoding.decode(bytes, 'utf-8');
-```
-
-Internally:
-
-```javascript
-UTF-8 → if contains '�' → fallback
-```
-
----
-
-## Pipeline Contract (VERY IMPORTANT)
-
-```text
-Client.loadFile
-    ↓
-FileManager → returns Uint8Array (RAW BYTES ONLY)
-    ↓
-Consumer (DB / Loader / Engine) decides encoding
-    ↓
-Decoded string (final)
-```
-
-### DO NOT:
-
-- Decode inside `FileManager`
-- Use `String.fromCharCode` for text
-- Use `TextDecoder` directly
-- Re-decode already decoded strings
-
----
-
-## Correct Pattern for User-facing text in DB
-
-```javascript
-Client.loadFile(filename, function (buffer) {
-	var text = TextEncoding.decode(buffer, userCharpage);
-});
-```
-
----
-
-## Incorrect Patterns (Legacy Bugs)
-
-```javascript
-// WRONG: implicit decoding
-str += String.fromCharCode(byte);
-
-// WRONG: forcing UTF-8 everywhere
-new TextDecoder('utf-8').decode(buffer);
-
-// WRONG: decoding twice
-TextEncoding.decodeString(alreadyDecodedString);
-```
-
----
-
-## File-specific Encoding Control
-
-Some files must explicitly use user charset:
-
-```javascript
-loadTable(..., useCharPage = true);
-```
-
-Others should NOT:
-
-- GRF metadata
-- internal system files
-
----
-
-## CSV / Base64 Handling
-
-Newer clients may use Base64-encoded CSV.
-
-Rules:
-
-- If Base64 → decode → UTF-8
-- Else → treat as plain text (tab-separated)
-
----
-
-## Common Pitfalls
-
-### 1. Broken Korean / Russian text
-
-→ Wrong charset used (missing `userCharpage`)
-
-### 2. File not found in GRF
-
-→ Wrong encoding for filename (must be `windows-1252`)
-
-### 3. Random `�` characters
-
-→ UTF-8 decode on non-UTF8 data without fallback
-
-### 4. Text works in one place but not another
-
-→ Double decoding or mixed encoding contexts
-
----
-
-## Design Principle
-
-> Encoding is not a property of the data —
-> it is a property of the **context where the data is interpreted**.
-
----
+- **ES6 features**: Use const/let but avoid arrow functions, template literals, async/await for consistency
+- **Path aliases**: Always use aliases (e.g., 'Utils/BinaryReader') instead of relative paths
+- **Component registration**: UI components must be registered with UIManager for proper lifecycle
+- **Entity GID**: All entities tracked by unique Global ID for state management
+- **Renderer effects**: 40+ specialized effects require proper EffectManager integration
+
+## Renderer Pipeline Details
+
+### Core Rendering Components
+
+- **Renderer.js**: Main WebGL context manager and frame loop orchestrator
+- **MapRenderer**: Handles ground, models, altitude, and animated map elements
+- **EntityManager**: Manages all game entity rendering (players, NPCs, monsters)
+- **EffectManager**: Coordinates 40+ visual effects (weather, auras, damage text)
+- **ScreenEffectManager**: Post-processing filters and screen-wide effects
+- **SignboardManager**: Entity nameplates, status indicators, and UI overlays
+
+### Entity Rendering System
+
+The entity pipeline consists of 16 specialized modules:
+
+- **Entity.js**: Base entity state and GID tracking
+- **EntityRender.js**: Core rendering logic and sprite/model selection
+- **EntityAnimations.js**: Animation frame management and timing
+- **EntityWalk.js**: Movement interpolation and path rendering
+- **EntityCast.js**: Skill casting animations and effects
+- **EntityState.js**: Status effects (poison, stun, etc.) visualization
+- **EntityLife.js**: Health bars and life state indicators
+- **Additional modules**: EntityAction, EntityAttach, EntityDirection, EntityEmotion, EntityHat, EntityMount, EntityShield, EntityWeapon
+
+### Effects System Architecture
+
+40+ specialized effects organized by category:
+
+- **Weather Effects**: Rain, snow, fog, sakura systems
+- **Aura Effects**: Character halos, skill auras, elemental effects
+- **Damage Text**: Floating numbers with color coding and animation
+- **Ground Effects**: Area-of-effect circles, targeting indicators
+- **Skill Effects**: Spell animations, particle systems, projectile trails
+- **Screen Effects**: Post-processing shaders, screen shakes, fades
+- **Signboard Effects**: Nameplates, guild tags, status icons
+
+### Performance Considerations
+
+- WebGL texture limits and sprite sheet optimization
+- Entity culling based on viewport and distance
+- Effect pooling and reuse to minimize allocations
+- Frame rate management and vsync synchronization
+- Memory management for large GRF assets
+
+## Development Workflow
+
+### Setting Up Development Environment
+
+1. Clone repository and install dependencies: `npm install`
+2. Configure local settings in `Config.local.js` (copy from `Config.local.js.example`)
+3. Run development server: `npm run dev` or `npm run live`
+4. Build for testing: `npm run build:all`
+5. Lint and format code: `npm run lint:fix && npm run format`
+
+### Adding New Features
+
+1. **Packets**: Define in PacketStructure.js, register in PacketRegister.js, handle in engine
+2. **UI Components**: Create in UI/Components/, register with UIManager, add shortcuts
+3. **Assets**: Add loader in Loaders/, integrate with Client.js
+4. **Entities**: Extend EntityManager, add specialized modules if needed
+5. **Effects**: Implement in Renderer/Effects/, register with EffectManager
+
+### Testing and Debugging
+
+- Use browser DevTools for packet inspection (enable packetDump in config)
+- Check console for GRF loading errors and WebGL issues
+- Test on multiple platforms: browser, PWA, NW.js
+- Validate packet versions against server PACKETVER
+- Monitor performance with WebGL frame analysis
+
+### Deployment
+
+- Build production: `npm run build:all:minify`
+- For PWA: `npm run build:pwa`
+- For desktop: `npm run build:nw`
+- Deploy dist/ contents to web server with wsProxy for network
