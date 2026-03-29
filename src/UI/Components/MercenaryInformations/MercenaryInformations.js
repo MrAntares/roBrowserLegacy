@@ -308,8 +308,9 @@ MercenaryInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
  * Toggle Aggressive
  */
 MercenaryInformations.toggleAggressive = function toggleAggressive() {
-	const agr = localStorage.getItem('MER_AGGRESSIVE') == 0 ? 1 : 0;
+	const agr = localStorage.getItem('MER_AGGRESSIVE') === 0 ? 1 : 0;
 	localStorage.setItem('MER_AGGRESSIVE', agr);
+	AIDriver.MER_AGGRESSIVE = !AIDriver.MER_AGGRESSIVE;
 };
 
 /**

@@ -420,8 +420,9 @@ HomunInformations.setHunger = function setHunger(val) {
 };
 
 HomunInformations.toggleAggressive = function toggleAggressive() {
-	const agr = localStorage.getItem('HOM_AGGRESSIVE') == 0 ? 1 : 0;
+	const agr = localStorage.getItem('HOM_AGGRESSIVE') === 0 ? 1 : 0;
 	localStorage.setItem('HOM_AGGRESSIVE', agr);
+	AIDriver.HOM_AGGRESSIVE = !AIDriver.HOM_AGGRESSIVE;
 };
 
 HomunInformations.startAI = function startAI() {
