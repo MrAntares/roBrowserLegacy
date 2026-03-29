@@ -107,10 +107,11 @@ EquipmentV4.init = function init() {
 
 	// Grab the tab links and content divs from the page
 	const tabListItems = document.getElementById('tabs').childNodes;
-	for (var i = 0; i < tabListItems.length; i++) {
+	let i = 0;
+	for (i = 0; i < tabListItems.length; i++) {
 		if (tabListItems[i].nodeName == 'DIV') {
 			const tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
-			var id = getHash(tabLink.getAttribute('href'));
+			const id = getHash(tabLink.getAttribute('href'));
 			tabLinks[id] = tabLink;
 			contentDivs[id] = document.getElementById(id);
 		}
@@ -118,9 +119,9 @@ EquipmentV4.init = function init() {
 
 	// Assign onclick events to the tab links, and
 	// highlight the first tab
-	var i = 0;
+	i = 0;
 
-	for (var id in tabLinks) {
+	for (const id in tabLinks) {
 		tabLinks[id].onclick = showTab;
 		tabLinks[id].onfocus = function () {
 			this.blur();
@@ -132,9 +133,9 @@ EquipmentV4.init = function init() {
 	}
 
 	// Hide all content divs except the first
-	var i = 0;
+	i = 0;
 
-	for (var id in contentDivs) {
+	for (const id in contentDivs) {
 		if (contentDivs[id]) {
 			if (i != 0) {
 				contentDivs[id].classList.add('content', 'hide');
@@ -663,7 +664,7 @@ function toggleCostume() {
 /**
  * Rendering character
  */
-var renderCharacter = (function renderCharacterClosure() {
+const renderCharacter = (function renderCharacterClosure() {
 	let _lastState = 0;
 	let _hasCart = 0;
 
@@ -702,7 +703,7 @@ var renderCharacter = (function renderCharacterClosure() {
 		StatusConst.EffectState.CART4 |
 		StatusConst.EffectState.CART5;
 
-	return function renderCharacter() {
+	return function render() {
 		const equip_character = new Entity();
 		equip_character.set({
 			GID: Session.Entity.GID + '_EQUIP',
@@ -867,8 +868,8 @@ function onDragOver(event) {
 				selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
 				ui = EquipmentV4.ui.find(selector);
 
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (data) {
-					ui.css('backgroundImage', 'url(' + data + ')');
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (_data) {
+					ui.css('backgroundImage', 'url(' + _data + ')');
 				});
 			}
 		}
@@ -895,7 +896,9 @@ function onDrop(event) {
 
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {}
+	} catch (e) {
+		// Ignore parsing error
+	}
 
 	// Just support items for now ?
 	if (data && data.type === 'item') {
