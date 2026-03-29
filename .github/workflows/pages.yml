@@ -1,0 +1,31 @@
+name: Deploy to GitHub Pages
+
+concurrency:
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+on:  
+  push:  
+    branches: ['master']  
+  
+permissions:  
+  contents: read  
+  pages: write  
+  id-token: write  
+  
+jobs:  
+  build-and-deploy:  
+    runs-on: ubuntu-latest  
+    steps:  
+      - uses: actions/checkout@v5  
+      - uses: actions/setup-node@v6  
+        with:  
+          node-version: 24  
+      - run: npm install  
+      - run: npm run build -- -O -T -H  
+      - name: Upload artifact  
+        uses: actions/upload-pages-artifact@v3  
+        with:  
+          path: dist/Web  
+      - name: Deploy to GitHub Pages  
+        uses: actions/deploy-pages@v4
