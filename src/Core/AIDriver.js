@@ -14,6 +14,9 @@ function AIDriver() {}
 
 AIDriver.init = async function init() {};
 
+AIDriver.HOM_AGGRESSIVE = false;
+AIDriver.MER_AGGRESSIVE = false;
+
 const msg = {};
 const resMsg = {};
 
@@ -219,13 +222,13 @@ AIDriver.addCTX = function addAIctx() {
 			});
 			// aggressive logic
 			if (res.length > 3) {
-				if (localStorage.getItem('AGGRESSIVE') == 1) {
+				if (isHoAI ? AIDriver.HOM_AGGRESSIVE : AIDriver.MER_AGGRESSIVE) {
 					let closest = 0;
 					let lastDist = 1000;
 					const thisentity = EntityManager.get(isHoAI ? Session.homunId : Session.mercId);
-					for (const item in res) {
+					for (const item of res) {
 						if (item !== 0 && item !== Session.AID && item !== Session.homunId && item !== Session.mercId) {
-							const entity = EntityManager.get(Number(item));
+							const entity = EntityManager.get(item);
 							if (
 								entity &&
 								(entity.objecttype === Session.Entity.constructor.TYPE_MOB ||
