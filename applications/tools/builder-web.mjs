@@ -136,7 +136,8 @@ async function compile(appName, isMinify) {
 						banner: header
 					},
 					onwarn(warning, warn) {
-						if(warning.code === 'PLUGIN_TIMINGS'){ // just appears if vite spending much time to compile css and assets
+						if (warning.code === 'PLUGIN_TIMINGS') {
+							// just appears if vite spending much time to compile css and assets
 							return;
 						}
 						warn(warning);
