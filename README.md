@@ -34,7 +34,7 @@ npm run build:all     # Build all applications to dist/Web/
 
 ## DEMO
 
-[![Start!](https://github.com/MrAntares/roBrowserLegacy/raw/master/src/UI/Components/Intro/images/play.png 'Start Demo')](https://mrantares.github.io/roBrowserLegacy/applications/browser-examples/demo.html)
+[![Start!](https://github.com/MrAntares/roBrowserLegacy/raw/master/src/UI/Components/Intro/images/play.png 'Start Demo')](https://mrantares.github.io/roBrowserLegacy/)
 
 _Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen, or use the Register/Request button to navigate to the server's account registration page._
 

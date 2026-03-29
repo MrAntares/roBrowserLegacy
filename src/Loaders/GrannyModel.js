@@ -15,8 +15,8 @@
 
 import BinaryReader from 'Utils/BinaryReader.js';
 import glMatrix from 'Utils/gl-matrix.js';
-import CRC32 from 'Utils/CRC32.js';
-
+//This is because src/Utils/CRC32.js is a side-effect-only module that adds CRC32 to BinaryReader.prototype (line 83). It has no default export [compiler gives error Missing export]. The import just needs to trigger the side effect, not bind a variable.
+import 'Utils/CRC32.js';
 /**
  * Import
  */

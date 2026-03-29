@@ -111,6 +111,7 @@ async function compile(appName, isMinify) {
 		await build({
 			configFile: false,
 			root: projectRoot,
+			base: './',
 			logLevel: 'warn',
 			resolve: {
 				alias: aliases
@@ -135,14 +136,10 @@ async function compile(appName, isMinify) {
 						banner: header
 					},
 					onwarn(warning, warn) {
-						if (
-							warning.code === 'INEFFECTIVE_DYNAMIC_IMPORT' ||
-							warning.code === 'PLUGIN_TIMINGS' ||
-							warning.code === 'MODULE_LEVEL_DIRECTIVE' ||
-							(warning.message &&
-								warning.message.includes('has been externalized for browser compatibility'))
-						)
+						if (warning.code === 'PLUGIN_TIMINGS') {
+							// just appears if vite spending much time to compile css and assets
 							return;
+						}
 						warn(warning);
 					}
 				},

@@ -1,3 +1,5 @@
+// Dont replace this lib with npm version
+// this has modified to send frames info on gif object
 /*
 	SuperGif
 
