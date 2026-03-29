@@ -37,31 +37,34 @@ AIDriver.addCTX = function addAIctx() {
 
 		// Initialize AzzyAI timeouts variables and GetV adapter
 		lua.doStringSync(`
-				UseSacrificeOwner=0
-				BerserkMode=0
-				SteinWandPauseTime=0
-				MagTimeout=0
-				SOffensiveTimeout=0
-				SDefensiveTimeout=0
-				SOwnerBuffTimeout=0
-				GuardTimeout=0
-				QuickenTimeout=0
-				OffensiveOwnerTimeout=0
-				DefensiveOwnerTimeout=0
-				OtherOwnerTimeout=0
-				ShouldStandby=0
-				MySpheres=0
-				EleanorMode=0
-				RegenTick = {}
-
-				function GetV(V_, id)
-					local res = GetVJS(V_, id)
-					if(V_ == 1 or V_ == 13) then
-						return res[1], res[2]
-					end
-					return res
-				end	
-			`);
+			function GetV(V_, id)
+				local res = GetVJS(V_, id)
+				if(V_ == 1 or V_ == 13) then
+					return res[1], res[2]
+				end
+				return res
+			end	
+			function GetMsg(id)  
+				local res = GetMsgJS(id)  
+				local result = {}  
+				local i = 0  
+				while res[i] ~= nil do  
+					result[i + 1] = res[i]  
+					i = i + 1  
+				end  
+				return result  
+			end  
+			function GetResMsg(id)  
+				local res = GetResMsgJS(id)  
+				local result = {}  
+				local i = 0  
+				while res[i] ~= nil do  
+					result[i + 1] = res[i]  
+					i = i + 1  
+				end  
+				return result  
+			end
+		`);
 
 		// Hooks default lua logging
 		ctx.log = logMessage => {
@@ -248,12 +251,6 @@ AIDriver.addCTX = function addAIctx() {
 					if (closest > 0) {
 						AIDriver.setmsg(isHoAI ? Session.homunId : Session.mercId, '3,' + closest);
 					}
-				} else {
-					if (ctx.status !== null) {
-						AIDriver.setmsg(isHoAI ? Session.homunId : Session.mercId, ctx.status.toString());
-					} else {
-						AIDriver.setmsg(isHoAI ? Session.homunId : Session.mercId, '0');
-					}
 				}
 			}
 			return res;
@@ -263,22 +260,22 @@ AIDriver.addCTX = function addAIctx() {
 			return Date.now() - scriptStartTime;
 		};
 
-		ctx.GetMsg = function GetMsgJS(id) {
+		ctx.GetMsgJS = function GetMsgJS(id) {
+			let raw = '0';
 			if (id in msg) {
-				const res = msg[id];
+				raw = msg[id];
 				delete msg[id];
-				return res;
 			}
-			return '0';
+			return raw.split(',').map(Number);
 		};
 
-		ctx.GetResMsg = function GetResMsg(id) {
+		ctx.GetResMsgJS = function GetResMsgJS(id) {
+			let raw = '0';
 			if (id in resMsg) {
-				const res = resMsg[id];
+				raw = resMsg[id];
 				delete resMsg[id];
-				return res;
 			}
-			return '0';
+			return raw.split(',').map(Number);
 		};
 
 		ctx.SkillObject = function SkillObject(homunId, level, skillId, targetID) {
