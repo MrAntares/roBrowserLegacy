@@ -35,7 +35,7 @@ AIDriver.addCTX = function addAIctx() {
 	function addCTX(lua, isHoAI = true) {
 		const ctx = lua.ctx;
 
-		// Initialize AzzyAI timeouts variables and GetV adapter
+		// Initialize GetV, GetMsg and GetResMsg adapter
 		lua.doStringSync(`
 			function GetV(V_, id)
 				local res = GetVJS(V_, id)
