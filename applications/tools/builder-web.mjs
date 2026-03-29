@@ -111,6 +111,7 @@ async function compile(appName, isMinify) {
 		await build({
 			configFile: false,
 			root: projectRoot,
+			base: './',
 			logLevel: 'warn',
 			resolve: {
 				alias: aliases
