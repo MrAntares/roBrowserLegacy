@@ -184,6 +184,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 31 effect JS files + 9 post-processing shaders:
 
 **Effects:**
+
 - **Weather**: CloudWeatherEffect, PokJukWeatherEffect, RainWeather, SakuraWeatherEffect, SnowWeather, Sky
 - **Auras/Spheres**: GroundAura, SwirlingAura, SpiritSphere, WarlockSphere, Level99Bubble, QuadHorn
 - **Ground**: GroundEffect, FlatColorTile, PropertyGround, LPEffect, SpiderWeb, Tiles
@@ -211,6 +212,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 Formatting is handled by **Prettier** (defaults). ESLint extends `eslint:recommended` and `prettier`.
 
 ESLint enforces:
+
 - **Quotes**: Single quotes (`avoidEscape: true`)
 - **Semicolons**: Required
 - **Trailing commas**: Forbidden (`comma-dangle: never`)
