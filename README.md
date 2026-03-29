@@ -8,6 +8,25 @@ For info on how to setup the client read the contents of our [Getting Started do
 
 All credits to the original owners/creators and the new ones.
 
+## Tech Stack
+
+- **ES6 Modules** — Modern `import`/`export` syntax (migrated from AMD/RequireJS)
+- **Vite** — Build tool and dev server (replaced RequireJS optimizer and live-server)
+- **WebGL** — 3D/2D rendering via OpenGL ES 2.0
+- **WebSockets** — Network communication via wsProxy
+- **ESLint + Prettier** — Code quality and formatting
+- **Web Workers** — Background processing for GRF decompression and pathfinding
+
+## Quick Start
+
+```bash
+git clone https://github.com/MrAntares/roBrowserLegacy.git
+cd roBrowserLegacy
+npm install
+npm run live          # Dev server with Vite (opens browser)
+npm run build:all     # Build all applications to dist/Web/
+```
+
 #### Repo info:
 
 | ![GitHub](https://img.shields.io/github/license/MrAntares/roBrowserLegacy.svg) | ![commit activity](https://img.shields.io/github/commit-activity/w/MrAntares/roBrowserLegacy) | ![GitHub repo size](https://img.shields.io/github/repo-size/MrAntares/roBrowserLegacy.svg) | ![CodeQL](https://img.shields.io/github/actions/workflow/status/MrAntares/roBrowserLegacy/analysis_codeql.yml?label=CodeQL&logo=badge) |
