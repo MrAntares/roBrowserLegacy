@@ -447,6 +447,20 @@ const renderEntity = (function renderEntityClosure() {
 					}
 				});
 				break;
+			case Entity.TYPE_HOM:
+				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+				SpriteRenderer.zIndex = 150;
+				SpriteRenderer.runWithDepth(true, true, false, function () {
+					renderElement(self, self.files.body, 'body', _position, true);
+				});
+				break;
+			case Entity.TYPE_FALCON:
+				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+				SpriteRenderer.zIndex = 1000;
+				SpriteRenderer.runWithDepth(true, true, false, function () {
+					renderElement(self, self.files.body, 'body', _position, true);
+				});
+				break;
 			default:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 				SpriteRenderer.zIndex = 150;
