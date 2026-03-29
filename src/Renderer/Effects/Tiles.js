@@ -4,62 +4,10 @@ import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import _vertexShader from './Tiles.vs?raw';
+import _fragmentShader from './Tiles.fs?raw';
 
 const mat4 = glMatrix.mat4;
-
-export const flatTextureVertexShader = `
-	#version 300 es
-	#pragma vscode_glsllint_stage : vert
-	precision highp float;
-
-	in vec2 aPosition;
-	in vec2 aTextureCoord;
-	out vec2 vTextureCoord;
-	uniform mat4 uModelViewMat;
-	uniform mat4 uProjectionMat;
-	uniform vec3 uPosition;
-	uniform float uSize;
-
-
-	void main(void) {
-		vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
-		position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);
-		gl_Position    = uProjectionMat * uModelViewMat * position;
-		gl_Position.z -= 0.01;
-		vTextureCoord  = aTextureCoord;
-	}
-`;
-
-export const flatTextureFragmentShader = `
-	#version 300 es
-	#pragma vscode_glsllint_stage : frag
-	precision highp float;
-	
-	in vec2 vTextureCoord;
-	out vec4 fragColor;
-	uniform sampler2D uDiffuse;
-	uniform float alpha;
-	
-	uniform bool  uFogUse;
-	uniform float uFogNear;
-	uniform float uFogFar;
-	uniform vec3  uFogColor;
-	
-		void main(void) {
-			vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
-			if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {
-				discard;
-			}
-			textureSample.a = alpha;
-			fragColor = textureSample;
-		
-		if (uFogUse) {
-		float depth     = gl_FragCoord.z / gl_FragCoord.w;
-		float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-		fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
-		}
-	}
-`;
 
 export function loadTexture(gl, texture, cb) {
 	const _texture = gl.createTexture();
@@ -96,7 +44,7 @@ export const FlatTexture = (textureFilename, size = 64) =>
 		}
 
 		static createShaderProgram(gl) {
-			return WebGL.createShaderProgram(gl, flatTextureVertexShader, flatTextureFragmentShader);
+			return WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		}
 
 		static init(gl) {

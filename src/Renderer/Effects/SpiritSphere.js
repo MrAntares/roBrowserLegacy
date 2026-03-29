@@ -4,6 +4,8 @@ import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Camera from 'Renderer/Camera.js';
 import Configs from 'Core/Configs.js';
+import _vertexShader from './SpiritSphere.vs?raw';
+import _fragmentShader from './SpiritSphere.fs?raw';
 
 // Load dependencies
 /**
@@ -38,72 +40,6 @@ const _rotationMatrices = (function () {
 })();
 
 const _textureMatrix = mat4.create();
-
-/**
- * @var {string} Vertex Shader
- */
-const _vertexShader = `
-        #version 300 es
-        #pragma vscode_glsllint_stage : vert
-        precision highp float;
-
-        in vec2 aPosition;
-        in vec2 aTextureCoord;
-
-        out vec2 vTextureCoord;
-
-        uniform mat4 uModelViewMat;
-        uniform mat4 uProjectionMat;
-        uniform mat4 uTextureRotMat;
-        uniform mat4 uRotationMat;
-
-        uniform float uCameraZoom;
-
-        uniform vec3 uPosition;
-        uniform float uSize;
-        uniform float uZIndex;
-
-        void main(void) {
-
-            vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z - 2.0, uPosition.y + 0.5, 1.0);
-            
-            vec4 pos2      = vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0) * uTextureRotMat;
-            pos2.x        += 1.0;
-            position      += pos2 * uRotationMat;
-
-            gl_Position    = uProjectionMat * uModelViewMat * position;
-            gl_Position.z -= uZIndex / max(uCameraZoom, 1.0);
-
-            vTextureCoord  = aTextureCoord;
-        }`;
-
-/**
- * @var {string} Fragment Shader
- */
-const _fragmentShader = `
-        #version 300 es
-        #pragma vscode_glsllint_stage : frag
-        precision highp float;    
-
-        in vec2 vTextureCoord;
-        out vec4 fragColor;
-
-        uniform vec4 uColor;
-        uniform sampler2D uDiffuse;
-        float tmp;
-
-        void main(void) {
-            vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
-            
-            textureSample *= uColor;
-            
-            /*if (texture.r < 0.1 && texture.g < 0.1 && texture.b < 0.1) {
-               discard;
-            }*/
-            
-            fragColor = textureSample;
-
-        }`;
 
 function SpiritSphere(entity, num, isCoin) {
 	this.position = entity.position;

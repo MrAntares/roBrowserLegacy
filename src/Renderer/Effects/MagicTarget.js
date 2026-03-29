@@ -15,6 +15,8 @@ import Client from 'Core/Client.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import Camera from 'Renderer/Camera.js';
+import _vertexShader from './MagicTarget.vs?raw';
+import _fragmentShader from './MagicTarget.fs?raw';
 
 // Load dependencies
 /**
@@ -142,72 +144,6 @@ CastSize[SkillId.MH_VOLCANIC_ASH] = [3];
 //CastSize[ SkillId.RA_VERDURETRAP ]		= [5]; //trap
 CastSize[SkillId.AS_VENOMDUST] = [2];
 CastSize[SkillId.KO_HUUMARANKA] = [7];
-
-/**
- * @var {string} Vertex Shader
- */
-const _vertexShader = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : vert
-		precision highp float;
-		
-		in vec3 aPosition;
-		in vec2 aTextureCoord;
-
-		out vec2 vTextureCoord;
-		
-		uniform float uCameraLatitude;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-		uniform mat4 uRotationMat;
-
-		void main(void) {
-			gl_Position    = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);
-			gl_Position.z -= 0.02 / uCameraLatitude;
-
-			vTextureCoord  = (uRotationMat * vec4( aTextureCoord - 0.5, 1.0, 1.0)).xy + 0.5;
-		}
-	`;
-
-/**
- * @var {string} Fragment Shader
- */
-const _fragmentShader = `
-		#version 300 es
-		#pragma vscode_glsllint_stage : frag
-		precision highp float;
-
-		in vec2 vTextureCoord;
-		out vec4 fragColor;
-
-		uniform sampler2D uDiffuse;
-
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-
-		void main(void) {
-			vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
-
-			if (textureSample.a == 0.0) {
-				discard;
-			}
-
-            if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {
-               discard;
-            }
-
-			fragColor = textureSample;
-
-			if (uFogUse) {
-				float depth     = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
-			}
-		}
-	`;
 
 /**
  * MagicTarget constructor

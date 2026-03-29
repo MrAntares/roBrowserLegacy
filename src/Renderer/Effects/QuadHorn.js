@@ -10,74 +10,13 @@ import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Texture from 'Utils/Texture.js';
+import _vertexShader from './QuadHorn.vs?raw';
+import _fragmentShader from './QuadHorn.fs?raw';
 
 let _program;
 const mat4 = glMatrix.mat4;
 
 const blendMode = {};
-
-const _vertexShader = `
-        #version 300 es
-        #pragma vscode_glsllint_stage : vert
-        precision highp float;
-
-		in vec3 aPosition;
-		in vec2 aTextureCoord;
-		out vec2 vTextureCoord;
-
-        uniform vec3 uPosition;
-		uniform float uHeight;
-		uniform float uBottomSize;
-		uniform float uOffsetX;
-		uniform float uOffsetY;
-		uniform float uOffsetZ;
-
-		uniform mat4 uModelViewMat;
-		uniform mat4 uProjectionMat;
-		uniform mat4 uXRotationMat;
-		uniform mat4 uYRotationMat;
-		uniform mat4 uZRotationMat;
-		void main(void) {
-			vec4 position       = vec4(uPosition.x + uOffsetX, -uPosition.z - ((uHeight * 0.9) + uOffsetZ), uPosition.y + uOffsetY, 1.0);
-			position            += vec4(aPosition.x * uBottomSize, aPosition.y * uHeight, aPosition.z * uBottomSize, 0.0) * uXRotationMat * uYRotationMat * uZRotationMat;
-            gl_Position         = uProjectionMat * uModelViewMat * position;
-
-            vTextureCoord = aTextureCoord;
-		}
-	`;
-
-const _fragmentShader = `
-        #version 300 es
-        #pragma vscode_glsllint_stage : frag
-        precision highp float;
-
-		in vec2 vTextureCoord;
-        uniform vec4 uColor;
-		uniform sampler2D uDiffuse;
-		uniform bool  uFogUse;
-		uniform float uFogNear;
-		uniform float uFogFar;
-		uniform vec3  uFogColor;
-		out vec4 fragColor;
-		
-		void main(void) {
-			
-			vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );
-			
-			if (textureSample.a == 0.0 ) { discard; }
-            if (textureSample.r < 0.01 && textureSample.g < 0.01 && textureSample.b < 0.01) {
-                discard;
-             }
-			
-			fragColor = textureSample * uColor;
-
-			if (uFogUse) {
-				float depth     = gl_FragCoord.z / gl_FragCoord.w;
-				float fogFactor = smoothstep( uFogNear, uFogFar, depth );
-				fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
-			}
-		}
-	`;
 
 const vertices = [
 	0.0, 1.0, 0.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,
