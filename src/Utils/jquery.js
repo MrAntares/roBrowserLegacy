@@ -15,7 +15,7 @@ jQuery.fn.text = function (text) {
 				return jQuery.text(this);
 			}
 
-			var reg, txt, result;
+			let reg, txt, result;
 
 			// Escape, secure entry
 			value = String(value);

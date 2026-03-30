@@ -224,7 +224,7 @@ PlayerViewEquipV0.setChar2Render = function setChar2Render(pkt) {
 /**
  * Rendering character
  */
-const renderCharacter = (function renderCharacterClosure() {
+var renderCharacter = (function renderCharacterClosure() {
 	const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 	const _savedColor = new Float32Array(4);
 	const _animation = {
@@ -237,7 +237,7 @@ const renderCharacter = (function renderCharacterClosure() {
 		save: false
 	};
 
-	return function () {
+	return function renderCharacter() {
 		const show_character = new Entity();
 		show_character.set({
 			GID: charName + '_EQUIP',

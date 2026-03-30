@@ -57,7 +57,7 @@ const dummy = function () {
  * Disabled console object
  * Has all the console functions for Function.prototype.apply() compatibility, but replaced with the dummy function
  */
-var noConsole = {
+const noConsole = {
 	assert: dummy,
 	clear: dummy,
 	count: dummy,

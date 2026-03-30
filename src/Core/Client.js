@@ -69,7 +69,6 @@ function savingFiles(files) {
 	let last_tick = Date.now();
 	const list = [];
 	let i, count;
-	let temporaryStorage;
 
 	if (files.length) {
 		// Progressbar
@@ -139,7 +138,7 @@ function savingFiles(files) {
 
 	// Get temporary storage info at main thread, the worker can't access it.
 	// https://github.com/vthibault/roBrowser/issues/110
-	temporaryStorage = navigator.temporaryStorage ||
+	const temporaryStorage = navigator.temporaryStorage ||
 		navigator.webkitTemporaryStorage || {
 			queryUsageAndQuota: function (callback) {
 				callback(0, 0);
@@ -181,7 +180,7 @@ export const getFile = (function getFilClosure() {
 		Memory.set(input.filename, data, error);
 	}
 
-	return function getFile(filename, onload, onerror, args) {
+	return function (filename, onload, onerror, args) {
 		if (!Memory.exist(filename)) {
 			_input.filename = filename;
 			_input.args = args || null;
@@ -200,8 +199,9 @@ export const getFile = (function getFilClosure() {
  * @param {function} callback once loaded
  */
 export function getFiles(filenames, callback) {
-	let count, index;
-	let out;
+	let index;
+	const count = filenames.length;
+	const out = new Array(count);
 
 	function onload(data) {
 		out[index++] = data;
@@ -216,8 +216,6 @@ export function getFiles(filenames, callback) {
 		getFile(filenames[index], onload);
 	}
 
-	count = filenames.length;
-	out = new Array(count);
 	index = 0;
 
 	getFile(filenames[index], onload);
@@ -258,9 +256,9 @@ export const loadFile = (function loadFileClosure() {
 
 						for (j = 0; j < layers[i].texcnt; ++j) {
 							(function (url, materials, textureId) {
-								Client.loadFile(url, function (url) {
-									WebGL.texture(gl, url, function (texture) {
-										materials[textureId] = texture;
+								Client.loadFile(url, function (loadedUrl) {
+									WebGL.texture(gl, loadedUrl, function (loadedTexture) {
+										materials[textureId] = loadedTexture;
 									});
 								});
 							})(layers[i].texname[j], layers[i].materials, j);
@@ -317,7 +315,7 @@ export const loadFile = (function loadFileClosure() {
 
 				// Build palette
 				case 'pal':
-					var enableMipmap = Configs.get('enableMipmap');
+					const enableMipmap = Configs.get('enableMipmap');
 					gl = (await import('Renderer/Renderer.js')).default.getContext();
 					texture = gl.createTexture();
 					palette = new Uint8Array(data);
@@ -338,7 +336,7 @@ export const loadFile = (function loadFileClosure() {
 		Memory.set(input.filename, data, error);
 	}
 
-	return function loadFile(filename, onload, onerror, args = {}) {
+	return function (filename, onload, onerror, args = {}) {
 		if (!Memory.exist(filename)) {
 			_input.filename = filename;
 			_input.args = args || null;
@@ -357,8 +355,9 @@ export const loadFile = (function loadFileClosure() {
  * @param {function} callback once loaded
  */
 export function loadFiles(filenames, callback) {
-	let count, index;
-	let out;
+	let index;
+	const count = filenames.length;
+	const out = new Array(count);
 
 	function onload(data) {
 		out[index++] = data;
@@ -373,8 +372,6 @@ export function loadFiles(filenames, callback) {
 		loadFile(filenames[index], onload);
 	}
 
-	count = filenames.length;
-	out = new Array(count);
 	index = 0;
 
 	loadFile(filenames[index], onload);

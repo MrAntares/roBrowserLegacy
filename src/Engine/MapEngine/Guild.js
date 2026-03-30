@@ -115,8 +115,6 @@ GuildEngine.requestInfo = function requestInfo(type) {
  * @param {function} callback
  */
 GuildEngine.requestGuildEmblem = function requestGuildEmblem(guild_id, version, callback) {
-	let emblem;
-
 	// Guild does not exist
 	if (!_emblems[guild_id]) {
 		_emblems[guild_id] = {
@@ -129,8 +127,7 @@ GuildEngine.requestGuildEmblem = function requestGuildEmblem(guild_id, version, 
 	if (Session.Entity.GUID === guild_id) {
 		GuildEngine.guild_id = guild_id;
 	}
-
-	emblem = _emblems[guild_id];
+	const emblem = _emblems[guild_id];
 
 	// Lower version, update it to the current
 	if (version <= emblem.version) {
@@ -422,7 +419,9 @@ GuildEngine.requestDeleteRelatedGuild = function requestDeleteRelatedGuild(guild
  */
 GuildEngine.sendEmblem = (function sendEmblemClosure() {
 	function adler32(data) {
-		for (var i = 0, len = data.length, s1 = 1, s2 = 0; i < len; i++) {
+		let s1 = 1;
+		let s2 = 0;
+		for (let i = 0, len = data.length; i < len; i++) {
 			s1 = (s1 + data[i]) % 65521;
 			s2 = (s2 + s1) % 65521;
 		}
@@ -433,9 +432,9 @@ GuildEngine.sendEmblem = (function sendEmblemClosure() {
 		if (PACKETVER.value >= 20170315) {
 			const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 
-			function getFileType(data) {
+			function getFileType(_data) {
 				// "GI" Magic Bytes check (same from src)
-				if (data.length >= 3 && data[0] === 0x47 && data[1] === 0x49 && data[2] === 0x46) {
+				if (_data.length >= 3 && _data[0] === 0x47 && _data[1] === 0x49 && _data[2] === 0x46) {
 					return { type: 'image/gif', imgType: 'GIF' };
 				}
 				return { type: 'image/bmp', imgType: 'BMP' };
@@ -576,9 +575,7 @@ function onGuildRelation(pkt) {
 const onGuildEmblem = (function onGuildEmblemClosure() {
 	const data = new Uint8Array(2 * 1024);
 
-	return function onGuildEmblem(pkt) {
-		let emblem, inflate, len, src, img;
-
+	return function (pkt) {
 		// Create guild namespace if does not exist
 		if (!_emblems[pkt.GDID]) {
 			_emblems[pkt.GDID] = {
@@ -589,13 +586,13 @@ const onGuildEmblem = (function onGuildEmblemClosure() {
 		}
 
 		// Uncompress emblem
-		inflate = new Inflate(pkt.img);
-		len = inflate.getBytes(data);
-		src = URL.createObjectURL(new Blob([data.subarray(0, len).buffer], { type: 'image/bmp' }));
-		emblem = _emblems[pkt.GDID];
+		const inflate = new Inflate(pkt.img);
+		const len = inflate.getBytes(data);
+		const src = URL.createObjectURL(new Blob([data.subarray(0, len).buffer], { type: 'image/bmp' }));
+		const emblem = _emblems[pkt.GDID];
 
 		// Prepare our emblem image
-		img = new Image();
+		const img = new Image();
 		img.onload = renderEmblem;
 		emblem.version = pkt.emblemVersion;
 		img.decoding = 'async';
@@ -776,11 +773,11 @@ function onGuildInviteRequest(pkt) {
 
 	function answer(result) {
 		return function () {
-			const pkt = new PACKET.CZ.JOIN_GUILD();
-			pkt.GDID = guild_id;
-			pkt.answer = result;
+			const _pkt = new PACKET.CZ.JOIN_GUILD();
+			_pkt.GDID = guild_id;
+			_pkt.answer = result;
 
-			Network.sendPacket(pkt);
+			Network.sendPacket(_pkt);
 		};
 	}
 
@@ -913,11 +910,11 @@ function onGuildAskForAlliance(pkt) {
 
 	function answer(result) {
 		return function () {
-			const pkt = new PACKET.CZ.ALLY_GUILD();
-			pkt.otherAID = AID;
-			pkt.answer = result;
+			const _pkt = new PACKET.CZ.ALLY_GUILD();
+			_pkt.otherAID = AID;
+			_pkt.answer = result;
 
-			Network.sendPacket(pkt);
+			Network.sendPacket(_pkt);
 		};
 	}
 
