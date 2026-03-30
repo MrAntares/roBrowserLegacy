@@ -52,14 +52,12 @@ let _filesToClean = []; // List of memory entries scheduled for removal
  * @return mixed data
  */
 function get(filename, onload, onerror) {
-	let item;
-
 	// Not in memory yet, create slot
 	if (!_memory[filename]) {
 		_memory[filename] = new MemoryItem();
 	}
 
-	item = _memory[filename];
+	const item = _memory[filename];
 
 	if (onload) {
 		item.addEventListener('load', onload);
@@ -114,17 +112,15 @@ function clean(gl, now) {
 		return;
 	}
 
-	let keys, item;
-	let i, count, tick;
 	const files = [];
 	_filesToClean = []; // Reset pending cleanup list
 
-	keys = Object.keys(_memory);
-	count = keys.length;
-	tick = now - _rememberTime;
+	const keys = Object.keys(_memory);
+	const count = keys.length;
+	const tick = now - _rememberTime;
 
-	for (i = 0; i < count; ++i) {
-		item = _memory[keys[i]];
+	for (let i = 0; i < count; ++i) {
+		const item = _memory[keys[i]];
 		if (item.complete && item.lastTimeUsed < tick) {
 			_filesToClean.push(keys[i]); // Collect unused memory entries instead of removing them immediately
 		}

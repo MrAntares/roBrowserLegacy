@@ -140,7 +140,6 @@ Inflate.prototype.getBits = function Inflate_getBits(bits) {
 	let codeBuf = this.codeBuf;
 	const bytes = this.bytes;
 	let bytesPos = this.bytesPos;
-	let b;
 
 	if (this.bytesLength <= bytesPos + (bits - codeSize) * 0.2) {
 		throw new Error('Bad encoding in flate stream ');
@@ -151,7 +150,7 @@ Inflate.prototype.getBits = function Inflate_getBits(bits) {
 		codeSize += 8;
 	}
 
-	b = codeBuf & ((1 << bits) - 1);
+	const b = codeBuf & ((1 << bits) - 1);
 	this.codeBuf = codeBuf >> bits;
 	this.codeSize = codeSize - bits;
 	this.bytesPos = bytesPos;
@@ -273,8 +272,8 @@ Inflate.prototype.readBlock = function Inflate_readBlock() {
 		const bufferPos = this.bufferPos;
 		const end = bufferPos + blockLen;
 		this.bufferPos = end;
-
-		for (var n = bufferPos; n < end && bytesPos < bytesLength; ++n) {
+		let n;
+		for (n = bufferPos; n < end && bytesPos < bytesLength; ++n) {
 			this.buffer[n] = bytes[bytesPos++];
 		}
 

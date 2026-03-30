@@ -161,10 +161,10 @@ Object.defineProperty(KEYS, 'toReadableKey', {
 	writable: false,
 	enumerable: false,
 	value: function toReadableKey(keyId) {
-		let keys, i, count;
+		let i;
 
-		keys = Object.keys(this);
-		count = keys.length;
+		const keys = Object.keys(this);
+		const count = keys.length;
 
 		for (i = 0; i < count; ++i) {
 			if (this[keys[i]] === keyId) {

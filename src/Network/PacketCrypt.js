@@ -498,7 +498,7 @@ let imul;
 if (Math.imul && Math.imul(0xffffffff, 5) === -5) {
 	imul = Math.imul;
 } else {
-	imul = function imul(a, b) {
+	imul = function (a, b) {
 		const ah = (a >>> 16) & 0xffff;
 		const al = a & 0xffff;
 		const bh = (b >>> 16) & 0xffff;
@@ -513,10 +513,8 @@ if (Math.imul && Math.imul(0xffffffff, 5) === -5) {
  * Initialize to get keys for packet encryption
  */
 function Init() {
-	let packetKeys;
-
 	_available = false;
-	packetKeys = Configs.get('packetKeys');
+	const packetKeys = Configs.get('packetKeys');
 
 	if (!packetKeys) {
 		return;

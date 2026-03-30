@@ -334,8 +334,8 @@ SPR.prototype.getCanvasFromFrame = function getCanvasFromFrame(index) {
 SPR.prototype.compile = function compile() {
 	const frames = this.frames;
 	let frame;
-	let i,
-		count = frames.length;
+	let i;
+	const count = frames.length;
 	let data, width, height, gl_width, gl_height, start_x, start_y;
 	let out;
 	const output = new Array(count);

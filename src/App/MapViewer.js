@@ -84,13 +84,14 @@ MapViewer.init = function Init() {
 						event.stopPropagation();
 						break;
 
-					case 'stop':
-						var gl = Renderer.getContext();
+					case 'stop': {
+						const gl = Renderer.getContext();
 						MapRenderer.free();
 						Renderer.stop();
 						gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 						event.stopPropagation();
 						break;
+					}
 				}
 			}
 

@@ -182,14 +182,12 @@ Background.remove = function remove(callback) {
  * @param {number} percent
  */
 Background.setPercent = function setPercent(percent) {
-	let x, y, width, height;
-
 	_progress = Math.min(Math.floor(percent), 100);
 
-	width = 240;
-	height = 15;
-	x = Math.floor((_canvas[0].width - width) * 0.5);
-	y = Math.floor(_canvas[0].height * 0.75);
+	const width = 240;
+	const height = 15;
+	const x = Math.floor((_canvas[0].width - width) * 0.5);
+	const y = Math.floor(_canvas[0].height * 0.75);
 
 	// Draw Rectangle border
 	_ctx.fillStyle = 'rgb(0,255,255)';

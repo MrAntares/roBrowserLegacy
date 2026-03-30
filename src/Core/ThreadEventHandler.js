@@ -134,8 +134,8 @@ onmessage = function receive(event) {
 			break;
 
 		// Start loading a map
-		case 'LOAD_MAP':
-			var map = new MapLoader();
+		case 'LOAD_MAP': {
+			const map = new MapLoader();
 
 			map.onprogress = function (progress) {
 				postMessage({ type: 'MAP_PROGRESS', data: progress });
@@ -156,6 +156,7 @@ onmessage = function receive(event) {
 
 			map.load(msg.data);
 			break;
+		}
 	}
 };
 

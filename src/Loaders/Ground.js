@@ -87,16 +87,15 @@ GND.prototype.load = function load(data) {
  * Loading textures
  */
 GND.prototype.parseTextures = function parseTextures() {
-	let i, j, pos, count, length;
-	let textures, indexes;
+	let pos;
 	let texture;
 
-	count = this.fp.readULong();
-	length = this.fp.readULong();
-	indexes = new Array(count);
-	textures = [];
+	const count = this.fp.readULong();
+	const length = this.fp.readULong();
+	const indexes = new Array(count);
+	const textures = [];
 
-	for (i = 0, j = 0; i < count; ++i) {
+	for (let i = 0, j = 0; i < count; ++i) {
 		texture = this.fp.readBinaryString(length);
 		pos = textures.indexOf(texture);
 
@@ -142,12 +141,10 @@ GND.prototype.parseLightmaps = function parseLightmaps() {
  * @return Tiles[]
  */
 GND.prototype.parseTiles = function parseTiles() {
-	let i, count;
-	let tiles;
 	const fp = this.fp;
 
-	count = fp.readULong();
-	tiles = new Array(count);
+	const count = fp.readULong();
+	const tiles = new Array(count);
 
 	// Texture atlas stuff
 	const ATLAS_COLS = Math.round(Math.sqrt(this.textures.length));
@@ -173,7 +170,7 @@ GND.prototype.parseTiles = function parseTiles() {
 	}
 
 	// Read Tiles
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		tiles[i] = {
 			u1: fp.readFloat(),
 			u2: fp.readFloat(),
@@ -202,14 +199,12 @@ GND.prototype.parseTiles = function parseTiles() {
  * @return Surfaces[]
  */
 GND.prototype.parseSurfaces = function parseSurfaces() {
-	let i, count;
-	let surfaces;
 	const fp = this.fp;
 
-	count = this.width * this.height;
-	surfaces = new Array(count);
+	const count = this.width * this.height;
+	const surfaces = new Array(count);
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		surfaces[i] = {
 			height: [fp.readFloat() / 5, fp.readFloat() / 5, fp.readFloat() / 5, fp.readFloat() / 5],
 			tile_up: fp.readLong(),
@@ -227,25 +222,24 @@ GND.prototype.parseSurfaces = function parseSurfaces() {
  * @return {Uint8Array} pixels
  */
 GND.prototype.createLightmapImage = function createLightmapImage() {
-	let i, count, width, height, _width, _height, x, y, _x, _y, idx, pos, per_cell;
-	let lightmap, data, out;
+	let _x, _y, idx;
 
-	lightmap = this.lightmap;
-	count = lightmap.count;
-	data = lightmap.data;
-	per_cell = lightmap.per_cell;
+	const lightmap = this.lightmap;
+	const count = lightmap.count;
+	const data = lightmap.data;
+	const per_cell = lightmap.per_cell;
 
-	width = Math.round(Math.sqrt(count));
-	height = Math.ceil(Math.sqrt(count));
-	_width = Math.pow(2, Math.ceil(Math.log(width * 8) / Math.log(2)));
-	_height = Math.pow(2, Math.ceil(Math.log(height * 8) / Math.log(2)));
+	const width = Math.round(Math.sqrt(count));
+	const height = Math.ceil(Math.sqrt(count));
+	const _width = Math.pow(2, Math.ceil(Math.log(width * 8) / Math.log(2)));
+	const _height = Math.pow(2, Math.ceil(Math.log(height * 8) / Math.log(2)));
 
-	out = new Uint8Array(_width * _height * 4);
+	const out = new Uint8Array(_width * _height * 4);
 
-	for (i = 0; i < count; ++i) {
-		pos = i * 4 * per_cell;
-		x = (i % width) * 8;
-		y = ((i / width) | 0) * 8;
+	for (let i = 0; i < count; ++i) {
+		const pos = i * 4 * per_cell;
+		const x = (i % width) * 8;
+		const y = ((i / width) | 0) * 8;
 
 		for (_x = 0; _x < 8; ++_x) {
 			for (_y = 0; _y < 8; ++_y) {
@@ -267,18 +261,15 @@ GND.prototype.createLightmapImage = function createLightmapImage() {
  * @return {Uint8Array} pixels
  */
 GND.prototype.createTilesColorImage = function createTilesColorImage() {
-	let x, y, width, height;
-	let data, cell, surfaces, tiles;
+	const width = this.width;
+	const height = this.height;
+	const surfaces = this.surfaces;
+	const tiles = this.tiles;
+	const data = new Uint8Array(width * height * 4);
 
-	width = this.width;
-	height = this.height;
-	surfaces = this.surfaces;
-	tiles = this.tiles;
-	data = new Uint8Array(width * height * 4);
-
-	for (y = 0; y < height; ++y) {
-		for (x = 0; x < width; ++x) {
-			cell = surfaces[x + y * width];
+	for (let y = 0; y < height; ++y) {
+		for (let x = 0; x < width; ++x) {
+			const cell = surfaces[x + y * width];
 
 			// Check tile up
 			if (cell.tile_up > -1) {
@@ -296,20 +287,19 @@ GND.prototype.createTilesColorImage = function createTilesColorImage() {
  * Create ShadowMap data (only used to render shadow on Entities)
  */
 GND.prototype.createShadowmapData = function createShadowmapData() {
-	let width, height, x, y, i, j, index, per_cell;
-	let data, out, cell, tiles, surfaces;
+	let i, j, index;
 
-	width = this.width;
-	height = this.height;
-	out = new Uint8Array(width * 8 * (height * 8));
-	data = this.lightmap.data;
-	per_cell = this.lightmap.per_cell;
-	tiles = this.tiles;
-	surfaces = this.surfaces;
+	const width = this.width;
+	const height = this.height;
+	const out = new Uint8Array(width * 8 * (height * 8));
+	const data = this.lightmap.data;
+	const per_cell = this.lightmap.per_cell;
+	const tiles = this.tiles;
+	const surfaces = this.surfaces;
 
-	for (y = 0; y < height; ++y) {
-		for (x = 0; x < width; ++x) {
-			cell = surfaces[x + y * width];
+	for (let y = 0; y < height; ++y) {
+		for (let x = 0; x < width; ++x) {
+			const cell = surfaces[x + y * width];
 
 			if (cell.tile_up > -1) {
 				index = tiles[cell.tile_up].light * 4 * per_cell;
@@ -341,16 +331,15 @@ GND.prototype.createShadowmapData = function createShadowmapData() {
  * @return normals[]
  */
 GND.prototype.getSmoothNormal = function getSmoothNormal() {
-	let x, y;
+	let x, y, n;
 	const surfaces = this.surfaces;
-	const tiles = this.tiles;
 	const width = this.width;
 	const height = this.height;
-	let a = vec3.create(),
-		b = vec3.create(),
-		c = vec3.create(),
-		d = vec3.create(),
-		n;
+	const a = vec3.create();
+	const b = vec3.create();
+	const c = vec3.create();
+	const d = vec3.create();
+
 	const count = width * height;
 	const tmp = new Array(count);
 	const normals = new Array(count);

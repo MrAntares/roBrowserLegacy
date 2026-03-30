@@ -57,7 +57,6 @@ let _save = false;
  * @param {Object} quota information
  */
 export function init(files, save, quota) {
-	let requestFileSystemSync, requestFileSystem;
 	_files = normalizeFilesPath(files);
 
 	if (!_available) {
@@ -67,8 +66,8 @@ export function init(files, save, quota) {
 
 	calculateClientSize();
 
-	requestFileSystemSync = self.requestFileSystemSync || self.webkitRequestFileSystemSync;
-	requestFileSystem = self.requestFileSystem || self.webkitRequestFileSystem;
+	const requestFileSystemSync = self.requestFileSystemSync || self.webkitRequestFileSystemSync;
+	const requestFileSystem = self.requestFileSystem || self.webkitRequestFileSystem;
 
 	const size = _clientSize || quota.used || quota.remaining;
 
@@ -242,12 +241,11 @@ function processUpload(index) {
  * Build directory hierarchy
  */
 function buildHierarchy() {
-	let cache = {},
-		keys;
+	const cache = {};
 	let i = 0,
 		count = _files.length;
-	let path,
-		filename = /\/?[^/]+$/;
+	let path;
+	const filename = /\/?[^/]+$/;
 
 	// Extract directory from each file path
 	for (; i < count; ++i) {
@@ -259,7 +257,7 @@ function buildHierarchy() {
 	}
 
 	// Extract keys and build directories
-	keys = Object.keys(cache);
+	const keys = Object.keys(cache);
 	keys.sort();
 
 	// Directory where to upload data
@@ -340,8 +338,8 @@ export function getFileSync(filename) {
 	filename = filename.replace(/\\/g, '/');
 
 	if (!_available || _files.length) {
-		let i,
-			count = _files.length;
+		let i;
+		const count = _files.length;
 
 		for (i = 0; i < count; ++i) {
 			// Not case sensitive...
@@ -380,8 +378,8 @@ export function getFile(filename, onload, onerror) {
 	filename = filename.replace(/\\/g, '/');
 
 	if (!_available || _files.length) {
-		let i,
-			count = _files.length;
+		let i;
+		const count = _files.length;
 
 		for (i = 0; i < count; ++i) {
 			// Not case sensitive...

@@ -32,9 +32,9 @@ function STR(data, texturePath) {
  * @param {ArrayBuffer} data
  */
 STR.prototype.load = function load(data) {
-	let fp, i;
+	let i;
 
-	fp = new BinaryReader(data);
+	const fp = new BinaryReader(data);
 	this.header = fp.readBinaryString(4);
 
 	if (this.header !== 'STRM') {

@@ -1,4 +1,3 @@
-// .eslintrc.cjs
 /**
  * ESLint Configuration for roBrowserLegacy
  *
@@ -15,7 +14,6 @@ module.exports = {
 		sourceType: 'module'
 	},
 	globals: {
-		// removido: define, require, requirejs (não usa mais AMD)
 		jQuery: 'readonly',
 		$: 'readonly',
 		FileReaderSync: 'readonly',
@@ -74,17 +72,17 @@ module.exports = {
 		// ======================
 		// VARIABLE QUALITY
 		// ======================
-		'no-shadow': 'warn',
+		'no-shadow': 'error',
 		'block-scoped-var': 'warn',
-		'no-var': 'warn', // force let/const
-		'prefer-const': 'warn', // force const
+		'no-var': 'error', // force let/const
+		'prefer-const': 'error', // force const
 
 		// ======================
 		// LESS NOISE FOR LEGACY
 		// ======================
 		'no-prototype-builtins': 'off',
 		'no-inner-declarations': 'off',
-		'no-case-declarations': 'off',
+		'no-case-declarations': 'error',
 
 		// ======================
 		// DEBUG
@@ -92,7 +90,5 @@ module.exports = {
 		'no-console': 'off',
 		'no-debugger': 'warn'
 	},
-	ignorePatterns: [
-		'src/Vendors/**' // não lint em código third-party
-	]
+	ignorePatterns: ['src/Vendors/**']
 };

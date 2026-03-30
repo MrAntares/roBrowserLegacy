@@ -195,8 +195,8 @@ export function reload() {
 function onReload() {
 	// Display server list
 	const list = new Array(_servers.length);
-	let i,
-		count = list.length;
+	let i;
+	const count = list.length;
 
 	// WTF no servers ?
 	if (count === 0) {
@@ -317,11 +317,11 @@ function loadClientInfo(callback) {
 					registrationweb: connection.find('registrationweb:first').text(),
 					renewal: ['true', '1', 1, true].includes(connection.find('renewal:first').text().toLowerCase()),
 					adminList: (function () {
-						const list = [];
+						const _list = [];
 						connection.find('yellow admin, aid admin').each(function () {
-							list.push(parseInt(this.textContent, 10));
+							_list.push(parseInt(this.textContent, 10));
 						});
-						return list;
+						return _list;
 					})()
 				});
 

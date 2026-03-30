@@ -75,7 +75,7 @@ function push_heap_path(heap, index) {
  * @param {number} index
  */
 function update_heap_path(heap, index) {
-	let i, h, cost;
+	let i, h;
 
 	h = 0;
 	for (h = 0; h < heap[0] && heap[h + 1] !== index; ++h) {
@@ -86,7 +86,7 @@ function update_heap_path(heap, index) {
 		throw new Error('PathFinding::update_heap_path() - Error updating head path');
 	}
 
-	cost = _cost[index];
+	const cost = _cost[index];
 
 	for (i = (h - 1) >> 1; h > 0 && cost < _cost[heap[i + 1]]; i = (h - 1) >> 1) {
 		heap[h + 1] = heap[i + 1];
@@ -103,15 +103,15 @@ function update_heap_path(heap, index) {
  * @return {number}
  */
 function pop_heap_path(heap) {
-	let i, h, k, ret, last, cost;
+	let i, h, k;
 
 	if (heap[0] <= 0) {
 		return -1;
 	}
 
-	ret = +heap[1];
-	last = +heap[heap[0]--];
-	cost = _cost[last];
+	const ret = +heap[1];
+	const last = +heap[heap[0]--];
+	const cost = _cost[last];
 
 	for (h = 0, k = 2; k < heap[0]; k = k * 2 + 2) {
 		if (_cost[heap[k + 1]] > _cost[heap[k]]) {
@@ -296,9 +296,8 @@ function searchLong(x0, y0, x1, y1, range, out) {
  * @param {Array} out
  */
 function search(x0, y0, x1, y1, range, out) {
-	let heap;
-	let x, y, i, j, currentNode, sizeX, sizeY;
-	let error, dirFlag, pathLen, dist, cost, finalLen, skip;
+	let x, y, i, j, currentNode;
+	let error, dirFlag, pathLen, dist, finalLen, skip;
 
 	// Import world
 	const width = GAT.width;
@@ -321,7 +320,7 @@ function search(x0, y0, x1, y1, range, out) {
 	_before.set(short_clean);
 	_flag.set(char_clean);
 
-	heap = _heap;
+	const heap = _heap;
 	out[0] = x0;
 	out[1] = y0;
 
@@ -333,8 +332,8 @@ function search(x0, y0, x1, y1, range, out) {
 	heap[0] = 0;
 	push_heap_path(heap, i);
 
-	sizeX = width - 1;
-	sizeY = height - 1;
+	const sizeX = width - 1;
+	const sizeY = height - 1;
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
@@ -352,7 +351,6 @@ function search(x0, y0, x1, y1, range, out) {
 		x = _x[currentNode];
 		y = _y[currentNode];
 		dist = _dist[currentNode];
-		cost = _cost[currentNode];
 
 		// Finished
 		if (x === x1 && y === y1) {

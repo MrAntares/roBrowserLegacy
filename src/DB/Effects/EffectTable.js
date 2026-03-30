@@ -5698,7 +5698,6 @@ export default {
 			attachedEntity: true,
 			func: function (Params) {
 				if (Params.Init.ownerAID == Session.Entity.GID) {
-					const self = this;
 					const msg = DB.getRandomJoke();
 					if (msg) {
 						ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
@@ -5715,7 +5714,6 @@ export default {
 			attachedEntity: true,
 			func: function (Params) {
 				if (Params.Init.ownerAID == Session.Entity.GID) {
-					const self = this;
 					const msg = DB.getRandomScream();
 					if (msg) {
 						ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
@@ -8896,7 +8894,7 @@ export default {
 				const delay = duration / count;
 
 				for (let i = 0; i < count; i++) {
-					var delta = 1;
+					let delta = 1;
 
 					if (i <= 15) {
 						delta = 12 * (8 / 360);
@@ -11717,7 +11715,7 @@ export default {
 				const delay = duration / count;
 
 				for (let i = 0; i < count; i++) {
-					var delta = 1;
+					const delta = 1;
 
 					Events.setTimeout(function () {
 						entity.direction = Math.floor(entity.direction + delta) % 8;
@@ -13248,8 +13246,7 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function EffectBodyColor(Params) {
-				let entity = Params.Init,
-					ownerEntity;
+				const entity = Params.Init;
 
 				entity.animations.add(function (tick) {
 					if (tick < 500) {
@@ -13465,7 +13462,7 @@ export default {
 				const delay = duration / count;
 
 				for (let i = 0; i < count; i++) {
-					var delta = 1;
+					const delta = 1;
 
 					Events.setTimeout(function () {
 						entity.direction = Math.floor(entity.direction + delta) % 8;
@@ -13644,7 +13641,7 @@ export default {
 				const delay = duration / count;
 
 				for (let i = 0; i < count; i++) {
-					var delta = 1;
+					const delta = 1;
 
 					Events.setTimeout(function () {
 						entity.direction = Math.floor(entity.direction + delta) % 8;

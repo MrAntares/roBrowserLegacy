@@ -37,9 +37,6 @@ const Storage = {
  */
 function get(key, def, version) {
 	Storage.get(key, function (value) {
-		let data, keys;
-		let i, count;
-
 		version = version || 0.0;
 
 		// Not existing, storing it
@@ -48,15 +45,15 @@ function get(key, def, version) {
 			return;
 		}
 
-		data = JSON.parse(value[key]);
+		const data = JSON.parse(value[key]);
 		data._key = key;
 		data._version = version;
 		data.save = selfSave;
 
-		keys = Object.keys(data);
-		count = keys.length;
+		const keys = Object.keys(data);
+		const count = keys.length;
 
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			def[keys[i]] = data[keys[i]];
 		}
 	});

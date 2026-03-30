@@ -194,8 +194,8 @@ MapEngine.init = function init(ip, port, mapName) {
 			const is_sec_hbt = Configs.get('sec_HBT', null);
 
 			// Ping
-			let ping, SP;
-			SP = Session.ping;
+			let ping;
+			const SP = Session.ping;
 
 			if (PACKETVER.value >= 20180307) {
 				ping = new PACKET.CZ.REQUEST_TIME2();
@@ -418,7 +418,7 @@ MapEngine.init = function init(ip, port, mapName) {
 		Equipment.getUI().onEquipItem = onEquipItem;
 		Equipment.getUI().onRemoveOption = onRemoveOption;
 		Inventory.getUI().onUseItem = onUseItem;
-		Equipment.getUI().onEquipItem = onEquipItem;
+		Inventory.getUI().onEquipItem = onEquipItem;
 
 		// Avoid zone server change init
 		MapEngine.needsUIVerUpdate = false;

@@ -263,13 +263,12 @@ BinaryReader.prototype.getStruct = BinaryReader.prototype.readStruct = function 
 
 	const list = struct._list;
 	let name;
-	let out = {},
-		current,
-		keys;
-	let i, j, count;
+	const out = {};
+	let current;
+	let i, j;
 
-	keys = Object.keys(list);
-	count = keys.length;
+	const keys = Object.keys(list);
+	const count = keys.length;
 
 	for (j = 0; j < count; ++j) {
 		name = keys[j];
@@ -310,7 +309,7 @@ const bf_wia = new Int32Array(bf_byteBuff);
  * @return array (pos_x, pos_y, direction)
  */
 BinaryReader.prototype.getPos = BinaryReader.prototype.readPos = function getPos() {
-	let p, dir, x, y;
+	let p;
 
 	bf_wba[2] = this.getUint8();
 	bf_wba[1] = this.getUint8();
@@ -318,13 +317,13 @@ BinaryReader.prototype.getPos = BinaryReader.prototype.readPos = function getPos
 	bf_wba[3] = 0;
 
 	p = 0 + bf_wia[0];
-	dir = p & 0x0f;
+	const dir = p & 0x0f;
 	p >>= 4;
 
-	y = p & 0x03ff;
+	const y = p & 0x03ff;
 	p >>= 10;
 
-	x = p & 0x03ff;
+	const x = p & 0x03ff;
 
 	return [x, y, dir];
 };
@@ -335,14 +334,12 @@ BinaryReader.prototype.getPos = BinaryReader.prototype.readPos = function getPos
  * @return array ( from_x, from_y, to_x, to_y )
  */
 BinaryReader.prototype.getPos2 = BinaryReader.prototype.readPos2 = function getPos2() {
-	let a, b, c, d, e, f;
-
-	a = this.getInt8();
-	b = this.getInt8();
-	c = this.getInt8();
-	d = this.getInt8();
-	e = this.getInt8();
-	f = this.getInt8();
+	const a = this.getInt8();
+	const b = this.getInt8();
+	const c = this.getInt8();
+	const d = this.getInt8();
+	const e = this.getInt8();
+	const f = this.getInt8();
 
 	return [
 		((a & 0xff) << 2) | ((b & 0xc0) >> 6), // x1

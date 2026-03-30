@@ -33,6 +33,7 @@ import cssText from './InventoryV1.css?raw';
 import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import Mail from 'UI/Components/Mail/Mail.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Create Component
@@ -674,7 +675,6 @@ function onResize() {
 	const ui = InventoryV1.ui;
 	const left = ui.position().left;
 	let lastWidth = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraX = 23 + 16 + 16 - 30;
@@ -693,7 +693,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {

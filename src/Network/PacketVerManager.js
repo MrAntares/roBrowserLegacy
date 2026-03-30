@@ -26,8 +26,8 @@ let _value = 0;
  */
 function getPacketVersion() {
 	const versions = this.versions;
-	let i,
-		count = versions.length;
+	let i;
+	const count = versions.length;
 
 	for (i = 0; i < count - 1; ++i) {
 		if (_value < versions[i + 1][0]) {
@@ -123,9 +123,8 @@ function parseCharList(fp, end) {
 		end = fp.length;
 	}
 
-	let i,
-		count,
-		out = [];
+	let i, count;
+	const out = [];
 	let blockSize = Configs.get('charBlockSize') || calculateBlockSize();
 	const length = end - fp.tell();
 
@@ -289,10 +288,9 @@ function parseCharList(fp, end) {
  */
 function addSupport(date, list) {
 	let packet, param;
-	let i,
-		count = list.length;
+	const count = list.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		param = list[i];
 		packet = param[0];
 		param[0] = date;
