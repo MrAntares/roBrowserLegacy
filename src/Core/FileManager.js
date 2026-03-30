@@ -17,7 +17,6 @@ import Sprite from 'Loaders/Sprite.js';
 import Action from 'Loaders/Action.js';
 import Str from 'Loaders/Str.js';
 import FileSystem from 'Core/FileSystem.js';
-import TextEncoding from 'Utils/CodepageManager.js';
 
 // Load dependencies
 const fs = self.requireNode && self.requireNode('fs');
@@ -202,15 +201,11 @@ FileManager.get = function Get(filename, callback) {
 
 		// Not found, fetching files
 		function onNotFound() {
-			let i, count;
-			let fileList;
-			let path;
+			const path = filename.replace(/\//g, '\\');
+			const fileList = FileManager.gameFiles;
+			const count = fileList.length;
 
-			path = filename.replace(/\//g, '\\');
-			fileList = FileManager.gameFiles;
-			count = fileList.length;
-
-			for (i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				if (fileList[i].getFile(path, callback)) {
 					return;
 				}
@@ -433,7 +428,7 @@ FileManager.load = function Load(filename, callback, args) {
 					break;
 
 				// Sprite
-				case 'spr':
+				case 'spr': {
 					const spr = new Sprite(buffer);
 					if (args && args.to_rgba) {
 						spr.switchToRGBA();
@@ -441,7 +436,7 @@ FileManager.load = function Load(filename, callback, args) {
 
 					result = spr.compile();
 					break;
-
+				}
 				// Binary
 				case 'rsw':
 					result = new World(buffer);

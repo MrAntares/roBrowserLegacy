@@ -339,13 +339,12 @@ UIComponent.prototype.append = function append(target) {
 
 	//Fix position after append (screen changed since last time and it loads invalid positions)
 	if (this.ui) {
-		let x, y, width, height, WIDTH, HEIGHT;
-		x = this.ui.offset().left;
-		y = this.ui.offset().top;
-		width = this.ui.width();
-		height = this.ui.height();
-		WIDTH = Renderer.width;
-		HEIGHT = Renderer.height;
+		const x = this.ui.offset().left;
+		const y = this.ui.offset().top;
+		const width = this.ui.width();
+		const height = this.ui.height();
+		const WIDTH = Renderer.width;
+		const HEIGHT = Renderer.height;
 
 		if (y + height > HEIGHT) {
 			this.ui.css('top', HEIGHT - Math.min(height, HEIGHT));
@@ -383,9 +382,8 @@ UIComponent.prototype.focus = function focus() {
 	}
 
 	const components = this.manager.components;
-	let name,
-		zIndex,
-		list = [];
+	let name, zIndex;
+	const list = [];
 	let i, count, j;
 
 	// Store components zIndex in a list
@@ -426,9 +424,8 @@ UIComponent.prototype.placeOnTop = function placeOnTop() {
 	}
 
 	const components = this.manager.components;
-	let name,
-		zIndex,
-		list = [];
+	let name, zIndex;
+	const list = [];
 
 	// Store components zIndex in a list
 	for (name in components) {
@@ -451,8 +448,8 @@ UIComponent.prototype.clone = function clone(name, full) {
 
 	if (full) {
 		const keys = Object.keys(this);
-		let i,
-			count = keys.length;
+		let i;
+		const count = keys.length;
 
 		for (i = 0; i < count; ++i) {
 			ui[keys[i]] = this[keys[i]];
@@ -526,13 +523,13 @@ UIComponent.prototype.draggable = function draggable(element) {
 			return;
 		}
 
-		let x, y, width, height, drag;
+		let drag;
 		const startPos = container.position();
-		x = startPos.left - Mouse.screen.x;
-		y = startPos.top - Mouse.screen.y;
+		const x = startPos.left - Mouse.screen.x;
+		const y = startPos.top - Mouse.screen.y;
 
-		width = container.width();
-		height = container.height();
+		const width = container.width();
+		const height = container.height();
 
 		_snapCache = [];
 		if (UIPreferences.windowmagnet && component.manager) {

@@ -293,7 +293,6 @@ function onDeleteReqDelay(charID) {
 function onDeleteRequest(charID) {
 	let _ui_box;
 	let _inputValue;
-	let _overlay;
 	let _time_end;
 	let _render = false;
 	let _canvas, _ctx, _width, _height;
@@ -339,7 +338,7 @@ function onDeleteRequest(charID) {
 
 	// Display prompt message
 	_ui_box = UIManager.showPromptBox(DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
-	_overlay = jQuery('<div/>').addClass('win_popup_overlay').appendTo('body');
+	const _overlay = jQuery('<div/>').addClass('win_popup_overlay').appendTo('body');
 
 	// Submit the mail/birthdate
 	function onSubmit(input) {
@@ -543,9 +542,7 @@ function onCreationFail(pkt) {
 	}*/ // UNUSED
 
 function onPincodeCheckRequest(pincode) {
-	let pkt;
-
-	pkt = new PACKET.CH.PINCODE_CHECK();
+	const pkt = new PACKET.CH.PINCODE_CHECK();
 	pkt.AID = Session.AID;
 	pkt.PINCODE = pincode;
 
@@ -553,11 +550,9 @@ function onPincodeCheckRequest(pincode) {
 }
 
 function onPincodeCreate(pincode, bad) {
-	let pkt;
-
 	_creatingPincode = true;
 
-	pkt = new PACKET.CH.PINCODE_FIRST_PIN();
+	const pkt = new PACKET.CH.PINCODE_FIRST_PIN();
 	pkt.AID = Session.AID;
 	pkt.PINCODE = pincode;
 
@@ -565,12 +560,10 @@ function onPincodeCreate(pincode, bad) {
 }
 
 function onPincodeReset(oldpin, newpin) {
-	let pkt;
-
 	_inAuthPincodeReset = false;
 	_resettingPincode = true;
 
-	pkt = new PACKET.CH.PINCODE_CHANGE();
+	const pkt = new PACKET.CH.PINCODE_CHANGE();
 	pkt.AID = Session.AID;
 	pkt.OLD_PINCODE = oldpin;
 	pkt.NEW_PINCODE = newpin;

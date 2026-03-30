@@ -160,7 +160,7 @@ const onTouchStart = (function onTouchStartClosure() {
 		}
 	}
 
-	return function onTouchStart(event) {
+	return function (event) {
 		remoteAutoFocus();
 		_touches = event.originalEvent.touches;
 		event.stopImmediatePropagation();

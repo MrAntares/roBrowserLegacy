@@ -988,13 +988,13 @@ function processCommand(text) {
 /**
  * Add a command to the store
  */
-function addCommand(name, description = '', callback = () => {}, aliases = [], custom = true) {
+function addCommand(name, description = '', callback = () => {}, alias = [], custom = true) {
 	callback = callback.bind(ChatBox);
 
 	CommandStore[name] = {
 		description: description,
 		callback: callback,
-		aliases: aliases,
+		aliases: alias,
 		custom
 	};
 	reloadAliases();

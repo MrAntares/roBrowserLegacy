@@ -60,7 +60,7 @@ function onMouseOver() {
 		case Entity.TYPE_PC:
 		case Entity.TYPE_ELEM:
 		case Entity.TYPE_HOM:
-		case Entity.TYPE_MERC:
+		case Entity.TYPE_MERC: {
 			if ((KEYS.SHIFT === true || Preferences.noshift === true) && this !== Session.Entity) {
 				if (!Camera.action.active) {
 					Cursor.setType(Cursor.ACTION.ATTACK);
@@ -71,6 +71,7 @@ function onMouseOver() {
 			const action = this.canAttackEntity() ? Cursor.ACTION.ATTACK : Cursor.ACTION.DEFAULT;
 			Cursor.setType(action);
 			break;
+		}
 
 		case Entity.TYPE_MOB:
 		case Entity.TYPE_UNIT:
@@ -98,7 +99,7 @@ function onMouseOver() {
 
 	switch (this.display.load) {
 		// Ask for the name
-		case this.display.TYPE.NONE:
+		case this.display.TYPE.NONE: {
 			this.display.load = this.display.TYPE.LOADING;
 
 			let pkt;
@@ -110,7 +111,7 @@ function onMouseOver() {
 			pkt.AID = this.GID;
 			Network.sendPacket(pkt);
 			break;
-
+		}
 		// Nothing yet
 		case this.display.TYPE.LOADING:
 			break;
@@ -208,12 +209,10 @@ function onMouseDown() {
 			}
 			return true;
 
-		case Entity.TYPE_WARP:
-			let i = 1,
-				out = [],
-				j,
-				x,
-				y;
+		case Entity.TYPE_WARP: {
+			const i = 1;
+			const out = [];
+			let j, x, y;
 			PathFinding.search(
 				Session.Entity.position[0] | 0,
 				Session.Entity.position[1] | 0,
@@ -239,12 +238,13 @@ function onMouseDown() {
 			pkt.dest[1] = y;
 			Network.sendPacket(pkt);
 			return true;
-
-		case Entity.TYPE_PC:
+		}
+		case Entity.TYPE_PC: {
 			if (Session.captchaGetIdOnEntityClick) {
 				CaptchaSelector.addPlayer(this.GID);
 			}
 			return true;
+		}
 	}
 
 	return false;
@@ -548,7 +548,7 @@ function onRoomEnter() {
 			ChatRoom.count = this.room.count;
 			break;
 
-		case Room.Type.PRIVATE_CHAT:
+		case Room.Type.PRIVATE_CHAT: {
 			pkt = new PACKET.CZ.REQ_ENTER_ROOM();
 			pkt.roomID = this.room.id;
 
@@ -567,6 +567,7 @@ function onRoomEnter() {
 				ChatRoom.count = self.room.count;
 			};
 			return;
+		}
 	}
 }
 

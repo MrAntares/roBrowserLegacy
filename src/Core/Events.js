@@ -38,11 +38,10 @@ let _uid = 0;
  * @return {?} event unique id
  */
 Events.setTimeout = function setTimeout(callback, delay) {
-	let i, count, tick;
-	let event;
+	let i, count;
 
-	tick = _tick + delay;
-	event = { callback: callback, tick: tick, uid: _uid++ };
+	const tick = _tick + delay;
+	const event = { callback: callback, tick: tick, uid: _uid++ };
 
 	// Add it to the list, sorted by delay
 	for (i = 0, count = _events.length; i < count; ++i) {
@@ -63,8 +62,8 @@ Events.setTimeout = function setTimeout(callback, delay) {
  * @param {?} event unique id
  */
 Events.clearTimeout = function clearTimeout(uid) {
-	let i,
-		count = _events.length;
+	let i;
+	const count = _events.length;
 
 	// Find the event and remove it
 	for (i = 0; i < count; ++i) {

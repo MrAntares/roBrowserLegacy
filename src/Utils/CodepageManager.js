@@ -93,13 +93,10 @@ const CodepageManager = {
 			return '';
 		}
 
-		let i, count;
-		let data;
+		const count = str.length;
+		const data = new Uint8Array(count);
 
-		count = str.length;
-		data = new Uint8Array(count);
-
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			data[i] = str.charCodeAt(i);
 		}
 		return iconv.decode(data, this.userCharset);

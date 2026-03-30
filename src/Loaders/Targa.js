@@ -83,10 +83,9 @@ function checkHeader(header) {
  */
 function decodeRLE(data, offset, pixelSize, outputSize) {
 	let pos, c, count, i;
-	let pixels, output;
 
-	output = new Uint8Array(outputSize);
-	pixels = new Uint8Array(pixelSize);
+	const output = new Uint8Array(outputSize);
+	const pixels = new Uint8Array(pixelSize);
 	pos = 0;
 
 	while (pos < outputSize) {
@@ -126,9 +125,8 @@ function decodeRLE(data, offset, pixelSize, outputSize) {
  * @param {function} callback - callback to trigger when the file is loaded
  */
 Targa.prototype.open = function targaOpen(path, callback) {
-	let req,
-		tga = this;
-	req = new XMLHttpRequest();
+	const tga = this;
+	const req = new XMLHttpRequest();
 	req.responseType = 'arraybuffer';
 	req.open('GET', path, true);
 	req.onload = function () {
@@ -321,7 +319,7 @@ Targa.prototype.getImageData = function targaGetImageData(imageData) {
 			}
 			break;
 
-		case 32:
+		case 32: {
 			const MAGENTA_MASK = 0x00ff00ff;
 			const PIXEL_MASK = 0x00ffffff;
 			for (let y = y_start; y !== y_end; y += y_step) {
@@ -338,6 +336,7 @@ Targa.prototype.getImageData = function targaGetImageData(imageData) {
 				}
 			}
 			break;
+		}
 	}
 	return imageData;
 };
@@ -348,11 +347,9 @@ Targa.prototype.getImageData = function targaGetImageData(imageData) {
  * @returns {object} CanvasElement
  */
 Targa.prototype.getCanvas = function targaGetCanvas() {
-	let canvas, ctx, imageData;
-
-	canvas = document.createElement('canvas');
-	ctx = canvas.getContext('2d');
-	imageData = ctx.createImageData(this.header.width, this.header.height);
+	const canvas = document.createElement('canvas');
+	const ctx = canvas.getContext('2d');
+	const imageData = ctx.createImageData(this.header.width, this.header.height);
 
 	canvas.width = this.header.width;
 	canvas.height = this.header.height;

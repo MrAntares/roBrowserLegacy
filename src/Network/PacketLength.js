@@ -20,7 +20,6 @@ let packets_len = new Array();
  * @param {number} packetver - packet version (clientdate)
  */
 function init(packetver) {
-	let Lengths;
 	packetver = parseInt(packetver);
 
 	// Find the matching year for the packet version
@@ -38,7 +37,7 @@ function init(packetver) {
 	}
 
 	const modulePath = `./Packets/packets${selectedYear}_len_main.js`;
-	Lengths = packetModules[modulePath]?.default || packetModules[modulePath];
+	const Lengths = packetModules[modulePath]?.default || packetModules[modulePath];
 
 	if (Lengths && typeof Lengths.init === 'function') {
 		packets_len = Lengths.init(packetver);

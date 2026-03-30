@@ -66,8 +66,8 @@ ACT.prototype.load = function load(data) {
  * Load Action part of ACT file
  */
 ACT.prototype.readActions = function readActions() {
-	let i,
-		count = this.fp.readUShort();
+	let i;
+	const count = this.fp.readUShort();
 	const actions = this.actions;
 
 	// Unknown bytes...
@@ -87,8 +87,8 @@ ACT.prototype.readActions = function readActions() {
  */
 ACT.prototype.readAnimations = function readAnimations() {
 	const fp = this.fp;
-	let i,
-		count = fp.readULong();
+	let i;
+	const count = fp.readULong();
 	const anim = new Array(count);
 
 	for (i = 0; i < count; ++i) {
@@ -107,9 +107,9 @@ ACT.prototype.readLayers = function readLayers() {
 	const fp = this.fp;
 	let count = fp.readULong();
 	const layers = new Array(count);
-	let layer, sound;
+	let layer;
 	const version = this.version;
-	let i, pos;
+	let i;
 
 	for (i = 0; i < count; ++i) {
 		layer = layers[i] = {
@@ -141,8 +141,8 @@ ACT.prototype.readLayers = function readLayers() {
 		}
 	}
 
-	sound = version >= 2.0 ? fp.readLong() : -1;
-	pos = [];
+	const sound = version >= 2.0 ? fp.readLong() : -1;
+	const pos = [];
 
 	if (version >= 2.3) {
 		count = fp.readLong();

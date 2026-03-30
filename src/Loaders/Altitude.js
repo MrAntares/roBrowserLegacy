@@ -64,11 +64,10 @@ GAT.TYPE_TABLE = {
  * @param {ArrayBuffer} data
  */
 GAT.prototype.load = function load(data) {
-	let fp, header, cells;
-	let version, width, height, i, count;
+	let i, count;
 
-	fp = new BinaryReader(data);
-	header = fp.readBinaryString(4);
+	const fp = new BinaryReader(data);
+	const header = fp.readBinaryString(4);
 
 	// Well, the file should be a gat file, noh ?
 	if (header !== 'GRAT') {
@@ -76,10 +75,10 @@ GAT.prototype.load = function load(data) {
 	}
 
 	// Load parameters
-	version = fp.readUByte() + fp.readUByte() / 10;
-	width = fp.readULong();
-	height = fp.readULong();
-	cells = new Float32Array(width * height * 5);
+	const version = fp.readUByte() + fp.readUByte() / 10;
+	const width = fp.readULong();
+	const height = fp.readULong();
+	const cells = new Float32Array(width * height * 5);
 
 	// Load the cells
 	for (i = 0, count = width * height; i < count; ++i) {

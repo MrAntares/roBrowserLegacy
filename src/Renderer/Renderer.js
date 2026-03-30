@@ -262,10 +262,8 @@ Renderer.resize = function resize() {
 		return;
 	}
 
-	let width,
-		height,
-		quality,
-		dpr = window.devicePixelRatio || 1;
+	let width, height;
+	const dpr = window.devicePixelRatio || 1;
 
 	width = window.innerWidth || document.body.offsetWidth;
 	height = window.innerHeight || document.body.offsetHeight;
@@ -273,7 +271,7 @@ Renderer.resize = function resize() {
 	Mouse.screen.width = this.width = width;
 	Mouse.screen.height = this.height = height;
 
-	quality = Configs.get('quality', 100) / 100;
+	const quality = Configs.get('quality', 100) / 100;
 	width *= quality;
 	height *= quality;
 

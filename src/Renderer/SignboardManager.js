@@ -57,7 +57,6 @@ SignboardManager.render = function (gl, modelView, projection) {
 
 	signboards.forEach(signboard => {
 		const ui = signboard.ui.ui[0];
-		let z;
 
 		// Calculate world position
 		_vector[0] = signboard.x + 0.5;
@@ -93,7 +92,7 @@ SignboardManager.render = function (gl, modelView, projection) {
 		vec4.transformMat4(_pos, _pos, _matrix);
 
 		// Calculate position
-		z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
+		const z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
 		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
 		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
 

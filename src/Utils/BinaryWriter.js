@@ -239,8 +239,8 @@ BinaryWriter.prototype.setString = BinaryWriter.prototype.writeString = function
 	}
 
 	const data = TextEncoding.encode(str, 'utf-8');
-	let i,
-		count = length || data.length;
+	let i;
+	const count = length || data.length;
 
 	// TODO: make it better.
 	// Fuck it ! Because of the charset the string is longer

@@ -33,7 +33,7 @@ import PACKET from 'Network/PacketStructure.js';
 import Network from 'Network/NetworkManager.js';
 import Events from 'Core/Events.js';
 import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector.js';
-import ScreenShot from 'Controls/ScreenShot.js';
+import 'Controls/ScreenShot.js';
 
 /**
  * @var {int16[2]} screen position
@@ -282,7 +282,7 @@ function onDragOver(event) {
  * Drop items to the map
  */
 function onDrop(event) {
-	let item, data;
+	let data;
 
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
@@ -320,7 +320,7 @@ function onDrop(event) {
 		return false;
 	}
 
-	item = data.data;
+	const item = data.data;
 
 	// Have to specify how much
 	if (item.count > 1) {
