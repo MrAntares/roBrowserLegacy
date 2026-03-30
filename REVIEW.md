@@ -30,7 +30,7 @@ import GameEngine from 'Engine/GameEngine.js';
 import Plugins from 'Plugins/PluginManager.js';
 
 export const roInitSpinner = { ... };
-``` [2-cite-1](#2-cite-1) 
+```
 
 ```javascript
 // Example: src/Network/NetworkManager.js
@@ -38,7 +38,7 @@ import Configs from 'Core/Configs.js';
 import BinaryReader from 'Utils/BinaryReader.js';
 import PACKETVER from './PacketVerManager.js';
 import PacketVersions from './PacketVersions.js';
-``` [2-cite-2](#2-cite-2) 
+```
 
 ### 2.3 Export Types Used
 
@@ -69,7 +69,7 @@ resolve: {
         // ... 14 aliases total
     }
 }
-``` [2-cite-5](#2-cite-5) 
+```
 
 This allows imports like `import X from 'Utils/X.js'` instead of relative paths (`../../Utils/X.js`), preserving the ergonomics that RequireJS `paths` provided.
 
@@ -96,14 +96,14 @@ FileManager.remoteClient = '';
 FileManager.gameFiles = [];
 // ... methods assigned to the object
 export default FileManager;
-``` [2-cite-7](#2-cite-7) 
+```
 
 ```javascript
 // src/UI/UIManager.js
 const UIManager = {};
 UIManager.components = {};
 UIManager.addComponent = function addComponent(component) { ... };
-``` [2-cite-8](#2-cite-8) 
+```
 
 **Recommendation:** Convert to ES6 `class` with static methods, or instantiated singletons. This improves readability, enables IDE autocompletion, and makes inheritance explicit.
 
@@ -116,13 +116,13 @@ function UIComponent(name, htmlText, cssText) {
     this._htmlText = htmlText || null;
     // ...
 }
-``` [2-cite-9](#2-cite-9) 
+```
 
 **Recommendation:** Convert to `class UIComponent { constructor(...) { ... } }`. All constructor functions with prototype methods should be migrated to classes.
 
 ### 4.3 No Arrow Functions, No Template Literals, No Async/Await
 
-The project currently prohibits arrow functions, template literals, and `async`/`await`: [2-cite-6](#2-cite-6) [2-cite-10](#2-cite-10) 
+The project currently prohibits arrow functions, template literals, and `async`/`await`.
 
 **Recommendation:** These restrictions should be lifted. Arrow functions, template literals, and `async`/`await` are standard JavaScript features supported by all modern browsers and Node.js. They improve readability, reduce boilerplate, and are expected by any developer joining the project. The `jQuery.Deferred` pattern should be replaced with native `Promise` and `async`/`await`.
 
@@ -140,7 +140,7 @@ const _global = typeof self !== 'undefined' ? self : window;
 _global.SEEK_CUR = SEEK_CUR;
 _global.SEEK_SET = SEEK_SET;
 _global.SEEK_END = SEEK_END;
-``` [2-cite-3](#2-cite-3) 
+```
 
 **Recommendation:** Refactor all consumers to use explicit ES6 imports and remove global assignments entirely.
 
@@ -151,13 +151,13 @@ A few files use `self.requireNode` for Node.js API access in the NW.js desktop e
 ```javascript
 // src/Core/FileManager.js
 const fs = self.requireNode && self.requireNode('fs');
-``` [2-cite-11](#2-cite-11) 
+```
 
 **Assessment:** This is a platform requirement for NW.js, not an AMD remnant. Acceptable as-is.
 
 ### 4.6 Vendors with CommonJS
 
-Files in `src/Vendors/` contain internal `module.exports` and `require()` calls (70+ occurrences in `iconv-lite.js`), but these are bundled third-party libraries and are excluded from ESLint: [2-cite-12](#2-cite-12) [2-cite-13](#2-cite-13) 
+Files in `src/Vendors/` contain internal `module.exports` and `require()` calls (70+ occurrences in `iconv-lite.js`), but these are bundled third-party libraries and are excluded from ESLint.
 
 **Assessment:** Acceptable. Vendors are third-party bundles and should not be modified.
 
