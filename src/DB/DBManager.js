@@ -522,7 +522,7 @@ DB.init = function init() {
 
 		// HatEffect
 		if (PACKETVER.value >= 20150507) {
-			loadHatEffectInfo();
+			loadHatEffectInfo(onLoad());
 		}
 
 		// LaphineSys
@@ -2810,19 +2810,7 @@ function loadHatEffectInfo(onEnd) {
 		};
 
 		function decodeLuaString(v) {
-			if (v == null) {
-				return null;
-			}
-			if (typeof v === 'string') {
-				return v;
-			}
-			if (v instanceof Uint8Array) {
-				return userStringDecoder.decode(v);
-			}
-			if (v instanceof ArrayBuffer) {
-				return userStringDecoder.decode(new Uint8Array(v));
-			}
-			return String(v);
+			return userStringDecoder.decode(v);
 		}
 
 		ctx.__js_hat_effect_id = function (key, value) {
@@ -2879,73 +2867,81 @@ function loadHatEffectInfo(onEnd) {
 			return 1;
 		};
 
-		try {
-			lua.mountFile('hateffectids.lub', idBuf instanceof ArrayBuffer ? new Uint8Array(idBuf) : idBuf);
-			await lua.doFile('hateffectids.lub');
-
-			lua.doStringSync(`
-					if HatEFID ~= nil then
-						for k, v in pairs(HatEFID) do
-							__js_hat_effect_id(k, v)
-						end
-					end
-				`);
-		} catch (e) {
-			console.error('[HatEffect] ID load error', e);
-			return;
-		} finally {
-			lua.unmountFile('hateffectids.lub');
-		}
-
 		// Load INFO file (AFTER IDs)
-		await new Promise(resolve => {
-			Client.loadFile(infoFile, async function (infoBuf) {
-				try {
-					lua.mountFile(
-						'hateffectinfo.lub',
-						infoBuf instanceof ArrayBuffer ? new Uint8Array(infoBuf) : infoBuf
-					);
-					await lua.doFile('hateffectinfo.lub');
-
-					lua.doStringSync(`
+		async function LoadHatEffectInfo() {
+			return Client.loadFile(
+				infoFile,
+				async function (infoBuf) {
+					try {
+						lua.mountFile(
+							'hateffectinfo.lub',
+							infoBuf instanceof ArrayBuffer ? new Uint8Array(infoBuf) : infoBuf
+						);
+						await lua.doFile('hateffectinfo.lub');
+						await lua.doString(`
 							if hatEffectTable ~= nil then
 								for id, info in pairs(hatEffectTable) do
 									__js_hat_effect_info(id, info)
 								end
 							end
 						`);
-				} catch (e) {
-					console.error('[HatEffect] Info load error', e);
-				} finally {
-					lua.unmountFile('hateffectinfo.lub');
-					resolve();
-				}
-			});
-		});
+						await LoadFootPrint();
+					} catch (e) {
+						console.error('[HatEffect] Info load error', e);
+					} finally {
+						lua.unmountFile('hateffectinfo.lub');
+					}
+				},
+				onEnd
+			);
+		}
 
 		// Load FOOTPRINT file (AFTER Info)
-		await new Promise(resolve => {
-			Client.loadFile(basePath + 'footprinteffectinfo.lub', async function (buf) {
-				try {
-					lua.mountFile('footprinteffectinfo.lub', buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf);
-
-					await lua.doFile('footprinteffectinfo.lub');
-
-					lua.doStringSync(`
+		async function LoadFootPrint() {
+			return Client.loadFile(
+				basePath + 'footprinteffectinfo.lub',
+				async function (buf) {
+					try {
+						lua.mountFile(
+							'footprinteffectinfo.lub',
+							buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf
+						);
+						await lua.doFile('footprinteffectinfo.lub');
+						await lua.doString(`
 							if FootPrintEffectTable ~= nil then
 								for id, info in pairs(FootPrintEffectTable) do
 									__js_footprint_effect_info(id, info)
 								end
 							end
 						`);
-				} catch (e) {
-					console.error('[FootPrintEffect] load error', e);
-				} finally {
-					lua.unmountFile('footprinteffectinfo.lub');
-					resolve();
-				}
-			});
-		});
+					} catch (e) {
+						console.error('[FootPrintEffect] load error', e);
+					} finally {
+						lua.unmountFile('footprinteffectinfo.lub');
+					}
+				},
+				onEnd
+			);
+		}
+
+		try {
+			lua.mountFile('hateffectids.lub', idBuf instanceof ArrayBuffer ? new Uint8Array(idBuf) : idBuf);
+			await lua.doFile('hateffectids.lub');
+			await lua.doString(`
+					if HatEFID ~= nil then
+						for k, v in pairs(HatEFID) do
+							__js_hat_effect_id(k, v)
+						end
+					end
+				`);
+
+			await LoadHatEffectInfo();
+		} catch (e) {
+			console.error('[HatEffect] ID load error', e);
+			return;
+		} finally {
+			lua.unmountFile('hateffectids.lub');
+		}
 
 		// All files loaded
 		onEnd && onEnd();

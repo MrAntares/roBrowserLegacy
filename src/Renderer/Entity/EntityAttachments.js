@@ -13,6 +13,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import Ground from 'Renderer/Map/Ground.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
+import Renderer from 'Renderer/Renderer.js';
 
 // Default fog for STR attachments
 const _defaultFog = {
@@ -87,7 +88,7 @@ AttachmentManager.prototype.add = function add(attachment) {
 		// FIXME: https://github.com/MrAntares/roBrowserLegacy/issues/856
 		strTexturePath = strTexturePath.replace(/^data\/texture\/effect\//, '');
 
-		const strEffect = new StrEffect(attachment.strFile, this.entity.position, Date.now(), strTexturePath);
+		const strEffect = new StrEffect(attachment.strFile, this.entity.position, Renderer.tick, strTexturePath);
 		strEffect.ownerEntity = this.entity;
 		strEffect.persistent = attachment.repeat !== false;
 		strEffect.xOffset = attachment.xOffset || 0;
@@ -247,7 +248,7 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 		if (attachment.isStr && attachment.strEffect) {
 			const strEffect = attachment.strEffect;
 			// dynamic access to Renderer to avoid cycle
-			const gl = window.RO_RENDERER_GL || (window.Renderer && window.Renderer.gl);
+			const gl = Renderer.gl;
 
 			try {
 				strEffect.position = this.entity.position;
