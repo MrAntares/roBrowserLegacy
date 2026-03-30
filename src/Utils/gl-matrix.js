@@ -21,7 +21,7 @@ import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendo
 	 * @return {vec3} out
 	 */
 	glMatrix.vec3.calcNormal = function( a, b, c, out ) {
-		var x1, y1, z1, x2, y2, z2, x3, y3, z3, len;
+		let x1, y1, z1, x2, y2, z2, x3, y3, z3, len;
 
 		// vec3.sub( c, b );
 		x1 = c[0] - b[0];
@@ -65,7 +65,7 @@ import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendo
 	 * @returns {vec3} out
 	 */
 	glMatrix.vec4.calcNormal = function( a, b, c, d, out ) {
-		var x,  y,  z,
+		let x,  y,  z,
 			x1, y1, z1,
 			x2, y2, z2,
 			x3, y3, z3,
@@ -134,7 +134,7 @@ import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendo
 	 * @returns {mat4} dest if specified, mat otherwise
 	 */
 	glMatrix.mat4.translateZ = function (mat, z, dest) {
-		var a00, a01, a02, a03,
+		let a00, a01, a02, a03,
 			a10, a11, a12, a13,
 			a20, a21, a22, a23;
 
@@ -171,13 +171,13 @@ import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendo
 	 * @returns {mat4} dest if specified, mat otherwise
 	 */
 	glMatrix.mat4.rotateQuat = function(out, mat, w) {
-		var a,b,c,d;
+		let a,b,c,d;
 		a = w[0];
 		b = w[1];
 		c = w[2];
 		d = w[3];
 
-		var norm = Math.sqrt(a*a+b*b+c*c+d*d);
+		let norm = Math.sqrt(a*a+b*b+c*c+d*d);
 		a /= norm;
 		b /= norm;
 		c /= norm;
@@ -202,9 +202,9 @@ import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendo
 	 */
 	glMatrix.mat4.extractRotation = function( out, mat ) {
 
-		var scale_x = 1.0 / glMatrix.vec3.length([ mat[0], mat[1], mat[2]  ]);
-		var scale_y = 1.0 / glMatrix.vec3.length([ mat[4], mat[5], mat[6]  ]);
-		var scale_z = 1.0 / glMatrix.vec3.length([ mat[8], mat[9], mat[10] ]);
+		let scale_x = 1.0 / glMatrix.vec3.length([ mat[0], mat[1], mat[2]  ]);
+		let scale_y = 1.0 / glMatrix.vec3.length([ mat[4], mat[5], mat[6]  ]);
+		let scale_z = 1.0 / glMatrix.vec3.length([ mat[8], mat[9], mat[10] ]);
 
 		out[0]  = mat[0]  * scale_x;
 		out[1]  = mat[1]  * scale_x;
@@ -291,7 +291,7 @@ import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendo
 	 */
 	glMatrix.mat4.perspective = function (fovy, aspect, near, far, dest) {
 		if (!dest) { dest = glMatrix.mat4.create(); }
-		var top = near * Math.tan(fovy * Math.PI / 360.0),
+		let top = near * Math.tan(fovy * Math.PI / 360.0),
 			right = top * aspect;
 		return glMatrix.mat4.frustum(dest, -right, right, -top, top, near, far);
 	};
@@ -329,7 +329,7 @@ import glMatrix, { vec2, vec3, vec4, mat2, mat2d, mat3, mat4, quat } from 'Vendo
 	 */
 	glMatrix.mat4.toInverseMat3 = function (mat, dest) {
 		// Cache the matrix values (makes for huge speed increases!)
-		var a00 = mat[0], a01 = mat[1], a02 = mat[2],
+		let a00 = mat[0], a01 = mat[1], a02 = mat[2],
 			a10 = mat[4], a11 = mat[5], a12 = mat[6],
 			a20 = mat[8], a21 = mat[9], a22 = mat[10],
 
