@@ -79,6 +79,8 @@ let rememberChoice = [];
 
 const hasSkills = [];
 
+let _justDragged = false;
+
 /**
  * Initialize UI
  */
@@ -309,6 +311,7 @@ function specifyRequirements(skillId, count = null) {
  * get and show remember choice skills
  */
 function onRememberChoice() {
+	if (_justDragged) return;
 	let main = jQuery(this).parent();
 
 	if (!main.hasClass('skill')) {
@@ -322,6 +325,7 @@ function onRememberChoice() {
 	rememberChoice.forEach(function (item, skId) {
 		if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
 			const sk = skillDependencyTree[skId];
+			if (!sk) return;
 			const skillbox = SkillList.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
 			if (
 				skillbox.find('.current').text() != sk.MaxLv &&
@@ -1080,6 +1084,7 @@ function onApplyChoice() {
  */
 function onResetChoice() {
 	rememberChoice.forEach(function (count, skillId) {
+		if (!skillDependencyTree[skillId]) return;
 		const skillbox = SkillList.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
 		if (!hasSkills?.[skillId]?.level) {
 			skillbox.children().addClass('disabled');
@@ -1210,6 +1215,10 @@ function onSkillDragStart(event) {
  */
 function onSkillDragEnd() {
 	delete window._OBJ_DRAG_;
+	_justDragged = true;
+	setTimeout(function () {
+		_justDragged = false;
+	}, 0);
 }
 
 /*
