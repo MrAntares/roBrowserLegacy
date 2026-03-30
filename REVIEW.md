@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-The **roBrowserLegacy** repository has successfully completed the migration from **AMD (RequireJS)** module system to native **ES6 Modules**. There are no remaining `define()` or `require([])` calls in the main source code (`src/`). The bundler was replaced from RequireJS to **Vite**, and `package.json` declares `"type": "module"`. [2-cite-0](#2-cite-0) 
+The **roBrowserLegacy** repository has successfully completed the migration from **AMD (RequireJS)** module system to native **ES6 Modules**. There are no remaining `define()` or `require([])` calls in the main source code (`src/`). The bundler was replaced from RequireJS to **Vite**, and `package.json` declares `"type": "module"`.
 
 However, the migration was **partial in scope** — while the module system was fully converted, the code itself still relies heavily on pre-ES6 idioms (constructor functions, object-literal singletons, `jQuery.Deferred`, no arrow functions, no template literals, no `async`/`await`, no classes). A second phase of modernization is needed to bring the codebase fully into modern JavaScript.
 
@@ -48,7 +48,7 @@ import PacketVersions from './PacketVersions.js';
 | `export default` (object) | `NetworkManager.js`, `FileManager.js` | Singletons / namespaces |
 | `export const` (named) | `BinaryReader.js` (`SEEK_CUR`, etc.) | Constants and multiple exports |
 | `export const` (multiple) | `Songs.js` | Modules with several named exports |
-| `export { }` (re-export) | `UIVersionManager.js` | Component re-exports | [2-cite-3](#2-cite-3) [2-cite-4](#2-cite-4) 
+| `export { }` (re-export) | `UIVersionManager.js` | Component re-exports |
 
 ---
 
@@ -77,7 +77,7 @@ This allows imports like `import X from 'Utils/X.js'` instead of relative paths 
 
 The project guidelines state:
 > *"Use ES6 `import`/`export` syntax (no AMD `define()`/`require()`)"*
-> *"Use path aliases for imports (e.g., `import X from 'Utils/X.js'`) instead of relative paths"* [2-cite-6](#2-cite-6) 
+> *"Use path aliases for imports (e.g., `import X from 'Utils/X.js'`) instead of relative paths"*
 
 ---
 
@@ -183,7 +183,7 @@ Files in `src/Vendors/` contain internal `module.exports` and `require()` calls 
 | Modules | `import X from 'Path/X.js'; export default ...;` |
 | Build | Vite + Rollup + custom builder (`builder-web.mjs`) |
 | Dev Server | `vite` (native HMR) |
-| Package | `"type": "module"` in `package.json` | [2-cite-14](#2-cite-14) [2-cite-15](#2-cite-15) 
+| Package | `"type": "module"` in `package.json` | 
 
 ---
 
