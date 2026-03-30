@@ -2947,7 +2947,7 @@ function loadHatEffectInfo(onEnd) {
 		if (typeof onEnd === 'function') {
 			onEnd();
 		}
-	});
+	},onEnd);
 }
 
 /**
