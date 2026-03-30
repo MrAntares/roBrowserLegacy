@@ -75,7 +75,7 @@ const renderGUI = (function renderGUIClosure() {
 	const _matrix = mat4.create();
 	const _vector = vec4.create();
 
-	return function (entity, modelView, projection) {
+	return function _renderGUI(entity, modelView, projection) {
 		// Move to camera
 		_vector[0] = entity.position[0] + 0.5;
 		_vector[1] = -entity.position[2];
@@ -156,7 +156,7 @@ const calculateBoundingRect = (function calculateBoundingRectClosure() {
 		out[1] *= out[3];
 	}
 
-	return function (entity, matrix) {
+	return function _calculateBoundingRect(entity, matrix) {
 		let tmp;
 
 		const fx = entity.xSize / 175;
@@ -212,7 +212,7 @@ const calculateBoundingRect = (function calculateBoundingRectClosure() {
 const renderEntity = (function renderEntityClosure() {
 	const _position = new Int32Array(2);
 
-	return function () {
+	return function _renderEntity() {
 		if (this.hideEntity) {
 			return;
 		}
@@ -487,7 +487,7 @@ const renderEntity = (function renderEntityClosure() {
 const renderElement = (function renderElementClosure() {
 	const _position = new Int32Array(2);
 
-	return function (entity, files, type, position, is_main) {
+	return function _renderElement(entity, files, type, position, is_main) {
 		let isBlendModeOne = false;
 
 		// Nothing to render
