@@ -194,8 +194,8 @@ MapEngine.init = function init(ip, port, mapName) {
 			const is_sec_hbt = Configs.get('sec_HBT', null);
 
 			// Ping
-			let ping, SP;
-			SP = Session.ping;
+			let ping;
+			const SP = Session.ping;
 
 			if (PACKETVER.value >= 20180307) {
 				ping = new PACKET.CZ.REQUEST_TIME2();

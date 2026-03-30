@@ -81,14 +81,11 @@ RSW.prototype.light = {
  * @param {ArrayBuffer} data
  */
 RSW.prototype.load = function Load(data) {
-	let header, version;
 	let i, count;
-	let fp;
-
 	// Read header.
-	fp = new BinaryReader(data);
-	header = fp.readBinaryString(4);
-	version = fp.readByte() + fp.readByte() / 10;
+	const fp = new BinaryReader(data);
+	const header = fp.readBinaryString(4);
+	const version = fp.readByte() + fp.readByte() / 10;
 
 	if (header != 'GRSW') {
 		throw new Error('RSW::load() - Invalid header "' + header + '", must be "GRSW"');
@@ -163,7 +160,7 @@ RSW.prototype.load = function Load(data) {
 	}
 
 	if (version >= 2.7) {
-		const count = fp.readLong();
+		count = fp.readLong();
 		fp.seek(4 * count, SEEK_CUR); // Moves the file pointer forward by 4 * count bytes
 	}
 

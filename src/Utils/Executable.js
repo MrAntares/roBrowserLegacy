@@ -40,8 +40,6 @@ function getDate(executable, callback) {
  * @return {number}
  */
 function getDateSub() {
-	let offset, date;
-
 	if (!_fp) {
 		throw new Error('Executable::getDate() - Executable is not loaded yet, or not specified');
 	}
@@ -49,7 +47,7 @@ function getDateSub() {
 	// Jump to header and extract
 	// PEHeader structure position
 	_fp.seek(0x3c, SEEK_SET);
-	offset = _fp.readULong();
+	const offset = _fp.readULong();
 
 	if (offset > _fp.length) {
 		throw new Error('Executable::getDate() - Invalid executable specified.');
@@ -63,7 +61,7 @@ function getDateSub() {
 
 	// Extract compiled date from executable
 	_fp.seek(0x04, SEEK_CUR);
-	date = new Date(_fp.readULong() * 1000);
+	const date = new Date(_fp.readULong() * 1000);
 
 	// Convert date to YYYYMMDD
 	return date.getFullYear() * 1e4 + (date.getMonth() + 1) * 1e2 + date.getDate();

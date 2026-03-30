@@ -181,9 +181,9 @@ EffectManager.add = function add(effect, Params) {
 EffectManager.remove = (function removeClosure() {
 	function clean(name, AID, effectID) {
 		const effectIdList = Array.isArray(effectID) ? effectID : [effectID];
-		let list, i, count;
+		let i, count;
 
-		list = _list[name];
+		const list = _list[name];
 		count = list.length;
 
 		for (i = 0; i < count; ++i) {
@@ -501,9 +501,9 @@ EffectManager.spam = function spam(EF_Init_Par) {
 		return;
 	}
 
-	let effects = EffectDB[EF_Init_Par.effectId],
-		EF_Inst_Par,
-		Params;
+	const effects = EffectDB[EF_Init_Par.effectId];
+	let EF_Inst_Par;
+	let Params;
 	let i, j, count;
 
 	for (i = 0, count = effects.length; i < count; ++i) {
@@ -792,8 +792,6 @@ const traps = [
  * @param {number} skill unique id
  */
 EffectManager.spamSkillZone = function spamUnit(unit_id, xPos, yPos, uid, creatorUid) {
-	let effectId, entity, EF_Init_Par;
-
 	// No effect mode (/effect)
 	if (!Preferences.effect) {
 		return;
@@ -803,7 +801,7 @@ EffectManager.spamSkillZone = function spamUnit(unit_id, xPos, yPos, uid, creato
 		return;
 	}
 
-	effectId = SkillUnit[unit_id];
+	const effectId = SkillUnit[unit_id];
 
 	if (!(effectId in EffectDB)) {
 		return;
@@ -813,7 +811,7 @@ EffectManager.spamSkillZone = function spamUnit(unit_id, xPos, yPos, uid, creato
 	EffectManager.remove(null, uid);
 
 	// New Entity
-	entity = new Entity();
+	const entity = new Entity();
 	entity.GID = uid;
 	entity.position = [xPos, yPos, Altitude.getCellHeight(xPos, yPos)];
 	entity.hideShadow = true;
@@ -827,7 +825,7 @@ EffectManager.spamSkillZone = function spamUnit(unit_id, xPos, yPos, uid, creato
 	EntityManager.add(entity);
 
 	// Effect
-	EF_Init_Par = {
+	const EF_Init_Par = {
 		effectId: effectId,
 		ownerAID: uid,
 		position: [xPos, yPos, Altitude.getCellHeight(xPos, yPos)],

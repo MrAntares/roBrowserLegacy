@@ -22,7 +22,7 @@ const RAG_TICK_MS = 25;
 const FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
 
 // Emitter behavior
-const EMIT_PER_TICK = 2;
+const _EMIT_PER_TICK = 2;
 const EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
 
 // Flake behavior

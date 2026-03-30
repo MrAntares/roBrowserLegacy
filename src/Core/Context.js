@@ -63,16 +63,16 @@ Context.cancelFullScreen = function CancelFullScreen() {
  * (2D graphics, 3D graphics, Threads, File API, ...)
  */
 Context.checkSupport = function CheckSupport() {
-	let div, canvas, element, gl, i;
+	let gl, i;
 
 	// Drag drop
-	div = document.createElement('div');
+	const div = document.createElement('div');
 	if (!('draggable' in div) && !('ondragstart' in div && 'ondrop' in div)) {
 		throw "Your web browser need to be updated, it does not support Drag 'nd Drop features.";
 	}
 
 	// Canvas
-	canvas = document.createElement('canvas');
+	const canvas = document.createElement('canvas');
 	if (!canvas.getContext || !canvas.getContext('2d')) {
 		throw 'Your web browser need to be updated, it does not support &lt;canvas&gt; element.';
 	}
@@ -82,7 +82,7 @@ Context.checkSupport = function CheckSupport() {
 		throw 'Your web browser need to be updated, it does not support WebGL2 3D graphics.';
 	}
 
-	element = document.createElement('canvas');
+	const element = document.createElement('canvas');
 	const contextNames = ['webgl2', 'experimental-webgl2'];
 
 	for (i = 0; i < contextNames.length; ++i) {

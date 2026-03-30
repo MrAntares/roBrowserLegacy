@@ -312,19 +312,17 @@ function bindMouseEvents() {
 function preCompiledAnimations() {
 	let i, j, k, count, size, total, pos;
 	let action, animation, info;
-	let canvas, ctx, entity;
 	let binary, data, dataURI;
-	let dataURIList, position;
 
 	// Start initializing variables
-	canvas = document.createElement('canvas');
+	const canvas = document.createElement('canvas');
 	canvas.width = 50;
 	canvas.height = 50;
-	ctx = canvas.getContext('2d');
-	entity = new Entity();
-	dataURIList = [];
+	const ctx = canvas.getContext('2d');
+	const entity = new Entity();
+	const dataURIList = [];
 	_compiledStyle = [];
-	position = [0, 0];
+	const position = [0, 0];
 
 	// Start compiling animation
 	for (i = 0, count = _action.actions.length; i < count; ++i) {
@@ -493,7 +491,6 @@ Cursor.render = function render(tick) {
 	const delay = action.delay * info.delayMult;
 	let x = info.startX;
 	let y = info.startY;
-	let animation;
 
 	if (_play) {
 		const frame = Math.floor((tick - _tick) / delay);
@@ -504,7 +501,7 @@ Cursor.render = function render(tick) {
 		document.body.classList.add('custom-cursor');
 	}
 
-	animation = action.animations[anim];
+	const animation = action.animations[anim];
 
 	if (!animation) {
 		return;

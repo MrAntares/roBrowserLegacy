@@ -12,8 +12,6 @@
  * @author AoShinHo
  */
 
-import Renderer from 'Renderer/Renderer.js';
-
 let MapRenderer;
 import('Renderer/MapRenderer.js').then(m => (MapRenderer = m.default));
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
@@ -186,10 +184,10 @@ PokJukWeatherEffect.prototype.updateFirework = function (fw) {
 			if (fw.explosionTimer < EXPLOSION_LIFE_MS) {
 				if (fw.explosionTimer - fw.lastWaveTime >= FIRE_LIFE_MS) {
 					const colorType = Math.floor(Math.random() * 5);
-					for (var i = 0; i < 15; i++) {
+					for (let i = 0; i < 15; i++) {
 						this.addParticleWave(fw, false, colorType);
 					}
-					for (var i = 0; i < 60; i++) {
+					for (let i = 0; i < 60; i++) {
 						this.addParticleWave(fw, true, colorType);
 					}
 					fw.lastWaveTime = fw.explosionTimer;

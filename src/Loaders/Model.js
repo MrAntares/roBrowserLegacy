@@ -58,15 +58,14 @@ RSM.Box = function BoundingBox() {
  * @param {ArrayBuffer} data
  */
 RSM.prototype.load = function Load(data) {
-	let fp, header;
 	let i, count;
-	let nodes, posKeyframes, volumebox;
+	let posKeyframes;
 	const textures = [];
 	const additionalTextures = [];
 
 	// Read header.
-	fp = new BinaryReader(data);
-	header = fp.readBinaryString(4);
+	const fp = new BinaryReader(data);
+	const header = fp.readBinaryString(4);
 
 	if (header !== 'GRSM' && header !== 'GRSX') {
 		throw new Error('RSM::load() - Incorrect header "' + header + '", must be "GRSM"');
@@ -110,7 +109,7 @@ RSM.prototype.load = function Load(data) {
 	}
 
 	count = fp.readLong();
-	nodes = new Array(count);
+	const nodes = new Array(count);
 	for (i = 0; i < count; ++i) {
 		nodes[i] = new RSM.Node(this, fp, count === 1);
 		if (nodes[i].name === textures) {
@@ -146,7 +145,7 @@ RSM.prototype.load = function Load(data) {
 
 	// read Volume box
 	count = fp.offset >= fp.length ? 0 : fp.readLong();
-	volumebox = new Array(count);
+	const volumebox = new Array(count);
 
 	for (i = 0; i < count; ++i) {
 		volumebox[i] = {
@@ -223,13 +222,13 @@ RSM.prototype.createInstance = function CreateInstance(model, width, height) {
  * Calculate model bounding box
  */
 RSM.prototype.calcBoundingBox = function CalcBoundingBox() {
-	let i, j, count;
+	let i, j;
 	const box = this.box;
 	const matrix = mat4.create();
 	const nodes = this.nodes;
 	const min = Math.min,
 		max = Math.max;
-	count = nodes.length;
+	const count = nodes.length;
 
 	mat4.identity(matrix);
 	this.main_node.calcBoundingBox(matrix);
@@ -303,12 +302,9 @@ RSM.prototype.hasAnimation = function () {
  * @param {boolean} only
  */
 RSM.Node = function Node(rsm, fp, only) {
-	let i,
-		j,
-		k,
-		count,
-		version = rsm.version;
-	let vertices, tvertices, faces, posKeyframes, rotKeyframes, scaleKeyFrames, textureKeyFrameGroup;
+	let i, j, k, count;
+	const version = rsm.version;
+	let posKeyframes, scaleKeyFrames, textureKeyFrameGroup;
 	let textures = [];
 	// Read initialised
 	this.main = rsm;
@@ -362,7 +358,7 @@ RSM.Node = function Node(rsm, fp, only) {
 
 	// Read vertices
 	count = fp.readLong();
-	vertices = new Array(count);
+	const vertices = new Array(count);
 
 	for (i = 0; i < count; ++i) {
 		vertices[i] = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
@@ -370,7 +366,7 @@ RSM.Node = function Node(rsm, fp, only) {
 
 	// Read texture vertices
 	count = fp.readLong();
-	tvertices = new Float32Array(count * 6);
+	const tvertices = new Float32Array(count * 6);
 
 	for (i = 0, j = 0; i < count; ++i, j += 6) {
 		if (version >= 1.2) {
@@ -385,7 +381,7 @@ RSM.Node = function Node(rsm, fp, only) {
 
 	// Read faces
 	count = fp.readLong();
-	faces = new Array(count);
+	const faces = new Array(count);
 
 	for (i = 0; i < count; ++i) {
 		let len = -1;
@@ -430,7 +426,7 @@ RSM.Node = function Node(rsm, fp, only) {
 
 	// Read rotkeyframes
 	count = fp.readLong();
-	rotKeyframes = new Array(count);
+	const rotKeyframes = new Array(count);
 
 	for (i = 0; i < count; ++i) {
 		rotKeyframes[i] = {
@@ -579,7 +575,6 @@ RSM.Node.prototype.calcBoundingBox = function NodeCalcBoundingBox(_matrix) {
  * @param {mat4} instance_matrix
  */
 RSM.Node.prototype.compile = function (instance_matrix) {
-	let matrix;
 	const modelViewMat = mat4.create();
 	const normalMat = mat4.create();
 
@@ -590,13 +585,12 @@ RSM.Node.prototype.compile = function (instance_matrix) {
 	const mesh = {};
 	const mesh_size = [];
 
-	let vert, face_normal;
 	const shadeGroup = new Array(32);
 	const shadeGroupUsed = new Array(32);
 	let i, x, y, z, count;
 
 	// Calculate matrix
-	matrix = mat4.create();
+	const matrix = mat4.create();
 	mat4.identity(matrix);
 	mat4.translate(matrix, matrix, [-this.main.box.center[0], -this.main.box.max[1], -this.main.box.center[2]]);
 	mat4.multiply(matrix, matrix, this.matrix);
@@ -614,7 +608,7 @@ RSM.Node.prototype.compile = function (instance_matrix) {
 
 	// Generate new vertices
 	count = vertices.length;
-	vert = new Float32Array(count * 3);
+	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
 		x = vertices[i][0];
 		y = vertices[i][1];
@@ -627,7 +621,7 @@ RSM.Node.prototype.compile = function (instance_matrix) {
 	}
 
 	// Generate face normals
-	face_normal = new Float32Array(faces.length * 3);
+	const face_normal = new Float32Array(faces.length * 3);
 
 	// Setup mesh slot array
 	for (i = 0, count = textures.length; i < count; ++i) {
@@ -847,7 +841,6 @@ function getScaleAtFrame(keyframes, frame, animLen) {
  * @param {number} animLen - Total animation length
  */
 RSM.Node.prototype.compileAtFrame = function (instance_matrix, frame, animLen) {
-	let matrix;
 	const modelViewMat = mat4.create();
 	const normalMat = mat4.create();
 
@@ -858,13 +851,12 @@ RSM.Node.prototype.compileAtFrame = function (instance_matrix, frame, animLen) {
 	const mesh = {};
 	const mesh_size = [];
 
-	let vert, face_normal;
 	const shadeGroup = new Array(32);
 	const shadeGroupUsed = new Array(32);
 	let i, x, y, z, count;
 
 	// Calculate animated matrix
-	matrix = mat4.create();
+	const matrix = mat4.create();
 	mat4.identity(matrix);
 	mat4.translate(matrix, matrix, [-this.main.box.center[0], -this.main.box.max[1], -this.main.box.center[2]]);
 
@@ -913,7 +905,7 @@ RSM.Node.prototype.compileAtFrame = function (instance_matrix, frame, animLen) {
 
 	// Generate new vertices
 	count = vertices.length;
-	vert = new Float32Array(count * 3);
+	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
 		x = vertices[i][0];
 		y = vertices[i][1];
@@ -926,7 +918,7 @@ RSM.Node.prototype.compileAtFrame = function (instance_matrix, frame, animLen) {
 	}
 
 	// Generate face normals
-	face_normal = new Float32Array(faces.length * 3);
+	const face_normal = new Float32Array(faces.length * 3);
 
 	// Setup mesh slot array
 	for (i = 0, count = textures.length; i < count; ++i) {

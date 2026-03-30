@@ -9,8 +9,6 @@
  * @author Vincent Thibault
  */
 
-import Configs from 'Core/Configs.js';
-
 /**
  * Memory to get back data
  * @var List
@@ -48,7 +46,7 @@ let _source = null;
 const Send = (function SendClosure() {
 	const _input = { type: '', data: null, uid: 0 };
 
-	return function Send(type, data, callback) {
+	return function (type, data, callback) {
 		let uid = 0;
 
 		if (callback) {

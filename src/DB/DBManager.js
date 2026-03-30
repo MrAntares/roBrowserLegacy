@@ -44,7 +44,7 @@ import StatusInfo from './Status/StatusInfo.js';
 import SC from './Status/StatusConst.js';
 import XmlParse from 'Vendors/xmlparse.js';
 import Base62 from 'Utils/Base62.js';
-import { BSON, ObjectId } from 'bson';
+import { BSON } from 'bson';
 import PetEmotionTable from './Pets/PetEmotionTable.js';
 import PetHungryState from './Pets/PetHungryState.js';
 import PetFriendlyState from './Pets/PetFriendlyState.js';
@@ -293,7 +293,7 @@ DB.init = function init() {
 		'data/mp3nametable.txt',
 		'#',
 		2,
-		function (index, key, val) {
+		function (_index, key, val) {
 			(MapTable[key] || (MapTable[key] = {})).mp3 = val;
 		},
 		onLoad()
@@ -302,7 +302,7 @@ DB.init = function init() {
 		'data/mapnametable.txt',
 		'#',
 		2,
-		function (index, key, val) {
+		function (_index, key, val) {
 			(MapTable[key] || (MapTable[key] = {})).name = val;
 		},
 		onLoad(),
@@ -318,8 +318,8 @@ DB.init = function init() {
 			'data/msgstringtable.txt',
 			'#',
 			1,
-			function (index, val) {
-				MsgStringTable[index] = val;
+			function (_index, val) {
+				MsgStringTable[_index] = val;
 			},
 			onLoad(),
 			true
@@ -330,7 +330,7 @@ DB.init = function init() {
 		'data/resnametable.txt',
 		'#',
 		2,
-		function (index, key, val) {
+		function (_index, key, val) {
 			DB.mapalias[key] = val;
 		},
 		onLoad()
@@ -434,8 +434,8 @@ DB.init = function init() {
 			loadLuaTable(
 				[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
 				'SKILL_DESCRIPT',
-				function (json) {
-					SkillDescription = json;
+				function (_json) {
+					SkillDescription = _json;
 				},
 				function () {
 					// Calls after skillids and descs been populated
@@ -595,7 +595,7 @@ DB.init = function init() {
 			'data/num2itemdisplaynametable.txt',
 			'#',
 			2,
-			function (index, key, val) {
+			function (_index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, ' ');
 			},
 			onLoad(),
@@ -605,7 +605,7 @@ DB.init = function init() {
 			'data/num2itemresnametable.txt',
 			'#',
 			2,
-			function (index, key, val) {
+			function (_index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName = val;
 			},
 			onLoad()
@@ -614,7 +614,7 @@ DB.init = function init() {
 			'data/num2itemdesctable.txt',
 			'#',
 			2,
-			function (index, key, val) {
+			function (_index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName = val.split('\n');
 			},
 			onLoad(),
@@ -624,7 +624,7 @@ DB.init = function init() {
 			'data/idnum2itemdisplaynametable.txt',
 			'#',
 			2,
-			function (index, key, val) {
+			function (_index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName = val.replace(/_/g, ' ');
 			},
 			onLoad(),
@@ -634,7 +634,7 @@ DB.init = function init() {
 			'data/idnum2itemresnametable.txt',
 			'#',
 			2,
-			function (index, key, val) {
+			function (_index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName = val;
 			},
 			onLoad()
@@ -643,7 +643,7 @@ DB.init = function init() {
 			'data/idnum2itemdesctable.txt',
 			'#',
 			2,
-			function (index, key, val) {
+			function (_index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName = val.split('\n');
 			},
 			onLoad(),
@@ -653,7 +653,7 @@ DB.init = function init() {
 			'data/itemslotcounttable.txt',
 			'#',
 			2,
-			function (index, key, val) {
+			function (_index, key, val) {
 				(ItemTable[key] || (ItemTable[key] = {})).slotCount = val;
 			},
 			onLoad()
@@ -664,7 +664,7 @@ DB.init = function init() {
 			'data/skilldesctable.txt',
 			'#',
 			2,
-			function (index, key, val) {
+			function (_index, key, val) {
 				SkillDescription[SKID[key]] = val.replace('\r\n', '\n');
 			},
 			onLoad(),
@@ -688,7 +688,7 @@ DB.init = function init() {
 		'data/metalprocessitemlist.txt',
 		'#',
 		2,
-		function (index, key, val) {
+		function (_index, key, val) {
 			(ItemTable[key] || (ItemTable[key] = {})).processitemlist = val.split('\n');
 		},
 		onLoad(),
@@ -700,7 +700,7 @@ DB.init = function init() {
 		'data/num2cardillustnametable.txt',
 		'#',
 		2,
-		function (index, key, val) {
+		function (_index, key, val) {
 			(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName = val;
 		},
 		onLoad()
@@ -709,7 +709,7 @@ DB.init = function init() {
 		'data/cardprefixnametable.txt',
 		'#',
 		2,
-		function (index, key, val) {
+		function (_index, key, val) {
 			(ItemTable[key] || (ItemTable[key] = {})).prefixName = val;
 		},
 		onLoad(),
@@ -719,7 +719,7 @@ DB.init = function init() {
 		'data/cardpostfixnametable.txt',
 		'#',
 		1,
-		function (index, key) {
+		function (_index, key) {
 			(ItemTable[key] || (ItemTable[key] = {})).isPostfix = true;
 		},
 		onLoad(),
@@ -735,8 +735,8 @@ DB.init = function init() {
 		'data/ba_frostjoke.txt',
 		'\t',
 		1,
-		function (index, val) {
-			JokeTable[index] = val;
+		function (_index, val) {
+			JokeTable[_index] = val;
 		},
 		onLoad(),
 		true
@@ -745,8 +745,8 @@ DB.init = function init() {
 		'data/dc_scream.txt',
 		'\t',
 		1,
-		function (index, val) {
-			ScreamTable[index] = val;
+		function (_index, val) {
+			ScreamTable[_index] = val;
 		},
 		onLoad(),
 		true
@@ -769,7 +769,7 @@ DB.init = function init() {
 			'data/buyingstoreitemlist.txt',
 			'#',
 			1,
-			function (index, key) {
+			function (_index, key) {
 				buyingStoreItemList.push(parseInt(key, 10));
 			},
 			onLoad()
@@ -2948,7 +2948,9 @@ function loadHatEffectInfo(onEnd) {
 		});
 
 		// All files loaded
-		onEnd && onEnd();
+		if (typeof onEnd === 'function') {
+			onEnd();
+		}
 	});
 }
 
@@ -4704,7 +4706,7 @@ DB.getPCAttackMotion = function getPCAttackMotion(job, sex, itemID, isDualWeapon
 };
 
 DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
-	let isDualWeapon = false;
+	let dualWeapon = false;
 
 	switch (job) {
 		case JobId.GUNSLINGER:
@@ -4717,7 +4719,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 				case WeaponType.GUN_GATLING:
 				case WeaponType.GUN_SHOTGUN:
 				case WeaponType.GUN_GRANADE:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4732,7 +4734,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 		case JobId.SHIRANUI: {
 			switch (weaponType) {
 				case WeaponType.SYURIKEN:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4766,13 +4768,13 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 			switch (weaponType) {
 				case WeaponType.SHORTSWORD:
 					if (sex == 1) {
-						isDualWeapon = true;
+						dualWeapon = true;
 					} // male
 					break;
 				case WeaponType.ROD:
 				case WeaponType.TWOHANDROD:
 					if (sex == 0) {
-						isDualWeapon = true;
+						dualWeapon = true;
 					} // Female
 					break;
 			}
@@ -4784,7 +4786,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 			switch (weaponType) {
 				case WeaponType.TWOHANDSWORD:
 				case WeaponType.TWOHANDSPEAR:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4796,7 +4798,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 				case WeaponType.BOW:
 					break;
 				default:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4806,7 +4808,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 		case JobId.THIEF_B: {
 			switch (weaponType) {
 				case WeaponType.BOW:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4816,7 +4818,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 		case JobId.MAGICIAN_B: {
 			switch (weaponType) {
 				case WeaponType.TWOHANDROD:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4826,7 +4828,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 		case JobId.MERCHANT_B: {
 			switch (weaponType) {
 				case WeaponType.TWOHANDAXE:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4853,7 +4855,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 						case WeaponType.TWOHANDMACE:
 							break;
 						case WeaponType.SHORTSWORD:
-							isDualWeapon = true;
+							dualWeapon = true;
 							break;
 					}
 					break;
@@ -4863,7 +4865,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 						case WeaponType.TWOHANDAXE:
 						case WeaponType.TWOHANDROD:
 						case WeaponType.TWOHANDMACE:
-							isDualWeapon = true;
+							dualWeapon = true;
 							break;
 						case WeaponType.SHORTSWORD:
 							break;
@@ -4892,7 +4894,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 			switch (weaponType) {
 				case WeaponType.TWOHANDSPEAR:
 				case WeaponAction.TWOHANDSWORD:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4906,7 +4908,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 		case JobId.CARDINAL: {
 			switch (weaponType) {
 				case WeaponType.BOOK:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4921,13 +4923,13 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 			switch (weaponType) {
 				case WeaponType.SHORTSWORD:
 					if (sex == 1) {
-						isDualWeapon = true;
+						dualWeapon = true;
 					}
 					break;
 				case WeaponType.ROD:
 				case WeaponType.TWOHANDROD:
 					if (sex == 0) {
-						isDualWeapon = true;
+						dualWeapon = true;
 					}
 					break;
 			}
@@ -4949,7 +4951,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 				case WeaponType.AXE:
 				case WeaponType.TWOHANDAXE:
 				case WeaponType.MACE:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4969,7 +4971,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 				case WeaponType.SWORD_SWORD:
 				case WeaponType.SWORD_AXE:
 				case WeaponType.AXE_AXE:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -4987,7 +4989,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 		case JobId.WINDHAWK2: {
 			switch (weaponType) {
 				case WeaponType.BOW:
-					isDualWeapon = true;
+					dualWeapon = true;
 					break;
 			}
 			break;
@@ -5005,7 +5007,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 					case WeaponType.ROD:
 					case WeaponType.TWOHANDROD:
 					case WeaponType.TWOHANDSPEAR: // ��ս������� ���� ���̵� ����� �����Ǹ� �����.
-						isDualWeapon = true;
+						dualWeapon = true;
 						break;
 				}
 			}
@@ -5023,7 +5025,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 					case WeaponType.AXE:
 					case WeaponType.TWOHANDAXE:
 					case WeaponType.MACE:
-						isDualWeapon = true;
+						dualWeapon = true;
 						break;
 				}
 			}
@@ -5049,7 +5051,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 				switch (weaponType) {
 					case WeaponType.SPEAR:
 					case WeaponType.TWOHANDSPEAR:
-						isDualWeapon = true;
+						dualWeapon = true;
 						break;
 				}
 			}
@@ -5065,7 +5067,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 				switch (weaponType) {
 					case WeaponType.KNUKLE:
 					case WeaponType.NONE:
-						isDualWeapon = true;
+						dualWeapon = true;
 						break;
 				}
 			}
@@ -5080,7 +5082,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 			{
 				switch (weaponType) {
 					case WeaponType.BOW:
-						isDualWeapon = true;
+						dualWeapon = true;
 						break;
 				}
 			}
@@ -5102,7 +5104,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 			{
 				switch (weaponType) {
 					case WeaponType.BOW:
-						isDualWeapon = true;
+						dualWeapon = true;
 						break;
 				}
 			}
@@ -5112,7 +5114,7 @@ DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
 		case JobId.SPIRIT_HANDLER:
 			break;
 	}
-	return isDualWeapon;
+	return dualWeapon;
 };
 
 DB.getWeaponType = function getWeaponType(itemID, realType = false, considerDualHandIds = false) {
@@ -5585,7 +5587,8 @@ DB.getItemName = function getItemName(item, options = {}) {
 		let elem = '';
 
 		switch (item.slot.card1) {
-			case 0x00ff: // FORGE
+			case 0x00ff: {
+				// FORGE
 				showslots = false;
 				if (item.slot.card2 >= 3840) {
 					very = MsgStringTable[461]; //Very Very Very Strong
@@ -5612,12 +5615,12 @@ DB.getItemName = function getItemName(item, options = {}) {
 						break; // 's
 				}
 
-				var GID = (item.slot.card4 << 16) + item.slot.card3;
+				const GID = (item.slot.card4 << 16) + item.slot.card3;
 				name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
 				if (DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
 					name = '<font color="#87cefa" class="owner-' + GID + '">' + DB.CNameTable[GID] + '</font>';
 				} else {
-					DB.UpdateOwnerName[GID] = function onUpdateOwnerName(pkt) {
+					DB.UpdateOwnerName[GID] = function (pkt) {
 						delete DB.UpdateOwnerName[pkt.GID];
 						setTimeout(() => {
 							const elements = document.querySelectorAll('.owner-' + pkt.GID);
@@ -5632,16 +5635,17 @@ DB.getItemName = function getItemName(item, options = {}) {
 
 				str += very + ' ' + name + elem + ' ';
 				break;
+			}
 			case 0x00fe: // CREATE
 				elem = MsgStringTable[450];
 				break;
 			case 0xff00: // PET
 				break;
 			// Show card prefix
-			default:
-				var list = ['', 'Double ', 'Triple ', 'Quadruple '];
-				var cards = {};
-				var cardList = [];
+			default: {
+				const list = ['', 'Double ', 'Triple ', 'Quadruple '];
+				const cards = {};
+				const cardList = [];
 
 				for (let i = 1; i <= 4; ++i) {
 					const card = item.slot['card' + i];
@@ -5674,6 +5678,8 @@ DB.getItemName = function getItemName(item, options = {}) {
 						showprefix = true;
 					}
 				});
+				break;
+			}
 		}
 		switch (item.slot.card4) {
 			case 0x1: //BELOVED PET

@@ -511,12 +511,10 @@ GR2.Box = function BoundingBox() {
  * @param {ArrayBuffer} data
  */
 GR2.prototype.load = function Load(data) {
-	let fp, header, name;
-	let i, count;
-	let textures, nodes, posKeyframes, volumebox;
+	let i;
 
 	// Read header.
-	fp = new BinaryReader(data);
+	const fp = new BinaryReader(data);
 	// Standard Granny File structure distrbution.
 	// 0 GrannyStandardMainSection             - All structures go here
 	// 1 GrannyStandardRigidVertexSection      - All rigid vertices go here
@@ -525,28 +523,28 @@ GR2.prototype.load = function Load(data) {
 	// 4 GrannyStandardDeformableIndexSection  - All indices into deformable vertex arrays go here
 	// 5 GrannyStandardTextureSection          - All textures go here
 
-	function Section(fp) {
-		this.Format = fp.readUInt();
-		this.DataOffset = fp.readUInt();
-		this.DataSize = fp.readUInt();
-		this.ExpandedDataSize = fp.readUInt();
-		this.InternalAlignment = fp.readUInt();
-		this.First16Bit = fp.readUInt();
-		this.First8Bit = fp.readUInt();
-		this.PointerFixupArrayOffset = fp.readUInt();
-		this.PointerFixupArrayCount = fp.readUInt();
-		this.MixedMarshallingFixupArrayOffset = fp.readUInt();
-		this.MixedMarshallingFixupArrayCount = fp.readUInt();
+	function Section(_fp) {
+		this.Format = _fp.readUInt();
+		this.DataOffset = _fp.readUInt();
+		this.DataSize = _fp.readUInt();
+		this.ExpandedDataSize = _fp.readUInt();
+		this.InternalAlignment = _fp.readUInt();
+		this.First16Bit = _fp.readUInt();
+		this.First8Bit = _fp.readUInt();
+		this.PointerFixupArrayOffset = _fp.readUInt();
+		this.PointerFixupArrayCount = _fp.readUInt();
+		this.MixedMarshallingFixupArrayOffset = _fp.readUInt();
+		this.MixedMarshallingFixupArrayCount = _fp.readUInt();
 
 		this.IsReady = false;
 	}
 
-	Section.prototype.decompress = function (fp) {
+	Section.prototype.decompress = function (_fp) {
 		if (this.IsReady) {
 			return true;
 		}
 
-		const data = new BinaryReader(fp.buffer, this.DataOffset, this.DataSize);
+		const _data = new BinaryReader(_fp.buffer, this.DataOffset, this.DataSize);
 		// TODO Create an output buffer the size of ExpandedDataSize for copying uncompressed data into.
 
 		switch (this.Format) {
@@ -554,7 +552,7 @@ GR2.prototype.load = function Load(data) {
 				if (this.ExpandedDataSize != this.DataSize) {
 					console.error('Expanded Data Size and DataSize do not match.');
 				}
-				this.data = data;
+				this.data = _data;
 				this.IsReady = true;
 				break;
 			case GR2.COMPRESSION_TYPE.Oodle0Compression:
@@ -576,41 +574,41 @@ GR2.prototype.load = function Load(data) {
 		return this.IsReady;
 	};
 
-	function Reference(fp) {
-		this.SectionIndex = fp.readUInt();
-		this.Offset = fp.readUInt();
+	function Reference(_fp) {
+		this.SectionIndex = _fp.readUInt();
+		this.Offset = _fp.readUInt();
 	}
 
-	function Header(fp) {
-		this.Version = fp.readUInt();
-		this.TotalSize = fp.readUInt();
-		this.CRC = fp.readUInt();
-		this.SectionArrayOffset = fp.readUInt();
-		this.SectionArrayCount = fp.readUInt();
-		this.RootObjectTypeDefinition = new Reference(fp);
-		this.RootObject = new Reference(fp);
-		this.TypeTag = fp.readUInt();
+	function Header(_fp) {
+		this.Version = _fp.readUInt();
+		this.TotalSize = _fp.readUInt();
+		this.CRC = _fp.readUInt();
+		this.SectionArrayOffset = _fp.readUInt();
+		this.SectionArrayCount = _fp.readUInt();
+		this.RootObjectTypeDefinition = new Reference(_fp);
+		this.RootObject = new Reference(_fp);
+		this.TypeTag = _fp.readUInt();
 		this.ExtraTags = [];
-		for (let i = 0; i < GR2.GRNExtraTagCount; i++) {
-			this.ExtraTags.push(fp.readUInt());
+		for (i = 0; i < GR2.GRNExtraTagCount; i++) {
+			this.ExtraTags.push(_fp.readUInt());
 		}
-		this.StringDatabaseCRC = fp.readUInt();
-		this.ReservedUnused = [fp.readUInt(), fp.readUInt(), fp.readUInt()];
+		this.StringDatabaseCRC = _fp.readUInt();
+		this.ReservedUnused = [_fp.readUInt(), _fp.readUInt(), _fp.readUInt()];
 	}
 
-	function GrannyFileMagicValue(fp) {
-		this.MagicValue = [fp.readUInt(), fp.readUInt(), fp.readUInt(), fp.readUInt()];
-		this.HeaderSize = fp.readUInt();
-		this.HeaderFormat = fp.readUInt();
-		this.Reserved = [fp.readUInt(), fp.readUInt()];
+	function GrannyFileMagicValue(_fp) {
+		this.MagicValue = [_fp.readUInt(), _fp.readUInt(), _fp.readUInt(), _fp.readUInt()];
+		this.HeaderSize = _fp.readUInt();
+		this.HeaderFormat = _fp.readUInt();
+		this.Reserved = [_fp.readUInt(), _fp.readUInt()];
 	}
 
 	// Not called with new as we return an array of 3 float.
 	function Triple() {
 		if (arguments.length === 1) {
 			// Set from file pointer
-			const fp = arguments[0];
-			return [fp.readFloat(), fp.readFloat(), fp.readFloat()];
+			const _fp = arguments[0];
+			return [_fp.readFloat(), _fp.readFloat(), _fp.readFloat()];
 		} else if (arguments.length == 3) {
 			// Set from X,Y,Z etc
 			return [arguments[0], arguments[1], arguments[2]];
@@ -627,44 +625,44 @@ GR2.prototype.load = function Load(data) {
 		//granny_uintaddrx Ignored__Ignored;
 	}
 
-	function GrannyVariant(fp) {
-		this.Type = new GrannyDataTypeDefinition(fp);
+	function GrannyVariant(_fp) {
+		this.Type = new GrannyDataTypeDefinition(_fp);
 		this.Object = null;
 	}
 
-	function GrannyArtToolInfo(fp) {
-		this.FromArtToolName = fp.readString(30); // TODO Check how to read strings
-		this.ArtToolMajorRevision = fp.readUInt();
-		this.ArtToolMinorRevision = fp.readUInt();
-		this.UnitsPerMeter = fp.readFloat();
-		this.Origin = Triple(fp);
-		this.RightVector = Triple(fp);
-		this.UpVector = Triple(fp);
-		this.BackVector = Triple(fp);
-		this.ExtendedData = new GrannyVariant(fp);
+	function _GrannyArtToolInfo(_fp) {
+		this.FromArtToolName = _fp.readString(30); // TODO Check how to read strings
+		this.ArtToolMajorRevision = _fp.readUInt();
+		this.ArtToolMinorRevision = _fp.readUInt();
+		this.UnitsPerMeter = _fp.readFloat();
+		this.Origin = Triple(_fp);
+		this.RightVector = Triple(_fp);
+		this.UpVector = Triple(_fp);
+		this.BackVector = Triple(_fp);
+		this.ExtendedData = new GrannyVariant(_fp);
 	}
 
-	function GrannyFileInfo(fp) {
+	function _GrannyFileInfo(_fp) {
 		//granny_art_tool_info * ArtToolInfo;
 		//granny_exporter_info * ExporterInfo;
-		this.FromFileName = fp.readString(30); // TODO Check how to read strings.
-		this.TextureCount = fp.readInt();
+		this.FromFileName = _fp.readString(30); // TODO Check how to read strings.
+		this.TextureCount = _fp.readInt();
 		this.Textures = null; //granny_texture ** Textures;
-		this.MaterialCount = fp.readInt();
+		this.MaterialCount = _fp.readInt();
 		this.Materials = null; //granny_material ** Materials;
-		this.SkeletonCount = fp.readInt();
+		this.SkeletonCount = _fp.readInt();
 		this.Skeletons = null; //granny_skeleton ** Skeletons;
-		this.VertexDataCount = fp.readInt();
+		this.VertexDataCount = _fp.readInt();
 		this.VertexDatas = null; //granny_vertex_data ** VertexDatas;
-		this.TriTopologyCount = fp.readInt();
+		this.TriTopologyCount = _fp.readInt();
 		this.TriTopologies = null; //granny_tri_topology ** TriTopologies;
-		this.MeshCount = fp.readInt();
+		this.MeshCount = _fp.readInt();
 		this.Meshes = null; //granny_mesh ** Meshes;
-		this.ModelCount = fp.readInt();
+		this.ModelCount = _fp.readInt();
 		this.Models = null; //granny_model ** Models;
-		this.TrackGroupCount = fp.readInt();
+		this.TrackGroupCount = _fp.readInt();
 		this.TrackGroups = null; //granny_track_group ** TrackGroups;
-		this.AnimationCount = fp.readInt();
+		this.AnimationCount = _fp.readInt();
 		//granny_animation ** Animations;
 		//granny_variant ExtendedData;
 	}
@@ -807,19 +805,18 @@ GR2.prototype.createInstance = function CreateInstance(model, width, height) {
  * Calculate model bounding box
  */
 GR2.prototype.calcBoundingBox = function CalcBoundingBox() {
-	let i, j, count;
 	const box = this.box;
 	const matrix = mat4.create();
 	const nodes = this.nodes;
 	const min = Math.min,
 		max = Math.max;
-	count = nodes.length;
+	const count = nodes.length;
 
 	mat4.identity(matrix);
 	this.main_node.calcBoundingBox(matrix);
 
-	for (i = 0; i < 3; ++i) {
-		for (j = 0; j < count; ++j) {
+	for (let i = 0; i < 3; ++i) {
+		for (let j = 0; j < count; ++j) {
 			box.max[i] = max(box.max[i], nodes[j].box.max[i]);
 			box.min[i] = min(box.min[i], nodes[j].box.min[i]);
 		}
@@ -863,11 +860,9 @@ GR2.prototype.compile = function Compile() {
  * @param {boolean} only
  */
 GR2.Node = function Node(gr2, fp, only) {
-	let i,
-		j,
-		count,
-		version = gr2.version;
-	let textures, vertices, tvertices, faces, posKeyframes, rotKeyframes;
+	let i, j, count;
+	const version = gr2.version;
+	let posKeyframes;
 
 	// Read initialised
 	this.main = gr2;
@@ -879,7 +874,7 @@ GR2.Node = function Node(gr2, fp, only) {
 
 	// Read textures
 	count = fp.readLong();
-	textures = new Array(count);
+	const textures = new Array(count);
 
 	for (i = 0; i < count; ++i) {
 		textures[i] = fp.readLong();
@@ -905,14 +900,14 @@ GR2.Node = function Node(gr2, fp, only) {
 
 	// Read vertices
 	count = fp.readLong();
-	vertices = new Array(count);
+	const vertices = new Array(count);
 	for (i = 0; i < count; ++i) {
 		vertices[i] = [fp.readFloat(), fp.readFloat(), fp.readFloat()];
 	}
 
 	// Read textures vertices
 	count = fp.readLong();
-	tvertices = new Float32Array(count * 6);
+	const tvertices = new Float32Array(count * 6);
 	for (i = 0, j = 0; i < count; ++i, j += 6) {
 		if (version >= 1.2) {
 			tvertices[j + 0] = fp.readUByte() / 255;
@@ -926,7 +921,7 @@ GR2.Node = function Node(gr2, fp, only) {
 
 	// Read faces
 	count = fp.readLong();
-	faces = new Array(count);
+	const faces = new Array(count);
 	for (i = 0; i < count; ++i) {
 		faces[i] = {
 			vertidx: [fp.readUShort(), fp.readUShort(), fp.readUShort()],
@@ -955,7 +950,7 @@ GR2.Node = function Node(gr2, fp, only) {
 
 	// Read rotkeyframes
 	count = fp.readLong();
-	rotKeyframes = new Array(count);
+	const rotKeyframes = new Array(count);
 
 	for (i = 0; i < count; ++i) {
 		rotKeyframes[i] = {
@@ -1048,7 +1043,6 @@ GR2.Node.prototype.calcBoundingBox = function NodeCalcBoundingBox(_matrix) {
  * @param {mat4} instance_matrix
  */
 GR2.Node.prototype.compile = function (instance_matrix) {
-	let matrix;
 	const modelViewMat = mat4.create();
 	const normalMat = mat4.create();
 
@@ -1059,13 +1053,12 @@ GR2.Node.prototype.compile = function (instance_matrix) {
 	const mesh = {};
 	const mesh_size = [];
 
-	let vert, face_normal;
 	const shadeGroup = new Array(32);
 	const shadeGroupUsed = new Array(32);
 	let i, x, y, z, count;
 
 	// Calculate matrix
-	matrix = mat4.create();
+	const matrix = mat4.create();
 	mat4.identity(matrix);
 	mat4.translate(matrix, matrix, [-this.main.box.center[0], -this.main.box.max[1], -this.main.box.center[2]]);
 	mat4.multiply(matrix, matrix, this.matrix);
@@ -1083,7 +1076,7 @@ GR2.Node.prototype.compile = function (instance_matrix) {
 
 	// Generate new vertices
 	count = vertices.length;
-	vert = new Float32Array(count * 3);
+	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
 		x = vertices[i][0];
 		y = vertices[i][1];
@@ -1096,7 +1089,7 @@ GR2.Node.prototype.compile = function (instance_matrix) {
 	}
 
 	// Generate face normals
-	face_normal = new Float32Array(faces.length * 3);
+	const face_normal = new Float32Array(faces.length * 3);
 
 	// Setup mesh slot array
 	for (i = 0, count = textures.length; i < count; ++i) {

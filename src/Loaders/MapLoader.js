@@ -263,8 +263,8 @@ MapLoader.prototype.loadGroundTextures = function LoadGroundTextures(world, grou
 	}.bind(this);
 
 	// Once load
-	loader.onload = function (textures) {
-		callback(textures.splice(0, ground.waterVertCount ? 32 : 0), textures);
+	loader.onload = function (_textures) {
+		callback(_textures.splice(0, ground.waterVertCount ? 32 : 0), _textures);
 	}.bind(this);
 
 	// Start the queue
@@ -300,7 +300,7 @@ MapLoader.prototype.loadModels = function LoadModels(models, ground) {
 
 	// Start creating instances
 	loader.onload = function (objects, filenames) {
-		let i, count, pos;
+		let pos;
 
 		for (i = 0, count = models.length; i < count; ++i) {
 			pos = filenames.indexOf(models[i].filename);
@@ -424,13 +424,12 @@ MapLoader.prototype.mergeMeshes = function MergeMeshes(objects, bufferSize) {
 	let object, texture;
 	const textures = [],
 		infos = [];
-	let buffer;
 
 	const fcount = 1 / 9;
 	const progress = this.progress;
 
 	// Create buffer where to concat meshes
-	buffer = new Float32Array(bufferSize);
+	const buffer = new Float32Array(bufferSize);
 	offset = 0;
 
 	// Sort objects by textures type
@@ -468,18 +467,18 @@ MapLoader.prototype.mergeMeshes = function MergeMeshes(objects, bufferSize) {
 	const loader = new Loader(textures);
 
 	// On Progress
-	loader.onprogress = function (index, count) {
-		this.setProgress(progress + ((100 - progress) / count) * (index + 1));
+	loader.onprogress = function (index, _count) {
+		this.setProgress(progress + ((100 - progress) / _count) * (index + 1));
 	}.bind(this);
 
 	// Once texture loaded, push the textures
 	// in the resulted mesh, and send it back
-	loader.onload = function (textures, filenames) {
-		let i, count, pos;
+	loader.onload = function (_textures, filenames) {
+		let pos;
 
 		for (i = 0, count = infos.length; i < count; ++i) {
 			pos = filenames.indexOf(infos[i].filename);
-			infos[i].texture = textures[pos];
+			infos[i].texture = _textures[pos];
 		}
 
 		this.ondata('MAP_MODELS', {

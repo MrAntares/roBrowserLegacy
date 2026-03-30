@@ -51,17 +51,16 @@ ScreenShot.take = function takeScreenShot() {
  * @param {canvasElement} canvas
  */
 ScreenShot.process = function processScreenShot(canvas) {
-	let context, date, timezone;
 	let x, y;
 
 	// Create a date to add to canvas
 	const tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
 	let localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
 	localISOTime = localISOTime.replace('T', ' ');
-	timezone = new Date().getTimezoneOffset() / 60;
-	date = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
+	const timezone = new Date().getTimezoneOffset() / 60;
+	const date = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
 
-	context = canvas.getContext('2d');
+	const context = canvas.getContext('2d');
 
 	// Input the timestamp on screenshot
 	context.fillStyle = 'white';
@@ -101,13 +100,12 @@ ScreenShot.process = function processScreenShot(canvas) {
  * @param {string} date
  */
 ScreenShot.display = function displayScreenShot(canvas, date) {
-	let binary, data, url;
-	let i, count;
+	let i;
 
 	// We decode the base64 to get the binary of the png
-	binary = atob(canvas.toDataURL('image/png').replace(/^data[^,]+,/, ''));
-	count = binary.length;
-	data = new Uint8Array(count);
+	const binary = atob(canvas.toDataURL('image/png').replace(/^data[^,]+,/, ''));
+	const count = binary.length;
+	const data = new Uint8Array(count);
 
 	// We store the content in a buffer
 	for (i = 0; i < count; ++i) {
@@ -115,7 +113,7 @@ ScreenShot.display = function displayScreenShot(canvas, date) {
 	}
 
 	// We create a local image with the buffer
-	url = window.URL.createObjectURL(new Blob([data], { type: 'image/png' }));
+	const url = window.URL.createObjectURL(new Blob([data], { type: 'image/png' }));
 
 	ChatBox.addText(
 		'Screenshot ' +

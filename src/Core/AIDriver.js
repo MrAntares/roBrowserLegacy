@@ -112,7 +112,8 @@ AIDriver.addCTX = function addAIctx() {
 					return Session.AID;
 
 				case 1: // V_POSITION
-				case 13: // V_POSITION_APPLY_SKILLATTACKRANGE
+				case 13: {
+					// V_POSITION_APPLY_SKILLATTACKRANGE
 					let posX = -1,
 						posY = -1;
 					if (entity && entity.position) {
@@ -156,6 +157,7 @@ AIDriver.addCTX = function addAIctx() {
 					// By returning [V_, posX, posY] and extracting the values in Lua, we ensure
 					// the AI receives two proper numeric return values (x, y).
 					return [V_, posX, posY];
+				}
 				case 2: // V_TYPE
 					//UNUSED
 					return 1;

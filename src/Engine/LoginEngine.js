@@ -62,7 +62,6 @@ let _loginID = '';
  * Init Game
  */
 function init(server) {
-	let charset;
 	const q = new Queue();
 	const old_server = _server;
 
@@ -75,7 +74,7 @@ function init(server) {
 	console.log('%c[LOGIN] Game Mode: ', 'color:#007000', Session.isRenewal ? 'RENEWAL' : 'PRE-RENEWAL');
 
 	// Setup Default Charset based on LangType
-	charset = TextEncoding.detectEncodingByLangtype(Session.LangType, Configs.get('disableKorean'));
+	const charset = TextEncoding.detectEncodingByLangtype(Session.LangType, Configs.get('disableKorean'));
 
 	console.log('%c[LOGIN] Language Type: ', 'color:#007000', Session.LangType);
 	console.log('%c[LOGIN] Encoding: ', 'color:#007000', charset);
@@ -212,8 +211,8 @@ function onConnectionRequest(username, password) {
 			let fileStatus = 0;
 			const fileContents = [];
 
-			for (var i = 0; i < files.length; i++) {
-				var jsonFile = new XMLHttpRequest();
+			for (let i = 0; i < files.length; i++) {
+				const jsonFile = new XMLHttpRequest();
 				jsonFile.open('GET', files[i], true);
 				jsonFile.send();
 
@@ -241,8 +240,8 @@ function onConnectionRequest(username, password) {
 				// Convert hexadecimal hash to binary
 				if (/^[a-f0-9]+$/i.test(hash)) {
 					let str = '';
-					let i,
-						count = hash.length;
+					let i;
+					const count = hash.length;
 
 					for (i = 0; i < count; i += 2) {
 						str += String.fromCharCode(parseInt(hash.substr(i, 2), 16));
@@ -313,8 +312,8 @@ function onConnectionAccepted(pkt) {
 	_charServers = pkt.ServerList;
 
 	// Build list of servers
-	let i,
-		count = _charServers.length;
+	let i;
+	const count = _charServers.length;
 	const list = new Array(count);
 	for (i = 0; i < count; ++i) {
 		list[i] = _charServers[i].property ? DB.getMessage(482) + ' ' : '';

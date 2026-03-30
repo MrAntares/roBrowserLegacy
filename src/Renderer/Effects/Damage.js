@@ -195,11 +195,11 @@ Damage.init = function init(gl) {
 				}
 
 				// Create SpriteSheet
-				for (var i = 0; i < skinData.numbers.length; ++i) {
+				for (let i = 0; i < skinData.numbers.length; ++i) {
 					skinData.numbers[i] = sprNumbers.getCanvasFromFrame(i);
 				}
 
-				for (var i = 0; i < 6; i++) {
+				for (let i = 0; i < 6; i++) {
 					//msg.spr miss crit lucky...
 
 					const source = sprMsg.getCanvasFromFrame(i);
@@ -232,7 +232,7 @@ Damage.init = function init(gl) {
 					}
 				}
 
-				for (var i = 0; i < 6; i++) {
+				for (let i = 0; i < 6; i++) {
 					//bluemsg.spr miss crit lucky...
 
 					const source = sprBlue.getCanvasFromFrame(i);
@@ -316,10 +316,9 @@ Damage.add = function add(damage, entity, tick, weapon, type) {
 	damage = Math.floor(damage);
 
 	const PADDING = 2;
-	let i, count, start_x, start_y;
+	let i, count;
 	let frame;
 
-	let numbers;
 	let suffix = null;
 
 	if (_enableSuffix) {
@@ -333,7 +332,7 @@ Damage.add = function add(damage, entity, tick, weapon, type) {
 		}
 	}
 
-	numbers = damage.toString().split('');
+	const numbers = damage.toString().split('');
 
 	// Add suffix to numbers if it exists
 	if (suffix !== null) {
@@ -343,7 +342,6 @@ Damage.add = function add(damage, entity, tick, weapon, type) {
 	let width = 0;
 	let height = 0;
 	const gl = Renderer.gl;
-	let texture;
 
 	const obj = new Damage();
 
@@ -463,8 +461,8 @@ Damage.add = function add(damage, entity, tick, weapon, type) {
 	}
 
 	// find where to start to get the image at the center
-	start_x = (finalWidth - width) >> 1;
-	start_y = (finalHeight - height) >> 1;
+	const start_x = (finalWidth - width) >> 1;
+	const start_y = (finalHeight - height) >> 1;
 
 	// build texture
 	width = 0;
@@ -474,7 +472,7 @@ Damage.add = function add(damage, entity, tick, weapon, type) {
 		width += frame.width + PADDING;
 	}
 
-	texture = gl.createTexture();
+	const texture = gl.createTexture();
 
 	const enableMipmap = Configs.get('enableMipmap');
 	gl.bindTexture(gl.TEXTURE_2D, texture);

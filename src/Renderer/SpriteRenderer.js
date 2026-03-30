@@ -444,34 +444,32 @@ SpriteRenderer.runWithDepth = function runWithDepth(depthTest, depthMask, depthC
  * Render in 2D
  */
 const RenderCanvas2D = (function RenderCanvas2DClosure() {
-	let canvas, ctx, imageData;
+	let imageData;
 
-	canvas = document.createElement('canvas');
-	ctx = canvas.getContext('2d');
+	const canvas = document.createElement('canvas');
+	const ctx = canvas.getContext('2d');
 	canvas.width = 20;
 	canvas.height = 20;
 	imageData = ctx.createImageData(canvas.width, canvas.height);
 
-	return function RenderCanvas2D() {
+	return function () {
 		// Nothing to render
 		if (this.sprite.width <= 0 || this.sprite.height <= 0) {
 			return;
 		}
 
 		let scale_x, scale_y;
-		let x, y, _x, _y, width, height, outputWidth;
-		let pal, frame, color;
-		let input, output32;
+		let x, y;
 		let r, g, b, a, inRow, outRow;
 
 		scale_x = 1.0;
 		scale_y = 1.0;
-		_x = _pos[0] + this.offset[0];
-		_y = _pos[1] + this.offset[1] - 0.5 * 35; // middle of cell
-		pal = this.palette;
-		frame = this.sprite;
-		width = frame.width;
-		height = frame.height;
+		const _x = _pos[0] + this.offset[0];
+		const _y = _pos[1] + this.offset[1] - 0.5 * 35; // middle of cell
+		const pal = this.palette;
+		const frame = this.sprite;
+		const width = frame.width;
+		const height = frame.height;
 
 		_size.set(this.size);
 
@@ -493,13 +491,13 @@ const RenderCanvas2D = (function RenderCanvas2DClosure() {
 			imageData = ctx.createImageData(width, height);
 		}
 
-		input = frame.data;
-		color = this.color; // [r, g, b, a] as floats 0..1
-		outputWidth = canvas.width;
+		const input = frame.data;
+		const color = this.color; // [r, g, b, a] as floats 0..1
+		const outputWidth = canvas.width;
 
 		// Use 32-bit view for the output buffer (ImageData)
 		// WHY: Writing a single 32-bit value per pixel is faster than 4 separate byte writes.
-		output32 = new Uint32Array(imageData.data.buffer);
+		const output32 = new Uint32Array(imageData.data.buffer);
 
 		// Pre-calculate color multipliers for 32-bit assembly
 		// Avoid repeated array lookups inside the inner loop.

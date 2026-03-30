@@ -65,10 +65,9 @@ UIManager.getComponent = function getComponent(name) {
  */
 UIManager.removeComponents = function removeComponents() {
 	const keys = Object.keys(this.components);
-	let i,
-		count = keys.length;
+	const count = keys.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		this.components[keys[i]].remove();
 	}
 };
@@ -82,12 +81,11 @@ UIManager.removeComponents = function removeComponents() {
  */
 UIManager.fixResizeOverflow = function fixResizeOverflow(WIDTH, HEIGHT) {
 	const keys = Object.keys(this.components);
-	let i,
-		count = keys.length;
+	const count = keys.length;
 	let ui;
 	let x, y, width, height;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		const component = this.components[keys[i]];
 		ui = component.ui;
 
@@ -134,10 +132,8 @@ UIManager.fixResizeOverflow = function fixResizeOverflow(WIDTH, HEIGHT) {
  * @param {string} error message
  */
 UIManager.showErrorBox = function showErrorBox(text) {
-	let WinError, overlay;
-
 	// Create popup
-	WinError = this.getComponent('WinPopup').clone('WinError');
+	const WinError = this.getComponent('WinPopup').clone('WinError');
 	WinError.init = function Init() {
 		this.ui.find('.text').text(text);
 		this.ui.css({
@@ -172,7 +168,7 @@ UIManager.showErrorBox = function showErrorBox(text) {
 	};
 
 	// Add overlay (to block mouseover, click, etc.)
-	overlay = jQuery('<div/>').addClass('win_popup_overlay');
+	const overlay = jQuery('<div/>').addClass('win_popup_overlay');
 	overlay.appendTo('body');
 
 	// Push the event to the top, stopImmediatePropagation will block every key down event.
@@ -194,10 +190,8 @@ UIManager.showErrorBox = function showErrorBox(text) {
  * @param {function} callback once the button is pressed
  */
 UIManager.showMessageBox = function showMessageBox(text, btn_name, callback, keydown) {
-	let WinMSG;
-
 	// Create popup
-	WinMSG = this.getComponent('WinPopup').clone('WinMSG');
+	const WinMSG = this.getComponent('WinPopup').clone('WinMSG');
 	WinMSG.init = function Init() {
 		this.draggable();
 		this.ui.find('.text').text(text);
@@ -262,9 +256,7 @@ UIManager.showMessageBox = function showMessageBox(text, btn_name, callback, key
  * @param {function} callback when cancel is pressed
  */
 UIManager.showPromptBox = function showPromptBox(text, btn_yes, btn_no, onYes, onNo) {
-	let WinPrompt;
-
-	WinPrompt = this.getComponent('WinPopup').clone('WinPrompt');
+	const WinPrompt = this.getComponent('WinPopup').clone('WinPrompt');
 	WinPrompt.init = function Init() {
 		this.draggable();
 		this.ui.find('.text').text(text);

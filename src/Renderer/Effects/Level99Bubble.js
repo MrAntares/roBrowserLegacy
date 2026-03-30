@@ -17,8 +17,6 @@
 import _vertexShader from './Level99Bubble.vs?raw';
 import _fragmentShader from './Level99Bubble.fs?raw';
 import WebGL from 'Utils/WebGL.js';
-import Texture from 'Utils/Texture.js';
-import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Camera from 'Renderer/Camera.js';
 import Altitude from 'Renderer/Map/Altitude.js';
@@ -347,7 +345,7 @@ Level99Bubble.prototype.render = function render(gl, tick) {
 	const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
 
 	// Process each column
-	for (var ec = 0; ec < this.columns.length; ec++) {
+	for (let ec = 0; ec < this.columns.length; ec++) {
 		const column = this.columns[ec];
 		if (!column.life) {
 			continue;
@@ -357,7 +355,7 @@ Level99Bubble.prototype.render = function render(gl, tick) {
 		this.updatePhases(column);
 
 		// Process each anchor in the column
-		for (var ai = 0; ai < column.anchors.length; ai++) {
+		for (let ai = 0; ai < column.anchors.length; ai++) {
 			// Update anchor position (jitter + drift + reset)
 			this.updateAnchor(column, ai);
 
@@ -532,7 +530,7 @@ Level99Bubble.afterRender = function afterRender(gl) {
 	gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 };
 
-function ensureDebugUI() {
+function _ensureDebugUI() {
 	if (typeof document === 'undefined') {
 		return;
 	}
@@ -652,5 +650,5 @@ function ensureDebugUI() {
 
 // Initialize temporary debug UI once
 // Temporarily disabled; will be re-enabled via a future interface
-// ensureDebugUI();
+// _ensureDebugUI();
 export default Level99Bubble;

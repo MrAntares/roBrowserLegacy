@@ -46,11 +46,10 @@ Plugins.list = [];
 Plugins.init = function init(context) {
 	const paths = [];
 	const params = [];
-	let i, count;
 
 	this.list = Configs.get('plugins', {});
 
-	for (const [pluginName, value] of Object.entries(this.list)) {
+	for (const [_pluginName, value] of Object.entries(this.list)) {
 		if (typeof value === 'string' || value instanceof String) {
 			// Only Path is provided as string
 			paths.push('./' + value);
@@ -69,7 +68,7 @@ Plugins.init = function init(context) {
 		}
 	}
 
-	count = paths.length;
+	const _count = paths.length;
 
 	// Dynamic plugin loading in ESM
 	paths.forEach((path, i) => {

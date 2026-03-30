@@ -23,8 +23,7 @@ import Configs from 'Core/Configs.js';
  */
 export function getContext(canvas, parameters) {
 	let gl = null;
-	let names;
-	let i, count;
+	let i;
 
 	// Default options
 	if (!parameters) {
@@ -44,8 +43,8 @@ export function getContext(canvas, parameters) {
 	}
 
 	// WebGL2 only (fallback to experimental-webgl2 name if needed)
-	names = ['webgl2', 'experimental-webgl2'];
-	count = names.length;
+	const names = ['webgl2', 'experimental-webgl2'];
+	const count = names.length;
 
 	// Find the context
 	if (canvas.getContext) {
@@ -77,7 +76,7 @@ export function getContext(canvas, parameters) {
  * @param {number} type (fragment or shader constant)
  */
 export function compileShader(gl, source, type) {
-	let shader, error;
+	let error;
 
 	// Ensure #version is first token by trimming leading whitespace/BOM
 	if (source && source.charCodeAt(0) === 0xfeff) {
@@ -86,7 +85,7 @@ export function compileShader(gl, source, type) {
 	source = source.replace(/^\s+/, '');
 
 	// Compile shader
-	shader = gl.createShader(type);
+	const shader = gl.createShader(type);
 	gl.shaderSource(shader, source);
 	gl.compileShader(shader);
 
@@ -199,17 +198,16 @@ export function texture(gl, url, callback) {
 			return;
 		}
 		try {
-			let canvas, ctx, texture;
 			const enableMipmap = Configs.get('enableMipmap');
 
-			canvas = document.createElement('canvas');
+			const canvas = document.createElement('canvas');
 			canvas.width = toPowerOfTwo(this.width);
 			canvas.height = toPowerOfTwo(this.height);
-			ctx = canvas.getContext('2d');
+			const ctx = canvas.getContext('2d');
 			ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
 
-			texture = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, texture);
+			const _texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, _texture);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -221,7 +219,7 @@ export function texture(gl, url, callback) {
 				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 			}
 
-			args.unshift(texture);
+			args.unshift(_texture);
 			callback.apply(null, args);
 		} catch (e) {
 			console.error('WebGL::texture creation error:', e);

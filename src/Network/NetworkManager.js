@@ -220,7 +220,7 @@ read.callback = null;
  * @param {Uint8Array} buffer
  */
 function receive(buf) {
-	let id, packet, fp;
+	let id, packet;
 	let length = 0;
 	let offset = 0;
 	let buffer;
@@ -235,7 +235,7 @@ function receive(buf) {
 		buffer = buf;
 	}
 
-	fp = new BinaryReader(buffer);
+	const fp = new BinaryReader(buffer);
 
 	// Read hook
 	if (read.callback) {

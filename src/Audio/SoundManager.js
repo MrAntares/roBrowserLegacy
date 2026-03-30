@@ -89,7 +89,6 @@ SoundManager.play = function play(filename, vol) {
 
 	// Get the sound from client.
 	Client.loadFile('data/wav/' + filename, function (url) {
-		let sound;
 		if (!(filename in _sounds)) {
 			return;
 		}
@@ -103,19 +102,19 @@ SoundManager.play = function play(filename, vol) {
 		}
 
 		// Initialiaze the sound and play it
-		sound = document.createElement('audio');
+		const audio = document.createElement('audio');
 		mediaPlayerCount++;
-		sound.filename = filename;
-		sound.src = url;
-		sound.volume = Math.min(volume, 1.0);
-		sound._volume = volume;
+		audio.filename = filename;
+		audio.src = url;
+		audio.volume = Math.min(volume, 1.0);
+		audio._volume = volume;
 
-		sound.addEventListener('error', onSoundError, false);
-		sound.addEventListener('ended', onSoundEnded, false);
-		sound.play();
+		audio.addEventListener('error', onSoundError, false);
+		audio.addEventListener('ended', onSoundEnded, false);
+		audio.play();
 
 		// Add it to the list
-		_sounds[filename].instances.push(sound);
+		_sounds[filename].instances.push(audio);
 		_sounds[filename].lastTick = Date.now();
 	});
 };
@@ -138,7 +137,7 @@ SoundManager.playPosition = function playPosition(filename, srcPosition) {
  * @param {optional|string} filename to stop
  */
 SoundManager.stop = function stop(filename) {
-	let i, count, list;
+	let i, count;
 
 	if (filename) {
 		if (filename in _sounds) {
@@ -165,7 +164,7 @@ SoundManager.stop = function stop(filename) {
 	});
 
 	// Remove from cache
-	list = Memory.search(/\.wav$/);
+	const list = Memory.search(/\.wav$/);
 	for (i = 0, count = list.length; i < count; ++i) {
 		Memory.remove(list[i]);
 	}

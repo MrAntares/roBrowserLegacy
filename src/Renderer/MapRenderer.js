@@ -398,7 +398,6 @@ MapRenderer.onRender = function OnRender(tick, gl) {
 	fog.use = MapPreferences.fog;
 	const light = MapRenderer.light;
 
-	let modelView, projection, normalMat;
 	let x, y;
 
 	// Clean mouse position in world
@@ -409,9 +408,9 @@ MapRenderer.onRender = function OnRender(tick, gl) {
 	// Update camera
 	Camera.update(tick);
 
-	modelView = Camera.modelView;
-	projection = Camera.projection;
-	normalMat = Camera.normalMat;
+	const modelView = Camera.modelView;
+	const projection = Camera.projection;
+	const normalMat = Camera.normalMat;
 
 	// Spam map effects
 	Effects.spam(Session.Entity.position, tick);

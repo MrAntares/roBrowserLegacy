@@ -88,10 +88,7 @@ GRF.prototype.load = function Load(file) {
 	this.reader = new FileReaderSync();
 
 	// Local object
-	let buffer, fp;
-	let header, entries, table;
 	const reader = this.reader;
-	let data, out;
 	let i, count;
 
 	// Helper
@@ -113,9 +110,9 @@ GRF.prototype.load = function Load(file) {
 	}
 
 	// Read the header
-	buffer = reader.load(0, GRF.struct_header.size);
-	fp = new BinaryReader(buffer);
-	header = fp.readStruct(GRF.struct_header);
+	let buffer = reader.load(0, GRF.struct_header.size);
+	let fp = new BinaryReader(buffer);
+	const header = fp.readStruct(GRF.struct_header);
 
 	header.signature = String.fromCharCode.apply(null, header.signature);
 	const nullPos = header.signature.indexOf('\0');
@@ -166,18 +163,18 @@ GRF.prototype.load = function Load(file) {
 
 	buffer = reader.load(table_offset, GRF.struct_table.size);
 	fp = new BinaryReader(buffer);
-	table = fp.readStruct(GRF.struct_table);
+	const table = fp.readStruct(GRF.struct_table);
 
 	// Load Table Data
 	buffer = reader.load(table_offset + GRF.struct_table.size, table.pack_size);
-	data = new Uint8Array(buffer);
-	out = new Uint8Array(table.real_size);
+	const data = new Uint8Array(buffer);
+	const out = new Uint8Array(table.real_size);
 
 	// Uncompress data
 	new Inflate(data).getBytes(out);
 	this.index = {};
 	// Load entries
-	entries = loadEntries(out, header.realfilecount, header.version);
+	const entries = loadEntries(out, header.realfilecount, header.version);
 
 	// Store table data (used for regex search in tablelist)
 	// Set filename to lowercase (case insensitive in official client)
@@ -302,10 +299,10 @@ GRF.prototype.search = function search(filename) {
 GRF.prototype.getFile = function getFile(filename, callback) {
 	// Not case sensitive...
 	const path = filename.toLowerCase();
-	let entry, blob;
+	let blob;
 	let reader;
 
-	entry = this.search(path);
+	const entry = this.search(path);
 
 	// If filename is find in GRF table list
 	if (entry) {

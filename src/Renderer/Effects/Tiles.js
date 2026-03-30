@@ -1,13 +1,10 @@
 import WebGL from 'Utils/WebGL.js';
 import Texture from 'Utils/Texture.js';
-import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import _vertexShader from './Tiles.vs?raw';
 import _fragmentShader from './Tiles.fs?raw';
-
-const mat4 = glMatrix.mat4;
 
 export function loadTexture(gl, texture, cb) {
 	const _texture = gl.createTexture();
@@ -16,7 +13,7 @@ export function loadTexture(gl, texture, cb) {
 		Texture.load(buffer, function (canvas) {
 			const enableMipmap = Configs.get('enableMipmap');
 			const size = texture.size;
-			var canvas = document.createElement('canvas');
+			canvas = document.createElement('canvas');
 			canvas.width = canvas.height = size;
 			const ctx = canvas.getContext('2d');
 			ctx.save();

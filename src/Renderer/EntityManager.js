@@ -17,9 +17,6 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import PathFinding from 'Utils/PathFinding.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Altitude from 'Renderer/Map/Altitude.js';
-import glMatrix from 'Utils/gl-matrix.js';
-
-const vec3 = glMatrix.vec3;
 const _list = [];
 
 // O(1) GID lookup map
@@ -46,25 +43,6 @@ function getEntityByGID(gid) {
 }
 
 /**
- * Find an Entity and return its index in _list (for splice operations)
- *
- * @param {number} gid
- * @returns {number} position
- */
-function getEntityIndex(gid) {
-	if (gid < 0) {
-		return -1;
-	}
-
-	const entity = _gidMap.get(gid);
-	if (!entity) {
-		return -1;
-	}
-
-	return _list.indexOf(entity);
-}
-
-/**
  * Find an Entity and return its index
  *
  * @param {number} aid
@@ -75,9 +53,8 @@ function getEntityIndexBy(getter, value) {
 		return -1;
 	}
 
-	let i,
-		count = _list.length;
-	for (i = 0; i < count; ++i) {
+	const count = _list.length;
+	for (let i = 0; i < count; ++i) {
 		if (getter(_list[i]) === value) {
 			return i;
 		}
@@ -92,10 +69,8 @@ function getEntityIndexBy(getter, value) {
  * @param {function} callback
  */
 function forEach(callback) {
-	let i,
-		count = _list.length;
-
-	for (i = 0; i < count; ++i) {
+	const count = _list.length;
+	for (let i = 0; i < count; ++i) {
 		if (callback(_list[i]) === false) {
 			return;
 		}

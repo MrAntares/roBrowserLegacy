@@ -3,7 +3,7 @@
  *
  * Implement C like structure in JS, example:
  *
- * var auth = new Struct(
+ * const auth = new Struct(
  *     "unsigned char username[24]",
  *     "unsigned char password[24]",
  *     "bool stay_connect",
@@ -28,12 +28,11 @@ export default function Struct() {
 	let i,
 		count,
 		total = 0,
-		size,
-		len;
+		size;
 	let type, name, func;
 	const out = {};
 
-	len = arguments.length;
+	const len = arguments.length;
 
 	for (i = 0; i < len; ++i) {
 		args = arguments[i].match(

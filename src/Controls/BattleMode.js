@@ -79,11 +79,11 @@ BattleMode.process = function process(keyId) {
  * @return {string} readable key pressed
  */
 BattleMode.shortcutToKeyString = function shortcutToKeyString(component, cmd) {
-	let keys, shortcut;
-	let i, count;
+	let shortcut;
+	let i;
 
-	keys = Object.keys(KeyTable);
-	count = keys.length;
+	const keys = Object.keys(KeyTable);
+	const count = keys.length;
 
 	for (i = 0; i < count; ++i) {
 		shortcut = KeyTable[keys[i]];
