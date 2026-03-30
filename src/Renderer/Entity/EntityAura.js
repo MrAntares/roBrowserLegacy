@@ -68,11 +68,6 @@ class Aura {
 				if (this.lastAuraState !== MapPreferences.aura && this.isLoaded) {
 					this.remove(effectManager);
 				}
-				/* figure out why this is here, it's brokening 3d effects
-					// Always reset constructors before (re)loading to pick up latest render ordering/depth settings.
-					effectManager.resetConstructor('TwoDEffect');
-					effectManager.resetConstructor('ThreeDEffect');
-					*/
 				if (!this.isLoaded) {
 					// aura is already loaded
 					// select effects based on /aura preference
