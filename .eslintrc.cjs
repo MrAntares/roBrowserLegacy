@@ -84,7 +84,7 @@ module.exports = {
 		// ======================
 		'no-prototype-builtins': 'off',
 		'no-inner-declarations': 'off',
-		'no-case-declarations': 'off',
+		'no-case-declarations': 'warn',
 
 		// ======================
 		// DEBUG

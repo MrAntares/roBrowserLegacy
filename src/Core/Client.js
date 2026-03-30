@@ -314,7 +314,7 @@ export const loadFile = (function loadFileClosure() {
 					return;
 
 				// Build palette
-				case 'pal':
+				case 'pal': {
 					const enableMipmap = Configs.get('enableMipmap');
 					gl = (await import('Renderer/Renderer.js')).default.getContext();
 					texture = gl.createTexture();
@@ -330,6 +330,7 @@ export const loadFile = (function loadFileClosure() {
 
 					Memory.set(input.filename, { palette: palette, texture: texture }, error);
 					return;
+				}
 			}
 		}
 

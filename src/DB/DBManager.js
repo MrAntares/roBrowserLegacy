@@ -5587,7 +5587,8 @@ DB.getItemName = function getItemName(item, options = {}) {
 		let elem = '';
 
 		switch (item.slot.card1) {
-			case 0x00ff: // FORGE
+			case 0x00ff: {
+				// FORGE
 				showslots = false;
 				if (item.slot.card2 >= 3840) {
 					very = MsgStringTable[461]; //Very Very Very Strong
@@ -5634,13 +5635,14 @@ DB.getItemName = function getItemName(item, options = {}) {
 
 				str += very + ' ' + name + elem + ' ';
 				break;
+			}
 			case 0x00fe: // CREATE
 				elem = MsgStringTable[450];
 				break;
 			case 0xff00: // PET
 				break;
 			// Show card prefix
-			default:
+			default: {
 				const list = ['', 'Double ', 'Triple ', 'Quadruple '];
 				const cards = {};
 				const cardList = [];
@@ -5676,6 +5678,8 @@ DB.getItemName = function getItemName(item, options = {}) {
 						showprefix = true;
 					}
 				});
+				break;
+			}
 		}
 		switch (item.slot.card4) {
 			case 0x1: //BELOVED PET
