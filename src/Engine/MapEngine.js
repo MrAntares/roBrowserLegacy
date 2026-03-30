@@ -418,7 +418,7 @@ MapEngine.init = function init(ip, port, mapName) {
 		Equipment.getUI().onEquipItem = onEquipItem;
 		Equipment.getUI().onRemoveOption = onRemoveOption;
 		Inventory.getUI().onUseItem = onUseItem;
-		Equipment.getUI().onEquipItem = onEquipItem;
+		Inventory.getUI().onEquipItem = onEquipItem;
 
 		// Avoid zone server change init
 		MapEngine.needsUIVerUpdate = false;
