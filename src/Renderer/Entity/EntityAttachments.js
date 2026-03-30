@@ -13,6 +13,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import Ground from 'Renderer/Map/Ground.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
+import Renderer from 'Renderer/Renderer.js';
 
 // Default fog for STR attachments
 const _defaultFog = {
@@ -23,160 +24,157 @@ const _defaultFog = {
 	color: new Float32Array([1, 1, 1])
 };
 
+const _effectColor = new Float32Array(4);
+const _position = new Int32Array(2);
+
 /**
  * AttachmentManager class
  *
  * @constructor
  * @param {object} entity attached
  */
-function AttachmentManager(entity) {
-	this.list = [];
-	this.entity = entity;
-}
-
-/**
- * Add an attachment
- *
- * @param {object} attachment options
- */
-AttachmentManager.prototype.add = function add(attachment) {
-	if (attachment.uid) {
-		this.remove(attachment.uid);
+class AttachmentManager {
+	constructor(entity) {
+		this.list = [];
+		this.entity = entity;
 	}
 
-	attachment.startTick = Date.now();
-	attachment.opacity = !isNaN(attachment.opacity) ? attachment.opacity : 1.0;
-	attachment.direction = attachment.hasOwnProperty('frame') ? false : true;
-	attachment.frame = attachment.frame || 0;
-	attachment.depth = attachment.depth || 0.0;
-	attachment.head = attachment.head || false;
-
-	attachment.position = false;
-
-	if (attachment.yOffset || attachment.xOffset) {
-		attachment.position = new Int16Array(2);
-		if (attachment.xOffset) {
-			attachment.position[0] = attachment.xOffset;
+	/**
+	 * Add an attachment
+	 *
+	 * @param {object} attachment options
+	 */
+	add(attachment) {
+		if (attachment.uid) {
+			this.remove(attachment.uid);
 		}
-		if (attachment.yOffset) {
-			attachment.position[1] = attachment.yOffset;
+
+		attachment.startTick = Date.now();
+		attachment.opacity = !isNaN(attachment.opacity) ? attachment.opacity : 1.0;
+		attachment.direction = attachment.hasOwnProperty('frame') ? false : true;
+		attachment.frame = attachment.frame || 0;
+		attachment.depth = attachment.depth || 0.0;
+		attachment.head = attachment.head || false;
+
+		attachment.position = false;
+
+		if (attachment.yOffset || attachment.xOffset) {
+			attachment.position = new Int16Array(2);
+			if (attachment.xOffset) {
+				attachment.position[0] = attachment.xOffset;
+			}
+			if (attachment.yOffset) {
+				attachment.position[1] = attachment.yOffset;
+			}
 		}
-	}
 
-	attachment.repeat = attachment.repeat || false;
-	attachment.duplicate = attachment.duplicate || 0;
-	attachment.stopAtEnd = attachment.stopAtEnd || false;
-	attachment.delay = attachment.delay || false;
-	attachment.renderBefore = attachment.renderBefore || false;
+		attachment.repeat = attachment.repeat || false;
+		attachment.duplicate = attachment.duplicate || 0;
+		attachment.stopAtEnd = attachment.stopAtEnd || false;
+		attachment.delay = attachment.delay || false;
+		attachment.renderBefore = attachment.renderBefore || false;
 
-	if (attachment.completeFile) {
-		attachment.spr = attachment.completeFile + '.spr';
-		attachment.act = attachment.completeFile + '.act';
-	} else if (attachment.file) {
-		attachment.spr = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + attachment.file + '.spr';
-		attachment.act = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + attachment.file + '.act';
-	}
+		if (attachment.completeFile) {
+			attachment.spr = attachment.completeFile + '.spr';
+			attachment.act = attachment.completeFile + '.act';
+		} else if (attachment.file) {
+			attachment.spr = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + attachment.file + '.spr';
+			attachment.act = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/' + attachment.file + '.act';
+		}
 
-	// STR file attachment
-	if (attachment.strFile) {
-		attachment.isStr = true;
-		const strNormalized = attachment.strFile.replace(/\\/g, '/');
-		const lastSlash = strNormalized.lastIndexOf('/');
-		let strTexturePath = lastSlash >= 0 ? strNormalized.substring(0, lastSlash + 1) : '';
+		// STR file attachment
+		if (attachment.strFile) {
+			attachment.isStr = true;
+			const strNormalized = attachment.strFile.replace(/\\/g, '/');
+			const lastSlash = strNormalized.lastIndexOf('/');
+			let strTexturePath = lastSlash >= 0 ? strNormalized.substring(0, lastSlash + 1) : '';
 
-		// FIXME: https://github.com/MrAntares/roBrowserLegacy/issues/856
-		strTexturePath = strTexturePath.replace(/^data\/texture\/effect\//, '');
+			// FIXME: https://github.com/MrAntares/roBrowserLegacy/issues/856
+			strTexturePath = strTexturePath.replace(/^data\/texture\/effect\//, '');
 
-		const strEffect = new StrEffect(attachment.strFile, this.entity.position, Date.now(), strTexturePath);
-		strEffect.ownerEntity = this.entity;
-		strEffect.persistent = attachment.repeat !== false;
-		strEffect.xOffset = attachment.xOffset || 0;
-		strEffect.yOffset = attachment.yOffset || 0;
+			const strEffect = new StrEffect(attachment.strFile, this.entity.position, Renderer.tick, strTexturePath);
+			strEffect.ownerEntity = this.entity;
+			strEffect.persistent = attachment.repeat !== false;
+			strEffect.xOffset = attachment.xOffset || 0;
+			strEffect.yOffset = attachment.yOffset || 0;
 
-		attachment.strEffect = strEffect;
-		this.list.push(attachment);
-		return;
-	}
-
-	// Start rendering once sprite is loaded
-	Client.loadFile(
-		attachment.spr,
-		function onLoad() {
+			attachment.strEffect = strEffect;
 			this.list.push(attachment);
-		}.bind(this),
-		null,
-		{ to_rgba: true }
-	);
-};
+			return;
+		}
 
-/**
- * Get an attachment
- *
- * @param {mixed} unique id
- */
-AttachmentManager.prototype.get = function get(uid) {
-	let i,
-		length = this.list.length;
-	for (i = 0; i < length; ++i) {
-		if (this.list[i].uid == uid) {
-			return this.list[i];
+		// Start rendering once sprite is loaded
+		Client.loadFile(
+			attachment.spr,
+			function onLoad() {
+				this.list.push(attachment);
+			}.bind(this),
+			null,
+			{ to_rgba: true }
+		);
+	}
+
+	/**
+	 * Get an attachment
+	 *
+	 * @param {mixed} unique id
+	 */
+	get(uid) {
+		const length = this.list.length;
+		for (let i = 0; i < length; ++i) {
+			if (this.list[i].uid == uid) {
+				return this.list[i];
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Remove an attachment
+	 *
+	 * @param {mixed} unique id
+	 */
+	remove(uid) {
+		const list = this.list;
+		let count = list.length;
+
+		for (let i = 0; i < count; ++i) {
+			if (list[i].uid === uid) {
+				this.removeIndex(i);
+				i--;
+				count--;
+			}
 		}
 	}
-	return null;
-};
 
-/**
- * Remove an attachment
- *
- * @param {mixed} unique id
- */
-AttachmentManager.prototype.remove = function remove(uid) {
-	let i, count;
-	let list;
+	/**
+	 * Remove attachment at index
+	 *
+	 * @param {number} index
+	 */
+	removeIndex(index) {
+		this.list.splice(index, 1);
 
-	list = this.list;
-	count = list.length;
-
-	for (i = 0; i < count; ++i) {
-		if (list[i].uid === uid) {
-			this.removeIndex(i);
-			i--;
-			count--;
+		// Is effect and no attachment, clean up
+		if (this.list.length === 0 && this.entity.objecttype === this.entity.constructor.TYPE_EFFECT) {
+			this.entity.remove();
 		}
 	}
-};
 
-/**
- * Remove attachment at index
- *
- * @param {number} index
- */
-AttachmentManager.prototype.removeIndex = function removeIndex(index) {
-	this.list.splice(index, 1);
-
-	// Is effect and no attachment, clean up
-	if (this.list.length === 0 && this.entity.objecttype === this.entity.constructor.TYPE_EFFECT) {
-		this.entity.remove();
-	}
-};
-
-/**
- * Render attachments filtered by renderBefore flag
- */
-AttachmentManager.prototype._renderFiltered = (function renderFilteredClosure() {
-	const effectColor = new Float32Array(4);
-
-	return function _renderFiltered(tick, renderBeforeEntity) {
+	/**
+	 * Render attachments filtered by renderBefore flag
+	 */
+	_renderFiltered(tick, renderBeforeEntity) {
 		if (!this.list.some(item => item.renderBefore === renderBeforeEntity)) {
 			return;
 		}
 
 		SpriteRenderer.shadow = Ground.getShadowFactor(this.entity.position[0], this.entity.position[1]);
 
-		effectColor[0] = this.entity.effectColor[0];
-		effectColor[1] = this.entity.effectColor[1];
-		effectColor[2] = this.entity.effectColor[2];
-		effectColor[3] = this.entity.effectColor[3];
+		_effectColor[0] = this.entity.effectColor[0];
+		_effectColor[1] = this.entity.effectColor[1];
+		_effectColor[2] = this.entity.effectColor[2];
+		_effectColor[3] = this.entity.effectColor[3];
 
 		// Reset effectColor to white for attachments
 		this.entity.effectColor[0] = 1.0;
@@ -206,38 +204,34 @@ AttachmentManager.prototype._renderFiltered = (function renderFilteredClosure() 
 		SpriteRenderer.depth = 0.0;
 
 		// Restore original effectColor
-		this.entity.effectColor[0] = effectColor[0];
-		this.entity.effectColor[1] = effectColor[1];
-		this.entity.effectColor[2] = effectColor[2];
-		this.entity.effectColor[3] = effectColor[3];
-	};
-})();
+		this.entity.effectColor[0] = _effectColor[0];
+		this.entity.effectColor[1] = _effectColor[1];
+		this.entity.effectColor[2] = _effectColor[2];
+		this.entity.effectColor[3] = _effectColor[3];
+	}
 
-/**
- * Render attachments before (behind) the entity
- */
-AttachmentManager.prototype.renderBefore = function renderBefore(tick) {
-	this._renderFiltered(tick, true);
-};
+	/**
+	 * Render attachments before (behind) the entity
+	 */
+	renderBefore(tick) {
+		this._renderFiltered(tick, true);
+	}
 
-/**
- * Render attachments after (in front of) the entity
- */
-AttachmentManager.prototype.render = function render(tick) {
-	this._renderFiltered(tick, false);
-};
+	/**
+	 * Render attachments after (in front of) the entity
+	 */
+	render(tick) {
+		this._renderFiltered(tick, false);
+	}
 
-/**
- * Render an attachment
- *
- * @param {object} attachment options
- * @param {number} game tick
- * @return {boolean} remove from the list
- */
-AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure() {
-	let position = new Int32Array(2);
-
-	return function renderAttachment(attachment, tick) {
+	/**
+	 * Render an attachment
+	 *
+	 * @param {object} attachment options
+	 * @param {number} game tick
+	 * @return {boolean} remove from the list
+	 */
+	renderAttachment(attachment, tick) {
 		// Nothing to render yet
 		if (attachment.startTick > tick) {
 			return;
@@ -247,7 +241,7 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 		if (attachment.isStr && attachment.strEffect) {
 			const strEffect = attachment.strEffect;
 			// dynamic access to Renderer to avoid cycle
-			const gl = window.RO_RENDERER_GL || (window.Renderer && window.Renderer.gl);
+			const gl = Renderer.gl;
 
 			try {
 				strEffect.position = this.entity.position;
@@ -283,17 +277,17 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 		}
 
 		let i, count;
-		let spr, act, delay, frame;
-		let animation, animations, layers;
+		let frame;
+		let animation, layers;
 		let clean = false;
 
-		spr = Client.loadFile(attachment.spr);
-		act = Client.loadFile(attachment.act);
+		const spr = Client.loadFile(attachment.spr);
+		const act = Client.loadFile(attachment.act);
 
 		if (!spr || !act || !spr.frames) {
 			return clean;
 		}
-
+		let position = new Int16Array(2);
 		this.entity.effectColor[3] = attachment.opacity;
 		if (!attachment.position) {
 			position[1] = attachment.head ? -100 : 0;
@@ -303,8 +297,8 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 
 		frame = attachment.direction ? (Camera.direction + this.entity.direction + 8) % 8 : attachment.frame;
 		frame %= act.actions.length;
-		animations = act.actions[frame].animations;
-		delay = attachment.delay || act.actions[frame].delay;
+		const animations = act.actions[frame].animations;
+		const delay = attachment.delay || act.actions[frame].delay;
 		SpriteRenderer.depth = attachment.depth || 0;
 
 		// pause
@@ -348,9 +342,8 @@ AttachmentManager.prototype.renderAttachment = (function renderAttachmentClosure
 		});
 
 		return clean;
-	};
-})();
-
+	}
+}
 /**
  * Export
  */
