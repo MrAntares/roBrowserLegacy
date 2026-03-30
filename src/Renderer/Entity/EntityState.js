@@ -470,6 +470,7 @@ function updateEffectState(value) {
 	} else {
 		this.isOrcish = false;
 	}
+	// TODO: Check this
 	this.head = this.head;
 
 	// ------------------------

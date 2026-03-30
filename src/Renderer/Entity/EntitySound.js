@@ -13,77 +13,79 @@ import SoundManager from 'Audio/SoundManager.js';
 /**
  * @Constructor
  */
-function Sound() {
-	this._lastActionId = -1;
-	this._lastAnimationId = -1;
-	this._lastFileName = null;
-	this._animCounter = -1;
+class Sound {
+	constructor() {
+		this._lastActionId = -1;
+		this._lastAnimationId = -1;
+		this._lastFileName = null;
+		this._animCounter = -1;
 
-	this.attackFile = null;
-}
-
-/**
- * Play a sound attached to an entity
- *
- * @param {string} sound name
- * @param {number} action id
- * @param {number} animation id
- */
-Sound.prototype.play = function play(fileName, action, animation) {
-	// Pet does not produce sound
-	if (this.entity.objecttype === this.entity.constructor.TYPE_PET) {
-		return;
+		this.attackFile = null;
 	}
 
-	// Do not replay the sound if there is no updates
-	if (this._lastActionId === action && this._lastAnimationId === animation && this._lastFileName === fileName) {
-		return;
-	}
-
-	this._lastActionId = action;
-	this._lastAnimationId = animation;
-	this._lastFileName = fileName;
-
-	// Find Audio filename
-	if (fileName === 'atk') {
-		if (!this.attackFile) {
+	/**
+	 * Play a sound attached to an entity
+	 *
+	 * @param {string} sound name
+	 * @param {number} action id
+	 * @param {number} animation id
+	 */
+	play(fileName, action, animation) {
+		// Pet does not produce sound
+		if (this.entity.objecttype === this.entity.constructor.TYPE_PET) {
 			return;
 		}
 
-		fileName = this.attackFile;
+		// Do not replay the sound if there is no updates
+		if (this._lastActionId === action && this._lastAnimationId === animation && this._lastFileName === fileName) {
+			return;
+		}
+
+		this._lastActionId = action;
+		this._lastAnimationId = animation;
+		this._lastFileName = fileName;
+
+		// Find Audio filename
+		if (fileName === 'atk') {
+			if (!this.attackFile) {
+				return;
+			}
+
+			fileName = this.attackFile;
+		}
+
+		SoundManager.playPosition(fileName, this.entity.position);
 	}
 
-	SoundManager.playPosition(fileName, this.entity.position);
-};
-
-/**
- * Reset action and animation
- */
-Sound.prototype.free = function free() {
-	this._lastActionId = -1;
-	this._lastAnimationId = -1;
-	this._lastFileName = null;
-	this._animCounter = -1;
-};
-
-/**
- * Reset sound counter to allow repeating sounds
- *
- * @param {number} animation index
- * @param {number} animation size
- */
-Sound.prototype.freeOnAnimationEnd = function freeOnAnimationEnd(anim, size) {
-	if (anim < size) {
-		return;
+	/**
+	 * Reset action and animation
+	 */
+	free() {
+		this._lastActionId = -1;
+		this._lastAnimationId = -1;
+		this._lastFileName = null;
+		this._animCounter = -1;
 	}
 
-	const count = Math.floor(anim / size);
+	/**
+	 * Reset sound counter to allow repeating sounds
+	 *
+	 * @param {number} animation index
+	 * @param {number} animation size
+	 */
+	freeOnAnimationEnd(anim, size) {
+		if (anim < size) {
+			return;
+		}
 
-	if (this._animCounter !== count) {
-		this.free();
-		this._animCounter = count;
+		const count = Math.floor(anim / size);
+
+		if (this._animCounter !== count) {
+			this.free();
+			this._animCounter = count;
+		}
 	}
-};
+}
 
 /**
  * Initialize and export methods
