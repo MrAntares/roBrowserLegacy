@@ -200,7 +200,6 @@ The AMD-to-ES6 module conversion was Phase 1. The following is the recommended P
 | **Adopt `async`/`await`** | Network, FileManager, Loaders | Eliminates callback hell, replaces `jQuery.Deferred` |
 | **Replace `jQuery.Deferred` with native `Promise`** | Core, Network, Engine | Removes jQuery dependency for async flow |
 | **Convert constructor functions to `class`** | `UIComponent`, `BinaryReader`, `Entity`, etc. | Modern OOP, better tooling support |
-| **Update `CONTRIBUTING.md` and `copilot-instructions.md`** | `doc/`, `.github/` | Align guidelines with modern JS standards |
 
 ### 6.2 Medium Priority
 
