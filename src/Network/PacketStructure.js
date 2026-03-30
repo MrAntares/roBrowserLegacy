@@ -14,14 +14,13 @@ import PACKETVER from './PacketVerManager.js';
 import Struct from 'Utils/Struct.js';
 import Configs from 'Core/Configs.js';
 
-let UNUSED_PACKET;
 const NAME_LENGTH = 24; // Must be equal to same name var in mmo.h
 const MAP_NAME_LENGTH = 11 + 1;
 const MAP_NAME_LENGTH_EXT = MAP_NAME_LENGTH + 4;
 const PACKET = {};
 const RENEWAL = Configs.get('renewal') || false;
 const CLASSIC = !RENEWAL; // For ease of reading checks
-UNUSED_PACKET = PACKET;
+const UNUSED_PACKET = PACKET;
 
 PACKET.CA = {};
 PACKET.AC = {}; // Login
@@ -511,8 +510,8 @@ PACKET.CZ.PC_PURCHASE_ITEMLIST.prototype.build = function () {
 	pkt_buf.writeShort(0xc8);
 	pkt_buf.writeShort(pkt_len);
 
-	let i, count;
-	for (i = 0, count = this.itemList.length; i < count; ++i) {
+	const count = this.itemList.length;
+	for (let i = 0; i < count; ++i) {
 		pkt_buf.writeShort(this.itemList[i].count);
 		if (PACKETVER.value >= 20181121) {
 			pkt_buf.writeULong(this.itemList[i].ITID);
@@ -535,8 +534,8 @@ PACKET.CZ.PC_SELL_ITEMLIST.prototype.build = function () {
 	pkt_buf.writeShort(0xc9);
 	pkt_buf.writeShort(pkt_len);
 
-	let i, count;
-	for (i = 0, count = this.itemList.length; i < count; ++i) {
+	const count = this.itemList.length;
+	for (let i = 0; i < count; ++i) {
 		pkt_buf.writeShort(this.itemList[i].index);
 		pkt_buf.writeShort(this.itemList[i].count);
 	}
@@ -1055,7 +1054,6 @@ PACKET.CZ.REQ_OPENSTORE = function PACKET_CZ_REQ_OPENSTORE() {
 	this.storeList = [];
 };
 PACKET.CZ.REQ_OPENSTORE.prototype.build = function () {
-	let i, count;
 	const pkt_len = 2 + 2 + 80 + this.storeList.length * 8;
 	const pkt_buf = new BinaryWriter(pkt_len);
 
@@ -1063,7 +1061,8 @@ PACKET.CZ.REQ_OPENSTORE.prototype.build = function () {
 	pkt_buf.writeShort(pkt_len);
 	pkt_buf.writeString(this.storeName, 80);
 
-	for (i = 0, count = this.storeList.length; i < count; ++i) {
+	const count = this.storeList.length;
+	for (let i = 0; i < count; ++i) {
 		pkt_buf.writeShort(this.storeList[i].index);
 		pkt_buf.writeShort(this.storeList[i].count);
 		pkt_buf.writeLong(this.storeList[i].Price);
@@ -1091,7 +1090,6 @@ PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC = function PACKET_CZ_PC_PURCHASE_ITEMLIST_
 	this.itemList = [];
 };
 PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC.prototype.build = function () {
-	let i, count;
 	const pkt_len = 2 + 2 + 4 + this.itemList.length * 4;
 	const pkt_buf = new BinaryWriter(pkt_len);
 
@@ -1099,7 +1097,8 @@ PACKET.CZ.PC_PURCHASE_ITEMLIST_FROMMC.prototype.build = function () {
 	pkt_buf.writeShort(pkt_len);
 	pkt_buf.writeULong(this.AID);
 
-	for (i = 0, count = this.itemList.length; i < count; ++i) {
+	const count = this.itemList.length;
+	for (let i = 0; i < count; ++i) {
 		pkt_buf.writeShort(this.itemList[i].count);
 		pkt_buf.writeShort(this.itemList[i].index);
 	}
@@ -1204,14 +1203,14 @@ PACKET.CZ.REQ_CHANGE_MEMBERPOS = function PACKET_CZ_REQ_CHANGE_MEMBERPOS() {
 	this.memberInfo = [];
 };
 PACKET.CZ.REQ_CHANGE_MEMBERPOS.prototype.build = function () {
-	let i, count;
 	const pkt_len = 2 + 2 + this.memberInfo.length * 12;
 	const pkt_buf = new BinaryWriter(pkt_len);
 
 	pkt_buf.writeShort(0x155);
 	pkt_buf.writeShort(pkt_len);
 
-	for (i = 0, count = this.memberInfo.length; i < count; ++i) {
+	const count = this.memberInfo.length;
+	for (let i = 0; i < count; ++i) {
 		pkt_buf.writeLong(this.memberInfo[i].AID);
 		pkt_buf.writeLong(this.memberInfo[i].GID);
 		pkt_buf.writeLong(this.memberInfo[i].positionID);
@@ -1289,14 +1288,14 @@ PACKET.CZ.REG_CHANGE_GUILD_POSITIONINFO = function PACKET_CZ_REG_CHANGE_GUILD_PO
 	this.memberList = [];
 };
 PACKET.CZ.REG_CHANGE_GUILD_POSITIONINFO.prototype.build = function () {
-	let i, count;
 	const pkt_len = 2 + 2 + this.memberList.length * 40;
 	const pkt_buf = new BinaryWriter(pkt_len);
 
 	pkt_buf.writeShort(0x161);
 	pkt_buf.writeShort(pkt_len);
 
-	for (i = 0, count = this.memberList.length; i < count; ++i) {
+	const count = this.memberList.length;
+	for (let i = 0; i < count; ++i) {
 		pkt_buf.writeLong(this.memberList[i].positionID);
 		pkt_buf.writeLong(this.memberList[i].right);
 		pkt_buf.writeLong(this.memberList[i].ranking);
@@ -2473,10 +2472,9 @@ PACKET.CZ.REQUEST_MOVETOOWNER.prototype.build = function () {
 // 0x235
 PACKET.ZC.HOSKILLINFO_LIST = function PACKET_ZC_HOSKILLINFO_LIST(fp, end) {
 	this.skillList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 37) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 37) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].SKID = fp.readShort();
 			out[i].type = fp.readLong();
@@ -3003,10 +3001,9 @@ PACKET.CZ.PC_BUY_CASH_POINT_ITEM.prototype.build = function () {
 	pkt.writeShort(len);
 	pkt.writeULong(this.kafrapts, true);
 	pkt.writeShort(this.list.length, true);
-	let i,
-		count = this.list.length;
+	const count = this.list.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		pkt.writeShort(this.list[i].count);
 		if (PACKETVER.value >= 20181121) {
 			pkt.writeULong(this.list[i].ITID);
@@ -4110,10 +4107,9 @@ PACKET.ZC.PERSONAL_INFORMATION = function PACKET_ZC_PERSONAL_INFORMATION(fp, end
 	this.total_drop = fp.readShort();
 
 	this.info = (function () {
-		let i,
-			count = ((end - fp.tell()) / 7) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 7) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].type = fp.readChar(); // ?
 			out[i].exp = fp.readShort();
@@ -4517,10 +4513,9 @@ PACKET.AC.ACCEPT_LOGIN = function PACKET_AC_ACCEPT_LOGIN(fp, end) {
 	this.lastLoginTime = fp.readBinaryString(26);
 	this.Sex = fp.readUChar();
 	this.ServerList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 32) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 32) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].ip = fp.readULong();
 			out[i].port = fp.readUShort();
@@ -5011,10 +5006,9 @@ PACKET.ZC.ITEM_DISAPPEAR.size = 6;
 // 0xa3
 PACKET.ZC.NORMAL_ITEMLIST = function PACKET_ZC_NORMAL_ITEMLIST(fp, end) {
 	this.itemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 10) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 10) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -5031,10 +5025,9 @@ PACKET.ZC.NORMAL_ITEMLIST.size = -1;
 // 0xa4
 PACKET.ZC.EQUIPMENT_ITEMLIST = function PACKET_ZC_EQUIPMENT_ITEMLIST(fp, end) {
 	this.itemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 20) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 20) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -5058,10 +5051,9 @@ PACKET.ZC.EQUIPMENT_ITEMLIST.size = -1;
 // 0xa5
 PACKET.ZC.STORE_NORMAL_ITEMLIST = function PACKET_ZC_STORE_NORMAL_ITEMLIST(fp, end) {
 	this.itemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 10) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 10) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -5078,10 +5070,9 @@ PACKET.ZC.STORE_NORMAL_ITEMLIST.size = -1;
 // 0xa6
 PACKET.ZC.STORE_EQUIPMENT_ITEMLIST = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST(fp, end) {
 	this.itemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 20) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 20) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -5276,10 +5267,9 @@ PACKET.ZC.SELECT_DEALTYPE.size = 6;
 PACKET.ZC.PC_PURCHASE_ITEMLIST = function PACKET_ZC_PC_PURCHASE_ITEMLIST(fp, end) {
 	this.itemList = (function () {
 		const item_size = PACKETVER.value >= 20181121 ? 13 : 11;
-		let i,
-			count = ((end - fp.tell()) / item_size) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / item_size) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].discountprice = fp.readLong();
@@ -5294,10 +5284,9 @@ PACKET.ZC.PC_PURCHASE_ITEMLIST.size = -1;
 // 0xc7
 PACKET.ZC.PC_SELL_ITEMLIST = function PACKET_ZC_PC_SELL_ITEMLIST(fp, end) {
 	this.itemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 10) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 10) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].price = fp.readLong();
@@ -5343,10 +5332,9 @@ PACKET.ZC.SETTING_WHISPER_STATE.size = 4;
 // 0xd4
 PACKET.ZC.WHISPER_LIST = function PACKET_ZC_WHISPER_LIST(fp, end) {
 	this.wisperList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 24) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 24) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].name = fp.readString(NAME_LENGTH);
 		}
@@ -5388,10 +5376,9 @@ PACKET.ZC.REFUSE_ENTER_ROOM.size = 3;
 PACKET.ZC.ENTER_ROOM = function PACKET_ZC_ENTER_ROOM(fp, end) {
 	this.roomID = fp.readULong();
 	this.memberList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 28) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 28) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].role = fp.readULong();
 			out[i].name = fp.readString(NAME_LENGTH);
@@ -5532,10 +5519,9 @@ PACKET.ZC.ACK_MAKE_GROUP.size = 3;
 PACKET.ZC.GROUP_LIST = function PACKET_ZC_GROUP_LIST(fp, end) {
 	this.groupName = fp.readString(NAME_LENGTH);
 	this.groupInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 46) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 46) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AID = fp.readULong();
 			out[i].characterName = fp.readString(NAME_LENGTH);
@@ -5647,10 +5633,9 @@ PACKET.ZC.SKILLINFO_UPDATE.size = 11;
 // 0x10f
 PACKET.ZC.SKILLINFO_LIST = function PACKET_ZC_SKILLINFO_LIST(fp, end) {
 	this.skillList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 37) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 37) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].SKID = fp.readShort();
 			out[i].type = fp.readLong();
@@ -5761,9 +5746,7 @@ PACKET.ZC.USE_SKILL.size = 15;
 PACKET.ZC.WARPLIST = function PACKET_ZC_WARPLIST(fp, end) {
 	this.SKID = fp.readUShort();
 	this.mapName = (function () {
-		let count;
-
-		count = 4;
+		const count = 4;
 
 		const out = new Array(count);
 		for (let i = 0; i < count; ++i) {
@@ -5778,9 +5761,7 @@ PACKET.ZC.WARPLIST.size = 68;
 PACKET.ZC.WARPLIST2 = function PACKET_ZC_WARPLIST2(fp, end) {
 	this.SKID = fp.readUShort();
 	this.mapName = (function () {
-		let count;
-
-		count = ((end - fp.tell()) / 16) | 0;
+		const count = ((end - fp.tell()) / 16) | 0;
 
 		const out = new Array(count);
 		for (let i = 0; i < count; ++i) {
@@ -5826,10 +5807,9 @@ PACKET.ZC.NOTIFY_CARTITEM_COUNTINFO.size = 14;
 // 0x122
 PACKET.ZC.CART_EQUIPMENT_ITEMLIST = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST(fp, end) {
 	this.itemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 20) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 20) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -5853,10 +5833,9 @@ PACKET.ZC.CART_EQUIPMENT_ITEMLIST.size = -1;
 // 0x123
 PACKET.ZC.CART_NORMAL_ITEMLIST = function PACKET_ZC_CART_NORMAL_ITEMLIST(fp, end) {
 	this.itemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 10) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 10) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -5926,10 +5905,9 @@ PACKET.ZC.DISAPPEAR_ENTRY.size = 6;
 PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC = function PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC(fp, end) {
 	this.AID = fp.readULong();
 	this.itemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 22) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 22) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].count = fp.readShort();
@@ -5969,10 +5947,9 @@ PACKET.ZC.PC_PURCHASE_MYITEMLIST = function PACKET_ZC_PC_PURCHASE_MYITEMLIST(fp,
 			len = 47;
 		}
 
-		let i,
-			count = ((end - fp.tell()) / len) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / len) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].index = fp.readShort();
@@ -6125,10 +6102,9 @@ PACKET.ZC.NOTIFY_MANNER_POINT_GIVEN.size = 27;
 // 0x14c
 PACKET.ZC.MYGUILD_BASIC_INFO = function PACKET_ZC_MYGUILD_BASIC_INFO(fp, end) {
 	this.relatedGuildList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 32) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 32) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].relation = fp.readLong();
 			out[i].GDID = fp.readLong();
@@ -6175,10 +6151,9 @@ PACKET.ZC.GUILD_EMBLEM_IMG.size = -1;
 // 0x154
 PACKET.ZC.MEMBERMGR_INFO = function PACKET_ZC_MEMBERMGR_INFO(fp, end) {
 	this.memberInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 104) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 104) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AID = fp.readULong();
 			out[i].GID = fp.readULong();
@@ -6201,10 +6176,9 @@ PACKET.ZC.MEMBERMGR_INFO.size = -1;
 // 0x156
 PACKET.ZC.ACK_REQ_CHANGE_MEMBERS = function PACKET_ZC_ACK_REQ_CHANGE_MEMBERS(fp, end) {
 	this.memberInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 12) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 12) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AID = fp.readLong();
 			out[i].GID = fp.readLong();
@@ -6249,10 +6223,9 @@ PACKET.ZC.ACK_DISORGANIZE_GUILD.size = 42;
 // 0x160
 PACKET.ZC.POSITION_INFO = function PACKET_ZC_POSITION_INFO(fp, end) {
 	this.memberInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 16) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 16) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].positionID = fp.readLong();
 			out[i].right = fp.readLong();
@@ -6268,10 +6241,9 @@ PACKET.ZC.POSITION_INFO.size = -1;
 PACKET.ZC.GUILD_SKILLINFO = function PACKET_ZC_GUILD_SKILLINFO(fp, end) {
 	this.skillPoint = fp.readShort();
 	this.skillList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 37) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 37) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].SKID = fp.readUShort();
 			out[i].type = fp.readLong();
@@ -6290,10 +6262,9 @@ PACKET.ZC.GUILD_SKILLINFO.size = -1;
 PACKET.ZC.BAN_LIST = function PACKET_ZC_BAN_LIST(fp, end) {
 	this.banList = (function () {
 		const size = PACKETVER.max < 20100803 ? 88 : 64;
-		let i,
-			count = ((end - fp.tell()) / size) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / size) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].charname = fp.readString(NAME_LENGTH);
 
@@ -6311,10 +6282,9 @@ PACKET.ZC.BAN_LIST.size = -1;
 // 0x164
 PACKET.ZC.OTHER_GUILD_LIST = function PACKET_ZC_OTHER_GUILD_LIST(fp, end) {
 	this.guildList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 36) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 36) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].guildname = fp.readString(NAME_LENGTH);
 			out[i].guildLevel = fp.readLong();
@@ -6329,10 +6299,9 @@ PACKET.ZC.OTHER_GUILD_LIST.size = -1;
 // 0x166
 PACKET.ZC.POSITION_ID_NAME_INFO = function PACKET_ZC_POSITION_ID_NAME_INFO(fp, end) {
 	this.memberList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 28) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 28) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].positionID = fp.readLong();
 			out[i].posName = fp.readString(NAME_LENGTH);
@@ -6403,10 +6372,9 @@ PACKET.ZC.ACK_REQ_ALLY_GUILD.size = 3;
 // 0x174
 PACKET.ZC.ACK_CHANGE_GUILD_POSITIONINFO = function PACKET_ZC_ACK_CHANGE_GUILD_POSITIONINFO(fp, end) {
 	this.memberList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 40) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 40) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].positionID = fp.readLong();
 			out[i].right = fp.readLong();
@@ -6582,14 +6550,13 @@ PACKET.ZC.MONSTER_INFO.size = 29;
 // 0x18d
 PACKET.ZC.MAKABLEITEMLIST = function PACKET_ZC_MAKABLEITEMLIST(fp, end) {
 	const size = PACKETVER.value >= 20181121 ? 16 : 8;
-	this.itemList = (function (size) {
-		let i,
-			count = ((end - fp.tell()) / size) | 0,
-			out = new Array(count);
+	this.itemList = (function (_size) {
+		const count = ((end - fp.tell()) / _size) | 0;
+		const out = new Array(count);
 
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
-			if (size == 16) {
+			if (_size == 16) {
 				out[i].ITID = fp.readULong();
 				out[i].material_ID = {};
 				out[i].material_ID[0] = fp.readULong();
@@ -6717,10 +6684,9 @@ PACKET.ZC.CHANGESTATE_PET.size = 11;
 // 0x1a6
 PACKET.ZC.PETEGG_LIST = function PACKET_ZC_PETEGG_LIST(fp, end) {
 	this.eggList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 2) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 2) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = fp.readShort();
 		}
 		return out;
@@ -6752,13 +6718,12 @@ PACKET.ZC.SKILL_UPDATE.size = 6;
 // 0x1ad
 PACKET.ZC.MAKINGARROW_LIST = function PACKET_ZC_MAKINGARROW_LIST(fp, end) {
 	const size = PACKETVER.value >= 20181121 ? 4 : 2;
-	this.arrowList = (function (size) {
-		let i,
-			count = ((end - fp.tell()) / size) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+	this.arrowList = (function (_size) {
+		const count = ((end - fp.tell()) / _size) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
-			out[i].index = size == 2 ? fp.readShort() : fp.readLong();
+			out[i].index = _size == 2 ? fp.readShort() : fp.readLong();
 		}
 		return out;
 	})(size);
@@ -7204,10 +7169,9 @@ PACKET.ZC.GUILD_MEMBER_MAP_CHANGE.size = 26;
 // 0x1ee
 PACKET.ZC.NORMAL_ITEMLIST2 = function PACKET_ZC_NORMAL_ITEMLIST2(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 18) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 18) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -7229,10 +7193,9 @@ PACKET.ZC.NORMAL_ITEMLIST2.size = -1;
 // 0x1ef
 PACKET.ZC.CART_NORMAL_ITEMLIST2 = function PACKET_ZC_CART_NORMAL_ITEMLIST2(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 18) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 18) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -7254,10 +7217,9 @@ PACKET.ZC.CART_NORMAL_ITEMLIST2.size = -1;
 // 0x1f0
 PACKET.ZC.STORE_NORMAL_ITEMLIST2 = function PACKET_ZC_STORE_NORMAL_ITEMLIST2(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 18) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 18) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -7331,10 +7293,9 @@ PACKET.ZC.START_BABY.size = 2;
 // 0x1fc
 PACKET.ZC.REPAIRITEMLIST = function PACKET_ZC_REPAIRITEMLIST(fp, end) {
 	this.itemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 13) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 13) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -7368,10 +7329,9 @@ PACKET.ZC.HIGHJUMP.size = 10;
 // 0x201
 PACKET.ZC.FRIENDS_LIST = function PACKET_ZC_FRIENDS_LIST(fp, end) {
 	this.friendList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 32) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 32) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AID = fp.readULong();
 			out[i].GID = fp.readULong();
@@ -7423,10 +7383,9 @@ PACKET.ZC.DELETE_FRIENDS.size = 10;
 // 0x20d
 PACKET.HC.BLOCK_CHARACTER = function PACKET_HC_BLOCK_CHARACTER(fp, end) {
 	this.characterList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 24) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 24) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].GID = fp.readULong();
 			out[i].szExpireDate = fp.readBinaryString(20);
@@ -7589,10 +7548,9 @@ PACKET.ZC.NOTIFY_CRAZYKILLER.size = 10;
 // 0x221
 PACKET.ZC.NOTIFY_WEAPONITEMLIST = function PACKET_ZC_NOTIFY_WEAPONITEMLIST(fp, end) {
 	this.itemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 13) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 13) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -7829,10 +7787,9 @@ PACKET.HC.REQUEST_CHARACTER_PASSWORD.size = 8;
 PACKET.ZC.MAIL_REQ_GET_LIST = function PACKET_ZC_MAIL_REQ_GET_LIST(fp, end) {
 	this.MailNumber = fp.readLong();
 	this.mailList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 73) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 73) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].MailID = fp.readULong();
 			out[i].HEADER = fp.readString(40);
@@ -7899,10 +7856,9 @@ PACKET.ZC.AUCTION_ITEM_REQ_SEARCH = function PACKET_ZC_AUCTION_ITEM_REQ_SEARCH(f
 	this.MaxPage = fp.readLong();
 	this.Number = fp.readLong();
 	this.auctionItemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 83) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 83) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AuctionID = fp.readULong();
 			out[i].SellerName = fp.readString(NAME_LENGTH);
@@ -7965,22 +7921,22 @@ PACKET.ZC.MAKINGITEM_LIST = function PACKET_ZC_MAKINGITEM_LIST(fp, end) {
 	if (PACKETVER.value >= 20211103) {
 		this.makeItem = fp.readShort();
 		const size = PACKETVER.value >= 20181121 ? 4 : 2;
-		this.items = (function (size) {
-			const count = ((end - fp.tell()) / size) | 0,
+		this.items = (function (_size) {
+			const count = ((end - fp.tell()) / _size) | 0,
 				out = new Array(count);
 			for (let i = 0; i < count; ++i) {
 				out[i] = {};
-				out[i].itemId = size == 4 ? fp.readULong() : fp.readUShort();
+				out[i].itemId = _size == 4 ? fp.readULong() : fp.readUShort();
 			}
 			return out;
 		})(size);
 	} else {
 		const size = PACKETVER.value >= 20181121 ? 4 : 2;
-		this.idList = (function (size) {
-			const count = ((end - fp.tell()) / size) | 0,
+		this.idList = (function (_size) {
+			const count = ((end - fp.tell()) / _size) | 0,
 				out = new Array(count);
 			for (let i = 0; i < count; ++i) {
-				out[i] = size == 4 ? fp.readULong() : fp.readUShort();
+				out[i] = _size == 4 ? fp.readULong() : fp.readUShort();
 			}
 			return out;
 		})(size);
@@ -8113,10 +8069,9 @@ PACKET.ZC.NOTIFY_PCBANG.size = 2;
 // 0x27a
 PACKET.ZC.HUNTINGLIST = function PACKET_ZC_HUNTINGLIST(fp, end) {
 	this.HuntingList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 12) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 12) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].questID = fp.readULong();
 			out[i].mobGID = fp.readULong();
