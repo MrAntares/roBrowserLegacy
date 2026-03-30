@@ -8180,10 +8180,9 @@ PACKET.ZC.PC_CASH_POINT_ITEMLIST = function PACKET_ZC_PC_CASH_POINT_ITEMLIST(fp,
 		const div = PACKETVER.value >= 20181121 ? 13 : 11;
 		const itemListLen = end - fp.tell();
 		const itemLen = itemListLen % 20 === 0 ? 20 : itemListLen % 18 == 0 ? 18 : div;
-		let i,
-			count = ((end - fp.tell()) / itemLen) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / itemLen) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].discountprice = fp.readLong();
@@ -8265,10 +8264,9 @@ PACKET.ZC.READ_BOOK.size = 10;
 // 0x295
 PACKET.ZC.EQUIPMENT_ITEMLIST2 = function PACKET_ZC_EQUIPMENT_ITEMLIST2(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 24) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 24) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -8293,10 +8291,9 @@ PACKET.ZC.EQUIPMENT_ITEMLIST2.size = -1;
 // 0x296
 PACKET.ZC.STORE_EQUIPMENT_ITEMLIST2 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST2(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 24) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 24) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -8321,10 +8318,9 @@ PACKET.ZC.STORE_EQUIPMENT_ITEMLIST2.size = -1;
 // 0x297
 PACKET.ZC.CART_EQUIPMENT_ITEMLIST2 = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST2(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 24) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 24) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -8431,10 +8427,9 @@ PACKET.ZC.MER_PROPERTY.size = 66;
 // 0x29d
 PACKET.ZC.MER_SKILLINFO_LIST = function PACKET_ZC_MER_SKILLINFO_LIST(fp, end) {
 	this.skillList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 37) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 37) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].SKID = fp.readShort();
 			out[i].type = fp.readLong();
@@ -8458,10 +8453,9 @@ PACKET.ZC.PERSONAL_INFORMATION2 = function PACKET_ZC_PERSONAL_INFORMATION2(fp, e
 	this.total_drop = fp.readLong();
 
 	this.info = (function () {
-		let i,
-			count = ((end - fp.tell()) / 13) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 13) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].type = fp.readChar(); // ?
 			out[i].exp = fp.readLong();
@@ -8525,10 +8519,9 @@ PACKET.AC.REQUEST_SECOND_PASSWORD.size = 8;
 PACKET.ZC.ALL_QUEST_LIST = function PACKET_ZC_ALL_QUEST_LIST(fp, end) {
 	this.questCount = fp.readLong();
 	this.QuestList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 5) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 5) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].questID = fp.readULong();
 			out[i].active = fp.readUChar();
@@ -8543,10 +8536,9 @@ PACKET.ZC.ALL_QUEST_LIST.size = -1;
 PACKET.ZC.ALL_QUEST_MISSION = function PACKET_ZC_ALL_QUEST_MISSION(fp, end) {
 	this.questCount = fp.readLong();
 	this.QuestList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 104) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; i++) {
+		const count = ((end - fp.tell()) / 104) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; i++) {
 			fp.seek(end - (count - i) * 104, SEEK_SET); // Position to the 104 long chunk start
 			out[i] = {};
 			out[i].questID = fp.readULong();
@@ -8574,9 +8566,8 @@ PACKET.ZC.ADD_QUEST = function PACKET_ZC_ADD_QUEST(fp, end) {
 	this.quest_endTime = fp.readLong();
 	this.count = fp.readShort();
 	this.hunt = (function (count) {
-		let i,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].mobGID = fp.readULong();
 			out[i].huntCount = fp.readShort();
@@ -8597,10 +8588,9 @@ PACKET.ZC.DEL_QUEST.size = 6;
 PACKET.ZC.UPDATE_MISSION_HUNT = function PACKET_ZC_UPDATE_MISSION_HUNT(fp, end) {
 	this.questCount = fp.readShort();
 	this.hunt = (function () {
-		let i,
-			count = ((end - fp.tell()) / 12) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 12) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].questID = fp.readULong();
 			out[i].mobGID = fp.readULong();
@@ -8639,10 +8629,9 @@ PACKET.ZC.ITEM_PICKUP_PARTY.size = 22;
 // 0x2b9
 PACKET.ZC.SHORTCUT_KEY_LIST = function PACKET_ZC_SHORTCUT_KEY_LIST(fp, end) {
 	this.ShortCutKey = (function () {
-		let i,
-			count = 27,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = 27;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].isSkill = fp.readChar();
 			out[i].ID = fp.readULong();
@@ -8746,10 +8735,9 @@ PACKET.ZC.MEMORIALDUNGEON_NOTIFY.size = 10;
 // 0x2d0
 PACKET.ZC.EQUIPMENT_ITEMLIST3 = function PACKET_ZC_EQUIPMENT_ITEMLIST3(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 28) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 28) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -8776,10 +8764,9 @@ PACKET.ZC.EQUIPMENT_ITEMLIST3.size = -1;
 // 0x2d1
 PACKET.ZC.STORE_EQUIPMENT_ITEMLIST3 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST3(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 28) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 28) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -8806,10 +8793,9 @@ PACKET.ZC.STORE_EQUIPMENT_ITEMLIST3.size = -1;
 // 0x2d2
 PACKET.ZC.CART_EQUIPMENT_ITEMLIST3 = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST3(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 28) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 28) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -8876,10 +8862,9 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE = function PACKET_ZC_EQUIPWIN_MICROSCOPE(fp, end) 
 	this.bodypalette = fp.readShort();
 	this.sex = fp.readUChar();
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 28) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 28) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -8989,10 +8974,9 @@ PACKET.ZC.MAPPROPERTY.size = -1;
 // 0x2e8
 PACKET.ZC.NORMAL_ITEMLIST3 = function PACKET_ZC_NORMAL_ITEMLIST3(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 22) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 22) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -9015,10 +8999,9 @@ PACKET.ZC.NORMAL_ITEMLIST3.size = -1;
 // 0x2e9
 PACKET.ZC.CART_NORMAL_ITEMLIST3 = function PACKET_ZC_CART_NORMAL_ITEMLIST3(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 22) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 22) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -9041,10 +9024,9 @@ PACKET.ZC.CART_NORMAL_ITEMLIST3.size = -1;
 // 0x2ea
 PACKET.ZC.STORE_NORMAL_ITEMLIST3 = function PACKET_ZC_STORE_NORMAL_ITEMLIST3(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 22) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 22) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -9193,10 +9175,9 @@ PACKET.ZC.SIMPLE_CASHSHOP_POINT_ITEMLIST = function PACKET_ZC_SIMPLE_CASHSHOP_PO
 	this.best_itemcount = fp.readShort();
 	this.best_itemsize = fp.readShort();
 	this.ItemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 11) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 11) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].discountprice = fp.readLong();
@@ -9244,10 +9225,9 @@ PACKET.ZC.SKILL_POSTDELAY.size = 8;
 // 0x43e
 PACKET.ZC.SKILL_POSTDELAY_LIST = function PACKET_ZC_SKILL_POSTDELAY_LIST(fp, end) {
 	this.delayList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 6) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 6) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].SKID = fp.readUShort();
 			out[i].DelayTM = fp.readULong();
@@ -9306,10 +9286,9 @@ PACKET.ZC.SKILL_SELECT_REQUEST.size = -1;
 PACKET.ZC.SIMPLE_CASH_POINT_ITEMLIST = function PACKET_ZC_SIMPLE_CASH_POINT_ITEMLIST(fp, end) {
 	this.CashPoint = fp.readULong();
 	this.ItemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 11) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 11) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].discountprice = fp.readLong();
@@ -9334,10 +9313,9 @@ PACKET.ZC.QUEST_NOTIFY_EFFECT.size = 14;
 // 0x448
 PACKET.HC.CHARACTER_LIST = function PACKET_HC_CHARACTER_LIST(fp, end) {
 	this.CharacterList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 5) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 5) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].dwGID = fp.readULong();
 			out[i].SlotIdx = fp.readUChar();
@@ -9389,10 +9367,9 @@ PACKET.ZC.REQ_GROUPINFO_CHANGE_V2.size = 8;
 // 0x7d9
 PACKET.ZC.SHORTCUT_KEY_LIST_V2 = function PACKET_ZC_SHORTCUT_KEY_LIST_V2(fp, end) {
 	this.ShortCutKey = (function () {
-		let i,
-			count = 38,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = 38;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].isSkill = fp.readChar();
 			out[i].ID = fp.readULong();
@@ -9485,10 +9462,9 @@ PACKET.ZC.BATTLE_FIELD_LIST = function PACKET_ZC_BATTLE_FIELD_LIST(fp, end) {
 	this.Count = fp.readShort();
 	this.ack_type = fp.readShort();
 	this.InfoList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 62) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 62) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].BFNO = fp.readULong();
 			out[i].BattleFieldName = fp.readString(56);
@@ -9697,9 +9673,9 @@ PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC2 = function PACKET_ZC_PC_PURCHASE_ITEMLIST
 	this.AID = fp.readULong();
 	this.UniqueID = fp.readULong();
 	this.itemList = (function () {
-		let i,
-			count = 0,
-			out = new Array(count);
+		let count = 0,
+			i;
+		const out = new Array(count);
 
 		if (PACKETVER.value >= 20200723) {
 			count = (end - fp.tell()) / (22 + 8 + 25 + 6 + 2 + 1); //Item options 25 bytes, (location viewSprite), itemId use Long now, grade
@@ -9771,10 +9747,9 @@ PACKET.ZC.PARTY_BOOKING_ACK_REGISTER.size = 4;
 PACKET.ZC.PARTY_BOOKING_ACK_SEARCH = function PACKET_ZC_PARTY_BOOKING_ACK_SEARCH(fp, end) {
 	this.IsExistMoreResult = fp.readUChar();
 	this.Info = (function () {
-		let i,
-			count = ((end - fp.tell()) / 48) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 48) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].Index = fp.readULong();
 			out[i].CharName = fp.readString(NAME_LENGTH);
@@ -9783,12 +9758,12 @@ PACKET.ZC.PARTY_BOOKING_ACK_SEARCH = function PACKET_ZC_PARTY_BOOKING_ACK_SEARCH
 			out[i].Detail.Level = fp.readShort();
 			out[i].Detail.MapID = fp.readShort();
 			out[i].Detail.Job = (function () {
-				const count = 6,
-					out = new Array(count);
-				for (let i = 0; i < count; ++i) {
-					out[i] = fp.readShort();
+				const _count = 6,
+					_out = new Array(_count);
+				for (let j = 0; j < _count; ++j) {
+					_out[j] = fp.readShort();
 				}
-				return out;
+				return _out;
 			})();
 		}
 		return out;
@@ -9886,11 +9861,10 @@ PACKET.ZC.MYITEMLIST_BUYING_STORE = function PACKET_ZC_MYITEMLIST_BUYING_STORE(f
 	const size = PACKETVER.value >= 20181121 ? 11 : 9;
 	this.AID = fp.readULong();
 	this.limitZeny = fp.readLong();
-	this.itemList = (function (size) {
-		let i,
-			count = ((end - fp.tell()) / size) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+	this.itemList = (function (_size) {
+		const count = ((end - fp.tell()) / _size) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].count = fp.readShort();
@@ -9924,10 +9898,9 @@ PACKET.ZC.ACK_ITEMLIST_BUYING_STORE = function PACKET_ZC_ACK_ITEMLIST_BUYING_STO
 
 	const itemSize = PACKETVER.value >= 20181121 ? 11 : 9;
 	this.itemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / itemSize) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / itemSize) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].count = fp.readShort();
@@ -10069,10 +10042,9 @@ PACKET.ZC.SEARCH_STORE_INFO_ACK = function PACKET_ZC_SEARCH_STORE_INFO_ACK(fp, e
 	this.IsNexPage = fp.readUChar();
 	this.RemainedSearchCnt = fp.readUChar();
 	this.SSI_List = (function () {
-		let i,
-			count = ((end - fp.tell()) / 106) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 106) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].SSI_ID = fp.readULong();
 			out[i].AID = fp.readULong();
@@ -10260,10 +10232,9 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V2 = function PACKET_ZC_EQUIPWIN_MICROSCOPEV2(fp, 
 	this.bodypalette = fp.readShort();
 	this.sex = fp.readUChar();
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 28) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 28) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10366,10 +10337,8 @@ PACKET.ZC.FASTMOVE.size = 10;
 PACKET.ZC.UPDATE_MISSION_HUNT2 = function PACKET_ZC_UPDATE_MISSION_HUNT2(fp, end) {
 	this.questCount = ((end - fp.tell()) / 12) | 0; // workaround
 	this.hunt = (function (questCount) {
-		let i,
-			count = questCount,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const out = new Array(questCount);
+		for (let i = 0; i < questCount; ++i) {
 			out[i] = {};
 			out[i].huntID = fp.readULong();
 			out[i].mobGID = fp.readULong();
@@ -10410,10 +10379,9 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V3 = function PACKET_ZC_EQUIPWIN_MICROSCOPEV3(fp, 
 	this.bodypalette = fp.readShort();
 	this.sex = fp.readUChar();
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 28) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 28) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10581,11 +10549,8 @@ PACKET.ZC.NOTIFY_MONSTER_HP.size = 14;
 PACKET.ZC.ALL_QUEST_LIST_V2 = function PACKET_ZC_ALL_QUEST_LIST_V2(fp, end) {
 	this.questCount = fp.readLong();
 	this.QuestList = (function (questCount) {
-		let i,
-			count = questCount,
-			out = new Array(questCount);
-
-		for (i = 0; i < count; ++i) {
+		const out = new Array(questCount);
+		for (let i = 0; i < questCount; ++i) {
 			out[i] = {};
 			out[i].questID = fp.readULong();
 			out[i].active = fp.readUChar();
@@ -10716,11 +10681,9 @@ PACKET.ZC.ITEM_PICKUP_ACK5.size = 31;
 // 0x991
 PACKET.ZC.NORMAL_ITEMLIST4 = function PACKET_ZC_NORMAL_ITEMLIST4(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 24) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 24) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10733,7 +10696,7 @@ PACKET.ZC.NORMAL_ITEMLIST4 = function PACKET_ZC_NORMAL_ITEMLIST4(fp, end) {
 			out[i].slot.card3 = fp.readUShort();
 			out[i].slot.card4 = fp.readUShort();
 			out[i].HireExpireDate = fp.readLong();
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].PlaceETCTab = flag & 2;
 		}
@@ -10745,11 +10708,9 @@ PACKET.ZC.NORMAL_ITEMLIST4.size = -1;
 // 0x992
 PACKET.ZC.EQUIPMENT_ITEMLIST4 = function PACKET_ZC_EQUIPMENT_ITEMLIST4(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 31) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 31) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10765,7 +10726,7 @@ PACKET.ZC.EQUIPMENT_ITEMLIST4 = function PACKET_ZC_EQUIPMENT_ITEMLIST4(fp, end) 
 			out[i].HireExpireDate = fp.readLong();
 			out[i].bindOnEquipType = fp.readUShort();
 			out[i].wItemSpriteNumber = fp.readUShort();
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].IsDamaged = flag & 2;
 			out[i].PlaceETCTab = flag & 4;
@@ -10778,11 +10739,9 @@ PACKET.ZC.EQUIPMENT_ITEMLIST4.size = -1;
 // 0x993
 PACKET.ZC.CART_NORMAL_ITEMLIST4 = function PACKET_ZC_CART_NORMAL_ITEMLIST4(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 24) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 24) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10795,7 +10754,7 @@ PACKET.ZC.CART_NORMAL_ITEMLIST4 = function PACKET_ZC_CART_NORMAL_ITEMLIST4(fp, e
 			out[i].slot.card3 = fp.readUShort();
 			out[i].slot.card4 = fp.readUShort();
 			out[i].HireExpireDate = fp.readLong();
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].PlaceETCTab = flag & 2;
 		}
@@ -10807,11 +10766,9 @@ PACKET.ZC.CART_NORMAL_ITEMLIST4.size = -1;
 // 0x994
 PACKET.ZC.CART_EQUIPMENT_ITEMLIST4 = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST4(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 31) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 31) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10827,7 +10784,7 @@ PACKET.ZC.CART_EQUIPMENT_ITEMLIST4 = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST4
 			out[i].HireExpireDate = fp.readLong();
 			out[i].bindOnEquipType = fp.readUShort();
 			out[i].wItemSpriteNumber = fp.readUShort();
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].IsDamaged = flag & 2;
 			out[i].PlaceETCTab = flag & 4;
@@ -10841,11 +10798,9 @@ PACKET.ZC.CART_EQUIPMENT_ITEMLIST4.size = -1;
 PACKET.ZC.STORE_NORMAL_ITEMLIST4 = function PACKET_ZC_STORE_NORMAL_ITEMLIST4(fp, end) {
 	this.Name = fp.readString(NAME_LENGTH);
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 24) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 24) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10858,7 +10813,7 @@ PACKET.ZC.STORE_NORMAL_ITEMLIST4 = function PACKET_ZC_STORE_NORMAL_ITEMLIST4(fp,
 			out[i].slot.card3 = fp.readUShort();
 			out[i].slot.card4 = fp.readUShort();
 			out[i].HireExpireDate = fp.readLong();
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].PlaceETCTab = flag & 2;
 		}
@@ -10871,11 +10826,9 @@ PACKET.ZC.STORE_NORMAL_ITEMLIST4.size = -1;
 PACKET.ZC.STORE_EQUIPMENT_ITEMLIST4 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIST4(fp, end) {
 	this.Name = fp.readString(NAME_LENGTH);
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 31) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 31) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10891,7 +10844,7 @@ PACKET.ZC.STORE_EQUIPMENT_ITEMLIST4 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIS
 			out[i].HireExpireDate = fp.readLong();
 			out[i].bindOnEquipType = fp.readUShort();
 			out[i].wItemSpriteNumber = fp.readUShort();
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].IsDamaged = flag & 2;
 			out[i].PlaceETCTab = flag & 4;
@@ -10914,11 +10867,9 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V4 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V4(fp,
 	this.bodypalette = fp.readShort();
 	this.sex = fp.readUChar();
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 31) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 31) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -10934,7 +10885,7 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V4 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V4(fp,
 			out[i].HireExpireDate = fp.readLong();
 			out[i].bindOnEquipType = fp.readUShort();
 			out[i].wItemSpriteNumber = fp.readUShort();
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].IsDamaged = flag & 2;
 			out[i].PlaceETCTab = flag & 4;
@@ -12030,10 +11981,8 @@ PACKET.ZC.PROPERTY_HOMUN2.size = 75;
 PACKET.ZC.ALL_QUEST_LIST_V3 = function PACKET_ZC_ALL_QUEST_LIST_V3(fp, end) {
 	this.questCount = fp.readLong();
 	this.QuestList = (function (questCount) {
-		let i,
-			count = questCount,
-			out = new Array(questCount);
-		for (i = 0; i < count; ++i) {
+		const out = new Array(questCount);
+		for (let i = 0; i < questCount; ++i) {
 			out[i] = {};
 			out[i].questID = fp.readULong();
 			out[i].active = fp.readUChar();
@@ -12066,9 +12015,8 @@ PACKET.ZC.ADD_QUEST2 = function PACKET_ZC_ADD_QUEST2(fp, end) {
 	this.quest_endTime = fp.readLong();
 	this.count = fp.readShort();
 	this.hunt = (function (count) {
-		let i,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].huntID = fp.readULong();
 			out[i].mobType = fp.readULong();
@@ -12087,10 +12035,9 @@ PACKET.ZC.ADD_QUEST2.size = 143;
 PACKET.ZC.UPDATE_MISSION_HUNT3 = function PACKET_ZC_UPDATE_MISSION_HUNT3(fp, end) {
 	this.questCount = fp.readShort();
 	this.hunt = (function () {
-		let i,
-			count = ((end - fp.tell()) / 12) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 12) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].questID = fp.readULong();
 			out[i].huntID = fp.readULong();
@@ -12256,10 +12203,9 @@ PACKET.ZC.NOTIFY_STANDENTRY11.size = -1;
 PACKET.ZC.SHORTCUT_KEY_LIST_V3 = function PACKET_ZC_SHORTCUT_KEY_LIST_V3(fp, end) {
 	fp.seek(0x1, SEEK_CUR);
 	this.ShortCutKey = (function () {
-		let i,
-			count = 38,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = 38;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].isSkill = fp.readChar();
 			out[i].ID = fp.readULong();
@@ -12402,11 +12348,9 @@ PACKET.ZC.ITEM_PICKUP_ACK6.size = 56;
 PACKET.ZC.EQUIPMENT_ITEMLIST5 = function PACKET_ZC_EQUIPMENT_ITEMLIST5(fp, end) {
 	const option = new Struct('short index', 'short value', 'char param');
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 57) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 57) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -12430,7 +12374,7 @@ PACKET.ZC.EQUIPMENT_ITEMLIST5 = function PACKET_ZC_EQUIPMENT_ITEMLIST5(fp, end) 
 			out[i].Options[3] = fp.readStruct(option);
 			out[i].Options[4] = fp.readStruct(option);
 			out[i].Options[5] = fp.readStruct(option);
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].IsDamaged = flag & 2;
 			out[i].PlaceETCTab = flag & 4;
@@ -12444,11 +12388,9 @@ PACKET.ZC.EQUIPMENT_ITEMLIST5.size = -1;
 PACKET.ZC.CART_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST5(fp, end) {
 	const option = new Struct('short index', 'short value', 'char param');
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 57) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 57) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -12472,7 +12414,7 @@ PACKET.ZC.CART_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_CART_EQUIPMENT_ITEMLIST5
 			out[i].Options[3] = fp.readStruct(option);
 			out[i].Options[4] = fp.readStruct(option);
 			out[i].Options[5] = fp.readStruct(option);
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].IsDamaged = flag & 2;
 			out[i].PlaceETCTab = flag & 4;
@@ -12488,11 +12430,9 @@ PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIS
 
 	this.Name = fp.readString(NAME_LENGTH);
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 57) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 57) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -12515,7 +12455,7 @@ PACKET.ZC.STORE_EQUIPMENT_ITEMLIST5 = function PACKET_ZC_STORE_EQUIPMENT_ITEMLIS
 			out[i].Options[3] = fp.readStruct(option);
 			out[i].Options[4] = fp.readStruct(option);
 			out[i].Options[5] = fp.readStruct(option);
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].IsDamaged = flag & 2;
 			out[i].PlaceETCTab = flag & 4;
@@ -12594,11 +12534,9 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V5 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V5(fp,
 	this.sex = fp.readUChar();
 	const option = new Struct('short index', 'short value', 'char param');
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 57) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 57) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readUShort();
@@ -12621,7 +12559,7 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V5 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V5(fp,
 			out[i].Options[3] = fp.readStruct(option);
 			out[i].Options[4] = fp.readStruct(option);
 			out[i].Options[5] = fp.readStruct(option);
-			flag = fp.readUChar();
+			const flag = fp.readUChar();
 			out[i].IsIdentified = flag & 1;
 			out[i].IsDamaged = flag & 2;
 			out[i].PlaceETCTab = flag & 4;
@@ -12751,10 +12689,9 @@ PACKET.ZC.ADD_MEMBER_TO_GROUP3.size = 85;
 PACKET.ZC.GROUP_LIST2 = function PACKET_ZC_GROUP_LIST2(fp, end) {
 	this.groupName = fp.readBinaryString(NAME_LENGTH);
 	this.groupInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 50) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 50) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AID = fp.readULong();
 			out[i].characterName = fp.readBinaryString(NAME_LENGTH);
@@ -12781,14 +12718,17 @@ PACKET.CZ.REQ_RANDOM_COMBINE_ITEM = function PACKET_CZ_REQ_RANDOM_COMBINE_ITEM()
 	this.items = [];
 };
 PACKET.CZ.REQ_RANDOM_COMBINE_ITEM.prototype.build = function () {
-	let pkt_len;
 	const pkt_itemIdSize = PACKETVER.value >= 20181121 ? 4 : 2;
-	pkt_len = 2 + 2 + pkt_itemIdSize + this.items.length * 4;
+	const pkt_len = 2 + 2 + pkt_itemIdSize + this.items.length * 4;
 	const pkt_buf = new BinaryWriter(pkt_len);
 
 	pkt_buf.writeShort(0xa4f);
 	pkt_buf.writeShort(pkt_len);
-	PACKETVER.value >= 20181121 ? pkt_buf.writeLong(this.itemId) : pkt_buf.writeShort(this.itemId);
+	if (PACKETVER.value >= 20181121) {
+		pkt_buf.writeLong(this.itemId);
+	} else {
+		pkt_buf.writeUShort(this.itemId);
+	}
 	for (let i = 0; i < this.items.length; i++) {
 		pkt_buf.writeShort(this.items[i].index);
 		pkt_buf.writeShort(this.items[i].count);
@@ -13007,11 +12947,9 @@ PACKET.ZC.REQ_WEAR_SWITCHEQUIP_REMOVE_RESULT.size = 10;
 //0xa9b
 PACKET.ZC.SEND_SWAP_EQUIPITEM_INFO = function PACKET_ZC_SEND_SWAP_EQUIPITEM_INFO(fp, end) {
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 6) | 0,
-			out = new Array(count);
-		let flag;
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 6) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].position = fp.readULong();
@@ -13057,11 +12995,10 @@ PACKET.ZC.REFINING_MATERIAL_LIST = function PACKET_ZC_REFINING_MATERIAL_LIST(fp,
 	this.itemIndex = fp.readShort();
 	this.blacksmithBlessing = fp.readChar();
 	this.MaterialInfo = (function () {
-		let i, count, size, out;
-		size = PACKETVER.value >= 20181121 ? 9 : 7;
-		count = ((end - fp.tell()) / size) | 0;
-		out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const size = PACKETVER.value >= 20181121 ? 9 : 7;
+		const count = ((end - fp.tell()) / size) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].itemId = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 			out[i].chance = fp.readChar();
@@ -13084,7 +13021,11 @@ PACKET.CZ.REQ_REFINING.prototype.build = function () {
 
 	pkt_buf.writeShort(0xaa3);
 	pkt_buf.writeShort(this.index);
-	PACKETVER.value >= 20181121 ? pkt_buf.writeULong(this.itemId) : pkt_buf.writeUShort(this.itemId);
+	if (PACKETVER.value >= 20181121) {
+		pkt_buf.writeULong(this.itemId);
+	} else {
+		pkt_buf.writeUShort(this.itemId);
+	}
 	pkt_buf.writeChar(this.blacksmithBlessing);
 	return pkt_buf;
 };
@@ -13101,10 +13042,9 @@ PACKET.CZ.CLOSE_REFINING_UI.prototype.build = function () {
 // 0xaa5
 PACKET.ZC.MEMBERMGR_INFO2 = function PACKET_ZC_MEMBERMGR_INFO2(fp, end) {
 	this.memberInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 34) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 34) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AID = fp.readULong();
 			out[i].GID = fp.readULong();
@@ -13162,14 +13102,17 @@ PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM = function PACKET_CZ_REQ_RANDOM_UPGRADE_ITEM()
 	this.item_index = 0;
 };
 PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM.prototype.build = function () {
-	let pkt_len;
 	const pkt_itemIdSize = PACKETVER.value >= 20181121 ? 4 : 2;
 	const pkt_index = 2;
-	pkt_len = 2 + pkt_itemIdSize + pkt_index;
+	const pkt_len = 2 + pkt_itemIdSize + pkt_index;
 	const pkt_buf = new BinaryWriter(pkt_len);
 
 	pkt_buf.writeShort(0xab6);
-	PACKETVER.value >= 20181121 ? pkt_buf.writeULong(this.itemId) : pkt_buf.writeUShort(this.itemId);
+	if (PACKETVER.value >= 20181121) {
+		pkt_buf.writeULong(this.itemId);
+	} else {
+		pkt_buf.writeUShort(this.itemId);
+	}
 	pkt_buf.writeUShort(this.item_index);
 
 	return pkt_buf;
@@ -13197,10 +13140,9 @@ PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
 		pkt_len = 160;
 	}
 	this.ServerList = (function () {
-		let i,
-			count = ((end - fp.tell()) / pkt_len) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / pkt_len) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].ip = fp.readULong();
 			out[i].port = fp.readUShort();
@@ -13250,10 +13192,9 @@ PACKET.ZC.HAT_EFFECT = function PACKET_ZC_HAT_EFFECT(fp, end) {
 	this.GID = fp.readULong();
 	this.enabled = fp.readChar(); // Always 1
 	this.hatEffectIDs = (function () {
-		let i,
-			count = ((end - fp.tell()) / 2) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 2) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = fp.readShort();
 		}
 		return out;
@@ -13332,10 +13273,9 @@ PACKET.ZC.ADD_MEMBER_TO_GROUP4.size = 89;
 PACKET.ZC.GROUP_LIST3 = function PACKET_ZC_GROUP_LIST3(fp, end) {
 	this.groupName = fp.readBinaryString(NAME_LENGTH);
 	this.groupInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 54) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 54) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AID = fp.readULong();
 			out[i].GID = fp.readULong();
@@ -13392,10 +13332,9 @@ PACKET.ZC.ACK_REQNAME_BYGID2.size = 32;
 PACKET.ZC.UPDATE_MISSION_HUNT4 = function PACKET_ZC_UPDATE_MISSION_HUNT4(fp, end) {
 	this.questCount = fp.readShort();
 	this.hunt = (function () {
-		let i,
-			count = ((end - fp.tell()) / 16) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 16) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].questID = fp.readULong();
 			out[i].huntID = fp.readULong();
@@ -13412,10 +13351,9 @@ PACKET.ZC.UPDATE_MISSION_HUNT4.size = -1;
 PACKET.ZC.ALL_QUEST_LIST_V4 = function PACKET_ZC_ALL_QUEST_LIST_V4(fp, end) {
 	this.questCount = fp.readLong();
 	this.QuestList = (function (questCount) {
-		let i,
-			count = questCount,
-			out = new Array(questCount);
-		for (i = 0; i < count; ++i) {
+		const count = questCount;
+		const out = new Array(questCount);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].questID = fp.readULong();
 			out[i].active = fp.readUChar();
@@ -13457,11 +13395,10 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V6 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V6(fp,
 	const option = new Struct('short index', 'short value', 'char param');
 	const item_size = 67;
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / item_size) | 0,
-			out = new Array(count);
+		const count = ((end - fp.tell()) / item_size) | 0;
+		const out = new Array(count);
 		let flag;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readULong();
@@ -13507,11 +13444,10 @@ PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL = function PACKET_ZC_SPLIT_SEND_ITEMLIST_NO
 
 	const item_size = PACKETVER.value >= 20181121 ? 34 : 24;
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / item_size) | 0,
-			out = new Array(count);
+		const count = ((end - fp.tell()) / item_size) | 0;
+		const out = new Array(count);
 		let flag;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
@@ -13539,11 +13475,10 @@ PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP = function PACKET_ZC_SPLIT_SEND_ITEMLIST_EQU
 	const option = new Struct('short index', 'short value', 'char param');
 	const item_size = PACKETVER.value >= 20181121 ? 67 : 57;
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / item_size) | 0,
-			out = new Array(count);
+		const count = ((end - fp.tell()) / item_size) | 0;
+		const out = new Array(count);
 		let flag;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
@@ -13592,9 +13527,8 @@ PACKET.ZC.ADD_QUEST3 = function PACKET_ZC_ADD_QUEST3(fp, end) {
 	this.quest_endTime = fp.readLong();
 	this.count = fp.readShort();
 	this.hunt = (function (count) {
-		let i,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].huntID = fp.readULong();
 			out[i].huntIDCount = fp.readULong();
@@ -13623,9 +13557,11 @@ PACKET.CZ.NPC_BARTER_MARKET_PURCHASE.prototype.build = function () {
 	pkt_buf.writeShort(pkt_len);
 
 	for (let i = 0; i < this.itemList.length; ++i) {
-		PACKETVER.value >= 20181121
-			? pkt_buf.writeULong(this.itemList[i].itemId)
-			: pkt_buf.writeUShort(this.itemList[i].itemId);
+		if (PACKETVER.value >= 20181121) {
+			pkt_buf.writeULong(this.itemList[i].itemId);
+		} else {
+			pkt_buf.writeUShort(this.itemList[i].itemId);
+		}
 		pkt_buf.writeULong(this.itemList[i].amount);
 		pkt_buf.writeUShort(this.itemList[i].invIndex);
 		pkt_buf.writeULong(this.itemList[i].shopIndex);
@@ -13707,10 +13643,9 @@ PACKET.ZC.SHORTCUT_KEY_LIST_V4 = function PACKET_ZC_SHORTCUT_KEY_LIST_V4(fp, end
 	this.rotate = fp.readUChar();
 	this.tab = fp.readUShort();
 	this.ShortCutKey = (function () {
-		let i,
-			count = 38,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = 38;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].isSkill = fp.readChar();
 			out[i].ID = fp.readULong();
@@ -13777,10 +13712,9 @@ PACKET.ZC.PROPERTY_HOMUN3.size = 73;
 // 0xb32
 PACKET.ZC.SKILLINFO_LIST2 = function PACKET_ZC_SKILLINFO_LIST2(fp, end) {
 	this.skillList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 15) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 15) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].SKID = fp.readShort();
 			out[i].type = fp.readLong();
@@ -13811,11 +13745,10 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V7 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V7(fp,
 	const option = new Struct('short index', 'short value', 'char param');
 	const item_size = 68;
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / item_size) | 0,
-			out = new Array(count);
+		const count = ((end - fp.tell()) / item_size) | 0;
+		const out = new Array(count);
 		let flag;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readULong();
@@ -13855,11 +13788,10 @@ PACKET.ZC.SPLIT_SEND_ITEMLIST_EQUIP2 = function PACKET_ZC_SPLIT_SEND_ITEMLIST_EQ
 	const option = new Struct('short index', 'short value', 'char param');
 	const item_size = 68;
 	this.ItemInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / item_size) | 0,
-			out = new Array(count);
+		const count = ((end - fp.tell()) / item_size) | 0;
+		const out = new Array(count);
 		let flag;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readULong();
@@ -13905,14 +13837,12 @@ PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3 = function PACKET_ZC_PC_PURCHASE_ITEMLIST
 	this.AID = fp.readULong();
 	this.UniqueID = fp.readULong();
 	this.itemList = (function () {
-		let i,
-			count = 0,
-			out = new Array(count);
-		count = (end - fp.tell()) / (4 + 2 + 2 + 1 + 4 + 1 + 1 + 16 + 25 + 4 + 2 + 1 + 1); //Item options 25 bytes, (location viewSprite), itemId use Long now, grade
+		const count = (end - fp.tell()) / (4 + 2 + 2 + 1 + 4 + 1 + 1 + 16 + 25 + 4 + 2 + 1 + 1); //Item options 25 bytes, (location viewSprite), itemId use Long now, grade
+		const out = new Array(count);
 
 		const option = new Struct('short index', 'short value', 'char param');
 
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].count = fp.readShort();
@@ -13950,10 +13880,9 @@ PACKET.ZC.PC_PURCHASE_MYITEMLIST2 = function PACKET_ZC_PC_PURCHASE_MYITEMLIST2(f
 	this.itemList = (function () {
 		const len = 4 + 2 + 2 + 1 + 4 + 1 + 1 + 16 + 25 + 1 + 1;
 
-		let i,
-			count = ((end - fp.tell()) / len) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / len) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].index = fp.readShort();
@@ -14147,9 +14076,11 @@ PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_PURCHASE.prototype.build = function () {
 	pkt_buf.writeShort(pkt_len);
 
 	for (let i = 0; i < this.itemList.length; ++i) {
-		PACKETVER.value >= 20181121
-			? pkt_buf.writeULong(this.itemList[i].itemId)
-			: pkt_buf.writeUShort(this.itemList[i].itemId);
+		if (PACKETVER.value >= 20181121) {
+			pkt_buf.writeULong(this.itemList[i].itemId);
+		} else {
+			pkt_buf.writeUShort(this.itemList[i].itemId);
+		}
 		pkt_buf.writeULong(this.itemList[i].shopIndex);
 		pkt_buf.writeULong(this.itemList[i].amount);
 	}
@@ -14183,10 +14114,9 @@ PACKET.CZ.GRADE_ENCHANT_SELECT_EQUIPMENT.prototype.build = function () {
 // 0xb65
 PACKET.ZC.REPAIRITEMLIST2 = function PACKET_ZC_REPAIRITEMLIST2(fp, end) {
 	this.itemList = (function () {
-		let i,
-			count = ((end - fp.tell()) / 13) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 13) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].index = fp.readShort();
 			out[i].ITID = fp.readULong();
@@ -14281,10 +14211,9 @@ PACKET.ZC.PROPERTY_HOMUN4.size = 77;
 PACKET.ZC.PC_PURCHASE_ITEMLIST2 = function PACKET_ZC_PC_PURCHASE_ITEMLIST2(fp, end) {
 	this.itemList = (function () {
 		const item_size = 19;
-		let i,
-			count = ((end - fp.tell()) / item_size) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / item_size) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].ITID = fp.readULong();
 			out[i].price = fp.readLong();
@@ -14302,10 +14231,9 @@ PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
 PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEMINFO(fp, end) {
 	this.itemList = (function () {
 		const item_size = PACKETVER.value >= 20181121 ? 31 : 27;
-		let i,
-			count = ((end - fp.tell()) / item_size) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / item_size) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 			out[i].type = fp.readUChar();
@@ -14397,10 +14325,9 @@ PACKET.ZC.GUILD_INFO4.size = 118; // - <master name>.24B + <master char id>.L
 // 0xb7d
 PACKET.ZC.MEMBERMGR_INFO3 = function PACKET_ZC_MEMBERMGR_INFO3(fp, end) {
 	this.memberInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / 58) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / 58) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].AID = fp.readULong();
 			out[i].GID = fp.readULong();
@@ -14432,10 +14359,9 @@ PACKET.ZC.REPUTE_INFO = function PACKET_ZC_REPUTE_INFO(fp, end) {
 	this.success = fp.readUChar();
 	const repute_size = 16;
 	this.reputeInfo = (function () {
-		let i,
-			count = ((end - fp.tell()) / repute_size) | 0,
-			out = new Array(count);
-		for (i = 0; i < count; ++i) {
+		const count = ((end - fp.tell()) / repute_size) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
 			out[i] = {};
 			out[i].type = fp.readInt64();
 			out[i].points = fp.readInt64();
@@ -14925,7 +14851,7 @@ PACKET.CZ.REQ_ROULETTE_INFO.prototype.build = function () {
 
 // 0xA1C - ZC_ACK_ROULETTE_INFO (roulette item list)
 PACKET.ZC.ACK_ROULETTE_INFO = function PACKET_ZC_ACK_ROULETTE_INFO(fp, end) {
-	const size = fp.readUShort(); // 2 bytes - packet length
+	fp.readUShort(); // 2 bytes - packet length
 	this.serial = fp.readULong(); // 4 bytes - RouletteSerial
 	this.items = [];
 	// Read items until end of packet (42 items max)
