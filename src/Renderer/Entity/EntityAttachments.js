@@ -25,7 +25,7 @@ const _defaultFog = {
 };
 
 const _effectColor = new Float32Array(4);
-let _position = new Int32Array(2);
+const _position = new Int32Array(2);
 
 /**
  * AttachmentManager class
@@ -290,9 +290,11 @@ class AttachmentManager {
 
 		this.entity.effectColor[3] = attachment.opacity;
 		if (!attachment.position) {
+			_position[0] = 0;
 			_position[1] = attachment.head ? -100 : 0;
-		} else if (attachment.position) {
-			_position = attachment.position;
+		} else {
+			_position[0] = attachment.position[0];
+			_position[1] = attachment.position[1];
 		}
 
 		frame = attachment.direction ? (Camera.direction + this.entity.direction + 8) % 8 : attachment.frame;
