@@ -90,7 +90,5 @@ module.exports = {
 		'no-console': 'off',
 		'no-debugger': 'warn'
 	},
-	ignorePatterns: [
-		'src/Vendors/**'
-	]
+	ignorePatterns: ['src/Vendors/**']
 };
