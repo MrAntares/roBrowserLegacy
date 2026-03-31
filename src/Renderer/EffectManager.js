@@ -40,7 +40,7 @@ let _gl;
 /**
  * @type {object} effect listing
  */
-let _list = {};
+const _list = {};
 
 /**
  * @type {number} used to differenciate constructors
@@ -246,7 +246,6 @@ function repeatEffect(effect) {
  * @type {object} Effects namespace
  */
 class EffectManager {
-
 	/**
 	 * Initialize effects manager
 	 */
