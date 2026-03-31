@@ -55,11 +55,217 @@ import Upsampling from 'Renderer/Effects/Shaders/Upsampling.js';
 import WebGL from 'Utils/WebGL.js';
 
 const mat4 = glMatrix.mat4;
-
+const _pos = new Uint16Array(2);
 /**
  * Renderer Namespace
  */
-const MapRenderer = {};
+class MapRenderer {
+	/**
+	 * Load a map
+	 *
+	 * @param {string} mapname to load
+	 */
+	static setMap(mapname) {
+		// TODO: stop the map loading, and start to load the new map.
+		if (this.loading) {
+			return;
+		}
+
+		// Support for instance map
+		// Is it always 3 digits ?
+		mapname = mapname
+			.replace(/^(\d{3})(\d@)/, '$2') // 0061@tower   -> 1@tower
+			.replace(/^\d{3}#/, ''); // 003#prontera -> prontera
+
+		// Clean objects
+		SoundManager.stop();
+		Renderer.stop();
+		UIManager.removeComponents();
+		Cursor.setType(Cursor.ACTION.DEFAULT);
+
+		// Don't reload a map when it's just a local teleportation
+		if (this.currentMap !== mapname) {
+			this.loading = true;
+			BGM.stop();
+			this.currentMap = mapname;
+
+			// Parse the filename (ugly RO)
+			const filename = mapname.replace(/\.gat$/i, '.rsw');
+
+			Background.setLoading(function () {
+				// Hooking Thread
+				Thread.hook('MAP_PROGRESS', onProgressUpdate.bind(MapRenderer));
+				Thread.hook('MAP_WORLD', onWorldComplete.bind(MapRenderer));
+				Thread.hook('MAP_GROUND', onGroundComplete.bind(MapRenderer));
+				Thread.hook('MAP_ALTITUDE', onAltitudeComplete.bind(MapRenderer));
+				Thread.hook('MAP_MODELS', onModelsComplete.bind(MapRenderer));
+				Thread.hook('MAP_ANIMATED_MODEL', onAnimatedModelComplete.bind(MapRenderer));
+
+				// Start Loading
+				MapRenderer.free();
+				Renderer.remove();
+				Thread.send('LOAD_MAP', filename, onMapComplete.bind(MapRenderer));
+			});
+
+			return;
+		}
+
+		const gl = Renderer.getContext();
+		EntityManager.free();
+		Damage.free(gl);
+		EffectManager.free(gl);
+
+		// Basic TP
+		Background.remove(function () {
+			MapRenderer.onLoad();
+			Sky.setUpCloudData();
+
+			Renderer.render(MapRenderer.onRender);
+		});
+	}
+
+	/**
+	 * Clean up data
+	 */
+	static free() {
+		const gl = Renderer.getContext();
+
+		EntityManager.free();
+		GridSelector.free(gl);
+		Sounds.free();
+		Effects.free();
+		Ground.free(gl);
+		Water.free(gl);
+		Models.free(gl);
+		AnimatedModels.free(gl);
+		Damage.free(gl);
+		EffectManager.free(gl);
+		SignboardManager.free();
+		SoundManager.stop();
+		BGM.stop();
+
+		// Release WebGL resources for post-processing effects
+		PostProcess.clean(gl);
+
+		Mouse.intersect = false;
+
+		this.light = null;
+		this.water = null;
+		this.sounds = null;
+		this.effects = null;
+	}
+
+	/**
+	 * Rendering world
+	 *
+	 * @param {number} tick - game tick
+	 * @param {object} gl context
+	 */
+	static onRender(tick, gl) {
+		PostProcess.prepare(gl);
+
+		const fog = MapRenderer.fog;
+		fog.use = MapPreferences.fog;
+		const light = MapRenderer.light;
+
+		let x, y;
+
+		// Clean mouse position in world
+		Mouse.world.x = -1;
+		Mouse.world.y = -1;
+		Mouse.world.z = -1;
+
+		// Update camera
+		Camera.update(tick);
+
+		const modelView = Camera.modelView;
+		const projection = Camera.projection;
+		const normalMat = Camera.normalMat;
+
+		// Spam map effects
+		Effects.spam(Session.Entity.position, tick);
+
+		Ground.render(gl, modelView, projection, normalMat, fog, light);
+		Models.render(gl, modelView, projection, normalMat, fog, light);
+		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
+
+		if (Mouse.intersect && Altitude.intersect(modelView, projection, _pos)) {
+			x = _pos[0];
+			y = _pos[1];
+			const isWalkable = Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE;
+
+			Mouse.world.x = x;
+			Mouse.world.y = y;
+			Mouse.world.z = Altitude.getCellHeight(x, y);
+
+			if (isWalkable) {
+				if (Session.captchaGetIdOnFloorClick) {
+					// render Grid Selector on floor range
+					const range = Session.captchaGetIdOnFloorRange;
+
+					// render on range
+					const cells = Altitude.getCellsInSquareRange(x, y, range);
+					cells.forEach(cell => {
+						GridSelector.render(gl, modelView, projection, fog, cell.x, cell.y);
+					});
+				}
+				GridSelector.render(gl, modelView, projection, fog, x, y);
+			}
+
+			// NO walk cursor
+			// TODO: Know the packet version for this feature
+			if (PACKETVER.value >= 20200101) {
+				if (Cursor.getActualType() === Cursor.ACTION.NOWALK && isWalkable) {
+					Cursor.setType(Cursor.ACTION.DEFAULT, false);
+				}
+				if (Cursor.getActualType() === Cursor.ACTION.DEFAULT && !isWalkable) {
+					Cursor.setType(Cursor.ACTION.NOWALK, false);
+				}
+			}
+		}
+
+		// Display zone effects and entities
+		Sky.render(gl, modelView, projection, fog, tick);
+		EffectManager.render(gl, modelView, projection, fog, tick, true);
+
+		//Render Entities (no effects)
+		EntityManager.render(gl, modelView, projection, fog, false);
+
+		// Rendering water (after sprites, billboard projection pushes it to back)
+		Water.render(gl, modelView, projection, fog, light, tick);
+
+		// Rendering effects
+		Damage.render(gl, modelView, projection, fog, tick);
+		EffectManager.render(gl, modelView, projection, fog, tick, false);
+		EntityManager.render(gl, modelView, projection, fog, true);
+
+		// Render signboards
+		SignboardManager.render(gl, modelView, projection);
+
+		// Screen overlayed Effects
+		ScreenEffectManager.render(gl, modelView, projection, fog, tick);
+
+		// Play sounds
+		Sounds.render(Session.Entity.position, tick);
+
+		// Find entity over the cursor
+		if (Mouse.intersect) {
+			const entity = EntityManager.intersect();
+			EntityManager.setOverEntity(entity);
+		}
+
+		// Clean up
+		MemoryManager.clean(gl, tick);
+
+		// Finalize frame with post-processing effects
+		PostProcess.render(gl);
+	}
+
+	/**
+	 * Callback to execute once the map is loaded
+	 */
+	static onLoad() {}
+}
 
 /**
  * @var {string} current map's name
@@ -106,101 +312,6 @@ MapRenderer.fog = {
 	near: 180,
 	factor: 1.0,
 	color: new Float32Array([1, 1, 1])
-};
-
-/**
- * Load a map
- *
- * @param {string} mapname to load
- */
-MapRenderer.setMap = function loadMap(mapname) {
-	// TODO: stop the map loading, and start to load the new map.
-	if (this.loading) {
-		return;
-	}
-
-	// Support for instance map
-	// Is it always 3 digits ?
-	mapname = mapname
-		.replace(/^(\d{3})(\d@)/, '$2') // 0061@tower   -> 1@tower
-		.replace(/^\d{3}#/, ''); // 003#prontera -> prontera
-
-	// Clean objects
-	SoundManager.stop();
-	Renderer.stop();
-	UIManager.removeComponents();
-	Cursor.setType(Cursor.ACTION.DEFAULT);
-
-	// Don't reload a map when it's just a local teleportation
-	if (this.currentMap !== mapname) {
-		this.loading = true;
-		BGM.stop();
-		this.currentMap = mapname;
-
-		// Parse the filename (ugly RO)
-		const filename = mapname.replace(/\.gat$/i, '.rsw');
-
-		Background.setLoading(function () {
-			// Hooking Thread
-			Thread.hook('MAP_PROGRESS', onProgressUpdate.bind(MapRenderer));
-			Thread.hook('MAP_WORLD', onWorldComplete.bind(MapRenderer));
-			Thread.hook('MAP_GROUND', onGroundComplete.bind(MapRenderer));
-			Thread.hook('MAP_ALTITUDE', onAltitudeComplete.bind(MapRenderer));
-			Thread.hook('MAP_MODELS', onModelsComplete.bind(MapRenderer));
-			Thread.hook('MAP_ANIMATED_MODEL', onAnimatedModelComplete.bind(MapRenderer));
-
-			// Start Loading
-			MapRenderer.free();
-			Renderer.remove();
-			Thread.send('LOAD_MAP', filename, onMapComplete.bind(MapRenderer));
-		});
-
-		return;
-	}
-
-	const gl = Renderer.getContext();
-	EntityManager.free();
-	Damage.free(gl);
-	EffectManager.free(gl);
-
-	// Basic TP
-	Background.remove(function () {
-		MapRenderer.onLoad();
-		Sky.setUpCloudData();
-
-		Renderer.render(MapRenderer.onRender);
-	});
-};
-
-/**
- * Clean up data
- */
-MapRenderer.free = function Free() {
-	const gl = Renderer.getContext();
-
-	EntityManager.free();
-	GridSelector.free(gl);
-	Sounds.free();
-	Effects.free();
-	Ground.free(gl);
-	Water.free(gl);
-	Models.free(gl);
-	AnimatedModels.free(gl);
-	Damage.free(gl);
-	EffectManager.free(gl);
-	SignboardManager.free();
-	SoundManager.stop();
-	BGM.stop();
-
-	// Release WebGL resources for post-processing effects
-	PostProcess.clean(gl);
-
-	Mouse.intersect = false;
-
-	this.light = null;
-	this.water = null;
-	this.sounds = null;
-	this.effects = null;
 };
 
 /**
@@ -383,118 +494,6 @@ function onMapComplete(success, error) {
 		Renderer.render(MapRenderer.onRender);
 	});
 }
-
-/**
- * Rendering world
- *
- * @param {number} tick - game tick
- * @param {object} gl context
- */
-const _pos = new Uint16Array(2);
-MapRenderer.onRender = function OnRender(tick, gl) {
-	PostProcess.prepare(gl);
-
-	const fog = MapRenderer.fog;
-	fog.use = MapPreferences.fog;
-	const light = MapRenderer.light;
-
-	let x, y;
-
-	// Clean mouse position in world
-	Mouse.world.x = -1;
-	Mouse.world.y = -1;
-	Mouse.world.z = -1;
-
-	// Update camera
-	Camera.update(tick);
-
-	const modelView = Camera.modelView;
-	const projection = Camera.projection;
-	const normalMat = Camera.normalMat;
-
-	// Spam map effects
-	Effects.spam(Session.Entity.position, tick);
-
-	Ground.render(gl, modelView, projection, normalMat, fog, light);
-	Models.render(gl, modelView, projection, normalMat, fog, light);
-	AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
-
-	if (Mouse.intersect && Altitude.intersect(modelView, projection, _pos)) {
-		x = _pos[0];
-		y = _pos[1];
-		const isWalkable = Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE;
-
-		Mouse.world.x = x;
-		Mouse.world.y = y;
-		Mouse.world.z = Altitude.getCellHeight(x, y);
-
-		if (isWalkable) {
-			if (Session.captchaGetIdOnFloorClick) {
-				// render Grid Selector on floor range
-				const range = Session.captchaGetIdOnFloorRange;
-
-				// render on range
-				const cells = Altitude.getCellsInSquareRange(x, y, range);
-				cells.forEach(cell => {
-					GridSelector.render(gl, modelView, projection, fog, cell.x, cell.y);
-				});
-			}
-			GridSelector.render(gl, modelView, projection, fog, x, y);
-		}
-
-		// NO walk cursor
-		// TODO: Know the packet version for this feature
-		if (PACKETVER.value >= 20200101) {
-			if (Cursor.getActualType() === Cursor.ACTION.NOWALK && isWalkable) {
-				Cursor.setType(Cursor.ACTION.DEFAULT, false);
-			}
-			if (Cursor.getActualType() === Cursor.ACTION.DEFAULT && !isWalkable) {
-				Cursor.setType(Cursor.ACTION.NOWALK, false);
-			}
-		}
-	}
-
-	// Display zone effects and entities
-	Sky.render(gl, modelView, projection, fog, tick);
-	EffectManager.render(gl, modelView, projection, fog, tick, true);
-
-	//Render Entities (no effects)
-	EntityManager.render(gl, modelView, projection, fog, false);
-
-	// Rendering water (after sprites, billboard projection pushes it to back)
-	Water.render(gl, modelView, projection, fog, light, tick);
-
-	// Rendering effects
-	Damage.render(gl, modelView, projection, fog, tick);
-	EffectManager.render(gl, modelView, projection, fog, tick, false);
-	EntityManager.render(gl, modelView, projection, fog, true);
-
-	// Render signboards
-	SignboardManager.render(gl, modelView, projection);
-
-	// Screen overlayed Effects
-	ScreenEffectManager.render(gl, modelView, projection, fog, tick);
-
-	// Play sounds
-	Sounds.render(Session.Entity.position, tick);
-
-	// Find entity over the cursor
-	if (Mouse.intersect) {
-		const entity = EntityManager.intersect();
-		EntityManager.setOverEntity(entity);
-	}
-
-	// Clean up
-	MemoryManager.clean(gl, tick);
-
-	// Finalize frame with post-processing effects
-	PostProcess.render(gl);
-};
-
-/**
- * Callback to execute once the map is loaded
- */
-MapRenderer.onLoad = function onLoad() {};
 
 /**
  * Export

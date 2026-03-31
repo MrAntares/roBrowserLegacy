@@ -17,11 +17,8 @@ import PostProcess from 'Renderer/Effects/PostProcess.js';
 let _program, _buffer;
 let _active = false;
 
-export default {
-	/**
-	 * Initializes shaders and buffers
-	 */
-	init: function (gl) {
+class VerticalFlip {
+	static init(gl) {
 		if (_program) {
 			return;
 		}
@@ -41,7 +38,7 @@ export default {
 			new Float32Array([-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1]),
 			gl.STATIC_DRAW
 		);
-	},
+	}
 
 	/**
 	 * Executes the inverted drawing
@@ -49,7 +46,7 @@ export default {
 	 * @param {WebGLTexture} inputTexture - Texture to be inverted
 	 * @param {WebGLFramebuffer} outputFbo - Target
 	 */
-	render: function (gl, inputTexture, outputFbo) {
+	static render(gl, inputTexture, outputFbo) {
 		if (!_buffer || !_program || !_active) {
 			return;
 		}
@@ -77,31 +74,33 @@ export default {
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 		PostProcess.afterRenderPass(gl);
-	},
+	}
 
 	/**
 	 * @returns {WebGLProgram} Shader program
 	 */
-	program: function () {
+	static program() {
 		return _program;
-	},
+	}
 
 	/** Resets effect state */
-	clean: function (gl) {
+	static clean(gl) {
 		_active = false;
 		if (_buffer) {
 			gl.deleteBuffer(_buffer);
 		}
 		_program = _buffer = null;
-	},
+	}
 
 	/** @returns {boolean} Whether the effect is active */
-	isActive: function () {
+	static isActive() {
 		return _active;
-	},
+	}
 
 	/** @param {boolean} bool - Enables/disables the effect */
-	setActive: function (bool) {
+	static setActive(bool) {
 		_active = bool;
 	}
-};
+}
+
+export default VerticalFlip;
