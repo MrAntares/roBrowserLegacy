@@ -286,7 +286,7 @@ class Altitude {
 		// get all cells in square range and return x, y if is in  and walkable
 		for (let i = x - range; i <= x + range; ++i) {
 			for (let j = y - range; j <= y + range; ++j) {
-				if (Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE) {
+				if (Altitude.getCellType(i, j) & Altitude.TYPE.WALKABLE) {
 					result.push({ x: i, y: j });
 				}
 			}
