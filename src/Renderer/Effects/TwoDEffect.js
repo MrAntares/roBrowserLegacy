@@ -11,6 +11,8 @@ function getRandomIntInclusive(min, max) {
 
 const blendMode = {};
 
+let shadow_index = 0;
+
 class TwoDEffect {
 	constructor(effect, EF_Inst_Par, EF_Init_Par) {
 		const position = EF_Inst_Par.position;
@@ -400,7 +402,7 @@ class TwoDEffect {
 		if (this.ownerEntity && this.shadowTexture) {
 			this.ownerEntity.attachments.add({
 				completeFile: 'data/sprite/shadow',
-				uid: this.spriteName + '-' + this.sizeStartX + '-' + this.rotateLate,
+				uid: shadow_index++,
 				head: true,
 				direction: true,
 				repeat: false,
@@ -415,11 +417,10 @@ class TwoDEffect {
 	}
 
 	init(gl) {
-		const self = this;
-		Client.loadFile('data/texture/' + this.textureName, function (buffer) {
-			WebGL.texture(gl, buffer, function (texture) {
-				self.texture = texture;
-				self.ready = true;
+		Client.loadFile(`data/texture/${this.textureName}`, buffer => {
+			WebGL.texture(gl, buffer, texture => {
+				this.texture = texture;
+				this.ready = true;
 			});
 		});
 	}
