@@ -30,6 +30,7 @@ import cssText from './InventoryV0.css?raw';
 import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import Mail from 'UI/Components/Mail/Mail.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Create Component
