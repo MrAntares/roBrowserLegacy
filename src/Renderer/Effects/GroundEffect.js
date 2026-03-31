@@ -2,8 +2,8 @@ import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Altitude from 'Renderer/Map/Altitude.js';
-import _vertexShader from './GroundEffect.vs';
-import _fragmentShader from './GroundEffect.fs';
+import _vertexShader from './GroundEffect.vs?raw';
+import _fragmentShader from './GroundEffect.fs?raw';
 
 let _texture;
 let _program;

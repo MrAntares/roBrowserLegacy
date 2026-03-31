@@ -45,7 +45,6 @@ export const FlatTexture = (textureFilename, size = 64) =>
 		}
 
 		static init(gl) {
-			const self = this;
 			this._program = this.createShaderProgram(gl);
 			this._buffer = gl.createBuffer();
 			this._texture = null;
@@ -65,8 +64,8 @@ export const FlatTexture = (textureFilename, size = 64) =>
 					size
 				},
 				texture => {
-					self._texture = texture;
-					self.ready = true;
+					this._texture = texture;
+					this.ready = true;
 				}
 			);
 		}

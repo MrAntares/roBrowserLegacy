@@ -305,7 +305,6 @@ class RainWeatherEffect {
 
 		this.ready = true;
 		this.needCleanUp = false;
-		this.renderBeforeEntities = false; //?
 	}
 
 	static isActive() {
@@ -855,4 +854,7 @@ class RainWeatherEffect {
 		this.ready = false;
 	}
 }
+
+RainWeatherEffect.renderBeforeEntities = false;
+
 export default RainWeatherEffect;

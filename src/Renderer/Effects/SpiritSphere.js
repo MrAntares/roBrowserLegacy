@@ -73,7 +73,7 @@ class SpiritSphere {
 		);
 
 		Client.loadFile('data/texture/effect/thunder_center.bmp', buffer => {
-			Texture.load(buffer, () => {
+			Texture.load(buffer, function() {
 				const enableMipmap = Configs.get('enableMipmap');
 				const ctx = this.getContext('2d');
 				ctx.save();
