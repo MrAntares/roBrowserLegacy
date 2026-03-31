@@ -117,7 +117,7 @@ class LockOnTarget {
 		);
 
 		Client.loadFile('data/texture/effect/lockon128.tga', buffer => {
-			Texture.load(buffer, function() {
+			Texture.load(buffer, function () {
 				const enableMipmap = Configs.get('enableMipmap');
 				const ctx = this.getContext('2d');
 				ctx.save();
