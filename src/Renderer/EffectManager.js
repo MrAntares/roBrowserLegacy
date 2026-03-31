@@ -242,6 +242,52 @@ function repeatEffect(effect) {
 	return 0;
 }
 
+function clean(name, AID, effectID) {
+	const effectIdList = Array.isArray(effectID) ? effectID : [effectID];
+	let i, count;
+
+	const list = _list[name];
+	count = list.length;
+
+	for (i = 0; i < count; ++i) {
+		if (
+			(!AID || list[i]._Params.Init.ownerAID === AID) &&
+			(!effectID || effectIdList.includes(list[i]._Params.Inst.effectID))
+		) {
+			if (list[i].free) {
+				list[i].free(_gl);
+			}
+			list.splice(i, 1);
+			i--;
+			count--;
+		}
+	}
+
+	if (!count) {
+		//if (effect.free) {
+		//	effect.free(_gl);
+		//}
+		delete _list[name];
+	}
+}
+
+function cleanRepeat(name, AID, effectID) {
+	const effectIdList = Array.isArray(effectID) ? effectID : [effectID];
+	const list = _list[name];
+
+	list.forEach(item => {
+		if ((!AID || item._Params.Init.ownerAID === AID) && (!effectID || effectIdList.includes(item.effectID))) {
+			if (item._Params.Inst.persistent) {
+				item._Params.Inst.persistent = false;
+			}
+
+			if (item._Params.Inst.repeatEnd) {
+				item._Params.Inst.repeatEnd = false;
+			}
+		}
+	});
+}
+
 /**
  * @type {object} Effects namespace
  */
@@ -1119,44 +1165,14 @@ class EffectManager {
 	static debug() {
 		console.log('%c[DEBUG] EffectManager _list: ', 'color:#F5B342', _list);
 	}
-}
-/**
- * Remove an effect
- *
- * @param {effect}
- * @param {mixed} effect owner ID
- */
-EffectManager.remove = (function removeClosure() {
-	function clean(name, AID, effectID) {
-		const effectIdList = Array.isArray(effectID) ? effectID : [effectID];
-		let i, count;
 
-		const list = _list[name];
-		count = list.length;
-
-		for (i = 0; i < count; ++i) {
-			if (
-				(!AID || list[i]._Params.Init.ownerAID === AID) &&
-				(!effectID || effectIdList.includes(list[i]._Params.Inst.effectID))
-			) {
-				if (list[i].free) {
-					list[i].free(_gl);
-				}
-				list.splice(i, 1);
-				i--;
-				count--;
-			}
-		}
-
-		if (!count) {
-			//if (effect.free) {
-			//	effect.free(_gl);
-			//}
-			delete _list[name];
-		}
-	}
-
-	return function remove(effect, AID, effectID) {
+	/**
+	 * Remove an effect
+	 *
+	 * @param {effect}
+	 * @param {mixed} effect owner ID
+	 */
+	static remove(effect, AID, effectID) {
 		if (!effect || !(effect.name in _list)) {
 			Object.keys(_list).forEach(key => clean(key, AID, effectID));
 		} else {
@@ -1179,43 +1195,23 @@ EffectManager.remove = (function removeClosure() {
 				}
 			}
 		}
-	};
-})();
-
-/**
- * Stops an effect's repeat
- *
- * @param {effect}
- * @param {mixed} effect owner ID
- * @param {mixed} effect ID
- */
-EffectManager.endRepeat = (function endRepeatClosure() {
-	function cleanRepeat(name, AID, effectID) {
-		const effectIdList = Array.isArray(effectID) ? effectID : [effectID];
-		const list = _list[name];
-
-		list.forEach(item => {
-			if ((!AID || item._Params.Init.ownerAID === AID) && (!effectID || effectIdList.includes(item.effectID))) {
-				if (item._Params.Inst.persistent) {
-					item._Params.Inst.persistent = false;
-				}
-
-				if (item._Params.Inst.repeatEnd) {
-					item._Params.Inst.repeatEnd = false;
-				}
-			}
-		});
 	}
-
-	return function endRepeat(effect, AID, effectID) {
+	/**
+	 * Stops an effect's repeat
+	 *
+	 * @param {effect}
+	 * @param {mixed} effect owner ID
+	 * @param {mixed} effect ID
+	 */
+	static endRepeat(effect, AID, effectID) {
 		if (!effect || !(effect.name in _list)) {
 			Object.keys(_list).forEach(key => cleanRepeat(key, AID, effectID));
 			return;
 		}
 
 		cleanRepeat(effect.name, AID, effectID);
-	};
-})();
+	}
+}
 
 /**
  * Export
