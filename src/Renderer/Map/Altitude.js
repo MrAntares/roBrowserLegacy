@@ -281,18 +281,18 @@ class Altitude {
 	}
 
 	static getCellsInSquareRange(x, y, range) {
-		cells.clear();
+		const result = [];
 
 		// get all cells in square range and return x, y if is in  and walkable
 		for (let i = x - range; i <= x + range; ++i) {
 			for (let j = y - range; j <= y + range; ++j) {
 				if (Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE) {
-					cells.push({ x: i, y: j });
+					result.push({ x: i, y: j });
 				}
 			}
 		}
 
-		return cells;
+		return result;
 	}
 }
 
