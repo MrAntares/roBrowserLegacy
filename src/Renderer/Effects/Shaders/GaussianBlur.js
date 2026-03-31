@@ -16,7 +16,6 @@ import blurFS from './GLSL/GaussianBlur.fs?raw';
 let _program, _buffer;
 
 class GaussianBlur {
-	constructor() {}
 	/**
 	 * Renders the Blur effect
 	 * @param {WebGLRenderingContext} gl

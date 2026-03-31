@@ -20,7 +20,6 @@ let _buffer;
  * @constructor Upsampling
  */
 class Upsampling {
-	constructor() {}
 	/**
 	 * Renders the Upsampling effect
 	 * @param {WebGLRenderingContext} gl - WebGL Context

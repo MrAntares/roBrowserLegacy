@@ -16,8 +16,6 @@ import vibranceFS from './GLSL/Vibrance.fs?raw';
 
 let _program, _buffer;
 class Vibrance {
-	constructor() {}
-
 	static render(gl, inputTexture, outputFbo) {
 		if (!_buffer || !_program || !Vibrance.isActive()) {
 			return;

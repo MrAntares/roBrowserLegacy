@@ -17,8 +17,6 @@ let _program, _buffer;
 let _active = false;
 
 class Blind {
-	constructor() {}
-
 	/**
 	 * Renders the Blind effect
 	 * @param {WebGLRenderingContext} gl

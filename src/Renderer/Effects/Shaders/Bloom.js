@@ -26,8 +26,6 @@ const _downsampleFactor = 0.25; // 25% resolution for performance and softer blu
  * @constructor Bloom
  */
 class Bloom {
-	constructor() {}
-
 	/**
 	 * Renders the Bloom effect
 	 * @param {WebGLRenderingContext} gl - WebGL Context
