@@ -217,7 +217,7 @@ ESLint enforces:
 - **Semicolons**: Required
 - **Trailing commas**: Forbidden (`comma-dangle: never`)
 - **Curly braces**: Always required (`curly: 'all'`)
-- **Variables**: Prefer `const` (warn), prefer `let` over `var` (warn)
+- **Variables**: `const` required where possible, `let` over `var`, `no-var: error`
 - **No eval/implied-eval/new-func/with**: Error
 - **Unused vars**: Warn (vars prefixed `_` ignored)
 - **Vendors excluded**: `src/Vendors/**` ignored by ESLint
@@ -229,20 +229,237 @@ ESLint enforces:
 - **Classes/Constructors**: PascalCase (e.g., `EntityControl`, `BinaryReader`)
 - **Functions/Methods**: camelCase (e.g., `sendPacket()`, `parseEntity()`)
 
-### Common Patterns
+### Modern Patterns (Preferred)
 
-- Function hoisting for local helpers
-- Closure pattern: return objects with public methods
-- EventEmitter-style callbacks (jQuery.Deferred or simple callbacks)
-- Avoid arrow functions, template literals, async/await for consistency
+When writing new code or modifying existing code, **use modern JavaScript features**:
+
+- **Arrow functions** for callbacks and short functions
+- **Template literals** for string interpolation and multi-line strings
+- **`async`/`await`** for asynchronous operations (replace `jQuery.Deferred` and callback chains)
+- **ES6 classes** for constructors and prototype-based objects
+- **Destructuring** for extracting values from objects and arrays
+- **Spread/rest operators** where appropriate
+- **Native `Promise`** instead of `jQuery.Deferred`
+- **`for...of`** loops where appropriate
+- **Default parameters** instead of `|| fallback` patterns
+
+### Legacy Patterns (Being Phased Out)
+
+The codebase still contains legacy patterns from the AMD era. When touching these files, **modernize them**:
+
+| Legacy Pattern                                           | Modern Replacement                                    |
+| -------------------------------------------------------- | ----------------------------------------------------- |
+| `function(a, b) { ... }` callbacks                       | `(a, b) => { ... }`                                   |
+| `'string ' + variable + ' end'`                          | `` `string ${variable} end` ``                        |
+| `jQuery.Deferred()` / `.done()` / `.fail()`              | `new Promise()` / `async`/`await`                     |
+| `function Constructor() { this.x = 1; }`                 | `class Constructor { constructor() { this.x = 1; } }` |
+| `Constructor.prototype.method = function() {}`           | `class Constructor { method() {} }`                   |
+| `const Singleton = {}; Singleton.method = function() {}` | `class Singleton { static method() {} }`              |
+| `var x = obj.x \|\| defaultVal;`                         | `const { x = defaultVal } = obj;` or default params   |
+| Global assignments (`_global.CONST = val`)               | Explicit ES6 imports in all consumers                 |
 
 ### Global Browser APIs
 
 - **ROConfig**: Runtime configuration object
 - **$** / **jQuery**: jQuery global
-- **SEEK_CUR, SEEK_SET, SEEK_END**: Binary reader constants
+- **SEEK_CUR, SEEK_SET, SEEK_END**: Binary reader constants (legacy globals — prefer importing from `Utils/BinaryReader.js`)
 - **FileReaderSync, importScripts**: Web Worker APIs
 - **Buffer**: Node.js fallback via requireNode
+
+## Code Modernization
+
+This section guides agents on how to modernize legacy code when working on files.
+
+### Converting Constructor Functions to Classes
+
+**Before:**
+
+```javascript
+function UIComponent(name, htmlText, cssText) {
+	this.name = name;
+	this._htmlText = htmlText || null;
+	this._cssText = cssText || null;
+}
+
+UIComponent.prototype.open = function open() {
+	// ...
+};
+
+export default UIComponent;
+```
+
+**After:**
+
+```javascript
+class UIComponent {
+	constructor(name, htmlText = null, cssText = null) {
+		this.name = name;
+		this._htmlText = htmlText;
+		this._cssText = cssText;
+	}
+
+	open() {
+		// ...
+	}
+}
+
+export default UIComponent;
+```
+
+### Converting Object-Literal Singletons to Classes
+
+**Before:**
+
+```javascript
+const FileManager = {};
+
+FileManager.remoteClient = '';
+FileManager.gameFiles = [];
+
+FileManager.load = function load(path) {
+	// ...
+};
+
+export default FileManager;
+```
+
+**After:**
+
+```javascript
+class FileManager {
+	static remoteClient = '';
+	static gameFiles = [];
+
+	static load(path) {
+		// ...
+	}
+}
+
+export default FileManager;
+```
+
+### Converting jQuery.Deferred to async/await
+
+**Before:**
+
+```javascript
+function loadFile(path) {
+	const deferred = new jQuery.Deferred();
+	doSomething(
+		path,
+		function (result) {
+			deferred.resolve(result);
+		},
+		function (error) {
+			deferred.reject(error);
+		}
+	);
+	return deferred.promise();
+}
+
+// caller
+loadFile('test.txt')
+	.done(function (data) {
+		process(data);
+	})
+	.fail(function (err) {
+		handleError(err);
+	});
+```
+
+**After:**
+
+```javascript
+async function loadFile(path) {
+	return new Promise((resolve, reject) => {
+		doSomething(
+			path,
+			result => {
+				resolve(result);
+			},
+			error => {
+				reject(error);
+			}
+		);
+	});
+}
+
+// caller
+try {
+	const data = await loadFile('test.txt');
+	process(data);
+} catch (err) {
+	handleError(err);
+}
+```
+
+### Using Arrow Functions
+
+**Before:**
+
+```javascript
+list.forEach(function (item) {
+	process(item);
+});
+
+events.on('click', function (event) {
+	return handler(event);
+});
+```
+
+**After:**
+
+```javascript
+list.forEach(item => {
+	process(item);
+});
+
+events.on('click', event => handler(event));
+```
+
+> **Note:** Be careful with `this` context. Arrow functions inherit `this` from the enclosing scope. If a function relies on dynamic `this` binding (e.g., jQuery event handlers using `this` to refer to the DOM element, or prototype methods), keep it as a regular function or convert the whole module to a class first.
+
+### Using Template Literals
+
+**Before:**
+
+```javascript
+var msg = 'Player ' + name + ' (Lv.' + level + ') joined the party';
+```
+
+**After:**
+
+```javascript
+const msg = `Player ${name} (Lv.${level}) joined the party`;
+```
+
+### Removing Global Assignments
+
+**Before:**
+
+```javascript
+export const SEEK_CUR = 1;
+export const SEEK_SET = 2;
+export const SEEK_END = 3;
+
+const _global = typeof self !== 'undefined' ? self : window;
+_global.SEEK_CUR = SEEK_CUR;
+_global.SEEK_SET = SEEK_SET;
+_global.SEEK_END = SEEK_END;
+```
+
+**After:**
+
+```javascript
+export const SEEK_CUR = 1;
+export const SEEK_SET = 2;
+export const SEEK_END = 3;
+
+// No global assignments — all consumers import directly:
+// import { SEEK_CUR, SEEK_SET, SEEK_END } from 'Utils/BinaryReader.js';
+```
+
+> **Note:** Only remove global assignments after verifying all consumers (including Web Workers) have been updated to use ES6 imports.
 
 ## Build & Compilation
 
@@ -348,7 +565,7 @@ npm run preview           # Vite preview server
 ### Adding a New UI Component
 
 1. Create directory in `src/UI/Components/NewComponent/`
-2. Implement constructor, `open()`, `close()`, and shortcut methods
+2. Implement as an ES6 class with `open()`, `close()`, and shortcut methods
 3. Register with UIManager
 4. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
 
@@ -389,9 +606,11 @@ npm run preview           # Vite preview server
 - **PACKETVER mismatch**: Client and server packet definitions must align; debug by comparing hex packets
 - **GRF paths**: Case-sensitive on Linux; relative to Remote Client or local file list
 - **Texture limits**: WebGL has max texture dimensions; large sprite sheets can fail
-- **Path aliases**: Always use aliases (e.g., `'Utils/BinaryReader'`) instead of relative paths
-- **ES6 restrictions**: Use `const`/`let` but avoid arrow functions, template literals, `async`/`await`
+- **Path aliases**: Always use aliases (e.g., `'Utils/BinaryReader.js'`) instead of relative paths
+- **Modernize on touch**: When modifying a file, convert legacy patterns (constructor functions, jQuery.Deferred, string concatenation, etc.) to modern equivalents
+- **Arrow function `this` caveat**: Arrow functions capture `this` lexically — verify `this` usage before converting jQuery event handlers or prototype methods
 - **Vendors excluded from lint**: `src/Vendors/**` is ignored by ESLint — don't modify vendored code
+- **Global removal requires audit**: Before removing a global assignment (e.g., `SEEK_CUR`), verify all consumers including Web Workers have been updated to use ES6 imports
 
 ## Glossary
 

@@ -470,6 +470,7 @@ function updateEffectState(value) {
 	} else {
 		this.isOrcish = false;
 	}
+	// it triggers the setter defined via Object.defineProperty to re-evaluate the head sprite (e.g., when orcish state changes).
 	this.head = this.head;
 
 	// ------------------------

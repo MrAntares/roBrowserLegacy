@@ -287,12 +287,14 @@ class AttachmentManager {
 		if (!spr || !act || !spr.frames) {
 			return clean;
 		}
-		let position = new Int16Array(2);
+
 		this.entity.effectColor[3] = attachment.opacity;
 		if (!attachment.position) {
-			position[1] = attachment.head ? -100 : 0;
-		} else if (attachment.position) {
-			position = attachment.position;
+			_position[0] = 0;
+			_position[1] = attachment.head ? -100 : 0;
+		} else {
+			_position[0] = attachment.position[0];
+			_position[1] = attachment.position[1];
 		}
 
 		frame = attachment.direction ? (Camera.direction + this.entity.direction + 8) % 8 : attachment.frame;
@@ -337,7 +339,7 @@ class AttachmentManager {
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			SpriteRenderer.zIndex = zIdx;
 			for (i = 0, count = layers.length; i < count; ++i) {
-				self.entity.renderLayer(layers[i], spr, spr, 1.0, position, false);
+				self.entity.renderLayer(layers[i], spr, spr, 1.0, _position, false);
 			}
 		});
 

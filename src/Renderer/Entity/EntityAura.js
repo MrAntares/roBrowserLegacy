@@ -43,89 +43,78 @@ const simpleEffects = [EffectConst.EF_LEVEL99_3];
  * @constructor
  * @param {object} entity
  */
-function Aura(entity) {
-	this.isLoaded = false; // to avoid duplicate aura effects
-	this.entity = entity; // reference to attached entity
-	this.lastAuraState = 0; // save last aura state to track changes on aura/aura2 command
-}
+class Aura {
+	constructor(entity) {
+		this.isLoaded = false; // to avoid duplicate aura effects
+		this.entity = entity; // reference to attached entity
+		this.lastAuraState = 0; // save last aura state to track changes on aura/aura2 command
+	}
 
-/**
- * Show aura
- */
-Aura.prototype.load = function load(effectManager) {
-	const server = Configs.getServer(); // find aura from servers config
+	/**
+	 * Show aura
+	 */
+	load(effectManager) {
+		const server = Configs.getServer(); // find aura from servers config
 
-	/** @type {TAuraSettings} - merge server aura config with default settings */
-	const settings = server != null ? Object.assign({}, _auraSettings, server.aura) : Object.assign({}, _auraSettings);
+		/** @type {TAuraSettings} - merge server aura config with default settings */
+		const settings =
+			server != null ? Object.assign({}, _auraSettings, server.aura) : Object.assign({}, _auraSettings);
 
-	// check if qualifies for aura and /aura2 preference
-	if (MapPreferences.aura > 0 && this.entity.clevel >= settings.defaultLv) {
-		// check if entity is visible
-		if (this.entity.isVisible()) {
-			// check if aura state has changed
-			if (this.lastAuraState !== MapPreferences.aura && this.isLoaded) {
+		// check if qualifies for aura and /aura2 preference
+		if (MapPreferences.aura > 0 && this.entity.clevel >= settings.defaultLv) {
+			// check if entity is visible
+			if (this.entity.isVisible()) {
+				// check if aura state has changed
+				if (this.lastAuraState !== MapPreferences.aura && this.isLoaded) {
+					this.remove(effectManager);
+				}
+				if (!this.isLoaded) {
+					// aura is already loaded
+					// select effects based on /aura preference
+					const effects = MapPreferences.aura < 2 ? simpleEffects : normalEffects;
+					// add aura effects
+					for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) {
+						effectManager.spam({
+							ownerAID: this.entity.GID,
+							position: this.entity.position,
+							effectId: effects[effectIndex]
+						});
+					}
+					// set flag to avoid duplicate aura effects
+					this.isLoaded = true;
+					// save current aura state
+					this.lastAuraState = MapPreferences.aura;
+				}
+			} else {
+				// remove aura if entity is invisible
 				this.remove(effectManager);
 			}
-			/* figure out why this is here, it's brokening 3d effects
-					// Always reset constructors before (re)loading to pick up latest render ordering/depth settings.
-					effectManager.resetConstructor('TwoDEffect');
-					effectManager.resetConstructor('ThreeDEffect');
-					*/
-			if (!this.isLoaded) {
-				// aura is already loaded
-				// select effects based on /aura preference
-				const effects = MapPreferences.aura < 2 ? simpleEffects : normalEffects;
-				// add aura effects
-				for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) {
-					effectManager.spam({
-						ownerAID: this.entity.GID,
-						position: this.entity.position,
-						effectId: effects[effectIndex]
-					});
-				}
-				// set flag to avoid duplicate aura effects
-				this.isLoaded = true;
-				// save current aura state
-				this.lastAuraState = MapPreferences.aura;
-			}
-		} else {
-			// remove aura if entity is invisible
+		} else if (this.isLoaded) {
+			// remove aura if entity does not qualify
 			this.remove(effectManager);
+			// save current aura state
+			this.lastAuraState = MapPreferences.aura;
 		}
-	} else if (this.isLoaded) {
-		// remove aura if entity does not qualify
-		this.remove(effectManager);
-		// save current aura state
-		this.lastAuraState = MapPreferences.aura;
 	}
-};
 
-/**
- * Hide aura
- */
-Aura.prototype.remove = function remove(effectManager) {
-	// remove aura effects
-	effectManager.remove(null, this.entity.GID, normalEffects);
-	// free aura - needs to be separate to avoid circular dependency
-	this.free();
+	/**
+	 * Hide aura
+	 */
+	remove(effectManager) {
+		// remove aura effects
+		effectManager.remove(null, this.entity.GID, normalEffects);
+		// free aura - needs to be separate to avoid circular dependency
+		this.free();
+	}
 
-	/* figure out why this is here, it's brokening 3d effects
-			setTimeout(function() {
-				// reset constructors so aura effects re-init on next load
-				effectManager.resetConstructor('TwoDEffect');
-				effectManager.resetConstructor('ThreeDEffect');
-			}, 5000);
-			*/
-};
-
-/**
- * Hide aura
- */
-Aura.prototype.free = function free() {
-	// reset flag to allow aura to be loaded
-	this.isLoaded = false;
-};
-
+	/**
+	 * Hide aura
+	 */
+	free() {
+		// reset flag to allow aura to be loaded
+		this.isLoaded = false;
+	}
+}
 /**
  * Export
  */
