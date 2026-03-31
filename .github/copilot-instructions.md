@@ -247,16 +247,16 @@ When writing new code or modifying existing code, **use modern JavaScript featur
 
 The codebase still contains legacy patterns from the AMD era. When touching these files, **modernize them**:
 
-| Legacy Pattern | Modern Replacement |
-|---|---|
-| `function(a, b) { ... }` callbacks | `(a, b) => { ... }` |
-| `'string ' + variable + ' end'` | `` `string ${variable} end` `` |
-| `jQuery.Deferred()` / `.done()` / `.fail()` | `new Promise()` / `async`/`await` |
-| `function Constructor() { this.x = 1; }` | `class Constructor { constructor() { this.x = 1; } }` |
-| `Constructor.prototype.method = function() {}` | `class Constructor { method() {} }` |
-| `const Singleton = {}; Singleton.method = function() {}` | `class Singleton { static method() {} }` |
-| `var x = obj.x \|\| defaultVal;` | `const { x = defaultVal } = obj;` or default params |
-| Global assignments (`_global.CONST = val`) | Explicit ES6 imports in all consumers |
+| Legacy Pattern                                           | Modern Replacement                                    |
+| -------------------------------------------------------- | ----------------------------------------------------- |
+| `function(a, b) { ... }` callbacks                       | `(a, b) => { ... }`                                   |
+| `'string ' + variable + ' end'`                          | `` `string ${variable} end` ``                        |
+| `jQuery.Deferred()` / `.done()` / `.fail()`              | `new Promise()` / `async`/`await`                     |
+| `function Constructor() { this.x = 1; }`                 | `class Constructor { constructor() { this.x = 1; } }` |
+| `Constructor.prototype.method = function() {}`           | `class Constructor { method() {} }`                   |
+| `const Singleton = {}; Singleton.method = function() {}` | `class Singleton { static method() {} }`              |
+| `var x = obj.x \|\| defaultVal;`                         | `const { x = defaultVal } = obj;` or default params   |
+| Global assignments (`_global.CONST = val`)               | Explicit ES6 imports in all consumers                 |
 
 ### Global Browser APIs
 
@@ -273,6 +273,7 @@ This section guides agents on how to modernize legacy code when working on files
 ### Converting Constructor Functions to Classes
 
 **Before:**
+
 ```javascript
 function UIComponent(name, htmlText, cssText) {
 	this.name = name;
@@ -288,6 +289,7 @@ export default UIComponent;
 ```
 
 **After:**
+
 ```javascript
 class UIComponent {
 	constructor(name, htmlText = null, cssText = null) {
@@ -307,6 +309,7 @@ export default UIComponent;
 ### Converting Object-Literal Singletons to Classes
 
 **Before:**
+
 ```javascript
 const FileManager = {};
 
@@ -321,6 +324,7 @@ export default FileManager;
 ```
 
 **After:**
+
 ```javascript
 class FileManager {
 	static remoteClient = '';
@@ -337,34 +341,46 @@ export default FileManager;
 ### Converting jQuery.Deferred to async/await
 
 **Before:**
+
 ```javascript
 function loadFile(path) {
 	const deferred = new jQuery.Deferred();
-	doSomething(path, function(result) {
-		deferred.resolve(result);
-	}, function(error) {
-		deferred.reject(error);
-	});
+	doSomething(
+		path,
+		function (result) {
+			deferred.resolve(result);
+		},
+		function (error) {
+			deferred.reject(error);
+		}
+	);
 	return deferred.promise();
 }
 
 // caller
-loadFile('test.txt').done(function(data) {
-	process(data);
-}).fail(function(err) {
-	handleError(err);
-});
+loadFile('test.txt')
+	.done(function (data) {
+		process(data);
+	})
+	.fail(function (err) {
+		handleError(err);
+	});
 ```
 
 **After:**
+
 ```javascript
 async function loadFile(path) {
 	return new Promise((resolve, reject) => {
-		doSomething(path, (result) => {
-			resolve(result);
-		}, (error) => {
-			reject(error);
-		});
+		doSomething(
+			path,
+			result => {
+				resolve(result);
+			},
+			error => {
+				reject(error);
+			}
+		);
 	});
 }
 
@@ -380,23 +396,25 @@ try {
 ### Using Arrow Functions
 
 **Before:**
+
 ```javascript
-list.forEach(function(item) {
+list.forEach(function (item) {
 	process(item);
 });
 
-events.on('click', function(event) {
+events.on('click', function (event) {
 	return handler(event);
 });
 ```
 
 **After:**
+
 ```javascript
-list.forEach((item) => {
+list.forEach(item => {
 	process(item);
 });
 
-events.on('click', (event) => handler(event));
+events.on('click', event => handler(event));
 ```
 
 > **Note:** Be careful with `this` context. Arrow functions inherit `this` from the enclosing scope. If a function relies on dynamic `this` binding (e.g., jQuery event handlers using `this` to refer to the DOM element, or prototype methods), keep it as a regular function or convert the whole module to a class first.
@@ -404,11 +422,13 @@ events.on('click', (event) => handler(event));
 ### Using Template Literals
 
 **Before:**
+
 ```javascript
 var msg = 'Player ' + name + ' (Lv.' + level + ') joined the party';
 ```
 
 **After:**
+
 ```javascript
 const msg = `Player ${name} (Lv.${level}) joined the party`;
 ```
@@ -416,6 +436,7 @@ const msg = `Player ${name} (Lv.${level}) joined the party`;
 ### Removing Global Assignments
 
 **Before:**
+
 ```javascript
 export const SEEK_CUR = 1;
 export const SEEK_SET = 2;
@@ -428,6 +449,7 @@ _global.SEEK_END = SEEK_END;
 ```
 
 **After:**
+
 ```javascript
 export const SEEK_CUR = 1;
 export const SEEK_SET = 2;

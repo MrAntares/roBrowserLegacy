@@ -12,11 +12,11 @@ However, the migration was **partial in scope** — while the module system was 
 
 ### 2.1 AMD Pattern Eliminated
 
-| AMD Pattern | Occurrences in `src/` |
-|---|---|
-| `define([...], function(...) {})` | **0** |
-| `require([...], function(...) {})` | **0** |
-| `requirejs(...)` | **0** |
+| AMD Pattern                        | Occurrences in `src/` |
+| ---------------------------------- | --------------------- |
+| `define([...], function(...) {})`  | **0**                 |
+| `require([...], function(...) {})` | **0**                 |
+| `requirejs(...)`                   | **0**                 |
 
 The module system conversion is **100% complete**.
 
@@ -42,13 +42,13 @@ import PacketVersions from './PacketVersions.js';
 
 ### 2.3 Export Types Used
 
-| Type | Example | Usage |
-|---|---|---|
-| `export default function` | `BinaryReader.js` | Modules with a single main export (constructor functions) |
-| `export default` (object) | `NetworkManager.js`, `FileManager.js` | Singletons / namespaces |
-| `export const` (named) | `BinaryReader.js` (`SEEK_CUR`, etc.) | Constants and multiple exports |
-| `export const` (multiple) | `Songs.js` | Modules with several named exports |
-| `export { }` (re-export) | `UIVersionManager.js` | Component re-exports |
+| Type                      | Example                               | Usage                                                     |
+| ------------------------- | ------------------------------------- | --------------------------------------------------------- |
+| `export default function` | `BinaryReader.js`                     | Modules with a single main export (constructor functions) |
+| `export default` (object) | `NetworkManager.js`, `FileManager.js` | Singletons / namespaces                                   |
+| `export const` (named)    | `BinaryReader.js` (`SEEK_CUR`, etc.)  | Constants and multiple exports                            |
+| `export const` (multiple) | `Songs.js`                            | Modules with several named exports                        |
+| `export { }` (re-export)  | `UIVersionManager.js`                 | Component re-exports                                      |
 
 ---
 
@@ -76,8 +76,9 @@ This allows imports like `import X from 'Utils/X.js'` instead of relative paths 
 ### 3.2 Import Convention
 
 The project guidelines state:
-> *"Use ES6 `import`/`export` syntax (no AMD `define()`/`require()`)"*
-> *"Use path aliases for imports (e.g., `import X from 'Utils/X.js'`) instead of relative paths"*
+
+> _"Use ES6 `import`/`export` syntax (no AMD `define()`/`require()`)"_
+> _"Use path aliases for imports (e.g., `import X from 'Utils/X.js'`) instead of relative paths"_
 
 ---
 
@@ -112,9 +113,9 @@ UIManager.addComponent = function addComponent(component) { ... };
 ```javascript
 // src/UI/UIComponent.js
 function UIComponent(name, htmlText, cssText) {
-    this.name = name;
-    this._htmlText = htmlText || null;
-    // ...
+	this.name = name;
+	this._htmlText = htmlText || null;
+	// ...
 }
 ```
 
@@ -167,23 +168,23 @@ Files in `src/Vendors/` contain internal `module.exports` and `require()` calls 
 
 ### 5.1 Before (AMD/RequireJS)
 
-| Aspect | AMD (original roBrowser) |
-|---|---|
-| Loader | RequireJS (`require.js`) |
-| Config | `require.config({ paths: {...} })` |
+| Aspect  | AMD (original roBrowser)                                         |
+| ------- | ---------------------------------------------------------------- |
+| Loader  | RequireJS (`require.js`)                                         |
+| Config  | `require.config({ paths: {...} })`                               |
 | Modules | `define(['dep1', 'dep2'], function(dep1, dep2) { return ...; })` |
-| Build | r.js optimizer |
+| Build   | r.js optimizer                                                   |
 
 ### 5.2 After (ES6/Vite)
 
-| Aspect | ES6 (roBrowserLegacy) |
-|---|---|
-| Loader | Native browser (`<script type="module">`) |
-| Config | `vite.config.js` with `resolve.alias` |
-| Modules | `import X from 'Path/X.js'; export default ...;` |
-| Build | Vite + Rollup + custom builder (`builder-web.mjs`) |
-| Dev Server | `vite` (native HMR) |
-| Package | `"type": "module"` in `package.json` | 
+| Aspect     | ES6 (roBrowserLegacy)                              |
+| ---------- | -------------------------------------------------- |
+| Loader     | Native browser (`<script type="module">`)          |
+| Config     | `vite.config.js` with `resolve.alias`              |
+| Modules    | `import X from 'Path/X.js'; export default ...;`   |
+| Build      | Vite + Rollup + custom builder (`builder-web.mjs`) |
+| Dev Server | `vite` (native HMR)                                |
+| Package    | `"type": "module"` in `package.json`               |
 
 ---
 
@@ -193,44 +194,44 @@ The AMD-to-ES6 module conversion was Phase 1. The following is the recommended P
 
 ### 6.1 High Priority
 
-| Task | Scope | Impact |
-|---|---|---|
-| **Lift arrow function restriction** | All `src/` files | Cleaner callbacks, shorter syntax, lexical `this` |
-| **Lift template literal restriction** | All `src/` files | Readable string interpolation, multi-line strings |
-| **Adopt `async`/`await`** | Network, FileManager, Loaders | Eliminates callback hell, replaces `jQuery.Deferred` |
-| **Replace `jQuery.Deferred` with native `Promise`** | Core, Network, Engine | Removes jQuery dependency for async flow |
-| **Convert constructor functions to `class`** | `UIComponent`, `BinaryReader`, `Entity`, etc. | Modern OOP, better tooling support |
+| Task                                                | Scope                                         | Impact                                               |
+| --------------------------------------------------- | --------------------------------------------- | ---------------------------------------------------- |
+| **Lift arrow function restriction**                 | All `src/` files                              | Cleaner callbacks, shorter syntax, lexical `this`    |
+| **Lift template literal restriction**               | All `src/` files                              | Readable string interpolation, multi-line strings    |
+| **Adopt `async`/`await`**                           | Network, FileManager, Loaders                 | Eliminates callback hell, replaces `jQuery.Deferred` |
+| **Replace `jQuery.Deferred` with native `Promise`** | Core, Network, Engine                         | Removes jQuery dependency for async flow             |
+| **Convert constructor functions to `class`**        | `UIComponent`, `BinaryReader`, `Entity`, etc. | Modern OOP, better tooling support                   |
 
 ### 6.2 Medium Priority
 
-| Task | Scope | Impact |
-|---|---|---|
-| **Convert object-literal singletons to classes** | `FileManager`, `UIManager`, `NetworkManager`, etc. | Clearer structure, IDE support |
-| **Eliminate global assignments** | `BinaryReader.js`, `ROConfig`, etc. | Proper encapsulation |
-| **Use dynamic `import()`** | UI components, effects | Lazy-loading, better initial load performance |
-| **Use destructuring and spread operators** | Throughout codebase | Cleaner data manipulation |
+| Task                                             | Scope                                              | Impact                                        |
+| ------------------------------------------------ | -------------------------------------------------- | --------------------------------------------- |
+| **Convert object-literal singletons to classes** | `FileManager`, `UIManager`, `NetworkManager`, etc. | Clearer structure, IDE support                |
+| **Eliminate global assignments**                 | `BinaryReader.js`, `ROConfig`, etc.                | Proper encapsulation                          |
+| **Use dynamic `import()`**                       | UI components, effects                             | Lazy-loading, better initial load performance |
+| **Use destructuring and spread operators**       | Throughout codebase                                | Cleaner data manipulation                     |
 
 ### 6.3 Not Recommended
 
-| Task | Reason |
-|---|---|
-| Modify vendor files | Third-party bundles, should remain as-is |
-| Remove `self.requireNode` | NW.js platform requirement |
+| Task                      | Reason                                   |
+| ------------------------- | ---------------------------------------- |
+| Modify vendor files       | Third-party bundles, should remain as-is |
+| Remove `self.requireNode` | NW.js platform requirement               |
 
 ---
 
 ## 7. Conversion Metrics
 
-| Metric | Value |
-|---|---|
-| Files with `import` in `src/` | ~400+ |
-| Files with `export default` in `src/` | ~300+ |
-| Files with `export const`/`export {` | ~40+ |
-| Occurrences of `define()` | **0** |
-| Occurrences of AMD `require([])` | **0** |
-| Occurrences of `module.exports` (vendors only) | ~79 |
-| Path aliases configured | 14 |
-| Subsystems migrated | 14 (`App`, `Audio`, `Controls`, `Core`, `DB`, `Engine`, `Loaders`, `Network`, `Plugins`, `Preferences`, `Renderer`, `UI`, `Utils`, `Vendors`) |
+| Metric                                         | Value                                                                                                                                         |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Files with `import` in `src/`                  | ~400+                                                                                                                                         |
+| Files with `export default` in `src/`          | ~300+                                                                                                                                         |
+| Files with `export const`/`export {`           | ~40+                                                                                                                                          |
+| Occurrences of `define()`                      | **0**                                                                                                                                         |
+| Occurrences of AMD `require([])`               | **0**                                                                                                                                         |
+| Occurrences of `module.exports` (vendors only) | ~79                                                                                                                                           |
+| Path aliases configured                        | 14                                                                                                                                            |
+| Subsystems migrated                            | 14 (`App`, `Audio`, `Controls`, `Core`, `DB`, `Engine`, `Loaders`, `Network`, `Plugins`, `Preferences`, `Renderer`, `UI`, `Utils`, `Vendors`) |
 
 ---
 
@@ -241,4 +242,3 @@ The AMD to ES6 Modules migration (Phase 1) is **complete** — zero AMD patterns
 However, the modernization is **incomplete**. The code inside the modules still uses pre-ES6 idioms: constructor functions instead of classes, `jQuery.Deferred` instead of `async`/`await`, verbose `function` expressions where arrow functions would suffice, and string concatenation where template literals would be clearer. These restrictions were originally imposed for "consistency" but now represent technical debt that makes the codebase harder to read, maintain, and contribute to.
 
 **Phase 2 should focus on adopting the full modern JavaScript feature set** — arrow functions, template literals, `async`/`await`, classes, destructuring, and native Promises — bringing the code quality in line with the already-modern module system and build tooling.
-
