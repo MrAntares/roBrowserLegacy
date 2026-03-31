@@ -190,7 +190,7 @@ class SakuraWeatherEffect {
 			return;
 		}
 
-		if (_mapName !== (MapRenderer ? MapRenderer.currentMap : '')) {
+		if (_mapName !== MapRenderer.currentMap) {
 			_instance = null;
 			return;
 		}
