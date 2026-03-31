@@ -623,7 +623,6 @@ function onResize() {
 	const left = ui.position().left;
 	let lastWidth = 0;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraX = 23 + 16 + 16 - 30;
@@ -646,7 +645,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
