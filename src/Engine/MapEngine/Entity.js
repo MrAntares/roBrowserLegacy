@@ -1947,7 +1947,7 @@ function onEntityStatusChange(pkt) {
 				Session.Character.intravision = pkt.state;
 				EntityManager.forEach(function (_entity) {
 					/** @type {*} Intentional self-assignment to trigger effectState updates. */
-					entity.effectState = _entity.effectState;
+					_entity.effectState = _entity.effectState;
 				});
 			}
 			break;
