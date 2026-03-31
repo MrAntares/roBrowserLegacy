@@ -1,44 +1,6 @@
 import WebGL from 'Utils/WebGL.js';
-
-const _vertexShader = `
-        #version 300 es
-        #pragma vscode_glsllint_stage : vert
-        precision highp float;
-
-        out vec4 vColor;
-
-        in vec2 aPosition;
-
-        uniform vec4 uColor;
-
-        uniform mat4 uModelViewMat;
-        uniform mat4 uProjectionMat;
-
-        uniform vec3 uPosition;
-        uniform float uSize;
-
-        void main(void) {
-            vec4 position  = vec4(uPosition.x + 0.5, -uPosition.z, uPosition.y + 0.5, 1.0);
-            position      += vec4(aPosition.x * uSize, 0.0, aPosition.y * uSize, 0.0);
-
-            gl_Position    = uProjectionMat * uModelViewMat * position;
-            gl_Position.z -= 0.01;
-            vColor = uColor;
-        }
-    `;
-
-const _fragmentShader = `
-        #version 300 es
-        #pragma vscode_glsllint_stage : frag
-        precision highp float;
-
-        in vec4 vColor;
-        out vec4 fragColor;
-
-        void main(void) {
-                fragColor = vColor;
-        }
-    `;
+import _vertexShader from './FlatColorTile.vs?raw';
+import _fragmentShader from './FlatColorTile.fs?raw';
 
 const _cache = {};
 
@@ -60,83 +22,84 @@ export default function (name, spec) {
 		}
 	});
 
-	function FlatColorTile(pos, startTick) {
-		this.position = pos;
+	class FlatColorTile {
+		constructor(pos, startTick) {
+			this.position = pos;
+		}
+
+		init(gl) {
+			this.ready = true;
+		}
+
+		free(gl) {
+			this.ready = false;
+		}
+
+		render(gl, tick) {
+			if (_program === undefined) {
+				return;
+			} // temporal hotfix to avoid crash
+			gl.uniform3fv(_program.uniform.uPosition, this.position);
+			gl.uniform1f(_program.uniform.uSize, 0.5);
+			gl.uniform4fv(_program.uniform.uColor, [spec.r, spec.g, spec.b, spec.a]);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+
+		static init(gl) {
+			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+			_buffer = gl.createBuffer();
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.bufferData(
+				gl.ARRAY_BUFFER,
+				new Float32Array([
+					-1.0, -1.0, 0.0, 0.0, +1.0, -1.0, 1.0, 0.0, +1.0, +1.0, 1.0, 1.0, +1.0, +1.0, 1.0, 1.0, -1.0, +1.0,
+					0.0, 1.0, -1.0, -1.0, 0.0, 0.0
+				]),
+				gl.STATIC_DRAW
+			);
+			FlatColorTile.ready = true;
+		}
+
+		static free(gl) {
+			if (_program) {
+				gl.deleteProgram(_program);
+				_program = null;
+			}
+
+			if (_buffer) {
+				gl.deleteBuffer(_buffer);
+			}
+
+			this.ready = false;
+		}
+
+		static beforeRender(gl, modelView, projection, fog, tick) {
+			const uniform = _program.uniform;
+			const attribute = _program.attribute;
+
+			gl.useProgram(_program);
+
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+
+			gl.enableVertexAttribArray(attribute.aPosition);
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+
+			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
+		}
+
+		static afterRender(gl) {
+			gl.disableVertexAttribArray(_program.attribute.aPosition);
+		}
 	}
 
 	FlatColorTile._uid = name;
-	_cache[name] = FlatColorTile;
-
-	FlatColorTile.prototype.init = function init(gl) {
-		this.ready = true;
-	};
-
-	FlatColorTile.prototype.free = function free(gl) {
-		this.ready = false;
-	};
-
-	FlatColorTile.prototype.render = function render(gl, tick) {
-		if (_program === undefined) {
-			return;
-		} // temporal hotfix to avoid crash
-		gl.uniform3fv(_program.uniform.uPosition, this.position);
-		gl.uniform1f(_program.uniform.uSize, 0.5);
-		gl.uniform4fv(_program.uniform.uColor, [spec.r, spec.g, spec.b, spec.a]);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		gl.drawArrays(gl.TRIANGLES, 0, 6);
-	};
-
-	FlatColorTile.init = function init(gl) {
-		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-		_buffer = gl.createBuffer();
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		gl.bufferData(
-			gl.ARRAY_BUFFER,
-			new Float32Array([
-				-1.0, -1.0, 0.0, 0.0, +1.0, -1.0, 1.0, 0.0, +1.0, +1.0, 1.0, 1.0, +1.0, +1.0, 1.0, 1.0, -1.0, +1.0, 0.0,
-				1.0, -1.0, -1.0, 0.0, 0.0
-			]),
-			gl.STATIC_DRAW
-		);
-		FlatColorTile.ready = true;
-	};
-
 	FlatColorTile.renderBeforeEntities = true;
-
-	FlatColorTile.free = function free(gl) {
-		if (_program) {
-			gl.deleteProgram(_program);
-			_program = null;
-		}
-
-		if (_buffer) {
-			gl.deleteBuffer(_buffer);
-		}
-
-		this.ready = false;
-	};
-
-	FlatColorTile.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-		const uniform = _program.uniform;
-		const attribute = _program.attribute;
-
-		gl.useProgram(_program);
-
-		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-
-		gl.enableVertexAttribArray(attribute.aPosition);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-
-		gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
-	};
-
-	FlatColorTile.afterRender = function afterRender(gl) {
-		gl.disableVertexAttribArray(_program.attribute.aPosition);
-	};
+	_cache[name] = FlatColorTile;
 
 	return FlatColorTile;
 }

@@ -9,9 +9,7 @@
 
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
-
-let MapRenderer;
-import('Renderer/MapRenderer.js').then(m => (MapRenderer = m.default));
+import MapRenderer from 'Renderer/MapRenderer.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
@@ -50,156 +48,6 @@ const SPR_PATH = 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/ef_snow';
 let _instance = null;
 let _mapName = '';
 let _isStopping = false;
-
-function SnowWeatherEffect(Params) {
-	this.effectID = Params.Inst.effectID;
-	this.ownerAID = Params.Init.ownerAID;
-	this.startTick = Params.Inst.startTick;
-	this.endTick = Params.Inst.endTick; // -1 for infinite
-
-	this.lastEmitTick = this.startTick;
-	this.flakes = [];
-
-	this.spr = null;
-	this.act = null;
-
-	this.ready = true;
-	this.needCleanUp = false;
-}
-
-/**
- * Active snow effects control.
- */
-SnowWeatherEffect.ready = true;
-
-SnowWeatherEffect.isActive = function isActive() {
-	return _instance;
-};
-
-/**
- * Prepare SpriteRenderer state for snow flakes.
- * EffectManager calls this once per constructor list each frame.
- */
-SnowWeatherEffect.beforeRender = function beforeRender(gl, modelView, projection, fog) {
-	// Render weather without depth so flakes are always visible.
-	SpriteRenderer.shadow = 1;
-	SpriteRenderer.angle = 0;
-	SpriteRenderer.offset[0] = 0;
-	SpriteRenderer.offset[1] = 0;
-	SpriteRenderer.image.palette = null;
-	SpriteRenderer.color.set([1, 1, 1, 1]);
-	SpriteRenderer.depth = 0;
-	SpriteRenderer.zIndex = 0;
-};
-
-SnowWeatherEffect.afterRender = function afterRender(gl) {
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-};
-
-/**
- * Start snow for an owner, or reuse/restart an existing one.
- *
- * Matches the official client behavior: don't restart while the previous
- * snow is still running, but if it is in its 300‑tick fade‑out tail, revive it.
- */
-SnowWeatherEffect.startOrRestart = function startOrRestart(Params) {
-	const now = Params.Inst.startTick || Renderer.tick;
-	const currentMap = MapRenderer ? MapRenderer.currentMap : '';
-
-	// If map changed, force new instance
-	if (_mapName !== currentMap) {
-		_instance = null;
-		_mapName = currentMap;
-	}
-	_isStopping = false;
-	if (_instance && !_instance.needCleanUp) {
-		// If snow is fading out, revive it
-		if (_instance.endTick > 0) {
-			_instance.endTick = -1;
-			_instance.lastEmitTick = now;
-		}
-		return _instance;
-	}
-
-	_instance = new SnowWeatherEffect(Params);
-	_mapName = currentMap;
-	return _instance;
-};
-
-SnowWeatherEffect.renderAll = function renderAll(gl, modelView, projection, fog, tick) {
-	if (!_instance) {
-		return;
-	}
-
-	// Clean up if map changed abruptly
-	if (_mapName !== (MapRenderer ? MapRenderer.currentMap : '')) {
-		_instance = null;
-		return;
-	}
-
-	this.beforeRender(gl, modelView, projection, fog);
-
-	SpriteRenderer.runWithDepth(false, false, true, function () {
-		_instance.render(gl, tick);
-	});
-
-	if (_instance.needCleanUp) {
-		_instance.free();
-		_instance = null;
-	}
-
-	this.afterRender(gl);
-};
-
-/**
- * Fade out snow over the official ~300 ticks.
- */
-SnowWeatherEffect.stop = function stop(ownerAID, tick) {
-	if (!_instance) {
-		return;
-	}
-
-	const now = tick || Renderer.tick;
-	// The render loop will handle the fade out and eventual cleanup.
-	if (_instance.endTick === -1) {
-		_instance.endTick = now + FADEOUT_TAIL_MS;
-		_isStopping = true;
-	}
-};
-
-/**
- * Spawn a single snowflake around the player.
- */
-SnowWeatherEffect.prototype.spawnFlake = function spawnFlake(spawnTick) {
-	if (!Session.Entity) {
-		return;
-	}
-
-	const px = Session.Entity.position[0];
-	const py = Session.Entity.position[1];
-
-	const theta = Math.random() * Math.PI * 2;
-	const radius = Math.random() * SCATTER_RADIUS_CELLS;
-	const ox = Math.cos(theta) * radius;
-	const oy = Math.sin(theta) * radius;
-
-	const x = px + ox;
-	const y = py + oy;
-
-	const groundZ = Altitude.getCellHeight(x, y);
-	const spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
-	// In RO Browser coordinates, higher altitude is larger Z (falcon gliding adds +Z).
-	// Spawn above ground by adding height, then fall by decreasing Z.
-	const z = groundZ + spawnHeight;
-
-	this.flakes.push({
-		spawnTick: spawnTick,
-		x: x,
-		y: y,
-		z: z,
-		size: 0.5 + Math.random() * 0.3
-	});
-};
 
 /**
  * Render a single layer from the snow sprite.
@@ -246,96 +94,240 @@ function renderLayer(layer, spr, pal, sizeScale, pos, alpha) {
 	SpriteRenderer.render(false);
 }
 
-SnowWeatherEffect.prototype.render = function render(gl, tick) {
-	if (!Session.Entity) {
-		// Don't kill effect just because entity is missing momentarily,
-		// but if map changed, we kill it via renderAll check.
-		return;
+class SnowWeatherEffect {
+	constructor(Params) {
+		this.effectID = Params.Inst.effectID;
+		this.ownerAID = Params.Init.ownerAID;
+		this.startTick = Params.Inst.startTick;
+		this.endTick = Params.Inst.endTick; // -1 for infinite
+
+		this.lastEmitTick = this.startTick;
+		this.flakes = [];
+
+		this.spr = null;
+		this.act = null;
+		this.needCleanUp = false;
 	}
-	// Always fetch from Client cache so MemoryManager knows it's still used.
-	// This prevents long-lived weather effects from having their SPR textures evicted.
-	const spr = Client.loadFile(SPR_PATH + '.spr', null, null, { to_rgba: true });
-	const act = Client.loadFile(SPR_PATH + '.act');
 
-	if (!spr || !act) {
-		return;
+	static isActive() {
+		return _instance;
 	}
 
-	this.spr = spr;
-	this.act = act;
+	/**
+	 * Prepare SpriteRenderer state for snow flakes.
+	 * EffectManager calls this once per constructor list each frame.
+	 */
+	static beforeRender(gl, modelView, projection, fog) {
+		// Render weather without depth so flakes are always visible.
+		SpriteRenderer.shadow = 1;
+		SpriteRenderer.angle = 0;
+		SpriteRenderer.offset[0] = 0;
+		SpriteRenderer.offset[1] = 0;
+		SpriteRenderer.image.palette = null;
+		SpriteRenderer.color.set([1, 1, 1, 1]);
+		SpriteRenderer.depth = 0;
+		SpriteRenderer.zIndex = 0;
+	}
 
-	// Effect lifetime / emission gating.
-	let remaining = Infinity;
-	if (this.endTick > 0) {
-		remaining = this.endTick - tick;
-		if (remaining <= 0) {
-			this.needCleanUp = true;
+	static afterRender(gl) {
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	}
+
+	/**
+	 * Start snow for an owner, or reuse/restart an existing one.
+	 *
+	 * Matches the official client behavior: don't restart while the previous
+	 * snow is still running, but if it is in its 300‑tick fade‑out tail, revive it.
+	 */
+	static startOrRestart(Params) {
+		const now = Params.Inst.startTick || Renderer.tick;
+		const currentMap = MapRenderer.currentMap;
+
+		// If map changed, force new instance
+		if (_mapName !== currentMap) {
+			_instance = null;
+			_mapName = currentMap;
+		}
+		_isStopping = false;
+		if (_instance && !_instance.needCleanUp) {
+			// If snow is fading out, revive it
+			if (_instance.endTick > 0) {
+				_instance.endTick = -1;
+				_instance.lastEmitTick = now;
+			}
+			return _instance;
+		}
+
+		_instance = new SnowWeatherEffect(Params);
+		_mapName = currentMap;
+		return _instance;
+	}
+
+	static renderAll(gl, modelView, projection, fog, tick) {
+		if (!_instance) {
 			return;
 		}
+
+		// Clean up if map changed abruptly
+		if (_mapName !== MapRenderer.currentMap) {
+			_instance = null;
+			return;
+		}
+
+		this.beforeRender(gl, modelView, projection, fog);
+
+		SpriteRenderer.runWithDepth(false, false, true, () => {
+			_instance.render(gl, tick);
+		});
+
+		if (_instance.needCleanUp) {
+			_instance.free();
+			_instance = null;
+		}
+
+		this.afterRender(gl);
 	}
 
-	const allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
-	if (allowEmit) {
-		const ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
-		if (ticksToEmit > 0) {
-			for (let i = 0; i < ticksToEmit; i++) {
-				if (_isStopping) {
-					break;
-				}
-				const emitTick = this.lastEmitTick + i * RAG_TICK_MS;
-				this.spawnFlake(emitTick);
-				this.spawnFlake(emitTick);
+	/**
+	 * Fade out snow over the official ~300 ticks.
+	 */
+	static stop(ownerAID, tick) {
+		if (!_instance) {
+			return;
+		}
+
+		const now = tick || Renderer.tick;
+		// The render loop will handle the fade out and eventual cleanup.
+		if (_instance.endTick === -1) {
+			_instance.endTick = now + FADEOUT_TAIL_MS;
+			_isStopping = true;
+		}
+	}
+
+	/**
+	 * Spawn a single snowflake around the player.
+	 */
+	spawnFlake(spawnTick) {
+		if (!Session.Entity) {
+			return;
+		}
+
+		const px = Session.Entity.position[0];
+		const py = Session.Entity.position[1];
+
+		const theta = Math.random() * Math.PI * 2;
+		const radius = Math.random() * SCATTER_RADIUS_CELLS;
+		const ox = Math.cos(theta) * radius;
+		const oy = Math.sin(theta) * radius;
+
+		const x = px + ox;
+		const y = py + oy;
+
+		const groundZ = Altitude.getCellHeight(x, y);
+		const spawnHeight = SPAWN_HEIGHT_MIN_CELLS + Math.random() * (SPAWN_HEIGHT_MAX_CELLS - SPAWN_HEIGHT_MIN_CELLS);
+		// In RO Browser coordinates, higher altitude is larger Z (falcon gliding adds +Z).
+		// Spawn above ground by adding height, then fall by decreasing Z.
+		const z = groundZ + spawnHeight;
+
+		this.flakes.push({
+			spawnTick: spawnTick,
+			x: x,
+			y: y,
+			z: z,
+			size: 0.5 + Math.random() * 0.3
+		});
+	}
+
+	render(gl, tick) {
+		if (!Session.Entity) {
+			// Don't kill effect just because entity is missing momentarily,
+			// but if map changed, we kill it via renderAll check.
+			return;
+		}
+		// Always fetch from Client cache so MemoryManager knows it's still used.
+		// This prevents long-lived weather effects from having their SPR textures evicted.
+		const spr = Client.loadFile(SPR_PATH + '.spr', null, null, { to_rgba: true });
+		const act = Client.loadFile(SPR_PATH + '.act');
+
+		if (!spr || !act) {
+			return;
+		}
+
+		this.spr = spr;
+		this.act = act;
+
+		// Effect lifetime / emission gating.
+		let remaining = Infinity;
+		if (this.endTick > 0) {
+			remaining = this.endTick - tick;
+			if (remaining <= 0) {
+				this.needCleanUp = true;
+				return;
 			}
-			this.lastEmitTick += ticksToEmit * RAG_TICK_MS;
+		}
+
+		const allowEmit = remaining > EMIT_STOP_BEFORE_END_MS;
+		if (allowEmit) {
+			const ticksToEmit = Math.floor((tick - this.lastEmitTick) / RAG_TICK_MS);
+			if (ticksToEmit > 0) {
+				for (let i = 0; i < ticksToEmit; i++) {
+					if (_isStopping) {
+						break;
+					}
+					const emitTick = this.lastEmitTick + i * RAG_TICK_MS;
+					this.spawnFlake(emitTick);
+					this.spawnFlake(emitTick);
+				}
+				this.lastEmitTick += ticksToEmit * RAG_TICK_MS;
+			}
+		}
+
+		// Render flakes
+		const action = act.actions[0];
+		const frameDelay = Math.max(action.delay || 150, 1);
+		const frameCount = action.animations.length || 1;
+
+		for (let f = this.flakes.length - 1; f >= 0; f--) {
+			const flake = this.flakes[f];
+			const age = tick - flake.spawnTick;
+
+			if (age >= FLAKE_LIFE_MS) {
+				this.flakes.splice(f, 1);
+				continue;
+			}
+
+			// Update fall
+			flake.z -= FALL_SPEED_CELLS_PER_MS * (tick - (flake._lastTick || flake.spawnTick));
+			flake._lastTick = tick;
+
+			// Alpha fade in/out
+			let alpha = 1.0;
+			if (age < FLAKE_FADEIN_MS) {
+				alpha = age / FLAKE_FADEIN_MS;
+			} else if (age > FLAKE_FADEOUT_START_MS) {
+				alpha = Math.max(0, 1 - (age - FLAKE_FADEOUT_START_MS) / (FLAKE_LIFE_MS - FLAKE_FADEOUT_START_MS));
+			}
+
+			SpriteRenderer.position[0] = flake.x;
+			SpriteRenderer.position[1] = flake.y;
+			SpriteRenderer.position[2] = flake.z;
+			SpriteRenderer.zIndex = 0;
+
+			// Pick animation frame (simple time-based repeat).
+			const frameIndex = Math.floor(age / frameDelay) % frameCount;
+			const animation = action.animations[frameIndex];
+
+			const layers = animation.layers;
+			const pal = spr;
+			const pos = [0, 0];
+			for (let l = 0; l < layers.length; l++) {
+				renderLayer(layers[l], spr, pal, flake.size, pos, alpha);
+			}
 		}
 	}
 
-	// Render flakes
-	const action = act.actions[0];
-	const frameDelay = Math.max(action.delay || 150, 1);
-	const frameCount = action.animations.length || 1;
-
-	for (let f = this.flakes.length - 1; f >= 0; f--) {
-		const flake = this.flakes[f];
-		const age = tick - flake.spawnTick;
-
-		if (age >= FLAKE_LIFE_MS) {
-			this.flakes.splice(f, 1);
-			continue;
-		}
-
-		// Update fall
-		flake.z -= FALL_SPEED_CELLS_PER_MS * (tick - (flake._lastTick || flake.spawnTick));
-		flake._lastTick = tick;
-
-		// Alpha fade in/out
-		let alpha = 1.0;
-		if (age < FLAKE_FADEIN_MS) {
-			alpha = age / FLAKE_FADEIN_MS;
-		} else if (age > FLAKE_FADEOUT_START_MS) {
-			alpha = Math.max(0, 1 - (age - FLAKE_FADEOUT_START_MS) / (FLAKE_LIFE_MS - FLAKE_FADEOUT_START_MS));
-		}
-
-		SpriteRenderer.position[0] = flake.x;
-		SpriteRenderer.position[1] = flake.y;
-		SpriteRenderer.position[2] = flake.z;
-		SpriteRenderer.zIndex = 0;
-
-		// Pick animation frame (simple time-based repeat).
-		const frameIndex = Math.floor(age / frameDelay) % frameCount;
-		const animation = action.animations[frameIndex];
-
-		const layers = animation.layers;
-		const pal = spr;
-		const pos = [0, 0];
-		for (let l = 0; l < layers.length; l++) {
-			renderLayer(layers[l], spr, pal, flake.size, pos, alpha);
-		}
+	free() {
+		this.flakes = [];
 	}
-};
-
-SnowWeatherEffect.prototype.free = function free() {
-	this.ready = false;
-	this.flakes = [];
-};
+}
 export default SnowWeatherEffect;

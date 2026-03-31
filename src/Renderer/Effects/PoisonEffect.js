@@ -7,7 +7,6 @@
  * @author AoShinHo
  */
 
-import Renderer from 'Renderer/Renderer.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Session from 'Engine/SessionStorage.js';
 
@@ -26,39 +25,39 @@ function ensureFilterFrame(gl) {
 	_filterFrame = { texture: tex, width: 1, height: 1, type: 1 };
 }
 
-function PoisonEffect() {}
+class PoisonEffect {
+	static render(gl, modelView, projection, fog) {
+		if (!_active || !Session.Entity) {
+			return;
+		}
 
-PoisonEffect.render = function render(gl, modelView, projection, fog) {
-	if (!_active || !Session.Entity) {
-		return;
+		ensureFilterFrame(gl);
+
+		SpriteRenderer.sprite = _filterFrame;
+		SpriteRenderer.image.texture = _filterFrame.texture;
+
+		SpriteRenderer.position[0] = Session.Entity.position[0];
+		SpriteRenderer.position[1] = Session.Entity.position[1];
+		SpriteRenderer.position[2] = Session.Entity.position[2];
+
+		SpriteRenderer.color[0] = 0.5;
+		SpriteRenderer.color[1] = 0.0;
+		SpriteRenderer.color[2] = 0.5;
+		SpriteRenderer.color[3] = 0.15;
+
+		SpriteRenderer.size[0] = 4000;
+		SpriteRenderer.size[1] = 4000;
+		SpriteRenderer.runWithDepth(false, false, true, () => {
+			SpriteRenderer.render(false);
+		});
 	}
 
-	ensureFilterFrame(gl);
+	static setActive(bool) {
+		_active = bool;
+	}
 
-	SpriteRenderer.sprite = _filterFrame;
-	SpriteRenderer.image.texture = _filterFrame.texture;
-
-	SpriteRenderer.position[0] = Session.Entity.position[0];
-	SpriteRenderer.position[1] = Session.Entity.position[1];
-	SpriteRenderer.position[2] = Session.Entity.position[2];
-
-	SpriteRenderer.color[0] = 0.5;
-	SpriteRenderer.color[1] = 0.0;
-	SpriteRenderer.color[2] = 0.5;
-	SpriteRenderer.color[3] = 0.15;
-
-	SpriteRenderer.size[0] = 4000;
-	SpriteRenderer.size[1] = 4000;
-	SpriteRenderer.runWithDepth(false, false, true, function () {
-		SpriteRenderer.render(false);
-	});
-};
-
-PoisonEffect.setActive = function setActive(bool) {
-	_active = bool;
-};
-
-PoisonEffect.isActive = function isActive() {
-	return _active;
-};
+	static isActive() {
+		return _active;
+	}
+}
 export default PoisonEffect;

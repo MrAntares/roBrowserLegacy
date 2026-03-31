@@ -144,391 +144,391 @@ function createAnchor(isGhost, seedMaxUnits) {
  * @param {number} tick - start tick (unused, kept for parity)
  * @param {number} flag1 - tint selector (0 white, 1 blue, 11 ghost)
  */
-function Level99Bubble(position, textureName, tick, flag1) {
-	this.position = position;
-	this.textureName = textureName || 'whitelight.tga';
-	this.tick = tick || 0;
-	// Default to flag1 = 1 (blue variant) unless explicitly overridden
-	this.flag1 = flag1 === 0 || flag1 ? flag1 : 1;
+class Level99Bubble {
+	constructor(position, textureName, tick, flag1) {
+		this.position = position;
+		this.textureName = textureName || 'whitelight.tga';
+		this.tick = tick || 0;
+		// Default to flag1 = 1 (blue variant) unless explicitly overridden
+		this.flag1 = flag1 === 0 || flag1 ? flag1 : 1;
 
-	const isGhost = this.flag1 === 11 || this.flag1 === 3;
+		const isGhost = this.flag1 === 11 || this.flag1 === 3;
 
-	// Reference values in robrowser units
-	this.baseRadius = this.flag1 === 1 ? REF_RADIUS : isGhost ? 3.2 : 0.8;
-	this.fallSpeed = isGhost ? 0.6 : REF_SPEED; // v per frame in robrowser units
-	this.seedMax = isGhost ? debugConfig.ghostSeedMax : debugConfig.seedMax;
-	this.resetY = isGhost ? -debugConfig.ghostSeedMax : REF_RESET_Y;
-	this.driftK = REF_DRIFT_K; // Jitter amplitude
-	this.color = pickColor(this.flag1);
-	this.isGhost = isGhost;
-	this.passCount = this.flag1 === 1 ? 2 : 1;
+		// Reference values in robrowser units
+		this.baseRadius = this.flag1 === 1 ? REF_RADIUS : isGhost ? 3.2 : 0.8;
+		this.fallSpeed = isGhost ? 0.6 : REF_SPEED; // v per frame in robrowser units
+		this.seedMax = isGhost ? debugConfig.ghostSeedMax : debugConfig.seedMax;
+		this.resetY = isGhost ? -debugConfig.ghostSeedMax : REF_RESET_Y;
+		this.driftK = REF_DRIFT_K; // Jitter amplitude
+		this.color = pickColor(this.flag1);
+		this.isGhost = isGhost;
+		this.passCount = this.flag1 === 1 ? 2 : 1;
 
-	// Initialize columns (emitters)
-	this.columns = [];
-	const numCols = isGhost ? 1 : NUM_COLUMNS; // Ghost uses only 1 column
-	for (let ec = 0; ec < numCols; ec++) {
-		const column = {
-			life: true,
-			anchors: [],
-			// 16 phases per column: pairs for each anchor's X and Z
-			phases: new Float32Array(16),
-			phaseTargets: new Float32Array(16)
-		};
+		// Initialize columns (emitters)
+		this.columns = [];
+		const numCols = isGhost ? 1 : NUM_COLUMNS; // Ghost uses only 1 column
+		for (let ec = 0; ec < numCols; ec++) {
+			const column = {
+				life: true,
+				anchors: [],
+				// 16 phases per column: pairs for each anchor's X and Z
+				phases: new Float32Array(16),
+				phaseTargets: new Float32Array(16)
+			};
 
-		// Initialize phases with random values [0, 360)
-		for (let p = 0; p < 16; p++) {
-			column.phases[p] = randRange(0, 360);
-			column.phaseTargets[p] = randRange(0, 360);
+			// Initialize phases with random values [0, 360)
+			for (let p = 0; p < 16; p++) {
+				column.phases[p] = randRange(0, 360);
+				column.phaseTargets[p] = randRange(0, 360);
+			}
+
+			// Create 4 anchors per column
+			for (let a = 0; a < ANCHORS_PER_COL; a++) {
+				const anchor = createAnchor(isGhost, this.seedMax);
+				column.anchors.push(anchor);
+			}
+
+			this.columns.push(column);
 		}
 
-		// Create 4 anchors per column
-		for (let a = 0; a < ANCHORS_PER_COL; a++) {
-			const anchor = createAnchor(isGhost, this.seedMax);
-			column.anchors.push(anchor);
-		}
-
-		this.columns.push(column);
+		this.quadData = new Float32Array(30); // 6 vertices * (3 pos + 2 uv)
+		this.tmpPoints = [
+			[0, 0, 0],
+			[0, 0, 0],
+			[0, 0, 0],
+			[0, 0, 0]
+		];
 	}
 
-	this.quadData = new Float32Array(30); // 6 vertices * (3 pos + 2 uv)
-	this.tmpPoints = [
-		[0, 0, 0],
-		[0, 0, 0],
-		[0, 0, 0],
-		[0, 0, 0]
-	];
-}
+	init(gl) {
+		Client.loadFile(`data/texture/effect/${this.textureName}`, buffer => {
+			WebGL.texture(gl, buffer, texture => {
+				this.texture = texture;
 
-Level99Bubble.prototype.init = function init(gl) {
-	const self = this;
-
-	Client.loadFile('data/texture/effect/' + this.textureName, function (buffer) {
-		WebGL.texture(gl, buffer, function (texture) {
-			self.texture = texture;
-
-			self.ready = true;
+				this.ready = true;
+			});
 		});
-	});
-};
-
-Level99Bubble.prototype.free = function free(gl) {
-	this.ready = false;
-};
-
-/**
- * Compute alpha based on height using reference formula:
- * alpha(y) = clamp(250 + gain*(y + offset), 0, 250)
- * Full above y=-offset, fades out by y=-(offset + 250/gain)
- */
-Level99Bubble.prototype.computeAlpha = function computeAlpha(localY) {
-	const offset = debugConfig.alphaOffset;
-	const gain = debugConfig.alphaGain;
-	let alpha255 = 250 + gain * (localY + offset);
-	alpha255 = Math.max(0, Math.min(250, alpha255));
-	return alpha255 / 255;
-};
-
-/**
- * Update all phases in a column (advance toward random targets)
- */
-Level99Bubble.prototype.updatePhases = function updatePhases(column) {
-	for (let i = 0; i < 16; i++) {
-		const result = advancePhase(column.phases[i], column.phaseTargets[i]);
-		column.phases[i] = result.angle;
-		column.phaseTargets[i] = result.target;
-	}
-};
-
-/**
- * Update a single anchor within a column
- * Reference behavior:
- * - X,Z jitter: x += kx * sin(phaseA), z += kz * sin(phaseB) when y < 0
- * - Y drift: y -= v each frame
- * - Reset when y < resetY: x=z=0, y=rand[0,seedMax], reseed phases
- */
-Level99Bubble.prototype.updateAnchor = function updateAnchor(column, anchorIndex) {
-	const anchor = column.anchors[anchorIndex];
-	const signs = ANCHOR_SIGNS[anchorIndex];
-	const phaseOffsets = ANCHOR_PHASE_OFFSETS[anchorIndex];
-
-	// Apply jitter only when below ground (y < 0)
-	if (anchor.y < 0) {
-		const phaseA = column.phases[phaseOffsets.pa] * DEG_TO_RAD;
-		const phaseB = column.phases[phaseOffsets.pb] * DEG_TO_RAD;
-		anchor.x += signs.kx * this.driftK * Math.sin(phaseA);
-		anchor.z += signs.kz * this.driftK * Math.sin(phaseB);
 	}
 
-	// Drift downward
-	anchor.y -= this.fallSpeed * debugConfig.fallSpeedMult;
-
-	// Reset when below threshold
-	const resetLimit = this.resetY * debugConfig.respawnDepthMult;
-	if (anchor.y < resetLimit) {
-		anchor.x = 0;
-		anchor.z = 0;
-		anchor.y = randRange(0, this.seedMax);
-
-		// Reseed the phase pair for this anchor
-		column.phases[phaseOffsets.pa] = randRange(0, 360);
-		column.phaseTargets[phaseOffsets.pa] = randRange(0, 360);
-		column.phases[phaseOffsets.pb] = randRange(0, 360);
-		column.phaseTargets[phaseOffsets.pb] = randRange(0, 360);
-	}
-};
-
-Level99Bubble.prototype.fillQuad = function fillQuad(points, quadData) {
-	// Two triangles: p0-p1-p2 and p2-p3-p0
-	quadData[0] = points[0][0];
-	quadData[1] = points[0][1];
-	quadData[2] = points[0][2];
-	quadData[3] = 0.0;
-	quadData[4] = 0.0;
-	quadData[5] = points[1][0];
-	quadData[6] = points[1][1];
-	quadData[7] = points[1][2];
-	quadData[8] = 1.0;
-	quadData[9] = 0.0;
-	quadData[10] = points[2][0];
-	quadData[11] = points[2][1];
-	quadData[12] = points[2][2];
-	quadData[13] = 1.0;
-	quadData[14] = 1.0;
-
-	quadData[15] = points[2][0];
-	quadData[16] = points[2][1];
-	quadData[17] = points[2][2];
-	quadData[18] = 1.0;
-	quadData[19] = 1.0;
-	quadData[20] = points[3][0];
-	quadData[21] = points[3][1];
-	quadData[22] = points[3][2];
-	quadData[23] = 0.0;
-	quadData[24] = 1.0;
-	quadData[25] = points[0][0];
-	quadData[26] = points[0][1];
-	quadData[27] = points[0][2];
-	quadData[28] = 0.0;
-	quadData[29] = 0.0;
-};
-
-Level99Bubble.prototype.render = function render(gl, tick) {
-	if (!this.ready || !this.texture) {
-		return;
+	free(gl) {
+		this.ready = false;
 	}
 
-	const uniform = _program.uniform;
-
-	// Get ground position (world coordinates)
-	const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
-	const basePos = [this.position[0] + 0.5, -groundZ - BASE_LIFT, this.position[1] + 0.5];
-
-	// Camera orientation for billboarding
-	const viewPitch = Camera.angle[0];
-	const viewYaw = Camera.angle[1];
-	const beta = ((360 - viewPitch + 90) % 360) * DEG_TO_RAD;
-	const alpha = ((360 - viewYaw) % 360) * DEG_TO_RAD;
-
-	const sinBeta = Math.sin(beta);
-	const cosBeta = Math.cos(beta);
-	const sinAlpha = Math.sin(alpha);
-	const cosAlpha = Math.cos(alpha);
-
-	gl.bindTexture(gl.TEXTURE_2D, this.texture);
-
-	// Debug: show spawn volume
-	if (debugConfig.showRedBg) {
-		this.renderBackground(gl, basePos);
+	/**
+	 * Compute alpha based on height using reference formula:
+	 * alpha(y) = clamp(250 + gain*(y + offset), 0, 250)
+	 * Full above y=-offset, fades out by y=-(offset + 250/gain)
+	 */
+	computeAlpha(localY) {
+		const offset = debugConfig.alphaOffset;
+		const gain = debugConfig.alphaGain;
+		let alpha255 = 250 + gain * (localY + offset);
+		alpha255 = Math.max(0, Math.min(250, alpha255));
+		return alpha255 / 255;
 	}
 
-	// Current billboard radius (in world units)
-	const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
+	/**
+	 * Update all phases in a column (advance toward random targets)
+	 */
+	updatePhases(column) {
+		for (let i = 0; i < 16; i++) {
+			const result = advancePhase(column.phases[i], column.phaseTargets[i]);
+			column.phases[i] = result.angle;
+			column.phaseTargets[i] = result.target;
+		}
+	}
 
-	// Process each column
-	for (let ec = 0; ec < this.columns.length; ec++) {
-		const column = this.columns[ec];
-		if (!column.life) {
-			continue;
+	/**
+	 * Update a single anchor within a column
+	 * Reference behavior:
+	 * - X,Z jitter: x += kx * sin(phaseA), z += kz * sin(phaseB) when y < 0
+	 * - Y drift: y -= v each frame
+	 * - Reset when y < resetY: x=z=0, y=rand[0,seedMax], reseed phases
+	 */
+	updateAnchor(column, anchorIndex) {
+		const anchor = column.anchors[anchorIndex];
+		const signs = ANCHOR_SIGNS[anchorIndex];
+		const phaseOffsets = ANCHOR_PHASE_OFFSETS[anchorIndex];
+
+		// Apply jitter only when below ground (y < 0)
+		if (anchor.y < 0) {
+			const phaseA = column.phases[phaseOffsets.pa] * DEG_TO_RAD;
+			const phaseB = column.phases[phaseOffsets.pb] * DEG_TO_RAD;
+			anchor.x += signs.kx * this.driftK * Math.sin(phaseA);
+			anchor.z += signs.kz * this.driftK * Math.sin(phaseB);
 		}
 
-		// Update phases for this column
-		this.updatePhases(column);
+		// Drift downward
+		anchor.y -= this.fallSpeed * debugConfig.fallSpeedMult;
 
-		// Process each anchor in the column
-		for (let ai = 0; ai < column.anchors.length; ai++) {
-			// Update anchor position (jitter + drift + reset)
-			this.updateAnchor(column, ai);
+		// Reset when below threshold
+		const resetLimit = this.resetY * debugConfig.respawnDepthMult;
+		if (anchor.y < resetLimit) {
+			anchor.x = 0;
+			anchor.z = 0;
+			anchor.y = randRange(0, this.seedMax);
 
-			const anchor = column.anchors[ai];
+			// Reseed the phase pair for this anchor
+			column.phases[phaseOffsets.pa] = randRange(0, 360);
+			column.phaseTargets[phaseOffsets.pa] = randRange(0, 360);
+			column.phases[phaseOffsets.pb] = randRange(0, 360);
+			column.phaseTargets[phaseOffsets.pb] = randRange(0, 360);
+		}
+	}
 
-			// Convert anchor position to world units
-			const anchorWorldX = anchor.x * GAME_TO_WORLD;
-			const anchorWorldY = anchor.y * GAME_TO_WORLD;
-			const anchorWorldZ = anchor.z * GAME_TO_WORLD;
+	fillQuad(points, quadData) {
+		// Two triangles: p0-p1-p2 and p2-p3-p0
+		quadData[0] = points[0][0];
+		quadData[1] = points[0][1];
+		quadData[2] = points[0][2];
+		quadData[3] = 0.0;
+		quadData[4] = 0.0;
+		quadData[5] = points[1][0];
+		quadData[6] = points[1][1];
+		quadData[7] = points[1][2];
+		quadData[8] = 1.0;
+		quadData[9] = 0.0;
+		quadData[10] = points[2][0];
+		quadData[11] = points[2][1];
+		quadData[12] = points[2][2];
+		quadData[13] = 1.0;
+		quadData[14] = 1.0;
 
-			// Build billboard quad corners around anchor
-			for (let k = 0; k < BILLBOARD_CORNERS.length; k++) {
-				const corner = BILLBOARD_CORNERS[k];
+		quadData[15] = points[2][0];
+		quadData[16] = points[2][1];
+		quadData[17] = points[2][2];
+		quadData[18] = 1.0;
+		quadData[19] = 1.0;
+		quadData[20] = points[3][0];
+		quadData[21] = points[3][1];
+		quadData[22] = points[3][2];
+		quadData[23] = 0.0;
+		quadData[24] = 1.0;
+		quadData[25] = points[0][0];
+		quadData[26] = points[0][1];
+		quadData[27] = points[0][2];
+		quadData[28] = 0.0;
+		quadData[29] = 0.0;
+	}
 
-				// Local billboard coordinates (unit square scaled by radius)
-				const localX = corner.x * radius;
-				const localZ = corner.y * radius;
+	render(gl, tick) {
+		if (!this.ready || !this.texture) {
+			return;
+		}
 
-				// Apply R_x(beta) - pitch rotation
-				const ry = -localZ * sinBeta;
-				let rz = localZ * cosBeta;
+		const uniform = _program.uniform;
 
-				// Apply R_y(alpha) - yaw rotation
-				const rx = localX * cosAlpha + rz * sinAlpha;
-				rz = -localX * sinAlpha + rz * cosAlpha;
+		// Get ground position (world coordinates)
+		const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
+		const basePos = [this.position[0] + 0.5, -groundZ - BASE_LIFT, this.position[1] + 0.5];
 
-				// Final world position = base + anchor offset + billboard corner
-				const finalX = basePos[0] + anchorWorldX + rx;
-				const finalY = basePos[1] + anchorWorldY + ry;
-				const finalZ = basePos[2] + anchorWorldZ + rz;
+		// Camera orientation for billboarding
+		const viewPitch = Camera.angle[0];
+		const viewYaw = Camera.angle[1];
+		const beta = ((360 - viewPitch + 90) % 360) * DEG_TO_RAD;
+		const alpha = ((360 - viewYaw) % 360) * DEG_TO_RAD;
 
-				this.tmpPoints[k][0] = finalX;
-				this.tmpPoints[k][1] = finalY;
-				this.tmpPoints[k][2] = finalZ;
-			}
+		const sinBeta = Math.sin(beta);
+		const cosBeta = Math.cos(beta);
+		const sinAlpha = Math.sin(alpha);
+		const cosAlpha = Math.cos(alpha);
 
-			// Use anchor Y (in game units) for alpha calculation
-			// Skip quads that are still above ground (positive Y = underground in this system)
-			if (anchor.y > 0) {
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+		// Debug: show spawn volume
+		if (debugConfig.showRedBg) {
+			this.renderBackground(gl, basePos);
+		}
+
+		// Current billboard radius (in world units)
+		const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
+
+		// Process each column
+		for (let ec = 0; ec < this.columns.length; ec++) {
+			const column = this.columns[ec];
+			if (!column.life) {
 				continue;
 			}
 
-			// Compute alpha based on anchor height
-			const alphaValue = this.computeAlpha(anchor.y);
-			if (alphaValue <= 0) {
-				continue;
-			}
+			// Update phases for this column
+			this.updatePhases(column);
 
-			this.fillQuad(this.tmpPoints, this.quadData);
+			// Process each anchor in the column
+			for (let ai = 0; ai < column.anchors.length; ai++) {
+				// Update anchor position (jitter + drift + reset)
+				this.updateAnchor(column, ai);
 
-			// Update GPU buffer with quad vertex data (6 vertices * (3 pos + 2 uv) = 30 floats)
-			gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
+				const anchor = column.anchors[ai];
 
-			const self = this;
-			SpriteRenderer.runWithDepth(true, false, false, function () {
-				for (let pass = 0; pass < self.passCount; pass++) {
-					gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, alphaValue);
-					gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.002 + ai * 0.0001 + pass * 0.00005);
-					gl.drawArrays(gl.TRIANGLES, 0, 6);
+				// Convert anchor position to world units
+				const anchorWorldX = anchor.x * GAME_TO_WORLD;
+				const anchorWorldY = anchor.y * GAME_TO_WORLD;
+				const anchorWorldZ = anchor.z * GAME_TO_WORLD;
+
+				// Build billboard quad corners around anchor
+				for (let k = 0; k < BILLBOARD_CORNERS.length; k++) {
+					const corner = BILLBOARD_CORNERS[k];
+
+					// Local billboard coordinates (unit square scaled by radius)
+					const localX = corner.x * radius;
+					const localZ = corner.y * radius;
+
+					// Apply R_x(beta) - pitch rotation
+					const ry = -localZ * sinBeta;
+					let rz = localZ * cosBeta;
+
+					// Apply R_y(alpha) - yaw rotation
+					const rx = localX * cosAlpha + rz * sinAlpha;
+					rz = -localX * sinAlpha + rz * cosAlpha;
+
+					// Final world position = base + anchor offset + billboard corner
+					const finalX = basePos[0] + anchorWorldX + rx;
+					const finalY = basePos[1] + anchorWorldY + ry;
+					const finalZ = basePos[2] + anchorWorldZ + rz;
+
+					this.tmpPoints[k][0] = finalX;
+					this.tmpPoints[k][1] = finalY;
+					this.tmpPoints[k][2] = finalZ;
 				}
+
+				// Use anchor Y (in game units) for alpha calculation
+				// Skip quads that are still above ground (positive Y = underground in this system)
+				if (anchor.y > 0) {
+					continue;
+				}
+
+				// Compute alpha based on anchor height
+				const alphaValue = this.computeAlpha(anchor.y);
+				if (alphaValue <= 0) {
+					continue;
+				}
+
+				this.fillQuad(this.tmpPoints, this.quadData);
+
+				// Update GPU buffer with quad vertex data (6 vertices * (3 pos + 2 uv) = 30 floats)
+				gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
+
+				const self = this;
+				SpriteRenderer.runWithDepth(true, false, false, function () {
+					for (let pass = 0; pass < self.passCount; pass++) {
+						gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, alphaValue);
+						gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.002 + ai * 0.0001 + pass * 0.00005);
+						gl.drawArrays(gl.TRIANGLES, 0, 6);
+					}
+				});
+			}
+		}
+	}
+
+	renderBackground(gl, basePos) {
+		const uniform = _program.uniform;
+		const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
+		const height = this.seedMax * GAME_TO_WORLD;
+
+		function drawQuad(v0, v1, v2, v3) {
+			// Reuse tmpPoints
+			// v0..v3: [x,y,z]
+			for (let i = 0; i < 3; i++) {
+				this.tmpPoints[0][i] = v0[i];
+				this.tmpPoints[1][i] = v1[i];
+				this.tmpPoints[2][i] = v2[i];
+				this.tmpPoints[3][i] = v3[i];
+			}
+			this.fillQuad(this.tmpPoints, this.quadData);
+			// Update GPU buffer with quad vertex data
+			gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
+			gl.uniform1i(uniform.uSolidBg, 1);
+			gl.uniform4f(uniform.uColor, 1.0, 0.0, 0.0, debugConfig.bgAlpha);
+			gl.uniform1f(uniform.uZIndex, 0.0005);
+
+			SpriteRenderer.runWithDepth(true, true, false, function () {
+				gl.drawArrays(gl.TRIANGLES, 0, 6);
 			});
 		}
+
+		const x0 = basePos[0] - radius;
+		const x1 = basePos[0] + radius;
+		const z0 = basePos[2] - radius;
+		const z1 = basePos[2] + radius;
+		const y0 = basePos[1];
+		const y1 = basePos[1] + height;
+
+		// Bottom
+		drawQuad.call(this, [x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]);
+
+		// Top
+		drawQuad.call(this, [x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]);
+
+		// Sides
+		drawQuad.call(this, [x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]);
+
+		drawQuad.call(this, [x1, y0, z0], [x1, y0, z1], [x1, y1, z1], [x1, y1, z0]);
+
+		drawQuad.call(this, [x1, y0, z1], [x0, y0, z1], [x0, y1, z1], [x1, y1, z1]);
+
+		drawQuad.call(this, [x0, y0, z1], [x0, y0, z0], [x0, y1, z0], [x0, y1, z1]);
+
+		gl.uniform1i(uniform.uSolidBg, 0);
 	}
-};
 
-Level99Bubble.prototype.renderBackground = function renderBackground(gl, basePos) {
-	const uniform = _program.uniform;
-	const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.bgRadiusFactor;
-	const height = this.seedMax * GAME_TO_WORLD;
+	static init(gl) {
+		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		_buffer = gl.createBuffer();
 
-	function drawQuad(v0, v1, v2, v3) {
-		// Reuse tmpPoints
-		// v0..v3: [x,y,z]
-		for (let i = 0; i < 3; i++) {
-			this.tmpPoints[0][i] = v0[i];
-			this.tmpPoints[1][i] = v1[i];
-			this.tmpPoints[2][i] = v2[i];
-			this.tmpPoints[3][i] = v3[i];
+		// Initialize empty buffer for dynamic quad data (6 vertices * (3 pos + 2 uv) = 30 floats)
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		// Allocate buffer with null data for dynamic updates (120 bytes = 30 floats * 4 bytes/float)
+		gl.bufferData(gl.ARRAY_BUFFER, 120, gl.DYNAMIC_DRAW);
+
+		this.ready = true;
+		this.renderBeforeEntities = true;
+	}
+
+	static free(gl) {
+		if (_program) {
+			gl.deleteProgram(_program);
+			_program = null;
 		}
-		this.fillQuad(this.tmpPoints, this.quadData);
-		// Update GPU buffer with quad vertex data
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.quadData);
-		gl.uniform1i(uniform.uSolidBg, 1);
-		gl.uniform4f(uniform.uColor, 1.0, 0.0, 0.0, debugConfig.bgAlpha);
-		gl.uniform1f(uniform.uZIndex, 0.0005);
-
-		SpriteRenderer.runWithDepth(true, true, false, function () {
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		});
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+			_buffer = null;
+		}
+		this.ready = false;
 	}
 
-	const x0 = basePos[0] - radius;
-	const x1 = basePos[0] + radius;
-	const z0 = basePos[2] - radius;
-	const z1 = basePos[2] + radius;
-	const y0 = basePos[1];
-	const y1 = basePos[1] + height;
+	static beforeRender(gl, modelView, projection, fog) {
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
 
-	// Bottom
-	drawQuad.call(this, [x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
-	// Top
-	drawQuad.call(this, [x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]);
+		gl.useProgram(_program);
 
-	// Sides
-	drawQuad.call(this, [x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]);
+		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 
-	drawQuad.call(this, [x1, y0, z0], [x1, y0, z1], [x1, y1, z1], [x1, y1, z0]);
+		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+		gl.uniform1f(uniform.uFogNear, fog.near);
+		gl.uniform1f(uniform.uFogFar, fog.far);
+		gl.uniform3fv(uniform.uFogColor, fog.color);
 
-	drawQuad.call(this, [x1, y0, z1], [x0, y0, z1], [x0, y1, z1], [x1, y1, z1]);
+		gl.activeTexture(gl.TEXTURE0);
+		gl.uniform1i(uniform.uDiffuse, 0);
+		gl.uniform1i(uniform.uSolidBg, 0);
 
-	drawQuad.call(this, [x0, y0, z1], [x0, y0, z0], [x0, y1, z0], [x0, y1, z1]);
-
-	gl.uniform1i(uniform.uSolidBg, 0);
-};
-
-Level99Bubble.init = function init(gl) {
-	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-	_buffer = gl.createBuffer();
-
-	// Initialize empty buffer for dynamic quad data (6 vertices * (3 pos + 2 uv) = 30 floats)
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	// Allocate buffer with null data for dynamic updates (120 bytes = 30 floats * 4 bytes/float)
-	gl.bufferData(gl.ARRAY_BUFFER, 120, gl.DYNAMIC_DRAW);
-
-	Level99Bubble.ready = true;
-	Level99Bubble.renderBeforeEntities = true;
-};
-
-Level99Bubble.free = function free(gl) {
-	if (_program) {
-		gl.deleteProgram(_program);
-		_program = null;
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		gl.enableVertexAttribArray(attribute.aPosition);
+		gl.enableVertexAttribArray(attribute.aTextureCoord);
+		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
+		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
 	}
-	if (_buffer) {
-		gl.deleteBuffer(_buffer);
-		_buffer = null;
+
+	static afterRender(gl) {
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.disableVertexAttribArray(_program.attribute.aPosition);
+		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 	}
-	Level99Bubble.ready = false;
-};
-
-Level99Bubble.beforeRender = function beforeRender(gl, modelView, projection, fog) {
-	const uniform = _program.uniform;
-	const attribute = _program.attribute;
-
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
-
-	gl.useProgram(_program);
-
-	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-
-	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-	gl.uniform1f(uniform.uFogNear, fog.near);
-	gl.uniform1f(uniform.uFogFar, fog.far);
-	gl.uniform3fv(uniform.uFogColor, fog.color);
-
-	gl.activeTexture(gl.TEXTURE0);
-	gl.uniform1i(uniform.uDiffuse, 0);
-	gl.uniform1i(uniform.uSolidBg, 0);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	gl.enableVertexAttribArray(attribute.aPosition);
-	gl.enableVertexAttribArray(attribute.aTextureCoord);
-	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
-	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
-};
-
-Level99Bubble.afterRender = function afterRender(gl) {
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	gl.disableVertexAttribArray(_program.attribute.aPosition);
-	gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
-};
+}
 
 function _ensureDebugUI() {
 	if (typeof document === 'undefined') {

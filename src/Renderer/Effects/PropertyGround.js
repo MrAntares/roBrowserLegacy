@@ -9,7 +9,6 @@
  */
 
 import WebGL from 'Utils/WebGL.js';
-import Texture from 'Utils/Texture.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import _vertexShader from './PropertyGround.vs?raw';
@@ -87,155 +86,154 @@ function generatePropertyGround() {
  * @param {number} game tick
  */
 let _num = 0;
-function PropertyGround(position, topSize, bottomSize, height, textureName, tick) {
-	this.position = position;
-	this.topSize = topSize;
-	this.bottomSize = bottomSize;
-	this.textureName = textureName;
-	this.height = height;
-	this.tick = tick;
-	this.sizeRandomize = 0 + Math.random() * 10;
-	this.ix = _num++ % _rotationMatrices.length;
-}
+class PropertyGround {
+	constructor(position, topSize, bottomSize, height, textureName, tick) {
+		this.position = position;
+		this.topSize = topSize;
+		this.bottomSize = bottomSize;
+		this.textureName = textureName;
+		this.height = height;
+		this.tick = tick;
+		this.sizeRandomize = 0 + Math.random() * 10;
+		this.ix = _num++ % _rotationMatrices.length;
+	}
 
-/**
- * Preparing for render
- *
- * @param {object} webgl context
- */
-PropertyGround.prototype.init = function init(gl) {
-	const self = this;
-
-	Client.loadFile('data/texture/effect/' + this.textureName + '.tga', function (buffer) {
-		WebGL.texture(gl, buffer, function (texture) {
-			self.texture = texture;
-			self.ready = true;
+	/**
+	 * Preparing for render
+	 *
+	 * @param {object} webgl context
+	 */
+	init(gl) {
+		Client.loadFile(`data/texture/effect/${this.textureName}.tga`, buffer => {
+			WebGL.texture(gl, buffer, texture => {
+				this.texture = texture;
+				this.ready = true;
+			});
 		});
-	});
-};
-
-/**
- * Destroying data
- *
- * @param {object} webgl context
- */
-PropertyGround.prototype.free = function free(gl) {
-	this.ready = false;
-};
-
-/**
- * Rendering cast
- *
- * @param {object} wegl context
- */
-PropertyGround.prototype.render = function render(gl, tick) {
-	const uniform = _program.uniform;
-	const attribute = _program.attribute;
-	let sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
-	if (sizeMult < 0.5) {
-		sizeMult = 0.5;
 	}
 
-	gl.uniformMatrix4fv(uniform.uRotationMat, false, _rotationMatrices[this.ix]);
-
-	gl.bindTexture(gl.TEXTURE_2D, this.texture);
-
-	// Enable all attributes
-	gl.enableVertexAttribArray(attribute.aPosition);
-	gl.enableVertexAttribArray(attribute.aTextureCoord);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-
-	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
-	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
-
-	gl.uniform3fv(uniform.uPosition, this.position);
-	gl.uniform1f(uniform.uBottomSize, this.bottomSize * sizeMult);
-	gl.uniform1f(uniform.uTopSize, this.topSize * sizeMult);
-	gl.uniform1f(uniform.uHeight, this.height);
-
-	gl.drawArrays(gl.TRIANGLES, 0, _verticeCount);
-};
-
-/**
- * Initialize effect
- *
- * @param {object} webgl context
- */
-PropertyGround.init = function init(gl) {
-	const vertices = generatePropertyGround();
-	_verticeCount = vertices.length / 5;
-
-	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-	_buffer = gl.createBuffer();
-	this.ready = true;
-	this.renderBeforeEntities = false;
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-};
-
-/**
- * Destroy objects
- *
- * @param {object} webgl context
- */
-PropertyGround.free = function free(gl) {
-	if (_program) {
-		gl.deleteProgram(_program);
-		_program = null;
+	/**
+	 * Destroying data
+	 *
+	 * @param {object} webgl context
+	 */
+	free(gl) {
+		this.ready = false;
 	}
 
-	if (_buffer) {
-		gl.deleteBuffer(_buffer);
+	/**
+	 * Rendering cast
+	 *
+	 * @param {object} wegl context
+	 */
+	render(gl, tick) {
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+		let sizeMult = Math.sin(tick / (360 * Math.PI) + this.sizeRandomize);
+		if (sizeMult < 0.5) {
+			sizeMult = 0.5;
+		}
+
+		gl.uniformMatrix4fv(uniform.uRotationMat, false, _rotationMatrices[this.ix]);
+
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+		// Enable all attributes
+		gl.enableVertexAttribArray(attribute.aPosition);
+		gl.enableVertexAttribArray(attribute.aTextureCoord);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+
+		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 4 * 5, 0);
+		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 5, 3 * 4);
+
+		gl.uniform3fv(uniform.uPosition, this.position);
+		gl.uniform1f(uniform.uBottomSize, this.bottomSize * sizeMult);
+		gl.uniform1f(uniform.uTopSize, this.topSize * sizeMult);
+		gl.uniform1f(uniform.uHeight, this.height);
+
+		gl.drawArrays(gl.TRIANGLES, 0, _verticeCount);
 	}
 
-	this.ready = false;
-};
+	/**
+	 * Initialize effect
+	 *
+	 * @param {object} webgl context
+	 */
+	static init(gl) {
+		const vertices = generatePropertyGround();
+		_verticeCount = vertices.length / 5;
 
-/**
- * Before render, set up program
- *
- * @param {object} webgl context
- */
-PropertyGround.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-	const uniform = _program.uniform;
+		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		_buffer = gl.createBuffer();
+		this.ready = true;
+		this.renderBeforeEntities = false;
 
-	let _matrix, offset;
-	for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
-		_matrix = _rotationMatrices[i];
-		mat4.identity(_matrix);
-		offset = (i * 2 * Math.PI) / _rotationMatrices.length;
-		mat4.rotateY(_matrix, _matrix, offset + (tick / 8 / 180) * Math.PI);
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 	}
 
-	gl.useProgram(_program);
+	/**
+	 * Destroy objects
+	 *
+	 * @param {object} webgl context
+	 */
+	static free(gl) {
+		if (_program) {
+			gl.deleteProgram(_program);
+			_program = null;
+		}
 
-	// Bind matrix
-	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+		}
 
-	// Fog settings
-	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-	gl.uniform1f(uniform.uFogNear, fog.near);
-	gl.uniform1f(uniform.uFogFar, fog.far);
-	gl.uniform3fv(uniform.uFogColor, fog.color);
+		this.ready = false;
+	}
 
-	// Texture
-	gl.activeTexture(gl.TEXTURE0);
-	gl.uniform1i(uniform.uDiffuse, 0);
-};
+	/**
+	 * Before render, set up program
+	 *
+	 * @param {object} webgl context
+	 */
+	static beforeRender(gl, modelView, projection, fog, tick) {
+		const uniform = _program.uniform;
 
-/**
- * After render, clean attributes
- *
- * @param {object} webgl context
- */
-PropertyGround.afterRender = function afterRender(gl) {
-	gl.disableVertexAttribArray(_program.attribute.aPosition);
-	gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
-};
+		let _matrix, offset;
+		for (let i = 0, _len = _rotationMatrices.length; i < _len; i++) {
+			_matrix = _rotationMatrices[i];
+			mat4.identity(_matrix);
+			offset = (i * 2 * Math.PI) / _rotationMatrices.length;
+			mat4.rotateY(_matrix, _matrix, offset + (tick / 8 / 180) * Math.PI);
+		}
 
+		gl.useProgram(_program);
+
+		// Bind matrix
+		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+
+		// Fog settings
+		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+		gl.uniform1f(uniform.uFogNear, fog.near);
+		gl.uniform1f(uniform.uFogFar, fog.far);
+		gl.uniform3fv(uniform.uFogColor, fog.color);
+
+		// Texture
+		gl.activeTexture(gl.TEXTURE0);
+		gl.uniform1i(uniform.uDiffuse, 0);
+	}
+
+	/**
+	 * After render, clean attributes
+	 *
+	 * @param {object} webgl context
+	 */
+	static afterRender(gl) {
+		gl.disableVertexAttribArray(_program.attribute.aPosition);
+		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
+	}
+}
 /**
  * Export
  */

@@ -49,239 +49,39 @@ let _lastAngle = -1;
 // Pixel to world conversion for attachment offsets
 const PIXEL_TO_WORLD_Z = 1.0 / 5.0;
 
-/**
- * StrEffect constructor
- *
- * @param {string} str effect file
- * @param {Array} effect position
- * @param {string} start tick
- * @param {string} texturePath
- */
-function StrEffect(filename, position, startTick, texturePath) {
-	this.filename = filename;
-	this.startTick = startTick;
-	this.position = position;
-	this.texturePath = texturePath;
+const anim = {
+	frame: 0,
+	type: 0,
+	aniframe: 0,
+	anitype: 0,
+	srcalpha: 1,
+	destalpha: 1,
+	mtpreset: 0,
+	delay: 0.0,
+	angle: 0.0,
+	color: new Float32Array(4),
+	pos: new Float32Array(2),
+	uv: new Float32Array(8),
+	xy: new Float32Array(8)
+};
 
-	// If can't render it, just remove it.
-	Client.loadFile(
-		this.filename,
-		null,
-		function () {
-			this.needCleanUp = true;
-		}.bind(this),
-		{ texturePath }
-	);
+// Helper to copy animation state for caching
+function copyAnim(src) {
+	return {
+		type: src.type,
+		aniframe: src.aniframe,
+		anitype: src.anitype,
+		srcalpha: src.srcalpha,
+		destalpha: src.destalpha,
+		mtpreset: src.mtpreset,
+		delay: src.delay,
+		angle: src.angle,
+		color: new Float32Array(src.color),
+		pos: new Float32Array(src.pos),
+		uv: new Float32Array(src.uv),
+		xy: new Float32Array(src.xy)
+	};
 }
-
-/**
- * Preparing for render
- *
- * @param {object} webgl context
- */
-StrEffect.prototype.init = function init(gl) {
-	this.ready = true;
-};
-
-/**
- * Destroying data
- *
- * @param {object} webgl context
- */
-StrEffect.prototype.free = function free(gl) {
-	this.ready = false;
-};
-
-/**
- * Render in 3D effect
- *
- * @param {object} gl
- * @param {number} tick
- */
-StrEffect.prototype.render = (function renderClosure() {
-	const anim = {
-		frame: 0,
-		type: 0,
-		aniframe: 0,
-		anitype: 0,
-		srcalpha: 1,
-		destalpha: 1,
-		mtpreset: 0,
-		delay: 0.0,
-		angle: 0.0,
-		color: new Float32Array(4),
-		pos: new Float32Array(2),
-		uv: new Float32Array(8),
-		xy: new Float32Array(8)
-	};
-
-	// Helper to copy animation state for caching
-	function copyAnim(src) {
-		return {
-			type: src.type,
-			aniframe: src.aniframe,
-			anitype: src.anitype,
-			srcalpha: src.srcalpha,
-			destalpha: src.destalpha,
-			mtpreset: src.mtpreset,
-			delay: src.delay,
-			angle: src.angle,
-			color: new Float32Array(src.color),
-			pos: new Float32Array(src.pos),
-			uv: new Float32Array(src.uv),
-			xy: new Float32Array(src.xy)
-		};
-	}
-
-	return function render(gl, tick) {
-		let strFile, layer;
-		let i, keyIndex;
-
-		// Follow entity position for attachments
-		if (this.ownerEntity && this.ownerEntity.position) {
-			this.position = this.ownerEntity.position;
-			this.ownerDirection = this.ownerEntity.direction;
-			if (this._Params && this._Params.Inst) {
-				this._Params.Inst.position = this.position;
-			}
-		}
-
-		strFile = Client.loadFile(this.filename, null, null, { texturePath: this.texturePath });
-
-		// Not loaded yet
-		if (strFile === null) {
-			return;
-		}
-
-		keyIndex = ((tick - this.startTick) / 1000) * strFile.fps;
-
-		// Loop persistent effects
-		if (this.persistent && strFile && strFile.maxKey) {
-			keyIndex = keyIndex % strFile.maxKey;
-		}
-
-		// Cache for blank frame handling in hat effects
-		if (!this._lastValidAnim) {
-			this._lastValidAnim = {};
-		}
-
-		let anyFreshFrame = false;
-
-		for (i = 0; i < strFile.layernum; i++) {
-			layer = strFile.layers[i];
-
-			if (layer.materials.length) {
-				if (calculateAnimation(layer, keyIndex, anim)) {
-					if (layer.materials[anim.aniframe | 0]) {
-						this.renderAnimation(gl, layer.materials[anim.aniframe | 0], anim);
-						anyFreshFrame = true;
-						// Cache for hat effect blank frame handling
-						if (this.persistent && this.ownerEntity) {
-							this._lastValidAnim[i] = {
-								anim: copyAnim(anim),
-								material: layer.materials[anim.aniframe | 0]
-							};
-						}
-					}
-				} else if (this.persistent && this.ownerEntity && this._lastValidAnim[i]) {
-					// Use cached frame for blank frames in hat effects
-					this.renderAnimation(gl, this._lastValidAnim[i].material, this._lastValidAnim[i].anim);
-				}
-			}
-		}
-
-		// Reset hat effect animation when in blank region to avoid gaps
-		if (this.persistent && this.ownerEntity && !anyFreshFrame && strFile.maxKey > 0) {
-			this.startTick = tick;
-			this._lastValidAnim = {};
-		}
-
-		// animation ended
-		if (keyIndex >= strFile.maxKey) {
-			this.needCleanUp = true;
-		}
-	};
-})();
-
-/**
- * Setup geometries, send data to GPU
- *
- * @param {object} webgl context
- * @param {glTexture} webgl texture
- * @param {StrAnimation} animation object
- */
-StrEffect.prototype.renderAnimation = function renderAnimation(gl, material, anim) {
-	const uniform = _program.uniform;
-	const attribute = _program.attribute;
-
-	// Hat effects: Scale with entity size
-	let sizeScale = 1.0;
-	if (this.ownerEntity) {
-		sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
-	}
-
-	// Update geometries (apply size scaling only for attachments)
-	_bufferData[0] = anim.xy[0] * sizeScale;
-	_bufferData[1] = anim.xy[4] * sizeScale;
-	_bufferData[2] = 0; //anim.uv[0];
-	_bufferData[3] = 0; //anim.uv[1];
-
-	_bufferData[4] = anim.xy[1] * sizeScale;
-	_bufferData[5] = anim.xy[5] * sizeScale;
-	_bufferData[6] = 1; //anim.uv[2];
-	_bufferData[7] = 0; //anim.uv[3];
-
-	_bufferData[8] = anim.xy[3] * sizeScale;
-	_bufferData[9] = anim.xy[7] * sizeScale;
-	_bufferData[10] = 0; //anim.uv[4];
-	_bufferData[11] = 1; //anim.uv[5];
-
-	_bufferData[12] = anim.xy[2] * sizeScale;
-	_bufferData[13] = anim.xy[6] * sizeScale;
-	_bufferData[14] = 1; //anim.uv[6];
-	_bufferData[15] = 1; //anim.uv[7];
-
-	if (anim.angle !== _lastAngle) {
-		mat4.identity(_matrix);
-		mat4.rotateZ(_matrix, _matrix, (-anim.angle / 180) * Math.PI);
-		_lastAngle = anim.angle;
-	}
-
-	const spriteOffset = new Float32Array(2);
-	let verticalBase = 0.5;
-
-	if (this.ownerEntity) {
-		// Attachment: center at (320,320), apply offsets, scale with entity
-		spriteOffset[0] = anim.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-		// flip Y offset only
-		spriteOffset[1] = anim.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-		verticalBase = 0.0;
-	} else {
-		spriteOffset[0] = anim.pos[0] - 320;
-		spriteOffset[1] = anim.pos[1] - 320;
-	}
-
-	// Send effect parameters
-	gl.uniform4fv(uniform.uSpriteColor, anim.color);
-	gl.uniform2fv(uniform.uSpriteOffset, spriteOffset);
-	gl.uniform1f(uniform.uVerticalBase, verticalBase);
-	gl.uniform3fv(uniform.uSpritePosition, this.position);
-
-	gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix);
-
-	// Send new buffer
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	gl.bufferSubData(gl.ARRAY_BUFFER, 0, _bufferData);
-
-	// Link attribute
-	gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0 * 4);
-	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-
-	// Send texture and data
-	gl.blendFunc(D3DBLEND[anim.srcalpha], D3DBLEND[anim.destalpha]);
-	gl.bindTexture(gl.TEXTURE_2D, material);
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-};
 
 /**
  * Calculate effect animation base on the keyframe structure.
@@ -291,17 +91,15 @@ StrEffect.prototype.renderAnimation = function renderAnimation(gl, material, ani
  * @param {object} animation structure
  */
 function calculateAnimation(layer, keyIndex, result) {
-	let i, delta;
-	let animations, from, to;
 	let lastFrame = 0;
 	let lastSource = 0;
 	let fromId = -1,
 		toId = -1;
 
-	animations = layer.animations;
+	const animations = layer.animations;
 
 	// Animations are sorted by the loader
-	for (i = 0; i < layer.anikeynum; ++i) {
+	for (let i = 0; i < layer.anikeynum; ++i) {
 		if (animations[i].frame <= keyIndex) {
 			if (animations[i].type === 0) {
 				fromId = i;
@@ -322,9 +120,9 @@ function calculateAnimation(layer, keyIndex, result) {
 		return false;
 	}
 
-	from = animations[fromId];
-	to = animations[toId];
-	delta = keyIndex - from.frame;
+	const from = animations[fromId];
+	const to = animations[toId];
+	const delta = keyIndex - from.frame;
 	result.srcalpha = from.srcalpha;
 	result.destalpha = from.destalpha;
 
@@ -400,104 +198,303 @@ function calculateAnimation(layer, keyIndex, result) {
 }
 
 /**
- * Initialize StrEffect
+ * StrEffect constructor
  *
- * @param {object} gl context
+ * @param {string} str effect file
+ * @param {Array} effect position
+ * @param {string} start tick
+ * @param {string} texturePath
  */
-StrEffect.init = function init(gl) {
-	if (!_buffer) {
-		_buffer = gl.createBuffer();
+class StrEffect {
+	constructor(filename, position, startTick, texturePath) {
+		this.filename = filename;
+		this.startTick = startTick;
+		this.position = position;
+		this.texturePath = texturePath;
+
+		// If can't render it, just remove it.
+		Client.loadFile(
+			this.filename,
+			null,
+			() => {
+				this.needCleanUp = true;
+			},
+			{ texturePath }
+		);
+	}
+
+	/**
+	 * Preparing for render
+	 *
+	 * @param {object} webgl context
+	 */
+	init(gl) {
+		this.ready = true;
+	}
+
+	/**
+	 * Destroying data
+	 *
+	 * @param {object} webgl context
+	 */
+	free(gl) {
+		this.ready = false;
+	}
+
+	/**
+	 * Render in 3D effect
+	 *
+	 * @param {object} gl
+	 * @param {number} tick
+	 */
+	render(gl, tick) {
+		let layer;
+		let i, keyIndex;
+
+		// Follow entity position for attachments
+		if (this.ownerEntity && this.ownerEntity.position) {
+			this.position = this.ownerEntity.position;
+			this.ownerDirection = this.ownerEntity.direction;
+			if (this._Params && this._Params.Inst) {
+				this._Params.Inst.position = this.position;
+			}
+		}
+
+		const strFile = Client.loadFile(this.filename, null, null, { texturePath: this.texturePath });
+
+		// Not loaded yet
+		if (strFile === null) {
+			return;
+		}
+
+		keyIndex = ((tick - this.startTick) / 1000) * strFile.fps;
+
+		// Loop persistent effects
+		if (this.persistent && strFile && strFile.maxKey) {
+			keyIndex = keyIndex % strFile.maxKey;
+		}
+
+		// Cache for blank frame handling in hat effects
+		if (!this._lastValidAnim) {
+			this._lastValidAnim = {};
+		}
+
+		let anyFreshFrame = false;
+
+		for (i = 0; i < strFile.layernum; i++) {
+			layer = strFile.layers[i];
+
+			if (layer.materials.length) {
+				if (calculateAnimation(layer, keyIndex, anim)) {
+					if (layer.materials[anim.aniframe | 0]) {
+						this.renderAnimation(gl, layer.materials[anim.aniframe | 0], anim);
+						anyFreshFrame = true;
+						// Cache for hat effect blank frame handling
+						if (this.persistent && this.ownerEntity) {
+							this._lastValidAnim[i] = {
+								anim: copyAnim(anim),
+								material: layer.materials[anim.aniframe | 0]
+							};
+						}
+					}
+				} else if (this.persistent && this.ownerEntity && this._lastValidAnim[i]) {
+					// Use cached frame for blank frames in hat effects
+					this.renderAnimation(gl, this._lastValidAnim[i].material, this._lastValidAnim[i].anim);
+				}
+			}
+		}
+
+		// Reset hat effect animation when in blank region to avoid gaps
+		if (this.persistent && this.ownerEntity && !anyFreshFrame && strFile.maxKey > 0) {
+			this.startTick = tick;
+			this._lastValidAnim = {};
+		}
+
+		// animation ended
+		if (keyIndex >= strFile.maxKey) {
+			this.needCleanUp = true;
+		}
+	}
+
+	/**
+	 * Setup geometries, send data to GPU
+	 *
+	 * @param {object} webgl context
+	 * @param {glTexture} webgl texture
+	 * @param {StrAnimation} animation object
+	 */
+	renderAnimation(gl, material, animat) {
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+
+		// Hat effects: Scale with entity size
+		let sizeScale = 1.0;
+		if (this.ownerEntity) {
+			sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
+		}
+
+		// Update geometries (apply size scaling only for attachments)
+		_bufferData[0] = animat.xy[0] * sizeScale;
+		_bufferData[1] = animat.xy[4] * sizeScale;
+		_bufferData[2] = 0; //anim.uv[0];
+		_bufferData[3] = 0; //anim.uv[1];
+
+		_bufferData[4] = animat.xy[1] * sizeScale;
+		_bufferData[5] = animat.xy[5] * sizeScale;
+		_bufferData[6] = 1; //anim.uv[2];
+		_bufferData[7] = 0; //anim.uv[3];
+
+		_bufferData[8] = animat.xy[3] * sizeScale;
+		_bufferData[9] = animat.xy[7] * sizeScale;
+		_bufferData[10] = 0; //anim.uv[4];
+		_bufferData[11] = 1; //anim.uv[5];
+
+		_bufferData[12] = animat.xy[2] * sizeScale;
+		_bufferData[13] = animat.xy[6] * sizeScale;
+		_bufferData[14] = 1; //anim.uv[6];
+		_bufferData[15] = 1; //anim.uv[7];
+
+		if (animat.angle !== _lastAngle) {
+			mat4.identity(_matrix);
+			mat4.rotateZ(_matrix, _matrix, (-animat.angle / 180) * Math.PI);
+			_lastAngle = animat.angle;
+		}
+
+		const spriteOffset = new Float32Array(2);
+		let verticalBase = 0.5;
+
+		if (this.ownerEntity) {
+			// Attachment: center at (320,320), apply offsets, scale with entity
+			spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			// flip Y offset only
+			spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			verticalBase = 0.0;
+		} else {
+			spriteOffset[0] = animat.pos[0] - 320;
+			spriteOffset[1] = animat.pos[1] - 320;
+		}
+
+		// Send effect parameters
+		gl.uniform4fv(uniform.uSpriteColor, animat.color);
+		gl.uniform2fv(uniform.uSpriteOffset, spriteOffset);
+		gl.uniform1f(uniform.uVerticalBase, verticalBase);
+		gl.uniform3fv(uniform.uSpritePosition, this.position);
+
+		gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix);
+
+		// Send new buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-		gl.bufferData(gl.ARRAY_BUFFER, _bufferData.byteLength, gl.DYNAMIC_DRAW);
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, _bufferData);
+
+		// Link attribute
+		gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0 * 4);
+		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
+
+		// Send texture and data
+		gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
+		gl.bindTexture(gl.TEXTURE_2D, material);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	}
 
-	if (!_program) {
-		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+	/**
+	 * Initialize StrEffect
+	 *
+	 * @param {object} gl context
+	 */
+	static init(gl) {
+		if (!_buffer) {
+			_buffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, _bufferData.byteLength, gl.DYNAMIC_DRAW);
+		}
+
+		if (!_program) {
+			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		}
+
+		D3DBLEND[1] = gl.ZERO;
+		D3DBLEND[2] = gl.ONE;
+		D3DBLEND[3] = gl.SRC_COLOR;
+		D3DBLEND[4] = gl.ONE_MINUS_SRC_COLOR;
+		D3DBLEND[5] = gl.SRC_ALPHA;
+		D3DBLEND[6] = gl.ONE_MINUS_SRC_ALPHA;
+		D3DBLEND[7] = gl.DST_ALPHA;
+		D3DBLEND[8] = gl.ONE_MINUS_DST_ALPHA;
+		D3DBLEND[9] = gl.DST_COLOR;
+		D3DBLEND[10] = gl.ONE_MINUS_DST_COLOR;
+		D3DBLEND[11] = gl.SRC_ALPHA_SATURATE;
+		D3DBLEND[14] = gl.CONSTANT_COLOR;
+		D3DBLEND[15] = gl.ONE_MINUS_CONSTANT_ALPHA;
+
+		this.ready = true;
 	}
 
-	D3DBLEND[1] = gl.ZERO;
-	D3DBLEND[2] = gl.ONE;
-	D3DBLEND[3] = gl.SRC_COLOR;
-	D3DBLEND[4] = gl.ONE_MINUS_SRC_COLOR;
-	D3DBLEND[5] = gl.SRC_ALPHA;
-	D3DBLEND[6] = gl.ONE_MINUS_SRC_ALPHA;
-	D3DBLEND[7] = gl.DST_ALPHA;
-	D3DBLEND[8] = gl.ONE_MINUS_DST_ALPHA;
-	D3DBLEND[9] = gl.DST_COLOR;
-	D3DBLEND[10] = gl.ONE_MINUS_DST_COLOR;
-	D3DBLEND[11] = gl.SRC_ALPHA_SATURATE;
-	D3DBLEND[14] = gl.CONSTANT_COLOR;
-	D3DBLEND[15] = gl.ONE_MINUS_CONSTANT_ALPHA;
+	/**
+	 * Destroy Effect
+	 *
+	 * @param {object} webgl context
+	 */
+	static free(gl) {
+		if (_program) {
+			gl.deleteProgram(_program);
+			_program = null;
+		}
 
-	this.ready = true;
-};
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+			_buffer = null;
+		}
 
-/**
- * Destroy Effect
- *
- * @param {object} webgl context
- */
-StrEffect.free = function free(gl) {
-	if (_program) {
-		gl.deleteProgram(_program);
-		_program = null;
+		this.ready = false;
 	}
 
-	if (_buffer) {
-		gl.deleteBuffer(_buffer);
-		_buffer = null;
+	/**
+	 * Bind context
+	 *
+	 * @param {object} gl context
+	 * @param {mat4} modelview
+	 * @param {mat4} projection
+	 * @param {object} fog structure
+	 * @param {number} tick
+	 */
+	static beforeRender(gl, modelView, projection, fog, tick) {
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+
+		gl.depthMask(false);
+		gl.useProgram(_program);
+		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+
+		// Fog settings
+		gl.uniform1f(uniform.uFogNear, fog.near * 100);
+		gl.uniform1f(uniform.uFogFar, fog.far * 150);
+		gl.uniform3fv(uniform.uFogColor, fog.color);
+
+		// Textures
+		gl.uniform1i(uniform.uDiffuse, 0);
+
+		// Enable all attributes
+		gl.enableVertexAttribArray(attribute.aPosition);
+		gl.enableVertexAttribArray(attribute.aTextureCoord);
+
+		gl.activeTexture(gl.TEXTURE0);
 	}
 
-	this.ready = false;
-};
+	/**
+	 * Unbind 3D Context
+	 *
+	 * @param {object} gl context
+	 */
+	static afterRender(gl) {
+		gl.depthMask(true);
 
-/**
- * Bind context
- *
- * @param {object} gl context
- * @param {mat4} modelview
- * @param {mat4} projection
- * @param {object} fog structure
- * @param {number} tick
- */
-StrEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-	const uniform = _program.uniform;
-	const attribute = _program.attribute;
+		gl.disableVertexAttribArray(_program.attribute.aPosition);
+		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 
-	gl.depthMask(false);
-	gl.useProgram(_program);
-	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-
-	// Fog settings
-	gl.uniform1f(uniform.uFogNear, fog.near * 100);
-	gl.uniform1f(uniform.uFogFar, fog.far * 150);
-	gl.uniform3fv(uniform.uFogColor, fog.color);
-
-	// Textures
-	gl.uniform1i(uniform.uDiffuse, 0);
-
-	// Enable all attributes
-	gl.enableVertexAttribArray(attribute.aPosition);
-	gl.enableVertexAttribArray(attribute.aTextureCoord);
-
-	gl.activeTexture(gl.TEXTURE0);
-};
-
-/**
- * Unbind 3D Context
- *
- * @param {object} gl context
- */
-StrEffect.afterRender = function afterRender(gl) {
-	gl.depthMask(true);
-
-	gl.disableVertexAttribArray(_program.attribute.aPosition);
-	gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
-
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-};
-
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	}
+}
 /**
  * Export
  */

@@ -49,7 +49,6 @@ let _display = true;
  * @param {string} mapname
  */
 function init(gl, mapname) {
-	let color;
 	let i;
 
 	// Not found on weather, black sky, no cloud.
@@ -61,7 +60,7 @@ function init(gl, mapname) {
 
 	// Save color
 	_color = WeatherTable.sky[mapname].cloudColor;
-	color = WeatherTable.sky[mapname].skyColor;
+	const color = WeatherTable.sky[mapname].skyColor;
 	if (_color) {
 		_display = true;
 	} else {
