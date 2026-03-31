@@ -9975,7 +9975,7 @@ export default {
 			type: 'SPR',
 			file: '\xc8\xad\xbf\xb0\xc1\xf8',
 			repeat: true,
-			attachedEntity: false
+			attachedEntity: true
 		},
 		{
 			wav: 'effect/\xc8\xad\xbf\xb0\xc1\xf8'
