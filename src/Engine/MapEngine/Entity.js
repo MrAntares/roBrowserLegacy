@@ -6,7 +6,6 @@
  * @author Vincent Thibault
  */
 
-import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
 import SkillId from 'DB/Skills/SkillConst.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
@@ -548,21 +547,21 @@ function onEntityAction(pkt) {
 		case 9: // endure [DMG_MULTI_HIT_ENDURE]
 		case 10: // critital [DMG_CRITICAL]
 		case 11: // lucky
-		case 13: // multi-hit critical
+		case 13: {
+			// multi-hit critical
 			if (pkt.attackMT > MAX_ATTACKMT) {
 				pkt.attackMT = MAX_ATTACKMT;
 			}
 			srcEntity.attack_speed = pkt.attackMT;
 
 			let animSpeed = 0;
-			let soundTime = 0;
 			let delayTime = pkt.attackMT;
 
-			const WSnd = DB.getWeaponSound(srcWeapon);
+			const _WSnd = DB.getWeaponSound(srcWeapon);
 			/*var weaponSound = WSnd ? WSnd[0] : false;
 				let weaponSoundRelease = WSnd ? WSnd[1] : false;*/ // UNUSED
 
-			const WSndL = DB.getWeaponSound(srcWeaponLeft);
+			const _WSndL = DB.getWeaponSound(srcWeaponLeft);
 			/*var weaponSoundLeft = WSndL ? WSndL[0] : false;
 				let weaponSoundReleaseLeft = WSndL ? WSndL[1] : false;*/ // UNUSED
 
@@ -578,7 +577,7 @@ function onEntityAction(pkt) {
 				let m_motionSpeed = 1; // need to find out where is it come from? maybe from act delay with some calculate //actRes->GetDelay(action); [MrUnzO]
 				m_motionSpeed *= factorOfmotionSpeed;
 
-				soundTime = delayTime = m_attackMotion * m_motionSpeed * 24.0;
+				const _soundTime = (delayTime = m_attackMotion * m_motionSpeed * 24.0);
 				animSpeed = pkt.attackMT / m_attackMotion;
 
 				// Display throw arrow effect when using bows, not an elegant conditional but it works.. [Waken]
@@ -628,6 +627,13 @@ function onEntityAction(pkt) {
 
 				// damage blocking status effect display
 				if (pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0) {
+					// Show guard effect (Kyrie Eleison, Auto Guard, Parrying, etc.)
+					const EF_Init_Par = {
+						effectId: EffectConst.EF_GUARD,
+						ownerAID: pkt.targetGID,
+						startTick: Renderer.tick + pkt.attackMT
+					};
+					EffectManager.spam(EF_Init_Par);
 				}
 
 				target = pkt.damage ? dstEntity : srcEntity;
@@ -671,7 +677,8 @@ function onEntityAction(pkt) {
 					case 13: //multi-hit critical
 						type = Damage.TYPE.CRIT;
 					case 8: // multi-hit damage
-					case 9: // multi-hit damage (endure)
+					case 9: {
+						// multi-hit damage (endure)
 						// Display combo only if entity is mob and the attack don't miss
 						if (
 							(dstEntity.objecttype === Entity.TYPE_MOB ||
@@ -746,7 +753,7 @@ function onEntityAction(pkt) {
 							);
 						}
 						break;
-
+					}
 					// TODO: lucky miss
 					case 11:
 						dstEntity.attachments.add({
@@ -821,7 +828,7 @@ function onEntityAction(pkt) {
 			}
 
 			break;
-
+		}
 		// Pickup item
 		case 1:
 			srcEntity.setAction({
@@ -938,7 +945,7 @@ function onEntityAction(pkt) {
  * @param {object} pkt - PACKET.ZC.NOTIFY_CHAT
  */
 function onEntityTalk(pkt) {
-	let entity, type;
+	let type;
 
 	// Remove "pseudo : |00Dialogue
 	pkt.msg = pkt.msg.replace(/\: \|\d{2}/, ': ');
@@ -949,7 +956,7 @@ function onEntityTalk(pkt) {
 	}
 
 	type = ChatBox.TYPE.PUBLIC;
-	entity = EntityManager.get(pkt.GID);
+	const entity = EntityManager.get(pkt.GID);
 
 	ChatBox.addText(pkt.msg, type, ChatBox.FILTER.PUBLIC_CHAT, null, false);
 
@@ -978,7 +985,6 @@ function onEntityTalk(pkt) {
  * @param {object} pkt - PACKET.ZC.NPC_CHAT
  */
 function onEntityTalkColor(pkt) {
-	let entity;
 	const color =
 		'rgb(' +
 		[pkt.color & 0x000000ff, (pkt.color & 0x0000ff00) >> 8, (pkt.color & 0x00ff0000) >> 16].join(',') +
@@ -987,7 +993,7 @@ function onEntityTalkColor(pkt) {
 	// Remove "pseudo : |00Dialogue"
 	pkt.msg = pkt.msg.replace(/\: \|\d{2}/, ': ');
 
-	entity = EntityManager.get(pkt.accountID);
+	const entity = EntityManager.get(pkt.accountID);
 	if (entity) {
 		entity.dialog.set(pkt.msg);
 	}
@@ -1174,14 +1180,14 @@ function onEntityLifeUpdate(pkt) {
  * @param {object} pkt - PACKET.ZC.QUEST_NOTIFY_EFFECT
  */
 function onEntityQuestNotifyEffect(pkt) {
-	const Entity = EntityManager.get(pkt.npcID);
+	const entity = EntityManager.get(pkt.npcID);
 	let color = 0;
 
 	if (pkt.effect !== 9999) {
 		const emotionId = pkt.effect + 81;
 
-		if (Entity && pkt.effect in Emotions.indexes) {
-			Entity.attachments.add({
+		if (entity && pkt.effect in Emotions.indexes) {
+			entity.attachments.add({
 				frame: Emotions.indexes[emotionId],
 				file: 'emotion',
 				play: true,
@@ -1887,9 +1893,8 @@ function onEntityCastCancel(pkt) {
 						effectId: EffectConst.EF_AUTOCOUNTER,
 						ownerAID: pkt.AID
 					};
+					EffectManager.spam(EF_Init_Par);
 				}
-
-				EffectManager.spam(EF_Init_Par);
 				Session.underAutoCounter = false;
 			}
 		}
@@ -1940,9 +1945,9 @@ function onEntityStatusChange(pkt) {
 		case StatusConst.CLAIRVOYANCE:
 			if (entity === Session.Entity) {
 				Session.Character.intravision = pkt.state;
-				EntityManager.forEach(function (entity) {
+				EntityManager.forEach(function (_entity) {
 					/** @type {*} Intentional self-assignment to trigger effectState updates. */
-					entity.effectState = entity.effectState;
+					entity.effectState = _entity.effectState;
 				});
 			}
 			break;
@@ -2131,6 +2136,7 @@ function onEntityStatusChange(pkt) {
 			} else {
 				entity.Camouflage = 0;
 			}
+			// eslint-disable-next-line no-self-assign
 			entity.effectState = entity.effectState;
 			break;
 
@@ -2185,6 +2191,7 @@ function onEntityStatusChange(pkt) {
 			} else {
 				entity.Stealthfield = 0;
 			}
+			// eslint-disable-next-line no-self-assign
 			entity.effectState = entity.effectState;
 			break;
 
@@ -2194,6 +2201,7 @@ function onEntityStatusChange(pkt) {
 			} else {
 				entity.Shadowform = 0;
 			}
+			// eslint-disable-next-line no-self-assign
 			entity.effectState = entity.effectState;
 			break;
 
@@ -2354,7 +2362,7 @@ function onEntityStatusChange(pkt) {
 		case StatusConst.SWORDCLAN:
 		case StatusConst.ARCWANDCLAN:
 		case StatusConst.GOLDENMACECLAN:
-		case StatusConst.CROSSBOWCLAN:
+		case StatusConst.CROSSBOWCLAN: {
 			const clanId = pkt.index - StatusConst.SWORDCLAN + 1;
 			DB.loadClanEmblem(clanId, function (image) {
 				entity.clanId = clanId;
@@ -2380,7 +2388,7 @@ function onEntityStatusChange(pkt) {
 				entity.emblem.update();
 			});
 			break;
-
+		}
 		case StatusConst.CLAN_INFO:
 			DB.loadClanEmblem(pkt.val[1], function (image) {
 				entity.clanId = pkt.val[1];

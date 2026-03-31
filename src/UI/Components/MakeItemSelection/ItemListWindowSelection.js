@@ -8,6 +8,7 @@
 
 import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Preferences from 'Core/Preferences.js';
 import ConvertItems from 'UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems.js';
 import Mouse from 'Controls/MouseEventHandler.js';
@@ -153,7 +154,6 @@ function onResize() {
 	const ui = ItemListWindowSelection.ui;
 	const top = ui.position().top;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
@@ -171,7 +171,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
@@ -223,7 +223,6 @@ ItemListWindowSelection.addReturnMaterial = function AddReturnMaterial(item) {
  */
 ItemListWindowSelection.removeItem = function removeItem(index, count) {
 	const i = getItemIndexById(index);
-	let item;
 
 	// Not found
 	if (i < 0) {
@@ -240,7 +239,7 @@ ItemListWindowSelection.removeItem = function removeItem(index, count) {
 	}
 
 	// Remove item
-	item = this.list[i];
+	const item = this.list[i];
 	this.list.splice(i, 1);
 	this.ui.find('.item[data-index="' + index + '"]').remove();
 
@@ -412,11 +411,13 @@ function getItemIndexById(index) {
  * @param {event}
  */
 function onDrop(event) {
-	let item, data;
+	let data;
 
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {}
+	} catch (e) {
+		// Ignore
+	}
 
 	event.stopImmediatePropagation();
 
@@ -425,7 +426,7 @@ function onDrop(event) {
 		return false;
 	}
 
-	item = data.data;
+	const item = data.data;
 
 	// validar se esta marcado
 	const valid_select_all = !ItemListWindowSelection.getSelectAll();

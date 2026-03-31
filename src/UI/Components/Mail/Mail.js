@@ -8,6 +8,7 @@
  */
 
 import DB from 'DB/DBManager.js';
+import ItemType from 'DB/Items/ItemType.js';
 import jQuery from 'Utils/jquery.js';
 import Preferences from 'Core/Preferences.js';
 import Client from 'Core/Client.js';
@@ -772,8 +773,8 @@ function resizeHeight(height) {
  */
 function prettifyZeny(value) {
 	const num = String(value);
-	let i = 0,
-		len = num.length;
+	let i = 0;
+	const len = num.length;
 	let out = '';
 
 	while (i < len) {
@@ -842,7 +843,6 @@ function onResize() {
 	const ui = Mail.ui;
 	const top = ui.position().top;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
@@ -860,7 +860,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
