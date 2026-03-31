@@ -246,9 +246,6 @@ function repeatEffect(effect) {
  * @type {object} Effects namespace
  */
 class EffectManager {
-	constructor() {
-		_list = {};
-	}
 
 	/**
 	 * Initialize effects manager
