@@ -783,6 +783,8 @@ DB.init = function init() {
 	}
 
 	Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
+	Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
+
 	import('Core/AIDriver.js').then(module => {
 		module.default.initAI(onLoad());
 	});
