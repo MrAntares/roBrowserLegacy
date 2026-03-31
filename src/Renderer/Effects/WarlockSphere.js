@@ -247,6 +247,8 @@ class WarlockSphere {
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 	}
 }
+
+WarlockSphere.renderBeforeEntities = false;
 /**
  * Export
  */
