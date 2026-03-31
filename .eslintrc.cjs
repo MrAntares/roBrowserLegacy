@@ -43,7 +43,7 @@ module.exports = {
 		// ======================
 		// USELESS RULES
 		// ======================
-		'no-useless-escape': 'warn',
+		'no-useless-escape': 'off',
 		'no-empty': 'error',
 		'no-redeclare': 'error',
 		'no-constant-condition': 'error',

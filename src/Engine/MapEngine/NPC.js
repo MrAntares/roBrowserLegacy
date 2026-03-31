@@ -22,6 +22,7 @@ import InputBox from 'UI/Components/InputBox/InputBox.js';
 import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import WinPopup from 'UI/Components/WinPopup/WinPopup.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Load dependencies
@@ -118,10 +119,10 @@ function onMenuAppear(pkt) {
 			NpcBox.remove();
 		}
 
-		const pkt = new PACKET.CZ.CHOOSE_MENU();
-		pkt.NAID = NAID;
-		pkt.num = index;
-		Network.sendPacket(pkt);
+		const _pkt = new PACKET.CZ.CHOOSE_MENU();
+		_pkt.NAID = NAID;
+		_pkt.num = index;
+		Network.sendPacket(_pkt);
 	};
 }
 
@@ -154,23 +155,23 @@ function onInputAppear(pkt) {
 
 	InputBox.onSubmitRequest = function OnSubmitRequest(data) {
 		InputBox.remove();
-		let pkt;
+		let _pkt;
 
 		switch (type) {
 			case 'text':
-				pkt = new PACKET.CZ.INPUT_EDITDLGSTR();
-				pkt.msg = data;
+				_pkt = new PACKET.CZ.INPUT_EDITDLGSTR();
+				_pkt.msg = data;
 				break;
 
 			default:
 			case 'number':
-				pkt = new PACKET.CZ.INPUT_EDITDLG();
-				pkt.value = data;
+				_pkt = new PACKET.CZ.INPUT_EDITDLG();
+				_pkt.value = data;
 				break;
 		}
 
-		pkt.NAID = id;
-		Network.sendPacket(pkt);
+		_pkt.NAID = id;
+		Network.sendPacket(_pkt);
 	};
 
 	InputBox.append();
@@ -335,8 +336,8 @@ function onMinimapMarker(pkt) {
  */
 function onProgressBar(pkt) {
 	Session.Entity.cast.onComplete = function () {
-		const pkt = new PACKET.CZ.PROGRESS();
-		Network.sendPacket(pkt);
+		const _pkt = new PACKET.CZ.PROGRESS();
+		Network.sendPacket(_pkt);
 	};
 
 	const rgb =

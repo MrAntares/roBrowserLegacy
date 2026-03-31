@@ -73,7 +73,6 @@ SkillListMH.prototype.init = function init() {
 		const left = ui.position().left;
 		let lastWidth = 0;
 		let lastHeight = 0;
-		let _Interval;
 
 		function resizing() {
 			const extraX = -6;
@@ -98,10 +97,10 @@ SkillListMH.prototype.init = function init() {
 			lastHeight = h;
 		}
 
-		_Interval = setInterval(resizing, 30);
+		const _Interval = setInterval(resizing, 30);
 
-		jQuery(window).on('mouseup.resize', function (event) {
-			if (event.which === 1) {
+		jQuery(window).on('mouseup.resize', function (_event) {
+			if (_event.which === 1) {
 				clearInterval(_Interval);
 				jQuery(window).off('mouseup.resize');
 			}
@@ -143,13 +142,12 @@ SkillListMH.prototype.init = function init() {
 		})
 		.on('contextmenu', '.skill .icon, .skill .name', function () {
 			let main = jQuery(this).parent();
-			let skill;
 
 			if (!main.hasClass('skill')) {
 				main = main.parent();
 			}
 
-			skill = self.getSkillById(parseInt(main.data('index'), 10));
+			const skill = self.getSkillById(parseInt(main.data('index'), 10));
 
 			// Don't add the same UI twice, remove it
 			if (SkillDescription.uid === skill.SKID) {
@@ -394,7 +392,6 @@ SkillListMH.prototype.removeSkill = function removeSkill() {
  */
 SkillListMH.prototype.updateSkill = function updateSkill(skill) {
 	const target = this.getSkillById(skill.SKID);
-	let element;
 
 	if (!target) {
 		return;
@@ -410,7 +407,7 @@ SkillListMH.prototype.updateSkill = function updateSkill(skill) {
 	}
 
 	// Update UI
-	element = this.ui.find('.skill.id' + skill.SKID + ':first');
+	const element = this.ui.find('.skill.id' + skill.SKID + ':first');
 	element.find('.level .current, .level .max').text(skill.level);
 	if (skill.selectedLevel) {
 		element.find('.level .current').text(skill.selectedLevel);
@@ -464,7 +461,6 @@ SkillListMH.prototype.useSkill = function useSkill(skill, level) {
  * Set skill points amount
  */
 SkillListMH.prototype.setPoints = function setPoints(amount) {
-	let i, count;
 	this.ui.find('.skpoints_count').text(amount);
 
 	// Do not need to update the UI
@@ -474,9 +470,9 @@ SkillListMH.prototype.setPoints = function setPoints(amount) {
 	}
 
 	this.points = amount;
-	count = this.list.length;
+	const count = this.list.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (this.list[i].upgradable && amount) {
 			this.ui.find('.skill.id' + this.list[i].SKID + ' .levelup').show();
 		} else {
@@ -496,10 +492,9 @@ SkillListMH.prototype.onLevelUp = function onLevelUp() {
  * Find a skill by it's id
  */
 SkillListMH.prototype.getSkillById = function getSkillById(id) {
-	let i,
-		count = this.list.length;
+	const count = this.list.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (this.list[i].SKID === id) {
 			return this.list[i];
 		}
@@ -541,13 +536,12 @@ SkillListMH.prototype.onRequestUseSkill = function onRequestUseSkill() {
  */
 SkillListMH.prototype.onRequestSkillInfo = function onRequestSkillInfo() {
 	let main = jQuery(this).parent();
-	let skill;
 
 	if (!main.hasClass('skill')) {
 		main = main.parent();
 	}
 
-	skill = this.getSkillById(parseInt(main.data('index'), 10));
+	const skill = this.getSkillById(parseInt(main.data('index'), 10));
 
 	// Don't add the same UI twice, remove it
 	if (SkillDescription.uid === skill.SKID) {
@@ -583,7 +577,7 @@ SkillListMH.prototype.onSkillDragStart = function onSkillDragStart(event) {
 
 	// Can't drag a passive skill (or disabled)
 	if (!skill || !skill.level || !skill.type) {
-		return stopPropagation(event);
+		return event.stopImmediatePropagation();
 	}
 
 	const img = new Image();
