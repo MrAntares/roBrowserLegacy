@@ -153,158 +153,159 @@ CastSize[SkillId.KO_HUUMARANKA] = [7];
  * @param {number} cast size
  * @param {number} tick to remove it
  */
-function MagicTarget(id, x, y, endTick, srcEntity) {
-	this.x = x;
-	this.y = y;
+class MagicTarget {
+	constructor(id, x, y, endTick, srcEntity) {
+		this.x = x;
+		this.y = y;
 
-	//A hacky way to read the last skill level and ring size. The official client does the same thing, unless they add a packet that tells the skill level directly.
-	if (CastSize[id]) {
-		if (
-			Session.Entity == srcEntity &&
-			id == Session.Entity.lastSKID &&
-			Session.Entity.lastSkLvl &&
-			CastSize[id].length >= Session.Entity.lastSkLvl
-		) {
-			this.size = CastSize[id][Session.Entity.lastSkLvl - 1] || 1;
+		//A hacky way to read the last skill level and ring size. The official client does the same thing, unless they add a packet that tells the skill level directly.
+		if (CastSize[id]) {
+			if (
+				Session.Entity == srcEntity &&
+				id == Session.Entity.lastSKID &&
+				Session.Entity.lastSkLvl &&
+				CastSize[id].length >= Session.Entity.lastSkLvl
+			) {
+				this.size = CastSize[id][Session.Entity.lastSkLvl - 1] || 1;
+			} else {
+				this.size = CastSize[id][0] || 1;
+			}
 		} else {
-			this.size = CastSize[id][0] || 1;
+			this.size = 1;
 		}
-	} else {
-		this.size = 1;
+
+		this.endTick = endTick;
 	}
 
-	this.endTick = endTick;
-}
+	/**
+	 * Preparing for render
+	 *
+	 * @param {object} webgl context
+	 */
+	init(gl) {
+		const data = Altitude.generatePlane(this.x, this.y, this.size);
+		this.buffer = gl.createBuffer();
+		this.vertCount = data.length / 5;
 
-/**
- * Preparing for render
- *
- * @param {object} webgl context
- */
-MagicTarget.prototype.init = function init(gl) {
-	const data = Altitude.generatePlane(this.x, this.y, this.size);
-	this.buffer = gl.createBuffer();
-	this.vertCount = data.length / 5;
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+		this.ready = true;
+	}
 
-	this.ready = true;
-};
+	/**
+	 * Destroying data
+	 *
+	 * @param {object} webgl context
+	 */
+	free(gl) {
+		gl.deleteBuffer(this.buffer);
+		this.ready = false;
+	}
 
-/**
- * Destroying data
- *
- * @param {object} webgl context
- */
-MagicTarget.prototype.free = function free(gl) {
-	gl.deleteBuffer(this.buffer);
-	this.ready = false;
-};
+	/**
+	 * Rendering cast
+	 *
+	 * @param {object} wegl context
+	 */
+	render(gl, tick) {
+		const attribute = _program.attribute;
 
-/**
- * Rendering cast
- *
- * @param {object} wegl context
- */
-MagicTarget.prototype.render = function render(gl, tick) {
-	const attribute = _program.attribute;
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+		gl.uniform1f(_program.uniform.uCameraLatitude, Camera.getLatitude());
 
-	gl.uniform1f(_program.uniform.uCameraLatitude, Camera.getLatitude());
+		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
+		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
+		gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
 
-	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
-	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
-	gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
+		this.needCleanUp = this.endTick < tick;
+	}
 
-	this.needCleanUp = this.endTick < tick;
-};
+	/**
+	 * Initialize effect
+	 *
+	 * @param {object} webgl context
+	 */
+	static init(gl) {
+		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 
-/**
- * Initialize effect
- *
- * @param {object} webgl context
- */
-MagicTarget.init = function init(gl) {
-	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-
-	Client.loadFile('data/texture/effect/magic_target.tga', function (buffer) {
-		WebGL.texture(gl, buffer, function (texture) {
-			_texture = texture;
-			MagicTarget.ready = true;
+		Client.loadFile('data/texture/effect/magic_target.tga', buffer => {
+			WebGL.texture(gl, buffer, texture => {
+				_texture = texture;
+				this.ready = true;
+			});
 		});
-	});
-};
+	}
 
+	/**
+	 * Destroy objects
+	 *
+	 * @param {object} webgl context
+	 */
+	static free(gl) {
+		if (_texture) {
+			gl.deleteTexture(_texture);
+			_texture = null;
+		}
+
+		if (_program) {
+			gl.deleteProgram(_program);
+			_program = null;
+		}
+
+		this.ready = false;
+	}
+
+	/**
+	 * Before render, set up program
+	 *
+	 * @param {object} webgl context
+	 */
+	static beforeRender(gl, modelView, projection, fog, tick) {
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+
+		mat4.identity(_matrix);
+		mat4.rotateZ(_matrix, _matrix, (((tick / 1000) * 40) / 180) * Math.PI);
+
+		gl.useProgram(_program);
+
+		// Bind matrix
+		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+		gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix);
+
+		// Fog settings
+		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+		gl.uniform1f(uniform.uFogNear, fog.near);
+		gl.uniform1f(uniform.uFogFar, fog.far);
+		gl.uniform3fv(uniform.uFogColor, fog.color);
+
+		// Texture
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, _texture);
+		gl.uniform1i(uniform.uDiffuse, 0);
+
+		// Enable all attributes
+		gl.enableVertexAttribArray(attribute.aPosition);
+		gl.enableVertexAttribArray(attribute.aTextureCoord);
+	}
+
+	/**
+	 * After render, clean attributes
+	 *
+	 * @param {object} webgl context
+	 */
+	static afterRender(gl) {
+		gl.disableVertexAttribArray(_program.attribute.aPosition);
+		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
+	}
+}
 /**
  * @var {boolean} should we render it before entities ?
  */
 MagicTarget.renderBeforeEntities = true;
-
-/**
- * Destroy objects
- *
- * @param {object} webgl context
- */
-MagicTarget.free = function free(gl) {
-	if (_texture) {
-		gl.deleteTexture(_texture);
-		_texture = null;
-	}
-
-	if (_program) {
-		gl.deleteProgram(_program);
-		_program = null;
-	}
-
-	this.ready = false;
-};
-
-/**
- * Before render, set up program
- *
- * @param {object} webgl context
- */
-MagicTarget.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-	const uniform = _program.uniform;
-	const attribute = _program.attribute;
-
-	mat4.identity(_matrix);
-	mat4.rotateZ(_matrix, _matrix, (((tick / 1000) * 40) / 180) * Math.PI);
-
-	gl.useProgram(_program);
-
-	// Bind matrix
-	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-	gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix);
-
-	// Fog settings
-	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-	gl.uniform1f(uniform.uFogNear, fog.near);
-	gl.uniform1f(uniform.uFogFar, fog.far);
-	gl.uniform3fv(uniform.uFogColor, fog.color);
-
-	// Texture
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, _texture);
-	gl.uniform1i(uniform.uDiffuse, 0);
-
-	// Enable all attributes
-	gl.enableVertexAttribArray(attribute.aPosition);
-	gl.enableVertexAttribArray(attribute.aTextureCoord);
-};
-
-/**
- * After render, clean attributes
- *
- * @param {object} webgl context
- */
-MagicTarget.afterRender = function afterRender(gl) {
-	gl.disableVertexAttribArray(_program.attribute.aPosition);
-	gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
-};
 
 /**
  * Export

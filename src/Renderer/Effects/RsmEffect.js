@@ -10,7 +10,6 @@ import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Model from 'Loaders/Model.js';
-import Renderer from 'Renderer/Renderer.js';
 
 let _program = null;
 const _normalMat = new Float32Array(3 * 3);
@@ -25,27 +24,6 @@ const _light = {
 	diffuse: new Float32Array([0, 0, 0]),
 	direction: new Float32Array([0, 1, 0])
 };
-
-function RsmEffect(params) {
-	this.position = params.Inst.position;
-	this.size = params.effect.size || 1;
-	this.filename = 'data\\model\\' + params.effect.file + '.rsm';
-	this.objects = [];
-	this.buffer = null;
-	this.model = null;
-	this.startTick = params.Inst.startTick || 0;
-	this.lastFrame = -1;
-	this.isAnimated = false;
-	this.animLen = 0;
-	this.fps = 30;
-	this.globalParameters = {
-		position: new Float32Array(3),
-		rotation: new Float32Array(3),
-		scale: new Float32Array([-0.075, -0.075, 0.075]),
-		filename: null
-	};
-	this._Params = params;
-}
 
 /**
  * Interpolate between two quaternions using SLERP
@@ -391,7 +369,6 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
  * Compile a node at a specific animation frame
  */
 function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
-	let matrix;
 	const modelViewMat = mat4.create();
 	const normalMat = mat4.create();
 
@@ -402,13 +379,12 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 	const mesh = {};
 	const mesh_size = [];
 
-	let vert, face_normal;
 	const shadeGroup = new Array(32);
 	const shadeGroupUsed = new Array(32);
 	let i, x, y, z, count;
 
 	// Calculate animated matrix
-	matrix = mat4.create();
+	const matrix = mat4.create();
 	mat4.identity(matrix);
 	mat4.translate(matrix, matrix, [-node.main.box.center[0], -node.main.box.max[1], -node.main.box.center[2]]);
 
@@ -456,7 +432,7 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 
 	// Generate new vertices
 	count = vertices.length;
-	vert = new Float32Array(count * 3);
+	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
 		x = vertices[i][0];
 		y = vertices[i][1];
@@ -468,7 +444,7 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 	}
 
 	// Generate face normals
-	face_normal = new Float32Array(faces.length * 3);
+	const face_normal = new Float32Array(faces.length * 3);
 
 	// Setup mesh slot array
 	for (i = 0, count = textures.length; i < count; ++i) {
@@ -646,227 +622,245 @@ function initModel(gl, data) {
 	}
 }
 
-RsmEffect.init = function init(gl) {
-	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-
-	this.ready = true;
-};
-
-RsmEffect.prototype.init = function render(gl, tick) {
-	const self = this;
-	let i, count, j, size, total, offset, length /*, pos -UNUSED*/;
-
-	Client.getFile(this.filename, function (buf) {
-		self.model = new Model(buf);
-
-		// Check if model has animation
-		self.isAnimated = false;
-		self.animLen = self.model.animLen || 0;
-		self.fps = self.model.frameRatePerSecond || 30;
-
-		for (let n = 0; n < self.model.nodes.length; n++) {
-			const node = self.model.nodes[n];
-			if (
-				(node.rotKeyframes && node.rotKeyframes.length > 0) ||
-				(node.posKeyframes && node.posKeyframes.length > 0) ||
-				(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)
-			) {
-				self.isAnimated = true;
-				break;
-			}
-		}
-
-		let data;
-		let objects = [],
-			infos = [],
-			meshes,
-			index,
-			object;
-		let buffer;
-
-		// Create model in world
-		self.globalParameters.filename = self.filename.replace('data/model/', '') + Math.floor(Math.random() * 15);
-		self.model.createInstance(self.globalParameters, 0, 0);
-
-		// Compile model
-		data = self.model.compile();
-		count = data.meshes.length;
-		total = 0;
-
-		// Extract meshes
-		for (i = 0, count = data.meshes.length; i < count; ++i) {
-			meshes = data.meshes[i];
-			index = Object.keys(meshes);
-
-			for (j = 0, size = index.length; j < size; ++j) {
-				objects.push({
-					texture: data.textures[index[j]],
-					alpha: self.model.alpha,
-					mesh: meshes[index[j]]
-				});
-
-				total += meshes[index[j]].length;
-			}
-		}
-
-		buffer = new Float32Array(total);
-		count = objects.length;
-		//pos = 0; // UNUSED
-		offset = 0;
-
-		// Merge meshes to buffer
-		for (i = 0; i < count; ++i) {
-			object = objects[i];
-			length = object.mesh.length;
-
-			infos[i] = {
-				texture: 'data/texture/' + object.texture,
-				vertOffset: offset / 9,
-				vertCount: length / 9
-			};
-
-			// Add to buffer
-			buffer.set(object.mesh, offset);
-			offset += length;
-		}
-
-		// Load textures
-		i = -1;
-
-		function loadNextTexture() {
-			// Loading complete, rendering...
-			if (++i === count) {
-				// Initialize renderer
-				initModel.call(self, gl, {
-					buffer: buffer,
-					infos: infos
-				});
-				self.ready = true;
-				return;
-			}
-
-			Client.loadFile(
-				infos[i].texture,
-				function (data) {
-					infos[i].texture = data;
-					loadNextTexture();
-				},
-				loadNextTexture
-			);
-		}
-
-		// Start loading textures
-		loadNextTexture();
-	});
-
-	this.needInit = false;
-};
-
-RsmEffect.prototype.free = function free(gl) {
-	for (let i = 0, count = this.objects.length; i < count; ++i) {
-		if (this.objects[i] && this.objects[i].texture) {
-			gl.deleteTexture(this.objects[i].texture);
-		}
-	}
-
-	if (this.buffer) {
-		gl.deleteBuffer(this.buffer);
+class RsmEffect {
+	constructor(params) {
+		this.position = params.Inst.position;
+		this.size = params.effect.size || 1;
+		this.filename = 'data\\model\\' + params.effect.file + '.rsm';
+		this.objects = [];
 		this.buffer = null;
+		this.model = null;
+		this.startTick = params.Inst.startTick || 0;
+		this.lastFrame = -1;
+		this.isAnimated = false;
+		this.animLen = 0;
+		this.fps = 30;
+		this.globalParameters = {
+			position: new Float32Array(3),
+			rotation: new Float32Array(3),
+			scale: new Float32Array([-0.075, -0.075, 0.075]),
+			filename: null
+		};
+		this._Params = params;
 	}
 
-	this.objects.length = 0;
-	this.ready = false;
-};
+	static init(gl) {
+		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 
-RsmEffect.free = function free(gl) {
-	if (_program) {
-		gl.deleteProgram(_program);
-		_program = null;
+		this.ready = true;
 	}
 
-	this.ready = false;
-};
+	init(gl, tick) {
+		const self = this;
+		let i, count, j, size, total, offset, length /*, pos -UNUSED*/;
 
-RsmEffect.beforeRender = function beforeRender(gl, modelView, projection, fog, tick) {
-	// Calculate normal mat
-	mat4.toInverseMat3(modelView, _normalMat);
-	mat3.transpose(_normalMat, _normalMat);
+		Client.getFile(this.filename, function (buf) {
+			self.model = new Model(buf);
 
-	// -- render
-	const uniform = _program.uniform;
-	const attribute = _program.attribute;
+			// Check if model has animation
+			self.isAnimated = false;
+			self.animLen = self.model.animLen || 0;
+			self.fps = self.model.frameRatePerSecond || 30;
 
-	gl.useProgram(_program);
+			for (let n = 0; n < self.model.nodes.length; n++) {
+				const node = self.model.nodes[n];
+				if (
+					(node.rotKeyframes && node.rotKeyframes.length > 0) ||
+					(node.posKeyframes && node.posKeyframes.length > 0) ||
+					(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)
+				) {
+					self.isAnimated = true;
+					break;
+				}
+			}
 
-	// Bind matrix
-	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-	gl.uniformMatrix3fv(uniform.uNormalMat, false, _normalMat);
+			const objects = [],
+				infos = [];
+			let meshes, index, object;
 
-	// Bind light
-	gl.uniform3fv(uniform.uLightDirection, _light.direction);
-	gl.uniform1f(uniform.uLightOpacity, _light.opacity);
-	gl.uniform3fv(uniform.uLightAmbient, _light.ambient);
-	gl.uniform3fv(uniform.uLightDiffuse, _light.diffuse);
+			// Create model in world
+			self.globalParameters.filename = self.filename.replace('data/model/', '') + Math.floor(Math.random() * 15);
+			self.model.createInstance(self.globalParameters, 0, 0);
 
-	// Fog settings
-	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-	gl.uniform1f(uniform.uFogNear, fog.near);
-	gl.uniform1f(uniform.uFogFar, fog.far);
-	gl.uniform3fv(uniform.uFogColor, fog.color);
+			// Compile model
+			const data = self.model.compile();
+			count = data.meshes.length;
+			total = 0;
 
-	// Enable all attributes
-	gl.enableVertexAttribArray(attribute.aPosition);
-	gl.enableVertexAttribArray(attribute.aVertexNormal);
-	gl.enableVertexAttribArray(attribute.aTextureCoord);
-	gl.enableVertexAttribArray(attribute.aAlpha);
+			// Extract meshes
+			for (i = 0, count = data.meshes.length; i < count; ++i) {
+				meshes = data.meshes[i];
+				index = Object.keys(meshes);
 
-	// Textures
-	gl.activeTexture(gl.TEXTURE0);
-	gl.uniform1i(uniform.uDiffuse, 0);
-};
+				for (j = 0, size = index.length; j < size; ++j) {
+					objects.push({
+						texture: data.textures[index[j]],
+						alpha: self.model.alpha,
+						mesh: meshes[index[j]]
+					});
 
-RsmEffect.prototype.render = function render(gl, tick) {
-	const uniform = _program.uniform;
+					total += meshes[index[j]].length;
+				}
+			}
 
-	// Handle animation
-	if (this.isAnimated && this.model && this.animLen > 0) {
-		const elapsed = tick - this.startTick;
-		const frame = Math.floor(((elapsed * this.fps) / 1000) % this.animLen);
+			const buffer = new Float32Array(total);
+			count = objects.length;
+			//pos = 0; // UNUSED
+			offset = 0;
 
-		if (frame !== this.lastFrame) {
-			rebuildMeshAtFrame(this, gl, frame);
-			this.lastFrame = frame;
+			// Merge meshes to buffer
+			for (i = 0; i < count; ++i) {
+				object = objects[i];
+				length = object.mesh.length;
+
+				infos[i] = {
+					texture: 'data/texture/' + object.texture,
+					vertOffset: offset / 9,
+					vertCount: length / 9
+				};
+
+				// Add to buffer
+				buffer.set(object.mesh, offset);
+				offset += length;
+			}
+
+			// Load textures
+			i = -1;
+
+			function loadNextTexture() {
+				// Loading complete, rendering...
+				if (++i === count) {
+					// Initialize renderer
+					initModel.call(self, gl, {
+						buffer: buffer,
+						infos: infos
+					});
+					self.ready = true;
+					return;
+				}
+
+				Client.loadFile(
+					infos[i].texture,
+					_data => {
+						infos[i].texture = _data;
+						loadNextTexture();
+					},
+					loadNextTexture
+				);
+			}
+
+			// Start loading textures
+			loadNextTexture();
+		});
+
+		this.needInit = false;
+	}
+
+	free(gl) {
+		for (let i = 0, count = this.objects.length; i < count; ++i) {
+			if (this.objects[i] && this.objects[i].texture) {
+				gl.deleteTexture(this.objects[i].texture);
+			}
+		}
+
+		if (this.buffer) {
+			gl.deleteBuffer(this.buffer);
+			this.buffer = null;
+		}
+
+		this.objects.length = 0;
+		this.ready = false;
+	}
+
+	static free(gl) {
+		if (_program) {
+			gl.deleteProgram(_program);
+			_program = null;
+		}
+
+		this.ready = false;
+	}
+	static beforeRender(gl, modelView, projection, fog, tick) {
+		// Calculate normal mat
+		mat4.toInverseMat3(modelView, _normalMat);
+		mat3.transpose(_normalMat, _normalMat);
+
+		// -- render
+		const uniform = _program.uniform;
+		const attribute = _program.attribute;
+
+		gl.useProgram(_program);
+
+		// Bind matrix
+		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+		gl.uniformMatrix3fv(uniform.uNormalMat, false, _normalMat);
+
+		// Bind light
+		gl.uniform3fv(uniform.uLightDirection, _light.direction);
+		gl.uniform1f(uniform.uLightOpacity, _light.opacity);
+		gl.uniform3fv(uniform.uLightAmbient, _light.ambient);
+		gl.uniform3fv(uniform.uLightDiffuse, _light.diffuse);
+
+		// Fog settings
+		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+		gl.uniform1f(uniform.uFogNear, fog.near);
+		gl.uniform1f(uniform.uFogFar, fog.far);
+		gl.uniform3fv(uniform.uFogColor, fog.color);
+
+		// Enable all attributes
+		gl.enableVertexAttribArray(attribute.aPosition);
+		gl.enableVertexAttribArray(attribute.aVertexNormal);
+		gl.enableVertexAttribArray(attribute.aTextureCoord);
+		gl.enableVertexAttribArray(attribute.aAlpha);
+
+		// Textures
+		gl.activeTexture(gl.TEXTURE0);
+		gl.uniform1i(uniform.uDiffuse, 0);
+	}
+
+	render(gl, tick) {
+		const uniform = _program.uniform;
+
+		// Handle animation
+		if (this.isAnimated && this.model && this.animLen > 0) {
+			const elapsed = tick - this.startTick;
+			const frame = Math.floor(((elapsed * this.fps) / 1000) % this.animLen);
+
+			if (frame !== this.lastFrame) {
+				rebuildMeshAtFrame(this, gl, frame);
+				this.lastFrame = frame;
+			}
+		}
+
+		gl.uniform3fv(uniform.uPosition, this.position);
+		gl.uniform1f(uniform.uSize, this.size);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+
+		// Resetting attributes because buffer has changed
+		const attribute = _program.attribute;
+		// Link attribute
+		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 9 * 4, 0);
+		gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 9 * 4, 3 * 4);
+		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 9 * 4, 6 * 4);
+		gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 9 * 4, 8 * 4);
+
+		for (let i = 0, count = this.objects.length; i < count; ++i) {
+			if (this.objects[i] && this.objects[i].complete) {
+				gl.bindTexture(gl.TEXTURE_2D, this.objects[i].texture);
+				gl.drawArrays(gl.TRIANGLES, this.objects[i].vertOffset, this.objects[i].vertCount);
+			}
 		}
 	}
 
-	gl.uniform3fv(uniform.uPosition, this.position);
-	gl.uniform1f(uniform.uSize, this.size);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-
-	// Resetting attributes because buffer has changed
-	const attribute = _program.attribute;
-	// Link attribute
-	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 9 * 4, 0);
-	gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 9 * 4, 3 * 4);
-	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 9 * 4, 6 * 4);
-	gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 9 * 4, 8 * 4);
-
-	for (let i = 0, count = this.objects.length; i < count; ++i) {
-		if (this.objects[i] && this.objects[i].complete) {
-			gl.bindTexture(gl.TEXTURE_2D, this.objects[i].texture);
-			gl.drawArrays(gl.TRIANGLES, this.objects[i].vertOffset, this.objects[i].vertCount);
-		}
+	static afterRender(gl) {
+		const attribute = _program.attribute;
+		gl.disableVertexAttribArray(attribute.aPosition);
+		gl.disableVertexAttribArray(attribute.aVertexNormal);
+		gl.disableVertexAttribArray(attribute.aTextureCoord);
+		gl.disableVertexAttribArray(attribute.aAlpha);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	}
-};
-
-RsmEffect.afterRender = function afterRender(gl) {
-	const attribute = _program.attribute;
-	gl.disableVertexAttribArray(attribute.aPosition);
-	gl.disableVertexAttribArray(attribute.aVertexNormal);
-	gl.disableVertexAttribArray(attribute.aTextureCoord);
-	gl.disableVertexAttribArray(attribute.aAlpha);
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-};
+}
 export default RsmEffect;
