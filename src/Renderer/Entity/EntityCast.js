@@ -20,134 +20,134 @@ const _size = new Float32Array(2);
 /**
  * Cast constructor
  */
-function Cast() {
-	this.tick = 0;
-	this.delay = 0;
-	this.percent = -1;
-	this.display = false;
-	this.color = '#00FF00';
-	this.onComplete = null;
+class Cast {
+	constructor() {
+		this.tick = 0;
+		this.delay = 0;
+		this.percent = -1;
+		this.display = false;
+		this.color = '#00FF00';
+		this.onComplete = null;
 
-	this.canvas = document.createElement('canvas');
-	this.ctx = this.canvas.getContext('2d');
-	this.canvas.style.position = 'absolute';
-	this.canvas.style.zIndex = 1;
-	this.canvas.width = 60;
-	this.canvas.height = 6;
-}
-
-/**
- * Set a progressbar
- *
- * @param {number} delay
- */
-Cast.prototype.set = function Set(delay, color) {
-	// Init cast
-	this.display = true;
-	this.tick = Date.now() + 0;
-	this.delay = delay;
-	this.color = color || '#00FF00';
-};
-
-/**
- * Remove GUI from html
- */
-Cast.prototype.remove = function Remove() {
-	this.percent = -1;
-	this.display = false;
-	if (this.canvas.parentNode) {
-		document.body.removeChild(this.canvas);
+		this.canvas = document.createElement('canvas');
+		this.ctx = this.canvas.getContext('2d');
+		this.canvas.style.position = 'absolute';
+		this.canvas.style.zIndex = 1;
+		this.canvas.width = 60;
+		this.canvas.height = 6;
 	}
-};
 
-/**
- * Clean up memory
- */
-Cast.prototype.clean = function Clean() {
-	this.remove();
-	if (this.onComplete) {
-		this.onComplete();
+	/**
+	 * Set a progressbar
+	 *
+	 * @param {number} delay
+	 */
+	set(delay, color) {
+		// Init cast
+		this.display = true;
+		this.tick = Date.now() + 0;
+		this.delay = delay;
+		this.color = color || '#00FF00';
 	}
-	this.onComplete = null;
-};
 
-/**
- * Update progress bar
- *
- * @param {number} perc
- */
-Cast.prototype.update = function Update(perc) {
-	const width = 60,
-		height = 6;
-	const ctx = this.ctx;
+	/**
+	 * Remove GUI from html
+	 */
+	remove() {
+		this.percent = -1;
+		this.display = false;
+		if (this.canvas.parentNode) {
+			document.body.removeChild(this.canvas);
+		}
+	}
 
-	// Border
-	ctx.fillStyle = '#10189c';
-	ctx.fillRect(0, 0, width, height);
-
-	// Background
-	ctx.fillStyle = '#424242';
-	ctx.fillRect(1, 1, width - 2, 4);
-
-	// Percent
-	ctx.fillStyle = this.color;
-	ctx.fillRect(1, 1, Math.round((width - 2) * perc), 4);
-};
-
-/**
- * Rendering cast
- *
- * @param {mat4} matrix
- */
-Cast.prototype.render = function Render(matrix) {
-	const canvas = this.canvas;
-	const percent = +((Date.now() - this.tick) / this.delay).toFixed(2);
-	let z;
-
-	// Cast complete remove it
-	if (percent >= 1.0) {
+	/**
+	 * Clean up memory
+	 */
+	clean() {
 		this.remove();
-
 		if (this.onComplete) {
 			this.onComplete();
-			this.onComplete = null;
 		}
-		return;
+		this.onComplete = null;
 	}
 
-	// Update
-	if (percent !== this.percent) {
-		this.update(percent);
-		this.percent = percent;
+	/**
+	 * Update progress bar
+	 *
+	 * @param {number} perc
+	 */
+	update(perc) {
+		const width = 60,
+			height = 6;
+		const ctx = this.ctx;
+
+		// Border
+		ctx.fillStyle = '#10189c';
+		ctx.fillRect(0, 0, width, height);
+
+		// Background
+		ctx.fillStyle = '#424242';
+		ctx.fillRect(1, 1, width - 2, 4);
+
+		// Percent
+		ctx.fillStyle = this.color;
+		ctx.fillRect(1, 1, Math.round((width - 2) * perc), 4);
 	}
 
-	// Cast position
-	_pos[0] = 0.0;
-	_pos[1] = 90 / 35;
-	_pos[2] = 0.0;
-	_pos[3] = 1.0;
+	/**
+	 * Rendering cast
+	 *
+	 * @param {mat4} matrix
+	 */
+	render(matrix) {
+		const canvas = this.canvas;
+		const percent = +((Date.now() - this.tick) / this.delay).toFixed(2);
 
-	// Set the viewport
-	_size[0] = window.innerWidth / 2;
-	_size[1] = window.innerHeight / 2;
+		// Cast complete remove it
+		if (percent >= 1.0) {
+			this.remove();
 
-	// Project point to scene
-	vec4.transformMat4(_pos, _pos, matrix);
+			if (this.onComplete) {
+				this.onComplete();
+				this.onComplete = null;
+			}
+			return;
+		}
 
-	// Calculate position
-	z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
-	_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
-	_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
+		// Update
+		if (percent !== this.percent) {
+			this.update(percent);
+			this.percent = percent;
+		}
 
-	canvas.style.top = (_pos[1] | 0) + 'px';
-	canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
+		// Cast position
+		_pos[0] = 0.0;
+		_pos[1] = 90 / 35;
+		_pos[2] = 0.0;
+		_pos[3] = 1.0;
 
-	// Append to body
-	if (!canvas.parentNode) {
-		document.body.appendChild(canvas);
+		// Set the viewport
+		_size[0] = window.innerWidth / 2;
+		_size[1] = window.innerHeight / 2;
+
+		// Project point to scene
+		vec4.transformMat4(_pos, _pos, matrix);
+
+		// Calculate position
+		const z = _pos[3] === 0.0 ? 1.0 : 1.0 / _pos[3];
+		_pos[0] = _size[0] + Math.round(_size[0] * (_pos[0] * z));
+		_pos[1] = _size[1] - Math.round(_size[1] * (_pos[1] * z));
+
+		canvas.style.top = (_pos[1] | 0) + 'px';
+		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
+
+		// Append to body
+		if (!canvas.parentNode) {
+			document.body.appendChild(canvas);
+		}
 	}
-};
-
+}
 /**
  * Export
  */

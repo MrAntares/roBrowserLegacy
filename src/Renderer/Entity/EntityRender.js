@@ -75,7 +75,7 @@ const renderGUI = (function renderGUIClosure() {
 	const _matrix = mat4.create();
 	const _vector = vec4.create();
 
-	return function renderGUI(entity, modelView, projection) {
+	return function _renderGUI(entity, modelView, projection) {
 		// Move to camera
 		_vector[0] = entity.position[0] + 0.5;
 		_vector[1] = -entity.position[2];
@@ -156,18 +156,17 @@ const calculateBoundingRect = (function calculateBoundingRectClosure() {
 		out[1] *= out[3];
 	}
 
-	return function calculateBoundingRect(entity, matrix) {
-		let minSize, fx, fy;
-		let tmp, rect;
+	return function _calculateBoundingRect(entity, matrix) {
+		let tmp;
 
-		fx = entity.xSize / 175;
-		fy = entity.ySize / 175;
+		const fx = entity.xSize / 175;
+		const fy = entity.ySize / 175;
 
 		size[0] = window.innerWidth * 0.5;
 		size[1] = window.innerHeight * 0.5;
 
-		rect = entity.boundingRect;
-		minSize = entity.objecttype === entity.constructor.TYPE_ITEM ? 30 : 60;
+		const rect = entity.boundingRect;
+		const minSize = entity.objecttype === entity.constructor.TYPE_ITEM ? 30 : 60;
 
 		// No body ? Default picking (sprite 110 for example)
 		if (rect.x1 === Infinity || rect.x2 === -Infinity || rect.y1 === -Infinity || rect.y2 === Infinity) {
@@ -213,7 +212,7 @@ const calculateBoundingRect = (function calculateBoundingRectClosure() {
 const renderEntity = (function renderEntityClosure() {
 	const _position = new Int32Array(2);
 
-	return function renderEntity() {
+	return function _renderEntity() {
 		if (this.hideEntity) {
 			return;
 		}
@@ -488,7 +487,7 @@ const renderEntity = (function renderEntityClosure() {
 const renderElement = (function renderElementClosure() {
 	const _position = new Int32Array(2);
 
-	return function renderElement(entity, files, type, position, is_main) {
+	return function _renderElement(entity, files, type, position, is_main) {
 		let isBlendModeOne = false;
 
 		// Nothing to render

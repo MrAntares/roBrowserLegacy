@@ -614,8 +614,8 @@ function entitiesWalkProcess() {
 		(!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1000 < Date.now())
 	) {
 		const range = 2;
-		const distance = Math.floor(this.distance(this, this.falcon));
-		if (distance < range) {
+		const dist = Math.floor(this.distance(this, this.falcon));
+		if (dist < range) {
 			return;
 		}
 
@@ -644,8 +644,8 @@ function entitiesWalkProcess() {
 		(!this.wug.walk.lastWalkTick || this.wug.walk.lastWalkTick + 1000 < Date.now())
 	) {
 		const range = 4;
-		const distance = Math.floor(this.distance(this, this.wug));
-		if (distance < range) {
+		const dist = Math.floor(this.distance(this, this.wug));
+		if (dist < range) {
 			return;
 		}
 
