@@ -196,10 +196,8 @@ class Cursor {
 			return;
 		}
 		// TODO: Check if this 'show' is invalid css or custom
-		if (_selector.style.display !== 'show') {
-			if (_selector) {
-				_selector.style.display = 'show';
-			}
+		if (_selector && _selector.style.display === 'none') {
+			_selector.style.display = 'block';
 		}
 
 		const info = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
