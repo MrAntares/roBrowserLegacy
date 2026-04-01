@@ -15,62 +15,62 @@ import commonVS from './GLSL/Common.vs?raw';
 import vibranceFS from './GLSL/Vibrance.fs?raw';
 
 let _program, _buffer;
-function Vibrance() {}
+class Vibrance {
+	static render(gl, inputTexture, outputFbo) {
+		if (!_buffer || !_program || !Vibrance.isActive()) {
+			return;
+		}
 
-Vibrance.render = function render(gl, inputTexture, outputFbo) {
-	if (!_buffer || !_program || !Vibrance.isActive()) {
-		return;
+		PostProcess.beforeRenderPass(gl, outputFbo);
+
+		gl.useProgram(_program);
+
+		gl.uniform1f(_program.uniform.uVibrance, GraphicsSettings.vibrance || 0.15);
+		gl.uniform3f(_program.uniform.uVibranceRGBBalance, 1.0, 1.0, 1.0);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		const posLoc = _program.attribute.aPosition;
+		gl.enableVertexAttribArray(posLoc);
+		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, inputTexture);
+		gl.uniform1i(_program.uniform.uTexture, 0);
+
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+		PostProcess.afterRenderPass(gl);
 	}
 
-	PostProcess.beforeRenderPass(gl, outputFbo);
-
-	gl.useProgram(_program);
-
-	gl.uniform1f(_program.uniform.uVibrance, GraphicsSettings.vibrance || 0.15);
-	gl.uniform3f(_program.uniform.uVibranceRGBBalance, 1.0, 1.0, 1.0);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	const posLoc = _program.attribute.aPosition;
-	gl.enableVertexAttribArray(posLoc);
-	gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-	gl.uniform1i(_program.uniform.uTexture, 0);
-
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-	PostProcess.afterRenderPass(gl);
-};
-
-Vibrance.init = function init(gl) {
-	if (!gl) {
-		return;
+	static init(gl) {
+		if (!gl) {
+			return;
+		}
+		try {
+			_program = WebGL.createShaderProgram(gl, commonVS, vibranceFS);
+		} catch (e) {
+			console.error('Error compiling Vibrance shader.', e);
+			return;
+		}
+		const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+		_buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
 	}
-	try {
-		_program = WebGL.createShaderProgram(gl, commonVS, vibranceFS);
-	} catch (e) {
-		console.error('Error compiling Vibrance shader.', e);
-		return;
+
+	static isActive() {
+		return GraphicsSettings.vibranceEnabled;
 	}
-	const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
-	_buffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
-};
 
-Vibrance.isActive = function isActive() {
-	return GraphicsSettings.vibranceEnabled;
-};
-
-Vibrance.program = function program() {
-	return _program;
-};
-
-Vibrance.clean = function clean(gl) {
-	if (_buffer) {
-		gl.deleteBuffer(_buffer);
+	static program() {
+		return _program;
 	}
-	_program = _buffer = null;
-};
+
+	static clean(gl) {
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+		}
+		_program = _buffer = null;
+	}
+}
 export default Vibrance;

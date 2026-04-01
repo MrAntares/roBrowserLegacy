@@ -14,37 +14,6 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
 
 /**
- * Altitude Namespace
- */
-const Altitude = {};
-
-/**
- * @var {number} map width
- */
-Altitude.width = 0;
-
-/**
- * @var {number} map height
- */
-Altitude.height = 0;
-
-/**
- * @var {object} enum cell type
- * (Copy from Loaders/Altitude.js)
- */
-Altitude.TYPE = {
-	NONE: 1 << 0,
-	WALKABLE: 1 << 1,
-	WATER: 1 << 2,
-	SNIPABLE: 1 << 3
-};
-
-/**
- * @var {number} ray intersection count
- */
-Altitude.MAX_INTERSECT_COUNT = 200;
-
-/**
  * @var {array} Cells where stored altitude
  */
 let _cells = null;
@@ -54,49 +23,60 @@ let _cells = null;
  */
 let _types = null;
 
-/**
- * Initialize Altitude mesh
- *
- * @param {object} gl context
- * @param {object} data Altitude { mesh, vertCount, cells, width, height, colors }
- */
-Altitude.init = function init(data) {
-	// Extract 'type' from cells
-	const cells = data.cells;
-	let i,
-		count = cells.length / 5;
-	const types = new Uint8Array(count);
+const { mat4, vec3, vec4 } = glMatrix;
+const _from = vec3.create();
+const _to = vec4.create();
+const _unit = vec3.create();
+const _matrix = mat4.create();
+const buffer1x1 = new Float32Array(1 * 1 * 30);
+const buffer5x5 = new Float32Array(5 * 5 * 30);
+const buffer7x7 = new Float32Array(7 * 7 * 30);
+const buffer13x13 = new Float32Array(13 * 13 * 30);
+const tmp = new Float32Array(5);
 
-	for (i = 0; i < count; ++i) {
-		types[i] = cells[i * 5 + 4];
+/**
+ * Altitude Namespace
+ */
+class Altitude {
+	/**
+	 * Initialize Altitude mesh
+	 *
+	 * @param {object} gl context
+	 * @param {object} data Altitude { mesh, vertCount, cells, width, height, colors }
+	 */
+	static init(data) {
+		// Extract 'type' from cells
+		let i;
+		const count = data.cells.length / 5;
+		const types = new Uint8Array(count);
+
+		for (i = 0; i < count; ++i) {
+			types[i] = data.cells[i * 5 + 4];
+		}
+
+		// Save information
+		_cells = data.cells;
+		_types = types;
+		Altitude.width = data.width;
+		Altitude.height = data.height;
+
+		// Initialize PathFinding
+		PathFinding.setGat({
+			width: Altitude.width,
+			height: Altitude.height,
+			cells: types,
+			types: Altitude.TYPE
+		});
 	}
 
-	// Save information
-	_cells = data.cells;
-	_types = types;
-	Altitude.width = data.width;
-	Altitude.height = data.height;
-
-	// Initialize PathFinding
-	PathFinding.setGat({
-		width: Altitude.width,
-		height: Altitude.height,
-		cells: types,
-		types: Altitude.TYPE
-	});
-};
-
-/**
- * Get back cell data
- *
- * @param {number} x
- * @param {number} y
- * @return {Array} cell
- */
-Altitude.getCell = (function getCellClosure() {
-	const tmp = new Float32Array(5);
-
-	return function getCell(x, y) {
+	/**
+	 * Get back cell data
+	 *
+	 * @param {number} x
+	 * @param {number} y
+	 * @return {Array} cell
+	 */
+	static getCell(x, y) {
 		const index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
 
 		tmp[0] = _cells[index + 0];
@@ -106,103 +86,63 @@ Altitude.getCell = (function getCellClosure() {
 		tmp[4] = _cells[index + 4];
 
 		return tmp;
-	};
-})();
-
-/**
- * Return cell type
- *
- * @param {number} x
- * @param {number} y
- * @return {number} cell type
- */
-Altitude.getCellType = function getCellType(x, y) {
-	return _types[x + y * Altitude.width];
-};
-
-/**
- * Return cell height
- *
- * @param {number} x
- * @param {number} y
- * @return {number} height
- */
-Altitude.getCellHeight = function getCellHeight(x, y) {
-	// Map not loaded yet ?
-	if (!_cells) {
-		return 0.0;
 	}
 
-	let index, x1, x2;
+	/**
+	 * Return cell type
+	 *
+	 * @param {number} x
+	 * @param {number} y
+	 * @return {number} cell type
+	 */
+	static getCellType(x, y) {
+		return _types[x + y * Altitude.width];
+	}
 
-	// Should be at the middle of the cell
-	x += 0.5;
-	y += 0.5;
+	/**
+	 * Return cell height
+	 *
+	 * @param {number} x
+	 * @param {number} y
+	 * @return {number} height
+	 */
+	static getCellHeight(x, y) {
+		// Map not loaded yet ?
+		if (!_cells) {
+			return 0.0;
+		}
 
-	index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
+		// Should be at the middle of the cell
+		x += 0.5;
+		y += 0.5;
 
-	x %= 1.0;
-	y %= 1.0;
+		const index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
 
-	x1 = _cells[index + 0] + (_cells[index + 1] - _cells[index + 0]) * x;
-	x2 = _cells[index + 2] + (_cells[index + 3] - _cells[index + 2]) * x;
+		x %= 1.0;
+		y %= 1.0;
 
-	return -(x1 + (x2 - x1) * y);
-};
+		const x1 = _cells[index + 0] + (_cells[index + 1] - _cells[index + 0]) * x;
+		const x2 = _cells[index + 2] + (_cells[index + 3] - _cells[index + 2]) * x;
 
-/**
- * Taken from *athena at src/map/map.c
- * I don't know if it's a good source but it's a good idea to match this references for now
- */
-const TYPE_TABLE = {
-	0: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // walkable ground
-	1: Altitude.TYPE.NONE, // non-walkable ground
-	2: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // ???
-	3: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE | Altitude.TYPE.WATER, // walkable water
-	4: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // ???
-	5: Altitude.TYPE.SNIPABLE, // gat (snipable)
-	6: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // ???
+		return -(x1 + (x2 - x1) * y);
+	}
 
-	/* Taken from Grf Editor */
-	[-1]: Altitude.TYPE.NONE, // NoGat (-1)
-	[0x80000000]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // Weird0 (Int32.MinValue)
-	[0x80000001]: Altitude.TYPE.NONE, // Weird1
-	[0x80000002]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // Weird2
-	[0x80000003]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE | Altitude.TYPE.WATER, // Weird3
-	[0x80000004]: Altitude.TYPE.NONE, // Weird4
-	[0x80000005]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // Weird5
-	[0x80000006]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // Weird6
-	[0x80000007]: Altitude.TYPE.NONE, // Weird7
-	[0x80000008]: Altitude.TYPE.NONE, // Weird8
-	[0x80000009]: Altitude.TYPE.NONE // Weird9
-};
+	static setCellType(x, y, type) {
+		_types[x + y * Altitude.width] = TYPE_TABLE[type];
+		PathFinding.updateGat(x, y, TYPE_TABLE[type]);
+	}
 
-Altitude.setCellType = function setCellType(x, y, type) {
-	_types[x + y * Altitude.width] = TYPE_TABLE[type];
-	PathFinding.updateGat(x, y, TYPE_TABLE[type]);
-};
-
-/**
- * Intersect cell
- *
- * @param {mat4} modelView matrix
- * @param {mat4} projection matrix
- * @param {vec2} output vector
- * @return {bool} success
- */
-Altitude.intersect = (function intersectClosure() {
-	const mat4 = glMatrix.mat4;
-	const vec3 = glMatrix.vec3;
-	const vec4 = glMatrix.vec4;
-
-	const _from = vec3.create();
-	const _to = vec4.create();
-	const _unit = vec3.create();
-	const _matrix = mat4.create();
-
-	return function intersect(modelView, projection, out) {
-		let i,
-			count = Altitude.MAX_INTERSECT_COUNT;
+	/**
+	 * Intersect cell
+	 *
+	 * @param {mat4} modelView matrix
+	 * @param {mat4} projection matrix
+	 * @param {vec2} output vector
+	 * @return {bool} success
+	 */
+	static intersect(modelView, projection, out) {
+		let i;
+		const count = Altitude.MAX_INTERSECT_COUNT;
 
 		// Extract camera position
 		mat4.invert(_matrix, modelView);
@@ -250,24 +190,17 @@ Altitude.intersect = (function intersectClosure() {
 		}
 
 		return false;
-	};
-})();
+	}
 
-/**
- * Generate a plane stick to the ground
- * Used for effects
- *
- * @param {number} position x
- * @param {number} position y
- * @param {number} plane size
- */
-Altitude.generatePlane = (function generatePlaneClosure() {
-	const buffer1x1 = new Float32Array(1 * 1 * 30);
-	const buffer5x5 = new Float32Array(5 * 5 * 30);
-	const buffer7x7 = new Float32Array(7 * 7 * 30);
-	const buffer13x13 = new Float32Array(13 * 13 * 30);
-
-	return function generatePlane(pos_x, pos_y, size) {
+	/**
+	 * Generate a plane stick to the ground
+	 * Used for effects
+	 *
+	 * @param {number} position x
+	 * @param {number} position y
+	 * @param {number} plane size
+	 */
+	static generatePlane(pos_x, pos_y, size) {
 		if (!_cells) {
 			return null;
 		}
@@ -344,22 +277,75 @@ Altitude.generatePlane = (function generatePlaneClosure() {
 		}
 
 		return buffer;
-	};
-})();
-
-Altitude.getCellsInSquareRange = function getCellsInSquareRangeClosure(x, y, range) {
-	const cells = [];
-
-	// get all cells in square range and return x, y if is in  and walkable
-	for (let i = x - range; i <= x + range; ++i) {
-		for (let j = y - range; j <= y + range; ++j) {
-			if (Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE) {
-				cells.push({ x: i, y: j });
-			}
-		}
 	}
 
-	return cells;
+	static getCellsInSquareRange(x, y, range) {
+		const result = [];
+
+		// get all cells in square range and return x, y if is in  and walkable
+		for (let i = x - range; i <= x + range; ++i) {
+			for (let j = y - range; j <= y + range; ++j) {
+				if (Altitude.getCellType(i, j) & Altitude.TYPE.WALKABLE) {
+					result.push({ x: i, y: j });
+				}
+			}
+		}
+
+		return result;
+	}
+}
+
+/**
+ * @var {number} map width
+ */
+Altitude.width = 0;
+
+/**
+ * @var {number} map height
+ */
+Altitude.height = 0;
+
+/**
+ * @var {object} enum cell type
+ * (Copy from Loaders/Altitude.js)
+ */
+Altitude.TYPE = {
+	NONE: 1 << 0,
+	WALKABLE: 1 << 1,
+	WATER: 1 << 2,
+	SNIPABLE: 1 << 3
+};
+
+/**
+ * @var {number} ray intersection count
+ */
+Altitude.MAX_INTERSECT_COUNT = 200;
+
+/**
+ * Taken from *athena at src/map/map.c
+ * I don't know if it's a good source but it's a good idea to match this references for now
+ */
+const TYPE_TABLE = {
+	0: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // walkable ground
+	1: Altitude.TYPE.NONE, // non-walkable ground
+	2: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // ???
+	3: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE | Altitude.TYPE.WATER, // walkable water
+	4: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // ???
+	5: Altitude.TYPE.SNIPABLE, // gat (snipable)
+	6: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // ???
+
+	/* Taken from Grf Editor */
+	[-1]: Altitude.TYPE.NONE, // NoGat (-1)
+	[0x80000000]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // Weird0 (Int32.MinValue)
+	[0x80000001]: Altitude.TYPE.NONE, // Weird1
+	[0x80000002]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // Weird2
+	[0x80000003]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE | Altitude.TYPE.WATER, // Weird3
+	[0x80000004]: Altitude.TYPE.NONE, // Weird4
+	[0x80000005]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // Weird5
+	[0x80000006]: Altitude.TYPE.WALKABLE | Altitude.TYPE.SNIPABLE, // Weird6
+	[0x80000007]: Altitude.TYPE.NONE, // Weird7
+	[0x80000008]: Altitude.TYPE.NONE, // Weird8
+	[0x80000009]: Altitude.TYPE.NONE // Weird9
 };
 
 /**

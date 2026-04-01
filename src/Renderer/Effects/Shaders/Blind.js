@@ -16,82 +16,81 @@ import PostProcess from 'Renderer/Effects/PostProcess.js';
 let _program, _buffer;
 let _active = false;
 
-function Blind() {}
+class Blind {
+	/**
+	 * Renders the Blind effect
+	 * @param {WebGLRenderingContext} gl
+	 * @param {WebGLTexture} inputTexture - Texture from previous pass
+	 * @param {WebGLFramebuffer} outputFbo - Target buffer
+	 */
+	static render(gl, inputTexture, outputFbo) {
+		if (!_buffer || !_program || !Blind.isActive()) {
+			return;
+		}
 
-/**
- * Renders the Blind effect
- * @param {WebGLRenderingContext} gl
- * @param {WebGLTexture} inputTexture - Texture from previous pass
- * @param {WebGLFramebuffer} outputFbo - Target buffer
- */
-Blind.render = function render(gl, inputTexture, outputFbo) {
-	if (!_buffer || !_program || !Blind.isActive()) {
-		return;
+		PostProcess.beforeRenderPass(gl, outputFbo);
+
+		gl.useProgram(_program);
+
+		const baseRadius = 0.2;
+		const baseFalloff = 0.5;
+		const zoom = Camera.zoomFinal;
+
+		const focusRadius = baseRadius + (63 - zoom) / 1000;
+		const focusFalloff = baseFalloff + (63 - zoom) / 1000;
+
+		gl.uniform1f(_program.uniform.uFocusRadius, focusRadius);
+		gl.uniform1f(_program.uniform.uFocusFalloff, focusFalloff);
+		gl.uniform2f(_program.uniform.uAspectRatio, gl.canvas.width / gl.canvas.height, 1.0);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		const posLoc = _program.attribute.aPosition;
+		gl.enableVertexAttribArray(posLoc);
+		gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, inputTexture);
+		gl.uniform1i(_program.uniform.uTexture, 0);
+
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+		PostProcess.afterRenderPass(gl);
 	}
 
-	PostProcess.beforeRenderPass(gl, outputFbo);
-
-	gl.useProgram(_program);
-
-	const baseRadius = 0.2;
-	const baseFalloff = 0.5;
-	const zoom = Camera.zoomFinal;
-
-	const focusRadius = baseRadius + (63 - zoom) / 1000;
-	const focusFalloff = baseFalloff + (63 - zoom) / 1000;
-
-	gl.uniform1f(_program.uniform.uFocusRadius, focusRadius);
-	gl.uniform1f(_program.uniform.uFocusFalloff, focusFalloff);
-	gl.uniform2f(_program.uniform.uAspectRatio, gl.canvas.width / gl.canvas.height, 1.0);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	const posLoc = _program.attribute.aPosition;
-	gl.enableVertexAttribArray(posLoc);
-	gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-	gl.uniform1i(_program.uniform.uTexture, 0);
-
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-	PostProcess.afterRenderPass(gl);
-};
-
-Blind.init = function init(gl) {
-	if (!gl) {
-		return;
+	static init(gl) {
+		if (!gl) {
+			return;
+		}
+		try {
+			_program = WebGL.createShaderProgram(gl, commonVS, blindFS);
+		} catch (e) {
+			console.error('Error compiling Blind shader.', e);
+			return;
+		}
+		const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+		_buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
 	}
-	try {
-		_program = WebGL.createShaderProgram(gl, commonVS, blindFS);
-	} catch (e) {
-		console.error('Error compiling Blind shader.', e);
-		return;
+
+	static isActive() {
+		return _active;
 	}
-	const quadVertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
-	_buffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
-};
 
-Blind.isActive = function isActive() {
-	return _active;
-};
-
-Blind.setActive = function setActive(bool) {
-	_active = bool;
-};
-
-Blind.program = function program() {
-	return _program;
-};
-
-// No internal FBO needed for this effect in this architecture
-Blind.clean = function clean(gl) {
-	if (_buffer) {
-		gl.deleteBuffer(_buffer);
+	static setActive(bool) {
+		_active = bool;
 	}
-	_program = _buffer = null;
-};
 
+	static program() {
+		return _program;
+	}
+
+	// No internal FBO needed for this effect in this architecture
+	static clean(gl) {
+		if (_buffer) {
+			gl.deleteBuffer(_buffer);
+		}
+		_program = _buffer = null;
+	}
+}
 export default Blind;
