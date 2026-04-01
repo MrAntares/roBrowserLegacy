@@ -157,7 +157,7 @@ class MapEngine {
 		Network.connect(
 			current_ip,
 			port,
-			(success) =>{
+			success => {
 				// Force reloading map
 				MapRenderer.currentMap = '';
 
