@@ -128,302 +128,302 @@ let _mapName = '';
  */
 let _isInitialised = false;
 
-/**
- * @namespace MapEngine
- */
-const MapEngine = {};
-
 let snCounter = 0;
 let chatLines = 0;
 
 /**
- * @var {boolean} do we need to update UI versions?
+ * @namespace MapEngine
  */
-MapEngine.needsUIVerUpdate = false;
+class MapEngine {
+	/**
+	 * @var {boolean} do we need to update UI versions?
+	 */
+	static needsUIVerUpdate = false;
 
-/**
- * Connect to Map Server
- *
- * @param {number} IP
- * @param {number} port
- * @param {string} mapName
- */
-MapEngine.init = function init(ip, port, mapName) {
-	_mapName = mapName;
+	/**
+	 * Connect to Map Server
+	 *
+	 * @param {number} IP
+	 * @param {number} port
+	 * @param {string} mapName
+	 */
+	static init(ip, port, mapName) {
+		_mapName = mapName;
 
-	// Connect to char server
-	const forceAddress = Configs.get('forceUseAddress');
-	const server_info = Configs.getServer();
-	const current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
-	Network.connect(
-		current_ip,
-		port,
-		function onconnect(success) {
-			// Force reloading map
-			MapRenderer.currentMap = '';
+		// Connect to char server
+		const forceAddress = Configs.get('forceUseAddress');
+		const server_info = Configs.getServer();
+		const current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
+		Network.connect(
+			current_ip,
+			port,
+			function onconnect(success) {
+				// Force reloading map
+				MapRenderer.currentMap = '';
 
-			// Fail to connect...
-			if (!success) {
-				UIManager.showErrorBox(DB.getMessage(1));
-				return;
-			}
-
-			// Success, try to login.
-			let pkt;
-			if (PACKETVER.value >= 20180307) {
-				pkt = new PACKET.CZ.ENTER2();
-			} else {
-				pkt = new PACKET.CZ.ENTER();
-			}
-			pkt.AID = Session.AID;
-			pkt.GID = Session.GID;
-			pkt.AuthCode = Session.AuthCode;
-			pkt.clientTime = Date.now();
-			pkt.Sex = Session.Sex;
-			Network.sendPacket(pkt);
-
-			// Server send back AID
-			Network.read(function (fp) {
-				// if PACKETVER < 20070521, client send GID...
-				if (fp.length === 4) {
-					Session.Character.GID = fp.readLong();
-				}
-			});
-
-			const hbt = new PACKET.CZ.HBT();
-			const is_sec_hbt = Configs.get('sec_HBT', null);
-
-			// Ping
-			let ping;
-			const SP = Session.ping;
-
-			if (PACKETVER.value >= 20180307) {
-				ping = new PACKET.CZ.REQUEST_TIME2();
-			} else {
-				ping = new PACKET.CZ.REQUEST_TIME();
-			}
-			const startTick = Date.now();
-			Network.setPing(function () {
-				if (is_sec_hbt) {
-					Network.sendPacket(hbt);
+				// Fail to connect...
+				if (!success) {
+					UIManager.showErrorBox(DB.getMessage(1));
+					return;
 				}
 
-				ping.clientTime = Date.now() - startTick;
-
-				if (!SP.returned && SP.pingTime) {
-					console.warn('[Network] The server did not answer the previous PING!');
+				// Success, try to login.
+				let pkt;
+				if (PACKETVER.value >= 20180307) {
+					pkt = new PACKET.CZ.ENTER2();
+				} else {
+					pkt = new PACKET.CZ.ENTER();
 				}
-				SP.pingTime = ping.clientTime;
-				SP.returned = false;
+				pkt.AID = Session.AID;
+				pkt.GID = Session.GID;
+				pkt.AuthCode = Session.AuthCode;
+				pkt.clientTime = Date.now();
+				pkt.Sex = Session.Sex;
+				Network.sendPacket(pkt);
 
-				Network.sendPacket(ping);
-			});
+				// Server send back AID
+				Network.read(fp => {
+					// if PACKETVER < 20070521, client send GID...
+					if (fp.length === 4) {
+						Session.Character.GID = fp.readLong();
+					}
+				});
 
-			Session.Playing = true;
-		},
-		true
-	);
+				const hbt = new PACKET.CZ.HBT();
+				const is_sec_hbt = Configs.get('sec_HBT', null);
 
-	// Select UI version when needed
-	if (MapEngine.needsUIVerUpdate || !_isInitialised) {
-		if (PACKETVER.value < 20200520) {
-			BasicInfo.selectUIVersion();
+				// Ping
+				let ping;
+				const SP = Session.ping;
+
+				if (PACKETVER.value >= 20180307) {
+					ping = new PACKET.CZ.REQUEST_TIME2();
+				} else {
+					ping = new PACKET.CZ.REQUEST_TIME();
+				}
+				const startTick = Date.now();
+				Network.setPing(() => {
+					if (is_sec_hbt) {
+						Network.sendPacket(hbt);
+					}
+
+					ping.clientTime = Date.now() - startTick;
+
+					if (!SP.returned && SP.pingTime) {
+						console.warn('[Network] The server did not answer the previous PING!');
+					}
+					SP.pingTime = ping.clientTime;
+					SP.returned = false;
+
+					Network.sendPacket(ping);
+				});
+
+				Session.Playing = true;
+			},
+			true
+		);
+
+		// Select UI version when needed
+		if (MapEngine.needsUIVerUpdate || !_isInitialised) {
+			if (PACKETVER.value < 20200520) {
+				BasicInfo.selectUIVersion();
+			}
+			MiniMap.selectUIVersion();
+			SkillList.selectUIVersion();
+			Quest.selectUIVersion();
+			Equipment.selectUIVersion();
+			PlayerViewEquip.selectUIVersion();
+			WinStats.selectUIVersion();
+			Inventory.selectUIVersion();
+			Storage.selectUIVersion();
+			PartyFriends.selectUIVersion();
 		}
-		MiniMap.selectUIVersion();
-		SkillList.selectUIVersion();
-		Quest.selectUIVersion();
-		Equipment.selectUIVersion();
-		PlayerViewEquip.selectUIVersion();
-		WinStats.selectUIVersion();
-		Inventory.selectUIVersion();
-		Storage.selectUIVersion();
-		PartyFriends.selectUIVersion();
+
+		// Do not hook multiple time
+		if (!_isInitialised) {
+			_isInitialised = true;
+
+			MapControl.init();
+			MapControl.onRequestWalk = onRequestWalk;
+			MapControl.onRequestStopWalk = onRequestStopWalk;
+			MapControl.onRequestDropItem = onDropItem;
+
+			// Hook packets
+			Network.hookPacket(PACKET.ZC.AID, onReceiveAccountID);
+			Network.hookPacket(PACKET.ZC.ACCEPT_ENTER, onConnectionAccepted);
+			Network.hookPacket(PACKET.ZC.ACCEPT_ENTER2, onConnectionAccepted);
+			Network.hookPacket(PACKET.ZC.ACCEPT_ENTER3, onConnectionAccepted);
+			Network.hookPacket(PACKET.ZC.NPCACK_MAPMOVE, onMapChange);
+			Network.hookPacket(PACKET.ZC.NPCACK_SERVERMOVE, onServerChange);
+			Network.hookPacket(PACKET.ZC.ACCEPT_QUIT, onExitSuccess);
+			Network.hookPacket(PACKET.ZC.REFUSE_QUIT, onExitFail);
+			Network.hookPacket(PACKET.ZC.RESTART_ACK, onRestartAnswer);
+			Network.hookPacket(PACKET.ZC.ACK_REQ_DISCONNECT, onDisconnectAnswer);
+			Network.hookPacket(PACKET.ZC.NOTIFY_TIME, onPong);
+			Network.hookPacket(PACKET.ZC.PING_LIVE, onPingLive);
+			Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY, onConfigNotify);
+			Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY2, onConfigNotify);
+			Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY3, onConfigNotify);
+			Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY4, onConfigNotify);
+			Network.hookPacket(PACKET.ZC.CONFIG, onConfig);
+
+			// Extend controller
+			MainEngine();
+			MapStateEngine();
+			NPCEngine();
+			EntityEngine();
+			ItemEngine();
+			MailEngine();
+			PrivateMessageEngine();
+			StorageEngine();
+			GroupEngine.init();
+			GuildEngine.init();
+			SkillEngine();
+			ChatRoomEngine();
+			PetEngine();
+			HomunEngine();
+			MercenaryEngine();
+			StoreEngine();
+			TradeEngine();
+			FriendsEngine.init();
+			UIOpenEngine();
+			QuestEngine();
+			RodexEngine();
+			RouletteEngine();
+			PCGoldTimerEngine();
+			CaptchaEngine();
+			ClanEngine();
+			if (Configs.get('enableCashShop')) {
+				CashShopEngine();
+			}
+
+			if (Configs.get('enableBank')) {
+				BankEngine.init();
+			}
+
+			// Prepare UI
+			Escape.prepare();
+			PvPTimer.prepare();
+			PvPCount.prepare();
+			Inventory.getUI().prepare();
+			CartItems.prepare();
+			Vending.prepare();
+			ChangeCart.prepare();
+			Equipment.getUI().prepare();
+			ShortCuts.prepare();
+			ShortCut.prepare();
+			ChatRoomCreate.prepare();
+			Emoticons.prepare();
+			FPS.prepare();
+			PartyFriends.getUI().prepare();
+			StatusIcons.prepare();
+			ChatBox.prepare();
+			ChatBoxSettings.prepare();
+			Guild.prepare();
+			WorldMap.prepare();
+			SkillListMH.homunculus.prepare();
+			SkillListMH.mercenary.prepare();
+			Rodex.prepare();
+			RodexIcon.prepare();
+			Roulette.prepare();
+			PCGoldTimer.prepare();
+			Navigation.prepare();
+			CaptchaUpload.prepare();
+			CaptchaSelector.prepare();
+			CaptchaAnswer.prepare();
+			CaptchaPreview.prepare();
+			Clan.prepare();
+
+			if (Configs.get('enableMapName')) {
+				MapName.prepare();
+			}
+
+			if (Configs.get('enableCashShop')) {
+				CashShopIcon.prepare();
+				CashShop.prepare();
+			}
+
+			if (Configs.get('enableBank')) {
+				Bank.prepare();
+			}
+
+			if (PACKETVER.value >= 20090617) {
+				WhisperBox.prepare();
+				WhisperBox.init();
+			}
+
+			if (PACKETVER.value >= 20141016) {
+				VendingReport.prepare();
+			}
+
+			if (PACKETVER.value >= 20160601) {
+				LaphineSys.prepare();
+			}
+
+			if (PACKETVER.value >= 20170726) {
+				LaphineUpg.prepare();
+			}
+
+			if (Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
+				Refine.prepare();
+			}
+
+			if (PACKETVER.value >= 20170208) {
+				SwitchEquip.prepare();
+				SwitchEquip.onAddSwitchEquip = onAddSwitchEquip;
+				SwitchEquip.onRemoveSwitchEquip = onRemoveSwitchEquip;
+			}
+
+			if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
+				CheckAttendance.prepare();
+			}
+
+			if (PACKETVER.value >= 20200916) {
+				ItemReform.prepare();
+			}
+
+			if (PACKETVER.value >= 20220330) {
+				Reputation.prepare();
+			}
+
+			// Bind UI
+			PetInformations.onConfigUpdate = onConfigUpdate;
+			HomunInformations.onConfigUpdate = onConfigUpdate;
+			Escape.onExitRequest = onExitRequest;
+			Escape.onCharSelectionRequest = onRestartRequest;
+			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
+			Escape.onResurectionRequest = onResurectionRequest;
+			ChatBox.onRequestTalk = onRequestTalk;
+			WhisperBox.onRequestTalk = onRequestTalk;
+		}
+
+		// Init selected UIs when needed
+		if (MapEngine.needsUIVerUpdate || !_isInitialised) {
+			// Prepare UIs
+			MiniMap.getUI().prepare();
+			SkillList.getUI().prepare();
+			if (PACKETVER.value < 20200520) {
+				BasicInfo.getUI().prepare();
+			}
+			Equipment.getUI().prepare();
+			Quest.getUI().prepare();
+			WinStats.getUI().prepare();
+			PartyFriends.selectUIVersion();
+
+			// Bind UIs
+			WinStats.getUI().onRequestUpdate = onRequestStatUpdate;
+			Equipment.getUI().onUnEquip = onUnEquip;
+			Equipment.getUI().onConfigUpdate = onConfigUpdate;
+			Equipment.getUI().onEquipItem = onEquipItem;
+			Equipment.getUI().onRemoveOption = onRemoveOption;
+			Inventory.getUI().onUseItem = onUseItem;
+			Inventory.getUI().onEquipItem = onEquipItem;
+
+			// Avoid zone server change init
+			MapEngine.needsUIVerUpdate = false;
+		}
 	}
-
-	// Do not hook multiple time
-	if (!_isInitialised) {
-		_isInitialised = true;
-
-		MapControl.init();
-		MapControl.onRequestWalk = onRequestWalk;
-		MapControl.onRequestStopWalk = onRequestStopWalk;
-		MapControl.onRequestDropItem = onDropItem;
-
-		// Hook packets
-		Network.hookPacket(PACKET.ZC.AID, onReceiveAccountID);
-		Network.hookPacket(PACKET.ZC.ACCEPT_ENTER, onConnectionAccepted);
-		Network.hookPacket(PACKET.ZC.ACCEPT_ENTER2, onConnectionAccepted);
-		Network.hookPacket(PACKET.ZC.ACCEPT_ENTER3, onConnectionAccepted);
-		Network.hookPacket(PACKET.ZC.NPCACK_MAPMOVE, onMapChange);
-		Network.hookPacket(PACKET.ZC.NPCACK_SERVERMOVE, onServerChange);
-		Network.hookPacket(PACKET.ZC.ACCEPT_QUIT, onExitSuccess);
-		Network.hookPacket(PACKET.ZC.REFUSE_QUIT, onExitFail);
-		Network.hookPacket(PACKET.ZC.RESTART_ACK, onRestartAnswer);
-		Network.hookPacket(PACKET.ZC.ACK_REQ_DISCONNECT, onDisconnectAnswer);
-		Network.hookPacket(PACKET.ZC.NOTIFY_TIME, onPong);
-		Network.hookPacket(PACKET.ZC.PING_LIVE, onPingLive);
-		Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY, onConfigNotify);
-		Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY2, onConfigNotify);
-		Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY3, onConfigNotify);
-		Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY4, onConfigNotify);
-		Network.hookPacket(PACKET.ZC.CONFIG, onConfig);
-
-		// Extend controller
-		MainEngine();
-		MapStateEngine();
-		NPCEngine();
-		EntityEngine();
-		ItemEngine();
-		MailEngine();
-		PrivateMessageEngine();
-		StorageEngine();
-		GroupEngine.init();
-		GuildEngine.init();
-		SkillEngine();
-		ChatRoomEngine();
-		PetEngine();
-		HomunEngine();
-		MercenaryEngine();
-		StoreEngine();
-		TradeEngine();
-		FriendsEngine.init();
-		UIOpenEngine();
-		QuestEngine();
-		RodexEngine();
-		RouletteEngine();
-		PCGoldTimerEngine();
-		CaptchaEngine();
-		ClanEngine();
-		if (Configs.get('enableCashShop')) {
-			CashShopEngine();
-		}
-
-		if (Configs.get('enableBank')) {
-			BankEngine.init();
-		}
-
-		// Prepare UI
-		Escape.prepare();
-		PvPTimer.prepare();
-		PvPCount.prepare();
-		Inventory.getUI().prepare();
-		CartItems.prepare();
-		Vending.prepare();
-		ChangeCart.prepare();
-		Equipment.getUI().prepare();
-		ShortCuts.prepare();
-		ShortCut.prepare();
-		ChatRoomCreate.prepare();
-		Emoticons.prepare();
-		FPS.prepare();
-		PartyFriends.getUI().prepare();
-		StatusIcons.prepare();
-		ChatBox.prepare();
-		ChatBoxSettings.prepare();
-		Guild.prepare();
-		WorldMap.prepare();
-		SkillListMH.homunculus.prepare();
-		SkillListMH.mercenary.prepare();
-		Rodex.prepare();
-		RodexIcon.prepare();
-		Roulette.prepare();
-		PCGoldTimer.prepare();
-		Navigation.prepare();
-		CaptchaUpload.prepare();
-		CaptchaSelector.prepare();
-		CaptchaAnswer.prepare();
-		CaptchaPreview.prepare();
-		Clan.prepare();
-
-		if (Configs.get('enableMapName')) {
-			MapName.prepare();
-		}
-
-		if (Configs.get('enableCashShop')) {
-			CashShopIcon.prepare();
-			CashShop.prepare();
-		}
-
-		if (Configs.get('enableBank')) {
-			Bank.prepare();
-		}
-
-		if (PACKETVER.value >= 20090617) {
-			WhisperBox.prepare();
-			WhisperBox.init();
-		}
-
-		if (PACKETVER.value >= 20141016) {
-			VendingReport.prepare();
-		}
-
-		if (PACKETVER.value >= 20160601) {
-			LaphineSys.prepare();
-		}
-
-		if (PACKETVER.value >= 20170726) {
-			LaphineUpg.prepare();
-		}
-
-		if (Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
-			Refine.prepare();
-		}
-
-		if (PACKETVER.value >= 20170208) {
-			SwitchEquip.prepare();
-			SwitchEquip.onAddSwitchEquip = onAddSwitchEquip;
-			SwitchEquip.onRemoveSwitchEquip = onRemoveSwitchEquip;
-		}
-
-		if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
-			CheckAttendance.prepare();
-		}
-
-		if (PACKETVER.value >= 20200916) {
-			ItemReform.prepare();
-		}
-
-		if (PACKETVER.value >= 20220330) {
-			Reputation.prepare();
-		}
-
-		// Bind UI
-		PetInformations.onConfigUpdate = onConfigUpdate;
-		HomunInformations.onConfigUpdate = onConfigUpdate;
-		Escape.onExitRequest = onExitRequest;
-		Escape.onCharSelectionRequest = onRestartRequest;
-		Escape.onReturnSavePointRequest = onReturnSavePointRequest;
-		Escape.onResurectionRequest = onResurectionRequest;
-		ChatBox.onRequestTalk = onRequestTalk;
-		WhisperBox.onRequestTalk = onRequestTalk;
-	}
-
-	// Init selected UIs when needed
-	if (MapEngine.needsUIVerUpdate || !_isInitialised) {
-		// Prepare UIs
-		MiniMap.getUI().prepare();
-		SkillList.getUI().prepare();
-		if (PACKETVER.value < 20200520) {
-			BasicInfo.getUI().prepare();
-		}
-		Equipment.getUI().prepare();
-		Quest.getUI().prepare();
-		WinStats.getUI().prepare();
-		PartyFriends.selectUIVersion();
-
-		// Bind UIs
-		WinStats.getUI().onRequestUpdate = onRequestStatUpdate;
-		Equipment.getUI().onUnEquip = onUnEquip;
-		Equipment.getUI().onConfigUpdate = onConfigUpdate;
-		Equipment.getUI().onEquipItem = onEquipItem;
-		Equipment.getUI().onRemoveOption = onRemoveOption;
-		Inventory.getUI().onUseItem = onUseItem;
-		Inventory.getUI().onEquipItem = onEquipItem;
-
-		// Avoid zone server change init
-		MapEngine.needsUIVerUpdate = false;
-	}
-};
+}
 
 /**
  * Pong from server

@@ -58,123 +58,135 @@ let _charServers = [];
  */
 let _loginID = '';
 
-/**
- * Init Game
- */
-function init(server) {
-	const q = new Queue();
-	const old_server = _server;
+class LoginEngine {
+	/**
+	 * Init Game
+	 */
+	static init(server) {
+		const q = new Queue();
+		const old_server = _server;
 
-	Configs.setServer(server);
-	UIManager.removeComponents();
-	Session.LangType = 'langtype' in server ? parseInt(server.langtype, 10) : 1; // default to SERVICETYPE_AMERICA
+		Configs.setServer(server);
+		UIManager.removeComponents();
+		Session.LangType = 'langtype' in server ? parseInt(server.langtype, 10) : 1; // default to SERVICETYPE_AMERICA
 
-	// Renewal switch
-	Session.isRenewal = Configs.get('renewal', false);
-	console.log('%c[LOGIN] Game Mode: ', 'color:#007000', Session.isRenewal ? 'RENEWAL' : 'PRE-RENEWAL');
+		// Renewal switch
+		Session.isRenewal = Configs.get('renewal', false);
+		console.log('%c[LOGIN] Game Mode: ', 'color:#007000', Session.isRenewal ? 'RENEWAL' : 'PRE-RENEWAL');
 
-	// Setup Default Charset based on LangType
-	const charset = TextEncoding.detectEncodingByLangtype(Session.LangType, Configs.get('disableKorean'));
+		// Setup Default Charset based on LangType
+		const charset = TextEncoding.detectEncodingByLangtype(Session.LangType, Configs.get('disableKorean'));
 
-	console.log('%c[LOGIN] Language Type: ', 'color:#007000', Session.LangType);
-	console.log('%c[LOGIN] Encoding: ', 'color:#007000', charset);
+		console.log('%c[LOGIN] Language Type: ', 'color:#007000', Session.LangType);
+		console.log('%c[LOGIN] Encoding: ', 'color:#007000', charset);
 
-	_server = server;
+		_server = server;
 
-	// Add support for "packetver" definition in Server listing
-	const packetver = String(Configs.get('packetver'));
-	const remoteClient = Configs.get('remoteClient');
-	const autoLogin = Configs.get('autoLogin');
-	const audioExt = Configs.get('BGMFileExtension');
+		// Add support for "packetver" definition in Server listing
+		const packetver = String(Configs.get('packetver'));
+		const remoteClient = Configs.get('remoteClient');
+		const autoLogin = Configs.get('autoLogin');
+		const audioExt = Configs.get('BGMFileExtension');
 
-	// Server packetver
-	if (packetver) {
-		if (packetver.match(/^\d+$/)) {
-			PACKETVER.value = parseInt(packetver, 10);
+		// Server packetver
+		if (packetver) {
+			if (packetver.match(/^\d+$/)) {
+				PACKETVER.value = parseInt(packetver, 10);
+			}
 		}
-	}
 
-	if (!PACKETVER.value) {
-		UIManager.showErrorBox('Sorry, no PACKETVER configs found.');
-		return;
-	}
+		if (!PACKETVER.value) {
+			UIManager.showErrorBox('Sorry, no PACKETVER configs found.');
+			return;
+		}
 
-	// Add support for remote client in server definition
-	if (remoteClient) {
-		Thread.send('SET_HOST', remoteClient);
+		// Add support for remote client in server definition
+		if (remoteClient) {
+			Thread.send('SET_HOST', remoteClient);
 
-		// Check if the selected server changed.
-		if (old_server != null && (old_server.address != _server.address || old_server.port != _server.port)) {
-			// Re-Loading game data with server specific files (txt, lua, lub)
-			q.add(function () {
-				DB.onReady = function () {
-					Background.setImage('bgi_temp.bmp'); // remove loading
-					q._next();
-				};
-				DB.onProgress = function (i, count) {
-					Background.setPercent(Math.floor((i / count) * 100));
-				};
-				UIManager.removeComponents();
-				Background.init();
-				Background.resize(Renderer.width, Renderer.height);
-				Background.setImage('bgi_temp.bmp', function () {
-					DB.init();
+			// Check if the selected server changed.
+			if (old_server != null && (old_server.address != _server.address || old_server.port != _server.port)) {
+				// Re-Loading game data with server specific files (txt, lua, lub)
+				q.add(function () {
+					DB.onReady = function () {
+						Background.setImage('bgi_temp.bmp'); // remove loading
+						q._next();
+					};
+					DB.onProgress = function (i, count) {
+						Background.setPercent(Math.floor((i / count) * 100));
+					};
+					UIManager.removeComponents();
+					Background.init();
+					Background.resize(Renderer.width, Renderer.height);
+					Background.setImage('bgi_temp.bmp', function () {
+						DB.init();
+					});
 				});
+			}
+		}
+
+		// Server audio configuration
+		if (audioExt) {
+			BGM.setAvailableExtensions(audioExt);
+		}
+
+		// GMs account list from server
+		Session.AdminList = server.adminList || [];
+
+		// Init per server plugins
+		PluginManager.init();
+
+		// Hooking win_login
+		WinLogin.selectUIVersion();
+
+		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
+		WinLogin.getUI().onExitRequest = onExitRequest;
+
+		// Autologin features
+		if (autoLogin instanceof Array && autoLogin[0] && autoLogin[1]) {
+			onConnectionRequest.apply(null, autoLogin);
+			Configs.set('autoLogin', null);
+		} else {
+			q.add(function () {
+				WinLogin.getUI().append();
 			});
 		}
+
+		// Hook packets
+		if (PACKETVER.value < 20170315) {
+			Network.hookPacket(PACKET.AC.ACCEPT_LOGIN, onConnectionAccepted);
+		} else {
+			Network.hookPacket(PACKET.AC.ACCEPT_LOGIN3, onConnectionAccepted);
+		}
+		Network.hookPacket(PACKET.AC.REFUSE_LOGIN, onConnectionRefused);
+		Network.hookPacket(PACKET.AC.REFUSE_LOGIN_R2, onConnectionRefused);
+		Network.hookPacket(PACKET.SC.NOTIFY_BAN, onServerClosed);
+
+		// Execute
+		q.run();
 	}
 
-	// Server audio configuration
-	if (audioExt) {
-		BGM.setAvailableExtensions(audioExt);
+	/**
+	 * Reload WinLogin
+	 */
+	static reload() {
+		UIManager.removeComponents();
+		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
+		WinLogin.getUI().onExitRequest = onExitRequest;
+		WinLogin.getUI().append();
+
+		Network.close();
 	}
 
-	// GMs account list from server
-	Session.AdminList = server.adminList || [];
-
-	// Init per server plugins
-	PluginManager.init();
-
-	// Hooking win_login
-	WinLogin.selectUIVersion();
-
-	WinLogin.getUI().onConnectionRequest = onConnectionRequest;
-	WinLogin.getUI().onExitRequest = onExitRequest;
-
-	// Autologin features
-	if (autoLogin instanceof Array && autoLogin[0] && autoLogin[1]) {
-		onConnectionRequest.apply(null, autoLogin);
-		Configs.set('autoLogin', null);
-	} else {
-		q.add(function () {
-			WinLogin.getUI().append();
-		});
+	/**
+	 * setLoadedServer()
+	 *
+	 * Called by GameEngine when it reloads files due to a service change
+	 * so we don't wind up trying to load the db twice. (Or concurrently.)
+	 */
+	static setLoadedServer(server) {
+		_server = server;
 	}
-
-	// Hook packets
-	if (PACKETVER.value < 20170315) {
-		Network.hookPacket(PACKET.AC.ACCEPT_LOGIN, onConnectionAccepted);
-	} else {
-		Network.hookPacket(PACKET.AC.ACCEPT_LOGIN3, onConnectionAccepted);
-	}
-	Network.hookPacket(PACKET.AC.REFUSE_LOGIN, onConnectionRefused);
-	Network.hookPacket(PACKET.AC.REFUSE_LOGIN_R2, onConnectionRefused);
-	Network.hookPacket(PACKET.SC.NOTIFY_BAN, onServerClosed);
-
-	// Execute
-	q.run();
-}
-
-/**
- * Reload WinLogin
- */
-function reload() {
-	UIManager.removeComponents();
-	WinLogin.getUI().onConnectionRequest = onConnectionRequest;
-	WinLogin.getUI().onExitRequest = onExitRequest;
-	WinLogin.getUI().append();
-
-	Network.close();
 }
 
 /**
@@ -287,7 +299,7 @@ function onCharServerSelected(index) {
 	WinList.remove();
 	WinLoading.append();
 
-	CharEngine.onExitRequest = reload;
+	CharEngine.onExitRequest = LoginEngine.reload;
 	Session.ServerName = _charServers[index].name; // Save server name
 	CharEngine.init(_charServers[index]);
 }
@@ -326,7 +338,7 @@ function onConnectionAccepted(pkt) {
 	// No choice, connect directly to the server
 	if (count === 1 && Configs.get('skipServerList')) {
 		WinLoading.append();
-		CharEngine.onExitRequest = reload;
+		CharEngine.onExitRequest = LoginEngine.reload;
 		Session.ServerName = _charServers[0].name; // Save server name
 		CharEngine.init(_charServers[0]);
 	}
@@ -503,20 +515,6 @@ function onServerClosed(pkt) {
 }
 
 /**
- * setLoadedServer()
- *
- * Called by GameEngine when it reloads files due to a service change
- * so we don't wind up trying to load the db twice. (Or concurrently.)
- */
-function setLoadedServer(server) {
-	_server = server;
-}
-
-/**
  * Export
  */
-export default {
-	init: init,
-	reload: reload,
-	setLoadedServer: setLoadedServer
-};
+export default LoginEngine;

@@ -59,85 +59,85 @@ let _resettingPincode = false;
  * @var {boolean} are we creating a pincode?
  */
 let _creatingPincode = false;
+class CharEngine {
+	/*
+	 * Connect to char server
+	 */
+	static init(server) {
+		BGM.play('01.mp3');
 
-/*
- * Connect to char server
- */
-function init(server) {
-	BGM.play('01.mp3');
+		//Notify MapEngine if it needs UI update
+		MapEngine.needsUIVerUpdate = _server !== server;
 
-	//Notify MapEngine if it needs UI update
-	MapEngine.needsUIVerUpdate = _server !== server;
+		// Storing variable
+		_server = server;
 
-	// Storing variable
-	_server = server;
+		// Connect to char server
+		const forceAddress = Configs.get('forceUseAddress');
+		const server_info = Configs.getServer();
+		const ip = forceAddress ? server_info.address : Network.utils.longToIP(server.ip);
+		Network.connect(ip, server.port, function (success) {
+			// Fail to connect...
+			if (!success) {
+				UIManager.showErrorBox(DB.getMessage(1));
+				return;
+			}
 
-	// Connect to char server
-	const forceAddress = Configs.get('forceUseAddress');
-	const server_info = Configs.getServer();
-	const ip = forceAddress ? server_info.address : Network.utils.longToIP(server.ip);
-	Network.connect(ip, server.port, function (success) {
-		// Fail to connect...
-		if (!success) {
-			UIManager.showErrorBox(DB.getMessage(1));
-			return;
-		}
+			// Success, try to connect
+			const pkt = new PACKET.CH.ENTER();
+			pkt.AID = Session.AID;
+			pkt.AuthCode = Session.AuthCode;
+			pkt.userLevel = Session.UserLevel;
+			pkt.Sex = Session.Sex;
+			pkt.clientType = Session.LangType;
+			Network.sendPacket(pkt);
 
-		// Success, try to connect
-		const pkt = new PACKET.CH.ENTER();
-		pkt.AID = Session.AID;
-		pkt.AuthCode = Session.AuthCode;
-		pkt.userLevel = Session.UserLevel;
-		pkt.Sex = Session.Sex;
-		pkt.clientType = Session.LangType;
-		Network.sendPacket(pkt);
-
-		// Server send back (new) AID
-		Network.read(function (fp) {
-			Session.AID = fp.readLong();
+			// Server send back (new) AID
+			Network.read(function (fp) {
+				Session.AID = fp.readLong();
+			});
 		});
-	});
 
-	//Select UI version
-	CharSelect.selectUIVersion();
-	CharCreate.selectUIVersion();
+		//Select UI version
+		CharSelect.selectUIVersion();
+		CharCreate.selectUIVersion();
 
-	// Hook packets
-	Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION, onConnectionAccepted);
-	Network.hookPacket(PACKET.HC.REFUSE_ENTER, onConnectionRefused);
-	Network.hookPacket(PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION, onCreationSuccess);
-	Network.hookPacket(PACKET.HC.ACCEPT_MAKECHAR, onCreationSuccess);
-	Network.hookPacket(PACKET.HC.REFUSE_MAKECHAR, onCreationFail);
-	Network.hookPacket(PACKET.HC.ACCEPT_DELETECHAR, onDeleteAnswer);
-	Network.hookPacket(PACKET.HC.DELETE_CHAR3, onDeleteAnswer);
-	Network.hookPacket(PACKET.HC.REFUSE_DELETECHAR, onDeleteAnswer);
-	Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR, onReceiveMapInfo);
-	Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR2, onReceiveMapInfo);
-	Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted);
-	Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST, onConnectionAccepted);
-	Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2, onConnectionAccepted);
-	Network.hookPacket(PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME, onMapUnavailable);
-	Network.hookPacket(PACKET.HC.SECOND_PASSWD_LOGIN, onPincodeCheckSuccess);
-	Network.hookPacket(PACKET.HC.DELETE_CHAR3_RESERVED, onRequestCharDel);
-	JoystickUI.onRestore();
-}
+		// Hook packets
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.REFUSE_ENTER, onConnectionRefused);
+		Network.hookPacket(PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION, onCreationSuccess);
+		Network.hookPacket(PACKET.HC.ACCEPT_MAKECHAR, onCreationSuccess);
+		Network.hookPacket(PACKET.HC.REFUSE_MAKECHAR, onCreationFail);
+		Network.hookPacket(PACKET.HC.ACCEPT_DELETECHAR, onDeleteAnswer);
+		Network.hookPacket(PACKET.HC.DELETE_CHAR3, onDeleteAnswer);
+		Network.hookPacket(PACKET.HC.REFUSE_DELETECHAR, onDeleteAnswer);
+		Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR, onReceiveMapInfo);
+		Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR2, onReceiveMapInfo);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME, onMapUnavailable);
+		Network.hookPacket(PACKET.HC.SECOND_PASSWD_LOGIN, onPincodeCheckSuccess);
+		Network.hookPacket(PACKET.HC.DELETE_CHAR3_RESERVED, onRequestCharDel);
+		JoystickUI.onRestore();
+	}
 
-/**
- * Reload Char-Select
- */
-function reload() {
-	Network.close();
-	if (PACKETVER.value < 20181114) {
-		Background.setImage('bgi_temp.bmp', function () {
+	/**
+	 * Reload Char-Select
+	 */
+	static reload() {
+		Network.close();
+		if (PACKETVER.value < 20181114) {
+			Background.setImage('bgi_temp.bmp', function () {
+				UIManager.removeComponents();
+				CharEngine.init(_server);
+			});
+		} else {
 			UIManager.removeComponents();
-			init(_server);
-		});
-	} else {
-		UIManager.removeComponents();
-		init(_server);
+			CharEngine.init(_server);
+		}
 	}
 }
-
 /**
  * Request to go back to Login Window
  */
@@ -769,7 +769,4 @@ function onReceiveMapInfo(pkt) {
 /**
  * Export
  */
-export default {
-	init: init,
-	reload: reload
-};
+export default CharEngine;

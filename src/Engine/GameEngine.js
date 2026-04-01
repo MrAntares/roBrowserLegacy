@@ -121,77 +121,77 @@ function loadFiles(callback) {
 	// Execute
 	q.run();
 }
+class GameEngine {
+	/**
+	 * Initialize Game
+	 */
+	static init() {
+		// Enable/Disable console based on settings
+		ConsoleManager.init();
+		ConsoleManager.toggle();
 
-/**
- * Initialize Game
- */
-export function init() {
-	// Enable/Disable console based on settings
-	ConsoleManager.init();
-	ConsoleManager.toggle();
+		const q = new Queue();
 
-	const q = new Queue();
-
-	// Waiting for the Thread to be ready
-	q.add(function () {
-		if (!_thread_ready) {
-			Thread.hook('THREAD_ERROR', onThreadError);
-			Thread.hook('THREAD_LOG', onThreadLog);
-			Thread.hook('THREAD_READY', function () {
-				_thread_ready = true;
+		// Waiting for the Thread to be ready
+		q.add(function () {
+			if (!_thread_ready) {
+				Thread.hook('THREAD_ERROR', onThreadError);
+				Thread.hook('THREAD_LOG', onThreadLog);
+				Thread.hook('THREAD_READY', function () {
+					_thread_ready = true;
+					q._next();
+				});
+				Thread.init();
+			} else {
 				q._next();
-			});
-			Thread.init();
-		} else {
-			q._next();
-		}
-	});
-
-	// Initialize renderer
-	q.add(function () {
-		Renderer.init();
-		q._next();
-	});
-
-	// Load everything.
-	q.add(function () {
-		// Load files and initialize Login
-		loadFiles(reload);
-	});
-
-	Context.checkSupport();
-
-	// Execute
-	q.run();
-
-	// Remove init spinner
-	window.roInitSpinner.remove();
-}
-
-/**
- * Reload the game
- */
-export function reload() {
-	BGM.setAvailableExtensions(Configs.get('BGMFileExtension', ['mp3']));
-	BGM.play('01.mp3');
-
-	UIManager.removeComponents();
-	Network.close();
-	if (PACKETVER.value < 20181114) {
-		// Setup background
-		Background.init();
-		Background.resize(Renderer.width, Renderer.height);
-		Background.setImage('bgi_temp.bmp', function () {
-			onReload();
+			}
 		});
-	} else {
-		onReload();
-	}
-	// Hooking WinList
-	WinList.onIndexSelected = onLoginServerSelected;
-	WinList.onExitRequest = onExit;
-}
 
+		// Initialize renderer
+		q.add(function () {
+			Renderer.init();
+			q._next();
+		});
+
+		// Load everything.
+		q.add(function () {
+			// Load files and initialize Login
+			loadFiles(GameEngine.reload);
+		});
+
+		Context.checkSupport();
+
+		// Execute
+		q.run();
+
+		// Remove init spinner
+		window.roInitSpinner.remove();
+	}
+
+	/**
+	 * Reload the game
+	 */
+	static reload() {
+		BGM.setAvailableExtensions(Configs.get('BGMFileExtension', ['mp3']));
+		BGM.play('01.mp3');
+
+		UIManager.removeComponents();
+		Network.close();
+		if (PACKETVER.value < 20181114) {
+			// Setup background
+			Background.init();
+			Background.resize(Renderer.width, Renderer.height);
+			Background.setImage('bgi_temp.bmp', function () {
+				onReload();
+			});
+		} else {
+			onReload();
+		}
+		// Hooking WinList
+		WinList.onIndexSelected = onLoginServerSelected;
+		WinList.onExitRequest = onExit;
+	}
+}
 function onReload() {
 	// Display server list
 	const list = new Array(_servers.length);
@@ -200,12 +200,12 @@ function onReload() {
 
 	// WTF no servers ?
 	if (count === 0) {
-		UIManager.showMessageBox('Sorry, no server found.', 'ok', init);
+		UIManager.showMessageBox('Sorry, no server found.', 'ok', GameEngine.init);
 	}
 
 	// Just 1 server, skip the WinList
 	else if (count === 1 && Configs.get('skipServerList')) {
-		LoginEngine.onExitRequest = reload;
+		LoginEngine.onExitRequest = GameEngine.reload;
 		LoginEngine.init(_servers[0]);
 	} else {
 		for (i = 0; i < count; ++i) {
@@ -226,7 +226,7 @@ function onReadyLoginServer(index) {
 	_previous_server = _servers[index];
 
 	WinList.remove();
-	LoginEngine.onExitRequest = reload;
+	LoginEngine.onExitRequest = GameEngine.reload;
 	LoginEngine.init(_servers[index]);
 }
 
@@ -268,7 +268,7 @@ function onExit() {
 	Sound.stop();
 	Renderer.stop();
 	UIManager.removeComponents();
-	reload();
+	GameEngine.reload();
 }
 
 /**
@@ -355,7 +355,4 @@ function onThreadLog(data) {
 /**
  * Export
  */
-export default {
-	init: init,
-	reload: reload
-};
+export default GameEngine;
