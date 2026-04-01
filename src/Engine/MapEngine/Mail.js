@@ -6,6 +6,9 @@
  * @author Francisco Wallison
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Network from 'Network/NetworkManager.js';
@@ -13,9 +16,6 @@ import PACKET from 'Network/PacketStructure.js';
 import Mail from 'UI/Components/Mail/Mail.js';
 import ReadMail from 'UI/Components/Mail/ReadMail.js';
 
-/**
- * Load dependencies
- */
 /**
  * Request to send mail
  *

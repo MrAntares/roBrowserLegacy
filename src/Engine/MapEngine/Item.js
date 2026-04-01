@@ -24,18 +24,12 @@ import Inventory from 'UI/Components/Inventory/Inventory.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip.js';
-import Refine from 'UI/Components/Refine/Refine.js';
 import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
 import Storage from 'UI/Components/Storage/Storage.js';
 import MakeItemSelection from 'UI/Components/MakeItemSelection/MakeItemSelection.js';
 import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection.js';
 import EffectManager from 'Renderer/EffectManager.js';
 
-/**
- * Load dependencies
- */
-if (Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
-}
 /**
  * Spam an item on the map
  *
@@ -322,10 +316,10 @@ function onItemCompositionList(pkt) {
 	ItemSelection.setTitle(DB.getMessage(522) + '(' + DB.getItemInfo(card.ITID).identifiedDisplayName + ')');
 	ItemSelection.onIndexSelected = function (index) {
 		if (index >= 0) {
-			const pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION();
-			pkt.cardIndex = _cardComposition;
-			pkt.equipIndex = index;
-			Network.sendPacket(pkt);
+			const _pkt = new PACKET.CZ.REQ_ITEMCOMPOSITION();
+			_pkt.cardIndex = _cardComposition;
+			_pkt.equipIndex = index;
+			Network.sendPacket(_pkt);
 		}
 
 		_cardComposition = null;
@@ -339,7 +333,8 @@ function onItemCompositionList(pkt) {
  */
 function onItemCompositionResult(pkt) {
 	switch (pkt.result) {
-		case 0: // success
+		case 0: {
+			// success
 			const item = Inventory.getUI().removeItem(pkt.equipIndex, 1);
 			const card = Inventory.getUI().removeItem(pkt.cardIndex, 1);
 
@@ -353,7 +348,7 @@ function onItemCompositionResult(pkt) {
 				Inventory.getUI().addItem(item);
 			}
 			break;
-
+		}
 		case 1: // Fail
 			break;
 	}
@@ -367,7 +362,7 @@ function onItemCompositionResult(pkt) {
 function onRefineResult(pkt) {
 	// Check if refine UI is enabled and packet version is >= 20161012
 	if (Configs.get('enableRefineUI') && PACKETVER.value >= 20161012) {
-		Refine.onRefineResult(pkt);
+		import('UI/Components/Refine/Refine.js').then(m => m.default.onRefineResult(pkt));
 	} else {
 		const item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
 		if (item) {
@@ -487,13 +482,13 @@ function onMakeitemList(pkt) {
 	MakeItemSelection.setTitle(DB.getMessage(425));
 	MakeItemSelection.onIndexSelected = function (index, material) {
 		if (index >= -1) {
-			const pkt = new PACKET.CZ.REQMAKINGITEM();
-			pkt.itemList.ITID = index;
-			pkt.itemList.material_ID = {};
-			pkt.itemList.material_ID[0] = material[0] && material[0].ITID ? material[0].ITID : 0;
-			pkt.itemList.material_ID[1] = material[1] && material[1].ITID ? material[1].ITID : 0;
-			pkt.itemList.material_ID[2] = material[2] && material[2].ITID ? material[2].ITID : 0;
-			Network.sendPacket(pkt);
+			const _pkt = new PACKET.CZ.REQMAKINGITEM();
+			_pkt.itemList.ITID = index;
+			_pkt.itemList.material_ID = {};
+			_pkt.itemList.material_ID[0] = material[0] && material[0].ITID ? material[0].ITID : 0;
+			_pkt.itemList.material_ID[1] = material[1] && material[1].ITID ? material[1].ITID : 0;
+			_pkt.itemList.material_ID[2] = material[2] && material[2].ITID ? material[2].ITID : 0;
+			Network.sendPacket(_pkt);
 		}
 	};
 }
@@ -556,10 +551,10 @@ function onMakeitem_List(pkt) {
 	MakeItemSelection.setTitle(DB.getMessage(425));
 	MakeItemSelection.onIndexSelected = function (index, material, mkType) {
 		if (index >= -1) {
-			const pkt = new PACKET.CZ.REQ_MAKINGITEM();
-			pkt.mkType = mkType;
-			pkt.id = index;
-			Network.sendPacket(pkt);
+			const _pkt = new PACKET.CZ.REQ_MAKINGITEM();
+			_pkt.mkType = mkType;
+			_pkt.id = index;
+			Network.sendPacket(_pkt);
 		}
 	};
 }

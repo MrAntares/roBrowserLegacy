@@ -6,6 +6,9 @@
  * @author Alisonrag
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Network from 'Network/NetworkManager.js';
@@ -15,13 +18,6 @@ import RodexIcon from 'UI/Components/Rodex/RodexIcon.js';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
 import ReadRodex from 'UI/Components/Rodex/ReadRodex.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
-
-/**
- * Load dependencies
- */
-/**
- * Send Packets
- */
 
 /**
  * Request to Open RodEx Box

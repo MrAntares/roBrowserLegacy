@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import CaptchaUpload from 'UI/Components/Captcha/CaptchaUpload.js';
@@ -17,9 +20,6 @@ import CaptchaPreview from 'UI/Components/Captcha/CaptchaPreview.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import DB from 'DB/DBManager.js';
 
-/**
- * Load dependencies
- */
 /**
  * Captcha data
  */
@@ -130,13 +130,13 @@ function onApplyCaptcha(pkt) {
 	// check if we have all the image data
 	if (captcha.currentOffset === captcha.imageSize) {
 		// decompress image
-		decompressImage(captcha.imageData).then(function (imageData) {
+		decompressImage(captcha.imageData).then(imageData => {
 			CaptchaAnswer.setImage(imageData);
 			CaptchaAnswer.setData(3, 60); // if is not different from default the server dont send the information
-			CaptchaAnswer.onSend = function (answer) {
-				const pkt = new PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR();
-				pkt.answer = answer;
-				Network.sendPacket(pkt);
+			CaptchaAnswer.onSend = answer => {
+				const _pkt = new PACKET.CZ.ACK_ANSWER_MACRO_DETECTOR();
+				_pkt.answer = answer;
+				Network.sendPacket(_pkt);
 			};
 			CaptchaAnswer.append();
 			resetCaptcha();
@@ -202,7 +202,7 @@ function onPreviewCaptcha(pkt) {
 	// check if we have all the image data
 	if (captcha.currentOffset === captcha.imageSize) {
 		// decompress image
-		decompressImage(captcha.imageData).then(function (imageData) {
+		decompressImage(captcha.imageData).then(imageData => {
 			captcha.imageData = imageData;
 			CaptchaPreview.setImage(captcha.imageData);
 			CaptchaPreview.append();
@@ -284,6 +284,7 @@ async function compressImage(data) {
 	const reader = compressedStream.getReader();
 	const chunks = [];
 
+	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const { value, done } = await reader.read();
 		if (done) {
@@ -327,6 +328,7 @@ async function decompressImage(gzipUint8Array) {
 	const reader = decompressedStream.getReader();
 	const chunks = [];
 
+	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const { value, done } = await reader.read();
 		if (done) {

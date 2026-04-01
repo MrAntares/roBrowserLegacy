@@ -6,6 +6,9 @@
  * @author Alison Serafim
  */
 
+/**
+ * Load dependencies
+ */
 import MapState from 'DB/Map/MapState.js';
 import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
@@ -13,9 +16,6 @@ import PACKET from 'Network/PacketStructure.js';
 import PvPTimer from 'UI/Components/PvPTimer/PvPTimer.js';
 import PvPCount from 'UI/Components/PvPCount/PvPCount.js';
 
-/**
- * Load dependencies
- */
 const MapProperty = MapState.MapProperty;
 const MapType = MapState.MapType;
 const MapFlag = MapState.MapFlag;

@@ -6,15 +6,15 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+/**
+ * Load dependencies
+ */
 import jQuery from 'Utils/jquery.js';
 import Network from 'Network/NetworkManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import Storage from 'UI/Components/Storage/Storage.js';
 
-/**
- * Load dependencies
- */
 /*
  * This will hold the items to append to storage
  * Since STORE_EQUIPMENT_ITEMLIST packets are sent before NOTIFY_STOREITEM_COUNTINFO

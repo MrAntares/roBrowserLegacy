@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -16,124 +19,118 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 
 /**
- * Load dependencies
- */
-/**
- * Create namespace
- */
-const FriendEngine = {};
-
-/**
  * @var {Array} list of friends
  */
 let _friends = [];
 
 /**
- * Initialzing engine
- * (Hook Packets)
+ * Create namespace
  */
-FriendEngine.init = function init() {
-	// Hook Packets
-	Network.hookPacket(PACKET.ZC.FRIENDS_LIST, onFriendList);
-	Network.hookPacket(PACKET.ZC.FRIENDS_STATE, onFriendUpdate);
-	Network.hookPacket(PACKET.ZC.REQ_ADD_FRIENDS, onFriendRequest);
-	Network.hookPacket(PACKET.ZC.ADD_FRIENDS_LIST, onFriendAdded);
-	Network.hookPacket(PACKET.ZC.DELETE_FRIENDS, onFriendRemoved);
+class FriendEngine {
+	/**
+	 * Initialzing engine
+	 * (Hook Packets)
+	 */
+	static init() {
+		// Hook Packets
+		Network.hookPacket(PACKET.ZC.FRIENDS_LIST, onFriendList);
+		Network.hookPacket(PACKET.ZC.FRIENDS_STATE, onFriendUpdate);
+		Network.hookPacket(PACKET.ZC.REQ_ADD_FRIENDS, onFriendRequest);
+		Network.hookPacket(PACKET.ZC.ADD_FRIENDS_LIST, onFriendAdded);
+		Network.hookPacket(PACKET.ZC.DELETE_FRIENDS, onFriendRemoved);
 
-	// Hook UI
-	const FriendUI = PartyFriends.getUI();
-	FriendUI.onRequestNewFriend = FriendEngine.addFriend;
-	FriendUI.onRemoveFriend = FriendEngine.removeFriend;
-};
-
-/**
- * Clean up from memory
- *
- */
-FriendEngine.free = function free() {
-	_friends.length = 0;
-};
-
-/**
- * Add a friend to the list
- *
- * @param {string} name
- */
-FriendEngine.addFriend = function addFriend(name) {
-	const pkt = new PACKET.CZ.ADD_FRIENDS();
-	pkt.name = name;
-
-	Network.sendPacket(pkt);
-};
-
-/**
- * Remove a friend from the list
- *
- * @param {number} index
- */
-FriendEngine.removeFriend = function removeFriend(index) {
-	const pkt = new PACKET.CZ.DELETE_FRIENDS();
-	pkt.AID = _friends[index].AID;
-	pkt.GID = _friends[index].GID;
-
-	Network.sendPacket(pkt);
-};
-
-/**
- * Answer to a friend request
- *
- * @param {number} account id
- * @param {number} character id
- * @param {number} answer
- */
-FriendEngine.answerFriendRequest = function answerFriendRequest(AID, GID, result) {
-	const pkt = new PACKET.CZ.ACK_REQ_ADD_FRIENDS();
-	pkt.ReqAID = AID;
-	pkt.ReqGID = GID;
-	pkt.Result = result;
-
-	Network.sendPacket(pkt);
-};
-
-/**
- * Check if a player is already a friend
- *
- * @param {string} player name
- * @return {boolean} is friend
- */
-FriendEngine.isFriend = function isFriend(name) {
-	let i,
-		count = _friends.length;
-
-	for (i = 0; i < count; ++i) {
-		if (name === _friends[i].Name) {
-			return true;
-		}
+		// Hook UI
+		const FriendUI = PartyFriends.getUI();
+		FriendUI.onRequestNewFriend = FriendEngine.addFriend;
+		FriendUI.onRemoveFriend = FriendEngine.removeFriend;
 	}
 
-	return false;
-};
-
-/**
- * Say hi to all your friends
- */
-FriendEngine.sayHi = function sayHi() {
-	let i,
-		count = _friends.length;
-	const pkt = new PACKET.CZ.WHISPER();
-
-	pkt.msg = '(Hi) *^_^*';
-
-	for (i = 0; i < count; ++i) {
-		if (_friends[i].State === 0) {
-			pkt.receiver = _friends[i].Name;
-			Network.sendPacket(pkt);
-		}
+	/**
+	 * Clean up from memory
+	 *
+	 */
+	static free() {
+		_friends.length = 0;
 	}
 
-	ChatBox.addText('[ To Friends ] : ' + pkt.msg, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
-};
+	/**
+	 * Add a friend to the list
+	 *
+	 * @param {string} name
+	 */
+	static addFriend(name) {
+		const pkt = new PACKET.CZ.ADD_FRIENDS();
+		pkt.name = name;
 
+		Network.sendPacket(pkt);
+	}
+
+	/**
+	 * Remove a friend from the list
+	 *
+	 * @param {number} index
+	 */
+	static removeFriend(index) {
+		const pkt = new PACKET.CZ.DELETE_FRIENDS();
+		pkt.AID = _friends[index].AID;
+		pkt.GID = _friends[index].GID;
+
+		Network.sendPacket(pkt);
+	}
+
+	/**
+	 * Answer to a friend request
+	 *
+	 * @param {number} account id
+	 * @param {number} character id
+	 * @param {number} answer
+	 */
+	static answerFriendRequest(AID, GID, result) {
+		const pkt = new PACKET.CZ.ACK_REQ_ADD_FRIENDS();
+		pkt.ReqAID = AID;
+		pkt.ReqGID = GID;
+		pkt.Result = result;
+
+		Network.sendPacket(pkt);
+	}
+
+	/**
+	 * Check if a player is already a friend
+	 *
+	 * @param {string} player name
+	 * @return {boolean} is friend
+	 */
+	static isFriend(name) {
+		const count = _friends.length;
+
+		for (let i = 0; i < count; ++i) {
+			if (name === _friends[i].Name) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Say hi to all your friends
+	 */
+	static sayHi() {
+		const count = _friends.length;
+		const pkt = new PACKET.CZ.WHISPER();
+
+		pkt.msg = '(Hi) *^_^*';
+
+		for (let i = 0; i < count; ++i) {
+			if (_friends[i].State === 0) {
+				pkt.receiver = _friends[i].Name;
+				Network.sendPacket(pkt);
+			}
+		}
+
+		ChatBox.addText('[ To Friends ] : ' + pkt.msg, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
+	}
+}
 /**
  * Get friend list from server
  *
@@ -167,7 +164,7 @@ function onFriendUpdate(pkt) {
  */
 function onFriendRequest(pkt) {
 	function answer(result) {
-		return function () {
+		return () => {
 			FriendEngine.answerFriendRequest(pkt.ReqAID, pkt.ReqGID, result);
 		};
 	}

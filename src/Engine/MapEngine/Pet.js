@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -25,9 +28,6 @@ import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import PetEvolution from 'UI/Components/PetEvolution/PetEvolution.js';
 
 /**
- * Load dependencies
- */
-/**
  * Server ask to select a monster
  *
  * @param {object} pkt - PACKET.ZC.START_CAPTURE
@@ -40,9 +40,9 @@ function onStartCapture(pkt) {
 	SkillTargetSelection.onPetSelected = function onPetSelected(gid) {
 		SlotMachine.append();
 		SlotMachine.onTry = function onTry() {
-			const pkt = new PACKET.CZ.TRYCAPTURE_MONSTER();
-			pkt.targetAID = gid;
-			Network.sendPacket(pkt);
+			const _pkt = new PACKET.CZ.TRYCAPTURE_MONSTER();
+			_pkt.targetAID = gid;
+			Network.sendPacket(_pkt);
 		};
 	};
 }
@@ -71,9 +71,9 @@ function onPetList(pkt) {
 	ItemSelection.setTitle(DB.getMessage(599));
 	ItemSelection.onIndexSelected = function (index) {
 		if (index > -1) {
-			const pkt = new PACKET.CZ.SELECT_PETEGG();
-			pkt.index = index;
-			Network.sendPacket(pkt);
+			const _pkt = new PACKET.CZ.SELECT_PETEGG();
+			_pkt.index = index;
+			Network.sendPacket(_pkt);
 		}
 	};
 }
@@ -128,14 +128,14 @@ function onFeedResult(pkt) {
 		const emotion = DB.getPetEmotion(hunger, friendly, PetMessageConst.PM_FEEDING);
 
 		if (emotion > 0) {
-			const pkt = new PACKET.CZ.PET_ACT();
-			pkt.data = emotion + '2'; // don't know what is the last digit but it needed. @MrUnzO
-			Network.sendPacket(pkt);
+			const _pkt = new PACKET.CZ.PET_ACT();
+			_pkt.data = emotion + '2'; // don't know what is the last digit but it needed. @MrUnzO
+			Network.sendPacket(_pkt);
 		}
 		if (Session.pet.friendly > 900) {
-			const pkt = new PACKET.CZ.PET_ACT();
-			pkt.data = talk;
-			Network.sendPacket(pkt);
+			const _pkt = new PACKET.CZ.PET_ACT();
+			_pkt.data = talk;
+			Network.sendPacket(_pkt);
 		}
 	}
 }
@@ -175,7 +175,7 @@ function onPetInformationUpdate(pkt) {
 			Session.pet.friendly = pkt.data;
 			break;
 
-		case 2:
+		case 2: {
 			PetInformations.setHunger(pkt.data);
 			entity.life.hp = pkt.data;
 			entity.life.hp_max = 100;
@@ -186,7 +186,7 @@ function onPetInformationUpdate(pkt) {
 			Session.pet.hungry = pkt.data;
 
 			break;
-
+		}
 		case 3: /// 3 = accessory ID
 			if (pkt.data) {
 				path = DB.getPetEquipPath(pkt.data);
@@ -203,7 +203,8 @@ function onPetInformationUpdate(pkt) {
 			}
 			break;
 
-		case 4: /// 4 = performance (data = 1~3: normal, 4: special)
+		case 4: {
+			/// 4 = performance (data = 1~3: normal, 4: special)
 			const action = [entity.ACTION.PERF1, entity.ACTION.PERF2, entity.ACTION.PERF3, entity.ACTION.SPECIAL];
 			entity.setAction({
 				action: action[(pkt.data - 1 + action.length) % action.length],
@@ -219,7 +220,7 @@ function onPetInformationUpdate(pkt) {
 				}
 			});
 			break;
-
+		}
 		case 5: /// 5 = accessory
 	}
 }
@@ -257,7 +258,7 @@ function onPetAction(pkt) {
  */
 PetInformations.reqPetFeed = function reqPetFeed() {
 	// Are you sure you want to feed your pet ?
-	UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', function () {
+	UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', () => {
 		const pkt = new PACKET.CZ.COMMAND_PET();
 		pkt.cSub = 1;
 		Network.sendPacket(pkt);

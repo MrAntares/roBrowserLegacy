@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import StatusProperty from 'DB/Status/StatusProperty.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
@@ -32,10 +35,6 @@ import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
 
-/**
- * Load dependencies
- */
-// Version Dependent UIs
 /**
  * Move main player to the position specify
  *
@@ -269,9 +268,9 @@ function onParameterChange(pkt) {
 					const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 					const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_DANGER, hunger);
 
-					const pkt = new PACKET.CZ.PET_ACT();
-					pkt.data = talk;
-					Network.sendPacket(pkt);
+					const _pkt = new PACKET.CZ.PET_ACT();
+					_pkt.data = talk;
+					Network.sendPacket(_pkt);
 					Session.pet.lastTalk = Date.now();
 				}
 			}
@@ -282,9 +281,9 @@ function onParameterChange(pkt) {
 					const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 					const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_DEAD, hunger);
 
-					const pkt = new PACKET.CZ.PET_ACT();
-					pkt.data = talk;
-					Network.sendPacket(pkt);
+					const _pkt = new PACKET.CZ.PET_ACT();
+					_pkt.data = talk;
+					Network.sendPacket(_pkt);
 					Session.pet.lastTalk = Date.now();
 				}
 			}
@@ -343,9 +342,9 @@ function onParameterChange(pkt) {
 				const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 				const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_LEVELUP, hunger);
 
-				const pkt = new PACKET.CZ.PET_ACT();
-				pkt.data = talk;
-				Network.sendPacket(pkt);
+				const _pkt = new PACKET.CZ.PET_ACT();
+				_pkt.data = talk;
+				Network.sendPacket(_pkt);
 				Session.pet.lastTalk = Date.now();
 			}
 			break;
@@ -751,9 +750,8 @@ function onRank(pkt) {
 
 	//List
 	for (let i = 0; i < 10; ++i) {
-		let name, point;
-		name = pkt?.Name?.[i] ?? 'None';
-		point = pkt?.Point?.[i] ?? 0;
+		const name = pkt?.Name?.[i] ?? 'None';
+		const point = pkt?.Point?.[i] ?? 0;
 
 		message = '[%rank%] %name% : %point% ' + DB.getMessage(2385); // [x] name : y Points
 		message = message.replace('%rank%', i + 1);

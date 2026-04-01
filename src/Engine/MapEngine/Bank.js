@@ -6,6 +6,10 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+/**
+ * Load dependencies
+ */
+
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -13,13 +17,18 @@ import Session from 'Engine/SessionStorage.js';
 import Bank from 'UI/Components/Bank/Bank.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
-/**
- * Load dependencies
- */
-/**
- * Engine namespace
- */
-const BankEngine = {};
+class BankEngine {
+	/**
+	 * Initialize
+	 */
+	static init() {
+		Network.hookPacket(PACKET.ZC.ACK_OPEN_BANKING, onOpenBank);
+		Network.hookPacket(PACKET.ZC.BANKING_CHECK, onBankInfo);
+		Network.hookPacket(PACKET.ZC.ACK_BANKING_DEPOSIT, onBankDepoUpdate);
+		Network.hookPacket(PACKET.ZC.ACK_BANKING_WITHDRAW, onBankWithdrawUpdate);
+		Network.hookPacket(PACKET.ZC.ACK_CLOSE_BANKING, onBankClose);
+	}
+}
 
 /**
  * Open Bank and request to server bank details
@@ -160,17 +169,6 @@ function onBankWithdrawUpdate(pkt) {
 			break;
 	}
 }
-
-/**
- * Initialize
- */
-BankEngine.init = function init() {
-	Network.hookPacket(PACKET.ZC.ACK_OPEN_BANKING, onOpenBank);
-	Network.hookPacket(PACKET.ZC.BANKING_CHECK, onBankInfo);
-	Network.hookPacket(PACKET.ZC.ACK_BANKING_DEPOSIT, onBankDepoUpdate);
-	Network.hookPacket(PACKET.ZC.ACK_BANKING_WITHDRAW, onBankWithdrawUpdate);
-	Network.hookPacket(PACKET.ZC.ACK_CLOSE_BANKING, onBankClose);
-};
 
 /**
  * Initialize

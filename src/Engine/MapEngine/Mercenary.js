@@ -6,6 +6,9 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -16,9 +19,6 @@ import MercenaryInformations from 'UI/Components/MercenaryInformations/Mercenary
 import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 
-/**
- * Load dependencies
- */
 /**
  * Initialize Mercenary information
  *

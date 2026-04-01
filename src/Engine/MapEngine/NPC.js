@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Sound from 'Audio/SoundManager.js';
@@ -24,10 +27,6 @@ import WinPopup from 'UI/Components/WinPopup/WinPopup.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
-/**
- * Load dependencies
- */
-// Version Dependent UIs
 /**
  * NPC write a message
  *

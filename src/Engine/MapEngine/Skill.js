@@ -6,6 +6,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import UIManager from 'UI/UIManager.js';
 import SkillId from 'DB/Skills/SkillConst.js';
@@ -40,10 +43,6 @@ import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
 import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 
-/**
- * Load dependencies
- */
-// Version Dependent UIs
 /**
  * Spam an effect
  *
@@ -325,7 +324,8 @@ function onIdentifyResult(pkt) {
 	}
 
 	switch (pkt.result) {
-		case 0: // success
+		case 0: {
+			// success
 			ChatBox.addText(DB.getMessage(491), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 			// Remove old item
@@ -337,7 +337,7 @@ function onIdentifyResult(pkt) {
 				Inventory.getUI().addItem(item);
 			}
 			break;
-
+		}
 		case 1: // Fail
 			ChatBox.addText(DB.getMessage(492), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM);
 			break;
@@ -401,7 +401,7 @@ function onSelectSkillList(pkt) {
 	ItemSelection.append();
 	ItemSelection.setList(pkt.SKID, true);
 	ItemSelection.setTitle(DB.getMessage(697));
-	ItemSelection.onIndexSelected = function (index) {
+	ItemSelection.onIndexSelected = index => {
 		if (index >= -1) {
 			const _pkt = new PACKET.CZ.SKILL_SELECT_RESPONSE();
 			_pkt.SKID = index;
@@ -418,7 +418,7 @@ function onSelectSkillList(pkt) {
  */
 function onTeleportList(pkt) {
 	// Once selected
-	NpcMenu.onSelectMenu = function (skillid, index) {
+	NpcMenu.onSelectMenu = (skillid, index) => {
 		NpcMenu.remove();
 
 		const _pkt = new PACKET.CZ.SELECT_WARPPOINT();
@@ -427,11 +427,10 @@ function onTeleportList(pkt) {
 		Network.sendPacket(_pkt);
 	};
 
-	NpcMenu.onAppend = function () {
-		let i, count;
+	NpcMenu.onAppend = () => {
 		const mapNames = [];
 
-		for (i = 0, count = pkt.mapName.length; i < count; ++i) {
+		for (let i = 0, count = pkt.mapName.length; i < count; ++i) {
 			mapNames[i] = DB.getMapName(pkt.mapName[i], pkt.mapName[i]);
 		}
 
@@ -516,7 +515,7 @@ function onRefineList(pkt) {
 	RefineWeaponSelection.append();
 	RefineWeaponSelection.setList(pkt.itemList);
 	RefineWeaponSelection.setTitle(DB.getMessage(910));
-	RefineWeaponSelection.onIndexSelected = function (index) {
+	RefineWeaponSelection.onIndexSelected = index => {
 		if (index >= -1) {
 			const _pkt = new PACKET.CZ.REQ_WEAPONREFINE();
 			_pkt.Index = index;
@@ -538,7 +537,7 @@ function onRepairList(pkt) {
 	RefineWeaponSelection.append();
 	RefineWeaponSelection.setList(pkt.itemList);
 	RefineWeaponSelection.setTitle(DB.getMessage(812));
-	RefineWeaponSelection.onIndexSelected = function (index) {
+	RefineWeaponSelection.onIndexSelected = index => {
 		if (index >= -1) {
 			const item = RefineWeaponSelection.getItemByIndex(index);
 

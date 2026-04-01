@@ -8,16 +8,15 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import jQuery from 'Utils/jquery.js';
 import Quest from 'UI/Components/Quest/Quest.js';
 
-/**
- * Load dependencies
- */
-// Version Dependent UIs
 /**
  * Quest List
  *
@@ -48,8 +47,8 @@ function onAllQuestList(pkt) {
 			hunt_list: []
 		};
 		if (local_quest.count > 0) {
-			for (let i = 0; i < local_quest.count; i++) {
-				const hunt = quest.hunt[i];
+			for (let j = 0; j < local_quest.count; j++) {
+				const hunt = quest.hunt[j];
 				const local_hunt = {
 					huntID: hunt.huntID || null,
 					huntIDCount: hunt.huntIDCount || 0,
