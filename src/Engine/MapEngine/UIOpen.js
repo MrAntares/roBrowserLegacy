@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import Configs from 'Core/Configs.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -16,9 +19,6 @@ import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance.js';
 import EnchantGradeUI from 'UI/Components/EnchantGrade/EnchantGrade.js';
 import EnchantUI from 'UI/Components/Enchant/Enchant.js';
 
-/**
- * Load dependencies
- */
 /**
  * Received data and request to open a specific UI
  *

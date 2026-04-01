@@ -11,19 +11,6 @@ import PACKET from 'Network/PacketStructure.js';
 import PCGoldTimer from 'UI/Components/PCGoldTimer/PCGoldTimer.js';
 
 /**
- * Load dependencies
- */
-/**
- * Send Packets
- */
-
-// nothing yet
-
-/**
- * Receive Packets
- */
-
-/**
  * Server sent request about PCGoldTimer Point
  *
  * @param {object} pkt - PACKET.ZC.GOLDPCCAFE_POINT

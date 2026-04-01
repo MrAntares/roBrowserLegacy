@@ -8,13 +8,13 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import CashShop from 'UI/Components/CashShop/CashShop.js';
 
-/**
- * Load dependencies
- */
 function onOpenCashShop(pkt) {
 	CashShop.readPoints(pkt.cashPoints, pkt.kafraPoints, pkt.tab);
 	CashShop.prepare();

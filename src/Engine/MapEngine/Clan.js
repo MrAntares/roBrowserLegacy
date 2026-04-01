@@ -8,15 +8,15 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Clan from 'UI/Components/Clan/Clan.js';
 import Session from 'Engine/SessionStorage.js';
 
-/**
- * Load dependencies
- */
 /**
  * Clan data
  */

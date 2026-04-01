@@ -15,7 +15,6 @@ import PACKET from 'Network/PacketStructure.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import WhisperBox from 'UI/Components/WhisperBox/WhisperBox.js';
 import Session from 'Engine/SessionStorage.js';
-import Preferences from 'Core/Preferences.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 
 /**

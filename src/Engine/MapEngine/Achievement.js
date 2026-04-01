@@ -8,12 +8,12 @@
  * @author Vincent Thibault
  */
 
-import Network from 'Network/NetworkManager.js';
-import PACKET from 'Network/PacketStructure.js';
-
 /**
  * Load dependencies
  */
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+
 function onAllAchievementList(pkt) {}
 
 function onAchievementUpdate(pkt) {}

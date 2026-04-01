@@ -47,6 +47,9 @@
  * @prop {number} sp_max
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -59,9 +62,6 @@ import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import StatusProperty from 'DB/Status/StatusProperty.js';
 
-/**
- * Load dependencies
- */
 /**
  * @type {THomunPacket} cached homunculus information
  */
@@ -218,7 +218,7 @@ function onHomunInformationUpdate(pkt) {
  */
 HomunInformations.reqHomunFeed = function reqHomunFeed() {
 	// Are you sure you want to feed your homunculus ?
-	UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', function () {
+	UIManager.showPromptBox(DB.getMessage(601), 'ok', 'cancel', () => {
 		const pkt = new PACKET.CZ.COMMAND_MER();
 		pkt.type = 0x22f;
 		pkt.command = 1;
@@ -235,7 +235,7 @@ HomunInformations.sendHomunFeed = function sendHomunFeed() {
 
 HomunInformations.reqDeleteHomun = function reqDeleteHomun() {
 	// Are you sure that you want to delete?
-	UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
+	UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', () => {
 		const pkt = new PACKET.CZ.COMMAND_MER();
 		pkt.type = 0x22f;
 		pkt.command = 2;

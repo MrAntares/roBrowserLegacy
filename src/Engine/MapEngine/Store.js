@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
@@ -22,9 +25,6 @@ import VendingShop from 'UI/Components/VendingShop/VendingShop.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
- * Load dependencies
- */
-/**
  * Received items list to buy from cash npc
  *
  * @param {object} pkt - PACKET.ZC.ZC_PC_CASH_POINT_ITEMLIST
@@ -38,17 +38,14 @@ function onBuyCashList(pkt) {
 	NpcStore.ui.find('.cashuser .buyer').text(entity ? entity.display.name : '');
 	NpcStore.ui.find('.cashuser .cashpoints').text(pkt.KafraPoint);
 
-	NpcStore.onSubmit = function (itemList) {
+	NpcStore.onSubmit = itemList => {
 		// add prompt confirmation first later...
-		let i, count;
-		let pkt;
+		const _pkt = new PACKET.CZ.PC_BUY_CASH_POINT_ITEM();
+		const count = itemList.length;
+		_pkt.kafrapts = 0;
 
-		pkt = new PACKET.CZ.PC_BUY_CASH_POINT_ITEM();
-		count = itemList.length;
-		pkt.kafrapts = 0;
-
-		for (i = 0; i < count; ++i) {
-			pkt.list.push({
+		for (let i = 0; i < count; ++i) {
+			_pkt.list.push({
 				count: itemList[i].count,
 				ITID: itemList[i].ITID,
 				price: itemList[i].discountprice || itemList[i].price
@@ -56,7 +53,7 @@ function onBuyCashList(pkt) {
 			//pkt.kafrapts += (itemList[i].discountprice || itemList[i].price) * itemList[i].count;
 		}
 
-		Network.sendPacket(pkt);
+		Network.sendPacket(_pkt);
 	};
 }
 
@@ -100,21 +97,18 @@ function onBuyList(pkt) {
 	NpcStore.append();
 	NpcStore.setType(NpcStore.Type.BUY);
 	NpcStore.setList(pkt.itemList);
-	NpcStore.onSubmit = function (itemList) {
-		let i, count;
-		let pkt;
+	NpcStore.onSubmit = itemList => {
+		const _pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST();
+		const count = itemList.length;
 
-		pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST();
-		count = itemList.length;
-
-		for (i = 0; i < count; ++i) {
-			pkt.itemList.push({
+		for (let i = 0; i < count; ++i) {
+			_pkt.itemList.push({
 				ITID: itemList[i].ITID,
 				count: itemList[i].count
 			});
 		}
 
-		Network.sendPacket(pkt);
+		Network.sendPacket(_pkt);
 	};
 }
 
@@ -127,17 +121,14 @@ function onBarterBuyList(pkt) {
 	NpcStore.append();
 	NpcStore.setType(NpcStore.Type.BARTER_MARKET);
 	NpcStore.setList(pkt.itemList);
-	NpcStore.onSubmit = function (itemList) {
-		let i, count;
-		let pkt;
+	NpcStore.onSubmit = itemList => {
+		const _pkt = new PACKET.CZ.NPC_BARTER_MARKET_PURCHASE();
+		const count = itemList.length;
 
-		pkt = new PACKET.CZ.NPC_BARTER_MARKET_PURCHASE();
-		count = itemList.length;
-
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			const item = Inventory.getUI().getItemById(itemList[i].matcurrency);
 			const item_index = item ? item.index : -1;
-			pkt.itemList.push({
+			_pkt.itemList.push({
 				itemId: itemList[i].ITID,
 				amount: itemList[i].count,
 				invIndex: item_index,
@@ -145,7 +136,7 @@ function onBarterBuyList(pkt) {
 			});
 		}
 
-		Network.sendPacket(pkt);
+		Network.sendPacket(_pkt);
 	};
 }
 
@@ -158,22 +149,19 @@ function onExpandedBarterBuyList(pkt) {
 	NpcStore.append();
 	NpcStore.setType(NpcStore.Type.BARTER_MARKET_EXTENDED);
 	NpcStore.setList(pkt.itemList);
-	NpcStore.onSubmit = function (itemList) {
-		let i, count;
-		let pkt;
+	NpcStore.onSubmit = itemList => {
+		const _pkt = new PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_PURCHASE();
+		const count = itemList.length;
 
-		pkt = new PACKET.CZ.NPC_EXPANDED_BARTER_MARKET_PURCHASE();
-		count = itemList.length;
-
-		for (i = 0; i < count; ++i) {
-			pkt.itemList.push({
+		for (let i = 0; i < count; ++i) {
+			_pkt.itemList.push({
 				itemId: itemList[i].ITID,
 				shopIndex: itemList[i].index,
 				amount: itemList[i].count
 			});
 		}
 
-		Network.sendPacket(pkt);
+		Network.sendPacket(_pkt);
 	};
 }
 
@@ -301,21 +289,18 @@ function onSellList(pkt) {
 	NpcStore.append();
 	NpcStore.setType(NpcStore.Type.SELL);
 	NpcStore.setList(pkt.itemList);
-	NpcStore.onSubmit = function (itemList) {
-		let i, count;
-		let pkt;
+	NpcStore.onSubmit = itemList => {
+		const _pkt = new PACKET.CZ.PC_SELL_ITEMLIST();
+		const count = itemList.length;
 
-		pkt = new PACKET.CZ.PC_SELL_ITEMLIST();
-		count = itemList.length;
-
-		for (i = 0; i < count; ++i) {
-			pkt.itemList.push({
+		for (let i = 0; i < count; ++i) {
+			_pkt.itemList.push({
 				index: itemList[i].index,
 				count: itemList[i].count
 			});
 		}
 
-		Network.sendPacket(pkt);
+		Network.sendPacket(_pkt);
 	};
 }
 
@@ -358,7 +343,6 @@ function onVendingStoreList(_pkt) {
 		NpcStore.setClosePacketSent(true);
 		NpcStore.remove();
 
-		let i, count;
 		let pkt;
 
 		if (_pkt instanceof PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3) {
@@ -372,9 +356,9 @@ function onVendingStoreList(_pkt) {
 		}
 
 		pkt.AID = _pkt.AID;
-		count = itemList.length;
+		const count = itemList.length;
 
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			pkt.itemList.push({
 				index: itemList[i].index,
 				count: itemList[i].count
@@ -405,16 +389,13 @@ function onBuyingStoreList(_pkt) {
 		NpcStore.setClosePacketSent(true);
 		NpcStore.remove();
 
-		let i, count;
-		let pkt;
-
-		pkt = new PACKET.CZ.REQ_TRADE_BUYING_STORE();
+		const pkt = new PACKET.CZ.REQ_TRADE_BUYING_STORE();
 		pkt.UniqueID = _pkt.UniqueID;
 		pkt.AID = _pkt.AID;
 
-		count = itemList.length;
+		const count = itemList.length;
 
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			pkt.itemList.push({
 				index: itemList[i].index,
 				ITID: itemList[i].ITID,
@@ -491,20 +472,19 @@ function onMarketShop(pkt) {
 	NpcStore.setList(pkt.itemList); // Set the item list from the packet
 
 	// Define the submission callback
-	NpcStore.onSubmit = function (itemList) {
-		let i, count;
-		const pkt = new PACKET.CZ.NPC_MARKET_PURCHASE(); // Use the market purchase packet
-		count = itemList.length;
+	NpcStore.onSubmit = itemList => {
+		const _pkt = new PACKET.CZ.NPC_MARKET_PURCHASE(); // Use the market purchase packet
+		const count = itemList.length;
 
-		for (i = 0; i < count; ++i) {
-			pkt.itemList.push({
+		for (let i = 0; i < count; ++i) {
+			_pkt.itemList.push({
 				itemId: itemList[i].ITID, // Item ID
 				amount: itemList[i].count // Quantity to purchase
 			});
 		}
 
 		// Send the constructed packet
-		Network.sendPacket(pkt);
+		Network.sendPacket(_pkt);
 	};
 }
 

@@ -6,6 +6,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import SkillId from 'DB/Skills/SkillConst.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
@@ -48,10 +51,6 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 
-/**
- * Load dependencies
- */
-// Version Dependent UIs
 // Excludes for skill name display
 const SkillNameDisplayExclude = [
 	//Hiding skills
@@ -1945,8 +1944,9 @@ function onEntityStatusChange(pkt) {
 		case StatusConst.CLAIRVOYANCE:
 			if (entity === Session.Entity) {
 				Session.Character.intravision = pkt.state;
-				EntityManager.forEach(function (_entity) {
+				EntityManager.forEach(_entity => {
 					/** @type {*} Intentional self-assignment to trigger effectState updates. */
+					// eslint-disable-next-line no-self-assign
 					_entity.effectState = _entity.effectState;
 				});
 			}

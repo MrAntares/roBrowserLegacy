@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -15,17 +18,14 @@ import jQuery from 'Utils/jquery.js';
 import Quest from 'UI/Components/Quest/Quest.js';
 
 /**
- * Load dependencies
- */
-// Version Dependent UIs
-/**
  * Quest List
  *
  * @param {object} pkt - PACKET.ZC.ALL_QUEST_LIST_V4
  */
 function onAllQuestList(pkt) {
 	const quest_list = [];
-	for (let i = 0; i < pkt.questCount; i++) {
+	let i;
+	for (i = 0; i < pkt.questCount; i++) {
 		const quest = pkt.QuestList[i];
 		const quest_info = DB.getQuestInfo(quest.questID);
 		const local_quest = {
@@ -48,7 +48,7 @@ function onAllQuestList(pkt) {
 			hunt_list: []
 		};
 		if (local_quest.count > 0) {
-			for (let i = 0; i < local_quest.count; i++) {
+			for (i = 0; i < local_quest.count; i++) {
 				const hunt = quest.hunt[i];
 				const local_hunt = {
 					huntID: hunt.huntID || null,

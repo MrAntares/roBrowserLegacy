@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -15,9 +18,6 @@ import Trade from 'UI/Components/Trade/Trade.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import UIManager from 'UI/UIManager.js';
 
-/**
- * Load dependencies
- */
 /**
  * Convert GID to a random string
  * It's used in the official client
@@ -27,10 +27,10 @@ import UIManager from 'UI/UIManager.js';
  */
 function tradeGIDEncoding(GID) {
 	const table = 'ROHUTNASEW';
-	let str, out;
+	let out;
 	let i, count;
 
-	str = String(GID);
+	const str = String(GID);
 	out = '';
 
 	for (i = 0, count = str.length; i < count; ++i) {
@@ -46,18 +46,18 @@ function tradeGIDEncoding(GID) {
  */
 function onTradeRequest(pkt) {
 	function answer(value) {
-		return function () {
-			const pkt = new PACKET.CZ.ACK_EXCHANGE_ITEM();
-			pkt.result = value;
-			Network.sendPacket(pkt);
+		return () => {
+			const _pkt = new PACKET.CZ.ACK_EXCHANGE_ITEM();
+			_pkt.result = value;
+			Network.sendPacket(_pkt);
 		};
 	}
 
-	let text = '(' + pkt.name + ') ' + DB.getMessage(93);
+	let text = `(${pkt.name}) ${DB.getMessage(93)}`;
 	Trade.title = pkt.name;
 
 	if ('level' in pkt && 'GID' in pkt) {
-		text += '\nPN: ' + tradeGIDEncoding(pkt.GID) + '\xa0\xa0\xa0\xa0\xa0Lv.' + pkt.level;
+		text += `\nPN: ${tradeGIDEncoding(pkt.GID)}\xa0\xa0\xa0\xa0\xa0Lv.${pkt.level}`;
 	}
 
 	UIManager.showPromptBox(text, 'ok', 'cancel', answer(3), answer(4));
@@ -83,7 +83,7 @@ function onTradeRequestAnswer(pkt) {
 
 		case 3:
 			if ('level' in pkt && 'GID' in pkt) {
-				Trade.title += '  Lv' + pkt.level + ' (' + tradeGIDEncoding(pkt.GID) + ')';
+				Trade.title += `  Lv${pkt.level} (${tradeGIDEncoding(pkt.GID)})`;
 			}
 			Trade.append();
 			break;

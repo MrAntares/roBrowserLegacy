@@ -8,6 +8,9 @@
  * @author Vincent Thibault
  */
 
+/**
+ * Load dependencies
+ */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -17,9 +20,6 @@ import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Session from 'Engine/SessionStorage.js';
 
-/**
- * Load dependencies
- */
 /**
  * Request a chat room
  * PACKET.CZ.CREATE_CHATROOM
@@ -228,11 +228,10 @@ function onRoomUpdate(pkt) {
  */
 function onRoomEnter(pkt) {
 	//this.roomID       = fp.readULong();
-	let i,
-		count = pkt.memberList.length;
+	const count = pkt.memberList.length;
 	ChatRoom.members = new Array(count);
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (pkt.memberList[i].role === 0) {
 			ChatRoom.owner = pkt.memberList[i].name;
 		}
@@ -240,7 +239,7 @@ function onRoomEnter(pkt) {
 	}
 
 	// Remove room
-	EntityManager.forEach(function (entity) {
+	EntityManager.forEach(entity => {
 		if (entity.room.id === pkt.roomID) {
 			entity.room.remove();
 			return false;
