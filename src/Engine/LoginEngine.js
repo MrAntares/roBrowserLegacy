@@ -107,18 +107,18 @@ class LoginEngine {
 			// Check if the selected server changed.
 			if (old_server != null && (old_server.address != _server.address || old_server.port != _server.port)) {
 				// Re-Loading game data with server specific files (txt, lua, lub)
-				q.add(function () {
-					DB.onReady = function () {
+				q.add(() => {
+					DB.onReady = () => {
 						Background.setImage('bgi_temp.bmp'); // remove loading
 						q._next();
 					};
-					DB.onProgress = function (i, count) {
+					DB.onProgress = (i, count) => {
 						Background.setPercent(Math.floor((i / count) * 100));
 					};
 					UIManager.removeComponents();
 					Background.init();
 					Background.resize(Renderer.width, Renderer.height);
-					Background.setImage('bgi_temp.bmp', function () {
+					Background.setImage('bgi_temp.bmp', () => {
 						DB.init();
 					});
 				});
@@ -206,7 +206,7 @@ function onConnectionRequest(username, password) {
 	_loginID = username;
 
 	// Try to connect
-	Network.connect(_server.address, _server.port, function (success) {
+	Network.connect(_server.address, _server.port, success => {
 		// Fail to connect...
 		if (!success) {
 			UIManager.showErrorBox(DB.getMessage(1));
@@ -299,7 +299,6 @@ function onCharServerSelected(index) {
 	WinList.remove();
 	WinLoading.append();
 
-	CharEngine.onExitRequest = LoginEngine.reload;
 	Session.ServerName = _charServers[index].name; // Save server name
 	CharEngine.init(_charServers[index]);
 }
@@ -338,7 +337,6 @@ function onConnectionAccepted(pkt) {
 	// No choice, connect directly to the server
 	if (count === 1 && Configs.get('skipServerList')) {
 		WinLoading.append();
-		CharEngine.onExitRequest = LoginEngine.reload;
 		Session.ServerName = _charServers[0].name; // Save server name
 		CharEngine.init(_charServers[0]);
 	}
@@ -347,7 +345,7 @@ function onConnectionAccepted(pkt) {
 	else {
 		// Show window
 		WinList.onIndexSelected = onCharServerSelected;
-		WinList.onExitRequest = function () {
+		WinList.onExitRequest = () => {
 			Network.close();
 			WinList.remove();
 			WinLogin.getUI().append();
@@ -359,7 +357,7 @@ function onConnectionAccepted(pkt) {
 	// Set ping
 	const ping = new PACKET.CA.CONNECT_INFO_CHANGED();
 	ping.ID = _loginID;
-	Network.setPing(function () {
+	Network.setPing(() => {
 		Network.sendPacket(ping);
 	});
 
@@ -449,7 +447,7 @@ function onConnectionRefused(pkt) {
 	UIManager.showMessageBox(
 		DB.getMessage(error).replace('%s', pkt.blockDate),
 		'ok',
-		function () {
+		() => {
 			UIManager.removeComponents();
 			WinLogin.getUI().append();
 		},

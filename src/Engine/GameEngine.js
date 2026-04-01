@@ -54,8 +54,8 @@ function loadFiles(callback) {
 	const q = new Queue();
 
 	// Start Intro, wait the user to add files
-	q.add(function () {
-		Client.onFilesLoaded = function (count) {
+	q.add(() => {
+		Client.onFilesLoaded = count => {
 			if (!Configs.get('remoteClient') && !count && !window.requireNode) {
 				alert('No client to initialize roBrowser'); // eslint-disable-line no-alert
 				Intro.remove();
@@ -75,8 +75,8 @@ function loadFiles(callback) {
 	});
 
 	// Loading Game file (txt, lua, lub)
-	q.add(function () {
-		DB.onReady = function () {
+	q.add(() => {
+		DB.onReady = () => {
 			if (PACKETVER.value < 20181114) {
 				// (duplicated?)
 				Background.setImage('bgi_temp.bmp');
@@ -86,7 +86,7 @@ function loadFiles(callback) {
 			}
 			q._next();
 		};
-		DB.onProgress = function (i, count) {
+		DB.onProgress = (i, count) => {
 			Background.setPercent(Math.floor((i / count) * 100));
 		};
 		UIManager.removeComponents();
@@ -97,30 +97,31 @@ function loadFiles(callback) {
 				module.default.init();
 			});
 		}
-		Background.setImage('bgi_temp.bmp', function () {
+		Background.setImage('bgi_temp.bmp', () => {
 			DB.init();
 		});
 	});
 
-	q.add(function () {
+	q.add(() => {
 		Thread.send('CLIENT_FILES_ALIAS', DB.mapalias);
 		loadClientInfo(q.next);
 	});
 
 	// Initialize cursor
-	q.add(function () {
+	q.add(() => {
 		Scrollbar.init();
 		Cursor.init(q.next);
 	});
 
 	// Run callback
-	q.add(function () {
+	q.add(() => {
 		callback();
 	});
 
 	// Execute
 	q.run();
 }
+
 class GameEngine {
 	/**
 	 * Initialize Game
@@ -133,11 +134,11 @@ class GameEngine {
 		const q = new Queue();
 
 		// Waiting for the Thread to be ready
-		q.add(function () {
+		q.add(() => {
 			if (!_thread_ready) {
 				Thread.hook('THREAD_ERROR', onThreadError);
 				Thread.hook('THREAD_LOG', onThreadLog);
-				Thread.hook('THREAD_READY', function () {
+				Thread.hook('THREAD_READY', () => {
 					_thread_ready = true;
 					q._next();
 				});
@@ -148,13 +149,13 @@ class GameEngine {
 		});
 
 		// Initialize renderer
-		q.add(function () {
+		q.add(() => {
 			Renderer.init();
 			q._next();
 		});
 
 		// Load everything.
-		q.add(function () {
+		q.add(() => {
 			// Load files and initialize Login
 			loadFiles(GameEngine.reload);
 		});
@@ -181,7 +182,7 @@ class GameEngine {
 			// Setup background
 			Background.init();
 			Background.resize(Renderer.width, Renderer.height);
-			Background.setImage('bgi_temp.bmp', function () {
+			Background.setImage('bgi_temp.bmp', () => {
 				onReload();
 			});
 		} else {
@@ -205,7 +206,6 @@ function onReload() {
 
 	// Just 1 server, skip the WinList
 	else if (count === 1 && Configs.get('skipServerList')) {
-		LoginEngine.onExitRequest = GameEngine.reload;
 		LoginEngine.init(_servers[0]);
 	} else {
 		for (i = 0; i < count; ++i) {
@@ -226,7 +226,6 @@ function onReadyLoginServer(index) {
 	_previous_server = _servers[index];
 
 	WinList.remove();
-	LoginEngine.onExitRequest = GameEngine.reload;
 	LoginEngine.init(_servers[index]);
 }
 
@@ -252,7 +251,7 @@ function onLoginServerSelected(index) {
 			Background.setImage('bgi_temp.bmp');
 		}
 		// Need to reload the files.
-		loadFiles(function () {
+		loadFiles(() => {
 			LoginEngine.setLoadedServer(_servers[index]);
 			onReadyLoginServer(index);
 		});
@@ -288,7 +287,7 @@ function loadClientInfo(callback) {
 	_servers.length = 0;
 	Client.loadFile(
 		servers,
-		function (xml) {
+		xml => {
 			// $.parseXML() don't parse buggy xml (and a lot of clientinfo.xml are not properly write)...
 			xml = xml.replace(/^.*<\?xml/, '<?xml');
 			const parser = new DOMParser();
@@ -302,7 +301,7 @@ function loadClientInfo(callback) {
 				callback();
 			}
 
-			connections.each(function (index, element) {
+			connections.each((index, element) => {
 				const connection = jQuery(element);
 
 				list.push(connection.find('display:first').text());
@@ -316,9 +315,9 @@ function loadClientInfo(callback) {
 					packetver: connection.find('packetver:first').text(),
 					registrationweb: connection.find('registrationweb:first').text(),
 					renewal: ['true', '1', 1, true].includes(connection.find('renewal:first').text().toLowerCase()),
-					adminList: (function () {
+					adminList: (() => {
 						const _list = [];
-						connection.find('yellow admin, aid admin').each(function () {
+						connection.find('yellow admin, aid admin').each(() => {
 							_list.push(parseInt(this.textContent, 10));
 						});
 						return _list;

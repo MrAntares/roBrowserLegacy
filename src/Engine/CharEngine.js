@@ -59,6 +59,7 @@ let _resettingPincode = false;
  * @var {boolean} are we creating a pincode?
  */
 let _creatingPincode = false;
+
 class CharEngine {
 	/*
 	 * Connect to char server
@@ -76,7 +77,7 @@ class CharEngine {
 		const forceAddress = Configs.get('forceUseAddress');
 		const server_info = Configs.getServer();
 		const ip = forceAddress ? server_info.address : Network.utils.longToIP(server.ip);
-		Network.connect(ip, server.port, function (success) {
+		Network.connect(ip, server.port, success => {
 			// Fail to connect...
 			if (!success) {
 				UIManager.showErrorBox(DB.getMessage(1));
@@ -93,7 +94,7 @@ class CharEngine {
 			Network.sendPacket(pkt);
 
 			// Server send back (new) AID
-			Network.read(function (fp) {
+			Network.read(fp => {
 				Session.AID = fp.readLong();
 			});
 		});
@@ -157,7 +158,7 @@ function onConnectionAccepted(pkt) {
 	// Start sending ping
 	const ping = new PACKET.CZ.PING();
 	ping.AID = Session.AID;
-	Network.setPing(function () {
+	Network.setPing(() => {
 		Network.sendPacket(ping);
 	});
 
@@ -237,7 +238,7 @@ function onMapUnavailable(pkt) {
 	UIManager.showMessageBox(
 		DB.getMessage(1811),
 		'ok',
-		function () {
+		() => {
 			UIManager.getComponent('WinLoading').remove();
 			CharSelect.getUI().append();
 		},
@@ -349,7 +350,7 @@ function onDeleteRequest(charID) {
 		if (PACKETVER.value < 20180124) {
 			// Not sure which date should we not use this loading delete anymore
 			// Stop rendering...
-			_ui_box = UIManager.showMessageBox(DB.getMessage(296).replace('%d', 10), 'cancel', function () {
+			_ui_box = UIManager.showMessageBox(DB.getMessage(296).replace('%d', 10), 'cancel', () => {
 				_render = false;
 				onCancel();
 			});
@@ -595,7 +596,7 @@ function onPincodeCheckSuccess(pkt) {
 	}
 	PincodeWindow.onPincodeCheckRequest = onPincodeCheckRequest;
 	PincodeWindow.onUserPincodeResetReq = onUserPincodeResetReq;
-	PincodeWindow.onExitRequest = function () {
+	PincodeWindow.onExitRequest = () => {
 		_pincodeAttempts = 0;
 		_inAuthPincodeReset = false;
 		_resettingPincode = false;

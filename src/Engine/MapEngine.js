@@ -157,7 +157,7 @@ class MapEngine {
 		Network.connect(
 			current_ip,
 			port,
-			function onconnect(success) {
+			(success) =>{
 				// Force reloading map
 				MapRenderer.currentMap = '';
 
@@ -585,7 +585,7 @@ function onConnectionAccepted(pkt) {
 function onMapChange(pkt) {
 	jQuery(window).off('keydown.map');
 
-	MapRenderer.onLoad = function () {
+	MapRenderer.onLoad = () => {
 		Session.Entity.set({
 			PosDir: [pkt.xPos, pkt.yPos, 0],
 			GID: Session.Character.GID
@@ -740,7 +740,7 @@ function onExitRequest() {
 	Network.sendPacket(pkt);
 
 	// Wait a second, if no answer from the server, then close it.
-	Events.setTimeout(function () {
+	Events.setTimeout(() => {
 		onExitSuccess();
 	}, 1000);
 }
@@ -773,7 +773,7 @@ function onExitSuccess() {
 	BGM.stop();
 	if (PACKETVER.value < 20181114) {
 		Background.remove();
-		Background.setImage('bgi_temp.bmp', function () {
+		Background.setImage('bgi_temp.bmp', () => {
 			import('Engine/GameEngine.js').then(m => m.default.reload());
 		});
 	} else {
@@ -1103,7 +1103,7 @@ function onWalkEnd() {
 		// server when moving to attack (wrong position).
 		// So wait 50ms to be sure we are at the correct position before
 		// performing an action
-		Events.setTimeout(function () {
+		Events.setTimeout(() => {
 			if (Session.moveAction) {
 				Network.sendPacket(Session.moveAction);
 				Session.moveAction = null;
@@ -1239,5 +1239,4 @@ function onRestart() {
 /**
  * Export
  */
-MapEngine.onMapChange = onMapChange;
 export default MapEngine;
