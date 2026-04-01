@@ -17,11 +17,6 @@ import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
 
 /**
- * Background Namespace
- */
-const Background = {};
-
-/**
  * @var {jQuery object} Background canvas element
  */
 const _canvas = jQuery('<canvas/>').css({ position: 'absolute', top: 0, left: 0, zIndex: 5 });
@@ -60,152 +55,160 @@ const _image = new Image();
 let _loading = [];
 
 /**
- * Initialize Background component
- *
- * @param {Array} loading - Array of loading filenames stored in clientinfo.xml
+ * Background Namespace
  */
-Background.init = function init(loading) {
-	let i;
+class Background {
+	/**
+	 * Initialize Background component
+	 *
+	 * @param {Array} loading - Array of loading filenames stored in clientinfo.xml
+	 */
+	static init(loading) {
+		let i;
 
-	_progress = 0;
-	_canvas.css('zIndex', 0);
+		_progress = 0;
+		_canvas.css('zIndex', 0);
 
-	render();
+		render();
 
-	if (loading) {
-		_loading = loading;
-		return;
-	}
-
-	// Generate default loadings
-	_loading.length = 10;
-	for (i = 1; i <= 10; ++i) {
-		_loading[i - 1] = 'loading' + (i < 10 ? '0' + i : i) + '.jpg';
-	}
-};
-
-/**
- * Resize the background
- */
-Background.resize = function resize(width, height) {
-	_canvas[0].width = width;
-	_canvas[0].height = height;
-	_overlay.css({ width: width, height: height });
-
-	_ctx.fillStyle = 'black';
-	_ctx.fillRect(0, 0, width, height);
-
-	render();
-};
-
-/**
- * Set an image as background
- *
- * @param {string} filename
- * @param {function} callback once the image is loaded (optional)
- */
-Background.setImage = function setImage(filename, callback) {
-	const exist = !!_canvas[0].parentNode;
-	_progress = -1;
-
-	render();
-
-	// Get and load Image
-	Client.loadFile(
-		DB.INTERFACE_PATH + filename,
-		function (url) {
-			if (url !== _image.src) {
-				_image.decoding = 'async';
-				_image.src = url;
-				_image.onload = render;
-			}
-
-			if (exist && callback) {
-				callback();
-			}
-		},
-		function () {
-			if (exist && callback) {
-				callback();
-			}
+		if (loading) {
+			_loading = loading;
+			return;
 		}
-	);
 
-	// Add transition only if the background isn't here
-	if (!exist) {
-		transition(function () {
-			_canvas.appendTo('body');
+		// Generate default loadings
+		_loading.length = 10;
+		for (i = 1; i <= 10; ++i) {
+			_loading[i - 1] = `loading${i < 10 ? '0' + i : i}.jpg`;
+		}
+	}
+
+	/**
+	 * Resize the background
+	 */
+	static resize(width, height) {
+		_canvas[0].width = width;
+		_canvas[0].height = height;
+		_overlay.css({ width: width, height: height });
+
+		_ctx.fillStyle = 'black';
+		_ctx.fillRect(0, 0, width, height);
+
+		render();
+	}
+
+	/**
+	 * Set an image as background
+	 *
+	 * @param {string} filename
+	 * @param {function} callback once the image is loaded (optional)
+	 */
+	static setImage(filename, callback) {
+		const exist = !!_canvas[0].parentNode;
+		_progress = -1;
+
+		render();
+
+		// Get and load Image
+		Client.loadFile(
+			DB.INTERFACE_PATH + filename,
+			url => {
+				if (url !== _image.src) {
+					_image.decoding = 'async';
+					_image.src = url;
+					_image.onload = render;
+				}
+
+				if (exist && callback) {
+					callback();
+				}
+			},
+			() => {
+				if (exist && callback) {
+					callback();
+				}
+			}
+		);
+
+		// Add transition only if the background isn't here
+		if (!exist) {
+			transition(() => {
+				_canvas.appendTo('body');
+				if (callback) {
+					callback();
+				}
+			});
+		}
+	}
+
+	/**
+	 * Add loading background
+	 *
+	 * @param {function} callback once the loading is display (optional)
+	 */
+	static setLoading(callback) {
+		const index = Math.floor(Math.random() * _loading.length);
+
+		Background.setImage(_loading[index] || 'loading01.jpg', () => {
+			_canvas.css('zIndex', 999);
+			Background.setPercent(0.0);
+
 			if (callback) {
 				callback();
 			}
 		});
 	}
-};
 
-/**
- * Add loading background
- *
- * @param {function} callback once the loading is display (optional)
- */
-Background.setLoading = function setLoading(callback) {
-	const index = Math.floor(Math.random() * _loading.length);
+	/**
+	 * Remove background
+	 *
+	 * @param {function} callback once the overlay hide the window (optional)
+	 */
+	static remove(callback) {
+		transition(() => {
+			_canvas.css('zIndex', 0);
+			_canvas.remove();
+			_image.src = '';
+			if (callback) {
+				callback();
+			}
+		});
+	}
 
-	Background.setImage(_loading[index] || 'loading01.jpg', function () {
-		_canvas.css('zIndex', 999);
-		Background.setPercent(0.0);
+	/**
+	 * Adding progress bar to background
+	 *
+	 * @param {number} percent
+	 */
+	static setPercent(percent) {
+		_progress = Math.min(Math.floor(percent), 100);
 
-		if (callback) {
-			callback();
-		}
-	});
-};
+		const width = 240;
+		const height = 15;
+		const x = Math.floor((_canvas[0].width - width) * 0.5);
+		const y = Math.floor(_canvas[0].height * 0.75);
 
-/**
- * Remove background
- *
- * @param {function} callback once the overlay hide the window (optional)
- */
-Background.remove = function remove(callback) {
-	transition(function () {
-		_canvas.css('zIndex', 0);
-		_canvas.remove();
-		_image.src = '';
-		if (callback) {
-			callback();
-		}
-	});
-};
+		// Draw Rectangle border
+		_ctx.fillStyle = 'rgb(0,255,255)';
+		_ctx.fillRect(x, y, width, height);
 
-/**
- * Adding progress bar to background
- *
- * @param {number} percent
- */
-Background.setPercent = function setPercent(percent) {
-	_progress = Math.min(Math.floor(percent), 100);
+		// Draw Rectangle "empty"
+		_ctx.fillStyle = 'rgb(140,140,140)';
+		_ctx.fillRect(x + 1, y + 1, width - 2, height - 2);
 
-	const width = 240;
-	const height = 15;
-	const x = Math.floor((_canvas[0].width - width) * 0.5);
-	const y = Math.floor(_canvas[0].height * 0.75);
+		// Draw progressbar
+		_ctx.fillStyle = 'rgb(66,99,165)';
+		_ctx.fillRect(x + 2, y + 2, Math.floor(percent * (width - 4) * 0.01), height - 4);
 
-	// Draw Rectangle border
-	_ctx.fillStyle = 'rgb(0,255,255)';
-	_ctx.fillRect(x, y, width, height);
-
-	// Draw Rectangle "empty"
-	_ctx.fillStyle = 'rgb(140,140,140)';
-	_ctx.fillRect(x + 1, y + 1, width - 2, height - 2);
-
-	// Draw progressbar
-	_ctx.fillStyle = 'rgb(66,99,165)';
-	_ctx.fillRect(x + 2, y + 2, Math.floor(percent * (width - 4) * 0.01), height - 4);
-
-	// Draw percent
-	_ctx.fillStyle = 'rgb(255,255,0)';
-	_ctx.fillText(percent + '%', Math.floor((_canvas[0].width - _ctx.measureText(percent + '%').width) * 0.5), y + 11);
-};
-
+		// Draw percent
+		_ctx.fillStyle = 'rgb(255,255,0)';
+		_ctx.fillText(
+			percent + '%',
+			Math.floor((_canvas[0].width - _ctx.measureText(percent + '%').width) * 0.5),
+			y + 11
+		);
+	}
+}
 /**
  * Render background (or a black background if no image is loaded yet)
  */
@@ -234,10 +237,10 @@ function transition(callback) {
 		.stop()
 		.css('opacity', 0.01)
 		.appendTo('body')
-		.animate({ opacity: 1.0 }, transitionDuration, function () {
+		.animate({ opacity: 1.0 }, transitionDuration, () => {
 			callback();
 
-			_overlay.stop().animate({ opacity: 0.01 }, transitionDuration, function () {
+			_overlay.stop().animate({ opacity: 0.01 }, transitionDuration, () => {
 				_overlay.remove();
 			});
 		});

@@ -21,58 +21,6 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 
 /**
- * Cursor Constructor
- */
-const Cursor = {};
-
-/**
- * Cursor animation Constant
- */
-Cursor.ACTION = {
-	DEFAULT: 0,
-	TALK: 1,
-	CLICK: 2,
-	LOCK: 3,
-	ROTATE: 4,
-	ATTACK: 5,
-	WARP: 7,
-	PICK: 9,
-	TARGET: 10,
-	NOWALK: 13
-};
-
-/**
- * @var {boolean} block change ?
- */
-Cursor.freeze = false;
-
-/**
- * @var {integer} left in px
- */
-Cursor.x = 0;
-
-/**
- * @var {integer} top in px
- */
-Cursor.y = 0;
-
-/**
- * @var {boolean} magnetism while picking entites ?
- */
-Cursor.magnetism = true;
-
-/**
- * @var {boolean} force disabled magnetism
- * Used to cast zone skill to ground
- */
-Cursor.blockMagnetism = false;
-
-/**
- * @var {integer} Cursor.ACTION.* constant
- */
-let _type = Cursor.ACTION.DEFAULT;
-
-/**
  * @var {integer} tick
  */
 let _tick = 0;
@@ -128,6 +76,215 @@ let _action;
 let _selector;
 
 /**
+ * Cursor Constructor
+ */
+class Cursor {
+	/**
+	 * Cursor animation Constant
+	 */
+	static ACTION = {
+		DEFAULT: 0,
+		TALK: 1,
+		CLICK: 2,
+		LOCK: 3,
+		ROTATE: 4,
+		ATTACK: 5,
+		WARP: 7,
+		PICK: 9,
+		TARGET: 10,
+		NOWALK: 13
+	};
+
+	/**
+	 * @var {boolean} block change ?
+	 */
+	static freeze = false;
+
+	/**
+	 * @var {integer} left in px
+	 */
+	static x = 0;
+
+	/**
+	 * @var {integer} top in px
+	 */
+	static y = 0;
+
+	/**
+	 * @var {boolean} magnetism while picking entites ?
+	 */
+	static magnetism = true;
+
+	/**
+	 * @var {boolean} force disabled magnetism
+	 * Used to cast zone skill to ground
+	 */
+	static blockMagnetism = false;
+
+	/**
+	 * Load cursor data (action, sprite)
+	 */
+	static init(fn) {
+		// Already loaded
+		if (_sprite) {
+			fn();
+			return;
+		}
+
+		Client.getFiles(['data/sprite/cursors.spr', 'data/sprite/cursors.act'], (spr, act) => {
+			try {
+				_sprite = new Sprite(spr);
+				_action = new Action(act);
+			} catch (e) {
+				console.error('Cursor::init() - ' + e.message);
+				return;
+			}
+
+			// Load it properly later using webgl
+			MemoryManager.remove(null, 'data/sprite/cursors.spr');
+			MemoryManager.remove(null, 'data/sprite/cursors.act');
+
+			bindMouseEvents();
+			preCompiledAnimations();
+			createSpriteSheet();
+			fn();
+		});
+	}
+
+	/**
+	 * Change cursor action
+	 *
+	 * @param {number} type - Cursor.ACTION.*
+	 * @param {boolean} norepeat - repeat animation ?
+	 * @param {number} animation numero (optional)
+	 */
+	static setType(type, norepeat, animation) {
+		if (Cursor.freeze) {
+			return;
+		}
+
+		_type = type;
+		_tick = Date.now();
+		_norepeat = !!norepeat;
+
+		if (typeof animation !== 'undefined') {
+			_animation = animation;
+			_play = false;
+		} else {
+			_animation = 0;
+			_play = true;
+		}
+	}
+
+	/**
+	 * Simple method to get the current cursor type
+	 *
+	 * @return {number} Cursor.ACTION.*
+	 */
+	static getActualType() {
+		return _type;
+	}
+
+	/**
+	 * Render the cursor (update)
+	 */
+	static render(tick) {
+		if (!Graphics.cursor || !_compiledStyle.length) {
+			if (_selector) {
+				// Pre-rework it used 'hidden' css
+				_selector.style.display = 'none';
+			}
+			return;
+		}
+		// Pre-rework it used 'show' css, need to check if it exist
+		if (_selector && _selector.style.display === 'none') {
+			_selector.style.display = 'block';
+		}
+
+		const info = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
+		const action = _action.actions[_type] || _action.actions[Cursor.ACTION.DEFAULT];
+		let anim = _animation;
+		const delay = action.delay * info.delayMult;
+		let x = info.startX;
+		let y = info.startY;
+
+		if (_play) {
+			const frame = Math.floor((tick - _tick) / delay);
+			anim = _norepeat ? Math.min(frame, action.animations.length - 1) : frame % action.animations.length;
+		}
+
+		if (Graphics.cursor) {
+			document.body.classList.add('custom-cursor');
+		}
+
+		const animation = action.animations[anim];
+
+		if (!animation) {
+			return;
+		}
+
+		if (Cursor.magnetism && !Cursor.blockMagnetism) {
+			const entity = EntityManager.getOverEntity();
+			if (entity) {
+				switch (entity.objecttype) {
+					case Entity.TYPE_MOB:
+					case Entity.TYPE_NPC_ABR:
+					case Entity.TYPE_NPC_BIONIC:
+						if (!Preferences.snap) {
+							break;
+						}
+						x += Math.floor(
+							Mouse.screen.x -
+								(entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2)
+						);
+						y += Math.floor(
+							Mouse.screen.y -
+								(entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2)
+						);
+						break;
+					case Entity.TYPE_ITEM:
+						if (!Preferences.itemsnap) {
+							break;
+						}
+						x += Math.floor(
+							Mouse.screen.x -
+								(entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2)
+						);
+						y += Math.floor(
+							Mouse.screen.y -
+								(entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2)
+						);
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		if (animation.compiledStyleIndex !== _lastStyleId || x !== _lastX || y !== _lastY) {
+			_lastStyleId = animation.compiledStyleIndex;
+			_lastX = x;
+			_lastY = y;
+
+			const cursorSprite = document.querySelector('.cursor__sprite');
+			if (cursorSprite) {
+				cursorSprite.style.left = `${-_lastStyleId * 50}px`;
+			}
+
+			const cursor = document.querySelector('.cursor');
+			if (cursor) {
+				cursor.style.transform = `translate(-${_lastX}px, -${_lastY}px)`;
+			}
+		}
+	}
+}
+
+/**
+ * @var {integer} Cursor.ACTION.* constant
+ */
+let _type = Cursor.ACTION.DEFAULT;
+
+/**
  * Define sprite informations (hardcoded)
  */
 const ActionInformations = {};
@@ -138,36 +295,6 @@ ActionInformations[Cursor.ACTION.ROTATE] = { drawX: 18, drawY: 26, startX: 10, s
 ActionInformations[Cursor.ACTION.PICK] = { drawX: 20, drawY: 40, startX: 15, startY: 15, delayMult: 1.0 };
 ActionInformations[Cursor.ACTION.TARGET] = { drawX: 20, drawY: 50, startX: 20, startY: 28, delayMult: 0.5 };
 ActionInformations[Cursor.ACTION.NOWALK] = { drawX: 13, drawY: 25, startX: 14, startY: 6, delayMult: 1.0 };
-
-/**
- * Load cursor data (action, sprite)
- */
-Cursor.init = function init(fn) {
-	// Already loaded
-	if (_sprite) {
-		fn();
-		return;
-	}
-
-	Client.getFiles(['data/sprite/cursors.spr', 'data/sprite/cursors.act'], function (spr, act) {
-		try {
-			_sprite = new Sprite(spr);
-			_action = new Action(act);
-		} catch (e) {
-			console.error('Cursor::init() - ' + e.message);
-			return;
-		}
-
-		// Load it properly later using webgl
-		MemoryManager.remove(null, 'data/sprite/cursors.spr');
-		MemoryManager.remove(null, 'data/sprite/cursors.act');
-
-		bindMouseEvents();
-		preCompiledAnimations();
-		createSpriteSheet();
-		fn();
-	});
-};
 
 /**
  * Change the cursor for the button click event
@@ -434,133 +561,6 @@ function createSpriteSheet() {
 		drawSprite(i);
 	}
 }
-
-/**
- * Change cursor action
- *
- * @param {number} type - Cursor.ACTION.*
- * @param {boolean} norepeat - repeat animation ?
- * @param {number} animation numero (optional)
- */
-Cursor.setType = function SetType(type, norepeat, animation) {
-	if (Cursor.freeze) {
-		return;
-	}
-
-	_type = type;
-	_tick = Date.now();
-	_norepeat = !!norepeat;
-
-	if (typeof animation !== 'undefined') {
-		_animation = animation;
-		_play = false;
-	} else {
-		_animation = 0;
-		_play = true;
-	}
-};
-
-/**
- * Simple method to get the current cursor type
- *
- * @return {number} Cursor.ACTION.*
- */
-Cursor.getActualType = function getActualType() {
-	return _type;
-};
-
-/**
- * Render the cursor (update)
- */
-Cursor.render = function render(tick) {
-	if (!Graphics.cursor || !_compiledStyle.length) {
-		if (_selector) {
-			_selector.style.display = 'hidden';
-		}
-		return;
-	}
-	if (_selector.style.display !== 'show') {
-		if (_selector) {
-			_selector.style.display = 'show';
-		}
-	}
-
-	const info = ActionInformations[_type] || ActionInformations[Cursor.ACTION.DEFAULT];
-	const action = _action.actions[_type] || _action.actions[Cursor.ACTION.DEFAULT];
-	let anim = _animation;
-	const delay = action.delay * info.delayMult;
-	let x = info.startX;
-	let y = info.startY;
-
-	if (_play) {
-		const frame = Math.floor((tick - _tick) / delay);
-		anim = _norepeat ? Math.min(frame, action.animations.length - 1) : frame % action.animations.length;
-	}
-
-	if (Graphics.cursor) {
-		document.body.classList.add('custom-cursor');
-	}
-
-	const animation = action.animations[anim];
-
-	if (!animation) {
-		return;
-	}
-
-	if (Cursor.magnetism && !Cursor.blockMagnetism) {
-		const entity = EntityManager.getOverEntity();
-		if (entity) {
-			switch (entity.objecttype) {
-				case Entity.TYPE_MOB:
-				case Entity.TYPE_NPC_ABR:
-				case Entity.TYPE_NPC_BIONIC:
-					if (!Preferences.snap) {
-						break;
-					}
-					x += Math.floor(
-						Mouse.screen.x -
-							(entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2)
-					);
-					y += Math.floor(
-						Mouse.screen.y -
-							(entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2)
-					);
-					break;
-				case Entity.TYPE_ITEM:
-					if (!Preferences.itemsnap) {
-						break;
-					}
-					x += Math.floor(
-						Mouse.screen.x -
-							(entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2)
-					);
-					y += Math.floor(
-						Mouse.screen.y -
-							(entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2)
-					);
-					break;
-				default:
-					break;
-			}
-		}
-	}
-
-	if (animation.compiledStyleIndex !== _lastStyleId || x !== _lastX || y !== _lastY) {
-		_lastStyleId = animation.compiledStyleIndex;
-		_lastX = x;
-		_lastY = y;
-
-		const cursorSprite = document.querySelector('.cursor__sprite');
-		if (cursorSprite) {
-			cursorSprite.style.left = `${-_lastStyleId * 50}px`;
-		}
-
-		const cursor = document.querySelector('.cursor');
-		if (cursor) {
-			cursor.style.transform = `translate(-${_lastX}px, -${_lastY}px)`;
-		}
-	}
-};
 
 /**
  * Export

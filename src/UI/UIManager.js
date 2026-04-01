@@ -18,286 +18,285 @@ import GameEngine from 'Engine/GameEngine.js';
 /**
  * User Interface Manager
  */
-const UIManager = {};
+class UIManager {
+	/**
+	 * Components cache
+	 * @var {array} Components List
+	 */
+	static components = {};
 
-/**
- * Components cache
- * @var {array} Components List
- */
-UIManager.components = {};
+	/**
+	 * Store a component in the manager
+	 *
+	 * @param {UIComponent} component object
+	 */
+	static addComponent(component) {
+		if (!(component instanceof UIComponent)) {
+			throw new Error('UIManager::addComponent() - Invalid type of component');
+		}
 
-/**
- * Store a component in the manager
- *
- * @param {UIComponent} component object
- */
-UIManager.addComponent = function addComponent(component) {
-	if (!(component instanceof UIComponent)) {
-		throw new Error('UIManager::addComponent() - Invalid type of component');
+		component.manager = this;
+		this.components[component.name] = component;
+		return component;
 	}
 
-	component.manager = this;
-	this.components[component.name] = component;
-	return component;
-};
+	/**
+	 * Get component stored in manager
+	 *
+	 * @param {string} component name
+	 * @return {UIComponent} object
+	 */
+	static getComponent(name) {
+		const versionAlias = UIVersionManager.getUIAlias(name);
+		if (versionAlias) {
+			name = versionAlias;
+		}
 
-/**
- * Get component stored in manager
- *
- * @param {string} component name
- * @return {UIComponent} object
- */
-UIManager.getComponent = function getComponent(name) {
-	const versionAlias = UIVersionManager.getUIAlias(name);
-	if (versionAlias) {
-		name = versionAlias;
+		if (!(name in this.components)) {
+			throw new Error('UIManager.getComponent() - Component "' + name + '" not found');
+		}
+
+		return this.components[name];
 	}
 
-	if (!(name in this.components)) {
-		throw new Error('UIManager.getComponent() - Component "' + name + '" not found');
+	/**
+	 * Remove all components in screen
+	 */
+	static removeComponents() {
+		const keys = Object.keys(this.components);
+		const count = keys.length;
+
+		for (let i = 0; i < count; ++i) {
+			this.components[keys[i]].remove();
+		}
 	}
 
-	return this.components[name];
-};
+	/**
+	 * When resizing window, some components can be outside the screen size and
+	 * it sucks a lot. Try to correct the problem.
+	 *
+	 * @param {number} Game screen width
+	 * @param {number} Game screen height
+	 */
+	static fixResizeOverflow(WIDTH, HEIGHT) {
+		const keys = Object.keys(this.components);
+		const count = keys.length;
+		let ui;
+		let x, y, width, height;
 
-/**
- * Remove all components in screen
- */
-UIManager.removeComponents = function removeComponents() {
-	const keys = Object.keys(this.components);
-	const count = keys.length;
+		for (let i = 0; i < count; ++i) {
+			const component = this.components[keys[i]];
+			ui = component.ui;
 
-	for (let i = 0; i < count; ++i) {
-		this.components[keys[i]].remove();
-	}
-};
+			if (ui) {
+				x = ui.offset().left;
+				y = ui.offset().top;
+				width = ui.width();
+				height = ui.height();
 
-/**
- * When resizing window, some components can be outside the screen size and
- * it sucks a lot. Try to correct the problem.
- *
- * @param {number} Game screen width
- * @param {number} Game screen height
- */
-UIManager.fixResizeOverflow = function fixResizeOverflow(WIDTH, HEIGHT) {
-	const keys = Object.keys(this.components);
-	const count = keys.length;
-	let ui;
-	let x, y, width, height;
+				if (y + height > HEIGHT) {
+					ui.css('top', HEIGHT - Math.min(height, HEIGHT));
+				}
 
-	for (let i = 0; i < count; ++i) {
-		const component = this.components[keys[i]];
-		ui = component.ui;
+				if (x + width > WIDTH) {
+					ui.css('left', WIDTH - Math.min(width, WIDTH));
+				}
 
-		if (ui) {
-			x = ui.offset().left;
-			y = ui.offset().top;
-			width = ui.width();
-			height = ui.height();
+				//Magnet
+				if (component.magnet.TOP) {
+					//nothing to do
+				}
+				if (component.magnet.BOTTOM) {
+					ui.css('top', HEIGHT - height);
+				}
+				if (component.magnet.LEFT) {
+					//nothing to do
+				}
+				if (component.magnet.RIGHT) {
+					ui.css('left', WIDTH - width);
+				}
 
-			if (y + height > HEIGHT) {
-				ui.css('top', HEIGHT - Math.min(height, HEIGHT));
-			}
-
-			if (x + width > WIDTH) {
-				ui.css('left', WIDTH - Math.min(width, WIDTH));
-			}
-
-			//Magnet
-			if (component.magnet.TOP) {
-				//nothing to do
-			}
-			if (component.magnet.BOTTOM) {
-				ui.css('top', HEIGHT - height);
-			}
-			if (component.magnet.LEFT) {
-				//nothing to do
-			}
-			if (component.magnet.RIGHT) {
-				ui.css('left', WIDTH - width);
-			}
-
-			// Call custom resize function if has one
-			if (component.onResize) {
-				component.onResize();
+				// Call custom resize function if has one
+				if (component.onResize) {
+					component.onResize();
+				}
 			}
 		}
 	}
-};
 
-/**
- * Display an error box component
- * Will reload the game once selected
- *
- * @param {string} error message
- */
-UIManager.showErrorBox = function showErrorBox(text) {
-	// Create popup
-	const WinError = this.getComponent('WinPopup').clone('WinError');
-	WinError.init = function Init() {
-		this.ui.find('.text').text(text);
-		this.ui.css({
-			top: (Renderer.height - 120) / 1.5 - 120,
-			left: (Renderer.width - 280) / 2.0,
-			zIndex: 100
-		});
+	/**
+	 * Display an error box component
+	 * Will reload the game once selected
+	 *
+	 * @param {string} error message
+	 */
+	static showErrorBox(text) {
+		// Create popup
+		const WinError = this.getComponent('WinPopup').clone('WinError');
+		WinError.init = function Init() {
+			this.ui.find('.text').text(text);
+			this.ui.css({
+				top: (Renderer.height - 120) / 1.5 - 120,
+				left: (Renderer.width - 280) / 2.0,
+				zIndex: 100
+			});
 
-		WinError.ui.find('.btns').append(
-			jQuery('<button/>')
-				.addClass('btn')
-				.data('background', 'btn_ok.bmp')
-				.data('hover', 'btn_ok_a.bmp')
-				.data('down', 'btn_ok_b.bmp')
-				.one('click', function () {
-					overlay.remove();
-					WinError.remove();
-					GameEngine.reload();
-				})
-				.each(this.parseHTML)
-		);
-	};
-	WinError.onKeyDown = function OnKeyDown(event) {
-		event.stopImmediatePropagation();
-		switch (event.which) {
-			case KEYS.ENTER:
-			case KEYS.ESCAPE:
-				overlay.remove();
-				this.remove();
-				GameEngine.reload();
-		}
-	};
-
-	// Add overlay (to block mouseover, click, etc.)
-	const overlay = jQuery('<div/>').addClass('win_popup_overlay');
-	overlay.appendTo('body');
-
-	// Push the event to the top, stopImmediatePropagation will block every key down event.
-	WinError.onAppend = function () {
-		const events = jQuery._data(window, 'events').keydown;
-		events.unshift(events.pop());
-	};
-
-	WinError.append();
-
-	return WinError;
-};
-
-/**
- * Show a message box to the user
- *
- * @param {string} message to show
- * @param {string} button name
- * @param {function} callback once the button is pressed
- */
-UIManager.showMessageBox = function showMessageBox(text, btn_name, callback, keydown) {
-	// Create popup
-	const WinMSG = this.getComponent('WinPopup').clone('WinMSG');
-	WinMSG.init = function Init() {
-		this.draggable();
-		this.ui.find('.text').text(text);
-		this.ui.css({
-			top: (Renderer.height - 120) / 1.5 - 120,
-			left: (Renderer.width - 280) / 2.0,
-			zIndex: 100
-		});
-
-		// Just button
-		if (btn_name) {
-			WinMSG.ui.find('.btns').append(
+			WinError.ui.find('.btns').append(
 				jQuery('<button/>')
 					.addClass('btn')
-					.data('background', 'btn_' + btn_name + '.bmp')
-					.data('hover', 'btn_' + btn_name + '_a.bmp')
-					.data('down', 'btn_' + btn_name + '_b.bmp')
+					.data('background', 'btn_ok.bmp')
+					.data('hover', 'btn_ok_a.bmp')
+					.data('down', 'btn_ok_b.bmp')
 					.one('click', function () {
-						WinMSG.remove();
+						overlay.remove();
+						WinError.remove();
+						GameEngine.reload();
+					})
+					.each(this.parseHTML)
+			);
+		};
+		WinError.onKeyDown = function OnKeyDown(event) {
+			event.stopImmediatePropagation();
+			switch (event.which) {
+				case KEYS.ENTER:
+				case KEYS.ESCAPE:
+					overlay.remove();
+					this.remove();
+					GameEngine.reload();
+			}
+		};
+
+		// Add overlay (to block mouseover, click, etc.)
+		const overlay = jQuery('<div/>').addClass('win_popup_overlay');
+		overlay.appendTo('body');
+
+		// Push the event to the top, stopImmediatePropagation will block every key down event.
+		WinError.onAppend = function () {
+			const events = jQuery._data(window, 'events').keydown;
+			events.unshift(events.pop());
+		};
+
+		WinError.append();
+
+		return WinError;
+	}
+
+	/**
+	 * Show a message box to the user
+	 *
+	 * @param {string} message to show
+	 * @param {string} button name
+	 * @param {function} callback once the button is pressed
+	 */
+	static showMessageBox(text, btn_name, callback, keydown) {
+		// Create popup
+		const WinMSG = this.getComponent('WinPopup').clone('WinMSG');
+		WinMSG.init = function Init() {
+			this.draggable();
+			this.ui.find('.text').text(text);
+			this.ui.css({
+				top: (Renderer.height - 120) / 1.5 - 120,
+				left: (Renderer.width - 280) / 2.0,
+				zIndex: 100
+			});
+
+			// Just button
+			if (btn_name) {
+				WinMSG.ui.find('.btns').append(
+					jQuery('<button/>')
+						.addClass('btn')
+						.data('background', 'btn_' + btn_name + '.bmp')
+						.data('hover', 'btn_' + btn_name + '_a.bmp')
+						.data('down', 'btn_' + btn_name + '_b.bmp')
+						.one('click', function () {
+							WinMSG.remove();
+							if (callback) {
+								callback();
+							}
+						})
+						.each(this.parseHTML)
+				);
+			}
+		};
+
+		// Just keydown
+		if (keydown) {
+			WinMSG.onKeyDown = function (event) {
+				switch (event.which) {
+					case KEYS.ENTER:
+					case KEYS.ESCAPE:
+						this.remove();
 						if (callback) {
 							callback();
+						}
+				}
+				event.stopImmediatePropagation();
+			};
+
+			// Push the event to the top, stopImmediatePropagation will block every key down.
+			WinMSG.onAppend = function () {
+				const events = jQuery._data(window, 'events').keydown;
+				events.unshift(events.pop());
+			};
+		}
+
+		WinMSG.append();
+
+		return WinMSG;
+	}
+
+	/**
+	 * Prompt a message to the user
+	 *
+	 * @param {string} message to show
+	 * @param {string} button ok
+	 * @param {string} button cancel
+	 * @param {function} callback when ok is pressed
+	 * @param {function} callback when cancel is pressed
+	 */
+	static showPromptBox(text, btn_yes, btn_no, onYes, onNo) {
+		const WinPrompt = this.getComponent('WinPopup').clone('WinPrompt');
+		WinPrompt.init = function Init() {
+			this.draggable();
+			this.ui.find('.text').text(text);
+			this.ui.css({
+				top: (Renderer.height - 120) / 1.5 - 120,
+				left: (Renderer.width - 280) / 2.0,
+				zIndex: 100
+			});
+			this.ui.find('.btns').append(
+				jQuery('<button/>')
+					.addClass('btn')
+					.data('background', 'btn_' + btn_yes + '.bmp')
+					.data('hover', 'btn_' + btn_yes + '_a.bmp')
+					.data('down', 'btn_' + btn_yes + '_b.bmp')
+					.one('click', function () {
+						WinPrompt.remove();
+						if (onYes) {
+							onYes();
+						}
+					})
+					.each(this.parseHTML),
+
+				jQuery('<button/>')
+					.addClass('btn')
+					.data('background', 'btn_' + btn_no + '.bmp')
+					.data('hover', 'btn_' + btn_no + '_a.bmp')
+					.data('down', 'btn_' + btn_no + '_b.bmp')
+					.one('click', function () {
+						WinPrompt.remove();
+						if (onNo) {
+							onNo();
 						}
 					})
 					.each(this.parseHTML)
 			);
-		}
-	};
-
-	// Just keydown
-	if (keydown) {
-		WinMSG.onKeyDown = function (event) {
-			switch (event.which) {
-				case KEYS.ENTER:
-				case KEYS.ESCAPE:
-					this.remove();
-					if (callback) {
-						callback();
-					}
-			}
-			event.stopImmediatePropagation();
 		};
 
-		// Push the event to the top, stopImmediatePropagation will block every key down.
-		WinMSG.onAppend = function () {
-			const events = jQuery._data(window, 'events').keydown;
-			events.unshift(events.pop());
-		};
+		WinPrompt.append();
+		return WinPrompt;
 	}
-
-	WinMSG.append();
-
-	return WinMSG;
-};
-
-/**
- * Prompt a message to the user
- *
- * @param {string} message to show
- * @param {string} button ok
- * @param {string} button cancel
- * @param {function} callback when ok is pressed
- * @param {function} callback when cancel is pressed
- */
-UIManager.showPromptBox = function showPromptBox(text, btn_yes, btn_no, onYes, onNo) {
-	const WinPrompt = this.getComponent('WinPopup').clone('WinPrompt');
-	WinPrompt.init = function Init() {
-		this.draggable();
-		this.ui.find('.text').text(text);
-		this.ui.css({
-			top: (Renderer.height - 120) / 1.5 - 120,
-			left: (Renderer.width - 280) / 2.0,
-			zIndex: 100
-		});
-		this.ui.find('.btns').append(
-			jQuery('<button/>')
-				.addClass('btn')
-				.data('background', 'btn_' + btn_yes + '.bmp')
-				.data('hover', 'btn_' + btn_yes + '_a.bmp')
-				.data('down', 'btn_' + btn_yes + '_b.bmp')
-				.one('click', function () {
-					WinPrompt.remove();
-					if (onYes) {
-						onYes();
-					}
-				})
-				.each(this.parseHTML),
-
-			jQuery('<button/>')
-				.addClass('btn')
-				.data('background', 'btn_' + btn_no + '.bmp')
-				.data('hover', 'btn_' + btn_no + '_a.bmp')
-				.data('down', 'btn_' + btn_no + '_b.bmp')
-				.one('click', function () {
-					WinPrompt.remove();
-					if (onNo) {
-						onNo();
-					}
-				})
-				.each(this.parseHTML)
-		);
-	};
-
-	WinPrompt.append();
-	return WinPrompt;
-};
-
+}
 /**
  * Export
  */
