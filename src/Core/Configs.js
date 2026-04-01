@@ -9,84 +9,76 @@
  */
 
 /**
- * @var {object} global configs
+ * @class Configs
+ * @description Manage application and server-specific configurations.
  */
-const _global = {};
+class Configs {
+	static #global = {};
+	static #server = {};
 
-/**
- * @var {object} server configs
- */
-let _server = {};
+	/**
+	 * Initialize Configs
+	 * Apply configurations from a source object (usually window.ROConfig)
+	 * @param {object} configs
+	 */
+	static init(configs) {
+		if (typeof configs !== 'object' || configs === null) {
+			return;
+		}
 
-/**
- * Constructor
- * Apply configs
- */
-(function init(configs) {
-	if (typeof configs !== 'object') {
-		return;
+		Object.keys(configs).forEach(key => {
+			this.set(key, configs[key]);
+		});
 	}
 
-	const keys = Object.keys(configs);
-	let i, count;
-
-	for (i = 0, count = keys.length; i < count; ++i) {
-		set(keys[i], configs[keys[i]]);
-	}
-})(window.ROConfig);
-
-/**
- * Set a config
- *
- * @param {string} key name
- * @param {?} data
- */
-function set(key, value) {
-	_global[key] = value;
-}
-
-/**
- * Get the value of a config
- *
- * @param {string} key name
- * @param {?} default data value
- * @return {?} data
- */
-function get(key, defaultValue) {
-	if (key in _server) {
-		return _server[key];
+	/**
+	 * Set a config
+	 *
+	 * @param {string} key name
+	 * @param {*} value
+	 */
+	static set(key, value) {
+		this.#global[key] = value;
 	}
 
-	if (key in _global) {
-		return _global[key];
+	/**
+	 * Get the value of a config
+	 *
+	 * @param {string} key name
+	 * @param {*} defaultValue
+	 * @return {*} data
+	 */
+	static get(key, defaultValue) {
+		if (key in this.#server) {
+			return this.#server[key];
+		}
+
+		if (key in this.#global) {
+			return this.#global[key];
+		}
+
+		return defaultValue;
 	}
 
-	return defaultValue;
+	/**
+	 * Store the server information
+	 *
+	 * @param {object} server config
+	 */
+	static setServer(server) {
+		this.#server = server;
+	}
+
+	/**
+	 * Return the server information
+	 * @returns {object}
+	 */
+	static getServer() {
+		return this.#server;
+	}
 }
 
-/**
- * Store the server informations
- *
- * @param {object} server config
- */
-function setServer(server) {
-	_server = server;
-}
+// Initialize with window.ROConfig if it exists
+Configs.init(window.ROConfig);
 
-/**
- * Return the server informations
- *
- */
-function getServer() {
-	return _server;
-}
-
-/**
- * Export
- */
-export default {
-	get: get,
-	set: set,
-	setServer: setServer,
-	getServer: getServer
-};
+export default Configs;

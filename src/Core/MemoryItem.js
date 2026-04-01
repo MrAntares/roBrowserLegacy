@@ -10,141 +10,102 @@
  */
 
 /**
- * Object stored in cache
- * @var MemoryItem
+ * @class MemoryItem
+ * @description Object stored in cache with load/error event handling.
  */
-function MemoryItem(onload, onerror) {
-	// Private variables
-	this._onload = [];
-	this._onerror = [];
+class MemoryItem {
+	/**
+	 * @constructor
+	 * @param {Function} [onload]
+	 * @param {Function} [onerror]
+	 */
+	constructor(onload, onerror) {
+		this._onload = [];
+		this._onerror = [];
+		this._data = null;
+		this._error = '';
+		this.complete = false;
+		this.lastTimeUsed = 0;
 
-	// Store callback
-	// One cache item can have multple callback.
-	if (onload) {
-		this.addEventListener('load', onload);
+		if (onload) {
+			this.addEventListener('load', onload);
+		}
+
+		if (onerror) {
+			this.addEventListener('error', onerror);
+		}
 	}
 
-	if (onerror) {
-		this.addEventListener('error', onerror);
-	}
-}
-
-/**
- * Data of the cached Item
- * @var mixed
- */
-MemoryItem.prototype._data = null;
-
-/**
- * Error informatio,
- * @var {string}
- */
-MemoryItem.prototype._error = '';
-
-/**
- * Is the item loaded ?
- * @var boolean complete
- */
-MemoryItem.prototype.complete = false;
-
-/**
- * Save the last time the item was called from cache
- * Is used to remove old item from cache
- * @var integer lastTimeUsed
- */
-MemoryItem.prototype.lastTimeUsed = 0;
-
-/**
- * Get data from Item
- *
- * @return mixed
- */
-Object.defineProperty(MemoryItem.prototype, 'data', {
-	get: function () {
+	/**
+	 * Get data from Item
+	 * @returns {*} data
+	 */
+	get data() {
 		this.lastTimeUsed = Date.now();
 		return this._data;
 	}
-});
 
-/**
- * Once the item in cache is load, execute all callback
- *
- * @param mixed data
- */
-MemoryItem.prototype.addEventListener = function addEventListener(event, callback) {
-	if (!(callback instanceof Function)) {
-		throw new Error('MemoryItem::addEventListener() - callback must be a function !');
-	}
+	/**
+	 * Add an event listener
+	 * @param {string} event
+	 * @param {Function} callback
+	 */
+	addEventListener(event, callback) {
+		if (!(callback instanceof Function)) {
+			throw new Error('MemoryItem::addEventListener() - callback must be a function !');
+		}
 
-	switch (event.toLowerCase()) {
-		case 'load':
+		const eventName = event.toLowerCase();
+		if (eventName === 'load') {
 			if (this.complete) {
 				if (this._data) {
 					callback(this._data);
 				}
 				return;
 			}
-
 			this._onload.push(callback);
-			break;
-
-		case 'error':
+		} else if (eventName === 'error') {
 			if (this.complete) {
 				if (this._error) {
 					callback(this._error);
 				}
 				return;
 			}
-
 			this._onerror.push(callback);
-			break;
-
-		default:
-			throw new Error('MemoryItem::addEventListener() - Invalid event "' + event + '" used.');
-	}
-};
-
-/**
- * Once the item in cache is load, execute all callback
- *
- * @param {mixed} data
- */
-MemoryItem.prototype.onload = function onLoad(data) {
-	let i, size;
-
-	this._data = data;
-	this.complete = true;
-	this.lastTimeUsed = Date.now();
-
-	for (i = 0, size = this._onload.length; i < size; ++i) {
-		this._onload[i](data);
+		} else {
+			throw new Error(`MemoryItem::addEventListener() - Invalid event "${event}" used.`);
+		}
 	}
 
-	this._onload.length = 0;
-	this._onerror.length = 0;
-};
+	/**
+	 * Once the item in cache is load, execute all callback
+	 * @param {*} data
+	 */
+	onload(data) {
+		this._data = data;
+		this.complete = true;
+		this.lastTimeUsed = Date.now();
 
-/**
- * When an error occured with the item
- *
- * @param {string} error - optional
- */
-MemoryItem.prototype.onerror = function OnError(error) {
-	let i, size;
+		this._onload.forEach(callback => callback(data));
 
-	this._error = error;
-	this.complete = true;
-	this.lastTimeUsed = Date.now();
-
-	for (i = 0, size = this._onerror.length; i < size; ++i) {
-		this._onerror[i](error);
+		this._onload.length = 0;
+		this._onerror.length = 0;
 	}
 
-	this._onload.length = 0;
-	this._onerror.length = 0;
-};
+	/**
+	 * When an error occured with the item
+	 * @param {string} [error='']
+	 */
+	onerror(error = '') {
+		this._error = error;
+		this.complete = true;
+		this.lastTimeUsed = Date.now();
 
-/**
- * Export
- */
+		this._onerror.forEach(callback => callback(error));
+
+		this._onload.length = 0;
+		this._onerror.length = 0;
+	}
+}
+
 export default MemoryItem;

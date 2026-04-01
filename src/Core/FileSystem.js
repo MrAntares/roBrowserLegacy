@@ -10,474 +10,358 @@
  */
 
 /**
- * @param {Array} FileList
+ * @class FileSystem
+ * @description Manages client-side file persistence using the FileSystem API.
  */
-let _files = [];
+class FileSystem {
+	static #files = [];
+	static #clientSize = 0;
+	static #streamOffset = 0;
+	static #events = {};
+	static #fsSync = null;
+	static #fs = null;
+	static #available = !!(self.requestFileSystemSync || self.webkitRequestFileSystemSync);
+	static #save = false;
 
-/**
- * @param {number} client total size (in octets)
- */
-let _clientSize = 0;
+	/**
+	 * Initialize FileSystem API
+	 *
+	 * @param {Array} files
+	 * @param {boolean} save files
+	 * @param {Object} quota information
+	 */
+	static init(files, save, quota) {
+		this.#files = this.#normalizeFilesPath(files);
 
-/**
- * @param {number} progress octects when uploading
- */
-let _streamOffset = 0;
-
-/**
- * @param {Object} Events list
- */
-const _events = {};
-
-/**
- * @param {FileSyStem} sync
- */
-let _fs_sync;
-
-/**
- * @param {FileSyStem} async (used for streaming)
- */
-let _fs;
-
-/**
- * @param {boolean} is API available ? (do not need to check for the async)
- */
-const _available = !!(self.requestFileSystemSync || self.webkitRequestFileSystemSync);
-
-/**
- * @param {boolean} save data to file system ?
- */
-let _save = false;
-
-/**
- * Initialize FileSystem API
- *
- * @param {Array} FileList
- * @param {boolean} save files
- * @param {Object} quota information
- */
-export function init(files, save, quota) {
-	_files = normalizeFilesPath(files);
-
-	if (!_available) {
-		trigger('onready');
-		return;
-	}
-
-	calculateClientSize();
-
-	const requestFileSystemSync = self.requestFileSystemSync || self.webkitRequestFileSystemSync;
-	const requestFileSystem = self.requestFileSystem || self.webkitRequestFileSystem;
-
-	const size = _clientSize || quota.used || quota.remaining;
-
-	requestFileSystem(
-		self.TEMPORARY,
-		size,
-		function (fs) {
-			_fs = fs;
-			_fs_sync = requestFileSystemSync(self.TEMPORARY, size);
-
-			if (save && _files.length) {
-				cleanUp();
-				buildHierarchy();
-				processUpload(0);
-			}
-
-			_save = save;
-			trigger('onready');
-		},
-		errorHandler
-	);
-}
-
-/**
- * Normalize file path
- *
- * @param {array} FileList
- * @returns {array} normalized filelist
- */
-function normalizeFilesPath(files) {
-	let i, count;
-	const list = new Array(files.length);
-	const backslash = /\\\\/g;
-
-	for (i = 0, count = files.length; i < count; ++i) {
-		list[i] = files[i].file;
-		list[i]._path = files[i].path.replace(backslash, '/');
-	}
-
-	return list;
-}
-
-/**
- * Error Handler give a human error
- */
-function errorHandler(e) {
-	let msg = '';
-	const FileError = {
-		QUOTA_EXCEEDED_ERR: 22,
-		NOT_FOUND_ERR: 1,
-		SECURITY_ERR: 2,
-		INVALID_MODIFICATION_ERR: 9,
-		INVALID_STATE_ERR: 7
-	};
-	switch (e.code) {
-		case FileError.QUOTA_EXCEEDED_ERR:
-			msg = 'QUOTA_EXCEEDED_ERR';
-			break;
-		case FileError.NOT_FOUND_ERR:
-			msg = 'NOT_FOUND_ERR';
-			break;
-		case FileError.SECURITY_ERR:
-			msg = 'SECURITY_ERR';
-			break;
-		case FileError.INVALID_MODIFICATION_ERR:
-			msg = 'INVALID_MODIFICATION_ERR';
-			break;
-		case FileError.INVALID_STATE_ERR:
-			msg = 'INVALID_STATE_ERR';
-			break;
-		default:
-			msg = 'Unknown Error';
-			break;
-	}
-
-	trigger('onerror', msg);
-}
-
-/**
- * Calculate FullClient total size
- * @returns {integer}
- */
-function calculateClientSize() {
-	let i, count;
-
-	_clientSize = 0;
-
-	for (i = 0, count = _files.length; i < count; ++i) {
-		_clientSize += _files[i].size || 0;
-	}
-}
-
-/**
- * Start to upload files to FileSystem (async !)
- *
- * @param {number} index
- */
-function processUpload(index) {
-	const file = _files[index];
-
-	// Finished.
-	if (index >= _files.length) {
-		let i, count;
-
-		// Move all files from the directory to root.
-		const tmpDir = _fs_sync.root.getDirectory('/__tmp_upload/', {});
-		const dirReader = tmpDir.createReader();
-		const entries = dirReader.readEntries();
-
-		for (i = 0, count = entries.length; i < count; ++i) {
-			entries[i].moveTo(_fs_sync.root, entries[i].name);
+		if (!this.#available) {
+			this.#trigger('onready');
+			return;
 		}
 
-		tmpDir.removeRecursively();
-		_files.length = 0;
+		this.#calculateClientSize();
 
-		trigger('onuploaded');
-		return;
+		const requestFileSystemSync = self.requestFileSystemSync || self.webkitRequestFileSystemSync;
+		const requestFileSystem = self.requestFileSystem || self.webkitRequestFileSystem;
+
+		const size = this.#clientSize || quota.used || quota.remaining;
+
+		requestFileSystem(
+			self.TEMPORARY,
+			size,
+			(fs) => {
+				this.#fs = fs;
+				this.#fsSync = requestFileSystemSync(self.TEMPORARY, size);
+
+				if (save && this.#files.length) {
+					this.cleanup();
+					this.#buildHierarchy();
+					this.#processUpload(0);
+				}
+
+				this.#save = save;
+				this.#trigger('onready');
+			},
+			this.#errorHandler.bind(this)
+		);
 	}
 
-	if (file.name[0] === '.') {
-		_files.splice(index, 1);
-		processUpload(index);
-		return;
-	}
-
-	_fs.root.getFile(
-		'/__tmp_upload/' + file._path,
-		{ create: true },
-		function (fileEntry) {
-			fileEntry.createWriter(function (writer) {
-				writer.onerror = errorHandler;
-				writer.onwriteend = function () {
-					_streamOffset += file.size;
-					processUpload(index + 1);
-				};
-
-				let last_tick = Date.now();
-				writer.onprogress = function (evt) {
-					// Do not spam the main thread
-					const now = Date.now();
-					if (last_tick + 100 > now) {
-						return;
-					}
-
-					last_tick = now;
-					trigger('onprogress', {
-						filename: file.name,
-						filePath: file._path,
-						file: {
-							total: evt.total,
-							loaded: evt.loaded,
-							perc: ((evt.loaded / evt.total) * 100).toFixed(2)
-						},
-						total: {
-							total: _clientSize,
-							loaded: _streamOffset + evt.loaded,
-							perc: (((_streamOffset + evt.loaded) / _clientSize) * 100).toFixed(2)
-						}
-					});
-				};
-
-				writer.write(file);
-			});
-		},
-		errorHandler
-	);
-}
-
-/**
- * Build directory hierarchy
- */
-function buildHierarchy() {
-	const cache = {};
-	let i = 0,
-		count = _files.length;
-	let path;
-	const filename = /\/?[^/]+$/;
-
-	// Extract directory from each file path
-	for (; i < count; ++i) {
-		path = _files[i]._path.split('/').slice(0, -1).join('/');
-		while (!(path in cache) && path.length) {
-			cache[path] = true;
-			path = path.replace(filename, '');
-		}
-	}
-
-	// Extract keys and build directories
-	const keys = Object.keys(cache);
-	keys.sort();
-
-	// Directory where to upload data
-	_fs_sync.root.getDirectory('/__tmp_upload/', { create: true });
-
-	for (i = 0, count = keys.length; i < count; ++i) {
-		_fs_sync.root.getDirectory('/__tmp_upload/' + keys[i], { create: true });
-	}
-}
-
-/**
- * Remove all files from FileSystem
- */
-export function cleanUp() {
-	let i, count;
-	const dirReader = _fs_sync.root.createReader();
-	const entries = dirReader.readEntries();
-	let retryCount = 0;
-	const maxRetries = 3;
-
-	function removeWithRetry(entry, callback) {
-		try {
-			if (entry.isDirectory) {
-				entry.removeRecursively(callback, callback);
-			} else {
-				entry.remove(callback, callback);
-			}
-		} catch (e) {
-			if (retryCount < maxRetries && e.name === 'InvalidModificationError') {
-				retryCount++;
-				setTimeout(function () {
-					removeWithRetry(entry, callback);
-				}, 100);
-			} else {
-				callback(e);
-			}
-		}
-	}
-
-	for (i = 0, count = entries.length; i < count; ++i) {
-		removeWithRetry(entries[i], function (error) {
-			if (error) {
-				console.warn('Failed to remove entry:', error);
-			}
+	/**
+	 * Normalize file path
+	 *
+	 * @param {Array} files
+	 * @returns {Array} normalized filelist
+	 */
+	static #normalizeFilesPath(files) {
+		const backslash = /\\\\/g;
+		return files.map(item => {
+			const file = item.file;
+			file._path = item.path.replace(backslash, '/');
+			return file;
 		});
 	}
-}
 
-/**
- * Trigger an event
- *
- * @param {string} eventname
- * @param {mixed...}
- */
-function trigger(eventname) {
-	if (_events[eventname]) {
-		_events[eventname].apply(null, Array.prototype.slice.call(arguments, 1));
-	}
-}
+	/**
+	 * Error Handler give a human error
+	 */
+	static #errorHandler(e) {
+		let msg = '';
+		const FileError = {
+			QUOTA_EXCEEDED_ERR: 22,
+			NOT_FOUND_ERR: 1,
+			SECURITY_ERR: 2,
+			INVALID_MODIFICATION_ERR: 9,
+			INVALID_STATE_ERR: 7
+		};
 
-/**
- * Bind an event
- *
- * @param {string} eventname
- * @param {function} callback
- */
-export function bind(eventname, callback) {
-	_events[eventname] = callback;
-}
-
-/**
- * Get a file in FileSystem (sync)
- *
- * @param {string} filename
- * @returns {File}
- */
-export function getFileSync(filename) {
-	filename = filename.replace(/\\/g, '/');
-
-	if (!_available || _files.length) {
-		let i;
-		const count = _files.length;
-
-		for (i = 0; i < count; ++i) {
-			// Not case sensitive...
-			if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
-				return _files[i];
-			}
+		switch (e.code) {
+			case FileError.QUOTA_EXCEEDED_ERR: msg = 'QUOTA_EXCEEDED_ERR'; break;
+			case FileError.NOT_FOUND_ERR: msg = 'NOT_FOUND_ERR'; break;
+			case FileError.SECURITY_ERR: msg = 'SECURITY_ERR'; break;
+			case FileError.INVALID_MODIFICATION_ERR: msg = 'INVALID_MODIFICATION_ERR'; break;
+			case FileError.INVALID_STATE_ERR: msg = 'INVALID_STATE_ERR'; break;
+			default: msg = 'Unknown Error'; break;
 		}
 
-		return null;
+		this.#trigger('onerror', msg);
 	}
 
-	let fileEntry;
-
-	try {
-		fileEntry = _fs_sync.root.getFile(filename, { create: false });
-	} catch (e) {
-		// not found
-		return null;
+	/**
+	 * Calculate FullClient total size
+	 * @returns {number}
+	 */
+	static #calculateClientSize() {
+		this.#clientSize = this.#files.reduce((total, file) => total + (file.size || 0), 0);
 	}
 
-	if (fileEntry.isFile) {
-		return fileEntry.file();
-	}
+	/**
+	 * Start to upload files to FileSystem (async !)
+	 *
+	 * @param {number} index
+	 */
+	static #processUpload(index) {
+		const file = this.#files[index];
 
-	return null;
-}
+		// Finished.
+		if (index >= this.#files.length) {
+			const tmpDir = this.#fsSync.root.getDirectory('/__tmp_upload/', {});
+			const dirReader = tmpDir.createReader();
+			const entries = dirReader.readEntries();
 
-/**
- * Get a file in FileSystem (async)
- *
- * @param {string} filename
- * @param {function} once loaded
- * @param {function} callback if not found
- */
-export function getFile(filename, onload, onerror) {
-	filename = filename.replace(/\\/g, '/');
+			entries.forEach(entry => entry.moveTo(this.#fsSync.root, entry.name));
+			tmpDir.removeRecursively();
+			this.#files.length = 0;
 
-	if (!_available || _files.length) {
-		let i;
-		const count = _files.length;
-
-		for (i = 0; i < count; ++i) {
-			// Not case sensitive...
-			if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
-				onload(_files[i]);
-				return;
-			}
+			this.#trigger('onuploaded');
+			return;
 		}
 
-		onerror();
-		return;
+		if (file.name[0] === '.') {
+			this.#files.splice(index, 1);
+			this.#processUpload(index);
+			return;
+		}
+
+		this.#fs.root.getFile(
+			'/__tmp_upload/' + file._path,
+			{ create: true },
+			(fileEntry) => {
+				fileEntry.createWriter((writer) => {
+					writer.onerror = this.#errorHandler.bind(this);
+					writer.onwriteend = () => {
+						this.#streamOffset += file.size;
+						this.#processUpload(index + 1);
+					};
+
+					let last_tick = Date.now();
+					writer.onprogress = (evt) => {
+						const now = Date.now();
+						if (last_tick + 100 > now) {
+							return;
+						}
+
+						last_tick = now;
+						this.#trigger('onprogress', {
+							filename: file.name,
+							filePath: file._path,
+							file: {
+								total: evt.total,
+								loaded: evt.loaded,
+								perc: ((evt.loaded / evt.total) * 100).toFixed(2)
+							},
+							total: {
+								total: this.#clientSize,
+								loaded: this.#streamOffset + evt.loaded,
+								perc: (((this.#streamOffset + evt.loaded) / this.#clientSize) * 100).toFixed(2)
+							}
+						});
+					};
+
+					writer.write(file);
+				});
+			},
+			this.#errorHandler.bind(this)
+		);
 	}
 
-	_fs.root.getFile(
-		filename,
-		{ create: false },
-		function (fileEntry) {
-			if (fileEntry.isFile) {
-				fileEntry.file(onload);
+	/**
+	 * Build directory hierarchy
+	 */
+	static #buildHierarchy() {
+		const cache = {};
+		const filenameRegex = /\/?[^/]+$/;
+
+		this.#files.forEach(file => {
+			let path = file._path.split('/').slice(0, -1).join('/');
+			while (!(path in cache) && path.length) {
+				cache[path] = true;
+				path = path.replace(filenameRegex, '');
+			}
+		});
+
+		const keys = Object.keys(cache).sort();
+		this.#fsSync.root.getDirectory('/__tmp_upload/', { create: true });
+
+		keys.forEach(key => {
+			this.#fsSync.root.getDirectory('/__tmp_upload/' + key, { create: true });
+		});
+	}
+
+	/**
+	 * Remove all files from FileSystem
+	 */
+	static cleanup() {
+		const dirReader = this.#fsSync.root.createReader();
+		const entries = dirReader.readEntries();
+
+		const removeWithRetry = (entry, callback, retryCount = 0) => {
+			try {
+				if (entry.isDirectory) {
+					entry.removeRecursively(callback, callback);
+				} else {
+					entry.remove(callback, callback);
+				}
+			} catch (e) {
+				if (retryCount < 3 && e.name === 'InvalidModificationError') {
+					setTimeout(() => removeWithRetry(entry, callback, retryCount + 1), 100);
+				} else {
+					callback(e);
+				}
+			}
+		};
+
+		entries.forEach(entry => {
+			removeWithRetry(entry, (error) => {
+				if (error) {
+					console.warn('Failed to remove entry:', error);
+				}
+			});
+		});
+	}
+
+	/**
+	 * Trigger an event
+	 *
+	 * @param {string} eventname
+	 * @param {...*} args
+	 */
+	static #trigger(eventname, ...args) {
+		if (this.#events[eventname]) {
+			this.#events[eventname](...args);
+		}
+	}
+
+	/**
+	 * Bind an event
+	 *
+	 * @param {string} eventname
+	 * @param {Function} callback
+	 */
+	static bind(eventname, callback) {
+		this.#events[eventname] = callback;
+	}
+
+	/**
+	 * Get a file in FileSystem (sync)
+	 *
+	 * @param {string} filename
+	 * @returns {File|null}
+	 */
+	static getFileSync(filename) {
+		filename = filename.replace(/\\/g, '/');
+
+		if (!this.#available || this.#files.length) {
+			const file = this.#files.find(f => f._path.toLowerCase() === filename.toLowerCase());
+			return file || null;
+		}
+
+		try {
+			const fileEntry = this.#fsSync.root.getFile(filename, { create: false });
+			return fileEntry.isFile ? fileEntry.file() : null;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get a file in FileSystem (async)
+	 *
+	 * @param {string} filename
+	 * @param {Function} onload
+	 * @param {Function} onerror
+	 */
+	static getFile(filename, onload, onerror) {
+		filename = filename.replace(/\\/g, '/');
+
+		if (!this.#available || this.#files.length) {
+			const file = this.#files.find(f => f._path.toLowerCase() === filename.toLowerCase());
+			if (file) {
+				onload(file);
 			} else {
 				onerror();
 			}
-		},
-		onerror
-	);
-}
-
-/**
- * Save the content of a files in file system
- * (used to save the remote client)
- *
- * @param {string} filePath
- * @param {ArrayBuffer} buffer
- */
-export function saveFile(filePath, buffer) {
-	if (!_save || !_available) {
-		return;
-	}
-
-	const filename = filePath.replace(/\\/g, '/');
-	const directories = filename.split('/').slice(0, -1);
-	let path = '';
-
-	// Create hierarchy
-	while (directories.length) {
-		path += directories.shift() + '/';
-		_fs_sync.root.getDirectory(path, { create: true });
-	}
-
-	const fileEntry = _fs_sync.root.getFile(filename, { create: true });
-	const writer = fileEntry.createWriter();
-
-	writer.write(new Blob([buffer]));
-}
-
-/**
- * Search a file from FileSystem using a regex
- *
- * @param {RegExp|string} to match the filename
- */
-export function search(regex) {
-	let i, count;
-	const list = [];
-
-	if (!(regex instanceof RegExp)) {
-		regex = new RegExp('^' + regex.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1') + '$', 'i');
-	}
-
-	if (!_available || _files.length) {
-		for (i = 0, count = _files.length; i < count; ++i) {
-			if (_files[i].name.match(regex)) {
-				list.push(_files[i]);
-			}
+			return;
 		}
 
-		return list;
+		this.#fs.root.getFile(
+			filename,
+			{ create: false },
+			(fileEntry) => {
+				if (fileEntry.isFile) {
+					fileEntry.file(onload);
+				} else {
+					onerror();
+				}
+			},
+			onerror
+		);
 	}
 
-	const entries = _fs_sync.root.createReader().readEntries();
-
-	for (i = 0, count = entries.length; i < count; ++i) {
-		if (entries[i].isFile && entries[i].name.match(regex)) {
-			list.push(entries[i].file());
+	/**
+	 * Save the content of a files in file system
+	 * (used to save the remote client)
+	 *
+	 * @param {string} filePath
+	 * @param {ArrayBuffer} buffer
+	 */
+	static saveFile(filePath, buffer) {
+		if (!this.#save || !this.#available) {
+			return;
 		}
+
+		const filename = filePath.replace(/\\/g, '/');
+		const directories = filename.split('/').slice(0, -1);
+		let path = '';
+
+		while (directories.length) {
+			path += directories.shift() + '/';
+			this.#fsSync.root.getDirectory(path, { create: true });
+		}
+
+		const fileEntry = this.#fsSync.root.getFile(filename, { create: true });
+		const writer = fileEntry.createWriter();
+		writer.write(new Blob([buffer]));
 	}
 
-	return list;
+	/**
+	 * Search a file from FileSystem using a regex
+	 *
+	 * @param {RegExp|string} regex to match the filename
+	 * @returns {Array} List of files
+	 */
+	static search(regex) {
+		if (!(regex instanceof RegExp)) {
+			regex = new RegExp('^' + regex.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1') + '$', 'i');
+		}
+
+		if (!this.#available || this.#files.length) {
+			return this.#files.filter(file => file.name.match(regex));
+		}
+
+		const entries = this.#fsSync.root.createReader().readEntries();
+		return entries
+			.filter(entry => entry.isFile && entry.name.match(regex))
+			.map(entry => entry.file());
+	}
 }
 
-/**
- * Public methods
- */
-export default {
-	bind: bind,
-	getFile: getFile,
-	getFileSync: getFileSync,
-	init: init,
-	cleanup: cleanUp,
-	search: search,
-	saveFile: saveFile
-};
+export default FileSystem;

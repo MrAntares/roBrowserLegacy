@@ -10,11 +10,6 @@
  */
 
 /**
- * @Constructor
- */
-function Events() {}
-
-/**
  * @var {Array} events list
  */
 const _events = [];
@@ -30,79 +25,72 @@ let _tick = 0;
 let _uid = 0;
 
 /**
- * Alias for setTimeout using the rendering loop getting
- * bad performances.
- *
- * @param {function} callback
- * @param {number} delay
- * @return {?} event unique id
+ * @class Events
+ * @description Alias for setTimeout using the rendering loop for better performances.
  */
-Events.setTimeout = function setTimeout(callback, delay) {
-	let i, count;
+class Events {
+	/**
+	 * Alias for setTimeout using the rendering loop getting
+	 * bad performances.
+	 *
+	 * @param {Function} callback
+	 * @param {number} delay
+	 * @returns {number} event unique id
+	 */
+	static setTimeout(callback, delay) {
+		const tick = _tick + delay;
+		const event = { callback, tick, uid: _uid++ };
 
-	const tick = _tick + delay;
-	const event = { callback: callback, tick: tick, uid: _uid++ };
+		// Add it to the list, sorted by delay
+		const count = _events.length;
+		for (let i = 0; i < count; ++i) {
+			if (tick < _events[i].tick) {
+				_events.splice(i, 0, event);
+				return event.uid;
+			}
+		}
 
-	// Add it to the list, sorted by delay
-	for (i = 0, count = _events.length; i < count; ++i) {
-		if (tick < _events[i].tick) {
-			_events.splice(i, 0, event);
-			return event.uid;
+		_events.push(event);
+		return event.uid;
+	}
+
+	/**
+	 * Alias for clearTimeout
+	 * Remove an event pre-registered
+	 *
+	 * @param {number} uid - event unique id
+	 */
+	static clearTimeout(uid) {
+		const index = _events.findIndex(event => event.uid === uid);
+		if (index !== -1) {
+			_events.splice(index, 1);
 		}
 	}
 
-	_events.push(event);
-	return event.uid;
-};
+	/**
+	 * Process at each rendering loop
+	 *
+	 * @param {number} tick - game tick
+	 */
+	static process(tick) {
+		// Execute time out events.
+		while (_events.length > 0) {
+			if (_events[0].tick > tick) {
+				break;
+			}
 
-/**
- * Alias for clearTimeout
- * Remove an event pre-registered
- *
- * @param {?} event unique id
- */
-Events.clearTimeout = function clearTimeout(uid) {
-	let i;
-	const count = _events.length;
-
-	// Find the event and remove it
-	for (i = 0; i < count; ++i) {
-		if (_events[i].uid === uid) {
-			_events.splice(i, 1);
-			return;
-		}
-	}
-};
-
-/**
- * Process at each rendering loop
- *
- * @param {number} game tick
- */
-Events.process = function process(tick) {
-	let count = _events.length;
-
-	// Execute time out events.
-	while (count > 0) {
-		if (_events[0].tick > tick) {
-			break;
+			_events.shift().callback();
 		}
 
-		_events.shift().callback();
-		count--;
+		_tick = tick;
 	}
 
-	_tick = tick;
-};
+	/**
+	 * Delete events from memory
+	 */
+	static free() {
+		_events.length = 0;
+	}
+}
 
-/**
- * Delete events from memory
- */
-Events.free = function free() {
-	_events.length = 0;
-};
-
-/**
- * Export
- */
 export default Events;

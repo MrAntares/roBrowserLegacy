@@ -13,238 +13,200 @@
 import MemoryItem from 'Core/MemoryItem.js';
 
 /**
- * List of files in memory
- * @var List MemoryItem
+ * @class MemoryManager
+ * @description Manages in-memory cache for game assets, handling automatic cleanup and WebGL resource deallocation.
  */
-const _memory = {};
+class MemoryManager {
+	static #memory = {};
+	static #rememberTime = 30 * 1000; // 30s
+	static #lastCheckTick = 0;
+	static #cleanUpInterval = 10 * 1000;
 
-/**
- * Remove files from memory if not used until a period of time
- * @var {number}
- */
-const _rememberTime = 30 * 1000; // 30s
+	// Async cleanup state tracking
+	static #cleaningInProgress = false;
+	static #cleanIndex = 0;
+	static #filesToClean = [];
 
-/**
- * @var {number} last time we clean up variables
- */
-let _lastCheckTick = 0;
-
-/**
- * @var {number} perform the clean up every 10 secs
- */
-const _cleanUpInterval = 10 * 1000;
-
-/**
- * Async cleanup state tracking.
- * These variables are used to split memory cleanup into small chunks
- * to avoid blocking the main thread during large clean operations.
- */
-let _cleaningInProgress = false; // Prevents multiple clean cycles running at the same time
-let _cleanIndex = 0; // Tracks the current cleanup position
-let _filesToClean = []; // List of memory entries scheduled for removal
-
-/**
- * Get back data from memory
- *
- * @param {string} filename
- * @param {function} onload - optional
- * @param {function} onerror - optional
- * @return mixed data
- */
-function get(filename, onload, onerror) {
-	// Not in memory yet, create slot
-	if (!_memory[filename]) {
-		_memory[filename] = new MemoryItem();
-	}
-
-	const item = _memory[filename];
-
-	if (onload) {
-		item.addEventListener('load', onload);
-	}
-
-	if (onerror) {
-		item.addEventListener('error', onerror);
-	}
-
-	return item.data;
-}
-
-/**
- * Check if the entry exists
- *
- * @param {string} filename
- * @return boolean isInMemory
- */
-function exist(filename) {
-	return !!_memory[filename];
-}
-
-/**
- * Stored data in memory
- *
- * @param {string} filename
- * @param {string|object} data
- * @param {string} error - optional
- */
-function set(filename, data, error) {
-	// Not in memory yet, create slot
-	if (!_memory[filename]) {
-		_memory[filename] = new MemoryItem();
-	}
-
-	if (error || !data) {
-		_memory[filename].onerror(error);
-	} else {
-		_memory[filename].onload(data);
-	}
-}
-
-/**
- * Clean up not used data from memory
- *
- * @param {object} gl - WebGL Context
- * @param {number} now - game tick
- */
-function clean(gl, now) {
-	// Skip cleanup if interval has not elapsed or if an async cleanup is already running
-	if (_lastCheckTick + _cleanUpInterval > now || _cleaningInProgress) {
-		return;
-	}
-
-	const files = [];
-	_filesToClean = []; // Reset pending cleanup list
-
-	const keys = Object.keys(_memory);
-	const count = keys.length;
-	const tick = now - _rememberTime;
-
-	for (let i = 0; i < count; ++i) {
-		const item = _memory[keys[i]];
-		if (item.complete && item.lastTimeUsed < tick) {
-			_filesToClean.push(keys[i]); // Collect unused memory entries instead of removing them immediately
-		}
-	}
-	// If nothing needs to be cleaned, just update the last check timestamp
-	if (_filesToClean.length === 0) {
-		_lastCheckTick = now;
-		return;
-	}
-
-	// Mark cleanup as running to avoid re-entry
-	_cleaningInProgress = true;
-	_cleanIndex = 0;
-
-	// Perform cleanup incrementally during idle time to reduce frame drops
-	requestIdleCallback(function cleanChunk(deadline) {
-		let processed = 0;
-		// Limit the number of removals per idle callback
-		const maxProcess = Math.min(5, _filesToClean.length - _cleanIndex);
-
-		while (_cleanIndex < _filesToClean.length && processed < maxProcess && deadline.timeRemaining() > 0) {
-			remove(gl, _filesToClean[_cleanIndex]);
-			files.push(_filesToClean[_cleanIndex]);
-			_cleanIndex++;
-			processed++;
+	/**
+	 * Get back data from memory
+	 *
+	 * @param {string} filename
+	 * @param {Function} [onload]
+	 * @param {Function} [onerror]
+	 * @returns {*} data
+	 */
+	static get(filename, onload, onerror) {
+		// Not in memory yet, create slot
+		if (!this.#memory[filename]) {
+			this.#memory[filename] = new MemoryItem();
 		}
 
-		if (_cleanIndex < _filesToClean.length) {
-			// Continue cleanup in the next idle period
-			requestIdleCallback(cleanChunk);
+		const item = this.#memory[filename];
+
+		if (onload) {
+			item.addEventListener('load', onload);
+		}
+
+		if (onerror) {
+			item.addEventListener('error', onerror);
+		}
+
+		return item.data;
+	}
+
+	/**
+	 * Check if the entry exists
+	 *
+	 * @param {string} filename
+	 * @returns {boolean}
+	 */
+	static exist(filename) {
+		return !!this.#memory[filename];
+	}
+
+	/**
+	 * Stored data in memory
+	 *
+	 * @param {string} filename
+	 * @param {string|object} data
+	 * @param {string} [error]
+	 */
+	static set(filename, data, error) {
+		// Not in memory yet, create slot
+		if (!this.#memory[filename]) {
+			this.#memory[filename] = new MemoryItem();
+		}
+
+		if (error || !data) {
+			this.#memory[filename].onerror(error);
 		} else {
-			// Cleanup finished
-			_cleaningInProgress = false;
-			_lastCheckTick = now;
-			_filesToClean = [];
+			this.#memory[filename].onload(data);
+		}
+	}
 
-			if (files.length) {
-				console.log(
-					'%c[MemoryManager] - Removed ' + files.length + ' unused elements from memory.',
-					'color:#d35111',
-					{ files }
-				);
+	/**
+	 * Clean up not used data from memory
+	 *
+	 * @param {WebGLRenderingContext} gl
+	 * @param {number} now - game tick
+	 */
+	static clean(gl, now) {
+		// Skip cleanup if interval has not elapsed or if an async cleanup is already running
+		if (this.#lastCheckTick + this.#cleanUpInterval > now || this.#cleaningInProgress) {
+			return;
+		}
+
+		this.#filesToClean = [];
+		const keys = Object.keys(this.#memory);
+		const tick = now - this.#rememberTime;
+
+		keys.forEach(key => {
+			const item = this.#memory[key];
+			if (item.complete && item.lastTimeUsed < tick) {
+				this.#filesToClean.push(key);
+			}
+		});
+
+		// If nothing needs to be cleaned, just update the last check timestamp
+		if (this.#filesToClean.length === 0) {
+			this.#lastCheckTick = now;
+			return;
+		}
+
+		// Mark cleanup as running to avoid re-entry
+		this.#cleaningInProgress = true;
+		this.#cleanIndex = 0;
+		const filesRemoved = [];
+
+		// Perform cleanup incrementally during idle time to reduce frame drops
+		const cleanChunk = (deadline) => {
+			let processed = 0;
+			const maxProcess = Math.min(5, this.#filesToClean.length - this.#cleanIndex);
+
+			while (this.#cleanIndex < this.#filesToClean.length && processed < maxProcess && deadline.timeRemaining() > 0) {
+				const filename = this.#filesToClean[this.#cleanIndex];
+				this.remove(gl, filename);
+				filesRemoved.push(filename);
+				this.#cleanIndex++;
+				processed++;
+			}
+
+			if (this.#cleanIndex < this.#filesToClean.length) {
+				requestIdleCallback(cleanChunk);
+			} else {
+				this.#cleaningInProgress = false;
+				this.#lastCheckTick = now;
+				this.#filesToClean = [];
+
+				if (filesRemoved.length) {
+					console.log(
+						`%c[MemoryManager] - Removed ${filesRemoved.length} unused elements from memory.`,
+						'color:#d35111',
+						{ files: filesRemoved }
+					);
+				}
+			}
+		};
+
+		requestIdleCallback(cleanChunk);
+	}
+
+	/**
+	 * Remove Item from memory
+	 *
+	 * @param {WebGLRenderingContext} gl
+	 * @param {string} filename
+	 */
+	static remove(gl, filename) {
+		if (!filename || !this.#memory[filename]) {
+			return;
+		}
+
+		const file = this.get(filename);
+		const matches = filename.match(/\.[^.]+$/);
+		const ext = matches ? matches[0].toLowerCase() : '';
+
+		if (file) {
+			switch (ext) {
+				case '.spr':
+					if (file.frames) {
+						file.frames.forEach(frame => {
+							if (frame.texture && gl?.isTexture(frame.texture)) {
+								gl.deleteTexture(frame.texture);
+							}
+						});
+					}
+					if (file.texture && gl?.isTexture(file.texture)) {
+						gl.deleteTexture(file.texture);
+					}
+					break;
+
+				case '.pal':
+					if (file.texture && gl?.isTexture(file.texture)) {
+						gl.deleteTexture(file.texture);
+					}
+					break;
+
+				default:
+					if (typeof file === 'string' && file.startsWith('blob:')) {
+						URL.revokeObjectURL(file);
+					}
+					break;
 			}
 		}
-	});
-}
 
-/**
- * Remove Item from memory
- *
- * @param {object} gl - WebGL Context
- * @param {string} filename
- */
-function remove(gl, filename) {
-	// Not found or filename is undefined?
-	if (!filename || !_memory[filename]) {
-		return;
+		delete this.#memory[filename];
 	}
 
-	const file = get(filename);
-	let ext = '';
-	let i, count;
-
-	const matches = filename.match(/\.[^.]+$/);
-
-	if (matches) {
-		ext = matches.toString().toLowerCase();
+	/**
+	 * Search files in memory based on a regex
+	 *
+	 * @param {RegExp|string} regex
+	 * @returns {string[]} filename
+	 */
+	static search(regex) {
+		return Object.keys(this.#memory).filter(k => k.match(regex));
 	}
-
-	// Free file
-	if (file) {
-		switch (ext) {
-			// Delete GPU textures from sprites
-			case '.spr':
-				if (file.frames) {
-					for (i = 0, count = file.frames.length; i < count; ++i) {
-						if (file.frames[i].texture && gl != null && gl.isTexture(file.frames[i].texture)) {
-							gl.deleteTexture(file.frames[i].texture);
-						}
-					}
-				}
-				if (file.texture && gl != null && gl.isTexture(file.texture)) {
-					gl.deleteTexture(file.texture);
-				}
-				break;
-
-			// Delete palette
-			case '.pal':
-				if (file.texture && gl != null && gl.isTexture(file.texture)) {
-					gl.deleteTexture(file.texture);
-				}
-				break;
-
-			// If file is a blob, remove it (wav, mp3, lua, lub, txt, ...)
-			default:
-				if (file.match && file.match(/^blob:/)) {
-					URL.revokeObjectURL(file);
-				}
-				break;
-		}
-	}
-
-	// Delete from memory
-	delete _memory[filename];
 }
 
-/**
- * Search files in memory based on a regex
- *
- * @param regex
- * @return string[] filename
- */
-function search(regex) {
-	return Object.keys(_memory).filter(k => k.match(regex));
-}
-
-/**
- * Export methods
- */
-export default {
-	get: get,
-	set: set,
-	clean: clean,
-	remove: remove,
-	exist: exist,
-	search: search
-};
+export default MemoryManager;

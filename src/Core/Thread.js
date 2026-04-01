@@ -10,127 +10,99 @@
  */
 
 /**
- * Memory to get back data
- * @var List
+ * @class Thread
+ * @description Manages communication with the Web Worker thread for offshore tasks like file loading.
  */
-const _memory = {};
+class Thread {
+	static #memory = {};
+	static #hook = {};
+	static #uid = 0;
+	static #origin = [];
+	static #source = null;
+	static #input = { type: '', data: null, uid: 0 };
 
-/**
- * List of hook callback
- * @var List
- */
-const _hook = {};
-
-/**
- * @var {number} uid
- */
-let _uid = 0;
-
-/**
- * @var {mixed} origin for security
- */
-let _origin = [];
-
-/**
- * @var {window|Worker} context to send data to
- */
-let _source = null;
-
-/**
- * Send data to thread
- *
- * @param {string} type
- * @param {mixed} data
- * @param {function} callback
- */
-const Send = (function SendClosure() {
-	const _input = { type: '', data: null, uid: 0 };
-
-	return function (type, data, callback) {
+	/**
+	 * Send data to thread
+	 *
+	 * @param {string} type
+	 * @param {*} data
+	 * @param {Function} [callback]
+	 */
+	static send(type, data, callback) {
 		let uid = 0;
 
 		if (callback) {
-			uid = ++_uid;
-			_memory[uid] = callback;
+			uid = ++this.#uid;
+			this.#memory[uid] = callback;
 		}
 
-		_input.type = type;
-		_input.data = data;
-		_input.uid = uid;
+		this.#input.type = type;
+		this.#input.data = data;
+		this.#input.uid = uid;
 
-		_source.postMessage(_input, _origin);
-	};
-})();
-
-/**
- * Receive data from Thread
- * Get back the data, find the caller and execute it
- *
- * @param {object} event
- */
-function Receive(event) {
-	const uid = event.data.uid;
-	const type = event.data.type;
-
-	// Direct callback
-	if (uid in _memory) {
-		_memory[uid].apply(null, event.data.arguments);
-		delete _memory[uid];
+		this.#source.postMessage(this.#input, this.#origin);
 	}
 
-	// Hook Feature
-	if (type && _hook[type]) {
-		_hook[type].call(null, event.data.data);
-	}
-}
+	/**
+	 * Receive data from Thread
+	 * Get back the data, find the caller and execute it
+	 *
+	 * @param {MessageEvent} event
+	 */
+	static receive(event) {
+		const { uid, type, arguments: args, data } = event.data;
 
-/**
- * Hook receive data
- *
- * @param {string} type
- * @param {function} callback
- */
-function Hook(type, callback) {
-	_hook[type] = callback;
-}
+		// Direct callback
+		if (uid && this.#memory[uid]) {
+			this.#memory[uid](...args);
+			delete this.#memory[uid];
+		}
 
-/**
- * Modify where to send informations
- *
- * @param {Window} source
- * @param {string} origin
- */
-function Delegate(source, origin) {
-	_source = source;
-	_origin = origin;
-}
-
-/**
- * Initialize Thread
- */
-function Init() {
-	if (!_source) {
-		_source = new Worker(new URL('./ThreadEventHandler.js', import.meta.url), { type: 'module' });
+		// Hook Feature
+		if (type && this.#hook[type]) {
+			this.#hook[type](data);
+		}
 	}
 
-	// Worker context
-	if (_source instanceof Worker) {
-		_source.addEventListener('message', Receive, false);
+	/**
+	 * Hook receive data
+	 *
+	 * @param {string} type
+	 * @param {Function} callback
+	 */
+	static hook(type, callback) {
+		this.#hook[type] = callback;
 	}
 
-	// Other frame worker
-	else {
-		window.addEventListener('message', Receive, false);
-		_source.postMessage({ type: 'SYNC' }, _origin);
+	/**
+	 * Modify where to send informations
+	 *
+	 * @param {Window|Worker} source
+	 * @param {string} origin
+	 */
+	static delegate(source, origin) {
+		this.#source = source;
+		this.#origin = origin;
+	}
+
+	/**
+	 * Initialize Thread
+	 */
+	static init() {
+		if (!this.#source) {
+			this.#source = new Worker(new URL('./ThreadEventHandler.js', import.meta.url), { type: 'module' });
+		}
+
+		// Worker context
+		if (this.#source instanceof Worker) {
+			this.#source.addEventListener('message', (e) => this.receive(e), false);
+		}
+		// Other frame worker
+		else {
+			window.addEventListener('message', (e) => this.receive(e), false);
+			this.#source.postMessage({ type: 'SYNC' }, this.#origin);
+		}
 	}
 }
 
-/**
- * Export
- */
-export default {
-	send: Send,
-	hook: Hook,
-	init: Init,
-	delegate: Delegate
-};
+export default Thread;

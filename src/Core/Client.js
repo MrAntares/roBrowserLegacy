@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-// Load dependencies
 import Executable from 'Utils/Executable.js';
 import Texture from 'Utils/Texture.js';
 import WebGL from 'Utils/WebGL.js';
@@ -20,385 +19,308 @@ import PACKETVER from 'Network/PacketVerManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 
 /**
- * Initialize Client
- * Load interesting files (executable, data.ini, GRFs, ...)
- *
- * @param {Array} FileList to load
+ * @class Client
+ * @description Central manager for client assets, GRF interaction, and GPU resource preparation.
  */
-export function init(files) {
-	let i, count;
-	const packetver = Configs.get('packetver');
-	const remoteClient = Configs.get('remoteClient');
+class Client {
+	static #fileInput = { filename: '', args: null };
+	static #loadInput = { filename: '', args: null };
 
-	function OnDate(date) {
-		// Avoid errors
-		if (date > 20000000) {
-			PACKETVER.value = date;
-		}
-	}
+	/**
+	 * Initialize Client
+	 * Load interesting files (executable, data.ini, GRFs, ...)
+	 * @param {File[]} files
+	 */
+	static init(files) {
+		const packetver = Configs.get('packetver');
+		const remoteClient = Configs.get('remoteClient');
 
-	// Find executable and set the packetver
-	if (!packetver || String(packetver).match(/^executable$/i)) {
-		for (i = 0, count = files.length; i < count; ++i) {
-			if (Executable.isROExec(files[i])) {
-				Executable.getDate(files[i], OnDate);
-				break;
+		const onDate = (date) => {
+			if (date > 20000000) {
+				PACKETVER.value = date;
 			}
-		}
-	} else if (typeof packetver === 'number') {
-		PACKETVER.value = packetver;
-	}
-
-	// GRF Host config
-	if (remoteClient) {
-		Thread.send('SET_HOST', remoteClient);
-	}
-
-	// Save full client
-	savingFiles(files);
-}
-
-/**
- * Saving fullclient files in filesystem, display a progressbar during the upload
- *
- * @param {Array} FileList
- */
-function savingFiles(files) {
-	const progressbar = document.createElement('div');
-	const info = document.createElement('div');
-	let last_tick = Date.now();
-	const list = [];
-	let i, count;
-
-	if (files.length) {
-		// Progressbar
-		progressbar.style.position = 'fixed';
-		progressbar.style.zIndex = '2147483647';
-		progressbar.style.top = '0px';
-		progressbar.style.left = '0px';
-		progressbar.style.backgroundColor = 'rgb(180,0,0)';
-		progressbar.style.transition = 'width 500ms linear';
-		progressbar.style.width = '0px';
-		progressbar.style.height = '3px';
-		progressbar.onmouseover = function () {
-			info.style.display = 'block';
-		};
-		progressbar.onmouseout = function () {
-			info.style.display = 'none';
 		};
 
-		// Progress text on hover 'Saving fullclient... (x%)'
-		info.textContent = 'Saving fullclient... (0.00 %)';
-		info.style.position = 'absolute';
-		info.style.left = '20px';
-		info.style.top = '0px';
-		info.style.whiteSpace = 'nowrap';
-		info.style.zIndex = '2147483646';
-		info.style.height = '12px';
-		info.style.padding = '5px';
-		info.style.background = 'linear-gradient( rgb(180,0,0), rgb(136,0,0) 30%)';
-		info.style.color = 'white';
-		info.style.textShadow = '1px 1px black';
-		info.style.borderBottomLeftRadius = '5px';
-		info.style.borderBottomRightRadius = '5px';
-		info.style.textAlign = 'center';
-		info.style.width = '160px';
-		info.style.display = 'none';
-
-		document.body.appendChild(progressbar);
-		document.body.appendChild(info);
-
-		// Get progress on saving the client
-		Thread.hook('CLIENT_SAVE_PROGRESS', function (data) {
-			const now = Date.now();
-			if (last_tick + 400 < now) {
-				progressbar.style.width = data.total.perc + '%';
-				info.textContent = 'Saving fullclient... (' + data.total.perc + ' %)';
-				last_tick = now;
+		// Find executable and set the packetver
+		if (!packetver || String(packetver).match(/^executable$/i)) {
+			const executable = files.find(f => Executable.isROExec(f));
+			if (executable) {
+				Executable.getDate(executable, onDate);
 			}
-		});
+		} else if (typeof packetver === 'number') {
+			PACKETVER.value = packetver;
+		}
 
-		Thread.hook('CLIENT_SAVE_COMPLETE', function () {
-			if (progressbar.parentNode) {
-				document.body.removeChild(progressbar);
-			}
-			if (info.parentNode) {
-				document.body.removeChild(info);
-			}
-		});
+		// GRF Host config
+		if (remoteClient) {
+			Thread.send('SET_HOST', remoteClient);
+		}
 
-		// Seems like files property are reset when sent to another thread
-		for (i = 0, count = files.length; i < count; ++i) {
-			list.push({
-				file: files[i],
-				path: files[i].fullPath || files[i].relativePath || files[i].webkitRelativePath || files[i].name
+		// Save full client
+		this.#savingFiles(files);
+	}
+
+	/**
+	 * Saving fullclient files in filesystem, display a progressbar during the upload
+	 * @param {File[]} files
+	 */
+	static #savingFiles(files) {
+		const list = files.map(file => ({
+			file,
+			path: file.fullPath || file.relativePath || file.webkitRelativePath || file.name
+		}));
+
+		if (list.length) {
+			const progressbar = document.createElement('div');
+			const info = document.createElement('div');
+			let lastTick = Date.now();
+
+			// Progressbar styling
+			Object.assign(progressbar.style, {
+				position: 'fixed',
+				zIndex: '2147483647',
+				top: '0px',
+				left: '0px',
+				backgroundColor: 'rgb(180,0,0)',
+				transition: 'width 500ms linear',
+				width: '0px',
+				height: '3px'
+			});
+
+			progressbar.onmouseover = () => { info.style.display = 'block'; };
+			progressbar.onmouseout = () => { info.style.display = 'none'; };
+
+			// Progress text styling
+			info.textContent = 'Saving fullclient... (0.00 %)';
+			Object.assign(info.style, {
+				position: 'absolute',
+				left: '20px',
+				top: '0px',
+				whiteSpace: 'nowrap',
+				zIndex: '2147483646',
+				height: '12px',
+				padding: '5px',
+				background: 'linear-gradient( rgb(180,0,0), rgb(136,0,0) 30%)',
+				color: 'white',
+				textShadow: '1px 1px black',
+				borderRadius: '0 0 5px 5px',
+				textAlign: 'center',
+				width: '160px',
+				display: 'none'
+			});
+
+			document.body.appendChild(progressbar);
+			document.body.appendChild(info);
+
+			// Get progress on saving the client
+			Thread.hook('CLIENT_SAVE_PROGRESS', (data) => {
+				const now = Date.now();
+				if (lastTick + 400 < now) {
+					const perc = data.total.perc;
+					progressbar.style.width = `${perc}%`;
+					info.textContent = `Saving fullclient... (${perc} %)`;
+					lastTick = now;
+				}
+			});
+
+			Thread.hook('CLIENT_SAVE_COMPLETE', () => {
+				progressbar.remove();
+				info.remove();
 			});
 		}
-	}
 
-	// Get temporary storage info at main thread, the worker can't access it.
-	// https://github.com/vthibault/roBrowser/issues/110
-	const temporaryStorage = navigator.temporaryStorage ||
-		navigator.webkitTemporaryStorage || {
-			queryUsageAndQuota: function (callback) {
-				callback(0, 0);
-			}
+		// Get temporary storage info
+		const temporaryStorage = navigator.temporaryStorage || navigator.webkitTemporaryStorage || {
+			queryUsageAndQuota: (cb) => cb(0, 0)
 		};
 
-	temporaryStorage.queryUsageAndQuota(function (used, remaining) {
-		const quota = {
-			used: used,
-			remaining: remaining
-		};
-
-		// Initialize client files (load GRF, etc).
-		Thread.send(
-			'CLIENT_INIT',
-			{
+		temporaryStorage.queryUsageAndQuota((used, remaining) => {
+			Thread.send('CLIENT_INIT', {
 				files: list,
 				grfList: Configs.get('grfList') || 'DATA.INI',
 				save: !!Configs.get('saveFiles'),
-				quota: quota
-			},
-			Client.onFilesLoaded
-		);
-	});
-}
-
-/**
- * Get a file from Game Data files
- *
- * @param {string} filename
- * @param {function} onload
- * @param {function} onerror
- * @param {Array} args - optional
- */
-export const getFile = (function getFilClosure() {
-	const _input = { filename: '', args: null };
-
-	function callback(data, error, input) {
-		Memory.set(input.filename, data, error);
+				quota: { used: used, remaining: remaining }
+			}, (count) => {
+				this.onFilesLoaded(count);
+			});
+		});
 	}
 
-	return function (filename, onload, onerror, args) {
+	/**
+	 * Get a file from Game Data files
+	 * @param {string} filename
+	 * @param {function} onload
+	 * @param {function} onerror
+	 * @param {Array} [args]
+	 */
+	static getFile(filename, onload, onerror, args = null) {
 		if (!Memory.exist(filename)) {
-			_input.filename = filename;
-			_input.args = args || null;
+			this.#fileInput.filename = filename;
+			this.#fileInput.args = args;
 
-			Thread.send('GET_FILE', _input, callback);
+			Thread.send('GET_FILE', this.#fileInput, (data, error, input) => {
+				Memory.set(input.filename, data, error);
+			});
 		}
 
 		return Memory.get(filename, onload, onerror);
-	};
-})();
+	}
 
-/**
- * Get files from Game Data files
- *
- * @param {string[]} filenames
- * @param {function} callback once loaded
- */
-export function getFiles(filenames, callback) {
-	let index;
-	const count = filenames.length;
-	const out = new Array(count);
+	/**
+	 * Get multiple files
+	 * @param {string[]} filenames
+	 * @param {function} callback
+	 */
+	static getFiles(filenames, callback) {
+		const count = filenames.length;
+		const out = new Array(count);
+		let index = 0;
 
-	function onload(data) {
-		out[index++] = data;
+		const next = () => {
+			this.getFile(filenames[index], (data) => {
+				out[index++] = data;
+				if (index === count) {
+					if (callback) {callback(...out);}
+				} else {
+					next();
+				}
+			});
+		};
 
-		if (index === count) {
-			if (callback) {
-				callback.apply(null, out);
-			}
+		if (count > 0) {next();}
+	}
+
+	/**
+	 * Get and load a file (with processor)
+	 * @param {string} filename
+	 * @param {function} onload
+	 * @param {function} onerror
+	 * @param {object} [args]
+	 */
+	static loadFile(filename, onload, onerror, args = {}) {
+		if (!Memory.exist(filename)) {
+			this.#loadInput.filename = filename;
+			this.#loadInput.args = args;
+
+			Thread.send('LOAD_FILE', this.#loadInput, this.#processFile.bind(this));
+		}
+
+		return Memory.get(filename, onload, onerror);
+	}
+
+	/**
+	 * Internal file processor after loading from worker
+	 */
+	static async #processFile(data, error, input) {
+		if (!data || error) {
+			Memory.set(input.filename, data, error);
 			return;
 		}
 
-		getFile(filenames[index], onload);
-	}
+		const ext = input.filename.split('.').pop().toLowerCase();
+		const { default: Renderer } = await import('Renderer/Renderer.js');
+		const gl = Renderer.getContext();
 
-	index = 0;
+		switch (ext) {
+			case 'bmp':
+				Texture.load(data, function() {
+					Memory.set(input.filename, this.toDataURL(), error);
+				});
+				return;
 
-	getFile(filenames[index], onload);
-}
-
-/**
- * Get and load a file from Game Data files
- *
- * @param {string} filename
- * @param {function} onload
- * @param {function} onerror
- * @param {Array} args - optional
- */
-export const loadFile = (function loadFileClosure() {
-	const _input = { filename: '', args: null };
-
-	async function callback(data, error, input) {
-		let i, count, j, size;
-		let gl, frames, texture, layers, palette;
-		let precision;
-
-		if (data && !error) {
-			switch (input.filename.substr(-3)) {
-				// Remove magenta on textures
-				case 'bmp':
-					Texture.load(data, function () {
-						Memory.set(input.filename, this.toDataURL(), error);
-					});
-					return;
-
-				// Load str textures
-				case 'str':
-					gl = (await import('Renderer/Renderer.js')).default.getContext();
-					layers = data.layers;
-
-					for (i = 0; i < data.layernum; ++i) {
-						layers[i].materials = new Array(layers[i].texcnt);
-
-						for (j = 0; j < layers[i].texcnt; ++j) {
-							(function (url, materials, textureId) {
-								Client.loadFile(url, function (loadedUrl) {
-									WebGL.texture(gl, loadedUrl, function (loadedTexture) {
-										materials[textureId] = loadedTexture;
-									});
-								});
-							})(layers[i].texname[j], layers[i].materials, j);
-						}
+			case 'str': {
+				const layers = data.layers;
+				for (let i = 0; i < data.layernum; ++i) {
+					layers[i].materials = new Array(layers[i].texcnt);
+					for (let j = 0; j < layers[i].texcnt; ++j) {
+						((url, mat, id) => {
+							this.loadFile(url, (loadedUrl) => {
+								WebGL.texture(gl, loadedUrl, (tex) => { mat[id] = tex; });
+							});
+						})(layers[i].texname[j], layers[i].materials, j);
 					}
+				}
+				break;
+			}
 
-					Memory.set(input.filename, data, error);
-					return;
+			case 'spr': {
+				const { frames } = data;
+				for (const frame of frames) {
+					frame.texture = gl.createTexture();
+					const precision = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : (frame.type ? gl.LINEAR : gl.NEAREST);
+					const size = frame.type ? gl.RGBA : gl.LUMINANCE;
+					gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+					gl.bindTexture(gl.TEXTURE_2D, frame.texture);
+					gl.texImage2D(gl.TEXTURE_2D, 0, size, frame.width, frame.height, 0, size, gl.UNSIGNED_BYTE, frame.data);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, precision);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, precision);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				}
 
-				case 'spr':
-					gl = (await import('Renderer/Renderer.js')).default.getContext();
-					frames = data.frames;
-					count = frames.length;
-
-					// Send sprites to GPU
-					for (i = 0; i < count; i++) {
-						frames[i].texture = gl.createTexture();
-						precision = GraphicsSettings.pixelPerfectSprites
-							? gl.NEAREST
-							: frames[i].type
-								? gl.LINEAR
-								: gl.NEAREST;
-						size = frames[i].type ? gl.RGBA : gl.LUMINANCE;
-						gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-						gl.bindTexture(gl.TEXTURE_2D, frames[i].texture);
-						gl.texImage2D(
-							gl.TEXTURE_2D,
-							0,
-							size,
-							frames[i].width,
-							frames[i].height,
-							0,
-							size,
-							gl.UNSIGNED_BYTE,
-							frames[i].data
-						);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, precision);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, precision);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-					}
-
-					// Send palette to GPU
-					if (data.rgba_index !== 0) {
-						data.texture = gl.createTexture();
-						gl.bindTexture(gl.TEXTURE_2D, data.texture);
-						gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data.palette);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-					}
-
-					Memory.set(input.filename, data, error);
-					return;
-
-				// Build palette
-				case 'pal': {
-					const enableMipmap = Configs.get('enableMipmap');
-					gl = (await import('Renderer/Renderer.js')).default.getContext();
-					texture = gl.createTexture();
-					palette = new Uint8Array(data);
-
-					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, palette);
+				if (data.rgba_index !== 0) {
+					data.texture = gl.createTexture();
+					gl.bindTexture(gl.TEXTURE_2D, data.texture);
+					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data.palette);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-					if (enableMipmap) {
-						gl.generateMipmap(gl.TEXTURE_2D);
-					}
-
-					Memory.set(input.filename, { palette: palette, texture: texture }, error);
-					return;
 				}
+				break;
+			}
+
+			case 'pal': {
+				const texture = gl.createTexture();
+				const palette = new Uint8Array(data);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, palette);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+				if (Configs.get('enableMipmap')) {gl.generateMipmap(gl.TEXTURE_2D);}
+				data = { palette, texture };
+				break;
 			}
 		}
 
 		Memory.set(input.filename, data, error);
 	}
 
-	return function (filename, onload, onerror, args = {}) {
-		if (!Memory.exist(filename)) {
-			_input.filename = filename;
-			_input.args = args || null;
+	/**
+	 * Load multiple files
+	 * @param {string[]} filenames
+	 * @param {function} callback
+	 */
+	static loadFiles(filenames, callback) {
+		const count = filenames.length;
+		const out = new Array(count);
+		let index = 0;
 
-			Thread.send('LOAD_FILE', _input, callback);
-		}
+		const next = () => {
+			this.loadFile(filenames[index], (data) => {
+				out[index++] = data;
+				if (index === count) {
+					if (callback) {callback(...out);}
+				} else {
+					next();
+				}
+			});
+		};
 
-		return Memory.get(filename, onload, onerror);
-	};
-})();
-
-/**
- * Get and load files from Game Data files
- *
- * @param {string[]} filenames
- * @param {function} callback once loaded
- */
-export function loadFiles(filenames, callback) {
-	let index;
-	const count = filenames.length;
-	const out = new Array(count);
-
-	function onload(data) {
-		out[index++] = data;
-
-		if (index === count) {
-			if (callback) {
-				callback.apply(null, out);
-			}
-			return;
-		}
-
-		loadFile(filenames[index], onload);
+		if (count > 0) {next();}
 	}
 
-	index = 0;
+	/**
+	 * Search for a file using regex
+	 * @param {RegExp} regex
+	 * @param {function} callback
+	 */
+	static search(regex, callback) {
+		Thread.send('SEARCH_FILE', regex, callback);
+	}
 
-	loadFile(filenames[index], onload);
+	/**
+	 * Placeholder for files loaded callback
+	 */
+	static onFilesLoaded() {}
 }
-
-/**
- * Apply a regex on fileList to search a file
- *
- * @param regex
- * @param callback
- */
-export function search(regex, callback) {
-	Thread.send('SEARCH_FILE', regex, callback);
-}
-
-/**
- * Export
- */
-const Client = {
-	init: init,
-	getFile: getFile,
-	getFiles: getFiles,
-	loadFile: loadFile,
-	loadFiles: loadFiles,
-	search: search,
-	onFilesLoaded: function OnFilesLoaded() {}
-};
 
 export default Client;
