@@ -101,8 +101,8 @@ class GroupEngine {
 		_partyName = name;
 		const pkt = new PACKET.CZ.MAKE_GROUP2();
 		pkt.groupName = name;
-		this.ItemPickupRule = pickupRule;
-		this.ItemDivisionRule = divisionRule;
+		pkt.ItemPickupRule = pickupRule;
+		pkt.ItemDivisionRule = divisionRule;
 		Network.sendPacket(pkt);
 	}
 
