@@ -32,8 +32,8 @@
 		"ci": "npm run lint && npm run format:check"
 	},
 	"type": "module",
-	"engines": {  
-		"node": ">=22"  
+	"engines": {
+		"node": ">=22"
 	},
 	"author": "Vincent Thibault",
 	"license": "GNU GPL V3",
