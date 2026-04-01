@@ -52,7 +52,7 @@ Here's a list of things that you will need to have for a sucessfull installation
 | Item            | Description                                                                                                                                                                                                                                                                                         |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | RoBrowserLegacy | [Client](https://github.com/MrAntares/roBrowserLegacy) to Run Ragnarok Online on browser                                                                                                                                                                                                            |
-| NodeJS 20+      | [NodeJS](https://nodejs.org/en/download/current) to compile RoBrowser assets                                                                                                                                                                                                                        |
+| NodeJS 22+      | [NodeJS](https://nodejs.org/en/download/current) to compile RoBrowser assets                                                                                                                                                                                                                        |
 | wsproxy         | A [Websocket Proxy](https://github.com/herenow/wsProxy#readme) to interligate Login + Server + Map into one endpoint                                                                                                                                                                                |
 | Game Server     | Your Emulator that usually is [rAthena](https://github.com/rathena/rathena) or [Hercules](https://github.com/HerculesWS/Hercules/)                                                                                                                                                                  |
 | Game Files      | A [kRO](https://rathena.org/board/topic/106413-kro-full-client-2023-04-04-includes-bgm-rsu/) or any RO installation files to use as your base for the server                                                                                                                                        |
@@ -76,14 +76,14 @@ Currently tested browsers:
 > [!NOTE]
 > If you already have NodeJS LTS installed, [skip this step](#RoBrowser).
 
-Make sure you're running NodeJS LTS or 20 above. Validate your version using the command:
+Make sure you're running NodeJS LTS or 22 above. Validate your version using the command:
 
 ```shell
 node --version
-# v20.10.0 (example output)
+# v22.10.0 (example output)
 ```
 
-If your Node version is below 20, you can use NVM (Node Version Manager) to install a newer version.
+If your Node version is below 22, you can use NVM (Node Version Manager) to install a newer version.
 
 To install NVM:
 
@@ -103,14 +103,14 @@ Now install the latest LTS version of Node:
 ```bash
 nvm install --lts
 # Downloading and installing node latest version
-# Now using node v20.10.0 (npm v10.2.3)
+# Now using node v22.10.0 (npm v10.2.3)
 ```
 
 Verify that Node is at the correct version:
 
 ```bash
 node --version
-# v20.10.0
+# v22.10.0
 npm --version
 # v10.2.3
 ```
