@@ -317,7 +317,7 @@ function loadClientInfo(callback) {
 					renewal: ['true', '1', 1, true].includes(connection.find('renewal:first').text().toLowerCase()),
 					adminList: (() => {
 						const _list = [];
-						connection.find('yellow admin, aid admin').each(() => {
+						connection.find('yellow admin, aid admin').each(function () {
 							_list.push(parseInt(this.textContent, 10));
 						});
 						return _list;

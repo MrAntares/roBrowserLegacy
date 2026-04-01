@@ -129,7 +129,7 @@ class CharEngine {
 	static reload() {
 		Network.close();
 		if (PACKETVER.value < 20181114) {
-			Background.setImage('bgi_temp.bmp', function () {
+			Background.setImage('bgi_temp.bmp', () => {
 				UIManager.removeComponents();
 				CharEngine.init(_server);
 			});
