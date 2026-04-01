@@ -77,7 +77,7 @@ class ScrollBar {
 				return f !== null;
 			});
 
-			Client.loadFiles(files, () => {
+			Client.loadFiles(files, function () {
 				const args = arguments;
 				const down = args[0];
 				const mid = skinInfo.name === 'default' ? args[1] : null;
