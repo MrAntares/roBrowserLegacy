@@ -191,11 +191,12 @@ class Cursor {
 	static render(tick) {
 		if (!Graphics.cursor || !_compiledStyle.length) {
 			if (_selector) {
-				_selector.style.display = 'hidden';
+				// Pre-rework it used 'hidden' css
+				_selector.style.display = 'none';
 			}
 			return;
 		}
-		// TODO: Check if this 'show' is invalid css or custom
+		// Pre-rework it used 'show' css, need to check if it exist
 		if (_selector && _selector.style.display === 'none') {
 			_selector.style.display = 'block';
 		}
