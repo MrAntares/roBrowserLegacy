@@ -41,20 +41,20 @@ class ScrollBar {
 			{
 				name: 'default',
 				files: [
-					DB.INTERFACE_PATH + 'scroll0down.bmp',
-					DB.INTERFACE_PATH + 'scroll0mid.bmp',
-					DB.INTERFACE_PATH + 'scroll0up.bmp',
-					DB.INTERFACE_PATH + 'scroll0bar_down.bmp',
-					DB.INTERFACE_PATH + 'scroll0bar_mid.bmp',
-					DB.INTERFACE_PATH + 'scroll0bar_up.bmp'
+					`${DB.INTERFACE_PATH}scroll0down.bmp`,
+					`${DB.INTERFACE_PATH}scroll0mid.bmp`,
+					`${DB.INTERFACE_PATH}scroll0up.bmp`,
+					`${DB.INTERFACE_PATH}scroll0bar_down.bmp`,
+					`${DB.INTERFACE_PATH}scroll0bar_mid.bmp`,
+					`${DB.INTERFACE_PATH}scroll0bar_up.bmp`
 				]
 			},
 			{
 				name: 'chatbox',
 				files: [
-					DB.INTERFACE_PATH + 'basic_interface/dialscr_down.bmp',
+					`${DB.INTERFACE_PATH}basic_interface/dialscr_down.bmp`,
 					null,
-					DB.INTERFACE_PATH + 'basic_interface/dialscr_up.bmp',
+					`${DB.INTERFACE_PATH}basic_interface/dialscr_up.bmp`,
 					null,
 					null,
 					null
