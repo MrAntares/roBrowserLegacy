@@ -56,10 +56,6 @@ import PACKETVER from 'Network/PacketVerManager.js';
 
 //Pet
 //MapName
-/**
- * DB NameSpace
- */
-const DB = {};
 
 /**
  * @var {Object} lua instance
@@ -93,32 +89,15 @@ const ScreamTable = [];
  */
 const MapTable = {};
 
+/**
+ * @var {Object} SkillDescription Table
+ */
 let SkillDescription = {};
 
 /**
  * @var {Array} ASCII sex
  */
 const SexTable = ['\xbf\xa9', '\xb3\xb2'];
-
-/**
- * @var {Array} file alias list
- */
-DB.mapalias = {};
-
-/**
- * @var {Array} CharName by GID list
- */
-DB.CNameTable = {};
-
-/**
- * @var {string} interface path
- */
-DB.INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
-
-/**
- * @var {string} lua path
- */
-DB.LUA_PATH = 'data/luafiles514/lua files/';
 
 /**
  * @var Pet Talk
@@ -215,20 +194,6 @@ const QuestInfo = {};
 const TitleTable = {};
 
 /**
- * @var User charpage init
- */
-const servers = Configs.get('servers', []);
-const langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 0) : 0;
-
-// setup default encoding
-const userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
-const grfCharpage = 'windows-1252';
-TextEncoding.setCharset(grfCharpage);
-
-// create decoders
-const userStringDecoder = TextEncoding;
-
-/**
  * @var {Object} PetDBTable
  */
 let PetDBTable = {};
@@ -262,549 +227,3395 @@ const CashShopBannerTable = [];
  */
 const Ez2streffect = {};
 
+const unknownItem = {
+	unidentifiedDisplayName: 'Unknown Item',
+	unidentifiedResourceName: '\xbb\xe7\xb0\xfa',
+	unidentifiedDescriptionName: ['...'],
+	identifiedDisplayName: 'Unknown Item',
+	identifiedResourceName: '\xbb\xe7\xb0\xfa',
+	identifiedDescriptionName: ['...'],
+	slotCount: 0,
+	ClassNum: 0
+};
+
 /**
- * Initialize DB
+ * @var User charpage init
  */
-DB.init = function init() {
-	// Callback
-	let index = 0,
-		count = 0;
-	function onLoad() {
-		count++;
-		return function OnLoadClosure() {
-			index++;
+const servers = Configs.get('servers', []);
+const langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 0) : 0;
 
-			if (DB.onProgress) {
-				DB.onProgress(index, count);
-			}
+// setup default encoding
+const userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+const grfCharpage = 'windows-1252';
+TextEncoding.setCharset(grfCharpage);
 
-			if (index === count && DB.onReady) {
-				DB.onReady();
-			}
-		};
-	}
+// create decoders
+const userStringDecoder = TextEncoding;
 
-	loadFontFromClient('System/Font/');
+/**
+ * DB NameSpace
+ */
+class DB {
+	/**
+	 * @var {Array} file alias list
+	 */
+	static mapalias = {};
 
-	console.log('Loading DB files...');
+	/**
+	 * @var {Array} CharName by GID list
+	 */
+	static CNameTable = {};
 
-	// Loading TXT Tables
-	loadTable(
-		'data/mp3nametable.txt',
-		'#',
-		2,
-		function (_index, key, val) {
-			(MapTable[key] || (MapTable[key] = {})).mp3 = val;
-		},
-		onLoad()
-	);
-	loadTable(
-		'data/mapnametable.txt',
-		'#',
-		2,
-		function (_index, key, val) {
-			(MapTable[key] || (MapTable[key] = {})).name = val;
-		},
-		onLoad(),
-		true
-	);
+	/**
+	 * @var {string} interface path
+	 */
+	static INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
 
-	// CSV Tables - Client Date is not sure since when they were added
-	if (PACKETVER.value >= 20230302) {
-		loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, onLoad());
-		loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
-	} else {
+	/**
+	 * @var {string} lua path
+	 */
+	static LUA_PATH = 'data/luafiles514/lua files/';
+
+	/**
+	 * @var {Object} UpdateOwnerName Table
+	 */
+	static UpdateOwnerName = {};
+
+	/**
+	 * Initialize DB
+	 */
+	static init() {
+		// Callback
+		let index = 0,
+			count = 0;
+		function onLoad() {
+			count++;
+			return function OnLoadClosure() {
+				index++;
+
+				if (DB.onProgress) {
+					DB.onProgress(index, count);
+				}
+
+				if (index === count && DB.onReady) {
+					DB.onReady();
+				}
+			};
+		}
+
+		loadFontFromClient('System/Font/');
+
+		console.log('Loading DB files...');
+
+		// Loading TXT Tables
 		loadTable(
-			'data/msgstringtable.txt',
+			'data/mp3nametable.txt',
 			'#',
-			1,
-			function (_index, val) {
-				MsgStringTable[_index] = val;
+			2,
+			function (_index, key, val) {
+				(MapTable[key] || (MapTable[key] = {})).mp3 = val;
+			},
+			onLoad()
+		);
+		loadTable(
+			'data/mapnametable.txt',
+			'#',
+			2,
+			function (_index, key, val) {
+				(MapTable[key] || (MapTable[key] = {})).name = val;
 			},
 			onLoad(),
 			true
 		);
-	}
 
-	loadTable(
-		'data/resnametable.txt',
-		'#',
-		2,
-		function (_index, key, val) {
-			DB.mapalias[key] = val;
-		},
-		onLoad()
-	);
-
-	// TODO: load these load files by PACKETVER
-	if (Configs.get('loadLua')) {
-		// Item
-		let iteminfoNames = [];
-		const customII = Configs.get('customItemInfo', []);
-
-		if (Array.isArray(customII) && customII.length > 0) {
-			// add custom client info table
-			iteminfoNames = iteminfoNames.concat(customII);
-			tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad(), true);
+		// CSV Tables - Client Date is not sure since when they were added
+		if (PACKETVER.value >= 20230302) {
+			loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, onLoad());
+			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
 		} else {
-			iteminfoNames = iteminfoNames.concat(getSystemAliases('System/itemInfo.lub'));
-			tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad());
-		}
-
-		loadLuaTable(
-			[DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'],
-			'AccNameTable',
-			function (json) {
-				Object.assign(HatTable, json);
-			},
-			onLoad()
-		);
-		loadLuaTable(
-			[DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'],
-			'RobeNameTable',
-			function (json) {
-				Object.assign(RobeTable, json);
-			},
-			onLoad()
-		);
-
-		if (PACKETVER.value >= 20141008) {
-			loadLuaTable(
-				[DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'],
-				'JobNameTable',
-				function (json) {
-					Object.assign(MonsterTable, json);
+			loadTable(
+				'data/msgstringtable.txt',
+				'#',
+				1,
+				function (_index, val) {
+					MsgStringTable[_index] = val;
 				},
 				onLoad(),
-				function () {
-					loadPetInfo(DB.LUA_PATH + 'datainfo/petinfo.lub', null, function () {
-						tryLoadLuaAliases(
-							loadPetEvolution,
-							getSystemAliases('System/PetEvolutionCln.lub'),
-							null,
-							onLoad()
-						);
-					});
-				}
-			);
-		} else {
-			loadLuaTable(
-				[DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'],
-				'JobNameTable',
-				function (json) {
-					Object.assign(MonsterTable, json);
-				},
-				onLoad()
+				true
 			);
 		}
 
-		loadLuaTable(
-			[DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'],
-			'NameTable_VAR',
-			function (json) {
-				Object.assign(RandomOption, json);
+		loadTable(
+			'data/resnametable.txt',
+			'#',
+			2,
+			function (_index, key, val) {
+				DB.mapalias[key] = val;
 			},
 			onLoad()
 		);
-		loadItemDBTable(DB.LUA_PATH + 'ItemDBNameTbl.lub', null, onLoad());
 
-		// Weapon tables
-		loadWeaponTable(DB.LUA_PATH + 'datainfo/weapontable.lub', null, onLoad());
+		// TODO: load these load files by PACKETVER
+		if (Configs.get('loadLua')) {
+			// Item
+			let iteminfoNames = [];
+			const customII = Configs.get('customItemInfo', []);
 
-		// Title tables
-		if (PACKETVER.value >= 20170208) {
-			loadTitleTable(DB.LUA_PATH + 'datainfo/titletable.lub', null, onLoad());
-		}
-
-		// Skill - load skillid.lub to populate SKID, then load description
-		const skillOnLoad = onLoad();
-		loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', function (json) {
-			if (json && typeof json === 'object') {
-				// Validate and merge entries into SKID
-				for (const k in json) {
-					if (Object.prototype.hasOwnProperty.call(json, k)) {
-						const value = json[k];
-						if (typeof value === 'number' && value > 0) {
-							SKID[k] = value;
-						}
-					}
-				}
+			if (Array.isArray(customII) && customII.length > 0) {
+				// add custom client info table
+				iteminfoNames = iteminfoNames.concat(customII);
+				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad(), true);
+			} else {
+				iteminfoNames = iteminfoNames.concat(getSystemAliases('System/itemInfo.lub'));
+				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad());
 			}
-			// Load description - skillid.lub is re-executed harmlessly (Lua just repopulates globals)
+
 			loadLuaTable(
-				[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
-				'SKILL_DESCRIPT',
-				function (_json) {
-					SkillDescription = _json;
+				[DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'],
+				'AccNameTable',
+				function (json) {
+					Object.assign(HatTable, json);
 				},
-				function () {
-					// Calls after skillids and descs been populated
-					loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, function () {
-						loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, function () {
-							// Load ez2streffect, PACKETVER unknown when the while has been added, tied to default PACKETVER of rathena for 4th job
-							if (PACKETVER.value >= 20211103) {
-								const bsonOnLoad = onLoad();
-								loadBSONFile(
-									'data/contentdata/effectdata/ez2streffect.bson',
-									Ez2streffect,
-									function () {
-										Promise.all([
-											import('DB/Effects/EffectTable.js'),
-											import('DB/Skills/SkillEffect.js')
-										]).then(([EffectTable, SkillEffect]) => {
-											mergeEz2Effects(EffectTable.default, SkillEffect.default);
-											bsonOnLoad();
-										});
-									}
-								);
-							}
-							skillOnLoad(); // Skill Lua finished
+				onLoad()
+			);
+			loadLuaTable(
+				[DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'],
+				'RobeNameTable',
+				function (json) {
+					Object.assign(RobeTable, json);
+				},
+				onLoad()
+			);
+
+			if (PACKETVER.value >= 20141008) {
+				loadLuaTable(
+					[DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'],
+					'JobNameTable',
+					function (json) {
+						Object.assign(MonsterTable, json);
+					},
+					onLoad(),
+					function () {
+						loadPetInfo(DB.LUA_PATH + 'datainfo/petinfo.lub', null, function () {
+							tryLoadLuaAliases(
+								loadPetEvolution,
+								getSystemAliases('System/PetEvolutionCln.lub'),
+								null,
+								onLoad()
+							);
 						});
-					});
-				}
-			);
-		});
+					}
+				);
+			} else {
+				loadLuaTable(
+					[DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'],
+					'JobNameTable',
+					function (json) {
+						Object.assign(MonsterTable, json);
+					},
+					onLoad()
+				);
+			}
 
-		// Status
-		loadStateIconInfo(DB.LUA_PATH + 'stateicon/', null, onLoad());
-
-		// Legacy Navigation
-		if (PACKETVER.value >= 20111010) {
-			loadLuaValue(
-				DB.LUA_PATH + 'navigation/navi_map_krpri.lub',
-				'Navi_Map',
+			loadLuaTable(
+				[DB.LUA_PATH + 'datainfo/enumvar.lub', DB.LUA_PATH + 'datainfo/addrandomoptionnametable.lub'],
+				'NameTable_VAR',
 				function (json) {
-					Object.assign(NaviMapTable, json);
+					Object.assign(RandomOption, json);
 				},
 				onLoad()
 			);
-			loadLuaValue(
-				DB.LUA_PATH + 'navigation/navi_mob_krpri.lub',
-				'Navi_Mob',
-				function (json) {
-					Object.assign(NaviMobTable, json);
-				},
-				onLoad()
-			);
-			loadLuaValue(
-				DB.LUA_PATH + 'navigation/navi_npc_krpri.lub',
-				'Navi_Npc',
-				function (json) {
-					Object.assign(NaviNpcTable, json);
-				},
-				onLoad()
-			);
-			loadLuaValue(
-				DB.LUA_PATH + 'navigation/navi_link_krpri.lub',
-				'Navi_Link',
-				function (json) {
-					Object.assign(NaviLinkTable, json);
-				},
-				onLoad()
-			);
-			loadLuaValue(
-				DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub',
-				'Navi_Distance',
-				function (json) {
-					Object.assign(NaviLinkDistanceTable, json);
-				},
-				onLoad()
-			);
-			loadLuaValue(
-				DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub',
-				'Navi_NpcDistance',
-				function (json) {
-					Object.assign(NaviNpcDistanceTable, json);
-				},
-				onLoad()
-			);
-		}
+			loadItemDBTable(DB.LUA_PATH + 'ItemDBNameTbl.lub', null, onLoad());
 
-		// HatEffect
-		if (PACKETVER.value >= 20150507) {
-			loadHatEffectInfo(onLoad());
-		}
+			// Weapon tables
+			loadWeaponTable(DB.LUA_PATH + 'datainfo/weapontable.lub', null, onLoad());
 
-		// LaphineSys
-		if (PACKETVER.value >= 20160601) {
-			loadLaphineSysFile(DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', null, onLoad());
-		}
+			// Title tables
+			if (PACKETVER.value >= 20170208) {
+				loadTitleTable(DB.LUA_PATH + 'datainfo/titletable.lub', null, onLoad());
+			}
 
-		// LaphineUpg
-		if (PACKETVER.value >= 20170726) {
-			loadLaphineUpgFile(DB.LUA_PATH + 'datainfo/lapineupgradebox.lub', null, onLoad());
-		}
-
-		// ItemReform
-		if (PACKETVER.value >= 20200916) {
-			loadItemReformFile(DB.LUA_PATH + 'ItemReform/ItemReformSystem.lub', null, onLoad());
-		}
-
-		// EnchantList
-		if (PACKETVER.value >= 20211103) {
-			loadEnchantListFile(DB.LUA_PATH + 'Enchant/EnchantList', onLoad());
-		}
-
-		// MapName
-		if (Configs.get('enableMapName') /*PACKETVER.value >= 20190605*/) {
-			// We allow this feature to be enabled on any version due to popular demand
-			tryLoadLuaAliases(
-				loadMapTbl,
-				getSystemAliases('System/mapInfo.lub'),
-				function (json) {
-					for (const key in json) {
-						if (json.hasOwnProperty(key)) {
-							MapInfo[key] = json[key];
+			// Skill - load skillid.lub to populate SKID, then load description
+			const skillOnLoad = onLoad();
+			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', function (json) {
+				if (json && typeof json === 'object') {
+					// Validate and merge entries into SKID
+					for (const k in json) {
+						if (Object.prototype.hasOwnProperty.call(json, k)) {
+							const value = json[k];
+							if (typeof value === 'number' && value > 0) {
+								SKID[k] = value;
+							}
 						}
 					}
-					updateMapTable();
+				}
+				// Load description - skillid.lub is re-executed harmlessly (Lua just repopulates globals)
+				loadLuaTable(
+					[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
+					'SKILL_DESCRIPT',
+					function (_json) {
+						SkillDescription = _json;
+					},
+					function () {
+						// Calls after skillids and descs been populated
+						loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, function () {
+							loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, function () {
+								// Load ez2streffect, PACKETVER unknown when the while has been added, tied to default PACKETVER of rathena for 4th job
+								if (PACKETVER.value >= 20211103) {
+									const bsonOnLoad = onLoad();
+									loadBSONFile(
+										'data/contentdata/effectdata/ez2streffect.bson',
+										Ez2streffect,
+										function () {
+											Promise.all([
+												import('DB/Effects/EffectTable.js'),
+												import('DB/Skills/SkillEffect.js')
+											]).then(([EffectTable, SkillEffect]) => {
+												mergeEz2Effects(EffectTable.default, SkillEffect.default);
+												bsonOnLoad();
+											});
+										}
+									);
+								}
+								skillOnLoad(); // Skill Lua finished
+							});
+						});
+					}
+				);
+			});
+
+			// Status
+			loadStateIconInfo(DB.LUA_PATH + 'stateicon/', null, onLoad());
+
+			// Legacy Navigation
+			if (PACKETVER.value >= 20111010) {
+				loadLuaValue(
+					DB.LUA_PATH + 'navigation/navi_map_krpri.lub',
+					'Navi_Map',
+					function (json) {
+						Object.assign(NaviMapTable, json);
+					},
+					onLoad()
+				);
+				loadLuaValue(
+					DB.LUA_PATH + 'navigation/navi_mob_krpri.lub',
+					'Navi_Mob',
+					function (json) {
+						Object.assign(NaviMobTable, json);
+					},
+					onLoad()
+				);
+				loadLuaValue(
+					DB.LUA_PATH + 'navigation/navi_npc_krpri.lub',
+					'Navi_Npc',
+					function (json) {
+						Object.assign(NaviNpcTable, json);
+					},
+					onLoad()
+				);
+				loadLuaValue(
+					DB.LUA_PATH + 'navigation/navi_link_krpri.lub',
+					'Navi_Link',
+					function (json) {
+						Object.assign(NaviLinkTable, json);
+					},
+					onLoad()
+				);
+				loadLuaValue(
+					DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub',
+					'Navi_Distance',
+					function (json) {
+						Object.assign(NaviLinkDistanceTable, json);
+					},
+					onLoad()
+				);
+				loadLuaValue(
+					DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub',
+					'Navi_NpcDistance',
+					function (json) {
+						Object.assign(NaviNpcDistanceTable, json);
+					},
+					onLoad()
+				);
+			}
+
+			// HatEffect
+			if (PACKETVER.value >= 20150507) {
+				loadHatEffectInfo(onLoad());
+			}
+
+			// LaphineSys
+			if (PACKETVER.value >= 20160601) {
+				loadLaphineSysFile(DB.LUA_PATH + 'datainfo/lapineddukddakbox.lub', null, onLoad());
+			}
+
+			// LaphineUpg
+			if (PACKETVER.value >= 20170726) {
+				loadLaphineUpgFile(DB.LUA_PATH + 'datainfo/lapineupgradebox.lub', null, onLoad());
+			}
+
+			// ItemReform
+			if (PACKETVER.value >= 20200916) {
+				loadItemReformFile(DB.LUA_PATH + 'ItemReform/ItemReformSystem.lub', null, onLoad());
+			}
+
+			// EnchantList
+			if (PACKETVER.value >= 20211103) {
+				loadEnchantListFile(DB.LUA_PATH + 'Enchant/EnchantList', onLoad());
+			}
+
+			// MapName
+			if (Configs.get('enableMapName') /*PACKETVER.value >= 20190605*/) {
+				// We allow this feature to be enabled on any version due to popular demand
+				tryLoadLuaAliases(
+					loadMapTbl,
+					getSystemAliases('System/mapInfo.lub'),
+					function (json) {
+						for (const key in json) {
+							if (json.hasOwnProperty(key)) {
+								MapInfo[key] = json[key];
+							}
+						}
+						updateMapTable();
+					},
+					onLoad()
+				);
+			}
+
+			// EntitySignBoard
+			loadSignBoardData('System/Sign_Data.lub', null, onLoad()); // this is not official, its a translation file
+			loadSignBoardList(DB.LUA_PATH + 'SignBoardList.lub', null, onLoad());
+
+			// CheckAttendance
+			if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
+				loadAttendanceFile('System/CheckAttendance.lub', null, onLoad());
+			}
+
+			// Quest
+			tryLoadLuaAliases(loadQuestInfo, getSystemAliases('System/OngoingQuestInfoList.lub'), null, onLoad());
+			// TODO: System/RecommendedQuests.lub
+
+			// WoldMap
+			loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
+
+			// Achievements
+			// TODO: System/achievements.lub
+
+			// Town Info
+			loadTownInfoFile('System/Towninfo.lub', null, onLoad());
+
+			// Cash Shop Banner - implemented early 2018
+			if (Configs.get('enableCashShop') && PACKETVER.value >= 20180000) {
+				loadCashShopBanner(DB.LUA_PATH + 'datainfo/tb_cashshop_banner.lub', null, onLoad());
+			}
+		} else {
+			// Item
+			loadTable(
+				'data/num2itemdisplaynametable.txt',
+				'#',
+				2,
+				function (_index, key, val) {
+					(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, ' ');
+				},
+				onLoad(),
+				true
+			);
+			loadTable(
+				'data/num2itemresnametable.txt',
+				'#',
+				2,
+				function (_index, key, val) {
+					(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName = val;
 				},
 				onLoad()
 			);
+			loadTable(
+				'data/num2itemdesctable.txt',
+				'#',
+				2,
+				function (_index, key, val) {
+					(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName = val.split('\n');
+				},
+				onLoad(),
+				true
+			);
+			loadTable(
+				'data/idnum2itemdisplaynametable.txt',
+				'#',
+				2,
+				function (_index, key, val) {
+					(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName = val.replace(/_/g, ' ');
+				},
+				onLoad(),
+				true
+			);
+			loadTable(
+				'data/idnum2itemresnametable.txt',
+				'#',
+				2,
+				function (_index, key, val) {
+					(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName = val;
+				},
+				onLoad()
+			);
+			loadTable(
+				'data/idnum2itemdesctable.txt',
+				'#',
+				2,
+				function (_index, key, val) {
+					(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName = val.split('\n');
+				},
+				onLoad(),
+				true
+			);
+			loadTable(
+				'data/itemslotcounttable.txt',
+				'#',
+				2,
+				function (_index, key, val) {
+					(ItemTable[key] || (ItemTable[key] = {})).slotCount = val;
+				},
+				onLoad()
+			);
+
+			// Skill
+			loadTable(
+				'data/skilldesctable.txt',
+				'#',
+				2,
+				function (_index, key, val) {
+					SkillDescription[SKID[key]] = val.replace('\r\n', '\n');
+				},
+				onLoad(),
+				true
+			);
+			// TODO: data/skillnametable.txt	- ?
+			// TODO: data/skilltreeview.txt	- Replaces DB/Skills/SkillTreeView.js
+			// TODO: data/leveluseskillspamount.txt	- Replaces DB/Skills/SkillInfo.js -> SkillInfo.SpAmount
+
+			// Quest
+			loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad(), true);
 		}
 
-		// EntitySignBoard
-		loadSignBoardData('System/Sign_Data.lub', null, onLoad()); // this is not official, its a translation file
-		loadSignBoardList(DB.LUA_PATH + 'SignBoardList.lub', null, onLoad());
-
-		// CheckAttendance
-		if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
-			loadAttendanceFile('System/CheckAttendance.lub', null, onLoad());
+		// Load ItemMoveInfo and attach to ItemTable
+		if (PACKETVER.value >= 20150422) {
+			loadMoveInfoTable(onLoad());
 		}
 
-		// Quest
-		tryLoadLuaAliases(loadQuestInfo, getSystemAliases('System/OngoingQuestInfoList.lub'), null, onLoad());
-		// TODO: System/RecommendedQuests.lub
-
-		// WoldMap
-		loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
-
-		// Achievements
-		// TODO: System/achievements.lub
-
-		// Town Info
-		loadTownInfoFile('System/Towninfo.lub', null, onLoad());
-
-		// Cash Shop Banner - implemented early 2018
-		if (Configs.get('enableCashShop') && PACKETVER.value >= 20180000) {
-			loadCashShopBanner(DB.LUA_PATH + 'datainfo/tb_cashshop_banner.lub', null, onLoad());
-		}
-	} else {
-		// Item
+		// Forging/Creation
 		loadTable(
-			'data/num2itemdisplaynametable.txt',
+			'data/metalprocessitemlist.txt',
 			'#',
 			2,
 			function (_index, key, val) {
-				(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, ' ');
+				(ItemTable[key] || (ItemTable[key] = {})).processitemlist = val.split('\n');
 			},
 			onLoad(),
 			true
 		);
+
+		// Card
 		loadTable(
-			'data/num2itemresnametable.txt',
+			'data/num2cardillustnametable.txt',
 			'#',
 			2,
 			function (_index, key, val) {
-				(ItemTable[key] || (ItemTable[key] = {})).unidentifiedResourceName = val;
+				(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName = val;
 			},
 			onLoad()
 		);
 		loadTable(
-			'data/num2itemdesctable.txt',
+			'data/cardprefixnametable.txt',
 			'#',
 			2,
 			function (_index, key, val) {
-				(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDescriptionName = val.split('\n');
+				(ItemTable[key] || (ItemTable[key] = {})).prefixName = val;
 			},
 			onLoad(),
 			true
 		);
 		loadTable(
-			'data/idnum2itemdisplaynametable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				(ItemTable[key] || (ItemTable[key] = {})).identifiedDisplayName = val.replace(/_/g, ' ');
-			},
-			onLoad(),
-			true
-		);
-		loadTable(
-			'data/idnum2itemresnametable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				(ItemTable[key] || (ItemTable[key] = {})).identifiedResourceName = val;
-			},
-			onLoad()
-		);
-		loadTable(
-			'data/idnum2itemdesctable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				(ItemTable[key] || (ItemTable[key] = {})).identifiedDescriptionName = val.split('\n');
-			},
-			onLoad(),
-			true
-		);
-		loadTable(
-			'data/itemslotcounttable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				(ItemTable[key] || (ItemTable[key] = {})).slotCount = val;
-			},
-			onLoad()
-		);
-
-		// Skill
-		loadTable(
-			'data/skilldesctable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				SkillDescription[SKID[key]] = val.replace('\r\n', '\n');
-			},
-			onLoad(),
-			true
-		);
-		// TODO: data/skillnametable.txt	- ?
-		// TODO: data/skilltreeview.txt	- Replaces DB/Skills/SkillTreeView.js
-		// TODO: data/leveluseskillspamount.txt	- Replaces DB/Skills/SkillInfo.js -> SkillInfo.SpAmount
-
-		// Quest
-		loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad(), true);
-	}
-
-	// Load ItemMoveInfo and attach to ItemTable
-	if (PACKETVER.value >= 20150422) {
-		loadMoveInfoTable(onLoad());
-	}
-
-	// Forging/Creation
-	loadTable(
-		'data/metalprocessitemlist.txt',
-		'#',
-		2,
-		function (_index, key, val) {
-			(ItemTable[key] || (ItemTable[key] = {})).processitemlist = val.split('\n');
-		},
-		onLoad(),
-		true
-	);
-
-	// Card
-	loadTable(
-		'data/num2cardillustnametable.txt',
-		'#',
-		2,
-		function (_index, key, val) {
-			(ItemTable[key] || (ItemTable[key] = {})).illustResourcesName = val;
-		},
-		onLoad()
-	);
-	loadTable(
-		'data/cardprefixnametable.txt',
-		'#',
-		2,
-		function (_index, key, val) {
-			(ItemTable[key] || (ItemTable[key] = {})).prefixName = val;
-		},
-		onLoad(),
-		true
-	);
-	loadTable(
-		'data/cardpostfixnametable.txt',
-		'#',
-		1,
-		function (_index, key) {
-			(ItemTable[key] || (ItemTable[key] = {})).isPostfix = true;
-		},
-		onLoad(),
-		true
-	);
-
-	// EtcMapData
-	loadTable('data/fogparametertable.txt', '#', 5, parseFogEntry, onLoad());
-	loadTable('data/indoorrswtable.txt', '#', 1, parseIndoorEntry, onLoad());
-
-	// Frost/Scream
-	loadTable(
-		'data/ba_frostjoke.txt',
-		'\t',
-		1,
-		function (_index, val) {
-			JokeTable[_index] = val;
-		},
-		onLoad(),
-		true
-	);
-	loadTable(
-		'data/dc_scream.txt',
-		'\t',
-		1,
-		function (_index, val) {
-			ScreamTable[_index] = val;
-		},
-		onLoad(),
-		true
-	);
-
-	// Tips
-	// TODO: /tipoftheday.txt
-	// TODO: /GuildTip.txt
-
-	loadXMLFile(
-		'data/pettalktable.xml',
-		function (json) {
-			PetTalkTable = json['monster_talk_table'];
-		},
-		onLoad()
-	);
-
-	if (PACKETVER.value >= 20100427) {
-		loadTable(
-			'data/buyingstoreitemlist.txt',
+			'data/cardpostfixnametable.txt',
 			'#',
 			1,
 			function (_index, key) {
-				buyingStoreItemList.push(parseInt(key, 10));
+				(ItemTable[key] || (ItemTable[key] = {})).isPostfix = true;
+			},
+			onLoad(),
+			true
+		);
+
+		// EtcMapData
+		loadTable('data/fogparametertable.txt', '#', 5, parseFogEntry, onLoad());
+		loadTable('data/indoorrswtable.txt', '#', 1, parseIndoorEntry, onLoad());
+
+		// Frost/Scream
+		loadTable(
+			'data/ba_frostjoke.txt',
+			'\t',
+			1,
+			function (_index, val) {
+				JokeTable[_index] = val;
+			},
+			onLoad(),
+			true
+		);
+		loadTable(
+			'data/dc_scream.txt',
+			'\t',
+			1,
+			function (_index, val) {
+				ScreamTable[_index] = val;
+			},
+			onLoad(),
+			true
+		);
+
+		// Tips
+		// TODO: /tipoftheday.txt
+		// TODO: /GuildTip.txt
+
+		loadXMLFile(
+			'data/pettalktable.xml',
+			function (json) {
+				PetTalkTable = json['monster_talk_table'];
 			},
 			onLoad()
 		);
+
+		if (PACKETVER.value >= 20100427) {
+			loadTable(
+				'data/buyingstoreitemlist.txt',
+				'#',
+				1,
+				function (_index, key) {
+					buyingStoreItemList.push(parseInt(key, 10));
+				},
+				onLoad()
+			);
+		}
+
+		// Reputation
+		if (PACKETVER.value >= 20220330) {
+			loadBSONFile('data/contentdata/repute/reputegroupdata.bson', ReputeGroup, function () {});
+			loadBSONFile('data/contentdata/repute/reputeinfodata.bson', ReputeInfo, function () {});
+		}
+
+		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
+		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
+
+		import('Core/AIDriver.js').then(module => {
+			module.default.initAI(onLoad());
+		});
 	}
 
-	// Reputation
-	if (PACKETVER.value >= 20220330) {
-		loadBSONFile('data/contentdata/repute/reputegroupdata.bson', ReputeGroup, function () {});
-		loadBSONFile('data/contentdata/repute/reputeinfodata.bson', ReputeInfo, function () {});
+	static getHOAI_VM() {
+		return HO_AI;
 	}
 
-	Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
-	Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
+	static getMERAI_VM() {
+		return MER_AI;
+	}
 
-	import('Core/AIDriver.js').then(module => {
-		module.default.initAI(onLoad());
-	});
-};
+	static getDefaultHOAI_VM() {
+		return default_HO_AI;
+	}
 
-DB.getHOAI_VM = function getHOAILua() {
-	return HO_AI;
-};
+	static getDefaultMERAI_VM() {
+		return default_MER_AI;
+	}
 
-DB.getMERAI_VM = function getMERAILua() {
-	return MER_AI;
-};
+	static getAllTitles() {
+		return TitleTable;
+	}
 
-DB.getDefaultHOAI_VM = function getHOAILua() {
-	return default_HO_AI;
-};
+	static getTitleString(titleID) {
+		return TitleTable[titleID] || '';
+	}
+	/**
+	 * Actor Type checks
+	 *
+	 * @param {number} jobid
+	 */
+	static isNPC(jobid) {
+		return (
+			(jobid > 45 && jobid < 130) ||
+			(jobid >= 401 && jobid < 1000) ||
+			(jobid >= 10001 && jobid < 19999) ||
+			(jobid > 22300 && jobid < 22313) ||
+			jobid == 32767 ||
+			jobid == -1
+		);
+	}
 
-DB.getDefaultMERAI_VM = function getMERAILua() {
-	return default_MER_AI;
-};
+	static isMercenary(jobid) {
+		return jobid >= 6017 && jobid <= 6046;
+	}
+
+	static isHomunculus(jobid) {
+		return (jobid >= 6001 && jobid <= 6016) || (jobid >= 6048 && jobid <= 6052);
+	}
+
+	static isMonster(jobid) {
+		return (
+			(jobid >= 1001 && jobid <= 3999) ||
+			(jobid >= 20000 && jobid < 20834) ||
+			(jobid >= 20852 && jobid < 22301) ||
+			(jobid > 22313 && jobid < 22322)
+		); // 22322 = last monster released on EP21
+	}
+
+	static isPlayer(jobid) {
+		return (jobid >= 0 && jobid < 45) || (jobid >= 4001 && jobid <= 4361) || jobid == 4294967294;
+	}
+
+	static isDoram(jobid) {
+		return (jobid >= 4217 && jobid <= 4220) || jobid === 4308 || jobid === 4315;
+	}
+
+	/**
+	 * Is character id a baby ?
+	 *
+	 * @param {number} job id
+	 * @return {boolean} is baby
+	 */
+	static isBaby(jobid) {
+		return BabyTable.indexOf(jobid) > -1;
+	}
+
+	static isMadogear(jobid) {
+		return jobid == 4086 || jobid == 4087 || jobid == 4112 || jobid == 4279;
+	}
+
+	static isElem(jobid) {
+		return (jobid >= 2114 && jobid <= 2125) || (jobid >= 20816 && jobid <= 20820);
+	}
+
+	static isAbr(jobid) {
+		return jobid >= 20834 && jobid <= 20837;
+	}
+
+	static isBionic(jobid) {
+		return jobid >= 20848 && jobid <= 20851;
+	}
+
+	static isWarp(jobid) {
+		return jobid == 45 || jobid == 139;
+	}
+
+	/**
+	 * @return {string} path to body sprite/action
+	 * @param {number} id entity
+	 * @param {boolean} sex
+	 * @param {number} alternative sprite
+	 * @return {string}
+	 */
+	static getBodyPath(id, sex, alternative = -1, cashMountCostume = false) {
+		// TODO: Warp STR file
+		if (id === 45) {
+			return null;
+		}
+
+		// Not visible sprite
+		if (id === 111 || id === 139 || id == 2337) {
+			return null;
+		}
+
+		// PC
+		if (DB.isPlayer(id)) {
+			// DORAM
+			let result = DB.isDoram(id)
+				? 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/'
+				: 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/';
+			result += SexTable[sex] + '/';
+
+			if (PACKETVER.value > 20141022 && alternative > 0 && id !== alternative) {
+				const use_costume =
+					alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END;
+
+				if (use_costume) {
+					result += 'costume_1/';
+				}
+
+				result += (cashMountCostume ? ClassTable[id] : ClassTable[alternative]) || ClassTable[0];
+
+				result += '_' + SexTable[sex];
+
+				if (use_costume) {
+					result += '_1';
+				}
+				return result;
+			}
+
+			result += ClassTable[id] || ClassTable[0];
+			result += '_' + SexTable[sex];
+
+			return result;
+		}
+
+		// NPC
+		if (DB.isNPC(id)) {
+			return 'data/sprite/npc/' + (MonsterTable[id] || MonsterTable[46]).toLowerCase();
+		}
+
+		// MERC
+		if (DB.isMercenary(id)) {
+			// archer - female path | lancer and swordman - male path
+			// mercenary entry on monster table have sex path included
+			return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' + MonsterTable[id];
+		}
+
+		// HOMUN
+		if (DB.isHomunculus(id)) {
+			return 'data/sprite/homun/' + (MonsterTable[id] || MonsterTable[1002]).toLowerCase();
+		}
+
+		//
+		// OTHER ACTORS
+		//
+		switch (id) {
+			case '11_FALCON':
+			case '4034_FALCON':
+				// 2nd
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
+			case '4012_FALCON':
+				// rebirth
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5\x32';
+			case '4056_FALCON':
+			case '4062_FALCON':
+			case '4098_FALCON':
+				// 3rd
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
+			case '4257_FALCON':
+			case '4270_FALCON':
+			case '4278_FALCON':
+				// 4th
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_hawk';
+			case '4056_WUG':
+			case '4062_WUG':
+			case '4098_WUG':
+				// 3rd
+				return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+			case '4257_WUG':
+				// 4th
+				return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_wolf';
+			default:
+				if (typeof id === 'string') {
+					// default for gm or customs
+					if (id.includes('_FALCON')) {
+						return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
+					} else if (id.includes('_WUG')) {
+						return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+					}
+				}
+				break;
+		}
+
+		// MONSTER
+		return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/' + (MonsterTable[id] || MonsterTable[1001]).toLowerCase();
+	}
+
+	/**
+	 * @return {string} path of admin clothes
+	 * @param {boolean} sex
+	 */
+	static getAdminPath(sex) {
+		return (
+			'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' +
+			SexTable[sex] +
+			'/\xbf\xee\xbf\xb5\xc0\xda_' +
+			SexTable[sex]
+		);
+	}
+
+	/**
+	 * @return {string} path to body palette
+	 * @param {number} id entity
+	 * @param {number} pal
+	 * @param {boolean} sex
+	 */
+	static getBodyPalPath(id, pal, sex) {
+		if (id === 0 || !(id in PaletteTable)) {
+			return null;
+		}
+
+		return 'data/palette/\xb8\xf6/' + PaletteTable[id] + '_' + SexTable[sex] + '_' + pal + '.pal';
+	}
+
+	/**
+	 * @return {string} path to head sprite/action
+	 * @param {number} id hair style
+	 * @param {number} job job id
+	 * @param {boolean} sex
+	 * @param {boolean} orcish
+	 */
+	static getHeadPath(id, job, sex, orcish) {
+		// ORC HEAD
+		if (orcish) {
+			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/orcface';
+		}
+
+		// DORAM
+		if (DB.isDoram(job)) {
+			return (
+				'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' +
+				SexTable[sex] +
+				'/' +
+				(HairIndexTable[sex + 2][id] || id) +
+				'_' +
+				SexTable[sex]
+			);
+		}
+
+		return (
+			'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' +
+			SexTable[sex] +
+			'/' +
+			(HairIndexTable[sex][id] || id) +
+			'_' +
+			SexTable[sex]
+		);
+	}
+
+	/**
+	 * @return {string} path to head palette
+	 * @param {number} id hair style
+	 * @param {number} pal id
+	 * @param {number} job job id
+	 * @param {boolean} sex
+	 */
+	static getHeadPalPath(id, pal, job, sex) {
+		if (job === 4218 || job === 4220) {
+			return (
+				'data/palette/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae/\xb8\xd3\xb8\xae' +
+				(HairIndexTable[sex + 2][id] || id) +
+				'_' +
+				SexTable[sex] +
+				'_' +
+				pal +
+				'.pal'
+			);
+		}
+
+		return (
+			'data/palette/\xb8\xd3\xb8\xae/\xb8\xd3\xb8\xae' +
+			(HairIndexTable[sex][id] || id) +
+			'_' +
+			SexTable[sex] +
+			'_' +
+			pal +
+			'.pal'
+		);
+	}
+
+	/**
+	 * @return {string} path to hat
+	 * @param {number} id hair style
+	 * @param {boolean} sex
+	 */
+	static getHatPath(id, sex) {
+		if (id === 0 || !(id in HatTable)) {
+			return null;
+		}
+
+		return 'data/sprite/\xbe\xc7\xbc\xbc\xbb\xe7\xb8\xae/' + SexTable[sex] + '/' + SexTable[sex] + HatTable[id];
+	}
+
+	/**
+	 * @return {string} path to Robe
+	 * @param {number} id robe id
+	 * @param {number} job class
+	 * @param {boolean} sex
+	 */
+	static getRobePath(id, job, sex) {
+		if (id === 0 || !(id in RobeTable)) {
+			return null;
+		}
+
+		return (
+			'data/sprite/\xb7\xce\xba\xea/' +
+			RobeTable[id] +
+			'/' +
+			SexTable[sex] +
+			'/' +
+			(ClassTable[job] || ClassTable[0]) +
+			'_' +
+			SexTable[sex]
+		);
+	}
+
+	/**
+	 * @return {string} Path to pets equipements
+	 * @param {number} id (pets)
+	 */
+	static getPetEquipPath(id) {
+		if (id === 0 || !(id in PetAction)) {
+			return null;
+		}
+
+		return 'data/sprite/' + PetAction[id];
+	}
+
+	/**
+	 * @return {string} Path to pets equipements
+	 * @param {number} id (pets)
+	 */
+	static getPetIllustPath(id) {
+		return 'data/texture/' + (PetIllustration[id] || PetIllustration[1002]);
+	}
+
+	/**
+	 * is shield checking
+	 *
+	 * @param {integer} id
+	 * @return {boolean} is shield?
+	 *
+	 * @author MrUnzO
+	 */
+	static isShield(id) {
+		// shields has the following ranges:
+		// 2100 - 2199
+		// 28900 - 28999
+		// 460000 - 460099
+		if ((id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099)) {
+			return true;
+		}
+		return false;
+	}
+
+	static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
+		if (isDualWeapon) {
+			switch (job) {
+				case JobId.THIEF:
+				case JobId.THIEF_H:
+					return 5.75;
+				case JobId.MERCHANT:
+				case JobId.MERCHANT_H:
+					return 5.85;
+			}
+		} else {
+			switch (job) {
+				case JobId.NOVICE:
+				case JobId.NOVICE_H:
+				case JobId.NOVICE_B:
+				case JobId.SUPERNOVICE:
+				case JobId.SUPERNOVICE_B:
+				case JobId.SUPERNOVICE2:
+				case JobId.SUPERNOVICE2_B:
+				case JobId.HYPER_NOVICE:
+					switch (sex) {
+						case 1:
+							return 5.85;
+					}
+					break;
+				case JobId.ASSASSIN:
+				case JobId.ASSASSIN_H:
+				case JobId.ASSASSIN_B:
+				case JobId.GUILLOTINE_CROSS:
+				case JobId.GUILLOTINE_CROSS_H:
+				case JobId.GUILLOTINE_CROSS_B:
+				case JobId.SHADOW_CROSS:
+					switch (DB.getWeaponType(itemID)) {
+						case WeaponType.KATAR:
+						case WeaponType.SHORTSWORD_SHORTSWORD:
+						case WeaponType.SWORD_SWORD:
+						case WeaponType.AXE_AXE:
+						case WeaponType.SHORTSWORD_SWORD:
+						case WeaponType.SHORTSWORD_AXE:
+						case WeaponType.SWORD_AXE:
+							return 3.0;
+					}
+					break;
+			}
+		}
+		return 6;
+	}
+
+	static isDualWeapon(job, sex, weaponType) {
+		let dualWeapon = false;
+
+		switch (job) {
+			case JobId.GUNSLINGER:
+			case JobId.GUNSLINGER_B:
+			case JobId.REBELLION:
+			case JobId.REBELLION_B:
+			case JobId.NIGHT_WATCH: {
+				switch (weaponType) {
+					case WeaponType.GUN_RIFLE:
+					case WeaponType.GUN_GATLING:
+					case WeaponType.GUN_SHOTGUN:
+					case WeaponType.GUN_GRANADE:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.NINJA:
+			case JobId.NINJA_B:
+			case JobId.KAGEROU:
+			case JobId.KAGEROU_B:
+			case JobId.SHINKIRO:
+			case JobId.OBORO:
+			case JobId.OBORO_B:
+			case JobId.SHIRANUI: {
+				switch (weaponType) {
+					case WeaponType.SYURIKEN:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.GANGSI:
+			case JobId.DEATHKNIGHT:
+			case JobId.COLLECTOR: {
+				// �ӽ�
+				break;
+			}
+			case JobId.TAEKWON:
+			case JobId.TAEKWON_B:
+			case JobId.STAR:
+			case JobId.STAR_B:
+			case JobId.STAR2:
+			case JobId.STAR2_B:
+			case JobId.EMPEROR:
+			case JobId.EMPEROR_B:
+			case JobId.EMPEROR2:
+			case JobId.EMPEROR2_B:
+			case JobId.SKY_EMPEROR:
+			case JobId.SKY_EMPEROR2: {
+				break;
+			}
+			case JobId.LINKER:
+			case JobId.LINKER_B:
+			case JobId.REAPER:
+			case JobId.REAPER_B:
+			case JobId.SOUL_ASCETIC: {
+				//case JobId.SOUL_ASCETIC2:??
+				switch (weaponType) {
+					case WeaponType.SHORTSWORD:
+						if (sex == 1) {
+							dualWeapon = true;
+						} // male
+						break;
+					case WeaponType.ROD:
+					case WeaponType.TWOHANDROD:
+						if (sex == 0) {
+							dualWeapon = true;
+						} // Female
+						break;
+				}
+				break;
+			}
+			case JobId.SWORDMAN:
+			case JobId.SWORDMAN_H:
+			case JobId.SWORDMAN_B: {
+				switch (weaponType) {
+					case WeaponType.TWOHANDSWORD:
+					case WeaponType.TWOHANDSPEAR:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.ARCHER:
+			case JobId.ARCHER_H:
+			case JobId.ARCHER_B: {
+				switch (weaponType) {
+					case WeaponType.BOW:
+						break;
+					default:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.THIEF:
+			case JobId.THIEF_H:
+			case JobId.THIEF_B: {
+				switch (weaponType) {
+					case WeaponType.BOW:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.MAGICIAN:
+			case JobId.MAGICIAN_H:
+			case JobId.MAGICIAN_B: {
+				switch (weaponType) {
+					case WeaponType.TWOHANDROD:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.MERCHANT:
+			case JobId.MERCHANT_H:
+			case JobId.MERCHANT_B: {
+				switch (weaponType) {
+					case WeaponType.TWOHANDAXE:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.ACOLYTE:
+			case JobId.ACOLYTE_H:
+			case JobId.ACOLYTE_B: {
+				break;
+			}
+			case JobId.NOVICE:
+			case JobId.NOVICE_H:
+			case JobId.NOVICE_B:
+			case JobId.SUPERNOVICE:
+			case JobId.SUPERNOVICE_B:
+			case JobId.SUPERNOVICE2:
+			case JobId.SUPERNOVICE2_B:
+			case JobId.HYPER_NOVICE: {
+				switch (sex) {
+					case 0:
+						switch (weaponType) {
+							case WeaponType.TWOHANDSWORD:
+							case WeaponType.TWOHANDAXE:
+							case WeaponType.TWOHANDROD:
+							case WeaponType.TWOHANDMACE:
+								break;
+							case WeaponType.SHORTSWORD:
+								dualWeapon = true;
+								break;
+						}
+						break;
+					case 1:
+						switch (weaponType) {
+							case WeaponType.TWOHANDSWORD:
+							case WeaponType.TWOHANDAXE:
+							case WeaponType.TWOHANDROD:
+							case WeaponType.TWOHANDMACE:
+								dualWeapon = true;
+								break;
+							case WeaponType.SHORTSWORD:
+								break;
+						}
+						break;
+				}
+				break;
+			}
+			case JobId.KNIGHT:
+			case JobId.KNIGHT2:
+			case JobId.CHICKEN:
+			case JobId.KNIGHT_H:
+			case JobId.CHICKEN_H:
+			case JobId.KNIGHT_B:
+			case JobId.CHICKEN_B:
+			case JobId.KNIGHT2_H:
+			case JobId.KNIGHT2_B:
+			case JobId.RUNE_KNIGHT:
+			case JobId.RUNE_KNIGHT_H:
+			case JobId.RUNE_KNIGHT_B:
+			case JobId.RUNE_KNIGHT2:
+			case JobId.RUNE_KNIGHT2_H:
+			case JobId.RUNE_KNIGHT2_B:
+			case JobId.DRAGON_KNIGHT:
+			case JobId.DRAGON_KNIGHT2: {
+				switch (weaponType) {
+					case WeaponType.TWOHANDSPEAR:
+					case WeaponAction.TWOHANDSWORD:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.PRIEST:
+			case JobId.PRIEST_H:
+			case JobId.PRIEST_B:
+			case JobId.ARCHBISHOP:
+			case JobId.ARCHBISHOP_H:
+			case JobId.ARCHBISHOP_B:
+			case JobId.CARDINAL: {
+				switch (weaponType) {
+					case WeaponType.BOOK:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.WIZARD:
+			case JobId.WIZARD_H:
+			case JobId.WIZARD_B:
+			case JobId.WARLOCK:
+			case JobId.WARLOCK_H:
+			case JobId.WARLOCK_B:
+			case JobId.ARCH_MAGE: {
+				switch (weaponType) {
+					case WeaponType.SHORTSWORD:
+						if (sex == 1) {
+							dualWeapon = true;
+						}
+						break;
+					case WeaponType.ROD:
+					case WeaponType.TWOHANDROD:
+						if (sex == 0) {
+							dualWeapon = true;
+						}
+						break;
+				}
+				break;
+			}
+			case JobId.BLACKSMITH:
+			case JobId.BLACKSMITH_H:
+			case JobId.BLACKSMITH_B:
+			case JobId.MECHANIC:
+			case JobId.MECHANIC_H:
+			case JobId.MECHANIC_B:
+			case JobId.MECHANIC2:
+			case JobId.MECHANIC2_H:
+			case JobId.MECHANIC2_B:
+			case JobId.MEISTER:
+			case JobId.MEISTER2: {
+				switch (weaponType) {
+					case WeaponType.SWORD:
+					case WeaponType.AXE:
+					case WeaponType.TWOHANDAXE:
+					case WeaponType.MACE:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.ASSASSIN:
+			case JobId.ASSASSIN_H:
+			case JobId.ASSASSIN_B:
+			case JobId.GUILLOTINE_CROSS:
+			case JobId.GUILLOTINE_CROSS_H:
+			case JobId.GUILLOTINE_CROSS_B:
+			case JobId.SHADOW_CROSS: {
+				switch (weaponType) {
+					case WeaponType.KATAR:
+					case WeaponType.SHORTSWORD_SHORTSWORD:
+					case WeaponType.SHORTSWORD_SWORD:
+					case WeaponType.SHORTSWORD_AXE:
+					case WeaponType.SWORD_SWORD:
+					case WeaponType.SWORD_AXE:
+					case WeaponType.AXE_AXE:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.HUNTER:
+			case JobId.HUNTER_H:
+			case JobId.HUNTER_B:
+			case JobId.RANGER:
+			case JobId.RANGER_H:
+			case JobId.RANGER_B:
+			case JobId.RANGER2:
+			case JobId.RANGER2_H:
+			case JobId.RANGER2_B:
+			case JobId.WINDHAWK:
+			case JobId.WINDHAWK2: {
+				switch (weaponType) {
+					case WeaponType.BOW:
+						dualWeapon = true;
+						break;
+				}
+				break;
+			}
+			case JobId.SAGE:
+			case JobId.SAGE_H:
+			case JobId.SAGE_B:
+			case JobId.SORCERER:
+			case JobId.SORCERER_H:
+			case JobId.SORCERER_B:
+			case JobId.ELEMENTAL_MASTER:
+				{
+					switch (weaponType) {
+						case WeaponType.BOOK:
+						case WeaponType.ROD:
+						case WeaponType.TWOHANDROD:
+						case WeaponType.TWOHANDSPEAR: // ��ս������� ���� ���̵� ����� �����Ǹ� �����.
+							dualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.ALCHEMIST:
+			case JobId.ALCHEMIST_H:
+			case JobId.ALCHEMIST_B:
+			case JobId.GENETIC:
+			case JobId.GENETIC_H:
+			case JobId.GENETIC_B:
+			case JobId.BIOLO:
+				{
+					switch (weaponType) {
+						case WeaponType.SWORD:
+						case WeaponType.AXE:
+						case WeaponType.TWOHANDAXE:
+						case WeaponType.MACE:
+							dualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.CRUSADER:
+			case JobId.CRUSADER_H:
+			case JobId.CRUSADER_B:
+			case JobId.CHICKEN2:
+			case JobId.CHICKEN2_H:
+			case JobId.CHICKEN2_B:
+			case JobId.CRUSADER2:
+			case JobId.CRUSADER2_H:
+			case JobId.CRUSADER2_B:
+			case JobId.ROYAL_GUARD:
+			case JobId.ROYAL_GUARD_H:
+			case JobId.ROYAL_GUARD_B:
+			case JobId.ROYAL_GUARD2:
+			case JobId.ROYAL_GUARD2_H:
+			case JobId.ROYAL_GUARD2_B:
+			case JobId.IMPERIAL_GUARD:
+			case JobId.IMPERIAL_GUARD2:
+				{
+					switch (weaponType) {
+						case WeaponType.SPEAR:
+						case WeaponType.TWOHANDSPEAR:
+							dualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.MONK:
+			case JobId.MONK_H:
+			case JobId.MONK_B:
+			case JobId.SURA:
+			case JobId.SURA_H:
+			case JobId.SURA_B:
+			case JobId.INQUISITOR:
+				{
+					switch (weaponType) {
+						case WeaponType.KNUKLE:
+						case WeaponType.NONE:
+							dualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.ROGUE:
+			case JobId.ROGUE_H:
+			case JobId.ROGUE_B:
+			case JobId.SHADOW_CHASER:
+			case JobId.SHADOW_CHASER_H:
+			case JobId.SHADOW_CHASER_B:
+			case JobId.ABYSS_CHASER:
+				{
+					switch (weaponType) {
+						case WeaponType.BOW:
+							dualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.BARD:
+			case JobId.BARD_H:
+			case JobId.BARD_B:
+			case JobId.MINSTREL:
+			case JobId.MINSTREL_H:
+			case JobId.MINSTREL_B:
+			case JobId.TROUBADOUR:
+			case JobId.DANCER:
+			case JobId.DANCER_H:
+			case JobId.DANCER_B:
+			case JobId.WANDERER:
+			case JobId.WANDERER_H:
+			case JobId.WANDERER_B:
+			case JobId.TROUVERE:
+				{
+					switch (weaponType) {
+						case WeaponType.BOW:
+							dualWeapon = true;
+							break;
+					}
+				}
+				break;
+			case JobId.DO_SUMMONER1:
+			case JobId.DO_SUMMONER_B1:
+			case JobId.SPIRIT_HANDLER:
+				break;
+		}
+		return dualWeapon;
+	}
+
+	static getWeaponType(itemID, realType = false, considerDualHandIds = false) {
+		const id = Number(itemID);
+
+		if (isNaN(id) || id < 0) {
+			return WeaponType.NONE;
+		}
+
+		if (realType && id in WeaponTypeExpansion) {
+			return WeaponTypeExpansion[id];
+		}
+
+		if (considerDualHandIds && id <= WeaponType.SWORD_AXE) {
+			return id;
+		}
+
+		// if itemID is lesser then WeaponType.MAX, return the itemID
+		if (id < WeaponType.MAX) {
+			return id;
+		}
+
+		// look for classnum in ItemTable
+		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
+			const classNum = ItemTable[id].ClassNum;
+
+			// look for classNum in WeaponTypeExpansion
+			if (classNum in WeaponTypeExpansion) {
+				return WeaponTypeExpansion[classNum];
+			}
+
+			// ClassNUm is the real weapon type
+			return classNum;
+		} else {
+			// if itemID is not in ItemTable, try to find the corresponding weapon type based on the range id
+			const ranges = [
+				{ min: 1100, max: 1149, type: WeaponType.SWORD },
+				{ min: 1150, max: 1199, type: WeaponType.TWOHANDSWORD },
+				{ min: 1200, max: 1249, type: WeaponType.SHORTSWORD },
+				{ min: 1250, max: 1299, type: WeaponType.KATAR },
+				{ min: 1300, max: 1349, type: WeaponType.AXE },
+				{ min: 1350, max: 1399, type: WeaponType.TWOHANDAXE },
+				{ min: 1400, max: 1449, type: WeaponType.SPEAR },
+				{ min: 1450, max: 1499, type: WeaponType.TWOHANDSPEAR },
+				{ min: 1500, max: 1549, type: WeaponType.MACE },
+				{ min: 1550, max: 1599, type: WeaponType.BOOK },
+				{ min: 1600, max: 1699, type: WeaponType.ROD },
+				{ min: 1700, max: 1749, type: WeaponType.BOW },
+				{ min: 1750, max: 1799, type: WeaponType.NONE },
+				{ min: 1800, max: 1849, type: WeaponType.KNUKLE },
+				{ min: 1900, max: 1949, type: WeaponType.INSTRUMENT },
+				{ min: 1950, max: 1999, type: WeaponType.WHIP },
+				{ min: 20000, max: 20999, type: WeaponType.TWOHANDROD },
+				{ min: 13000, max: 13099, type: WeaponType.SHORTSWORD },
+				{ min: 13100, max: 13149, type: WeaponType.GUN_HANDGUN },
+				{ min: 13150, max: 13199, type: WeaponType.GUN_RIFLE },
+				{ min: 13300, max: 13399, type: WeaponType.SYURIKEN },
+				{ min: 13400, max: 13499, type: WeaponType.SWORD },
+				{ min: 18100, max: 18499, type: WeaponType.BOW },
+				{ min: 21000, max: 21999, type: WeaponType.TWOHANDSWORD }
+			];
+
+			// Find the corresponding range
+			for (const range of ranges) {
+				if (id >= range.min && id <= range.max) {
+					return range.type;
+				}
+			}
+
+			const gunGatling = [13157, 13158, 13159, 13172, 13177];
+			if (gunGatling.indexOf(id) > -1) {
+				return WeaponType.GUN_GATLING;
+			}
+
+			const gunShotGun = [13154, 13155, 13156, 13167, 13168, 13169, 13173, 13178];
+			if (gunShotGun.indexOf(id) > -1) {
+				return WeaponType.GUN_SHOTGUN;
+			}
+
+			const gunGranade = [13160, 13161, 13162, 13174, 13179];
+			if (gunGranade.indexOf(id) > -1) {
+				return WeaponType.GUN_GRANADE;
+			}
+		}
+
+		// if itemID is not in any range, return NONE
+		return WeaponType.NONE;
+	}
+
+	/**
+	 * @return {string} Path to shield
+	 * @param {number} id shield
+	 * @param {number} job class
+	 * @param {boolean} sex
+	 */
+	static getShieldPath(id, job, sex) {
+		if (id === 0) {
+			return null;
+		}
+
+		// Dual weapon (based on range id)
+		if (!DB.isShield(id)) {
+			return DB.getWeaponPath(id, job, sex);
+		}
+
+		const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
+
+		// ItemID to View Id
+		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
+			id = ItemTable[id].ClassNum;
+		}
+
+		return (
+			'data/sprite/\xb9\xe6\xc6\xd0/' +
+			baseClass +
+			'/' +
+			baseClass +
+			'_' +
+			SexTable[sex] +
+			'_' +
+			(ShieldTable[id] || ShieldTable[1])
+		);
+	}
+
+	/**
+	 * @return {string} Path to weapon
+	 * @param {number} id weapon
+	 * @param {number} job class
+	 * @param {boolean} sex
+	 */
+	static getWeaponPath(id, job, sex, leftid = false) {
+		if (id === 0) {
+			return null;
+		}
+
+		const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
+
+		id = DB.getWeaponType(id);
+
+		// TODO: CHECK IF THIS IS CORRECT
+		if (leftid) {
+			if (leftid in ItemTable && 'ClassNum' in ItemTable[leftid]) {
+				leftid = ItemTable[leftid].ClassNum;
+			}
+
+			// Create dualhand Id
+			const right = Object.keys(WeaponType).find(key => WeaponType[key] === id);
+			const left = Object.keys(WeaponType).find(key => WeaponType[key] === leftid);
+			if (right && left) {
+				id = WeaponType[right + '_' + left];
+			}
+		}
+
+		return (
+			'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' +
+			baseClass +
+			'/' +
+			baseClass +
+			'_' +
+			SexTable[sex] +
+			(WeaponTable[id] || '_' + id)
+		);
+	}
+
+	/**
+	 * @return {string} Path to weapon trail
+	 * @param {number} id weapon
+	 * @param {number} job class
+	 * @param {boolean} sex
+	 */
+	static getWeaponTrail(id, job, sex) {
+		if (id === 0) {
+			return null;
+		}
+
+		const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
+
+		const realId = DB.getWeaponType(id, true, true);
+
+		return (
+			'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' +
+			baseClass +
+			'/' +
+			baseClass +
+			'_' +
+			SexTable[sex] +
+			WeaponTrailTable[realId]
+		);
+	}
+
+	/**
+	 * @param {number} cart id
+	 */
+	static getCartPath(num) {
+		const id = Math.max(Math.min(num, 13), 0); //cap 0-13
+		return [
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbd\xb4\xb3\xeb\xbc\xd5\xbc\xf6\xb7\xb9',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb9',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb91',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb92',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb93',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb94',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb95',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb96',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb97',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb98',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xb1\xb9\xb0\xbb\xf3\xc0\xda\xc4\xab\xc6\xae',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xc6\xf7\xb8\xb5\xbd\xc6\xc0\xba\xc4\xab\xc6\xae',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xc6\xf7\xb8\xb5\xc4\xab\xc6\xae',
+			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xb6\xb5\xb5\xc4\xab\xc6\xae'
+		][id];
+	}
+
+	/**
+	 * @return {string} Path to weapon sound
+	 * @param {number} weapon id
+	 */
+	static getWeaponSound(id) {
+		const type = DB.getWeaponType(id, true);
+		return WeaponSoundTable[type];
+	}
+
+	/**
+	 * @return {string} Path to eapon sound
+	 * @param {number} weapon id
+	 */
+	static getWeaponHitSound(id) {
+		const type = DB.getWeaponType(id, true, true);
+
+		const hitSound = WeaponHitSoundTable[type];
+
+		// if array return random item
+		if (Array.isArray(hitSound)) {
+			return hitSound[Math.floor(Math.random() * hitSound.length)];
+		}
+
+		return hitSound;
+	}
+
+	/**
+	 * @return {string} Path to eapon sound [MrUnzO]
+	 * @param {number} weapon id
+	 */
+	static getJobHitSound(job_id) {
+		if (!job_id) {
+			return JobHitSoundTable[0];
+		}
+
+		return JobHitSoundTable[job_id] || JobHitSoundTable[0];
+	}
+
+	/**
+	 * @return {number} weapon viewid
+	 * @param {number} id weapon
+	 */
+	static getWeaponViewID(id) {
+		// validate if is number
+		if (isNaN(id)) {
+			return 0;
+		}
+
+		// if id is 0, return 0
+		if (id === 0) {
+			return 0;
+		}
+
+		// if less then weapon type.MAX, return the id
+		if (id < WeaponType.MAX) {
+			return id;
+		}
+
+		// try to get view from classnum in ItemTable
+		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
+			return ItemTable[id].ClassNum;
+		}
+
+		// all cases failed, return weapon type to use base sprite
+		return DB.getWeaponType(id);
+	}
+
+	/**
+	 * @return {number} weapon action frame
+	 * @param {number} id weapon
+	 * @param {number} job
+	 * @param {number} sex
+	 */
+	static getWeaponAction(id, job, sex) {
+		const type = DB.getWeaponType(id, true);
+
+		if (job in WeaponAction) {
+			if (WeaponAction[job] instanceof Array) {
+				if (type in WeaponAction[job][sex]) {
+					return WeaponAction[job][sex][type];
+				}
+			} else if (type in WeaponAction[job]) {
+				return WeaponAction[job][type];
+			}
+		}
+
+		return 0;
+	}
+
+	static mountWeapon(weaponID, shieldID) {
+		const _weapon = DB.getWeaponType(weaponID, true);
+		const _shield = DB.getWeaponType(shieldID, true);
+
+		let weapon;
+
+		const viewId = _weapon + _shield;
+
+		switch (viewId) {
+			case 2:
+				weapon = WeaponType.SHORTSWORD_SHORTSWORD;
+				break;
+			case 3:
+				weapon = WeaponType.SHORTSWORD_SWORD;
+				break;
+			case 4:
+				weapon = WeaponType.SWORD_SWORD;
+				break;
+			case 7:
+				weapon = WeaponType.SHORTSWORD_AXE;
+				break;
+			case 8:
+				weapon = WeaponType.SWORD_AXE;
+				break;
+			case 12:
+				weapon = WeaponType.AXE_AXE;
+				break;
+			default:
+				weapon = viewId;
+				break;
+		}
+
+		return weapon;
+	}
+
+	static isBow(weaponType) {
+		return (
+			weaponType == WeaponType.BOW ||
+			weaponType == WeaponType.CrossBow ||
+			weaponType == WeaponType.Arbalest ||
+			weaponType == WeaponType.Kakkung ||
+			weaponType == WeaponType.Hunter_Bow ||
+			weaponType == WeaponType.Bow_Of_Rudra
+		);
+	}
+
+	static isKatar(weaponType) {
+		return weaponType == WeaponType.KATAR;
+	}
+
+	static isAssassin(jobID) {
+		return (
+			jobID == JobId.ASSASSIN ||
+			jobID == JobId.ASSASSIN_H ||
+			jobID == JobId.ASSASSIN_B ||
+			jobID == JobId.GUILLOTINE_CROSS ||
+			jobID == JobId.GUILLOTINE_CROSS_H ||
+			jobID == JobId.GUILLOTINE_CROSS_B ||
+			jobID == JobId.SHADOW_CROSS
+		);
+	}
+
+	/**
+	 * Get back informations from id
+	 *
+	 * @param {number} item id
+	 * @return {object} item
+	 */
+	static getItemInfo(itemid) {
+		const item = ItemTable[itemid] || unknownItem;
+
+		if (!item._decoded) {
+			item.identifiedDescriptionName =
+				item.identifiedDescriptionName instanceof Array
+					? item.identifiedDescriptionName.join('\n')
+					: item.identifiedDescriptionName;
+			item.unidentifiedDescriptionName =
+				item.unidentifiedDescriptionName instanceof Array
+					? item.unidentifiedDescriptionName.join('\n')
+					: item.unidentifiedDescriptionName;
+			item.prefixName = TextEncoding.decodeString(item.prefixName || '');
+			item.isPostfix = item.isPostfix || false;
+			item.processitemlist =
+				item.processitemlist && item.processitemlist instanceof Array
+					? TextEncoding.decodeString(item.processitemlist.join('\n'))
+					: '';
+			item._decoded = true;
+		}
+
+		return item;
+	}
+
+	/**
+	 * Get back item path
+	 *
+	 * @param {number} item id
+	 * @param {boolean} is identify
+	 * @return {string} path
+	 */
+	static getItemPath(itemid, identify) {
+		const it = DB.getItemInfo(itemid);
+		return (
+			'data/sprite/\xbe\xc6\xc0\xcc\xc5\xdb/' +
+			(identify ? it.identifiedResourceName : it.unidentifiedResourceName)
+		);
+	}
+
+	/**
+	 * Get full item name
+	 *
+	 * @param {object} item - The item object containing details about the item.
+	 * @param {object} [options] - Optional parameters to customize the output.
+	 * @param {boolean} [options.showItemRefine=true] - Whether to show the refining level of the item.
+	 * @param {boolean} [options.showItemGrade=true] - Whether to show the grade of the item.
+	 * @param {boolean} [options.showItemSlots=true] - Whether to show the number of slots on the item.
+	 * @param {boolean} [options.showItemPrefix=true] - Whether to show the prefix of the item.
+	 * @param {boolean} [options.showItemPostfix=true] - Whether to show the postfix of the item.
+	 * @param {boolean} [options.showItemOptions=true] - Whether to show the number of options on the item.
+	 * @return {string} - The full name of the item with all applicable details.
+	 */
+	static getItemName(item, options = {}) {
+		const {
+			showItemRefine = true,
+			showItemGrade = true,
+			showItemSlots = true,
+			showItemPrefix = true,
+			showItemPostfix = true,
+			showItemOptions = true
+		} = options;
+
+		const it = DB.getItemInfo(item.ITID);
+		let str = '';
+		let prefix = '';
+		let postfix = '';
+		let showprefix = false;
+		let showpostfix = false;
+
+		if (!item.IsIdentified) {
+			return it.unidentifiedDisplayName;
+		}
+
+		if (item.RefiningLevel && showItemRefine) {
+			str = '+' + item.RefiningLevel + ' ';
+		}
+
+		if (item.enchantgrade && showItemGrade) {
+			const list = ['', 'D', 'C', 'B', 'A'];
+			str += '[' + list[item.enchantgrade] + '] ';
+		}
+
+		//Hide slots for forged weapons
+		let showslots = true;
+		if (item.slot) {
+			let very = '';
+			let name = '';
+			let elem = '';
+
+			switch (item.slot.card1) {
+				case 0x00ff: {
+					// FORGE
+					showslots = false;
+					if (item.slot.card2 >= 3840) {
+						very = MsgStringTable[461]; //Very Very Very Strong
+					} else if (item.slot.card2 >= 2560) {
+						very = MsgStringTable[460]; //Very Very Strong
+					} else if (item.slot.card2 >= 1024) {
+						very = MsgStringTable[459]; //Very Strong
+					}
+					switch (Math.abs(item.slot.card2 % 10)) {
+						case 1:
+							elem = MsgStringTable[452];
+							break; // 's Ice
+						case 2:
+							elem = MsgStringTable[454];
+							break; // 's Earth
+						case 3:
+							elem = MsgStringTable[451];
+							break; // 's Fire
+						case 4:
+							elem = MsgStringTable[453];
+							break; // 's Wind
+						default:
+							elem = MsgStringTable[450];
+							break; // 's
+					}
+
+					const GID = (item.slot.card4 << 16) + item.slot.card3;
+					name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
+					if (DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
+						name = '<font color="#87cefa" class="owner-' + GID + '">' + DB.CNameTable[GID] + '</font>';
+					} else {
+						DB.UpdateOwnerName[GID] = function (pkt) {
+							delete DB.UpdateOwnerName[pkt.GID];
+							setTimeout(() => {
+								const elements = document.querySelectorAll('.owner-' + pkt.GID);
+								for (let i = 0; i < elements.length; i++) {
+									elements[i].innerText = pkt.CName;
+									elements[i].style.color = 'blue';
+								}
+							}, 1000);
+						};
+						DB.getNameByGID(GID);
+					}
+
+					str += very + ' ' + name + elem + ' ';
+					break;
+				}
+				case 0x00fe: // CREATE
+					elem = MsgStringTable[450];
+					break;
+				case 0xff00: // PET
+					break;
+				// Show card prefix
+				default: {
+					const list = ['', 'Double ', 'Triple ', 'Quadruple '];
+					const cards = {};
+					const cardList = [];
+
+					for (let i = 1; i <= 4; ++i) {
+						const card = item.slot['card' + i];
+
+						if (card) {
+							//store order
+							if (!cardList.includes(card)) {
+								cardList.push(card);
+							}
+
+							//store details
+							if (cards[card]) {
+								cards[card].count++;
+							} else {
+								cards[card] = {};
+								cards[card].isPostfix = DB.getItemInfo(card).isPostfix;
+								cards[card].prefixName = DB.getItemInfo(card).prefixName;
+								cards[card].count = 0;
+							}
+						}
+					}
+
+					//create prefixes and postfixes in order
+					cardList.forEach(card => {
+						if (cards[card].isPostfix) {
+							postfix += ' ' + list[cards[card].count] + cards[card].prefixName;
+							showpostfix = true;
+						} else {
+							prefix += list[cards[card].count] + cards[card].prefixName + ' ';
+							showprefix = true;
+						}
+					});
+					break;
+				}
+			}
+			switch (item.slot.card4) {
+				case 0x1: //BELOVED PET
+					showslots = false;
+					str = DB.getMessage(756) + ' ' + str;
+					break;
+			}
+		}
+
+		if (showprefix && showItemPrefix) {
+			str += prefix;
+		}
+
+		str += it.identifiedDisplayName;
+
+		if (showpostfix && showItemPostfix) {
+			str += postfix;
+		}
+
+		if (it.slotCount > 0 && showslots && showItemSlots) {
+			str += ' [' + it.slotCount + ']';
+		}
+
+		if (item.Options && showItemOptions) {
+			const numOfOptions = item.Options.filter(Option => Option?.index && Option?.index !== 0).length;
+			if (numOfOptions) {
+				str += ' [' + numOfOptions + ' Option]';
+			}
+		}
+
+		return str;
+	}
+
+	/**
+	 * Get random option name
+	 *
+	 * @param {integer} id
+	 * @return {string} item full name
+	 */
+	static getOptionName(id) {
+		if (!(id in RandomOption)) {
+			return 'UNKNOWN RANDOM OPTION';
+		}
+		return RandomOption[id];
+	}
+	/**
+	 * Get a message from msgstringtable
+	 *
+	 * @param {number} message id
+	 * @param {string} optional string to show if the text isn't defined
+	 * @return {string} message
+	 */
+	static getMessage(id, defaultText) {
+		if (!(id in MsgStringTable)) {
+			return defaultText !== undefined ? defaultText : 'NO MSG ' + id;
+		}
+
+		return MsgStringTable[id];
+	}
+
+	/**
+	 * Get a message string from the MsgEmotionCSV
+	 *
+	 * @param {string} key - The key to search for
+	 * @return {string|null} - The value associated with the given key, or null if not found.
+	 */
+	static getMessageEmotionCSV(keyOrIndex) {
+		if (typeof keyOrIndex === 'number') {
+			// Get keys as array just for this lookup
+			const keys = Object.keys(MsgEmotionCSV);
+			const key = keys[keyOrIndex];
+			return key ? MsgEmotionCSV[key] : null;
+		}
+		// string key lookup
+		return MsgEmotionCSV[keyOrIndex] ?? null;
+	}
+
+	/**
+	 * Get Skill Description from DB
+	 *
+	 * @param {number} skill id
+	 */
+	static getSkillDescription(id) {
+		return SkillDescription[id] || '...';
+	}
+
+	/**
+	 * @param {string} filename
+	 * @return {object}
+	 */
+	static getMap(mapname) {
+		const map = mapname.replace('.gat', '.rsw');
+
+		return MapTable[map] || null;
+	}
+
+	/**
+	 * Get a message from msgstringtable
+	 *
+	 * @param {string} mapname
+	 * @param {string} default name if not found
+	 * @return {string} map location
+	 */
+	static getMapName(mapname, defaultName) {
+		if (!mapname) {
+			return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
+		}
+		const map = mapname.replace('.gat', '.rsw');
+
+		if (!(map in MapTable) || !MapTable[map].name) {
+			return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
+		}
+
+		return MapTable[map].name;
+	}
+
+	/**
+	 * Get monster name
+	 *
+	 * @param {number} job id
+	 */
+	static getMonsterName(job) {
+		return MonsterNameTable[job] ?? 'Unknown';
+	}
+
+	/**
+	 * Get back town information by mapname
+	 * @param {number} efst id
+	 */
+	static getTownInfo(mapname) {
+		return TownInfo[mapname] || null;
+	}
+
+	/**
+	 * Get back map information by mapname
+	 * @param {number} efst id
+	 */
+	static getMapInfo(mapname) {
+		return MapInfo[mapname] || null;
+	}
+
+	/**
+	 * Get the whole Laphine Synthesis Table
+	 * @returns LaphineSysTable
+	 */
+	static getLaphineSysList() {
+		return LaphineSysTable;
+	}
+
+	/**
+	 * Get Laphine Synthesis information by itemId
+	 * @param {number} itemId
+	 * @returns LaphineSysTable[key] if itemId found
+	 */
+	static getLaphineSysInfoById(itemId) {
+		for (const key in LaphineSysTable) {
+			if (LaphineSysTable[key].ItemID === itemId) {
+				return LaphineSysTable[key];
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves the Laphine Upgrade Table.
+	 *
+	 * @return {Object} The Laphine Upgrade Table.
+	 */
+	static getLaphineUpgList() {
+		return LaphineUpgTable;
+	}
+
+	/**
+	 * Retrieves the Laphine Upgrade information by the given item ID.
+	 *
+	 * @param {number} itemId - The ID of the item to search for.
+	 * @return {Object|null} The Laphine Upgrade information if found, or null if not found.
+	 */
+	static getLaphineUpgInfoById(itemId) {
+		for (const key in LaphineUpgTable) {
+			if (LaphineUpgTable[key].ItemID === itemId) {
+				return LaphineUpgTable[key];
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves the Enchant group info by the given group ID.
+	 *
+	 * @param {number} groupId - The Enchant group ID.
+	 * @return {Object|null} The Enchant group info if found, or null.
+	 */
+	static getEnchantGroup(groupId) {
+		return EnchantListTable[groupId] || null;
+	}
+
+	/**
+	 * Retrieves all Enchant groups.
+	 *
+	 * @return {Object} Enchant group table.
+	 */
+	static getEnchantGroups() {
+		return EnchantListTable;
+	}
+
+	/**
+	 * Retrieves Enchant slot info by group and slot.
+	 *
+	 * @param {number} groupId - The Enchant group ID.
+	 * @param {number} slotNum - Slot index.
+	 * @return {Object|null} Enchant slot info if found.
+	 */
+	static getEnchantSlot(groupId, slotNum) {
+		const group = EnchantListTable[groupId];
+		if (!group || !group.slots) {
+			return null;
+		}
+		return group.slots[slotNum] || null;
+	}
+
+	/**
+	 * Returns the item ID associated with a given base item.
+	 *
+	 * @param {string} baseItem - The base item to get the ID for.
+	 * @return {number} The item ID associated with the base item.
+	 */
+	static getItemIdfromBase(baseItem) {
+		return ItemDBNameTbl[baseItem];
+	}
+
+	/**
+	 * Retrieves the base item associated with a given item ID.
+	 *
+	 * @param {number} itemId - The ID of the item to search for.
+	 * @return {string|null} The base item associated with the item ID, or null if not found.
+	 */
+	static getBasefromItemID(itemId) {
+		for (const key in ItemDBNameTbl) {
+			if (ItemDBNameTbl[key] === itemId) {
+				return key;
+			}
+		}
+		return null; // Return null if not found
+	}
+
+	/**
+	 * Finds the reform list associated with a given item ID.
+	 *
+	 * @param {number} itemId - The ID of the item to search for.
+	 * @return {Object|null} The reform list associated with the item ID, or null if not found.
+	 */
+	static findReformListByItemID(itemId) {
+		// First, get the base item from the item ID
+		const baseItem = DB.getBasefromItemID(itemId);
+
+		// Check if the base item was found and if it exists as a key in ReformItemList
+		if (baseItem && ItemReformTable.ReformItemList.hasOwnProperty(baseItem)) {
+			return ItemReformTable.ReformItemList[baseItem];
+		} else {
+			return null; // Return null if not found
+		}
+	}
+
+	/**
+	 * Retrieves the reform information for a given reform ID.
+	 *
+	 * @param {string} reformId - The ID of the reform to retrieve information for.
+	 * @return {Object|null} The reform information object if found, or null if not found.
+	 */
+	static getReformInfo(reformId) {
+		// Check if the reformId exists in the ReformInfo
+		if (ItemReformTable.ReformInfo[reformId]) {
+			return ItemReformTable.ReformInfo[reformId];
+		} else {
+			return null; // Return null if the reform ID is not found
+		}
+	}
+
+	/**
+	 * Retrieves information for all reform IDs in the provided array.
+	 *
+	 * @param {Array} reformIds - An array of reform IDs to retrieve information for.
+	 * @return {Array} An array of reform information objects.
+	 */
+	static getAllReformInfos(reformIds) {
+		const reformInfos = [];
+
+		for (let i = 0; i < reformIds.length; i++) {
+			const reformId = reformIds[i];
+			const reformInfo = DB.getReformInfo(reformId);
+
+			if (reformInfo) {
+				reformInfos.push(reformInfo);
+			} else {
+				console.error('Reform Info not found for reform ID:', reformId);
+			}
+		}
+
+		return reformInfos;
+	}
+
+	/**
+	 * Finds a signboard in the given map based on the provided coordinates.
+	 *
+	 * @param {string} mapname - The name of the map to search in.
+	 * @param {number} x - The x-coordinate of the signboard.
+	 * @param {number} y - The y-coordinate of the signboard.
+	 * @param {number} [tolerance=1] - The tolerance value for matching coordinates.
+	 * @return {Object|null} The signboard object if found, or null if not found.
+	 */
+	static findSignboard(mapname, x, y, tolerance = 1) {
+		const mapData = SignBoardTable[mapname];
+		if (mapData) {
+			for (const xKey in mapData) {
+				if (Math.abs(x - xKey) <= tolerance) {
+					const yData = mapData[xKey];
+					for (const yKey in yData) {
+						if (Math.abs(y - yKey) <= tolerance) {
+							return yData[yKey];
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get all signboards for a specific map
+	 * @param {string} mapname - Map name
+	 * @return {Object} Signboard data for the map
+	 */
+	static getAllSignboardsForMap(mapname) {
+		return SignBoardTable[mapname] || null;
+	}
+
+	/**
+	 * Retrieves the translated signboard description based on the provided description.
+	 *
+	 * @param {string} description - The description of the signboard.
+	 * @return {string} The translated signboard description if found, otherwise the original description.
+	 */
+	static getTranslatedSignBoard(description) {
+		return SignBoardTranslatedTable[description] || description;
+	}
+
+	static getRandomJoke() {
+		return JokeTable[Math.round(Math.random() * (JokeTable.length - 1))];
+	}
+
+	static getRandomScream() {
+		return ScreamTable[Math.round(Math.random() * (ScreamTable.length - 1))];
+	}
+
+	static getNameByGID(GID) {
+		if (DB.CNameTable[GID] && DB.CNameTable[GID] === 'Unknown') // already requested
+		{
+			return;
+		}
+		let pkt;
+		if (PACKETVER.value >= 20180307) {
+			pkt = new PACKET.CZ.REQNAME_BYGID2();
+		} else {
+			pkt = new PACKET.CZ.REQNAME_BYGID();
+		}
+		pkt.GID = GID;
+		Network.sendPacket(pkt);
+		DB.CNameTable[pkt.GID] = 'Unknown';
+	}
+
+	/**
+	 * Get Pet talk message
+	 *
+	 * @param {integer} message data combined with mob id, hungryState, actionState
+	 * @return {string} pet telk sentence
+	 *
+	 * @author MrUnzO
+	 */
+	static getPetTalk(data) {
+		// Structure:
+		// Examaple: 1013010
+		// 1013  |      01     |     0
+		// mobID | hungryState | actionState
+		const mobId = parseInt(data.toString().substring(0, 4)) || 1001;
+		const hungryState = parseInt(data.toString().substring(4, 6)) || 0;
+		const actionState = parseInt(data.toString().substring(6, 7)) || 0;
+
+		if (hungryState >= Object.keys(PetHungryState).length || actionState >= Object.keys(PetMessageConst).length) {
+			return false;
+		}
+
+		let mobName, hungryText, actionText;
+		if (mobId && mobId >= 1000 && mobId < 4000) {
+			mobName = (MonsterTable[mobId] || MonsterTable[1001]).toLowerCase();
+		}
+		if (hungryState !== null && hungryState !== undefined) {
+			hungryText = DB.getPetHungryText(parseInt(hungryState));
+		}
+
+		if (actionState !== null && actionState !== undefined) {
+			actionText = DB.getPetActText(parseInt(actionState));
+		}
+
+		if (!mobName || !hungryText || !actionText) {
+			return false;
+		}
+
+		if (
+			PetTalkTable &&
+			PetTalkTable[mobName] &&
+			PetTalkTable[mobName][hungryText] &&
+			PetTalkTable[mobName][hungryText][actionText]
+		) {
+			let rnd = 0;
+			if (PetTalkTable[mobName][hungryText][actionText] instanceof Array) {
+				rnd = parseInt((Math.random() * 100) % PetTalkTable[mobName][hungryText][actionText].length);
+				return TextEncoding.decodeString(PetTalkTable[mobName][hungryText][actionText][rnd]);
+			}
+			return TextEncoding.decodeString(PetTalkTable[mobName][hungryText][actionText]);
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get Pet Hungry state
+	 *
+	 * @param {integer} hunger
+	 * @return {integer} hunger state
+	 *
+	 * @author MrUnzO
+	 */
+	static getPetHungryState(hunger) {
+		if (!hunger) {
+			return 0;
+		}
+		if (hunger > 90 && hunger <= 100) {
+			return PetHungryState.PET_FULL;
+		} else if (hunger > 75 && hunger <= 90) {
+			return PetHungryState.PET_ENOUGH;
+		} else if (hunger > 25 && hunger <= 75) {
+			return PetHungryState.PET_SATISFIED;
+		} else if (hunger > 10 && hunger <= 25) {
+			return PetHungryState.PET_HUNGRY;
+		} else if (hunger >= 0 && hunger <= 10) {
+			return PetHungryState.PET_HUNGER;
+		}
+		return 0;
+	}
+
+	/**
+	 * Get Pet Friendly state
+	 *
+	 * @param {integer} friendly
+	 * @return {integer} friendly state
+	 *
+	 * @author MrUnzO
+	 */
+	static getPetFriendlyState(friendly) {
+		if (!friendly) {
+			return 0;
+		}
+		if (friendly > 900 && friendly <= 1000) {
+			return PetFriendlyState.PET_FAMILIAR;
+		} else if (friendly > 750 && friendly <= 900) {
+			return PetFriendlyState.PET_FRIENDLY;
+		} else if (friendly > 250 && friendly <= 750) {
+			return PetFriendlyState.PET_NORMAL;
+		} else if (friendly > 100 && friendly <= 250) {
+			return PetFriendlyState.PET_AWKWARD;
+		} else if (friendly >= 0 && friendly <= 100) {
+			return PetFriendlyState.PET_ASHAMED;
+		}
+		return 0;
+	}
+
+	/**
+	 * Get Pet Action text
+	 *
+	 * @param {integer} action
+	 * @return {string} action string
+	 *
+	 * @author MrUnzO
+	 */
+	static getPetActText(action) {
+		switch (action) {
+			case PetMessageConst.PM_FEEDING:
+				return 'feeding';
+			case PetMessageConst.PM_HUNTING:
+				return 'hunting';
+			case PetMessageConst.PM_DANGER:
+				return 'danger';
+			case PetMessageConst.PM_DEAD:
+				return 'dead';
+			case PetMessageConst.PM_NORMAL:
+				return 'stand';
+			case PetMessageConst.PM_CONNENCT:
+				return 'connect';
+			case PetMessageConst.PM_LEVELUP:
+				return 'levelup';
+			case PetMessageConst.PM_PERFORMANCE1:
+				return 'perfor_1';
+			case PetMessageConst.PM_PERFORMANCE2:
+				return 'perfor_2';
+			case PetMessageConst.PM_PERFORMANCE3:
+				return 'perfor_3';
+			case PetMessageConst.PM_PERFORMANCE_S:
+				return 'perfor_s';
+		}
+
+		return 'stand';
+	}
+
+	/**
+	 * Get Pet Hungry state text
+	 *
+	 * @param {integer} hungry state
+	 * @return {String} hungry state text
+	 *
+	 * @author MrUnzO
+	 */
+	static getPetHungryText(state) {
+		switch (state) {
+			case PetHungryState.PET_HUNGER:
+				return 'hungry';
+			case PetHungryState.PET_HUNGRY:
+				return 'bit_hungry';
+			case PetHungryState.PET_SATISFIED:
+				return 'noting';
+			case PetHungryState.PET_ENOUGH:
+				return 'full';
+			case PetHungryState.PET_FULL:
+				return 'so_full';
+		}
+		return 'hungry';
+	}
+
+	/**
+	 * Get Pet Emotion ID
+	 *
+	 * @param {integer} hungry state
+	 * @param {integer} friendly state
+	 * @param {integer} action
+	 * @return {integer} emotion id
+	 *
+	 * @author MrUnzO
+	 */
+	static getPetEmotion(hunger, friendly, act) {
+		if (PetEmotionTable[hunger][friendly][act]) {
+			return PetEmotionTable[hunger][friendly][act];
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get Pet talk number message (for send to server to distribute)
+	 *
+	 * @param {integer} job (mob id)
+	 * @param {integer} action
+	 * @param {integer} hungry state
+	 * @return {integer} message data
+	 *
+	 * @author MrUnzO
+	 */
+	static getPetTalkNumber(job, act, hungry) {
+		return parseInt(job.toString() + ('0' + hungry).slice(-2) + act.toString());
+	}
+
+	/**
+	 * Indoor checking
+	 *
+	 * @param {string} map name
+	 * @return {boolean} is indoor?
+	 *
+	 * @author MrUnzO
+	 */
+	static isIndoor(mapname) {
+		if (mapname === undefined) {
+			return -1;
+		}
+		let map;
+		if (mapname.substring(mapname.length - 4, mapname.length) == '.gat') {
+			map = mapname.replace('.gat', '.rsw');
+		} else {
+			map = mapname;
+		}
+		if (MapTable[map] === undefined) {
+			return false;
+		}
+		return MapTable[map].indoor || false;
+	}
+
+	/**
+	 * Get Quest Info by ID
+	 *
+	 * @param {integer} questID (quest id)
+	 *
+	 * @author alisonrag
+	 */
+	static getQuestInfo(questID) {
+		return (
+			QuestInfo[questID] || {
+				Title: 'Unknown Quest',
+				Description: [],
+				Summary: 'Uknown Quest',
+				IconName: '',
+				NpcSpr: null,
+				NpcNavi: null,
+				NpcPosX: null,
+				NpcPosY: null,
+				RewardItemList: [],
+				RewardEXP: 0,
+				RewardJEXP: 0
+			}
+		);
+	}
+
+	static getCheckAttendanceInfo() {
+		return CheckAttendanceTable;
+	}
+
+	static getBuyingStoreItemList() {
+		return buyingStoreItemList;
+	}
+
+	static isBuyable(id) {
+		return buyingStoreItemList.includes(id);
+	}
+
+	/**
+	 * Is item id a pet egg?
+	 *
+	 * Used for older versions,
+	 * because item type PETEGG didn't exist back then
+	 * and type ARMOR was used with equip location 0,
+	 * but this is not usable in vending since location
+	 * is not received with packet...
+	 *
+	 * @param {integer} id
+	 * @returns {boolean}
+	 */
+	static isPetEgg(id) {
+		return id >= 9000 && id <= 9150;
+	}
+
+	/**
+	 * Get Job Class Category
+	 *
+	 * @param {integer} JobId
+	 *
+	 */
+	static getJobClass(job) {
+		switch (job) {
+			case JobId.NOVICE:
+			case JobId.DO_SUMMONER1:
+				return 'Base_Class';
+
+			case JobId.SWORDMAN:
+			case JobId.MAGICIAN:
+			case JobId.ARCHER:
+			case JobId.ACOLYTE:
+			case JobId.MERCHANT:
+			case JobId.THIEF:
+				return 'First_Class';
+
+			case JobId.KNIGHT:
+			case JobId.PRIEST:
+			case JobId.WIZARD:
+			case JobId.BLACKSMITH:
+			case JobId.HUNTER:
+			case JobId.ASSASSIN:
+			case JobId.KNIGHT2:
+			case JobId.CRUSADER:
+			case JobId.MONK:
+			case JobId.SAGE:
+			case JobId.ROGUE:
+			case JobId.ALCHEMIST:
+			case JobId.BARD:
+			case JobId.DANCER:
+			case JobId.CRUSADER2:
+			case JobId.SUPERNOVICE:
+				return 'Second_Class';
+
+			case JobId.GUNSLINGER:
+			case JobId.NINJA:
+			case JobId.TAEKWON:
+				return 'Expanded_First_Class';
+
+			case JobId.NOVICE_H:
+				return 'Rebirth_Class';
+
+			case JobId.SWORDMAN_H:
+			case JobId.MAGICIAN_H:
+			case JobId.ARCHER_H:
+			case JobId.ACOLYTE_H:
+			case JobId.MERCHANT_H:
+			case JobId.THIEF_H:
+				return 'Rebirth_First_Class';
+
+			case JobId.KNIGHT_H:
+			case JobId.PRIEST_H:
+			case JobId.WIZARD_H:
+			case JobId.BLACKSMITH_H:
+			case JobId.HUNTER_H:
+			case JobId.ASSASSIN_H:
+			case JobId.KNIGHT2_H:
+			case JobId.CRUSADER_H:
+			case JobId.MONK_H:
+			case JobId.SAGE_H:
+			case JobId.ROGUE_H:
+			case JobId.ALCHEMIST_H:
+			case JobId.BARD_H:
+			case JobId.DANCER_H:
+			case JobId.CRUSADER2_H:
+				return 'Rebirth_Second_Class';
+
+			case JobId.STAR:
+			case JobId.STAR2:
+			case JobId.LINKER:
+			case JobId.KAGEROU:
+			case JobId.OBORO:
+			case JobId.REBELLION:
+				return 'Expanded_Second_Class';
+
+			case JobId.RUNE_KNIGHT:
+			case JobId.WARLOCK:
+			case JobId.RANGER:
+			case JobId.ARCHBISHOP:
+			case JobId.MECHANIC:
+			case JobId.ROYAL_GUARD:
+			case JobId.SORCERER:
+			case JobId.MINSTREL:
+			case JobId.WANDERER:
+			case JobId.SURA:
+			case JobId.GENETIC:
+			case JobId.SHADOW_CHASER:
+			case JobId.RUNE_KNIGHT2:
+			case JobId.ROYAL_GUARD2:
+			case JobId.RANGER2:
+			case JobId.MECHANIC2:
+				return 'Normal_Third_Class';
+
+			case JobId.RUNE_KNIGHT_H:
+			case JobId.WARLOCK_H:
+			case JobId.RANGER_H:
+			case JobId.ARCHBISHOP_H:
+			case JobId.MECHANIC_H:
+			case JobId.GUILLOTINE_CROSS_H:
+			case JobId.ROYAL_GUARD_H:
+			case JobId.SORCERER_H:
+			case JobId.MINSTREL_H:
+			case JobId.WANDERER_H:
+			case JobId.SURA_H:
+			case JobId.GENETIC_H:
+			case JobId.SHADOW_CHASER_H:
+				return 'Rebirth_Third_Class';
+
+			case JobId.EMPEROR:
+			case JobId.REAPER:
+			case JobId.EMPEROR2:
+				return 'Expanded_Third_Class';
+
+			case JobId.DRAGON_KNIGHT:
+			case JobId.MEISTER:
+			case JobId.SHADOW_CROSS:
+			case JobId.ARCH_MAGE:
+			case JobId.CARDINAL:
+			case JobId.WINDHAWK:
+			case JobId.IMPERIAL_GUARD:
+			case JobId.BIOLO:
+			case JobId.ABYSS_CHASER:
+			case JobId.ELEMENTAL_MASTER:
+			case JobId.INQUISITOR:
+			case JobId.TROUBADOUR:
+			case JobId.TROUVERE:
+			case JobId.WINDHAWK2:
+			case JobId.MEISTER2:
+			case JobId.DRAGON_KNIGHT2:
+			case JobId.IMPERIAL_GUARD2:
+			case JobId.SKY_EMPEROR:
+			case JobId.SOUL_ASCETIC:
+			case JobId.SHINKIRO:
+			case JobId.SHIRANUI:
+			case JobId.NIGHT_WATCH:
+			case JobId.HYPER_NOVICE:
+			case JobId.SPIRIT_HANDLER:
+			case JobId.SKY_EMPEROR2:
+				return 'Fourth_Class';
+
+			default:
+				return 'Base_Class';
+		}
+	}
+
+	/**
+	 * Load Clan Emblem file
+	 * Icons for group reads from texture/유저인터페이스/clan_system/...
+	 *
+	 * @param {integer} clanId
+	 * @param {function} callback to run once the file is loaded
+	 *
+	 * @author alisonrag
+	 */
+	static loadClanEmblem(clanId, callback) {
+		Client.loadFile(
+			DB.INTERFACE_PATH + 'clan_system/clan_emblem' + clanId.toString().padStart(2, '0') + '.bmp',
+			function (dataURI) {
+				const img = new Image();
+				img.decoding = 'async';
+				img.src = dataURI; // String Base64
+
+				// wait image load to call the callback
+				img.onload = function () {
+					callback(img);
+				};
+			}
+		);
+	}
+
+	/**
+	 * Load Group Emblem file
+	 * Icons for group reads from texture/유저인터페이스/group/...
+	 *
+	 * @param {integer} groupId
+	 * @param {function} callback to run once the file is loaded
+	 *
+	 * @author alisonrag
+	 */
+	static loadGroupEmblem(groupId, callback) {
+		const extension = [22, 23, 24, 25].includes(groupId) ? 'gif' : 'bmp'; // for some reason 22 ~ 25 group emblem has .gif extension
+
+		Client.loadFile(DB.INTERFACE_PATH + 'group/group_' + groupId + '.' + extension, function (dataURI) {
+			const img = new Image();
+			img.decoding = 'async';
+			img.src = dataURI; // String Base64
+
+			// wait image load to call the callback
+			img.onload = function () {
+				callback(img);
+			};
+		});
+	}
+
+	/**
+	 * Load Mob Type file
+	 * Icons for Miniboss and MVP from texture/À¯ÀúÀÎÅÍÆäÀÌ½º/montype_...bmp
+	 *
+	 * @param {integer} mobType
+	 * @param {function} callback to run once the file is loaded
+	 *
+	 */
+	static loadMobEmblem(mobType, callback) {
+		let monType = '';
+
+		switch (mobType) {
+			case 1:
+				monType = 'montype_boss.bmp';
+				break;
+			case 2:
+				monType = 'montype_mvp.bmp';
+				break;
+			default:
+				console.error('Unknown mob type:', mobType);
+				return;
+		}
+
+		Client.loadFile(DB.INTERFACE_PATH + monType, function (dataURI) {
+			const img = new Image();
+			img.decoding = 'async';
+			img.src = dataURI; // String Base64
+
+			// wait image load to call the callback
+			img.onload = function () {
+				callback(img);
+			};
+		});
+	}
+	/**
+	 * Search for NPCs or MOBs in the navigation tables
+	 *
+	 * @param {string} query - The search query
+	 * @param {string} type - The type of search (ALL, NPC, MOB)
+	 * @returns {Array} Array of search results
+	 */
+	static searchNavigation(query, type) {
+		if (!query || query.length < 2) {
+			return [];
+		}
+
+		query = query.toLowerCase();
+		const results = [];
+
+		// Search NPCs if type is ALL or NPC
+		if (type === 'ALL' || type === 'NPC') {
+			// NaviNpcTable structure: [["map_name", npc_id, npc_type, class_id, "npc_name", "", x, y], ...]
+			for (let i = 0; i < NaviNpcTable.length; i++) {
+				const npc = NaviNpcTable[i];
+				const mapName = npc[0];
+				const npcId = npc[1];
+				const npcName = npc[4] || '';
+
+				// Skip if no name
+				if (!npcName) {
+					continue;
+				}
+
+				// Check if the NPC name contains the query
+				if (npcName.toLowerCase().indexOf(query) !== -1) {
+					results.push({
+						type: 'NPC',
+						id: npcId,
+						name: npcName,
+						mapName: mapName,
+						x: npc[6],
+						y: npc[7]
+					});
+				}
+			}
+		}
+
+		// Search MOBs if type is ALL or MOB
+		if (type === 'ALL' || type === 'MOB') {
+			// NaviMobTable structure: [["map_name", spawn_id, mob_type, mob_class, "mob_name", "sprite_name", level, mob_info], ...]
+			for (let i = 0; i < NaviMobTable.length; i++) {
+				const mob = NaviMobTable[i];
+				const mapName = mob[0];
+				const mobId = mob[3]; // Using mob_class as the ID
+				const mobName = mob[4] || '';
+
+				// Skip if no name
+				if (!mobName) {
+					continue;
+				}
+
+				// Check if the MOB name contains the query
+				if (mobName.toLowerCase().indexOf(query) !== -1) {
+					// Note: mob_info might contain position data, but structure is unclear
+					// For now, we're not including x/y coordinates for mobs
+					results.push({
+						type: 'MOB',
+						id: mobId,
+						name: mobName,
+						mapName: mapName,
+						x: null,
+						y: null
+					});
+				}
+			}
+		}
+
+		// Sort results by name
+		results.sort(function (a, b) {
+			return a.name.localeCompare(b.name);
+		});
+
+		// Limit to 50 results to avoid performance issues
+		return results.slice(0, 50);
+	}
+
+	/**
+	 * Get the NaviLinkTable
+	 *
+	 * @returns {Array} The NaviLinkTable
+	 */
+	static getNaviLinkTable() {
+		return NaviLinkTable;
+	}
+
+	/**
+	 * Get the NaviLinkDistanceTable
+	 *
+	 * @returns {Array} The NaviLinkDistanceTable
+	 */
+	static getNaviLinkDistanceTable() {
+		return NaviLinkDistanceTable;
+	}
+
+	/**
+	 * Get the NaviNpcDistanceTable
+	 *
+	 * @returns {Array} The NaviNpcDistanceTable
+	 */
+	static getNaviNpcDistanceTable() {
+		return NaviNpcDistanceTable;
+	}
+
+	static createItemLink(item) {
+		if (!item) {
+			return null;
+		}
+
+		// Handle legacy formats (ITEMLINK and ITEM)
+		if (PACKETVER.value < 20151104) {
+			return `<ITEMLINK>${item.name}<INFO>${item.ITID}</INFO></ITEMLINK>`;
+		}
+
+		if (PACKETVER.value < 20160113) {
+			return `<ITEM>${item.name}<INFO>${item.ITID}</INFO></ITEM>`;
+		}
+
+		// Handle ITEML format (newest, most complex)
+		let data = '';
+
+		// Encode equipment location (5 chars)
+		data += Base62.encode(item.location || 0).padStart(5, '0');
+
+		// Encode is equipment flag (1 char)
+		const isEquip = item.type === 5 ? '1' : '0';
+		data += isEquip;
+
+		// Encode item ID (variable length)
+		data += Base62.encode(item.ITID || 512);
+
+		// Encode refine level (optional, starts with %)
+		if (item.RefiningLevel > 0) {
+			data += '%';
+			data += Base62.encode(item.RefiningLevel).padStart(2, '0');
+		}
+
+		// Encode item sprite number (optional, starts with &)
+		if (PACKETVER.value >= 20161116) {
+			data += '&';
+			const spriteNumber = item.wItemSpriteNumber ? item.wItemSpriteNumber : 0;
+			data += Base62.encode(spriteNumber).padStart(2, '0');
+		}
+
+		// Encode enchant grade (optional, starts with ')
+		if (PACKETVER.value >= 20200724 && item.enchantgrade > 0) {
+			data += "'";
+			data += Base62.encode(item.enchantgrade).padStart(2, '0');
+		}
+
+		// Determine separators based on packet version
+		let card_sep, optid_sep, optpar_sep, optval_sep;
+		if (PACKETVER.value >= 20200724) {
+			card_sep = ')';
+			optid_sep = '+';
+			optpar_sep = ',';
+			optval_sep = '-';
+		} else if (PACKETVER.value >= 20161116) {
+			card_sep = '(';
+			optid_sep = '*';
+			optpar_sep = '+';
+			optval_sep = ',';
+		} else {
+			card_sep = "'";
+			optid_sep = ')';
+			optpar_sep = '*';
+			optval_sep = '+';
+		}
+
+		// Encode cards (4 cards)
+		const cardKeys = ['card1', 'card2', 'card3', 'card4'];
+		for (let i = 0; i < 4; i++) {
+			const cardValue = item.slot?.[cardKeys[i]] || 0;
+			if (cardValue > 0) {
+				data += card_sep;
+				data += Base62.encode(cardValue).padStart(2, '0');
+			}
+		}
+
+		// Encode random options (up to 5)
+		if (item.Options) {
+			item.Options.forEach(option => {
+				if (option.index > 0) {
+					data += optid_sep;
+					data += Base62.encode(option.index).padStart(2, '0');
+					data += optpar_sep;
+					data += Base62.encode(option.param).padStart(2, '0');
+					data += optval_sep;
+					data += Base62.encode(option.value).padStart(2, '0');
+				}
+			});
+		}
+
+		return `<ITEML>${data}</ITEML>`;
+	}
+
+	// <ITEMLINK> (Oldest format)
+	// Used for NPC message item links in clients from 2010-01-01 to before 2015-11-04.
+	// example: <ITEMLINK>Display Name<INFO>Item ID</INFO></ITEMLINK>
+	// <ITEM> (Middle format)
+	// Used for NPC message item links in clients from 2015-11-04 onwards, replacing <ITEMLINK>.
+	// example: <ITEM>Display Name<INFO>Item ID</INFO></ITEM>
+	// <ITEML> (Newest format)
+	// Used for player-generated item links (like Shift+Click from inventory) in clients from 2016-01-13 onwards.
+	// example: <ITEML>encoded_item_data</ITEML>
+	static parseItemLink(itemLink) {
+		if (!itemLink) {
+			return null;
+		}
+
+		const item = {
+			ITID: 512,
+			name: 'Unknown Item',
+			type: 1,
+			location: 0,
+			slot: {
+				card1: 0,
+				card2: 0,
+				card3: 0,
+				card4: 0
+			},
+			nRandomOptionCnt: 0,
+			Options: [{ index: 0, value: 0, param: 0 }],
+			RefiningLevel: 0,
+			enchantgrade: 0,
+			IsIdentified: 1,
+			IsDamaged: 0,
+			wItemSpriteNumber: 0
+		};
+
+		let content = null;
+
+		// parse ITEMLINK and ITEM format
+		content = itemLink.match(/<(ITEMLINK|ITEM)>([\s\S]*?)<INFO>([\s\S]*?)<\/INFO><\/\1>/);
+		if (content) {
+			const [, , name, id] = content;
+			item.ITID = id;
+			item.name = name;
+			return item;
+		}
+
+		content = itemLink.match(/<ITEML>([\s\S]*?)<\/ITEML>/);
+		if (!content) {
+			return item;
+		}
+
+		const data = content[1];
+		let pos = 0;
+
+		try {
+			// Parse equipment location (5 chars)
+			item.location = Base62.decode(data.substr(pos, 5));
+			pos += 5;
+
+			// Parse is equipment flag (1 char)
+			const isEquip = data[pos] === '1';
+
+			// TODO: add equipment type
+			item.type = isEquip ? 5 : 0; // Default to armor type if equipment
+			pos += 1;
+
+			// Parse item ID (variable length until special char)
+			let itemIdStr = '';
+			while (pos < data.length && !"%&')(*+,-".includes(data[pos])) {
+				itemIdStr += data[pos];
+				pos++;
+			}
+			item.ITID = Base62.decode(itemIdStr);
+
+			// Parse refine level (optional, starts with %)
+			if (pos < data.length && data[pos] === '%') {
+				pos++; // Skip %
+				item.RefiningLevel = Base62.decode(data.substr(pos, 2));
+				pos += 2;
+			}
+
+			if (PACKETVER.value >= 20161116 && pos < data.length && data[pos] === '&') {
+				pos++; // Skip &
+				item.wItemSpriteNumber = Base62.decode(data.substr(pos, 2));
+				pos += 2;
+			}
+
+			if (PACKETVER.value >= 20200724 && pos < data.length && data[pos] === "'") {
+				pos++; // Skip '
+				item.enchantgrade = Base62.decode(data.substr(pos, 2));
+				pos += 2;
+			}
+
+			// Determine separators based on detected packet version
+			let card_sep, optid_sep, optpar_sep, optval_sep;
+			if (PACKETVER.value >= 20200724) {
+				card_sep = ')';
+				optid_sep = '+';
+				optpar_sep = ',';
+				optval_sep = '-';
+			} else if (PACKETVER.value >= 20161116) {
+				card_sep = '(';
+				optid_sep = '*';
+				optpar_sep = '+';
+				optval_sep = ',';
+			} else {
+				card_sep = "'";
+				optid_sep = ')';
+				optpar_sep = '*';
+				optval_sep = '+';
+			}
+
+			// Parse cards
+			const cardKeys = ['card1', 'card2', 'card3', 'card4'];
+			let cardIndex = 0;
+
+			while (cardIndex < 4 && pos < data.length) {
+				if (data[pos] !== card_sep) {
+					break;
+				} // não tem mais carta
+
+				pos++; // skip
+
+				// take all characters that are not card separators or random option separators
+				let cardStr = '';
+				while (pos < data.length) {
+					const c = data[pos];
+					// stop if next separator is a card separator or random option separator
+					if (c === card_sep || c === optid_sep) {
+						break;
+					}
+					// stop if next separator is a future separator (security)
+					if ("%&'()*+,-".includes(c)) {
+						break;
+					}
+					cardStr += c;
+					pos++;
+				}
+
+				// if nothing was taken, it's an empty card (0)
+				if (cardStr === '' || cardStr === '00') {
+					item.slot[cardKeys[cardIndex]] = 0;
+				} else {
+					item.slot[cardKeys[cardIndex]] = Base62.decode(cardStr);
+				}
+
+				cardIndex++;
+			}
+
+			// fill the cards that didn't exist with 0
+			while (cardIndex < 4) {
+				item.slot[cardKeys[cardIndex]] = 0;
+				cardIndex++;
+			}
+
+			// Parse random options (variable count)
+			let optionIdx = 0;
+			while (pos < data.length && data[pos] === optid_sep && optionIdx < 5) {
+				pos++; // Skip option ID separator
+				const optId = Base62.decode(data.substr(pos, 2));
+				pos += 2;
+
+				if (pos >= data.length || data[pos] !== optpar_sep) {
+					break;
+				}
+				pos++; // Skip param separator
+				const optParam = Base62.decode(data.substr(pos, 2));
+				pos += 2;
+
+				if (pos >= data.length || data[pos] !== optval_sep) {
+					break;
+				}
+				pos++; // Skip value separator
+				const optValue = Base62.decode(data.substr(pos, 2));
+				pos += 2;
+
+				item.Options.push({
+					index: optId,
+					value: optValue,
+					param: optParam
+				});
+				optionIdx++;
+			}
+
+			// Fill remaining option slots with zeros
+			while (item.Options.length < 5 + 1) {
+				item.Options.push({ index: 0, value: 0, param: 0 });
+			}
+
+			item.nRandomOptionCnt = optionIdx;
+
+			item.name = DB.getItemName(item);
+
+			return item;
+		} catch (error) {
+			console.error('Error parsing item link:', error);
+			return null;
+		}
+	}
+
+	static getItemNameFromLink(itemLink) {
+		if (!itemLink) {
+			return null;
+		}
+
+		const item = DB.parseItemLink(itemLink);
+		return item.name;
+	}
+
+	/**
+	 * Format a Unix timestamp (seconds) into MM/DD HH:mm
+	 *
+	 * @param {number} unixTimestamp - Unix time in seconds
+	 * @returns {string} Formatted date string (MM/DD HH:mm)
+	 */
+	static formatUnixDate(unixTimestamp) {
+		const d = new Date(unixTimestamp * 1000);
+
+		return (
+			String(d.getMonth() + 1).padStart(2, '0') +
+			'/' +
+			String(d.getDate()).padStart(2, '0') +
+			' ' +
+			String(d.getHours()).padStart(2, '0') +
+			':' +
+			String(d.getMinutes()).padStart(2, '0')
+		);
+	}
+
+	/**
+	 * Convert RO color codes (^RRGGBB) to HTML spans
+	 *
+	 * @param {string} msg - Message with RO color codes
+	 * @returns {string} Message formatted to HTML
+	 */
+	static formatMsgToHtml(msg) {
+		let hasOpenSpan = false;
+
+		msg = msg.replace(/\^([0-9a-fA-F]{6})/g, (_, color) => {
+			const close = hasOpenSpan ? '</span>' : '';
+			hasOpenSpan = true;
+			return close + `<span style="color:#${color}">`;
+		});
+
+		if (hasOpenSpan) {
+			msg += '</span>';
+		}
+		return msg;
+	}
+
+	/**
+	 * Get pet data by job ID
+	 *
+	 * @param {number} jobID - Job ID
+	 * @returns {?Object} Pet data or null if not found
+	 */
+	static getPetByJobID(jobID) {
+		return PetDBTable[jobID] || null;
+	}
+
+	/**
+	 * Get pet evolution data by job ID
+	 *
+	 * @param {number} jobID - Job ID
+	 * @returns {?Object} Pet evolution data or null if not found
+	 */
+	static getPetEvolutionByJob(jobID) {
+		const pet = PetDBTable[jobID];
+		return pet && pet.Evolution ? pet.Evolution : null;
+	}
+
+	/**
+	 * Get pet data by pet egg ID
+	 *
+	 * @param {number|string} eggID - Pet egg ID
+	 * @returns {?Object} Pet data or null if not found
+	 */
+	static getPetByEggID(eggID) {
+		for (const jobID in PetDBTable) {
+			const pet = PetDBTable[jobID];
+			if (pet.PetEggID === Number(eggID)) {
+				return pet;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get the entire reputation group list
+	 *
+	 * @returns {Object} Reputation group list
+	 */
+	static getReputeGroup() {
+		return ReputeGroup;
+	}
+
+	/**
+	 * Get the reputation group list for a given group id
+	 *
+	 * @param {string} repute_group - Reputation group id
+	 * @returns {?Object} Reputation group list or null if not found
+	 */
+	static getReputeGroupList(repute_group) {
+		return ReputeGroup[repute_group].ReputeList || null;
+	}
+
+	/**
+	 * Get the entire reputation information list
+	 *
+	 * @returns {Object} Reputation information list
+	 */
+	static getReputeInfo() {
+		return ReputeInfo;
+	}
+
+	/**
+	 * Get the reputation data for a given reputation ID
+	 *
+	 * @param {number|string} repute_id - Reputation ID
+	 * @returns {?Object} Reputation data or null if not found
+	 */
+	static getReputeData(repute_id) {
+		return ReputeInfo[repute_id] || null;
+	}
+
+	/**
+	 * Get a Hateffect Info by ID
+	 * @param {number} id - Hateffect ID
+	 * @returns {Object|null} Hateffect info or null if not found
+	 */
+	static getHatResource(id) {
+		return HatEffectInfo[id] || null;
+	}
+
+	/**
+	 * Get the CashShopBannerTable
+	 *
+	 * @returns {Array} CashShopBannerTable
+	 */
+	static getCashShopBannerTable() {
+		return CashShopBannerTable;
+	}
+}
 
 async function startLua() {
 	lua = await CLua.Lua.create();
@@ -1660,14 +4471,6 @@ function loadTitleTable(filename, callback, onEnd) {
 		onEnd
 	);
 }
-
-DB.getAllTitles = function () {
-	return TitleTable;
-};
-
-DB.getTitleString = function (titleID) {
-	return TitleTable[titleID] || '';
-};
 
 /**
  * Load Town Info file
@@ -4289,2304 +7092,6 @@ function parseQuestEntry(index, key, title, group, image, description, summary) 
 }
 
 /**
- * Actor Type checks
- *
- * @param {number} jobid
- */
-DB.isNPC = function isNPC(jobid) {
-	return (
-		(jobid > 45 && jobid < 130) ||
-		(jobid >= 401 && jobid < 1000) ||
-		(jobid >= 10001 && jobid < 19999) ||
-		(jobid > 22300 && jobid < 22313) ||
-		jobid == 32767 ||
-		jobid == -1
-	);
-};
-
-DB.isMercenary = function isMercenary(jobid) {
-	return jobid >= 6017 && jobid <= 6046;
-};
-
-DB.isHomunculus = function isHomunculus(jobid) {
-	return (jobid >= 6001 && jobid <= 6016) || (jobid >= 6048 && jobid <= 6052);
-};
-
-DB.isMonster = function isMonster(jobid) {
-	return (
-		(jobid >= 1001 && jobid <= 3999) ||
-		(jobid >= 20000 && jobid < 20834) ||
-		(jobid >= 20852 && jobid < 22301) ||
-		(jobid > 22313 && jobid < 22322)
-	); // 22322 = last monster released on EP21
-};
-
-DB.isPlayer = function isPlayer(jobid) {
-	return (jobid >= 0 && jobid < 45) || (jobid >= 4001 && jobid <= 4361) || jobid == 4294967294;
-};
-
-DB.isDoram = function isDoram(jobid) {
-	return (jobid >= 4217 && jobid <= 4220) || jobid === 4308 || jobid === 4315;
-};
-
-DB.isBaby = function isBaby(jobid) {
-	if (
-		(jobid >= 4023 && jobid <= 4045) ||
-		(jobid >= 4096 && jobid <= 4112) ||
-		(jobid >= 4158 && jobid <= 4182) ||
-		jobid == 4191 ||
-		jobid == 4193 ||
-		jobid == 4195 ||
-		jobid == 4196 ||
-		(jobid >= 4205 && jobid <= 4210) ||
-		(jobid >= 4220 && jobid <= 4238) ||
-		jobid == 4241 ||
-		jobid == 4242 ||
-		jobid == 4244 ||
-		jobid == 4247 ||
-		jobid == 4248
-	) {
-		return true;
-	}
-	return false;
-};
-
-DB.isMadogear = function isMadogear(jobid) {
-	return jobid == 4086 || jobid == 4087 || jobid == 4112 || jobid == 4279;
-};
-
-DB.isElem = function isElem(jobid) {
-	return (jobid >= 2114 && jobid <= 2125) || (jobid >= 20816 && jobid <= 20820);
-};
-
-DB.isAbr = function isAbr(jobid) {
-	return jobid >= 20834 && jobid <= 20837;
-};
-
-DB.isBionic = function isBionic(jobid) {
-	return jobid >= 20848 && jobid <= 20851;
-};
-
-DB.isWarp = function isWarp(jobid) {
-	return jobid == 45 || jobid == 139;
-};
-
-/**
- * @return {string} path to body sprite/action
- * @param {number} id entity
- * @param {boolean} sex
- * @param {number} alternative sprite
- * @return {string}
- */
-DB.getBodyPath = function getBodyPath(id, sex, alternative = -1, cashMountCostume = false) {
-	// TODO: Warp STR file
-	if (id === 45) {
-		return null;
-	}
-
-	// Not visible sprite
-	if (id === 111 || id === 139 || id == 2337) {
-		return null;
-	}
-
-	// PC
-	if (DB.isPlayer(id)) {
-		// DORAM
-		let result = DB.isDoram(id)
-			? 'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xf6\xc5\xeb/'
-			: 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/';
-		result += SexTable[sex] + '/';
-
-		if (PACKETVER.value > 20141022 && alternative > 0 && id !== alternative) {
-			const use_costume =
-				alternative > JobId.COSTUME_SECOND_JOB_START && alternative < JobId.COSTUME_SECOND_JOB_END;
-
-			if (use_costume) {
-				result += 'costume_1/';
-			}
-
-			result += (cashMountCostume ? ClassTable[id] : ClassTable[alternative]) || ClassTable[0];
-
-			result += '_' + SexTable[sex];
-
-			if (use_costume) {
-				result += '_1';
-			}
-			return result;
-		}
-
-		result += ClassTable[id] || ClassTable[0];
-		result += '_' + SexTable[sex];
-
-		return result;
-	}
-
-	// NPC
-	if (DB.isNPC(id)) {
-		return 'data/sprite/npc/' + (MonsterTable[id] || MonsterTable[46]).toLowerCase();
-	}
-
-	// MERC
-	if (DB.isMercenary(id)) {
-		// archer - female path | lancer and swordman - male path
-		// mercenary entry on monster table have sex path included
-		return 'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' + MonsterTable[id];
-	}
-
-	// HOMUN
-	if (DB.isHomunculus(id)) {
-		return 'data/sprite/homun/' + (MonsterTable[id] || MonsterTable[1002]).toLowerCase();
-	}
-
-	//
-	// OTHER ACTORS
-	//
-	switch (id) {
-		case '11_FALCON':
-		case '4034_FALCON':
-			// 2nd
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
-		case '4012_FALCON':
-			// rebirth
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5\x32';
-		case '4056_FALCON':
-		case '4062_FALCON':
-		case '4098_FALCON':
-			// 3rd
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/owl';
-		case '4257_FALCON':
-		case '4270_FALCON':
-		case '4278_FALCON':
-			// 4th
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_hawk';
-		case '4056_WUG':
-		case '4062_WUG':
-		case '4098_WUG':
-			// 3rd
-			return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
-		case '4257_WUG':
-			// 4th
-			return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/windhawk_wolf';
-		default:
-			if (typeof id === 'string') {
-				// default for gm or customs
-				if (id.includes('_FALCON')) {
-					return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
-				} else if (id.includes('_WUG')) {
-					return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
-				}
-			}
-			break;
-	}
-
-	// MONSTER
-	return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/' + (MonsterTable[id] || MonsterTable[1001]).toLowerCase();
-};
-
-/**
- * @return {string} path of admin clothes
- * @param {boolean} sex
- */
-DB.getAdminPath = function getAdminPath(sex) {
-	return (
-		'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xf6\xc5\xeb/' +
-		SexTable[sex] +
-		'/\xbf\xee\xbf\xb5\xc0\xda_' +
-		SexTable[sex]
-	);
-};
-
-/**
- * @return {string} path to body palette
- * @param {number} id entity
- * @param {number} pal
- * @param {boolean} sex
- */
-DB.getBodyPalPath = function getBodyPalettePath(id, pal, sex) {
-	if (id === 0 || !(id in PaletteTable)) {
-		return null;
-	}
-
-	return 'data/palette/\xb8\xf6/' + PaletteTable[id] + '_' + SexTable[sex] + '_' + pal + '.pal';
-};
-
-/**
- * @return {string} path to head sprite/action
- * @param {number} id hair style
- * @param {number} job job id
- * @param {boolean} sex
- * @param {boolean} orcish
- */
-DB.getHeadPath = function getHeadPath(id, job, sex, orcish) {
-	// ORC HEAD
-	if (orcish) {
-		return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/orcface';
-	}
-
-	// DORAM
-	if (DB.isDoram(job)) {
-		return (
-			'data/sprite/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' +
-			SexTable[sex] +
-			'/' +
-			(HairIndexTable[sex + 2][id] || id) +
-			'_' +
-			SexTable[sex]
-		);
-	}
-
-	return (
-		'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/\xb8\xd3\xb8\xae\xc5\xeb/' +
-		SexTable[sex] +
-		'/' +
-		(HairIndexTable[sex][id] || id) +
-		'_' +
-		SexTable[sex]
-	);
-};
-
-/**
- * @return {string} path to head palette
- * @param {number} id hair style
- * @param {number} pal id
- * @param {number} job job id
- * @param {boolean} sex
- */
-DB.getHeadPalPath = function getHeadPalPath(id, pal, job, sex) {
-	if (job === 4218 || job === 4220) {
-		return (
-			'data/palette/\xb5\xb5\xb6\xf7\xc1\xb7/\xb8\xd3\xb8\xae/\xb8\xd3\xb8\xae' +
-			(HairIndexTable[sex + 2][id] || id) +
-			'_' +
-			SexTable[sex] +
-			'_' +
-			pal +
-			'.pal'
-		);
-	}
-
-	return (
-		'data/palette/\xb8\xd3\xb8\xae/\xb8\xd3\xb8\xae' +
-		(HairIndexTable[sex][id] || id) +
-		'_' +
-		SexTable[sex] +
-		'_' +
-		pal +
-		'.pal'
-	);
-};
-
-/**
- * @return {string} path to hat
- * @param {number} id hair style
- * @param {boolean} sex
- */
-DB.getHatPath = function getHatPath(id, sex) {
-	if (id === 0 || !(id in HatTable)) {
-		return null;
-	}
-
-	return 'data/sprite/\xbe\xc7\xbc\xbc\xbb\xe7\xb8\xae/' + SexTable[sex] + '/' + SexTable[sex] + HatTable[id];
-};
-
-/**
- * @return {string} path to Robe
- * @param {number} id robe id
- * @param {number} job class
- * @param {boolean} sex
- */
-DB.getRobePath = function getRobePath(id, job, sex) {
-	if (id === 0 || !(id in RobeTable)) {
-		return null;
-	}
-
-	return (
-		'data/sprite/\xb7\xce\xba\xea/' +
-		RobeTable[id] +
-		'/' +
-		SexTable[sex] +
-		'/' +
-		(ClassTable[job] || ClassTable[0]) +
-		'_' +
-		SexTable[sex]
-	);
-};
-
-/**
- * @return {string} Path to pets equipements
- * @param {number} id (pets)
- */
-DB.getPetEquipPath = function getPetEquipPath(id) {
-	if (id === 0 || !(id in PetAction)) {
-		return null;
-	}
-
-	return 'data/sprite/' + PetAction[id];
-};
-
-/**
- * @return {string} Path to pets equipements
- * @param {number} id (pets)
- */
-DB.getPetIllustPath = function getPetIllustPath(id) {
-	return 'data/texture/' + (PetIllustration[id] || PetIllustration[1002]);
-};
-
-/**
- * is shield checking
- *
- * @param {integer} id
- * @return {boolean} is shield?
- *
- * @author MrUnzO
- */
-DB.isShield = function isShield(id) {
-	// shields has the following ranges:
-	// 2100 - 2199
-	// 28900 - 28999
-	// 460000 - 460099
-	if ((id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099)) {
-		return true;
-	}
-	return false;
-};
-
-DB.getPCAttackMotion = function getPCAttackMotion(job, sex, itemID, isDualWeapon) {
-	if (isDualWeapon) {
-		switch (job) {
-			case JobId.THIEF:
-			case JobId.THIEF_H:
-				return 5.75;
-			case JobId.MERCHANT:
-			case JobId.MERCHANT_H:
-				return 5.85;
-		}
-	} else {
-		switch (job) {
-			case JobId.NOVICE:
-			case JobId.NOVICE_H:
-			case JobId.NOVICE_B:
-			case JobId.SUPERNOVICE:
-			case JobId.SUPERNOVICE_B:
-			case JobId.SUPERNOVICE2:
-			case JobId.SUPERNOVICE2_B:
-			case JobId.HYPER_NOVICE:
-				switch (sex) {
-					case 1:
-						return 5.85;
-				}
-				break;
-			case JobId.ASSASSIN:
-			case JobId.ASSASSIN_H:
-			case JobId.ASSASSIN_B:
-			case JobId.GUILLOTINE_CROSS:
-			case JobId.GUILLOTINE_CROSS_H:
-			case JobId.GUILLOTINE_CROSS_B:
-			case JobId.SHADOW_CROSS:
-				switch (DB.getWeaponType(itemID)) {
-					case WeaponType.KATAR:
-					case WeaponType.SHORTSWORD_SHORTSWORD:
-					case WeaponType.SWORD_SWORD:
-					case WeaponType.AXE_AXE:
-					case WeaponType.SHORTSWORD_SWORD:
-					case WeaponType.SHORTSWORD_AXE:
-					case WeaponType.SWORD_AXE:
-						return 3.0;
-				}
-				break;
-		}
-	}
-	return 6;
-};
-
-DB.isDualWeapon = function isDualWeapon(job, sex, weaponType) {
-	let dualWeapon = false;
-
-	switch (job) {
-		case JobId.GUNSLINGER:
-		case JobId.GUNSLINGER_B:
-		case JobId.REBELLION:
-		case JobId.REBELLION_B:
-		case JobId.NIGHT_WATCH: {
-			switch (weaponType) {
-				case WeaponType.GUN_RIFLE:
-				case WeaponType.GUN_GATLING:
-				case WeaponType.GUN_SHOTGUN:
-				case WeaponType.GUN_GRANADE:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.NINJA:
-		case JobId.NINJA_B:
-		case JobId.KAGEROU:
-		case JobId.KAGEROU_B:
-		case JobId.SHINKIRO:
-		case JobId.OBORO:
-		case JobId.OBORO_B:
-		case JobId.SHIRANUI: {
-			switch (weaponType) {
-				case WeaponType.SYURIKEN:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.GANGSI:
-		case JobId.DEATHKNIGHT:
-		case JobId.COLLECTOR: {
-			// �ӽ�
-			break;
-		}
-		case JobId.TAEKWON:
-		case JobId.TAEKWON_B:
-		case JobId.STAR:
-		case JobId.STAR_B:
-		case JobId.STAR2:
-		case JobId.STAR2_B:
-		case JobId.EMPEROR:
-		case JobId.EMPEROR_B:
-		case JobId.EMPEROR2:
-		case JobId.EMPEROR2_B:
-		case JobId.SKY_EMPEROR:
-		case JobId.SKY_EMPEROR2: {
-			break;
-		}
-		case JobId.LINKER:
-		case JobId.LINKER_B:
-		case JobId.REAPER:
-		case JobId.REAPER_B:
-		case JobId.SOUL_ASCETIC: {
-			//case JobId.SOUL_ASCETIC2:??
-			switch (weaponType) {
-				case WeaponType.SHORTSWORD:
-					if (sex == 1) {
-						dualWeapon = true;
-					} // male
-					break;
-				case WeaponType.ROD:
-				case WeaponType.TWOHANDROD:
-					if (sex == 0) {
-						dualWeapon = true;
-					} // Female
-					break;
-			}
-			break;
-		}
-		case JobId.SWORDMAN:
-		case JobId.SWORDMAN_H:
-		case JobId.SWORDMAN_B: {
-			switch (weaponType) {
-				case WeaponType.TWOHANDSWORD:
-				case WeaponType.TWOHANDSPEAR:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.ARCHER:
-		case JobId.ARCHER_H:
-		case JobId.ARCHER_B: {
-			switch (weaponType) {
-				case WeaponType.BOW:
-					break;
-				default:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.THIEF:
-		case JobId.THIEF_H:
-		case JobId.THIEF_B: {
-			switch (weaponType) {
-				case WeaponType.BOW:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.MAGICIAN:
-		case JobId.MAGICIAN_H:
-		case JobId.MAGICIAN_B: {
-			switch (weaponType) {
-				case WeaponType.TWOHANDROD:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.MERCHANT:
-		case JobId.MERCHANT_H:
-		case JobId.MERCHANT_B: {
-			switch (weaponType) {
-				case WeaponType.TWOHANDAXE:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.ACOLYTE:
-		case JobId.ACOLYTE_H:
-		case JobId.ACOLYTE_B: {
-			break;
-		}
-		case JobId.NOVICE:
-		case JobId.NOVICE_H:
-		case JobId.NOVICE_B:
-		case JobId.SUPERNOVICE:
-		case JobId.SUPERNOVICE_B:
-		case JobId.SUPERNOVICE2:
-		case JobId.SUPERNOVICE2_B:
-		case JobId.HYPER_NOVICE: {
-			switch (sex) {
-				case 0:
-					switch (weaponType) {
-						case WeaponType.TWOHANDSWORD:
-						case WeaponType.TWOHANDAXE:
-						case WeaponType.TWOHANDROD:
-						case WeaponType.TWOHANDMACE:
-							break;
-						case WeaponType.SHORTSWORD:
-							dualWeapon = true;
-							break;
-					}
-					break;
-				case 1:
-					switch (weaponType) {
-						case WeaponType.TWOHANDSWORD:
-						case WeaponType.TWOHANDAXE:
-						case WeaponType.TWOHANDROD:
-						case WeaponType.TWOHANDMACE:
-							dualWeapon = true;
-							break;
-						case WeaponType.SHORTSWORD:
-							break;
-					}
-					break;
-			}
-			break;
-		}
-		case JobId.KNIGHT:
-		case JobId.KNIGHT2:
-		case JobId.CHICKEN:
-		case JobId.KNIGHT_H:
-		case JobId.CHICKEN_H:
-		case JobId.KNIGHT_B:
-		case JobId.CHICKEN_B:
-		case JobId.KNIGHT2_H:
-		case JobId.KNIGHT2_B:
-		case JobId.RUNE_KNIGHT:
-		case JobId.RUNE_KNIGHT_H:
-		case JobId.RUNE_KNIGHT_B:
-		case JobId.RUNE_KNIGHT2:
-		case JobId.RUNE_KNIGHT2_H:
-		case JobId.RUNE_KNIGHT2_B:
-		case JobId.DRAGON_KNIGHT:
-		case JobId.DRAGON_KNIGHT2: {
-			switch (weaponType) {
-				case WeaponType.TWOHANDSPEAR:
-				case WeaponAction.TWOHANDSWORD:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.PRIEST:
-		case JobId.PRIEST_H:
-		case JobId.PRIEST_B:
-		case JobId.ARCHBISHOP:
-		case JobId.ARCHBISHOP_H:
-		case JobId.ARCHBISHOP_B:
-		case JobId.CARDINAL: {
-			switch (weaponType) {
-				case WeaponType.BOOK:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.WIZARD:
-		case JobId.WIZARD_H:
-		case JobId.WIZARD_B:
-		case JobId.WARLOCK:
-		case JobId.WARLOCK_H:
-		case JobId.WARLOCK_B:
-		case JobId.ARCH_MAGE: {
-			switch (weaponType) {
-				case WeaponType.SHORTSWORD:
-					if (sex == 1) {
-						dualWeapon = true;
-					}
-					break;
-				case WeaponType.ROD:
-				case WeaponType.TWOHANDROD:
-					if (sex == 0) {
-						dualWeapon = true;
-					}
-					break;
-			}
-			break;
-		}
-		case JobId.BLACKSMITH:
-		case JobId.BLACKSMITH_H:
-		case JobId.BLACKSMITH_B:
-		case JobId.MECHANIC:
-		case JobId.MECHANIC_H:
-		case JobId.MECHANIC_B:
-		case JobId.MECHANIC2:
-		case JobId.MECHANIC2_H:
-		case JobId.MECHANIC2_B:
-		case JobId.MEISTER:
-		case JobId.MEISTER2: {
-			switch (weaponType) {
-				case WeaponType.SWORD:
-				case WeaponType.AXE:
-				case WeaponType.TWOHANDAXE:
-				case WeaponType.MACE:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.ASSASSIN:
-		case JobId.ASSASSIN_H:
-		case JobId.ASSASSIN_B:
-		case JobId.GUILLOTINE_CROSS:
-		case JobId.GUILLOTINE_CROSS_H:
-		case JobId.GUILLOTINE_CROSS_B:
-		case JobId.SHADOW_CROSS: {
-			switch (weaponType) {
-				case WeaponType.KATAR:
-				case WeaponType.SHORTSWORD_SHORTSWORD:
-				case WeaponType.SHORTSWORD_SWORD:
-				case WeaponType.SHORTSWORD_AXE:
-				case WeaponType.SWORD_SWORD:
-				case WeaponType.SWORD_AXE:
-				case WeaponType.AXE_AXE:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.HUNTER:
-		case JobId.HUNTER_H:
-		case JobId.HUNTER_B:
-		case JobId.RANGER:
-		case JobId.RANGER_H:
-		case JobId.RANGER_B:
-		case JobId.RANGER2:
-		case JobId.RANGER2_H:
-		case JobId.RANGER2_B:
-		case JobId.WINDHAWK:
-		case JobId.WINDHAWK2: {
-			switch (weaponType) {
-				case WeaponType.BOW:
-					dualWeapon = true;
-					break;
-			}
-			break;
-		}
-		case JobId.SAGE:
-		case JobId.SAGE_H:
-		case JobId.SAGE_B:
-		case JobId.SORCERER:
-		case JobId.SORCERER_H:
-		case JobId.SORCERER_B:
-		case JobId.ELEMENTAL_MASTER:
-			{
-				switch (weaponType) {
-					case WeaponType.BOOK:
-					case WeaponType.ROD:
-					case WeaponType.TWOHANDROD:
-					case WeaponType.TWOHANDSPEAR: // ��ս������� ���� ���̵� ����� �����Ǹ� �����.
-						dualWeapon = true;
-						break;
-				}
-			}
-			break;
-		case JobId.ALCHEMIST:
-		case JobId.ALCHEMIST_H:
-		case JobId.ALCHEMIST_B:
-		case JobId.GENETIC:
-		case JobId.GENETIC_H:
-		case JobId.GENETIC_B:
-		case JobId.BIOLO:
-			{
-				switch (weaponType) {
-					case WeaponType.SWORD:
-					case WeaponType.AXE:
-					case WeaponType.TWOHANDAXE:
-					case WeaponType.MACE:
-						dualWeapon = true;
-						break;
-				}
-			}
-			break;
-		case JobId.CRUSADER:
-		case JobId.CRUSADER_H:
-		case JobId.CRUSADER_B:
-		case JobId.CHICKEN2:
-		case JobId.CHICKEN2_H:
-		case JobId.CHICKEN2_B:
-		case JobId.CRUSADER2:
-		case JobId.CRUSADER2_H:
-		case JobId.CRUSADER2_B:
-		case JobId.ROYAL_GUARD:
-		case JobId.ROYAL_GUARD_H:
-		case JobId.ROYAL_GUARD_B:
-		case JobId.ROYAL_GUARD2:
-		case JobId.ROYAL_GUARD2_H:
-		case JobId.ROYAL_GUARD2_B:
-		case JobId.IMPERIAL_GUARD:
-		case JobId.IMPERIAL_GUARD2:
-			{
-				switch (weaponType) {
-					case WeaponType.SPEAR:
-					case WeaponType.TWOHANDSPEAR:
-						dualWeapon = true;
-						break;
-				}
-			}
-			break;
-		case JobId.MONK:
-		case JobId.MONK_H:
-		case JobId.MONK_B:
-		case JobId.SURA:
-		case JobId.SURA_H:
-		case JobId.SURA_B:
-		case JobId.INQUISITOR:
-			{
-				switch (weaponType) {
-					case WeaponType.KNUKLE:
-					case WeaponType.NONE:
-						dualWeapon = true;
-						break;
-				}
-			}
-			break;
-		case JobId.ROGUE:
-		case JobId.ROGUE_H:
-		case JobId.ROGUE_B:
-		case JobId.SHADOW_CHASER:
-		case JobId.SHADOW_CHASER_H:
-		case JobId.SHADOW_CHASER_B:
-		case JobId.ABYSS_CHASER:
-			{
-				switch (weaponType) {
-					case WeaponType.BOW:
-						dualWeapon = true;
-						break;
-				}
-			}
-			break;
-		case JobId.BARD:
-		case JobId.BARD_H:
-		case JobId.BARD_B:
-		case JobId.MINSTREL:
-		case JobId.MINSTREL_H:
-		case JobId.MINSTREL_B:
-		case JobId.TROUBADOUR:
-		case JobId.DANCER:
-		case JobId.DANCER_H:
-		case JobId.DANCER_B:
-		case JobId.WANDERER:
-		case JobId.WANDERER_H:
-		case JobId.WANDERER_B:
-		case JobId.TROUVERE:
-			{
-				switch (weaponType) {
-					case WeaponType.BOW:
-						dualWeapon = true;
-						break;
-				}
-			}
-			break;
-		case JobId.DO_SUMMONER1:
-		case JobId.DO_SUMMONER_B1:
-		case JobId.SPIRIT_HANDLER:
-			break;
-	}
-	return dualWeapon;
-};
-
-DB.getWeaponType = function getWeaponType(itemID, realType = false, considerDualHandIds = false) {
-	const id = Number(itemID);
-
-	if (isNaN(id) || id < 0) {
-		return WeaponType.NONE;
-	}
-
-	if (realType && id in WeaponTypeExpansion) {
-		return WeaponTypeExpansion[id];
-	}
-
-	if (considerDualHandIds && id <= WeaponType.SWORD_AXE) {
-		return id;
-	}
-
-	// if itemID is lesser then WeaponType.MAX, return the itemID
-	if (id < WeaponType.MAX) {
-		return id;
-	}
-
-	// look for classnum in ItemTable
-	if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-		const classNum = ItemTable[id].ClassNum;
-
-		// look for classNum in WeaponTypeExpansion
-		if (classNum in WeaponTypeExpansion) {
-			return WeaponTypeExpansion[classNum];
-		}
-
-		// ClassNUm is the real weapon type
-		return classNum;
-	} else {
-		// if itemID is not in ItemTable, try to find the corresponding weapon type based on the range id
-		const ranges = [
-			{ min: 1100, max: 1149, type: WeaponType.SWORD },
-			{ min: 1150, max: 1199, type: WeaponType.TWOHANDSWORD },
-			{ min: 1200, max: 1249, type: WeaponType.SHORTSWORD },
-			{ min: 1250, max: 1299, type: WeaponType.KATAR },
-			{ min: 1300, max: 1349, type: WeaponType.AXE },
-			{ min: 1350, max: 1399, type: WeaponType.TWOHANDAXE },
-			{ min: 1400, max: 1449, type: WeaponType.SPEAR },
-			{ min: 1450, max: 1499, type: WeaponType.TWOHANDSPEAR },
-			{ min: 1500, max: 1549, type: WeaponType.MACE },
-			{ min: 1550, max: 1599, type: WeaponType.BOOK },
-			{ min: 1600, max: 1699, type: WeaponType.ROD },
-			{ min: 1700, max: 1749, type: WeaponType.BOW },
-			{ min: 1750, max: 1799, type: WeaponType.NONE },
-			{ min: 1800, max: 1849, type: WeaponType.KNUKLE },
-			{ min: 1900, max: 1949, type: WeaponType.INSTRUMENT },
-			{ min: 1950, max: 1999, type: WeaponType.WHIP },
-			{ min: 20000, max: 20999, type: WeaponType.TWOHANDROD },
-			{ min: 13000, max: 13099, type: WeaponType.SHORTSWORD },
-			{ min: 13100, max: 13149, type: WeaponType.GUN_HANDGUN },
-			{ min: 13150, max: 13199, type: WeaponType.GUN_RIFLE },
-			{ min: 13300, max: 13399, type: WeaponType.SYURIKEN },
-			{ min: 13400, max: 13499, type: WeaponType.SWORD },
-			{ min: 18100, max: 18499, type: WeaponType.BOW },
-			{ min: 21000, max: 21999, type: WeaponType.TWOHANDSWORD }
-		];
-
-		// Find the corresponding range
-		for (const range of ranges) {
-			if (id >= range.min && id <= range.max) {
-				return range.type;
-			}
-		}
-
-		const gunGatling = [13157, 13158, 13159, 13172, 13177];
-		if (gunGatling.indexOf(id) > -1) {
-			return WeaponType.GUN_GATLING;
-		}
-
-		const gunShotGun = [13154, 13155, 13156, 13167, 13168, 13169, 13173, 13178];
-		if (gunShotGun.indexOf(id) > -1) {
-			return WeaponType.GUN_SHOTGUN;
-		}
-
-		const gunGranade = [13160, 13161, 13162, 13174, 13179];
-		if (gunGranade.indexOf(id) > -1) {
-			return WeaponType.GUN_GRANADE;
-		}
-	}
-
-	// if itemID is not in any range, return NONE
-	return WeaponType.NONE;
-};
-
-/**
- * @return {string} Path to shield
- * @param {number} id shield
- * @param {number} job class
- * @param {boolean} sex
- */
-DB.getShieldPath = function getShieldPath(id, job, sex) {
-	if (id === 0) {
-		return null;
-	}
-
-	// Dual weapon (based on range id)
-	if (!DB.isShield(id)) {
-		return DB.getWeaponPath(id, job, sex);
-	}
-
-	const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
-
-	// ItemID to View Id
-	if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-		id = ItemTable[id].ClassNum;
-	}
-
-	return (
-		'data/sprite/\xb9\xe6\xc6\xd0/' +
-		baseClass +
-		'/' +
-		baseClass +
-		'_' +
-		SexTable[sex] +
-		'_' +
-		(ShieldTable[id] || ShieldTable[1])
-	);
-};
-
-/**
- * @return {string} Path to weapon
- * @param {number} id weapon
- * @param {number} job class
- * @param {boolean} sex
- */
-DB.getWeaponPath = function getWeaponPath(id, job, sex, leftid = false) {
-	if (id === 0) {
-		return null;
-	}
-
-	const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
-
-	id = DB.getWeaponType(id);
-
-	// TODO: CHECK IF THIS IS CORRECT
-	if (leftid) {
-		if (leftid in ItemTable && 'ClassNum' in ItemTable[leftid]) {
-			leftid = ItemTable[leftid].ClassNum;
-		}
-
-		// Create dualhand Id
-		const right = Object.keys(WeaponType).find(key => WeaponType[key] === id);
-		const left = Object.keys(WeaponType).find(key => WeaponType[key] === leftid);
-		if (right && left) {
-			id = WeaponType[right + '_' + left];
-		}
-	}
-
-	return (
-		'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' +
-		baseClass +
-		'/' +
-		baseClass +
-		'_' +
-		SexTable[sex] +
-		(WeaponTable[id] || '_' + id)
-	);
-};
-
-/**
- * @return {string} Path to weapon trail
- * @param {number} id weapon
- * @param {number} job class
- * @param {boolean} sex
- */
-DB.getWeaponTrail = function getWeaponTrail(id, job, sex) {
-	if (id === 0) {
-		return null;
-	}
-
-	const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
-
-	const realId = DB.getWeaponType(id, true, true);
-
-	return (
-		'data/sprite/\xc0\xce\xb0\xa3\xc1\xb7/' +
-		baseClass +
-		'/' +
-		baseClass +
-		'_' +
-		SexTable[sex] +
-		WeaponTrailTable[realId]
-	);
-};
-
-/**
- * @param {number} cart id
- */
-DB.getCartPath = function getCartPath(num) {
-	const id = Math.max(Math.min(num, 13), 0); //cap 0-13
-	return [
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbd\xb4\xb3\xeb\xbc\xd5\xbc\xf6\xb7\xb9',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb9',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb91',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb92',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb93',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb94',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb95',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb96',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb97',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xd5\xbc\xf6\xb7\xb98',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xbc\xb1\xb9\xb0\xbb\xf3\xc0\xda\xc4\xab\xc6\xae',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xc6\xf7\xb8\xb5\xbd\xc6\xc0\xba\xc4\xab\xc6\xae',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xc6\xf7\xb8\xb5\xc4\xab\xc6\xae',
-		'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xb6\xb5\xb5\xc4\xab\xc6\xae'
-	][id];
-};
-
-/**
- * @return {string} Path to weapon sound
- * @param {number} weapon id
- */
-DB.getWeaponSound = function getWeaponSound(id) {
-	const type = DB.getWeaponType(id, true);
-	return WeaponSoundTable[type];
-};
-
-/**
- * @return {string} Path to eapon sound
- * @param {number} weapon id
- */
-DB.getWeaponHitSound = function getWeaponHitSound(id) {
-	const type = DB.getWeaponType(id, true, true);
-
-	const hitSound = WeaponHitSoundTable[type];
-
-	// if array return random item
-	if (Array.isArray(hitSound)) {
-		return hitSound[Math.floor(Math.random() * hitSound.length)];
-	}
-
-	return hitSound;
-};
-
-/**
- * @return {string} Path to eapon sound [MrUnzO]
- * @param {number} weapon id
- */
-DB.getJobHitSound = function getJobHitSound(job_id) {
-	if (!job_id) {
-		return JobHitSoundTable[0];
-	}
-
-	return JobHitSoundTable[job_id] || JobHitSoundTable[0];
-};
-
-/**
- * @return {number} weapon viewid
- * @param {number} id weapon
- */
-DB.getWeaponViewID = function getWeaponViewID(id) {
-	// validate if is number
-	if (isNaN(id)) {
-		return 0;
-	}
-
-	// if id is 0, return 0
-	if (id === 0) {
-		return 0;
-	}
-
-	// if less then weapon type.MAX, return the id
-	if (id < WeaponType.MAX) {
-		return id;
-	}
-
-	// try to get view from classnum in ItemTable
-	if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-		return ItemTable[id].ClassNum;
-	}
-
-	// all cases failed, return weapon type to use base sprite
-	return DB.getWeaponType(id);
-};
-
-/**
- * @return {number} weapon action frame
- * @param {number} id weapon
- * @param {number} job
- * @param {number} sex
- */
-DB.getWeaponAction = function getWeaponAction(id, job, sex) {
-	const type = DB.getWeaponType(id, true);
-
-	if (job in WeaponAction) {
-		if (WeaponAction[job] instanceof Array) {
-			if (type in WeaponAction[job][sex]) {
-				return WeaponAction[job][sex][type];
-			}
-		} else if (type in WeaponAction[job]) {
-			return WeaponAction[job][type];
-		}
-	}
-
-	return 0;
-};
-
-DB.mountWeapon = function mountWeapon(weaponID, shieldID) {
-	const _weapon = DB.getWeaponType(weaponID, true);
-	const _shield = DB.getWeaponType(shieldID, true);
-
-	let weapon;
-
-	const viewId = _weapon + _shield;
-
-	switch (viewId) {
-		case 2:
-			weapon = WeaponType.SHORTSWORD_SHORTSWORD;
-			break;
-		case 3:
-			weapon = WeaponType.SHORTSWORD_SWORD;
-			break;
-		case 4:
-			weapon = WeaponType.SWORD_SWORD;
-			break;
-		case 7:
-			weapon = WeaponType.SHORTSWORD_AXE;
-			break;
-		case 8:
-			weapon = WeaponType.SWORD_AXE;
-			break;
-		case 12:
-			weapon = WeaponType.AXE_AXE;
-			break;
-		default:
-			weapon = viewId;
-			break;
-	}
-
-	return weapon;
-};
-
-DB.isBow = function isBow(weaponType) {
-	return (
-		weaponType == WeaponType.BOW ||
-		weaponType == WeaponType.CrossBow ||
-		weaponType == WeaponType.Arbalest ||
-		weaponType == WeaponType.Kakkung ||
-		weaponType == WeaponType.Hunter_Bow ||
-		weaponType == WeaponType.Bow_Of_Rudra
-	);
-};
-
-DB.isKatar = function isKatar(weaponType) {
-	return weaponType == WeaponType.KATAR;
-};
-
-DB.isAssassin = function isAssassin(jobID) {
-	return (
-		jobID == JobId.ASSASSIN ||
-		jobID == JobId.ASSASSIN_H ||
-		jobID == JobId.ASSASSIN_B ||
-		jobID == JobId.GUILLOTINE_CROSS ||
-		jobID == JobId.GUILLOTINE_CROSS_H ||
-		jobID == JobId.GUILLOTINE_CROSS_B ||
-		jobID == JobId.SHADOW_CROSS
-	);
-};
-
-/**
- * Get back informations from id
- *
- * @param {number} item id
- * @return {object} item
- */
-DB.getItemInfo = (function getItemInfoClosure() {
-	const unknownItem = {
-		unidentifiedDisplayName: 'Unknown Item',
-		unidentifiedResourceName: '\xbb\xe7\xb0\xfa',
-		unidentifiedDescriptionName: ['...'],
-		identifiedDisplayName: 'Unknown Item',
-		identifiedResourceName: '\xbb\xe7\xb0\xfa',
-		identifiedDescriptionName: ['...'],
-		slotCount: 0,
-		ClassNum: 0
-	};
-
-	return function getItemInfo(itemid) {
-		const item = ItemTable[itemid] || unknownItem;
-
-		if (!item._decoded) {
-			item.identifiedDescriptionName =
-				item.identifiedDescriptionName instanceof Array
-					? item.identifiedDescriptionName.join('\n')
-					: item.identifiedDescriptionName;
-			item.unidentifiedDescriptionName =
-				item.unidentifiedDescriptionName instanceof Array
-					? item.unidentifiedDescriptionName.join('\n')
-					: item.unidentifiedDescriptionName;
-			item.prefixName = TextEncoding.decodeString(item.prefixName || '');
-			item.isPostfix = item.isPostfix || false;
-			item.processitemlist =
-				item.processitemlist && item.processitemlist instanceof Array
-					? TextEncoding.decodeString(item.processitemlist.join('\n'))
-					: '';
-			item._decoded = true;
-		}
-
-		return item;
-	};
-})();
-
-/**
- * Get back item path
- *
- * @param {number} item id
- * @param {boolean} is identify
- * @return {string} path
- */
-DB.getItemPath = function getItemPath(itemid, identify) {
-	const it = DB.getItemInfo(itemid);
-	return (
-		'data/sprite/\xbe\xc6\xc0\xcc\xc5\xdb/' + (identify ? it.identifiedResourceName : it.unidentifiedResourceName)
-	);
-};
-
-/**
- * Get full item name
- *
- * @param {object} item - The item object containing details about the item.
- * @param {object} [options] - Optional parameters to customize the output.
- * @param {boolean} [options.showItemRefine=true] - Whether to show the refining level of the item.
- * @param {boolean} [options.showItemGrade=true] - Whether to show the grade of the item.
- * @param {boolean} [options.showItemSlots=true] - Whether to show the number of slots on the item.
- * @param {boolean} [options.showItemPrefix=true] - Whether to show the prefix of the item.
- * @param {boolean} [options.showItemPostfix=true] - Whether to show the postfix of the item.
- * @param {boolean} [options.showItemOptions=true] - Whether to show the number of options on the item.
- * @return {string} - The full name of the item with all applicable details.
- */
-DB.getItemName = function getItemName(item, options = {}) {
-	const {
-		showItemRefine = true,
-		showItemGrade = true,
-		showItemSlots = true,
-		showItemPrefix = true,
-		showItemPostfix = true,
-		showItemOptions = true
-	} = options;
-
-	const it = DB.getItemInfo(item.ITID);
-	let str = '';
-	let prefix = '';
-	let postfix = '';
-	let showprefix = false;
-	let showpostfix = false;
-
-	if (!item.IsIdentified) {
-		return it.unidentifiedDisplayName;
-	}
-
-	if (item.RefiningLevel && showItemRefine) {
-		str = '+' + item.RefiningLevel + ' ';
-	}
-
-	if (item.enchantgrade && showItemGrade) {
-		const list = ['', 'D', 'C', 'B', 'A'];
-		str += '[' + list[item.enchantgrade] + '] ';
-	}
-
-	//Hide slots for forged weapons
-	let showslots = true;
-	if (item.slot) {
-		let very = '';
-		let name = '';
-		let elem = '';
-
-		switch (item.slot.card1) {
-			case 0x00ff: {
-				// FORGE
-				showslots = false;
-				if (item.slot.card2 >= 3840) {
-					very = MsgStringTable[461]; //Very Very Very Strong
-				} else if (item.slot.card2 >= 2560) {
-					very = MsgStringTable[460]; //Very Very Strong
-				} else if (item.slot.card2 >= 1024) {
-					very = MsgStringTable[459]; //Very Strong
-				}
-				switch (Math.abs(item.slot.card2 % 10)) {
-					case 1:
-						elem = MsgStringTable[452];
-						break; // 's Ice
-					case 2:
-						elem = MsgStringTable[454];
-						break; // 's Earth
-					case 3:
-						elem = MsgStringTable[451];
-						break; // 's Fire
-					case 4:
-						elem = MsgStringTable[453];
-						break; // 's Wind
-					default:
-						elem = MsgStringTable[450];
-						break; // 's
-				}
-
-				const GID = (item.slot.card4 << 16) + item.slot.card3;
-				name = '<font color="red" class="owner-' + GID + '">Unknown</font>';
-				if (DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
-					name = '<font color="#87cefa" class="owner-' + GID + '">' + DB.CNameTable[GID] + '</font>';
-				} else {
-					DB.UpdateOwnerName[GID] = function (pkt) {
-						delete DB.UpdateOwnerName[pkt.GID];
-						setTimeout(() => {
-							const elements = document.querySelectorAll('.owner-' + pkt.GID);
-							for (let i = 0; i < elements.length; i++) {
-								elements[i].innerText = pkt.CName;
-								elements[i].style.color = 'blue';
-							}
-						}, 1000);
-					};
-					DB.getNameByGID(GID);
-				}
-
-				str += very + ' ' + name + elem + ' ';
-				break;
-			}
-			case 0x00fe: // CREATE
-				elem = MsgStringTable[450];
-				break;
-			case 0xff00: // PET
-				break;
-			// Show card prefix
-			default: {
-				const list = ['', 'Double ', 'Triple ', 'Quadruple '];
-				const cards = {};
-				const cardList = [];
-
-				for (let i = 1; i <= 4; ++i) {
-					const card = item.slot['card' + i];
-
-					if (card) {
-						//store order
-						if (!cardList.includes(card)) {
-							cardList.push(card);
-						}
-
-						//store details
-						if (cards[card]) {
-							cards[card].count++;
-						} else {
-							cards[card] = {};
-							cards[card].isPostfix = DB.getItemInfo(card).isPostfix;
-							cards[card].prefixName = DB.getItemInfo(card).prefixName;
-							cards[card].count = 0;
-						}
-					}
-				}
-
-				//create prefixes and postfixes in order
-				cardList.forEach(card => {
-					if (cards[card].isPostfix) {
-						postfix += ' ' + list[cards[card].count] + cards[card].prefixName;
-						showpostfix = true;
-					} else {
-						prefix += list[cards[card].count] + cards[card].prefixName + ' ';
-						showprefix = true;
-					}
-				});
-				break;
-			}
-		}
-		switch (item.slot.card4) {
-			case 0x1: //BELOVED PET
-				showslots = false;
-				str = DB.getMessage(756) + ' ' + str;
-				break;
-		}
-	}
-
-	if (showprefix && showItemPrefix) {
-		str += prefix;
-	}
-
-	str += it.identifiedDisplayName;
-
-	if (showpostfix && showItemPostfix) {
-		str += postfix;
-	}
-
-	if (it.slotCount > 0 && showslots && showItemSlots) {
-		str += ' [' + it.slotCount + ']';
-	}
-
-	if (item.Options && showItemOptions) {
-		const numOfOptions = item.Options.filter(Option => Option?.index && Option?.index !== 0).length;
-		if (numOfOptions) {
-			str += ' [' + numOfOptions + ' Option]';
-		}
-	}
-
-	return str;
-};
-
-/**
- * Get random option name
- *
- * @param {integer} id
- * @return {string} item full name
- */
-DB.getOptionName = function getOptionName(id) {
-	if (!(id in RandomOption)) {
-		return 'UNKNOWN RANDOM OPTION';
-	}
-	return RandomOption[id];
-};
-/**
- * Get a message from msgstringtable
- *
- * @param {number} message id
- * @param {string} optional string to show if the text isn't defined
- * @return {string} message
- */
-DB.getMessage = function getMessage(id, defaultText) {
-	if (!(id in MsgStringTable)) {
-		return defaultText !== undefined ? defaultText : 'NO MSG ' + id;
-	}
-
-	return MsgStringTable[id];
-};
-
-/**
- * Get a message string from the MsgEmotionCSV
- *
- * @param {string} key - The key to search for
- * @return {string|null} - The value associated with the given key, or null if not found.
- */
-DB.getMessageEmotionCSV = function getMsgEmotionCSV(keyOrIndex) {
-	if (typeof keyOrIndex === 'number') {
-		// Get keys as array just for this lookup
-		const keys = Object.keys(MsgEmotionCSV);
-		const key = keys[keyOrIndex];
-		return key ? MsgEmotionCSV[key] : null;
-	}
-	// string key lookup
-	return MsgEmotionCSV[keyOrIndex] ?? null;
-};
-
-/**
- * Get Skill Description from DB
- *
- * @param {number} skill id
- */
-DB.getSkillDescription = function getSkillDescription(id) {
-	return SkillDescription[id] || '...';
-};
-
-/**
- * @param {string} filename
- * @return {object}
- */
-DB.getMap = function getMap(mapname) {
-	const map = mapname.replace('.gat', '.rsw');
-
-	return MapTable[map] || null;
-};
-
-/**
- * Get a message from msgstringtable
- *
- * @param {string} mapname
- * @param {string} default name if not found
- * @return {string} map location
- */
-DB.getMapName = function getMapName(mapname, defaultName) {
-	if (!mapname) {
-		return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
-	}
-	const map = mapname.replace('.gat', '.rsw');
-
-	if (!(map in MapTable) || !MapTable[map].name) {
-		return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
-	}
-
-	return MapTable[map].name;
-};
-
-/**
- * Get monster name
- *
- * @param {number} job id
- */
-DB.getMonsterName = function getMonsterName(job) {
-	return MonsterNameTable[job] ?? 'Unknown';
-};
-
-/**
- * Get back town information by mapname
- * @param {number} efst id
- */
-DB.getTownInfo = function GetTownInfo(mapname) {
-	return TownInfo[mapname] || null;
-};
-
-/**
- * Get back map information by mapname
- * @param {number} efst id
- */
-DB.getMapInfo = function GetMapInfo(mapname) {
-	return MapInfo[mapname] || null;
-};
-
-/**
- * Get the whole Laphine Synthesis Table
- * @returns LaphineSysTable
- */
-DB.getLaphineSysList = function getLaphineSysList() {
-	return LaphineSysTable;
-};
-
-/**
- * Get Laphine Synthesis information by itemId
- * @param {number} itemId
- * @returns LaphineSysTable[key] if itemId found
- */
-DB.getLaphineSysInfoById = function getLaphineSysInfoById(itemId) {
-	for (const key in LaphineSysTable) {
-		if (LaphineSysTable[key].ItemID === itemId) {
-			return LaphineSysTable[key];
-		}
-	}
-	return null;
-};
-
-/**
- * Retrieves the Laphine Upgrade Table.
- *
- * @return {Object} The Laphine Upgrade Table.
- */
-DB.getLaphineUpgList = function getLaphineUpgList() {
-	return LaphineUpgTable;
-};
-
-/**
- * Retrieves the Laphine Upgrade information by the given item ID.
- *
- * @param {number} itemId - The ID of the item to search for.
- * @return {Object|null} The Laphine Upgrade information if found, or null if not found.
- */
-DB.getLaphineUpgInfoById = function getLaphineUpgInfoById(itemId) {
-	for (const key in LaphineUpgTable) {
-		if (LaphineUpgTable[key].ItemID === itemId) {
-			return LaphineUpgTable[key];
-		}
-	}
-	return null;
-};
-
-/**
- * Retrieves the Enchant group info by the given group ID.
- *
- * @param {number} groupId - The Enchant group ID.
- * @return {Object|null} The Enchant group info if found, or null.
- */
-DB.getEnchantGroup = function getEnchantGroup(groupId) {
-	return EnchantListTable[groupId] || null;
-};
-
-/**
- * Retrieves all Enchant groups.
- *
- * @return {Object} Enchant group table.
- */
-DB.getEnchantGroups = function getEnchantGroups() {
-	return EnchantListTable;
-};
-
-/**
- * Retrieves Enchant slot info by group and slot.
- *
- * @param {number} groupId - The Enchant group ID.
- * @param {number} slotNum - Slot index.
- * @return {Object|null} Enchant slot info if found.
- */
-DB.getEnchantSlot = function getEnchantSlot(groupId, slotNum) {
-	const group = EnchantListTable[groupId];
-	if (!group || !group.slots) {
-		return null;
-	}
-	return group.slots[slotNum] || null;
-};
-
-/**
- * Returns the item ID associated with a given base item.
- *
- * @param {string} baseItem - The base item to get the ID for.
- * @return {number} The item ID associated with the base item.
- */
-DB.getItemIdfromBase = function getItemIdfromBase(baseItem) {
-	return ItemDBNameTbl[baseItem];
-};
-
-/**
- * Retrieves the base item associated with a given item ID.
- *
- * @param {number} itemId - The ID of the item to search for.
- * @return {string|null} The base item associated with the item ID, or null if not found.
- */
-DB.getBasefromItemID = function getBasefromItemID(itemId) {
-	for (const key in ItemDBNameTbl) {
-		if (ItemDBNameTbl[key] === itemId) {
-			return key;
-		}
-	}
-	return null; // Return null if not found
-};
-
-/**
- * Finds the reform list associated with a given item ID.
- *
- * @param {number} itemId - The ID of the item to search for.
- * @return {Object|null} The reform list associated with the item ID, or null if not found.
- */
-DB.findReformListByItemID = function findReformListByItemID(itemId) {
-	// First, get the base item from the item ID
-	const baseItem = DB.getBasefromItemID(itemId);
-
-	// Check if the base item was found and if it exists as a key in ReformItemList
-	if (baseItem && ItemReformTable.ReformItemList.hasOwnProperty(baseItem)) {
-		return ItemReformTable.ReformItemList[baseItem];
-	} else {
-		return null; // Return null if not found
-	}
-};
-
-/**
- * Retrieves the reform information for a given reform ID.
- *
- * @param {string} reformId - The ID of the reform to retrieve information for.
- * @return {Object|null} The reform information object if found, or null if not found.
- */
-DB.getReformInfo = function getReformInfo(reformId) {
-	// Check if the reformId exists in the ReformInfo
-	if (ItemReformTable.ReformInfo[reformId]) {
-		return ItemReformTable.ReformInfo[reformId];
-	} else {
-		return null; // Return null if the reform ID is not found
-	}
-};
-
-/**
- * Retrieves information for all reform IDs in the provided array.
- *
- * @param {Array} reformIds - An array of reform IDs to retrieve information for.
- * @return {Array} An array of reform information objects.
- */
-DB.getAllReformInfos = function getAllReformInfos(reformIds) {
-	const reformInfos = [];
-
-	for (let i = 0; i < reformIds.length; i++) {
-		const reformId = reformIds[i];
-		const reformInfo = DB.getReformInfo(reformId);
-
-		if (reformInfo) {
-			reformInfos.push(reformInfo);
-		} else {
-			console.error('Reform Info not found for reform ID:', reformId);
-		}
-	}
-
-	return reformInfos;
-};
-
-/**
- * Finds a signboard in the given map based on the provided coordinates.
- *
- * @param {string} mapname - The name of the map to search in.
- * @param {number} x - The x-coordinate of the signboard.
- * @param {number} y - The y-coordinate of the signboard.
- * @param {number} [tolerance=1] - The tolerance value for matching coordinates.
- * @return {Object|null} The signboard object if found, or null if not found.
- */
-DB.findSignboard = function findSignboard(mapname, x, y, tolerance = 1) {
-	const mapData = SignBoardTable[mapname];
-	if (mapData) {
-		for (const xKey in mapData) {
-			if (Math.abs(x - xKey) <= tolerance) {
-				const yData = mapData[xKey];
-				for (const yKey in yData) {
-					if (Math.abs(y - yKey) <= tolerance) {
-						return yData[yKey];
-					}
-				}
-			}
-		}
-	}
-	return null;
-};
-
-/**
- * Get all signboards for a specific map
- * @param {string} mapname - Map name
- * @return {Object} Signboard data for the map
- */
-DB.getAllSignboardsForMap = function getAllSignboardsForMap(mapname) {
-	return SignBoardTable[mapname] || null;
-};
-
-/**
- * Retrieves the translated signboard description based on the provided description.
- *
- * @param {string} description - The description of the signboard.
- * @return {string} The translated signboard description if found, otherwise the original description.
- */
-DB.getTranslatedSignBoard = function getTranslatedSignBoard(description) {
-	return SignBoardTranslatedTable[description] || description;
-};
-
-/**
- * Is character id a baby ?
- *
- * @param {number} job id
- * @return {boolean} is baby
- */
-DB.isBaby = function isBaby(jobid) {
-	return BabyTable.indexOf(jobid) > -1;
-};
-
-DB.getRandomJoke = function getRandomJoke() {
-	return JokeTable[Math.round(Math.random() * (JokeTable.length - 1))];
-};
-
-DB.getRandomScream = function getRandomScream() {
-	return ScreamTable[Math.round(Math.random() * (ScreamTable.length - 1))];
-};
-
-DB.getNameByGID = function getNameByGID(GID) {
-	if (DB.CNameTable[GID] && DB.CNameTable[GID] === 'Unknown') // already requested
-	{
-		return;
-	}
-	let pkt;
-	if (PACKETVER.value >= 20180307) {
-		pkt = new PACKET.CZ.REQNAME_BYGID2();
-	} else {
-		pkt = new PACKET.CZ.REQNAME_BYGID();
-	}
-	pkt.GID = GID;
-	Network.sendPacket(pkt);
-	DB.CNameTable[pkt.GID] = 'Unknown';
-};
-
-/**
- * Get Pet talk message
- *
- * @param {integer} message data combined with mob id, hungryState, actionState
- * @return {string} pet telk sentence
- *
- * @author MrUnzO
- */
-DB.getPetTalk = function getPetTalk(data) {
-	// Structure:
-	// Examaple: 1013010
-	// 1013  |      01     |     0
-	// mobID | hungryState | actionState
-	const mobId = parseInt(data.toString().substring(0, 4)) || 1001;
-	const hungryState = parseInt(data.toString().substring(4, 6)) || 0;
-	const actionState = parseInt(data.toString().substring(6, 7)) || 0;
-
-	if (hungryState >= Object.keys(PetHungryState).length || actionState >= Object.keys(PetMessageConst).length) {
-		return false;
-	}
-
-	let mobName, hungryText, actionText;
-	if (mobId && mobId >= 1000 && mobId < 4000) {
-		mobName = (MonsterTable[mobId] || MonsterTable[1001]).toLowerCase();
-	}
-	if (hungryState !== null && hungryState !== undefined) {
-		hungryText = DB.getPetHungryText(parseInt(hungryState));
-	}
-
-	if (actionState !== null && actionState !== undefined) {
-		actionText = DB.getPetActText(parseInt(actionState));
-	}
-
-	if (!mobName || !hungryText || !actionText) {
-		return false;
-	}
-
-	if (
-		PetTalkTable &&
-		PetTalkTable[mobName] &&
-		PetTalkTable[mobName][hungryText] &&
-		PetTalkTable[mobName][hungryText][actionText]
-	) {
-		let rnd = 0;
-		if (PetTalkTable[mobName][hungryText][actionText] instanceof Array) {
-			rnd = parseInt((Math.random() * 100) % PetTalkTable[mobName][hungryText][actionText].length);
-			return TextEncoding.decodeString(PetTalkTable[mobName][hungryText][actionText][rnd]);
-		}
-		return TextEncoding.decodeString(PetTalkTable[mobName][hungryText][actionText]);
-	}
-
-	return false;
-};
-
-/**
- * Get Pet Hungry state
- *
- * @param {integer} hunger
- * @return {integer} hunger state
- *
- * @author MrUnzO
- */
-DB.getPetHungryState = function getPetHungryState(hunger) {
-	if (!hunger) {
-		return 0;
-	}
-	if (hunger > 90 && hunger <= 100) {
-		return PetHungryState.PET_FULL;
-	} else if (hunger > 75 && hunger <= 90) {
-		return PetHungryState.PET_ENOUGH;
-	} else if (hunger > 25 && hunger <= 75) {
-		return PetHungryState.PET_SATISFIED;
-	} else if (hunger > 10 && hunger <= 25) {
-		return PetHungryState.PET_HUNGRY;
-	} else if (hunger >= 0 && hunger <= 10) {
-		return PetHungryState.PET_HUNGER;
-	}
-	return 0;
-};
-
-/**
- * Get Pet Friendly state
- *
- * @param {integer} friendly
- * @return {integer} friendly state
- *
- * @author MrUnzO
- */
-DB.getPetFriendlyState = function getPetFriendlyState(friendly) {
-	if (!friendly) {
-		return 0;
-	}
-	if (friendly > 900 && friendly <= 1000) {
-		return PetFriendlyState.PET_FAMILIAR;
-	} else if (friendly > 750 && friendly <= 900) {
-		return PetFriendlyState.PET_FRIENDLY;
-	} else if (friendly > 250 && friendly <= 750) {
-		return PetFriendlyState.PET_NORMAL;
-	} else if (friendly > 100 && friendly <= 250) {
-		return PetFriendlyState.PET_AWKWARD;
-	} else if (friendly >= 0 && friendly <= 100) {
-		return PetFriendlyState.PET_ASHAMED;
-	}
-	return 0;
-};
-
-/**
- * Get Pet Action text
- *
- * @param {integer} action
- * @return {string} action string
- *
- * @author MrUnzO
- */
-DB.getPetActText = function getPetActText(action) {
-	switch (action) {
-		case PetMessageConst.PM_FEEDING:
-			return 'feeding';
-		case PetMessageConst.PM_HUNTING:
-			return 'hunting';
-		case PetMessageConst.PM_DANGER:
-			return 'danger';
-		case PetMessageConst.PM_DEAD:
-			return 'dead';
-		case PetMessageConst.PM_NORMAL:
-			return 'stand';
-		case PetMessageConst.PM_CONNENCT:
-			return 'connect';
-		case PetMessageConst.PM_LEVELUP:
-			return 'levelup';
-		case PetMessageConst.PM_PERFORMANCE1:
-			return 'perfor_1';
-		case PetMessageConst.PM_PERFORMANCE2:
-			return 'perfor_2';
-		case PetMessageConst.PM_PERFORMANCE3:
-			return 'perfor_3';
-		case PetMessageConst.PM_PERFORMANCE_S:
-			return 'perfor_s';
-	}
-
-	return 'stand';
-};
-
-/**
- * Get Pet Hungry state text
- *
- * @param {integer} hungry state
- * @return {String} hungry state text
- *
- * @author MrUnzO
- */
-DB.getPetHungryText = function getPetHungryText(state) {
-	switch (state) {
-		case PetHungryState.PET_HUNGER:
-			return 'hungry';
-		case PetHungryState.PET_HUNGRY:
-			return 'bit_hungry';
-		case PetHungryState.PET_SATISFIED:
-			return 'noting';
-		case PetHungryState.PET_ENOUGH:
-			return 'full';
-		case PetHungryState.PET_FULL:
-			return 'so_full';
-	}
-	return 'hungry';
-};
-
-/**
- * Get Pet Emotion ID
- *
- * @param {integer} hungry state
- * @param {integer} friendly state
- * @param {integer} action
- * @return {integer} emotion id
- *
- * @author MrUnzO
- */
-DB.getPetEmotion = function getPetEmotion(hunger, friendly, act) {
-	if (PetEmotionTable[hunger][friendly][act]) {
-		return PetEmotionTable[hunger][friendly][act];
-	}
-
-	return false;
-};
-
-/**
- * Get Pet talk number message (for send to server to distribute)
- *
- * @param {integer} job (mob id)
- * @param {integer} action
- * @param {integer} hungry state
- * @return {integer} message data
- *
- * @author MrUnzO
- */
-DB.getPetTalkNumber = function getPetTalkNumber(job, act, hungry) {
-	return parseInt(job.toString() + ('0' + hungry).slice(-2) + act.toString());
-};
-
-function onUpdateOwnerName(pkt) {
-	DB.CNameTable[pkt.GID] = pkt.CName;
-	DB.UpdateOwnerName[pkt.GID] = pkt;
-}
-
-/**
- * Indoor checking
- *
- * @param {string} map name
- * @return {boolean} is indoor?
- *
- * @author MrUnzO
- */
-DB.isIndoor = function isIndoor(mapname) {
-	if (mapname === undefined) {
-		return -1;
-	}
-	let map;
-	if (mapname.substring(mapname.length - 4, mapname.length) == '.gat') {
-		map = mapname.replace('.gat', '.rsw');
-	} else {
-		map = mapname;
-	}
-	if (MapTable[map] === undefined) {
-		return false;
-	}
-	return MapTable[map].indoor || false;
-};
-
-DB.UpdateOwnerName = {};
-
-/**
- * Get Quest Info by ID
- *
- * @param {integer} questID (quest id)
- *
- * @author alisonrag
- */
-DB.getQuestInfo = function getQuestInfo(questID) {
-	return (
-		QuestInfo[questID] || {
-			Title: 'Unknown Quest',
-			Description: [],
-			Summary: 'Uknown Quest',
-			IconName: '',
-			NpcSpr: null,
-			NpcNavi: null,
-			NpcPosX: null,
-			NpcPosY: null,
-			RewardItemList: [],
-			RewardEXP: 0,
-			RewardJEXP: 0
-		}
-	);
-};
-
-DB.getCheckAttendanceInfo = function getCheckAttendanceInfo() {
-	return CheckAttendanceTable;
-};
-
-DB.getBuyingStoreItemList = function getBuyingStoreItemList() {
-	return buyingStoreItemList;
-};
-
-DB.isBuyable = function isBuyable(id) {
-	return buyingStoreItemList.includes(id);
-};
-
-/**
- * Is item id a pet egg?
- *
- * Used for older versions,
- * because item type PETEGG didn't exist back then
- * and type ARMOR was used with equip location 0,
- * but this is not usable in vending since location
- * is not received with packet...
- *
- * @param {integer} id
- * @returns {boolean}
- */
-DB.isPetEgg = function isPetEgg(id) {
-	return id >= 9000 && id <= 9150;
-};
-
-/**
- * Get Job Class Category
- *
- * @param {integer} JobId
- *
- */
-DB.getJobClass = function getJobClass(job) {
-	switch (job) {
-		case JobId.NOVICE:
-		case JobId.DO_SUMMONER1:
-			return 'Base_Class';
-
-		case JobId.SWORDMAN:
-		case JobId.MAGICIAN:
-		case JobId.ARCHER:
-		case JobId.ACOLYTE:
-		case JobId.MERCHANT:
-		case JobId.THIEF:
-			return 'First_Class';
-
-		case JobId.KNIGHT:
-		case JobId.PRIEST:
-		case JobId.WIZARD:
-		case JobId.BLACKSMITH:
-		case JobId.HUNTER:
-		case JobId.ASSASSIN:
-		case JobId.KNIGHT2:
-		case JobId.CRUSADER:
-		case JobId.MONK:
-		case JobId.SAGE:
-		case JobId.ROGUE:
-		case JobId.ALCHEMIST:
-		case JobId.BARD:
-		case JobId.DANCER:
-		case JobId.CRUSADER2:
-		case JobId.SUPERNOVICE:
-			return 'Second_Class';
-
-		case JobId.GUNSLINGER:
-		case JobId.NINJA:
-		case JobId.TAEKWON:
-			return 'Expanded_First_Class';
-
-		case JobId.NOVICE_H:
-			return 'Rebirth_Class';
-
-		case JobId.SWORDMAN_H:
-		case JobId.MAGICIAN_H:
-		case JobId.ARCHER_H:
-		case JobId.ACOLYTE_H:
-		case JobId.MERCHANT_H:
-		case JobId.THIEF_H:
-			return 'Rebirth_First_Class';
-
-		case JobId.KNIGHT_H:
-		case JobId.PRIEST_H:
-		case JobId.WIZARD_H:
-		case JobId.BLACKSMITH_H:
-		case JobId.HUNTER_H:
-		case JobId.ASSASSIN_H:
-		case JobId.KNIGHT2_H:
-		case JobId.CRUSADER_H:
-		case JobId.MONK_H:
-		case JobId.SAGE_H:
-		case JobId.ROGUE_H:
-		case JobId.ALCHEMIST_H:
-		case JobId.BARD_H:
-		case JobId.DANCER_H:
-		case JobId.CRUSADER2_H:
-			return 'Rebirth_Second_Class';
-
-		case JobId.STAR:
-		case JobId.STAR2:
-		case JobId.LINKER:
-		case JobId.KAGEROU:
-		case JobId.OBORO:
-		case JobId.REBELLION:
-			return 'Expanded_Second_Class';
-
-		case JobId.RUNE_KNIGHT:
-		case JobId.WARLOCK:
-		case JobId.RANGER:
-		case JobId.ARCHBISHOP:
-		case JobId.MECHANIC:
-		case JobId.ROYAL_GUARD:
-		case JobId.SORCERER:
-		case JobId.MINSTREL:
-		case JobId.WANDERER:
-		case JobId.SURA:
-		case JobId.GENETIC:
-		case JobId.SHADOW_CHASER:
-		case JobId.RUNE_KNIGHT2:
-		case JobId.ROYAL_GUARD2:
-		case JobId.RANGER2:
-		case JobId.MECHANIC2:
-			return 'Normal_Third_Class';
-
-		case JobId.RUNE_KNIGHT_H:
-		case JobId.WARLOCK_H:
-		case JobId.RANGER_H:
-		case JobId.ARCHBISHOP_H:
-		case JobId.MECHANIC_H:
-		case JobId.GUILLOTINE_CROSS_H:
-		case JobId.ROYAL_GUARD_H:
-		case JobId.SORCERER_H:
-		case JobId.MINSTREL_H:
-		case JobId.WANDERER_H:
-		case JobId.SURA_H:
-		case JobId.GENETIC_H:
-		case JobId.SHADOW_CHASER_H:
-			return 'Rebirth_Third_Class';
-
-		case JobId.EMPEROR:
-		case JobId.REAPER:
-		case JobId.EMPEROR2:
-			return 'Expanded_Third_Class';
-
-		case JobId.DRAGON_KNIGHT:
-		case JobId.MEISTER:
-		case JobId.SHADOW_CROSS:
-		case JobId.ARCH_MAGE:
-		case JobId.CARDINAL:
-		case JobId.WINDHAWK:
-		case JobId.IMPERIAL_GUARD:
-		case JobId.BIOLO:
-		case JobId.ABYSS_CHASER:
-		case JobId.ELEMENTAL_MASTER:
-		case JobId.INQUISITOR:
-		case JobId.TROUBADOUR:
-		case JobId.TROUVERE:
-		case JobId.WINDHAWK2:
-		case JobId.MEISTER2:
-		case JobId.DRAGON_KNIGHT2:
-		case JobId.IMPERIAL_GUARD2:
-		case JobId.SKY_EMPEROR:
-		case JobId.SOUL_ASCETIC:
-		case JobId.SHINKIRO:
-		case JobId.SHIRANUI:
-		case JobId.NIGHT_WATCH:
-		case JobId.HYPER_NOVICE:
-		case JobId.SPIRIT_HANDLER:
-		case JobId.SKY_EMPEROR2:
-			return 'Fourth_Class';
-
-		default:
-			return 'Base_Class';
-	}
-};
-
-/**
- * Function to update MapTable with MapInfo values
- */
-function updateMapTable() {
-	for (const key in MapInfo) {
-		if (MapInfo.hasOwnProperty(key)) {
-			if (MapTable[key]) {
-				MapTable[key].name = MapInfo[key].displayName;
-			} else {
-				MapTable[key] = { name: MapInfo[key].displayName };
-			}
-		}
-	}
-}
-
-/**
- * Load Clan Emblem file
- * Icons for group reads from texture/유저인터페이스/clan_system/...
- *
- * @param {integer} clanId
- * @param {function} callback to run once the file is loaded
- *
- * @author alisonrag
- */
-DB.loadClanEmblem = function loadClanEmblem(clanId, callback) {
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'clan_system/clan_emblem' + clanId.toString().padStart(2, '0') + '.bmp',
-		function (dataURI) {
-			const img = new Image();
-			img.decoding = 'async';
-			img.src = dataURI; // String Base64
-
-			// wait image load to call the callback
-			img.onload = function () {
-				callback(img);
-			};
-		}
-	);
-};
-
-/**
- * Load Group Emblem file
- * Icons for group reads from texture/유저인터페이스/group/...
- *
- * @param {integer} groupId
- * @param {function} callback to run once the file is loaded
- *
- * @author alisonrag
- */
-DB.loadGroupEmblem = function loadGroupEmblem(groupId, callback) {
-	const extension = [22, 23, 24, 25].includes(groupId) ? 'gif' : 'bmp'; // for some reason 22 ~ 25 group emblem has .gif extension
-
-	Client.loadFile(DB.INTERFACE_PATH + 'group/group_' + groupId + '.' + extension, function (dataURI) {
-		const img = new Image();
-		img.decoding = 'async';
-		img.src = dataURI; // String Base64
-
-		// wait image load to call the callback
-		img.onload = function () {
-			callback(img);
-		};
-	});
-};
-
-/**
- * Load Mob Type file
- * Icons for Miniboss and MVP from texture/À¯ÀúÀÎÅÍÆäÀÌ½º/montype_...bmp
- *
- * @param {integer} mobType
- * @param {function} callback to run once the file is loaded
- *
- */
-DB.loadMobEmblem = function loadMobEmblem(mobType, callback) {
-	let monType = '';
-
-	switch (mobType) {
-		case 1:
-			monType = 'montype_boss.bmp';
-			break;
-		case 2:
-			monType = 'montype_mvp.bmp';
-			break;
-		default:
-			console.error('Unknown mob type:', mobType);
-			return;
-	}
-
-	Client.loadFile(DB.INTERFACE_PATH + monType, function (dataURI) {
-		const img = new Image();
-		img.decoding = 'async';
-		img.src = dataURI; // String Base64
-
-		// wait image load to call the callback
-		img.onload = function () {
-			callback(img);
-		};
-	});
-};
-
-/**
  * Load CashShopBanner file
  *
  * @param {string} filename to load
@@ -6647,548 +7152,25 @@ function loadCashShopBanner(filename, callback, onEnd) {
 	);
 }
 
-/**
- * Search for NPCs or MOBs in the navigation tables
- *
- * @param {string} query - The search query
- * @param {string} type - The type of search (ALL, NPC, MOB)
- * @returns {Array} Array of search results
- */
-DB.searchNavigation = function searchNavigation(query, type) {
-	if (!query || query.length < 2) {
-		return [];
-	}
-
-	query = query.toLowerCase();
-	const results = [];
-
-	// Search NPCs if type is ALL or NPC
-	if (type === 'ALL' || type === 'NPC') {
-		// NaviNpcTable structure: [["map_name", npc_id, npc_type, class_id, "npc_name", "", x, y], ...]
-		for (let i = 0; i < NaviNpcTable.length; i++) {
-			const npc = NaviNpcTable[i];
-			const mapName = npc[0];
-			const npcId = npc[1];
-			const npcName = npc[4] || '';
-
-			// Skip if no name
-			if (!npcName) {
-				continue;
-			}
-
-			// Check if the NPC name contains the query
-			if (npcName.toLowerCase().indexOf(query) !== -1) {
-				results.push({
-					type: 'NPC',
-					id: npcId,
-					name: npcName,
-					mapName: mapName,
-					x: npc[6],
-					y: npc[7]
-				});
-			}
-		}
-	}
-
-	// Search MOBs if type is ALL or MOB
-	if (type === 'ALL' || type === 'MOB') {
-		// NaviMobTable structure: [["map_name", spawn_id, mob_type, mob_class, "mob_name", "sprite_name", level, mob_info], ...]
-		for (let i = 0; i < NaviMobTable.length; i++) {
-			const mob = NaviMobTable[i];
-			const mapName = mob[0];
-			const mobId = mob[3]; // Using mob_class as the ID
-			const mobName = mob[4] || '';
-
-			// Skip if no name
-			if (!mobName) {
-				continue;
-			}
-
-			// Check if the MOB name contains the query
-			if (mobName.toLowerCase().indexOf(query) !== -1) {
-				// Note: mob_info might contain position data, but structure is unclear
-				// For now, we're not including x/y coordinates for mobs
-				results.push({
-					type: 'MOB',
-					id: mobId,
-					name: mobName,
-					mapName: mapName,
-					x: null,
-					y: null
-				});
-			}
-		}
-	}
-
-	// Sort results by name
-	results.sort(function (a, b) {
-		return a.name.localeCompare(b.name);
-	});
-
-	// Limit to 50 results to avoid performance issues
-	return results.slice(0, 50);
-};
+function onUpdateOwnerName(pkt) {
+	DB.CNameTable[pkt.GID] = pkt.CName;
+	DB.UpdateOwnerName[pkt.GID] = pkt;
+}
 
 /**
- * Get the NaviLinkTable
- *
- * @returns {Array} The NaviLinkTable
+ * Function to update MapTable with MapInfo values
  */
-DB.getNaviLinkTable = function getNaviLinkTable() {
-	return NaviLinkTable;
-};
-
-/**
- * Get the NaviLinkDistanceTable
- *
- * @returns {Array} The NaviLinkDistanceTable
- */
-DB.getNaviLinkDistanceTable = function getNaviLinkDistanceTable() {
-	return NaviLinkDistanceTable;
-};
-
-/**
- * Get the NaviNpcDistanceTable
- *
- * @returns {Array} The NaviNpcDistanceTable
- */
-DB.getNaviNpcDistanceTable = function getNaviNpcDistanceTable() {
-	return NaviNpcDistanceTable;
-};
-
-DB.createItemLink = function createItemLink(item) {
-	if (!item) {
-		return null;
-	}
-
-	// Handle legacy formats (ITEMLINK and ITEM)
-	if (PACKETVER.value < 20151104) {
-		return `<ITEMLINK>${item.name}<INFO>${item.ITID}</INFO></ITEMLINK>`;
-	}
-
-	if (PACKETVER.value < 20160113) {
-		return `<ITEM>${item.name}<INFO>${item.ITID}</INFO></ITEM>`;
-	}
-
-	// Handle ITEML format (newest, most complex)
-	let data = '';
-
-	// Encode equipment location (5 chars)
-	data += Base62.encode(item.location || 0).padStart(5, '0');
-
-	// Encode is equipment flag (1 char)
-	const isEquip = item.type === 5 ? '1' : '0';
-	data += isEquip;
-
-	// Encode item ID (variable length)
-	data += Base62.encode(item.ITID || 512);
-
-	// Encode refine level (optional, starts with %)
-	if (item.RefiningLevel > 0) {
-		data += '%';
-		data += Base62.encode(item.RefiningLevel).padStart(2, '0');
-	}
-
-	// Encode item sprite number (optional, starts with &)
-	if (PACKETVER.value >= 20161116) {
-		data += '&';
-		const spriteNumber = item.wItemSpriteNumber ? item.wItemSpriteNumber : 0;
-		data += Base62.encode(spriteNumber).padStart(2, '0');
-	}
-
-	// Encode enchant grade (optional, starts with ')
-	if (PACKETVER.value >= 20200724 && item.enchantgrade > 0) {
-		data += "'";
-		data += Base62.encode(item.enchantgrade).padStart(2, '0');
-	}
-
-	// Determine separators based on packet version
-	let card_sep, optid_sep, optpar_sep, optval_sep;
-	if (PACKETVER.value >= 20200724) {
-		card_sep = ')';
-		optid_sep = '+';
-		optpar_sep = ',';
-		optval_sep = '-';
-	} else if (PACKETVER.value >= 20161116) {
-		card_sep = '(';
-		optid_sep = '*';
-		optpar_sep = '+';
-		optval_sep = ',';
-	} else {
-		card_sep = "'";
-		optid_sep = ')';
-		optpar_sep = '*';
-		optval_sep = '+';
-	}
-
-	// Encode cards (4 cards)
-	const cardKeys = ['card1', 'card2', 'card3', 'card4'];
-	for (let i = 0; i < 4; i++) {
-		const cardValue = item.slot?.[cardKeys[i]] || 0;
-		if (cardValue > 0) {
-			data += card_sep;
-			data += Base62.encode(cardValue).padStart(2, '0');
-		}
-	}
-
-	// Encode random options (up to 5)
-	if (item.Options) {
-		item.Options.forEach(option => {
-			if (option.index > 0) {
-				data += optid_sep;
-				data += Base62.encode(option.index).padStart(2, '0');
-				data += optpar_sep;
-				data += Base62.encode(option.param).padStart(2, '0');
-				data += optval_sep;
-				data += Base62.encode(option.value).padStart(2, '0');
-			}
-		});
-	}
-
-	return `<ITEML>${data}</ITEML>`;
-};
-
-// <ITEMLINK> (Oldest format)
-// Used for NPC message item links in clients from 2010-01-01 to before 2015-11-04.
-// example: <ITEMLINK>Display Name<INFO>Item ID</INFO></ITEMLINK>
-// <ITEM> (Middle format)
-// Used for NPC message item links in clients from 2015-11-04 onwards, replacing <ITEMLINK>.
-// example: <ITEM>Display Name<INFO>Item ID</INFO></ITEM>
-// <ITEML> (Newest format)
-// Used for player-generated item links (like Shift+Click from inventory) in clients from 2016-01-13 onwards.
-// example: <ITEML>encoded_item_data</ITEML>
-DB.parseItemLink = function parseItemLink(itemLink) {
-	if (!itemLink) {
-		return null;
-	}
-
-	const item = {
-		ITID: 512,
-		name: 'Unknown Item',
-		type: 1,
-		location: 0,
-		slot: {
-			card1: 0,
-			card2: 0,
-			card3: 0,
-			card4: 0
-		},
-		nRandomOptionCnt: 0,
-		Options: [{ index: 0, value: 0, param: 0 }],
-		RefiningLevel: 0,
-		enchantgrade: 0,
-		IsIdentified: 1,
-		IsDamaged: 0,
-		wItemSpriteNumber: 0
-	};
-
-	let content = null;
-
-	// parse ITEMLINK and ITEM format
-	content = itemLink.match(/<(ITEMLINK|ITEM)>([\s\S]*?)<INFO>([\s\S]*?)<\/INFO><\/\1>/);
-	if (content) {
-		const [, , name, id] = content;
-		item.ITID = id;
-		item.name = name;
-		return item;
-	}
-
-	content = itemLink.match(/<ITEML>([\s\S]*?)<\/ITEML>/);
-	if (!content) {
-		return item;
-	}
-
-	const data = content[1];
-	let pos = 0;
-
-	try {
-		// Parse equipment location (5 chars)
-		item.location = Base62.decode(data.substr(pos, 5));
-		pos += 5;
-
-		// Parse is equipment flag (1 char)
-		const isEquip = data[pos] === '1';
-
-		// TODO: add equipment type
-		item.type = isEquip ? 5 : 0; // Default to armor type if equipment
-		pos += 1;
-
-		// Parse item ID (variable length until special char)
-		let itemIdStr = '';
-		while (pos < data.length && !"%&')(*+,-".includes(data[pos])) {
-			itemIdStr += data[pos];
-			pos++;
-		}
-		item.ITID = Base62.decode(itemIdStr);
-
-		// Parse refine level (optional, starts with %)
-		if (pos < data.length && data[pos] === '%') {
-			pos++; // Skip %
-			item.RefiningLevel = Base62.decode(data.substr(pos, 2));
-			pos += 2;
-		}
-
-		if (PACKETVER.value >= 20161116 && pos < data.length && data[pos] === '&') {
-			pos++; // Skip &
-			item.wItemSpriteNumber = Base62.decode(data.substr(pos, 2));
-			pos += 2;
-		}
-
-		if (PACKETVER.value >= 20200724 && pos < data.length && data[pos] === "'") {
-			pos++; // Skip '
-			item.enchantgrade = Base62.decode(data.substr(pos, 2));
-			pos += 2;
-		}
-
-		// Determine separators based on detected packet version
-		let card_sep, optid_sep, optpar_sep, optval_sep;
-		if (PACKETVER.value >= 20200724) {
-			card_sep = ')';
-			optid_sep = '+';
-			optpar_sep = ',';
-			optval_sep = '-';
-		} else if (PACKETVER.value >= 20161116) {
-			card_sep = '(';
-			optid_sep = '*';
-			optpar_sep = '+';
-			optval_sep = ',';
-		} else {
-			card_sep = "'";
-			optid_sep = ')';
-			optpar_sep = '*';
-			optval_sep = '+';
-		}
-
-		// Parse cards
-		const cardKeys = ['card1', 'card2', 'card3', 'card4'];
-		let cardIndex = 0;
-
-		while (cardIndex < 4 && pos < data.length) {
-			if (data[pos] !== card_sep) {
-				break;
-			} // não tem mais carta
-
-			pos++; // skip
-
-			// take all characters that are not card separators or random option separators
-			let cardStr = '';
-			while (pos < data.length) {
-				const c = data[pos];
-				// stop if next separator is a card separator or random option separator
-				if (c === card_sep || c === optid_sep) {
-					break;
-				}
-				// stop if next separator is a future separator (security)
-				if ("%&'()*+,-".includes(c)) {
-					break;
-				}
-				cardStr += c;
-				pos++;
-			}
-
-			// if nothing was taken, it's an empty card (0)
-			if (cardStr === '' || cardStr === '00') {
-				item.slot[cardKeys[cardIndex]] = 0;
+function updateMapTable() {
+	for (const key in MapInfo) {
+		if (MapInfo.hasOwnProperty(key)) {
+			if (MapTable[key]) {
+				MapTable[key].name = MapInfo[key].displayName;
 			} else {
-				item.slot[cardKeys[cardIndex]] = Base62.decode(cardStr);
+				MapTable[key] = { name: MapInfo[key].displayName };
 			}
-
-			cardIndex++;
-		}
-
-		// fill the cards that didn't exist with 0
-		while (cardIndex < 4) {
-			item.slot[cardKeys[cardIndex]] = 0;
-			cardIndex++;
-		}
-
-		// Parse random options (variable count)
-		let optionIdx = 0;
-		while (pos < data.length && data[pos] === optid_sep && optionIdx < 5) {
-			pos++; // Skip option ID separator
-			const optId = Base62.decode(data.substr(pos, 2));
-			pos += 2;
-
-			if (pos >= data.length || data[pos] !== optpar_sep) {
-				break;
-			}
-			pos++; // Skip param separator
-			const optParam = Base62.decode(data.substr(pos, 2));
-			pos += 2;
-
-			if (pos >= data.length || data[pos] !== optval_sep) {
-				break;
-			}
-			pos++; // Skip value separator
-			const optValue = Base62.decode(data.substr(pos, 2));
-			pos += 2;
-
-			item.Options.push({
-				index: optId,
-				value: optValue,
-				param: optParam
-			});
-			optionIdx++;
-		}
-
-		// Fill remaining option slots with zeros
-		while (item.Options.length < 5 + 1) {
-			item.Options.push({ index: 0, value: 0, param: 0 });
-		}
-
-		item.nRandomOptionCnt = optionIdx;
-
-		item.name = DB.getItemName(item);
-
-		return item;
-	} catch (error) {
-		console.error('Error parsing item link:', error);
-		return null;
-	}
-};
-
-DB.getItemNameFromLink = function getItemNameFromLink(itemLink) {
-	if (!itemLink) {
-		return null;
-	}
-
-	const item = DB.parseItemLink(itemLink);
-	return item.name;
-};
-
-/**
- * Format a Unix timestamp (seconds) into MM/DD HH:mm
- *
- * @param {number} unixTimestamp - Unix time in seconds
- * @returns {string} Formatted date string (MM/DD HH:mm)
- */
-DB.formatUnixDate = function formatUnixDate(unixTimestamp) {
-	const d = new Date(unixTimestamp * 1000);
-
-	return (
-		String(d.getMonth() + 1).padStart(2, '0') +
-		'/' +
-		String(d.getDate()).padStart(2, '0') +
-		' ' +
-		String(d.getHours()).padStart(2, '0') +
-		':' +
-		String(d.getMinutes()).padStart(2, '0')
-	);
-};
-
-/**
- * Convert RO color codes (^RRGGBB) to HTML spans
- *
- * @param {string} msg - Message with RO color codes
- * @returns {string} Message formatted to HTML
- */
-DB.formatMsgToHtml = function MsgToHtml(msg) {
-	let hasOpenSpan = false;
-
-	msg = msg.replace(/\^([0-9a-fA-F]{6})/g, (_, color) => {
-		const close = hasOpenSpan ? '</span>' : '';
-		hasOpenSpan = true;
-		return close + `<span style="color:#${color}">`;
-	});
-
-	if (hasOpenSpan) {
-		msg += '</span>';
-	}
-	return msg;
-};
-
-/**
- * Get pet data by job ID
- *
- * @param {number} jobID - Job ID
- * @returns {?Object} Pet data or null if not found
- */
-DB.getPetByJobID = function (jobID) {
-	return PetDBTable[jobID] || null;
-};
-
-/**
- * Get pet evolution data by job ID
- *
- * @param {number} jobID - Job ID
- * @returns {?Object} Pet evolution data or null if not found
- */
-DB.getPetEvolutionByJob = function (jobID) {
-	const pet = PetDBTable[jobID];
-	return pet && pet.Evolution ? pet.Evolution : null;
-};
-
-/**
- * Get pet data by pet egg ID
- *
- * @param {number|string} eggID - Pet egg ID
- * @returns {?Object} Pet data or null if not found
- */
-DB.getPetByEggID = function (eggID) {
-	for (const jobID in PetDBTable) {
-		const pet = PetDBTable[jobID];
-		if (pet.PetEggID === Number(eggID)) {
-			return pet;
 		}
 	}
-	return null;
-};
-
-/**
- * Get the entire reputation group list
- *
- * @returns {Object} Reputation group list
- */
-DB.getReputeGroup = function getReputeGroup() {
-	return ReputeGroup;
-};
-
-/**
- * Get the reputation group list for a given group id
- *
- * @param {string} repute_group - Reputation group id
- * @returns {?Object} Reputation group list or null if not found
- */
-DB.getReputeGroupList = function getReputeList(repute_group) {
-	return ReputeGroup[repute_group].ReputeList || null;
-};
-
-/**
- * Get the entire reputation information list
- *
- * @returns {Object} Reputation information list
- */
-DB.getReputeInfo = function getReputeInfo() {
-	return ReputeInfo;
-};
-
-/**
- * Get the reputation data for a given reputation ID
- *
- * @param {number|string} repute_id - Reputation ID
- * @returns {?Object} Reputation data or null if not found
- */
-DB.getReputeData = function getReputeData(repute_id) {
-	return ReputeInfo[repute_id] || null;
-};
-
-/**
- * Get a Hateffect Info by ID
- * @param {number} id - Hateffect ID
- * @returns {Object|null} Hateffect info or null if not found
- */
-DB.getHatResource = function getHatResource(id) {
-	return HatEffectInfo[id] || null;
-};
-
-/**
- * Get the CashShopBannerTable
- *
- * @returns {Array} CashShopBannerTable
- */
-DB.getCashShopBannerTable = function getCashShopBannerTable() {
-	return CashShopBannerTable;
-};
+}
 
 /**
  * Export
