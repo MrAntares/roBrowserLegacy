@@ -17,7 +17,6 @@ import VerticalFlip from 'Renderer/Effects/Shaders/VerticalFlip.js';
  * @var {array} Cells where stored altitude
  */
 let _cells = null;
-let cells = [];
 
 /**
  * @var {array} Altitudes cells type
@@ -34,6 +33,7 @@ const buffer5x5 = new Float32Array(5 * 5 * 30);
 const buffer7x7 = new Float32Array(7 * 7 * 30);
 const buffer13x13 = new Float32Array(13 * 13 * 30);
 const tmp = new Float32Array(5);
+
 /**
  * Altitude Namespace
  */
@@ -46,13 +46,12 @@ class Altitude {
 	 */
 	static init(data) {
 		// Extract 'type' from cells
-		cells = data.cells;
 		let i;
-		const count = cells.length / 5;
+		const count = data.cells.length / 5;
 		const types = new Uint8Array(count);
 
 		for (i = 0; i < count; ++i) {
-			types[i] = cells[i * 5 + 4];
+			types[i] = data.cells[i * 5 + 4];
 		}
 
 		// Save information

@@ -296,48 +296,48 @@ class Camera {
 	static updateState() {
 		if (this.enable1STPerson && this.zoomFinal == 0) {
 			if (this.state != this.states.first_person) {
-				import('Renderer/Renderer.js').then(Renderer => {
-					this.MIN_V_ANGLE = C_MIN_V_ANGLE_1STPERSON;
-					this.MAX_V_ANGLE = C_MAX_V_ANGLE_1STPERSON;
-					Renderer.default.vFov = 50;
-					Renderer.default.resize();
-				});
+				this.MIN_V_ANGLE = C_MIN_V_ANGLE_1STPERSON;
+				this.MAX_V_ANGLE = C_MAX_V_ANGLE_1STPERSON;
 				this.zoomStepMult = 0.3;
 				this.state = this.states.first_person;
 				if (Session.Entity) {
 					Session.Entity.hideEntity = true;
 				}
+				import('Renderer/Renderer.js').then(Renderer => {
+					Renderer.default.vFov = 50;
+					Renderer.default.resize();
+				});
 			}
 		} else if (
 			this.enable3RDPerson &&
 			this.zoomFinal < Math.abs(this.altitudeRange) * C_THIRDPERSON_TRESHOLD_ZOOM
 		) {
 			if (this.state != this.states.third_person) {
-				import('Renderer/Renderer.js').then(Renderer => {
-					this.MIN_V_ANGLE = C_MIN_V_ANGLE_3RDPERSON;
-					this.MAX_V_ANGLE = C_MAX_V_ANGLE_3RDPERSON;
-					Renderer.default.vFov = 30;
-					Renderer.default.resize();
-				});
+				this.MIN_V_ANGLE = C_MIN_V_ANGLE_3RDPERSON;
+				this.MAX_V_ANGLE = C_MAX_V_ANGLE_3RDPERSON;
 				this.zoomStepMult = 0.3;
 				this.state = this.states.third_person;
 				if (Session.Entity) {
 					Session.Entity.hideEntity = false;
 				}
+				import('Renderer/Renderer.js').then(Renderer => {
+					Renderer.default.vFov = 30;
+					Renderer.default.resize();
+				});
 			}
 		} else {
 			if (this.state != this.states.isometric) {
-				import('Renderer/Renderer.js').then(Renderer => {
-					this.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
-					this.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
-					Renderer.default.vFov = 15;
-					Renderer.default.resize();
-				});
+				this.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
+				this.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
 				this.zoomStepMult = 1;
 				this.state = this.states.isometric;
 				if (Session.Entity) {
 					Session.Entity.hideEntity = false;
 				}
+				import('Renderer/Renderer.js').then(Renderer => {
+					Renderer.default.vFov = 15;
+					Renderer.default.resize();
+				});
 			}
 		}
 	}
