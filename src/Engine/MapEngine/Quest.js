@@ -24,8 +24,7 @@ import Quest from 'UI/Components/Quest/Quest.js';
  */
 function onAllQuestList(pkt) {
 	const quest_list = [];
-	let i;
-	for (i = 0; i < pkt.questCount; i++) {
+	for (let i = 0; i < pkt.questCount; i++) {
 		const quest = pkt.QuestList[i];
 		const quest_info = DB.getQuestInfo(quest.questID);
 		const local_quest = {
@@ -48,8 +47,8 @@ function onAllQuestList(pkt) {
 			hunt_list: []
 		};
 		if (local_quest.count > 0) {
-			for (i = 0; i < local_quest.count; i++) {
-				const hunt = quest.hunt[i];
+			for (let j = 0; j < local_quest.count; j++) {
+				const hunt = quest.hunt[j];
 				const local_hunt = {
 					huntID: hunt.huntID || null,
 					huntIDCount: hunt.huntIDCount || 0,
