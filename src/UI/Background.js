@@ -237,10 +237,10 @@ function transition(callback) {
 		.stop()
 		.css('opacity', 0.01)
 		.appendTo('body')
-		.animate({ opacity: 1.0 }, transitionDuration, function () {
+		.animate({ opacity: 1.0 }, transitionDuration, () => {
 			callback();
 
-			_overlay.stop().animate({ opacity: 0.01 }, transitionDuration, function () {
+			_overlay.stop().animate({ opacity: 0.01 }, transitionDuration, () => {
 				_overlay.remove();
 			});
 		});

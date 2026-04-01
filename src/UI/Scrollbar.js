@@ -186,7 +186,7 @@ class ScrollBar {
 		}
 
 		if (!ScrollBar.complete) {
-			setTimeout(function () {
+			setTimeout(() => {
 				ScrollBar.applyDOMScrollbar(element);
 			}, 100);
 			return;

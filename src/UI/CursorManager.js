@@ -131,7 +131,7 @@ class Cursor {
 			return;
 		}
 
-		Client.getFiles(['data/sprite/cursors.spr', 'data/sprite/cursors.act'], function (spr, act) {
+		Client.getFiles(['data/sprite/cursors.spr', 'data/sprite/cursors.act'], (spr, act) => {
 			try {
 				_sprite = new Sprite(spr);
 				_action = new Action(act);
