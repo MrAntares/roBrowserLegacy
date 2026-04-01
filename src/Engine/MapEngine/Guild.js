@@ -205,7 +205,7 @@ class GuildEngine {
 							if (sucess) {
 								const canvas = this;
 								const img = new Image();
-								img.onload = function () {
+								img.onload = () => {
 									emblem.version = version;
 									emblem.image = img;
 									emblem.display = canvas;
