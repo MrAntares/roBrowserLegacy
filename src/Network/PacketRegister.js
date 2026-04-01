@@ -10,7 +10,11 @@
 
 import PACKET from './PacketStructure.js';
 
-export default {
+/**
+ * @namespace PacketRegister
+ * @description Links all packets with their ID and the structural definition to use for parsing.
+ */
+const PacketRegister = {
 	0x69: PACKET.AC.ACCEPT_LOGIN, // ok
 	0x6a: PACKET.AC.REFUSE_LOGIN, // ok
 	0x6b: PACKET.HC.ACCEPT_ENTER_NEO_UNION, // ok
@@ -867,3 +871,5 @@ export default {
 
 	0xb1a: PACKET.ZC.USESKILL_ACK3 // USE SKILL 3
 };
+
+export default PacketRegister;

@@ -14,25 +14,32 @@ import PACKETVER from './PacketVerManager.js';
 import Struct from 'Utils/Struct.js';
 import Configs from 'Core/Configs.js';
 
-const NAME_LENGTH = 24; // Must be equal to same name var in mmo.h
-const MAP_NAME_LENGTH = 11 + 1;
-const MAP_NAME_LENGTH_EXT = MAP_NAME_LENGTH + 4;
-const PACKET = {};
-const RENEWAL = Configs.get('renewal') || false;
-const CLASSIC = !RENEWAL; // For ease of reading checks
-const UNUSED_PACKET = PACKET;
+/**
+ * @namespace PACKET
+ * @description Structure of all known Ragnarok Online packets.
+ */
+const PACKET = {
+	CA: {}, // Client -> Account
+	AC: {}, // Account -> Client (Login)
+	CH: {}, // Client -> Char
+	HC: {}, // Char -> Client
+	CZ: {}, // Client -> Zone
+	ZC: {}, // Zone -> Client (Map)
+	CS: {}, // Client -> Session?
+	SC: {}, // Session -> Client
+	ZH: {}, // Zone -> Header?
+	AHC: {},
+	CAH: {} // Security
+};
 
-PACKET.CA = {};
-PACKET.AC = {}; // Login
-PACKET.CH = {};
-PACKET.HC = {}; // Char
-PACKET.CZ = {};
-PACKET.ZC = {}; // Map
-PACKET.CS = {};
-PACKET.SC = {}; // All servers
-PACKET.ZH = {}; // ??? typo error ?
-PACKET.AHC = {};
-PACKET.CAH = {}; // Security
+const RENEWAL = Configs.get('renewal') || false;
+const CLASSIC = !RENEWAL;
+const UNUSED_PACKET = PACKET;
+/* eslint-disable no-unused-vars */
+const NAME_LENGTH = 24;
+const MAP_NAME_LENGTH = 12;
+const MAP_NAME_LENGTH_EXT = 16;
+/* eslint-enable no-unused-vars */
 
 // 0x186 PACKET_COLLECTORDEAD ??
 
