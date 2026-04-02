@@ -46,7 +46,7 @@ class Thread {
 	 * @param {mixed} data
 	 * @param {function} callback
 	 */
-	static Send = (type, data, callback) => {
+	static send = (type, data, callback) => {
 		let uid = 0;
 
 		if (callback) {
@@ -68,17 +68,6 @@ class Thread {
 	 * @param {object} event
 	 */
 	static Receive = event => {
-		// In a window context, verify the origin if one is configured.
-		// For Worker messages, event.origin is typically undefined and this check is skipped.
-		if (typeof event.origin === 'string' && _origin && _origin !== '*' && event.origin !== _origin) {
-			return;
-		}
-
-		// Basic validation of the expected message shape
-		if (!event.data || typeof event.data !== 'object') {
-			return;
-		}
-
 		const uid = event.data.uid;
 		const type = event.data.type;
 
@@ -100,7 +89,7 @@ class Thread {
 	 * @param {string} type
 	 * @param {function} callback
 	 */
-	static Hook = (type, callback) => {
+	static hook = (type, callback) => {
 		_hook[type] = callback;
 	};
 
@@ -110,7 +99,7 @@ class Thread {
 	 * @param {Window} source
 	 * @param {string} origin
 	 */
-	static Delegate = (source, origin) => {
+	static delegate = (source, origin) => {
 		_source = source;
 		_origin = origin;
 	};
@@ -118,7 +107,7 @@ class Thread {
 	/**
 	 * Initialize Thread
 	 */
-	static Init = () => {
+	static init = () => {
 		if (!_source) {
 			_source = new Worker(new URL('./ThreadEventHandler.js', import.meta.url), { type: 'module' });
 		}
