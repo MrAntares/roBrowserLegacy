@@ -403,6 +403,7 @@ class Entity {
 
 				case 'hideShadow':
 					this.hideShadow = unit.hideShadow;
+					break;
 
 				default:
 					if (keys[i] in this || `_${keys[i]}` in this) {
