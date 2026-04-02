@@ -67,24 +67,15 @@ class Client {
 	 * @param {function} onerror
 	 * @param {Array} args - optional
 	 */
-	static getFile = (function getFilClosure() {
-		const _input = { filename: '', args: null };
-
-		function callback(data, error, input) {
-			Memory.set(input.filename, data, error);
+	static getFile(filename, onload, onerror, args) {
+		if (!Memory.exist(filename)) {
+			Thread.send('GET_FILE', { filename, args: args || null }, function (data, error, input) {
+				Memory.set(input.filename, data, error);
+			});
 		}
 
-		return function (filename, onload, onerror, args) {
-			if (!Memory.exist(filename)) {
-				_input.filename = filename;
-				_input.args = args || null;
-
-				Thread.send('GET_FILE', _input, callback);
-			}
-
-			return Memory.get(filename, onload, onerror);
-		};
-	})();
+		return Memory.get(filename, onload, onerror);
+	}
 
 	/**
 	 * Get files from Game Data files
@@ -124,8 +115,6 @@ class Client {
 	 * @param {Array} args - optional
 	 */
 	static loadFile = (function loadFileClosure() {
-		const _input = { filename: '', args: null };
-
 		async function callback(data, error, input) {
 			let i, count, j, size;
 			let gl, frames, texture, layers, palette;
@@ -243,10 +232,7 @@ class Client {
 
 		return (filename, onload, onerror, args = {}) => {
 			if (!Memory.exist(filename)) {
-				_input.filename = filename;
-				_input.args = args || null;
-
-				Thread.send('LOAD_FILE', _input, callback);
+				Thread.send('LOAD_FILE', { filename, args: args || null }, callback);
 			}
 
 			return Memory.get(filename, onload, onerror);
