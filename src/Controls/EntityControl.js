@@ -426,7 +426,7 @@ class EntityControl {
 				InputBox.append();
 				InputBox.setType('pass', false);
 				const self = this;
-				InputBox.onSubmitRequest = (pass) => {
+				InputBox.onSubmitRequest = pass => {
 					InputBox.remove();
 					pkt.passwd = pass;
 					Network.sendPacket(pkt);
