@@ -69,9 +69,7 @@ class Client {
 	 */
 	static getFile(filename, onload, onerror, args) {
 		if (!Memory.exist(filename)) {
-			Thread.send('GET_FILE', { filename, args: args || null }, function (data, error, input) {
-				Memory.set(input.filename, data, error);
-			});
+			Thread.send('GET_FILE', { filename, args: args || null }, getFileCallback);
 		}
 
 		return Memory.get(filename, onload, onerror);
@@ -114,130 +112,13 @@ class Client {
 	 * @param {function} onerror
 	 * @param {Array} args - optional
 	 */
-	static loadFile = (function loadFileClosure() {
-		async function callback(data, error, input) {
-			let i, count, j, size;
-			let gl, frames, texture, layers, palette;
-			let precision;
-
-			if (data && !error) {
-				switch (input.filename.substr(-3)) {
-					// Remove magenta on textures
-					case 'bmp':
-						Texture.load(data, function () {
-							Memory.set(input.filename, this.toDataURL(), error);
-						});
-						return;
-
-					// Load str textures
-					case 'str':
-						gl = (await import('Renderer/Renderer.js')).default.getContext();
-						layers = data.layers;
-
-						for (i = 0; i < data.layernum; ++i) {
-							layers[i].materials = new Array(layers[i].texcnt);
-
-							for (j = 0; j < layers[i].texcnt; ++j) {
-								(function (url, materials, textureId) {
-									Client.loadFile(url, function (loadedUrl) {
-										WebGL.texture(gl, loadedUrl, function (loadedTexture) {
-											materials[textureId] = loadedTexture;
-										});
-									});
-								})(layers[i].texname[j], layers[i].materials, j);
-							}
-						}
-
-						Memory.set(input.filename, data, error);
-						return;
-
-					case 'spr':
-						gl = (await import('Renderer/Renderer.js')).default.getContext();
-						frames = data.frames;
-						count = frames.length;
-
-						// Send sprites to GPU
-						for (i = 0; i < count; i++) {
-							frames[i].texture = gl.createTexture();
-							precision = GraphicsSettings.pixelPerfectSprites
-								? gl.NEAREST
-								: frames[i].type
-									? gl.LINEAR
-									: gl.NEAREST;
-							size = frames[i].type ? gl.RGBA : gl.LUMINANCE;
-							gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-							gl.bindTexture(gl.TEXTURE_2D, frames[i].texture);
-							gl.texImage2D(
-								gl.TEXTURE_2D,
-								0,
-								size,
-								frames[i].width,
-								frames[i].height,
-								0,
-								size,
-								gl.UNSIGNED_BYTE,
-								frames[i].data
-							);
-							gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, precision);
-							gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, precision);
-							gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-							gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-						}
-
-						// Send palette to GPU
-						if (data.rgba_index !== 0) {
-							data.texture = gl.createTexture();
-							gl.bindTexture(gl.TEXTURE_2D, data.texture);
-							gl.texImage2D(
-								gl.TEXTURE_2D,
-								0,
-								gl.RGBA,
-								256,
-								1,
-								0,
-								gl.RGBA,
-								gl.UNSIGNED_BYTE,
-								data.palette
-							);
-							gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-							gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-						}
-
-						Memory.set(input.filename, data, error);
-						return;
-
-					// Build palette
-					case 'pal': {
-						const enableMipmap = Configs.get('enableMipmap');
-						gl = (await import('Renderer/Renderer.js')).default.getContext();
-						texture = gl.createTexture();
-						palette = new Uint8Array(data);
-
-						gl.bindTexture(gl.TEXTURE_2D, texture);
-						gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, palette);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-						if (enableMipmap) {
-							gl.generateMipmap(gl.TEXTURE_2D);
-						}
-
-						Memory.set(input.filename, { palette: palette, texture: texture }, error);
-						return;
-					}
-				}
-			}
-
-			Memory.set(input.filename, data, error);
+	static loadFile(filename, onload, onerror, args = {}) {
+		if (!Memory.exist(filename)) {
+			Thread.send('LOAD_FILE', { filename, args: args || null }, loadFileCallback);
 		}
 
-		return (filename, onload, onerror, args = {}) => {
-			if (!Memory.exist(filename)) {
-				Thread.send('LOAD_FILE', { filename, args: args || null }, callback);
-			}
-
-			return Memory.get(filename, onload, onerror);
-		};
-	})();
+		return Memory.get(filename, onload, onerror);
+	}
 
 	/**
 	 * Get and load files from Game Data files
@@ -386,6 +267,115 @@ function savingFiles(files) {
 			(...args) => Client.onFilesLoaded(...args)
 		);
 	});
+}
+
+function getFileCallback(data, error, input) {
+	Memory.set(input.filename, data, error);
+}
+
+async function loadFileCallback(data, error, input) {
+	let i, count, j, size;
+	let gl, frames, texture, layers, palette;
+	let precision;
+
+	if (data && !error) {
+		switch (input.filename.substr(-3)) {
+			// Remove magenta on textures
+			case 'bmp':
+				Texture.load(data, function () {
+					Memory.set(input.filename, this.toDataURL(), error);
+				});
+				return;
+
+			// Load str textures
+			case 'str':
+				gl = (await import('Renderer/Renderer.js')).default.getContext();
+				layers = data.layers;
+
+				for (i = 0; i < data.layernum; ++i) {
+					layers[i].materials = new Array(layers[i].texcnt);
+
+					for (j = 0; j < layers[i].texcnt; ++j) {
+						(function (url, materials, textureId) {
+							Client.loadFile(url, function (loadedUrl) {
+								WebGL.texture(gl, loadedUrl, function (loadedTexture) {
+									materials[textureId] = loadedTexture;
+								});
+							});
+						})(layers[i].texname[j], layers[i].materials, j);
+					}
+				}
+
+				Memory.set(input.filename, data, error);
+				return;
+
+			case 'spr':
+				gl = (await import('Renderer/Renderer.js')).default.getContext();
+				frames = data.frames;
+				count = frames.length;
+
+				// Send sprites to GPU
+				for (i = 0; i < count; i++) {
+					frames[i].texture = gl.createTexture();
+					precision = GraphicsSettings.pixelPerfectSprites
+						? gl.NEAREST
+						: frames[i].type
+							? gl.LINEAR
+							: gl.NEAREST;
+					size = frames[i].type ? gl.RGBA : gl.LUMINANCE;
+					gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+					gl.bindTexture(gl.TEXTURE_2D, frames[i].texture);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						size,
+						frames[i].width,
+						frames[i].height,
+						0,
+						size,
+						gl.UNSIGNED_BYTE,
+						frames[i].data
+					);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, precision);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, precision);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				}
+
+				// Send palette to GPU
+				if (data.rgba_index !== 0) {
+					data.texture = gl.createTexture();
+					gl.bindTexture(gl.TEXTURE_2D, data.texture);
+					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data.palette);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+				}
+
+				Memory.set(input.filename, data, error);
+				return;
+
+			// Build palette
+			case 'pal': {
+				const enableMipmap = Configs.get('enableMipmap');
+				gl = (await import('Renderer/Renderer.js')).default.getContext();
+				texture = gl.createTexture();
+				palette = new Uint8Array(data);
+
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, palette);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+				if (enableMipmap) {
+					gl.generateMipmap(gl.TEXTURE_2D);
+				}
+
+				Memory.set(input.filename, { palette: palette, texture: texture }, error);
+				return;
+			}
+		}
+	}
+
+	Memory.set(input.filename, data, error);
 }
 
 /**
