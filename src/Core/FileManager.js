@@ -374,7 +374,7 @@ class FileManager {
 
 		filename = filename.replace(/^\s+|\s+$/g, '');
 
-		this.get(filename, (buffer, error) => {
+		FileManager.get(filename, (buffer, error) => {
 			const ext = filename
 				.match(/.[^.]+$/)
 				.toString()
