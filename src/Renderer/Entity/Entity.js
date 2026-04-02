@@ -495,11 +495,24 @@ class Entity {
 		}
 	}
 }
-
 /**
- * Data fields on prototype — used as whitelist by set() default case.
- * Entity.prototype.hasOwnProperty(key) gates which packet keys are
- * accepted, keeping mixin-managed properties (walk, life, display, etc.) safe.
+ * Entity data fields — declared on the prototype intentionally.
+ *
+ * These MUST stay on Entity.prototype (not as ES2022 class fields) because
+ * the set() method uses Entity.prototype.hasOwnProperty(key) as an
+ * auto-synchronizing whitelist to decide which server-packet keys are safe
+ * to assign.
+ *
+ * Class instance fields (ES2022) live on `this`, not on the prototype,
+ * so hasOwnProperty on the prototype would always return false for them.
+ *
+ * Mixin-managed properties (walk, life, display, files, room, cast, etc.)
+ * are added directly to each instance by the mixin Init functions via
+ * .call(this) in the constructor, so they are NOT on the prototype and
+ * are correctly rejected by the hasOwnProperty gate.
+ *
+ * If you add a new data field, add it here so set() can accept it from
+ * server packets automatically.
  */
 Entity.prototype.objecttype = Entity.TYPE_UNKNOWN;
 Entity.prototype.GID = 0;
