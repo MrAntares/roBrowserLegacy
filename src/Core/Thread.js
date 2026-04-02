@@ -127,9 +127,4 @@ class Thread {
 /**
  * Export
  */
-export default {
-	send: Thread.Send,
-	hook: Thread.Hook,
-	init: Thread.Init,
-	delegate: Thread.Delegate
-};
+export default Thread;

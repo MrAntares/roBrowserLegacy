@@ -629,4 +629,5 @@ class AIDriver {
 	// this is called in some place of code
 	static reset = () => {};
 }
+
 export default AIDriver;

@@ -95,7 +95,4 @@ function selfSave() {
 /**
  * Export
  */
-export default {
-	get: Preferences.get,
-	save: Preferences.save
-};
+export default Preferences;

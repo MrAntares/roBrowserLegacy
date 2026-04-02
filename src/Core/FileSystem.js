@@ -473,12 +473,4 @@ class FileSystem {
 /**
  * Public methods
  */
-export default {
-	bind: FileSystem.bind,
-	getFile: FileSystem.getFile,
-	getFileSync: FileSystem.getFileSync,
-	init: FileSystem.init,
-	cleanup: FileSystem.cleanUp,
-	search: FileSystem.search,
-	saveFile: FileSystem.saveFile
-};
+export default FileSystem;

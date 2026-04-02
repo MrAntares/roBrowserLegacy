@@ -83,9 +83,4 @@ class Configs {
 /**
  * Export
  */
-export default {
-	get: Configs.get,
-	set: Configs.set,
-	setServer: Configs.setServer,
-	getServer: Configs.getServer
-};
+export default Configs;

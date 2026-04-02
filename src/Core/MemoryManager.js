@@ -240,11 +240,4 @@ class MemoryManager {
 /**
  * Export methods
  */
-export default {
-	get: MemoryManager.get,
-	set: MemoryManager.set,
-	clean: MemoryManager.clean,
-	remove: MemoryManager.remove,
-	exist: MemoryManager.exist,
-	search: MemoryManager.search
-};
+export default MemoryManager;
