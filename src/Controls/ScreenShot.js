@@ -44,7 +44,7 @@ class ScreenShot {
 		let localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
 		localISOTime = localISOTime.replace('T', ' ');
 		const timezone = new Date().getTimezoneOffset() / 60;
-		const date = `${localISOTime} (GMT ${timezone > 0 ? '-' : '+'} ${Math.abs(timezone).toString()})`; //GMT
+		const date = `${localISOTime} (GMT ${timezone > 0 ? '-' : '+'}${Math.abs(timezone).toString()})`; //GMT
 
 		const context = canvas.getContext('2d');
 
