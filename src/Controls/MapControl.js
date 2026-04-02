@@ -43,39 +43,39 @@ const _rightClickPosition = new Int16Array(2);
 /**
  * @namespace MapControl
  */
-const MapControl = {};
+class MapControl {
+	/**
+	 * Callback used when requesting to move somewhere
+	 */
+	static onRequestWalk() {}
 
-/**
- * Callback used when requesting to move somewhere
- */
-MapControl.onRequestWalk = function () {};
+	/**
+	 * Callback used when request to stop move
+	 */
+	static onRequestStopWalk() {}
 
-/**
- * Callback used when request to stop move
- */
-MapControl.onRequestStopWalk = function () {};
+	/**
+	 * Callback used when dropping an item to the map
+	 */
+	static onRequestDropItem() {}
 
-/**
- * Callback used when dropping an item to the map
- */
-MapControl.onRequestDropItem = function () {};
+	/**
+	 * Initializing the controller
+	 */
+	static init() {
+		Mobile.init();
+		Mobile.onTouchStart = onMouseDown.bind(this);
+		Mobile.onTouchEnd = onMouseUp.bind(this);
 
-/**
- * Initializing the controller
- */
-MapControl.init = function init() {
-	Mobile.init();
-	Mobile.onTouchStart = onMouseDown.bind(this);
-	Mobile.onTouchEnd = onMouseUp.bind(this);
+		// Attach events
+		jQuery(Renderer.canvas)
+			.on('mousewheel DOMMouseScroll', onMouseWheel)
+			.on('dragover', onDragOver)
+			.on('drop', onDrop.bind(this));
 
-	// Attach events
-	jQuery(Renderer.canvas)
-		.on('mousewheel DOMMouseScroll', onMouseWheel)
-		.on('dragover', onDragOver)
-		.on('drop', onDrop.bind(this));
-
-	jQuery(window).on('mousedown.map', onMouseDown.bind(this)).on('mouseup.map', onMouseUp.bind(this));
-};
+		jQuery(window).on('mousedown.map', onMouseDown.bind(this)).on('mouseup.map', onMouseUp.bind(this));
+	}
+}
 
 /**
  * What to do when clicking on the map ?

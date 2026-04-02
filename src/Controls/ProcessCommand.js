@@ -1023,8 +1023,6 @@ export default {
 	processCommand: processCommand,
 	add: addCommand,
 	remove: removeCommand,
-	isEnabled: function (name) {
-		return name in CommandStore;
-	},
+	isEnabled: name => name in CommandStore,
 	reloadAliases: reloadAliases
 };
