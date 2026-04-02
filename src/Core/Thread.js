@@ -68,6 +68,17 @@ class Thread {
 	 * @param {object} event
 	 */
 	static Receive = event => {
+		// In a window context, verify the origin if one is configured.
+		// For Worker messages, event.origin is typically undefined and this check is skipped.
+		if (typeof event.origin === 'string' && _origin && _origin !== '*' && event.origin !== _origin) {
+			return;
+		}
+
+		// Basic validation of the expected message shape
+		if (!event.data || typeof event.data !== 'object') {
+			return;
+		}
+
 		const uid = event.data.uid;
 		const type = event.data.type;
 
