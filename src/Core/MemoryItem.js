@@ -13,136 +13,136 @@
  * Object stored in cache
  * @var MemoryItem
  */
-function MemoryItem(onload, onerror) {
-	// Private variables
-	this._onload = [];
-	this._onerror = [];
+class MemoryItem {
+	/**
+	 * Data of the cached Item
+	 * @var mixed
+	 */
+	_data = null;
 
-	// Store callback
-	// One cache item can have multple callback.
-	if (onload) {
-		this.addEventListener('load', onload);
+	/**
+	 * Error informatio,
+	 * @var {string}
+	 */
+	_error = '';
+
+	/**
+	 * Is the item loaded ?
+	 * @var boolean complete
+	 */
+	complete = false;
+
+	/**
+	 * Save the last time the item was called from cache
+	 * Is used to remove old item from cache
+	 * @var integer lastTimeUsed
+	 */
+	lastTimeUsed = 0;
+
+	constructor(onload, onerror) {
+		// Private variables
+		this._onload = [];
+		this._onerror = [];
+
+		// Store callback
+		// One cache item can have multple callback.
+		if (onload) {
+			this.addEventListener('load', onload);
+		}
+
+		if (onerror) {
+			this.addEventListener('error', onerror);
+		}
 	}
 
-	if (onerror) {
-		this.addEventListener('error', onerror);
-	}
-}
-
-/**
- * Data of the cached Item
- * @var mixed
- */
-MemoryItem.prototype._data = null;
-
-/**
- * Error informatio,
- * @var {string}
- */
-MemoryItem.prototype._error = '';
-
-/**
- * Is the item loaded ?
- * @var boolean complete
- */
-MemoryItem.prototype.complete = false;
-
-/**
- * Save the last time the item was called from cache
- * Is used to remove old item from cache
- * @var integer lastTimeUsed
- */
-MemoryItem.prototype.lastTimeUsed = 0;
-
-/**
- * Get data from Item
- *
- * @return mixed
- */
-Object.defineProperty(MemoryItem.prototype, 'data', {
-	get: function () {
+	/**
+	 * Get data from Item
+	 *
+	 * @return mixed
+	 */
+	get data() {
 		this.lastTimeUsed = Date.now();
 		return this._data;
 	}
-});
 
-/**
- * Once the item in cache is load, execute all callback
- *
- * @param mixed data
- */
-MemoryItem.prototype.addEventListener = function addEventListener(event, callback) {
-	if (!(callback instanceof Function)) {
-		throw new Error('MemoryItem::addEventListener() - callback must be a function !');
-	}
+	/**
+	 * Once the item in cache is load, execute all callback
+	 *
+	 * @param mixed data
+	 */
+	addEventListener(event, callback) {
+		if (!(callback instanceof Function)) {
+			throw new Error('MemoryItem::addEventListener() - callback must be a function !');
+		}
 
-	switch (event.toLowerCase()) {
-		case 'load':
-			if (this.complete) {
-				if (this._data) {
-					callback(this._data);
+		switch (event.toLowerCase()) {
+			case 'load':
+				if (this.complete) {
+					if (this._data) {
+						callback(this._data);
+					}
+					return;
 				}
-				return;
-			}
 
-			this._onload.push(callback);
-			break;
+				this._onload.push(callback);
+				break;
 
-		case 'error':
-			if (this.complete) {
-				if (this._error) {
-					callback(this._error);
+			case 'error':
+				if (this.complete) {
+					if (this._error) {
+						callback(this._error);
+					}
+					return;
 				}
-				return;
-			}
 
-			this._onerror.push(callback);
-			break;
+				this._onerror.push(callback);
+				break;
 
-		default:
-			throw new Error('MemoryItem::addEventListener() - Invalid event "' + event + '" used.');
-	}
-};
-
-/**
- * Once the item in cache is load, execute all callback
- *
- * @param {mixed} data
- */
-MemoryItem.prototype.onload = function onLoad(data) {
-	let i, size;
-
-	this._data = data;
-	this.complete = true;
-	this.lastTimeUsed = Date.now();
-
-	for (i = 0, size = this._onload.length; i < size; ++i) {
-		this._onload[i](data);
+			default:
+				throw new Error('MemoryItem::addEventListener() - Invalid event "' + event + '" used.');
+		}
 	}
 
-	this._onload.length = 0;
-	this._onerror.length = 0;
-};
+	/**
+	 * Once the item in cache is load, execute all callback
+	 *
+	 * @param {mixed} data
+	 */
+	onload(data) {
+		let i, size;
 
-/**
- * When an error occured with the item
- *
- * @param {string} error - optional
- */
-MemoryItem.prototype.onerror = function OnError(error) {
-	let i, size;
+		this._data = data;
+		this.complete = true;
+		this.lastTimeUsed = Date.now();
 
-	this._error = error;
-	this.complete = true;
-	this.lastTimeUsed = Date.now();
+		for (i = 0, size = this._onload.length; i < size; ++i) {
+			this._onload[i](data);
+		}
 
-	for (i = 0, size = this._onerror.length; i < size; ++i) {
-		this._onerror[i](error);
+		this._onload.length = 0;
+		this._onerror.length = 0;
 	}
 
-	this._onload.length = 0;
-	this._onerror.length = 0;
-};
+	/**
+	 * When an error occured with the item
+	 *
+	 * @param {string} error - optional
+	 */
+	onerror(error) {
+		let i, size;
+
+		this._error = error;
+		this.complete = true;
+		this.lastTimeUsed = Date.now();
+
+		for (i = 0, size = this._onerror.length; i < size; ++i) {
+			this._onerror[i](error);
+		}
+
+		this._onload.length = 0;
+		this._onerror.length = 0;
+	}
+}
 
 /**
  * Export

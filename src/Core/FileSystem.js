@@ -50,48 +50,6 @@ const _available = !!(self.requestFileSystemSync || self.webkitRequestFileSystem
 let _save = false;
 
 /**
- * Initialize FileSystem API
- *
- * @param {Array} FileList
- * @param {boolean} save files
- * @param {Object} quota information
- */
-export function init(files, save, quota) {
-	_files = normalizeFilesPath(files);
-
-	if (!_available) {
-		trigger('onready');
-		return;
-	}
-
-	calculateClientSize();
-
-	const requestFileSystemSync = self.requestFileSystemSync || self.webkitRequestFileSystemSync;
-	const requestFileSystem = self.requestFileSystem || self.webkitRequestFileSystem;
-
-	const size = _clientSize || quota.used || quota.remaining;
-
-	requestFileSystem(
-		self.TEMPORARY,
-		size,
-		function (fs) {
-			_fs = fs;
-			_fs_sync = requestFileSystemSync(self.TEMPORARY, size);
-
-			if (save && _files.length) {
-				cleanUp();
-				buildHierarchy();
-				processUpload(0);
-			}
-
-			_save = save;
-			trigger('onready');
-		},
-		errorHandler
-	);
-}
-
-/**
  * Normalize file path
  *
  * @param {array} FileList
@@ -269,44 +227,6 @@ function buildHierarchy() {
 }
 
 /**
- * Remove all files from FileSystem
- */
-export function cleanUp() {
-	let i, count;
-	const dirReader = _fs_sync.root.createReader();
-	const entries = dirReader.readEntries();
-	let retryCount = 0;
-	const maxRetries = 3;
-
-	function removeWithRetry(entry, callback) {
-		try {
-			if (entry.isDirectory) {
-				entry.removeRecursively(callback, callback);
-			} else {
-				entry.remove(callback, callback);
-			}
-		} catch (e) {
-			if (retryCount < maxRetries && e.name === 'InvalidModificationError') {
-				retryCount++;
-				setTimeout(function () {
-					removeWithRetry(entry, callback);
-				}, 100);
-			} else {
-				callback(e);
-			}
-		}
-	}
-
-	for (i = 0, count = entries.length; i < count; ++i) {
-		removeWithRetry(entries[i], function (error) {
-			if (error) {
-				console.warn('Failed to remove entry:', error);
-			}
-		});
-	}
-}
-
-/**
  * Trigger an event
  *
  * @param {string} eventname
@@ -317,167 +237,240 @@ function trigger(eventname) {
 		_events[eventname].apply(null, Array.prototype.slice.call(arguments, 1));
 	}
 }
+class FileSystem {
+	/**
+	 * Bind an event
+	 *
+	 * @param {string} eventname
+	 * @param {function} callback
+	 */
+	static bind(eventname, callback) {
+		_events[eventname] = callback;
+	}
 
-/**
- * Bind an event
- *
- * @param {string} eventname
- * @param {function} callback
- */
-export function bind(eventname, callback) {
-	_events[eventname] = callback;
-}
+	/**
+	 * Get a file in FileSystem (sync)
+	 *
+	 * @param {string} filename
+	 * @returns {File}
+	 */
+	static getFileSync(filename) {
+		filename = filename.replace(/\\/g, '/');
 
-/**
- * Get a file in FileSystem (sync)
- *
- * @param {string} filename
- * @returns {File}
- */
-export function getFileSync(filename) {
-	filename = filename.replace(/\\/g, '/');
+		if (!_available || _files.length) {
+			let i;
+			const count = _files.length;
 
-	if (!_available || _files.length) {
-		let i;
-		const count = _files.length;
-
-		for (i = 0; i < count; ++i) {
-			// Not case sensitive...
-			if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
-				return _files[i];
+			for (i = 0; i < count; ++i) {
+				// Not case sensitive...
+				if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
+					return _files[i];
+				}
 			}
+
+			return null;
+		}
+
+		let fileEntry;
+
+		try {
+			fileEntry = _fs_sync.root.getFile(filename, { create: false });
+		} catch (e) {
+			// not found
+			return null;
+		}
+
+		if (fileEntry.isFile) {
+			return fileEntry.file();
 		}
 
 		return null;
 	}
 
-	let fileEntry;
+	/**
+	 * Get a file in FileSystem (async)
+	 *
+	 * @param {string} filename
+	 * @param {function} once loaded
+	 * @param {function} callback if not found
+	 */
+	static getFile(filename, onload, onerror) {
+		filename = filename.replace(/\\/g, '/');
 
-	try {
-		fileEntry = _fs_sync.root.getFile(filename, { create: false });
-	} catch (e) {
-		// not found
-		return null;
-	}
+		if (!_available || _files.length) {
+			let i;
+			const count = _files.length;
 
-	if (fileEntry.isFile) {
-		return fileEntry.file();
-	}
-
-	return null;
-}
-
-/**
- * Get a file in FileSystem (async)
- *
- * @param {string} filename
- * @param {function} once loaded
- * @param {function} callback if not found
- */
-export function getFile(filename, onload, onerror) {
-	filename = filename.replace(/\\/g, '/');
-
-	if (!_available || _files.length) {
-		let i;
-		const count = _files.length;
-
-		for (i = 0; i < count; ++i) {
-			// Not case sensitive...
-			if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
-				onload(_files[i]);
-				return;
+			for (i = 0; i < count; ++i) {
+				// Not case sensitive...
+				if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
+					onload(_files[i]);
+					return;
+				}
 			}
+
+			onerror();
+			return;
 		}
 
-		onerror();
-		return;
+		_fs.root.getFile(
+			filename,
+			{ create: false },
+			fileEntry => {
+				if (fileEntry.isFile) {
+					fileEntry.file(onload);
+				} else {
+					onerror();
+				}
+			},
+			onerror
+		);
 	}
 
-	_fs.root.getFile(
-		filename,
-		{ create: false },
-		function (fileEntry) {
-			if (fileEntry.isFile) {
-				fileEntry.file(onload);
-			} else {
-				onerror();
+	/**
+	 * Save the content of a files in file system
+	 * (used to save the remote client)
+	 *
+	 * @param {string} filePath
+	 * @param {ArrayBuffer} buffer
+	 */
+	static saveFile(filePath, buffer) {
+		if (!_save || !_available) {
+			return;
+		}
+
+		const filename = filePath.replace(/\\/g, '/');
+		const directories = filename.split('/').slice(0, -1);
+		let path = '';
+
+		// Create hierarchy
+		while (directories.length) {
+			path += directories.shift() + '/';
+			_fs_sync.root.getDirectory(path, { create: true });
+		}
+
+		const fileEntry = _fs_sync.root.getFile(filename, { create: true });
+		const writer = fileEntry.createWriter();
+
+		writer.write(new Blob([buffer]));
+	}
+
+	/**
+	 * Search a file from FileSystem using a regex
+	 *
+	 * @param {RegExp|string} to match the filename
+	 */
+	static search(regex) {
+		let i, count;
+		const list = [];
+
+		if (!(regex instanceof RegExp)) {
+			regex = new RegExp('^' + regex.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1') + '$', 'i');
+		}
+
+		if (!_available || _files.length) {
+			for (i = 0, count = _files.length; i < count; ++i) {
+				if (_files[i].name.match(regex)) {
+					list.push(_files[i]);
+				}
 			}
-		},
-		onerror
-	);
-}
 
-/**
- * Save the content of a files in file system
- * (used to save the remote client)
- *
- * @param {string} filePath
- * @param {ArrayBuffer} buffer
- */
-export function saveFile(filePath, buffer) {
-	if (!_save || !_available) {
-		return;
-	}
+			return list;
+		}
 
-	const filename = filePath.replace(/\\/g, '/');
-	const directories = filename.split('/').slice(0, -1);
-	let path = '';
+		const entries = _fs_sync.root.createReader().readEntries();
 
-	// Create hierarchy
-	while (directories.length) {
-		path += directories.shift() + '/';
-		_fs_sync.root.getDirectory(path, { create: true });
-	}
-
-	const fileEntry = _fs_sync.root.getFile(filename, { create: true });
-	const writer = fileEntry.createWriter();
-
-	writer.write(new Blob([buffer]));
-}
-
-/**
- * Search a file from FileSystem using a regex
- *
- * @param {RegExp|string} to match the filename
- */
-export function search(regex) {
-	let i, count;
-	const list = [];
-
-	if (!(regex instanceof RegExp)) {
-		regex = new RegExp('^' + regex.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1') + '$', 'i');
-	}
-
-	if (!_available || _files.length) {
-		for (i = 0, count = _files.length; i < count; ++i) {
-			if (_files[i].name.match(regex)) {
-				list.push(_files[i]);
+		for (i = 0, count = entries.length; i < count; ++i) {
+			if (entries[i].isFile && entries[i].name.match(regex)) {
+				list.push(entries[i].file());
 			}
 		}
 
 		return list;
 	}
 
-	const entries = _fs_sync.root.createReader().readEntries();
+	/**
+	 * Remove all files from FileSystem
+	 */
+	static cleanup() {
+		let i, count;
+		const dirReader = _fs_sync.root.createReader();
+		const entries = dirReader.readEntries();
+		let retryCount = 0;
+		const maxRetries = 3;
 
-	for (i = 0, count = entries.length; i < count; ++i) {
-		if (entries[i].isFile && entries[i].name.match(regex)) {
-			list.push(entries[i].file());
+		function removeWithRetry(entry, callback) {
+			try {
+				if (entry.isDirectory) {
+					entry.removeRecursively(callback, callback);
+				} else {
+					entry.remove(callback, callback);
+				}
+			} catch (e) {
+				if (retryCount < maxRetries && e.name === 'InvalidModificationError') {
+					retryCount++;
+					setTimeout(() => {
+						removeWithRetry(entry, callback);
+					}, 100);
+				} else {
+					callback(e);
+				}
+			}
+		}
+
+		for (i = 0, count = entries.length; i < count; ++i) {
+			removeWithRetry(entries[i], error => {
+				if (error) {
+					console.warn('Failed to remove entry:', error);
+				}
+			});
 		}
 	}
 
-	return list;
+	/**
+	 * Initialize FileSystem API
+	 *
+	 * @param {Array} FileList
+	 * @param {boolean} save files
+	 * @param {Object} quota information
+	 */
+	static init(files, save, quota) {
+		_files = normalizeFilesPath(files);
+
+		if (!_available) {
+			trigger('onready');
+			return;
+		}
+
+		calculateClientSize();
+
+		const requestFileSystemSync = self.requestFileSystemSync || self.webkitRequestFileSystemSync;
+		const requestFileSystem = self.requestFileSystem || self.webkitRequestFileSystem;
+
+		const size = _clientSize || quota.used || quota.remaining;
+
+		requestFileSystem(
+			self.TEMPORARY,
+			size,
+			fs => {
+				_fs = fs;
+				_fs_sync = requestFileSystemSync(self.TEMPORARY, size);
+
+				if (save && _files.length) {
+					FileSystem.cleanup();
+					buildHierarchy();
+					processUpload(0);
+				}
+
+				_save = save;
+				trigger('onready');
+			},
+			errorHandler
+		);
+	}
 }
 
 /**
  * Public methods
  */
-export default {
-	bind: bind,
-	getFile: getFile,
-	getFileSync: getFileSync,
-	init: init,
-	cleanup: cleanUp,
-	search: search,
-	saveFile: saveFile
-};
+export default FileSystem;
