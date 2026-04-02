@@ -119,7 +119,7 @@ class Thread {
 
 		// Other frame worker
 		else {
-			window.addEventListener('message', Thread.Receive, false);
+			window.addEventListener('message', Thread.receive, false);
 			_source.postMessage({ type: 'SYNC' }, _origin);
 		}
 	};
