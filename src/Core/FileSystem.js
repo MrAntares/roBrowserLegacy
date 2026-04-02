@@ -392,7 +392,7 @@ class FileSystem {
 	/**
 	 * Remove all files from FileSystem
 	 */
-	static cleanUp() {
+	static cleanup() {
 		let i, count;
 		const dirReader = _fs_sync.root.createReader();
 		const entries = dirReader.readEntries();
