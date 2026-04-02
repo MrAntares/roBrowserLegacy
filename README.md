@@ -8,14 +8,16 @@ For info on how to setup the client read the contents of our [Getting Started do
 
 All credits to the original owners/creators and the new ones.
 
-## Tech Stack
+## DEMO
 
-- **ES6 Modules** — Modern `import`/`export` syntax (migrated from AMD/RequireJS)
-- **Vite** — Build tool and dev server (replaced RequireJS optimizer and live-server)
-- **WebGL** — 3D/2D rendering via OpenGL ES 2.0
-- **WebSockets** — Network communication via wsProxy
-- **ESLint + Prettier** — Code quality and formatting
-- **Web Workers** — Background processing for GRF decompression and pathfinding
+[![Start!](https://github.com/MrAntares/roBrowserLegacy/raw/master/src/UI/Components/Intro/images/play.png 'Start Demo')](https://mrantares.github.io/roBrowserLegacy/)
+
+_Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen, or use the Register/Request button to navigate to the server's account registration page._
+
+More live examples:
+
+- [#robrowser-servers on Discord](https://discord.gg/MFtJj9n5Hr)
+- [roBrowserLegacy Servers on Discussions](https://github.com/MrAntares/roBrowserLegacy/discussions/categories/robrowserlegacy-servers)
 
 ## Quick Start
 
@@ -32,17 +34,6 @@ npm run build:all     # Build all applications to dist/Web/
 | ![GitHub](https://img.shields.io/github/license/MrAntares/roBrowserLegacy.svg) | ![commit activity](https://img.shields.io/github/commit-activity/w/MrAntares/roBrowserLegacy) | ![GitHub repo size](https://img.shields.io/github/repo-size/MrAntares/roBrowserLegacy.svg) | ![CodeQL](https://img.shields.io/github/actions/workflow/status/MrAntares/roBrowserLegacy/analysis_codeql.yml?label=CodeQL&logo=badge) |
 | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 
-## DEMO
-
-[![Start!](https://github.com/MrAntares/roBrowserLegacy/raw/master/src/UI/Components/Intro/images/play.png 'Start Demo')](https://mrantares.github.io/roBrowserLegacy/)
-
-_Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen, or use the Register/Request button to navigate to the server's account registration page._
-
-More live examples:
-
-- [#robrowser-servers on Discord](https://discord.gg/MFtJj9n5Hr)
-- [roBrowserLegacy Servers on Discussions](https://github.com/MrAntares/roBrowserLegacy/discussions/categories/robrowserlegacy-servers)
-
 ## Guide
 
 Checkout the [getting started guide](doc/README.md)
@@ -50,6 +41,15 @@ Checkout the [getting started guide](doc/README.md)
 ## Wiki
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/MrAntares/roBrowserLegacy)
+
+## Tech Stack
+
+- **ES6 Modules** — Modern `import`/`export` syntax (migrated from AMD/RequireJS)
+- **Vite** — Build tool and dev server (replaced RequireJS optimizer and live-server)
+- **WebGL** — 3D/2D rendering via OpenGL ES 2.0
+- **WebSockets** — Network communication via wsProxy
+- **ESLint + Prettier** — Code quality and formatting
+- **Web Workers** — Background processing for GRF decompression and pathfinding
 
 ## Remote Client
 
