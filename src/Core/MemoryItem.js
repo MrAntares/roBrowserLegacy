@@ -56,6 +56,16 @@ class MemoryItem {
 	}
 
 	/**
+	 * Get data from Item
+	 *
+	 * @return mixed
+	 */
+	get data() {
+		this.lastTimeUsed = Date.now();
+		return this._data;
+	}
+
+	/**
 	 * Once the item in cache is load, execute all callback
 	 *
 	 * @param mixed data
@@ -98,7 +108,7 @@ class MemoryItem {
 	 *
 	 * @param {mixed} data
 	 */
-	onLoad(data) {
+	onload(data) {
 		let i, size;
 
 		this._data = data;
@@ -133,6 +143,7 @@ class MemoryItem {
 		this._onerror.length = 0;
 	}
 }
+
 /**
  * Export
  */

@@ -18,23 +18,6 @@ const _global = {};
  */
 let _server = {};
 
-/**
- * Constructor
- * Apply configs
- */
-(function init(configs) {
-	if (typeof configs !== 'object') {
-		return;
-	}
-
-	const keys = Object.keys(configs);
-	let i, count;
-
-	for (i = 0, count = keys.length; i < count; ++i) {
-		Configs.set(keys[i], configs[keys[i]]);
-	}
-})(window.ROConfig);
-
 class Configs {
 	/**
 	 * Get the value of a config
@@ -79,6 +62,23 @@ class Configs {
 		return _server;
 	};
 }
+
+/**
+ * Constructor
+ * Apply configs
+ */
+(function init(configs) {
+	if (typeof configs !== 'object') {
+		return;
+	}
+
+	const keys = Object.keys(configs);
+	let i, count;
+
+	for (i = 0, count = keys.length; i < count; ++i) {
+		Configs.set(keys[i], configs[keys[i]]);
+	}
+})(window.ROConfig);
 
 /**
  * Export
