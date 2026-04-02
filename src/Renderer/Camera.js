@@ -38,10 +38,154 @@ const C_MAX_V_ANGLE_1STPERSON = 270;
 
 const C_QUAKE_MULT = 0.1;
 
+let _pending = false;
+function save() {
+	_pending = false;
+	if (!DB.isIndoor(Camera.currentMap)) {
+		Preferences.zoom = Camera.zoomFinal;
+	} else {
+		Preferences.indoorZoom = Camera.zoomFinal;
+	}
+	Preferences.save();
+}
+
 /**
  * Camera Namespace
  */
 class Camera {
+	/**
+	 * Projection matrix
+	 * @var {mat4} projection
+	 */
+	static projection = mat4.create();
+
+	/**
+	 * ModelView matrix
+	 * @var {mat4} modelView
+	 */
+	static modelView = mat4.create();
+
+	/**
+	 * ModelView matrix
+	 * @var {mat4} modelView
+	 */
+	static normalMat = mat3.create();
+
+	/**
+	 * @var {number} zoom
+	 */
+	static zoom = Preferences.zoom;
+
+	/**
+	 * @var {number} zoomFinal
+	 */
+	static zoomFinal = Preferences.zoom;
+
+	/**
+	 * @var {vec2} angle rotation
+	 */
+	static angle = vec2.create();
+
+	/**
+	 * @var {vec2} angle final rotation
+	 */
+	static angleFinal = vec2.create();
+
+	/**
+	 * @var {vec3}
+	 */
+	static position = vec3.create();
+
+	/**
+	 * @var {Entity} Entity currently attached by the camera
+	 */
+	static target = null;
+
+	/**
+	 * @var {number}
+	 */
+	static lastTick = 0;
+
+	/**
+	 * @var {number} camera min-max variables
+	 */
+	static MIN_ZOOM = C_MIN_ZOOM;
+	static MAX_ZOOM = C_MAX_ZOOM;
+	static MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
+	static MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
+
+	/**
+	 * @var {number} Camera direction
+	 */
+	static direction = 0;
+	static altitudeFrom = 0;
+	static altitudeTo = -65;
+	static altitudeRange = 15;
+	static rotationFrom = -360;
+	static rotationTo = 360;
+	static range = 230; //240;
+	static zoomStep = 15;
+	static zoomStepMult = 1;
+
+	/**
+	 * @var {number} current map
+	 */
+	static currentMap = '';
+
+	// Indoor Params
+	static indoorRotationFrom = -60;
+	static indoorRotationTo = -25;
+	static indoorRange = 240;
+
+	/**
+	 * @var {number} camera zoom indoor
+	 */
+	static MAX_ZOOM_INDOOR = 2.5;
+
+	/**
+	 * @var {number} min camera altitude indoor
+	 */
+	static MIN_ALTITUDE_INDOOR = 220;
+
+	/**
+	 * @var {number} max camera altitude indoor
+	 */
+	static MAX_ALTITUDE_INDOOR = 240;
+
+	static enable3RDPerson = false;
+	static enable1STPerson = false;
+
+	static state = -1;
+
+	static states = {
+		isometric: 0,
+		third_person: 1,
+		first_person: 2
+	};
+
+	/**
+	 * @var {object} Camera action informations (right click)
+	 */
+	static action = {
+		active: false,
+		tick: 0,
+		x: 0,
+		y: 0
+	};
+
+	static quakes = [];
+
+	/**
+	 * Save the camera settings
+	 */
+	static save() {
+		// Save camera settings after 3 seconds
+		if (!_pending) {
+			Events.setTimeout(save, 3000);
+			_pending = true;
+		}
+	}
+
 	/**
 	 * Attach player
 	 *
@@ -409,153 +553,6 @@ class Camera {
 		mat3.transpose(this.normalMat, this.normalMat);
 	}
 }
-
-/**
- * Projection matrix
- * @var {mat4} projection
- */
-Camera.projection = mat4.create();
-
-/**
- * ModelView matrix
- * @var {mat4} modelView
- */
-Camera.modelView = mat4.create();
-
-/**
- * ModelView matrix
- * @var {mat4} modelView
- */
-Camera.normalMat = mat3.create();
-
-/**
- * @var {number} zoom
- */
-Camera.zoom = Preferences.zoom;
-
-/**
- * @var {number} zoomFinal
- */
-Camera.zoomFinal = Preferences.zoom;
-
-/**
- * @var {vec2} angle rotation
- */
-Camera.angle = vec2.create();
-
-/**
- * @var {vec2} angle final rotation
- */
-Camera.angleFinal = vec2.create();
-
-/**
- * @var {vec3}
- */
-Camera.position = vec3.create();
-
-/**
- * @var {Entity} Entity currently attached by the camera
- */
-Camera.target = null;
-
-/**
- * @var {number}
- */
-Camera.lastTick = 0;
-
-/**
- * @var {number} camera min-max variables
- */
-Camera.MIN_ZOOM = C_MIN_ZOOM;
-Camera.MAX_ZOOM = C_MAX_ZOOM;
-Camera.MIN_V_ANGLE = C_MIN_V_ANGLE_ISOMETRIC;
-Camera.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
-
-/**
- * @var {number} Camera direction
- */
-Camera.direction = 0;
-Camera.altitudeFrom = 0;
-Camera.altitudeTo = -65;
-Camera.altitudeRange = 15;
-Camera.rotationFrom = -360;
-Camera.rotationTo = 360;
-Camera.range = 230; //240;
-Camera.zoomStep = 15;
-Camera.zoomStepMult = 1;
-
-/**
- * @var {number} current map
- */
-Camera.currentMap = '';
-
-// Indoor Params
-Camera.indoorRotationFrom = -60;
-Camera.indoorRotationTo = -25;
-Camera.indoorRange = 240;
-
-/**
- * @var {number} camera zoom indoor
- */
-Camera.MAX_ZOOM_INDOOR = 2.5;
-
-/**
- * @var {number} min camera altitude indoor
- */
-Camera.MIN_ALTITUDE_INDOOR = 220;
-
-/**
- * @var {number} max camera altitude indoor
- */
-Camera.MAX_ALTITUDE_INDOOR = 240;
-
-Camera.enable3RDPerson = false;
-Camera.enable1STPerson = false;
-
-Camera.state = -1;
-
-Camera.states = {
-	isometric: 0,
-	third_person: 1,
-	first_person: 2
-};
-
-/**
- * @var {object} Camera action informations (right click)
- */
-Camera.action = {
-	active: false,
-	tick: 0,
-	x: 0,
-	y: 0
-};
-
-Camera.quakes = [];
-
-/**
- * Save the camera settings
- */
-Camera.save = (function SaveClosure() {
-	let _pending = false;
-
-	function save() {
-		_pending = false;
-		if (!DB.isIndoor(Camera.currentMap)) {
-			Preferences.zoom = Camera.zoomFinal;
-		} else {
-			Preferences.indoorZoom = Camera.zoomFinal;
-		}
-		Preferences.save();
-	}
-
-	return function saving() {
-		// Save camera settings after 3 seconds
-		if (!_pending) {
-			Events.setTimeout(save, 3000);
-			_pending = true;
-		}
-	};
-})();
 
 /**
  * Export

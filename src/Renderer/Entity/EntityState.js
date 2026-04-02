@@ -471,6 +471,7 @@ function updateEffectState(value) {
 		this.isOrcish = false;
 	}
 	// it triggers the setter defined via Object.defineProperty to re-evaluate the head sprite (e.g., when orcish state changes).
+	// eslint-disable-next-line no-self-assign
 	this.head = this.head;
 
 	// ------------------------

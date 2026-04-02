@@ -39,6 +39,10 @@ function afterRender(gl, modelView, projection, fog, tick) {
  */
 class ScreenEffectManager {
 	/**
+	 * @var {number} _nightInterval
+	 */
+	static _nightInterval = null;
+	/**
 	 * @param {object} gl context
 	 * @param {string} mapname
 	 */
@@ -264,11 +268,6 @@ class ScreenEffectManager {
 		}, 8);
 	}
 }
-
-/**
- * @var {number} _nightInterval
- */
-ScreenEffectManager._nightInterval = null;
 
 /**
  * Export
