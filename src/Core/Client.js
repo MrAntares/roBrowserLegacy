@@ -69,7 +69,7 @@ class Client {
 	 */
 	static getFile(filename, onload, onerror, args) {
 		if (!Memory.exist(filename)) {
-			Thread.send('GET_FILE', { filename, args: args || null }, getFileCallback);
+			Thread.send('GET_FILE', { filename, args: args || null }, onFileGetted);
 		}
 
 		return Memory.get(filename, onload, onerror);
@@ -114,7 +114,7 @@ class Client {
 	 */
 	static loadFile(filename, onload, onerror, args = {}) {
 		if (!Memory.exist(filename)) {
-			Thread.send('LOAD_FILE', { filename, args: args || null }, loadFileCallback);
+			Thread.send('LOAD_FILE', { filename, args: args || null }, onFileLoaded);
 		}
 
 		return Memory.get(filename, onload, onerror);
@@ -269,11 +269,11 @@ function savingFiles(files) {
 	});
 }
 
-function getFileCallback(data, error, input) {
+function onFileGetted(data, error, input) {
 	Memory.set(input.filename, data, error);
 }
 
-async function loadFileCallback(data, error, input) {
+async function onFileLoaded(data, error, input) {
 	let i, count, j, size;
 	let gl, frames, texture, layers, palette;
 	let precision;
