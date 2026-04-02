@@ -33,8 +33,7 @@ export function getContext(canvas, parameters) {
 			stencil: false,
 			antialias: true,
 			premultipliedAlpha: false,
-			preserveDrawingBuffer: false,
-			desynchronized: true
+			preserveDrawingBuffer: true
 		};
 	}
 
