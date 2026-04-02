@@ -36,17 +36,6 @@ import EntityManager from 'Renderer/EntityManager.js';
 const vec3 = glMatrix.vec3;
 const mat4 = glMatrix.mat4;
 
-// Mixin utility function
-function _applyMixins(target, ...mixins) {
-	mixins.forEach(mixin => {
-		Object.getOwnPropertyNames(mixin.prototype).forEach(name => {
-			if (name !== 'constructor') {
-				target.prototype[name] = mixin.prototype[name];
-			}
-		});
-	});
-}
-
 // Base Entity class
 class Entity {
 	/**
@@ -85,68 +74,6 @@ class Entity {
 		TELEPORT: 3,
 		TRICKDEAD: 4
 	};
-
-	/**
-	 * Public methods
-	 */
-	objecttype = Entity.TYPE_UNKNOWN;
-	GID = 0;
-	AID = 0;
-	_bodyState = 0;
-	_healthState = 0;
-	_effectState = 0;
-	_sex = -1;
-	_job = -1;
-	_bodypalette = 0;
-	_head = -1;
-	_headpalette = 0;
-	_weapon = -1;
-	_shield = -1;
-	_accessory = -1;
-	_accessory2 = -1;
-	_accessory3 = -1;
-	robe = -1;
-	GUID = 0;
-	GEmblemVer = 0;
-	honor = 0;
-	virtue = 0;
-	isPKModeON = 0;
-	xSize = 5;
-	ySize = 5;
-	state = 0;
-	clevel = 0;
-	action = 0;
-	costume = 0;
-	clanId = 0;
-	matrix = null;
-	depth = 0;
-	headDir = 0;
-	direction = 0;
-	position = null;
-	attack_range = 0;
-	attack_speed = 300;
-	effectColor = null;
-	isAdmin = false;
-	hasCart = false;
-	CartNum = 0;
-	lastSKID = 0;
-	lastSkLvl = 0;
-	amotionTick = 0;
-	targetGID = 0;
-	isOverWeight = false;
-	falcon = null;
-	wug = null;
-	hideShadow = false;
-	call_flag = 0;
-	/**
-	 * @var {integer} tick to remove
-	 */
-	remove_tick = 0;
-
-	/**
-	 * @var {integer} time to wait to disapear
-	 */
-	remove_delay = 0;
 
 	static PickingPriority = {
 		Normal: {
@@ -406,7 +333,7 @@ class Entity {
 					break;
 
 				default:
-					if (keys[i] in this || `_${keys[i]}` in this) {
+					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) {
 						this[keys[i]] = unit[keys[i]];
 					}
 					break;
@@ -568,6 +495,69 @@ class Entity {
 		}
 	}
 }
+
+/**
+ * Data fields on prototype — used as whitelist by set() default case.
+ * Entity.prototype.hasOwnProperty(key) gates which packet keys are
+ * accepted, keeping mixin-managed properties (walk, life, display, etc.) safe.
+ */
+Entity.prototype.objecttype = Entity.TYPE_UNKNOWN;
+Entity.prototype.GID = 0;
+Entity.prototype.AID = 0;
+Entity.prototype._bodyState = 0;
+Entity.prototype._healthState = 0;
+Entity.prototype._effectState = 0;
+Entity.prototype._sex = -1;
+Entity.prototype._job = -1;
+Entity.prototype._bodypalette = 0;
+Entity.prototype._head = -1;
+Entity.prototype._headpalette = 0;
+Entity.prototype._weapon = -1;
+Entity.prototype._shield = -1;
+Entity.prototype._accessory = -1;
+Entity.prototype._accessory2 = -1;
+Entity.prototype._accessory3 = -1;
+Entity.prototype.robe = -1;
+Entity.prototype.GUID = 0;
+Entity.prototype.GEmblemVer = 0;
+Entity.prototype.honor = 0;
+Entity.prototype.virtue = 0;
+Entity.prototype.isPKModeON = 0;
+Entity.prototype.xSize = 5;
+Entity.prototype.ySize = 5;
+Entity.prototype.state = 0;
+Entity.prototype.clevel = 0;
+Entity.prototype.action = 0;
+Entity.prototype.costume = 0;
+Entity.prototype.clanId = 0;
+Entity.prototype.matrix = null;
+Entity.prototype.depth = 0;
+Entity.prototype.headDir = 0;
+Entity.prototype.direction = 0;
+Entity.prototype.position = null;
+Entity.prototype.attack_range = 0;
+Entity.prototype.attack_speed = 300;
+Entity.prototype.effectColor = null;
+Entity.prototype.isAdmin = false;
+Entity.prototype.hasCart = false;
+Entity.prototype.CartNum = 0;
+Entity.prototype.lastSKID = 0;
+Entity.prototype.lastSkLvl = 0;
+Entity.prototype.amotionTick = 0;
+Entity.prototype.targetGID = 0;
+Entity.prototype.isOverWeight = false;
+Entity.prototype.falcon = null;
+Entity.prototype.wug = null;
+Entity.prototype.hideShadow = false;
+Entity.prototype.call_flag = 0;
+/**
+ * @var {integer} tick to remove
+ */
+Entity.prototype.remove_tick = 0;
+/**
+ * @var {integer} time to wait to disapear
+ */
+Entity.prototype.remove_delay = 0;
 
 /**
  * Export
