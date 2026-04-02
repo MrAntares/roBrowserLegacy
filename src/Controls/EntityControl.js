@@ -600,4 +600,14 @@ class EntityControl {
 /**
  * Export
  */
-export default EntityControl;
+export default function Init() {
+	this.onMouseOver = EntityControl.onMouseOver;
+	this.onMouseOut = EntityControl.onMouseOut;
+	this.onMouseDown = EntityControl.onMouseDown;
+	this.onMouseUp = EntityControl.onMouseUp;
+	this.onFocus = EntityControl.onFocus;
+	this.onFocusEnd = EntityControl.onFocusEnd;
+	this.onRoomEnter = EntityControl.onRoomEnter;
+	this.onContextMenu = EntityControl.onContextMenu;
+	this.canAttackEntity = EntityControl.canAttackEntity;
+}

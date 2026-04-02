@@ -89,19 +89,26 @@ class BattleMode {
 
 			if (shortcut.component === component && shortcut.cmd === cmd) {
 				const str = [];
-				const tmp = KEYS.toReadableKey(parseInt(keys[i], 10));
+				const keyName = keys[i];
 
-				if (shortcut.alt) {
+				// Parse modifier prefixes and numeric key code from compound key string
+				// Format: "CTRL-ALT-SHIFT-65"
+				if (keyName.indexOf('CTRL-') !== -1) {
+					str.push('CTRL');
+				}
+
+				if (keyName.indexOf('ALT-') !== -1) {
 					str.push('ALT');
 				}
 
-				if (shortcut.shift) {
+				if (keyName.indexOf('SHIFT-') !== -1) {
 					str.push('SHIFT');
 				}
 
-				if (shortcut.ctrl) {
-					str.push('CTRL');
-				}
+				// The numeric key code is always the last segment after the final '-'
+				const lastDash = keyName.lastIndexOf('-');
+				const keyCode = parseInt(lastDash !== -1 ? keyName.substring(lastDash + 1) : keyName, 10);
+				const tmp = KEYS.toReadableKey(keyCode);
 
 				if (tmp) {
 					str.push(tmp);
