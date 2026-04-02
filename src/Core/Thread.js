@@ -114,7 +114,7 @@ class Thread {
 
 		// Worker context
 		if (_source instanceof Worker) {
-			_source.addEventListener('message', Thread.Receive, false);
+			_source.addEventListener('message', Thread.receive, false);
 		}
 
 		// Other frame worker
