@@ -67,7 +67,7 @@ class Thread {
 	 *
 	 * @param {object} event
 	 */
-	static Receive = event => {
+	static receive = event => {
 		const uid = event.data.uid;
 		const type = event.data.type;
 
