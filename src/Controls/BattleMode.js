@@ -30,13 +30,13 @@ class BattleMode {
 		let keyName = keyId;
 
 		if (KEYS.SHIFT) {
-			keyName = 'SHIFT-' + keyName;
+			keyName = `SHIFT-${keyName}`;
 		}
 		if (KEYS.ALT) {
-			keyName = 'ALT-' + keyName;
+			keyName = `ALT-${keyName}`;
 		}
 		if (KEYS.CTRL) {
-			keyName = 'CTRL-' + keyName;
+			keyName = `CTRL-${keyName}`;
 		}
 
 		return keyName;
@@ -150,13 +150,13 @@ function getKeyTable() {
 				let keyName = key;
 
 				if (shift) {
-					keyName = 'SHIFT-' + keyName;
+					keyName = `SHIFT-${keyName}`;
 				}
 				if (alt) {
-					keyName = 'ALT-' + keyName;
+					keyName = `ALT-${keyName}`;
 				}
 				if (ctrl) {
-					keyName = 'CTRL-' + keyName;
+					keyName = `CTRL-${keyName}`;
 				}
 
 				keySettings[keyName] = { component: ShortCuts[SC].component, cmd: ShortCuts[SC].cmd };

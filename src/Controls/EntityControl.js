@@ -426,7 +426,7 @@ class EntityControl {
 				InputBox.append();
 				InputBox.setType('pass', false);
 				const self = this;
-				InputBox.onSubmitRequest = function (pass) {
+				InputBox.onSubmitRequest = (pass) => {
 					InputBox.remove();
 					pkt.passwd = pass;
 					Network.sendPacket(pkt);
@@ -471,12 +471,12 @@ class EntityControl {
 				ContextMenu.append();
 
 				// Check equipment
-				ContextMenu.addElement(DB.getMessage(1360).replace('%s', this.display.name), function () {
+				ContextMenu.addElement(DB.getMessage(1360).replace('%s', this.display.name), () => {
 					Equipment.onCheckPlayerEquipment(entity.GID); // simple version (MapEngine/Item.js)
 				});
 
 				// Trade option
-				ContextMenu.addElement(DB.getMessage(87).replace('%s', this.display.name), function () {
+				ContextMenu.addElement(DB.getMessage(87).replace('%s', this.display.name), () => {
 					Trade.reqExchange(entity.GID, entity.display.name);
 				});
 
@@ -484,7 +484,7 @@ class EntityControl {
 				if (Session.hasGuild) {
 					if (Session.guildRight & 0x01 && !this.GUID) {
 						// Send (%s) a Guild invitation
-						ContextMenu.addElement(DB.getMessage(382).replace('%s', this.display.name), function () {
+						ContextMenu.addElement(DB.getMessage(382).replace('%s', this.display.name), () => {
 							Guild.requestPlayerInvitation(entity.GID);
 						});
 					}
@@ -493,32 +493,32 @@ class EntityControl {
 						ContextMenu.nextGroup();
 
 						// Set this guild as an Alliance
-						ContextMenu.addElement(DB.getMessage(399).replace('%s', this.display.name), function () {
+						ContextMenu.addElement(DB.getMessage(399).replace('%s', this.display.name), () => {
 							Guild.requestAlliance(entity.GID);
 						});
 
 						// Set this guild as an Antagonist
-						ContextMenu.addElement(DB.getMessage(403).replace('%s', this.display.name), function () {
+						ContextMenu.addElement(DB.getMessage(403).replace('%s', this.display.name), () => {
 							Guild.requestHostility(entity.GID);
 						});
 					}
 				}
 
 				// Open 1:1Chat
-				ContextMenu.addElement(DB.getMessage(360), function () {
+				ContextMenu.addElement(DB.getMessage(360), () => {
 					PartyFriends.onOpenChat1to1(entity.display.name);
 				});
 
 				if (!Friends.isFriend(this.display.name)) {
 					ContextMenu.nextGroup();
-					ContextMenu.addElement(DB.getMessage(358), function () {
+					ContextMenu.addElement(DB.getMessage(358), () => {
 						Friends.addFriend(entity.display.name);
 					});
 				}
 
 				if (Session.hasParty && Session.isPartyLeader) {
 					ContextMenu.nextGroup();
-					ContextMenu.addElement(DB.getMessage(88).replace('%s', this.display.name), function () {
+					ContextMenu.addElement(DB.getMessage(88).replace('%s', this.display.name), () => {
 						Group.onRequestInvitation(entity.GID, entity.display.name);
 					});
 				}
@@ -531,18 +531,18 @@ class EntityControl {
 				if (Session.homunId === this.GID) {
 					ContextMenu.remove();
 					ContextMenu.append();
-					ContextMenu.addElement('View Status', function () {
+					ContextMenu.addElement('View Status', () => {
 						HomunInformations.ui.toggle();
 					});
-					ContextMenu.addElement('Feed', function () {
+					ContextMenu.addElement('Feed', () => {
 						HomunInformations.reqHomunFeed();
 					});
 					if (localStorage.getItem('HOM_AGGRESSIVE') == 0) {
-						ContextMenu.addElement('Assist', function () {
+						ContextMenu.addElement('Assist', () => {
 							HomunInformations.toggleAggressive();
 						});
 					} else {
-						ContextMenu.addElement('Stand By', function () {
+						ContextMenu.addElement('Stand By', () => {
 							HomunInformations.toggleAggressive();
 						});
 					}
@@ -553,15 +553,15 @@ class EntityControl {
 				if (Session.mercId === this.GID) {
 					ContextMenu.remove();
 					ContextMenu.append();
-					ContextMenu.addElement('View Status', function () {
+					ContextMenu.addElement('View Status', () => {
 						MercenaryInformations.ui.toggle();
 					});
 					if (localStorage.getItem('MER_AGGRESSIVE') == 0) {
-						ContextMenu.addElement('Assist', function () {
+						ContextMenu.addElement('Assist', () => {
 							MercenaryInformations.toggleAggressive();
 						});
 					} else {
-						ContextMenu.addElement('Stand By', function () {
+						ContextMenu.addElement('Stand By', () => {
 							MercenaryInformations.toggleAggressive();
 						});
 					}
