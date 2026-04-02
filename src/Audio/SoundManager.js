@@ -41,153 +41,150 @@ let mediaPlayerCount = 0;
 /**
  * @Constructor
  */
-const SoundManager = {};
+class SoundManager {
+	/**
+	 * @var {float} sound volume
+	 *
+	 */
+	static volume = Preferences.Sound.volume;
 
-/**
- * @var {float} sound volume
- *
- */
-SoundManager.volume = Preferences.Sound.volume;
+	/**
+	 * Play a wav sound
+	 *
+	 * @param {string} filename
+	 * @param {optional|number} vol (volume)
+	 */
+	static play(filename, vol) {
+		let volume;
 
-/**
- * Play a wav sound
- *
- * @param {string} filename
- * @param {optional|number} vol (volume)
- */
-SoundManager.play = function play(filename, vol) {
-	let volume;
+		// Sound volume * Global volume
+		if (vol) {
+			volume = vol * this.volume;
+		} else {
+			volume = this.volume;
+		}
 
-	// Sound volume * Global volume
-	if (vol) {
-		volume = vol * this.volume;
-	} else {
-		volume = this.volume;
-	}
+		// Don't play sound if you can't hear it or sound is stopped
+		if (volume <= 0 || !Preferences.Sound.play) {
+			return;
+		}
 
-	// Don't play sound if you can't hear it or sound is stopped
-	if (volume <= 0 || !Preferences.Sound.play) {
-		return;
-	}
-
-	if (!(filename in _sounds)) {
-		_sounds[filename] = {};
-		_sounds[filename].instances = [];
-		_sounds[filename].lastTick = 0;
-	}
-
-	// Re-usable sound
-	const sound = getSoundFromCache(filename);
-	if (sound) {
-		sound.volume = Math.min(volume, 1.0);
-		sound._volume = volume;
-		sound.play();
-		_sounds[filename].instances.push(sound);
-		_sounds[filename].lastTick = Date.now();
-		return;
-	}
-
-	// Get the sound from client.
-	Client.loadFile('data/wav/' + filename, function (url) {
 		if (!(filename in _sounds)) {
-			return;
-		}
-		// Wait a delay to replay a sound and don't play too many times (self balancing formula based on total media players)
-		if (
-			filename in _sounds &&
-			(_sounds[filename].lastTick > Date.now() - C_SAME_SOUND_DELAY ||
-				_sounds[filename].instances.length > balancedMax(C_MAX_SOUND_INSTANCES))
-		) {
-			return;
+			_sounds[filename] = {};
+			_sounds[filename].instances = [];
+			_sounds[filename].lastTick = 0;
 		}
 
-		// Initialiaze the sound and play it
-		const audio = document.createElement('audio');
-		mediaPlayerCount++;
-		audio.filename = filename;
-		audio.src = url;
-		audio.volume = Math.min(volume, 1.0);
-		audio._volume = volume;
+		// Re-usable sound
+		const sound = getSoundFromCache(filename);
+		if (sound) {
+			sound.volume = Math.min(volume, 1.0);
+			sound._volume = volume;
+			sound.play();
+			_sounds[filename].instances.push(sound);
+			_sounds[filename].lastTick = Date.now();
+			return;
+		}
 
-		audio.addEventListener('error', onSoundError, false);
-		audio.addEventListener('ended', onSoundEnded, false);
-		audio.play();
+		// Get the sound from client.
+		Client.loadFile(`data/wav/${filename}`, url => {
+			if (!(filename in _sounds)) {
+				return;
+			}
+			// Wait a delay to replay a sound and don't play too many times (self balancing formula based on total media players)
+			if (
+				filename in _sounds &&
+				(_sounds[filename].lastTick > Date.now() - C_SAME_SOUND_DELAY ||
+					_sounds[filename].instances.length > balancedMax(C_MAX_SOUND_INSTANCES))
+			) {
+				return;
+			}
 
-		// Add it to the list
-		_sounds[filename].instances.push(audio);
-		_sounds[filename].lastTick = Date.now();
-	});
-};
+			// Initialiaze the sound and play it
+			const audio = document.createElement('audio');
+			mediaPlayerCount++;
+			audio.filename = filename;
+			audio.src = url;
+			audio.volume = Math.min(volume, 1.0);
+			audio._volume = volume;
 
-/**
- * Play a wav sound with calculated position for volume
- *
- * @param {string} filename
- * @param {optional|number} vol (volume)
- */
-SoundManager.playPosition = function playPosition(filename, srcPosition) {
-	const dist = Math.floor(glMatrix.vec2.dist(srcPosition, Session.Entity.position));
-	const vol = Math.max(1 - Math.abs(((dist - 1) * (1 - 0.01)) / (25 - 1) + 0.01), 0.1);
-	SoundManager.play(filename, vol);
-};
+			audio.addEventListener('error', onSoundError, false);
+			audio.addEventListener('ended', onSoundEnded, false);
+			audio.play();
 
-/**
- * Stop a specify sound, or all sounds.
- *
- * @param {optional|string} filename to stop
- */
-SoundManager.stop = function stop(filename) {
-	let i, count;
+			// Add it to the list
+			_sounds[filename].instances.push(audio);
+			_sounds[filename].lastTick = Date.now();
+		});
+	}
 
-	if (filename) {
-		if (filename in _sounds) {
-			while (_sounds[filename].instances.length > 0) {
-				const sound = _sounds[filename].instances.shift();
+	/**
+	 * Play a wav sound with calculated position for volume
+	 *
+	 * @param {string} filename
+	 * @param {optional|number} vol (volume)
+	 */
+	static playPosition(filename, srcPosition) {
+		const dist = Math.floor(glMatrix.vec2.dist(srcPosition, Session.Entity.position));
+		const vol = Math.max(1 - Math.abs(((dist - 1) * (1 - 0.01)) / (25 - 1) + 0.01), 0.1);
+		SoundManager.play(filename, vol);
+	}
+
+	/**
+	 * Stop a specify sound, or all sounds.
+	 *
+	 * @param {optional|string} filename to stop
+	 */
+	static stop(filename) {
+		if (filename) {
+			if (filename in _sounds) {
+				while (_sounds[filename].instances.length > 0) {
+					const sound = _sounds[filename].instances.shift();
+					sound.pause();
+					sound.remove();
+					mediaPlayerCount--;
+				}
+				delete _sounds[filename];
+			}
+			return;
+		}
+
+		// Remove from memory
+		Object.keys(_sounds).forEach(key => {
+			while (_sounds[key].instances.length > 0) {
+				const sound = _sounds[key].instances.shift();
 				sound.pause();
 				sound.remove();
 				mediaPlayerCount--;
 			}
-			delete _sounds[filename];
-		}
-		return;
-	}
-
-	// Remove from memory
-	Object.keys(_sounds).forEach(key => {
-		while (_sounds[key].instances.length > 0) {
-			const sound = _sounds[key].instances.shift();
-			sound.pause();
-			sound.remove();
-			mediaPlayerCount--;
-		}
-		delete _sounds[key];
-	});
-
-	// Remove from cache
-	const list = Memory.search(/\.wav$/);
-	for (i = 0, count = list.length; i < count; ++i) {
-		Memory.remove(list[i]);
-	}
-};
-
-/**
- * Change volume of all sounds
- *
- * @param {number} volume
- */
-SoundManager.setVolume = function setVolume(volume) {
-	this.volume = Math.min(volume, 1.0);
-
-	Preferences.Sound.volume = this.volume;
-	Preferences.save();
-
-	Object.keys(_sounds).forEach(key => {
-		_sounds[key].instances.forEach(sound => {
-			sound.volume = Math.min(sound._volume * this.volume, 1.0);
+			delete _sounds[key];
 		});
-	});
-};
 
+		// Remove from cache
+		const list = Memory.search(/\.wav$/);
+		list.forEach(key => {
+			Memory.remove(key);
+		});
+	}
+
+	/**
+	 * Change volume of all sounds
+	 *
+	 * @param {number} volume
+	 */
+	static setVolume(volume) {
+		this.volume = Math.min(volume, 1.0);
+
+		Preferences.Sound.volume = this.volume;
+		Preferences.save();
+
+		Object.keys(_sounds).forEach(key => {
+			_sounds[key].instances.forEach(sound => {
+				sound.volume = Math.min(sound._volume * this.volume, 1.0);
+			});
+		});
+	}
+}
 /**
  * Move sound to cache.
  * ff we have a request to play the same sound again, get it back
@@ -241,7 +238,7 @@ function addSoundToCache(sound) {
 		if (_cache[sound.filename].instances.length < balancedMax(C_MAX_CACHED_SOUND_INSTANCES)) {
 			sound.currentTime = 0; //reset to start to save seeking time on next play THIS IS IMPORTANT! It improves the performance by 10 fold for whatever reason...
 
-			sound.cleanupHandle = setTimeout(function () {
+			sound.cleanupHandle = setTimeout(() => {
 				cleanupCache(sound);
 			}, C_CACHE_CLEANUP_TIME);
 			_cache[sound.filename].instances.push(sound); //put to the end

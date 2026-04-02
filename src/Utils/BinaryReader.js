@@ -212,19 +212,15 @@ BinaryReader.prototype.tell = function tell() {
 BinaryReader.prototype.getString = BinaryReader.prototype.readString = function getString(len) {
 	const start = this.offset;
 	const bytes = new Uint8Array(this.view.buffer, this.view.byteOffset + start, len);
-
 	let realLen = len;
-
 	for (let i = 0; i < len; i++) {
 		if (bytes[i] === 0) {
 			realLen = i;
 			break;
 		}
 	}
-
 	this.offset += len;
-
-	return String.fromCharCode.apply(null, bytes.subarray(0, realLen));
+	return TextEncoding.decode(bytes.subarray(0, realLen), 'utf-8'); // default server charset
 };
 
 /**
@@ -236,19 +232,15 @@ BinaryReader.prototype.getString = BinaryReader.prototype.readString = function 
 BinaryReader.prototype.getBinaryString = BinaryReader.prototype.readBinaryString = function getBinaryString(len) {
 	const start = this.offset;
 	const bytes = new Uint8Array(this.view.buffer, this.view.byteOffset + start, len);
-
 	let realLen = len;
-
 	for (let i = 0; i < len; i++) {
 		if (bytes[i] === 0) {
 			realLen = i;
 			break;
 		}
 	}
-
 	this.offset += len;
-
-	return TextEncoding.decode(bytes.subarray(0, realLen), 'utf-8'); // default server charset
+	return String.fromCharCode.apply(null, bytes.subarray(0, realLen));
 };
 
 /**
