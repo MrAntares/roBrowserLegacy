@@ -39,15 +39,6 @@ const C_MAX_V_ANGLE_1STPERSON = 270;
 const C_QUAKE_MULT = 0.1;
 
 let _pending = false;
-function save() {
-	_pending = false;
-	if (!DB.isIndoor(Camera.currentMap)) {
-		Preferences.zoom = Camera.zoomFinal;
-	} else {
-		Preferences.indoorZoom = Camera.zoomFinal;
-	}
-	Preferences.save();
-}
 
 /**
  * Camera Namespace
@@ -552,6 +543,16 @@ class Camera {
 		mat4.toInverseMat3(matrix, this.normalMat);
 		mat3.transpose(this.normalMat, this.normalMat);
 	}
+}
+
+function save() {
+	_pending = false;
+	if (!DB.isIndoor(Camera.currentMap)) {
+		Preferences.zoom = Camera.zoomFinal;
+	} else {
+		Preferences.indoorZoom = Camera.zoomFinal;
+	}
+	Preferences.save();
 }
 
 /**
