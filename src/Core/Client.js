@@ -383,7 +383,7 @@ function savingFiles(files) {
 				save: !!Configs.get('saveFiles'),
 				quota: quota
 			},
-			Client.onFilesLoaded
+			(...args) => Client.onFilesLoaded(...args)
 		);
 	});
 }
