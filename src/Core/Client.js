@@ -17,7 +17,7 @@ import Memory from './MemoryManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import Texture from 'Utils/Texture.js';
 import WebGL from 'Utils/WebGL.js';
-import GraphicsSettings from 'Preference/Graphics.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 
 class Client {
 	/**
