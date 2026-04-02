@@ -88,6 +88,9 @@ class BGM {
 		// Remove the "BGM/" part
 		if (filename.match(/bgm/i)) {
 			filename = filename.match(/\w+\.mp3/i)?.toString();
+			if (!filename) {
+				return;
+			}
 		}
 
 		// If it's the same file, check if it's already playing
