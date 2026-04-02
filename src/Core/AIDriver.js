@@ -16,7 +16,11 @@ const resMsg = {};
 class AIDriver {
 	static HOM_AGGRESSIVE = false;
 	static MER_AGGRESSIVE = false;
-
+	static HO_AI = null;
+	static MER_AI = null;
+	static default_HO_AI = null;
+	static default_MER_AI = null;
+	static ready = false;
 	// this is called in a code in someplace, left if here :u
 	static init() {}
 
@@ -402,16 +406,16 @@ class AIDriver {
 			};
 		}
 
-		addCTX(this.default_HO_AI, true);
-		addCTX(this.HO_AI, true);
-		addCTX(this.default_MER_AI, false);
-		addCTX(this.MER_AI, false);
+		addCTX(AIDriver.default_HO_AI, true);
+		addCTX(AIDriver.HO_AI, true);
+		addCTX(AIDriver.default_MER_AI, false);
+		addCTX(AIDriver.MER_AI, false);
 	}
 
 	static initAI = async onEnd => {
 		let loadedFiles = {};
 		let loadPromises = [];
-		this.ready = false;
+		AIDriver.ready = false;
 		function preloadFiles(fileList, lua) {
 			const ctx = lua.ctx;
 
@@ -593,7 +597,7 @@ class AIDriver {
 			return;
 		}
 
-		this.ready = true;
+		AIDriver.ready = true;
 
 		if (typeof onEnd === 'function') {
 			onEnd();
@@ -603,22 +607,22 @@ class AIDriver {
 	static exec = (code, homunculus = true) => {
 		try {
 			//console.log('exec', code);
-			if (!this.ready) {
+			if (!AIDriver.ready) {
 				return;
 			}
 
 			let lua;
 			if (homunculus) {
 				if (Session.homCustomAI) {
-					lua = this.HO_AI;
+					lua = AIDriver.HO_AI;
 				} else {
-					lua = this.default_HO_AI;
+					lua = AIDriver.default_HO_AI;
 				}
 			} else {
 				if (Session.merCustomAI) {
-					lua = this.MER_AI;
+					lua = AIDriver.MER_AI;
 				} else {
-					lua = this.default_MER_AI;
+					lua = AIDriver.default_MER_AI;
 				}
 			}
 			lua.doStringSync(code);
