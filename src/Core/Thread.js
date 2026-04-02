@@ -36,8 +36,6 @@ let _origin = [];
  */
 let _source = null;
 
-const _input = { type: '', data: null, uid: 0 };
-
 class Thread {
 	/**
 	 * Send data to thread
@@ -54,11 +52,7 @@ class Thread {
 			_memory[uid] = callback;
 		}
 
-		_input.type = type;
-		_input.data = data;
-		_input.uid = uid;
-
-		_source.postMessage(_input, _origin);
+		_source.postMessage({ type, data, uid }, _origin);
 	};
 
 	/**
