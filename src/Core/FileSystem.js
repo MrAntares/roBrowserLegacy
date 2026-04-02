@@ -457,7 +457,7 @@ class FileSystem {
 				_fs_sync = requestFileSystemSync(self.TEMPORARY, size);
 
 				if (save && _files.length) {
-					FileSystem.cleanUp();
+					FileSystem.cleanup();
 					buildHierarchy();
 					processUpload(0);
 				}
