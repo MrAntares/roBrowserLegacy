@@ -42,7 +42,7 @@ jobs:
               remoteClient: 'https://grf.robrowser.com/',  
               servers: [  
                   {  
-                      display: 'roBrowser Demo Server',  
+                      display: 'roBrowser Demo Server[13]',  
                       desc: 'demo server',  
                       address: '127.0.0.1',  
                       port: 6900,  
@@ -52,7 +52,21 @@ jobs:
                       renewal: false,  
                       worldMapSettings: { episode: 12 },  
                       packetKeys: false,  
-                      socketProxy: 'wss://connect.robrowser.com',  
+                      socketProxy: 'wss://127.0.0.1:5999',  
+                      adminList: [2000000]  
+                  },  
+                 {  
+                      display: 'roBrowser Demo Server[25]',  
+                      desc: 'demo server',  
+                      address: '127.0.0.1',  
+                      port: 6900,  
+                      version: 25,  
+                      langtype: 12,  
+                      packetver: 20250618,  
+                      renewal: false,  
+                      worldMapSettings: { episode: 12 },  
+                      packetKeys: false,  
+                      socketProxy: 'wss://127.0.0.1:5999',  
                       adminList: [2000000]  
                   },  
                   {  
@@ -88,6 +102,7 @@ jobs:
                       adminList: [2000002]  
                   }  
               ],  
+              webserverAddress: 'http://127.0.0.1:8888',
               packetDump: false,  
               skipServerList: true,  
               skipIntro: false,  
