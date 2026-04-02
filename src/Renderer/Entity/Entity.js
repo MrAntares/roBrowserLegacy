@@ -148,53 +148,52 @@ class Entity {
 	 */
 	remove_delay = 0;
 
+	static PickingPriority = {
+		Normal: {
+			[Entity.TYPE_MOB]: 3,
+			[Entity.TYPE_NPC_BIONIC]: 3,
+			[Entity.TYPE_NPC_ABR]: 3,
+			[Entity.TYPE_ITEM]: 2,
+			[Entity.TYPE_NPC]: 1,
+			[Entity.TYPE_NPC2]: 1,
+			[Entity.TYPE_UNKNOWN]: 0,
+			[Entity.TYPE_WARP]: 0,
+			[Entity.TYPE_PC]: 0,
+			[Entity.TYPE_DISGUISED]: 0,
+			[Entity.TYPE_PET]: 0,
+			[Entity.TYPE_HOM]: 0,
+			[Entity.TYPE_MERC]: 0,
+			[Entity.TYPE_ELEM]: 0,
+			[Entity.TYPE_UNIT]: 0,
+			[Entity.TYPE_TRAP]: 0,
+			[Entity.TYPE_EFFECT]: -1,
+			[Entity.TYPE_FALCON]: -1,
+			[Entity.TYPE_WUG]: -1
+		},
+		Support: {
+			[Entity.TYPE_PC]: 3,
+			[Entity.TYPE_DISGUISED]: 3,
+			[Entity.TYPE_HOM]: 3,
+			[Entity.TYPE_MERC]: 3,
+			[Entity.TYPE_ELEM]: 3,
+			[Entity.TYPE_MOB]: 2,
+			[Entity.TYPE_NPC_ABR]: 2,
+			[Entity.TYPE_NPC_BIONIC]: 2,
+			[Entity.TYPE_PET]: 1,
+			[Entity.TYPE_ITEM]: 0,
+			[Entity.TYPE_NPC]: 0,
+			[Entity.TYPE_NPC2]: 0,
+			[Entity.TYPE_UNKNOWN]: 0,
+			[Entity.TYPE_WARP]: 0,
+			[Entity.TYPE_UNIT]: 0,
+			[Entity.TYPE_TRAP]: 0,
+			[Entity.TYPE_EFFECT]: -1,
+			[Entity.TYPE_FALCON]: -1,
+			[Entity.TYPE_WUG]: -1
+		}
+	};
+
 	constructor(data) {
-		/**
-		 * Priority in picking
-		 */
-		this.PickingPriority = {};
-		this.PickingPriority.Normal = {};
-		this.PickingPriority.Normal[Entity.TYPE_MOB] = 3;
-		this.PickingPriority.Normal[Entity.TYPE_NPC_BIONIC] = 3;
-		this.PickingPriority.Normal[Entity.TYPE_NPC_ABR] = 3;
-		this.PickingPriority.Normal[Entity.TYPE_ITEM] = 2;
-		this.PickingPriority.Normal[Entity.TYPE_NPC] = 1;
-		this.PickingPriority.Normal[Entity.TYPE_NP2] = 1;
-		this.PickingPriority.Normal[Entity.TYPE_UNKNOWN] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_WARP] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_PC] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_DISGUISED] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_PET] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_HOM] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_MERC] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_ELEM] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_UNIT] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_TRAP] = 0;
-		this.PickingPriority.Normal[Entity.TYPE_EFFECT] = -1;
-		this.PickingPriority.Normal[Entity.TYPE_FALCON] = -1;
-		this.PickingPriority.Normal[Entity.TYPE_WUG] = -1;
-
-		this.PickingPriority.Support = {};
-		this.PickingPriority.Support[Entity.TYPE_PC] = 3;
-		this.PickingPriority.Support[Entity.TYPE_DISGUISED] = 3;
-		this.PickingPriority.Support[Entity.TYPE_HOM] = 3;
-		this.PickingPriority.Support[Entity.TYPE_MERC] = 3;
-		this.PickingPriority.Support[Entity.TYPE_ELEM] = 3;
-		this.PickingPriority.Support[Entity.TYPE_MOB] = 2;
-		this.PickingPriority.Support[Entity.TYPE_NPC_ABR] = 2;
-		this.PickingPriority.Support[Entity.TYPE_NPC_BIONIC] = 2;
-		this.PickingPriority.Support[Entity.TYPE_PET] = 1;
-		this.PickingPriority.Support[Entity.TYPE_ITEM] = 0;
-		this.PickingPriority.Support[Entity.TYPE_NPC] = 0;
-		this.PickingPriority.Support[Entity.TYPE_NPC2] = 0;
-		this.PickingPriority.Support[Entity.TYPE_UNKNOWN] = 0;
-		this.PickingPriority.Support[Entity.TYPE_WARP] = 0;
-		this.PickingPriority.Support[Entity.TYPE_UNIT] = 0;
-		this.PickingPriority.Support[Entity.TYPE_TRAP] = 0;
-		this.PickingPriority.Support[Entity.TYPE_EFFECT] = -1;
-		this.PickingPriority.Support[Entity.TYPE_FALCON] = -1;
-		this.PickingPriority.Support[Entity.TYPE_WUG] = -1;
-
 		// Initialize properties
 		this.boundingRect = { x1: 0, y1: 0, x2: 0, y2: 0 };
 		this.matrix = mat4.create();
@@ -223,7 +222,7 @@ class Entity {
 		if (data) {
 			this.clean();
 			// Bind data properties to the entity
-			Object.assign(this, data);
+			this.set(data);
 		}
 	}
 
@@ -406,7 +405,7 @@ class Entity {
 					this.hideShadow = unit.hideShadow;
 
 				default:
-					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty('_' + keys[i])) {
+					if (keys[i] in this || `_${keys[i]}` in this) {
 						this[keys[i]] = unit[keys[i]];
 					}
 					break;
