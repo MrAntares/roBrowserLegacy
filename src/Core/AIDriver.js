@@ -556,39 +556,39 @@ class AIDriver {
 		}
 
 		try {
-			this.HO_AI = DB.getHOAI_VM();
-			this.MER_AI = DB.getMERAI_VM();
-			this.default_HO_AI = DB.getDefaultHOAI_VM();
-			this.default_MER_AI = DB.getDefaultMERAI_VM();
+			AIDriver.HO_AI = DB.getHOAI_VM();
+			AIDriver.MER_AI = DB.getMERAI_VM();
+			AIDriver.default_HO_AI = DB.getDefaultHOAI_VM();
+			AIDriver.default_MER_AI = DB.getDefaultMERAI_VM();
 			AIDriver.addCTX();
 
 			console.log('Loading Default HOAI...');
 			let files = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI.lua'];
 			let AI_M = 'AI/AI_M.lua';
-			preloadFiles(files, this.default_HO_AI);
-			await doFiles(files, this.default_HO_AI);
+			preloadFiles(files, AIDriver.default_HO_AI);
+			await doFiles(files, AIDriver.default_HO_AI);
 
 			console.log('Loading Default MERAI...');
 			loadedFiles = {};
 			loadPromises = [];
 			files.pop();
 			files.push(AI_M);
-			preloadFiles(files, this.default_MER_AI);
-			await doFiles(files, this.default_MER_AI);
+			preloadFiles(files, AIDriver.default_MER_AI);
+			await doFiles(files, AIDriver.default_MER_AI);
 
 			files = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI.lua'];
 			AI_M = 'AI/USER_AI/AI_M.lua';
 			console.log('Loading Custom HOAI...');
-			preloadFiles(files, this.HO_AI);
-			await doFiles(files, this.HO_AI);
+			preloadFiles(files, AIDriver.HO_AI);
+			await doFiles(files, AIDriver.HO_AI);
 
 			console.log('Loading Custom MERAI...');
 			loadedFiles = {};
 			loadPromises = [];
 			files.pop();
 			files.push(AI_M);
-			preloadFiles(files, this.MER_AI);
-			await doFiles(files, this.MER_AI);
+			preloadFiles(files, AIDriver.MER_AI);
+			await doFiles(files, AIDriver.MER_AI);
 		} catch (error) {
 			console.error('Error loading AI files:', error);
 			if (typeof onEnd === 'function') {
