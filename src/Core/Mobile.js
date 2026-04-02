@@ -11,6 +11,9 @@
 // TODO: body overflow
 // TODO: responsive design
 
+/**
+ * Import dependencies
+ */
 import jQuery from 'Utils/jquery.js';
 import Context from 'Core/Context.js';
 import Events from 'Core/Events.js';
@@ -19,14 +22,6 @@ import Session from 'Engine/SessionStorage.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import MobileUI from 'UI/Components/MobileUI/MobileUI.js';
-
-/**
- * Import dependencies
- */
-/**
- * @namespace Mobile
- */
-const Mobile = {};
 
 /**
  * @var {boolean} is doing a gesture ?
@@ -44,9 +39,14 @@ let _scale, _angle, _touches, _intersect;
 let _timer = -1;
 
 /**
- * Initialize
+ * @namespace Mobile
  */
-Mobile.init = function init() {};
+class Mobile {
+	/**
+	 * Initialize
+	 */
+	static init() {}
+}
 
 /**
  * Remove autofocus on mobile.

@@ -31,62 +31,61 @@ let _server = {};
 	let i, count;
 
 	for (i = 0, count = keys.length; i < count; ++i) {
-		set(keys[i], configs[keys[i]]);
+		Configs.set(keys[i], configs[keys[i]]);
 	}
 })(window.ROConfig);
 
-/**
- * Set a config
- *
- * @param {string} key name
- * @param {?} data
- */
-function set(key, value) {
-	_global[key] = value;
-}
+class Configs {
+	/**
+	 * Get the value of a config
+	 *
+	 * @param {string} key name
+	 * @param {?} default data value
+	 * @return {?} data
+	 */
+	static get = (key, defaultValue) => {
+		if (key in _server) {
+			return _server[key];
+		}
 
-/**
- * Get the value of a config
- *
- * @param {string} key name
- * @param {?} default data value
- * @return {?} data
- */
-function get(key, defaultValue) {
-	if (key in _server) {
-		return _server[key];
-	}
+		if (key in _global) {
+			return _global[key];
+		}
 
-	if (key in _global) {
-		return _global[key];
-	}
-
-	return defaultValue;
-}
-
-/**
- * Store the server informations
- *
- * @param {object} server config
- */
-function setServer(server) {
-	_server = server;
-}
-
-/**
- * Return the server informations
- *
- */
-function getServer() {
-	return _server;
+		return defaultValue;
+	};
+	/**
+	 * Set a config
+	 *
+	 * @param {string} key name
+	 * @param {?} data
+	 */
+	static set = (key, value) => {
+		_global[key] = value;
+	};
+	/**
+	 * Store the server informations
+	 *
+	 * @param {object} server config
+	 */
+	static setServer = server => {
+		_server = server;
+	};
+	/**
+	 * Return the server informations
+	 *
+	 */
+	static getServer = () => {
+		return _server;
+	};
 }
 
 /**
  * Export
  */
 export default {
-	get: get,
-	set: set,
-	setServer: setServer,
-	getServer: getServer
+	get: Configs.get,
+	set: Configs.set,
+	setServer: Configs.setServer,
+	getServer: Configs.getServer
 };
