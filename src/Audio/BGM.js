@@ -58,7 +58,7 @@ class BGM {
 	 */
 	static setAvailableExtensions(extensions) {
 		let i, count;
-		const audio = this.audio;
+		const audio = BGM.audio;
 
 		if (!extensions || !extensions.length) {
 			extensions = ['mp3'];
@@ -67,7 +67,7 @@ class BGM {
 		// Find supported audio file from list
 		for (i = 0, count = extensions.length; i < count; ++i) {
 			if (audio.canPlayType(`audio/${extensions[i]}`).replace(/no/i, '')) {
-				this.extension = extensions[i];
+				BGM.extension = extensions[i];
 				BGM.init();
 				return;
 			}
@@ -87,16 +87,16 @@ class BGM {
 
 		// Remove the "BGM/" part
 		if (filename.match(/bgm/i)) {
-			filename = filename.match(/\w+\.mp3/i).toString();
+			filename = filename.match(/\w+\.mp3/i)?.toString();
 		}
 
 		// If it's the same file, check if it's already playing
-		if (this.filename === filename) {
-			if (!this.audio.paused) {
+		if (BGM.filename === filename) {
+			if (!BGM.audio.paused) {
 				return;
 			}
 		} else {
-			this.filename = filename;
+			BGM.filename = filename;
 		}
 
 		// load the file.
@@ -124,9 +124,9 @@ class BGM {
 		}
 
 		BGM.audio.src = url;
-		BGM.audio.volume = this.volume;
+		BGM.audio.volume = BGM.volume;
 		BGM.audio.play().catch(error => {
-			console.error(`Failed to play "BGM/${this.filename}": ${error.message}`);
+			console.error(`Failed to play "BGM/${BGM.filename}": ${error.message}`);
 		});
 	}
 
