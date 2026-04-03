@@ -66,17 +66,7 @@ class RSW {
 	/**
 	 * Water informations
 	 */
-	water = {
-		level: 0,
-		type: 0,
-		waveHeight: 0,
-		waveSpeed: 0,
-		wavePitch: 0,
-		animSpeed: 0,
-		splitWidth: 0,
-		splitHeight: 0,
-		images: new Array(32)
-	};
+	water = Object.assign({}, RSW._defaultWater);
 
 	/**
 	 * Light informations
