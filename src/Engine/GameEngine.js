@@ -57,7 +57,7 @@ function loadFiles(callback) {
 	q.add(() => {
 		Client.onFilesLoaded = count => {
 			if (!Configs.get('remoteClient') && !count && !window.requireNode) {
-				alert('No client to initialize roBrowser'); // eslint-disable-line no-alert
+				alert('No client to initialize roBrowser');
 				Intro.remove();
 				Intro.append();
 				return;

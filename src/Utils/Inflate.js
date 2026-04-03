@@ -343,7 +343,6 @@ Inflate.prototype.readBlock = function Inflate_readBlock() {
 	const buffer = this.buffer;
 	let pos = this.bufferPos;
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		let code1 = this.getCode(litCodeTable);
 		if (code1 < 256) {
