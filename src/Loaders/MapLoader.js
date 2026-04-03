@@ -68,7 +68,7 @@ class Loader {
 		const filename = this.list.shift();
 		FileManager.load(
 			filename,
-			function (data) {
+			(data) => {
 				// Store the result
 				this.out[this.files.indexOf(filename)] = data;
 				this.offset++;
@@ -88,12 +88,12 @@ class Loader {
 				if (this.list.length) {
 					// To fix "too much recursion" on Firefox
 					if (++Loader.count % 50 === 0) {
-						setTimeout(this._next.bind(this), 4);
+						setTimeout(() => this._next(), 4);
 					} else {
 						this._next();
 					}
 				}
-			}.bind(this)
+			}
 		);
 	}
 }
@@ -167,7 +167,7 @@ class MapLoader {
 		// loading world
 		function onWorldReady(resourceWorld) {
 			if (!resourceWorld) {
-				loader.onload(false, 'Can\'t find file "' + mapname + '" ! ');
+				loader.onload(false, `Can't find file "${mapname}" ! `);
 				return;
 			}
 
@@ -175,26 +175,26 @@ class MapLoader {
 			loader.setProgress(1);
 
 			// Load Altitude
-			FileManager.load('data\\' + getFilePath(world.files.gat), onAltitudeReady);
+			FileManager.load(`data\\${getFilePath(world.files.gat)}`, onAltitudeReady);
 		}
 
 		// Loading altitude
 		function onAltitudeReady(altitude) {
 			if (!altitude) {
-				loader.onload(false, 'Can\'t find file "' + world.files.gat + '" !');
+				loader.onload(false, `Can't find file "${world.files.gat}" !`);
 				return;
 			}
 
 			loader.setProgress(2);
 			loader.ondata('MAP_ALTITUDE', altitude.compile());
 
-			FileManager.load('data\\' + getFilePath(world.files.gnd), onGroundReady);
+			FileManager.load(`data\\${getFilePath(world.files.gnd)}`, onGroundReady);
 		}
 
 		// Load ground
 		function onGroundReady(ground) {
 			if (!ground) {
-				loader.onload(false, 'Can\'t find file "' + world.files.gnd + '" !');
+				loader.onload(false, `Can't find file "${world.files.gnd}" !`);
 				return;
 			}
 
@@ -229,7 +229,7 @@ class MapLoader {
 		}
 
 		// Start loading World Resource file
-		FileManager.load('data\\' + getFilePath(mapname), onWorldReady);
+		FileManager.load(`data\\${getFilePath(mapname)}`, onWorldReady);
 	}
 
 	/**
@@ -245,29 +245,29 @@ class MapLoader {
 
 		// Get water textures
 		if (ground.waterVertCount) {
-			const path = 'data\\texture\\\xbf\xf6\xc5\xcd/water' + world.water.type;
+			const path = `data\\texture\\\xbf\xf6\xc5\xcd/water${world.water.type}`;
 			for (i = 0; i < 32; ++i) {
-				textures.push(path + (i < 10 ? '0' + i : i) + '.jpg');
+				textures.push(`${path}${i < 10 ? '0' + i : i}.jpg`);
 			}
 		}
 
 		// Load ground textures
 		for (i = 0, count = ground.textures.length; i < count; ++i) {
-			textures.push('data\\texture\\' + ground.textures[i]);
+			textures.push(`data\\texture\\${ground.textures[i]}`);
 		}
 
 		// Start loading
 		const loader = new Loader(textures);
 
 		// On progress
-		loader.onprogress = function OnProgress() {
+		loader.onprogress = () => {
 			this.setProgress(3 + (97 / this.fileCount) * ++this.offset);
-		}.bind(this);
+		};
 
 		// Once load
-		loader.onload = function (_textures) {
+		loader.onload = (_textures) => {
 			callback(_textures.splice(0, ground.waterVertCount ? 32 : 0), _textures);
-		}.bind(this);
+		};
 
 		// Start the queue
 		loader.start();
@@ -286,7 +286,7 @@ class MapLoader {
 
 		// Get a list of files to load
 		for (i = 0, count = models.length; i < count; ++i) {
-			models[i].filename = 'data\\model\\' + models[i].filename;
+			models[i].filename = `data\\model\\${models[i].filename}`;
 
 			if (files.indexOf(models[i].filename) < 0) {
 				files.push(models[i].filename);
@@ -296,12 +296,12 @@ class MapLoader {
 		const loader = new Loader(files);
 
 		// Update the progressbar
-		loader.onprogress = function () {
+		loader.onprogress = () => {
 			this.setProgress(3 + (97 / this.fileCount) * ++this.offset);
-		}.bind(this);
+		};
 
 		// Start creating instances
-		loader.onload = function (objects, filenames) {
+		loader.onload = (objects, filenames) => {
 			let pos;
 
 			for (i = 0, count = models.length; i < count; ++i) {
@@ -324,7 +324,7 @@ class MapLoader {
 			}
 
 			this.compileModels(objects);
-		}.bind(this);
+		};
 
 		// Start loading models
 		loader.start();
@@ -361,7 +361,7 @@ class MapLoader {
 
 				for (index in meshes) {
 					models.push({
-						texture: 'data\\texture\\' + object.textures[index],
+						texture: `data\\texture\\${object.textures[index]}`,
 						alpha: objects[i].alpha,
 						mesh: meshes[index]
 					});
@@ -434,13 +434,13 @@ class MapLoader {
 		const loader = new Loader(textures);
 
 		// On Progress
-		loader.onprogress = function (index, _count) {
+		loader.onprogress = (index, _count) => {
 			this.setProgress(progress + ((100 - progress) / _count) * (index + 1));
-		}.bind(this);
+		};
 
 		// Once texture loaded, push the textures
 		// in the resulted mesh, and send it back
-		loader.onload = function (_textures, filenames) {
+		loader.onload = (_textures, filenames) => {
 			let pos;
 
 			for (i = 0, count = infos.length; i < count; ++i) {
@@ -459,7 +459,7 @@ class MapLoader {
 			}
 
 			this.onload(true);
-		}.bind(this);
+		};
 
 		loader.start();
 	}
@@ -547,7 +547,7 @@ function SortMeshByTextures(a, b) {
 	}
 
 	if (a.alpha !== b.alpha) {
-		return a.alpha < b.alpha ? 1 : 0;
+		return a.alpha < b.alpha ? 1 : -1;
 	}
 
 	if (a.texture < b.texture) {
