@@ -192,67 +192,67 @@ function decryptBlock(src, index) {
 	roundFunction(src, index);
 	finalPermutation(src, index);
 }
+class GameFileDecrypt {
+	/**
+	 * Decode the whole file
+	 *
+	 * @param {Uint8Array} buf
+	 * @param {number} len
+	 * @param {number} entry_len
+	 */
+	static decodeFull(buf, len, entry_len) {
+		const nblocks = len >> 3;
+		let i, j;
 
-/**
- * Decode the whole file
- *
- * @param {Uint8Array} buf
- * @param {number} len
- * @param {number} entry_len
- */
-export function decodeFull(buf, len, entry_len) {
-	const nblocks = len >> 3;
-	let i, j;
+		// compute number of digits of the entry length
+		const digits = entry_len.toString().length;
 
-	// compute number of digits of the entry length
-	const digits = entry_len.toString().length;
+		// choose size of gap between two encrypted blocks
+		// Updated to match PHP reference (cycle is at least 3)
+		// digits:  1  2  3  4  5  6  7  8  9 ...
+		//  cycle:  3  3  4  5 14 15 22 23 24 ...
+		const cycle = digits < 3 ? 3 : digits < 5 ? digits + 1 : digits < 7 ? digits + 9 : digits + 15;
 
-	// choose size of gap between two encrypted blocks
-	// Updated to match PHP reference (cycle is at least 3)
-	// digits:  1  2  3  4  5  6  7  8  9 ...
-	//  cycle:  3  3  4  5 14 15 22 23 24 ...
-	const cycle = digits < 3 ? 3 : digits < 5 ? digits + 1 : digits < 7 ? digits + 9 : digits + 15;
-
-	// first 20 blocks are all des-encrypted
-	for (i = 0; i < 20 && i < nblocks; ++i) {
-		decryptBlock(buf, i * 8);
-	}
-
-	for (i = 20, j = 0; i < nblocks; ++i) {
-		// decrypt block
-		if (i % cycle === 0) {
+		// first 20 blocks are all des-encrypted
+		for (i = 0; i < 20 && i < nblocks; ++i) {
 			decryptBlock(buf, i * 8);
-			continue;
 		}
 
-		// de-shuffle block
-		if (j === 7) {
-			shuffleDec(buf, i * 8);
-			j = 0;
+		for (i = 20, j = 0; i < nblocks; ++i) {
+			// decrypt block
+			if (i % cycle === 0) {
+				decryptBlock(buf, i * 8);
+				continue;
+			}
+
+			// de-shuffle block
+			if (j === 7) {
+				shuffleDec(buf, i * 8);
+				j = 0;
+			}
+
+			j++;
+		}
+	}
+
+	/**
+	 * Decode only the header
+	 *
+	 * @param {Uint8Array} buf
+	 * @param {number} len
+	 */
+	static decodeHeader(buf, len) {
+		const nblocks = len >> 3;
+		let i;
+
+		// first 20 blocks are all des-encrypted
+		for (i = 0; i < 20 && i < nblocks; ++i) {
+			decryptBlock(buf, i * 8);
 		}
 
-		j++;
+		// the rest is plaintext, done.
 	}
 }
-
-/**
- * Decode only the header
- *
- * @param {Uint8Array} buf
- * @param {number} len
- */
-export function decodeHeader(buf, len) {
-	const nblocks = len >> 3;
-	let i;
-
-	// first 20 blocks are all des-encrypted
-	for (i = 0; i < 20 && i < nblocks; ++i) {
-		decryptBlock(buf, i * 8);
-	}
-
-	// the rest is plaintext, done.
-}
-
 /**
  * Shuffle decode
  *
@@ -297,7 +297,4 @@ shuffleDec.table = (function init_substitution() {
 /**
  * Exports
  */
-export default {
-	decodeFull: decodeFull,
-	decodeHeader: decodeHeader
-};
+export default GameFileDecrypt;
