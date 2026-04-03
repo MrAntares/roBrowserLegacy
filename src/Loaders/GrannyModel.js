@@ -481,6 +481,159 @@ class Node {
 	}
 }
 
+class Section {
+	constructor(_fp) {
+		this.Format = _fp.readUInt();
+		this.DataOffset = _fp.readUInt();
+		this.DataSize = _fp.readUInt();
+		this.ExpandedDataSize = _fp.readUInt();
+		this.InternalAlignment = _fp.readUInt();
+		this.First16Bit = _fp.readUInt();
+		this.First8Bit = _fp.readUInt();
+		this.PointerFixupArrayOffset = _fp.readUInt();
+		this.PointerFixupArrayCount = _fp.readUInt();
+		this.MixedMarshallingFixupArrayOffset = _fp.readUInt();
+		this.MixedMarshallingFixupArrayCount = _fp.readUInt();
+
+		this.IsReady = false;
+	}
+
+	decompress(_fp) {
+		if (this.IsReady) {
+			return true;
+		}
+
+		const _data = new BinaryReader(_fp.buffer, this.DataOffset, this.DataSize);
+
+		switch (this.Format) {
+			case GR2.COMPRESSION_TYPE.NoCompression:
+				if (this.ExpandedDataSize != this.DataSize) {
+					console.error('Expanded Data Size and DataSize do not match.');
+				}
+				this.data = _data;
+				this.IsReady = true;
+				break;
+			case GR2.COMPRESSION_TYPE.Oodle0Compression:
+				console.error('Unhandled Compression Type Oodle0Compression');
+				break;
+			case GR2.COMPRESSION_TYPE.Oodle1Compression:
+				console.error('Unhandled Compression Type Oodle1Compression');
+				break;
+			case GR2.COMPRESSION_TYPE.OnePastLastCompressionType:
+				console.error('Unhandled Compression Type OnePastLastCompressionType');
+				break;
+		}
+
+		return this.IsReady;
+	}
+}
+
+// Standard Granny File structure distribution.
+// 0 GrannyStandardMainSection             - All structures go here
+// 1 GrannyStandardRigidVertexSection      - All rigid vertices go here
+// 2 GrannyStandardRigidIndexSection       - All indices into rigid vertex arrays go here
+// 3 GrannyStandardDeformableVertexSection - All deformable vertices go here
+// 4 GrannyStandardDeformableIndexSection  - All indices into deformable vertex arrays go here
+// 5 GrannyStandardTextureSection          - All textures go here
+class Reference {
+	constructor(_fp) {
+		this.SectionIndex = _fp.readUInt();
+		this.Offset = _fp.readUInt();
+	}
+}
+
+class Header {
+	constructor(_fp) {
+		this.Version = _fp.readUInt();
+		this.TotalSize = _fp.readUInt();
+		this.CRC = _fp.readUInt();
+		this.SectionArrayOffset = _fp.readUInt();
+		this.SectionArrayCount = _fp.readUInt();
+		this.RootObjectTypeDefinition = new Reference(_fp);
+		this.RootObject = new Reference(_fp);
+		this.TypeTag = _fp.readUInt();
+		this.ExtraTags = [];
+		for (let i = 0; i < GR2.GRNExtraTagCount; i++) {
+			this.ExtraTags.push(_fp.readUInt());
+		}
+		this.StringDatabaseCRC = _fp.readUInt();
+		this.ReservedUnused = [_fp.readUInt(), _fp.readUInt(), _fp.readUInt()];
+	}
+}
+
+class GrannyFileMagicValue {
+	constructor(_fp) {
+		this.MagicValue = [_fp.readUInt(), _fp.readUInt(), _fp.readUInt(), _fp.readUInt()];
+		this.HeaderSize = _fp.readUInt();
+		this.HeaderFormat = _fp.readUInt();
+		this.Reserved = [_fp.readUInt(), _fp.readUInt()];
+	}
+}
+
+// Not called with new as we return an array of 3 float.
+function Triple() {
+	if (arguments.length === 1) {
+		const _fp = arguments[0];
+		return [_fp.readFloat(), _fp.readFloat(), _fp.readFloat()];
+	} else if (arguments.length == 3) {
+		return [arguments[0], arguments[1], arguments[2]];
+	}
+	return [0, 0, 0];
+}
+
+class GrannyDataTypeDefinition {
+	constructor() {
+		//granny_member_type Type;
+		//char const * Name;
+		//this.ReferenceType = null;// GrannyDataTypeDefinition * ;
+		//granny_int32 ArrayWidth;
+		//granny_int32 Extra[3];
+		//granny_uintaddrx Ignored__Ignored;
+	}
+}
+
+class GrannyVariant {
+	constructor(_fp) {
+		this.Type = new GrannyDataTypeDefinition(_fp);
+		this.Object = null;
+	}
+}
+class _GrannyArtToolInfo {
+	constructor(_fp) {
+		this.FromArtToolName = _fp.readString(30);
+		this.ArtToolMajorRevision = _fp.readUInt();
+		this.ArtToolMinorRevision = _fp.readUInt();
+		this.UnitsPerMeter = _fp.readFloat();
+		this.Origin = Triple(_fp);
+		this.RightVector = Triple(_fp);
+		this.UpVector = Triple(_fp);
+		this.BackVector = Triple(_fp);
+		this.ExtendedData = new GrannyVariant(_fp);
+	}
+}
+class _GrannyFileInfo {
+	constructor(_fp) {
+		this.FromFileName = _fp.readString(30);
+		this.TextureCount = _fp.readInt();
+		this.Textures = null;
+		this.MaterialCount = _fp.readInt();
+		this.Materials = null;
+		this.SkeletonCount = _fp.readInt();
+		this.Skeletons = null;
+		this.VertexDataCount = _fp.readInt();
+		this.VertexDatas = null;
+		this.TriTopologyCount = _fp.readInt();
+		this.TriTopologies = null;
+		this.MeshCount = _fp.readInt();
+		this.Meshes = null;
+		this.ModelCount = _fp.readInt();
+		this.Models = null;
+		this.TrackGroupCount = _fp.readInt();
+		this.TrackGroups = null;
+		this.AnimationCount = _fp.readInt();
+	}
+}
+
 /**
  * GR2 File sub-class
  */
@@ -960,150 +1113,8 @@ class GR2 {
 	 * @param {ArrayBuffer} data
 	 */
 	load(data) {
-		let i;
-
 		// Read header.
 		const fp = new BinaryReader(data);
-
-		// Standard Granny File structure distribution.
-		// 0 GrannyStandardMainSection             - All structures go here
-		// 1 GrannyStandardRigidVertexSection      - All rigid vertices go here
-		// 2 GrannyStandardRigidIndexSection       - All indices into rigid vertex arrays go here
-		// 3 GrannyStandardDeformableVertexSection - All deformable vertices go here
-		// 4 GrannyStandardDeformableIndexSection  - All indices into deformable vertex arrays go here
-		// 5 GrannyStandardTextureSection          - All textures go here
-
-		function Section(_fp) {
-			this.Format = _fp.readUInt();
-			this.DataOffset = _fp.readUInt();
-			this.DataSize = _fp.readUInt();
-			this.ExpandedDataSize = _fp.readUInt();
-			this.InternalAlignment = _fp.readUInt();
-			this.First16Bit = _fp.readUInt();
-			this.First8Bit = _fp.readUInt();
-			this.PointerFixupArrayOffset = _fp.readUInt();
-			this.PointerFixupArrayCount = _fp.readUInt();
-			this.MixedMarshallingFixupArrayOffset = _fp.readUInt();
-			this.MixedMarshallingFixupArrayCount = _fp.readUInt();
-
-			this.IsReady = false;
-		}
-
-		Section.prototype.decompress = function (_fp) {
-			if (this.IsReady) {
-				return true;
-			}
-
-			const _data = new BinaryReader(_fp.buffer, this.DataOffset, this.DataSize);
-
-			switch (this.Format) {
-				case GR2.COMPRESSION_TYPE.NoCompression:
-					if (this.ExpandedDataSize != this.DataSize) {
-						console.error('Expanded Data Size and DataSize do not match.');
-					}
-					this.data = _data;
-					this.IsReady = true;
-					break;
-				case GR2.COMPRESSION_TYPE.Oodle0Compression:
-					console.error('Unhandled Compression Type Oodle0Compression');
-					break;
-				case GR2.COMPRESSION_TYPE.Oodle1Compression:
-					console.error('Unhandled Compression Type Oodle1Compression');
-					break;
-				case GR2.COMPRESSION_TYPE.OnePastLastCompressionType:
-					console.error('Unhandled Compression Type OnePastLastCompressionType');
-					break;
-			}
-
-			return this.IsReady;
-		};
-
-		function Reference(_fp) {
-			this.SectionIndex = _fp.readUInt();
-			this.Offset = _fp.readUInt();
-		}
-
-		function Header(_fp) {
-			this.Version = _fp.readUInt();
-			this.TotalSize = _fp.readUInt();
-			this.CRC = _fp.readUInt();
-			this.SectionArrayOffset = _fp.readUInt();
-			this.SectionArrayCount = _fp.readUInt();
-			this.RootObjectTypeDefinition = new Reference(_fp);
-			this.RootObject = new Reference(_fp);
-			this.TypeTag = _fp.readUInt();
-			this.ExtraTags = [];
-			for (i = 0; i < GR2.GRNExtraTagCount; i++) {
-				this.ExtraTags.push(_fp.readUInt());
-			}
-			this.StringDatabaseCRC = _fp.readUInt();
-			this.ReservedUnused = [_fp.readUInt(), _fp.readUInt(), _fp.readUInt()];
-		}
-
-		function GrannyFileMagicValue(_fp) {
-			this.MagicValue = [_fp.readUInt(), _fp.readUInt(), _fp.readUInt(), _fp.readUInt()];
-			this.HeaderSize = _fp.readUInt();
-			this.HeaderFormat = _fp.readUInt();
-			this.Reserved = [_fp.readUInt(), _fp.readUInt()];
-		}
-
-		// Not called with new as we return an array of 3 float.
-		function Triple() {
-			if (arguments.length === 1) {
-				const _fp = arguments[0];
-				return [_fp.readFloat(), _fp.readFloat(), _fp.readFloat()];
-			} else if (arguments.length == 3) {
-				return [arguments[0], arguments[1], arguments[2]];
-			}
-			return [0, 0, 0];
-		}
-
-		function GrannyDataTypeDefinition() {
-			//granny_member_type Type;
-			//char const * Name;
-			//this.ReferenceType = null;// GrannyDataTypeDefinition * ;
-			//granny_int32 ArrayWidth;
-			//granny_int32 Extra[3];
-			//granny_uintaddrx Ignored__Ignored;
-		}
-
-		function GrannyVariant(_fp) {
-			this.Type = new GrannyDataTypeDefinition(_fp);
-			this.Object = null;
-		}
-
-		function _GrannyArtToolInfo(_fp) {
-			this.FromArtToolName = _fp.readString(30);
-			this.ArtToolMajorRevision = _fp.readUInt();
-			this.ArtToolMinorRevision = _fp.readUInt();
-			this.UnitsPerMeter = _fp.readFloat();
-			this.Origin = Triple(_fp);
-			this.RightVector = Triple(_fp);
-			this.UpVector = Triple(_fp);
-			this.BackVector = Triple(_fp);
-			this.ExtendedData = new GrannyVariant(_fp);
-		}
-
-		function _GrannyFileInfo(_fp) {
-			this.FromFileName = _fp.readString(30);
-			this.TextureCount = _fp.readInt();
-			this.Textures = null;
-			this.MaterialCount = _fp.readInt();
-			this.Materials = null;
-			this.SkeletonCount = _fp.readInt();
-			this.Skeletons = null;
-			this.VertexDataCount = _fp.readInt();
-			this.VertexDatas = null;
-			this.TriTopologyCount = _fp.readInt();
-			this.TriTopologies = null;
-			this.MeshCount = _fp.readInt();
-			this.Meshes = null;
-			this.ModelCount = _fp.readInt();
-			this.Models = null;
-			this.TrackGroupCount = _fp.readInt();
-			this.TrackGroups = null;
-			this.AnimationCount = _fp.readInt();
-		}
 
 		// Read infos
 		fp.seek(0x1f);
@@ -1120,7 +1131,7 @@ class GR2 {
 
 		console.error(crc == this.Header.CRC ? 'CRC Matches' : 'CRC Not Match');
 		fp.seek(SectionArrayAddress);
-		for (i = 0; i < this.Header.SectionArrayCount; i++) {
+		for (let i = 0; i < this.Header.SectionArrayCount; i++) {
 			const s = new Section(fp);
 			if (s.Format == GR2.COMPRESSION_TYPE.NoCompression) {
 				s.decompress(fp);
