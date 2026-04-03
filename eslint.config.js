@@ -61,6 +61,7 @@ export default [
       'no-fallthrough': 'off',  
   
       // USELESS RULES  
+      'no-useless-assignment': 'off',
       'no-useless-escape': 'off',  
       'no-empty': 'error',  
       'no-redeclare': 'error',  
