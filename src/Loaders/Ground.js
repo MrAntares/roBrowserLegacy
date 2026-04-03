@@ -14,8 +14,7 @@ import glMatrix from 'Utils/gl-matrix.js';
 /**
  * Import
  */
-const vec3 = glMatrix.vec3;
-const vec4 = glMatrix.vec4;
+const { vec3, vec4 } = glMatrix;
 
 /**
  * Ground class loader
@@ -128,8 +127,8 @@ class GND {
 		const per_cell = per_cell_x * per_cell_y * size_cell;
 
 		this.lightmap = {
-			per_cell: per_cell,
-			count: count,
+			per_cell,
+			count,
 			data: new Uint8Array(fp.buffer, fp.offset, count * per_cell * 4)
 		};
 
