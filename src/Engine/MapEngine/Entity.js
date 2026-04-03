@@ -626,13 +626,15 @@ function onEntityAction(pkt) {
 
 				// damage blocking status effect display
 				if (pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0) {
-					// Show guard effect (Kyrie Eleison, Auto Guard, Parrying, etc.)
-					const EF_Init_Par = {
-						effectId: EffectConst.EF_GUARD,
-						ownerAID: pkt.targetGID,
-						startTick: Renderer.tick + pkt.attackMT
-					};
-					EffectManager.spam(EF_Init_Par);
+					if (dstEntity.isGuard) {
+						// Show guard effect (Kyrie Eleison, Auto Guard, Parrying, etc.)
+						const EF_Init_Par = {
+							effectId: EffectConst.EF_GUARD,
+							ownerAID: pkt.targetGID,
+							startTick: Renderer.tick + pkt.attackMT
+						};
+						EffectManager.spam(EF_Init_Par);
+					}
 				}
 
 				target = pkt.damage ? dstEntity : srcEntity;
@@ -2414,6 +2416,12 @@ function onEntityStatusChange(pkt) {
 				entity.emblem.update();
 			});
 			break;
+	}
+
+	const guardStatuses = [StatusConst.KYRIE, StatusConst.AUTOGUARD, StatusConst.PARRYING];
+
+	if (guardStatuses.includes(pkt.index)) {
+		entity.isGuard = pkt.state;
 	}
 
 	// Modify icon
