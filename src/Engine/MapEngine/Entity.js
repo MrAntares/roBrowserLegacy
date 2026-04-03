@@ -625,7 +625,7 @@ function onEntityAction(pkt) {
 				onEntityWillBeHitSub(pkt, dstEntity);
 
 				// damage blocking status effect display
-				if (pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0) {
+				if (pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0 && dstEntity.isGuard) {
 					// Show guard effect (Kyrie Eleison, Auto Guard, Parrying, etc.)
 					const EF_Init_Par = {
 						effectId: EffectConst.EF_GUARD,
@@ -2416,6 +2416,8 @@ function onEntityStatusChange(pkt) {
 			break;
 	}
 
+	processBlockStatus(entity, pkt);
+
 	// Modify icon
 	if (entity === Session.Entity) {
 		StatusIcons.update(pkt.index, pkt.state, pkt.RemainMS);
@@ -2860,6 +2862,19 @@ function onHatEffects(pkt) {
 	}
 }
 
+function processBlockStatus(entity, pkt) {  
+	const guardStatuses = [StatusConst.KYRIE, StatusConst.AUTOGUARD, StatusConst.PARRYING];  
+  
+	if (guardStatuses.includes(pkt.index)) {  
+		if (!entity._guardStatuses) entity._guardStatuses = new Set();  
+		if (pkt.state && !entity._guardStatuses.has(pkt.index)) {  
+			entity._guardStatuses.add(pkt.index);  
+		} else if (!pkt.state) {  
+			entity._guardStatuses.delete(pkt.index);  
+		}  
+		entity.isGuard = entity._guardStatuses.size > 0;  
+	}  
+}
 /**
  * Initialize
  */
