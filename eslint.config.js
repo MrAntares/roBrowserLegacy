@@ -1,35 +1,37 @@
-import globals from 'globals';  
-import eslintConfigPrettier from 'eslint-config-prettier';  
-  
-export default [ 
-  {  
-    ignores: [  
-      'node_modules/',  
-      'bower_components/',  
-      'dist/',  
-      'build/',  
-      '*.min.js',  
-      'src/Vendors/**',  
-      'src/Libs/**',  
-      'src/lib/**',  
-      'src/Utils/jquery.js',  
-      'src/Utils/three.js',  
-      'src/Utils/gl-matrix.js',  
-      'test/',  
-      'tests/',  
-      '*.test.js',  
-      '*.spec.js',  
-      '.cache/',  
-      '.eslintcache',  
-      'docs/',  
-      '*.config.js',  
-      'webpack.config.js',  
-      'rollup.config.js'  
-    ]  
-  },  
-  
-  {  
-    files: ['src/**/*.js'],  
+import globals from 'globals';
+import js from '@eslint/js';
+import eslintConfigPrettier from 'eslint-config-prettier';
+
+export default [
+  js.configs.recommended,
+  {
+    ignores: [
+      'node_modules/',
+      'bower_components/',
+      'dist/',
+      'build/',
+      '*.min.js',
+      'src/Vendors/**',
+      'src/Libs/**',
+      'src/lib/**',
+      'src/Utils/jquery.js',
+      'src/Utils/three.js',
+      'src/Utils/gl-matrix.js',
+      'test/',
+      'tests/',
+      '*.test.js',
+      '*.spec.js',
+      '.cache/',
+      '.eslintcache',
+      'docs/',
+      '*.config.js',
+      'webpack.config.js',
+      'rollup.config.js'
+    ]
+  },
+
+  {
+    files: ['src/**/*.js'],
     languageOptions: {  
       ecmaVersion: 2022,  
       sourceType: 'module',  
