@@ -862,6 +862,25 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 };
 
 /**
+ * Hot-reload CSS for a specific component
+ * @param {string} name - Component name
+ * @param {string} newCssText - New CSS content
+ */
+UIComponent.reloadCSS = function reloadCSS(name, newCssText) {
+	// Use a separate <style> tag per component for hot-reload
+	// This avoids touching the global <style> tag and breaking other components
+	const id = 'hmr-' + name;
+	let hotStyle = document.getElementById(id);
+	if (!hotStyle) {
+		hotStyle = document.createElement('style');
+		hotStyle.id = id;
+		hotStyle.type = 'text/css';
+		document.head.appendChild(hotStyle);
+	}
+	hotStyle.textContent = newCssText;
+};
+
+/**
  * Export
  */
 export default UIComponent;

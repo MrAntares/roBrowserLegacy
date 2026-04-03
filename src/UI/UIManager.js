@@ -296,6 +296,15 @@ class UIManager {
 		WinPrompt.append();
 		return WinPrompt;
 	}
+
+	/**
+	 * Reload CSS of a component
+	 * @param {string} componentName
+	 * @param {string} newCssText
+	 */
+	static reloadCSS(componentName, newCssText) {
+		UIComponent.reloadCSS(componentName, newCssText);
+	}
 }
 /**
  * Export
