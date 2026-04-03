@@ -41,6 +41,7 @@
 		"@rollup/plugin-alias": "^6.0.0",
 		"bson": "^7.2.0",
 		"lodash": "^4.17.23",
+		"globals": "^16.0.0",
 		"eslint": "^10.1.0",
 		"eslint-config-prettier": "^10.1.8",
 		"nw": "^0.99.0-sdk",
