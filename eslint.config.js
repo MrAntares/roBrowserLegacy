@@ -28,16 +28,15 @@ export default [
       'rollup.config.js'
     ]
   },
-
+  js.configs.recommended,
   {
     files: ['src/**/*.js'],
-    ...js.configs.recommended,
     languageOptions: {  
       ecmaVersion: 2022,  
       sourceType: 'module',  
       globals: {  
         ...globals.browser,  
-        ...globals.es2021,
+        ...globals.es2025,
         jQuery: 'readonly',  
         $: 'readonly',  
         FileReaderSync: 'readonly',  
