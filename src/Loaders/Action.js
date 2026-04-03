@@ -18,7 +18,7 @@ import BinaryReader from 'Utils/BinaryReader.js';
 class ACT {
 	constructor(data) {
 		this.fp = null;
-		this.versions = 0.0;
+		this.version = 0.0;
 		this.actions = [];
 		this.sounds = [];
 
