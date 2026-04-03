@@ -94,7 +94,7 @@ class GRF {
 
 		// Helper
 		file.slice = file.slice || file.webkitSlice || file.mozSlice;
-		reader.load = function (start, len) {
+		reader.load = (start, len) => {
 			// node.js
 			if (fs && file.fd) {
 				const buf = new Buffer(len);
@@ -124,18 +124,14 @@ class GRF {
 		// Check file header
 		if (header.signature !== GRF.SIG_MAGIC && header.signature !== GRF.SIG_EH3) {
 			throw new Error(
-				'GRF::load() - Incorrect header "' +
-					header.signature +
-					'", must be "Master of Magic" or "Event Horizon".'
+				`GRF::load() - Incorrect header "${header.signature}", must be "Master of Magic" or "Event Horizon".`
 			);
 		}
 
 		// Support 0x200 and 0x300
 		if (header.version !== GRF.VERSION_200 && header.version !== GRF.VERSION_300) {
 			throw new Error(
-				'GRF::load() - Incorrect version "0x' +
-					parseInt(header.version, 10).toString(16) +
-					'", just support version "0x200" and "0x300"'
+				`GRF::load() - Incorrect version "0x${parseInt(header.version, 10).toString(16)}", just support version "0x200" and "0x300"`
 			);
 		}
 
@@ -153,7 +149,7 @@ class GRF {
 
 		if (header.file_table_offset + GRF.struct_header.size > file.size || header.file_table_offset < 0) {
 			throw new Error(
-				"GRF::load() - Can't jump to table list (" + header.file_table_offset + '), file length: ' + file.size
+				`GRF::load() - Can't jump to table list (${header.file_table_offset}), file length: ${file.size}`
 			);
 		}
 
@@ -183,7 +179,7 @@ class GRF {
 		// Set filename to lowercase (case insensitive in official client)
 		table.data = '';
 		for (i = 0, count = entries.length; i < count; ++i) {
-			table.data += entries[i].filename + '\0';
+			table.data += `${entries[i].filename}\0`;
 			entries[i].filename = entries[i].filename.toLowerCase();
 			// Store index for quick search
 			this.index[entries[i].filename] = entries[i];
@@ -222,11 +218,7 @@ class GRF {
 
 		if (isEncrypted && !handled) {
 			console.warn(
-				'Unsupported encryption flag (' +
-					entry.type +
-					') for file ' +
-					entry.filename +
-					'. This usually requires a custom decryption key.'
+				`Unsupported encryption flag (${entry.type}) for file ${entry.filename}. This usually requires a custom decryption key.`
 			);
 			return;
 		}
@@ -287,11 +279,9 @@ class GRF {
 
 			// Load into memory
 			if (self.FileReader) {
-				const grf = this;
-
 				reader = new FileReader();
-				reader.onload = function () {
-					grf.decodeEntry(reader.result, entry, callback);
+				reader.onload = () => {
+					this.decodeEntry(reader.result, entry, callback);
 				};
 				reader.readAsArrayBuffer(blob);
 			}
