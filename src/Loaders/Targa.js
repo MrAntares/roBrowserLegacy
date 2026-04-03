@@ -221,7 +221,7 @@ class Targa {
 
 							const r = (color & 0x7c00) >> 7;
 							const g = (color & 0x03e0) >> 2;
-							const b = (color & 0x001f) >> 3;
+							const b = (color & 0x001f) << 3;
 							const a = color & 0x8000 ? 255 : 0;
 
 							buffer32[rowOffset + x] = (a << 24) | (b << 16) | (g << 8) | r;
