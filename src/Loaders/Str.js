@@ -71,7 +71,7 @@ class STRLayer {
 		this.texname = new Array(this.texcnt);
 
 		for (i = 0; i < this.texcnt; ++i) {
-			this.texname[i] = 'data\\texture\\effect\\' + texturePath + fp.readBinaryString(128);
+			this.texname[i] = `data\\texture\\effect\\${texturePath}${fp.readBinaryString(128)}`;
 		}
 
 		this.anikeynum = fp.readLong();
@@ -109,13 +109,13 @@ class STR {
 		this.header = fp.readBinaryString(4);
 
 		if (this.header !== 'STRM') {
-			throw new Error('STR::load() - Incorrect header "' + this.header + '", must be "STRM"');
+			throw new Error(`STR::load() - Incorrect header "${this.header}", must be "STRM"`);
 		}
 
 		this.version = fp.readULong();
 
 		if (this.version !== 0x94) {
-			throw new Error('STR - Invalid version "' + this.version + '", not supported');
+			throw new Error(`STR - Invalid version "${this.version}", not supported`);
 		}
 
 		this.fps = fp.readULong();
