@@ -275,7 +275,7 @@ class FileSystem {
 
 		try {
 			fileEntry = _fs_sync.root.getFile(filename, { create: false });
-		} catch (e) {
+		} catch (_e) {
 			// not found
 			return null;
 		}

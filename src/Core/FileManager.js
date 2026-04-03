@@ -295,7 +295,7 @@ class FileManager {
 		// Can throw an error if not connected to internet
 		try {
 			xhr.send(null);
-		} catch (e) {
+		} catch (_e) {
 			callback(null, "Can't get file");
 		}
 	}
