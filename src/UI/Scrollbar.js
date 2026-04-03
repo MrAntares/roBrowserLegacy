@@ -373,7 +373,7 @@ class ScrollBar {
 			if (e.originalEvent.pointerId !== undefined) {
 				try {
 					$thumb[0].setPointerCapture(e.originalEvent.pointerId);
-				} catch (ex) {
+				} catch (_e) {
 					// Ignore DOM exceptions on capture
 				}
 			}
@@ -405,7 +405,7 @@ class ScrollBar {
 			if (e.originalEvent.pointerId !== undefined) {
 				try {
 					$thumb[0].releasePointerCapture(e.originalEvent.pointerId);
-				} catch (ex) {
+				} catch (_e) {
 					// Ignore DOM exceptions
 				}
 			}

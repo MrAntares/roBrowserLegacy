@@ -67,7 +67,9 @@ export default [
         'warn',  
         {  
           varsIgnorePattern: '^_',  
-          args: 'none'  
+          argsIgnorePattern: '^_',          
+          caughtErrorsIgnorePattern: '^_',  
+          args: 'none' 
         }  
       ],  
   

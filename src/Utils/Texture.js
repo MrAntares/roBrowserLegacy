@@ -136,7 +136,7 @@ Texture.processGifToSpriteSheet = function processGifToSpriteSheet(buffer, callb
 				args.unshift(true);
 				callback.apply(canvas, args);
 			});
-		} catch (e) {
+		} catch (_e) {
 			args.unshift(false);
 			callback.apply(null, args);
 		}
