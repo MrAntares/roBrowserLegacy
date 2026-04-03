@@ -448,7 +448,7 @@ function utilsBufferToHexString(buffer) {
 /**
  * Export
  */
-const Network = (function Network() {
+const Network = (function network() {
 	let keys;
 	let i, count;
 
