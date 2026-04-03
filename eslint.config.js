@@ -37,6 +37,7 @@ export default [
       sourceType: 'module',  
       globals: {  
         ...globals.browser,  
+        ...globals.es2021,
         jQuery: 'readonly',  
         $: 'readonly',  
         FileReaderSync: 'readonly',  
