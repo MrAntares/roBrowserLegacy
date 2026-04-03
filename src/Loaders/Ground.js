@@ -39,7 +39,7 @@ class GND {
 		const header = this.fp.readBinaryString(4);
 
 		if (header !== 'GRGN') {
-			throw new Error('GND::load() - Invalid header "' + header + '"');
+			throw new Error(`GND::load() - Invalid header "${header}"`);
 		}
 
 		this.version = this.fp.readUByte() + this.fp.readUByte() / 10;
