@@ -16,7 +16,6 @@ import AllMountTable from 'DB/Jobs/AllMountTable.js';
 import EntityAction from './EntityAction.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import JobConst from 'DB/Jobs/JobConst.js';
-import Session from 'Engine/SessionStorage.js';
 
 /**
  * Files to display a view
@@ -173,7 +172,6 @@ function refreshHeadState() {
  */
 function UpdateBody(job) {
 	let baseJob, path;
-	let Entity;
 	// Capture sequence number for stale callback detection
 	const transformationSeq = this._transformationSeq || 0;
 
@@ -223,7 +221,7 @@ function UpdateBody(job) {
 
 	this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
 	path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
-	Entity = this.constructor;
+	const Entity = this.constructor;
 
 	// Define Object type based on its id
 	if (this.objecttype === Entity.TYPE_UNKNOWN) {
@@ -554,14 +552,12 @@ function UpdateBodyPalette(pal) {
  * @param {number} head index
  */
 function UpdateHead(head) {
-	let path;
-
 	if (head < 0) {
 		return;
 	}
 
 	this._head = head;
-	path = DB.getHeadPath(head, this.job, this._sex, this.isOrcish);
+	const path = DB.getHeadPath(head, this.job, this._sex, this.isOrcish);
 
 	Client.loadFile(path + '.act');
 	Client.loadFile(
@@ -645,10 +641,10 @@ function UpdateGeneric(type, func, fallback) {
 			return;
 		}
 
-		function LoadView(path, final) {
-			Client.loadFile(path + '.act');
+		function LoadView(filepath, final) {
+			Client.loadFile(filepath + '.act');
 			Client.loadFile(
-				path + '.spr',
+				filepath + '.spr',
 				function () {
 					_this['_' + type] = _val;
 
@@ -656,8 +652,8 @@ function UpdateGeneric(type, func, fallback) {
 					const isAccessory = type === 'accessory' || type === 'accessory2' || type === 'accessory3';
 
 					if (!isAccessory || !shouldSuppressHead.call(_this)) {
-						_this.files[type].spr = path + '.spr';
-						_this.files[type].act = path + '.act';
+						_this.files[type].spr = filepath + '.spr';
+						_this.files[type].act = filepath + '.act';
 					}
 
 					// Load weapon sound
@@ -680,15 +676,25 @@ function UpdateGeneric(type, func, fallback) {
 				function () {
 					if (fallback && !final) {
 						_val = DB[fallback](val);
-						path = DB[func](_val, _this.job, _this._sex);
-						if (path) {
-							LoadView(path, true);
+						filepath = DB[func](_val, _this.job, _this._sex);
+						if (filepath) {
+							LoadView(filepath, true);
+						}
+					} else if (type === 'robe' && !final) {
+						const fallbackPath = DB.getRobePathNoSex(val, _this.job, _this._sex);
+						if (fallbackPath) {
+							Client.loadFile(fallbackPath + '.spr', function () {
+								_this['_' + type] = _val;
+								if (!shouldSuppressHead.call(_this)) {
+									_this.files[type].spr = fallbackPath + '.spr';
+									_this.files[type].act = filepath + '.act';
+								}
+							});
 						}
 					}
-
-					// The generic just used : weapon, shield, accessory.
-					// This sprites don't use external palettes, so compile it now to rgba.
 				},
+				// The generic just used : weapon, shield, accessory.
+				// This sprites don't use external palettes, so compile it now to rgba.
 				{ to_rgba: true }
 			);
 		}
