@@ -625,16 +625,14 @@ function onEntityAction(pkt) {
 				onEntityWillBeHitSub(pkt, dstEntity);
 
 				// damage blocking status effect display
-				if (pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0) {
-					if (dstEntity.isGuard) {
-						// Show guard effect (Kyrie Eleison, Auto Guard, Parrying, etc.)
-						const EF_Init_Par = {
-							effectId: EffectConst.EF_GUARD,
-							ownerAID: pkt.targetGID,
-							startTick: Renderer.tick + pkt.attackMT
-						};
-						EffectManager.spam(EF_Init_Par);
-					}
+				if (pkt.action == 0 && pkt.damage == 0 && pkt.leftDamage == 0 && dstEntity.isGuard) {
+					// Show guard effect (Kyrie Eleison, Auto Guard, Parrying, etc.)
+					const EF_Init_Par = {
+						effectId: EffectConst.EF_GUARD,
+						ownerAID: pkt.targetGID,
+						startTick: Renderer.tick + pkt.attackMT
+					};
+					EffectManager.spam(EF_Init_Par);
 				}
 
 				target = pkt.damage ? dstEntity : srcEntity;
