@@ -3,7 +3,6 @@ import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
-  js.configs.recommended,
   {
     ignores: [
       'node_modules/',
@@ -32,6 +31,7 @@ export default [
 
   {
     files: ['src/**/*.js'],
+    ...js.configs.recommended,
     languageOptions: {  
       ecmaVersion: 2022,  
       sourceType: 'module',  
