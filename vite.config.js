@@ -1,10 +1,56 @@
-import { defineConfig } from 'vite';  
-import path from 'path';  
-import { fileURLToPath } from 'url';  
-  
+import { defineConfig } from 'vite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+function uiCssHmrPlugin() {
+	return {
+		name: 'ui-css-hmr',
+		apply: 'serve',
+		transform(code, id) {
+			/*
+			* Skip if not a UI component file
+			*/
+			if (!id.includes('/src/UI/Components/') || !id.endsWith('.js')) {
+				return null;
+			}
+
+			/*
+			* Find CSS import
+			*/
+			const cssImportRegex = /import\s+(\w+)\s+from\s+['"](\.[^'"]+\.css\?raw)['"]/g;
+			const match = cssImportRegex.exec(code);
+			if (!match) return null;
+
+			const cssPath = match[2];
+
+			/*
+			* Find component name
+			*/
+			const compRegex = /new\s+UIComponent\(\s*['"](\w+)['"]/;
+			const compMatch = compRegex.exec(code);
+			if (!compMatch) return null;
+
+			const componentName = compMatch[1];
+			/*
+			* Inject HMR code to reload CSS when file is modified
+			*/
+			const hmrBlock = `
+			if (import.meta.hot) {
+				import.meta.hot.accept('${cssPath}', (newModule) => {
+					if (newModule && newModule.default) {
+						UIComponent.reloadCSS('${componentName}', newModule.default);
+					}
+				});
+			}`;
+			return { code: code + hmrBlock, map: null };
+		}
+	};
+}
+
 export default defineConfig({
+	plugins: [uiCssHmrPlugin()],
 	root: './',
 	base: './',
 	resolve: {
