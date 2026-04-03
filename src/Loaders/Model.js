@@ -18,9 +18,6 @@ const vec3 = glMatrix.vec3;
 const mat3 = glMatrix.mat3;
 const mat4 = glMatrix.mat4;
 
-// Cached has animation check
-const _hasanimation = false;
-
 class Box {
 	constructor() {
 		this.max = vec3.fromValues(-Infinity, -Infinity, -Infinity);
@@ -746,6 +743,7 @@ class RSM {
 	load(data) {
 		let i, count;
 		let posKeyframes;
+		let mainNodeName = null;
 		const textures = [];
 		const additionalTextures = [];
 
@@ -754,7 +752,7 @@ class RSM {
 		const header = fp.readBinaryString(4);
 
 		if (header !== 'GRSM' && header !== 'GRSX') {
-			throw new Error('RSM::load() - Incorrect header "' + header + '", must be "GRSM"');
+			throw new Error(`RSM::load() - Incorrect header "${header}", must be "GRSM"`);
 		}
 
 		// Read infos
@@ -791,14 +789,15 @@ class RSM {
 			for (i = 0; i < count; ++i) {
 				additionalTextures.push(fp.readBinaryString(40));
 			}
-			textures.push(fp.readBinaryString(40));
+			mainNodeName = fp.readBinaryString(40);
+			textures.push(mainNodeName);
 		}
 
 		count = fp.readLong();
 		const nodes = new Array(count);
 		for (i = 0; i < count; ++i) {
 			nodes[i] = new RSM.Node(this, fp, count === 1);
-			if (nodes[i].name === textures) {
+			if (mainNodeName && nodes[i].name === mainNodeName) {
 				this.main_node = nodes[i];
 			}
 		}
