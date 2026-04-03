@@ -52,7 +52,7 @@ class SPR {
 		this.version = this.fp.readUByte() / 10 + this.fp.readUByte();
 
 		if (this.header != 'SP') {
-			throw new Error('SPR::load() - Incorrect header "' + this.header + '", must be "SP"');
+			throw new Error(`SPR::load() - Incorrect header "${this.header}", must be "SP"`);
 		}
 
 		this.indexed_count = this.fp.readUShort();
@@ -273,7 +273,7 @@ class SPR {
 			ctx.fillStyle = 'red';
 			ctx.textAlign = 'center';
 			ctx.textBaseline = 'middle';
-			ctx.font = fontSize + 'px sans-serif';
+			ctx.font = `${fontSize}px sans-serif`;
 			ctx.fillText('X', size / 2, size / 2);
 
 			return canvas; // Return error image. Caller expects a canvas..
