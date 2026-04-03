@@ -1145,6 +1145,19 @@ class DB {
 	}
 
 	/**
+	 * @return {string} path to spr robe on costume root folder
+	 * @param {number} id robe id
+	 * @param {number} job class
+	 * @param {boolean} sex
+	 */
+	static getRobePathNoSex(id, job, sex) {
+		if (id === 0 || !(id in RobeTable)) {
+			return null;
+		}
+		return `data/sprite/\xb7\xce\xba\xea/${RobeTable[id]}/${RobeTable[id]}${DB.isDoram(job) ? '_doram' : ''}`;
+	}
+
+	/**
 	 * @return {string} Path to pets equipements
 	 * @param {number} id (pets)
 	 */
