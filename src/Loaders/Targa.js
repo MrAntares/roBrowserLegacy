@@ -306,7 +306,7 @@ function checkHeader(header) {
 
 	// Indexed type
 	if (header.hasColorMap) {
-		if (header.colorMapLength > 256 || header.colorMapSize !== 24 || header.colorMapType !== 1) {
+		if (header.colorMapLength > 256 || header.colorMapDepth !== 24 || header.colorMapType !== 1) {
 			throw new Error('Targa::checkHeader() - Invalid colormap for indexed type');
 		}
 	} else {
@@ -322,7 +322,7 @@ function checkHeader(header) {
 
 	// Check pixel size
 	if (header.pixelDepth !== 8 && header.pixelDepth !== 16 && header.pixelDepth !== 24 && header.pixelDepth !== 32) {
-		throw new Error('Targa::checkHeader() - Invalid pixel size "' + header.pixelDepth + '"');
+		throw new Error(`Targa::checkHeader() - Invalid pixel size "${header.pixelDepth}"`);
 	}
 }
 
