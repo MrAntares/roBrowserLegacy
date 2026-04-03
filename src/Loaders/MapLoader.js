@@ -66,35 +66,32 @@ class Loader {
 		}
 
 		const filename = this.list.shift();
-		FileManager.load(
-			filename,
-			(data) => {
-				// Store the result
-				this.out[this.files.indexOf(filename)] = data;
-				this.offset++;
+		FileManager.load(filename, data => {
+			// Store the result
+			this.out[this.files.indexOf(filename)] = data;
+			this.offset++;
 
-				// Start the progress
-				if (this.onprogress && this.offset <= this.count) {
-					this.onprogress(this.offset, this.count);
-				}
+			// Start the progress
+			if (this.onprogress && this.offset <= this.count) {
+				this.onprogress(this.offset, this.count);
+			}
 
-				// Ended ?
-				if (this.offset === this.count) {
-					this.onload(this.out, this.files);
-					return;
-				}
+			// Ended ?
+			if (this.offset === this.count) {
+				this.onload(this.out, this.files);
+				return;
+			}
 
-				// Continue the queue
-				if (this.list.length) {
-					// To fix "too much recursion" on Firefox
-					if (++Loader.count % 50 === 0) {
-						setTimeout(() => this._next(), 4);
-					} else {
-						this._next();
-					}
+			// Continue the queue
+			if (this.list.length) {
+				// To fix "too much recursion" on Firefox
+				if (++Loader.count % 50 === 0) {
+					setTimeout(() => this._next(), 4);
+				} else {
+					this._next();
 				}
 			}
-		);
+		});
 	}
 }
 /**
@@ -265,7 +262,7 @@ class MapLoader {
 		};
 
 		// Once load
-		loader.onload = (_textures) => {
+		loader.onload = _textures => {
 			callback(_textures.splice(0, ground.waterVertCount ? 32 : 0), _textures);
 		};
 
