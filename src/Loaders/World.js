@@ -49,6 +49,21 @@ class RSW {
 	};
 
 	/**
+	 * Default water values (used to reset water on map change)
+	 */
+	static _defaultWater = {
+		level: 0,
+		type: 0,
+		waveHeight: 0,
+		waveSpeed: 0,
+		wavePitch: 0,
+		animSpeed: 0,
+		splitWidth: 0,
+		splitHeight: 0,
+		images: new Array(32)
+	};
+
+	/**
 	 * Water informations
 	 */
 	water = {
@@ -108,9 +123,9 @@ class RSW {
 			this.files.src = fp.readBinaryString(40);
 		}
 
-		// Reset water to prototype values
+		// Reset water to default values
 		// A little hack, as changing maps, doesn't reset the water properties
-		this.water = Object.assign({}, RSW.prototype.water);
+		this.water = Object.assign({}, RSW._defaultWater);
 
 		// Read water info.
 		if (version < 2.6) {
