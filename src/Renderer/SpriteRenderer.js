@@ -351,6 +351,85 @@ const _offset = new Float32Array(2);
  */
 class SpriteRenderer {
 	/**
+	 * @var {function} functions to use to render
+	 */
+	static render = null;
+
+	/**
+	 * @var {number} sprite shadow (mult * color)
+	 */
+	static shadow = 1.0;
+
+	/**
+	 * @var {number} sprite angle rotation
+	 */
+	static angle = 0;
+
+	/**
+	 * @var {number} depth
+	 */
+	static depth = 0.0;
+
+	/**
+	 * @var {Float32Array[3]} sprite position in 3D world
+	 */
+	static position = new Float32Array(3);
+
+	/**
+	 * @var {Float32Array[4]} sprite color (color * color)
+	 */
+	static color = new Float32Array(4);
+
+	/**
+	 * @var {Float32Array[2]} sprite size
+	 */
+	static size = new Float32Array(2);
+
+	/**
+	 * @var {Float32Array[2]} sprite offset position
+	 */
+	static offset = new Float32Array(2);
+
+	/**
+	 * @var {object} sprite image information
+	 */
+	static image = {
+		texture: null,
+		palette: null,
+		size: new Float32Array(2)
+	};
+
+	/**
+	 * @var {object} sprite imageData (for 2D context)
+	 */
+	static sprite = null;
+
+	/**
+	 * @var {object} sprite palette (for 2D context)
+	 */
+	static palette = null;
+
+	/**
+	 * @var {number} groupid used (avoid draw call)
+	 */
+	static groupId = 0;
+
+	/**
+	 * @var {boolean} disable depth correction (ray-plane) for current draw
+	 */
+	static disableDepthCorrection = false;
+
+	/**
+	 * @var {number} width unity
+	 */
+	static xSize = 5;
+
+	/**
+	 * @var {number} height unity
+	 */
+	static ySize = 5;
+
+	/**
 	 * Initialize SpriteRenderer Renderer
 	 *
 	 * @param {object} gl context
@@ -518,85 +597,6 @@ class SpriteRenderer {
 		}
 	}
 }
-
-/**
- * @var {function} functions to use to render
- */
-SpriteRenderer.render = null;
-
-/**
- * @var {number} sprite shadow (mult * color)
- */
-SpriteRenderer.shadow = 1.0;
-
-/**
- * @var {number} sprite angle rotation
- */
-SpriteRenderer.angle = 0;
-
-/**
- * @var {number} depth
- */
-SpriteRenderer.depth = 0.0;
-
-/**
- * @var {Float32Array[3]} sprite position in 3D world
- */
-SpriteRenderer.position = new Float32Array(3);
-
-/**
- * @var {Float32Array[4]} sprite color (color * color)
- */
-SpriteRenderer.color = new Float32Array(4);
-
-/**
- * @var {Float32Array[2]} sprite size
- */
-SpriteRenderer.size = new Float32Array(2);
-
-/**
- * @var {Float32Array[2]} sprite offset position
- */
-SpriteRenderer.offset = new Float32Array(2);
-
-/**
- * @var {object} sprite image information
- */
-SpriteRenderer.image = {
-	texture: null,
-	palette: null,
-	size: new Float32Array(2)
-};
-
-/**
- * @var {object} sprite imageData (for 2D context)
- */
-SpriteRenderer.sprite = null;
-
-/**
- * @var {object} sprite palette (for 2D context)
- */
-SpriteRenderer.palette = null;
-
-/**
- * @var {number} groupid used (avoid draw call)
- */
-SpriteRenderer.groupId = 0;
-
-/**
- * @var {boolean} disable depth correction (ray-plane) for current draw
- */
-SpriteRenderer.disableDepthCorrection = false;
-
-/**
- * @var {number} width unity
- */
-SpriteRenderer.xSize = 5;
-
-/**
- * @var {number} height unity
- */
-SpriteRenderer.ySize = 5;
 
 /**
  * Export

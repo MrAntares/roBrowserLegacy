@@ -61,6 +61,53 @@ const _pos = new Uint16Array(2);
  */
 class MapRenderer {
 	/**
+	 * @var {string} current map's name
+	 */
+	static currentMap = '';
+
+	/**
+	 * @var {object} Global Light Structure
+	 */
+	static light = null;
+
+	/**
+	 * @var {object} Water Structure
+	 */
+	static water = null;
+
+	/**
+	 * @var {array} Sounds object list
+	 */
+	static sounds = null;
+
+	/**
+	 * @var {array} Effects object list
+	 */
+	static effects = null;
+
+	/**
+	 * @var {array} is loading a map ?
+	 */
+	static loading = false;
+
+	/**
+	 * @var {Float32Array} diffuse Modified diffuse color
+	 */
+	static diffuse = null;
+
+	/**
+	 * @var {Object} Fog structure
+	 */
+	static fog = {
+		use: MapPreferences.useFog,
+		exist: true,
+		far: 30,
+		near: 180,
+		factor: 1.0,
+		color: new Float32Array([1, 1, 1])
+	};
+
+	/**
 	 * Load a map
 	 *
 	 * @param {string} mapname to load
@@ -266,53 +313,6 @@ class MapRenderer {
 	 */
 	static onLoad() {}
 }
-
-/**
- * @var {string} current map's name
- */
-MapRenderer.currentMap = '';
-
-/**
- * @var {object} Global Light Structure
- */
-MapRenderer.light = null;
-
-/**
- * @var {object} Water Structure
- */
-MapRenderer.water = null;
-
-/**
- * @var {array} Sounds object list
- */
-MapRenderer.sounds = null;
-
-/**
- * @var {array} Effects object list
- */
-MapRenderer.effects = null;
-
-/**
- * @var {array} is loading a map ?
- */
-MapRenderer.loading = false;
-
-/**
- * @var {Float32Array} diffuse Modified diffuse color
- */
-MapRenderer.diffuse = null;
-
-/**
- * @var {Object} Fog structure
- */
-MapRenderer.fog = {
-	use: MapPreferences.useFog,
-	exist: true,
-	far: 30,
-	near: 180,
-	factor: 1.0,
-	color: new Float32Array([1, 1, 1])
-};
 
 /**
  * Received progress from Thread

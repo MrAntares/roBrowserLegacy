@@ -56,6 +56,76 @@ const _cancelAnimationFrame =
  */
 class Renderer {
 	/**
+	 * @var {boolean} Rendering ?
+	 */
+	static rendering = false;
+
+	/**
+	 * @var {HTML5 canvas}
+	 */
+	static canvas = document.createElement('canvas');
+
+	/**
+	 * @var {WebGLContext}
+	 */
+	static gl = null;
+
+	/**
+	 * @var {boolean} true when using a WebGL2 context
+	 */
+	static isWebGL2 = false;
+
+	/**
+	 * @var {boolean} flag for context lost state
+	 */
+	static contextLost = false;
+
+	/**
+	 * @var {HTMLElement} overlay for context loss message
+	 */
+	static errorOverlay = null;
+
+	/**
+	 * @var {integer} screen width
+	 */
+	static width = 0;
+
+	/**
+	 * @var {integer} screen height
+	 */
+	static height = 0;
+
+	/**
+	 * @var {integer} store the last time the windows was resize (to avoid to resize the context on each 16ms)
+	 */
+	static resizeTimeOut = 0;
+
+	/**
+	 * @var {long} unique identifier of the current render callback (can be used for cancelAnimationFrame/clearInterval)
+	 */
+	static updateId = 0;
+
+	/**
+	 * @var {integer} frame rate limit
+	 */
+	static frameLimit = GraphicsSettings.fpslimit;
+
+	/**
+	 * @var {integer} game tick
+	 */
+	static tick = 0;
+
+	/**
+	 * @var {float} vertical field of view in degrees
+	 */
+	static vFov = 15.0;
+
+	/**
+	 * @var {function[]} callbacks to execute
+	 */
+	static renderCallbacks = [];
+
+	/**
 	 * Initialize renderer
 	 */
 	static init(param) {
@@ -375,76 +445,6 @@ class Renderer {
 		}
 	}
 }
-
-/**
- * @var {boolean} Rendering ?
- */
-Renderer.rendering = false;
-
-/**
- * @var {HTML5 canvas}
- */
-Renderer.canvas = document.createElement('canvas');
-
-/**
- * @var {WebGLContext}
- */
-Renderer.gl = null;
-
-/**
- * @var {boolean} true when using a WebGL2 context
- */
-Renderer.isWebGL2 = false;
-
-/**
- * @var {boolean} flag for context lost state
- */
-Renderer.contextLost = false;
-
-/**
- * @var {HTMLElement} overlay for context loss message
- */
-Renderer.errorOverlay = null;
-
-/**
- * @var {integer} screen width
- */
-Renderer.width = 0;
-
-/**
- * @var {integer} screen height
- */
-Renderer.height = 0;
-
-/**
- * @var {integer} store the last time the windows was resize (to avoid to resize the context on each 16ms)
- */
-Renderer.resizeTimeOut = 0;
-
-/**
- * @var {long} unique identifier of the current render callback (can be used for cancelAnimationFrame/clearInterval)
- */
-Renderer.updateId = 0;
-
-/**
- * @var {integer} frame rate limit
- */
-Renderer.frameLimit = GraphicsSettings.fpslimit;
-
-/**
- * @var {integer} game tick
- */
-Renderer.tick = 0;
-
-/**
- * @var {float} vertical field of view in degrees
- */
-Renderer.vFov = 15.0;
-
-/**
- * @var {function[]} callbacks to execute
- */
-Renderer.renderCallbacks = [];
 
 /**
  * Export

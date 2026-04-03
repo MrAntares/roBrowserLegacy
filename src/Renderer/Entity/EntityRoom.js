@@ -20,10 +20,20 @@ const vec4 = glMatrix.vec4;
 const _pos = new Float32Array(4);
 const _size = new Float32Array(2);
 
-/**
- * @Constructor Room
- */
 class Room {
+	/**
+	 * Constants
+	 */
+	static Type = {
+		SELL_SHOP: 0,
+		BUY_SHOP: 1,
+		PUBLIC_CHAT: 2,
+		PRIVATE_CHAT: 3
+	};
+
+	/**
+	 * @Constructor Room
+	 */
 	constructor(owner) {
 		this.owner = owner;
 		this.text = '';
@@ -138,16 +148,6 @@ class Room {
 		ui.style.left = ((_pos[0] - ui.clientWidth / 2) | 0) + 'px';
 	}
 }
-
-/**
- * Constants
- */
-Room.Type = {
-	SELL_SHOP: 0,
-	BUY_SHOP: 1,
-	PUBLIC_CHAT: 2,
-	PRIVATE_CHAT: 3
-};
 
 /**
  * Export
