@@ -103,7 +103,7 @@ class RSW {
 		const version = fp.readByte() + fp.readByte() / 10;
 
 		if (header != 'GRSW') {
-			throw new Error('RSW::load() - Invalid header "' + header + '", must be "GRSW"');
+			throw new Error(`RSW::load() - Invalid header "${header}", must be "GRSW"`);
 		}
 
 		if (version >= 2.5) {
