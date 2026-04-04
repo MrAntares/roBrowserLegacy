@@ -144,7 +144,6 @@
 	display: none;
 }
 
-#WorldMap .worldmap .section:hover .mapid,
 #WorldMap .worldmap .section.allmapvisible .mapid {
 	display: block;
 	position: absolute;
@@ -170,97 +169,6 @@
 	transform: rotate(75deg);
 	background-repeat: no-repeat;
 	background-size: cover;
-}
-
-#WorldMap .dialog-backdrop {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: hsla(0, 0%, 16%, 0.25);
-}
-
-#WorldMap .dialog-backdrop.show,
-#WorldMap .dialog-backdrop.show .dialog {
-	display: block;
-}
-
-#WorldMap .dialog {
-	border: 1px solid black;
-	border-radius: 5px;
-	background-color: rgba(255, 255, 255, 0.2);
-	backdrop-filter: blur(5px);
-	width: fit-content;
-	height: fit-content;
-	max-width: calc(100% - 2em - 6px);
-	max-height: calc(100% - 2em - 6px);
-	user-select: text;
-	visibility: visible;
-	overflow: auto;
-	margin: 5em auto;
-	padding: 1em;
-}
-
-#WorldMap .dialog.show {
-	display: block;
-}
-
-#WorldMap .dialog #img-map-view {
-	max-width: 512px;
-	max-height: 512px;
-	object-fit: scale-down;
-}
-
-#WorldMap .dialog .mapname {
-	position: absolute;
-	top: 7px;
-	left: 10px;
-	font-size: 16px;
-	color: gold;
-	font-weight: bold;
-	text-shadow:
-		-1px -1px 0 #000,
-		1px -1px 0 #000,
-		-1px 1px 0 #000,
-		1px 1px 0 #000;
-}
-
-#WorldMap .dialog .memberlist {
-	position: absolute;
-	top: 35px;
-	left: 15px;
-	font-size: 13px;
-	color: salmon;
-	font-weight: bold;
-	text-shadow:
-		-1px -1px 0 #000,
-		1px -1px 0 #000,
-		-1px 1px 0 #000,
-		1px 1px 0 #000;
-}
-
-#WorldMap .dialog .mapid {
-	position: absolute;
-	bottom: 7px;
-	left: 10px;
-	color: white;
-	text-shadow:
-		-1px -1px 0 #000,
-		1px -1px 0 #000,
-		-1px 1px 0 #000,
-		1px 1px 0 #000;
-}
-
-#WorldMap .dialog button#dialog-close {
-	position: absolute;
-	top: 5px;
-	right: 5px;
-	width: 11px;
-	height: 11px;
-	border: none;
-	background-color: rgba(255, 255, 255, 0);
 }
 
 #WorldMap .showlvl {
@@ -294,6 +202,64 @@
 	display: block;
 }
 
+#WorldMap .worldmap .section .displayname {
+	display: none;
+}
+
+#WorldMap .worldmap .section.is-dungeon .displayname {
+	display: block;
+	position: absolute;
+	top: 3px;
+	left: 50%;
+	transform: translate(-50%, 0);
+	height: 11px;
+	color: white;
+	font-weight: bold;
+	text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+	text-wrap: nowrap;
+	text-align: center;
+}
+
+#WorldMap .worldmap .section.currentmap .displayname {
+	display: block;
+	position: absolute;
+	top: 3px;
+	left: 50%;
+	transform: translate(-50%, 0);
+	height: 11px;
+	color: white;
+	font-weight: bold;
+	text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+	text-wrap: nowrap;
+	text-align: center;
+}
+
+#WorldMap .worldmap.show-lvls .section:not(.is-dungeon):not(.is-dungeon-stacked) .mapname {
+	display: block;
+	position: absolute;
+	top: 3px;
+	left: 50%;
+	transform: translate(-50%, 0);
+	height: 11px;
+	color: white;
+	font-weight: bold;
+	text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+	text-wrap: nowrap;
+	text-align: center;
+}
+
 #WorldMap .worldmap .section.is-dungeon {
 	background-color: rgba(255, 0, 0, 0.4) !important;
 	border: 1px solid rgba(255, 0, 0, 0.6) !important;
@@ -310,4 +276,47 @@
 	height: 1px;
 	background-color: rgba(255, 0, 0, 0.5);
 	pointer-events: none;
+}
+
+#WorldMap #map-tooltip {
+	position: fixed;
+	z-index: 100;
+	pointer-events: none;
+	padding: 5px;
+	background-color: rgba(0, 0, 0, 0.85);
+	border: 1px solid #666;
+	border-radius: 4px;
+}
+
+#WorldMap #map-tooltip .tooltip-img {
+	width: 150px;
+	height: 150px;
+	background-color: #111;
+	background-size: cover;
+	background-position: center;
+}
+
+#WorldMap #map-tooltip .tooltip-mapname {
+	color: gold;
+	font-weight: bold;
+	text-align: center;
+	font-size: 12px;
+	padding: 3px 0 0;
+	text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+}
+
+#WorldMap #map-tooltip .tooltip-mapid {
+	color: white;
+	text-align: center;
+	font-size: 11px;
+	padding: 2px 0;
+	text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
 }
