@@ -360,13 +360,15 @@ function createWorldMapView(map, imgData) {
 			el_displayname.className = 'displayname';
 			if (sectionType === 1) {
 				// dugeons name got direct from worldmap lua files
-				el_displayname.innerHTML = section.name;
-				el.setAttribute('data-displayname', section.name);
+				const name = section.name.replace(' 1', '').trim(); // small hack to remove 1 from dungeon names
+				el_displayname.innerHTML = name;
+				el.setAttribute('data-displayname', name);
 			} else {
 				// other maps name got from rsw files and search on mapinfo.lub theyr real names
 				const mapInfo = DB.getMapInfo(section.id + '.rsw');
-				el_displayname.innerHTML = mapInfo ? mapInfo.displayName : '';
-				el.setAttribute('data-displayname', mapInfo ? mapInfo.displayName : '');
+				const mapName = mapInfo ? mapInfo.displayName : '';
+				el_displayname.innerHTML = mapName;
+				el.setAttribute('data-displayname', mapName);
 			}
 
 			el_mapid.className = 'mapid'; // rsw name
