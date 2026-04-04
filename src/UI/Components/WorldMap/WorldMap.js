@@ -19,6 +19,7 @@ import Session from 'Engine/SessionStorage.js';
 import MAPS from 'DB/Map/WorldMap.js';
 import htmlText from './WorldMap.html?raw';
 import cssText from './WorldMap.css?raw';
+import Navigation from 'UI/Components/Navigation/Navigation.js';
 
 /**
  * Create Component
@@ -43,17 +44,14 @@ const _preferences = Preferences.get(
 // Party member store
 let _partyMembersByMap = {};
 
+let _hoveredSection = null;
+
 // Sizing params
 const C_TITLEBARHEIGHT = 17;
 const C_BASEWIDTH = 1280;
 const C_BASEHEIGHT = 1024;
 const C_ASPECTX = 5;
 const C_ASPECTY = 4;
-const C_DIALOG_BASEWIDTH = 512;
-const C_DIALOG_BASEHEIGHT = 512;
-const C_DIALOG_ASPECTX = 1;
-const C_DIALOG_ASPECTY = 1;
-const C_DIALOGPADDING = 20;
 
 /**
  * Initialize UI
@@ -65,9 +63,10 @@ WorldMap.init = function init() {
 	this.ui.find('.titlebar .showlvl').click(onShowLVL);
 	this.ui.find('.titlebar .close').click(onClose);
 
-	// worldmap dialog
-	this.ui.find('.map .content').on('click', onWorldMapClick);
-	this.ui.find('#dialog-map-view-backdrop').on('click', onWorldMapDialogClick);
+	this.ui.find('.map .content').on('click', onWorldMapSectionClick);
+	this.ui.find('.map .content').on('mouseover', onWorldMapMouseOver);
+	this.ui.find('.map .content').on('mouseout', onWorldMapMouseOut);
+
 	WorldMap.showLVLMode = false;
 };
 
@@ -139,117 +138,92 @@ function resizeMap() {
 
 	mapContainer.width(C_BASEWIDTH * mult);
 	mapContainer.height(C_BASEHEIGHT * mult);
-
-	const dialogImg = WorldMap.ui.find('#img-map-view');
-	let d_width = C_DIALOG_BASEWIDTH;
-	let d_height = C_DIALOG_BASEHEIGHT;
-	if (currentwidth < C_DIALOG_BASEWIDTH + C_DIALOGPADDING || currentheight < C_DIALOG_BASEHEIGHT + C_DIALOGPADDING) {
-		const d_xmult = (currentwidth - C_DIALOGPADDING) / C_DIALOG_BASEWIDTH;
-		const d_ymult = (currentheight - C_DIALOGPADDING) / C_DIALOG_BASEHEIGHT;
-
-		let mult = d_xmult;
-		if (currentwidth / C_DIALOG_ASPECTX > currentheight / C_DIALOG_ASPECTY) {
-			mult = d_ymult;
-		}
-
-		d_width = C_DIALOG_BASEWIDTH * mult;
-		d_height = C_DIALOG_BASEHEIGHT * mult;
-	}
-	dialogImg.width(d_width);
-	dialogImg.height(d_height);
 }
 
 /**
  * When worldmap container is clicked
  * @param {*} e
  */
-function onWorldMapClick(e) {
-	// event delegation from .section
+function onWorldMapSectionClick(e) {
 	const section = e.target.closest('.section');
-	if (!section) {
-		return;
-	}
+	if (!section) return;
 
-	const overlay = WorldMap.ui.find('#dialog-map-view-backdrop')[0];
-	if (overlay == null) {
-		return;
-	}
-	const dialog = WorldMap.ui.find('#dialog-map-view')[0];
-	if (dialog == null) {
-		return;
-	}
-	WorldMap.ui.find('#dialog-map-view .mapname').text(section.getAttribute('data-name'));
-	WorldMap.ui.find('#dialog-map-view .mapid').text(section.id);
+	const displayName = section.getAttribute('data-displayname') || '';
+	const mapId = section.id;
 
-	overlay.classList.add('show');
-
-	const img = dialog.querySelector('#img-map-view');
-	img.style.backgroundImage = '';
-
-	// loader (now text)
-	const loader = img.querySelector('#loader');
-	loader.innerText = `Loading ${section.id}...`;
-
-	// load the image
-	Client.loadFile(`${DB.INTERFACE_PATH}map/${section.id}.bmp`, data => {
-		// img.src = data;
-
-		loader.innerText = '';
-		img.style.backgroundImage = `url(${data})`;
-		img.style.backgroundSize = 'cover';
-		img.decoding = 'async';
-		// try to adjust purple color transparency
-		img.onload = () => {
-			adjustImageTransparency(img);
-			img.onload = null; // only run once
-		};
-	});
-
-	// display party member list on map
-	let memberList = '';
-	if (Array.isArray(_partyMembersByMap[section.id])) {
-		_partyMembersByMap[section.id].forEach(member => {
-			memberList += member.Name + '<br/>';
-		});
-	}
-	WorldMap.ui.find('#dialog-map-view .memberlist').text(memberList);
+	Navigation.show();
+	Navigation.ui.find('.search-input').val(displayName || mapId);
+	Navigation.onSearch();
+	Navigation.focus();
 }
 
 /**
- * When the user clicks outside of the dialog, close it
- *
+ * When worldmap container is mouse over
  * @param {*} e
- * @returns
  */
-function onWorldMapDialogClick(e) {
-	const dialog = WorldMap.ui.find('#dialog-map-view')[0];
-	if (dialog == null) {
-		return;
-	}
-
-	const dialogDimensions = dialog.getBoundingClientRect();
-	if (
-		e.clientX < dialogDimensions.left ||
-		e.clientX > dialogDimensions.right ||
-		e.clientY < dialogDimensions.top ||
-		e.clientY > dialogDimensions.bottom
-	) {
-		closeMapDialog();
-		return;
-	}
-	// close button
-	if (e.target.id === 'dialog-close') {
-		closeMapDialog();
-		return;
-	}
+function onWorldMapMouseOver(e) {
+	const section = e.target.closest('.section');
+	if (!section || section === _hoveredSection) return;
+	_hoveredSection = section;
+	showTooltip(section);
 }
 
-function closeMapDialog() {
-	// Remove image (causes fps drop)
-	WorldMap.ui.find('#img-map-view').attr('src', '');
-	const dialog = WorldMap.ui.find('#dialog-map-view-backdrop')[0];
-	if (dialog) {
-		dialog.classList.remove('show');
+/**
+ * When worldmap container is mouse out
+ * @param {*} e
+ */
+function onWorldMapMouseOut(e) {
+	if (!_hoveredSection) return;
+	if (_hoveredSection.contains(e.relatedTarget)) return;
+	_hoveredSection = null;
+	hideTooltip();
+}
+
+/**
+ * Show tooltip
+ * @param {*} section
+ */
+function showTooltip(section) {
+	const tooltip = WorldMap.ui.find('#map-tooltip')[0];
+	if (!tooltip) return;
+
+	const displayName = section.getAttribute('data-displayname') || '';
+	tooltip.querySelector('.tooltip-mapname').textContent = displayName;
+	tooltip.querySelector('.tooltip-mapid').textContent = section.id;
+
+	const tooltipImg = tooltip.querySelector('.tooltip-img');
+	tooltipImg.style.backgroundImage = '';
+
+	// position tooltip
+	const rect = section.getBoundingClientRect();
+	tooltip.style.display = 'block';
+	tooltip.style.left = rect.right + 10 + 'px';
+	tooltip.style.top = rect.top + 'px';
+
+	// adjust if tooltip is out of screen
+	const tooltipRect = tooltip.getBoundingClientRect();
+	if (tooltipRect.right > window.innerWidth) {
+		tooltip.style.left = rect.left - tooltipRect.width - 10 + 'px';
+	}
+	if (tooltipRect.bottom > window.innerHeight) {
+		tooltip.style.top = window.innerHeight - tooltipRect.height - 10 + 'px';
+	}
+
+	// load map image asset and render it
+	Client.loadFile(`${DB.INTERFACE_PATH}map/${section.id}.bmp`, data => {
+		if (_hoveredSection === section) {
+			tooltipImg.style.backgroundImage = `url(${data})`;
+		}
+	});
+}
+
+/**
+ * Hide tooltip
+ */
+function hideTooltip() {
+	const tooltip = WorldMap.ui.find('#map-tooltip')[0];
+	if (tooltip) {
+		tooltip.style.display = 'none';
 	}
 }
 
@@ -265,7 +239,7 @@ function createWorldMapView(map, imgData) {
 	const worldmap = document.createElement('div');
 	const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
 
-	worldmap.className = 'worldmap' + (WorldMap.showLVLMode ? ' show-levels' : '');
+	worldmap.className = 'worldmap' + (WorldMap.showLVLMode ? ' show-lvls' : '');
 
 	// set loaded worldmap background image
 	// worldmap.css('backgroundImage', `url(${imgData})`);
@@ -378,15 +352,29 @@ function createWorldMapView(map, imgData) {
 			el.style.left = `${(section.left / C_BASEWIDTH) * 100}%`;
 			el.style.width = `${(section.width / C_BASEWIDTH) * 100}%`;
 			el.style.height = `${(section.height / C_BASEHEIGHT) * 100}%`;
-			el.setAttribute('data-name', section.name);
-			el.title = section.name;
 
 			el_mapname.className = 'mapname';
-			el_mapname.innerHTML = section.name;
+			el_mapname.innerHTML = section.name; // this is monster names
 
-			el_mapid.className = 'mapid';
+			const el_displayname = document.createElement('div');
+			el_displayname.className = 'displayname';
+			if (sectionType === 1) {
+				// dugeons name got direct from worldmap lua files
+				const name = section.name.replace(' 1', '').trim(); // small hack to remove 1 from dungeon names
+				el_displayname.innerHTML = name;
+				el.setAttribute('data-displayname', name);
+			} else {
+				// other maps name got from rsw files and search on mapinfo.lub theyr real names
+				const mapInfo = DB.getMapInfo(section.id + '.rsw');
+				const mapName = mapInfo ? mapInfo.displayName : '';
+				el_displayname.innerHTML = mapName;
+				el.setAttribute('data-displayname', mapName);
+			}
+
+			el_mapid.className = 'mapid'; // rsw name
 			el_mapid.innerHTML = section.id;
 
+			el.appendChild(el_displayname);
 			el.appendChild(el_mapname);
 			el.appendChild(el_mapid);
 
@@ -456,7 +444,7 @@ function setAirplanePosition(airplane) {
          img.src = `textures/map/${e.target.id}.bmp`;
          img.onload = () => adjustImageTransparency(img);
      */
-function adjustImageTransparency(img) {
+function _adjustImageTransparency(img) {
 	const canvas = document.createElement('canvas');
 	canvas.width = img.width || img.clientWidth;
 	canvas.height = img.height || img.clientHeight;
@@ -468,14 +456,13 @@ function adjustImageTransparency(img) {
 
 	// iterate over all pixels
 	// in the image data and turn purple pixels transparent
-	let i = 0,
-		n = imgData.data.length,
-		red,
+	const n = imgData.data.length;
+	let red,
 		green,
 		blue,
 		isPurple = false;
 
-	for (; i < n; i += 4) {
+	for (let i = 0; i < n; i += 4) {
 		red = imgData.data[i];
 		green = imgData.data[i + 1];
 		blue = imgData.data[i + 2];
@@ -557,11 +544,10 @@ WorldMap.onRemove = function onRemove() {
  */
 WorldMap.toggle = function toggle() {
 	this.ui.toggle();
-
 	if (this.ui.is(':visible')) {
 		this.focus();
 	} else {
-		closeMapDialog();
+		hideTooltip();
 	}
 };
 
