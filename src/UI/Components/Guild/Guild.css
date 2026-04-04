@@ -117,37 +117,37 @@
 #Guild .content.info .name {
 	position: absolute;
 	left: 9px;
-	top: 54px;
+	top: 13px;
 }
 #Guild .content.info .level {
 	position: absolute;
 	left: 9px;
-	top: 69px;
+	top: 28px;
 }
 #Guild .content.info .master {
 	position: absolute;
 	left: 9px;
-	top: 86px;
+	top: 45px;
 }
 #Guild .content.info .members {
 	position: absolute;
 	left: 9px;
-	top: 102px;
+	top: 61px;
 }
 #Guild .content.info .avglevel {
 	position: absolute;
 	left: 9px;
-	top: 118px;
+	top: 77px;
 }
 #Guild .content.info .territory {
 	position: absolute;
 	left: 9px;
-	top: 134px;
+	top: 93px;
 }
 #Guild .content.info .tendency {
 	position: absolute;
 	left: 9px;
-	top: 155px;
+	top: 114px;
 }
 #Guild .content.info .tendency .title {
 	position: absolute;
@@ -195,27 +195,27 @@
 #Guild .content.info .exp {
 	position: absolute;
 	left: 201px;
-	top: 54px;
+	top: 13px;
 }
 #Guild .content.info .emblem {
 	position: absolute;
 	left: 201px;
-	top: 78px;
+	top: 37px;
 }
 #Guild .content.info .tax {
 	position: absolute;
 	left: 201px;
-	top: 102px;
+	top: 61px;
 }
 #Guild .content.info .ally {
 	position: absolute;
 	left: 201px;
-	top: 144px;
+	top: 103px;
 }
 #Guild .content.info .ally_list {
 	position: absolute;
 	left: 201px;
-	top: 159px;
+	top: 118px;
 	white-space: pre;
 	width: 168px;
 	height: 48px;
@@ -224,12 +224,12 @@
 #Guild .content.info .hostile {
 	position: absolute;
 	left: 201px;
-	top: 218px;
+	top: 177px;
 }
 #Guild .content.info .hostile_list {
 	position: absolute;
 	left: 201px;
-	top: 234px;
+	top: 193px;
 	white-space: pre;
 	width: 168px;
 	height: 48px;
@@ -250,15 +250,15 @@
 	width: 24px;
 	height: 24px;
 	position: absolute;
-	top: 70px;
+	top: 29px;
 	left: 300px;
 	background-color: #709ce7;
 	background-repeat: no-repeat;
 }
 #Guild .content.info .emblem_edit {
 	position: absolute;
-	top: 75px;
-	left: 350px;
+	top: 30px;
+	left: 330px;
 	width: 42px;
 	height: 20px;
 	border: none;
@@ -414,12 +414,15 @@
 /*
  * Guild Skills
  */
+#Guild .content.skills {
+	overflow-y: hidden;
+}
 #Guild .content.skills .skill_list {
 	overflow-y: auto;
 	padding: 5px;
 	border-top: 1px solid #c6c6c6;
-	width: 380px;
-	height: 200px;
+	width: 394px;
+	height: 215px;
 }
 #Guild .content.skills .skill_list table {
 	border: none;
@@ -543,12 +546,12 @@
  */
 #Guild .notice .subjectTitle {
 	position: absolute;
-	top: 54px;
+	top: 13px;
 	left: 9px;
 }
 #Guild .notice .subject {
 	position: absolute;
-	top: 52px;
+	top: 11px;
 	left: 50px;
 	padding-left: 5px;
 	height: 14px;
@@ -558,12 +561,12 @@
 }
 #Guild .notice .noticeTitle {
 	position: absolute;
-	top: 77px;
+	top: 36px;
 	left: 9px;
 }
 #Guild .notice .notice {
 	position: absolute;
-	top: 93px;
+	top: 52px;
 	left: 9px;
 	padding-left: 5px;
 	margin: 0px;

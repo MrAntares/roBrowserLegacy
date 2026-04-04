@@ -28,8 +28,6 @@
 }
 
 #NpcMenu .middle {
-	display: flex;
-	flex: 1;
 	overflow-x: hidden;
 	overflow-y: scroll;
 }
@@ -44,7 +42,7 @@
 }
 
 #NpcMenu .content div {
-	width: 255px;
+	width: auto;
 	height: 17px;
 	display: block;
 	padding-top: 3px;
