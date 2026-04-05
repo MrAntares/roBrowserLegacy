@@ -56,72 +56,72 @@ const _cancelAnimationFrame =
  */
 class Renderer {
 	/**
-	 * @var {boolean} Rendering ?
+	 * @type {boolean} Rendering ?
 	 */
 	static rendering = false;
 
 	/**
-	 * @var {HTML5 canvas}
+	 * @type {HTMLCanvasElement}
 	 */
 	static canvas = document.createElement('canvas');
 
 	/**
-	 * @var {WebGLContext}
+	 * @type {WebGLRenderingContext}
 	 */
 	static gl = null;
 
 	/**
-	 * @var {boolean} true when using a WebGL2 context
+	 * @type {boolean} true when using a WebGL2 context
 	 */
 	static isWebGL2 = false;
 
 	/**
-	 * @var {boolean} flag for context lost state
+	 * @type {boolean} flag for context lost state
 	 */
 	static contextLost = false;
 
 	/**
-	 * @var {HTMLElement} overlay for context loss message
+	 * @type {HTMLElement} overlay for context loss message
 	 */
 	static errorOverlay = null;
 
 	/**
-	 * @var {integer} screen width
+	 * @type {number} screen width
 	 */
 	static width = 0;
 
 	/**
-	 * @var {integer} screen height
+	 * @type {number} screen height
 	 */
 	static height = 0;
 
 	/**
-	 * @var {integer} store the last time the windows was resize (to avoid to resize the context on each 16ms)
+	 * @type {number} store the last time the windows was resize (to avoid to resize the context on each 16ms)
 	 */
 	static resizeTimeOut = 0;
 
 	/**
-	 * @var {long} unique identifier of the current render callback (can be used for cancelAnimationFrame/clearInterval)
+	 * @type {number} unique identifier of the current render callback (can be used for cancelAnimationFrame/clearInterval)
 	 */
 	static updateId = 0;
 
 	/**
-	 * @var {integer} frame rate limit
+	 * @type {number} frame rate limit
 	 */
 	static frameLimit = GraphicsSettings.fpslimit;
 
 	/**
-	 * @var {integer} game tick
+	 * @type {number} game tick
 	 */
 	static tick = 0;
 
 	/**
-	 * @var {float} vertical field of view in degrees
+	 * @type {number} vertical field of view in degrees
 	 */
 	static vFov = 15.0;
 
 	/**
-	 * @var {function[]} callbacks to execute
+	 * @type {function[]} callbacks to execute
 	 */
 	static renderCallbacks = [];
 

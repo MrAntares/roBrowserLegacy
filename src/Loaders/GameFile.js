@@ -15,7 +15,7 @@ import Inflate from 'Utils/Inflate.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 
 /**
- * @var {File System} Nodejs
+ * @const {FileSystem} Nodejs
  */
 const fs = self.requireNode && self.requireNode('fs');
 

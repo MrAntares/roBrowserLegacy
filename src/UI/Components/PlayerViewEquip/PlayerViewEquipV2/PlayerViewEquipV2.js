@@ -76,10 +76,11 @@ PlayerViewEquipV2.init = function init() {
 
 	// Grab the tab links and content divs from the page
 	const tabListItems = document.getElementById('vieweqtabs').childNodes;
-	for (var i = 0; i < tabListItems.length; i++) {
+	let i;
+	for (i = 0; i < tabListItems.length; i++) {
 		if (tabListItems[i].nodeName == 'DIV') {
 			const tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
-			var id = getHash(tabLink.getAttribute('href'));
+			const id = getHash(tabLink.getAttribute('href'));
 			tabLinks[id] = tabLink;
 			contentDivs[id] = document.getElementById(id);
 		}
@@ -87,9 +88,9 @@ PlayerViewEquipV2.init = function init() {
 
 	// Assign onclick events to the tab links, and
 	// highlight the first tab
-	var i = 0;
+	i = 0;
 
-	for (var id in tabLinks) {
+	for (const id in tabLinks) {
 		tabLinks[id].onclick = showTab;
 		tabLinks[id].onfocus = function () {
 			this.blur();
@@ -101,9 +102,9 @@ PlayerViewEquipV2.init = function init() {
 	}
 
 	// Hide all content divs except the first
-	var i = 0;
+	i = 0;
 
-	for (var id in contentDivs) {
+	for (const id in contentDivs) {
 		if (contentDivs[id]) {
 			if (i != 0) {
 				contentDivs[id].classList.add('vieweqcontent', 'hide');
@@ -321,7 +322,7 @@ PlayerViewEquipV2.setChar2Render = function setChar2Render(pkt) {
 /**
  * Rendering character
  */
-var renderCharacter = (function renderCharacterClosure() {
+const renderCharacter = (function renderCharacterClosure() {
 	const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 	const _savedColor = new Float32Array(4);
 	const _animation = {
@@ -334,7 +335,7 @@ var renderCharacter = (function renderCharacterClosure() {
 		save: false
 	};
 
-	return function renderCharacter() {
+	return function renderChar() {
 		const show_character = new Entity();
 		show_character.set({
 			GID: charName + '_EQUIP',

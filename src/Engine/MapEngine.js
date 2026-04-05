@@ -119,12 +119,12 @@ import CashShopEngine from './MapEngine/CashShop.js';
 import BankEngine from './MapEngine/Bank.js';
 
 /**
- * @var {string mapname}
+ * @type {string} mapname
  */
 let _mapName = '';
 
 /**
- * @var {boolean} is initialized
+ * @type {boolean} is initialized
  */
 let _isInitialised = false;
 
@@ -136,7 +136,7 @@ let chatLines = 0;
  */
 class MapEngine {
 	/**
-	 * @var {boolean} do we need to update UI versions?
+	 * @type {boolean} do we need to update UI versions?
 	 */
 	static needsUIVerUpdate = false;
 
@@ -956,12 +956,12 @@ function onRemoveOption() {
 }
 
 /**
- * @var {number} walk timer
+ * @type {number} walk timer
  */
 let _walkTimer = null;
 
 /**
- * @var {number} Last delay to walk
+ * @type {number} Last delay to walk
  */
 let _walkLastTick = 0;
 

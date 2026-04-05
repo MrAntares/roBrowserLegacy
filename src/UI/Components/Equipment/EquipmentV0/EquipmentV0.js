@@ -376,7 +376,7 @@ function toggleEquip() {
 /**
  * Rendering character
  */
-var renderCharacter = (function renderCharacterClosure() {
+const renderCharacter = (function renderCharacterClosure() {
 	let _lastState = 0;
 	let _hasCart = 0;
 
@@ -415,7 +415,7 @@ var renderCharacter = (function renderCharacterClosure() {
 		StatusConst.EffectState.CART4 |
 		StatusConst.EffectState.CART5;
 
-	return function renderCharacter() {
+	return function renderChar() {
 		const character = Session.Entity;
 		const direction = character.direction;
 		const headDir = character.headDir;
@@ -530,8 +530,8 @@ function onDragOver(event) {
 				selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
 				ui = EquipmentV0.ui.find(selector);
 
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (data) {
-					ui.css('backgroundImage', 'url(' + data + ')');
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (_data) {
+					ui.css('backgroundImage', 'url(' + _data + ')');
 				});
 			}
 		}
@@ -558,7 +558,9 @@ function onDrop(event) {
 
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {}
+	} catch (_e) {
+		// ignore
+	}
 
 	// Just support items for now ?
 	if (data && data.type === 'item') {

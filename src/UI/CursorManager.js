@@ -21,57 +21,57 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 
 /**
- * @var {integer} tick
+ * @type {integer} tick
  */
 let _tick = 0;
 
 /**
- * @var {boolean} repeat animation ?
+ * @type {boolean} repeat animation ?
  */
 let _norepeat = false;
 
 /**
- * @var {integer} animation frame
+ * @type {integer} animation frame
  */
 let _animation = 0;
 
 /**
- * @var {boolean} play animation ?
+ * @type {boolean} play animation ?
  */
 let _play = true;
 
 /**
- * @var {number} last style id rendered
+ * @type {number} last style id rendered
  */
 let _lastStyleId = -1;
 
 /**
- * @var {number} last rendered position x
+ * @type {number} last rendered position x
  */
 let _lastX = 0;
 
 /**
- * @var {number} last renderer position y
+ * @type {number} last renderer position y
  */
 let _lastY = 0;
 
 /**
- * @var {Array} css style list
+ * @type {Array} css style list
  */
 let _compiledStyle = [];
 
 /**
- * @var {Sprite} sprite
+ * @type {Sprite} sprite
  */
 let _sprite;
 
 /**
- * @var {Action} action
+ * @type {Action} action
  */
 let _action;
 
 /**
- * @var {reference} selector
+ * @type {reference} selector
  */
 let _selector;
 
@@ -96,27 +96,27 @@ class Cursor {
 	};
 
 	/**
-	 * @var {boolean} block change ?
+	 * @type {boolean} block change ?
 	 */
 	static freeze = false;
 
 	/**
-	 * @var {integer} left in px
+	 * @type {integer} left in px
 	 */
 	static x = 0;
 
 	/**
-	 * @var {integer} top in px
+	 * @type {integer} top in px
 	 */
 	static y = 0;
 
 	/**
-	 * @var {boolean} magnetism while picking entites ?
+	 * @type {boolean} magnetism while picking entites ?
 	 */
 	static magnetism = true;
 
 	/**
-	 * @var {boolean} force disabled magnetism
+	 * @type {boolean} force disabled magnetism
 	 * Used to cast zone skill to ground
 	 */
 	static blockMagnetism = false;
@@ -280,7 +280,7 @@ class Cursor {
 }
 
 /**
- * @var {integer} Cursor.ACTION.* constant
+ * @type {integer} Cursor.ACTION.* constant
  */
 let _type = Cursor.ACTION.DEFAULT;
 

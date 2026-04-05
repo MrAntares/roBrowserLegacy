@@ -256,93 +256,92 @@ const RenderCanvas2D = (function RenderCanvas2DClosure() {
 })();
 
 /**
- * @var {WebGLProgram}
+ * @type {WebGLProgram}
  */
 let _program = null;
 
 /**
- * @var {WebGLBuffer}
+ * @type {WebGLBuffer}
  */
 let _buffer = null;
 
 /**
- * @var {CanvasRenderingContext2D} canvas context
+ * @type {CanvasRenderingContext2D} canvas context
  */
 let _ctx = null;
 
 /**
- * @var {WebGLRenderingContext} 3d context
+ * @type {WebGLRenderingContext} 3d context
  */
 let _gl = null;
 
 /**
- * @var {number} group id
- * Used to know if we have to bind texture again
+ * @type {number} group id
  */
 let _groupId = 0;
 
 /**
- * @var {number} last group id
+ * @type {number} last group id
  */
 let _lastGroupId = 0;
 
 /**
- * @var {number} last shadow used
+ * @type {number} last shadow used
  */
 let _shadow = null;
 
 /**
- * @var {number} last rotation angle used
+ * @type {number} last rotation angle used
  */
 let _angle = null;
 
 /**
- * @var {number} last depth operation
+ * @type {number} last depth operation
  */
 let _depth = null;
 
 /**
- * @var {boolean} cached disable depth correction state
+ * @type {boolean} cached disable depth correction state
  */
 let _disableDepthCorrection = false;
 
 /**
- * @var {boolean} cached depth mask state
+ * @type {boolean} cached depth mask state
  */
 let _depthMask = true;
 
 /**
- * @var {boolean} cached depth test state
+ * @type {boolean} cached depth test state
  */
 let _depthTest = true;
 
 /**
- * @var {object} last texture used
+ * @type {object} last texture used
  */
 let _texture = null;
 
 /**
- * @var {boolean} do we use palette ?
+ * @type {boolean} do we use palette ?
  */
 let _usepal = null;
 
 /**
- * @var {Uint16Array} position in 2D canvas
+ * @const {Int16Array} position in 2D canvas
  */
 const _pos = new Int16Array(2);
 
 /**
- * @var {mat4} last generated matrix (used for rotation)
+ * @const {Float32Array} last generated matrix (used for rotation)
  */
 const _matrix = new Float32Array(4 * 4);
 
 /**
- * @var {Float32Array[2]} sprite size
+ * @const {Float32Array} sprite size
  */
 const _size = new Float32Array(2);
 
 /**
- * @var {Float32Array[2]} sprite offset position
+ * @const {Float32Array} sprite offset position
  */
 const _offset = new Float32Array(2);
 
@@ -351,47 +350,47 @@ const _offset = new Float32Array(2);
  */
 class SpriteRenderer {
 	/**
-	 * @var {function} functions to use to render
+	 * @type {function} functions to use to render
 	 */
 	static render = null;
 
 	/**
-	 * @var {number} sprite shadow (mult * color)
+	 * @type {number} sprite shadow (mult * color)
 	 */
 	static shadow = 1.0;
 
 	/**
-	 * @var {number} sprite angle rotation
+	 * @type {number} sprite angle rotation
 	 */
 	static angle = 0;
 
 	/**
-	 * @var {number} depth
+	 * @type {number} depth
 	 */
 	static depth = 0.0;
 
 	/**
-	 * @var {Float32Array[3]} sprite position in 3D world
+	 * @type {Float32Array} sprite position in 3D world
 	 */
 	static position = new Float32Array(3);
 
 	/**
-	 * @var {Float32Array[4]} sprite color (color * color)
+	 * @type {Float32Array} sprite color (color * color)
 	 */
 	static color = new Float32Array(4);
 
 	/**
-	 * @var {Float32Array[2]} sprite size
+	 * @type {Float32Array} sprite size
 	 */
 	static size = new Float32Array(2);
 
 	/**
-	 * @var {Float32Array[2]} sprite offset position
+	 * @type {Float32Array} sprite offset position
 	 */
 	static offset = new Float32Array(2);
 
 	/**
-	 * @var {object} sprite image information
+	 * @type {object} sprite image information
 	 */
 	static image = {
 		texture: null,
@@ -400,32 +399,32 @@ class SpriteRenderer {
 	};
 
 	/**
-	 * @var {object} sprite imageData (for 2D context)
+	 * @type {object} sprite imageData (for 2D context)
 	 */
 	static sprite = null;
 
 	/**
-	 * @var {object} sprite palette (for 2D context)
+	 * @type {object} sprite palette (for 2D context)
 	 */
 	static palette = null;
 
 	/**
-	 * @var {number} groupid used (avoid draw call)
+	 * @type {number} groupid used (avoid draw call)
 	 */
 	static groupId = 0;
 
 	/**
-	 * @var {boolean} disable depth correction (ray-plane) for current draw
+	 * @type {boolean} disable depth correction (ray-plane) for current draw
 	 */
 	static disableDepthCorrection = false;
 
 	/**
-	 * @var {number} width unity
+	 * @type {number} width unity
 	 */
 	static xSize = 5;
 
 	/**
-	 * @var {number} height unity
+	 * @type {number} height unity
 	 */
 	static ySize = 5;
 
