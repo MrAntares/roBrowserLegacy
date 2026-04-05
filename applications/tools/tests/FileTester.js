@@ -2,8 +2,9 @@
  * applications/tools/tests/FileTester.js
  *
  * File Tester Helper
- * Client Thread
- * Manage the Client Thread to send data to it (let another Thread do the hard job : loading files, ...)
+ * Presents the roBrowser Intro screen, lets the user pick GRF/files,
+ * then iterates every matching file through a caller-supplied callback
+ * so loaders can be smoke-tested in bulk.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
