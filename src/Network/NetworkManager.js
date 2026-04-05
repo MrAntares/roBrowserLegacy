@@ -20,10 +20,10 @@ import PacketLength from './PacketLength.js';
 import WebSocket from './SocketHelpers/WebSocket.js';
 import NodeSocket from './SocketHelpers/NodeSocket.js';
 
-	/**
-	 * Sockets list
-	 * @const {Socket[]}
-	 */
+/**
+ * Sockets list
+ * @const {Socket[]}
+ */
 const _sockets = [];
 
 /**
@@ -61,10 +61,10 @@ let _socket = null;
  */
 let _save_buffer = null;
 
-	/**
-	 * Defines if dump packets as hex string
-	 * @const {boolean}
-	 */
+/**
+ * Defines if dump packets as hex string
+ * @const {boolean}
+ */
 const packetDump = Configs.get('packetDump', false);
 
 /**
@@ -81,10 +81,10 @@ function Packets(name, Struct, size) {
 	this.callback = null;
 }
 
-	/**
-	 * List of supported packets
-	 * @type {Packets[]}
-	 */
+/**
+ * List of supported packets
+ * @type {Packets[]}
+ */
 Packets.list = [];
 
 /**
@@ -208,10 +208,10 @@ function read(callback) {
 	read.callback = callback;
 }
 
-	/**
-	 * Callback used for reading the data for the next buffer received from server
-	 * @type {function}
-	 */
+/**
+ * Callback used for reading the data for the next buffer received from server
+ * @type {function}
+ */
 read.callback = null;
 
 /**
