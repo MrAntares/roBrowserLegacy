@@ -2,9 +2,8 @@
  * applications/tools/tests/FileTester.js
  *
  * File Tester Helper
- * Presents the roBrowser Intro screen, lets the user pick GRF/files,
- * then iterates every matching file through a caller-supplied callback
- * so loaders can be smoke-tested in bulk.
+ * Lets the user pick GRF/files, then iterates every matching file
+ * through a caller-supplied callback so loaders can be smoke-tested in bulk.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
