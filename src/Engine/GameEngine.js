@@ -92,7 +92,12 @@ function loadFiles(callback) {
 		UIManager.removeComponents();
 		Background.init();
 		Background.resize(Renderer.width, Renderer.height);
-		if (PACKETVER.value >= 20181114) {
+		if (PACKETVER.value >= 20221207) {
+			import('UI/Components/WinLogin/WinLoginV3/WinLoginV3Background.js').then(module => {
+				module.default.init();
+			});
+		}
+		else if (PACKETVER.value >= 20181114) {
 			import('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background.js').then(module => {
 				module.default.init();
 			});

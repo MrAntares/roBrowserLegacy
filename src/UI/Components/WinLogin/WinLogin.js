@@ -9,6 +9,7 @@
 
 import WinLogin from './WinLogin/WinLogin.js';
 import WinLoginV2 from './WinLoginV2/WinLoginV2.js';
+import WinLoginV3 from './WinLoginV3/WinLoginV3.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'WinLogin';
@@ -16,6 +17,7 @@ const publicName = 'WinLogin';
 const versionInfo = {
 	default: WinLogin,
 	common: {
+		20221207: WinLoginV3,
 		20181114: WinLoginV2
 	},
 	re: {},
