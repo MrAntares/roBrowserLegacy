@@ -104,8 +104,7 @@ function save(ui) {
 	_preferences.saveFiles = ui.find('.save:checked').length ? true : false;
 
 	const $servers = ui.find('.servers');
-	let i,
-		count = $servers.find('tr').length;
+	const count = $servers.find('tr').length;
 	let $server;
 
 	if (Configs.get('_serverEditMode')) {
@@ -113,7 +112,7 @@ function save(ui) {
 		_preferences.serverfile = ui.find('.clientinfo').val();
 		_preferences.serverlist = [];
 
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			$server = $servers.find('tr:eq(' + i + ')');
 			_preferences.serverlist.push({
 				display: $server.find('.display').val(),
