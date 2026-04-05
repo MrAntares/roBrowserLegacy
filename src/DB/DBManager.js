@@ -58,7 +58,7 @@ import PACKETVER from 'Network/PacketVerManager.js';
 //MapName
 
 /**
- * @var {Object} lua instance
+ * @type {Object} lua instance
  */
 let lua;
 let HO_AI;
@@ -69,161 +69,159 @@ let default_MER_AI;
 startLua();
 
 /**
- * @var {Array} message string
+ * @const {Array} message string
  */
 const MsgStringTable = [];
 
 /**
- * @var {Array} message string
+ * @const {Array} message string
  */
 const JokeTable = [];
 
 /**
- * @var {Array} message string
+ * @const {Array} message string
  */
 const ScreamTable = [];
 
 /**
- * @var {Array} map table
+ * @const {Array} map table
  * struct { string name; string mp3; object fog }
  */
 const MapTable = {};
 
 /**
- * @var {Object} SkillDescription Table
+ * @type {Object} SkillDescription Table
  */
 let SkillDescription = {};
 
 /**
- * @var {Array} ASCII sex
+ * @const {Array} ASCII sex
  */
 const SexTable = ['\xbf\xa9', '\xb3\xb2'];
 
 /**
- * @var Pet Talk
- * json object
+ * @type {Object} Pet Talk json object
  */
 let PetTalkTable = {};
 
 /**
- * @var {Object} CheckAttendanceTable Attendance config
+ * @const {Object} CheckAttendanceTable Attendance config
  */
 const CheckAttendanceTable = { Config: {}, Rewards: [] };
 
 /**
- * @var {Array }buyingStoreItemList Table
+ * @const {Array} buyingStoreItemList Table
  */
 const buyingStoreItemList = new Array();
 
 /**
- * @var {Array} LaphineSysTable Table
+ * @const {Array} LaphineSysTable Table
  */
 const LaphineSysTable = [];
 
 /**
- * @var {Array} LaphineUpgTable Table
+ * @const {Array} LaphineUpgTable Table
  */
 const LaphineUpgTable = [];
 
 /**
- * @var ItemDBName Table
+ * @const {Object} ItemDBName Table
  * json object
  */
 const ItemDBNameTbl = {};
 
 /**
- * @var ItemReform Table
+ * @const {Object} ItemReform Table
  * json object
  */
 const ItemReformTable = { ReformInfo: {}, ReformItemList: {} };
 
 /**
- * @var EnchantList Table
- * json object
+ * @type {Object} EnchantList Table json object
  */
 let EnchantListTable = {};
 
 /**
- * @var SignBoardTranslated Table
+ * @const {Object} SignBoardTranslated Table
  */
 const SignBoardTranslatedTable = {};
 
 /**
- * @var SignBoard Table
+ * @type {Object} SignBoard Table
  */
 let SignBoardTable = {};
 
 /**
- * @var NaviMap Table
+ * @const {Object} NaviMap Table
  */
 const NaviMapTable = {};
 
 /**
- * @var NaviMob Table
+ * @const {Object} NaviMob Table
  */
 const NaviMobTable = {};
 
 /**
- * @var NaviNpc Table
+ * @const {Object} NaviNpc Table
  */
 const NaviNpcTable = {};
 
 /**
- * @var NaviLink Table
+ * @const {Object} NaviLink Table
  */
 const NaviLinkTable = {};
 
 /**
- * @var NaviLinkDistance Table
+ * @const {Object} NaviLinkDistance Table
  */
 const NaviLinkDistanceTable = {};
 
 /**
- * @var NaviNpcDistance Table
+ * @const {Object} NaviNpcDistance Table
  */
 const NaviNpcDistanceTable = {};
 
 /**
- * @var QuestInfo Table
+ * @const {Object} QuestInfo Table
  */
 const QuestInfo = {};
 
 /**
- * @var Title Table
+ * @const {Object} Title Table
  */
 const TitleTable = {};
 
 /**
- * @var {Object} PetDBTable
+ * @type {Object} PetDBTable
  */
 let PetDBTable = {};
 let EggIDToJobID = {};
 
 /**
- * @var {Object} Reputation Table
+ * @const {Object} Reputation Table
  */
 const ReputeGroup = {};
 const ReputeInfo = {};
 
 /**
- * @var {Object} CSV Tables
+ * @const {Object} CSV Tables
  */
 const MsgEmotionCSV = {};
 
 /**
- * @var {Object} Hat Effect Tables
+ * @const {Object} Hat Effect Tables
  */
 const HatEffectID = {};
 const HatEffectInfo = {};
 const FootPrintEffectInfo = {};
 
 /**
- * @var {Array} CashShopBanner Table
+ * @const {Array} CashShopBanner Table
  */
 const CashShopBannerTable = [];
 
 /**
- * @var {Object} Ez2streffect Table
+ * @const {Object} Ez2streffect Table
  */
 const Ez2streffect = {};
 
@@ -239,7 +237,7 @@ const unknownItem = {
 };
 
 /**
- * @var User charpage init
+ * @const {Array} User charpage init
  */
 const servers = Configs.get('servers', []);
 const langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 0) : 0;
@@ -257,27 +255,27 @@ const userStringDecoder = TextEncoding;
  */
 class DB {
 	/**
-	 * @var {Array} file alias list
+	 * @type {Object} file alias list
 	 */
 	static mapalias = {};
 
 	/**
-	 * @var {Array} CharName by GID list
+	 * @type {Object} CharName by GID list
 	 */
 	static CNameTable = {};
 
 	/**
-	 * @var {string} interface path
+	 * @type {string} interface path
 	 */
 	static INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
 
 	/**
-	 * @var {string} lua path
+	 * @type {string} lua path
 	 */
 	static LUA_PATH = 'data/luafiles514/lua files/';
 
 	/**
-	 * @var {Object} UpdateOwnerName Table
+	 * @type {Object} UpdateOwnerName Table
 	 */
 	static UpdateOwnerName = {};
 

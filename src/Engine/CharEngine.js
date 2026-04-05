@@ -31,32 +31,32 @@ import CharCreate from 'UI/Components/CharCreate/CharCreate.js';
 // Load modules
 // Version Dependent UIs
 /**
- * @var {object} server data
+ * @type {object} server data
  */
 let _server = null;
 
 /**
- * @var {number} where to create character ?
+ * @type {number} where to create character ?
  */
 let _creationSlot = 0;
 
 /**
- * @var {number} times attempted to provide pin code.
+ * @type {number} times attempted to provide pin code.
  */
 let _pincodeAttempts = 0;
 
 /**
- * @var {boolean} are we currently attempting to authenticate a pin code reset?
+ * @type {boolean} are we currently attempting to authenticate a pin code reset?
  */
 let _inAuthPincodeReset = false;
 
 /**
- * @var {boolean} are we resetting a pincode?
+ * @type {boolean} are we resetting a pincode?
  */
 let _resettingPincode = false;
 
 /**
- * @var {boolean} are we creating a pincode?
+ * @type {boolean} are we creating a pincode?
  */
 let _creatingPincode = false;
 

@@ -21,7 +21,7 @@ const { mat4, mat3, vec2, vec3 } = glMatrix;
 const _position = vec3.create();
 
 /**
- * @var {number} camera min-max constants
+ * @const {number} camera min-max constants
  */
 const C_MIN_ZOOM = 1;
 const C_MAX_ZOOM = 5;
@@ -46,59 +46,59 @@ let _pending = false;
 class Camera {
 	/**
 	 * Projection matrix
-	 * @var {mat4} projection
+	 * @type {mat4}
 	 */
 	static projection = mat4.create();
 
 	/**
 	 * ModelView matrix
-	 * @var {mat4} modelView
+	 * @type {mat4}
 	 */
 	static modelView = mat4.create();
 
 	/**
-	 * ModelView matrix
-	 * @var {mat4} modelView
+	 * Normal matrix
+	 * @type {mat3}
 	 */
 	static normalMat = mat3.create();
 
 	/**
-	 * @var {number} zoom
+	 * @type {number} zoom
 	 */
 	static zoom = Preferences.zoom;
 
 	/**
-	 * @var {number} zoomFinal
+	 * @type {number} zoomFinal
 	 */
 	static zoomFinal = Preferences.zoom;
 
 	/**
-	 * @var {vec2} angle rotation
+	 * @type {vec2} angle rotation
 	 */
 	static angle = vec2.create();
 
 	/**
-	 * @var {vec2} angle final rotation
+	 * @type {vec2} angle final rotation
 	 */
 	static angleFinal = vec2.create();
 
 	/**
-	 * @var {vec3}
+	 * @type {vec3}
 	 */
 	static position = vec3.create();
 
 	/**
-	 * @var {Entity} Entity currently attached by the camera
+	 * @type {Entity} Entity currently attached by the camera
 	 */
 	static target = null;
 
 	/**
-	 * @var {number}
+	 * @type {number}
 	 */
 	static lastTick = 0;
 
 	/**
-	 * @var {number} camera min-max variables
+	 * @type {number} camera min-max variables
 	 */
 	static MIN_ZOOM = C_MIN_ZOOM;
 	static MAX_ZOOM = C_MAX_ZOOM;
@@ -106,7 +106,7 @@ class Camera {
 	static MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
 
 	/**
-	 * @var {number} Camera direction
+	 * @type {number} Camera direction
 	 */
 	static direction = 0;
 	static altitudeFrom = 0;
@@ -119,7 +119,7 @@ class Camera {
 	static zoomStepMult = 1;
 
 	/**
-	 * @var {number} current map
+	 * @type {string} current map
 	 */
 	static currentMap = '';
 
@@ -129,17 +129,17 @@ class Camera {
 	static indoorRange = 240;
 
 	/**
-	 * @var {number} camera zoom indoor
+	 * @type {number} camera zoom indoor
 	 */
 	static MAX_ZOOM_INDOOR = 2.5;
 
 	/**
-	 * @var {number} min camera altitude indoor
+	 * @type {number} min camera altitude indoor
 	 */
 	static MIN_ALTITUDE_INDOOR = 220;
 
 	/**
-	 * @var {number} max camera altitude indoor
+	 * @type {number} max camera altitude indoor
 	 */
 	static MAX_ALTITUDE_INDOOR = 240;
 
@@ -155,7 +155,7 @@ class Camera {
 	};
 
 	/**
-	 * @var {object} Camera action informations (right click)
+	 * @type {object} Camera action informations (right click)
 	 */
 	static action = {
 		active: false,
