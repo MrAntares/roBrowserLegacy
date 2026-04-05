@@ -23,7 +23,9 @@ import htmlText from './CharSelectV4.html?raw';
 import cssText from './CharSelectV4.css?raw';
 import Client from 'Core/Client.js';
 import jQuery from 'Utils/jquery.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import WinLoginV2Background from 'UI/Components/WinLogin/WinLoginV2/WinLoginV2Background.js';
+import WinLoginV3Background from 'UI/Components/WinLogin/WinLoginV3/WinLoginV3Background.js';
 
 /**
  * Create Chararacter Selection namespace
@@ -137,7 +139,11 @@ CharSelectV4.init = function Init() {
  * Once append to body
  */
 CharSelectV4.onAppend = function onAppend() {
-	WinLoginV2Background.append();
+	if (PACKETVER.value >= 20221207) {
+		WinLoginV3Background.append();
+	} else {
+		WinLoginV2Background.append();
+	}
 
 	//_index = _preferences.index;
 	const charselectready = CharSelectV4.ui;
