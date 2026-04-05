@@ -231,7 +231,7 @@ Intro.onAppend = function onAppend() {
 	$window.trigger('resize.intro');
 
 	// Initialize window and particle
-	Particle.init(100, this.ui.find('canvas')[0]);
+	Particle.init(30, this.ui.find('canvas')[0]);
 };
 
 /**
@@ -250,7 +250,6 @@ function preloadImages() {
 	// Background images
 	jQuery('style:first').append(
 		[
-			'#intro .intro { background-image:url(' + new URL('./images/background.jpg', import.meta.url).href + '); }',
 			'#intro .ribbon { background-image:url(' + new URL('./images/ribbon.png', import.meta.url).href + '); }',
 			'#intro .box { background-image:url(' + new URL('./images/box.jpg', import.meta.url).href + '); }',
 			'#intro .btn_play { background-image:url(' + new URL('./images/play.png', import.meta.url).href + '); }',
@@ -314,7 +313,7 @@ function process(event) {
 		} else if (entry.isDirectory) {
 			++_dir_count;
 			entry.createReader().readEntries(function (entries) {
-				for (let i = 0, count = entries.length; i < count; ++i) {
+				for (i = 0, count = entries.length; i < count; ++i) {
 					recursiveReader(entries[i], skip);
 				}
 				if (++_dir_loaded === _dir_count && _file_loaded === _file_count) {
