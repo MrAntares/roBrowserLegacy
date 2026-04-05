@@ -1,31 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>roBrowser — Ground (.gnd) Tester</title>
+</head>
+<body>
+  <script type="module">
+    window.ROConfig = { servers: [{ packetver: 0 }], packetver: 0 };
 
-<body></body>
-<script type="text/javascript" src="../../../src/Vendors/require.js"></script>
-<script type="text/javascript">
-	// workaround to network PacketVerManager.getvalue() // FIXME
-	var ROConfig = {
-		servers: [{
-			packetver: 0
-		}
-		],
-		packetver: 0,
-	}
-	require({
-		baseUrl: '../../../src/',
-		paths: {
-			text: "Vendors/text.require",
-			jquery: "Vendors/jquery-1.9.1"
-		}
-	}, ['../applications/tools/tests/FileTester', 'Loaders/Ground'], function (FileTester, Ground) {
-		var ft = new FileTester("gnd", function (data) {
-			var gnd = new Ground(data);
-			gnd.compile();
-		});
+    import FileTester from './FileTester.js';
+    import Ground from 'Loaders/Ground.js';
 
-		ft.start();
-	});
-</script>
+    const ft = new FileTester('gnd', data => {
+      const gnd = new Ground(data);
+      gnd.compile();
+    });
 
+    ft.start();
+  </script>
+</body>
 </html>

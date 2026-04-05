@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"scripts": {
 		"serve": "vite preview",
-		"live": "vite --open applications/browser-examples/index.html",
+		"live": "vite --open applications/browser-examples/demo.html",
 		"pwa": "vite --open applications/pwa/index.html",
 		"tools": "vite --open applications/tools/index.html",
 		"nw": "nw .",
