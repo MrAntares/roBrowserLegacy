@@ -96,8 +96,7 @@ function loadFiles(callback) {
 			import('UI/Components/WinLogin/WinLoginV3/WinLoginV3Background.js').then(module => {
 				module.default.init();
 			});
-		}
-		else if (PACKETVER.value >= 20181114) {
+		} else if (PACKETVER.value >= 20181114) {
 			import('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background.js').then(module => {
 				module.default.init();
 			});

@@ -52,7 +52,7 @@ WinLoginV3.init = function init() {
 
 WinLoginV3.onAppend = function onAppend() {
 	WinLoginV3Background.append();
-	
+
 	_inputUsername.val(_preferences.saveID ? _preferences.ID : '');
 	_inputPassword.val('');
 
