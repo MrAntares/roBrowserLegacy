@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>roBrowser — Altitude (.gat) Tester</title>
+</head>
+<body>
+  <script type="module">
+    window.ROConfig = { servers: [{ packetver: 0 }], packetver: 0 };
 
-<body></body>
-<script type="text/javascript" src="../../../src/Vendors/require.js"></script>
-<script type="text/javascript">
-	require({
-		baseUrl: '../../../src/',
-		paths: {
-			text: "Vendors/text.require",
-			jquery: "Vendors/jquery-1.9.1"
-		}
-	}, ['../applications/tools/tests/FileTester', 'Loaders/Altitude'], function (FileTester, Altitude) {
-		var ft = new FileTester("gat", function (data) {
-			var gat = new Altitude(data);
-			gat.compile();
-		});
+    import FileTester from './FileTester.js';
+    import Altitude from 'Loaders/Altitude.js';
 
-		ft.start();
-	});
-</script>
+    const ft = new FileTester('gat', data => {
+      const gat = new Altitude(data);
+      gat.compile();
+    });
 
+    ft.start();
+  </script>
+</body>
 </html>
