@@ -25,7 +25,8 @@
 	 */
 	ROBrowser.TYPE = {
 		POPUP: 1,
-		FRAME: 2
+		FRAME: 2,
+		INLINE: 3
 	};
 
 	/**
@@ -382,6 +383,72 @@
 
 				this._APP = frame.contentWindow;
 				break;
+
+			// Append roBrowser inline locally
+			case ROBrowser.TYPE.INLINE:
+				this.config.width = this.config.width || '100%';
+				this.config.height = this.config.height || '100%';
+
+				if (this.config.target) {
+					while (this.config.target.firstChild) {
+						this.config.target.removeChild(this.config.target.firstChild);
+					}
+					var container = document.createElement('div');
+					container.style.width = typeof this.config.width === 'number' ? this.config.width + 'px' : this.config.width;
+					container.style.height = typeof this.config.height === 'number' ? this.config.height + 'px' : this.config.height;
+					container.style.position = 'relative';
+					this.config.target.appendChild(container);
+					// redefine target to the inner container
+					this.config.target = container;
+				}
+
+				window.ROConfig = this.config;
+
+				var url = new URL(this.baseUrl);
+				var path = url.pathname;
+				var projectRoot = path.split('/applications/')[0] + '/';
+
+				if (!document.querySelector('script[type="importmap"]')) {
+					var importMap = {
+						imports: {
+							'src/': projectRoot + 'src/',
+							'App/': projectRoot + 'src/App/',
+							'Audio/': projectRoot + 'src/Audio/',
+							'Controls/': projectRoot + 'src/Controls/',
+							'Core/': projectRoot + 'src/Core/',
+							'DB/': projectRoot + 'src/DB/',
+							'Engine/': projectRoot + 'src/Engine/',
+							'Loaders/': projectRoot + 'src/Loaders/',
+							'Network/': projectRoot + 'src/Network/',
+							'Plugins/': projectRoot + 'src/Plugins/',
+							'Preferences/': projectRoot + 'src/Preferences/',
+							'Renderer/': projectRoot + 'src/Renderer/',
+							'UI/': projectRoot + 'src/UI/',
+							'Utils/': projectRoot + 'src/Utils/',
+							'Vendors/': projectRoot + 'src/Vendors/'
+						}
+					};
+
+					var s1 = document.createElement('script');
+					s1.type = 'importmap';
+					s1.textContent = JSON.stringify(importMap);
+					document.head.appendChild(s1);
+				}
+
+				if (!document.querySelector('script[data-api="robrowser-main"]')) {
+					var s2 = document.createElement('script');
+					s2.type = 'module';
+					s2.dataset.api = 'robrowser-main';
+					s2.textContent = "import '" + projectRoot + "src/main.js';";
+					document.head.appendChild(s2);
+				}
+
+				if (this.onReady) {
+					setTimeout(this.onReady.bind(this), 500);
+				}
+
+				this._APP = window;
+				break;
 		}
 
 		// Get back application name
@@ -429,8 +496,10 @@
 		}
 
 		// Start waiting for robrowser
-		this._Interval = setInterval(WaitForInitialization.bind(this), 100);
-		window.addEventListener('message', OnMessage, false);
+		if (this.config.type !== ROBrowser.TYPE.INLINE) {
+			this._Interval = setInterval(WaitForInitialization.bind(this), 100);
+			window.addEventListener('message', OnMessage, false);
+		}
 	};
 
 	/**
