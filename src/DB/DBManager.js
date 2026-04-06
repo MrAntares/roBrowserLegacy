@@ -434,7 +434,8 @@ class DB {
 			}
 
 			// Skill - load skillid.lub to populate SKID, then load description
-			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', function (json) {
+			const onSkillEnd = onLoad();
+			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', (json) => {
 				if (json && typeof json === 'object') {
 					// Validate and merge entries into SKID
 					for (const k in json) {
@@ -446,7 +447,6 @@ class DB {
 						}
 					}
 				}
-				const onSkillEnd = onLoad();
 				// Load description - skillid.lub is re-executed harmlessly (Lua just repopulates globals)
 				loadLuaTable(
 					[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
