@@ -58,7 +58,7 @@ const packetModules = {
 	'./Packets/packets2022_len_main.js': p2022,
 	'./Packets/packets2023_len_main.js': p2023,
 	'./Packets/packets2024_len_main.js': p2024,
-	'./Packets/packets2025_len_main.js': p2025,
+	'./Packets/packets2025_len_main.js': p2025
 };
 
 let packets_len = new Array();
