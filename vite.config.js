@@ -72,6 +72,10 @@ export default defineConfig({
 			Vendors: path.resolve(__dirname, './src/Vendors')
 		}
 	},
+	test: {
+		environment: 'jsdom',
+		include: ['tests/**/*.test.js']
+	},
 	build: {
 		outDir: 'dist/Web',
 		rollupOptions: {
