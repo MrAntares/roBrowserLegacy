@@ -13170,12 +13170,11 @@ PACKET.HC.NOTIFY_ZONESVR2 = function PACKET_HC_NOTIFY_ZONESVR2(fp, end) {
 PACKET.HC.NOTIFY_ZONESVR2.size = 156;
 
 // 0xacb
-PACKET.ZC.LONGPAR_CHANGE2 = function PACKET_ZC_LONGPAR_CHANGE2(fp, end) {
+PACKET.ZC.LONGLONGPAR_CHANGE = function PACKET_ZC_LONGLONGPAR_CHANGE(fp, end) {
 	this.varID = fp.readUShort();
-	this.amount = fp.readLong();
-	this.amount2 = fp.readLong();
+	this.amount = fp.readInt64();
 };
-PACKET.ZC.LONGPAR_CHANGE2.size = 12;
+PACKET.ZC.LONGLONGPAR_CHANGE.size = 12;
 
 // 0xacc
 PACKET.ZC.NOTIFY_EXP2 = function PACKET_ZC_NOTIFY_EXP2(fp, end) {
