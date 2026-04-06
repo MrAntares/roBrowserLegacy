@@ -620,7 +620,7 @@ function onPincodeCheckSuccess(pkt) {
 	 *	2 = create new pin - client sends 0x8ba
 	 *	3 = pin must be changed - client 0x8be
 	 *	4 = create new pin ?? - client sends 0x8ba
-	 *	5 = client shows msgstr(1896)
+	 *	5 = client shows msgstr(1896) Unable to use restricted number in 2nd password
 	 *	6 = client shows msgstr(1897) Unable to use your KSSN number
 	 *	7 = char select window shows a button - client sends 0x8c5
 	 *	8 = pincode was incorrect
@@ -685,13 +685,13 @@ function onPincodeCheckSuccess(pkt) {
 				PincodeWindow.onExitRequest(); // Failed authentication.
 			}
 			break;
-		case 5: // client shows msgstr(1896)
+		case 5: // client shows msgstr(1896) Unable to use restricted number in 2nd password
 		case 6: // client shows msgstr(1897) Unable to use your KSSN number
 		case 8: // pincode was incorrect
 			if (_creatingPincode === true) {
 				UIManager.showMessageBox(DB.getMessage(1893), 'ok');
 			} else {
-				UIManager.showMessageBox(DB.getMessage(pkt.State == 5 ? 1895 : pkt.State == 6 ? 1896 : 1892), 'ok');
+				UIManager.showMessageBox(DB.getMessage(pkt.State == 5 ? 1896 : pkt.State == 6 ? 1897 : 1892), 'ok');
 			}
 			_pincodeAttempts++;
 			if (_pincodeAttempts < 3) {
