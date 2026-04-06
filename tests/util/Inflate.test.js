@@ -2,32 +2,32 @@ import { describe, it, expect } from 'vitest';
 import Inflate from 'Utils/Inflate.js';  
   
 describe('Inflate', () => {  
-    it('decompresses a stored (uncompressed) deflate block', () => {  
-        // zlib header (78 01) + stored block for "Hello" + Adler-32  
-        const compressed = new Uint8Array([  
-            0x78, 0x01,                                     // zlib header (CMF + FLG)  
-            0x01, 0x05, 0x00, 0xFA, 0xFF,                   // stored block: BFINAL=1, LEN=5, NLEN=~5  
-            0x48, 0x65, 0x6C, 0x6C, 0x6F,                   // "Hello"  
-            0x05, 0x8D, 0x01, 0xF5                           // Adler-32 of "Hello"  
-        ]);  
-        const inflater = new Inflate(compressed);  
-        const output = inflater.getBytes();  
-        const str = String.fromCharCode(...output);  
-        expect(str).toBe('Hello');  
-    });  
+it('decompresses a stored (uncompressed) deflate block', () => {  
+    const compressed = new Uint8Array([  
+        0x78, 0x01,  
+        0x01, 0x05, 0x00, 0xFA, 0xFF,  
+        0x48, 0x65, 0x6C, 0x6C, 0x6F,  
+        0x05, 0x8D, 0x01, 0xF5  
+    ]);  
+    const inflater = new Inflate(compressed);  
+    const output = new Uint8Array(256);  
+    const len = inflater.getBytes(output);  
+    const str = String.fromCharCode(...output.slice(0, len));  
+    expect(str).toBe('Hello');  
+});  
   
-    it('decompresses fixed Huffman block', () => {  
-        // zlib header + fixed Huffman encoded "Hello" + Adler-32  
-        const compressed = new Uint8Array([  
-            0x78, 0x01,                                     // zlib header  
-            0xF2, 0x48, 0xCD, 0xC9, 0xC9, 0x07, 0x00,      // fixed Huffman "Hello"  
-            0x05, 0x8D, 0x01, 0xF5                           // Adler-32  
-        ]);  
-        const inflater = new Inflate(compressed);  
-        const output = inflater.getBytes();  
-        const str = String.fromCharCode(...output);  
-        expect(str).toBe('Hello');  
-    });  
+it('decompresses fixed Huffman block', () => {  
+    const compressed = new Uint8Array([  
+        0x78, 0x01,  
+        0xF2, 0x48, 0xCD, 0xC9, 0xC9, 0x07, 0x00,  
+        0x05, 0x8D, 0x01, 0xF5  
+    ]);  
+    const inflater = new Inflate(compressed);  
+    const output = new Uint8Array(256);  
+    const len = inflater.getBytes(output);  
+    const str = String.fromCharCode(...output.slice(0, len));  
+    expect(str).toBe('Hello');  
+});
   
     it('rejects invalid compression method', () => {  
         const bad = new Uint8Array([0x01, 0x00]);  
