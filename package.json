@@ -24,7 +24,7 @@
 		"lint": "eslint src/**/*.js",
 		"lint:fix": "eslint src/**/*.js --fix",
 		"lint:check": "eslint src/**/*.js --max-warnings 0",
-		"dev": "vite",
+		"dev": "vite --open applications/browser-examples/demo.html",
 		"build:vite": "vite build",
 		"preview": "vite preview",
 		"format": "prettier --write \"src/**/*.js\"",
