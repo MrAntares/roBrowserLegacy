@@ -128,9 +128,9 @@ describe('CodepageManager', () => {
     describe('encode and decode', () => {  
         it('roundtrip ASCII with windows-1252', () => {  
             TextEncoding.setCharset('windows-1252');  
-            const encoded = TextEncoding.encode('Hello World');  
+            const encoded = TextEncoding.encode('Olá Mundo');  
             const decoded = TextEncoding.decode(encoded);  
-            expect(decoded).toBe('Hello World');  
+            expect(decoded).toBe('Olá Mundo');  
         });  
   
         it('roundtrip Korean text with windows-949', () => {  
