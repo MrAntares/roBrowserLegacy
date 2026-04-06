@@ -68,5 +68,8 @@
 		"frame": true,
 		"icon": "icon.png"
 	},
-	"main": "applications/nwjs/index.html"
+	"main": "applications/nwjs/index.html",
+	"dependencies": {
+		"lodash-es": "^4.18.1"
+	}
 }
