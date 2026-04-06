@@ -17,18 +17,13 @@ it('decompresses a stored (uncompressed) deflate block', () => {
 });  
   
 it('decompresses fixed Huffman block', () => {  
-    const compressed = new Uint8Array([  
-        0x78, 0x01,  
-        0xF2, 0x48, 0xCD, 0xC9, 0xC9, 0x07, 0x00,  
-        0x05, 0x8D, 0x01, 0xF5  
-    ]);  
+    const compressed = new Uint8Array([0x78, 0x9c, 0xf3, 0x48, 0xcd, 0xc9, 0xc9, 0x07, 0x00, 0x05, 0x8c, 0x01, 0xf5]);  
     const inflater = new Inflate(compressed);  
     const output = new Uint8Array(256);  
     const len = inflater.getBytes(output);  
     const str = String.fromCharCode(...output.slice(0, len));  
     expect(str).toBe('Hello');  
 });
-  
     it('rejects invalid compression method', () => {  
         const bad = new Uint8Array([0x01, 0x00]);  
         expect(() => new Inflate(bad)).toThrow('Unknown compression method');  
