@@ -5,6 +5,8 @@ concurrency:
     cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 on:
+    push:  
+        branches: ['master']
     pull_request:
         branches: ['master']
 
