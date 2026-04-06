@@ -435,7 +435,7 @@ class DB {
 
 			// Skill - load skillid.lub to populate SKID, then load description
 			const onSkillEnd = onLoad();
-			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', (json) => {
+			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', json => {
 				if (json && typeof json === 'object') {
 					// Validate and merge entries into SKID
 					for (const k in json) {
