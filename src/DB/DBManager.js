@@ -434,8 +434,8 @@ class DB {
 			}
 
 			// Skill - load skillid.lub to populate SKID, then load description
-			const skillOnLoad = onLoad();
-			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', function (json) {
+			const onSkillEnd = onLoad();
+			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', (json) => {
 				if (json && typeof json === 'object') {
 					// Validate and merge entries into SKID
 					for (const k in json) {
@@ -451,31 +451,28 @@ class DB {
 				loadLuaTable(
 					[DB.LUA_PATH + 'skillinfoz/skillid.lub', DB.LUA_PATH + 'skillinfoz/skilldescript.lub'],
 					'SKILL_DESCRIPT',
-					function (_json) {
+					_json => {
 						SkillDescription = _json;
 					},
-					function () {
+					() => {
 						// Calls after skillids and descs been populated
-						loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, function () {
-							loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, function () {
+						loadSkillInfoList(DB.LUA_PATH + 'skillinfoz/skillinfolist.lub', null, () => {
+							loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, () => {
 								// Load ez2streffect, PACKETVER unknown when the while has been added, tied to default PACKETVER of rathena for 4th job
 								if (PACKETVER.value >= 20211103) {
 									const bsonOnLoad = onLoad();
-									loadBSONFile(
-										'data/contentdata/effectdata/ez2streffect.bson',
-										Ez2streffect,
-										function () {
-											Promise.all([
-												import('DB/Effects/EffectTable.js'),
-												import('DB/Skills/SkillEffect.js')
-											]).then(([EffectTable, SkillEffect]) => {
-												mergeEz2Effects(EffectTable.default, SkillEffect.default);
-												bsonOnLoad();
-											});
-										}
-									);
+									loadBSONFile('data/contentdata/effectdata/ez2streffect.bson', Ez2streffect, () => {
+										Promise.all([
+											import('DB/Effects/EffectTable.js'),
+											import('DB/Skills/SkillEffect.js')
+										]).then(([EffectTable, SkillEffect]) => {
+											mergeEz2Effects(EffectTable.default, SkillEffect.default);
+											bsonOnLoad();
+										});
+									});
 								}
-								skillOnLoad(); // Skill Lua finished
+								// Skill Lua finished
+								onSkillEnd();
 							});
 						});
 					}
@@ -581,8 +578,11 @@ class DB {
 			}
 
 			// EntitySignBoard
-			loadSignBoardData('System/Sign_Data.lub', null, onLoad()); // this is not official, its a translation file
-			loadSignBoardList(DB.LUA_PATH + 'SignBoardList.lub', null, onLoad());
+			const onSignBoardEnd = onLoad();
+			loadSignBoardList(DB.LUA_PATH + 'SignBoardList.lub', null, () => {
+				// this is not official, its a translation file
+				loadSignBoardData('SystemEN/Sign_Data.lub', null, onSignBoardEnd);
+			});
 
 			// CheckAttendance
 			if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
@@ -590,7 +590,12 @@ class DB {
 			}
 
 			// Quest
-			tryLoadLuaAliases(loadQuestInfo, getSystemAliases('System/OngoingQuestInfoList.lub'), null, onLoad());
+			const onQuestEnd = onLoad();
+			tryLoadLuaAliases(loadQuestInfo, getSystemAliases('System/OngoingQuestInfoList.lub'), null, () => {
+				// this is not official, its a translation file
+				loadQuestInfo('SystemEN/OngoingQuests.lub', null, onQuestEnd);
+			});
+
 			// TODO: System/RecommendedQuests.lub
 
 			// WoldMap
@@ -600,7 +605,11 @@ class DB {
 			// TODO: System/achievements.lub
 
 			// Town Info
-			loadTownInfoFile('System/Towninfo.lub', null, onLoad());
+			const onTownInfoEnd = onLoad();
+			loadTownInfoFile('System/Towninfo.lub', null, () => {
+				// this is not official, its a translation file
+				loadTownInfoFile('SystemEN/Towninfo.lub', null, onTownInfoEnd);
+			});
 
 			// Cash Shop Banner - implemented early 2018
 			if (Configs.get('enableCashShop') && PACKETVER.value >= 20180000) {
@@ -4712,7 +4721,12 @@ function tryLoadLuaAliases(rFunc, files, callBack, onEnd, loadAll = false) {
 			return;
 		}
 
-		if (files[index].indexOf('System/') !== 0 && files[index].indexOf('System\\') !== 0) {
+		if (
+			files[index].indexOf('System/') !== 0 &&
+			files[index].indexOf('SystemEN/') !== 0 &&
+			files[index].indexOf('System\\') !== 0 &&
+			files[index].indexOf('SystemEN\\') !== 0
+		) {
 			files[index] = 'System/' + files[index];
 		}
 
