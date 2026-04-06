@@ -318,6 +318,10 @@ PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
 					PincodeWindow.selectInput(2);
 					PincodeWindow.clearPin();
 					PincodeWindow._resetstate = 3;
+					PincodeWindow.ui.find('.btn2.verify').prop('disabled', true);
+					PincodeWindow.ui.find('.btn2.ok').prop('disabled', false);
+					PincodeWindow.ui.find('.btn2.verify').hide();
+					PincodeWindow.ui.find('.btn2.ok').show();
 					advanceVisualSeed();
 				} else {
 					UIManager.showMessageBox(DB.getMessage(1887), 'ok');
@@ -331,6 +335,10 @@ PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
 		} else {
 			PincodeWindow.ui.find('.btn2.ok').prop('disabled', true);
 			PincodeWindow.ui.find('.btn2.ok').hide();
+			PincodeWindow.ui.find('.btn2.ok').off('click');
+			PincodeWindow.ui.find('.btn2.ok').click(function () {
+				PincodeWindow.onParentPincodeResetReq();
+			});
 			PincodeWindow.ui.find('.btn2.change').prop('disabled', true);
 			PincodeWindow.ui.find('.btn2.verify').prop('disabled', false);
 			PincodeWindow.ui.find('.btn2.verify').off('click');
@@ -374,6 +382,10 @@ PincodeWindow.userChangePin = function userChangePin() {
 			if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7) {
 				PincodeWindow.selectInput(2);
 				PincodeWindow._resetstate = 3;
+				PincodeWindow.ui.find('.btn2.verify').prop('disabled', true);
+				PincodeWindow.ui.find('.btn2.ok').prop('disabled', false);
+				PincodeWindow.ui.find('.btn2.verify').hide();
+				PincodeWindow.ui.find('.btn2.ok').show();
 				advanceVisualSeed();
 			} else {
 				UIManager.showMessageBox(DB.getMessage(1887), 'ok');
@@ -390,6 +402,10 @@ PincodeWindow.userChangePin = function userChangePin() {
 			} else {
 				PincodeWindow.ui.find('.btn2.ok').prop('disabled', true);
 				PincodeWindow.ui.find('.btn2.ok').hide();
+				PincodeWindow.ui.find('.btn2.ok').off('click');
+				PincodeWindow.ui.find('.btn2.ok').click(function () {
+					PincodeWindow.userChangePin();
+				});
 				PincodeWindow.ui.find('.btn2.change').prop('disabled', true);
 				PincodeWindow.ui.find('.btn2.verify').prop('disabled', false);
 				PincodeWindow.ui.find('.btn2.verify').off('click');
@@ -496,6 +512,8 @@ function success() {
 			PincodeWindow.onPincodeCheckRequest(passEnc);
 			break;
 	}
+
+	PincodeWindow.resetPins();
 }
 
 /**
@@ -507,6 +525,7 @@ function cancel() {
 		'ok',
 		'cancel',
 		function () {
+			PincodeWindow.resetPins();
 			PincodeWindow.onExitRequest();
 		},
 		null
@@ -560,22 +579,21 @@ PincodeWindow.onUserPincodeResetReq = function onUserPincodeResetReq() {
 };
 
 function render(tick) {
-	const num = (
-		PincodeWindow.sel_input === 1
-			? PincodeWindow._newpass
-			: PincodeWindow.sel_input === 2
-				? PincodeWindow._checkpass
-				: PincodeWindow._pass
-	).length;
 	let str = '';
-
-	for (let x = 0; x < num; x++) {
+	for (let x = 0; x < PincodeWindow._newpass.length; x++) {
 		str += '*';
 	}
-
-	PincodeWindow.ui
-		.find(PincodeWindow.sel_input === 1 ? '.newpass' : PincodeWindow.sel_input === 2 ? '.checkpass' : '.pass')
-		.val(str);
+	PincodeWindow.ui.find('.newpass').val(str);
+	str = '';
+	for (let x = 0; x < PincodeWindow._checkpass.length; x++) {
+		str += '*';
+	}
+	PincodeWindow.ui.find('.checkpass').val(str);
+	str = '';
+	for (let x = 0; x < PincodeWindow._pass.length; x++) {
+		str += '*';
+	}
+	PincodeWindow.ui.find('.pass').val(str);
 }
 
 /**
