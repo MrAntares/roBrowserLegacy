@@ -5,8 +5,8 @@ describe('Queue', () => {
     it('executes callbacks in order', () => {  
         const order = [];  
         const q = new Queue();  
-        q.add(() => { order.push(1); this.next(); });  
-        q.add(() => { order.push(2); this.next(); });  
+        q.add(() => { order.push(1); q.next(); });  
+        q.add(() => { order.push(2); q.next(); });  
         q.add(() => { order.push(3); });  
         q.run();  
         expect(order).toEqual([1, 2, 3]);  
