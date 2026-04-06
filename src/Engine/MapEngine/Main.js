@@ -948,7 +948,7 @@ export default function MainEngine() {
 	Network.hookPacket(PACKET.ZC.NOTIFY_PLAYERMOVE, onPlayerMove);
 	Network.hookPacket(PACKET.ZC.PAR_CHANGE, onParameterChange);
 	Network.hookPacket(PACKET.ZC.LONGPAR_CHANGE, onParameterChange);
-	Network.hookPacket(PACKET.ZC.LONGPAR_CHANGE2, onParameterChange);
+	Network.hookPacket(PACKET.ZC.LONGLONGPAR_CHANGE, onParameterChange);
 	Network.hookPacket(PACKET.ZC.STATUS_CHANGE, onParameterChange);
 	Network.hookPacket(PACKET.ZC.NOTIFY_CARTITEM_COUNTINFO, onParameterChange);
 	Network.hookPacket(PACKET.ZC.COUPLESTATUS, onParameterChange);
