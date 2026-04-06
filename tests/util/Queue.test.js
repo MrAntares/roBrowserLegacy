@@ -5,9 +5,9 @@ describe('Queue', () => {
     it('executes callbacks in order', () => {  
         const order = [];  
         const q = new Queue();  
-        q.add(function () { order.push(1); this.next(); });  
-        q.add(function () { order.push(2); this.next(); });  
-        q.add(function () { order.push(3); });  
+        q.add(() => { order.push(1); this.next(); });  
+        q.add(() => { order.push(2); this.next(); });  
+        q.add(() => { order.push(3); });  
         q.run();  
         expect(order).toEqual([1, 2, 3]);  
     });  
@@ -15,8 +15,8 @@ describe('Queue', () => {
     it('stops when no next() is called', () => {  
         const order = [];  
         const q = new Queue();  
-        q.add(function () { order.push(1); /* no next */ });  
-        q.add(function () { order.push(2); });  
+        q.add(() => { order.push(1); /* no next */ });  
+        q.add(() => { order.push(2); });  
         q.run();  
         expect(order).toEqual([1]);  
     });  
