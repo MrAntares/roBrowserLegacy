@@ -186,34 +186,45 @@ describe('CodepageManager', () => {
   
     // ─── decode with charset parameter ───────────────────────  
   
-    describe('decode', () => {  
-        it('returns empty string for non-Uint8Array input', () => {  
-            expect(TextEncoding.decode('not a uint8array')).toBe('');  
-            expect(TextEncoding.decode(123)).toBe('');  
-        });  
-  
-        it('returns empty string for invalid charset', () => {  
-            const data = new Uint8Array([72, 101, 108, 108, 111]);  
-            expect(TextEncoding.decode(data, 'invalid-charset-xyz')).toBe('');  
-        });  
+describe('decode', () => {  
+    it('returns empty string for non-Uint8Array input', () => {  
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});  
+        expect(TextEncoding.decode('not a uint8array')).toBe('');  
+        expect(TextEncoding.decode(123)).toBe('');  
+        expect(spy).toHaveBeenCalledTimes(2);  
+        spy.mockRestore();  
     });  
+  
+    it('returns empty string for invalid charset', () => {  
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});  
+        const data = new Uint8Array([72, 101, 108, 108, 111]);  
+        expect(TextEncoding.decode(data, 'invalid-charset-xyz')).toBe('');  
+        expect(spy).toHaveBeenCalledTimes(1);  
+        spy.mockRestore();  
+    });  
+});  
   
     // ─── encode edge cases ───────────────────────────────────  
-  
-    describe('encode edge cases', () => {  
-        it('returns empty Uint8Array for non-string input', () => {  
-            const result = TextEncoding.encode(123);  
-            expect(result).toBeInstanceOf(Uint8Array);  
-            expect(result.length).toBe(0);  
-        });  
-  
-        it('returns empty Uint8Array for invalid charset', () => {  
-            const result = TextEncoding.encode('test', 'invalid-charset-xyz');  
-            expect(result).toBeInstanceOf(Uint8Array);  
-            expect(result.length).toBe(0);  
-        });  
+    
+describe('encode edge cases', () => {  
+    it('returns empty Uint8Array for non-string input', () => {  
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});  
+        const result = TextEncoding.encode(123);  
+        expect(result).toBeInstanceOf(Uint8Array);  
+        expect(result.length).toBe(0);  
+        expect(spy).toHaveBeenCalledTimes(1);  
+        spy.mockRestore();  
     });  
   
+    it('returns empty Uint8Array for invalid charset', () => {  
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});  
+        const result = TextEncoding.encode('test', 'invalid-charset-xyz');  
+        expect(result).toBeInstanceOf(Uint8Array);  
+        expect(result.length).toBe(0);  
+        expect(spy).toHaveBeenCalledTimes(1);  
+        spy.mockRestore();  
+    });  
+});
     // ─── smartDecode (via charset='utf-8') ───────────────────  
   
     describe('smartDecode (utf-8 fallback)', () => {  
