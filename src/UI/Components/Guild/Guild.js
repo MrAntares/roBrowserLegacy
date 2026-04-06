@@ -538,8 +538,9 @@ Guild.setMember = function setMember(member) {
 		member.entity.objecttype = Entity.TYPE_PC;
 		member.entity.files.shadow.spr = null;
 	}
-
 	member.entity.sex = member.Sex;
+	member.entity._job = member.Job;
+	member.entity._effectiveJob = member.Job;
 	member.entity.head = member.HeadType;
 	member.entity.headpalette = member.HeadPalette;
 
@@ -552,7 +553,7 @@ Guild.setMember = function setMember(member) {
  * @param {object} member
  */
 Guild.updateMemberStatus = function updateMemberStatus(member) {
-	let i, count, view;
+	let i, count;
 	let online = 0;
 
 	// Search for duplicate entry
@@ -567,7 +568,7 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 		return;
 	}
 
-	view = this.ui.find('.MemberView[data-index="' + i + '"]');
+	const view = this.ui.find('.MemberView[data-index="' + i + '"]');
 
 	_members[i].CurrentState = member.status;
 	view.toggleClass('online', _members[i].CurrentState);
@@ -683,11 +684,11 @@ Guild.setPositionsName = function setPositionsName(positions) {
  * Update guild positions view
  */
 Guild.updatePositionView = function updatePositionView() {
-	let i, count;
-	let view, rank, container;
+	let i;
+	let view, rank;
 
-	count = _positions.length;
-	container = this.ui.find('.content.positions tbody');
+	const count = _positions.length;
+	const container = this.ui.find('.content.positions tbody');
 	container.empty();
 
 	// Update UI
@@ -832,7 +833,6 @@ Guild.removeSkill = function removeSkill() {
  */
 Guild.updateSkill = function updateSkill(skill) {
 	const target = getSkillById(skill.SKID);
-	let element;
 
 	if (!target) {
 		return;
@@ -848,7 +848,7 @@ Guild.updateSkill = function updateSkill(skill) {
 	}
 
 	// Update UI
-	element = this.ui.find('.skill.id' + skill.SKID + ':first');
+	const element = this.ui.find('.skill.id' + skill.SKID + ':first');
 	element.find('.level .current, .level .max').text(skill.level);
 	if (skill.selectedLevel) {
 		element.find('.level .current').text(skill.selectedLevel);
@@ -907,7 +907,6 @@ Guild.useSkill = function useSkill(skill, level) {
  * @param {number} skill points count
  */
 Guild.setPoints = function SetPoints(amount) {
-	let i, count;
 	this.ui.find('.skpoints_count').text(amount);
 
 	// Do not need to update the UI
@@ -917,9 +916,9 @@ Guild.setPoints = function SetPoints(amount) {
 	}
 
 	_skpoints = amount;
-	count = _skills.length;
+	const count = _skills.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (_skills[i].upgradable && amount) {
 			this.ui.find('.skill.id' + _skills[i].SKID + ' .levelup').show();
 		} else {
@@ -942,10 +941,9 @@ Guild.onLevelUp = function onLevelUp() {
  * @returns {Skill}
  */
 function getSkillById(id) {
-	let i,
-		count = _skills.length;
+	const count = _skills.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (_skills[i].SKID === id) {
 			return _skills[i];
 		}
@@ -980,13 +978,11 @@ function onRequestUseSkill() {
  */
 function onRequestSkillInfo() {
 	let main = jQuery(this).parent();
-	let skill;
-
 	if (!main.hasClass('skill')) {
 		main = main.parent();
 	}
 
-	skill = getSkillById(parseInt(main.data('index'), 10));
+	const skill = getSkillById(parseInt(main.data('index'), 10));
 
 	// Don't add the same UI twice, remove it
 	if (SkillDescription.uid === skill.SKID) {
@@ -1087,9 +1083,9 @@ Guild.setNotice = function setNotice(subject, notice) {
  */
 Guild.setExpelList = function setExpelList(list) {
 	let i, count;
-	let container, element;
+	let element;
 
-	container = this.ui.find('.content.history tbody');
+	const container = this.ui.find('.content.history tbody');
 	container.empty();
 
 	for (i = 0, count = list.length; i < count; ++i) {
@@ -1190,16 +1186,16 @@ function renderTendency(honor, virtue) {
 const renderMemberFaces = (function renderMemberFacesClosure() {
 	let lastTick = 0;
 
-	return function renderMemberFaces(tick) {
+	return function renderMemberFace(tick) {
 		if (tick < lastTick + 1000) {
 			return;
 		}
 
-		let canvas, ctx;
+		let ctx;
 		let i, count;
 
 		lastTick = tick;
-		canvas = Guild.ui.find('.content.members canvas');
+		const canvas = Guild.ui.find('.content.members canvas');
 		Camera.direction = 4;
 
 		for (i = 0, count = _members.length; i < count; ++i) {
@@ -1225,7 +1221,7 @@ function onValidate() {
 	activeTab = activeTab.replace(/content/g, '').replace(/^\s+|\s+$/gm, '');
 
 	switch (activeTab) {
-		case 'members':
+		case 'members': {
 			const list = [];
 
 			_members.forEach(member => {
@@ -1238,14 +1234,14 @@ function onValidate() {
 
 			Guild.onChangeMemberPosRequest(list);
 			break;
-
-		case 'positions':
+		}
+		case 'positions': {
 			let i, count;
-			let position, positions;
+			let position;
 			let right, posName, payRate;
 			const positionList = [];
 
-			positions = Guild.ui.find('.PositionView');
+			const positions = Guild.ui.find('.PositionView');
 
 			for (i = 0, count = _positions.length; i < count; ++i) {
 				position = positions.eq(i);
@@ -1279,13 +1275,14 @@ function onValidate() {
 
 			Guild.onPositionUpdateRequest(positionList);
 			break;
-
-		case 'notice':
+		}
+		case 'notice': {
 			const subject = Guild.ui.find('.content.notice input').val();
 			const content = Guild.ui.find('.content.notice textarea').val();
 
 			Guild.onNoticeUpdateRequest(subject, content);
 			break;
+		}
 	}
 
 	Guild.ui.find('.footer .btn_ok').hide();
