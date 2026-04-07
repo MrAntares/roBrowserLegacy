@@ -150,6 +150,8 @@ function buildMinimalRSM() {
     view.setInt32(off, 0, true); off += 4;
 
     // posKeyframes: count=0 (read by RSM.load() because v1.4 < 1.6)
+    // NOTE: v<1.6 posKeyframes use { data: readFloat() } while v>=2.2 use { Data: readLong() }
+    // — this casing/type inconsistency is a pre-existing issue in src/Loaders/Model.js:822 vs :184
     view.setInt32(off, 0, true); off += 4;
 
     // Volumebox count
