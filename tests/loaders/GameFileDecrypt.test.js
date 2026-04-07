@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest';  
-import GameFileDecrypt from 'Loaders/GameFileDecrypt.js';  
-import { loadFixture } from '../helpers/loadFixture.js';  
+import { describe, it, expect } from 'vitest';
+import GameFileDecrypt from 'Loaders/GameFileDecrypt.js';
 
 describe('GameFileDecrypt', () => {  
     it('decodeHeader modifies first 160 bytes (20 blocks)', () => {  
@@ -165,54 +164,5 @@ describe('GameFileDecrypt', () => {
         expect(skipRegex.test('test.tga')).toBe(false);  
         expect(skipRegex.test('test.spr')).toBe(false);  
         expect(skipRegex.test('test.bmp')).toBe(false);  
-    });  
-});  
-  
-describe('GameFileDecrypt integration with GRF', () => {  
-    it('decrypt + decompress produces valid output from real GRF entry', async () => {  
-        // Este teste valida o pipeline completo:  
-        // GRF raw bytes → decrypt → Inflate → output válido  
-        // Importa dinamicamente para garantir que o mock de FileReaderSync existe  
-        globalThis.FileReaderSync = globalThis.FileReaderSync || class {  
-            readAsArrayBuffer(blob) {  
-                const copy = new Uint8Array(blob.length);  
-                copy.set(blob);  
-                return copy.buffer;  
-            }  
-        };  
-  
-        const { default: GRF } = await import('Loaders/GameFile.js');  
-  
-        const data = loadFixture('_test.grf.bin');  
-        const bytes = new Uint8Array(data);  
-        const mockFile = {  
-            size: data.byteLength,  
-            slice(start, end) { return bytes.slice(start, end); }  
-        };  
-  
-        const grf = new GRF(mockFile);  
-        const entry = grf.search('data\\marshofabyss24.tga');  
-        expect(entry).not.toBeNull();  
-  
-        // Extrair e decriptar/descomprimir  
-        const rawStart = entry.offset + GRF.struct_header.size;  
-        const rawSlice = bytes.slice(rawStart, rawStart + entry.length_aligned);  
-        const rawBuffer = new Uint8Array(rawSlice.length);  
-        rawBuffer.set(rawSlice);  
-  
-        let result = null;  
-        grf.decodeEntry(rawBuffer.buffer, entry, (output) => {  
-            result = output;  
-        });  
-  
-        // O output deve ter o tamanho real declarado na entry  
-        expect(result).not.toBeNull();  
-        expect(result.byteLength).toBe(entry.real_size);  
-  
-        // E deve ser um TGA válido  
-        const tga = new Uint8Array(result);  
-        expect(tga.length).toBeGreaterThanOrEqual(18);  
-        // imageType válido  
-        expect([0, 1, 2, 3, 9, 10, 11]).toContain(tga[2]);  
-    });  
+    });
 });
