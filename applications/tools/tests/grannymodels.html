@@ -6,6 +6,14 @@
   <title>roBrowser — Granny Model (.gr2) Tester</title>
 </head>
 <body>
+  <script src="../../../shared/importmap.js"></script>
+  <script>
+    const projectRoot = new URL(window.location.href).pathname.split('/applications/')[0] + '/';
+    const s = document.createElement('script');
+    s.type = 'importmap';
+    s.textContent = JSON.stringify(createROImportMap(projectRoot));
+    document.currentScript.after(s);
+  </script>
   <script type="module">
     window.ROConfig = { servers: [{ packetver: 0 }], packetver: 0 };
 

@@ -409,36 +409,26 @@
 				var url = new URL(this.baseUrl);
 				var path = url.pathname;
 				var projectRoot = path.split('/applications/')[0] + '/';
-
+				
 				if (!document.querySelector('script[type="importmap"]')) {
-					var importMap = {
-						imports: {
-							jquery: projectRoot + 'src/Vendors/jquery-1.9.1.js',
-							'src/': projectRoot + 'src/',
-							'App/': projectRoot + 'src/App/',
-							'Audio/': projectRoot + 'src/Audio/',
-							'Controls/': projectRoot + 'src/Controls/',
-							'Core/': projectRoot + 'src/Core/',
-							'DB/': projectRoot + 'src/DB/',
-							'Engine/': projectRoot + 'src/Engine/',
-							'Loaders/': projectRoot + 'src/Loaders/',
-							'Network/': projectRoot + 'src/Network/',
-							'Plugins/': projectRoot + 'src/Plugins/',
-							'Preferences/': projectRoot + 'src/Preferences/',
-							'Renderer/': projectRoot + 'src/Renderer/',
-							'UI/': projectRoot + 'src/UI/',
-							'Utils/': projectRoot + 'src/Utils/',
-							'Vendors/': projectRoot + 'src/Vendors/'
+					var sharedScript = document.createElement('script');
+					sharedScript.src = projectRoot + 'applications/shared/importmap.js';
+					sharedScript.onload = function () {
+						var s1 = document.createElement('script');
+						s1.type = 'importmap';
+						s1.textContent = JSON.stringify(createROImportMap(projectRoot));
+						document.head.appendChild(s1);
+				
+						if (!document.querySelector('script[data-api="robrowser-main"]')) {
+							var s2 = document.createElement('script');
+							s2.type = 'module';
+							s2.dataset.api = 'robrowser-main';
+							s2.textContent = "import '" + projectRoot + "src/main.js';";
+							document.head.appendChild(s2);
 						}
 					};
-
-					var s1 = document.createElement('script');
-					s1.type = 'importmap';
-					s1.textContent = JSON.stringify(importMap);
-					document.head.appendChild(s1);
-				}
-
-				if (!document.querySelector('script[data-api="robrowser-main"]')) {
+					document.head.appendChild(sharedScript);
+				} else if (!document.querySelector('script[data-api="robrowser-main"]')) {
 					var s2 = document.createElement('script');
 					s2.type = 'module';
 					s2.dataset.api = 'robrowser-main';
