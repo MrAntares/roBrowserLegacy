@@ -444,7 +444,15 @@
 				}
 
 				if (this.onReady) {
-					setTimeout(this.onReady.bind(this), 500);
+					var self = this;
+					window.addEventListener(
+						'robrowser-ready',
+						function onAppReady() {
+							window.removeEventListener('robrowser-ready', onAppReady, false);
+							self.onReady();
+						},
+						false
+					);
 				}
 
 				this._APP = window;
