@@ -89,7 +89,10 @@ class AttachmentManager {
 			const lastSlash = strNormalized.lastIndexOf('/');
 			let strTexturePath = lastSlash >= 0 ? strNormalized.substring(0, lastSlash + 1) : '';
 
-			// FIXME: https://github.com/MrAntares/roBrowserLegacy/issues/856
+			// STRLayer (Str.js) always prepends "data\texture\effect\" to texture paths because  
+			// other game effects (spamSTR, enchant, etc.) pass a relative texturePath and rely on  
+			// that prefix. Since hat effect strFile needs the full path for Client.loadFile, the  
+			// extracted strTexturePath ends up including the prefix — strip it to avoid duplication.  
 			strTexturePath = strTexturePath.replace(/^data\/texture\/effect\//, '');
 
 			const strEffect = new StrEffect(attachment.strFile, this.entity.position, Renderer.tick, strTexturePath);
