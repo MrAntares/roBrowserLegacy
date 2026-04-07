@@ -49,7 +49,7 @@ npm test          # Vitest — runs all tests in tests/**/*.test.js
   
 ```  
 tests/  
-├── db/           # DB constants (9 test files)  
+├── db/           # DB constants
 │   ├── Emotions.test.js  
 │   ├── EmotionsConst.test.js  
 │   ├── EquipmentLocation.test.js  
@@ -59,11 +59,11 @@ tests/
 │   ├── StatusConst.test.js  
 │   ├── TownInfo.test.js  
 │   └── WeaponType.test.js  
-├── loaders/      # Binary parsers (2 test files)  
+├── loaders/      # Binary parsers 
 │   ├── Altitude.test.js
 │   ├── GameFileDecrypt.test.js
 │   └── Targa.test.js
-└── util/         # Utilities (15 test files)  
+└── util/         # Utilities 
     ├── Base62.test.js  
     ├── BinaryReader.test.js  
     ├── BinaryWriter.test.js  
