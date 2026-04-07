@@ -27,14 +27,8 @@
 
 		<link rel="apple-touch-icon" href="./icon.png" />
 
-		<script src="../shared/importmap.js"></script>  
-		<script>
-			const projectRoot = new URL(window.location.href).pathname.split('/applications/')[0] + '/';
-			const s = document.createElement('script');
-			s.type = 'importmap';
-			s.textContent = JSON.stringify(createROImportMap(projectRoot)); 
-			document.currentScript.after(s);
-		</script>
+		<script src="../shared/importmap.js"></script>
+
 		<script type="module">
 			addEventListener(
 				'message',

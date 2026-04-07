@@ -409,16 +409,12 @@
 				var url = new URL(this.baseUrl);
 				var path = url.pathname;
 				var projectRoot = path.split('/applications/')[0] + '/';
-				
+
 				if (!document.querySelector('script[type="importmap"]')) {
 					var sharedScript = document.createElement('script');
 					sharedScript.src = projectRoot + 'applications/shared/importmap.js';
+					sharedScript.dataset.projectRoot = projectRoot;
 					sharedScript.onload = function () {
-						var s1 = document.createElement('script');
-						s1.type = 'importmap';
-						s1.textContent = JSON.stringify(createROImportMap(projectRoot));
-						document.head.appendChild(s1);
-				
 						if (!document.querySelector('script[data-api="robrowser-main"]')) {
 							var s2 = document.createElement('script');
 							s2.type = 'module';
@@ -426,6 +422,9 @@
 							s2.textContent = "import '" + projectRoot + "src/main.js';";
 							document.head.appendChild(s2);
 						}
+					};
+					sharedScript.onerror = function () {
+						console.error('Failed to load roBrowser import map from: ' + sharedScript.src);
 					};
 					document.head.appendChild(sharedScript);
 				} else if (!document.querySelector('script[data-api="robrowser-main"]')) {
@@ -435,6 +434,7 @@
 					s2.textContent = "import '" + projectRoot + "src/main.js';";
 					document.head.appendChild(s2);
 				}
+
 
 				var self = this;
 				window.addEventListener(
