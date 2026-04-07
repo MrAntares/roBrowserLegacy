@@ -163,11 +163,13 @@ class MapRenderer {
 		EffectManager.free(gl);
 
 		// Basic TP
-		Background.remove(function () {
+		Mouse.intersect = false;
+		Background.remove(() => {
 			MapRenderer.onLoad();
 			Sky.setUpCloudData();
 
 			Renderer.render(MapRenderer.onRender);
+			Mouse.intersect = true;
 		});
 	}
 
@@ -481,9 +483,8 @@ function onMapComplete(success, error) {
 	JoystickUI.onRestore();
 
 	// Starting to render
-	Background.remove(function () {
+	Background.remove(() => {
 		MapRenderer.loading = false;
-		Mouse.intersect = true;
 
 		MapRenderer.onLoad();
 		Sky.setUpCloudData();
@@ -492,6 +493,7 @@ function onMapComplete(success, error) {
 		// Display game
 		Renderer.show();
 		Renderer.render(MapRenderer.onRender);
+		Mouse.intersect = true;
 	});
 }
 
