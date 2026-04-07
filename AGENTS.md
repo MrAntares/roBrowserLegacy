@@ -13,7 +13,6 @@ roBrowserLegacy is a web-based Ragnarok Online client built with ES6 modules and
 - **17 Entity modules** in `src/Renderer/Entity/`
 - **28 MapEngine subsystems** in `src/Engine/MapEngine/`
 - **23 packet versions** supported (kRO 2003–2025) in `src/Network/Packets/`
-- **29 NPM scripts** for build, dev, lint, and formatting
 
 ## Architecture
 
@@ -24,10 +23,6 @@ All source files use ES6 `import`/`export`. Vite bundles them into optimized ES 
 ```javascript
 import { BinaryReader } from 'Utils/BinaryReader.js';
 import Configs from 'Core/Configs.js';
-
-export default function () {
-	// module code
-}
 ```
 
 - Base path: `src/` (directory structure mirrors module paths)
@@ -84,7 +79,16 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **PWA**: Progressive Web App with manifest and service worker support
 - **NW.js Desktop**: Direct TCP via NodeSocket, packaged executables for Windows x86/x64
 
-## Critical Files & Patterns
+## Key Architectural Decisions
+
+- **Entity system uses composition, not inheritance.** 17 mixin modules (`EntityWalk`, `EntityCast`, `EntityState`, `EntityRender`, etc.) are mixed into `Entity.js`. Do not refactor to class inheritance — the mixins are applied dynamically at runtime.
+- **Packet versioning is date-based.** PACKETVER is auto-detected from the kRO executable's PE timestamp. `PacketVersions.js` uses date-range switches. Changing detection logic in `PacketVerManager.js` can break compatibility with 23 packet versions.
+- **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files via `data-background` HTML attributes. `UIComponent.parseHTML()` loads them at runtime. CSS is structural/positional only.
+- **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). NW.js uses `NodeSocket.js` (direct TCP). Both implement the same interface for `NetworkManager`.
+- **jQuery is legacy but load-bearing.** Used for DOM manipulation, event handling, and `$.Deferred` (being replaced by native Promise). Don't add new jQuery usage; replace it when touching existing code.
+- **Vendors are frozen.** `src/Vendors/` is excluded from ESLint. Never modify vendored files.
+
+## Subsystem Reference
 
 ### Network Packet Handling
 
@@ -99,31 +103,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **SocketHelpers/**: WebSocket.js (browser), NodeSocket.js (NW.js desktop)
 - Pattern: Add handler in PacketRegister → define structure in PacketStructure → implement response in appropriate engine
 
-### Entity System (`src/Renderer/Entity/`)
-
-17 specialized modules:
-
-- **Entity.js**: Base entity state and GID tracking
-- **EntityRender.js**: Core rendering logic and sprite/model selection
-- **EntityAnimations.js**: Animation frame management and timing
-- **EntityWalk.js**: Movement interpolation and path rendering
-- **EntityCast.js**: Skill casting animations and effects
-- **EntityState.js**: Status effects (poison, stun, etc.) visualization
-- **EntityLife.js**: Health bars and life state indicators
-- **EntityAction.js**: Action state handling
-- **EntityAttachments.js**: Equipment/accessory visual attachments
-- **EntityAura.js**: Character aura effects
-- **EntityDialog.js**: Dialog display
-- **EntityDisplay.js**: Name/title display
-- **EntityDropEffect.js**: Item drop visual effects
-- **EntityEmblem.js**: Guild/party emblem rendering
-- **EntityRoom.js**: Chat room display
-- **EntitySound.js**: Entity sound effects
-- **EntityView.js**: View/appearance management
-
 ### Asset Loaders (`src/Loaders/`)
-
-12 modules:
 
 - **GameFileDecrypt.js**: Decrypt GRF files (DES/RC4)
 - **GameFile.js**: GRF file container parsing
@@ -181,37 +161,19 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
 ### Renderer Effects (`src/Renderer/Effects/`)
 
-31 effect JS files + 9 post-processing shaders:
-
-**Effects:**
-
 - **Weather**: CloudWeatherEffect, PokJukWeatherEffect, RainWeather, SakuraWeatherEffect, SnowWeather, Sky
 - **Auras/Spheres**: GroundAura, SwirlingAura, SpiritSphere, WarlockSphere, Level99Bubble, QuadHorn
 - **Ground**: GroundEffect, FlatColorTile, PropertyGround, LPEffect, SpiderWeb, Tiles
 - **Combat**: Damage, MagnumBreak, PoisonEffect, MagicTarget, MagicRing, LockOnTarget
 - **Visual**: StrEffect, RsmEffect, ThreeDEffect, TwoDEffect, Cylinder, Songs
 - **Screen**: PostProcess
-
-**Post-Processing Shaders** (`Effects/Shaders/`): Blind, Bloom, CAS, Cartoon, FXAA, GaussianBlur, Upsampling, VerticalFlip, Vibrance
-
-### Map Renderer (`src/Renderer/Map/`)
-
-- **Ground.js**: Ground mesh rendering
-- **Altitude.js**: Height map rendering
-- **Models.js**: Static 3D model rendering
-- **AnimatedModels.js**: Animated 3D model rendering
-- **Water.js**: Water surface rendering
-- **Effects.js**: Map-level effects
-- **GridSelector.js**: Tile selection overlay
-- **Sounds.js**: Map ambient sounds
+- **Post-Processing Shaders** (`Effects/Shaders/`): Blind, Bloom, CAS, Cartoon, FXAA, GaussianBlur, Upsampling, VerticalFlip, Vibrance
 
 ## Code Conventions
 
 ### Style Rules
 
 Formatting is handled by **Prettier** (defaults). ESLint extends `eslint:recommended` and `prettier`.
-
-ESLint enforces:
 
 - **Quotes**: Single quotes (`avoidEscape: true`)
 - **Semicolons**: Required
@@ -231,21 +193,11 @@ ESLint enforces:
 
 ### Modern Patterns (Preferred)
 
-When writing new code or modifying existing code, **use modern JavaScript features**:
+When writing new code or modifying existing code, **use modern JavaScript features**: arrow functions, template literals, `async`/`await`, ES6 classes, destructuring, spread/rest, native `Promise`, `for...of`, default parameters.
 
-- **Arrow functions** for callbacks and short functions
-- **Template literals** for string interpolation and multi-line strings
-- **`async`/`await`** for asynchronous operations (replace `jQuery.Deferred` and callback chains)
-- **ES6 classes** for constructors and prototype-based objects
-- **Destructuring** for extracting values from objects and arrays
-- **Spread/rest operators** where appropriate
-- **Native `Promise`** instead of `jQuery.Deferred`
-- **`for...of`** loops where appropriate
-- **Default parameters** instead of `|| fallback` patterns
+### Modernize on Touch
 
-### Legacy Patterns (Being Phased Out)
-
-The codebase still contains legacy patterns from the AMD era. When touching these files, **modernize them**:
+When touching files with legacy patterns, convert them:
 
 | Legacy Pattern                                           | Modern Replacement                                    |
 | -------------------------------------------------------- | ----------------------------------------------------- |
@@ -258,91 +210,33 @@ The codebase still contains legacy patterns from the AMD era. When touching thes
 | `var x = obj.x \|\| defaultVal;`                         | `const { x = defaultVal } = obj;` or default params   |
 | Global assignments (`_global.CONST = val`)               | Explicit ES6 imports in all consumers                 |
 
-### Global Browser APIs
+> **Arrow function `this` caveat:** Arrow functions capture `this` lexically. Verify `this` usage before converting jQuery event handlers or prototype methods. If a function relies on dynamic `this`, keep it as a regular function or convert the whole module to a class first.
 
-- **ROConfig**: Runtime configuration object
-- **$** / **jQuery**: jQuery global
-- **SEEK_CUR, SEEK_SET, SEEK_END**: Binary reader constants (legacy globals — prefer importing from `Utils/BinaryReader.js`)
-- **FileReaderSync, importScripts**: Web Worker APIs
-- **Buffer**: Node.js fallback via requireNode
+### Modernization Examples
 
-## Code Modernization
+The two most common non-obvious legacy patterns in this codebase:
 
-This section guides agents on how to modernize legacy code when working on files.
-
-### Converting Constructor Functions to Classes
-
-**Before:**
+**Object-literal singletons → static class:**
 
 ```javascript
-function UIComponent(name, htmlText, cssText) {
-	this.name = name;
-	this._htmlText = htmlText || null;
-	this._cssText = cssText || null;
-}
-
-UIComponent.prototype.open = function open() {
-	// ...
-};
-
-export default UIComponent;
-```
-
-**After:**
-
-```javascript
-class UIComponent {
-	constructor(name, htmlText = null, cssText = null) {
-		this.name = name;
-		this._htmlText = htmlText;
-		this._cssText = cssText;
-	}
-
-	open() {
-		// ...
-	}
-}
-
-export default UIComponent;
-```
-
-### Converting Object-Literal Singletons to Classes
-
-**Before:**
-
-```javascript
+// Before (found in FileManager, UIManager, NetworkManager, etc.)
 const FileManager = {};
-
 FileManager.remoteClient = '';
-FileManager.gameFiles = [];
-
-FileManager.load = function load(path) {
-	// ...
-};
-
+FileManager.load = function load(path) { /* ... */ };
 export default FileManager;
-```
 
-**After:**
-
-```javascript
+// After
 class FileManager {
-	static remoteClient = '';
-	static gameFiles = [];
-
-	static load(path) {
-		// ...
-	}
+    static remoteClient = '';
+    static load(path) { /* ... */ }
 }
-
 export default FileManager;
 ```
 
-### Converting jQuery.Deferred to async/await
-
-**Before:**
+**jQuery.Deferred → async/await:**
 
 ```javascript
+// Before (found in Network, Core, Engine modules)
 function loadFile(path) {
 	const deferred = new jQuery.Deferred();
 	doSomething(
@@ -356,194 +250,28 @@ function loadFile(path) {
 	);
 	return deferred.promise();
 }
+loadFile('test.txt').done(function (data) {
+	process(data);
+});
 
-// caller
-loadFile('test.txt')
-	.done(function (data) {
-		process(data);
-	})
-	.fail(function (err) {
-		handleError(err);
-	});
-```
-
-**After:**
-
-```javascript
+// After
 async function loadFile(path) {
 	return new Promise((resolve, reject) => {
 		doSomething(
 			path,
-			result => {
-				resolve(result);
-			},
-			error => {
-				reject(error);
-			}
+			result => resolve(result),
+			error => reject(error)
 		);
 	});
 }
-
-// caller
-try {
-	const data = await loadFile('test.txt');
-	process(data);
-} catch (err) {
-	handleError(err);
-}
+const data = await loadFile('test.txt');
 ```
 
-### Using Arrow Functions
+### Globals Still in Use
 
-**Before:**
-
-```javascript
-list.forEach(function (item) {
-	process(item);
-});
-
-events.on('click', function (event) {
-	return handler(event);
-});
-```
-
-**After:**
-
-```javascript
-list.forEach(item => {
-	process(item);
-});
-
-events.on('click', event => handler(event));
-```
-
-> **Note:** Be careful with `this` context. Arrow functions inherit `this` from the enclosing scope. If a function relies on dynamic `this` binding (e.g., jQuery event handlers using `this` to refer to the DOM element, or prototype methods), keep it as a regular function or convert the whole module to a class first.
-
-### Using Template Literals
-
-**Before:**
-
-```javascript
-var msg = 'Player ' + name + ' (Lv.' + level + ') joined the party';
-```
-
-**After:**
-
-```javascript
-const msg = `Player ${name} (Lv.${level}) joined the party`;
-```
-
-### Removing Global Assignments
-
-**Before:**
-
-```javascript
-export const SEEK_CUR = 1;
-export const SEEK_SET = 2;
-export const SEEK_END = 3;
-
-const _global = typeof self !== 'undefined' ? self : window;
-_global.SEEK_CUR = SEEK_CUR;
-_global.SEEK_SET = SEEK_SET;
-_global.SEEK_END = SEEK_END;
-```
-
-**After:**
-
-```javascript
-export const SEEK_CUR = 1;
-export const SEEK_SET = 2;
-export const SEEK_END = 3;
-
-// No global assignments — all consumers import directly:
-// import { SEEK_CUR, SEEK_SET, SEEK_END } from 'Utils/BinaryReader.js';
-```
-
-> **Note:** Only remove global assignments after verifying all consumers (including Web Workers) have been updated to use ES6 imports.
-
-## Build & Compilation
-
-### NPM Scripts
-
-```bash
-# Development
-npm run dev               # Vite dev server
-npm run live              # Vite dev server on browser-examples
-npm run pwa               # Vite dev server on PWA
-npm run tools             # Vite dev server on tools
-npm run nw                # Launch NW.js desktop app
-
-# Build (custom builder)
-npm run build             # Base build command
-npm run build:online      # Build Online.js (full client)
-npm run build:mapviewer   # Build MapViewer.js
-npm run build:grfviewer   # Build GrfViewer.js
-npm run build:modelviewer # Build ModelViewer.js
-npm run build:strviewer   # Build StrViewer.js
-npm run build:effectviewer # Build EffectViewer.js
-npm run build:threadhandler # Build ThreadEventHandler.js (web worker)
-npm run build:html        # Generate HTML only
-npm run build:ai          # Build AI scripts only
-npm run build:all         # Build all apps
-npm run build:all:minify  # Build all apps with Terser minification
-npm run build:pwa         # Build PWA (Online + Thread + manifest)
-npm run build:nw          # Build NW.js desktop (Windows x86/x64)
-npm run build:vite        # Vite production build
-
-# Quality
-npm run lint              # ESLint check
-npm run lint:fix          # ESLint auto-fix
-npm run lint:check        # ESLint strict (zero warnings)
-npm run format            # Prettier format
-npm run format:check      # Prettier check
-npm run ci                # lint + format:check
-
-# Preview
-npm run serve             # Vite preview server
-npm run preview           # Vite preview server
-```
-
-### Application Entry Points (`src/App/`)
-
-- **Online.js**: Full game client — depends on all engines, network, UI
-- **MapViewer.js**: Standalone map viewer
-- **ModelViewer.js**: 3D model viewer
-- **GrfViewer.js**: GRF archive browser
-- **StrViewer.js**: .str effect viewer
-- **EffectViewer.js**: Visual effect viewer
-- **GrannyModelViewer.js**: Granny format 3D model viewer
-
-`ThreadEventHandler.js` (in `src/Core/`) is built separately as a Web Worker.
-
-## Dependencies
-
-### Infrastructure Requirements
-
-- **wsProxy**: WebSocket proxy (server-side) translating TCP ↔ WebSocket
-- **Remote Client (PHP/JS)**: HTTP server extracting/serving GRF assets
-- **Game Server**: rAthena or Hercules compatible
-- **kRO Client Files**: GRF assets + executable for PACKETVER detection
-
-### Vendored Libraries (`src/Vendors/`)
-
-- **jquery-1.9.1.js** / **jquery.js**: DOM manipulation
-- **gl-matrix.js**: Matrix/vector math for WebGL
-- **html2canvas.js**: HTML-to-canvas rendering
-- **iconv-lite.js**: Character encoding conversion
-- **libgif.js**: GIF parsing
-- **wasmoon-lua5.1.js**: Lua 5.1 WASM runtime
-- **xmlparse.js**: XML parsing
-
-### Dev Dependencies (package.json)
-
-- **vite**: Build tool and dev server
-- **terser**: JS minification
-- **eslint** + **eslint-config-prettier**: Linting
-- **prettier**: Code formatting
-- **@rollup/plugin-alias**: Module path aliases
-- **bson**: Binary serialization (build tooling)
-- **lodash**: Utility functions (build tooling)
-- **nw** + **nwjs-builder-phoenix**: NW.js desktop builds
+- **ROConfig**: Runtime configuration object
+- **$** / **jQuery**: jQuery global (legacy, being phased out)
+- **SEEK_CUR, SEEK_SET, SEEK_END**: BinaryReader constants (prefer importing from `Utils/BinaryReader.js`)
 
 ## Config System
 
@@ -551,14 +279,30 @@ npm run preview           # Vite preview server
 - **Config.local.js**: Optional local overrides (not committed)
 - **ROConfig**: Merged configuration object loaded at runtime
 
-### Key Configuration Options
+Key options: `servers` (address/port/version), `packetDump` (packet logging), `skipIntro` (bypass intro), `remoteClient` (GRF asset server URL), `plugins`, `aura`, `autoLogin`.
 
-- **servers**: Array of server definitions (address, port, version)
-- **packetDump**: Enable packet logging for debugging
-- **skipIntro**: Bypass intro screen for testing
-- **remoteClient**: GRF asset server URL
-- **plugins**: Runtime plugin configuration
-- **aura, autoLogin**: Game-specific settings
+## Build & Development
+
+```bash
+npm run dev             # Vite dev server
+npm run build:online    # Build full client (Online.js)
+npm run build:all       # Build all 7 apps
+npm run build:pwa       # Build PWA (Online + Thread + manifest)
+npm run build:nw        # Build NW.js desktop (Windows x86/x64)
+npm run lint            # ESLint check
+npm run lint:fix        # ESLint auto-fix
+npm run format          # Prettier format
+npm run ci              # lint + format:check (CI pipeline)
+```
+
+Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is built separately via `npm run build:threadhandler`.
+
+### Infrastructure Requirements
+
+- **wsProxy**: WebSocket proxy (server-side) translating TCP ↔ WebSocket
+- **Remote Client (PHP/JS)**: HTTP server extracting/serving GRF assets
+- **Game Server**: rAthena or Hercules compatible
+- **kRO Client Files**: GRF assets + executable for PACKETVER detection
 
 ## Common Development Tasks
 
@@ -598,7 +342,6 @@ npm run preview           # Vite preview server
 - **Rendering issues**: Check WebGL capability (OpenGL ES 2.0 required), inspect Renderer.js context
 - **Build errors**: Clear `dist/`, verify entry point exists in `src/App/`
 - **Connection fails**: Check wsProxy configuration, firewall settings
-- **PACKETVER mismatch**: Verify executable date matches server version
 - **Module not found**: Check path aliases in vite.config.js and file extensions
 
 ## Important Gotchas
@@ -607,9 +350,6 @@ npm run preview           # Vite preview server
 - **GRF paths**: Case-sensitive on Linux; relative to Remote Client or local file list
 - **Texture limits**: WebGL has max texture dimensions; large sprite sheets can fail
 - **Path aliases**: Always use aliases (e.g., `'Utils/BinaryReader.js'`) instead of relative paths
-- **Modernize on touch**: When modifying a file, convert legacy patterns (constructor functions, jQuery.Deferred, string concatenation, etc.) to modern equivalents
-- **Arrow function `this` caveat**: Arrow functions capture `this` lexically — verify `this` usage before converting jQuery event handlers or prototype methods
-- **Vendors excluded from lint**: `src/Vendors/**` is ignored by ESLint — don't modify vendored code
 - **Global removal requires audit**: Before removing a global assignment (e.g., `SEEK_CUR`), verify all consumers including Web Workers have been updated to use ES6 imports
 
 ## Glossary
@@ -622,28 +362,35 @@ npm run preview           # Vite preview server
 - **Effect**: Visual effect (weather, auras, particles) managed by EffectManager
 - **kRO**: Korean Ragnarok Online — reference client for packet versions
 
-## Repository Structure
+## Debugging
 
-- `applications/`: HTML entry points, PWA config, NW.js wrapper, build tools
-    - `api/`: API endpoints for external integrations
-    - `browser-examples/`: Demo pages for different apps
-    - `nwjs/`: NW.js desktop application wrapper
-    - `pwa/`: Progressive Web App configuration
-    - `tools/`: Build scripts (builder-web.mjs) and utilities
-- `src/`: All source code
-    - `App/`: 7 application entry points
-    - `Audio/`: BGM and sound management (2 files)
-    - `Controls/`: Input handling (7 files)
-    - `Core/`: Core utilities and managers (13 files)
-    - `DB/`: Game data, metadata, and constants
-    - `Engine/`: Game logic — GameEngine, LoginEngine, CharEngine, MapEngine (28 subsystems), SessionStorage
-    - `Loaders/`: Asset parsers (12 files)
-    - `Network/`: Packet handling, 23 version files, socket helpers
-    - `Plugins/`: PluginManager
-    - `Preferences/`: User settings (7 modules)
-    - `Renderer/`: WebGL pipeline — Effects (40 modules), Entity (17 modules), Map (8 files)
-    - `UI/`: UIManager, 95 component directories
-    - `Utils/`: Utility functions (18 files)
-    - `Vendors/`: Third-party libraries (8 files)
-- `dist/`: Build output (generated, .gitignored)
-- `doc/`: Setup guides and documentation
+### Enabling Debug Output
+
+- Set `development: true` in ROConfig to enable console output
+- Set `enableConsole: true` for console without full dev mode
+- ConsoleManager (`src/Utils/ConsoleManager.js`) silences ALL console  
+  output in production — if you see no logs, check these flags first
+
+### Network Debugging
+
+- Set `packetDump: true` in ROConfig to log all packets
+- Compare hex dumps against PacketStructure.js definitions
+- Check PACKETVER detection: NetworkManager logs the detected version on connect
+
+### Common Bug Hotspots
+
+- **Entity state** (`src/Engine/MapEngine/Entity.js`): 5 TODOs — entity  
+  creation/removal edge cases, especially during map transitions
+- **Effect rendering** (`src/Renderer/Effects/`): 3 TODOs — damage display  
+  edge cases (Damage.js) and sky rendering (Sky.js)
+- **DB tables** (`src/DB/DBManager.js`): 12 TODOs — incomplete data mappings  
+  for newer kRO content
+- **Packet handling**: Version-specific edge cases where packet structure  
+  changed between kRO dates
+
+### Cross-Platform Gotchas
+
+- Browser: console may be silenced by ConsoleManager — check with F12 first
+- NW.js: errors may appear in the NW.js DevTools, not the terminal
+- GRF paths: case-sensitive on Linux, case-insensitive on Windows — bugs  
+  that only appear on Linux deployments

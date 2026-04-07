@@ -32,7 +32,7 @@ jobs:
         run: npm install  
   
       - name: Build project  
-        run: npm run build -- -O -H -T
+        run: npm run build -- -O -H
   
       - name: Create demo Config.local.js  
         run: |  

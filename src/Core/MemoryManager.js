@@ -19,7 +19,9 @@ import MemoryItem from 'Core/MemoryItem.js';
 const _memory = {};
 
 /**
- * Remove files from memory if not used until a period of time
+ * Remove files from memory if not used until a period of time.
+ * PHP servers: 30s is safe to avoid high memory usage on shared hosting.
+ * Node.js (RemoteClient-JS): 120-300s recommended, heap is usually abundant.
  * @var {number}
  */
 const _rememberTime = 30 * 1000; // 30s

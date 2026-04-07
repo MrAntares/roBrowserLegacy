@@ -29,6 +29,7 @@
 		"preview": "vite preview",
 		"format": "prettier --write \"src/**/*.js\"",
 		"format:check": "prettier --check \"src/**/*.js\"",
+		"test": "vitest run",
 		"ci": "npm run lint && npm run format:check"
 	},
 	"type": "module",
@@ -44,12 +45,14 @@
 		"eslint": "^10.1.0",
 		"eslint-config-prettier": "^10.1.8",
 		"globals": "^16.0.0",
+		"jsdom": "^29.0.1",
 		"lodash": "^4.17.23",
 		"nw": "^0.99.0-sdk",
 		"nwjs-builder-phoenix": "^1.15.0",
 		"prettier": "^3.8.1",
 		"terser": "^5.19.4",
-		"vite": "^8.0.1"
+		"vite": "^8.0.1",
+		"vitest": "^4.1.2"
 	},
 	"build": {
 		"nwVersion": "stable",
@@ -68,5 +71,8 @@
 		"frame": true,
 		"icon": "icon.png"
 	},
-	"main": "applications/nwjs/index.html"
+	"main": "applications/nwjs/index.html",
+	"dependencies": {
+		"lodash-es": "^4.18.1"
+	}
 }

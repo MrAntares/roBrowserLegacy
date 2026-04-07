@@ -41,9 +41,19 @@ const Plugins = {};
 Plugins.list = [];
 
 /**
+ * @var {boolean} track if plugins have been initialized
+ */
+let _initialized = false;
+
+/**
  * Initialize plugins
  */
 Plugins.init = function init(context) {
+	if (_initialized) {
+		return;
+	}
+	_initialized = true;
+
 	const paths = [];
 	const params = [];
 
@@ -71,20 +81,25 @@ Plugins.init = function init(context) {
 	const _count = paths.length;
 
 	// Dynamic plugin loading in ESM
-	paths.forEach((path, i) => {
-		import(/* @vite-ignore */ path)
+	paths.forEach((pluginPath, i) => {
+		// Ensure .js extension for native ES module resolution (Vite resolves it automatically)
+		let resolvedPath = pluginPath;
+		if (!resolvedPath.endsWith('.js') && !resolvedPath.endsWith('.mjs')) {
+			resolvedPath += '.js';
+		}
+		import(/* @vite-ignore */ resolvedPath)
 			.then(module => {
 				const plugin = module.default || module;
 				if (typeof plugin === 'function') {
 					if (plugin(params[i])) {
-						console.log('[PluginManager] Initialized plugin: ' + path);
+						console.log('[PluginManager] Initialized plugin: ' + pluginPath);
 					} else {
-						console.error('[PluginManager] Failed to intialize plugin: ' + path);
+						console.error('[PluginManager] Failed to intialize plugin: ' + pluginPath);
 					}
 				}
 			})
 			.catch(err => {
-				console.error('[PluginManager] Error loading plugin: ' + path, err);
+				console.error('[PluginManager] Error loading plugin: ' + pluginPath, err);
 			});
 	});
 };

@@ -5,6 +5,8 @@ concurrency:
     cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 on:
+    push:  
+        branches: ['master']
     pull_request:
         branches: ['master']
 
@@ -27,6 +29,9 @@ jobs:
 
             - name: Install dependencies
               run: npm install
+
+            - name: Run tests  
+              run: npm test  
 
             - name: Build project
               run: npm run build
