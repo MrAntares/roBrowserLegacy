@@ -413,6 +413,7 @@
 				if (!document.querySelector('script[type="importmap"]')) {
 					var importMap = {
 						imports: {
+							jquery: projectRoot + 'src/Vendors/jquery-1.9.1.js',
 							'src/': projectRoot + 'src/',
 							'App/': projectRoot + 'src/App/',
 							'Audio/': projectRoot + 'src/Audio/',
@@ -458,37 +459,6 @@
 				);
 
 				this._APP = window;
-				break;
-		}
-
-		// Get back application name
-		switch (this.config.application) {
-			case ROBrowser.APP.ONLINE:
-				this.config.application = 'Online';
-				break;
-
-			case ROBrowser.APP.MAPVIEWER:
-				this.config.application = 'MapViewer';
-				break;
-
-			case ROBrowser.APP.GRFVIEWER:
-				this.config.application = 'GrfViewer';
-				break;
-
-			case ROBrowser.APP.MODELVIEWER:
-				this.config.application = 'ModelViewer';
-				break;
-
-			case ROBrowser.APP.STRVIEWER:
-				this.config.application = 'StrViewer';
-				break;
-
-			case ROBrowser.APP.GRANNYMODELVIEWER:
-				this.config.application = 'GrannyModelViewer';
-				break;
-
-			case ROBrowser.APP.EFFECTVIEWER:
-				this.config.application = 'EffectViewer';
 				break;
 		}
 
