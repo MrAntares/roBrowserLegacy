@@ -827,6 +827,7 @@ function onRestartAnswer(pkt) {
 		Quest.getUI().clean();
 		PartyFriends.getUI().clean();
 		CashShop.clean();
+		Mouse.intersect = false;
 		MapRenderer.free();
 		Renderer.stop();
 		onRestart();
