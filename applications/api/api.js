@@ -435,7 +435,6 @@
 					document.head.appendChild(s2);
 				}
 
-
 				var self = this;
 				window.addEventListener(
 					'robrowser-ready',
