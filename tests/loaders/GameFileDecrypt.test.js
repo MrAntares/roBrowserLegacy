@@ -94,7 +94,7 @@ describe('GameFileDecrypt', () => {
         // entry_len=99 (2 digits) → cycle=3  
         // entry_len=999 (3 digits) → cycle=4  
         // entry_len=9999 (4 digits) → cycle=5  
-        // Diferentes cycles devem produzir resultados diferentes  
+        // Different cycles should produce different results  
         const makeData = () => {  
             const d = new Uint8Array(320); // 40 blocks  
             for (let i = 0; i < 320; i++) d[i] = (i * 3 + 5) % 256;  
@@ -106,8 +106,8 @@ describe('GameFileDecrypt', () => {
         GameFileDecrypt.decodeFull(d1, 320, 9);    // cycle=3  
         GameFileDecrypt.decodeFull(d2, 320, 999);  // cycle=4  
   
-        // Primeiros 160 bytes (20 blocks) são iguais (ambos decriptam todos)  
-        // Mas após block 20, o cycle diferente causa resultados diferentes  
+        // First 160 bytes (20 blocks) are identical (both decrypt all of them)  
+        // But after block 20, the different cycle causes divergent results  
         let diffAfter20 = false;  
         for (let i = 160; i < 320; i++) {  
             if (d1[i] !== d2[i]) { diffAfter20 = true; break; }  
@@ -154,8 +154,8 @@ describe('GameFileDecrypt', () => {
     });  
   
     it('SKIP_EXTENSIONS uses decodeHeader for .gat/.gnd/.act/.str', () => {  
-        // Verificar que o regex de SKIP_EXTENSIONS funciona  
-        // (testado indiretamente via decodeEntry no GameFile.test.js)  
+        // Verify that the SKIP_EXTENSIONS regex works  
+        // (tested indirectly via decodeEntry in GameFile.js)  
         const skipRegex = /\.(gnd|gat|act|str)$/i;  
         expect(skipRegex.test('test.gat')).toBe(true);  
         expect(skipRegex.test('test.GND')).toBe(true);  
