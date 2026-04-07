@@ -153,16 +153,31 @@ describe('GameFileDecrypt', () => {
         }  
     });  
   
-    it('SKIP_EXTENSIONS uses decodeHeader for .gat/.gnd/.act/.str', () => {  
-        // Verify that the SKIP_EXTENSIONS regex works  
-        // (tested indirectly via decodeEntry in GameFile.js)  
-        const skipRegex = /\.(gnd|gat|act|str)$/i;  
-        expect(skipRegex.test('test.gat')).toBe(true);  
-        expect(skipRegex.test('test.GND')).toBe(true);  
-        expect(skipRegex.test('test.act')).toBe(true);  
-        expect(skipRegex.test('test.str')).toBe(true);  
-        expect(skipRegex.test('test.tga')).toBe(false);  
-        expect(skipRegex.test('test.spr')).toBe(false);  
-        expect(skipRegex.test('test.bmp')).toBe(false);  
+    it('decodeHeader and decodeFull produce different results on same input', () => {
+        // This verifies the two decryption modes diverge, which is the basis
+        // for SKIP_EXTENSIONS in GameFile.js — .gat/.gnd/.act/.str files use
+        // decodeHeader only, while other files use decodeFull.
+        const makeData = () => {
+            const d = new Uint8Array(320); // 40 blocks
+            for (let i = 0; i < 320; i++) d[i] = (i * 11 + 7) % 256;
+            return d;
+        };
+
+        const headerOnly = makeData();
+        const full = makeData();
+        GameFileDecrypt.decodeHeader(headerOnly, 320);
+        GameFileDecrypt.decodeFull(full, 320, 100);
+
+        // First 160 bytes (20 blocks) should be identical — both decrypt them
+        for (let i = 0; i < 160; i++) {
+            expect(headerOnly[i]).toBe(full[i]);
+        }
+        // After block 20, decodeHeader leaves data untouched but decodeFull
+        // continues with cycle-based decryption — they must diverge
+        let differs = false;
+        for (let i = 160; i < 320; i++) {
+            if (headerOnly[i] !== full[i]) { differs = true; break; }
+        }
+        expect(differs).toBe(true);
     });
 });

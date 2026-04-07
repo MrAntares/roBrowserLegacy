@@ -19,7 +19,7 @@ function writeFixedString(view, offset, str, len) {
  *   Per action: animationCount(4)
  *     Per animation: 32 unknown bytes + layerCount(4)
  *       Per layer (v2.5): pos[2](8) + index(4) + is_mirror(4) + color[4](4) +
- *                          scaleX(4) + scaleY(4) + angle(4) + spr_type(4) + width(4) + height(4) = 48 bytes
+ *                          scaleX(4) + scaleY(4) + angle(4) + spr_type(4) + width(4) + height(4) = 44 bytes
  *       sound(4) + posCount(4) [+ per pos: 4+4+4+4 = 16]
  *   soundCount(4) + sounds(40 each)
  *   delays: float per action
