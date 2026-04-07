@@ -394,8 +394,10 @@
 						this.config.target.removeChild(this.config.target.firstChild);
 					}
 					var container = document.createElement('div');
-					container.style.width = typeof this.config.width === 'number' ? this.config.width + 'px' : this.config.width;
-					container.style.height = typeof this.config.height === 'number' ? this.config.height + 'px' : this.config.height;
+					container.style.width =
+						typeof this.config.width === 'number' ? this.config.width + 'px' : this.config.width;
+					container.style.height =
+						typeof this.config.height === 'number' ? this.config.height + 'px' : this.config.height;
 					container.style.position = 'relative';
 					this.config.target.appendChild(container);
 					// redefine target to the inner container
@@ -443,17 +445,17 @@
 					document.head.appendChild(s2);
 				}
 
-				if (this.onReady) {
-					var self = this;
-					window.addEventListener(
-						'robrowser-ready',
-						function onAppReady() {
-							window.removeEventListener('robrowser-ready', onAppReady, false);
+				var self = this;
+				window.addEventListener(
+					'robrowser-ready',
+					function onAppReady() {
+						window.removeEventListener('robrowser-ready', onAppReady, false);
+						if (self.onReady) {
 							self.onReady();
-						},
-						false
-					);
-				}
+						}
+					},
+					false
+				);
 
 				this._APP = window;
 				break;
