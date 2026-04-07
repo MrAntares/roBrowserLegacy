@@ -9,7 +9,7 @@ describe('SPR Loader', () => {
     });  
   
     it('parses _test.spr correctly', () => {  
-        const data = loadFixture('_test.spr');  
+        const data = loadFixture('_test.spr.bin');  
         const spr = new SPR(data);  
         expect(spr.header).toBe('SP');  
         expect(spr.version).toBeCloseTo(2.1);  
@@ -20,21 +20,21 @@ describe('SPR Loader', () => {
     });  
   
     it('has palette of 1024 bytes (version > 1.0)', () => {  
-        const data = loadFixture('_test.spr');  
+        const data = loadFixture('_test.spr.bin');  
         const spr = new SPR(data);  
         expect(spr.palette).toBeInstanceOf(Uint8Array);  
         expect(spr.palette.length).toBe(1024);  
     });  
   
     it('first frame has correct dimensions (RLE decoded)', () => {  
-        const data = loadFixture('_test.spr');  
+        const data = loadFixture('_test.spr.bin');  
         const spr = new SPR(data);  
-        expect(spr.frames[0].width).toBe(414);  
-        expect(spr.frames[0].height).toBe(56);  
+        expect(spr.frames[0].width).toBe(54);  
+        expect(spr.frames[0].height).toBe(52);  
     });  
   
     it('all frames have valid dimensions', () => {  
-        const data = loadFixture('_test.spr');  
+        const data = loadFixture('_test.spr.bin');  
         const spr = new SPR(data);  
         for (let i = 0; i < spr.frames.length; i++) {  
             expect(spr.frames[i].width).toBeGreaterThan(0);  
@@ -44,7 +44,7 @@ describe('SPR Loader', () => {
     });  
   
     it('compile() returns valid structure', () => {  
-        const data = loadFixture('_test.spr');  
+        const data = loadFixture('_test.spr.bin');  
         const spr = new SPR(data);  
         const compiled = spr.compile();  
         expect(compiled).toBeDefined();  

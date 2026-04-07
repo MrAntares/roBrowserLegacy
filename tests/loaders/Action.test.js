@@ -9,7 +9,7 @@ describe('ACT Loader', () => {
     });  
   
     it('parses _test.act (ork_warrior) correctly', () => {  
-        const data = loadFixture('_test.act');  
+        const data = loadFixture('_test.act.bin');  
         const act = new ACT(data);  
         expect(act.header).toBe('AC');  
         expect(act.version).toBeCloseTo(2.5);  
@@ -17,13 +17,13 @@ describe('ACT Loader', () => {
     });  
   
     it('reads sounds (version >= 2.1)', () => {  
-        const data = loadFixture('_test.act');  
+        const data = loadFixture('_test.act.bin');  
         const act = new ACT(data);  
         expect(act.sounds.length).toBe(8);  
     });  
   
     it('reads delays per action (version >= 2.2)', () => {  
-        const data = loadFixture('_test.act');  
+        const data = loadFixture('_test.act.bin');  
         const act = new ACT(data);  
         for (let i = 0; i < act.actions.length; i++) {  
             expect(act.actions[i].delay).toBeDefined();  
@@ -32,7 +32,7 @@ describe('ACT Loader', () => {
     });  
   
     it('has correct frame counts per action group', () => {  
-        const data = loadFixture('_test.act');  
+        const data = loadFixture('_test.act.bin');  
         const act = new ACT(data);  
         // Actions 0-7: 17 frames each  
         for (let i = 0; i < 8; i++) {  
@@ -57,7 +57,7 @@ describe('ACT Loader', () => {
     });  
   
     it('each animation has layers array', () => {  
-        const data = loadFixture('_test.act');  
+        const data = loadFixture('_test.act.bin');  
         const act = new ACT(data);  
         const firstAnim = act.actions[0].animations[0];  
         expect(Array.isArray(firstAnim.layers)).toBe(true);  
@@ -69,7 +69,7 @@ describe('ACT Loader', () => {
     });  
   
     it('compile() returns valid structure', () => {  
-        const data = loadFixture('_test.act');  
+        const data = loadFixture('_test.act.bin');  
         const act = new ACT(data);  
         const compiled = act.compile();  
         expect(compiled).toBeDefined();  

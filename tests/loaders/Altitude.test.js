@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';  
 import GAT from 'Loaders/Altitude.js';  
 import { loadFixture } from '../helpers/loadFixture.js';  
+
 function buildMinimalGat(width, height) {  
     // Header: "GRAT" (4) + version major (1) + version minor (1) + width (4) + height (4)  
     // Per cell: 4 floats (16) + 1 uint32 type (4) = 20 bytes  
@@ -45,7 +46,7 @@ describe('GAT Loader', () => {
 
 describe('GAT Loader with real fixture', () => {  
     it('parses _test.gat (ma_zif01) correctly', () => {  
-        const data = loadFixture('_test.gat');  
+        const data = loadFixture('_test.gat.bin');  
         const gat = new GAT(data);  
         expect(gat.version).toBeCloseTo(1.2);  
         expect(gat.width).toBe(60);  
@@ -54,7 +55,7 @@ describe('GAT Loader with real fixture', () => {
     });  
   
     it('cells contain valid height and type data', () => {  
-        const data = loadFixture('_test.gat');  
+        const data = loadFixture('_test.gat.bin');  
         const gat = new GAT(data);  
         // Check first cell has 5 values (4 heights + 1 type)  
         for (let i = 0; i < 5; i++) {  

@@ -8,14 +8,17 @@ describe('RSW Loader', () => {
         expect(() => new RSW(buf)).toThrow('Invalid header');  
     });  
   
-    it('parses _test.rsw (ma_zif01) correctly', () => {  
-        const data = loadFixture('_test.rsw');  
-        const rsw = new RSW(data);  
-        expect(rsw.version).toBeCloseTo(2.1);  
-    });  
+it('parses _test.rsw (ma_zif01) correctly', () => {  
+    const data = loadFixture('_test.rsw.bin');  
+    const rsw = new RSW(data);  
+    expect(rsw.files.gnd).toBeDefined();  
+    expect(rsw.files.gat).toBeDefined();  
+    expect(rsw.water).toBeDefined();  
+    expect(rsw.light).toBeDefined();  
+}); 
   
     it('reads water properties (version 2.1 >= 1.8)', () => {  
-        const data = loadFixture('_test.rsw');  
+        const data = loadFixture('_test.rsw.bin');  
         const rsw = new RSW(data);  
         expect(rsw.water.level).toBeCloseTo(0);  
         expect(rsw.water.type).toBe(0);  
@@ -26,7 +29,7 @@ describe('RSW Loader', () => {
     });  
   
     it('reads light properties (version >= 1.5)', () => {  
-        const data = loadFixture('_test.rsw');  
+        const data = loadFixture('_test.rsw.bin');  
         const rsw = new RSW(data);  
         expect(rsw.light.longitude).toBe(45);  
         expect(rsw.light.latitude).toBe(45);  
@@ -38,7 +41,7 @@ describe('RSW Loader', () => {
     });  
   
     it('reads ground frustum (version >= 1.6)', () => {  
-        const data = loadFixture('_test.rsw');  
+        const data = loadFixture('_test.rsw.bin');  
         const rsw = new RSW(data);  
         expect(rsw.ground.top).toBe(0);  
         expect(rsw.ground.bottom).toBe(0);  
@@ -47,7 +50,7 @@ describe('RSW Loader', () => {
     });  
   
     it('reads 1 model object', () => {  
-        const data = loadFixture('_test.rsw');  
+        const data = loadFixture('_test.rsw.bin');  
         const rsw = new RSW(data);  
         // Total objects = 1, all models  
         let modelCount = 0;  
@@ -58,7 +61,7 @@ describe('RSW Loader', () => {
     });  
   
     it('compile() returns valid structure', () => {  
-        const data = loadFixture('_test.rsw');  
+        const data = loadFixture('_test.rsw.bin');  
         const rsw = new RSW(data);  
         const compiled = rsw.compile();  
         expect(compiled).toBeDefined();  

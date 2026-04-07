@@ -6,6 +6,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
   
 export function loadFixture(filename) {  
     const filePath = resolve(__dirname, '../fixtures', filename);  
-    const buffer = readFileSync(filePath);  
-    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);  
-}
+    const nodeBuffer = readFileSync(filePath);  
+    // Cria Uint8Array no realm do jsdom para evitar cross-realm instanceof  
+    const uint8 = new Uint8Array(nodeBuffer.length);  
+    uint8.set(nodeBuffer);  
+    return uint8.buffer; // ArrayBuffer do realm jsdom  
+}  

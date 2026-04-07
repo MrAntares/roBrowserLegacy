@@ -9,7 +9,7 @@ describe('STR Loader', () => {
     });  
   
     it('parses _test.str (note_1) correctly', () => {  
-        const data = loadFixture('_test.str');  
+        const data = loadFixture('_test.str.bin');  
         const str = new STR(data);  
         expect(str.header).toBe('STRM');  
         expect(str.version).toBe(0x94); // 148  
@@ -19,13 +19,13 @@ describe('STR Loader', () => {
     });  
   
     it('has correct number of layers', () => {  
-        const data = loadFixture('_test.str');  
+        const data = loadFixture('_test.str.bin');  
         const str = new STR(data);  
         expect(str.layers.length).toBe(16);  
     });  
   
     it('layers have valid structure', () => {  
-        const data = loadFixture('_test.str');  
+        const data = loadFixture('_test.str.bin');  
         const str = new STR(data);  
         for (let i = 0; i < str.layers.length; i++) {  
             expect(str.layers[i]).toBeDefined();  
