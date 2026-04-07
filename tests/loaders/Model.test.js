@@ -24,9 +24,9 @@ function writeFixedStr(view, offset, str, len) {
  *     vertexCount(4) + vertices(12 each)
  *     tvertexCount(4) + tvertices(12 each, v>=1.2: 4 ubytes + 2 floats)
  *     faceCount(4) + faces(per face: 6 ushorts + 1 ushort + 1 ushort + 1 long + 1 long(v>=1.2) = 28)
- *     scaleKeyFrameCount(4, v>=1.6) + scaleKeyFrames
- *     rotKeyframeCount(4) + rotKeyframes(20 each)
- *   posKeyframes: [] (v>=1.6 → skip)
+ *     scaleKeyFrameCount(4, v>=1.6) + scaleKeyFrames — SKIPPED for v1.4
+ *     rotKeyframeCount(4) + rotKeyframes(20 each) — always read
+ *   posKeyframeCount(4, v<1.6) + posKeyframes(20 each) — read by RSM.load() for v1.4
  *   volumeboxCount(4) + volumeboxes
  */
 function buildMinimalRSM() {
@@ -56,12 +56,10 @@ function buildMinimalRSM() {
     size += 4 + vertCount * 12;          // vertices
     size += 4 + tvertCount * (4 + 8);    // tvertices (v>=1.2: 4 ubytes + 2 floats)
     size += 4 + faceCount * (6 * 2 + 2 + 2 + 4 + 4); // faces (v>=1.2 adds smoothGroup)
-    size += 4;                           // scaleKeyFrameCount (v>=1.6)
-    size += 4;                           // rotKeyframeCount
-
-    // posKeyframes: v>=1.6 skips (empty array)
-    // volumebox
-    size += 4; // volumeboxCount
+    // scaleKeyFrames: SKIPPED for v1.4 (only read when v>=1.6)
+    size += 4;                           // rotKeyframeCount (always read in Node constructor)
+    size += 4;                           // posKeyframeCount (read by RSM.load() when v<1.6)
+    size += 4;                           // volumeboxCount
 
     const buf = new ArrayBuffer(size);
     const view = new DataView(buf);
@@ -146,13 +144,13 @@ function buildMinimalRSM() {
         view.setInt32(off, 0, true); off += 4;    // smoothGroup (v>=1.2)
     }
 
-    // Scale keyframes (v>=1.6): count=0
+    // scaleKeyFrames: NOT written (v1.4 < 1.6, parser skips this field)
+
+    // Rotation keyframes: count=0 (always read in Node constructor)
     view.setInt32(off, 0, true); off += 4;
 
-    // Rotation keyframes: count=0
+    // posKeyframes: count=0 (read by RSM.load() because v1.4 < 1.6)
     view.setInt32(off, 0, true); off += 4;
-
-    // posKeyframes: v>=1.6 → skipped (empty)
 
     // Volumebox count
     view.setInt32(off, 0, true); off += 4;
