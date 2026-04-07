@@ -25,7 +25,8 @@
 	 */
 	ROBrowser.TYPE = {
 		POPUP: 1,
-		FRAME: 2
+		FRAME: 2,
+		INLINE: 3
 	};
 
 	/**
@@ -382,36 +383,82 @@
 
 				this._APP = frame.contentWindow;
 				break;
-		}
 
-		// Get back application name
-		switch (this.config.application) {
-			case ROBrowser.APP.ONLINE:
-				this.config.application = 'Online';
-				break;
+			// Append roBrowser inline locally
+			case ROBrowser.TYPE.INLINE:
+				this.config.width = this.config.width || '100%';
+				this.config.height = this.config.height || '100%';
 
-			case ROBrowser.APP.MAPVIEWER:
-				this.config.application = 'MapViewer';
-				break;
+				if (this.config.target) {
+					while (this.config.target.firstChild) {
+						this.config.target.removeChild(this.config.target.firstChild);
+					}
+					var container = document.createElement('div');
+					container.style.width =
+						typeof this.config.width === 'number' ? this.config.width + 'px' : this.config.width;
+					container.style.height =
+						typeof this.config.height === 'number' ? this.config.height + 'px' : this.config.height;
+					container.style.position = 'relative';
+					this.config.target.appendChild(container);
+					// redefine target to the inner container
+					this.config.target = container;
+				}
 
-			case ROBrowser.APP.GRFVIEWER:
-				this.config.application = 'GrfViewer';
-				break;
+				window.ROConfig = this.config;
 
-			case ROBrowser.APP.MODELVIEWER:
-				this.config.application = 'ModelViewer';
-				break;
+				var url = new URL(this.baseUrl);
+				var path = url.pathname;
+				var projectRoot = path.split('/applications/')[0] + '/';
 
-			case ROBrowser.APP.STRVIEWER:
-				this.config.application = 'StrViewer';
-				break;
+				if (!document.querySelector('script[type="importmap"]')) {
+					var importMap = {
+						imports: {
+							jquery: projectRoot + 'src/Vendors/jquery-1.9.1.js',
+							'src/': projectRoot + 'src/',
+							'App/': projectRoot + 'src/App/',
+							'Audio/': projectRoot + 'src/Audio/',
+							'Controls/': projectRoot + 'src/Controls/',
+							'Core/': projectRoot + 'src/Core/',
+							'DB/': projectRoot + 'src/DB/',
+							'Engine/': projectRoot + 'src/Engine/',
+							'Loaders/': projectRoot + 'src/Loaders/',
+							'Network/': projectRoot + 'src/Network/',
+							'Plugins/': projectRoot + 'src/Plugins/',
+							'Preferences/': projectRoot + 'src/Preferences/',
+							'Renderer/': projectRoot + 'src/Renderer/',
+							'UI/': projectRoot + 'src/UI/',
+							'Utils/': projectRoot + 'src/Utils/',
+							'Vendors/': projectRoot + 'src/Vendors/'
+						}
+					};
 
-			case ROBrowser.APP.GRANNYMODELVIEWER:
-				this.config.application = 'GrannyModelViewer';
-				break;
+					var s1 = document.createElement('script');
+					s1.type = 'importmap';
+					s1.textContent = JSON.stringify(importMap);
+					document.head.appendChild(s1);
+				}
 
-			case ROBrowser.APP.EFFECTVIEWER:
-				this.config.application = 'EffectViewer';
+				if (!document.querySelector('script[data-api="robrowser-main"]')) {
+					var s2 = document.createElement('script');
+					s2.type = 'module';
+					s2.dataset.api = 'robrowser-main';
+					s2.textContent = "import '" + projectRoot + "src/main.js';";
+					document.head.appendChild(s2);
+				}
+
+				var self = this;
+				window.addEventListener(
+					'robrowser-ready',
+					function onAppReady() {
+						window.removeEventListener('robrowser-ready', onAppReady, false);
+						if (self.onReady) {
+							self.onReady();
+						}
+					},
+					false
+				);
+
+				this._APP = window;
 				break;
 		}
 
@@ -429,8 +476,10 @@
 		}
 
 		// Start waiting for robrowser
-		this._Interval = setInterval(WaitForInitialization.bind(this), 100);
-		window.addEventListener('message', OnMessage, false);
+		if (this.config.type !== ROBrowser.TYPE.INLINE) {
+			this._Interval = setInterval(WaitForInitialization.bind(this), 100);
+			window.addEventListener('message', OnMessage, false);
+		}
 	};
 
 	/**

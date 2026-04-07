@@ -18,7 +18,7 @@ const APP = {
 /**
  * Launch the appropriate application based on config
  */
-function launch(config) {
+async function launch(config) {
 	const appId = parseInt(config.application, 10) || APP.ONLINE;
 
 	switch (appId) {
@@ -26,33 +26,35 @@ function launch(config) {
 			break;
 
 		case APP.MAPVIEWER:
-			import('App/MapViewer.js').then(mod => mod.default());
+			await import('App/MapViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.GRFVIEWER:
-			import('App/GrfViewer.js').then(mod => mod.default());
+			await import('App/GrfViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.MODELVIEWER:
-			import('App/ModelViewer.js').then(mod => mod.default());
+			await import('App/ModelViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.STRVIEWER:
-			import('App/StrViewer.js').then(mod => mod.default());
+			await import('App/StrViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.GRANNYMODELVIEWER:
-			import('App/GrannyModelViewer.js').then(mod => mod.default());
+			await import('App/GrannyModelViewer.js').then(mod => mod.default());
 			break;
 
 		case APP.EFFECTVIEWER:
-			import('App/EffectViewer.js').then(mod => mod.default());
+			await import('App/EffectViewer.js').then(mod => mod.default());
 			break;
 
 		default:
 			console.error('Unknown application ID:', appId);
 			break;
 	}
+
+	window.dispatchEvent(new Event('robrowser-ready'));
 }
 
 // Global initialization
