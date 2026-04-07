@@ -74,7 +74,13 @@ export default defineConfig({
 	},
 	test: {
 		environment: 'jsdom',
-		include: ['tests/**/*.test.js']
+		include: ['tests/**/*.test.js'],
+		coverage: {  
+			provider: 'v8',  
+			reporter: ['text', 'html'],  
+			include: ['src/**/*.js'],  
+			exclude: ['src/Vendors/**']  
+		}
 	},
 	build: {
 		outDir: 'dist/Web',
