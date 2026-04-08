@@ -20,7 +20,7 @@ class Error {
 	/**
 	 * Initialize Metaling
 	 */
-	init() {
+	static init() {
 		this.ui = jQuery(_htmlText);
 
 		// Add view to html
@@ -39,7 +39,7 @@ class Error {
 	 *
 	 * @param {Error} error
 	 */
-	addTrace(error) {
+	static addTrace(error) {
 		console.error(error);
 		let url = new URL('../../../', import.meta.url).href;
 		error = error.stack || error;
