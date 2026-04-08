@@ -73,7 +73,7 @@ See [CONTRIBUTING](./doc/CONTRIBUTING.md)
 
 All credits to the original owners/creators and the new ones.
 <a href="https://github.com/MrAntares/roBrowserLegacy/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=MrAntares/roBrowserLegacy" />
+<img src="https://contrib.rocks/image?repo=MrAntares/roBrowserLegacy" />
 </a>
 
 ## Contact
