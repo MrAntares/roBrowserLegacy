@@ -426,7 +426,7 @@ const SkillInfo = {};
 		SkillName: 'Teleport',
 		MaxLv: 2,
 		SpAmount: [10, 9],
-		bSeperateLv: false,
+		bSeperateLv: true,
 		AttackRange: [1, 1],
 		_NeedSkillList: [[SK.AL_RUWACH, 1]]
 	}),

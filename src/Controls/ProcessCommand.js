@@ -43,6 +43,7 @@ import SakuraWeatherEffect from 'Renderer/Effects/SakuraWeatherEffect.js';
 import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import Navigation from 'UI/Components/Navigation/Navigation.js';
 
 let aliases = {};
 
@@ -760,6 +761,25 @@ const CommandStore = {
 				Network.sendPacket(pkt);
 			}
 			return;
+		}
+	},
+	navi: {
+		description: 'Navigate to a map location. Usage: /navi mapname x y',
+		callback: function (text) {
+			const matches = text.match(/^navi\s+(\S+)\s+(\d+)\s+(\d+)/);
+			if (matches) {
+				Navigation.append();
+				Navigation.navigateTo({
+					startMap: MapRenderer.currentMap,
+					startX: Session.Entity.position[0] | 0,
+					startY: Session.Entity.position[1] | 0,
+					endMap: matches[1],
+					endX: parseInt(matches[2], 10),
+					endY: parseInt(matches[3], 10),
+					displayName: matches[1] + ' (' + matches[2] + ', ' + matches[3] + ')'
+				});
+				return;
+			}
 		}
 	},
 	commands: {

@@ -363,7 +363,8 @@ function intersectEntity(entity) {
 
 		case Entity.TYPE_HOM:
 		case Entity.TYPE_MERC:
-			target = SkillTargetSelection.TYPE.HOMUN;
+			// Some support skills come as FRIEND-targeted from server; allow homun/merc to satisfy both.
+			target = SkillTargetSelection.TYPE.HOMUN | SkillTargetSelection.TYPE.FRIEND;
 			break;
 
 		case Entity.TYPE_PC:

@@ -123,11 +123,22 @@ class Display {
 		this.guild_rank = '';
 		this.title_name = '';
 		this.emblem = null;
+		this.gifEmblem = null;
 		this.display = false;
 		this.canvas = document.createElement('canvas');
 		this.ctx = this.canvas.getContext('2d');
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.zIndex = 1;
+	}
+
+	/**
+	 * Set emblem image and optional animated canvas (GIF)
+	 * @param {Image} image - static emblem image
+	 * @param {Canvas|null} animatedCanvas - GIF spritesheet with metadata
+	 */
+	setEmblem(image, animatedCanvas) {
+		this.emblem = image;
+		this.gifEmblem = animatedCanvas || null;
 	}
 
 	/**
@@ -245,10 +256,10 @@ class Display {
 				style === this.STYLE.MOB ||
 				style === this.STYLE.NPC)
 		) {
-			if (this.emblem.isAnimated) {
-				const fw = this.emblem.frameWidth;
-				const fh = this.emblem.frameHeight;
-				ctx.drawImage(this.emblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
+			if (this.gifEmblem) {
+				const fw = this.gifEmblem.frameWidth;
+				const fh = this.gifEmblem.frameHeight;
+				ctx.drawImage(this.gifEmblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
 			} else {
 				ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
 			}
@@ -334,32 +345,33 @@ class Display {
 	 * Rendering GUI
 	 */
 	render(matrix) {
-		if (this.emblem && this.emblem.isAnimated) {
+		if (this.gifEmblem) {
 			const paddingTop = 5;
 			const now = Date.now();
 
-			const currentFrameIndex = this.emblem.currentFrame || 0;
-			const frameDelay = this.emblem.frameDelays ? this.emblem.frameDelays[currentFrameIndex] : 100;
+			const currentFrameIndex = this.gifEmblem.currentFrame || 0;
+			const frameDelay = this.gifEmblem.frameDelays ? this.gifEmblem.frameDelays[currentFrameIndex] : 100;
 
-			if (now - this.emblem.lastFrameChange >= frameDelay) {
-				this.emblem.lastFrameChange = now;
+			if (now - this.gifEmblem.lastFrameChange >= frameDelay) {
+				this.gifEmblem.lastFrameChange = now;
 
-				const fw = this.emblem.frameWidth;
-				const fh = this.emblem.frameHeight;
-				const fpr = this.emblem.framesPerRow || Math.floor(this.emblem.width / fw);
-				const total = this.emblem.frameCount || fpr * Math.floor(this.emblem.height / fh);
+				const fw = this.gifEmblem.frameWidth;
+				const fh = this.gifEmblem.frameHeight;
+				const fpr = this.gifEmblem.framesPerRow || Math.floor(this.gifEmblem.width / fw);
+				const total = this.gifEmblem.frameCount || fpr * Math.floor(this.gifEmblem.height / fh);
 
-				this.emblem.currentFrame = (this.emblem.currentFrame + 1) % total;
+				this.gifEmblem.currentFrame = (this.gifEmblem.currentFrame + 1) % total;
 
-				const col = this.emblem.currentFrame % fpr;
-				const row = Math.floor(this.emblem.currentFrame / fpr);
+				const col = this.gifEmblem.currentFrame % fpr;
+				const row = Math.floor(this.gifEmblem.currentFrame / fpr);
 
 				this.ctx.save();
 				this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 				this.ctx.clearRect(0, paddingTop * dpr, 24 * dpr, 24 * dpr);
 				this.ctx.restore();
 
-				this.ctx.drawImage(this.emblem, col * fw, row * fh, fw, fh, 0, paddingTop, 24, 24);
+				// updates gif image only when needed
+				this.ctx.drawImage(this.gifEmblem, col * fw, row * fh, fw, fh, 0, paddingTop, 24, 24);
 			}
 		}
 
