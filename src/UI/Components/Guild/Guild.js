@@ -18,7 +18,6 @@ import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import Renderer from 'Renderer/Renderer.js';
-import Preferences from 'Core/Preferences.js';
 import Client from 'Core/Client.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
@@ -242,11 +241,13 @@ Guild.init = function init() {
 
 	// Upload emblem
 	ui.find('.content.info .emblem_edit input').change(function () {
-		if (
-			this.files.length &&
-			((this.files[0].type === 'image/bmp' && this.files[0].size < 1783) ||
-				(this.files[0].type === 'image/gif' && this.files[0].size < 50000))
-		) {
+		const file = this.files[0];
+		if (!file) return;
+
+		const isBmp = /^image\/(bmp|x-bmp|x-ms-bmp|x-windows-bmp)$/.test(file.type) || /\.bmp$/i.test(file.name);
+		const isGif = file.type === 'image/gif' || /\.gif$/i.test(file.name);
+
+		if ((isBmp && file.size <= 1783) || (isGif && file.size <= 50000)) {
 			const reader = new FileReader();
 			reader.onload = function (e) {
 				Guild.onSendEmblem(new Uint8Array(e.target.result));

@@ -13,53 +13,49 @@ import _htmlText from './Error.html?raw';
 import _cssText from './Error.css?raw';
 import jQuery from 'Vendors/jquery.js';
 
-import _htmlText from './Error.html?raw';
-import _cssText from './Error.css?raw';
-import jQuery from 'Vendors/jquery.js';
-
 /**
  * Error Namespace
  */
-let Error = {};
+class Error {
+	/**
+	 * Initialize Metaling
+	 */
+	static init() {
+		this.ui = jQuery(_htmlText);
 
-/**
- * Initialize Metaling
- */
-Error.init = function init() {
-	this.ui = jQuery(_htmlText);
+		// Add view to html
+		let style = jQuery('style:first');
+		if (!style.length) {
+			style = jQuery('<style type="text/css"></style>').appendTo('head');
+		}
+		style.append('\n' + _cssText);
+		jQuery('body').html(this.ui);
 
-	// Add view to html
-	let style = jQuery('style:first');
-	if (!style.length) {
-		style = jQuery('<style type="text/css"></style>').appendTo('head');
-	}
-	style.append('\n' + _cssText);
-	jQuery('body').html(this.ui);
-
-	this.ui.css('backgroundImage', 'url(' + new URL('./error.png', import.meta.url).href + ')');
-};
-
-/**
- * Add trace info to UI
- *
- * @param {Error} error
- */
-Error.addTrace = function addTrace(error) {
-	console.error(error);
-	let url = new URL('../../../', import.meta.url).href;
-	error = error.stack || error;
-
-	url = url.replace(/\/([^\/]+)$/g, '/');
-	error = error.replace(/\n/g, '<br/>');
-	error = error.replace(new RegExp(url, 'g'), '');
-	error = error.replace(/\?[^\:]+/g, '');
-
-	if (!this.ui) {
-		this.init();
+		this.ui.css('backgroundImage', 'url(' + new URL('./error.png', import.meta.url).href + ')');
 	}
 
-	this.ui.find('.trace').append(error + '<br />');
-};
+	/**
+	 * Add trace info to UI
+	 *
+	 * @param {Error} error
+	 */
+	static addTrace(error) {
+		console.error(error);
+		let url = new URL('../../../', import.meta.url).href;
+		error = error.stack || error;
+
+		url = url.replace(/\/([^\/]+)$/g, '/');
+		error = error.replace(/\n/g, '<br/>');
+		error = error.replace(new RegExp(url, 'g'), '');
+		error = error.replace(/\?[^\:]+/g, '');
+
+		if (!this.ui) {
+			this.init();
+		}
+
+		this.ui.find('.trace').append(error + '<br />');
+	}
+}
 
 /**
  * Stored component and return it

@@ -494,6 +494,20 @@ class Entity {
 			}
 		}
 	}
+
+	/**
+	 * Set guild emblem and refresh entity
+	 * @param {Image} image
+	 */
+	setEntityGuildEmblem(image, animatedCanvas) {
+		// Siege emblem (standalone) — always static image
+		this.emblem.emblem = image;
+		this.emblem.update();
+
+		// Nameplate — EntityDisplay stores animated canvas internally
+		this.display.setEmblem(image, animatedCanvas);
+		this.display.refresh(this);
+	}
 }
 /**
  * Entity data fields — declared on the prototype intentionally.

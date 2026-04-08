@@ -171,20 +171,6 @@ function onEntitySpam(pkt) {
 		EntityManager.add(entity.wug);
 	}
 
-	if (entity.GUID) {
-		Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
-			entity.emblem.emblem = image;
-			entity.emblem.update();
-			if (PACKETVER.value < 20170315) {
-				entity.display.emblem = image;
-				entity.display.refresh(entity);
-			}
-			if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
-				entity.emblem.display = true;
-			}
-		});
-	}
-
 	if (entity.objecttype === Entity.TYPE_PC) {
 		// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
 		// so we have to swap it. maybe have a better solution.
@@ -255,33 +241,23 @@ function onEntitySpam(pkt) {
 	// if it is listed in clanEmblems set emblem
 	if (entity.GID in clanEmblems) {
 		const clanId = clanEmblems[entity.GID];
-		console.log('>> entity spam', entity.display.name);
-		DB.loadClanEmblem(clanId, function (image) {
+		DB.loadClanEmblem(clanId, image => {
 			entity.clanId = clanId;
-			entity.display.emblem = image;
-			entity.display.update(
-				entity.objecttype === Entity.TYPE_MOB
-					? entity.display.STYLE.MOB
-					: entity.objecttype === Entity.TYPE_NPC_ABR
-						? entity.display.STYLE.MOB
-						: entity.objecttype === Entity.TYPE_NPC_BIONIC
-							? entity.display.STYLE.MOB
-							: entity.objecttype === Entity.TYPE_DISGUISED
-								? entity.display.STYLE.MOB
-								: entity.objecttype === Entity.TYPE_NPC
-									? entity.display.STYLE.NPC
-									: entity.objecttype === Entity.TYPE_NPC2
-										? entity.display.STYLE.NPC
-										: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
-											? entity.display.STYLE.ADMIN
-											: entity.display.STYLE.DEFAULT
-			);
-			entity.emblem.emblem = image;
-			entity.emblem.update();
+			entity.setEntityGuildEmblem(image);
+			updateEntityStyle(entity);
 		});
 
 		// remove from clanEmblems
 		delete clanEmblems[entity.GID];
+	}
+
+	if (entity.GUID) {
+		Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, (image, gif) => {
+			entity.setEntityGuildEmblem(image, gif);
+			if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
+				entity.emblem.display = true;
+			}
+		});
 	}
 
 	// load others aura
@@ -1027,127 +1003,55 @@ function onEntityIdentity(pkt) {
 		entity.display.load = entity.display.TYPE.COMPLETE;
 
 		if (entity.GUID) {
-			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, function (image) {
-				if (PACKETVER.value < 20170315) {
-					entity.display.emblem = image;
-				}
-				entity.display.update(
-					entity.objecttype === Entity.TYPE_MOB
-						? entity.display.STYLE.MOB
-						: entity.objecttype === Entity.TYPE_NPC_ABR
-							? entity.display.STYLE.MOB
-							: entity.objecttype === Entity.TYPE_NPC_BIONIC
-								? entity.display.STYLE.MOB
-								: entity.objecttype === Entity.TYPE_DISGUISED
-									? entity.display.STYLE.MOB
-									: entity.objecttype === Entity.TYPE_NPC
-										? entity.display.STYLE.NPC
-										: entity.objecttype === Entity.TYPE_NPC2
-											? entity.display.STYLE.NPC
-											: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
-												? entity.display.STYLE.ADMIN
-												: entity.display.STYLE.DEFAULT
-				);
-				entity.emblem.emblem = image;
-				entity.emblem.update();
+			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, (image, gif) => {
+				entity.setEntityGuildEmblem(image, gif);
 				if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
 					entity.emblem.display = true;
 				}
 			});
 		} else if (pkt.GID) {
-			DB.loadGroupEmblem(pkt.GID, function (image) {
-				entity.display.emblem = image;
-				entity.display.update(
-					entity.objecttype === Entity.TYPE_MOB
-						? entity.display.STYLE.MOB
-						: entity.objecttype === Entity.TYPE_NPC_ABR
-							? entity.display.STYLE.MOB
-							: entity.objecttype === Entity.TYPE_NPC_BIONIC
-								? entity.display.STYLE.MOB
-								: entity.objecttype === Entity.TYPE_DISGUISED
-									? entity.display.STYLE.MOB
-									: entity.objecttype === Entity.TYPE_NPC
-										? entity.display.STYLE.NPC
-										: entity.objecttype === Entity.TYPE_NPC2
-											? entity.display.STYLE.NPC
-											: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
-												? entity.display.STYLE.ADMIN
-												: entity.display.STYLE.DEFAULT
-				);
-				entity.emblem.emblem = image;
-				entity.emblem.update();
+			DB.loadGroupEmblem(pkt.GID, image => {
+				entity.setEntityGuildEmblem(image);
 			});
 		} else if (entity.mobtype) {
-			DB.loadMobEmblem(entity.mobtype, function (image) {
-				entity.display.emblem = image;
-				entity.display.update(
-					entity.objecttype === Entity.TYPE_MOB
-						? entity.display.STYLE.MOB
-						: entity.objecttype === Entity.TYPE_NPC_ABR
-							? entity.display.STYLE.MOB
-							: entity.objecttype === Entity.TYPE_NPC_BIONIC
-								? entity.display.STYLE.MOB
-								: entity.objecttype === Entity.TYPE_DISGUISED
-									? entity.display.STYLE.MOB
-									: entity.objecttype === Entity.TYPE_NPC
-										? entity.display.STYLE.NPC
-										: entity.objecttype === Entity.TYPE_NPC2
-											? entity.display.STYLE.NPC
-											: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
-												? entity.display.STYLE.ADMIN
-												: entity.display.STYLE.DEFAULT
-				);
-				entity.emblem.emblem = image;
-				entity.emblem.update();
+			DB.loadMobEmblem(entity.mobtype, image => {
+				entity.setEntityGuildEmblem(image);
 			});
 		} else if (entity.clanId) {
-			DB.loadClanEmblem(entity.clanId, function (image) {
-				entity.display.emblem = image;
-				entity.display.update(
-					entity.objecttype === Entity.TYPE_MOB
-						? entity.display.STYLE.MOB
-						: entity.objecttype === Entity.TYPE_NPC_ABR
-							? entity.display.STYLE.MOB
-							: entity.objecttype === Entity.TYPE_NPC_BIONIC
-								? entity.display.STYLE.MOB
-								: entity.objecttype === Entity.TYPE_DISGUISED
-									? entity.display.STYLE.MOB
-									: entity.objecttype === Entity.TYPE_NPC
-										? entity.display.STYLE.NPC
-										: entity.objecttype === Entity.TYPE_NPC2
-											? entity.display.STYLE.NPC
-											: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
-												? entity.display.STYLE.ADMIN
-												: entity.display.STYLE.DEFAULT
-				);
-				entity.emblem.emblem = image;
-				entity.emblem.update();
+			DB.loadClanEmblem(entity.clanId, image => {
+				entity.setEntityGuildEmblem(image);
 			});
 		} else {
-			entity.display.emblem = null;
+			entity.setEntityGuildEmblem(null, null);
 		}
-		entity.display.update(
-			entity.objecttype === Entity.TYPE_MOB
-				? entity.display.STYLE.MOB
-				: entity.objecttype === Entity.TYPE_NPC_ABR
-					? entity.display.STYLE.MOB
-					: entity.objecttype === Entity.TYPE_NPC_BIONIC
-						? entity.display.STYLE.MOB
-						: entity.objecttype === Entity.TYPE_DISGUISED
-							? entity.display.STYLE.MOB
-							: entity.objecttype === Entity.TYPE_NPC
-								? entity.display.STYLE.NPC
-								: entity.objecttype === Entity.TYPE_NPC2
-									? entity.display.STYLE.NPC
-									: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
-										? entity.display.STYLE.ADMIN
-										: entity.display.STYLE.DEFAULT
-		);
+
+		// Update display
+		updateEntityStyle(entity);
 
 		if (EntityManager.getOverEntity() === entity) {
 			entity.display.add();
 		}
 	}
+}
+
+function updateEntityStyle(entity) {
+	entity.display.update(
+		entity.objecttype === Entity.TYPE_MOB
+			? entity.display.STYLE.MOB
+			: entity.objecttype === Entity.TYPE_NPC_ABR
+				? entity.display.STYLE.MOB
+				: entity.objecttype === Entity.TYPE_NPC_BIONIC
+					? entity.display.STYLE.MOB
+					: entity.objecttype === Entity.TYPE_DISGUISED
+						? entity.display.STYLE.MOB
+						: entity.objecttype === Entity.TYPE_NPC
+							? entity.display.STYLE.NPC
+							: entity.objecttype === Entity.TYPE_NPC2
+								? entity.display.STYLE.NPC
+								: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
+									? entity.display.STYLE.ADMIN
+									: entity.display.STYLE.DEFAULT
+	);
 }
 
 function onTitleChangeAck(pkt) {
@@ -2364,54 +2268,18 @@ function onEntityStatusChange(pkt) {
 		case StatusConst.GOLDENMACECLAN:
 		case StatusConst.CROSSBOWCLAN: {
 			const clanId = pkt.index - StatusConst.SWORDCLAN + 1;
-			DB.loadClanEmblem(clanId, function (image) {
+			DB.loadClanEmblem(clanId, image => {
 				entity.clanId = clanId;
-				entity.display.emblem = image;
-				entity.display.update(
-					entity.objecttype === Entity.TYPE_MOB
-						? entity.display.STYLE.MOB
-						: entity.objecttype === Entity.TYPE_NPC_ABR
-							? entity.display.STYLE.MOB
-							: entity.objecttype === Entity.TYPE_NPC_BIONIC
-								? entity.display.STYLE.MOB
-								: entity.objecttype === Entity.TYPE_DISGUISED
-									? entity.display.STYLE.MOB
-									: entity.objecttype === Entity.TYPE_NPC
-										? entity.display.STYLE.NPC
-										: entity.objecttype === Entity.TYPE_NPC2
-											? entity.display.STYLE.NPC
-											: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
-												? entity.display.STYLE.ADMIN
-												: entity.display.STYLE.DEFAULT
-				);
-				entity.emblem.emblem = image;
-				entity.emblem.update();
+				entity.setEntityGuildEmblem(image);
+				updateEntityStyle(entity);
 			});
 			break;
 		}
 		case StatusConst.CLAN_INFO:
-			DB.loadClanEmblem(pkt.val[1], function (image) {
+			DB.loadClanEmblem(pkt.val[1], image => {
 				entity.clanId = pkt.val[1];
-				entity.display.emblem = image;
-				entity.display.update(
-					entity.objecttype === Entity.TYPE_MOB
-						? entity.display.STYLE.MOB
-						: entity.objecttype === Entity.TYPE_NPC_ABR
-							? entity.display.STYLE.MOB
-							: entity.objecttype === Entity.TYPE_NPC_BIONIC
-								? entity.display.STYLE.MOB
-								: entity.objecttype === Entity.TYPE_DISGUISED
-									? entity.display.STYLE.MOB
-									: entity.objecttype === Entity.TYPE_NPC
-										? entity.display.STYLE.NPC
-										: entity.objecttype === Entity.TYPE_NPC2
-											? entity.display.STYLE.NPC
-											: entity.objecttype === Entity.TYPE_PC && entity.isAdmin
-												? entity.display.STYLE.ADMIN
-												: entity.display.STYLE.DEFAULT
-				);
-				entity.emblem.emblem = image;
-				entity.emblem.update();
+				entity.setEntityGuildEmblem(image);
+				updateEntityStyle(entity);
 			});
 			break;
 	}

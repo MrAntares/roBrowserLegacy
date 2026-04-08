@@ -52,7 +52,7 @@ SkillEffect[SK.SM_MAGNUM] = { effectIdOnCaster: 17, effectId: 'quake_magnum' }; 
 SkillEffect[SK.SM_ENDURE] = { effectId: 11 }; //Endure
 // Mage
 SkillEffect[SK.MG_SIGHT] = {
-	/*not here*/
+	/* effectId: 22 not here*/
 }; //Sight
 SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {

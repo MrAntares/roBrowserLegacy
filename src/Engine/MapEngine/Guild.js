@@ -122,6 +122,7 @@ class GuildEngine {
 			_emblems[guild_id] = {
 				version: -1,
 				image: new Image(),
+				gif: null,
 				callback: []
 			};
 		}
@@ -133,18 +134,12 @@ class GuildEngine {
 
 		// Lower version, update it to the current
 		if (version <= emblem.version) {
-			EntityManager.forEach(function (entity) {
+			EntityManager.forEach(entity => {
 				if (entity.GUID === guild_id) {
-					if (emblem.display) {
-						entity.display.emblem = PACKETVER.value >= 20170315 ? emblem.display : emblem.image;
-					} else {
-						entity.display.emblem = emblem.image;
-					}
-					entity.emblem.update();
-					entity.display.refresh(entity);
+					entity.setEntityGuildEmblem(emblem.image, emblem.gif);
 				}
 			});
-			callback(emblem.image);
+			callback(emblem.image, emblem.gif);
 			return;
 		}
 
@@ -183,13 +178,12 @@ class GuildEngine {
 						img.onload = () => {
 							emblem.version = version;
 							emblem.image = img;
-							emblem.display = null;
-							callback(emblem.image);
+							emblem.gif = null;
+
+							callback(emblem.image, emblem.gif);
 							EntityManager.forEach(entity => {
 								if (entity.GUID === guild_id) {
-									entity.display.emblem = img;
-									entity.emblem.update();
-									entity.display.refresh(entity);
+									entity.setEntityGuildEmblem(img);
 								}
 							});
 						};
@@ -203,19 +197,18 @@ class GuildEngine {
 					} else {
 						Texture.processGifToSpriteSheet(xhr.response, function (sucess) {
 							if (sucess) {
-								const canvas = this;
+								const gifCanvas = this;
 								const img = new Image();
 								img.onload = () => {
 									emblem.version = version;
 									emblem.image = img;
-									emblem.display = canvas;
-									callback(emblem.image);
+									emblem.gif = gifCanvas;
+
+									callback(emblem.image, emblem.gif);
 
 									EntityManager.forEach(entity => {
 										if (entity.GUID === guild_id) {
-											entity.display.emblem = canvas;
-											entity.emblem.update();
-											entity.display.refresh(entity);
+											entity.setEntityGuildEmblem(img, gifCanvas);
 										}
 									});
 								};
@@ -238,8 +231,8 @@ class GuildEngine {
 			const pkt = new PACKET.CZ.REQ_GUILD_EMBLEM_IMG();
 			pkt.GDID = guild_id;
 			Network.sendPacket(pkt);
+			emblem.callback.push(callback);
 		}
-		emblem.callback.push(callback);
 	}
 
 	/**
@@ -447,7 +440,7 @@ class GuildEngine {
 					const response = JSON.parse(xhr.responseText);
 					console.log('Emblem uploaded successfully, version:', response.version);
 
-					GuildEngine.requestGuildEmblem(Session.Entity.GUID, response.version, image => {
+					GuildEngine.requestGuildEmblem(Session.Entity.GUID, response.version, (image, _gif) => {
 						Guild.setEmblem(image);
 					});
 				}
@@ -541,13 +534,8 @@ function onGuildOwnInfo(pkt) {
 
 	// Request emblem for the player's own entity
 	if (pkt.GDID && pkt.emblemVersion) {
-		GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, function (image) {
-			Session.Entity.emblem.emblem = image;
-			Session.Entity.emblem.update();
-			if (PACKETVER.value < 20170315) {
-				Session.Entity.display.emblem = image;
-				Session.Entity.display.refresh(Session.Entity);
-			}
+		GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, (image, gif) => {
+			Session.Entity.setEntityGuildEmblem(image, gif);
 		});
 	}
 }
@@ -575,6 +563,7 @@ const onGuildEmblem = (function onGuildEmblemClosure() {
 			_emblems[pkt.GDID] = {
 				version: -1,
 				image: new Image(),
+				gif: null,
 				callback: []
 			};
 		}
@@ -599,6 +588,7 @@ const onGuildEmblem = (function onGuildEmblemClosure() {
 		// Start displaying the emblem
 		function renderEmblem() {
 			emblem.image = this;
+			emblem.gif = null;
 
 			// Update our guild emblem
 			if (pkt.GDID === GuildEngine.guild_id) {
@@ -607,14 +597,13 @@ const onGuildEmblem = (function onGuildEmblemClosure() {
 
 			// Execute callbacks
 			while (emblem.callback.length) {
-				emblem.callback.shift().call(null, this);
+				emblem.callback.shift().call(null, this, null);
 			}
 
 			// Update display name of entities
 			EntityManager.forEach(entity => {
 				if (entity.GUID === pkt.GDID) {
-					entity.display.emblem = img;
-					entity.display.refresh(entity);
+					entity.setEntityGuildEmblem(img);
 				}
 			});
 		}
