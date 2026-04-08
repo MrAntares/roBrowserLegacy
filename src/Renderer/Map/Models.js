@@ -84,11 +84,8 @@ function buildBatches() {
  * @param {object} data ( models )
  */
 function init(gl, data) {
-	let i, count;
-	let objects;
-
-	objects = data.infos;
-	count = objects.length;
+	const objects = data.infos;
+	const count = objects.length;
 	_objects.length = count;
 	_batchesReady = false;
 	_pendingTextures = count;
@@ -105,9 +102,9 @@ function init(gl, data) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 
-	function onTextureLoaded(texture, i) {
-		_objects[i].texture = texture;
-		_objects[i].complete = true;
+	function onTextureLoaded(texture, index) {
+		_objects[index].texture = texture;
+		_objects[index].complete = true;
 		_pendingTextures--;
 
 		// Rebuild batches when all textures are loaded
@@ -117,7 +114,7 @@ function init(gl, data) {
 	}
 
 	// Fetch all images, and draw them in a mega-texture
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (!_objects[i]) {
 			_objects[i] = {};
 		}

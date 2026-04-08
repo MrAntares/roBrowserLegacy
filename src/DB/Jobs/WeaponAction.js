@@ -319,10 +319,7 @@ WeaponAction[JobId.LINKER] = [
 
 function duplicateEntry(origin) {
 	const value = WeaponAction[origin];
-	let i,
-		count = arguments.length;
-
-	for (i = 1; i < count; ++i) {
+	for (let i = 1, count = arguments.length; i < count; ++i) {
 		WeaponAction[arguments[i]] = value;
 	}
 }

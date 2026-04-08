@@ -221,10 +221,7 @@ JobNameTable[JobId.WERERAPTOR] = 'wereraptor';
 
 function duplicateEntry(origin) {
 	const value = JobNameTable[origin];
-	let i,
-		count = arguments.length;
-
-	for (i = 1; i < count; ++i) {
+	for (let i = 1, count = arguments.length; i < count; ++i) {
 		JobNameTable[arguments[i]] = value;
 	}
 }

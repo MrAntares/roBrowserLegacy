@@ -207,9 +207,7 @@ PalNameTable[JobId.SKY_EMPEROR2] = JobNameTable[JobId.SKY_EMPEROR2];
 
 function duplicateEntry(origin) {
 	const value = JobNameTable[origin];
-	let i,
-		count = arguments.length;
-	for (i = 1; i < count; ++i) {
+	for (let i = 1, count = arguments.length; i < count; ++i) {
 		PalNameTable[arguments[i]] = value;
 	}
 }

@@ -184,10 +184,7 @@ JobHitSoundTable[JobId.MEISTER2] = ['player_clothes.wav'];
 
 function duplicateEntry(origin) {
 	const value = JobHitSoundTable[origin];
-	let i,
-		count = arguments.length;
-
-	for (i = 1; i < count; ++i) {
+	for (let i = 1, count = arguments.length; i < count; ++i) {
 		JobHitSoundTable[arguments[i]] = value;
 	}
 }

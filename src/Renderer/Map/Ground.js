@@ -152,11 +152,9 @@ function render(gl, modelView, projection, normalMat, fog, light) {
  * @param {number} size
  */
 function initLightmap(gl, lightmap, size) {
-	let width, height;
+	const width = WebGL.toPowerOfTwo(Math.round(Math.sqrt(size)) * 8);
+	const height = WebGL.toPowerOfTwo(Math.ceil(Math.sqrt(size)) * 8);
 	const enableMipmap = Configs.get('enableMipmap');
-
-	width = WebGL.toPowerOfTwo(Math.round(Math.sqrt(size)) * 8);
-	height = WebGL.toPowerOfTwo(Math.ceil(Math.sqrt(size)) * 8);
 
 	if (!_lightmap) {
 		_lightmap = gl.createTexture();
@@ -188,7 +186,6 @@ function initTileColor(gl, tilescolor, width, height) {
 		return;
 	}
 
-	let _width, _height, i, count;
 	const enableMipmap = Configs.get('enableMipmap');
 
 	if (procCanvas.width !== width || procCanvas.height !== height) {
@@ -198,25 +195,25 @@ function initTileColor(gl, tilescolor, width, height) {
 
 	const imageData = procCtx.createImageData(width, height);
 	const data = imageData.data;
-	count = data.length;
+	const count = data.length;
 
 	// Set Image pixel
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		data[i] = tilescolor[i];
 	}
 	procCtx.putImageData(imageData, 0, 0);
 
 	// Build Image with power of two texture * 2 (to smooth)
-	_width = WebGL.toPowerOfTwo(width);
-	_height = WebGL.toPowerOfTwo(height);
+	const atlasWidth = WebGL.toPowerOfTwo(width);
+	const atlasHeight = WebGL.toPowerOfTwo(height);
 	const smooth = document.createElement('canvas');
-	smooth.width = _width;
-	smooth.height = _height;
+	smooth.width = atlasWidth;
+	smooth.height = atlasHeight;
 	const ctx = smooth.getContext('2d');
 
 	ctx.fillStyle = 'black';
-	ctx.fillRect(0, 0, _width, _height);
-	ctx.drawImage(procCanvas, 0, 0, _width, _height);
+	ctx.fillRect(0, 0, atlasWidth, atlasHeight);
+	ctx.drawImage(procCanvas, 0, 0, atlasWidth, atlasHeight);
 	// Send texture to GPU
 	if (!_tileColor) {
 		_tileColor = gl.createTexture();
@@ -258,26 +255,24 @@ function initTileColor2(gl, tilescolor, width, height) {
  * @param {Array} textures 's filename
  */
 function initTextures(gl, textures) {
-	let i, count, width, height, _width, loaded;
-
 	// Find texture size
-	count = textures.length;
-	_width = Math.round(Math.sqrt(count));
-	width = WebGL.toPowerOfTwo(_width * 258);
-	height = WebGL.toPowerOfTwo(Math.ceil(Math.sqrt(count)) * 258);
+	const count = textures.length;
+	const textureCols = Math.round(Math.sqrt(count));
+	const atlasWidth = WebGL.toPowerOfTwo(textureCols * 258);
+	const atlasHeight = WebGL.toPowerOfTwo(Math.ceil(Math.sqrt(count)) * 258);
 
-	if (procCanvas.width !== width || procCanvas.height !== height) {
-		procCanvas.width = width;
-		procCanvas.height = height;
+	if (procCanvas.width !== atlasWidth || procCanvas.height !== atlasHeight) {
+		procCanvas.width = atlasWidth;
+		procCanvas.height = atlasHeight;
 	}
 
-	procCtx.clearRect(0, 0, width, height);
-	loaded = 0;
+	procCtx.clearRect(0, 0, atlasWidth, atlasHeight);
+	let loaded = 0;
 
-	function onTextureCompleteBuildAtlas(success, i) {
+	function onTextureCompleteBuildAtlas(success, index) {
 		if (success) {
-			const x = (i % _width) * 258;
-			const y = Math.floor(i / _width) * 258;
+			const x = (index % textureCols) * 258;
+			const y = Math.floor(index / textureCols) * 258;
 			procCtx.drawImage(this, x + 0, y + 0, 258, 258); // generate border
 			procCtx.drawImage(this, x + 1, y + 1, 256, 256);
 		}
@@ -288,7 +283,7 @@ function initTextures(gl, textures) {
 	}
 
 	// Fetch all images, and draw them in a mega-texture
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		Texture.load(textures[i], onTextureCompleteBuildAtlas, i);
 	}
 }
