@@ -45,12 +45,15 @@ const _life = 20 * 1000;
 Announce.init = function init() {
 	this.canvas = document.createElement('canvas');
 	this.ctx = this.canvas.getContext('2d');
+
+	// this.ui needs to be jQuery because of the UIComponent base
 	this.ui = jQuery(this.canvas);
 
-	this.ui.attr('id', 'Announce').css({
+	this.canvas.id = 'Announce';
+	Object.assign(this.canvas.style, {
 		position: 'absolute',
-		top: 40,
-		zIndex: 40
+		top: '40px',
+		zIndex: '40'
 	});
 };
 
@@ -62,7 +65,9 @@ Announce.onRemove = function onRemove() {
 		Events.clearTimeout(_timer);
 		_timer = 0;
 	}
-	this.ui.remove(); // Remove from DOM
+	if (this.canvas.parentNode) {
+		this.canvas.parentNode.removeChild(this.canvas);
+	}
 };
 
 /**
@@ -83,11 +88,7 @@ Announce.set = function set(text, color, allowNewlines = false) {
 	const maxWidth = 500;
 	const lines = [];
 
-	const width = 0;
-	let result;
-	let i, j, count;
-
-	this.ctx.font = fontSize + 'px Arial';
+	this.ctx.font = `${fontSize}px Arial`;
 
 	if (allowNewlines) {
 		// Process '\n' explicitly as a new line

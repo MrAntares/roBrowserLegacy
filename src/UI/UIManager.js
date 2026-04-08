@@ -16,6 +16,64 @@ import Renderer from 'Renderer/Renderer.js';
 import GameEngine from 'Engine/GameEngine.js';
 
 /**
+ * Centralize popup position
+ * @returns {{top: string, left: string, zIndex: string}}
+ */
+function _popupPosition() {
+	return {
+		top: `${(Renderer.height - 120) / 1.5 - 120}px`,
+		left: `${(Renderer.width - 280) / 2.0}px`,
+		zIndex: '100'
+	};
+}
+
+/**
+ * Create a button with data-attributes for parseHTML to process
+ * @param {string} name - button name (ex: 'ok', 'cancel')
+ * @param {function} onClick - click callback (fires once)
+ * @param {function} parseHTML - reference to UIComponent.prototype.parseHTML
+ * @returns {HTMLButtonElement}
+ */
+function _createButton(name, onClick, parseHTML) {
+	const btn = document.createElement('button');
+	btn.className = 'btn';
+	btn.dataset.background = `btn_${name}.bmp`;
+	btn.dataset.hover = `btn_${name}_a.bmp`;
+	btn.dataset.down = `btn_${name}_b.bmp`;
+
+	let clicked = false;
+	btn.addEventListener('click', () => {
+		if (clicked) return;
+		clicked = true;
+		onClick();
+	});
+
+	parseHTML.call(btn);
+
+	return btn;
+}
+
+/**
+ * Create overlay that blocks interaction with the game
+ * @returns {HTMLDivElement}
+ */
+function _createOverlay() {
+	const overlay = document.createElement('div');
+	overlay.className = 'win_popup_overlay';
+	document.body.appendChild(overlay);
+	return overlay;
+}
+
+/**
+ * Reorder keydown handlers so the popup captures first.
+ * NOTE: Uses jQuery._data (internal API) — migrate when the event system is refactored.
+ */
+function _prioritizeKeyDown() {
+	const events = jQuery._data(window, 'events').keydown;
+	events.unshift(events.pop());
+}
+
+/**
  * User Interface Manager
  */
 class UIManager {
@@ -80,46 +138,37 @@ class UIManager {
 	 */
 	static fixResizeOverflow(WIDTH, HEIGHT) {
 		const keys = Object.keys(this.components);
-		const count = keys.length;
-		let ui;
-		let x, y, width, height;
 
-		for (let i = 0; i < count; ++i) {
+		for (let i = 0; i < keys.length; ++i) {
 			const component = this.components[keys[i]];
-			ui = component.ui;
+			const ui = component.ui;
 
-			if (ui) {
-				x = ui.offset().left;
-				y = ui.offset().top;
-				width = ui.width();
-				height = ui.height();
+			if (!ui || !ui[0]) continue;
 
-				if (y + height > HEIGHT) {
-					ui.css('top', HEIGHT - Math.min(height, HEIGHT));
-				}
+			const el = ui[0];
+			const rect = el.getBoundingClientRect();
+			const x = rect.left;
+			const y = rect.top;
+			const width = rect.width;
+			const height = rect.height;
 
-				if (x + width > WIDTH) {
-					ui.css('left', WIDTH - Math.min(width, WIDTH));
-				}
+			if (y + height > HEIGHT) {
+				el.style.top = `${HEIGHT - Math.min(height, HEIGHT)}px`;
+			}
+			if (x + width > WIDTH) {
+				el.style.left = `${WIDTH - Math.min(width, WIDTH)}px`;
+			}
 
-				//Magnet
-				if (component.magnet.TOP) {
-					//nothing to do
-				}
-				if (component.magnet.BOTTOM) {
-					ui.css('top', HEIGHT - height);
-				}
-				if (component.magnet.LEFT) {
-					//nothing to do
-				}
-				if (component.magnet.RIGHT) {
-					ui.css('left', WIDTH - width);
-				}
+			// Magnet
+			if (component.magnet.BOTTOM) {
+				el.style.top = `${HEIGHT - height}px`;
+			}
+			if (component.magnet.RIGHT) {
+				el.style.left = `${WIDTH - width}px`;
+			}
 
-				// Call custom resize function if has one
-				if (component.onResize) {
-					component.onResize();
-				}
+			if (component.onResize) {
+				component.onResize();
 			}
 		}
 	}
@@ -131,30 +180,29 @@ class UIManager {
 	 * @param {string} error message
 	 */
 	static showErrorBox(text) {
-		// Create popup
 		const WinError = this.getComponent('WinPopup').clone('WinError');
-		WinError.init = function Init() {
-			this.ui.find('.text').text(text);
-			this.ui.css({
-				top: (Renderer.height - 120) / 1.5 - 120,
-				left: (Renderer.width - 280) / 2.0,
-				zIndex: 100
-			});
+		// eslint-disable-next-line
+		let overlay;
 
-			WinError.ui.find('.btns').append(
-				jQuery('<button/>')
-					.addClass('btn')
-					.data('background', 'btn_ok.bmp')
-					.data('hover', 'btn_ok_a.bmp')
-					.data('down', 'btn_ok_b.bmp')
-					.one('click', function () {
-						overlay.remove();
-						WinError.remove();
-						GameEngine.reload();
-					})
-					.each(this.parseHTML)
+		WinError.init = function Init() {
+			const root = this.ui[0];
+
+			root.querySelector('.text').textContent = text;
+			Object.assign(root.style, _popupPosition());
+
+			const btn = _createButton(
+				'ok',
+				() => {
+					overlay.remove();
+					WinError.remove();
+					GameEngine.reload();
+				},
+				this.parseHTML
 			);
+
+			root.querySelector('.btns').appendChild(btn);
 		};
+
 		WinError.onKeyDown = function OnKeyDown(event) {
 			event.stopImmediatePropagation();
 			switch (event.which) {
@@ -166,16 +214,9 @@ class UIManager {
 			}
 		};
 
-		// Add overlay (to block mouseover, click, etc.)
-		const overlay = jQuery('<div/>').addClass('win_popup_overlay');
-		overlay.appendTo('body');
+		overlay = _createOverlay();
 
-		// Push the event to the top, stopImmediatePropagation will block every key down event.
-		WinError.onAppend = function () {
-			const events = jQuery._data(window, 'events').keydown;
-			events.unshift(events.pop());
-		};
-
+		WinError.onAppend = _prioritizeKeyDown;
 		WinError.append();
 
 		return WinError;
@@ -189,59 +230,44 @@ class UIManager {
 	 * @param {function} callback once the button is pressed
 	 */
 	static showMessageBox(text, btn_name, callback, keydown) {
-		// Create popup
 		const WinMSG = this.getComponent('WinPopup').clone('WinMSG');
+
 		WinMSG.init = function Init() {
 			this.draggable();
-			this.ui.find('.text').text(text);
-			this.ui.css({
-				top: (Renderer.height - 120) / 1.5 - 120,
-				left: (Renderer.width - 280) / 2.0,
-				zIndex: 100
-			});
+			const root = this.ui[0];
 
-			// Just button
+			root.querySelector('.text').textContent = text;
+			Object.assign(root.style, _popupPosition());
+
 			if (btn_name) {
-				WinMSG.ui.find('.btns').append(
-					jQuery('<button/>')
-						.addClass('btn')
-						.data('background', 'btn_' + btn_name + '.bmp')
-						.data('hover', 'btn_' + btn_name + '_a.bmp')
-						.data('down', 'btn_' + btn_name + '_b.bmp')
-						.one('click', function () {
-							WinMSG.remove();
-							if (callback) {
-								callback();
-							}
-						})
-						.each(this.parseHTML)
+				const btn = _createButton(
+					btn_name,
+					() => {
+						WinMSG.remove();
+						if (callback) callback();
+					},
+					this.parseHTML
 				);
+
+				root.querySelector('.btns').appendChild(btn);
 			}
 		};
 
-		// Just keydown
 		if (keydown) {
 			WinMSG.onKeyDown = function (event) {
 				switch (event.which) {
 					case KEYS.ENTER:
 					case KEYS.ESCAPE:
 						this.remove();
-						if (callback) {
-							callback();
-						}
+						if (callback) callback();
 				}
 				event.stopImmediatePropagation();
 			};
 
-			// Push the event to the top, stopImmediatePropagation will block every key down.
-			WinMSG.onAppend = function () {
-				const events = jQuery._data(window, 'events').keydown;
-				events.unshift(events.pop());
-			};
+			WinMSG.onAppend = _prioritizeKeyDown;
 		}
 
 		WinMSG.append();
-
 		return WinMSG;
 	}
 
@@ -256,40 +282,36 @@ class UIManager {
 	 */
 	static showPromptBox(text, btn_yes, btn_no, onYes, onNo) {
 		const WinPrompt = this.getComponent('WinPopup').clone('WinPrompt');
+
 		WinPrompt.init = function Init() {
 			this.draggable();
-			this.ui.find('.text').text(text);
-			this.ui.css({
-				top: (Renderer.height - 120) / 1.5 - 120,
-				left: (Renderer.width - 280) / 2.0,
-				zIndex: 100
-			});
-			this.ui.find('.btns').append(
-				jQuery('<button/>')
-					.addClass('btn')
-					.data('background', 'btn_' + btn_yes + '.bmp')
-					.data('hover', 'btn_' + btn_yes + '_a.bmp')
-					.data('down', 'btn_' + btn_yes + '_b.bmp')
-					.one('click', function () {
-						WinPrompt.remove();
-						if (onYes) {
-							onYes();
-						}
-					})
-					.each(this.parseHTML),
+			const root = this.ui[0];
 
-				jQuery('<button/>')
-					.addClass('btn')
-					.data('background', 'btn_' + btn_no + '.bmp')
-					.data('hover', 'btn_' + btn_no + '_a.bmp')
-					.data('down', 'btn_' + btn_no + '_b.bmp')
-					.one('click', function () {
+			root.querySelector('.text').textContent = text;
+			Object.assign(root.style, _popupPosition());
+
+			const btnsContainer = root.querySelector('.btns');
+
+			btnsContainer.appendChild(
+				_createButton(
+					btn_yes,
+					() => {
 						WinPrompt.remove();
-						if (onNo) {
-							onNo();
-						}
-					})
-					.each(this.parseHTML)
+						if (onYes) onYes();
+					},
+					this.parseHTML
+				)
+			);
+
+			btnsContainer.appendChild(
+				_createButton(
+					btn_no,
+					() => {
+						WinPrompt.remove();
+						if (onNo) onNo();
+					},
+					this.parseHTML
+				)
 			);
 		};
 
