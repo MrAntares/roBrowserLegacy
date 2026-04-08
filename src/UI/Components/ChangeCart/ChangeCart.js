@@ -10,7 +10,6 @@
 
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
-import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
@@ -44,7 +43,6 @@ const _layerEntity = new Entity();
  */
 ChangeCart.init = function init() {
 	const carts = this.ui.find('.cart');
-	const canvases = this.ui.find('.canvas');
 
 	this.ui.css({
 		top: (Renderer.height - 100) / 2.0,

@@ -187,8 +187,6 @@ BasicInfoV0.onShortCut = function onShortCut(key) {
  * Switch window size
  */
 BasicInfoV0.toggleMode = function toggleMode() {
-	let type;
-
 	this.ui.toggleClass('small large');
 
 	if (this.ui.hasClass('large')) {
@@ -209,8 +207,8 @@ BasicInfoV0.toggleMode = function toggleMode() {
 		}.bind(this)
 	);
 	this.ui.find('.buttons').hide();
-	type = 'off';
 
+	const type = 'off';
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'basic_interface/view' + type + '.bmp',
 		function (url) {
