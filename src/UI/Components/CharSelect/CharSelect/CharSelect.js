@@ -200,9 +200,7 @@ CharSelect.setInfo = function setInfo(pkt) {
 	_list.length = 0;
 
 	if (pkt.charInfo) {
-		let i,
-			count = pkt.charInfo.length;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0, count = pkt.charInfo.length; i < count; ++i) {
 			CharSelect.addCharacter(pkt.charInfo[i]);
 
 			// Guess the max slot
@@ -231,7 +229,7 @@ CharSelect.deleteAnswer = function DeleteAnswer(error) {
 			return;
 
 		// Success (clean up character)
-		case -1:
+		case -1: {
 			delete _slots[_index];
 			delete _entitySlots[_index];
 
@@ -251,6 +249,7 @@ CharSelect.deleteAnswer = function DeleteAnswer(error) {
 			moveCursorTo(_index);
 			this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
 			return;
+		}
 
 		default: // Others error ?
 		case 0: // Incorrect adress email
@@ -444,11 +443,11 @@ function moveCursorTo(index) {
  * Render sprites to canvas
  */
 function render() {
-	let i, count, idx;
+	let i;
 
 	Camera.direction = 4;
-	idx = Math.floor(_index / 3) * 3;
-	count = _ctx.length;
+	const idx = Math.floor(_index / 3) * 3;
+	const count = _ctx.length;
 
 	for (i = 0; i < count; ++i) {
 		_ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);

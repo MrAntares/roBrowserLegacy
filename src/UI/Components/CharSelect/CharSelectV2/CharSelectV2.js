@@ -204,9 +204,7 @@ CharSelectV2.setInfo = function setInfo(pkt) {
 	_list.length = 0;
 
 	if (pkt.charInfo) {
-		let i,
-			count = pkt.charInfo.length;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0, count = pkt.charInfo.length; i < count; ++i) {
 			CharSelectV2.addCharacter(pkt.charInfo[i]);
 
 			// Guess the max slot
@@ -237,7 +235,7 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
 				return;
 
 			// Success (clean up character)
-			case 1:
+			case 1: {
 				delete _slots[_index];
 				delete _entitySlots[_index];
 
@@ -257,6 +255,7 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
 				moveCursorTo(_index);
 				this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
 				return;
+			}
 
 			default: // Others error ?
 			case 0:
@@ -284,7 +283,7 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
 				return;
 
 			// Success (clean up character)
-			case -1:
+			case -1: {
 				delete _slots[_index];
 				delete _entitySlots[_index];
 
@@ -304,6 +303,7 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
 				moveCursorTo(_index);
 				this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
 				return;
+			}
 
 			default: // Others error ?
 			case 0: // Incorrect adress email
@@ -452,7 +452,6 @@ function formatDatetime(epoch) {
 	const datetime = new Date(0);
 	datetime.setSeconds(epoch);
 
-	const year = datetime.getFullYear();
 	const month = datetime.getMonth() + 1;
 	const day = datetime.getDate();
 	const hours = datetime.getHours();
@@ -485,7 +484,7 @@ CharSelectV2.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 		case 0: // 0: An unknown error has occurred.
 			return;
 
-		case 1: // 1: none/success
+		case 1: { // 1: none/success
 			//Adjust from remaining time to fixed datetime
 			const timer =
 				(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
@@ -494,6 +493,7 @@ CharSelectV2.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 			info.DeleteDate = timer;
 			requestdelete(_index, timer);
 			break;
+		}
 
 		case 3: // 3: A database error occurred.
 			return;
@@ -736,11 +736,11 @@ function moveCursorTo(index) {
  * Render sprites to canvas
  */
 function render() {
-	let i, count, idx;
+	let i;
 
 	Camera.direction = 4;
-	idx = Math.floor(_index / 3) * 3;
-	count = _ctx.length;
+	const idx = Math.floor(_index / 3) * 3;
+	const count = _ctx.length;
 
 	for (i = 0; i < count; ++i) {
 		_ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);

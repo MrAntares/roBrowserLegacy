@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 
-import glMatrix from 'Utils/gl-matrix.js';
+
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
@@ -29,7 +29,7 @@ import cssText from './EffectViewer.css?raw';
 /**
  * Load dependencies
  */
-const mat4 = glMatrix.mat4;
+
 
 /**
  * @var {object} fog structure

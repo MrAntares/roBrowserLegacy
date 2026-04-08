@@ -55,7 +55,7 @@ ChatBoxSettings.init = function init() {
 		ChatBoxSettings.ui.hide();
 	});
 
-	const list = this.ui.find('.listoption');
+	this.ui.find('.listoption');
 
 	this.ui.on('click', '.content .listoption button', onClickOption);
 	this.draggable(this.ui.find('.titlebar'));
@@ -127,7 +127,6 @@ function onResize() {
 	const left = ui.position().left;
 	let lastWidth = 0;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizeProcess() {
 		const extraX = 23 + 16 + 16 - 30;
@@ -150,7 +149,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizeProcess, 30);
+	const _Interval = setInterval(resizeProcess, 30);
 
 	// Stop resizing
 	jQuery(window).one('mouseup', function (event) {

@@ -172,7 +172,7 @@ function cancel() {
  */
 function updateCharacter(type, increment) {
 	switch (type) {
-		case 'head':
+		case 'head': {
 			let head = _chargen.entity.head + increment;
 
 			if (head < 2) {
@@ -185,6 +185,7 @@ function updateCharacter(type, increment) {
 
 			_chargen.entity.head = head;
 			break;
+		}
 
 		case 'headpalette':
 			_chargen.entity.headpalette += increment;
@@ -229,9 +230,9 @@ function updateGraphic() {
 	const ctx = _graph;
 	const width = ctx.canvas.width;
 	const height = ctx.canvas.height;
-	let i,
-		x = width / 2,
-		y = height / 2;
+	let i;
+	const x = width / 2;
+	const y = height / 2;
 	const list = ['dex', 'agi', 'str', 'vit', 'luk', 'int'];
 
 	ctx.clearRect(0, 0, width, height);

@@ -351,8 +351,7 @@ ChatBox.init = function init() {
 		.find('.input .list')
 		.click(function () {
 			const names = _historyNickName.list;
-			let i,
-				count = names.length;
+			const count = names.length;
 			const pos = jQuery(this).offset();
 			const ui = ContextMenu.ui.find('.menu');
 
@@ -364,7 +363,7 @@ ChatBox.init = function init() {
 			ContextMenu.remove();
 			ContextMenu.append();
 
-			for (i = 0; i < count; ++i) {
+			for (let i = 0; i < count; ++i) {
 				ContextMenu.addElement(names[i], onPrivateMessageUserSelection(names[i]));
 			}
 
@@ -592,15 +591,13 @@ ChatBox.init = function init() {
  * Clean up the box
  */
 ChatBox.clean = function Clean() {
-	let matches, i, count;
-
-	matches = this.ui
+	const matches = this.ui
 		.find('.content')
 		.html()
 		.match(/(blob:[^"]+)/g);
 
 	if (matches) {
-		for (i = 0, count = matches.length; i < count; ++i) {
+		for (let i = 0, count = matches.length; i < count; ++i) {
 			window.URL.revokeObjectURL(matches[i]);
 		}
 	}
@@ -1003,7 +1000,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 			break;
 
 		// Send message
-		case KEYS.ENTER:
+		case KEYS.ENTER: {
 			if (
 				document.activeElement.className === 'message input-chatbox' &&
 				document.activeElement !== messageBox[0]
@@ -1021,22 +1018,23 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 				return false;
 			}
 
-			var input = this.ui.find('.input');
+			const input = this.ui.find('.input');
 			if (!input.is(':visible')) {
 				input.show();
 				this.ui.find('.battlemode').hide();
 			}
 
-			var el = messageBox[0];
+			const el = messageBox[0];
 			el.focus();
-			var range = document.createRange();
-			var sel = window.getSelection();
+			const range = document.createRange();
+			const sel = window.getSelection();
 			range.selectNodeContents(el);
 			range.collapse(false);
 			sel.removeAllRanges();
 			sel.addRange(range);
 			event.stopImmediatePropagation();
 			return false;
+		}
 	}
 
 	event.stopImmediatePropagation();
@@ -1438,14 +1436,14 @@ ChatBox.saveNickName = function saveNickName(pseudo) {
  * Save chat from current tab into a file.
  */
 ChatBox.saveCurrentTabChat = function saveCurrentTabChat() {
-	let timezone, date, data, url;
+	let data;
 
 	// Create a date
 	const tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
 	let localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
 	localISOTime = localISOTime.replace('T', ' ');
-	timezone = new Date().getTimezoneOffset() / 60;
-	date = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
+	const timezone = new Date().getTimezoneOffset() / 60;
+	const date = localISOTime + ' (GMT ' + (timezone > 0 ? '-' : '+') + Math.abs(timezone).toString() + ')'; //GMT
 
 	data =
 		'<html><head><title>Chat History</title><style> body { background-color: DarkSlateGray; } </style></head><body>';
@@ -1453,7 +1451,7 @@ ChatBox.saveCurrentTabChat = function saveCurrentTabChat() {
 	data += '</body></html>';
 
 	// We create a local file
-	url = window.URL.createObjectURL(new Blob([data], { type: 'text/plain' }));
+	const url = window.URL.createObjectURL(new Blob([data], { type: 'text/plain' }));
 
 	ChatBox.addText(
 		'Chat History [' +
@@ -1479,7 +1477,6 @@ ChatBox.saveCurrentTabChat = function saveCurrentTabChat() {
  */
 function onScroll(event) {
 	let delta;
-	let lineHeight;
 
 	if (event.originalEvent.wheelDelta) {
 		delta = event.originalEvent.wheelDelta / 120;
@@ -1490,7 +1487,7 @@ function onScroll(event) {
 		delta = -event.originalEvent.detail;
 	}
 
-	lineHeight = getScrollLineHeightPx(this);
+	const lineHeight = getScrollLineHeightPx(this);
 	this.scrollTop = Math.floor(this.scrollTop / lineHeight) * lineHeight - delta * lineHeight;
 	return false;
 }
@@ -1598,7 +1595,9 @@ function getScrollLineHeightPx(element) {
 		if (isFinite(lh) && lh > 0) {
 			return Math.round(lh);
 		}
-	} catch (e) {}
+	} catch (e) {
+		// Ignore
+	}
 
 	return 14;
 }

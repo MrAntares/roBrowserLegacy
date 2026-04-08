@@ -165,7 +165,7 @@ function cancel() {
  */
 function updateCharacter(type, increment) {
 	switch (type) {
-		case 'head':
+		case 'head': {
 			let head = _chargen.entity.head + increment;
 
 			if (head < 2) {
@@ -178,6 +178,7 @@ function updateCharacter(type, increment) {
 
 			_chargen.entity.head = head;
 			break;
+		}
 
 		case 'headpalette':
 			_chargen.entity.headpalette += increment;

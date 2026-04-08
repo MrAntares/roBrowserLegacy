@@ -294,7 +294,7 @@ function updateRace() {
 	}
 
 	// In between changes of race, it needs to clear everything
-	for (var i = 1; i <= 24; i++) {
+	for (let i = 1; i <= 24; i++) {
 		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_hairstyle_normal.bmp', function (dataURI) {
 			CharCreatev4.ui.find('.style' + i).css('backgroundImage', 'url(' + dataURI + ')');
 		});
@@ -396,7 +396,7 @@ function cleanup() {
 	CharCreatev4.ui.find('#1_human_male').prop('checked', true);
 	CharCreatev4.ui.find('#0_color').prop('checked', true);
 
-	for (var i = 0; i <= 8; i++) {
+	for (let i = 0; i <= 8; i++) {
 		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/color0' + (i + 1) + '_off.bmp', function (dataURI) {
 			CharCreatev4.ui.find('.cstyle0' + i).css('backgroundImage', 'url(' + dataURI + ')');
 		});
