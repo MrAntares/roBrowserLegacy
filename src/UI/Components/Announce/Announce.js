@@ -88,7 +88,7 @@ Announce.set = function set(text, color, allowNewlines = false) {
 	const maxWidth = 500;
 	const lines = [];
 
-	this.ctx.font = fontSize + 'px Arial';
+	this.ctx.font = `${fontSize}px Arial`;
 
 	if (allowNewlines) {
 		// Process '\n' explicitly as a new line

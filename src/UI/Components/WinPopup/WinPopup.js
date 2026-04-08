@@ -24,8 +24,8 @@ const WinPopup = new UIComponent('WinPopup', htmlText, cssText);
  */
 WinPopup.init = function init() {
 	Object.assign(this.ui[0].style, {
-		top: (Renderer.height - 120) / 1.5 - 120 + 'px',
-		left: (Renderer.width - 280) / 2.0 + 'px',
+		top: `${(Renderer.height - 120) / 1.5 - 120}px`,
+		left: `${(Renderer.width - 280) / 2.0}px`,
 		zIndex: '100'
 	});
 };

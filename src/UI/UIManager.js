@@ -21,8 +21,8 @@ import GameEngine from 'Engine/GameEngine.js';
  */
 function _popupPosition() {
 	return {
-		top: (Renderer.height - 120) / 1.5 - 120 + 'px',
-		left: (Renderer.width - 280) / 2.0 + 'px',
+		top: `${(Renderer.height - 120) / 1.5 - 120}px`,
+		left: `${(Renderer.width - 280) / 2.0}px`,
 		zIndex: '100'
 	};
 }
@@ -37,12 +37,12 @@ function _popupPosition() {
 function _createButton(name, onClick, parseHTML) {
 	const btn = document.createElement('button');
 	btn.className = 'btn';
-	btn.dataset.background = 'btn_' + name + '.bmp';
-	btn.dataset.hover = 'btn_' + name + '_a.bmp';
-	btn.dataset.down = 'btn_' + name + '_b.bmp';
+	btn.dataset.background = `btn_${name}.bmp`;
+	btn.dataset.hover = `btn_${name}_a.bmp`;
+	btn.dataset.down = `btn_${name}_b.bmp`;
 
 	let clicked = false;
-	btn.addEventListener('click', function () {
+	btn.addEventListener('click', () => {
 		if (clicked) return;
 		clicked = true;
 		onClick();
@@ -153,18 +153,18 @@ class UIManager {
 			const height = rect.height;
 
 			if (y + height > HEIGHT) {
-				el.style.top = HEIGHT - Math.min(height, HEIGHT) + 'px';
+				el.style.top = `${HEIGHT - Math.min(height, HEIGHT)}px`;
 			}
 			if (x + width > WIDTH) {
-				el.style.left = WIDTH - Math.min(width, WIDTH) + 'px';
+				el.style.left = `${WIDTH - Math.min(width, WIDTH)}px`;
 			}
 
 			// Magnet
 			if (component.magnet.BOTTOM) {
-				el.style.top = HEIGHT - height + 'px';
+				el.style.top = `${HEIGHT - height}px`;
 			}
 			if (component.magnet.RIGHT) {
-				el.style.left = WIDTH - width + 'px';
+				el.style.left = `${WIDTH - width}px`;
 			}
 
 			if (component.onResize) {
@@ -192,7 +192,7 @@ class UIManager {
 
 			const btn = _createButton(
 				'ok',
-				function () {
+				() => {
 					overlay.remove();
 					WinError.remove();
 					GameEngine.reload();
@@ -242,7 +242,7 @@ class UIManager {
 			if (btn_name) {
 				const btn = _createButton(
 					btn_name,
-					function () {
+					() => {
 						WinMSG.remove();
 						if (callback) callback();
 					},
@@ -295,7 +295,7 @@ class UIManager {
 			btnsContainer.appendChild(
 				_createButton(
 					btn_yes,
-					function () {
+					() => {
 						WinPrompt.remove();
 						if (onYes) onYes();
 					},
@@ -306,7 +306,7 @@ class UIManager {
 			btnsContainer.appendChild(
 				_createButton(
 					btn_no,
-					function () {
+					() => {
 						WinPrompt.remove();
 						if (onNo) onNo();
 					},
