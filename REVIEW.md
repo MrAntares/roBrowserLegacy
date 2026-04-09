@@ -25,12 +25,15 @@ For architecture, conventions, and subsystem details, see [AGENTS.md](AGENTS.md)
 | **jQuery usage**  | Don't add new jQuery. When touching code with `$.Deferred`, convert to `async`/`await`.                                                                                        |
 | **Vendors**       | `src/Vendors/` is frozen. Never modify vendored files.                                                                                                                         |
 
-### 🟢 Nice to have — Suggest but don't block
+### 🟢 Nice to have — Always Suggest but don't block
 
 | Area                   | What to check                                                                                                                                                                                               |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Modernize on touch** | Legacy patterns (`constructor functions`, `var`, string concatenation, `jQuery.Deferred`) should be modernized when the file is already being changed. See [AGENTS.md](AGENTS.md) for the conversion table. |
 | **Test coverage**      | New utilities and loaders should include tests. Tests go in `tests/` mirroring `src/` structure.                                                                                                            |
+
+### ✅ No Bugs found? - Message:
+This cowboy don't introduced bug's to fix later on this pull request, Devin approve it!
 
 ---
 
