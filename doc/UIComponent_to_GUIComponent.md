@@ -15,7 +15,7 @@
 - Native DOM + Shadow DOM (`attachShadow({ mode: 'open' })`)
 - CSS injected inside the Shadow DOM via a `<style>` element (Common.css + component CSS)
 - HTML returned by `render()` method as a string, inserted into `this._container.innerHTML`
-- Uses Custom Elements (`<ro-button>`, `<ro-text>`, `<ro-image>`) instead of `data-*` attributes (see doc/CustomElements.md)
+- Uses Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes (see doc/CustomElements.md)
 - `this.ui` is a jQuery-compatible proxy object so UIManager and legacy UIComponent instances can interoperate without changes
 
 ### DOM Structure
@@ -25,7 +25,7 @@ document.body
 └── div#ComponentName          ← this._host (position: absolute, z-index: 50)
     └── #shadow-root (open)    ← this._shadow
         ├── <style>            ← Common.css + component CSS
-        └── div.ro-component-root  ← this._container
+        └── div.ui-component-root  ← this._container
             └── <div id="ComponentName">  ← component HTML from render()
                 └── ...content...
 ```
@@ -58,7 +58,7 @@ const Clan = new UIComponent('Clan', htmlText, cssText);
 ```javascript
 import GUIComponent from 'UI/GUIComponent.js';
 import UIManager from 'UI/UIManager.js';
-import 'UI/Elements/Elements.js'; // ← REQUIRED: registers <ro-button>, <ro-text>, <ro-image>
+import 'UI/Elements/Elements.js'; // ← REQUIRED: registers <ui-button>, <ui-text>, <ui-image>
 import htmlText from './Clan.html?raw';
 import cssText from './Clan.css?raw';
 
@@ -81,9 +81,9 @@ Replace `data-*` attributes with Custom Elements:
 
 | UIComponent (data-\*)                                                                      | GUIComponent (Custom Element)                                          |
 | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `<button data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp">` | `<ro-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">` |
-| `<span data-text="2355">Fallback</span>`                                                   | `<ro-text msg="2355">Fallback</ro-text>`                               |
-| `<div data-background="image.bmp">`                                                        | `<ro-image src="image.bmp">`                                           |
+| `<button data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp">` | `<ui-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">` |
+| `<span data-text="2355">Fallback</span>`                                                   | `<ui-text msg="2355">Fallback</ui-text>`                               |
+| `<div data-background="image.bmp">`                                                        | `<ui-image src="image.bmp">`                                           |
 
 Elements that still use `data-background`, `data-hover`, `data-down`, `data-active`, `data-text`, or `data-preload` will be processed by `GUIComponent._processAllDataAttrs()` during `prepare()`. Both approaches work; Custom Elements are preferred for new code. Create new custom elements if conversion demands it (see doc/CustomElements.md).
 
@@ -277,7 +277,7 @@ This rule is inside `Common.css` which is injected into every Shadow DOM. `:host
 
 ### 3. Scrollbar CSS injection into Shadow DOM
 
-**Bug**: The scrollbar CSS (`.ro-custom-scrollbar` styles) is injected into the global `<style>` tag by `Scrollbar.js setupStyles()`. These styles don't reach elements inside Shadow DOM.
+**Bug**: The scrollbar CSS (`.ui-custom-scrollbar` styles) is injected into the global `<style>` tag by `Scrollbar.js setupStyles()`. These styles don't reach elements inside Shadow DOM.
 
 **Fix applied in `src/UI/Scrollbar.js`** (commit `b9d21673`):
 
@@ -313,7 +313,7 @@ if (!$element[0].isConnected) { ... }
 
 ### 5. Mouse events are retargeted across Shadow DOM boundaries
 
-**Bug**: When a `mouseover` event fires on an element inside Shadow DOM and bubbles to `document.body`, `e.target` is retargeted to the shadow host element. The CursorManager's `findClickableTarget(e.target)` never finds clickable elements (like `.ro-custom-scrollbar`, `ro-button`) inside the shadow.
+**Bug**: When a `mouseover` event fires on an element inside Shadow DOM and bubbles to `document.body`, `e.target` is retargeted to the shadow host element. The CursorManager's `findClickableTarget(e.target)` never finds clickable elements (like `.ui-custom-scrollbar`, `ui-button`) inside the shadow.
 
 **Fix applied in `src/UI/GUIComponent.js`** (commit `f4183351`):
 
@@ -379,7 +379,7 @@ this._host.style.left = '200px';
 ### Files
 
 - `src/UI/Components/Clan/Clan.js` — Component logic
-- `src/UI/Components/Clan/Clan.html` — HTML template using `<ro-button>`, `<ro-text>`
+- `src/UI/Components/Clan/Clan.html` — HTML template using `<ui-button>`, `<ui-text>`
 - `src/UI/Components/Clan/Clan.css` — Styles with `:host` for dimensions/position
 
 ### CSS Pattern

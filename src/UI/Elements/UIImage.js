@@ -3,11 +3,11 @@ import Client from 'Core/Client.js';
 import Targa from 'Loaders/Targa.js';
 
 /**
- * <ro-image src="basic_interface/titlebar_mid.bmp"></ro-image>
+ * <ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
  *
  * Replaces: <div data-background="basic_interface/titlebar_mid.bmp">
  */
-class ROImage extends HTMLElement {
+class UIImage extends HTMLElement {
 	connectedCallback() {
 		if (this._initialized) return;
 		this._initialized = true;
@@ -44,5 +44,5 @@ class ROImage extends HTMLElement {
 	}
 }
 
-customElements.define('ro-image', ROImage);
-export default ROImage;
+customElements.define('ui-image', UIImage);
+export default UIImage;

@@ -9,80 +9,80 @@ All custom elements live in `src/UI/Elements/`:
 ```
 src/UI/Elements/
 ├── Elements.js      ← imports and registers all elements
-├── ROButton.js      ← <ro-button>
-├── ROText.js        ← <ro-text>
-└── ROImage.js       ← <ro-image>
+├── UIButton.js      ← <ui-button>
+├── UIText.js        ← <ui-text>
+└── UIImage.js       ← <ui-image>
 ```
 
 ### Existing Elements
 
-#### `<ro-button>` — replaces `<button data-background data-hover data-down>`
+#### `<ui-button>` — replaces `<button data-background data-hover data-down>`
 
 ```html
 <!-- Before (UIComponent) -->
 <button data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp">OK</button>
 
 <!-- After (GUIComponent) -->
-<ro-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">OK</ro-button>
+<ui-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">OK</ui-button>
 ```
 
 Handles `mouseover`/`mouseout`/`mousedown`/`mouseup` internally to swap background images. Loads BMP/TGA files via `Client.loadFile()`.
 
-**CSS requirement**: `<ro-button>` extends `HTMLElement` (not `HTMLButtonElement`), so it defaults to `display: inline`. The rule `ro-button { display: inline-block; }` exists in `Common.css` and is injected into every Shadow DOM automatically. This has low specificity `(0,0,1)` so component rules like `#Clan .footer .btn_ok { display: none; }` still override it. **Never** set `display` via inline style in `connectedCallback()` — it would override CSS `display: none` rules and break show/hide logic.
+**CSS requirement**: `<ui-button>` extends `HTMLElement` (not `HTMLButtonElement`), so it defaults to `display: inline`. The rule `ui-button { display: inline-block; }` exists in `Common.css` and is injected into every Shadow DOM automatically. This has low specificity `(0,0,1)` so component rules like `#Clan .footer .btn_ok { display: none; }` still override it. **Never** set `display` via inline style in `connectedCallback()` — it would override CSS `display: none` rules and break show/hide logic.
 
-**CSS selector update**: Any CSS rule targeting `button` by tag name must be updated to `ro-button`:
+**CSS selector update**: Any CSS rule targeting `button` by tag name must be updated to `ui-button`:
 
 ```css
 /* Before */
 #Clan .content.info .members button { ... }
 /* After */
-#Clan .content.info .members ro-button { ... }
+#Clan .content.info .members ui-button { ... }
 ```
 
-**Cursor**: `ro-button` is included in `CLICKABLE_SELECTOR` in `CursorManager.js` and in `GUIComponent._setupShadowCursorEvents()`. The custom hand cursor appears on hover automatically.
+**Cursor**: `ui-button` is included in `CLICKABLE_SELECTOR` in `CursorManager.js` and in `GUIComponent._setupShadowCursorEvents()`. The custom hand cursor appears on hover automatically.
 
-#### `<ro-text>` — replaces `<span data-text="msgId">`
+#### `<ui-text>` — replaces `<span data-text="msgId">`
 
 ```html
 <!-- Before (UIComponent) -->
 <span data-text="2355">Clan Info</span>
 
 <!-- After (GUIComponent) -->
-<ro-text msg="2355">Clan Info</ro-text>
+<ui-text msg="2355">Clan Info</ui-text>
 ```
 
 Resolves the message ID via `DB.getMessage()` on connect and on attribute change (reactive via `observedAttributes`). The inner text content serves as fallback if the message ID is not found.
 
-#### `<ro-image>` — replaces `<div data-background="image.bmp">`
+#### `<ui-image>` — replaces `<div data-background="image.bmp">`
 
 ```html
 <!-- Before (UIComponent) — data-background sets background on the element itself -->
 <div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
-	<!-- After (GUIComponent) — ro-image is a child element that sets background on itself -->
+	<!-- After (GUIComponent) — ui-image is a child element that sets background on itself -->
 	<div class="titlebar">
-		<ro-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ro-image>
+		<ui-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ui-image>
 	</div>
 </div>
 ```
 
-**Behavior**: `<ro-image>` loads the image via `Client.loadFile()` and sets `background-image` on its parent element (not on itself). It hides itself with `display: none` so it doesn't occupy any layout space. This replicates the old data-background behavior where the background was applied to the element that had the attribute.
+**Behavior**: `<ui-image>` loads the image via `Client.loadFile()` and sets `background-image` on its parent element (not on itself). It hides itself with `display: none` so it doesn't occupy any layout space. This replicates the old data-background behavior where the background was applied to the element that had the attribute.
 
-No inline styles or explicit dimensions are needed on `<ro-image>` — the parent element is the one that must have the correct dimensions for the background to be visible.
+No inline styles or explicit dimensions are needed on `<ui-image>` — the parent element is the one that must have the correct dimensions for the background to be visible.
 
 **Preferred approach** — inline style in HTML (no CSS changes needed):
 
 ```html
 <!-- Fill parent completely (titlebar) -->
-<ro-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ro-image>
+<ui-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ui-image>
 
 <!-- Fixed height (footer bar) -->
-<ro-image src="basic_interface/btnbar_mid2.bmp" style="width: 100%; height: 27px; display: block"></ro-image>
+<ui-image src="basic_interface/btnbar_mid2.bmp" style="width: 100%; height: 27px; display: block"></ui-image>
 ```
 
-**Alternative** — CSS rule (when many `<ro-image>` share the same sizing):
+**Alternative** — CSS rule (when many `<ui-image>` share the same sizing):
 
 ```css
-.titlebar ro-image {
+.titlebar ui-image {
 	display: block;
 	width: 100%;
 	height: 100%;
@@ -97,7 +97,7 @@ The following `data-*` patterns do NOT have custom elements yet. When migrating 
 
 | Pattern        | Suggested element                                        | Behavior                                                                                                          |
 | -------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `data-active`  | `<ro-toggle>` or extend `<ro-button>` with `active` attr | Toggles background when element has `.active` class. Currently uses a `MutationObserver` in `processDataAttrs()`. |
+| `data-active`  | `<ui-toggle>` or extend `<ui-button>` with `active` attr | Toggles background when element has `.active` class. Currently uses a `MutationObserver` in `processDataAttrs()`. |
 | `data-preload` | None needed — move to JS                                 | Non-visual. Call `Client.loadFiles()` directly in `init()` or `onAppend()`.                                       |
 
 _(This list may be outdated. Always check `src/UI/Elements/` for the current set of elements.)_
@@ -112,7 +112,7 @@ import Client from 'Core/Client.js';
 import Targa from 'Loaders/Targa.js';
 
 /**
- * <ro-newelement attr="value"></ro-newelement>
+ * <ui-newelement attr="value"></ui-newelement>
  *
  * Replaces: <div data-something="value">
  */
@@ -133,23 +133,23 @@ class RONewElement extends HTMLElement {
 	}
 }
 
-customElements.define('ro-newelement', RONewElement);
+customElements.define('ui-newelement', RONewElement);
 export default RONewElement;
 ```
 
 **Step 2**: Register in `Elements.js`:
 
 ```javascript
-import './ROButton.js';
-import './ROText.js';
-import './ROImage.js';
+import './UIButton.js';
+import './UIText.js';
+import './UIImage.js';
 import './RONewElement.js'; // ← add
 ```
 
 **Step 3**: Add default display rule to `Common.css` if the element needs dimensions:
 
 ```css
-ro-newelement {
+ui-newelement {
 	display: inline-block; /* or block, depending on use case */
 }
 ```
@@ -159,7 +159,7 @@ ro-newelement {
 When components create elements dynamically (e.g., buttons at runtime), use custom elements directly:
 
 ```javascript
-const btn = document.createElement('ro-button');
+const btn = document.createElement('ui-button');
 btn.setAttribute('bg', 'btn_ok.bmp');
 btn.setAttribute('hover', 'btn_ok_a.bmp');
 btn.setAttribute('down', 'btn_ok_b.bmp');

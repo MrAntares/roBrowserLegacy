@@ -121,7 +121,7 @@ class GUIComponent {
 
 		// Create inner container for component content
 		this._container = document.createElement('div');
-		this._container.classList.add('ro-component-root');
+		this._container.classList.add('ui-component-root');
 		this._shadow.appendChild(this._container);
 
 		// Render component content (subclass provides this)
@@ -675,7 +675,7 @@ class GUIComponent {
 		const CLICKABLE_SELECTOR = [
 			'a',
 			'button',
-			'ro-button',
+			'ui-button',
 			'input',
 			'label',
 			'select',

@@ -1,6 +1,6 @@
 // Register all custom elements once
-import './ROButton.js';
-import './ROText.js';
-import './ROImage.js';
+import './UIButton.js';
+import './UIText.js';
+import './UIImage.js';
 
 // Future: ROActor, etc.

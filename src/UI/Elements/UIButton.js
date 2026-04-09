@@ -3,11 +3,11 @@ import Client from 'Core/Client.js';
 import Targa from 'Loaders/Targa.js';
 
 /**
- * <ro-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">OK</ro-button>
+ * <ui-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">OK</ui-button>
  *
  * Replaces: <button data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp">
  */
-class ROButton extends HTMLElement {
+class UIButton extends HTMLElement {
 	connectedCallback() {
 		if (this._initialized) return;
 		this._initialized = true;
@@ -80,5 +80,5 @@ class ROButton extends HTMLElement {
 	}
 }
 
-customElements.define('ro-button', ROButton);
-export default ROButton;
+customElements.define('ui-button', UIButton);
+export default UIButton;

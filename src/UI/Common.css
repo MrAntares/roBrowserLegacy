@@ -32,11 +32,11 @@ body {
 }
 
 button,
-ro-button {
+ui-button {
 	padding: 0;
 }
 
-ro-button {
+ui-button {
 	display: inline-block;
 }
 

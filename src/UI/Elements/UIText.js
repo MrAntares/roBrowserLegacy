@@ -1,11 +1,11 @@
 import DB from 'DB/DBManager.js';
 
 /**
- * <ro-text msg="2355">Fallback text</ro-text>
+ * <ui-text msg="2355">Fallback text</ui-text>
  *
  * Replaces: <span data-text="2355">Clan Info</span>
  */
-class ROText extends HTMLElement {
+class UIText extends HTMLElement {
 	connectedCallback() {
 		if (this._initialized) return;
 		this._initialized = true;
@@ -28,5 +28,5 @@ class ROText extends HTMLElement {
 	}
 }
 
-customElements.define('ro-text', ROText);
-export default ROText;
+customElements.define('ui-text', UIText);
+export default UIText;
