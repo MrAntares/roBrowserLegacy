@@ -30,7 +30,7 @@ For architecture, conventions, and subsystem details, see [AGENTS.md](AGENTS.md)
 | Requirement | Detail |
 | --- | --- |
 | **Never skip** | When the Bug Catcher flags something as **Investigate**, always leave a comment — never silently skip. |
-| **Comment must include** | 1) What the flagged code does. 2) Whether it's a real issue or false positive. 3) If action is needed, suggest a fix. 
+| **Comment must include** | 1) What the flagged code does. 2) Whether it's a real issue or false positive. 3) If action is needed, suggest a fix. |
 
 ### 🟢 Nice to have — Always Suggest but don't block
 
