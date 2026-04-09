@@ -314,7 +314,7 @@ NpcStore.setType = function setType(type) {
  */
 NpcStore.setList = function setList(items) {
 	let i, count;
-	let it, item, out, content, availableContent;
+	let it, item, out;
 
 	this.ui.find('.content').empty();
 	this.ui.find('.total .result').text(0);
@@ -322,8 +322,8 @@ NpcStore.setList = function setList(items) {
 
 	_input.length = 0;
 	_output.length = 0;
-	content = this.ui.find('.InputWindow .content');
-	availableContent = this.ui.find('.AvailableItemsWindow .content');
+	const content = this.ui.find('.InputWindow .content');
+	const availableContent = this.ui.find('.AvailableItemsWindow .content');
 	switch (_type) {
 		case NpcStore.Type.BUY:
 		case NpcStore.Type.VENDING_STORE:
@@ -393,7 +393,7 @@ NpcStore.setList = function setList(items) {
 			}
 			break;
 
-		case NpcStore.Type.SELL:
+		case NpcStore.Type.SELL: {
 			const InventoryVersion = UIManager.getComponent('Inventory').name;
 			for (i = 0, count = items.length; i < count; ++i) {
 				it = Inventory.getUI().getItemByIndex(items[i].index);
@@ -419,6 +419,7 @@ NpcStore.setList = function setList(items) {
 				}
 			}
 			break;
+		}
 	}
 };
 
@@ -433,13 +434,10 @@ NpcStore.setPriceLimit = function setPriceLimit(price) {
  * Submit data to send items
  */
 NpcStore.submit = function submit() {
-	let output;
-	let i, count;
+	const output = [];
+	const count = _output.length;
 
-	output = [];
-	count = _output.length;
-
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (_output[i] && _output[i].count) {
 			output.push(_output[i]);
 		}
@@ -451,7 +449,7 @@ NpcStore.submit = function submit() {
 	this.ui.find('.OutputWindow').find('.content').empty();
 	this.ui.find('.totalP .resultP').text(0);
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (_output[i] && _output[i].count) {
 			_output[i].count = 0; // clear
 		}
@@ -464,10 +462,10 @@ NpcStore.submit = function submit() {
  * @return {number}
  */
 NpcStore.calculateCost = function calculateCost() {
-	let i, count, total;
+	let i, total;
 
 	total = 0;
-	count = _output.length;
+	const count = _output.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_output[i]) {
@@ -511,8 +509,8 @@ NpcStore.calculateWeight = function calculateWeight() {
  */
 function prettyZeny(val, useStyle) {
 	const list = val.toString().split('');
-	let i,
-		count = list.length;
+	let i;
+	const count = list.length;
 	let str = '';
 
 	for (i = 0; i < count; i++) {
@@ -784,7 +782,6 @@ function onResize(ui) {
 	const top = ui.position().top;
 	const content = ui.find('.content:first');
 	let lastHeight = 0;
-	let interval;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
@@ -801,7 +798,7 @@ function onResize(ui) {
 	}
 
 	// Start resizing
-	interval = setInterval(resizing, 30);
+	const interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
@@ -941,11 +938,9 @@ const transferItem = (function () {
  * @param {boolean} add the content to the output box ?
  */
 function requestMoveItem(index, fromContent, toContent, isAdding) {
-	let item, count;
-	let isStackable;
-
-	item = isAdding ? _input[index] : _output[index];
-	isStackable =
+	let count;
+	const item = isAdding ? _input[index] : _output[index];
+	const isStackable =
 		item.type !== ItemType.WEAPON &&
 		item.type !== ItemType.EQUIP &&
 		item.type !== ItemType.PETEGG &&
@@ -973,10 +968,10 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 	// Have to specify an amount
 	InputBox.append();
 	InputBox.setType('number', false, count);
-	InputBox.onSubmitRequest = function (count) {
+	InputBox.onSubmitRequest = function (_count) {
 		InputBox.remove();
-		if (count > 0) {
-			transferItem(fromContent, toContent, isAdding, index, count);
+		if (_count > 0) {
+			transferItem(fromContent, toContent, isAdding, index, _count);
 		}
 	};
 }
@@ -1042,13 +1037,13 @@ function onItemInfo(event) {
  * Select an item, put it on the other box
  */
 function onItemSelected() {
-	let input, from, to;
+	let from, to;
 
 	if ((_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE) && !Session.isTouchDevice) {
 		return;
 	}
 
-	input = NpcStore.ui.find('.InputWindow:first');
+	const input = NpcStore.ui.find('.InputWindow:first');
 
 	if (jQuery.contains(input.get(0), this)) {
 		from = input;
@@ -1097,22 +1092,19 @@ function onScroll(event) {
  * Start dragging an item
  */
 function onDragStart(event) {
-	let container, img, url;
-	let InputWindow, OutputWindow, AvailableItemsWindow;
+	const InputWindow = NpcStore.ui.find('.InputWindow:first').get(0);
+	const OutputWindow = NpcStore.ui.find('.OutputWindow:first').get(0);
+	const AvailableItemsWindow = NpcStore.ui.find('.AvailableItemsWindow:first').get(0);
 
-	InputWindow = NpcStore.ui.find('.InputWindow:first').get(0);
-	OutputWindow = NpcStore.ui.find('.OutputWindow:first').get(0);
-	AvailableItemsWindow = NpcStore.ui.find('.AvailableItemsWindow:first').get(0);
-
-	container = (
+	const container = (
 		jQuery.contains(InputWindow, this)
 			? InputWindow
 			: jQuery.contains(AvailableItemsWindow, this)
 				? AvailableItemsWindow
 				: OutputWindow
 	).className;
-	img = new Image();
-	url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
+	const img = new Image();
+	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
 	img.decoding = 'async';
 	img.src = url;
 

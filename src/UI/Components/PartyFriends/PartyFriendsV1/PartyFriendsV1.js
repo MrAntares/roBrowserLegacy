@@ -577,14 +577,13 @@ PartyFriendsV1.onKeyDown = function onKeyDown(event) {
  * @param {Array} friends list
  */
 PartyFriendsV1.setFriends = function setFriends(friends) {
-	let i,
-		count = friends.length;
+	const count = friends.length;
 	const ui = this.ui.find('.content .friend');
 
 	_friends.length = friends.length;
 	ui.empty();
 
-	for (i = 0; i < count; i++) {
+	for (let i = 0; i < count; i++) {
 		_friends[i] = friends[i];
 		ui.append(
 			'<div class="node' +
@@ -689,11 +688,10 @@ PartyFriendsV1.setParty = function setParty(name, members) {
 	this.ui.find('.party.create').hide();
 	this.ui.find('.party.leave, .party.sort').show();
 
-	let i,
-		count = members.length;
+	const count = members.length;
 	const newAIDs = {};
 
-	for (i = 0; i < count; i++) {
+	for (let i = 0; i < count; i++) {
 		const member = members[i];
 		newAIDs[member.AID] = true;
 		PartyFriendsV1.addPartyMember(member);
@@ -701,7 +699,7 @@ PartyFriendsV1.setParty = function setParty(name, members) {
 
 	// Remove members who are no longer in the party
 	if (_party.length > 0 && count > 0) {
-		for (i = 0; i < _party.length; i++) {
+		for (let i = 0; i < _party.length; i++) {
 			if (!newAIDs[_party[i].AID]) {
 				const removed = _party.splice(i, 1)[0];
 				this.ui.find('.content .party .node[data-aid="' + removed.AID + '"]').remove();
@@ -716,7 +714,7 @@ PartyFriendsV1.setParty = function setParty(name, members) {
 	let removedCount = 0;
 	for (const aid in _detachedMembers) {
 		let foundInPacket = false;
-		for (i = 0; i < count; i++) {
+		for (let i = 0; i < count; i++) {
 			if (members[i].AID == aid || String(members[i].AID) === aid) {
 				foundInPacket = true;
 				break;
@@ -804,8 +802,8 @@ function updateCanvasLife(node, hp, maxhp) {
  */
 PartyFriendsV1.addPartyMember = function addPartyMember(player) {
 	const role = player.role || 0;
-	let i,
-		count = _party.length;
+	const count = _party.length;
+	let i;
 
 	// Check if we are the leader
 	if (player.AID === Session.AID) {
@@ -1004,10 +1002,9 @@ PartyFriendsV1.removePartyMember = function removePartyMember(AID, characterName
 		return;
 	}
 
-	let i,
-		count = _party.length;
+	const count = _party.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		// Why Gravity doesn't send the GID ? Meaning we can't have the same
 		// character name twice (even in the same account).
 		if (_party[i].AID === AID && _party[i].characterName === characterName) {
@@ -1053,11 +1050,10 @@ PartyFriendsV1.resize = function resize(width, height) {
  * @param {boolean} isDead - true if the member has died
  */
 PartyFriendsV1.updateMemberDead = function updateMemberDead(AID, isDead) {
-	let i,
-		count = _party.length;
+	const count = _party.length;
 	let player = null;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (_party[i].AID === AID) {
 			_party[i].isDead = isDead;
 			player = _party[i];
@@ -1081,11 +1077,10 @@ PartyFriendsV1.updateMemberDead = function updateMemberDead(AID, isDead) {
  * @param {number} maxhp
  */
 PartyFriendsV1.updateMemberLife = function updateMemberLife(AID, canvas, hp, maxhp) {
-	let i,
-		count = _party.length;
+	const count = _party.length;
 
 	// Update internal list
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (_party[i].AID === AID) {
 			if (!_party[i].life) {
 				_party[i].life = {};
@@ -1162,7 +1157,6 @@ function onResize() {
 	const left = PartyFriendsV1.ui.position().left;
 	let lastWidth = 0;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraX = -20;
@@ -1185,7 +1179,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
@@ -1384,8 +1378,9 @@ function onRightClickInfo(event) {
 /**
  * Request player information
  * (Not implemented yet in official client)
+ * Currently unused, preserved for future development.
  */
-function onRequestInformation() {
+function _onRequestInformation() {
 	if (_preferences.lock) {
 		return;
 	}
