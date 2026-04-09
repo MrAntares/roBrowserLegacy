@@ -55,8 +55,8 @@ export default {
 		} else if (ControlsSettings.joyQuick === 1) {
 			this.cancelQuick = false;
 
-			function waitforRelease() {
-				setTimeout(function () {
+			const waitforRelease = () => {
+				setTimeout(() => {
 					const buttons = Input.buttonStates;
 					if (ShortcutMapper.getGroup(buttons) !== group) {
 						Cursor.quickCastClick();
@@ -64,7 +64,7 @@ export default {
 						waitforRelease();
 					}
 				}, 50);
-			}
+			};
 			waitforRelease();
 		}
 	},
