@@ -1,4 +1,4 @@
-# Migration Guide: UIComponent → ROComponent
+# Migration Guide: UIComponent → GUIComponent
 
 ## Architecture Overview
 
@@ -10,7 +10,7 @@
 - Lives in the Light DOM (direct child of `document.body`)
 - `this.ui` is a jQuery object wrapping the root element
 
-### ROComponent (new) — `src/UI/ROComponent.js`
+### GUIComponent (new) — `src/UI/GUIComponent.js`
 
 - Native DOM + Shadow DOM (`attachShadow({ mode: 'open' })`)
 - CSS injected inside the Shadow DOM via a `<style>` element (Common.css + component CSS)
@@ -34,7 +34,7 @@ document.body
 
 ### 1. Create the component files
 
-Each ROComponent needs three files:
+Each GUIComponent needs three files:
 
 - `ComponentName.js` — Logic
 - `ComponentName.html` — Template (raw HTML string)
@@ -53,16 +53,16 @@ import cssText from './Clan.css?raw';
 const Clan = new UIComponent('Clan', htmlText, cssText);
 ```
 
-**After (ROComponent):**
+**After (GUIComponent):**
 
 ```javascript
-import ROComponent from 'UI/ROComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import UIManager from 'UI/UIManager.js';
 import 'UI/Elements/Elements.js'; // ← REQUIRED: registers <ro-button>, <ro-text>, <ro-image>
 import htmlText from './Clan.html?raw';
 import cssText from './Clan.css?raw';
 
-const Clan = new ROComponent('Clan', cssText); // ← only CSS, not HTML
+const Clan = new GUIComponent('Clan', cssText); // ← only CSS, not HTML
 
 Clan.render = function render() {
 	return htmlText; // ← HTML goes here
@@ -71,7 +71,7 @@ Clan.render = function render() {
 
 Key differences:
 
-- `ROComponent` constructor takes `(name, cssText)` — no HTML argument
+- `GUIComponent` constructor takes `(name, cssText)` — no HTML argument
 - HTML is returned by `render()` method
 - Must `import 'UI/Elements/Elements.js'` to register custom elements
 
@@ -79,13 +79,13 @@ Key differences:
 
 Replace `data-*` attributes with Custom Elements:
 
-| UIComponent (data-\*)                                                                      | ROComponent (Custom Element)                                           |
+| UIComponent (data-\*)                                                                      | GUIComponent (Custom Element)                                          |
 | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
 | `<button data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp">` | `<ro-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">` |
 | `<span data-text="2355">Fallback</span>`                                                   | `<ro-text msg="2355">Fallback</ro-text>`                               |
 | `<div data-background="image.bmp">`                                                        | `<ro-image src="image.bmp">`                                           |
 
-Elements that still use `data-background`, `data-hover`, `data-down`, `data-active`, `data-text`, or `data-preload` will be processed by `ROComponent._processAllDataAttrs()` during `prepare()`. Both approaches work; Custom Elements are preferred for new code. Create new custom elements if conversion demands it (see doc/CustomElements.md).
+Elements that still use `data-background`, `data-hover`, `data-down`, `data-active`, `data-text`, or `data-preload` will be processed by `GUIComponent._processAllDataAttrs()` during `prepare()`. Both approaches work; Custom Elements are preferred for new code. Create new custom elements if conversion demands it (see doc/CustomElements.md).
 
 ### 4. Convert the CSS file — CRITICAL
 
@@ -235,7 +235,7 @@ Same as before:
 export default UIManager.addComponent(Clan);
 ```
 
-`UIManager.addComponent()` accepts both `UIComponent` and `ROComponent` instances.
+`UIManager.addComponent()` accepts both `UIComponent` and `GUIComponent` instances.
 
 ---
 
@@ -315,7 +315,7 @@ if (!$element[0].isConnected) { ... }
 
 **Bug**: When a `mouseover` event fires on an element inside Shadow DOM and bubbles to `document.body`, `e.target` is retargeted to the shadow host element. The CursorManager's `findClickableTarget(e.target)` never finds clickable elements (like `.ro-custom-scrollbar`, `ro-button`) inside the shadow.
 
-**Fix applied in `src/UI/ROComponent.js`** (commit `f4183351`):
+**Fix applied in `src/UI/GUIComponent.js`** (commit `f4183351`):
 
 ```javascript
 _setupShadowCursorEvents() {
@@ -337,9 +337,9 @@ This method is called automatically by `_setupMouseMode()`. No action needed fro
 
 ### 6. `offsetParent()` mismatch between jQuery and native DOM
 
-**Bug**: Legacy UIComponent's `draggable()` builds a snap cache and skips components whose `offsetParent` differs from the dragged component's `offsetParent`. jQuery's `.offsetParent()` walks up the tree and returns `document.documentElement` for elements whose parent chain is all `position: static`. Native `element.offsetParent` returns `document.body`. This mismatch causes legacy UIs to skip ROComponent instances when building the snap cache.
+**Bug**: Legacy UIComponent's `draggable()` builds a snap cache and skips components whose `offsetParent` differs from the dragged component's `offsetParent`. jQuery's `.offsetParent()` walks up the tree and returns `document.documentElement` for elements whose parent chain is all `position: static`. Native `element.offsetParent` returns `document.body`. This mismatch causes legacy UIs to skip GUIComponent instances when building the snap cache.
 
-**Fix applied in `src/UI/ROComponent.js`** (commit `1813e446`):
+**Fix applied in `src/UI/GUIComponent.js`** (commit `1813e446`):
 
 ```javascript
 offsetParent() {
@@ -374,7 +374,7 @@ this._host.style.left = '200px';
 
 ---
 
-## Reference: Clan Component (first ROComponent migration)
+## Reference: Clan Component (first GUIComponent migration)
 
 ### Files
 

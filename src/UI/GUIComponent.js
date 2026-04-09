@@ -1,5 +1,5 @@
 /**
- * UI/ROComponent.js
+ * UI/GUIComponent.js
  *
  * Modern base class for UI components using Shadow DOM.
  * Drop-in replacement for UIComponent — provides the same automation
@@ -8,7 +8,7 @@
  *
  * During the transition period, this.ui is a jQuery-compatible proxy
  * so UIManager and old UIComponent instances can interact with
- * ROComponent instances without changes.
+ * GUIComponent instances without changes.
  */
 
 import CommonCSS from './Common.css?raw';
@@ -53,7 +53,7 @@ const CSS_NUMBER = {
 	zoom: true
 };
 
-class ROComponent {
+class GUIComponent {
 	/**
 	 * @param {string} name       - Unique component name
 	 * @param {string} [cssText]  - CSS content (injected into Shadow DOM)
@@ -171,7 +171,7 @@ class ROComponent {
 		const parent = target ? (typeof target === 'string' ? document.querySelector(target) : target) : document.body;
 
 		if (!parent) {
-			console.error('[ROComponent] Unable to find target element for appending UI.');
+			console.error('[GUIComponent] Unable to find target element for appending UI.');
 			return;
 		}
 
@@ -302,7 +302,7 @@ class ROComponent {
 			const other = components[name];
 			if (other === this || !other.__active || !other.needFocus) continue;
 
-			// Works with both UIComponent (.ui.css) and ROComponent (._host.style)
+			// Works with both UIComponent (.ui.css) and GUIComponent (._host.style)
 			const z = parseInt(this._getZIndex(other), 10);
 			list[z - 50] = z;
 		}
@@ -355,10 +355,10 @@ class ROComponent {
 	 *
 	 * @param {string} name - New component name
 	 * @param {boolean} [full] - Copy all properties
-	 * @returns {ROComponent}
+	 * @returns {GUIComponent}
 	 */
 	clone(name, full) {
-		const cloned = new ROComponent(name, this._cssText);
+		const cloned = new GUIComponent(name, this._cssText);
 
 		// Copy render function so the clone produces the same HTML
 		if (this.render) cloned.render = this.render;
@@ -418,13 +418,13 @@ class ROComponent {
 	// ─── Private: zIndex helpers (cross-compatible) ────────
 
 	/**
-	 * Get zIndex from either a ROComponent or a legacy UIComponent.
-	 * @param {ROComponent|UIComponent} comp
+	 * Get zIndex from either a GUIComponent or a legacy UIComponent.
+	 * @param {GUIComponent|UIComponent} comp
 	 * @returns {string}
 	 */
 	_getZIndex(comp) {
 		if (comp._host) {
-			// ROComponent
+			// GUIComponent
 			return comp._host.style.zIndex || '50';
 		}
 		// Legacy UIComponent (jQuery)
@@ -432,8 +432,8 @@ class ROComponent {
 	}
 
 	/**
-	 * Set zIndex on either a ROComponent or a legacy UIComponent.
-	 * @param {ROComponent|UIComponent} comp
+	 * Set zIndex on either a GUIComponent or a legacy UIComponent.
+	 * @param {GUIComponent|UIComponent} comp
 	 * @param {number} value
 	 */
 	_setZIndex(comp, value) {
@@ -452,7 +452,7 @@ class ROComponent {
 	 *
 	 * @param {string|HTMLElement} [handle] - CSS selector or element to use as drag handle.
 	 *                                        Defaults to the host element.
-	 * @returns {ROComponent} this
+	 * @returns {GUIComponent} this
 	 */
 	draggable(handle) {
 		const host = this._host;
@@ -743,7 +743,7 @@ class ROComponent {
 
 	_setupMouseMode() {
 		const element = this.__mouseStopBlock || this._host;
-		if (this.mouseMode === ROComponent.MouseMode.STOP) {
+		if (this.mouseMode === GUIComponent.MouseMode.STOP) {
 			let _intersect;
 			let _enter = 0;
 
@@ -786,7 +786,7 @@ class ROComponent {
 			element.addEventListener('mousedown', () => this.focus());
 		}
 
-		if (this.mouseMode !== ROComponent.MouseMode.CROSS) {
+		if (this.mouseMode !== GUIComponent.MouseMode.CROSS) {
 			element.addEventListener('touchstart', e => e.stopImmediatePropagation());
 		}
 		// Shadow DOM cursor events (clickable hover detection)
@@ -1004,7 +1004,7 @@ class ROComponent {
 		const selector = '[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]';
 		const nodes = root.querySelectorAll(selector);
 		for (const node of nodes) {
-			ROComponent.processDataAttrs(node);
+			GUIComponent.processDataAttrs(node);
 		}
 	}
 
@@ -1172,4 +1172,4 @@ class ROComponent {
 	}
 }
 
-export default ROComponent;
+export default GUIComponent;

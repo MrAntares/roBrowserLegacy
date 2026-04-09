@@ -22,7 +22,7 @@ src/UI/Elements/
 <!-- Before (UIComponent) -->
 <button data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp">OK</button>
 
-<!-- After (ROComponent) -->
+<!-- After (GUIComponent) -->
 <ro-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">OK</ro-button>
 ```
 
@@ -39,7 +39,7 @@ Handles `mouseover`/`mouseout`/`mousedown`/`mouseup` internally to swap backgrou
 #Clan .content.info .members ro-button { ... }
 ```
 
-**Cursor**: `ro-button` is included in `CLICKABLE_SELECTOR` in `CursorManager.js` and in `ROComponent._setupShadowCursorEvents()`. The custom hand cursor appears on hover automatically.
+**Cursor**: `ro-button` is included in `CLICKABLE_SELECTOR` in `CursorManager.js` and in `GUIComponent._setupShadowCursorEvents()`. The custom hand cursor appears on hover automatically.
 
 #### `<ro-text>` — replaces `<span data-text="msgId">`
 
@@ -47,7 +47,7 @@ Handles `mouseover`/`mouseout`/`mousedown`/`mouseup` internally to swap backgrou
 <!-- Before (UIComponent) -->
 <span data-text="2355">Clan Info</span>
 
-<!-- After (ROComponent) -->
+<!-- After (GUIComponent) -->
 <ro-text msg="2355">Clan Info</ro-text>
 ```
 
@@ -58,7 +58,7 @@ Resolves the message ID via `DB.getMessage()` on connect and on attribute change
 ```html
 <!-- Before (UIComponent) — data-background sets background on the element itself -->
 <div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
-	<!-- After (ROComponent) — ro-image is a child element that sets background on itself -->
+	<!-- After (GUIComponent) — ro-image is a child element that sets background on itself -->
 	<div class="titlebar">
 		<ro-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ro-image>
 	</div>

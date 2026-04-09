@@ -13,14 +13,14 @@ import Preferences from 'Core/Preferences.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import 'UI/Elements/Elements.js';
-import ROComponent from 'UI/ROComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import UIManager from 'UI/UIManager.js';
 import htmlText from './Clan.html?raw';
 import cssText from './Clan.css?raw';
 
 const _preferences = Preferences.get('Clan', { x: 150, y: 150 }, 1.0);
 
-const Clan = new ROComponent('Clan', cssText);
+const Clan = new GUIComponent('Clan', cssText);
 
 // render() just returns the static HTML — no template literals needed
 Clan.render = function render() {
@@ -150,6 +150,6 @@ Clan.leave = function leave() {
 	this.ui.hide();
 };
 
-Clan.mouseMode = ROComponent.MouseMode.STOP;
+Clan.mouseMode = GUIComponent.MouseMode.STOP;
 
 export default UIManager.addComponent(Clan);

@@ -10,7 +10,7 @@
 
 import jQuery from 'Utils/jquery.js';
 import UIComponent from './UIComponent.js';
-import ROComponent from './ROComponent.js';
+import GUIComponent from './GUIComponent.js';
 import UIVersionManager from './UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -90,7 +90,7 @@ class UIManager {
 	 * @param {UIComponent} component object
 	 */
 	static addComponent(component) {
-		if (!(component instanceof UIComponent) && !(component instanceof ROComponent)) {
+		if (!(component instanceof UIComponent) && !(component instanceof GUIComponent)) {
 			throw new Error('UIManager::addComponent() - Invalid type of component');
 		}
 

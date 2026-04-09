@@ -19,8 +19,8 @@ function uiCssHmrPlugin() {
   
             const cssPath = match[2];  
   
-            // Support both UIComponent and ROComponent  
-            const compRegex = /new\s+(?:UIComponent|ROComponent)\(\s*['"](\w+)['"]/;  
+            // Support both UIComponent and GUIComponent  
+            const compRegex = /new\s+(?:UIComponent|GUIComponent)\(\s*['"](\w+)['"]/;  
             const compMatch = compRegex.exec(code);  
             if (!compMatch) return null;  
   
@@ -32,7 +32,7 @@ function uiCssHmrPlugin() {
                     if (newModule && newModule.default) {  
                         const comp = UIManager.components['${componentName}'];  
                         if (comp && comp._shadow) {  
-                            // ROComponent: update component <style> inside shadow DOM  
+                            // GUIComponent: update component <style> inside shadow DOM  
                             const style = comp._shadow.querySelector('style[data-component]');  
                             if (style) {  
                                 style.textContent = newModule.default;  
@@ -41,7 +41,7 @@ function uiCssHmrPlugin() {
                             }  
                         }  
                         // Fallback: UIComponent global style  
-                        UIComponent.reloadCSS?.('${componentName}', newModule.default) || ROComponent.reloadCSS?.('${componentName}', newModule.default);  
+                        UIComponent.reloadCSS?.('${componentName}', newModule.default) || GUIComponent.reloadCSS?.('${componentName}', newModule.default);  
                     }  
                 });  
             }`;  
