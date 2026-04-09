@@ -41,7 +41,7 @@ function uiCssHmrPlugin() {
                             }  
                         }  
                         // Fallback: UIComponent global style  
-                        UIComponent.reloadCSS('${componentName}', newModule.default);  
+                        UIComponent.reloadCSS?.('${componentName}', newModule.default) || ROComponent.reloadCSS?.('${componentName}', newModule.default);  
                     }  
                 });  
             }`;  
