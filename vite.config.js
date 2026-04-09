@@ -26,25 +26,28 @@ function uiCssHmrPlugin() {
   
             const componentName = compMatch[1];  
   
-            const hmrBlock = `  
-            if (import.meta.hot) {  
-                import.meta.hot.accept('${cssPath}', (newModule) => {  
-                    if (newModule && newModule.default) {  
-                        const comp = UIManager.components['${componentName}'];  
-                        if (comp && comp._shadow) {  
-                            // GUIComponent: update component <style> inside shadow DOM  
-                            const style = comp._shadow.querySelector('style[data-component]');  
-                            if (style) {  
-                                style.textContent = newModule.default;  
-                                console.log('[HMR] CSS updated (shadow): ${componentName}');  
-                                return;  
-                            }  
-                        }  
-                        // Fallback: UIComponent global style  
-                        UIComponent.reloadCSS?.('${componentName}', newModule.default) || GUIComponent.reloadCSS?.('${componentName}', newModule.default);  
-                    }  
-                });  
-            }`;  
+			const isGUI = code.includes('new GUIComponent');
+			const hmrBlock = isGUI
+			? `
+				if (import.meta.hot) {
+					import.meta.hot.accept('${cssPath}', (newModule) => {
+						if (newModule && newModule.default) {
+							const comp = UIManager.components['${componentName}'];
+							if (comp && comp._shadow) {
+								const style = comp._shadow.querySelector('style[data-component]');
+								if (style) style.textContent = newModule.default;
+							}
+						}
+					});
+				}`
+			: `
+				if (import.meta.hot) {
+					import.meta.hot.accept('${cssPath}', (newModule) => {
+						if (newModule && newModule.default) {
+							UIComponent.reloadCSS('${componentName}', newModule.default);
+						}
+					});
+				}`; 
             return { code: code + hmrBlock, map: null };  
         }  
     };  
