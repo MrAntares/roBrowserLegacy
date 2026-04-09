@@ -81,13 +81,13 @@ function onClanInfo(pkt) {
 	clan.allyList = pkt.allyList;
 	clan.antagonistList = pkt.antagonistList;
 	clan.level = 1;
+	Clan.append();
 	Clan.setData(clan);
 	Clan.setRelations(RELATIONSHIP.ALLY, clan.allyList);
 	Clan.setRelations(RELATIONSHIP.ENEMY, clan.antagonistList);
 	Clan.setIllust(clan.clanId);
 	Clan.setEmblem(clan.clanId);
 	Session.hasClan = true;
-	Clan.append();
 }
 
 /**

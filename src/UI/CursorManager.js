@@ -313,6 +313,7 @@ function bindMouseEvents() {
 	const CLICKABLE_SELECTOR = [
 		'a',
 		'button',
+		'ro-button',
 		'input',
 		'label',
 		'select',
