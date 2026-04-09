@@ -1,3 +1,4 @@
+/* global ROBrowser */
 /**
  * UI/Components/GrfViewer/GrfViewer.js
  *
@@ -426,7 +427,7 @@ function renderFiles(list) {
 		let j;
 		let html = '';
 
-		for (j = 0; i + j < count; ++j) {
+		for (j = 0; j < 200 && i + j < count; ++j) {
 			const type = getFileIcon(list[j + i]);
 			html +=
 				'<div class="icon ' +

@@ -420,10 +420,11 @@ PartyFriendsV0.addPartyMember = function addPartyMember(player) {
 
 	node.find('.hp').text('');
 
+	const ctx = node.find('canvas').get(0).getContext('2d');
+	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
 	// Update life
 	if (player.life && player.life.display) {
-		const ctx = node.find('canvas').get(0).getContext('2d');
-		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		ctx.drawImage(player.life.canvas, 0, 0, 60, 5, 0, 0, 60, 5);
 		node.find('.hp').text(player.life.hp + '/' + player.life.hp_max);
 	}
