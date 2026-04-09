@@ -112,7 +112,6 @@ function initDropDown(select) {
 	// Search RSMs from the client
 	Client.search(/data\\[^\0]+\.gr2/gi, function (list) {
 		let i, count;
-		let hash;
 
 		// Add selection
 		for (i = 0, count = list.length; i < count; ++i) {
@@ -126,7 +125,7 @@ function initDropDown(select) {
 		};
 
 		// Start loading a model ?
-		hash = decodeURIComponent(location.hash);
+		const hash = decodeURIComponent(location.hash);
 		location.hash = hash;
 
 		// Load RSM from url ?
@@ -164,21 +163,17 @@ function loadModel(filename) {
 	Client.getFile(filename, function (buf) {
 		_model = new GrannyModel(buf);
 
-		let data;
-		let i, count, j, size, total, offset, length, pos;
-		let objects = [],
-			infos = [],
-			meshes,
-			index,
-			object;
-		let buffer;
+		let i, count, j, size, total, offset, length;
+		const objects = [];
+		const infos = [];
+		let meshes, index, object;
 
 		// Create model in world
 		_GlobalParameters.filename = filename.replace('data/model/', '');
 		_model.createInstance(_GlobalParameters, 0, 0);
 
 		// Compile model
-		data = _model.compile();
+		const data = _model.compile();
 		count = data.meshes.length;
 		total = 0;
 
@@ -198,9 +193,8 @@ function loadModel(filename) {
 			}
 		}
 
-		buffer = new Float32Array(total);
+		const buffer = new Float32Array(total);
 		count = objects.length;
-		pos = 0;
 		offset = 0;
 
 		// Merge meshes to buffer
@@ -237,8 +231,8 @@ function loadModel(filename) {
 
 			Client.loadFile(
 				infos[i].texture,
-				function (data) {
-					infos[i].texture = data;
+				function (url) {
+					infos[i].texture = url;
 					loadNextTexture();
 				},
 				loadNextTexture

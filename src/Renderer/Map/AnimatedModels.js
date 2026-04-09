@@ -10,7 +10,6 @@
 import Client from 'Core/Client.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import WebGL from 'Utils/WebGL.js';
-import Session from 'Engine/SessionStorage.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import _vertexShader from './AnimatedModels.vs?raw';
 import _fragmentShader from './AnimatedModels.fs?raw';
@@ -40,8 +39,9 @@ let _animatedModels = [];
 
 /**
  * Model shading types
+ * @preserved
  */
-const SHADING = {
+const _SHADING = {
 	NONE: 0,
 	FLAT: 1,
 	SMOOTH: 2
@@ -400,8 +400,9 @@ function loadTexture(gl, model, path, index) {
 
 /**
  * SLERP quaternion interpolation
+ * @preserved
  */
-function slerpQuat(q1, q2, t) {
+function _slerpQuat(q1, q2, t) {
 	const result = new Float32Array(4);
 
 	let dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
@@ -513,8 +514,9 @@ function getScaleAtFrame(keyframes, frame, out) {
 
 /**
  * Calculate face normal
+ * @preserved
  */
-function calcFaceNormal(v0, v1, v2) {
+function _calcFaceNormal(v0, v1, v2) {
 	const ax = v1[0] - v0[0];
 	const ay = v1[1] - v0[1];
 	const az = v1[2] - v0[2];
@@ -768,7 +770,6 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 	}
 
 	const uniform = _program.uniform;
-	const attribute = _program.attribute;
 
 	gl.useProgram(_program);
 
@@ -790,11 +791,8 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 	gl.uniform1f(uniform.uFogFar, fog.far);
 	gl.uniform3fv(uniform.uFogColor, fog.color);
 
-	// Textures
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-
-	const playerPos = Session.Entity.position;
 
 	// Render each animated model
 	for (let m = 0; m < _animatedModels.length; m++) {

@@ -302,9 +302,6 @@ function UpdateBody(job) {
 		}
 	}
 
-	// Determine if we should suppress head NOW (before async operations)
-	const suppress = shouldSuppressHead.call(this);
-
 	// Loading
 	Client.loadFile(path + '.act');
 	Client.loadFile(

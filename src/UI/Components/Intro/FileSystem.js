@@ -29,8 +29,8 @@ const requestFileSystem = window.requestFileSystem || window.webkitRequestFileSy
 function cleanUp(callback) {
 	_fs.root.createReader().readEntries(function (entries) {
 		let i,
-			count = entries.length,
 			j = 0;
+		const count = entries.length;
 
 		function removed() {
 			if (++j >= count) {
