@@ -200,7 +200,6 @@ BasicInfoV3.onShortCut = function onShortCut(key) {
  * Switch window size
  */
 BasicInfoV3.toggleMode = function toggleMode() {
-
 	this.ui.toggleClass('small large');
 
 	if (_preferences.buttons) {

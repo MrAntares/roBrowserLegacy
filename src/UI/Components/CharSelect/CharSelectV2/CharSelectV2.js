@@ -484,7 +484,8 @@ CharSelectV2.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 		case 0: // 0: An unknown error has occurred.
 			return;
 
-		case 1: { // 1: none/success
+		case 1: {
+			// 1: none/success
 			//Adjust from remaining time to fixed datetime
 			const timer =
 				(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513

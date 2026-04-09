@@ -70,7 +70,6 @@ let _waterOpacity = 0.9;
  * @param {object} water data
  */
 function init(gl, water) {
-
 	// Water informations
 	_vertCount = water.vertCount;
 	_waveHeight = water.waveHeight;

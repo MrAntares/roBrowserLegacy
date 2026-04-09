@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
@@ -29,7 +28,6 @@ import cssText from './EffectViewer.css?raw';
 /**
  * Load dependencies
  */
-
 
 /**
  * @var {object} fog structure

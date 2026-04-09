@@ -308,7 +308,8 @@ CharSelectV4.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 		case 0: // 0: An unknown error has occurred.
 			return;
 
-		case 1: { // 1: none/success
+		case 1: {
+			// 1: none/success
 			const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
 			info.DeleteDate = deleteReservedDate + now;
 			requestdelete(_index, deleteReservedDate);
