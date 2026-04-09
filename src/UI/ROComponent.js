@@ -38,6 +38,21 @@ const MouseMode = Object.freeze({
 	FREEZE: 2 // Block scene intersection while UI is alive
 });
 
+/**
+ * CSS properties that are unitless (don't need 'px')
+ */
+const CSS_NUMBER = {
+	zIndex: true,
+	opacity: true,
+	fontWeight: true,
+	lineHeight: true,
+	columnCount: true,
+	fillOpacity: true,
+	orphans: true,
+	widows: true,
+	zoom: true
+};
+
 class ROComponent {
 	/**
 	 * @param {string} name       - Unique component name
@@ -1038,7 +1053,7 @@ class ROComponent {
 				// Setter: .css({ top: 100, left: 200 })
 				if (typeof prop === 'object') {
 					for (const [k, v] of Object.entries(prop)) {
-						host.style[k] = typeof v === 'number' ? v + 'px' : v;
+						host.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? v + 'px' : String(v);
 					}
 					return proxy;
 				}
@@ -1050,7 +1065,7 @@ class ROComponent {
 					);
 				}
 				// Setter: .css('top', 100)
-				host.style[prop] = typeof value === 'number' ? value + 'px' : value;
+				host.style[prop] = typeof value === 'number' && !CSS_NUMBER[prop] ? value + 'px' : String(value);
 				return proxy;
 			},
 

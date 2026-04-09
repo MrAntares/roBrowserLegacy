@@ -91,6 +91,7 @@ Clan.setData = function setData(clan) {
 };
 
 Clan.setMembersCount = function setMembersCount(members) {
+	if (!this._shadow && !this._host) return;
 	const root = this._shadow || this._host;
 	const info = root.querySelector('.content.info');
 	if (!info) return;
@@ -99,6 +100,7 @@ Clan.setMembersCount = function setMembersCount(members) {
 };
 
 Clan.setIllust = function setIllust(id) {
+	if (!this._shadow && !this._host) return;
 	const root = this._shadow || this._host;
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'clan_system/clan_illust' + id.toString().padStart(2, '0') + '.bmp',
@@ -110,6 +112,7 @@ Clan.setIllust = function setIllust(id) {
 };
 
 Clan.setEmblem = function setEmblem(id) {
+	if (!this._shadow && !this._host) return;
 	const root = this._shadow || this._host;
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'clan_system/clan_emblem' + id.toString().padStart(2, '0') + '.bmp',
@@ -121,16 +124,21 @@ Clan.setEmblem = function setEmblem(id) {
 };
 
 Clan.setRelations = function setRelations(type, clans) {
+	if (!this._shadow && !this._host) return;
+	const root = this._shadow || this._host;
+	const list = root.querySelector('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
+	if (!list) return;
+	list.innerHTML = '';
 	for (let i = 0; i < clans.length; i++) {
 		this.addRelation(type, clans[i]);
 	}
 };
 
 Clan.addRelation = function addRelation(type, clan) {
+	if (!this._shadow && !this._host) return;
 	const root = this._shadow || this._host;
 	const list = root.querySelector('.' + (type === 0 ? 'ally' : 'hostile') + '_list');
 	if (!list) return;
-	list.innerHTML = '';
 	const div = document.createElement('div');
 	div.dataset.clanId = clan;
 	div.textContent = clan;

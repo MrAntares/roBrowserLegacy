@@ -58,13 +58,16 @@ Resolves the message ID via `DB.getMessage()` on connect and on attribute change
 ```html
 <!-- Before (UIComponent) — data-background sets background on the element itself -->
 <div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
-
-<!-- After (ROComponent) — ro-image is a child element that sets background on itself -->
-<div class="titlebar">
-	<ro-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ro-image>
+	<!-- After (ROComponent) — ro-image is a child element that sets background on itself -->
+	<div class="titlebar">
+		<ro-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ro-image>
+	</div>
+</div>
 ```
 
-**Behavior**: `<ro-image>` loads the image via `Client.loadFile()` and sets `background-image` on **itself** (not on its parent). Since custom elements default to `display: inline` with no intrinsic dimensions, you must give it explicit size via inline style or CSS.
+**Behavior**: `<ro-image>` loads the image via `Client.loadFile()` and sets `background-image` on its parent element (not on itself). It hides itself with `display: none` so it doesn't occupy any layout space. This replicates the old data-background behavior where the background was applied to the element that had the attribute.
+
+No inline styles or explicit dimensions are needed on `<ro-image>` — the parent element is the one that must have the correct dimensions for the background to be visible.
 
 **Preferred approach** — inline style in HTML (no CSS changes needed):
 
