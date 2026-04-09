@@ -36,6 +36,7 @@ import Sense from 'UI/Components/Sense/Sense.js';
 import Announce from 'UI/Components/Announce/Announce.js';
 import Renderer from 'Renderer/Renderer.js';
 import SkillWindow from 'UI/Components/SkillList/SkillList.js';
+import CartDecoration from 'UI/Components/CartDecoration/CartDecoration.js';
 
 import SnowWeatherEffect from 'Renderer/Effects/SnowWeather.js';
 import RainWeatherEffect from 'Renderer/Effects/RainWeather.js';
@@ -923,4 +924,6 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.MSG_SKILL, onMessageSkill);
 	Network.hookPacket(PACKET.ZC.MONSTER_INFO, onSense);
 	Network.hookPacket(PACKET.ZC.DEVOTIONLIST, onDevotionList);
+	Network.registerPacket(0x97f, PACKET.ZC.SELECTCART);
+	Network.hookPacket(PACKET.ZC.SELECTCART, pkt => CartDecoration.onSelectCart(pkt));
 }

@@ -62,6 +62,8 @@ const packetModules = {
 };
 
 let packets_len = new Array();
+packets_len[0x097f] = -1;
+packets_len[0x0980] = 7;
 
 /**
  * Get a Packet Length
@@ -90,6 +92,8 @@ function init(packetver) {
 
 	if (Lengths && typeof Lengths.init === 'function') {
 		packets_len = Lengths.init(packetver);
+		packets_len[0x097f] = packets_len[0x097f] || -1;
+		packets_len[0x0980] = packets_len[0x0980] || 7;
 		console.log('%c[Network] Packet Length initialized ', 'color:#007000', packetver);
 	} else {
 		console.error(`[Network] Failed to load packet lengths for year ${selectedYear} (path: ${modulePath})`);

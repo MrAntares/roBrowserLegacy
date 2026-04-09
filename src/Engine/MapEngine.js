@@ -43,6 +43,7 @@ import CartItems from 'UI/Components/CartItems/CartItems.js';
 import Vending from 'UI/Components/Vending/Vending.js';
 import VendingReport from 'UI/Components/VendingReport/VendingReport.js';
 import ChangeCart from 'UI/Components/ChangeCart/ChangeCart.js';
+import CartDecoration from 'UI/Components/CartDecoration/CartDecoration.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
@@ -662,6 +663,7 @@ function onMapChange(pkt) {
 		CartItems.append();
 		Vending.append();
 		ChangeCart.append();
+		CartDecoration.append();
 		Equipment.getUI().append();
 		ShortCuts.append();
 		StatusIcons.append();
