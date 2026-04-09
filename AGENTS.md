@@ -58,7 +58,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 3. **Loaders** (`src/Loaders/`): 12 asset parsers — GameFileDecrypt, GameFile, Sprite, Action, Ground (.gnd), Altitude (.gat), World (.rsw), Str (.str effects), Model, GrannyModel, MapLoader, Targa
 4. **Database** (`src/DB/`): DBManager + data subdirectories (Effects, Items, Jobs, Map, Monsters, Pets, Skills, Status) + Emotions, TownInfo
 5. **Renderer** (`src/Renderer/`): Renderer.js (WebGL context), MapRenderer, EntityManager, EffectManager, ScreenEffectManager, SignboardManager, Camera, SpriteRenderer, ItemObject + subdirectories (Effects, Entity, Map)
-6. **UI** (`src/UI/`): UIManager, UIVersionManager, UIComponent (base class), CursorManager, Scrollbar, Background, 95 component directories
+6. **UI** (`src/UI/`): UIManager, UIVersionManager, UIComponent (legacy base class, jQuery), GUIComponent (new base class, Shadow DOM), Custom Elements (`src/UI/Elements/`), CursorManager, Scrollbar, Background, 95 component directories
 7. **Controls** (`src/Controls/`): EntityControl, MapControl, KeyEventHandler, MouseEventHandler, ProcessCommand, BattleMode, ScreenShot
 8. **Audio** (`src/Audio/`): BGM.js, SoundManager.js
 9. **Core** (`src/Core/`): Client, Configs, Context, Events, FileManager, FileSystem, MemoryItem, MemoryManager, Mobile, Preferences, Thread, ThreadEventHandler, AIDriver
@@ -87,6 +87,8 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). NW.js uses `NodeSocket.js` (direct TCP). Both implement the same interface for `NetworkManager`.
 - **jQuery is legacy but load-bearing.** Used for DOM manipulation, event handling, and `$.Deferred` (being replaced by native Promise). Don't add new jQuery usage; replace it when touching existing code.
 - **Vendors are frozen.** `src/Vendors/` is excluded from ESLint. Never modify vendored files.
+- **UI has two component systems (migration in progress).** Legacy `UIComponent` uses jQuery + Light DOM + `data-*` attributes. New `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. See `doc/UIComponent_to_GUIComponent.md`.
+- **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files. Legacy components use `data-background` HTML attributes processed by `UIComponent.parseHTML()`. New components use `<ui-button>`, `<ui-text>`, `<ui-image>` Custom Elements. CSS is structural/positional only.
 
 ## Subsystem Reference
 
@@ -134,6 +136,19 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Captcha.js, PCGoldTimer.js**: Security/timer systems
 
 ### UI Components (`src/UI/Components/`, 95 directories)
+
+**Two base classes coexist during migration:**
+| Base Class | File | DOM Model | CSS Isolation | Dependencies |
+| --- | --- | --- | --- | --- |
+| **UIComponent** (legacy) | `src/UI/UIComponent.js` | Light DOM, jQuery | Global `<style>` tag | jQuery, `data-*` attributes |
+| **GUIComponent** (new) | `src/UI/GUIComponent.js` | Shadow DOM (`attachShadow`) | Scoped per component | Native DOM, Custom Elements |
+- GUIComponent uses `<ui-button>`, `<ui-text>`, `<ui-image>` (registered in `src/UI/Elements/Elements.js`) instead of `data-background`/`data-hover`/`data-down`/`data-text` attributes
+- `this.ui` proxy on GUIComponent provides jQuery-compatible API for UIManager interop
+- Both types coexist in UIManager — `addComponent()` accepts either
+> **Migration docs**: [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) — step-by-step guide with Shadow DOM pitfalls  
+> **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
+**Migrated components:** Clan  
+**Remaining:** 94 components (UIComponent)
 
 - **Intro.js**: File upload & server selection
 - **WinList.js**: Character selection
@@ -307,11 +322,17 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 ## Common Development Tasks
 
 ### Adding a New UI Component
-
+**New components should use GUIComponent (Shadow DOM):**
 1. Create directory in `src/UI/Components/NewComponent/`
-2. Implement as an ES6 class with `open()`, `close()`, and shortcut methods
-3. Register with UIManager
-4. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
+2. Create `NewComponent.js`, `NewComponent.html`, `NewComponent.css`
+3. Use `new GUIComponent('Name', cssText)` with `render()` returning HTML
+4. Use Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes
+5. CSS: dimensions/position on `:host`, inner layout on `#Name`
+6. Register with `UIManager.addComponent()`
+7. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
+> See [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) for full guide  
+> See [`doc/CustomElements.md`](doc/CustomElements.md) for element reference
+**Migrating an existing UIComponent:** Follow the step-by-step checklist in the migration guide. Key pitfalls: jQuery `.show()`/`.hide()` inside Shadow DOM, `$el.closest('body')` → `el.isConnected`, CSS `:host` dimensions.
 
 ### Implementing a New Packet Handler
 
