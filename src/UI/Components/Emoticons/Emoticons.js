@@ -99,8 +99,8 @@ Emoticons.init = function init() {
 
 	this.ui.find('.prev').addClass('disabled');
 	this.ui.find('.close').click(onClose);
-	this.ui.find('.prev').click(movePage(-1));
-	this.ui.find('.next').click(movePage(+1));
+	this.ui.find('.prev').click(getMovePageHandler(-1));
+	this.ui.find('.next').click(getMovePageHandler(+1));
 
 	this.draggable(this.ui.find('.titlebar'));
 };
@@ -176,7 +176,7 @@ Emoticons.onShortCut = function onShurtCut(key) {
  * @param {number} index
  * @return {function}
  */
-function movePage(index) {
+function getMovePageHandler(index) {
 	return function movePageClosure() {
 		if (!this.className.match(/disabled/)) {
 			Emoticons.movePage(index);

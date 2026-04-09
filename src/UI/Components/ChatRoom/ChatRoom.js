@@ -130,13 +130,12 @@ ChatRoom.onRemove = function onRemove() {
  */
 ChatRoom.updateChat = function updateChat() {
 	let members = '';
-	let i,
-		count = this.members.length;
+	const count = this.members.length;
 
 	this.ui.find('.titlebar .title').text(this.title);
 	this.ui.find('.titlebar .count').text(this.count + '/' + this.limit);
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (this.members[i] == this.owner) {
 			members = '<span class="owner">' + jQuery.escape(this.members[i]) + '</span><br/>' + members;
 			continue;
@@ -242,7 +241,6 @@ function onResize() {
 	const left = ui.position().left;
 	let lastWidth = 0;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizeProcess() {
 		const extraX = 23 + 16 + 16 - 30;
@@ -265,7 +263,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizeProcess, 30);
+	const _Interval = setInterval(resizeProcess, 30);
 
 	// Stop resizing
 	jQuery(window).one('mouseup', function (event) {

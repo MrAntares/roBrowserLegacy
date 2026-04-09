@@ -15,19 +15,13 @@ const WeaponJobTable = {};
 
 // Extend
 const keys = Object.keys(JobNameTable);
-let i,
-	count = keys.length;
-
-for (i = 0; i < count; ++i) {
+for (let i = 0, count = keys.length; i < count; ++i) {
 	WeaponJobTable[keys[i]] = JobNameTable[keys[i]];
 }
 
 function duplicateEntry(origin) {
 	const value = JobNameTable[origin];
-	let i,
-		count = arguments.length;
-
-	for (i = 1; i < count; ++i) {
+	for (let i = 1, count = arguments.length; i < count; ++i) {
 		WeaponJobTable[arguments[i]] = value;
 	}
 }

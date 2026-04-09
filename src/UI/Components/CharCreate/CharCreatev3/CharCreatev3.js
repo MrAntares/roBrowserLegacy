@@ -379,7 +379,7 @@ function updateCharacter(type, value) {
 			_model.entity.direction += value;
 			break;
 
-		case TYPE.HEAD:
+		case TYPE.HEAD: {
 			let headval = _model.entity.head + value;
 			if (headval > CAP[_model.entity.job].HEAD.MAX) {
 				headval = CAP[_model.entity.job].HEAD.MIN;
@@ -389,8 +389,9 @@ function updateCharacter(type, value) {
 			}
 			_model.entity.head = headval;
 			break;
+		}
 
-		case TYPE.HEADPALETTE:
+		case TYPE.HEADPALETTE: {
 			let headpaletteval = _model.entity.headpalette + value;
 			if (headpaletteval > CAP[_model.entity.job].HEADPALETTE.MAX) {
 				headpaletteval = CAP[_model.entity.job].HEADPALETTE.MIN;
@@ -400,6 +401,7 @@ function updateCharacter(type, value) {
 			}
 			_model.entity.headpalette = headpaletteval;
 			break;
+		}
 
 		case TYPE.DEFAULT:
 			updateCharacter(TYPE.RACE, RACE.HUMAN);

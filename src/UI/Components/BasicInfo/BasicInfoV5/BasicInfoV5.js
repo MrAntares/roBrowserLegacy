@@ -217,7 +217,6 @@ BasicInfoV5.onShortCut = function onShortCut(key) {
  * Switch window size
  */
 BasicInfoV5.toggleMode = function toggleMode() {
-	let type;
 
 	this.ui.toggleClass('small large');
 
@@ -236,7 +235,6 @@ BasicInfoV5.toggleMode = function toggleMode() {
  * Toggle the list of buttons
  */
 BasicInfoV5.toggleButtons = function toggleButtons(event) {
-	let type;
 	const $buttons = this.ui.find('.buttons');
 
 	_preferences.buttons = !$buttons.is(':visible');
@@ -372,14 +370,14 @@ BasicInfoV5.update = function update(type, val1, val2) {
 			}
 
 			Client.loadFile(
-				DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp',
+				DB.INTERFACE_PATH + 'basic_interface/gze' + ap_color + '_left.bmp',
 				function (url) {
 					this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
 				}.bind(this)
 			);
 
 			Client.loadFile(
-				DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp',
+				DB.INTERFACE_PATH + 'basic_interface/gze' + ap_color + '_mid.bmp',
 				function (url) {
 					this.ui.find('.' + type + '_bar_middle').css({
 						backgroundImage: 'url(' + url + ')',
@@ -389,7 +387,7 @@ BasicInfoV5.update = function update(type, val1, val2) {
 			);
 
 			Client.loadFile(
-				DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp',
+				DB.INTERFACE_PATH + 'basic_interface/gze' + ap_color + '_right.bmp',
 				function (url) {
 					this.ui.find('.' + type + '_bar_right').css({
 						backgroundImage: 'url(' + url + ')',

@@ -275,8 +275,7 @@ function onItemDrop(event) {
  * Handles sending the server packet request to EnchantGrade an item
  */
 EnchantGrade.onRequestItemEnchantGrade = function onRequestItemEnchantGrade(item) {
-	let pkt;
-	pkt = new PACKET.CZ.GRADE_ENCHANT_SELECT_EQUIPMENT();
+	const pkt = new PACKET.CZ.GRADE_ENCHANT_SELECT_EQUIPMENT();
 	pkt.index = item.index;
 	Network.sendPacket(pkt);
 };
@@ -502,8 +501,8 @@ function onPopulateMaterials() {
 
 	// Update materials
 	for (let i = 0; i < gradingMaterials.length; i++) {
-		(function (i) {
-			const material = gradingMaterials[i];
+		(function (index) {
+			const material = gradingMaterials[index];
 			const it = DB.getItemInfo(material.itemId);
 			const materialDiv = EnchantGrade.ui.find('.material_slot' + (i + 1));
 
@@ -511,7 +510,7 @@ function onPopulateMaterials() {
 			materialDiv.empty();
 
 			materialDiv
-				.attr('data-index', i)
+				.attr('data-index', index)
 				.attr('data-itemid', material.itemId)
 				.attr('data-amount', material.amount)
 				.attr('data-price', material.price)

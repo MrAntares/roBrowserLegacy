@@ -169,10 +169,7 @@ AllMountTable[JobId.STAR_EMPEROR_B] = JobId.STAR_EMPEROR2_B;
 
 function duplicateEntry(origin) {
 	const value = AllMountTable[origin];
-	let i,
-		count = arguments.length;
-
-	for (i = 1; i < count; ++i) {
+	for (let i = 1, count = arguments.length; i < count; ++i) {
 		AllMountTable[arguments[i]] = value;
 	}
 }

@@ -224,9 +224,7 @@ CharSelectV4.setInfo = function setInfo(pkt) {
 	_list.length = 0;
 
 	if (pkt.charInfo) {
-		let i,
-			count = pkt.charInfo.length;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0, count = pkt.charInfo.length; i < count; ++i) {
 			CharSelectV4.addCharacter(pkt.charInfo[i]);
 		}
 		updateCharSlot();
@@ -310,11 +308,12 @@ CharSelectV4.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 		case 0: // 0: An unknown error has occurred.
 			return;
 
-		case 1: // 1: none/success
+		case 1: { // 1: none/success
 			const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
 			info.DeleteDate = deleteReservedDate + now;
 			requestdelete(_index, deleteReservedDate);
 			break;
+		}
 
 		case 3: // 3: A database error occurred.
 			return;
@@ -400,7 +399,7 @@ CharSelectV4.deleteAnswer = function DeleteAnswer(error) {
 			return;
 
 		// Success (clean up character)
-		case 1:
+		case 1: {
 			delete _slots[_index];
 			delete _entitySlots[_index];
 
@@ -423,6 +422,7 @@ CharSelectV4.deleteAnswer = function DeleteAnswer(error) {
 			// Refresh UI
 			moveCursorTo(_index);
 			return;
+		}
 
 		default: // Others error ?
 		case 0:
@@ -713,11 +713,11 @@ function updateCharSlot() {
  * Render sprites to canvas
  */
 function render() {
-	let i, count, idx;
+	let i;
 
 	Camera.direction = 4;
-	idx = Math.floor(_index / _maxSlots) * _maxSlots;
-	count = _ctx.length;
+	const idx = Math.floor(_index / _maxSlots) * _maxSlots;
+	const count = _ctx.length;
 
 	for (i = 0; i < count; ++i) {
 		_ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);

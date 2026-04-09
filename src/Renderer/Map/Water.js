@@ -70,7 +70,6 @@ let _waterOpacity = 0.9;
  * @param {object} water data
  */
 function init(gl, water) {
-	let i;
 
 	// Water informations
 	_vertCount = water.vertCount;
@@ -96,12 +95,12 @@ function init(gl, water) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
 
-	function onTextureLoaded(texture, i) {
-		_textures[i] = texture;
+	function onTextureLoaded(texture, index) {
+		_textures[index] = texture;
 	}
 
 	// Bind water textures
-	for (i = 0; i < 32; ++i) {
+	for (let i = 0; i < 32; ++i) {
 		WebGL.texture(gl, water.images[i], onTextureLoaded, i);
 	}
 }

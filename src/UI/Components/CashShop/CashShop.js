@@ -645,7 +645,7 @@ function onClickDeleteItemInCart(e) {
 	const item = jQuery(e.currentTarget).closest('.item');
 	const itemId = item.data('index');
 
-	CashShop.cartItem = CashShop.cartItem.filter(item => item.itemId != itemId);
+	CashShop.cartItem = CashShop.cartItem.filter(i => i.itemId != itemId);
 	item.remove();
 	updateCartTotal();
 }
