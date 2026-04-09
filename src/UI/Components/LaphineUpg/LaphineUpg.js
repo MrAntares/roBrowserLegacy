@@ -544,7 +544,7 @@ function updateAvailableMatList(itemId, itemIndex, remove) {
 	if (!remove && !itemExists) {
 		const item = Inventory.getUI().getItemByIndex(itemIndex);
 		if (item) {
-			const targetItem = LaphineUpgUIState.targetItems.find(targetItem => targetItem.id === itemId);
+			const targetItem = LaphineUpgUIState.targetItems.find(ti => ti.id === itemId);
 			if (targetItem) {
 				// We get icon name from item table instead because some targetItem.name are not identifiedResourceName
 				const it = DB.getItemInfo(targetItem.id);
@@ -579,8 +579,7 @@ function onRequestLaphineUpg() {
 		return false;
 	}
 
-	let pkt;
-	pkt = new PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM();
+	const pkt = new PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM();
 	pkt.itemId = LaphineUpgUIState.itemId;
 	pkt.item_index = LaphineUpg.submittedIndex;
 	Network.sendPacket(pkt);
@@ -707,16 +706,6 @@ function onSubmitItemDrop(event) {
 	// Just allow item from storage
 	if (data.type !== 'item') {
 		return false;
-	}
-
-	// Check if there's a currently selected item in the .name class
-	const selectedItem = LaphineUpg.ui.find('.item .name.selected');
-	let idx;
-
-	if (selectedItem.length > 0) {
-		idx = parseInt(selectedItem.closest('.item').data('index'), 10);
-	} else {
-		idx = parseInt(this.getAttribute('data-index'), 10);
 	}
 
 	// Ensure the item is valid

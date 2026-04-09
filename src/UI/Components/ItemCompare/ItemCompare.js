@@ -201,7 +201,7 @@ ItemCompare.setItem = function setItem(item) {
 
 		case ItemType.WEAPON:
 		case ItemType.ARMOR:
-		case ItemType.SHADOWGEAR:
+		case ItemType.SHADOWGEAR: {
 			if (hideslots || (item.type == ItemType.ARMOR && item.location == 0)) {
 				cardList.parent().hide();
 				break;
@@ -219,6 +219,7 @@ ItemCompare.setItem = function setItem(item) {
 				cardList.parent().hide();
 			}
 			break;
+		}
 
 		case ItemType.PETEGG:
 			cardList.parent().hide();
@@ -275,9 +276,7 @@ function addCard(cardList, itemId, index, slotCount) {
 function onResize() {
 	const ui = ItemCompare.ui;
 	const top = ui.position().top;
-	const left = ui.position().left;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const h = Math.floor(Mouse.screen.y - top);
@@ -289,7 +288,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
@@ -329,13 +328,6 @@ function resize(height) {
 	});
 }
 
-function onUpdateOwnerName(pkt) {
-	const str = ItemCompare.ui.find('.owner-' + pkt.GID).text();
-	ItemCompare.ui.find('.owner-' + pkt.GID).text(pkt.CName);
-
-	delete DB.UpdateOwnerName[pkt.GID];
-}
-
 function addEvent(item) {
 	const event = ItemCompare.ui.find('.event_view');
 	if (!validateFieldsExist(event)) {
@@ -351,13 +343,14 @@ function addEvent(item) {
 		case ItemType.CARD:
 			event.find('.view').show();
 			break;
-		case ItemType.ETC:
+		case ItemType.ETC: {
 			const filenameBook = `data/book/${item.ITID}.txt`;
 			Client.loadFile(filenameBook, function (data) {
 				MakeReadBook.startBook(data, item);
 				eventsBooks();
 			});
 			break;
+		}
 		default:
 			event.find('.view').hide();
 			event.find('canvas').remove();
@@ -432,21 +425,19 @@ function eventsBooks() {
 const rendering = (function renderingClosure() {
 	const position = new Uint16Array([0, 0]);
 
-	return function rendering() {
-		let i, count, max;
-		let action, animation, anim;
-
+	return function render() {
 		const _entity = new Entity();
-		action = _action.actions[_type];
-		max = action.animations.length;
-		anim = Renderer.tick - _start;
-		anim = Math.floor(anim / action.delay);
+		const action = _action.actions[_type];
+		const anim = Math.floor((Renderer.tick - _start) / action.delay);
 
 		// if (anim >= max) {
 		// 	Renderer.stop(rendering);
 		// }
 
-		animation = action.animations[anim % action.animations.length];
+		const animation = action.animations[anim % action.animations.length];
+
+		let i, count;
+		count = animation.layers.length;
 
 		// Initialize context
 		SpriteRenderer.bind2DContext(_ctx, 10, 25);

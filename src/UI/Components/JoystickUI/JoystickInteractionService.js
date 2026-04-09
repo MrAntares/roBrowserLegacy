@@ -14,7 +14,7 @@ import ItemType from 'DB/Items/ItemType.js';
 import Character from './JoystickCharacterControl.js';
 import Target from './JoystickTargetService.js';
 import Cursor from './JoystickMouseCursorAdapter.js';
-import jQuery from 'Utils/jquery.js';
+
 import ControlsSettings from 'Preferences/Controls.js';
 import SelectionUI from './JoystickSelectionUI.js';
 import Input from './JoystickInputService.js';

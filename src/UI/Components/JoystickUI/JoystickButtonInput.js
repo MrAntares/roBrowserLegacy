@@ -134,7 +134,8 @@ const ButtonInput = {
 				// Start button
 				Interaction.escape();
 				pressed = true;
-			} else if ((pressed = Interaction.showinfo())) {
+			} else {
+				pressed = Interaction.showinfo();
 			}
 
 			if (pressed) {

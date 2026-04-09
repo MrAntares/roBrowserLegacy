@@ -222,7 +222,7 @@ const renderPreview = (function renderPreviewClosure() {
 		save: false
 	};
 
-	return function renderPreview() {
+	return function render() {
 		if (!_ctx) {
 			return;
 		}
