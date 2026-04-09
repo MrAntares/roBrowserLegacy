@@ -59,7 +59,7 @@ RefineWeaponSelection.init = function init() {
  */
 RefineWeaponSelection.setList = function setList(list) {
 	let i, count;
-	let item, it, file, name, refine;
+	let it, file, name, refine;
 
 	RefineWeaponSelection.list.empty();
 	RefineWeaponSelection.ItemList = [];

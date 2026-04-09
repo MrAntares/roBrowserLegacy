@@ -251,10 +251,10 @@ ShortCut.setList = function setList(list) {
  * Update tooltip for empty slots with hotkey only
  */
 function updateEmptySlotTooltips() {
-	let i, size;
+	let i;
 	// Get all containers, not just those in _list
 	const containers = ShortCut.ui.find('.container');
-	size = containers.length;
+	const size = containers.length;
 
 	for (i = 0; i < size; ++i) {
 		const ui = containers.eq(i);
@@ -465,7 +465,6 @@ function onResize(event) {
 	const ui = ShortCut.ui;
 	const top = ui.position().top;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		let h = Math.floor((Mouse.screen.y - top) / 34 + 1);
@@ -484,11 +483,11 @@ function onResize(event) {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
-		if (event.which === 1) {
+	jQuery(window).on('mouseup.resize', function (_event) {
+		if (_event.which === 1) {
 			clearInterval(_Interval);
 			jQuery(window).off('mouseup.resize');
 		}
@@ -744,13 +743,11 @@ function onDragEnd() {
  * to change prosition in the shortcut.
  */
 function onDragStart(event) {
-	let img, index;
-
-	index = parseInt(this.parentNode.getAttribute('data-index'), 10);
+	const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 	this.classList.add('hide');
 
 	// Extract image from css to get it when dragging the element
-	img = new Image();
+	const img = new Image();
 	img.decoding = 'async';
 	img.src = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
 

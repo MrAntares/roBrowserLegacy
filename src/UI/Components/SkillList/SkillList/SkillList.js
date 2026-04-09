@@ -794,7 +794,6 @@ SkillList.removeSkill = function removeSkill() {
  */
 SkillList.updateSkill = function updateSkill(skill) {
 	let target = getSkillById(skill.SKID);
-	let element;
 
 	if (!target) {
 		if (this.ui.find('.skill.id' + skill.SKID).length) {
@@ -818,7 +817,7 @@ SkillList.updateSkill = function updateSkill(skill) {
 	}
 
 	// Update UI
-	element = this.ui.find('.skill.id' + skill.SKID);
+	const element = this.ui.find('.skill.id' + skill.SKID);
 	element.find('.level .current, .level .max').text(skill.level);
 	if (skill.selectedLevel) {
 		element.find('.level .current').text(skill.selectedLevel);
@@ -878,7 +877,7 @@ SkillList.useSkill = function useSkill(skill, level) {
  * @param {number} skill points count
  */
 SkillList.setPoints = function SetPoints(amount) {
-	let i, count;
+	let i;
 	this.ui.find('.skpoints_count').text(amount);
 
 	// Do not need to update the UI
@@ -888,7 +887,7 @@ SkillList.setPoints = function SetPoints(amount) {
 	}
 
 	_points = amount;
-	count = _list.length;
+	const count = _list.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_list[i].upgradable && amount) {
@@ -921,8 +920,8 @@ function stopPropagation(event) {
  * @returns {Skill}
  */
 function getSkillById(id) {
-	let i,
-		count = _list.length;
+	let i;
+	const count = _list.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_list[i].SKID === id) {
@@ -942,7 +941,6 @@ function onResize() {
 	const left = ui.position().left;
 	let lastWidth = 0;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraX = -6;
@@ -965,7 +963,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {

@@ -134,9 +134,9 @@ SlotMachine.setResult = function setResult(result) {
 const rendering = (function renderingClosure() {
 	const position = new Uint16Array([0, 0]);
 
-	return function rendering() {
+	return function _renderFrame() {
 		let i, count, max;
-		let action, animation, anim;
+		let action, anim;
 
 		switch (_type) {
 			case 0: // waiting
@@ -173,7 +173,7 @@ const rendering = (function renderingClosure() {
 				break;
 		}
 
-		animation = action.animations[anim % action.animations.length];
+		const animation = action.animations[anim % action.animations.length];
 
 		// Initialize context
 		SpriteRenderer.bind2DContext(_ctx, 140, 165);

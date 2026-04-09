@@ -300,10 +300,10 @@ Roulette.generateWheelSlots = function generateWheelSlots() {
 			if (itemId) {
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'item/' + itemId + '.bmp',
-					function (slot, data) {
+					function (_slot, data) {
 						const icon = jQuery('<div class="item-icon"></div>');
 						icon.css('backgroundImage', 'url(' + data + ')');
-						slot.append(icon);
+						_slot.append(icon);
 					}.bind(this, slot)
 				);
 			}

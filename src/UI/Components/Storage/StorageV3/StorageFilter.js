@@ -233,7 +233,6 @@ StorageFilter.prototype.onResize = function onResize() {
 	const ui = this.ui;
 	const top = ui.position().top;
 	let lastHeight = 0;
-	let _Interval;
 	const extraY = 17 + 19;
 
 	function resizing() {
@@ -247,7 +246,7 @@ StorageFilter.prototype.onResize = function onResize() {
 		lastHeight = h;
 	}
 
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	jQuery(window).on('mouseup.resizeStorageFilter', function (event) {
 		if (event.which === 1) {
