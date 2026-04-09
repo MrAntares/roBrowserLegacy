@@ -217,7 +217,7 @@ SwitchEquip.unEquip = function unEquip(index, location) {
 /**
  * Rendering character
  */
-var swaprender = (function swaprenderClosure() {
+const swaprender = (function swaprenderClosure() {
 	const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 	const _savedColor = new Float32Array(4);
 	const _animation = {
@@ -230,7 +230,7 @@ var swaprender = (function swaprenderClosure() {
 		save: false
 	};
 
-	return function swaprender() {
+	return function _renderFrame() {
 		const swap_character = new Entity();
 		swap_character.set({
 			GID: Session.Entity.GID + '_SWAPEQUIP',
@@ -379,8 +379,8 @@ function onDragOver(event) {
 				selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
 				ui = SwitchEquip.ui.find(selector);
 
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (data) {
-					ui.css('backgroundImage', 'url(' + data + ')');
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (_data) {
+					ui.css('backgroundImage', 'url(' + _data + ')');
 				});
 			}
 		}
@@ -407,7 +407,9 @@ function onDrop(event) {
 
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {}
+	} catch (e) {
+		// Ignore parsing error
+	}
 
 	// Just support items for now ?
 	if (data && data.type === 'item') {

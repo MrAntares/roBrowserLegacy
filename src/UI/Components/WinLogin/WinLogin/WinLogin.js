@@ -126,11 +126,12 @@ WinLogin.onKeyDown = function onKeyDown(event) {
 			event.stopImmediatePropagation();
 			return false;
 
-		case KEYS.TAB:
-			var button = document.activeElement === _inputUsername[0] ? _inputPassword : _inputUsername;
+		case KEYS.TAB: {
+			const button = document.activeElement === _inputUsername[0] ? _inputPassword : _inputUsername;
 			button.focus().select();
 			event.stopImmediatePropagation();
 			return false;
+		}
 	}
 
 	return true;

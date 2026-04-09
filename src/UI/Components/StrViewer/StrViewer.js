@@ -88,7 +88,6 @@ function initDropDown(select) {
 	// Search RSMs from the client
 	Client.search(/data\\[^\0]+\.str/gi, function (list) {
 		let i, count;
-		let hash;
 
 		list.sort();
 
@@ -104,7 +103,7 @@ function initDropDown(select) {
 		};
 
 		// Start loading a model ?
-		hash = decodeURIComponent(location.hash);
+		const hash = decodeURIComponent(location.hash);
 		location.hash = hash;
 
 		// Load RSM from url ?
