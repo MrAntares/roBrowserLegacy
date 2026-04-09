@@ -11,10 +11,8 @@
  */
 
 import DB from 'DB/DBManager.js';
-import jQuery from 'Utils/jquery.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
-import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
 import htmlText from './MakeReadBook.html?raw';
@@ -146,8 +144,7 @@ MakeReadBook.openBook = function openBook() {
 		function (spr_close, spr_highlighter, spr_previous, spr_next) {
 			// close
 			const sprite_close = new Sprite(spr_close);
-			let canvas;
-			canvas = sprite_close.getCanvasFromFrame(0);
+			const canvas = sprite_close.getCanvasFromFrame(0);
 			canvas.className = 'clone_book event_add_cursor';
 			MakeReadBook.ui.find('.footer').find('canvas').remove();
 			MakeReadBook.ui.find('.footer').append(canvas);
@@ -156,8 +153,7 @@ MakeReadBook.openBook = function openBook() {
 
 			// highlighter
 			const sprite_highlighter = new Sprite(spr_highlighter);
-			let canvas2;
-			canvas2 = sprite_highlighter.getCanvasFromFrame(0);
+			const canvas2 = sprite_highlighter.getCanvasFromFrame(0);
 			canvas2.className = 'highlighter event_add_cursor';
 			MakeReadBook.ui.find('#highlighter').find('canvas').remove();
 			MakeReadBook.ui.find('#highlighter').append(canvas2);
@@ -182,8 +178,7 @@ MakeReadBook.openBook = function openBook() {
 			MakeReadBook.ui.find('#next_previous').find('canvas').remove();
 			// previous
 			const sprite_previous = new Sprite(spr_previous);
-			let canvas3;
-			canvas3 = sprite_previous.getCanvasFromFrame(0);
+			const canvas3 = sprite_previous.getCanvasFromFrame(0);
 			canvas3.className = 'previous_btn event_add_cursor';
 			MakeReadBook.ui.find('#next_previous').append(canvas3);
 			const previous_btn = MakeReadBook.ui.find('.previous_btn');
@@ -199,8 +194,7 @@ MakeReadBook.openBook = function openBook() {
 
 			// next
 			const sprite_next = new Sprite(spr_next);
-			let canvas4;
-			canvas4 = sprite_next.getCanvasFromFrame(0);
+			const canvas4 = sprite_next.getCanvasFromFrame(0);
 			canvas4.className = 'next_btn event_add_cursor';
 			MakeReadBook.ui.find('#next_previous').append(canvas4);
 			const next_btn = MakeReadBook.ui.find('.next_btn');
@@ -375,7 +369,9 @@ MakeReadBook.resize = function Resize(width, height) {
 function onClose(e) {
 	try {
 		e.stopImmediatePropagation();
-	} catch (error) {}
+	} catch (error) {
+		// Ignore if event propagation has already stopped
+	}
 
 	_BOOK_INFORMATION['book_open'] = false;
 	_BOOK_INFORMATION.save();

@@ -877,7 +877,7 @@ Navigation.render = function render(tick) {
 
 	// Draw town info icons
 	if (_towninfo && _towninfo.length) {
-		for (var i = 0; i < _towninfo.length; i++) {
+		for (let i = 0; i < _towninfo.length; i++) {
 			const info = _towninfo[i];
 			const pos = mapToScreenBound(info.X, info.Y);
 
@@ -1002,7 +1002,7 @@ Navigation.render = function render(tick) {
 	}
 
 	// Draw custom markers
-	for (var i = 0; i < _markers.length; i++) {
+	for (let i = 0; i < _markers.length; i++) {
 		const marker = _markers[i];
 		const pos = mapToScreenBound(marker.x, marker.y);
 

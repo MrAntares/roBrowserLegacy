@@ -80,7 +80,7 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 	const warpDetails = {};
 
 	// Process NaviLinkTable to build the graph
-	for (var i = 0; i < naviLinkTable.length; i++) {
+	for (let i = 0; i < naviLinkTable.length; i++) {
 		const warp = naviLinkTable[i];
 		if (!warp || warp.length < 11) {
 			continue;
@@ -128,7 +128,7 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 
 	// Process NaviLinkDistanceTable to enhance the graph with additional connections
 	if (naviLinkDistanceTable && naviLinkDistanceTable.length) {
-		for (var i = 0; i < naviLinkDistanceTable.length; i++) {
+		for (let i = 0; i < naviLinkDistanceTable.length; i++) {
 			if (typeof naviLinkDistanceTable[i] === 'string') {
 				const mapName = naviLinkDistanceTable[i];
 				if (i + 2 < naviLinkDistanceTable.length) {
@@ -223,7 +223,7 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 	const unvisited = new Set();
 
 	// Initialize distances and hop counts
-	for (var map in graph) {
+	for (const map in graph) {
 		distances[map] = Infinity;
 		hopCounts[map] = Infinity;
 		previous[map] = null;
@@ -246,7 +246,7 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 		let smallestHopCount = Infinity;
 		let smallestDistance = Infinity;
 
-		for (var map of unvisited) {
+		for (const map of unvisited) {
 			if (
 				hopCounts[map] < smallestHopCount ||
 				(hopCounts[map] === smallestHopCount && distances[map] < smallestDistance)

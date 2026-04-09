@@ -168,11 +168,10 @@ function addElement(url, index, name) {
  * @param {number} index in list
  */
 MakeItemSelection.advance = function advance() {
-	let it, title, metal;
 	MakeItemSelection.list.empty();
-	it = DB.getItemInfo(this.index);
-	title = it.identifiedDisplayName + ' ' + DB.getMessage(426);
-	metal = it.processitemlist;
+	const it = DB.getItemInfo(this.index);
+	const title = it.identifiedDisplayName + ' ' + DB.getMessage(426);
+	const metal = it.processitemlist;
 	MakeItemSelection.setTitle(title);
 
 	this.ui.find('.ok').unbind('click');
@@ -243,8 +242,8 @@ MakeItemSelection.onIndexSelected = function onIndexSelected() {};
  */
 MakeItemSelection.addMaterial = function AddMaterial(item, from) {
 	let singleMatUsed = false;
-	this.material.forEach(item => {
-		if (validSingleMaterials.includes(item.ITID)) {
+	this.material.forEach(it => {
+		if (validSingleMaterials.includes(it.ITID)) {
 			singleMatUsed = true;
 		}
 	});
@@ -302,11 +301,13 @@ MakeItemSelection.addItemSub = function AddItemSub(item) {
  * @param {event}
  */
 function onDrop(event) {
-	let item, data;
+	let data;
 
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {}
+	} catch (e) {
+		// Ignore invalid JSON data
+	}
 
 	event.stopImmediatePropagation();
 
@@ -315,7 +316,7 @@ function onDrop(event) {
 		return false;
 	}
 
-	item = data.data;
+	const item = data.data;
 	item.count = 1;
 
 	MakeItemSelection.addMaterial(item, data.from);

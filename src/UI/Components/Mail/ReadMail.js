@@ -8,11 +8,9 @@
  */
 
 import DB from 'DB/DBManager.js';
-import jQuery from 'Utils/jquery.js';
 import Preferences from 'Core/Preferences.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
-import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
@@ -334,8 +332,8 @@ function returnMail(event) {
  */
 function prettifyZeny(value) {
 	const num = String(value);
-	let i = 0,
-		len = num.length;
+	let i = 0;
+	const len = num.length;
 	let out = '';
 
 	while (i < len) {
