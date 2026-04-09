@@ -14920,6 +14920,31 @@ PACKET.ZC.RECV_ROULETTE_ITEM = function PACKET_ZC_RECV_ROULETTE_ITEM(fp, end) {
 };
 PACKET.ZC.RECV_ROULETTE_ITEM.size = 5;
 
+// 0x097f - ZC_SELECTCART
+PACKET.ZC.SELECTCART = function PACKET_ZC_SELECTCART(fp, end) {
+	this.identity = fp.readLong();
+	this.typeList = [];
+	while (fp.tell() < end) {
+		this.typeList.push(fp.readUChar());
+	}
+};
+PACKET.ZC.SELECTCART.size = -1;
+
+// 0x0980 - CZ_SELECTCART
+PACKET.CZ.SELECTCART = function PACKET_CZ_SELECTCART() {
+	this.identity = 0;
+	this.type = 0;
+};
+PACKET.CZ.SELECTCART.prototype.build = function () {
+	const pkt_len = 2 + 4 + 1;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0x0980);
+	pkt_buf.writeLong(this.identity);
+	pkt_buf.writeUChar(this.type);
+	return pkt_buf;
+};
+
 /**
  * Export
  */
