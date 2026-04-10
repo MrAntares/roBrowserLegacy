@@ -128,7 +128,7 @@
 		/**
 		 * @type {constant} container type (see: ROBrowser.TYPE.POPUP)
 		 */
-		type: ROBrowser.TYPE.POPUP,
+		type: ROBrowser.TYPE.INLINE,
 
 		/**
 		 * @type {string} element ID
