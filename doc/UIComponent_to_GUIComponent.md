@@ -326,17 +326,6 @@ export default UIManager.addComponent(Clan);
 
 ## Additional Features
 
-### Grid Snap
-
-Draggable components can snap to a grid on mouse release:
-
-```javascript
-Clan.gridSnap = { width: 32, height: 32, padX: 0, padY: 0 };
-Clan.snapDuration = 150; // ms, CSS transition duration
-```
-
-The component will animate to the nearest grid position when the user stops dragging.
-
 ### Clone
 
 Deep-clone a GUIComponent instance:
