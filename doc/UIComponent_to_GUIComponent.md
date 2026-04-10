@@ -16,7 +16,7 @@
 - CSS injected inside the Shadow DOM via a `<style>` element (Common.css + component CSS)
 - HTML returned by `render()` method as a string, inserted into `this._container.innerHTML`
 - Uses Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes (see doc/CustomElements.md)
-- `this.ui` is a jQuery-compatible proxy object so UIManager and legacy UIComponent instances can interoperate without changes
+- `this.ui` is a jQuery-compatible proxy that exists **only** for interoperability with `UIManager` and legacy `UIComponent` instances — **new code inside a GUIComponent should always use native DOM and Shadow DOM APIs directly**
 
 ### DOM Structure
 
@@ -29,6 +29,74 @@ document.body
             └── <div id="ComponentName">  ← component HTML from render()
                 └── ...content...
 ```
+
+> **Note**: `this._host` receives `position: absolute` and `z-index: 50` via JavaScript during `prepare()`. You do **not** need to declare these in your `:host` CSS.
+
+---
+
+## Lifecycle Hooks
+
+GUIComponent has three lifecycle hooks. Understanding when each runs is critical to avoid bugs like duplicate event bindings.
+
+```
+prepare()
+  ├── build Shadow DOM, inject CSS, render HTML
+  ├── _processAllDataAttrs()
+  ├── _createUIProxy()
+  ├── appendChild(host) to document.body   ← host IS in the DOM
+  ├── init()                               ← runs ONCE
+  ├── _setupMouseMode()
+  └── host.remove()                        ← host removed from DOM
+
+append()
+  ├── appendChild(host) to target          ← host IS in the DOM
+  ├── onAppend()                           ← runs EVERY TIME append() is called
+  ├── _setupScrollbars()
+  ├── _fixPositionOverflow()
+  └── focus()
+
+remove()
+  ├── onRemove()                           ← runs EVERY TIME remove() is called
+  ├── unbind keydown
+  ├── dispatch 'x_remove' event
+  └── host.remove()                        ← host removed from DOM
+```
+
+| Hook | When it runs | Use for |
+|------|-------------|---------|
+| `init()` | Once, during `prepare()`. Host is temporarily in the DOM. | One-time setup: `draggable()`, event binding, initial hide |
+| `onAppend()` | Every time `append()` is called. Host is in the DOM. | Position restore, anything that must run each time the component appears |
+| `onRemove()` | Every time `remove()` is called, before detach. | Save preferences, cleanup |
+
+**RULE**: Bind events in `init()` (runs once). Restore position/state in `onAppend()` (runs every time). Save state in `onRemove()`.
+
+---
+
+## Mouse Modes
+
+Each GUIComponent has a `mouseMode` property that controls how mouse events interact with the 3D scene behind the UI:
+
+```javascript
+const MouseMode = Object.freeze({
+    CROSS:  0, // Mouse crosses the UI and still intersects with the scene
+    STOP:   1, // Blocks scene intersection when mouse is over the UI
+    FREEZE: 2  // Blocks scene intersection while the UI is alive (modal)
+});
+```
+
+| Mode | Use case | Example |
+|------|----------|---------|
+| `CROSS` | Transparent overlays, HUD elements | Minimap, chat bubbles |
+| `STOP` | Standard windows (default) | Clan, Inventory, Equipment |
+| `FREEZE` | Modal dialogs that block all interaction | NPC dialog, confirmation popups |
+
+Set it on the component instance:
+
+```javascript
+Clan.mouseMode = GUIComponent.MouseMode.STOP;
+```
+
+---
 
 ## Step-by-Step Migration Checklist
 
@@ -64,9 +132,7 @@ import cssText from './Clan.css?raw';
 
 const Clan = new GUIComponent('Clan', cssText); // ← only CSS, not HTML
 
-Clan.render = function render() {
-	return htmlText; // ← HTML goes here
-};
+Clan.render = () => htmlText; // ← HTML goes here
 ```
 
 Key differences:
@@ -130,6 +196,8 @@ The host element (`this._host`) is what the outside world sees. Its dimensions d
 }
 ```
 
+> **Note**: You do NOT need `position: absolute` or `z-index` on `:host` — these are set via JavaScript in `prepare()`.
+
 **WHY**: If `top`/`left` remain on the inner element, it offsets the content inside the host. The host's `getBoundingClientRect()` returns the host's position, not the inner element's visual position. This causes magnetic snap to align to wrong edges (especially bottom/right).
 
 **WHY `position: absolute` on inner element**: The inner `#Clan` div needs `position: absolute` (or `relative`) to serve as a containing block for its children that use `position: absolute`. Without it, absolutely-positioned children would escape to the next positioned ancestor.
@@ -170,50 +238,66 @@ Guild.init = function init() {
 
 ```javascript
 Clan.init = function init() {
-	this.draggable('.titlebar'); // ← accepts CSS selector string (resolved inside shadow)
-};
-
-Clan.onAppend = function onAppend() {
+	this.draggable('.titlebar');
 	const root = this._shadow || this._host;
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
 		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 		closeBtn.addEventListener('click', () => Clan.toggle());
 	}
+	this._host.style.display = 'none';
+};
+
+Clan.onAppend = function onAppend() {
+	this._host.style.left = `${_preferences.x}px`;
+	this._host.style.top = `${_preferences.y}px`;
 };
 ```
 
-**RULE**: `draggable()` accepts a CSS selector string — it resolves inside the shadow DOM automatically. Event binding that depends on the DOM being in the document should go in `onAppend()`, not `init()`.
+Key changes:
 
-### 7. Convert show/hide/toggle
+- `draggable()` accepts a CSS selector string (resolved inside shadow)
+- Event binding goes in `init()` (runs once), not `onAppend()` (runs every time)
+- Position restore goes in `onAppend()`
+- Uses native DOM `addEventListener` instead of jQuery `.click()`/`.mousedown()`
+
+### 7. The `this.ui` proxy — interop only
+
+`this.ui` is a jQuery-compatible proxy that exists so `UIManager` and legacy `UIComponent` code can interact with GUIComponents without changes. **New code inside a GUIComponent should always use native DOM and Shadow DOM APIs.**
+
+| Proxy method | Native DOM equivalent (preferred) |
+|---|---|
+| `this.ui.css('top', '100px')` | `this._host.style.top = '100px'` |
+| `this.ui.css({ top: 100, left: 200 })` | `Object.assign(this._host.style, { top: '100px', left: '200px' })` |
+| `this.ui.show()` | `this._host.style.display = ''` (+ call `this._fixPositionOverflow()` if needed) |
+| `this.ui.hide()` | `this._host.style.display = 'none'` |
+| `this.ui.is(':visible')` | `this._host.style.display !== 'none'` |
+| `this.ui.find('.foo')` | `this._shadow.querySelector('.foo')` or `this._shadow.querySelectorAll('.foo')` |
+| `this.ui.width()` | `this._host.getBoundingClientRect().width` |
+| `this.ui.height()` | `this._host.getBoundingClientRect().height` |
+| `this.ui.offset()` | `this._host.getBoundingClientRect()` |
+| `this.ui.position()` | `{ left: this._host.offsetLeft, top: this._host.offsetTop }` |
+| `this.ui.parent()` | `this._host.parentNode` |
+| `this.ui.trigger('event')` | `this._host.dispatchEvent(new CustomEvent('event', { bubbles: true }))` |
+| `this.ui.detach()` | `this._host.remove()` |
+| `this.ui.appendTo(target)` | `target.appendChild(this._host)` |
+
+> **Caveat**: `this.ui.show()` automatically calls `this._fixPositionOverflow()` to ensure the component stays within screen bounds. When using native DOM `this._host.style.display = ''`, call `this._fixPositionOverflow()` manually if the component may be near screen edges.
+
+**When to use `this.ui`**: Only when passing the component to external code that expects a jQuery-like interface (e.g., `UIManager` internals, legacy components calling methods on other components).
+
+**When to use native DOM**: Always, inside the component's own code (`init`, `onAppend`, `onRemove`, event handlers, etc.).
+
+### 8. Convert preferences (save/restore position)
 
 **Before:**
 
 ```javascript
-Guild.toggle = function () {
-	if (this.ui.is(':visible')) this.ui.hide();
-	else this.ui.show();
+Guild.onRemove = function onRemove() {
+	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.save();
 };
-```
-
-**After (identical — proxy handles it):**
-
-```javascript
-Clan.toggle = function () {
-	if (this.ui.is(':visible')) this.ui.hide();
-	else this.ui.show();
-};
-// Or use this.hide() / this.show() if defined
-```
-
-The `this.ui` proxy implements `.is(':visible')`, `.show()`, `.hide()`, `.css()`, `.offset()`, `.position()`, `.width()`, `.height()`, `.find()`, `.parent()`, `.detach()`, `.appendTo()`, `.trigger()`.
-
-### 8. Convert preferences (position save/restore)
-
-**Before:**
-
-```javascript
-// Position is saved/restored via jQuery .position() and .css()
 ```
 
 **After:**
@@ -221,11 +305,13 @@ The `this.ui` proxy implements `.is(':visible')`, `.show()`, `.hide()`, `.css()`
 ```javascript
 Clan.onRemove = function onRemove() {
 	const rect = this._host.getBoundingClientRect();
-	_preferences.x = rect.left;
-	_preferences.y = rect.top;
+	_preferences.x = Math.round(rect.left);
+	_preferences.y = Math.round(rect.top);
 	_preferences.save();
 };
 ```
+
+Uses native `getBoundingClientRect()` instead of parsing CSS strings.
 
 ### 9. Register with UIManager
 
@@ -234,34 +320,47 @@ Same as before:
 ```javascript
 export default UIManager.addComponent(Clan);
 ```
-
 `UIManager.addComponent()` accepts both `UIComponent` and `GUIComponent` instances.
 
 ---
 
-## Known Shadow DOM Pitfalls (Bug Reference)
+## Additional Features
 
-### 1. jQuery `.show()` sets `display: block` instead of restoring original value
+### Clone
 
-**Bug**: jQuery 1.9.1's `isHidden()` function uses `jQuery.contains(document, element)` which returns `false` for elements inside Shadow DOM (because `Node.contains()` does not traverse shadow boundaries). When `.show()` is called, jQuery thinks the element was never in the document, falls back to `css_defaultDisplay("DIV")` which returns `"block"`, and sets `display: block` inline — overriding any CSS `display: flex` or `display: grid`.
+Deep-clone a GUIComponent instance:
+
+```javascript
+const clone = Clan.clone();
+```
+
+---
+
+## Known Shadow DOM Pitfalls (already fixed)
+
+These issues were encountered during the first migration (Clan) and are documented here to explain the fixes and prevent regressions.
+
+### 1. jQuery `.show()` sets `display: block`, breaking flex/grid layouts
+
+**Bug**: jQuery's `.show()` sets `element.style.display = 'block'` regardless of the element's CSS `display` value. For elements that use `display: flex` (like the scrollbar), this breaks the layout.
 
 **Fix applied in `src/UI/Scrollbar.js`** (commit `7ce87bf9`):
 
 ```javascript
-// WRONG — jQuery .show() sets display:block, kills flex layout
-$scrollbar.show();
+// WRONG
 $scrollbar.hide();
+$scrollbar.show();
 
-// CORRECT — manipulate style.display directly
-$scrollbar[0].style.display = ''; // removes inline style, CSS rule applies
+// CORRECT
 $scrollbar[0].style.display = 'none';
+$scrollbar[0].style.display = '';  // ← resets to CSS value (flex)
 ```
 
-**RULE**: Never use jQuery `.show()`, `.hide()`, `.toggle()`, `.fadeIn()`, `.fadeOut()` on elements inside Shadow DOM. Always use `element.style.display` directly.
+**RULE**: Never use jQuery `.show()`/`.hide()` on elements that may have non-block display. Use `element.style.display = ''` (empty string resets to the CSS-declared value) and `element.style.display = 'none'`.
 
 ### 2. Global CSS does not penetrate Shadow DOM
 
-**Bug**: CSS rules in the global `<style>` tag (e.g., `.custom-cursor * { cursor: none!important; }` from CursorManager) do not affect elements inside Shadow DOM.
+**Bug**: CSS rules in the global `<style>` tag (e.g., `.custom-cursor * { cursor: none !important; }` from CursorManager) do not affect elements inside Shadow DOM.
 
 **Fix applied in `src/UI/Common.css`** (commit `f4183351`):
 
@@ -277,7 +376,7 @@ This rule is inside `Common.css` which is injected into every Shadow DOM. `:host
 
 ### 3. Scrollbar CSS injection into Shadow DOM
 
-**Bug**: The scrollbar CSS (`.ui-custom-scrollbar` styles) is injected into the global `<style>` tag by `Scrollbar.js setupStyles()`. These styles don't reach elements inside Shadow DOM.
+**Bug**: The scrollbar CSS (`.ro-custom-scrollbar` styles) is injected into the global `<style>` tag by `Scrollbar.js setupStyles()`. These styles don't reach elements inside Shadow DOM.
 
 **Fix applied in `src/UI/Scrollbar.js`** (commit `b9d21673`):
 
@@ -354,18 +453,16 @@ offsetParent() {
 
 This mimics jQuery's `.offsetParent()` behavior. No action needed from the component author.
 
-### 7. The `this.ui.css()` proxy does not support object syntax as first argument
+### ~~7. `this.ui.css()` object syntax~~ (FIXED)
 
-**Current limitation**: The `css()` method on the proxy checks `if (value === undefined)` before `if (typeof prop === 'object')`. Calling `this.ui.css({ top: 100, left: 200 })` enters the getter branch and crashes with `prop.replace is not a function`.
-
-**Workaround**: Use individual calls:
+Previously broken, now fixed. Both proxy syntaxes work:
 
 ```javascript
+this.ui.css({ top: 100, left: 200 });
 this.ui.css('top', 100);
-this.ui.css('left', 200);
 ```
 
-Or manipulate the host directly:
+Prefer native DOM:
 
 ```javascript
 this._host.style.top = '100px';
@@ -381,6 +478,8 @@ this._host.style.left = '200px';
 - `src/UI/Components/Clan/Clan.js` — Component logic
 - `src/UI/Components/Clan/Clan.html` — HTML template using `<ui-button>`, `<ui-text>`
 - `src/UI/Components/Clan/Clan.css` — Styles with `:host` for dimensions/position
+
+> **Note**: The Clan component was the first GUIComponent migration and still uses some `this.ui` proxy calls (`this.ui.hide()`, `this.ui.show()`, `this.ui.is(':visible')`). New components should use native DOM equivalents as described in this guide.
 
 ### CSS Pattern
 
@@ -403,11 +502,17 @@ this._host.style.left = '200px';
 
 ## Quick Reference: What NOT to do
 
-| Don't                                                               | Do instead                           | Why                                          |
-| ------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------- |
-| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`         | jQuery sets `display:block`, kills flex/grid |
-| `$el.closest('body').length`                                        | `el.isConnected`                     | `.closest()` can't cross shadow boundary     |
-| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`    | Global queries can't see shadow content      |
-| Put `top`/`left` on inner element                                   | Put on `:host`                       | Breaks magnetic snap positioning             |
-| Omit `:host { width; height }`                                      | Always declare dimensions on `:host` | Host collapses to 0×0, snap/overflow broken  |
-| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`    | Event retargeting hides real target          |
+| Don't                                                               | Do instead                                       | Why                                          |
+| ------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------- |
+| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                     | jQuery sets `display:block`, kills flex/grid |
+| `$el.closest('body').length`                                        | `el.isConnected`                                 | `.closest()` can't cross shadow boundary     |
+| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`                | Global queries can't see shadow content      |
+| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`             | Proxy is for interop only                    |
+| `this.ui.css('top', '100px')`                                      | `this._host.style.top = '100px'`                 | Proxy is for interop only                    |
+| `this.ui.show()` / `this.ui.hide()`                                | `this._host.style.display = ''` / `= 'none'`    | Proxy is for interop only                    |
+| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`            | Proxy is for interop only                    |
+| Put `top`/`left` on inner element                                   | Put on `:host`                                   | Breaks magnetic snap positioning             |
+| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`             | Host collapses to 0×0, snap/overflow broken  |
+| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`                | Event retargeting hides real target          |
+| Bind events in `onAppend()`                                        | Bind in `init()`, restore state in `onAppend()`  | `onAppend()` runs every time — duplicates bindings |
+| Set `position`/`z-index` on `:host` in CSS                         | Omit — set automatically by JS                   | Redundant, may conflict                      |
