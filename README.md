@@ -8,7 +8,7 @@ For info on how to setup the client read the contents of our [Getting Started do
 
 ## DEMO
 
-[![Start!](https://github.com/MrAntares/roBrowserLegacy/raw/master/src/UI/Components/Intro/images/play.png 'Start Demo')](https://mrantares.github.io/roBrowserLegacy/)
+[![Start Demo](https://img.shields.io/badge/%E2%96%B6%20Start%20Demo-Play%20Now-e8b84b?style=for-the-badge&labelColor=cc0000)](https://mrantares.github.io/roBrowserLegacy/)
 
 _Use `<Username>_M` or `<Username>_F` to register a male or a female account on the login screen, or use the Register/Request button to navigate to the server's account registration page._
 
