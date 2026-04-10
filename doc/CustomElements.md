@@ -41,6 +41,8 @@ Handles `mouseover`/`mouseout`/`mousedown`/`mouseup` internally to swap backgrou
 
 **Cursor**: `ui-button` is included in `CLICKABLE_SELECTOR` in `CursorManager.js` and in `GUIComponent._setupShadowCursorEvents()`. The custom hand cursor appears on hover automatically.
 
+**Known limitation**: `<ui-button>` does NOT have `observedAttributes` or `attributeChangedCallback`. Changing `bg`, `hover`, or `down` attributes after the element is connected to the DOM will **not** update the button visuals. If you need to change button images dynamically, remove and re-create the element.
+
 #### `<ui-text>` — replaces `<span data-text="msgId">`
 
 ```html
@@ -58,36 +60,24 @@ Resolves the message ID via `DB.getMessage()` on connect and on attribute change
 ```html
 <!-- Before (UIComponent) — data-background sets background on the element itself -->
 <div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
-	<!-- After (GUIComponent) — ui-image is a child element that sets background on itself -->
+	<!-- After (GUIComponent) — ui-image is a child that sets background on its PARENT -->
 	<div class="titlebar">
-		<ui-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ui-image>
+		<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 	</div>
 </div>
 ```
 
-**Behavior**: `<ui-image>` loads the image via `Client.loadFile()` and sets `background-image` on its parent element (not on itself). It hides itself with `display: none` so it doesn't occupy any layout space. This replicates the old data-background behavior where the background was applied to the element that had the attribute.
+**Behavior**: `<ui-image>` loads the image via `Client.loadFile()` and sets `background-image` on its **parent element** (not on itself). It hides itself with `display: none` in `connectedCallback()` so it doesn't occupy any layout space. This replicates the old `data-background` behavior where the background was applied to the element that had the attribute.
 
-No inline styles or explicit dimensions are needed on `<ui-image>` — the parent element is the one that must have the correct dimensions for the background to be visible.
-
-**Preferred approach** — inline style in HTML (no CSS changes needed):
+No inline styles or explicit dimensions are needed on `<ui-image>` — the parent element is the one that must have the correct dimensions for the background to be visible. The actual Clan component uses it without any inline styles:
 
 ```html
-<!-- Fill parent completely (titlebar) -->
-<ui-image src="basic_interface/titlebar_mid.bmp" style="width: 100%; height: 100%; display: block"></ui-image>
-
-<!-- Fixed height (footer bar) -->
-<ui-image src="basic_interface/btnbar_mid2.bmp" style="width: 100%; height: 27px; display: block"></ui-image>
+<div class="titlebar">
+	<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
+</div>
 ```
 
-**Alternative** — CSS rule (when many `<ui-image>` share the same sizing):
-
-```css
-.titlebar ui-image {
-	display: block;
-	width: 100%;
-	height: 100%;
-}
-```
+> **Warning**: Do NOT set `display: block` on `<ui-image>` via inline style or CSS — `connectedCallback()` sets `display: none` and the element is meant to be invisible. The background is applied to the parent, not to the `<ui-image>` element itself.
 
 Supports reactive `src` changes via `observedAttributes`.
 
@@ -118,6 +108,8 @@ import Targa from 'Loaders/Targa.js';
  */
 class RONewElement extends HTMLElement {
 	connectedCallback() {
+		if (this._initialized) return;
+		this._initialized = true;
 		const val = this.getAttribute('attr');
 		// Set up behavior (load images, add listeners, etc.)
 	}
@@ -167,3 +159,5 @@ btn.classList.add('btn');
 btn.addEventListener('click', () => { ... });
 container.appendChild(btn);
 ```
+
+> **Note**: Since `<ui-button>` does not support reactive attributes, all `bg`/`hover`/`down` attributes must be set **before** appending the element to the DOM (before `connectedCallback` fires). If you need to change images after connection, remove and re-create the element.

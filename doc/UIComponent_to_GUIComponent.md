@@ -30,6 +30,74 @@ document.body
                 └── ...content...
 ```
 
+> **Note**: `this._host` receives `position: absolute` and `z-index: 50` via JavaScript during `prepare()`. You do **not** need to declare these in your `:host` CSS.
+
+---
+
+## Lifecycle Hooks
+
+GUIComponent has three lifecycle hooks. Understanding when each runs is critical to avoid bugs like duplicate event bindings.
+
+```
+prepare()
+  ├── build Shadow DOM, inject CSS, render HTML
+  ├── _processAllDataAttrs()
+  ├── _createUIProxy()
+  ├── appendChild(host) to document.body   ← host IS in the DOM
+  ├── init()                               ← runs ONCE
+  ├── _setupMouseMode()
+  └── host.remove()                        ← host removed from DOM
+
+append()
+  ├── appendChild(host) to target          ← host IS in the DOM
+  ├── onAppend()                           ← runs EVERY TIME append() is called
+  ├── _setupScrollbars()
+  ├── _fixPositionOverflow()
+  └── focus()
+
+remove()
+  ├── onRemove()                           ← runs EVERY TIME remove() is called
+  ├── unbind keydown
+  ├── dispatch 'x_remove' event
+  └── host.remove()                        ← host removed from DOM
+```
+
+| Hook         | When it runs                                              | Use for                                                                  |
+| ------------ | --------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `init()`     | Once, during `prepare()`. Host is temporarily in the DOM. | One-time setup: `draggable()`, event binding, initial `this.ui.hide()`   |
+| `onAppend()` | Every time `append()` is called. Host is in the DOM.      | Position restore, anything that must run each time the component appears |
+| `onRemove()` | Every time `remove()` is called, before detach.           | Save preferences, cleanup                                                |
+
+**RULE**: Bind events in `init()` (runs once). Restore position/state in `onAppend()` (runs every time). Save state in `onRemove()`.
+
+---
+
+## Mouse Modes
+
+Each GUIComponent has a `mouseMode` property that controls how mouse events interact with the 3D scene behind the UI:
+
+```javascript
+const MouseMode = Object.freeze({
+	CROSS: 0, // Mouse crosses the UI and still intersects with the scene
+	STOP: 1, // Blocks scene intersection when mouse is over the UI
+	FREEZE: 2 // Blocks scene intersection while the UI is alive (modal)
+});
+```
+
+| Mode     | Use case                                 | Example                         |
+| -------- | ---------------------------------------- | ------------------------------- |
+| `CROSS`  | Transparent overlays, HUD elements       | Minimap, chat bubbles           |
+| `STOP`   | Standard windows (default)               | Clan, Inventory, Equipment      |
+| `FREEZE` | Modal dialogs that block all interaction | NPC dialog, confirmation popups |
+
+Set it on the component instance:
+
+```javascript
+Clan.mouseMode = GUIComponent.MouseMode.STOP;
+```
+
+---
+
 ## Step-by-Step Migration Checklist
 
 ### 1. Create the component files
@@ -64,9 +132,7 @@ import cssText from './Clan.css?raw';
 
 const Clan = new GUIComponent('Clan', cssText); // ← only CSS, not HTML
 
-Clan.render = function render() {
-	return htmlText; // ← HTML goes here
-};
+Clan.render = () => htmlText; // ← HTML goes here
 ```
 
 Key differences:
@@ -130,6 +196,8 @@ The host element (`this._host`) is what the outside world sees. Its dimensions d
 }
 ```
 
+> **Note**: You do NOT need `position: absolute` or `z-index` on `:host` — these are set via JavaScript in `prepare()`.
+
 **WHY**: If `top`/`left` remain on the inner element, it offsets the content inside the host. The host's `getBoundingClientRect()` returns the host's position, not the inner element's visual position. This causes magnetic snap to align to wrong edges (especially bottom/right).
 
 **WHY `position: absolute` on inner element**: The inner `#Clan` div needs `position: absolute` (or `relative`) to serve as a containing block for its children that use `position: absolute`. Without it, absolutely-positioned children would escape to the next positioned ancestor.
@@ -171,19 +239,22 @@ Guild.init = function init() {
 ```javascript
 Clan.init = function init() {
 	this.draggable('.titlebar'); // ← accepts CSS selector string (resolved inside shadow)
-};
-
-Clan.onAppend = function onAppend() {
 	const root = this._shadow || this._host;
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
 		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 		closeBtn.addEventListener('click', () => Clan.toggle());
 	}
+	this.ui.hide();
+};
+
+Clan.onAppend = function onAppend() {
+	this._host.style.left = `${_preferences.x}px`;
+	this._host.style.top = `${_preferences.y}px`;
 };
 ```
 
-**RULE**: `draggable()` accepts a CSS selector string — it resolves inside the shadow DOM automatically. Event binding that depends on the DOM being in the document should go in `onAppend()`, not `init()`.
+**RULE**: `draggable()` accepts a CSS selector string — it resolves inside the shadow DOM automatically. Event binding goes in `init()` (runs once). Position restore goes in `onAppend()` (runs every time).
 
 ### 7. Convert show/hide/toggle
 
@@ -206,7 +277,43 @@ Clan.toggle = function () {
 // Or use this.hide() / this.show() if defined
 ```
 
-The `this.ui` proxy implements `.is(':visible')`, `.show()`, `.hide()`, `.css()`, `.offset()`, `.position()`, `.width()`, `.height()`, `.find()`, `.parent()`, `.detach()`, `.appendTo()`, `.trigger()`.
+The `this.ui` proxy implements the following jQuery-compatible methods:
+
+| Method                   | Behavior                                          | Notes                                                                                         |
+| ------------------------ | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `.css(prop, value)`      | Get/set inline styles on host                     | Supports object syntax: `.css({ top: 100, left: 200 })`. Auto-appends `px` to numeric values. |
+| `.offset()`              | Returns `{ left, top }` relative to document      | Uses `getBoundingClientRect()`                                                                |
+| `.offsetParent()`        | Returns positioned ancestor                       | Mimics jQuery's walk-up behavior                                                              |
+| `.position()`            | Returns `{ left, top }` relative to offset parent | Uses `offsetLeft`/`offsetTop`                                                                 |
+| `.width()` / `.height()` | Returns dimensions                                | Uses `getBoundingClientRect()`                                                                |
+| `.is(':visible')`        | Visibility check                                  | Checks `display !== 'none'` and `offsetParent !== null`                                       |
+| `.show()`                | Removes `display: none`                           | Also calls `_fixPositionOverflow()` automatically                                             |
+| `.hide()`                | Sets `display: none`                              | —                                                                                             |
+| `.find(selector)`        | Query inside shadow DOM                           | Returns mini-wrapper (see limitations below)                                                  |
+| `.parent()`              | Returns parent wrapper                            | Only has `.append()` method                                                                   |
+| `.detach()`              | Removes host from DOM                             | —                                                                                             |
+| `.appendTo(target)`      | Appends host to target                            | —                                                                                             |
+| `.trigger(eventName)`    | Dispatches CustomEvent                            | `bubbles: true`                                                                               |
+
+#### `this.ui.find()` limitations
+
+`find()` returns a **minimal** jQuery-like wrapper, NOT a full jQuery object. It only supports:
+
+- `.length` / `[0]` — element access
+- `.each(fn)` — iterate
+- `.click(fn)` — add click listener
+- `.text(val)` — get/set textContent
+
+It does **NOT** support `.css()`, `.html()`, `.val()`, `.addClass()`, `.removeClass()`, `.attr()`, `.data()`, `.on()`, `.off()`, etc. For anything beyond the basics, use native DOM:
+
+```javascript
+// DON'T — will crash
+this.ui.find('.foo').css('color', 'red');
+
+// DO — use native DOM
+const root = this._shadow || this._host;
+root.querySelector('.foo').style.color = 'red';
+```
 
 ### 8. Convert preferences (position save/restore)
 
@@ -236,6 +343,48 @@ export default UIManager.addComponent(Clan);
 ```
 
 `UIManager.addComponent()` accepts both `UIComponent` and `GUIComponent` instances.
+
+---
+
+## Additional Features
+
+### Grid Snap
+
+Components can snap to a grid when dragged by setting `gridSnap`:
+
+```javascript
+MyComponent.gridSnap = {
+	width: 32, // grid cell width in px
+	height: 32, // grid cell height in px
+	padX: 0, // horizontal offset
+	padY: 0 // vertical offset
+};
+MyComponent.snapDuration = 150; // snap animation duration in ms (default: 150)
+```
+
+On `mouseup`, the component animates to the nearest grid position using CSS transitions. Useful for hotbar/skillbar components.
+
+### CSS Hot-Reload
+
+During development, component CSS can be hot-reloaded without refreshing:
+
+```javascript
+// Instance method — reloads CSS for this component's Shadow DOM
+myComponent.reloadCSS(newCssText);
+
+// Static method — injects CSS into a global <style> tag (fallback for non-migrated components)
+GUIComponent.reloadCSS('ComponentName', newCssText);
+```
+
+### Clone
+
+Components can be cloned for multi-instance use:
+
+```javascript
+const clone = originalComponent.clone('NewName', true); // true = copy all properties
+```
+
+The clone gets its own Shadow DOM and proxy but shares the same `render()` function.
 
 ---
 
@@ -354,22 +503,32 @@ offsetParent() {
 
 This mimics jQuery's `.offsetParent()` behavior. No action needed from the component author.
 
-### 7. The `this.ui.css()` proxy does not support object syntax as first argument
+### ~~7. The `this.ui.css()` proxy does not support object syntax as first argument~~ (FIXED)
 
-**Current limitation**: The `css()` method on the proxy checks `if (value === undefined)` before `if (typeof prop === 'object')`. Calling `this.ui.css({ top: 100, left: 200 })` enters the getter branch and crashes with `prop.replace is not a function`.
+**Previously**: The `css()` method on the proxy checked `if (value === undefined)` before `if (typeof prop === 'object')`. Calling `this.ui.css({ top: 100, left: 200 })` entered the getter branch and crashed with `prop.replace is not a function`.
 
-**Workaround**: Use individual calls:
+**Fix**: The `css()` method now checks `typeof prop === 'object'` first, correctly handling object syntax:
 
 ```javascript
-this.ui.css('top', 100);
-this.ui.css('left', 200);
+css(prop, value) {
+    if (typeof prop === 'object') {
+        for (const [k, v] of Object.entries(prop)) {
+            host.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? v + 'px' : String(v);
+        }
+        return proxy;
+    }
+    if (value === undefined) {
+        // Getter: .css('top')
+        ...
+    }
+}
 ```
 
-Or manipulate the host directly:
+Both syntaxes now work:
 
 ```javascript
-this._host.style.top = '100px';
-this._host.style.left = '200px';
+this.ui.css({ top: 100, left: 200 }); // ✅ object syntax
+this.ui.css('top', 100); // ✅ individual call
 ```
 
 ---
@@ -403,11 +562,14 @@ this._host.style.left = '200px';
 
 ## Quick Reference: What NOT to do
 
-| Don't                                                               | Do instead                           | Why                                          |
-| ------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------- |
-| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`         | jQuery sets `display:block`, kills flex/grid |
-| `$el.closest('body').length`                                        | `el.isConnected`                     | `.closest()` can't cross shadow boundary     |
-| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`    | Global queries can't see shadow content      |
-| Put `top`/`left` on inner element                                   | Put on `:host`                       | Breaks magnetic snap positioning             |
-| Omit `:host { width; height }`                                      | Always declare dimensions on `:host` | Host collapses to 0×0, snap/overflow broken  |
-| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`    | Event retargeting hides real target          |
+| Don't                                                               | Do instead                                      | Why                                                |
+| ------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                    | jQuery sets `display:block`, kills flex/grid       |
+| `$el.closest('body').length`                                        | `el.isConnected`                                | `.closest()` can't cross shadow boundary           |
+| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`               | Global queries can't see shadow content            |
+| Put `top`/`left` on inner element                                   | Put on `:host`                                  | Breaks magnetic snap positioning                   |
+| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`            | Host collapses to 0×0, snap/overflow broken        |
+| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`               | Event retargeting hides real target                |
+| `this.ui.find('.foo').css(...)`                                     | `root.querySelector('.foo').style.x = y`        | `find()` wrapper doesn't support `.css()`          |
+| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()` | `onAppend()` runs every time — duplicates bindings |
+| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                  | Redundant, may conflict                            |
