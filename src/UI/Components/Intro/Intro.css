@@ -694,3 +694,39 @@
 #intro .settings .btn_save:active {
 	transform: translateY(0);
 }
+
+/* ── Aspect Ratio Fixes ── */
+#intro .drop-zone {
+	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));
+}
+#intro .msg {
+	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));
+}
+#intro .btn_play {
+	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));
+}
+#intro .btn_play:hover {
+	transform: translateX(-50%) translateY(-2px) scale(var(--cx, 1), var(--cy, 1));
+}
+#intro .btn_play:active {
+	transform: translateX(-50%) translateY(0) scale(var(--cx, 1), var(--cy, 1));
+}
+#intro .btn_about {
+	transform: scale(var(--cx, 1), var(--cy, 1));
+}
+#intro .btn_about:hover {
+	transform: scale(calc(1.1 * var(--cx, 1)), calc(1.1 * var(--cy, 1)));
+}
+#intro .btn_settings {
+	scale: var(--cx, 1) var(--cy, 1);
+}
+#intro .btn_settings:hover {
+	scale: var(--cx, 1) var(--cy, 1);
+}
+#intro .loading-content {
+	transform: translate(-50%, -50%) scale(var(--cx, 1), var(--cy, 1));
+}
+#intro .about-content,
+#intro .settings-content {
+	scale: var(--cx, 1) var(--cy, 1);
+}
