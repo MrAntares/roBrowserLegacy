@@ -718,10 +718,10 @@
 	transform: scale(calc(1.1 * var(--cx, 1)), calc(1.1 * var(--cy, 1)));
 }
 #intro .btn_settings {
-	transform: scale(var(--cx, 1), var(--cy, 1));
+	scale: var(--cx, 1) var(--cy, 1);
 }
 #intro .btn_settings:hover {
-	transform: rotate(360deg) scale(var(--cx, 1), var(--cy, 1));
+	scale: var(--cx, 1) var(--cy, 1);
 }
 #intro .loading-content {
 	transform: translate(-50%, -50%) scale(var(--cx, 1), var(--cy, 1));
