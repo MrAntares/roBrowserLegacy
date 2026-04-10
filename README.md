@@ -80,3 +80,7 @@ All credits to the original owners/creators and the new ones.
 
 - Join us on [Discord](https://discord.gg/8JdHwM4Kqm)
 - Or in the [GIT Discussions](https://github.com/MrAntares/roBrowserLegacy/discussions)
+
+## Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=MrAntares/roBrowserLegacy&type=Date)](https://star-history.com/#MrAntares/roBrowserLegacy&Date)
