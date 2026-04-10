@@ -38,16 +38,6 @@ let _program = null;
 let _animatedModels = [];
 
 /**
- * Model shading types
- * @preserved
- */
-const _SHADING = {
-	NONE: 0,
-	FLAT: 1,
-	SMOOTH: 2
-};
-
-/**
  * Initialize shader program
  */
 function init(gl) {
@@ -398,40 +388,6 @@ function loadTexture(gl, model, path, index) {
 	);
 }
 
-/**
- * SLERP quaternion interpolation
- * @preserved
- */
-function _slerpQuat(q1, q2, t) {
-	const result = new Float32Array(4);
-
-	let dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
-
-	let q2Sign = 1;
-	if (dot < 0) {
-		dot = -dot;
-		q2Sign = -1;
-	}
-
-	let scale0, scale1;
-	if (dot > 0.9995) {
-		scale0 = 1.0 - t;
-		scale1 = t * q2Sign;
-	} else {
-		const theta = Math.acos(dot);
-		const sinTheta = Math.sin(theta);
-		scale0 = Math.sin((1.0 - t) * theta) / sinTheta;
-		scale1 = (Math.sin(t * theta) / sinTheta) * q2Sign;
-	}
-
-	result[0] = scale0 * q1[0] + scale1 * q2[0];
-	result[1] = scale0 * q1[1] + scale1 * q2[1];
-	result[2] = scale0 * q1[2] + scale1 * q2[2];
-	result[3] = scale0 * q1[3] + scale1 * q2[3];
-
-	return result;
-}
-
 function getPositionAtFrame(keyframes, frame, out) {
 	if (!keyframes || keyframes.length === 0) {
 		return null;
@@ -510,32 +466,6 @@ function getScaleAtFrame(keyframes, frame, out) {
 
 	const t = (frame - fPrev) / (fNext - fPrev);
 	return vec3.lerp(out, prev._vec, next._vec, t);
-}
-
-/**
- * Calculate face normal
- * @preserved
- */
-function _calcFaceNormal(v0, v1, v2) {
-	const ax = v1[0] - v0[0];
-	const ay = v1[1] - v0[1];
-	const az = v1[2] - v0[2];
-	const bx = v2[0] - v0[0];
-	const by = v2[1] - v0[1];
-	const bz = v2[2] - v0[2];
-
-	let nx = ay * bz - az * by;
-	let ny = az * bx - ax * bz;
-	let nz = ax * by - ay * bx;
-
-	const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
-	if (len > 0) {
-		nx /= len;
-		ny /= len;
-		nz /= len;
-	}
-
-	return [nx, ny, nz];
 }
 
 /**

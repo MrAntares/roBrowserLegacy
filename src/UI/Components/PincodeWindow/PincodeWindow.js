@@ -490,16 +490,11 @@ function encryptPincode(pincode) {
 
 function success() {
 	let passEnc = PincodeWindow._pass;
-	// Currently unused, preserved for future development.
-	let _checkPassEnc = PincodeWindow._checkpass;
 	let newPassEnc = PincodeWindow._newpass;
 
 	if (PincodeWindow._keypad !== undefined) {
 		if (PincodeWindow._pass !== undefined && PincodeWindow._pass !== '') {
 			passEnc = encryptPincode(PincodeWindow._pass);
-		}
-		if (PincodeWindow._checkpass !== undefined && PincodeWindow._checkpass !== '') {
-			_checkPassEnc = encryptPincode(PincodeWindow._checkpass);
 		}
 		if (PincodeWindow._newpass !== undefined && PincodeWindow._newpass !== '') {
 			newPassEnc = encryptPincode(PincodeWindow._newpass);
