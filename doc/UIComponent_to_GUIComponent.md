@@ -62,11 +62,11 @@ remove()
   └── host.remove()                        ← host removed from DOM
 ```
 
-| Hook | When it runs | Use for |
-|------|-------------|---------|
-| `init()` | Once, during `prepare()`. Host is temporarily in the DOM. | One-time setup: `draggable()`, event binding, initial hide |
-| `onAppend()` | Every time `append()` is called. Host is in the DOM. | Position restore, anything that must run each time the component appears |
-| `onRemove()` | Every time `remove()` is called, before detach. | Save preferences, cleanup |
+| Hook         | When it runs                                              | Use for                                                                  |
+| ------------ | --------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `init()`     | Once, during `prepare()`. Host is temporarily in the DOM. | One-time setup: `draggable()`, event binding, initial hide               |
+| `onAppend()` | Every time `append()` is called. Host is in the DOM.      | Position restore, anything that must run each time the component appears |
+| `onRemove()` | Every time `remove()` is called, before detach.           | Save preferences, cleanup                                                |
 
 **RULE**: Bind events in `init()` (runs once). Restore position/state in `onAppend()` (runs every time). Save state in `onRemove()`.
 
@@ -78,16 +78,16 @@ Each GUIComponent has a `mouseMode` property that controls how mouse events inte
 
 ```javascript
 const MouseMode = Object.freeze({
-    CROSS:  0, // Mouse crosses the UI and still intersects with the scene
-    STOP:   1, // Blocks scene intersection when mouse is over the UI
-    FREEZE: 2  // Blocks scene intersection while the UI is alive (modal)
+	CROSS: 0, // Mouse crosses the UI and still intersects with the scene
+	STOP: 1, // Blocks scene intersection when mouse is over the UI
+	FREEZE: 2 // Blocks scene intersection while the UI is alive (modal)
 });
 ```
 
-| Mode | Use case | Example |
-|------|----------|---------|
-| `CROSS` | Transparent overlays, HUD elements | Minimap, chat bubbles |
-| `STOP` | Standard windows (default) | Clan, Inventory, Equipment |
+| Mode     | Use case                                 | Example                         |
+| -------- | ---------------------------------------- | ------------------------------- |
+| `CROSS`  | Transparent overlays, HUD elements       | Minimap, chat bubbles           |
+| `STOP`   | Standard windows (default)               | Clan, Inventory, Equipment      |
 | `FREEZE` | Modal dialogs that block all interaction | NPC dialog, confirmation popups |
 
 Set it on the component instance:
@@ -265,22 +265,22 @@ Key changes:
 
 `this.ui` is a jQuery-compatible proxy that exists so `UIManager` and legacy `UIComponent` code can interact with GUIComponents without changes. **New code inside a GUIComponent should always use native DOM and Shadow DOM APIs.**
 
-| Proxy method | Native DOM equivalent (preferred) |
-|---|---|
-| `this.ui.css('top', '100px')` | `this._host.style.top = '100px'` |
-| `this.ui.css({ top: 100, left: 200 })` | `Object.assign(this._host.style, { top: '100px', left: '200px' })` |
-| `this.ui.show()` | `this._host.style.display = ''` (+ call `this._fixPositionOverflow()` if needed) |
-| `this.ui.hide()` | `this._host.style.display = 'none'` |
-| `this.ui.is(':visible')` | `this._host.style.display !== 'none'` |
-| `this.ui.find('.foo')` | `this._shadow.querySelector('.foo')` or `this._shadow.querySelectorAll('.foo')` |
-| `this.ui.width()` | `this._host.getBoundingClientRect().width` |
-| `this.ui.height()` | `this._host.getBoundingClientRect().height` |
-| `this.ui.offset()` | `this._host.getBoundingClientRect()` |
-| `this.ui.position()` | `{ left: this._host.offsetLeft, top: this._host.offsetTop }` |
-| `this.ui.parent()` | `this._host.parentNode` |
-| `this.ui.trigger('event')` | `this._host.dispatchEvent(new CustomEvent('event', { bubbles: true }))` |
-| `this.ui.detach()` | `this._host.remove()` |
-| `this.ui.appendTo(target)` | `target.appendChild(this._host)` |
+| Proxy method                           | Native DOM equivalent (preferred)                                                |
+| -------------------------------------- | -------------------------------------------------------------------------------- |
+| `this.ui.css('top', '100px')`          | `this._host.style.top = '100px'`                                                 |
+| `this.ui.css({ top: 100, left: 200 })` | `Object.assign(this._host.style, { top: '100px', left: '200px' })`               |
+| `this.ui.show()`                       | `this._host.style.display = ''` (+ call `this._fixPositionOverflow()` if needed) |
+| `this.ui.hide()`                       | `this._host.style.display = 'none'`                                              |
+| `this.ui.is(':visible')`               | `this._host.style.display !== 'none'`                                            |
+| `this.ui.find('.foo')`                 | `this._shadow.querySelector('.foo')` or `this._shadow.querySelectorAll('.foo')`  |
+| `this.ui.width()`                      | `this._host.getBoundingClientRect().width`                                       |
+| `this.ui.height()`                     | `this._host.getBoundingClientRect().height`                                      |
+| `this.ui.offset()`                     | `this._host.getBoundingClientRect()`                                             |
+| `this.ui.position()`                   | `{ left: this._host.offsetLeft, top: this._host.offsetTop }`                     |
+| `this.ui.parent()`                     | `this._host.parentNode`                                                          |
+| `this.ui.trigger('event')`             | `this._host.dispatchEvent(new CustomEvent('event', { bubbles: true }))`          |
+| `this.ui.detach()`                     | `this._host.remove()`                                                            |
+| `this.ui.appendTo(target)`             | `target.appendChild(this._host)`                                                 |
 
 > **Caveat**: `this.ui.show()` automatically calls `this._fixPositionOverflow()` to ensure the component stays within screen bounds. When using native DOM `this._host.style.display = ''`, call `this._fixPositionOverflow()` manually if the component may be near screen edges.
 
@@ -320,6 +320,7 @@ Same as before:
 ```javascript
 export default UIManager.addComponent(Clan);
 ```
+
 `UIManager.addComponent()` accepts both `UIComponent` and `GUIComponent` instances.
 
 ---
@@ -353,7 +354,7 @@ $scrollbar.show();
 
 // CORRECT
 $scrollbar[0].style.display = 'none';
-$scrollbar[0].style.display = '';  // ← resets to CSS value (flex)
+$scrollbar[0].style.display = ''; // ← resets to CSS value (flex)
 ```
 
 **RULE**: Never use jQuery `.show()`/`.hide()` on elements that may have non-block display. Use `element.style.display = ''` (empty string resets to the CSS-declared value) and `element.style.display = 'none'`.
@@ -502,17 +503,17 @@ this._host.style.left = '200px';
 
 ## Quick Reference: What NOT to do
 
-| Don't                                                               | Do instead                                       | Why                                          |
-| ------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------- |
-| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                     | jQuery sets `display:block`, kills flex/grid |
-| `$el.closest('body').length`                                        | `el.isConnected`                                 | `.closest()` can't cross shadow boundary     |
-| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`                | Global queries can't see shadow content      |
-| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`             | Proxy is for interop only                    |
-| `this.ui.css('top', '100px')`                                      | `this._host.style.top = '100px'`                 | Proxy is for interop only                    |
-| `this.ui.show()` / `this.ui.hide()`                                | `this._host.style.display = ''` / `= 'none'`    | Proxy is for interop only                    |
-| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`            | Proxy is for interop only                    |
-| Put `top`/`left` on inner element                                   | Put on `:host`                                   | Breaks magnetic snap positioning             |
-| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`             | Host collapses to 0×0, snap/overflow broken  |
-| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`                | Event retargeting hides real target          |
-| Bind events in `onAppend()`                                        | Bind in `init()`, restore state in `onAppend()`  | `onAppend()` runs every time — duplicates bindings |
-| Set `position`/`z-index` on `:host` in CSS                         | Omit — set automatically by JS                   | Redundant, may conflict                      |
+| Don't                                                               | Do instead                                      | Why                                                |
+| ------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                    | jQuery sets `display:block`, kills flex/grid       |
+| `$el.closest('body').length`                                        | `el.isConnected`                                | `.closest()` can't cross shadow boundary           |
+| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`               | Global queries can't see shadow content            |
+| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`            | Proxy is for interop only                          |
+| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                | Proxy is for interop only                          |
+| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`    | Proxy is for interop only                          |
+| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`           | Proxy is for interop only                          |
+| Put `top`/`left` on inner element                                   | Put on `:host`                                  | Breaks magnetic snap positioning                   |
+| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`            | Host collapses to 0×0, snap/overflow broken        |
+| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`               | Event retargeting hides real target                |
+| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()` | `onAppend()` runs every time — duplicates bindings |
+| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                  | Redundant, may conflict                            |

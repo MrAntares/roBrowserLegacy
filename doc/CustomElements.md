@@ -58,10 +58,10 @@ Resolves the message ID via `DB.getMessage()` on connect and on attribute change
 ```html
 <!-- Before (UIComponent) — data-background sets background on the element itself -->
 <div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
-
-<!-- After (GUIComponent) — ui-image is a child that sets background on its PARENT -->
-<div class="titlebar">
-	<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
+	<!-- After (GUIComponent) — ui-image is a child that sets background on its PARENT -->
+	<div class="titlebar">
+		<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
+	</div>
 </div>
 ```
 
