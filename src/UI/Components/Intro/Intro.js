@@ -280,12 +280,15 @@ Intro.onAppend = function onAppend() {
 		if (cleanBtn) cleanBtn.style.display = '';
 	});
 
-	// Resize handler — scale the 800x600 intro to fill viewport
+	// Resize handler
 	const introEl = root.querySelector('.intro');
 	_resizeHandler = () => {
 		const scaleX = window.innerWidth / 800;
 		const scaleY = window.innerHeight / 600;
+		const scaleMin = Math.min(scaleX, scaleY);
 		introEl.style.transform = 'scale(' + scaleX + ',' + scaleY + ')';
+		introEl.style.setProperty('--cx', scaleMin / scaleX);
+		introEl.style.setProperty('--cy', scaleMin / scaleY);
 	};
 	window.addEventListener('resize', _resizeHandler);
 	_resizeHandler();
