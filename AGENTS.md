@@ -142,13 +142,15 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 | --- | --- | --- | --- | --- |
 | **UIComponent** (legacy) | `src/UI/UIComponent.js` | Light DOM, jQuery | Global `<style>` tag | jQuery, `data-*` attributes |
 | **GUIComponent** (new) | `src/UI/GUIComponent.js` | Shadow DOM (`attachShadow`) | Scoped per component | Native DOM, Custom Elements |
+
 - GUIComponent uses `<ui-button>`, `<ui-text>`, `<ui-image>` (registered in `src/UI/Elements/Elements.js`) instead of `data-background`/`data-hover`/`data-down`/`data-text` attributes
 - `this.ui` proxy on GUIComponent provides jQuery-compatible API for UIManager interop
 - Both types coexist in UIManager — `addComponent()` accepts either
-> **Migration docs**: [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) — step-by-step guide with Shadow DOM pitfalls  
-> **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
-**Migrated components:** Clan  
-**Remaining:** 94 components (UIComponent)
+
+    > **Migration docs**: [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) — step-by-step guide with Shadow DOM pitfalls  
+    > **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
+    > **Migrated components:** Clan  
+    > **Remaining:** 94 components (UIComponent)
 
 - **Intro.js**: File upload & server selection
 - **WinList.js**: Character selection
@@ -322,7 +324,9 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 ## Common Development Tasks
 
 ### Adding a New UI Component
+
 **New components should use GUIComponent (Shadow DOM):**
+
 1. Create directory in `src/UI/Components/NewComponent/`
 2. Create `NewComponent.js`, `NewComponent.html`, `NewComponent.css`
 3. Use `new GUIComponent('Name', cssText)` with `render()` returning HTML
@@ -330,9 +334,9 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 5. CSS: dimensions/position on `:host`, inner layout on `#Name`
 6. Register with `UIManager.addComponent()`
 7. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
-> See [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) for full guide  
-> See [`doc/CustomElements.md`](doc/CustomElements.md) for element reference
-**Migrating an existing UIComponent:** Follow the step-by-step checklist in the migration guide. Key pitfalls: jQuery `.show()`/`.hide()` inside Shadow DOM, `$el.closest('body')` → `el.isConnected`, CSS `:host` dimensions.
+    > See [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) for full guide  
+    > See [`doc/CustomElements.md`](doc/CustomElements.md) for element reference
+    > **Migrating an existing UIComponent:** Follow the step-by-step checklist in the migration guide. Key pitfalls: jQuery `.show()`/`.hide()` inside Shadow DOM, `$el.closest('body')` → `el.isConnected`, CSS `:host` dimensions.
 
 ### Implementing a New Packet Handler
 
