@@ -454,12 +454,12 @@ function onRefineUIUpdateMaterials(pkt) {
 		// Select previously selected material if available
 		if (Refine.hammer >= 1 && refine_item_mat) {
 			let materialFound = false; // Flag to track if the material was found
-			let _item, _material;
+			let foundItem, foundMaterial;
 
 			for (let i = 0; i < refiningMaterials.length; i++) {
-				_material = refiningMaterials[i];
-				if (_material.itemId === refine_item_mat) {
-					_item = Inventory.getUI().getItemById(_material.itemId);
+				foundMaterial = refiningMaterials[i];
+				if (foundMaterial.itemId === refine_item_mat) {
+					foundItem = Inventory.getUI().getItemById(foundMaterial.itemId);
 					materialFound = true; // Material found
 					refine_new_mats = 0;
 					break;
@@ -483,7 +483,7 @@ function onRefineUIUpdateMaterials(pkt) {
 			}
 
 			// Update UI
-			selectMaterial(_material, _item);
+			selectMaterial(foundMaterial, foundItem);
 		}
 	} else {
 		showMessage(2970, 3, 'error');
@@ -543,17 +543,17 @@ function onPopulateMaterials() {
 
 			// Material Selection upon clicking
 			materialDiv.find('.icon').click(function () {
-				const itemId = material.itemId;
-				const _item = Inventory.getUI().getItemById(itemId);
-				const _count = _item ? _item.count : 0;
+				const clickedItemId = material.itemId;
+				const clickedItem = Inventory.getUI().getItemById(clickedItemId);
+				const clickedCount = clickedItem ? clickedItem.count : 0;
 
-				if (_count === 0) {
+				if (clickedCount === 0) {
 					return false;
 				}
 
 				// Check if item ID exists in the mapping and show corresponding message
 				for (const messageID in itemMessageMapping) {
-					if (itemMessageMapping[messageID].includes(itemId)) {
+					if (itemMessageMapping[messageID].includes(clickedItemId)) {
 						showMessage(messageID, 0, 'info'); // Adjust timeout and type as needed
 						break;
 					}
@@ -609,21 +609,21 @@ function onPopulateMaterials() {
 			}
 		);
 
-		const _bsbcount = item ? item.count : 0;
+		const bsbCountOuter = item ? item.count : 0;
 		const bsbcountmsg = bsbDiv.find('.item[data-index="' + BSB_ITID + '"] .mat_count');
 		// Wrap the count in a span if it's 0
-		if (_bsbcount === 0) {
-			bsbcountmsg.html('<span style="color: #ce1029;">' + _bsbcount + '</span>/' + blacksmithBlessing);
+		if (bsbCountOuter === 0) {
+			bsbcountmsg.html('<span style="color: #ce1029;">' + bsbCountOuter + '</span>/' + blacksmithBlessing);
 		} else {
-			bsbcountmsg.text(_bsbcount + '/' + blacksmithBlessing);
+			bsbcountmsg.text(bsbCountOuter + '/' + blacksmithBlessing);
 		}
 
 		// Add select functionality
 		bsbDiv.find('.icon').click(function () {
-			const _item = Inventory.getUI().getItemById(BSB_ITID);
-			const _bsbcountRef = _item ? _item.count : 0;
+			const bsbInventoryItem = Inventory.getUI().getItemById(BSB_ITID);
+			const currentBsbCount = bsbInventoryItem ? bsbInventoryItem.count : 0;
 
-			if (_bsbcountRef >= blacksmithBlessing) {
+			if (currentBsbCount >= blacksmithBlessing) {
 				const bsbOverlay = bsbDiv.closest('.bsb_overlay');
 
 				if (bsbOverlay.hasClass('selected')) {
