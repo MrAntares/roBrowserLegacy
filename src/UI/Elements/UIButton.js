@@ -1,12 +1,17 @@
+/**
+ * UI/Elements/UIButton.js
+ *
+ * <ui-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">OK</ui-button>
+ *
+ * Replaces: <button data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp">
+ *
+ * @author AoShinHo
+ */
+
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import Targa from 'Loaders/Targa.js';
 
-/**
- * <ui-button bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp">OK</ui-button>
- *
- * Replaces: <button data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp">
- */
 class UIButton extends HTMLElement {
 	connectedCallback() {
 		if (this._initialized) return;

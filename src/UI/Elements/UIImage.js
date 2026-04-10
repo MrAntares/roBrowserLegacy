@@ -1,17 +1,22 @@
+/**
+ * UI/Elements/UIImage.js
+ *
+ * <ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
+ *
+ * Replaces: <div data-background="basic_interface/titlebar_mid.bmp">
+ *
+ * @author AoShinHo
+ */
+
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import Targa from 'Loaders/Targa.js';
 
-/**
- * <ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
- *
- * Replaces: <div data-background="basic_interface/titlebar_mid.bmp">
- */
 class UIImage extends HTMLElement {
 	connectedCallback() {
 		if (this._initialized) return;
 		this._initialized = true;
-		this.style.display = 'none'; // não ocupa espaço no layout
+		this.style.display = 'none';
 		this._loadSrc(this.getAttribute('src'));
 	}
 

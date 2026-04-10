@@ -1,6 +1,13 @@
-// Register all custom elements once
+/**
+ * UI/Elements/Elements.js
+ *
+ * Register all custom elements once
+ *
+ * @author AoShinHo
+ */
+
 import './UIButton.js';
 import './UIText.js';
 import './UIImage.js';
 
-// Future: ROActor, etc.
+// Future: UIActor, etc.

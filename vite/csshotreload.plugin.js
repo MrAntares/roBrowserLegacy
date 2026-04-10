@@ -1,3 +1,11 @@
+/**
+ * vite/csshotreload.plugin.js
+ *
+ * Hot reload CSS changes in UI components without full page reload
+ *
+ * @author AoShinHo
+ */
+
 export default function uiCssHmrPlugin() {
 	return {
 		name: 'ui-css-hmr',

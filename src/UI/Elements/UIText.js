@@ -1,10 +1,15 @@
-import DB from 'DB/DBManager.js';
-
 /**
+ * UI/Elements/UIText.js
+ *
  * <ui-text msg="2355">Fallback text</ui-text>
  *
  * Replaces: <span data-text="2355">Clan Info</span>
+ *
+ * @author AoShinHo
  */
+
+import DB from 'DB/DBManager.js';
+
 class UIText extends HTMLElement {
 	connectedCallback() {
 		if (this._initialized) return;

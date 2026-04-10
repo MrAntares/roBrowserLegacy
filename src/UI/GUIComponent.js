@@ -9,6 +9,8 @@
  * During the transition period, this.ui is a jQuery-compatible proxy
  * so UIManager and old UIComponent instances can interact with
  * GUIComponent instances without changes.
+ *
+ * @author AoShinHo
  */
 
 import CommonCSS from './Common.css?raw';
