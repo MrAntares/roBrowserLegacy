@@ -34,11 +34,9 @@ Clan.init = function init() {
 	this.ui.hide();
 };
 
-Clan.onAppend = function onAppend() {
-};
+Clan.onAppend = function onAppend() {};
 
-Clan.onRemove = function onRemove() {
-};
+Clan.onRemove = function onRemove() {};
 
 Clan.onShortCut = function onShortCut(key) {
 	if (key.cmd === 'TOGGLE') this.toggle();
