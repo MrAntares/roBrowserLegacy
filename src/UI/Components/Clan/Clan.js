@@ -18,8 +18,6 @@ import UIManager from 'UI/UIManager.js';
 import htmlText from './Clan.html?raw';
 import cssText from './Clan.css?raw';
 
-const _preferences = Preferences.get('Clan', { x: 150, y: 150 }, 1.0);
-
 const Clan = new GUIComponent('Clan', cssText);
 
 // render() just returns the static HTML — no template literals needed
@@ -37,15 +35,9 @@ Clan.init = function init() {
 };
 
 Clan.onAppend = function onAppend() {
-	this._host.style.left = `${_preferences.x}px`;
-	this._host.style.top = `${_preferences.y}px`;
 };
 
 Clan.onRemove = function onRemove() {
-	const rect = this._host.getBoundingClientRect();
-	_preferences.x = rect.left;
-	_preferences.y = rect.top;
-	_preferences.save();
 };
 
 Clan.onShortCut = function onShortCut(key) {
