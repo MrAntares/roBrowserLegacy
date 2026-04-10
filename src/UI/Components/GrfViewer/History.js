@@ -34,9 +34,9 @@ let _next;
  * @param {object} previous jquery button
  * @param {object} next jquery button
  */
-function init(previous, next) {
-	_previous = previous;
-	_next = next;
+function init(previousBtn, nextBtn) {
+	_previous = previousBtn;
+	_next = nextBtn;
 
 	_previous.removeClass('on');
 	_next.removeClass('on');

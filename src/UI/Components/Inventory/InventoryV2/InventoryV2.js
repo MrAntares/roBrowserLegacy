@@ -719,7 +719,6 @@ function onResize() {
 	const ui = InventoryV2.ui;
 	const left = ui.position().left;
 	let lastWidth = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraX = 23 + 16 + 16 - 30;
@@ -738,7 +737,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
@@ -1310,7 +1309,7 @@ InventoryV2.removeItemFromSwitch = function (index) {
 		content.find('.item[data-index="' + item.index + '"] .switch2').css('backgroundImage', 'none');
 
 		SwitchEquip.unEquip(item.index, item.location);
-		const removedItem = this.equipswitchlist.splice(existingItemIndex, 1)[0];
+		this.equipswitchlist.splice(existingItemIndex, 1);
 
 		ChatBox.addText(DB.getItemName(item) + ' ' + DB.getMessage(3144), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 

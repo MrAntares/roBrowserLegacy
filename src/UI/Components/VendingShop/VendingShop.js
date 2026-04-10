@@ -365,8 +365,8 @@ VendingShop.updateItem = function UpdateItem(index, count) {
  */
 function prettyZeny(val, useStyle) {
 	const list = val.toString().split('');
-	let i,
-		count = list.length;
+	const count = list.length;
+	let i;
 	let str = '';
 
 	for (i = 0; i < count; i++) {
@@ -402,8 +402,9 @@ function stopPropagation(event) {
 
 /**
  * Hide/show inventory's content
+ * @preserved currently unused, might be needed in the future
  */
-function onToggleReduction() {
+function _onToggleReduction() {
 	const ui = VendingShop.ui;
 
 	if (_realSize) {
@@ -419,8 +420,9 @@ function onToggleReduction() {
 
 /**
  * Update tab, reset inventory content
+ * @preserved currently unused, might be needed in the future
  */
-function requestFilter() {
+function _requestFilter() {
 	VendingShop.ui.find('.container .content').empty();
 
 	const list = VendingShop.list;

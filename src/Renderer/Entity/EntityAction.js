@@ -13,7 +13,6 @@
  * @author Vincent Thibault
  */
 
-import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import DB from 'DB/DBManager.js';
 
 /**

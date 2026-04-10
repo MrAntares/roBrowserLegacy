@@ -776,7 +776,6 @@ function onResize() {
 	const ui = InventoryV3.ui;
 	const left = ui.position().left;
 	let lastWidth = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraX = 23 + 16 + 16 - 30;
@@ -795,7 +794,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
@@ -1271,16 +1270,16 @@ function onInventoryExpand() {
 function onRequestInventoryExpandResult(pkt) {
 	if (pkt) {
 		switch (pkt.result) {
-			case 0:
-				var item = InventoryV3.getItemById(pkt.itemId);
+			case 0: {
+				const item = InventoryV3.getItemById(pkt.itemId);
 
 				if (!item) {
 					return false;
 				}
 
-				var itemname = DB.getItemName(item);
-				var currentlimit = parseInt(InventoryV3.ui.find('.mcnt').text(), 10);
-				var newlimit = currentlimit + 10; // Hardcoded value
+				const itemname = DB.getItemName(item);
+				const currentlimit = parseInt(InventoryV3.ui.find('.mcnt').text(), 10);
+				const newlimit = currentlimit + 10; // Hardcoded value
 
 				UIManager.showPromptBox(
 					// Do you want to expand the maximum possession limit by using ^0000ff%s^000000? \nIt will expand from (^0000ff%d^000000) to (^0000ff%d^000000).\n^ff0000 Expanded item possession limit can't be reversed.^000000#
@@ -1291,6 +1290,7 @@ function onRequestInventoryExpandResult(pkt) {
 					InventoryExpandCancel
 				);
 				break;
+			}
 			case 1:
 				ChatBox.addText(DB.getMessage(3562), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
@@ -1485,7 +1485,7 @@ InventoryV3.removeItemFromSwitch = function (index) {
 		content.find('.item[data-index="' + item.index + '"] .switch2').css('backgroundImage', 'none');
 
 		SwitchEquip.unEquip(item.index, item.location);
-		const removedItem = this.equipswitchlist.splice(existingItemIndex, 1)[0];
+		this.equipswitchlist.splice(existingItemIndex, 1);
 
 		ChatBox.addText(DB.getItemName(item) + ' ' + DB.getMessage(3144), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 

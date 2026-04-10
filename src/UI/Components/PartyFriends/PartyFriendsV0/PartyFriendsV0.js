@@ -227,14 +227,13 @@ PartyFriendsV0.onKeyDown = function onKeyDown(event) {
  * @param {Array} friends list
  */
 PartyFriendsV0.setFriends = function setFriends(friends) {
-	let i,
-		count = friends.length;
+	const count = friends.length;
 	const ui = this.ui.find('.content .friend');
 
 	_friends.length = friends.length;
 	ui.empty();
 
-	for (i = 0; i < count; i++) {
+	for (let i = 0; i < count; i++) {
 		_friends[i] = friends[i];
 		ui.append(
 			'<div class="node' +
@@ -340,11 +339,10 @@ PartyFriendsV0.setParty = function setParty(name, members) {
 	this.ui.find('.party.create').hide();
 	this.ui.find('.party.leave').show();
 
-	let i,
-		count = members.length;
+	const count = members.length;
 
 	_party.length = 0;
-	for (i = 0; i < count; i++) {
+	for (let i = 0; i < count; i++) {
 		PartyFriendsV0.addPartyMember(members[i]);
 	}
 
@@ -358,9 +356,8 @@ PartyFriendsV0.setParty = function setParty(name, members) {
  */
 PartyFriendsV0.addPartyMember = function addPartyMember(player) {
 	const role = player.role || player.Role || 0;
-	let i,
-		count = _party.length;
-	let node, texture, ctx;
+	const count = _party.length;
+	let node;
 
 	// Check if we are the leader
 	if (player.AID === Session.AID) {
@@ -373,16 +370,15 @@ PartyFriendsV0.addPartyMember = function addPartyMember(player) {
 	}
 
 	// Search for duplicates entries
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		// No GID, need to compare using charactername (wtf)
 		if (_party[i].AID === player.AID && _party[i].characterName === player.characterName) {
+			node = this.ui.find('.content .party .node:eq(' + i + ')');
 			break;
 		}
 	}
-
 	// Update
-	if (i < count) {
-		node = this.ui.find('.content .party .node:eq(' + i + ')');
+	if (node) {
 		node.removeClass('leader online');
 
 		if (role === 0) {
@@ -419,12 +415,13 @@ PartyFriendsV0.addPartyMember = function addPartyMember(player) {
 					'</div>'
 			);
 
-		node = this.ui.find('.content .party .node:eq(' + i + ')');
+		node = this.ui.find('.content .party .node').last();
 	}
 
-	ctx = node.find('canvas').get(0).getContext('2d');
-	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	node.find('.hp').text('');
+
+	const ctx = node.find('canvas').get(0).getContext('2d');
+	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 	// Update life
 	if (player.life && player.life.display) {
@@ -433,7 +430,7 @@ PartyFriendsV0.addPartyMember = function addPartyMember(player) {
 	}
 
 	// Add texture
-	texture = role === 0 && player.state === 0 ? 'grp_leader.bmp' : player.state === 0 ? 'grp_online.bmp' : '';
+	const texture = role === 0 && player.state === 0 ? 'grp_leader.bmp' : player.state === 0 ? 'grp_online.bmp' : '';
 	if (texture) {
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/' + texture, function (url) {
 			node.css('backgroundImage', 'url(' + url + ')');
@@ -460,10 +457,9 @@ PartyFriendsV0.removePartyMember = function removePartyMember(AID, characterName
 		return;
 	}
 
-	let i,
-		count = _party.length;
+	const count = _party.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		// Why Gravity doesn't send the GID ? Meaning we can't have the same
 		// character name twice (even in the same account).
 		if (_party[i].AID === AID && _party[i].characterName === characterName) {
@@ -503,17 +499,16 @@ PartyFriendsV0.resize = function resize(width, height) {
  * @param {number} maxhp
  */
 PartyFriendsV0.updateMemberLife = function updateMemberLife(AID, canvas, hp, maxhp) {
-	let i,
-		count = _party.length;
-	let node, ctx;
+	const count = _party.length;
+	let node;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		// No GID data, so have to check for the online character in
 		// the account (since we can have multiple players in a team
 		// using the same account).
 		if (_party[i].AID === AID && _party[i].state === 0) {
 			node = this.ui.find('.content .party .node:eq(' + i + ')');
-			ctx = node.find('canvas').get(0).getContext('2d');
+			const ctx = node.find('canvas').get(0).getContext('2d');
 
 			ctx.drawImage(canvas, 0, 0, 60, 5, 0, 0, 60, 5);
 			node.find('.hp').text(hp + '/' + maxhp);
@@ -567,7 +562,6 @@ function onResize() {
 	const left = ui.position().left;
 	let lastWidth = 0;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraX = -20;
@@ -590,7 +584,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {

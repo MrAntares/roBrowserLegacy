@@ -246,9 +246,10 @@ self.onmessage = function (e) {
 	const data = e.data;
 
 	switch (data.type) {
-		case 'findPath':
+		case 'findPath': {
 			const path = findPath(data.startX, data.startY, data.endX, data.endY, data.mapData, data.existingPath);
 			self.postMessage({ type: 'pathResult', path: path, workerId: data.workerId });
 			break;
+		}
 	}
 };

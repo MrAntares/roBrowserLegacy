@@ -25,7 +25,7 @@ import htmlText from './MobileUI.html?raw';
 import cssText from './MobileUI.css?raw';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
-import KEYS from 'Controls/KeyEventHandler.js';
+import _KEYS from 'Controls/KeyEventHandler.js'; // Currently unused, preserved for future development
 
 const vec2 = glMatrix.vec2;
 const mat2 = glMatrix.mat2;
@@ -652,8 +652,9 @@ function startAutoTarget() {
 
 /**
  * Stopping automatic targeting cycle
+ * Currently unused, preserved for future development
  */
-function stopAutoTarget() {
+function _stopAutoTarget() {
 	window.clearTimeout(autoTargetTimer);
 }
 

@@ -470,9 +470,6 @@ function onHoverDetails(event) {
 
 		NpcBox.ui.css('height', '150px');
 		NpcBox.ui.find('.border').css('height', '139px');
-		const infoDetails = ItemReform.ui.find('.information_details');
-		const offset = infoDetails.offset();
-		const height = infoDetails.outerHeight();
 
 		// Initial position update
 		function updateNpcBoxPosition(e) {
@@ -513,7 +510,7 @@ function onHoverOutDetails() {
 function onItemReformResult(pkt) {
 	if (pkt) {
 		switch (pkt.result) {
-			case 0:
+			case 0: {
 				const item = Inventory.getUI().getItemByIndex(pkt.index);
 
 				// Show Success effect
@@ -544,6 +541,7 @@ function onItemReformResult(pkt) {
 				// Close UI
 				onRequestReformClose();
 				break;
+			}
 			default:
 				break;
 		}
@@ -572,8 +570,7 @@ function showMessage(message) {
  * Handles the item reform request by preparing and sending the packet.
  */
 function onRequestItemReform() {
-	let pkt;
-	pkt = new PACKET.CZ.ITEM_REFORM();
+	const pkt = new PACKET.CZ.ITEM_REFORM();
 	pkt.ITID = ReformUIState.itemId;
 	pkt.index = ReformUIState.index;
 

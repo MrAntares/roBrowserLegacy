@@ -222,8 +222,8 @@ MiniMap.onRemove = function onRemove() {
  * @param {number} y position
  */
 MiniMap.addPartyMemberMark = function addPartyMemberMark(key, x, y) {
-	let i,
-		count = _party.length;
+	let i;
+	const count = _party.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_party[i].key === key) {
@@ -261,8 +261,8 @@ MiniMap.getMemberColor = function getMemberColor(key) {
  * @param {number} key account id
  */
 MiniMap.removePartyMemberMark = function removePartyMemberMark(key) {
-	let i,
-		count = _party.length;
+	let i;
+	const count = _party.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_party[i].key === key) {
@@ -280,8 +280,8 @@ MiniMap.removePartyMemberMark = function removePartyMemberMark(key) {
  * @param {number} y position
  */
 MiniMap.addGuildMemberMark = function addGuildMemberMark(key, x, y) {
-	let i,
-		count = _guild.length;
+	let i;
+	const count = _guild.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_guild[i].key === key) {
@@ -304,8 +304,8 @@ MiniMap.addGuildMemberMark = function addGuildMemberMark(key, x, y) {
  * @param {number} key account id
  */
 MiniMap.removeGuildMemberMark = function removeGuildMemberMark(key) {
-	let i,
-		count = _guild.length;
+	let i;
+	const count = _guild.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_guild[i].key === key) {
@@ -324,8 +324,8 @@ MiniMap.removeGuildMemberMark = function removeGuildMemberMark(key) {
  * @param {Array} color
  */
 MiniMap.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
-	let i,
-		count = _markers.length;
+	let i;
+	const count = _markers.length;
 	const color = [(lcolor & 0x00ff0000) >> 16, (lcolor & 0x0000ff00) >> 8, lcolor & 0x000000ff];
 
 	for (i = 0; i < count; ++i) {
@@ -353,8 +353,8 @@ MiniMap.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
  * @param {number} key id
  */
 MiniMap.removeNpcMark = function removeNPCMark(key) {
-	let i,
-		count = _markers.length;
+	let i;
+	const count = _markers.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_markers[i].key === key) {
@@ -421,12 +421,11 @@ const render = (function renderClosure() {
 		return (64 - ((y - pos[1]) * f * 256) / (zoom * ZOOM_SIZE)) | 0;
 	}
 
-	return function render(tick) {
-		let width, height, i, count;
+	return function _render(tick) {
+		const width = Altitude.width;
+		const height = Altitude.height;
+		let i, count;
 		let dot;
-
-		width = Altitude.width;
-		height = Altitude.height;
 
 		// closure
 		zoom = _zoomFactor[_preferences.zoom];

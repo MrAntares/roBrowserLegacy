@@ -140,19 +140,19 @@ function renderRankText(text) {
 	_rankCtx.clearRect(0, 0, RANK_W, RANK_H);
 
 	const parts = text.split('/');
-	const ranking = parts[0];
-	const total = parts[1];
+	const rankingStr = parts[0];
+	const totalStr = parts[1];
 	const step = 28; // Compact spacing
 	const slashStep = 28;
 
 	// Calculate total width to center it
-	const totalWidth = ranking.length * step + slashStep + total.length * step;
+	const totalWidth = rankingStr.length * step + slashStep + totalStr.length * step;
 	let x = (RANK_W - totalWidth) >> 1;
 
 	// 1. Render Ranking (Higher)
 	let i, a;
-	for (i = 0; i < ranking.length; i++) {
-		a = rankCharToAction(ranking[i]);
+	for (i = 0; i < rankingStr.length; i++) {
+		a = rankCharToAction(rankingStr[i]);
 		if (!isNaN(a)) {
 			drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y - 6);
 			x += step;
@@ -165,8 +165,8 @@ function renderRankText(text) {
 	x += slashStep;
 
 	// 3. Render Total (Lower)
-	for (i = 0; i < total.length; i++) {
-		a = rankCharToAction(total[i]);
+	for (i = 0; i < totalStr.length; i++) {
+		a = rankCharToAction(totalStr[i]);
 		if (!isNaN(a)) {
 			drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y + 6);
 			x += step;

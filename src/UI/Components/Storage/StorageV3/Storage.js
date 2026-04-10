@@ -286,7 +286,6 @@ Storage.addItemSub = function addItemSub(item) {
  */
 Storage.removeItem = function removeItem(index, count) {
 	const i = getItemIndexById(index);
-	let item;
 
 	if (i < 0) {
 		return null;
@@ -307,7 +306,7 @@ Storage.removeItem = function removeItem(index, count) {
 			return _list[i];
 		}
 	}
-	item = _list[i];
+	const item = _list[i];
 	_list.splice(i, 1);
 	this.ui.find('.item[data-index="' + index + '"]').remove();
 	// hide .overlay
@@ -387,7 +386,6 @@ function onResize() {
 	const ui = Storage.ui;
 	const top = ui.position().top;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
@@ -399,7 +397,7 @@ function onResize() {
 		resizeHeight(h);
 		lastHeight = h;
 	}
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	jQuery(window).on('mouseup.resize', function (event) {
 		if (event.which === 1) {
@@ -426,15 +424,17 @@ function onSwitchTab() {
 }
 
 function onDrop(event) {
-	let item, data;
+	let data;
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {}
+	} catch (e) {
+		// Ignore parsing error
+	}
 	event.stopImmediatePropagation();
 	if (!data || data.type !== 'item' || (data.from !== 'Inventory' && data.from !== 'CartItems')) {
 		return false;
 	}
-	item = data.data;
+	const item = data.data;
 	if (item.count > 1) {
 		InputBox.append();
 		InputBox.setType('number', false, item.count);

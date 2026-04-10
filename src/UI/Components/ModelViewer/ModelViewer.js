@@ -111,7 +111,7 @@ function initDropDown(select) {
 	// Search RSMs from the client
 	Client.search(/data\\[^\0]+\.rsm/gi, function (list) {
 		let i, count;
-		let hash;
+		const hash = decodeURIComponent(location.hash);
 
 		// Add selection
 		for (i = 0, count = list.length; i < count; ++i) {
@@ -125,7 +125,6 @@ function initDropDown(select) {
 		};
 
 		// Start loading a model ?
-		hash = decodeURIComponent(location.hash);
 		location.hash = hash;
 
 		// Load RSM from url ?
@@ -163,26 +162,24 @@ function loadModel(filename) {
 	Client.getFile(filename, function (buf) {
 		_model = new Model(buf);
 
-		let data;
-		let i, count, j, size, total, offset, length, pos;
-		let objects = [],
-			infos = [],
-			meshes,
-			index,
-			object;
-		let buffer;
+		const data = _model.compile();
+		let i, count, j, size, offset, length;
+		const objects = [];
+		const infos = [];
+		let meshes;
+		let index;
+		let object;
 
 		// Create model in world
 		_GlobalParameters.filename = filename.replace('data/model/', '');
 		_model.createInstance(_GlobalParameters, 0, 0);
 
 		// Compile model
-		data = _model.compile();
 		count = data.meshes.length;
-		total = 0;
+		let total = 0;
 
 		// Extract meshes
-		for (i = 0, count = data.meshes.length; i < count; ++i) {
+		for (i = 0; i < count; ++i) {
 			meshes = data.meshes[i];
 			index = Object.keys(meshes);
 
@@ -197,9 +194,8 @@ function loadModel(filename) {
 			}
 		}
 
-		buffer = new Float32Array(total);
+		const buffer = new Float32Array(total);
 		count = objects.length;
-		pos = 0;
 		offset = 0;
 
 		// Merge meshes to buffer
@@ -236,8 +232,8 @@ function loadModel(filename) {
 
 			Client.loadFile(
 				infos[i].texture,
-				function (data) {
-					infos[i].texture = data;
+				function (binaryData) {
+					infos[i].texture = binaryData;
 					loadNextTexture();
 				},
 				loadNextTexture

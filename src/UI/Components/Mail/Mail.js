@@ -14,7 +14,6 @@ import Preferences from 'Core/Preferences.js';
 import Client from 'Core/Client.js';
 import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
-import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
@@ -115,7 +114,7 @@ Mail.onAppend = function OnAppend() {
 /**
  * Add item to inventory
  *
- * @param {object} Item
+ * @param {object} Index
  */
 Mail.addItemSub = function AddItemSub(Index) {
 	const item = _preferences.item_add_email;
@@ -218,7 +217,7 @@ Mail.mailList = function mailList(read) {
 /**
  * Mail receive
  *
- * @param {object} read
+ * @param {object} newMail
  */
 Mail.mailReceiveUpdate = function mailReceiveUpdate(newMail) {
 	if (Mail.list.mailList === undefined) {
@@ -255,7 +254,7 @@ Mail.mailReceiveUpdate = function mailReceiveUpdate(newMail) {
  * Search in a list for an item by its index
  *
  * @param {number} index
- * @returns {Item}
+ * @returns {object}
  */
 Mail.getItemByIndex = function getItemByIndex(index) {
 	const list = _preferences.item_add_email;
@@ -294,8 +293,6 @@ Mail.replyNewMailFriends = async function replyNewMailFriends(fromName) {
 			.on('click', function () {});
 		Mail.ui.find('#create_mail_cancel').off('click');
 		Mail.ui.find('#create_mail_cancel').on('click', this.onClosePressed.bind(this));
-		//Mail.ui.find('.block_zeny_item').remove();
-		//Mail.ui.find('.block_send_cancel').css('margin-top','19%');
 	});
 };
 
@@ -652,7 +649,6 @@ function onDrop(event) {
 	_preferences.item_add_email.count = 1;
 	_preferences.save();
 
-	// this.addItemSub(item);
 	return false;
 }
 
@@ -756,19 +752,9 @@ function onItemInfo(event) {
 }
 
 /**
- * Extend Mail window size
- */
-function resizeHeight(height) {
-	height = Math.min(Math.max(height, 8), 17);
-
-	Mail.ui.find('.body').css('height', height * 32);
-	Mail.ui.css('height', 31 + 19 + height * 32);
-}
-
-/**
  * Prettify number (15000 -> 15,000)
  *
- * @param {number}
+ * @param {number} value
  * @return {string}
  */
 function prettifyZeny(value) {
@@ -791,7 +777,7 @@ function prettifyZeny(value) {
 /**
  * Converte DeleteTime
  *
- * @param {number}
+ * @param {number} value
  * @return {string}
  */
 function formateDeleteTime(value) {
@@ -834,41 +820,6 @@ function onDropText(event) {
 
 	jQuery(event.currentTarget).val(data);
 	return false;
-}
-
-/**
- * Extend Mail window size
- */
-function onResize() {
-	const ui = Mail.ui;
-	const top = ui.position().top;
-	let lastHeight = 0;
-
-	function resizing() {
-		const extraY = 31 + 19 - 30;
-		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
-
-		// Maximum and minimum window size
-		h = Math.min(Math.max(h, 8), 17);
-
-		if (h === lastHeight) {
-			return;
-		}
-
-		resizeHeight(h);
-		lastHeight = h;
-	}
-
-	// Start resizing
-	const _Interval = setInterval(resizing, 30);
-
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
-		if (event.which === 1) {
-			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
-		}
-	});
 }
 
 // sleep time expects milliseconds

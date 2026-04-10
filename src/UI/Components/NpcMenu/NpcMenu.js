@@ -135,11 +135,10 @@ NpcMenu.onKeyDown = function onKeyDown(event) {
  * @param {number} gid - npc id
  */
 NpcMenu.setMenu = function SetMenu(menu, gid) {
-	let content, list;
+	const content = this.ui.find('.content');
+	const list = menu.split(':');
 	let i, j, count;
 
-	content = this.ui.find('.content');
-	list = menu.split(':');
 	_ownerID = gid;
 	_index = 0;
 

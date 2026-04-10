@@ -198,8 +198,8 @@ Trade.addItem = function addItem(item) {
  */
 function prettifyZeny(value) {
 	const num = String(value);
-	let i = 0,
-		len = num.length;
+	let i = 0;
+	const len = num.length;
 	let out = '';
 
 	while (i < len) {
@@ -298,11 +298,13 @@ function onTrade() {
  * Drop from inventory to storage
  */
 function onDrop(event) {
-	let item, data;
+	let data;
 
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {}
+	} catch (e) {
+		// Ignore parsing error
+	}
 
 	event.stopImmediatePropagation();
 
@@ -311,7 +313,7 @@ function onDrop(event) {
 		return false;
 	}
 
-	item = data.data;
+	const item = data.data;
 
 	// Have to specify how much
 	if (item.count > 1) {
@@ -399,10 +401,10 @@ function onItemInfo(event) {
 /**
  * Callbacks
  */
-Trade.onConclude = function onConclude() {};
-Trade.onTradeSubmit = function onTradeSubmit() {};
-Trade.reqAddItem = function reqAddItem() {};
-Trade.onCancel = function onCancel() {};
+Trade.onConclude = function onConclude() {}; // eslint-disable-line no-shadow
+Trade.onTradeSubmit = function onTradeSubmit() {}; // eslint-disable-line no-shadow
+Trade.reqAddItem = function reqAddItem() {}; // eslint-disable-line no-shadow
+Trade.onCancel = function onCancel() {}; // eslint-disable-line no-shadow
 
 /**
  * Create component and export it

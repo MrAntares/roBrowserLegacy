@@ -170,20 +170,18 @@ function addResizedStatusIcon(img, index) {
  * Used when one element is removed.
  */
 function resetElementsPosition() {
-	let element, i, count, x, y;
 	const elements = StatusIcons.ui.find('.state');
+	const count = elements.length;
+	let x = 0;
+	let y = 0;
 
-	count = elements.length;
-	x = 0;
-	y = 0;
-
-	for (i = 0; i < count; ++i, y += 36) {
+	for (let i = 0; i < count; ++i, y += 36) {
 		if (y > Renderer.height - 166) {
 			y = 0;
 			x += 45;
 		}
 
-		element = elements[i];
+		const element = elements[i];
 		element.style.top = y + 'px';
 		element.style.right = x + 'px';
 	}
@@ -216,12 +214,10 @@ function removeElementIndex(index) {
  * @param {number} index
  */
 function createElement(index) {
-	let state, canvas;
-
-	state = document.createElement('div');
+	const state = document.createElement('div');
 	state.className = 'state';
 
-	canvas = document.createElement('canvas');
+	const canvas = document.createElement('canvas');
 	canvas.width = 32;
 	canvas.height = 32;
 
@@ -233,16 +229,13 @@ function createElement(index) {
 
 	// Add description
 	if (StatusTable[index].descript) {
-		let i, count, time;
-		let info, lines;
-
-		info = document.createElement('div');
+		const info = document.createElement('div');
 		info.className = 'description';
 
-		lines = StatusTable[index].descript;
-		count = lines.length;
+		const lines = StatusTable[index].descript;
+		const count = lines.length;
 
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			const line = document.createElement('div');
 			line.textContent = lines[i][0];
 
@@ -256,7 +249,7 @@ function createElement(index) {
 			info.appendChild(line);
 		}
 
-		time = info.getElementsByClassName('time');
+		const time = info.getElementsByClassName('time');
 		if (time.length) {
 			_status[index].time = time[0];
 			_status[index].timeTick = 0;
@@ -272,13 +265,11 @@ function createElement(index) {
  * @param {CanvasElement}
  */
 function addElement(element) {
-	let x, y, count;
 	const elements = StatusIcons.ui.find('.state');
 	const max = ((Renderer.height - 166) / 36) | 0;
-
-	count = elements.length;
-	x = ((count / max) | 0) * 45;
-	y = (count % max) * 36;
+	const count = elements.length;
+	const x = ((count / max) | 0) * 45;
+	const y = (count % max) * 36;
 
 	element.style.top = y + 'px';
 	element.style.right = x + 'px';
@@ -293,16 +284,14 @@ function addElement(element) {
  * @param {number} tick
  */
 function renderStatus(status, now) {
-	let start, end, perc;
-	let color, ctx;
-
 	if (!status.img) {
 		return;
 	}
 
-	ctx = status.ctx;
-	start = status.start;
-	end = status.end;
+	const ctx = status.ctx;
+	const start = status.start;
+	let end = status.end;
+	let color, perc;
 
 	if (now > end) {
 		end = now;
@@ -348,16 +337,13 @@ function renderStatus(status, now) {
  * @param {number} tick
  */
 function rendering(tick) {
-	let i, count;
-	let indexes;
-
-	indexes = Object.keys(_status);
-	count = indexes.length;
+	const indexes = Object.keys(_status);
+	const count = indexes.length;
 
 	const time_now = Date.now();
 	if (time_now - _last_updated_time > _render_time) {
 		_last_updated_time = time_now;
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			renderStatus(_status[indexes[i]], tick);
 		}
 	}

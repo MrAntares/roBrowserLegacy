@@ -235,7 +235,6 @@ Storage.addItemSub = function addItemSub(item) {
  */
 Storage.removeItem = function removeItem(index, count) {
 	const i = getItemIndexById(index);
-	let item;
 
 	// Not found
 	if (i < 0) {
@@ -252,7 +251,7 @@ Storage.removeItem = function removeItem(index, count) {
 	}
 
 	// Remove item
-	item = _list[i];
+	const item = _list[i];
 	_list.splice(i, 1);
 	this.ui.find('.item[data-index="' + index + '"]').remove();
 
@@ -290,7 +289,6 @@ function onResize() {
 	const ui = Storage.ui;
 	const top = ui.position().top;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
@@ -308,7 +306,7 @@ function onResize() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
@@ -346,11 +344,13 @@ function onSwitchTab() {
  * Drop from inventory to storage
  */
 function onDrop(event) {
-	let item, data;
+	let data;
 
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {}
+	} catch (e) {
+		// Ignore parsing error
+	}
 
 	event.stopImmediatePropagation();
 
@@ -359,7 +359,7 @@ function onDrop(event) {
 		return false;
 	}
 
-	item = data.data;
+	const item = data.data;
 
 	// Have to specify how much
 	if (item.count > 1) {

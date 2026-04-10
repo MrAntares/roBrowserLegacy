@@ -1,3 +1,4 @@
+/* global ROBrowser */
 /**
  * UI/Components/GrfViewer/GrfViewer.js
  *
@@ -357,8 +358,8 @@ function showDirectory(path) {
  */
 function search(keyword) {
 	// Escape regex, and complete it
-	const search = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
-	const reg = 'data\\\\([^(\\0\\)]+)?' + search + '([^(\\0|\\\\)]+)?';
+	const escapedSearch = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
+	const reg = 'data\\\\([^(\\0\\)]+)?' + escapedSearch + '([^(\\0|\\\\)]+)?';
 	const ui = Viewer.ui;
 	const actionID = ++_actionID;
 
@@ -386,16 +387,15 @@ function search(keyword) {
  * @return {number}
  */
 function sortFiles(a, b) {
-	let _a, _b;
-	a = a.replace(/.*\\/, '');
-	b = b.replace(/.*\\/, '');
-	_a = a.indexOf('.') !== -1;
-	_b = b.indexOf('.') !== -1;
+	const nameA = a.replace(/.*\\/, '');
+	const nameB = b.replace(/.*\\/, '');
+	const isFileA = nameA.indexOf('.') !== -1;
+	const isFileB = nameB.indexOf('.') !== -1;
 
-	if (_a === _b) {
-		return a > b ? 1 : -1;
+	if (isFileA === isFileB) {
+		return nameA > nameB ? 1 : -1;
 	}
-	if (_a) {
+	if (isFileA) {
 		return 1;
 	}
 	return -1;
@@ -415,12 +415,12 @@ function renderFiles(list) {
 		return;
 	}
 
-	let i, count;
-	let type,
-		reg = /(.*\\)/;
+	let i;
+
+	const reg = /(.*\\)/;
 
 	i = 0;
-	count = list.length;
+	const count = list.length;
 
 	// Avoid freeze, stream to display files
 	function streamExecute() {
@@ -428,7 +428,7 @@ function renderFiles(list) {
 		let html = '';
 
 		for (j = 0; j < 200 && i + j < count; ++j) {
-			type = getFileIcon(list[j + i]);
+			const type = getFileIcon(list[j + i]);
 			html +=
 				'<div class="icon ' +
 				type +
@@ -582,24 +582,24 @@ function getImageThumbnail(filename, data) {
 
 	switch (ext) {
 		// Sprite support
-		case 'spr':
+		case 'spr': {
 			const spr = new Sprite(data);
 			canvas = spr.getCanvasFromFrame(0);
 			return canvas.toDataURL();
+		}
 
 		// Palette support
-		case 'pal':
+		case 'pal': {
 			canvas = document.createElement('canvas');
 			const ctx = canvas.getContext('2d');
-			let imageData, i, count;
 			const palette = new Uint8Array(data);
 
 			// 16 * 16 = 256
 			canvas.width = 16;
 			canvas.height = 16;
-			imageData = ctx.createImageData(canvas.width, canvas.height);
+			const imageData = ctx.createImageData(canvas.width, canvas.height);
 
-			for (i = 0, count = imageData.data.length; i < count; i += 4) {
+			for (let i = 0, count = imageData.data.length; i < count; i += 4) {
 				imageData.data[i + 0] = palette[i + 0];
 				imageData.data[i + 1] = palette[i + 1];
 				imageData.data[i + 2] = palette[i + 2];
@@ -608,12 +608,14 @@ function getImageThumbnail(filename, data) {
 
 			ctx.putImageData(imageData, 0, 0);
 			return canvas.toDataURL();
+		}
 
 		// Targa support
-		case 'tga':
+		case 'tga': {
 			const tga = new Targa();
 			tga.load(new Uint8Array(data));
 			return tga.getDataURL();
+		}
 
 		// Image Support
 		default:
@@ -676,7 +678,7 @@ function onImageClick() {
 
 		switch (path.substr(-3)) {
 			// Sprite support
-			case 'spr':
+			case 'spr': {
 				const spr = new Sprite(data);
 				box.css('top', 200);
 
@@ -687,9 +689,10 @@ function onImageClick() {
 					}
 				}
 				break;
+			}
 
 			// Palette support
-			case 'pal':
+			case 'pal': {
 				const palette = new Uint8Array(data);
 				canvas = document.createElement('canvas');
 				const ctx = canvas.getContext('2d');
@@ -704,16 +707,18 @@ function onImageClick() {
 
 				box.css('top', jQuery(window).height() / 2 - 64).append(canvas);
 				break;
+			}
 
 			// Targa support
-			case 'tga':
+			case 'tga': {
 				const tga = new Targa();
 				tga.load(new Uint8Array(data));
 				box.css('top', jQuery(window).height() / 2 - 64).append(tga.getCanvas());
 				break;
+			}
 
 			// Image Support
-			default:
+			default: {
 				const url = URL.createObjectURL(new Blob([data], { type: 'image/' + path.substr(-3) }));
 				const img = new Image();
 				img.decoding = 'async';
@@ -724,6 +729,7 @@ function onImageClick() {
 					URL.revokeObjectURL(url);
 				};
 				break;
+			}
 		}
 
 		// Display progress bar
@@ -739,7 +745,7 @@ function onImageClick() {
 /**
  * User click on a model, render it using ModelViewer
  */
-const onObjectClick = (function onObjectClickClosure() {
+const onObjectClick = (function () {
 	let ready = false;
 	const element = document.createElement('div');
 
@@ -791,7 +797,7 @@ const onObjectClick = (function onObjectClickClosure() {
 		}
 	}
 
-	return function onObjectClick() {
+	return function () {
 		const ui = Viewer.ui;
 		const path = this.getAttribute('data-path').replace(/\\/g, '/');
 
@@ -833,7 +839,7 @@ const onObjectClick = (function onObjectClickClosure() {
 /**
  * User click on an effect, render it using StrViewer
  */
-const onEffectClick = (function onEffectClickClosure() {
+const onEffectClick = (function () {
 	let ready = false;
 	const element = document.createElement('div');
 
@@ -885,7 +891,7 @@ const onEffectClick = (function onEffectClickClosure() {
 		}
 	}
 
-	return function onEffectClick() {
+	return function () {
 		const ui = Viewer.ui;
 		const path = this.getAttribute('data-path').replace(/\\/g, '/');
 
@@ -926,7 +932,7 @@ const onEffectClick = (function onEffectClickClosure() {
 /**
  * User click on a map, render it using MapViewer
  */
-const onWorldClick = (function onWorldClick() {
+const onWorldClick = (function () {
 	let ready = false;
 	const element = document.createElement('div');
 
@@ -991,7 +997,7 @@ const onWorldClick = (function onWorldClick() {
 		}
 	}
 
-	return function onWorldClick() {
+	return function () {
 		const ui = Viewer.ui;
 		const path = this.getAttribute('data-path').replace(/\\/g, '/');
 
@@ -1086,7 +1092,7 @@ function onTextClick() {
 /**
  * User click on a Granny model, render it using GrannyModelViewer
  */
-const onGrannyClick = (function onGrannyClickClosure() {
+const onGrannyClick = (function () {
 	let ready = false;
 	const element = document.createElement('div');
 
@@ -1101,8 +1107,8 @@ const onGrannyClick = (function onGrannyClickClosure() {
 		version: Configs.get('version', '')
 	});
 
-	// Ressource sharing
-	function onMessage(event) {
+	// Ressource sharing (Currently unused, preserved for future development)
+	function _onMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;
 		}
@@ -1130,56 +1136,55 @@ const onGrannyClick = (function onGrannyClickClosure() {
 		}
 	}
 
-	// Wait for synchronisation with frame
-	function synchronise() {
+	// Wait for synchronisation with frame (Currently unused, preserved for future development)
+	function _synchronise() {
 		if (!ready) {
 			App._APP.postMessage({ type: 'init' }, location.origin);
-			setTimeout(synchronise, 100);
+			setTimeout(_synchronise, 100);
 		}
 	}
 
-	return function onGrannyClick() {
+	return function () {
 		alert('This module is under development.');
 		return;
-		//UNDER DEVELOPMENT!!!
 
-		/*var ui    = Viewer.ui;
-			let path  = this.getAttribute('data-path').replace(/\\/g, '/');
+		/*
+		const ui = Viewer.ui;
+		const path = this.getAttribute('data-path').replace(/\\/g, '/');
 
-			// Show iframe
-			ui.find('#preview .box').css('top', (jQuery(window).height()-400)* 0.5 );
-			element.style.display = 'block';
+		// Show iframe
+		ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
+		element.style.display = 'block';
 
+		ui.find('#preview').show();
 
-			ui.find('#preview').show();
+		// Unload app
+		ui.find('#preview').one('click', function () {
+			ui.find('#preview').hide();
+			element.style.display = 'none';
+			App._APP.postMessage({ type: 'stop' }, location.origin);
+			window.removeEventListener('message', _onMessage, false);
+		});
 
-			// Unload app
-			ui.find('#preview').one('click',function(){
-				ui.find('#preview').hide();
-				element.style.display = 'none';
-				App._APP.postMessage({ type:'stop' }, location.origin);
-				window.removeEventListener('message', onMessage, false);
-			});
+		window.addEventListener('message', _onMessage, false);
 
-			window.addEventListener('message', onMessage, false);
+		if (!ready) {
+			// Once app is ready
+			ui.find('#preview .box').append(element);
 
-			if (!ready) {
-				// Once app is ready
-				ui.find('#preview .box').append(element);
-
-				App.start();
-				App.onReady = function(){
-					App._APP.frameElement.style.border          = '1px solid grey';
-					App._APP.frameElement.style.backgroundColor = '#45484d';
-					synchronise();
-				};
-				App.onload = function() {
-					App._APP.postMessage({ type:'load', data:path }, location.origin);
-				};
-			}
-			else {
-				App._APP.postMessage({ type:'load', data:path }, location.origin);
-			}*/
+			App.start();
+			App.onReady = function () {
+				App._APP.frameElement.style.border = '1px solid grey';
+				App._APP.frameElement.style.backgroundColor = '#45484d';
+				_synchronise();
+			};
+			App.onload = function () {
+				App._APP.postMessage({ type: 'load', data: path }, location.origin);
+			};
+		} else {
+			App._APP.postMessage({ type: 'load', data: path }, location.origin);
+		}
+		*/
 	};
 })();
 

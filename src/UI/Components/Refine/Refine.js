@@ -375,8 +375,7 @@ function onItemDrop(event) {
  * Handles sending the server packet request to refine an item
  */
 Refine.onRequestItemRefine = function onRequestItemRefine(item) {
-	let pkt;
-	pkt = new PACKET.CZ.REFINING_SELECT_ITEM();
+	const pkt = new PACKET.CZ.REFINING_SELECT_ITEM();
 	pkt.index = item.index;
 	Network.sendPacket(pkt);
 };
@@ -455,12 +454,12 @@ function onRefineUIUpdateMaterials(pkt) {
 		// Select previously selected material if available
 		if (Refine.hammer >= 1 && refine_item_mat) {
 			let materialFound = false; // Flag to track if the material was found
-			let item, material;
+			let foundItem, foundMaterial;
 
 			for (let i = 0; i < refiningMaterials.length; i++) {
-				material = refiningMaterials[i];
-				if (material.itemId === refine_item_mat) {
-					item = Inventory.getUI().getItemById(material.itemId);
+				foundMaterial = refiningMaterials[i];
+				if (foundMaterial.itemId === refine_item_mat) {
+					foundItem = Inventory.getUI().getItemById(foundMaterial.itemId);
 					materialFound = true; // Material found
 					refine_new_mats = 0;
 					break;
@@ -484,7 +483,7 @@ function onRefineUIUpdateMaterials(pkt) {
 			}
 
 			// Update UI
-			selectMaterial(material, item);
+			selectMaterial(foundMaterial, foundItem);
 		}
 	} else {
 		showMessage(2970, 3, 'error');
@@ -503,7 +502,7 @@ function onPopulateMaterials() {
 
 	// Update materials
 	for (let i = 0; i < refiningMaterials.length; i++) {
-		(function (i) {
+		(function (idx) {
 			const material = refiningMaterials[i];
 			const it = DB.getItemInfo(material.itemId);
 			const item = Inventory.getUI().getItemById(material.itemId);
@@ -544,17 +543,17 @@ function onPopulateMaterials() {
 
 			// Material Selection upon clicking
 			materialDiv.find('.icon').click(function () {
-				const itemId = material.itemId;
-				const item = Inventory.getUI().getItemById(itemId);
-				const count = item ? item.count : 0;
+				const clickedItemId = material.itemId;
+				const clickedItem = Inventory.getUI().getItemById(clickedItemId);
+				const clickedCount = clickedItem ? clickedItem.count : 0;
 
-				if (count === 0) {
+				if (clickedCount === 0) {
 					return false;
 				}
 
 				// Check if item ID exists in the mapping and show corresponding message
 				for (const messageID in itemMessageMapping) {
-					if (itemMessageMapping[messageID].includes(itemId)) {
+					if (itemMessageMapping[messageID].includes(clickedItemId)) {
 						showMessage(messageID, 0, 'info'); // Adjust timeout and type as needed
 						break;
 					}
@@ -610,21 +609,21 @@ function onPopulateMaterials() {
 			}
 		);
 
-		const bsbcount = item ? item.count : 0;
+		const bsbCountOuter = item ? item.count : 0;
 		const bsbcountmsg = bsbDiv.find('.item[data-index="' + BSB_ITID + '"] .mat_count');
 		// Wrap the count in a span if it's 0
-		if (bsbcount === 0) {
-			bsbcountmsg.html('<span style="color: #ce1029;">' + bsbcount + '</span>/' + blacksmithBlessing);
+		if (bsbCountOuter === 0) {
+			bsbcountmsg.html('<span style="color: #ce1029;">' + bsbCountOuter + '</span>/' + blacksmithBlessing);
 		} else {
-			bsbcountmsg.text(bsbcount + '/' + blacksmithBlessing);
+			bsbcountmsg.text(bsbCountOuter + '/' + blacksmithBlessing);
 		}
 
 		// Add select functionality
 		bsbDiv.find('.icon').click(function () {
-			const item = Inventory.getUI().getItemById(BSB_ITID);
-			const bsbcount = item ? item.count : 0;
+			const bsbInventoryItem = Inventory.getUI().getItemById(BSB_ITID);
+			const currentBsbCount = bsbInventoryItem ? bsbInventoryItem.count : 0;
 
-			if (bsbcount >= blacksmithBlessing) {
+			if (currentBsbCount >= blacksmithBlessing) {
 				const bsbOverlay = bsbDiv.closest('.bsb_overlay');
 
 				if (bsbOverlay.hasClass('selected')) {
@@ -903,8 +902,7 @@ function onRequestRefine() {
 	refine_ongoing = 1;
 
 	// Send request to server
-	let pkt;
-	pkt = new PACKET.CZ.REQ_REFINING();
+	const pkt = new PACKET.CZ.REQ_REFINING();
 	pkt.index = refine_item_index;
 	pkt.itemId = refine_item_mat;
 	pkt.blacksmithBlessing = refine_bsb;

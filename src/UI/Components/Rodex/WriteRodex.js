@@ -277,8 +277,8 @@ WriteRodex.close = function close() {
 
 function prettifyZeny(value) {
 	const num = String(value);
-	let i = 0,
-		len = num.length;
+	let i = 0;
+	const len = num.length;
 	let out = '';
 
 	while (i < len) {

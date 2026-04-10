@@ -276,15 +276,14 @@ Vending.onKeyDown = function onKeyDown(event) {
  * @param {Array} item list
  */
 Vending.setList = function setList(items) {
-	let i, count;
-	let it, item, out, content;
+	let i, count, out;
 
 	this.ui.find('.content').empty();
 
 	_input.length = 0;
 	_output.length = 0;
 
-	content = this.ui.find('.InputWindow .content');
+	const content = this.ui.find('.InputWindow .content');
 
 	{
 		for (i = 0, count = items.length; i < count; ++i) {
@@ -324,8 +323,8 @@ Vending.setList = function setList(items) {
  */
 function prettyZeny(val, useStyle) {
 	const list = val.toString().split('');
-	let i,
-		count = list.length;
+	const count = list.length;
+	let i;
 	let str = '';
 
 	for (i = 0; i < count; i++) {
@@ -455,7 +454,7 @@ function addItem(content, item, isinput) {
 const transferItem = (function transferItemQuantityClosure() {
 	let tmpItem = {};
 
-	return function transferItem(fromContent, toContent, isAdding, index, count) {
+	return function _transferItem(fromContent, toContent, isAdding, index, count) {
 		// Add item to the list
 		if (isAdding) {
 			if (!_input[index].IsIdentified) {
@@ -507,9 +506,9 @@ const transferItem = (function transferItemQuantityClosure() {
  * @param {boolean} add the content to the output box ?
  */
 function requestMoveItem(index, fromContent, toContent, isAdding) {
-	let item, count, item_price;
+	let count, item_price;
 
-	item = isAdding ? _input[index] : _output[index];
+	const item = isAdding ? _input[index] : _output[index];
 
 	if (isAdding) {
 		// Don't add more than max Vending capacity
@@ -538,10 +537,10 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 			// Have to specify an price
 			InputBox.append();
 			InputBox.setType('price', false, item_price);
-			InputBox.onSubmitRequest = function (item_price) {
+			InputBox.onSubmitRequest = function (_item_price) {
 				InputBox.remove();
-				_output[index].price = item_price;
-				if (item_price > 0) {
+				_output[index].price = _item_price;
+				if (_item_price > 0) {
 					transferItem(fromContent, toContent, isAdding, index, item.count);
 				}
 			};
@@ -554,15 +553,15 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 	// Have to specify an amount
 	InputBox.append();
 	InputBox.setType('number', false, count);
-	InputBox.onSubmitRequest = function (count) {
+	InputBox.onSubmitRequest = function (_count) {
 		InputBox.remove();
-		if (count > 0) {
-			if (count >= 9999 && _type === Vending.Type.BUYING_STORE) {
+		if (_count > 0) {
+			if (_count >= 9999 && _type === Vending.Type.BUYING_STORE) {
 				VendingModelMessage.setInit(1742);
 				return;
 			}
 
-			if (item.count + count > 9999 && _type === Vending.Type.BUYING_STORE) {
+			if (item.count + _count > 9999 && _type === Vending.Type.BUYING_STORE) {
 				VendingModelMessage.setInit(1728);
 				return;
 			}
@@ -571,15 +570,15 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 				// Have to specify an price
 				InputBox.append();
 				InputBox.setType('price', false, item_price);
-				InputBox.onSubmitRequest = function (item_price) {
+				InputBox.onSubmitRequest = function (_item_price) {
 					InputBox.remove();
-					_output[index].price = item_price;
-					if (item_price > 0) {
-						transferItem(fromContent, toContent, isAdding, index, count);
+					_output[index].price = _item_price;
+					if (_item_price > 0) {
+						transferItem(fromContent, toContent, isAdding, index, _count);
 					}
 				};
 			} else {
-				transferItem(fromContent, toContent, isAdding, index, count);
+				transferItem(fromContent, toContent, isAdding, index, _count);
 			}
 		}
 	};
@@ -598,6 +597,7 @@ function onDrop(event) {
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 	} catch (e) {
+		// Ignore parsing error
 		return false;
 	}
 
@@ -646,13 +646,13 @@ function onItemInfo(event) {
  * Select an item, put it on the other box
  */
 function onItemSelected() {
-	let input, from, to;
+	let from, to;
 
 	if (_type === Vending.Type.BUY || _type === Vending.Type.VENDING_STORE) {
 		return;
 	}
 
-	input = Vending.ui.find('.InputWindow:first');
+	const input = Vending.ui.find('.InputWindow:first');
 
 	if (jQuery.contains(input.get(0), this)) {
 		from = input;
@@ -701,15 +701,12 @@ function onScroll(event) {
  * Start dragging an item
  */
 function onDragStart(event) {
-	let container, img, url;
-	let InputWindow, OutputWindow;
+	const InputWindow = Vending.ui.find('.InputWindow:first').get(0);
+	const OutputWindow = Vending.ui.find('.OutputWindow:first').get(0);
 
-	InputWindow = Vending.ui.find('.InputWindow:first').get(0);
-	OutputWindow = Vending.ui.find('.OutputWindow:first').get(0);
-
-	container = (jQuery.contains(InputWindow, this) ? InputWindow : OutputWindow).className;
-	img = new Image();
-	url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
+	const container = (jQuery.contains(InputWindow, this) ? InputWindow : OutputWindow).className;
+	const img = new Image();
+	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
 	img.decoding = 'async';
 	img.src = url;
 
@@ -734,9 +731,7 @@ function onResizeInput() {
 	const InputWindow = Vending.ui.find('.InputWindow');
 	const content = InputWindow.find('.container .content');
 	const top = InputWindow.position().top;
-	const left = InputWindow.position().left;
 	let lastHeight = 0;
-	let _Interval;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
@@ -755,7 +750,7 @@ function onResizeInput() {
 	}
 
 	// Start resizing
-	_Interval = setInterval(resizing, 30);
+	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
 	jQuery(window).on('mouseup.resize', function (event) {
@@ -811,17 +806,14 @@ Vending.onClose = function () {
 };
 
 Vending.onSubmit = function onSubmit() {
-	let output;
+	const output = [];
+	const count = _output.length;
+
+	const shopname = this.ui.find('.shopname').val();
+
 	let i,
-		count,
-		shopname,
 		limitZeny,
 		ctr = 0;
-
-	output = [];
-	count = _output.length;
-
-	shopname = this.ui.find('.shopname').val();
 
 	for (i = 0; i < count; ++i) {
 		if (_output[i] && _output[i].count) {

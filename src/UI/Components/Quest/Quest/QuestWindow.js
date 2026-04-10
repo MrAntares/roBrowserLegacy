@@ -100,10 +100,8 @@ QuestWindow.ClearQuestList = function ClearQuestList() {
 };
 
 QuestWindow.addQuestToUI = function addQuestToUI(quest) {
-	let title,
-		summary = '';
-	title = quest.title.length > 25 ? quest.title.substr(0, 25) + '...' : quest.title;
-	summary = quest.summary.length > 25 ? quest.summary.substr(0, 25) + '...' : quest.summary;
+	const title = quest.title.length > 25 ? quest.title.substr(0, 25) + '...' : quest.title;
+	const summary = quest.summary.length > 25 ? quest.summary.substr(0, 25) + '...' : quest.summary;
 	let list = '';
 	for (const huntID in quest.hunt_list) {
 		list +=

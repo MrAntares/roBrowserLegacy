@@ -10,7 +10,8 @@
 
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
-import jQuery from 'Utils/jquery.js';
+// Currently unused, preserved for future development.
+import _jQuery from 'Utils/jquery.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import htmlText from './PartyHelper.html?raw';
 import cssText from './PartyHelper.css?raw';
@@ -109,12 +110,11 @@ PartyHelper.init = function init() {
 
 		const off = this;
 		const on = this.parentNode.getElementsByClassName('on')[0];
-		let tmp;
 
 		on.className = 'off';
 		off.className = 'on';
 
-		tmp = on.style.backgroundImage;
+		const tmp = on.style.backgroundImage;
 		on.style.backgroundImage = off.style.backgroundImage;
 		off.style.backgroundImage = tmp;
 	});
@@ -239,23 +239,21 @@ PartyHelper.setType = function setType(type) {
  */
 PartyHelper.setOptions = function setOptions(options, editable) {
 	function swap(off) {
-		let on, tmp;
-		on = off.parentNode.querySelector('.on');
+		const on = off.parentNode.querySelector('.on');
+		const tmp = on.style.backgroundImage;
 
 		on.className = 'off';
 		off.className = 'on';
 
-		tmp = on.style.backgroundImage;
 		on.style.backgroundImage = off.style.backgroundImage;
 		off.style.backgroundImage = tmp;
 	}
 
 	const list = ['exp_share', 'item_share', 'item_sharing_type'];
-	let i,
-		count = list.length;
+	const count = list.length;
 	let element;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (options[list[i]] === undefined) {
 			continue;
 		}
@@ -285,10 +283,9 @@ PartyHelper.setFriendOptions = function setFriendOptions(options) {
 	}
 
 	const list = ['open1to1Stranger', 'open1to1Friend', 'alarm1to1'];
-	let i,
-		count = list.length;
+	const count = list.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		const value = options[list[i]] === true || options[list[i]] == 1;
 		const row = this.ui.find('.' + list[i]);
 		const on = row.find('.on')[0];
@@ -312,8 +309,8 @@ PartyHelper.getType = function getType() {
  * Validate and process form data
  */
 function onValidate() {
-	let name, PartyFriends;
-	PartyFriends = UIManager.getComponent('PartyFriends');
+	let name;
+	const PartyFriends = UIManager.getComponent('PartyFriends');
 
 	switch (_type) {
 		case PartyHelper.Type.CREATE:

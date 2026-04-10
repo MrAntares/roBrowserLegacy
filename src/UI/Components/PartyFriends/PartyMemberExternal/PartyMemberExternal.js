@@ -284,9 +284,9 @@ function updateCanvasLife(node, hp, maxhp) {
 	node.find('.hp-bar-container').css('visibility', barVisibility);
 
 	if (hasLife) {
-		var canvas = node.find('canvas').get(0);
+		const canvas = node.find('canvas').get(0);
 		if (canvas) {
-			var ctx = canvas.getContext('2d');
+			const ctx = canvas.getContext('2d');
 			const width = Math.floor(lifeRatio * 75);
 			canvas.width = 75;
 			canvas.height = 5;
@@ -296,9 +296,9 @@ function updateCanvasLife(node, hp, maxhp) {
 		}
 		node.find('.hp-text').text(hp + '/' + maxhp);
 	} else {
-		var canvas = node.find('canvas').get(0);
+		const canvas = node.find('canvas').get(0);
 		if (canvas) {
-			var ctx = canvas.getContext('2d');
+			const ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, 75, 5);
 		}
 		node.find('.hp-text').text('');

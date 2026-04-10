@@ -5,9 +5,7 @@
  */
 
 import DB from 'DB/DBManager.js';
-import Client from 'Core/Client.js';
 import jQuery from 'Utils/jquery.js';
-import Events from 'Core/Events.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
 import Preferences from 'Core/Preferences.js';
@@ -155,9 +153,9 @@ WhisperBox.show = function (nickname, bHasMessage) {
 	// Handle input keys
 	instance.$input.on('keydown', function (event) {
 		switch (event.which) {
-			case KEYS.ENTER:
-				var text = extractChatMessage(jQuery(this));
-				var msg = text.replace(/\u00A0/g, ' ').trim();
+			case KEYS.ENTER: {
+				const text = extractChatMessage(jQuery(this));
+				const msg = text.replace(/\u00A0/g, ' ').trim();
 
 				if (msg.length) {
 					instance.history.push(msg);
@@ -167,21 +165,24 @@ WhisperBox.show = function (nickname, bHasMessage) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				return false;
+			}
 
 			case KEYS.UP:
-			case KEYS.DOWN:
-				var historyMsg = event.which === KEYS.UP ? instance.history.previous() : instance.history.next();
+			case KEYS.DOWN: {
+				const historyMsg = event.which === KEYS.UP ? instance.history.previous() : instance.history.next();
 				jQuery(this).html(historyMsg);
 				setCaretToEnd(this);
 				break;
+			}
 
-			default:
-				var currentText = extractChatMessage(jQuery(this));
+			default: {
+				const currentText = extractChatMessage(jQuery(this));
 				if (event.which >= 32 && currentText.length >= 100 && !event.ctrlKey && !event.altKey) {
 					event.preventDefault();
 					return false;
 				}
 				return true;
+			}
 		}
 	});
 

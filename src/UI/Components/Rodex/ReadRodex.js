@@ -86,8 +86,8 @@ ReadRodex.initData = function initData(data, mail) {
 				'</span></div>' +
 				'</div>'
 		);
-		Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function (data) {
-			content.find('.item[data-index="' + i + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+		Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function (url) {
+			content.find('.item[data-index="' + i + '"] .icon').css('backgroundImage', 'url(' + url + ')');
 		});
 	}
 	if (data.ItemList.length > 0) {
@@ -157,8 +157,8 @@ ReadRodex.close = function close() {
  */
 function prettifyZeny(value) {
 	const num = String(value);
-	let i = 0,
-		len = num.length;
+	let i = 0;
+	const len = num.length;
 	let out = '';
 
 	while (i < len) {

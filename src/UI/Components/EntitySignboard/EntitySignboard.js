@@ -76,8 +76,8 @@ EntitySignboard.setTitle = function setTitle(title, icon_location) {
 		self.ui.find('.overlay').hide();
 	});
 
-	Client.loadFile(icon_location, function (icon_location) {
-		self.ui.find('button').css('backgroundImage', 'url(' + icon_location + ')');
+	Client.loadFile(icon_location, function (url) {
+		self.ui.find('button').css('backgroundImage', 'url(' + url + ')');
 		self.ui.each(self.parseHTML).find('*').each(self.parseHTML);
 	});
 };
@@ -92,18 +92,13 @@ EntitySignboard.setIconOnly = function setIconOnly(icon_location) {
 	this.ui.find('.title').hide();
 	this.ui.find('.overlay').hide();
 	const self = this;
-	Client.loadFile(icon_location, function (icon_location) {
+	Client.loadFile(icon_location, function (url) {
 		self.ui
 			.find('button')
 			.addClass('icon-only')
-			.css('backgroundImage', 'url(' + icon_location + ')');
+			.css('backgroundImage', 'url(' + url + ')');
 	});
 };
-
-// Function to check if an element's content is overflowing
-function isOverflowing(element) {
-	return element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight;
-}
 
 /**
  * function to define

@@ -8,8 +8,6 @@
  * @author Vincent Thibault
  */
 
-import DB from 'DB/DBManager.js';
-import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';

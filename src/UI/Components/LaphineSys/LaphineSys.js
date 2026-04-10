@@ -557,7 +557,6 @@ function onRemoveItemSubmitList(item, element = null) {
 function updateAvailableMatList(itemId, itemIndex, countChange, increase) {
 	const availableMatList = LaphineSys.ui.find('.available_mat_list');
 	let itemExists = false;
-	let selectedItem = null;
 
 	availableMatList.find('.item').each(function () {
 		const idx = parseInt(jQuery(this).attr('data-index'), 10);
@@ -565,21 +564,21 @@ function updateAvailableMatList(itemId, itemIndex, countChange, increase) {
 
 		if (item.ITID === itemId && idx === itemIndex) {
 			itemExists = true;
-			selectedItem = jQuery(this);
+			const selectedItem = jQuery(this);
 			let tempCount = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : item.count;
 			if (increase) {
-				jQuery(this).removeClass('unselectable');
-				jQuery(this).find('.amount').text(tempCount);
-				jQuery(this).attr('draggable', 'true'); // Set draggable to true
+				selectedItem.removeClass('unselectable');
+				selectedItem.find('.amount').text(tempCount);
+				selectedItem.attr('draggable', 'true'); // Set draggable to true
 			} else {
 				tempCount -= countChange;
 				if (tempCount <= 0) {
-					jQuery(this).remove();
+					selectedItem.remove();
 				} else {
-					jQuery(this).addClass('unselectable');
-					jQuery(this).find('.name').removeClass('selected');
-					jQuery(this).find('.amount').text(tempCount);
-					jQuery(this).attr('draggable', 'false'); // Set draggable to false
+					selectedItem.addClass('unselectable');
+					selectedItem.find('.name').removeClass('selected');
+					selectedItem.find('.amount').text(tempCount);
+					selectedItem.attr('draggable', 'false'); // Set draggable to false
 				}
 			}
 		}
@@ -590,7 +589,7 @@ function updateAvailableMatList(itemId, itemIndex, countChange, increase) {
 		const item = Inventory.getUI().getItemByIndex(itemIndex);
 		if (item) {
 			const inventory_count = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : item.count;
-			const sourceItem = LaphineUIState.sourceItems.find(sourceItem => sourceItem.id === itemId);
+			const sourceItem = LaphineUIState.sourceItems.find(si => si.id === itemId);
 			const source_needcount = sourceItem.count;
 			const source_iconname = sourceItem.name;
 
@@ -611,8 +610,7 @@ function showMessage(message) {
  * Handles the synthesis request by preparing and sending the packet.
  */
 function onRequestSynthesis() {
-	let pkt;
-	pkt = new PACKET.CZ.REQ_RANDOM_COMBINE_ITEM();
+	const pkt = new PACKET.CZ.REQ_RANDOM_COMBINE_ITEM();
 	pkt.itemId = LaphineUIState.itemId;
 	pkt.items = [];
 

@@ -237,8 +237,8 @@ MiniMapV2.onRemove = function onRemove() {
 };
 
 MiniMapV2.addPartyMemberMark = function addPartyMemberMark(key, x, y) {
-	let i,
-		count = _party.length;
+	let i;
+	const count = _party.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_party[i].key === key) {
@@ -276,8 +276,8 @@ MiniMapV2.getMemberColor = function getMemberColor(key) {
  * @param {number} key account id
  */
 MiniMapV2.removePartyMemberMark = function removePartyMemberMark(key) {
-	let i,
-		count = _party.length;
+	let i;
+	const count = _party.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_party[i].key === key) {
@@ -295,8 +295,8 @@ MiniMapV2.removePartyMemberMark = function removePartyMemberMark(key) {
  * @param {number} y position
  */
 MiniMapV2.addGuildMemberMark = function addGuildMemberMark(key, x, y) {
-	let i,
-		count = _guild.length;
+	let i;
+	const count = _guild.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_guild[i].key === key) {
@@ -319,8 +319,8 @@ MiniMapV2.addGuildMemberMark = function addGuildMemberMark(key, x, y) {
  * @param {number} key account id
  */
 MiniMapV2.removeGuildMemberMark = function removeGuildMemberMark(key) {
-	let i,
-		count = _guild.length;
+	let i;
+	const count = _guild.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_guild[i].key === key) {
@@ -339,8 +339,8 @@ MiniMapV2.removeGuildMemberMark = function removeGuildMemberMark(key) {
  * @param {Array} color
  */
 MiniMapV2.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
-	let i,
-		count = _markers.length;
+	let i;
+	const count = _markers.length;
 	const color = [(lcolor & 0x00ff0000) >> 16, (lcolor & 0x0000ff00) >> 8, lcolor & 0x000000ff];
 
 	for (i = 0; i < count; ++i) {
@@ -368,8 +368,8 @@ MiniMapV2.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
  * @param {number} key id
  */
 MiniMapV2.removeNpcMark = function removeNPCMark(key) {
-	let i,
-		count = _markers.length;
+	let i;
+	const count = _markers.length;
 
 	for (i = 0; i < count; ++i) {
 		if (_markers[i].key === key) {
@@ -447,12 +447,11 @@ const render = (function renderClosure() {
 		return (64 - ((y - pos[1]) * f * 256) / (zoom * ZOOM_SIZE)) | 0;
 	}
 
-	return function render(tick) {
-		let width, height, i, count;
+	return function _render(tick) {
+		const width = Altitude.width;
+		const height = Altitude.height;
+		let i, count;
 		let dot;
-
-		width = Altitude.width;
-		height = Altitude.height;
 
 		// closure
 		zoom = _zoomFactor[_preferences.zoom];

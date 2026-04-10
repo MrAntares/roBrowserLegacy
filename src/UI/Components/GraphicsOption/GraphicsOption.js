@@ -19,7 +19,7 @@ import UIComponent from 'UI/UIComponent.js';
 import htmlText from './GraphicsOption.html?raw';
 import cssText from './GraphicsOption.css?raw';
 import jQuery from 'Utils/jquery.js';
-import Client from 'Core/Client.js';
+
 import MemoryManager from 'Core/MemoryManager.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 

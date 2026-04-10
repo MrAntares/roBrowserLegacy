@@ -255,8 +255,8 @@ VendingReport.addItemSub = function addItemSub(item) {
  */
 function prettyZeny(val, useStyle) {
 	const list = val.toString().split('');
-	let i,
-		count = list.length;
+	const count = list.length;
+	let i;
 	let str = '';
 
 	for (i = 0; i < count; i++) {
