@@ -149,15 +149,16 @@ class ScrollBar {
 		});
 
 		function setupStyles() {
-			jQuery('style:first').append(
-				[
-					'.ro-custom-scrollbar { position: absolute; right: 0; top: 0; width: 13px; z-index: 100; display: flex; flex-direction: column; }',
-					'.ro-custom-scrollbar .btn-up { height: 12px; background-repeat: no-repeat; cursor: pointer; }',
-					'.ro-custom-scrollbar .btn-down { height: 13px; background-repeat: no-repeat; cursor: pointer; }',
-					'.ro-custom-scrollbar .track { flex: 1; background-repeat: repeat-y; position: relative; cursor: pointer; }',
-					'.ro-custom-scrollbar .thumb { position: absolute; top: 0; left: 0; width: 100%; min-height: 10px; cursor: pointer; border-color: transparent; border-style: solid; border-width: 4px 0; box-sizing: border-box; }'
-				].join('\n')
-			);
+			const css = [
+				'.ro-custom-scrollbar { position: absolute; right: 0; top: 0; width: 13px; z-index: 100; display: flex; flex-direction: column; }',
+				'.ro-custom-scrollbar .btn-up { height: 12px; background-repeat: no-repeat; cursor: pointer; }',
+				'.ro-custom-scrollbar .btn-down { height: 13px; background-repeat: no-repeat; cursor: pointer; }',
+				'.ro-custom-scrollbar .track { flex: 1; background-repeat: repeat-y; position: relative; cursor: pointer; }',
+				'.ro-custom-scrollbar .thumb { position: absolute; top: 0; left: 0; width: 100%; min-height: 10px; cursor: pointer; border-color: transparent; border-style: solid; border-width: 4px 0; box-sizing: border-box; }'
+			].join('\n');
+
+			ScrollBar._cssText = css;
+			jQuery('style:first').append(css);
 		}
 	}
 
@@ -194,6 +195,14 @@ class ScrollBar {
 
 		element._roScrollbarApplied = true;
 		const $element = jQuery(element);
+		const shadowRoot = element.getRootNode();
+		if (shadowRoot instanceof ShadowRoot && !shadowRoot.querySelector('style[data-scrollbar]')) {
+			const scrollbarStyle = document.createElement('style');
+			scrollbarStyle.setAttribute('data-scrollbar', '');
+			scrollbarStyle.textContent = ScrollBar._cssText;
+			shadowRoot.appendChild(scrollbarStyle);
+		}
+
 		const skinName = element.dataset.scrollbarSkin || 'default';
 		const skin = ScrollBar.skins[skinName] || ScrollBar.skins['default'];
 
@@ -286,12 +295,12 @@ class ScrollBar {
 			const sh = $element[0].scrollHeight;
 
 			if (sh <= h) {
-				$scrollbar.hide();
+				$scrollbar[0].style.display = 'none';
 				$element.css('padding-right', element._roOriginalPaddingRight + 'px');
 				return;
 			}
 
-			$scrollbar.show();
+			$scrollbar[0].style.display = '';
 			$element.css('padding-right', element._roOriginalPaddingRight + (skin.width || 13) + 'px');
 
 			const st = $element[0].scrollTop;
@@ -327,7 +336,7 @@ class ScrollBar {
 				clearInterval(poller);
 			}
 			poller = setInterval(() => {
-				if (!$element.closest('body').length) {
+				if (!$element[0].isConnected) {
 					clearInterval(poller);
 					poller = null;
 					return;

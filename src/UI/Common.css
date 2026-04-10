@@ -31,8 +31,13 @@ body {
 	min-height: 100vh;
 }
 
-button {
+button,
+ui-button {
 	padding: 0;
+}
+
+ui-button {
+	display: inline-block;
 }
 
 .ui-btn {
@@ -109,4 +114,9 @@ button {
 		0 1px 0 rgba(0, 0, 0, 0.08);
 
 	transform: none;
+}
+
+/* Hide native cursor inside Shadow DOM when custom cursor is active */
+:host-context(.custom-cursor) * {
+	cursor: none !important;
 }

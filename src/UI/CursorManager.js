@@ -313,6 +313,7 @@ function bindMouseEvents() {
 	const CLICKABLE_SELECTOR = [
 		'a',
 		'button',
+		'ui-button',
 		'input',
 		'label',
 		'select',

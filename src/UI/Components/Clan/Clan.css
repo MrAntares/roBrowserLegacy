@@ -1,7 +1,12 @@
-#Clan {
-	position: absolute;
+:host {
 	top: 150px;
 	left: 150px;
+	width: 400px;
+	height: 317px;
+}
+
+#Clan {
+	position: absolute;
 	width: 400px;
 	height: 317px;
 }
@@ -107,43 +112,43 @@
 #Clan .content.info .name {
 	position: absolute;
 	left: 9px;
-	top: 54px;
+	top: 13px;
 }
 
 #Clan .content.info .level {
 	position: absolute;
 	left: 9px;
-	top: 69px;
+	top: 28px;
 }
 
 #Clan .content.info .master {
 	position: absolute;
 	left: 9px;
-	top: 86px;
+	top: 45px;
 }
 
 #Clan .content.info .members {
 	position: absolute;
 	left: 9px;
-	top: 102px;
+	top: 61px;
 }
 
 #Clan .content.info .territory {
 	position: absolute;
 	left: 9px;
-	top: 118px;
+	top: 77px;
 }
 
 #Clan .content.info .clan_illust {
 	position: absolute;
 	left: 9px;
-	top: 140px;
+	top: 99px;
 	width: 180px;
 	height: 134px;
 	background-repeat: no-repeat;
 }
 
-#Clan .content.info .members button {
+#Clan .content.info .members ui-button {
 	margin-left: 5px;
 	vertical-align: -4px;
 	border: none;
@@ -156,19 +161,19 @@
 #Clan .content.info .emblem {
 	position: absolute;
 	left: 201px;
-	top: 78px;
+	top: 37px;
 }
 
 #Clan .content.info .ally {
 	position: absolute;
 	left: 201px;
-	top: 140px;
+	top: 99px;
 }
 
 #Clan .content.info .ally_list {
 	position: absolute;
 	left: 201px;
-	top: 155px;
+	top: 114px;
 	white-space: pre;
 	width: 168px;
 	height: 48px;
@@ -178,13 +183,13 @@
 #Clan .content.info .hostile {
 	position: absolute;
 	left: 201px;
-	top: 214px;
+	top: 173px;
 }
 
 #Clan .content.info .hostile_list {
 	position: absolute;
 	left: 201px;
-	top: 229px;
+	top: 188px;
 	white-space: pre;
 	width: 168px;
 	height: 48px;
@@ -206,7 +211,7 @@
 	width: 24px;
 	height: 24px;
 	position: absolute;
-	top: 70px;
+	top: 29px;
 	left: 300px;
 	background-color: #709ce7;
 	background-repeat: no-repeat;
@@ -214,8 +219,8 @@
 
 #Clan .content.info .emblem_edit {
 	position: absolute;
-	top: 75px;
-	left: 350px;
+	top: 34px;
+	left: 330px;
 	width: 42px;
 	height: 20px;
 	border: none;
