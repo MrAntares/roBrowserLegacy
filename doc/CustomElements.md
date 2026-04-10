@@ -41,8 +41,6 @@ Handles `mouseover`/`mouseout`/`mousedown`/`mouseup` internally to swap backgrou
 
 **Cursor**: `ui-button` is included in `CLICKABLE_SELECTOR` in `CursorManager.js` and in `GUIComponent._setupShadowCursorEvents()`. The custom hand cursor appears on hover automatically.
 
-**Known limitation**: `<ui-button>` does NOT have `observedAttributes` or `attributeChangedCallback`. Changing `bg`, `hover`, or `down` attributes after the element is connected to the DOM will **not** update the button visuals. If you need to change button images dynamically, remove and re-create the element.
-
 #### `<ui-text>` — replaces `<span data-text="msgId">`
 
 ```html
@@ -60,10 +58,10 @@ Resolves the message ID via `DB.getMessage()` on connect and on attribute change
 ```html
 <!-- Before (UIComponent) — data-background sets background on the element itself -->
 <div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
-	<!-- After (GUIComponent) — ui-image is a child that sets background on its PARENT -->
-	<div class="titlebar">
-		<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
-	</div>
+
+<!-- After (GUIComponent) — ui-image is a child that sets background on its PARENT -->
+<div class="titlebar">
+	<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 </div>
 ```
 
@@ -159,5 +157,3 @@ btn.classList.add('btn');
 btn.addEventListener('click', () => { ... });
 container.appendChild(btn);
 ```
-
-> **Note**: Since `<ui-button>` does not support reactive attributes, all `bg`/`hover`/`down` attributes must be set **before** appending the element to the DOM (before `connectedCallback` fires). If you need to change images after connection, remove and re-create the element.
