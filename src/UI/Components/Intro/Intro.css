@@ -97,7 +97,7 @@
 	position: absolute;
 	top: 12px;
 	left: 12px;
-	background: transparent;
+	background: rgba(60, 9, 90, 0.8);
 	border: 1px solid var(--border-dim);
 	border-radius: var(--radius-sm);
 	color: var(--text-muted);
@@ -126,7 +126,7 @@
 	position: absolute;
 	bottom: 12px;
 	right: 12px;
-	background: transparent;
+	background: rgba(60, 9, 90, 0.8);
 	border: 1px solid var(--border-dim);
 	border-radius: var(--radius-sm);
 	color: var(--text-muted);
