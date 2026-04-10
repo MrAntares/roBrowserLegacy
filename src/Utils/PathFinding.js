@@ -335,7 +335,6 @@ function search(x0, y0, x1, y1, range, out) {
 	const sizeX = width - 1;
 	const sizeY = height - 1;
 
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		// Clean up variables
 		error = 0;
