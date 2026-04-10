@@ -1,15 +1,20 @@
 <div id="intro">
 	<div class="intro">
 		<!-- Loading overlay -->
-		<div class="overlay loading" style="display:none">
+		<div class="overlay loading" style="display: none">
 			<div class="loading-content">
 				<div class="loading-spinner"></div>
-				<p>Loading...</p>
+				<p class="loading-text">
+					<span style="--i: 0">L</span><span style="--i: 1">o</span><span style="--i: 2">a</span
+					><span style="--i: 3">d</span><span style="--i: 4">i</span><span style="--i: 5">n</span
+					><span style="--i: 6">g</span><span style="--i: 7">.</span><span style="--i: 8">.</span
+					><span style="--i: 9">.</span>
+				</p>
 			</div>
 		</div>
 
 		<!-- About overlay -->
-		<div class="overlay about" style="display:none">
+		<div class="overlay about" style="display: none">
 			<div class="about-content">
 				<div class="emblem small-emblem">
 					<div class="emblem-ring"></div>
@@ -35,15 +40,22 @@
 					</tr>
 					<tr>
 						<td>Source:</td>
-						<td><a href="https://github.com/MrAntares/roBrowserLegacy"
-								target="_blank">github.com/MrAntares/roBrowserLegacy</a></td>
+						<td>
+							<a href="https://github.com/MrAntares/roBrowserLegacy" target="_blank"
+								>github.com/MrAntares/roBrowserLegacy</a
+							>
+						</td>
 					</tr>
 				</table>
 				<div class="concept">
-					<p>roBrowser is an open source project based on the game Ragnarok Online.<br />It's not affiliated
-						in any way with Gravity.</p>
-					<p>The concept is to reproduce the game using web technologies (HTML5, Javascript, WebGL) to bring
-						it to Web Browsers.</p>
+					<p>
+						roBrowser is an open source project based on the game Ragnarok Online.<br />It's not affiliated
+						in any way with Gravity.
+					</p>
+					<p>
+						The concept is to reproduce the game using web technologies (HTML5, Javascript, WebGL) to bring
+						it to Web Browsers.
+					</p>
 					<p>Cross-platform: runs on Windows, Linux, macOS, and any device with WebGL support.</p>
 				</div>
 				<p class="about-hint">Click anywhere to close</p>
@@ -51,7 +63,7 @@
 		</div>
 
 		<!-- Settings overlay -->
-		<div class="overlay settings" style="display:none">
+		<div class="overlay settings" style="display: none">
 			<div class="settings-content">
 				<h1 class="settings-title">&#x2699; Settings</h1>
 
@@ -78,14 +90,18 @@
 					</tr>
 					<tr>
 						<td>Cursor</td>
-						<td><label><input class="cursor" type="checkbox" /> Show official cursor</label></td>
+						<td>
+							<label><input class="cursor" type="checkbox" /> Show official cursor</label>
+						</td>
 					</tr>
 				</table>
 
 				<div class="section-header"><span>Full Client</span></div>
 				<table class="screen">
 					<tr>
-						<td><label><input class="save" type="checkbox" /> Save Files</label></td>
+						<td>
+							<label><input class="save" type="checkbox" /> Save Files</label>
+						</td>
 						<td><button class="clean">Clean cache</button> <span class="clean-status"></span></td>
 					</tr>
 				</table>

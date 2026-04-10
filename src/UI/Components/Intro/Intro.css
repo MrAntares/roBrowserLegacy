@@ -292,6 +292,31 @@
 	text-transform: uppercase;
 }
 
+#intro .loading-text {
+	font-family: 'Cinzel', serif;
+	font-size: 16px;
+	letter-spacing: 3px;
+	text-transform: uppercase;
+	color: var(--gold, #e8b84b);
+}
+
+#intro .loading-text span {
+	display: inline-block;
+	animation: intro-wave 1.2s ease-in-out infinite;
+	animation-delay: calc(var(--i) * 0.08s);
+}
+
+@keyframes intro-wave {
+	0%,
+	60%,
+	100% {
+		transform: translateY(0);
+	}
+	30% {
+		transform: translateY(-8px);
+	}
+}
+
 /* ── About overlay ── */
 #intro .about-content {
 	max-width: 480px;
