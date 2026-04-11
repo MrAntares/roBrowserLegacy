@@ -17,7 +17,6 @@ import CommonCSS from './Common.css?raw';
 import Cursor from './CursorManager.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
-import Events from 'Core/Events.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIPreferences from 'Preferences/UI.js';
 import Session from 'Engine/SessionStorage.js';
@@ -525,7 +524,7 @@ class GUIComponent {
 			// Stop drag on mouseup / touchend
 			const onEnd = ev => {
 				if (ev.type === 'touchend' || ev.which === 1 || ev.isTrigger) {
-					Events.clearTimeout(drag);
+					cancelAnimationFrame(drag);
 					window.removeEventListener('mouseup', onEnd);
 					window.removeEventListener('touchend', onEnd);
 					_snapCache = [];
@@ -660,9 +659,9 @@ class GUIComponent {
 				host.style.left = x_ + 'px';
 				host.style.top = y_ + 'px';
 				host.style.opacity = currentOpacity;
-				drag = Events.setTimeout(dragging, 15);
+				drag = requestAnimationFrame(dragging);
 			};
-			drag = Events.setTimeout(dragging, 15);
+			drag = requestAnimationFrame(dragging);
 		};
 		handleEl.addEventListener('mousedown', onStart);
 		handleEl.addEventListener('touchstart', onStart);
