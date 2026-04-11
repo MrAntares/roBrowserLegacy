@@ -48,7 +48,7 @@ export function createWinLogin({ name, htmlText, cssText, Background }) {
 		});
 
 		// Save button toggle
-		_buttonSave.addEventListener('mousedown', function (event) {
+		_buttonSave.addEventListener('mousedown', event => {
 			toggleSaveButton();
 			event.stopImmediatePropagation();
 		});
@@ -67,8 +67,8 @@ export function createWinLogin({ name, htmlText, cssText, Background }) {
 		_inputPassword.value = '';
 
 		Client.loadFile(
-			DB.INTERFACE_PATH + 'login_interface/chk_save' + (_preferences.saveID ? 'on' : 'off') + '.bmp',
-			function (url) {
+			`${DB.INTERFACE_PATH}login_interface/chk_save${_preferences.saveID ? 'on' : 'off'}.bmp`,
+			url => {
 				_buttonSave.style.backgroundImage = 'url(' + url + ')';
 			}
 		);
@@ -109,8 +109,8 @@ export function createWinLogin({ name, htmlText, cssText, Background }) {
 	function toggleSaveButton() {
 		_preferences.saveID = !_preferences.saveID;
 		Client.loadFile(
-			DB.INTERFACE_PATH + 'login_interface/chk_save' + (_preferences.saveID ? 'on' : 'off') + '.bmp',
-			function (url) {
+			`${DB.INTERFACE_PATH}login_interface/chk_save${_preferences.saveID ? 'on' : 'off'}.bmp`,
+			url => {
 				_buttonSave.style.backgroundImage = 'url(' + url + ')';
 			}
 		);
@@ -143,7 +143,7 @@ export function createWinLogin({ name, htmlText, cssText, Background }) {
 				DB.getMessage(662),
 				'ok',
 				'cancel',
-				function () {
+				() => {
 					window.open(url);
 				},
 				null
