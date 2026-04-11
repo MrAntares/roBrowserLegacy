@@ -1,11 +1,14 @@
+:host {
+	top: 60%;
+	left: calc(50% - 140px);
+	width: 301px;
+	height: 132px;
+}
+
 #WinLoginV2 {
 	position: absolute;
 	width: 301px;
 	height: 132px;
-	z-index: 1;
-	top: 60%;
-	left: 50%;
-	margin: 0 0 0 -140px;
 }
 #WinLoginV2 .win_login {
 	width: 100%;

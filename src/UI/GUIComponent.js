@@ -17,7 +17,6 @@ import CommonCSS from './Common.css?raw';
 import Cursor from './CursorManager.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
-import Events from 'Core/Events.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIPreferences from 'Preferences/UI.js';
 import Session from 'Engine/SessionStorage.js';
@@ -153,6 +152,17 @@ class GUIComponent {
 	}
 
 	// ─── Lifecycle: append ─────────────────────────────────
+	_bindKeyDown() {
+		if (!this.onKeyDown) return;
+		this._unbindKeyDown();
+		const handler = this.onKeyDown.bind(this);
+		this._keyHandler = event => {
+			if (handler(event) === false) {
+				event.preventDefault();
+			}
+		};
+		window.addEventListener('keydown', this._keyHandler);
+	}
 
 	/**
 	 * Add the component to the DOM.
@@ -181,9 +191,7 @@ class GUIComponent {
 
 		// Bind keydown
 		if (this.onKeyDown) {
-			this._unbindKeyDown();
-			this._keyHandler = this.onKeyDown.bind(this);
-			window.addEventListener('keydown', this._keyHandler);
+			this._bindKeyDown();
 		}
 
 		// Freeze mode
@@ -392,9 +400,7 @@ class GUIComponent {
 	 */
 	on(type) {
 		if (type.toLowerCase() === 'keydown' && this.onKeyDown) {
-			this._unbindKeyDown();
-			this._keyHandler = this.onKeyDown.bind(this);
-			window.addEventListener('keydown', this._keyHandler);
+			this._bindKeyDown();
 		}
 	}
 
@@ -525,7 +531,7 @@ class GUIComponent {
 			// Stop drag on mouseup / touchend
 			const onEnd = ev => {
 				if (ev.type === 'touchend' || ev.which === 1 || ev.isTrigger) {
-					Events.clearTimeout(drag);
+					cancelAnimationFrame(drag);
 					window.removeEventListener('mouseup', onEnd);
 					window.removeEventListener('touchend', onEnd);
 					_snapCache = [];
@@ -660,9 +666,9 @@ class GUIComponent {
 				host.style.left = x_ + 'px';
 				host.style.top = y_ + 'px';
 				host.style.opacity = currentOpacity;
-				drag = Events.setTimeout(dragging, 15);
+				drag = requestAnimationFrame(dragging);
 			};
-			drag = Events.setTimeout(dragging, 15);
+			drag = requestAnimationFrame(dragging);
 		};
 		handleEl.addEventListener('mousedown', onStart);
 		handleEl.addEventListener('touchstart', onStart);
