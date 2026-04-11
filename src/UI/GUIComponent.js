@@ -152,6 +152,17 @@ class GUIComponent {
 	}
 
 	// ─── Lifecycle: append ─────────────────────────────────
+	_bindKeyDown() {
+		if (!this.onKeyDown) return;
+		this._unbindKeyDown();
+		const handler = this.onKeyDown.bind(this);
+		this._keyHandler = event => {
+			if (handler(event) === false) {
+				event.preventDefault();
+			}
+		};
+		window.addEventListener('keydown', this._keyHandler);
+	}
 
 	/**
 	 * Add the component to the DOM.
@@ -180,14 +191,7 @@ class GUIComponent {
 
 		// Bind keydown
 		if (this.onKeyDown) {
-			this._unbindKeyDown();
-			const handler = this.onKeyDown.bind(this);
-			this._keyHandler = event => {
-				if (handler(event) === false) {
-					event.preventDefault();
-				}
-			};
-			window.addEventListener('keydown', this._keyHandler);
+			this._bindKeyDown();
 		}
 
 		// Freeze mode
@@ -396,9 +400,7 @@ class GUIComponent {
 	 */
 	on(type) {
 		if (type.toLowerCase() === 'keydown' && this.onKeyDown) {
-			this._unbindKeyDown();
-			this._keyHandler = this.onKeyDown.bind(this);
-			window.addEventListener('keydown', this._keyHandler);
+			this._bindKeyDown();
 		}
 	}
 
