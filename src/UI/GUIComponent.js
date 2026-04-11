@@ -152,17 +152,6 @@ class GUIComponent {
 	}
 
 	// ─── Lifecycle: append ─────────────────────────────────
-	_bindKeyDown() {
-		if (!this.onKeyDown) return;
-		this._unbindKeyDown();
-		const handler = this.onKeyDown.bind(this);
-		this._keyHandler = event => {
-			if (handler(event) === false) {
-				event.preventDefault();
-			}
-		};
-		window.addEventListener('keydown', this._keyHandler);
-	}
 
 	/**
 	 * Add the component to the DOM.
@@ -415,6 +404,18 @@ class GUIComponent {
 	}
 
 	// ─── Private: keydown helpers ──────────────────────────
+
+	_bindKeyDown() {
+		if (!this.onKeyDown) return;
+		this._unbindKeyDown();
+		const handler = this.onKeyDown.bind(this);
+		this._keyHandler = event => {
+			if (handler(event) === false) {
+				event.preventDefault();
+			}
+		};
+		window.addEventListener('keydown', this._keyHandler);
+	}
 
 	_unbindKeyDown() {
 		if (this._keyHandler) {
