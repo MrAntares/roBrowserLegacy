@@ -181,7 +181,12 @@ class GUIComponent {
 		// Bind keydown
 		if (this.onKeyDown) {
 			this._unbindKeyDown();
-			this._keyHandler = this.onKeyDown.bind(this);
+			const handler = this.onKeyDown.bind(this);
+			this._keyHandler = event => {
+				if (handler(event) === false) {
+					event.preventDefault();
+				}
+			};
 			window.addEventListener('keydown', this._keyHandler);
 		}
 

@@ -18,7 +18,7 @@ import 'UI/Elements/Elements.js';
 export function createWinLogin({ name, htmlText, cssText, Background }) {
 	const Component = new GUIComponent(name, cssText);
 	Component.render = () => htmlText;
-	Component.needFocus = true;
+	Component.needFocus = false;
 
 	const _preferences = Preferences.get('WinLogin', { saveID: true, ID: '' }, 1.0);
 
@@ -95,7 +95,8 @@ export function createWinLogin({ name, htmlText, cssText, Background }) {
 				event.stopImmediatePropagation();
 				return false;
 			case KEYS.TAB: {
-				const target = document.activeElement === _inputUsername ? _inputPassword : _inputUsername;
+				const activeEl = this._shadow.activeElement;
+				const target = activeEl === _inputUsername ? _inputPassword : _inputUsername;
 				target.focus();
 				target.select();
 				event.stopImmediatePropagation();
