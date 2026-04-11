@@ -30,7 +30,6 @@ import Background from 'UI/Background.js';
 import Intro from 'UI/Components/Intro/Intro.js';
 import WinList from 'UI/Components/WinList/WinList.js';
 import ConsoleManager from 'Utils/ConsoleManager.js';
-import PACKETVER from 'Network/PacketVerManager.js';
 
 /**
  * @var {Array} Login server list
@@ -77,13 +76,6 @@ function loadFiles(callback) {
 	// Loading Game file (txt, lua, lub)
 	q.add(() => {
 		DB.onReady = () => {
-			if (PACKETVER.value < 20181114) {
-				// (duplicated?)
-				Background.setImage('bgi_temp.bmp');
-			} // remove loading
-			else {
-				Background.remove();
-			}
 			q._next();
 		};
 		DB.onProgress = (i, count) => {
@@ -92,15 +84,6 @@ function loadFiles(callback) {
 		UIManager.removeComponents();
 		Background.init();
 		Background.resize(Renderer.width, Renderer.height);
-		if (PACKETVER.value >= 20221207) {
-			import('UI/Components/WinLogin/WinLoginV3/WinLoginV3Background.js').then(module => {
-				module.default.init();
-			});
-		} else if (PACKETVER.value >= 20181114) {
-			import('UI/Components/WinLogin/WinLoginV2/WinLoginV2Background.js').then(module => {
-				module.default.init();
-			});
-		}
 		Background.setImage('bgi_temp.bmp', () => {
 			DB.init();
 		});
@@ -182,16 +165,12 @@ class GameEngine {
 
 		UIManager.removeComponents();
 		Network.close();
-		if (PACKETVER.value < 20181114) {
-			// Setup background
-			Background.init();
-			Background.resize(Renderer.width, Renderer.height);
-			Background.setImage('bgi_temp.bmp', () => {
-				onReload();
-			});
-		} else {
+		// Setup background
+		Background.init();
+		Background.resize(Renderer.width, Renderer.height);
+		Background.setImage('bgi_temp.bmp', () => {
 			onReload();
-		}
+		});
 		// Hooking WinList
 		WinList.onIndexSelected = onLoginServerSelected;
 		WinList.onExitRequest = onExit;
@@ -211,6 +190,7 @@ function onReload() {
 	// Just 1 server, skip the WinList
 	else if (count === 1 && Configs.get('skipServerList')) {
 		LoginEngine.init(_servers[0]);
+		Background.remove();
 	} else {
 		for (i = 0; i < count; ++i) {
 			list[i] = _servers[i].display;
@@ -219,7 +199,6 @@ function onReload() {
 		WinList.append();
 		WinList.setList(list);
 	}
-
 	Renderer.stop();
 	MapRenderer.free();
 	BGM.play('01.mp3');
@@ -230,6 +209,7 @@ function onReadyLoginServer(index) {
 	_previous_server = _servers[index];
 
 	WinList.remove();
+	Background.remove();
 	LoginEngine.init(_servers[index]);
 }
 
@@ -249,11 +229,6 @@ function onLoginServerSelected(index) {
 	) {
 		UIManager.removeComponents();
 		Network.close();
-		if (PACKETVER.value < 20181114) {
-			Background.init();
-			Background.resize(Renderer.width, Renderer.height);
-			Background.setImage('bgi_temp.bmp');
-		}
 		// Need to reload the files.
 		loadFiles(() => {
 			LoginEngine.setLoadedServer(_servers[index]);
