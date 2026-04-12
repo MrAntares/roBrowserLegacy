@@ -223,6 +223,16 @@ class GRF {
 			return;
 		}
 
+		if (
+			data[0] !== 0 &&
+			(data[0] !== 0x78 || (data[1] !== 0x9c && data[1] !== 0x01 && data[1] !== 0xda && data[1] !== 0x5e))
+		) {
+			console.warn(
+				`GRF: file "${entry.filename}" is using a new encryption method which is not supported.`
+			);
+			return;
+		}
+
 		// Uncompress
 		try {
 			out = new Uint8Array(entry.real_size);
