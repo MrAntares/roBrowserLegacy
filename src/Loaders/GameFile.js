@@ -228,7 +228,7 @@ class GRF {
 			(data[0] !== 0x78 || (data[1] !== 0x9c && data[1] !== 0x01 && data[1] !== 0xda && data[1] !== 0x5e))
 		) {
 			console.warn(
-				`GRF: file "${entry.filename}" is using a new encryption method by Gravity which is not supported.`
+				`GRF: file "${entry.filename}" is using a new encryption method which is not supported.`
 			);
 			return;
 		}
