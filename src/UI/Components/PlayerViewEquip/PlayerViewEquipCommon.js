@@ -229,7 +229,8 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 		_overlay = _root.querySelector('.overlay');
 		_panel = _root.querySelector('.panel');
 
-		// Canvas contexts
+		// Canvas contexts (clear first to avoid accumulation on re-init)
+		_vieweqctx.length = 0;
 		const canvases = _root.querySelectorAll('canvas');
 		for (const canvas of canvases) {
 			_vieweqctx.push(canvas.getContext('2d'));
@@ -381,8 +382,9 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 	// ─── onAppend ──────────────────────────────────────────
 
 	Component.onAppend = function onAppend() {
-		this._host.style.top = Math.min(Math.max(0, _preferences.y), Renderer.height - 280) + 'px';
-		this._host.style.left = Math.min(Math.max(0, _preferences.x), Renderer.width - 280) + 'px';
+		const rect = this._host.getBoundingClientRect();
+		this._host.style.top = Math.min(Math.max(0, _preferences.y), Renderer.height - rect.height) + 'px';
+		this._host.style.left = Math.min(Math.max(0, _preferences.x), Renderer.width - rect.width) + 'px';
 
 		// Check if any canvas is visible before starting render
 		const canvases = _root.querySelectorAll('canvas');
@@ -402,6 +404,9 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 
 	Component.onRemove = function onRemove() {
 		Renderer.stop(renderCharacter);
+
+		// Reset tab state so next open starts on General tab
+		currentTabId = 'vieweqgeneral';
 
 		_list = {};
 		const cells = _root.querySelectorAll('.col1, .col3, .ammo');
