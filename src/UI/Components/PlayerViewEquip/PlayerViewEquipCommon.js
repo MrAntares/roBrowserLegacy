@@ -501,7 +501,6 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 
 	const renderCharacter = (function renderCharacterClosure() {
 		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		const _savedColor = new Float32Array(4);
 		const _animation = {
 			tick: 0,
 			frame: 0,
@@ -511,9 +510,9 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 			delay: 0,
 			save: false
 		};
+		const show_character = new Entity();
 
 		return function renderChar() {
-			const show_character = new Entity();
 			show_character.set({
 				GID: charName + '_EQUIP',
 				objecttype: show_character.constructor.TYPE_PC,
@@ -540,7 +539,6 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 				show_character.robe = Component.checkEquipLoc(EquipLocation.GARMENT);
 			}
 
-			_savedColor.set(show_character.effectColor);
 			show_character.effectColor.set(_cleanColor);
 
 			Camera.direction = 0;
