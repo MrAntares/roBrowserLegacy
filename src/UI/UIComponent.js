@@ -50,6 +50,18 @@ if (!_style.length) {
 }
 _style.append(CommonCSS);
 
+function getComponentZIndex(comp) {
+	if (comp._host) return comp._host.style.zIndex; // GUIComponent
+	if (comp.ui) return comp.ui.css('zIndex'); // UIComponent
+	return '50';
+}
+
+function setComponentZIndex(comp, value) {
+	if (comp._host)
+		comp._host.style.zIndex = value; // GUIComponent
+	else if (comp.ui) comp.ui.css('zIndex', value); // UIComponent
+}
+
 /**
  * @var {enum} Mouse mode
  */
@@ -389,7 +401,7 @@ UIComponent.prototype.focus = function focus() {
 	// Store components zIndex in a list
 	for (name in components) {
 		if (this !== components[name] && components[name].__active && components[name].needFocus) {
-			zIndex = parseInt(components[name].ui.css('zIndex'), 10);
+			zIndex = parseInt(getComponentZIndex(components[name]), 10);
 			list[zIndex - 50] = zIndex;
 		}
 	}
@@ -406,13 +418,13 @@ UIComponent.prototype.focus = function focus() {
 	// Apply new zIndex to list
 	for (name in components) {
 		if (this !== components[name] && components[name].__active && components[name].needFocus) {
-			zIndex = parseInt(components[name].ui.css('zIndex'), 10);
-			components[name].ui.css('zIndex', list[zIndex - 50]);
+			zIndex = parseInt(getComponentZIndex(components[name]), 10);
+			setComponentZIndex(components[name], list[zIndex - 50]);
 		}
 	}
 
 	// Push our zIndex at top
-	this.ui.css('zIndex', list.length + 50 - j);
+	setComponentZIndex(this, list.length + 50 - j);
 };
 
 /**
@@ -430,12 +442,12 @@ UIComponent.prototype.placeOnTop = function placeOnTop() {
 	// Store components zIndex in a list
 	for (name in components) {
 		if (this !== components[name] && components[name].__active) {
-			zIndex = parseInt(components[name].ui.css('zIndex'), 10);
+			zIndex = parseInt(getComponentZIndex(components[name]), 10);
 			list.push(zIndex);
 		}
 	}
 	const lastZIndex = Math.max(...list);
-	this.ui.css('zIndex', lastZIndex + 1);
+	setComponentZIndex(this, lastZIndex + 1);
 };
 
 /**
