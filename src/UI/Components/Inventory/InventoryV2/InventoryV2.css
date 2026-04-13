@@ -225,6 +225,7 @@
 #InventoryV2 .overlay {
 	position: absolute;
 	display: none;
+	pointer-events: none;
 	white-space: nowrap;
 	z-index: 900;
 	height: 15px;

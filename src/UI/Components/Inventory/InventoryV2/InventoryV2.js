@@ -117,20 +117,90 @@ InventoryV2.init = function Init() {
 		InventoryV2.ui.hide();
 	});
 
-	// on drop item
-	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
+	this.droppable({
+		legacyEvent: true,
+		accept(data) {
+			return (
+				data &&
+				data.type === 'item' &&
+				(data.from === 'CartItems' ||
+					data.from === 'Storage' ||
+					data.from === 'Mail' ||
+					data.from === 'WriteRodex')
+			);
+		},
+		drop: onDrop
+	});
 
-		// Items event
+	// Items event
+	this.ui
 		.find('.container .content')
 		.on('mouseover', '.item', onItemOver)
 		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
 		.on('contextmenu', '.item', onItemInfo)
 		.on('dblclick', '.item', onItemUsed)
 		.on('click', '.item', onItemClick);
+
+	this.dragSource('.container .content', {
+		selector: '.item',
+		cursorAt: { right: 10, bottom: 10 },
+		data(source) {
+			const index = parseInt(source.getAttribute('data-index'), 10);
+			const item = InventoryV2.getItemByIndex(index);
+
+			if (!item) {
+				return null;
+			}
+
+			return {
+				type: 'item',
+				from: 'Inventory',
+				data: item
+			};
+		},
+		helper(source, dragData) {
+			const icon = source.querySelector('.icon');
+			const helper = document.createElement('div');
+			helper.className = 'item-drag-helper';
+			helper.style.width = '24px';
+			helper.style.height = '24px';
+			helper.style.backgroundRepeat = 'no-repeat';
+			helper.style.backgroundPosition = 'center';
+			helper.style.backgroundSize = 'contain';
+
+			if (icon) {
+				const backgroundImage = icon.style.backgroundImage || window.getComputedStyle(icon).backgroundImage;
+				if (backgroundImage && backgroundImage !== 'none') {
+					helper.style.backgroundImage = backgroundImage;
+				}
+			}
+
+			if (!helper.style.backgroundImage) {
+				const item = dragData && dragData.data;
+				const it = item && DB.getItemInfo(item.ITID);
+
+				if (item && it) {
+					const path =
+						DB.INTERFACE_PATH +
+						'item/' +
+						(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+						'.bmp';
+					const dataURI = Client.loadFile(path, data => {
+						helper.style.backgroundImage = 'url(' + data + ')';
+					});
+
+					if (dataURI) {
+						helper.style.backgroundImage = 'url(' + dataURI + ')';
+					}
+				}
+			}
+
+			return helper;
+		},
+		start() {
+			onItemOut();
+		}
+	});
 
 	this.ui.find('.ncnt').text(0 + ' / ');
 	this.ui.find('.mcnt').text(100);
@@ -138,7 +208,15 @@ InventoryV2.init = function Init() {
 	this.draggable(this.ui.find('.titlebar'));
 
 	// Add drop events for tabs
-	this.ui.find('.tabs button').on('dragover', stopPropagation).on('drop', onTabDrop);
+	this.ui.find('.tabs button').each(function () {
+		InventoryV2.droppable(this, {
+			legacyEvent: true,
+			accept(data) {
+				return data && data.type === 'item' && data.from === 'Inventory';
+			},
+			drop: onTabDrop
+		});
+	});
 
 	// Set initial selected tab based on _preferences.tab
 	jQuery('.tabs button').removeClass('selected');
@@ -539,7 +617,7 @@ InventoryV2.addItemSub = function AddItemSub(item) {
 		content.append(
 			'<div class="item" data-index="' +
 				item.index +
-				'" draggable="true">' +
+				'">' +
 				'<div class="new_item"></div>' +
 				'<div class="icon"></div>' +
 				'<div class="switch1"></div>' +
@@ -829,7 +907,7 @@ function onDrop(event) {
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 
@@ -932,48 +1010,6 @@ function onItemOver() {
  */
 function onItemOut() {
 	InventoryV2.ui.find('.overlay').hide();
-}
-
-/**
- * Start dragging an item
- */
-function onItemDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
-	const item = InventoryV2.getItemByIndex(index);
-
-	if (!item) {
-		return;
-	}
-
-	// Set image to the drag drop element
-	const img = new Image();
-	const url = this.querySelector('.icon')
-		.style.backgroundImage.match(/\((.*?)\)/)[1]
-		.replace(/('|")/g, '');
-	img.decoding = 'async';
-	img.src = url.replace(/^\"/, '').replace(/\"$/, '');
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Inventory',
-				data: item
-			})
-		)
-	);
-
-	onItemOut();
-}
-
-/**
- * Stop dragging an item
- *
- */
-function onItemDragEnd() {
-	delete window._OBJ_DRAG_;
 }
 
 /**
@@ -1109,7 +1145,7 @@ function onTabDrop(event) {
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 
