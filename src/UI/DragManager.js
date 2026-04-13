@@ -504,6 +504,9 @@ function onEnd(event) {
 }
 
 function onCancel(event) {
+	if (event && event.type === 'blur' && event.target !== window && event.target !== document) {
+		return;
+	}
 	cleanupSession('cancel', event, 'cancel');
 }
 

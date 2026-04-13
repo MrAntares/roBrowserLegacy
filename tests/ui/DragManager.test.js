@@ -41,6 +41,26 @@ function mouse(type, clientX, clientY, options = {}) {
 	});
 }
 
+function pointer(type, clientX, clientY, options = {}) {
+	const event = new Event(type, {
+		bubbles: true,
+		cancelable: true
+	});
+
+	Object.defineProperties(event, {
+		clientX: { configurable: true, value: clientX },
+		clientY: { configurable: true, value: clientY },
+		pageX: { configurable: true, value: clientX },
+		pageY: { configurable: true, value: clientY },
+		button: { configurable: true, value: options.button ?? 0 },
+		pointerId: { configurable: true, value: options.pointerId ?? 1 },
+		pointerType: { configurable: true, value: options.pointerType || 'mouse' },
+		isPrimary: { configurable: true, value: options.isPrimary ?? true }
+	});
+
+	return event;
+}
+
 function startDrag(source, start = { x: 4, y: 4 }, move = { x: 20, y: 20 }) {
 	source.dispatchEvent(mouse('mousedown', start.x, start.y));
 	window.dispatchEvent(mouse('mousemove', move.x, move.y));
@@ -105,6 +125,23 @@ describe('DragManager', () => {
 
 		expect(data).not.toHaveBeenCalled();
 		expect(DragManager.isDragging()).toBe(false);
+	});
+
+	it('uses mouse events instead of pointer events for mouse drags', () => {
+		const source = createElement();
+		const data = vi.fn(() => ({ type: 'item' }));
+		registerSource(source, { data });
+
+		source.dispatchEvent(pointer('pointerdown', 4, 4, { pointerType: 'mouse' }));
+		window.dispatchEvent(pointer('pointermove', 20, 20, { pointerType: 'mouse' }));
+
+		expect(data).not.toHaveBeenCalled();
+
+		source.dispatchEvent(mouse('mousedown', 4, 4));
+		window.dispatchEvent(mouse('mousemove', 20, 20));
+
+		expect(data).toHaveBeenCalledTimes(1);
+		expect(DragManager.isDragging()).toBe(true);
 	});
 
 	it('does not start when movement stays below the threshold', () => {
