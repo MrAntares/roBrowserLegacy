@@ -1,3 +1,5 @@
+/* global document, window, Event */
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import DropManager from 'UI/DropManager.js';
 
@@ -153,6 +155,28 @@ describe('DropManager', () => {
 		expect(event.preventDefault).toHaveBeenCalled();
 		expect(event.stopPropagation).toHaveBeenCalled();
 		expect(drop).toHaveBeenCalledWith(event, data, zone);
+	});
+
+	it('overAt dispatches hover callbacks and clearHover dispatches leave', () => {
+		const element = createZone({ left: 0, top: 0, width: 100, height: 100 });
+		const enter = vi.fn();
+		const over = vi.fn();
+		const leave = vi.fn();
+		registerZone(element, { enter, over, leave });
+		const event = {
+			preventDefault: vi.fn()
+		};
+		const data = { type: 'item' };
+
+		const zone = DropManager.overAt(10, 10, event, data);
+		DropManager.overAt(10, 10, event, data);
+		DropManager.clearHover(event, data);
+
+		expect(zone?.element).toBe(element);
+		expect(event.preventDefault).toHaveBeenCalledTimes(2);
+		expect(enter).toHaveBeenCalledTimes(1);
+		expect(over).toHaveBeenCalledTimes(2);
+		expect(leave).toHaveBeenCalledTimes(1);
 	});
 
 	it('resolves elements registered inside Shadow DOM', () => {

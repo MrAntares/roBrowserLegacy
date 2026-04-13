@@ -189,21 +189,7 @@ function stopMatchedEvent(event, zone) {
 
 function onDragOver(event) {
 	const data = DropManager.getDragData(event);
-	const zone = DropManager.getTargetAt(getEventClientX(event), getEventClientY(event), data, event);
-
-	setHoveredZone(zone, event, data);
-
-	if (!zone) {
-		return;
-	}
-
-	if (typeof event.preventDefault === 'function') {
-		event.preventDefault();
-	}
-
-	if (typeof zone.over === 'function') {
-		zone.over(event, data, zone);
-	}
+	DropManager.overAt(getEventClientX(event), getEventClientY(event), event, data);
 }
 
 function onDrop(event) {
@@ -387,6 +373,32 @@ class DropManager {
 		stopMatchedEvent(event, zone);
 		zone.drop(event, dragData, zone);
 		return zone;
+	}
+
+	static overAt(clientX, clientY, event, data) {
+		const dragData = data === undefined ? this.getDragData(event) : data;
+		const zone = this.getTargetAt(clientX, clientY, dragData, event);
+
+		setHoveredZone(zone, event, dragData);
+
+		if (!zone) {
+			return null;
+		}
+
+		if (typeof event?.preventDefault === 'function') {
+			event.preventDefault();
+		}
+
+		if (typeof zone.over === 'function') {
+			zone.over(event, dragData, zone);
+		}
+
+		return zone;
+	}
+
+	static clearHover(event, data) {
+		const dragData = data === undefined ? this.getDragData(event) : data;
+		setHoveredZone(null, event, dragData);
 	}
 
 	static getDragData(event) {
