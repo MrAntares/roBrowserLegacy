@@ -168,33 +168,10 @@ InventoryV2.init = function Init() {
 			helper.style.backgroundPosition = 'center';
 			helper.style.backgroundSize = 'contain';
 
-			if (icon) {
-				const backgroundImage = icon.style.backgroundImage || window.getComputedStyle(icon).backgroundImage;
-				if (backgroundImage && backgroundImage !== 'none') {
-					helper.style.backgroundImage = backgroundImage;
-				}
+			const backgroundImage = icon.style.backgroundImage || window.getComputedStyle(icon).backgroundImage;
+			if (backgroundImage && backgroundImage !== 'none') {
+				helper.style.backgroundImage = backgroundImage;
 			}
-
-			if (!helper.style.backgroundImage) {
-				const item = dragData && dragData.data;
-				const it = item && DB.getItemInfo(item.ITID);
-
-				if (item && it) {
-					const path =
-						DB.INTERFACE_PATH +
-						'item/' +
-						(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-						'.bmp';
-					const dataURI = Client.loadFile(path, data => {
-						helper.style.backgroundImage = 'url(' + data + ')';
-					});
-
-					if (dataURI) {
-						helper.style.backgroundImage = 'url(' + dataURI + ')';
-					}
-				}
-			}
-
 			return helper;
 		},
 		start() {
