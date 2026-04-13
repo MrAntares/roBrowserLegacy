@@ -24,6 +24,7 @@ import Targa from 'Loaders/Targa.js';
 import Renderer from 'Renderer/Renderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import ScrollBar from './Scrollbar.js';
+import DropManager from './DropManager.js';
 
 /**
  * Snap cache shared across all draggable instances (same as UIComponent)
@@ -76,6 +77,7 @@ class GUIComponent {
 		this.__active = false;
 		this.__scrollbarObserver = null;
 		this.__mouseStopBlock = null;
+		this.__dropUnregisters = [];
 
 		this._keyHandler = null;
 		this._enterCount = 0;
@@ -370,7 +372,8 @@ class GUIComponent {
 					key === '_container' ||
 					key === 'ui' ||
 					key === '__loaded' ||
-					key === '__scrollbarObserver'
+					key === '__scrollbarObserver' ||
+					key === '__dropUnregisters'
 				) {
 					continue; // Don't copy DOM state
 				}
@@ -379,6 +382,61 @@ class GUIComponent {
 		}
 
 		return cloned;
+	}
+
+	// ─── Drop zones ────────────────────────────────────────
+
+	/**
+	 * Register a Shadow DOM-aware native drop zone for this component.
+	 *
+	 * @param {string|HTMLElement|object} targetOrOptions - Selector, element, or options for the host.
+	 * @param {object} [options] - DropManager registration options.
+	 * @returns {Function|null} unregister callback when registration succeeds.
+	 */
+	droppable(targetOrOptions, options) {
+		if (!this._host) return null;
+
+		let target = targetOrOptions;
+		let dropOptions = options;
+
+		if (arguments.length === 1 && targetOrOptions && typeof targetOrOptions === 'object') {
+			const isElement = typeof Element !== 'undefined' && targetOrOptions instanceof Element;
+			const isJQueryLike = targetOrOptions[0] && targetOrOptions.length !== undefined;
+			if (!isElement && !isJQueryLike) {
+				target = this._host;
+				dropOptions = targetOrOptions;
+			}
+		}
+
+		if (!target) {
+			target = this._host;
+		} else if (typeof target === 'string') {
+			target = this._shadow?.querySelector(target) || this._container?.querySelector(target);
+		} else if (typeof Element !== 'undefined' && target instanceof Element) {
+			// Native element, no conversion needed.
+		} else {
+			target = target[0] || target;
+		}
+
+		if (!target) {
+			console.error(`[GUIComponent] Unable to find drop target for ${this.name}.`);
+			return null;
+		}
+
+		const unregister = DropManager.register(target, {
+			...(dropOptions || {}),
+			component: this
+		});
+		this.__dropUnregisters.push(unregister);
+		return unregister;
+	}
+
+	clearDroppables() {
+		for (const unregister of this.__dropUnregisters) {
+			unregister();
+		}
+		this.__dropUnregisters = [];
+		return this;
 	}
 
 	// ─── Event binding ─────────────────────────────────────
