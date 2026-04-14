@@ -1,5 +1,5 @@
 /**
- * UI/Components/WinStats/WinStatsV3.js
+ * UI/Components/WinStats/WinStatsV2.js
  *
  * Chararacter Statistiques Informations
  *
