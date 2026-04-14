@@ -185,6 +185,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		return _embedAnchor !== null;
 	};
 
+	// ─── toggle ────────────────────────────────────────
 	Component.toggle = function toggle() {
 		// If embedded, unembed instead of normal toggle
 		if (_embedAnchor) {
@@ -359,17 +360,6 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			if (selfBtn) selfBtn.style.backgroundImage = 'url(' + data + ')';
 		});
 	}
-
-	// ─── toggle ────────────────────────────────────────
-
-	Component.toggle = function toggle() {
-		if (this._host.style.display === 'none') {
-			this._host.style.display = '';
-			this.focus();
-		} else {
-			this._host.style.display = 'none';
-		}
-	};
 
 	// ─── onShortCut ────────────────────────────────────
 

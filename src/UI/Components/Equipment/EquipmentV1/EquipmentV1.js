@@ -149,6 +149,7 @@ EquipmentV1.init = function init() {
 	this.ui.find('.titlebar .close').click(function () {
 		EquipmentV1.ui.hide();
 		Renderer.stop(renderCharacter);
+		hideStatus();
 	});
 
 	this.ui.find('.removeOption').mousedown(onRemoveOption);
@@ -288,10 +289,8 @@ EquipmentV1.onRemove = function onRemove() {
 	_preferences.show = this.ui.is(':visible');
 	_preferences.reduce = this.ui.find('.panel').css('display') === 'none';
 	const winStats = WinStats.getUI();
-	_preferences.stats = winStats.isEmbedded();
-	if (winStats.isEmbedded()) {
-		winStats.unembed();
-	}
+	_preferences.stats = winStats._host.style.display !== 'none';
+	hideStatus();
 	_preferences.y = parseInt(this.ui.css('top'), 10);
 	_preferences.x = parseInt(this.ui.css('left'), 10);
 	_preferences.save();
@@ -311,6 +310,7 @@ EquipmentV1.toggle = function toggle() {
 		this.focus();
 	} else {
 		Renderer.stop(renderCharacter);
+		hideStatus();
 	}
 };
 
@@ -450,6 +450,16 @@ EquipmentV1.checkEquipLoc = function checkEquipLoc(location) {
 function stopPropagation(event) {
 	event.stopImmediatePropagation();
 	return false;
+}
+
+/**
+ * Hide status window
+ */
+function hideStatus() {
+	const winStats = WinStats.getUI();
+	if (winStats._host.style.display !== 'none') {
+		winStats._host.style.display = 'none';
+	}
 }
 
 /**
