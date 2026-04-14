@@ -216,6 +216,9 @@ EquipmentV0.toggle = function toggle() {
 		Renderer.render(renderCharacter);
 		if (UIVersionManager.getEquipmentVersion() > 0) {
 			_btnLevelUp.detach();
+			if (_preferences.stats) {
+				WinStats.getUI().embed(EquipmentV0.ui[0]);
+			}
 		}
 		this.focus();
 	} else {
