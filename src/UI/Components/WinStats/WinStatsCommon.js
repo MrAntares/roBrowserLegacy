@@ -238,6 +238,11 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		}
 	};
 
+	const _origFix = Component._fixPositionOverflow;
+	Component._fixPositionOverflow = function () {
+		if (!_embedAnchor) _origFix.call(this);
+	};
+
 	// ─── update ────────────────────────────────────────
 
 	Component.update = function update(type, val) {
