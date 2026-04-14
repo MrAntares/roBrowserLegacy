@@ -251,7 +251,8 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'statuspoint':
 				this.statuspoint = val;
 				_root.querySelectorAll('.requirements div').forEach(div => {
-					setUpVisibility('.up .' + div.className, parseInt(div.textContent, 10) <= val);
+					const req = parseInt(div.textContent, 10);
+					setUpVisibility('.up .' + div.className, req > 0 && req <= val);
 				});
 				setText('.' + type, val);
 				break;
@@ -260,7 +261,8 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'trait_point':
 				this.t_statuspoint = val;
 				_root.querySelectorAll('.t_requirements div').forEach(div => {
-					setUpVisibility('.t_up .' + div.className, parseInt(div.textContent, 10) <= val);
+					const req = parseInt(div.textContent, 10);
+					setUpVisibility('.t_up .' + div.className, req > 0 && req <= val);
 				});
 				setText('.trait_point', val);
 				break;
@@ -346,7 +348,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'dex3':
 			case 'luk3':
 				setText('.requirements .' + type.replace('3', ''), val);
-				setUpVisibility('.up .' + type.replace('3', ''), val <= this.statuspoint);
+				setUpVisibility('.up .' + type.replace('3', ''), val > 0 && val <= this.statuspoint);
 				break;
 
 			// ── Trait requirements (V3) ──
@@ -357,7 +359,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'con3':
 			case 'crt3':
 				setText('.t_requirements .' + type.replace('3', ''), val);
-				setUpVisibility('.t_up .' + type.replace('3', ''), val <= this.t_statuspoint);
+				setUpVisibility('.t_up .' + type.replace('3', ''), val > 0 && val <= this.t_statuspoint);
 				break;
 		}
 	};
