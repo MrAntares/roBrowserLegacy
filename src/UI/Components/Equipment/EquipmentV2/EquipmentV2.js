@@ -129,8 +129,7 @@ EquipmentV2.init = function init() {
 			.mousedown(stopPropagation)
 			.click(() => {
 				_btnLevelUp.detach();
-				EquipmentV2.ui.hide();
-				WinStats.getUI().toggle();
+				WinStats.getUI().show();
 			});
 	} else {
 		this.ui.find('#equipment_footer').remove();
