@@ -226,10 +226,12 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		}
 		this.stack.length = 0;
 
-		this._host.style.top =
-			Math.min(Math.max(0, _preferences.y), Renderer.height - (this._host.offsetHeight || 140)) + 'px';
-		this._host.style.left =
-			Math.min(Math.max(0, _preferences.x), Renderer.width - (this._host.offsetWidth || 280)) + 'px';
+		if (!_embedAnchor) {
+			this._host.style.top =
+				Math.min(Math.max(0, _preferences.y), Renderer.height - (this._host.offsetHeight || 140)) + 'px';
+			this._host.style.left =
+				Math.min(Math.max(0, _preferences.x), Renderer.width - (this._host.offsetWidth || 280)) + 'px';
+		}
 
 		if (!_preferences.show && !_embedAnchor) {
 			this._host.style.display = 'none';
