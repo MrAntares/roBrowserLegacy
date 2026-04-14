@@ -231,7 +231,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		this._host.style.left =
 			Math.min(Math.max(0, _preferences.x), Renderer.width - (this._host.offsetWidth || 280)) + 'px';
 
-		if (!_preferences.show) {
+		if (!_preferences.show && !_embedAnchor) {
 			this._host.style.display = 'none';
 		}
 	};
