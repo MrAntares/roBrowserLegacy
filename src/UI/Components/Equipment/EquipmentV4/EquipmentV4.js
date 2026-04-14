@@ -182,10 +182,12 @@ EquipmentV4.init = function init() {
 
 	this.loadTitles();
 
-	// drag, drop items
-	this.ui.on('dragover', onDragOver);
-	this.ui.on('dragleave', onDragLeave);
-	this.ui.on('drop', onDrop);
+	this.droppable({
+		accept: canDropEquipmentItem,
+		over: onEquipmentDropOver,
+		leave: clearEquipmentDropHighlight,
+		drop: onEquipmentDrop
+	});
 
 	// Bind items
 	this.ui
@@ -847,75 +849,119 @@ function getSelectorFromLocation(location) {
 }
 
 /**
- * Drag an item over the equipment, show where to place the item
+ * Get an item payload from the new drag/drop system.
  */
-function onDragOver(event) {
-	if (window._OBJ_DRAG_) {
-		const data = window._OBJ_DRAG_;
-		let item, selector, ui;
-
-		// Just support items for now ?
-		if (data.type === 'item') {
-			item = data.data;
-
-			if (
-				(item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) &&
-				item.IsIdentified &&
-				!item.IsDamaged
-			) {
-				selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
-				ui = EquipmentV4.ui.find(selector);
-
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (_data) {
-					ui.css('backgroundImage', 'url(' + _data + ')');
-				});
-			}
-		}
+function getEquipmentDropItem(data) {
+	if (!data || data.type !== 'item' || data.from !== 'Inventory') {
+		return null;
 	}
 
-	event.stopImmediatePropagation();
-	return false;
+	return data.data || null;
 }
 
 /**
- * Drag out the window
+ * Check if an item can be equipped from a drop payload.
  */
-function onDragLeave(event) {
-	EquipmentV4.ui.find('td').css('backgroundImage', 'none');
-	event.stopImmediatePropagation();
-	return false;
+function isEquippableItem(item, includeAmmo) {
+	return Boolean(
+		item &&
+		(item.type === ItemType.WEAPON ||
+			item.type === ItemType.ARMOR ||
+			item.type === ItemType.SHADOWGEAR ||
+			(includeAmmo && item.type === ItemType.AMMO)) &&
+		item.IsIdentified &&
+		!item.IsDamaged
+	);
 }
 
 /**
- * Drop an item in the equipment, equip it if possible
+ * Get the equipment location field used by equip requests and slot highlighting.
  */
-function onDrop(event) {
-	let item, data;
-
-	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (_e) {
-		// ignore
+function getEquipmentDropLocation(item) {
+	if (!item) {
+		return 0;
 	}
 
-	// Just support items for now ?
-	if (data && data.type === 'item') {
-		item = data.data;
-
-		if (
-			(item.type === ItemType.WEAPON ||
-				item.type === ItemType.ARMOR ||
-				item.type === ItemType.AMMO ||
-				item.type === ItemType.SHADOWGEAR) &&
-			item.IsIdentified &&
-			!item.IsDamaged
-		) {
-			EquipmentV4.ui.find('td').css('backgroundImage', 'none');
-			EquipmentV4.onEquipItem(item.index, 'location' in item ? item.location : item.WearState);
-		}
+	if ('location' in item && item.location) {
+		return item.location;
 	}
 
-	event.stopImmediatePropagation();
+	if ('WearState' in item && item.WearState) {
+		return item.WearState;
+	}
+
+	if ('WearLocation' in item && item.WearLocation) {
+		return item.WearLocation;
+	}
+
+	if ('location' in item) {
+		return item.location;
+	}
+
+	if ('WearState' in item) {
+		return item.WearState;
+	}
+
+	if ('WearLocation' in item) {
+		return item.WearLocation;
+	}
+
+	return 0;
+}
+
+/**
+ * Check whether the payload can be dropped on EquipmentV4.
+ */
+function canDropEquipmentItem(data) {
+	const item = getEquipmentDropItem(data);
+	const location = getEquipmentDropLocation(item);
+
+	return isEquippableItem(item, true) && Boolean(location && getSelectorFromLocation(location));
+}
+
+/**
+ * Highlight the slot where a dropped item can be equipped.
+ */
+function showEquipmentDropHighlight(data) {
+	const item = getEquipmentDropItem(data);
+	const selector = getSelectorFromLocation(getEquipmentDropLocation(item));
+
+	if (!selector) {
+		return;
+	}
+
+	const ui = EquipmentV4.ui.find(selector);
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (_data) {
+		ui.css('backgroundImage', 'url(' + _data + ')');
+	});
+}
+
+/**
+ * Drag an item over the equipment, show where to place the item.
+ */
+function onEquipmentDropOver(_event, data) {
+	showEquipmentDropHighlight(data);
+}
+
+/**
+ * Drag out of the equipment window.
+ */
+function clearEquipmentDropHighlight() {
+	EquipmentV4.ui.find('td, .ammo').css('backgroundImage', 'none');
+}
+
+/**
+ * Drop an item in the equipment, equip it if possible.
+ */
+function onEquipmentDrop(_event, data) {
+	const item = getEquipmentDropItem(data);
+
+	if (!canDropEquipmentItem(data)) {
+		return false;
+	}
+
+	clearEquipmentDropHighlight();
+	EquipmentV4.onEquipItem(item.index, getEquipmentDropLocation(item));
 	return false;
 }
 
