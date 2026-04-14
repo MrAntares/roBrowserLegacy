@@ -145,6 +145,21 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 	let _embedObserver = null;
 
 	Component.embed = function embed(anchorHost) {
+		// Ensure component is prepared (has _shadow/_host)
+		if (!this.__loaded) {
+			this.prepare();
+		}
+		// Ensure component is in the DOM
+		if (!this._host.parentNode) {
+			document.body.appendChild(this._host);
+		}
+
+		// Disconnect previous observer if re-embedding
+		if (_embedObserver) {
+			_embedObserver.disconnect();
+			_embedObserver = null;
+		}
+
 		_embedAnchor = anchorHost;
 
 		// Inject embed CSS into shadow
@@ -152,7 +167,9 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			_embedStyleEl = document.createElement('style');
 			_embedStyleEl.textContent = EMBED_CSS;
 		}
-		this._shadow.appendChild(_embedStyleEl);
+		if (!_embedStyleEl.parentNode) {
+			this._shadow.appendChild(_embedStyleEl);
+		}
 
 		// Position below anchor
 		const syncPosition = () => {

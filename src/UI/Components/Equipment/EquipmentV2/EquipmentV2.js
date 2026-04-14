@@ -289,7 +289,7 @@ EquipmentV2.onRemove = function onRemove() {
 	_preferences.show = this.ui.is(':visible');
 	_preferences.reduce = this.ui.find('.panel').css('display') === 'none';
 	const winStats = WinStats.getUI();
-	_preferences.stats = winStats._host.style.display !== 'none';
+	_preferences.stats = winStats.isEmbedded();
 	hideStatus();
 	_preferences.y = parseInt(this.ui.css('top'), 10);
 	_preferences.x = parseInt(this.ui.css('left'), 10);
@@ -457,8 +457,8 @@ function stopPropagation(event) {
  */
 function hideStatus() {
 	const winStats = WinStats.getUI();
-	if (winStats._host.style.display !== 'none') {
-		winStats._host.style.display = 'none';
+	if (winStats.isEmbedded()) {
+		winStats.unembed();
 	}
 }
 
