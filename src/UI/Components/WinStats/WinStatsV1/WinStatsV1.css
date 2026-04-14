@@ -1,44 +1,94 @@
-#WinStatsV1 {
+:host {
+	width: 280px;
+	height: 130px;
+	top: 200px;
+	left: 200px;
+}
+
+#WinStats {
 	position: absolute;
 	width: 280px;
-	height: 103px;
+	height: 130px;
 	background-color: transparent;
 	background-repeat: no-repeat;
 }
-#WinStatsV1 .group {
-	position: absolute;
-	top: 6px;
+
+#WinStats .titlebar {
+	width: 280px;
+	height: 17px;
+	background-color: white;
+	background-repeat: repeat-x;
+	border-radius: 3px 3px 0px 0px;
 }
-#WinStatsV1 .group div {
+#WinStats .titlebar .base {
+	width: 11px;
+	height: 11px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+#WinStats .titlebar .text {
+	text-shadow: 1px 1px white;
+	vertical-align: -2px;
+	white-space: nowrap;
+	/* chrome bug */
+	display: inline-block;
+	width: 32px;
+	height: 13px;
+	font-size: 11px;
+	font-weight: bold;
+}
+
+#WinStats .titlebar .left {
+	margin-left: 3px;
+	float: left;
+}
+#WinStats .titlebar .right {
+	float: right;
+	margin-right: 3px;
+}
+#WinStats .titlebar .clear {
+	clear: both;
+}
+
+#WinStats .panel {
+	height: 103px;
+}
+#WinStats .group {
+	position: absolute;
+	top: 23px;
+}
+#WinStats .group div {
 	height: 16px;
 	display: block;
 }
-#WinStatsV1 .stats {
+#WinStats .stats {
 	left: 37px;
 }
-#WinStatsV1 .bonus {
-	left: 58px;
+#WinStats .bonus {
+	left: 56px;
 }
-#WinStatsV1 .requirements {
+#WinStats .requirements {
 	left: 90px;
 	text-align: right;
 	width: 12px;
 }
-#WinStatsV1 .column1 {
-	top: 5px;
-	right: 87px;
+#WinStats .column1 {
+	top: 23px;
+	right: 88px;
 	text-align: right;
 }
-#WinStatsV1 .column2 {
-	top: 5px;
+#WinStats .column2 {
+	top: 23px;
 	right: 5px;
 	text-align: right;
 }
-#WinStatsV1 .up {
-	left: 80px;
-	top: 2px;
+#WinStats .up {
+	left: 78px;
+	top: 19px;
 }
-#WinStatsV1 .up button {
+#WinStats .up button {
 	display: block;
 	margin-top: 5px;
 	border: none;

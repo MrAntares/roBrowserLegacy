@@ -1,0 +1,332 @@
+/**
+ * UI/Components/WinStats/WinStatsCommon.js
+ *
+ * Shared factory for all WinStats versions.
+ * Migrated to GUIComponent with native DOM APIs.
+ *
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
+ *
+ * @author Vincent Thibault, AoShinHo
+ */
+
+import DB from 'DB/DBManager.js';
+import Client from 'Core/Client.js';
+import UIManager from 'UI/UIManager.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import Session from 'Engine/SessionStorage.js';
+import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
+
+/**
+ * Factory: creates a WinStats GUIComponent
+ *
+ * @param {string}  name      - component name
+ * @param {string}  htmlText  - raw HTML
+ * @param {string}  cssText   - raw CSS
+ * @param {boolean} hasTraits - whether this version has trait stats (V3)
+ */
+export function createWinStats({ name, htmlText, cssText, hasTraits }) {
+	const Component = new GUIComponent(name, cssText);
+	Component.render = () => htmlText;
+
+	const _preferences = Preferences.get('WinStats', { x: 0, y: 233, show: false, reduce: false }, 1.0);
+
+	let _root;
+
+	// ─── Helpers ───────────────────────────────────────
+
+	function setText(selector, value) {
+		const el = _root.querySelector(selector);
+		if (el) el.textContent = value;
+	}
+
+	function setUpVisibility(selector, visible) {
+		const el = _root.querySelector(selector);
+		if (el) {
+			el.style.opacity = visible ? 1 : 0;
+			el.style.pointerEvents = visible ? 'initial' : 'none';
+		}
+	}
+
+	// ─── Stat button map ──────────────────────────────
+
+	const statButtonMap = {
+		str: 13,
+		agi: 14,
+		vit: 15,
+		int: 16,
+		dex: 17,
+		luk: 18
+	};
+
+	const traitButtonMap = {
+		pow: 219,
+		sta: 220,
+		wis: 221,
+		spl: 222,
+		con: 223,
+		crt: 224
+	};
+
+	// ─── init ──────────────────────────────────────────
+
+	Component.init = function init() {
+		this.statuspoint = 0;
+		this.t_statuspoint = 0;
+
+		this.draggable('.titlebar');
+
+		_root = this._shadow || this._host;
+
+		// Base stat up buttons
+		const upButtons = _root.querySelectorAll('.up button');
+		upButtons.forEach(btn => {
+			btn.addEventListener('mousedown', () => {
+				const id = statButtonMap[btn.className];
+				if (id) Component.onRequestUpdate(id, 1);
+			});
+		});
+
+		// Trait stat up buttons (V3)
+		if (hasTraits) {
+			const tUpButtons = _root.querySelectorAll('.t_up button');
+			tUpButtons.forEach(btn => {
+				btn.addEventListener('mousedown', () => {
+					const id = traitButtonMap[btn.className];
+					if (id) Component.onRequestUpdate(id, 1);
+				});
+			});
+		}
+
+		// Titlebar mini
+		const miniBtn = _root.querySelector('.titlebar .mini');
+		if (miniBtn) {
+			miniBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+			miniBtn.addEventListener('click', () => {
+				const panel = _root.querySelector('.panel');
+				if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+			});
+		}
+
+		// Titlebar close
+		const closeBtn = _root.querySelector('.titlebar .close');
+		if (closeBtn) {
+			closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+			closeBtn.addEventListener('click', () => {
+				this._host.style.display = 'none';
+			});
+		}
+
+		// View traits toggle (V3)
+		if (hasTraits) {
+			const viewTraitsBtn = _root.querySelector('.view_traits');
+			if (viewTraitsBtn) {
+				viewTraitsBtn.addEventListener('mousedown', () => toggleTraits());
+			}
+		}
+	};
+
+	// ─── stack ─────────────────────────────────────────
+
+	Component.stack = [];
+
+	// ─── onAppend ──────────────────────────────────────
+
+	Component.onAppend = function onAppend() {
+		for (let i = 0, count = this.stack.length; i < count; ++i) {
+			this.update.apply(this, this.stack[i]);
+		}
+		this.stack.length = 0;
+
+		this._host.style.top =
+			Math.min(Math.max(0, _preferences.y), Renderer.height - (this._host.offsetHeight || 140)) + 'px';
+		this._host.style.left =
+			Math.min(Math.max(0, _preferences.x), Renderer.width - (this._host.offsetWidth || 280)) + 'px';
+
+		if (!_preferences.show) {
+			this._host.style.display = 'none';
+		}
+	};
+
+	// ─── update ────────────────────────────────────────
+
+	Component.update = function update(type, val) {
+		let str;
+
+		if (!this.__loaded) {
+			this.stack.push(arguments);
+			return;
+		}
+
+		switch (type) {
+			// ── Status points ──
+			case 'statuspoint':
+				this.statuspoint = val;
+				_root.querySelectorAll('.requirements div').forEach(div => {
+					setUpVisibility('.up .' + div.className, parseInt(div.textContent, 10) <= val);
+				});
+				setText('.' + type, val);
+				break;
+
+			// ── Trait points (V3) ──
+			case 'trait_point':
+				this.t_statuspoint = val;
+				_root.querySelectorAll('.t_requirements div').forEach(div => {
+					setUpVisibility('.t_up .' + div.className, parseInt(div.textContent, 10) <= val);
+				});
+				setText('.trait_point', val);
+				break;
+
+			// ── Simple text values ──
+			case 'guildname':
+			case 'atak':
+			case 'matak':
+			case 'def':
+			case 'mdef':
+			case 'hit':
+			case 'flee':
+			case 'critical':
+			case 'patk':
+			case 'smatk':
+			case 'hplus':
+			case 'crate':
+			case 'res':
+			case 'mres':
+				setText('.' + type, val);
+				break;
+
+			// ── ASPD ──
+			case 'aspd':
+				setText('.' + type, Math.floor(200 - val / 10));
+				break;
+
+			// ── Plus values ──
+			case 'matak2':
+				if (!Session.isRenewal) {
+					setText('.' + type, '~ ' + val);
+					break;
+				}
+			// falls through
+			case 'atak2':
+			case 'def2':
+			case 'mdef2':
+			case 'flee2':
+				str = val < 0 ? '- ' + -val : '+ ' + val;
+				setText('.' + type, str);
+				break;
+
+			// ── Base stats ──
+			case 'str':
+			case 'agi':
+			case 'vit':
+			case 'int':
+			case 'dex':
+			case 'luk':
+			// ── Trait stats (V3) ──
+			case 'pow':
+			case 'sta':
+			case 'wis':
+			case 'spl':
+			case 'con':
+			case 'crt':
+				setText('.stats .' + type, val);
+				break;
+
+			// ── Base bonus ──
+			case 'str2':
+			case 'agi2':
+			case 'vit2':
+			case 'int2':
+			case 'dex2':
+			case 'luk2':
+			// ── Trait bonus (V3) ──
+			case 'pow2':
+			case 'sta2':
+			case 'wis2':
+			case 'spl2':
+			case 'con2':
+			case 'crt2':
+				str = val < 0 ? '- ' + -val : val > 0 ? '+' + val : '';
+				setText('.bonus .' + type.replace('2', ''), str);
+				break;
+
+			// ── Base requirements ──
+			case 'str3':
+			case 'agi3':
+			case 'vit3':
+			case 'int3':
+			case 'dex3':
+			case 'luk3':
+				setText('.requirements .' + type.replace('3', ''), val);
+				setUpVisibility('.up .' + type.replace('3', ''), val <= this.statuspoint);
+				break;
+
+			// ── Trait requirements (V3) ──
+			case 'pow3':
+			case 'sta3':
+			case 'wis3':
+			case 'spl3':
+			case 'con3':
+			case 'crt3':
+				setText('.t_requirements .' + type.replace('3', ''), val);
+				setUpVisibility('.t_up .' + type.replace('3', ''), val <= this.t_statuspoint);
+				break;
+		}
+	};
+
+	// ─── toggleTraits (V3) ─────────────────────────────
+
+	function toggleTraits() {
+		const traitsEl = _root.querySelector('.traits_component');
+		const selfBtn = _root.querySelector('.view_traits');
+		if (!traitsEl) return;
+
+		const isVisible = traitsEl.style.display !== 'none';
+		traitsEl.style.display = isVisible ? 'none' : '';
+		const state = isVisible ? 'on' : 'off';
+
+		Client.loadFile(DB.INTERFACE_PATH + 'statuswnd/expand_' + state + '_normal.bmp', function (data) {
+			if (selfBtn) selfBtn.style.backgroundImage = 'url(' + data + ')';
+		});
+	}
+
+	// ─── toggle ────────────────────────────────────────
+
+	Component.toggle = function toggle() {
+		if (this._host.style.display === 'none') {
+			this._host.style.display = '';
+			this.focus();
+		} else {
+			this._host.style.display = 'none';
+		}
+	};
+
+	// ─── onShortCut ────────────────────────────────────
+
+	Component.onShortCut = function onShortCut(key) {
+		switch (key.cmd) {
+			case 'TOGGLE':
+				this.toggle();
+				break;
+		}
+	};
+
+	// ─── onRemove ──────────────────────────────────────
+
+	Component.onRemove = function onRemove() {
+		if (_preferences) {
+			_preferences.show = this._host.style.display !== 'none';
+			const panel = _root.querySelector('.panel');
+			_preferences.reduce = panel ? panel.style.display === 'none' : false;
+			_preferences.y = parseInt(this._host.style.top, 10) || 0;
+			_preferences.x = parseInt(this._host.style.left, 10) || 0;
+			_preferences.save();
+		}
+	};
+
+	// ─── Abstract ──────────────────────────────────────
+
+	Component.onRequestUpdate = function onRequestUpdate(/*id, amount*/) {};
+
+	return UIManager.addComponent(Component);
+}
