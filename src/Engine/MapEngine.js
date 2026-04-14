@@ -686,11 +686,7 @@ function onMapChange(pkt) {
 			PCGoldTimer.append();
 		}
 
-		if (PACKETVER.value >= 20090617 && PACKETVER.value < 20140521) {
-			WinStats.getUI().append(Equipment.getUI().ui.find('.status_component'));
-		} else {
-			WinStats.getUI().append();
-		}
+		WinStats.getUI().append();
 
 		Quest.getUI().append();
 

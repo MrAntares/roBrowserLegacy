@@ -103,6 +103,7 @@ EquipmentV0.init = function init() {
 	this.ui.find('.titlebar .close').click(function () {
 		EquipmentV0.ui.hide();
 		Renderer.stop(renderCharacter);
+		hideStatus();
 	});
 
 	this.ui.find('.removeOption').mousedown(onRemoveOption);
@@ -161,8 +162,10 @@ EquipmentV0.onAppend = function onAppend() {
 
 	// Show status window ?
 	if (UIVersionManager.getEquipmentVersion() > 0) {
-		if (!_preferences.stats) {
-			this.ui.find('.status_component').hide();
+		if (_preferences.stats && _preferences.show) {
+			const winStats = WinStats.getUI();
+			winStats.embed(EquipmentV0.ui[0]);
+		} else {
 			Client.loadFile(
 				DB.INTERFACE_PATH + 'basic_interface/viewon.bmp',
 				function (data) {
@@ -195,7 +198,9 @@ EquipmentV0.onRemove = function onRemove() {
 	// Save preferences
 	_preferences.show = this.ui.is(':visible');
 	_preferences.reduce = this.ui.find('.panel').css('display') === 'none';
-	_preferences.stats = this.ui.find('.status_component').css('display') !== 'none';
+	const winStats = WinStats.getUI();
+	_preferences.stats = winStats.isEmbedded();
+	hideStatus();
 	_preferences.y = parseInt(this.ui.css('top'), 10);
 	_preferences.x = parseInt(this.ui.css('left'), 10);
 	_preferences.save();
@@ -211,10 +216,14 @@ EquipmentV0.toggle = function toggle() {
 		Renderer.render(renderCharacter);
 		if (UIVersionManager.getEquipmentVersion() > 0) {
 			_btnLevelUp.detach();
+			if (_preferences.stats) {
+				WinStats.getUI().embed(EquipmentV0.ui[0]);
+			}
 		}
 		this.focus();
 	} else {
 		Renderer.stop(renderCharacter);
+		hideStatus();
 	}
 };
 
@@ -348,17 +357,31 @@ function stopPropagation(event) {
 }
 
 /**
+ * Hide status window
+ */
+function hideStatus() {
+	const winStats = WinStats.getUI();
+	if (winStats.isEmbedded()) {
+		winStats.unembed();
+	}
+}
+
+/**
  * Display or not status window
  */
 function toggleStatus() {
 	const self = EquipmentV0.ui.find('.view_status');
-	const status = WinStats.getUI().ui;
-	const state = status.is(':visible') ? 'on' : 'off';
+	const winStats = WinStats.getUI();
+	const isVisible = winStats.isEmbedded();
+	const state = isVisible ? 'on' : 'off';
 
-	if (status.is(':visible')) {
-		status.hide();
+	if (isVisible) {
+		winStats.unembed();
+		_preferences.stats = false;
 	} else {
-		status.show();
+		// Pass Equipment's host (or jQuery element[0]) as anchor
+		winStats.embed(EquipmentV0.ui[0]);
+		_preferences.stats = true;
 	}
 
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', function (data) {

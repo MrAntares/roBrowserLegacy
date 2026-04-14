@@ -1125,6 +1125,15 @@ class GUIComponent {
 				host.style.display = 'none';
 				return proxy;
 			},
+			toggle() {
+				if (host.style.display === 'none') {
+					host.style.display = '';
+					component._fixPositionOverflow();
+				} else {
+					host.style.display = 'none';
+				}
+				return proxy;
+			},
 
 			parent() {
 				return {
