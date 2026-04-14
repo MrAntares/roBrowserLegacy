@@ -130,6 +130,76 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 
 	Component.stack = [];
 
+	// ─── Embed mode ────────────────────────────────────
+
+	const EMBED_CSS = `
+		.titlebar { display: none !important; }
+		.group { top: 6px !important; }
+		.column1 { top: 5px !important; }
+		.column2 { top: 5px !important; }
+		.up { top: 2px !important; }
+	`;
+
+	let _embedStyleEl = null;
+	let _embedAnchor = null;
+	let _embedObserver = null;
+
+	Component.embed = function embed(anchorHost) {
+		_embedAnchor = anchorHost;
+
+		// Inject embed CSS into shadow
+		if (!_embedStyleEl) {
+			_embedStyleEl = document.createElement('style');
+			_embedStyleEl.textContent = EMBED_CSS;
+		}
+		this._shadow.appendChild(_embedStyleEl);
+
+		// Position below anchor
+		const syncPosition = () => {
+			const rect = anchorHost.getBoundingClientRect();
+			this._host.style.left = rect.left + 'px';
+			this._host.style.top = rect.top + rect.height + 'px';
+		};
+		syncPosition();
+
+		// Observe anchor movement
+		_embedObserver = new MutationObserver(syncPosition);
+		_embedObserver.observe(anchorHost, { attributes: true, attributeFilter: ['style'] });
+
+		this._host.style.display = '';
+	};
+
+	Component.unembed = function unembed() {
+		if (_embedStyleEl && _embedStyleEl.parentNode) {
+			_embedStyleEl.parentNode.removeChild(_embedStyleEl);
+		}
+		if (_embedObserver) {
+			_embedObserver.disconnect();
+			_embedObserver = null;
+		}
+		_embedAnchor = null;
+		this._host.style.display = 'none';
+	};
+
+	Component.isEmbedded = function isEmbedded() {
+		return _embedAnchor !== null;
+	};
+
+	Component.toggle = function toggle() {
+		// If embedded, unembed instead of normal toggle
+		if (_embedAnchor) {
+			this.unembed();
+			return;
+		}
+
+		if (this._host.style.display === 'none') {
+			this._host.style.display = '';
+			this.focus();
+		} else {
+			this._host.style.display = 'none';
+		}
+	};
+
 	// ─── onAppend ──────────────────────────────────────
 
 	Component.onAppend = function onAppend() {

@@ -127,9 +127,14 @@ EquipmentV1.init = function init() {
 		_btnLevelUp = jQuery('#lvlup_base')
 			.detach()
 			.mousedown(stopPropagation)
-			.click(() => {
+			.click(function () {
 				_btnLevelUp.detach();
-				WinStats.getUI().ui.show();
+				EquipmentV1.ui.show();
+				EquipmentV1.ui.parent().append(EquipmentV1.ui);
+
+				if (EquipmentV1.ui.is(':visible')) {
+					Renderer.render(renderCharacter);
+				}
 			});
 	} else {
 		this.ui.find('#equipment_footer').remove();
@@ -246,8 +251,10 @@ EquipmentV1.onAppend = function onAppend() {
 
 	// Show status window ?
 	if (UIVersionManager.getEquipmentVersion() > 0) {
-		if (!_preferences.stats) {
-			this.ui.find('.status_component').hide();
+		if (_preferences.stats) {
+			const winStats = WinStats.getUI();
+			winStats.embed(EquipmentV1.ui[0]);
+		} else {
 			Client.loadFile(
 				DB.INTERFACE_PATH + 'basic_interface/viewon.bmp',
 				function (data) {
@@ -280,7 +287,11 @@ EquipmentV1.onRemove = function onRemove() {
 	// Save preferences
 	_preferences.show = this.ui.is(':visible');
 	_preferences.reduce = this.ui.find('.panel').css('display') === 'none';
-	_preferences.stats = this.ui.find('.status_component').css('display') !== 'none';
+	const winStats = WinStats.getUI();
+	_preferences.stats = winStats.isEmbedded();
+	if (winStats.isEmbedded()) {
+		winStats.unembed();
+	}
 	_preferences.y = parseInt(this.ui.css('top'), 10);
 	_preferences.x = parseInt(this.ui.css('left'), 10);
 	_preferences.save();
@@ -446,10 +457,16 @@ function stopPropagation(event) {
  */
 function toggleStatus() {
 	const self = EquipmentV1.ui.find('.view_status');
-	const status = WinStats.getUI().ui;
-	const state = status.is(':visible') ? 'on' : 'off';
+	const winStats = WinStats.getUI();
+	const isVisible = winStats.isEmbedded();
+	const state = isVisible ? 'on' : 'off';
 
-	status.toggle();
+	if (isVisible) {
+		winStats.unembed();
+	} else {
+		// Pass Equipment's host (or jQuery element[0]) as anchor
+		winStats.embed(EquipmentV1.ui[0]);
+	}
 
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', function (data) {
 		self.css('backgroundImage', 'url(' + data + ')');
