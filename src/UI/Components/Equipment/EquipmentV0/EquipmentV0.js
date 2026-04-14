@@ -162,7 +162,7 @@ EquipmentV0.onAppend = function onAppend() {
 
 	// Show status window ?
 	if (UIVersionManager.getEquipmentVersion() > 0) {
-		if (_preferences.stats) {
+		if (_preferences.stats && _preferences.show) {
 			const winStats = WinStats.getUI();
 			winStats.embed(EquipmentV0.ui[0]);
 		} else {
