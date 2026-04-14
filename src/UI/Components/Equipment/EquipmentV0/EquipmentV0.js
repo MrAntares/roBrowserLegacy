@@ -377,9 +377,11 @@ function toggleStatus() {
 
 	if (isVisible) {
 		winStats.unembed();
+		_preferences.stats = false;
 	} else {
 		// Pass Equipment's host (or jQuery element[0]) as anchor
 		winStats.embed(EquipmentV0.ui[0]);
+		_preferences.stats = true;
 	}
 
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', function (data) {
