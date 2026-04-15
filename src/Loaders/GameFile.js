@@ -15,7 +15,9 @@ import Inflate from 'Utils/Inflate.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 
 /**
- * @const {FileSystem} Nodejs
+ * Electron FS via contextBridge. Uses `window` intentionally — contextBridge
+ * only exposes to the main world, so in Web Workers fs is correctly null
+ * and the non-Electron codepath is used instead.
  */
 const fs = typeof window !== 'undefined' && window.electronAPI ? window.electronAPI : null;
 
