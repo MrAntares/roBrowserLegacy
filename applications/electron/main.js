@@ -85,21 +85,19 @@ app.whenReady().then(() => {
 	// content as a string (instead of serving raw HTML/CSS which Chromium
 	// rejects as non-JS MIME for module scripts).
 	// Handle app:// requests by reading local files with correct MIME types.
-	protocol.handle('app', async request => {
+	protocol.handle('app', request => {
 		const url = new URL(request.url);
 		const isRaw = url.searchParams.has('raw');
 		const relativePath = decodeURIComponent(url.pathname).replace(/^\/+/, '');
 		const filePath = path.normalize(path.join(projectRoot, relativePath));
 
 		try {
-			// Check existence asynchronously
-			try {
-				await fs.promises.access(filePath, fs.constants.R_OK);
-			} catch (e) {
-				return new Response(e.message, { status: 404 });
+			if (!fs.existsSync(filePath)) {
+				console.error(`[app://] 404: ${request.url} → ${filePath}`);
+				return new Response('Not Found', { status: 404 });
 			}
 
-			const data = await fs.promises.readFile(filePath);
+			const data = fs.readFileSync(filePath);
 
 			// ?raw → wrap file content in a JS module (Vite compat)
 			if (isRaw) {
