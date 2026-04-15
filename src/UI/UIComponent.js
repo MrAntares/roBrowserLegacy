@@ -585,7 +585,6 @@ UIComponent.prototype.draggable = function draggable(element) {
 			}
 		}
 
-		// checkX/checkY/isNear fora do loop (evita recriar ~60x/s)
 		let snapX, snapY, snapXD, snapYD, currentX, currentY;
 
 		function checkX(val) {
