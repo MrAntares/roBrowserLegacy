@@ -17,6 +17,7 @@ import Sprite from 'Loaders/Sprite.js';
 import Action from 'Loaders/Action.js';
 import Str from 'Loaders/Str.js';
 import FileSystem from 'Core/FileSystem.js';
+import TextEncoding from 'Utils/CodepageManager.js';
 
 // Load dependencies
 const fs = typeof window !== 'undefined' && window.electronAPI ? window.electronAPI : null;
@@ -190,7 +191,7 @@ class FileManager {
 
 		if (fs && fs.existsSync(filename)) {
 			const raw = fs.readFileSync(filename);
-			callback(raw.buffer);
+			callback(TextEncoding.decode(raw));
 			return;
 		}
 
