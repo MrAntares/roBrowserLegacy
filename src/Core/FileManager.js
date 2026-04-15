@@ -191,7 +191,7 @@ class FileManager {
 
 		if (fs && fs.existsSync(filename)) {
 			const raw = fs.readFileSync(filename);
-			callback(TextEncoding.decode(raw));
+			callback(raw.buffer);
 			return;
 		}
 
