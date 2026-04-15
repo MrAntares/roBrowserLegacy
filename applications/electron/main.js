@@ -9,6 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.commandLine.appendSwitch('enable-webgl');
 app.commandLine.appendSwitch('ignore-gpu-blacklist');
 app.commandLine.appendSwitch('disable-raf-throttling');
+app.commandLine.appendSwitch('disable-gpu-vsync');
 
 const projectRoot = path.resolve(__dirname, '..', '..');
 
