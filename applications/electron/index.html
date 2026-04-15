@@ -17,6 +17,9 @@
 			}
 		</style>
 		<script src="../shared/importmap.js"></script>
+	</head>
+	<body>
+		<div id="robrowser"></div>
 		<script>
 			var ROConfig = {
 				target: document.getElementById('robrowser'),
@@ -121,9 +124,6 @@
 				restoreChatFocus: false
 			};
 		</script>
-	</head>
-	<body>
-		<div id="robrowser"></div>
 		<script type="module">
 			import('../../src/main.js').catch(err => {
 				console.error('Failed to load roBrowser engine:', err);
