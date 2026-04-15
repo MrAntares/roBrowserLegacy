@@ -1,5 +1,6 @@
-import { app, BrowserWindow, protocol, net } from 'electron';
-import { URL, fileURLToPath, pathToFileURL } from 'node:url';
+import { app, BrowserWindow, protocol } from 'electron';
+import { URL, fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
@@ -11,9 +12,26 @@ app.commandLine.appendSwitch('disable-raf-throttling');
 
 const projectRoot = path.resolve(__dirname, '..', '..');
 
+// MIME types required for ES module loading — Chromium enforces strict
+// MIME checking for <script type="module"> and dynamic import().
+const MIME_TYPES = {
+	'.html': 'text/html',
+	'.js': 'text/javascript',
+	'.mjs': 'text/javascript',
+	'.css': 'text/css',
+	'.json': 'application/json',
+	'.png': 'image/png',
+	'.jpg': 'image/jpeg',
+	'.gif': 'image/gif',
+	'.svg': 'image/svg+xml',
+	'.wav': 'audio/wav',
+	'.mp3': 'audio/mpeg',
+	'.wasm': 'application/wasm'
+};
+
 // Register custom protocol so ES modules work without CORS issues.
 // file:// blocks <script type="module"> imports; app:// serves them
-// with a proper origin.
+// with a proper origin and correct MIME types.
 protocol.registerSchemesAsPrivileged([
 	{
 		scheme: 'app',
@@ -46,18 +64,27 @@ function createWindow() {
 		win.loadURL('http://localhost:3000/applications/electron/index.html');
 		win.webContents.openDevTools();
 	} else {
-		win.loadURL('app://resources/app/applications/electron/index.html');
+		win.loadURL('app://localhost/applications/electron/index.html');
 	}
 }
 
 app.whenReady().then(() => {
-	// Handle app:// requests by mapping to local project files.
-	// In packaged builds the app root is inside resources/app/.
+	// Handle app:// requests by reading local files with correct MIME types.
 	protocol.handle('app', request => {
 		const url = new URL(request.url);
 		const relativePath = decodeURIComponent(url.pathname);
 		const filePath = path.join(projectRoot, relativePath);
-		return net.fetch(pathToFileURL(filePath).href);
+
+		try {
+			const data = fs.readFileSync(filePath);
+			const ext = path.extname(filePath).toLowerCase();
+			const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
+			return new Response(data, {
+				headers: { 'Content-Type': mimeType }
+			});
+		} catch (_e) {
+			return new Response('Not Found', { status: 404 });
+		}
 	});
 
 	createWindow();
