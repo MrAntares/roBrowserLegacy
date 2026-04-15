@@ -51,6 +51,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	},
 
 	openSync(filePath, flags) {
+		if (flags !== 'r') {
+			throw new Error('openSync: only read mode is allowed');
+		}
 		return fs.openSync(filePath, flags);
 	},
 
