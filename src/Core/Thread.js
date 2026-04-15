@@ -104,23 +104,7 @@ class Thread {
 	static init = () => {
 		if (!_source) {
 			const workerUrl = new URL('./ThreadEventHandler.js', import.meta.url);
-			if (window.electronAPI?.isElectron) {
-				// Electron: Web Workers don't inherit the page's import map.
-				// Build an inline import map so bare specifiers resolve correctly.
-				const origin = workerUrl.href.replace(/\/src\/Core\/ThreadEventHandler\.js$/, '');
-				const blob = new Blob(
-					[
-						`import "${workerUrl.href}";`
-					],
-					{ type: 'text/javascript' }
-				);
-				_source = new Worker(URL.createObjectURL(blob), {
-					type: 'module',
-					name: 'ThreadEventHandler'
-				});
-			} else {
-				_source = new Worker(workerUrl, { type: 'module' });
-			}
+			_source = new Worker(workerUrl, { type: 'module' });
 		}
 
 		// Worker context

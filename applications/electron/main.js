@@ -1,4 +1,3 @@
-/* global Response */
 import { app, BrowserWindow, protocol } from 'electron';
 import { URL, fileURLToPath } from 'node:url';
 import fs from 'node:fs';
@@ -24,10 +23,17 @@ const MIME_TYPES = {
 	'.png': 'image/png',
 	'.jpg': 'image/jpeg',
 	'.gif': 'image/gif',
+	'.bmp': 'image/bmp',
 	'.svg': 'image/svg+xml',
 	'.wav': 'audio/wav',
 	'.mp3': 'audio/mpeg',
-	'.wasm': 'application/wasm'
+	'.wasm': 'application/wasm',
+	'.tga': 'image/targa',
+	'.lub': 'application/octet-stream',
+	'.lua': 'application/octet-stream',
+	'.spr': 'application/octet-stream',
+	'.act': 'application/octet-stream',
+	'.grf': 'application/octet-stream'
 };
 
 // Register custom protocol so ES modules work without CORS issues.
@@ -67,6 +73,10 @@ function createWindow() {
 	} else {
 		win.loadURL('app://localhost/applications/electron/index.html');
 	}
+
+	win.on('close', () => {
+		app.exit(0);
+	});
 }
 
 app.whenReady().then(() => {
@@ -75,17 +85,22 @@ app.whenReady().then(() => {
 	// content as a string (instead of serving raw HTML/CSS which Chromium
 	// rejects as non-JS MIME for module scripts).
 	// Handle app:// requests by reading local files with correct MIME types.
-	protocol.handle('app', request => {
+	protocol.handle('app', async request => {
 		const url = new URL(request.url);
 		const isRaw = url.searchParams.has('raw');
-		const relativePath = decodeURIComponent(url.pathname);
-		const filePath = path.join(projectRoot, relativePath);
+		const relativePath = decodeURIComponent(url.pathname).replace(/^\/+/, '');
+		const filePath = path.normalize(path.join(projectRoot, relativePath));
+
 		try {
-			if (!fs.existsSync(filePath)) {
-				console.error(`[app://] 404: ${request.url} → ${filePath}`);
-				return new Response('Not Found', { status: 404 });
+			// Check existence asynchronously
+			try {
+				await fs.promises.access(filePath, fs.constants.R_OK);
+			} catch (e) {
+				return new Response(e.message, { status: 404 });
 			}
-			const data = fs.readFileSync(filePath);
+
+			const data = await fs.promises.readFile(filePath);
+
 			// ?raw → wrap file content in a JS module (Vite compat)
 			if (isRaw) {
 				const text = data.toString('utf-8');
@@ -95,13 +110,28 @@ app.whenReady().then(() => {
 					headers: { 'Content-Type': 'text/javascript' }
 				});
 			}
+
 			const ext = path.extname(filePath).toLowerCase();
 			const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
-			return new Response(data, {
+			let body = data;
+
+			// Transform JS files to resolve bare specifiers (roBrowser aliases)
+			if (mimeType === 'text/javascript' && !isRaw) {
+				let content = data.toString('utf8');
+				content = content.replace(
+					/from\s+['"](Core|Loaders|Utils|Network|DB|Renderer|UI|App|Audio|Controls|Plugins|Preferences|Vendors)\/(.*)['"]/g,
+					"from '/src/$1/$2'"
+				);
+				content = content.replace(/from\s+['"]jquery['"]/g, "from '/src/Vendors/jquery-1.9.1.js'");
+				body = Buffer.from(content);
+			}
+
+			return new Response(body, {
 				headers: { 'Content-Type': mimeType }
 			});
 		} catch (e) {
-			return new Response(e, { status: 404 });
+			console.error(`[app://] Error: ${request.url} →`, e);
+			return new Response(e.message, { status: 500 });
 		}
 	});
 
@@ -111,6 +141,8 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
 		app.quit();
+		// Fallback: force exit if quit takes too long
+		setTimeout(() => process.exit(0), 1000);
 	}
 });
 
