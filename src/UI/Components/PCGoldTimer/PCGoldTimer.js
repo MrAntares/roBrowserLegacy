@@ -141,6 +141,8 @@ PCGoldTimer.formatTime = function formatTime(millisecondsMissing) {
 	return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
 };
 
+PCGoldTimer.needFocus = false;
+
 /**
  * Create component and export it
  */
