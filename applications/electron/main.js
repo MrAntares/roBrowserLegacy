@@ -91,6 +91,12 @@ app.whenReady().then(() => {
 		const relativePath = decodeURIComponent(url.pathname).replace(/^\/+/, '');
 		const filePath = path.normalize(path.join(projectRoot, relativePath));
 
+		// Prevent path traversal outside project root
+		if (!filePath.startsWith(projectRoot + path.sep) && filePath !== projectRoot) {
+			console.error(`[app://] Forbidden (path traversal): ${request.url} → ${filePath}`);
+			return new Response('Forbidden', { status: 403 });
+		}
+
 		try {
 			if (!fs.existsSync(filePath)) {
 				console.error(`[app://] 404: ${request.url} → ${filePath}`);
