@@ -65,7 +65,8 @@ class FileManager {
 		// load GRFs from a file (DATA.INI)
 		if (typeof grfList === 'string') {
 			if (fs) {
-				content = fs.readFileSync(grfList);
+				const raw = fs.readFileSync(grfList);
+				content = TextEncoding.decode(raw);
 			} else if ((files = FileSystem.search(grfList)).length) {
 				content = new FileReaderSync().readAsText(files[0]);
 			} else {

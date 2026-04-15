@@ -38,6 +38,7 @@ function Socket(host, port) {
 
 	sock.onClose(() => {
 		self.connected = false;
+		sock.destroy();
 		if (self.onClose) {
 			self.onClose();
 		}
