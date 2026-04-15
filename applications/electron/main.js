@@ -1,3 +1,4 @@
+/* global Response */
 import { app, BrowserWindow, protocol } from 'electron';
 import { URL, fileURLToPath } from 'node:url';
 import fs from 'node:fs';
@@ -69,21 +70,38 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+	// Also emulates Vite's ?raw suffix: when a module imports e.g.
+	// './Intro.html?raw', we return a JS module that exports the file
+	// content as a string (instead of serving raw HTML/CSS which Chromium
+	// rejects as non-JS MIME for module scripts).
 	// Handle app:// requests by reading local files with correct MIME types.
 	protocol.handle('app', request => {
 		const url = new URL(request.url);
+		const isRaw = url.searchParams.has('raw');
 		const relativePath = decodeURIComponent(url.pathname);
 		const filePath = path.join(projectRoot, relativePath);
-
 		try {
+			if (!fs.existsSync(filePath)) {
+				console.error(`[app://] 404: ${request.url} → ${filePath}`);
+				return new Response('Not Found', { status: 404 });
+			}
 			const data = fs.readFileSync(filePath);
+			// ?raw → wrap file content in a JS module (Vite compat)
+			if (isRaw) {
+				const text = data.toString('utf-8');
+				const escaped = JSON.stringify(text);
+				const js = `export default ${escaped};`;
+				return new Response(js, {
+					headers: { 'Content-Type': 'text/javascript' }
+				});
+			}
 			const ext = path.extname(filePath).toLowerCase();
 			const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
 			return new Response(data, {
 				headers: { 'Content-Type': mimeType }
 			});
-		} catch (_e) {
-			return new Response('Not Found', { status: 404 });
+		} catch (e) {
+			return new Response(e, { status: 404 });
 		}
 	});
 
