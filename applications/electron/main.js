@@ -117,7 +117,7 @@ app.whenReady().then(() => {
 			if (mimeType === 'text/javascript' && !isRaw) {
 				let content = data.toString('utf8');
 				content = content.replace(
-					/from\s+['"](?:Core|Loaders|Utils|Network|DB|Renderer|UI|App|Audio|Controls|Plugins|Preferences|Engine|Vendors)\/(.*?)['"/g,
+					/from\s+['"](Core|Loaders|Utils|Network|DB|Renderer|UI|App|Audio|Controls|Plugins|Preferences|Engine|Vendors)\/(.*?)['"]/g,
 					"from '/src/$1/$2'"
 				);
 				content = content.replace(/from\s+['"]jquery['"]/g, "from '/src/Vendors/jquery-1.9.1.js'");
