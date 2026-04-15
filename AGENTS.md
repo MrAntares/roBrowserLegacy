@@ -307,6 +307,7 @@ npm run build:all       # Build all 7 apps
 npm run build:pwa       # Build PWA (Online + Thread + manifest)
 npm run electron        # Run Electron desktop app
 npm run electron:dev    # Run Electron in dev mode (with DevTools)
+npm run electron:build  # Package Electron app (output: dist/Desktop/)
 npm run lint            # ESLint check
 npm run lint:fix        # ESLint auto-fix
 npm run format          # Prettier format
