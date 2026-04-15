@@ -19,7 +19,7 @@ import Str from 'Loaders/Str.js';
 import FileSystem from 'Core/FileSystem.js';
 
 // Load dependencies
-const fs = self.requireNode && self.requireNode('fs');
+const fs = typeof window !== 'undefined' && window.electronAPI ? window.electronAPI : null;
 
 /**
  * Batch file loading - groups requests within a frame and sends them as one
@@ -188,7 +188,8 @@ class FileManager {
 		filename = filename.replace(/^\s+|\s+$/g, '');
 
 		if (fs && fs.existsSync(filename)) {
-			callback(fs.readFileSync(filename));
+			const raw = fs.readFileSync(filename);
+			callback(raw.buffer);
 			return;
 		}
 

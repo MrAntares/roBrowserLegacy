@@ -30,6 +30,7 @@ import Background from 'UI/Background.js';
 import Intro from 'UI/Components/Intro/Intro.js';
 import WinList from 'UI/Components/WinList/WinList.js';
 import ConsoleManager from 'Utils/ConsoleManager.js';
+import TextEncoding from 'Utils/CodepageManager.js';
 
 /**
  * @var {Array} Login server list
@@ -55,7 +56,7 @@ function loadFiles(callback) {
 	// Start Intro, wait the user to add files
 	q.add(() => {
 		Client.onFilesLoaded = count => {
-			if (!Configs.get('remoteClient') && !count && !window.requireNode) {
+			if (!Configs.get('remoteClient') && !count && !window.electronAPI?.isElectron) {
 				alert('No client to initialize roBrowser');
 				Intro.remove();
 				Intro.append();
@@ -268,6 +269,9 @@ function loadClientInfo(callback) {
 		servers,
 		xml => {
 			// $.parseXML() don't parse buggy xml (and a lot of clientinfo.xml are not properly write)...
+			if (xml instanceof Uint8Array) {
+				xml = TextEncoding.decode(xml);
+			}
 			xml = xml.replace(/^.*<\?xml/, '<?xml');
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(xml, 'application/xml');
