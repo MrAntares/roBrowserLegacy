@@ -558,9 +558,6 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 		if (entity._bodyTrail && entity._bodyTrail.length) {
 			const originalPos = glMatrix.vec3.clone(SpriteRenderer.position);
 			const originalZ = SpriteRenderer.zIndex;
-			const originalR = entity.effectColor[0];
-			const originalG = entity.effectColor[1];
-			const originalB = entity.effectColor[2];
 			const originalA = entity.effectColor[3];
 
 			SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -577,11 +574,6 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 					if (alpha <= 0.05) {
 						continue;
 					}
-
-					// Energy Coat trail is usually slightly bluish/white
-					entity.effectColor[0] = Math.min(originalR + 0.2, 1.0);
-					entity.effectColor[1] = Math.min(originalG + 0.2, 1.0);
-					entity.effectColor[2] = Math.min(originalB + 0.5, 1.0);
 					entity.effectColor[3] = alpha;
 
 					// Move SpriteRenderer base to ghost world position
@@ -597,9 +589,6 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 			// Restore global/entity state
 			SpriteRenderer.position.set(originalPos);
 			SpriteRenderer.zIndex = originalZ;
-			entity.effectColor[0] = originalR;
-			entity.effectColor[1] = originalG;
-			entity.effectColor[2] = originalB;
 			entity.effectColor[3] = originalA;
 		}
 	}
