@@ -117,6 +117,7 @@ CartDecoration.onSelectCart = function onSelectCart(pkt) {
 	}
 
 	CartDecoration.ui.show();
+	Renderer.stop(render);
 	Renderer.render(render);
 };
 
