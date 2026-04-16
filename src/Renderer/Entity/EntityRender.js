@@ -588,45 +588,35 @@ const renderElement = (function renderElementClosure() {
 		if (hasAssumptioSecondBody) {
 			const baseX = _position[0];
 			const baseY = _position[1];
-			const originalR = SpriteRenderer.color[0];
-			const originalG = SpriteRenderer.color[1];
-			const originalB = SpriteRenderer.color[2];
-			const originalA = SpriteRenderer.color[3];
-			SpriteRenderer.color[0] = 1.0;
-			SpriteRenderer.color[1] = 1.0;
-			SpriteRenderer.color[2] = 1.0;
-			SpriteRenderer.color[3] = 0.6;
+			const originalR = entity.effectColor[0];
+			const originalG = entity.effectColor[1];
+			const originalB = entity.effectColor[2];
+			const originalA = entity.effectColor[3];
+			entity.effectColor[0] = 1.0;
+			entity.effectColor[1] = 1.0;
+			entity.effectColor[2] = 1.0;
+			entity.effectColor[3] = 0.6;
 			// Bigger, visible contour
-			const haloScale = 1.1;
-			const haloOffsets = [
-				[-2, 0],
-				[2, 0],
-				[0, -2],
-				[0, 2]
-			];
+			const haloScale = 1.2;
 			const zIndex = SpriteRenderer.zIndex;
 			SpriteRenderer.zIndex = zIndex - 100;
 			SpriteRenderer.runWithDepth(true, false, false, function () {
-				for (const [ox, oy] of haloOffsets) {
-					_position[0] = baseX + ox;
-					_position[1] = baseY + oy;
-					for (let i = 0; i < layers.length; ++i) {
-						const oldX = layers[i].scale[0];
-						const oldY = layers[i].scale[1];
-						layers[i].scale[0] = oldX * haloScale;
-						layers[i].scale[1] = oldY * haloScale;
-						entity.renderLayer(layers[i], spr, pal, files.size, _position, type, true);
-						layers[i].scale[0] = oldX;
-						layers[i].scale[1] = oldY;
-					}
+				for (let i = 0; i < layers.length; ++i) {
+					const oldX = layers[i].scale[0];
+					const oldY = layers[i].scale[1];
+					layers[i].scale[0] = oldX * haloScale;
+					layers[i].scale[1] = oldY * haloScale;
+					entity.renderLayer(layers[i], spr, pal, files.size, _position, type, true);
+					layers[i].scale[0] = oldX;
+					layers[i].scale[1] = oldY;
 				}
 			});
 			SpriteRenderer.zIndex = zIndex;
 			// restore
-			SpriteRenderer.color[0] = originalR;
-			SpriteRenderer.color[1] = originalG;
-			SpriteRenderer.color[2] = originalB;
-			SpriteRenderer.color[3] = originalA;
+			entity.effectColor[0] = originalR;
+			entity.effectColor[1] = originalG;
+			entity.effectColor[2] = originalB;
+			entity.effectColor[3] = originalA;
 			_position[0] = baseX;
 			_position[1] = baseY;
 		}
