@@ -14241,10 +14241,8 @@ PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEM
 			out[i].currencyamount = fp.readULong();
 			out[i].weight = fp.readULong();
 			out[i].index = fp.readULong();
-			if (PACKETVER.value >= 20210203) {
-				out[i].viewSprite = fp.readUShort();
-				out[i].location = fp.readULong();
-			}
+			out[i].viewSprite = PACKETVER.value >= 20210203 ? fp.readUShort() : 0;
+			out[i].location = PACKETVER.value >= 20210203 ? fp.readULong() : 0;
 		}
 		return out;
 	})();
