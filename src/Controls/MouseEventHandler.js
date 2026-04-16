@@ -8,8 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
-
 /**
  * Mouse object
  */
@@ -51,12 +49,16 @@ class Mouse {
 }
 
 /**
- * Track mouse move event
+ * Track mouse move event (native, passive)
  */
-jQuery(window).mousemove(event => {
-	Mouse.screen.x = event.pageX;
-	Mouse.screen.y = event.pageY;
-});
+window.addEventListener(
+	'mousemove',
+	event => {
+		Mouse.screen.x = event.pageX;
+		Mouse.screen.y = event.pageY;
+	},
+	{ passive: true }
+);
 
 /**
  * Export
