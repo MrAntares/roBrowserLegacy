@@ -11,7 +11,6 @@ function randBetween(minimum, maximum) {
 }
 
 const blendMode = {};
-const shadow_index = 0;
 let _soulStrikeFirstEffect = null;
 
 class ThreeDEffect {
