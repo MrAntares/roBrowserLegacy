@@ -14229,7 +14229,7 @@ PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
 // 0xb78
 PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEMINFO(fp, end) {
 	this.itemList = (function () {
-		const item_size = PACKETVER.value >= 20181121 ? 31 : 27;
+		const item_size = PACKETVER.value >= 20210203 ? 31 : PACKETVER.value >= 20181121 ? 25 : 21;
 		const count = ((end - fp.tell()) / item_size) | 0;
 		const out = new Array(count);
 		for (let i = 0; i < count; ++i) {
@@ -14241,8 +14241,8 @@ PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEM
 			out[i].currencyamount = fp.readULong();
 			out[i].weight = fp.readULong();
 			out[i].index = fp.readULong();
-			out[i].viewSprite = fp.readUShort();
-			out[i].location = fp.readULong();
+			out[i].viewSprite = PACKETVER.value >= 20210203 ? fp.readUShort() : 0;
+			out[i].location = PACKETVER.value >= 20210203 ? fp.readULong() : 0;
 		}
 		return out;
 	})();
@@ -14256,7 +14256,7 @@ PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_EXPANDED_
 
 	self.items_count = fp.readLong(); // Assign items_count to 'self' properly
 	self.itemList = (function () {
-		const item_size = PACKETVER.value >= 20181121 ? 32 : 30; // size of the `sub` structure
+		const item_size = PACKETVER.value >= 20210203 ? 32 : PACKETVER.value >= 20181121 ? 26 : 24; // size of the `sub` structure
 		const sub2_size = PACKETVER.value >= 20181121 ? 12 : 10; // size of the `sub2` structure
 		const items = [];
 
@@ -14273,8 +14273,8 @@ PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_EXPANDED_
 			item.weight = fp.readULong();
 			item.index = fp.readULong();
 			item.price = fp.readULong();
-			item.viewSprite = fp.readUShort();
-			item.location = fp.readULong();
+			item.viewSprite = PACKETVER.value >= 20210203 ? fp.readUShort() : 0;
+			item.location = PACKETVER.value >= 20210203 ? fp.readULong() : 0;
 			item.currency_count = fp.readULong();
 
 			item.currencyList = [];
