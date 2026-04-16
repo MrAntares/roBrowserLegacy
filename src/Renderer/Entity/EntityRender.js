@@ -529,9 +529,8 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 	// 2) Trail - Energy Coat
 	// -------------------------
 	if (enableTrail) {
-		if (entity.action !== entity.ACTION.WALK) return;
 		// Update trail data only once per frame (triggered by the body element)
-		if (type === 'body') {
+		if (entity.action === entity.ACTION.WALK && type === 'body') {
 			if (!entity._bodyTrail) {
 				entity._bodyTrail = [];
 				entity._lastTrailTick = 0;
