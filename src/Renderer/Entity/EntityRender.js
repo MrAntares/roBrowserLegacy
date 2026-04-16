@@ -479,7 +479,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 	// options:
 	// - options.enableHalo: boolean  -> halo type Assumptio
 	// - options.enableTrail: boolean -> trail behind the character
-	// - options.trailLength: number  -> number of ghosts to keep (default 2)
+	// - options.trailLength: number  -> number of ghosts to keep (default 5)
 	const { enableHalo = false, enableTrail = false, trailLength = 5 } = options;
 
 	if (!enableHalo && !enableTrail) {
@@ -714,7 +714,7 @@ const renderElement = (function renderElementClosure() {
 		if (hasBerserkOrMarionette) {
 			isBlendModeOne = true;
 		}
-		// Assumptio "second body" halo: render a faint duplicated body around the main body
+
 		renderSecondBody(entity, layers, spr, pal, files, type, _position, {
 			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO),
 			enableTrail: entity.getOpt3(StatusConst.Status.ENERGYCOAT)
