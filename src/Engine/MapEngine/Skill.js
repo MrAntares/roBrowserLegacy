@@ -594,7 +594,7 @@ function onIncreaseSkill(SKID) {
 Guild.onIncreaseSkill =
 	SkillListMH.homunculus.onIncreaseSkill =
 	SkillListMH.mercenary.onIncreaseSkill =
-		onIncreaseSkill;
+	onIncreaseSkill;
 
 /**
  * Cast a skill on someone
@@ -705,7 +705,7 @@ Guild.onUseSkill =
 	SkillListMH.homunculus.onUseSkill =
 	SkillListMH.mercenary.onUseSkill =
 	SkillTargetSelection.onUseSkillToId =
-		onUseSkill;
+	onUseSkill;
 
 /**
  * Cast a skill on the ground
@@ -924,6 +924,5 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.MSG_SKILL, onMessageSkill);
 	Network.hookPacket(PACKET.ZC.MONSTER_INFO, onSense);
 	Network.hookPacket(PACKET.ZC.DEVOTIONLIST, onDevotionList);
-	Network.registerPacket(0x97f, PACKET.ZC.SELECTCART);
 	Network.hookPacket(PACKET.ZC.SELECTCART, pkt => CartDecoration.onSelectCart(pkt));
 }
