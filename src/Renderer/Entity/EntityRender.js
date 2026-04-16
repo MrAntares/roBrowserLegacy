@@ -475,6 +475,122 @@ const renderEntity = (function renderEntityClosure() {
 	};
 })();
 
+function renderSecondBody(entity, layers, spr, pal, files, type, _position, options = {}) {
+	// options:
+	// - options.enableHalo: boolean  -> halo type Assumptio
+	// - options.enableTrail: boolean -> trail behind the character
+	// - options.trailLength: number  -> number of ghosts to keep (default 5)
+	const { enableHalo = false, enableTrail = false, trailLength = 5 } = options;
+
+	if (!enableHalo && !enableTrail) return;
+	if (type === 'shadow' || type === 'cartshadow') return;
+
+	// -------------------------
+	// 1) Halo (second body) - Assumptio
+	// -------------------------
+	if (enableHalo) {
+		const originalR = entity.effectColor[0];
+		const originalG = entity.effectColor[1];
+		const originalB = entity.effectColor[2];
+		const originalA = entity.effectColor[3];
+
+		entity.effectColor[0] = 1.0;
+		entity.effectColor[1] = 1.0;
+		entity.effectColor[2] = 1.0;
+		entity.effectColor[3] = 0.6;
+
+		// Bigger, visible contour
+		const haloScale = 1.15;
+		const zIndex = SpriteRenderer.zIndex;
+		SpriteRenderer.zIndex = zIndex - 100;
+
+		SpriteRenderer.runWithDepth(true, false, false, function () {
+			for (let i = 0; i < layers.length; ++i) {
+				const oldX = layers[i].scale[0];
+				const oldY = layers[i].scale[1];
+				layers[i].scale[0] = oldX * haloScale;
+				layers[i].scale[1] = oldY * haloScale;
+				entity.renderLayer(layers[i], spr, pal, files.size, _position, type, true);
+				layers[i].scale[0] = oldX;
+				layers[i].scale[1] = oldY;
+			}
+		});
+
+		SpriteRenderer.zIndex = zIndex;
+
+		// restore
+		entity.effectColor[0] = originalR;
+		entity.effectColor[1] = originalG;
+		entity.effectColor[2] = originalB;
+		entity.effectColor[3] = originalA;
+	}
+
+	// -------------------------
+	// 2) Trail - Energy Coat
+	// -------------------------
+	if (enableTrail) {
+		// Update trail data only once per frame (triggered by the body element)
+		if (entity.action === entity.ACTION.WALK && type === 'body') {
+			if (!entity._bodyTrail) {
+				entity._bodyTrail = [];
+				entity._lastTrailTick = 0;
+			}
+
+			const now = Date.now();
+			// Official client captures a "blur" snapshot every ~5 frames (approx 80-100ms)
+			if (now - entity._lastTrailTick > 80) {
+				entity._bodyTrail.unshift({
+					position: glMatrix.vec3.clone(entity.position),
+					tick: now
+				});
+				entity._lastTrailTick = now;
+
+				// Keep limited number of snapshots
+				if (entity._bodyTrail.length > trailLength) {
+					entity._bodyTrail.pop();
+				}
+			}
+		}
+
+		if (entity._bodyTrail && entity._bodyTrail.length) {
+			const originalPos = glMatrix.vec3.clone(SpriteRenderer.position);
+			const originalZ = SpriteRenderer.zIndex;
+			const originalA = entity.effectColor[3];
+
+			SpriteRenderer.runWithDepth(true, false, false, function () {
+				for (let idx = 0; idx < entity._bodyTrail.length; idx++) {
+					const ghost = entity._bodyTrail[idx];
+					const age = Date.now() - ghost.tick;
+
+					// Ghosts fade out over ~400ms
+					if (age > 400) {
+						continue;
+					}
+
+					const alpha = 0.4 * (1.0 - age / 400);
+					if (alpha <= 0.05) {
+						continue;
+					}
+					entity.effectColor[3] = alpha;
+
+					// Move SpriteRenderer base to ghost world position
+					SpriteRenderer.position.set(ghost.position);
+					SpriteRenderer.zIndex = originalZ - 10 - idx;
+
+					for (let i = 0; i < layers.length; ++i) {
+						entity.renderLayer(layers[i], spr, pal, files.size, _position, type, false);
+					}
+				}
+			});
+
+			// Restore global/entity state
+			SpriteRenderer.position.set(originalPos);
+			SpriteRenderer.zIndex = originalZ;
+			entity.effectColor[3] = originalA;
+		}
+	}
+}
+
 /**
  * Render each Entity elements (body, head, hats, ...)
  *
@@ -580,46 +696,15 @@ const renderElement = (function renderElementClosure() {
 		const hasBerserkOrMarionette =
 			(type !== 'shadow' && entity.getOpt3(StatusConst.Status.BERSERK)) ||
 			entity.getOpt3(StatusConst.Status.MARIONETTE);
-		const hasAssumptioSecondBody = entity.getOpt3(StatusConst.Status.ASSUMPTIO);
+
 		if (hasBerserkOrMarionette) {
 			isBlendModeOne = true;
 		}
-		// Assumptio "second body" halo: render a faint duplicated body around the main body
-		if (hasAssumptioSecondBody) {
-			const baseX = _position[0];
-			const baseY = _position[1];
-			const originalR = entity.effectColor[0];
-			const originalG = entity.effectColor[1];
-			const originalB = entity.effectColor[2];
-			const originalA = entity.effectColor[3];
-			entity.effectColor[0] = 1.0;
-			entity.effectColor[1] = 1.0;
-			entity.effectColor[2] = 1.0;
-			entity.effectColor[3] = 0.6;
-			// Bigger, visible contour
-			const haloScale = 1.2;
-			const zIndex = SpriteRenderer.zIndex;
-			SpriteRenderer.zIndex = zIndex - 100;
-			SpriteRenderer.runWithDepth(true, false, false, function () {
-				for (let i = 0; i < layers.length; ++i) {
-					const oldX = layers[i].scale[0];
-					const oldY = layers[i].scale[1];
-					layers[i].scale[0] = oldX * haloScale;
-					layers[i].scale[1] = oldY * haloScale;
-					entity.renderLayer(layers[i], spr, pal, files.size, _position, type, true);
-					layers[i].scale[0] = oldX;
-					layers[i].scale[1] = oldY;
-				}
-			});
-			SpriteRenderer.zIndex = zIndex;
-			// restore
-			entity.effectColor[0] = originalR;
-			entity.effectColor[1] = originalG;
-			entity.effectColor[2] = originalB;
-			entity.effectColor[3] = originalA;
-			_position[0] = baseX;
-			_position[1] = baseY;
-		}
+
+		renderSecondBody(entity, layers, spr, pal, files, type, _position, {
+			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO),
+			enableTrail: entity.getOpt3(StatusConst.Status.ENERGYCOAT)
+		});
 
 		// Render all frames
 		for (let i = 0, count = layers.length; i < count; ++i) {
