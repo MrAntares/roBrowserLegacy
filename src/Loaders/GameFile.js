@@ -103,7 +103,7 @@ class GRF {
 		file.slice = file.slice || file.webkitSlice || file.mozSlice;
 		reader.load = (start, len) => {
 			if (fs && file.fd) {
-				const buf = new Buffer(len);
+				const buf = Buffer.alloc(len);
 				fs.readSync(file.fd, buf, 0, len, start);
 				return new Uint8Array(buf).buffer;
 			}
@@ -278,7 +278,7 @@ class GRF {
 			}
 
 			if (fs && this.file.fd) {
-				const buffer = new Buffer(entry.length_aligned);
+				const buffer = Buffer.alloc(entry.length_aligned);
 				fs.readSync(this.file.fd, buffer, 0, entry.length_aligned, entry.offset + GRF.struct_header.size);
 				this.decodeEntry(new Uint8Array(buffer).buffer, entry, callback);
 				return true;
