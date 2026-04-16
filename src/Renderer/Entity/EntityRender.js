@@ -482,9 +482,8 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 	// - options.trailLength: number  -> number of ghosts to keep (default 5)
 	const { enableHalo = false, enableTrail = false, trailLength = 5 } = options;
 
-	if (!enableHalo && !enableTrail) {
-		return;
-	}
+	if (!enableHalo && !enableTrail) return;
+	if (type === 'shadow' || type === 'cartshadow') return;
 
 	// -------------------------
 	// 1) Halo (second body) - Assumptio
@@ -530,7 +529,6 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 	// 2) Trail - Energy Coat
 	// -------------------------
 	if (enableTrail) {
-		if (type === 'shadow' || type === 'cartshadow') return;
 		if (entity.action !== entity.ACTION.WALK) return;
 		// Update trail data only once per frame (triggered by the body element)
 		if (type === 'body') {
