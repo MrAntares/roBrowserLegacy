@@ -21,18 +21,15 @@ asar: false
 
 win:
     target:
-        - nsis
-        - zip
+        - dir
     icon: applications/electron/icon.png
 
 linux:
     target:
-        - AppImage
-        - zip
+        - dir
     icon: applications/electron/icon.png
 
 mac:
     target:
-        - dmg
-        - zip
+        - dir
     icon: applications/electron/icon.png
