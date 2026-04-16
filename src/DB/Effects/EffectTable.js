@@ -2350,6 +2350,7 @@ export default {
 
 	62: [
 		//EF_SIGHTRASHER	Sight Trasher
+		// Direction 1: North
 		{
 			type: '3D',
 			shadowTexture: false,
@@ -2398,7 +2399,7 @@ export default {
 			blue: 1,
 			blendMode: 8
 		},
-		// Direção 2: Nordeste
+		// Direction 2: Northeast
 		{
 			type: '3D',
 			shadowTexture: false,
@@ -2447,7 +2448,7 @@ export default {
 			blue: 1,
 			blendMode: 8
 		},
-		// Direção 3: Leste
+		// Direction 3: East
 		{
 			type: '3D',
 			shadowTexture: false,
@@ -2496,7 +2497,7 @@ export default {
 			blue: 1,
 			blendMode: 8
 		},
-		// Direção 4: Sudeste
+		// Direction 4: Southeast
 		{
 			type: '3D',
 			shadowTexture: false,
@@ -2545,7 +2546,7 @@ export default {
 			blue: 1,
 			blendMode: 8
 		},
-		// Direção 5: Sul
+		// Direction 5: South
 		{
 			type: '3D',
 			shadowTexture: false,
@@ -2594,7 +2595,7 @@ export default {
 			blue: 1,
 			blendMode: 8
 		},
-		// Direção 6: Sudoeste
+		// Direction 6: Southwest
 		{
 			type: '3D',
 			shadowTexture: false,
@@ -2643,7 +2644,7 @@ export default {
 			blue: 1,
 			blendMode: 8
 		},
-		// Direção 7: Oeste
+		// Direction 7: West
 		{
 			type: '3D',
 			shadowTexture: false,
@@ -2692,7 +2693,7 @@ export default {
 			blue: 1,
 			blendMode: 8
 		},
-		// Direção 8: Noroeste
+		// Direction 8: Northwest
 		{
 			type: '3D',
 			shadowTexture: false,
