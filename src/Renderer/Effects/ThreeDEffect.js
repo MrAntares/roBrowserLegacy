@@ -578,7 +578,7 @@ class ThreeDEffect {
 		SpriteRenderer.position[2] = this.position[2] + posDelta;
 
 		if (this.shadowTexture) {
-			SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[0]);
+			SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[1]);
 		}
 
 		let alpha = this.alphaMax;
