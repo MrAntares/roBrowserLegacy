@@ -594,7 +594,7 @@ function onIncreaseSkill(SKID) {
 Guild.onIncreaseSkill =
 	SkillListMH.homunculus.onIncreaseSkill =
 	SkillListMH.mercenary.onIncreaseSkill =
-	onIncreaseSkill;
+		onIncreaseSkill;
 
 /**
  * Cast a skill on someone
@@ -705,7 +705,7 @@ Guild.onUseSkill =
 	SkillListMH.homunculus.onUseSkill =
 	SkillListMH.mercenary.onUseSkill =
 	SkillTargetSelection.onUseSkillToId =
-	onUseSkill;
+		onUseSkill;
 
 /**
  * Cast a skill on the ground
