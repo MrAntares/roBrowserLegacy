@@ -38,7 +38,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
 	// ─── Filesystem (síncrono) ──────────────────────────────
 	readFileSync(filePath) {
-		return new Uint8Array(fs.readFileSync(filePath));
+		return fs.readFileSync(filePath);
 	},
 
 	existsSync(filePath) {
@@ -60,6 +60,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	readSync(fd, length, position) {
 		const buf = Buffer.alloc(length);
 		fs.readSync(fd, buf, 0, length, position);
-		return new Uint8Array(buf);
+		return buf;
 	}
 });

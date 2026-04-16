@@ -103,8 +103,7 @@ class Thread {
 	 */
 	static init = () => {
 		if (!_source) {
-			const workerUrl = new URL('./ThreadEventHandler.js', import.meta.url);
-			_source = new Worker(workerUrl, { type: 'module' });
+			_source = new Worker(new URL('./ThreadEventHandler.js', import.meta.url), { type: 'module' });
 		}
 
 		// Worker context

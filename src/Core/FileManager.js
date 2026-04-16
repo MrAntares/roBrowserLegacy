@@ -17,13 +17,19 @@ import Sprite from 'Loaders/Sprite.js';
 import Action from 'Loaders/Action.js';
 import Str from 'Loaders/Str.js';
 import FileSystem from 'Core/FileSystem.js';
-import TextEncoding from 'Utils/CodepageManager.js';
 
 // Load dependencies
-// Electron FS via contextBridge. Uses `window` intentionally — contextBridge
-// only exposes to the main world, so in Web Workers fs is correctly null
-// and the non-Electron codepath is used instead.
-const fs = typeof window !== 'undefined' && window.electronAPI ? window.electronAPI : null;
+/* global require */
+const fs =
+	typeof require !== 'undefined'
+		? (() => {
+				try {
+					return require('fs');
+				} catch {
+					return null;
+				}
+			})()
+		: null;
 
 /**
  * Batch file loading - groups requests within a frame and sends them as one
@@ -69,8 +75,7 @@ class FileManager {
 		// load GRFs from a file (DATA.INI)
 		if (typeof grfList === 'string') {
 			if (fs) {
-				const raw = fs.readFileSync(grfList);
-				content = TextEncoding.decode(raw);
+				content = fs.readFileSync(grfList);
 			} else if ((files = FileSystem.search(grfList)).length) {
 				content = new FileReaderSync().readAsText(files[0]);
 			} else {
@@ -193,8 +198,7 @@ class FileManager {
 		filename = filename.replace(/^\s+|\s+$/g, '');
 
 		if (fs && fs.existsSync(filename)) {
-			const raw = fs.readFileSync(filename);
-			callback(raw.buffer);
+			callback(fs.readFileSync(filename));
 			return;
 		}
 

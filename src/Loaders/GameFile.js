@@ -14,12 +14,17 @@ import Struct from 'Utils/Struct.js';
 import Inflate from 'Utils/Inflate.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 
-/**
- * Electron FS via contextBridge. Uses `window` intentionally — contextBridge
- * only exposes to the main world, so in Web Workers fs is correctly null
- * and the non-Electron codepath is used instead.
- */
-const fs = typeof window !== 'undefined' && window.electronAPI ? window.electronAPI : null;
+/* global require */
+const fs =
+	typeof require !== 'undefined'
+		? (() => {
+				try {
+					return require('fs');
+				} catch {
+					return null;
+				}
+			})()
+		: null;
 
 /**
  * Extensions that should skip full encryption (only header encryption)
@@ -98,8 +103,9 @@ class GRF {
 		file.slice = file.slice || file.webkitSlice || file.mozSlice;
 		reader.load = (start, len) => {
 			if (fs && file.fd) {
-				const arr = fs.readSync(file.fd, len, start);
-				return arr.buffer;
+				const buf = new Buffer(len);
+				fs.readSync(file.fd, buf, 0, len, start);
+				return new Uint8Array(buf).buffer;
 			}
 			return reader.readAsArrayBuffer(file.slice(start, start + len));
 		};
@@ -272,8 +278,9 @@ class GRF {
 			}
 
 			if (fs && this.file.fd) {
-				const arr = fs.readSync(this.file.fd, entry.length_aligned, entry.offset + GRF.struct_header.size);
-				this.decodeEntry(arr.buffer, entry, callback);
+				const buffer = new Buffer(entry.length_aligned);
+				fs.readSync(this.file.fd, buffer, 0, entry.length_aligned, entry.offset + GRF.struct_header.size);
+				this.decodeEntry(new Uint8Array(buffer).buffer, entry, callback);
 				return true;
 			}
 
