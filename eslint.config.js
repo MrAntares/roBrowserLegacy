@@ -105,10 +105,10 @@ export default [
       }  
     },  
     rules: sharedRules
-  },  
+  },
   
   {
-    files: ['applications/**/*.js'],
+    files: ['applications/electron/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
