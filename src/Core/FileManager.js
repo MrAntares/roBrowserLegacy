@@ -19,7 +19,17 @@ import Str from 'Loaders/Str.js';
 import FileSystem from 'Core/FileSystem.js';
 
 // Load dependencies
-const fs = self.requireNode && self.requireNode('fs');
+/* global require */
+const fs =
+	typeof require !== 'undefined'
+		? (() => {
+				try {
+					return require('fs');
+				} catch {
+					return null;
+				}
+			})()
+		: null;
 
 /**
  * Batch file loading - groups requests within a frame and sends them as one

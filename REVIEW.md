@@ -117,7 +117,7 @@ Both `npm test` (Vitest) and `npm run build` (custom builder) resolve imports th
 - Auto-generated files in `dist/` — build output, not committed
 - `src/Vendors/` — frozen third-party code, excluded from lint
 - Lock files (`package-lock.json`) — unless dependencies changed intentionally
-- `self.requireNode` in NW.js files — platform requirement, not removable
+- `window.electronAPI` in Electron files — platform requirement, not removable
 - `doc/*.md` — migration guides and reference docs, not executable code
 
 ---

@@ -1,79 +1,76 @@
 /**
  * Network/SocketHelpers/NodeSocket.js
  *
- * Use Node net.Socket() to connect on a server
- * Only used for now when compiled using node-webkit
+ * TCP socket via Electron preload (contextBridge).
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
 
-/**
- * Nodejs TCP Socket
- *
- * @param {string} url
- */
-function Socket(host, port) {
-	const self = this;
-	this.connected = false;
-	this.socket = window.requireNode('net').connect(port, host);
-
-	this.socket.on('connect', function onConnect() {
-		self.connected = true;
-		self.onComplete(true);
-	});
-
-	this.socket.on('error', function onError() {
-		if (!self.connected) {
-			self.onComplete(false);
-		}
-	});
-
-	this.socket.on('data', function onData(data) {
-		self.onMessage(new Uint8Array(data));
-	});
-
-	this.socket.on('close', function onClose() {
-		self.connected = false;
-		this.destroy();
-
-		if (self.onClose) {
-			self.onClose();
-		}
-	});
-}
-
-/**
- * @return is running in node-webkit
- */
-Socket.isSupported = function isSupported() {
-	return !!window.requireNode;
-};
-
-/**
- * Sending packet to applet
- *
- * @param {ArrayBuffer} buffer
- */
-Socket.prototype.send = function Send(buffer) {
-	if (this.connected) {
-		this.socket.write(new Buffer(new Uint8Array(buffer)));
-	}
-};
-
-/**
- * Closing connection to server
- */
-Socket.prototype.close = function Close() {
-	if (this.connected) {
-		this.socket.end();
-		this.socket.destroy();
+class Socket {
+	/**
+	 * Electron TCP Socket
+	 *
+	 * @param {string} host
+	 * @param {number} port
+	 */
+	constructor(host, port) {
+		const self = this;
 		this.connected = false;
-	}
-};
 
-/**
- * Export
- */
+		const sock = window.electronAPI.createSocket(host, port);
+		this._socket = sock;
+
+		sock.onConnect(() => {
+			self.connected = true;
+			self.onComplete(true);
+		});
+
+		sock.onError(() => {
+			if (!self.connected) {
+				self.onComplete(false);
+			}
+		});
+
+		sock.onData(data => {
+			self.onMessage(data);
+		});
+
+		sock.onClose(() => {
+			self.connected = false;
+			sock.destroy();
+			if (self.onClose) {
+				self.onClose();
+			}
+		});
+	}
+
+	/**
+	 * @return {boolean} running in Electron
+	 */
+	static isSupported() {
+		return !!window.electronAPI?.isElectron;
+	}
+
+	/**
+	 * @param {ArrayBuffer} buffer
+	 */
+	send(buffer) {
+		if (this.connected) {
+			this._socket.write(buffer);
+		}
+	}
+
+	/**
+	 * Close connection
+	 */
+	close() {
+		if (this.connected) {
+			this._socket.end();
+			this._socket.destroy();
+			this.connected = false;
+		}
+	}
+}
 export default Socket;
