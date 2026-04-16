@@ -14256,7 +14256,7 @@ PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_EXPANDED_
 
 	self.items_count = fp.readLong(); // Assign items_count to 'self' properly
 	self.itemList = (function () {
-		const item_size = PACKETVER.value >= 20181121 ? 32 : 30; // size of the `sub` structure
+		const item_size = PACKETVER.value >= 20210203 ? 32 : PACKETVER.value >= 20181121 ? 26 : 22; // size of the `sub` structure
 		const sub2_size = PACKETVER.value >= 20181121 ? 12 : 10; // size of the `sub2` structure
 		const items = [];
 
@@ -14273,8 +14273,8 @@ PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_EXPANDED_
 			item.weight = fp.readULong();
 			item.index = fp.readULong();
 			item.price = fp.readULong();
-			item.viewSprite = fp.readUShort();
-			item.location = fp.readULong();
+			item.viewSprite = PACKETVER.value >= 20210203 ? fp.readUShort() : 0;
+			item.location = PACKETVER.value >= 20210203 ? fp.readULong() : 0;
 			item.currency_count = fp.readULong();
 
 			item.currencyList = [];
