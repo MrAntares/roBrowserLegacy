@@ -1306,7 +1306,7 @@ export default {
 		{
 			//EF_SIGHT	Sight
 			type: '3D',
-			shadowTexture: false, // TODO
+			shadowTexture: true,
 			alphaMax: 0.5,
 			attachedEntity: true,
 			blendMode: 8,
@@ -1482,7 +1482,7 @@ export default {
 		{
 			//EF_RUWACH	//ruwach
 			type: '3D',
-			shadowTexture: false, // TODO
+			shadowTexture: true,
 			alphaMax: 0.5,
 			attachedEntity: true,
 			blendMode: 8,
@@ -2353,7 +2353,7 @@ export default {
 		// Direction 1: North
 		{
 			type: '3D',
-			shadowTexture: false,
+			shadowTexture: true,
 			alphaMax: 0.5,
 			duplicate: 5,
 			timeBetweenDupli: 50,
@@ -2402,7 +2402,7 @@ export default {
 		// Direction 2: Northeast
 		{
 			type: '3D',
-			shadowTexture: false,
+			shadowTexture: true,
 			alphaMax: 0.5,
 			duplicate: 5,
 			timeBetweenDupli: 50,
@@ -2451,7 +2451,7 @@ export default {
 		// Direction 3: East
 		{
 			type: '3D',
-			shadowTexture: false,
+			shadowTexture: true,
 			alphaMax: 0.5,
 			duplicate: 5,
 			timeBetweenDupli: 50,
@@ -2500,7 +2500,7 @@ export default {
 		// Direction 4: Southeast
 		{
 			type: '3D',
-			shadowTexture: false,
+			shadowTexture: true,
 			alphaMax: 0.5,
 			duplicate: 5,
 			timeBetweenDupli: 50,
@@ -2549,7 +2549,7 @@ export default {
 		// Direction 5: South
 		{
 			type: '3D',
-			shadowTexture: false,
+			shadowTexture: true,
 			alphaMax: 0.5,
 			duplicate: 5,
 			timeBetweenDupli: 50,
@@ -2598,7 +2598,7 @@ export default {
 		// Direction 6: Southwest
 		{
 			type: '3D',
-			shadowTexture: false,
+			shadowTexture: true,
 			alphaMax: 0.5,
 			duplicate: 5,
 			timeBetweenDupli: 50,
@@ -2647,7 +2647,7 @@ export default {
 		// Direction 7: West
 		{
 			type: '3D',
-			shadowTexture: false,
+			shadowTexture: true,
 			alphaMax: 0.5,
 			duplicate: 5,
 			timeBetweenDupli: 50,
@@ -2696,7 +2696,7 @@ export default {
 		// Direction 8: Northwest
 		{
 			type: '3D',
-			shadowTexture: false,
+			shadowTexture: true,
 			alphaMax: 0.5,
 			duplicate: 5,
 			timeBetweenDupli: 50,
