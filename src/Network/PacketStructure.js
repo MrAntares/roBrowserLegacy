@@ -14229,7 +14229,7 @@ PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
 // 0xb78
 PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEMINFO(fp, end) {
 	this.itemList = (function () {
-		const item_size = PACKETVER.value >= 20181121 ? 31 : 27;
+		const item_size = PACKETVER.value >= 20210203 ? 31 : PACKETVER.value >= 20181121 ? 25 : 21;
 		const count = ((end - fp.tell()) / item_size) | 0;
 		const out = new Array(count);
 		for (let i = 0; i < count; ++i) {
@@ -14241,8 +14241,10 @@ PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEM
 			out[i].currencyamount = fp.readULong();
 			out[i].weight = fp.readULong();
 			out[i].index = fp.readULong();
-			out[i].viewSprite = fp.readUShort();
-			out[i].location = fp.readULong();
+			if (PACKETVER.value >= 20210203) {
+				out[i].viewSprite = fp.readUShort();
+				out[i].location = fp.readULong();
+			}
 		}
 		return out;
 	})();
