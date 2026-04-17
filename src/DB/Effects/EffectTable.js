@@ -7743,7 +7743,7 @@ export default {
 			type: '3D',
 			duplicate: 5,
 			timeBetweenDupli: 1,
-			delay: 200,
+			delayStart: 200,
 			file: 'effect/alpha_center.tga',
 			duration: 250,
 			alphaMax: 0.8,
@@ -7952,7 +7952,7 @@ export default {
 			type: '3D',
 			duplicate: 8,
 			timeBetweenDupli: 1,
-			delay: 50,
+			delayStart: 50,
 			file: 'effect/alpha_center.tga',
 			duration: 250,
 			alphaMax: 0.8,
@@ -8276,7 +8276,7 @@ export default {
 					}
 
 					if (tick < 500) {
-						const progress = (tick - 200) / 200;
+						const progress = (tick - 200) / 300;
 						const startVal = 5 / 255; // 255 - (200 + 50)
 						const val = startVal + (1.0 - startVal) * progress;
 						entity._flashColor[0] = 1.0;
@@ -8303,7 +8303,7 @@ export default {
 			type: '3D',
 			duplicate: 6,
 			timeBetweenDupli: 1,
-			delay: 500,
+			delayStart: 500,
 			file: 'effect/alpha_center.tga',
 			duration: 250,
 			alphaMax: 0.8,
@@ -8352,7 +8352,7 @@ export default {
 			type: '3D',
 			duplicate: 6,
 			timeBetweenDupli: 1,
-			delay: 500,
+			delayStart: 500,
 			file: 'effect/alpha_center.tga',
 			duration: 250,
 			alphaMax: 0.8,
@@ -13374,7 +13374,7 @@ export default {
 			type: '3D',
 			duplicate: 10,
 			timeBetweenDupli: 1,
-			delay: 200,
+			delayStart: 200,
 			file: 'effect/alpha_center.tga',
 			duration: 250,
 			alphaMax: 0.8,

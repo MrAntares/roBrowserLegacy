@@ -660,7 +660,7 @@ class EffectManager {
 		//Start and End
 		Params.Inst.startTick =
 			Params.Inst.startTick +
-			(Params.effect.delay || 0) +
+			(Params.effect.delayStart || 0) +
 			(Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : 0);
 		Params.Inst.endTick =
 			Params.Inst.duration > 0
