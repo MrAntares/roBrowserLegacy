@@ -8475,7 +8475,7 @@ PACKET.CZ.RANKING = function PACKET_CZ_RANKING() {
 PACKET.CZ.RANKING.prototype.build = function () {
 	const pkt_len = 2 + 2;
 	const pkt_buf = new BinaryWriter(pkt_len);
-	pkt_buf.writeShort(0x097C);
+	pkt_buf.writeShort(0x097c);
 	pkt_buf.writeShort(this.rankType);
 	return pkt_buf;
 };

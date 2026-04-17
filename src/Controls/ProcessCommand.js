@@ -454,7 +454,7 @@ const CommandStore = {
 	alchemist: {
 		description: 'Shows the top 10 brewing Alchemists in the server.',
 		callback: function () {
-			if(PACKETVER.value >= 20130605) {
+			if (PACKETVER.value >= 20130605) {
 				const pkt = new PACKET.CZ.RANKING();
 				pkt.rankType = RankingTypes.ALCHEMIST;
 				Network.sendPacket(pkt);
@@ -469,7 +469,7 @@ const CommandStore = {
 	blacksmith: {
 		description: 'Shows the top 10 forging/upgrading Blacksmiths in the server',
 		callback: function () {
-			if(PACKETVER.value >= 20130605) {
+			if (PACKETVER.value >= 20130605) {
 				const pkt = new PACKET.CZ.RANKING();
 				pkt.rankType = RankingTypes.BLACKSMITH;
 				Network.sendPacket(pkt);
@@ -484,7 +484,7 @@ const CommandStore = {
 	taekwon: {
 		description: 'Shows the top 10 TaeKwon Kids based on completion of TaeKwon Missions in the server',
 		callback: function () {
-			if(PACKETVER.value >= 20130605) {
+			if (PACKETVER.value >= 20130605) {
 				const pkt = new PACKET.CZ.RANKING();
 				pkt.rankType = RankingTypes.TAEKWON;
 				Network.sendPacket(pkt);

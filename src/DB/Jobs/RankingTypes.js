@@ -12,4 +12,4 @@ export default {
 	ALCHEMIST: 1,
 	TAEKWON: 2,
 	KILLER: 3
-}
+};
