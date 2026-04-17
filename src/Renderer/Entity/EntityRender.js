@@ -479,11 +479,17 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 	// options:
 	// - options.enableHalo: boolean  -> halo type Assumptio
 	// - options.enableTrail: boolean -> trail behind the character
-	// - options.trailLength: number  -> number of ghosts to keep (default 5)
-	const { enableHalo = false, enableTrail = false, trailLength = 5 } = options;
+	// - options.trailLength: number  -> number of ghosts to keep
+	// - options.blurType: number     -> 1 (standard) EF_MAKEBLUR , 3 (spaced) - EF_MAKEBLUR3, 4 (once), 5 (attack only) - EF_MAKEBLUR5
+	const { enableHalo = false, enableTrail = false, trailLength = 5, blurType = 1 } = options;
 
-	if (!enableHalo && !enableTrail) return;
-	if (type === 'shadow' || type === 'cartshadow') return;
+	if (!enableHalo && !enableTrail) {
+		return;
+	}
+
+	if (type === 'shadow' || type === 'cartshadow') {
+		return;
+	}
 
 	// -------------------------
 	// 1) Halo (second body) - Assumptio
@@ -526,59 +532,99 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 	}
 
 	// -------------------------
-	// 2) Trail - Energy Coat
+	// 2) Trail - After-images (MakeBlur variants)
 	// -------------------------
 	if (enableTrail) {
-		// Update trail data only once per frame (triggered by the body element)
-		if (entity.action === entity.ACTION.WALK && type === 'body') {
-			if (!entity._bodyTrail) {
-				entity._bodyTrail = [];
-				entity._lastTrailTick = 0;
-			}
+		// Initialize trail storage for each element type
+		if (!entity._trailData) {
+			entity._trailData = {};
+		}
+		if (!entity._trailData[type]) {
+			entity._trailData[type] = {
+				snapshots: [],
+				lastTick: 0
+			};
+		}
 
-			const now = Date.now();
-			// Official client captures a "blur" snapshot every ~5 frames (approx 80-100ms)
-			if (now - entity._lastTrailTick > 80) {
-				entity._bodyTrail.unshift({
-					position: glMatrix.vec3.clone(entity.position),
-					tick: now
-				});
-				entity._lastTrailTick = now;
+		const trail = entity._trailData[type];
+		const now = Date.now();
 
-				// Keep limited number of snapshots
-				if (entity._bodyTrail.length > trailLength) {
-					entity._bodyTrail.pop();
-				}
+		// Determine blur type: 1 (standard), 3 (10f), 4 (once), 5 (10f, attack only)
+		const interval = blurType === 3 || blurType === 5 ? 560 : 80; // 10 frames vs 5 frames
+		const maxLen = blurType === 4 ? 1 : trailLength;
+
+		let shouldCapture = false;
+
+		// Snapshot logic
+		if (blurType === 1 || blurType === 3) {
+			shouldCapture = entity.action === entity.ACTION.WALK && now - trail.lastTick > interval;
+		} else if (blurType === 4) {
+			shouldCapture = trail.snapshots.length === 0;
+		} else if (blurType === 5) {
+			const isCombat = [
+				entity.ACTION.ATTACK,
+				entity.ACTION.ATTACK1,
+				entity.ACTION.ATTACK2,
+				entity.ACTION.ATTACK3,
+				entity.ACTION.SKILL
+			].includes(entity.action);
+			shouldCapture = isCombat && now - trail.lastTick > interval;
+		}
+
+		if (shouldCapture) {
+			trail.snapshots.unshift({
+				position: glMatrix.vec3.clone(entity.position),
+				tick: now,
+				layers: layers, // Reference current animation frames
+				spr: spr,
+				pal: pal,
+				_position: new Int32Array(_position),
+				color: [...entity.effectColor]
+			});
+			trail.lastTick = now;
+
+			if (trail.snapshots.length > maxLen) {
+				trail.snapshots.pop();
 			}
 		}
 
-		if (entity._bodyTrail && entity._bodyTrail.length) {
+		if (trail.snapshots.length) {
 			const originalPos = glMatrix.vec3.clone(SpriteRenderer.position);
 			const originalZ = SpriteRenderer.zIndex;
-			const originalA = entity.effectColor[3];
+			const originalColor = new Float32Array(entity.effectColor);
 
 			SpriteRenderer.runWithDepth(true, false, false, function () {
-				for (let idx = 0; idx < entity._bodyTrail.length; idx++) {
-					const ghost = entity._bodyTrail[idx];
-					const age = Date.now() - ghost.tick;
+				const duration = blurType === 4 || blurType === 3 ? 800 : 400; // Static image lasts longer
+				for (let idx = 0; idx < trail.snapshots.length; idx++) {
+					const snp = trail.snapshots[idx];
+					const age = now - snp.tick;
 
-					// Ghosts fade out over ~400ms
-					if (age > 400) {
+					if (age > duration && blurType !== 4) {
 						continue;
 					}
 
-					const alpha = 0.4 * (1.0 - age / 400);
-					if (alpha <= 0.05) {
+					let alpha = Math.max(0, 0.4 * (1.0 - age / duration));
+					if (alpha <= 0.05 && blurType !== 4) {
 						continue;
+					}
+					if (blurType === 3) alpha *= 2;
+
+					// Set Colors based on mode
+					if (blurType !== 1) {
+						// MakeBlur3/4/5: White (255, 255, 255)
+						entity.effectColor[0] = 1.0;
+						entity.effectColor[1] = 1.0;
+						entity.effectColor[2] = 1.0;
 					}
 					entity.effectColor[3] = alpha;
 
 					// Move SpriteRenderer base to ghost world position
-					SpriteRenderer.position.set(ghost.position);
+					SpriteRenderer.position.set(snp.position);
 					SpriteRenderer.zIndex = originalZ - 10 - idx;
 
-					for (let i = 0; i < layers.length; ++i) {
-						entity.renderLayer(layers[i], spr, pal, files.size, _position, type, false);
+					// Render captured layers
+					for (let i = 0; i < snp.layers.length; ++i) {
+						entity.renderLayer(snp.layers[i], snp.spr, snp.pal, files.size, snp._position, type, false);
 					}
 				}
 			});
@@ -586,7 +632,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 			// Restore global/entity state
 			SpriteRenderer.position.set(originalPos);
 			SpriteRenderer.zIndex = originalZ;
-			entity.effectColor[3] = originalA;
+			entity.effectColor.set(originalColor);
 		}
 	}
 }
@@ -701,9 +747,27 @@ const renderElement = (function renderElementClosure() {
 			isBlendModeOne = true;
 		}
 
+		// Trail / Blur variations
+		const isBUNSIN = entity.getOpt3(StatusConst.Status.NJ_BUNSINJYUTSU);
+		const isHALLUCINATIONWALK = entity.getOpt3(StatusConst.Status.HALLUCINATIONWALK);
+		const isENERGYCOAT = entity.getOpt3(StatusConst.Status.ENERGYCOAT);
+		const isQUICKEN = entity.virtue & StatusConst.OPT3.QUICKEN;
+		const isOVERTHRUST = entity.getOpt3(StatusConst.Status.OVERTHRUST);
+		const isEXPLOSIONSPIRITS = entity.getOpt3(StatusConst.Status.EXPLOSIONSPIRITS);
+		const isBERSERK = entity.getOpt3(StatusConst.Status.BERSERK);
+
 		renderSecondBody(entity, layers, spr, pal, files, type, _position, {
 			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO),
-			enableTrail: entity.getOpt3(StatusConst.Status.ENERGYCOAT)
+			enableTrail:
+				isENERGYCOAT ||
+				isBUNSIN ||
+				isHALLUCINATIONWALK ||
+				isQUICKEN ||
+				isOVERTHRUST ||
+				isEXPLOSIONSPIRITS ||
+				isBERSERK ||
+				!!entity._enableTrail,
+			blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
 		});
 
 		// Render all frames
