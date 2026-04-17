@@ -7708,7 +7708,61 @@ export default {
 		}
 	],
 
-	//366: [{}],	//EF_BASH3D	   Martyr's Reckoning
+	366: [
+		{
+			//martyr's reckoning	//EF_BASH3D	   Martyr's Reckoning
+			wav: 'effect/bash3d',
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Official: Halo (Double Body) is active between tick 20 and 40.
+					entity._enableHalo = tick >= 150 && tick <= 450;
+
+					if (tick >= 150 && tick <= 450) {
+						// SetArgb(-1, 255, 200, 200) -> Light Red
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 0.78;
+						entity._flashColor[2] = 0.78;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					} else {
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					}
+					return tick > 500;
+				});
+			}
+		},
+		{
+			// Bash stripes
+			type: '3D',
+			duplicate: 5,
+			timeBetweenDupli: 1,
+			delay: 200,
+			file: 'effect/alpha_center.tga',
+			duration: 250,
+			alphaMax: 0.8,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 1,
+			sizeStartY: 300,
+			sizeEndX: 30,
+			sizeEndY: 300,
+			blendMode: 2,
+			attachedEntity: true,
+			zIndex: 5,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}
+	],
 
 	367: [
 		{
@@ -7863,7 +7917,61 @@ export default {
 			wav: 'effect/\xb8\xcd\xc8\xa3\xb0\xe6\xc6\xc4\xbb\xea'
 		}
 	],
-	//377: [{}],	//EF_BASH3D2	   Matyr's Reckoning 2
+	377: [
+		{
+			//martyr's reckoning 2	//EF_BASH3D2	   Martyr's Reckoning 2
+			wav: 'effect/mon_bash3d',
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Official: Halo (Double Body) is active between tick 5 and 35.
+					entity._enableHalo = tick >= 50 && tick <= 350;
+
+					if (tick >= 50 && tick <= 350) {
+						// SetArgb(-1, 255, 100, 100) -> Red
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 0.39;
+						entity._flashColor[2] = 0.39;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					} else {
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					}
+					return tick > 400;
+				});
+			}
+		},
+		{
+			// Bash stripes
+			type: '3D',
+			duplicate: 8,
+			timeBetweenDupli: 1,
+			delay: 50,
+			file: 'effect/alpha_center.tga',
+			duration: 250,
+			alphaMax: 0.8,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 1,
+			sizeStartY: 300,
+			sizeEndX: 30,
+			sizeEndY: 300,
+			blendMode: 2,
+			attachedEntity: true,
+			zIndex: 5,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}
+	],
 
 	378: [
 		{
@@ -8145,22 +8253,123 @@ export default {
 			//Level99_2
 		}
 	],
-
 	399: [
 		{
 			//headcrush caster	//EF_BASH3D3	Head Crush
-			wav: 'effect/\xc7\xec\xb5\xe5\x20\xc5\xa9\xb7\xaf\xbd\xac', //Çěµĺ Ĺ©·Ż˝¬
-			//same effect on caster like 'Bash' but stripes are yellow + assumptio effect on caster
-			attachedEntity: true
+			wav: 'effect/headcrush',
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Enable halo (BL_DOUBLE_BODY actor)
+					entity._enableHalo = true;
+
+					if (tick < 200) {
+						const val = (255 - (tick + 50)) / 255;
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = val;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					if (tick < 500) {
+						const progress = (tick - 200) / 200;
+						const startVal = 5 / 255; // 255 - (200 + 50)
+						const val = startVal + (1.0 - startVal) * progress;
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = val;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._enableHalo = false;
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		},
+		{
+			// Bash-like stripes (Simulating BASH3D)
+			type: '3D',
+			duplicate: 6,
+			timeBetweenDupli: 1,
+			delay: 500,
+			file: 'effect/alpha_center.tga',
+			duration: 250,
+			alphaMax: 0.8,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 1,
+			sizeStartY: 300,
+			sizeEndX: 30,
+			sizeEndY: 300,
+			red: 1.0,
+			green: 0.9,
+			blue: 0.3,
+			blendMode: 2,
+			attachedEntity: true,
+			zIndex: 5,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
 	400: [
 		{
 			//joint beat caster	//EF_BASH3D4	Joint Beat
-			//sound missing
-			//same effect on caster like 'Bash' + assumptio effect on caster
-			attachedEntity: true
+			wav: 'effect/bitjoint',
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Official: Halo (Double Body) is active between state 20 and 50.
+					// Scaling to ms (approx 200ms to 500ms).
+					if (tick >= 150 && tick <= 500) {
+						entity._enableHalo = true;
+					} else {
+						entity._enableHalo = false;
+					}
+					return tick > 600;
+				});
+			}
+		},
+		{
+			// Bash-like stripes (Simulating BASH3D)
+			type: '3D',
+			duplicate: 6,
+			timeBetweenDupli: 1,
+			delay: 500,
+			file: 'effect/alpha_center.tga',
+			duration: 250,
+			alphaMax: 0.8,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 1,
+			sizeStartY: 300,
+			sizeEndX: 30,
+			sizeEndY: 300,
+			blendMode: 2,
+			attachedEntity: true,
+			zIndex: 5,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
@@ -10441,7 +10650,36 @@ export default {
 		}
 	],
 
-	//628: [{}],	//EF_BASH3D5	   Dust
+	628: [
+		{
+			//dust	//EF_BASH3D5	   Dust
+			wav: 'effect/bash3d5',
+			attachedEntity: true
+		},
+		{
+			// Bash stripes
+			type: '3D',
+			duplicate: 6,
+			timeBetweenDupli: 1,
+			file: 'effect/alpha_center.tga',
+			duration: 250,
+			alphaMax: 0.8,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 1,
+			sizeStartY: 300,
+			sizeEndX: 30,
+			sizeEndY: 300,
+			blendMode: 2,
+			attachedEntity: true,
+			zIndex: 5,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}
+	],
 
 	629: [
 		{
@@ -13101,7 +13339,66 @@ export default {
 	],
 
 	//884: [{}],	//EF_GRADIUS_LASER	   Green beam
-	//885: [{}],	//EF_BASH3D6	   Blue light beams
+	885: [
+		{
+			//bash3d6	//EF_BASH3D6	   Blue light beams (can be unnoficial)
+			wav: 'effect/bash3d',
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Halo (Double Body) - Blue variant
+					entity._enableHalo = tick >= 150 && tick <= 450;
+
+					if (tick >= 150 && tick <= 450) {
+						// Blue tint
+						entity._flashColor[0] = 0.5;
+						entity._flashColor[1] = 0.5;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					} else {
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					}
+					return tick > 500;
+				});
+			}
+		},
+		{
+			// Bash stripes (Blue)
+			type: '3D',
+			duplicate: 10,
+			timeBetweenDupli: 1,
+			delay: 200,
+			file: 'effect/alpha_center.tga',
+			duration: 250,
+			alphaMax: 0.8,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			poszStart: 10,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			poszEnd: 10,
+			sizeStartX: 1,
+			sizeStartY: 300,
+			sizeEndX: 30,
+			sizeEndY: 300,
+			red: 0.3,
+			green: 0.5,
+			blue: 1.0,
+			blendMode: 2,
+			attachedEntity: true,
+			zIndex: 5,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}
+	],
 	//886: [{}],	//EF_GUMGANG5	   Blue castish cone
 	//887: [{}],	//EF_HITLINE8	   Wavy sparks
 
