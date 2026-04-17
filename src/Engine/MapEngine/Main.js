@@ -728,20 +728,21 @@ function onRecovery(pkt) {
 
 function onRank(pkt) {
 	// ACK_RANKING2 (0x0af6) sends char IDs instead of names.
-	// Request names from the server and defer display to allow responses to arrive.
+	// Request names from the server and wait for all responses before displaying.
 	if (pkt instanceof PACKET.ZC.ACK_RANKING2) {
-		let needsRequest = false;
+		const namePromises = [];
 		for (let j = 0; j < 10; ++j) {
 			const cid = pkt?.CharID?.[j];
 			if (cid && cid > 0 && (!DB.CNameTable[cid] || DB.CNameTable[cid] === 'Unknown')) {
-				DB.getNameByGID(cid);
-				needsRequest = true;
+				namePromises.push(DB.getNameByGID(cid));
 			}
 		}
-		if (needsRequest) {
-			setTimeout(function () {
+		if (namePromises.length > 0) {
+			// Wait for all names to resolve, with a timeout fallback
+			const timeout = new Promise(resolve => setTimeout(resolve, 5000));
+			Promise.race([Promise.all(namePromises), timeout]).then(() => {
 				onRankDisplay(pkt);
-			}, 1500);
+			});
 			return;
 		}
 	}

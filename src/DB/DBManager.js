@@ -2569,11 +2569,39 @@ class DB {
 		return ScreamTable[Math.round(Math.random() * (ScreamTable.length - 1))];
 	}
 
+	/**
+	 * @type {Object<number, Function[]>} Pending name-resolution callbacks keyed by GID
+	 * @private
+	 */
+	static _nameCallbacks = {};
+
+	/**
+	 * Request a character name by GID from the server.
+	 * Returns a Promise that resolves with the name once the server responds.
+	 * If the name is already cached, resolves immediately.
+	 * If a request is already in-flight, piggybacks on the pending response.
+	 *
+	 * @param {number} GID
+	 * @returns {Promise<string>} resolves with the character name
+	 */
 	static getNameByGID(GID) {
-		if (DB.CNameTable[GID] && DB.CNameTable[GID] === 'Unknown') // already requested
-		{
-			return;
+		// Already have a real name cached — resolve immediately
+		if (DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
+			return Promise.resolve(DB.CNameTable[GID]);
 		}
+
+		// Already requested (pending 'Unknown') — don't re-send, just
+		// return a promise that piggybacks on the existing in-flight request
+		if (DB.CNameTable[GID] === 'Unknown') {
+			return new Promise(resolve => {
+				if (!DB._nameCallbacks[GID]) {
+					DB._nameCallbacks[GID] = [];
+				}
+				DB._nameCallbacks[GID].push(resolve);
+			});
+		}
+
+		// New request — send to server
 		let pkt;
 		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.REQNAME_BYGID2();
@@ -2583,6 +2611,31 @@ class DB {
 		pkt.GID = GID;
 		Network.sendPacket(pkt);
 		DB.CNameTable[pkt.GID] = 'Unknown';
+
+		return new Promise(resolve => {
+			if (!DB._nameCallbacks[GID]) {
+				DB._nameCallbacks[GID] = [];
+			}
+			DB._nameCallbacks[GID].push(resolve);
+		});
+	}
+
+	/**
+	 * Notify all pending name-resolution callbacks for a GID.
+	 * Called internally when a name response packet arrives.
+	 *
+	 * @param {number} GID
+	 * @param {string} name
+	 * @private
+	 */
+	static _resolveNameCallbacks(GID, name) {
+		const callbacks = DB._nameCallbacks[GID];
+		if (callbacks) {
+			delete DB._nameCallbacks[GID];
+			for (const cb of callbacks) {
+				cb(name);
+			}
+		}
 	}
 
 	/**
@@ -7179,6 +7232,7 @@ function loadCashShopBanner(filename, callback, onEnd) {
 
 function onUpdateOwnerName(pkt) {
 	DB.CNameTable[pkt.GID] = pkt.CName;
+	DB._resolveNameCallbacks(pkt.GID, pkt.CName);
 	DB.UpdateOwnerName[pkt.GID] = pkt;
 }
 
