@@ -88,7 +88,7 @@ function toggleOpt3(state, enabled) {
 	if (enabled) {
 		this.virtue = this.virtue | value;
 	} else {
-		this.virtue = this.virtue ^ value;
+		this.virtue = this.virtue & ~value;
 	}
 }
 
