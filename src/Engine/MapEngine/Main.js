@@ -34,6 +34,7 @@ import uint32ToRGB from 'Utils/colors.js';
 import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
+import RankingTypes from 'DB/Jobs/RankingTypes.js';
 
 /**
  * Move main player to the position specify
@@ -754,16 +755,16 @@ function onRankDisplay(pkt) {
 	message += '=========== ';
 	// New unified ranking packets (ACK_RANKING / ACK_RANKING2) use rankType field
 	if (typeof pkt.rankType !== 'undefined') {
-		if (pkt.rankType === 0) {
+		if (pkt.rankType === RankingTypes.BLACKSMITH) {
 			message += DB.getMessage(2386);
 		} // "BlackSmith"
-		else if (pkt.rankType === 1) {
+		else if (pkt.rankType === RankingTypes.ALCHEMIST) {
 			message += DB.getMessage(2387);
 		} // "Alchemist"
-		else if (pkt.rankType === 2) {
+		else if (pkt.rankType === RankingTypes.TAEKWON) {
 			message += DB.getMessage(2388);
 		} // "Taekwon"
-		else if (pkt.rankType === 3) {
+		else if (pkt.rankType === RankingTypes.KILLER) {
 			message += DB.getMessage(2389);
 		} // "PK"
 		else {

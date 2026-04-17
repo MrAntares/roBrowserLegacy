@@ -10,5 +10,6 @@
 export default {
 	BLACKSMITH: 0,
 	ALCHEMIST: 1,
-	TAEKWON: 2
+	TAEKWON: 2,
+	KILLER: 3
 }
