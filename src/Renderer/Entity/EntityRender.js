@@ -481,7 +481,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 	// - options.enableTrail: boolean -> trail behind the character
 	// - options.trailLength: number  -> number of ghosts to keep
 	// - options.blurType: number     -> 1 (standard) EF_MAKEBLUR , 3 (spaced) - EF_MAKEBLUR3, 4 (once), 5 (attack only) - EF_MAKEBLUR5
-	const { enableHalo = false, enableTrail = false, trailLength = 5 } = options;
+	const { enableHalo = false, enableTrail = false, trailLength = 5, blurType = 1 } = options;
 
 	if (!enableHalo && !enableTrail) {
 		return;
@@ -550,7 +550,6 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 		const now = Date.now();
 
 		// Determine blur type: 1 (standard), 3 (10f), 4 (once), 5 (10f, attack only)
-		const blurType = options.blurType;
 		const interval = blurType === 3 || blurType === 5 ? 560 : 80; // 10 frames vs 5 frames
 		const maxLen = blurType === 4 ? 1 : trailLength;
 
