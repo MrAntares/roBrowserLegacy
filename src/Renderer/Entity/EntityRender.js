@@ -487,7 +487,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 		return;
 	}
 
-	if (type !== 'body' && type !== 'head') {
+	if (type === 'shadow' || type === 'cartshadow') {
 		return;
 	}
 
