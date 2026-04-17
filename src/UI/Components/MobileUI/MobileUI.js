@@ -86,7 +86,7 @@ let normalizedY = 0; // Current normalized y-axis input
  * Initialize UI
  */
 MobileUI.init = function init() {
-	this.ui.find('#toggleUIButton').click(function (e) {
+	this.ui.find('#toggleUIButton').on('click touchstart', function (e) {
 		toggleButtons();
 		stopPropagation(e);
 	});
@@ -662,6 +662,9 @@ function _stopAutoTarget() {
  * Stop event propagation
  */
 function stopPropagation(event) {
+	if (event && typeof event.preventDefault === 'function') {
+		event.preventDefault();
+	}
 	event.stopImmediatePropagation();
 	return false;
 }
