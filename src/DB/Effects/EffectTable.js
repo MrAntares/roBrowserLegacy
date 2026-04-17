@@ -276,6 +276,11 @@ export default {
 	/// - frameDelay:
 	///   For how many ticks (time) one texture is shown when using fileList. Used for "hand animated" effects that are created from multiple textures.
 	///
+	/// - delayStart:
+	///   delays the visual start of this effect entry by the given number of
+	///   milliseconds. Sound (wav) is NOT delayed — it plays at the original
+	///   startTick. 
+	///
 	/// - spriteName:
 	///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
 	///
