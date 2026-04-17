@@ -8467,6 +8467,43 @@ PACKET.ZC.PERSONAL_INFORMATION2 = function PACKET_ZC_PERSONAL_INFORMATION2(fp, e
 };
 PACKET.ZC.PERSONAL_INFORMATION2.size = -1;
 
+// 0x097C - CZ_REQ_RANKING (PACKETVER >= 20130605, unified ranking request)
+// rankType: 0=Blacksmith, 1=Alchemist, 2=Taekwon, 3=PK
+PACKET.CZ.RANKING = function PACKET_CZ_RANKING() {
+	this.rankType = 0;
+};
+PACKET.CZ.RANKING.prototype.build = function () {
+	const pkt_len = 2 + 2;
+	const pkt_buf = new BinaryWriter(pkt_len);
+	pkt_buf.writeShort(0x097C);
+	pkt_buf.writeShort(this.rankType);
+	return pkt_buf;
+};
+
+// 0x097d - ZC_ACK_RANKING (PACKETVER 20130605 to 20190730, unified ranking response with names)
+// rankType: 0=Blacksmith, 1=Alchemist, 2=Taekwon, 3=PK
+PACKET.ZC.ACK_RANKING = function PACKET_ZC_ACK_RANKING(fp, end) {
+	this.rankType = fp.readShort();
+	this.Name = (function () {
+		const count = 10,
+			out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = fp.readString(NAME_LENGTH);
+		}
+		return out;
+	})();
+	this.Point = (function () {
+		const count = 10,
+			out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = fp.readLong();
+		}
+		return out;
+	})();
+	this.myPoints = fp.readLong();
+};
+PACKET.ZC.ACK_RANKING.size = 288;
+
 // 0x29e
 PACKET.ZC.MER_SKILLINFO_UPDATE = function PACKET_ZC_MER_SKILLINFO_UPDATE(fp, end) {
 	this.SKID = fp.readUShort();
@@ -13319,6 +13356,30 @@ PACKET.CZ.USE_SKILL_TOGROUND3.prototype.build = function () {
 	return pkt;
 };
 
+// 0x0af6 - ZC_ACK_RANKING (PACKETVER >= 20190731, unified ranking response with char IDs)
+// rankType: 0=Blacksmith, 1=Alchemist, 2=Taekwon, 3=PK
+PACKET.ZC.ACK_RANKING2 = function PACKET_ZC_ACK_RANKING2(fp, end) {
+	this.rankType = fp.readShort();
+	this.CharID = (function () {
+		const count = 10,
+			out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = fp.readLong();
+		}
+		return out;
+	})();
+	this.Point = (function () {
+		const count = 10,
+			out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = fp.readLong();
+		}
+		return out;
+	})();
+	this.myPoints = fp.readLong();
+};
+PACKET.ZC.ACK_RANKING2.size = 88;
+
 // 0xaf7
 PACKET.ZC.ACK_REQNAME_BYGID2 = function PACKET_ZC_ACK_REQNAME_BYGID2(fp, end) {
 	this.flag = fp.readUShort();
@@ -13326,6 +13387,17 @@ PACKET.ZC.ACK_REQNAME_BYGID2 = function PACKET_ZC_ACK_REQNAME_BYGID2(fp, end) {
 	this.CName = fp.readString(NAME_LENGTH);
 };
 PACKET.ZC.ACK_REQNAME_BYGID2.size = 32;
+
+// 0xafb
+PACKET.ZC.AUTOSPELLLIST2 = function PACKET_ZC_AUTOSPELLLIST2(fp, end) {
+	const count = (end - fp.tell()) >> 2;
+	const out = new Array(count);
+	for (let i = 0; i < count; ++i) {
+		out[i] = fp.readLong();
+	}
+	this.SKID = out;
+};
+PACKET.ZC.AUTOSPELLLIST2.size = -1;
 
 // 0xafe
 PACKET.ZC.UPDATE_MISSION_HUNT4 = function PACKET_ZC_UPDATE_MISSION_HUNT4(fp, end) {
