@@ -757,7 +757,7 @@ const renderElement = (function renderElementClosure() {
 		const isBERSERK = entity.getOpt3(StatusConst.Status.BERSERK);
 
 		renderSecondBody(entity, layers, spr, pal, files, type, _position, {
-			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO),
+			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO) || !!entity._enableHalo,
 			enableTrail:
 				isENERGYCOAT ||
 				isBUNSIN ||
