@@ -189,21 +189,23 @@ Required option:
 
 Optional options:
 
-| Option                                | Default                                              | Purpose                                                                                             |
-| ------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `component`                           | `null`                                               | Owner component used by `unregisterComponent`.                                                      |
-| `selector`                            | `null`                                               | Delegated source selector inside `root`.                                                            |
-| `helper(source, data)`                | `source.cloneNode(true)` with computed styles copied | Returns the helper element shown during drag.                                                       |
-| `cursorAt`                            | pointer's position inside source                     | jQuery-style helper offset. Supports `left`, `top`, `right`, `bottom`.                              |
-| `threshold`                           | `4`                                                  | Pixels before a pending press becomes an active drag. Preserves normal click/double-click behavior. |
-| `zIndex`                              | `2500`                                               | Helper `z-index`.                                                                                   |
-| `appendTo`                            | `document.body`                                      | Helper parent. May be a ShadowRoot.                                                                 |
-| `hideSource`                          | `false`                                              | Temporarily sets source visibility to hidden.                                                       |
-| `sourceClass`                         | `null`                                               | Class added to source while active.                                                                 |
-| `start(source, event, data)`          | none                                                 | Called after activation.                                                                            |
-| `move(source, event, data)`           | none                                                 | Called after each active movement.                                                                  |
-| `end(source, event, data, result)`    | none                                                 | Called after release. `result` is the matched drop zone or `null`.                                  |
-| `cancel(source, event, data, reason)` | none                                                 | Called when an active drag is canceled.                                                             |
+| Option                                | Default                                              | Purpose                                                                                              |
+| ------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `component`                           | `null`                                               | Owner component used by `unregisterComponent`.                                                       |
+| `selector`                            | `null`                                               | Delegated source selector inside `root`.                                                             |
+| `helper(source, data)`                | `source.cloneNode(true)` with computed styles copied | Returns the helper element shown during drag.                                                        |
+| `cursorAt`                            | pointer's position inside source                     | jQuery-style helper offset. Supports `left`, `top`, `right`, `bottom`.                               |
+| `threshold`                           | `4`                                                  | Pixels before a pending press becomes an active drag. Preserves normal click/double-click behavior.  |
+| `touchDelay`                          | `0`                                                  | Milliseconds to hold before a touch drag may activate. Mouse and pointer-mouse drags are unaffected. |
+| `touchDelayCancelThreshold`           | `10`                                                 | Pixels a touch may move before `touchDelay` completes. Moving farther cancels the pending drag.      |
+| `zIndex`                              | `2500`                                               | Helper `z-index`.                                                                                    |
+| `appendTo`                            | `document.body`                                      | Helper parent. May be a ShadowRoot.                                                                  |
+| `hideSource`                          | `false`                                              | Temporarily sets source visibility to hidden.                                                        |
+| `sourceClass`                         | `null`                                               | Class added to source while active.                                                                  |
+| `start(source, event, data)`          | none                                                 | Called after activation.                                                                             |
+| `move(source, event, data)`           | none                                                 | Called after each active movement.                                                                   |
+| `end(source, event, data, result)`    | none                                                 | Called after release. `result` is the matched drop zone or `null`.                                   |
+| `cancel(source, event, data, reason)` | none                                                 | Called when an active drag is canceled.                                                              |
 
 ### `DragManager.unregister(token)`
 
@@ -285,8 +287,9 @@ Use this only for legacy handlers that still expect `event.originalEvent.dataTra
     - if `selector` exists, it uses `event.target.closest(selector)`;
     - otherwise the root itself is the source.
 3. A pending session is created.
-4. Movement stays below `threshold`: no helper is created and normal click behavior remains.
-5. Movement reaches `threshold`:
+4. For touch sessions with `touchDelay`, the hold must complete before activation. Moving beyond `touchDelayCancelThreshold` first cancels the pending drag.
+5. Movement stays below `threshold`: no helper is created and normal click behavior remains.
+6. Movement reaches `threshold`, or a delayed touch hold completes:
     - `data(source, event)` is called,
     - a falsy cancel value stops the drag,
     - the helper is created and positioned,
@@ -294,17 +297,17 @@ Use this only for legacy handlers that still expect `event.originalEvent.dataTra
     - `sourceClass` and `hideSource` are applied,
     - `start(source, event, data)` is called,
     - `DropManager.overAt(...)` is called immediately.
-6. During movement:
+7. During movement:
     - the source event is prevented,
     - the helper follows the pointer,
     - `DropManager.overAt(...)` routes hover callbacks,
     - `move(source, event, data)` is called.
-7. On release:
+8. On release:
     - `DropManager.dropAt(...)` is called,
     - if no zone matches, a synthetic DOM `drop` is dispatched to `document.elementFromPoint(...)`,
     - helper/source state/window payload are cleaned,
     - `end(source, event, data, result)` is called.
-8. On cancel:
+9. On cancel:
     - `DropManager.clearHover(...)` is called,
     - helper/source state/window payload are cleaned,
     - `cancel(source, event, data, reason)` is called.

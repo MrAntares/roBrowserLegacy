@@ -8,6 +8,7 @@
 import DropManager from './DropManager.js';
 
 const DEFAULT_THRESHOLD = 4;
+const DEFAULT_TOUCH_DELAY_CANCEL_THRESHOLD = 10;
 const DEFAULT_Z_INDEX = 2500;
 const TEXT_TYPES = ['Text', 'text', 'text/plain'];
 
@@ -60,6 +61,15 @@ function isPrimaryStart(event) {
 	}
 
 	return source.button === 0 || source.which === 1;
+}
+
+function isTouchStartEvent(event) {
+	const source = getSourceEvent(event);
+	if (!source) {
+		return false;
+	}
+
+	return source.type === 'touchstart' || (source.type === 'pointerdown' && source.pointerType === 'touch');
 }
 
 function isEndEvent(event) {
@@ -273,6 +283,35 @@ function callCallback(callback, source, event, data, extra) {
 	return callback(source, event, data, extra);
 }
 
+function clearTouchDelayTimer(session) {
+	if (session && session.touchDelayTimer) {
+		clearTimeout(session.touchDelayTimer);
+		session.touchDelayTimer = null;
+	}
+}
+
+function startTouchDelayTimer(session) {
+	if (!session.touchDelay) {
+		return;
+	}
+
+	session.touchDelayTimer = setTimeout(() => {
+		if (_session !== session || session.active) {
+			return;
+		}
+
+		clearTouchDelayTimer(session);
+		session.touchDelayElapsed = true;
+
+		if (isStalePendingSession(session)) {
+			cleanupSession('cancel', session.lastEvent || session.startEvent, 'stale-source');
+			return;
+		}
+
+		activateSession(session, session.lastEvent || session.startEvent);
+	}, session.touchDelay);
+}
+
 function addMoveEndListeners(session) {
 	const move = onMove;
 	const end = onEnd;
@@ -403,6 +442,7 @@ function cleanupSession(kind, event, reasonOrResult) {
 	}
 
 	_session = null;
+	clearTouchDelayTimer(session);
 	removeMoveEndListeners(session);
 
 	let result = null;
@@ -458,9 +498,16 @@ function onMove(event) {
 	const point = getEventPoint(event);
 	const dx = point.clientX - session.startPoint.clientX;
 	const dy = point.clientY - session.startPoint.clientY;
+	session.lastEvent = event;
 
 	if (!session.active) {
 		const distance = Math.sqrt(dx * dx + dy * dy);
+		if (session.touchDelay && !session.touchDelayElapsed) {
+			if (distance >= session.touchDelayCancelThreshold) {
+				cleanupSession('cancel', event, 'touch-move');
+			}
+			return;
+		}
 		if (distance < session.threshold) {
 			return;
 		}
@@ -545,6 +592,7 @@ function onStart(event, registration) {
 
 	const point = getEventPoint(event);
 	const sourceEvent = getSourceEvent(event);
+	const touchDelay = isTouchStartEvent(event) ? Number(registration.options.touchDelay) || 0 : 0;
 
 	_session = {
 		registration,
@@ -552,12 +600,20 @@ function onStart(event, registration) {
 		root: registration.root,
 		source,
 		startEvent: event,
+		lastEvent: event,
 		startPoint: point,
 		pointerId: sourceEvent && sourceEvent.type === 'pointerdown' ? sourceEvent.pointerId : null,
 		threshold:
 			registration.options.threshold === undefined
 				? DEFAULT_THRESHOLD
 				: Number(registration.options.threshold) || 0,
+		touchDelay,
+		touchDelayElapsed: !touchDelay,
+		touchDelayCancelThreshold:
+			registration.options.touchDelayCancelThreshold === undefined
+				? DEFAULT_TOUCH_DELAY_CANCEL_THRESHOLD
+				: Number(registration.options.touchDelayCancelThreshold) || 0,
+		touchDelayTimer: null,
 		active: false,
 		data: null,
 		helper: null,
@@ -566,6 +622,7 @@ function onStart(event, registration) {
 	};
 
 	addMoveEndListeners(_session);
+	startTouchDelayTimer(_session);
 }
 
 class DragManager {

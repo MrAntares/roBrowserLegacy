@@ -61,6 +61,26 @@ function pointer(type, clientX, clientY, options = {}) {
 	return event;
 }
 
+function touch(type, clientX, clientY) {
+	const event = new Event(type, {
+		bubbles: true,
+		cancelable: true
+	});
+	const point = {
+		clientX,
+		clientY,
+		pageX: clientX,
+		pageY: clientY
+	};
+
+	Object.defineProperties(event, {
+		touches: { configurable: true, value: type === 'touchend' || type === 'touchcancel' ? [] : [point] },
+		changedTouches: { configurable: true, value: [point] }
+	});
+
+	return event;
+}
+
 function startDrag(source, start = { x: 4, y: 4 }, move = { x: 20, y: 20 }) {
 	source.dispatchEvent(mouse('mousedown', start.x, start.y));
 	window.dispatchEvent(mouse('mousemove', move.x, move.y));
@@ -95,6 +115,7 @@ afterEach(() => {
 		configurable: true,
 		value: originalElementFromPoint
 	});
+	vi.useRealTimers();
 	vi.restoreAllMocks();
 });
 
@@ -155,6 +176,65 @@ describe('DragManager', () => {
 
 		expect(data).not.toHaveBeenCalled();
 		expect(window._OBJ_DRAG_).toBeUndefined();
+	});
+
+	it('does not activate touch drags before the configured delay', () => {
+		vi.useFakeTimers();
+		const source = createElement();
+		const data = vi.fn(() => ({ type: 'skill' }));
+		registerSource(source, { data, touchDelay: 300 });
+
+		source.dispatchEvent(touch('touchstart', 4, 4));
+		vi.advanceTimersByTime(299);
+
+		expect(data).not.toHaveBeenCalled();
+		expect(DragManager.isDragging()).toBe(false);
+		expect(window._OBJ_DRAG_).toBeUndefined();
+	});
+
+	it('cancels delayed touch drags when moving too far before the delay', () => {
+		vi.useFakeTimers();
+		const source = createElement();
+		const data = vi.fn(() => ({ type: 'skill' }));
+		registerSource(source, { data, touchDelay: 300, touchDelayCancelThreshold: 10 });
+
+		source.dispatchEvent(touch('touchstart', 4, 4));
+		window.dispatchEvent(touch('touchmove', 30, 30));
+		vi.advanceTimersByTime(300);
+
+		expect(data).not.toHaveBeenCalled();
+		expect(DragManager.isDragging()).toBe(false);
+		expect(window._OBJ_DRAG_).toBeUndefined();
+	});
+
+	it('activates delayed touch drags after the configured hold', () => {
+		vi.useFakeTimers();
+		const source = createElement();
+		source.className = 'source';
+		const payload = { type: 'skill', from: 'SkillList' };
+		const data = vi.fn(() => payload);
+		registerSource(source, { data, touchDelay: 300 });
+
+		source.dispatchEvent(touch('touchstart', 4, 4));
+		vi.advanceTimersByTime(300);
+
+		expect(data).toHaveBeenCalledTimes(1);
+		expect(DragManager.isDragging()).toBe(true);
+		expect(window._OBJ_DRAG_).toBe(payload);
+		expect(document.body.querySelector('.source[aria-hidden="true"]')).toBeTruthy();
+	});
+
+	it('does not delay mouse activation when touchDelay is configured', () => {
+		vi.useFakeTimers();
+		const source = createElement();
+		const data = vi.fn(() => ({ type: 'skill' }));
+		registerSource(source, { data, touchDelay: 300 });
+
+		source.dispatchEvent(mouse('mousedown', 4, 4));
+		window.dispatchEvent(mouse('mousemove', 20, 20));
+
+		expect(data).toHaveBeenCalledTimes(1);
+		expect(DragManager.isDragging()).toBe(true);
 	});
 
 	it('clears stale pending sessions when delegated content is rebuilt', () => {
