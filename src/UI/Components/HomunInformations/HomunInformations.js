@@ -473,7 +473,7 @@ function homunToggleAutoFeed() {
 	if (PACKETVER.value < 20170920) {
 		return;
 	}
-	HomunInformations.onConfigUpdate(3, !_preferences.autoFeed ? 1 : 0);
+	HomunInformations.onConfigUpdate(3, _preferences.autoFeed ? 1 : 0);
 }
 
 /**

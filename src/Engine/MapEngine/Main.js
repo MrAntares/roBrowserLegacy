@@ -34,6 +34,7 @@ import uint32ToRGB from 'Utils/colors.js';
 import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
+import RankingTypes from 'DB/Jobs/RankingTypes.js';
 
 /**
  * Move main player to the position specify
@@ -726,22 +727,65 @@ function onRecovery(pkt) {
 }
 
 function onRank(pkt) {
+	// ACK_RANKING2 (0x0af6) sends char IDs instead of names.
+	// Request names from the server and wait for all responses before displaying.
+	if (pkt instanceof PACKET.ZC.ACK_RANKING2) {
+		const namePromises = [];
+		for (let j = 0; j < 10; ++j) {
+			const cid = pkt?.CharID?.[j];
+			if (cid && cid > 0 && (!DB.CNameTable[cid] || DB.CNameTable[cid] === 'Unknown')) {
+				namePromises.push(DB.getNameByGID(cid));
+			}
+		}
+		if (namePromises.length > 0) {
+			// Wait for all names to resolve, with a timeout fallback
+			const timeout = new Promise(resolve => setTimeout(resolve, 5000));
+			Promise.race([Promise.all(namePromises), timeout]).then(() => {
+				onRankDisplay(pkt);
+			});
+			return;
+		}
+	}
+	onRankDisplay(pkt);
+}
+
+function onRankDisplay(pkt) {
 	let message = '';
 
 	//Header
 	message += '=========== ';
-	if (pkt instanceof PACKET.ZC.BLACKSMITH_RANK) {
-		message += DB.getMessage(2386);
-	} // "BlackSmith"
-	else if (pkt instanceof PACKET.ZC.ALCHEMIST_RANK) {
-		message += DB.getMessage(2387);
-	} // "Alchemist"
-	else if (pkt instanceof PACKET.ZC.TAEKWON_RANK) {
-		message += DB.getMessage(2388);
-	} // "Taekwon"
-	//else if(pkt instanceof PACKET.ZC.KILLER_RANK) { message += DB.getMessage(2389); } //PK currently unsupported
-	else {
-		message += 'Unknown';
+	// New unified ranking packets (ACK_RANKING / ACK_RANKING2) use rankType field
+	if (typeof pkt.rankType !== 'undefined') {
+		if (pkt.rankType === RankingTypes.BLACKSMITH) {
+			message += DB.getMessage(2386);
+		} // "BlackSmith"
+		else if (pkt.rankType === RankingTypes.ALCHEMIST) {
+			message += DB.getMessage(2387);
+		} // "Alchemist"
+		else if (pkt.rankType === RankingTypes.TAEKWON) {
+			message += DB.getMessage(2388);
+		} // "Taekwon"
+		else if (pkt.rankType === RankingTypes.KILLER) {
+			message += DB.getMessage(2389);
+		} // "PK"
+		else {
+			message += 'Unknown';
+		}
+	} else {
+		// Old per-type ranking packets
+		if (pkt instanceof PACKET.ZC.BLACKSMITH_RANK) {
+			message += DB.getMessage(2386);
+		} // "BlackSmith"
+		else if (pkt instanceof PACKET.ZC.ALCHEMIST_RANK) {
+			message += DB.getMessage(2387);
+		} // "Alchemist"
+		else if (pkt instanceof PACKET.ZC.TAEKWON_RANK) {
+			message += DB.getMessage(2388);
+		} // "Taekwon"
+		//else if(pkt instanceof PACKET.ZC.KILLER_RANK) { message += DB.getMessage(2389); } //PK currently unsupported
+		else {
+			message += 'Unknown';
+		}
 	}
 	message += ' ';
 	message += DB.getMessage(2383); // "Rank"
@@ -750,7 +794,19 @@ function onRank(pkt) {
 
 	//List
 	for (let i = 0; i < 10; ++i) {
-		const name = pkt?.Name?.[i] ?? 'None';
+		let name;
+		// ACK_RANKING2 (0x0af6) has CharID instead of Name - resolve from cache
+		if (pkt instanceof PACKET.ZC.ACK_RANKING2) {
+			const cid = pkt?.CharID?.[i];
+			if (cid && cid > 0) {
+				const cached = DB.CNameTable[cid];
+				name = cached && cached !== 'Unknown' ? cached : 'None';
+			} else {
+				name = 'None';
+			}
+		} else {
+			name = pkt?.Name?.[i] ?? 'None';
+		}
 		const point = pkt?.Point?.[i] ?? 0;
 
 		message = '[%rank%] %name% : %point% ' + DB.getMessage(2385); // [x] name : y Points
@@ -972,6 +1028,8 @@ export default function MainEngine() {
 	Network.hookPacket(PACKET.ZC.ALCHEMIST_RANK, onRank);
 	Network.hookPacket(PACKET.ZC.TAEKWON_RANK, onRank);
 	//Network.hookPacket( PACKET.ZC.KILLER_RANK,                 onRank ); //PK currently unsupported
+	Network.hookPacket(PACKET.ZC.ACK_RANKING, onRank); // unified ranking (20130605-20190730)
+	Network.hookPacket(PACKET.ZC.ACK_RANKING2, onRank); // unified ranking (20190731+)
 	Network.hookPacket(PACKET.ZC.UPDATE_MAPINFO, onUpdateMapInfo);
 	Network.hookPacket(PACKET.ZC.PERSONAL_INFORMATION, onRatesInfo);
 	Network.hookPacket(PACKET.ZC.PERSONAL_INFORMATION2, onRatesInfo);

@@ -86,204 +86,204 @@ let normalizedY = 0; // Current normalized y-axis input
  * Initialize UI
  */
 MobileUI.init = function init() {
-	this.ui.find('#toggleUIButton').click(function (e) {
+	this.ui.find('#toggleUIButton').on('click touchstart', function (e) {
 		toggleButtons();
 		stopPropagation(e);
 	});
-	this.ui.find('#fullscreenButton').click(function (e) {
+	this.ui.find('#fullscreenButton').on('click touchstart', function (e) {
 		toggleFullScreen();
 		stopPropagation(e);
 	});
 
-	this.ui.find('#f1Button').click(function (e) {
+	this.ui.find('#f1Button').on('click touchstart', function (e) {
 		logKeyPress(112);
 		stopPropagation(e);
 	});
-	this.ui.find('#f2Button').click(function (e) {
+	this.ui.find('#f2Button').on('click touchstart', function (e) {
 		logKeyPress(113);
 		stopPropagation(e);
 	});
-	this.ui.find('#f3Button').click(function (e) {
+	this.ui.find('#f3Button').on('click touchstart', function (e) {
 		logKeyPress(114);
 		stopPropagation(e);
 	});
-	this.ui.find('#f4Button').click(function (e) {
+	this.ui.find('#f4Button').on('click touchstart', function (e) {
 		logKeyPress(115);
 		stopPropagation(e);
 	});
-	this.ui.find('#f5Button').click(function (e) {
+	this.ui.find('#f5Button').on('click touchstart', function (e) {
 		logKeyPress(116);
 		stopPropagation(e);
 	});
-	this.ui.find('#f6Button').click(function (e) {
+	this.ui.find('#f6Button').on('click touchstart', function (e) {
 		logKeyPress(117);
 		stopPropagation(e);
 	});
-	this.ui.find('#f7Button').click(function (e) {
+	this.ui.find('#f7Button').on('click touchstart', function (e) {
 		logKeyPress(118);
 		stopPropagation(e);
 	});
-	this.ui.find('#f8Button').click(function (e) {
+	this.ui.find('#f8Button').on('click touchstart', function (e) {
 		logKeyPress(119);
 		stopPropagation(e);
 	});
-	this.ui.find('#f9Button').click(function (e) {
+	this.ui.find('#f9Button').on('click touchstart', function (e) {
 		logKeyPress(120);
 		stopPropagation(e);
 	});
 
-	this.ui.find('#n1Button').click(function (e) {
+	this.ui.find('#n1Button').on('click touchstart', function (e) {
 		logKeyPress(49);
 		stopPropagation(e);
 	});
-	this.ui.find('#n2Button').click(function (e) {
+	this.ui.find('#n2Button').on('click touchstart', function (e) {
 		logKeyPress(50);
 		stopPropagation(e);
 	});
-	this.ui.find('#n3Button').click(function (e) {
+	this.ui.find('#n3Button').on('click touchstart', function (e) {
 		logKeyPress(51);
 		stopPropagation(e);
 	});
-	this.ui.find('#n4Button').click(function (e) {
+	this.ui.find('#n4Button').on('click touchstart', function (e) {
 		logKeyPress(52);
 		stopPropagation(e);
 	});
-	this.ui.find('#n5Button').click(function (e) {
+	this.ui.find('#n5Button').on('click touchstart', function (e) {
 		logKeyPress(53);
 		stopPropagation(e);
 	});
-	this.ui.find('#n6Button').click(function (e) {
+	this.ui.find('#n6Button').on('click touchstart', function (e) {
 		logKeyPress(54);
 		stopPropagation(e);
 	});
-	this.ui.find('#n7Button').click(function (e) {
+	this.ui.find('#n7Button').on('click touchstart', function (e) {
 		logKeyPress(55);
 		stopPropagation(e);
 	});
-	this.ui.find('#n8Button').click(function (e) {
+	this.ui.find('#n8Button').on('click touchstart', function (e) {
 		logKeyPress(56);
 		stopPropagation(e);
 	});
-	this.ui.find('#n9Button').click(function (e) {
+	this.ui.find('#n9Button').on('click touchstart', function (e) {
 		logKeyPress(57);
 		stopPropagation(e);
 	});
 
-	this.ui.find('#qButton').click(function (e) {
+	this.ui.find('#qButton').on('click touchstart', function (e) {
 		logKeyPress(81);
 		stopPropagation(e);
 	});
-	this.ui.find('#wButton').click(function (e) {
+	this.ui.find('#wButton').on('click touchstart', function (e) {
 		logKeyPress(87);
 		stopPropagation(e);
 	});
-	this.ui.find('#eButton').click(function (e) {
+	this.ui.find('#eButton').on('click touchstart', function (e) {
 		logKeyPress(69);
 		stopPropagation(e);
 	});
-	this.ui.find('#rButton').click(function (e) {
+	this.ui.find('#rButton').on('click touchstart', function (e) {
 		logKeyPress(82);
 		stopPropagation(e);
 	});
-	this.ui.find('#tButton').click(function (e) {
+	this.ui.find('#tButton').on('click touchstart', function (e) {
 		logKeyPress(84);
 		stopPropagation(e);
 	});
-	this.ui.find('#yButton').click(function (e) {
+	this.ui.find('#yButton').on('click touchstart', function (e) {
 		logKeyPress(89);
 		stopPropagation(e);
 	});
-	this.ui.find('#uButton').click(function (e) {
+	this.ui.find('#uButton').on('click touchstart', function (e) {
 		logKeyPress(85);
 		stopPropagation(e);
 	});
-	this.ui.find('#iButton').click(function (e) {
+	this.ui.find('#iButton').on('click touchstart', function (e) {
 		logKeyPress(73);
 		stopPropagation(e);
 	});
-	this.ui.find('#oButton').click(function (e) {
+	this.ui.find('#oButton').on('click touchstart', function (e) {
 		logKeyPress(89);
 		stopPropagation(e);
 	});
 
-	this.ui.find('#aButton').click(function (e) {
+	this.ui.find('#aButton').on('click touchstart', function (e) {
 		logKeyPress(65);
 		stopPropagation(e);
 	});
-	this.ui.find('#sButton').click(function (e) {
+	this.ui.find('#sButton').on('click touchstart', function (e) {
 		logKeyPress(83);
 		stopPropagation(e);
 	});
-	this.ui.find('#dButton').click(function (e) {
+	this.ui.find('#dButton').on('click touchstart', function (e) {
 		logKeyPress(68);
 		stopPropagation(e);
 	});
-	this.ui.find('#fButton').click(function (e) {
+	this.ui.find('#fButton').on('click touchstart', function (e) {
 		logKeyPress(70);
 		stopPropagation(e);
 	});
-	this.ui.find('#gButton').click(function (e) {
+	this.ui.find('#gButton').on('click touchstart', function (e) {
 		logKeyPress(71);
 		stopPropagation(e);
 	});
-	this.ui.find('#hButton').click(function (e) {
+	this.ui.find('#hButton').on('click touchstart', function (e) {
 		logKeyPress(72);
 		stopPropagation(e);
 	});
-	this.ui.find('#jButton').click(function (e) {
+	this.ui.find('#jButton').on('click touchstart', function (e) {
 		logKeyPress(74);
 		stopPropagation(e);
 	});
-	this.ui.find('#kButton').click(function (e) {
+	this.ui.find('#kButton').on('click touchstart', function (e) {
 		logKeyPress(75);
 		stopPropagation(e);
 	});
-	this.ui.find('#lButton').click(function (e) {
+	this.ui.find('#lButton').on('click touchstart', function (e) {
 		logKeyPress(76);
 		stopPropagation(e);
 	});
 
-	this.ui.find('#f10Button').click(function (e) {
+	this.ui.find('#f10Button').on('click touchstart', function (e) {
 		logKeyPress(121);
 		stopPropagation(e);
 	});
-	this.ui.find('#f12Button').click(function (e) {
+	this.ui.find('#f12Button').on('click touchstart', function (e) {
 		logKeyPress(123);
 		stopPropagation(e);
 	});
-	this.ui.find('#insButton').click(function (e) {
+	this.ui.find('#insButton').on('click touchstart', function (e) {
 		logKeyPress(45);
 		stopPropagation(e);
 	});
 
-	this.ui.find('#toggleStatusButton').click(function (e) {
+	this.ui.find('#toggleStatusButton').on('click touchstart', function (e) {
 		toggleStatus();
 		stopPropagation(e);
 	});
-	this.ui.find('#toggleTargetingButton').click(function (e) {
+	this.ui.find('#toggleTargetingButton').on('click touchstart', function (e) {
 		toggleTouchTargeting();
 		stopPropagation(e);
 	});
-	this.ui.find('#toggleAutoFollowButton').click(function (e) {
+	this.ui.find('#toggleAutoFollowButton').on('click touchstart', function (e) {
 		toggleAutoFollow();
 		stopPropagation(e);
 	});
-	this.ui.find('#toggleAutoTargetButton').click(function (e) {
+	this.ui.find('#toggleAutoTargetButton').on('click touchstart', function (e) {
 		toggleAutoTargeting();
 		stopPropagation(e);
 	});
 
-	this.ui.find('#attackButton').click(function (e) {
+	this.ui.find('#attackButton').on('click touchstart', function (e) {
 		attackTargeted();
 		stopPropagation(e);
 	});
 
-	this.ui.find('#pickupButton').click(function (e) {
+	this.ui.find('#pickupButton').on('click touchstart', function (e) {
 		pickUpItem();
 		stopPropagation(e);
 	}); // Button for Picks up the nearest item - MicromeX
 
-	this.ui.find('#switchshorcutButton').click(function (e) {
+	this.ui.find('#switchshorcutButton').on('click touchstart', function (e) {
 		switchSkillButtons();
 		stopPropagation(e);
 	});
@@ -662,6 +662,9 @@ function _stopAutoTarget() {
  * Stop event propagation
  */
 function stopPropagation(event) {
+	if (event && typeof event.preventDefault === 'function') {
+		event.preventDefault();
+	}
 	event.stopImmediatePropagation();
 	return false;
 }
