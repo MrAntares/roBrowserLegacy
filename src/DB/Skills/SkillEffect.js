@@ -395,7 +395,7 @@ SkillEffect[SK.CH_PALMSTRIKE] = { hitEffectId: [376, 'quake'] }; //Raging Palm S
 SkillEffect[SK.CH_TIGERFIST] = { effectIdOnCaster: 263, effectId: [377, 'quake'] }; //Glacier Fist
 SkillEffect[SK.CH_CHAINCRUSH] = { effectId: 512 }; //Chain Crush Combo
 // Professor
-SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, effectIdOnCaster: 378 /*, successEffectIdOnCaster: 379 */ }; //Indulge
+SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, effectIdOnCaster: 378, successEffectIdOnCaster: 379 }; //Indulge
 SkillEffect[SK.PF_SOULCHANGE] = { effectId: 384, successEffectId: 385 }; //Soul Exhale
 SkillEffect[SK.PF_SOULBURN] = { effectId: 406 }; //Soul Siphon
 // Asassin Cross

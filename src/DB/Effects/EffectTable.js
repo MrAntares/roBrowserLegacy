@@ -7845,7 +7845,61 @@ export default {
 			drainPattern: true
 		}
 	],
-	//379: [{}],	//EF_TRANSBLUEBODY	   Soul Drain (2nd Part)
+	379: [
+		{
+			//EF_TRANSBLUEBODY	   Energy Drain (2nd Part)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Wait for drain particles from Part 1 (Soul Drain travel)
+					if (tick < 500) {
+						return false;
+					}
+
+					const time = tick - 500;
+
+					// Enable halo (Double Body)
+					entity._enableHalo = true;
+
+					// Part 2: Blue tint progression (200ms duration from official source)
+					if (time < 200) {
+						// Formula from official source: m_master->SetArgb(-1, 255-(m_stateCnt+50), 255-(m_stateCnt+50), 255)
+						const val = (255 - (time + 50)) / 255;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Part 3: Smooth fade back to normal (200ms) for premium feel
+					if (time < 400) {
+						const progress = (time - 200) / 200;
+						const startVal = 5 / 255; // 255 - (200 + 50)
+						const val = startVal + (1.0 - startVal) * progress;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._enableHalo = false;
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		}
+	],
 
 	380: [
 		{
