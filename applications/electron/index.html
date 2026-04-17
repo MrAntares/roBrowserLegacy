@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>roBrowserLegacy</title>
+		<link rel="icon" type="image/png" href="icon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<style>
+			html,
+			body {
+				margin: 0;
+				padding: 0;
+				border: 0;
+				height: 100%;
+				width: 100%;
+				overflow: hidden;
+			}
+		</style>
+		<script src="../shared/importmap.js"></script>
+	</head>
+	<body>
+		<div id="robrowser"></div>
+		<script>
+			var ROConfig = {
+				target: document.getElementById('robrowser'),
+				type: 2,
+				application: 1,
+				development: true,
+				remoteClient: 'https://grf.robrowser.com/',
+				servers: [
+					{
+						display: 'roBrowser Demo Server[PRÉ]',
+						desc: '2013 demo server',
+						address: '127.0.0.1',
+						port: 6900,
+						version: 25,
+						langtype: 12,
+						packetver: 20130618,
+						renewal: false,
+						worldMapSettings: { episode: 12 },
+						packetKeys: false,
+						socketProxy: 'ws://localhost:5999',
+						adminList: []
+					},
+					{
+						display: 'roBrowser Demo Server[RE]',
+						desc: '2025 demo server',
+						address: '127.0.0.1',
+						port: 6900,
+						version: 55,
+						langtype: 12,
+						packetver: 20250618,
+						renewal: true,
+						worldMapSettings: { episode: 21 },
+						packetKeys: false,
+						socketProxy: 'ws://localhost:5999',
+						adminList: []
+					},
+					{
+						display: 'Ragna.ro',
+						desc: 'Ragna.ro [1/1/1] Renewal II',
+						address: 'ragna.ro',
+						port: 6900,
+						version: 30,
+						langtype: 240,
+						packetver: 20120410,
+						renewal: true,
+						worldMapSettings: { episode: 15 },
+						packetKeys: false,
+						socketProxy: 'wss://ragna.ro:5999',
+						remoteClient: 'https://client.ragna.ro/',
+						adminList: [2000000, 2000001],
+						FirstPersonCamera: true,
+						ThirdPersonCamera: true
+					},
+					{
+						display: 'NiktoutRO Chaos',
+						desc: 'NiktoutRO Chaos [100k/100k/10%]',
+						address: 'chaos.niktoutro.com',
+						port: 6905,
+						version: 55,
+						langtype: 1,
+						packetver: 20151104,
+						renewal: true,
+						socketProxy: 'wss://classicweb.niktoutro.com:5999',
+						remoteClient: 'https://classicweb.niktoutro.com/chaosclient/',
+						registrationweb: 'https://niktoutro.com/?module=account&action=create',
+						packetKeys: true,
+						adminList: [2000002]
+					}
+					// ADD PUBLIC TEST SERVERS HERE. IF YOU DON'T ALLOW _M _F REGISTRATION BE SURE TO ADD THE registrationweb CONFIG
+				],
+				webserverAddress: 'http://127.0.0.1:8888',
+				packetDump: false,
+				skipServerList: true,
+				skipIntro: false,
+				aura: {},
+				autoLogin: [],
+				BGMFileExtension: ['mp3'],
+				calculateHash: false,
+				CameraMaxZoomOut: 5,
+				charBlockSize: 0,
+				clientHash: null,
+				clientVersionMode: 'PacketVer',
+				disableConsole: false,
+				enableBank: true,
+				enableCashShop: true,
+				enableCheckAttendance: true,
+				enableDmgSuffix: true,
+				enableHomunAutoFeed: true,
+				enableMapName: true,
+				enableRoulette: true,
+				FirstPersonCamera: false,
+				grfList: null,
+				hashFiles: [],
+				loadLua: true,
+				customItemInfo: [],
+				onReady: null,
+				plugins: {},
+				registrationweb: '',
+				saveFiles: false,
+				ThirdPersonCamera: false,
+				transitionDuration: 500,
+				restoreChatFocus: false
+			};
+		</script>
+		<script type="module">
+			import('../../src/main.js').catch(err => {
+				console.error('Failed to load roBrowser engine:', err);
+			});
+		</script>
+	</body>
+</html>

@@ -44,6 +44,7 @@ import PokJukWeatherEffect from 'Renderer/Effects/PokJukWeatherEffect.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
+import RankingTypes from 'DB/Jobs/RankingTypes.js';
 
 let aliases = {};
 
@@ -453,8 +454,14 @@ const CommandStore = {
 	alchemist: {
 		description: 'Shows the top 10 brewing Alchemists in the server.',
 		callback: function () {
-			const pkt = new PACKET.CZ.ALCHEMIST_RANK();
-			Network.sendPacket(pkt);
+			if (PACKETVER.value >= 20130605) {
+				const pkt = new PACKET.CZ.RANKING();
+				pkt.rankType = RankingTypes.ALCHEMIST;
+				Network.sendPacket(pkt);
+			} else {
+				const pkt = new PACKET.CZ.ALCHEMIST_RANK();
+				Network.sendPacket(pkt);
+			}
 			return;
 		}
 	},
@@ -462,8 +469,14 @@ const CommandStore = {
 	blacksmith: {
 		description: 'Shows the top 10 forging/upgrading Blacksmiths in the server',
 		callback: function () {
-			const pkt = new PACKET.CZ.BLACKSMITH_RANK();
-			Network.sendPacket(pkt);
+			if (PACKETVER.value >= 20130605) {
+				const pkt = new PACKET.CZ.RANKING();
+				pkt.rankType = RankingTypes.BLACKSMITH;
+				Network.sendPacket(pkt);
+			} else {
+				const pkt = new PACKET.CZ.BLACKSMITH_RANK();
+				Network.sendPacket(pkt);
+			}
 			return;
 		}
 	},
@@ -471,8 +484,14 @@ const CommandStore = {
 	taekwon: {
 		description: 'Shows the top 10 TaeKwon Kids based on completion of TaeKwon Missions in the server',
 		callback: function () {
-			const pkt = new PACKET.CZ.TAEKWON_RANK();
-			Network.sendPacket(pkt);
+			if (PACKETVER.value >= 20130605) {
+				const pkt = new PACKET.CZ.RANKING();
+				pkt.rankType = RankingTypes.TAEKWON;
+				Network.sendPacket(pkt);
+			} else {
+				const pkt = new PACKET.CZ.TAEKWON_RANK();
+				Network.sendPacket(pkt);
+			}
 			return;
 		}
 	},

@@ -62,8 +62,6 @@ const packetModules = {
 };
 
 let packets_len = new Array();
-packets_len[0x097f] = -1;
-packets_len[0x0980] = 7;
 
 /**
  * Get a Packet Length

@@ -74,6 +74,7 @@ _stateToVirtue[StatusConst.Status.NJ_BUNSINJYUTSU] = StatusConst.OPT3.BUNSIN;
 _stateToVirtue[StatusConst.Status.SOULLINK] = StatusConst.OPT3.SOULLINK;
 _stateToVirtue[StatusConst.Status.PROPERTYUNDEAD] = StatusConst.OPT3.UNDEAD;
 _stateToVirtue[StatusConst.Status.DA_CONTRACT] = StatusConst.OPT3.CONTRACT;
+_stateToVirtue[StatusConst.Status.HALLUCINATIONWALK] = StatusConst.OPT3.HALLUCINATIONWALK;
 
 function toggleOpt3(state, enabled) {
 	if (state === 0) {
@@ -87,7 +88,7 @@ function toggleOpt3(state, enabled) {
 	if (enabled) {
 		this.virtue = this.virtue | value;
 	} else {
-		this.virtue = this.virtue ^ value;
+		this.virtue = this.virtue & ~value;
 	}
 }
 

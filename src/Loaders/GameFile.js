@@ -14,10 +14,17 @@ import Struct from 'Utils/Struct.js';
 import Inflate from 'Utils/Inflate.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 
-/**
- * @const {FileSystem} Nodejs
- */
-const fs = self.requireNode && self.requireNode('fs');
+/* global require */
+const fs =
+	typeof require !== 'undefined'
+		? (() => {
+				try {
+					return require('fs');
+				} catch {
+					return null;
+				}
+			})()
+		: null;
 
 /**
  * Extensions that should skip full encryption (only header encryption)
@@ -95,13 +102,11 @@ class GRF {
 		// Helper
 		file.slice = file.slice || file.webkitSlice || file.mozSlice;
 		reader.load = (start, len) => {
-			// node.js
 			if (fs && file.fd) {
-				const buf = new Buffer(len);
+				const buf = Buffer.alloc(len);
 				fs.readSync(file.fd, buf, 0, len, start);
 				return new Uint8Array(buf).buffer;
 			}
-
 			return reader.readAsArrayBuffer(file.slice(start, start + len));
 		};
 
@@ -272,9 +277,8 @@ class GRF {
 				return false;
 			}
 
-			// node.js
 			if (fs && this.file.fd) {
-				const buffer = new Buffer(entry.length_aligned);
+				const buffer = Buffer.alloc(entry.length_aligned);
 				fs.readSync(this.file.fd, buffer, 0, entry.length_aligned, entry.offset + GRF.struct_header.size);
 				this.decodeEntry(new Uint8Array(buffer).buffer, entry, callback);
 				return true;

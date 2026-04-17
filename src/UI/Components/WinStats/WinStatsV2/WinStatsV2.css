@@ -1,19 +1,26 @@
-#WinStatsV2 {
-	position: absolute;
+:host {
 	width: 280px;
 	height: 130px;
+	top: 200px;
+	left: 200px;
+}
+
+#WinStats {
+	position: absolute;
+	width: 280px;
+	height: 140px;
 	background-color: transparent;
 	background-repeat: no-repeat;
 }
 
-#WinStatsV2 .titlebar {
+#WinStats .titlebar {
 	width: 280px;
 	height: 17px;
 	background-color: white;
 	background-repeat: repeat-x;
 	border-radius: 3px 3px 0px 0px;
 }
-#WinStatsV2 .titlebar .base {
+#WinStats .titlebar .base {
 	width: 11px;
 	height: 11px;
 	border: none;
@@ -21,7 +28,7 @@
 	background-repeat: no-repeat;
 	vertical-align: middle;
 }
-#WinStatsV2 .titlebar .text {
+#WinStats .titlebar .text {
 	text-shadow: 1px 1px white;
 	vertical-align: -2px;
 	white-space: nowrap;
@@ -33,55 +40,59 @@
 	font-weight: bold;
 }
 
-#WinStatsV2 .titlebar .left {
+#WinStats .titlebar .left {
 	margin-left: 3px;
 	float: left;
 }
-#WinStatsV2 .titlebar .right {
+#WinStats .titlebar .right {
 	float: right;
 	margin-right: 3px;
 }
-#WinStatsV2 .titlebar .clear {
+#WinStats .titlebar .clear {
 	clear: both;
 }
 
-#WinStatsV2 .panel {
-	height: 103px;
+#WinStats .panel {
+	height: 235px;
 }
-#WinStatsV2 .group {
+#WinStats .common_stats {
+	height: 123px;
+}
+#WinStats .group {
 	position: absolute;
 	top: 23px;
 }
-#WinStatsV2 .group div {
+#WinStats .group div {
 	height: 16px;
 	display: block;
 }
-#WinStatsV2 .stats {
+#WinStats .stats {
 	left: 37px;
 }
-#WinStatsV2 .bonus {
-	left: 56px;
+#WinStats .bonus {
+	left: 54px;
 }
-#WinStatsV2 .requirements {
-	left: 90px;
+#WinStats .requirements,
+#WinStats .t_requirements {
+	left: 85px;
 	text-align: right;
 	width: 12px;
 }
-#WinStatsV2 .column1 {
+#WinStats .column1 {
 	top: 23px;
 	right: 88px;
 	text-align: right;
 }
-#WinStatsV2 .column2 {
+#WinStats .column2 {
 	top: 23px;
 	right: 5px;
 	text-align: right;
 }
-#WinStatsV2 .up {
-	left: 78px;
+#WinStats .up {
+	left: 75px;
 	top: 19px;
 }
-#WinStatsV2 .up button {
+#WinStats .up button {
 	display: block;
 	margin-top: 5px;
 	border: none;
@@ -89,4 +100,311 @@
 	height: 11px;
 	background-color: transparent;
 	background-repeat: no-repeat;
+}
+
+#WinStats .footer {
+	height: 23px;
+	position: absolute;
+	top: 117px;
+	width: 100px;
+}
+#WinStats .footer .left {
+	float: left;
+	text-align: left;
+	margin-top: 3px;
+}
+#WinStats .footer .view_traits {
+	width: 20px;
+	height: 20px;
+	border: none;
+}
+
+#WinStats .trait_text {
+	position: absolute;
+	top: 5px;
+	left: 20px;
+}
+
+#WinStats .traits_component {
+	position: absolute;
+	left: 0px;
+	display: block;
+	width: 280px;
+}
+
+#WinStats .traits_panel {
+	background-position: 0px -123px;
+	position: absolute;
+	height: 100px;
+	width: 280px;
+}
+#WinStats .trait {
+	position: absolute;
+	top: 4px;
+}
+#WinStats .trait div {
+	height: 16px;
+	display: block;
+}
+
+#WinStats .t_up {
+	left: 75px;
+	top: 0px;
+}
+#WinStats .t_up button {
+	display: block;
+	margin-top: 5px;
+	border: none;
+	width: 11px;
+	height: 11px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+
+#WinStats .t_column1 {
+	top: 3px;
+	right: 92px;
+	text-align: right;
+}
+#WinStats .t_column2 {
+	top: 3px;
+	right: 5px;
+	text-align: right;
+}
+
+#WinStats .trait_point {
+	position: absolute;
+	left: 80px;
+}
+
+/* Tooltips */
+
+#WinStats .status_panel_tooltip {
+	position: relative;
+	width: 75px;
+	height: 100px;
+}
+
+#WinStats .status_panel_tooltip div {
+	display: inline-block;
+	position: relative;
+	width: 70px;
+	height: 16px;
+	left: 5px;
+	top: 4px;
+	z-index: 10;
+}
+
+#WinStats .status_panel_tooltip .desc {
+	display: block;
+	position: relative;
+}
+
+#WinStats .status_panel_tooltip .hover {
+	position: absolute;
+	display: none;
+	z-index: 1;
+	background-color: rgba(0, 0, 0, 0.6);
+	color: white;
+	padding: 5px;
+	white-space: nowrap;
+	font-size: 0.6rem;
+	pointer-events: none;
+}
+
+#WinStats .status_panel_tooltip div:hover .hover {
+	display: block;
+}
+
+#WinStats .column1_tooltip {
+	position: absolute;
+	width: 87px;
+	height: 100px;
+	top: 20px;
+	left: 105px;
+}
+
+#WinStats .column1_tooltip div {
+	display: inline-block;
+	position: relative;
+	width: 85px;
+	height: 16px;
+	left: 0px;
+	top: 0px;
+	z-index: 10;
+}
+
+#WinStats .column1_tooltip .desc {
+	display: block;
+	position: relative;
+}
+
+#WinStats .column1_tooltip .hover {
+	position: absolute;
+	display: none;
+	z-index: 1;
+	background-color: rgba(0, 0, 0, 0.6);
+	color: white;
+	padding: 5px;
+	white-space: nowrap;
+	font-size: 0.6rem;
+	pointer-events: none;
+}
+
+#WinStats .column1_tooltip div:hover .hover {
+	display: block;
+}
+
+#WinStats .column2_tooltip {
+	position: absolute;
+	width: 85px;
+	height: 65px;
+	top: 20px;
+	left: 195px;
+}
+
+#WinStats .column2_tooltip div {
+	display: inline-block;
+	position: relative;
+	width: 85px;
+	height: 16px;
+	left: 0px;
+	top: 0px;
+	z-index: 10;
+}
+
+#WinStats .column2_tooltip .desc {
+	display: block;
+	position: relative;
+}
+
+#WinStats .column2_tooltip .hover {
+	position: absolute;
+	display: none;
+	z-index: 1;
+	background-color: rgba(0, 0, 0, 0.6);
+	color: white;
+	padding: 5px;
+	white-space: nowrap;
+	font-size: 0.6rem;
+	pointer-events: none;
+}
+
+#WinStats .column2_tooltip div:hover .hover {
+	display: block;
+}
+
+#WinStats .trait_panel_tooltip {
+	position: relative;
+	width: 75px;
+	height: 100px;
+}
+
+#WinStats .trait_panel_tooltip div {
+	display: inline-block;
+	position: relative;
+	width: 70px;
+	height: 16px;
+	left: 5px;
+	top: 4px;
+	z-index: 10;
+}
+
+#WinStats .trait_panel_tooltip .desc {
+	display: block;
+	position: relative;
+}
+
+#WinStats .trait_panel_tooltip .hover {
+	position: absolute;
+	display: none;
+	z-index: 1;
+	background-color: rgba(0, 0, 0, 0.6);
+	color: white;
+	padding: 5px;
+	white-space: nowrap;
+	font-size: 0.6rem;
+	pointer-events: none;
+}
+
+#WinStats .trait_panel_tooltip div:hover .hover {
+	display: block;
+}
+
+#WinStats .t_column1_tooltip {
+	position: absolute;
+	width: 87px;
+	height: 100px;
+	top: 0px;
+	left: 105px;
+}
+
+#WinStats .t_column1_tooltip div {
+	display: inline-block;
+	position: relative;
+	width: 85px;
+	height: 16px;
+	left: 0px;
+	top: 0px;
+	z-index: 10;
+}
+
+#WinStats .t_column1_tooltip .desc {
+	display: block;
+	position: relative;
+}
+
+#WinStats .t_column1_tooltip .hover {
+	position: absolute;
+	display: none;
+	z-index: 1;
+	background-color: rgba(0, 0, 0, 0.6);
+	color: white;
+	padding: 5px;
+	white-space: nowrap;
+	font-size: 0.6rem;
+	pointer-events: none;
+}
+
+#WinStats .t_column1_tooltip div:hover .hover {
+	display: block;
+}
+
+#WinStats .t_column2_tooltip {
+	position: absolute;
+	width: 85px;
+	height: 65px;
+	top: 0px;
+	left: 195px;
+}
+
+#WinStats .t_column2_tooltip div {
+	display: inline-block;
+	position: relative;
+	width: 85px;
+	height: 16px;
+	left: 0px;
+	top: 0px;
+	z-index: 10;
+}
+
+#WinStats .t_column2_tooltip .desc {
+	display: block;
+	position: relative;
+}
+
+#WinStats .t_column2_tooltip .hover {
+	position: absolute;
+	display: none;
+	z-index: 1;
+	background-color: rgba(0, 0, 0, 0.6);
+	color: white;
+	padding: 5px;
+	white-space: nowrap;
+	font-size: 0.6rem;
+	pointer-events: none;
+}
+
+#WinStats .t_column2_tooltip div:hover .hover {
+	display: block;
 }

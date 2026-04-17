@@ -8467,6 +8467,43 @@ PACKET.ZC.PERSONAL_INFORMATION2 = function PACKET_ZC_PERSONAL_INFORMATION2(fp, e
 };
 PACKET.ZC.PERSONAL_INFORMATION2.size = -1;
 
+// 0x097C - CZ_REQ_RANKING (PACKETVER >= 20130605, unified ranking request)
+// rankType: 0=Blacksmith, 1=Alchemist, 2=Taekwon, 3=PK
+PACKET.CZ.RANKING = function PACKET_CZ_RANKING() {
+	this.rankType = 0;
+};
+PACKET.CZ.RANKING.prototype.build = function () {
+	const pkt_len = 2 + 2;
+	const pkt_buf = new BinaryWriter(pkt_len);
+	pkt_buf.writeShort(0x097c);
+	pkt_buf.writeShort(this.rankType);
+	return pkt_buf;
+};
+
+// 0x097d - ZC_ACK_RANKING (PACKETVER 20130605 to 20190730, unified ranking response with names)
+// rankType: 0=Blacksmith, 1=Alchemist, 2=Taekwon, 3=PK
+PACKET.ZC.ACK_RANKING = function PACKET_ZC_ACK_RANKING(fp, end) {
+	this.rankType = fp.readShort();
+	this.Name = (function () {
+		const count = 10,
+			out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = fp.readString(NAME_LENGTH);
+		}
+		return out;
+	})();
+	this.Point = (function () {
+		const count = 10,
+			out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = fp.readLong();
+		}
+		return out;
+	})();
+	this.myPoints = fp.readLong();
+};
+PACKET.ZC.ACK_RANKING.size = 288;
+
 // 0x29e
 PACKET.ZC.MER_SKILLINFO_UPDATE = function PACKET_ZC_MER_SKILLINFO_UPDATE(fp, end) {
 	this.SKID = fp.readUShort();
@@ -13319,6 +13356,30 @@ PACKET.CZ.USE_SKILL_TOGROUND3.prototype.build = function () {
 	return pkt;
 };
 
+// 0x0af6 - ZC_ACK_RANKING (PACKETVER >= 20190731, unified ranking response with char IDs)
+// rankType: 0=Blacksmith, 1=Alchemist, 2=Taekwon, 3=PK
+PACKET.ZC.ACK_RANKING2 = function PACKET_ZC_ACK_RANKING2(fp, end) {
+	this.rankType = fp.readShort();
+	this.CharID = (function () {
+		const count = 10,
+			out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = fp.readLong();
+		}
+		return out;
+	})();
+	this.Point = (function () {
+		const count = 10,
+			out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = fp.readLong();
+		}
+		return out;
+	})();
+	this.myPoints = fp.readLong();
+};
+PACKET.ZC.ACK_RANKING2.size = 88;
+
 // 0xaf7
 PACKET.ZC.ACK_REQNAME_BYGID2 = function PACKET_ZC_ACK_REQNAME_BYGID2(fp, end) {
 	this.flag = fp.readUShort();
@@ -13326,6 +13387,17 @@ PACKET.ZC.ACK_REQNAME_BYGID2 = function PACKET_ZC_ACK_REQNAME_BYGID2(fp, end) {
 	this.CName = fp.readString(NAME_LENGTH);
 };
 PACKET.ZC.ACK_REQNAME_BYGID2.size = 32;
+
+// 0xafb
+PACKET.ZC.AUTOSPELLLIST2 = function PACKET_ZC_AUTOSPELLLIST2(fp, end) {
+	const count = (end - fp.tell()) >> 2;
+	const out = new Array(count);
+	for (let i = 0; i < count; ++i) {
+		out[i] = fp.readLong();
+	}
+	this.SKID = out;
+};
+PACKET.ZC.AUTOSPELLLIST2.size = -1;
 
 // 0xafe
 PACKET.ZC.UPDATE_MISSION_HUNT4 = function PACKET_ZC_UPDATE_MISSION_HUNT4(fp, end) {
@@ -14229,7 +14301,7 @@ PACKET.ZC.PC_PURCHASE_ITEMLIST2.size = -1;
 // 0xb78
 PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEMINFO(fp, end) {
 	this.itemList = (function () {
-		const item_size = PACKETVER.value >= 20181121 ? 31 : 27;
+		const item_size = PACKETVER.value >= 20210203 ? 31 : PACKETVER.value >= 20181121 ? 25 : 21;
 		const count = ((end - fp.tell()) / item_size) | 0;
 		const out = new Array(count);
 		for (let i = 0; i < count; ++i) {
@@ -14241,8 +14313,8 @@ PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_BARTER_MARKET_ITEM
 			out[i].currencyamount = fp.readULong();
 			out[i].weight = fp.readULong();
 			out[i].index = fp.readULong();
-			out[i].viewSprite = fp.readUShort();
-			out[i].location = fp.readULong();
+			out[i].viewSprite = PACKETVER.value >= 20210203 ? fp.readUShort() : 0;
+			out[i].location = PACKETVER.value >= 20210203 ? fp.readULong() : 0;
 		}
 		return out;
 	})();
@@ -14256,7 +14328,8 @@ PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_EXPANDED_
 
 	self.items_count = fp.readLong(); // Assign items_count to 'self' properly
 	self.itemList = (function () {
-		const item_size = PACKETVER.value >= 20181121 ? 32 : 30; // size of the `sub` structure
+		const item_size =
+			PACKETVER.value >= 20250402 ? 36 : PACKETVER.value >= 20210203 ? 32 : PACKETVER.value >= 20181121 ? 26 : 24; // size of the `sub` structure
 		const sub2_size = PACKETVER.value >= 20181121 ? 12 : 10; // size of the `sub2` structure
 		const items = [];
 
@@ -14273,9 +14346,10 @@ PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO = function PACKET_ZC_NPC_EXPANDED_
 			item.weight = fp.readULong();
 			item.index = fp.readULong();
 			item.price = fp.readULong();
-			item.viewSprite = fp.readUShort();
-			item.location = fp.readULong();
+			item.viewSprite = PACKETVER.value >= 20210203 ? fp.readUShort() : 0;
+			item.location = PACKETVER.value >= 20210203 ? fp.readULong() : 0;
 			item.currency_count = fp.readULong();
+			item.RefiningLevel = PACKETVER.value >= 20250402 ? fp.readULong() : 0;
 
 			item.currencyList = [];
 			for (let j = 0; j < item.currency_count; ++j) {

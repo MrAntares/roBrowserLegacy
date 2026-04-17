@@ -81,3 +81,5 @@ function CRC32(start, end, previous) {
  * Export
  */
 BinaryReader.prototype.CRC32 = CRC32;
+
+export default CRC32;

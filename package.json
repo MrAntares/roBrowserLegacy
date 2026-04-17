@@ -1,12 +1,12 @@
 {
 	"name": "robrowser",
-	"version": "1.0.0",
+	"version": "2.0.0",
+	"description": "Web-based Ragnarok Online client built with ES6 modules and WebGL",
 	"scripts": {
 		"serve": "vite preview",
 		"live": "vite --open applications/browser-examples/demo.html",
 		"pwa": "vite --open applications/pwa/index.html",
 		"tools": "vite --open applications/tools/index.html",
-		"nw": "nw .",
 		"build": "node ./applications/tools/builder-web.mjs",
 		"build:online": "npm run build -- -O",
 		"build:mapviewer": "npm run build -- -V",
@@ -20,7 +20,12 @@
 		"build:all": "npm run build -- --all",
 		"build:all:minify": "npm run build -- --all --m",
 		"build:pwa": "npm run build -- --O --T --PWA",
-		"build:nw": "build --concurrent --tasks win-x86,win-x64 --mirror https://dl.nwjs.io/ ./applications/nwjs",
+		"electron:dev": "electron applications/electron/main.js --dev",
+		"electron:build": "electron-builder --config applications/electron/electron-builder.yml -w -l",
+		"electron:build:win": "electron-builder --config applications/electron/electron-builder.yml --win",
+		"electron:build:linux": "electron-builder --config applications/electron/electron-builder.yml --linux",
+		"electron:build:mac": "electron-builder --config applications/electron/electron-builder.yml --mac",
+		"electron": "electron applications/electron/main.js",
 		"lint": "eslint src/**/*.js",
 		"lint:fix": "eslint src/**/*.js --fix",
 		"lint:check": "eslint src/**/*.js --max-warnings 0",
@@ -41,38 +46,20 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.0",
 		"@rollup/plugin-alias": "^6.0.0",
-		"bson": "^7.2.0",
+		"electron": "^41.2.0",
+		"electron-builder": "^26.8.1",
 		"eslint": "^10.1.0",
 		"eslint-config-prettier": "^10.1.8",
 		"globals": "^16.0.0",
 		"jsdom": "^29.0.1",
 		"lodash": "^4.17.23",
-		"nw": "^0.99.0-sdk",
-		"nwjs-builder-phoenix": "^1.15.0",
 		"prettier": "^3.8.1",
 		"terser": "^5.19.4",
 		"vite": "^8.0.1",
 		"vitest": "^4.1.2"
 	},
-	"build": {
-		"nwVersion": "stable",
-		"output": "./dist/Desktop",
-		"packed": true,
-		"targets": "zip",
-		"files": [
-			"**/*"
-		]
-	},
-	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --enable-node-worker --user-data-dir=save --disable-raf-throttling",
-	"window": {
-		"width": 1024,
-		"height": 768,
-		"fullscreen": false,
-		"frame": true,
-		"icon": "icon.png"
-	},
-	"main": "applications/nwjs/index.html",
 	"dependencies": {
-		"lodash-es": "^4.18.1"
+		"lodash-es": "^4.18.1",
+		"bson": "^7.2.0"
 	}
 }

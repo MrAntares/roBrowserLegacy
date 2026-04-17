@@ -1926,6 +1926,7 @@ function onEntityStatusChange(pkt) {
 		case StatusConst.SOULLINK:
 		case StatusConst.PROPERTYUNDEAD:
 		case StatusConst.DA_CONTRACT:
+		case StatusConst.HALLUCINATIONWALK:
 			//CG_MOONLIT Moonlit Water Mill
 			//SC_MERC_QUICKEN
 			//SC_SKA

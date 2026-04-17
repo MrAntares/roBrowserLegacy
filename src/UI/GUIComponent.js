@@ -601,6 +601,7 @@ class GUIComponent {
 	draggable(handle) {
 		const host = this._host;
 		const component = this;
+		const SNAP_DISTANCE = 10;
 
 		if (!host) return this;
 
@@ -639,7 +640,15 @@ class GUIComponent {
 				const components = component.manager.components;
 				for (const name in components) {
 					const other = components[name];
-					if (!other || other === component || !other.__active) continue;
+					if (
+						!other ||
+						other === component ||
+						!other.__active ||
+						!other.needFocus ||
+						!other.ui ||
+						!other.ui.is(':visible')
+					)
+						continue;
 
 					const el = other._host || (other.ui && other.ui[0]);
 					if (!el) continue;
@@ -663,6 +672,8 @@ class GUIComponent {
 
 			let drag;
 			let currentOpacity = 1.0;
+			let lastMx = Mouse.screen.x;
+			let lastMy = Mouse.screen.y;
 
 			// Stop drag on mouseup / touchend
 			const onEnd = ev => {
@@ -690,7 +701,6 @@ class GUIComponent {
 						const snappedX = gxi * gw + padX;
 						const snappedY = gyi * gh + padY;
 
-						// Animate snap using CSS transition
 						host.style.transition = `left ${component.snapDuration || 150}ms, top ${component.snapDuration || 150}ms, opacity 150ms`;
 						host.style.left = snappedX + 'px';
 						host.style.top = snappedY + 'px';
@@ -703,7 +713,6 @@ class GUIComponent {
 						};
 						host.addEventListener('transitionend', onTransEnd);
 					} else {
-						// Restore opacity with transition
 						host.style.transition = 'opacity 150ms';
 						host.style.opacity = '1';
 						const onTransEnd = () => {
@@ -720,12 +729,21 @@ class GUIComponent {
 			window.addEventListener('touchend', onEnd);
 
 			// Drag loop
-
 			const dragging = () => {
-				let x_ = Mouse.screen.x + x;
-				let y_ = Mouse.screen.y + y;
+				const mx = Mouse.screen.x;
+				const my = Mouse.screen.y;
+
+				// Skip frame if mouse hasn't moved
+				if (mx === lastMx && my === lastMy) {
+					drag = requestAnimationFrame(dragging);
+					return;
+				}
+				lastMx = mx;
+				lastMy = my;
+
+				let x_ = mx + x;
+				let y_ = my + y;
 				currentOpacity = Math.max(currentOpacity - 0.02, 0.7);
-				const snapDistance = 10;
 
 				// Reset magnet
 				if (component.magnet) {
@@ -737,19 +755,19 @@ class GUIComponent {
 				}
 
 				// Border magnet
-				if (Math.abs(x_) < snapDistance) {
+				if (Math.abs(x_) < SNAP_DISTANCE) {
 					x_ = 0;
 					if (component.magnet) component.magnet.LEFT = true;
 				}
-				if (Math.abs(y_) < snapDistance) {
+				if (Math.abs(y_) < SNAP_DISTANCE) {
 					y_ = 0;
 					if (component.magnet) component.magnet.TOP = true;
 				}
-				if (Math.abs(x_ + width - Mouse.screen.width) < snapDistance) {
+				if (Math.abs(x_ + width - Mouse.screen.width) < SNAP_DISTANCE) {
 					x_ = Mouse.screen.width - width;
 					if (component.magnet) component.magnet.RIGHT = true;
 				}
-				if (Math.abs(y_ + height - Mouse.screen.height) < snapDistance) {
+				if (Math.abs(y_ + height - Mouse.screen.height) < SNAP_DISTANCE) {
 					y_ = Mouse.screen.height - height;
 					if (component.magnet) component.magnet.BOTTOM = true;
 				}
@@ -760,8 +778,8 @@ class GUIComponent {
 					const lockY = component.magnet && (component.magnet.TOP || component.magnet.BOTTOM);
 					let snapX = null,
 						snapY = null;
-					let snapXD = snapDistance + 1,
-						snapYD = snapDistance + 1;
+					let snapXD = SNAP_DISTANCE + 1,
+						snapYD = SNAP_DISTANCE + 1;
 
 					const checkX = val => {
 						const d = Math.abs(val - x_);
@@ -777,7 +795,7 @@ class GUIComponent {
 							snapY = val;
 						}
 					};
-					const isNear = (sA, eA, sB, eB) => !(eA + snapDistance < sB || eB + snapDistance < sA);
+					const isNear = (sA, eA, sB, eB) => !(eA + SNAP_DISTANCE < sB || eB + SNAP_DISTANCE < sA);
 
 					for (let i = 0; i < _snapCache.length; i++) {
 						const box = _snapCache[i];
@@ -1258,6 +1276,15 @@ class GUIComponent {
 			},
 			hide() {
 				host.style.display = 'none';
+				return proxy;
+			},
+			toggle() {
+				if (host.style.display === 'none') {
+					host.style.display = '';
+					component._fixPositionOverflow();
+				} else {
+					host.style.display = 'none';
+				}
 				return proxy;
 			},
 

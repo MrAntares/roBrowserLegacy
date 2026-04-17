@@ -907,6 +907,7 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.ITEMIDENTIFY_LIST, onIdentifyList);
 	Network.hookPacket(PACKET.ZC.ACK_ITEMIDENTIFY, onIdentifyResult);
 	Network.hookPacket(PACKET.ZC.AUTOSPELLLIST, onAutoSpellList);
+	Network.hookPacket(PACKET.ZC.AUTOSPELLLIST2, onAutoSpellList);
 	Network.hookPacket(PACKET.ZC.SKILL_SELECT_REQUEST, onSelectSkillList);
 	Network.hookPacket(PACKET.ZC.WARPLIST, onTeleportList);
 	Network.hookPacket(PACKET.ZC.WARPLIST2, onTeleportList);
@@ -924,6 +925,5 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.MSG_SKILL, onMessageSkill);
 	Network.hookPacket(PACKET.ZC.MONSTER_INFO, onSense);
 	Network.hookPacket(PACKET.ZC.DEVOTIONLIST, onDevotionList);
-	Network.registerPacket(0x97f, PACKET.ZC.SELECTCART);
 	Network.hookPacket(PACKET.ZC.SELECTCART, pkt => CartDecoration.onSelectCart(pkt));
 }

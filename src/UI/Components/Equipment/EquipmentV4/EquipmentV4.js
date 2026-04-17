@@ -147,14 +147,9 @@ EquipmentV4.init = function init() {
 		_btnLevelUp = jQuery('#lvlup_base')
 			.detach()
 			.mousedown(stopPropagation)
-			.click(function () {
+			.click(() => {
 				_btnLevelUp.detach();
-				EquipmentV4.ui.show();
-				EquipmentV4.ui.parent().append(EquipmentV4.ui);
-
-				if (EquipmentV4.ui.is(':visible')) {
-					Renderer.render(renderCharacter);
-				}
+				WinStats.getUI().ui.show();
 			});
 	} else {
 		this.ui.find('#equipment_footer').remove();

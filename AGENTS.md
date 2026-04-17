@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-roBrowserLegacy is a web-based Ragnarok Online client built with ES6 modules and WebGL. It supports multiple platforms (browser, PWA, NW.js desktop) and provides a complete game client experience.
+roBrowserLegacy is a web-based Ragnarok Online client built with ES6 modules and WebGL. It supports multiple platforms (browser, PWA, Electron desktop) and provides a complete game client experience.
 
 ### Key Statistics
 
@@ -26,7 +26,7 @@ import Configs from 'Core/Configs.js';
 ```
 
 - Base path: `src/` (directory structure mirrors module paths)
-- Output: `dist/Web/` for web, `dist/Desktop/` for NW.js
+- Output: `dist/Web/` for web, `dist/Desktop/` for Electron
 - Build: Vite + custom builder script (`applications/tools/builder-web.mjs`)
 
 ### Module Path Aliases
@@ -69,7 +69,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 ### Data Flow
 
 1. **Init**: GameEngine loads config → Client loads GRFs/executable → PacketVerManager detects PACKETVER from executable date
-2. **Login**: LoginEngine → NetworkManager connects via WebSocket (browser) or NodeSocket (NW.js) → authenticates with versioned packets
+2. **Login**: LoginEngine → NetworkManager connects via WebSocket (browser) or NodeSocket (Electron) → authenticates with versioned packets
 3. **Map Entry**: MapEngine loads map/entity data → Renderer displays → Controls enable input → 28 MapEngine subsystems manage live state
 4. **Runtime**: InputHandler → ProcessCommand → NetworkManager sends → packet handlers update state → EntityManager updates → Renderer draws
 
@@ -77,14 +77,14 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
 - **Browser**: WebSocket via wsProxy, ES modules loaded as `<script type='module'>`
 - **PWA**: Progressive Web App with manifest and service worker support
-- **NW.js Desktop**: Direct TCP via NodeSocket, packaged executables for Windows x86/x64
+- **Electron Desktop**: Direct TCP via NodeSocket (Electron preload), packaged executables
 
 ## Key Architectural Decisions
 
 - **Entity system uses composition, not inheritance.** 17 mixin modules (`EntityWalk`, `EntityCast`, `EntityState`, `EntityRender`, etc.) are mixed into `Entity.js`. Do not refactor to class inheritance — the mixins are applied dynamically at runtime.
 - **Packet versioning is date-based.** PACKETVER is auto-detected from the kRO executable's PE timestamp. `PacketVersions.js` uses date-range switches. Changing detection logic in `PacketVerManager.js` can break compatibility with 23 packet versions.
 - **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files via `data-background` HTML attributes. `UIComponent.parseHTML()` loads them at runtime. CSS is structural/positional only.
-- **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). NW.js uses `NodeSocket.js` (direct TCP). Both implement the same interface for `NetworkManager`.
+- **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). Electron uses `NodeSocket.js` (direct TCP via preload contextBridge). Both implement the same interface for `NetworkManager`.
 - **jQuery is legacy but load-bearing.** Used for DOM manipulation, event handling, and `$.Deferred` (being replaced by native Promise). Don't add new jQuery usage; replace it when touching existing code.
 - **Vendors are frozen.** `src/Vendors/` is excluded from ESLint. Never modify vendored files.
 - **UI has two component systems (migration in progress).** Legacy `UIComponent` uses jQuery + Light DOM + `data-*` attributes. New `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. See `doc/UIComponent_to_GUIComponent.md`.
@@ -102,7 +102,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **PacketCrypt.js**: Packet encryption/decryption
 - **PacketVerManager.js**: Automatic PACKETVER detection from executable metadata
 - **Packets/**: 23 version-specific length files (`packets2003_len_main.js` through `packets2025_len_main.js`)
-- **SocketHelpers/**: WebSocket.js (browser), NodeSocket.js (NW.js desktop)
+- **SocketHelpers/**: WebSocket.js (browser), NodeSocket.js (Electron desktop)
 - Pattern: Add handler in PacketRegister → define structure in PacketStructure → implement response in appropriate engine
 
 ### Asset Loaders (`src/Loaders/`)
@@ -305,7 +305,9 @@ npm run dev             # Vite dev server
 npm run build:online    # Build full client (Online.js)
 npm run build:all       # Build all 7 apps
 npm run build:pwa       # Build PWA (Online + Thread + manifest)
-npm run build:nw        # Build NW.js desktop (Windows x86/x64)
+npm run electron        # Run Electron desktop app
+npm run electron:dev    # Run Electron in dev mode (with DevTools)
+npm run electron:build  # Package Electron app (output: dist/Desktop/)
 npm run lint            # ESLint check
 npm run lint:fix        # ESLint auto-fix
 npm run format          # Prettier format
@@ -416,6 +418,6 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 ### Cross-Platform Gotchas
 
 - Browser: console may be silenced by ConsoleManager — check with F12 first
-- NW.js: errors may appear in the NW.js DevTools, not the terminal
+- Electron: errors may appear in the Electron DevTools, not the terminal
 - GRF paths: case-sensitive on Linux, case-insensitive on Windows — bugs  
   that only appear on Linux deployments

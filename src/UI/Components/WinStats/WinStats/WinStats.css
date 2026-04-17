@@ -1,3 +1,10 @@
+:host {
+	width: 280px;
+	height: 130px;
+	top: 200px;
+	left: 200px;
+}
+
 #WinStats {
 	position: absolute;
 	width: 280px;

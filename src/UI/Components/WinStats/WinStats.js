@@ -12,7 +12,6 @@
 import WinStats from './WinStats/WinStats.js';
 import WinStatsV1 from './WinStatsV1/WinStatsV1.js';
 import WinStatsV2 from './WinStatsV2/WinStatsV2.js';
-import WinStatsV3 from './WinStatsV3/WinStatsV3.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 
@@ -20,8 +19,7 @@ const publicName = 'WinStats';
 const versionInfo = {
 	default: WinStats,
 	common: {
-		20200520: WinStatsV3,
-		20140521: WinStatsV2,
+		20200520: WinStatsV2,
 		20090617: WinStatsV1
 	},
 	re: {},

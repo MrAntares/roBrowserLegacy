@@ -53,6 +53,8 @@ function stopPropagation(event) {
 	return false;
 }
 
+CashShopIcon.needFocus = false;
+
 /**
  * Create component and export it
  */

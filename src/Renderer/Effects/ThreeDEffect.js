@@ -4,7 +4,6 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Camera from 'Renderer/Camera.js';
-import GroundEffect from 'Renderer/Effects/GroundEffect.js';
 import Entity from 'Renderer/Entity/Entity.js';
 
 function randBetween(minimum, maximum) {
@@ -12,7 +11,6 @@ function randBetween(minimum, maximum) {
 }
 
 const blendMode = {};
-
 let _soulStrikeFirstEffect = null;
 
 class ThreeDEffect {
@@ -323,11 +321,7 @@ class ThreeDEffect {
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
 		this.toAngle = effect.toAngle ? effect.toAngle : 0;
-		if (this.shadowTexture) {
-			import('Renderer/EffectManager.js').then(m =>
-				m.default.add(new GroundEffect(this.posxStart, this.posyStart), 1000000)
-			);
-		}
+
 		this.startTick = startTick;
 		this.endTick = endTick;
 
@@ -584,7 +578,7 @@ class ThreeDEffect {
 		SpriteRenderer.position[2] = this.position[2] + posDelta;
 
 		if (this.shadowTexture) {
-			SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[0]);
+			SpriteRenderer.position[2] = Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[1]);
 		}
 
 		let alpha = this.alphaMax;
@@ -661,23 +655,6 @@ class ThreeDEffect {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 
-		if (this.shadowTexture) {
-			import('Renderer/EffectManager.js').then(m => {
-				const EffectManager = m.default;
-				const effectName = EffectManager.get(1000000);
-				if (effectName) {
-					if (this.endTick < tick) {
-						EffectManager.remove(effectName, 1000000);
-					} else {
-						effectName.position = new Int16Array([
-							SpriteRenderer.position[0],
-							SpriteRenderer.position[1],
-							Altitude.getCellHeight(SpriteRenderer.position[0], SpriteRenderer.position[1])
-						]);
-					}
-				}
-			});
-		}
 		if (this.actRessource && this.spriteRessource) {
 			let entity = this.ownerEntity;
 			if (!entity) {

@@ -2569,11 +2569,50 @@ class DB {
 		return ScreamTable[Math.round(Math.random() * (ScreamTable.length - 1))];
 	}
 
-	static getNameByGID(GID) {
-		if (DB.CNameTable[GID] && DB.CNameTable[GID] === 'Unknown') // already requested
-		{
-			return;
+	/**
+	 * @type {Object<number, Function[]>} Pending name-resolution callbacks keyed by GID
+	 * @private
+	 */
+	static _nameCallbacks = {};
+
+	/**
+	 * @type {Object<number, ReturnType<typeof setTimeout>>} Per-GID TTL timers
+	 * @private
+	 */
+	static _nameCallbackTimers = {};
+
+	/**
+	 * Request a character name by GID from the server.
+	 * Returns a Promise that resolves with the name once the server responds.
+	 * If the name is already cached, resolves immediately.
+	 * If a request is already in-flight, piggybacks on the pending response.
+	 *
+	 * If the server never responds within `ttl` milliseconds the pending
+	 * callbacks are resolved with 'Unknown', the CNameTable entry is cleared
+	 * (so the next caller can retry), and all references are freed.
+	 *
+	 * @param {number} GID
+	 * @param {number} [ttl=8000] - Milliseconds before treating the request as timed-out
+	 * @returns {Promise<string>} resolves with the character name
+	 */
+	static getNameByGID(GID, ttl = 8000) {
+		// Already have a real name cached — resolve immediately
+		if (DB.CNameTable[GID] && DB.CNameTable[GID] !== 'Unknown') {
+			return Promise.resolve(DB.CNameTable[GID]);
 		}
+
+		// Already requested (pending 'Unknown') — don't re-send, just
+		// return a promise that piggybacks on the existing in-flight request
+		if (DB.CNameTable[GID] === 'Unknown') {
+			return new Promise(resolve => {
+				if (!DB._nameCallbacks[GID]) {
+					DB._nameCallbacks[GID] = [];
+				}
+				DB._nameCallbacks[GID].push(resolve);
+			});
+		}
+
+		// New request — send to server
 		let pkt;
 		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.REQNAME_BYGID2();
@@ -2583,6 +2622,47 @@ class DB {
 		pkt.GID = GID;
 		Network.sendPacket(pkt);
 		DB.CNameTable[pkt.GID] = 'Unknown';
+
+		// Arm a TTL timer so callbacks are never leaked if the server is silent
+		DB._nameCallbackTimers[GID] = setTimeout(() => {
+			// Only act if the entry hasn't already been resolved by the server
+			if (DB._nameCallbacks[GID]) {
+				// Clear the 'Unknown' sentinel so the next caller can retry
+				delete DB.CNameTable[GID];
+				DB._resolveNameCallbacks(GID, 'Unknown');
+			}
+			delete DB._nameCallbackTimers[GID];
+		}, ttl);
+
+		return new Promise(resolve => {
+			if (!DB._nameCallbacks[GID]) {
+				DB._nameCallbacks[GID] = [];
+			}
+			DB._nameCallbacks[GID].push(resolve);
+		});
+	}
+
+	/**
+	 * Notify all pending name-resolution callbacks for a GID.
+	 * Called internally when a name response packet arrives.
+	 *
+	 * @param {number} GID
+	 * @param {string} name
+	 * @private
+	 */
+	static _resolveNameCallbacks(GID, name) {
+		// Cancel the TTL timer if the server replied before it fired
+		if (DB._nameCallbackTimers[GID]) {
+			clearTimeout(DB._nameCallbackTimers[GID]);
+			delete DB._nameCallbackTimers[GID];
+		}
+		const callbacks = DB._nameCallbacks[GID];
+		if (callbacks) {
+			delete DB._nameCallbacks[GID];
+			for (const cb of callbacks) {
+				cb(name);
+			}
+		}
 	}
 
 	/**
@@ -7179,6 +7259,7 @@ function loadCashShopBanner(filename, callback, onEnd) {
 
 function onUpdateOwnerName(pkt) {
 	DB.CNameTable[pkt.GID] = pkt.CName;
+	DB._resolveNameCallbacks(pkt.GID, pkt.CName);
 	DB.UpdateOwnerName[pkt.GID] = pkt;
 }
 
