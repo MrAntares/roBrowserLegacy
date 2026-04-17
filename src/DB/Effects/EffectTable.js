@@ -7711,7 +7711,7 @@ export default {
 	366: [
 		{
 			//martyr's reckoning	//EF_BASH3D	   Martyr's Reckoning
-			wav: 'effect/bash3d',
+			wav: 'effect/bash3d', // incorrect wav name
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
@@ -7920,7 +7920,7 @@ export default {
 	377: [
 		{
 			//martyr's reckoning 2	//EF_BASH3D2	   Martyr's Reckoning 2
-			wav: 'effect/mon_bash3d',
+			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_¿¬È¯? can be incorrect wav name
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
@@ -8256,7 +8256,7 @@ export default {
 	399: [
 		{
 			//headcrush caster	//EF_BASH3D3	Head Crush
-			wav: 'effect/headcrush',
+			wav: 'effect/\xc7\xec\xb5\xe5\x20\xc5\xa9\xb7\xaf\xbd\xac', //Çìµå Å©·¯½¬
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
@@ -8330,7 +8330,7 @@ export default {
 	400: [
 		{
 			//joint beat caster	//EF_BASH3D4	Joint Beat
-			wav: 'effect/bitjoint',
+			wav: 'effect/\xba\xf1\xc6\xae\x20\xc1\xb6\xc0\xce\xc6\xae', // ºñÆ® Á¶ÀÎÆ®
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
@@ -10653,7 +10653,7 @@ export default {
 	628: [
 		{
 			//dust	//EF_BASH3D5	   Dust
-			wav: 'effect/bash3d5',
+			wav: 'effect/bash3d5', // incorrect wav name
 			attachedEntity: true
 		},
 		{
@@ -13342,7 +13342,7 @@ export default {
 	885: [
 		{
 			//bash3d6	//EF_BASH3D6	   Blue light beams (can be unnoficial)
-			wav: 'effect/bash3d',
+			wav: 'effect/bash3d', // incorrect wav name
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
