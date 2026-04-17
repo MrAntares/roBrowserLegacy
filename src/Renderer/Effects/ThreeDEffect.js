@@ -691,11 +691,11 @@ class ThreeDEffect {
 					renderer = Object.assign({}, SpriteRenderer);
 				}
 
-				// Reset channels every layer
-				renderer.color[0] = 1.0;
-				renderer.color[1] = 1.0;
-				renderer.color[2] = 1.0;
-				renderer.color[3] = 1.0;
+				// Reset channels every layer to effect global color
+				renderer.color[0] = this.red;
+				renderer.color[1] = this.green;
+				renderer.color[2] = this.blue;
+				renderer.color[3] = alpha;
 
 				const layer = layers[i];
 				const ctE = new Int16Array(2);

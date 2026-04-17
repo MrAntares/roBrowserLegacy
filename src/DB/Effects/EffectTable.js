@@ -7742,8 +7742,69 @@ export default {
 	],
 
 	374: [
+		// EF_BOTTOM_BASILICA
 		{
-			//EF_BOTTOM_BASILICA	   Basilica
+			// F1=1, GI[0] - Alpha 32, Height 14.0
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.45,
+			topSize: 2.45,
+			height: 2.0,
+			alphaMax: 32 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=1, GI[1] - Alpha 32, Height 14.4
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.52,
+			topSize: 2.52,
+			height: 2.1,
+			alphaMax: 32 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 10,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=1, GI[2] - Alpha 15, Distance 26.6
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.6,
+			topSize: 2.6,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 26.6,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=1, GI[3] - Alpha 15, Distance 79.8 (53.2+26.6)
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.6,
+			topSize: 2.6,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 79.8,
+			duration: 20000,
+			attachedEntity: true
 		}
 	],
 
@@ -10788,8 +10849,155 @@ export default {
 	//712: [{}],	//EF_MAP_GREENLIGHT2	   A Little Flame Sphere
 	//713: [{}],	//EF_YELLOWFLY1	   A lot of Very Small and Yellow Sphere
 	//714: [{}],	//EF_YELLOWFLY2	   (Nothing)
-	//715: [{}],	//EF_BOTTOM_BLUE	   Little blue Basilica
-	//716: [{}],	//EF_BOTTOM_BLUE2	   Same as 715
+	715: [
+		// EF_BOTTOM_BLUE - Little blue Basilica
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.5,
+			topSize: 1.5,
+			height: 2.0,
+			alphaMax: 40 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			red: 0.2,
+			green: 0.6,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.58,
+			topSize: 1.58,
+			height: 2.1,
+			alphaMax: 32 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 10,
+			red: 0.2,
+			green: 0.6,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.65,
+			topSize: 1.65,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 26.6,
+			red: 0.1,
+			green: 0.4,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.65,
+			topSize: 1.65,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 79.8,
+			red: 0.1,
+			green: 0.4,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		}
+	],
+
+	716: [
+		// EF_BOTTOM_BLUE2 - Little blue Basilica
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.5,
+			topSize: 1.5,
+			height: 2.0,
+			alphaMax: 40 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			red: 0.2,
+			green: 0.6,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.58,
+			topSize: 1.58,
+			height: 2.1,
+			alphaMax: 32 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 10,
+			red: 0.2,
+			green: 0.6,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.65,
+			topSize: 1.65,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 26.6,
+			red: 0.1,
+			green: 0.4,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.65,
+			topSize: 1.65,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 79.8,
+			red: 0.1,
+			green: 0.4,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		}
+	],
 
 	717: [
 		{
@@ -12131,8 +12339,70 @@ export default {
 	//801: [{}],	//EF_FROSTDIVER3	   Jack Frost unit (ice spikes)
 
 	802: [
+		//EF_BOTTOM_BASILICA2	   White Imprison
+		// F1=0, GI[0] - Alpha 65, Height 12.5
 		{
-			//EF_BOTTOM_BASILICA2	   White Imprison
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.2,
+			topSize: 2.2,
+			height: 3.0,
+			alphaMax: 65 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=0, GI[1] - Alpha 65, Height 12.9
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.25,
+			topSize: 2.25,
+			height: 3.1,
+			alphaMax: 65 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 10,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=0, GI[2] - Alpha 15, Distance 0
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.3,
+			topSize: 2.3,
+			height: 3.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=0, GI[3] - Alpha 15, Distance 53.2
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.3,
+			topSize: 2.3,
+			height: 3.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 53.2,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
 			wav: 'effect/wl_whiteimprison'
 		}
 	],

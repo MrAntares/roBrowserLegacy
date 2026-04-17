@@ -669,7 +669,7 @@ SkillEffect[SK.RK_FIGHTINGSPIRIT] = {}; //Fighting Spirit //CHECK Is this splash
 SkillEffect[SK.RK_ABUNDANCE] = {}; //Abundance
 SkillEffect[SK.RK_PHANTOMTHRUST] = {}; //Phantom Thrust
 // WL Warlock
-SkillEffect[SK.WL_WHITEIMPRISON] = { groundEffectId: 802 }; //White Imprison
+SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
 SkillEffect[SK.WL_SOULEXPANSION] = {}; //Soul Expansion
 SkillEffect[SK.WL_FROSTMISTY] = { effectId: 726 }; //Frosty Misty
 SkillEffect[SK.WL_JACKFROST] = { effectId: 'ef_jackfrost', groundEffectId: 801 }; //Jack Frost
