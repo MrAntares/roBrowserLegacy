@@ -3986,7 +3986,25 @@ export default {
 		}
 	],
 
-	//166: [{}],	//EF_MAKEBLUR	   Energy Coat (Visual Effect)
+	166: [
+		{
+			//EF_MAKEBLUR Energy Coat (Visual Effect)
+			type: 'FUNC',
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				if (!entity) {
+					return;
+				}
+
+				entity._enableTrail = true;
+				entity._blurType = 1;
+
+				setTimeout(() => {
+					entity._enableTrail = false;
+				}, Params.Init.duration || 2000);
+			}
+		}
+	],
 	//167: [{}],	//EF_TAMINGSUCCESS	   (Nothing)
 	//168: [{}],	//EF_TAMINGFAILED	   (Nothing)
 
