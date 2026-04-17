@@ -475,10 +475,21 @@ const renderEntity = (function renderEntityClosure() {
 	};
 })();
 
+/**
+ * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
+ * @param {Entity} entity
+ * @param {Array} layers
+ * @param {string} spr
+ * @param {string} pal
+ * @param {object} files
+ * @param {string} type
+ * @param {number[]} _position
+ * @param {object} options
+ */
 function renderSecondBody(entity, layers, spr, pal, files, type, _position, options = {}) {
 	// options:
-	// - options.enableHalo: boolean  -> halo type Assumptio
-	// - options.enableTrail: boolean -> trail behind the character
+	// - options.enableHalo: boolean  -> halo type Assumptio (BL_DOUBLE_BODY)
+	// - options.enableTrail: boolean -> trail behind the character (EF_MAKEBLUR)
 	// - options.trailLength: number  -> number of ghosts to keep
 	// - options.blurType: number     -> 1 (standard) EF_MAKEBLUR , 3 (spaced) - EF_MAKEBLUR3, 4 (once), 5 (attack only) - EF_MAKEBLUR5
 	const { enableHalo = false, enableTrail = false, trailLength = 5, blurType = 1 } = options;
