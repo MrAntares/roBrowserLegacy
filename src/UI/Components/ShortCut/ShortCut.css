@@ -37,6 +37,9 @@
 #ShortCut .row .container:hover {
 	background-color: #b5ffb5;
 }
+#ShortCut .row .container.drop-hover {
+	background-color: #b5ffb5;
+}
 #ShortCut .row .index {
 	float: left;
 	position: relative;

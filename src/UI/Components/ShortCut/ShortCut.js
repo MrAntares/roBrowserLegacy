@@ -19,6 +19,7 @@ import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
@@ -79,18 +80,41 @@ ShortCut.init = function init() {
 	this.ui.find('.close').mousedown(stopPropagation).click(onClose);
 
 	this.ui
-		// Dropping to the shortcut
-		.on('drop', '.container', onDrop)
-		.on('dragover', '.container', stopPropagation)
-
-		// Icons
-		.on('dragstart', '.icon', onDragStart)
-		.on('dragend', '.icon', onDragEnd)
 		.on('dblclick', '.icon', onUseShortCut)
 		.on('contextmenu', '.icon', onElementInfo)
-		.on('mousedown', '.icon', function (event) {
+		.on('mousedown touchstart', '.icon', function (event) {
 			event.stopImmediatePropagation();
 		});
+
+	this.dragSource({
+		selector: '.icon',
+		cursorAt: { left: 12, top: 12 },
+		data: getShortcutDragData,
+		helper(source) {
+			return createIconDragHelper(source);
+		},
+		start() {
+			jQuery('.shortcut-tooltip').removeClass('show');
+		}
+	});
+
+	this.ui.find('.container').each(function () {
+		ShortCut.droppable(this, {
+			accept(data) {
+				return data && (data.type === 'item' || data.type === 'skill');
+			},
+			enter(_event, _data, zone) {
+				jQuery(zone.element).addClass('drop-hover');
+			},
+			leave(_event, _data, zone) {
+				jQuery(zone.element).removeClass('drop-hover');
+			},
+			drop(_event, data, zone) {
+				jQuery(zone.element).removeClass('drop-hover');
+				applyShortcutDrop(zone.element, data);
+			}
+		});
+	});
 
 	this.draggable();
 
@@ -559,7 +583,7 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 
 	Client.loadFile(DB.INTERFACE_PATH + 'item/' + file + '.bmp', function (url) {
 		ui.html(
-			'<div draggable="true" class="icon">' + '<div class="img"></div>' + '<div class="amount"></div>' + '</div>'
+			'<div draggable="false" class="icon">' + '<div class="img"></div>' + '<div class="amount"></div>' + '</div>'
 		);
 
 		ui.find('.img').css('backgroundImage', 'url(' + url + ')');
@@ -671,32 +695,44 @@ ShortCut.removeElement = function removeElement(isSkill, ID, row, amount) {
 	}
 };
 
-/**
- * Drop something in the shortcut
- * Does the client allow other source than shortcut, inventory
- * and skill window to save to shortcut ?
- */
-function onDrop(event) {
-	let data, element;
-	const index = parseInt(this.getAttribute('data-index'), 10);
-	const row = Math.floor(index / 9);
+function getShortcutDragData(source) {
+	const index = parseInt(source.parentNode.getAttribute('data-index'), 10);
+	const element = _list[index];
 
-	event.stopImmediatePropagation();
+	if (!element || (!element.isSkill && !element.ID)) {
+		return null;
+	}
 
-	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		element = data.data;
-	} catch (e) {
+	return {
+		type: element.isSkill ? 'skill' : 'item',
+		from: 'ShortCut',
+		data: {
+			isSkill: element.isSkill,
+			ID: element.ID,
+			count: element.count
+		}
+	};
+}
+
+function applyShortcutDrop(container, data) {
+	if (!data || (data.type !== 'item' && data.type !== 'skill')) {
 		return false;
 	}
 
-	// Do not process others things than item and skill
-	if (data.type !== 'item' && data.type !== 'skill') {
+	const index = parseInt(container.getAttribute('data-index'), 10);
+	if (!Number.isFinite(index)) {
+		return false;
+	}
+
+	const row = Math.floor(index / 9);
+	const element = data.data;
+	if (!element) {
 		return false;
 	}
 
 	switch (data.from) {
 		case 'SkillList':
+		case 'SkillListV0':
 		case 'Guild':
 		case 'SkillListMH':
 			ShortCut.removeElement(
@@ -725,43 +761,12 @@ function onDrop(event) {
 			ShortCut.addElement(index, element.isSkill, element.ID, element.count);
 			ShortCut.onChange(index, element.isSkill, element.ID, element.count);
 			break;
+
+		default:
+			return false;
 	}
 
 	return false;
-}
-
-/**
- * Stop the drag and drop
- */
-function onDragEnd() {
-	delete window._OBJ_DRAG_;
-	this.classList.remove('hide');
-}
-
-/**
- * Prepare data to be store in the dragged element
- * to change prosition in the shortcut.
- */
-function onDragStart(event) {
-	const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
-	this.classList.add('hide');
-
-	// Extract image from css to get it when dragging the element
-	const img = new Image();
-	img.decoding = 'async';
-	img.src = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: _list[index].isSkill ? 'skill' : 'item',
-				from: 'ShortCut',
-				data: _list[index]
-			})
-		)
-	);
 }
 
 /**

@@ -21,6 +21,7 @@ import Renderer from 'Renderer/Renderer.js';
 import Client from 'Core/Client.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
@@ -230,9 +231,18 @@ Guild.init = function init() {
 	this.ui
 		.on('dblclick', '.skill .icon, .skill .name', onRequestUseSkill)
 		.on('contextmenu', '.skill .icon, .skill .name', onRequestSkillInfo)
-		.on('mousedown', '.selectable', onSkillFocus)
-		.on('dragstart', '.skill', onSkillDragStart)
-		.on('dragend', '.skill', onSkillDragEnd);
+		.on('mousedown', '.selectable', onSkillFocus);
+
+	this.dragSource({
+		selector: '.skill',
+		cursorAt: { left: 12, top: 12 },
+		touchDelay: 300,
+		touchDelayCancelThreshold: 10,
+		data: getSkillDragData,
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		}
+	});
 
 	// Notice
 	ui.find('.content.notice').on('focus', 'textarea, input', function () {
@@ -764,7 +774,7 @@ Guild.addSkill = function addSkill(skill) {
 			className +
 			'" data-index="' +
 			skill.SKID +
-			'" draggable="true">' +
+			'" draggable="false">' +
 			'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
 			'<td class="levelupcontainer"></td>' +
 			'<td class=selectable>' +
@@ -1010,40 +1020,20 @@ function onSkillFocus() {
 	main.addClass('selected');
 }
 
-/**
- * Start to drag a skill (to put it on the hotkey UI ?)
- */
-function onSkillDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
+function getSkillDragData(source) {
+	const index = parseInt(source.getAttribute('data-index'), 10);
 	const skill = getSkillById(index);
 
 	// Can't drag a passive skill (or disabled)
 	if (!skill || !skill.level || !skill.type) {
-		return stopPropagation(event);
+		return null;
 	}
 
-	const img = new Image();
-	img.decoding = 'async';
-	img.src = this.firstChild.firstChild.src;
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: 'Guild',
-				data: skill
-			})
-		)
-	);
-}
-
-/**
- * Stop the drag drop action, clean up
- */
-function onSkillDragEnd() {
-	delete window._OBJ_DRAG_;
+	return {
+		type: 'skill',
+		from: 'Guild',
+		data: skill
+	};
 }
 
 function skillLevelSelectUp(skill) {

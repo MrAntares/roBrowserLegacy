@@ -19,6 +19,7 @@ import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js';
 import htmlText from './SkillList.html?raw';
@@ -115,12 +116,20 @@ SkillList.init = function init() {
 		.on('mouseout', '.skillCol .skill .icon, .skill .name', onSkillDescriptionRemove)
 		.on('mouseover', '.skillCol .skill .icon, .skill .name', onNecessarySkills)
 		.on('mouseout', '.skillCol .skill .icon, .skill .name', onNecessarySkillsRemove)
-		.on('click', '.skillCol .skill .icon, .skill .name', onRememberChoice)
-		.on('dragstart', '.skill', onSkillDragStart)
-		.on('dragend', '.skill', onSkillDragEnd)
-		.on('touchstart', '.skill .icon', onSkillTouchStart)
-		.on('touchmove', '.skill .icon', onSkillTouchMove)
-		.on('touchend', '.skill .icon', onSkillTouchEnd);
+		.on('click', '.skillCol .skill .icon, .skill .name', onRememberChoice);
+
+	this.dragSource({
+		selector: '.skill',
+		cursorAt: { left: 12, top: 12 },
+		touchDelay: 300,
+		touchDelayCancelThreshold: 10,
+		data: getSkillDragData,
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		},
+		end: onSkillDragEnd,
+		cancel: onSkillDragEnd
+	});
 
 	this.draggable(this.ui.find('.titlebar'));
 
@@ -464,7 +473,7 @@ SkillList.prepareSkillTree = function prepareSkillTree(items, list) {
 					className +
 					'" data-index="' +
 					key +
-					'" draggable="true">' +
+					'" draggable="false">' +
 					'<div class="name">' +
 					jQuery.escape(sk.SkillName).substr(0, 7) +
 					'...<br/>' +
@@ -557,7 +566,7 @@ SkillList.addSkillBig = function addSkillBig(skill) {
 			className +
 			'" data-index="' +
 			skill.SKID +
-			'" draggable="true">' +
+			'" draggable="false">' +
 			'<div class="name">' +
 			jQuery.escape(sk.SkillName).substr(0, 7) +
 			'...<br/>' +
@@ -710,7 +719,7 @@ SkillList.addSkillMini = function addSkillMini(skill) {
 			className +
 			'" data-index="' +
 			skill.SKID +
-			'" draggable="true">' +
+			'" draggable="false">' +
 			'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
 			'<td class="levelupcontainer"></td>' +
 			'<td class=selectable>' +
@@ -1180,32 +1189,20 @@ function onSkillFocus() {
 	main.addClass('selected');
 }
 
-/**
- * Start to drag a skill (to put it on the hotkey UI ?)
- */
-function onSkillDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
+function getSkillDragData(source) {
+	const index = parseInt(source.getAttribute('data-index'), 10);
 	const skill = getSkillById(index);
 
 	// Can't drag a passive skill (or disabled)
 	if (!skill || !skill.level || !skill.type) {
-		return stopPropagation(event);
+		return null;
 	}
 
-	const img = new Image();
-	img.decoding = 'async';
-	img.src = jQuery(this).find('.icon img').attr('src');
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: 'SkillList',
-				data: skill
-			})
-		)
-	);
+	return {
+		type: 'skill',
+		from: 'SkillList',
+		data: skill
+	};
 }
 
 /**
@@ -1217,124 +1214,6 @@ function onSkillDragEnd() {
 	setTimeout(function () {
 		_justDragged = false;
 	}, 0);
-}
-
-/*
- * Mobile Drag & Drop Simulation
- */
-const _touchDrag = {
-	timer: null,
-	dragging: false,
-	ghost: null,
-	startX: 0,
-	startY: 0
-};
-
-function onSkillTouchStart(event) {
-	const touch = event.originalEvent.touches[0];
-	const icon = jQuery(this);
-	const skillDiv = icon.closest('.skill');
-	const index = parseInt(skillDiv.attr('data-index'), 10);
-	const skill = getSkillById(index);
-
-	if (!skill || !skill.level || !skill.type) {
-		return;
-	}
-
-	_touchDrag.startX = touch.pageX;
-	_touchDrag.startY = touch.pageY;
-	_touchDrag.ghost = null;
-	_touchDrag.dragging = false;
-
-	// Long press to start drag (300ms)
-	_touchDrag.timer = setTimeout(function () {
-		_touchDrag.dragging = true;
-
-		// Create ghost
-		_touchDrag.ghost = icon.clone().addClass('drag-ghost').appendTo('body');
-		_touchDrag.ghost.css({
-			position: 'absolute',
-			zIndex: 10000,
-			left: touch.pageX - 12,
-			top: touch.pageY - 12,
-			opacity: 0.8,
-			pointerEvents: 'none'
-		});
-
-		window._OBJ_DRAG_ = {
-			type: 'skill',
-			from: 'SkillList',
-			data: skill
-		};
-	}, 300);
-}
-
-function onSkillTouchMove(event) {
-	if (!_touchDrag.timer && !_touchDrag.dragging) {
-		return;
-	}
-
-	const touch = event.originalEvent.touches[0];
-
-	if (_touchDrag.dragging) {
-		event.preventDefault(); // Stop scrolling
-		if (_touchDrag.ghost) {
-			_touchDrag.ghost.css({
-				left: touch.pageX - 12,
-				top: touch.pageY - 12
-			});
-		}
-	} else {
-		// If moved before timer fires, cancel drag (it's a scroll)
-		const dx = touch.pageX - _touchDrag.startX;
-		const dy = touch.pageY - _touchDrag.startY;
-		if (dx * dx + dy * dy > 100) {
-			// 10px threshold
-			clearTimeout(_touchDrag.timer);
-			_touchDrag.timer = null;
-		}
-	}
-}
-
-function onSkillTouchEnd(event) {
-	if (_touchDrag.timer) {
-		clearTimeout(_touchDrag.timer);
-		_touchDrag.timer = null;
-	}
-
-	if (_touchDrag.dragging) {
-		_touchDrag.dragging = false;
-
-		if (_touchDrag.ghost) {
-			_touchDrag.ghost.remove();
-			_touchDrag.ghost = null;
-		}
-
-		// Find drop target
-		const touch = event.originalEvent.changedTouches[0];
-		const target = document.elementFromPoint(touch.clientX, touch.clientY);
-
-		// Traverse up to find a dropzone (shortcut container)
-		const dropTarget = jQuery(target).closest('.container');
-
-		if (dropTarget.length) {
-			const dropEvent = jQuery.Event('drop');
-			// Mock dataTransfer for ShortCut.js onDrop handler
-			dropEvent.originalEvent = {
-				dataTransfer: {
-					getData: function (type) {
-						if (type === 'Text') {
-							return JSON.stringify(window._OBJ_DRAG_);
-						}
-						return '';
-					}
-				}
-			};
-			dropTarget.trigger(dropEvent);
-		}
-
-		delete window._OBJ_DRAG_;
-	}
 }
 
 function skillLevelSelectUp(skill) {
