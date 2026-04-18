@@ -780,9 +780,9 @@ class EffectManager {
 		}
 
 		if (SkillEffect[skillId].effectId) {
-			effects = Array.isArray(SkillEffect[skillId].effectId)
-				? SkillEffect[skillId].effectId
-				: [SkillEffect[skillId].effectId];
+			if (typeof SkillEffect[skillId].effectId === 'function') effects = SkillEffect[skillId].effectId(srcAID);
+			else effects = SkillEffect[skillId].effectId;
+			effects = Array.isArray(effects) ? effects : [effects];
 
 			effects.forEach(effectId => {
 				EF_Init_Par = {
