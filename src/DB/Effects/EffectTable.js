@@ -278,8 +278,7 @@ export default {
 	///
 	/// - delayStart:
 	///   delays the visual start of this effect entry by the given number of
-	///   milliseconds,  re-applies on repeats. Sound (wav) is NOT delayed —
-	///   it plays at the original startTick.
+	///   milliseconds. Sound (wav) is NOT delayed — it plays at the original startTick.
 	///
 	/// - spriteName:
 	///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
