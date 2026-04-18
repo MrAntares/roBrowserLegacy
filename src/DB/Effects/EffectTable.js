@@ -4546,6 +4546,7 @@ export default {
 			func: function EffectBodyColor(Params) {
 				// make target blue
 				const entity = Params.Init.otherEntity;
+				if (!entity) return true;
 				entity.animations.add(function (tick) {
 					const time = tick;
 
