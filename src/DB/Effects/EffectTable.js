@@ -7325,7 +7325,6 @@ export default {
 	328: [
 		{
 			//EF_BEGINASURA	   Monk Asura Strike
-			wav: 'effect/mon_\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7'
 		}
 	],
 
