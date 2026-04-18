@@ -5560,7 +5560,7 @@ export default {
 			attachedEntity: true
 		},
 		{
-			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+			wav: 'effect/mon_\xc6\xf8\xb1\xe2',
 			attachedEntity: true
 		}
 	],
@@ -5574,7 +5574,7 @@ export default {
 			timeBetweenDupli: 0,
 			file: 'effect/alpha_center.tga',
 			delayStart: 250,
-			duration: 250,
+			duration: 550,
 			alphaMax: 0.8,
 			fadeIn: true,
 			fadeOut: true,
@@ -5644,7 +5644,7 @@ export default {
 			timeBetweenDupli: 0,
 			file: 'effect/lens1.tga',
 			delayStart: 100,
-			duration: 250,
+			duration: 550,
 			alphaMax: 0.8,
 			fadeIn: true,
 			fadeOut: true,
@@ -5764,8 +5764,32 @@ export default {
 
 	276: [
 		{
-			//raging thurst	//EF_TEIHIT3	Raging Thrust
-			attachedEntity: true
+			//Sightless Mind	//EF_TEIHIT3	Sightless Mind (RG_RAID)
+			type: '3D',
+			duplicate: 20,
+			timeBetweenDupli: 0,
+			file: 'effect/lens1.tga',
+			delayStart: 100,
+			duration: 550,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
