@@ -41,8 +41,21 @@
  *
  */
 
-import SK from './SkillConst.js';
+import SK from 'DB/Skills/SkillConst.js';
 import EntityManager from 'Renderer/EntityManager.js';
+import JobId from 'DB/Jobs/JobConst.js';
+
+// _job dont store mount variants, just the real job, so it's ok to check like this
+// this is used on monk asura strike effect
+const CHAMPION_JOBS = new Set([
+	JobId.MONK_H, // 4016
+	JobId.SURA, // 4070
+	JobId.SURA_H, // 4077
+	JobId.SURA_B, // 4106
+	JobId.SURA_2ND, // 4342
+	JobId.INQUISITOR // 4262
+]);
+
 const SkillEffect = {};
 
 // Swordman
@@ -292,8 +305,7 @@ SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { effectIdOnCaster: [261, 'quake'] }; //Fu
 SkillEffect[SK.MO_EXTREMITYFIST] = {
 	effectId: srcAID => {
 		const src = EntityManager.get(srcAID);
-		// _job dont store mount variants, just the real job, so it's ok to check like this
-		return src && (src._job === 4016 || src._job >= 4070) ? [510, 'quake'] : [328, 'quake'];
+		return src && CHAMPION_JOBS.has(src._job) ? [510, 'quake'] : [328, 'quake']; /* champion 510 */
 	},
 	hitEffectId: 266,
 	beginCastEffectId: 12
