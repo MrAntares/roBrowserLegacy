@@ -780,16 +780,11 @@ class EffectManager {
 		}
 
 		if (SkillEffect[skillId].effectId) {
-			effects = Array.isArray(SkillEffect[skillId].effectId)
-				? SkillEffect[skillId].effectId
-				: [SkillEffect[skillId].effectId];
+			if (typeof SkillEffect[skillId].effectId === 'function') effects = SkillEffect[skillId].effectId(srcAID);
+			else effects = SkillEffect[skillId].effectId;
+			effects = Array.isArray(effects) ? effects : [effects];
 
 			effects.forEach(effectId => {
-				if (effectId === 328) {
-					const srcEntity = EntityManager.get(srcAID);
-					// _job dont store mount variants, just the real job, so it's ok to check like this, refactor if more effects need overrides based on jobclass, if not, it's okay be an 3 lines if
-					if (srcEntity && (srcEntity._job === 4016 || srcEntity._job >= 4070)) effectId = 510;
-				}
 				EF_Init_Par = {
 					effectId: effectId,
 					ownerAID: destAID,

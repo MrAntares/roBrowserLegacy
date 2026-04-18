@@ -42,7 +42,7 @@
  */
 
 import SK from './SkillConst.js';
-
+import EntityManager from 'Renderer/EntityManager.js';
 const SkillEffect = {};
 
 // Swordman
@@ -289,7 +289,15 @@ SkillEffect[SK.MO_FINGEROFFENSIVE] = { effectId: 265, hitEffectId: 1 }; //Throw 
 SkillEffect[SK.MO_STEELBODY] = { effectId: [254, 'quake'] }; //Mental Strength
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
 SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { effectIdOnCaster: [261, 'quake'] }; //Fury
-SkillEffect[SK.MO_EXTREMITYFIST] = { effectId: [328, 'quake'], hitEffectId: 266, beginCastEffectId: 12 /*champion: 510*/ }; //Asura Strike
+SkillEffect[SK.MO_EXTREMITYFIST] = {
+	effectId: srcAID => {
+		const src = EntityManager.get(srcAID);
+		// _job dont store mount variants, just the real job, so it's ok to check like this
+		return src && (src._job === 4016 || src._job >= 4070) ? [510, 'quake'] : [328, 'quake'];
+	},
+	hitEffectId: 266,
+	beginCastEffectId: 12
+}; //Asura Strike
 SkillEffect[SK.MO_CHAINCOMBO] = { effectId: [262, 273], effectIdOnCaster: 263 }; //Raging Quadruple Blow
 SkillEffect[SK.MO_COMBOFINISH] = { effectId: [330, 'quake'] }; //Raging Thrust
 // Sage
