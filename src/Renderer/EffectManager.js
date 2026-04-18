@@ -787,6 +787,7 @@ class EffectManager {
 			effects.forEach(effectId => {
 				if (effectId === 328) {
 					const srcEntity = EntityManager.get(srcAID);
+					// _job dont store mount variants, just the real job, so it's ok to check like this, refactor if more effects need overrides based on jobclass, if not, it's okay be an 3 lines if
 					if (srcEntity && (srcEntity._job === 4016 || srcEntity._job >= 4070)) effectId = 510;
 				}
 				EF_Init_Par = {
