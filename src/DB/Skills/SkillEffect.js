@@ -289,7 +289,7 @@ SkillEffect[SK.MO_FINGEROFFENSIVE] = { effectId: 265, hitEffectId: 1 }; //Throw 
 SkillEffect[SK.MO_STEELBODY] = { effectId: [254, 'quake'] }; //Mental Strength
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
 SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { effectIdOnCaster: [261, 'quake'] }; //Fury
-SkillEffect[SK.MO_EXTREMITYFIST] = { effectId: [328, 'quake'], hitEffectId: 266 /*champion: 510*/ }; //Asura Strike
+SkillEffect[SK.MO_EXTREMITYFIST] = { effectId: [328, 'quake'], hitEffectId: 266, beginCastEffectId: 12 /*champion: 510*/ }; //Asura Strike
 SkillEffect[SK.MO_CHAINCOMBO] = { effectId: [262, 273], effectIdOnCaster: 263 }; //Raging Quadruple Blow
 SkillEffect[SK.MO_COMBOFINISH] = { effectId: [330, 'quake'] }; //Raging Thrust
 // Sage

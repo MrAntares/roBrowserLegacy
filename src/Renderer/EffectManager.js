@@ -785,6 +785,10 @@ class EffectManager {
 				: [SkillEffect[skillId].effectId];
 
 			effects.forEach(effectId => {
+				if (effectId === 328) {
+					const srcEntity = EntityManager.get(srcAID);
+					if (srcEntity && srcEntity._job >= 4070) effectId = 510;
+				}
 				EF_Init_Par = {
 					effectId: effectId,
 					ownerAID: destAID,
