@@ -4539,6 +4539,51 @@ export default {
 					return true;
 				});
 			}
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				// make target blue
+				const entity = Params.Init.otherEntity;
+				if (!entity) return true;
+				entity.animations.add(function (tick) {
+					const time = tick;
+
+					// Part 1: Blue tint progression (200ms duration from official source)
+					if (time < 200) {
+						// Formula from official source: m_master->SetArgb(-1, 255-(m_stateCnt+50), 255-(m_stateCnt+50), 255)
+						const val = (255 - (time + 50)) / 255;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Part 2: Smooth fade back to normal (200ms) for premium feel
+					if (time < 400) {
+						const progress = (time - 200) / 200;
+						const startVal = 5 / 255; // 255 - (200 + 50)
+						const val = startVal + (1.0 - startVal) * progress;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
 		}
 	],
 
@@ -5560,7 +5605,7 @@ export default {
 			attachedEntity: true
 		},
 		{
-			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+			wav: 'effect/mon_\xc6\xf8\xb1\xe2',
 			attachedEntity: true
 		}
 	],
@@ -5568,6 +5613,29 @@ export default {
 	262: [
 		{
 			//EF_TEIHIT1	   Raging Quadruple Blow
+			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+			type: '3D',
+			duplicate: 12,
+			timeBetweenDupli: 0,
+			file: 'effect/alpha_center.tga',
+			delayStart: 250,
+			duration: 550,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
@@ -5614,7 +5682,30 @@ export default {
 
 	266: [
 		{
-			//EF_TEIHIT1X	   Raging Quadruple Blow 3
+			//EF_TEIHIT1X	   Asura Strike (Hit)
+			wav: 'effect/\x6d\x6f\x6e\x5f\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7',
+			type: '3D',
+			duplicate: 24,
+			timeBetweenDupli: 0,
+			file: 'effect/lens1.tga',
+			delayStart: 100,
+			duration: 550,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
@@ -5718,8 +5809,32 @@ export default {
 
 	276: [
 		{
-			//raging thurst	//EF_TEIHIT3	Raging Thrust
-			attachedEntity: true
+			//Sightless Mind	//EF_TEIHIT3	Sightless Mind (RG_RAID)
+			type: '3D',
+			duplicate: 20,
+			timeBetweenDupli: 0,
+			file: 'effect/lens1.tga',
+			delayStart: 100,
+			duration: 550,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
@@ -7279,7 +7394,6 @@ export default {
 	328: [
 		{
 			//EF_BEGINASURA	   Monk Asura Strike
-			wav: 'effect/mon_\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7'
 		}
 	],
 
@@ -7746,7 +7860,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			delayStart: 200,
 			duplicate: 5,
 			timeBetweenDupli: 0,
@@ -7759,7 +7873,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 2.5,
+			topSize: 4.5,
 			animation: 2,
 			zIndex: 1.1,
 			attachedEntity: true
@@ -7768,7 +7882,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			duplicate: 5,
 			delayStart: 200,
 			timeBetweenDupli: 0,
@@ -7781,7 +7895,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 4,
+			topSize: 7.2,
 			animation: 2,
 			zIndex: 1.2,
 			attachedEntity: true
@@ -7975,7 +8089,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			delayStart: 50,
 			duplicate: 8,
 			timeBetweenDupli: 0,
@@ -7988,7 +8102,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 2.5,
+			topSize: 4.5,
 			animation: 2,
 			zIndex: 1.1,
 			attachedEntity: true
@@ -7997,7 +8111,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			duplicate: 8,
 			delayStart: 50,
 			timeBetweenDupli: 0,
@@ -8010,7 +8124,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 4,
+			topSize: 7.2,
 			animation: 2,
 			zIndex: 1.2,
 			attachedEntity: true
@@ -8346,7 +8460,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			delayStart: 500,
 			duplicate: 6,
 			timeBetweenDupli: 0,
@@ -8359,7 +8473,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 2.5,
+			topSize: 4.5,
 			animation: 2,
 			zIndex: 1.1,
 			attachedEntity: true
@@ -8368,7 +8482,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			duplicate: 6,
 			delayStart: 500,
 			timeBetweenDupli: 0,
@@ -8381,7 +8495,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 4,
+			topSize: 7.2,
 			animation: 2,
 			zIndex: 1.2,
 			attachedEntity: true
@@ -8412,7 +8526,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			delayStart: 500,
 			duplicate: 6,
 			timeBetweenDupli: 0,
@@ -8425,7 +8539,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 2.5,
+			topSize: 4.5,
 			animation: 2,
 			zIndex: 1.1,
 			attachedEntity: true
@@ -8434,7 +8548,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			duplicate: 6,
 			delayStart: 500,
 			timeBetweenDupli: 0,
@@ -8447,7 +8561,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 4,
+			topSize: 7.2,
 			animation: 2,
 			zIndex: 1.2,
 			attachedEntity: true
@@ -10741,7 +10855,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			duplicate: 6,
 			timeBetweenDupli: 0,
 			totalCircleSides: 30,
@@ -10753,7 +10867,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 2.5,
+			topSize: 4.5,
 			animation: 2,
 			zIndex: 1.1,
 			attachedEntity: true
@@ -10762,7 +10876,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			duplicate: 6,
 			timeBetweenDupli: 0,
 			totalCircleSides: 30,
@@ -10774,7 +10888,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 4,
+			topSize: 7.2,
 			animation: 2,
 			zIndex: 1.2,
 			attachedEntity: true
@@ -13473,7 +13587,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			delayStart: 200,
 			duplicate: 5,
 			timeBetweenDupli: 0,
@@ -13486,7 +13600,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 2.5,
+			topSize: 4.5,
 			animation: 2,
 			zIndex: 1.1,
 			red: 0.3,
@@ -13498,7 +13612,7 @@ export default {
 			type: 'CYLINDER',
 			textureName: 'alpha_center',
 			alphaMax: 0.6,
-			duration: 250,
+			duration: 175,
 			duplicate: 5,
 			delayStart: 200,
 			timeBetweenDupli: 0,
@@ -13511,7 +13625,7 @@ export default {
 			posZ: 1.5,
 			height: 0,
 			bottomSize: 0.01,
-			topSize: 4,
+			topSize: 7.2,
 			animation: 2,
 			zIndex: 1.2,
 			red: 0.3,
@@ -13530,7 +13644,37 @@ export default {
 		}
 	],
 
-	//889: [{}],	//EF_TEIHIT1T	   Fast light beams
+	889: [
+		//EF_TEIHIT1T	   Fast light beams (blue)
+		{
+			wav: 'effect/\x6d\x6f\x6e\x5f\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7',
+			type: '3D',
+			duplicate: 24,
+			timeBetweenDupli: 0,
+			file: 'effect/lens1.tga',
+			delayStart: 100,
+			duration: 250,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}
+	],
 	//890: [{}],	//EF_SPINMOVE	   Rotation
 	//891: [{}],	//EF_FIREBALL4	   Magic shots [S]
 	//892: [{}],	//EF_TRIPLEATTACK4	   Fastness with hitting sound[S]
