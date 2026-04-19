@@ -14,18 +14,19 @@ import Struct from 'Utils/Struct.js';
 import Inflate from 'Utils/Inflate.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 
-/* global require */
+/* global process */
 let fs = null;
 
-const isElectron =
-	typeof process !== 'undefined' &&
-	process.versions?.electron;
+const isElectron = typeof process !== 'undefined' && process.versions?.electron;
 
 if (isElectron) {
 	try {
+		// eslint-disable-next-line
 		const req = Function('return require')();
 		fs = req('fs');
-	} catch {}
+	} catch {
+		//ignore error
+	}
 }
 
 /**
