@@ -63,7 +63,7 @@ class Bloom {
 		gl.uniform2f(
 			_programs.prefilter.uniform.uTexelSize,
 			(1.0 / _internalFbo.width) * boxsampleFactor,
-			(1.0 / _internalFbo.width) * boxsampleFactor
+			(1.0 / _internalFbo.height) * boxsampleFactor
 		);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
