@@ -3,9 +3,11 @@
  *
  * Custom drag source manager for game UI payload dragging.
  * Uses pointer/mouse/touch events instead of browser-native HTML drag/drop.
+ *
+ * @author MrUnzO
  */
 
-import DropManager from './DropManager.js';
+import DropManager from 'UI/DropManager.js';
 
 const DEFAULT_THRESHOLD = 4;
 const DEFAULT_TOUCH_DELAY_CANCEL_THRESHOLD = 10;

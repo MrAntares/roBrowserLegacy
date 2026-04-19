@@ -19,9 +19,9 @@ import Session from 'Engine/SessionStorage.js';
 import Targa from 'Loaders/Targa.js';
 import Renderer from 'Renderer/Renderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
-import ScrollBar from './Scrollbar.js';
-import DropManager from './DropManager.js';
-import DragManager from './DragManager.js';
+import ScrollBar from 'UI/Scrollbar.js';
+import DropManager from 'UI/DropManager.js';
+import DragManager from 'UI/DragManager.js';
 
 /**
  * Create a component

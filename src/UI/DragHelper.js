@@ -1,5 +1,7 @@
 /**
  * Small helper builders for DragManager custom drag visuals.
+ *
+ * @author MrUnzO
  */
 
 function matchesSelector(element, selector) {

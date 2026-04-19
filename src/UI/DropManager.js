@@ -2,6 +2,8 @@
  * UI/DropManager.js
  *
  * Native drag/drop router for Shadow DOM-aware UI components.
+ *
+ * @author MrUnzO
  */
 
 const DATA_TRANSFER_TYPES = ['Text', 'text/plain'];
