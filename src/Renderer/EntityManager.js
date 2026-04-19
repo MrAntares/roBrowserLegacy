@@ -321,7 +321,7 @@ function render(gl, modelView, projection, fog, renderEffects) {
 
 	// Sort only when dirty or every 3 frames to stay responsive to depth changes
 	_renderFrameCounter++;
-	if (_renderSortDirty || _renderFrameCounter >= 3) {
+	if (_renderSortDirty || (GraphicsSettings.performanceMode ? _renderFrameCounter >= 6 : _renderFrameCounter >= 3)) {
 		_list.sort(sort);
 		_renderSortDirty = false;
 		_renderFrameCounter = 0;
@@ -401,8 +401,26 @@ function intersect() {
 	const x = Mouse.screen.x;
 	const y = Mouse.screen.y;
 
+	// Culling for picking
+	const doCulling = GraphicsSettings.performanceMode;
+	let playerX, playerY, viewAreaSq;
+	if (doCulling && Session.Entity && Session.Entity.position) {
+		playerX = Session.Entity.position[0];
+		playerY = Session.Entity.position[1];
+		viewAreaSq = GraphicsSettings.viewArea * GraphicsSettings.viewArea;
+	}
+
 	for (i = 0, count = _pickList.length; i < count; ++i) {
 		entity = _pickList[i];
+
+		// Culling for picking
+		if (doCulling) {
+			const dx = entity.position[0] - playerX;
+			const dy = entity.position[1] - playerY;
+			if (dx * dx + dy * dy > viewAreaSq) {
+				continue;
+			}
+		}
 
 		// No picking on dead entites
 		if ((entity.action !== entity.ACTION.DIE || entity.objecttype === Entity.TYPE_PC) && entity.remove_tick === 0) {

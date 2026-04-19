@@ -10,7 +10,7 @@
 
 import CommonCSS from './Common.css?raw';
 import jQuery from 'Utils/jquery.js';
-import Cursor from './CursorManager.js';
+import Cursor from 'UI/CursorManager.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import Mouse from 'Controls/MouseEventHandler.js';

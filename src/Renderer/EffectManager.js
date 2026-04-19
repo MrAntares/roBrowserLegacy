@@ -659,7 +659,8 @@ class EffectManager {
 
 		//Start and End
 		Params.Inst.startTick =
-			Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : 0);
+			Params.Inst.startTick +
+			(Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : Params.effect.delayStart || 0);
 		Params.Inst.endTick =
 			Params.Inst.duration > 0
 				? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration
@@ -779,9 +780,9 @@ class EffectManager {
 		}
 
 		if (SkillEffect[skillId].effectId) {
-			effects = Array.isArray(SkillEffect[skillId].effectId)
-				? SkillEffect[skillId].effectId
-				: [SkillEffect[skillId].effectId];
+			if (typeof SkillEffect[skillId].effectId === 'function') effects = SkillEffect[skillId].effectId(srcAID);
+			else effects = SkillEffect[skillId].effectId;
+			effects = Array.isArray(effects) ? effects : [effects];
 
 			effects.forEach(effectId => {
 				EF_Init_Par = {

@@ -17,6 +17,7 @@ import Ground from 'Renderer/Map/Ground.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import JobId from 'DB/Jobs/JobConst.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 
 /**
  * Load dependencies
@@ -306,7 +307,7 @@ const renderEntity = (function renderEntityClosure() {
 								if (self.action === self.ACTION.SIT) {
 									return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
 								}
-								return lookingFront ? (RIDING_STATUS ? -300 : -200) : RIDING_STATUS ? 100 : 1;
+								return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
 							}
 						}
 						if (self.action === self.ACTION.SIT) {
@@ -475,10 +476,21 @@ const renderEntity = (function renderEntityClosure() {
 	};
 })();
 
+/**
+ * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
+ * @param {Entity} entity
+ * @param {Array} layers
+ * @param {string} spr
+ * @param {string} pal
+ * @param {object} files
+ * @param {string} type
+ * @param {number[]} _position
+ * @param {object} options
+ */
 function renderSecondBody(entity, layers, spr, pal, files, type, _position, options = {}) {
 	// options:
-	// - options.enableHalo: boolean  -> halo type Assumptio
-	// - options.enableTrail: boolean -> trail behind the character
+	// - options.enableHalo: boolean  -> halo type Assumptio (BL_DOUBLE_BODY)
+	// - options.enableTrail: boolean -> trail behind the character (EF_MAKEBLUR)
 	// - options.trailLength: number  -> number of ghosts to keep
 	// - options.blurType: number     -> 1 (standard) EF_MAKEBLUR , 3 (spaced) - EF_MAKEBLUR3, 4 (once), 5 (attack only) - EF_MAKEBLUR5
 	const { enableHalo = false, enableTrail = false, trailLength = 5, blurType = 1 } = options;
@@ -551,7 +563,8 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 
 		// Determine blur type: 1 (standard), 3 (10f), 4 (once), 5 (10f, attack only)
 		const interval = blurType === 3 || blurType === 5 ? 560 : 80; // 10 frames vs 5 frames
-		const maxLen = blurType === 4 ? 1 : trailLength;
+		const maxLen =
+			blurType === 4 ? 1 : GraphicsSettings.performanceMode ? Math.floor(trailLength / 2) : trailLength;
 
 		let shouldCapture = false;
 
@@ -757,7 +770,7 @@ const renderElement = (function renderElementClosure() {
 		const isBERSERK = entity.getOpt3(StatusConst.Status.BERSERK);
 
 		renderSecondBody(entity, layers, spr, pal, files, type, _position, {
-			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO),
+			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO) || !!entity._enableHalo,
 			enableTrail:
 				isENERGYCOAT ||
 				isBUNSIN ||

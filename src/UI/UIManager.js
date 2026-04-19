@@ -9,9 +9,9 @@
  */
 
 import jQuery from 'Utils/jquery.js';
-import UIComponent from './UIComponent.js';
-import GUIComponent from './GUIComponent.js';
-import UIVersionManager from './UIVersionManager.js';
+import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Renderer from 'Renderer/Renderer.js';
 import GameEngine from 'Engine/GameEngine.js';

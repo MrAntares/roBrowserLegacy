@@ -4,6 +4,7 @@ import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Camera from 'Renderer/Camera.js';
 import Configs from 'Core/Configs.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import _vertexShader from './SpiritSphere.vs?raw';
 import _fragmentShader from './SpiritSphere.fs?raw';
 
@@ -168,57 +169,59 @@ class SpiritSphere {
 
 		gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
 
-		let _matrix;
-		for (let i = this.num; i > 0; i--) {
-			_matrix = _rotationMatrices[i % _rotationMatrices.length];
+		SpriteRenderer.runWithDepth(true, false, false, () => {
+			let _matrix;
+			for (let i = this.num; i > 0; i--) {
+				_matrix = _rotationMatrices[i % _rotationMatrices.length];
 
-			gl.uniformMatrix4fv(uniform.uTextureRotMat, false, _matrix.texMat);
-			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix.posMat);
+				gl.uniformMatrix4fv(uniform.uTextureRotMat, false, _matrix.texMat);
+				gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix.posMat);
 
-			if (i > 10) {
-				if (this.isCoin) {
-					gl.uniform1f(uniform.uSize, 0.3);
-					gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.2 * this.initialAlpha]);
+				if (i > 10) {
+					if (this.isCoin) {
+						gl.uniform1f(uniform.uSize, 0.3);
+						gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.2 * this.initialAlpha]);
+					} else {
+						gl.uniform1f(uniform.uSize, 0.55);
+						gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 0.2 * this.initialAlpha]);
+					}
+
+					gl.uniform1f(uniform.uZIndex, 0.0);
+					gl.drawArrays(gl.TRIANGLES, 0, 6);
+				} else if (i > 5) {
+					if (this.isCoin) {
+						gl.uniform1f(uniform.uSize, 0.2);
+						gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.4 * this.initialAlpha]);
+					} else {
+						gl.uniform1f(uniform.uSize, 0.35);
+						gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 0.6 * this.initialAlpha]);
+					}
+
+					gl.uniform1f(uniform.uZIndex, 0.01);
+					gl.drawArrays(gl.TRIANGLES, 0, 6);
 				} else {
-					gl.uniform1f(uniform.uSize, 0.55);
-					gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 0.2 * this.initialAlpha]);
-				}
+					if (this.isCoin) {
+						gl.uniform1f(uniform.uSize, 0.1);
+						gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.6 * this.initialAlpha]);
+					} else {
+						gl.uniform1f(uniform.uSize, 0.25);
+						gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 1.0 * this.initialAlpha]);
+					}
+					gl.uniform1f(uniform.uZIndex, 0.02);
+					gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-				gl.uniform1f(uniform.uZIndex, 0.0);
-				gl.drawArrays(gl.TRIANGLES, 0, 6);
-			} else if (i > 5) {
-				if (this.isCoin) {
-					gl.uniform1f(uniform.uSize, 0.2);
-					gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.4 * this.initialAlpha]);
-				} else {
-					gl.uniform1f(uniform.uSize, 0.35);
-					gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 0.6 * this.initialAlpha]);
+					if (this.isCoin) {
+						gl.uniform1f(uniform.uSize, 0.05);
+						gl.uniform4fv(uniform.uColor, [1.0, 1.0, 0.7, 1.0 * this.initialAlpha]);
+					} else {
+						gl.uniform1f(uniform.uSize, 0.15);
+						gl.uniform4fv(uniform.uColor, [0.8, 0.8, 1.0, 1.0 * this.initialAlpha]);
+					}
+					gl.uniform1f(uniform.uZIndex, 0.03);
+					gl.drawArrays(gl.TRIANGLES, 0, 6);
 				}
-
-				gl.uniform1f(uniform.uZIndex, 0.01);
-				gl.drawArrays(gl.TRIANGLES, 0, 6);
-			} else {
-				if (this.isCoin) {
-					gl.uniform1f(uniform.uSize, 0.1);
-					gl.uniform4fv(uniform.uColor, [1.0, 0.9, 0.4, 0.6 * this.initialAlpha]);
-				} else {
-					gl.uniform1f(uniform.uSize, 0.25);
-					gl.uniform4fv(uniform.uColor, [0.0, 0.0, 1.0, 1.0 * this.initialAlpha]);
-				}
-				gl.uniform1f(uniform.uZIndex, 0.02);
-				gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-				if (this.isCoin) {
-					gl.uniform1f(uniform.uSize, 0.05);
-					gl.uniform4fv(uniform.uColor, [1.0, 1.0, 0.7, 1.0 * this.initialAlpha]);
-				} else {
-					gl.uniform1f(uniform.uSize, 0.15);
-					gl.uniform4fv(uniform.uColor, [0.8, 0.8, 1.0, 1.0 * this.initialAlpha]);
-				}
-				gl.uniform1f(uniform.uZIndex, 0.03);
-				gl.drawArrays(gl.TRIANGLES, 0, 6);
 			}
-		}
+		});
 
 		if (this.initialAlpha < 1) {
 			this.initialAlpha = Math.min(this.initialAlpha + 0.005, 1);

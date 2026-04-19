@@ -276,6 +276,10 @@ export default {
 	/// - frameDelay:
 	///   For how many ticks (time) one texture is shown when using fileList. Used for "hand animated" effects that are created from multiple textures.
 	///
+	/// - delayStart:
+	///   delays the visual start of this effect entry by the given number of
+	///   milliseconds. Sound (wav) is NOT delayed — it plays at the original startTick.
+	///
 	/// - spriteName:
 	///   Sprite file name stored in data/sprite/AIANA®/(.*).spr
 	///
@@ -2352,8 +2356,9 @@ export default {
 			type: '3D',
 			shadowTexture: true,
 			alphaMax: 0.5,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2374,8 +2379,9 @@ export default {
 			spriteName: 'sight',
 			alphaMax: 123 / 255,
 			alphaMaxDelta: 3 / 255,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2396,8 +2402,9 @@ export default {
 			type: '3D',
 			shadowTexture: true,
 			alphaMax: 0.5,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2418,8 +2425,9 @@ export default {
 			spriteName: 'sight',
 			alphaMax: 123 / 255,
 			alphaMaxDelta: 3 / 255,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2440,8 +2448,9 @@ export default {
 			type: '3D',
 			shadowTexture: true,
 			alphaMax: 0.5,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2462,8 +2471,9 @@ export default {
 			spriteName: 'sight',
 			alphaMax: 123 / 255,
 			alphaMaxDelta: 3 / 255,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2484,8 +2494,9 @@ export default {
 			type: '3D',
 			shadowTexture: true,
 			alphaMax: 0.5,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2506,8 +2517,9 @@ export default {
 			spriteName: 'sight',
 			alphaMax: 123 / 255,
 			alphaMaxDelta: 3 / 255,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2528,8 +2540,9 @@ export default {
 			type: '3D',
 			shadowTexture: true,
 			alphaMax: 0.5,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2550,8 +2563,9 @@ export default {
 			spriteName: 'sight',
 			alphaMax: 123 / 255,
 			alphaMaxDelta: 3 / 255,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2572,8 +2586,9 @@ export default {
 			type: '3D',
 			shadowTexture: true,
 			alphaMax: 0.5,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2594,8 +2609,9 @@ export default {
 			spriteName: 'sight',
 			alphaMax: 123 / 255,
 			alphaMaxDelta: 3 / 255,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2616,8 +2632,9 @@ export default {
 			type: '3D',
 			shadowTexture: true,
 			alphaMax: 0.5,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2638,8 +2655,9 @@ export default {
 			spriteName: 'sight',
 			alphaMax: 123 / 255,
 			alphaMaxDelta: 3 / 255,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2660,8 +2678,9 @@ export default {
 			type: '3D',
 			shadowTexture: true,
 			alphaMax: 0.5,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -2682,8 +2701,9 @@ export default {
 			spriteName: 'sight',
 			alphaMax: 123 / 255,
 			alphaMaxDelta: 3 / 255,
-			duplicate: 5,
-			timeBetweenDupli: 50,
+			duplicate: 4,
+			timeBetweenDupli: 100,
+			sizeDelta: -60,
 			duration: 800,
 			attachedEntity: false,
 			posxStart: 0,
@@ -4487,6 +4507,99 @@ export default {
 			arc: 3.0,
 			retreat: 3.0,
 			drainPattern: true
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Wait for drain particles from Part 1 (Soul Drain travel)
+					if (tick < 500) {
+						return false;
+					}
+
+					const time = tick - 500;
+
+					// Part 2: Blue tint progression (200ms duration from official source)
+					if (time < 200) {
+						// Formula from official source: m_master->SetArgb(-1, 255-(m_stateCnt+50), 255-(m_stateCnt+50), 255)
+						const val = (255 - (time + 50)) / 255;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Part 3: Smooth fade back to normal (200ms) for premium feel
+					if (time < 400) {
+						const progress = (time - 200) / 200;
+						const startVal = 5 / 255; // 255 - (200 + 50)
+						const val = startVal + (1.0 - startVal) * progress;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				// make target blue
+				const entity = Params.Init.otherEntity;
+				if (!entity) return true;
+				entity.animations.add(function (tick) {
+					const time = tick;
+
+					// Part 1: Blue tint progression (200ms duration from official source)
+					if (time < 200) {
+						// Formula from official source: m_master->SetArgb(-1, 255-(m_stateCnt+50), 255-(m_stateCnt+50), 255)
+						const val = (255 - (time + 50)) / 255;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Part 2: Smooth fade back to normal (200ms) for premium feel
+					if (time < 400) {
+						const progress = (time - 200) / 200;
+						const startVal = 5 / 255; // 255 - (200 + 50)
+						const val = startVal + (1.0 - startVal) * progress;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
 		}
 	],
 
@@ -5508,7 +5621,7 @@ export default {
 			attachedEntity: true
 		},
 		{
-			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+			wav: 'effect/mon_\xc6\xf8\xb1\xe2',
 			attachedEntity: true
 		}
 	],
@@ -5516,6 +5629,29 @@ export default {
 	262: [
 		{
 			//EF_TEIHIT1	   Raging Quadruple Blow
+			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+			type: '3D',
+			duplicate: 12,
+			timeBetweenDupli: 0,
+			file: 'effect/alpha_center.tga',
+			delayStart: 250,
+			duration: 550,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
@@ -5562,7 +5698,30 @@ export default {
 
 	266: [
 		{
-			//EF_TEIHIT1X	   Raging Quadruple Blow 3
+			//EF_TEIHIT1X	   Asura Strike (Hit)
+			wav: 'effect/\x6d\x6f\x6e\x5f\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7',
+			type: '3D',
+			duplicate: 24,
+			timeBetweenDupli: 0,
+			file: 'effect/lens1.tga',
+			delayStart: 100,
+			duration: 550,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
@@ -5666,8 +5825,32 @@ export default {
 
 	276: [
 		{
-			//raging thurst	//EF_TEIHIT3	Raging Thrust
-			attachedEntity: true
+			//Sightless Mind	//EF_TEIHIT3	Sightless Mind (RG_RAID)
+			type: '3D',
+			duplicate: 20,
+			timeBetweenDupli: 0,
+			file: 'effect/lens1.tga',
+			delayStart: 100,
+			duration: 550,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
 		}
 	],
 
@@ -7227,7 +7410,280 @@ export default {
 	328: [
 		{
 			//EF_BEGINASURA	   Monk Asura Strike
-			wav: 'effect/mon_\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7'
+			type: 'CYLINDER',
+			textureName: 'ring_white',
+			fade: true,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			bottomSize: 1,
+			topSize: 4.5,
+			height: -4,
+			duration: 800
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'ring_white',
+			fade: true,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			bottomSize: 1,
+			topSize: 2.5,
+			height: -4,
+			duration: 800
+		},
+		// asura1 — phase 1: appear + shrink
+		{
+			type: '3D',
+			file: 'effect/asura1.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 250,
+			sizeEnd: 120,
+			sizeSmooth: true,
+			posx: -6.0,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 0
+		},
+		// asura1 — phase 2: grow-back + fade out
+		{
+			type: '3D',
+			file: 'effect/asura1.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 120,
+			sizeEnd: 200,
+			posx: -6.0,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1200
+		},
+		// asura2 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura2.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 250,
+			sizeEnd: 120,
+			sizeSmooth: true,
+			posx: -3.6,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 100
+		},
+		// asura2 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura2.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 120,
+			sizeEnd: 200,
+			posx: -3.6,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1300
+		},
+		// asura3 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura3.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 250,
+			sizeEnd: 120,
+			sizeSmooth: true,
+			posx: -1.2,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 200
+		},
+		// asura3 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura3.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 120,
+			sizeEnd: 200,
+			posx: -1.2,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1400
+		},
+		// asura4 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura4.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 250,
+			sizeEnd: 120,
+			sizeSmooth: true,
+			posx: 1.2,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 300
+		},
+		// asura4 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura4.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 120,
+			sizeEnd: 200,
+			posx: 1.2,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1500
+		},
+		// asura5 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura5.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 250,
+			sizeEnd: 120,
+			sizeSmooth: true,
+			posx: 3.6,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 400
+		},
+		// asura5 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura5.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 120,
+			sizeEnd: 200,
+			posx: 3.6,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1600
+		},
+		// asura6 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura6.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 250,
+			sizeEnd: 120,
+			sizeSmooth: true,
+			posx: 6.0,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 500
+		},
+		// asura6 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura6.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 120,
+			sizeEnd: 200,
+			posx: 6.0,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1700
 		}
 	],
 
@@ -7660,7 +8116,81 @@ export default {
 		}
 	],
 
-	//366: [{}],	//EF_BASH3D	   Martyr's Reckoning
+	366: [
+		{
+			//martyr's reckoning	//EF_BASH3D	   Martyr's Reckoning
+			wav: 'effect/bash3d', // incorrect wav name
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Official: Halo (Double Body) is active between tick 20 and 40.
+					entity._enableHalo = tick >= 150 && tick <= 450;
+
+					if (tick >= 150 && tick <= 450) {
+						// SetArgb(-1, 255, 200, 200) -> Light Red
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 0.78;
+						entity._flashColor[2] = 0.78;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					} else {
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					}
+					return tick > 500;
+				});
+			}
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			delayStart: 200,
+			duplicate: 5,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			duplicate: 5,
+			delayStart: 200,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 7.2,
+			animation: 2,
+			zIndex: 1.2,
+			attachedEntity: true
+		}
+	],
 
 	367: [
 		{
@@ -7742,8 +8272,69 @@ export default {
 	],
 
 	374: [
+		// EF_BOTTOM_BASILICA
 		{
-			//EF_BOTTOM_BASILICA	   Basilica
+			// F1=1, GI[0] - Alpha 32, Height 14.0
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.45,
+			topSize: 2.45,
+			height: 2.0,
+			alphaMax: 32 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=1, GI[1] - Alpha 32, Height 14.4
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.52,
+			topSize: 2.52,
+			height: 2.1,
+			alphaMax: 32 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 10,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=1, GI[2] - Alpha 15, Distance 26.6
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.6,
+			topSize: 2.6,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 26.6,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=1, GI[3] - Alpha 15, Distance 79.8 (53.2+26.6)
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.6,
+			topSize: 2.6,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 79.8,
+			duration: 20000,
+			attachedEntity: true
 		}
 	],
 
@@ -7754,11 +8345,85 @@ export default {
 			wav: 'effect/\xb8\xcd\xc8\xa3\xb0\xe6\xc6\xc4\xbb\xea'
 		}
 	],
-	//377: [{}],	//EF_BASH3D2	   Matyr's Reckoning 2
+	377: [
+		{
+			//martyr's reckoning 2	//EF_BASH3D2	   Martyr's Reckoning 2
+			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2', //mon_¿¬È¯? can be incorrect wav name
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Official: Halo (Double Body) is active between tick 5 and 35.
+					entity._enableHalo = tick >= 50 && tick <= 350;
+
+					if (tick >= 50 && tick <= 350) {
+						// SetArgb(-1, 255, 100, 100) -> Red
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 0.39;
+						entity._flashColor[2] = 0.39;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					} else {
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					}
+					return tick > 400;
+				});
+			}
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			delayStart: 50,
+			duplicate: 8,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			duplicate: 8,
+			delayStart: 50,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 7.2,
+			animation: 2,
+			zIndex: 1.2,
+			attachedEntity: true
+		}
+	],
 
 	378: [
 		{
-			//EF_ENERGYDRAIN2          Soul Drain (1st Part)
+			//EF_ENERGYDRAIN2          Energy Drain (1st Part)
 			type: '3D',
 			duration: 600,
 			duplicate: 5,
@@ -7784,7 +8449,61 @@ export default {
 			drainPattern: true
 		}
 	],
-	//379: [{}],	//EF_TRANSBLUEBODY	   Soul Drain (2nd Part)
+	379: [
+		{
+			//EF_TRANSBLUEBODY	   Energy Drain (2nd Part)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Wait for drain particles from Part 1 (Soul Drain travel)
+					if (tick < 500) {
+						return false;
+					}
+
+					const time = tick - 500;
+
+					// Enable halo (BL_DOUBLE_BODY actor)
+					entity._enableHalo = true;
+
+					// Part 2: Blue tint progression (200ms duration from official source)
+					if (time < 200) {
+						// Formula from official source: m_master->SetArgb(-1, 255-(m_stateCnt+50), 255-(m_stateCnt+50), 255)
+						const val = (255 - (time + 50)) / 255;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Part 3: Smooth fade back to normal (200ms) for premium feel
+					if (time < 400) {
+						const progress = (time - 200) / 200;
+						const startVal = 5 / 255; // 255 - (200 + 50)
+						const val = startVal + (1.0 - startVal) * progress;
+						entity._flashColor[0] = val;
+						entity._flashColor[1] = val;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._enableHalo = false;
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		}
+	],
 
 	380: [
 		{
@@ -7982,12 +8701,93 @@ export default {
 			//Level99_2
 		}
 	],
-
 	399: [
 		{
 			//headcrush caster	//EF_BASH3D3	Head Crush
-			wav: 'effect/\xc7\xec\xb5\xe5\x20\xc5\xa9\xb7\xaf\xbd\xac', //Çěµĺ Ĺ©·Ż˝¬
-			//same effect on caster like 'Bash' but stripes are yellow + assumptio effect on caster
+			wav: 'effect/\xc7\xec\xb5\xe5\x20\xc5\xa9\xb7\xaf\xbd\xac', //Çìµå Å©·¯½¬
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Enable halo (BL_DOUBLE_BODY actor)
+					entity._enableHalo = true;
+
+					if (tick < 200) {
+						const val = (255 - (tick + 50)) / 255;
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = val;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					if (tick < 500) {
+						const progress = (tick - 200) / 300;
+						const startVal = 5 / 255; // 255 - (200 + 50)
+						const val = startVal + (1.0 - startVal) * progress;
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = val;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._enableHalo = false;
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			delayStart: 500,
+			duplicate: 6,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			duplicate: 6,
+			delayStart: 500,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 7.2,
+			animation: 2,
+			zIndex: 1.2,
 			attachedEntity: true
 		}
 	],
@@ -7995,8 +8795,65 @@ export default {
 	400: [
 		{
 			//joint beat caster	//EF_BASH3D4	Joint Beat
-			//sound missing
-			//same effect on caster like 'Bash' + assumptio effect on caster
+			wav: 'effect/\xba\xf1\xc6\xae\x20\xc1\xb6\xc0\xce\xc6\xae', // ºñÆ® Á¶ÀÎÆ®
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Official: Halo (Double Body) is active between state 20 and 50.
+					// Scaling to ms (approx 200ms to 500ms).
+					if (tick >= 150 && tick <= 500) {
+						entity._enableHalo = true;
+					} else {
+						entity._enableHalo = false;
+					}
+					return tick > 600;
+				});
+			}
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			delayStart: 500,
+			duplicate: 6,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			duplicate: 6,
+			delayStart: 500,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 7.2,
+			animation: 2,
+			zIndex: 1.2,
 			attachedEntity: true
 		}
 	],
@@ -9326,7 +10183,285 @@ export default {
 		}
 	],
 
-	//510: [{}],	//EF_BEGINASURA11	   Champion Asura Strike
+	510: [
+		{
+			//EF_BEGINASURA11	   Champion Asura Strike
+			type: 'CYLINDER',
+			textureName: 'ring_white',
+			fade: true,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			bottomSize: 1,
+			topSize: 4.5,
+			height: -4,
+			duration: 800
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'ring_white',
+			fade: true,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			bottomSize: 1,
+			topSize: 2.5,
+			height: -4,
+			duration: 800
+		},
+		// asura11 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura11.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 300,
+			sizeEnd: 150,
+			sizeSmooth: true,
+			posx: -8.0,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 0
+		},
+		// asura11 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura11.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 150,
+			sizeEnd: 250,
+			posx: -8.0,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1200
+		},
+		// asura12 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura12.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 300,
+			sizeEnd: 150,
+			sizeSmooth: true,
+			posx: -4.8,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 100
+		},
+		// asura12 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura12.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 150,
+			sizeEnd: 250,
+			posx: -4.8,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1300
+		},
+		// asura13 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura13.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 300,
+			sizeEnd: 150,
+			sizeSmooth: true,
+			posx: -1.6,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 200
+		},
+		// asura13 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura13.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 150,
+			sizeEnd: 250,
+			posx: -1.6,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1400
+		},
+		// asura14 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura14.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 300,
+			sizeEnd: 150,
+			sizeSmooth: true,
+			posx: 1.6,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 300
+		},
+		// asura14 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura14.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 150,
+			sizeEnd: 250,
+			posx: 1.6,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1500
+		},
+		// asura15 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura15.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 300,
+			sizeEnd: 150,
+			sizeSmooth: true,
+			posx: 4.8,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 400
+		},
+		// asura15 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura15.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 150,
+			sizeEnd: 250,
+			posx: 4.8,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1600
+		},
+		// asura16 — phase 1
+		{
+			type: '3D',
+			file: 'effect/asura16.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			duplicate: 3,
+			timeBetweenDupli: 150,
+			alphaMaxDelta: -0.25,
+			fadeIn: true,
+			sizeStart: 300,
+			sizeEnd: 150,
+			sizeSmooth: true,
+			posx: 8.0,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 500
+		},
+		// asura16 — phase 2
+		{
+			type: '3D',
+			file: 'effect/asura16.tga',
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 400,
+			fadeOut: true,
+			sizeStart: 150,
+			sizeEnd: 250,
+			posx: 8.0,
+			posy: 0,
+			posz: 4,
+			overlay: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 0.1,
+			delayStart: 1700
+		}
+	],
 	//511: [{}],	//EF_NIGHT	   (Nothing)
 
 	512: [
@@ -10278,7 +11413,55 @@ export default {
 		}
 	],
 
-	//628: [{}],	//EF_BASH3D5	   Dust
+	628: [
+		{
+			//dust	//EF_BASH3D5	   Dust
+			wav: 'effect/bash3d5', // incorrect wav name
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			duplicate: 6,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			duplicate: 6,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 7.2,
+			animation: 2,
+			zIndex: 1.2,
+			attachedEntity: true
+		}
+	],
 
 	629: [
 		{
@@ -10788,8 +11971,155 @@ export default {
 	//712: [{}],	//EF_MAP_GREENLIGHT2	   A Little Flame Sphere
 	//713: [{}],	//EF_YELLOWFLY1	   A lot of Very Small and Yellow Sphere
 	//714: [{}],	//EF_YELLOWFLY2	   (Nothing)
-	//715: [{}],	//EF_BOTTOM_BLUE	   Little blue Basilica
-	//716: [{}],	//EF_BOTTOM_BLUE2	   Same as 715
+	715: [
+		// EF_BOTTOM_BLUE - Little blue Basilica
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.5,
+			topSize: 1.5,
+			height: 2.0,
+			alphaMax: 40 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			red: 0.2,
+			green: 0.6,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.58,
+			topSize: 1.58,
+			height: 2.1,
+			alphaMax: 32 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 10,
+			red: 0.2,
+			green: 0.6,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.65,
+			topSize: 1.65,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 26.6,
+			red: 0.1,
+			green: 0.4,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.65,
+			topSize: 1.65,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 79.8,
+			red: 0.1,
+			green: 0.4,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		}
+	],
+
+	716: [
+		// EF_BOTTOM_BLUE2 - Little blue Basilica
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.5,
+			topSize: 1.5,
+			height: 2.0,
+			alphaMax: 40 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			red: 0.2,
+			green: 0.6,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.58,
+			topSize: 1.58,
+			height: 2.1,
+			alphaMax: 32 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 10,
+			red: 0.2,
+			green: 0.6,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.65,
+			topSize: 1.65,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 26.6,
+			red: 0.1,
+			green: 0.4,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 1.65,
+			topSize: 1.65,
+			height: 2.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 79.8,
+			red: 0.1,
+			green: 0.4,
+			blue: 1.0,
+			duration: 20000,
+			attachedEntity: true
+		}
+	],
 
 	717: [
 		{
@@ -12131,8 +13461,70 @@ export default {
 	//801: [{}],	//EF_FROSTDIVER3	   Jack Frost unit (ice spikes)
 
 	802: [
+		//EF_BOTTOM_BASILICA2	   White Imprison
+		// F1=0, GI[0] - Alpha 65, Height 12.5
 		{
-			//EF_BOTTOM_BASILICA2	   White Imprison
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.2,
+			topSize: 2.2,
+			height: 3.0,
+			alphaMax: 65 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=0, GI[1] - Alpha 65, Height 12.9
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.25,
+			topSize: 2.25,
+			height: 3.1,
+			alphaMax: 65 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 10,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=0, GI[2] - Alpha 15, Distance 0
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.3,
+			topSize: 2.3,
+			height: 3.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
+			// F1=0, GI[3] - Alpha 15, Distance 53.2
+			type: 'CYLINDER',
+			textureName: 'alpha_down',
+			totalCircleSides: 4,
+			circleSides: 4,
+			bottomSize: 2.3,
+			topSize: 2.3,
+			height: 3.0,
+			alphaMax: 15 / 255,
+			blendMode: 2,
+			rotateWithCamera: true,
+			angleY: 53.2,
+			duration: 20000,
+			attachedEntity: true
+		},
+		{
 			wav: 'effect/wl_whiteimprison'
 		}
 	],
@@ -12729,7 +14121,87 @@ export default {
 	],
 
 	//884: [{}],	//EF_GRADIUS_LASER	   Green beam
-	//885: [{}],	//EF_BASH3D6	   Blue light beams
+	885: [
+		{
+			//bash3d6	//EF_BASH3D6	   Blue light beams (can be unnoficial)
+			wav: 'effect/bash3d', // incorrect wav name
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Halo (Double Body) - Blue variant
+					entity._enableHalo = tick >= 150 && tick <= 450;
+
+					if (tick >= 150 && tick <= 450) {
+						// Blue tint
+						entity._flashColor[0] = 0.5;
+						entity._flashColor[1] = 0.5;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					} else {
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = 1.0;
+						entity._flashColor[3] = 1.0;
+						entity.recalculateBlendingColor();
+					}
+					return tick > 500;
+				});
+			}
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			delayStart: 200,
+			duplicate: 5,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4.5,
+			animation: 2,
+			zIndex: 1.1,
+			red: 0.3,
+			green: 0.5,
+			blue: 1.0,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			duplicate: 5,
+			delayStart: 200,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 7.2,
+			animation: 2,
+			zIndex: 1.2,
+			red: 0.3,
+			green: 0.5,
+			blue: 1.0,
+			attachedEntity: true
+		}
+	],
 	//886: [{}],	//EF_GUMGANG5	   Blue castish cone
 	//887: [{}],	//EF_HITLINE8	   Wavy sparks
 
@@ -12740,7 +14212,37 @@ export default {
 		}
 	],
 
-	//889: [{}],	//EF_TEIHIT1T	   Fast light beams
+	889: [
+		//EF_TEIHIT1T	   Fast light beams (blue)
+		{
+			wav: 'effect/\x6d\x6f\x6e\x5f\xbe\xc6\xbc\xf6\xb6\xf3\x20\xc6\xd0\xc8\xb2\xb1\xc7',
+			type: '3D',
+			duplicate: 24,
+			timeBetweenDupli: 0,
+			file: 'effect/lens1.tga',
+			delayStart: 100,
+			duration: 250,
+			alphaMax: 0.8,
+			fadeIn: true,
+			fadeOut: true,
+			posxStart: 0,
+			posyStart: 0,
+			posxEndRand: 40,
+			posyEndRand: 40,
+			sizeStartX: 10,
+			sizeStartY: 150,
+			sizeEndX: 10,
+			sizeEndY: 150,
+			blendMode: 2,
+			attachedEntity: true,
+			red: 0.1,
+			green: 0.1,
+			blue: 1.0,
+			overlay: true,
+			rotateToTarget: true,
+			rotateWithCamera: true
+		}
+	],
 	//890: [{}],	//EF_SPINMOVE	   Rotation
 	//891: [{}],	//EF_FIREBALL4	   Magic shots [S]
 	//892: [{}],	//EF_TRIPLEATTACK4	   Fastness with hitting sound[S]

@@ -41,7 +41,20 @@
  *
  */
 
-import SK from './SkillConst.js';
+import SK from 'DB/Skills/SkillConst.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import JobId from 'DB/Jobs/JobConst.js';
+
+// _job dont store mount variants, just the real job, so it's ok to check like this
+// this is used on monk asura strike effect
+const CHAMPION_JOBS = new Set([
+	JobId.MONK_H, // 4016
+	JobId.SURA, // 4070
+	JobId.SURA_H, // 4077
+	JobId.SURA_B, // 4106
+	JobId.SURA_2ND, // 4342
+	JobId.INQUISITOR // 4262
+]);
 
 const SkillEffect = {};
 
@@ -289,7 +302,14 @@ SkillEffect[SK.MO_FINGEROFFENSIVE] = { effectId: 265, hitEffectId: 1 }; //Throw 
 SkillEffect[SK.MO_STEELBODY] = { effectId: [254, 'quake'] }; //Mental Strength
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
 SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { effectIdOnCaster: [261, 'quake'] }; //Fury
-SkillEffect[SK.MO_EXTREMITYFIST] = { effectId: [328, 'quake'] /*champion: 510*/ }; //Asura Strike
+SkillEffect[SK.MO_EXTREMITYFIST] = {
+	effectId: srcAID => {
+		const src = EntityManager.get(srcAID);
+		return src && CHAMPION_JOBS.has(src._job) ? [510, 'quake'] : [328, 'quake']; /* champion 510 */
+	},
+	hitEffectId: 266,
+	beginCastEffectId: 12
+}; //Asura Strike
 SkillEffect[SK.MO_CHAINCOMBO] = { effectId: [262, 273], effectIdOnCaster: 263 }; //Raging Quadruple Blow
 SkillEffect[SK.MO_COMBOFINISH] = { effectId: [330, 'quake'] }; //Raging Thrust
 // Sage
@@ -395,7 +415,7 @@ SkillEffect[SK.CH_PALMSTRIKE] = { hitEffectId: [376, 'quake'] }; //Raging Palm S
 SkillEffect[SK.CH_TIGERFIST] = { effectIdOnCaster: 263, effectId: [377, 'quake'] }; //Glacier Fist
 SkillEffect[SK.CH_CHAINCRUSH] = { effectId: 512 }; //Chain Crush Combo
 // Professor
-SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, effectIdOnCaster: 378 /*, successEffectIdOnCaster: 379 */ }; //Indulge
+SkillEffect[SK.PF_HPCONVERSION] = { effectId: 383, effectIdOnCaster: 378, successEffectIdOnCaster: 379 }; //Indulge
 SkillEffect[SK.PF_SOULCHANGE] = { effectId: 384, successEffectId: 385 }; //Soul Exhale
 SkillEffect[SK.PF_SOULBURN] = { effectId: 406 }; //Soul Siphon
 // Asassin Cross
@@ -669,7 +689,7 @@ SkillEffect[SK.RK_FIGHTINGSPIRIT] = {}; //Fighting Spirit //CHECK Is this splash
 SkillEffect[SK.RK_ABUNDANCE] = {}; //Abundance
 SkillEffect[SK.RK_PHANTOMTHRUST] = {}; //Phantom Thrust
 // WL Warlock
-SkillEffect[SK.WL_WHITEIMPRISON] = { groundEffectId: 802 }; //White Imprison
+SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
 SkillEffect[SK.WL_SOULEXPANSION] = {}; //Soul Expansion
 SkillEffect[SK.WL_FROSTMISTY] = { effectId: 726 }; //Frosty Misty
 SkillEffect[SK.WL_JACKFROST] = { effectId: 'ef_jackfrost', groundEffectId: 801 }; //Jack Frost
