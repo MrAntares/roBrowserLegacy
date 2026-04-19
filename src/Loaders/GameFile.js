@@ -15,16 +15,18 @@ import Inflate from 'Utils/Inflate.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 
 /* global require */
-const fs =
-	typeof require !== 'undefined'
-		? (() => {
-				try {
-					return require('fs');
-				} catch {
-					return null;
-				}
-			})()
-		: null;
+let fs = null;
+
+const isElectron =
+	typeof process !== 'undefined' &&
+	process.versions?.electron;
+
+if (isElectron) {
+	try {
+		const req = Function('return require')();
+		fs = req('fs');
+	} catch {}
+}
 
 /**
  * Extensions that should skip full encryption (only header encryption)
