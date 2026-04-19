@@ -21,7 +21,7 @@ let _programs = {};
 let _buffer;
 let _internalFbo;
 const _downsampleFactor = 0.25; // 25% resolution for performance and softer blur
-
+const _downsampleFactorPerformance = 0.125; // 12.5% resolution for performance
 /**
  * @constructor Bloom
  */
@@ -36,6 +36,17 @@ class Bloom {
 		if (!_buffer || !_programs.prefilter || !Bloom.isActive()) {
 			return;
 		}
+
+		const scale = GraphicsSettings.performanceMode ? 0.75 : 1.0;
+		const scaledWidth = Math.floor(gl.canvas.width * scale);
+		const scaledHeight = Math.floor(gl.canvas.height * scale);
+		_internalFbo = PostProcess.createFbo(
+			gl,
+			scaledWidth,
+			scaledHeight,
+			_internalFbo,
+			GraphicsSettings.performanceMode ? _downsampleFactorPerformance : _downsampleFactor
+		);
 
 		/**
 		 * Pass 1 Shader: Extract brightness (Threshold)

@@ -17,6 +17,7 @@ import Ground from 'Renderer/Map/Ground.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import JobId from 'DB/Jobs/JobConst.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 
 /**
  * Load dependencies
@@ -562,7 +563,8 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 
 		// Determine blur type: 1 (standard), 3 (10f), 4 (once), 5 (10f, attack only)
 		const interval = blurType === 3 || blurType === 5 ? 560 : 80; // 10 frames vs 5 frames
-		const maxLen = blurType === 4 ? 1 : trailLength;
+		const maxLen =
+			blurType === 4 ? 1 : GraphicsSettings.performanceMode ? Math.floor(trailLength / 2) : trailLength;
 
 		let shouldCapture = false;
 
