@@ -306,7 +306,7 @@ const renderEntity = (function renderEntityClosure() {
 								if (self.action === self.ACTION.SIT) {
 									return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
 								}
-								return lookingFront ? (RIDING_STATUS ? -300 : -200) : RIDING_STATUS ? 100 : 1;
+								return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
 							}
 						}
 						if (self.action === self.ACTION.SIT) {
