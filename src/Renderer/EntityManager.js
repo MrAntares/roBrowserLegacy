@@ -414,7 +414,7 @@ function intersect() {
 		entity = _pickList[i];
 
 		// Culling for picking
-		if (doCulling && Session.Entity && Session.Entity.position) {
+		if (doCulling) {
 			const dx = entity.position[0] - playerX;
 			const dy = entity.position[1] - playerY;
 			if (dx * dx + dy * dy > viewAreaSq) {
