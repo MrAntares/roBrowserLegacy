@@ -16,6 +16,7 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './Storage.html?raw';
@@ -86,16 +87,45 @@ Storage.init = function Init() {
 
 	// drag, drop items
 	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
-
 		.find('.container .content')
 		.on('mousewheel DOMMouseScroll', onScroll)
 		.on('mouseover', '.item', onItemOver)
 		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
 		.on('contextmenu', '.item', onItemInfo);
+
+	this.droppable({
+		accept(data) {
+			return data && data.type === 'item' && (data.from === 'Inventory' || data.from === 'CartItems');
+		},
+		drop(_event, data) {
+			applyStorageDrop(data);
+		}
+	});
+
+	this.dragSource('.container .content', {
+		selector: '.item',
+		cursorAt: { left: 12, top: 12 },
+		data(source) {
+			const index = parseInt(source.getAttribute('data-index'), 10);
+			const i = getItemIndexById(index);
+
+			if (i === -1) {
+				return null;
+			}
+
+			return {
+				type: 'item',
+				from: 'Storage',
+				data: jQuery.extend({}, _list[i])
+			};
+		},
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		},
+		start() {
+			onItemOut();
+		}
+	});
 
 	this.draggable(this.ui.find('.titlebar'));
 };
@@ -201,7 +231,7 @@ Storage.addItemSub = function addItemSub(item) {
 			.append(
 				'<div class="item" data-index="' +
 					item.index +
-					'" draggable="true">' +
+					'">' +
 					'<div class="icon"></div>' +
 					'<div class="amount">' +
 					(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
@@ -275,14 +305,6 @@ Storage.onKeyDown = function onKeyDown(event) {
 };
 
 /**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
-
-/**
  * Extend Storage window size
  */
 function onResize() {
@@ -340,25 +362,7 @@ function onSwitchTab() {
 	});
 }
 
-/**
- * Drop from inventory to storage
- */
-function onDrop(event) {
-	let data;
-
-	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
-		// Ignore parsing error
-	}
-
-	event.stopImmediatePropagation();
-
-	// Just support items for now ?
-	if (!data || data.type !== 'item' || (data.from !== 'Inventory' && data.from !== 'CartItems')) {
-		return false;
-	}
-
+function applyStorageDrop(data) {
 	const item = data.data;
 
 	// Have to specify how much
@@ -470,46 +474,6 @@ function onItemOver() {
  */
 function onItemOut() {
 	Storage.ui.find('.overlay').hide();
-}
-
-/**
- * Start dragging an item
- */
-function onItemDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
-	const i = getItemIndexById(index);
-
-	if (i === -1) {
-		return;
-	}
-
-	// Set image to the drag drop element
-	const img = new Image();
-	let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-	url = url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
-	img.decoding = 'async';
-	img.src = url;
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Storage',
-				data: _list[i]
-			})
-		)
-	);
-
-	onItemOut();
-}
-
-/**
- * Stop the drag/drop on an item
- */
-function onItemDragEnd() {
-	delete window._OBJ_DRAG_;
 }
 
 /**

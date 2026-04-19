@@ -13,6 +13,7 @@ import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './StorageFilter.html?raw';
 import cssText from './StorageFilter.css?raw';
@@ -81,9 +82,32 @@ StorageFilter.prototype.init = function Init() {
 		.find('.content')
 		.on('mouseover', '.item', this.onItemOver.bind(this))
 		.on('mouseout', '.item', this.onItemOut.bind(this))
-		.on('contextmenu', '.item', this.onItemInfo.bind(this))
-		.on('dragstart', '.item', this.onItemDragStart.bind(this))
-		.on('dragend', '.item', this.onItemDragEnd.bind(this));
+		.on('contextmenu', '.item', this.onItemInfo.bind(this));
+
+	this.dragSource('.content', {
+		selector: '.item',
+		cursorAt: { left: 12, top: 12 },
+		data(source) {
+			const index = parseInt(source.getAttribute('data-index'), 10);
+			const item = self.getItemFromIndex(index);
+
+			if (!item) {
+				return null;
+			}
+
+			return {
+				type: 'item',
+				from: 'Storage',
+				data: jQuery.extend({}, item)
+			};
+		},
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		},
+		start() {
+			self.onItemOut();
+		}
+	});
 
 	this.draggable(this.ui.find('.titlebar'));
 };
@@ -115,7 +139,7 @@ StorageFilter.prototype.renderItem = function RenderItem(item) {
 		.append(
 			'<div class="item" data-index="' +
 				item.index +
-				'" draggable="true">' +
+				'">' +
 				'<div class="icon"></div>' +
 				'<div class="amount">' +
 				(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
@@ -164,35 +188,6 @@ StorageFilter.prototype.onItemOver = function onItemOver(event) {
 
 StorageFilter.prototype.onItemOut = function onItemOut() {
 	this.ui.find('.overlay').hide();
-};
-
-StorageFilter.prototype.onItemDragStart = function onItemDragStart(event) {
-	const index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
-	const item = this.getItemFromIndex(index);
-	if (!item) {
-		return;
-	}
-
-	const img = new Image();
-	const url = event.currentTarget.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/\"/g, '');
-	img.src = url;
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Storage',
-				data: item
-			})
-		)
-	);
-	this.onItemOut(); // Call instance method
-};
-
-StorageFilter.prototype.onItemDragEnd = function onItemDragEnd() {
-	delete window._OBJ_DRAG_;
 };
 
 StorageFilter.prototype.onItemInfo = function onItemInfo(event) {

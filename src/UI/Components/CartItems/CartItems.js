@@ -20,6 +20,7 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
@@ -73,20 +74,48 @@ CartItems.init = function Init() {
 		CartItems.ui.hide();
 	});
 
-	// on drop item
+	// Items event
 	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
-
-		// Items event
 		.find('.container .content')
 		.on('mousewheel DOMMouseScroll', onScroll)
 		.on('mouseover', '.item', onItemOver)
 		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
 		.on('contextmenu', '.item', onItemInfo)
 		.on('dblclick', '.item', onItemUsed);
+
+	this.droppable({
+		accept(data) {
+			return data && data.type === 'item' && (data.from === 'Storage' || data.from === 'Inventory');
+		},
+		drop(_event, data) {
+			applyCartDrop(data);
+		}
+	});
+
+	this.dragSource('.container .content', {
+		selector: '.item',
+		cursorAt: { left: 12, top: 12 },
+		data(source) {
+			const index = parseInt(source.getAttribute('data-index'), 10);
+			const item = CartItems.getItemByIndex(index);
+
+			if (!item) {
+				return null;
+			}
+
+			return {
+				type: 'item',
+				from: 'CartItems',
+				data: jQuery.extend({}, item)
+			};
+		},
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		},
+		start() {
+			onItemOut();
+		}
+	});
 
 	this.draggable(this.ui.find('.titlebar'));
 };
@@ -292,7 +321,7 @@ CartItems.addItemSub = function AddItemSub(item) {
 	content.append(
 		'<div class="item" data-index="' +
 			item.index +
-			'" draggable="true">' +
+			'">' +
 			'<div class="icon"></div>' +
 			'<div class="grade"></div>' +
 			'<div class="amount"><span class="count">' +
@@ -485,25 +514,10 @@ function onToggleReduction() {
 	}*/ // UNUSED
 
 /**
- * Drop an item from storage to inventory
- *
- * @param {event}
+ * Drop an item into cart.
  */
-function onDrop(event) {
-	let item, data;
-	event.stopImmediatePropagation();
-
-	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-		item = data.data;
-	} catch (e) {
-		return false;
-	}
-
-	// Just allow item from storage
-	if (data.type !== 'item' || (data.from !== 'Storage' && data.from !== 'Inventory')) {
-		return false;
-	}
+function applyCartDrop(data) {
+	const item = data.data;
 
 	// Have to specify how much
 	if (item.count > 1) {
@@ -599,46 +613,6 @@ function onItemOver() {
  */
 function onItemOut() {
 	CartItems.ui.find('.overlay').hide();
-}
-
-/**
- * Start dragging an item
- */
-function onItemDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
-	const item = CartItems.getItemByIndex(index);
-
-	if (!item) {
-		return;
-	}
-
-	// Set image to the drag drop element
-	const img = new Image();
-	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-	img.decoding = 'async';
-	img.src = url.replace(/^\"/, '').replace(/\"$/, '');
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'CartItems',
-				data: item
-			})
-		)
-	);
-
-	onItemOut();
-}
-
-/**
- * Stop dragging an item
- *
- */
-function onItemDragEnd() {
-	delete window._OBJ_DRAG_;
 }
 
 /**
