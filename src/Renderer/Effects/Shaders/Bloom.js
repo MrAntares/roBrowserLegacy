@@ -139,7 +139,13 @@ class Bloom {
 	 */
 	static recreateFbo(gl, width, height) {
 		if (_programs.prefilter) {
-			_internalFbo = PostProcess.createFbo(gl, width, height, _internalFbo, _downsampleFactor);
+			_internalFbo = PostProcess.createFbo(
+				gl,
+				width,
+				height,
+				_internalFbo,
+				GraphicsSettings.performanceMode ? _downsampleFactorPerformance : _downsampleFactor
+			);
 		}
 	}
 
