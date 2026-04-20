@@ -8886,9 +8886,9 @@ export default {
 						return false;
 					}
 
-					// Part 3: Smooth fade back to normal
+					// Part 2: Smooth fade back to normal
 					if (time < 800) {
-						const progress = (time - 400) / 400;
+						const progress = (time - 200) / 600;
 						entity._flashColor[0] = 1.0 - 0.5 * progress;
 						entity._flashColor[1] = 1.0 - 0.5 * progress;
 						entity._flashColor[2] = 0.0 + 0.5 * progress;
