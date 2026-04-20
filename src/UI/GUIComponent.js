@@ -24,6 +24,8 @@ import Targa from 'Loaders/Targa.js';
 import Renderer from 'Renderer/Renderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import ScrollBar from 'UI/Scrollbar.js';
+import DropManager from 'UI/DropManager.js';
+import DragManager from 'UI/DragManager.js';
 
 /**
  * Snap cache shared across all draggable instances (same as UIComponent)
@@ -54,6 +56,33 @@ const CSS_NUMBER = {
 	zoom: true
 };
 
+function isNativeElement(value) {
+	return typeof Element !== 'undefined' && value instanceof Element;
+}
+
+function isJQueryLike(value) {
+	return value && typeof value === 'object' && value.length !== undefined && typeof value !== 'function';
+}
+
+function isOptionsObject(value) {
+	return value && typeof value === 'object' && !isNativeElement(value) && !isJQueryLike(value);
+}
+
+function buildDropOptions(target, options) {
+	const dropOptions = { ...(options || {}) };
+
+	if (dropOptions.legacyEvent && typeof dropOptions.drop === 'function') {
+		const drop = dropOptions.drop;
+		dropOptions.drop = function dropLegacyEvent(event, data, zone) {
+			const legacyEvent = DragManager.createLegacyEvent('drop', event, data, target);
+			return drop.call(target, legacyEvent, data, zone);
+		};
+	}
+
+	delete dropOptions.legacyEvent;
+	return dropOptions;
+}
+
 class GUIComponent {
 	/**
 	 * @param {string} name       - Unique component name
@@ -76,6 +105,8 @@ class GUIComponent {
 		this.__active = false;
 		this.__scrollbarObserver = null;
 		this.__mouseStopBlock = null;
+		this.__dropUnregisters = [];
+		this.__dragUnregisters = [];
 
 		this._keyHandler = null;
 		this._enterCount = 0;
@@ -370,7 +401,9 @@ class GUIComponent {
 					key === '_container' ||
 					key === 'ui' ||
 					key === '__loaded' ||
-					key === '__scrollbarObserver'
+					key === '__scrollbarObserver' ||
+					key === '__dropUnregisters' ||
+					key === '__dragUnregisters'
 				) {
 					continue; // Don't copy DOM state
 				}
@@ -379,6 +412,108 @@ class GUIComponent {
 		}
 
 		return cloned;
+	}
+
+	// ─── Drop zones ────────────────────────────────────────
+
+	/**
+	 * Register a Shadow DOM-aware native drop zone for this component.
+	 *
+	 * @param {string|HTMLElement|object} targetOrOptions - Selector, element, or options for the host.
+	 * @param {object} [options] - DropManager registration options.
+	 * @returns {Function|null} unregister callback when registration succeeds.
+	 */
+	droppable(targetOrOptions, options) {
+		if (!this._host) return null;
+
+		let target = targetOrOptions;
+		let dropOptions = options;
+
+		if (arguments.length === 1 && isOptionsObject(targetOrOptions)) {
+			target = this._host;
+			dropOptions = targetOrOptions;
+		}
+
+		if (!target) {
+			target = this._host;
+		} else if (typeof target === 'string') {
+			target = this._shadow?.querySelector(target) || this._container?.querySelector(target);
+		} else if (isNativeElement(target)) {
+			// Native element, no conversion needed.
+		} else {
+			target = target[0] || target;
+		}
+
+		if (!target) {
+			console.error(`[GUIComponent] Unable to find drop target for ${this.name}.`);
+			return null;
+		}
+
+		const unregister = DropManager.register(target, {
+			...buildDropOptions(target, dropOptions),
+			component: this
+		});
+		this.__dropUnregisters.push(unregister);
+		return unregister;
+	}
+
+	clearDroppables() {
+		for (const unregister of this.__dropUnregisters) {
+			unregister();
+		}
+		this.__dropUnregisters = [];
+		return this;
+	}
+
+	// ─── Drag sources ──────────────────────────────────────
+
+	/**
+	 * Register a custom DragManager source for this component.
+	 *
+	 * @param {string|HTMLElement|object} targetOrOptions - Selector, element, or options for the host.
+	 * @param {object} [options] - DragManager registration options.
+	 * @returns {Function|null} unregister callback when registration succeeds.
+	 */
+	dragSource(targetOrOptions, options) {
+		if (!this._host) return null;
+
+		let target = targetOrOptions;
+		let dragOptions = options;
+
+		if (arguments.length === 1 && isOptionsObject(targetOrOptions)) {
+			target = this._host;
+			dragOptions = targetOrOptions;
+		}
+
+		if (!target) {
+			target = this._host;
+		} else if (typeof target === 'string') {
+			target = this._shadow?.querySelector(target) || this._container?.querySelector(target);
+		} else if (isNativeElement(target)) {
+			// Native element, no conversion needed.
+		} else {
+			target = target[0] || target;
+		}
+
+		if (!target) {
+			console.error(`[GUIComponent] Unable to find drag source root for ${this.name}.`);
+			return null;
+		}
+
+		const unregister = DragManager.register(target, {
+			...(dragOptions || {}),
+			component: this
+		});
+		this.__dragUnregisters.push(unregister);
+		return unregister;
+	}
+
+	clearDragSources() {
+		for (const unregister of this.__dragUnregisters) {
+			unregister();
+		}
+		this.__dragUnregisters = [];
+		return this;
 	}
 
 	// ─── Event binding ─────────────────────────────────────

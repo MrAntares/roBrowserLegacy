@@ -19,6 +19,7 @@ import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js';
 import htmlText from './SkillListV0.html?raw';
@@ -115,9 +116,20 @@ SkillListV0.init = function init() {
 		.on('mouseout', '.skillCol .skill .icon, .skill .name', onSkillDescriptionRemove)
 		.on('mouseover', '.skillCol .skill .icon, .skill .name', onNecessarySkills)
 		.on('mouseout', '.skillCol .skill .icon, .skill .name', onNecessarySkillsRemove)
-		.on('click', '.skillCol .skill .icon, .skill .name', onRememberChoice)
-		.on('dragstart', '.skill', onSkillDragStart)
-		.on('dragend', '.skill', onSkillDragEnd);
+		.on('click', '.skillCol .skill .icon, .skill .name', onRememberChoice);
+
+	this.dragSource({
+		selector: '.skill',
+		cursorAt: { left: 12, top: 12 },
+		touchDelay: 300,
+		touchDelayCancelThreshold: 10,
+		data: getSkillDragData,
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		},
+		end: onSkillDragEnd,
+		cancel: onSkillDragEnd
+	});
 
 	this.draggable(this.ui.find('.titlebar'));
 
@@ -421,7 +433,7 @@ SkillListV0.prepareSkillTree = function prepareSkillTree(items, list) {
 					className +
 					'" data-index="' +
 					key +
-					'" draggable="true">' +
+					'" draggable="false">' +
 					'<div class="name">' +
 					jQuery.escape(sk.SkillName).substr(0, 7) +
 					'...<br/>' +
@@ -484,7 +496,7 @@ SkillListV0.addSkillBig = function addSkillBig(skill) {
 			className +
 			'" data-index="' +
 			skill.SKID +
-			'" draggable="true">' +
+			'" draggable="false">' +
 			'<div class="name">' +
 			jQuery.escape(sk.SkillName).substr(0, 7) +
 			'...<br/>' +
@@ -549,7 +561,7 @@ SkillListV0.addSkillMini = function addSkillMini(skill) {
 			className +
 			'" data-index="' +
 			skill.SKID +
-			'" draggable="true">' +
+			'" draggable="false">' +
 			'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
 			'<td class="levelupcontainer"></td>' +
 			'<td class=selectable>' +
@@ -987,33 +999,20 @@ function onSkillFocus() {
 	main.addClass('selected');
 }
 
-/**
- * Start to drag a skill (to put it on the hotkey UI ?)
- */
-function onSkillDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
+function getSkillDragData(source) {
+	const index = parseInt(source.getAttribute('data-index'), 10);
 	const skill = getSkillById(index);
 
 	// Can't drag a passive skill (or disabled)
 	if (!skill || !skill.level || !skill.type) {
-		return stopPropagation(event);
+		return null;
 	}
 
-	const img = new Image();
-	img.decoding = 'async';
-	img.src = jQuery(this).find('.icon img').attr('src');
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: 'SkillListV0',
-				data: skill
-			})
-		)
-	);
+	return {
+		type: 'skill',
+		from: 'SkillListV0',
+		data: skill
+	};
 }
 
 /**

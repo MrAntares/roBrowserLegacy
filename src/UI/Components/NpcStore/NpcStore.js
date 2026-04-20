@@ -21,6 +21,7 @@ import PACKET from 'Network/PacketStructure.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -130,24 +131,52 @@ NpcStore.init = function init() {
 		.on('mousewheel DOMMouseScroll', onScroll)
 		.on('contextmenu', '.icon', onItemInfo)
 		.on('dblclick', '.item', onItemSelected)
-		.on('mousedown', '.item', onItemFocus)
-		.on('dragstart', '.item', onDragStart)
-		.on('dragend', '.item', function () {
-			delete window._OBJ_DRAG_;
-		});
+		.on('mousedown', '.item', onItemFocus);
 
 	// Drop items
-	ui.find('.InputWindow, .OutputWindow, .AvailableItemsWindow')
-		.on('drop', onDrop)
-		.on('dragover', function (event) {
-			event.stopImmediatePropagation();
-			return false;
-		})
-		.on('mousedown', function () {
-			NpcStore.focus();
-		});
+	ui.find('.InputWindow, .OutputWindow, .AvailableItemsWindow').on('mousedown', function () {
+		NpcStore.focus();
+	});
 
-	// Hacky drag drop
+	ui.find('.InputWindow, .OutputWindow, .AvailableItemsWindow').each(function () {
+		NpcStore.droppable(this, {
+			accept(data, _event, zone) {
+				return (
+					data &&
+					data.type === 'item' &&
+					data.from === 'NpcStore' &&
+					data.container !== getNpcStoreContainerClass(zone.element)
+				);
+			},
+			drop(_event, data, zone) {
+				applyNpcStoreDrop(zone.element, data);
+			}
+		});
+	});
+
+	this.dragSource(ui, {
+		selector: '.InputWindow .item, .OutputWindow .item, .AvailableItemsWindow .item',
+		cursorAt: { left: 12, top: 12 },
+		data(source) {
+			const container = getNpcStoreContainerClass(source);
+
+			if (!container) {
+				return null;
+			}
+
+			return {
+				type: 'item',
+				from: 'NpcStore',
+				container: container,
+				index: parseInt(source.getAttribute('data-index'), 10)
+			};
+		},
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		}
+	});
+
+	// Window movement
 	this.draggable.call({ ui: InputWindow }, InputWindow.find('.titlebar'));
 	this.draggable.call({ ui: OutputWindow }, OutputWindow.find('.titlebar'));
 	this.draggable.call({ ui: AvailableItemsWindow }, AvailableItemsWindow.find('.titlebar'));
@@ -589,7 +618,7 @@ function addItem(content, item) {
 		amountText = _type == NpcStore.Type.BUYING_STORE ? ' ea.' : '';
 		// Create it
 		content.append(
-			'<div class="item" draggable="true" data-index="' +
+			'<div class="item" data-index="' +
 				item.index +
 				'">' +
 				'<div class="icon"></div>' +
@@ -610,7 +639,7 @@ function addItem(content, item) {
 		);
 	} else if (_type === NpcStore.Type.BARTER_MARKET) {
 		content.append(
-			'<div class="item" draggable="true" data-index="' +
+			'<div class="item" data-index="' +
 				item.index +
 				'" data-weight="' +
 				item.weight +
@@ -674,7 +703,7 @@ function addItem(content, item) {
 			}
 		}
 		content.append(
-			'<div class="item expanded-barter" draggable="true" data-index="' +
+			'<div class="item expanded-barter" data-index="' +
 				item.index +
 				'" data-weight="' +
 				item.weight +
@@ -721,7 +750,7 @@ function addItem(content, item) {
 		}
 	} else {
 		content.append(
-			'<div class="item itemAvailable" draggable="true" data-index="' +
+			'<div class="item itemAvailable" data-index="' +
 				item.index +
 				'">' +
 				'<div class="icon"></div>' +
@@ -976,32 +1005,40 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 	};
 }
 
-/**
- * Drop an input in the InputWindow or OutputWindow
- *
- * @param {jQueryEvent} event
- */
-function onDrop(event) {
-	let data;
+function getNpcStoreContainerClass(element) {
+	const container = element && element.closest('.InputWindow, .OutputWindow, .AvailableItemsWindow');
 
-	event.stopImmediatePropagation();
-
-	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
-		return false;
+	if (!container) {
+		return '';
 	}
 
-	// Just allow item from store
-	if (data.type !== 'item' || data.from !== 'NpcStore' || data.container === this.className) {
+	if (container.classList.contains('InputWindow')) {
+		return 'InputWindow';
+	}
+
+	if (container.classList.contains('OutputWindow')) {
+		return 'OutputWindow';
+	}
+
+	if (container.classList.contains('AvailableItemsWindow')) {
+		return 'AvailableItemsWindow';
+	}
+
+	return '';
+}
+
+function applyNpcStoreDrop(element, data) {
+	const container = getNpcStoreContainerClass(element);
+
+	if (!container || data.container === container) {
 		return false;
 	}
 
 	requestMoveItem(
 		data.index,
-		jQuery('.' + data.container + ' .content'),
-		jQuery(this).find('.content'),
-		this.className === 'OutputWindow'
+		NpcStore.ui.find('.' + data.container + ' .content:first'),
+		jQuery(element).find('.content:first'),
+		container === 'OutputWindow'
 	);
 
 	return false;
@@ -1086,40 +1123,6 @@ function onScroll(event) {
 
 	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
 	return false;
-}
-
-/**
- * Start dragging an item
- */
-function onDragStart(event) {
-	const InputWindow = NpcStore.ui.find('.InputWindow:first').get(0);
-	const OutputWindow = NpcStore.ui.find('.OutputWindow:first').get(0);
-	const AvailableItemsWindow = NpcStore.ui.find('.AvailableItemsWindow:first').get(0);
-
-	const container = (
-		jQuery.contains(InputWindow, this)
-			? InputWindow
-			: jQuery.contains(AvailableItemsWindow, this)
-				? AvailableItemsWindow
-				: OutputWindow
-	).className;
-	const img = new Image();
-	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
-	img.decoding = 'async';
-	img.src = url;
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'NpcStore',
-				container: container,
-				index: this.getAttribute('data-index')
-			})
-		)
-	);
 }
 
 /**

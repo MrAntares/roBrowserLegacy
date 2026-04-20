@@ -54,7 +54,16 @@ Trade.init = function Init() {
 	this.ui.find('.trade.enabled').click(onTrade.bind(this));
 	this.ui.find('.cancel').click(onCancel.bind(this));
 
-	this.ui.on('mousedown', '.disabled', stopPropagation).on('drop', onDrop).on('dragover', stopPropagation);
+	this.ui.on('mousedown', '.disabled', stopPropagation);
+
+	this.droppable({
+		accept(data) {
+			return data && data.type === 'item' && data.from === 'Inventory';
+		},
+		drop(_event, data) {
+			applyTradeDrop(data);
+		}
+	});
 
 	this.ui.find('.zeny.send').mousedown(function () {
 		this.select();
@@ -294,25 +303,7 @@ function onTrade() {
 	this.ui.find('.trade.disabled').show();
 }
 
-/**
- * Drop from inventory to storage
- */
-function onDrop(event) {
-	let data;
-
-	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
-		// Ignore parsing error
-	}
-
-	event.stopImmediatePropagation();
-
-	// Just support items for now ?
-	if (!data || data.type !== 'item' || data.from !== 'Inventory') {
-		return false;
-	}
-
+function applyTradeDrop(data) {
 	const item = data.data;
 
 	// Have to specify how much
@@ -402,8 +393,8 @@ function onItemInfo(event) {
  * Callbacks
  */
 Trade.onConclude = function onConclude() {}; // eslint-disable-line no-shadow
-Trade.onTradeSubmit = function onTradeSubmit() {}; // eslint-disable-line no-shadow
-Trade.reqAddItem = function reqAddItem() {}; // eslint-disable-line no-shadow
+Trade.onTradeSubmit = function onTradeSubmit() {};
+Trade.reqAddItem = function reqAddItem() {};
 Trade.onCancel = function onCancel() {}; // eslint-disable-line no-shadow
 
 /**

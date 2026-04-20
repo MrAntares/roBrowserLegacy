@@ -20,6 +20,8 @@ import Targa from 'Loaders/Targa.js';
 import Renderer from 'Renderer/Renderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import ScrollBar from 'UI/Scrollbar.js';
+import DropManager from 'UI/DropManager.js';
+import DragManager from 'UI/DragManager.js';
 
 /**
  * Create a component
@@ -38,6 +40,8 @@ function UIComponent(name, htmlText, cssText) {
 		LEFT: false,
 		RIGHT: false
 	};
+	this.__dropUnregisters = [];
+	this.__dragUnregisters = [];
 }
 
 /**
@@ -59,6 +63,53 @@ function setComponentZIndex(comp, value) {
 	if (comp._host)
 		comp._host.style.zIndex = value; // GUIComponent
 	else if (comp.ui) comp.ui.css('zIndex', value); // UIComponent
+}
+
+function isNativeElement(value) {
+	return typeof Element !== 'undefined' && value instanceof Element;
+}
+
+function isJQueryLike(value) {
+	return value && typeof value === 'object' && value.length !== undefined && typeof value !== 'function';
+}
+
+function isOptionsObject(value) {
+	return value && typeof value === 'object' && !isNativeElement(value) && !isJQueryLike(value);
+}
+
+function resolveComponentTarget(component, target) {
+	if (!component.ui || !component.ui.length) {
+		return null;
+	}
+
+	if (!target) {
+		return component.ui[0];
+	}
+
+	if (typeof target === 'string') {
+		return component.ui.filter(target)[0] || component.ui.find(target)[0] || null;
+	}
+
+	if (isNativeElement(target)) {
+		return target;
+	}
+
+	return target[0] || target;
+}
+
+function buildDropOptions(target, options) {
+	const dropOptions = { ...(options || {}) };
+
+	if (dropOptions.legacyEvent && typeof dropOptions.drop === 'function') {
+		const drop = dropOptions.drop;
+		dropOptions.drop = function dropLegacyEvent(event, data, zone) {
+			const legacyEvent = DragManager.createLegacyEvent('drop', event, data, target);
+			return drop.call(target, legacyEvent, data, zone);
+		};
+	}
+
+	delete dropOptions.legacyEvent;
+	return dropOptions;
 }
 
 /**
@@ -463,11 +514,82 @@ UIComponent.prototype.clone = function clone(name, full) {
 		const count = keys.length;
 
 		for (i = 0; i < count; ++i) {
+			if (keys[i] === '__dropUnregisters' || keys[i] === '__dragUnregisters') {
+				continue;
+			}
 			ui[keys[i]] = this[keys[i]];
 		}
 	}
 
 	return ui;
+};
+
+/**
+ * Register a DropManager zone owned by this component.
+ */
+UIComponent.prototype.droppable = function droppable(targetOrOptions, options) {
+	let target = targetOrOptions;
+	let dropOptions = options;
+
+	if (arguments.length === 1 && isOptionsObject(targetOrOptions)) {
+		target = null;
+		dropOptions = targetOrOptions;
+	}
+
+	target = resolveComponentTarget(this, target);
+	if (!target) {
+		console.error(`[UIComponent] Unable to find drop target for ${this.name}.`);
+		return null;
+	}
+
+	const unregister = DropManager.register(target, {
+		...buildDropOptions(target, dropOptions),
+		component: this
+	});
+	this.__dropUnregisters.push(unregister);
+	return unregister;
+};
+
+UIComponent.prototype.clearDroppables = function clearDroppables() {
+	for (const unregister of this.__dropUnregisters || []) {
+		unregister();
+	}
+	this.__dropUnregisters = [];
+	return this;
+};
+
+/**
+ * Register a custom DragManager source owned by this component.
+ */
+UIComponent.prototype.dragSource = function dragSource(targetOrOptions, options) {
+	let target = targetOrOptions;
+	let dragOptions = options;
+
+	if (arguments.length === 1 && isOptionsObject(targetOrOptions)) {
+		target = null;
+		dragOptions = targetOrOptions;
+	}
+
+	target = resolveComponentTarget(this, target);
+	if (!target) {
+		console.error(`[UIComponent] Unable to find drag source root for ${this.name}.`);
+		return null;
+	}
+
+	const unregister = DragManager.register(target, {
+		...(dragOptions || {}),
+		component: this
+	});
+	this.__dragUnregisters.push(unregister);
+	return unregister;
+};
+
+UIComponent.prototype.clearDragSources = function clearDragSources() {
+	for (const unregister of this.__dragUnregisters || []) {
+		unregister();
+	}
+	this.__dragUnregisters = [];
+	return this;
 };
 
 /**

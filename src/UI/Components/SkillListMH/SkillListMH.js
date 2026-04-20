@@ -16,6 +16,7 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js';
 import htmlText from './SkillListMH.html?raw';
@@ -170,37 +171,20 @@ SkillListMH.prototype.init = function init() {
 
 			self.ui.find('.skill').removeClass('selected');
 			main.addClass('selected');
-		})
-		.on('dragstart', '.skill', function (event) {
-			const index = parseInt(this.getAttribute('data-index'), 10);
-			const skill = self.getSkillById(index);
-
-			// Can't drag a passive skill (or disabled)
-			if (!skill || !skill.level || !skill.type) {
-				event.stopImmediatePropagation();
-				return false;
-			}
-
-			const img = new Image();
-			img.decoding = 'async';
-			img.src = this.firstChild.firstChild.src;
-
-			event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-			event.originalEvent.dataTransfer.setData(
-				'Text',
-				JSON.stringify(
-					(window._OBJ_DRAG_ = {
-						type: 'skill',
-						from: 'SkillListMH',
-						data: skill
-					})
-				)
-			);
-		})
-		.on('dragend', '.skill', function () {
-			delete window._OBJ_DRAG_;
-			this.classList.remove('hide');
 		});
+
+	this.dragSource({
+		selector: '.skill',
+		cursorAt: { left: 12, top: 12 },
+		touchDelay: 300,
+		touchDelayCancelThreshold: 10,
+		data(source) {
+			return self.getSkillDragData(source);
+		},
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		}
+	});
 
 	this.draggable(this.ui.find('.titlebar'));
 
@@ -325,7 +309,7 @@ SkillListMH.prototype.addSkill = function addSkill(skill) {
 			className +
 			'" data-index="' +
 			skill.SKID +
-			'" draggable="true">' +
+			'" draggable="false">' +
 			'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
 			'<td class="levelupcontainer"></td>' +
 			'<td class=selectable>' +
@@ -568,40 +552,20 @@ SkillListMH.prototype.onSkillFocus = function onSkillFocus() {
 	main.addClass('selected');
 };
 
-/**
- * Start to drag a skill
- */
-SkillListMH.prototype.onSkillDragStart = function onSkillDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
+SkillListMH.prototype.getSkillDragData = function getSkillDragData(source) {
+	const index = parseInt(source.getAttribute('data-index'), 10);
 	const skill = this.getSkillById(index);
 
 	// Can't drag a passive skill (or disabled)
 	if (!skill || !skill.level || !skill.type) {
-		return event.stopImmediatePropagation();
+		return null;
 	}
 
-	const img = new Image();
-	img.decoding = 'async';
-	img.src = this.firstChild.firstChild.src;
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: 'SkillListMH',
-				data: skill
-			})
-		)
-	);
-};
-
-/**
- * Stop the drag drop action
- */
-SkillListMH.prototype.onSkillDragEnd = function onSkillDragEnd() {
-	delete window._OBJ_DRAG_;
+	return {
+		type: 'skill',
+		from: 'SkillListMH',
+		data: skill
+	};
 };
 
 SkillListMH.prototype.skillLevelSelectUp = function skillLevelSelectUp(skill) {

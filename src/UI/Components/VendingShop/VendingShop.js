@@ -78,18 +78,12 @@ VendingShop.init = function Init() {
 	this.ui.find('.btn.close').click(function () {
 		VendingShop.onSubmit();
 	});
-	// on drop item
+	// Items event
 	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
-
-		// Items event
 		.find('.container .content')
 		.on('mousewheel DOMMouseScroll', onScroll)
 		.on('mouseover', '.item', onItemOver)
 		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
 		.on('contextmenu', '.item', onItemInfo)
 		.on('dblclick', '.item', onItemUsed);
 
@@ -248,7 +242,7 @@ VendingShop.addItemSub = function AddItemSub(item) {
 	content.append(
 		'<div class="item" data-index="' +
 			item.index +
-			'" draggable="true">' +
+			'">' +
 			'<div class="icon"></div>' +
 			'<div class="amount"><span class="count">' +
 			(item.count || 1) +
@@ -393,14 +387,6 @@ function prettyZeny(val, useStyle) {
 }
 
 /**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
-
-/**
  * Hide/show inventory's content
  * @preserved currently unused, might be needed in the future
  */
@@ -431,16 +417,6 @@ function _requestFilter() {
 	for (i = 0, count = list.length; i < count; ++i) {
 		VendingShop.addItemSub(list[i]);
 	}
-}
-
-/**
- * Drop an item from storage to inventory
- *
- * @param {event}
- */
-function onDrop(event) {
-	event.stopImmediatePropagation();
-	return false;
 }
 
 /**
@@ -495,21 +471,6 @@ function onItemOver() {
  */
 function onItemOut() {
 	VendingShop.ui.find('.overlay').hide();
-}
-
-/**
- * Start dragging an item
- */
-function onItemDragStart(event) {
-	return;
-}
-
-/**
- * Stop dragging an item
- *
- */
-function onItemDragEnd() {
-	delete window._OBJ_DRAG_;
 }
 
 /**

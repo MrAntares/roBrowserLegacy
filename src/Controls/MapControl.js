@@ -12,6 +12,8 @@ import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import UIManager from 'UI/UIManager.js';
 import Cursor from 'UI/CursorManager.js';
+import DropManager from 'UI/DropManager.js';
+import DragManager from 'UI/DragManager.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -39,6 +41,7 @@ import 'Controls/ScreenShot.js';
  * @var {int16[2]} screen position
  */
 const _rightClickPosition = new Int16Array(2);
+let _mapDropUnregister = null;
 
 /**
  * @namespace MapControl
@@ -72,6 +75,25 @@ class MapControl {
 			.on('mousewheel DOMMouseScroll', onMouseWheel)
 			.on('dragover', onDragOver)
 			.on('drop', onDrop.bind(this));
+
+		if (!_mapDropUnregister) {
+			_mapDropUnregister = DropManager.register(Renderer.canvas, {
+				accept(data, event) {
+					return (
+						data &&
+						data.type === 'item' &&
+						data.from === 'Inventory' &&
+						getDropEventTarget(event) === Renderer.canvas
+					);
+				},
+				getZIndex() {
+					return 0;
+				},
+				drop: (event, data) => {
+					onDrop.call(this, DragManager.createLegacyEvent('drop', event, data, Renderer.canvas));
+				}
+			});
+		}
 
 		jQuery(window).on('mousedown.map', onMouseDown.bind(this)).on('mouseup.map', onMouseUp.bind(this));
 	}
@@ -276,6 +298,11 @@ function onMouseWheel(event) {
 function onDragOver(event) {
 	event.stopImmediatePropagation();
 	return false;
+}
+
+function getDropEventTarget(event) {
+	const source = event && event.originalEvent ? event.originalEvent : event;
+	return source && source.target;
 }
 
 /**

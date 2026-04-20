@@ -19,6 +19,7 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import { createIconDragHelper } from 'UI/DragHelper.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
@@ -138,24 +139,52 @@ Vending.init = function init() {
 		.on('mouseover', '.item', onItemOver)
 		.on('mouseout', '.item', onItemOut)
 		.on('dblclick', '.item', onItemSelected)
-		.on('mousedown', '.item', onItemFocus)
-		.on('dragstart', '.item', onDragStart)
-		.on('dragend', '.item', function () {
-			delete window._OBJ_DRAG_;
-		});
+		.on('mousedown', '.item', onItemFocus);
 
 	// Drop items
-	ui.find('.InputWindow, .OutputWindow')
-		.on('drop', onDrop)
-		.on('dragover', function (event) {
-			event.stopImmediatePropagation();
-			return false;
-		})
-		.on('mousedown', function () {
-			Vending.focus();
-		});
+	ui.find('.InputWindow, .OutputWindow').on('mousedown', function () {
+		Vending.focus();
+	});
 
-	// Hacky drag drop
+	ui.find('.InputWindow, .OutputWindow').each(function () {
+		Vending.droppable(this, {
+			accept(data, _event, zone) {
+				return (
+					data &&
+					data.type === 'item' &&
+					data.from === 'Vending' &&
+					data.container !== getVendingContainerClass(zone.element)
+				);
+			},
+			drop(_event, data, zone) {
+				applyVendingDrop(zone.element, data);
+			}
+		});
+	});
+
+	this.dragSource(ui, {
+		selector: '.InputWindow .item, .OutputWindow .item',
+		cursorAt: { left: 12, top: 12 },
+		data(source) {
+			const container = getVendingContainerClass(source);
+
+			if (!container) {
+				return null;
+			}
+
+			return {
+				type: 'item',
+				from: 'Vending',
+				container: container,
+				index: parseInt(source.getAttribute('data-index'), 10)
+			};
+		},
+		helper(source) {
+			return createIconDragHelper(source, '.icon');
+		}
+	});
+
+	// Window movement
 	this.draggable.call({ ui: InputWindow }, InputWindow.find('.titlebar'));
 	this.draggable.call({ ui: OutputWindow }, OutputWindow.find('.titlebar'));
 
@@ -386,7 +415,7 @@ function addItem(content, item, isinput) {
 	// Create it
 	if (isinput == true) {
 		itemObj = jQuery(
-			'<div class="item input" draggable="true" data-index="' +
+			'<div class="item input" data-index="' +
 				item.index +
 				'">' +
 				'<div class="icon"></div>' +
@@ -398,7 +427,7 @@ function addItem(content, item, isinput) {
 	} else {
 		itemObj = jQuery(
 			'<div class="item-container">' +
-				'<div class="item output" draggable="true" data-index="' +
+				'<div class="item output" data-index="' +
 				item.index +
 				'">' +
 				'<div class="icon"></div>' +
@@ -584,33 +613,36 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 	};
 }
 
-/**
- * Drop an input in the InputWindow or OutputWindow
- *
- * @param {jQueryEvent} event
- */
-function onDrop(event) {
-	let data;
+function getVendingContainerClass(element) {
+	const container = element && element.closest('.InputWindow, .OutputWindow');
 
-	event.stopImmediatePropagation();
-
-	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
-		// Ignore parsing error
-		return false;
+	if (!container) {
+		return '';
 	}
 
-	// Just allow item from store
-	if (data.type !== 'item' || data.from !== 'Vending' || data.container === this.className) {
+	if (container.classList.contains('InputWindow')) {
+		return 'InputWindow';
+	}
+
+	if (container.classList.contains('OutputWindow')) {
+		return 'OutputWindow';
+	}
+
+	return '';
+}
+
+function applyVendingDrop(element, data) {
+	const container = getVendingContainerClass(element);
+
+	if (!container || data.container === container) {
 		return false;
 	}
 
 	requestMoveItem(
 		data.index,
-		jQuery('.' + data.container + ' .content'),
-		jQuery(this).find('.content'),
-		this.className === 'OutputWindow'
+		Vending.ui.find('.' + data.container + ' .content:first'),
+		jQuery(element).find('.content:first'),
+		container === 'OutputWindow'
 	);
 
 	return false;
@@ -695,33 +727,6 @@ function onScroll(event) {
 
 	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
 	return false;
-}
-
-/**
- * Start dragging an item
- */
-function onDragStart(event) {
-	const InputWindow = Vending.ui.find('.InputWindow:first').get(0);
-	const OutputWindow = Vending.ui.find('.OutputWindow:first').get(0);
-
-	const container = (jQuery.contains(InputWindow, this) ? InputWindow : OutputWindow).className;
-	const img = new Image();
-	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
-	img.decoding = 'async';
-	img.src = url;
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Vending',
-				container: container,
-				index: this.getAttribute('data-index')
-			})
-		)
-	);
 }
 
 /**

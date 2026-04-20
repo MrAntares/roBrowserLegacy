@@ -96,20 +96,44 @@ InventoryV0.init = function Init() {
 		InventoryV0.ui.hide();
 	});
 
-	// on drop item
-	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
+	this.droppable({
+		legacyEvent: true,
+		accept(data) {
+			return data && data.type === 'item';
+		},
+		drop: onDrop
+	});
 
-		// Items event
+	// Items event
+	this.ui
 		.find('.container .content')
 		.on('mouseover', '.item', onItemOver)
 		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
 		.on('contextmenu', '.item', onItemInfo)
 		.on('dblclick', '.item', onItemUsed)
 		.on('click', '.item', onItemClick);
+
+	this.dragSource('.container .content', {
+		selector: '.item',
+		cursorAt: { right: 10, bottom: 10 },
+		data(source) {
+			const index = parseInt(source.getAttribute('data-index'), 10);
+			const item = InventoryV0.getItemByIndex(index);
+
+			if (!item) {
+				return null;
+			}
+
+			return {
+				type: 'item',
+				from: 'Inventory',
+				data: item
+			};
+		},
+		start() {
+			onItemOut();
+		}
+	});
 
 	this.ui.find('.ncnt').text(0);
 	this.ui.find('.mcnt').text(100);
@@ -468,7 +492,7 @@ InventoryV0.addItemSub = function AddItemSub(item) {
 		content.append(
 			'<div class="item" data-index="' +
 				item.index +
-				'" draggable="true">' +
+				'">' +
 				'<div class="new_item"></div>' +
 				'<div class="icon"></div>' +
 				'<div class="amount"><span class="count">' +
@@ -717,7 +741,7 @@ function onDrop(event) {
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 
@@ -820,48 +844,6 @@ function onItemOver() {
  */
 function onItemOut() {
 	InventoryV0.ui.find('.overlay').hide();
-}
-
-/**
- * Start dragging an item
- */
-function onItemDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
-	const item = InventoryV0.getItemByIndex(index);
-
-	if (!item) {
-		return;
-	}
-
-	// Set image to the drag drop element
-	const img = new Image();
-	const url = this.querySelector('.icon')
-		.style.backgroundImage.match(/\((.*?)\)/)[1]
-		.replace(/('|")/g, '');
-	img.decoding = 'async';
-	img.src = url.replace(/^\"/, '').replace(/\"$/, '');
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'item',
-				from: 'Inventory',
-				data: item
-			})
-		)
-	);
-
-	onItemOut();
-}
-
-/**
- * Stop dragging an item
- *
- */
-function onItemDragEnd() {
-	delete window._OBJ_DRAG_;
 }
 
 /**
