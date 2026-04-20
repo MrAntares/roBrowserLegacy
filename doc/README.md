@@ -577,12 +577,12 @@ Browser builds ignore this setting.
 
 ## Automatic behavior
 
-| Environment       | Uses proxy | Uses webserverAddress |
-| ----------------- | ---------- | --------------------- |
-| http (vite)       | yes        | no                    |
-| https (vite)      | yes        | no                    |
-| production https  | yes        | no                    |
-| electron (app://) | no         | yes                   |
+| Environment           | Uses proxy      | Uses webserverAddress |
+| --------------------- | --------------- | --------------------- |
+| http (vite)           | yes             | no                    |
+| https (vite)          | yes             | no                    |
+| Production (nginx etc)| You configure it| no                    |
+| electron (app://)     | no              | yes                   |
 
 
 ## 8. Play the Game
