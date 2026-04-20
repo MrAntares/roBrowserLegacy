@@ -1,5 +1,32 @@
-// Dont replace this lib by npm i wasmoon
-// this has modified to supress 'has been externalized for browser compatibility' warnings on vite compile
+/**
+ * ⚠️ IMPORTANT — DO NOT REPLACE / DO NOT ADD REMOTE WASM LOADING
+ *
+ * This is a modified build of wasmoon (Lua 5.1 WASM runtime).
+ *
+ * Changes from upstream:
+ * - All URL-based WASM resolution was removed
+ * - locateFile / fetch / XHR loading paths were removed
+ * - liblua5.1.wasm is ALWAYS loaded locally from the bundled build
+ *
+ * Why this was done:
+ * - Avoid Vite "has been externalized for browser compatibility" warnings
+ * - Prevent dynamic runtime fetch of the WASM file
+ * - Guarantee offline support
+ * - Avoid third-party/CDN dependency
+ * - Ensure deterministic bundling inside the application
+ *
+ * Because of this:
+ * - DO NOT add customWasmUri support
+ * - DO NOT add luaWasmUri config
+ * - DO NOT restore locateFile overrides
+ * - DO NOT reintroduce fetch/XHR wasm loading
+ * - DO NOT switch back to npm wasmoon build
+ *
+ * The WASM must remain statically bundled and locally resolved.
+ *
+ * This file intentionally diverges from upstream wasmoon.
+ */
+
 import lodash from 'lodash';
 
 'use strict';
