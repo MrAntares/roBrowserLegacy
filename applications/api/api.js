@@ -316,7 +316,16 @@
 		 * the total will be the double in ms because its used on fade in then on fade out
 		 * eg: if you use 500ms the transition will take 1000ms in total
 		 */
-		transitionDuration: 500
+		transitionDuration: 500,
+
+		/**
+		 * @type {string} Define custom source location of liblua5.1.wasm.
+		 * used for allowing servers to host their own copy of the lua wasm, and avoid
+		 * requiring an internet connection for lua support. (Also for those that care
+		 * about telemetry being handed out about their users as a hard requirement.
+		 * GDPR / etc. Or those that worry about supply chain attacks.)
+		 */
+		luaWasmUri: ''
 	};
 
 	/**
