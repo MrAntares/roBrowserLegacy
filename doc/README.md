@@ -490,8 +490,8 @@ You can set up your own `index.html` / integrate roBrowser into your website as 
 
 ROBrowser automatically detects the runtime environment:
 
-* Browser (http / https) → uses Vite proxy
-* Electron / app:// / file:// → uses `webserverAddress`
+- Browser (http / https) → uses Vite proxy
+- Electron / app:// / file:// → uses `webserverAddress`
 
 No manual switching is required.
 
@@ -517,7 +517,7 @@ proxy: {
 Change to your server:
 
 ```js
-target: 'http://YOUR_SERVER_IP:8888'
+target: 'http://YOUR_SERVER_IP:8888';
 ```
 
 This works for both:
@@ -534,6 +534,7 @@ No additional configuration required.
 In production, you need to configure a reverse proxy on your web server to forward /emblem and /userconfig requests to the emulator's WebServer.
 
 Nginx
+
 ```
 location /emblem {
     proxy_pass http://127.0.0.1:8888;
@@ -546,6 +547,7 @@ location /userconfig {
 ```
 
 Apache
+
 ```
 ProxyPass /emblem http://127.0.0.1:8888/emblem
 ProxyPassReverse /emblem http://127.0.0.1:8888/emblem
@@ -553,6 +555,7 @@ ProxyPass /userconfig http://127.0.0.1:8888/userconfig
 ProxyPassReverse /userconfig http://127.0.0.1:8888/userconfig
 Requires mod_proxy and mod_proxy_http enabled.
 ```
+
 Replace 127.0.0.1:8888 with your emulator's WebServer address.
 
 This also solves mixed-content issues — your site serves over HTTPS and the reverse proxy handles the HTTP connection to the emulator internally.
@@ -562,13 +565,13 @@ This also solves mixed-content issues — your site serves over HTTPS and the re
 Electron does not use the Vite proxy. Configure:
 
 ```js
-webserverAddress: 'http://127.0.0.1:8888'
+webserverAddress: 'http://127.0.0.1:8888';
 ```
 
 Example:
 
 ```js
-webserverAddress: 'http://192.168.0.10:8888'
+webserverAddress: 'http://192.168.0.10:8888';
 ```
 
 Browser builds ignore this setting.
@@ -577,13 +580,12 @@ Browser builds ignore this setting.
 
 ## Automatic behavior
 
-| Environment           | Uses proxy      | Uses webserverAddress |
-| --------------------- | --------------- | --------------------- |
-| http (vite)           | yes             | no                    |
-| https (vite)          | yes             | no                    |
-| Production (nginx etc)| You configure it| no                    |
-| electron (app://)     | no              | yes                   |
-
+| Environment            | Uses proxy       | Uses webserverAddress |
+| ---------------------- | ---------------- | --------------------- |
+| http (vite)            | yes              | no                    |
+| https (vite)           | yes              | no                    |
+| Production (nginx etc) | You configure it | no                    |
+| electron (app://)      | no               | yes                   |
 
 ## 8. Play the Game
 
