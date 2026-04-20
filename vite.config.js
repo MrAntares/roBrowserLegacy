@@ -48,6 +48,16 @@ export default defineConfig({
 	},
 	server: {
 		port: 3000,
-		open: true
+		open: true,
+		proxy: {  
+			'/emblem': {  
+				target: 'http://127.0.0.1:8888',  
+				changeOrigin: true,  
+			},  
+			'/userconfig': {  
+				target: 'http://127.0.0.1:8888',  
+				changeOrigin: true,  
+			}  
+		}
 	}
 });

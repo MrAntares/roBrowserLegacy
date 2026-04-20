@@ -24,6 +24,7 @@ This guide has the goal to help you to Setup/Play RoBrowser. If there's any trou
 - [7. ROBrowser Settings Overview](#7-robrowser-settings-overview)
     - [7.1 Configuration Files](#71-configuration-files)
     - [7.2 Configuration Options](#72-configuration-options)
+    - [7.3 Configuration webserver adress](#73-configuration-webserver)
 - [8. Play the Game](#8-play-the-game)
 - [9. Troubleshooting](#9-troubleshooting)
     - [9.1 Troubleshooting: The screen is weird and/or the developer console (F12) says it can't load game assets](#91-troubleshooting-the-screen-is-weird-andor-the-developer-console-f12-says-it-cant-load-game-assets)
@@ -484,6 +485,105 @@ Unicode
 **Using these custom types makes roBrowser incompatible with other clients without modifying them as well! Only use them if you know what you are doing!**
 
 You can set up your own `index.html` / integrate roBrowser into your website as well based on the .examples/ and this example above.
+
+## 7.3 Configuring the WebServer API
+
+ROBrowser automatically detects the runtime environment:
+
+* Browser (http / https) → uses Vite proxy
+* Electron / app:// / file:// → uses `webserverAddress`
+
+No manual switching is required.
+
+## Web version (Vite)
+
+Configure the WebServer IP in:
+
+```
+vite.config.js
+```
+
+```js
+proxy: {
+  '/emblem': {
+    target: 'http://127.0.0.1:8888'
+  },
+  '/userconfig': {
+    target: 'http://127.0.0.1:8888'
+  }
+}
+```
+
+Change to your server:
+
+```js
+target: 'http://YOUR_SERVER_IP:8888'
+```
+
+This works for both:
+
+```
+http://localhost:3000
+https://localhost:3000
+```
+
+No additional configuration required.
+
+## Web version — Production
+
+In production, you need to configure a reverse proxy on your web server to forward /emblem and /userconfig requests to the emulator's WebServer.
+
+Nginx
+```
+location /emblem {
+    proxy_pass http://127.0.0.1:8888;
+    proxy_set_header Host $host;
+}
+location /userconfig {
+    proxy_pass http://127.0.0.1:8888;
+    proxy_set_header Host $host;
+}
+```
+
+Apache
+```
+ProxyPass /emblem http://127.0.0.1:8888/emblem
+ProxyPassReverse /emblem http://127.0.0.1:8888/emblem
+ProxyPass /userconfig http://127.0.0.1:8888/userconfig
+ProxyPassReverse /userconfig http://127.0.0.1:8888/userconfig
+Requires mod_proxy and mod_proxy_http enabled.
+```
+Replace 127.0.0.1:8888 with your emulator's WebServer address.
+
+This also solves mixed-content issues — your site serves over HTTPS and the reverse proxy handles the HTTP connection to the emulator internally.
+
+## Electron version
+
+Electron does not use the Vite proxy. Configure:
+
+```js
+webserverAddress: 'http://127.0.0.1:8888'
+```
+
+Example:
+
+```js
+webserverAddress: 'http://192.168.0.10:8888'
+```
+
+Browser builds ignore this setting.
+
+**Note:** The emulator WebServer only supports HTTP. Always use `http://` in `webserverAddress`.
+
+## Automatic behavior
+
+| Environment           | Uses proxy      | Uses webserverAddress |
+| --------------------- | --------------- | --------------------- |
+| http (vite)           | yes             | no                    |
+| https (vite)          | yes             | no                    |
+| Production (nginx etc)| You configure it| no                    |
+| electron (app://)     | no              | yes                   |
+
 
 ## 8. Play the Game
 

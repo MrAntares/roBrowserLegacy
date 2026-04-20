@@ -1,3 +1,4 @@
+/* eslint-disable */
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -276,8 +277,7 @@ window.ROConfigBase = {
         packetKeys: false,  
         socketProxy: 'wss://connect.robrowser.com',  
         adminList: [2000000]  
-    }],  
-    webserverAddress: 'http://127.0.0.1:8888',  
+    }],
     packetDump: false,  
     skipServerList: true,  
     skipIntro: false,  

@@ -157,8 +157,6 @@ class GuildEngine {
 				return;
 			}
 
-			const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
-
 			const formData = new FormData();
 			formData.append('GDID', guild_id);
 			formData.append('WorldName', Session.ServerName);
@@ -166,7 +164,13 @@ class GuildEngine {
 			formData.append('AID', Session.AID);
 
 			const xhr = new XMLHttpRequest();
-			xhr.open('POST', webAddress + '/emblem/download', true);
+
+			let webserverAddress = '';
+			if (window.location.protocol !== 'http:' && window.location.protocol !== 'https:') {
+				webserverAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+			}
+
+			xhr.open('POST', webserverAddress + '/emblem/download', true);
 			xhr.responseType = 'blob';
 
 			xhr.onload = () => {
@@ -414,8 +418,6 @@ class GuildEngine {
 	 */
 	static sendEmblem(data) {
 		if (PACKETVER.value >= 20170315) {
-			const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
-
 			function getFileType(_data) {
 				// "GI" Magic Bytes check (same from src)
 				if (_data.length >= 3 && _data[0] === 0x47 && _data[1] === 0x49 && _data[2] === 0x46) {
@@ -433,7 +435,12 @@ class GuildEngine {
 			formData.append('ImgType', fileInfo.imgType);
 
 			const xhr = new XMLHttpRequest();
-			xhr.open('POST', webAddress + '/emblem/upload', true);
+
+			let webserverAddress = '';
+			if (window.location.protocol !== 'http:' && window.location.protocol !== 'https:') {
+				webserverAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+			}
+			xhr.open('POST', webserverAddress + '/emblem/upload', true);
 
 			xhr.onload = () => {
 				if (xhr.status === 200) {

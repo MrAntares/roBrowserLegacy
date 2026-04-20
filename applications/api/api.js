@@ -7,7 +7,7 @@
  *
  * @author Vincent Thibault
  */
-
+/* eslint-disable */
 (function ROAPI() {
 	'use strict';
 
@@ -162,7 +162,7 @@
 		socketProxy: null,
 
 		/**
-		 * @type {string} web-server api: '<protocol>://<yourserverip>:<port>/'
+		 * @type {string} web-server api: 'http://<yourserverip>:<port>/' (used only to electron build)
 		 */
 		webserverAddress: null,
 

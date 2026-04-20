@@ -686,7 +686,7 @@ function onDrop(event) {
 	try {
 		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
 		element = data.data;
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 
@@ -1089,9 +1089,6 @@ ShortCut.saveToServer = function () {
 		if (!haveHotkeysChanged(hotkeys)) {
 			return;
 		}
-
-		const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
-
 		const formData = new FormData();
 		formData.append('AID', Session.AID);
 		formData.append('WorldName', Session.ServerName);
@@ -1099,7 +1096,11 @@ ShortCut.saveToServer = function () {
 		formData.append('data', hotkeys);
 
 		const xhr = new XMLHttpRequest();
-		xhr.open('POST', webAddress + '/userconfig/save', true);
+		let webserverAddress = '';
+		if (window.location.protocol !== 'http:' && window.location.protocol !== 'https:') {
+			webserverAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+		}
+		xhr.open('POST', webserverAddress + '/userconfig/save', true);
 		xhr.onload = function () {
 			if (xhr.status === 200) {
 				console.log('Hotkeys saved to server successfully');
@@ -1111,15 +1112,17 @@ ShortCut.saveToServer = function () {
 
 ShortCut.loadFromServer = function (callback) {
 	if (PACKETVER.value >= 20170315 && Session.WebToken) {
-		const webAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
-
 		const formData = new FormData();
 		formData.append('AID', Session.AID);
 		formData.append('WorldName', Session.ServerName);
 		formData.append('AuthToken', Session.WebToken);
 
 		const xhr = new XMLHttpRequest();
-		xhr.open('POST', webAddress + '/userconfig/load', true);
+		let webserverAddress = '';
+		if (window.location.protocol !== 'http:' && window.location.protocol !== 'https:') {
+			webserverAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
+		}
+		xhr.open('POST', webserverAddress + '/userconfig/load', true);
 		xhr.onload = function () {
 			if (xhr.status === 200) {
 				try {
