@@ -3718,11 +3718,17 @@ class DB {
 }
 
 async function startLua() {
-	lua = await CLua.Lua.create();
-	HO_AI = await CLua.Lua.create();
-	MER_AI = await CLua.Lua.create();
-	default_HO_AI = await CLua.Lua.create();
-	default_MER_AI = await CLua.Lua.create();
+	const options = {};
+	const wasm_uri = Configs.get('luaWasmUri', '');
+	if (wasm_uri != '') {
+		console.log('Loading lua interpreter wasm from ', wasm_uri);
+		Object.assign(options, { customWasmUri: wasm_uri });
+	}
+	lua = await CLua.Lua.create(options);
+	HO_AI = await CLua.Lua.create(options);
+	MER_AI = await CLua.Lua.create(options);
+	default_HO_AI = await CLua.Lua.create(options);
+	default_MER_AI = await CLua.Lua.create(options);
 }
 
 function loadFontFromClient(fontPath) {
