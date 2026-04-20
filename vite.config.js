@@ -49,7 +49,6 @@ export default defineConfig({
 	server: {
 		port: 3000,
 		open: true,
-		https: process.env.HTTPS === 'true',
 		proxy: {  
 			'/emblem': {  
 				target: 'http://127.0.0.1:8888',  
