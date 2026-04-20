@@ -439,7 +439,6 @@ var ROConfig = {
 	enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
 	enableHomunAutoFeed: false, // Enable Homunculus Auto Feed for older PACKETVER than 20170920
 	loadLua: false, // Enable this option to load LUA tables (currently only item table) from client/System/...
-	luaWasmUri: '', // Set this option to change where the LUA interpreter's WASM module will be fetched from at runtime. (By default it uses the library's built in URL, on unpkg.com)
 	customItemInfo: ['kRO.lua', 'jRO.lua', 'lua files514/iteminfo.lua'], // Customized iteminfo array-list, it loads using firt to last priority
 
 	//clientHash:    '113e195e6c051bb1cfb12a644bb084c5', // Set fixed client hash value here (less secure, for development only)
