@@ -55,7 +55,6 @@ window.ROConfigBase = {
 	grfList: null,
 	hashFiles: [],
 	loadLua: false,
-	luaWasmUri: '',
 	onReady: null,
 	plugins: {},
 	registrationweb: '',
