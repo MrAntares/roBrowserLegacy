@@ -55,7 +55,6 @@
 }
 #MakeItemSelection .list .item .name {
 	position: absolute;
-	text-overflow: clip;
 	top: 7px;
 	left: 30px;
 	width: 90px;
