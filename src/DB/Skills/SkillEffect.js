@@ -301,7 +301,7 @@ SkillEffect[SK.MO_INVESTIGATE] = { effectId: 267 }; //Occult Impaction
 SkillEffect[SK.MO_FINGEROFFENSIVE] = { effectId: 265, hitEffectId: 1 }; //Throw Spirit Sphere
 SkillEffect[SK.MO_STEELBODY] = { effectId: [254, 'quake'] }; //Mental Strength
 SkillEffect[SK.MO_BLADESTOP] = {}; //Root
-SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { effectIdOnCaster: [261, 'quake'] }; //Fury
+SkillEffect[SK.MO_EXPLOSIONSPIRITS] = { beginCastEffectId: 12, effectIdOnCaster: [261, 'quake'] }; //Fury
 SkillEffect[SK.MO_EXTREMITYFIST] = {
 	effectId: srcAID => {
 		const src = EntityManager.get(srcAID);
@@ -458,7 +458,7 @@ SkillEffect[SK.LK_JOINTBEAT] = { beginCastEffectId: 400, hitEffectId: 'enemy_hit
 // High Wizard
 SkillEffect[SK.HW_NAPALMVULCAN] = { effectId: 401 }; //Napalm Vulcan
 // Champion
-SkillEffect[SK.CH_SOULCOLLECT] = { effectId: 402 }; //Zen
+SkillEffect[SK.CH_SOULCOLLECT] = { beginCastEffectId: [402, 12] }; //Zen
 // Professor
 SkillEffect[SK.PF_MINDBREAKER] = { successEffectId: 403 }; //Mind Breaker
 SkillEffect[SK.PF_MEMORIZE] = { effectId: 505 }; //Foresight

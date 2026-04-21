@@ -48,7 +48,7 @@ SkillAction['DEFAULT_DORAM'] = function (entity, tick) {
 //Skill action overrides
 
 //IDLE
-SkillAction[SK.ST_CHASEWALK] = function (entity, tick) {
+SkillAction[SK.ST_CHASEWALK] = SkillAction[SK.CH_SOULCOLLECT] = function (entity, tick) {
 	return {
 		action: entity.ACTION.IDLE,
 		frame: 0,
@@ -74,7 +74,6 @@ SkillAction[SK.SM_BASH] =
 	SkillAction[SK.RG_INTIMIDATE] =
 	SkillAction[SK.CR_SHIELDCHARGE] =
 	SkillAction[SK.CR_HOLYCROSS] =
-	SkillAction[SK.MO_EXTREMITYFIST] =
 	SkillAction[SK.MO_CHAINCOMBO] =
 	SkillAction[SK.MO_COMBOFINISH] =
 	SkillAction[SK.BA_MUSICALSTRIKE] =
@@ -413,6 +412,16 @@ SkillAction[SK.MO_INVESTIGATE] = SkillAction[SK.MO_FINGEROFFENSIVE] = function (
 		repeat: false,
 		play: false,
 		next: false
+	};
+};
+
+SkillAction[SK.MO_EXTREMITYFIST] = function (entity, tick) {
+	return {
+		action: entity.ACTION.ATTACK,
+		delay: tick + 100,
+		frame: 0,
+		repeat: false,
+		play: true
 	};
 };
 

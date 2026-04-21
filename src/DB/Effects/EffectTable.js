@@ -8867,7 +8867,47 @@ export default {
 	],
 
 	//401: [{}],	//EF_NAPALMVALCAN	   Napalm Vulcan Sound
-	//402: [{}],	//EF_PORTAL5	   Dangerous Soul Collect
+	402: [
+		//EF_PORTAL5	   Dangerous Soul Collect
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					const time = tick;
+
+					if (time < 200) {
+						entity._flashColor[0] = 1.0; // Red
+						entity._flashColor[1] = 1.0; // Green
+						entity._flashColor[2] = 0.0; // Blue
+						entity._flashColor[3] = 0.1; // Alpha (10%)
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Part 2: Smooth fade back to normal
+					if (time < 800) {
+						const progress = (time - 200) / 600;
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = 0.0 + 1.0 * progress;
+						entity._flashColor[3] = 0.1 + 0.9 * progress;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		}
+	],
 
 	403: [
 		{
