@@ -113,6 +113,7 @@
 	text-shadow: -1px -1px white;
 }
 #ItemListWindowSelection .content .name {
+	text-overflow: clip;
 	position: absolute;
 	top: 7px;
 	left: 30px;
