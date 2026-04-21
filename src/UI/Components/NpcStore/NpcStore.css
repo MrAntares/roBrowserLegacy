@@ -139,7 +139,6 @@
 }
 #NpcStore .content .item .name {
 	position: absolute;
-	text-overflow: clip;
 	top: 13px;
 	left: 32px;
 	width: 115px;
