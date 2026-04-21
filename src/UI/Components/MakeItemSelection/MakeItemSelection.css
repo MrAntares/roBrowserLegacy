@@ -36,6 +36,7 @@
 	background-color: #f7f7f7;
 	height: 130px;
 	overflow-y: auto;
+	overflow-x: hidden;
 	margin-left: 10px;
 	margin-right: 10px;
 }
