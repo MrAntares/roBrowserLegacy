@@ -235,8 +235,6 @@ class MapRenderer {
 		Effects.spam(Session.Entity.position, tick);
 
 		Ground.render(gl, modelView, projection, normalMat, fog, light);
-		Models.render(gl, modelView, projection, normalMat, fog, light);
-		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
 
 		if (Mouse.intersect && Altitude.intersect(modelView, projection, _pos)) {
 			x = _pos[0];
@@ -287,6 +285,9 @@ class MapRenderer {
 		Damage.render(gl, modelView, projection, fog, tick);
 		EffectManager.render(gl, modelView, projection, fog, tick, false);
 		EntityManager.render(gl, modelView, projection, fog, true);
+
+		Models.render(gl, modelView, projection, normalMat, fog, light);
+		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
 
 		// Render signboards
 		SignboardManager.render(gl, modelView, projection);
