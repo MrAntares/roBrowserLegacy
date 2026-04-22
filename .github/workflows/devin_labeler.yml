@@ -1,40 +1,39 @@
-name: Devin PR Labeler  
-on:  
-  issue_comment:  
-    types: [created]  
-  
-permissions:  
-  contents: read  
-  issues: write  
-  pull-requests: write  
-  
-jobs:  
-  label_based_on_devin:  
-    if: github.event.issue.pull_request  
-    runs-on: ubuntu-latest  
-    steps:  
-      - name: Handle Devin Labels  
-        uses: actions/github-script@v7  
-        with:  
-          script: |  
-            const comment = context.payload.comment.body.toLowerCase();  
-            const issue_number = context.issue.number;  
-            const owner = context.repo.owner;  
-            const repo = context.repo.repo;  
-  
-            if (comment.includes('no bugs found')) {  
-              await github.rest.issues.addLabels({  
-                owner, repo, issue_number,  
-                labels: ['Devin Check Passed']  
-              });  
-            } else if (comment.includes('potential issues') && !comment.includes('no bugs found')) {  
-              await github.rest.issues.addLabels({  
-                owner, repo, issue_number,  
-                labels: ['Devin Check Failed - TOFIX']  
-              });  
-            } else if (comment.includes('🚩') && !comment.includes('no bugs found')) {  
-              await github.rest.issues.addLabels({  
-                owner, repo, issue_number,  
-                labels: ['Devin Check Failed - WONTFIX']  
-              });  
+name: Devin PR Labeler
+on:
+  issue_comment:
+    types: [created]
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+jobs:
+  label_based_on_devin:
+    if: github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Handle Devin Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const commentAuthor = context.payload.comment.user.login;
+            if (commentAuthor !== 'devin-ai-integration[bot]') return;
+            const comment = context.payload.comment.body.toLowerCase();
+            const issue_number = context.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            if (comment.includes('no bugs found')) {
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number,
+                labels: ['Devin Check Passed']
+              });
+            } else if (comment.includes('potential issues') && !comment.includes('no bugs found')) {
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number,
+                labels: ['Devin Check Failed - TOFIX']
+              });
+            } else if (comment.includes('🚩') && !comment.includes('no bugs found')) {
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number,
+                labels: ['Devin Check Failed - WONTFIX']
+              });
             }
