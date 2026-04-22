@@ -166,6 +166,7 @@ CharSelectV4.onRemove = function onRemove() {
 		clearInterval(_bgInterval);
 		_bgInterval = null;
 	}
+	stopCountdownInterval();
 	_preferences.index = _index;
 	_preferences.save();
 	Renderer.stop();
