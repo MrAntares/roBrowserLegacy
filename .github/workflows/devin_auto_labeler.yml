@@ -17,6 +17,7 @@ jobs:
         with:
           script: |
             const reviewAuthor = context.payload.review.user.login;
+            console.log('Review author:', reviewAuthor); 
             if (reviewAuthor.includes('devin-ai-integration')) {
               const review = (context.payload.review.body || '').toLowerCase();
               const issue_number = context.payload.pull_request.number;
@@ -30,7 +31,7 @@ jobs:
               let labelToAdd = null;
               if (review.includes('no bugs found')) {
                 labelToAdd = 'Devin Check Passed';
-              } else if (review.includes('potential issues')) {
+              } else if (review.includes('🔴') || review.includes('🟡')) {
                 labelToAdd = 'Devin Check Failed - TOFIX';
               } else if (review.includes('🚩')) {
                 labelToAdd = 'Devin Check Failed - WONTFIX';
