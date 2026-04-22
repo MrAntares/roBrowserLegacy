@@ -10,6 +10,7 @@ app.commandLine.appendSwitch('enable-webgl');
 app.commandLine.appendSwitch('ignore-gpu-blacklist');
 app.commandLine.appendSwitch('disable-raf-throttling');
 app.commandLine.appendSwitch('disable-gpu-vsync');
+app.commandLine.appendSwitch('disable-frame-rate-limit');
 
 const projectRoot = path.resolve(__dirname, '..', '..');
 
