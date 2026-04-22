@@ -2,11 +2,15 @@ name: Devin PR Labeler - Analyze
 on:  
     pull_request_review:  
         types: [submitted]  
+    issue_comment:  
+        types: [created]  
 permissions:  
     contents: read  
 jobs:  
     analyze_review:  
-        if: github.event.pull_request  
+        if: >  
+            github.event.pull_request ||  
+            github.event.issue.pull_request  
         runs-on: ubuntu-latest  
         steps:  
             - name: Analyze Devin Review  
@@ -15,16 +19,67 @@ jobs:
                   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  
               with:  
                   script: |  
-                      const comment = (context.payload.review.body || '').toLowerCase();  
-                      const issue_number = context.payload.pull_request.number;  
+                      let comment = '';  
+                      let issue_number = 0;  
+  
+                      if (context.eventName === 'pull_request_review') {  
+                        comment = (context.payload.review.body || '').toLowerCase();  
+                        issue_number = context.payload.pull_request.number;  
+                      } else if (context.eventName === 'issue_comment') {  
+                        comment = (context.payload.comment.body || '').toLowerCase();  
+                        issue_number = context.issue.number;  
+                      }  
+  
+                      core.info('Event: ' + context.eventName);  
+                      core.info('Text: ' + comment.substring(0, 500));  
+  
                       let labelToAdd = null;  
-                      if (comment.includes('no bugs found') || comment.includes('no issues found') || comment.includes('found 0 new potential issue')) {  
+  
+                      if (comment.includes('✅ resolved') || comment.includes('✅resolved')) {  
+                        const { data: comments } = await github.rest.issues.listComments({  
+                          owner: context.repo.owner,  
+                          repo: context.repo.repo,  
+                          issue_number  
+                        });  
+  
+                        const { data: reviews } = await github.rest.pulls.listReviews({  
+                          owner: context.repo.owner,  
+                          repo: context.repo.repo,  
+                          pull_number: issue_number  
+                        });  
+  
+                        const allTexts = [  
+                          ...comments.filter(c => c.user.login.includes('devin')).map(c => c.body),  
+                          ...reviews.filter(r => r.user.login.includes('devin')).map(r => r.body)  
+                        ];  
+   
+                        let totalIssues = 0;  
+                        for (const text of allTexts) {  
+                          const match = text.match(/found (\d+) new potential issue/i);  
+                          if (match) totalIssues = parseInt(match[1]);  
+                        }  
+  
+                        const resolvedCount = allTexts.filter(t =>  
+                          t.toLowerCase().includes('✅ resolved') ||  
+                          t.toLowerCase().includes('✅resolved')  
+                        ).length;  
+  
+                        core.info(`Total issues: ${totalIssues}, Resolved: ${resolvedCount}`);  
+  
+                        if (totalIssues > 0 && resolvedCount >= totalIssues) {  
+                          labelToAdd = 'Devin Check Passed';  
+                        }  
+  
+                      } else if (comment.includes('no bugs found') || comment.includes('no issues found') || comment.includes('found 0 new potential issue')) {  
                         labelToAdd = 'Devin Check Passed';  
+  
                       } else if (comment.includes('new potential issue') && !comment.includes('found 0 new potential issue')) {  
                         labelToAdd = 'Devin Check Failed - TOFIX';  
+  
                       } else if (comment.includes('🚩')) {  
                         labelToAdd = 'Devin Check Failed - WONTFIX';  
                       }  
+  
                       core.info('Label to add: ' + labelToAdd);  
                       if (labelToAdd) {  
                         const fs = require('fs');  
