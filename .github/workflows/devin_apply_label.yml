@@ -1,0 +1,53 @@
+name: Devin PR Labeler - Apply  
+on:  
+    workflow_run:  
+        workflows: ["Devin PR Labeler - Analyze"]  
+        types: [completed]  
+permissions:
+    actions: read
+    issues: write
+    pull-requests: write
+jobs:  
+    apply_label:  
+        if: github.event.workflow_run.conclusion == 'success'  
+        runs-on: ubuntu-latest  
+        steps:  
+            - name: Download label data  
+              uses: actions/download-artifact@v4  
+              with:  
+                  name: label-data  
+                  github-token: ${{ secrets.GITHUB_TOKEN }}  
+                  run-id: ${{ github.event.workflow_run.id }}  
+              continue-on-error: true  
+              id: download  
+  
+            - name: Apply label  
+              if: steps.download.outcome == 'success'  
+              uses: actions/github-script@v7  
+              env:  
+                  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  
+              with:  
+                  script: |  
+                      const fs = require('fs');  
+                      if (!fs.existsSync('label_data.json')) {  
+                        core.info('No label data found, skipping');  
+                        return;  
+                      }  
+                      const { issue_number, labelToAdd } = JSON.parse(fs.readFileSync('label_data.json', 'utf8'));  
+                      const owner = context.repo.owner;  
+                      const repo = context.repo.repo;  
+                      const allDevinLabels = [  
+                        'Devin Check Passed',  
+                        'Devin Check Failed - TOFIX',  
+                        'Devin Check Failed - WONTFIX'  
+                      ];  
+                      for (const label of allDevinLabels.filter(l => l !== labelToAdd)) {  
+                        try {  
+                          await github.rest.issues.removeLabel({ owner, repo, issue_number, name: label });  
+                        } catch (e) {}  
+                      }  
+                      await github.rest.issues.addLabels({  
+                        owner, repo, issue_number,  
+                        labels: [labelToAdd]  
+                      });  
+                      core.info('Applied label: ' + labelToAdd);
