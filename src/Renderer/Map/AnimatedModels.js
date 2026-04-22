@@ -13,6 +13,7 @@ import WebGL from 'Utils/WebGL.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import _vertexShader from './AnimatedModels.vs?raw';
 import _fragmentShader from './AnimatedModels.fs?raw';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 const mat3 = glMatrix.mat3;
 const mat4 = glMatrix.mat4;
@@ -723,31 +724,31 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
+	SpriteRenderer.runWithDepth(true, true, true, function () {
+		// Render each animated model
+		for (let m = 0; m < _animatedModels.length; m++) {
+			const model = _animatedModels[m];
+			const frame = tick % (model.animLen || 1);
 
-	// Render each animated model
-	for (let m = 0; m < _animatedModels.length; m++) {
-		const model = _animatedModels[m];
-		const frame = tick % (model.animLen || 1);
+			updateModelBuffer(gl, model, frame, false);
 
-		updateModelBuffer(gl, model, frame, false);
+			if (!model.buffer || model.meshInfos.length === 0) {
+				continue;
+			}
 
-		if (!model.buffer || model.meshInfos.length === 0) {
-			continue;
-		}
+			gl.bindVertexArray(model.vao);
 
-		gl.bindVertexArray(model.vao);
+			for (let i = 0; i < model.meshInfos.length; i++) {
+				const info = model.meshInfos[i];
+				const texture = model.textureObjects[info.textureIdx];
 
-		for (let i = 0; i < model.meshInfos.length; i++) {
-			const info = model.meshInfos[i];
-			const texture = model.textureObjects[info.textureIdx];
-
-			if (texture) {
-				gl.bindTexture(gl.TEXTURE_2D, texture);
-				gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
+				if (texture) {
+					gl.bindTexture(gl.TEXTURE_2D, texture);
+					gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
+				}
 			}
 		}
-	}
-
+	});
 	// Disable attributes
 	gl.bindVertexArray(null);
 }

@@ -12,6 +12,7 @@ import _vertexShader from 'Renderer/Effects/Shaders/GLSL/Models.vs?raw';
 import _fragmentShader from 'Renderer/Effects/Shaders/GLSL/Models.fs?raw';
 import WebGL from 'Utils/WebGL.js';
 import Preferences from 'Preferences/Map.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 /**
  * @let {WebGLProgram}
@@ -181,26 +182,27 @@ function render(gl, modelView, projection, normalMat, fog, light) {
 	// Textures
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-
-	if (_batchesReady) {
-		// Optimized path: use pre-built batches with conditional texture binding
-		let lastTexture = null;
-		for (i = 0, count = _batches.length; i < count; ++i) {
-			if (_batches[i].texture !== lastTexture) {
-				gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
-				lastTexture = _batches[i].texture;
+	SpriteRenderer.runWithDepth(true, true, true, function () {
+		if (_batchesReady) {
+			// Optimized path: use pre-built batches with conditional texture binding
+			let lastTexture = null;
+			for (i = 0, count = _batches.length; i < count; ++i) {
+				if (_batches[i].texture !== lastTexture) {
+					gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
+					lastTexture = _batches[i].texture;
+				}
+				gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
 			}
-			gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
-		}
-	} else {
-		// Fallback: render individually while textures are still loading
-		for (i = 0, count = _objects.length; i < count; ++i) {
-			if (_objects[i].complete) {
-				gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
-				gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
+		} else {
+			// Fallback: render individually while textures are still loading
+			for (i = 0, count = _objects.length; i < count; ++i) {
+				if (_objects[i].complete) {
+					gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
+					gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
+				}
 			}
 		}
-	}
+	});
 
 	// Is it needed ?
 	gl.disableVertexAttribArray(attribute.aPosition);
