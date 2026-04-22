@@ -20,7 +20,7 @@ jobs:
                       let labelToAdd = null;  
                       if (comment.includes('no bugs found') || comment.includes('no issues found')) {  
                         labelToAdd = 'Devin Check Passed';  
-                      } else if (comment.includes('new potential issue')) {  
+                      } else if (comment.includes('new potential issue') && !comment.includes('0 new potential issue')) {  
                         labelToAdd = 'Devin Check Failed - TOFIX';  
                       } else if (comment.includes('🚩')) {  
                         labelToAdd = 'Devin Check Failed - WONTFIX';  
