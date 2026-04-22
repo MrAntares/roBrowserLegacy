@@ -263,6 +263,7 @@ const renderEntity = (function renderEntityClosure() {
 		// - Write depth (3D world occluders)
 		// - Use depth correction (isometric projection)
 		// - Use zIndex only for same-entity layering
+		//
 		// ------------------------------------------------------------------
 		switch (self.objecttype) {
 			case Entity.TYPE_PC:
