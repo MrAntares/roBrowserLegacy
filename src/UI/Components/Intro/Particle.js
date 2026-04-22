@@ -75,6 +75,15 @@ class Particle {
 	 */
 	static render() {
 		const now = Date.now();
+		// Throttle to ~60 FPS
+		const interval = 1000 / 60;
+		if (this._lastRenderTime && now - this._lastRenderTime < interval) {
+			if (this.process) {
+				this.requestRender.call(window, this.render.bind(this), this.canvas);
+			}
+			return;
+		}
+
 		let i, count;
 
 		this.ctx.clearRect(0, 0, this.width, this.height);
@@ -90,10 +99,10 @@ class Particle {
 		}
 
 		this.tick = now;
-
 		if (this.process) {
 			this.requestRender.call(window, this.render.bind(this), this.canvas);
 		}
+		this._lastRenderTime = now;
 	}
 
 	/**

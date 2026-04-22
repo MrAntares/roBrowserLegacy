@@ -330,6 +330,14 @@ class Renderer {
 			}
 		}
 
+		// Force 60 FPS cap on UI-only screens (char select)
+		// where there is no 3D scene and uncapped FPS wastes resources
+		if (!Session.Playing && (this.frameLimit <= 0 || this.frameLimit > 60)) {
+			this.frameLimit = 60;
+		} else if (Session.Playing && this.frameLimit !== GraphicsSettings.fpslimit) {
+			this.frameLimit = GraphicsSettings.fpslimit;
+		}
+
 		// Throttle when frameLimit > 0
 		if (this.frameLimit > 0) {
 			const interval = 1000 / this.frameLimit;

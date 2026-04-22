@@ -134,7 +134,7 @@ CharSelectV4.init = function Init() {
 			_ctx.push(this.getContext('2d'));
 		});
 };
-
+let _bgInterval = null;
 /**
  * Once append to body
  */
@@ -153,7 +153,7 @@ CharSelectV4.onAppend = function onAppend() {
 
 	// Update values
 	moveCursorTo(_index);
-
+	_bgInterval = setInterval(changeBackgroundEverySecond, 150);
 	// Start rendering
 	Renderer.render(render);
 };
@@ -164,6 +164,10 @@ CharSelectV4.onAppend = function onAppend() {
 CharSelectV4.onRemove = function onRemove() {
 	_preferences.index = _index;
 	_preferences.save();
+	if (_bgInterval) {
+		clearInterval(_bgInterval);
+		_bgInterval = null;
+	}
 	Renderer.stop();
 };
 
