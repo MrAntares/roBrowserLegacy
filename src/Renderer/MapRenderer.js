@@ -280,14 +280,13 @@ class MapRenderer {
 
 		// Rendering water (after sprites, billboard projection pushes it to back)
 		Water.render(gl, modelView, projection, fog, light, tick);
+		Models.render(gl, modelView, projection, normalMat, fog, light);
+		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
 
-		// Rendering effects
-		Damage.render(gl, modelView, projection, fog, tick);
 		EffectManager.render(gl, modelView, projection, fog, tick, false);
 		EntityManager.render(gl, modelView, projection, fog, true);
 
-		Models.render(gl, modelView, projection, normalMat, fog, light);
-		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
+		Damage.render(gl, modelView, projection, fog, tick);
 
 		// Render signboards
 		SignboardManager.render(gl, modelView, projection);
