@@ -18,7 +18,7 @@ jobs:
                       const comment = (context.payload.review.body || '').toLowerCase();  
                       const issue_number = context.payload.pull_request.number;  
                       let labelToAdd = null;  
-                      if (comment.includes('No Bugs Found') || comment.includes('No Issues Found')) {  
+                      if (comment.includes('no bugs found') || comment.includes('no issues found')) {  
                         labelToAdd = 'Devin Check Passed';  
                       } else if (comment.includes('new potential issue') && !comment.includes('found 0 new potential issue')) {  
                         labelToAdd = 'Devin Check Failed - TOFIX';  
