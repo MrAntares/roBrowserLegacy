@@ -1,49 +1,41 @@
-name: Devin PR Labeler
-on:
-    pull_request_review:
-        types: [submitted]
-permissions:
-    contents: read
-    issues: write
-    pull-requests: write
-jobs:
-    label_based_on_devin:
-        if: github.event.pull_request
-        runs-on: ubuntu-latest
-        steps:
-            - name: Handle Devin Labels
-              uses: actions/github-script@v7
-              env:
-                  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-              with:
-                  script: |
-                      const comment = (context.payload.review.body || '').toLowerCase();
-                      const issue_number = context.payload.pull_request.number;
-                      const owner = context.repo.owner;
-                      const repo = context.repo.repo;
-                      core.info('Review text: ' + comment.substring(0, 500));
-                      const allDevinLabels = [
-                        'Devin Check Passed',
-                        'Devin Check Failed - TOFIX',
-                        'Devin Check Failed - WONTFIX'
-                      ];
-                      let labelToAdd = null;
-                      if (comment.includes('no bugs found') || comment.includes('no issues found')) {
-                        labelToAdd = 'Devin Check Passed';
-                      } else if (comment.includes('🔴') || comment.includes('🟡') || comment.includes('new potential issue')) {
-                        labelToAdd = 'Devin Check Failed - TOFIX';
-                      } else if (comment.includes('🚩')) {
-                        labelToAdd = 'Devin Check Failed - WONTFIX';
-                      }
-                      core.info('Label to add: ' + labelToAdd);
-                      if (labelToAdd) {
-                        for (const label of allDevinLabels.filter(l => l !== labelToAdd)) {
-                          try {
-                            await github.rest.issues.removeLabel({ owner, repo, issue_number, name: label });
-                          } catch (e) {}
-                        }
-                        await github.rest.issues.addLabels({
-                          owner, repo, issue_number,
-                          labels: [labelToAdd]
-                        });
-                      }
+name: Devin PR Labeler - Analyze  
+on:  
+    pull_request_review:  
+        types: [submitted]  
+permissions:  
+    contents: read  
+jobs:  
+    analyze_review:  
+        if: github.event.pull_request  
+        runs-on: ubuntu-latest  
+        steps:  
+            - name: Analyze Devin Review  
+              uses: actions/github-script@v7  
+              env:  
+                  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  
+              with:  
+                  script: |  
+                      const comment = (context.payload.review.body || '').toLowerCase();  
+                      const issue_number = context.payload.pull_request.number;  
+                      let labelToAdd = null;  
+                      if (comment.includes('no bugs found') || comment.includes('no issues found')) {  
+                        labelToAdd = 'Devin Check Passed';  
+                      } else if (comment.includes('new potential issue')) {  
+                        labelToAdd = 'Devin Check Failed - TOFIX';  
+                      } else if (comment.includes('🚩')) {  
+                        labelToAdd = 'Devin Check Failed - WONTFIX';  
+                      }  
+                      core.info('Label to add: ' + labelToAdd);  
+                      if (labelToAdd) {  
+                        const fs = require('fs');  
+                        fs.writeFileSync('label_data.json', JSON.stringify({ issue_number, labelToAdd }));  
+                      }  
+  
+            - name: Upload label data  
+              if: success()  
+              uses: actions/upload-artifact@v4  
+              with:  
+                  name: label-data  
+                  path: label_data.json  
+                  retention-days: 1  
+                  if-no-files-found: ignore
