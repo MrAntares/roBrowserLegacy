@@ -8,7 +8,7 @@ permissions:
     pull-requests: write
 jobs:
     label_based_on_devin:
-        if: github.event.issue.pull_request
+        if: github.event.pull_request
         runs-on: ubuntu-latest
         steps:
             - name: Handle Devin Labels
@@ -17,11 +17,11 @@ jobs:
                   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
               with:
                   script: |
-                      const comment = (context.payload.comment.body || '').toLowerCase();
-                      const issue_number = context.issue.number;
+                      const comment = (context.payload.review.body || '').toLowerCase();
+                      const issue_number = context.payload.pull_request.number;
                       const owner = context.repo.owner;
                       const repo = context.repo.repo;
-                      core.info('Comment text: ' + comment.substring(0, 500));
+                      core.info('Review text: ' + comment.substring(0, 500));
                       const allDevinLabels = [
                         'Devin Check Passed',
                         'Devin Check Failed - TOFIX',
