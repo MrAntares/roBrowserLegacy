@@ -15,32 +15,33 @@ jobs:
         with:
           script: |
             const reviewAuthor = context.payload.review.user.login;
-            if (!reviewAuthor.includes('devin-ai-integration') return;
-            const review = context.payload.review.body.toLowerCase();
-            const issue_number = context.payload.pull_request.number;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const allDevinLabels = [
-              'Devin Check Passed',
-              'Devin Check Failed - TOFIX',
-              'Devin Check Failed - WONTFIX'
-            ];
-            let labelToAdd = null;
-            if (review.includes('no bugs found')) {
-              labelToAdd = 'Devin Check Passed';
-            } else if (review.includes('potential issues')) {
-              labelToAdd = 'Devin Check Failed - TOFIX';
-            } else if (review.includes('🚩')) {
-              labelToAdd = 'Devin Check Failed - WONTFIX';
-            }
-            if (labelToAdd) {
-              for (const label of allDevinLabels.filter(l => l !== labelToAdd)) {
-                try {
-                  await github.rest.issues.removeLabel({ owner, repo, issue_number, name: label });
-                } catch (e) {}
-              }
-              await github.rest.issues.addLabels({
-                owner, repo, issue_number,
-                labels: [labelToAdd]
-              });
+            if (reviewAuthor.includes('devin-ai-integration'){
+                const review = context.payload.review.body.toLowerCase();
+                const issue_number = context.payload.pull_request.number;
+                const owner = context.repo.owner;
+                const repo = context.repo.repo;
+                const allDevinLabels = [
+                  'Devin Check Passed',
+                  'Devin Check Failed - TOFIX',
+                  'Devin Check Failed - WONTFIX'
+                ];
+                let labelToAdd = null;
+                if (review.includes('no bugs found')) {
+                  labelToAdd = 'Devin Check Passed';
+                } else if (review.includes('potential issues')) {
+                  labelToAdd = 'Devin Check Failed - TOFIX';
+                } else if (review.includes('🚩')) {
+                  labelToAdd = 'Devin Check Failed - WONTFIX';
+                }
+                if (labelToAdd) {
+                  for (const label of allDevinLabels.filter(l => l !== labelToAdd)) {
+                    try {
+                      await github.rest.issues.removeLabel({ owner, repo, issue_number, name: label });
+                    } catch (e) {}
+                  }
+                  await github.rest.issues.addLabels({
+                    owner, repo, issue_number,
+                    labels: [labelToAdd]
+                  });
+                }
             }
