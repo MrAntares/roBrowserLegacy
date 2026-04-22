@@ -153,7 +153,7 @@ CharSelectV4.onAppend = function onAppend() {
 
 	// Update values
 	moveCursorTo(_index);
-	_bgInterval = setInterval(changeBackgroundEverySecond, 150);
+	_bgInterval = setInterval(changeBackgroundEverySecond, 250);
 	// Start rendering
 	Renderer.render(render);
 };
@@ -162,12 +162,12 @@ CharSelectV4.onAppend = function onAppend() {
  * Stop rendering
  */
 CharSelectV4.onRemove = function onRemove() {
-	_preferences.index = _index;
-	_preferences.save();
 	if (_bgInterval) {
 		clearInterval(_bgInterval);
 		_bgInterval = null;
 	}
+	_preferences.index = _index;
+	_preferences.save();
 	Renderer.stop();
 };
 
@@ -667,9 +667,6 @@ function changeBackgroundEverySecond() {
 		}
 	}
 }
-
-// Change the background every millisecond
-setInterval(changeBackgroundEverySecond, 150);
 
 function updateCharSlot() {
 	for (let i = 0; i < _maxSlots; ++i) {
