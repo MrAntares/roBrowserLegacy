@@ -12,7 +12,7 @@ import _vertexShader from 'Renderer/Effects/Shaders/GLSL/Models.vs?raw';
 import _fragmentShader from 'Renderer/Effects/Shaders/GLSL/Models.fs?raw';
 import WebGL from 'Utils/WebGL.js';
 import Preferences from 'Preferences/Map.js';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 /**
  * @let {WebGLProgram}

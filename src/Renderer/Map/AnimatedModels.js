@@ -13,7 +13,7 @@ import WebGL from 'Utils/WebGL.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import _vertexShader from './AnimatedModels.vs?raw';
 import _fragmentShader from './AnimatedModels.fs?raw';
-import SpriteRenderer from 'Renderer/SpriteRenderer';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 const mat3 = glMatrix.mat3;
 const mat4 = glMatrix.mat4;
