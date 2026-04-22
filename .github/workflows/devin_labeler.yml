@@ -3,6 +3,11 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   label_based_on_devin:
     if: github.event.issue.pull_request
@@ -24,16 +29,16 @@ jobs:
               });
             }
 
-            if (comment.includes('potential issues') && !comment.includes('no bugs found')) {
+            else if (comment.includes('potential issues') && !comment.includes('no bugs found')) {
               await github.rest.issues.addLabels({
                 owner, repo, issue_number,
                 labels: ['Devin Check Failed - TOFIX']
               });
    	    }
 
-            if (comment.includes('potential issues') && !comment.includes('no bugs found')) {
+            else if (comment.includes('🚩') && !comment.includes('no bugs found')) {
               await github.rest.issues.addLabels({
                 owner, repo, issue_number,
-                labels: ['Devin Check Failed - TOFIX']
+                labels: ['Devin Check Failed - WONTFIX']
               });
             }
