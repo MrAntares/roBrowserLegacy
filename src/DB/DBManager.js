@@ -3718,12 +3718,12 @@ class DB {
 	}
 }
 
-async function startLua() {    
-	lua = await CLua.Lua.create({customWasmUri: wasmUrl});  
-	HO_AI = await CLua.Lua.create({customWasmUri: wasmUrl});  
-	MER_AI = await CLua.Lua.create({customWasmUri: wasmUrl});  
-	default_HO_AI = await CLua.Lua.create({customWasmUri: wasmUrl});  
-	default_MER_AI = await CLua.Lua.create({customWasmUri: wasmUrl});
+async function startLua() {
+	lua = await CLua.Lua.create({ customWasmUri: wasmUrl });
+	HO_AI = await CLua.Lua.create({ customWasmUri: wasmUrl });
+	MER_AI = await CLua.Lua.create({ customWasmUri: wasmUrl });
+	default_HO_AI = await CLua.Lua.create({ customWasmUri: wasmUrl });
+	default_MER_AI = await CLua.Lua.create({ customWasmUri: wasmUrl });
 }
 
 function loadFontFromClient(fontPath) {
