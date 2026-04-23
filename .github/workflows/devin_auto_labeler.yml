@@ -50,7 +50,7 @@ jobs:
   
                         const allTexts = [  
                           ...comments.filter(c => c.user.login.includes('devin')).map(c => c.body),  
-                          ...reviews.filter(r => r.user.login.includes('devin')).map(r => r.body)  
+                          ...reviews.filter(r => r.user.login.includes('devin')).map(r => r.body || '')  
                         ];  
   
                         let totalIssues = 0;  
