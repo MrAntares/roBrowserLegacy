@@ -19,6 +19,7 @@ import Configs from 'Core/Configs.js';
 import Particle from './Particle.js';
 import Preferences from './Preferences.js';
 import FileSystem from './FileSystem.js';
+import { roInitSpinner } from 'App/PreLoader.js';
 
 /**
  * Create Intro component
@@ -293,15 +294,13 @@ Intro.onAppend = function onAppend() {
 	window.addEventListener('resize', _resizeHandler);
 	_resizeHandler();
 
-	// Wait for background and fonts, then remove the HTML preloader.
+	// Wait for background image and fonts, then remove the HTML preloader.
 	let particleReady = false;
 	let fontsReady = false;
 
 	function checkReady() {
 		if (particleReady && fontsReady) {
-			if (window.roInitSpinner) {
-				window.roInitSpinner.remove();
-			}
+			roInitSpinner.remove();
 		}
 	}
 

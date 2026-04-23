@@ -3,7 +3,9 @@
  * Entry point for roBrowserLegacy (ES6 version)
  * Centralized loader for all applications.
  */
+// eslint-disable-next-line
 import Online from 'App/Online.js';
+import { roInitSpinner } from 'App/PreLoader.js';
 
 const APP = {
 	ONLINE: 1,
@@ -79,5 +81,5 @@ if (window.ROConfig) {
 	window.addEventListener('message', onMessage, false);
 
 	// Fallback/Spinner
-	Online.roInitSpinner.add();
+	roInitSpinner.add();
 }

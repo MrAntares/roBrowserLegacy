@@ -27,6 +27,73 @@
 
 		<link rel="apple-touch-icon" href="./icon.png" />
 
+		<style>
+			html,
+			body {
+				margin: 0;
+				padding: 0;
+				border: 0;
+				height: 100%;
+				width: 100%;
+				overflow: hidden;
+			}
+			#ro-preloader {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: 99999;
+				background: rgba(6, 8, 16, 0.97);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 18px;
+			}
+			#ro-preloader.fade-out {
+				opacity: 0;
+				transition: opacity 0.3s ease;
+			}
+			.pre-spinner {
+				width: 48px;
+				height: 48px;
+				border: 4px solid rgba(232, 184, 75, 0.2);
+				border-top-color: #e8b84b;
+				border-radius: 50%;
+				animation: ro-spin 0.8s linear infinite;
+			}
+			@keyframes ro-spin {
+				to {
+					transform: rotate(360deg);
+				}
+			}
+			.pre-text {
+				font-family: 'Cinzel', serif;
+				font-size: 16px;
+				letter-spacing: 3px;
+				text-transform: uppercase;
+				color: #e8b84b;
+				display: flex;
+				gap: 2px;
+			}
+			.pre-text span {
+				animation: ro-wave 1.2s ease-in-out infinite;
+				animation-delay: calc(var(--i) * 0.08s);
+			}
+			@keyframes ro-wave {
+				0%,
+				100% {
+					opacity: 0.4;
+					transform: translateY(0);
+				}
+				50% {
+					opacity: 1;
+					transform: translateY(-4px);
+				}
+			}
+		</style>
+
 		<script src="../shared/importmap.js"></script>
 
 		<script type="module">
@@ -55,4 +122,15 @@
 			);
 		</script>
 	</head>
+	<body>
+		<div id="ro-preloader">
+			<div class="pre-spinner"></div>
+			<p class="pre-text">
+				<span style="--i: 0">L</span><span style="--i: 1">o</span><span style="--i: 2">a</span
+				><span style="--i: 3">d</span><span style="--i: 4">i</span><span style="--i: 5">n</span
+				><span style="--i: 6">g</span><span style="--i: 7">.</span><span style="--i: 8">.</span
+				><span style="--i: 9">.</span>
+			</p>
+		</div>
+	</body>
 </html>
