@@ -1,0 +1,104 @@
+name: Devin PR Labeler - Analyze  
+on:  
+    pull_request_review:  
+        types: [submitted]  
+    issue_comment:  
+        types: [created]  
+permissions:  
+    contents: read  
+jobs:  
+    analyze_review:  
+        if: >  
+            github.event.pull_request ||  
+            github.event.issue.pull_request  
+        runs-on: ubuntu-latest  
+        steps:  
+            - name: Analyze Devin Review  
+              uses: actions/github-script@v7  
+              with:  
+                  script: |  
+                      let comment = '';  
+                      let issue_number = 0;  
+  
+                      if (context.eventName === 'pull_request_review') {  
+                        comment = (context.payload.review.body || '').toLowerCase();  
+                        issue_number = context.payload.pull_request.number;  
+                      } else if (context.eventName === 'issue_comment') {  
+                        comment = (context.payload.comment.body || '').toLowerCase();  
+                        issue_number = context.issue.number;  
+                      }  
+  
+                      core.info('Event: ' + context.eventName);  
+                      core.info('Text: ' + comment.substring(0, 500));  
+  
+                      let labelToAdd = null;  
+  
+                      // Comentário de resolução (follow-up do Devin)  
+                      if (comment.includes('✅ resolved') || comment.includes('✅resolved')) {  
+                        const comments = await github.paginate(github.rest.issues.listComments, {  
+                          owner: context.repo.owner,  
+                          repo: context.repo.repo,  
+                          issue_number  
+                        });  
+  
+                        const reviews = await github.paginate(github.rest.pulls.listReviews, {  
+                          owner: context.repo.owner,  
+                          repo: context.repo.repo,  
+                          pull_number: issue_number  
+                        });  
+  
+                        const allTexts = [  
+                          ...comments.filter(c => c.user.login.includes('devin')).map(c => c.body),  
+                          ...reviews.filter(r => r.user.login.includes('devin')).map(r => r.body)  
+                        ];  
+  
+                        // Pegar totalIssues do review mais recente (iterar em reverso)  
+                        let totalIssues = 0;  
+                        for (let i = allTexts.length - 1; i >= 0; i--) {  
+                          const match = allTexts[i].match(/found (\d+) new potential issue/i);  
+                          if (match) {  
+                            totalIssues = parseInt(match[1]);  
+                            break;  
+                          }  
+                        }  
+  
+                        // Contar ocorrências de "✅ resolved" em todos os textos  
+                        let resolvedCount = 0;  
+                        for (const text of allTexts) {  
+                          const matches = text.toLowerCase().match(/✅\s*resolved/g);  
+                          if (matches) resolvedCount += matches.length;  
+                        }  
+  
+                        core.info(`Total issues: ${totalIssues}, Resolved: ${resolvedCount}`);  
+  
+                        if (totalIssues > 0 && resolvedCount >= totalIssues) {  
+                          labelToAdd = 'Devin Check Passed';  
+                        }  
+  
+                      // Review inicial - sem bugs  
+                      } else if (comment.includes('no bugs found') || comment.includes('no issues found') || comment.includes('found 0 new potential issue')) {  
+                        labelToAdd = 'Devin Check Passed';  
+  
+                      // Review inicial - com issues  
+                      } else if (comment.includes('new potential issue') && !comment.includes('found 0 new potential issue')) {  
+                        labelToAdd = 'Devin Check Failed - TOFIX';  
+  
+                      // Review com flag  
+                      } else if (comment.includes('🚩')) {  
+                        labelToAdd = 'Devin Check Failed - WONTFIX';  
+                      }  
+  
+                      core.info('Label to add: ' + labelToAdd);  
+                      if (labelToAdd) {  
+                        const fs = require('fs');  
+                        fs.writeFileSync('label_data.json', JSON.stringify({ issue_number, labelToAdd }));  
+                      }  
+  
+            - name: Upload label data  
+              if: success()  
+              uses: actions/upload-artifact@v4  
+              with:  
+                  name: label-data  
+                  path: label_data.json  
+                  retention-days: 1  
+                  if-no-files-found: ignore
