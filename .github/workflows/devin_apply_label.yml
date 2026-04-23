@@ -3,10 +3,12 @@ on:
     workflow_run:  
         workflows: ["Devin PR Labeler - Analyze"]  
         types: [completed]  
-permissions:
-    actions: read
-    issues: write
-    pull-requests: write
+permissions:  
+    actions: read  
+    issues: write  
+    pull-requests: write  
+env:  
+    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  
 jobs:  
     apply_label:  
         if: github.event.workflow_run.conclusion == 'success'  
@@ -18,14 +20,9 @@ jobs:
                   name: label-data  
                   github-token: ${{ secrets.GITHUB_TOKEN }}  
                   run-id: ${{ github.event.workflow_run.id }}  
-              continue-on-error: true  
-              id: download  
   
             - name: Apply label  
-              if: steps.download.outcome == 'success'  
               uses: actions/github-script@v7  
-              env:  
-                  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  
               with:  
                   script: |  
                       const fs = require('fs');  
@@ -34,6 +31,13 @@ jobs:
                         return;  
                       }  
                       const { issue_number, labelToAdd } = JSON.parse(fs.readFileSync('label_data.json', 'utf8'));  
+  
+                      // Se labelToAdd for null, não há ação a tomar  
+                      if (!labelToAdd) {  
+                        core.info('No label action needed, skipping');  
+                        return;  
+                      }  
+  
                       const owner = context.repo.owner;  
                       const repo = context.repo.repo;  
                       const allDevinLabels = [  
