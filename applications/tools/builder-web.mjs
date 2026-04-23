@@ -199,7 +199,7 @@ function createHTML(includeManifest = false) {
         ${manifest}    
   
         <style>    
-            html, div, body {    
+            html, body {    
                 margin: 0; padding: 0; border: 0;    
                 height: 100%; width: 100%; overflow: hidden;    
             }    

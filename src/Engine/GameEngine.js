@@ -31,6 +31,7 @@ import Intro from 'UI/Components/Intro/Intro.js';
 import WinList from 'UI/Components/WinList/WinList.js';
 import ConsoleManager from 'Utils/ConsoleManager.js';
 import TextEncoding from 'Utils/CodepageManager.js';
+import { roInitSpinner } from 'App/PreLoader.js';
 
 /**
  * @var {Array} Login server list
@@ -76,6 +77,10 @@ function loadFiles(callback) {
 
 	// Loading Game file (txt, lua, lub)
 	q.add(() => {
+		// Remove preloader now that Background is taking over.
+		// For skipIntro=false, Intro.onAppend already removed it (this is a safe no-op).
+		roInitSpinner.remove();
+
 		DB.onReady = () => {
 			q._next();
 		};
@@ -153,8 +158,8 @@ class GameEngine {
 		// Execute
 		q.run();
 
-		// Remove init spinner
-		window.roInitSpinner.remove();
+		// NOTE: roInitSpinner.remove() was removed from here.
+		// It is now called inside loadFiles() at the right async moment.
 	}
 
 	/**
