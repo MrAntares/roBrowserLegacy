@@ -293,8 +293,27 @@ Intro.onAppend = function onAppend() {
 	window.addEventListener('resize', _resizeHandler);
 	_resizeHandler();
 
-	// Initialize particles
-	Particle.init(30, root.querySelector('canvas'));
+	// Wait for background and fonts, then remove the HTML preloader.
+	let particleReady = false;
+	let fontsReady = false;
+
+	function checkReady() {
+		if (particleReady && fontsReady) {
+			if (window.roInitSpinner) {
+				window.roInitSpinner.remove();
+			}
+		}
+	}
+
+	Particle.init(30, root.querySelector('canvas'), () => {
+		particleReady = true;
+		checkReady();
+	});
+
+	document.fonts.ready.then(() => {
+		fontsReady = true;
+		checkReady();
+	});
 };
 
 /**
