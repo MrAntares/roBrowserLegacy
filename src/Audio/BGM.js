@@ -73,7 +73,7 @@ class BGM {
 			}
 		}
 	}
-
+	_lastmp3filename = '';
 	/**
 	 * Play the audio file specify
 	 *
@@ -84,7 +84,13 @@ class BGM {
 		if (!filename) {
 			return;
 		}
-
+		if (!this._lastmp3filename) {
+			this._lastmp3filename = filename;
+		} else if (this._lastmp3filename === filename && filename === '01.mp3') {
+			return;
+		} else {
+			this._lastmp3filename = filename;
+		}
 		// Remove the "BGM/" part
 		if (filename.match(/bgm/i)) {
 			filename = filename.match(/\w+\.mp3/i)?.toString();

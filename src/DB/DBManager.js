@@ -303,9 +303,6 @@ class DB {
 		}
 
 		loadFontFromClient('System/Font/');
-
-		console.log('Loading DB files...');
-
 		// Loading TXT Tables
 		loadTable(
 			'data/mp3nametable.txt',
@@ -326,6 +323,42 @@ class DB {
 			onLoad(),
 			true
 		);
+		const loadmsg = onLoad();
+		loadTable(
+			'data/msgstringtable.txt',
+			'#',
+			1,
+			(_index, val) => {
+				MsgStringTable[_index] = val;
+			},
+			loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg()),
+			true
+		);
+	}
+
+	static isLoaded = false;
+	static count = 0;
+	static index = 0;
+	static async lazyInit() {
+		console.log('Loading DB files...');
+		// Callback
+		DB.index = 0;
+		DB.count = 0;
+		function onLoad() {
+			DB.count++;
+			return function OnLoadClosure() {
+				DB.index++;
+
+				if (DB.onProgress) {
+					DB.onProgress(DB.index, DB.count);
+				}
+
+				if (DB.index === DB.count && DB.onReady) {
+					DB.isLoaded = true;
+					DB.onReady();
+				}
+			};
+		}
 
 		// CSV Tables - Client Date is not sure since when they were added
 		if (PACKETVER.value >= 20230302) {
@@ -599,18 +632,8 @@ class DB {
 
 			// TODO: System/RecommendedQuests.lub
 
-			// WoldMap
-			loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
-
 			// Achievements
 			// TODO: System/achievements.lub
-
-			// Town Info
-			const onTownInfoEnd = onLoad();
-			loadTownInfoFile('System/Towninfo.lub', null, () => {
-				// this is not official, its a translation file
-				loadTownInfoFile('SystemEN/Towninfo.lub', null, onTownInfoEnd);
-			});
 
 			// Cash Shop Banner - implemented early 2018
 			if (Configs.get('enableCashShop') && PACKETVER.value >= 20180000) {
@@ -709,6 +732,15 @@ class DB {
 		if (PACKETVER.value >= 20150422) {
 			loadMoveInfoTable(onLoad());
 		}
+
+		// WoldMap
+		loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
+		// Town Info
+		const onTownInfoEnd = onLoad();
+		loadTownInfoFile('System/Towninfo.lub', null, () => {
+			// this is not official, its a translation file
+			loadTownInfoFile('SystemEN/Towninfo.lub', null, onTownInfoEnd);
+		});
 
 		// Forging/Creation
 		loadTable(
@@ -816,7 +848,6 @@ class DB {
 			module.default.initAI(onLoad());
 		});
 	}
-
 	static getHOAI_VM() {
 		return HO_AI;
 	}

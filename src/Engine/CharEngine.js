@@ -725,7 +725,9 @@ function onConnectRequest(entity) {
 	CharSelect.getUI().remove();
 	UIManager.getComponent('WinLoading').append();
 	Session.Character = entity;
-
+	if (!DB.isLoaded) {
+		DB.lazyInit();
+	}
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);
@@ -737,6 +739,10 @@ function onConnectRequest(entity) {
  * @param {object} pkt - PACKET.HC.NOTIFY_ZONESVR
  */
 function onReceiveMapInfo(pkt) {
+	if (!DB.isLoaded) {
+		setTimeout(() => onReceiveMapInfo(pkt), 100);
+		return;
+	}
 	Session.GID = pkt.GID;
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }
