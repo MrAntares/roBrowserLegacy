@@ -34,6 +34,8 @@ import htmlText from './EquipmentV4.html?raw';
 import cssText from './EquipmentV4.css?raw';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
+import EquipAbility from 'UI/Components/Equipment/EquipmentV4/EquipAbility.js';
+
 
 /**
  * Create Component
@@ -171,10 +173,28 @@ EquipmentV4.init = function init() {
 	this.ui.find('.show_equip').mousedown(toggleEquip);
 	this.ui.find('.show_costume').mousedown(toggleCostume);
 
-	this.ui.find('.cartitems').click(onCartItems);
+this.ui.find('.cartitems').click(onCartItems);
 
-	this.ui.find('.switch_equip').click(onSwtichEquip);
+// 🔥 여기 추가
+this.ui.find('.ability_equip').click(onEquipAbility);
 
+Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/btn_e_ability_a.bmp', function (data) {
+	EquipmentV4.ui.find('.ability_equip').css('backgroundImage', 'url(' + data + ')');
+});
+
+EquipmentV4.ui.find('.ability_equip')
+	.on('mouseover mousedown', function () {
+		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/btn_e_ability_b.bmp', function (data) {
+			EquipmentV4.ui.find('.ability_equip').css('backgroundImage', 'url(' + data + ')');
+		});
+	})
+	.on('mouseout mouseup', function () {
+		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/btn_e_ability_a.bmp', function (data) {
+			EquipmentV4.ui.find('.ability_equip').css('backgroundImage', 'url(' + data + ')');
+		});
+	});
+this.ui.find('.switch_equip').click(onSwtichEquip);
+	
 	this.loadTitles();
 
 	// drag, drop items
@@ -1009,6 +1029,22 @@ EquipmentV4.getNumber = function () {
 	}
 	return num;
 };
+
+function onEquipAbility() {
+	EquipAbility.append();
+
+	const left = parseInt(EquipmentV4.ui.css('left'), 10) + EquipmentV4.ui.outerWidth() + 2;
+	const top = parseInt(EquipmentV4.ui.css('top'), 10);
+
+	EquipAbility.ui.css({
+		position: 'absolute',
+		left: left,
+		top: top,
+		zIndex: 100
+	});
+
+	EquipAbility.toggle();
+}
 
 /**
  * Toggles the SwitchEquip UI and positions it absolutely to overlap with the footer.
