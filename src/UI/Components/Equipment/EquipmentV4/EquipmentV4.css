@@ -381,3 +381,14 @@
 #EquipmentV4 .title-option:hover {
 	background-color: #e0e0e0;
 }
+
+#EquipmentV4 .footer .ability_equip {
+	width: 23px;
+	height: 20px;
+	border: none;
+	position: relative;
+	top: -3px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	margin-right: 1px;
+}
