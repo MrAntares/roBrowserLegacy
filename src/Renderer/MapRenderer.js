@@ -180,6 +180,7 @@ class MapRenderer {
 		const gl = Renderer.getContext();
 
 		EntityManager.free();
+		EntityManager.clearLifeCache();
 		GridSelector.free(gl);
 		Sounds.free();
 		Effects.free();

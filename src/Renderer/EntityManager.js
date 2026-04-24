@@ -573,6 +573,10 @@ function removeLife(gid) {
 	_lifeCache.delete(gid);
 }
 
+function clearLifeCache() {
+	_lifeCache.clear();
+}
+
 const EntityManager = {
 	free: free,
 	add: addEntity,
@@ -593,6 +597,7 @@ const EntityManager = {
 	storeLife: storeLife,
 	getLife: getLife,
 	removeLife: removeLife,
+	clearLifeCache: clearLifeCache,
 
 	render: render,
 	intersect: intersect,
