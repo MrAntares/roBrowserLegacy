@@ -331,7 +331,7 @@ class DB {
 			(_index, val) => {
 				MsgStringTable[_index] = val;
 			},
-			loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg()),
+			() => loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg()),
 			true
 		);
 	}
