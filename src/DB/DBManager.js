@@ -331,8 +331,18 @@ class DB {
 			(_index, val) => {
 				MsgStringTable[_index] = val;
 			},
-			() => loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg()),
+			() => loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg),
 			true
+		);
+
+		loadTable(
+			'data/resnametable.txt',
+			'#',
+			2,
+			function (_index, key, val) {
+				DB.mapalias[key] = val;
+			},
+			onLoad()
 		);
 	}
 
@@ -353,9 +363,8 @@ class DB {
 					DB.onProgress(DB.index, DB.count);
 				}
 
-				if (DB.index === DB.count && DB.onReady) {
+				if (DB.index === DB.count) {
 					DB.isLoaded = true;
-					DB.onReady();
 				}
 			};
 		}
@@ -376,16 +385,6 @@ class DB {
 				true
 			);
 		}
-
-		loadTable(
-			'data/resnametable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				DB.mapalias[key] = val;
-			},
-			onLoad()
-		);
 
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {

@@ -738,8 +738,13 @@ function onConnectRequest(entity) {
  *
  * @param {object} pkt - PACKET.HC.NOTIFY_ZONESVR
  */
+let retryCount = 0;
 function onReceiveMapInfo(pkt) {
 	if (!DB.isLoaded) {
+		retryCount++;
+		if (retryCount > 100) {
+			console.error('DB not loaded after 100 retries');
+		}
 		setTimeout(() => onReceiveMapInfo(pkt), 100);
 		return;
 	}

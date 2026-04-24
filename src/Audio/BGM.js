@@ -13,6 +13,8 @@
 import Client from 'Core/Client.js';
 import Preferences from 'Preferences/Audio.js';
 
+let _lastmp3filename = '';
+
 /**
  * BGM NameSpace
  */
@@ -73,7 +75,7 @@ class BGM {
 			}
 		}
 	}
-	_lastmp3filename = '';
+
 	/**
 	 * Play the audio file specify
 	 *
@@ -84,12 +86,12 @@ class BGM {
 		if (!filename) {
 			return;
 		}
-		if (!this._lastmp3filename) {
-			this._lastmp3filename = filename;
-		} else if (this._lastmp3filename === filename && filename === '01.mp3') {
+		if (!_lastmp3filename) {
+			_lastmp3filename = filename;
+		} else if (_lastmp3filename === filename && filename === '01.mp3') {
 			return;
 		} else {
-			this._lastmp3filename = filename;
+			_lastmp3filename = filename;
 		}
 		// Remove the "BGM/" part
 		if (filename.match(/bgm/i)) {
