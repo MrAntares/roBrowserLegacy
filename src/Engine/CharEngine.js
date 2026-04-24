@@ -742,12 +742,15 @@ let retryCount = 0;
 function onReceiveMapInfo(pkt) {
 	if (!DB.isLoaded) {
 		retryCount++;
-		if (retryCount > 100) {
-			console.error('DB not loaded after 100 retries');
+		if (retryCount > 600) {
+			UIManager.showMessageBox('Erro ao iniciar o jogo', 'ok');
+			retryCount = 0;
+			return;
 		}
-		setTimeout(() => onReceiveMapInfo(pkt), 100);
+		Events.setTimeout(() => onReceiveMapInfo(pkt), 100);
 		return;
 	}
+	retryCount = 0;
 	Session.GID = pkt.GID;
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }
