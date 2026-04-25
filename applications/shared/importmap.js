@@ -16,6 +16,7 @@
 			bson: projectRoot + 'node_modules/bson/lib/bson.mjs',
 			lodash: projectRoot + 'node_modules/lodash-es/lodash.default.js',
 			'src/': projectRoot + 'src/',
+			'Api/': projectRoot + 'src/Api/',
 			'App/': projectRoot + 'src/App/',
 			'Audio/': projectRoot + 'src/Audio/',
 			'Controls/': projectRoot + 'src/Controls/',
