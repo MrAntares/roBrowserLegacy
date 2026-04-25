@@ -119,6 +119,7 @@ class LoginEngine {
 					Background.init();
 					Background.resize(Renderer.width, Renderer.height);
 					Background.setImage('bgi_temp.bmp', () => {
+						DB.isLoaded = false;
 						DB.init();
 					});
 				});

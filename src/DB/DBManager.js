@@ -284,6 +284,10 @@ class DB {
 	 * Initialize DB
 	 */
 	static init() {
+		DB.isLoaded = false;
+		DB.count = 0;
+		DB.index = 0;
+
 		// Callback
 		let index = 0,
 			count = 0;
@@ -303,9 +307,6 @@ class DB {
 		}
 
 		loadFontFromClient('System/Font/');
-
-		console.log('Loading DB files...');
-
 		// Loading TXT Tables
 		loadTable(
 			'data/mp3nametable.txt',
@@ -326,23 +327,17 @@ class DB {
 			onLoad(),
 			true
 		);
-
-		// CSV Tables - Client Date is not sure since when they were added
-		if (PACKETVER.value >= 20230302) {
-			loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, onLoad());
-			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
-		} else {
-			loadTable(
-				'data/msgstringtable.txt',
-				'#',
-				1,
-				function (_index, val) {
-					MsgStringTable[_index] = val;
-				},
-				onLoad(),
-				true
-			);
-		}
+		const loadmsg = onLoad();
+		loadTable(
+			'data/msgstringtable.txt',
+			'#',
+			1,
+			(_index, val) => {
+				MsgStringTable[_index] = val;
+			},
+			() => loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg),
+			true
+		);
 
 		loadTable(
 			'data/resnametable.txt',
@@ -353,7 +348,35 @@ class DB {
 			},
 			onLoad()
 		);
+	}
 
+	static isLoaded = false;
+	static count = 0;
+	static index = 0;
+	static lazyInit() {
+		console.log('Loading DB files...');
+		// Callback
+		DB.index = 0;
+		DB.count = 0;
+		function onLoad() {
+			DB.count++;
+			return function OnLoadClosure() {
+				DB.index++;
+
+				if (DB.onProgress) {
+					DB.onProgress(DB.index, DB.count);
+				}
+
+				if (DB.index === DB.count) {
+					DB.isLoaded = true;
+				}
+			};
+		}
+
+		// CSV Tables - Client Date is not sure since when they were added
+		if (PACKETVER.value >= 20230302) {
+			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
+		}
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
 			// Item
@@ -599,18 +622,8 @@ class DB {
 
 			// TODO: System/RecommendedQuests.lub
 
-			// WoldMap
-			loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
-
 			// Achievements
 			// TODO: System/achievements.lub
-
-			// Town Info
-			const onTownInfoEnd = onLoad();
-			loadTownInfoFile('System/Towninfo.lub', null, () => {
-				// this is not official, its a translation file
-				loadTownInfoFile('SystemEN/Towninfo.lub', null, onTownInfoEnd);
-			});
 
 			// Cash Shop Banner - implemented early 2018
 			if (Configs.get('enableCashShop') && PACKETVER.value >= 20180000) {
@@ -709,6 +722,15 @@ class DB {
 		if (PACKETVER.value >= 20150422) {
 			loadMoveInfoTable(onLoad());
 		}
+
+		// WoldMap
+		loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
+		// Town Info
+		const onTownInfoEnd = onLoad();
+		loadTownInfoFile('System/Towninfo.lub', null, () => {
+			// this is not official, its a translation file
+			loadTownInfoFile('SystemEN/Towninfo.lub', null, onTownInfoEnd);
+		});
 
 		// Forging/Creation
 		loadTable(
@@ -812,11 +834,11 @@ class DB {
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
 
+		const onAIDriverLoaded = onLoad();
 		import('Core/AIDriver.js').then(module => {
-			module.default.initAI(onLoad());
+			module.default.initAI(onAIDriverLoaded);
 		});
 	}
-
 	static getHOAI_VM() {
 		return HO_AI;
 	}

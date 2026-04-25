@@ -13,6 +13,8 @@
 import Client from 'Core/Client.js';
 import Preferences from 'Preferences/Audio.js';
 
+let _lastmp3filename = '';
+
 /**
  * BGM NameSpace
  */
@@ -84,7 +86,13 @@ class BGM {
 		if (!filename) {
 			return;
 		}
-
+		if (!_lastmp3filename) {
+			_lastmp3filename = filename;
+		} else if (_lastmp3filename === filename && filename === '01.mp3') {
+			return;
+		} else {
+			_lastmp3filename = filename;
+		}
 		// Remove the "BGM/" part
 		if (filename.match(/bgm/i)) {
 			filename = filename.match(/\w+\.mp3/i)?.toString();
