@@ -375,21 +375,8 @@ class DB {
 
 		// CSV Tables - Client Date is not sure since when they were added
 		if (PACKETVER.value >= 20230302) {
-			loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, onLoad());
 			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
-		} else {
-			loadTable(
-				'data/msgstringtable.txt',
-				'#',
-				1,
-				function (_index, val) {
-					MsgStringTable[_index] = val;
-				},
-				onLoad(),
-				true
-			);
 		}
-
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
 			// Item
