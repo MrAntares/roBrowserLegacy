@@ -190,6 +190,7 @@ The project uses a custom build system based on Vite and Rollup for bundling ES6
 - `npm run build:threadhandler` - Build ThreadEventHandler.js.
 - `npm run build:html` - Generate HTML files only.
 - `npm run build:ai` - Build AI scripts only.
+- `npm run build:api` - Build api.js and copy components that use it.
 
 ### Custom Builder Options
 
@@ -204,9 +205,9 @@ Supported flags:
 
 - `--all` or `-a`: Build all applications.
 - `--m`: Enable minification with Terser.
-- Specific app flags: `-O` (Online), `-V` (MapViewer), `-G` (GrfViewer), `-M` (ModelViewer), `-S` (StrViewer), `-E` (EffectViewer), `-T` (ThreadEventHandler), `-H` (HTML), `-PWA` (PWA build).
+- Specific app flags: `-O` (Online), `-V` (MapViewer), `-G` (GrfViewer), `-M` (ModelViewer), `-S` (StrViewer), `-E` (EffectViewer), `-T` (ThreadEventHandler), `-H` (HTML), `-PWA` (PWA build), `-API` (api.js, required for HTML builds).
 
-Output is generated in the `dist/Web/` directory for web builds and `dist/Desktop/` for NW.js builds.
+Output is generated in the `dist/Web/` directory for web builds, `dist/Desktop/` for NW.js builds, and `dist/subapps/api/` for API builds.
 
 # 4. Serving and Running roBrowser
 
@@ -656,7 +657,23 @@ You probably forgot the step about `AI` `require` replacement in `Add game asset
 
 You probably have a server security issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
 
-## 9.5 Troubleshooting: Other
+## 9.5 Troubleshooting: api.js 403 Not Found
+
+You forgot to run the api.js build, or are trying to run an html application that requires it directly from the source tree.
+
+Previous releases supported running the html apps from the source tree, but this has been deprecated in favor of using a combined config template with a single source of truth.
+
+If you are upgrading from a previous release / build, you'll need to do the following:
+ - Build api.js (see section `3.6 Build Information` above).
+
+ - Remove any old default values from your previous config files. (They will act as overrides otherwise. See `src/Api/ApiConfig.js` for a list of defaults.)
+
+ - If you relied on the old defaults `type: POPUP`, `version: ''`, or `application: ROBrowser.APP.ONLINE`, you'll need to add them to your config as an override.
+   They are not specified by default. As it's up to the app to decide how to configure roBrowser for it's use.
+
+ - Run the app from the generated `dist/subapp` directory.
+
+## 9.6 Troubleshooting: Other
 
 I personally had to disable `metamask` extension.
 
