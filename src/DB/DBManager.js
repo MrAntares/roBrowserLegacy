@@ -4630,6 +4630,7 @@ function loadTownInfoFile(filename, callback, onEnd) {
 		filename,
 		async function (file) {
 			console.log('Loading file "' + filename + '"...');
+			let isSuccess = false;
 			try {
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 				// get context, a proxy. It will be used to interact with lua conveniently
@@ -4652,13 +4653,14 @@ function loadTownInfoFile(filename, callback, onEnd) {
 				await lua.doFile(filename);
 				// execute main lua function
 				lua.doStringSync('main()');
+				isSuccess = true;
 			} catch (error) {
 				console.error('[loadTownInfoFile] Error: ', error);
 			} finally {
 				// release file from memmory
 				lua.unmountFile(filename);
 				// call onEnd
-				onEnd();
+				onEnd(isSuccess);
 			}
 		},
 		onEnd
