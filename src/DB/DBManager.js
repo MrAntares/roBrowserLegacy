@@ -4349,6 +4349,7 @@ function loadAttendanceFile(filename, callback, onEnd) {
 	Client.loadFile(
 		filename,
 		async function (file) {
+			let isSuccess = false;
 			try {
 				const buffer = new Uint8Array(file);
 				// get context, a proxy. It will be used to interact with lua conveniently
@@ -4369,13 +4370,14 @@ function loadAttendanceFile(filename, callback, onEnd) {
 				await lua.doFile('CheckAttendance.lub');
 				// execute main lua function
 				lua.doStringSync('main()');
+				isSuccess = true;
 			} catch (error) {
 				console.error('[loadAttendanceFile] Error: ', error);
 			} finally {
 				// release file from memmory
 				lua.unmountFile('CheckAttendance.lub');
 				// call onEnd
-				onEnd();
+				onEnd(isSuccess);
 			}
 		},
 		onEnd
