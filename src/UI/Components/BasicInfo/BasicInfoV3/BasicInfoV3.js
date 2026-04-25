@@ -27,6 +27,7 @@ import Escape from 'UI/Components/Escape/Escape.js';
 import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
+import Navigation from 'UI/Components/Navigation/Navigation.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
@@ -124,6 +125,11 @@ BasicInfoV3.init = function init() {
 			case 'mail':
 				Rodex.toggle();
 				break;
+
+			case 'navigation':
+				Navigation.toggle();
+				break;
+
 			case 'achievment':
 				if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
 					Achievement.toggle();
