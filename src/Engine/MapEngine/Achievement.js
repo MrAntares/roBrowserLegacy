@@ -19,7 +19,7 @@ import UIManager from 'UI/UIManager.js';
 import Announce from 'UI/Components/Announce/Announce.js';
 import 'UI/Components/Achievement/Achievement.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
-import EffectManager from 'Renderer/EffectManager';
+import EffectManager from 'Renderer/EffectManager.js';
 
 function initSessionAchievement() {
 	if (!Session.Achievement) {
