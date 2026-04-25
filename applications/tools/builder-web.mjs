@@ -78,7 +78,7 @@ const outputDirMap = {
 		S: { path: '/StrViewer.js', action: () => compile('StrViewer', args['m']) },
 		E: { path: '/EffectViewer.js', action: () => compile('EffectViewer', args['m']) },
 		T: { path: '/ThreadEventHandler.js', action: () => compile('ThreadEventHandler', args['m']) },
-		API: { path: apiPath + '/api.js', action: () => { compile('api', args['m']); copyApplicationFiles(); } },
+		API: { path: apiPath + '/api.js', action: async () => { await compile('api', args['m']); copyApplicationFiles(); } },
 		H: { path: '/index.html', action: createHTML },
 		PWA: {
 			path: '/index.html',
@@ -378,6 +378,7 @@ function copyApplicationFiles() {
 
 	copyFolder(path.resolve(__dirname, '../'), toolsPath);
 	fs.rmSync(apiPath + '/api_template.js');
+	fs.rmSync(toolsPath + '/tools/builder-web.mjs');
 
 	console.log('API files copied', Date.now() - start, 'ms.');
 }
