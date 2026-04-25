@@ -180,6 +180,7 @@ class MapRenderer {
 		const gl = Renderer.getContext();
 
 		EntityManager.free();
+		EntityManager.clearLifeCache();
 		GridSelector.free(gl);
 		Sounds.free();
 		Effects.free();
@@ -273,6 +274,10 @@ class MapRenderer {
 
 		// Display zone effects and entities
 		Sky.render(gl, modelView, projection, fog, tick);
+
+		Models.render(gl, modelView, projection, normalMat, fog, light);
+		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
+
 		EffectManager.render(gl, modelView, projection, fog, tick, true);
 
 		//Render Entities (no effects)
@@ -280,8 +285,6 @@ class MapRenderer {
 
 		// Rendering water (after sprites, billboard projection pushes it to back)
 		Water.render(gl, modelView, projection, fog, light, tick);
-		Models.render(gl, modelView, projection, normalMat, fog, light);
-		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
 
 		EffectManager.render(gl, modelView, projection, fog, tick, false);
 		EntityManager.render(gl, modelView, projection, fog, true);

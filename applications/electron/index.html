@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
-		<title>roBrowserLegacy</title>
+		<title>Electron - roBrowserLegacy</title>
 		<link rel="icon" type="image/png" href="icon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<style>
@@ -15,10 +15,75 @@
 				width: 100%;
 				overflow: hidden;
 			}
+			/* Pre-loader — appears instantly, before any JS */
+			#ro-preloader {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: 99999;
+				background: rgba(6, 8, 16, 0.97);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+			}
+			#ro-preloader .pre-spinner {
+				width: 48px;
+				height: 48px;
+				margin: 0 auto 16px;
+				border: 4px solid rgba(232, 184, 75, 0.2);
+				border-top-color: #e8b84b;
+				border-radius: 50%;
+				animation: ro-pre-spin 0.8s linear infinite;
+			}
+			#ro-preloader .pre-text {
+				font-family: serif;
+				font-size: 16px;
+				letter-spacing: 3px;
+				text-transform: uppercase;
+				color: #e8b84b;
+			}
+			#ro-preloader .pre-text span {
+				display: inline-block;
+				animation: ro-pre-wave 1.2s ease-in-out infinite;
+				animation-delay: calc(var(--i) * 0.08s);
+			}
+			@keyframes ro-pre-spin {
+				to {
+					transform: rotate(360deg);
+				}
+			}
+			@keyframes ro-pre-wave {
+				0%,
+				60%,
+				100% {
+					transform: translateY(0);
+				}
+				30% {
+					transform: translateY(-8px);
+				}
+			}
+			#ro-preloader.fade-out {
+				opacity: 0;
+				transition: opacity 0.3s ease;
+			}
 		</style>
 		<script src="../shared/importmap.js"></script>
 	</head>
 	<body>
+		<!-- Pre-loader: appears BEFORE any JS loads -->
+		<div id="ro-preloader">
+			<div class="pre-spinner"></div>
+			<p class="pre-text">
+				<span style="--i: 0">L</span><span style="--i: 1">o</span><span style="--i: 2">a</span
+				><span style="--i: 3">d</span><span style="--i: 4">i</span><span style="--i: 5">n</span
+				><span style="--i: 6">g</span><span style="--i: 7">.</span><span style="--i: 8">.</span
+				><span style="--i: 9">.</span>
+			</p>
+		</div>
+
 		<div id="robrowser"></div>
 		<script>
 			var ROConfig = {

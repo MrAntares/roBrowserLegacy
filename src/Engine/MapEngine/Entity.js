@@ -130,6 +130,19 @@ function onEntitySpam(pkt) {
 			}
 		}
 		EntityManager.add(entity);
+		const cachedLife = EntityManager.getLife(entity.GID);
+		if (cachedLife && entity.life.hp <= -1) {
+			if (cachedLife.hp !== undefined) entity.life.hp = cachedLife.hp;
+			if (cachedLife.hp_max !== undefined) entity.life.hp_max = cachedLife.hp_max;
+			if (cachedLife.sp !== undefined) entity.life.sp = cachedLife.sp;
+			if (cachedLife.sp_max !== undefined) entity.life.sp_max = cachedLife.sp_max;
+			if (cachedLife.hunger !== undefined) entity.life.hunger = cachedLife.hunger;
+			if (cachedLife.hunger_max !== undefined) entity.life.hunger_max = cachedLife.hunger_max;
+			if (entity.life.hp > -1 && entity.life.hp_max > -1) {
+				entity.life.update();
+				entity.life.display = true;
+			}
+		}
 	}
 
 	if (
@@ -341,6 +354,9 @@ function onEntityVanish(pkt) {
 				// remove aura on non-PC death
 				if (entity.objecttype !== Entity.TYPE_PC) {
 					entity.aura.remove(EffectManager);
+				}
+				if (pkt.type === Entity.VT.DEAD) {
+					EntityManager.removeLife(pkt.GID);
 				}
 		}
 
@@ -1069,6 +1085,8 @@ function onTitleChangeAck(pkt) {
  * @param {object} pkt - PACKET.ZC.NOTIFY_MONSTER_HP
  */
 function onEntityLifeUpdate(pkt) {
+	EntityManager.storeLife(pkt.AID, { hp: pkt.hp, hp_max: pkt.maxhp });
+
 	const entity = EntityManager.get(pkt.AID);
 	if (entity) {
 		entity.life.hp = pkt.hp;

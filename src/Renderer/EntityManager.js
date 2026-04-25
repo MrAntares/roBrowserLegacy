@@ -551,6 +551,32 @@ function getPathDistance(fromEntity, toEntity) {
 	return count;
 }
 
+const _lifeCache = new Map();
+
+function storeLife(gid, data) {
+	const existing = _lifeCache.get(gid) || {};
+	// Merge parcial: só atualiza campos que foram passados (não undefined)
+	if (data.hp !== undefined) existing.hp = data.hp;
+	if (data.hp_max !== undefined) existing.hp_max = data.hp_max;
+	if (data.sp !== undefined) existing.sp = data.sp;
+	if (data.sp_max !== undefined) existing.sp_max = data.sp_max;
+	if (data.hunger !== undefined) existing.hunger = data.hunger;
+	if (data.hunger_max !== undefined) existing.hunger_max = data.hunger_max;
+	_lifeCache.set(gid, existing);
+}
+
+function getLife(gid) {
+	return _lifeCache.get(gid) || null;
+}
+
+function removeLife(gid) {
+	_lifeCache.delete(gid);
+}
+
+function clearLifeCache() {
+	_lifeCache.clear();
+}
+
 const EntityManager = {
 	free: free,
 	add: addEntity,
@@ -567,6 +593,11 @@ const EntityManager = {
 
 	getClosestEntity: getClosestEntity,
 	getLowestHpEntity: getLowestHpEntity,
+
+	storeLife: storeLife,
+	getLife: getLife,
+	removeLife: removeLife,
+	clearLifeCache: clearLifeCache,
 
 	render: render,
 	intersect: intersect,

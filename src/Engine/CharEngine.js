@@ -725,7 +725,9 @@ function onConnectRequest(entity) {
 	CharSelect.getUI().remove();
 	UIManager.getComponent('WinLoading').append();
 	Session.Character = entity;
-
+	if (!DB.isLoaded) {
+		DB.lazyInit();
+	}
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);
@@ -736,7 +738,21 @@ function onConnectRequest(entity) {
  *
  * @param {object} pkt - PACKET.HC.NOTIFY_ZONESVR
  */
+let retryCount = 0;
 function onReceiveMapInfo(pkt) {
+	if (!DB.isLoaded) {
+		retryCount++;
+		if (retryCount > 600) {
+			UIManager.showMessageBox('Failed loading databases, please restart the game', 'ok', () => {
+				CharEngine.reload();
+			});
+			retryCount = 0;
+			return;
+		}
+		setTimeout(() => onReceiveMapInfo(pkt), 100);
+		return;
+	}
+	retryCount = 0;
 	Session.GID = pkt.GID;
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }

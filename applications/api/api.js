@@ -386,6 +386,10 @@
 					this.config.target.appendChild(frame);
 				}
 
+				// Remove parent page preloader — the iframe handles its own loading
+				var parentPreloader = document.getElementById('ro-preloader');
+				if (parentPreloader) parentPreloader.remove();
+
 				this._APP = frame.contentWindow;
 				break;
 
