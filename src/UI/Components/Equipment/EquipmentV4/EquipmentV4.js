@@ -34,7 +34,7 @@ import htmlText from './EquipmentV4.html?raw';
 import cssText from './EquipmentV4.css?raw';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
-import EquipAbility from 'UI/Components/Equipment/EquipmentV4/EquipAbility.js';
+import EquipAbility from 'UI/Components/EquipAbility/EquipAbility.js';
 
 
 /**
