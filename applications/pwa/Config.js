@@ -45,6 +45,7 @@ window.ROConfigBase = {
 	clientHash: null,
 	clientVersionMode: 'PacketVer',
 	disableConsole: false,
+	enableAchievements: false,
 	enableBank: false,
 	enableCashShop: false,
 	enableCheckAttendance: false,

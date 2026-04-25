@@ -205,6 +205,11 @@ const ReputeGroup = {};
 const ReputeInfo = {};
 
 /**
+ * @const {Object} Achievement Table
+ */
+const AchievementTable = {};
+
+/**
  * @const {Object} CSV Tables
  */
 const MsgEmotionCSV = {};
@@ -603,7 +608,18 @@ class DB {
 			loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
 
 			// Achievements
-			// TODO: System/achievements.lub
+			if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
+				loadLuaValue(
+					'System/achievement_list.lub',
+					'achievement_tbl',
+					function (json) {
+						if (json) {
+							Object.assign(AchievementTable, json);
+						}
+					},
+					onLoad()
+				);
+			}
 
 			// Town Info
 			const onTownInfoEnd = onLoad();
@@ -837,9 +853,18 @@ class DB {
 		return TitleTable;
 	}
 
+	static getAchievementTable() {
+		return AchievementTable;
+	}
+
 	static getTitleString(titleID) {
 		return TitleTable[titleID] || '';
 	}
+
+	static getSkillName(skillID) {
+		return SkillInfo[skillID].SkillName || '';
+	}
+
 	/**
 	 * Actor Type checks
 	 *
@@ -6856,6 +6881,8 @@ function loadLuaValue(file_path, variable_name, callback, onEnd) {
 										for k, v in pairs(value) do
 											if type(k) == "string" then
 												table.insert(result, "\"" .. escape_str(k) .. "\":" .. to_json(v))
+											elseif type(k) == "number" then
+												table.insert(result, "\"" .. tostring(k) .. "\":" .. to_json(v))
 											end
 										end
 										return "{" .. table.concat(result, ",") .. "}"

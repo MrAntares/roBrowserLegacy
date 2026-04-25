@@ -224,6 +224,11 @@
 		enableCashShop: false,
 
 		/**
+		 * @type {boolean} Enable Achievements UI
+		 */
+		enableAchievements: false,
+
+		/**
 		 * @type {boolean} Enable Bank UI
 		 */
 		enableBank: false,

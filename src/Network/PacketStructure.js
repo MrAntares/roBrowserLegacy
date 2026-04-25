@@ -12515,33 +12515,68 @@ PACKET.ZC.ACCEPT_ENTER3.size = 14;
 
 // 0xa23
 PACKET.ZC.ALL_ACH_LIST = function PACKET_ZC_ALL_ACH_LIST(fp, end) {
-	this.ID = fp.readShort(); // <ID>.W
-	this.Length = fp.readShort(); // <Length>.W
-	this.ach_count = fp.readLong(); // <ach_count>.L
-	this.total_points = fp.readLong(); // <total_points>.L
-	this.rank = fp.readShort(); // <rank>.W
-	this.current_rank_points = fp.readLong(); // <current_rank_points>.L
-	this.next_rank_points = fp.readBinaryString(); // <next_rank_points>.L // todo fix readLong to readBinaryString
+	this.total_achievements = fp.readLong();
+	this.total_points = fp.readLong();
+	this.rank = fp.readShort();
+	this.current_rank_points = fp.readLong();
+	this.next_rank_points = fp.readLong();
+	this.ach_list = new Array();
 
-	// todo struct
-	const option = new Struct('int var1', 'short var2', 'bool var3', 'float var4', 'long var5');
-	// <struct ach_list_info *[]>.P
-	this.ach_list_info = {};
-	this.ach_list_info[1] = fp.readStruct(option);
-	this.ach_list_info[2] = fp.readStruct(option);
+	while (fp.tell() < end) {
+		const achievement = { ach_id: 0, completed: 0, objective: new Array(), completed_at: 0, reward: 0 }
+		achievement.ach_id = fp.readLong();
+		achievement.completed = fp.readUChar();
+		for (let j = 0; j < 10; j++) {
+			const objective_id = fp.readLong()
+			if (objective_id > 0)
+				achievement.objective.push(objective_id);
+		}
+		achievement.completed_at = fp.readLong();
+		achievement.reward = fp.readUChar();
+		if (achievement.ach_id > 0)
+			this.ach_list.push(achievement);
+	}
 };
 PACKET.ZC.ALL_ACH_LIST.size = -1;
 
 // 0xa24
-PACKET.ZC.ACH_UPDATE = function PACKET_ZC_ACH_UPDATE(fp, end) {};
+PACKET.ZC.ACH_UPDATE = function PACKET_ZC_ACH_UPDATE(fp, end) {
+	this.total_points = fp.readLong();
+	this.rank = fp.readShort();
+	this.current_rank_points = fp.readLong();
+	this.next_rank_points = fp.readLong();
+	this.ach_list = new Array();
+	const achievement = { ach_id: 0, completed: 0, objective: new Array(), completed_at: 0, reward: 0 }
+	achievement.ach_id = fp.readLong();
+	achievement.completed = fp.readUChar();
+	for (let j = 0; j < 10; j++) {
+		const objective_id = fp.readLong()
+		if (objective_id > 0)
+			achievement.objective.push(objective_id);
+	}
+	achievement.completed_at = fp.readLong();
+	achievement.reward = fp.readUChar();
+	if (achievement.ach_id > 0)
+		this.ach_list.push(achievement);
+};
 PACKET.ZC.ACH_UPDATE.size = 66;
 
 // 0xa25
-PACKET.CZ.REQ_ACH_REWARD = function PACKET_CZ_REQ_ACH_REWARD(fp, end) {};
-PACKET.CZ.REQ_ACH_REWARD.size = 6;
+PACKET.CZ.REQ_ACH_REWARD = function PACKET_CZ_REQ_ACH_REWARD() {
+	this.ach_id = 0;
+};
+PACKET.CZ.REQ_ACH_REWARD.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(6);
+	pkt_buf.writeShort(0xa25);
+	pkt_buf.writeULong(this.ach_id);
+	return pkt_buf;
+};
 
 // 0xa26
-PACKET.ZC.REQ_ACH_REWARD_ACK = function PACKET_ZC_REQ_ACH_REWARD_ACK(fp, end) {};
+PACKET.ZC.REQ_ACH_REWARD_ACK = function PACKET_ZC_REQ_ACH_REWARD_ACK(fp, end) {
+	this.failed = fp.readUChar();
+	this.ach_id = fp.readLong();
+};
 PACKET.ZC.REQ_ACH_REWARD_ACK.size = 7;
 
 // 0xa27

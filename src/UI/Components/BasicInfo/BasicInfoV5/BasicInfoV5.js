@@ -32,6 +32,7 @@ import Navigation from 'UI/Components/Navigation/Navigation.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
+import Achievement from 'UI/Components/Achievement/Achievement.js';
 import htmlText from './BasicInfoV5.html?raw';
 import cssText from './BasicInfoV5.css?raw';
 
@@ -137,6 +138,11 @@ BasicInfoV5.init = function init() {
 			case 'repute':
 				Reputation.toggle();
 				break;
+			case 'achievment':
+				if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
+					Achievement.toggle();
+				}
+				break;
 		}
 	});
 
@@ -179,7 +185,6 @@ BasicInfoV5.onAppend = function onAppend() {
 
 	this.ui.find('#battle').hide();
 	this.ui.find('#replay').hide();
-	this.ui.find('#achievment').hide();
 	this.ui.find('#tipbox').hide();
 	this.ui.find('#shortcut').hide();
 	this.ui.find('#agency').hide();

@@ -16,6 +16,8 @@ import Renderer from 'Renderer/Renderer.js';
 import Session from 'Engine/SessionStorage.js';
 import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
+import Configs from 'Core/Configs.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
@@ -27,6 +29,7 @@ import Rodex from 'UI/Components/Rodex/Rodex.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
+import Achievement from 'UI/Components/Achievement/Achievement.js';
 import htmlText from './BasicInfoV3.html?raw';
 import cssText from './BasicInfoV3.css?raw';
 
@@ -121,6 +124,11 @@ BasicInfoV3.init = function init() {
 			case 'mail':
 				Rodex.toggle();
 				break;
+			case 'achievment':
+				if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
+					Achievement.toggle();
+				}
+				break;
 		}
 	});
 
@@ -162,10 +170,7 @@ BasicInfoV3.onAppend = function onAppend() {
 	}
 
 	this.ui.find('#battle').hide();
-	this.ui.find('#navigation').hide();
-	this.ui.find('#battle').hide();
 	this.ui.find('#replay').hide();
-	this.ui.find('#achievment').hide();
 };
 
 /**
