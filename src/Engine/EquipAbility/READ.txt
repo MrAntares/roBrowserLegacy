@@ -1,0 +1,270 @@
+/*
+ * EquipAbility Parser System
+ * 장비 능력치 파서 시스템
+ *
+ * =========================================================
+ * ⚠️ Notice / 주의사항
+ * =========================================================
+ * This parser is based on the Korean (KO) version.
+ * All parsing rules and patterns are written using Korean description texts.
+ *
+ * 본 파서는 한국어(KO) 디스크립트를 기준으로 작성되었습니다.
+ * 모든 파싱 구문은 한글 텍스트 기준으로 처리됩니다.
+ *
+ *
+ * =========================================================
+ * 📘 Overview / 개요
+ * =========================================================
+ *
+ * This system parses equipment descriptions from roBrowser and converts them
+ * into calculated equipment stats displayed in UI tabs.
+ *
+ * 이 시스템은 roBrowser의 장비 설명(디스크립트)을 파싱하여
+ * 실제 장비 능력치를 계산하고 UI 탭에 표시합니다.
+ *
+ *
+ * =========================================================
+ * 🧠 Core Concept / 핵심 개념
+ * =========================================================
+ *
+ * ID → Description → Parser → Condition → Calculation → Classification → UI
+ *
+ * ID → 디스크립트 → 파서 → 조건 판단 → 능력치 계산 → 분류 → UI 출력
+ *
+ *
+ * =========================================================
+ * 📦 Data Sources / 데이터 출처
+ * =========================================================
+ *
+ * - item.ITID
+ *   → DB.getItemInfo(item.ITID).identifiedDescriptionName
+ *
+ * - item.slot.card1~4
+ *   → DB.getItemInfo(cardID).identifiedDescriptionName
+ *
+ * - item.Options[index, value]
+ *   → DB.getOptionName(index)
+ *   → replace %d with value
+ *
+ * 서버에서는 ID만 전달되며,
+ * 실제 설명은 클라이언트 DB에서 생성됩니다.
+ *
+ *
+ * =========================================================
+ * ⚙️ Parsing Structure / 파싱 구조
+ * =========================================================
+ *
+ * The parser does NOT read full sentences.
+ * It extracts structured meaning using keywords.
+ *
+ * 파서는 문장을 그대로 해석하지 않습니다.
+ * "조건 + 수치 + 효과" 구조로 분해합니다.
+ *
+ *
+ * =========================================================
+ * 🧩 Condition System / 조건 시스템
+ * =========================================================
+ *
+ * Conditions are NOT displayed in UI.
+ * They are used only for calculation.
+ *
+ * 조건은 UI에 표시되지 않으며 계산에만 사용됩니다.
+ *
+ * Examples:
+ *
+ * - 7제련 시
+ * - 3제련당
+ * - D등급 이상
+ * - BaseLv 200 이상
+ * - [스킬명] 레벨당
+ * - ~와 함께 장착 시
+ *
+ *
+ * Context values:
+ *
+ * - ctx.refine
+ * - ctx.grade
+ * - ctx.baseLevel
+ * - ctx.skillLevels
+ * - ctx.equippedItems
+ *
+ *
+ * =========================================================
+ * 🧮 Calculation System / 계산 시스템
+ * =========================================================
+ *
+ * Effects are applied ONLY if conditions are satisfied.
+ *
+ * 조건이 만족된 경우에만 능력치가 계산됩니다.
+ *
+ * Example:
+ *
+ * "3제련당 ATK +3"
+ *
+ * refine = 10
+ * → floor(10 / 3) = 3
+ * → ATK +9
+ *
+ *
+ * "7제련 시 ATK +20"
+ *
+ * refine = 10 → 적용됨
+ * refine = 5  → 적용 안됨
+ *
+ *
+ * =========================================================
+ * 🧠 Keyword-Based Parsing / 키워드 기반 파싱
+ * =========================================================
+ *
+ * The parser relies on keyword detection instead of full sentence parsing.
+ *
+ * 문장이 아닌 "구문 키워드" 기반으로 해석합니다.
+ *
+ *
+ * Condition Keywords:
+ * - 제련 시 / 제련당 / 이상 / 미만 / 초과
+ * - 등급 / 레벨 / 스킬 레벨
+ * - 함께 장착 시 / 세트 효과
+ *
+ * Value Types:
+ * - +숫자 / -숫자
+ * - 숫자%
+ * - 숫자초
+ * - 증가 / 감소
+ *
+ * Effect Keywords:
+ * - ATK / MATK / STR / HP
+ * - 데미지 / 캐스팅 / 후딜레이
+ * - 속성 / 종족 / 크기
+ * - 스킬 이름
+ *
+ *
+ * =========================================================
+ * 📂 Rule System / 룰 시스템
+ * =========================================================
+ *
+ * Rules are separated into multiple files.
+ * The engine never changes.
+ *
+ * 룰은 파일 단위로 분리되며,
+ * 엔진은 수정하지 않습니다.
+ *
+ *
+ * Structure:
+ *
+ * rules/
+ *  - StatRules.js
+ *  - AbilityRules.js
+ *  - BattleRules.js
+ *  - ElementRules.js
+ *  - RaceRules.js
+ *  - SkillRules.js
+ *
+ *
+ * New patterns must be added to rule files only.
+ *
+ * 새로운 구문은 룰 파일에만 추가합니다.
+ *
+ *
+ * =========================================================
+ * 🧭 Classification System / 분류 시스템
+ * =========================================================
+ *
+ * After calculation, results are categorized into UI tabs.
+ *
+ * 계산된 결과만 UI 탭으로 분류됩니다.
+ *
+ *
+ * Tabs:
+ *
+ * - total (전체)
+ * - stat (스탯)
+ * - ability (어빌)
+ * - battle (전투)
+ * - element (속성)
+ * - race (종족)
+ * - skill (스킬)
+ * - special (특수)
+ *
+ *
+ * IMPORTANT:
+ * Conditions are NOT displayed.
+ * Only final calculated results are shown.
+ *
+ * 조건은 표시되지 않고,
+ * 최종 결과만 표시됩니다.
+ *
+ *
+ * =========================================================
+ * ❗ Error Handling / 에러 처리
+ * =========================================================
+ *
+ * If a line cannot be parsed:
+ *
+ * → [ERROR] original text
+ *
+ *
+ * If keywords exist:
+ *
+ * → send to corresponding tab
+ *
+ * Examples:
+ *
+ * "인간형 적에게 ..."
+ * → race tab (ERROR)
+ *
+ * "성속성 ..."
+ * → element tab (ERROR)
+ *
+ * unknown
+ * → special tab
+ *
+ *
+ * =========================================================
+ * 🧠 Design Philosophy / 설계 철학
+ * =========================================================
+ *
+ * Do not interpret sentences.
+ * Interpret structure.
+ *
+ * 문장을 해석하지 말고,
+ * 구조를 해석한다.
+ *
+ *
+ * Conditions define WHEN.
+ * Effects define WHAT.
+ *
+ * 조건은 "언제"
+ * 효과는 "무엇"
+ *
+ *
+ * =========================================================
+ * 🔥 Final Summary / 최종 요약
+ * =========================================================
+ *
+ * Conditions → Check
+ * Effects → Calculate
+ * Results → Display
+ *
+ * 조건은 판단,
+ * 효과는 계산,
+ * 결과만 출력
+ *
+ */
+ EquipAbilityParser/
+│
+├── EquipAbilityParser.js        // 메인 엔진 (절대 건드리지 않음)
+├── EquipAbilityCondition.js     // 조건 처리 (제련, 등급, 레벨, 스킬)
+├── EquipAbilityClassifier.js    // 결과 분류 (탭 배치)
+├── EquipAbilityUtil.js          // 공통 함수 (숫자 추출, 문자열 처리)
+│
+├── rules/
+│   ├── StatRules.js             // STR, ATK, MATK, HP 등 기본 스탯
+│   ├── AbilityRules.js          // P.ATK, S.MATK, RES, MRES 등 확장 스탯
+│   ├── BattleRules.js           // 원거리, 근접, 크리, 캐스팅, 후딜
+│   ├── ElementRules.js          // 속성 데미지, 속성 저항
+│   ├── RaceRules.js             // 종족 데미지, 종족 저항
+│   ├── SkillRules.js            // 스킬 데미지, 스킬 쿨타임
+│   ├── SpecialRules.js          // 예외 / 특수 처리
+│
+└── index.js                     // RULES 통합 export (선택)
