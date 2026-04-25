@@ -362,6 +362,7 @@ function onPartyMemberLeave(pkt) {
  * @param {object} pkt - PACKET.ZC.NOTIFY_HP_TO_GROUPM
  */
 function onMemberLifeUpdate(pkt) {
+	EntityManager.storeLife(pkt.AID, { hp: pkt.hp, hp_max: pkt.maxhp });
 	const entity = EntityManager.get(pkt.AID);
 
 	if (entity) {
