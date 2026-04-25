@@ -22,13 +22,13 @@ export default function uiCssHmrPlugin() {
 			const cssPath = match[2];
 
 			// Support both UIComponent and GUIComponent
-			const compRegex = /new\s+(?:UIComponent|GUIComponent)\(\s*['"](\w+)['"]/;
+			const compRegex = /(?:new\s+(?:UIComponent|GUIComponent)|super)\(\s*['"](\w+)['"]/;
 			const compMatch = compRegex.exec(code);
 			if (!compMatch) return null;
 
 			const componentName = compMatch[1];
 
-			const isGUI = code.includes('new GUIComponent');
+			const isGUI = code.includes('GUIComponent');
 			const hmrBlock = isGUI
 				? `
 				if (import.meta.hot) {
