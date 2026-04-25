@@ -460,7 +460,10 @@ const renderEntity = (function renderEntityClosure() {
 			default:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 				SpriteRenderer.zIndex = 150;
-				SpriteRenderer.runWithDepth(true, true, false, function () {
+				// Non-player entities:
+				// - Do not write depth to avoid breaking PC occlusion and internal layer issues
+				// - Still use depth test for correct ordering
+				SpriteRenderer.runWithDepth(true, false, false, function () {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
 				break;
@@ -779,13 +782,6 @@ const renderElement = (function renderElementClosure() {
 		// Render all frames
 		for (let i = 0, count = layers.length; i < count; ++i) {
 			entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
-			if (
-				count > 1 &&
-				entity.objecttype !== entity.constructor.TYPE_PC &&
-				entity.objecttype !== entity.constructor.TYPE_MERC
-			) {
-				SpriteRenderer.zIndex += 250;
-			}
 		}
 
 		// Save reference
