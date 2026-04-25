@@ -20,6 +20,7 @@
 		"build:all": "npm run build -- --all",
 		"build:all:minify": "npm run build -- --all --m",
 		"build:pwa": "npm run build -- --O --T --PWA",
+		"build:api": "npm run build -- --API",
 		"electron:dev": "electron applications/electron/main.js --dev",
 		"electron:build": "electron-builder --config applications/electron/electron-builder.yml -w -l",
 		"electron:build:win": "electron-builder --config applications/electron/electron-builder.yml --win",
