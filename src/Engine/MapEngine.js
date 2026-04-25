@@ -90,6 +90,7 @@ import Quest from 'UI/Components/Quest/Quest.js';
 import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip.js';
 import JoystickUI from 'UI/Components/JoystickUI/JoystickUI.js';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
+import Achievement from 'UI/Components/Achievement/Achievement.js';
 
 import MainEngine from './MapEngine/Main.js';
 import MapStateEngine from './MapEngine/MapState.js';
@@ -118,6 +119,7 @@ import CaptchaEngine from './MapEngine/Captcha.js';
 import ClanEngine from './MapEngine/Clan.js';
 import CashShopEngine from './MapEngine/CashShop.js';
 import BankEngine from './MapEngine/Bank.js';
+import AchievementEngine from './MapEngine/Achievement.js';
 
 /**
  * @type {string} mapname
@@ -298,6 +300,10 @@ class MapEngine {
 				CashShopEngine();
 			}
 
+			if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
+				AchievementEngine();
+			}
+
 			if (Configs.get('enableBank')) {
 				BankEngine.init();
 			}
@@ -385,6 +391,10 @@ class MapEngine {
 
 			if (PACKETVER.value >= 20220330) {
 				Reputation.prepare();
+			}
+
+			if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
+				Achievement.prepare();
 			}
 
 			// Bind UI
@@ -681,6 +691,9 @@ function onMapChange(pkt) {
 		JoystickUI.append();
 		Navigation.append();
 		Roulette.append();
+		if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
+			Achievement.append();
+		}
 
 		if (Session.PCGoldTimer) {
 			PCGoldTimer.append();
@@ -825,6 +838,7 @@ function onRestartAnswer(pkt) {
 		Quest.getUI().clean();
 		PartyFriends.getUI().clean();
 		CashShop.clean();
+		Session.Achievement = null;
 		Mouse.intersect = false;
 		MapRenderer.free();
 		Renderer.stop();

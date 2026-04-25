@@ -31,6 +31,7 @@ import WinStats from 'UI/Components/WinStats/WinStats.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
+import Achievement from 'UI/Components/Achievement/Achievement.js';
 import htmlText from './BasicInfoV4.html?raw';
 import cssText from './BasicInfoV4.css?raw';
 
@@ -134,6 +135,11 @@ BasicInfoV4.init = function init() {
 			case 'navigation':
 				Navigation.toggle();
 				break;
+			case 'achievment':
+				if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
+					Achievement.toggle();
+				}
+				break;
 		}
 	});
 
@@ -176,7 +182,6 @@ BasicInfoV4.onAppend = function onAppend() {
 
 	this.ui.find('#battle').hide();
 	this.ui.find('#replay').hide();
-	this.ui.find('#achievment').hide();
 	this.ui.find('#tipbox').hide();
 	this.ui.find('#shortcut').hide();
 	this.ui.find('#agency').hide();
