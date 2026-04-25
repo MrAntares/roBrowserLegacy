@@ -12571,6 +12571,7 @@ PACKET.CZ.REQ_ACH_REWARD.prototype.build = function () {
 	pkt_buf.writeULong(this.ach_id);
 	return pkt_buf;
 };
+PACKET.CZ.REQ_ACH_REWARD.size = 6;
 
 // 0xa26
 PACKET.ZC.REQ_ACH_REWARD_ACK = function PACKET_ZC_REQ_ACH_REWARD_ACK(fp, end) {
