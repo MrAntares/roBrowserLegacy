@@ -441,7 +441,45 @@ var ROConfig = {
 	enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
 	enableHomunAutoFeed: false, // Enable Homunculus Auto Feed for older PACKETVER than 20170920
 	loadLua: false, // Enable this option to load LUA tables (currently only item table) from client/System/...
-	customItemInfo: ['kRO.lua', 'jRO.lua', 'lua files514/iteminfo.lua'], // Customized iteminfo array-list, it loads using firt to last priority
+
+	// Custom Paths support - These can be part of the server config as well, and override the built-in paths for their respective files.
+	// Multiple paths can be configured for a given item, and they will be loaded using first to last priority.
+	// If no path is given for an item in Config.js / Config.local.js, then default values will be loaded from src/Api/ApiConfig.js.
+	//
+	// Note: Previously, a config item called customItemInfo was available. This has been deprecated and replaced with the itemInfo entry in customLUAPaths below.
+	// Configs using customItemInfo should migrate the array to customLUAPaths. Or the client will not load the custom item data.
+	// 	E.x.
+	//		customItemInfo: ['item.lub']
+	//	becomes
+	//		customLUAPaths: { itemInfo: ['item.lub'] }
+	//
+	// In addition, previous releases checked for additional path variations on files in the System/SystemEN folder when the defaults were used.
+	// 	I.e. Looking for 'System/mapInfo.lua' would also check for:
+	//		'System/mapInfo.lub'
+	//		'System\\mapInfo.lua'
+	//		'System\\mapInfo.lub'
+	//		'SystemEN/mapInfo.lua'
+	//		'SystemEN/mapInfo.lub'
+	//		'SystemEN\\mapInfo.lua'
+	//		'SystemEN\\mapInfo.lub'
+	// Checking these alternate paths has also been deprecated.
+	//
+	// If the default paths, some listed below, are incorrect for your System folder / GRFs, you will need to provide the *full* correct paths
+	// in customLUAPaths below. Otherwise, your client will error out upon trying to load those files.
+	// (If your PACKETVER / config settings requires them.)
+	customLUAPaths: {
+		checkAttendance: ['System/CheckAttendance.lub'], // Customized CheckAttendance array-list.
+		itemInfo: ['System/itemInfo.lub'], // Customized iteminfo array-list.
+		mapInfo: ['System/mapInfo.lub'], // Customized mapInfo array-list.
+		ongoingQuestInfoList: ['System/OngoingQuestInfoList.lub'], // Customized ongoing quest info array-list.
+		ongoingQuestInfoData: ['SystemEN/OngoingQuests.lub'], // Customized OngoingQuests array-list.
+		petEvolution: ['System/PetEvolutionCln.lub'], // Customized PetEvolution array-list.
+		petInfo: ['data/luafiles514/lua files/datainfo/petinfo.lub'], // Customized petinfo array-list.
+		signBoardData: ['SystemEN/Sign_Data.lub'], // Customized signboard data array-list.
+		signBoardList: ['data/luafiles514/lua files/SignBoardList.lub'], // Customized signboard array-list.
+		townInfo: ['System/Towninfo.lub'], // Customized towninfo array-list.
+		townData: ['SystemEN/Towninfo.lub'], // Customized towninfo array-list.
+	},
 
 	//clientHash:    '113e195e6c051bb1cfb12a644bb084c5', // Set fixed client hash value here (less secure, for development only)
 	calculateHash: false, // When true, the client will calculate it's own hash and send that value (slower, more secure, only when development is false). Must provide the list of files in hashFiles!
