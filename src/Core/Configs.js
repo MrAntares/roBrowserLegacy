@@ -8,6 +8,8 @@
  * @author Vincent Thibault
  */
 
+import ApiConfig from 'Api/ApiConfig.js';
+
 /**
  * @var {object} global configs
  */
@@ -72,11 +74,14 @@ class Configs {
 		return;
 	}
 
-	const keys = Object.keys(configs);
+	let newconfig = Object.assign({}, ApiConfig.config);
+	newconfig = Object.assign(newconfig, configs);
+
+	const keys = Object.keys(newconfig);
 	let i, count;
 
 	for (i = 0, count = keys.length; i < count; ++i) {
-		Configs.set(keys[i], configs[keys[i]]);
+		Configs.set(keys[i], newconfig[keys[i]]);
 	}
 })(window.ROConfig);
 
