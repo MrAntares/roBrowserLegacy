@@ -884,7 +884,7 @@ class DB {
 	}
 
 	static getSkillName(skillID) {
-		return SkillInfo[skillID].SkillName || '';
+		return (SkillInfo[skillID] && SkillInfo[skillID].SkillName) || '';
 	}
 
 	/**
