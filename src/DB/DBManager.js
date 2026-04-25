@@ -353,7 +353,7 @@ class DB {
 	static isLoaded = false;
 	static count = 0;
 	static index = 0;
-	static async lazyInit() {
+	static lazyInit() {
 		console.log('Loading DB files...');
 		// Callback
 		DB.index = 0;
