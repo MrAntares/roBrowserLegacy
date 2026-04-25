@@ -5914,6 +5914,7 @@ function loadSignBoardData(filename, callback, onEnd) {
 	Client.loadFile(
 		filename,
 		async function (file) {
+			let isSuccess = false;
 			try {
 				console.log('Loading file "' + filename + '"...');
 
@@ -5950,13 +5951,14 @@ function loadSignBoardData(filename, callback, onEnd) {
 						end
                         main_SignBoardData()
 					`);
+				isSuccess = true;
 			} catch (error) {
 				console.error('[loadSignBoardData] Error: ', error);
 			} finally {
 				// release file from memmory
 				lua.unmountFile('Sign_Data.lub');
 				// call onEnd
-				onEnd();
+				onEnd(isSuccess);
 			}
 		},
 		onEnd
