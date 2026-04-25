@@ -37,6 +37,7 @@ const _cache = {};
  * @Number of existing HTML Media players in the DOM
  */
 let mediaPlayerCount = 0;
+let _playGen = 0;
 
 /**
  * @Constructor
@@ -56,63 +57,69 @@ class SoundManager {
 	 */
 	static play(filename, vol) {
 		let volume;
-
-		// Sound volume * Global volume
 		if (vol) {
 			volume = vol * this.volume;
 		} else {
 			volume = this.volume;
 		}
-
-		// Don't play sound if you can't hear it or sound is stopped
 		if (volume <= 0 || !Preferences.Sound.play) {
 			return;
 		}
-
 		if (!(filename in _sounds)) {
 			_sounds[filename] = {};
 			_sounds[filename].instances = [];
 			_sounds[filename].lastTick = 0;
 		}
-
-		// Re-usable sound
+		// Re-usable sound from cache
 		const sound = getSoundFromCache(filename);
 		if (sound) {
 			sound.volume = Math.min(volume, 1.0);
 			sound._volume = volume;
-			sound.play();
+			const playPromise = sound.play();
+			if (playPromise) {
+				playPromise.catch(err => {
+					// blob revogado / src inválido → descarta e recarrega do zero
+					if (err.name === 'NotSupportedError' || err.name === 'AbortError') {
+						const idx = _sounds[filename]?.instances.indexOf(sound);
+						if (idx !== undefined && idx !== -1) {
+							_sounds[filename].instances.splice(idx, 1);
+						}
+						sound.remove();
+						mediaPlayerCount--;
+						SoundManager.play(filename, vol);
+						return;
+					}
+					console.warn('Failed to play sound:', err);
+				});
+			}
 			_sounds[filename].instances.push(sound);
 			_sounds[filename].lastTick = Date.now();
 			return;
 		}
-
-		// Get the sound from client.
+		const myGen = _playGen;
 		Client.loadFile(`data/wav/${filename}`, url => {
-			if (!(filename in _sounds)) {
+			if (myGen !== _playGen || !(filename in _sounds)) {
 				return;
 			}
-			// Wait a delay to replay a sound and don't play too many times (self balancing formula based on total media players)
 			if (
-				filename in _sounds &&
-				(_sounds[filename].lastTick > Date.now() - C_SAME_SOUND_DELAY ||
-					_sounds[filename].instances.length > balancedMax(C_MAX_SOUND_INSTANCES))
+				_sounds[filename].lastTick > Date.now() - C_SAME_SOUND_DELAY ||
+				_sounds[filename].instances.length > balancedMax(C_MAX_SOUND_INSTANCES)
 			) {
 				return;
 			}
-
-			// Initialiaze the sound and play it
 			const audio = document.createElement('audio');
 			mediaPlayerCount++;
 			audio.filename = filename;
 			audio.src = url;
 			audio.volume = Math.min(volume, 1.0);
 			audio._volume = volume;
-
 			audio.addEventListener('error', onSoundError, false);
 			audio.addEventListener('ended', onSoundEnded, false);
-			audio.play();
-
-			// Add it to the list
+			audio.play().catch(err => {
+				if (err.name !== 'AbortError') {
+					console.warn('Failed to play sound:', err);
+				}
+			});
 			_sounds[filename].instances.push(audio);
 			_sounds[filename].lastTick = Date.now();
 		});
@@ -139,28 +146,37 @@ class SoundManager {
 		if (filename) {
 			if (filename in _sounds) {
 				while (_sounds[filename].instances.length > 0) {
-					const sound = _sounds[filename].instances.shift();
-					sound.pause();
-					sound.remove();
+					const s = _sounds[filename].instances.shift();
+					s.pause();
+					s.remove();
 					mediaPlayerCount--;
 				}
 				delete _sounds[filename];
 			}
 			return;
 		}
-
-		// Remove from memory
+		_playGen++;
+		// limpa instâncias ativas
 		Object.keys(_sounds).forEach(key => {
 			while (_sounds[key].instances.length > 0) {
-				const sound = _sounds[key].instances.shift();
-				sound.pause();
-				sound.remove();
+				const s = _sounds[key].instances.shift();
+				s.pause();
+				s.remove();
 				mediaPlayerCount--;
 			}
 			delete _sounds[key];
 		});
-
-		// Remove from cache
+		// limpa cache (senão sobram <audio> com src revogado)
+		Object.keys(_cache).forEach(key => {
+			_cache[key].instances.forEach(s => {
+				if (s.cleanupHandle) {
+					clearTimeout(s.cleanupHandle);
+				}
+				s.remove();
+				mediaPlayerCount--;
+			});
+			delete _cache[key];
+		});
 		const list = Memory.search(/\.wav$/);
 		list.forEach(key => {
 			Memory.remove(key);
@@ -209,15 +225,16 @@ function onSoundEnded() {
  * Clear sound from dom on error
  */
 function onSoundError() {
-	const pos = _sounds[this.filename].instances.indexOf(this);
-
-	if (pos !== -1) {
-		_sounds[this.filename].instances.splice(pos, 1);
-		if (_sounds[this.filename].instances.length === 0) {
-			delete _sounds[this.filename];
+	const entry = _sounds[this.filename];
+	if (entry) {
+		const pos = entry.instances.indexOf(this);
+		if (pos !== -1) {
+			entry.instances.splice(pos, 1);
+			if (entry.instances.length === 0) {
+				delete _sounds[this.filename];
+			}
 		}
 	}
-
 	this.remove();
 	mediaPlayerCount--;
 }
