@@ -12,7 +12,7 @@
 
 import Client from 'Core/Client.js';
 import Preferences from 'Preferences/Audio.js';
-
+import DB from 'DB/DBManager.js';
 let _lastmp3filename = '';
 
 /**
@@ -88,7 +88,7 @@ class BGM {
 		}
 		if (!_lastmp3filename) {
 			_lastmp3filename = filename;
-		} else if (_lastmp3filename === filename && filename === '01.mp3') {
+		} else if (_lastmp3filename === filename && filename === '01.mp3' && !DB.isLoaded) {
 			return;
 		} else {
 			_lastmp3filename = filename;
