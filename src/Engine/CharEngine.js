@@ -747,7 +747,7 @@ function onReceiveMapInfo(pkt) {
 			retryCount = 0;
 			return;
 		}
-		Events.setTimeout(() => onReceiveMapInfo(pkt), 100);
+		setTimeout(() => onReceiveMapInfo(pkt), 100);
 		return;
 	}
 	retryCount = 0;
