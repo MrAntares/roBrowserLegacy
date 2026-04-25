@@ -19,6 +19,7 @@ const platform = 'Web';
 // Aliases (same as vite.config.js)
 const aliases = {
 	jquery: path.resolve(__dirname, '../../src/Vendors/jquery-1.9.1.js'),
+	Api: path.resolve(__dirname, '../../src/Api'),
 	App: path.resolve(__dirname, '../../src/App'),
 	Audio: path.resolve(__dirname, '../../src/Audio'),
 	Controls: path.resolve(__dirname, '../../src/Controls'),
@@ -53,11 +54,20 @@ const entryMap = {
 	ModelViewer: 'src/App/ModelViewer.js',
 	Online: 'src/App/Online.js',
 	StrViewer: 'src/App/StrViewer.js',
-	EffectViewer: 'src/App/EffectViewer.js'
+	EffectViewer: 'src/App/EffectViewer.js',
+	api: 'applications/api/api_template.js'
+};
+
+// Map appName to output directory path (relative to dist directory)
+const outputDirMap = {
+	default_name: '/' + platform,
+	api: '/subapps/api'
 };
 
 (async function build() {
 	const basePath = dist + platform;
+	const toolsPath = '/subapps';
+	const apiPath = toolsPath + '/api';
 
 	const modules = {
 		G: { path: '/GrannyModelViewer.js', action: () => compile('GrannyModelViewer', args['m']) },
@@ -68,6 +78,7 @@ const entryMap = {
 		S: { path: '/StrViewer.js', action: () => compile('StrViewer', args['m']) },
 		E: { path: '/EffectViewer.js', action: () => compile('EffectViewer', args['m']) },
 		T: { path: '/ThreadEventHandler.js', action: () => compile('ThreadEventHandler', args['m']) },
+		API: { path: apiPath + '/api.js', action: () => { compile('api', args['m']); copyApplicationFiles(); } },
 		H: { path: '/index.html', action: createHTML },
 		PWA: {
 			path: '/index.html',
@@ -85,6 +96,12 @@ const entryMap = {
 	if (!fs.existsSync(basePath)) {
 		fs.mkdirSync(basePath);
 	}
+	if (!fs.existsSync(dist + toolsPath)) {
+		fs.mkdirSync(dist + toolsPath);
+	}
+	if (!fs.existsSync(dist + apiPath)) {
+		fs.mkdirSync(dist + apiPath);
+	}
 
 	// Filter and process only necessary modules
 	const isAll = args['all'] || Object.keys(args).length === 0;
@@ -92,7 +109,7 @@ const entryMap = {
 
 	for (const key of activeModules) {
 		const { path: modPath, action } = modules[key];
-		const fullPath = `${basePath}${modPath}`;
+		const fullPath = modPath.startsWith(apiPath) ? `${dist}${modPath}` : `${basePath}${modPath}`;
 		if (fs.existsSync(fullPath)) {
 			fs.rmSync(fullPath, { recursive: true, force: true });
 		}
@@ -106,7 +123,7 @@ async function compile(appName, isMinify) {
 	const { build } = await import('vite');
 	const projectRoot = path.resolve(__dirname, '../../');
 	const entry = path.resolve(projectRoot, entryMap[appName]);
-	const outDir = path.resolve(projectRoot, dist + platform);
+	const outDir = path.resolve(projectRoot, dist) + (Object.hasOwn(outputDirMap, appName) ? outputDirMap[appName] : outputDirMap['default_name']);
 
 	try {
 		await build({
@@ -262,7 +279,7 @@ function createHTML(includeManifest = false) {
                 var script = document.createElement('script');    
                 script.src = 'Config.local.js';    
                 script.onerror = function() {    
-                    console.log('Config.local.js not found, using defaults from Config.js');    
+                    console.log('Config.local.js not found, using defaults from ApiConfig.js & Config.js');    
                 };    
                 document.head.appendChild(script);    
             })();    
@@ -307,9 +324,11 @@ function createConfigJS() {
 	const configContent = `/**  
  * ROBrowser Configuration - Default Settings  
  *  
- * This file contains default configuration values.  
+ * This file contains project-specific default configuration values.  
  * To override settings without modifying this file, create Config.local.js  
  * with your custom values in window.ROConfigLocal.  
+ *  
+ * To see a list of all default configuration values, check src/Api/ApiConfig.js.  
  *  
  * Example Config.local.js:  
  *   window.ROConfigLocal = {  
@@ -318,54 +337,25 @@ function createConfigJS() {
  *   };  
  */  
 window.ROConfigBase = {  
-    development: false,  
     remoteClient: 'https://grf.robrowser.com/',  
     servers: [{  
         display: 'roBrowser Demo Server',  
         desc: 'roBrowser demo server',  
         address: '127.0.0.1',  
-        port: 6900,  
         version: 55,  
         langtype: 1,  
         packetver: 20130618,  
-        renewal: false,  
         worldMapSettings: { episode: 12 },  
-        packetKeys: false,  
         socketProxy: 'wss://connect.robrowser.com',  
         adminList: [2000000]  
     }],
-    packetDump: false,  
-    skipServerList: true,  
-    skipIntro: false,  
-    aura: {},  
-    autoLogin: [],  
-    BGMFileExtension: ['mp3'],  
-    calculateHash: false,  
-    CameraMaxZoomOut: 5,  
-    charBlockSize: 0,  
-    clientHash: null,  
-    clientVersionMode: "PacketVer",  
-    disableConsole: false,  
-	enableAchievements: true,
+    enableAchievements: true,
     enableBank: true,  
     enableCashShop: true,  
     enableCheckAttendance: true,  
     enableDmgSuffix: true,  
     enableHomunAutoFeed: true,  
     enableMapName: true,  
-    enableRoulette: false,  
-    FirstPersonCamera: false,  
-    grfList: null,  
-    hashFiles: [],  
-    loadLua: false,  
-    customItemInfo: [],  
-    onReady: null,  
-    plugins: {},  
-    registrationweb: '',  
-    saveFiles: true,  
-    ThirdPersonCamera: false,  
-    transitionDuration: 500,  
-    restoreChatFocus: false,  
 };  
 `;
 	fs.writeFileSync(dist + platform + '/Config.js', configContent, { encoding: 'utf8' });
@@ -378,6 +368,18 @@ function copyPwaFiles() {
 	fs.copyFileSync('./applications/pwa/screenshotwide.png', dist + platform + '/screenshotwide.png');
 	fs.copyFileSync('./applications/pwa/screenshotnarrow.png', dist + platform + '/screenshotnarrow.png');
 	console.log('PWA files copied', Date.now() - start, 'ms.');
+}
+
+function copyApplicationFiles() {
+	const start = Date.now();
+	const basePath = path.resolve(__dirname, '../../dist') + '/' + platform;
+	const toolsPath = path.resolve(__dirname, '../../dist') + '/subapps';
+	const apiPath = toolsPath + '/api';
+
+	copyFolder(path.resolve(__dirname, '../'), toolsPath);
+	fs.rmSync(apiPath + '/api_template.js');
+
+	console.log('API files copied', Date.now() - start, 'ms.');
 }
 
 function copyFolder(src, dest) {

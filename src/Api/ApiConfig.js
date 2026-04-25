@@ -208,6 +208,11 @@ class ApiConfig {
 		autoLogin: [],
 
 		/**
+		 * @type {boolean} Enable Achievements UI
+		 */
+		enableAchievements: false,
+
+		/**
 		 * @type {boolean} Enable Cash Shop UI
 		 */
 		enableCashShop: false,
@@ -316,6 +321,7 @@ class ApiConfig {
 		 * @type {object} custom path settings for LUA files.
 		 */
 		customLUAPaths: {
+			achievements: ['System/achievement_list.lub'],
 			checkAttendance: ['System/CheckAttendance.lub'],
 			itemInfo: ['System/itemInfo.lub'],
 			mapInfo: ['System/mapInfo.lub'],
