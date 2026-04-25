@@ -284,6 +284,10 @@ class DB {
 	 * Initialize DB
 	 */
 	static init() {
+		DB.isLoaded = false;
+		DB.count = 0;
+		DB.index = 0;
+
 		// Callback
 		let index = 0,
 			count = 0;
@@ -843,8 +847,9 @@ class DB {
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, onUpdateOwnerName);
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, onUpdateOwnerName);
 
+		const onAIDriverLoaded = onLoad();
 		import('Core/AIDriver.js').then(module => {
-			module.default.initAI(onLoad());
+			module.default.initAI(onAIDriverLoaded);
 		});
 	}
 	static getHOAI_VM() {
