@@ -153,11 +153,12 @@ class AchievementComponent extends GUIComponent {
 	}
 
 	toggle() {
-		if (this.__active && this.ui.is(':visible')) {
-			this.ui.hide();
+		if (this.__active && this._host.style.display !== 'none') {
+			this._host.style.display = 'none';
 		} else {
 			this.append();
-			this.ui.show();
+			this._host.style.display = '';
+			this._fixPositionOverflow();
 			this.updateHeaderAndView();
 		}
 	}
