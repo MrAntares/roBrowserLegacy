@@ -748,6 +748,7 @@ function onReceiveMapInfo(pkt) {
 				CharEngine.reload();
 			});
 			retryCount = 0;
+			DB.startedLazyInit = false;
 			return;
 		}
 		setTimeout(() => onReceiveMapInfo(pkt), 100);
