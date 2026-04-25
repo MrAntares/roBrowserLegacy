@@ -12523,18 +12523,16 @@ PACKET.ZC.ALL_ACH_LIST = function PACKET_ZC_ALL_ACH_LIST(fp, end) {
 	this.ach_list = new Array();
 
 	while (fp.tell() < end) {
-		const achievement = { ach_id: 0, completed: 0, objective: new Array(), completed_at: 0, reward: 0 }
+		const achievement = { ach_id: 0, completed: 0, objective: new Array(), completed_at: 0, reward: 0 };
 		achievement.ach_id = fp.readLong();
 		achievement.completed = fp.readUChar();
 		for (let j = 0; j < 10; j++) {
-			const objective_id = fp.readLong()
-			if (objective_id > 0)
-				achievement.objective.push(objective_id);
+			const objective_id = fp.readLong();
+			if (objective_id > 0) achievement.objective.push(objective_id);
 		}
 		achievement.completed_at = fp.readLong();
 		achievement.reward = fp.readUChar();
-		if (achievement.ach_id > 0)
-			this.ach_list.push(achievement);
+		if (achievement.ach_id > 0) this.ach_list.push(achievement);
 	}
 };
 PACKET.ZC.ALL_ACH_LIST.size = -1;
@@ -12546,18 +12544,16 @@ PACKET.ZC.ACH_UPDATE = function PACKET_ZC_ACH_UPDATE(fp, end) {
 	this.current_rank_points = fp.readLong();
 	this.next_rank_points = fp.readLong();
 	this.ach_list = new Array();
-	const achievement = { ach_id: 0, completed: 0, objective: new Array(), completed_at: 0, reward: 0 }
+	const achievement = { ach_id: 0, completed: 0, objective: new Array(), completed_at: 0, reward: 0 };
 	achievement.ach_id = fp.readLong();
 	achievement.completed = fp.readUChar();
 	for (let j = 0; j < 10; j++) {
-		const objective_id = fp.readLong()
-		if (objective_id > 0)
-			achievement.objective.push(objective_id);
+		const objective_id = fp.readLong();
+		if (objective_id > 0) achievement.objective.push(objective_id);
 	}
 	achievement.completed_at = fp.readLong();
 	achievement.reward = fp.readUChar();
-	if (achievement.ach_id > 0)
-		this.ach_list.push(achievement);
+	if (achievement.ach_id > 0) this.ach_list.push(achievement);
 };
 PACKET.ZC.ACH_UPDATE.size = 66;
 

@@ -384,7 +384,9 @@ class AchievementComponent extends GUIComponent {
 				let dtStr = '';
 				let rewardBoxBg = '';
 				const groupName = info.group ? info.group.toLowerCase() : '';
-				const hasReward = info.reward && (Array.isArray(info.reward) ? info.reward.length > 0 : Object.keys(info.reward).length > 0);
+				const hasReward =
+					info.reward &&
+					(Array.isArray(info.reward) ? info.reward.length > 0 : Object.keys(info.reward).length > 0);
 				const isClaimed = s && s.reward;
 				const d = new Date(s.completed_at * 1000);
 				dtStr = `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
@@ -407,8 +409,9 @@ class AchievementComponent extends GUIComponent {
 				`;
 
 				GUIComponent.processDataAttrs(item);
-				item.querySelectorAll('[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]')
-					.forEach(node => GUIComponent.processDataAttrs(node));
+				item.querySelectorAll(
+					'[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]'
+				).forEach(node => GUIComponent.processDataAttrs(node));
 
 				recentItems.appendChild(item);
 			});
@@ -490,7 +493,9 @@ class AchievementComponent extends GUIComponent {
 
 			const groupName = info.group ? info.group.toLowerCase() : '';
 			const isClaimed = s && s.reward;
-			const hasReward = info.reward && (Array.isArray(info.reward) ? info.reward.length > 0 : Object.keys(info.reward).length > 0);
+			const hasReward =
+				info.reward &&
+				(Array.isArray(info.reward) ? info.reward.length > 0 : Object.keys(info.reward).length > 0);
 
 			if (hasReward) {
 				if (!isCompleted) {
@@ -621,7 +626,7 @@ class AchievementComponent extends GUIComponent {
 					});
 					bindOverlay(rewardItem, DB.getItemName({ ITID: info.reward.item, IsIdentified: true }));
 
-					rewardItem.oncontextmenu = (event) => {
+					rewardItem.oncontextmenu = event => {
 						event.preventDefault();
 						event.stopImmediatePropagation();
 
@@ -643,7 +648,8 @@ class AchievementComponent extends GUIComponent {
 		}
 
 		const claimBtn = root.querySelector('.js-d-claim');
-		const hasReward = info.reward && (Array.isArray(info.reward) ? info.reward.length > 0 : Object.keys(info.reward).length > 0);
+		const hasReward =
+			info.reward && (Array.isArray(info.reward) ? info.reward.length > 0 : Object.keys(info.reward).length > 0);
 		if (hasReward && s && s.completed && !s.reward) {
 			claimBtn.style.display = '';
 		} else {

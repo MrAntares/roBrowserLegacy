@@ -146,7 +146,7 @@
 	width: 100%;
 	height: 7px;
 	background: #fff;
-	border: 1px solid #97B2DD;
+	border: 1px solid #97b2dd;
 }
 
 .header .rank-progress .bar-fill {
@@ -155,11 +155,11 @@
 }
 
 .header .cat-progress .cat-image {
-    position: absolute;
-    top: -13px;
-    left: -40px;
-    width: 39px;
-    height: 40px;
+	position: absolute;
+	top: -13px;
+	left: -40px;
+	width: 39px;
+	height: 40px;
 }
 
 .js-cat-name {
@@ -168,9 +168,9 @@
 
 .header .cat-progress {
 	position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 140px;
+	top: 15px;
+	right: 15px;
+	width: 140px;
 }
 
 .header .cat-progress .cat-text {
@@ -186,7 +186,7 @@
 	width: 100%;
 	height: 7px;
 	background: #fff;
-	border: 1px solid #97B2DD;
+	border: 1px solid #97b2dd;
 }
 
 .header .cat-progress .bar-fill {
@@ -314,7 +314,7 @@
 .pane-overview .category-adventure {
 	position: absolute;
 	top: 110px;
-    left: 349px;
+	left: 349px;
 	width: 252px;
 }
 
@@ -367,7 +367,7 @@
 	width: 100%;
 	height: 9px;
 	background: #fff;
-	border: 1px solid #97B2DD;
+	border: 1px solid #97b2dd;
 }
 
 .pane-overview .category-gauge .bar-fill {
@@ -427,9 +427,8 @@
 }
 
 .ach-item-overview {
-	border: 1px solid #DAE0EF;
+	border: 1px solid #dae0ef;
 }
-
 
 .ach-item.selected {
 	background: rgba(200, 220, 255, 0.4);

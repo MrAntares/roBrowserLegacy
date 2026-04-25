@@ -88,7 +88,7 @@ Announce.set = function set(text, color, options = {}) {
 	const opts = typeof options === 'object' ? options : {};
 	const fontSize = opts.fontSize || 12;
 	const life = opts.life || _life;
-	
+
 	let targetWidth = null;
 	if (opts.width === '100%') targetWidth = Renderer.width;
 	else if (opts.width) targetWidth = opts.width;
@@ -137,9 +137,9 @@ Announce.set = function set(text, color, options = {}) {
 	}
 
 	// Get new canvas size
-	this.canvas.width = targetWidth || (20 + Math.max(...lines.map(line => this.ctx.measureText(line).width)));
-	this.canvas.height = opts.height || (10 + (fontSize + 5) * lines.length);
-	
+	this.canvas.width = targetWidth || 20 + Math.max(...lines.map(line => this.ctx.measureText(line).width));
+	this.canvas.height = opts.height || 10 + (fontSize + 5) * lines.length;
+
 	if (opts.width === '100%') {
 		this.canvas.style.left = '0px';
 	} else {
@@ -157,12 +157,12 @@ Announce.set = function set(text, color, options = {}) {
 
 	// Display text
 	this.ctx.fillStyle = color || '#FFFF00';
-	
+
 	if (targetWidth || opts.height) {
 		this.ctx.textAlign = 'center';
 		this.ctx.textBaseline = 'middle';
 		lines.forEach((line, index) => {
-			const y = (this.canvas.height / 2) + ((index - (lines.length - 1) / 2) * (fontSize + 5));
+			const y = this.canvas.height / 2 + (index - (lines.length - 1) / 2) * (fontSize + 5);
 			this.ctx.fillText(line, this.canvas.width / 2, y);
 		});
 	} else {

@@ -76,11 +76,16 @@ function onAchievementUpdate(pkt) {
 
 		if (isNewCompletion && ach.info && ach.info.title) {
 			Announce.append();
-			Announce.set(`${DB.getMessage(2681).replace('%s', ach.info.title)}`, '#FFFFFF', { width: '100%', height: 50, fontSize: 20, life: 10000 });
+			Announce.set(`${DB.getMessage(2681).replace('%s', ach.info.title)}`, '#FFFFFF', {
+				width: '100%',
+				height: 50,
+				fontSize: 20,
+				life: 10000
+			});
 
 			const EF_Init_Par = {
 				effectId: EffectConst.EF_ACH_COMPLETE,
-				ownerAID: Session.AID,
+				ownerAID: Session.AID
 			};
 
 			EffectManager.spam(EF_Init_Par);
