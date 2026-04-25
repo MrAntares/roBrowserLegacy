@@ -70,12 +70,28 @@ class Configs {
  * Apply configs
  */
 (function init(configs) {
-	if (typeof configs !== 'object') {
-		return;
+	function isPlainObject(obj) {
+		if (!obj || typeof obj !== 'object') return false;
+		const proto = Object.getPrototypeOf(obj);
+		return proto === Object.prototype || proto === null;
 	}
 
-	let newconfig = Object.assign({}, ApiConfig.config);
-	newconfig = Object.assign(newconfig, configs);
+	function deepMerge(target, source) {
+		for (const key of Object.keys(source)) {
+			if (key === '__proto__' || key === 'constructor') continue;
+			if (isPlainObject(source[key])) {
+				target[key] = deepMerge(target[key] || {}, source[key]);
+			} else {
+				target[key] = source[key];
+			}
+		}
+		return target;
+	}
+	let newconfig = deepMerge({}, ApiConfig.config);
+
+	if (typeof configs === 'object') {
+		newconfig = deepMerge(newconfig, configs);
+	}
 
 	const keys = Object.keys(newconfig);
 	let i, count;

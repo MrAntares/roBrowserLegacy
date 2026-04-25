@@ -15,6 +15,8 @@ class ApiConfig {
 	 * @type {Object} ROBrowser configuration object
 	 */
 	static config = {
+		__proto__: null,
+
 		/**
 		 * @type {number} screen width
 		 */

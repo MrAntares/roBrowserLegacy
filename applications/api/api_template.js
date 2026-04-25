@@ -65,7 +65,7 @@ import ApiEnums from 'Api/ApiEnums.js';
 				this.config.height = this.config.height || '600';
 
 				this._APP = window.open(
-					this.baseUrl + '?' + this.config.version,
+					this.baseUrl + '?' + (this.config.version === undefined ? '' : this.config.version),
 					'_blank',
 					[
 						'directories=0',
