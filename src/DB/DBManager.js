@@ -246,7 +246,7 @@ const unknownItem = {
 /**
  * @const {Array} User charpage init
  */
-const langType = parseInt(Configs.get('langtype'), parseInt(ApiConfig.config.langtype, 10));
+const langType = parseInt(Configs.get('langtype', '1'), 10);
 
 // setup default encoding
 const userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
@@ -6931,11 +6931,8 @@ function loadAchievements(filename, callback, onEnd) {
 					}
 				}
 			}
-			if (typeof onEnd === 'function') {
-				onEnd(true);
-			}
 		},
-		null
+		onEnd
 	);
 }
 
@@ -7059,31 +7056,34 @@ function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
 function loadLuaValue(file_path, variable_name, callback, onEnd) {
 	try {
 		console.log('Loading file "' + file_path + '"...');
-		Client.loadFile(file_path, async function (file) {
-			try {
-				// Check if file is ArrayBuffer and convert to Uint8Array if necessary
-				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+		Client.loadFile(
+			file_path,
+			async function (file) {
+				let wasSuccessful = false;
+				try {
+					// Check if file is ArrayBuffer and convert to Uint8Array if necessary
+					const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 
-				// Mount file
-				lua.mountFile(file_path, buffer);
+					// Mount file
+					lua.mountFile(file_path, buffer);
 
-				// Execute file
-				await lua.doFile(file_path);
+					// Execute file
+					await lua.doFile(file_path);
 
-				// Get context
-				const ctx = lua.ctx;
+					// Get context
+					const ctx = lua.ctx;
 
-				// Initialize result variable
-				let result = null;
+					// Initialize result variable
+					let result = null;
 
-				// Add key-value pairs to objects at any nesting level
-				ctx.extractValue = value => {
-					result = JSON.parse(userStringDecoder.decode(value));
-				};
+					// Add key-value pairs to objects at any nesting level
+					ctx.extractValue = value => {
+						result = JSON.parse(userStringDecoder.decode(value));
+					};
 
-				// Create and execute a wrapper Lua code to extract the variable
-				lua.doStringSync(
-					String.raw`
+					// Create and execute a wrapper Lua code to extract the variable
+					lua.doStringSync(
+						String.raw`
 							local function escape_str(str)
 								return str:gsub("\\", "\\\\"):gsub("\"", "\\\"")
 							end
@@ -7127,29 +7127,37 @@ function loadLuaValue(file_path, variable_name, callback, onEnd) {
 								end
 							end
 						` +
-						`
+							`
 							extractValue(to_json(${variable_name}))
 						`
-				);
+					);
 
-				// Unmount file
-				lua.unmountFile(file_path);
+					// Unmount file
+					lua.unmountFile(file_path);
 
-				// Return the extracted value
-				callback.call(null, result);
-			} catch (hException) {
-				console.error(`(${file_path}) error: `, hException);
-				callback.call(null, null);
-			} finally {
-				if (onEnd) {
-					onEnd.call();
+					// Return the extracted value
+					callback.call(null, result);
+
+					wasSuccessful = true;
+				} catch (hException) {
+					console.error(`(${file_path}) error: `, hException);
+					callback.call(null, null);
+				} finally {
+					if (typeof onEnd === 'function') {
+						onEnd(wasSuccessful);
+					}
+				}
+			},
+			() => {
+				if (typeof onEnd === 'function') {
+					onEnd(false);
 				}
 			}
-		});
+		);
 	} catch (e) {
-		console.error('error: ', e);
-		if (onEnd) {
-			onEnd.call();
+		console.error('[loadLuaValue] error: ', e);
+		if (typeof onEnd === 'function') {
+			onEnd(false);
 		}
 	}
 }
