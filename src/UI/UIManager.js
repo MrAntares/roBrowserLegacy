@@ -86,11 +86,9 @@ function _createOverlay() {
 
 /**
  * Reorder keydown handlers so the popup captures first.
- * NOTE: Uses jQuery._data (internal API) — migrate when the event system is refactored.
+ * Moves the component's keydown handler to the capture phase so it fires before all other listeners.
  */
 function _prioritizeKeyDown() {
-	// Re-bind keydown in capture phase so the popup handler fires
-	// before any other keydown listener (native or jQuery).
 	if (this._keyHandler) {
 		window.removeEventListener('keydown', this._keyHandler);
 		window.addEventListener('keydown', this._keyHandler, true);

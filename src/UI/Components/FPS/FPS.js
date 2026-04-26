@@ -161,14 +161,17 @@ FPS.onRemove = function onRemove() {
 FPS.toggle = function toggle(isVisible) {
 	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.y = parseInt(this._host.style.top, 10);
-	_preferences.show = typeof isVisible === 'boolean' ? isVisible : this._host.style.display === 'none';
-	_preferences.save();
 
-	if (this._host.style.display === 'none') {
-		this._host.style.display = '';
+	if (typeof isVisible === 'boolean') {
+		// Explicit show/hide from GraphicsOption checkbox
+		this._host.style.display = isVisible ? '' : 'none';
 	} else {
-		this._host.style.display = 'none';
+		// Keyboard shortcut or other toggle — flip current state
+		this._host.style.display = this._host.style.display === 'none' ? '' : 'none';
 	}
+
+	_preferences.show = this._host.style.display !== 'none';
+	_preferences.save();
 
 	if (this._host.style.display !== 'none') {
 		this.focus();
