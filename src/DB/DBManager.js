@@ -246,7 +246,10 @@ const unknownItem = {
 /**
  * @const {Array} User charpage init
  */
-const langType = parseInt(Configs.get('langtype', '1'), 10);
+// BUG: This isn't accounting for GRFs uploaded in Intro, or a different server selection (and possibly different remoteClient) by the user.
+const servers = Configs.get('servers', []);
+const serverLangType = Array.isArray(servers) && servers[0] && servers[0].langtype;
+const langType = parseInt(serverLangType || Configs.get('langtype', '1'), 10);
 
 // setup default encoding
 const userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
