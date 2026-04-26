@@ -38,7 +38,8 @@ jobs:
                       const repo = context.repo.repo;  
                       const allDevinLabels = [  
                         'Devin Check Passed',  
-                        'Devin Check Failed - TOFIX',  
+                        'Devin Check Failed - TOFIX',
+                        'Devin Check Sucess - FIXED',
                         'Devin Check Failed - WONTFIX'  
                       ];  
                       for (const label of allDevinLabels.filter(l => l !== labelToAdd)) {  
