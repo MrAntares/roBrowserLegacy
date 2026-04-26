@@ -4,11 +4,10 @@
  * PCGoldTimer Icon
  *
  * @author Alisonrag
- *
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './PCGoldTimer.html?raw';
 import cssText from './PCGoldTimer.css?raw';
 import PACKET from 'Network/PacketStructure.js';
@@ -30,19 +29,23 @@ const _data = {
 /**
  * Create Component
  */
-const PCGoldTimer = new UIComponent('PCGoldTimer', htmlText, cssText);
+const PCGoldTimer = new GUIComponent('PCGoldTimer', cssText);
+
+PCGoldTimer.render = () => htmlText;
 
 /**
  * Apply preferences once append to body
  */
-PCGoldTimer.onAppend = function OnAppend() {
+PCGoldTimer.onAppend = function onAppend() {
+	const root = this._shadow || this._host;
+
 	// set background image
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/' + _data.backgroundImage,
-		function (url) {
-			this.ui.find('.container').css('backgroundImage', 'url(' + url + ')');
-		}.bind(this)
-	);
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/${_data.backgroundImage}`, function (url) {
+		const container = root.querySelector('.container');
+		if (container) {
+			container.style.backgroundImage = `url(${url})`;
+		}
+	});
 
 	if (_data.isActive === 1 || Session.PCGoldTimer) {
 		if (_data.isActive !== 1) {
@@ -55,22 +58,23 @@ PCGoldTimer.onAppend = function OnAppend() {
 		}
 
 		// set on click event
-		const container = this.ui.find('.container');
-		container.on('click', onClickPCGoldTimer);
+		const container = root.querySelector('.container');
+		if (container) {
+			container.addEventListener('click', onClickPCGoldTimer);
+		}
 	} else {
 		// stop timer
 		this.stopTimer();
 
 		// if ui is visible, hide it
-		if (this.ui.is(':visible')) {
-			this.ui.hide();
+		if (this._host.style.display !== 'none') {
+			this._host.style.display = 'none';
 		}
 	}
 };
 
 PCGoldTimer.toggle = function toggle() {
-	// toggle ui visibility
-	this.ui.toggle();
+	this._host.style.display = this._host.style.display === 'none' ? '' : 'none';
 };
 
 PCGoldTimer.setData = function setData(packet, refresh = false) {
@@ -99,26 +103,25 @@ function onClickPCGoldTimer() {
 }
 
 PCGoldTimer.startTimer = function startTimer() {
-	// set Timer to update ui information every 1 second
-	this.timer = setInterval(
-		function () {
-			// timer display how many time is missing to reach 00:00 from 60:00
-			const millisecondsMissing = 60 * 60 * 1000 - (Date.now() - _data.startTime + _data.playedTime * 1000);
-			let text = this.formatTime(millisecondsMissing);
+	const root = this._shadow || this._host;
+	this.timer = setInterval(function () {
+		// timer display how many time is missing to reach 00:00 from 60:00
+		const millisecondsMissing = 60 * 60 * 1000 - (Date.now() - _data.startTime + _data.playedTime * 1000);
+		let text = PCGoldTimer.formatTime(millisecondsMissing);
 
-			if (text.includes('-')) {
-				text = '00:00';
-				_data.point = Math.min(_data.point, MAX_GOLDPC_VAR);
-				if (_data.point === MAX_GOLDPC_VAR) {
-					text = '----:----';
-				}
+		if (text.includes('-')) {
+			text = '00:00';
+			_data.point = Math.min(_data.point, MAX_GOLDPC_VAR);
+			if (_data.point === MAX_GOLDPC_VAR) {
+				text = '----:----';
 			}
+		}
 
-			this.ui.find('.timer-text-value').text(text);
-			this.ui.find('.total-points-value').text(_data.point);
-		}.bind(this),
-		1000
-	);
+		const timerEl = root.querySelector('.timer-text-value');
+		const pointsEl = root.querySelector('.total-points-value');
+		if (timerEl) timerEl.textContent = text;
+		if (pointsEl) pointsEl.textContent = _data.point;
+	}, 1000);
 };
 
 PCGoldTimer.stopTimer = function stopTimer() {
