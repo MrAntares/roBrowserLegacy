@@ -254,10 +254,21 @@ Clan.onAppend = function onAppend() {
 };
 
 Clan.onRemove = function onRemove() {
-	_preferences.x = parseInt(this._host.style.left, 10); // Don't add fallback because pos 0 in js is falsy
-	_preferences.y = parseInt(this._host.style.top, 10); // Don't add fallback because pos 0 in js is falsy
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.save();
 };
+```
+
+**NEVER use:**
+```javascript
+// BAD — returns 0,0 when hidden  
+const rect = this._host.getBoundingClientRect();  
+_preferences.x = Math.round(rect.left);
+```
+```javascript
+// BAD — position 0 becomes 100  
+_preferences.x = parseInt(this._host.style.left, 10) || 100;
 ```
 
 Key changes:
