@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import UIComponent from 'UI/UIComponent.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
@@ -35,7 +34,7 @@ function _popupPosition() {
  * @param {function} parseHTML - reference to UIComponent.prototype.parseHTML
  * @returns {HTMLButtonElement}
  */
-function _createButton(name, onClick, parseHTML) {
+function _createButton(name, onClick) {
 	const btn = document.createElement('button');
 	btn.className = 'btn';
 	btn.dataset.background = `btn_${name}.bmp`;
@@ -49,7 +48,7 @@ function _createButton(name, onClick, parseHTML) {
 		onClick();
 	});
 
-	parseHTML.call(btn);
+	GUIComponent.processDataAttrs(btn);
 
 	return btn;
 }
@@ -65,13 +64,35 @@ function _createOverlay() {
 	return overlay;
 }
 
+// Overlay CSS must live in the global <style> tag because overlay divs
+// are appended to document.body (light DOM), not inside any Shadow DOM.
+(function injectOverlayCSS() {
+	let style = document.querySelector('style[data-overlay]');
+	if (!style) {
+		style = document.createElement('style');
+		style.setAttribute('data-overlay', '');
+		style.textContent = `  
+			.win_popup_overlay {
+				position: fixed;
+				top: 0px;
+				left: 0px;
+				width: 100%;
+				height: 100%;
+				z-index: 99;
+			}`;
+		document.head.appendChild(style);
+	}
+})();
+
 /**
  * Reorder keydown handlers so the popup captures first.
- * NOTE: Uses jQuery._data (internal API) — migrate when the event system is refactored.
+ * Moves the component's keydown handler to the capture phase so it fires before all other listeners.
  */
 function _prioritizeKeyDown() {
-	const events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
+	if (this._keyHandler) {
+		window.removeEventListener('keydown', this._keyHandler);
+		window.addEventListener('keydown', this._keyHandler, true);
+	}
 }
 
 /**
@@ -185,22 +206,18 @@ class UIManager {
 		let overlay;
 
 		WinError.init = function Init() {
-			const root = this.ui[0];
+			const root = this._shadow;
 
 			root.querySelector('.text').textContent = text;
-			Object.assign(root.style, _popupPosition());
+			Object.assign(this._host.style, _popupPosition());
 
-			const btn = _createButton(
-				'ok',
-				() => {
+			root.querySelector('.btns').appendChild(
+				_createButton('ok', () => {
 					overlay.remove();
 					WinError.remove();
 					GameEngine.reload();
-				},
-				this.parseHTML
+				})
 			);
-
-			root.querySelector('.btns').appendChild(btn);
 		};
 
 		WinError.onKeyDown = function OnKeyDown(event) {
@@ -215,7 +232,6 @@ class UIManager {
 		};
 
 		overlay = _createOverlay();
-
 		WinError.onAppend = _prioritizeKeyDown;
 		WinError.append();
 
@@ -234,22 +250,18 @@ class UIManager {
 
 		WinMSG.init = function Init() {
 			this.draggable();
-			const root = this.ui[0];
+			const root = this._shadow;
 
 			root.querySelector('.text').textContent = text;
-			Object.assign(root.style, _popupPosition());
+			Object.assign(this._host.style, _popupPosition());
 
 			if (btn_name) {
-				const btn = _createButton(
-					btn_name,
-					() => {
+				root.querySelector('.btns').appendChild(
+					_createButton(btn_name, () => {
 						WinMSG.remove();
 						if (callback) callback();
-					},
-					this.parseHTML
+					})
 				);
-
-				root.querySelector('.btns').appendChild(btn);
 			}
 		};
 
@@ -285,33 +297,25 @@ class UIManager {
 
 		WinPrompt.init = function Init() {
 			this.draggable();
-			const root = this.ui[0];
+			const root = this._shadow;
 
 			root.querySelector('.text').textContent = text;
-			Object.assign(root.style, _popupPosition());
+			Object.assign(this._host.style, _popupPosition());
 
 			const btnsContainer = root.querySelector('.btns');
 
 			btnsContainer.appendChild(
-				_createButton(
-					btn_yes,
-					() => {
-						WinPrompt.remove();
-						if (onYes) onYes();
-					},
-					this.parseHTML
-				)
+				_createButton(btn_yes, () => {
+					WinPrompt.remove();
+					if (onYes) onYes();
+				})
 			);
 
 			btnsContainer.appendChild(
-				_createButton(
-					btn_no,
-					() => {
-						WinPrompt.remove();
-						if (onNo) onNo();
-					},
-					this.parseHTML
-				)
+				_createButton(btn_no, () => {
+					WinPrompt.remove();
+					if (onNo) onNo();
+				})
 			);
 		};
 

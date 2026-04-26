@@ -6,29 +6,48 @@
  * @author Alisonrag
  *
  */
+/**
+ * UI/Components/CashShopIcon/CashShopIcon.js
+ *
+ * CashShop Icon
+ *
+ * @author Alisonrag
+ *
+ */
 
 import CashShop from 'UI/Components/CashShop/CashShop.js';
 import Network from 'Network/NetworkManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CashShopIcon.html?raw';
 import cssText from './CashShopIcon.css?raw';
 
 /**
  * Create Component
  */
-const CashShopIcon = new UIComponent('CashShopIcon', htmlText, cssText);
+const CashShopIcon = new GUIComponent('CashShopIcon', cssText);
+
+CashShopIcon.render = () => htmlText;
 
 /**
- * Apply preferences once append to body
+ * One-time setup — bind events here (runs once during prepare)
  */
-CashShopIcon.onAppend = function OnAppend() {
-	this.ui.find('.cashshop-icon').on('mousedown', stopPropagation).on('click', this.onClickCashShopIcon);
+CashShopIcon.init = function init() {
+	const root = this._shadow || this._host;
+	const btn = root.querySelector('.cashshop-icon');
+	if (btn) {
+		btn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		btn.addEventListener('click', onClickCashShopIcon);
+	}
 };
 
-CashShopIcon.onClickCashShopIcon = function onClickCashShopIcon() {
+/**
+ * Handle click on CashShop icon
+ */
+function onClickCashShopIcon() {
 	if (CashShop.ui.is(':visible')) {
 		const pkt = new PACKET.CZ.CASH_SHOP_CLOSE();
 		Network.sendPacket(pkt);
@@ -43,17 +62,10 @@ CashShopIcon.onClickCashShopIcon = function onClickCashShopIcon() {
 			Network.sendPacket(pkt);
 		}
 	}
-};
-
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
 }
 
 CashShopIcon.needFocus = false;
+CashShopIcon.mouseMode = GUIComponent.MouseMode.CROSS;
 
 /**
  * Create component and export it

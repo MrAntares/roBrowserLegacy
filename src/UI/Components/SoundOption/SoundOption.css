@@ -1,7 +1,12 @@
-#SoundOption {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+	width: 250px;
+	height: auto;
+}
+
+#SoundOption {
+	position: absolute;
 	background: white;
 	border-radius: 2px;
 }

@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import Events from 'Core/Events.js';
@@ -318,7 +317,7 @@ function onDeleteRequest(charID) {
 	function onCancel() {
 		InputBox.remove();
 		_ui_box.remove();
-		_overlay.detach();
+		_overlay.remove();
 		Events.clearTimeout(_TimeOut);
 		onDeleteAnswer({ ErrorCode: -2 });
 	}
@@ -332,14 +331,16 @@ function onDeleteRequest(charID) {
 			InputBox.setType('mail', true);
 		}
 		InputBox.onSubmitRequest = onSubmit;
-		_ui_box.ui.css('zIndex', 50); // ui same zIndex bg
-		_overlay.css('zIndex', 51); // overlay same zIndex input
+		_ui_box._host.style.zIndex = '50'; // ui same zIndex bg
+		_overlay.style.zIndex = '51'; // overlay same zIndex input
 		_ui_box.append(); // don't remove message box
 	}
 
 	// Display prompt message
 	_ui_box = UIManager.showPromptBox(DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
-	const _overlay = jQuery('<div/>').addClass('win_popup_overlay').appendTo('body');
+	const _overlay = document.createElement('div');
+	_overlay.className = 'win_popup_overlay';
+	document.body.appendChild(_overlay);
 
 	// Submit the mail/birthdate
 	function onSubmit(input) {
@@ -362,7 +363,7 @@ function onDeleteRequest(charID) {
 			_height = _canvas.height = 15;
 			_canvas.style.marginTop = '10px';
 			_canvas.style.marginLeft = '20px';
-			_ui_box.ui.append(_canvas);
+			_ui_box._shadow.querySelector('.container').appendChild(_canvas);
 
 			// Parameter
 			_time_end = Date.now() + 10000;
@@ -373,7 +374,7 @@ function onDeleteRequest(charID) {
 		} else {
 			// No waiting time
 			_ui_box.remove();
-			_overlay.detach();
+			_overlay.remove();
 			deleteCharacter();
 			return;
 		}
@@ -388,13 +389,16 @@ function onDeleteRequest(charID) {
 		// Delete character
 		if (percent >= 100) {
 			_ui_box.remove();
-			_overlay.detach();
+			_overlay.remove();
 			deleteCharacter();
 			return;
 		}
 
 		// Update text
-		_ui_box.ui.find('.text').text(DB.getMessage(296).replace('%d', Math.round(10 - percent / 10)));
+		_ui_box._shadow.querySelector('.text').textContent = DB.getMessage(296).replace(
+			'%d',
+			Math.round(10 - percent / 10)
+		);
 
 		// Update progressbar
 		_ctx.clearRect(0, 0, _width, _height);

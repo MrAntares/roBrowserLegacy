@@ -38,8 +38,11 @@ import WinLogin from 'UI/Components/WinLogin/WinLogin.js';
  */
 const WinLoading = WinPopup.clone('WinLoading');
 WinLoading.init = function () {
-	this.ui.css({ top: (Renderer.height - 120) / 1.5, left: (Renderer.width - 280) / 2.0 });
-	this.ui.find('.text').text(DB.getMessage(121));
+	Object.assign(this._host.style, {
+		top: (Renderer.height - 120) / 1.5 + 'px',
+		left: (Renderer.width - 280) / 2.0 + 'px'
+	});
+	this._shadow.querySelector('.text').textContent = DB.getMessage(121);
 };
 UIManager.addComponent(WinLoading);
 

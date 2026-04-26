@@ -362,6 +362,10 @@ class GUIComponent {
 		// Copy render function so the clone produces the same HTML
 		if (this.render) cloned.render = this.render;
 
+		// Always inherit behavioral properties
+		cloned.mouseMode = this.mouseMode;
+		cloned.needFocus = this.needFocus;
+
 		if (full) {
 			for (const key of Object.keys(this)) {
 				if (
@@ -420,6 +424,7 @@ class GUIComponent {
 	_unbindKeyDown() {
 		if (this._keyHandler) {
 			window.removeEventListener('keydown', this._keyHandler);
+			window.removeEventListener('keydown', this._keyHandler, true); // capture phase
 			this._keyHandler = null;
 		}
 	}
@@ -1033,6 +1038,17 @@ class GUIComponent {
 		for (const node of nodes) {
 			GUIComponent.processDataAttrs(node);
 		}
+	}
+
+	/**
+	 * Compatibility shim for UIComponent.parseHTML.
+	 * When called via .call(element) or .each(parseHTML),
+	 * `this` is the DOM element.
+	 */
+	get parseHTML() {
+		return function () {
+			GUIComponent.processDataAttrs(this);
+		};
 	}
 
 	// ─── CSS hot-reload ────────────────────────────────────
