@@ -317,7 +317,7 @@ function onDeleteRequest(charID) {
 	function onCancel() {
 		InputBox.remove();
 		_ui_box.remove();
-		_overlay.detach();
+		_overlay.remove();
 		Events.clearTimeout(_TimeOut);
 		onDeleteAnswer({ ErrorCode: -2 });
 	}
@@ -374,7 +374,7 @@ function onDeleteRequest(charID) {
 		} else {
 			// No waiting time
 			_ui_box.remove();
-			_overlay.detach();
+			_overlay.remove();
 			deleteCharacter();
 			return;
 		}
@@ -389,7 +389,7 @@ function onDeleteRequest(charID) {
 		// Delete character
 		if (percent >= 100) {
 			_ui_box.remove();
-			_overlay.detach();
+			_overlay.remove();
 			deleteCharacter();
 			return;
 		}
