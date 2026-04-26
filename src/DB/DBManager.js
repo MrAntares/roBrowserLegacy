@@ -8,6 +8,7 @@
  * @author Vincent Thibault
  */
 
+import ApiConfig from 'Api/ApiConfig.js';
 import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
 import TextEncoding from 'Utils/CodepageManager.js';
@@ -195,8 +196,8 @@ const TitleTable = {};
 /**
  * @type {Object} PetDBTable
  */
-let PetDBTable = {};
-let EggIDToJobID = {};
+const PetDBTable = {};
+const EggIDToJobID = {};
 
 /**
  * @const {Object} Reputation Table
@@ -245,8 +246,7 @@ const unknownItem = {
 /**
  * @const {Array} User charpage init
  */
-const servers = Configs.get('servers', []);
-const langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 0) : 0;
+const langType = parseInt(Configs.get('langtype'), parseInt(ApiConfig.config.langtype, 10));
 
 // setup default encoding
 const userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
@@ -378,6 +378,15 @@ class DB {
 			};
 		}
 
+		// Compare array.
+		function compareArray(a, b) {
+			return a.length === b.length && a.every((element, index) => element === b[index]);
+		}
+
+		// Load customLUAPaths.
+		const ConfigBase = ApiConfig.config;
+		const customLUAPaths = Configs.get('customLUAPaths', {});
+
 		// CSV Tables - Client Date is not sure since when they were added
 		if (PACKETVER.value >= 20230302) {
 			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
@@ -385,17 +394,26 @@ class DB {
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
 			// Item
-			let iteminfoNames = [];
-			const customII = Configs.get('customItemInfo', []);
-
-			if (Array.isArray(customII) && customII.length > 0) {
-				// add custom client info table
-				iteminfoNames = iteminfoNames.concat(customII);
-				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad(), true);
-			} else {
-				iteminfoNames = iteminfoNames.concat(getSystemAliases('System/itemInfo.lub'));
-				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad());
+			if (Array.isArray(Configs.get('customItemInfo', undefined))) {
+				console.warn(
+					'[DBManager]: WARNING: customItemInfo is deprecated and will be ignored. You should migrate your config. See doc/README.md for more info.'
+				);
 			}
+
+			const haveCustomII =
+				Array.isArray(customLUAPaths.itemInfo) &&
+				customLUAPaths.itemInfo.length > 0 &&
+				!compareArray(customLUAPaths.itemInfo, ConfigBase.customLUAPaths.itemInfo)
+					? true
+					: false;
+
+			tryLoadLuaAliases(
+				loadItemInfo,
+				haveCustomII ? customLUAPaths.itemInfo : ConfigBase.customLUAPaths.itemInfo,
+				null,
+				onLoad(),
+				haveCustomII
+			);
 
 			loadLuaTable(
 				[DB.LUA_PATH + 'datainfo/accessoryid.lub', DB.LUA_PATH + 'datainfo/accname.lub'],
@@ -415,6 +433,9 @@ class DB {
 			);
 
 			if (PACKETVER.value >= 20141008) {
+				const onPetInfo = onLoad();
+				const onPetEvo = onLoad();
+
 				loadLuaTable(
 					[DB.LUA_PATH + 'datainfo/npcidentity.lub', DB.LUA_PATH + 'datainfo/jobname.lub'],
 					'JobNameTable',
@@ -423,14 +444,39 @@ class DB {
 					},
 					onLoad(),
 					function () {
-						loadPetInfo(DB.LUA_PATH + 'datainfo/petinfo.lub', null, function () {
-							tryLoadLuaAliases(
-								loadPetEvolution,
-								getSystemAliases('System/PetEvolutionCln.lub'),
-								null,
-								onLoad()
-							);
-						});
+						const haveCustomPetInfo =
+							Array.isArray(customLUAPaths.petInfo) &&
+							customLUAPaths.petInfo.length > 0 &&
+							!compareArray(customLUAPaths.petInfo, ConfigBase.customLUAPaths.petInfo)
+								? true
+								: false;
+
+						tryLoadLuaAliases(
+							loadPetInfo,
+							haveCustomPetInfo ? customLUAPaths.petInfo : ConfigBase.customLUAPaths.petInfo,
+							null,
+							function () {
+								onPetInfo();
+
+								const haveCustomPetEvolution =
+									Array.isArray(customLUAPaths.petEvolution) &&
+									customLUAPaths.petEvolution.length > 0 &&
+									!compareArray(customLUAPaths.petEvolution, ConfigBase.customLUAPaths.petEvolution)
+										? true
+										: false;
+
+								tryLoadLuaAliases(
+									loadPetEvolution,
+									haveCustomPetEvolution
+										? customLUAPaths.petEvolution
+										: ConfigBase.customLUAPaths.petEvolution,
+									null,
+									onPetEvo,
+									haveCustomPetEvolution
+								);
+							},
+							haveCustomPetInfo
+						);
 					}
 				);
 			} else {
@@ -464,6 +510,10 @@ class DB {
 
 			// Skill - load skillid.lub to populate SKID, then load description
 			const onSkillEnd = onLoad();
+			let bsonOnLoad = null;
+			if (PACKETVER.value >= 20211103) {
+				bsonOnLoad = onLoad();
+			}
 			loadLuaValue(DB.LUA_PATH + 'skillinfoz/skillid.lub', 'SKID', json => {
 				if (json && typeof json === 'object') {
 					// Validate and merge entries into SKID
@@ -489,7 +539,6 @@ class DB {
 							loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, () => {
 								// Load ez2streffect, PACKETVER unknown when the while has been added, tied to default PACKETVER of rathena for 4th job
 								if (PACKETVER.value >= 20211103) {
-									const bsonOnLoad = onLoad();
 									loadBSONFile('data/contentdata/effectdata/ez2streffect.bson', Ez2streffect, () => {
 										Promise.all([
 											import('DB/Effects/EffectTable.js'),
@@ -591,55 +640,172 @@ class DB {
 			// MapName
 			if (Configs.get('enableMapName') /*PACKETVER.value >= 20190605*/) {
 				// We allow this feature to be enabled on any version due to popular demand
+				const haveCustomMapInfo =
+					Array.isArray(customLUAPaths.mapInfo) &&
+					customLUAPaths.mapInfo.length > 0 &&
+					!compareArray(customLUAPaths.mapInfo, ConfigBase.customLUAPaths.mapInfo)
+						? true
+						: false;
+
 				tryLoadLuaAliases(
 					loadMapTbl,
-					getSystemAliases('System/mapInfo.lub'),
-					function (json) {
-						for (const key in json) {
-							if (json.hasOwnProperty(key)) {
-								MapInfo[key] = json[key];
-							}
-						}
-						updateMapTable();
-					},
-					onLoad()
+					haveCustomMapInfo ? customLUAPaths.mapInfo : ConfigBase.customLUAPaths.mapInfo,
+					null,
+					onLoad(),
+					haveCustomMapInfo
 				);
 			}
 
 			// EntitySignBoard
 			const onSignBoardEnd = onLoad();
-			loadSignBoardList(DB.LUA_PATH + 'SignBoardList.lub', null, () => {
-				// this is not official, its a translation file
-				loadSignBoardData('SystemEN/Sign_Data.lub', null, onSignBoardEnd);
-			});
+			const haveCustomSignBoardList =
+				Array.isArray(customLUAPaths.signBoardList) &&
+				customLUAPaths.signBoardList.length > 0 &&
+				!compareArray(customLUAPaths.signBoardList, ConfigBase.customLUAPaths.signBoardList)
+					? true
+					: false;
+
+			tryLoadLuaAliases(
+				loadSignBoardList,
+				haveCustomSignBoardList ? customLUAPaths.signBoardList : ConfigBase.customLUAPaths.signBoardList,
+				null,
+				() => {
+					// this is not official, its a translation file
+					// kept because roBrowser was already looking for it
+
+					const haveCustomSignBoardData =
+						Array.isArray(customLUAPaths.signBoardData) &&
+						customLUAPaths.signBoardData.length > 0 &&
+						!compareArray(customLUAPaths.signBoardData, ConfigBase.customLUAPaths.signBoardData)
+							? true
+							: false;
+
+					tryLoadLuaAliases(
+						loadSignBoardData,
+						haveCustomSignBoardData
+							? customLUAPaths.signBoardData
+							: ConfigBase.customLUAPaths.signBoardData,
+						null,
+						onSignBoardEnd,
+						haveCustomSignBoardData
+					);
+				},
+				haveCustomSignBoardList
+			);
 
 			// CheckAttendance
 			if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
-				loadAttendanceFile('System/CheckAttendance.lub', null, onLoad());
+				const haveCustomCheckAttendance =
+					Array.isArray(customLUAPaths.checkAttendance) &&
+					customLUAPaths.checkAttendance.length > 0 &&
+					!compareArray(customLUAPaths.checkAttendance, ConfigBase.customLUAPaths.checkAttendance)
+						? true
+						: false;
+
+				tryLoadLuaAliases(
+					loadAttendanceFile,
+					haveCustomCheckAttendance
+						? customLUAPaths.checkAttendance
+						: ConfigBase.customLUAPaths.checkAttendance,
+					null,
+					onLoad(),
+					haveCustomCheckAttendance
+				);
 			}
 
 			// Quest
 			const onQuestEnd = onLoad();
-			tryLoadLuaAliases(loadQuestInfo, getSystemAliases('System/OngoingQuestInfoList.lub'), null, () => {
-				// this is not official, its a translation file
-				loadQuestInfo('SystemEN/OngoingQuests.lub', null, onQuestEnd);
-			});
+			const haveCustomOngoingQuestInfoList =
+				Array.isArray(customLUAPaths.ongoingQuestInfoList) &&
+				customLUAPaths.ongoingQuestInfoList.length > 0 &&
+				!compareArray(customLUAPaths.ongoingQuestInfoList, ConfigBase.customLUAPaths.ongoingQuestInfoList)
+					? true
+					: false;
+
+			tryLoadLuaAliases(
+				loadQuestInfo,
+				haveCustomOngoingQuestInfoList
+					? customLUAPaths.ongoingQuestInfoList
+					: ConfigBase.customLUAPaths.ongoingQuestInfoList,
+				null,
+				() => {
+					// this is not official, its a translation file
+					// kept because roBrowser was already looking for it
+
+					const haveCustomOngoingQuestInfoData =
+						Array.isArray(customLUAPaths.ongoingQuestInfoData) &&
+						customLUAPaths.ongoingQuestInfoData.length > 0 &&
+						!compareArray(
+							customLUAPaths.ongoingQuestInfoData,
+							ConfigBase.customLUAPaths.ongoingQuestInfoData
+						)
+							? true
+							: false;
+					tryLoadLuaAliases(
+						loadQuestInfo,
+						haveCustomOngoingQuestInfoData
+							? customLUAPaths.ongoingQuestInfoData
+							: ConfigBase.customLUAPaths.ongoingQuestInfoData,
+						null,
+						onQuestEnd,
+						haveCustomOngoingQuestInfoData
+					);
+				},
+				haveCustomOngoingQuestInfoList
+			);
 
 			// TODO: System/RecommendedQuests.lub
+			//const haveCustomRecommendedQuestInfoList = Array.isArray(customLUAPaths.recommendedQuestInfoList) && customLUAPaths.recommendedQuestInfoList.length > 0 &&
+			// !compareArray(customLUAPaths.recommendedQuestInfoList, ConfigBase.customLUAPaths.recommendedQuestInfoList) ? true : false;
+			//tryLoadLuaAliases(
+			//      loadRecommendedQuestInfo,
+			//      haveCustomRecommendedQuestInfoList ? customLUAPaths.recommendedQuestInfoList : ConfigBase.customLUAPaths.recommendedQuestInfoList,
+			//      null,
+			//      onLoad(),
+			//      haveCustomRecommendedQuestInfoList
+			//);
 
 			// Achievements
 			if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
-				loadLuaValue(
-					'System/achievement_list.lub',
-					'achievement_tbl',
-					function (json) {
-						if (json) {
-							Object.assign(AchievementTable, json);
-						}
-					},
-					onLoad()
+				const haveCustomAchievements =
+					Array.isArray(customLUAPaths.achievements) &&
+					customLUAPaths.achievements.length > 0 &&
+					!compareArray(customLUAPaths.achievements, ConfigBase.customLUAPaths.achievements)
+						? true
+						: false;
+
+				tryLoadLuaAliases(
+					loadAchievements,
+					haveCustomAchievements ? customLUAPaths.achievements : ConfigBase.customLUAPaths.achievements,
+					null,
+					onLoad(),
+					haveCustomAchievements
 				);
 			}
+
+			// Private Airplane
+			// TODO: PrivateAirplane_*.lub
+			//const haveCustomPrivateAirplane = Array.isArray(customLUAPaths.privateAirplane) && customLUAPaths.privateAirplane.length > 0 &&
+			//      !compareArray(customLUAPaths.privateAirplane, ConfigBase.customLUAPaths.privateAirplane) ? true : false;
+			//tryLoadLuaAliases(
+			//      loadPrivateAirplaneFile,
+			//      haveCustomPrivateAirplane ? customLUAPaths.privateAirplane : ConfigBase.customLUAPaths.privateAirplane,
+			//      null,
+			//      onLoad(),
+			//      haveCustomPrivateAirplane
+			//);
+
+			// Client-side monster size effects
+			// TODO: monster_size_effect_*.lub
+			//const haveCustomMonsterSizeEffect = Array.isArray(customLUAPaths.monsterSizeEffect) && customLUAPaths.monsterSizeEffect.length > 0 &&
+			// !compareArray(customLUAPaths.monsterSizeEffect, ConfigBase.customLUAPaths.monsterSizeEffect) ? true : false;
+			//tryLoadLuaAliases(
+			//      loadMonsterSizeEffectFile,
+			//      haveCustomMonsterSizeEffect ? customLUAPaths.monsterSizeEffect : ConfigBase.customLUAPaths.monsterSizeEffect,
+			//      null,
+			//      onLoad(),
+			//      haveCustomMonsterSizeEffect
+			//);
 
 			// Cash Shop Banner - implemented early 2018
 			if (Configs.get('enableCashShop') && PACKETVER.value >= 20180000) {
@@ -743,10 +909,38 @@ class DB {
 		loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
 		// Town Info
 		const onTownInfoEnd = onLoad();
-		loadTownInfoFile('System/Towninfo.lub', null, () => {
-			// this is not official, its a translation file
-			loadTownInfoFile('SystemEN/Towninfo.lub', null, onTownInfoEnd);
-		});
+		const haveCustomTownInfo =
+			Array.isArray(customLUAPaths.townInfo) &&
+			customLUAPaths.townInfo.length > 0 &&
+			!compareArray(customLUAPaths.townInfo, ConfigBase.customLUAPaths.townInfo)
+				? true
+				: false;
+
+		tryLoadLuaAliases(
+			loadTownInfoFile,
+			haveCustomTownInfo ? customLUAPaths.townInfo : ConfigBase.customLUAPaths.townInfo,
+			null,
+			() => {
+				// this is not official, its a translation file
+				// kept because roBrowser was already looking for it
+
+				const haveCustomTownData =
+					Array.isArray(customLUAPaths.townData) &&
+					customLUAPaths.townData.length > 0 &&
+					!compareArray(customLUAPaths.townData, ConfigBase.customLUAPaths.townData)
+						? true
+						: false;
+
+				tryLoadLuaAliases(
+					loadTownInfoFile,
+					haveCustomTownData ? customLUAPaths.townData : ConfigBase.customLUAPaths.townData,
+					null,
+					onTownInfoEnd,
+					haveCustomTownData
+				);
+			},
+			haveCustomTownInfo
+		);
 
 		// Forging/Creation
 		loadTable(
@@ -3858,24 +4052,6 @@ function arrayBufferToBase64(buffer) {
 }
 
 /**
- * get System folder variants
- */
-function getSystemAliases(basePath) {
-	basePath = basePath.replace(/\.(lub|lua)$/i, ''); // Prevents extension been passed
-
-	const suffixes = ['', '_true', '_sak', '_Sakray']; // Priority order
-	const extensions = ['.lub', '.lua'];
-	const fileList = [];
-
-	for (let s = 0; s < suffixes.length; s++) {
-		for (let e = 0; e < extensions.length; e++) {
-			fileList.push(basePath + suffixes[s] + extensions[e]);
-		}
-	}
-	return fileList;
-}
-
-/**
  * Load TXT table
  *
  * @param {string} filename to load
@@ -4349,7 +4525,7 @@ function loadAttendanceFile(filename, callback, onEnd) {
 	Client.loadFile(
 		filename,
 		async function (file) {
-			let isSuccess = false;
+			let wasSuccessful = false;
 			try {
 				const buffer = new Uint8Array(file);
 				// get context, a proxy. It will be used to interact with lua conveniently
@@ -4370,17 +4546,19 @@ function loadAttendanceFile(filename, callback, onEnd) {
 				await lua.doFile('CheckAttendance.lub');
 				// execute main lua function
 				lua.doStringSync('main()');
-				isSuccess = true;
+				wasSuccessful = true;
 			} catch (error) {
 				console.error('[loadAttendanceFile] Error: ', error);
 			} finally {
 				// release file from memmory
 				lua.unmountFile('CheckAttendance.lub');
 				// call onEnd
-				onEnd(isSuccess);
+				onEnd(wasSuccessful);
 			}
 		},
-		onEnd
+		() => {
+			onEnd(false);
+		}
 	);
 }
 
@@ -4632,7 +4810,7 @@ function loadTownInfoFile(filename, callback, onEnd) {
 		filename,
 		async function (file) {
 			console.log('Loading file "' + filename + '"...');
-			let isSuccess = false;
+			let wasSuccessful = false;
 			try {
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 				// get context, a proxy. It will be used to interact with lua conveniently
@@ -4655,17 +4833,19 @@ function loadTownInfoFile(filename, callback, onEnd) {
 				await lua.doFile(filename);
 				// execute main lua function
 				lua.doStringSync('main()');
-				isSuccess = true;
+				wasSuccessful = true;
 			} catch (error) {
 				console.error('[loadTownInfoFile] Error: ', error);
 			} finally {
 				// release file from memmory
 				lua.unmountFile(filename);
 				// call onEnd
-				onEnd(isSuccess);
+				onEnd(wasSuccessful);
 			}
 		},
-		onEnd
+		() => {
+			onEnd(false);
+		}
 	);
 }
 
@@ -4849,15 +5029,6 @@ function tryLoadLuaAliases(rFunc, files, callBack, onEnd, loadAll = false) {
 	function tryNext(index) {
 		if (index >= totalFiles) {
 			return;
-		}
-
-		if (
-			files[index].indexOf('System/') !== 0 &&
-			files[index].indexOf('SystemEN/') !== 0 &&
-			files[index].indexOf('System\\') !== 0 &&
-			files[index].indexOf('SystemEN\\') !== 0
-		) {
-			files[index] = 'System/' + files[index];
 		}
 
 		rFunc(files[index], callBack, isSuccess => {
@@ -5918,7 +6089,7 @@ function loadSignBoardData(filename, callback, onEnd) {
 	Client.loadFile(
 		filename,
 		async function (file) {
-			let isSuccess = false;
+			let wasSuccessful = false;
 			try {
 				console.log('Loading file "' + filename + '"...');
 
@@ -5955,17 +6126,19 @@ function loadSignBoardData(filename, callback, onEnd) {
 						end
                         main_SignBoardData()
 					`);
-				isSuccess = true;
+				wasSuccessful = true;
 			} catch (error) {
 				console.error('[loadSignBoardData] Error: ', error);
 			} finally {
 				// release file from memmory
 				lua.unmountFile('Sign_Data.lub');
 				// call onEnd
-				onEnd(isSuccess);
+				onEnd(wasSuccessful);
 			}
 		},
-		onEnd
+		() => {
+			onEnd(false);
+		}
 	);
 }
 
@@ -5981,6 +6154,7 @@ function loadSignBoardList(filename, callback, onEnd) {
 	Client.loadFile(
 		filename,
 		async function (file) {
+			let wasSuccessful = false;
 			try {
 				console.log('Loading file "' + filename + '"...');
 
@@ -6046,16 +6220,19 @@ function loadSignBoardList(filename, callback, onEnd) {
 					`);
 
 				SignBoardTable = preprocessSignboardData(signBoardList);
+				wasSuccessful = true;
 			} catch (error) {
 				console.error('[loadSignBoardList] Error: ', error);
 			} finally {
 				// release file from memmory
 				lua.unmountFile('SignBoardList.lub');
 				// call onEnd
-				onEnd();
+				onEnd(wasSuccessful);
 			}
 		},
-		onEnd
+		() => {
+			onEnd(false);
+		}
 	);
 }
 
@@ -6066,7 +6243,7 @@ function loadSignBoardList(filename, callback, onEnd) {
  * @return {Object} The nested dictionary containing the preprocessed signboard data.
  */
 function preprocessSignboardData(signboardArray) {
-	const signboardDict = {};
+	const signboardDict = SignBoardTable;
 
 	for (const signboard of signboardArray) {
 		const { mapname, x, y } = signboard;
@@ -6732,6 +6909,36 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 	loadNext(0);
 }
 
+/**
+ * Loads System/achievement_list.lub
+ *
+ * @param {string} filename - The name of the file to load.
+ * @param {function} callback - The function to invoke with the loaded data.
+ * @param {function} onEnd - The function to invoke when loading is complete.
+ * @return {void}
+ */
+function loadAchievements(filename, callback, onEnd) {
+	loadLuaValue(
+		filename,
+		'achievement_tbl',
+		function (json) {
+			if (json && typeof json === 'object') {
+				// Validate and merge entries.
+				for (const k in json) {
+					if (k === '__proto__' || k === 'constructor') continue;
+					if (Object.prototype.hasOwnProperty.call(json, k)) {
+						AchievementTable[k] = json[k];
+					}
+				}
+			}
+			if (typeof onEnd === 'function') {
+				onEnd(true);
+			}
+		},
+		null
+	);
+}
+
 /* Load Ragnarok Lua table to object
  * A lot of ragnarok lua tables are splited in 2 files ( 1 - ID table, 2 - Table of values )
  * @param {Array} list of files to be load (must be 2 files)
@@ -7040,6 +7247,7 @@ function loadPetInfo(filename, callback, onEnd) {
 	Client.loadFile(
 		filename,
 		async function (file) {
+			let wasSuccessful = false;
 			try {
 				console.log('Loading file "' + filename + '"...');
 
@@ -7078,8 +7286,6 @@ function loadPetInfo(filename, callback, onEnd) {
 				const petAccIDs = readLuaTable('PetAccIDs');
 				const petAccNames = readLuaTable('PetAccActNameTable');
 
-				PetDBTable = {};
-
 				for (const eggId in eggMap) {
 					const jobId = Number(eggMap[eggId]);
 					const petName = petNames[jobId] || null;
@@ -7097,22 +7303,23 @@ function loadPetInfo(filename, callback, onEnd) {
 					};
 				}
 
-				EggIDToJobID = {};
-
 				for (const jobID in PetDBTable) {
 					const pet = PetDBTable[jobID];
 					EggIDToJobID[pet.PetEggID] = Number(jobID);
 				}
+				wasSuccessful = true;
 			} catch (error) {
 				console.error('[loadPetInfo] Error: ', error);
 			} finally {
 				// release file from memmory
 				lua.unmountFile(filename);
 				// call onEnd
-				onEnd();
+				onEnd(wasSuccessful);
 			}
 		},
-		onEnd
+		() => {
+			onEnd(false);
+		}
 	);
 }
 
@@ -7315,21 +7522,6 @@ function onUpdateOwnerName(pkt) {
 	DB.CNameTable[pkt.GID] = pkt.CName;
 	DB._resolveNameCallbacks(pkt.GID, pkt.CName);
 	DB.UpdateOwnerName[pkt.GID] = pkt;
-}
-
-/**
- * Function to update MapTable with MapInfo values
- */
-function updateMapTable() {
-	for (const key in MapInfo) {
-		if (MapInfo.hasOwnProperty(key)) {
-			if (MapTable[key]) {
-				MapTable[key].name = MapInfo[key].displayName;
-			} else {
-				MapTable[key] = { name: MapInfo[key].displayName };
-			}
-		}
-	}
 }
 
 /**
