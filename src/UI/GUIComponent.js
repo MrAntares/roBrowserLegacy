@@ -1035,6 +1035,17 @@ class GUIComponent {
 		}
 	}
 
+	/**
+	 * Compatibility shim for UIComponent.parseHTML.
+	 * When called via .call(element) or .each(parseHTML),
+	 * `this` is the DOM element.
+	 */
+	get parseHTML() {
+		return function () {
+			GUIComponent.processDataAttrs(this);
+		};
+	}
+
 	// ─── CSS hot-reload ────────────────────────────────────
 
 	reloadCSS(newCssText) {

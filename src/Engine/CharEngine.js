@@ -332,7 +332,7 @@ function onDeleteRequest(charID) {
 			InputBox.setType('mail', true);
 		}
 		InputBox.onSubmitRequest = onSubmit;
-		_ui_box.ui.css('zIndex', 50); // ui same zIndex bg
+		_ui_box._host.style.zIndex = '50'; // ui same zIndex bg
 		_overlay.css('zIndex', 51); // overlay same zIndex input
 		_ui_box.append(); // don't remove message box
 	}
@@ -362,7 +362,7 @@ function onDeleteRequest(charID) {
 			_height = _canvas.height = 15;
 			_canvas.style.marginTop = '10px';
 			_canvas.style.marginLeft = '20px';
-			_ui_box.ui.append(_canvas);
+			_ui_box._shadow.querySelector('.container').appendChild(_canvas);
 
 			// Parameter
 			_time_end = Date.now() + 10000;
@@ -394,7 +394,10 @@ function onDeleteRequest(charID) {
 		}
 
 		// Update text
-		_ui_box.ui.find('.text').text(DB.getMessage(296).replace('%d', Math.round(10 - percent / 10)));
+		_ui_box._shadow.querySelector('.text').textContent = DB.getMessage(296).replace(
+			'%d',
+			Math.round(10 - percent / 10)
+		);
 
 		// Update progressbar
 		_ctx.clearRect(0, 0, _width, _height);

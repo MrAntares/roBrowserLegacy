@@ -1,8 +1,14 @@
+:host {
+	width: 280px;
+	height: 120px;
+	top: 0px;
+	left: 0px;
+}
+
 #win_popup {
 	position: absolute;
 	width: 280px;
 	height: 120px;
-	z-index: 999;
 }
 
 #win_popup .container {
@@ -29,6 +35,7 @@
 	bottom: 2px;
 	right: 3px;
 }
+
 #win_popup .btn {
 	border: 0;
 	width: 42px;

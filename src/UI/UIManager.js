@@ -35,7 +35,7 @@ function _popupPosition() {
  * @param {function} parseHTML - reference to UIComponent.prototype.parseHTML
  * @returns {HTMLButtonElement}
  */
-function _createButton(name, onClick, parseHTML) {
+function _createButton(name, onClick) {
 	const btn = document.createElement('button');
 	btn.className = 'btn';
 	btn.dataset.background = `btn_${name}.bmp`;
@@ -49,7 +49,7 @@ function _createButton(name, onClick, parseHTML) {
 		onClick();
 	});
 
-	parseHTML.call(btn);
+	GUIComponent.processDataAttrs(btn);
 
 	return btn;
 }
@@ -185,22 +185,18 @@ class UIManager {
 		let overlay;
 
 		WinError.init = function Init() {
-			const root = this.ui[0];
+			const root = this._shadow;
 
 			root.querySelector('.text').textContent = text;
-			Object.assign(root.style, _popupPosition());
+			Object.assign(this._host.style, _popupPosition());
 
-			const btn = _createButton(
-				'ok',
-				() => {
+			root.querySelector('.btns').appendChild(
+				_createButton('ok', () => {
 					overlay.remove();
 					WinError.remove();
 					GameEngine.reload();
-				},
-				this.parseHTML
+				})
 			);
-
-			root.querySelector('.btns').appendChild(btn);
 		};
 
 		WinError.onKeyDown = function OnKeyDown(event) {
@@ -215,7 +211,6 @@ class UIManager {
 		};
 
 		overlay = _createOverlay();
-
 		WinError.onAppend = _prioritizeKeyDown;
 		WinError.append();
 
@@ -234,22 +229,18 @@ class UIManager {
 
 		WinMSG.init = function Init() {
 			this.draggable();
-			const root = this.ui[0];
+			const root = this._shadow;
 
 			root.querySelector('.text').textContent = text;
-			Object.assign(root.style, _popupPosition());
+			Object.assign(this._host.style, _popupPosition());
 
 			if (btn_name) {
-				const btn = _createButton(
-					btn_name,
-					() => {
+				root.querySelector('.btns').appendChild(
+					_createButton(btn_name, () => {
 						WinMSG.remove();
 						if (callback) callback();
-					},
-					this.parseHTML
+					})
 				);
-
-				root.querySelector('.btns').appendChild(btn);
 			}
 		};
 
@@ -285,33 +276,25 @@ class UIManager {
 
 		WinPrompt.init = function Init() {
 			this.draggable();
-			const root = this.ui[0];
+			const root = this._shadow;
 
 			root.querySelector('.text').textContent = text;
-			Object.assign(root.style, _popupPosition());
+			Object.assign(this._host.style, _popupPosition());
 
 			const btnsContainer = root.querySelector('.btns');
 
 			btnsContainer.appendChild(
-				_createButton(
-					btn_yes,
-					() => {
-						WinPrompt.remove();
-						if (onYes) onYes();
-					},
-					this.parseHTML
-				)
+				_createButton(btn_yes, () => {
+					WinPrompt.remove();
+					if (onYes) onYes();
+				})
 			);
 
 			btnsContainer.appendChild(
-				_createButton(
-					btn_no,
-					() => {
-						WinPrompt.remove();
-						if (onNo) onNo();
-					},
-					this.parseHTML
-				)
+				_createButton(btn_no, () => {
+					WinPrompt.remove();
+					if (onNo) onNo();
+				})
 			);
 		};
 
