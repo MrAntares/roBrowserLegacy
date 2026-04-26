@@ -6,14 +6,6 @@
  * @author Alisonrag
  *
  */
-/**
- * UI/Components/CashShopIcon/CashShopIcon.js
- *
- * CashShop Icon
- *
- * @author Alisonrag
- *
- */
 
 import CashShop from 'UI/Components/CashShop/CashShop.js';
 import Network from 'Network/NetworkManager.js';
