@@ -252,6 +252,12 @@ Clan.onAppend = function onAppend() {
 	this._host.style.left = `${_preferences.x}px`;
 	this._host.style.top = `${_preferences.y}px`;
 };
+
+Clan.onRemove = function onRemove() {
+	_preferences.x = parseInt(this._host.style.left, 10); // Don't add fallback because pos 0 in js is falsy
+	_preferences.y = parseInt(this._host.style.top, 10); // Don't add fallback because pos 0 in js is falsy
+	_preferences.save();
+};
 ```
 
 Key changes:

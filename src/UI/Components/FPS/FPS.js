@@ -46,8 +46,8 @@ const _preferences = Preferences.get(
 	'FPS',
 	{
 		show: false,
-		x: 300,
-		y: 300
+		x: 100,
+		y: 100
 	},
 	1.1
 );
@@ -80,9 +80,9 @@ FPS.init = function init() {
  */
 FPS.onAppend = function onAppend() {
 	// Apply preferences
-	this._host.style.display = _preferences.show ? '' : 'none';
 	this._host.style.top = _preferences.y + 'px';
 	this._host.style.left = _preferences.x + 'px';
+	this._host.style.display = _preferences.show ? '' : 'none';
 
 	const root = this._shadow || this._host;
 	const fpsEl = root.querySelector('#fpsCounter');
@@ -149,9 +149,8 @@ FPS.onRemove = function onRemove() {
 		Renderer.stop(_tickFn);
 		_tickFn = null;
 	}
-	const rect = this._host.getBoundingClientRect();
-	_preferences.x = Math.round(rect.left);
-	_preferences.y = Math.round(rect.top);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.show = this._host.style.display !== 'none';
 	_preferences.save();
 };
@@ -160,9 +159,8 @@ FPS.onRemove = function onRemove() {
  * Show/Hide UI
  */
 FPS.toggle = function toggle(isVisible) {
-	const rect = this._host.getBoundingClientRect();
-	_preferences.x = Math.round(rect.left);
-	_preferences.y = Math.round(rect.top);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.show = typeof isVisible === 'boolean' ? isVisible : this._host.style.display === 'none';
 	_preferences.save();
 

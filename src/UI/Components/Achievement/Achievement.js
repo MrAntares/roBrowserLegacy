@@ -146,9 +146,8 @@ class AchievementComponent extends GUIComponent {
 	}
 
 	onRemove() {
-		const rect = this._host.getBoundingClientRect();
-		_preferences.x = Math.round(rect.left);
-		_preferences.y = Math.round(rect.top);
+		_preferences.x = parseInt(this._host.style.left, 10);
+		_preferences.y = parseInt(this._host.style.top, 10);
 		_preferences.save();
 	}
 
