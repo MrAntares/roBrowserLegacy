@@ -1,43 +1,75 @@
-name: Devin PR Labeler - Analyze  
-on:  
-    pull_request_review:  
-        types: [submitted]  
-permissions:  
-    contents: read  
-jobs:  
-    analyze_review:  
-        if: github.event.pull_request  
-        runs-on: ubuntu-latest  
-        steps:  
-            - name: Analyze Devin Review  
-              uses: actions/github-script@v7  
-              env:  
-                  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  
-              with:  
-                  script: |  
-                      const comment = (context.payload.review.body || '').toLowerCase();  
-                      const issue_number = context.payload.pull_request.number;  
-                      let labelToAdd = null;  
-                      if (comment.includes('no bugs found') || comment.includes('no issues found') || comment.includes('found 0 new potential issue')|| comment.includes('found 0 potential issue')) {  
-                        labelToAdd = 'Devin Check Passed';  
-                      } else if (comment.includes('potential issue')) {  
-                        labelToAdd = 'Devin Check Failed - TOFIX';  
-                      } else if (comment.includes('🚩')) {  
-                        labelToAdd = 'Devin Check Failed - WONTFIX';  
+name: Devin PR Labeler - Analyze
+on:
+    pull_request_review:
+        types: [submitted]
+    pull_request_review_comment:
+        types: [created, edited]
+permissions:
+    contents: read
+jobs:
+    analyze_review:
+        if: github.event.pull_request
+        runs-on: ubuntu-latest
+        steps:
+            - name: Analyze Devin Review
+              uses: actions/github-script@v7
+              env:
+                  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+              with:
+                  script: |
+                      const pr = context.payload.pull_request
+                        || context.payload.review?.pull_request
+                        || { number: context.payload.pull_request?.number };
+                      const prNumber = context.payload.pull_request?.number
+                        ?? context.payload.review?.pull_request?.number;
+                      const q = `query($owner:String!,$repo:String!,$num:Int!) {
+                        repository(owner:$owner,name:$repo) {
+                          pullRequest(number:$num) {
+                            reviewThreads(first:100) {
+                              nodes{
+                                isResolved
+                                isOutdated
+                                comments(first:1) {
+                                  nodes{ author{ login } body }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }`;
+                      const res = await github.graphql(q, {
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        num: prNumber,
+                      });
+                      const threads = res.repository.pullRequest.reviewThreads.nodes
+                        .filter(t => t.comments.nodes[0]?.author?.login === 'devin-ai-integration')
+                        .filter(t => !t.isOutdated); // ignora threads de commits antigos
+                      const total = threads.length;
+                      const resolved = threads.filter(t => t.isResolved).length;
+                      let labelToAdd;
+                      if (total === 0) {
+                        labelToAdd = 'Devin Check Passed';
+                      } else if (resolved === total) {
+                        labelToAdd = 'Devin Check - FIXED';
                       } else {
-                        labelToAdd = 'Devin Check - FIXED'; 
+                        // checa se restantes são 🚩 (WONTFIX) ou bugs (TOFIX)
+                        const unresolved = threads.filter(t => !t.isResolved);
+                        const allFlags = unresolved.every(t =>
+                          (t.comments.nodes[0]?.body || '').includes('🚩'));
+                        labelToAdd = allFlags
+                          ? 'Devin Check Failed - WONTFIX'
+                          : 'Devin Check Failed - TOFIX';
                       }
-                      core.info('Label to add: ' + labelToAdd);  
-                      if (labelToAdd) {  
-                        const fs = require('fs');  
-                        fs.writeFileSync('label_data.json', JSON.stringify({ issue_number, labelToAdd }));  
-                      }  
-  
-            - name: Upload label data  
-              if: success()  
-              uses: actions/upload-artifact@v4  
-              with:  
-                  name: label-data  
-                  path: label_data.json  
-                  retention-days: 1  
+                      core.info(`total=${total} resolved=${resolved} label=${labelToAdd}`);
+                      require('fs').writeFileSync('label_data.json',
+                        JSON.stringify({ issue_number: prNumber, labelToAdd }));
+
+            - name: Upload label data
+              if: success()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: label-data
+                  path: label_data.json
+                  retention-days: 1
                   if-no-files-found: ignore
