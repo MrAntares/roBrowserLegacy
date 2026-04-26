@@ -178,6 +178,10 @@ import ApiEnums from 'Api/ApiEnums.js';
 
 				this._APP = window;
 				break;
+			default:
+				console.error('type is not defined in your Config.local.js. This value cannot be set in the defaults. Please set it to an appropriate value for your environment. See also: src/Api/ApiEnums.js for a list of valid values.');
+				throw new Error('Config invalid! Set type in Config.local.js!');
+				break;
 		}
 
 		// Wait for robrowser to be ready
