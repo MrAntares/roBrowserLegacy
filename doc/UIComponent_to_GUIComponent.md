@@ -231,6 +231,7 @@ closeBtn.addEventListener('click', () => { ... });
 Guild.init = function init() {
 	this.ui.find('.close').mousedown(stopPropagation).click(Guild.toggle.bind(this));
 	this.draggable(this.ui.find('.titlebar'));
+	this.ui.hide();
 };
 ```
 
@@ -247,34 +248,11 @@ Clan.init = function init() {
 	}
 	this._host.style.display = 'none';
 };
-
-Clan.onAppend = function onAppend() {
-	this._host.style.left = `${_preferences.x}px`;
-	this._host.style.top = `${_preferences.y}px`;
-};
-
-Clan.onRemove = function onRemove() {
-	_preferences.x = parseInt(this._host.style.left, 10);
-	_preferences.y = parseInt(this._host.style.top, 10);
-	_preferences.save();
-};
-```
-
-**NEVER use:**
-```javascript
-// BAD — returns 0,0 when hidden  
-const rect = this._host.getBoundingClientRect();  
-_preferences.x = Math.round(rect.left);
-```
-```javascript
-// BAD — position 0 becomes 100  
-_preferences.x = parseInt(this._host.style.left, 10) || 100;
 ```
 
 Key changes:
 
 - `draggable()` accepts a CSS selector string (resolved inside shadow)
-- Event binding goes in `init()` (runs once), not `onAppend()` (runs every time)
 - Position restore goes in `onAppend()`
 - Uses native DOM `addEventListener` instead of jQuery `.click()`/`.mousedown()`
 
@@ -320,15 +298,24 @@ Guild.onRemove = function onRemove() {
 **After:**
 
 ```javascript
-Clan.onRemove = function onRemove() {
-	const rect = this._host.getBoundingClientRect();
-	_preferences.x = Math.round(rect.left);
-	_preferences.y = Math.round(rect.top);
-	_preferences.save();
+Guild.onRemove = function onRemove() {  
+	_preferences.x = parseInt(this.ui.css('left'), 10);  
+	_preferences.y = parseInt(this.ui.css('top'), 10);  
+	_preferences.save();  
 };
 ```
 
-Uses native `getBoundingClientRect()` instead of parsing CSS strings.
+**NEVER use for preferences saving:**
+```javascript
+// BAD — returns 0,0 when hidden  
+const rect = this._host.getBoundingClientRect();  
+_preferences.x = Math.round(rect.left);
+```
+
+```javascript
+// BAD — position 0 becomes 100  
+_preferences.x = parseInt(this._host.style.left, 10) || 100;
+```
 
 ### 9. Register with UIManager
 
