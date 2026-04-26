@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import UIComponent from 'UI/UIComponent.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
@@ -70,8 +69,12 @@ function _createOverlay() {
  * NOTE: Uses jQuery._data (internal API) — migrate when the event system is refactored.
  */
 function _prioritizeKeyDown() {
-	const events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
+	// Re-bind keydown in capture phase so the popup handler fires
+	// before any other keydown listener (native or jQuery).
+	if (this._keyHandler) {
+		window.removeEventListener('keydown', this._keyHandler);
+		window.addEventListener('keydown', this._keyHandler, true);
+	}
 }
 
 /**

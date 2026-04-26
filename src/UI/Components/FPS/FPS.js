@@ -33,10 +33,11 @@ const FPS = new GUIComponent('FPS', cssText);
 
 FPS.render = () => htmlText;
 
-/**
- * @var {number} _maxFPSRegistered
- */
+/** @type {number} */
 let _maxFPSRegistered = 0;
+
+/** @type {function} */
+let _tickFn = null;
 
 /**
  * @var {Preferences} Graphics
@@ -135,6 +136,8 @@ FPS.onAppend = function onAppend() {
 	}
 
 	// Passive FPS listener (no render logic impact)
+	if (_tickFn) Renderer.stop(_tickFn);
+	_tickFn = tick;
 	Renderer.render(tick);
 };
 
@@ -142,6 +145,10 @@ FPS.onAppend = function onAppend() {
  * Once remove, save preferences
  */
 FPS.onRemove = function onRemove() {
+	if (_tickFn) {
+		Renderer.stop(_tickFn);
+		_tickFn = null;
+	}
 	const rect = this._host.getBoundingClientRect();
 	_preferences.x = Math.round(rect.left);
 	_preferences.y = Math.round(rect.top);

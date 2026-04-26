@@ -420,6 +420,7 @@ class GUIComponent {
 	_unbindKeyDown() {
 		if (this._keyHandler) {
 			window.removeEventListener('keydown', this._keyHandler);
+			window.removeEventListener('keydown', this._keyHandler, true); // capture phase
 			this._keyHandler = null;
 		}
 	}

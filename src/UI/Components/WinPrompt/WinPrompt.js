@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import DB from 'DB/DBManager.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import WinPopup from 'UI/Components/WinPopup.js';
@@ -51,9 +50,9 @@ WinPrompt.ask = function ask(text, btn_yes, btn_no, onYes, onNo) {
 		// Create YES button
 		const yesBtn = document.createElement('button');
 		yesBtn.className = 'btn';
-		yesBtn.dataset.background = DB.INTERFACE_PATH + 'btn_' + btn_yes + '.bmp';
-		yesBtn.dataset.hover = DB.INTERFACE_PATH + 'btn_' + btn_yes + '_a.bmp';
-		yesBtn.dataset.down = DB.INTERFACE_PATH + 'btn_' + btn_yes + '_b.bmp';
+		yesBtn.dataset.background = 'btn_' + btn_yes + '.bmp';
+		yesBtn.dataset.hover = 'btn_' + btn_yes + '_a.bmp';
+		yesBtn.dataset.down = 'btn_' + btn_yes + '_b.bmp';
 		GUIComponent.processDataAttrs(yesBtn);
 		yesBtn.addEventListener(
 			'click',
@@ -69,9 +68,9 @@ WinPrompt.ask = function ask(text, btn_yes, btn_no, onYes, onNo) {
 		// Create NO button
 		const noBtn = document.createElement('button');
 		noBtn.className = 'btn';
-		noBtn.dataset.background = DB.INTERFACE_PATH + 'btn_' + btn_no + '.bmp';
-		noBtn.dataset.hover = DB.INTERFACE_PATH + 'btn_' + btn_no + '_a.bmp';
-		noBtn.dataset.down = DB.INTERFACE_PATH + 'btn_' + btn_no + '_b.bmp';
+		noBtn.dataset.background = 'btn_' + btn_no + '.bmp';
+		noBtn.dataset.hover = 'btn_' + btn_no + '_a.bmp';
+		noBtn.dataset.down = 'btn_' + btn_no + '_b.bmp';
 		GUIComponent.processDataAttrs(noBtn);
 		noBtn.addEventListener(
 			'click',
