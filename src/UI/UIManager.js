@@ -64,6 +64,26 @@ function _createOverlay() {
 	return overlay;
 }
 
+// Overlay CSS must live in the global <style> tag because overlay divs
+// are appended to document.body (light DOM), not inside any Shadow DOM.
+(function injectOverlayCSS() {
+	let style = document.querySelector('style[data-overlay]');
+	if (!style) {
+		style = document.createElement('style');
+		style.setAttribute('data-overlay', '');
+		style.textContent = `  
+			.win_popup_overlay {
+				position: fixed;
+				top: 0px;
+				left: 0px;
+				width: 100%;
+				height: 100%;
+				z-index: 99;
+			}`;
+		document.head.appendChild(style);
+	}
+})();
+
 /**
  * Reorder keydown handlers so the popup captures first.
  * NOTE: Uses jQuery._data (internal API) — migrate when the event system is refactored.

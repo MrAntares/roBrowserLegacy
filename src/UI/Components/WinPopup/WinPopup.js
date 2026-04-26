@@ -28,11 +28,11 @@ WinPopup.render = () => htmlText;
 WinPopup.init = function init() {
 	Object.assign(this._host.style, {
 		top: `${(Renderer.height - 120) / 1.5 - 120}px`,
-		left: `${(Renderer.width - 280) / 2.0}px`
+		left: `${(Renderer.width - 280) / 2.0}px`,
+		zIndex: '999'
 	});
 };
 
-WinPopup.needFocus = true;
 WinPopup.mouseMode = GUIComponent.MouseMode.FREEZE;
 
 /**
