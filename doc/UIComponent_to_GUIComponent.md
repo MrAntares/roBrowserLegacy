@@ -298,22 +298,23 @@ Guild.onRemove = function onRemove() {
 **After:**
 
 ```javascript
-Guild.onRemove = function onRemove() {  
-	_preferences.x = parseInt(this.ui.css('left'), 10);  
-	_preferences.y = parseInt(this.ui.css('top'), 10);  
-	_preferences.save();  
+Guild.onRemove = function onRemove() {
+	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.save();
 };
 ```
 
 **NEVER use for preferences saving:**
+
 ```javascript
-// BAD — returns 0,0 when hidden  
-const rect = this._host.getBoundingClientRect();  
+// BAD — returns 0,0 when hidden
+const rect = this._host.getBoundingClientRect();
 _preferences.x = Math.round(rect.left);
 ```
 
 ```javascript
-// BAD — position 0 becomes 100  
+// BAD — position 0 becomes 100
 _preferences.x = parseInt(this._host.style.left, 10) || 100;
 ```
 
