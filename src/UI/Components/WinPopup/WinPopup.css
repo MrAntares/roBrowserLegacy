@@ -9,6 +9,7 @@
 	position: absolute;
 	width: 280px;
 	height: 120px;
+	z-index: 999;
 }
 
 #win_popup .container {
