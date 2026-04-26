@@ -362,6 +362,10 @@ class GUIComponent {
 		// Copy render function so the clone produces the same HTML
 		if (this.render) cloned.render = this.render;
 
+		// Always inherit behavioral properties
+		cloned.mouseMode = this.mouseMode;
+		cloned.needFocus = this.needFocus;
+
 		if (full) {
 			for (const key of Object.keys(this)) {
 				if (

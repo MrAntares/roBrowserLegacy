@@ -33,6 +33,7 @@ WinPopup.init = function init() {
 	});
 };
 
+WinPopup.needFocus = true;
 WinPopup.mouseMode = GUIComponent.MouseMode.FREEZE;
 
 /**

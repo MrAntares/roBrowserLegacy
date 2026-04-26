@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import Events from 'Core/Events.js';
@@ -333,13 +332,15 @@ function onDeleteRequest(charID) {
 		}
 		InputBox.onSubmitRequest = onSubmit;
 		_ui_box._host.style.zIndex = '50'; // ui same zIndex bg
-		_overlay.css('zIndex', 51); // overlay same zIndex input
+		_overlay.style.zIndex = '51'; // overlay same zIndex input
 		_ui_box.append(); // don't remove message box
 	}
 
 	// Display prompt message
 	_ui_box = UIManager.showPromptBox(DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
-	const _overlay = jQuery('<div/>').addClass('win_popup_overlay').appendTo('body');
+	const _overlay = document.createElement('div');
+	_overlay.className = 'win_popup_overlay';
+	document.body.appendChild(_overlay);
 
 	// Submit the mail/birthdate
 	function onSubmit(input) {

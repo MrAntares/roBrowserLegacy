@@ -34,6 +34,8 @@ WinPrompt.init = function init() {
  * @param {function} onNo - callback for second button
  */
 WinPrompt.ask = function ask(text, btn_yes, btn_no, onYes, onNo) {
+	if (!this.__loaded) this.prepare();
+
 	const root = this._shadow || this._host;
 
 	// Set text
