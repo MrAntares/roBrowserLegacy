@@ -34,6 +34,17 @@ const PCGoldTimer = new GUIComponent('PCGoldTimer', cssText);
 PCGoldTimer.render = () => htmlText;
 
 /**
+ * Initialize component and bind click event
+ */
+PCGoldTimer.init = function init() {
+	const root = this._shadow || this._host;
+	const container = root.querySelector('.container');
+	if (container) {
+		container.addEventListener('click', onClickPCGoldTimer);
+	}
+};
+
+/**
  * Apply preferences once append to body
  */
 PCGoldTimer.onAppend = function onAppend() {
@@ -55,12 +66,6 @@ PCGoldTimer.onAppend = function onAppend() {
 		if (!this.timer) {
 			// start timer
 			this.startTimer();
-		}
-
-		// set on click event
-		const container = root.querySelector('.container');
-		if (container) {
-			container.addEventListener('click', onClickPCGoldTimer);
 		}
 	} else {
 		// stop timer
