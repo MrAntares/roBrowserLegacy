@@ -34,6 +34,7 @@ import Configs from 'Core/Configs.js';
 | Alias       | Path                        |
 | ----------- | --------------------------- |
 | jquery      | src/Vendors/jquery-1.9.1.js |
+| Api         | src/Api/                    |
 | App         | src/App/                    |
 | Audio       | src/Audio/                  |
 | Controls    | src/Controls/               |
