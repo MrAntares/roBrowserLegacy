@@ -51,6 +51,7 @@ EntityRoom.onAppend = function onAppend() {
 	if (btn) {
 		btn.addEventListener('dblclick', this._dblclickHandler);
 		btn.addEventListener('mousedown', e => {
+			e.stopImmediatePropagation();
 			e.preventDefault();
 		});
 	}

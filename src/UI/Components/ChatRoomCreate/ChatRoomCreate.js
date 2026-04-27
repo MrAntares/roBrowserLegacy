@@ -174,6 +174,7 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
 	if (this._host.style.display === 'none') {
 		return true;
 	}
+
 	// Input inside our shadow is focused — protect keystrokes
 	if (active && active.tagName && /input|select|textarea/i.test(active.tagName)) {
 		if (event.which === KEYS.ENTER) {
@@ -181,7 +182,7 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
 			event.stopImmediatePropagation();
 			return false;
 		}
-		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 			this._host.style.display = 'none';
 			event.stopImmediatePropagation();
 			return false;
@@ -192,7 +193,7 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
 	}
 
 	// No input focused — only handle Escape
-	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this._host.style.display = 'none';
 		event.stopImmediatePropagation();
 		return false;
