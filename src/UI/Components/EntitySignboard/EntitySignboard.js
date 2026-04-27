@@ -9,15 +9,18 @@
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import Client from 'Core/Client.js';
+import DB from 'DB/DBManager.js';
 import htmlText from './EntitySignboard.html?raw';
 import cssText from './EntitySignboard.css?raw';
-import Client from 'Core/Client.js';
 
 /**
- * Createcomponent
+ * Create component
  */
-const EntitySignboard = new UIComponent('EntitySignboard', htmlText, cssText);
+const EntitySignboard = new GUIComponent('EntitySignboard', cssText);
+
+EntitySignboard.render = () => htmlText;
 
 /**
  * @var {boolean} do not focus this UI
@@ -25,78 +28,111 @@ const EntitySignboard = new UIComponent('EntitySignboard', htmlText, cssText);
 EntitySignboard.needFocus = false;
 
 /**
- * Once in HTML, focus the input
+ * Once in HTML
  */
 EntitySignboard.onAppend = function onAppend() {
-	this.ui.find('button').dblclick(
-		function () {
-			if (this.onEnter) {
-				this.onEnter();
-			}
-		}.bind(this)
-	);
+	const root = this._shadow || this._host;
+	const btn = root.querySelector('button');
 
-	// Avoid player to move to the cell
-	this.ui.mousedown(function () {
-		return false;
-	});
+	if (btn) {
+		// Cleanup previous handlers (clone reuse)
+		if (this._dblclickHandler) {
+			btn.removeEventListener('dblclick', this._dblclickHandler);
+		}
+		if (this._mousedownHandler) {
+			btn.removeEventListener('mousedown', this._mousedownHandler);
+		}
+	}
 
-	this.ui.css('zIndex', 45);
+	this._dblclickHandler = () => {
+		this.onEnter();
+	};
+
+	this._mousedownHandler = e => {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+	};
+
+	if (btn) {
+		btn.addEventListener('dblclick', this._dblclickHandler);
+		btn.addEventListener('mousedown', this._mousedownHandler);
+	}
+
+	this._host.style.zIndex = '45';
 };
 
 /**
  * Remove data from UI
  */
 EntitySignboard.onRemove = function onRemove() {
-	this.ui.find('button').unbind();
-	//this.ui.find('button').removeClass('icon-only');
+	const root = this._shadow || this._host;
+	const btn = root.querySelector('button');
+
+	if (btn) {
+		if (this._dblclickHandler) {
+			btn.removeEventListener('dblclick', this._dblclickHandler);
+			this._dblclickHandler = null;
+		}
+		if (this._mousedownHandler) {
+			btn.removeEventListener('mousedown', this._mousedownHandler);
+			this._mousedownHandler = null;
+		}
+	}
 };
 
 /**
  * Define title and icons
  *
  * @param {string} title
- * @param {string} url - icon url
+ * @param {string} icon_location - icon url
  */
 EntitySignboard.setTitle = function setTitle(title, icon_location) {
-	// add data-background attribute
-	this.ui.attr('data-background', 'signboard/bg_signboard.bmp');
-	this.ui.find('.title, .overlay').text(title);
-	this.ui.find('.title').show();
+	const root = this._shadow || this._host;
+	const signboard = root.querySelector('.EntitySignboard');
 
-	const self = this;
-
-	// show overlay when mouse over .title
-	this.ui.find('.title').hover(function () {
-		self.ui.find('.overlay').show();
+	// Load signboard background
+	Client.loadFile(`${DB.INTERFACE_PATH}signboard/bg_signboard.bmp`, url => {
+		signboard.style.backgroundImage = `url('${url}')`;
 	});
 
-	// hide overlay when mouse out .title
-	this.ui.find('.title').mouseout(function () {
-		self.ui.find('.overlay').hide();
+	const titleEl = root.querySelector('.title');
+	const overlayEl = root.querySelector('.overlay');
+
+	titleEl.textContent = title;
+	overlayEl.textContent = title;
+	titleEl.style.display = 'inline-block';
+
+	// Show overlay only when text is truncated
+	titleEl.addEventListener('mouseenter', () => {
+		if (titleEl.scrollWidth > titleEl.clientWidth) {
+			overlayEl.style.display = 'block';
+		}
 	});
 
-	Client.loadFile(icon_location, function (url) {
-		self.ui.find('button').css('backgroundImage', 'url(' + url + ')');
-		self.ui.each(self.parseHTML).find('*').each(self.parseHTML);
+	titleEl.addEventListener('mouseleave', () => {
+		overlayEl.style.display = 'none';
+	});
+
+	// Load icon
+	Client.loadFile(icon_location, url => {
+		root.querySelector('button').style.backgroundImage = `url('${url}')`;
 	});
 };
 
 /**
- * Define title and icons
+ * Set icon only mode (no title text)
  *
- * @param {string} title
- * @param {string} url - icon url
+ * @param {string} icon_location - icon url
  */
 EntitySignboard.setIconOnly = function setIconOnly(icon_location) {
-	this.ui.find('.title').hide();
-	this.ui.find('.overlay').hide();
-	const self = this;
-	Client.loadFile(icon_location, function (url) {
-		self.ui
-			.find('button')
-			.addClass('icon-only')
-			.css('backgroundImage', 'url(' + url + ')');
+	const root = this._shadow || this._host;
+	root.querySelector('.title').style.display = 'none';
+	root.querySelector('.overlay').style.display = 'none';
+
+	Client.loadFile(icon_location, url => {
+		const btn = root.querySelector('button');
+		btn.classList.add('icon-only');
+		btn.style.backgroundImage = `url('${url}')`;
 	});
 };
 
@@ -104,6 +140,8 @@ EntitySignboard.setIconOnly = function setIconOnly(icon_location) {
  * function to define
  */
 EntitySignboard.onEnter = function onEnter() {};
+
+EntitySignboard.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Stored component and return it

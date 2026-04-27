@@ -98,10 +98,32 @@ EntityRoom.onRemove = function onRemove() {
  */
 EntityRoom.setTitle = function setTitle(title, url) {
 	const root = this._shadow || this._host;
-	root.querySelector('button img').src = url;
-	root.querySelectorAll('.title, .overlay').forEach(el => {
-		el.textContent = title;
-	});
+	const imgEl = root.querySelector('button img');
+	const titleEl = root.querySelector('.title');
+	const overlayEl = root.querySelector('.overlay');
+
+	imgEl.src = url;
+	titleEl.textContent = title;
+	overlayEl.textContent = title;
+
+	// Remove old listeners (setTitle can be called multiple times on clones)
+	if (this._hoverEnter) {
+		titleEl.removeEventListener('mouseenter', this._hoverEnter);
+		titleEl.removeEventListener('mouseleave', this._hoverLeave);
+	}
+
+	// Only show overlay when text is truncated (ellipsis)
+	this._hoverEnter = () => {
+		if (titleEl.scrollWidth > titleEl.clientWidth) {
+			overlayEl.style.display = 'block';
+		}
+	};
+	this._hoverLeave = () => {
+		overlayEl.style.display = 'none';
+	};
+
+	titleEl.addEventListener('mouseenter', this._hoverEnter);
+	titleEl.addEventListener('mouseleave', this._hoverLeave);
 };
 
 /**
