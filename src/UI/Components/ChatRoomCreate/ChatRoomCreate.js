@@ -5,23 +5,26 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
-
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Renderer from 'Renderer/Renderer.js';
 import Preferences from 'Core/Preferences.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './ChatRoomCreate.html?raw';
 import cssText from './ChatRoomCreate.css?raw';
 
 /**
  * Create Component
  */
-const ChatRoomCreate = new UIComponent('ChatRoomCreate', htmlText, cssText);
+const ChatRoomCreate = new GUIComponent('ChatRoomCreate', cssText);
+
+/**
+ * Render HTML
+ */
+ChatRoomCreate.render = () => htmlText;
 
 /**
  * @var {string} chat room title
@@ -62,46 +65,57 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 ChatRoomCreate.init = function init() {
-	// Bindings
-	this.ui.find('.close, .cancel').mousedown(stopPropagation).click(this.hide.bind(this));
-	this.ui.find('.ok').on('click', parseChatSetup.bind(this));
-	this.ui.find('.setup').submit(function () {
-		return false;
-	});
+	const root = this._shadow || this._host;
 
-	this.ui.find('input, select').mousedown(function (event) {
+	// Close / Cancel
+	root.querySelector('.close').addEventListener('mousedown', event => {
 		event.stopImmediatePropagation();
 	});
+	root.querySelector('.close').addEventListener('click', () => ChatRoomCreate.hide());
 
-	this.draggable(this.ui.find('.titlebar'));
-	this.ui.hide();
+	root.querySelector('.cancel').addEventListener('mousedown', event => {
+		event.stopImmediatePropagation();
+	});
+	root.querySelector('.cancel').addEventListener('click', () => ChatRoomCreate.hide());
+
+	// OK button
+	root.querySelector('.ok').addEventListener('click', () => parseChatSetup.call(ChatRoomCreate));
+
+	// Prevent form submit
+	root.querySelector('.setup').addEventListener('submit', event => {
+		event.preventDefault();
+	});
+
+	// Prevent inputs from moving character
+	root.querySelectorAll('input, select').forEach(el => {
+		el.addEventListener('mousedown', event => {
+			event.stopImmediatePropagation();
+		});
+	});
+
+	this.draggable('.titlebar');
+	this._host.style.display = 'none';
 };
 
 /**
  * Once append to body
  */
-ChatRoomCreate.onAppend = function OnAppend() {
+ChatRoomCreate.onAppend = function onAppend() {
 	if (!_preferences.show) {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
-
-	// Escape key order
-	const events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
+	this._host.style.top = Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight) + 'px';
+	this._host.style.left = Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth) + 'px';
 };
 
 /**
  * Once removed from DOM, save preferences
  */
-ChatRoomCreate.onRemove = function OnRemove() {
-	_preferences.show = this.ui.is(':visible');
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+ChatRoomCreate.onRemove = function onRemove() {
+	_preferences.show = this._host.style.display !== 'none';
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 };
 
@@ -109,8 +123,10 @@ ChatRoomCreate.onRemove = function OnRemove() {
  * Show the setup for room creation
  */
 ChatRoomCreate.show = function showSetup() {
-	this.ui.show();
-	this.ui.find('.title').focus();
+	this._host.style.display = '';
+	const root = this._shadow || this._host;
+	root.querySelector('.title').focus();
+	this._fixPositionOverflow();
 
 	_preferences.show = true;
 };
@@ -119,10 +135,29 @@ ChatRoomCreate.show = function showSetup() {
  * Hide the setup ui
  */
 ChatRoomCreate.hide = function hideSetup() {
-	this.ui.hide();
-	this.ui.find('.setup')[0].reset();
+	this._host.style.display = 'none';
+	const root = this._shadow || this._host;
+	root.querySelector('.setup').reset();
 
 	_preferences.show = false;
+};
+
+/**
+ * Pre-fill form with values (used by ChatRoom.openRoomSettings)
+ * @param {string} title
+ * @param {number} limit
+ * @param {number} type
+ * @param {string} password
+ */
+ChatRoomCreate.prefill = function prefill(title, limit, type, password) {
+	const root = this._shadow || this._host;
+	root.querySelector('input[name=title]').value = title || '';
+	root.querySelector('select[name=limit]').value = limit || 20;
+
+	const radio = root.querySelector('input[name=public][value="' + (type || 1) + '"]');
+	if (radio) radio.checked = true;
+
+	root.querySelector('input[name=password]').value = password || '';
 };
 
 /**
@@ -132,18 +167,32 @@ ChatRoomCreate.hide = function hideSetup() {
  * @return {boolean}
  */
 ChatRoomCreate.onKeyDown = function onKeyDown(event) {
-	if (this.ui.is(':visible')) {
+	const root = this._shadow || this._host;
+	const active = root.activeElement;
+
+	// Input inside our shadow is focused — protect keystrokes
+	if (active && active.tagName && /input|select|textarea/i.test(active.tagName)) {
 		if (event.which === KEYS.ENTER) {
 			parseChatSetup.call(this);
 			event.stopImmediatePropagation();
 			return false;
-		} else if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
-			this.hide();
+		}
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			this._host.style.display = 'none';
 			event.stopImmediatePropagation();
 			return false;
 		}
+		// Block other window handlers from consuming the key
+		event.stopImmediatePropagation();
+		return true; // Don't preventDefault — let the character be typed
 	}
 
+	// No input focused — only handle Escape
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+		this._host.style.display = 'none';
+		event.stopImmediatePropagation();
+		return false;
+	}
 	return true;
 };
 
@@ -152,7 +201,7 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
  *
  * @param {object} key
  */
-ChatRoomCreate.onShortCut = function onShurtCut(key) {
+ChatRoomCreate.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'TOGGLE':
 			ChatRoomCreate.toggle();
@@ -161,28 +210,25 @@ ChatRoomCreate.onShortCut = function onShurtCut(key) {
 };
 
 ChatRoomCreate.toggle = function toggle() {
-	this.ui.toggle();
-	if (this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
+		this._host.style.display = '';
+		this._fixPositionOverflow();
 		this.focus();
+	} else {
+		this._host.style.display = 'none';
 	}
 };
-
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
 
 /**
  * Parse and send chat room request
  */
 function parseChatSetup() {
-	this.title = this.ui.find('input[name=title]').val();
-	this.limit = parseInt(this.ui.find('select[name=limit]').val(), 10);
-	this.type = parseInt(this.ui.find('input[name=public]:checked').val(), 10);
-	this.password = this.ui.find('input[name=password]').val();
+	const root = this._shadow || this._host;
+
+	this.title = root.querySelector('input[name=title]').value;
+	this.limit = parseInt(root.querySelector('select[name=limit]').value, 10);
+	this.type = parseInt(root.querySelector('input[name=public]:checked').value, 10);
+	this.password = root.querySelector('input[name=password]').value;
 
 	if (this.title.length < 1) {
 		const overlay = document.createElement('div');
@@ -192,16 +238,13 @@ function parseChatSetup() {
 		const popup = UIManager.showMessageBox(
 			DB.getMessage(13),
 			'ok',
-			function () {
+			() => {
 				document.body.removeChild(overlay);
 			},
 			true
 		);
-
-		popup.ui.css({
-			top: parseInt(this.ui.css('top'), 10) - 120,
-			left: parseInt(this.ui.css('left'), 10)
-		});
+		popup.ui._host.style.top = parseInt(this._host.style.top, 10) - 120;
+		popup.ui._host.style.left = parseInt(this._host.style.left, 10);
 		return;
 	}
 
@@ -214,6 +257,8 @@ function parseChatSetup() {
  */
 ChatRoomCreate.requestRoom = function requestRoom() {};
 
+ChatRoomCreate.mouseMode = GUIComponent.MouseMode.STOP;
+ChatRoomCreate.captureKeyEvents = true;
 /**
  * Create component and export it
  */

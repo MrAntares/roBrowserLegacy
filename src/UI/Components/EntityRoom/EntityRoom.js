@@ -5,18 +5,23 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './EntityRoom.html?raw';
 import cssText from './EntityRoom.css?raw';
 
 /**
- * Createcomponent
+ * Create component
  */
-const EntityRoom = new UIComponent('EntityRoom', htmlText, cssText);
+const EntityRoom = new GUIComponent('EntityRoom', cssText);
+
+/**
+ * Render HTML
+ */
+EntityRoom.render = () => htmlText;
 
 /**
  * @var {boolean} do not focus this UI
@@ -24,30 +29,43 @@ const EntityRoom = new UIComponent('EntityRoom', htmlText, cssText);
 EntityRoom.needFocus = false;
 
 /**
- * Once in HTML, focus the input
+ * Initialize events
+ */
+EntityRoom.init = function init() {};
+
+/**
+ * Once in HTML
  */
 EntityRoom.onAppend = function onAppend() {
-	this.ui.find('button').dblclick(
-		function () {
-			if (this.onEnter) {
-				this.onEnter();
-			}
-		}.bind(this)
-	);
+	const root = this._shadow || this._host;
+	const btn = root.querySelector('button');
 
-	// Avoid player to move to the cell
-	this.ui.mousedown(function () {
-		return false;
-	});
+	// Save reference for cleanup on onRemove
+	this._dblclickHandler = () => {
+		if (this.onEnter) {
+			this.onEnter();
+		}
+	};
 
-	this.ui.css('zIndex', 45);
+	if (btn) {
+		btn.addEventListener('dblclick', this._dblclickHandler);
+	}
+
+	this._host.style.zIndex = '45';
 };
 
 /**
  * Remove data from UI
  */
 EntityRoom.onRemove = function onRemove() {
-	this.ui.find('button').unbind();
+	const root = this._shadow || this._host;
+	const btn = root.querySelector('button');
+
+	// Remove the handler to avoid stacking when re-append
+	if (btn && this._dblclickHandler) {
+		btn.removeEventListener('dblclick', this._dblclickHandler);
+		this._dblclickHandler = null;
+	}
 };
 
 /**
@@ -57,14 +75,19 @@ EntityRoom.onRemove = function onRemove() {
  * @param {string} url - icon url
  */
 EntityRoom.setTitle = function setTitle(title, url) {
-	this.ui.find('button img').attr('src', url);
-	this.ui.find('.title, .overlay').text(title);
+	const root = this._shadow || this._host;
+	root.querySelector('button img').src = url;
+	root.querySelectorAll('.title, .overlay').forEach(el => {
+		el.textContent = title;
+	});
 };
 
 /**
- * function to define
+ * function to be hooked
  */
 EntityRoom.onEnter = function onEnter() {};
+
+EntityRoom.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Stored component and return it
