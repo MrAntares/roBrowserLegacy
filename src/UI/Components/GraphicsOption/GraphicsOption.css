@@ -1,7 +1,13 @@
-#GraphicsOption {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+	width: auto;
+	height: auto;
+}
+
+#GraphicsOption {
+	width: auto;
+	height: auto;
 	background: white;
 	border-radius: 2px;
 }

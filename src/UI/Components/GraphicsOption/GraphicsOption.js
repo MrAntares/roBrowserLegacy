@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
 
 import FPS from 'UI/Components/FPS/FPS.js';
@@ -15,10 +15,9 @@ import Preferences from 'Core/Preferences.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './GraphicsOption.html?raw';
 import cssText from './GraphicsOption.css?raw';
-import jQuery from 'Utils/jquery.js';
 
 import MemoryManager from 'Core/MemoryManager.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -26,7 +25,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 /**
  * Create Component
  */
-const GraphicsOption = new UIComponent('GraphicsOption', htmlText, cssText);
+const GraphicsOption = new GUIComponent('GraphicsOption', cssText);
 
 /**
  * @var {Preferences} Graphics
@@ -41,96 +40,125 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Render HTML
+ */
+GraphicsOption.render = () => htmlText;
+
+/**
  * Initialize UI
  */
-GraphicsOption.init = function Init() {
-	this.ui.find('.base').mousedown(function (event) {
-		event.stopImmediatePropagation();
-		return false;
+GraphicsOption.init = function init() {
+	const root = this._shadow || this._host;
+
+	const baseBtn = root.querySelector('.base');
+	if (baseBtn) {
+		baseBtn.addEventListener('mousedown', event => {
+			event.stopImmediatePropagation();
+			event.preventDefault();
+		});
+	}
+
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => {
+			e.stopImmediatePropagation();
+		});
+		closeBtn.addEventListener('click', () => {
+			GraphicsOption.remove();
+		});
+	}
+
+	root.querySelectorAll('.tab-button').forEach(btn => {
+		btn.addEventListener('click', onTabSwitch);
 	});
 
-	this.ui.find('.close').click(this.remove.bind(this));
+	const resetBtn = root.querySelector('.reset-button');
+	if (resetBtn) {
+		resetBtn.addEventListener('click', onResetToDefaults.bind(this));
+	}
 
-	this.ui.find('.tab-button').click(onTabSwitch);
-	this.ui.find('.reset-button').click(onResetToDefaults.bind(this));
+	const bindChange = (selector, handler) => {
+		const el = root.querySelector(selector);
+		if (el) el.addEventListener('change', handler);
+	};
 
-	this.ui.find('.details').change(onUpdateQualityDetails);
-	this.ui.find('.cursor-option').change(onToggleGameCursor);
-	this.ui.find('.screensize').change(onUpdateScreenSize);
-	this.ui.find('.fpslimit').change(onUpdateFPSLimit);
-	this.ui.find('.fps').change(onToggleFPSDisplay);
-	this.ui.find('.pixel-perfect').change(onTogglePixelPerfect);
+	bindChange('.details', onUpdateQualityDetails);
+	bindChange('.cursor-option', onToggleGameCursor);
+	bindChange('.screensize', onUpdateScreenSize);
+	bindChange('.fpslimit', onUpdateFPSLimit);
+	bindChange('.fps', onToggleFPSDisplay);
+	bindChange('.pixel-perfect', onTogglePixelPerfect);
 
 	// Post-Processing
-	this.ui.find('.bloom').change(onToggleBloom);
-	this.ui.find('.bloom-intensity').change(onUpdateBloomIntensity);
-	this.ui.find('.blur').change(onToggleBlur);
-	this.ui.find('.blur-intensity').change(onUpdateBlurIntensity);
-	this.ui.find('.blur-area').change(onUpdateBlurArea);
-	this.ui.find('.casEnabled').change(oncasEnabled);
-	this.ui.find('.casContrast').change(oncasContrast);
-	this.ui.find('.casSharpening').change(oncasSharpening);
-	this.ui.find('.fxaaEnabled').change(onfxaaEnabled);
-	this.ui.find('.fxaaSubpix').change(onfxaaSubpix);
-	this.ui.find('.fxaaEdgeThreshold').change(onfxaaEdgeThreshold);
-	this.ui.find('.vibranceEnabled').change(onvibranceEnabled);
-	this.ui.find('.vibrance').change(onvibrance);
-	this.ui.find('.cartoonEnabled').change(oncartoonEnabled);
-	this.ui.find('.cartoonPower').change(oncartoonPower);
-	this.ui.find('.cartoonEdgeSlope').change(oncartoonEdgeSlope);
+	bindChange('.bloom', onToggleBloom);
+	bindChange('.bloom-intensity', onUpdateBloomIntensity);
+	bindChange('.blur', onToggleBlur);
+	bindChange('.blur-intensity', onUpdateBlurIntensity);
+	bindChange('.blur-area', onUpdateBlurArea);
+	bindChange('.casEnabled', oncasEnabled);
+	bindChange('.casContrast', oncasContrast);
+	bindChange('.casSharpening', oncasSharpening);
+	bindChange('.fxaaEnabled', onfxaaEnabled);
+	bindChange('.fxaaSubpix', onfxaaSubpix);
+	bindChange('.fxaaEdgeThreshold', onfxaaEdgeThreshold);
+	bindChange('.vibranceEnabled', onvibranceEnabled);
+	bindChange('.vibrance', onvibrance);
+	bindChange('.cartoonEnabled', oncartoonEnabled);
+	bindChange('.cartoonPower', oncartoonPower);
+	bindChange('.cartoonEdgeSlope', oncartoonEdgeSlope);
 
-	// performanceMode
-	this.ui.find('.performanceMode').change(onTogglePerformanceMode);
-	this.ui.find('.view-area').change(onUpdateAreaView);
+	// Performance Mode
+	bindChange('.performanceMode', onTogglePerformanceMode);
+	bindChange('.view-area', onUpdateAreaView);
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 };
 
 /**
  * When append the element to html
  */
-GraphicsOption.onAppend = function OnAppend() {
-	this.ui.css({
-		top: _preferences.y,
-		left: _preferences.x
-	});
+GraphicsOption.onAppend = function onAppend() {
+	this._host.style.top = `${_preferences.y}px`;
+	this._host.style.left = `${_preferences.x}px`;
 
-	this.ui.find('.details').val(GraphicsSettings.quality);
-	this.ui.find('.screensize').val(GraphicsSettings.screensize);
-	this.ui.find('.cursor-option').attr('checked', GraphicsSettings.cursor);
-	this.ui.find('.fpslimit').val(GraphicsSettings.fpslimit);
-	this.ui.find('.fps').attr('checked', FPS.ui.is(':visible'));
-	this.ui.find('.pixel-perfect').attr('checked', GraphicsSettings.pixelPerfectSprites);
+	const root = this._shadow || this._host;
+
+	root.querySelector('.details').value = GraphicsSettings.quality;
+	root.querySelector('.screensize').value = GraphicsSettings.screensize;
+	root.querySelector('.cursor-option').checked = GraphicsSettings.cursor;
+	root.querySelector('.fpslimit').value = GraphicsSettings.fpslimit;
+	root.querySelector('.fps').checked = FPS._host ? FPS._host.style.display !== 'none' : false;
+	root.querySelector('.pixel-perfect').checked = GraphicsSettings.pixelPerfectSprites;
 
 	// Post-Processing
-	this.ui.find('.bloom').attr('checked', GraphicsSettings.bloom);
-	this.ui.find('.bloom-intensity').val(GraphicsSettings.bloomIntensity);
-	this.ui.find('.blur').attr('checked', GraphicsSettings.blur);
-	this.ui.find('.blur-area').val(GraphicsSettings.blurArea);
-	this.ui.find('.blur-intensity').val(GraphicsSettings.blurIntensity);
-	this.ui.find('.fxaaEnabled').attr('checked', GraphicsSettings.fxaaEnabled);
-	this.ui.find('.fxaaSubpix').val(GraphicsSettings.fxaaSubpix);
-	this.ui.find('.fxaaEdgeThreshold').val(GraphicsSettings.fxaaEdgeThreshold);
-	this.ui.find('.vibranceEnabled').attr('checked', GraphicsSettings.vibranceEnabled);
-	this.ui.find('.vibrance').val(GraphicsSettings.vibrance);
-	this.ui.find('.casEnabled').attr('checked', GraphicsSettings.casEnabled);
-	this.ui.find('.casContrast').val(GraphicsSettings.casContrast);
-	this.ui.find('.casSharpening').val(GraphicsSettings.casSharpening);
-	this.ui.find('.cartoonEnabled').attr('checked', GraphicsSettings.cartoonEnabled);
-	this.ui.find('.cartoonEdgeSlope').val(GraphicsSettings.cartoonEdgeSlope);
-	this.ui.find('.cartoonPower').val(GraphicsSettings.cartoonPower);
+	root.querySelector('.bloom').checked = GraphicsSettings.bloom;
+	root.querySelector('.bloom-intensity').value = GraphicsSettings.bloomIntensity;
+	root.querySelector('.blur').checked = GraphicsSettings.blur;
+	root.querySelector('.blur-area').value = GraphicsSettings.blurArea;
+	root.querySelector('.blur-intensity').value = GraphicsSettings.blurIntensity;
+	root.querySelector('.fxaaEnabled').checked = GraphicsSettings.fxaaEnabled;
+	root.querySelector('.fxaaSubpix').value = GraphicsSettings.fxaaSubpix;
+	root.querySelector('.fxaaEdgeThreshold').value = GraphicsSettings.fxaaEdgeThreshold;
+	root.querySelector('.vibranceEnabled').checked = GraphicsSettings.vibranceEnabled;
+	root.querySelector('.vibrance').value = GraphicsSettings.vibrance;
+	root.querySelector('.casEnabled').checked = GraphicsSettings.casEnabled;
+	root.querySelector('.casContrast').value = GraphicsSettings.casContrast;
+	root.querySelector('.casSharpening').value = GraphicsSettings.casSharpening;
+	root.querySelector('.cartoonEnabled').checked = GraphicsSettings.cartoonEnabled;
+	root.querySelector('.cartoonEdgeSlope').value = GraphicsSettings.cartoonEdgeSlope;
+	root.querySelector('.cartoonPower').value = GraphicsSettings.cartoonPower;
 
 	// Performance Mode
-	this.ui.find('.performanceMode').attr('checked', GraphicsSettings.performanceMode);
-	this.ui.find('.view-area').val(GraphicsSettings.viewArea);
+	root.querySelector('.performanceMode').checked = GraphicsSettings.performanceMode;
+	root.querySelector('.view-area').value = GraphicsSettings.viewArea;
 };
 
 /**
  * Once remove, save preferences
  */
-GraphicsOption.onRemove = function OnRemove() {
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.y = parseInt(this.ui.css('top'), 10);
+GraphicsOption.onRemove = function onRemove() {
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.save();
 };
 
@@ -152,7 +180,6 @@ function onToggleGameCursor() {
 	GraphicsSettings.cursor = !!this.checked;
 	GraphicsSettings.save();
 
-	// display cursor depending on user settings
 	if (!GraphicsSettings.cursor) {
 		document.body.classList.remove('custom-cursor');
 	} else {
@@ -188,15 +215,10 @@ function onTogglePixelPerfect() {
 	GraphicsSettings.save();
 
 	if (GraphicsSettings.pixelPerfectSprites) {
-		// Only works to toggle on, because toggle off will not reload the sprites with the new settings
 		function reloadSprites() {
 			const gl = Renderer.getContext();
 			const sprFiles = MemoryManager.search(/\.spr$/i);
-			for (
-				let i = 0;
-				i < sprFiles.length;
-				i++ // reloads spr memory cache
-			) {
+			for (let i = 0; i < sprFiles.length; i++) {
 				MemoryManager.remove(gl, sprFiles[i]);
 			}
 		}
@@ -315,7 +337,6 @@ function onUpdateScreenSize() {
 	GraphicsSettings.screensize = this.value;
 	GraphicsSettings.save();
 
-	// FullScreen
 	if (GraphicsSettings.screensize === 'full') {
 		if (!isFullScreen) {
 			Context.requestFullScreen();
@@ -327,11 +348,9 @@ function onUpdateScreenSize() {
 		Context.cancelFullScreen();
 	}
 
-	// Resizing
 	if (Context.Is.POPUP) {
 		const size = GraphicsSettings.screensize.split('x');
 
-		// Only resize/move if needed
 		if (size[0] != window.innerWidth && size[1] != window.innerHeight) {
 			window.resizeTo(size[0], size[1]);
 			window.moveTo((screen.availWidth - size[0]) / 2, (screen.availHeight - size[1]) / 2);
@@ -339,20 +358,27 @@ function onUpdateScreenSize() {
 	}
 }
 
-function onTabSwitch() {
-	const tabName = jQuery(this).data('tab');
+function onTabSwitch(event) {
+	const btn = event.currentTarget;
+	const tabName = btn.dataset.tab;
+	const root = GraphicsOption._shadow || GraphicsOption._host;
 
-	GraphicsOption.ui.find('.tab-button').removeClass('selected');
-	jQuery(this).addClass('selected');
+	root.querySelectorAll('.tab-button').forEach(b => {
+		b.classList.remove('selected');
+	});
+	btn.classList.add('selected');
 
-	GraphicsOption.ui.find('.tab-content').removeClass('selected');
-	GraphicsOption.ui.find('#' + tabName).addClass('selected');
+	root.querySelectorAll('.tab-content').forEach(tc => {
+		tc.classList.remove('selected');
+	});
+	const targetTab = root.querySelector('#' + tabName);
+	if (targetTab) targetTab.classList.add('selected');
 }
 
 function onResetToDefaults() {
 	const defaultSettings = GraphicsSettings.defaults;
 
-	Object.keys(defaultSettings).forEach(function (key) {
+	Object.keys(defaultSettings).forEach(key => {
 		if (defaultSettings.hasOwnProperty(key)) {
 			GraphicsSettings[key] = defaultSettings[key];
 		}
@@ -361,6 +387,9 @@ function onResetToDefaults() {
 
 	GraphicsOption.onAppend();
 }
+
+GraphicsOption.needFocus = true;
+GraphicsOption.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Create component and export it
