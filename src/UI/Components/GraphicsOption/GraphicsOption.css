@@ -1,12 +1,11 @@
 :host {
 	top: 100px;
 	left: 100px;
-	width: 500px;
+	width: auto;
 	height: auto;
 }
 
 #GraphicsOption {
-	position: absolute;
 	width: auto;
 	height: auto;
 	background: white;
