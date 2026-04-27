@@ -1,10 +1,16 @@
-#MapName {
-	position: absolute;
+:host {
 	top: 90px;
-	height: 190px;
 	left: 50%;
 	width: 500px;
+	height: 190px;
 	margin-left: -250px;
+	opacity: 0;
+	transition: opacity 1s ease-out;
+}
+#MapName {
+	position: absolute;
+	height: 190px;
+	width: 500px;
 }
 
 #MapName .container .mapbg {
@@ -38,10 +44,14 @@
 
 /*Half size for small screens, eg: mobile in landscape*/
 @media (max-width: 1000px) {
-	#MapName {
+	:host {
 		height: 95px;
 		width: 250px;
 		margin-left: -125px;
+	}
+	#MapName {
+		height: 95px;
+		width: 250px;
 	}
 	#MapName .container .mapbg {
 		height: 95px;
