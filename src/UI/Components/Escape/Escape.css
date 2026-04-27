@@ -1,6 +1,13 @@
+:host {
+	width: 280px;
+	height: auto;
+	top: 200px;
+	left: 200px;
+}
+
 #Escape {
-	display: none;
-	position: absolute;
+	width: 280px;
+	height: auto;
 	border-radius: 5px;
 	background-color: white;
 	background-repeat: no-repeat;

@@ -11,7 +11,7 @@
 import KEYS from 'Controls/KeyEventHandler.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import SoundOption from 'UI/Components/SoundOption/SoundOption.js';
 import GraphicsOption from 'UI/Components/GraphicsOption/GraphicsOption.js';
 import ShortCutOption from 'UI/Components/ShortCutOption/ShortCutOption.js';
@@ -21,45 +21,60 @@ import cssText from './Escape.css?raw';
 /**
  * Create Escape window component
  */
-const Escape = new UIComponent('Escape', htmlText, cssText);
+const Escape = new GUIComponent('Escape', cssText);
+
+/**
+ * Render HTML
+ */
+Escape.render = () => htmlText;
 
 /**
  * Initialize UI
  */
 Escape.init = function init() {
-	this.ui.css({
-		top: (Renderer.height - this.ui.height()) * 0.75,
-		left: (Renderer.width - this.ui.width()) * 0.5
-	});
+	const root = this._shadow || this._host;
+	const rect = this._host.getBoundingClientRect();
+	this._host.style.top = (Renderer.height - rect.height) * 0.75 + 'px';
+	this._host.style.left = (Renderer.width - rect.width) * 0.5 + 'px';
 	this.draggable();
 
-	this.ui.find('.node').mousedown(function (event) {
-		event.stopImmediatePropagation();
-		return false;
-	});
+	const nodeBtn = root.querySelector('.node');
+	if (nodeBtn) {
+		nodeBtn.addEventListener('mousedown', function (event) {
+			event.stopImmediatePropagation();
+			return false;
+		});
+	}
 
 	// Only used in specific case
-	this.ui.find('button').show();
-	this.ui.find('.resurection, .savepoint').hide();
+	root.querySelectorAll('button').forEach(function (el) {
+		el.style.display = '';
+	});
+	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
+		el.style.display = 'none';
+	});
 
-	this.ui.find('.sound').click(onToggleSoundUI);
-	this.ui.find('.graphics').click(onToggleGraphicUI);
-	this.ui.find('.resurection').click(function () {
+	root.querySelector('.sound').addEventListener('click', onToggleSoundUI);
+	root.querySelector('.graphics').addEventListener('click', onToggleGraphicUI);
+	root.querySelector('.resurection').addEventListener('click', function () {
 		Escape.onResurectionRequest();
 	});
-	this.ui.find('.savepoint').click(function () {
+	root.querySelector('.savepoint').addEventListener('click', function () {
 		Escape.onReturnSavePointRequest();
 	});
-	this.ui.find('.charselect').click(function () {
+	root.querySelector('.charselect').addEventListener('click', function () {
 		Escape.onCharSelectionRequest();
 	});
-	this.ui.find('.hotkey').click(onToggleShortcutUI);
-	this.ui.find('.exit').click(function () {
+	root.querySelector('.hotkey').addEventListener('click', onToggleShortcutUI);
+	root.querySelector('.exit').addEventListener('click', function () {
 		Escape.onExitRequest();
 	});
-	this.ui.find('.cancel').click(function () {
-		Escape.ui.hide();
+	root.querySelector('.cancel').addEventListener('click', function () {
+		Escape._host.style.display = 'none';
 	});
+
+	// Start hidden
+	this._host.style.display = 'none';
 };
 
 /**
@@ -67,16 +82,21 @@ Escape.init = function init() {
  * but need to be here to manage key event
  */
 Escape.onAppend = function onAppend() {
-	this.ui.hide();
+	this._host.style.display = 'none';
 };
 
 /**
  * Reset buttons once UI is removed
  */
 Escape.onRemove = function onRemove() {
-	this.ui.hide();
-	this.ui.find('.resurection, .savepoint').hide();
-	this.ui.find('.graphics, .sound, .hotkey').show();
+	this._host.style.display = 'none';
+	const root = this._shadow || this._host;
+	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
+		el.style.display = 'none';
+	});
+	root.querySelectorAll('.graphics, .sound, .hotkey').forEach(function (el) {
+		el.style.display = '';
+	});
 };
 
 /**
@@ -87,10 +107,10 @@ Escape.onRemove = function onRemove() {
  */
 Escape.onKeyDown = function onKeyDown(event) {
 	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
-		this.ui.toggle();
-
-		if (this.ui.is(':visible')) {
-			this.focus();
+		if (this._host.style.display === 'none') {
+			this._host.style.display = '';
+		} else {
+			this._host.style.display = 'none';
 		}
 	}
 };
@@ -99,7 +119,7 @@ Escape.onKeyDown = function onKeyDown(event) {
  * Click on Sound button, toggle the UI
  */
 function onToggleSoundUI() {
-	if (!SoundOption.ui || !SoundOption.ui[0].parentNode) {
+	if (!SoundOption._host || !SoundOption._host.parentNode) {
 		SoundOption.append();
 	} else {
 		SoundOption.remove();
@@ -110,7 +130,7 @@ function onToggleSoundUI() {
  * Click on Graphic button, toggle the UI
  */
 function onToggleGraphicUI() {
-	if (!GraphicsOption.ui || !GraphicsOption.ui[0].parentNode) {
+	if (!GraphicsOption._host || !GraphicsOption._host.parentNode) {
 		GraphicsOption.append();
 	} else {
 		GraphicsOption.remove();
@@ -121,7 +141,7 @@ function onToggleGraphicUI() {
  * Click on Shortcut button, toggle the UI
  */
 function onToggleShortcutUI() {
-	if (!ShortCutOption.ui || !ShortCutOption.ui[0].parentNode) {
+	if (!ShortCutOption._host || !ShortCutOption._host.parentNode) {
 		ShortCutOption.append();
 	} else {
 		ShortCutOption.remove();
@@ -129,7 +149,36 @@ function onToggleShortcutUI() {
 }
 
 /**
- * @var {function} callback when player want to resuret using Token of Siegfried
+ * Show death menu (called when player dies)
+ */
+Escape.showDeathMenu = function showDeathMenu(hasSiegfried) {
+	const root = this._shadow || this._host;
+	this._host.style.display = '';
+	root.querySelector('.savepoint').style.display = '';
+	if (hasSiegfried) {
+		root.querySelector('.resurection').style.display = '';
+	}
+	root.querySelectorAll('.graphics, .sound, .hotkey').forEach(function (el) {
+		el.style.display = 'none';
+	});
+};
+
+/**
+ * Reset to normal menu (called when player resurrects)
+ */
+Escape.resetMenu = function resetMenu() {
+	this._host.style.display = 'none';
+	const root = this._shadow || this._host;
+	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
+		el.style.display = 'none';
+	});
+	root.querySelectorAll('.graphics, .sound, .hotkey').forEach(function (el) {
+		el.style.display = '';
+	});
+};
+
+/**
+ * @var {function} callback when player want to resurect using Token of Siegfried
  */
 Escape.onResurectionRequest = function onResurectionRequest() {};
 
@@ -147,6 +196,9 @@ Escape.onReturnSavePointRequest = function onReturnSavePointRequest() {};
  * @var {function} callback when player want to return to char selection
  */
 Escape.onCharSelectionRequest = function onCharSelectionRequest() {};
+
+Escape.mouseMode = GUIComponent.MouseMode.STOP;
+Escape.needFocus = true;
 
 /**
  * Create component and export it
