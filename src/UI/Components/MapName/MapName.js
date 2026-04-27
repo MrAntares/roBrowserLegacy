@@ -39,6 +39,18 @@ let _mapinfo = [];
 let _currMap = '';
 let _prevMap = '';
 let _newMap = false;
+/**
+ * Timeout ID for fade-out
+ *
+ * @type {number|null}
+ */
+let _fadeTimeoutId = null;
+/**
+ * Timeout ID for removal
+ *
+ * @type {number|null}
+ */
+let _removeTimeoutId = null;
 
 /**
  * Initialize UI
@@ -49,6 +61,11 @@ MapName.init = function init() {};
  * Append MapName
  */
 MapName.onAppend = function onAppend() {
+	if (_fadeTimeoutId !== null) Events.clearTimeout(_fadeTimeoutId);
+	if (_removeTimeoutId !== null) Events.clearTimeout(_removeTimeoutId);
+	_fadeTimeoutId = null;
+	_removeTimeoutId = null;
+
 	if (_mapinfo && _mapinfo.notifyEnter && _newMap) {
 		// Force browser to acknowledge opacity:0 from :host before transitioning
 		// eslint-disable-next-line no-unused-expressions
@@ -57,12 +74,12 @@ MapName.onAppend = function onAppend() {
 		this._host.style.opacity = '1';
 
 		// After 5s, start fade-out (CSS transition handles the animation)
-		Events.setTimeout(() => {
+		_fadeTimeoutId = Events.setTimeout(() => {
 			this._host.style.opacity = '0';
 		}, 5000);
 
 		// After 6s (5s wait + 1s CSS transition), remove
-		Events.setTimeout(() => {
+		_removeTimeoutId = Events.setTimeout(() => {
 			MapName.remove();
 		}, 6000);
 	} else {
