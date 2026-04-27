@@ -464,25 +464,8 @@ function resize(width, height) {
  * Open ChatRoomCreate pre-filled
  */
 ChatRoom.openRoomSettings = function openRoomSettings() {
-	const originalRequestRoom = ChatRoomCreate.requestRoom;
-
-	ChatRoomCreate.requestRoom = function () {
-		ChatRoom.changeChatRoom(this.title, this.limit, this.type, this.password);
-		// Restore immediately after use
-		ChatRoomCreate.requestRoom = originalRequestRoom;
-	};
-
-	// Also restore on close/cancel
-	const originalOnRemove = ChatRoomCreate.onRemove;
-	ChatRoomCreate.onRemove = function () {
-		ChatRoomCreate.requestRoom = originalRequestRoom;
-		ChatRoomCreate.onRemove = originalOnRemove;
-		if (originalOnRemove) {
-			originalOnRemove.call(this);
-		}
-	};
-
-	ChatRoomCreate.prefill(ChatRoom.title, ChatRoom.limit, ChatRoom.type, ChatRoom.password);
+	ChatRoomCreate.editMode = true;
+	ChatRoomCreate.prefill(ChatRoom.title, ChatRoom.limit, ChatRoom.type);
 	ChatRoomCreate.show();
 };
 

@@ -25,12 +25,17 @@ import Session from 'Engine/SessionStorage.js';
  * PACKET.CZ.CREATE_CHATROOM
  */
 ChatRoomCreate.requestRoom = function requestRoom() {
-	const pkt = new PACKET.CZ.CREATE_CHATROOM();
-	pkt.size = this.limit;
-	pkt.type = this.type;
-	pkt.passwd = this.password;
-	pkt.title = this.title;
-	Network.sendPacket(pkt);
+	if (ChatRoomCreate.editMode) {
+		ChatRoom.changeChatRoom(this.title, this.limit, this.type, this.password);
+		ChatRoomCreate.editMode = false;
+	} else {
+		const pkt = new PACKET.CZ.CREATE_CHATROOM();
+		pkt.size = this.limit;
+		pkt.type = this.type;
+		pkt.passwd = this.password;
+		pkt.title = this.title;
+		Network.sendPacket(pkt);
+	}
 };
 
 /**

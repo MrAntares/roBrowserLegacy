@@ -37,6 +37,7 @@ EntityRoom.init = function init() {};
  * Once in HTML
  */
 EntityRoom.onAppend = function onAppend() {
+	// event listeners registered here because src/Renderer/Entity/EntityRoom.js:99 overrides init (this.node = EntityRoom.clone('EntityRoom', true); this.node.init = init;)
 	const root = this._shadow || this._host;
 	const btn = root.querySelector('button');
 

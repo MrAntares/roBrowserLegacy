@@ -117,6 +117,7 @@ ChatRoomCreate.onRemove = function onRemove() {
 	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
+	ChatRoomCreate.editMode = false;
 };
 
 /**
@@ -138,7 +139,7 @@ ChatRoomCreate.hide = function hideSetup() {
 	this._host.style.display = 'none';
 	const root = this._shadow || this._host;
 	root.querySelector('.setup').reset();
-
+	ChatRoomCreate.editMode = false;
 	_preferences.show = false;
 };
 
@@ -149,14 +150,14 @@ ChatRoomCreate.hide = function hideSetup() {
  * @param {number} type
  * @param {string} password
  */
-ChatRoomCreate.prefill = function prefill(title, limit, type, password) {
+ChatRoomCreate.prefill = function prefill(title, limit, type) {
 	const root = this._shadow || this._host;
 	root.querySelector('input[name=title]').value = title ?? '';
 	root.querySelector('select[name=limit]').value = limit ?? 20;
 	const radio = root.querySelector('input[name=public][value="' + (type ?? 1) + '"]');
 	if (radio) radio.checked = true;
 
-	root.querySelector('input[name=password]').value = password ?? '';
+	root.querySelector('input[name=password]').value = '';
 };
 
 /**
@@ -262,6 +263,8 @@ ChatRoomCreate.requestRoom = function requestRoom() {};
 
 ChatRoomCreate.mouseMode = GUIComponent.MouseMode.STOP;
 ChatRoomCreate.captureKeyEvents = true;
+ChatRoomCreate.needFocus = true;
+ChatRoomCreate.editMode = false;
 /**
  * Create component and export it
  */
