@@ -109,6 +109,7 @@ Escape.onKeyDown = function onKeyDown(event) {
 	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 		if (this._host.style.display === 'none') {
 			this._host.style.display = '';
+			this.focus();
 		} else {
 			this._host.style.display = 'none';
 		}
