@@ -61,10 +61,10 @@ MapName.onAppend = function onAppend() {
 			this._host.style.opacity = '0';
 		}, 5000);
 
-		// After 10s (5s wait + 5s transition), remove
+		// After 6s (5s wait + 1s CSS transition), remove
 		Events.setTimeout(() => {
 			MapName.remove();
-		}, 10000);
+		}, 6000);
 	} else {
 		MapName.remove();
 	}
