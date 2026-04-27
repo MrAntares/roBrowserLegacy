@@ -7,19 +7,18 @@
  *
  */
 
-import $ from 'Utils/jquery.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Preferences from 'Core/Preferences.js';
-import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import ShortCutControls from 'Preferences/ShortCutControls.js';
 import BattleMode from 'Controls/BattleMode.js';
 import htmlText from './ShortCutOption.html?raw';
 import cssText from './ShortCutOption.css?raw';
 import Controls from 'Preferences/Controls.js';
 
-const ShortCutOption = new UIComponent('ShortCutOption', htmlText, cssText);
+const ShortCutOption = new GUIComponent('ShortCutOption', cssText);
 
 const ShortCuts = ShortCutControls.ShortCuts;
 let ShortCutsTemp = {};
@@ -39,70 +38,170 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Render HTML
+ */
+ShortCutOption.render = () => htmlText;
+
+/**
  * Initialize UI
  */
 ShortCutOption.init = function () {
-	this.ui.find('.close').on('click', function () {
-		ShortCutOption.remove();
-	});
-	this.ui.find('.tabs').on('click', 'button', function () {
-		const tab = $(this).data('index');
-		ShortCutOption.ui.find('.selectedtab').removeClass('selectedtab');
-		ShortCutOption.ui.find('.' + tab).addClass('selectedtab');
-	});
-	this.ui.find('td').on('click', function () {
-		if ($(this).hasClass('customize')) {
-			ShortCutOption.isCapturing = true;
-			$('#ShortCutOption td.selected').removeClass('selected');
-			$(this).addClass('selected');
-		} else {
-			ShortCutOption.isCapturing = false;
-			$('#ShortCutOption td.selected').removeClass('selected');
+	const root = this._shadow || this._host;
+
+	let close = root.querySelector('.close');
+	function closebtn(btn) {
+		if (btn) {
+			btn.addEventListener('mousedown', e => {
+				e.stopImmediatePropagation();
+				ShortCutOption.remove();
+			});
+			btn.addEventListener('click', e => {
+				e.stopImmediatePropagation();
+				ShortCutOption.remove();
+			});
 		}
+	}
+	closebtn(close);
+	close = root.querySelector('.button.close');
+	closebtn(close);
+	root.querySelectorAll('.tabs button').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			root.querySelectorAll('.selectedtab').forEach(function (el) {
+				el.classList.remove('selectedtab');
+			});
+			const tab = this.dataset.index;
+			root.querySelectorAll('.' + tab).forEach(function (el) {
+				el.classList.add('selectedtab');
+			});
+		});
+	});
+
+	root.querySelectorAll('td').forEach(function (td) {
+		td.addEventListener('click', function () {
+			if (this.classList.contains('customize')) {
+				ShortCutOption.isCapturing = true;
+				root.querySelectorAll('td.selected').forEach(function (el) {
+					el.classList.remove('selected');
+				});
+				this.classList.add('selected');
+			} else {
+				ShortCutOption.isCapturing = false;
+				root.querySelectorAll('td.selected').forEach(function (el) {
+					el.classList.remove('selected');
+				});
+			}
+		});
 	});
 
 	// Joystick
-	this.ui.find('.attackTargetMode').change(onUpdateTargetOption);
-	this.ui.find('.joySense').change(onUpdateSense);
-	this.ui.find('.joyQuick').change(onUpdateJoyQuick);
-	this.ui.find('.joyDeadline').change(onUpdateJoyDeadline);
-	this.ui.find('.joyReverseStick').change(onUpdateReverseStick);
-	this.ui.find('.joyAutoHide').change(onUpdateAutoHide);
-	this.ui.find('.joyDisableVirtualMouse').change(onUpdateDisableVirtualMouse);
+	const bindChange = function (selector, handler) {
+		const el = root.querySelector(selector);
+		if (el) el.addEventListener('change', handler);
+	};
 
-	this.ui.find('.button.reset').on('click', function () {
-		resetKeysToDefault();
-	});
-	this.ui.find('.button.ok').on('click', function () {
-		applySettings();
-	});
-	this.ui.find('.button.cancel').on('click', function () {
-		cancelSettings();
-	});
+	bindChange('.attackTargetMode', onUpdateTargetOption);
+	bindChange('.joySense', onUpdateSense);
+	bindChange('.joyQuick', onUpdateJoyQuick);
+	bindChange('.joyDeadline', onUpdateJoyDeadline);
+	bindChange('.joyReverseStick', onUpdateReverseStick);
+	bindChange('.joyAutoHide', onUpdateAutoHide);
+	bindChange('.joyDisableVirtualMouse', onUpdateDisableVirtualMouse);
+
+	const resetBtn = root.querySelector('.button.reset');
+	if (resetBtn) {
+		resetBtn.addEventListener('click', function () {
+			resetKeysToDefault();
+		});
+	}
+
+	const okBtn = root.querySelector('.button.ok');
+	if (okBtn) {
+		okBtn.addEventListener('click', function () {
+			applySettings();
+		});
+	}
+
+	const cancelBtn = root.querySelector('.button.cancel');
+	if (cancelBtn) {
+		cancelBtn.addEventListener('click', function () {
+			cancelSettings();
+		});
+	}
 
 	updateKeyList();
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 };
 
 /**
  * Apply preferences once append to body
  */
 ShortCutOption.onAppend = function () {
-	this.ui.css({
-		top: 0.5 * (Renderer.height - this.ui.height()),
-		left: 0.5 * (Renderer.width - this.ui.width()),
-		zIndex: 100
-	});
+	this._host.style.left = _preferences.x + 'px';
+	this._host.style.top = _preferences.y + 'px';
+	this._host.style.zIndex = 100;
 };
 
 /**
- * Remove Inventory from window (and so clean up items)
+ * Remove from window (and so clean up)
  */
 ShortCutOption.onRemove = function () {
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.save();
 };
+
+/**
+ * Checks if there is a match in the temporary settings
+ * Returns the name of the conflicting shortcut, or false if no conflict
+ */
+function tempMatch(key) {
+	const TempState = {};
+	let matchSC = false;
+
+	Object.keys(ShortCuts).forEach(function (SC) {
+		if (ShortCuts[SC].cust) {
+			TempState[SC] = {};
+			TempState[SC].key = ShortCuts[SC].cust.key;
+			TempState[SC].alt = ShortCuts[SC].cust.alt;
+			TempState[SC].ctrl = ShortCuts[SC].cust.ctrl;
+			TempState[SC].shift = ShortCuts[SC].cust.shift;
+		} else {
+			TempState[SC] = {};
+			TempState[SC].key = ShortCuts[SC].init.key;
+			TempState[SC].alt = ShortCuts[SC].init.alt;
+			TempState[SC].ctrl = ShortCuts[SC].init.ctrl;
+			TempState[SC].shift = ShortCuts[SC].init.shift;
+		}
+	});
+
+	Object.keys(ShortCutsTemp).forEach(function (SC) {
+		if (ShortCutsTemp[SC].cust) {
+			TempState[SC] = {};
+			TempState[SC].key = ShortCutsTemp[SC].cust.key;
+			TempState[SC].alt = ShortCutsTemp[SC].cust.alt;
+			TempState[SC].ctrl = ShortCutsTemp[SC].cust.ctrl;
+			TempState[SC].shift = ShortCutsTemp[SC].cust.shift;
+		}
+	});
+
+	Object.keys(TempState).every(function (SC) {
+		if (TempState[SC]) {
+			if (
+				TempState[SC].key == key &&
+				TempState[SC].alt == KEYS.ALT &&
+				TempState[SC].ctrl == KEYS.CTRL &&
+				TempState[SC].shift == KEYS.SHIFT
+			) {
+				matchSC = SC;
+				return false;
+			} else {
+				return true;
+			}
+		}
+	});
+
+	return matchSC;
+}
 
 /**
  * Process key
@@ -112,43 +211,79 @@ ShortCutOption.onRemove = function () {
 ShortCutOption.onKeyDown = function (event) {
 	if (ShortCutOption.isCapturing) {
 		if (16 != event.which && 17 != event.which && 18 != event.which) {
-			const box = ShortCutOption.ui.find('td.selected');
+			const root = ShortCutOption._shadow || ShortCutOption._host;
+			const box = root.querySelector('td.selected');
+			const currentSC = box ? box.dataset.button : null;
 
-			if (tempMatch(event.which)) {
-				return (alert('Key already assigned!'), false);
-			} else if (ShortCuts[box.data('button')]) {
-				if (event.which == 27) {
-					// Escape
-					ShortCutsTemp[box.data('button')] = {};
-					ShortCutsTemp[box.data('button')].cust = {};
-					ShortCutsTemp[box.data('button')].cust.key = '';
-					ShortCutsTemp[box.data('button')].cust.alt = false;
-					ShortCutsTemp[box.data('button')].cust.ctrl = false;
-					ShortCutsTemp[box.data('button')].cust.shift = false;
-				} else {
-					ShortCutsTemp[box.data('button')] = {};
-					ShortCutsTemp[box.data('button')].cust = {};
-					ShortCutsTemp[box.data('button')].cust.key = event.which;
-					ShortCutsTemp[box.data('button')].cust.alt = KEYS.ALT;
-					ShortCutsTemp[box.data('button')].cust.ctrl = KEYS.CTRL;
-					ShortCutsTemp[box.data('button')].cust.shift = KEYS.SHIFT;
+			if (!box || !currentSC || !ShortCuts[currentSC]) {
+				if (box) {
+					console.warn('Shortcut "' + currentSC + '" is not defined in ShortCutControls');
+				}
+				root.querySelectorAll('td.selected').forEach(function (el) {
+					el.classList.remove('selected');
+				});
+				ShortCutOption.isCapturing = false;
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				return false;
+			}
+
+			if (event.which == 27) {
+				// Escape — limpa o atalho
+				ShortCutsTemp[currentSC] = {};
+				ShortCutsTemp[currentSC].cust = {};
+				ShortCutsTemp[currentSC].cust.key = '';
+				ShortCutsTemp[currentSC].cust.alt = false;
+				ShortCutsTemp[currentSC].cust.ctrl = false;
+				ShortCutsTemp[currentSC].cust.shift = false;
+			} else {
+				const conflictSC = tempMatch(event.which);
+
+				if (conflictSC && conflictSC !== currentSC) {
+					const oldKey = getKey(currentSC);
+					const oldAlt = getAlt(currentSC);
+					const oldCtrl = getCtrl(currentSC);
+					const oldShift = getShift(currentSC);
+
+					ShortCutsTemp[conflictSC] = {};
+					ShortCutsTemp[conflictSC].cust = {};
+					ShortCutsTemp[conflictSC].cust.key = oldKey;
+					ShortCutsTemp[conflictSC].cust.alt = oldAlt;
+					ShortCutsTemp[conflictSC].cust.ctrl = oldCtrl;
+					ShortCutsTemp[conflictSC].cust.shift = oldShift;
+
+					const conflictCell = root.querySelector("td[data-button='" + conflictSC + "']");
+					if (conflictCell) {
+						conflictCell.classList.add('changed');
+						conflictCell.textContent =
+							(oldAlt ? 'ALT + ' : '') +
+							(oldCtrl ? 'CTRL + ' : '') +
+							(oldShift ? 'SHIFT + ' : '') +
+							(oldKey ? KEYS.toReadableKey(parseInt(oldKey, 10)) : 'N/A');
+					}
 				}
 
-				box.text(
-					(getAlt(box.data('button')) ? 'ALT + ' : '') +
-						(getCtrl(box.data('button')) ? 'CTRL + ' : '') +
-						(getShift(box.data('button')) ? 'SHIFT + ' : '') +
-						KEYS.toReadableKey(getKey(box.data('button')), 10)
-				);
-
-				$('#ShortCutOption td.selected').addClass('changed');
-				$('#ShortCutOption td.selected').removeClass('selected');
-				ShortCutOption.isCapturing = false;
-			} else {
-				console.warn('Shortcut "' + box.data('button') + '" is not defined in ShortCutControls');
-				$('#ShortCutOption td.selected').removeClass('selected');
-				ShortCutOption.isCapturing = false;
+				ShortCutsTemp[currentSC] = {};
+				ShortCutsTemp[currentSC].cust = {};
+				ShortCutsTemp[currentSC].cust.key = event.which;
+				ShortCutsTemp[currentSC].cust.alt = KEYS.ALT;
+				ShortCutsTemp[currentSC].cust.ctrl = KEYS.CTRL;
+				ShortCutsTemp[currentSC].cust.shift = KEYS.SHIFT;
 			}
+
+			box.textContent =
+				(getAlt(currentSC) ? 'ALT + ' : '') +
+				(getCtrl(currentSC) ? 'CTRL + ' : '') +
+				(getShift(currentSC) ? 'SHIFT + ' : '') +
+				KEYS.toReadableKey(getKey(currentSC), 10);
+
+			root.querySelectorAll('td.selected').forEach(function (el) {
+				el.classList.add('changed');
+				el.classList.remove('selected');
+			});
+			ShortCutOption.isCapturing = false;
+
+			event.preventDefault();
 			event.stopImmediatePropagation();
 			return false;
 		}
@@ -159,19 +294,18 @@ ShortCutOption.onKeyDown = function (event) {
  * Updates the key list on the UI
  */
 function updateKeyList() {
-	const $shortcut = ShortCutOption.ui.find('td[data-button]');
-	for (let i = 0; i < $shortcut.length; i++) {
-		if (getKey($shortcut.eq(i).data('button'))) {
-			$shortcut
-				.eq(i)
-				.text(
-					(getAlt($shortcut.eq(i).data('button')) ? 'ALT + ' : '') +
-						(getCtrl($shortcut.eq(i).data('button')) ? 'CTRL + ' : '') +
-						(getShift($shortcut.eq(i).data('button')) ? 'SHIFT + ' : '') +
-						KEYS.toReadableKey(parseInt(getKey($shortcut.eq(i).data('button')), 10))
-				);
+	const root = ShortCutOption._shadow || ShortCutOption._host;
+	const cells = root.querySelectorAll('td[data-button]');
+	for (let i = 0; i < cells.length; i++) {
+		const btnName = cells[i].dataset.button;
+		if (getKey(btnName)) {
+			cells[i].textContent =
+				(getAlt(btnName) ? 'ALT + ' : '') +
+				(getCtrl(btnName) ? 'CTRL + ' : '') +
+				(getShift(btnName) ? 'SHIFT + ' : '') +
+				KEYS.toReadableKey(parseInt(getKey(btnName), 10));
 		} else {
-			$shortcut.eq(i).text('N/A');
+			cells[i].textContent = 'N/A';
 		}
 	}
 }
@@ -180,14 +314,18 @@ function updateKeyList() {
  * Resets key bindings to initial
  */
 function resetKeysToDefault() {
-	Object.keys(ShortCuts).forEach(SC => {
+	const root = ShortCutOption._shadow || ShortCutOption._host;
+	Object.keys(ShortCuts).forEach(function (SC) {
 		// Set empty customs
 		ShortCutsTemp[SC] = {};
 		ShortCutsTemp[SC].cust = false;
-		if (ShortCuts[SC].cust != ShortCutsTemp[SC].cust) {
-			$("#ShortCutOption td[data-button='" + SC + "']").addClass('changed');
-		} else {
-			$("#ShortCutOption td[data-button='" + SC + "']").removeClass('changed');
+		const cell = root.querySelector("td[data-button='" + SC + "']");
+		if (cell) {
+			if (ShortCuts[SC].cust != ShortCutsTemp[SC].cust) {
+				cell.classList.add('changed');
+			} else {
+				cell.classList.remove('changed');
+			}
 		}
 	});
 	updateKeyList();
@@ -197,7 +335,7 @@ function resetKeysToDefault() {
  * Applies the key bindings
  */
 function applySettings() {
-	Object.keys(ShortCutsTemp).forEach(SC => {
+	Object.keys(ShortCutsTemp).forEach(function (SC) {
 		// Copy settings
 		if (ShortCutsTemp[SC].cust) {
 			ShortCuts[SC].cust = {};
@@ -214,7 +352,11 @@ function applySettings() {
 	BattleMode.reload();
 	ShortCutsTemp = {};
 	updateKeyList();
-	$('#ShortCutOption td.changed').removeClass('changed');
+
+	const root = ShortCutOption._shadow || ShortCutOption._host;
+	root.querySelectorAll('td.changed').forEach(function (el) {
+		el.classList.remove('changed');
+	});
 
 	// Update ShortCut tooltips if the component is loaded
 	const ShortCut = UIManager.getComponent('ShortCut');
@@ -229,7 +371,11 @@ function applySettings() {
 function cancelSettings() {
 	ShortCutsTemp = {};
 	updateKeyList();
-	$('#ShortCutOption td.changed').removeClass('changed');
+
+	const root = ShortCutOption._shadow || ShortCutOption._host;
+	root.querySelectorAll('td.changed').forEach(function (el) {
+		el.classList.remove('changed');
+	});
 }
 
 /**
@@ -320,58 +466,6 @@ function onUpdateDisableVirtualMouse() {
 	Controls.save();
 }
 
-/**
- * Checks if there is a match in the temporary settings
- */
-function tempMatch(key) {
-	const TempState = {};
-	let match = false;
-
-	Object.keys(ShortCuts).forEach(SC => {
-		// Copy current settings
-		if (ShortCuts[SC].cust) {
-			TempState[SC] = {};
-			TempState[SC].key = ShortCuts[SC].cust.key;
-			TempState[SC].alt = ShortCuts[SC].cust.alt;
-			TempState[SC].ctrl = ShortCuts[SC].cust.ctrl;
-			TempState[SC].shift = ShortCuts[SC].cust.shift;
-		} else {
-			TempState[SC] = {};
-			TempState[SC].key = ShortCuts[SC].init.key;
-			TempState[SC].alt = ShortCuts[SC].init.alt;
-			TempState[SC].ctrl = ShortCuts[SC].init.ctrl;
-			TempState[SC].shift = ShortCuts[SC].init.shift;
-		}
-	});
-
-	Object.keys(ShortCutsTemp).forEach(SC => {
-		// Merge temp settings
-		if (ShortCutsTemp[SC].cust) {
-			TempState[SC] = {};
-			TempState[SC].key = ShortCutsTemp[SC].cust.key;
-			TempState[SC].alt = ShortCutsTemp[SC].cust.alt;
-			TempState[SC].ctrl = ShortCutsTemp[SC].cust.ctrl;
-			TempState[SC].shift = ShortCutsTemp[SC].cust.shift;
-		}
-	});
-
-	Object.keys(TempState).every(SC => {
-		// Find match
-		if (TempState[SC]) {
-			if (
-				TempState[SC].key == key &&
-				TempState[SC].alt == KEYS.ALT &&
-				TempState[SC].ctrl == KEYS.CTRL &&
-				TempState[SC].shift == KEYS.SHIFT
-			) {
-				match = true;
-				return false;
-			} else {
-				return true;
-			}
-		}
-	});
-
-	return match;
-}
+ShortCutOption.mouseMode = GUIComponent.MouseMode.STOP;
+ShortCutOption.needFocus = true;
 export default UIManager.addComponent(ShortCutOption);

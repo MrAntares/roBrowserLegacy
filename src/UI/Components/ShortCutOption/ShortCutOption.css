@@ -1,3 +1,10 @@
+:host {
+	width: 430px;
+	height: 465px;
+	top: 300px;
+	left: 300px;
+}
+
 #ShortCutOption {
 	position: absolute;
 	width: 430px;
