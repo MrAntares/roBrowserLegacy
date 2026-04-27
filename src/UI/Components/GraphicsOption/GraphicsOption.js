@@ -16,7 +16,6 @@ import GraphicsSettings from 'Preferences/Graphics.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
-import 'UI/Elements/Elements.js';
 import htmlText from './GraphicsOption.html?raw';
 import cssText from './GraphicsOption.css?raw';
 
@@ -55,7 +54,7 @@ GraphicsOption.init = function init() {
 	if (baseBtn) {
 		baseBtn.addEventListener('mousedown', event => {
 			event.stopImmediatePropagation();
-			return false;
+			event.preventDefault();
 		});
 	}
 
