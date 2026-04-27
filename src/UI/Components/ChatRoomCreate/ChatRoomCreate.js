@@ -151,13 +151,12 @@ ChatRoomCreate.hide = function hideSetup() {
  */
 ChatRoomCreate.prefill = function prefill(title, limit, type, password) {
 	const root = this._shadow || this._host;
-	root.querySelector('input[name=title]').value = title || '';
-	root.querySelector('select[name=limit]').value = limit || 20;
-
-	const radio = root.querySelector('input[name=public][value="' + (type || 1) + '"]');
+	root.querySelector('input[name=title]').value = title ?? '';
+	root.querySelector('select[name=limit]').value = limit ?? 20;
+	const radio = root.querySelector('input[name=public][value="' + (type ?? 1) + '"]');
 	if (radio) radio.checked = true;
 
-	root.querySelector('input[name=password]').value = password || '';
+	root.querySelector('input[name=password]').value = password ?? '';
 };
 
 /**
@@ -170,6 +169,10 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
 	const root = this._shadow || this._host;
 	const active = root.activeElement;
 
+	// Guard: don't intercept keys when hidden
+	if (this._host.style.display === 'none') {
+		return true;
+	}
 	// Input inside our shadow is focused — protect keystrokes
 	if (active && active.tagName && /input|select|textarea/i.test(active.tagName)) {
 		if (event.which === KEYS.ENTER) {
@@ -243,8 +246,8 @@ function parseChatSetup() {
 			},
 			true
 		);
-		popup.ui._host.style.top = parseInt(this._host.style.top, 10) - 120;
-		popup.ui._host.style.left = parseInt(this._host.style.left, 10);
+		popup._host.style.top = parseInt(this._host.style.top, 10) - 120 + 'px';
+		popup._host.style.left = parseInt(this._host.style.left, 10) + 'px';
 		return;
 	}
 

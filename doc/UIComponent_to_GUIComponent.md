@@ -480,6 +480,120 @@ this._host.style.top = '100px';
 this._host.style.left = '200px';
 ```
 
+### ~~8. Keyboard input stolen from `<input>` / `<textarea>` inside Shadow DOM~~ (FIXED)
+
+**Bug**: When a GUIComponent contains `<input>`, `<select>`, or `<textarea>` elements inside its Shadow DOM, users cannot type in them — keystrokes are intercepted by other global `keydown` handlers (ChatBox battle mode, shortcut system, etc.).
+
+**Root cause**: Shadow DOM encapsulates focus. When an `<input>` inside a shadow root is focused:
+
+- `document.activeElement` returns the **shadow host** (`<div>`) — not the actual `<input>`
+- `event.target` on bubbled events is **retargeted** to the shadow host
+
+Other global handlers (e.g., ChatBox line 816–826, line 928–941) check `document.activeElement.tagName` or `event.target.tagName` to detect focused inputs. They see `DIV` instead of `INPUT`, so they consume the keystroke instead of letting it through.
+
+```
+document.activeElement          → <div#ChatRoomCreate>  (host)
+shadowRoot.activeElement        → <input name="title">  (real element)
+event.target                    → <div#ChatRoomCreate>  (retargeted)
+event.composedPath()[0]         → <input name="title">  (real element)
+```
+
+**Fix — two parts:**
+
+**Part 1: Register `onKeyDown` in the capture phase**
+
+The component's `onKeyDown` handler must run **before** all other `window.keydown` handlers. Set `captureKeyEvents = true` on the component instance. This makes `_bindKeyDown()` register the handler with `useCapture = true`, so it fires during the capture phase (before the bubble phase where other handlers listen).
+
+```javascript
+// In _bindKeyDown() — GUIComponent.js
+_bindKeyDown() {
+    if (!this.onKeyDown) return;
+    this._unbindKeyDown();
+    const handler = this.onKeyDown.bind(this);
+    this._keyHandler = event => {
+        if (handler(event) === false) {
+            event.preventDefault();
+        }
+    };
+    var useCapture = !!this.captureKeyEvents;
+    window.addEventListener('keydown', this._keyHandler, useCapture);
+}
+```
+
+**Part 2: Guard the `onKeyDown` handler**
+
+Inside the component's `onKeyDown`, check if an input element inside the shadow is focused. If so, call `stopImmediatePropagation()` to block all other handlers, and return `true` (NOT `false`) so the wrapper does not call `preventDefault()` — the browser must execute the default action (typing the character).
+
+Use `shadowRoot.activeElement` (not `document.activeElement`) to get the real focused element inside the shadow.
+
+```javascript
+ChatRoomCreate.onKeyDown = function onKeyDown(event) {
+	var shadow = this._shadow || this._host;
+	var focused = shadow.activeElement;
+
+	// If an input inside the shadow is focused, let the browser handle the keystroke
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		// Still handle Enter/Escape for form submission/close
+		if (event.which === KEYS.ENTER) {
+			submitForm.call(this);
+			event.stopImmediatePropagation();
+			return false;
+		}
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			this.hide();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		// Block other handlers from consuming the keystroke, but let the browser type it
+		event.stopImmediatePropagation();
+		return true; // ← CRITICAL: true, not false
+	}
+
+	// Normal key handling when no input is focused
+	// ...
+	return true;
+};
+```
+
+**Component setup:**
+
+```javascript
+ChatRoomCreate.captureKeyEvents = true; // ← capture phase
+```
+
+**Why `return true` is critical**: The `_bindKeyDown` wrapper calls `event.preventDefault()` when the handler returns `false`. For text inputs, `preventDefault()` on `keydown` blocks the character from being inserted. Returning `true` (or any non-`false` value) skips `preventDefault()`, allowing normal typing.
+
+**Why only some keys worked without the fix**: Keys like `z`, `x`, `c`, `v`, `b`, `n`, `m` are not mapped to any shortcut in the default `ShortCutControls.js`. All other keys (`a`–`y`, `0`–`9`, `F1`–`F12`) are consumed by the ChatBox battle mode handler (line 928–941) or the shortcut system before reaching the input.
+
+**RULE**: Any GUIComponent with `<input>`, `<select>`, or `<textarea>` inside its Shadow DOM **must** set `captureKeyEvents = true` and guard its `onKeyDown` with a `shadowRoot.activeElement` check. Without this, users will not be able to type in those fields.
+
+**Affected components**: ChatRoomCreate, ChatRoom, and any future GUIComponent with text input fields.
+
+````
+
+Also add a new row to the "Quick Reference: What NOT to do" table (around line 528):
+
+| Don't | Do instead | Why |
+|---|---|---|
+| `onKeyDown` without `shadowRoot.activeElement` guard | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow |
+
+And also update `_unbindKeyDown()` in `src/UI/GUIComponent.js` (line 424-430) — it already removes both normal and capture listeners, which is correct. But `_bindKeyDown()` (line 412-422) needs to be updated to check `this.captureKeyEvents`:
+
+```javascript
+_bindKeyDown() {
+    if (!this.onKeyDown) return;
+    this._unbindKeyDown();
+    const handler = this.onKeyDown.bind(this);
+    this._keyHandler = event => {
+        if (handler(event) === false) {
+            event.preventDefault();
+        }
+    };
+    var useCapture = !!this.captureKeyEvents;
+    window.addEventListener('keydown', this._keyHandler, useCapture);
+}
+````
+
 ---
 
 ## Reference: Clan Component (first GUIComponent migration)

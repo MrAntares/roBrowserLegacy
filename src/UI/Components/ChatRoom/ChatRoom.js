@@ -468,8 +468,18 @@ ChatRoom.openRoomSettings = function openRoomSettings() {
 
 	ChatRoomCreate.requestRoom = function () {
 		ChatRoom.changeChatRoom(this.title, this.limit, this.type, this.password);
-		// Restore original after use
+		// Restore immediately after use
 		ChatRoomCreate.requestRoom = originalRequestRoom;
+	};
+
+	// Also restore on close/cancel
+	const originalOnRemove = ChatRoomCreate.onRemove;
+	ChatRoomCreate.onRemove = function () {
+		ChatRoomCreate.requestRoom = originalRequestRoom;
+		ChatRoomCreate.onRemove = originalOnRemove;
+		if (originalOnRemove) {
+			originalOnRemove.call(this);
+		}
 	};
 
 	ChatRoomCreate.prefill(ChatRoom.title, ChatRoom.limit, ChatRoom.type, ChatRoom.password);

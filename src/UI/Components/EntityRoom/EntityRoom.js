@@ -49,6 +49,9 @@ EntityRoom.onAppend = function onAppend() {
 
 	if (btn) {
 		btn.addEventListener('dblclick', this._dblclickHandler);
+		btn.addEventListener('mousedown', e => {
+			e.preventDefault();
+		});
 	}
 
 	this._host.style.zIndex = '45';
