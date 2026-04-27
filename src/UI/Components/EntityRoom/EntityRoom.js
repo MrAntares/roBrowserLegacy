@@ -41,6 +41,15 @@ EntityRoom.onAppend = function onAppend() {
 	const root = this._shadow || this._host;
 	const btn = root.querySelector('button');
 
+	if (btn) {
+		if (this._dblclickHandler) {
+			btn.removeEventListener('dblclick', this._dblclickHandler);
+		}
+		if (this._mousedownHandler) {
+			btn.removeEventListener('mousedown', this._mousedownHandler);
+		}
+	}
+
 	// Save reference for cleanup on onRemove
 	this._dblclickHandler = () => {
 		if (this.onEnter) {
@@ -48,12 +57,14 @@ EntityRoom.onAppend = function onAppend() {
 		}
 	};
 
+	this._mousedownHandler = e => {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+	};
+
 	if (btn) {
 		btn.addEventListener('dblclick', this._dblclickHandler);
-		btn.addEventListener('mousedown', e => {
-			e.stopImmediatePropagation();
-			e.preventDefault();
-		});
+		btn.addEventListener('mousedown', this._mousedownHandler);
 	}
 
 	this._host.style.zIndex = '45';
@@ -67,9 +78,15 @@ EntityRoom.onRemove = function onRemove() {
 	const btn = root.querySelector('button');
 
 	// Remove the handler to avoid stacking when re-append
-	if (btn && this._dblclickHandler) {
-		btn.removeEventListener('dblclick', this._dblclickHandler);
-		this._dblclickHandler = null;
+	if (btn) {
+		if (this._dblclickHandler) {
+			btn.removeEventListener('dblclick', this._dblclickHandler);
+			this._dblclickHandler = null;
+		}
+		if (this._mousedownHandler) {
+			btn.removeEventListener('mousedown', this._mousedownHandler);
+			this._mousedownHandler = null;
+		}
 	}
 };
 
