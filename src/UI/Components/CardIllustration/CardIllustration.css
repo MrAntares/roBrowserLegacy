@@ -1,7 +1,14 @@
-#CardIllustration {
-	position: absolute;
+:host {
+	width: 300px;
+	height: 417px;
 	top: 100px;
 	left: 100px;
+}
+
+#CardIllustration {
+	position: absolute;
+	width: 300px;
+	height: 417px;
 }
 #CardIllustration .titlebar {
 	width: 100%;
