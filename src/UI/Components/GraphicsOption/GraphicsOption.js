@@ -53,7 +53,7 @@ GraphicsOption.init = function init() {
 
 	const baseBtn = root.querySelector('.base');
 	if (baseBtn) {
-		baseBtn.addEventListener('mousedown', function (event) {
+		baseBtn.addEventListener('mousedown', event => {
 			event.stopImmediatePropagation();
 			return false;
 		});
@@ -61,15 +61,15 @@ GraphicsOption.init = function init() {
 
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
-		closeBtn.addEventListener('mousedown', function (e) {
+		closeBtn.addEventListener('mousedown', e => {
 			e.stopImmediatePropagation();
 		});
-		closeBtn.addEventListener('click', function () {
+		closeBtn.addEventListener('click', () => {
 			GraphicsOption.remove();
 		});
 	}
 
-	root.querySelectorAll('.tab-button').forEach(function (btn) {
+	root.querySelectorAll('.tab-button').forEach(btn => {
 		btn.addEventListener('click', onTabSwitch);
 	});
 
@@ -78,7 +78,7 @@ GraphicsOption.init = function init() {
 		resetBtn.addEventListener('click', onResetToDefaults.bind(this));
 	}
 
-	const bindChange = function (selector, handler) {
+	const bindChange = (selector, handler) => {
 		const el = root.querySelector(selector);
 		if (el) el.addEventListener('change', handler);
 	};
@@ -119,8 +119,8 @@ GraphicsOption.init = function init() {
  * When append the element to html
  */
 GraphicsOption.onAppend = function onAppend() {
-	this._host.style.top = _preferences.y + 'px';
-	this._host.style.left = _preferences.x + 'px';
+	this._host.style.top = `${_preferences.y}px`;
+	this._host.style.left = `${_preferences.x}px`;
 
 	const root = this._shadow || this._host;
 
@@ -158,8 +158,8 @@ GraphicsOption.onAppend = function onAppend() {
  * Once remove, save preferences
  */
 GraphicsOption.onRemove = function onRemove() {
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.save();
 };
 
@@ -364,12 +364,12 @@ function onTabSwitch(event) {
 	const tabName = btn.dataset.tab;
 	const root = GraphicsOption._shadow || GraphicsOption._host;
 
-	root.querySelectorAll('.tab-button').forEach(function (b) {
+	root.querySelectorAll('.tab-button').forEach(b => {
 		b.classList.remove('selected');
 	});
 	btn.classList.add('selected');
 
-	root.querySelectorAll('.tab-content').forEach(function (tc) {
+	root.querySelectorAll('.tab-content').forEach(tc => {
 		tc.classList.remove('selected');
 	});
 	const targetTab = root.querySelector('#' + tabName);
@@ -379,7 +379,7 @@ function onTabSwitch(event) {
 function onResetToDefaults() {
 	const defaultSettings = GraphicsSettings.defaults;
 
-	Object.keys(defaultSettings).forEach(function (key) {
+	Object.keys(defaultSettings).forEach(key => {
 		if (defaultSettings.hasOwnProperty(key)) {
 			GraphicsSettings[key] = defaultSettings[key];
 		}

@@ -299,8 +299,8 @@ Guild.onRemove = function onRemove() {
 
 ```javascript
 Guild.onRemove = function onRemove() {
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.y = parseInt(this.ui.css('top'), 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.save();
 };
 ```
@@ -316,6 +316,11 @@ _preferences.x = Math.round(rect.left);
 ```javascript
 // BAD — position 0 becomes 100
 _preferences.x = parseInt(this._host.style.left, 10) || 100;
+```
+
+```javascript
+// BAD — proxy
+_preferences.x = parseInt(this.ui.css('left'), 10);
 ```
 
 ### 9. Register with UIManager
