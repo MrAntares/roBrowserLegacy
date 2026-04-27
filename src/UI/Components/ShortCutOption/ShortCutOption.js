@@ -181,7 +181,7 @@ function tempMatch(key) {
 			TempState[SC].alt = ShortCutsTemp[SC].cust.alt;
 			TempState[SC].ctrl = ShortCutsTemp[SC].cust.ctrl;
 			TempState[SC].shift = ShortCutsTemp[SC].cust.shift;
-		} else if (ShortCuts[SC]) {
+		} else {
 			TempState[SC] = {};
 			TempState[SC].key = ShortCuts[SC].init.key;
 			TempState[SC].alt = ShortCuts[SC].init.alt;
