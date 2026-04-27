@@ -183,7 +183,7 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
 			return false;
 		}
 		if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
-			this._host.style.display = 'none';
+			ChatRoomCreate.hide();
 			event.stopImmediatePropagation();
 			return false;
 		}
@@ -194,7 +194,7 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
 
 	// No input focused — only handle Escape
 	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
-		this._host.style.display = 'none';
+		ChatRoomCreate.hide();
 		event.stopImmediatePropagation();
 		return false;
 	}
