@@ -393,9 +393,8 @@ ChatRoom.requestExpelMember = function requestExpelMember() {};
  * Resize ChatRoom via drag
  */
 function onResize() {
-	const rect = ChatRoom._host.getBoundingClientRect();
-	const top = rect.top;
-	const left = rect.left;
+	const top = ChatRoom._host.offsetTop;
+	const left = ChatRoom._host.offsetLeft;
 	let lastWidth = 0;
 	let lastHeight = 0;
 
