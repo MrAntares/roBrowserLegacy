@@ -209,7 +209,10 @@ function resize(height) {
 	if (list) {
 		list.style.height = height * 32 - 31 + 'px';
 	}
-	ChatBoxSettings._host.style.height = ChatBoxSettings._host.scrollHeight + 'px';
+	const inner = root.querySelector('#ChatBoxSettings');
+	if (inner) {
+		ChatBoxSettings._host.style.height = inner.offsetHeight + 'px';
+	}
 	_preferences.height = height;
 	_preferences.save();
 }
