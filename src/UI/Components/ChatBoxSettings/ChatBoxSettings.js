@@ -86,7 +86,7 @@ ChatBoxSettings.init = function init() {
  */
 ChatBoxSettings.onAppend = function onAppend() {
 	// Call resize first while visible so scrollHeight works and host height is updated
-	resize(_preferences.width, _preferences.height);
+	resize(_preferences.height);
 
 	const rect = this._host.getBoundingClientRect();
 	this._host.style.top = Math.min(Math.max(0, _preferences.y), Renderer.height - rect.height) + 'px';
