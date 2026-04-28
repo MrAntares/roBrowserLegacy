@@ -3,7 +3,6 @@ on:
     workflow_run:  
         workflows: ["Devin PR Labeler - Analyze"]  
         types: [completed]  
-    workflow_dispatch:
 permissions:
     actions: read
     issues: write
