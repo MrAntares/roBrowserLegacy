@@ -199,7 +199,7 @@ Emoticons.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'TOGGLE':
 			if (this._host.style.display === 'none') {
-				this._host.style.display = '';
+				this.ui.show();
 				this.focus();
 			} else {
 				this._host.style.display = 'none';
