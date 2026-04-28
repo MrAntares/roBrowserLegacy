@@ -4,6 +4,7 @@ on:
         types: [submitted]
     pull_request_review_comment:
         types: [created, edited]
+    workflow_dispatch:
 permissions:
     contents: read
 jobs:
