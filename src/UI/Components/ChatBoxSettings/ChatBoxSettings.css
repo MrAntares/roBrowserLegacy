@@ -8,6 +8,7 @@
 #ChatBoxSettings {
 	position: absolute;
 	width: 255px;
+	height: auto;
 }
 
 #ChatBoxSettings table {

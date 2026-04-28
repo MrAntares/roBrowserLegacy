@@ -135,26 +135,16 @@ function onClickOption(btn) {
 function onResize() {
 	const rect = ChatBoxSettings._host.getBoundingClientRect();
 	const top = rect.top;
-	const left = rect.left;
-	let lastWidth = 0;
 	let lastHeight = 0;
 
 	function resizeProcess() {
-		const extraX = 23 + 16 + 16 - 30;
 		const extraY = 31 + 19 - 30;
-
-		let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
-
-		w = Math.min(Math.max(w, 7), 14);
 		h = Math.min(Math.max(h, 3), 8);
-
-		if (w === lastWidth && h === lastHeight) {
+		if (h === lastHeight) {
 			return;
 		}
-
-		resize(w, h);
-		lastWidth = w;
+		resize(h);
 		lastHeight = h;
 	}
 
@@ -208,27 +198,18 @@ ChatBoxSettings.updateTab = function updateTab(tabID, tabName) {
 /**
  * Extend window size
  */
-function resize(width, height) {
-	width = Math.min(Math.max(width, 7), 14);
+function resize(height) {
 	height = Math.min(Math.max(height, 3), 8);
-
 	const root = ChatBoxSettings._shadow || ChatBoxSettings._host;
-	ChatBoxSettings._host.style.width = 23 + 16 + 16 + width * 32 + 'px';
-
 	const content = root.querySelector('.content');
 	if (content) {
 		content.style.height = height * 32 + 'px';
 	}
-
 	const list = root.querySelector('.listoption');
 	if (list) {
 		list.style.height = height * 32 - 31 + 'px';
 	}
-
-	// Update host height after content heights are set
 	ChatBoxSettings._host.style.height = ChatBoxSettings._host.scrollHeight + 'px';
-
-	_preferences.width = width;
 	_preferences.height = height;
 	_preferences.save();
 }
