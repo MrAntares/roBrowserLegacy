@@ -110,22 +110,20 @@ ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 	if (Session.Entity.hasCart == false) {
 		return;
 	}
-
-	this._host.style.display = '';
-
-	const msg = 'Change Cart!!';
-
+	let msg = 'Change Cart!!';
 	if (ChatRoom.isOpen) {
+		msg = 'Close your Room first!!';
 		ChatRoom.message(msg);
 		return;
 	}
-
 	ChatBox.addText(msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_LOG);
 	if (Session.Entity) {
 		Session.Entity.dialog.set(msg);
 	}
-
+	this._host.style.display = '';
 	updateList(Session.Character.level);
+	// Avoid stacking duplicate render callbacks if invoked while already open
+	Renderer.stop(render);
 	Renderer.render(render);
 };
 
