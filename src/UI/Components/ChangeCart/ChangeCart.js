@@ -63,7 +63,7 @@ ChangeCart.init = function init() {
 		el.style.display = 'none';
 		el.classList.add('event_add_cursor');
 		el.addEventListener('click', event => {
-			onCart(event.currentTarget.getAttribute('data-id'));
+			onCart(parseInt(event.currentTarget.getAttribute('data-id'), 10));
 		});
 	});
 
