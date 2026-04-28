@@ -584,7 +584,7 @@ _bindKeyDown() {
     var useCapture = !!this.captureKeyEvents;
     window.addEventListener('keydown', this._keyHandler, useCapture);
 }
-````
+```
 
 ---
 
@@ -619,18 +619,18 @@ _bindKeyDown() {
 
 ## Quick Reference: What NOT to do
 
-| Don't                                                               | Do instead                                      | Why                                                |
-| ------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
-| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                    | jQuery sets `display:block`, kills flex/grid       |
-| `$el.closest('body').length`                                        | `el.isConnected`                                | `.closest()` can't cross shadow boundary           |
-| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`               | Global queries can't see shadow content            |
-| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`            | Proxy is for interop only                          |
-| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                | Proxy is for interop only                          |
-| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`    | Proxy is for interop only                          |
-| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`           | Proxy is for interop only                          |
-| Put `top`/`left` on inner element                                   | Put on `:host`                                  | Breaks magnetic snap positioning                   |
-| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`            | Host collapses to 0×0, snap/overflow broken        |
-| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`               | Event retargeting hides real target                |
-| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()` | `onAppend()` runs every time — duplicates bindings |
-| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                  | Redundant, may conflict                            |
-| `onKeyDown` without `shadowRoot.activeElement` guard | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow |
+| Don't                                                               | Do instead                                                   | Why                                                                     |
+| ------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                                 | jQuery sets `display:block`, kills flex/grid                            |
+| `$el.closest('body').length`                                        | `el.isConnected`                                             | `.closest()` can't cross shadow boundary                                |
+| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`                            | Global queries can't see shadow content                                 |
+| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`                         | Proxy is for interop only                                               |
+| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                             | Proxy is for interop only                                               |
+| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`                 | Proxy is for interop only                                               |
+| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`                        | Proxy is for interop only                                               |
+| Put `top`/`left` on inner element                                   | Put on `:host`                                               | Breaks magnetic snap positioning                                        |
+| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`                         | Host collapses to 0×0, snap/overflow broken                             |
+| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`                            | Event retargeting hides real target                                     |
+| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()`              | `onAppend()` runs every time — duplicates bindings                      |
+| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                               | Redundant, may conflict                                                 |
+| `onKeyDown` without `shadowRoot.activeElement` guard                | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow |

@@ -52,10 +52,10 @@
 	margin-bottom: -3px;
 }
 
-.EntityRoom .title {  
-	overflow: hidden;  
-	text-overflow: ellipsis;  
-	white-space: nowrap;  
+.EntityRoom .title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	min-width: 0;
 	flex: 1;
 }
