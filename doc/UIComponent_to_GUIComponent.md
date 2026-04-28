@@ -139,9 +139,9 @@ Key differences:
 
 - `GUIComponent` constructor takes `(name, cssText)` — no HTML argument
 - HTML is returned by `render()` method
-- Must `import 'UI/Elements/Elements.js'` to register custom elements  [OPTIONAL]
+- Must `import 'UI/Elements/Elements.js'` to register custom elements [OPTIONAL]
 
-### 3. Convert the HTML file  [OPTIONAL]
+### 3. Convert the HTML file [OPTIONAL]
 
 Replace `data-*` attributes with Custom Elements:
 
