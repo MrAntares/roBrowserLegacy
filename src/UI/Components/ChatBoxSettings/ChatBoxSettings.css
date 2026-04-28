@@ -1,10 +1,14 @@
-#ChatBoxSettings {
-	position: absolute;
+:host {
+	width: 255px;
 	top: 50%;
 	left: 50%;
-	display: none;
+}
+
+#ChatBoxSettings {
+	position: absolute;
 	width: 255px;
 }
+
 #ChatBoxSettings table {
 	border-spacing: 0px;
 	display: inline-block;
