@@ -366,12 +366,7 @@ function onEntityVanish(pkt) {
 
 	// Show escape menu
 	if (pkt.GID === Session.Entity.GID && pkt.type === 1) {
-		Escape.ui.show();
-		Escape.ui.find('.savepoint').show();
-		if (haveSiegfriedItem()) {
-			Escape.ui.find('.resurection').show();
-		}
-		Escape.ui.find('.graphics, .sound, .hotkey').hide();
+		Escape.showDeathMenu(haveSiegfriedItem());
 	}
 }
 
@@ -499,9 +494,7 @@ function onEntityResurect(pkt) {
 
 	// If it's our main character update Escape ui
 	if (entity === Session.Entity) {
-		Escape.ui.hide();
-		Escape.ui.find('.resurection, .savepoint').hide();
-		Escape.ui.find('.graphics, .sound, .hotkey').show();
+		Escape.resetMenu();
 	}
 }
 
