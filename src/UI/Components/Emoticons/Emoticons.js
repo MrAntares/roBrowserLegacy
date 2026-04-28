@@ -116,6 +116,16 @@ Emoticons.init = function init() {
 	});
 
 	root.querySelector('.prev').classList.add('disabled');
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+	}
+	const baseButtons = root.querySelectorAll('.base');
+	baseButtons.forEach(btn => {
+		if (btn !== closeBtn) {
+			btn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		}
+	});
 	root.querySelector('.close').addEventListener('click', () => {
 		this._host.style.display = 'none';
 	});
