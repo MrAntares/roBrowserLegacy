@@ -121,6 +121,7 @@ ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 		Session.Entity.dialog.set(msg);
 	}
 	this._host.style.display = '';
+	this._fixPositionOverflow();
 	updateList(Session.Character.level);
 	// Avoid stacking duplicate render callbacks if invoked while already open
 	Renderer.stop(render);

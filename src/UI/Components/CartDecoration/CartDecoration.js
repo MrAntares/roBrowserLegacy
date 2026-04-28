@@ -130,6 +130,7 @@ CartDecoration.onSelectCart = function onSelectCart(pkt) {
 	}
 
 	CartDecoration._host.style.display = '';
+	CartDecoration._fixPositionOverflow();
 	Renderer.stop(render);
 	Renderer.render(render);
 };
