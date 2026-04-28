@@ -4,6 +4,8 @@
  * Cart Decoration (MC_CARTDECORATE) skill UI
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
+ *
+ * @author Vincent Thibault, AoShinHo
  */
 
 import Network from 'Network/NetworkManager.js';
@@ -13,7 +15,7 @@ import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
 import htmlText from './CartDecoration.html?raw';
@@ -22,7 +24,12 @@ import cssText from './CartDecoration.css?raw';
 /**
  * Create Component
  */
-const CartDecoration = new UIComponent('CartDecoration', htmlText, cssText);
+const CartDecoration = new GUIComponent('CartDecoration', cssText);
+
+/**
+ * Render HTML
+ */
+CartDecoration.render = () => htmlText;
 
 /**
  * @var {object} loaded cart sprite data keyed by cart type id
@@ -44,22 +51,23 @@ const CART_TYPES = [10, 11, 12];
  * Initialize UI
  */
 CartDecoration.init = function init() {
-	const carts = this.ui.find('.cart');
+	const root = this._shadow || this._host;
 
-	this.ui.css({
-		top: (Renderer.height - 100) / 2.0,
-		left: (Renderer.width - 255) / 2.0
-	});
+	this._host.style.top = (Renderer.height - 100) / 2.0 + 'px';
+	this._host.style.left = (Renderer.width - 255) / 2.0 + 'px';
 
-	this.ui.find('.titlebar .close').click(() => {
-		CartDecoration.ui.hide();
+	root.querySelector('.titlebar .close').addEventListener('click', () => {
+		CartDecoration._host.style.display = 'none';
 		Renderer.stop(render);
 	});
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 
-	carts.addClass('event_add_cursor');
-	carts.on('click', function (event) {
-		onCartSelected(parseInt(event.currentTarget.getAttribute('data-id'), 10));
+	const carts = root.querySelectorAll('.cart');
+	carts.forEach(el => {
+		el.classList.add('event_add_cursor');
+		el.addEventListener('click', event => {
+			onCartSelected(parseInt(event.currentTarget.getAttribute('data-id'), 10));
+		});
 	});
 
 	preloadCartData();
@@ -90,7 +98,7 @@ function onCartSelected(type) {
 	pkt.type = type;
 	Network.sendPacket(pkt);
 
-	CartDecoration.ui.hide();
+	CartDecoration._host.style.display = 'none';
 	Renderer.stop(render);
 }
 
@@ -98,7 +106,7 @@ function onCartSelected(type) {
  * Append to body
  */
 CartDecoration.onAppend = function onAppend() {
-	this.ui.hide();
+	this._host.style.display = 'none';
 	preloadCartData();
 };
 
@@ -106,17 +114,22 @@ CartDecoration.onAppend = function onAppend() {
  * @param {object} pkt - parsed ZC_SELECTCART packet
  */
 CartDecoration.onSelectCart = function onSelectCart(pkt) {
+	const root = CartDecoration._shadow || CartDecoration._host;
 	_identity = pkt.identity;
 
-	const allCarts = CartDecoration.ui.find('.cart');
-	allCarts.hide();
+	root.querySelectorAll('.cart').forEach(el => {
+		el.style.display = 'none';
+	});
 
 	const advertised = pkt.typeList && pkt.typeList.length ? pkt.typeList : CART_TYPES;
 	for (const type of advertised) {
-		CartDecoration.ui.find(`.cart[data-id='${type}']`).show();
+		const el = root.querySelector('.cart[data-id="' + type + '"]');
+		if (el) {
+			el.style.display = '';
+		}
 	}
 
-	CartDecoration.ui.show();
+	CartDecoration._host.style.display = '';
 	Renderer.stop(render);
 	Renderer.render(render);
 };
@@ -129,8 +142,8 @@ CartDecoration.onRemove = function onRemove() {
 };
 
 CartDecoration.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
-		this.ui.hide();
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
+		this._host.style.display = 'none';
 		Renderer.stop(render);
 	}
 };
@@ -164,21 +177,26 @@ function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
  * Render loop
  */
 function render() {
-	const canvases = CartDecoration.ui.find('.canvas:visible');
+	const root = CartDecoration._shadow || CartDecoration._host;
+	const canvases = root.querySelectorAll('.canvas');
 
-	canvases.each(function () {
-		const id = parseInt(this.getAttribute('data-id'), 10);
+	canvases.forEach(el => {
+		if (el.offsetParent === null) return; // not visible
+
+		const id = parseInt(el.getAttribute('data-id'), 10);
 		const data = _carts[id];
 
 		if (!data || !data.spr || !data.act) {
 			return;
 		}
 
-		const ctx = this.getContext('2d');
-		ctx.clearRect(0, 0, this.width, this.height);
-		drawActionToCanvas(ctx, data.act, data.spr, 0, this.width / 2, this.height + 10);
+		const ctx = el.getContext('2d');
+		ctx.clearRect(0, 0, el.width, el.height);
+		drawActionToCanvas(ctx, data.act, data.spr, 0, el.width / 2, el.height + 10);
 	});
 }
+
+CartDecoration.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Create component and export it
