@@ -91,9 +91,12 @@ Emoticons.init = function init() {
 		(act, spr) => {
 			_action = act;
 			_sprite = spr;
-			TOTAL_PAGES = Math.floor(EMOTICONS_COUNT / EMOTICONS_PER_PAGE);
+			TOTAL_PAGES = Math.max(0, Math.ceil(EMOTICONS_COUNT / EMOTICONS_PER_PAGE) - 1);
 
-			root.querySelector('.total').textContent = TOTAL_PAGES + 1;
+			const totalEl = root.querySelector('.total');
+			if (totalEl) {
+				totalEl.textContent = TOTAL_PAGES + 1;
+			}
 			this.movePage(0);
 		}
 	);
@@ -169,7 +172,10 @@ Emoticons.movePage = function movePage(direction) {
 		_page = TOTAL_PAGES;
 	}
 
-	root.querySelector('.current').textContent = _page + 1;
+	const currentEl = root.querySelector('.current');
+	if (currentEl) {
+		currentEl.textContent = _page + 1;
+	}
 
 	refreshList(root.querySelector('.content'));
 };
@@ -216,12 +222,20 @@ function onSelectEmoticon(canvas) {
 	const idx = canvas.getAttribute('data-index');
 	const cmd = EmoticonsDB.names[idx];
 	if (cmd && ShortCuts.ui.is(':visible')) {
-		if (ShortCuts.ui.find('.input_alt_focus').length) {
+		if (ShortCuts.ui.find('.input_macro_focus').length) {
 			ShortCuts.ui
-				.find('.input_alt_focus')
+				.find('.input_macro_focus')
 				.val('/' + cmd)
 				.select();
+			return;
 		}
+	}
+
+	if (cmd) {
+		ChatBox.ui
+			.find('.input .message')
+			.html('/' + cmd)
+			.focus();
 	}
 }
 
@@ -234,7 +248,7 @@ function onPlayEmoticon(canvas) {
 	const idx = canvas.getAttribute('data-index');
 	const cmd = EmoticonsDB.names[idx];
 
-	ChatBox.ui.find('.input .message').val('/' + cmd);
+	ChatBox.ui.find('.input .message').html('/' + cmd);
 	ChatBox.submit();
 }
 
@@ -258,6 +272,7 @@ function refreshList(contentEl) {
 		const emo = EmoticonsDB.order[index];
 
 		canvas.setAttribute('data-index', emo);
+		canvas.title = '/' + EmoticonsDB.names[emo];
 		const animations = _action.actions[emo].animations;
 
 		// Do not ask why, but we don't know how Gravity find
