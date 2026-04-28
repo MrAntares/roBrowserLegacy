@@ -122,6 +122,7 @@ ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 	}
 	this._host.style.display = '';
 	this._fixPositionOverflow();
+	this._fixPositionOverflow();
 	updateList(Session.Character.level);
 	// Avoid stacking duplicate render callbacks if invoked while already open
 	Renderer.stop(render);
