@@ -170,9 +170,9 @@ function onResize() {
 
 ChatBoxSettings.toggle = function toggle() {
 	if (this._host.style.display === 'none') {
-		this._host.style.display = '';
+		this.ui.show();
 	} else {
-		this._host.style.display = 'none';
+		this.ui.hide();
 	}
 };
 
