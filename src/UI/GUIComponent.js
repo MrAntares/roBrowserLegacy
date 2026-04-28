@@ -418,7 +418,8 @@ class GUIComponent {
 				event.preventDefault();
 			}
 		};
-		window.addEventListener('keydown', this._keyHandler);
+		const useCapture = !!this.captureKeyEvents;
+		window.addEventListener('keydown', this._keyHandler, useCapture);
 	}
 
 	_unbindKeyDown() {

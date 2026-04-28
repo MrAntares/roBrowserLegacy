@@ -5,18 +5,23 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './EntityRoom.html?raw';
 import cssText from './EntityRoom.css?raw';
 
 /**
- * Createcomponent
+ * Create component
  */
-const EntityRoom = new UIComponent('EntityRoom', htmlText, cssText);
+const EntityRoom = new GUIComponent('EntityRoom', cssText);
+
+/**
+ * Render HTML
+ */
+EntityRoom.render = () => htmlText;
 
 /**
  * @var {boolean} do not focus this UI
@@ -24,30 +29,65 @@ const EntityRoom = new UIComponent('EntityRoom', htmlText, cssText);
 EntityRoom.needFocus = false;
 
 /**
- * Once in HTML, focus the input
+ * Initialize events
+ */
+EntityRoom.init = function init() {};
+
+/**
+ * Once in HTML
  */
 EntityRoom.onAppend = function onAppend() {
-	this.ui.find('button').dblclick(
-		function () {
-			if (this.onEnter) {
-				this.onEnter();
-			}
-		}.bind(this)
-	);
+	// event listeners registered here because src/Renderer/Entity/EntityRoom.js:99 overrides init (this.node = EntityRoom.clone('EntityRoom', true); this.node.init = init;)
+	const root = this._shadow || this._host;
+	const btn = root.querySelector('button');
 
-	// Avoid player to move to the cell
-	this.ui.mousedown(function () {
-		return false;
-	});
+	if (btn) {
+		if (this._dblclickHandler) {
+			btn.removeEventListener('dblclick', this._dblclickHandler);
+		}
+		if (this._mousedownHandler) {
+			btn.removeEventListener('mousedown', this._mousedownHandler);
+		}
+	}
 
-	this.ui.css('zIndex', 45);
+	// Save reference for cleanup on onRemove
+	this._dblclickHandler = () => {
+		if (this.onEnter) {
+			this.onEnter();
+		}
+	};
+
+	this._mousedownHandler = e => {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+	};
+
+	if (btn) {
+		btn.addEventListener('dblclick', this._dblclickHandler);
+		btn.addEventListener('mousedown', this._mousedownHandler);
+	}
+
+	this._host.style.zIndex = '45';
 };
 
 /**
  * Remove data from UI
  */
 EntityRoom.onRemove = function onRemove() {
-	this.ui.find('button').unbind();
+	const root = this._shadow || this._host;
+	const btn = root.querySelector('button');
+
+	// Remove the handler to avoid stacking when re-append
+	if (btn) {
+		if (this._dblclickHandler) {
+			btn.removeEventListener('dblclick', this._dblclickHandler);
+			this._dblclickHandler = null;
+		}
+		if (this._mousedownHandler) {
+			btn.removeEventListener('mousedown', this._mousedownHandler);
+			this._mousedownHandler = null;
+		}
+	}
 };
 
 /**
@@ -57,14 +97,41 @@ EntityRoom.onRemove = function onRemove() {
  * @param {string} url - icon url
  */
 EntityRoom.setTitle = function setTitle(title, url) {
-	this.ui.find('button img').attr('src', url);
-	this.ui.find('.title, .overlay').text(title);
+	const root = this._shadow || this._host;
+	const imgEl = root.querySelector('button img');
+	const titleEl = root.querySelector('.title');
+	const overlayEl = root.querySelector('.overlay');
+
+	imgEl.src = url;
+	titleEl.textContent = title;
+	overlayEl.textContent = title;
+
+	// Remove old listeners (setTitle can be called multiple times on clones)
+	if (this._hoverEnter) {
+		titleEl.removeEventListener('mouseenter', this._hoverEnter);
+		titleEl.removeEventListener('mouseleave', this._hoverLeave);
+	}
+
+	// Only show overlay when text is truncated (ellipsis)
+	this._hoverEnter = () => {
+		if (titleEl.scrollWidth > titleEl.clientWidth) {
+			overlayEl.style.display = 'block';
+		}
+	};
+	this._hoverLeave = () => {
+		overlayEl.style.display = 'none';
+	};
+
+	titleEl.addEventListener('mouseenter', this._hoverEnter);
+	titleEl.addEventListener('mouseleave', this._hoverLeave);
 };
 
 /**
- * function to define
+ * function to be hooked
  */
 EntityRoom.onEnter = function onEnter() {};
+
+EntityRoom.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Stored component and return it

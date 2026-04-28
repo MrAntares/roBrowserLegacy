@@ -1,3 +1,10 @@
+:host {
+	width: 161px;
+	height: 30px;
+	top: 0;
+	left: 0;
+}
+
 .EntitySignboard {
 	position: absolute;
 	z-index: 45;
@@ -32,14 +39,12 @@
 }
 
 .EntitySignboard button .title {
-	display: none;
 	position: relative;
 	left: 30px;
 	width: 122px;
 	color: white;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	overflow: hidden;
 	white-space: nowrap;
 	display: inline-block;
 	max-width: 100%;
@@ -52,7 +57,6 @@
 	position: absolute;
 	top: 0px;
 	left: 26px;
-	display: none;
 	white-space: nowrap;
 	z-index: 900;
 	height: 13px;
@@ -60,8 +64,4 @@
 	background-color: rgba(0, 0, 0, 0.6);
 	color: white;
 	text-shadow: 1px 1px black;
-}
-
-.EntitySignboard button:hover .overlay {
-	display: block;
 }
