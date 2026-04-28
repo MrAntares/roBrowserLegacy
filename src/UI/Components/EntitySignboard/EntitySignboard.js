@@ -102,16 +102,22 @@ EntitySignboard.setTitle = function setTitle(title, icon_location) {
 	overlayEl.textContent = title;
 	titleEl.style.display = 'inline-block';
 
+	// Remove old listeners (setTitle can be called multiple times on clones)
+	if (this._hoverEnter) {
+		titleEl.removeEventListener('mouseenter', this._hoverEnter);
+		titleEl.removeEventListener('mouseleave', this._hoverLeave);
+	}
 	// Show overlay only when text is truncated
-	titleEl.addEventListener('mouseenter', () => {
+	this._hoverEnter = () => {
 		if (titleEl.scrollWidth > titleEl.clientWidth) {
 			overlayEl.style.display = 'block';
 		}
-	});
-
-	titleEl.addEventListener('mouseleave', () => {
+	};
+	this._hoverLeave = () => {
 		overlayEl.style.display = 'none';
-	});
+	};
+	titleEl.addEventListener('mouseenter', this._hoverEnter);
+	titleEl.addEventListener('mouseleave', this._hoverLeave);
 
 	// Load icon
 	Client.loadFile(icon_location, url => {
