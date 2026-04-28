@@ -213,7 +213,7 @@ function resize(width, height) {
 
 	const root = ChatBoxSettings._shadow || ChatBoxSettings._host;
 	ChatBoxSettings._host.style.width = 23 + 16 + 16 + width * 32 + 'px';
-
+	ChatBoxSettings._host.style.height = ChatBoxSettings._host.scrollHeight + 'px';
 	const content = root.querySelector('.content');
 	if (content) {
 		content.style.height = height * 32 + 'px';
