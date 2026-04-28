@@ -120,9 +120,7 @@ ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 	if (Session.Entity) {
 		Session.Entity.dialog.set(msg);
 	}
-	this._host.style.display = '';
-	this._fixPositionOverflow();
-	this._fixPositionOverflow();
+	ChangeCart.ui.show();
 	updateList(Session.Character.level);
 	// Avoid stacking duplicate render callbacks if invoked while already open
 	Renderer.stop(render);

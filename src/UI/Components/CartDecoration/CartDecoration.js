@@ -129,9 +129,7 @@ CartDecoration.onSelectCart = function onSelectCart(pkt) {
 		}
 	}
 
-	CartDecoration._host.style.display = '';
-	CartDecoration._fixPositionOverflow();
-	CartDecoration._fixPositionOverflow();
+	CartDecoration.ui.show();
 	Renderer.stop(render);
 	Renderer.render(render);
 };
