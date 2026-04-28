@@ -85,12 +85,13 @@ ChatBoxSettings.init = function init() {
  * Once in HTML
  */
 ChatBoxSettings.onAppend = function onAppend() {
+	// Call resize first while visible so scrollHeight works and host height is updated
+	resize(_preferences.width, _preferences.height);
+
 	const rect = this._host.getBoundingClientRect();
 	this._host.style.top = Math.min(Math.max(0, _preferences.y), Renderer.height - rect.height) + 'px';
 	this._host.style.left = Math.min(Math.max(0, _preferences.x), Renderer.width - rect.width) + 'px';
 	this._host.style.display = 'none';
-
-	resize(_preferences.width, _preferences.height);
 };
 
 /**
@@ -213,7 +214,7 @@ function resize(width, height) {
 
 	const root = ChatBoxSettings._shadow || ChatBoxSettings._host;
 	ChatBoxSettings._host.style.width = 23 + 16 + 16 + width * 32 + 'px';
-	ChatBoxSettings._host.style.height = ChatBoxSettings._host.scrollHeight + 'px';
+
 	const content = root.querySelector('.content');
 	if (content) {
 		content.style.height = height * 32 + 'px';
@@ -223,6 +224,9 @@ function resize(width, height) {
 	if (list) {
 		list.style.height = height * 32 - 31 + 'px';
 	}
+
+	// Update host height after content heights are set
+	ChatBoxSettings._host.style.height = ChatBoxSettings._host.scrollHeight + 'px';
 
 	_preferences.width = width;
 	_preferences.height = height;
