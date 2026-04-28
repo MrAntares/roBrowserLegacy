@@ -569,14 +569,6 @@ ChatRoomCreate.captureKeyEvents = true; // ← capture phase
 
 **Affected components**: ChatRoomCreate, ChatRoom, and any future GUIComponent with text input fields.
 
-````
-
-Also add a new row to the "Quick Reference: What NOT to do" table (around line 528):
-
-| Don't | Do instead | Why |
-|---|---|---|
-| `onKeyDown` without `shadowRoot.activeElement` guard | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow |
-
 And also update `_unbindKeyDown()` in `src/UI/GUIComponent.js` (line 424-430) — it already removes both normal and capture listeners, which is correct. But `_bindKeyDown()` (line 412-422) needs to be updated to check `this.captureKeyEvents`:
 
 ```javascript
@@ -641,3 +633,4 @@ _bindKeyDown() {
 | Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`               | Event retargeting hides real target                |
 | Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()` | `onAppend()` runs every time — duplicates bindings |
 | Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                  | Redundant, may conflict                            |
+| `onKeyDown` without `shadowRoot.activeElement` guard | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow |
