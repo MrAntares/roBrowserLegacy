@@ -246,6 +246,25 @@ class MemoryManager {
 					}
 					break;
 
+				// Delete GPU textures from STR effects
+				case '.str':
+					if (file.layers) {
+						for (i = 0, count = file.layers.length; i < count; ++i) {
+							if (file.layers[i].materials) {
+								for (let j = 0, matCount = file.layers[i].materials.length; j < matCount; ++j) {
+									if (
+										file.layers[i].materials[j] &&
+										gl != null &&
+										gl.isTexture(file.layers[i].materials[j])
+									) {
+										gl.deleteTexture(file.layers[i].materials[j]);
+									}
+								}
+							}
+						}
+					}
+					break;
+
 				// If file is a blob, remove it (wav, mp3, lua, lub, txt, ...)
 				default:
 					if (file.match && file.match(/^blob:/)) {

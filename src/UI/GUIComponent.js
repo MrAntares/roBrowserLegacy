@@ -1227,6 +1227,33 @@ class GUIComponent {
 							el.style.display = 'none';
 						});
 						return wrapper;
+					},
+					css(prop, value) {
+						if (typeof prop === 'object') {
+							results.forEach(el => {
+								for (const [k, v] of Object.entries(prop)) {
+									el.style[k] = typeof v === 'number' ? v + 'px' : String(v);
+								}
+							});
+							return wrapper;
+						}
+						if (value === undefined) {
+							return results[0]
+								? window
+										.getComputedStyle(results[0])
+										.getPropertyValue(prop.replace(/([A-Z])/g, '-$1').toLowerCase())
+								: '';
+						}
+						results.forEach(el => {
+							el.style[prop] = typeof v === 'number' ? value + 'px' : String(value);
+						});
+						return wrapper;
+					},
+					height() {
+						return results[0] ? results[0].getBoundingClientRect().height : 0;
+					},
+					width() {
+						return results[0] ? results[0].getBoundingClientRect().width : 0;
 					}
 				};
 				return wrapper;

@@ -179,7 +179,7 @@ class Renderer {
 
 		// Free cached image data — GPU textures are already gone,
 		// clean JS-side cache so assets reload fresh on context restore
-		MemoryManager.forceClean(null, /\.(bmp|jpg|png)$/i);
+		MemoryManager.forceClean(null, /\.(bmp|jpg|png|spr|pal|str)$/i);
 
 		this.stop();
 
