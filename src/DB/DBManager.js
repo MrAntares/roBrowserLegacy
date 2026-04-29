@@ -377,7 +377,7 @@ class DB {
 					DB.isLoaded = true;
 					// Force cleanup of DB file data (lua, txt, csv, bson blobs) that are no longer needed
 					// gl is null here because we may not have a WebGL context yet during lazy loading
-					MemoryManager.forceClean(null, /\.(lub|lua|txt|csv|bson|bmp)$/i);
+					MemoryManager.forceClean(null, /\.(lub|lua|txt|csv|bson)$/i);
 				}
 			};
 		}
