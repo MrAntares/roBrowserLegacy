@@ -282,7 +282,7 @@ function receive(buf) {
 			packet = Packets.list[id];
 
 			if (packetDump) {
-				const buffer_console = new Uint8Array(buffer, 0, length);
+				const buffer_console = new Uint8Array(buffer, offset - length, length);
 				console.log(
 					'%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s',
 					'color:#900090',
@@ -310,7 +310,7 @@ function receive(buf) {
 			}
 		} else {
 			if (packetDump) {
-				const unknown_buffer = new Uint8Array(buffer, 0, length);
+				const unknown_buffer = new Uint8Array(buffer, offset - length, length);
 				console.log(
 					'%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: [UNKNOWN]\nLength: %d\nContent:\n%s',
 					'color:#900090',
