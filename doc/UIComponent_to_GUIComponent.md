@@ -165,7 +165,7 @@ The host element (`this._host`) is what the outside world sees. Its dimensions d
 - `_fixPositionOverflow()` used by screen boundary checks
 - `UIManager.fixResizeOverflow()` used by window resize
 
-**RULE**: The `:host` selector MUST define `width`, `height`, `top`, and `left`. The inner root element (`#ComponentName`) MUST NOT have `top` or `left` (set them to 0 or omit them).
+**RULE**: The `:host` selector MUST define `width`, `height`, `top`, and `left`. The inner root element (`#ComponentName`) MUST NOT have `top` or `left` (set them to 0 or omit them). `auto` WORKS to `height`.
 
 **Before:**
 
