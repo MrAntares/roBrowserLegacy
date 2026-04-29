@@ -1232,7 +1232,7 @@ class GUIComponent {
 						if (typeof prop === 'object') {
 							results.forEach(el => {
 								for (const [k, v] of Object.entries(prop)) {
-									el.style[k] = typeof v === 'number' ? v + 'px' : String(v);
+									el.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? v + 'px' : String(v);
 								}
 							});
 							return wrapper;
@@ -1245,7 +1245,8 @@ class GUIComponent {
 								: '';
 						}
 						results.forEach(el => {
-							el.style[prop] = typeof v === 'number' ? value + 'px' : String(value);
+							el.style[prop] =
+								typeof value === 'number' && !CSS_NUMBER[prop] ? value + 'px' : String(value);
 						});
 						return wrapper;
 					},
