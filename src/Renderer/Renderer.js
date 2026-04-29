@@ -23,6 +23,7 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import Camera from 'Renderer/Camera.js';
 import Session from 'Engine/SessionStorage.js';
 import PostProcess from 'Renderer/Effects/PostProcess.js';
+import MemoryManager from 'Core/MemoryManager.js';
 
 const { mat4 } = glMatrix;
 
@@ -175,6 +176,10 @@ class Renderer {
 		event.preventDefault(); // Prevent default browser behavior (which is not restoring)
 		this.contextLost = true;
 		console.warn('[Renderer] WebGL Context Lost! Pausing rendering.');
+
+		// Free cached image data — GPU textures are already gone,
+		// clean JS-side cache so assets reload fresh on context restore
+		MemoryManager.forceClean(null, /\.(bmp|jpg|png)$/i);
 
 		this.stop();
 
