@@ -54,6 +54,7 @@ import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import wasmUrl from 'Vendors/liblua5.1.wasm?url';
+import MemoryManager from 'Core/MemoryManager.js';
 
 //Pet
 //MapName
@@ -374,6 +375,9 @@ class DB {
 
 				if (DB.index === DB.count) {
 					DB.isLoaded = true;
+					// Force cleanup of DB file data (lua, txt, csv, bson blobs) that are no longer needed
+					// gl is null here because we may not have a WebGL context yet during lazy loading
+					MemoryManager.forceClean(null, /\.(lub|lua|txt|csv|bson|bmp)$/i);
 				}
 			};
 		}
