@@ -253,76 +253,85 @@ PincodeWindow.onOldPincodeCheckResult = function onOldPincodeCheckResult(result)
  */
 PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
 	const root = PincodeWindow._shadow || PincodeWindow._host;
-	if (
-		PincodeWindow._resetstate === 3 &&
-		typeof PincodeWindow.onPincodeReset === 'function' &&
-		PincodeWindow._pass != PincodeWindow._newpass &&
-		PincodeWindow._newpass.length > 3 &&
-		PincodeWindow._newpass.length < 7 &&
-		PincodeWindow._newpass == PincodeWindow._checkpass
-	) {
-		success();
-	} else {
-		if (PincodeWindow._resetstate === 2) {
-			if (PincodeWindow.sel_input === 0) {
-				if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
-					PincodeWindow.selectInput(1);
-					advanceVisualSeed();
-				} else {
-					UIManager.showMessageBox(DB.getMessage(1887), 'ok');
-					PincodeWindow.clearPin();
-				}
-			} else {
-				if (
-					PincodeWindow._newpass.length > 3 &&
-					PincodeWindow._newpass.length < 7 &&
-					PincodeWindow._pass != PincodeWindow._newpass
-				) {
-					PincodeWindow.selectInput(2);
-					PincodeWindow.clearPin();
-					PincodeWindow._resetstate = 3;
+	if (!root) return;
 
-					const verifyBtn = root.querySelector('.btn2.verify');
-					const okBtn = root.querySelector('.btn2.ok');
-					verifyBtn.disabled = true;
-					okBtn.disabled = false;
-					verifyBtn.style.display = 'none';
-					okBtn.style.display = '';
-					advanceVisualSeed();
-				} else {
-					UIManager.showMessageBox(DB.getMessage(1887), 'ok');
-					if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) {
-						PincodeWindow._newpass = '';
-					}
-				}
-			}
+	if (PincodeWindow._resetstate === 3) {
+		if (
+			typeof PincodeWindow.onPincodeReset === 'function' &&
+			PincodeWindow._pass !== PincodeWindow._newpass &&
+			PincodeWindow._newpass.length > 3 &&
+			PincodeWindow._newpass.length < 7 &&
+			PincodeWindow._newpass === PincodeWindow._checkpass
+		) {
+			success();
 		} else {
-			const okBtn = root.querySelector('.btn2.ok');
-			const changeBtn = root.querySelector('.btn2.change');
-			const verifyBtn = root.querySelector('.btn2.verify');
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+		}
+	} else if (PincodeWindow._resetstate === 2) {
+		if (
+			PincodeWindow._newpass.length > 3 &&
+			PincodeWindow._newpass.length < 7 &&
+			PincodeWindow._pass !== PincodeWindow._newpass
+		) {
+			PincodeWindow.selectInput(2);
+			PincodeWindow.clearPin();
+			PincodeWindow._resetstate = 3;
 
+			const verifyBtn = root.querySelector('.btn2.verify');
+			const okBtn = root.querySelector('.btn2.ok');
+			if (verifyBtn) {
+				verifyBtn.disabled = true;
+				verifyBtn.style.display = 'none';
+			}
+			if (okBtn) {
+				okBtn.disabled = false;
+				okBtn.style.display = '';
+			}
+			advanceVisualSeed();
+		} else {
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+			if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) {
+				PincodeWindow._newpass = '';
+			}
+		}
+	} else if (PincodeWindow._resetstate === 1) {
+		if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
+			PincodeWindow.selectInput(1);
+			PincodeWindow._resetstate = 2;
+			advanceVisualSeed();
+		} else {
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+			PincodeWindow.clearPin();
+		}
+	} else {
+		// State 0: Initial setup
+		const okBtn = root.querySelector('.btn2.ok');
+		const changeBtn = root.querySelector('.btn2.change');
+		const verifyBtn = root.querySelector('.btn2.verify');
+
+		if (okBtn) {
 			okBtn.disabled = true;
 			okBtn.style.display = 'none';
-
-			// Remove old click and rebind
 			const okClone = okBtn.cloneNode(true);
 			okBtn.parentNode.replaceChild(okClone, okBtn);
 			okClone.addEventListener('click', () => PincodeWindow.onParentPincodeResetReq());
 			okClone.addEventListener('mousedown', stopPropagation);
-
+		}
+		if (changeBtn) {
 			changeBtn.disabled = true;
+		}
+		if (verifyBtn) {
 			verifyBtn.disabled = false;
-
 			const verifyClone = verifyBtn.cloneNode(true);
 			verifyBtn.parentNode.replaceChild(verifyClone, verifyBtn);
 			verifyClone.addEventListener('click', () => PincodeWindow.onParentPincodeResetReq());
-
 			verifyClone.style.display = '';
-			PincodeWindow.selectInput(0);
-			PincodeWindow.clearPin();
-			PincodeWindow._resetstate = 2;
-			advanceVisualSeed();
 		}
+
+		PincodeWindow.selectInput(0);
+		PincodeWindow.clearPin();
+		PincodeWindow._resetstate = 1;
+		advanceVisualSeed();
 	}
 };
 
@@ -331,74 +340,87 @@ PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
  */
 PincodeWindow.userChangePin = function userChangePin() {
 	const root = PincodeWindow._shadow || PincodeWindow._host;
-	if (
-		PincodeWindow._resetstate === 3 &&
-		typeof PincodeWindow.onPincodeReset === 'function' &&
-		PincodeWindow._pass.length > 0 &&
-		PincodeWindow._pass != PincodeWindow._newpass &&
-		PincodeWindow._newpass.length > 3 &&
-		PincodeWindow._newpass.length < 7 &&
-		PincodeWindow._newpass == PincodeWindow._checkpass
-	) {
-		success();
-	} else {
+	if (!root) return;
+
+	if (PincodeWindow._resetstate === 3) {
+		// State 3: Confirm pass entered → validate and send
 		if (
-			PincodeWindow._resetstate === 2 &&
 			typeof PincodeWindow.onPincodeReset === 'function' &&
-			PincodeWindow._pass.length > 0 &&
-			PincodeWindow._pass != PincodeWindow._newpass
+			PincodeWindow._pass !== PincodeWindow._newpass &&
+			PincodeWindow._newpass.length > 3 &&
+			PincodeWindow._newpass.length < 7 &&
+			PincodeWindow._newpass === PincodeWindow._checkpass
 		) {
-			if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7) {
-				PincodeWindow.selectInput(2);
-				PincodeWindow._resetstate = 3;
-
-				const verifyBtn = root.querySelector('.btn2.verify');
-				const okBtn = root.querySelector('.btn2.ok');
-				verifyBtn.disabled = true;
-				okBtn.disabled = false;
-				verifyBtn.style.display = 'none';
-				okBtn.style.display = '';
-				advanceVisualSeed();
-			} else {
-				UIManager.showMessageBox(DB.getMessage(1887), 'ok');
-			}
+			success();
 		} else {
-			if (
-				PincodeWindow._resetstate === 1 &&
-				typeof PincodeWindow.onPincodeReset === 'function' &&
-				PincodeWindow._pass.length > 0
-			) {
-				PincodeWindow.selectInput(1);
-				PincodeWindow._resetstate = 2;
-				advanceVisualSeed();
-			} else {
-				const okBtn = root.querySelector('.btn2.ok');
-				const changeBtn = root.querySelector('.btn2.change');
-				const verifyBtn = root.querySelector('.btn2.verify');
-
-				okBtn.disabled = true;
-				okBtn.style.display = 'none';
-
-				const okClone = okBtn.cloneNode(true);
-				okBtn.parentNode.replaceChild(okClone, okBtn);
-				okClone.addEventListener('click', () => PincodeWindow.userChangePin());
-				okClone.addEventListener('mousedown', stopPropagation);
-
-				changeBtn.disabled = true;
-				verifyBtn.disabled = false;
-
-				const verifyClone = verifyBtn.cloneNode(true);
-				verifyBtn.parentNode.replaceChild(verifyClone, verifyBtn);
-				verifyClone.addEventListener('click', () => PincodeWindow.userChangePin());
-
-				verifyClone.style.display = '';
-				PincodeWindow.selectInput(0);
-				PincodeWindow.resetPins();
-				PincodeWindow._resetstate = 1;
-				advanceVisualSeed();
-				PincodeWindow.onUserPincodeResetReq();
+			// Confirmation doesn't match or invalid
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+		}
+	} else if (PincodeWindow._resetstate === 2) {
+		// State 2: New pass entered → advance to confirm pass input
+		if (
+			PincodeWindow._newpass.length > 3 &&
+			PincodeWindow._newpass.length < 7 &&
+			PincodeWindow._pass !== PincodeWindow._newpass
+		) {
+			PincodeWindow.selectInput(2);
+			PincodeWindow._resetstate = 3;
+			const verifyBtn = root.querySelector('.btn2.verify');
+			const okBtn = root.querySelector('.btn2.ok');
+			if (verifyBtn) {
+				verifyBtn.disabled = true;
+				verifyBtn.style.display = 'none';
+			}
+			if (okBtn) {
+				okBtn.disabled = false;
+				okBtn.style.display = '';
+			}
+			advanceVisualSeed();
+		} else {
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+			if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) {
+				PincodeWindow._newpass = '';
 			}
 		}
+	} else if (PincodeWindow._resetstate === 1) {
+		// State 1: Old pass entered → advance to new pass input
+		if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
+			PincodeWindow.selectInput(1);
+			PincodeWindow._resetstate = 2;
+			advanceVisualSeed();
+		} else {
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+			PincodeWindow.clearPin();
+		}
+	} else {
+		// State 0: Initial setup — show old pass input, verify button
+		const okBtn = root.querySelector('.btn2.ok');
+		const changeBtn = root.querySelector('.btn2.change');
+		const verifyBtn = root.querySelector('.btn2.verify');
+
+		if (okBtn) {
+			okBtn.disabled = true;
+			okBtn.style.display = 'none';
+			okBtn.replaceWith(okBtn.cloneNode(true));
+			const newOkBtn = root.querySelector('.btn2.ok');
+			newOkBtn.addEventListener('click', () => PincodeWindow.userChangePin());
+		}
+		if (changeBtn) {
+			changeBtn.disabled = true;
+		}
+		if (verifyBtn) {
+			verifyBtn.disabled = false;
+			verifyBtn.replaceWith(verifyBtn.cloneNode(true));
+			const newVerifyBtn = root.querySelector('.btn2.verify');
+			newVerifyBtn.addEventListener('click', () => PincodeWindow.userChangePin());
+			newVerifyBtn.style.display = '';
+		}
+
+		PincodeWindow.selectInput(0);
+		PincodeWindow.resetPins();
+		PincodeWindow._resetstate = 1;
+		advanceVisualSeed();
+		PincodeWindow.onUserPincodeResetReq();
 	}
 };
 
@@ -461,11 +483,11 @@ function success() {
 	let newPassEnc = PincodeWindow._newpass;
 
 	if (PincodeWindow._keypad !== undefined) {
-		if (PincodeWindow._pass !== undefined && PincodeWindow._pass !== '') {
-			passEnc = encryptPincode(PincodeWindow._pass);
+		if (passEnc.length > 0) {
+			passEnc = encryptPincode(passEnc);
 		}
-		if (PincodeWindow._newpass !== undefined && PincodeWindow._newpass !== '') {
-			newPassEnc = encryptPincode(PincodeWindow._newpass);
+		if (newPassEnc.length > 0) {
+			newPassEnc = encryptPincode(newPassEnc);
 		}
 	}
 
