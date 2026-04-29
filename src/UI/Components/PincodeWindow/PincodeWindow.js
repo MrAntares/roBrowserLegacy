@@ -5,42 +5,26 @@
  *
  * This file is part of ROBrowser, Ragnarok Online in the Web Browser (http://www.robrowser.com/).
  *
- * @author Disaml
+ * @author Disaml, AoShinHo
  */
 
 import DB from 'DB/DBManager.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './PincodeWindow.html?raw';
 import cssText from './PincodeWindow.css?raw';
+import 'UI/Elements/Elements.js';
 
 /**
  * Pincode Window namespace
  */
-const PincodeWindow = new UIComponent('PincodeWindow', htmlText, cssText);
+const PincodeWindow = new GUIComponent('PincodeWindow', cssText);
 
 /**
- * @var {Preference} window preferences
+ * Render HTML
  */
-/*var _preferences = Preferences.get('PincodeWindow', {
-        x: 540,
-        y: 320
-    }, 1.0);
-
-    let sel_input = 0;
-
-    let _checkpass = '';
-
-    let _newpass = '';
-
-    let _pass = '';
-
-    let _keypad = undefined;
-
-    let _currentSeed = undefined;
-
-    let _resetstate = 0;*/ // UNUSED
+PincodeWindow.render = () => htmlText;
 
 PincodeWindow.resetUI = function resetUI() {
 	PincodeWindow._resetstate = 0;
@@ -79,35 +63,30 @@ PincodeWindow.setUserSeed = function setUserSeed(value) {
 };
 
 function shuffleUsingKeypad(keypad) {
-	const ui = PincodeWindow.ui;
-	if (!ui || !keypad) {
+	const root = PincodeWindow._shadow || PincodeWindow._host;
+	if (!root || !keypad) {
 		return;
 	}
-	for (let loc = 0; loc < 10; loc++) {
-		const posBtn = ui.find('.btn.num' + loc);
-		if (!posBtn || posBtn.length === 0) {
-			continue;
-		}
 
-		const el = posBtn[0];
-		const off = posBtn.offset();
-		el.__original_x_pos = off.left;
-		el.__original_y_pos = off.top;
+	// Store original positions from CSS
+	const originalPositions = {};
+	for (let loc = 0; loc < 10; loc++) {
+		const btn = root.querySelector('.btn.num' + loc);
+		if (!btn) continue;
+		originalPositions[loc] = {
+			top: btn.offsetTop,
+			left: btn.offsetLeft
+		};
 	}
+
+	// Move buttons to their shuffled positions
 	for (let loc = 0; loc < 10; loc++) {
 		const d = keypad[loc];
-		const btn = ui.find('.btn.num' + d);
-		if (!btn || btn.length === 0) {
-			continue;
-		}
+		const btn = root.querySelector('.btn.num' + d);
+		if (!btn || !originalPositions[loc]) continue;
 
-		const targetEl = ui.find('.btn.num' + loc)[0];
-		const target_x = targetEl.__original_x_pos;
-		const target_y = targetEl.__original_y_pos;
-		btn.offset({
-			left: target_x,
-			top: target_y
-		});
+		btn.style.top = originalPositions[loc].top + 'px';
+		btn.style.left = originalPositions[loc].left + 'px';
 	}
 }
 
@@ -125,104 +104,79 @@ function advanceVisualSeed() {
  * Initialize UI
  */
 PincodeWindow.init = function init() {
-	const ui = this.ui;
+	const root = this._shadow || this._host;
 
-	this.ui.css({
-		top: (Renderer.height - 358) / 2,
-		left: (Renderer.width - 576) / 2
+	this._host.style.top = (Renderer.height - 358) / 2 + 'px';
+	this._host.style.left = (Renderer.width - 576) / 2 + 'px';
+
+	// Disable pass fields
+	root.querySelector('.pass').disabled = true;
+	root.querySelector('.newpass').disabled = true;
+	root.querySelector('.checkpass').disabled = true;
+
+	// Hide unused exit button
+	root.querySelector('.btn2.unused').style.display = 'none';
+
+	// Hide and disable verify button
+	const verifyBtn = root.querySelector('.btn2.verify');
+	verifyBtn.disabled = true;
+	verifyBtn.style.display = 'none';
+
+	// Enable and show change and ok buttons
+	const changeBtn = root.querySelector('.btn2.change');
+	const okBtn = root.querySelector('.btn2.ok');
+	changeBtn.disabled = false;
+	okBtn.disabled = false;
+	okBtn.style.display = '';
+
+	// Remove old listeners via cloneNode trick
+	const panel = root.querySelector('.panel');
+	const oldBtns = panel.querySelectorAll('.btn, .btn2, .numReset');
+	oldBtns.forEach(btn => {
+		const clone = btn.cloneNode(true);
+		btn.parentNode.replaceChild(clone, btn);
 	});
 
-	// Disable pass fields.
-	ui.find('.pass').prop('disabled', true);
-	ui.find('.newpass').prop('disabled', true);
-	ui.find('.checkpass').prop('disabled', true);
+	// Re-query after cloneNode
+	const cancelBtn = root.querySelector('.btn2.cancel');
+	const okBtnNew = root.querySelector('.btn2.ok');
+	const changeBtnNew = root.querySelector('.btn2.change');
+	const verifyBtnNew = root.querySelector('.btn2.verify');
+	const numResetBtn = root.querySelector('.numReset');
 
-	// This exit button was never used.
-	ui.find('.btn2.unused').hide();
+	// Bind number buttons
+	for (let i = 0; i <= 9; i++) {
+		const numBtn = root.querySelector('.btn.num' + i);
+		if (numBtn) {
+			const num = String(i);
+			numBtn.addEventListener('click', () => keyNum(num));
+		}
+	}
 
-	// Hide, disable, and fix the location of the verify button.
-	ui.find('.btn2.verify').prop('disabled', true);
-	ui.find('.btn2.verify').hide();
+	// Bind action buttons
+	cancelBtn.addEventListener('click', cancel);
+	okBtnNew.addEventListener('click', success);
+	changeBtnNew.addEventListener('click', PincodeWindow.userChangePin);
 
-	// Enable and show the change and ok buttons.
-	ui.find('.btn2.change').prop('disabled', false);
-	ui.find('.btn2.ok').prop('disabled', false);
-	ui.find('.btn2.ok').show();
-
-	// Unbind all buttons.
-	ui.find('.btn2.cancel').off('click');
-	ui.find('.btn2.ok').off('click');
-	ui.find('.btn.num1').off('click');
-	ui.find('.btn.num2').off('click');
-	ui.find('.btn.num3').off('click');
-	ui.find('.btn.num4').off('click');
-	ui.find('.btn.num5').off('click');
-	ui.find('.btn.num6').off('click');
-	ui.find('.btn.num7').off('click');
-	ui.find('.btn.num8').off('click');
-	ui.find('.btn.num9').off('click');
-	ui.find('.btn.num0').off('click');
-	ui.find('.btn2.change').off('click');
-	ui.find('.btn2.verify').off('click');
-	ui.find('.numReset').off('click');
-
-	// Bind buttons
-	ui.find('.btn2.cancel').click(cancel);
-	ui.find('.btn2.ok').click(success);
-	ui.find('.btn.num1').click(function () {
-		keyNum('1');
-	});
-	ui.find('.btn.num2').click(function () {
-		keyNum('2');
-	});
-	ui.find('.btn.num3').click(function () {
-		keyNum('3');
-	});
-	ui.find('.btn.num4').click(function () {
-		keyNum('4');
-	});
-	ui.find('.btn.num5').click(function () {
-		keyNum('5');
-	});
-	ui.find('.btn.num6').click(function () {
-		keyNum('6');
-	});
-	ui.find('.btn.num7').click(function () {
-		keyNum('7');
-	});
-	ui.find('.btn.num8').click(function () {
-		keyNum('8');
-	});
-	ui.find('.btn.num9').click(function () {
-		keyNum('9');
-	});
-	ui.find('.btn.num0').click(function () {
-		keyNum('0');
-	});
-	ui.find('.btn2.change').click(PincodeWindow.userChangePin);
-
-	ui.find('.numReset').click(() => {
+	numResetBtn.addEventListener('click', () => {
 		PincodeWindow.clearPin();
 		advanceVisualSeed();
 	});
 
-	// Randomize position of num buttons.
+	// Randomize position of num buttons
 	if (PincodeWindow._keypad !== undefined) {
 		shuffleUsingKeypad(PincodeWindow._keypad);
 	}
 
-	// Deactivate stopPropagation.
-	ui.find('.titlebar .base').off('mousedown');
-	ui.find('.btn2.cancel').off('mousedown');
-	ui.find('.btn2.ok').off('mousedown');
+	// Don't activate drag when clicking on buttons
+	const baseBtn = root.querySelector('.titlebar .base');
+	if (baseBtn) {
+		baseBtn.addEventListener('mousedown', stopPropagation);
+	}
+	cancelBtn.addEventListener('mousedown', stopPropagation);
+	okBtnNew.addEventListener('mousedown', stopPropagation);
 
-	// Don't activate drag drop when clicking on buttons
-	ui.find('.titlebar .base').mousedown(stopPropagation);
-
-	ui.find('.btn2.cancel').mousedown(stopPropagation);
-	ui.find('.btn2.ok').mousedown(stopPropagation);
-
-	this.draggable(ui.find('.titlebar'));
+	this.draggable('.titlebar');
 
 	PincodeWindow.resetPins();
 	PincodeWindow.selectInput(0);
@@ -232,9 +186,24 @@ PincodeWindow.init = function init() {
  * Once append to body
  */
 PincodeWindow.onAppend = function onAppend() {
+	// Create modal overlay to block clicks on elements behind
+	if (!PincodeWindow._overlay) {
+		const overlay = document.createElement('div');
+		overlay.className = 'win_popup_overlay';
+		document.body.appendChild(overlay);
+		PincodeWindow._overlay = overlay;
+	}
+
 	// Start rendering
 	Renderer.render(render);
-	PincodeWindow.ui.focus();
+
+	// Adjust overlay z-index AFTER focus()/placeOnTop() has set the host z-index
+	queueMicrotask(() => {
+		if (PincodeWindow._overlay && PincodeWindow._host) {
+			const hostZ = parseInt(PincodeWindow._host.style.zIndex, 10) || 100;
+			PincodeWindow._overlay.style.zIndex = String(hostZ - 1);
+		}
+	});
 };
 
 /**
@@ -242,36 +211,51 @@ PincodeWindow.onAppend = function onAppend() {
  */
 PincodeWindow.onRemove = function onRemove() {
 	Renderer.stop(render);
+
+	// Remove modal overlay
+	if (PincodeWindow._overlay) {
+		PincodeWindow._overlay.remove();
+		PincodeWindow._overlay = null;
+	}
 };
 
 /**
- * Stop an event to propagate
+ * Stop an event from propagating
  */
 function stopPropagation(event) {
 	event.stopImmediatePropagation();
-	return false;
+	event.preventDefault();
 }
 
 PincodeWindow.selectInput = function selectInput(selection) {
 	PincodeWindow.sel_input = selection;
-	if (PincodeWindow.ui !== undefined) {
-		switch (selection) {
-			case 1:
-				PincodeWindow.ui.find('.pass').css({ 'background-color': '#D3D3D3' });
-				PincodeWindow.ui.find('.checkpass').css({ 'background-color': '#D3D3D3' });
-				PincodeWindow.ui.find('.newpass').css({ 'background-color': '#87CEFA' });
-				break;
-			default:
-				PincodeWindow.ui.find('.newpass').css({ 'background-color': '#D3D3D3' });
-				PincodeWindow.ui.find('.checkpass').css({ 'background-color': '#D3D3D3' });
-				PincodeWindow.ui.find('.pass').css({ 'background-color': '#87CEFA' });
-				break;
-			case 2:
-				PincodeWindow.ui.find('.newpass').css({ 'background-color': '#D3D3D3' });
-				PincodeWindow.ui.find('.pass').css({ 'background-color': '#D3D3D3' });
-				PincodeWindow.ui.find('.checkpass').css({ 'background-color': '#87CEFA' });
-				break;
-		}
+	const root = PincodeWindow._shadow || PincodeWindow._host;
+	if (!root) return;
+
+	const passEl = root.querySelector('.pass');
+	const newpassEl = root.querySelector('.newpass');
+	const checkpassEl = root.querySelector('.checkpass');
+	if (!passEl) return;
+
+	const active = '#87CEFA';
+	const inactive = '#D3D3D3';
+
+	switch (selection) {
+		case 1:
+			passEl.style.backgroundColor = inactive;
+			checkpassEl.style.backgroundColor = inactive;
+			newpassEl.style.backgroundColor = active;
+			break;
+		case 2:
+			newpassEl.style.backgroundColor = inactive;
+			passEl.style.backgroundColor = inactive;
+			checkpassEl.style.backgroundColor = active;
+			break;
+		default:
+			newpassEl.style.backgroundColor = inactive;
+			checkpassEl.style.backgroundColor = inactive;
+			passEl.style.backgroundColor = active;
+			break;
 	}
 };
 
@@ -280,10 +264,8 @@ PincodeWindow.selectInput = function selectInput(selection) {
  */
 PincodeWindow.onOldPincodeCheckResult = function onOldPincodeCheckResult(result) {
 	if (result === true) {
-		// Call success.
 		success();
 	} else {
-		// Old pin code failed.
 		UIManager.showMessageBox(DB.getMessage(1892), 'ok');
 	}
 };
@@ -292,68 +274,86 @@ PincodeWindow.onOldPincodeCheckResult = function onOldPincodeCheckResult(result)
  * Called by the parent when we have received a pincode reset request from the server.
  */
 PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
-	const ui = PincodeWindow.ui;
-	if (
-		PincodeWindow._resetstate === 3 &&
-		typeof PincodeWindow.onPincodeReset === 'function' &&
-		PincodeWindow._pass != PincodeWindow._newpass &&
-		PincodeWindow._newpass.length > 3 &&
-		PincodeWindow._newpass.length < 7 &&
-		PincodeWindow._newpass == PincodeWindow._checkpass
-	) {
-		success();
-	} else {
-		if (PincodeWindow._resetstate === 2) {
-			if (PincodeWindow.sel_input === 0) {
-				if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
-					PincodeWindow.selectInput(1);
-					advanceVisualSeed();
-				} else {
-					UIManager.showMessageBox(DB.getMessage(1887), 'ok');
-					PincodeWindow.clearPin();
-				}
-			} else {
-				if (
-					PincodeWindow._newpass.length > 3 &&
-					PincodeWindow._newpass.length < 7 &&
-					PincodeWindow._pass != PincodeWindow._newpass
-				) {
-					PincodeWindow.selectInput(2);
-					PincodeWindow.clearPin();
-					PincodeWindow._resetstate = 3;
-					PincodeWindow.ui.find('.btn2.verify').prop('disabled', true);
-					PincodeWindow.ui.find('.btn2.ok').prop('disabled', false);
-					PincodeWindow.ui.find('.btn2.verify').hide();
-					PincodeWindow.ui.find('.btn2.ok').show();
-					advanceVisualSeed();
-				} else {
-					UIManager.showMessageBox(DB.getMessage(1887), 'ok');
-					// Optionally clear _newpass if invalid length
-					if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) {
-						PincodeWindow._newpass = '';
-					}
-					// If same as old, perhaps another message, but for now stay
-				}
-			}
+	const root = PincodeWindow._shadow || PincodeWindow._host;
+	if (!root) return;
+
+	if (PincodeWindow._resetstate === 3) {
+		if (
+			typeof PincodeWindow.onPincodeReset === 'function' &&
+			PincodeWindow._pass !== PincodeWindow._newpass &&
+			PincodeWindow._newpass.length > 3 &&
+			PincodeWindow._newpass.length < 7 &&
+			PincodeWindow._newpass === PincodeWindow._checkpass
+		) {
+			success();
 		} else {
-			PincodeWindow.ui.find('.btn2.ok').prop('disabled', true);
-			PincodeWindow.ui.find('.btn2.ok').hide();
-			PincodeWindow.ui.find('.btn2.ok').off('click');
-			PincodeWindow.ui.find('.btn2.ok').click(function () {
-				PincodeWindow.onParentPincodeResetReq();
-			});
-			PincodeWindow.ui.find('.btn2.change').prop('disabled', true);
-			PincodeWindow.ui.find('.btn2.verify').prop('disabled', false);
-			PincodeWindow.ui.find('.btn2.verify').off('click');
-			ui.find('.btn2.verify').click(function () {
-				PincodeWindow.onParentPincodeResetReq();
-			});
-			PincodeWindow.ui.find('.btn2.verify').show();
-			PincodeWindow.selectInput(0);
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+		}
+	} else if (PincodeWindow._resetstate === 2) {
+		if (
+			PincodeWindow._newpass.length > 3 &&
+			PincodeWindow._newpass.length < 7 &&
+			PincodeWindow._pass !== PincodeWindow._newpass
+		) {
+			PincodeWindow.selectInput(2);
 			PincodeWindow.clearPin();
+			PincodeWindow._resetstate = 3;
+
+			const verifyBtn = root.querySelector('.btn2.verify');
+			const okBtn = root.querySelector('.btn2.ok');
+			if (verifyBtn) {
+				verifyBtn.disabled = true;
+				verifyBtn.style.display = 'none';
+			}
+			if (okBtn) {
+				okBtn.disabled = false;
+				okBtn.style.display = '';
+			}
+			advanceVisualSeed();
+		} else {
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+			if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) {
+				PincodeWindow._newpass = '';
+			}
+		}
+	} else if (PincodeWindow._resetstate === 1) {
+		if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
+			PincodeWindow.selectInput(1);
 			PincodeWindow._resetstate = 2;
 			advanceVisualSeed();
+		} else {
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+			PincodeWindow.clearPin();
 		}
+	} else {
+		// State 0: Initial setup
+		const okBtn = root.querySelector('.btn2.ok');
+		const changeBtn = root.querySelector('.btn2.change');
+		const verifyBtn = root.querySelector('.btn2.verify');
+
+		if (okBtn) {
+			okBtn.disabled = true;
+			okBtn.style.display = 'none';
+			const okClone = okBtn.cloneNode(true);
+			okBtn.parentNode.replaceChild(okClone, okBtn);
+			okClone.addEventListener('click', () => PincodeWindow.onParentPincodeResetReq());
+			okClone.addEventListener('mousedown', stopPropagation);
+		}
+		if (changeBtn) {
+			changeBtn.disabled = true;
+		}
+		if (verifyBtn) {
+			verifyBtn.disabled = false;
+			const verifyClone = verifyBtn.cloneNode(true);
+			verifyBtn.parentNode.replaceChild(verifyClone, verifyBtn);
+			verifyClone.addEventListener('click', () => PincodeWindow.onParentPincodeResetReq());
+			verifyClone.style.display = '';
+		}
+
+		PincodeWindow.selectInput(0);
+		PincodeWindow.clearPin();
+		PincodeWindow._resetstate = 1;
+		advanceVisualSeed();
 	}
 };
 
@@ -361,82 +361,100 @@ PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
  * Called by us when the user clicks on the change button in the UI.
  */
 PincodeWindow.userChangePin = function userChangePin() {
-	/**
-	 * Note: Despite what the verify button says, the client only sends
-	 * the old pin code for verification, before sending the change packet.
-	 */
-	if (
-		PincodeWindow._resetstate === 3 &&
-		typeof PincodeWindow.onPincodeReset === 'function' &&
-		PincodeWindow._pass.length > 0 &&
-		PincodeWindow._pass != PincodeWindow._newpass &&
-		PincodeWindow._newpass.length > 3 &&
-		PincodeWindow._newpass.length < 7 &&
-		PincodeWindow._newpass == PincodeWindow._checkpass
-	) {
-		success();
-	} else {
+	const root = PincodeWindow._shadow || PincodeWindow._host;
+	if (!root) return;
+
+	if (PincodeWindow._resetstate === 3) {
+		// State 3: Confirm pass entered → validate and send
 		if (
-			PincodeWindow._resetstate === 2 &&
 			typeof PincodeWindow.onPincodeReset === 'function' &&
-			PincodeWindow._pass.length > 0 &&
-			PincodeWindow._pass != PincodeWindow._newpass
+			PincodeWindow._pass !== PincodeWindow._newpass &&
+			PincodeWindow._newpass.length > 3 &&
+			PincodeWindow._newpass.length < 7 &&
+			PincodeWindow._newpass === PincodeWindow._checkpass
 		) {
-			if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7) {
-				PincodeWindow.selectInput(2);
-				PincodeWindow._resetstate = 3;
-				PincodeWindow.ui.find('.btn2.verify').prop('disabled', true);
-				PincodeWindow.ui.find('.btn2.ok').prop('disabled', false);
-				PincodeWindow.ui.find('.btn2.verify').hide();
-				PincodeWindow.ui.find('.btn2.ok').show();
-				advanceVisualSeed();
-			} else {
-				UIManager.showMessageBox(DB.getMessage(1887), 'ok');
-			}
+			success();
 		} else {
-			if (
-				PincodeWindow._resetstate === 1 &&
-				typeof PincodeWindow.onPincodeReset === 'function' &&
-				PincodeWindow._pass.length > 0
-			) {
-				PincodeWindow.selectInput(1);
-				PincodeWindow._resetstate = 2;
-				advanceVisualSeed();
-			} else {
-				PincodeWindow.ui.find('.btn2.ok').prop('disabled', true);
-				PincodeWindow.ui.find('.btn2.ok').hide();
-				PincodeWindow.ui.find('.btn2.ok').off('click');
-				PincodeWindow.ui.find('.btn2.ok').click(function () {
-					PincodeWindow.userChangePin();
-				});
-				PincodeWindow.ui.find('.btn2.change').prop('disabled', true);
-				PincodeWindow.ui.find('.btn2.verify').prop('disabled', false);
-				PincodeWindow.ui.find('.btn2.verify').off('click');
-				PincodeWindow.ui.find('.btn2.verify').click(function () {
-					PincodeWindow.userChangePin();
-				});
-				PincodeWindow.ui.find('.btn2.verify').show();
-				PincodeWindow.selectInput(0);
-				PincodeWindow.resetPins();
-				PincodeWindow._resetstate = 1;
-				advanceVisualSeed();
-				PincodeWindow.onUserPincodeResetReq();
+			// Confirmation doesn't match or invalid
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+		}
+	} else if (PincodeWindow._resetstate === 2) {
+		// State 2: New pass entered → advance to confirm pass input
+		if (
+			PincodeWindow._newpass.length > 3 &&
+			PincodeWindow._newpass.length < 7 &&
+			PincodeWindow._pass !== PincodeWindow._newpass
+		) {
+			PincodeWindow.selectInput(2);
+			PincodeWindow._resetstate = 3;
+			const verifyBtn = root.querySelector('.btn2.verify');
+			const okBtn = root.querySelector('.btn2.ok');
+			if (verifyBtn) {
+				verifyBtn.disabled = true;
+				verifyBtn.style.display = 'none';
+			}
+			if (okBtn) {
+				okBtn.disabled = false;
+				okBtn.style.display = '';
+			}
+			advanceVisualSeed();
+		} else {
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+			if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) {
+				PincodeWindow._newpass = '';
 			}
 		}
+	} else if (PincodeWindow._resetstate === 1) {
+		// State 1: Old pass entered → advance to new pass input
+		if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
+			PincodeWindow.selectInput(1);
+			PincodeWindow._resetstate = 2;
+			advanceVisualSeed();
+		} else {
+			UIManager.showMessageBox(DB.getMessage(1887), 'ok');
+			PincodeWindow.clearPin();
+		}
+	} else {
+		// State 0: Initial setup — show old pass input, verify button
+		const okBtn = root.querySelector('.btn2.ok');
+		const changeBtn = root.querySelector('.btn2.change');
+		const verifyBtn = root.querySelector('.btn2.verify');
+
+		if (okBtn) {
+			okBtn.disabled = true;
+			okBtn.style.display = 'none';
+			okBtn.replaceWith(okBtn.cloneNode(true));
+			const newOkBtn = root.querySelector('.btn2.ok');
+			newOkBtn.addEventListener('click', () => PincodeWindow.userChangePin());
+		}
+		if (changeBtn) {
+			changeBtn.disabled = true;
+		}
+		if (verifyBtn) {
+			verifyBtn.disabled = false;
+			verifyBtn.replaceWith(verifyBtn.cloneNode(true));
+			const newVerifyBtn = root.querySelector('.btn2.verify');
+			newVerifyBtn.addEventListener('click', () => PincodeWindow.userChangePin());
+			newVerifyBtn.style.display = '';
+		}
+
+		PincodeWindow.selectInput(0);
+		PincodeWindow.resetPins();
+		PincodeWindow._resetstate = 1;
+		advanceVisualSeed();
+		PincodeWindow.onUserPincodeResetReq();
 	}
 };
 
 function generateKeypad(_userseed) {
-	const tab = new Uint8Array([0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9]); // This is a char array in rathena. (So 1 byte values.)
-	const keypad = new Uint8Array([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]); // This is a char array in rathena. (So 1 byte values.)
+	const tab = new Uint8Array([0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9]);
+	const keypad = new Uint8Array([0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]);
 	const multiplier = parseInt('0x3498', 16);
 	const baseSeed = parseInt('0x881234', 16);
-	let i = 0;
 	let pos = 0;
-	const userSeed = new Uint32Array([_userseed]); // It's tempting to make this a regular var, but we need the truncating behavior of an int32 for the pad generation.
+	const userSeed = new Uint32Array([_userseed]);
 
-	// Set up onetime pad.
-	for (i = 1; i < 10; i++) {
+	for (let i = 1; i < 10; i++) {
 		userSeed[0] = (baseSeed + userSeed[0] * multiplier) >>> 0;
 		pos = userSeed[0] % (i + 1);
 		if (i != pos) {
@@ -446,8 +464,7 @@ function generateKeypad(_userseed) {
 		}
 	}
 
-	// Set up keypad.
-	for (i = 0; i < 10; i++) {
+	for (let i = 0; i < 10; i++) {
 		keypad[tab[i]] = i;
 	}
 
@@ -457,15 +474,11 @@ function generateKeypad(_userseed) {
 function encryptPincode(pincode) {
 	let intCode = 0;
 	let strCode = '';
-	//var keypad = undefined; //UNUSED
-	let i = 0;
-	let x = 0;
 	let out = '';
 
 	intCode = Number.parseInt(pincode);
 	if (isNaN(intCode) === false && Number.isSafeInteger(intCode) === true) {
 		if (intCode >= 0 && intCode < 1000000 && pincode.length >= 4 && pincode.length <= 6) {
-			// Get intCode into a parseable string.
 			for (let ic = pincode.length - 1; ic > 0; ic--) {
 				if (intCode < Math.pow(10, ic)) {
 					strCode += '0';
@@ -473,9 +486,8 @@ function encryptPincode(pincode) {
 			}
 			strCode += intCode.toString();
 
-			// Encrypt raw digits with pad.
-			for (i = 0; i < strCode.length; i++) {
-				x = Number(strCode[i]);
+			for (let i = 0; i < strCode.length; i++) {
+				const x = Number(strCode[i]);
 				out += PincodeWindow._keypad[x].toString();
 			}
 		} else {
@@ -493,11 +505,11 @@ function success() {
 	let newPassEnc = PincodeWindow._newpass;
 
 	if (PincodeWindow._keypad !== undefined) {
-		if (PincodeWindow._pass !== undefined && PincodeWindow._pass !== '') {
-			passEnc = encryptPincode(PincodeWindow._pass);
+		if (passEnc.length > 0) {
+			passEnc = encryptPincode(passEnc);
 		}
-		if (PincodeWindow._newpass !== undefined && PincodeWindow._newpass !== '') {
-			newPassEnc = encryptPincode(PincodeWindow._newpass);
+		if (newPassEnc.length > 0) {
+			newPassEnc = encryptPincode(newPassEnc);
 		}
 	}
 
@@ -523,7 +535,7 @@ function cancel() {
 		DB.getMessage(17),
 		'ok',
 		'cancel',
-		function () {
+		() => {
 			PincodeWindow.resetPins();
 			PincodeWindow.onExitRequest();
 		},
@@ -546,45 +558,52 @@ function keyNum(num) {
 }
 
 /**
- * Method to define
+ * Methods to define (overridden by CharEngine.js)
  */
-// Called when the performing a new pin / check pin request and the user has typed in their pin.
 PincodeWindow.onPincodeCheckRequest = function onPincodeCheckRequest() {
 	console.error('ERROR: PincodeWindow.onPincodeCheckRequest() not defined.');
 };
-// Called when the window is closed.
 PincodeWindow.onExitRequest = function onExitRequest() {
 	console.error('WARNING: PincodeWindow.onExitRequest() not defined.');
 	PincodeWindow.resetUI();
 };
-// Called when the user has provided all three pincodes needed for a reset.
 PincodeWindow.onPincodeReset = function onPincodeReset() {
 	console.error('ERROR: PincodeWindow.onPincodeReset() not defined.');
 };
-// Called when the user clicks on the change button.
 PincodeWindow.onUserPincodeResetReq = function onUserPincodeResetReq() {
 	console.error('ERROR: PincodeWindow.onUserPincodeResetReq() not defined.');
 };
 
-function render(tick) {
+function render() {
+	const root = PincodeWindow._shadow || PincodeWindow._host;
+	if (!root) return;
+
 	let str = '';
 	for (let x = 0; x < PincodeWindow._newpass.length; x++) {
 		str += '*';
 	}
-	PincodeWindow.ui.find('.newpass').val(str);
+	const newpassEl = root.querySelector('.newpass');
+	if (newpassEl) newpassEl.value = str;
+
 	str = '';
 	for (let x = 0; x < PincodeWindow._checkpass.length; x++) {
 		str += '*';
 	}
-	PincodeWindow.ui.find('.checkpass').val(str);
+	const checkpassEl = root.querySelector('.checkpass');
+	if (checkpassEl) checkpassEl.value = str;
+
 	str = '';
 	for (let x = 0; x < PincodeWindow._pass.length; x++) {
 		str += '*';
 	}
-	PincodeWindow.ui.find('.pass').val(str);
+	const passEl = root.querySelector('.pass');
+	if (passEl) passEl.value = str;
 }
 
+PincodeWindow.mouseMode = GUIComponent.MouseMode.STOP;
+PincodeWindow.needFocus = true;
+
 /**
- * Create componentand export it
+ * Create component and export it
  */
 export default UIManager.addComponent(PincodeWindow);
