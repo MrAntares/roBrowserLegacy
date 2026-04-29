@@ -25,7 +25,7 @@ ContextMenu.render = () => '<div id="ContextMenu"><div class="menu"></div></div>
 /**
  * @var {boolean} focus this UI
  */
-ContextMenu.needFocus = false;
+ContextMenu.needFocus = true;
 
 /**
  * Initialize event handler
