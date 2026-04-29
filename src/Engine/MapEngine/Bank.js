@@ -6,10 +6,6 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-/**
- * Load dependencies
- */
-
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -18,9 +14,6 @@ import Bank from 'UI/Components/Bank/Bank.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 class BankEngine {
-	/**
-	 * Initialize
-	 */
 	static init() {
 		Network.hookPacket(PACKET.ZC.ACK_OPEN_BANKING, onOpenBank);
 		Network.hookPacket(PACKET.ZC.BANKING_CHECK, onBankInfo);
@@ -30,147 +23,73 @@ class BankEngine {
 	}
 }
 
-/**
- * Open Bank and request to server bank details
- */
 function onOpenBank(pkt) {
 	const send_pkt = new PACKET.CZ.REQ_BANKING_CHECK();
 	send_pkt.AID = Session.AID;
 	Network.sendPacket(send_pkt);
 }
 
-/**
- * Get bank informations
- *
- * @param {object} pkt - PACKET.ZC.BANKING_CHECK
- */
 function onBankInfo(pkt) {
 	if (!Bank.__active) {
-		const inbank = Bank.ui.find('.inbank.currency');
-		const onhand = Bank.ui.find('.onhand.currency');
-		if (inbank) {
-			inbank.text(formatNumberWithCommas(pkt.money) + 'z');
-		}
-		if (onhand) {
-			onhand.text(formatNumberWithCommas(Session.zeny) + 'z');
-		}
+		Bank.updateBankDisplay(pkt.money, Session.zeny);
 		Bank.append();
-		Bank.ui.find('.depo').focus();
+		Bank.focusInput();
 	}
 }
 
-/**
- * Close Bank
- */
 function onBankClose() {
 	if (Bank.__active) {
 		Bank.remove();
 	}
 }
 
-/**
- * Format currency with comma
- */
-function formatNumberWithCommas(number) {
-	// Use toLocaleString to add commas and format the number
-	return number.toLocaleString();
-}
-
-/**
- * Get bank update from deposit
- *
- * @param {object} pkt - PACKET.ZC.ACK_BANKING_DEPOSIT
- */
 function onBankDepoUpdate(pkt) {
 	if (!pkt) {
 		return;
 	}
 
-	const input = Bank.ui.find('.depo');
-	const error = Bank.ui.find('.errorupdate');
-
 	switch (pkt.reason) {
-		case 0: // Success - we just update the bank currency visuals
-			UpdateBank(pkt.money, Session.zeny);
-			if (error) {
-				error.empty();
-			}
+		case 0:
+			Bank.updateBankDisplay(pkt.money, Session.zeny);
+			Bank.clearError();
 			break;
-		case 1: // BDA_ERROR
-			// No idea how to reproduce
+		case 1:
 			break;
-		case 2: // BDA_NO_MONEY
-			if (error) {
-				error.text(DB.getMessage(2780));
-			}
+		case 2:
+			Bank.setError(DB.getMessage(2780));
 			ChatBox.addText(DB.getMessage(2456), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			break;
-		case 3: // BDA_OVERFLOW
-			if (error) {
-				error.text(DB.getMessage(2783));
-			}
+		case 3:
+			Bank.setError(DB.getMessage(2783));
 			ChatBox.addText(DB.getMessage(2787), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			break;
 		default:
 			break;
 	}
 
-	if (input) {
-		input.val('');
-	}
+	Bank.clearInput();
 }
 
-/**
- * Update bank from deposit or withdrawal
- */
-function UpdateBank(money, zeny) {
-	const inbank = Bank.ui.find('.inbank.currency');
-	const onhand = Bank.ui.find('.onhand.currency');
-	if (inbank) {
-		inbank.text(formatNumberWithCommas(money) + 'z');
-	}
-	if (onhand) {
-		onhand.text(formatNumberWithCommas(zeny) + 'z');
-	}
-}
-
-/**
- * Get bank update from withdrawal
- *
- * @param {object} pkt - PACKET.ZC.ACK_WITHDRAW
- */
 function onBankWithdrawUpdate(pkt) {
 	if (!pkt) {
 		return;
 	}
 
-	const input = Bank.ui.find('.depo');
-	const error = Bank.ui.find('.errorupdate');
-
 	switch (pkt.reason) {
-		case 0: // Success - we just update the bank currency visuals
-			UpdateBank(pkt.money, Session.zeny);
-			if (error) {
-				error.empty();
-			}
-			if (input) {
-				input.empty();
-			}
+		case 0:
+			Bank.updateBankDisplay(pkt.money, Session.zeny);
+			Bank.clearError();
+			Bank.clearInput();
 			break;
-		case 1: // BWA_NO_MONEY
-			if (error) {
-				error.text(DB.getMessage(2786));
-			}
+		case 1:
+			Bank.setError(DB.getMessage(2786));
 			ChatBox.addText(DB.getMessage(2455), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 			break;
-		case 2: // BWA_UNKNOWN_ERROR
+		case 2:
 			break;
 		default:
 			break;
 	}
 }
 
-/**
- * Initialize
- */
 export default BankEngine;

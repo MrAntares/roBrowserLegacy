@@ -1,3 +1,10 @@
+:host {
+	width: 280px;
+	height: auto;
+	top: 50%;
+	left: 50%;
+}
+
 #Bank {
 	position: absolute;
 	width: 280px;

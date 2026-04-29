@@ -12,12 +12,11 @@ import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import KEYS from 'Controls/KeyEventHandler.js';
-import jQuery from 'Utils/jquery.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './Bank.html?raw';
 import cssText from './Bank.css?raw';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -25,10 +24,15 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 /**
  * Create Component
  */
-const Bank = new UIComponent('Bank', htmlText, cssText);
+const Bank = new GUIComponent('Bank', cssText);
 
 /**
- *  Max Int
+ * Render HTML
+ */
+Bank.render = () => htmlText;
+
+/**
+ * Max Int
  */
 const maxInt = 2147483647;
 
@@ -48,130 +52,115 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 Bank.init = function init() {
+	const root = this._shadow || this._host;
+	let isMax = false;
+	const inputDepo = root.querySelector('.depo');
+
 	this.draggable();
 
-	const inputDepo = document.querySelector('.depo');
-	let isMax = false; // Flag to track if the value is set to MAX
-
-	document.querySelector('.plus').addEventListener('click', function () {
+	root.querySelector('.plus').addEventListener('click', () => {
 		if (isMax || inputDepo.value === '') {
-			inputDepo.value = 0 + 1;
-		} // reset input value to 0
-		else {
+			inputDepo.value = 1;
+		} else {
 			inputDepo.value = parseInt(inputDepo.value) + 1;
 		}
 		isMax = false;
 		inputDepo.select();
 	});
 
-	document.querySelector('.minus').addEventListener('click', function () {
+	root.querySelector('.minus').addEventListener('click', () => {
 		if (isMax || inputDepo.value === '') {
-			inputDepo.value = Math.max(0 - 1, 0);
-		} // reset input value to 0
-		else {
+			inputDepo.value = 0;
+		} else {
 			inputDepo.value = Math.max(parseInt(inputDepo.value) - 1, 0);
 		}
 		isMax = false;
 		inputDepo.select();
 	});
 
-	document.querySelector('.max').addEventListener('click', function () {
+	root.querySelector('.max').addEventListener('click', () => {
 		isMax = true;
 		inputDepo.value = 'MAX';
 		inputDepo.select();
 	});
 
-	document.querySelector('.tenmil').addEventListener('click', function () {
+	root.querySelector('.tenmil').addEventListener('click', () => {
 		isMax = false;
 		inputDepo.value = addValueToInput(inputDepo.value, 10000000);
 		inputDepo.select();
 	});
 
-	document.querySelector('.onemil').addEventListener('click', function () {
+	root.querySelector('.onemil').addEventListener('click', () => {
 		isMax = false;
 		inputDepo.value = addValueToInput(inputDepo.value, 1000000);
 		inputDepo.select();
 	});
 
-	document.querySelector('.hundtsn').addEventListener('click', function () {
+	root.querySelector('.hundtsn').addEventListener('click', () => {
 		isMax = false;
 		inputDepo.value = addValueToInput(inputDepo.value, 100000);
 		inputDepo.select();
 	});
 
-	/**
-	 * Update input value
-	 */
 	function addValueToInput(inputValue, addValue) {
 		if (isMax && inputValue === 'MAX') {
 			return 'MAX';
 		}
-
 		const currentValue = parseInt(inputValue) || 0;
 		if (!isMax) {
 			return currentValue + addValue;
 		}
 	}
 
-	document.querySelector('.deposit').addEventListener('click', function () {
+	root.querySelector('.deposit').addEventListener('click', () => {
 		sendDepositRequest(inputDepo.value);
 	});
 
-	document.querySelector('.withdraw').addEventListener('click', function () {
+	root.querySelector('.withdraw').addEventListener('click', () => {
 		sendWithdrawRequest(inputDepo.value);
 	});
 
-	this.ui.find('.close').click(reqCloseBank);
-	this.ui.find('.depo').click(selectAllText);
-	this.ui.find('.depo').focus();
+	root.querySelector('.close').addEventListener('click', reqCloseBank);
+
+	inputDepo.addEventListener('click', () => {
+		inputDepo.select();
+	});
 };
 
 /**
- * Input box auto select
- */
-function selectAllText() {
-	const input = Bank.ui.find('.depo');
-	input.select();
-}
-
-/**
  * Check if input value is valid
- * Most checks and error messages were from client
  */
 function CheckValue(value) {
-	const error = Bank.ui.find('.errorupdate');
+	const root = Bank._shadow || Bank._host;
+	const error = root.querySelector('.errorupdate');
 
 	if (value === '') {
-		// Input is blank
 		if (error) {
-			error.text(DB.getMessage(2781));
+			error.textContent = DB.getMessage(2781);
 		}
 		ChatBox.addText(DB.getMessage(2779), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		return false;
 	}
 
 	if (typeof value === 'string' && value !== 'MAX' && !/^\d+$/.test(value)) {
-		// Input is string other than MAX
 		if (error) {
-			error.text(DB.getMessage(2782));
+			error.textContent = DB.getMessage(2782);
 		}
 		ChatBox.addText(DB.getMessage(2488), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		return false;
 	}
 
 	if (parseInt(value) <= 0) {
-		// Input is equal or less than 0
 		if (error) {
-			error.text(DB.getMessage(2784));
+			error.textContent = DB.getMessage(2784);
 		}
 		ChatBox.addText(DB.getMessage(2769), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		return false;
 	}
 
 	if (parseInt(value) > maxInt) {
-		// Input is higher than max int value
 		if (error) {
-			error.text(DB.getMessage(2783));
+			error.textContent = DB.getMessage(2783);
 		}
 		ChatBox.addText(DB.getMessage(2768), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		return false;
@@ -184,27 +173,27 @@ function CheckValue(value) {
  * Send Request to server to deposit
  */
 function sendDepositRequest(value) {
-	const input = Bank.ui.find('.depo');
+	const root = Bank._shadow || Bank._host;
+	const input = root.querySelector('.depo');
 
 	if (CheckValue(value) === false) {
-		input.val('');
+		input.value = '';
 		return;
 	}
 
 	if (value === 'MAX') {
-		// Input is MAX (Deposit max zeny value)
-		const inbank = Bank.ui.find('.inbank.currency').text();
-		const getval = parseInt(getIntValueFromFormattedString(inbank));
+		const inbank = root.querySelector('.inbank.currency');
+		const getval = parseInt(getIntValueFromFormattedString(inbank.textContent));
 		if (Session.zeny + getval > maxInt && getval < maxInt) {
 			value = parseInt(maxInt) - getval;
 		} else {
 			if (Session.zeny === 0) {
-				const error = Bank.ui.find('.errorupdate');
+				const error = root.querySelector('.errorupdate');
 				if (error) {
-					error.text(DB.getMessage(2785));
+					error.textContent = DB.getMessage(2785);
 				}
 				ChatBox.addText(DB.getMessage(2770), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-				input.val('');
+				input.value = '';
 				return;
 			} else {
 				value = Session.zeny;
@@ -217,32 +206,33 @@ function sendDepositRequest(value) {
 	pkt.money = value;
 	Network.sendPacket(pkt);
 
-	input.val('');
+	input.value = '';
 }
 
 /**
  * Send Request to server to withdraw
  */
 function sendWithdrawRequest(value) {
-	const input = Bank.ui.find('.depo');
-	const error = Bank.ui.find('.errorupdate');
+	const root = Bank._shadow || Bank._host;
+	const input = root.querySelector('.depo');
+	const error = root.querySelector('.errorupdate');
 
 	if (CheckValue(value) === false) {
-		input.val('');
+		input.value = '';
 		return;
 	}
 
 	if (value === 'MAX') {
-		const inbank = Bank.ui.find('.inbank.currency').text();
-		const getval = parseInt(getIntValueFromFormattedString(inbank));
+		const inbank = root.querySelector('.inbank.currency');
+		const getval = parseInt(getIntValueFromFormattedString(inbank.textContent));
 		if (Session.zeny + getval > maxInt && Session.zeny < maxInt) {
 			value = parseInt(maxInt) - Session.zeny;
 		} else if (getval === 0) {
 			if (error) {
-				error.text(DB.getMessage(2785));
+				error.textContent = DB.getMessage(2785);
 			}
 			ChatBox.addText(DB.getMessage(2770), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-			input.val('');
+			input.value = '';
 			return;
 		} else {
 			value = getval;
@@ -251,10 +241,10 @@ function sendWithdrawRequest(value) {
 
 	if (parseInt(Session.zeny) + parseInt(value) > parseInt(maxInt)) {
 		if (error) {
-			error.text(DB.getMessage(2787));
+			error.textContent = DB.getMessage(2787);
 		}
 		ChatBox.addText(DB.getMessage(2459), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		input.val('');
+		input.value = '';
 		return;
 	}
 
@@ -263,25 +253,19 @@ function sendWithdrawRequest(value) {
 	pkt.money = value;
 	Network.sendPacket(pkt);
 
-	input.val('');
+	input.value = '';
 }
 
 /**
  * Get int value from the input box
  */
 function getIntValueFromFormattedString(formattedString) {
-	// Remove commas and 'z' from the string
 	const strippedString = formattedString.replace(/,/g, '').replace('z', '');
-
-	// Parse the stripped string as an integer
 	const intValue = parseInt(strippedString, 10);
-
-	// Check if the parsing was successful
 	if (!isNaN(intValue)) {
 		return intValue;
 	} else {
-		// Handle the case where parsing fails (e.g., when the input is not a valid integer)
-		return null; // Or you can return a default value or handle the error as needed
+		return null;
 	}
 }
 
@@ -289,39 +273,50 @@ function getIntValueFromFormattedString(formattedString) {
  * Append to body
  */
 Bank.onAppend = function onAppend() {
-	// Seems like "EscapeWindow" is execute first, push it before.
-	const events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
+	const root = this._shadow || this._host;
 
-	// Apply preferences
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	this._host.style.top = Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight) + 'px';
+	this._host.style.left = Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth) + 'px';
 
-	const input = Bank.ui.find('.depo');
-	input.val('');
+	const input = root.querySelector('.depo');
+	input.value = '';
 	input.focus();
 };
 
 /**
  * Key Handler
- *
- * @param {object} event
- * @return {boolean}
  */
 Bank.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
-		reqCloseBank();
+	const root = this._shadow || this._host;
+	const activeEl = root.activeElement;
+
+	if (activeEl && activeEl.tagName && activeEl.tagName.match(/input|select|textarea/i)) {
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			reqCloseBank();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		if (event.which === KEYS.ENTER) {
+			event.stopImmediatePropagation();
+			return false;
+		}
+		event.stopImmediatePropagation();
+		return true;
 	}
+
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+		reqCloseBank();
+		event.stopImmediatePropagation();
+		return false;
+	}
+
+	return true;
 };
 
 /**
  * Process shortcut
- *
- * @param {object} key
  */
-Bank.onShortCut = function onShurtCut(key) {
+Bank.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'TOGGLE':
 			this.toggle();
@@ -359,18 +354,79 @@ function reqCloseBank() {
 }
 
 /**
- * Remove Bank from window (and so clean up items)
+ * Remove Bank from window
  */
-Bank.onRemove = function OnRemove() {
-	// Save preferences
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+Bank.onRemove = function onRemove() {
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 
-	//Cleanup
-	const error = Bank.ui.find('.errorupdate');
-	error.empty();
+	const root = this._shadow || this._host;
+	const error = root.querySelector('.errorupdate');
+	if (error) {
+		error.textContent = '';
+	}
 };
+
+/**
+ * Public methods for Engine/MapEngine/Bank.js
+ */
+Bank.updateBankDisplay = function updateBankDisplay(bankMoney, handMoney) {
+	const root = this._shadow || this._host;
+	const inbank = root.querySelector('.inbank.currency');
+	const onhand = root.querySelector('.onhand.currency');
+	if (inbank) {
+		inbank.textContent = bankMoney.toLocaleString() + 'z';
+	}
+	if (onhand) {
+		onhand.textContent = handMoney.toLocaleString() + 'z';
+	}
+};
+
+Bank.setError = function setError(message) {
+	const root = this._shadow || this._host;
+	const error = root.querySelector('.errorupdate');
+	if (error) {
+		error.textContent = message;
+	}
+};
+
+Bank.clearError = function clearError() {
+	const root = this._shadow || this._host;
+	const error = root.querySelector('.errorupdate');
+	if (error) {
+		error.textContent = '';
+	}
+};
+
+Bank.clearInput = function clearInput() {
+	const root = this._shadow || this._host;
+	const input = root.querySelector('.depo');
+	if (input) {
+		input.value = '';
+	}
+};
+
+Bank.focusInput = function focusInput() {
+	const root = this._shadow || this._host;
+	const input = root.querySelector('.depo');
+	if (input) {
+		input.focus();
+	}
+};
+
+Bank.getBankAmount = function getBankAmount() {
+	const root = this._shadow || this._host;
+	const inbank = root.querySelector('.inbank.currency');
+	if (inbank) {
+		return inbank.textContent;
+	}
+	return '0z';
+};
+
+Bank.mouseMode = GUIComponent.MouseMode.STOP;
+Bank.captureKeyEvents = true;
+Bank.needFocus = true;
 
 /**
  * Create component and export it
