@@ -596,7 +596,7 @@ _bindKeyDown() {
 - `src/UI/Components/Clan/Clan.html` — HTML template using `<ui-button>`, `<ui-text>`
 - `src/UI/Components/Clan/Clan.css` — Styles with `:host` for dimensions/position
 
-> **Note**: The Clan component was the first GUIComponent migration and still uses some `this.ui` proxy calls (`this.ui.hide()`, `this.ui.show()`, `this.ui.is(':visible')`). New components should use native DOM equivalents as described in this guide.
+> **Note**: The Clan component was the first GUIComponent migration and still uses some `this.ui` proxy calls (`this.ui.hide()`, `this.ui.show()`, `this.ui.is(':visible')`). New components should use native DOM equivalents as described in this guide. But use proxy on `this.ui.hide()`, `this.ui.show()` because it calls fix overflow.
 
 ### CSS Pattern
 
