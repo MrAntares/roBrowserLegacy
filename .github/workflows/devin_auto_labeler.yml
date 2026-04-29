@@ -58,7 +58,7 @@ jobs:
                         const allFlags = unresolved.every(t =>
                           (t.comments.nodes[0]?.body || '').includes('🚩'));
                         labelToAdd = allFlags
-                          ? 'Devin Check Failed - WONTFIX'
+                          ? 'Devin Check - FLAG'
                           : 'Devin Check Failed - TOFIX';
                       }
                       core.info(`total=${total} resolved=${resolved} label=${labelToAdd}`);

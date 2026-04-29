@@ -40,7 +40,7 @@ jobs:
                         'Devin Check Passed',  
                         'Devin Check Failed - TOFIX',
                         'Devin Check - FIXED',
-                        'Devin Check Failed - WONTFIX'  
+                        'Devin Check - FLAG'  
                       ];  
                       for (const label of allDevinLabels.filter(l => l !== labelToAdd)) {  
                         try {  
