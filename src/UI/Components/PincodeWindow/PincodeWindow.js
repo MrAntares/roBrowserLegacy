@@ -14,6 +14,7 @@ import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './PincodeWindow.html?raw';
 import cssText from './PincodeWindow.css?raw';
+import 'UI/Elements/Elements.js';
 
 /**
  * Pincode Window namespace

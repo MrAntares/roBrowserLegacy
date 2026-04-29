@@ -3776,12 +3776,13 @@ async function startLua() {
 }
 
 function loadFontFromClient(fontPath) {
+	console.log('Loading file "' + fontPath + 'SCDream4.otf"...');
 	Client.loadFile(
 		fontPath + 'SCDream4.otf',
 		function (fontData4) {
 			const base64_4 = arrayBufferToBase64(fontData4);
 			const fontUrl4 = 'data:font/opentype;base64,' + base64_4;
-
+			console.log('Loading file "' + fontPath + 'SCDream6.otf"...');
 			Client.loadFile(
 				fontPath + 'SCDream6.otf',
 				function (fontData6) {
@@ -3833,7 +3834,6 @@ function loadFontFromClient(fontPath) {
 							}  
 						`;
 					document.head.appendChild(style);
-					document.body.style.fontFamily = 'Arial, Helvetica, sans-serif';
 				},
 				function (error) {
 					console.warn('[loadFontFromClient] - Failed loading client font:', fontPath, '- Using Arial');
