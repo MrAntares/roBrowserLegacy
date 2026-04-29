@@ -186,8 +186,24 @@ PincodeWindow.init = function init() {
  * Once append to body
  */
 PincodeWindow.onAppend = function onAppend() {
+	// Create modal overlay to block clicks on elements behind
+	if (!PincodeWindow._overlay) {
+		const overlay = document.createElement('div');
+		overlay.className = 'win_popup_overlay';
+		document.body.appendChild(overlay);
+		PincodeWindow._overlay = overlay;
+	}
+
+	// Start rendering
 	Renderer.render(render);
-	this.focus();
+
+	// Adjust overlay z-index AFTER focus()/placeOnTop() has set the host z-index
+	queueMicrotask(() => {
+		if (PincodeWindow._overlay && PincodeWindow._host) {
+			const hostZ = parseInt(PincodeWindow._host.style.zIndex, 10) || 100;
+			PincodeWindow._overlay.style.zIndex = String(hostZ - 1);
+		}
+	});
 };
 
 /**
@@ -195,6 +211,12 @@ PincodeWindow.onAppend = function onAppend() {
  */
 PincodeWindow.onRemove = function onRemove() {
 	Renderer.stop(render);
+
+	// Remove modal overlay
+	if (PincodeWindow._overlay) {
+		PincodeWindow._overlay.remove();
+		PincodeWindow._overlay = null;
+	}
 };
 
 /**
