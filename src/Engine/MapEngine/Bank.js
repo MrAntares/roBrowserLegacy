@@ -31,8 +31,8 @@ function onOpenBank(pkt) {
 
 function onBankInfo(pkt) {
 	if (!Bank.__active) {
-		Bank.updateBankDisplay(pkt.money, Session.zeny);
 		Bank.append();
+		Bank.updateBankDisplay(pkt.money, Session.zeny);
 		Bank.focusInput();
 	}
 }
