@@ -29,6 +29,7 @@ import WinPopup from 'UI/Components/WinPopup/WinPopup.js';
 import Queue from 'Utils/Queue.js';
 import Background from 'UI/Background.js';
 import MD5 from 'Vendors/spark-md5.min.js';
+import Rijndael from 'Utils/Rijndael.js';
 
 // Version Dependent UIs
 import WinLogin from 'UI/Components/WinLogin/WinLogin.js';
@@ -271,13 +272,31 @@ function onConnectionRequest(username, password) {
 				Network.sendPacket(pkt);
 			}
 
-			// Try to connect
-			pkt = new PACKET.CA.LOGIN();
-			pkt.ID = username;
-			pkt.Passwd = password;
-			pkt.Version = parseInt(_server.version, 10);
-			pkt.clienttype = parseInt(_server.langtype, 10);
-			Network.sendPacket(pkt);
+			if (Configs.get('loginMode') == 'han') {
+				// password is encrypted with rijndael
+				const paddedPassword = new Uint8Array(24);
+				for (let i = 0; i < password.length; i++) {
+					paddedPassword[i] = password.charCodeAt(i);
+				}
+				const encryptedPassword = Rijndael.encrypt(paddedPassword, Configs.get('rijndaelKey'), Configs.get('rijndaelChain'), 24, 'ecb');
+				pkt = new PACKET.CA.LOGIN_HAN();
+				pkt.ID = username;
+				pkt.Passwd = String.fromCharCode(...encryptedPassword);
+				pkt.Version = parseInt(_server.version, 10);
+				pkt.clienttype = parseInt(_server.langtype, 10);
+				pkt.m_szIP = '192.168.0.1'; // dummy
+				pkt.m_szMacAddr = '00:1A:2B:3C:4D:5E'; // dummy
+				pkt.isHanGameUser = 0;
+				Network.sendPacket(pkt);
+			} else {
+				// Try to connect
+				pkt = new PACKET.CA.LOGIN();
+				pkt.ID = username;
+				pkt.Passwd = password;
+				pkt.Version = parseInt(_server.version, 10);
+				pkt.clienttype = parseInt(_server.langtype, 10);
+				Network.sendPacket(pkt);
+			}
 		}
 	});
 }
