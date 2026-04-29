@@ -189,14 +189,10 @@ class MemoryManager {
 			}
 		});
 
-		_lastCheckTick = Date.now();
-
 		if (removed.length) {
-			console.log(
-				'%c[MemoryManager] - Force cleaned ' + removed.length + ' elements from memory.',
-				'color:#d35111',
-				{ files: removed }
-			);
+			console.log('%c[MemoryManager] - Removed ' + removed.length + ' elements from memory.', 'color:#d35111', {
+				files: removed
+			});
 		}
 	};
 
