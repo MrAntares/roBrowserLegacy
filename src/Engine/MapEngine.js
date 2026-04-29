@@ -258,6 +258,7 @@ class MapEngine {
 			Network.hookPacket(PACKET.ZC.ACCEPT_ENTER3, onConnectionAccepted);
 			Network.hookPacket(PACKET.ZC.NPCACK_MAPMOVE, onMapChange);
 			Network.hookPacket(PACKET.ZC.NPCACK_SERVERMOVE, onServerChange);
+			Network.hookPacket(PACKET.ZC.NPCACK_SERVERMOVE2, onServerChange);
 			Network.hookPacket(PACKET.ZC.ACCEPT_QUIT, onExitSuccess);
 			Network.hookPacket(PACKET.ZC.REFUSE_QUIT, onExitFail);
 			Network.hookPacket(PACKET.ZC.RESTART_ACK, onRestartAnswer);
@@ -728,6 +729,12 @@ function onMapChange(pkt) {
 			Network.sendPacket(new PACKET.CZ.PC_CASH_POINT_ITEMLIST());
 			Session.requestCashShop = false;
 		}
+
+		// send request blocking play cancel
+		if (PACKETVER.value >= 20130320) {
+			Network.sendPacket(new PACKET.CZ.BLOCKING_PLAY_CANCEL());
+		}
+
 	};
 
 	MapRenderer.setMap(pkt.mapName);
