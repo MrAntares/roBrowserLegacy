@@ -1,12 +1,12 @@
 name: Deploy to GitHub Pages
 
 concurrency:
-    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref_name }}
+    cancel-in-progress: true
 
 on:
     push:
-        branches: ['master']
+        branches: ['**']
 
 permissions:
     contents: read
@@ -118,15 +118,23 @@ jobs:
                       ThirdPersonCamera: false,  
                       transitionDuration: 500  
                   };
+                  EOF
 
             - name: Setup Pages
               uses: actions/configure-pages@v4
 
+            - name: Prepare branch subfolder
+              run: |
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  mkdir -p site/"$BRANCH"
+                  rsync -a dist/Web/ site/"$BRANCH"/
+
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: dist/Web
+                  path: site
 
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4
+``
