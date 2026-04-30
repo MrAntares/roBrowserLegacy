@@ -9,15 +9,10 @@ on:
         branches: ['**']
 
 permissions:
-    contents: read
-    pages: write
-    id-token: write
+    contents: write
 
 jobs:
     build-and-deploy:
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -120,20 +115,33 @@ jobs:
                   };
                   EOF
 
-            - name: Setup Pages
-              uses: actions/configure-pages@v4
-
             - name: Prepare branch subfolder
               run: |
                   BRANCH="${GITHUB_REF_NAME//\//-}"
                   mkdir -p site/"$BRANCH"
                   rsync -a dist/Web/ site/"$BRANCH"/
 
-            - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
+            - name: Checkout gh-pages
+              uses: actions/checkout@v5
               with:
-                  path: site
+                  ref: gh-pages
+                  path: ghpages
 
-            - name: Deploy to GitHub Pages
-              id: deployment
-              uses: actions/deploy-pages@v4
+            - name: Sync to gh-pages
+              run: |
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  rm -rf ghpages/"$BRANCH"
+                  mkdir -p ghpages/"$BRANCH"
+                  rsync -a site/"$BRANCH"/ ghpages/"$BRANCH"/
+                  touch ghpages/.nojekyll
+
+            - name: Commit and push
+              run: |
+                  cd ghpages
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add -A
+                  if ! git diff --cached --quiet; then
+                    git commit -m "Deploy ${GITHUB_REF_NAME}"
+                    git push origin gh-pages
+                  fi
