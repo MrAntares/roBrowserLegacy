@@ -121,11 +121,33 @@ jobs:
                   mkdir -p site/"$BRANCH"
                   rsync -a dist/Web/ site/"$BRANCH"/
 
-            - name: Checkout gh-pages
-              uses: actions/checkout@v5
-              with:
-                  ref: gh-pages
-                  path: ghpages
+            - name: Prepare gh-pages workdir
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  set -e
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+                  if git ls-remote --exit-code --heads "$REMOTE" gh-pages >/dev/null 2>&1; then
+                    git clone --depth 1 --branch gh-pages "$REMOTE" ghpages
+                  else
+                    mkdir -p ghpages
+                    cd ghpages
+                    git init
+                    git checkout -b gh-pages
+                    git config user.name "github-actions"
+                    git config user.email "github-actions@github.com"
+                    mkdir -p "$BRANCH"
+                    rsync -a ../site/"$BRANCH"/ "$BRANCH"/
+                    touch .nojekyll
+                    git add -A
+                    git commit -m "Initialize gh-pages with ${GITHUB_REF_NAME}"
+                    git remote add origin "$REMOTE"
+                    git push -u origin gh-pages
+                    cd ..
+                    rm -rf ghpages
+                    git clone --depth 1 --branch gh-pages "$REMOTE" ghpages
+                  fi
 
             - name: Sync to gh-pages
               run: |

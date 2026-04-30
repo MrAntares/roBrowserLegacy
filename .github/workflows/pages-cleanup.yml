@@ -21,17 +21,23 @@ jobs:
                   ref: gh-pages
 
             - name: Remove branch folder
+              env:
+                  DELETED_REF: ${{ github.event.ref }}
               run: |
-                  BRANCH="${{ github.event.ref }}"
-                  SAFE_BRANCH="${BRANCH//\//-}"
-                  rm -rf "$SAFE_BRANCH"
+                  SAFE_BRANCH="$(printf '%s' "$DELETED_REF" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
+                  if [ -z "$SAFE_BRANCH" ] || [ "$SAFE_BRANCH" = "." ] || [ "$SAFE_BRANCH" = ".." ]; then
+                    exit 0
+                  fi
+                  rm -rf -- "$SAFE_BRANCH"
 
             - name: Commit and push
+              env:
+                  DELETED_REF: ${{ github.event.ref }}
               run: |
                   git config user.name "github-actions"
                   git config user.email "github-actions@github.com"
                   git add -A
                   if ! git diff --cached --quiet; then
-                    git commit -m "Remove Pages for deleted branch ${GITHUB_EVENT_REF}"
+                    git commit -m "Remove Pages for deleted branch $DELETED_REF"
                     git push origin gh-pages
                   fi
