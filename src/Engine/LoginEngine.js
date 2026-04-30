@@ -278,7 +278,13 @@ function onConnectionRequest(username, password) {
 				for (let i = 0; i < password.length; i++) {
 					paddedPassword[i] = password.charCodeAt(i);
 				}
-				const encryptedPassword = Rijndael.encrypt(paddedPassword, Configs.get('rijndaelKey'), Configs.get('rijndaelChain'), 24, 'ecb');
+				const encryptedPassword = Rijndael.encrypt(
+					paddedPassword,
+					Configs.get('rijndaelKey'),
+					Configs.get('rijndaelChain'),
+					24,
+					'ecb'
+				);
 
 				if (!encryptedPassword) {
 					UIManager.showErrorBox('Rijndael encryption failed. Check rijndaelKey and rijndaelChain config.');

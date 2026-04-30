@@ -119,7 +119,7 @@ class CharEngine {
 		Network.hookPacket(PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME, onMapUnavailable);
 		Network.hookPacket(PACKET.HC.SECOND_PASSWD_LOGIN, onPincodeCheckSuccess);
 		Network.hookPacket(PACKET.HC.DELETE_CHAR3_RESERVED, onRequestCharDel);
-		Network.hookPacket(PACKET.HC.CHARLIST_NOTIFY, onCharListNotify)
+		Network.hookPacket(PACKET.HC.CHARLIST_NOTIFY, onCharListNotify);
 		JoystickUI.onRestore();
 	}
 

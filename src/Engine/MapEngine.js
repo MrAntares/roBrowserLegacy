@@ -734,7 +734,6 @@ function onMapChange(pkt) {
 		if (PACKETVER.value >= 20130320) {
 			Network.sendPacket(new PACKET.CZ.BLOCKING_PLAY_CANCEL());
 		}
-
 	};
 
 	MapRenderer.setMap(pkt.mapName);

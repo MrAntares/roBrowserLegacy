@@ -10973,8 +10973,7 @@ PACKET.HC.CHARLIST_NOTIFY = function PACKET_HC_CHARLIST_NOTIFY(fp, end) {
 PACKET.HC.CHARLIST_NOTIFY.size = PACKETVER.value >= 20151001 && PACKETVER.value < 20180103 ? 10 : 6;
 
 // 0x9a1
-PACKET.CH.CHARLIST_REQ = function PACKET_CH_CHARLIST_REQ() {
-};
+PACKET.CH.CHARLIST_REQ = function PACKET_CH_CHARLIST_REQ() {};
 PACKET.CH.CHARLIST_REQ.prototype.build = function () {
 	const pkt_len = 2;
 	const pkt_buf = new BinaryWriter(pkt_len);
@@ -13223,10 +13222,9 @@ PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
 				out[i].serverAddress = fp.readBinaryString(128);
 				if (out[i].serverAddress && out[i].serverAddress.includes(':')) {
 					[out[i].ip, out[i].port] = out[i].serverAddress.split(':');
-					out[i].ip = out[i].ip
-						.split('.')
-						.reduceRight((ip, octet, j) => ip + (parseInt(octet, 10) << (8 * j)), 0)
-						>>> 0;
+					out[i].ip =
+						out[i].ip.split('.').reduceRight((ip, octet, j) => ip + (parseInt(octet, 10) << (8 * j)), 0) >>>
+						0;
 					out[i].port = parseInt(out[i].port, 10);
 				}
 			}
@@ -13248,10 +13246,8 @@ PACKET.HC.NOTIFY_ZONESVR2 = function PACKET_HC_NOTIFY_ZONESVR2(fp, end) {
 		this.serverAddress = fp.readBinaryString(128);
 		if (this.serverAddress && this.serverAddress.includes(':')) {
 			[this.addr.ip, this.addr.port] = this.serverAddress.split(':');
-			this.addr.ip = this.addr.ip
-				.split('.')
-				.reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0)
-				>>> 0;
+			this.addr.ip =
+				this.addr.ip.split('.').reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0) >>> 0;
 			this.addr.port = parseInt(this.addr.port, 10);
 		}
 	}
@@ -13271,10 +13267,8 @@ PACKET.ZC.NPCACK_SERVERMOVE2 = function PACKET_ZC_NPCACK_SERVERMOVE2(fp, end) {
 		this.serverAddress = fp.readBinaryString(128);
 		if (this.serverAddress && this.serverAddress.includes(':')) {
 			[this.addr.ip, this.addr.port] = this.serverAddress.split(':');
-			this.addr.ip = this.addr.ip
-				.split('.')
-				.reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0)
-				>>> 0;
+			this.addr.ip =
+				this.addr.ip.split('.').reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0) >>> 0;
 			this.addr.port = parseInt(this.addr.port, 10);
 		}
 	}
