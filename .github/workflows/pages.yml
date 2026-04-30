@@ -1,23 +1,18 @@
 name: Deploy to GitHub Pages
 
 concurrency:
-    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref_name }}
+    cancel-in-progress: true
 
 on:
     push:
-        branches: ['master']
+        branches: ['**']
 
 permissions:
-    contents: read
-    pages: write
-    id-token: write
+    contents: write
 
 jobs:
     build-and-deploy:
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -118,15 +113,57 @@ jobs:
                       ThirdPersonCamera: false,  
                       transitionDuration: 500  
                   };
+                  EOF
 
-            - name: Setup Pages
-              uses: actions/configure-pages@v4
+            - name: Prepare branch subfolder
+              run: |
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  mkdir -p site/"$BRANCH"
+                  rsync -a dist/Web/ site/"$BRANCH"/
 
-            - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
-              with:
-                  path: dist/Web
+            - name: Prepare gh-pages workdir
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  set -e
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+                  if git ls-remote --exit-code --heads "$REMOTE" gh-pages >/dev/null 2>&1; then
+                    git clone --depth 1 --branch gh-pages "$REMOTE" ghpages
+                  else
+                    mkdir -p ghpages
+                    cd ghpages
+                    git init
+                    git checkout -b gh-pages
+                    git config user.name "github-actions"
+                    git config user.email "github-actions@github.com"
+                    mkdir -p "$BRANCH"
+                    rsync -a ../site/"$BRANCH"/ "$BRANCH"/
+                    touch .nojekyll
+                    git add -A
+                    git commit -m "Initialize gh-pages with ${GITHUB_REF_NAME}"
+                    git remote add origin "$REMOTE"
+                    git push -u origin gh-pages
+                    cd ..
+                    rm -rf ghpages
+                    git clone --depth 1 --branch gh-pages "$REMOTE" ghpages
+                  fi
 
-            - name: Deploy to GitHub Pages
-              id: deployment
-              uses: actions/deploy-pages@v4
+            - name: Sync to gh-pages
+              run: |
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  rm -rf ghpages/"$BRANCH"
+                  mkdir -p ghpages/"$BRANCH"
+                  rsync -a site/"$BRANCH"/ ghpages/"$BRANCH"/
+                  touch ghpages/.nojekyll
+
+            - name: Commit and push
+              run: |
+                  cd ghpages
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add -A
+                  if ! git diff --cached --quiet; then
+                    git commit -m "Deploy ${GITHUB_REF_NAME}"
+                    git push origin gh-pages
+                  fi

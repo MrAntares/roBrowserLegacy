@@ -14,7 +14,7 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import Renderer from 'Renderer/Renderer.js';
 import MapRenderer from 'Renderer/MapRenderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Session from 'Engine/SessionStorage.js';
 import MAPS from 'DB/Map/WorldMap.js';
 import htmlText from './WorldMap.html?raw';
@@ -24,7 +24,9 @@ import Navigation from 'UI/Components/Navigation/Navigation.js';
 /**
  * Create Component
  */
-const WorldMap = new UIComponent('WorldMap', htmlText, cssText);
+const WorldMap = new GUIComponent('WorldMap', cssText);
+
+WorldMap.render = () => htmlText;
 
 /**
  * @type {Preferences} window preferences
@@ -57,15 +59,29 @@ const C_ASPECTY = 4;
  * Initialize UI
  */
 WorldMap.init = function init() {
-	this.ui.find('.titlebar .base').mousedown(stopPropagation);
-	this.ui.find('.titlebar select').change(onSelect);
-	this.ui.find('.titlebar .togglemaps').click(onToggleMaps);
-	this.ui.find('.titlebar .showlvl').click(onShowLVL);
-	this.ui.find('.titlebar .close').click(onClose);
+	const root = this._shadow || this._host;
 
-	this.ui.find('.map .content').on('click', onWorldMapSectionClick);
-	this.ui.find('.map .content').on('mouseover', onWorldMapMouseOver);
-	this.ui.find('.map .content').on('mouseout', onWorldMapMouseOut);
+	const bases = root.querySelectorAll('.titlebar .base');
+	bases.forEach(el => el.addEventListener('mousedown', stopPropagation));
+
+	const selectEl = root.querySelector('.titlebar select');
+	if (selectEl) selectEl.addEventListener('change', onSelect);
+
+	const toggleBtn = root.querySelector('.titlebar .togglemaps');
+	if (toggleBtn) toggleBtn.addEventListener('click', onToggleMaps);
+
+	const showLvlBtn = root.querySelector('.titlebar .showlvl');
+	if (showLvlBtn) showLvlBtn.addEventListener('click', onShowLVL);
+
+	const closeBtn = root.querySelector('.titlebar .close');
+	if (closeBtn) closeBtn.addEventListener('click', onClose);
+
+	const content = root.querySelector('.map .content');
+	if (content) {
+		content.addEventListener('click', onWorldMapSectionClick);
+		content.addEventListener('mouseover', onWorldMapMouseOver);
+		content.addEventListener('mouseout', onWorldMapMouseOut);
+	}
 
 	WorldMap.showLVLMode = false;
 };
@@ -74,21 +90,21 @@ WorldMap.init = function init() {
  * Create WorldMap list of maps (select Element)
  */
 function setMapList() {
-	WorldMap.ui.find('#WorldMaps').html(function () {
-		let list = '';
-		for (const map of MAPS) {
-			// list += '<option value="' + mapList[wmap].img + '">' + mapList[wmap].name + '</option>'
-			// Episode check
-			if (WorldMap.settings.episode >= map.ep_from && WorldMap.settings.episode < map.ep_to) {
-				list += `<option value="${map.id}">${map.name}</option>`;
-			}
+	const root = WorldMap._shadow || WorldMap._host;
+	const selectEl = root.querySelector('#WorldMaps');
+	if (!selectEl) return;
+	let list = '';
+	for (const map of MAPS) {
+		if (WorldMap.settings.episode >= map.ep_from && WorldMap.settings.episode < map.ep_to) {
+			list += `<option value="${map.id}">${map.name}</option>`;
 		}
-		return list;
-	});
+	}
+	selectEl.innerHTML = list;
 }
 
 function onSelect() {
-	selectMap(WorldMap.ui.find('.titlebar select').val());
+	const root = WorldMap._shadow || WorldMap._host;
+	selectMap(root.querySelector('.titlebar select').value);
 }
 
 /**
@@ -122,7 +138,9 @@ function selectMap(name = null) {
  * Resize world map
  */
 function resizeMap() {
-	const mapContainer = WorldMap.ui.find('.map-view');
+	const root = WorldMap._shadow || WorldMap._host;
+	const mapContainer = root.querySelector('.map-view');
+	if (!mapContainer) return;
 
 	const currentwidth = (typeof Renderer !== 'undefined' && Renderer.width) || window.innerWidth;
 	const currentheight =
@@ -136,8 +154,8 @@ function resizeMap() {
 		mult = ymult;
 	}
 
-	mapContainer.width(C_BASEWIDTH * mult);
-	mapContainer.height(C_BASEHEIGHT * mult);
+	mapContainer.style.width = C_BASEWIDTH * mult + 'px';
+	mapContainer.style.height = C_BASEHEIGHT * mult + 'px';
 }
 
 /**
@@ -184,7 +202,8 @@ function onWorldMapMouseOut(e) {
  * @param {*} section
  */
 function showTooltip(section) {
-	const tooltip = WorldMap.ui.find('#map-tooltip')[0];
+	const root = WorldMap._shadow || WorldMap._host;
+	const tooltip = root.querySelector('#map-tooltip');
 	if (!tooltip) return;
 
 	const displayName = section.getAttribute('data-displayname') || '';
@@ -221,7 +240,8 @@ function showTooltip(section) {
  * Hide tooltip
  */
 function hideTooltip() {
-	const tooltip = WorldMap.ui.find('#map-tooltip')[0];
+	const root = WorldMap._shadow || WorldMap._host;
+	const tooltip = root.querySelector('#map-tooltip');
 	if (tooltip) {
 		tooltip.style.display = 'none';
 	}
@@ -235,14 +255,14 @@ function hideTooltip() {
  * @param {string} imgData world map image data as a base64
  */
 function createWorldMapView(map, imgData) {
-	const container = WorldMap.ui.find('.map .content');
+	const root = WorldMap._shadow || WorldMap._host;
+	const container = root.querySelector('.map .content');
 	const worldmap = document.createElement('div');
 	const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
 
 	worldmap.className = 'worldmap' + (WorldMap.showLVLMode ? ' show-lvls' : '');
 
 	// set loaded worldmap background image
-	// worldmap.css('backgroundImage', `url(${imgData})`);
 	const mapView = document.createElement('div');
 	mapView.id = map.id;
 	mapView.className = 'map-view';
@@ -263,7 +283,6 @@ function createWorldMapView(map, imgData) {
 	}
 	const renderedDungeonPos = new Set();
 
-	// output <div id="worldmap_localizing1" class="map-view" data-name="Eastern Kingdoms"></div>
 	for (const section of map.maps) {
 		//Episode & custom add/remove check
 		if (
@@ -389,13 +408,12 @@ function createWorldMapView(map, imgData) {
 		}
 	}
 	// airplanes, currently only in the worldmap
-	// do secondary assets loading to load the airplane image
-	// and then create element and append it to the DOM
 	if (map.id === 'worldmap') {
 		loadAirplane(mapView);
 	}
 	worldmap.appendChild(mapView);
-	container.html(worldmap);
+	container.innerHTML = '';
+	container.appendChild(worldmap);
 }
 
 /**
@@ -424,7 +442,9 @@ function loadAirplane(mapView) {
  * @todo use server time and set position and angle
  */
 function setAirplanePosition(airplane) {
-	const el = airplane || document.querySelector('.worldmap #midgard-airplane');
+	const root = WorldMap._shadow || WorldMap._host;
+	const el = airplane || root.querySelector('.worldmap #midgard-airplane');
+	if (!el) return;
 	el.style.top = '35%';
 	el.style.left = '35%';
 	el.style.transform = 'rotate(75deg)';
@@ -489,7 +509,7 @@ function _adjustImageTransparency(img) {
 WorldMap.onAppend = function onAppend() {
 	// Apply preferences
 	if (!_preferences.show) {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
 
 	// settings
@@ -523,15 +543,13 @@ WorldMap.onAppend = function onAppend() {
 	// resize map container & add sections
 	selectMap();
 
-	this.ui.css({
-		top: 0,
-		left: 0
-	});
+	this._host.style.top = '0px';
+	this._host.style.left = '0px';
 };
 
 WorldMap.onRemove = function onRemove() {
 	// Save preferences
-	_preferences.show = this.ui.is(':visible');
+	_preferences.show = this._host.style.display !== 'none';
 	_preferences.y = 0;
 	_preferences.x = 0;
 	_preferences.width = 0;
@@ -543,17 +561,33 @@ WorldMap.onRemove = function onRemove() {
  * Show/Hide UI
  */
 WorldMap.toggle = function toggle() {
-	this.ui.toggle();
-	if (this.ui.is(':visible')) {
-		this.focus();
-	} else {
+	const isVisible = this._host.style.display !== 'none';
+	if (isVisible) {
+		this._host.style.display = 'none';
 		hideTooltip();
+	} else {
+		this._host.style.display = '';
+		this.focus();
 	}
 };
 
+WorldMap.captureKeyEvents = true;
+
 WorldMap.onKeyDown = function onKeyDown(event) {
-	// Event.which is deprecated
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	const shadow = this._shadow || this._host;
+	const focused = shadow.activeElement;
+
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			this.toggle();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		event.stopImmediatePropagation();
+		return true;
+	}
+
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this.toggle();
 	}
 };
@@ -595,9 +629,11 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
 		}
 	});
 
-	WorldMap.ui.find('.worldmap .section').removeClass('membersonmap');
+	const root = WorldMap._shadow || WorldMap._host;
+	root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('membersonmap'));
 	for (const mapId of Object.keys(_partyMembersByMap)) {
-		WorldMap.ui.find('.worldmap .section#' + mapId).addClass('membersonmap');
+		const el = root.querySelector('.worldmap .section#' + CSS.escape(mapId));
+		if (el) el.classList.add('membersonmap');
 	}
 };
 
@@ -605,11 +641,12 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
  * Toggle all maps
  */
 function onToggleMaps() {
+	const root = WorldMap._shadow || WorldMap._host;
 	if (WorldMap.showAllMaps) {
-		WorldMap.ui.find('.worldmap .section').removeClass('allmapvisible');
+		root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('allmapvisible'));
 		WorldMap.showAllMaps = false;
 	} else {
-		WorldMap.ui.find('.worldmap .section').addClass('allmapvisible');
+		root.querySelectorAll('.worldmap .section').forEach(el => el.classList.add('allmapvisible'));
 		WorldMap.showAllMaps = true;
 	}
 }
@@ -619,15 +656,20 @@ function onToggleMaps() {
  */
 function onShowLVL() {
 	WorldMap.showLVLMode = !WorldMap.showLVLMode;
+	const root = WorldMap._shadow || WorldMap._host;
 
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (WorldMap.showLVLMode ? '1' : '0') + '.bmp', function (data) {
-		WorldMap.ui.find('.showlvl').css('backgroundImage', 'url(' + data + ')');
+		const btn = root.querySelector('.showlvl');
+		if (btn) btn.style.backgroundImage = 'url(' + data + ')';
 	});
 
-	if (!WorldMap.showLVLMode) {
-		WorldMap.ui.find('.worldmap').removeClass('show-lvls');
-	} else {
-		WorldMap.ui.find('.worldmap').addClass('show-lvls');
+	const worldmapEl = root.querySelector('.worldmap');
+	if (worldmapEl) {
+		if (!WorldMap.showLVLMode) {
+			worldmapEl.classList.remove('show-lvls');
+		} else {
+			worldmapEl.classList.add('show-lvls');
+		}
 	}
 }
 
@@ -644,8 +686,10 @@ function stopPropagation(event) {
  * Closing window
  */
 function onClose() {
-	WorldMap.ui.hide();
+	WorldMap._host.style.display = 'none';
 }
+
+WorldMap.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Create component and export it
