@@ -689,7 +689,7 @@ function onClose() {
 	WorldMap._host.style.display = 'none';
 }
 
-WorldMap.mouseMode = GUIComponent.MouseMode.FREEZE;
+WorldMap.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Create component and export it
