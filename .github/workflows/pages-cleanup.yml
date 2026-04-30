@@ -1,0 +1,53 @@
+name: Cleanup GitHub Pages on branch delete
+
+concurrency:
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.ref }}
+    cancel-in-progress: true
+
+on:
+    delete:
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+jobs:
+    cleanup:
+        if: github.event.ref_type == 'branch'
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Setup Pages
+              uses: actions/configure-pages@v4
+
+            - name: Prepare empty site (remove deleted branch)
+              run: |
+                  BRANCH="${{ github.event.ref }}"
+                  SAFE_BRANCH="${BRANCH//\//-}"
+                  mkdir -p site
+                  cat > site/index.html << EOF
+                  <!doctype html>
+                  <html>
+                    <head>
+                      <meta charset="utf-8" />
+                      <meta name="viewport" content="width=device-width, initial-scale=1" />
+                      <title>Preview removed</title>
+                    </head>
+                    <body>
+                      <h1>Preview removed</h1>
+                      <p>Branch "<strong>${SAFE_BRANCH}</strong>" was deleted, its Pages preview has been removed.</p>
+                    </body>
+                  </html>
+                  EOF
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: site
+
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
