@@ -3514,7 +3514,7 @@ PACKET.CZ.ENTER2 = function PACKET_CZ_ENTER2() {
 };
 PACKET.CZ.ENTER2.prototype.build = function () {
 	let pkt_len = 2 + 4 + 4 + 4 + 4 + 1;
-	if (PACKETVER.value >= 20211103) {
+	if (PACKETVER.value >= 20210630) {
 		pkt_len += 4;
 	}
 	const pkt_buf = new BinaryWriter(pkt_len);
@@ -3524,7 +3524,7 @@ PACKET.CZ.ENTER2.prototype.build = function () {
 	pkt_buf.writeULong(this.GID);
 	pkt_buf.writeULong(this.AuthCode);
 	pkt_buf.writeULong(this.clientTime);
-	if (PACKETVER.value >= 20211103) {
+	if (PACKETVER.value >= 20210630) {
 		pkt_buf.writeULong(this.unknown);
 	}
 	pkt_buf.writeUChar(this.Sex);
@@ -10051,18 +10051,6 @@ PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER = function PACKET_HC_ACCEPT_ENTER_NEO_UN
 	this.dummy1_beginbilling = fp.readChar();
 	this.code = fp.readChar();
 	fp.seek(20, SEEK_CUR);
-	fp.readULong(); // 6b 00 XX XX
-	if (PACKETVER.value >= 20100413) {
-		this.TotalSlotNum = fp.readUChar();
-		this.PremiumStartSlot = fp.readUChar();
-		this.PremiumEndSlot = fp.readUChar();
-	}
-	this.dummy1_beginbilling = fp.readChar();
-	this.code = fp.readULong();
-	this.time1 = fp.readULong();
-	this.time2 = fp.readULong();
-	this.dummy2_endbilling = fp.readBinaryString(7);
-	this.charInfo = PACKETVER.parseCharInfo(fp, end);
 };
 PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER.size = -1;
 
@@ -10978,11 +10966,23 @@ PACKET.ZC.SKILL_ENTRY4.size = -1;
 // 0x9a0
 PACKET.HC.CHARLIST_NOTIFY = function PACKET_HC_CHARLIST_NOTIFY(fp, end) {
 	this.TotalCnt = fp.readLong();
-	if (PACKETVER.value >= 20151001) {
+	if (PACKETVER.value >= 20151001 && PACKETVER.value < 20180103) {
 		this.charSlots = fp.readLong();
 	}
 };
-PACKET.HC.CHARLIST_NOTIFY.size = PACKETVER.value >= 20151001 ? 10 : 6;
+PACKET.HC.CHARLIST_NOTIFY.size = PACKETVER.value >= 20151001 && PACKETVER.value < 20180103 ? 10 : 6;
+
+// 0x9a1
+PACKET.CH.CHARLIST_REQ = function PACKET_CH_CHARLIST_REQ() {
+};
+PACKET.CH.CHARLIST_REQ.prototype.build = function () {
+	const pkt_len = 2;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0x9a1);
+	return pkt_buf;
+};
+PACKET.CH.CHARLIST_REQ.size = 2;
 
 // 0x9a6
 PACKET.ZC.BANKING_CHECK = function PACKET_ZC_BANKING_CHECK(fp, end) {
@@ -13220,7 +13220,15 @@ PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
 			out[i].state = fp.readUShort();
 			out[i].property = fp.readUShort();
 			if (PACKETVER.value >= 20170315) {
-				fp.readBinaryString(128);
+				out[i].serverAddress = fp.readBinaryString(128);
+				if (out[i].serverAddress && out[i].serverAddress.includes(':')) {
+					[out[i].ip, out[i].port] = out[i].serverAddress.split(':');
+					out[i].ip = out[i].ip
+						.split('.')
+						.reduceRight((ip, octet, j) => ip + (parseInt(octet, 10) << (8 * j)), 0)
+						>>> 0;
+					out[i].port = parseInt(out[i].port, 10);
+				}
 			}
 		}
 		return out;
@@ -13235,8 +13243,43 @@ PACKET.HC.NOTIFY_ZONESVR2 = function PACKET_HC_NOTIFY_ZONESVR2(fp, end) {
 	this.addr = {};
 	this.addr.ip = fp.readULong();
 	this.addr.port = fp.readUShort();
+
+	if (PACKETVER.value >= 20170315) {
+		this.serverAddress = fp.readBinaryString(128);
+		if (this.serverAddress && this.serverAddress.includes(':')) {
+			[this.addr.ip, this.addr.port] = this.serverAddress.split(':');
+			this.addr.ip = this.addr.ip
+				.split('.')
+				.reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0)
+				>>> 0;
+			this.addr.port = parseInt(this.addr.port, 10);
+		}
+	}
 };
 PACKET.HC.NOTIFY_ZONESVR2.size = 156;
+
+// 0xac7
+PACKET.ZC.NPCACK_SERVERMOVE2 = function PACKET_ZC_NPCACK_SERVERMOVE2(fp, end) {
+	this.mapName = fp.readBinaryString(16);
+	this.xPos = fp.readShort();
+	this.yPos = fp.readShort();
+	this.addr = {};
+	this.addr.ip = fp.readULong();
+	this.addr.port = fp.readUShort();
+
+	if (PACKETVER.value >= 20170315) {
+		this.serverAddress = fp.readBinaryString(128);
+		if (this.serverAddress && this.serverAddress.includes(':')) {
+			[this.addr.ip, this.addr.port] = this.serverAddress.split(':');
+			this.addr.ip = this.addr.ip
+				.split('.')
+				.reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0)
+				>>> 0;
+			this.addr.port = parseInt(this.addr.port, 10);
+		}
+	}
+};
+PACKET.ZC.NPCACK_SERVERMOVE2.size = 156;
 
 // 0xacb
 PACKET.ZC.LONGLONGPAR_CHANGE = function PACKET_ZC_LONGLONGPAR_CHANGE(fp, end) {

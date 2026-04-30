@@ -59,7 +59,8 @@
 		"vitest": "^4.1.2"
 	},
 	"dependencies": {
+		"bson": "^7.2.0",
 		"lodash-es": "^4.18.1",
-		"bson": "^7.2.0"
+		"rijndael-js": "^2.0.0"
 	}
 }
