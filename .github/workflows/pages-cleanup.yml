@@ -30,6 +30,11 @@ jobs:
                   fi
                   rm -rf -- "$SAFE_BRANCH"
 
+            - name: Generate branch index
+              uses: ./.github/actions/generate-pages-index
+              with:
+                  pages-dir: .
+
             - name: Commit and push
               env:
                   DELETED_REF: ${{ github.event.ref }}
