@@ -632,7 +632,7 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
 	const root = WorldMap._shadow || WorldMap._host;
 	root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('membersonmap'));
 	for (const mapId of Object.keys(_partyMembersByMap)) {
-		const el = root.querySelector('.worldmap .section#' + mapId);
+		const el = root.querySelector('.worldmap .section#' + CSS.escape(mapId));
 		if (el) el.classList.add('membersonmap');
 	}
 };
