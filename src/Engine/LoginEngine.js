@@ -279,6 +279,12 @@ function onConnectionRequest(username, password) {
 					paddedPassword[i] = password.charCodeAt(i);
 				}
 				const encryptedPassword = Rijndael.encrypt(paddedPassword, Configs.get('rijndaelKey'), Configs.get('rijndaelChain'), 24, 'ecb');
+
+				if (!encryptedPassword) {
+					UIManager.showErrorBox('Rijndael encryption failed. Check rijndaelKey and rijndaelChain config.');
+					return;
+				}
+
 				pkt = new PACKET.CA.LOGIN_HAN();
 				pkt.ID = username;
 				pkt.Passwd = String.fromCharCode(...encryptedPassword);

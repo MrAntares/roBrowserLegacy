@@ -13225,7 +13225,7 @@ PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
 					[out[i].ip, out[i].port] = out[i].serverAddress.split(':');
 					out[i].ip = out[i].ip
 						.split('.')
-						.reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0)
+						.reduceRight((ip, octet, j) => ip + (parseInt(octet, 10) << (8 * j)), 0)
 						>>> 0;
 					out[i].port = parseInt(out[i].port, 10);
 				}
