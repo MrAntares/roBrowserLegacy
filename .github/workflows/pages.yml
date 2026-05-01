@@ -199,7 +199,7 @@ jobs:
                       exit 0
                     fi
 
-                    git commit -m "Deploy ${GITHUB_REF_NAME}" || true
+                    git commit -m "Deploy ${GITHUB_REF_NAME}"
 
                     if git push origin gh-pages; then
                       exit 0
