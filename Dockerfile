@@ -1,3 +1,4 @@
+#test
 FROM node:20.10.0 AS builder
 
 LABEL org.opencontainers.image.description="Builds roBrowserLegacy JS bundles and HTML."
