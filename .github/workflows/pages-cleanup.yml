@@ -15,55 +15,63 @@ jobs:
         if: github.event.ref_type == 'branch'
         runs-on: ubuntu-latest
         steps:
+            - name: Checkout repo (default branch)
+              uses: actions/checkout@v5
+              with:
+                  fetch-depth: 1
+
+            - name: Check gh-pages branch exists
+              id: ghpages_exists
+              run: |
+                  if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+                    echo "exists=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "exists=false" >> "$GITHUB_OUTPUT"
+                  fi
+
             - name: Checkout gh-pages
+              if: steps.ghpages_exists.outputs.exists == 'true'
               uses: actions/checkout@v5
               with:
                   ref: gh-pages
                   fetch-depth: 0
+                  path: ghpages
 
-            - name: Remove branch folder
-              env:
-                  DELETED_REF: ${{ github.event.ref }}
-              run: |
-                  SAFE_BRANCH="$(printf '%s' "$DELETED_REF" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
-                  if [ -z "$SAFE_BRANCH" ] || [ "$SAFE_BRANCH" = "." ] || [ "$SAFE_BRANCH" = ".." ]; then
-                    exit 0
-                  fi
-                  rm -rf -- "$SAFE_BRANCH"
-
-            - name: Generate branch index
-              uses: ./.github/actions/generate-pages-index
-              with:
-                  pages-dir: .
-
-            - name: Commit and push
+            - name: Remove branch folder + update index + push (retry)
+              if: steps.ghpages_exists.outputs.exists == 'true'
               env:
                   DELETED_REF: ${{ github.event.ref }}
               run: |
                   set -euo pipefail
-                  git config user.name "github-actions"
-                  git config user.email "github-actions@github.com"
 
-                  git add -A
-                  if git diff --cached --quiet; then
+                  SAFE_BRANCH="$(printf '%s' "$DELETED_REF" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
+                  if [ -z "$SAFE_BRANCH" ] || [ "$SAFE_BRANCH" = "." ] || [ "$SAFE_BRANCH" = ".." ]; then
                     exit 0
                   fi
 
-                  git commit -m "Remove Pages for deleted branch $DELETED_REF" || true
+                  cd ghpages
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
 
                   for i in 1 2 3 4 5; do
+                    git fetch origin gh-pages
+                    git reset --hard origin/gh-pages
+
+                    rm -rf -- "$SAFE_BRANCH"
+                    bash ../.github/actions/generate-pages-index/generate-pages-index.sh .
+
+                    git add -A
+                    if git diff --cached --quiet; then
+                      exit 0
+                    fi
+
+                    git commit -m "Remove Pages for deleted branch $DELETED_REF" || true
+
                     if git push origin gh-pages; then
                       exit 0
                     fi
-                    git fetch origin gh-pages
-                    git pull --rebase origin gh-pages || (git rebase --abort || true)
-                    SAFE_BRANCH="$(printf '%s' "$DELETED_REF" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
-                    if [ -n "$SAFE_BRANCH" ] && [ "$SAFE_BRANCH" != "." ] && [ "$SAFE_BRANCH" != ".." ]; then
-                      rm -rf -- "$SAFE_BRANCH"
-                    fi
-                    bash .github/scripts/generate-pages-index.sh .
-                    git add -A
-                    git commit --amend --no-edit || git commit -m "Remove Pages for deleted branch $DELETED_REF"
+
+                    sleep $((i * 2))
                   done
 
                   exit 1

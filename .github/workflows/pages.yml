@@ -187,7 +187,7 @@ jobs:
                     mkdir -p "$BRANCH"
                     rsync -a ../site/"$BRANCH"/ "$BRANCH"/
                     touch .nojekyll
-                    bash ../.github/scripts/generate-pages-index.sh .
+                    bash ../.github/actions/generate-pages-index/generate-pages-index.sh .
                     git add -A
                     git commit --amend --no-edit || git commit -m "Deploy ${GITHUB_REF_NAME}"
                   done
