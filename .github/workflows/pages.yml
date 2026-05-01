@@ -117,16 +117,22 @@ jobs:
 
             - name: Prepare branch subfolder
               run: |
-                  BRANCH="${GITHUB_REF_NAME//\//-}"
-                  mkdir -p site/"$BRANCH"
-                  rsync -a dist/Web/ site/"$BRANCH"/
+                  SAFE_BRANCH="$(printf '%s' "$GITHUB_REF_NAME" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
+                  if [ -z "$SAFE_BRANCH" ] || [ "$SAFE_BRANCH" = "." ] || [ "$SAFE_BRANCH" = ".." ]; then
+                    exit 1
+                  fi
+                  mkdir -p site/"$SAFE_BRANCH"
+                  rsync -a dist/Web/ site/"$SAFE_BRANCH"/
 
             - name: Prepare gh-pages workdir
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  set -e
-                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  set -euo pipefail
+                  SAFE_BRANCH="$(printf '%s' "$GITHUB_REF_NAME" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
+                  if [ -z "$SAFE_BRANCH" ] || [ "$SAFE_BRANCH" = "." ] || [ "$SAFE_BRANCH" = ".." ]; then
+                    exit 1
+                  fi
                   REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
                   if git ls-remote --exit-code --heads "$REMOTE" gh-pages >/dev/null 2>&1; then
                     git clone --depth 1 --branch gh-pages "$REMOTE" ghpages
@@ -137,9 +143,10 @@ jobs:
                     git checkout -b gh-pages
                     git config user.name "github-actions"
                     git config user.email "github-actions@github.com"
-                    mkdir -p "$BRANCH"
-                    rsync -a ../site/"$BRANCH"/ "$BRANCH"/
+                    mkdir -p "$SAFE_BRANCH"
+                    rsync -a ../site/"$SAFE_BRANCH"/ "$SAFE_BRANCH"/
                     touch .nojekyll
+                    bash ../.github/actions/generate-pages-index/generate-pages-index.sh .
                     git add -A
                     git commit -m "Initialize gh-pages with ${GITHUB_REF_NAME}"
                     git remote add origin "$REMOTE"
@@ -151,45 +158,54 @@ jobs:
 
             - name: Sync to gh-pages
               run: |
-                  BRANCH="${GITHUB_REF_NAME//\//-}"
-                  rm -rf ghpages/"$BRANCH"
-                  mkdir -p ghpages/"$BRANCH"
-                  rsync -a site/"$BRANCH"/ ghpages/"$BRANCH"/
+                  SAFE_BRANCH="$(printf '%s' "$GITHUB_REF_NAME" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
+                  if [ -z "$SAFE_BRANCH" ] || [ "$SAFE_BRANCH" = "." ] || [ "$SAFE_BRANCH" = ".." ]; then
+                    exit 1
+                  fi
+                  rm -rf ghpages/"$SAFE_BRANCH"
+                  mkdir -p ghpages/"$SAFE_BRANCH"
+                  rsync -a site/"$SAFE_BRANCH"/ ghpages/"$SAFE_BRANCH"/
                   touch ghpages/.nojekyll
-            
+
             - name: Generate branch index
               uses: ./.github/actions/generate-pages-index
               with:
                   pages-dir: ghpages
 
-            - name: Commit and push
+            - name: Commit and push (retry, no rebase)
               run: |
                   set -euo pipefail
+                  SAFE_BRANCH="$(printf '%s' "$GITHUB_REF_NAME" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
+                  if [ -z "$SAFE_BRANCH" ] || [ "$SAFE_BRANCH" = "." ] || [ "$SAFE_BRANCH" = ".." ]; then
+                    exit 1
+                  fi
+
                   cd ghpages
                   git config user.name "github-actions"
                   git config user.email "github-actions@github.com"
 
-                  git add -A
-                  if git diff --cached --quiet; then
-                    exit 0
-                  fi
-
-                  git commit -m "Deploy ${GITHUB_REF_NAME}" || true
-
                   for i in 1 2 3 4 5; do
+                    git fetch origin gh-pages
+                    git reset --hard origin/gh-pages
+
+                    rm -rf -- "$SAFE_BRANCH"
+                    mkdir -p "$SAFE_BRANCH"
+                    rsync -a ../site/"$SAFE_BRANCH"/ "$SAFE_BRANCH"/
+                    touch .nojekyll
+                    bash ../.github/actions/generate-pages-index/generate-pages-index.sh .
+
+                    git add -A
+                    if git diff --cached --quiet; then
+                      exit 0
+                    fi
+
+                    git commit -m "Deploy ${GITHUB_REF_NAME}" || true
+
                     if git push origin gh-pages; then
                       exit 0
                     fi
-                    git fetch origin gh-pages
-                    git pull --rebase origin gh-pages || (git rebase --abort || true)
-                    BRANCH="${GITHUB_REF_NAME//\//-}"
-                    rm -rf "$BRANCH"
-                    mkdir -p "$BRANCH"
-                    rsync -a ../site/"$BRANCH"/ "$BRANCH"/
-                    touch .nojekyll
-                    bash ../.github/actions/generate-pages-index/generate-pages-index.sh .
-                    git add -A
-                    git commit --amend --no-edit || git commit -m "Deploy ${GITHUB_REF_NAME}"
+
+                    sleep $((i * 2))
                   done
 
                   exit 1
