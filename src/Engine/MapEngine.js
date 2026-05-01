@@ -134,6 +134,7 @@ let _isInitialised = false;
 let snCounter = 0;
 let chatLines = 0;
 
+const packetMap = new Map();
 /**
  * @namespace MapEngine
  */
@@ -270,6 +271,17 @@ class MapEngine {
 			Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY3, onConfigNotify);
 			Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY4, onConfigNotify);
 			Network.hookPacket(PACKET.ZC.CONFIG, onConfig);
+
+			// hook reassembly packets and map the responses
+			for (let i = 1; i <= 42; i++) {
+				const id = String(i).padStart(2, '0');
+
+				const ZC = PACKET.ZC[`REASSEMBLY_AUTH${id}`];
+				const CZ = PACKET.CZ[`REASSEMBLY_AUTH${id}`];
+
+				packetMap.set(ZC, CZ);
+				Network.hookPacket(ZC, onReassemblyAuth);
+			}
 
 			// Extend controller
 			MainEngine();
@@ -1253,6 +1265,20 @@ function onConfigUpdate(type, val) {
  */
 function onRestart() {
 	import('Engine/CharEngine.js').then(m => m.default.reload());
+}
+
+/**
+ * Reply to reassembly auth packet
+ * @param {object} pkt - packet
+ */
+function onReassemblyAuth(pkt) {
+	for (const [ZC, CZ] of packetMap.entries()) {
+		if (pkt instanceof ZC) {
+			console.warn(`Reassembly Auth ${ZC.id} => ${CZ.id}`);
+			Network.sendPacket(new CZ());
+			return;
+		}
+	}
 }
 
 /**
