@@ -171,6 +171,32 @@ class MemoryManager {
 	};
 
 	/**
+	 * Force immediate cleanup of memory entries matching an optional regex.
+	 * Useful after bulk loading (e.g., DB.lazyInit) to free parsed file data.
+	 *
+	 * @param {object} gl - WebGL Context (can be null)
+	 * @param {RegExp} [regex] - Optional pattern to match filenames. If omitted, all complete items are removed.
+	 */
+	static forceClean = async (gl, regex) => {
+		const keys = Object.keys(_memory);
+		const removed = [];
+
+		keys.forEach(key => {
+			const item = _memory[key];
+			if (item.complete && (!regex || key.match(regex))) {
+				MemoryManager.remove(gl, key);
+				removed.push(key);
+			}
+		});
+
+		if (removed.length) {
+			console.log('%c[MemoryManager] - Removed ' + removed.length + ' elements from memory.', 'color:#d35111', {
+				files: removed
+			});
+		}
+	};
+
+	/**
 	 * Remove Item from memory
 	 *
 	 * @param {object} gl - WebGL Context
@@ -213,6 +239,25 @@ class MemoryManager {
 				case '.pal':
 					if (file.texture && gl != null && gl.isTexture(file.texture)) {
 						gl.deleteTexture(file.texture);
+					}
+					break;
+
+				// Delete GPU textures from STR effects
+				case '.str':
+					if (file.layers) {
+						for (i = 0, count = file.layers.length; i < count; ++i) {
+							if (file.layers[i].materials) {
+								for (let j = 0, matCount = file.layers[i].materials.length; j < matCount; ++j) {
+									if (
+										file.layers[i].materials[j] &&
+										gl != null &&
+										gl.isTexture(file.layers[i].materials[j])
+									) {
+										gl.deleteTexture(file.layers[i].materials[j]);
+									}
+								}
+							}
+						}
 					}
 					break;
 

@@ -404,8 +404,8 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			// Don't save embed-relative position/show as standalone preferences
 			if (!_embedAnchor) {
 				_preferences.show = this._host.style.display !== 'none';
-				_preferences.y = parseInt(this._host.style.top, 10) || 0;
-				_preferences.x = parseInt(this._host.style.left, 10) || 0;
+				_preferences.x = parseInt(this._host.style.left, 10);
+				_preferences.y = parseInt(this._host.style.top, 10);
 			}
 			const panel = _root.querySelector('.panel');
 			_preferences.reduce = panel ? panel.style.display === 'none' : false;

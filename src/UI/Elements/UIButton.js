@@ -26,6 +26,16 @@ class UIButton extends HTMLElement {
 		const state = { hover: false, down: false };
 
 		const update = () => {
+			if (this.disabled) {
+				if (bgUri) {
+					this.style.backgroundImage = `url(${bgUri})`;
+				}
+				this.style.opacity = '0.5';
+				this.style.cursor = 'default';
+				return;
+			}
+			this.style.opacity = '';
+			this.style.cursor = '';
 			if (state.down && downUri) {
 				this.style.backgroundImage = `url(${downUri})`;
 			} else if (state.hover && hoverUri) {
@@ -36,7 +46,7 @@ class UIButton extends HTMLElement {
 				this.style.backgroundImage = '';
 			}
 		};
-
+		this._update = update;
 		const loadBmp = (path, cb) => {
 			if (!path) return;
 			Client.loadFile(DB.INTERFACE_PATH + path, dataURI => {
@@ -66,6 +76,7 @@ class UIButton extends HTMLElement {
 		});
 
 		this.addEventListener('mouseover', () => {
+			if (this.disabled) return;
 			state.hover = true;
 			update();
 		});
@@ -75,6 +86,7 @@ class UIButton extends HTMLElement {
 			update();
 		});
 		this.addEventListener('mousedown', () => {
+			if (this.disabled) return;
 			state.down = true;
 			update();
 		});
@@ -82,6 +94,38 @@ class UIButton extends HTMLElement {
 			state.down = false;
 			update();
 		});
+		this.addEventListener(
+			'click',
+			e => {
+				if (this.disabled) {
+					e.stopImmediatePropagation();
+					e.preventDefault();
+				}
+			},
+			true
+		);
+	}
+	get disabled() {
+		return this.hasAttribute('disabled');
+	}
+
+	set disabled(val) {
+		if (val) {
+			this.setAttribute('disabled', '');
+		} else {
+			this.removeAttribute('disabled');
+		}
+	}
+	static get observedAttributes() {
+		return ['disabled'];
+	}
+
+	attributeChangedCallback(name) {
+		if (name === 'disabled' && this._initialized) {
+			// Reset hover/down state when becoming disabled
+			// The update() closure is inside connectedCallback, so we need a reference
+			if (this._update) this._update();
+		}
 	}
 }
 

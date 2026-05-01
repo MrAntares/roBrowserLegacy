@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import Events from 'Core/Events.js';
@@ -115,11 +114,12 @@ class CharEngine {
 		Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR, onReceiveMapInfo);
 		Network.hookPacket(PACKET.HC.NOTIFY_ZONESVR2, onReceiveMapInfo);
 		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER, onConnectionAccepted);
-		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST, onConnectionAccepted);
-		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2, onConnectionAccepted);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST, onCharacterListChunk);
+		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2, onCharacterListChunk);
 		Network.hookPacket(PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME, onMapUnavailable);
 		Network.hookPacket(PACKET.HC.SECOND_PASSWD_LOGIN, onPincodeCheckSuccess);
 		Network.hookPacket(PACKET.HC.DELETE_CHAR3_RESERVED, onRequestCharDel);
+		Network.hookPacket(PACKET.HC.CHARLIST_NOTIFY, onCharListNotify);
 		JoystickUI.onRestore();
 	}
 
@@ -144,6 +144,19 @@ class CharEngine {
  */
 function onExitRequest() {
 	import('Engine/LoginEngine.js').then(m => m.default.reload());
+}
+
+/**
+ * Server send character list chunk
+ *
+ * @param {object} pkt - PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST or PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2
+ */
+function onCharacterListChunk(pkt) {
+	const ChSel = CharSelect.getUI();
+	if (!ChSel) return;
+	pkt.charInfo.forEach(charInfo => {
+		ChSel.addCharacter(charInfo);
+	});
 }
 
 /**
@@ -318,7 +331,7 @@ function onDeleteRequest(charID) {
 	function onCancel() {
 		InputBox.remove();
 		_ui_box.remove();
-		_overlay.detach();
+		_overlay.remove();
 		Events.clearTimeout(_TimeOut);
 		onDeleteAnswer({ ErrorCode: -2 });
 	}
@@ -332,14 +345,16 @@ function onDeleteRequest(charID) {
 			InputBox.setType('mail', true);
 		}
 		InputBox.onSubmitRequest = onSubmit;
-		_ui_box.ui.css('zIndex', 50); // ui same zIndex bg
-		_overlay.css('zIndex', 51); // overlay same zIndex input
+		_ui_box._host.style.zIndex = '50'; // ui same zIndex bg
+		_overlay.style.zIndex = '51'; // overlay same zIndex input
 		_ui_box.append(); // don't remove message box
 	}
 
 	// Display prompt message
 	_ui_box = UIManager.showPromptBox(DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
-	const _overlay = jQuery('<div/>').addClass('win_popup_overlay').appendTo('body');
+	const _overlay = document.createElement('div');
+	_overlay.className = 'win_popup_overlay';
+	document.body.appendChild(_overlay);
 
 	// Submit the mail/birthdate
 	function onSubmit(input) {
@@ -362,7 +377,7 @@ function onDeleteRequest(charID) {
 			_height = _canvas.height = 15;
 			_canvas.style.marginTop = '10px';
 			_canvas.style.marginLeft = '20px';
-			_ui_box.ui.append(_canvas);
+			_ui_box._shadow.querySelector('.container').appendChild(_canvas);
 
 			// Parameter
 			_time_end = Date.now() + 10000;
@@ -373,7 +388,7 @@ function onDeleteRequest(charID) {
 		} else {
 			// No waiting time
 			_ui_box.remove();
-			_overlay.detach();
+			_overlay.remove();
 			deleteCharacter();
 			return;
 		}
@@ -388,13 +403,16 @@ function onDeleteRequest(charID) {
 		// Delete character
 		if (percent >= 100) {
 			_ui_box.remove();
-			_overlay.detach();
+			_overlay.remove();
 			deleteCharacter();
 			return;
 		}
 
 		// Update text
-		_ui_box.ui.find('.text').text(DB.getMessage(296).replace('%d', Math.round(10 - percent / 10)));
+		_ui_box._shadow.querySelector('.text').textContent = DB.getMessage(296).replace(
+			'%d',
+			Math.round(10 - percent / 10)
+		);
 
 		// Update progressbar
 		_ctx.clearRect(0, 0, _width, _height);
@@ -725,10 +743,22 @@ function onConnectRequest(entity) {
 	CharSelect.getUI().remove();
 	UIManager.getComponent('WinLoading').append();
 	Session.Character = entity;
-
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);
+}
+
+/**
+ * Server send char list info, ask for char list
+ *
+ * @param {object} charListInfo - PACKET.HC.CHARLIST_NOTIFY
+ */
+function onCharListNotify(charListInfo) {
+	const total = Math.max(charListInfo.TotalCnt, 1);
+	for (let i = 0; i < total; i++) {
+		const pkt = new PACKET.CH.CHARLIST_REQ();
+		Network.sendPacket(pkt);
+	}
 }
 
 /**
@@ -736,7 +766,27 @@ function onConnectRequest(entity) {
  *
  * @param {object} pkt - PACKET.HC.NOTIFY_ZONESVR
  */
+let retryCount = 0;
 function onReceiveMapInfo(pkt) {
+	if (!DB.isLoaded) {
+		if (!DB.startedLazyInit) {
+			DB.lazyInit();
+			DB.startedLazyInit = true;
+		}
+		retryCount++;
+		if (retryCount > 600) {
+			UIManager.showMessageBox('Failed loading databases, please restart the game', 'ok', () => {
+				CharEngine.reload();
+			});
+			retryCount = 0;
+			DB.startedLazyInit = false;
+			return;
+		}
+		setTimeout(() => onReceiveMapInfo(pkt), 100);
+		return;
+	}
+	DB.startedLazyInit = false;
+	retryCount = 0;
 	Session.GID = pkt.GID;
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }

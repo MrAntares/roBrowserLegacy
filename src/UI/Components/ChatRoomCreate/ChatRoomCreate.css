@@ -1,7 +1,12 @@
-#ChatRoomCreate {
-	position: absolute;
+:host {
+	width: 280px;
+	height: 120px;
 	top: 50%;
 	left: 50%;
+}
+
+#ChatRoomCreate {
+	position: absolute;
 	width: 280px;
 	height: 120px;
 }
@@ -68,16 +73,16 @@
 }
 #ChatRoomCreate .container .title {
 	height: 16px;
-	width: 214px;
+	width: 198px;
 	padding-left: 5px;
 }
 #ChatRoomCreate .container .limit,
 #ChatRoomCreate .container .password {
-	width: 81px;
+	width: 58px;
 	padding-left: 5px;
 }
 #ChatRoomCreate .container .type {
-	width: 88px;
+	width: 110px;
 }
 #ChatRoomCreate .head {
 	color: #0f4b8c;
@@ -86,8 +91,10 @@
 	width: 40px;
 	white-space: nowrap;
 }
+#ChatRoomCreate .mode {
+	white-space: nowrap;
+}
 #ChatRoomCreate .mode span {
-	width: 43px;
 	overflow: hidden;
 	display: inline-block;
 	white-space: nowrap;

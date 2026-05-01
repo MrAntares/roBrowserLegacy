@@ -159,6 +159,7 @@ ChatBox.tabs = [];
  * Initialize UI
  */
 ChatBox.init = function init() {
+	if (!ContextMenu.__loaded) ContextMenu.prepare();
 	_heightIndex = _preferences.height - 1;
 	ChatBox.updateHeight();
 	ChatBox.applyFontScale();

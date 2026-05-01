@@ -1,7 +1,12 @@
-#FPS {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+	width: 80px;
+	height: 20px;
+}
+
+#FPS {
+	position: absolute;
 	background: white;
 	border-radius: 2px;
 	font-size: 11px;
@@ -17,16 +22,4 @@
 #FPS .titlebar .left {
 	margin-left: 3px;
 	float: left;
-}
-
-.fps-good {
-	color: #006400;
-}
-
-.fps-warn {
-	color: #ff9800;
-}
-
-.fps-bad {
-	color: #f44336;
 }

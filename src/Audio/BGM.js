@@ -13,6 +13,8 @@
 import Client from 'Core/Client.js';
 import Preferences from 'Preferences/Audio.js';
 
+let _playToken = 0;
+
 /**
  * BGM NameSpace
  */
@@ -79,32 +81,23 @@ class BGM {
 	 *
 	 * @param {string} filename
 	 */
-	static play(filename) {
-		// Nothing to play
-		if (!filename) {
-			return;
-		}
 
-		// Remove the "BGM/" part
+	static play(filename) {
+		if (!filename) return;
 		if (filename.match(/bgm/i)) {
 			filename = filename.match(/\w+\.mp3/i)?.toString();
-			if (!filename) {
-				return;
-			}
+			if (!filename) return;
 		}
-
-		// If it's the same file, check if it's already playing
-		if (BGM.filename === filename) {
-			if (!BGM.audio.paused) {
-				return;
-			}
-		} else {
-			BGM.filename = filename;
+		if (BGM.filename === filename && BGM.audio && !BGM.audio.paused) {
+			return;
 		}
-
-		// load the file.
+		BGM.filename = filename;
+		const myToken = ++_playToken;
 		if (Preferences.BGM.play) {
 			Client.loadFile(`BGM/${filename}`, url => {
+				if (myToken !== _playToken) {
+					return;
+				}
 				BGM.load(url);
 			});
 		}
@@ -128,16 +121,24 @@ class BGM {
 
 		BGM.audio.src = url;
 		BGM.audio.volume = BGM.volume;
-		BGM.audio.play().catch(error => {
-			console.error(`Failed to play "BGM/${BGM.filename}": ${error.message}`);
-		});
+		const playPromise = BGM.audio.play();
+		if (playPromise) {
+			playPromise.catch(err => {
+				if (err.name !== 'AbortError') {
+					console.warn('Failed to play:', err);
+				}
+			});
+		}
 	}
 
 	/**
 	 * Stop the BGM
 	 */
 	static stop() {
-		BGM.audio.pause();
+		_playToken++;
+		if (BGM.audio) {
+			BGM.audio.pause();
+		}
 	}
 
 	/**

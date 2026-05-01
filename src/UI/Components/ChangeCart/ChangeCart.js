@@ -1,11 +1,11 @@
 /**
- * UI/Components/Equipment/Equipment.js
+ * UI/Components/ChangeCart/ChangeCart.js
  *
- * Chararacter Equipment window
+ * Change Cart UI
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
 
 import Network from 'Network/NetworkManager.js';
@@ -16,7 +16,7 @@ import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
 import Client from 'Core/Client.js';
@@ -30,7 +30,12 @@ const CART_LIMIT = 13;
 /**
  * Create Component
  */
-const ChangeCart = new UIComponent('ChangeCart', htmlText, cssText);
+const ChangeCart = new GUIComponent('ChangeCart', cssText);
+
+/**
+ * Render HTML
+ */
+ChangeCart.render = () => htmlText;
 
 /**
  * @var {object} data info
@@ -42,22 +47,24 @@ const _layerEntity = new Entity();
  * Initialize UI
  */
 ChangeCart.init = function init() {
-	const carts = this.ui.find('.cart');
+	const root = this._shadow || this._host;
+	const carts = root.querySelectorAll('.cart');
 
-	this.ui.css({
-		top: (Renderer.height - 100) / 2.0,
-		left: (Renderer.width - 400) / 2.0
+	this._host.style.top = (Renderer.height - 100) / 2.0 + 'px';
+	this._host.style.left = (Renderer.width - 400) / 2.0 + 'px';
+
+	root.querySelector('.titlebar .close').addEventListener('click', () => {
+		ChangeCart._host.style.display = 'none';
+		Renderer.stop(render);
 	});
+	this.draggable('.titlebar');
 
-	this.ui.find('.titlebar .close').click(function () {
-		ChangeCart.ui.hide();
-	});
-	this.draggable(this.ui.find('.titlebar'));
-
-	carts.hide();
-	carts.addClass('event_add_cursor');
-	carts.on('click', function (event) {
-		onCart(event.target.getAttribute('data-id'));
+	carts.forEach(el => {
+		el.style.display = 'none';
+		el.classList.add('event_add_cursor');
+		el.addEventListener('click', event => {
+			onCart(parseInt(event.currentTarget.getAttribute('data-id'), 10));
+		});
 	});
 
 	// Pre-load carts
@@ -68,17 +75,11 @@ ChangeCart.init = function init() {
  * Load Carts assets
  */
 function loadCartData() {
-	let i;
-	for (i = 0; i <= CART_LIMIT; ++i) {
-		(function (id) {
-			const path = DB.getCartPath(id);
-			Client.loadFiles([path + '.spr', path + '.act'], function (spr, act) {
-				_carts[id] = {
-					spr: spr,
-					act: act
-				};
-			});
-		})(i);
+	for (let i = 0; i <= CART_LIMIT; ++i) {
+		const path = DB.getCartPath(i);
+		Client.loadFiles([path + '.spr', path + '.act'], (spr, act) => {
+			_carts[i] = { spr: spr, act: act };
+		});
 	}
 }
 
@@ -86,21 +87,22 @@ function loadCartData() {
  * Change cart (Change cart packet IDs are not the same as global cart IDs!!)
  */
 function onCart(num) {
-	if (Session.Entity.hasCart == false || num < 0 || num > 8) {
+	if (Session.Entity.hasCart == false || num < 0 || num > 9) {
 		return;
 	}
 
 	const pkt = new PACKET.CZ.REQ_CHANGECART();
 	pkt.num = num;
 	Network.sendPacket(pkt);
-	ChangeCart.ui.hide();
+	ChangeCart._host.style.display = 'none';
+	Renderer.stop(render);
 }
 
 /**
  * Append to body
  */
 ChangeCart.onAppend = function onAppend() {
-	this.ui.hide();
+	this._host.style.display = 'none';
 	loadCartData();
 };
 
@@ -108,22 +110,20 @@ ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 	if (Session.Entity.hasCart == false) {
 		return;
 	}
-
-	this.ui.show();
-
-	const msg = 'Change Cart!!';
-
+	let msg = 'Change Cart!!';
 	if (ChatRoom.isOpen) {
+		msg = 'Close your Room first!!';
 		ChatRoom.message(msg);
 		return;
 	}
-
 	ChatBox.addText(msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_LOG);
 	if (Session.Entity) {
 		Session.Entity.dialog.set(msg);
 	}
-
+	ChangeCart.ui.show();
 	updateList(Session.Character.level);
+	// Avoid stacking duplicate render callbacks if invoked while already open
+	Renderer.stop(render);
 	Renderer.render(render);
 };
 
@@ -136,35 +136,37 @@ function updateList(blvl) {
 		return;
 	}
 
-	ChangeCart.ui.find('.cart').hide();
-	//stopAllCart();
+	const root = ChangeCart._shadow || ChangeCart._host;
+	root.querySelectorAll('.cart').forEach(el => {
+		el.style.display = 'none';
+	});
 
 	if (blvl > 131) {
-		ChangeCart.ui.find(".cart[data-id='9']").show();
+		root.querySelector(".cart[data-id='9']").style.display = '';
 	}
 	if (blvl > 121) {
-		ChangeCart.ui.find(".cart[data-id='8']").show();
+		root.querySelector(".cart[data-id='8']").style.display = '';
 	}
 	if (blvl > 111) {
-		ChangeCart.ui.find(".cart[data-id='7']").show();
+		root.querySelector(".cart[data-id='7']").style.display = '';
 	}
 	if (blvl > 100) {
-		ChangeCart.ui.find(".cart[data-id='6']").show();
+		root.querySelector(".cart[data-id='6']").style.display = '';
 	}
 	if (blvl > 90) {
-		ChangeCart.ui.find(".cart[data-id='5']").show();
+		root.querySelector(".cart[data-id='5']").style.display = '';
 	}
 	if (blvl > 80) {
-		ChangeCart.ui.find(".cart[data-id='4']").show();
+		root.querySelector(".cart[data-id='4']").style.display = '';
 	}
 	if (blvl > 65) {
-		ChangeCart.ui.find(".cart[data-id='3']").show();
+		root.querySelector(".cart[data-id='3']").style.display = '';
 	}
 	if (blvl > 40) {
-		ChangeCart.ui.find(".cart[data-id='2']").show();
+		root.querySelector(".cart[data-id='2']").style.display = '';
 	}
 
-	ChangeCart.ui.find(".cart[data-id='1']").show();
+	root.querySelector(".cart[data-id='1']").style.display = '';
 }
 
 /**
@@ -176,16 +178,20 @@ ChangeCart.onRemove = function onRemove() {
 };
 
 ChangeCart.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
-		this.hide();
+	if (this._host.style.display === 'none') {
+		return true;
 	}
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+		this._host.style.display = 'none';
+		Renderer.stop(render);
+		event.stopImmediatePropagation();
+		return false;
+	}
+	return true;
 };
 
 /**
  * Pick layers from act
- * @param {Object} act
- * @param {number} actionId
- * @returns {Object[]}
  */
 function pickLayers(act, actionId) {
 	const a = act.actions[actionId];
@@ -203,10 +209,7 @@ function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
 	if (!layers) {
 		return;
 	}
-
-	// Gravity fonts: no anchor correction
 	SpriteRenderer.bind2DContext(ctx, x, y);
-
 	for (let i = 0; i < layers.length; i++) {
 		_layerEntity.renderLayer(layers[i], spr, spr, 1.0, [0, 0], false);
 	}
@@ -216,37 +219,29 @@ function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
  * Rendering the Carts
  */
 function render(tick) {
-	const canvases = ChangeCart.ui.find('.canvas:visible');
+	const root = ChangeCart._shadow || ChangeCart._host;
+	const canvases = root.querySelectorAll('.canvas');
 
-	canvases.each(function () {
-		const id = this.getAttribute('data-id');
+	canvases.forEach(el => {
+		// Skip hidden canvases
+		if (el.offsetParent === null) {
+			return;
+		}
+
+		const id = el.getAttribute('data-id');
 		const data = _carts[id];
 
 		if (!data || !data.spr || !data.act) {
 			return;
 		}
 
-		const ctx = this.getContext('2d');
-		ctx.clearRect(0, 0, this.width, this.height);
-
-		// Cart is rendered with Action 0 (Idle)
-		// Direction depends on view, but for UI we can pick a specific one, e.g. 0 or 4
-		// Original code used direction 5 (South-East?) for some reason, standard is usually 0
-		// Let's use 0 (Camera.direction + entity.direction + 8 % 8) logic from EntityRender?
-		// Action 0 is Idle.
-		// Directions: 0=S, 1=SW, 2=W, 3=NW, 4=N, 5=NE, 6=E, 7=SE
-		// Let's pick 0 for now (South facing)
-		// Actually let's use what matches the original code attempt: direction 5
-		// Action * 8 + Direction
-		// Action 0, Direction 5? Or Direction 0?
-		// EntityRender uses: (entity.action * 8 + ((Camera.direction + entity.direction + 8) % 8)) % act.actions.length
-		// Let's try idle (0) and direction (0) -> 0.
-		// Or maybe direction 0 looks best in UI.
-		const actionId = 0; // (0 * 8 + 0)
-
-		drawActionToCanvas(ctx, data.act, data.spr, actionId, this.width / 2, this.height + 10);
+		const ctx = el.getContext('2d');
+		ctx.clearRect(0, 0, el.width, el.height);
+		drawActionToCanvas(ctx, data.act, data.spr, 0, el.width / 2, el.height + 10);
 	});
 }
+
+ChangeCart.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Create component and export it

@@ -25,51 +25,57 @@ import Session from 'Engine/SessionStorage.js';
  * PACKET.CZ.CREATE_CHATROOM
  */
 ChatRoomCreate.requestRoom = function requestRoom() {
-	const pkt = new PACKET.CZ.CREATE_CHATROOM();
-	pkt.size = this.limit;
-	pkt.type = this.type;
-	pkt.passwd = this.password;
-	pkt.title = this.title;
-	Network.sendPacket(pkt);
+	if (ChatRoomCreate.editMode) {
+		ChatRoom.changeChatRoom(this.title, this.limit, this.type, this.password);
+		ChatRoomCreate.editMode = false;
+	} else {
+		const pkt = new PACKET.CZ.CREATE_CHATROOM();
+		pkt.size = this.limit;
+		pkt.type = this.type;
+		pkt.passwd = this.password;
+		pkt.title = this.title;
+		Network.sendPacket(pkt);
+	}
 };
 
 /**
  * Request a change in the chat room
- * PACKET.CZ.CHANGE_CHATROOM
+ * PACKET.CZ.CHANGE_CHATROOM (0xde)
+ * @param {string} title
+ * @param {number} limit
+ * @param {number} type - 0=private, 1=public
+ * @param {string} password
  */
-ChatRoom.changeChatRoom = function changeChatRoom() {
+ChatRoom.changeChatRoom = function changeChatRoom(title, limit, type, password) {
 	const pkt = new PACKET.CZ.CHANGE_CHATROOM();
-	/*
-		this.size         = 0;
-		this.type         = 0;
-		this.passwd       = '';
-		this.title        = '';
-		*/
+	pkt.size = limit;
+	pkt.type = type;
+	pkt.passwd = password || '';
+	pkt.title = title;
 	Network.sendPacket(pkt);
 };
 
 /**
- * Request to change the role from a member in your chatroom
- * PACKET.CZ.REQ_ROLE_CHANGE
+ * Request to change the role of a member (transfer leadership)
+ * PACKET.CZ.REQ_ROLE_CHANGE (0xe0)
+ * @param {number} role - 0=owner, 1=normal
+ * @param {string} name
  */
-ChatRoom.requestRoleChange = function requestRoleChange() {
+ChatRoom.requestRoleChange = function requestRoleChange(role, name) {
 	const pkt = new PACKET.CZ.REQ_ROLE_CHANGE();
-	/*
-			this.role       = 0;
-			this.name       = '';
-		*/
+	pkt.role = role;
+	pkt.name = name;
 	Network.sendPacket(pkt);
 };
 
 /**
  * Request to expel a member from current chatroom
- * PACKET.CZ.REQ_EXPEL_MEMBER
+ * PACKET.CZ.REQ_EXPEL_MEMBER (0xe2)
+ * @param {string} name
  */
-ChatRoom.requestExpelMember = function requestExpelMember() {
+ChatRoom.requestExpelMember = function requestExpelMember(name) {
 	const pkt = new PACKET.CZ.REQ_EXPEL_MEMBER();
-	/*
-			this.name       = '';
-		*/
+	pkt.name = name;
 	Network.sendPacket(pkt);
 };
 
@@ -177,7 +183,7 @@ function onRoleChange(pkt) {
 	// The server will send two of this packets!
 	// One to remove the ownership and one to add ownership, we dont need the first packet !
 
-	if (pkt.role === 1) {
+	if (pkt.role === 0) {
 		ChatRoom.owner = pkt.name;
 		ChatRoom.updateChat();
 	}

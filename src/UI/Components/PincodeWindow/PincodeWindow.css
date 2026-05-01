@@ -1,3 +1,10 @@
+:host {
+	width: 540px;
+	height: 365px;
+	top: 50%;
+	left: 50%;
+}
+
 #Pincodewindow {
 	position: absolute;
 	width: 540px;
@@ -28,7 +35,6 @@
 	text-shadow: 1px 1px white;
 	vertical-align: -2px;
 	white-space: nowrap;
-	/* chrome bug */
 	display: inline-block;
 	width: 32px;
 	height: 13px;
@@ -105,20 +111,12 @@
 	width: 100px;
 }
 
-#Pincodewindow .panel .numReset {
-	position: absolute;
-	width: 119px;
-	height: 60px;
-	top: 257px;
-	left: 280px;
-	border: 0;
-}
-
 #Pincodewindow .panel .btn {
 	width: 60px;
 	height: 60px;
 	border: 0;
 	position: absolute;
+	background: none;
 }
 
 #Pincodewindow .panel .btn2 {
@@ -126,6 +124,17 @@
 	height: 20px;
 	border: 0;
 	position: absolute;
+	background: none;
+}
+
+#Pincodewindow .panel .numReset {
+	position: absolute;
+	width: 119px;
+	height: 60px;
+	top: 257px;
+	left: 280px;
+	border: 0;
+	background: none;
 }
 
 #Pincodewindow .panel .btn.num1 {

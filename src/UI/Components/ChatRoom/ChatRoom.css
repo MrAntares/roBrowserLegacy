@@ -1,8 +1,18 @@
+:host {
+	width: 279px;
+	height: 200px;
+	top: 100px;
+	left: 100px;
+}
+
 #ChatRoom {
 	position: absolute;
-	top: 50%;
-	left: 50%;
+	width: 279px;
+	border-radius: 5px;
+	background-color: white;
+	background-repeat: no-repeat;
 }
+
 #ChatRoom table {
 	border-spacing: 0px;
 	display: inline-block;
@@ -126,4 +136,14 @@
 	position: absolute;
 	bottom: 0px;
 	right: 0px;
+}
+
+#ChatRoom .content .members span.member {
+	cursor: pointer;
+}
+#ChatRoom .content .members span.member:hover {
+	text-decoration: underline;
+}
+#ChatRoom .content .members span.owner {
+	font-weight: bold;
 }

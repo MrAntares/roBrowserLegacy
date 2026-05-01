@@ -83,9 +83,17 @@ Announce.timeEnd = function timeEnd() {
  * @param {string} text to display
  * @param {string} color
  */
-Announce.set = function set(text, color, allowNewlines = false) {
-	const fontSize = 12;
-	const maxWidth = 500;
+Announce.set = function set(text, color, options = {}) {
+	const allowNewlines = typeof options === 'boolean' ? options : !!options.allowNewlines;
+	const opts = typeof options === 'object' ? options : {};
+	const fontSize = opts.fontSize || 12;
+	const life = opts.life || _life;
+
+	let targetWidth = null;
+	if (opts.width === '100%') targetWidth = Renderer.width;
+	else if (opts.width) targetWidth = opts.width;
+
+	const maxWidth = targetWidth ? targetWidth - 20 : 500;
 	const lines = [];
 
 	this.ctx.font = `${fontSize}px Arial`;
@@ -129,29 +137,48 @@ Announce.set = function set(text, color, allowNewlines = false) {
 	}
 
 	// Get new canvas size
-	this.canvas.width = 20 + Math.max(...lines.map(line => this.ctx.measureText(line).width));
-	this.canvas.height = 10 + (fontSize + 5) * lines.length;
-	this.canvas.style.left = `${(Renderer.width - this.canvas.width) >> 1}px`;
+	this.canvas.width = targetWidth || 20 + Math.max(...lines.map(line => this.ctx.measureText(line).width));
+	this.canvas.height = opts.height || 10 + (fontSize + 5) * lines.length;
+
+	if (opts.width === '100%') {
+		this.canvas.style.left = '0px';
+	} else {
+		this.canvas.style.left = `${(Renderer.width - this.canvas.width) >> 1}px`;
+	}
 
 	// Updating canvas size resets font value
 	this.ctx.font = fontSize + 'px Arial';
 
 	// Display background
-	this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
-	this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+	if (!opts.noBackground) {
+		this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
+		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+	}
 
 	// Display text
 	this.ctx.fillStyle = color || '#FFFF00';
-	lines.forEach((line, index) => {
-		this.ctx.fillText(line, 10, 5 + fontSize + (fontSize + 5) * index);
-	});
+
+	if (targetWidth || opts.height) {
+		this.ctx.textAlign = 'center';
+		this.ctx.textBaseline = 'middle';
+		lines.forEach((line, index) => {
+			const y = this.canvas.height / 2 + (index - (lines.length - 1) / 2) * (fontSize + 5);
+			this.ctx.fillText(line, this.canvas.width / 2, y);
+		});
+	} else {
+		this.ctx.textAlign = 'left';
+		this.ctx.textBaseline = 'alphabetic';
+		lines.forEach((line, index) => {
+			this.ctx.fillText(line, 10, 5 + fontSize + (fontSize + 5) * index);
+		});
+	}
 
 	// Start timer
 	if (_timer) {
 		Events.clearTimeout(_timer);
 	}
 
-	_timer = Events.setTimeout(this.timeEnd.bind(this), _life);
+	_timer = Events.setTimeout(this.timeEnd.bind(this), life);
 };
 
 /**

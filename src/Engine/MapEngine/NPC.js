@@ -11,7 +11,6 @@
 /**
  * Load dependencies
  */
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Sound from 'Audio/SoundManager.js';
 import BGM from 'Audio/BGM.js';
@@ -26,6 +25,7 @@ import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import WinPopup from 'UI/Components/WinPopup/WinPopup.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import GUIComponent from 'UI/GUIComponent.js';
 
 /**
  * NPC write a message
@@ -186,52 +186,51 @@ function onDealSelection(pkt) {
 
 	WinDeal.init = function Init() {
 		this.draggable();
-		this.ui.find('.text').text(DB.getMessage(92));
+		this._shadow.querySelector('.text').textContent = DB.getMessage(92);
 
-		this.ui.css({
-			top: Renderer.height / 1.5,
-			left: (Renderer.width - 280) / 2.0,
-			zIndex: 100
+		Object.assign(this._host.style, {
+			top: Renderer.height / 1.5 + 'px',
+			left: (Renderer.width - 280) / 2.0 + 'px',
+			zIndex: '100'
 		});
 
-		this.ui.find('.btns').append(
-			jQuery('<button/>')
-				.addClass('btn')
-				.data('background', 'btn_buy.bmp')
-				.data('hover', 'btn_buy_a.bmp')
-				.data('down', 'btn_buy_b.bmp')
-				.one('click', function () {
-					WinDeal.remove();
-					const _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
-					_pkt.type = 0;
-					_pkt.NAID = NAID;
-					Network.sendPacket(_pkt);
-				})
-				.each(this.parseHTML),
+		const btns = this._shadow.querySelector('.btns');
 
-			jQuery('<button/>')
-				.addClass('btn')
-				.data('background', 'btn_sell.bmp')
-				.data('hover', 'btn_sell_a.bmp')
-				.data('down', 'btn_sell_b.bmp')
-				.one('click', function () {
-					WinDeal.remove();
-					const _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
-					_pkt.type = 1;
-					_pkt.NAID = NAID;
-					Network.sendPacket(_pkt);
-				})
-				.each(this.parseHTML),
+		const createBtn = (name, onClick) => {
+			const btn = document.createElement('button');
+			btn.className = 'btn';
+			btn.dataset.background = 'btn_' + name + '.bmp';
+			btn.dataset.hover = 'btn_' + name + '_a.bmp';
+			btn.dataset.down = 'btn_' + name + '_b.bmp';
+			btn.addEventListener('click', onClick, { once: true });
+			GUIComponent.processDataAttrs(btn);
+			return btn;
+		};
 
-			jQuery('<button/>')
-				.addClass('btn')
-				.data('background', 'btn_cancel.bmp')
-				.data('hover', 'btn_cancel_a.bmp')
-				.data('down', 'btn_cancel_b.bmp')
-				.one('click', function () {
-					WinDeal.remove();
-				})
-				.each(this.parseHTML)
+		btns.appendChild(
+			createBtn('buy', function () {
+				WinDeal.remove();
+				const _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
+				_pkt.type = 0;
+				_pkt.NAID = NAID;
+				Network.sendPacket(_pkt);
+			})
+		);
+
+		btns.appendChild(
+			createBtn('sell', function () {
+				WinDeal.remove();
+				const _pkt = new PACKET.CZ.ACK_SELECT_DEALTYPE();
+				_pkt.type = 1;
+				_pkt.NAID = NAID;
+				Network.sendPacket(_pkt);
+			})
+		);
+
+		btns.appendChild(
+			createBtn('cancel', function () {
+				WinDeal.remove();
+			})
 		);
 	};
 

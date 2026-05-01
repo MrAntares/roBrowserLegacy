@@ -23,7 +23,7 @@ canvas {
 body {
 	background-color: black;
 	font-size: 12px;
-	font-family: 'SCDream', Arial;
+	font-family: 'SCDream', Arial, Helvetica, sans-serif;
 	overflow: hidden;
 	-webkit-user-select: none;
 	user-select: none;

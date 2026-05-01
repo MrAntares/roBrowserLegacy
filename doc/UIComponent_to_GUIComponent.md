@@ -15,7 +15,7 @@
 - Native DOM + Shadow DOM (`attachShadow({ mode: 'open' })`)
 - CSS injected inside the Shadow DOM via a `<style>` element (Common.css + component CSS)
 - HTML returned by `render()` method as a string, inserted into `this._container.innerHTML`
-- Uses Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes (see doc/CustomElements.md)
+- Uses Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes (see doc/CustomElements.md) [OPTIONAL]
 - `this.ui` is a jQuery-compatible proxy that exists **only** for interoperability with `UIManager` and legacy `UIComponent` instances — **new code inside a GUIComponent should always use native DOM and Shadow DOM APIs directly**
 
 ### DOM Structure
@@ -139,9 +139,9 @@ Key differences:
 
 - `GUIComponent` constructor takes `(name, cssText)` — no HTML argument
 - HTML is returned by `render()` method
-- Must `import 'UI/Elements/Elements.js'` to register custom elements
+- Must `import 'UI/Elements/Elements.js'` to register custom elements [OPTIONAL]
 
-### 3. Convert the HTML file
+### 3. Convert the HTML file [OPTIONAL]
 
 Replace `data-*` attributes with Custom Elements:
 
@@ -151,7 +151,7 @@ Replace `data-*` attributes with Custom Elements:
 | `<span data-text="2355">Fallback</span>`                                                   | `<ui-text msg="2355">Fallback</ui-text>`                               |
 | `<div data-background="image.bmp">`                                                        | `<ui-image src="image.bmp">`                                           |
 
-Elements that still use `data-background`, `data-hover`, `data-down`, `data-active`, `data-text`, or `data-preload` will be processed by `GUIComponent._processAllDataAttrs()` during `prepare()`. Both approaches work; Custom Elements are preferred for new code. Create new custom elements if conversion demands it (see doc/CustomElements.md).
+Elements that still use `data-background`, `data-hover`, `data-down`, `data-active`, `data-text`, or `data-preload` will be processed by `GUIComponent._processAllDataAttrs()` during `prepare()`. Both approaches work; Custom Elements are preferred for new code but is optional. Create new custom elements if conversion demands it (see doc/CustomElements.md).
 
 ### 4. Convert the CSS file — CRITICAL
 
@@ -231,6 +231,7 @@ closeBtn.addEventListener('click', () => { ... });
 Guild.init = function init() {
 	this.ui.find('.close').mousedown(stopPropagation).click(Guild.toggle.bind(this));
 	this.draggable(this.ui.find('.titlebar'));
+	this.ui.hide();
 };
 ```
 
@@ -247,17 +248,11 @@ Clan.init = function init() {
 	}
 	this._host.style.display = 'none';
 };
-
-Clan.onAppend = function onAppend() {
-	this._host.style.left = `${_preferences.x}px`;
-	this._host.style.top = `${_preferences.y}px`;
-};
 ```
 
 Key changes:
 
 - `draggable()` accepts a CSS selector string (resolved inside shadow)
-- Event binding goes in `init()` (runs once), not `onAppend()` (runs every time)
 - Position restore goes in `onAppend()`
 - Uses native DOM `addEventListener` instead of jQuery `.click()`/`.mousedown()`
 
@@ -303,15 +298,30 @@ Guild.onRemove = function onRemove() {
 **After:**
 
 ```javascript
-Clan.onRemove = function onRemove() {
-	const rect = this._host.getBoundingClientRect();
-	_preferences.x = Math.round(rect.left);
-	_preferences.y = Math.round(rect.top);
+Guild.onRemove = function onRemove() {
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.save();
 };
 ```
 
-Uses native `getBoundingClientRect()` instead of parsing CSS strings.
+**NEVER use for preferences saving:**
+
+```javascript
+// BAD — returns 0,0 when hidden
+const rect = this._host.getBoundingClientRect();
+_preferences.x = Math.round(rect.left);
+```
+
+```javascript
+// BAD — position 0 becomes 100
+_preferences.x = parseInt(this._host.style.left, 10) || 100;
+```
+
+```javascript
+// BAD — proxy
+_preferences.x = parseInt(this.ui.css('left'), 10);
+```
 
 ### 9. Register with UIManager
 
@@ -470,6 +480,112 @@ this._host.style.top = '100px';
 this._host.style.left = '200px';
 ```
 
+### ~~8. Keyboard input stolen from `<input>` / `<textarea>` inside Shadow DOM~~ (FIXED)
+
+**Bug**: When a GUIComponent contains `<input>`, `<select>`, or `<textarea>` elements inside its Shadow DOM, users cannot type in them — keystrokes are intercepted by other global `keydown` handlers (ChatBox battle mode, shortcut system, etc.).
+
+**Root cause**: Shadow DOM encapsulates focus. When an `<input>` inside a shadow root is focused:
+
+- `document.activeElement` returns the **shadow host** (`<div>`) — not the actual `<input>`
+- `event.target` on bubbled events is **retargeted** to the shadow host
+
+Other global handlers (e.g., ChatBox line 816–826, line 928–941) check `document.activeElement.tagName` or `event.target.tagName` to detect focused inputs. They see `DIV` instead of `INPUT`, so they consume the keystroke instead of letting it through.
+
+```
+document.activeElement          → <div#ChatRoomCreate>  (host)
+shadowRoot.activeElement        → <input name="title">  (real element)
+event.target                    → <div#ChatRoomCreate>  (retargeted)
+event.composedPath()[0]         → <input name="title">  (real element)
+```
+
+**Fix — two parts:**
+
+**Part 1: Register `onKeyDown` in the capture phase**
+
+The component's `onKeyDown` handler must run **before** all other `window.keydown` handlers. Set `captureKeyEvents = true` on the component instance. This makes `_bindKeyDown()` register the handler with `useCapture = true`, so it fires during the capture phase (before the bubble phase where other handlers listen).
+
+```javascript
+// In _bindKeyDown() — GUIComponent.js
+_bindKeyDown() {
+    if (!this.onKeyDown) return;
+    this._unbindKeyDown();
+    const handler = this.onKeyDown.bind(this);
+    this._keyHandler = event => {
+        if (handler(event) === false) {
+            event.preventDefault();
+        }
+    };
+    var useCapture = !!this.captureKeyEvents;
+    window.addEventListener('keydown', this._keyHandler, useCapture);
+}
+```
+
+**Part 2: Guard the `onKeyDown` handler**
+
+Inside the component's `onKeyDown`, check if an input element inside the shadow is focused. If so, call `stopImmediatePropagation()` to block all other handlers, and return `true` (NOT `false`) so the wrapper does not call `preventDefault()` — the browser must execute the default action (typing the character).
+
+Use `shadowRoot.activeElement` (not `document.activeElement`) to get the real focused element inside the shadow.
+
+```javascript
+ChatRoomCreate.onKeyDown = function onKeyDown(event) {
+	var shadow = this._shadow || this._host;
+	var focused = shadow.activeElement;
+
+	// If an input inside the shadow is focused, let the browser handle the keystroke
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		// Still handle Enter/Escape for form submission/close
+		if (event.which === KEYS.ENTER) {
+			submitForm.call(this);
+			event.stopImmediatePropagation();
+			return false;
+		}
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			this.hide();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		// Block other handlers from consuming the keystroke, but let the browser type it
+		event.stopImmediatePropagation();
+		return true; // ← CRITICAL: true, not false
+	}
+
+	// Normal key handling when no input is focused
+	// ...
+	return true;
+};
+```
+
+**Component setup:**
+
+```javascript
+ChatRoomCreate.captureKeyEvents = true; // ← capture phase
+```
+
+**Why `return true` is critical**: The `_bindKeyDown` wrapper calls `event.preventDefault()` when the handler returns `false`. For text inputs, `preventDefault()` on `keydown` blocks the character from being inserted. Returning `true` (or any non-`false` value) skips `preventDefault()`, allowing normal typing.
+
+**Why only some keys worked without the fix**: Keys like `z`, `x`, `c`, `v`, `b`, `n`, `m` are not mapped to any shortcut in the default `ShortCutControls.js`. All other keys (`a`–`y`, `0`–`9`, `F1`–`F12`) are consumed by the ChatBox battle mode handler (line 928–941) or the shortcut system before reaching the input.
+
+**RULE**: Any GUIComponent with `<input>`, `<select>`, or `<textarea>` inside its Shadow DOM **must** set `captureKeyEvents = true` and guard its `onKeyDown` with a `shadowRoot.activeElement` check. Without this, users will not be able to type in those fields.
+
+**Affected components**: ChatRoomCreate, ChatRoom, and any future GUIComponent with text input fields.
+
+And also update `_unbindKeyDown()` in `src/UI/GUIComponent.js` (line 424-430) — it already removes both normal and capture listeners, which is correct. But `_bindKeyDown()` (line 412-422) needs to be updated to check `this.captureKeyEvents`:
+
+```javascript
+_bindKeyDown() {
+    if (!this.onKeyDown) return;
+    this._unbindKeyDown();
+    const handler = this.onKeyDown.bind(this);
+    this._keyHandler = event => {
+        if (handler(event) === false) {
+            event.preventDefault();
+        }
+    };
+    var useCapture = !!this.captureKeyEvents;
+    window.addEventListener('keydown', this._keyHandler, useCapture);
+}
+```
+
 ---
 
 ## Reference: Clan Component (first GUIComponent migration)
@@ -480,7 +596,7 @@ this._host.style.left = '200px';
 - `src/UI/Components/Clan/Clan.html` — HTML template using `<ui-button>`, `<ui-text>`
 - `src/UI/Components/Clan/Clan.css` — Styles with `:host` for dimensions/position
 
-> **Note**: The Clan component was the first GUIComponent migration and still uses some `this.ui` proxy calls (`this.ui.hide()`, `this.ui.show()`, `this.ui.is(':visible')`). New components should use native DOM equivalents as described in this guide.
+> **Note**: The Clan component was the first GUIComponent migration and still uses some `this.ui` proxy calls (`this.ui.hide()`, `this.ui.show()`, `this.ui.is(':visible')`). New components should use native DOM equivalents as described in this guide. But use proxy on `this.ui.hide()`, `this.ui.show()` because it calls fix overflow.
 
 ### CSS Pattern
 
@@ -503,17 +619,18 @@ this._host.style.left = '200px';
 
 ## Quick Reference: What NOT to do
 
-| Don't                                                               | Do instead                                      | Why                                                |
-| ------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
-| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                    | jQuery sets `display:block`, kills flex/grid       |
-| `$el.closest('body').length`                                        | `el.isConnected`                                | `.closest()` can't cross shadow boundary           |
-| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`               | Global queries can't see shadow content            |
-| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`            | Proxy is for interop only                          |
-| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                | Proxy is for interop only                          |
-| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`    | Proxy is for interop only                          |
-| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`           | Proxy is for interop only                          |
-| Put `top`/`left` on inner element                                   | Put on `:host`                                  | Breaks magnetic snap positioning                   |
-| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`            | Host collapses to 0×0, snap/overflow broken        |
-| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`               | Event retargeting hides real target                |
-| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()` | `onAppend()` runs every time — duplicates bindings |
-| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                  | Redundant, may conflict                            |
+| Don't                                                               | Do instead                                                   | Why                                                                     |
+| ------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                                 | jQuery sets `display:block`, kills flex/grid                            |
+| `$el.closest('body').length`                                        | `el.isConnected`                                             | `.closest()` can't cross shadow boundary                                |
+| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`                            | Global queries can't see shadow content                                 |
+| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`                         | Proxy is for interop only                                               |
+| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                             | Proxy is for interop only                                               |
+| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`                 | Proxy is for interop only                                               |
+| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`                        | Proxy is for interop only                                               |
+| Put `top`/`left` on inner element                                   | Put on `:host`                                               | Breaks magnetic snap positioning                                        |
+| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`                         | Host collapses to 0×0, snap/overflow broken                             |
+| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`                            | Event retargeting hides real target                                     |
+| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()`              | `onAppend()` runs every time — duplicates bindings                      |
+| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                               | Redundant, may conflict                                                 |
+| `onKeyDown` without `shadowRoot.activeElement` guard                | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow |

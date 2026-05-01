@@ -1,3 +1,10 @@
+:host {
+	width: 280px;
+	height: 120px;
+	top: 0px;
+	left: 0px;
+}
+
 #win_popup {
 	position: absolute;
 	width: 280px;
@@ -29,6 +36,7 @@
 	bottom: 2px;
 	right: 3px;
 }
+
 #win_popup .btn {
 	border: 0;
 	width: 42px;
@@ -37,13 +45,4 @@
 	margin-left: 3px;
 	background-repeat: no-repeat;
 	background-color: transparent;
-}
-
-.win_popup_overlay {
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	z-index: 99;
 }

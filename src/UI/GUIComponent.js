@@ -362,6 +362,10 @@ class GUIComponent {
 		// Copy render function so the clone produces the same HTML
 		if (this.render) cloned.render = this.render;
 
+		// Always inherit behavioral properties
+		cloned.mouseMode = this.mouseMode;
+		cloned.needFocus = this.needFocus;
+
 		if (full) {
 			for (const key of Object.keys(this)) {
 				if (
@@ -414,12 +418,14 @@ class GUIComponent {
 				event.preventDefault();
 			}
 		};
-		window.addEventListener('keydown', this._keyHandler);
+		const useCapture = !!this.captureKeyEvents;
+		window.addEventListener('keydown', this._keyHandler, useCapture);
 	}
 
 	_unbindKeyDown() {
 		if (this._keyHandler) {
 			window.removeEventListener('keydown', this._keyHandler);
+			window.removeEventListener('keydown', this._keyHandler, true); // capture phase
 			this._keyHandler = null;
 		}
 	}
@@ -1035,6 +1041,17 @@ class GUIComponent {
 		}
 	}
 
+	/**
+	 * Compatibility shim for UIComponent.parseHTML.
+	 * When called via .call(element) or .each(parseHTML),
+	 * `this` is the DOM element.
+	 */
+	get parseHTML() {
+		return function () {
+			GUIComponent.processDataAttrs(this);
+		};
+	}
+
 	// ─── CSS hot-reload ────────────────────────────────────
 
 	reloadCSS(newCssText) {
@@ -1179,29 +1196,68 @@ class GUIComponent {
 			},
 
 			find(selector) {
-				// Delegate to shadow DOM content
 				const root = host.shadowRoot || host;
 				const results = root.querySelectorAll(selector);
-				// Return a minimal jQuery-like wrapper
-				return {
+				const wrapper = {
 					length: results.length,
 					0: results[0],
 					each(fn) {
 						results.forEach((el, i) => fn.call(el, i, el));
-						return this;
+						return wrapper;
 					},
 					click(fn) {
 						results.forEach(el => el.addEventListener('click', fn));
-						return this;
+						return wrapper;
 					},
 					text(val) {
 						if (val === undefined) return results[0]?.textContent || '';
 						results.forEach(el => {
 							el.textContent = val;
 						});
-						return this;
+						return wrapper;
+					},
+					show() {
+						results.forEach(el => {
+							el.style.display = '';
+						});
+						return wrapper;
+					},
+					hide() {
+						results.forEach(el => {
+							el.style.display = 'none';
+						});
+						return wrapper;
+					},
+					css(prop, value) {
+						if (typeof prop === 'object') {
+							results.forEach(el => {
+								for (const [k, v] of Object.entries(prop)) {
+									el.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? v + 'px' : String(v);
+								}
+							});
+							return wrapper;
+						}
+						if (value === undefined) {
+							return results[0]
+								? window
+										.getComputedStyle(results[0])
+										.getPropertyValue(prop.replace(/([A-Z])/g, '-$1').toLowerCase())
+								: '';
+						}
+						results.forEach(el => {
+							el.style[prop] =
+								typeof value === 'number' && !CSS_NUMBER[prop] ? value + 'px' : String(value);
+						});
+						return wrapper;
+					},
+					height() {
+						return results[0] ? results[0].getBoundingClientRect().height : 0;
+					},
+					width() {
+						return results[0] ? results[0].getBoundingClientRect().width : 0;
 					}
 				};
+				return wrapper;
 			}
 		};
 		this.ui = proxy;

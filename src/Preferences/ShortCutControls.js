@@ -372,6 +372,12 @@ ShortCuts.ClanChat = {
 	component: 'Clan',
 	cmd: 'TOGGLE'
 };
+ShortCuts.Achievement = {
+	init: { key: KEYS.K, alt: true, ctrl: false, shift: false },
+	cust: false,
+	component: 'Achievement',
+	cmd: 'TOGGLE'
+};
 
 //Custom
 /*ShortCuts.M_UI =			{	init:{key: KEYS[9],		alt: false,	ctrl: true,		shift: false},	cust: false,	component:'MobileUI',			cmd:'SHOW'					};

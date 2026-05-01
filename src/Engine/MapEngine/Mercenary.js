@@ -35,6 +35,12 @@ function onMercenaryInit(pkt) {
 		entity.life.sp = pkt.sp;
 		entity.life.sp_max = pkt.maxSP;
 		entity.life.update();
+		EntityManager.storeLife(pkt.AID, {
+			hp: pkt.hp,
+			hp_max: pkt.maxHP,
+			sp: pkt.sp,
+			sp_max: pkt.maxSP
+		});
 	}
 
 	if (entity && entity.life.display) {
@@ -63,6 +69,12 @@ function onMercenaryProperty(pkt) {
 		entity.life.sp = pkt.sp;
 		entity.life.sp_max = pkt.maxSP;
 		entity.life.update();
+		EntityManager.storeLife(Session.mercId, {
+			hp: pkt.hp,
+			hp_max: pkt.maxHP,
+			sp: pkt.sp,
+			sp_max: pkt.maxSP
+		});
 	}
 
 	if (entity && entity.life.display) {
@@ -87,21 +99,25 @@ function onParameterChange(pkt) {
 		case 0x0: // HP
 			entity.life.hp = pkt.value;
 			entity.life.update();
+			EntityManager.storeLife(Session.mercId, { hp: pkt.value });
 			break;
 
 		case 0x1: // SP
 			entity.life.sp = pkt.value;
 			entity.life.update();
+			EntityManager.storeLife(Session.mercId, { sp: pkt.value });
 			break;
 
 		case 0x2: // MaxHP
 			entity.life.hp_max = pkt.value;
 			entity.life.update();
+			EntityManager.storeLife(Session.mercId, { hp_max: pkt.value });
 			break;
 
 		case 0x3: // MaxSP
 			entity.life.sp_max = pkt.value;
 			entity.life.update();
+			EntityManager.storeLife(Session.mercId, { sp_max: pkt.value });
 			break;
 	}
 }

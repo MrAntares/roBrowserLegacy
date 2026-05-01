@@ -1,7 +1,14 @@
-#Emoticons {
+:host {
 	width: 250px;
 	height: 330px;
+	top: 200px;
+	left: 600px;
+}
+
+#Emoticons {
 	position: absolute;
+	width: 250px;
+	height: 330px;
 }
 
 #Emoticons .titlebar {

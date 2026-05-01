@@ -432,6 +432,7 @@ var ROConfig = {
 		add: [], // Optional, Array of maps to custom show  (eg: ['rachel', 'ra_fild01'])
 		remove: [] // Optional, Array of maps to custom remove (eg: ['alberta', 'pay_fild03'])
 	},
+	enableAchievements: false, // Enable Achievements UI
 	enableCashShop: false, // Enable Cash Shop UI?
 	enableBank: false, // Enable Bank UI? (Requires PACKETVER 20130724 above)
 	enableMapName: false, // Enable Map Name Banner? (Requires client data (GRF) newer than 2019.06.19)

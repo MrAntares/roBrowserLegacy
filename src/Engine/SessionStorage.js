@@ -85,5 +85,14 @@ export default {
 
 	captchaGetIdOnEntityClick: false,
 	captchaGetIdOnFloorClick: false,
-	captchaGetIdOnFloorRange: 1
+	captchaGetIdOnFloorRange: 1,
+
+	Achievement: {
+		total_achievements: 0,
+		total_points: 0,
+		rank: 0,
+		current_rank_points: 0,
+		next_rank_points: 0,
+		list: {}
+	}
 };

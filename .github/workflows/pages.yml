@@ -1,131 +1,174 @@
 name: Deploy to GitHub Pages
 
 concurrency:
-    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref_name }}
+    cancel-in-progress: true
 
-on:  
-  push:  
-    branches: ['master']  
-  
-permissions:  
-  contents: read  
-  pages: write  
-  id-token: write  
-    
-jobs:  
-  build-and-deploy:  
-    environment:  
-      name: github-pages  
-      url: ${{ steps.deployment.outputs.page_url }}  
-    runs-on: ubuntu-latest  
-    steps:  
-      - name: Checkout  
-        uses: actions/checkout@v5  
-  
-      - name: Setup Node.js  
-        uses: actions/setup-node@v6  
-        with:  
-          node-version: 24  
-  
-      - name: Install dependencies  
-        run: npm install  
-  
-      - name: Build project  
-        run: npm run build -- -O -H
-  
-      - name: Create demo Config.local.js  
-        run: |  
-          cat > dist/Web/Config.local.js << 'EOF'  
-          window.ROConfigLocal = {  
-              development: true,  
-              remoteClient: 'https://grf.robrowser.com/',  
-              servers: [  
-                  {  
-                      display: 'roBrowser Demo Server',  
-                      desc: 'demo server',  
-                      address: '127.0.0.1',  
-                      port: 6900,  
-                      version: 25,  
-                      langtype: 12,  
-                      packetver: 20130618,  
-                      renewal: false,  
-                      worldMapSettings: { episode: 12 },  
-                      packetKeys: false,  
-                      socketProxy: 'wss://connect.robrowser.com',  
-                      adminList: [2000000]  
-                  },  
-                  {  
-                      display: 'Ragna.ro',  
-                      desc: 'Ragna.ro [1/1/1] Renewal II',  
-                      address: 'ragna.ro',  
-                      port: 6900,  
-                      version: 30,  
-                      langtype: 240,  
-                      packetver: 20120410,  
-                      renewal: true,  
-                      worldMapSettings: { episode: 15 },  
-                      packetKeys: false,  
-                      socketProxy: 'wss://ragna.ro:5999',  
-                      remoteClient: 'https://client.ragna.ro/',  
-                      adminList: [2000000, 2000001],  
-                      FirstPersonCamera: true,  
-                      ThirdPersonCamera: true  
-                  },  
-                  {  
-                      display: 'NiktoutRO Chaos',  
-                      desc: 'NiktoutRO Chaos [100k/100k/10%]',  
-                      address: 'chaos.niktoutro.com',  
-                      port: 6905,  
-                      version: 55,  
-                      langtype: 1,  
-                      packetver: 20151104,  
-                      renewal: true,  
-                      socketProxy: 'wss://classicweb.niktoutro.com:5999',  
-                      remoteClient: 'https://classicweb.niktoutro.com/chaosclient/',  
-                      registrationweb: 'https://niktoutro.com/?module=account&action=create',  
-                      packetKeys: true,  
-                      adminList: [2000002]  
-                  }  
-              ],  
-              packetDump: false,  
-              skipServerList: true,  
-              skipIntro: false,  
-              aura: {},  
-              autoLogin: [],  
-              BGMFileExtension: ['mp3'],  
-              calculateHash: false,  
-              CameraMaxZoomOut: 5,  
-              charBlockSize: 0,  
-              clientHash: null,  
-              clientVersionMode: 'PacketVer',  
-              disableConsole: false,  
-              enableBank: false,  
-              enableCashShop: false,  
-              enableCheckAttendance: false,  
-              enableDmgSuffix: false,  
-              enableHomunAutoFeed: false,  
-              enableMapName: false,  
-              FirstPersonCamera: false,  
-              grfList: null,  
-              hashFiles: [],  
-              loadLua: false,  
-              onReady: null,  
-              plugins: {},  
-              registrationweb: '',  
-              saveFiles: true,  
-              ThirdPersonCamera: false,  
-              transitionDuration: 500  
-          };  
-  
-      - name: Setup Pages  
-        uses: actions/configure-pages@v4  
-  
-      - name: Upload artifact  
-        uses: actions/upload-pages-artifact@v3  
-        with:  
-          path: dist/Web  
-  
-      - name: Deploy to GitHub Pages  
-        id: deployment  
-        uses: actions/deploy-pages@v4
+on:
+    push:
+        branches: ['**']
+
+permissions:
+    contents: write
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build project
+              run: npm run build -- -O -H
+
+            - name: Create demo Config.local.js
+              run: |
+                  cat > dist/Web/Config.local.js << 'EOF'  
+                  window.ROConfigLocal = {  
+                      development: true,  
+                      remoteClient: 'https://grf.robrowser.com/',  
+                      servers: [  
+                          {  
+                              display: 'roBrowser Demo Server',  
+                              desc: 'demo server',  
+                              address: '127.0.0.1',  
+                              port: 6900,  
+                              version: 25,  
+                              langtype: 12,  
+                              packetver: 20130618,  
+                              renewal: false,  
+                              worldMapSettings: { episode: 12 },  
+                              packetKeys: false,  
+                              socketProxy: 'wss://connect.robrowser.com',  
+                              adminList: [2000000]  
+                          },  
+                          {  
+                              display: 'Ragna.ro',  
+                              desc: 'Ragna.ro [1/1/1] Renewal II',  
+                              address: 'ragna.ro',  
+                              port: 6900,  
+                              version: 30,  
+                              langtype: 240,  
+                              packetver: 20120410,  
+                              renewal: true,  
+                              worldMapSettings: { episode: 15 },  
+                              packetKeys: false,  
+                              socketProxy: 'wss://ragna.ro:5999',  
+                              remoteClient: 'https://client.ragna.ro/',  
+                              adminList: [2000000, 2000001],  
+                              FirstPersonCamera: true,  
+                              ThirdPersonCamera: true  
+                          },  
+                          {  
+                              display: 'NiktoutRO Chaos',  
+                              desc: 'NiktoutRO Chaos [100k/100k/10%]',  
+                              address: 'chaos.niktoutro.com',  
+                              port: 6905,  
+                              version: 55,  
+                              langtype: 1,  
+                              packetver: 20151104,  
+                              renewal: true,  
+                              socketProxy: 'wss://classicweb.niktoutro.com:5999',  
+                              remoteClient: 'https://classicweb.niktoutro.com/chaosclient/',  
+                              registrationweb: 'https://niktoutro.com/?module=account&action=create',  
+                              packetKeys: true,  
+                              adminList: [2000002]  
+                          }  
+                      ],  
+                      packetDump: false,  
+                      skipServerList: true,  
+                      skipIntro: false,  
+                      aura: {},  
+                      autoLogin: [],  
+                      BGMFileExtension: ['mp3'],  
+                      calculateHash: false,  
+                      CameraMaxZoomOut: 5,  
+                      charBlockSize: 0,  
+                      clientHash: null,  
+                      clientVersionMode: 'PacketVer',  
+                      disableConsole: false,  
+                      enableAchievements: false,
+                      enableBank: false,  
+                      enableCashShop: false,  
+                      enableCheckAttendance: false,  
+                      enableDmgSuffix: false,  
+                      enableHomunAutoFeed: false,  
+                      enableMapName: false,  
+                      FirstPersonCamera: false,  
+                      grfList: null,  
+                      hashFiles: [],  
+                      loadLua: false,  
+                      onReady: null,  
+                      plugins: {},  
+                      registrationweb: '',  
+                      saveFiles: true,  
+                      ThirdPersonCamera: false,  
+                      transitionDuration: 500  
+                  };
+                  EOF
+
+            - name: Prepare branch subfolder
+              run: |
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  mkdir -p site/"$BRANCH"
+                  rsync -a dist/Web/ site/"$BRANCH"/
+
+            - name: Prepare gh-pages workdir
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  set -e
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+                  if git ls-remote --exit-code --heads "$REMOTE" gh-pages >/dev/null 2>&1; then
+                    git clone --depth 1 --branch gh-pages "$REMOTE" ghpages
+                  else
+                    mkdir -p ghpages
+                    cd ghpages
+                    git init
+                    git checkout -b gh-pages
+                    git config user.name "github-actions"
+                    git config user.email "github-actions@github.com"
+                    mkdir -p "$BRANCH"
+                    rsync -a ../site/"$BRANCH"/ "$BRANCH"/
+                    touch .nojekyll
+                    git add -A
+                    git commit -m "Initialize gh-pages with ${GITHUB_REF_NAME}"
+                    git remote add origin "$REMOTE"
+                    git push -u origin gh-pages
+                    cd ..
+                    rm -rf ghpages
+                    git clone --depth 1 --branch gh-pages "$REMOTE" ghpages
+                  fi
+
+            - name: Sync to gh-pages
+              run: |
+                  BRANCH="${GITHUB_REF_NAME//\//-}"
+                  rm -rf ghpages/"$BRANCH"
+                  mkdir -p ghpages/"$BRANCH"
+                  rsync -a site/"$BRANCH"/ ghpages/"$BRANCH"/
+                  touch ghpages/.nojekyll
+            
+            - name: Generate branch index
+              uses: ./.github/actions/generate-pages-index
+              with:
+                  pages-dir: ghpages
+
+            - name: Commit and push
+              run: |
+                  cd ghpages
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add -A
+                  if ! git diff --cached --quiet; then
+                    git commit -m "Deploy ${GITHUB_REF_NAME}"
+                    git push origin gh-pages
+                  fi

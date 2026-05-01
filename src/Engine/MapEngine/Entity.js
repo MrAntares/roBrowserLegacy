@@ -130,6 +130,19 @@ function onEntitySpam(pkt) {
 			}
 		}
 		EntityManager.add(entity);
+		const cachedLife = EntityManager.getLife(entity.GID);
+		if (cachedLife && entity.life.hp <= -1) {
+			if (cachedLife.hp !== undefined) entity.life.hp = cachedLife.hp;
+			if (cachedLife.hp_max !== undefined) entity.life.hp_max = cachedLife.hp_max;
+			if (cachedLife.sp !== undefined) entity.life.sp = cachedLife.sp;
+			if (cachedLife.sp_max !== undefined) entity.life.sp_max = cachedLife.sp_max;
+			if (cachedLife.hunger !== undefined) entity.life.hunger = cachedLife.hunger;
+			if (cachedLife.hunger_max !== undefined) entity.life.hunger_max = cachedLife.hunger_max;
+			if (entity.life.hp > -1 && entity.life.hp_max > -1) {
+				entity.life.update();
+				entity.life.display = true;
+			}
+		}
 	}
 
 	if (
@@ -342,6 +355,9 @@ function onEntityVanish(pkt) {
 				if (entity.objecttype !== Entity.TYPE_PC) {
 					entity.aura.remove(EffectManager);
 				}
+				if (pkt.type === Entity.VT.DEAD) {
+					EntityManager.removeLife(pkt.GID);
+				}
 		}
 
 		entity.remove(pkt.type);
@@ -350,12 +366,7 @@ function onEntityVanish(pkt) {
 
 	// Show escape menu
 	if (pkt.GID === Session.Entity.GID && pkt.type === 1) {
-		Escape.ui.show();
-		Escape.ui.find('.savepoint').show();
-		if (haveSiegfriedItem()) {
-			Escape.ui.find('.resurection').show();
-		}
-		Escape.ui.find('.graphics, .sound, .hotkey').hide();
+		Escape.showDeathMenu(haveSiegfriedItem());
 	}
 }
 
@@ -483,9 +494,7 @@ function onEntityResurect(pkt) {
 
 	// If it's our main character update Escape ui
 	if (entity === Session.Entity) {
-		Escape.ui.hide();
-		Escape.ui.find('.resurection, .savepoint').hide();
-		Escape.ui.find('.graphics, .sound, .hotkey').show();
+		Escape.resetMenu();
 	}
 }
 
@@ -1069,6 +1078,8 @@ function onTitleChangeAck(pkt) {
  * @param {object} pkt - PACKET.ZC.NOTIFY_MONSTER_HP
  */
 function onEntityLifeUpdate(pkt) {
+	EntityManager.storeLife(pkt.AID, { hp: pkt.hp, hp_max: pkt.maxhp });
+
 	const entity = EntityManager.get(pkt.AID);
 	if (entity) {
 		entity.life.hp = pkt.hp;

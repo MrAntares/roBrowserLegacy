@@ -14781,6 +14781,16 @@ export default {
 		}
 	],
 
+	1094: [
+		{
+			//EF_ACH_COMPLETE
+			type: 'STR',
+			file: 'ach_complete/ppring3',
+			texturePath: 'ach_complete/',
+			attachedEntity: true
+		}
+	],
+
 	1111: [
 		{
 			type: 'FUNC',

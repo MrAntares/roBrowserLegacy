@@ -5,26 +5,32 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
 
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './CardIllustration.html?raw';
 import cssText from './CardIllustration.css?raw';
 
 /**
  * Create Component
  */
-const CardIllustration = new UIComponent('CardIllustration', htmlText, cssText);
+const CardIllustration = new GUIComponent('CardIllustration', cssText);
+
+/**
+ * Render HTML
+ */
+CardIllustration.render = () => htmlText;
 
 /**
  * Initialize events
  */
 CardIllustration.init = function init() {
-	this.ui.find('.close').click(this.remove.bind(this));
+	const root = this._shadow || this._host;
+	root.querySelector('.close').addEventListener('click', this.remove.bind(this));
 	this.draggable();
 };
 
@@ -34,16 +40,18 @@ CardIllustration.init = function init() {
  * @param {object} item
  */
 CardIllustration.setCard = function setCard(item) {
-	this.ui.find('.titlebar .text').text(item.identifiedDisplayName);
-	this.ui.find('.content').css('backgroundImage', 'none');
+	const root = this._shadow || this._host;
+	root.querySelector('.titlebar .text').textContent = item.identifiedDisplayName;
+	root.querySelector('.content').style.backgroundImage = 'none';
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'cardbmp/' + item.illustResourcesName + '.bmp',
-		function (data) {
-			this.ui.find('.content').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this)
-	);
+	Client.loadFile(`${DB.INTERFACE_PATH}cardbmp/${item.illustResourcesName}.bmp`, data => {
+		const r = CardIllustration._shadow || CardIllustration._host;
+		r.querySelector('.content').style.backgroundImage = `url(${data})`;
+	});
 };
+
+CardIllustration.mouseMode = GUIComponent.MouseMode.STOP;
+CardIllustration.needFocus = true;
 
 /**
  * Create component and export it

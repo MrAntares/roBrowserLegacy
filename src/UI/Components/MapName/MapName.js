@@ -1,16 +1,16 @@
 /**
  * UI/Components/MapName/MapName.js
  *
- * Bank window
+ * Map name notification overlay
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
 
 import DB from 'DB/DBManager.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './MapName.html?raw';
 import cssText from './MapName.css?raw';
 import Client from 'Core/Client.js';
@@ -19,12 +19,14 @@ import Events from 'Core/Events.js';
 /**
  * Create Component
  */
-const MapName = new UIComponent('MapName', htmlText, cssText);
+const MapName = new GUIComponent('MapName', cssText);
+
+MapName.render = () => htmlText;
 
 /**
  * Mouse can cross this UI
  */
-MapName.mouseMode = UIComponent.MouseMode.CROSS;
+MapName.mouseMode = GUIComponent.MouseMode.CROSS;
 
 /**
  * @var {array} _mapinfo
@@ -37,6 +39,18 @@ let _mapinfo = [];
 let _currMap = '';
 let _prevMap = '';
 let _newMap = false;
+/**
+ * Timeout ID for fade-out
+ *
+ * @type {number|null}
+ */
+let _fadeTimeoutId = null;
+/**
+ * Timeout ID for removal
+ *
+ * @type {number|null}
+ */
+let _removeTimeoutId = null;
 
 /**
  * Initialize UI
@@ -47,39 +61,29 @@ MapName.init = function init() {};
  * Append MapName
  */
 MapName.onAppend = function onAppend() {
+	if (_fadeTimeoutId !== null) Events.clearTimeout(_fadeTimeoutId);
+	if (_removeTimeoutId !== null) Events.clearTimeout(_removeTimeoutId);
+	_fadeTimeoutId = null;
+	_removeTimeoutId = null;
+
 	if (_mapinfo && _mapinfo.notifyEnter && _newMap) {
-		// Apply preferences
-		this.ui.css({
-			opacity: 1
-		});
+		// Force browser to acknowledge opacity:0 from :host before transitioning
+		// eslint-disable-next-line no-unused-expressions
+		this._host.offsetHeight;
 
-		const fadeTime = 1000;
-		const fadeCycle = 20;
-		const removeTime = 5000;
-		let fadeProgress = 0;
-		let fadeTimeout = null;
+		this._host.style.opacity = '1';
 
-		function fade() {
-			fadeProgress += fadeCycle;
-			if (fadeProgress < fadeTime) {
-				MapName.ui.css('opacity', MapName.ui.css('opacity') * 1 - 100 / (fadeTime / fadeCycle) / 100);
-				fadeTimeout = setTimeout(function () {
-					fade();
-				}, fadeCycle);
-			}
-		}
+		// After 5s, start fade-out (CSS transition handles the animation)
+		_fadeTimeoutId = Events.setTimeout(() => {
+			this._host.style.opacity = '0';
+		}, 5000);
 
-		Events.setTimeout(function () {
-			fade();
-		}, removeTime - fadeTime);
-
-		// Automatically remove the UI element after 5 seconds
-		Events.setTimeout(function () {
-			Events.clearTimeout(fadeTimeout);
-			MapName.ui.remove();
-		}, removeTime); // 5000 milliseconds (5 seconds)
+		// After 6s (5s wait + 1s CSS transition), remove
+		_removeTimeoutId = Events.setTimeout(() => {
+			MapName.remove();
+		}, 6000);
 	} else {
-		MapName.ui.remove();
+		MapName.remove();
 	}
 };
 
@@ -89,39 +93,39 @@ MapName.onAppend = function onAppend() {
  * @param {string} mapname
  */
 MapName.setMap = function setMap(mapname) {
-	if (!this.ui) {
+	if (!this.__loaded) {
 		this.prepare();
 	}
+
+	const root = this._shadow || this._host;
+
 	_prevMap = _currMap;
 	_currMap = mapname;
 	_newMap = _currMap !== _prevMap;
 
 	_mapinfo = DB.getMapInfo(mapname.replace('.gat', '.rsw'));
 
-	/*
-		console.log('Mapinfo:', _mapinfo);
-		console.log('bg:%s, subtitle:%s, title:%s', _mapinfo.backgroundBmp, _mapinfo.signName.subTitle, _mapinfo.signName.mainTitle );
-		*/
+	const mapbg = root.querySelector('.mapbg');
 	if (_mapinfo && _mapinfo.backgroundBmp) {
-		Client.loadFile(DB.INTERFACE_PATH + 'display_mapname/' + _mapinfo.backgroundBmp + '.png', function (dataURI) {
-			MapName.ui.find('.mapbg').css('backgroundImage', 'url(' + dataURI + ')');
+		Client.loadFile(`${DB.INTERFACE_PATH}display_mapname/${_mapinfo.backgroundBmp}.png`, dataURI => {
+			mapbg.style.backgroundImage = `url('${dataURI}')`;
 		});
 	} else {
-		MapName.ui.find('.mapbg').css('backgroundImage', 'none');
+		mapbg.style.backgroundImage = 'none';
 	}
 
-	const mapsubtitle = MapName.ui.find('.mapsubtitle');
+	const mapsubtitle = root.querySelector('.mapsubtitle');
 	if (_mapinfo && _mapinfo.signName && _mapinfo.signName.subTitle) {
-		mapsubtitle.text(_mapinfo.signName.subTitle);
+		mapsubtitle.textContent = _mapinfo.signName.subTitle;
 	} else {
-		mapsubtitle.empty();
+		mapsubtitle.textContent = '';
 	}
 
-	const maptitle = MapName.ui.find('.maptitle');
+	const maptitle = root.querySelector('.maptitle');
 	if (_mapinfo && _mapinfo.signName && _mapinfo.signName.mainTitle) {
-		maptitle.text(_mapinfo.signName.mainTitle);
+		maptitle.textContent = _mapinfo.signName.mainTitle;
 	} else {
-		maptitle.empty();
+		maptitle.textContent = '';
 	}
 };
 
@@ -129,22 +133,18 @@ MapName.setMap = function setMap(mapname) {
  * Remove MapName from window (and so clean up items)
  */
 MapName.onRemove = function OnRemove() {
-	if (!this.ui) {
+	if (!this._shadow && !this._host) {
 		return;
 	}
-	const maptitle = MapName.ui.find('.maptitle');
-	const mapsubtitle = MapName.ui.find('.mapsubtitle');
+	const root = this._shadow || this._host;
 
-	// Clean up
-	MapName.ui.find('.mapbg').css('backgroundImage', 'none');
-	mapsubtitle.empty();
-	maptitle.empty();
+	root.querySelector('.mapbg').style.backgroundImage = 'none';
+	root.querySelector('.mapsubtitle').textContent = '';
+	root.querySelector('.maptitle').textContent = '';
 };
 
 /**
  * Resets the state of the MapName component.
- *
- * Resets the current map name, previous map name, and the new map flag.
  */
 MapName.resetState = function () {
 	_currMap = '';

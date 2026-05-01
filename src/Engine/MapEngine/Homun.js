@@ -94,6 +94,15 @@ function onHomunInformation(pkt) {
 	entity.life.hunger_max = 100;
 	entity.life.update();
 
+	EntityManager.storeLife(Session.homunId, {
+		hp: pkt.hp,
+		hp_max: pkt.maxHP,
+		sp: pkt.sp,
+		sp_max: pkt.maxSP,
+		hunger: pkt.nFullness,
+		hunger_max: 100
+	});
+
 	HomunInformations.setInformations(pkt);
 	HomunInformations.startAI();
 }
@@ -149,24 +158,28 @@ function onHomunParameterChange(pkt) {
 		case StatusProperty.HP:
 			entity.life.hp = pkt.value;
 			entity.life.update();
+			EntityManager.storeLife(Session.homunId, { hp: pkt.value });
 			HomunInformations.setHpSpBar('hp', entity.life.hp, entity.life.hp_max);
 			break;
 
 		case StatusProperty.MAXHP:
 			entity.life.hp_max = pkt.value;
 			entity.life.update();
+			EntityManager.storeLife(Session.homunId, { hp_max: pkt.value });
 			HomunInformations.setHpSpBar('hp', entity.life.hp, entity.life.hp_max);
 			break;
 
 		case StatusProperty.SP:
 			entity.life.sp = pkt.value;
 			entity.life.update();
+			EntityManager.storeLife(Session.homunId, { sp: pkt.value });
 			HomunInformations.setHpSpBar('sp', entity.life.sp, entity.life.sp_max);
 			break;
 
 		case StatusProperty.MAXSP:
 			entity.life.sp_max = pkt.value;
 			entity.life.update();
+			EntityManager.storeLife(Session.homunId, { sp_max: pkt.value });
 			HomunInformations.setHpSpBar('sp', entity.life.sp, entity.life.sp_max);
 			break;
 

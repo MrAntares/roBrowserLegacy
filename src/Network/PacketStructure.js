@@ -3514,7 +3514,7 @@ PACKET.CZ.ENTER2 = function PACKET_CZ_ENTER2() {
 };
 PACKET.CZ.ENTER2.prototype.build = function () {
 	let pkt_len = 2 + 4 + 4 + 4 + 4 + 1;
-	if (PACKETVER.value >= 20211103) {
+	if (PACKETVER.value >= 20210630) {
 		pkt_len += 4;
 	}
 	const pkt_buf = new BinaryWriter(pkt_len);
@@ -3524,7 +3524,7 @@ PACKET.CZ.ENTER2.prototype.build = function () {
 	pkt_buf.writeULong(this.GID);
 	pkt_buf.writeULong(this.AuthCode);
 	pkt_buf.writeULong(this.clientTime);
-	if (PACKETVER.value >= 20211103) {
+	if (PACKETVER.value >= 20210630) {
 		pkt_buf.writeULong(this.unknown);
 	}
 	pkt_buf.writeUChar(this.Sex);
@@ -10051,18 +10051,6 @@ PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER = function PACKET_HC_ACCEPT_ENTER_NEO_UN
 	this.dummy1_beginbilling = fp.readChar();
 	this.code = fp.readChar();
 	fp.seek(20, SEEK_CUR);
-	fp.readULong(); // 6b 00 XX XX
-	if (PACKETVER.value >= 20100413) {
-		this.TotalSlotNum = fp.readUChar();
-		this.PremiumStartSlot = fp.readUChar();
-		this.PremiumEndSlot = fp.readUChar();
-	}
-	this.dummy1_beginbilling = fp.readChar();
-	this.code = fp.readULong();
-	this.time1 = fp.readULong();
-	this.time2 = fp.readULong();
-	this.dummy2_endbilling = fp.readBinaryString(7);
-	this.charInfo = PACKETVER.parseCharInfo(fp, end);
 };
 PACKET.HC.ACCEPT_ENTER_NEO_UNION_HEADER.size = -1;
 
@@ -10978,11 +10966,22 @@ PACKET.ZC.SKILL_ENTRY4.size = -1;
 // 0x9a0
 PACKET.HC.CHARLIST_NOTIFY = function PACKET_HC_CHARLIST_NOTIFY(fp, end) {
 	this.TotalCnt = fp.readLong();
-	if (PACKETVER.value >= 20151001) {
+	if (PACKETVER.value >= 20151001 && PACKETVER.value < 20180103) {
 		this.charSlots = fp.readLong();
 	}
 };
-PACKET.HC.CHARLIST_NOTIFY.size = PACKETVER.value >= 20151001 ? 10 : 6;
+PACKET.HC.CHARLIST_NOTIFY.size = PACKETVER.value >= 20151001 && PACKETVER.value < 20180103 ? 10 : 6;
+
+// 0x9a1
+PACKET.CH.CHARLIST_REQ = function PACKET_CH_CHARLIST_REQ() {};
+PACKET.CH.CHARLIST_REQ.prototype.build = function () {
+	const pkt_len = 2;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0x9a1);
+	return pkt_buf;
+};
+PACKET.CH.CHARLIST_REQ.size = 2;
 
 // 0x9a6
 PACKET.ZC.BANKING_CHECK = function PACKET_ZC_BANKING_CHECK(fp, end) {
@@ -12515,33 +12514,65 @@ PACKET.ZC.ACCEPT_ENTER3.size = 14;
 
 // 0xa23
 PACKET.ZC.ALL_ACH_LIST = function PACKET_ZC_ALL_ACH_LIST(fp, end) {
-	this.ID = fp.readShort(); // <ID>.W
-	this.Length = fp.readShort(); // <Length>.W
-	this.ach_count = fp.readLong(); // <ach_count>.L
-	this.total_points = fp.readLong(); // <total_points>.L
-	this.rank = fp.readShort(); // <rank>.W
-	this.current_rank_points = fp.readLong(); // <current_rank_points>.L
-	this.next_rank_points = fp.readBinaryString(); // <next_rank_points>.L // todo fix readLong to readBinaryString
+	this.total_achievements = fp.readLong();
+	this.total_points = fp.readLong();
+	this.rank = fp.readShort();
+	this.current_rank_points = fp.readLong();
+	this.next_rank_points = fp.readLong();
+	this.ach_list = new Array();
 
-	// todo struct
-	const option = new Struct('int var1', 'short var2', 'bool var3', 'float var4', 'long var5');
-	// <struct ach_list_info *[]>.P
-	this.ach_list_info = {};
-	this.ach_list_info[1] = fp.readStruct(option);
-	this.ach_list_info[2] = fp.readStruct(option);
+	while (fp.tell() < end) {
+		const achievement = { ach_id: 0, completed: 0, objective: new Array(), completed_at: 0, reward: 0 };
+		achievement.ach_id = fp.readLong();
+		achievement.completed = fp.readUChar();
+		for (let j = 0; j < 10; j++) {
+			const objective_id = fp.readLong();
+			if (objective_id > 0) achievement.objective.push(objective_id);
+		}
+		achievement.completed_at = fp.readLong();
+		achievement.reward = fp.readUChar();
+		if (achievement.ach_id > 0) this.ach_list.push(achievement);
+	}
 };
 PACKET.ZC.ALL_ACH_LIST.size = -1;
 
 // 0xa24
-PACKET.ZC.ACH_UPDATE = function PACKET_ZC_ACH_UPDATE(fp, end) {};
+PACKET.ZC.ACH_UPDATE = function PACKET_ZC_ACH_UPDATE(fp, end) {
+	this.total_points = fp.readLong();
+	this.rank = fp.readShort();
+	this.current_rank_points = fp.readLong();
+	this.next_rank_points = fp.readLong();
+	this.ach_list = new Array();
+	const achievement = { ach_id: 0, completed: 0, objective: new Array(), completed_at: 0, reward: 0 };
+	achievement.ach_id = fp.readLong();
+	achievement.completed = fp.readUChar();
+	for (let j = 0; j < 10; j++) {
+		const objective_id = fp.readLong();
+		if (objective_id > 0) achievement.objective.push(objective_id);
+	}
+	achievement.completed_at = fp.readLong();
+	achievement.reward = fp.readUChar();
+	if (achievement.ach_id > 0) this.ach_list.push(achievement);
+};
 PACKET.ZC.ACH_UPDATE.size = 66;
 
 // 0xa25
-PACKET.CZ.REQ_ACH_REWARD = function PACKET_CZ_REQ_ACH_REWARD(fp, end) {};
+PACKET.CZ.REQ_ACH_REWARD = function PACKET_CZ_REQ_ACH_REWARD() {
+	this.ach_id = 0;
+};
+PACKET.CZ.REQ_ACH_REWARD.prototype.build = function () {
+	const pkt_buf = new BinaryWriter(6);
+	pkt_buf.writeShort(0xa25);
+	pkt_buf.writeULong(this.ach_id);
+	return pkt_buf;
+};
 PACKET.CZ.REQ_ACH_REWARD.size = 6;
 
 // 0xa26
-PACKET.ZC.REQ_ACH_REWARD_ACK = function PACKET_ZC_REQ_ACH_REWARD_ACK(fp, end) {};
+PACKET.ZC.REQ_ACH_REWARD_ACK = function PACKET_ZC_REQ_ACH_REWARD_ACK(fp, end) {
+	this.failed = fp.readUChar();
+	this.ach_id = fp.readLong();
+};
 PACKET.ZC.REQ_ACH_REWARD_ACK.size = 7;
 
 // 0xa27
@@ -13188,7 +13219,14 @@ PACKET.AC.ACCEPT_LOGIN3 = function PACKET_AC_ACCEPT_LOGIN3(fp, end) {
 			out[i].state = fp.readUShort();
 			out[i].property = fp.readUShort();
 			if (PACKETVER.value >= 20170315) {
-				fp.readBinaryString(128);
+				out[i].serverAddress = fp.readBinaryString(128);
+				if (out[i].serverAddress && out[i].serverAddress.includes(':')) {
+					[out[i].ip, out[i].port] = out[i].serverAddress.split(':');
+					out[i].ip =
+						out[i].ip.split('.').reduceRight((ip, octet, j) => ip + (parseInt(octet, 10) << (8 * j)), 0) >>>
+						0;
+					out[i].port = parseInt(out[i].port, 10);
+				}
 			}
 		}
 		return out;
@@ -13203,8 +13241,39 @@ PACKET.HC.NOTIFY_ZONESVR2 = function PACKET_HC_NOTIFY_ZONESVR2(fp, end) {
 	this.addr = {};
 	this.addr.ip = fp.readULong();
 	this.addr.port = fp.readUShort();
+
+	if (PACKETVER.value >= 20170315) {
+		this.serverAddress = fp.readBinaryString(128);
+		if (this.serverAddress && this.serverAddress.includes(':')) {
+			[this.addr.ip, this.addr.port] = this.serverAddress.split(':');
+			this.addr.ip =
+				this.addr.ip.split('.').reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0) >>> 0;
+			this.addr.port = parseInt(this.addr.port, 10);
+		}
+	}
 };
 PACKET.HC.NOTIFY_ZONESVR2.size = 156;
+
+// 0xac7
+PACKET.ZC.NPCACK_SERVERMOVE2 = function PACKET_ZC_NPCACK_SERVERMOVE2(fp, end) {
+	this.mapName = fp.readBinaryString(16);
+	this.xPos = fp.readShort();
+	this.yPos = fp.readShort();
+	this.addr = {};
+	this.addr.ip = fp.readULong();
+	this.addr.port = fp.readUShort();
+
+	if (PACKETVER.value >= 20170315) {
+		this.serverAddress = fp.readBinaryString(128);
+		if (this.serverAddress && this.serverAddress.includes(':')) {
+			[this.addr.ip, this.addr.port] = this.serverAddress.split(':');
+			this.addr.ip =
+				this.addr.ip.split('.').reduceRight((ip, octet, i) => ip + (parseInt(octet, 10) << (8 * i)), 0) >>> 0;
+			this.addr.port = parseInt(this.addr.port, 10);
+		}
+	}
+};
+PACKET.ZC.NPCACK_SERVERMOVE2.size = 156;
 
 // 0xacb
 PACKET.ZC.LONGLONGPAR_CHANGE = function PACKET_ZC_LONGLONGPAR_CHANGE(fp, end) {

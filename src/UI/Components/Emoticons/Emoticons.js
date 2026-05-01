@@ -5,7 +5,7 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * @author Vincent Thibault
+ * @author Vincent Thibault, AoShinHo
  */
 
 import EmoticonsDB from 'DB/Emotions.js';
@@ -15,7 +15,7 @@ import Renderer from 'Renderer/Renderer.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import htmlText from './Emoticons.html?raw';
 import cssText from './Emoticons.css?raw';
@@ -24,7 +24,12 @@ import ShortCuts from 'UI/Components/ShortCuts/ShortCuts.js';
 /**
  * Create Component
  */
-const Emoticons = new UIComponent('Emoticons', htmlText, cssText);
+const Emoticons = new GUIComponent('Emoticons', cssText);
+
+/**
+ * Render HTML
+ */
+Emoticons.render = () => htmlText;
 
 /**
  * @var {number} page index
@@ -78,31 +83,56 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 Emoticons.init = function init() {
+	const root = this._shadow || this._host;
+	const contentEl = root.querySelector('.content');
+
 	Client.loadFiles(
 		['data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/emotion.act', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/emotion.spr'],
-		function (act, spr) {
+		(act, spr) => {
 			_action = act;
 			_sprite = spr;
-			TOTAL_PAGES = Math.floor(EMOTICONS_COUNT / EMOTICONS_PER_PAGE);
+			TOTAL_PAGES = Math.max(0, Math.ceil(EMOTICONS_COUNT / EMOTICONS_PER_PAGE) - 1);
 
-			this.ui.find('.total').text(TOTAL_PAGES + 1);
+			const totalEl = root.querySelector('.total');
+			if (totalEl) {
+				totalEl.textContent = TOTAL_PAGES + 1;
+			}
 			this.movePage(0);
-		}.bind(this)
+		}
 	);
 
-	this.ui.find('.content').on('dblclick', 'canvas', onPlayEmoticon).on('mousedown', 'canvas', onSelectEmoticon);
-
-	this.ui.find('.base').mousedown(function (event) {
-		event.stopImmediatePropagation();
-		return false;
+	// Delegated dblclick on canvas → play emoticon
+	contentEl.addEventListener('dblclick', event => {
+		const canvas = event.target.closest('canvas');
+		if (!canvas) return;
+		onPlayEmoticon(canvas);
 	});
 
-	this.ui.find('.prev').addClass('disabled');
-	this.ui.find('.close').click(onClose);
-	this.ui.find('.prev').click(getMovePageHandler(-1));
-	this.ui.find('.next').click(getMovePageHandler(+1));
+	// Delegated mousedown on canvas → select emoticon
+	contentEl.addEventListener('mousedown', event => {
+		const canvas = event.target.closest('canvas');
+		if (!canvas) return;
+		onSelectEmoticon(canvas);
+	});
 
-	this.draggable(this.ui.find('.titlebar'));
+	root.querySelector('.prev').classList.add('disabled');
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+	}
+	const baseButtons = root.querySelectorAll('.base');
+	baseButtons.forEach(btn => {
+		if (btn !== closeBtn) {
+			btn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		}
+	});
+	root.querySelector('.close').addEventListener('click', () => {
+		this._host.style.display = 'none';
+	});
+	root.querySelector('.prev').addEventListener('click', getMovePageHandler(-1));
+	root.querySelector('.next').addEventListener('click', getMovePageHandler(+1));
+
+	this.draggable('.titlebar');
 };
 
 /**
@@ -110,22 +140,20 @@ Emoticons.init = function init() {
  */
 Emoticons.onAppend = function onAppend() {
 	if (!_preferences.show) {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	this._host.style.top = Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight) + 'px';
+	this._host.style.left = Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth) + 'px';
 };
 
 /**
  * Once removed from DOM, save preferences
  */
-Emoticons.onRemove = function OnRemove() {
-	_preferences.show = this.ui.is(':visible');
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+Emoticons.onRemove = function onRemove() {
+	_preferences.show = this._host.style.display !== 'none';
+	_preferences.y = parseInt(this._host.style.top, 10) || 0;
+	_preferences.x = parseInt(this._host.style.left, 10) || 0;
 	_preferences.save();
 };
 
@@ -135,23 +163,31 @@ Emoticons.onRemove = function OnRemove() {
  * @param {number} direction
  */
 Emoticons.movePage = function movePage(direction) {
-	this.ui.find('.prev, .next').removeClass('disabled');
+	const root = this._shadow || this._host;
+	const prevBtn = root.querySelector('.prev');
+	const nextBtn = root.querySelector('.next');
+
+	prevBtn.classList.remove('disabled');
+	nextBtn.classList.remove('disabled');
 
 	_page += direction;
 
 	if (_page <= 0) {
-		this.ui.find('.prev').addClass('disabled');
+		prevBtn.classList.add('disabled');
 		_page = 0;
 	}
 
 	if (_page >= TOTAL_PAGES) {
-		this.ui.find('.next').addClass('disabled');
+		nextBtn.classList.add('disabled');
 		_page = TOTAL_PAGES;
 	}
 
-	this.ui.find('.current').text(_page + 1);
+	const currentEl = root.querySelector('.current');
+	if (currentEl) {
+		currentEl.textContent = _page + 1;
+	}
 
-	refreshList(this.ui.find('.content'));
+	refreshList(root.querySelector('.content'));
 };
 
 /**
@@ -159,12 +195,14 @@ Emoticons.movePage = function movePage(direction) {
  *
  * @param {object} key
  */
-Emoticons.onShortCut = function onShurtCut(key) {
+Emoticons.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'TOGGLE':
-			this.ui.toggle();
-			if (this.ui.is(':visible')) {
+			if (this._host.style.display === 'none') {
+				this.ui.show();
 				this.focus();
+			} else {
+				this._host.style.display = 'none';
 			}
 			break;
 	}
@@ -178,90 +216,93 @@ Emoticons.onShortCut = function onShurtCut(key) {
  */
 function getMovePageHandler(index) {
 	return function movePageClosure() {
-		if (!this.className.match(/disabled/)) {
+		if (!this.classList.contains('disabled')) {
 			Emoticons.movePage(index);
 		}
 	};
 }
 
 /**
- * Exit window
- */
-function onClose() {
-	Emoticons.ui.hide();
-}
-
-/**
  * Select an emoticon
  * Display the command shortcut in the ShortCuts
+ *
+ * @param {HTMLCanvasElement} canvas
  */
-function onSelectEmoticon() {
-	const idx = this.getAttribute('data-index');
+function onSelectEmoticon(canvas) {
+	const idx = canvas.getAttribute('data-index');
 	const cmd = EmoticonsDB.names[idx];
 	if (cmd && ShortCuts.ui.is(':visible')) {
-		if (ShortCuts.ui.find('.input_alt_focus').length) {
+		if (ShortCuts.ui.find('.input_macro_focus').length) {
 			ShortCuts.ui
-				.find('.input_alt_focus')
+				.find('.input_macro_focus')
 				.val('/' + cmd)
 				.select();
+			return;
 		}
+	}
+
+	if (cmd) {
+		ChatBox.ui
+			.find('.input .message')
+			.html('/' + cmd)
+			.focus();
 	}
 }
 
 /**
  * Do an emoticon
+ *
+ * @param {HTMLCanvasElement} canvas
  */
-function onPlayEmoticon() {
-	const idx = this.getAttribute('data-index');
+function onPlayEmoticon(canvas) {
+	const idx = canvas.getAttribute('data-index');
 	const cmd = EmoticonsDB.names[idx];
 
-	ChatBox.ui.find('.input .message').val('/' + cmd);
+	ChatBox.ui.find('.input .message').html('/' + cmd);
 	ChatBox.submit();
 }
 
 /**
  * Refresh emoticons list
  *
- * @param {jQuery object} content
+ * @param {HTMLElement} contentEl
  */
-function refreshList(content) {
-	let canvas, ctx;
-	let animation, animations, layers;
-	let i, count;
-
+function refreshList(contentEl) {
 	let index = EMOTICONS_PER_PAGE * _page;
 	const end = Math.min(EMOTICONS_COUNT, index + EMOTICONS_PER_PAGE);
 	const pos = [0, 0];
-	let emo;
 
-	content.empty();
+	contentEl.innerHTML = '';
 
 	while (index < end) {
-		canvas = document.createElement('canvas');
-		ctx = canvas.getContext('2d');
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
 		canvas.width = 40;
 		canvas.height = 40;
-		emo = EmoticonsDB.order[index];
+		const emo = EmoticonsDB.order[index];
 
 		canvas.setAttribute('data-index', emo);
-		animations = _action.actions[emo].animations;
+		canvas.title = '/' + EmoticonsDB.names[emo];
+		const animations = _action.actions[emo].animations;
 
 		// Do not ask why, but we don't know how Gravity find
 		// the animation to render:
-		animation = animations[Math.floor(animations.length / 5)];
-		layers = animation.layers;
-		count = layers.length;
+		const animation = animations[Math.floor(animations.length / 5)];
+		const layers = animation.layers;
+		const count = layers.length;
 
 		SpriteRenderer.bind2DContext(ctx, 20 - layers[0].pos[0], 40 - layers[0].pos[1]);
 
-		for (i = 0; i < count; ++i) {
+		for (let i = 0; i < count; ++i) {
 			_entity.renderLayer(layers[i], _sprite, _sprite, 1.0, pos, false);
 		}
 
-		content.append(canvas);
+		contentEl.appendChild(canvas);
 		index++;
 	}
 }
+
+Emoticons.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Export
