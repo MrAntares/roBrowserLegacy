@@ -1,3 +1,4 @@
+// TEST GIT
 import { defineConfig } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
