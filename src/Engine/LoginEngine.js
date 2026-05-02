@@ -33,6 +33,7 @@ import Rijndael from 'Utils/Rijndael.js';
 
 // Version Dependent UIs
 import WinLogin from 'UI/Components/WinLogin/WinLogin.js';
+import WinLoginBackground from 'UI/Components/WinLogin/WinLoginBackground.js';
 
 /**
  * Creating WinLoading
@@ -143,6 +144,7 @@ class LoginEngine {
 
 		// Hooking win_login
 		WinLogin.selectUIVersion();
+		WinLoginBackground.selectUIVersion();
 
 		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
 		WinLogin.getUI().onExitRequest = onExitRequest;
@@ -385,6 +387,7 @@ function onConnectionAccepted(pkt) {
 			WinList.remove();
 			WinLogin.getUI().append();
 		};
+		WinLoginBackground.getUI().append();
 		WinList.append();
 		WinList.setList(list);
 	}

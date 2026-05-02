@@ -13,12 +13,10 @@
  */
 import htmlText from './WinLoginV2.html?raw';
 import cssText from './WinLoginV2.css?raw';
-import WinLoginV2Background from './WinLoginV2Background.js';
 import { createWinLogin } from '../WinLoginCommon.js';
 
 export default createWinLogin({
 	name: 'WinLoginV2',
 	htmlText,
-	cssText,
-	Background: WinLoginV2Background
+	cssText
 });

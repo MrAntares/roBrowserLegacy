@@ -23,6 +23,7 @@ import UIComponent from 'UI/UIComponent.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import htmlText from './CharSelectV3.html?raw';
 import cssText from './CharSelectV3.css?raw';
+import WinLoginBackground from 'UI/Components/WinLogin/WinLoginBackground.js';
 
 /**
  * Create Chararacter Selection namespace
@@ -139,6 +140,10 @@ CharSelectV3.init = function Init() {
  * Once append to body
  */
 CharSelectV3.onAppend = function onAppend() {
+	if (WinLoginBackground) {
+		WinLoginBackground.getUI().append();
+	}
+
 	_index = _preferences.index;
 
 	this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);

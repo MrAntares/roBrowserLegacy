@@ -11,7 +11,6 @@
 /**
  * Dependencies
  */
-import WinLoginBackground from './WinLoginBackground.js';
 import htmlText from './WinLogin.html?raw';
 import cssText from './WinLogin.css?raw';
 import { createWinLogin } from '../WinLoginCommon.js';
@@ -19,6 +18,5 @@ import { createWinLogin } from '../WinLoginCommon.js';
 export default createWinLogin({
 	name: 'WinLogin',
 	htmlText,
-	cssText,
-	Background: WinLoginBackground
+	cssText
 });
