@@ -14,8 +14,9 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
+import WinLoginBackground from './WinLoginBackground.js';
 
-export function createWinLogin({ name, htmlText, cssText, Background }) {
+export function createWinLogin({ name, htmlText, cssText }) {
 	const Component = new GUIComponent(name, cssText);
 	Component.render = () => htmlText;
 	Component.needFocus = false;
@@ -57,11 +58,10 @@ export function createWinLogin({ name, htmlText, cssText, Background }) {
 		root.querySelector('.signup').addEventListener('click', signup);
 		root.querySelector('.connect').addEventListener('click', connect);
 		root.querySelector('.exit').addEventListener('click', exit);
-		if (Background) Background.init();
 	};
 
 	Component.onAppend = function onAppend() {
-		if (Background) Background.append();
+		WinLoginBackground.getUI().append();
 
 		_inputUsername.value = _preferences.saveID ? _preferences.ID : '';
 		_inputPassword.value = '';
