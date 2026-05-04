@@ -13475,6 +13475,50 @@ PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
 };
 PACKET.ZC.GUILD_INFO3.size = 114 - 20; // - <master name>.24B + <master char id>.L
 
+// 0xa89
+PACKET.ZC.STORE_ASSISTANT_ENTRY = function PACKET_ZC_STORE_ASSISTANT_ENTRY(fp, end) {
+	this.GID = fp.readULong();
+	this.job = fp.readShort();
+	this.unknown = fp.readShort();
+	this.PosDir = [fp.readShort(), fp.readShort(), 6];
+	this.sex = fp.readUChar();
+	this.head = fp.readShort();
+	this.weapon = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
+	this.shield = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
+	this.accessory = fp.readShort();
+	this.accessory2 = fp.readShort();
+	this.accessory3 = fp.readShort();
+	this.headpalette = fp.readShort();
+	this.bodypalette = fp.readShort();
+	this.Robe = fp.readShort();
+	this.name = fp.readBinaryString(NAME_LENGTH);
+	
+	// fill necessary vars to render a player
+	this.speed = 0;
+	this.objecttype = 0
+	this.bodyState = 0;
+	this.healthState = 0;
+	this.effectState = 0;
+	this.headDir = 0;
+	this.GUID = 0;
+	this.GEmblemVer = 0;
+	this.honor = 0;
+	this.virtue = 0;
+	this.isPKModeON = 0;
+	this.xSize = 0;
+	this.ySize = 0;
+	this.state = 0;
+	this.clevel = 0;
+};
+PACKET.ZC.STORE_ASSISTANT_ENTRY.size = PACKETVER.value >= 20181121 ? 61 : 57;
+
+// 0xa8a
+PACKET.ZC.STORE_ASSISTANT_DISAPPEAR = function PACKET_ZC_STORE_ASSISTANT_DISAPPEAR(fp, end) {
+	this.GID = fp.readULong();
+	this.type = 0; // out of sight
+};
+PACKET.ZC.STORE_ASSISTANT_DISAPPEAR.size = 6;
+
 // 0xa95
 PACKET.ZC.CONFIG_NOTIFY2 = function PACKET_ZC_CONFIG_NOTIFY2(fp, end) {
 	this.show_eq_flag = fp.readUChar();
@@ -14116,6 +14160,47 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V6 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V6(fp,
 	})();
 };
 PACKET.ZC.EQUIPWIN_MICROSCOPE_V6.size = -1;
+
+// 0xab05
+//'0B05' => ['offline_clone_found', 
+// 'a4 v4 C v9 V Z24 v', 
+// [qw(ID jobID unknown coord_x coord_y sex head_dir weapon shield lowhead tophead midhead hair_color clothes_color robe unknown2 name unknown3)]],
+PACKET.ZC.STORE_ASSISTANT_ENTRY_V2 = function PACKET_ZC_STORE_ASSISTANT_ENTRY_V2(fp, end) {
+	this.GID = fp.readULong();
+	this.job = fp.readShort();
+	this.unknown = fp.readShort();
+	this.PosDir = [fp.readShort(), fp.readShort(), 6];
+	this.sex = fp.readUChar();
+	this.head = fp.readShort();
+	this.weapon = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
+	this.shield = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
+	this.accessory = fp.readShort();
+	this.accessory2 = fp.readShort();
+	this.accessory3 = fp.readShort();
+	this.headpalette = fp.readShort();
+	this.bodypalette = fp.readShort();
+	this.Robe = fp.readShort();
+	this.name = fp.readBinaryString(NAME_LENGTH);
+	this.unknown2 = fp.readShort();
+	
+	// fill necessary vars to render a player
+	this.speed = 0;
+	this.objecttype = 0
+	this.bodyState = 0;
+	this.healthState = 0;
+	this.effectState = 0;
+	this.headDir = 0;
+	this.GUID = 0;
+	this.GEmblemVer = 0;
+	this.honor = 0;
+	this.virtue = 0;
+	this.isPKModeON = 0;
+	this.xSize = 0;
+	this.ySize = 0;
+	this.state = 0;
+	this.clevel = 0;
+};
+PACKET.ZC.STORE_ASSISTANT_ENTRY_V2.size = PACKETVER.value >= 20181121 ? 63 : 59;
 
 //0xb08
 PACKET.ZC.SPLIT_SEND_ITEMLIST_SET = function PACKET_SPLIT_SEND_ITEMLIST_SET(fp, end) {

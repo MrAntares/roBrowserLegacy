@@ -2788,7 +2788,10 @@ export default function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.NOTIFY_NEWENTRY11, onEntitySpam);
 	Network.hookPacket(PACKET.ZC.NOTIFY_MOVEENTRY11, onEntitySpam);
 	Network.hookPacket(PACKET.ZC.NOTIFY_STANDENTRY11, onEntitySpam);
+	Network.hookPacket(PACKET.ZC.STORE_ASSISTANT_ENTRY, onEntitySpam);
+	Network.hookPacket(PACKET.ZC.STORE_ASSISTANT_ENTRY_V2, onEntitySpam);
 	Network.hookPacket(PACKET.ZC.NOTIFY_VANISH, onEntityVanish);
+	Network.hookPacket(PACKET.ZC.STORE_ASSISTANT_DISAPPEAR, onEntityVanish);
 	Network.hookPacket(PACKET.ZC.NOTIFY_MOVE, onEntityMove);
 	Network.hookPacket(PACKET.ZC.STOPMOVE, onEntityStopMove);
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT, onEntityAction);
