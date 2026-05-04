@@ -13495,7 +13495,7 @@ PACKET.ZC.STORE_ASSISTANT_ENTRY = function PACKET_ZC_STORE_ASSISTANT_ENTRY(fp, e
 	
 	// fill necessary vars to render a player
 	this.speed = 0;
-	this.objecttype = 0
+	this.objecttype = 0;
 	this.bodyState = 0;
 	this.healthState = 0;
 	this.effectState = 0;
@@ -14161,10 +14161,7 @@ PACKET.ZC.EQUIPWIN_MICROSCOPE_V6 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V6(fp,
 };
 PACKET.ZC.EQUIPWIN_MICROSCOPE_V6.size = -1;
 
-// 0xab05
-//'0B05' => ['offline_clone_found', 
-// 'a4 v4 C v9 V Z24 v', 
-// [qw(ID jobID unknown coord_x coord_y sex head_dir weapon shield lowhead tophead midhead hair_color clothes_color robe unknown2 name unknown3)]],
+// 0xb05
 PACKET.ZC.STORE_ASSISTANT_ENTRY_V2 = function PACKET_ZC_STORE_ASSISTANT_ENTRY_V2(fp, end) {
 	this.GID = fp.readULong();
 	this.job = fp.readShort();
@@ -14185,7 +14182,7 @@ PACKET.ZC.STORE_ASSISTANT_ENTRY_V2 = function PACKET_ZC_STORE_ASSISTANT_ENTRY_V2
 	
 	// fill necessary vars to render a player
 	this.speed = 0;
-	this.objecttype = 0
+	this.objecttype = 0;
 	this.bodyState = 0;
 	this.healthState = 0;
 	this.effectState = 0;
