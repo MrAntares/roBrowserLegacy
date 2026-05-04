@@ -141,6 +141,8 @@ CharSelectV4.onAppend = function onAppend() {
 		WinLoginBackground.getUI().append();
 	}
 
+	CharSelectV4.clearAllSlots();
+
 	//_index = _preferences.index;
 	const charselectready = CharSelectV4.ui;
 	if (charselectready) {
@@ -227,8 +229,8 @@ CharSelectV4.setInfo = function setInfo(pkt) {
 	if (pkt.charInfo) {
 		for (let i = 0, count = pkt.charInfo.length; i < count; ++i) {
 			CharSelectV4.addCharacter(pkt.charInfo[i]);
+			CharSelectV4.updateCharSlot(pkt.charInfo[i].CharNum);
 		}
-		updateCharSlot();
 	}
 
 	moveCursorTo(_index);
@@ -421,6 +423,8 @@ CharSelectV4.deleteAnswer = function DeleteAnswer(error) {
 				}
 			}
 
+			CharSelectV4.updateCharSlot(_index);
+
 			// Refresh UI
 			moveCursorTo(_index);
 			return;
@@ -465,7 +469,8 @@ CharSelectV4.addCharacter = function addCharacter(character) {
 	_entitySlots[character.CharNum].effectState =
 		_entitySlots[character.CharNum]._effectState & ~StatusConst.EffectState.INVISIBLE;
 	_entitySlots[character.CharNum].hideShadow = true;
-	updateCharSlot();
+
+	CharSelectV4.updateCharSlot(character.CharNum);
 };
 
 /**
@@ -511,7 +516,7 @@ function cancel() {
 			'cancel',
 			function () {
 				CharSelectV4.onExitRequest();
-				updateCharSlot();
+				CharSelectV4.clearAllSlots();
 			},
 			null
 		);
@@ -665,12 +670,20 @@ function changeBackgroundEverySecond() {
 	}
 }
 
-function updateCharSlot() {
-	for (let i = 0; i < _maxSlots; ++i) {
+CharSelectV4.updateCharSlot = function updateCharSlot(slotId) {
+	let start = 0;
+	let loopMax = Math.max(_maxSlots, _slots.length);
+
+	if (typeof slotId !== 'undefined') {
+		start = slotId;
+		loopMax = slotId + 1;
+	}
+
+	for (let i = start; i < loopMax; ++i) {
 		jQuery(CharSelectV4.ui.find('.char_canvas')[i])
 			.find('.name')
-			.html(_slots[i] !== undefined ? _slots[i].name : '');
-		if (_slots[i] === undefined) {
+			.html(_slots[i] ? _slots[i].name : '');
+		if (!_slots[i]) {
 			const slotNum = i;
 			jQuery(CharSelectV4.ui.find('.job_icon')[slotNum]).css('background-image', '');
 			if (CharSelectV4.ui.find('#slot' + slotNum)) {
@@ -708,6 +721,13 @@ function updateCharSlot() {
 	}
 }
 
+CharSelectV4.clearAllSlots = function clearAllSlots() {
+	_slots.forEach((slot, index) => {
+		delete _slots[index];
+	});
+	CharSelectV4.updateCharSlot();
+}
+
 /**
  * Render sprites to canvas
  */
@@ -723,7 +743,7 @@ function render() {
 
 		if (_entitySlots[idx + i]) {
 			SpriteRenderer.bind2DContext(_ctx[i], 78, 157);
-			if (_slots[i].DeleteDate) // Pending for Deletion Characters are sitting
+			if (_slots[idx + i] && _slots[idx + i].DeleteDate) // Pending for Deletion Characters are sitting
 			{
 				_entitySlots[idx + i].action = 2;
 			}
