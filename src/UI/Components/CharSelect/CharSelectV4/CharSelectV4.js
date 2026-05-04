@@ -220,11 +220,10 @@ CharSelectV4.onKeyDown = function onKeyDown(event) {
  * @param {object} pkt - packet structure
  */
 CharSelectV4.setInfo = function setInfo(pkt) {
+	CharSelectV4.clearAllSlots();
+
 	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 15); // default 9 ?
 	_sex = pkt.sex;
-	_slots.length = 0;
-	_entitySlots.length = 0;
-	_list.length = 0;
 
 	if (pkt.charInfo) {
 		for (let i = 0, count = pkt.charInfo.length; i < count; ++i) {
