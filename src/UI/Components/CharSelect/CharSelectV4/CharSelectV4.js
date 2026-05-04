@@ -721,15 +721,9 @@ CharSelectV4.updateCharSlot = function updateCharSlot(slotId) {
 }
 
 CharSelectV4.clearAllSlots = function clearAllSlots() {
-	_slots.forEach((slot, index) => {
-		delete _slots[index];
-	});
-	_entitySlots.forEach((slot, index) => {
-		delete _entitySlots[index];
-	});
-	_list.forEach((slot, index) => {
-		delete _list[index];
-	});
+	_slots.length = 0;
+	_entitySlots.length = 0;
+	_list.length = 0;
 	CharSelectV4.updateCharSlot();
 }
 
