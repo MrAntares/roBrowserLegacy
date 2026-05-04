@@ -229,7 +229,6 @@ CharSelectV4.setInfo = function setInfo(pkt) {
 	if (pkt.charInfo) {
 		for (let i = 0, count = pkt.charInfo.length; i < count; ++i) {
 			CharSelectV4.addCharacter(pkt.charInfo[i]);
-			CharSelectV4.updateCharSlot(pkt.charInfo[i].CharNum);
 		}
 	}
 
@@ -724,6 +723,12 @@ CharSelectV4.updateCharSlot = function updateCharSlot(slotId) {
 CharSelectV4.clearAllSlots = function clearAllSlots() {
 	_slots.forEach((slot, index) => {
 		delete _slots[index];
+	});
+	_entitySlots.forEach((slot, index) => {
+		delete _entitySlots[index];
+	});
+	_list.forEach((slot, index) => {
+		delete _list[index];
 	});
 	CharSelectV4.updateCharSlot();
 }
