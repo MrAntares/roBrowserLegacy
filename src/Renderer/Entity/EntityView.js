@@ -475,7 +475,7 @@ function UpdateBodyStyle(look) {
 			let cashMountCostume = false;
 			if (PACKETVER.value <= 20231220) {
 				if (look > 0) {
-					look = getBodyVal();
+					look = getBodyVal.call(this);
 				}
 			}
 
