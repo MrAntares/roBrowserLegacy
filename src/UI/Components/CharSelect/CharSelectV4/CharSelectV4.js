@@ -717,14 +717,14 @@ CharSelectV4.updateCharSlot = function updateCharSlot(slotId) {
 			}
 		}
 	}
-}
+};
 
 CharSelectV4.clearAllSlots = function clearAllSlots() {
 	_slots.length = 0;
 	_entitySlots.length = 0;
 	_list.length = 0;
 	CharSelectV4.updateCharSlot();
-}
+};
 
 /**
  * Render sprites to canvas
