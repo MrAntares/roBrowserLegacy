@@ -8,37 +8,42 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import Renderer from 'Renderer/Renderer.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './WinList.html?raw';
 import cssText from './WinList.css?raw';
 
 /**
  * Create WinList namespace
  */
-const WinList = new UIComponent('WinList', htmlText, cssText);
+const WinList = new GUIComponent('WinList', cssText);
+
+WinList.render = () => htmlText;
 
 /**
  * Initialize UI
  */
 WinList.init = function init() {
-	// Show at center.
-	this.ui.css({
-		top: (Renderer.height - 280) / 1.5,
-		left: (Renderer.width - 280) / 2
-	});
+	this._host.style.top = `${(Renderer.height - 280) / 1.5}px`;
+	this._host.style.left = `${(Renderer.width - 280) / 2}px`;
 	this.draggable();
 
-	this.ui_list = this.ui.find('.list:first');
+	const root = this._shadow || this._host;
+	this._listEl = root.querySelector('.list');
 	this.list = null;
 	this.index = 0;
 
-	// Click Events
-	this.ui.find('.ok').click(this.selectIndex.bind(this));
-	this.ui.find('.cancel').click(this.exit.bind(this));
+	const okBtn = root.querySelector('.ok');
+	const cancelBtn = root.querySelector('.cancel');
+	if (okBtn) {
+		okBtn.addEventListener('click', () => WinList.selectIndex());
+	}
+	if (cancelBtn) {
+		cancelBtn.addEventListener('click', () => WinList.exit());
+	}
 };
 
 /**
@@ -47,26 +52,20 @@ WinList.init = function init() {
  * @param {Array} list object to display
  */
 WinList.setList = function setList(list) {
-	let i, count;
-
 	this.list = list;
-	this.ui_list.empty();
+	this._listEl.innerHTML = '';
 
-	function onSelectListIndex(event) {
-		WinList.setIndex(jQuery(this).data('id'));
-		event.stopImmediatePropagation();
-		return false;
-	}
-
-	for (i = 0, count = list.length; i < count; ++i) {
-		this.ui_list.append(
-			jQuery('<div/>')
-				.addClass('menu_node')
-				.text(list[i])
-				.data('id', i)
-				.mousedown(onSelectListIndex)
-				.dblclick(this.selectIndex.bind(this))
-		);
+	for (let i = 0, count = list.length; i < count; ++i) {
+		const node = document.createElement('div');
+		node.classList.add('menu_node');
+		node.textContent = list[i];
+		node.dataset.id = i;
+		node.addEventListener('mousedown', event => {
+			WinList.setIndex(parseInt(node.dataset.id, 10));
+			event.stopImmediatePropagation();
+		});
+		node.addEventListener('dblclick', () => WinList.selectIndex());
+		this._listEl.appendChild(node);
 	}
 
 	this.setIndex(0);
@@ -92,8 +91,13 @@ WinList.onIndexSelected = function onIndexSelected() {};
  */
 WinList.setIndex = function setIndex(id) {
 	if (id > -1 && id < this.list.length) {
-		this.ui_list.find('div:eq(' + this.index + ')').css('backgroundColor', 'transparent');
-		this.ui_list.find('div:eq(' + id + ')').css('backgroundColor', '#cde0ff');
+		const nodes = this._listEl.querySelectorAll('.menu_node');
+		if (nodes[this.index]) {
+			nodes[this.index].style.backgroundColor = 'transparent';
+		}
+		if (nodes[id]) {
+			nodes[id].style.backgroundColor = '#cde0ff';
+		}
 		this.index = id;
 	}
 };
@@ -111,7 +115,7 @@ WinList.selectIndex = function selectIndex() {
  * @param {object} event
  */
 WinList.onKeyDown = function onKeyDown(event) {
-	if (!this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
 		return true;
 	}
 	switch (event.which) {
@@ -137,10 +141,12 @@ WinList.onKeyDown = function onKeyDown(event) {
  * Free variables once removed from HTML
  */
 WinList.onRemove = function onRemove() {
-	this.ui_list.empty();
+	this._listEl.innerHTML = '';
 	this.list = null;
 	this.index = 0;
 };
+
+WinList.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Create component based on view file and export it
