@@ -102,13 +102,43 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 			const isContentEditable = focused.getAttribute('contenteditable') === 'true';
 
 			if (isInput || isContentEditable) {
-				if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
-					this.remove();
-					event.stopImmediatePropagation();
-					return false;
+				switch (event.which) {
+					case KEYS.ESCAPE:
+						this.remove();
+						event.stopImmediatePropagation();
+						return false;
+
+					case KEYS.ENTER: {
+						const text = extractChatMessage(this._inputEl);
+						const msg = text.replace(/\u00A0/g, ' ').trim();
+						if (msg.length) {
+							this.history.push(msg);
+							WhisperBox.onRequestTalk(this.nickname, msg);
+							this._inputEl.innerHTML = '';
+						}
+						event.stopImmediatePropagation();
+						return false;
+					}
+
+					case KEYS.UP:
+					case KEYS.DOWN: {
+						const historyMsg = event.which === KEYS.UP ? this.history.previous() : this.history.next();
+						this._inputEl.innerHTML = historyMsg;
+						setCaretToEnd(this._inputEl);
+						event.stopImmediatePropagation();
+						return false;
+					}
+
+					default: {
+						const currentText = extractChatMessage(this._inputEl);
+						if (event.which >= 32 && currentText.length >= 100 && !event.ctrlKey && !event.altKey) {
+							event.stopImmediatePropagation();
+							return false;
+						}
+						event.stopImmediatePropagation();
+						return true;
+					}
 				}
-				event.stopImmediatePropagation();
-				return true;
 			}
 		}
 
@@ -149,41 +179,6 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	};
 
 	instance.history = new History();
-
-	instance._inputEl.addEventListener('keydown', event => {
-		switch (event.which) {
-			case KEYS.ENTER: {
-				const text = extractChatMessage(instance._inputEl);
-				const msg = text.replace(/\u00A0/g, ' ').trim();
-
-				if (msg.length) {
-					instance.history.push(msg);
-					self.onRequestTalk(nickname, msg);
-					instance._inputEl.innerHTML = '';
-				}
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				return false;
-			}
-
-			case KEYS.UP:
-			case KEYS.DOWN: {
-				const historyMsg = event.which === KEYS.UP ? instance.history.previous() : instance.history.next();
-				instance._inputEl.innerHTML = historyMsg;
-				setCaretToEnd(instance._inputEl);
-				break;
-			}
-
-			default: {
-				const currentText = extractChatMessage(instance._inputEl);
-				if (event.which >= 32 && currentText.length >= 100 && !event.ctrlKey && !event.altKey) {
-					event.preventDefault();
-					return false;
-				}
-				return true;
-			}
-		}
-	});
 
 	instance._inputEl.addEventListener('paste', event => {
 		event.preventDefault();
