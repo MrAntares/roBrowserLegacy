@@ -272,7 +272,8 @@ Vending.setType = function setType(type) {
 				el.style.display = '';
 			});
 			root.querySelector('.zenySpan').textContent = prettyZeny(Session.zeny);
-			root.querySelector('.weightSpan').textContent = `${BasicInfo.getUI().weight}/${BasicInfo.getUI().weight_max}`;
+			root.querySelector('.weightSpan').textContent =
+				`${BasicInfo.getUI().weight}/${BasicInfo.getUI().weight_max}`;
 			root.querySelector('.limitZeny').value = '0';
 			break;
 	}
@@ -431,19 +432,14 @@ function addItem(content, item, isinput) {
 		itemObj.draggable = true;
 		itemObj.dataset.index = item.index;
 		itemObj.innerHTML =
-			'<div class="icon"></div>' +
-			`<div class="amount">${item.IsStackable ? item.count : ''}</div>`;
+			'<div class="icon"></div>' + `<div class="amount">${item.IsStackable ? item.count : ''}</div>`;
 	} else {
 		const price = prettyZeny(item.price, true);
 		const container = document.createElement('div');
 		container.className = 'item-container';
 
-		const amountText = _type === Vending.Type.BUYING_STORE
-			? item.total
-			: (item.IsStackable ? item.count : '');
-		const eaHtml = _type === Vending.Type.BUYING_STORE
-			? `<div class="amount_">${item.count} ea</div>`
-			: '';
+		const amountText = _type === Vending.Type.BUYING_STORE ? item.total : item.IsStackable ? item.count : '';
+		const eaHtml = _type === Vending.Type.BUYING_STORE ? `<div class="amount_">${item.count} ea</div>` : '';
 
 		container.innerHTML =
 			`<div class="item output" draggable="true" data-index="${item.index}">` +
@@ -537,10 +533,7 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 		count = _output[index].count;
 	}
 
-	if (
-		(item.count === 1 || !item.IsStackable) &&
-		_type === Vending.Type.VENDING_STORE
-	) {
+	if ((item.count === 1 || !item.IsStackable) && _type === Vending.Type.VENDING_STORE) {
 		if (isAdding) {
 			InputBox.append();
 			InputBox.setType('price', false, item_price);
@@ -609,12 +602,7 @@ function onDrop(event) {
 	const fromContent = root.querySelector(`.${data.container} .content`);
 	const toContent = this.querySelector('.content');
 
-	requestMoveItem(
-		data.index,
-		fromContent,
-		toContent,
-		this.className === 'OutputWindow'
-	);
+	requestMoveItem(data.index, fromContent, toContent, this.className === 'OutputWindow');
 }
 
 function onItemInfo(event) {
