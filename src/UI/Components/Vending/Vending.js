@@ -1,13 +1,11 @@
 /**
  * UI/Components/Vending/Vending.js
  *
- * Chararacter Basic information windows
- *
+ * Vending / Buying store setup windows
  *
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -18,7 +16,8 @@ import Session from 'Engine/SessionStorage.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
@@ -29,25 +28,15 @@ import Renderer from 'Renderer/Renderer.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 
-/**
- * Create NPC Menu component
- */
-const Vending = new UIComponent('Vending', htmlText, cssText);
+const Vending = new GUIComponent('Vending', cssText);
+
+Vending.render = () => htmlText;
 
 Vending.isOpen = false;
 Vending.Type = {
 	VENDING_STORE: 0,
 	BUYING_STORE: 1
 };
-
-Vending.setType = function (type) {
-	this.type = type;
-};
-
-/**
- * Freeze the mouse
- */
-//Vending.mouseMode = UIComponent.MouseMode.FREEZE;
 
 /**
  * @var {Preferences}
@@ -86,376 +75,420 @@ let _slots = 0;
  */
 let _type;
 
-const _shopname = '';
-
-function isItemStackable(item) {
-	if (
-		item.type === ItemType.WEAPON ||
-		item.type === ItemType.ARMOR ||
-		item.type === ItemType.SHADOWGEAR ||
-		item.type === ItemType.PETEGG ||
-		item.type === ItemType.PETARMOR
-	) {
-		return false;
-	} else {
-		return true;
-	}
+function _getRoot() {
+	return Vending._shadow || Vending._host;
 }
 
-/**
- * Initialize component
- */
-Vending.init = function init() {
-	const ui = this.ui;
-	const InputWindow = ui.find('.InputWindow');
-	const OutputWindow = ui.find('.OutputWindow');
+function escapeHtml(text) {
+	const div = document.createElement('div');
+	div.appendChild(document.createTextNode(text));
+	return div.innerHTML;
+}
 
-	// Client do not send packet
-	//ui.find('.btn.cancel').click(this.remove.bind(this));
-	ui.find('.btn.sell').click(function (e) {
-		e.stopImmediatePropagation();
-		Vending.onSubmit();
+function isItemStackable(item) {
+	return (
+		item.type !== ItemType.WEAPON &&
+		item.type !== ItemType.ARMOR &&
+		item.type !== ItemType.SHADOWGEAR &&
+		item.type !== ItemType.PETEGG &&
+		item.type !== ItemType.PETARMOR
+	);
+}
+
+Vending.captureKeyEvents = true;
+
+Vending.init = function init() {
+	const root = _getRoot();
+
+	const sellBtn = root.querySelector('.btn.sell');
+	if (sellBtn) {
+		sellBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		sellBtn.addEventListener('click', e => {
+			e.stopImmediatePropagation();
+			Vending.onSubmit();
+		});
+	}
+
+	const cancelBtn = root.querySelector('.btn.cancel');
+	if (cancelBtn) {
+		cancelBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		cancelBtn.addEventListener('click', e => {
+			e.stopImmediatePropagation();
+			let pkt;
+			if (_type === Vending.Type.VENDING_STORE) {
+				pkt = new PACKET.CZ.REQ_OPENSTORE2();
+			} else {
+				pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
+			}
+			submitNetworkPacket(pkt);
+			Vending.onRemove();
+		});
+	}
+
+	const extendBtn = root.querySelector('.InputWindow .footer .extend');
+	if (extendBtn) {
+		extendBtn.addEventListener('mousedown', onResizeInput);
+	}
+
+	// Delegated event handlers on content areas
+	const contents = root.querySelectorAll('.content');
+	contents.forEach(content => {
+		content.addEventListener('contextmenu', e => {
+			const icon = e.target.closest('.icon');
+			if (icon) {
+				onItemInfo.call(icon, e);
+			}
+		});
+
+		content.addEventListener('wheel', e => {
+			onScroll.call(content, e);
+		});
+
+		content.addEventListener('mouseover', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOver.call(item);
+			}
+		});
+
+		content.addEventListener('mouseout', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOut();
+			}
+		});
+
+		content.addEventListener('dblclick', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemSelected.call(item);
+			}
+		});
+
+		content.addEventListener('mousedown', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemFocus.call(item);
+			}
+		});
+
+		content.addEventListener('dragstart', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onDragStart.call(item, e);
+			}
+		});
+
+		content.addEventListener('dragend', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				delete window._OBJ_DRAG_;
+			}
+		});
 	});
-	this.ui.find('.btn.cancel').click(function (e) {
-		e.stopImmediatePropagation();
-		let pkt;
-		if (_type === Vending.Type.VENDING_STORE) {
-			pkt = new PACKET.CZ.REQ_OPENSTORE2();
-		} else {
-			pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
+
+	// Drop items on InputWindow and OutputWindow
+	const inputWin = root.querySelector('.InputWindow');
+	const outputWin = root.querySelector('.OutputWindow');
+
+	[inputWin, outputWin].forEach(win => {
+		if (!win) {
+			return;
 		}
 
-		submitNetworkPacket(pkt);
-		Vending.onRemove();
-	});
-
-	InputWindow.find('.footer .extend').mousedown(onResizeInput);
-
-	// Items options
-	ui.find('.content')
-		.on('contextmenu', '.icon', onItemInfo)
-		.on('mousewheel DOMMouseScroll', onScroll)
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('dblclick', '.item', onItemSelected)
-		.on('mousedown', '.item', onItemFocus)
-		.on('dragstart', '.item', onDragStart)
-		.on('dragend', '.item', function () {
-			delete window._OBJ_DRAG_;
+		win.addEventListener('drop', e => {
+			onDrop.call(win, e);
 		});
 
-	// Drop items
-	ui.find('.InputWindow, .OutputWindow')
-		.on('drop', onDrop)
-		.on('dragover', function (event) {
-			event.stopImmediatePropagation();
-			return false;
-		})
-		.on('mousedown', function () {
+		win.addEventListener('dragover', e => {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+		});
+
+		win.addEventListener('mousedown', () => {
 			Vending.focus();
 		});
+	});
 
-	// Hacky drag drop
-	this.draggable.call({ ui: InputWindow }, InputWindow.find('.titlebar'));
-	this.draggable.call({ ui: OutputWindow }, OutputWindow.find('.titlebar'));
+	// Make sub-windows independently draggable
+	if (inputWin) {
+		this.draggable.call(
+			{ _host: inputWin, _shadow: null, _container: inputWin, magnet: {}, needFocus: false, manager: null },
+			inputWin.querySelector('.titlebar')
+		);
+	}
+	if (outputWin) {
+		this.draggable.call(
+			{ _host: outputWin, _shadow: null, _container: outputWin, magnet: {}, needFocus: false, manager: null },
+			outputWin.querySelector('.titlebar')
+		);
+	}
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/itemwin_mid.bmp', function (data) {
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/itemwin_mid.bmp`, data => {
 		Vending.itemBg = data;
 	});
 };
 
-/**
- * Player should not be able to move when the store is opened
- */
 Vending.onAppend = function onAppend() {
-	const InputWindow = this.ui.find('.InputWindow');
-	const OutputWindow = this.ui.find('.OutputWindow');
+	const root = _getRoot();
+	const inputWin = root.querySelector('.InputWindow');
+	const outputWin = root.querySelector('.OutputWindow');
+	const inputContent = inputWin.querySelector('.content');
+	const outputContent = outputWin.querySelector('.content');
 
-	InputWindow.css({
-		top: Math.min(Math.max(0, _preferences.inputWindow.y), Renderer.height - InputWindow.find('.content').height()),
-		left: Math.min(Math.max(0, _preferences.inputWindow.x), Renderer.width - InputWindow.find('.content').width())
-	});
-	OutputWindow.css({
-		top: Math.min(
-			Math.max(0, _preferences.outputWindow.y),
-			Renderer.height - OutputWindow.find('.content').height()
-		),
-		left: Math.min(Math.max(0, _preferences.outputWindow.x), Renderer.width - OutputWindow.find('.content').width())
-	});
+	inputWin.style.top = `${Math.min(Math.max(0, _preferences.inputWindow.y), Renderer.height - inputContent.offsetHeight)}px`;
+	inputWin.style.left = `${Math.min(Math.max(0, _preferences.inputWindow.x), Renderer.width - inputContent.offsetWidth)}px`;
 
-	resize(InputWindow.find('.content'), _preferences.inputWindow.height);
-	resize(OutputWindow.find('.content'), _preferences.outputWindow.height);
+	outputWin.style.top = `${Math.min(Math.max(0, _preferences.outputWindow.y), Renderer.height - outputContent.offsetHeight)}px`;
+	outputWin.style.left = `${Math.min(Math.max(0, _preferences.outputWindow.x), Renderer.width - outputContent.offsetWidth)}px`;
 
-	// Seems like "EscapeWindow" is execute first, push it before.
-	//var events = jQuery._data( window, 'events').keydown;
-	//events.unshift( events.pop() );
+	resize(inputContent, _preferences.inputWindow.height);
+	resize(outputContent, _preferences.outputWindow.height);
 
-	this.ui.hide();
+	this._host.style.display = 'none';
 };
 
-/**
- * Specify the type of the shop
- *
- * @param {number} type (see NpcStore.Type.*)
- */
 Vending.setType = function setType(type) {
+	const root = _getRoot();
+
+	const winBuyEls = root.querySelectorAll('.WinBuy');
+	const winSellEls = root.querySelectorAll('.WinSell');
+
 	switch (type) {
 		case Vending.Type.VENDING_STORE:
-			this.ui.find('.WinBuy').hide();
-			this.ui.find('.WinSell').show();
+			winBuyEls.forEach(el => {
+				el.style.display = 'none';
+			});
+			winSellEls.forEach(el => {
+				el.style.display = '';
+			});
 			break;
 
 		case Vending.Type.BUYING_STORE:
-			this.ui.find('.WinSell').hide();
-			this.ui.find('.WinBuy').show();
-			//this.ui.find('.content').css('height','160px');
-			this.ui.find('.zenySpan').text(prettyZeny(Session.zeny));
-			this.ui.find('.weightSpan').text(BasicInfo.getUI().weight + '/' + BasicInfo.getUI().weight_max);
-			this.ui.find('.limitZeny').val('0');
+			winSellEls.forEach(el => {
+				el.style.display = 'none';
+			});
+			winBuyEls.forEach(el => {
+				el.style.display = '';
+			});
+			root.querySelector('.zenySpan').textContent = prettyZeny(Session.zeny);
+			root.querySelector('.weightSpan').textContent = `${BasicInfo.getUI().weight}/${BasicInfo.getUI().weight_max}`;
+			root.querySelector('.limitZeny').value = '0';
 			break;
 	}
 
 	_type = type;
 };
 
-/**
- * Resize the content
- *
- * @param {jQueryElement} content
- * @param {number} height
- */
 function resize(content, height) {
 	height = Math.min(Math.max(height, 2), 9);
-	content.css('height', height * 32);
+	content.style.height = `${height * 32}px`;
 }
 
-/**
- * Released movement and save preferences
- */
 Vending.onRemove = function onRemove() {
-	VendingModelMessage.onRemove(); //remove message if show
+	VendingModelMessage.onRemove();
 
-	const InputWindow = this.ui.find('.InputWindow');
-	const OutputWindow = this.ui.find('.OutputWindow');
+	const root = _getRoot();
+	const inputWin = root.querySelector('.InputWindow');
+	const outputWin = root.querySelector('.OutputWindow');
 
 	_input.length = 0;
 	_output.length = 0;
 
-	_preferences.inputWindow.x = parseInt(InputWindow.css('left'), 10);
-	_preferences.inputWindow.y = parseInt(InputWindow.css('top'), 10);
-	_preferences.inputWindow.height = (InputWindow.find('.content').height() / 32) | 0;
+	_preferences.inputWindow.x = parseInt(inputWin.style.left, 10);
+	_preferences.inputWindow.y = parseInt(inputWin.style.top, 10);
+	_preferences.inputWindow.height = (inputWin.querySelector('.content').offsetHeight / 32) | 0;
 
-	_preferences.outputWindow.x = parseInt(OutputWindow.css('left'), 10);
-	_preferences.outputWindow.y = parseInt(OutputWindow.css('top'), 10);
-	_preferences.outputWindow.height = (OutputWindow.find('.content').height() / 32) | 0;
+	_preferences.outputWindow.x = parseInt(outputWin.style.left, 10);
+	_preferences.outputWindow.y = parseInt(outputWin.style.top, 10);
+	_preferences.outputWindow.height = (outputWin.querySelector('.content').offsetHeight / 32) | 0;
 
 	_preferences.save();
 
-	this.ui.find('.content').empty();
+	root.querySelectorAll('.content').forEach(el => {
+		el.innerHTML = '';
+	});
 
-	this.ui.hide();
+	this._host.style.display = 'none';
 
-	// Reset open flag on remove/close
 	Vending.isOpen = false;
 };
 
-/**
- * Key Listener
- *
- * Remove the UI when Escape key is pressed
- */
 Vending.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	const shadow = this._shadow || this._host;
+	const focused = shadow.activeElement;
+
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			this.remove();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		event.stopImmediatePropagation();
+		return true;
+	}
+
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this.remove();
 	}
+
+	return true;
 };
 
-/**
- * Add items to list
- *
- * @param {Array} item list
- */
 Vending.setList = function setList(items) {
-	let i, count, out;
+	const root = _getRoot();
 
-	this.ui.find('.content').empty();
+	root.querySelectorAll('.content').forEach(el => {
+		el.innerHTML = '';
+	});
 
 	_input.length = 0;
 	_output.length = 0;
 
-	const content = this.ui.find('.InputWindow .content');
+	const content = root.querySelector('.InputWindow .content');
 
-	{
-		for (i = 0, count = items.length; i < count; ++i) {
-			if (!('index' in items[i])) {
-				items[i].index = i;
-			}
-
-			if (isItemStackable(items[i])) {
-				items[i].IsStackable = true;
-			} else {
-				items[i].IsStackable = false;
-			}
-
-			if (!items[i].hasOwnProperty('count')) {
-				items[i].count = 1;
-			}
-
-			items[i].total = items[i].count; // keep track on buying store
-
-			out = jQuery.extend({}, items[i]);
-			out.count = 0;
-
-			addItem(content, items[i], true);
-
-			_input[items[i].index] = items[i];
-			_output[items[i].index] = out;
+	for (let i = 0, count = items.length; i < count; ++i) {
+		if (!('index' in items[i])) {
+			items[i].index = i;
 		}
+
+		items[i].IsStackable = isItemStackable(items[i]);
+
+		if (!Object.prototype.hasOwnProperty.call(items[i], 'count')) {
+			items[i].count = 1;
+		}
+
+		items[i].total = items[i].count;
+
+		const out = Object.assign({}, items[i]);
+		out.count = 0;
+
+		addItem(content, items[i], true);
+
+		_input[items[i].index] = items[i];
+		_output[items[i].index] = out;
 	}
 };
 
-/**
- * Prettify zeny : 1000000 -> 1,000,000
- *
- * @param {number} zeny
- * @param {boolean} use color
- * @return {string}
- */
 function prettyZeny(val, useStyle) {
 	const list = val.toString().split('');
 	const count = list.length;
-	let i;
 	let str = '';
 
-	for (i = 0; i < count; i++) {
+	for (let i = 0; i < count; i++) {
 		str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 	}
 
 	if (useStyle) {
 		const style = [
-			'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
-			'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
-			'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
-			'color:#ff0000; text-shadow:1px 0px #ffff00;', // 1,000 - 9,999
-			'color:#ff18ff;', // 10,000 - 99,999
-			'color:#0000ff;', // 100,000 - 999,999
-			'color:#000000; text-shadow:1px 0px #00ff00;', // 1,000,000 - 9,999,999
-			'color:#ff0000;', // 10,000,000 - 99,999,999
-			'color:#000000; text-shadow:1px 0px #cece63;', // 100,000,000 - 999,999,999
-			'color:#ff0000; text-shadow:1px 0px #ff007b;' // 1,000,000,000 - 9,999,999,999
+			'color:#000000; text-shadow:1px 0px #00ffff;',
+			'color:#0000ff; text-shadow:1px 0px #ce00ce;',
+			'color:#0000ff; text-shadow:1px 0px #00ffff;',
+			'color:#ff0000; text-shadow:1px 0px #ffff00;',
+			'color:#ff18ff;',
+			'color:#0000ff;',
+			'color:#000000; text-shadow:1px 0px #00ff00;',
+			'color:#ff0000;',
+			'color:#000000; text-shadow:1px 0px #cece63;',
+			'color:#ff0000; text-shadow:1px 0px #ff007b;'
 		];
-		str = '<span style="' + style[count - 1] + '">' + str + '</span>';
+		str = `<span style="${style[count - 1]}">${str}</span>`;
 	}
 
 	return str;
 }
 
-/**
- * Add item to the list
- *
- * @param {jQuery} content element
- * @param {Item} item info
- */
 function addItem(content, item, isinput) {
 	const it = DB.getItemInfo(item.ITID);
-	const element = content.find('.item[data-index=' + item.index + ']:first');
-	let price;
+	const element = content.querySelector(`.item[data-index="${item.index}"]`);
 	const textPrice = DB.getMessage(1721);
 
-	// 0 as amount ? remove it
 	if (item.count === 0) {
-		if (element.length) {
-			const parent = element.parent('.item-container');
-			element.remove();
-			parent.remove();
+		if (element) {
+			const parent = element.closest('.item-container');
+			if (parent) {
+				parent.remove();
+			} else {
+				element.remove();
+			}
 		}
 		return;
 	}
 
-	// Already here, update it
-	// Note: just the amount can be updated ?
-	if (element.length) {
-		element.find('.amount').text(item.IsStackable ? item.count : '');
+	if (element) {
+		const amountEl = element.querySelector('.amount');
+		if (amountEl) {
+			amountEl.textContent = item.IsStackable ? item.count : '';
+		}
 		return;
 	}
 
-	if (isinput == false) {
-		price = prettyZeny(item.price, true);
-	}
-	let itemObj = '';
-	// Create it
-	if (isinput == true) {
-		itemObj = jQuery(
-			'<div class="item input" draggable="true" data-index="' +
-				item.index +
-				'">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' +
-				(item.IsStackable ? item.count : '') +
-				'</div>' +
-				'</div>'
-		);
+	let itemObj;
+
+	if (isinput) {
+		itemObj = document.createElement('div');
+		itemObj.className = 'item input';
+		itemObj.draggable = true;
+		itemObj.dataset.index = item.index;
+		itemObj.innerHTML =
+			'<div class="icon"></div>' +
+			`<div class="amount">${item.IsStackable ? item.count : ''}</div>`;
 	} else {
-		itemObj = jQuery(
-			'<div class="item-container">' +
-				'<div class="item output" draggable="true" data-index="' +
-				item.index +
-				'">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' +
-				(_type === Vending.Type.BUYING_STORE ? item.total : item.IsStackable ? item.count : '') +
-				'</div>' +
-				(_type === Vending.Type.BUYING_STORE ? '<div class="amount_">' + item.count + ' ea</div>' : '') +
-				'<div class="name">' +
-				jQuery.escape(DB.getItemName(item)) +
-				'</div>' +
-				'<div class="price">' +
-				textPrice +
-				' ' +
-				price +
-				'</div>' +
-				'</div></div>'
-		);
+		const price = prettyZeny(item.price, true);
+		const container = document.createElement('div');
+		container.className = 'item-container';
+
+		const amountText = _type === Vending.Type.BUYING_STORE
+			? item.total
+			: (item.IsStackable ? item.count : '');
+		const eaHtml = _type === Vending.Type.BUYING_STORE
+			? `<div class="amount_">${item.count} ea</div>`
+			: '';
+
+		container.innerHTML =
+			`<div class="item output" draggable="true" data-index="${item.index}">` +
+			'<div class="icon"></div>' +
+			`<div class="amount">${amountText}</div>` +
+			eaHtml +
+			`<div class="name">${escapeHtml(DB.getItemName(item))}</div>` +
+			`<div class="price">${textPrice} ${price}</div>` +
+			'</div>';
+
+		itemObj = container;
+
 		if (_type === Vending.Type.BUYING_STORE) {
-			let limit = parseInt(Vending.ui.find('.limitZeny').val(), 10);
+			const root = _getRoot();
+			const limitInput = root.querySelector('.limitZeny');
+			let limit = parseInt(limitInput.value, 10);
 			limit += item.count * item.price;
-			Vending.ui.find('.limitZeny').val(limit);
+			limitInput.value = limit;
 		}
 	}
+
+	const actualItem = itemObj.classList.contains('item') ? itemObj : itemObj.querySelector('.item');
 
 	if (item.IsDamaged) {
-		itemObj.css('backgroundImage', 'url("' + Vending.itemBg + '")');
-		itemObj.addClass('damaged');
+		actualItem.style.backgroundImage = `url("${Vending.itemBg}")`;
+		actualItem.classList.add('damaged');
 	}
 
-	content.append(itemObj);
+	content.appendChild(itemObj);
 
-	// Add the icon once loaded
 	Client.loadFile(
-		DB.INTERFACE_PATH +
-			'item/' +
-			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-			'.bmp',
-		function (data) {
-			content.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+		`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
+		data => {
+			const icon = content.querySelector(`.item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
 		}
 	);
 }
 
-/**
- * Transfer item from input to output (or the inverse)
- *
- * @param {jQueryElement} from content (input / output)
- * @param {jQueryElement} to content (input / output)
- * @param {boolean} is adding the content to the output element
- * @param {number} item index
- * @param {number} amount
- */
-const transferItem = (function transferItemQuantityClosure() {
+const transferItem = (() => {
 	let tmpItem = {};
 
-	return function _transferItem(fromContent, toContent, isAdding, index, count) {
-		// Add item to the list
+	return (fromContent, toContent, isAdding, index, count) => {
 		if (isAdding) {
 			if (!_input[index].IsIdentified) {
 				VendingModelMessage.setInit(603);
@@ -466,17 +499,13 @@ const transferItem = (function transferItemQuantityClosure() {
 				_type === Vending.Type.BUYING_STORE
 					? count
 					: Math.min(_output[index].count + count, _input[index].count);
-			tmpItem = jQuery.extend({}, _input[index]);
+			tmpItem = Object.assign({}, _input[index]);
 
-			// Update input ui item amount
 			tmpItem.count = _type === Vending.Type.BUYING_STORE ? 0 : _input[index].count - _output[index].count;
 
 			addItem(fromContent, tmpItem, true);
 			addItem(toContent, _output[index], false);
-		}
-
-		// Remove item
-		else {
+		} else {
 			count = Math.min(count, _output[index].count);
 			if (!count) {
 				return;
@@ -484,57 +513,35 @@ const transferItem = (function transferItemQuantityClosure() {
 
 			_output[index].count = _type === Vending.Type.BUYING_STORE ? 0 : _output[index].count - count;
 
-			// Update input ui item amount
-			tmpItem = jQuery.extend({}, _input[index]);
+			tmpItem = Object.assign({}, _input[index]);
 			tmpItem.count =
 				_type === Vending.Type.BUYING_STORE ? _input[index].total : _input[index].count + _output[index].count;
 
 			addItem(fromContent, _output[index], false);
 			addItem(toContent, tmpItem, true);
 		}
-
-		//Vending.calculateCost();
 	};
 })();
 
-/**
- * Request move item from box to another
- *
- * @param {number} item index
- * @param {jQueryElement} from the content
- * @param {jQueryElement} to the content
- * @param {boolean} add the content to the output box ?
- */
 function requestMoveItem(index, fromContent, toContent, isAdding) {
 	let count, item_price;
 
 	const item = isAdding ? _input[index] : _output[index];
 
 	if (isAdding) {
-		// Don't add more than max Vending capacity
 		if (!(countSlotsUsed() < _slots)) {
 			return false;
 		}
-
 		count = _input[index].count;
 	} else {
 		count = _output[index].count;
 	}
 
-	/*// Can't buy more than one same stackable item
-		if ((_type === Vending.Type.BUY || _type === Vending.Type.VENDING_STORE) && !item.IsStackable && isAdding) {
-			if (toContent.find('.item[data-index="'+ item.index +'"]:first').length) {
-				return false;
-			}
-		}*/
-
-	// Just one item amount
 	if (
 		(item.count === 1 || !item.IsStackable) &&
-		_type === Vending.Type.VENDING_STORE /* || (_type === Vending.Type.SELL && _preferences.select_all)*/
+		_type === Vending.Type.VENDING_STORE
 	) {
 		if (isAdding) {
-			// Have to specify an price
 			InputBox.append();
 			InputBox.setType('price', false, item_price);
 			InputBox.onSubmitRequest = function (_item_price) {
@@ -550,7 +557,6 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 		return false;
 	}
 
-	// Have to specify an amount
 	InputBox.append();
 	InputBox.setType('number', false, count);
 	InputBox.onSubmitRequest = function (_count) {
@@ -567,7 +573,6 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 			}
 
 			if (isAdding) {
-				// Have to specify an price
 				InputBox.append();
 				InputBox.setType('price', false, item_price);
 				InputBox.onSubmitRequest = function (_item_price) {
@@ -584,134 +589,115 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 	};
 }
 
-/**
- * Drop an input in the InputWindow or OutputWindow
- *
- * @param {jQueryEvent} event
- */
 function onDrop(event) {
 	let data;
 
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
-		// Ignore parsing error
-		return false;
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
+		return;
 	}
 
-	// Just allow item from store
 	if (data.type !== 'item' || data.from !== 'Vending' || data.container === this.className) {
-		return false;
+		return;
 	}
+
+	const root = _getRoot();
+	const fromContent = root.querySelector(`.${data.container} .content`);
+	const toContent = this.querySelector('.content');
 
 	requestMoveItem(
 		data.index,
-		jQuery('.' + data.container + ' .content'),
-		jQuery(this).find('.content'),
+		fromContent,
+		toContent,
 		this.className === 'OutputWindow'
 	);
-
-	return false;
 }
 
-/**
- * Get informations about an item
- */
 function onItemInfo(event) {
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	const index = parseInt(this.parentNode.getAttribute('data-index'), 10);
 	const item = _input[index];
 
 	if (!item) {
-		return false;
+		return;
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
-		return false;
+		return;
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
-	return false;
 }
 
-/**
- * Select an item, put it on the other box
- */
 function onItemSelected() {
-	let from, to;
-
 	if (_type === Vending.Type.BUY || _type === Vending.Type.VENDING_STORE) {
 		return;
 	}
 
-	const input = Vending.ui.find('.InputWindow:first');
+	const root = _getRoot();
+	const inputWin = root.querySelector('.InputWindow');
 
-	if (jQuery.contains(input.get(0), this)) {
-		from = input;
-		to = Vending.ui.find('.OutputWindow:first');
+	let from, to;
+	if (inputWin.contains(this)) {
+		from = inputWin;
+		to = root.querySelector('.OutputWindow');
 	} else {
-		from = Vending.ui.find('.OutputWindow:first');
-		to = input;
+		from = root.querySelector('.OutputWindow');
+		to = inputWin;
 	}
 
 	requestMoveItem(
 		parseInt(this.getAttribute('data-index'), 10),
-		from.find('.content:first'),
-		to.find('.content:first'),
-		from === input
+		from.querySelector('.content'),
+		to.querySelector('.content'),
+		from === inputWin
 	);
 }
 
-/**
- * Focus an item
- */
 function onItemFocus() {
-	Vending.ui.find('.item.selected').removeClass('selected');
-	jQuery(this).addClass('selected');
+	const root = _getRoot();
+	root.querySelectorAll('.item.selected').forEach(el => el.classList.remove('selected'));
+	this.classList.add('selected');
 }
 
-/**
- * Update scroll by block (32px)
- */
 function onScroll(event) {
 	let delta;
 
-	if (event.originalEvent.wheelDelta) {
-		delta = event.originalEvent.wheelDelta / 120;
+	if (event.wheelDelta) {
+		delta = event.wheelDelta / 120;
 		if (window.opera) {
 			delta = -delta;
 		}
-	} else if (event.originalEvent.detail) {
-		delta = -event.originalEvent.detail;
+	} else if (event.detail) {
+		delta = -event.detail;
 	}
 
 	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
-	return false;
+	event.preventDefault();
 }
 
-/**
- * Start dragging an item
- */
 function onDragStart(event) {
-	const InputWindow = Vending.ui.find('.InputWindow:first').get(0);
-	const OutputWindow = Vending.ui.find('.OutputWindow:first').get(0);
+	const root = _getRoot();
+	const inputWin = root.querySelector('.InputWindow');
+	const outputWin = root.querySelector('.OutputWindow');
 
-	const container = (jQuery.contains(InputWindow, this) ? InputWindow : OutputWindow).className;
+	const container = (inputWin.contains(this) ? inputWin : outputWin).className;
 	const img = new Image();
-	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
+	const url = this.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1].replace(/"/g, '');
 	img.decoding = 'async';
 	img.src = url;
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -724,13 +710,11 @@ function onDragStart(event) {
 	);
 }
 
-/**
- * Extend InputWindow size
- */
 function onResizeInput() {
-	const InputWindow = Vending.ui.find('.InputWindow');
-	const content = InputWindow.find('.container .content');
-	const top = InputWindow.position().top;
+	const root = _getRoot();
+	const inputWin = root.querySelector('.InputWindow');
+	const content = inputWin.querySelector('.container .content');
+	const top = inputWin.offsetTop;
 	let lastHeight = 0;
 
 	function resizing() {
@@ -738,7 +722,6 @@ function onResizeInput() {
 
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
-		// Maximum and minimum window size
 		h = Math.min(Math.max(h, 2), 6);
 
 		if (h === lastHeight) {
@@ -749,16 +732,15 @@ function onResizeInput() {
 		lastHeight = h;
 	}
 
-	// Start resizing
 	const _Interval = setInterval(resizing, 30);
 
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	const onMouseUp = event => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	};
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 Vending.onVendingSkill = function onVendingSkill(pkt) {
@@ -768,9 +750,12 @@ Vending.onVendingSkill = function onVendingSkill(pkt) {
 
 	_slots = pkt.itemcount;
 	this.setList(CartItems.list);
-	this.ui.find('.add_shop')[0].style.height = 32 * _slots + 'px';
-	this.ui.find('.shopname').val('');
-	this.ui.show();
+
+	const root = _getRoot();
+	root.querySelector('.add_shop').style.height = `${32 * _slots}px`;
+	root.querySelector('.shopname').value = '';
+	this._host.style.display = '';
+	this._fixPositionOverflow();
 
 	Vending.isOpen = true;
 };
@@ -781,9 +766,7 @@ Vending.onBuyingSkill = function onBuyingSkill(pkt) {
 	}
 
 	_slots = pkt.itemcount;
-	// get from inventory and compare with buyingstoreitemlist.txt
-	//Inventory.list
-	const buyable = new Array();
+	const buyable = [];
 	for (const key in Inventory.getUI().list) {
 		const item = Inventory.getUI().list[key];
 		if (isItemStackable(item) && DB.isBuyable(item.ITID)) {
@@ -791,17 +774,18 @@ Vending.onBuyingSkill = function onBuyingSkill(pkt) {
 		}
 	}
 	this.setList(buyable);
-	this.ui.find('.add_shop')[0].style.height = 32 * _slots + 'px';
-	this.ui.find('.shopname').val('');
-	this.ui.show();
+
+	const root = _getRoot();
+	root.querySelector('.add_shop').style.height = `${32 * _slots}px`;
+	root.querySelector('.shopname').value = '';
+	this._host.style.display = '';
+	this._fixPositionOverflow();
 
 	Vending.isOpen = true;
 };
 
-Vending.onClose = function () {
-	if (this.ui) {
-		this.ui.hide();
-	}
+Vending.onClose = function onClose() {
+	this._host.style.display = 'none';
 	Vending.isOpen = false;
 };
 
@@ -809,13 +793,13 @@ Vending.onSubmit = function onSubmit() {
 	const output = [];
 	const count = _output.length;
 
-	const shopname = this.ui.find('.shopname').val();
+	const root = _getRoot();
+	const shopname = root.querySelector('.shopname').value;
 
-	let i,
-		limitZeny,
-		ctr = 0;
+	let limitZeny;
+	let ctr = 0;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (_output[i] && _output[i].count) {
 			output.push(_output[i]);
 			ctr++;
@@ -832,7 +816,7 @@ Vending.onSubmit = function onSubmit() {
 		pkt = new PACKET.CZ.REQ_OPENSTORE2();
 	} else {
 		pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
-		limitZeny = parseInt(this.ui.find('.limitZeny').val(), 10);
+		limitZeny = parseInt(root.querySelector('.limitZeny').value, 10);
 		if (limitZeny > Session.zeny) {
 			VendingModelMessage.setInit(3683);
 			return;
@@ -873,9 +857,6 @@ function submitNetworkPacket(pkt) {
 	Network.sendPacket(pkt);
 }
 
-/**
- * Show item name when mouse is over
- */
 function onItemOver() {
 	if (!this.classList.contains('input')) {
 		return;
@@ -883,30 +864,29 @@ function onItemOver() {
 
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const item =
-		_type == Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getUI().getItemByIndex(idx);
+		_type === Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getUI().getItemByIndex(idx);
 
 	if (!item) {
 		return;
 	}
 
-	// Get back data
-	const pos = jQuery(this).position();
-	const overlay = Vending.ui.find('.overlay');
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
 
-	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top - 20, left: pos.left - 10 });
-	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+	overlay.style.display = '';
+	overlay.style.top = `${this.offsetTop - 20}px`;
+	overlay.style.left = `${this.offsetLeft - 10}px`;
+	overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
 }
 
-/**
- * Hide the item name
- */
 function onItemOut() {
-	Vending.ui.find('.overlay').hide();
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
-/**
- * Create componentand export it
- */
+Vending.mouseMode = GUIComponent.MouseMode.STOP;
+
 export default UIManager.addComponent(Vending);
