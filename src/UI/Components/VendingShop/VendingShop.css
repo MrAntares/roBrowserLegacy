@@ -1,7 +1,14 @@
-#vendingshop {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+	width: 288px;
+	height: 114px;
+}
+
+#vendingshop {
+	position: absolute;
+	width: 288px;
+	height: 114px;
 }
 #vendingshop table {
 	border-spacing: 0px;
