@@ -1,5 +1,11 @@
+:host {
+	width: 280px;
+	height: 200px;
+	top: 0px;
+	left: 0px;
+}
+
 #serverlist {
-	z-index: 100;
 	position: absolute;
 	width: 280px;
 	height: 200px;
@@ -46,11 +52,10 @@
 
 #serverlist .btn {
 	position: absolute;
-	bottom: 0px;
+	bottom: 4px;
 	border: 0;
 	width: 42px;
 	height: 20px;
-	bottom: 4px;
 	background-color: transparent;
 }
 #serverlist .ok {
