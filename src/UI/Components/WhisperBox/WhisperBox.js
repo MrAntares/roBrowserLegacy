@@ -92,6 +92,29 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	instance.name = `WhisperBox:${nickname}`;
 	instance.needFocus = true;
 	instance.captureKeyEvents = true;
+
+	instance.onKeyDown = function onKeyDown(event) {
+		const shadow = this._shadow || this._host;
+		const focused = shadow.activeElement;
+
+		if (focused && focused.tagName) {
+			const isInput = focused.tagName.match(/input|select|textarea/i);
+			const isContentEditable = focused.getAttribute('contenteditable') === 'true';
+
+			if (isInput || isContentEditable) {
+				if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+					this.remove();
+					event.stopImmediatePropagation();
+					return false;
+				}
+				event.stopImmediatePropagation();
+				return true;
+			}
+		}
+
+		return true;
+	};
+
 	UIManager.addComponent(instance);
 
 	instance.prepare();
@@ -193,28 +216,6 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	setupItemLinkHandler(instance);
 	setupNicknameLinkHandler(instance);
 	initResizable(instance);
-
-	instance.onKeyDown = function onKeyDown(event) {
-		const shadow = this._shadow || this._host;
-		const focused = shadow.activeElement;
-
-		if (focused && focused.tagName) {
-			const isInput = focused.tagName.match(/input|select|textarea/i);
-			const isContentEditable = focused.getAttribute('contenteditable') === 'true';
-
-			if (isInput || isContentEditable) {
-				if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
-					this.remove();
-					event.stopImmediatePropagation();
-					return false;
-				}
-				event.stopImmediatePropagation();
-				return true;
-			}
-		}
-
-		return true;
-	};
 
 	const offset = (this._spawnCounter % 10) * 20;
 	this._spawnCounter++;
