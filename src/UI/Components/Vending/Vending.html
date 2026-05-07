@@ -1,53 +1,62 @@
 <div id="vending">
 	<div class="InputWindow">
-		<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+		<div class="titlebar">
+			<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 			<div class="text">
-				<span class="WinSell" data-text="232">Available Items for Vending</span>
-				<span class="WinBuy" data-text="1733">Available Items for Buying</span>
+				<span class="WinSell"><ui-text msg="232">Available Items for Vending</ui-text></span>
+				<span class="WinBuy"><ui-text msg="1733">Available Items for Buying</ui-text></span>
 			</div>
 		</div>
 		<div class="container">
 			<div class="overlay"></div>
-			<div class="content available" data-background="basic_interface/itemwin_mid.bmp"></div>
+			<div class="content available">
+				<ui-image src="basic_interface/itemwin_mid.bmp"></ui-image>
+			</div>
 		</div>
-		<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
-			<button class="extend" data-background="btn_resize.bmp"></button>
+		<div class="footer">
+			<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
+			<ui-button class="extend" bg="btn_resize.bmp"></ui-button>
 		</div>
 	</div>
 	<div class="OutputWindow">
-		<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+		<div class="titlebar">
+			<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 			<div class="text">
-				<span class="WinSell" data-text="224">Vending</span>
-				<span class="WinBuy" data-text="1720">Buying</span>
+				<span class="WinSell"><ui-text msg="224">Vending</ui-text></span>
+				<span class="WinBuy"><ui-text msg="1720">Buying</ui-text></span>
 			</div>
 		</div>
 		<div class="container">
-			<div class="nstore"><span data-text="407">Name</span></div>
+			<div class="nstore"><ui-text msg="407">Name</ui-text></div>
 			<input class="shopname" type="text" value="" maxlength="36" /><br />
-			<div class="content add_shop" data-background="basic_interface/itemwin_mid.bmp"></div>
+			<div class="content add_shop">
+				<ui-image src="basic_interface/itemwin_mid.bmp"></ui-image>
+			</div>
 		</div>
-		<div class="footer WinBuy" data-background="basic_interface/btnbar_mid2.bmp">
-			<span class="WinBuy zenyLabel" data-text="2464">Zeny</span>
+		<div class="footer WinBuy">
+			<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
+			<span class="WinBuy zenyLabel"><ui-text msg="2464">Zeny</ui-text></span>
 			<span class="WinBuy zenySpan">0</span>
 			<span class="WinBuy weightLabel">Weigth:</span>
 			<span class="WinBuy weightSpan">0/0</span>
 		</div>
-		<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
-			<div class="limit WinBuy"><span data-text="1723">Purchase Zeny Limit</span></div>
+		<div class="footer">
+			<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
+			<div class="limit WinBuy"><ui-text msg="1723">Purchase Zeny Limit</ui-text></div>
 			<input class="limitZeny WinBuy" type="text" value="" maxlength="36" /><br />
-			<div class="zeny WinBuy"><span data-text="2464">Zeny</span></div>
-			<button
+			<div class="zeny WinBuy"><ui-text msg="2464">Zeny</ui-text></div>
+			<ui-button
 				class="btn sell"
-				data-background="btn_ok.bmp"
-				data-hover="btn_ok_a.bmp"
-				data-down="btn_ok_b.bmp"
-			></button>
-			<button
+				bg="btn_ok.bmp"
+				hover="btn_ok_a.bmp"
+				down="btn_ok_b.bmp"
+			></ui-button>
+			<ui-button
 				class="btn cancel"
-				data-background="btn_cancel.bmp"
-				data-hover="btn_cancel_a.bmp"
-				data-down="btn_cancel_b.bmp"
-			></button>
+				bg="btn_cancel.bmp"
+				hover="btn_cancel_a.bmp"
+				down="btn_cancel_b.bmp"
+			></ui-button>
 		</div>
 	</div>
 </div>
