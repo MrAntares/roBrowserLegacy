@@ -1,3 +1,10 @@
+:host {
+	width: 280px;
+	height: 156px;
+	top: 100px;
+	left: 100px;
+}
+
 .whisper-container {
 	position: absolute;
 	width: 280px;
@@ -9,7 +16,6 @@
 	flex-direction: column;
 	overflow: hidden;
 	color: #ffffff;
-	z-index: 50;
 	min-width: 150px;
 	min-height: 100px;
 }
@@ -101,5 +107,3 @@
 	background-repeat: no-repeat;
 	background-color: transparent;
 }
-
-/* Scrollbar styling - handled dynamically in JS to use RO assets */
