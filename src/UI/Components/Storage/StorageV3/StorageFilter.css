@@ -1,9 +1,13 @@
-#StorageFilter {
-	position: absolute;
+:host {
+	width: 220px;
+	height: 164px;
 	top: 150px;
 	left: 150px;
+}
+
+#StorageFilter {
+	position: absolute;
 	width: 220px;
-	z-index: 100;
 }
 #StorageFilter .titlebar {
 	width: 100%;

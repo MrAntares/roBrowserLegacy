@@ -1,7 +1,12 @@
-#Storage {
-	position: absolute;
+:host {
+	width: 280px;
+	height: 306px;
 	top: 100px;
 	left: 100px;
+}
+
+#Storage {
+	position: absolute;
 	width: 280px;
 	border-radius: 3px;
 }

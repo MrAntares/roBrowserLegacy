@@ -8,14 +8,14 @@
 
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './Storage.html?raw';
@@ -23,14 +23,10 @@ import cssText from './Storage.css?raw';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 
-/**
- * Create Component
- */
-const Storage = new UIComponent('Storage', htmlText, cssText);
+const Storage = new GUIComponent('Storage', cssText);
 
-/**
- * Tab constant
- */
+Storage.render = () => htmlText;
+
 Storage.TAB = {
 	ITEM: 0,
 	KAFRA: 1,
@@ -41,14 +37,8 @@ Storage.TAB = {
 	ETC: 6
 };
 
-/**
- * @var {Array} inventory items
- */
 const _list = [];
 
-/**
- * @var {Preference} structure to save
- */
 const _preferences = Preferences.get(
 	'Storage',
 	{
@@ -60,87 +50,123 @@ const _preferences = Preferences.get(
 	1.0
 );
 
-/**
- * Initialize UI
- */
-Storage.init = function Init() {
-	// Bind buttons
-	this.ui.find('.tabs button').mousedown(onSwitchTab);
-	this.ui.find('.footer .extend').mousedown(onResize);
-	this.ui.find('.footer .close').click(this.onClosePressed.bind(this));
+Storage.init = function init() {
+	const root = this._shadow || this._host;
 
-	// Load tabs
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (_preferences.tab + 1) + '.bmp',
-		function (data) {
-			Storage.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
-		}
-	);
-
-	// Resize, position
-	resizeHeight(_preferences.height);
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
+	const tabButtons = root.querySelectorAll('.tabs button');
+	tabButtons.forEach((btn, idx) => {
+		btn.addEventListener('mousedown', () => onSwitchTab(idx));
 	});
 
-	// drag, drop items
-	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
+	const extendBtn = root.querySelector('.footer .extend');
+	if (extendBtn) {
+		extendBtn.addEventListener('mousedown', () => onResize());
+	}
 
-		.find('.container .content')
-		.on('mousewheel DOMMouseScroll', onScroll)
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
-		.on('contextmenu', '.item', onItemInfo);
+	const closeBtn = root.querySelector('.footer .close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		closeBtn.addEventListener('click', () => {
+			if (typeof Storage.onClosePressed === 'function') {
+				Storage.onClosePressed();
+			}
+		});
+	}
 
-	this.draggable(this.ui.find('.titlebar'));
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_itm_ex_0${_preferences.tab + 1}.bmp`, data => {
+		const tabs = root.querySelector('.tabs');
+		if (tabs) {
+			tabs.style.backgroundImage = `url("${data}")`;
+		}
+	});
+
+	resizeHeight(_preferences.height);
+
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.addEventListener('wheel', e => onScroll(e, content));
+		content.addEventListener('mouseover', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemOver(itemEl, root);
+			}
+		});
+		content.addEventListener('mouseout', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemOut(root);
+			}
+		});
+		content.addEventListener('dragstart', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemDragStart(e, itemEl);
+				onItemOut(root);
+			}
+		});
+		content.addEventListener('dragend', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemDragEnd();
+			}
+		});
+		content.addEventListener('contextmenu', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				e.preventDefault();
+				onItemInfo(e, itemEl);
+			}
+		});
+	}
+
+	this._host.addEventListener('drop', e => onDrop(e));
+	this._host.addEventListener('dragover', e => {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+	});
+
+	this.draggable('.titlebar');
+	this.ui.hide();
 };
 
-/**
- * Remove Storage from window (and so clean up items)
- */
+Storage.onAppend = function onAppend() {
+	this.ui.show();
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+};
+
 Storage.onRemove = function onRemove() {
-	this.ui.find('.container .content').empty();
+	const root = this._shadow || this._host;
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.innerHTML = '';
+	}
 	_list.length = 0;
 
-	// Save preferences
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.height = Math.floor((this._host.getBoundingClientRect().height - (31 + 19 - 30)) / 32);
 	_preferences.save();
 };
 
-/**
- * Add items to the list
- *
- * @param {Array} item list
- */
 Storage.setItems = function setItems(items) {
-	let i, count;
-
-	for (i = 0, count = items.length; i < count; ++i) {
+	for (let i = 0, count = items.length; i < count; ++i) {
 		if (this.addItemSub(items[i])) {
 			_list.push(items[i]);
 		}
 	}
 };
 
-/**
- * Insert Item to Storage
- *
- * @param {object} Item
- */
 Storage.addItem = function addItem(item) {
 	const i = getItemIndexById(item.index);
 
-	// Found, update quantity
 	if (i > -1) {
 		_list[i].count += item.count;
-		this.ui.find('.item[data-index="' + item.index + '"] .count').text(_list[i].count);
+		const root = this._shadow || this._host;
+		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+		if (countEl) {
+			countEl.textContent = _list[i].count;
+		}
 		return;
 	}
 
@@ -149,11 +175,6 @@ Storage.addItem = function addItem(item) {
 	}
 };
 
-/**
- * Add item to Storage
- *
- * @param {object} Item
- */
 Storage.addItemSub = function addItemSub(item) {
 	let tab;
 
@@ -195,48 +216,55 @@ Storage.addItemSub = function addItemSub(item) {
 
 	if (tab === _preferences.tab) {
 		const it = DB.getItemInfo(item.ITID);
+		const root = this._shadow || this._host;
+		const content = root.querySelector('.container .content');
 
-		this.ui
-			.find('.container .content')
-			.append(
-				'<div class="item" data-index="' +
-					item.index +
-					'" draggable="true">' +
-					'<div class="icon"></div>' +
-					'<div class="amount">' +
-					(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
-					'</div>' +
-					'<span class="name">' +
-					jQuery.escape(DB.getItemName(item)) +
-					'</span>' +
-					'</div>'
-			);
+		const itemEl = document.createElement('div');
+		itemEl.className = 'item';
+		itemEl.setAttribute('data-index', item.index);
+		itemEl.setAttribute('draggable', 'true');
+
+		const iconDiv = document.createElement('div');
+		iconDiv.className = 'icon';
+		itemEl.appendChild(iconDiv);
+
+		const amountDiv = document.createElement('div');
+		amountDiv.className = 'amount';
+		if (item.count) {
+			const countSpan = document.createElement('span');
+			countSpan.className = 'count';
+			countSpan.textContent = item.count;
+			amountDiv.appendChild(countSpan);
+			amountDiv.appendChild(document.createTextNode(' '));
+		}
+		itemEl.appendChild(amountDiv);
+
+		const nameSpan = document.createElement('span');
+		nameSpan.className = 'name';
+		nameSpan.innerHTML = DB.getItemName(item);
+		itemEl.appendChild(nameSpan);
+
+		if (content) {
+			content.appendChild(itemEl);
+		}
 
 		Client.loadFile(
-			DB.INTERFACE_PATH +
-				'item/' +
-				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-				'.bmp',
-			function (data) {
-				this.ui
-					.find('.item[data-index="' + item.index + '"] .icon')
-					.css('backgroundImage', 'url(' + data + ')');
-			}.bind(this)
+			`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
+			data => {
+				const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
+				if (icon) {
+					icon.style.backgroundImage = `url(${data})`;
+				}
+			}
 		);
 	}
 
 	return true;
 };
 
-/**
- * Remove item from Storage
- *
- * @param {number} index in Storage
- */
 Storage.removeItem = function removeItem(index, count) {
 	const i = getItemIndexById(index);
 
-	// Not found
 	if (i < 0) {
 		return null;
 	}
@@ -245,56 +273,53 @@ Storage.removeItem = function removeItem(index, count) {
 		_list[i].count -= count;
 
 		if (_list[i].count > 0) {
-			this.ui.find('.item[data-index="' + index + '"] .count').text(_list[i].count);
+			const root = this._shadow || this._host;
+			const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
+			if (countEl) {
+				countEl.textContent = _list[i].count;
+			}
 			return _list[i];
 		}
 	}
 
-	// Remove item
 	const item = _list[i];
 	_list.splice(i, 1);
-	this.ui.find('.item[data-index="' + index + '"]').remove();
+	const root = this._shadow || this._host;
+	const el = root.querySelector(`.item[data-index="${index}"]`);
+	if (el) {
+		el.remove();
+	}
 
 	return item;
 };
 
-/**
- * Update or set the current amount of items in storage in ui
- */
 Storage.setItemInfo = function setItemInfo(current, limit) {
-	this.ui.find('.footer .current').text(current);
-	this.ui.find('.footer .limit').text(limit);
+	const root = this._shadow || this._host;
+	const currentEl = root.querySelector('.footer .current');
+	const limitEl = root.querySelector('.footer .limit');
+	if (currentEl) {
+		currentEl.textContent = current;
+	}
+	if (limitEl) {
+		limitEl.textContent = limit;
+	}
 };
 
 Storage.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		if (typeof Storage.onClosePressed === 'function') {
 			Storage.onClosePressed();
 		}
 	}
 };
 
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
-
-/**
- * Extend Storage window size
- */
 function onResize() {
-	const ui = Storage.ui;
-	const top = ui.position().top;
+	const top = Storage._host.offsetTop;
 	let lastHeight = 0;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
-
-		// Maximum and minimum window size
 		h = Math.min(Math.max(h, 8), 17);
 
 		if (h === lastHeight) {
@@ -305,63 +330,58 @@ function onResize() {
 		lastHeight = h;
 	}
 
-	// Start resizing
 	const _Interval = setInterval(resizing, 30);
 
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	const onMouseUp = event => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	};
+	window.addEventListener('mouseup', onMouseUp);
 }
 
-/**
- * Extend Storage window size
- */
 function resizeHeight(height) {
 	height = Math.min(Math.max(height, 8), 17);
 
-	Storage.ui.find('.container .content').css('height', height * 32);
-	Storage.ui.css('height', 31 + 19 + height * 32);
+	const root = Storage._shadow || Storage._host;
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.style.height = `${height * 32}px`;
+	}
+	Storage._host.style.height = `${31 + 19 + height * 32}px`;
 }
 
-/**
- * Modify tab, filter display entries
- */
-function onSwitchTab() {
-	const idx = jQuery(this).index();
+function onSwitchTab(idx) {
 	_preferences.tab = idx;
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (idx + 1) + '.bmp', function (data) {
-		Storage.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_itm_ex_0${idx + 1}.bmp`, data => {
+		const root = Storage._shadow || Storage._host;
+		const tabs = root.querySelector('.tabs');
+		if (tabs) {
+			tabs.style.backgroundImage = `url("${data}")`;
+		}
 		requestFilter();
 	});
 }
 
-/**
- * Drop from inventory to storage
- */
 function onDrop(event) {
 	let data;
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 	} catch (e) {
 		// Ignore parsing error
 	}
 
 	event.stopImmediatePropagation();
 
-	// Just support items for now ?
 	if (!data || data.type !== 'item' || (data.from !== 'Inventory' && data.from !== 'CartItems')) {
 		return false;
 	}
 
 	const item = data.data;
 
-	// Have to specify how much
 	if (item.count > 1) {
 		InputBox.append();
 		InputBox.setType('number', false, item.count);
@@ -387,111 +407,90 @@ function onDrop(event) {
 	return false;
 }
 
-/**
- * Change tab,
- * Update its content
- */
 function requestFilter() {
-	Storage.ui.find('.container .content').empty();
-	let i, count;
+	const root = Storage._shadow || Storage._host;
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.innerHTML = '';
+	}
 
-	for (i = 0, count = _list.length; i < count; ++i) {
+	for (let i = 0, count = _list.length; i < count; ++i) {
 		Storage.addItemSub(_list[i]);
 	}
 }
 
-/**
- * Get item index in list base on it's ID
- *
- * @param {number} item id
- */
 function getItemIndexById(index) {
-	let i, count;
-
-	for (i = 0, count = _list.length; i < count; ++i) {
+	for (let i = 0, count = _list.length; i < count; ++i) {
 		if (_list[i].index === index) {
 			return i;
 		}
 	}
-
 	return -1;
 }
 
-/**
- * Update scroll by block (32px)
- */
-function onScroll(event) {
+function onScroll(event, contentEl) {
 	let delta;
 
-	if (event.originalEvent.wheelDelta) {
-		delta = event.originalEvent.wheelDelta / 120;
-		if (window.opera) {
-			delta = -delta;
-		}
-	} else if (event.originalEvent.detail) {
-		delta = -event.originalEvent.detail;
+	if (event.wheelDelta) {
+		delta = event.wheelDelta / 120;
+	} else if (event.detail) {
+		delta = -event.detail;
+	} else if (event.deltaY) {
+		delta = -event.deltaY / 100;
 	}
 
-	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
-	return false;
+	contentEl.scrollTop = Math.floor(contentEl.scrollTop / 32) * 32 - delta * 32;
+	event.preventDefault();
 }
 
-/**
- * Mouse over item, display name and informations
- */
-function onItemOver() {
-	const idx = parseInt(this.getAttribute('data-index'), 10);
+function onItemOver(itemEl, root) {
+	const idx = parseInt(itemEl.getAttribute('data-index'), 10);
 	const i = getItemIndexById(idx);
 
-	// Not found
 	if (i < 0) {
 		return;
 	}
 
-	// Get back data
 	const item = _list[i];
-	const pos = jQuery(this).position();
-	const overlay = Storage.ui.find('.overlay');
+	const overlay = root.querySelector('.overlay');
 
-	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top - 10, left: pos.left + 35 });
-	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+	if (overlay) {
+		overlay.style.display = '';
+		overlay.style.top = `${itemEl.offsetTop - 10}px`;
+		overlay.style.left = `${itemEl.offsetLeft + 35}px`;
+		overlay.innerHTML = `${DB.getItemName(item)} ${item.count || 1} ea`;
 
-	if (item.IsIdentified) {
-		overlay.removeClass('grey');
-	} else {
-		overlay.addClass('grey');
+		if (item.IsIdentified) {
+			overlay.classList.remove('grey');
+		} else {
+			overlay.classList.add('grey');
+		}
 	}
 }
 
-/**
- * Mouse mouve out of an item, hide title description
- */
-function onItemOut() {
-	Storage.ui.find('.overlay').hide();
+function onItemOut(root) {
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
-/**
- * Start dragging an item
- */
-function onItemDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
+function onItemDragStart(event, itemEl) {
+	const index = parseInt(itemEl.getAttribute('data-index'), 10);
 	const i = getItemIndexById(index);
 
 	if (i === -1) {
 		return;
 	}
 
-	// Set image to the drag drop element
 	const img = new Image();
-	let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-	url = url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
+	let url = itemEl.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1];
+	url = url.replace(/^"/, '').replace(/"$/, '');
 	img.decoding = 'async';
 	img.src = url;
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -501,44 +500,32 @@ function onItemDragStart(event) {
 			})
 		)
 	);
-
-	onItemOut();
 }
 
-/**
- * Stop the drag/drop on an item
- */
 function onItemDragEnd() {
 	delete window._OBJ_DRAG_;
 }
 
-/**
- * Display item description
- *
- */
-function onItemInfo(event) {
+function onItemInfo(event, itemEl) {
 	event.stopImmediatePropagation();
 
-	const index = parseInt(this.getAttribute('data-index'), 10);
+	const index = parseInt(itemEl.getAttribute('data-index'), 10);
 	const i = getItemIndexById(index);
 
 	if (i === -1) {
 		return false;
 	}
 
-	// If right click w/ alt (Request Transfer Item)
 	if (event.altKey && event.which === 3) {
 		event.stopImmediatePropagation();
 		transferItemToOtherUI(_list[i]);
 		return false;
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === _list[i].ITID) {
 		ItemInfo.remove();
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = _list[i].ITID;
 	ItemInfo.setItem(_list[i]);
@@ -546,9 +533,6 @@ function onItemInfo(event) {
 	return false;
 }
 
-/**
- * Alt Right Click Request Transfer
- */
 function transferItemToOtherUI(item) {
 	const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
 	const isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
@@ -568,16 +552,12 @@ function transferItemToOtherUI(item) {
 	return true;
 }
 
-/**
- * Callbacks
- */
 Storage.onClosePressed = function onClosedPressed() {};
 Storage.reqAddItem = function reqAddItem() {};
 Storage.reqAddItemFromCart = function reqAddItemFromCart() {};
 Storage.reqRemoveItem = function reqRemoveItem() {};
 Storage.reqMoveItemToCart = function reqMoveItemToCart() {};
 
-/**
- * Create component and export it
- */
+Storage.mouseMode = GUIComponent.MouseMode.STOP;
+
 export default UIManager.addComponent(Storage);
