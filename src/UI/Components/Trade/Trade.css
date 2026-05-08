@@ -1,7 +1,14 @@
-#Trade {
+:host {
 	width: 560px;
 	height: 380px;
+	top: 0px;
+	left: 0px;
+}
+
+#Trade {
 	position: absolute;
+	width: 560px;
+	height: 380px;
 }
 
 #Trade .titlebar {
@@ -134,6 +141,7 @@
 	height: 20px;
 	background-repeat: no-repeat;
 	background-color: transparent;
+	display: inline-block;
 }
 #Trade .btn.disabled {
 	cursor: default;
