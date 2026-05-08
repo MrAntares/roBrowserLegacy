@@ -1,7 +1,8 @@
 <div id="Storage">
-	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+	<div class="titlebar">
+		<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 		<div class="left">
-			<span class="text" data-text="169">Storage</span>
+			<span class="text"><ui-text msg="169">Storage</ui-text></span>
 		</div>
 		<div class="clear"></div>
 	</div>
@@ -105,19 +106,19 @@
 					<td>
 						<div class="search-container">
 							<input id="storage-search-input" type="text" class="search-input" />
-							<button
+							<ui-button
 								class="search-button"
-								data-background="bt_search_normal.bmp"
-								data-hover="bt_search_over.bmp"
-								data-down="bt_search_press.bmp"
-							></button>
+								bg="bt_search_normal.bmp"
+								hover="bt_search_over.bmp"
+								down="bt_search_press.bmp"
+							></ui-button>
 						</div>
-						<button
+						<ui-button
 							class="close"
-							data-background="btn_close.bmp"
-							data-hover="btn_close_a.bmp"
-							data-down="btn_close_b.bmp"
-						></button>
+							bg="btn_close.bmp"
+							hover="btn_close_a.bmp"
+							down="btn_close_b.bmp"
+						></ui-button>
 						<button class="extend" data-background="btn_resize.bmp"></button>
 					</td>
 				</tr>

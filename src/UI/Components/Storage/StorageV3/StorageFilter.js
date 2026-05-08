@@ -7,32 +7,36 @@
  */
 
 import DB from 'DB/DBManager.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './StorageFilter.html?raw';
 import cssText from './StorageFilter.css?raw';
 
-/**
- * Create StorageFilter "class"
- * Inherit from UIComponent
- */
 function StorageFilter(tabId) {
 	const prefName = 'StorageFilter_' + tabId;
-	UIComponent.call(this, prefName, htmlText, cssText);
+	GUIComponent.call(this, prefName, cssText);
+
+	this.render = () => htmlText;
 
 	this.onRemove = function () {
-		this.ui.find('.content').empty();
+		const root = this._shadow || this._host;
+		const content = root.querySelector('.content');
+		if (content) {
+			content.innerHTML = '';
+		}
 		this._list.length = 0;
 		this._currentTabId = -1;
 
-		this._preferences.y = parseInt(this.ui.css('top'), 10);
-		this._preferences.x = parseInt(this.ui.css('left'), 10);
-		this._preferences.height = Math.floor(this.ui.find('.content').height() / 32);
+		this._preferences.y = parseInt(this._host.style.top, 10);
+		this._preferences.x = parseInt(this._host.style.left, 10);
+		this._preferences.height = Math.floor(
+			(root.querySelector('.content') ? root.querySelector('.content').offsetHeight : 128) / 32
+		);
 		this._preferences.save();
 
 		if (typeof this.onCloseCallback === 'function') {
@@ -54,131 +58,185 @@ function StorageFilter(tabId) {
 	this.onCloseCallback = null;
 }
 
-// Inherit
-StorageFilter.prototype = Object.create(UIComponent.prototype);
+StorageFilter.prototype = Object.create(GUIComponent.prototype);
 StorageFilter.prototype.constructor = StorageFilter;
 
-/**
- * Initialize the component
- */
-StorageFilter.prototype.init = function Init() {
-	const self = this; // Store 'this' for event handlers
+StorageFilter.prototype.init = function init() {
+	const self = this;
+	const root = this._shadow || this._host;
 
-	this.ui.find('.titlebar .right .close').click(function () {
-		self.remove(); // .remove() is inherited from UIComponent
-	});
+	const closeBtn = root.querySelector('.titlebar .right .close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		closeBtn.addEventListener('click', () => {
+			self.remove();
+		});
+	}
 
-	this.ui.find('.footer .extend').mousedown(this.onResize.bind(this));
-
-	this.ui.css({
-		top: Math.min(Math.max(0, this._preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, this._preferences.x), Renderer.width - this.ui.width())
-	});
+	const extendBtn = root.querySelector('.footer .extend');
+	if (extendBtn) {
+		extendBtn.addEventListener('mousedown', () => this.onResize());
+	}
 
 	this.resizeHeight(this._preferences.height);
 
-	this.ui
-		.find('.content')
-		.on('mouseover', '.item', this.onItemOver.bind(this))
-		.on('mouseout', '.item', this.onItemOut.bind(this))
-		.on('contextmenu', '.item', this.onItemInfo.bind(this))
-		.on('dragstart', '.item', this.onItemDragStart.bind(this))
-		.on('dragend', '.item', this.onItemDragEnd.bind(this));
+	const content = root.querySelector('.content');
+	if (content) {
+		content.addEventListener('mouseover', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				this.onItemOver(itemEl, root);
+			}
+		});
+		content.addEventListener('mouseout', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				this.onItemOut(root);
+			}
+		});
+		content.addEventListener('contextmenu', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				this.onItemInfo(e, itemEl);
+			}
+		});
+		content.addEventListener('dragstart', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				this.onItemDragStart(e, itemEl);
+				this.onItemOut(root);
+			}
+		});
+		content.addEventListener('dragend', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				this.onItemDragEnd();
+			}
+		});
+	}
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
+	this._host.style.display = 'none';
 };
 
-/**
- * Public method to set the items and title of this window
- */
-StorageFilter.prototype.setItems = function SetItems(title, items, tabId) {
-	this._list = items.slice(0); // Copy the list
-	this._currentTabId = tabId;
-	this.ui.find('.titlebar .text').text(title);
-	this.ui.find('.content').empty();
+StorageFilter.prototype.onAppend = function onAppend() {
+	this._host.style.left = `${Math.min(Math.max(0, this._preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+	this._host.style.top = `${Math.min(Math.max(0, this._preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+};
 
-	let i, count;
-	for (i = 0, count = this._list.length; i < count; ++i) {
+StorageFilter.prototype.setItems = function setItems(title, items, tabId) {
+	this._list = items.slice(0);
+	this._currentTabId = tabId;
+	const root = this._shadow || this._host;
+	const titleEl = root.querySelector('.titlebar .text');
+	if (titleEl) {
+		titleEl.textContent = title;
+	}
+	const content = root.querySelector('.content');
+	if (content) {
+		content.innerHTML = '';
+	}
+
+	for (let i = 0, count = this._list.length; i < count; ++i) {
 		this.renderItem(this._list[i]);
 	}
 };
 
-/**
- * Renders a single item in the content area
- */
-StorageFilter.prototype.renderItem = function RenderItem(item) {
+StorageFilter.prototype.renderItem = function renderItem(item) {
 	const it = DB.getItemInfo(item.ITID);
-	const self = this; // for Client.loadFile callback
+	const root = this._shadow || this._host;
+	const content = root.querySelector('.content');
 
-	this.ui
-		.find('.content')
-		.append(
-			'<div class="item" data-index="' +
-				item.index +
-				'" draggable="true">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' +
-				(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
-				'</div>' +
-				'<span class="name">' +
-				jQuery.escape(DB.getItemName(item)) +
-				'</span>' +
-				'</div>'
-		);
+	const itemEl = document.createElement('div');
+	itemEl.className = 'item';
+	itemEl.setAttribute('data-index', item.index);
+	itemEl.setAttribute('draggable', 'true');
+
+	const iconDiv = document.createElement('div');
+	iconDiv.className = 'icon';
+	itemEl.appendChild(iconDiv);
+
+	const amountDiv = document.createElement('div');
+	amountDiv.className = 'amount';
+	if (item.count) {
+		const countSpan = document.createElement('span');
+		countSpan.className = 'count';
+		countSpan.textContent = item.count;
+		amountDiv.appendChild(countSpan);
+		amountDiv.appendChild(document.createTextNode(' '));
+	}
+	itemEl.appendChild(amountDiv);
+
+	const nameSpan = document.createElement('span');
+	nameSpan.className = 'name';
+	nameSpan.textContent = DB.getItemName(item);
+	itemEl.appendChild(nameSpan);
+
+	if (content) {
+		content.appendChild(itemEl);
+	}
 
 	Client.loadFile(
-		DB.INTERFACE_PATH +
-			'item/' +
-			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-			'.bmp',
-		function (data) {
-			// Use self.ui to avoid 'this' conflicts
-			self.ui.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+		`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
+		data => {
+			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
 		}
 	);
 };
 
-// --- Item Event Handlers ---
-
 StorageFilter.prototype.getItemFromIndex = function getItemFromIndex(index) {
-	return this._list.filter(function (item) {
-		return item.index === index;
-	})[0];
+	return this._list.filter(item => item.index === index)[0];
 };
 
-StorageFilter.prototype.onItemOver = function onItemOver(event) {
-	const index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
+StorageFilter.prototype.onItemOver = function onItemOver(itemEl, root) {
+	const index = parseInt(itemEl.getAttribute('data-index'), 10);
 	const item = this.getItemFromIndex(index);
 	if (!item) {
 		return;
 	}
 
-	const pos = jQuery(event.currentTarget).position();
-	const overlay = this.ui.find('.overlay');
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = '';
+		overlay.style.top = `${itemEl.offsetTop - 10}px`;
+		overlay.style.left = `${itemEl.offsetLeft + 35}px`;
+		overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
 
-	overlay.show();
-	overlay.css({ top: pos.top - 10, left: pos.left + 35 });
-	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
-	overlay.toggleClass('grey', !item.IsIdentified);
+		if (item.IsIdentified) {
+			overlay.classList.remove('grey');
+		} else {
+			overlay.classList.add('grey');
+		}
+	}
 };
 
-StorageFilter.prototype.onItemOut = function onItemOut() {
-	this.ui.find('.overlay').hide();
+StorageFilter.prototype.onItemOut = function onItemOut(root) {
+	if (!root) {
+		root = this._shadow || this._host;
+	}
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 };
 
-StorageFilter.prototype.onItemDragStart = function onItemDragStart(event) {
-	const index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
+StorageFilter.prototype.onItemDragStart = function onItemDragStart(event, itemEl) {
+	const index = parseInt(itemEl.getAttribute('data-index'), 10);
 	const item = this.getItemFromIndex(index);
 	if (!item) {
 		return;
 	}
 
 	const img = new Image();
-	const url = event.currentTarget.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/\"/g, '');
+	let url = itemEl.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1];
+	url = url.replace(/^"/, '').replace(/"$/, '');
 	img.src = url;
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -188,16 +246,15 @@ StorageFilter.prototype.onItemDragStart = function onItemDragStart(event) {
 			})
 		)
 	);
-	this.onItemOut(); // Call instance method
 };
 
 StorageFilter.prototype.onItemDragEnd = function onItemDragEnd() {
 	delete window._OBJ_DRAG_;
 };
 
-StorageFilter.prototype.onItemInfo = function onItemInfo(event) {
+StorageFilter.prototype.onItemInfo = function onItemInfo(event, itemEl) {
 	event.stopImmediatePropagation();
-	const index = parseInt(event.currentTarget.getAttribute('data-index'), 10);
+	const index = parseInt(itemEl.getAttribute('data-index'), 10);
 	const item = this.getItemFromIndex(index);
 	if (!item) {
 		return false;
@@ -220,18 +277,19 @@ StorageFilter.prototype.onItemInfo = function onItemInfo(event) {
 	return false;
 };
 
-// --- Resize Functions ---
-
 StorageFilter.prototype.resizeHeight = function resizeHeight(height) {
 	height = Math.min(Math.max(height, 4), 10);
-	this.ui.find('.content').css('height', height * 32);
-	this.ui.css('height', height * 32 + 17 + 19);
+	const root = this._shadow || this._host;
+	const content = root.querySelector('.content');
+	if (content) {
+		content.style.height = `${height * 32}px`;
+	}
+	this._host.style.height = `${height * 32 + 17 + 19}px`;
 };
 
 StorageFilter.prototype.onResize = function onResize() {
 	const self = this;
-	const ui = this.ui;
-	const top = ui.position().top;
+	const top = this._host.offsetTop;
 	let lastHeight = 0;
 	const extraY = 17 + 19;
 
@@ -242,27 +300,26 @@ StorageFilter.prototype.onResize = function onResize() {
 		if (h === lastHeight) {
 			return;
 		}
-		self.resizeHeight(h); // Use self to call instance method
+		self.resizeHeight(h);
 		lastHeight = h;
 	}
 
 	const _Interval = setInterval(resizing, 30);
 
-	jQuery(window).on('mouseup.resizeStorageFilter', function (event) {
+	const onMouseUp = event => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resizeStorageFilter');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	};
+	window.addEventListener('mouseup', onMouseUp);
 };
 
-// --- Public Sync Functions ---
-
-StorageFilter.prototype.getCurrentTab = function GetCurrentTab() {
+StorageFilter.prototype.getCurrentTab = function getCurrentTab() {
 	return this._currentTabId;
 };
 
-StorageFilter.prototype.removeItem = function RemoveItem(index, count) {
+StorageFilter.prototype.removeItem = function removeItem(index, count) {
 	let i = -1;
 	for (let j = 0, count_ = this._list.length; j < count_; ++j) {
 		if (this._list[j].index === index) {
@@ -278,26 +335,42 @@ StorageFilter.prototype.removeItem = function RemoveItem(index, count) {
 	if (item.count) {
 		item.count -= count;
 		if (item.count > 0) {
-			this.ui.find('.item[data-index="' + index + '"] .count').text(item.count);
+			const root = this._shadow || this._host;
+			const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
+			if (countEl) {
+				countEl.textContent = item.count;
+			}
 			return;
 		}
 	}
 	this._list.splice(i, 1);
-	this.ui.find('.item[data-index="' + index + '"]').remove();
-	this.ui.find('.overlay').hide();
+	const root = this._shadow || this._host;
+	const el = root.querySelector(`.item[data-index="${index}"]`);
+	if (el) {
+		el.remove();
+	}
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 };
 
-StorageFilter.prototype.addItem = function AddItem(item) {
+StorageFilter.prototype.addItem = function addItem(item) {
 	for (let j = 0, count_ = this._list.length; j < count_; ++j) {
 		if (this._list[j].index === item.index) {
 			this._list[j].count += item.count;
-			this.ui.find('.item[data-index="' + item.index + '"] .count').text(this._list[j].count);
+			const root = this._shadow || this._host;
+			const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+			if (countEl) {
+				countEl.textContent = this._list[j].count;
+			}
 			return;
 		}
 	}
 	this._list.push(JSON.parse(JSON.stringify(item)));
-	this.renderItem(item); // Call instance method
+	this.renderItem(item);
 };
 
-// Return the constructor
+StorageFilter.prototype.mouseMode = GUIComponent.MouseMode.STOP;
+
 export default StorageFilter;

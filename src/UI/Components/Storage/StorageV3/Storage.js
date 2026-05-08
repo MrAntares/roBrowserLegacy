@@ -8,14 +8,14 @@
 
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import StorageFilter from './StorageFilter.js';
@@ -24,15 +24,10 @@ import cssText from './Storage.css?raw';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 
-/**
- * Create Component
- */
-const Storage = new UIComponent('Storage', htmlText, cssText);
-const _baseOnRemove = Storage.onRemove;
+const Storage = new GUIComponent('Storage', cssText);
 
-/**
- * Tab constant
- */
+Storage.render = () => htmlText;
+
 Storage.TAB = {
 	ITEM: 0,
 	KAFRA: 1,
@@ -43,19 +38,10 @@ Storage.TAB = {
 	ETC: 6
 };
 
-/**
- * @var {Array} inventory items
- */
 const _list = [];
 
-/**
- * @var {Object} storage for open filter windows
- */
 let _openFilters = {};
 
-/**
- * @var {Preference} structure to save
- */
 const _preferences = Preferences.get(
 	'Storage',
 	{
@@ -67,104 +53,144 @@ const _preferences = Preferences.get(
 	1.0
 );
 
-/**
- * Initialize UI
- */
-Storage.init = function Init() {
-	// Bind buttons
-	this.ui.find('.tabs button').mousedown(onSwitchTab);
-	this.ui.find('.footer .extend').mousedown(onResize);
-	this.ui.find('.footer .close').click(this.onClosePressed.bind(this));
-	this.ui.find('.filter-buttons button').mousedown(onFilterWindowOpen);
-	this.ui.find('.filter-buttons button').mouseover(onFilterWindowHover);
-	this.ui.find('.filter-buttons button').mouseout(onFilterWindowHoverOut);
-	this.ui.find('.search-button').mousedown(this.onSearch.bind(this));
-	this.ui.find('.storage-order-by').change(requestFilter);
+Storage.init = function init() {
+	const root = this._shadow || this._host;
 
-	// Load tabs
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (_preferences.tab + 1) + '.bmp',
-		function (data) {
-			Storage.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
-		}
-	);
-
-	// Resize, position
-	resizeHeight(_preferences.height);
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
+	const tabButtons = root.querySelectorAll('.tabs button');
+	tabButtons.forEach((btn, idx) => {
+		btn.addEventListener('mousedown', () => onSwitchTab(idx));
 	});
 
-	// drag, drop items
-	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
-		.find('.container .content')
-		.on('mousewheel DOMMouseScroll', onScroll)
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
-		.on('contextmenu', '.item', onItemInfo);
-
-	this.draggable(this.ui.find('.titlebar'));
-};
-
-/**
- * Remove Storage from window (and so clean up items)
- */
-Storage.onRemove = function onRemove() {
-	this.ui.find('.container .content').empty();
-	_list.length = 0;
-
-	// Save preferences
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
-	_preferences.save();
-
-	// NEW: Close all open filter windows
-	let tabId;
-	for (tabId in _openFilters) {
-		if (_openFilters.hasOwnProperty(tabId)) {
-			_openFilters[tabId].remove();
-		}
+	const extendBtn = root.querySelector('.footer .extend');
+	if (extendBtn) {
+		extendBtn.addEventListener('mousedown', () => onResize());
 	}
 
-	for (tabId in _openFilters) {
+	const closeBtn = root.querySelector('.footer .close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		closeBtn.addEventListener('click', () => {
+			if (typeof Storage.onClosePressed === 'function') {
+				Storage.onClosePressed();
+			}
+		});
+	}
+
+	const filterButtons = root.querySelectorAll('.filter-buttons button');
+	filterButtons.forEach(btn => {
+		btn.addEventListener('mousedown', () => onFilterWindowOpen(btn));
+		btn.addEventListener('mouseover', () => onFilterWindowHover(btn, root));
+		btn.addEventListener('mouseout', () => onFilterWindowHoverOut(root));
+	});
+
+	const searchBtn = root.querySelector('.search-button');
+	if (searchBtn) {
+		searchBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		searchBtn.addEventListener('click', () => Storage.onSearch());
+	}
+
+	const orderBySelect = root.querySelector('.storage-order-by');
+	if (orderBySelect) {
+		orderBySelect.addEventListener('change', () => requestFilter());
+	}
+
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_itm_ex_0${_preferences.tab + 1}.bmp`, data => {
+		const tabs = root.querySelector('.tabs');
+		if (tabs) {
+			tabs.style.backgroundImage = `url("${data}")`;
+		}
+	});
+
+	resizeHeight(_preferences.height);
+
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.addEventListener('wheel', e => onScroll(e, content));
+		content.addEventListener('mouseover', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemOver(itemEl, root);
+			}
+		});
+		content.addEventListener('mouseout', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemOut(root);
+			}
+		});
+		content.addEventListener('dragstart', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemDragStart(e, itemEl);
+				onItemOut(root);
+			}
+		});
+		content.addEventListener('dragend', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemDragEnd();
+			}
+		});
+		content.addEventListener('contextmenu', e => {
+			const itemEl = e.target.closest('.item');
+			if (itemEl) {
+				onItemInfo(e, itemEl);
+			}
+		});
+	}
+
+	this._host.addEventListener('drop', e => onDrop(e));
+	this._host.addEventListener('dragover', e => {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+	});
+
+	this.draggable('.titlebar');
+	this._host.style.display = 'none';
+};
+
+Storage.onAppend = function onAppend() {
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+};
+
+Storage.onRemove = function onRemove() {
+	const root = this._shadow || this._host;
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.innerHTML = '';
+	}
+	_list.length = 0;
+
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.height = Math.floor((this._host.getBoundingClientRect().height - (31 + 19 - 30)) / 32);
+	_preferences.save();
+
+	for (const tabId in _openFilters) {
 		if (_openFilters.hasOwnProperty(tabId)) {
 			_openFilters[tabId].remove();
 		}
 	}
 	_openFilters = {};
-	if (typeof _baseOnRemove === 'function') {
-		_baseOnRemove.call(this);
-	}
 
-	// clear input text
-	Storage.ui.find('#storage-search-input').val('');
+	const searchInput = root.querySelector('#storage-search-input');
+	if (searchInput) {
+		searchInput.value = '';
+	}
 };
 
-/**
- * Add items to the list
- */
 Storage.setItems = function setItems(items) {
-	let i, count;
-	for (i = 0, count = items.length; i < count; ++i) {
+	for (let i = 0, count = items.length; i < count; ++i) {
 		if (this.addItemSub(items[i])) {
 			_list.push(items[i]);
 		}
 	}
 };
 
-/**
- * Insert Item to Storage
- */
 Storage.addItem = function addItem(item) {
 	const i = getItemIndexById(item.index);
 
-	// NEW: Check if a filter window for this item's type is open
 	let itemTab;
 	switch (item.type) {
 		case ItemType.HEALING:
@@ -200,10 +226,13 @@ Storage.addItem = function addItem(item) {
 		_openFilters[itemTab].addItem(item);
 	}
 
-	// Found, update quantity
 	if (i > -1) {
 		_list[i].count += item.count;
-		this.ui.find('.item[data-index="' + item.index + '"] .count').text(_list[i].count);
+		const root = this._shadow || this._host;
+		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+		if (countEl) {
+			countEl.textContent = _list[i].count;
+		}
 		return;
 	}
 
@@ -212,9 +241,6 @@ Storage.addItem = function addItem(item) {
 	}
 };
 
-/**
- * Add item to Storage
- */
 Storage.addItemSub = function addItemSub(item) {
 	let tab;
 	switch (item.type) {
@@ -249,50 +275,58 @@ Storage.addItemSub = function addItemSub(item) {
 
 	if (tab === _preferences.tab) {
 		const it = DB.getItemInfo(item.ITID);
+		const root = this._shadow || this._host;
+		const content = root.querySelector('.container .content');
 
-		this.ui
-			.find('.container .content')
-			.append(
-				'<div class="item" data-index="' +
-					item.index +
-					'" draggable="true">' +
-					'<div class="icon"></div>' +
-					'<div class="amount">' +
-					(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
-					'</div>' +
-					'<span class="name">' +
-					jQuery.escape(DB.getItemName(item)) +
-					'</span>' +
-					'</div>'
-			);
+		const itemEl = document.createElement('div');
+		itemEl.className = 'item';
+		itemEl.setAttribute('data-index', item.index);
+		itemEl.setAttribute('draggable', 'true');
+
+		const iconDiv = document.createElement('div');
+		iconDiv.className = 'icon';
+		itemEl.appendChild(iconDiv);
+
+		const amountDiv = document.createElement('div');
+		amountDiv.className = 'amount';
+		if (item.count) {
+			const countSpan = document.createElement('span');
+			countSpan.className = 'count';
+			countSpan.textContent = item.count;
+			amountDiv.appendChild(countSpan);
+			amountDiv.appendChild(document.createTextNode(' '));
+		}
+		itemEl.appendChild(amountDiv);
+
+		const nameSpan = document.createElement('span');
+		nameSpan.className = 'name';
+		nameSpan.textContent = DB.getItemName(item);
+		itemEl.appendChild(nameSpan);
+
+		if (content) {
+			content.appendChild(itemEl);
+		}
 
 		Client.loadFile(
-			DB.INTERFACE_PATH +
-				'item/' +
-				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-				'.bmp',
-			function (data) {
-				this.ui
-					.find('.item[data-index="' + item.index + '"] .icon')
-					.css('backgroundImage', 'url(' + data + ')');
-			}.bind(this)
+			`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
+			data => {
+				const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
+				if (icon) {
+					icon.style.backgroundImage = `url(${data})`;
+				}
+			}
 		);
 	}
 	return true;
 };
 
-/**
- * Remove item from Storage
- */
 Storage.removeItem = function removeItem(index, count) {
 	const i = getItemIndexById(index);
 
 	if (i < 0) {
 		return null;
-	} // Not found
+	}
 
-	// NEW: Notify all open filter windows.
-	// They will check internally if they have this item.
 	for (const tabId in _openFilters) {
 		if (_openFilters.hasOwnProperty(tabId)) {
 			_openFilters[tabId].removeItem(index, count);
@@ -302,36 +336,48 @@ Storage.removeItem = function removeItem(index, count) {
 	if (_list[i].count) {
 		_list[i].count -= count;
 		if (_list[i].count > 0) {
-			this.ui.find('.item[data-index="' + index + '"] .count').text(_list[i].count);
+			const root = this._shadow || this._host;
+			const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
+			if (countEl) {
+				countEl.textContent = _list[i].count;
+			}
 			return _list[i];
 		}
 	}
 	const item = _list[i];
 	_list.splice(i, 1);
-	this.ui.find('.item[data-index="' + index + '"]').remove();
-	// hide .overlay
-	this.ui.find('.overlay').hide();
+	const root = this._shadow || this._host;
+	const el = root.querySelector(`.item[data-index="${index}"]`);
+	if (el) {
+		el.remove();
+	}
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 	return item;
 };
 
-/**
- * Update or set the current amount of items in storage in ui
- */
 Storage.setItemInfo = function setItemInfo(current, limit) {
-	this.ui.find('.footer .current').text(current);
-	this.ui.find('.footer .limit').text(limit);
+	const root = this._shadow || this._host;
+	const currentEl = root.querySelector('.footer .current');
+	const limitEl = root.querySelector('.footer .limit');
+	if (currentEl) {
+		currentEl.textContent = current;
+	}
+	if (limitEl) {
+		limitEl.textContent = limit;
+	}
 };
 
 Storage.onKeyDown = function onKeyDown(event) {
-	if (this.ui.is(':visible')) {
-		// ESCAPE
+	if (this._host.style.display !== 'none') {
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			if (typeof Storage.onClosePressed === 'function') {
 				Storage.onClosePressed();
 			}
 		}
 
-		// ENTER
 		if (event.which === KEYS.ENTER || event.key === 'Enter') {
 			if (typeof Storage.onEnterPressed === 'function') {
 				Storage.onEnterPressed();
@@ -340,25 +386,22 @@ Storage.onKeyDown = function onKeyDown(event) {
 	}
 };
 
-// Search item from storage
 Storage.onSearch = function onSearch() {
-	const searchInput = Storage.ui.find('#storage-search-input');
+	const root = this._shadow || this._host;
+	const searchInput = root.querySelector('#storage-search-input');
 	if (!searchInput) {
 		return;
 	}
-	const searchTerm = searchInput.val().toLowerCase();
+	const searchTerm = searchInput.value.toLowerCase();
 
-	// create new Storage Filter with filtered items
-	const filteredItems = _list.filter(function (item) {
+	const filteredItems = _list.filter(item => {
 		return DB.getItemName(item).toLowerCase().indexOf(searchTerm) > -1;
 	});
 
 	if (!_openFilters[ItemType.SEARCH]) {
 		const newFilter = new StorageFilter(ItemType.SEARCH);
-		// Store it so we can track it
 		_openFilters[ItemType.SEARCH] = newFilter;
 
-		// Add a callback for when the window is closed (by 'X' button)
 		newFilter.onCloseCallback = function () {
 			if (_openFilters[ItemType.SEARCH]) {
 				delete _openFilters[ItemType.SEARCH];
@@ -369,7 +412,6 @@ Storage.onSearch = function onSearch() {
 			Storage.transferItemToOtherUI(item);
 		};
 
-		// Add to UI and populate with items
 		newFilter.append();
 		newFilter.setItems('Search', filteredItems, ItemType.SEARCH);
 	} else {
@@ -377,14 +419,8 @@ Storage.onSearch = function onSearch() {
 	}
 };
 
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
-
 function onResize() {
-	const ui = Storage.ui;
-	const top = ui.position().top;
+	const top = Storage._host.offsetTop;
 	let lastHeight = 0;
 
 	function resizing() {
@@ -399,26 +435,35 @@ function onResize() {
 	}
 	const _Interval = setInterval(resizing, 30);
 
-	jQuery(window).on('mouseup.resize', function (event) {
+	const onMouseUp = event => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	};
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 function resizeHeight(height) {
 	height = Math.min(Math.max(height, 8), 17);
-	Storage.ui.find('.container .content').css('height', height * 32);
-	Storage.ui.css('height', 31 + 19 + height * 32);
+
+	const root = Storage._shadow || Storage._host;
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.style.height = `${height * 32}px`;
+	}
+	Storage._host.style.height = `${31 + 19 + height * 32}px`;
 }
 
-function onSwitchTab() {
-	const idx = jQuery(this).index();
+function onSwitchTab(idx) {
 	_preferences.tab = idx;
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_ex_0' + (idx + 1) + '.bmp', function (data) {
-		Storage.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_itm_ex_0${idx + 1}.bmp`, data => {
+		const root = Storage._shadow || Storage._host;
+		const tabs = root.querySelector('.tabs');
+		if (tabs) {
+			tabs.style.backgroundImage = `url("${data}")`;
+		}
 		requestFilter();
 	});
 }
@@ -426,7 +471,7 @@ function onSwitchTab() {
 function onDrop(event) {
 	let data;
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 	} catch (e) {
 		// Ignore parsing error
 	}
@@ -457,28 +502,32 @@ function onDrop(event) {
 }
 
 function requestFilter() {
-	Storage.ui.find('.container .content').empty();
-	let i, count;
+	const root = Storage._shadow || Storage._host;
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.innerHTML = '';
+	}
+
 	let list = _list;
-	const orderBy = Storage.ui.find('.storage-order-by').val();
+	const orderBySelect = root.querySelector('.storage-order-by');
+	const orderBy = orderBySelect ? orderBySelect.value : 'BASE';
 
 	if (orderBy === 'UPGRADE' || orderBy === 'DOWNGRADE') {
 		list = _list.slice(0);
-		list.sort(function (a, b) {
+		list.sort((a, b) => {
 			const nameA = DB.getItemName(a);
 			const nameB = DB.getItemName(b);
 			return orderBy === 'UPGRADE' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
 		});
 	}
 
-	for (i = 0, count = list.length; i < count; ++i) {
+	for (let i = 0, count = list.length; i < count; ++i) {
 		Storage.addItemSub(list[i]);
 	}
 }
 
 function getItemIndexById(index) {
-	let i, count;
-	for (i = 0, count = _list.length; i < count; ++i) {
+	for (let i = 0, count = _list.length; i < count; ++i) {
 		if (_list[i].index === index) {
 			return i;
 		}
@@ -486,47 +535,37 @@ function getItemIndexById(index) {
 	return -1;
 }
 
-function onScroll(event) {
+function onScroll(event, contentEl) {
 	let delta;
-	if (event.originalEvent.wheelDelta) {
-		delta = event.originalEvent.wheelDelta / 120;
-		if (window.opera) {
-			delta = -delta;
-		}
-	} else if (event.originalEvent.detail) {
-		delta = -event.originalEvent.detail;
+
+	if (event.wheelDelta) {
+		delta = event.wheelDelta / 120;
+	} else if (event.detail) {
+		delta = -event.detail;
+	} else if (event.deltaY) {
+		delta = -event.deltaY / 100;
 	}
-	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
-	return false;
+
+	contentEl.scrollTop = Math.floor(contentEl.scrollTop / 32) * 32 - delta * 32;
+	event.preventDefault();
 }
 
-/**
- * NEW: Toggles a filter window on/off
- */
-function onFilterWindowOpen() {
-	const $button = jQuery(this); // The button that was clicked
-	const tabId = parseInt($button.attr('data-tab-id'), 10);
-	const title = $button.attr('data-title') || 'Items';
+function onFilterWindowOpen(button) {
+	const tabId = parseInt(button.getAttribute('data-tab-id'), 10);
+	const title = button.getAttribute('data-title') || 'Items';
 
-	// add .active class to button, remove if is already set
-	$button.toggleClass('active');
+	button.classList.toggle('active');
 
-	// --- 1. Check if window is already open ---
 	if (_openFilters[tabId]) {
-		// It is open, so close it
-		_openFilters[tabId].remove(); // This triggers onRemove -> onCloseCallback
+		_openFilters[tabId].remove();
 		delete _openFilters[tabId];
-
-		return; // Stop here
+		return;
 	}
 
-	// --- 2. If not open, create a new one ---
-	let i, count, tab;
 	const filtered_list = [];
-
-	// Build the list of items for this filter
-	for (i = 0, count = _list.length; i < count; ++i) {
+	for (let i = 0, count = _list.length; i < count; ++i) {
 		const item = _list[i];
+		let tab;
 		switch (item.type) {
 			case ItemType.HEALING:
 			case ItemType.USABLE:
@@ -561,16 +600,11 @@ function onFilterWindowOpen() {
 		}
 	}
 
-	// Create a new instance of our StorageFilter class
 	const newFilter = new StorageFilter(tabId);
-
-	// Store it so we can track it
 	_openFilters[tabId] = newFilter;
 
-	// Add a callback for when the window is closed (by 'X' button)
 	newFilter.onCloseCallback = function () {
-		// remove .active class from button
-		$button.removeClass('active');
+		button.classList.remove('active');
 
 		if (_openFilters[tabId]) {
 			delete _openFilters[tabId];
@@ -581,57 +615,70 @@ function onFilterWindowOpen() {
 		Storage.transferItemToOtherUI(item);
 	};
 
-	// Add to UI and populate with items
 	newFilter.append();
 	newFilter.setItems(title, filtered_list, tabId);
 }
 
-function onFilterWindowHover() {
-	// move overlay to the current component location and set text get from data-title attribute
-	const $button = jQuery(this);
-	const title = $button.attr('data-title');
-	Storage.ui.find('.overlay').text(title);
-	// get Storage.ui height
-	const height = Storage.ui.height();
-	Storage.ui.find('.overlay').css({ top: height - 50, left: $button.position().left });
-	Storage.ui.find('.overlay').show();
+function onFilterWindowHover(button, root) {
+	const title = button.getAttribute('data-title');
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.textContent = title;
+		const height = Storage._host.getBoundingClientRect().height;
+		overlay.style.top = `${height - 50}px`;
+		overlay.style.left = `${button.offsetLeft}px`;
+		overlay.style.display = '';
+	}
 }
 
-function onFilterWindowHoverOut() {
-	Storage.ui.find('.overlay').hide();
+function onFilterWindowHoverOut(root) {
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
-function onItemOver() {
-	const idx = parseInt(this.getAttribute('data-index'), 10);
+function onItemOver(itemEl, root) {
+	const idx = parseInt(itemEl.getAttribute('data-index'), 10);
 	const i = getItemIndexById(idx);
 	if (i < 0) {
 		return;
 	}
 	const item = _list[i];
-	const pos = jQuery(this).position();
-	const overlay = Storage.ui.find('.overlay');
-	overlay.show();
-	overlay.css({ top: pos.top - 10, left: pos.left + 35 });
-	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
-	overlay.toggleClass('grey', !item.IsIdentified);
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = '';
+		overlay.style.top = `${itemEl.offsetTop - 10}px`;
+		overlay.style.left = `${itemEl.offsetLeft + 35}px`;
+		overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
+
+		if (item.IsIdentified) {
+			overlay.classList.remove('grey');
+		} else {
+			overlay.classList.add('grey');
+		}
+	}
 }
 
-function onItemOut() {
-	Storage.ui.find('.overlay').hide();
+function onItemOut(root) {
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
-function onItemDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
+function onItemDragStart(event, itemEl) {
+	const index = parseInt(itemEl.getAttribute('data-index'), 10);
 	const i = getItemIndexById(index);
 	if (i === -1) {
 		return;
 	}
 	const img = new Image();
-	let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-	url = url = url.replace(/^\"/, '').replace(/\"$/, '');
+	let url = itemEl.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1];
+	url = url.replace(/^"/, '').replace(/"$/, '');
 	img.src = url;
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -641,16 +688,15 @@ function onItemDragStart(event) {
 			})
 		)
 	);
-	onItemOut();
 }
 
 function onItemDragEnd() {
 	delete window._OBJ_DRAG_;
 }
 
-function onItemInfo(event) {
+function onItemInfo(event, itemEl) {
 	event.stopImmediatePropagation();
-	const index = parseInt(this.getAttribute('data-index'), 10);
+	const index = parseInt(itemEl.getAttribute('data-index'), 10);
 	const i = getItemIndexById(index);
 	if (i === -1) {
 		return false;
@@ -689,5 +735,7 @@ Storage.reqAddItem = function reqAddItem() {};
 Storage.reqAddItemFromCart = function reqAddItemFromCart() {};
 Storage.reqRemoveItem = function reqRemoveItem() {};
 Storage.reqMoveItemToCart = function reqMoveItemToCart() {};
+
+Storage.mouseMode = GUIComponent.MouseMode.STOP;
 
 export default UIManager.addComponent(Storage);
