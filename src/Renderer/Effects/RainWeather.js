@@ -87,8 +87,6 @@ const _layerCDF = (function () {
 	return out;
 })();
 
-const SPLASH_ALPHA = 0.45;
-
 // Puddle settings (Water accumulation system)
 const MAX_PUDDLES = 600; // Increased limit to prevent popping
 const PUDDLE_INITIAL_SIZE = 20.0;
@@ -106,6 +104,7 @@ let _filterFrame = null;
 let _splashFrame = null;
 const SPLASH_LIFE_MS = 220;
 const SPLASH_SIZE_PX = [10, 18];
+const SPLASH_ALPHA = 0.45;
 
 // Puddle texture (64x64 deformed disc).
 let _puddleFrame = null;
