@@ -23,7 +23,7 @@ let _mapName = '';
 let _isStopping = false;
 
 const PROFILE_MAP = {
-	229: { maxClouds: 40, overlay: true, speed: 0.05, area: 35, zindex: -125, cloudColor: [1.0, 1.0, 1.0, 0.38] }, // EF_CLOUD
+	229: { maxClouds: 40, overlay: true, speed: 0.05, area: 35, zindex: -125, cloudColor: [1.0, 1.0, 1.0, 0.18] }, // EF_CLOUD
 	230: { maxClouds: 60, overlay: false, speed: 0.05, area: 35, zindex: 40, cloudColor: [1.0, 1.0, 1.0, 0.58] }, // EF_CLOUD2
 	233: { maxClouds: 40, overlay: true, speed: 0.015, area: 45, zindex: 1, cloudColor: [0.47, 0.43, 0.39, 0.78] }, // EF_CLOUD3
 	515: { maxClouds: 80, overlay: false, speed: 0.05, area: 35, zindex: -125, cloudColor: [1.0, 1.0, 1.0, 0.58] }, // EF_CLOUD4

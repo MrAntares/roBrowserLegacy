@@ -1056,6 +1056,9 @@ class RainWeatherEffect {
 				// Pass time for procedural ripples
 				gl.uniform1f(uniform.uTime, tick * 0.001);
 
+				// Pass player and camera info for interaction and Fresnel
+				gl.uniform2f(uniform.uPlayerPos, Session.Entity.position[0], Session.Entity.position[1]);
+				gl.uniform3fv(uniform.uCameraPos, Camera.position);
 				gl.bindBuffer(gl.ARRAY_BUFFER, _puddleBuffer);
 				gl.enableVertexAttribArray(attribute.aPosition);
 				gl.enableVertexAttribArray(attribute.aTextureCoord);
