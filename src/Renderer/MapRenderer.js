@@ -232,10 +232,11 @@ class MapRenderer {
 		const projection = Camera.projection;
 		const normalMat = Camera.normalMat;
 
+		// Render Ground
+		Ground.render(gl, modelView, projection, normalMat, fog, light);
+
 		// Spam map effects
 		Effects.spam(Session.Entity.position, tick);
-
-		Ground.render(gl, modelView, projection, normalMat, fog, light);
 
 		if (Mouse.intersect && Altitude.intersect(modelView, projection, _pos)) {
 			x = _pos[0];
@@ -277,6 +278,9 @@ class MapRenderer {
 
 		Models.render(gl, modelView, projection, normalMat, fog, light);
 		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
+
+		// Render transparent elements before ground
+		ScreenEffectManager.render(gl, modelView, projection, fog, tick, true);
 
 		EffectManager.render(gl, modelView, projection, fog, tick, true);
 

@@ -18,6 +18,9 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Camera from 'Renderer/Camera.js';
 import Preferences from 'Preferences/Audio.js';
 import Session from 'Engine/SessionStorage.js';
+import _puddleVs from './RainWeather.vs?raw';
+import _puddleFs from './RainWeather.fs?raw';
+import WebGL from 'Utils/WebGL.js';
 
 const RAG_TICK_MS = 25;
 const FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
@@ -84,6 +87,15 @@ const _layerCDF = (function () {
 	return out;
 })();
 
+// Puddle settings (Water accumulation system)
+const MAX_PUDDLES = 600; // Increased limit to prevent popping
+const PUDDLE_INITIAL_SIZE = 20.0;
+const PUDDLE_MAX_SIZE = 230.0;
+const PUDDLE_GROWTH_PER_DROP = 4.5;
+const PUDDLE_ALPHA_MAX = 0.45;
+const PUDDLE_FADE_SPEED = 0.00004; // Alpha per ms (faster drying)
+const PUDDLE_SEED_CHANCE = 0.06; // Lowered to favor accumulation over spam
+
 // Procedural raindrop sprite (1x16 alpha‑gradient texture stretched into streaks).
 let _dropFrame = null;
 // Full-screen grey filter (1x1 texture).
@@ -93,6 +105,13 @@ let _splashFrame = null;
 const SPLASH_LIFE_MS = 220;
 const SPLASH_SIZE_PX = [10, 18];
 const SPLASH_ALPHA = 0.45;
+
+// Puddle texture (64x64 deformed disc).
+let _puddleFrame = null;
+
+// Shader resources
+let _puddleProgram = null;
+let _puddleBuffer = null;
 
 // SINGLETON STATE
 let _instance = null;
@@ -197,6 +216,76 @@ function ensureSplashFrame(gl) {
 	_splashFrame = { texture: tex, width: w, height: h, type: 1 };
 }
 
+function ensurePuddleFrame(gl) {
+	if (_puddleFrame && _puddleFrame.texture && gl.isTexture(_puddleFrame.texture)) {
+		return;
+	}
+	_puddleFrame = null;
+
+	const w = 64,
+		h = 64;
+	const data = new Uint8Array(w * h * 4);
+	const cx = (w - 1) / 2;
+	const cy = (h - 1) / 2;
+	const maxR = Math.min(cx, cy) * 0.85;
+
+	for (let y = 0; y < h; y++) {
+		for (let x = 0; x < w; x++) {
+			const dx = x - cx;
+			const dy = y - cy;
+			const dist = Math.sqrt(dx * dx + dy * dy);
+			const angle = Math.atan2(dy, dx);
+
+			// Procedural deformation for "organic" look
+			const deform =
+				1.0 + 0.15 * Math.sin(angle * 5) + 0.08 * Math.sin(angle * 3 + 1.5) + 0.05 * Math.cos(angle * 11);
+			const r = dist / (maxR * deform);
+
+			let a = 0;
+			if (r <= 1.0) {
+				// Soft concave falloff for pool look
+				a = Math.pow(1.0 - r, 0.7);
+			}
+
+			const alphaByte = Math.max(0, Math.min(255, Math.floor(a * 255)));
+			const idx = (y * w + x) * 4;
+			// Deep wet-blue/dark tone
+			data[idx + 0] = 18;
+			data[idx + 1] = 32;
+			data[idx + 2] = 55;
+			data[idx + 3] = alphaByte;
+		}
+	}
+
+	const tex = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, tex);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+	_puddleFrame = { texture: tex, width: w, height: h, type: 1 };
+}
+
+function initPuddleShader(gl) {
+	if (_puddleProgram) {
+		return;
+	}
+	_puddleProgram = WebGL.createShaderProgram(gl, _puddleVs, _puddleFs);
+
+	// Generate horizontal quad buffer (XZ plane)
+	const vertices = new Float32Array([
+		// Triangle 1 (pos: x, y, z, tex: u, v)
+		-0.5, 0.0, -0.5, 0.0, 0.0, 0.5, 0.0, -0.5, 1.0, 0.0, -0.5, 0.0, 0.5, 0.0, 1.0,
+		// Triangle 2
+		0.5, 0.0, -0.5, 1.0, 0.0, 0.5, 0.0, 0.5, 1.0, 1.0, -0.5, 0.0, 0.5, 0.0, 1.0
+	]);
+	_puddleBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, _puddleBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+}
+
 function randRange(min, max) {
 	return min + Math.random() * (max - min);
 }
@@ -280,6 +369,7 @@ class RainWeatherEffect {
 		this.lastEmitTick = this.startTick;
 		this.drops = [];
 		this.splashes = [];
+		this.puddles = [];
 
 		this._wind = { xTick: 0, yTick: 0, xMs: 0, yMs: 0 };
 
@@ -362,7 +452,7 @@ class RainWeatherEffect {
 		this.beforeRender(gl, modelView, projection, fog);
 
 		SpriteRenderer.runWithDepth(false, false, true, () => {
-			_instance.render(gl, tick);
+			_instance.render(gl, tick, false);
 		});
 
 		if (_instance.needCleanUp) {
@@ -370,6 +460,16 @@ class RainWeatherEffect {
 			_instance = null;
 		}
 
+		this.afterRender(gl);
+	}
+
+	static renderPuddles(gl, modelView, projection, fog, tick) {
+		if (!_instance || !_instance.puddles.length) {
+			return;
+		}
+
+		this.beforeRender(gl, modelView, projection, fog);
+		_instance.render(gl, tick, true);
 		this.afterRender(gl);
 	}
 
@@ -533,22 +633,24 @@ class RainWeatherEffect {
 		const ox = Math.cos(theta) * radius;
 		const oy = Math.sin(theta) * radius;
 
-		// Shift spawn slightly upwind so streaks drift through view.
+		// Per-drop speed / size.
+		const speedTick = randRange(layer.speedTick[0], layer.speedTick[1]);
+		const speedMs = speedTick / RAG_TICK_MS;
+		const widthPx = randRange(layer.widthPx[0], layer.widthPx[1]);
+		const lengthPx = randRange(layer.lengthPx[0], layer.lengthPx[1]);
+
+		// Shift spawn upwind exactly enough to cancel out downwind drift during fall.
+		// This keeps rain centered on the player regardless of wind strength.
 		const spawnHeight = randRange(SPAWN_HEIGHT_MIN_CELLS, SPAWN_HEIGHT_MAX_CELLS);
-		const upwindX = -this._wind.xTick * spawnHeight * 0.6;
-		const upwindY = -this._wind.yTick * spawnHeight * 0.6;
+		const driftTimeTicks = spawnHeight / speedTick;
+		const upwindX = -this._wind.xTick * driftTimeTicks;
+		const upwindY = -this._wind.yTick * driftTimeTicks;
 
 		const x = px + ox + upwindX;
 		const y = py + oy + upwindY;
 
 		const groundZ = Altitude.getCellHeight(x, y);
 		const z = groundZ + spawnHeight;
-
-		// Per-drop speed / size.
-		const speedTick = randRange(layer.speedTick[0], layer.speedTick[1]);
-		const speedMs = speedTick / RAG_TICK_MS;
-		const widthPx = randRange(layer.widthPx[0], layer.widthPx[1]);
-		const lengthPx = randRange(layer.lengthPx[0], layer.lengthPx[1]);
 
 		// Small per-drop wind jitter around global wind.
 		const windJitterXMs = (Math.random() - 0.5) * 0.002;
@@ -580,7 +682,85 @@ class RainWeatherEffect {
 		}
 	}
 
-	render(gl, tick) {
+	updatePuddle(x, y, z, tick) {
+		let bestPuddle = null;
+		let bestDistSq = Infinity;
+
+		// Find if the drop hit any existing puddle
+		for (let i = 0; i < this.puddles.length; i++) {
+			const p = this.puddles[i];
+			const dx = p.x - x;
+			const dy = p.y - y;
+			const distSq = dx * dx + dy * dy;
+
+			// Radius of impact (minimum 1.5 cells to allow growth of small puddles)
+			const impactRadius = Math.max(1.5, (p.size / 35.0) * 0.8);
+
+			if (distSq < impactRadius * impactRadius) {
+				if (distSq < bestDistSq) {
+					bestDistSq = distSq;
+					bestPuddle = p;
+				}
+			}
+		}
+
+		if (bestPuddle) {
+			// Grow and darken if hit directly
+			bestPuddle.size = Math.min(PUDDLE_MAX_SIZE, bestPuddle.size + PUDDLE_GROWTH_PER_DROP);
+			bestPuddle.alpha = Math.min(PUDDLE_ALPHA_MAX, bestPuddle.alpha + 0.02);
+
+			// Accumulate time: each drop adds 1.5s of life, capped at 10s max into the future
+			const currentLife = Math.max(0, (bestPuddle.nextDryTick || tick) - tick);
+			const newLife = Math.min(10000, currentLife + 1500);
+			bestPuddle.nextDryTick = tick + newLife;
+
+			bestPuddle.lastUpdate = tick;
+		} else if (Math.random() < PUDDLE_SEED_CHANCE) {
+			// Avoid seeding too close to ANY existing puddle (prevent stacking/darkening)
+			let tooClose = false;
+			for (let i = 0; i < this.puddles.length; i++) {
+				const p = this.puddles[i];
+				const dx = p.x - x;
+				const dy = p.y - y;
+				if (dx * dx + dy * dy < PUDDLE_MAX_SIZE / 4) {
+					// 12 cells avoidance radius
+					tooClose = true;
+					// Optionally give a small boost to the nearby puddle instead
+					p.size = Math.min(PUDDLE_MAX_SIZE, p.size + PUDDLE_GROWTH_PER_DROP * 0.5);
+					break;
+				}
+			}
+
+			if (!tooClose) {
+				// Seed a new puddle spot
+				if (this.puddles.length >= MAX_PUDDLES) {
+					// Strategy: Instead of removing the oldest, remove the one with lowest visibility (smallest/faintest)
+					let worstIdx = 0;
+					let minScore = Infinity;
+					for (let i = 0; i < this.puddles.length; i++) {
+						const score = this.puddles[i].size * this.puddles[i].alpha;
+						if (score < minScore) {
+							minScore = score;
+							worstIdx = i;
+						}
+					}
+					this.puddles.splice(worstIdx, 1);
+				}
+				this.puddles.push({
+					x: x,
+					y: y,
+					z: z,
+					size: PUDDLE_INITIAL_SIZE,
+					alpha: 0.12,
+					angle: Math.random() * Math.PI * 2,
+					lastUpdate: tick,
+					nextDryTick: tick + 3500 // Initial life
+				});
+			}
+		}
+	}
+
+	render(gl, tick, puddlesOnly = false) {
 		if (!Session.Entity) {
 			return;
 		}
@@ -588,6 +768,14 @@ class RainWeatherEffect {
 		ensureDropFrame(gl);
 		ensureFilterFrame(gl);
 		ensureSplashFrame(gl);
+		ensurePuddleFrame(gl);
+		initPuddleShader(gl);
+
+		if (puddlesOnly) {
+			this.renderPuddles(gl, tick);
+			return;
+		}
+
 		if (!_dropFrame) {
 			return;
 		}
@@ -742,6 +930,10 @@ class RainWeatherEffect {
 					}
 					this.triggerRainDropSound(); // call water sound
 				}
+
+				// Update/Spawn puddle on impact
+				this.updatePuddle(drop.x, drop.y, drop.groundZ, tick);
+
 				this.drops.splice(d, 1);
 				continue;
 			}
@@ -835,6 +1027,84 @@ class RainWeatherEffect {
 		}
 	}
 
+	renderPuddles(gl, tick) {
+		if (_puddleFrame && this.puddles.length) {
+			const self = this;
+			SpriteRenderer.runWithDepth(true, false, false, () => {
+				const uniform = _puddleProgram.uniform;
+				const attribute = _puddleProgram.attribute;
+
+				gl.useProgram(_puddleProgram);
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+				// Prepare common uniforms
+				gl.uniformMatrix4fv(uniform.uModelViewMat, false, Camera.modelView);
+				gl.uniformMatrix4fv(uniform.uProjectionMat, false, Camera.projection);
+
+				// Fog
+				const fog = MapRenderer.fog;
+				gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+				gl.uniform1f(uniform.uFogNear, fog.near);
+				gl.uniform1f(uniform.uFogFar, fog.far);
+				gl.uniform3fv(uniform.uFogColor, fog.color);
+
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, _puddleFrame.texture);
+				gl.uniform1i(uniform.uDiffuse, 0);
+
+				// Pass time for procedural ripples
+				gl.uniform1f(uniform.uTime, tick * 0.001);
+
+				// Pass camera info for Fresnel reflections (Platinum look)
+				gl.uniform3fv(uniform.uCameraPos, Camera.position);
+
+				gl.bindBuffer(gl.ARRAY_BUFFER, _puddleBuffer);
+				gl.enableVertexAttribArray(attribute.aPosition);
+				gl.enableVertexAttribArray(attribute.aTextureCoord);
+				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
+				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
+
+				for (let p = self.puddles.length - 1; p >= 0; p--) {
+					const puddle = self.puddles[p];
+					// Evaporate slowly if not hit by rain for a while
+					// Each drop adds 1.5s of life up to a hard cap of 10s.
+					if (tick > (puddle.nextDryTick || tick)) {
+						const dt = tick - (puddle._lastTick || tick);
+						// Larger puddles dry out slower but start shrinking sooner
+						const evaporationRate = PUDDLE_FADE_SPEED / (1.0 + puddle.size * 0.003);
+						const fade = evaporationRate * dt;
+
+						puddle.alpha -= fade;
+						// Shrink all the way to nothing (fadeout + encolher)
+						puddle.size -= fade * 8500.0;
+					}
+					puddle._lastTick = tick;
+
+					// Remove only when practically invisible or shrunk to nothing
+					if (puddle.size <= 0.1 || puddle.alpha <= 0.0001) {
+						self.puddles.splice(p, 1);
+						continue;
+					}
+
+					// Uniforms for this puddle
+					gl.uniform3f(uniform.uWorldPosition, puddle.x, puddle.y, puddle.z + 0.01);
+					gl.uniform2f(uniform.uSize, puddle.size, puddle.size);
+					gl.uniform1f(uniform.uAngle, puddle.angle);
+					gl.uniform4f(uniform.uColor, 1.0, 1.0, 1.0, puddle.alpha);
+					gl.uniform1f(uniform.uZIndex, 1);
+
+					gl.drawArrays(gl.TRIANGLES, 0, 6);
+				}
+
+				gl.disableVertexAttribArray(attribute.aPosition);
+				gl.disableVertexAttribArray(attribute.aTextureCoord);
+
+				// Restore blend mode for subsequent rendering
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			});
+		}
+	}
+
 	free() {
 		// Clean thunder audio
 		if (this.audioCtx) {
@@ -851,6 +1121,7 @@ class RainWeatherEffect {
 		}
 		this.drops = [];
 		this.splashes = [];
+		this.puddles = [];
 		this.ready = false;
 	}
 }
