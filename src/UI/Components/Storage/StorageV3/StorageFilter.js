@@ -97,6 +97,7 @@ StorageFilter.prototype.init = function init() {
 		content.addEventListener('contextmenu', e => {
 			const itemEl = e.target.closest('.item');
 			if (itemEl) {
+				e.preventDefault();
 				this.onItemInfo(e, itemEl);
 			}
 		});
@@ -116,10 +117,11 @@ StorageFilter.prototype.init = function init() {
 	}
 
 	this.draggable('.titlebar');
-	this._host.style.display = 'none';
+	this.ui.hide();
 };
 
 StorageFilter.prototype.onAppend = function onAppend() {
+	this.ui.show();
 	this._host.style.left = `${Math.min(Math.max(0, this._preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 	this._host.style.top = `${Math.min(Math.max(0, this._preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
 };
@@ -169,7 +171,7 @@ StorageFilter.prototype.renderItem = function renderItem(item) {
 
 	const nameSpan = document.createElement('span');
 	nameSpan.className = 'name';
-	nameSpan.textContent = DB.getItemName(item);
+	nameSpan.innerHTML = DB.getItemName(item);
 	itemEl.appendChild(nameSpan);
 
 	if (content) {
@@ -203,7 +205,7 @@ StorageFilter.prototype.onItemOver = function onItemOver(itemEl, root) {
 		overlay.style.display = '';
 		overlay.style.top = `${itemEl.offsetTop - 10}px`;
 		overlay.style.left = `${itemEl.offsetLeft + 35}px`;
-		overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
+		overlay.innerHTML = `${DB.getItemName(item)} ${item.count || 1} ea`;
 
 		if (item.IsIdentified) {
 			overlay.classList.remove('grey');

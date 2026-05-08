@@ -113,6 +113,7 @@ Storage.init = function init() {
 		content.addEventListener('contextmenu', e => {
 			const itemEl = e.target.closest('.item');
 			if (itemEl) {
+				e.preventDefault();
 				onItemInfo(e, itemEl);
 			}
 		});
@@ -125,10 +126,11 @@ Storage.init = function init() {
 	});
 
 	this.draggable('.titlebar');
-	this._host.style.display = 'none';
+	this.ui.hide();
 };
 
 Storage.onAppend = function onAppend() {
+	this.ui.show();
 	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
 };
@@ -239,7 +241,7 @@ Storage.addItemSub = function addItemSub(item) {
 
 		const nameSpan = document.createElement('span');
 		nameSpan.className = 'name';
-		nameSpan.textContent = DB.getItemName(item);
+		nameSpan.innerHTML = DB.getItemName(item);
 		itemEl.appendChild(nameSpan);
 
 		if (content) {
@@ -456,7 +458,7 @@ function onItemOver(itemEl, root) {
 		overlay.style.display = '';
 		overlay.style.top = `${itemEl.offsetTop - 10}px`;
 		overlay.style.left = `${itemEl.offsetLeft + 35}px`;
-		overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
+		overlay.innerHTML = `${DB.getItemName(item)} ${item.count || 1} ea`;
 
 		if (item.IsIdentified) {
 			overlay.classList.remove('grey');
