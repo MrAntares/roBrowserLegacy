@@ -89,16 +89,13 @@ const _layerCDF = (function () {
 
 const SPLASH_ALPHA = 0.45;
 
-// Puddle settings (Standing Water accumulation)
-const MAX_PUDDLES = 120;
-const PUDDLE_INITIAL_SIZE = 45.0; // ~1.3 cells
-const PUDDLE_GROWTH_SIZE = 2.5;
-const PUDDLE_MAX_SIZE = 190.0; // ~5.5 cells
-const PUDDLE_ALPHA_START = 0.12;
-const PUDDLE_ALPHA_MAX = 0.55;
-const PUDDLE_FADE_SPEED = 0.000008; // Very slow evaporation
-const PUDDLE_LIFE_AFTER_RAIN_MS = 30000;
-const PUDDLE_SPAWN_CHANCE = 0.15; // Only 15% of drops "seed" new puddles
+// Puddle settings
+const MAX_PUDDLES = 350;
+const PUDDLE_GROWTH_SIZE = 0.65;
+const PUDDLE_MAX_SIZE = 22.0;
+const PUDDLE_ALPHA_MAX = 0.35;
+const PUDDLE_FADE_SPEED = 0.00005; // Alpha per ms
+const PUDDLE_LIFE_AFTER_RAIN_MS = 15000;
 
 // Procedural raindrop sprite (1x16 alpha‑gradient texture stretched into streaks).
 let _dropFrame = null;
@@ -674,7 +671,7 @@ class RainWeatherEffect {
 	}
 
 	updatePuddle(x, y, z, tick) {
-		const searchRadius = 5.0; // 5 cells radius to merge into pools
+		const searchRadius = 3.0; // max distance to merge with existing puddle
 		let bestDist = Infinity;
 		let bestPuddle = null;
 
@@ -690,21 +687,19 @@ class RainWeatherEffect {
 		}
 
 		if (bestPuddle) {
-			// Accumulate: Grow and become more opaque
 			bestPuddle.size = Math.min(PUDDLE_MAX_SIZE, bestPuddle.size + PUDDLE_GROWTH_SIZE);
-			bestPuddle.alpha = Math.min(PUDDLE_ALPHA_MAX, bestPuddle.alpha + 0.02);
+			bestPuddle.alpha = Math.min(PUDDLE_ALPHA_MAX, bestPuddle.alpha + 0.035);
 			bestPuddle.lastUpdate = tick;
-		} else if (Math.random() < PUDDLE_SPAWN_CHANCE) {
-			// Seed a new puddle pool
+		} else {
 			if (this.puddles.length >= MAX_PUDDLES) {
-				this.puddles.shift();
+				this.puddles.shift(); // Remove oldest
 			}
 			this.puddles.push({
 				x: x,
 				y: y,
 				z: z,
-				size: PUDDLE_INITIAL_SIZE,
-				alpha: PUDDLE_ALPHA_START,
+				size: 6.0,
+				alpha: 0.08,
 				angle: Math.random() * Math.PI * 2,
 				lastUpdate: tick
 			});
@@ -1010,11 +1005,9 @@ class RainWeatherEffect {
 					const puddle = self.puddles[p];
 					const idleTime = tick - puddle.lastUpdate;
 
-					// Slowly fade (evaporate) if it's not raining or rain stopped hitting this area
-					if (idleTime > 1500) {
+					// Slowly fade if not being hit by rain
+					if (idleTime > 1000) {
 						puddle.alpha -= PUDDLE_FADE_SPEED * (tick - (puddle._lastTick || tick));
-						// Also shrink slightly when evaporating
-						puddle.size = Math.max(PUDDLE_INITIAL_SIZE, puddle.size - 0.02);
 					}
 					puddle._lastTick = tick;
 
