@@ -18,21 +18,29 @@ void main(void) {
 	vec2 center = vec2(0.5, 0.5);
 	float dist = distance(uv, center);
 
-	// Multi-layered procedural ripples
-	float wave1 = sin(dist * 40.0 - uTime * 6.0) * 0.5 + 0.5;
-	float wave2 = sin(dist * 25.0 + uTime * 3.5 + vWorldPos.x * 2.0) * 0.5 + 0.5;
+	// Multi-layered procedural ripples - made slower for "standing water" look
+	float wave1 = sin(dist * 20.0 - uTime * 2.2) * 0.5 + 0.5;
+	float wave2 = sin(dist * 12.0 + uTime * 1.4 + vWorldPos.x * 0.5) * 0.5 + 0.5;
 	float combinedWave = (wave1 * 0.7 + wave2 * 0.3) * (1.0 - dist * 2.0);
 
 	// Distort UV based on waves for a "refraction" feel
-	vec2 distortedUV = uv + (uv - center) * combinedWave * 0.04;
+	vec2 distortedUV = uv + (uv - center) * combinedWave * 0.035;
 	vec4 texColor = texture(uDiffuse, distortedUV);
 
 	if (texColor.a < 0.01) {
 		discard;
 	}
 
-	// Dynamic specular highlight (shine) on wave peaks
-	float shine = pow(combinedWave, 6.0) * 0.45;
+	// Fake sky reflection (Bright Platinum mix on peak waves)
+	vec3 skyReflect = vec3(0.85, 0.9, 1.0); 
+	float reflectFactor = pow(combinedWave, 2.5) * 0.45;
+	
+	// Brighter deep water tone
+	texColor.rgb *= 0.95; 
+	texColor.rgb = mix(texColor.rgb, skyReflect, reflectFactor);
+
+	// Stronger dynamic specular highlight (shine)
+	float shine = pow(combinedWave, 8.0) * 0.55;
 	texColor.rgb += vec3(shine);
 
 	// Final color with alpha from uColor

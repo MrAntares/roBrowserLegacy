@@ -193,6 +193,10 @@ class ScreenEffectManager {
 		VerticalFlip.setActive(false);
 	}
 
+	static renderBeforeEntities(gl, modelView, projection, fog, tick) {
+		RainWeather.renderPuddles(gl, modelView, projection, fog, tick);
+	}
+
 	/**
 	 * Rendering self screen effects
 	 *
@@ -201,9 +205,15 @@ class ScreenEffectManager {
 	 * @param {mat4} projection
 	 * @param {object} fog structure
 	 * @param {number} tick - game tick
+	 * @param {boolean} beforeEntities - render before entities
 	 */
-	static render(gl, modelView, projection, fog, tick) {
+	static render(gl, modelView, projection, fog, tick, beforeEntities = false) {
 		if (!ScreenEffectManager.hasAnyActiveEffect()) {
+			return;
+		}
+
+		if (beforeEntities) {
+			ScreenEffectManager.renderBeforeEntities(gl, modelView, projection, fog, tick);
 			return;
 		}
 

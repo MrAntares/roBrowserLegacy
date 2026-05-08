@@ -89,13 +89,14 @@ const _layerCDF = (function () {
 
 const SPLASH_ALPHA = 0.45;
 
-// Puddle settings
-const MAX_PUDDLES = 350;
-const PUDDLE_GROWTH_SIZE = 0.65;
-const PUDDLE_MAX_SIZE = 22.0;
-const PUDDLE_ALPHA_MAX = 0.35;
-const PUDDLE_FADE_SPEED = 0.00005; // Alpha per ms
-const PUDDLE_LIFE_AFTER_RAIN_MS = 15000;
+// Puddle settings (Water accumulation system)
+const MAX_PUDDLES = 600; // Increased limit to prevent popping
+const PUDDLE_INITIAL_SIZE = 20.0;
+const PUDDLE_MAX_SIZE = 230.0;
+const PUDDLE_GROWTH_PER_DROP = 4.5;
+const PUDDLE_ALPHA_MAX = 0.45;
+const PUDDLE_FADE_SPEED = 0.00004; // Alpha per ms (faster drying)
+const PUDDLE_SEED_CHANCE = 0.06; // Lowered to favor accumulation over spam
 
 // Procedural raindrop sprite (1x16 alpha‑gradient texture stretched into streaks).
 let _dropFrame = null;
@@ -452,7 +453,7 @@ class RainWeatherEffect {
 		this.beforeRender(gl, modelView, projection, fog);
 
 		SpriteRenderer.runWithDepth(false, false, true, () => {
-			_instance.render(gl, tick);
+			_instance.render(gl, tick, false);
 		});
 
 		if (_instance.needCleanUp) {
@@ -460,6 +461,16 @@ class RainWeatherEffect {
 			_instance = null;
 		}
 
+		this.afterRender(gl);
+	}
+
+	static renderPuddles(gl, modelView, projection, fog, tick) {
+		if (!_instance || !_instance.puddles.length) {
+			return;
+		}
+
+		this.beforeRender(gl, modelView, projection, fog);
+		_instance.render(gl, tick, true);
 		this.afterRender(gl);
 	}
 
@@ -623,22 +634,24 @@ class RainWeatherEffect {
 		const ox = Math.cos(theta) * radius;
 		const oy = Math.sin(theta) * radius;
 
-		// Shift spawn slightly upwind so streaks drift through view.
+		// Per-drop speed / size.
+		const speedTick = randRange(layer.speedTick[0], layer.speedTick[1]);
+		const speedMs = speedTick / RAG_TICK_MS;
+		const widthPx = randRange(layer.widthPx[0], layer.widthPx[1]);
+		const lengthPx = randRange(layer.lengthPx[0], layer.lengthPx[1]);
+
+		// Shift spawn upwind exactly enough to cancel out downwind drift during fall.
+		// This keeps rain centered on the player regardless of wind strength.
 		const spawnHeight = randRange(SPAWN_HEIGHT_MIN_CELLS, SPAWN_HEIGHT_MAX_CELLS);
-		const upwindX = -this._wind.xTick * spawnHeight * 0.6;
-		const upwindY = -this._wind.yTick * spawnHeight * 0.6;
+		const driftTimeTicks = spawnHeight / speedTick;
+		const upwindX = -this._wind.xTick * driftTimeTicks;
+		const upwindY = -this._wind.yTick * driftTimeTicks;
 
 		const x = px + ox + upwindX;
 		const y = py + oy + upwindY;
 
 		const groundZ = Altitude.getCellHeight(x, y);
 		const z = groundZ + spawnHeight;
-
-		// Per-drop speed / size.
-		const speedTick = randRange(layer.speedTick[0], layer.speedTick[1]);
-		const speedMs = speedTick / RAG_TICK_MS;
-		const widthPx = randRange(layer.widthPx[0], layer.widthPx[1]);
-		const lengthPx = randRange(layer.lengthPx[0], layer.lengthPx[1]);
 
 		// Small per-drop wind jitter around global wind.
 		const windJitterXMs = (Math.random() - 0.5) * 0.002;
@@ -671,42 +684,84 @@ class RainWeatherEffect {
 	}
 
 	updatePuddle(x, y, z, tick) {
-		const searchRadius = 3.0; // max distance to merge with existing puddle
-		let bestDist = Infinity;
 		let bestPuddle = null;
+		let bestDistSq = Infinity;
 
+		// Find if the drop hit any existing puddle
 		for (let i = 0; i < this.puddles.length; i++) {
 			const p = this.puddles[i];
 			const dx = p.x - x;
 			const dy = p.y - y;
 			const distSq = dx * dx + dy * dy;
-			if (distSq < searchRadius * searchRadius && distSq < bestDist) {
-				bestDist = distSq;
-				bestPuddle = p;
+
+			// Radius of impact (minimum 1.5 cells to allow growth of small puddles)
+			const impactRadius = Math.max(1.5, (p.size / 35.0) * 0.8);
+
+			if (distSq < impactRadius * impactRadius) {
+				if (distSq < bestDistSq) {
+					bestDistSq = distSq;
+					bestPuddle = p;
+				}
 			}
 		}
 
 		if (bestPuddle) {
-			bestPuddle.size = Math.min(PUDDLE_MAX_SIZE, bestPuddle.size + PUDDLE_GROWTH_SIZE);
-			bestPuddle.alpha = Math.min(PUDDLE_ALPHA_MAX, bestPuddle.alpha + 0.035);
+			// Grow and darken if hit directly
+			bestPuddle.size = Math.min(PUDDLE_MAX_SIZE, bestPuddle.size + PUDDLE_GROWTH_PER_DROP);
+			bestPuddle.alpha = Math.min(PUDDLE_ALPHA_MAX, bestPuddle.alpha + 0.02);
+
+			// Accumulate time: each drop adds 1.5s of life, capped at 10s max into the future
+			const currentLife = Math.max(0, (bestPuddle.nextDryTick || tick) - tick);
+			const newLife = Math.min(10000, currentLife + 1500);
+			bestPuddle.nextDryTick = tick + newLife;
+
 			bestPuddle.lastUpdate = tick;
-		} else {
-			if (this.puddles.length >= MAX_PUDDLES) {
-				this.puddles.shift(); // Remove oldest
+		} else if (Math.random() < PUDDLE_SEED_CHANCE) {
+			// Avoid seeding too close to ANY existing puddle (prevent stacking/darkening)
+			let tooClose = false;
+			for (let i = 0; i < this.puddles.length; i++) {
+				const p = this.puddles[i];
+				const dx = p.x - x;
+				const dy = p.y - y;
+				if (dx * dx + dy * dy < PUDDLE_MAX_SIZE / 4) {
+					// 12 cells avoidance radius
+					tooClose = true;
+					// Optionally give a small boost to the nearby puddle instead
+					p.size = Math.min(PUDDLE_MAX_SIZE, p.size + PUDDLE_GROWTH_PER_DROP * 0.5);
+					break;
+				}
 			}
-			this.puddles.push({
-				x: x,
-				y: y,
-				z: z,
-				size: 6.0,
-				alpha: 0.08,
-				angle: Math.random() * Math.PI * 2,
-				lastUpdate: tick
-			});
+
+			if (!tooClose) {
+				// Seed a new puddle spot
+				if (this.puddles.length >= MAX_PUDDLES) {
+					// Strategy: Instead of removing the oldest, remove the one with lowest visibility (smallest/faintest)
+					let worstIdx = 0;
+					let minScore = Infinity;
+					for (let i = 0; i < this.puddles.length; i++) {
+						const score = this.puddles[i].size * this.puddles[i].alpha;
+						if (score < minScore) {
+							minScore = score;
+							worstIdx = i;
+						}
+					}
+					this.puddles.splice(worstIdx, 1);
+				}
+				this.puddles.push({
+					x: x,
+					y: y,
+					z: z,
+					size: PUDDLE_INITIAL_SIZE,
+					alpha: 0.12,
+					angle: Math.random() * Math.PI * 2,
+					lastUpdate: tick,
+					nextDryTick: tick + 3500 // Initial life
+				});
+			}
 		}
 	}
 
-	render(gl, tick) {
+	render(gl, tick, puddlesOnly = false) {
 		if (!Session.Entity) {
 			return;
 		}
@@ -716,6 +771,11 @@ class RainWeatherEffect {
 		ensureSplashFrame(gl);
 		ensurePuddleFrame(gl);
 		initPuddleShader(gl);
+
+		if (puddlesOnly) {
+			this.renderPuddles(gl, tick);
+			return;
+		}
 
 		if (!_dropFrame) {
 			return;
@@ -966,8 +1026,9 @@ class RainWeatherEffect {
 				SpriteRenderer.render(false);
 			}
 		}
+	}
 
-		// --- Render Puddles (Horizontal Quads) ---
+	renderPuddles(gl, tick) {
 		if (_puddleFrame && this.puddles.length) {
 			const self = this;
 			SpriteRenderer.runWithDepth(true, false, false, () => {
@@ -1003,21 +1064,28 @@ class RainWeatherEffect {
 
 				for (let p = self.puddles.length - 1; p >= 0; p--) {
 					const puddle = self.puddles[p];
-					const idleTime = tick - puddle.lastUpdate;
+					// Evaporate slowly if not hit by rain for a while
+					// Each drop adds 1.5s of life up to a hard cap of 10s.
+					if (tick > (puddle.nextDryTick || tick)) {
+						const dt = tick - (puddle._lastTick || tick);
+						// Larger puddles dry out slower but start shrinking sooner
+						const evaporationRate = PUDDLE_FADE_SPEED / (1.0 + puddle.size * 0.003);
+						const fade = evaporationRate * dt;
 
-					// Slowly fade if not being hit by rain
-					if (idleTime > 1000) {
-						puddle.alpha -= PUDDLE_FADE_SPEED * (tick - (puddle._lastTick || tick));
+						puddle.alpha -= fade;
+						// Shrink all the way to nothing (fadeout + encolher)
+						puddle.size -= fade * 8500.0;
 					}
 					puddle._lastTick = tick;
 
-					if (puddle.alpha <= 0) {
+					// Remove only when practically invisible or shrunk to nothing
+					if (puddle.size <= 0.1 || puddle.alpha <= 0.0001) {
 						self.puddles.splice(p, 1);
 						continue;
 					}
 
 					// Uniforms for this puddle
-					gl.uniform3f(uniform.uWorldPosition, puddle.x, puddle.y, puddle.z + 0.05);
+					gl.uniform3f(uniform.uWorldPosition, puddle.x, puddle.y, puddle.z + 0.01);
 					gl.uniform2f(uniform.uSize, puddle.size, puddle.size);
 					gl.uniform1f(uniform.uAngle, puddle.angle);
 					gl.uniform4f(uniform.uColor, 1.0, 1.0, 1.0, puddle.alpha);
