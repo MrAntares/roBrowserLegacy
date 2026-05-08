@@ -18,8 +18,8 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Camera from 'Renderer/Camera.js';
 import Preferences from 'Preferences/Audio.js';
 import Session from 'Engine/SessionStorage.js';
-import _puddleVs from './Puddle.vs?raw';
-import _puddleFs from './Puddle.fs?raw';
+import _puddleVs from './RainWeather.vs?raw';
+import _puddleFs from './RainWeather.fs?raw';
 import WebGL from 'Utils/WebGL.js';
 
 const RAG_TICK_MS = 25;
@@ -1056,9 +1056,9 @@ class RainWeatherEffect {
 				// Pass time for procedural ripples
 				gl.uniform1f(uniform.uTime, tick * 0.001);
 
-				// Pass player and camera info for interaction and Fresnel
-				gl.uniform2f(uniform.uPlayerPos, Session.Entity.position[0], Session.Entity.position[1]);
+				// Pass camera info for Fresnel reflections (Platinum look)
 				gl.uniform3fv(uniform.uCameraPos, Camera.position);
+
 				gl.bindBuffer(gl.ARRAY_BUFFER, _puddleBuffer);
 				gl.enableVertexAttribArray(attribute.aPosition);
 				gl.enableVertexAttribArray(attribute.aTextureCoord);

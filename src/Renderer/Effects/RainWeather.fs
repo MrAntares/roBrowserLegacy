@@ -12,7 +12,6 @@ uniform vec3 uFogColor;
 uniform float uFogNear;
 uniform float uFogFar;
 uniform bool uFogUse;
-uniform vec2 uPlayerPos;
 uniform vec3 uCameraPos;
 
 void main(void) {
@@ -37,26 +36,16 @@ void main(void) {
 	vec3 viewDir = normalize(uCameraPos - vWorldPos);
 	float fresnel = pow(1.0 - max(0.0, dot(viewDir, vec3(0.0, 1.0, 0.0))), 3.5);
 
-	// Player Interaction Ripple
-	float playerDist = distance(vWorldPos.xz, uPlayerPos);
-	float playerRipple = 0.0;
-	if (playerDist < 1.8) {
-		playerRipple = sin(playerDist * 15.0 - uTime * 6.0) * (1.0 - playerDist / 1.8) * 0.15;
-	}
-
-	// Combine all waves
-	float finalWave = combinedWave + playerRipple;
-
 	// Fake sky reflection (Bright Platinum mix)
 	vec3 skyReflect = vec3(0.88, 0.92, 1.0); 
-	float reflectFactor = (pow(max(0.0, finalWave), 2.2) * 0.4 + fresnel * 0.5) * 0.8;
+	float reflectFactor = (pow(combinedWave, 2.5) * 0.45 + fresnel * 0.5) * 0.8;
 	
 	// Brighter deep water tone
 	texColor.rgb *= 0.98; 
 	texColor.rgb = mix(texColor.rgb, skyReflect, reflectFactor);
 
-	// Stronger dynamic specular highlight (shine)
-	float shine = pow(max(0.0, finalWave), 6.0) * 0.6 + fresnel * 0.1;
+	// Dynamic specular highlight (shine) on wave peaks
+	float shine = pow(combinedWave, 8.0) * 0.55 + fresnel * 0.1;
 	texColor.rgb += vec3(shine);
 
 	// Final color with alpha from uColor
