@@ -196,7 +196,6 @@ function onReload() {
 	// Just 1 server, skip the WinList
 	else if (count === 1 && Configs.get('skipServerList')) {
 		LoginEngine.init(_servers[0]);
-		Background.remove();
 	} else {
 		for (i = 0; i < count; ++i) {
 			list[i] = _servers[i].display;
@@ -215,7 +214,6 @@ function onReadyLoginServer(index) {
 	_previous_server = _servers[index];
 
 	WinList.remove();
-	Background.remove();
 	LoginEngine.init(_servers[index]);
 }
 
