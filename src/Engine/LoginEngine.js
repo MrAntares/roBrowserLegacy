@@ -33,7 +33,6 @@ import Rijndael from 'Utils/Rijndael.js';
 
 // Version Dependent UIs
 import WinLogin from 'UI/Components/WinLogin/WinLogin.js';
-import WinLoginBackground from 'UI/Components/WinLogin/WinLoginBackground.js';
 
 /**
  * Creating WinLoading
@@ -114,7 +113,7 @@ class LoginEngine {
 				// Re-Loading game data with server specific files (txt, lua, lub)
 				q.add(() => {
 					DB.onReady = () => {
-						Background.setImage('bgi_temp.bmp'); // remove loading
+						Background.setLoginBackground(); // remove loading
 						q._next();
 					};
 					DB.onProgress = (i, count) => {
@@ -123,7 +122,7 @@ class LoginEngine {
 					UIManager.removeComponents();
 					Background.init();
 					Background.resize(Renderer.width, Renderer.height);
-					Background.setImage('bgi_temp.bmp', () => {
+					Background.setLoginBackground(() => {
 						DB.isLoaded = false;
 						DB.init();
 					});
@@ -144,7 +143,7 @@ class LoginEngine {
 
 		// Hooking win_login
 		WinLogin.selectUIVersion();
-		WinLoginBackground.selectUIVersion();
+		Background.setLoginBackground();
 
 		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
 		WinLogin.getUI().onExitRequest = onExitRequest;
@@ -387,7 +386,6 @@ function onConnectionAccepted(pkt) {
 			WinList.remove();
 			WinLogin.getUI().append();
 		};
-		WinLoginBackground.getUI().append();
 		WinList.append();
 		WinList.setList(list);
 	}

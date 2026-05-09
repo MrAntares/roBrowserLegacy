@@ -23,7 +23,6 @@ import htmlText from './CharSelectV4.html?raw';
 import cssText from './CharSelectV4.css?raw';
 import Client from 'Core/Client.js';
 import jQuery from 'Utils/jquery.js';
-import WinLoginBackground from 'UI/Components/WinLogin/WinLoginBackground.js';
 
 /**
  * Create Chararacter Selection namespace
@@ -137,10 +136,6 @@ let _bgInterval = null;
  * Once append to body
  */
 CharSelectV4.onAppend = function onAppend() {
-	if (WinLoginBackground) {
-		WinLoginBackground.getUI().append();
-	}
-
 	CharSelectV4.clearAllSlots();
 
 	//_index = _preferences.index;

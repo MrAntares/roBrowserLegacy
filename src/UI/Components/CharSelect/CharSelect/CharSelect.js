@@ -21,7 +21,6 @@ import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
 import htmlText from './CharSelect.html?raw';
 import cssText from './CharSelect.css?raw';
-import WinLoginBackground from 'UI/Components/WinLogin/WinLoginBackground.js';
 
 /**
  * Create Chararacter Selection namespace
@@ -123,10 +122,6 @@ CharSelect.init = function Init() {
  * Once append to body
  */
 CharSelect.onAppend = function onAppend() {
-	if (WinLoginBackground) {
-		WinLoginBackground.getUI().append();
-	}
-
 	_index = _preferences.index;
 
 	this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
