@@ -17,8 +17,6 @@ import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 
-
-
 /**
  * @var {jQuery} Background overlay (used for transition)
  */
@@ -56,8 +54,6 @@ const _ctx = _canvas[0].getContext('2d');
  * @var {number} percent
  */
 let _progress = -1;
-
-
 
 /**
  * Render background (or a black background if no image is loaded yet)
@@ -123,7 +119,7 @@ class Background {
 	static setImage(filename, callback) {
 		const exist = !!_container[0].parentNode;
 		_progress = -1;
-		
+
 		_container.empty().css('backgroundImage', 'none');
 		render();
 
@@ -146,7 +142,7 @@ class Background {
 
 			filename.forEach((file, index) => {
 				const fullPath = DB.INTERFACE_PATH + file;
-				
+
 				Client.loadFile(
 					fullPath,
 					url => {
@@ -310,8 +306,6 @@ class Background {
 		);
 	}
 }
-
-
 
 /**
  * Play with the overlay

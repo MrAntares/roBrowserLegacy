@@ -60,7 +60,6 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	};
 
 	Component.onAppend = function onAppend() {
-
 		_inputUsername.value = _preferences.saveID ? _preferences.ID : '';
 		_inputPassword.value = '';
 
