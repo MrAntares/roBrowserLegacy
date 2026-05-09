@@ -148,6 +148,14 @@ class LoginEngine {
 		WinLogin.getUI().onConnectionRequest = onConnectionRequest;
 		WinLogin.getUI().onExitRequest = onExitRequest;
 
+		// Handle unexpected disconnects during login phase
+		Network.onDisconnect = () => {
+			UIManager.showMessageBox(DB.getMessage(1), 'ok', () => {
+				UIManager.removeComponents();
+				WinLogin.getUI().append();
+			}, true);
+		};
+
 		// Autologin features
 		if (autoLogin instanceof Array && autoLogin[0] && autoLogin[1]) {
 			onConnectionRequest.apply(null, autoLogin);
@@ -215,7 +223,10 @@ function onConnectionRequest(username, password) {
 	Network.connect(_server.address, _server.port, success => {
 		// Fail to connect...
 		if (!success) {
-			UIManager.showErrorBox(DB.getMessage(1));
+			UIManager.showMessageBox(DB.getMessage(1), 'ok', () => {
+				UIManager.removeComponents();
+				WinLogin.getUI().append();
+			}, true);
 			return;
 		}
 
@@ -336,6 +347,7 @@ function onCharServerSelected(index) {
 	WinLoading.append();
 
 	Session.ServerName = _charServers[index].name; // Save server name
+	Network.onDisconnect = null; // Let CharEngine handle its own disconnects
 	CharEngine.init(_charServers[index]);
 }
 
@@ -374,6 +386,7 @@ function onConnectionAccepted(pkt) {
 	if (count === 1 && Configs.get('skipServerList')) {
 		WinLoading.append();
 		Session.ServerName = _charServers[0].name; // Save server name
+		Network.onDisconnect = null; // Let CharEngine handle its own disconnects
 		CharEngine.init(_charServers[0]);
 	}
 
@@ -544,7 +557,10 @@ function onServerClosed(pkt) {
 			break; // More than 10 connections sharing the same IP have logged into the game for an hour. (1176)
 	}
 
-	UIManager.showErrorBox(DB.getMessage(msg_id));
+	UIManager.showMessageBox(DB.getMessage(msg_id), 'ok', () => {
+		UIManager.removeComponents();
+		WinLogin.getUI().append();
+	}, true);
 	Network.close();
 }
 
