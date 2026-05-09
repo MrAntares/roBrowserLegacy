@@ -150,10 +150,15 @@ class LoginEngine {
 
 		// Handle unexpected disconnects during login phase
 		Network.onDisconnect = () => {
-			UIManager.showMessageBox(DB.getMessage(1), 'ok', () => {
-				UIManager.removeComponents();
-				WinLogin.getUI().append();
-			}, true);
+			UIManager.showMessageBox(
+				DB.getMessage(1),
+				'ok',
+				() => {
+					UIManager.removeComponents();
+					WinLogin.getUI().append();
+				},
+				true
+			);
 		};
 
 		// Autologin features
@@ -223,10 +228,15 @@ function onConnectionRequest(username, password) {
 	Network.connect(_server.address, _server.port, success => {
 		// Fail to connect...
 		if (!success) {
-			UIManager.showMessageBox(DB.getMessage(1), 'ok', () => {
-				UIManager.removeComponents();
-				WinLogin.getUI().append();
-			}, true);
+			UIManager.showMessageBox(
+				DB.getMessage(1),
+				'ok',
+				() => {
+					UIManager.removeComponents();
+					WinLogin.getUI().append();
+				},
+				true
+			);
 			return;
 		}
 
@@ -557,10 +567,15 @@ function onServerClosed(pkt) {
 			break; // More than 10 connections sharing the same IP have logged into the game for an hour. (1176)
 	}
 
-	UIManager.showMessageBox(DB.getMessage(msg_id), 'ok', () => {
-		UIManager.removeComponents();
-		WinLogin.getUI().append();
-	}, true);
+	UIManager.showMessageBox(
+		DB.getMessage(msg_id),
+		'ok',
+		() => {
+			UIManager.removeComponents();
+			WinLogin.getUI().append();
+		},
+		true
+	);
 	Network.close();
 }
 
