@@ -380,8 +380,11 @@ class FileManager {
 	 * @return {string|object}
 	 */
 	static load(filename, callback, args) {
-		if (!filename) {
-			callback(null, 'undefined ?');
+		if (!filename || typeof filename !== 'string') {
+			callback(
+				null,
+				'FileManager.load() called without a valid filename string. Got instead ' + typeof filename + ' ?'
+			);
 			return;
 		}
 

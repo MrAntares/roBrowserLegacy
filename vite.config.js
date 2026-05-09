@@ -12,6 +12,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'jquery': path.resolve(__dirname, 'src/Vendors/jquery-1.9.1.js'),
+			Api: path.resolve(__dirname, './src/Api'),
 			App: path.resolve(__dirname, './src/App'),
 			Audio: path.resolve(__dirname, './src/Audio'),
 			Controls: path.resolve(__dirname, './src/Controls'),

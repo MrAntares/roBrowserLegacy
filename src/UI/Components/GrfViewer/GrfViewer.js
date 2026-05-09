@@ -23,9 +23,9 @@ import UIComponent from 'UI/UIComponent.js';
 import htmlText from './GrfViewer.html?raw';
 import cssText from './GrfViewer.css?raw';
 import History from './History.js';
-import '../../../../applications/api/api.js';
+import '../../../../applications/api/api_template.js';
 
-// Ugly, require api.js to display models and map
+// Ugly, require api_template.js to display models and map
 /**
  * Create GRFViewer component
  */

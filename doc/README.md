@@ -190,6 +190,7 @@ The project uses a custom build system based on Vite and Rollup for bundling ES6
 - `npm run build:threadhandler` - Build ThreadEventHandler.js.
 - `npm run build:html` - Generate HTML files only.
 - `npm run build:ai` - Build AI scripts only.
+- `npm run build:api` - Build api.js and copy components that use it.
 
 ### Custom Builder Options
 
@@ -204,9 +205,9 @@ Supported flags:
 
 - `--all` or `-a`: Build all applications.
 - `--m`: Enable minification with Terser.
-- Specific app flags: `-O` (Online), `-V` (MapViewer), `-G` (GrfViewer), `-M` (ModelViewer), `-S` (StrViewer), `-E` (EffectViewer), `-T` (ThreadEventHandler), `-H` (HTML), `-PWA` (PWA build).
+- Specific app flags: `-O` (Online), `-V` (MapViewer), `-G` (GrfViewer), `-M` (ModelViewer), `-S` (StrViewer), `-E` (EffectViewer), `-T` (ThreadEventHandler), `-H` (HTML), `-PWA` (PWA build), `-API` (api.js, required for HTML builds).
 
-Output is generated in the `dist/Web/` directory for web builds and `dist/Desktop/` for NW.js builds.
+Output is generated in the `dist/Web/` directory for web builds, `dist/Desktop/` for NW.js builds, and `dist/subapps/api/` for API builds.
 
 # 4. Serving and Running roBrowser
 
@@ -441,7 +442,45 @@ var ROConfig = {
 	enableCheckAttendance: false, // Enable Check Attendance? (Requires PACKETVER 20180307 above)
 	enableHomunAutoFeed: false, // Enable Homunculus Auto Feed for older PACKETVER than 20170920
 	loadLua: false, // Enable this option to load LUA tables (currently only item table) from client/System/...
-	customItemInfo: ['kRO.lua', 'jRO.lua', 'lua files514/iteminfo.lua'], // Customized iteminfo array-list, it loads using firt to last priority
+
+	// Custom Paths support - These can be part of the server config as well, and override the built-in paths for their respective files.
+	// Multiple paths can be configured for a given item, and they will be loaded using first to last priority.
+	// If no path is given for an item in Config.js / Config.local.js, then default values will be loaded from src/Api/ApiConfig.js.
+	//
+	// Note: Previously, a config item called customItemInfo was available. This has been deprecated and replaced with the itemInfo entry in customLUAPaths below.
+	// Configs using customItemInfo should migrate the array to customLUAPaths. Or the client will not load the custom item data.
+	// 	E.x.
+	//		customItemInfo: ['item.lub']
+	//	becomes
+	//		customLUAPaths: { itemInfo: ['item.lub'] }
+	//
+	// In addition, previous releases checked for additional path variations on files in the System/SystemEN folder when the defaults were used.
+	// 	I.e. Looking for 'System/mapInfo.lua' would also check for:
+	//		'System/mapInfo.lub'
+	//		'System\\mapInfo.lua'
+	//		'System\\mapInfo.lub'
+	//		'SystemEN/mapInfo.lua'
+	//		'SystemEN/mapInfo.lub'
+	//		'SystemEN\\mapInfo.lua'
+	//		'SystemEN\\mapInfo.lub'
+	// Checking these alternate paths has also been deprecated.
+	//
+	// If the default paths, some listed below, are incorrect for your System folder / GRFs, you will need to provide the *full* correct paths
+	// in customLUAPaths below. Otherwise, your client will error out upon trying to load those files.
+	// (If your PACKETVER / config settings requires them.)
+	customLUAPaths: {
+		checkAttendance: ['System/CheckAttendance.lub'], // Customized CheckAttendance array-list.
+		itemInfo: ['System/itemInfo.lub'], // Customized iteminfo array-list.
+		mapInfo: ['System/mapInfo.lub'], // Customized mapInfo array-list.
+		ongoingQuestInfoList: ['System/OngoingQuestInfoList.lub'], // Customized ongoing quest info array-list.
+		ongoingQuestInfoData: ['SystemEN/OngoingQuests.lub'], // Customized OngoingQuests array-list.
+		petEvolution: ['System/PetEvolutionCln.lub'], // Customized PetEvolution array-list.
+		petInfo: ['data/luafiles514/lua files/datainfo/petinfo.lub'], // Customized petinfo array-list.
+		signBoardData: ['SystemEN/Sign_Data.lub'], // Customized signboard data array-list.
+		signBoardList: ['data/luafiles514/lua files/SignBoardList.lub'], // Customized signboard array-list.
+		townInfo: ['System/Towninfo.lub'], // Customized towninfo array-list.
+		townData: ['SystemEN/Towninfo.lub'], // Customized towninfo array-list.
+	},
 
 	//clientHash:    '113e195e6c051bb1cfb12a644bb084c5', // Set fixed client hash value here (less secure, for development only)
 	calculateHash: false, // When true, the client will calculate it's own hash and send that value (slower, more secure, only when development is false). Must provide the list of files in hashFiles!
@@ -618,7 +657,23 @@ You probably forgot the step about `AI` `require` replacement in `Add game asset
 
 You probably have a server security issue if your server is public. Check your certificates and make sure you configured everything to run securely, you provided the required configuration values in `https`/`wss` and that the main page of roBrowser is also opened with `https`. Redirecting every `http` call to `https` on the webserver is also probably a good idea.
 
-## 9.5 Troubleshooting: Other
+## 9.5 Troubleshooting: api.js 403 Not Found
+
+You forgot to run the api.js build, or are trying to run an html application that requires it directly from the source tree.
+
+Previous releases supported running the html apps from the source tree, but this has been deprecated in favor of using a combined config template with a single source of truth.
+
+If you are upgrading from a previous release / build, you'll need to do the following:
+ - Build api.js (see section `3.6 Build Information` above).
+
+ - Remove any old default values from your previous config files. (They will act as overrides otherwise. See `src/Api/ApiConfig.js` for a list of defaults.)
+
+ - If you relied on the old defaults `type: POPUP`, `version: ''`, or `application: ROBrowser.APP.ONLINE`, you'll need to add them to your config as an override.
+   They are not specified by default. As it's up to the app to decide how to configure roBrowser for it's use.
+
+ - Run the app from the generated `dist/subapp` directory.
+
+## 9.6 Troubleshooting: Other
 
 I personally had to disable `metamask` extension.
 
