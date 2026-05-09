@@ -57,15 +57,7 @@ const _ctx = _canvas[0].getContext('2d');
  */
 let _progress = -1;
 
-/**
- * @var {Image} Background Image
- */
-const _image = new Image();
 
-/**
- * @var {Array<Image>} Background Images (for grid layouts)
- */
-let _images = [];
 
 /**
  * Render background (or a black background if no image is loaded yet)
@@ -137,7 +129,6 @@ class Background {
 
 		if (Array.isArray(filename)) {
 			let loadedCount = 0;
-			let successCount = 0;
 			const total = filename.length;
 			const divs = [];
 
@@ -162,7 +153,6 @@ class Background {
 						divs[index].css('backgroundImage', 'url(' + url + ')');
 
 						loadedCount++;
-						successCount++;
 						if (loadedCount === total) {
 							if (exist && callback) callback();
 						}
