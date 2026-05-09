@@ -62,6 +62,12 @@ let _socket = null;
 let _save_buffer = null;
 
 /**
+ * Custom callback for disconnection
+ * @type {function}
+ */
+let _onDisconnect = null;
+
+/**
  * Defines if dump packets as hex string
  * @const {boolean}
  */
@@ -352,9 +358,13 @@ function onClose() {
 			clearInterval(_socket.ping);
 		}
 
-		import('UI/UIManager.js').then(UIManager => {
-			UIManager.default.showErrorBox('Disconnected from Server.');
-		});
+		if (_onDisconnect) {
+			_onDisconnect();
+		} else {
+			import('UI/UIManager.js').then(UIManager => {
+				UIManager.default.showErrorBox('Disconnected from Server.');
+			});
+		}
 	}
 
 	if (idx !== -1) {
@@ -370,19 +380,20 @@ function close() {
 	let idx;
 
 	if (_socket) {
-		_socket.close();
+		const s = _socket;
+		_socket = null;
 
-		if (_socket.izZone) {
+		s.close();
+
+		if (s.izZone) {
 			PacketCrypt.reset();
 		}
 
-		if (_socket.ping) {
-			clearInterval(_socket.ping);
+		if (s.ping) {
+			clearInterval(s.ping);
 		}
 
-		idx = _sockets.indexOf(_socket);
-		_socket = null;
-
+		idx = _sockets.indexOf(s);
 		if (idx !== -1) {
 			_sockets.splice(idx, 1);
 		}
@@ -476,6 +487,12 @@ const Network = (function network() {
 		hookPacket: hookPacket,
 		close: close,
 		read: read,
+		set onDisconnect(callback) {
+			_onDisconnect = callback;
+		},
+		get onDisconnect() {
+			return _onDisconnect;
+		},
 		setSocketFactory: setSocketFactory,
 		defaultSocketFactory: defaultSocketFactory,
 		registerPacket: registerPacket,
