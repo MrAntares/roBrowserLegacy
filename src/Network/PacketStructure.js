@@ -11116,6 +11116,13 @@ PACKET.ZC.NOTIFY_MONSTER_HP = function PACKET_ZC_NOTIFY_MONSTER_HP(fp, end) {
 };
 PACKET.ZC.NOTIFY_MONSTER_HP.size = 14;
 
+// 0xa36
+PACKET.ZC.HP_INFO_TINY = function PACKET_ZC_HP_INFO_TINY(fp, end) {
+	this.GID = fp.readULong();
+	this.hp = fp.readUChar();
+};
+PACKET.ZC.HP_INFO_TINY.size = 7;
+
 // 0x97a
 PACKET.ZC.ALL_QUEST_LIST_V2 = function PACKET_ZC_ALL_QUEST_LIST_V2(fp, end) {
 	this.questCount = fp.readLong();

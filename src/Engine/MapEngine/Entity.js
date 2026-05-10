@@ -1085,6 +1085,25 @@ function onEntityLifeUpdate(pkt) {
 		entity.life.hp = pkt.hp;
 		entity.life.hp_max = pkt.maxhp;
 		entity.life.update();
+		entity.life.display = true;
+	}
+}
+
+/**
+ * Update entity's life (Tiny)
+ *
+ * @param {object} pkt - PACKET.ZC.HP_INFO_TINY
+ */
+function onEntityLifeUpdateTiny(pkt) {
+	const hp = pkt.hp * 5;
+	EntityManager.storeLife(pkt.GID, { hp: hp, hp_max: 100 });
+
+	const entity = EntityManager.get(pkt.GID);
+	if (entity) {
+		entity.life.hp = hp;
+		entity.life.hp_max = 100;
+		entity.life.update();
+		entity.life.display = true;
 	}
 }
 
@@ -2841,6 +2860,7 @@ export default function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.RESURRECTION, onEntityResurect);
 	Network.hookPacket(PACKET.ZC.EMOTION, onEntityEmotion);
 	Network.hookPacket(PACKET.ZC.NOTIFY_MONSTER_HP, onEntityLifeUpdate);
+	Network.hookPacket(PACKET.ZC.HP_INFO_TINY, onEntityLifeUpdateTiny);
 	Network.hookPacket(PACKET.ZC.QUEST_NOTIFY_EFFECT, onEntityQuestNotifyEffect);
 	Network.hookPacket(PACKET.ZC.BLADESTOP, onBladeStopPacket);
 	Network.hookPacket(PACKET.ZC.NOTIFY_EXP, onNotifyExp);

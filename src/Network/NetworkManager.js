@@ -183,8 +183,12 @@ function send(buffer) {
  * @param {function} struct - packet structure callback
  */
 function registerPacket(id, Struct) {
-	Struct.id = id;
-	Packets.list[id] = new Packets(Struct.name, Struct, Struct.size);
+	if (Struct) {
+		Struct.id = id;
+		Packets.list[id] = new Packets(Struct.name, Struct, Struct.size);
+	} else {
+		console.error("registerPacket: Struct is undefined for id: 0x" + parseInt(id, 10).toString(16));
+	}
 }
 
 /**
