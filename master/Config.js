@@ -60,4 +60,5 @@ window.ROConfigBase = {
     ThirdPersonCamera: false,  
     transitionDuration: 500,  
     restoreChatFocus: false,  
+    useSystemFolderFont: false  
 };  
