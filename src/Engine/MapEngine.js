@@ -30,7 +30,6 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import EffectManager from 'Renderer/EffectManager.js';
-import Background from 'UI/Background.js';
 import Escape from 'UI/Components/Escape/Escape.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import ChatBoxSettings from 'UI/Components/ChatBoxSettings/ChatBoxSettings.js';
@@ -271,6 +270,7 @@ class MapEngine {
 			Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY3, onConfigNotify);
 			Network.hookPacket(PACKET.ZC.CONFIG_NOTIFY4, onConfigNotify);
 			Network.hookPacket(PACKET.ZC.CONFIG, onConfig);
+			Network.hookPacket(PACKET.ZC.REFUSE_ENTER, onConnectionRefused);
 
 			// hook reassembly packets and map the responses
 			for (let i = 1; i <= 42; i++) {
@@ -602,6 +602,15 @@ function onConnectionAccepted(pkt) {
 }
 
 /**
+ * onConnectionRefused
+ *
+ * @param {object} pkt - PACKET.ZC.REFUSE_ENTER
+ */
+function onConnectionRefused(pkt) {
+	UIManager.showErrorBox(DB.getMessage(9)); // MSI_ACCESS_DENIED = Rejected from Server.
+}
+
+/**
  * Changing map, loading new map
  *
  * @param {object} pkt - PACKET.ZC.NPCACK_MAPMOVE
@@ -800,14 +809,7 @@ function onExitSuccess() {
 	MapRenderer.free();
 	SoundManager.stop();
 	BGM.stop();
-	if (PACKETVER.value < 20181114) {
-		Background.remove();
-		Background.setImage('bgi_temp.bmp', () => {
-			import('Engine/GameEngine.js').then(m => m.default.reload());
-		});
-	} else {
-		import('Engine/GameEngine.js').then(m => m.default.reload());
-	}
+	import('Engine/GameEngine.js').then(m => m.default.reload());
 }
 
 /**

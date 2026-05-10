@@ -4968,7 +4968,7 @@ PACKET.ZC.ITEM_ENTRY.size = PACKETVER.value >= 20181121 ? 19 : 17;
 // 0x9e
 PACKET.ZC.ITEM_FALL_ENTRY = function PACKET_ZC_ITEM_FALL_ENTRY(fp, end) {
 	this.ITAID = fp.readULong();
-	this.ITID = fp.readUShort();
+	this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 	this.IsIdentified = fp.readUChar();
 	this.xPos = fp.readShort();
 	this.yPos = fp.readShort();
@@ -4976,7 +4976,7 @@ PACKET.ZC.ITEM_FALL_ENTRY = function PACKET_ZC_ITEM_FALL_ENTRY(fp, end) {
 	this.subY = fp.readUChar();
 	this.count = fp.readShort();
 };
-PACKET.ZC.ITEM_FALL_ENTRY.size = 17;
+PACKET.ZC.ITEM_FALL_ENTRY.size = PACKETVER.value >= 20181121 ? 19 : 17;
 
 // 0xa0
 PACKET.ZC.ITEM_PICKUP_ACK = function PACKET_ZC_ITEM_PICKUP_ACK(fp, end) {
@@ -10132,7 +10132,7 @@ PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME.size = -1;
 // 0x84b
 PACKET.ZC.ITEM_FALL_ENTRY2 = function PACKET_ZC_ITEM_FALL_ENTRY2(fp, end) {
 	this.ITAID = fp.readULong();
-	this.ITID = fp.readUShort();
+	this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 	this.type = fp.readUShort();
 	this.IsIdentified = fp.readUChar();
 	this.xPos = fp.readShort();
@@ -10141,7 +10141,7 @@ PACKET.ZC.ITEM_FALL_ENTRY2 = function PACKET_ZC_ITEM_FALL_ENTRY2(fp, end) {
 	this.subY = fp.readUChar();
 	this.count = fp.readShort();
 };
-PACKET.ZC.ITEM_FALL_ENTRY2.size = 19;
+PACKET.ZC.ITEM_FALL_ENTRY2.size = PACKETVER.value >= 20181121 ? 21 : 19;
 
 // 0x856
 PACKET.ZC.NOTIFY_MOVEENTRY6 = function PACKET_ZC_NOTIFY_MOVEENTRY6(fp, end) {
@@ -11529,6 +11529,13 @@ PACKET.CH.CHARLIST_REQ.prototype.build = function () {
 };
 PACKET.CH.CHARLIST_REQ.size = 2;
 
+// 0x9a5
+PACKET.AC.REFUSE_LOGIN3 = function PACKET_AC_REFUSE_LOGIN3(fp, end) {
+	this.ErrorCode = fp.readUChar();
+	this.blockDate = fp.readULong();
+};
+PACKET.AC.REFUSE_LOGIN3.size = 7;
+
 // 0x9a6
 PACKET.ZC.BANKING_CHECK = function PACKET_ZC_BANKING_CHECK(fp, end) {
 	this.money = fp.readLong();
@@ -11881,6 +11888,19 @@ PACKET.ZC.ACK_RODEX_LIST3 = function PACKET_ZC_ACK_RODEX_LIST3(fp, end) {
 	}
 };
 PACKET.ZC.ACK_RODEX_LIST3.size = -1;
+
+// 0xaca
+PACKET.AC.LOGIN_TAREN_REFUSE = function PACKET_AC_LOGIN_TAREN_REFUSE(fp, end) {
+	this.ErrorCode = fp.readUChar();
+};
+PACKET.AC.LOGIN_TAREN_REFUSE.size = 3;
+
+// 0xacd
+PACKET.AC.LOGIN_TAREN_REFUSE2 = function PACKET_AC_LOGIN_TAREN_REFUSE2(fp, end) {
+	this.ErrorCode = fp.readUChar();
+	this.blockDate = fp.readBinaryString(20);
+};
+PACKET.AC.LOGIN_TAREN_REFUSE2.size = 23;
 
 // 0x0b5a
 PACKET.ZC.GRADE_ENCHANT_MATERIAL_LIST = function PACKET_ZC_GRADE_ENCHANT_MATERIAL_LIST(fp, end) {
@@ -13368,12 +13388,19 @@ PACKET.CZ.UI_OPEN.prototype.build = function () {
 	return pkt_buf;
 };
 
+//0xae0
+PACKET.AC.REFUSE_LOGIN_USA = function PACKET_AC_REFUSE_LOGIN_USA(fp, end) {
+	this.ErrorCode = fp.readULong();
+	this.Error = fp.readULong();
+	this.blockDate = fp.readBinaryString(20);
+};
+PACKET.AC.REFUSE_LOGIN_USA.size = 30;
+
 //0xae2
 PACKET.ZC.UI_OPEN = function PACKET_ZC_UI_OPEN(fp, end) {
 	this.ui_type = fp.readByte();
 	this.data = fp.readULong();
 };
-
 PACKET.ZC.UI_OPEN.size = 7;
 
 // 0xb9a
@@ -13480,7 +13507,7 @@ PACKET.ZC.STORE_ASSISTANT_ENTRY = function PACKET_ZC_STORE_ASSISTANT_ENTRY(fp, e
 	this.GID = fp.readULong();
 	this.job = fp.readShort();
 	this.unknown = fp.readShort();
-	this.PosDir = [fp.readShort(), fp.readShort(), 6];
+	this.PosDir = [fp.readShort(), fp.readShort(), 4];
 	this.sex = fp.readUChar();
 	this.head = fp.readShort();
 	this.weapon = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
@@ -14109,6 +14136,13 @@ PACKET.ZC.ALL_QUEST_LIST_V4 = function PACKET_ZC_ALL_QUEST_LIST_V4(fp, end) {
 };
 PACKET.ZC.ALL_QUEST_LIST_V4.size = -1;
 
+// 0xb02
+PACKET.AC.REFUSE_LOGIN_EX = function PACKET_AC_REFUSE_LOGIN_EX(fp, end) {
+	this.ErrorCode = fp.readULong();
+	this.blockDate = fp.readBinaryString(20);
+};
+PACKET.AC.REFUSE_LOGIN_EX.size = 26;
+
 //0xb03
 PACKET.ZC.EQUIPWIN_MICROSCOPE_V6 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V6(fp, end) {
 	this.characterName = fp.readString(NAME_LENGTH);
@@ -14166,7 +14200,7 @@ PACKET.ZC.STORE_ASSISTANT_ENTRY_V2 = function PACKET_ZC_STORE_ASSISTANT_ENTRY_V2
 	this.GID = fp.readULong();
 	this.job = fp.readShort();
 	this.unknown = fp.readShort();
-	this.PosDir = [fp.readShort(), fp.readShort(), 6];
+	this.PosDir = [fp.readShort(), fp.readShort(), 4];
 	this.sex = fp.readUChar();
 	this.head = fp.readShort();
 	this.weapon = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
