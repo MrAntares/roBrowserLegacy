@@ -312,7 +312,10 @@ class DB {
 			};
 		}
 
-		loadFontFromClient('System/Font/');
+		if (Configs.get('useSystemFolderFont', false)) {
+			loadFontFromClient('System/Font/');
+		}
+
 		// Loading TXT Tables
 		loadTable(
 			'data/mp3nametable.txt',
@@ -3790,48 +3793,20 @@ function loadFontFromClient(fontPath) {
 					const fontUrl6 = 'data:font/opentype;base64,' + base64_6;
 
 					const style = document.createElement('style');
-					style.textContent = `  
+					style.textContent = `  						
 							@font-face {  
 								font-family: 'SCDream';  
-								src: url('${fontUrl6}') format('opentype');  
-								font-weight: 100; /* Thin */  
-								font-style: normal;  
-							}  
-							
-							@font-face {  
-								font-family: 'SCDream';  
-								src: url('${fontUrl6}') format('opentype');  
-								font-weight: 200; /* Extra Light */  
-								font-style: normal;  
-							}  
-							
-							@font-face {  
-								font-family: 'SCDream';  
-								src: url('${fontUrl6}') format('opentype');  
-								font-weight: 300; /* Light */  
-								font-style: normal;  
-							}  
-							
-							@font-face {  
-								font-family: 'SCDream';  
-								src: url('${fontUrl6}') format('opentype');  
+								src: url('${fontUrl4}') format('opentype');  
 								font-weight: 400; /* Normal */  
 								font-style: normal;  
 							}  
 							
 							@font-face {  
 								font-family: 'SCDream';  
-								src: url('${fontUrl4}') format('opentype');  
+								src: url('${fontUrl6}') format('opentype');  
 								font-weight: 700; /* Bold */  
 								font-style: normal;  
-							}  
-							
-							@font-face {  
-								font-family: 'SCDream';  
-								src: url('${fontUrl4}') format('opentype');  
-								font-weight: 900; /* Black/Bolder */  
-								font-style: normal;  
-							}  
+							}
 						`;
 					document.head.appendChild(style);
 				},

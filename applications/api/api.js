@@ -321,7 +321,12 @@
 		 * the total will be the double in ms because its used on fade in then on fade out
 		 * eg: if you use 500ms the transition will take 1000ms in total
 		 */
-		transitionDuration: 500
+		transitionDuration: 500,
+
+		/**
+		 * @type {boolean} Use system folder font for UI text
+		 */
+		useSystemFolderFont: false
 	};
 
 	/**
