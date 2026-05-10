@@ -105,6 +105,7 @@ class CharEngine {
 		// Hook packets
 		Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION, onConnectionAccepted);
 		Network.hookPacket(PACKET.HC.REFUSE_ENTER, onConnectionRefused);
+		Network.hookPacket(PACKET.HC.REFUSE_SELECTCHAR, onSelectionRefused);
 		Network.hookPacket(PACKET.HC.ACCEPT_MAKECHAR_NEO_UNION, onCreationSuccess);
 		Network.hookPacket(PACKET.HC.ACCEPT_MAKECHAR, onCreationSuccess);
 		Network.hookPacket(PACKET.HC.REFUSE_MAKECHAR, onCreationFail);
@@ -128,15 +129,10 @@ class CharEngine {
 	 */
 	static reload() {
 		Network.close();
-		if (PACKETVER.value < 20181114) {
-			Background.setImage('bgi_temp.bmp', () => {
-				UIManager.removeComponents();
-				CharEngine.init(_server);
-			});
-		} else {
+		Background.setLoginBackground(() => {
 			UIManager.removeComponents();
 			CharEngine.init(_server);
-		}
+		});
 	}
 }
 /**
@@ -223,6 +219,41 @@ function onConnectionAccepted(pkt) {
 }
 
 /**
+ * Server don't want the user to select a character
+ *
+ * @param {object} pkt - PACKET.HC.REFUSE_SELECTCHAR
+ */
+function onSelectionRefused(pkt) {
+	let msg_id;
+
+	switch (pkt.ErrorCode) {
+        case 0:
+          msg_id = 1350;
+          break;
+        case 1:
+          msg_id = 1351;
+          break;
+        case 2:
+          msg_id = 1352;
+          break;
+        case 3:
+          msg_id = 1353;
+          break;
+        case 4:
+          msg_id = 1354;
+          break;
+        case 5:
+          msg_id = 1364;
+          break;
+        default:
+          msg_id = 2;
+          break;
+	}
+
+	UIManager.showErrorBox(DB.getMessage(msg_id));
+}
+
+/**
  * Server don't want the user to connect
  *
  * @param {object} pkt - PACKET.HC.REFUSE_ENTER
@@ -231,11 +262,21 @@ function onConnectionRefused(pkt) {
 	let msg_id;
 
 	switch (pkt.ErrorCode) {
-		default:
-		case 0:
-			msg_id = 3;
+		case 1:
+			msg_id = 208;
 			break;
-		// other types ?
+		case 111:
+			msg_id = 1865;
+			break;
+		case 118:
+			msg_id = 3818;
+			break;
+		case 119:
+			msg_id = 2929;
+			break;
+		default:
+			msg_id = 2;
+			break;
 	}
 
 	UIManager.showErrorBox(DB.getMessage(msg_id));

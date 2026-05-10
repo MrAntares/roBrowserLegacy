@@ -21,14 +21,22 @@ canvas {
 }
 
 body {
-	background-color: black;
-	font-size: 12px;
-	font-family: 'SCDream', Arial, Helvetica, sans-serif;
+	background-color: #000;
+	color: #484848;
+	font-size: 11px;
+	font-weight: 400;
+	font-family: Gulim, Dotum, "Malgun Gothic", sans-serif, Arial;
 	overflow: hidden;
 	-webkit-user-select: none;
 	user-select: none;
 	min-width: 100vw;
 	min-height: 100vh;
+	letter-spacing: 0;
+	line-height: 1.2;
+}
+
+.title {
+	font-size: 12px;
 }
 
 button,
