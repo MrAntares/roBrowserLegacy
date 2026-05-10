@@ -25,7 +25,7 @@ body {
 	color: #484848;
 	font-size: 11px;
 	font-weight: 400;
-	font-family: Gulim, Dotum, "Malgun Gothic", sans-serif, Arial;
+	font-family: Gulim, Dotum, 'Malgun Gothic', sans-serif, Arial;
 	overflow: hidden;
 	-webkit-user-select: none;
 	user-select: none;

@@ -227,27 +227,27 @@ function onSelectionRefused(pkt) {
 	let msg_id;
 
 	switch (pkt.ErrorCode) {
-        case 0:
-          msg_id = 1350;
-          break;
-        case 1:
-          msg_id = 1351;
-          break;
-        case 2:
-          msg_id = 1352;
-          break;
-        case 3:
-          msg_id = 1353;
-          break;
-        case 4:
-          msg_id = 1354;
-          break;
-        case 5:
-          msg_id = 1364;
-          break;
-        default:
-          msg_id = 2;
-          break;
+		case 0:
+			msg_id = 1350;
+			break;
+		case 1:
+			msg_id = 1351;
+			break;
+		case 2:
+			msg_id = 1352;
+			break;
+		case 3:
+			msg_id = 1353;
+			break;
+		case 4:
+			msg_id = 1354;
+			break;
+		case 5:
+			msg_id = 1364;
+			break;
+		default:
+			msg_id = 2;
+			break;
 	}
 
 	UIManager.showErrorBox(DB.getMessage(msg_id));

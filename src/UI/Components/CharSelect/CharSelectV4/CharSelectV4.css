@@ -49,11 +49,11 @@
 }
 #CharSelectV4 .char_canvas .name {
 	position: absolute;
-    bottom: 17px;
-    width: 100%;
-    text-align: center;
-    font-weight: bold;
-    color: #15154a;
+	bottom: 17px;
+	width: 100%;
+	text-align: center;
+	font-weight: bold;
+	color: #15154a;
 }
 
 #CharSelectV4 .char_canvas .job_icon {

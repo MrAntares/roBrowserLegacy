@@ -499,13 +499,13 @@ function onTarenConnectionRefused(pkt) {
 function onTarenConnectionRefused2(pkt) {
 	let msg_id;
 
-	switch(pkt.ErrorCode){
+	switch (pkt.ErrorCode) {
 		case 1:
 			msg_id = 3196;
 			break; // MSI_TAREN_LOGINREFUSE_FAIL_ACCOUNT_NOTEXIST = This account does not exist.
 		case 2:
 			msg_id = 3197;
-			break // MSI_TAREN_LOGINREFUSE_FAIL_PASSWORD = Passwords does not match.
+			break; // MSI_TAREN_LOGINREFUSE_FAIL_PASSWORD = Passwords does not match.
 		case 3:
 			msg_id = 3198;
 			break; // MSI_TAREN_LOGINREFUSE_FAIL_IP = Failed to pass IP authentication
@@ -558,50 +558,50 @@ function onInternationalConnectionRefused(pkt) {
 	switch (pkt.ErrorCode) {
 		default:
 		case 5200:
-			msg_id = 3314
-			break // MSI_USA_LOGINERRORMSG_UNKNOWN = UNKNOWN ERROR:%d
+			msg_id = 3314;
+			break; // MSI_USA_LOGINERRORMSG_UNKNOWN = UNKNOWN ERROR:%d
 		case 5201:
-			msg_id = 3315
-			break // MSI_USA_LOGINERRORMSG_NOT_USER = NOT USER
+			msg_id = 3315;
+			break; // MSI_USA_LOGINERRORMSG_NOT_USER = NOT USER
 		case 5202:
-			msg_id = 3316
-			break // MSI_USA_LOGINERRORMSG_ID_BLOCK = THIS ACCOUNT ID IS BLOCKED
+			msg_id = 3316;
+			break; // MSI_USA_LOGINERRORMSG_ID_BLOCK = THIS ACCOUNT ID IS BLOCKED
 		case 5203:
-			msg_id = 3317
-			break // MSI_USA_LOGINERRORMSG_ID_INACTIVAT = COUNTRY REJECT (OR NOT AVALIABLE USER )
+			msg_id = 3317;
+			break; // MSI_USA_LOGINERRORMSG_ID_INACTIVAT = COUNTRY REJECT (OR NOT AVALIABLE USER )
 		case 5204:
-			msg_id = 3318
-			break // MSI_USA_LOGINERRORMSG_PASSWORD = NOT MATCH PASSWORD
+			msg_id = 3318;
+			break; // MSI_USA_LOGINERRORMSG_PASSWORD = NOT MATCH PASSWORD
 		case 5205:
-			msg_id = 3319
-			break // MSI_USA_LOGINERRORMSG_EMAIL_CERT = NOT EMAIL CERT
+			msg_id = 3319;
+			break; // MSI_USA_LOGINERRORMSG_EMAIL_CERT = NOT EMAIL CERT
 		case 5206:
-			msg_id = 3320
-			break // MSI_USA_LOGINERRORMSG_PAYPAL_BLOCK1 = PAYPAL BLOCK
+			msg_id = 3320;
+			break; // MSI_USA_LOGINERRORMSG_PAYPAL_BLOCK1 = PAYPAL BLOCK
 		case 5207:
-			msg_id = 3321
-			break // MSI_USA_LOGINERRORMSG_COUNTRY_REJECT = COUNTRY REJECT
+			msg_id = 3321;
+			break; // MSI_USA_LOGINERRORMSG_COUNTRY_REJECT = COUNTRY REJECT
 		case 5208:
-			msg_id = 3322
-			break // MSI_USA_LOGINERRORMSG_PAYPAL_BLOCK2 = PAYPAL BLOCK
+			msg_id = 3322;
+			break; // MSI_USA_LOGINERRORMSG_PAYPAL_BLOCK2 = PAYPAL BLOCK
 		case 5209:
-			msg_id = 3323
-			break // MSI_USA_LOGINERRORMSG_WEB_BLOCK = WEB BLOCK
+			msg_id = 3323;
+			break; // MSI_USA_LOGINERRORMSG_WEB_BLOCK = WEB BLOCK
 		case 5210:
-			msg_id = 3324
-			break // MSI_USA_LOGINERRORMSG_AGE = AGE LIMIT USER
+			msg_id = 3324;
+			break; // MSI_USA_LOGINERRORMSG_AGE = AGE LIMIT USER
 		case 5211:
-			msg_id = 3325
-			break // MSI_USA_LOGINERRORMSG_PASSWORD_CHANGE = PASSWORD HAS NOT BEEN CHANGED FOR MORE THAN 90DAYS
+			msg_id = 3325;
+			break; // MSI_USA_LOGINERRORMSG_PASSWORD_CHANGE = PASSWORD HAS NOT BEEN CHANGED FOR MORE THAN 90DAYS
 		case 5212:
-			msg_id = 3326
-			break // MSI_USA_LOGINERRORMSG_INPUTDATA = INPUT DATA ERROR
+			msg_id = 3326;
+			break; // MSI_USA_LOGINERRORMSG_INPUTDATA = INPUT DATA ERROR
 		case 5213:
-			msg_id = 3327
-			break // MSI_USA_LOGINERRORMSG_DATABASE = ERROR DATABASE
+			msg_id = 3327;
+			break; // MSI_USA_LOGINERRORMSG_DATABASE = ERROR DATABASE
 		case 5214:
-			msg_id = 3328
-			break // MSI_USA_LOGINERRORMSG_SYSTEM = ERROR SYSTEM
+			msg_id = 3328;
+			break; // MSI_USA_LOGINERRORMSG_SYSTEM = ERROR SYSTEM
 	}
 
 	UIManager.showMessageBox(
@@ -875,7 +875,7 @@ function onServerClosed(pkt) {
 			break; // MSI_BAN_PAY_CHANGE = Your connection is terminated due to change in the billing policy. Please connect again.
 		case 13:
 			msg_id = 577;
-			break; // MSI_BAN_PAY_WRONGIP = Your connection is terminated because your IP doesn't match the authorized IP from the account server. 
+			break; // MSI_BAN_PAY_WRONGIP = Your connection is terminated because your IP doesn't match the authorized IP from the account server.
 		case 14:
 			msg_id = 578;
 			break; // MSI_BAN_PAY_PNGAMEROOM = Your connection is terminated to prevent charging from your account's play time.
