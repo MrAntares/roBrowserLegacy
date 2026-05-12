@@ -10,24 +10,26 @@
 
 import StatusTable from 'DB/Status/StatusInfo.js';
 import DB from 'DB/DBManager.js';
-import jQuery from 'Utils/jquery.js';
 import Texture from 'Utils/Texture.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
+import htmlText from './StatusIcons.html?raw';
 import cssText from './StatusIcons.css?raw';
 
 /**
  * Create component
  */
-const StatusIcons = new UIComponent('StatusIcons', null, cssText);
+const StatusIcons = new GUIComponent('StatusIcons', cssText);
+
+StatusIcons.render = () => htmlText;
 
 /**
  * Mouse can cross this UI
  */
-StatusIcons.mouseMode = UIComponent.MouseMode.CROSS;
+StatusIcons.mouseMode = GUIComponent.MouseMode.CROSS;
 
 /**
  * @var {boolean} do not focus this UI
@@ -50,11 +52,11 @@ let _last_updated_time = Date.now();
 const _render_time = 500;
 
 /**
- * Initialize component
+ * Helper to get the shadow root
  */
-StatusIcons.init = function init() {
-	this.ui = jQuery('<div/>').attr('id', 'StatusIcons');
-};
+function _getRoot() {
+	return StatusIcons._shadow || StatusIcons._host;
+}
 
 /**
  * Start rendering icons
@@ -74,7 +76,11 @@ StatusIcons.onRemove = function onRemove() {
  * Clean up component
  */
 StatusIcons.clean = function clean() {
-	this.ui.empty();
+	const root = _getRoot();
+	const container = root.querySelector('#StatusIcons');
+	if (container) {
+		container.innerHTML = '';
+	}
 	_status = {};
 	ScreenEffectManager.clean();
 };
@@ -114,12 +120,12 @@ StatusIcons.update = function update(index, state, life) {
 	}
 
 	// Image already loaded
-	if (_status.img) {
+	if (_status[index].img) {
 		return;
 	}
 
 	// Load image
-	Client.loadFile('data/texture/effect/' + StatusTable[index].icon, function (data) {
+	Client.loadFile(`data/texture/effect/${StatusTable[index].icon}`, data => {
 		Texture.load(data, function () {
 			if (_status[index] && !_status[index].img) {
 				addResizedStatusIcon(this, index);
@@ -158,7 +164,7 @@ function addResizedStatusIcon(img, index) {
 
 	const resizedImg = new Image();
 	resizedImg.src = canvas.toDataURL();
-	resizedImg.onload = function () {
+	resizedImg.onload = () => {
 		_status[index].img = resizedImg;
 		addElement(_status[index].element);
 	};
@@ -170,7 +176,8 @@ function addResizedStatusIcon(img, index) {
  * Used when one element is removed.
  */
 function resetElementsPosition() {
-	const elements = StatusIcons.ui.find('.state');
+	const root = _getRoot();
+	const elements = root.querySelectorAll('.state');
 	const count = elements.length;
 	let x = 0;
 	let y = 0;
@@ -182,8 +189,8 @@ function resetElementsPosition() {
 		}
 
 		const element = elements[i];
-		element.style.top = y + 'px';
-		element.style.right = x + 'px';
+		element.style.top = `${y}px`;
+		element.style.right = `${x}px`;
 	}
 }
 
@@ -265,16 +272,20 @@ function createElement(index) {
  * @param {CanvasElement}
  */
 function addElement(element) {
-	const elements = StatusIcons.ui.find('.state');
+	const root = _getRoot();
+	const elements = root.querySelectorAll('.state');
 	const max = ((Renderer.height - 166) / 36) | 0;
 	const count = elements.length;
 	const x = ((count / max) | 0) * 45;
 	const y = (count % max) * 36;
 
-	element.style.top = y + 'px';
-	element.style.right = x + 'px';
+	element.style.top = `${y}px`;
+	element.style.right = `${x}px`;
 
-	StatusIcons.ui.append(element);
+	const container = root.querySelector('#StatusIcons');
+	if (container) {
+		container.appendChild(element);
+	}
 }
 
 /**
@@ -324,10 +335,8 @@ function renderStatus(status, now) {
 		status.time.textContent =
 			now >= end || end === Infinity
 				? ''
-				: (minutes ? minutes + ' ' + DB.getMessage(1807, 'minute') + ' ' : '') +
-					seconds +
-					' ' +
-					DB.getMessage(1808, 'second');
+				: (minutes ? `${minutes} ${DB.getMessage(1807, 'minute')} ` : '') +
+					`${seconds} ${DB.getMessage(1808, 'second')}`;
 	}
 }
 

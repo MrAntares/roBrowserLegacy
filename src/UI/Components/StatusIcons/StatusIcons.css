@@ -1,9 +1,11 @@
-#StatusIcons {
-	display: block;
-	position: absolute;
+:host {
 	top: 166px;
 	right: 20px;
-	z-index: 50;
+	overflow: visible;
+}
+
+#StatusIcons {
+	display: block;
 }
 
 #StatusIcons .state {
