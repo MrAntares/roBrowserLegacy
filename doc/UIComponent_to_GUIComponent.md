@@ -141,6 +141,34 @@ Key differences:
 - HTML is returned by `render()` method
 - Must `import 'UI/Elements/Elements.js'` to register custom elements [OPTIONAL]
 
+#### Components with `null` HTML (dynamic DOM)
+
+Some legacy UIComponents pass `null` for HTML and build their root element dynamically in `init()`:
+
+```javascript
+// Before (UIComponent) — no HTML template, root created at runtime
+const StatusIcons = new UIComponent('StatusIcons', null, cssText);
+
+StatusIcons.init = function init() {
+	this.ui = jQuery('<div/>').attr('id', 'StatusIcons');
+	// ... dynamically create child elements later
+};
+```
+
+For GUIComponent, you still need a minimal HTML template — the `render()` method must return something. Create a `.html` file with a minimal container:
+
+```html
+<!-- StatusIcons.html -->
+<div id="StatusIcons"></div>
+```
+
+```javascript
+// After (GUIComponent)
+const StatusIcons = new GUIComponent('StatusIcons', cssText);
+StatusIcons.render = () => htmlText; // ← returns the minimal <div> wrapper
+// Dynamic child elements are appended to this container at runtime
+```
+
 ### 3. Convert the HTML file [OPTIONAL]
 
 Replace `data-*` attributes with Custom Elements:
@@ -202,6 +230,45 @@ The host element (`this._host`) is what the outside world sees. Its dimensions d
 
 **WHY `position: absolute` on inner element**: The inner `#Clan` div needs `position: absolute` (or `relative`) to serve as a containing block for its children that use `position: absolute`. Without it, absolutely-positioned children would escape to the next positioned ancestor.
 
+#### 4b. Dynamic-size components (no fixed width/height)
+
+Some components (e.g., StatusIcons) have no fixed dimensions — they grow dynamically as children are added. In the original UIComponent, the single `#ComponentName` div was both the positioned element AND the container. In GUIComponent, `_host` is the positioned element and the inner `#ComponentName` div from `render()` is a separate element inside the shadow DOM.
+
+**RULE for dynamic-size components**: Do NOT add `position: absolute` to the inner `#ComponentName` div. This creates an extra 0×0 containing block inside the shadow DOM that breaks layout for absolutely-positioned children. Let `.state` (or similar child) elements use `_host` as their containing block instead.
+
+**Fixed-size components** (Clan, Inventory, etc.):
+
+```css
+:host {
+	width: 400px;
+	height: 317px;
+	top: 150px;
+	left: 150px;
+}
+
+#Clan {
+	position: absolute; /* ← NEEDED: serves as containing block for children */
+	width: 400px;
+	height: 317px;
+}
+```
+
+**Dynamic-size components** (StatusIcons, etc.):
+
+```css
+:host {
+	top: 166px;
+	right: 20px;
+	overflow: visible; /* ← ensures children aren't clipped beyond 0×0 host bounds */
+}
+
+#StatusIcons {
+	display: block; /* ← NO position: absolute — children position relative to _host */
+}
+```
+
+**WHY**: In the original UIComponent, `position: absolute` on the root div was necessary because it was the top-level element appended to `document.body`. In GUIComponent, `_host` already has `position: absolute` (set by `prepare()`). Adding it again on the inner div creates a redundant 0×0 positioned container inside the shadow DOM. For fixed-size components this is harmless (both have the same explicit dimensions), but for dynamic-size components it breaks the containing block chain — absolutely-positioned children end up positioned relative to a 0×0 box instead of the properly-positioned `_host`.
+
 ### 5. Convert DOM queries
 
 **Before (jQuery):**
@@ -222,6 +289,25 @@ closeBtn.addEventListener('click', () => { ... });
 ```
 
 **RULE**: Always query from `this._shadow` (or `this._host`), never from `document`. Elements inside Shadow DOM are invisible to `document.querySelector()`.
+
+#### Helper: `_getRoot()` for module-level components
+
+For components defined as module-level singletons (not using `this` inside methods), create a `_getRoot()` helper to avoid repeating the shadow root lookup:
+
+```javascript
+function _getRoot() {
+	return StatusIcons._shadow || StatusIcons._host;
+}
+
+// Usage in any function:
+function resetPositions() {
+	const root = _getRoot();
+	const elements = root.querySelectorAll('.state');
+	// ...
+}
+```
+
+This is preferred over `this._shadow || this._host` when the component's methods are plain functions (not on `this`), which is common for overlay/HUD components like StatusIcons, MiniMap, etc.
 
 ### 6. Convert event handlers
 
@@ -586,6 +672,30 @@ _bindKeyDown() {
 }
 ```
 
+### 9. Arrow functions break `this`-dependent callbacks (e.g., `Texture.load`)
+
+When converting callbacks from `function()` to arrow functions, check whether the callback relies on dynamic `this` binding via `.call()` or `.apply()`.
+
+**Example**: `Texture.load()` in `src/Utils/Texture.js` calls `oncomplete.apply(canvas, args)`, setting `this` to the loaded canvas element. If you convert the callback to an arrow function, `this` captures the outer lexical scope instead of the canvas.
+
+```javascript
+// WRONG — arrow function ignores .apply(canvas), `this` is outer scope
+Client.loadFile(path, data => {
+	Texture.load(data, () => {
+		addResizedStatusIcon(this, index); // `this` is NOT the canvas!
+	});
+});
+
+// CORRECT — regular function receives `this` = canvas from .apply()
+Client.loadFile(path, data => {
+	Texture.load(data, function () {
+		addResizedStatusIcon(this, index); // `this` is the canvas ✓
+	});
+});
+```
+
+**RULE**: Keep callbacks as regular `function()` when the caller uses `.call()`, `.apply()`, or sets `this` dynamically. This pattern appears in `Texture.load`, `Client.loadFile` completions, and some event handlers. The outer callback (e.g., `Client.loadFile`'s callback) can safely be an arrow function if it doesn't use `this`.
+
 ---
 
 ## Reference: Clan Component (first GUIComponent migration)
@@ -617,6 +727,38 @@ _bindKeyDown() {
 
 ---
 
+## Reference: StatusIcons Component (dynamic-size, no fixed dimensions)
+
+### Files
+
+- `src/UI/Components/StatusIcons/StatusIcons.js` — Component logic (module-level singleton with `_getRoot()` helper)
+- `src/UI/Components/StatusIcons/StatusIcons.html` — Minimal template (`<div id="StatusIcons"></div>`)
+- `src/UI/Components/StatusIcons/StatusIcons.css` — Dynamic-size CSS pattern (no `position: absolute` on inner div)
+
+### Key Patterns
+
+- **No fixed dimensions on `:host`**: The host has no `width`/`height` — children are absolutely positioned and extend outward. `overflow: visible` on `:host` prevents clipping.
+- **No `position: absolute` on inner div**: The inner `#StatusIcons` is `display: block` only. `.state` children use `_host` as their containing block.
+- **`_getRoot()` helper**: Module-level functions use `_getRoot()` instead of `this._shadow` since they're not methods on the component instance.
+- **Mixed arrow/regular callbacks**: `Client.loadFile` callback is an arrow function, but `Texture.load` callback is a regular `function()` because it relies on `.apply(canvas)` for `this` binding.
+- **`null` HTML original**: The original UIComponent used `null` HTML and created its root in `init()`. The GUIComponent version uses a minimal `.html` template instead.
+
+### CSS Pattern
+
+```css
+:host {
+	top: 166px;
+	right: 20px;
+	overflow: visible;
+}
+
+#StatusIcons {
+	display: block;
+}
+```
+
+---
+
 ## Quick Reference: What NOT to do
 
 | Don't                                                               | Do instead                                                   | Why                                                                     |
@@ -634,3 +776,5 @@ _bindKeyDown() {
 | Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()`              | `onAppend()` runs every time — duplicates bindings                      |
 | Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                               | Redundant, may conflict                                                 |
 | `onKeyDown` without `shadowRoot.activeElement` guard                | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow |
+| `position: absolute` on inner div of dynamic-size component         | `display: block` (no positioning)                            | Creates 0×0 containing block that breaks child positioning (see §4b)    |
+| Convert all callbacks to arrow functions blindly                    | Keep `function()` when caller uses `.call()`/`.apply()`      | Arrow functions ignore dynamic `this` binding (see §9)                  |
