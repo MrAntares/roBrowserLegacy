@@ -696,6 +696,128 @@ Client.loadFile(path, data => {
 
 **RULE**: Keep callbacks as regular `function()` when the caller uses `.call()`, `.apply()`, or sets `this` dynamically. This pattern appears in `Texture.load`, `Client.loadFile` completions, and some event handlers. The outer callback (e.g., `Client.loadFile`'s callback) can safely be an arrow function if it doesn't use `this`.
 
+### 10. CSS `display: none` fallback trap when toggling visibility
+
+**Bug**: Elements inside Shadow DOM styled with `display: none` in CSS cannot be shown by setting `element.style.display = ''`. The empty string removes the inline style, causing the element to fall back to the CSS-declared `display: none` — so it stays hidden.
+
+This is different from Light DOM components where jQuery's `.show()` / `.hide()` set explicit inline values. In Shadow DOM with scoped CSS, the CSS `display: none` always wins when the inline style is cleared.
+
+```css
+/* WRONG — CSS declares display: none, inline '' just removes the override */
+.skill-level {
+	position: fixed;
+	display: none; /* ← elements start hidden */
+}
+```
+
+```javascript
+// WRONG — '' removes inline style, falls back to CSS display: none
+element.style.display = ''; // Still hidden!
+
+// CORRECT — use explicit 'block' to override CSS
+element.style.display = 'block'; // Visible ✓
+element.style.display = 'none'; // Hidden ✓
+```
+
+**Better approach**: Don't use CSS `display: none` for elements whose visibility is toggled at runtime. Set the initial `display: none` via inline style in `init()`, then toggle with explicit values:
+
+```css
+/* CORRECT — no display in CSS */
+.skill-level {
+	position: fixed;
+}
+```
+
+```javascript
+// init() — hide initially via inline style
+element.style.display = 'none';
+
+// onAppend() — show
+element.style.display = 'block';
+
+// onRemove() — hide
+element.style.display = 'none';
+```
+
+**RULE**: For elements toggled at runtime, manage `display` entirely through inline styles. Either use explicit values (`'block'`/`'none'`) or remove `display: none` from CSS and set the initial state in `init()`.
+
+### 11. `pointer-events: none` on `:host` is inherited by Shadow DOM children
+
+**Bug**: When `:host` has `pointer-events: none` (common for overlay/HUD components in CROSS mouse mode), all children inside the Shadow DOM inherit `pointer-events: none`. Unlike most CSS encapsulation in Shadow DOM, **inheritable CSS properties DO cross the shadow boundary** from host to children.
+
+This means children (e.g., canvas elements, interactive overlays) silently become invisible to mouse events. They won't receive `click`, `mousedown`, `mouseover`, etc.
+
+```css
+/* Host is transparent to mouse — correct for overlays */
+:host {
+	pointer-events: none;
+}
+
+/* WRONG — canvas inherits pointer-events: none from :host */
+.skill-level {
+	position: fixed;
+	/* no pointer-events override → inherits none → invisible to mouse */
+}
+
+/* CORRECT — explicitly opt children back in */
+.skill-level {
+	position: fixed;
+	pointer-events: auto; /* ← overrides inherited none */
+}
+```
+
+**When to use `pointer-events: auto`**: Add it to any child element that needs to participate in mouse event hit testing. For purely visual elements (like the skill level number following the cursor), `pointer-events: auto` is optional since event listeners on `window` still fire regardless. But if any system relies on `document.elementFromPoint()` or if the element itself has event listeners, it needs `pointer-events: auto`.
+
+**Other inheritable properties that cross Shadow DOM**: `color`, `font-*`, `visibility`, `cursor`, `direction`, `text-align`, `line-height`, `letter-spacing`, `word-spacing`, `white-space`, `user-select`. Check for unintended inheritance when the host sets any of these.
+
+**RULE**: When `:host` sets `pointer-events: none`, add `pointer-events: auto` to any child that needs mouse interaction. Review other inheritable properties that might leak from host to shadow children.
+
+### 12. jQuery event priority (`events.unshift`) → capture phase + explicit propagation control
+
+**Bug**: Some legacy UIComponents manipulate jQuery's internal event queue to ensure their handlers fire first:
+
+```javascript
+// BEFORE (UIComponent) — move handler to front of jQuery's internal queue
+jQuery(window).one('mousedown.targetselection', intersectEntities);
+events = jQuery._data(window, 'events').mousedown;
+events.unshift(events.pop());
+```
+
+This pattern has no native DOM equivalent. `addEventListener` order is determined by registration order, and you cannot reorder handlers.
+
+**Fix**: Use the **capture phase** (`addEventListener(event, handler, true)`) to guarantee the handler fires before all bubble-phase handlers. Capture phase runs top-down (window → document → ... → target) before the bubble phase runs bottom-up (target → ... → window). A capture handler on `window` fires before ANY other handler anywhere in the document.
+
+```javascript
+// AFTER (GUIComponent) — capture phase fires before all bubble handlers
+_mousedownHandler = event => {
+	intersectEntities(event);
+};
+window.addEventListener('mousedown', _mousedownHandler, true);
+
+// Cleanup must also specify capture: true
+window.removeEventListener('mousedown', _mousedownHandler, true);
+```
+
+**Also convert jQuery's `return false`**: In jQuery, returning `false` from an event handler calls both `event.stopPropagation()` and `event.preventDefault()`. In native DOM, the return value of an `addEventListener` callback is **ignored**. You must call these methods explicitly:
+
+```javascript
+// BEFORE (jQuery handler) — return false = stopPropagation + preventDefault
+function intersectEntities(event) {
+	event.stopImmediatePropagation();
+	// ... process ...
+	return false; // ← jQuery calls stopPropagation + preventDefault
+}
+
+// AFTER (native handler) — must be explicit
+function intersectEntities(event) {
+	event.stopImmediatePropagation();
+	event.preventDefault(); // ← must call explicitly, return value is ignored
+	// ... process ...
+}
+```
+
+**RULE**: Replace jQuery event queue manipulation (`events.unshift(events.pop())`) with capture-phase listeners. Replace `return false` with explicit `stopImmediatePropagation()` + `preventDefault()` calls.
+
 ---
 
 ## Reference: Clan Component (first GUIComponent migration)
@@ -759,22 +881,70 @@ Client.loadFile(path, data => {
 
 ---
 
+## Reference: SkillTargetSelection Component (overlay, CROSS mouse mode, capture-phase events)
+
+### Files
+
+- `src/UI/Components/SkillTargetSelection/SkillTargetSelection.js` — Component logic (module-level singleton with `_getRoot()` helper)
+- `src/UI/Components/SkillTargetSelection/SkillTargetSelection.html` — Minimal template (3 canvas elements)
+- `src/UI/Components/SkillTargetSelection/SkillTargetSelection.css` — Overlay CSS pattern (`:host` with `pointer-events: none`, children with `position: fixed`)
+
+### Key Patterns
+
+- **CROSS mouse mode**: The host has `pointer-events: none` and `overflow: visible`. Mouse events pass through to the 3D scene behind the UI.
+- **`pointer-events: auto` on children**: Canvas elements override inherited `pointer-events: none` from `:host` (see §11).
+- **`position: fixed` inside Shadow DOM**: Canvas elements use `position: fixed` for viewport-relative positioning, independent of the host's `position: absolute`. Works correctly as long as no ancestor has `transform`, `perspective`, or `filter`.
+- **Capture-phase mousedown**: Replaces jQuery queue reordering (`events.unshift(events.pop())`) with `addEventListener('mousedown', handler, true)` (see §12). Ensures skill targeting handler fires before MapControl.
+- **Inline visibility management**: Canvas visibility toggled via `style.display = 'block'` / `'none'` in JS, not via CSS `display: none` (see §10).
+- **`captureKeyEvents = true`**: Ensures ESCAPE key handler fires in capture phase, before other keydown handlers.
+- **`needFocus = false`**: Overlay does not steal focus from other components.
+- **Original appended canvases to `document.body`**: The legacy UIComponent created canvas elements dynamically and appended them directly to `document.body`. The GUIComponent version keeps them inside the Shadow DOM with `position: fixed` instead.
+
+### CSS Pattern
+
+```css
+:host {
+	top: 0;
+	left: 0;
+	overflow: visible;
+	pointer-events: none;
+}
+
+#SkillTargetSelection {
+	display: block;
+}
+
+.skill-level {
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 100;
+	pointer-events: auto;
+}
+```
+
+---
+
 ## Quick Reference: What NOT to do
 
-| Don't                                                               | Do instead                                                   | Why                                                                     |
-| ------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                                 | jQuery sets `display:block`, kills flex/grid                            |
-| `$el.closest('body').length`                                        | `el.isConnected`                                             | `.closest()` can't cross shadow boundary                                |
-| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`                            | Global queries can't see shadow content                                 |
-| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`                         | Proxy is for interop only                                               |
-| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                             | Proxy is for interop only                                               |
-| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`                 | Proxy is for interop only                                               |
-| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`                        | Proxy is for interop only                                               |
-| Put `top`/`left` on inner element                                   | Put on `:host`                                               | Breaks magnetic snap positioning                                        |
-| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`                         | Host collapses to 0×0, snap/overflow broken                             |
-| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`                            | Event retargeting hides real target                                     |
-| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()`              | `onAppend()` runs every time — duplicates bindings                      |
-| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                               | Redundant, may conflict                                                 |
-| `onKeyDown` without `shadowRoot.activeElement` guard                | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow |
-| `position: absolute` on inner div of dynamic-size component         | `display: block` (no positioning)                            | Creates 0×0 containing block that breaks child positioning (see §4b)    |
-| Convert all callbacks to arrow functions blindly                    | Keep `function()` when caller uses `.call()`/`.apply()`      | Arrow functions ignore dynamic `this` binding (see §9)                  |
+| Don't                                                               | Do instead                                                   | Why                                                                                          |
+| ------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                                 | jQuery sets `display:block`, kills flex/grid                                                 |
+| `$el.closest('body').length`                                        | `el.isConnected`                                             | `.closest()` can't cross shadow boundary                                                     |
+| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`                            | Global queries can't see shadow content                                                      |
+| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`                         | Proxy is for interop only                                                                    |
+| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                             | Proxy is for interop only                                                                    |
+| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`                 | Proxy is for interop only                                                                    |
+| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`                        | Proxy is for interop only                                                                    |
+| Put `top`/`left` on inner element                                   | Put on `:host`                                               | Breaks magnetic snap positioning                                                             |
+| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`                         | Host collapses to 0×0, snap/overflow broken                                                  |
+| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`                            | Event retargeting hides real target                                                          |
+| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()`              | `onAppend()` runs every time — duplicates bindings                                           |
+| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                               | Redundant, may conflict                                                                      |
+| `onKeyDown` without `shadowRoot.activeElement` guard                | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow                      |
+| `position: absolute` on inner div of dynamic-size component         | `display: block` (no positioning)                            | Creates 0×0 containing block that breaks child positioning (see §4b)                         |
+| Convert all callbacks to arrow functions blindly                    | Keep `function()` when caller uses `.call()`/`.apply()`      | Arrow functions ignore dynamic `this` binding (see §9)                                       |
+| CSS `display: none` + `element.style.display = ''` to show          | Use explicit `'block'`/`'none'`, or omit CSS `display: none` | Empty string removes inline style, falls back to CSS `none` (see §10)                        |
+| Assume children inherit only scoped styles from `:host`             | Add `pointer-events: auto` on children if `:host` is `none`  | Inheritable CSS crosses shadow boundary: `pointer-events`, `color`, `cursor`, etc. (see §11) |
+| `jQuery._data(window,'events').unshift(events.pop())`               | `addEventListener(event, handler, true)` (capture phase)     | Native DOM has no queue reordering; capture phase guarantees priority (see §12)              |
+| `return false` from native event handler                            | Explicit `stopImmediatePropagation()` + `preventDefault()`   | Native handler return values are ignored; only jQuery interprets `return false` (see §12)    |

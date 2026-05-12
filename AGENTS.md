@@ -149,8 +149,8 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
     > **Migration docs**: [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) — step-by-step guide with Shadow DOM pitfalls  
     > **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
-    > **Migrated components:** Clan  
-    > **Remaining:** 94 components (UIComponent)
+    > **Migrated components:** Clan, SkillTargetSelection  
+    > **Remaining:** 93 components (UIComponent)
 
 - **Intro.js**: File upload & server selection
 - **WinList.js**: Character selection
