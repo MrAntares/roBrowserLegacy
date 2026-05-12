@@ -12,26 +12,39 @@ import DB from 'DB/DBManager.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Mouse from 'Controls/MouseEventHandler.js';
-import jQuery from 'Utils/jquery.js';
 import Renderer from 'Renderer/Renderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Session from 'Engine/SessionStorage.js';
 import Controls from 'Preferences/Controls.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Cursor from 'UI/CursorManager.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
+import htmlText from './SkillTargetSelection.html?raw';
+import cssText from './SkillTargetSelection.css?raw';
 
 /**
- * Create Announce component
+ * Create component
  */
-const SkillTargetSelection = new UIComponent('SkillTargetSelection');
+const SkillTargetSelection = new GUIComponent('SkillTargetSelection', cssText);
+
+SkillTargetSelection.render = () => htmlText;
 
 /**
  * Mouse can cross this UI
  */
-SkillTargetSelection.mouseMode = UIComponent.MouseMode.CROSS;
+SkillTargetSelection.mouseMode = GUIComponent.MouseMode.CROSS;
+
+/**
+ * Do not focus this UI
+ */
+SkillTargetSelection.needFocus = false;
+
+/**
+ * Handle ESCAPE before other handlers
+ */
+SkillTargetSelection.captureKeyEvents = true;
 
 /**
  * @var {constant}
@@ -63,84 +76,68 @@ let _skill;
 let _skillName;
 
 /**
- * @var {CanvasElement} container for desciption
+ * @var {CanvasElement} container for description
  */
 let _description;
 
 /**
  * @var {CanvasElement} container for skill level
  */
-let _skill_level;
+let _skillLevel;
+
+/**
+ * @var {Function} bound mousedown handler reference for cleanup
+ */
+let _mousedownHandler = null;
+
+/**
+ * Helper to get the shadow root
+ */
+function _getRoot() {
+	return SkillTargetSelection._shadow || SkillTargetSelection._host;
+}
 
 /**
  * Initialize component
  */
 SkillTargetSelection.init = function init() {
-	_skillName = document.createElement('canvas');
-	_description = document.createElement('canvas');
-	_skill_level = document.createElement('canvas');
+	const root = _getRoot();
 
-	_skillName.style.position = 'absolute';
-	_skillName.style.top = '45px';
-	_skillName.style.zIndex = 100;
-	_skillName.style.borderRadius = '3px';
-	_skillName.style.border = '1px solid #555';
+	_skillName = root.querySelector('.skill-name');
+	_description = root.querySelector('.skill-description');
+	_skillLevel = root.querySelector('.skill-level');
 
-	_description.style.position = 'absolute';
-	_description.style.bottom = '60px';
-	_description.style.zIndex = 100;
-	_description.style.borderRadius = '3px';
-	_description.style.border = '1px solid #555';
+	_skillName.style.display = 'none';
+	_description.style.display = 'none';
+	_skillLevel.style.display = 'none';
 
-	_skill_level.style.position = 'absolute';
-	_skill_level.style.left = 0;
-	_skill_level.style.top = 0;
-	_skill_level.style.zIndex = 100;
-
-	jQuery(window).mousemove(function (event) {
-		_skill_level.style.left = event.pageX + 20 + 'px';
-		_skill_level.style.top = event.pageY - 18 + 'px';
+	window.addEventListener('mousemove', event => {
+		_skillLevel.style.left = `${event.pageX + 20}px`;
+		_skillLevel.style.top = `${event.pageY - 18}px`;
 	});
 
-	render(DB.getMessage(234), _description);
-
-	this.ui = jQuery('<div id ="SkillTargetSelection"/>'); // just to not break things
-	this.ui.append();
+	renderText(DB.getMessage(234), _description);
 };
 
 /**
  * Append to body
  */
 SkillTargetSelection.onAppend = function onAppend() {
-	let events;
+	_skillName.style.display = 'block';
+	_description.style.display = 'block';
+	_skillLevel.style.display = 'block';
 
-	if (!_skillName.parentNode) {
-		document.body.appendChild(_skillName);
-	}
-
-	if (!_description.parentNode) {
-		document.body.appendChild(_description);
-	}
-
-	if (!_skill_level.parentNode) {
-		document.body.appendChild(_skill_level);
-	}
-
-	// Execute onKeyDown BEFORE the one executed by Escape window
-	events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
-
-	// Execute before *request move* / *request attack*
-	jQuery(window).one('mousedown.targetselection', intersectEntities);
-	events = jQuery._data(window, 'events').mousedown;
-	events.unshift(events.pop());
+	_mousedownHandler = event => {
+		intersectEntities(event);
+	};
+	window.addEventListener('mousedown', _mousedownHandler, true);
 };
 
 /**
  * Possible to exit using ESCAPE
  */
 SkillTargetSelection.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this.remove();
 		event.stopImmediatePropagation();
 		return false;
@@ -153,7 +150,10 @@ SkillTargetSelection.onKeyDown = function onKeyDown(event) {
  * Remove from body
  */
 SkillTargetSelection.onRemove = function onRemove() {
-	jQuery(window).off('mousedown.targetselection');
+	if (_mousedownHandler) {
+		window.removeEventListener('mousedown', _mousedownHandler, true);
+		_mousedownHandler = null;
+	}
 
 	Cursor.blockMagnetism = false;
 	Cursor.freeze = false;
@@ -161,17 +161,9 @@ SkillTargetSelection.onRemove = function onRemove() {
 
 	EntityManager.setSupportPicking(false);
 
-	if (_skillName.parentNode) {
-		document.body.removeChild(_skillName);
-	}
-
-	if (_description.parentNode) {
-		document.body.removeChild(_description);
-	}
-
-	if (_skill_level.parentNode) {
-		document.body.removeChild(_skill_level);
-	}
+	_skillName.style.display = 'none';
+	_description.style.display = 'none';
+	_skillLevel.style.display = 'none';
 
 	Mouse.state = Mouse.MOUSE_STATE.NORMAL;
 };
@@ -221,10 +213,9 @@ SkillTargetSelection.set = function set(skill, target, description) {
 
 	EntityManager.setSupportPicking((_flag & SkillTargetSelection.TYPE.FRIEND) > 0);
 
-	// Render skillName
 	const sk = SkillInfo[skill.SKID];
-	render(description || sk.SkillName, _skillName);
-	renderLevel(_skill.useLevel ? _skill.useLevel : _skill.level, _skill_level);
+	renderText(description || sk.SkillName, _skillName);
+	renderLevel(_skill.useLevel ? _skill.useLevel : _skill.level, _skillLevel);
 
 	Cursor.setType(Cursor.ACTION.TARGET);
 	Cursor.freeze = true;
@@ -246,7 +237,7 @@ SkillTargetSelection.setSkillLevelDelta = function setSkillLevelDelta(delta) {
 		_skill.useLevel = _skill.level;
 	}
 
-	renderLevel(_skill.useLevel, _skill_level);
+	renderLevel(_skill.useLevel, _skillLevel);
 };
 
 /**
@@ -255,15 +246,15 @@ SkillTargetSelection.setSkillLevelDelta = function setSkillLevelDelta(delta) {
  * @param {string} text to render
  * @param {CanvasElement} canvas node
  */
-function render(text, canvas) {
+function renderText(text, canvas) {
 	const fontSize = 12;
 	const ctx = canvas.getContext('2d');
 
-	ctx.font = fontSize + 'px Arial';
+	ctx.font = `${fontSize}px Arial`;
 	canvas.width = ctx.measureText(text).width + 7 * 2;
 	canvas.height = 23;
 
-	ctx.font = fontSize + 'px Arial';
+	ctx.font = `${fontSize}px Arial`;
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = 'rgba(0,0,0,0.5)';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -274,11 +265,11 @@ function render(text, canvas) {
 	ctx.fillStyle = '#00FF00';
 	ctx.fillText(text, 7, 16);
 
-	canvas.style.left = ((Renderer.width - canvas.width) >> 1) + 'px';
+	canvas.style.left = `${(Renderer.width - canvas.width) >> 1}px`;
 }
 
 /**
- * Render text into the canvas
+ * Render level text into the canvas
  *
  * @param {string} text to render
  * @param {CanvasElement} canvas node
@@ -290,7 +281,7 @@ function renderLevel(text, canvas) {
 	canvas.width = 35;
 	canvas.height = 35;
 
-	ctx.font = fontSize + 'px Arial';
+	ctx.font = `${fontSize}px Arial`;
 	ctx.strokeStyle = '#333333';
 	ctx.lineWidth = 3;
 	ctx.strokeText(text, 0, 30);
@@ -302,20 +293,24 @@ function renderLevel(text, canvas) {
  * Intersect entity when clicking
  */
 function intersectEntities(event) {
+	if (_mousedownHandler) {
+		window.removeEventListener('mousedown', _mousedownHandler, true);
+		_mousedownHandler = null;
+	}
+
 	SkillTargetSelection.remove();
 
 	if (!Mouse.intersect) {
 		return false;
 	}
 
-	// Only left click
 	if (event.which !== 1) {
 		return true;
 	}
 
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
-	// Zone skill
 	if (_flag & SkillTargetSelection.TYPE.PLACE) {
 		SkillTargetSelection.onUseSkillToPos(
 			_skill.SKID,
@@ -326,14 +321,12 @@ function intersectEntities(event) {
 		return false;
 	}
 
-	// Get entity
 	const entity = EntityManager.getOverEntity();
 
 	if (!entity) {
 		return false;
 	}
 
-	// Trap check
 	if (entity.objecttype === Entity.TYPE_TRAP && !(_flag & SkillTargetSelection.TYPE.TRAP)) {
 		return false;
 	}
@@ -350,7 +343,6 @@ function intersectEntities(event) {
 function intersectEntity(entity) {
 	let target = 0;
 
-	// Get target type
 	switch (entity.objecttype) {
 		case Entity.TYPE_MOB:
 		case Entity.TYPE_UNIT:
@@ -363,7 +355,6 @@ function intersectEntity(entity) {
 
 		case Entity.TYPE_HOM:
 		case Entity.TYPE_MERC:
-			// Some support skills come as FRIEND-targeted from server; allow homun/merc to satisfy both.
 			target = SkillTargetSelection.TYPE.HOMUN | SkillTargetSelection.TYPE.FRIEND;
 			break;
 
@@ -372,31 +363,24 @@ function intersectEntity(entity) {
 			target = SkillTargetSelection.TYPE.FRIEND;
 			break;
 
-		// Can't use skill on this type
-		// (warp, npc, items, effects...)
 		default:
 			return;
 	}
 
-	// This skill can't be casted on this type
 	if (!(target & _flag) && !KEYS.SHIFT && !Controls.noshift && !SkillTargetSelection.checkMapState(entity)) {
 		return;
 	}
 
-	// Pet capture
 	if (_flag === SkillTargetSelection.TYPE.PET) {
 		SkillTargetSelection.onPetSelected(entity.GID);
 		return;
 	}
 
-	// Can't cast evil skill on your self
 	if (_flag & SkillTargetSelection.TYPE.ENEMY && entity === Session.Entity) {
 		return;
 	}
 
-	// Cast skill
 	SkillTargetSelection.onUseSkillToId(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entity.GID);
-	return;
 }
 
 /**
@@ -424,7 +408,6 @@ SkillTargetSelection.checkMapState = function checkMapState(entity) {
 			(Session.Entity.GUID > 0 && entity.GUID !== Session.Entity.GUID) ||
 			(entity.GUID == 0 && entity !== Session.Entity)
 		) {
-			// 0 = no guild, can be attacked by anyone
 			return true;
 		}
 	}
@@ -435,7 +418,7 @@ SkillTargetSelection.checkMapState = function checkMapState(entity) {
  * Functions to define
  */
 SkillTargetSelection.onUseSkillToId = function onUseSkillToId(/*id, level, GID*/) {};
-SkillTargetSelection.onUseSkillToPos = function onUseSkillToId(/*id, level, x, y*/) {};
+SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(/*id, level, x, y*/) {};
 
 /**
  * Create component and return it

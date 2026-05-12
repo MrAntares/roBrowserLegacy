@@ -8,7 +8,7 @@ roBrowserLegacy is a web-based Ragnarok Online client built with ES6 modules and
 
 - **14 subsystems** in `src/` (App, Audio, Controls, Core, DB, Engine, Loaders, Network, Plugins, Preferences, Renderer, UI, Utils, Vendors)
 - **7 application entry points** in `src/App/`
-- **95 UI Components** in `src/UI/Components/`
+- **99 UI Components** in `src/UI/Components/`
 - **40 Renderer Effect modules** (31 effect JS files + 9 post-processing shaders)
 - **17 Entity modules** in `src/Renderer/Entity/`
 - **28 MapEngine subsystems** in `src/Engine/MapEngine/`
@@ -149,8 +149,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
     > **Migration docs**: [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) — step-by-step guide with Shadow DOM pitfalls  
     > **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
-    > **Migrated components:** Clan  
-    > **Remaining:** 94 components (UIComponent)
+    > **For Migrated & Remaining components list see:** https://github.com/MrAntares/roBrowserLegacy/issues/1140
 
 - **Intro.js**: File upload & server selection
 - **WinList.js**: Character selection
