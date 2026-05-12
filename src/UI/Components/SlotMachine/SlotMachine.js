@@ -9,19 +9,22 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
 import Client from 'Core/Client.js';
 import Events from 'Core/Events.js';
 import Renderer from 'Renderer/Renderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import htmlText from './SlotMachine.html?raw';
+import cssText from './SlotMachine.css?raw';
 
 /**
  * Create SlotMachine UI
  */
-const SlotMachine = new UIComponent('SlotMachine');
+const SlotMachine = new GUIComponent('SlotMachine', cssText);
+
+SlotMachine.render = () => htmlText;
 
 /**
  * @var {Sprite,Action} objects
@@ -57,43 +60,28 @@ let _start = 0;
  * Initialize UI
  */
 SlotMachine.init = function init() {
-	// Initialize UI.
-	this.ui = jQuery('<canvas/>')
-		.attr({
-			width: 270,
-			height: 260,
-			id: 'SlotMachine'
-		})
-		.css({
-			zIndex: 500,
-			position: 'absolute',
-			top: Renderer.height / 2 - 130,
-			left: Renderer.width / 2 - 135
-		});
+	const root = this._shadow || this._host;
+	const canvas = root.querySelector('canvas');
+	_ctx = canvas.getContext('2d');
 
-	_ctx = this.ui[0].getContext('2d');
+	this._host.style.zIndex = '500';
 
-	// Loading sprite, start animation
-	Client.loadFiles(
-		['data/sprite/slotmachine.spr', 'data/sprite/slotmachine.act'],
-		function (spr, act) {
-			_sprite = spr;
-			_action = act;
-			_type = 0;
-			_start = Renderer.tick;
+	Client.loadFiles(['data/sprite/slotmachine.spr', 'data/sprite/slotmachine.act'], (spr, act) => {
+		_sprite = spr;
+		_action = act;
+		_type = 0;
+		_start = Renderer.tick;
 
-			if (this.ui[0].parentNode) {
-				Renderer.render(rendering);
-			}
-		}.bind(this)
-	);
+		if (this._host.parentNode) {
+			Renderer.render(rendering);
+		}
+	});
 
-	// Don't propagate to map scene
-	this.ui.mousedown(function (event) {
+	canvas.addEventListener('mousedown', event => {
 		if (_type === 0) {
 			SlotMachine.onTry();
 			event.stopImmediatePropagation();
-			return false;
+			event.preventDefault();
 		}
 	});
 };
@@ -104,6 +92,9 @@ SlotMachine.init = function init() {
 SlotMachine.onAppend = function onAppend() {
 	_type = 0;
 	_start = Renderer.tick;
+
+	this._host.style.top = `${Renderer.height / 2 - 130}px`;
+	this._host.style.left = `${Renderer.width / 2 - 135}px`;
 
 	if (_sprite && _action) {
 		Renderer.render(rendering);
@@ -131,11 +122,10 @@ SlotMachine.setResult = function setResult(result) {
 /**
  * Rendering animation
  */
-const rendering = (function renderingClosure() {
+const rendering = (() => {
 	const position = new Uint16Array([0, 0]);
 
-	return function _renderFrame() {
-		let i, count, max;
+	return () => {
 		let action, anim;
 
 		switch (_type) {
@@ -144,9 +134,10 @@ const rendering = (function renderingClosure() {
 				anim = Math.floor(((Renderer.tick - _start) / action.delay) * 2);
 				break;
 
-			case 1: // pending
+			case 1: {
+				// pending
 				action = _action.actions[1];
-				max = action.animations.length + (_result ? 7 : 3);
+				const max = action.animations.length + (_result ? 7 : 3);
 				anim = Renderer.tick - _start;
 				anim = Math.floor(anim / action.delay);
 				anim = Math.min(anim, max);
@@ -156,31 +147,32 @@ const rendering = (function renderingClosure() {
 					_start = Renderer.tick;
 				}
 				break;
+			}
 
 			case 2: // success
-			case 3: // fail
+			case 3: {
+				// fail
 				action = _action.actions[_type];
-				max = action.animations.length;
+				const max = action.animations.length;
 				anim = Renderer.tick - _start;
 				anim = Math.floor(anim / action.delay);
 
 				if (anim >= max) {
 					Renderer.stop(rendering);
-					Events.setTimeout(function () {
+					Events.setTimeout(() => {
 						SlotMachine.remove();
 					}, 500);
 				}
 				break;
+			}
 		}
 
 		const animation = action.animations[anim % action.animations.length];
 
-		// Initialize context
 		SpriteRenderer.bind2DContext(_ctx, 140, 165);
 		_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
-		// Render layers
-		for (i = 0, count = animation.layers.length; i < count; ++i) {
+		for (let i = 0, count = animation.layers.length; i < count; ++i) {
 			_entity.renderLayer(animation.layers[i], _sprite, _sprite, 1.0, position, false);
 		}
 	};
@@ -190,6 +182,8 @@ const rendering = (function renderingClosure() {
  * Functions defined in Engine/MapEngine/Pet.js
  */
 SlotMachine.onTry = function onTry() {};
+
+SlotMachine.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Export
