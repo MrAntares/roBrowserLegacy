@@ -1,11 +1,11 @@
 :host {
 	top: 166px;
 	right: 20px;
+	overflow: visible;
 }
 
 #StatusIcons {
 	display: block;
-	position: absolute;
 }
 
 #StatusIcons .state {

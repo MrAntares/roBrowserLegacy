@@ -120,7 +120,7 @@ StatusIcons.update = function update(index, state, life) {
 	}
 
 	// Image already loaded
-	if (_status.img) {
+	if (_status[index].img) {
 		return;
 	}
 
