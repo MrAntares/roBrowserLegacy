@@ -11068,6 +11068,22 @@
 			};
 		} })();
 	})();
+	/*! Bundled license information:
+	
+	ieee754/index.js:
+	(*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> *)
+	
+	buffer/index.js:
+	(*!
+	* The buffer module from node.js, for the browser.
+	*
+	* @author   Feross Aboukhadijeh <https://feross.org>
+	* @license  MIT
+	*)
+	
+	safe-buffer/index.js:
+	(*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> *)
+	*/
 	//#endregion
 	//#region src/Utils/CodepageManager.js
 	/**
