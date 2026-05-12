@@ -107,6 +107,10 @@ SkillTargetSelection.init = function init() {
 	_description = root.querySelector('.skill-description');
 	_skillLevel = root.querySelector('.skill-level');
 
+	_skillName.style.display = 'none';
+	_description.style.display = 'none';
+	_skillLevel.style.display = 'none';
+
 	window.addEventListener('mousemove', event => {
 		_skillLevel.style.left = `${event.pageX + 20}px`;
 		_skillLevel.style.top = `${event.pageY - 18}px`;
@@ -119,9 +123,9 @@ SkillTargetSelection.init = function init() {
  * Append to body
  */
 SkillTargetSelection.onAppend = function onAppend() {
-	_skillName.style.display = '';
-	_description.style.display = '';
-	_skillLevel.style.display = '';
+	_skillName.style.display = 'block';
+	_description.style.display = 'block';
+	_skillLevel.style.display = 'block';
 
 	_mousedownHandler = event => {
 		intersectEntities(event);
@@ -305,6 +309,7 @@ function intersectEntities(event) {
 	}
 
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	if (_flag & SkillTargetSelection.TYPE.PLACE) {
 		SkillTargetSelection.onUseSkillToPos(

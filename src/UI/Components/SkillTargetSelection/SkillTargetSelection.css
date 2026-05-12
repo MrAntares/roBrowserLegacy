@@ -15,7 +15,7 @@
 	z-index: 100;
 	border-radius: 3px;
 	border: 1px solid #555;
-	display: none;
+	pointer-events: auto;
 }
 
 .skill-description {
@@ -24,7 +24,7 @@
 	z-index: 100;
 	border-radius: 3px;
 	border: 1px solid #555;
-	display: none;
+	pointer-events: auto;
 }
 
 .skill-level {
@@ -32,5 +32,5 @@
 	left: 0;
 	top: 0;
 	z-index: 100;
-	display: none;
+	pointer-events: auto;
 }
