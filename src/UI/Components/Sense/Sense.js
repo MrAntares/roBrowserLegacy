@@ -13,14 +13,16 @@ import Renderer from 'Renderer/Renderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './Sense.html?raw';
 import cssText from './Sense.css?raw';
 
 /**
- * Create Component
+ * Create component
  */
-const Sense = new UIComponent('Sense', htmlText, cssText);
+const Sense = new GUIComponent('Sense', cssText);
+
+Sense.render = () => htmlText;
 
 let Elements = [];
 let Sizes = [];
@@ -37,26 +39,34 @@ const _model = {
 };
 
 /**
+ * Helper to get the shadow root
+ */
+function _getRoot() {
+	return Sense._shadow || Sense._host;
+}
+
+/**
  * Initialize popup
  */
 Sense.init = function init() {
-	this.ui.css({
-		top: (Renderer.height - 120) / 1.5 - 120,
-		left: (Renderer.width - 280) / 2.0,
-		zIndex: 100
-	});
+	this._host.style.top = `${(Renderer.height - 120) / 1.5 - 120}px`;
+	this._host.style.left = `${(Renderer.width - 280) / 2.0}px`;
+	this._host.style.zIndex = '100';
 
-	this.ui
-		.find('.close')
-		.mousedown(function (event) {
-			event.stopImmediatePropagation();
-			return false;
-		})
-		.click(this.remove.bind(this));
+	const root = _getRoot();
 
-	this.draggable(this.ui.find('.header'));
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => {
+			e.stopImmediatePropagation();
+		});
+		closeBtn.addEventListener('click', () => Sense.remove());
+	}
 
-	_model.ctx = this.ui.find('#canvas_model')[0].getContext('2d');
+	this.draggable('.header');
+
+	const canvas = root.querySelector('#canvas_model');
+	_model.ctx = canvas.getContext('2d');
 
 	Elements = [
 		DB.getMessage(414), // 0 = Neutral
@@ -92,15 +102,30 @@ Sense.init = function init() {
 };
 
 /**
+ * Set element class based on property value
+ */
+function _setElementClass(el, value, label) {
+	el.className = '';
+	if (value < 100) {
+		el.className = 'element_bad';
+	} else if (value > 100) {
+		el.className = 'element_good';
+	}
+	el.textContent = `${label}: ${value}`;
+}
+
+/**
  * Set stats
  *
- * @param {string} title
+ * @param {object} pkt
  */
 Sense.setWindow = function setWindow(pkt) {
-	//TITLE
-	this.ui.find('.header .title').text(DB.getMessage(406));
+	const root = _getRoot();
 
-	//SPRITE
+	// TITLE
+	root.querySelector('.header .title').textContent = DB.getMessage(406);
+
+	// SPRITE
 	_model.entity.set({
 		job: pkt.job,
 		action: 0,
@@ -108,134 +133,45 @@ Sense.setWindow = function setWindow(pkt) {
 	});
 	_model.render = true;
 
-	//STATS
-	this.ui.find('#label_name').text(DB.getMessage(407));
-	//this.ui.find('#value_name').text( pkt.job );
+	// STATS
+	root.querySelector('#label_name').textContent = DB.getMessage(407);
 
-	//Yolo :D (remove to return to boring-ro)
-	this.ui
-		.find('#value_name')
-		.html(
-			'<a href="https://ratemyserver.net/mob_db.php?small=1&mob_id=' +
-				pkt.job +
-				'" target="_blank">' +
-				DB.getMonsterName(pkt.job) +
-				' </a>'
-		);
+	const valueName = root.querySelector('#value_name');
+	valueName.innerHTML = `<a href="https://ratemyserver.net/mob_db.php?small=1&mob_id=${pkt.job}" target="_blank">${DB.getMonsterName(pkt.job)} </a>`;
 
-	this.ui.find('#label_size').text(DB.getMessage(410));
-	this.ui.find('#value_size').text(Sizes[pkt.size]);
+	root.querySelector('#label_size').textContent = DB.getMessage(410);
+	root.querySelector('#value_size').textContent = Sizes[pkt.size];
 
-	this.ui.find('#label_level').text(DB.getMessage(408));
-	this.ui.find('#value_level').text(pkt.level);
+	root.querySelector('#label_level').textContent = DB.getMessage(408);
+	root.querySelector('#value_level').textContent = pkt.level;
 
-	this.ui.find('#label_type').text(DB.getMessage(411));
-	this.ui.find('#value_type').text(Races[pkt.raceType]);
+	root.querySelector('#label_type').textContent = DB.getMessage(411);
+	root.querySelector('#value_type').textContent = Races[pkt.raceType];
 
-	this.ui.find('#label_hp').text(DB.getMessage(409));
-	this.ui.find('#value_hp').text(pkt.hp);
+	root.querySelector('#label_hp').textContent = DB.getMessage(409);
+	root.querySelector('#value_hp').textContent = pkt.hp;
 
-	this.ui.find('#label_mdef').text(DB.getMessage(412));
-	this.ui.find('#value_mdef').text(pkt.mdefPower);
+	root.querySelector('#label_mdef').textContent = DB.getMessage(412);
+	root.querySelector('#value_mdef').textContent = pkt.mdefPower;
 
-	this.ui.find('#label_def').text(DB.getMessage(270));
-	this.ui.find('#value_def').text(pkt.def);
+	root.querySelector('#label_def').textContent = DB.getMessage(270);
+	root.querySelector('#value_def').textContent = pkt.def;
 
-	this.ui.find('#label_attr').text(DB.getMessage(413));
-	this.ui.find('#value_attr').text(Elements[pkt.property]);
+	root.querySelector('#label_attr').textContent = DB.getMessage(413);
+	root.querySelector('#value_attr').textContent = Elements[pkt.property];
 
-	//PROPS
-	const water = this.ui.find('#element_water');
-	water.removeClass('element_good');
-	water.removeClass('element_bad');
-	if (pkt.propertyTable.water < 100) {
-		water.addClass('element_bad');
-	} else if (pkt.propertyTable.water > 100) {
-		water.addClass('element_good');
-	}
-	water.text(DB.getMessage(415) + ': ' + pkt.propertyTable.water);
+	// PROPS
+	_setElementClass(root.querySelector('#element_water'), pkt.propertyTable.water, DB.getMessage(415));
+	_setElementClass(root.querySelector('#element_wind'), pkt.propertyTable.wind, DB.getMessage(418));
+	_setElementClass(root.querySelector('#element_shadow'), pkt.propertyTable.dark, DB.getMessage(421));
+	_setElementClass(root.querySelector('#element_earth'), pkt.propertyTable.earth, DB.getMessage(416));
+	_setElementClass(root.querySelector('#element_poison'), pkt.propertyTable.poison, DB.getMessage(419));
+	_setElementClass(root.querySelector('#element_ghost'), pkt.propertyTable.mental, DB.getMessage(422));
+	_setElementClass(root.querySelector('#element_fire'), pkt.propertyTable.fire, DB.getMessage(417));
+	_setElementClass(root.querySelector('#element_holy'), pkt.propertyTable.saint, DB.getMessage(420));
+	_setElementClass(root.querySelector('#element_undead'), pkt.propertyTable.undead, DB.getMessage(423));
 
-	const wind = this.ui.find('#element_wind');
-	wind.removeClass('element_good');
-	wind.removeClass('element_bad');
-	if (pkt.propertyTable.wind < 100) {
-		wind.addClass('element_bad');
-	} else if (pkt.propertyTable.wind > 100) {
-		wind.addClass('element_good');
-	}
-	wind.text(DB.getMessage(418) + ': ' + pkt.propertyTable.wind);
-
-	const dark = this.ui.find('#element_shadow');
-	dark.removeClass('element_good');
-	dark.removeClass('element_bad');
-	if (pkt.propertyTable.dark < 100) {
-		dark.addClass('element_bad');
-	} else if (pkt.propertyTable.dark > 100) {
-		dark.addClass('element_good');
-	}
-	dark.text(DB.getMessage(421) + ': ' + pkt.propertyTable.dark);
-
-	const earth = this.ui.find('#element_earth');
-	earth.removeClass('element_good');
-	earth.removeClass('element_bad');
-	if (pkt.propertyTable.earth < 100) {
-		earth.addClass('element_bad');
-	} else if (pkt.propertyTable.earth > 100) {
-		earth.addClass('element_good');
-	}
-	earth.text(DB.getMessage(416) + ': ' + pkt.propertyTable.earth);
-
-	const poison = this.ui.find('#element_poison');
-	poison.removeClass('element_good');
-	poison.removeClass('element_bad');
-	if (pkt.propertyTable.poison < 100) {
-		poison.addClass('element_bad');
-	} else if (pkt.propertyTable.poison > 100) {
-		poison.addClass('element_good');
-	}
-	poison.text(DB.getMessage(419) + ': ' + pkt.propertyTable.poison);
-
-	const mental = this.ui.find('#element_ghost');
-	mental.removeClass('element_good');
-	mental.removeClass('element_bad');
-	if (pkt.propertyTable.mental < 100) {
-		mental.addClass('element_bad');
-	} else if (pkt.propertyTable.mental > 100) {
-		mental.addClass('element_good');
-	}
-	mental.text(DB.getMessage(422) + ': ' + pkt.propertyTable.mental);
-
-	const fire = this.ui.find('#element_fire');
-	fire.removeClass('element_good');
-	fire.removeClass('element_bad');
-	if (pkt.propertyTable.fire < 100) {
-		fire.addClass('element_bad');
-	} else if (pkt.propertyTable.fire > 100) {
-		fire.addClass('element_good');
-	}
-	fire.text(DB.getMessage(417) + ': ' + pkt.propertyTable.fire);
-
-	const saint = this.ui.find('#element_holy');
-	saint.removeClass('element_good');
-	saint.removeClass('element_bad');
-	if (pkt.propertyTable.saint < 100) {
-		saint.addClass('element_bad');
-	} else if (pkt.propertyTable.saint > 100) {
-		saint.addClass('element_good');
-	}
-	saint.text(DB.getMessage(420) + ': ' + pkt.propertyTable.saint);
-
-	const undead = this.ui.find('#element_undead');
-	undead.removeClass('element_good');
-	undead.removeClass('element_bad');
-	if (pkt.propertyTable.undead < 100) {
-		undead.addClass('element_bad');
-	} else if (pkt.propertyTable.undead > 100) {
-		undead.addClass('element_good');
-	}
-	undead.text(DB.getMessage(423) + ': ' + pkt.propertyTable.undead);
-
-	this.ui.show();
+	this._host.style.display = '';
 
 	Renderer.render(render);
 };
@@ -251,8 +187,7 @@ Sense.onRemove = function onRemove() {
 /**
  * Rendering the Character
  */
-function render(tick) {
-	// Render the model
+function render() {
 	SpriteRenderer.bind2DContext(_model.ctx, Math.floor(_model.ctx.canvas.width / 2), _model.ctx.canvas.height);
 	_model.ctx.clearRect(0, 0, _model.ctx.canvas.width, _model.ctx.canvas.height);
 	_model.entity.renderEntity();
