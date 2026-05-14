@@ -136,7 +136,7 @@ let _bgInterval = null;
  * Once append to body
  */
 CharSelectV4.onAppend = function onAppend() {
-	CharSelectV4.clearAllSlots();
+	CharSelectV4.updateCharSlot();
 
 	//_index = _preferences.index;
 	const charselectready = CharSelectV4.ui;
@@ -237,13 +237,13 @@ function formatDuration(seconds) {
 	const minutes = Math.floor((seconds % 3600) / 60);
 	const remainingSeconds = seconds % 60;
 
-	// Use the msgstringtable
-	const formattedDuration = DB.getMessage(3349)
-		.replace('%d', `${hours}`)
-		.replace('%d', `${minutes}`)
-		.replace('%d', `${remainingSeconds}`);
+	const replacer = DB.getMessage(3349).includes('%d') ? '%d' : '%02d';
 
-	return formattedDuration;
+	// Use the msgstringtable
+	return DB.getMessage(3349)
+		.replace(replacer, hours.toString().padStart(2, '0'))
+		.replace(replacer, minutes.toString().padStart(2, '0'))
+		.replace(replacer, remainingSeconds.toString().padStart(2, '0'));
 }
 
 /**
