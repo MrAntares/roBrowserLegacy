@@ -1170,10 +1170,12 @@ function onMouseOverSkillInfo() {
 }
 
 /**
- * Hide description
+ * Hide description (only auto-hide on mouseout when checkbox is checked)
  */
 function onSkillDescriptionRemove() {
-	SkillDescription.remove();
+	if (_preferences.skillInfo) {
+		SkillDescription.remove();
+	}
 }
 
 /**
