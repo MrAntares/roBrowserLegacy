@@ -18,6 +18,47 @@ import htmlText from './SkillDescription.html?raw';
 import cssText from './SkillDescription.css?raw';
 
 /**
+ * Whitelist of allowed HTML tags in skill descriptions
+ */
+const _allowedTags = new Set(['font', 'i', 'b']);
+
+/**
+ * Sanitize and format RO text with ^rrggbb color codes, ^nItemID^NNN
+ * item name substitution, and newline conversion.
+ * Replicates the logic from Utils/jquery.js overridden .text() method.
+ *
+ * @param {string} value - raw skill description text
+ * @returns {string} safe HTML string
+ */
+function _formatROText(value) {
+	const tmp = document.createElement('div');
+	tmp.innerHTML = String(value);
+
+	tmp.querySelectorAll('*').forEach(el => {
+		if (!_allowedTags.has(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
+
+	let txt = tmp.innerHTML;
+
+	let result;
+	const colorReg = /\^([a-fA-F0-9]{6})/;
+	while ((result = colorReg.exec(txt))) {
+		txt = txt.replace(result[0], `<span style="color:#${result[1]}">`) + '</span>';
+	}
+
+	const itemReg = /\^nItemID\^(\d+)/g;
+	while ((result = itemReg.exec(txt))) {
+		txt = txt.replace(result[0], DB.getItemInfo(result[1]).identifiedDisplayName);
+	}
+
+	txt = txt.replace(/\n/g, '<br/>');
+
+	return txt;
+}
+
+/**
  * Create Component
  */
 const SkillDescription = new GUIComponent('SkillDescription', cssText);
@@ -78,7 +119,7 @@ SkillDescription.setSkill = function setSkill(id) {
 	const root = _getRoot();
 	const content = root.querySelector('.content');
 	if (content) {
-		content.textContent = DB.getSkillDescription(id);
+		content.innerHTML = _formatROText(DB.getSkillDescription(id));
 	}
 
 	const hostWidth = this._host.getBoundingClientRect().width;

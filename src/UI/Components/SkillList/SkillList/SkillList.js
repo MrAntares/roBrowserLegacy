@@ -109,9 +109,9 @@ SkillList.init = function init() {
 	// Bind skills
 	this.ui
 		.on('dblclick', '.skill .icon, .skill .name', onRequestUseSkill)
-		.on('contextmenu', '.skill .icon, .skill .name', onRequestSkillInfo)
+		.on('contextmenu', '.skill .icon, .skill .name', onContextMenuSkillInfo)
 		.on('mousedown', '.selectable', onSkillFocus)
-		.on('mouseover', '.skillCol .skill .icon, .skill .name', onRequestSkillInfo)
+		.on('mouseover', '.skillCol .skill .icon, .skill .name', onMouseOverSkillInfo)
 		.on('mouseout', '.skillCol .skill .icon, .skill .name', onSkillDescriptionRemove)
 		.on('mouseover', '.skillCol .skill .icon, .skill .name', onNecessarySkills)
 		.on('mouseout', '.skillCol .skill .icon, .skill .name', onNecessarySkillsRemove)
@@ -1124,31 +1124,49 @@ function onNecessarySkillsRemove() {
 }
 
 /**
- * Request to get skill info (right click on a skill)
+ * Resolve the skill ID from the hovered/clicked element
  */
-function onRequestSkillInfo() {
-	let main = jQuery(this).parent();
-
+function _resolveSkillID(el) {
+	let main = jQuery(el).parent();
 	if (!main.hasClass('skill')) {
 		main = main.parent();
 	}
-
 	const id = parseInt(main.data('index'), 10);
 	const skill = getSkillById(id);
+	return skill?.SKID ?? id;
+}
 
-	const skillID = skill?.SKID ?? id;
+/**
+ * Show skill description on right-click (always, regardless of checkbox)
+ */
+function onContextMenuSkillInfo() {
+	const skillID = _resolveSkillID(this);
 
-	// Don't add the same UI twice, remove it
 	if (SkillDescription.uid === skillID) {
 		SkillDescription.remove();
 		return;
 	}
 
-	// Add ui to window
-	if (_preferences.skillInfo) {
-		SkillDescription.append();
-		SkillDescription.setSkill(skillID);
+	SkillDescription.append();
+	SkillDescription.setSkill(skillID);
+}
+
+/**
+ * Show skill description on mouseover (only when checkbox is checked)
+ */
+function onMouseOverSkillInfo() {
+	if (!_preferences.skillInfo) {
+		return;
 	}
+
+	const skillID = _resolveSkillID(this);
+
+	if (SkillDescription.uid === skillID) {
+		return;
+	}
+
+	SkillDescription.append();
+	SkillDescription.setSkill(skillID);
 }
 
 /**
