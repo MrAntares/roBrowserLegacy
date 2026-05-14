@@ -1,3 +1,8 @@
+:host {
+	top: 0px;
+	left: 0px;
+}
+
 #SkillDescription {
 	position: absolute;
 	border-radius: 5px;
