@@ -56,7 +56,7 @@ WeaponAction[JobId.SWORDMAN] = new (function () {
 	this[WeaponType.TWOHANDSPEAR] = 2;
 })();
 
-WeaponAction[JobId.MAGICIA] = new (function () {
+WeaponAction[JobId.MAGICIAN] = new (function () {
 	this[WeaponType.NONE] = 0;
 	this[WeaponType.ROD] = 1;
 	this[WeaponType.TWOHANDROD] = 1;
