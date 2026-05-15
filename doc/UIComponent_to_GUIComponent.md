@@ -818,6 +818,68 @@ function intersectEntities(event) {
 
 **RULE**: Replace jQuery event queue manipulation (`events.unshift(events.pop())`) with capture-phase listeners. Replace `return false` with explicit `stopImmediatePropagation()` + `preventDefault()` calls.
 
+### 13. jQuery `.text()` override is lost — RO-style `^rrggbb` color codes rendered as literal text
+
+**Bug**: The legacy codebase overrides jQuery's `.text()` method in `Utils/jquery.js` to add RO-specific text processing. When a UIComponent calls `this.ui.find('.content').text(value)`, it is NOT using standard jQuery `.text()` — the override:
+
+1. **Sanitizes HTML** (whitelist: `<font>`, `<i>`, `<b>` — all other tags stripped)
+2. **Converts `^rrggbb` color codes** to `<span style="color:#rrggbb">`
+3. **Substitutes `^nItemID^NNN`** with the item's display name from DB
+4. **Converts `\n` to `<br/>`**
+5. Sets the result via `.html()` (innerHTML), not `.textContent`
+
+When migrating to GUIComponent, the natural replacement for `.text()` is `.textContent`. This strips ALL processing — color codes appear as literal `^FF0000` text, newlines are ignored, and HTML tags are escaped.
+
+**Affected components**: Any component that displays user-facing game text with `^rrggbb` color codes. Common examples: SkillDescription, NpcBox, Quest, ItemInfo, and any component using `DB.getSkillDescription()`, `DB.getMessage()`, or similar DB text that may contain color codes.
+
+**Fix**: Replicate the jQuery `.text()` override logic natively. Create a local `_formatROText()` helper:
+
+```javascript
+const _allowedTags = new Set(['font', 'i', 'b']);
+
+function _formatROText(value) {
+	const tmp = document.createElement('div');
+	tmp.innerHTML = String(value);
+
+	tmp.querySelectorAll('*').forEach(el => {
+		if (!_allowedTags.has(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
+
+	let txt = tmp.innerHTML;
+
+	let result;
+	const colorReg = /\^([a-fA-F0-9]{6})/;
+	while ((result = colorReg.exec(txt))) {
+		txt = txt.replace(result[0], `<span style="color:#${result[1]}">`) + '</span>';
+	}
+
+	const itemReg = /\^nItemID\^(\d+)/g;
+	while ((result = itemReg.exec(txt))) {
+		txt = txt.replace(result[0], DB.getItemInfo(result[1]).identifiedDisplayName);
+	}
+
+	txt = txt.replace(/\n/g, '<br/>');
+
+	return txt;
+}
+```
+
+Then use `.innerHTML` instead of `.textContent`:
+
+```javascript
+// WRONG — loses color codes, newlines, item substitution
+content.textContent = DB.getSkillDescription(id);
+
+// CORRECT — preserves RO text formatting
+content.innerHTML = _formatROText(DB.getSkillDescription(id));
+```
+
+**How to detect**: Search for `.text(` calls in the legacy component. If the argument could contain `^rrggbb` codes (skill descriptions, NPC dialog, item info, quest text), you need `_formatROText()` + `.innerHTML`. If the argument is always plain text (e.g., a numeric value or a simple label), `.textContent` is fine.
+
+**RULE**: When replacing jQuery `.text(value)` with native DOM, check whether the value may contain RO-style formatting (`^rrggbb`, `^nItemID`, newlines). If it does, use `_formatROText()` + `.innerHTML`. If it's plain text, use `.textContent`.
+
 ---
 
 ## Reference: Clan Component (first GUIComponent migration)
@@ -925,6 +987,40 @@ function intersectEntities(event) {
 
 ---
 
+## Reference: SkillDescription Component (tooltip, dynamic position, RO text formatting)
+
+### Files
+
+- `src/UI/Components/SkillDescription/SkillDescription.js` — Component logic (module-level singleton with `_getRoot()` helper)
+- `src/UI/Components/SkillDescription/SkillDescription.html` — Minimal template (close button + content div, uses `data-background`/`data-hover`)
+- `src/UI/Components/SkillDescription/SkillDescription.css` — Tooltip CSS pattern (no fixed width/height on `:host`)
+
+### Key Patterns
+
+- **No fixed dimensions on `:host`**: The component sizes to its content. Only `top`/`left` are set on `:host` as defaults — actual position is set dynamically in `setSkill()` relative to the mouse cursor.
+- **`_formatROText()` for RO text**: Skill descriptions contain `^rrggbb` color codes. Uses a local helper to sanitize HTML, convert color codes to `<span>` tags, substitute item IDs, and convert newlines (see §13).
+- **`data-background`/`data-hover` on HTML**: The close button uses legacy `data-*` attributes which are processed by `GUIComponent._processAllDataAttrs()` — no Custom Element conversion needed.
+- **Dynamic positioning via `getBoundingClientRect()`**: `setSkill()` measures the host's rendered size and positions it near the mouse, clamped to screen bounds.
+- **Removed `onAppend` jQuery event reordering**: The original used `jQuery._data(window, 'events').keydown.unshift()` — unnecessary with GUIComponent's built-in key handling.
+
+### CSS Pattern
+
+```css
+:host {
+	top: 0px;
+	left: 0px;
+}
+
+#SkillDescription {
+	position: absolute;
+	border-radius: 5px;
+	padding: 1px;
+	border: 1px solid #c5c5c5;
+}
+```
+
+---
+
 ## Quick Reference: What NOT to do
 
 | Don't                                                               | Do instead                                                   | Why                                                                                          |
@@ -943,6 +1039,7 @@ function intersectEntities(event) {
 | Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                               | Redundant, may conflict                                                                      |
 | `onKeyDown` without `shadowRoot.activeElement` guard                | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow                      |
 | `position: absolute` on inner div of dynamic-size component         | `display: block` (no positioning)                            | Creates 0×0 containing block that breaks child positioning (see §4b)                         |
+| `content.textContent = DB.getSkillDescription(id)`                  | `content.innerHTML = _formatROText(...)`                     | jQuery `.text()` is overridden to process `^rrggbb` colors, `^nItemID`, newlines (see §13)   |
 | Convert all callbacks to arrow functions blindly                    | Keep `function()` when caller uses `.call()`/`.apply()`      | Arrow functions ignore dynamic `this` binding (see §9)                                       |
 | CSS `display: none` + `element.style.display = ''` to show          | Use explicit `'block'`/`'none'`, or omit CSS `display: none` | Empty string removes inline style, falls back to CSS `none` (see §10)                        |
 | Assume children inherit only scoped styles from `:host`             | Add `pointer-events: auto` on children if `:host` is `none`  | Inheritable CSS crosses shadow boundary: `pointer-events`, `color`, `cursor`, etc. (see §11) |
