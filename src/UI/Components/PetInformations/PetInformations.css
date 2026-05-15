@@ -1,7 +1,12 @@
-#PetInformations {
-	position: absolute;
+:host {
+	width: 280px;
+	height: 180px;
 	top: 100px;
 	left: 100px;
+}
+
+#PetInformations {
+	position: absolute;
 	width: 280px;
 	height: 180px;
 	background-color: white;
@@ -27,7 +32,6 @@
 	text-shadow: 1px 1px white;
 	vertical-align: -2px;
 	white-space: nowrap;
-	/* chrome bug */
 	display: inline-block;
 	width: 50px;
 	height: 13px;
