@@ -24,7 +24,7 @@ This guide has the goal to help you to Setup/Play RoBrowser. If there's any trou
 - [7. ROBrowser Settings Overview](#7-robrowser-settings-overview)
     - [7.1 Configuration Files](#71-configuration-files)
     - [7.2 Configuration Options](#72-configuration-options)
-    - [7.3 Configuration webserver adress](#73-configuration-webserver)
+    - [7.3 Configuration webserver adress](#73-configuring-the-webserver-api)
 - [8. Play the Game](#8-play-the-game)
 - [9. Troubleshooting](#9-troubleshooting)
     - [9.1 Troubleshooting: The screen is weird and/or the developer console (F12) says it can't load game assets](#91-troubleshooting-the-screen-is-weird-andor-the-developer-console-f12-says-it-cant-load-game-assets)
@@ -196,7 +196,7 @@ The project uses a custom build system based on Vite and Rollup for bundling ES6
 The build system is powered by `applications/tools/builder-web.mjs`. You can run it directly:
 
 - `node ./applications/tools/builder-web.mjs` - Basic build (Online.js).
-- `node ./applications/tools/builder-web.mjs -O -T -H` - Build Online.js, ThreadEventHandler.js, and HTML.
+- `node ./applications/tools/builder-web.mjs -O -H` - Build Online.js, ThreadEventHandler.js, and HTML.
 - `node ./applications/tools/builder-web.mjs --all` - Build all apps.
 - `node ./applications/tools/builder-web.mjs --all --m` - Build all with minification.
 
@@ -233,7 +233,7 @@ php -S 0.0.0.0:8000
 ruby -run -ehttpd . -p8000
 ```
 
-With Vite, access `http://localhost:3000`. With PHP or Ruby, access `http://localhost:8000`.
+With Vite, access `http://localhost:3000` for dev or `http://localhost:4173` for serve. With PHP or Ruby, access `http://localhost:8000`.
 
 ## 4.1 Serving Game: Live Server/Production
 
@@ -250,7 +250,12 @@ cd path/to/robrowserlegacy
 Then you can simply run:
 
 ```bash
-npm run build -- -O -T -H
+npm run build -- -O -H
+```
+
+Second build preserving html file and config.js you can use:
+```bash
+npm run build -- -O
 ```
 
 It will generate 3 files inside `dist/Web`, which are **Online.js**, **ThreadEventHandler.js** and **index.html** that you have to move/copy into your **project root**.
@@ -259,7 +264,7 @@ It will generate 3 files inside `dist/Web`, which are **Online.js**, **ThreadEve
 cp dist/Web/* .
 ```
 
-Now you're good to open your browser at `https://127.0.0.1:8000` and see your roBrowser base client running!
+Now you're good to open your browser at `http://localhost:3000` and see your roBrowser base client running!
 
 > [!TIP]
 > In case you want to minify your roBrowser, go on the instance config and turn the `development` flag into `false`.
@@ -374,7 +379,7 @@ window.ROConfigLocal = {
 			address: '192.168.1.100',
 			port: 6900,
 			packetver: 20180620,
-			socketProxy: 'wss://my-proxy.example.com'
+			socketProxy: 'ws://my-proxy.example.com'
 		}
 	],
 	skipIntro: true,
@@ -591,7 +596,7 @@ Browser builds ignore this setting.
 
 ## 8. Play the Game
 
-- Access to `http://localhost:8000/` after moving all the files from your `ro-browser/dist/Web` to `ro-browser` (project root).
+- Access to `http://localhost:3000/` after moving all the files from your `ro-browser/dist/Web` to `ro-browser` (project root).
 - ![RO Browser Running on Browser locally.](img/start-robrowser.png)
 
 # 9. Troubleshooting
@@ -603,7 +608,7 @@ Your remote client is not configured properly.
 - Check the `client/configs.php` and make sure `DEBUG` is set to false.
 - Check the `client/.htaccess` file if the ErrorDocument option points to the `client/index.php` via the correct url. If you don't run roBrowser from the www root and you use remote client then you need to adjust this url (see examples in the file).
 
-If it is still not working you can try setting `DEBUG` to true and open the `http://localhost:8000/client/index.php` in your browser to see the debug trace. You can also call files directly from your game data to see if they load properly, eg: `http://localhost:8000/client/data/texture/black.bmp`. After debugging set `DEBUG` to false.
+If it is still not working you can try setting `DEBUG` to true and open the `http://localhost:3000/client/index.php` in your browser to see the debug trace. You can also call files directly from your game data to see if they load properly, eg: `http://localhost:3000/client/data/texture/black.bmp`. After debugging set `DEBUG` to false.
 
 ## 9.2 Troubleshooting: Screen is blank
 
