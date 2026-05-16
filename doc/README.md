@@ -254,6 +254,7 @@ npm run build -- -O -H
 ```
 
 Second build preserving html file and config.js you can use:
+
 ```bash
 npm run build -- -O
 ```
