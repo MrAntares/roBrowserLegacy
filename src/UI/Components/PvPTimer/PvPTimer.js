@@ -8,26 +8,28 @@
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
-import html from './PvPTimer.html?raw';
-import css from './PvPTimer.css?raw';
+import htmlText from './PvPTimer.html?raw';
+import cssText from './PvPTimer.css?raw';
 
-// Emoticons-style rendering stack
-const PvPTimer = new UIComponent('PvPTimer', html, css);
+const PvPTimer = new GUIComponent('PvPTimer', cssText);
+
+PvPTimer.render = () => htmlText;
+
+PvPTimer.mouseMode = GUIComponent.MouseMode.CROSS;
+
+PvPTimer.needFocus = false;
 
 /* ================= CONFIG (OG values) ================= */
-
-// var DIGIT_STEP = 24; // UNUSED
 
 const TIMER_W = 300,
 	TIMER_H = 110;
 const TA_W = 360,
-	TA_H = 128; // Match CSS
+	TA_H = 128;
 
-// OG font baselines
 const TIMER_Y = 60;
 const TA_Y = 80;
 
@@ -50,8 +52,14 @@ const _layerEntity = new Entity();
 
 let _taHideTimer = null;
 
-// time attack is played once u get first place on first time
 let isFirstTime = true;
+
+/**
+ * Helper to get the shadow root
+ */
+function _getRoot() {
+	return PvPTimer._shadow || PvPTimer._host;
+}
 
 /**
  * Initialize UI
@@ -64,7 +72,7 @@ PvPTimer.init = function init() {
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timeattack.act',
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timeattack.spr'
 		],
-		function (tAct, tSpr, aAct, aSpr) {
+		(tAct, tSpr, aAct, aSpr) => {
 			_timefontAct = tAct;
 			_timefontSpr = tSpr;
 			_timeAtkAct = aAct;
@@ -72,8 +80,9 @@ PvPTimer.init = function init() {
 		}
 	);
 
-	_timerCanvas = PvPTimer.ui.find('.pvp-timer-canvas')[0];
-	_taCanvas = PvPTimer.ui.find('.pvp-timeattack-canvas')[0];
+	const root = _getRoot();
+	_timerCanvas = root.querySelector('.pvp-timer-canvas');
+	_taCanvas = root.querySelector('.pvp-timeattack-canvas');
 
 	if (!_timerCanvas || !_taCanvas) {
 		return;
@@ -92,7 +101,7 @@ PvPTimer.init = function init() {
  * Append UI
  */
 PvPTimer.onAppend = function onAppend() {
-	this.ui.hide();
+	this._host.style.display = 'none';
 };
 
 /**
@@ -107,17 +116,17 @@ PvPTimer.onRemove = function onRemove() {
  * Set data
  * @param {Object} data
  */
-PvPTimer.setData = function setData(data) {};
+PvPTimer.setData = function setData(_data) {};
 
 PvPTimer.hide = function hide() {
-	this.ui.hide();
+	this._host.style.display = 'none';
 	stopTimer();
 };
 
 PvPTimer.show = function show() {
-	this.ui.show();
+	this._host.style.display = '';
 	startTimer();
-	if (isFirstTime == true) {
+	if (isFirstTime === true) {
 		playTimeAttackBanner();
 		isFirstTime = false;
 	}
@@ -127,6 +136,7 @@ PvPTimer.show = function show() {
  * Pick layers from act
  * @param {Object} act
  * @param {number} actionId
+ * @param {number} frameId
  * @returns {Object[]}
  */
 function pickLayers(act, actionId, frameId) {
@@ -149,7 +159,6 @@ function drawActionToCanvas(ctx, act, spr, actionId, x, y, frameId) {
 		return;
 	}
 
-	// Gravity fonts: no anchor correction
 	SpriteRenderer.bind2DContext(ctx, x, y);
 
 	for (let i = 0; i < layers.length; i++) {
@@ -174,10 +183,10 @@ function renderTimer(seconds) {
 	const m = Math.floor(seconds / 60);
 	const s = seconds % 60;
 
-	const text = m == 0 ? String(s).padStart(2, '0') : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+	const text = m === 0 ? String(s).padStart(2, '0') : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
 	const digitWidth = 50;
-	const totalWidth = m == 0 ? 2 * digitWidth : 5 * digitWidth;
+	const totalWidth = m === 0 ? 2 * digitWidth : 5 * digitWidth;
 
 	let x = (TIMER_W - totalWidth) >> 1;
 
@@ -185,13 +194,6 @@ function renderTimer(seconds) {
 		const a = timerCharToAction(text[i]);
 
 		if (!isNaN(a)) {
-			// Center '1' or narrow digits?
-			// For now, simple fixed step to avoid jitter is best.
-			// But we might want to center the glyph inside the 'step' slot if it's narrow.
-			// However, standard drawing draws from left (x).
-			// If we want monospace look, we just draw at x.
-			// But visual centering for '1' might be needed if it's 28px vs 50px slot.
-			// Let's stick to simple left-aligned in slot for now, standard behavior.
 			drawActionToCanvas(_timerCtx, _timefontAct, _timefontSpr, a, x, TIMER_Y);
 			x += digitWidth;
 		}
@@ -204,7 +206,7 @@ function startTimer() {
 	}
 	_startTs = (Date.now() / 1000) | 0;
 	renderTimer(0);
-	_timerInterval = setInterval(function () {
+	_timerInterval = setInterval(() => {
 		renderTimer(((Date.now() / 1000) | 0) - _startTs);
 	}, 1000);
 }
@@ -250,7 +252,7 @@ function playTimeAttackBanner() {
 		if (frame < count) {
 			_taHideTimer = setTimeout(run, 100);
 		} else {
-			_taHideTimer = setTimeout(function () {
+			_taHideTimer = setTimeout(() => {
 				_taCtx.clearRect(0, 0, TA_W, TA_H);
 			}, 300);
 		}

@@ -1,5 +1,5 @@
 /**
- * UI/Components/PvpCount/PvpCount.js
+ * UI/Components/PvPCount/PvPCount.js
  *
  * PvP count GUI
  *
@@ -8,20 +8,24 @@
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Client from 'Core/Client.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import Sound from 'Audio/SoundManager.js';
-import html from './PvPCount.html?raw';
-import css from './PvPCount.css?raw';
+import htmlText from './PvPCount.html?raw';
+import cssText from './PvPCount.css?raw';
 
-// Emoticons-style rendering stack
-const PvPCount = new UIComponent('PvPCount', html, css);
+const PvPCount = new GUIComponent('PvPCount', cssText);
+
+PvPCount.render = () => htmlText;
+
+PvPCount.mouseMode = GUIComponent.MouseMode.CROSS;
+
+PvPCount.needFocus = false;
 
 /* ================= CONFIG (OG values) ================= */
 
-//var DIGIT_STEP = 45; // UNUSED
 const RANK_W = 240,
 	RANK_H = 96;
 const RANK_Y = 52;
@@ -40,18 +44,26 @@ let ranking = 0;
 let total = 0;
 
 /**
+ * Helper to get the shadow root
+ */
+function _getRoot() {
+	return PvPCount._shadow || PvPCount._host;
+}
+
+/**
  * Initialize UI
  */
 PvPCount.init = function init() {
 	Client.loadFiles(
 		['data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/rankfont.act', 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/rankfont.spr'],
-		function (rAct, rSpr) {
+		(rAct, rSpr) => {
 			_rankfontAct = rAct;
 			_rankfontSpr = rSpr;
 		}
 	);
 
-	_rankCanvas = PvPCount.ui.find('.pvp-rank-canvas')[0];
+	const root = _getRoot();
+	_rankCanvas = root.querySelector('.pvp-rank-canvas');
 
 	if (!_rankCanvas) {
 		return;
@@ -82,13 +94,12 @@ PvPCount.onRemove = function onRemove() {
  * @param {Object} data
  */
 PvPCount.setData = function setData(data) {
-	if (data.ranking == ranking && data.total == total) {
+	if (data.ranking === ranking && data.total === total) {
 		return;
 	}
 
-	renderRankText(data.ranking + '/' + data.total);
+	renderRankText(`${data.ranking}/${data.total}`);
 
-	// if total increase play the effect
 	if (data.total > total) {
 		Sound.play('effect/number_change.wav');
 	}
@@ -117,7 +128,6 @@ function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
 		return;
 	}
 
-	// Gravity fonts: no anchor correction
 	SpriteRenderer.bind2DContext(ctx, x, y);
 
 	for (let i = 0; i < layers.length; i++) {
@@ -142,14 +152,12 @@ function renderRankText(text) {
 	const parts = text.split('/');
 	const rankingStr = parts[0];
 	const totalStr = parts[1];
-	const step = 28; // Compact spacing
+	const step = 28;
 	const slashStep = 28;
 
-	// Calculate total width to center it
 	const totalWidth = rankingStr.length * step + slashStep + totalStr.length * step;
 	let x = (RANK_W - totalWidth) >> 1;
 
-	// 1. Render Ranking (Higher)
 	let i, a;
 	for (i = 0; i < rankingStr.length; i++) {
 		a = rankCharToAction(rankingStr[i]);
@@ -159,12 +167,10 @@ function renderRankText(text) {
 		}
 	}
 
-	// 2. Render Slash (Middle)
 	a = rankCharToAction('/');
 	drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y);
 	x += slashStep;
 
-	// 3. Render Total (Lower)
 	for (i = 0; i < totalStr.length; i++) {
 		a = rankCharToAction(totalStr[i]);
 		if (!isNaN(a)) {
