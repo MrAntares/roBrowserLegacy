@@ -6,32 +6,41 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
-+ */
+ */
 
 import DB from 'DB/DBManager.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import SkillTreeView from 'DB/Skills/SkillTreeView.js';
 import Session from 'Engine/SessionStorage.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js';
 import htmlText from './SkillListV0.html?raw';
 import cssText from './SkillListV0.css?raw';
 
-/**
- * Create Component
- */
-const SkillListV0 = new UIComponent('SkillListV0', htmlText, cssText);
+function _root(comp) {
+	return comp._shadow || comp._host;
+}
 
-/**
- * @var {Preferences} window preferences
- */
+function _escapeHTML(text) {
+	const div = document.createElement('div');
+	div.textContent = text;
+	return div.innerHTML;
+}
+
+function _isNumeric(val) {
+	return !isNaN(parseFloat(val)) && isFinite(val);
+}
+
+const SkillListV0 = new GUIComponent('SkillListV0', cssText);
+SkillListV0.render = () => htmlText;
+
 const _preferences = Preferences.get(
 	'SkillListV0',
 	{
@@ -46,155 +55,249 @@ const _preferences = Preferences.get(
 	1.0
 );
 
-/**
- * @var {Array} Skill List
- * { SKID, type, level, spcost, attackRange, skillName, upgradable }
- */
 const _list = [];
-
-/**
- * @var {jQuery} level up button reference
- */
 let _btnIncSkill;
-
-/**
- * @var {number} skill points
- */
 let _points = 0;
-
 let totalCounter = 0;
-
-/**
- * @var {jQuery} button that appeared when level up
- */
 let _btnLevelUp;
-
-let lArrow, rArrow;
-
+let _lArrow, _rArrow;
 let skillPosition = [];
-
 const skillDependencyTree = [];
-
 let rememberChoice = [];
-
 const hasSkills = [];
-
 let _justDragged = false;
 
-/**
- * Initialize UI
- */
 SkillListV0.init = function init() {
-	this.ui.find('.titlebar .base').mousedown(stopPropagation);
-	this.ui.find('.footer .extend').mousedown(onResize);
-	this.ui.find('.titlebar .close').click(onClose);
-	this.ui.find('.titlebar .mini').click(onMini);
-	this.ui.find('.view_skill_info').change(onToggleSkillInfo);
-	this.ui.find('.reset').click(onResetChoice);
-	this.ui.find('.apply').click(onApplyChoice);
+	const root = _root(this);
 
-	// Get level up button
-	_btnIncSkill = this.ui.find('.btn.levelup').detach().click(onRequestSkillUp);
-
-	// Get button to open skill when level up
-	_btnLevelUp = jQuery('#lvlup_job').detach();
-	_btnLevelUp
-		.click(function () {
-			_btnLevelUp.detach();
-			SkillListV0.ui.show();
-			SkillListV0.ui.parent().append(SkillListV0.ui);
-		})
-		.mousedown(stopPropagation);
-
-	// Bind skills
-	this.ui
-		.on('dblclick', '.skill .icon, .skill .name', onRequestUseSkill)
-		.on('contextmenu', '.skill .icon, .skill .name', onContextMenuSkillInfo)
-		.on('mousedown', '.selectable', onSkillFocus)
-		.on('mouseover', '.skillCol .skill .icon, .skill .name', onMouseOverSkillInfo)
-		.on('mouseout', '.skillCol .skill .icon, .skill .name', onSkillDescriptionRemove)
-		.on('mouseover', '.skillCol .skill .icon, .skill .name', onNecessarySkills)
-		.on('mouseout', '.skillCol .skill .icon, .skill .name', onNecessarySkillsRemove)
-		.on('click', '.skillCol .skill .icon, .skill .name', onRememberChoice)
-		.on('dragstart', '.skill', onSkillDragStart)
-		.on('dragend', '.skill', onSkillDragEnd);
-
-	this.draggable(this.ui.find('.titlebar'));
-
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function (data) {
-		rArrow = 'url(' + data + ')';
+	root.querySelector('.titlebar .base')?.addEventListener('mousedown', (e) => {
+		e.stopImmediatePropagation();
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/arw_left.bmp', function (data) {
-		lArrow = 'url(' + data + ')';
+	root.querySelector('.footer .extend')?.addEventListener('mousedown', (e) => {
+		onResize(e, this);
+	});
+	root.querySelector('.titlebar .close')?.addEventListener('click', () => {
+		this.ui.hide();
+	});
+	root.querySelector('.titlebar .mini')?.addEventListener('click', () => {
+		onMini(this);
+	});
+	root.querySelector('.view_skill_info')?.addEventListener('change', function () {
+		_preferences.skillInfo = !!this.checked;
+		_preferences.save();
+	});
+	root.querySelector('.reset')?.addEventListener('click', () => {
+		onResetChoice(this);
+	});
+	root.querySelector('.apply')?.addEventListener('click', () => {
+		onApplyChoice(this);
+	});
+
+	const levelupBtn = root.querySelector('.btn.levelup');
+	if (levelupBtn) {
+		_btnIncSkill = levelupBtn.cloneNode(true);
+		levelupBtn.remove();
+		_btnIncSkill.addEventListener('click', function () {
+			const index = this.parentNode.parentNode.getAttribute('data-index');
+			SkillListV0.onIncreaseSkill(parseInt(index, 10));
+		});
+	}
+
+	const lvlupBtn = root.querySelector('#lvlup_job');
+	if (lvlupBtn) {
+		_btnLevelUp = lvlupBtn;
+		_btnLevelUp.remove();
+		_btnLevelUp.addEventListener('click', () => {
+			if (_btnLevelUp.parentNode) {
+				_btnLevelUp.remove();
+			}
+			SkillListV0.ui.show();
+		});
+		_btnLevelUp.addEventListener('mousedown', (e) => {
+			e.stopImmediatePropagation();
+		});
+	}
+
+	const container = root.querySelector('#SkillListV0') || root;
+
+	container.addEventListener('dblclick', (e) => {
+		const target = e.target.closest('.skill .icon, .skill .name');
+		if (target) {
+			let main = target.parentElement;
+			if (!main.classList.contains('skill')) {
+				main = main.parentElement;
+			}
+			SkillListV0.useSkillID(parseInt(main.getAttribute('data-index'), 10));
+		}
+	});
+
+	container.addEventListener('contextmenu', (e) => {
+		const target = e.target.closest('.skill .icon, .skill .name');
+		if (target) {
+			const skillID = _resolveSkillID(target);
+			if (SkillDescription.uid === skillID) {
+				SkillDescription.remove();
+				return;
+			}
+			SkillDescription.append();
+			SkillDescription.setSkill(skillID);
+		}
+	});
+
+	container.addEventListener('mousedown', (e) => {
+		const target = e.target.closest('.selectable');
+		if (target) {
+			let main = target.parentElement;
+			if (!main.classList.contains('skill')) {
+				main = main.parentElement;
+			}
+			for (const el of root.querySelectorAll('.skill')) {
+				el.classList.remove('selected');
+			}
+			main.classList.add('selected');
+		}
+	});
+
+	container.addEventListener('mouseover', (e) => {
+		const target = e.target.closest('.skillCol .skill .icon, .skill .name');
+		if (target) {
+			if (_preferences.mini || _preferences.skillInfo) {
+				const skillID = _resolveSkillID(target);
+				if (SkillDescription.uid !== skillID) {
+					SkillDescription.append();
+					SkillDescription.setSkill(skillID);
+				}
+			}
+			onNecessarySkills(target, root);
+		}
+	});
+
+	container.addEventListener('mouseout', (e) => {
+		const target = e.target.closest('.skillCol .skill .icon, .skill .name');
+		if (target) {
+			if (_preferences.mini || _preferences.skillInfo) {
+				SkillDescription.remove();
+			}
+			root.querySelectorAll('.needleSkill').forEach((el) => el.classList.remove('needleSkill'));
+			root.querySelectorAll('.counterSkill').forEach((el) => el.remove());
+		}
+	});
+
+	container.addEventListener('click', (e) => {
+		const target = e.target.closest('.skillCol .skill .icon, .skill .name');
+		if (target) {
+			onRememberChoice(target, root);
+		}
+	});
+
+	container.addEventListener('dragstart', (e) => {
+		const skillEl = e.target.closest('.skill');
+		if (!skillEl) {
+			return;
+		}
+		const index = parseInt(skillEl.getAttribute('data-index'), 10);
+		const skill = getSkillById(index);
+
+		if (!skill || !skill.level || !skill.type) {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+			return;
+		}
+
+		const img = new Image();
+		img.decoding = 'async';
+		img.src = skillEl.querySelector('.icon img')?.src || '';
+
+		e.dataTransfer.setDragImage(img, 12, 12);
+		e.dataTransfer.setData(
+			'Text',
+			JSON.stringify(
+				(window._OBJ_DRAG_ = {
+					type: 'skill',
+					from: 'SkillListV0',
+					data: skill
+				})
+			)
+		);
+	});
+
+	container.addEventListener('dragend', () => {
+		delete window._OBJ_DRAG_;
+		_justDragged = true;
+		setTimeout(() => {
+			_justDragged = false;
+		}, 0);
+	});
+
+	this.draggable('.titlebar');
+
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, (data) => {
+		_rArrow = `url(${data})`;
+	});
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, (data) => {
+		_lArrow = `url(${data})`;
 	});
 };
 
-/**
- * Apply preferences once append to body
- */
 SkillListV0.onAppend = function onAppend() {
-	// Apply preferences
 	if (!_preferences.show) {
 		this.ui.hide();
 	}
 
-	resize(_preferences.width, _preferences.height);
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	resize(this, _preferences.width, _preferences.height);
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - 100)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - 100)}px`;
 
-	this.ui.find('.view_skill_info').attr('checked', _preferences.skillInfo);
-};
-
-/**
- * Remove Skill window from DROM
- */
-SkillListV0.onRemove = function onRemove() {
-	_btnLevelUp.detach();
-
-	// Save preferences
-	_preferences.show = this.ui.is(':visible');
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.width = Math.floor(this.ui.find('.content').width() / 32);
-	_preferences.height = Math.floor(this.ui.find('.content').height() / 32);
-	_preferences.save();
-};
-
-/**
- * Show/Hide UI
- */
-SkillListV0.toggle = function toggle() {
-	this.ui.toggle();
-
-	if (this.ui.is(':visible')) {
-		this.focus();
-		_btnLevelUp.detach();
+	const root = _root(this);
+	const cb = root.querySelector('.view_skill_info');
+	if (cb) {
+		cb.checked = _preferences.skillInfo;
 	}
 };
 
-/**
- * Process shortcut
- *
- * @param {object} key
- */
+SkillListV0.onRemove = function onRemove() {
+	if (_btnLevelUp && _btnLevelUp.parentNode) {
+		_btnLevelUp.remove();
+	}
+
+	_preferences.show = this.ui.is(':visible');
+	_preferences.y = parseInt(this._host.style.top, 10) || 0;
+	_preferences.x = parseInt(this._host.style.left, 10) || 0;
+
+	const root = _root(this);
+	const content = root.querySelector('.content');
+	if (content) {
+		_preferences.width = Math.floor(parseInt(content.style.width, 10) / 32) || 8;
+		_preferences.height = Math.floor(parseInt(content.style.height, 10) / 32) || 8;
+	}
+	_preferences.save();
+};
+
+SkillListV0.toggle = function toggle() {
+	if (this.ui.is(':visible')) {
+		this.ui.hide();
+		if (_btnLevelUp && _btnLevelUp.parentNode) {
+			_btnLevelUp.remove();
+		}
+	} else {
+		this.ui.show();
+		this.focus();
+	}
+};
+
 SkillListV0.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'TOGGLE':
 			this.toggle();
 			break;
 	}
-	onResetChoice();
+	onResetChoice(this);
 };
 
-/**
- * Add skills to the list
- */
 SkillListV0.setSkills = function setSkills(skills) {
-	SkillListV0.ui.find('.upgradable').removeClass('upgradable');
+	const root = _root(this);
+	root.querySelectorAll('.upgradable').forEach((el) => el.classList.remove('upgradable'));
 
-	// Use original job for skill access if the character is transformed
 	let skillJobId = Session.Character.job;
 	const originalJobId = Session.Entity._job;
 	if (originalJobId && originalJobId !== Session.Character.job) {
@@ -204,36 +307,35 @@ SkillListV0.setSkills = function setSkills(skills) {
 	skillPosition = getSkillPosition(skillJobId);
 	createSkillDependencyTree();
 
-	let i, count;
-
-	for (i = 0, count = _list.length; i < count; ++i) {
+	for (let i = 0, count = _list.length; i < count; ++i) {
 		this.onUpdateSkill(_list[i].SKID, 0);
 	}
 
 	_list.length = 0;
-	this.ui.find('.content table').empty();
-	this.ui.find('.skillCol').empty();
+	const table = root.querySelector('.content table');
+	if (table) {
+		table.innerHTML = '';
+	}
+	root.querySelectorAll('.skillCol').forEach((el) => {
+		el.innerHTML = '';
+	});
 
-	for (i = 0, count = skills.length; i < count; ++i) {
+	for (let i = 0, count = skills.length; i < count; ++i) {
 		this.addSkill(skills[i]);
 		hasSkills[skills[i].SKID] = skills[i];
 	}
 
-	skillPosition.forEach(function (items, list) {
+	skillPosition.forEach((items, list) => {
 		SkillListV0.prepareSkillTree(items, list);
 	});
 
-	onResetChoice();
+	onResetChoice(this);
 };
 
 function createSkillDependencyTree() {
-	skillPosition.forEach(function (items, list) {
-		// listItems array
-		Object.entries(items).forEach(entry => {
-			const [skid, pos] = entry;
-
-			// skip list and beforeJob
-			if (!jQuery.isNumeric(skid)) {
+	skillPosition.forEach((items) => {
+		Object.entries(items).forEach(([skid, pos]) => {
+			if (!_isNumeric(skid)) {
 				return;
 			}
 
@@ -242,12 +344,12 @@ function createSkillDependencyTree() {
 			skillDependencyTree[skid] = {
 				dependency: [],
 				position: pos,
-				list: list,
+				list: undefined,
 				MaxLv: sk.MaxLv
 			};
 
 			if (sk?.['_NeedSkillListV0'] !== undefined) {
-				sk['_NeedSkillListV0'].forEach(function (item) {
+				sk['_NeedSkillListV0'].forEach((item) => {
 					skillDependencyTree[skid]['dependency'][item[0]] = item[1];
 				});
 			}
@@ -255,20 +357,24 @@ function createSkillDependencyTree() {
 	});
 }
 
-function specifyRequirements(skillId, count = null) {
-	const showAll = true; // todo debug show all dependency
-
+function specifyRequirements(skillId, count, root) {
+	const showAll = true;
 	const skdt = skillDependencyTree[skillId];
 
 	if (skdt?.dependency || count != null) {
-		const element = '<div class="counterSkill">' + count + '</div>';
-		skillPosition.forEach(function (items, list) {
+		skillPosition.forEach((items, list) => {
 			if (items[skillId] !== undefined) {
-				const skillbox = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skillId]);
-				if (skillbox.children().hasClass('disabled') || showAll) {
-					skillbox.addClass('needleSkill');
-					if (count !== null) {
-						skillbox.append(element);
+				const skillbox = root.querySelector(`#positionSkills${list} .s${items[skillId]}`);
+				if (skillbox) {
+					const child = skillbox.querySelector('.disabled');
+					if (child || showAll) {
+						skillbox.classList.add('needleSkill');
+						if (count !== null && count !== undefined) {
+							const counterEl = document.createElement('div');
+							counterEl.className = 'counterSkill';
+							counterEl.textContent = count;
+							skillbox.appendChild(counterEl);
+						}
 					}
 				}
 			}
@@ -276,52 +382,61 @@ function specifyRequirements(skillId, count = null) {
 	}
 
 	if (skdt?.dependency) {
-		skdt.dependency.forEach(function (item, key) {
-			specifyRequirements(key, item);
+		skdt.dependency.forEach((item, key) => {
+			specifyRequirements(key, item, root);
 		});
 	}
 }
 
-/**
- * get and show remember choice skills
- */
-function onRememberChoice() {
-	if (_justDragged) return;
-	let main = jQuery(this).parent();
-
-	if (!main.hasClass('skill')) {
-		main = main.parent();
+function onRememberChoice(target, root) {
+	if (_justDragged) {
+		return;
 	}
-	const skillId = parseInt(main.data('index'), 10);
+	let main = target.parentElement;
+	if (!main.classList.contains('skill')) {
+		main = main.parentElement;
+	}
+	const skillId = parseInt(main.getAttribute('data-index'), 10);
 
 	rememberChoice = setRememberChoice(skillId);
 
-	// show choice
-	rememberChoice.forEach(function (item, skId) {
+	rememberChoice.forEach((item, skId) => {
 		if (!rememberChoice[skId]['isQuest'] && totalCounter < _points) {
 			const sk = skillDependencyTree[skId];
-			if (!sk) return;
-			const skillbox = SkillListV0.ui.find('#positionSkills' + sk.list + ' .s' + sk.position);
-			if (skillbox.find('.current').text() != sk.MaxLv) {
-				totalCounter += rememberChoice[skId]['count'];
-				skillbox.children().removeClass('disabled');
-				skillbox.find('.level').show();
-				skillbox.find('.current').empty().append(rememberChoice[skId]['count']);
-				skillbox.find('.max').empty().append(rememberChoice[skId]['count']);
+			if (!sk) {
+				return;
+			}
+			const skillbox = root.querySelector(`#positionSkills${sk.list} .s${sk.position}`);
+			if (skillbox) {
+				const currentEl = skillbox.querySelector('.current');
+				if (currentEl && currentEl.textContent !== String(sk.MaxLv)) {
+					totalCounter += rememberChoice[skId]['count'];
+					const disabledEl = skillbox.querySelector('.disabled');
+					if (disabledEl) {
+						disabledEl.classList.remove('disabled');
+					}
+					const levelEl = skillbox.querySelector('.level');
+					if (levelEl) {
+						levelEl.style.display = '';
+					}
+					if (currentEl) {
+						currentEl.textContent = rememberChoice[skId]['count'];
+					}
+					const maxEl = skillbox.querySelector('.max');
+					if (maxEl) {
+						maxEl.textContent = rememberChoice[skId]['count'];
+					}
+				}
 			}
 		}
 	});
 
-	SkillListV0.ui.find('.skpoints_count').text(_points - totalCounter + '/' + _points);
+	const skpointsEl = root.querySelector('.skpoints_count');
+	if (skpointsEl) {
+		skpointsEl.textContent = `${_points - totalCounter}/${_points}`;
+	}
 }
 
-/**
- * Remember Choice skills
- * @param skillId
- * @param count
- * @param isQuest
- * @returns {*[]}
- */
 function setRememberChoice(skillId, count = null, isQuest = false) {
 	const sk = SkillInfo[skillId];
 
@@ -349,13 +464,12 @@ function setRememberChoice(skillId, count = null, isQuest = false) {
 	}
 
 	if (sk['_NeedSkillListV0'] !== undefined) {
-		sk['_NeedSkillListV0'].forEach(function (item) {
+		sk['_NeedSkillListV0'].forEach((item) => {
 			rememberChoice[skillId][item[0]] = setRememberChoice(item[0], item[1], isQuest)[item[0]];
 		});
 
-		Object.entries(rememberChoice[skillId]).forEach(entry => {
-			const [key, value] = entry;
-			if (jQuery.isNumeric(key) && value.isQuest) {
+		Object.entries(rememberChoice[skillId]).forEach(([key, value]) => {
+			if (_isNumeric(key) && value.isQuest) {
 				rememberChoice[skillId]['isQuest'] = value.isQuest;
 			}
 		});
@@ -364,17 +478,13 @@ function setRememberChoice(skillId, count = null, isQuest = false) {
 	return rememberChoice;
 }
 
-/**
- * @param JobId
- * @returns {*[]}
- */
 function getSkillPosition(JobId) {
 	const positions = [];
 	positions[SkillTreeView[JobId]['list']] = SkillTreeView[JobId];
 
 	if (SkillTreeView[JobId]['beforeJob'] !== null) {
 		const beforeJob = SkillTreeView[JobId]['beforeJob'];
-		getSkillPosition(beforeJob).forEach(function (items, list) {
+		getSkillPosition(beforeJob).forEach((items, list) => {
 			positions[list] = positions[list] ? Object.assign(positions[list], items) : items;
 		});
 	}
@@ -382,19 +492,13 @@ function getSkillPosition(JobId) {
 	return positions;
 }
 
-/**
- * Insert skill to list
- *
- * @param {object} skill
- */
 SkillListV0.addSkill = function addSkill(skill) {
-	// Custom skill ?
 	if (!(skill.SKID in SkillInfo)) {
 		return;
 	}
 
-	// Already in list, update it instead of duplicating it
-	if (this.ui.find('.skill.id' + skill.SKID).length) {
+	const root = _root(this);
+	if (root.querySelector(`.skill.id${skill.SKID}`)) {
 		this.updateSkill(skill);
 		return;
 	}
@@ -403,220 +507,188 @@ SkillListV0.addSkill = function addSkill(skill) {
 	this.addSkillMini(skill);
 };
 
-/**
- * Create disabled skills preview
- * @param items
- * @param list
- */
 SkillListV0.prepareSkillTree = function prepareSkillTree(items, list) {
-	Object.entries(items).forEach(entry => {
-		const [key, value] = entry;
+	const root = _root(this);
+	Object.entries(items).forEach(([key, value]) => {
 		const sk = SkillInfo[key];
 		const className = 'disabled';
 		if (sk !== undefined) {
-			const element = jQuery(
-				'<div class="skill id' +
-					key +
-					' ' +
-					className +
-					'" data-index="' +
-					key +
-					'" draggable="true">' +
-					'<div class="name">' +
-					jQuery.escape(sk.SkillName).substr(0, 7) +
-					'...<br/>' +
-					'</div>' +
-					'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
-					'<div class=selectable>' +
-					'<span class="level" style="display: none">' +
-					(sk.bSeperateLv
-						? '<button class="currentDown"></button><span class="current">' +
-							0 +
-							'</span> / <span class="max">' +
-							0 +
-							'</span><button class="currentUp"></button>'
-						: '<span class="current">' + 0 + '</span>') +
-					'</span>' +
-					'</div>' +
-					'</div>'
-			);
+			const element = document.createElement('div');
+			element.className = `skill id${key} ${className}`;
+			element.setAttribute('data-index', key);
+			element.setAttribute('draggable', 'true');
+			element.innerHTML =
+				`<div class="name">${_escapeHTML(sk.SkillName).substr(0, 7)}...<br/></div>` +
+				'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
+				'<div class=selectable>' +
+				'<span class="level" style="display: none">' +
+				(sk.bSeperateLv
+					? `<button class="currentDown"></button><span class="current">0</span> / <span class="max">0</span><button class="currentUp"></button>`
+					: '<span class="current">0</span>') +
+				'</span></div>';
 
-			if (rArrow) {
-				element.find('.level .currentUp').css('background-image', rArrow);
+			const upBtn = element.querySelector('.level .currentUp');
+			if (upBtn) {
+				if (_rArrow) {
+					upBtn.style.backgroundImage = _rArrow;
+				}
+				upBtn.addEventListener('click', () => skillLevelSelectUp(0, root));
 			}
-			if (lArrow) {
-				element.find('.level .currentDown').css('background-image', lArrow);
+			const downBtn = element.querySelector('.level .currentDown');
+			if (downBtn) {
+				if (_lArrow) {
+					downBtn.style.backgroundImage = _lArrow;
+				}
+				downBtn.addEventListener('click', () => skillLevelSelectDown(0, root));
 			}
-
-			element.find('.level .currentUp').click(function () {
-				skillLevelSelectUp(0);
-			});
-			element.find('.level .currentDown').click(function () {
-				skillLevelSelectDown(0);
-			});
 
 			if (value !== undefined) {
-				const box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + value);
-				// show added cells
-				if (key < 41) {
-					box.parent().show();
-				}
-				// show preview skill
-				if (box.is(':empty')) {
-					box.append(element);
+				const box = root.querySelector(`#positionSkills${list} .s${value}`);
+				if (box) {
+					if (parseInt(key, 10) < 41) {
+						box.parentElement.style.display = '';
+					}
+					if (!box.hasChildNodes()) {
+						box.appendChild(element);
+					}
 				}
 			}
 
-			Client.loadFile(DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function (data) {
-				element.find('.icon img').attr('src', data);
+			Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, (data) => {
+				const img = element.querySelector('.icon img');
+				if (img) {
+					img.src = data;
+				}
 			});
 		}
 	});
 };
 
 SkillListV0.addSkillBig = function addSkillBig(skill) {
+	const root = _root(this);
 	const sk = SkillInfo[skill.SKID];
 	const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-	const element = jQuery(
-		'<div class="skill id' +
-			skill.SKID +
-			' ' +
-			className +
-			'" data-index="' +
-			skill.SKID +
-			'" draggable="true">' +
-			'<div class="name">' +
-			jQuery.escape(sk.SkillName).substr(0, 7) +
-			'...<br/>' +
-			'</div>' +
-			'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
-			'<div class="levelupcontainer"></div>' +
-			'<div class=selectable>' +
-			'<span class="level">' +
-			(sk.bSeperateLv
-				? '<button class="currentDown"></button><span class="current">' +
-					skill.level +
-					'</span> / <span class="max">' +
-					skill.level +
-					'</span><button class="currentUp"></button>'
-				: '<span class="current">' + skill.level + '</span>') +
-			'</span>' +
-			'</div>' +
-			'</div>'
-	);
+	const element = document.createElement('div');
+	element.className = `skill id${skill.SKID} ${className}`;
+	element.setAttribute('data-index', skill.SKID);
+	element.setAttribute('draggable', 'true');
+	element.innerHTML =
+		`<div class="name">${_escapeHTML(sk.SkillName).substr(0, 7)}...<br/></div>` +
+		'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
+		'<div class="levelupcontainer"></div>' +
+		'<div class=selectable>' +
+		'<span class="level">' +
+		(sk.bSeperateLv
+			? `<button class="currentDown"></button><span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>`
+			: `<span class="current">${skill.level}</span>`) +
+		'</span></div>';
 
-	if (rArrow) {
-		element.find('.level .currentUp').css('background-image', rArrow);
+	const upBtn = element.querySelector('.level .currentUp');
+	if (upBtn) {
+		if (_rArrow) {
+			upBtn.style.backgroundImage = _rArrow;
+		}
+		upBtn.addEventListener('click', () => skillLevelSelectUp(skill, root));
 	}
-	if (lArrow) {
-		element.find('.level .currentDown').css('background-image', lArrow);
+	const downBtn = element.querySelector('.level .currentDown');
+	if (downBtn) {
+		if (_lArrow) {
+			downBtn.style.backgroundImage = _lArrow;
+		}
+		downBtn.addEventListener('click', () => skillLevelSelectDown(skill, root));
 	}
 
-	element.find('.level .currentUp').click(function () {
-		skillLevelSelectUp(skill);
-	});
-	element.find('.level .currentDown').click(function () {
-		skillLevelSelectDown(skill);
-	});
-
-	skillPosition.forEach(function (items, list) {
+	skillPosition.forEach((items, list) => {
 		if (items[skill.SKID] !== undefined) {
-			const box = SkillListV0.ui.find('#positionSkills' + list + ' .s' + items[skill.SKID]);
-			if (!box.is(':empty')) {
-				box.empty();
-			}
-			box.append(element);
+			const box = root.querySelector(`#positionSkills${list} .s${items[skill.SKID]}`);
+			if (box) {
+				if (box.hasChildNodes()) {
+					box.innerHTML = '';
+				}
+				box.appendChild(element);
 
-			if (skill.upgradable) {
-				box.addClass('upgradable');
+				if (skill.upgradable) {
+					box.classList.add('upgradable');
+				}
 			}
 		}
 	});
 
-	Client.loadFile(DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function (data) {
-		element.find('.icon img').attr('src', data);
+	Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, (data) => {
+		const img = element.querySelector('.icon img');
+		if (img) {
+			img.src = data;
+		}
 	});
 };
 
 SkillListV0.addSkillMini = function addSkillMini(skill) {
+	const root = _root(this);
 	const sk = SkillInfo[skill.SKID];
-	const levelup = _btnIncSkill.clone(true);
+	const levelup = _btnIncSkill.cloneNode(true);
+	levelup.addEventListener('click', function () {
+		const index = this.parentNode.parentNode.getAttribute('data-index');
+		SkillListV0.onIncreaseSkill(parseInt(index, 10));
+	});
 	const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-	const element = jQuery(
-		'<tr class="skill id' +
-			skill.SKID +
-			' ' +
-			className +
-			'" data-index="' +
-			skill.SKID +
-			'" draggable="true">' +
-			'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
-			'<td class="levelupcontainer"></td>' +
-			'<td class=selectable>' +
-			'<div class="name">' +
-			jQuery.escape(sk.SkillName) +
-			'<br/>' +
-			'<span class="level">' +
-			(sk.bSeperateLv
-				? '<button class="currentDown"></button>Lv : <span class="current">' +
-					skill.level +
-					'</span> / <span class="max">' +
-					skill.level +
-					'</span><button class="currentUp"></button>'
-				: 'Lv : <span class="current">' + skill.level + '</span>') +
-			'</span>' +
-			'</div>' +
-			'</td>' +
-			'<td class="selectable type">' +
-			'<div class="consume">' +
-			(skill.type ? 'Sp : <span class="spcost">' + skill.spcost + '</span>' : 'Passive') +
-			'</div>' +
-			'</td>' +
-			'</tr>'
-	);
+	const tr = document.createElement('tr');
+	tr.className = `skill id${skill.SKID} ${className}`;
+	tr.setAttribute('data-index', skill.SKID);
+	tr.setAttribute('draggable', 'true');
+	tr.innerHTML =
+		'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
+		'<td class="levelupcontainer"></td>' +
+		'<td class=selectable>' +
+		`<div class="name">${_escapeHTML(sk.SkillName)}<br/>` +
+		'<span class="level">' +
+		(sk.bSeperateLv
+			? `<button class="currentDown"></button>Lv : <span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>`
+			: `Lv : <span class="current">${skill.level}</span>`) +
+		'</span></div></td>' +
+		'<td class="selectable type">' +
+		`<div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : 'Passive'}</div>` +
+		'</td>';
 
 	if (!skill.upgradable || !_points) {
-		levelup.hide();
+		levelup.style.display = 'none';
 	}
 
-	element.find('.levelupcontainer').append(levelup);
+	tr.querySelector('.levelupcontainer').appendChild(levelup);
 
-	if (rArrow) {
-		element.find('.level .currentUp').css('background-image', rArrow);
+	const upBtn = tr.querySelector('.level .currentUp');
+	if (upBtn) {
+		if (_rArrow) {
+			upBtn.style.backgroundImage = _rArrow;
+		}
+		upBtn.addEventListener('click', () => skillLevelSelectUp(skill, root));
 	}
-	if (lArrow) {
-		element.find('.level .currentDown').css('background-image', lArrow);
+	const downBtn = tr.querySelector('.level .currentDown');
+	if (downBtn) {
+		if (_lArrow) {
+			downBtn.style.backgroundImage = _lArrow;
+		}
+		downBtn.addEventListener('click', () => skillLevelSelectDown(skill, root));
 	}
 
-	element.find('.level .currentUp').click(function () {
-		skillLevelSelectUp(skill);
-	});
-	element.find('.level .currentDown').click(function () {
-		skillLevelSelectDown(skill);
-	});
-	SkillListV0.ui.find('.content table').append(element);
+	const table = root.querySelector('.content table');
+	if (table) {
+		table.appendChild(tr);
+	}
 	this.parseHTML.call(levelup);
 
-	Client.loadFile(DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function (data) {
-		element.find('.icon img').attr('src', data);
+	Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, (data) => {
+		const img = tr.querySelector('.icon img');
+		if (img) {
+			img.src = data;
+		}
 	});
 
 	_list.push(skill);
 	this.onUpdateSkill(skill.SKID, skill.level);
 };
 
-/**
- * Remove skill from list
- */
-SkillListV0.removeSkill = function removeSkill() {
-	// Not implemented by gravity ? server have to send the whole list again ?
-};
+SkillListV0.removeSkill = function removeSkill() {};
 
-/**
- * Update skill
- *
- * @param {object} skill : { SKID, level, spcost, attackRange, upgradable }
- */
 SkillListV0.updateSkill = function updateSkill(skill) {
 	const target = getSkillById(skill.SKID);
 
@@ -624,7 +696,6 @@ SkillListV0.updateSkill = function updateSkill(skill) {
 		return;
 	}
 
-	// Update Memory
 	target.level = skill.level;
 	target.spcost = skill.spcost;
 	target.attackRange = skill.attackRange;
@@ -633,71 +704,63 @@ SkillListV0.updateSkill = function updateSkill(skill) {
 		target.type = skill.type;
 	}
 
-	// Update UI
-	const element = this.ui.find('.skill.id' + skill.SKID);
-	element.find('.level .current, .level .max').text(skill.level);
-	if (skill.selectedLevel) {
-		element.find('.level .current').text(skill.selectedLevel);
-	}
-	element.find('.spcost').text(skill.spcost);
+	const root = _root(this);
+	const elements = root.querySelectorAll(`.skill.id${skill.SKID}`);
+	elements.forEach((element) => {
+		for (const el of element.querySelectorAll('.level .current, .level .max')) {
+			el.textContent = skill.level;
+		}
+		if (skill.selectedLevel) {
+			const current = element.querySelector('.level .current');
+			if (current) {
+				current.textContent = skill.selectedLevel;
+			}
+		}
+		const spcost = element.querySelector('.spcost');
+		if (spcost) {
+			spcost.textContent = skill.spcost;
+		}
 
-	element.removeClass('active passive disabled');
-	element.addClass(!skill.level ? 'disabled' : skill.type ? 'active' : 'passive');
+		element.classList.remove('active', 'passive', 'disabled');
+		element.classList.add(!skill.level ? 'disabled' : skill.type ? 'active' : 'passive');
 
-	if (skill.upgradable && _points) {
-		element.find('.levelup').show();
-	} else {
-		element.find('.levelup').hide();
-	}
+		const levelupEl = element.querySelector('.levelup');
+		if (levelupEl) {
+			levelupEl.style.display = skill.upgradable && _points ? '' : 'none';
+		}
+	});
 
 	this.onUpdateSkill(skill.SKID, skill.level);
 };
 
-/**
- * Use a skill index
- *
- * @param {number} skill id
- */
 SkillListV0.useSkillID = function useSkillID(id, level) {
 	const skill = getSkillById(id);
-
 	if (!skill || !skill.level || !skill.type) {
 		return;
 	}
-
 	SkillListV0.useSkill(skill, level ? level : skill.selectedLevel);
 };
 
-/**
- * Use a skill
- *
- * @param {object} skill
- */
 SkillListV0.useSkill = function useSkill(skill, level) {
-	// Self
 	if (skill.type & SkillTargetSelection.TYPE.SELF) {
 		this.onUseSkill(skill.SKID, level ? level : skill.level);
 	}
 
 	skill.useLevel = level;
 
-	// no elseif intended (see flying kick).
 	if (skill.type & SkillTargetSelection.TYPE.TARGET) {
 		SkillTargetSelection.append();
 		SkillTargetSelection.set(skill, skill.type);
 	}
 };
 
-/**
- * Set skill points amount
- *
- * @param {number} skill points count
- */
-SkillListV0.setPoints = function SetPoints(amount) {
-	let i;
-	this.ui.find('.skpoints_count').text(amount);
+SkillListV0.setPoints = function setPoints(amount) {
+	const root = _root(this);
+	const el = root.querySelector('.skpoints_count');
+	if (el) {
+		el.textContent = amount;
+	}
 
-	// Do not need to update the UI
 	if (!_points === !amount) {
 		_points = amount;
 		return;
@@ -706,67 +769,44 @@ SkillListV0.setPoints = function SetPoints(amount) {
 	_points = amount;
 	const count = _list.length;
 
-	for (i = 0; i < count; ++i) {
-		if (_list[i].upgradable && amount) {
-			this.ui.find('.skill.id' + _list[i].SKID + ' .levelup').show();
-		} else {
-			this.ui.find('.skill.id' + _list[i].SKID + ' .levelup').hide();
-		}
+	for (let i = 0; i < count; ++i) {
+		const levelups = root.querySelectorAll(`.skill.id${_list[i].SKID} .levelup`);
+		levelups.forEach((lu) => {
+			lu.style.display = _list[i].upgradable && amount ? '' : 'none';
+		});
 	}
 };
 
-/**
- * Add the button when leveling up
- */
 SkillListV0.onLevelUp = function onLevelUp() {
-	_btnLevelUp.appendTo('body');
+	if (_btnLevelUp) {
+		document.body.appendChild(_btnLevelUp);
+	}
 };
 
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
-
-/**
- * Find a skill by it's id
- *
- * @param {number} skill id
- * @returns {Skill}
- */
 function getSkillById(id) {
-	let i;
 	const count = _list.length;
-
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		if (_list[i].SKID === id) {
 			return _list[i];
 		}
 	}
-
 	return null;
 }
 
-/**
- * Extend SkillListV0 window size
- */
-function onResize() {
-	const ui = SkillListV0.ui;
-	const top = ui.position().top;
-	const left = ui.position().left;
+function onResize(e, comp) {
+	e.stopImmediatePropagation();
+	const top = parseInt(comp._host.style.top, 10) || 0;
+	const left = parseInt(comp._host.style.left, 10) || 0;
 	let lastWidth = 0;
 	let lastHeight = 0;
 
-	function resizing() {
+	const resizing = () => {
 		const extraX = -6;
 		const extraY = 32;
 
 		let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
-		// Maximum and minimum window size
 		w = Math.min(Math.max(w, 8), 8);
 		h = Math.min(Math.max(h, 4), 10);
 
@@ -774,95 +814,76 @@ function onResize() {
 			return;
 		}
 
-		resize(w, h);
+		resize(comp, w, h);
 		lastWidth = w;
 		lastHeight = h;
-	}
+	};
 
-	// Start resizing
-	const _Interval = setInterval(resizing, 30);
+	const interval = setInterval(resizing, 30);
 
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	const onMouseUp = (event) => {
 		if (event.which === 1) {
-			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			clearInterval(interval);
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	};
+	window.addEventListener('mouseup', onMouseUp);
 }
 
-/**
- * Extend SkillListV0 window size
- *
- * @param {number} width
- * @param {number} height
- */
-function resize(width, height) {
+function resize(comp, width, height) {
+	const root = _root(comp);
 	if (_preferences.mini) {
 		width = Math.min(Math.max(width, 8), 8);
 		height = Math.min(Math.max(height, 4), 10);
-		SkillListV0.ui.find('.extend').show();
-		SkillListV0.ui.find('.content').show();
-		SkillListV0.ui.find('.contentbig').hide();
-		SkillListV0.ui.find('.footer .btn').hide();
-		SkillListV0.ui.find('.content').css({
-			width: width * 32,
-			height: height * 32
+		const extend = root.querySelector('.extend');
+		if (extend) {
+			extend.style.display = '';
+		}
+		const content = root.querySelector('.content');
+		if (content) {
+			content.style.display = '';
+			content.style.width = `${width * 32}px`;
+			content.style.height = `${height * 32}px`;
+		}
+		const contentbig = root.querySelector('.contentbig');
+		if (contentbig) {
+			contentbig.style.display = 'none';
+		}
+		root.querySelectorAll('.footer .btn').forEach((el) => {
+			el.style.display = 'none';
 		});
 	} else {
 		width = 17;
 		height = 12;
-		SkillListV0.ui.find('.extend').hide();
-		SkillListV0.ui.find('.content').hide();
-		SkillListV0.ui.find('.contentbig').show();
-		SkillListV0.ui.find('.footer .btn').show();
-		SkillListV0.ui.find('.contentbig').css({
-			width: width * 32,
-			height: height * 32
+		const extend = root.querySelector('.extend');
+		if (extend) {
+			extend.style.display = 'none';
+		}
+		const content = root.querySelector('.content');
+		if (content) {
+			content.style.display = 'none';
+		}
+		const contentbig = root.querySelector('.contentbig');
+		if (contentbig) {
+			contentbig.style.display = '';
+			contentbig.style.width = `${width * 32}px`;
+			contentbig.style.height = `${height * 32}px`;
+		}
+		root.querySelectorAll('.footer .btn').forEach((el) => {
+			el.style.display = '';
 		});
 	}
 }
 
-/**
- * Closing window
- */
-function onClose() {
-	SkillListV0.ui.hide();
-}
-
-/**
- * Resize and save
- */
-function onMini() {
+function onMini(comp) {
 	_preferences.mini = !_preferences.mini;
 	_preferences.save();
-	resize(_preferences.width, _preferences.height);
+	resize(comp, _preferences.width, _preferences.height);
 }
 
-/**
- * Request to upgrade a skill
- */
-function onRequestSkillUp() {
-	const index = this.parentNode.parentNode.getAttribute('data-index');
-	SkillListV0.onIncreaseSkill(parseInt(index, 10));
-}
-
-/**
- * Request to use a skill
- */
-function onRequestUseSkill() {
-	let main = jQuery(this).parent();
-
-	if (!main.hasClass('skill')) {
-		main = main.parent();
-	}
-
-	SkillListV0.useSkillID(parseInt(main.data('index'), 10));
-}
-
-function onApplyChoice() {
+function onApplyChoice(comp) {
 	const applyArr = [];
-	rememberChoice.forEach(function (item, skillId) {
+	rememberChoice.forEach((item, skillId) => {
 		applyArr[skillId] = 0;
 		const level = hasSkills?.[skillId]?.level ?? 0;
 
@@ -873,207 +894,102 @@ function onApplyChoice() {
 		}
 	});
 
-	applyArr.forEach(function (c, k) {
+	applyArr.forEach((c, k) => {
 		for (let i = 0; i < c; i++) {
 			SkillListV0.onIncreaseSkill(parseInt(k, 10));
 		}
 	});
 
 	totalCounter = 0;
-	SkillListV0.ui.find('.skpoints_count').text(_points - totalCounter);
+	const root = _root(comp);
+	const skpointsEl = root.querySelector('.skpoints_count');
+	if (skpointsEl) {
+		skpointsEl.textContent = `${_points - totalCounter}`;
+	}
 	rememberChoice = [];
 }
 
-/**
- * Reset choice
- */
-function onResetChoice() {
-	rememberChoice.forEach(function (count, skillId) {
-		if (!skillDependencyTree[skillId]) return;
-		const skillbox = SkillListV0.ui.find('.skillCol.s' + skillDependencyTree[skillId].position);
-		if (!hasSkills?.[skillId]?.level) {
-			skillbox.children().addClass('disabled');
+function onResetChoice(comp) {
+	const root = _root(comp);
+	rememberChoice.forEach((_count, skillId) => {
+		if (!skillDependencyTree[skillId]) {
+			return;
 		}
-		skillbox.find('.selectable').show();
-		skillbox
-			.find('.current')
-			.empty()
-			.append(hasSkills?.[skillId]?.level ?? 0);
-		skillbox
-			.find('.max')
-			.empty()
-			.append(hasSkills?.[skillId]?.level ?? 0);
+		const skillbox = root.querySelector(`.skillCol.s${skillDependencyTree[skillId].position}`);
+		if (skillbox) {
+			if (!hasSkills?.[skillId]?.level) {
+				skillbox.querySelectorAll('.skill').forEach((el) => el.classList.add('disabled'));
+			}
+			const selectable = skillbox.querySelector('.selectable');
+			if (selectable) {
+				selectable.style.display = '';
+			}
+			skillbox.querySelectorAll('.current').forEach((el) => {
+				el.textContent = hasSkills?.[skillId]?.level ?? 0;
+			});
+			skillbox.querySelectorAll('.max').forEach((el) => {
+				el.textContent = hasSkills?.[skillId]?.level ?? 0;
+			});
+		}
 	});
 	totalCounter = 0;
-	SkillListV0.ui.find('.skpoints_count').text(_points);
+	const skpointsEl = root.querySelector('.skpoints_count');
+	if (skpointsEl) {
+		skpointsEl.textContent = _points;
+	}
 	rememberChoice = [];
 }
 
-/**
- * Show backlight
- */
-function onNecessarySkills() {
-	let main = jQuery(this).parent();
-
-	if (!main.hasClass('skill')) {
-		main = main.parent();
+function onNecessarySkills(target, root) {
+	let main = target.parentElement;
+	if (!main.classList.contains('skill')) {
+		main = main.parentElement;
 	}
-	const skillId = parseInt(main.data('index'), 10);
-	specifyRequirements(skillId);
+	const skillId = parseInt(main.getAttribute('data-index'), 10);
+	specifyRequirements(skillId, null, root);
 }
 
-/**
- * Hide backlight
- */
-function onNecessarySkillsRemove() {
-	SkillListV0.ui.find('.needleSkill').removeClass('needleSkill');
-	SkillListV0.ui.find('.counterSkill').remove();
-}
-
-/**
- * Resolve the skill ID from the hovered/clicked element
- */
 function _resolveSkillID(el) {
-	let main = jQuery(el).parent();
-	if (!main.hasClass('skill')) {
-		main = main.parent();
+	let main = el.parentElement;
+	if (!main.classList.contains('skill')) {
+		main = main.parentElement;
 	}
-	const id = parseInt(main.data('index'), 10);
+	const id = parseInt(main.getAttribute('data-index'), 10);
 	const skill = getSkillById(id);
 	return skill?.SKID ?? id;
 }
 
-/**
- * Show skill description on right-click (always, regardless of checkbox)
- */
-function onContextMenuSkillInfo() {
-	const skillID = _resolveSkillID(this);
-
-	if (SkillDescription.uid === skillID) {
-		SkillDescription.remove();
-		return;
-	}
-
-	SkillDescription.append();
-	SkillDescription.setSkill(skillID);
-}
-
-/**
- * Show skill description on mouseover (only when checkbox is checked)
- */
-function onMouseOverSkillInfo() {
-	if (!(_preferences.mini || _preferences.skillInfo)) {
-		return;
-	}
-
-	const skillID = _resolveSkillID(this);
-
-	if (SkillDescription.uid === skillID) {
-		return;
-	}
-
-	SkillDescription.append();
-	SkillDescription.setSkill(skillID);
-}
-
-/**
- * Hide description (only auto-hide on mouseout when checkbox is checked)
- */
-function onSkillDescriptionRemove() {
-	if (_preferences.mini || _preferences.skillInfo) {
-		SkillDescription.remove();
-	}
-}
-
-/**
- * Checkbox show/hide description
- */
-function onToggleSkillInfo() {
-	_preferences.skillInfo = !!this.checked;
-	_preferences.save();
-}
-
-/**
- * Focus a skill in the list (background color changed)
- */
-function onSkillFocus() {
-	let main = jQuery(this).parent();
-
-	if (!main.hasClass('skill')) {
-		main = main.parent();
-	}
-
-	SkillListV0.ui.find('.skill').removeClass('selected');
-	main.addClass('selected');
-}
-
-/**
- * Start to drag a skill (to put it on the hotkey UI ?)
- */
-function onSkillDragStart(event) {
-	const index = parseInt(this.getAttribute('data-index'), 10);
-	const skill = getSkillById(index);
-
-	// Can't drag a passive skill (or disabled)
-	if (!skill || !skill.level || !skill.type) {
-		return stopPropagation(event);
-	}
-
-	const img = new Image();
-	img.decoding = 'async';
-	img.src = jQuery(this).find('.icon img').attr('src');
-
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
-		'Text',
-		JSON.stringify(
-			(window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: 'SkillListV0',
-				data: skill
-			})
-		)
-	);
-}
-
-/**
- * Stop the drag drop action, clean up
- */
-function onSkillDragEnd() {
-	delete window._OBJ_DRAG_;
-	_justDragged = true;
-	setTimeout(function () {
-		_justDragged = false;
-	}, 0);
-}
-
-function skillLevelSelectUp(skill) {
+function skillLevelSelectUp(skill, root) {
 	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 	if (level < skill.level) {
 		skill.selectedLevel = level + 1;
-		const element = SkillListV0.ui.find('.skill.id' + skill.SKID);
-		element.find('.level .current').text(skill.selectedLevel);
+		const elements = root.querySelectorAll(`.skill.id${skill.SKID}`);
+		elements.forEach((element) => {
+			const current = element.querySelector('.level .current');
+			if (current) {
+				current.textContent = skill.selectedLevel;
+			}
+		});
 	}
 }
 
-function skillLevelSelectDown(skill) {
+function skillLevelSelectDown(skill, root) {
 	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 	if (level > 1) {
 		skill.selectedLevel = level - 1;
-		const element = SkillListV0.ui.find('.skill.id' + skill.SKID);
-		element.find('.level .current').text(skill.selectedLevel);
+		const elements = root.querySelectorAll(`.skill.id${skill.SKID}`);
+		elements.forEach((element) => {
+			const current = element.querySelector('.level .current');
+			if (current) {
+				current.textContent = skill.selectedLevel;
+			}
+		});
 	}
 }
 
-/**
- * Abstract function to define
- */
 SkillListV0.onUseSkill = function onUseItem() {};
 SkillListV0.onIncreaseSkill = function onIncreaseSkill() {};
 SkillListV0.onUpdateSkill = function onUpdateSkill() {};
 SkillListV0.getSkillById = getSkillById;
 
-/**
- * Create component and export it
- */
 export default UIManager.addComponent(SkillListV0);

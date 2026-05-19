@@ -25,14 +25,12 @@ const versionInfo = {
 const Controller = UIVersionManager.getUIController(publicName, versionInfo);
 const _selectUIVersion = Controller.selectUIVersion;
 
-// Extend default UI selector
 Controller.selectUIVersion = function () {
 	_selectUIVersion();
 
 	const component = Controller.getUI();
 
-	// Escape to close the UI
-	component.onKeyDown = function onKeyDown(e) {
+	component.onKeyDown = (e) => {
 		if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
 			if (typeof component.toggle === 'function') {
 				component.toggle();

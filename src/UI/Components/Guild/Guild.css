@@ -1,7 +1,12 @@
-#Guild {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+	width: 400px;
+	height: 317px;
+}
+
+#Guild {
+	position: absolute;
 	width: 400px;
 	height: 317px;
 }
@@ -82,14 +87,6 @@
 	background-repeat: no-repeat;
 	background-color: transparent;
 	border: none;
-}
-
-#charselect .ok,
-#charselect .make {
-	right: 50px;
-}
-#charselect .cancel {
-	right: 4px;
 }
 
 #Guild .content.members,
@@ -182,7 +179,7 @@
 	left: 10px;
 }
 
-#Guild .content.info .members button {
+#Guild .content.info .members ui-button {
 	margin-left: 5px;
 	vertical-align: -4px;
 	border: none;
@@ -403,7 +400,7 @@
 	padding-left: 2px;
 	margin-left: 3px;
 }
-#Guild .content.positions button {
+#Guild .content.positions ui-button {
 	border: none;
 	width: 10px;
 	height: 10px;

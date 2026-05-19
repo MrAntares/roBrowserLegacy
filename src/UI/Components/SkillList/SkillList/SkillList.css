@@ -1,7 +1,10 @@
-#SkillList {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+}
+
+#SkillList {
+	position: absolute;
 	border-radius: 5px;
 	background: white;
 	line-height: 18px;
@@ -76,7 +79,7 @@
 	position: relative;
 }
 #SkillList .tabs-mini::before,
-.tabs-mini::after {
+#SkillList .tabs-mini::after {
 	content: '';
 	display: table;
 }
@@ -236,7 +239,7 @@
 
 /* skill tree with tabs */
 #SkillList .skillCol .name,
-.skillCol .selectable {
+#SkillList .skillCol .selectable {
 	position: relative;
 	text-align: center;
 	display: block;
@@ -265,7 +268,7 @@
 	position: relative;
 }
 #SkillList .tabs::before,
-.tabs::after {
+#SkillList .tabs::after {
 	content: '';
 	display: table;
 }

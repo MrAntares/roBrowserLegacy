@@ -10,7 +10,6 @@
 
 import DB from 'DB/DBManager.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
-import jQuery from 'Utils/jquery.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import MonsterTable from 'DB/Monsters/MonsterTable.js';
 import Session from 'Engine/SessionStorage.js';
@@ -20,7 +19,8 @@ import Camera from 'Renderer/Camera.js';
 import Renderer from 'Renderer/Renderer.js';
 import Client from 'Core/Client.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
@@ -31,245 +31,349 @@ import cssText from './Guild.css?raw';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
 
 /**
- * @var {Preferences} structure
- */
-/*var _preferences = Preferences.get('Guild', {
-		x: 100,
-		y: 100
-	}, 1.0);*/ // UNUSED
-
-/**
  * Flags to check access
- * (Look up for Type)
  */
 const AccessTypeBit = {
-	0: 0x00, // General
-	1: 0x01, // Members
-	2: 0x02, // Position
-	3: 0x04, // Skills
-	4: 0x10, // Expel
-	5: 0x40, // Unknown
-	6: 0x80 // Notice
+	0: 0x00,
+	1: 0x01,
+	2: 0x02,
+	3: 0x04,
+	4: 0x10,
+	5: 0x40,
+	6: 0x80
 };
 
 /**
  * Create Component
  */
-const Guild = new UIComponent('Guild', htmlText, cssText);
+const Guild = new GUIComponent('Guild', cssText);
+Guild.render = () => htmlText;
 
 /**
- * View template
+ * View templates (stored as DOM nodes)
  */
-let MemberView, PositionView, ExpelView;
+let _memberViewTemplate, _positionViewTemplate, _expelViewTemplate;
 
-/**
- * @var {Array} position list
- */
 const _positions = [];
-
-/**
- * @var {Array} members list
- */
 const _members = [];
-
-/**
- * @var {Array} Skill List
- * { SKID, type, level, spcost, attackRange, skillName, upgradable }
- */
 const _skills = [];
 
-/**
- * @var {jQuery} level up button reference
- */
-let _btnIncSkill;
-
-/**
- * @var {number} skill points
- */
+let _btnIncSkillTemplate;
 let _skpoints = 0;
-
-/**
- * @var {jQuery} button that appeared when level up
- */
 let _btnLevelUp;
-
 let lArrow, rArrow;
-
-/**
- * @var {number} total guild exp
- */
 let _totalExp = 0;
-
-/**
- * @var {number} access to guild tab
- */
 let _guildAccess = 0;
+let _checkbox_off, _checkbox_on;
 
 /**
- * @var {string} checkbox images
+ * Helper: query inside shadow root
  */
-let _checkbox_off, _checkbox_on;
+function _root(comp) {
+	return comp._shadow || comp._host;
+}
+
+/**
+ * Helper: escape HTML (replace jQuery.escape)
+ */
+function _escapeHTML(text) {
+	const div = document.createElement('div');
+	div.textContent = text;
+	return div.innerHTML;
+}
 
 /**
  * Initialize component
  */
 Guild.init = function init() {
-	const ui = this.ui;
+	const root = _root(this);
 
-	MemberView = this.ui.find('.MemberView').remove();
-	PositionView = this.ui.find('.PositionView').remove();
-	ExpelView = this.ui.find('.ExpelView').remove();
+	// Extract templates
+	_memberViewTemplate = root.querySelector('.MemberView');
+	if (_memberViewTemplate) {
+		_memberViewTemplate.remove();
+	}
+	_positionViewTemplate = root.querySelector('.PositionView');
+	if (_positionViewTemplate) {
+		_positionViewTemplate.remove();
+	}
+	_expelViewTemplate = root.querySelector('.ExpelView');
+	if (_expelViewTemplate) {
+		_expelViewTemplate.remove();
+	}
 
 	// Close button
-	ui.find('.titlebar .close').mousedown(stopPropagation).click(Guild.toggle.bind(this));
-	ui.find('.tabs').on('click', 'button', onChangeTab);
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		closeBtn.addEventListener('click', () => Guild.toggle());
+	}
 
-	// Preload image
-	Client.loadFiles([DB.INTERFACE_PATH + 'checkbox_0.bmp', DB.INTERFACE_PATH + 'checkbox_1.bmp'], function (off, on) {
+	// Tab buttons
+	const tabsContainer = root.querySelector('.tabs');
+	if (tabsContainer) {
+		tabsContainer.addEventListener('click', e => {
+			const btn = e.target.closest('button');
+			if (btn) {
+				onChangeTab.call(btn, e);
+			}
+		});
+	}
+
+	// Preload checkbox images
+	Client.loadFiles([`${DB.INTERFACE_PATH}checkbox_0.bmp`, `${DB.INTERFACE_PATH}checkbox_1.bmp`], (off, on) => {
 		_checkbox_off = off;
 		_checkbox_on = on;
 	});
 
 	// Positions
-	ui.find('.content.positions tbody')
-		.on('mousedown', 'input', function () {
-			return Session.isGuildMaster;
-		})
-		.on('focus', 'input', function () {
-			ui.find('.footer .btn_ok').show();
-			this.select();
-		})
-		.on('click', 'button', function () {
-			if (Session.isGuildMaster) {
-				this.className = this.className === 'on' ? 'off' : 'on';
-				this.style.backgroundImage = 'url(' + (this.className === 'on' ? _checkbox_on : _checkbox_off) + ')';
-				ui.find('.footer .btn_ok').show();
+	const posBody = root.querySelector('.content.positions tbody');
+	if (posBody) {
+		posBody.addEventListener('mousedown', e => {
+			const input = e.target.closest('input');
+			if (input && !Session.isGuildMaster) {
+				e.preventDefault();
 			}
-		})
-		.on('mousedown', 'tr', function () {
-			ui.find('.content.positions tbody tr').removeClass('active');
-			this.classList.add('active');
+
+			const tr = e.target.closest('tr');
+			if (tr) {
+				for (const row of posBody.querySelectorAll('tr')) {
+					row.classList.remove('active');
+				}
+				tr.classList.add('active');
+			}
 		});
 
-	// Antagonist/Ally
-	ui.find('.content.info .ally_list, .content.info .hostile_list').on('contextmenu', 'div', function () {
-		const relation = this.parentNode.classList.contains('ally_list') ? 0 : 1;
-		const guild_id = parseInt(this.getAttribute('data-guild-id'), 10);
+		posBody.addEventListener('focus', e => {
+			if (e.target.matches('input')) {
+				const btnOk = root.querySelector('.footer .btn_ok');
+				if (btnOk) {
+					btnOk.style.display = '';
+				}
+				e.target.select();
+			}
+		}, true);
 
-		ui.find('.content.info .ally_list div, .content.info .hostile_list div').removeClass('active');
-		this.classList.add('active');
-
-		ContextMenu.remove();
-		ContextMenu.append();
-		ContextMenu.addElement(DB.getMessage(351), function () {
-			Guild.onRequestDeleteRelation(guild_id, relation);
+		posBody.addEventListener('click', e => {
+			const btn = e.target.closest('ui-button');
+			if (btn && Session.isGuildMaster) {
+				btn.className = btn.className.replace(/\b(on|off)\b/g, '').trim();
+				const isOn = !btn.classList.contains('on');
+				btn.classList.add(isOn ? 'on' : 'off');
+				btn.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
+				const btnOk = root.querySelector('.footer .btn_ok');
+				if (btnOk) {
+					btnOk.style.display = '';
+				}
+			}
 		});
-	});
+	}
+
+	// Antagonist/Ally context menu
+	const allyHostileContainer = root.querySelector('.content.info');
+	if (allyHostileContainer) {
+		const lists = allyHostileContainer.querySelectorAll('.ally_list, .hostile_list');
+		for (const list of lists) {
+			list.addEventListener('contextmenu', e => {
+				const div = e.target.closest('div');
+				if (!div) {
+					return;
+				}
+				const relation = div.parentNode.classList.contains('ally_list') ? 0 : 1;
+				const guildId = parseInt(div.getAttribute('data-guild-id'), 10);
+
+				for (const d of allyHostileContainer.querySelectorAll('.ally_list div, .hostile_list div')) {
+					d.classList.remove('active');
+				}
+				div.classList.add('active');
+
+				ContextMenu.remove();
+				ContextMenu.append();
+				ContextMenu.addElement(DB.getMessage(351), () => {
+					Guild.onRequestDeleteRelation(guildId, relation);
+				});
+			});
+		}
+	}
 
 	// Members
-	ui.find('.content.members tbody')
-		.on('mousedown', 'tr', function () {
-			ui.find('.content.members tbody tr').removeClass('active');
-			this.classList.add('active');
-		})
-		.on('contextmenu', 'td.name', function () {
-			const index = this.parentNode.getAttribute('data-index');
+	const membersBody = root.querySelector('.content.members tbody');
+	if (membersBody) {
+		membersBody.addEventListener('mousedown', e => {
+			const tr = e.target.closest('tr');
+			if (tr) {
+				for (const row of membersBody.querySelectorAll('tr')) {
+					row.classList.remove('active');
+				}
+				tr.classList.add('active');
+			}
+		});
+
+		membersBody.addEventListener('contextmenu', e => {
+			const td = e.target.closest('td.name');
+			if (!td) {
+				return;
+			}
+			const tr = td.parentNode;
+			const index = tr.getAttribute('data-index');
 			const member = _members[index];
 			const isSelf = member.AID === Session.AID && member.GID === Session.GID;
 
 			ContextMenu.remove();
 			ContextMenu.append();
 
-			// View Information
-			ContextMenu.addElement(DB.getMessage(129), function () {
+			ContextMenu.addElement(DB.getMessage(129), () => {
 				Guild.onRequestMemberInfo(member.AID);
 			});
 
-			// Leave Guild
 			if (isSelf && !Session.isGuildMaster) {
-				ContextMenu.addElement(DB.getMessage(508), function () {
+				ContextMenu.addElement(DB.getMessage(508), () => {
 					InputBox.append();
 					InputBox.setType('text');
-					InputBox.ui.find('.text').text(DB.getMessage(523));
-					InputBox.onSubmitRequest = function (reason) {
+					const textEl = (_root(InputBox) || InputBox.ui?.[0])?.querySelector?.('.text');
+					if (textEl) {
+						textEl.textContent = DB.getMessage(523);
+					} else {
+						InputBox.ui.find('.text').text(DB.getMessage(523));
+					}
+					InputBox.onSubmitRequest = (reason) => {
 						InputBox.remove();
 						Guild.onRequestLeave(member.AID, member.GID, reason);
 					};
 				});
 			}
 
-			// Expel
 			if (Session.guildRight & 0x10 && !isSelf) {
-				ContextMenu.addElement(DB.getMessage(509), function () {
+				ContextMenu.addElement(DB.getMessage(509), () => {
 					InputBox.append();
 					InputBox.setType('text');
-					InputBox.ui.find('.text').text(DB.getMessage(524));
-					InputBox.onSubmitRequest = function (reason) {
+					const textEl = (_root(InputBox) || InputBox.ui?.[0])?.querySelector?.('.text');
+					if (textEl) {
+						textEl.textContent = DB.getMessage(524);
+					} else {
+						InputBox.ui.find('.text').text(DB.getMessage(524));
+					}
+					InputBox.onSubmitRequest = (reason) => {
 						InputBox.remove();
 						Guild.onRequestMemberExpel(member.AID, member.GID, reason);
 					};
 				});
 			}
 		});
-	// Skills
+	}
 
-	// Get level up button
-	_btnIncSkill = this.ui.find('.btn.levelup').detach().click(onRequestSkillUp);
+	// Skills — get level up button template
+	const levelupBtn = root.querySelector('.btn.levelup');
+	if (levelupBtn) {
+		_btnIncSkillTemplate = levelupBtn.cloneNode(true);
+		levelupBtn.remove();
+		_btnIncSkillTemplate.addEventListener('click', function () {
+			onRequestSkillUp.call(this);
+		});
+	}
 
-	// Get button to open skill when level up
-	_btnLevelUp = jQuery('#lvlup_job').detach();
-	_btnLevelUp
-		.click(function () {
-			_btnLevelUp.detach();
+	// Level up notification button
+	const lvlupBtn = root.querySelector('#lvlup_job');
+	if (lvlupBtn) {
+		_btnLevelUp = lvlupBtn;
+		_btnLevelUp.remove();
+		_btnLevelUp.addEventListener('click', () => {
+			if (_btnLevelUp.parentNode) {
+				_btnLevelUp.remove();
+			}
 			Guild.ui.show();
-			Guild.ui.parent().append(Guild.ui);
-		})
-		.mousedown(stopPropagation);
+		});
+		_btnLevelUp.addEventListener('mousedown', e => e.stopImmediatePropagation());
+	}
 
-	// Bind skills
-	this.ui
-		.on('dblclick', '.skill .icon, .skill .name', onRequestUseSkill)
-		.on('contextmenu', '.skill .icon, .skill .name', onRequestSkillInfo)
-		.on('mousedown', '.selectable', onSkillFocus)
-		.on('dragstart', '.skill', onSkillDragStart)
-		.on('dragend', '.skill', onSkillDragEnd);
-
-	// Notice
-	ui.find('.content.notice').on('focus', 'textarea, input', function () {
-		ui.find('.footer .btn_ok').show();
+	// Bind skill events on container (delegated)
+	const container = root.querySelector('#Guild') || root;
+	container.addEventListener('dblclick', e => {
+		const target = e.target.closest('.skill .icon, .skill .name');
+		if (target) {
+			onRequestUseSkill.call(target);
+		}
 	});
-
-	// Upload emblem
-	ui.find('.content.info .emblem_edit input').change(function () {
-		const file = this.files[0];
-		if (!file) return;
-
-		const isBmp = /^image\/(bmp|x-bmp|x-ms-bmp|x-windows-bmp)$/.test(file.type) || /\.bmp$/i.test(file.name);
-		const isGif = file.type === 'image/gif' || /\.gif$/i.test(file.name);
-
-		if ((isBmp && file.size <= 1783) || (isGif && file.size <= 50000)) {
-			const reader = new FileReader();
-			reader.onload = function (e) {
-				Guild.onSendEmblem(new Uint8Array(e.target.result));
-			};
-			reader.readAsArrayBuffer(this.files[0]);
-		} else {
-			console.warn(
-				'[Warning] Incorrect emblem file type. Only BMP, 24bit or lower is accepted or GIFs max size 50Kb or lower.'
-			);
+	container.addEventListener('contextmenu', e => {
+		const target = e.target.closest('.skill .icon, .skill .name');
+		if (target) {
+			onRequestSkillInfo.call(target);
+		}
+	});
+	container.addEventListener('mousedown', e => {
+		const target = e.target.closest('.selectable');
+		if (target && target.closest('.content.skills')) {
+			onSkillFocus.call(target);
 		}
 	});
 
-	ui.find('.footer .btn_ok').click(onValidate);
+	// Drag events for skills
+	container.addEventListener('dragstart', e => {
+		const target = e.target.closest('.skill');
+		if (target && target.closest('.content.skills')) {
+			onSkillDragStart.call(target, e);
+		}
+	});
+	container.addEventListener('dragend', e => {
+		const target = e.target.closest('.skill');
+		if (target && target.closest('.content.skills')) {
+			onSkillDragEnd.call(target);
+		}
+	});
 
-	this.draggable(this.ui.find('.titlebar'));
+	// Notice
+	const noticeContent = root.querySelector('.content.notice');
+	if (noticeContent) {
+		noticeContent.addEventListener('focus', e => {
+			if (e.target.matches('textarea, input')) {
+				const btnOk = root.querySelector('.footer .btn_ok');
+				if (btnOk) {
+					btnOk.style.display = '';
+				}
+			}
+		}, true);
+	}
+
+	// Upload emblem
+	const emblemInput = root.querySelector('.content.info .emblem_edit input');
+	if (emblemInput) {
+		emblemInput.addEventListener('change', function () {
+			const file = this.files[0];
+			if (!file) {
+				return;
+			}
+
+			const isBmp = /^image\/(bmp|x-bmp|x-ms-bmp|x-windows-bmp)$/.test(file.type) || /\.bmp$/i.test(file.name);
+			const isGif = file.type === 'image/gif' || /\.gif$/i.test(file.name);
+
+			if ((isBmp && file.size <= 1783) || (isGif && file.size <= 50000)) {
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					Guild.onSendEmblem(new Uint8Array(e.target.result));
+				};
+				reader.readAsArrayBuffer(this.files[0]);
+			} else {
+				console.warn(
+					'[Warning] Incorrect emblem file type. Only BMP, 24bit or lower is accepted or GIFs max size 50Kb or lower.'
+				);
+			}
+		});
+	}
+
+	// Footer OK button
+	const footerOk = root.querySelector('.footer .btn_ok');
+	if (footerOk) {
+		footerOk.addEventListener('click', () => onValidate());
+	}
+
+	this.draggable('.titlebar');
 	this.ui.hide();
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/arw_right.bmp', function (data) {
-		rArrow = 'url(' + data + ')';
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, (data) => {
+		rArrow = `url(${data})`;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/arw_left.bmp', function (data) {
-		lArrow = 'url(' + data + ')';
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, (data) => {
+		lArrow = `url(${data})`;
 	});
 
 	renderTendency(0, 0);
@@ -282,22 +386,12 @@ Guild.onRemove = function onRemove() {
 	Renderer.stop(renderMemberFaces);
 };
 
-/**
- * Process shortcut
- *
- * @param {object} key
- */
-Guild.onShortCut = function onShurtCut(key) {
-	switch (key.cmd) {
-		case 'TOGGLE':
-			this.toggle();
-			break;
+Guild.onShortCut = function onShortCut(key) {
+	if (key.cmd === 'TOGGLE') {
+		this.toggle();
 	}
 };
 
-/**
- * Toggle Guild UI
- */
 Guild.toggle = function onToggle() {
 	if (!Session.hasGuild) {
 		return;
@@ -305,7 +399,9 @@ Guild.toggle = function onToggle() {
 
 	if (this.ui.is(':visible')) {
 		this.hide();
-		_btnLevelUp.detach();
+		if (_btnLevelUp && _btnLevelUp.parentNode) {
+			_btnLevelUp.remove();
+		}
 	} else {
 		this.show();
 	}
@@ -317,9 +413,6 @@ Guild.onKeyDown = function onKeyDown(event) {
 	}
 };
 
-/**
- * Show guild element
- */
 Guild.show = function show() {
 	this.focus();
 
@@ -328,51 +421,50 @@ Guild.show = function show() {
 	}
 
 	this.ui.show();
+	const root = _root(this);
 
-	if (!this.ui.find('.tabs .active').length) {
-		this.ui.find('.tabs .info').click();
+	if (!root.querySelector('.tabs .active')) {
+		const infoBtn = root.querySelector('.tabs .info');
+		if (infoBtn) {
+			infoBtn.click();
+		}
 		Guild.onRequestAccess();
 	}
 
-	if (this.ui.find('.content.members').is(':visible')) {
+	const membersContent = root.querySelector('.content.members');
+	if (membersContent && membersContent.style.display !== 'none') {
 		Renderer.render(renderMemberFaces);
 	}
 };
 
-/**
- * Hide guild element
- */
 Guild.hide = function hide() {
 	this.ui.hide();
 	Renderer.stop(renderMemberFaces);
 };
 
-/**
- * Update General guild infos
- *
- * @param {object} data
- */
 Guild.setGuildInformations = function setGuildInformations(info) {
-	const general = this.ui.find('.content.info');
+	const root = _root(this);
+	const general = root.querySelector('.content.info');
+	if (!general) {
+		return;
+	}
 
-	general.find('.name .value').text(info.guildname);
-	general.find('.level .value').text(info.level);
-	general.find('.master .value').text(info.masterName);
-	//general.find('.members .numMember').text(info.userNum); // Why does the server send online number instead of total members?
-	general.find('.members .online').text(info.userNum);
-	general.find('.members .maxMember').text(info.maxUserNum);
-	general.find('.avglevel .value').text(info.userAverageLevel);
-	general.find('.territory .value').text(info.manageLand);
-	general.find('.exp .value').text(info.exp);
-	general.find('.tax .value').text(info.point);
+	general.querySelector('.name .value').textContent = info.guildname;
+	general.querySelector('.level .value').textContent = info.level;
+	general.querySelector('.master .value').textContent = info.masterName;
+	general.querySelector('.members .online').textContent = info.userNum;
+	general.querySelector('.members .maxMember').textContent = info.maxUserNum;
+	general.querySelector('.avglevel .value').textContent = info.userAverageLevel;
+	general.querySelector('.territory .value').textContent = info.manageLand;
+	general.querySelector('.exp .value').textContent = info.exp;
+	general.querySelector('.tax .value').textContent = info.point;
 
 	Guild.updateSession(info);
 	Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
 
-	if (Session.isGuildMaster) {
-		general.find('.emblem_edit').show();
-	} else {
-		general.find('.emblem_edit').hide();
+	const emblemEdit = general.querySelector('.emblem_edit');
+	if (emblemEdit) {
+		emblemEdit.style.display = Session.isGuildMaster ? '' : 'none';
 	}
 
 	WinStats.getUI().update('guildname', info.guildname);
@@ -380,158 +472,167 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	renderTendency(info.honor, info.virtue);
 };
 
-/**
- * Set guild emblem
- *
- * @param {Image}
- */
 Guild.setEmblem = function setEmblem(image) {
-	this.ui
-		.find('.content.info')
-		.find('.emblem_container')
-		.css('backgroundImage', 'url(' + image.src + ')');
+	const root = _root(this);
+	const el = root.querySelector('.content.info .emblem_container');
+	if (el) {
+		el.style.backgroundImage = `url(${image.src})`;
+	}
 };
 
-/**
- * Add guild relation (ally / enemy)
- *
- * @param {Array} guild list
- */
 Guild.setRelations = function setRelations(guilds) {
-	let i, count;
+	const root = _root(this);
+	const allyList = root.querySelector('.ally_list');
+	const hostileList = root.querySelector('.hostile_list');
+	if (allyList) {
+		allyList.innerHTML = '';
+	}
+	if (hostileList) {
+		hostileList.innerHTML = '';
+	}
 
-	this.ui.find('.ally_list, .hostile_list').empty();
-
-	for (i = 0, count = guilds.length; i < count; ++i) {
+	for (let i = 0, count = guilds.length; i < count; ++i) {
 		this.addRelation(guilds[i]);
 	}
 };
 
-/**
- * Add a relation
- *
- * @param {object} guild
- */
 Guild.addRelation = function addRelation(guild) {
-	const addRelationList = this.ui.find('.' + (guild.relation === 0 ? 'ally' : 'hostile') + '_list');
+	const root = _root(this);
+	const list = root.querySelector(`.${guild.relation === 0 ? 'ally' : 'hostile'}_list`);
+	if (!list) {
+		return;
+	}
 	const div = document.createElement('div');
-
 	div.setAttribute('data-guild-id', guild.GDID);
 	div.textContent = guild.guildName;
-	addRelationList.append(div);
+	list.appendChild(div);
 };
 
-/**
- * Remove relation
- *
- * @param {number} guild id
- * @param {number} relation
- */
-Guild.removeRelation = function removeRelation(guild_id, relation) {
-	const removeRelationList = this.ui.find('.content.info .' + (relation === 0 ? 'ally' : 'hostile') + '_list');
-	removeRelationList.find('div[data-guild-id="' + guild_id + '"]').remove();
+Guild.removeRelation = function removeRelation(guildId, relation) {
+	const root = _root(this);
+	const list = root.querySelector(`.content.info .${relation === 0 ? 'ally' : 'hostile'}_list`);
+	if (!list) {
+		return;
+	}
+	const el = list.querySelector(`div[data-guild-id="${guildId}"]`);
+	if (el) {
+		el.remove();
+	}
 };
 
-/**
- * Add guild members
- *
- * @param {Array} member list
- */
 Guild.setMembers = function setMembers(members) {
-	let i, count, online;
-
-	count = members.length;
+	let online = 0;
+	const count = members.length;
 	_members.length = 0;
 	_totalExp = 0;
-	online = 0;
 
-	this.ui.find('.content.members tbody').empty();
+	const root = _root(this);
+	const tbody = root.querySelector('.content.members tbody');
+	if (tbody) {
+		tbody.innerHTML = '';
+	}
 
-	// Get total exp
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		_totalExp += members[i].MemberExp;
 		online += members[i].CurrentState ? 1 : 0;
 	}
 
-	this.ui.find('.content.info .members .numMember').text(count);
-	this.ui.find('.content.info .members .online').text(online);
+	const numMember = root.querySelector('.content.info .members .numMember');
+	if (numMember) {
+		numMember.textContent = count;
+	}
+	const onlineEl = root.querySelector('.content.info .members .online');
+	if (onlineEl) {
+		onlineEl.textContent = online;
+	}
 
-	for (i = 0, count = members.length; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		this.setMember(members[i]);
 	}
 
 	renderMemberFaces(Renderer.tick + 1000);
 };
 
-/**
- * Display member
- *
- * @param {object} member
- */
 Guild.setMember = function setMember(member) {
-	let i, count, view;
+	let i, count;
+	const root = _root(this);
 
-	// Search for duplicate entry
 	for (i = 0, count = _members.length; i < count; ++i) {
 		if (_members[i].AID === member.AID && _members[i].GID === member.GID) {
 			break;
 		}
 	}
 
-	// Edit member
-	if (i < count) {
-		view = this.ui.find('.MemberView[data-index="' + i + '"]');
-	}
+	let view;
 
-	// Create new entry
-	else {
-		view = MemberView.clone();
-		this.ui.find('.content.members tbody').append(view);
+	if (i < count) {
+		view = root.querySelector(`.MemberView[data-index="${i}"]`);
+	} else {
+		view = _memberViewTemplate.cloneNode(true);
+		const tbody = root.querySelector('.content.members tbody');
+		if (tbody) {
+			tbody.appendChild(view);
+		}
 		_members.push(member);
 	}
 
 	if (member.CurrentState) {
-		view.addClass('online');
+		view.classList.add('online');
 	}
 
-	view.attr('data-index', i);
-	view.find('.name .value').text(member.CharName);
-	view.find('.name .value')[0].title = member.CharName;
+	view.setAttribute('data-index', i);
+	const nameValue = view.querySelector('.name .value');
+	if (nameValue) {
+		nameValue.textContent = member.CharName;
+		nameValue.title = member.CharName;
+	}
 
 	if (_positions[member.GPositionID]) {
+		const positionCell = view.querySelector('.position');
 		if (Session.isGuildMaster && member.GPositionID !== 0) {
-			// Don't let GM change it's own position. Causes bugs.
-			let selectElement = '<select class="changePosition member_' + member.AID + '_' + member.GID + '">';
+			let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}">`;
 			_positions.forEach((position, key) => {
-				selectElement +=
-					'<option value="' +
-					position.positionID +
-					'" ' +
-					(key == member.GPositionID ? 'selected' : '') +
-					'>' +
-					position.posName +
-					'</option>';
+				selectHTML +=
+					`<option value="${position.positionID}" ${key === member.GPositionID ? 'selected' : ''}>` +
+					`${_escapeHTML(position.posName)}</option>`;
 			});
-			selectElement += '</select>';
+			selectHTML += '</select>';
+			positionCell.innerHTML = selectHTML;
 
-			view.find('.position')[0].innerHTML = selectElement;
-
-			view.find('.member_' + member.AID + '_' + member.GID).change(function (evt) {
-				Guild.updateMemberPosition(member.AID, member.GID, evt.target.selectedIndex, true);
-			});
+			const selectEl = positionCell.querySelector(`.member_${member.AID}_${member.GID}`);
+			if (selectEl) {
+				selectEl.addEventListener('change', (evt) => {
+					Guild.updateMemberPosition(member.AID, member.GID, evt.target.selectedIndex, true);
+				});
+			}
 		} else {
-			view.find('.position').text(_positions[member.GPositionID].posName);
-			view.find('.position')[0].title = _positions[member.GPositionID].posName;
+			positionCell.textContent = _positions[member.GPositionID].posName;
+			positionCell.title = _positions[member.GPositionID].posName;
 		}
 	}
 
-	view.find('.job').text(MonsterTable[member.Job]);
-	view.find('.job')[0].title = MonsterTable[member.Job];
-	view.find('.level').text(member.Level);
-	view.find('.note').text(member.Memo);
-	view.find('.devotion').text((member.MemberExp ? Math.round((member.MemberExp / _totalExp) * 100) : 0) + ' %');
-	view.find('.tax').text(member.MemberExp);
-	view.find('.tax')[0].title = member.MemberExp;
+	const jobCell = view.querySelector('.job');
+	if (jobCell) {
+		jobCell.textContent = MonsterTable[member.Job];
+		jobCell.title = MonsterTable[member.Job];
+	}
+	const levelCell = view.querySelector('.level');
+	if (levelCell) {
+		levelCell.textContent = member.Level;
+	}
+	const noteCell = view.querySelector('.note');
+	if (noteCell) {
+		noteCell.textContent = member.Memo;
+	}
+	const devotionCell = view.querySelector('.devotion');
+	if (devotionCell) {
+		devotionCell.textContent = `${member.MemberExp ? Math.round((member.MemberExp / _totalExp) * 100) : 0} %`;
+	}
+	const taxCell = view.querySelector('.tax');
+	if (taxCell) {
+		taxCell.textContent = member.MemberExp;
+		taxCell.title = member.MemberExp;
+	}
 
 	if (!member.entity) {
 		member.entity = new Entity();
@@ -545,34 +646,37 @@ Guild.setMember = function setMember(member) {
 	member.entity.head = member.HeadType;
 	member.entity.headpalette = member.HeadPalette;
 
-	this.ui.find('.content.info .members .numMember').text(_members.length);
+	const numMember = root.querySelector('.content.info .members .numMember');
+	if (numMember) {
+		numMember.textContent = _members.length;
+	}
 };
 
-/**
- * Display member
- *
- * @param {object} member
- */
 Guild.updateMemberStatus = function updateMemberStatus(member) {
 	let i, count;
 	let online = 0;
+	const root = _root(this);
 
-	// Search for duplicate entry
 	for (i = 0, count = _members.length; i < count; ++i) {
 		if (_members[i].AID === member.AID && _members[i].GID === member.GID) {
 			break;
 		}
 	}
 
-	// Not found
 	if (i >= count) {
 		return;
 	}
 
-	const view = this.ui.find('.MemberView[data-index="' + i + '"]');
+	const view = root.querySelector(`.MemberView[data-index="${i}"]`);
 
 	_members[i].CurrentState = member.status;
-	view.toggleClass('online', _members[i].CurrentState);
+	if (view) {
+		if (_members[i].CurrentState) {
+			view.classList.add('online');
+		} else {
+			view.classList.remove('online');
+		}
+	}
 
 	if ('sex' in member) {
 		_members[i].entity.sex = member.sex;
@@ -586,35 +690,26 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 		_members[i].entity.headpalette = member.headPalette;
 	}
 
-	// Update online count
 	for (i = 0, count = _members.length; i < count; ++i) {
 		online += _members[i].CurrentState ? 1 : 0;
 	}
-	this.ui.find('.content.info .members .online').text(online);
+	const onlineEl = root.querySelector('.content.info .members .online');
+	if (onlineEl) {
+		onlineEl.textContent = online;
+	}
 
+	const nameValue = view?.querySelector('.name .value');
 	ChatBox.addText(
-		DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', view.find('.name .value').text()),
+		DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', nameValue ? nameValue.textContent : ''),
 		ChatBox.TYPE.BLUE,
 		ChatBox.FILTER.GUILD
 	);
 };
 
-/**
- * Update member position
- *
- * @param {number} AID
- * @param {number} GID
- * @param {number} position id
- */
 Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, validate) {
-	let i, count;
-
-	// Search the member.
-	for (i = 0, count = _members.length; i < count; ++i) {
+	for (let i = 0, count = _members.length; i < count; ++i) {
 		if (_members[i].AID === AID && _members[i].GID === GID) {
 			_members[i].GPositionID = positionID;
-
-			// Update it
 			Guild.setMember(_members[i]);
 			break;
 		}
@@ -625,21 +720,14 @@ Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID,
 	}
 };
 
-/**
- * Set guild positions
- *
- * @param {Array} position list
- * @param {boolean} erase array ?
- */
 Guild.setPositions = function setPositions(positions, erase) {
-	let i, count;
 	let rank;
 
 	if (erase) {
 		_positions.length = positions.length;
 	}
 
-	for (i = 0, count = positions.length; i < count; ++i) {
+	for (let i = 0, count = positions.length; i < count; ++i) {
 		rank = positions[i];
 
 		if (!(rank.positionID in _positions)) {
@@ -659,16 +747,10 @@ Guild.setPositions = function setPositions(positions, erase) {
 	Guild.updatePositionView();
 };
 
-/**
- * Set guild positions name
- *
- * @param {Array} position list
- */
 Guild.setPositionsName = function setPositionsName(positions) {
-	let i, count;
 	let rank;
 
-	for (i = 0, count = positions.length; i < count; ++i) {
+	for (let i = 0, count = positions.length; i < count; ++i) {
 		rank = positions[i];
 
 		if (!(rank.positionID in _positions)) {
@@ -681,157 +763,157 @@ Guild.setPositionsName = function setPositionsName(positions) {
 	Guild.updatePositionView();
 };
 
-/**
- * Update guild positions view
- */
 Guild.updatePositionView = function updatePositionView() {
-	let i;
-	let view, rank;
+	const root = _root(this);
+	const container = root.querySelector('.content.positions tbody');
+	if (!container) {
+		return;
+	}
+	container.innerHTML = '';
 
 	const count = _positions.length;
-	const container = this.ui.find('.content.positions tbody');
-	container.empty();
-
-	// Update UI
-	for (i = 0; i < count; ++i) {
-		view = PositionView.clone();
-		rank = _positions[i];
+	for (let i = 0; i < count; ++i) {
+		const view = _positionViewTemplate.cloneNode(true);
+		const rank = _positions[i];
 
 		if (i === 0) {
-			view.addClass('active');
+			view.classList.add('active');
 		}
 
-		view.find('.id').text(rank.positionID);
-		view.find('.title input').val(rank.posName);
-		view.find('.tax input').val(rank.payRate);
+		const idCell = view.querySelector('.id');
+		if (idCell) {
+			idCell.textContent = rank.positionID;
+		}
+		const titleInput = view.querySelector('.title input');
+		if (titleInput) {
+			titleInput.value = rank.posName;
+		}
+		const taxInput = view.querySelector('.tax input');
+		if (taxInput) {
+			taxInput.value = rank.payRate;
+		}
 
-		view.find('.invite button')
-			.css('backgroundImage', 'url(' + (rank.right & 0x01 ? _checkbox_on : _checkbox_off) + ')')
-			.removeClass('on off')
-			.addClass(rank.right & 0x01 ? 'on' : 'off');
+		const inviteBtn = view.querySelector('.invite ui-button');
+		if (inviteBtn) {
+			inviteBtn.style.backgroundImage = `url(${rank.right & 0x01 ? _checkbox_on : _checkbox_off})`;
+			inviteBtn.className = inviteBtn.className.replace(/\b(on|off)\b/g, '').trim();
+			inviteBtn.classList.add(rank.right & 0x01 ? 'on' : 'off');
+		}
 
-		view.find('.punish button')
-			.css('backgroundImage', 'url(' + (rank.right & 0x10 ? _checkbox_on : _checkbox_off) + ')')
-			.removeClass('on off')
-			.addClass(rank.right & 0x10 ? 'on' : 'off');
+		const punishBtn = view.querySelector('.punish ui-button');
+		if (punishBtn) {
+			punishBtn.style.backgroundImage = `url(${rank.right & 0x10 ? _checkbox_on : _checkbox_off})`;
+			punishBtn.className = punishBtn.className.replace(/\b(on|off)\b/g, '').trim();
+			punishBtn.classList.add(rank.right & 0x10 ? 'on' : 'off');
+		}
 
-		container.append(view);
+		container.appendChild(view);
 	}
 };
 
-/**
- * Add skills to the list
- */
 Guild.setSkills = function setSkills(skills) {
-	let i, count;
+	const root = _root(this);
 
-	for (i = 0, count = _skills.length; i < count; ++i) {
+	for (let i = 0, count = _skills.length; i < count; ++i) {
 		this.onUpdateSkill(_skills[i].SKID, 0);
 	}
 
 	_skills.length = 0;
-	this.ui.find('.content.skills .skill_list table').empty();
+	const table = root.querySelector('.content.skills .skill_list table');
+	if (table) {
+		table.innerHTML = '';
+	}
 
-	for (i = 0, count = skills.length; i < count; ++i) {
+	for (let i = 0, count = skills.length; i < count; ++i) {
 		this.addSkill(skills[i]);
 	}
 };
 
-/**
- * Insert skill to list
- *
- * @param {object} skill
- */
 Guild.addSkill = function addSkill(skill) {
-	// Custom skill ?
 	if (!(skill.SKID in SkillInfo)) {
 		return;
 	}
 
-	// Already in list, update it instead of duplicating it
-	if (this.ui.find('.skill.id' + skill.SKID + ':first').length) {
+	const root = _root(this);
+	const existing = root.querySelector(`.skill.id${skill.SKID}`);
+	if (existing) {
 		this.updateSkill(skill);
 		return;
 	}
 
 	const sk = SkillInfo[skill.SKID];
-	const levelup = _btnIncSkill.clone(true);
+	const levelup = _btnIncSkillTemplate.cloneNode(true);
+	levelup.addEventListener('click', function () {
+		onRequestSkillUp.call(this);
+	});
 	const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
-	const element = jQuery(
-		'<tr class="skill id' +
-			skill.SKID +
-			' ' +
-			className +
-			'" data-index="' +
-			skill.SKID +
-			'" draggable="true">' +
-			'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
-			'<td class="levelupcontainer"></td>' +
-			'<td class=selectable>' +
-			'<div class="name">' +
-			jQuery.escape(sk.SkillName) +
-			'<br/>' +
-			'<span class="level">' +
-			(sk.bSeperateLv
-				? '<button class="currentDown"></button>Lv : <span class="current">' +
-					skill.level +
-					'</span> / <span class="max">' +
-					skill.level +
-					'</span><button class="currentUp"></button>'
-				: 'Lv : <span class="current">' + skill.level + '</span>') +
-			'</span>' +
-			'</div>' +
-			'</td>' +
-			'<td class="selectable type">' +
-			'<div class="consume">' +
-			(skill.type ? 'Sp : <span class="spcost">' + skill.spcost + '</span>' : 'Passive') +
-			'</div>' +
-			'</td>' +
-			'</tr>'
-	);
+
+	const tr = document.createElement('tr');
+	tr.className = `skill id${skill.SKID} ${className}`;
+	tr.setAttribute('data-index', skill.SKID);
+	tr.setAttribute('draggable', 'true');
+	tr.innerHTML =
+		'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
+		'<td class="levelupcontainer"></td>' +
+		'<td class=selectable>' +
+		`<div class="name">${_escapeHTML(sk.SkillName)}<br/>` +
+		'<span class="level">' +
+		(sk.bSeperateLv
+			? `<button class="currentDown"></button>Lv : <span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>`
+			: `Lv : <span class="current">${skill.level}</span>`) +
+		'</span></div></td>' +
+		'<td class="selectable type">' +
+		`<div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : 'Passive'}</div>` +
+		'</td>';
 
 	if (!skill.upgradable || !_skpoints) {
-		levelup.hide();
+		levelup.style.display = 'none';
 	}
 
-	element.find('.levelupcontainer').append(levelup);
+	tr.querySelector('.levelupcontainer').appendChild(levelup);
 
-	if (rArrow) {
-		element.find('.level .currentUp').css('background-image', rArrow);
+	const currentUp = tr.querySelector('.level .currentUp');
+	if (currentUp) {
+		if (rArrow) {
+			currentUp.style.backgroundImage = rArrow;
+		}
+		currentUp.addEventListener('click', () => {
+			skillLevelSelectUp(skill);
+		});
 	}
-	if (lArrow) {
-		element.find('.level .currentDown').css('background-image', lArrow);
+	const currentDown = tr.querySelector('.level .currentDown');
+	if (currentDown) {
+		if (lArrow) {
+			currentDown.style.backgroundImage = lArrow;
+		}
+		currentDown.addEventListener('click', () => {
+			skillLevelSelectDown(skill);
+		});
 	}
 
-	element.find('.level .currentUp').click(function () {
-		skillLevelSelectUp(skill);
-	});
-	element.find('.level .currentDown').click(function () {
-		skillLevelSelectDown(skill);
-	});
-	Guild.ui.find('.content.skills .skill_list table').append(element);
+	const table = root.querySelector('.content.skills .skill_list table');
+	if (table) {
+		table.appendChild(tr);
+	}
+
+	// Process data attributes on the levelup button for GUIComponent
 	this.parseHTML.call(levelup);
 
-	Client.loadFile(DB.INTERFACE_PATH + 'item/' + sk.Name + '.bmp', function (data) {
-		element.find('.icon img').attr('src', data);
+	Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, (data) => {
+		const img = tr.querySelector('.icon img');
+		if (img) {
+			img.src = data;
+		}
 	});
 
 	_skills.push(skill);
 	this.onUpdateSkill(skill.SKID, skill.level);
 };
 
-/**
- * Remove skill from list
- */
 Guild.removeSkill = function removeSkill() {
-	// Not implemented by gravity ? server have to send the whole list again ?
+	// Not implemented by gravity
 };
 
-/**
- * Update skill
- *
- * @param {object} skill : { SKID, level, spcost, attackRange, upgradable }
- */
 Guild.updateSkill = function updateSkill(skill) {
 	const target = getSkillById(skill.SKID);
 
@@ -839,7 +921,6 @@ Guild.updateSkill = function updateSkill(skill) {
 		return;
 	}
 
-	// Update Memory
 	target.level = skill.level;
 	target.spcost = skill.spcost;
 	target.attackRange = skill.attackRange;
@@ -848,31 +929,37 @@ Guild.updateSkill = function updateSkill(skill) {
 		target.type = skill.type;
 	}
 
-	// Update UI
-	const element = this.ui.find('.skill.id' + skill.SKID + ':first');
-	element.find('.level .current, .level .max').text(skill.level);
-	if (skill.selectedLevel) {
-		element.find('.level .current').text(skill.selectedLevel);
+	const root = _root(this);
+	const element = root.querySelector(`.skill.id${skill.SKID}`);
+	if (!element) {
+		return;
 	}
-	element.find('.spcost').text(skill.spcost);
 
-	element.removeClass('active passive disabled');
-	element.addClass(!skill.level ? 'disabled' : skill.type ? 'active' : 'passive');
+	for (const el of element.querySelectorAll('.level .current, .level .max')) {
+		el.textContent = skill.level;
+	}
+	if (skill.selectedLevel) {
+		const current = element.querySelector('.level .current');
+		if (current) {
+			current.textContent = skill.selectedLevel;
+		}
+	}
+	const spcost = element.querySelector('.spcost');
+	if (spcost) {
+		spcost.textContent = skill.spcost;
+	}
 
-	if (skill.upgradable && _skpoints) {
-		element.find('.levelup').show();
-	} else {
-		element.find('.levelup').hide();
+	element.classList.remove('active', 'passive', 'disabled');
+	element.classList.add(!skill.level ? 'disabled' : skill.type ? 'active' : 'passive');
+
+	const levelupEl = element.querySelector('.levelup');
+	if (levelupEl) {
+		levelupEl.style.display = (skill.upgradable && _skpoints) ? '' : 'none';
 	}
 
 	this.onUpdateSkill(skill.SKID, skill.level);
 };
 
-/**
- * Use a skill index
- *
- * @param {number} skill id
- */
 Guild.useSkillID = function useSkillID(id, level) {
 	const skill = getSkillById(id);
 	if (!skill || !skill.level || !skill.type) {
@@ -882,35 +969,26 @@ Guild.useSkillID = function useSkillID(id, level) {
 	Guild.useSkill(skill, level ? level : skill.selectedLevel);
 };
 
-/**
- * Use a skill
- *
- * @param {object} skill
- */
 Guild.useSkill = function useSkill(skill, level) {
-	// Self
 	if (skill.type & SkillTargetSelection.TYPE.SELF) {
 		this.onUseSkill(skill.SKID, level ? level : skill.level);
 	}
 
 	skill.useLevel = level;
 
-	// no elseif intended (see flying kick).
 	if (skill.type & SkillTargetSelection.TYPE.TARGET) {
 		SkillTargetSelection.append();
 		SkillTargetSelection.set(skill, skill.type);
 	}
 };
 
-/**
- * Set skill points amount
- *
- * @param {number} skill points count
- */
-Guild.setPoints = function SetPoints(amount) {
-	this.ui.find('.skpoints_count').text(amount);
+Guild.setPoints = function setPoints(amount) {
+	const root = _root(this);
+	const el = root.querySelector('.skpoints_count');
+	if (el) {
+		el.textContent = amount;
+	}
 
-	// Do not need to update the UI
 	if (!_skpoints === !amount) {
 		_skpoints = amount;
 		return;
@@ -920,27 +998,19 @@ Guild.setPoints = function SetPoints(amount) {
 	const count = _skills.length;
 
 	for (let i = 0; i < count; ++i) {
-		if (_skills[i].upgradable && amount) {
-			this.ui.find('.skill.id' + _skills[i].SKID + ' .levelup').show();
-		} else {
-			this.ui.find('.skill.id' + _skills[i].SKID + ' .levelup').hide();
+		const levelupEl = root.querySelector(`.skill.id${_skills[i].SKID} .levelup`);
+		if (levelupEl) {
+			levelupEl.style.display = (_skills[i].upgradable && amount) ? '' : 'none';
 		}
 	}
 };
 
-/**
- * Add the button when leveling up
- */
 Guild.onLevelUp = function onLevelUp() {
-	_btnLevelUp.appendTo('body');
+	if (_btnLevelUp) {
+		document.body.appendChild(_btnLevelUp);
+	}
 };
 
-/**
- * Find a skill by it's id
- *
- * @param {number} skill id
- * @returns {Skill}
- */
 function getSkillById(id) {
 	const count = _skills.length;
 
@@ -953,81 +1023,67 @@ function getSkillById(id) {
 	return null;
 }
 
-/**
- * Request to upgrade a skill
- */
 function onRequestSkillUp() {
 	const index = this.parentNode.parentNode.getAttribute('data-index');
 	Guild.onIncreaseSkill(parseInt(index, 10));
 }
 
-/**
- * Request to use a skill
- */
 function onRequestUseSkill() {
-	let main = jQuery(this).parent();
+	let main = this.parentElement;
 
-	if (!main.hasClass('skill')) {
-		main = main.parent();
+	if (!main.classList.contains('skill')) {
+		main = main.parentElement;
 	}
 
-	Guild.useSkillID(parseInt(main.data('index'), 10));
+	Guild.useSkillID(parseInt(main.getAttribute('data-index'), 10));
 }
 
-/**
- * Request to get skill info (right click on a skill)
- */
 function onRequestSkillInfo() {
-	let main = jQuery(this).parent();
-	if (!main.hasClass('skill')) {
-		main = main.parent();
+	let main = this.parentElement;
+	if (!main.classList.contains('skill')) {
+		main = main.parentElement;
 	}
 
-	const skill = getSkillById(parseInt(main.data('index'), 10));
+	const skill = getSkillById(parseInt(main.getAttribute('data-index'), 10));
 
-	// Don't add the same UI twice, remove it
 	if (SkillDescription.uid === skill.SKID) {
 		SkillDescription.remove();
 		return;
 	}
 
-	// Add ui to window
 	SkillDescription.append();
 	SkillDescription.setSkill(skill.SKID);
 }
 
-/**
- * Focus a skill in the list (background color changed)
- */
 function onSkillFocus() {
-	let main = jQuery(this).parent();
+	let main = this.parentElement;
 
-	if (!main.hasClass('skill')) {
-		main = main.parent();
+	if (!main.classList.contains('skill')) {
+		main = main.parentElement;
 	}
 
-	Guild.ui.find('.skill').removeClass('selected');
-	main.addClass('selected');
+	const root = _root(Guild);
+	for (const el of root.querySelectorAll('.skill')) {
+		el.classList.remove('selected');
+	}
+	main.classList.add('selected');
 }
 
-/**
- * Start to drag a skill (to put it on the hotkey UI ?)
- */
 function onSkillDragStart(event) {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	const skill = getSkillById(index);
 
-	// Can't drag a passive skill (or disabled)
 	if (!skill || !skill.level || !skill.type) {
-		return stopPropagation(event);
+		event.stopImmediatePropagation();
+		return false;
 	}
 
 	const img = new Image();
 	img.decoding = 'async';
-	img.src = this.firstChild.firstChild.src;
+	img.src = this.querySelector('.icon img')?.src || '';
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -1039,9 +1095,6 @@ function onSkillDragStart(event) {
 	);
 }
 
-/**
- * Stop the drag drop action, clean up
- */
 function onSkillDragEnd() {
 	delete window._OBJ_DRAG_;
 }
@@ -1050,8 +1103,14 @@ function skillLevelSelectUp(skill) {
 	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 	if (level < skill.level) {
 		skill.selectedLevel = level + 1;
-		const element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
-		element.find('.level .current').text(skill.selectedLevel);
+		const root = _root(Guild);
+		const element = root.querySelector(`.skill.id${skill.SKID}`);
+		if (element) {
+			const current = element.querySelector('.level .current');
+			if (current) {
+				current.textContent = skill.selectedLevel;
+			}
+		}
 	}
 }
 
@@ -1059,71 +1118,60 @@ function skillLevelSelectDown(skill) {
 	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 	if (level > 1) {
 		skill.selectedLevel = level - 1;
-		const element = Guild.ui.find('.skill.id' + skill.SKID + ':first');
-		element.find('.level .current').text(skill.selectedLevel);
+		const root = _root(Guild);
+		const element = root.querySelector(`.skill.id${skill.SKID}`);
+		if (element) {
+			const current = element.querySelector('.level .current');
+			if (current) {
+				current.textContent = skill.selectedLevel;
+			}
+		}
 	}
 }
 
-/**
- * Set guild notice
- *
- * @param {string} notice subject
- * @param {string} notice content
- */
 Guild.setNotice = function setNotice(subject, notice) {
-	const element = this.ui.find('.content.notice');
-
-	element.find('.subject').val(subject);
-	element.find('.notice').val(notice);
-};
-
-/**
- * Set expel list
- *
- * @param {Array} expel list
- */
-Guild.setExpelList = function setExpelList(list) {
-	let i, count;
-	let element;
-
-	const container = this.ui.find('.content.history tbody');
-	container.empty();
-
-	for (i = 0, count = list.length; i < count; ++i) {
-		element = ExpelView.clone();
-
-		element.find('.name').text(list[i].charname);
-		element.find('.reason').text(list[i].reason);
-
-		container.append(element);
+	const root = _root(this);
+	const subjectInput = root.querySelector('.content.notice .subject');
+	if (subjectInput) {
+		subjectInput.value = subject;
+	}
+	const noticeTextarea = root.querySelector('.content.notice textarea.notice');
+	if (noticeTextarea) {
+		noticeTextarea.value = notice;
 	}
 };
 
-/**
- * Set access to tabs
- *
- * @param {number} access
- */
+Guild.setExpelList = function setExpelList(list) {
+	const root = _root(this);
+	const container = root.querySelector('.content.history tbody');
+	if (!container) {
+		return;
+	}
+	container.innerHTML = '';
+
+	for (let i = 0, count = list.length; i < count; ++i) {
+		const element = _expelViewTemplate.cloneNode(true);
+		const nameCell = element.querySelector('.name');
+		if (nameCell) {
+			nameCell.textContent = list[i].charname;
+		}
+		const reasonCell = element.querySelector('.reason');
+		if (reasonCell) {
+			reasonCell.textContent = list[i].reason;
+		}
+		container.appendChild(element);
+	}
+};
+
 Guild.setAccess = function setAccess(access) {
 	_guildAccess = access;
 };
 
-/**
- * Stop propagation of events
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
-
-/**
- * Change tab
- */
 function onChangeTab(event) {
 	const tab = parseInt(this.getAttribute('data-flag'), 10);
+	const root = _root(Guild);
 
 	if (!event.isTrigger) {
-		// Can't open this tab
 		if (this.classList.contains('active') || (tab && !(_guildAccess & AccessTypeBit[tab]))) {
 			return false;
 		}
@@ -1131,12 +1179,25 @@ function onChangeTab(event) {
 
 	Guild.onGuildInfoRequest(tab);
 
-	Guild.ui.find('.tabs button').removeClass('active');
-	Guild.ui.find('.content').hide();
-	Guild.ui.find('.content.' + this.className).show();
-	Guild.ui.find('.footer .btn_ok').hide();
+	for (const btn of root.querySelectorAll('.tabs button')) {
+		btn.classList.remove('active');
+	}
+	for (const content of root.querySelectorAll('.content')) {
+		content.style.display = 'none';
+	}
 
-	if (this.className === 'members') {
+	const targetClass = this.className.replace(/\s*active\s*/g, '').trim();
+	const targetContent = root.querySelector(`.content.${targetClass}`);
+	if (targetContent) {
+		targetContent.style.display = '';
+	}
+
+	const btnOk = root.querySelector('.footer .btn_ok');
+	if (btnOk) {
+		btnOk.style.display = 'none';
+	}
+
+	if (targetClass === 'members') {
 		Renderer.render(renderMemberFaces);
 	} else {
 		Renderer.stop(renderMemberFaces);
@@ -1147,43 +1208,28 @@ function onChangeTab(event) {
 	return false;
 }
 
-/**
- * Render tendency graphic
- *
- * @param {number} honor [-100, 100]
- * @param {number} virtue [-100, 100]
- */
 function renderTendency(honor, virtue) {
-	const canvas = Guild.ui.find('.content.info .tendency canvas').get(0);
+	const root = _root(Guild);
+	const canvas = root.querySelector('.content.info .tendency canvas');
+	if (!canvas) {
+		return;
+	}
 	const ctx = canvas.getContext('2d');
 
-	// Border
 	ctx.fillStyle = '#cecfce';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	// Background
 	ctx.fillStyle = '#739eef';
 	ctx.fillRect(1, 1, canvas.width - 2, canvas.height - 2);
 
-	// axis
 	ctx.fillStyle = '#4261a5';
-	ctx.fillRect(canvas.width / 2 - 1, 1, 2, canvas.height - 2); // Y
-	ctx.fillRect(1, canvas.height / 2 - 1, canvas.width - 2, 2); // X
+	ctx.fillRect(canvas.width / 2 - 1, 1, 2, canvas.height - 2);
+	ctx.fillRect(1, canvas.height / 2 - 1, canvas.width - 2, 2);
 
-	// TODO: render graphic (not sure if it's rectangle or triangle)
-	// For now, it was never used so keep it as default
-	// honor: (left) Vulgar [-100,100] Famed (right)
-	// virtue: (down) Wicked [-100,100] Righteous (up)
 	ctx.fillStyle = '#ffffff';
 	ctx.fillRect(canvas.width / 2 - 1, canvas.height / 2 - 1, 2, 2);
 }
 
-/**
- * Display member faces every seconds.
- * There is no event to detect if a character finish loading.
- *
- * @param {number} tick
- */
 const renderMemberFaces = (function renderMemberFacesClosure() {
 	let lastTick = 0;
 
@@ -1192,18 +1238,18 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 			return;
 		}
 
-		let ctx;
-		let i, count;
-
 		lastTick = tick;
-		const canvas = Guild.ui.find('.content.members canvas');
+		const root = _root(Guild);
+		const canvases = root.querySelectorAll('.content.members canvas');
 		Camera.direction = 4;
 
-		for (i = 0, count = _members.length; i < count; ++i) {
-			ctx = canvas[i].getContext('2d');
+		for (let i = 0, count = _members.length; i < count; ++i) {
+			if (!canvases[i]) {
+				continue;
+			}
+			const ctx = canvases[i].getContext('2d');
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-			// Offline character
 			if (!_members[i].CurrentState) {
 				continue;
 			}
@@ -1214,17 +1260,26 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 	};
 })();
 
-/**
- * Validate a change (notice, position, etc.)
- */
 function onValidate() {
-	let activeTab = Guild.ui.find('.content:visible').get(0).className;
-	activeTab = activeTab.replace(/content/g, '').replace(/^\s+|\s+$/gm, '');
+	const root = _root(Guild);
+	const visibleContent = root.querySelector('.content[style*="display"]') ||
+		Array.from(root.querySelectorAll('.content')).find(el => el.style.display !== 'none' && getComputedStyle(el).display !== 'none');
+
+	if (!visibleContent) {
+		return;
+	}
+
+	let activeTab = '';
+	for (const cls of visibleContent.classList) {
+		if (cls !== 'content') {
+			activeTab = cls;
+			break;
+		}
+	}
 
 	switch (activeTab) {
 		case 'members': {
 			const list = [];
-
 			_members.forEach(member => {
 				list.push({
 					AID: member.AID,
@@ -1232,30 +1287,30 @@ function onValidate() {
 					positionID: member.GPositionID
 				});
 			});
-
 			Guild.onChangeMemberPosRequest(list);
 			break;
 		}
 		case 'positions': {
-			let i, count;
-			let position;
-			let right, posName, payRate;
 			const positionList = [];
+			const positions = root.querySelectorAll('.PositionView');
 
-			const positions = Guild.ui.find('.PositionView');
+			for (let i = 0, count = _positions.length; i < count; ++i) {
+				const position = positions[i];
+				if (!position) {
+					continue;
+				}
 
-			for (i = 0, count = _positions.length; i < count; ++i) {
-				position = positions.eq(i);
+				const posName = position.querySelector('.title input')?.value || '';
+				const payRate = parseInt(position.querySelector('.tax input')?.value || '0', 10);
+				let right = 0;
 
-				posName = position.find('.title input').val();
-				payRate = parseInt(position.find('.tax input').val(), 10);
-				right = 0;
-
-				if (position.find('.invite button').hasClass('on')) {
+				const inviteBtn = position.querySelector('.invite ui-button');
+				if (inviteBtn && inviteBtn.classList.contains('on')) {
 					right |= 0x01;
 				}
 
-				if (position.find('.punish button').hasClass('on')) {
+				const punishBtn = position.querySelector('.punish ui-button');
+				if (punishBtn && punishBtn.classList.contains('on')) {
 					right |= 0x10;
 				}
 
@@ -1278,114 +1333,43 @@ function onValidate() {
 			break;
 		}
 		case 'notice': {
-			const subject = Guild.ui.find('.content.notice input').val();
-			const content = Guild.ui.find('.content.notice textarea').val();
-
+			const subject = root.querySelector('.content.notice input')?.value || '';
+			const content = root.querySelector('.content.notice textarea')?.value || '';
 			Guild.onNoticeUpdateRequest(subject, content);
 			break;
 		}
 	}
 
-	Guild.ui.find('.footer .btn_ok').hide();
+	const btnOk = root.querySelector('.footer .btn_ok');
+	if (btnOk) {
+		btnOk.style.display = 'none';
+	}
 }
 
-/**
- * When Requesting Guild Information Screen.
- * @param {number}	type
- *  GENERAL:     0, //	Request packets ZC_GUILD_INFO2, MYGUILD_BASIC_INFO
- *	MEMBERS:     1, //	Request packets ZC_MEMBERMGR_INFO, ZC_POSITION_ID_NAME_INFO
- *	POSITION:    2, //	Request packets ZC_POSITION_ID_NAME_INFO, ZC_POSITION_INFO
- *	SKILLS:      3, //	Request packets ZC_GUILD_SKILLINFO
- *  EXPEL:       4, //
- *  NOTICE:      7, //
- */
 Guild.onGuildInfoRequest = function () {};
-
-/**
- * Ask server to modify positions
- * @param {Array} positions
- */
 Guild.onPositionUpdateRequest = function () {};
-
-/**
- * Ask server to modify user's position
- * @param {Array} memberInfo
- */
 Guild.onChangeMemberPosRequest = function () {};
-
-/**
- * Ask server to modify notice
- * @param {string} notice subject
- * @param {string} notice content
- */
 Guild.onNoticeUpdateRequest = function () {};
-
-/**
- * Ask server for member info
- * @param {number} account id
- */
 Guild.onRequestMemberInfo = function () {};
-
-/**
- * Ask to leave a guild
- * @param {number} account id
- * @param {number} character id
- * @param {string} reason
- */
 Guild.onRequestLeave = function () {};
-
-/**
- * Ask to expel a member from theguild
- * @param {number} account id
- * @param {number} character id
- * @param {string} reason
- */
 Guild.onRequestMemberExpel = function () {};
-
-/**
- * Ask to remove a guild relation
- * @param {number} guild_id
- * @param {number} relation
- */
 Guild.onRequestDeleteRelation = function () {};
-
-/**
- * Request access to know what tab we can open
- */
 Guild.onRequestAccess = function () {};
 
 Guild.updateSession = function (info) {
 	Session.hasGuild = true;
 	Session.Entity.GUID = info.GDID;
 	Session.Entity.GEmblemVer = info.emblemVersion;
-	if (Session.Character.name == info.masterName) {
+	if (Session.Character.name === info.masterName) {
 		Session.isGuildMaster = true;
 	}
 };
 
-/**
- * Request guild emblem
- * @param {number} guild id
- * @param {number} emblem version
- * @param {function} callback once loaded
- */
 Guild.onRequestGuildEmblem = function () {};
-
-/**
- * Send new guild emblem to the server
- * @param {UInt8Array} emblem data
- */
 Guild.onSendEmblem = function () {};
-
-/**
- * Abstract function to define
- */
 Guild.onUseSkill = function onUseItem() {};
 Guild.onIncreaseSkill = function onIncreaseSkill() {};
 Guild.onUpdateSkill = function onUpdateSkill() {};
 Guild.getSkillById = getSkillById;
 
-/**
- * Create componentand export it
- */
 export default UIManager.addComponent(Guild);

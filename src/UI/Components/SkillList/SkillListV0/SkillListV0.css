@@ -1,7 +1,10 @@
-#SkillListV0 {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+}
+
+#SkillListV0 {
+	position: absolute;
 	border-radius: 5px;
 	background: white;
 	line-height: 18px;
@@ -191,7 +194,7 @@
 
 /* skill tree with tabs */
 #SkillListV0 .skillCol .name,
-.skillCol .selectable {
+#SkillListV0 .skillCol .selectable {
 	position: relative;
 	text-align: center;
 	display: block;
@@ -220,7 +223,7 @@
 	position: relative;
 }
 #SkillListV0 .tabs::before,
-.tabs::after {
+#SkillListV0 .tabs::after {
 	content: '';
 	display: table;
 }
