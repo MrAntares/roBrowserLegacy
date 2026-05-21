@@ -106,6 +106,15 @@ SkillList.init = function init() {
 	const lvlupBtn = root.querySelector('#lvlup_job');
 	if (lvlupBtn) {
 		_btnLevelUp = lvlupBtn;
+		_btnLevelUp.style.zIndex = '51';
+		_btnLevelUp.style.position = 'absolute';
+		_btnLevelUp.style.right = '0px';
+		_btnLevelUp.style.bottom = '0px';
+		_btnLevelUp.style.width = '43px';
+		_btnLevelUp.style.height = '43px';
+		_btnLevelUp.style.border = 'none';
+		_btnLevelUp.style.backgroundColor = 'transparent';
+		_btnLevelUp.style.backgroundRepeat = 'no-repeat';
 		_btnLevelUp.remove();
 		_btnLevelUp.addEventListener('click', () => {
 			if (_btnLevelUp.parentNode) {
@@ -1054,7 +1063,7 @@ function resize(comp, width, height) {
 			contentbig.style.height = `${height * 32}px`;
 		}
 		root.querySelectorAll('.footer .btn').forEach((el) => {
-			el.style.display = '';
+			el.style.display = 'block';
 		});
 	}
 }

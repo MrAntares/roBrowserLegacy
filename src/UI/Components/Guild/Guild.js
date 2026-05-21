@@ -148,7 +148,7 @@ Guild.init = function init() {
 			if (e.target.matches('input')) {
 				const btnOk = root.querySelector('.footer .btn_ok');
 				if (btnOk) {
-					btnOk.style.display = '';
+					btnOk.style.display = 'block';
 				}
 				e.target.select();
 			}
@@ -163,7 +163,7 @@ Guild.init = function init() {
 				btn.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
 				const btnOk = root.querySelector('.footer .btn_ok');
 				if (btnOk) {
-					btnOk.style.display = '';
+					btnOk.style.display = 'block';
 				}
 			}
 		});
@@ -328,7 +328,7 @@ Guild.init = function init() {
 			if (e.target.matches('textarea, input')) {
 				const btnOk = root.querySelector('.footer .btn_ok');
 				if (btnOk) {
-					btnOk.style.display = '';
+					btnOk.style.display = 'block';
 				}
 			}
 		}, true);
@@ -1171,10 +1171,8 @@ function onChangeTab(event) {
 	const tab = parseInt(this.getAttribute('data-flag'), 10);
 	const root = _root(Guild);
 
-	if (!event.isTrigger) {
-		if (this.classList.contains('active') || (tab && !(_guildAccess & AccessTypeBit[tab]))) {
-			return false;
-		}
+	if (this.classList.contains('active') || (tab && !(_guildAccess & AccessTypeBit[tab]))) {
+		return false;
 	}
 
 	Guild.onGuildInfoRequest(tab);
@@ -1189,7 +1187,7 @@ function onChangeTab(event) {
 	const targetClass = this.className.replace(/\s*active\s*/g, '').trim();
 	const targetContent = root.querySelector(`.content.${targetClass}`);
 	if (targetContent) {
-		targetContent.style.display = '';
+		targetContent.style.display = 'block';
 	}
 
 	const btnOk = root.querySelector('.footer .btn_ok');
@@ -1262,8 +1260,10 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 
 function onValidate() {
 	const root = _root(Guild);
-	const visibleContent = root.querySelector('.content[style*="display"]') ||
-		Array.from(root.querySelectorAll('.content')).find(el => el.style.display !== 'none' && getComputedStyle(el).display !== 'none');
+	const visibleContent = Array.from(root.querySelectorAll('.content')).find(el => {
+		const d = el.style.display;
+		return d !== 'none' && getComputedStyle(el).display !== 'none';
+	});
 
 	if (!visibleContent) {
 		return;
