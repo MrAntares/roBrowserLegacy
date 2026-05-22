@@ -363,10 +363,42 @@ ShortCut.updateAllTooltips = function updateAllTooltips() {
  */
 function getHotKeyString(index) {
 	const shortcutKeys = [
-		'F1_1', 'F1_2', 'F1_3', 'F1_4', 'F1_5', 'F1_6', 'F1_7', 'F1_8', 'F1_9',
-		'F2_1', 'F2_2', 'F2_3', 'F2_4', 'F2_5', 'F2_6', 'F2_7', 'F2_8', 'F2_9',
-		'F3_1', 'F3_2', 'F3_3', 'F3_4', 'F3_5', 'F3_6', 'F3_7', 'F3_8', 'F3_9',
-		'F4_1', 'F4_2', 'F4_3', 'F4_4', 'F4_5', 'F4_6', 'F4_7', 'F4_8', 'F4_9'
+		'F1_1',
+		'F1_2',
+		'F1_3',
+		'F1_4',
+		'F1_5',
+		'F1_6',
+		'F1_7',
+		'F1_8',
+		'F1_9',
+		'F2_1',
+		'F2_2',
+		'F2_3',
+		'F2_4',
+		'F2_5',
+		'F2_6',
+		'F2_7',
+		'F2_8',
+		'F2_9',
+		'F3_1',
+		'F3_2',
+		'F3_3',
+		'F3_4',
+		'F3_5',
+		'F3_6',
+		'F3_7',
+		'F3_8',
+		'F3_9',
+		'F4_1',
+		'F4_2',
+		'F4_3',
+		'F4_4',
+		'F4_5',
+		'F4_6',
+		'F4_7',
+		'F4_8',
+		'F4_9'
 	];
 
 	if (index < 0 || index >= shortcutKeys.length) {
@@ -494,7 +526,7 @@ function onResize(event) {
 	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
-	const mouseUpHandler = (_event) => {
+	const mouseUpHandler = _event => {
 		if (_event.which === 1) {
 			clearInterval(_Interval);
 			window.removeEventListener('mouseup', mouseUpHandler);
@@ -569,8 +601,7 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 	const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
 
 	Client.loadFile(`${DB.INTERFACE_PATH}item/${file}.bmp`, url => {
-		ui.innerHTML =
-			'<div draggable="true" class="icon"><div class="img"></div><div class="amount"></div></div>';
+		ui.innerHTML = '<div draggable="true" class="icon"><div class="img"></div><div class="amount"></div></div>';
 
 		ui.querySelector('.img').style.backgroundImage = `url(${url})`;
 		ui.querySelector('.amount').textContent = count;
@@ -626,8 +657,7 @@ function setDelayOnIndex(index, delay) {
 
 		const percentage = remaining / delay;
 		const degrees = (1 - percentage) * 360;
-		overlay.style.background =
-			`conic-gradient(transparent 0deg, transparent ${degrees}deg, rgba(0,0,0,0.75) ${degrees}deg)`;
+		overlay.style.background = `conic-gradient(transparent 0deg, transparent ${degrees}deg, rgba(0,0,0,0.75) ${degrees}deg)`;
 
 		animationId = requestAnimationFrame(updateCooldown);
 	}
@@ -770,7 +800,10 @@ function onDragStart(event, icon) {
 	// Extract image from css to get it when dragging the element
 	const img = new Image();
 	img.decoding = 'async';
-	img.src = icon.querySelector('.img').style.backgroundImage.match(/\(([^)]+)/)[1].replace(/"/g, '');
+	img.src = icon
+		.querySelector('.img')
+		.style.backgroundImage.match(/\(([^)]+)/)[1]
+		.replace(/"/g, '');
 
 	event.dataTransfer.setDragImage(img, 12, 12);
 	event.dataTransfer.setData(
@@ -927,8 +960,16 @@ function convertHotkeysToServerFormat() {
 	};
 
 	const emotionKeys = [
-		'Macro1', 'Macro2', 'Macro3', 'Macro4', 'Macro5',
-		'Macro6', 'Macro7', 'Macro8', 'Macro9', 'Macro10'
+		'Macro1',
+		'Macro2',
+		'Macro3',
+		'Macro4',
+		'Macro5',
+		'Macro6',
+		'Macro7',
+		'Macro8',
+		'Macro9',
+		'Macro10'
 	];
 	emotionKeys.forEach((key, index) => {
 		const shortcut = ShortCutControls.ShortCuts[key];
@@ -938,10 +979,42 @@ function convertHotkeysToServerFormat() {
 	});
 
 	const shortcutKeys = [
-		'F1_1', 'F1_2', 'F1_3', 'F1_4', 'F1_5', 'F1_6', 'F1_7', 'F1_8', 'F1_9',
-		'F2_1', 'F2_2', 'F2_3', 'F2_4', 'F2_5', 'F2_6', 'F2_7', 'F2_8', 'F2_9',
-		'F3_1', 'F3_2', 'F3_3', 'F3_4', 'F3_5', 'F3_6', 'F3_7', 'F3_8', 'F3_9',
-		'F4_1', 'F4_2', 'F4_3', 'F4_4', 'F4_5', 'F4_6', 'F4_7', 'F4_8', 'F4_9'
+		'F1_1',
+		'F1_2',
+		'F1_3',
+		'F1_4',
+		'F1_5',
+		'F1_6',
+		'F1_7',
+		'F1_8',
+		'F1_9',
+		'F2_1',
+		'F2_2',
+		'F2_3',
+		'F2_4',
+		'F2_5',
+		'F2_6',
+		'F2_7',
+		'F2_8',
+		'F2_9',
+		'F3_1',
+		'F3_2',
+		'F3_3',
+		'F3_4',
+		'F3_5',
+		'F3_6',
+		'F3_7',
+		'F3_8',
+		'F3_9',
+		'F4_1',
+		'F4_2',
+		'F4_3',
+		'F4_4',
+		'F4_5',
+		'F4_6',
+		'F4_7',
+		'F4_8',
+		'F4_9'
 	];
 
 	shortcutKeys.forEach((key, index) => {
@@ -967,8 +1040,16 @@ function convertHotkeysFromServerFormat(serverData) {
 
 	if (serverData.data.EmotionHotkey) {
 		const emotionKeys = [
-			'Macro1', 'Macro2', 'Macro3', 'Macro4', 'Macro5',
-			'Macro6', 'Macro7', 'Macro8', 'Macro9', 'Macro10'
+			'Macro1',
+			'Macro2',
+			'Macro3',
+			'Macro4',
+			'Macro5',
+			'Macro6',
+			'Macro7',
+			'Macro8',
+			'Macro9',
+			'Macro10'
 		];
 		serverData.data.EmotionHotkey.forEach((emotion, index) => {
 			if (emotion && emotionKeys[index]) {
@@ -982,10 +1063,42 @@ function convertHotkeysFromServerFormat(serverData) {
 
 	if (serverData.data.UserHotkey_V2 && serverData.data.UserHotkey_V2.SkillBar_1Tab) {
 		const shortcutKeys = [
-			'F1_1', 'F1_2', 'F1_3', 'F1_4', 'F1_5', 'F1_6', 'F1_7', 'F1_8', 'F1_9',
-			'F2_1', 'F2_2', 'F2_3', 'F2_4', 'F2_5', 'F2_6', 'F2_7', 'F2_8', 'F2_9',
-			'F3_1', 'F3_2', 'F3_3', 'F3_4', 'F3_5', 'F3_6', 'F3_7', 'F3_8', 'F3_9',
-			'F4_1', 'F4_2', 'F4_3', 'F4_4', 'F4_5', 'F4_6', 'F4_7', 'F4_8', 'F4_9'
+			'F1_1',
+			'F1_2',
+			'F1_3',
+			'F1_4',
+			'F1_5',
+			'F1_6',
+			'F1_7',
+			'F1_8',
+			'F1_9',
+			'F2_1',
+			'F2_2',
+			'F2_3',
+			'F2_4',
+			'F2_5',
+			'F2_6',
+			'F2_7',
+			'F2_8',
+			'F2_9',
+			'F3_1',
+			'F3_2',
+			'F3_3',
+			'F3_4',
+			'F3_5',
+			'F3_6',
+			'F3_7',
+			'F3_8',
+			'F3_9',
+			'F4_1',
+			'F4_2',
+			'F4_3',
+			'F4_4',
+			'F4_5',
+			'F4_6',
+			'F4_7',
+			'F4_8',
+			'F4_9'
 		];
 
 		serverData.data.UserHotkey_V2.SkillBar_1Tab.forEach(skillData => {

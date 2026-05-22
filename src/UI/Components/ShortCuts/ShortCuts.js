@@ -223,7 +223,9 @@ ShortCuts.onShortCut = function onShortCut(key) {
 				this._host.style.display = 'none';
 			}
 			// Remove input focus
-			_getRoot().querySelectorAll('.macro_').forEach(el => el.classList.remove('input_macro_focus'));
+			_getRoot()
+				.querySelectorAll('.macro_')
+				.forEach(el => el.classList.remove('input_macro_focus'));
 			if (this._host.style.display !== 'none') {
 				this.focus();
 			}
@@ -368,7 +370,7 @@ function _onResize() {
 	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
-	const mouseUpHandler = (event) => {
+	const mouseUpHandler = event => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
 			window.removeEventListener('mouseup', mouseUpHandler);
