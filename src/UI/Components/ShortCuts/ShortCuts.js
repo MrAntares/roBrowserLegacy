@@ -7,12 +7,11 @@
  *
  */
 
-import jQuery from 'Utils/jquery.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Emoticons from 'UI/Components/Emoticons/Emoticons.js';
 import htmlText from './ShortCuts.html?raw';
 import cssText from './ShortCuts.css?raw';
@@ -20,11 +19,13 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import ProcessCommand from 'Controls/ProcessCommand.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 
 /**
  * Create Component
  */
-const ShortCuts = new UIComponent('ShortCuts', htmlText, cssText);
+const ShortCuts = new GUIComponent('ShortCuts', cssText);
+ShortCuts.render = () => htmlText;
 
 /**
  * @var {Preferences} structure
@@ -90,61 +91,116 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Helper to get the shadow root
+ */
+function _getRoot() {
+	return ShortCuts._shadow || ShortCuts._host;
+}
+
+/**
+ * Capture key events so text inputs inside Shadow DOM work correctly
+ */
+ShortCuts.captureKeyEvents = true;
+
+/**
+ * Key handler: let typing work in macro inputs, handle Enter/Escape
+ */
+ShortCuts.onKeyDown = function onKeyDown(event) {
+	const shadow = this._shadow || this._host;
+	const focused = shadow.activeElement;
+
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			focused.blur();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		// Block other handlers from consuming the keystroke, but let the browser type it
+		event.stopImmediatePropagation();
+		return true;
+	}
+
+	return true;
+};
+
+/**
  * Initialize UI
  */
-ShortCuts.init = function Init() {
-	this.ui.find('.footer button').mousedown(function () {
-		if (this.className == 'emoticons') {
-			Emoticons.onShortCut({ cmd: 'TOGGLE' });
-		}
+ShortCuts.init = function init() {
+	const root = _getRoot();
+
+	const footerBtns = root.querySelectorAll('.footer button');
+	footerBtns.forEach(btn => {
+		btn.addEventListener('mousedown', () => {
+			if (btn.classList.contains('emoticons')) {
+				Emoticons.onShortCut({ cmd: 'TOGGLE' });
+			}
+		});
 	});
 
-	this.ui.find('.close').click(onClose);
-	this.ui.find('.macro input').mousedown(function () {
-		// this.focus();
-		jQuery('.macro_').removeClass('input_macro_focus');
-		jQuery(this).addClass('input_macro_focus');
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', onClose);
+	}
 
-		jQuery(this).select();
+	const macroInputs = root.querySelectorAll('.macro input');
+	macroInputs.forEach(input => {
+		input.addEventListener('mousedown', () => {
+			root.querySelectorAll('.macro_').forEach(el => el.classList.remove('input_macro_focus'));
+			input.classList.add('input_macro_focus');
+			input.select();
+		});
 	});
 
-	this.ui.find('input[type=text]').on('drop', onDropText).on('dragover', stopPropagation);
+	root.querySelectorAll('input[type=text]').forEach(input => {
+		input.addEventListener('drop', onDropText);
+		input.addEventListener('dragover', e => {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+		});
+	});
 
-	addValuesAlt(this);
+	addValuesAlt();
 	loadValuesAlt();
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 };
 
 /**
  * Apply preferences once append to body
  */
-ShortCuts.onAppend = function OnAppend() {
+ShortCuts.onAppend = function onAppend() {
 	if (!_preferences.show) {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	const rect = this._host.getBoundingClientRect();
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - rect.height)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - rect.width)}px`;
 };
 
 /**
  * Remove ShortCuts from window (and so clean up items)
  */
-ShortCuts.onRemove = function OnRemove() {
-	this.ui.find('.container .content').empty();
+ShortCuts.onRemove = function onRemove() {
+	const root = _getRoot();
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.innerHTML = '';
+	}
 	this.list.length = 0;
-	jQuery('.ItemInfo').remove();
+
+	// Clean up any leftover ItemInfo elements in the global DOM
+	document.querySelectorAll('.ItemInfo').forEach(el => el.remove());
 
 	// Save preferences
-	_preferences.show = this.ui.is(':visible');
+	_preferences.show = this._host.style.display !== 'none';
 	_preferences.reduce = !!_realSize;
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.width = Math.floor((this.ui.width() - (23 + 16 + 16 - 30)) / 32);
-	_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	const hostRect = this._host.getBoundingClientRect();
+	_preferences.width = Math.floor((hostRect.width - (23 + 16 + 16 - 30)) / 32);
+	_preferences.height = Math.floor((hostRect.height - (31 + 19 - 30)) / 32);
 	_preferences.magnet_top = this.magnet.TOP;
 	_preferences.magnet_bottom = this.magnet.BOTTOM;
 	_preferences.magnet_left = this.magnet.LEFT;
@@ -157,13 +213,18 @@ ShortCuts.onRemove = function OnRemove() {
  *
  * @param {object} key
  */
-ShortCuts.onShortCut = function onShurtCut(key) {
+ShortCuts.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'TOGGLE':
-			this.ui.toggle();
+			if (this._host.style.display === 'none') {
+				this._host.style.display = '';
+				this._fixPositionOverflow();
+			} else {
+				this._host.style.display = 'none';
+			}
 			// Remove input focus
-			jQuery('.macro_').removeClass('input_macro_focus');
-			if (this.ui.is(':visible')) {
+			_getRoot().querySelectorAll('.macro_').forEach(el => el.classList.remove('input_macro_focus'));
+			if (this._host.style.display !== 'none') {
 				this.focus();
 			}
 			break;
@@ -236,26 +297,26 @@ ShortCuts.onShortCut = function onShurtCut(key) {
  * @param {number} width
  * @param {number} height
  */
-ShortCuts.resize = function Resize(width, height) {
+ShortCuts.resize = function resize(width, height) {
 	width = Math.min(Math.max(width, 6), 9);
 	height = Math.min(Math.max(height, 2), 6);
 
-	this.ui.find('.container .content').css({
-		width: width * 32 + 13, // 13 = scrollbar
-		height: height * 32
-	});
+	const root = _getRoot();
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.style.width = `${width * 32 + 13}px`;
+		content.style.height = `${height * 32}px`;
+	}
 
-	this.ui.css({
-		width: 23 + 16 + 16 + width * 32,
-		height: 31 + 19 + height * 32
-	});
+	this._host.style.width = `${23 + 16 + 16 + width * 32}px`;
+	this._host.style.height = `${31 + 19 + height * 32}px`;
 };
 
 /**
  * Exit window
  */
 function onClose() {
-	ShortCuts.ui.hide();
+	ShortCuts._host.style.display = 'none';
 }
 
 /**
@@ -263,11 +324,12 @@ function onClose() {
  */
 // Currently unused, preserved for future development.
 function _onResize() {
-	const ui = ShortCuts.ui;
-	const content = ui.find('.container .content');
-	const hide = ui.find('.hide');
-	const top = ui.position().top;
-	const left = ui.position().left;
+	const host = ShortCuts._host;
+	const root = _getRoot();
+	const content = root.querySelector('.container .content');
+	const hide = root.querySelector('.hide');
+	const top = host.offsetTop;
+	const left = host.offsetLeft;
 	let lastWidth = 0;
 	let lastHeight = 0;
 
@@ -290,11 +352,15 @@ function _onResize() {
 		lastWidth = w;
 		lastHeight = h;
 
-		//Show or hide scrollbar
-		if (content.height() === content[0].scrollHeight) {
-			hide.show();
+		// Show or hide scrollbar
+		if (content && content.offsetHeight === content.scrollHeight) {
+			if (hide) {
+				hide.style.display = '';
+			}
 		} else {
-			hide.hide();
+			if (hide) {
+				hide.style.display = 'none';
+			}
 		}
 	}
 
@@ -302,24 +368,25 @@ function _onResize() {
 	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	const mouseUpHandler = (event) => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', mouseUpHandler);
 		}
-	});
+	};
+	window.addEventListener('mouseup', mouseUpHandler);
 }
 
 function executeCmd(value) {
 	const command = _MACRO_INIT[`Num_${value}`];
 
 	// Nothing to submit
-	if (command.length < 1 || command == '/hide') {
+	if (command.length < 1 || command === '/hide') {
 		return;
 	}
 
 	// Process commands
-	if (command[0] == '/') {
+	if (command[0] === '/') {
 		ProcessCommand.processCommand.call(ChatBox, command.substr(1));
 		return;
 	}
@@ -338,22 +405,28 @@ function executeFlag(value) {
 	const pkt = new PACKET.CZ.REQ_EMOTION();
 	pkt.type = command;
 	Network.sendPacket(pkt);
-	return;
 }
 
 function loadValuesAlt() {
+	const root = _getRoot();
 	const length = Object.keys(_MACRO_INIT).length - 3;
 	for (let index = 0; index < length; index++) {
 		const element = _MACRO_INIT[`Num_${index}`];
-		jQuery(`#macro_${index}`).val(element);
+		const input = root.querySelector(`#macro_${index}`);
+		if (input) {
+			input.value = element;
+		}
 	}
 }
 
-function addValuesAlt(element) {
-	element.ui.find('.macro input').blur(function () {
-		const index = jQuery(this).attr('id').split('macro_')[1];
-		_MACRO_INIT[`Num_${index}`] = this.value;
-		_MACRO_INIT.save();
+function addValuesAlt() {
+	const root = _getRoot();
+	root.querySelectorAll('.macro input').forEach(input => {
+		input.addEventListener('blur', () => {
+			const index = input.id.split('macro_')[1];
+			_MACRO_INIT[`Num_${index}`] = input.value;
+			_MACRO_INIT.save();
+		});
 	});
 }
 
@@ -362,28 +435,20 @@ function addValuesAlt(element) {
  */
 function onDropText(event) {
 	event.stopImmediatePropagation();
+	event.preventDefault();
 	let data;
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
-		return false;
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
+		return;
 	}
 
 	// Valid if the message type
-	if (data.type == 'item') {
-		return false;
+	if (data.type === 'item') {
+		return;
 	}
 
-	jQuery(event.currentTarget).val(data);
-	return false;
-}
-
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
+	event.currentTarget.value = data;
 }
 
 /**

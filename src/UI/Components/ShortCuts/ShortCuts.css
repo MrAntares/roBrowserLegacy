@@ -1,3 +1,8 @@
+:host {
+	top: 172px;
+	left: 0px;
+}
+
 #ShortCuts {
 	width: 380px;
 	height: 270px;
