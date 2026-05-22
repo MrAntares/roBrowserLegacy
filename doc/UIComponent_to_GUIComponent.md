@@ -64,7 +64,7 @@ remove()
 
 | Hook         | When it runs                                              | Use for                                                                  |
 | ------------ | --------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `init()`     | Once, during `prepare()`. Host is temporarily in the DOM. | One-time setup: `draggable()`, event binding, initial hide               |
+| `init()`     | Once, during `prepare()`. Host is temporarily in the DOM. | One-time setup: `draggable()`, event binding, initial hide (toggle-style only — see §19) |
 | `onAppend()` | Every time `append()` is called. Host is in the DOM.      | Position restore, anything that must run each time the component appears |
 | `onRemove()` | Every time `remove()` is called, before detach.           | Save preferences, cleanup                                                |
 
@@ -1049,6 +1049,7 @@ content.innerHTML = _formatROText(DB.getSkillDescription(id));
 | Duplicate `width`/`height` on both `:host` and inner element            | Put dimensions on inner element only when content overflows (§15) | Conflicting size constraints create scrollbars in components with complex content                                   |
 | Check `event.isTrigger` in migrated handler                             | Remove the check entirely (see §16)                               | `isTrigger` is jQuery-only; native DOM events never set this property                                               |
 | Inner element without explicit height when host uses `overflow: hidden` | Add `height: 100%` to inner element                               | `bottom`-anchored children (resize handles, footers) position relative to inner element, not clipped host (see §18) |
+| `this._host.style.display = 'none'` in `init()` for on-demand components | Do not hide — hide only in toggle-style components                     | `append()` does not reset `display`; host stays permanently hidden (see §19)                                        |
 | `element.style.display` to find visible element                         | Also check `getComputedStyle(element).display` (see §17)          | Inline style may be empty while CSS sets `display: none`                                                            |
 
 ---
@@ -1220,6 +1221,37 @@ const visible = Array.from(root.querySelectorAll('.content')).find(el => {
 
 ---
 
+### 19. `init()` hiding breaks on-demand components
+
+**Bug**: Components that are appended on demand (e.g., Announce — appended only when a server announcement arrives) should NOT set `this._host.style.display = 'none'` in `init()`. GUIComponent's `append()` method does `parent.appendChild(this._host)` but does **not** reset `display`. The host stays permanently hidden even after `append()` is called.
+
+This differs from toggle-style components (e.g., Clan, Inventory) that start hidden and are shown via `toggle()` or `this.ui.show()`. Those components correctly hide in `init()` because `toggle()`/`show()` explicitly sets `display = ''`.
+
+```javascript
+// WRONG — on-demand component hidden permanently
+Announce.init = function init() {
+	const root = _getRoot();
+	this.canvas = root.querySelector('canvas');
+	this.ctx = this.canvas.getContext('2d');
+	this._host.style.display = 'none'; // ← BUG: append() won't undo this
+};
+
+// CORRECT — no hiding for on-demand components
+Announce.init = function init() {
+	const root = _getRoot();
+	this.canvas = root.querySelector('canvas');
+	this.ctx = this.canvas.getContext('2d');
+};
+```
+
+**How to detect**: Check how the component is used in the engine code. If the pattern is `Component.append()` → `Component.set(data)` (the component is added to the DOM only when needed), it is on-demand. Do not hide it in `init()`. If the pattern is `Component.append()` at startup and then `Component.toggle()` / `Component.show()` / `Component.hide()` to control visibility, it is toggle-style and hiding in `init()` is correct.
+
+**Also watch for the inner div**: If the inner `#ComponentName` div has `position: absolute` in CSS but the component has no fixed dimensions on `:host`, the host element collapses to 0×0 (since the absolutely-positioned inner content is out of flow). For on-demand overlay components without fixed dimensions, remove `position: absolute` from the inner div and let the shadow content size the host naturally.
+
+**RULE**: Only hide in `init()` for toggle-style components whose `show()`/`toggle()` explicitly sets `display`. On-demand components (appended only when needed, never toggled) must NOT hide in `init()`.
+
+---
+
 ## Reference: Guild Component (tabbed window, 6 content sections)
 
 ### Files
@@ -1370,5 +1402,85 @@ const visible = Array.from(root.querySelectorAll('.content')).find(el => {
 	position: absolute;
 	width: 380px;
 	height: 270px;
+}
+```
+
+
+---
+
+## Reference: Announce Component (canvas-based, on-demand overlay)
+
+### Files
+
+- `src/UI/Components/Announce/Announce.js` — Component logic (canvas-based text overlay)
+- `src/UI/Components/Announce/Announce.html` — Minimal template (`<div id="Announce"><canvas></canvas></div>`)
+- `src/UI/Components/Announce/Announce.css` — Overlay CSS (no fixed dimensions on `:host`)
+
+### Key Patterns
+
+- **On-demand append**: Engine code calls `Announce.append()` then `Announce.set(text, color, options)`. The component is NOT permanently in the DOM — it is appended only when an announcement arrives and removed after a timer expires. Do NOT hide in `init()` (see §19).
+- **Canvas-based rendering**: Text is drawn on a `<canvas>` element via `CanvasRenderingContext2D`. The canvas dimensions are set dynamically in `set()` based on text content.
+- **CROSS mouse mode**: The overlay is transparent to mouse events (`mouseMode = GUIComponent.MouseMode.CROSS`). Players can click through the announcement.
+- **`needFocus = false`**: The announcement does not steal focus from other UI components.
+- **No fixed dimensions on `:host`**: The host auto-sizes from the canvas content. Only `top` and `left` are set on `:host`. The inner `#Announce` div has no `position: absolute` — it is in normal flow so the host sizes correctly.
+- **Dynamic host positioning**: `set()` updates `this._host.style.left` to center the announcement horizontally based on canvas width and renderer width.
+- **Original had no HTML template**: The legacy UIComponent created its canvas via `document.createElement('canvas')` and set `this.ui = jQuery(this.canvas)`. The GUIComponent version uses a minimal `.html` template with the canvas pre-declared.
+
+### CSS Pattern
+
+```css
+:host {
+	top: 40px;
+	left: 0px;
+}
+
+#Announce canvas {
+	display: block;
+}
+```
+
+---
+
+## Reference: BasicInfo Component (UIVersionManager multi-variant)
+
+### Files
+
+- `src/UI/Components/BasicInfo/BasicInfo.js` — Version router (wraps 5 variants via UIVersionManager)
+- `src/UI/Components/BasicInfo/BasicInfo/` — Default post-2009 variant (220×135)
+- `src/UI/Components/BasicInfo/BasicInfoV0/` — Pre-2009 variant (280×120)
+- `src/UI/Components/BasicInfo/BasicInfoV3/` — 2016+ variant with Achievement, Bank, Navigation, Rodex
+- `src/UI/Components/BasicInfo/BasicInfoV4/` — 2018+ variant with CheckAttendance
+- `src/UI/Components/BasicInfo/BasicInfoV5/` — 2020+/4th job variant with AP bar (220×150)
+
+### Key Patterns
+
+- **UIVersionManager routing**: The wrapper `BasicInfo.js` uses `UIVersionManager.getUIController()` with date ranges and job-class overrides. It requires NO changes during migration — only the individual variant JS/CSS files need conversion.
+- **Consistent variant structure**: All 5 variants follow the same migration pattern: `GUIComponent` constructor, `render()` method, `_getRoot()` helper, `init()` for event binding, `onAppend()` for position restore, `onRemove()` for preferences save.
+- **Small/large toggle**: All variants support a compact "small" mode and expanded "large" mode via CSS classes. `toggleMode()` uses `classList.toggle('small')` / `classList.toggle('large')` on the inner div.
+- **Button panel toggle**: A collapsible button toolbar below the main info window. Visibility tracked in preferences.
+- **HP/SP/AP bar rendering**: Bars are built from three `data-background` images (left cap, middle fill, right cap). The middle section's width and right cap's position are calculated from the percentage. V5 adds an AP bar for 4th job classes.
+- **Version-specific button sets**: Each variant binds different UI toggles depending on available features (e.g., V3+ adds Rodex, Achievement, Navigation; V4+ adds CheckAttendance with PACKETVER check).
+- **Hidden buttons**: Some button IDs (battle, replay, tipbox, shortcut, agency) are hidden in `onAppend()` as they are not implemented in the web client.
+
+### CSS Pattern
+
+```css
+/* Fixed-size variant (BasicInfo, V0, V3, V4) */
+:host {
+	width: 220px;
+	height: 135px;
+	top: 0px;
+	left: 0px;
+}
+
+#basicinfo {
+	position: absolute;
+	width: 220px;
+	height: 135px;
+}
+
+/* Small mode reduces height */
+#basicinfo.small {
+	height: 53px;
 }
 ```
