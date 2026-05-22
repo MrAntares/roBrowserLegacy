@@ -1045,3 +1045,245 @@ content.innerHTML = _formatROText(DB.getSkillDescription(id));
 | Assume children inherit only scoped styles from `:host`             | Add `pointer-events: auto` on children if `:host` is `none`  | Inheritable CSS crosses shadow boundary: `pointer-events`, `color`, `cursor`, etc. (see §11) |
 | `jQuery._data(window,'events').unshift(events.pop())`               | `addEventListener(event, handler, true)` (capture phase)     | Native DOM has no queue reordering; capture phase guarantees priority (see §12)              |
 | `return false` from native event handler                            | Explicit `stopImmediatePropagation()` + `preventDefault()`   | Native handler return values are ignored; only jQuery interprets `return false` (see §12)    |
+| Move element to `document.body` without inline styles               | Apply inline styles before `element.remove()` (see §14)     | Elements outside shadow root lose all scoped CSS                                             |
+| Duplicate `width`/`height` on both `:host` and inner element        | Put dimensions on inner element only when content overflows (§15) | Conflicting size constraints create scrollbars in components with complex content         |
+| Check `event.isTrigger` in migrated handler                         | Remove the check entirely (see §16)                          | `isTrigger` is jQuery-only; native DOM events never set this property                        |
+| `element.style.display` to find visible element                     | Also check `getComputedStyle(element).display` (see §17)     | Inline style may be empty while CSS sets `display: none`                                     |
+
+---
+
+### 14. Elements moved outside Shadow DOM lose all scoped CSS
+
+**Bug**: Some components remove an element from the shadow root and append it to `document.body` (e.g., a "level up" notification button that must float above all other UI). Once outside the shadow root, the element loses access to all scoped CSS defined in the component's `<style>` tag.
+
+**Example**: The SkillList level up button (`#lvlup_job`) is styled inside the Shadow DOM with `z-index`, `position`, `width`, `height`, `border`, `background-color`, `background-repeat`. When removed from the shadow root and appended to `document.body`, all these styles vanish — the button becomes an unstyled, invisible element.
+
+**Fix**: Apply all required CSS properties as inline styles BEFORE calling `element.remove()`:
+
+```javascript
+// In init(), before detaching the button from shadow root:
+const lvlupBtn = root.querySelector('#lvlup_job');
+if (lvlupBtn) {
+	_btnLevelUp = lvlupBtn;
+	// Copy scoped CSS properties to inline styles BEFORE removing
+	_btnLevelUp.style.zIndex = '51';
+	_btnLevelUp.style.position = 'absolute';
+	_btnLevelUp.style.right = '0px';
+	_btnLevelUp.style.bottom = '0px';
+	_btnLevelUp.style.width = '43px';
+	_btnLevelUp.style.height = '43px';
+	_btnLevelUp.style.border = 'none';
+	_btnLevelUp.style.backgroundColor = 'transparent';
+	_btnLevelUp.style.backgroundRepeat = 'no-repeat';
+	_btnLevelUp.remove(); // Now safe — inline styles travel with the element
+}
+```
+
+**How to detect**: Search for patterns where an element is queried inside the shadow root and later appended to `document.body`, `document.documentElement`, or any element outside the shadow tree. Common indicators:
+- `element.remove()` followed by `document.body.appendChild(element)`
+- Elements that need to float above all UI (notification buttons, modal overlays, tooltips anchored to screen position)
+
+**RULE**: When moving an element from inside Shadow DOM to outside (e.g., `document.body`), copy ALL required CSS properties to inline styles before calling `remove()`. Inline styles travel with the element; scoped CSS does not.
+
+### 15. `:host` dimension conflicts causing scrollbars
+
+**Bug**: When both `:host` and the inner element (e.g., `#Guild`) declare the same `width` and `height`, the dual constraint can cause scrollbars. This happens when the inner element's content (including borders, padding, or child elements) extends even slightly beyond the host bounds.
+
+**Example**: Guild component had:
+
+```css
+/* CAUSED SCROLLBAR */
+:host {
+	top: 100px;
+	left: 100px;
+	width: 400px;
+	height: 317px;
+}
+
+#Guild {
+	position: absolute;
+	width: 400px;
+	height: 317px;
+}
+```
+
+The inner `#Guild` with its borders and tab content slightly exceeded the host's 400×317 bounds, creating a scrollbar on the host element.
+
+**Fix**: For components where the inner element's content can vary (tab systems, dynamic forms, etc.), omit `width`/`height` from `:host` and let only the inner element define them:
+
+```css
+/* FIXED — no scrollbar */
+:host {
+	top: 100px;
+	left: 100px;
+}
+
+#Guild {
+	position: absolute;
+	width: 400px;
+	height: 317px;
+}
+```
+
+**When to apply this vs §4a**: §4a says `:host` MUST define `width`/`height` for `getBoundingClientRect()`, magnetic snap, and overflow checks. This is correct for most components. However, if you observe scrollbars after migration:
+
+1. Check if both `:host` and the inner element have identical dimensions
+2. If so, try removing dimensions from `:host` and test magnetic snap / overflow
+3. If snap/overflow still works correctly (the inner `position: absolute` element sizes the host implicitly), keep dimensions off `:host`
+4. If snap/overflow breaks, add `overflow: hidden` to `:host` instead
+
+**Affected components**: Guild (6 tabs with varying content), and potentially any component with borders, padding, or dynamic content that can slightly exceed nominal dimensions.
+
+**RULE**: After migrating, visually test the component. If scrollbars appear inside the window, check for duplicate dimensions between `:host` and the inner element. Remove `:host` dimensions or add `overflow: hidden` as needed.
+
+### 16. jQuery `event.isTrigger` has no native DOM equivalent
+
+**Bug**: Some legacy UIComponent event handlers check `event.isTrigger` to distinguish between real user events and programmatically triggered events (via jQuery's `.trigger()`). In native DOM, `event.isTrigger` is always `undefined`, so guards like `if (!event.isTrigger)` always evaluate to `true`.
+
+```javascript
+// BEFORE (UIComponent) — jQuery sets isTrigger on programmatic events
+tabButton.addEventListener('click', function(event) {
+	if (!event.isTrigger) {
+		// Only run for real clicks, not .trigger('click')
+		requestTabData();
+	}
+});
+
+// AFTER (GUIComponent) — isTrigger is always undefined, guard always passes
+// Remove the guard entirely:
+tabButton.addEventListener('click', (event) => {
+	requestTabData();
+});
+```
+
+**How to detect**: Search for `isTrigger` in the legacy component code. If found, evaluate whether the guard is needed:
+- If the code uses `jQuery.trigger()` to programmatically fire events, consider whether the native equivalent (`dispatchEvent`) needs similar discrimination. If so, use a custom property on the event: `new CustomEvent('click', { detail: { programmatic: true } })`.
+- If the guard was just defensive and the handler works fine without it, remove it.
+
+**RULE**: Remove `event.isTrigger` checks during migration. If programmatic vs real event distinction is genuinely needed, use `CustomEvent` with a `detail` property instead.
+
+### 17. Finding visible elements requires `getComputedStyle()`, not just inline style checks
+
+**Bug**: When using §10's pattern (explicit `display: 'block'` / `'none'` for toggling), code that searches for the "currently visible" element by checking `element.style.display` may miss elements whose visibility is controlled by CSS rules rather than inline styles.
+
+**Example**: Guild's `onValidate()` needs to find which tab content is currently visible. After tab switching sets `style.display = 'block'` on the active tab and `style.display = 'none'` on others, the first tab (shown on initial load) may not have an inline `display` style at all — its visibility comes from CSS.
+
+```javascript
+// WRONG — misses elements visible via CSS (no inline style set)
+const visible = Array.from(root.querySelectorAll('.content'))
+	.find(el => el.style.display !== 'none');
+
+// CORRECT — check both inline style AND computed style
+const visible = Array.from(root.querySelectorAll('.content'))
+	.find(el => {
+		const d = el.style.display;
+		return d !== 'none' && getComputedStyle(el).display !== 'none';
+	});
+```
+
+**RULE**: When searching for visible/hidden elements in Shadow DOM, use `getComputedStyle(element).display` as a fallback. Inline `style.display` only reflects explicitly set values, not CSS-declared ones.
+
+---
+
+## Reference: Guild Component (tabbed window, 6 content sections)
+
+### Files
+
+- `src/UI/Components/Guild/Guild.js` — Component logic (~1375 lines, 6 tabs: Info, Members, Positions, Skills, History, Notice)
+- `src/UI/Components/Guild/Guild.html` — HTML template with tab buttons and content sections
+- `src/UI/Components/Guild/Guild.css` — Styles with `:host` for position only (no dimensions — see §15)
+
+### Key Patterns
+
+- **Tab switching with `display: 'block'`/`'none'`**: CSS sets `display: none` on non-default content sections. Tab switching uses explicit `display = 'block'` to override CSS (see §10). Default visible tab has no inline style.
+- **`onValidate()` uses `getComputedStyle()`**: Finds the visible content section using both inline and computed display checks (see §17).
+- **No `event.isTrigger`**: Removed jQuery-only guard from tab click handler (see §16).
+- **No dimensions on `:host`**: Removed to fix scrollbar caused by dual-constraint with inner `#Guild` element (see §15).
+- **Entity rendering in member list**: Uses `Renderer.render()` callback to draw member face sprites on canvas.
+- **Access control via bitfield**: Guild tab access controlled by `_guildAccess & AccessTypeBit[tab]`.
+
+### CSS Pattern
+
+```css
+:host {
+	top: 100px;
+	left: 100px;
+}
+
+#Guild {
+	position: absolute;
+	width: 400px;
+	height: 317px;
+}
+```
+
+---
+
+## Reference: SkillList / SkillListV0 Components (dual-view skill window)
+
+### Files
+
+- `src/UI/Components/SkillList/SkillList.js` — Version router (wraps SkillList + SkillListV0 via UIVersionManager)
+- `src/UI/Components/SkillList/SkillList/SkillList.js` — Main skill window (~1293 lines, post-2009 version)
+- `src/UI/Components/SkillList/SkillList/SkillList.html` — HTML template with mini/big view containers
+- `src/UI/Components/SkillList/SkillList/SkillList.css` — Styles (no dimensions on `:host`)
+- `src/UI/Components/SkillList/SkillListV0/SkillListV0.js` — Pre-2009 variant (~995 lines)
+- `src/UI/Components/SkillList/SkillListV0/SkillListV0.html` — HTML template
+- `src/UI/Components/SkillList/SkillListV0/SkillListV0.css` — Styles
+
+### Key Patterns
+
+- **Level up button moved outside Shadow DOM**: `_btnLevelUp` is styled inside shadow CSS, but removed from shadow root and appended to `document.body` for global visibility. All CSS properties are applied as inline styles before `remove()` (see §14).
+- **Dual-view system**: Mini view (table-based) and big/grid view (positional grid). The `resize()` function toggles between them and must use `display = 'block'` for footer buttons (see §10).
+- **Remember-choice allocation**: Players allocate multiple skill points before applying. Footer Apply/Reset buttons shown with explicit `display = 'block'`.
+- **Skill dependency tree**: Recursive dependency calculation for job-based skill progression.
+- **No dimensions on `:host`**: Both SkillList and SkillListV0 dynamically resize based on skill count; dimensions set on inner element only.
+- **Version routing**: `SkillList.js` wrapper uses `UIVersionManager` to select between SkillList (≥2009-06-01) and SkillListV0 (older).
+
+### CSS Pattern
+
+```css
+:host {
+	top: 100px;
+	left: 100px;
+}
+
+#SkillList {
+	position: absolute;
+	border-radius: 5px;
+	background: white;
+}
+```
+
+---
+
+## Reference: SkillListMH Component (factory pattern, dual instances)
+
+### Files
+
+- `src/UI/Components/SkillListMH/SkillListMH.js` — Factory-based component (~575 lines, creates Homunculus + Mercenary instances)
+- `src/UI/Components/SkillListMH/SkillListMH.html` — Shared HTML template
+- `src/UI/Components/SkillListMH/SkillListMH.css` — Shared styles
+
+### Key Patterns
+
+- **Factory pattern**: A `createSkillListMH(type)` function creates separate GUIComponent instances (`SkillListHOM` and `SkillListMER`) from the same template/CSS. Each has its own preferences, state, and lifecycle.
+- **Shared CSS via class selector**: Uses `.SkillListMH` instead of `#SkillListMH` since two instances share the same CSS — IDs would conflict.
+- **Resize via mouse tracking**: Extend button uses `Mouse.screen.x/y` relative to host position. The resize loop runs on `Renderer.render()` callbacks.
+- **Drag-to-shortcut**: Skills can be dragged to the shortcut bar. The drag data uses `from: 'SkillListMH'` identifier that `ShortCut.js` recognizes.
+- **No dimensions on `:host`**: The window is dynamically resizable; only position is set on `:host`.
+
+### CSS Pattern
+
+```css
+:host {
+	top: 100px;
+	left: 100px;
+}
+
+.SkillListMH {
+	position: absolute;
+	border-radius: 5px;
+	background: white;
+}
+```
