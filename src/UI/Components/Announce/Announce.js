@@ -53,7 +53,6 @@ Announce.init = function init() {
 	const root = _getRoot();
 	this.canvas = root.querySelector('canvas');
 	this.ctx = this.canvas.getContext('2d');
-	this._host.style.display = 'none';
 };
 
 /**
