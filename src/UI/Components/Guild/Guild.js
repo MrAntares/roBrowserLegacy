@@ -144,15 +144,19 @@ Guild.init = function init() {
 			}
 		});
 
-		posBody.addEventListener('focus', e => {
-			if (e.target.matches('input')) {
-				const btnOk = root.querySelector('.footer .btn_ok');
-				if (btnOk) {
-					btnOk.style.display = 'block';
+		posBody.addEventListener(
+			'focus',
+			e => {
+				if (e.target.matches('input')) {
+					const btnOk = root.querySelector('.footer .btn_ok');
+					if (btnOk) {
+						btnOk.style.display = 'block';
+					}
+					e.target.select();
 				}
-				e.target.select();
-			}
-		}, true);
+			},
+			true
+		);
 
 		posBody.addEventListener('click', e => {
 			const btn = e.target.closest('ui-button');
@@ -236,7 +240,7 @@ Guild.init = function init() {
 					} else {
 						InputBox.ui.find('.text').text(DB.getMessage(523));
 					}
-					InputBox.onSubmitRequest = (reason) => {
+					InputBox.onSubmitRequest = reason => {
 						InputBox.remove();
 						Guild.onRequestLeave(member.AID, member.GID, reason);
 					};
@@ -253,7 +257,7 @@ Guild.init = function init() {
 					} else {
 						InputBox.ui.find('.text').text(DB.getMessage(524));
 					}
-					InputBox.onSubmitRequest = (reason) => {
+					InputBox.onSubmitRequest = reason => {
 						InputBox.remove();
 						Guild.onRequestMemberExpel(member.AID, member.GID, reason);
 					};
@@ -324,14 +328,18 @@ Guild.init = function init() {
 	// Notice
 	const noticeContent = root.querySelector('.content.notice');
 	if (noticeContent) {
-		noticeContent.addEventListener('focus', e => {
-			if (e.target.matches('textarea, input')) {
-				const btnOk = root.querySelector('.footer .btn_ok');
-				if (btnOk) {
-					btnOk.style.display = 'block';
+		noticeContent.addEventListener(
+			'focus',
+			e => {
+				if (e.target.matches('textarea, input')) {
+					const btnOk = root.querySelector('.footer .btn_ok');
+					if (btnOk) {
+						btnOk.style.display = 'block';
+					}
 				}
-			}
-		}, true);
+			},
+			true
+		);
 	}
 
 	// Upload emblem
@@ -348,7 +356,7 @@ Guild.init = function init() {
 
 			if ((isBmp && file.size <= 1783) || (isGif && file.size <= 50000)) {
 				const reader = new FileReader();
-				reader.onload = (e) => {
+				reader.onload = e => {
 					Guild.onSendEmblem(new Uint8Array(e.target.result));
 				};
 				reader.readAsArrayBuffer(this.files[0]);
@@ -369,10 +377,10 @@ Guild.init = function init() {
 	this.draggable('.titlebar');
 	this.ui.hide();
 
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, data => {
 		rArrow = `url(${data})`;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, data => {
 		lArrow = `url(${data})`;
 	});
 
@@ -601,7 +609,7 @@ Guild.setMember = function setMember(member) {
 
 			const selectEl = positionCell.querySelector(`.member_${member.AID}_${member.GID}`);
 			if (selectEl) {
-				selectEl.addEventListener('change', (evt) => {
+				selectEl.addEventListener('change', evt => {
 					Guild.updateMemberPosition(member.AID, member.GID, evt.target.selectedIndex, true);
 				});
 			}
@@ -899,7 +907,7 @@ Guild.addSkill = function addSkill(skill) {
 	// Process data attributes on the levelup button for GUIComponent
 	this.parseHTML.call(levelup);
 
-	Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, data => {
 		const img = tr.querySelector('.icon img');
 		if (img) {
 			img.src = data;
@@ -954,7 +962,7 @@ Guild.updateSkill = function updateSkill(skill) {
 
 	const levelupEl = element.querySelector('.levelup');
 	if (levelupEl) {
-		levelupEl.style.display = (skill.upgradable && _skpoints) ? '' : 'none';
+		levelupEl.style.display = skill.upgradable && _skpoints ? '' : 'none';
 	}
 
 	this.onUpdateSkill(skill.SKID, skill.level);
@@ -1000,7 +1008,7 @@ Guild.setPoints = function setPoints(amount) {
 	for (let i = 0; i < count; ++i) {
 		const levelupEl = root.querySelector(`.skill.id${_skills[i].SKID} .levelup`);
 		if (levelupEl) {
-			levelupEl.style.display = (_skills[i].upgradable && amount) ? '' : 'none';
+			levelupEl.style.display = _skills[i].upgradable && amount ? '' : 'none';
 		}
 	}
 };

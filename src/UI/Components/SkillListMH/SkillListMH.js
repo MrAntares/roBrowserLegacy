@@ -116,7 +116,7 @@ function createSkillListMH(type) {
 
 				const interval = setInterval(resizing, 30);
 
-				const onMouseUp = (_event) => {
+				const onMouseUp = _event => {
 					if (_event.which === 1) {
 						clearInterval(interval);
 						window.removeEventListener('mouseup', onMouseUp);
@@ -250,11 +250,11 @@ function createSkillListMH(type) {
 
 		this.draggable('.titlebar');
 
-		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, (data) => {
+		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, data => {
 			this._rArrow = `url(${data})`;
 		});
 
-		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, (data) => {
+		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, data => {
 			this._lArrow = `url(${data})`;
 		});
 	};
@@ -405,7 +405,7 @@ function createSkillListMH(type) {
 
 		this.parseHTML.call(levelup);
 
-		Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, (data) => {
+		Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, data => {
 			const img = tr.querySelector('.icon img');
 			if (img) {
 				img.src = data;
@@ -460,7 +460,7 @@ function createSkillListMH(type) {
 
 		const levelupEl = element.querySelector('.levelup');
 		if (levelupEl) {
-			levelupEl.style.display = (skill.upgradable && this.points) ? '' : 'none';
+			levelupEl.style.display = skill.upgradable && this.points ? '' : 'none';
 		}
 
 		this.onUpdateSkill(skill.SKID, skill.level);
@@ -505,7 +505,7 @@ function createSkillListMH(type) {
 		for (let i = 0; i < count; ++i) {
 			const levelupEl = root.querySelector(`.skill.id${this.list[i].SKID} .levelup`);
 			if (levelupEl) {
-				levelupEl.style.display = (this.list[i].upgradable && amount) ? '' : 'none';
+				levelupEl.style.display = this.list[i].upgradable && amount ? '' : 'none';
 			}
 		}
 	};
