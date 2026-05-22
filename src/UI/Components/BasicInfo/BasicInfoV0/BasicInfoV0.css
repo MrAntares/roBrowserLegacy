@@ -1,7 +1,12 @@
-#BasicInfoV0 {
-	position: absolute;
+:host {
+	width: 280px;
+	height: 120px;
 	top: 0px;
 	left: 0px;
+}
+
+#BasicInfoV0 {
+	position: absolute;
 	width: 280px;
 	height: 120px;
 	font-size: 11px;
