@@ -1023,32 +1023,32 @@ content.innerHTML = _formatROText(DB.getSkillDescription(id));
 
 ## Quick Reference: What NOT to do
 
-| Don't                                                               | Do instead                                                   | Why                                                                                          |
-| ------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                                 | jQuery sets `display:block`, kills flex/grid                                                 |
-| `$el.closest('body').length`                                        | `el.isConnected`                                             | `.closest()` can't cross shadow boundary                                                     |
-| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`                            | Global queries can't see shadow content                                                      |
-| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`                         | Proxy is for interop only                                                                    |
-| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                             | Proxy is for interop only                                                                    |
-| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`                 | Proxy is for interop only                                                                    |
-| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`                        | Proxy is for interop only                                                                    |
-| Put `top`/`left` on inner element                                   | Put on `:host`                                               | Breaks magnetic snap positioning                                                             |
-| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`                         | Host collapses to 0×0, snap/overflow broken                                                  |
-| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`                            | Event retargeting hides real target                                                          |
-| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()`              | `onAppend()` runs every time — duplicates bindings                                           |
-| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                               | Redundant, may conflict                                                                      |
-| `onKeyDown` without `shadowRoot.activeElement` guard                | Check `(this._shadow \|\| this._host).activeElement.tagName` | `document.activeElement` returns host, not the real input inside shadow                      |
-| `position: absolute` on inner div of dynamic-size component         | `display: block` (no positioning)                            | Creates 0×0 containing block that breaks child positioning (see §4b)                         |
-| `content.textContent = DB.getSkillDescription(id)`                  | `content.innerHTML = _formatROText(...)`                     | jQuery `.text()` is overridden to process `^rrggbb` colors, `^nItemID`, newlines (see §13)   |
-| Convert all callbacks to arrow functions blindly                    | Keep `function()` when caller uses `.call()`/`.apply()`      | Arrow functions ignore dynamic `this` binding (see §9)                                       |
-| CSS `display: none` + `element.style.display = ''` to show          | Use explicit `'block'`/`'none'`, or omit CSS `display: none` | Empty string removes inline style, falls back to CSS `none` (see §10)                        |
-| Assume children inherit only scoped styles from `:host`             | Add `pointer-events: auto` on children if `:host` is `none`  | Inheritable CSS crosses shadow boundary: `pointer-events`, `color`, `cursor`, etc. (see §11) |
-| `jQuery._data(window,'events').unshift(events.pop())`               | `addEventListener(event, handler, true)` (capture phase)     | Native DOM has no queue reordering; capture phase guarantees priority (see §12)              |
-| `return false` from native event handler                            | Explicit `stopImmediatePropagation()` + `preventDefault()`   | Native handler return values are ignored; only jQuery interprets `return false` (see §12)    |
-| Move element to `document.body` without inline styles               | Apply inline styles before `element.remove()` (see §14)     | Elements outside shadow root lose all scoped CSS                                             |
-| Duplicate `width`/`height` on both `:host` and inner element        | Put dimensions on inner element only when content overflows (§15) | Conflicting size constraints create scrollbars in components with complex content         |
-| Check `event.isTrigger` in migrated handler                         | Remove the check entirely (see §16)                          | `isTrigger` is jQuery-only; native DOM events never set this property                        |
-| `element.style.display` to find visible element                     | Also check `getComputedStyle(element).display` (see §17)     | Inline style may be empty while CSS sets `display: none`                                     |
+| Don't                                                               | Do instead                                                        | Why                                                                                          |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `jQuery(element).show()` inside shadow                              | `element.style.display = ''`                                      | jQuery sets `display:block`, kills flex/grid                                                 |
+| `$el.closest('body').length`                                        | `el.isConnected`                                                  | `.closest()` can't cross shadow boundary                                                     |
+| `document.querySelector('.my-shadow-element')`                      | `this._shadow.querySelector(...)`                                 | Global queries can't see shadow content                                                      |
+| `this.ui.find('.foo')`                                              | `this._shadow.querySelector('.foo')`                              | Proxy is for interop only                                                                    |
+| `this.ui.css('top', '100px')`                                       | `this._host.style.top = '100px'`                                  | Proxy is for interop only                                                                    |
+| `this.ui.show()` / `this.ui.hide()`                                 | `this._host.style.display = ''` / `= 'none'`                      | Proxy is for interop only                                                                    |
+| `this.ui.is(':visible')`                                            | `this._host.style.display !== 'none'`                             | Proxy is for interop only                                                                    |
+| Put `top`/`left` on inner element                                   | Put on `:host`                                                    | Breaks magnetic snap positioning                                                             |
+| Omit `:host { width; height }`                                      | Always declare dimensions on `:host`                              | Host collapses to 0×0, snap/overflow broken                                                  |
+| Register click handlers on `document.body` expecting shadow targets | Register inside `this._container`                                 | Event retargeting hides real target                                                          |
+| Bind events in `onAppend()`                                         | Bind in `init()`, restore state in `onAppend()`                   | `onAppend()` runs every time — duplicates bindings                                           |
+| Set `position`/`z-index` on `:host` in CSS                          | Omit — set automatically by JS                                    | Redundant, may conflict                                                                      |
+| `onKeyDown` without `shadowRoot.activeElement` guard                | Check `(this._shadow \|\| this._host).activeElement.tagName`      | `document.activeElement` returns host, not the real input inside shadow                      |
+| `position: absolute` on inner div of dynamic-size component         | `display: block` (no positioning)                                 | Creates 0×0 containing block that breaks child positioning (see §4b)                         |
+| `content.textContent = DB.getSkillDescription(id)`                  | `content.innerHTML = _formatROText(...)`                          | jQuery `.text()` is overridden to process `^rrggbb` colors, `^nItemID`, newlines (see §13)   |
+| Convert all callbacks to arrow functions blindly                    | Keep `function()` when caller uses `.call()`/`.apply()`           | Arrow functions ignore dynamic `this` binding (see §9)                                       |
+| CSS `display: none` + `element.style.display = ''` to show          | Use explicit `'block'`/`'none'`, or omit CSS `display: none`      | Empty string removes inline style, falls back to CSS `none` (see §10)                        |
+| Assume children inherit only scoped styles from `:host`             | Add `pointer-events: auto` on children if `:host` is `none`       | Inheritable CSS crosses shadow boundary: `pointer-events`, `color`, `cursor`, etc. (see §11) |
+| `jQuery._data(window,'events').unshift(events.pop())`               | `addEventListener(event, handler, true)` (capture phase)          | Native DOM has no queue reordering; capture phase guarantees priority (see §12)              |
+| `return false` from native event handler                            | Explicit `stopImmediatePropagation()` + `preventDefault()`        | Native handler return values are ignored; only jQuery interprets `return false` (see §12)    |
+| Move element to `document.body` without inline styles               | Apply inline styles before `element.remove()` (see §14)           | Elements outside shadow root lose all scoped CSS                                             |
+| Duplicate `width`/`height` on both `:host` and inner element        | Put dimensions on inner element only when content overflows (§15) | Conflicting size constraints create scrollbars in components with complex content            |
+| Check `event.isTrigger` in migrated handler                         | Remove the check entirely (see §16)                               | `isTrigger` is jQuery-only; native DOM events never set this property                        |
+| `element.style.display` to find visible element                     | Also check `getComputedStyle(element).display` (see §17)          | Inline style may be empty while CSS sets `display: none`                                     |
 
 ---
 
@@ -1080,6 +1080,7 @@ if (lvlupBtn) {
 ```
 
 **How to detect**: Search for patterns where an element is queried inside the shadow root and later appended to `document.body`, `document.documentElement`, or any element outside the shadow tree. Common indicators:
+
 - `element.remove()` followed by `document.body.appendChild(element)`
 - Elements that need to float above all UI (notification buttons, modal overlays, tooltips anchored to screen position)
 
@@ -1142,7 +1143,7 @@ The inner `#Guild` with its borders and tab content slightly exceeded the host's
 
 ```javascript
 // BEFORE (UIComponent) — jQuery sets isTrigger on programmatic events
-tabButton.addEventListener('click', function(event) {
+tabButton.addEventListener('click', function (event) {
 	if (!event.isTrigger) {
 		// Only run for real clicks, not .trigger('click')
 		requestTabData();
@@ -1151,12 +1152,13 @@ tabButton.addEventListener('click', function(event) {
 
 // AFTER (GUIComponent) — isTrigger is always undefined, guard always passes
 // Remove the guard entirely:
-tabButton.addEventListener('click', (event) => {
+tabButton.addEventListener('click', event => {
 	requestTabData();
 });
 ```
 
 **How to detect**: Search for `isTrigger` in the legacy component code. If found, evaluate whether the guard is needed:
+
 - If the code uses `jQuery.trigger()` to programmatically fire events, consider whether the native equivalent (`dispatchEvent`) needs similar discrimination. If so, use a custom property on the event: `new CustomEvent('click', { detail: { programmatic: true } })`.
 - If the guard was just defensive and the handler works fine without it, remove it.
 
@@ -1170,15 +1172,13 @@ tabButton.addEventListener('click', (event) => {
 
 ```javascript
 // WRONG — misses elements visible via CSS (no inline style set)
-const visible = Array.from(root.querySelectorAll('.content'))
-	.find(el => el.style.display !== 'none');
+const visible = Array.from(root.querySelectorAll('.content')).find(el => el.style.display !== 'none');
 
 // CORRECT — check both inline style AND computed style
-const visible = Array.from(root.querySelectorAll('.content'))
-	.find(el => {
-		const d = el.style.display;
-		return d !== 'none' && getComputedStyle(el).display !== 'none';
-	});
+const visible = Array.from(root.querySelectorAll('.content')).find(el => {
+	const d = el.style.display;
+	return d !== 'none' && getComputedStyle(el).display !== 'none';
+});
 ```
 
 **RULE**: When searching for visible/hidden elements in Shadow DOM, use `getComputedStyle(element).display` as a fallback. Inline `style.display` only reflects explicitly set values, not CSS-declared ones.
