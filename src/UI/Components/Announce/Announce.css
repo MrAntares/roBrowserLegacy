@@ -1,0 +1,12 @@
+:host {
+	top: 40px;
+	left: 0px;
+}
+
+#Announce {
+	position: absolute;
+}
+
+#Announce canvas {
+	display: block;
+}

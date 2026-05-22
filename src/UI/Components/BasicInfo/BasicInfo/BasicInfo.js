@@ -15,7 +15,7 @@ import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Session from 'Engine/SessionStorage.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
@@ -31,7 +31,7 @@ import cssText from './BasicInfo.css?raw';
 /**
  * Create Basic Info component
  */
-const BasicInfo = new UIComponent('BasicInfo', htmlText, cssText);
+const BasicInfo = new GUIComponent('BasicInfo', cssText);
 
 /**
  * Stored data
@@ -42,6 +42,8 @@ BasicInfo.job_exp = 0;
 BasicInfo.job_exp_next = -1;
 BasicInfo.weight = 0;
 BasicInfo.weight_max = 1;
+
+BasicInfo.render = () => htmlText;
 
 /**
  * @let {Preferences} structure
@@ -61,52 +63,59 @@ const _preferences = Preferences.get(
 	1.0
 );
 
+function _getRoot() {
+	return BasicInfo._shadow || BasicInfo._host;
+}
+
 /**
  * Initialize UI
  */
 BasicInfo.init = function init() {
-	// Don't activate drag drop when clicking on buttons
-	this.ui.find('.topbar button').mousedown(function (event) {
-		event.stopImmediatePropagation();
+	const root = _getRoot();
+
+	root.querySelectorAll('.topbar button').forEach(btn => {
+		btn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 	});
 
-	this.ui.find('.topbar .right').click(BasicInfo.toggleMode.bind(this));
-	this.ui.find('.toggle_btns').mousedown(BasicInfo.toggleButtons.bind(this));
+	const rightBtn = root.querySelector('.topbar .right');
+	if (rightBtn) {
+		rightBtn.addEventListener('click', () => BasicInfo.toggleMode());
+	}
 
-	this.ui.find('.buttons button').mousedown(function () {
-		switch (this.className) {
-			case 'item':
-				Inventory.getUI().toggle();
-				break;
+	const toggleBtn = root.querySelector('.toggle_btns');
+	if (toggleBtn) {
+		toggleBtn.addEventListener('mousedown', e => BasicInfo.toggleButtons(e));
+	}
 
-			case 'info':
-				Equipment.getUI().toggle();
-				break;
-
-			case 'skill':
-				SkillList.getUI().toggle();
-				break;
-
-			case 'option':
-				Escape.ui.toggle();
-				break;
-
-			case 'party':
-				PartyFriends.toggle();
-				break;
-
-			case 'guild':
-				Guild.toggle();
-				break;
-
-			case 'map':
-				WorldMap.toggle();
-				break;
-
-			case 'quest':
-				Quest.getUI().toggle();
-				break;
-		}
+	root.querySelectorAll('.buttons button').forEach(btn => {
+		btn.addEventListener('mousedown', () => {
+			switch (btn.className.split(' ')[0]) {
+				case 'item':
+					Inventory.getUI().toggle();
+					break;
+				case 'info':
+					Equipment.getUI().toggle();
+					break;
+				case 'skill':
+					SkillList.getUI().toggle();
+					break;
+				case 'option':
+					Escape.ui.toggle();
+					break;
+				case 'party':
+					PartyFriends.toggle();
+					break;
+				case 'guild':
+					Guild.toggle();
+					break;
+				case 'map':
+					WorldMap.toggle();
+					break;
+				case 'quest':
+					Quest.getUI().toggle();
+					break;
+			}
+		});
 	});
 
 	this.draggable();
@@ -117,29 +126,29 @@ BasicInfo.init = function init() {
  * Execute elements in memory
  */
 BasicInfo.onAppend = function onAppend() {
-	// Apply preferences
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	const root = _getRoot();
+	const hostRect = this._host.getBoundingClientRect();
+
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostRect.width)}px`;
 
 	this.magnet.TOP = _preferences.magnet_top;
 	this.magnet.BOTTOM = _preferences.magnet_bottom;
 	this.magnet.LEFT = _preferences.magnet_left;
 	this.magnet.RIGHT = _preferences.magnet_right;
 
-	// large/small window
-	this.ui.removeClass('small large');
-	if (_preferences.reduce) {
-		this.ui.addClass('small');
-
-		if (_preferences.buttons) {
-			this.ui.find('.buttons').show();
+	const inner = root.querySelector('#basicinfo');
+	if (inner) {
+		inner.classList.remove('small', 'large');
+		if (_preferences.reduce) {
+			inner.classList.add('small');
+			const buttons = root.querySelector('.buttons');
+			if (buttons) {
+				buttons.style.display = _preferences.buttons ? '' : 'none';
+			}
 		} else {
-			this.ui.find('.buttons').hide();
+			inner.classList.add('large');
 		}
-	} else {
-		this.ui.addClass('large');
 	}
 };
 
@@ -147,10 +156,14 @@ BasicInfo.onAppend = function onAppend() {
  * Once remove, save preferences
  */
 BasicInfo.onRemove = function onRemove() {
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.reduce = this.ui.hasClass('small');
-	_preferences.buttons = this.ui.find('.buttons').is(':visible');
+	const root = _getRoot();
+	const inner = root.querySelector('#basicinfo');
+
+	_preferences.x = parseInt(this._host.style.left, 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.reduce = inner ? inner.classList.contains('small') : _preferences.reduce;
+	const buttons = root.querySelector('.buttons');
+	_preferences.buttons = buttons ? buttons.style.display !== 'none' : _preferences.buttons;
 	_preferences.magnet_top = this.magnet.TOP;
 	_preferences.magnet_bottom = this.magnet.BOTTOM;
 	_preferences.magnet_left = this.magnet.LEFT;
@@ -175,54 +188,64 @@ BasicInfo.onShortCut = function onShortCut(key) {
  * Switch window size
  */
 BasicInfo.toggleMode = function toggleMode() {
-	let type;
+	const root = _getRoot();
+	const inner = root.querySelector('#basicinfo');
+	if (!inner) return;
 
-	this.ui.toggleClass('small large');
+	inner.classList.toggle('small');
+	inner.classList.toggle('large');
 
-	if (this.ui.hasClass('large')) {
-		this.ui.find('.buttons').show();
+	if (inner.classList.contains('large')) {
+		const buttons = root.querySelector('.buttons');
+		if (buttons) {
+			buttons.style.display = '';
+		}
 		return;
 	}
 
+	const buttons = root.querySelector('.buttons');
 	if (_preferences.buttons) {
-		this.ui.find('.buttons').show();
-		type = 'off';
+		if (buttons) {
+			buttons.style.display = '';
+		}
 	} else {
-		this.ui.find('.buttons').hide();
-		type = 'on';
+		if (buttons) {
+			buttons.style.display = 'none';
+		}
 	}
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/view' + type + '.bmp',
-		function (url) {
-			this.ui.find('.toggle_btns').css('backgroundImage', 'url(' + url + ')');
-		}.bind(this)
-	);
+	const type = _preferences.buttons ? 'off' : 'on';
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/view${type}.bmp`, url => {
+		const toggleBtn = root.querySelector('.toggle_btns');
+		if (toggleBtn) {
+			toggleBtn.style.backgroundImage = `url(${url})`;
+		}
+	});
 };
 
 /**
  * Toggle the list of buttons
  */
 BasicInfo.toggleButtons = function toggleButtons(event) {
-	let type;
-	const $buttons = this.ui.find('.buttons');
+	const root = _getRoot();
+	const buttons = root.querySelector('.buttons');
+	if (!buttons) return;
 
-	_preferences.buttons = !$buttons.is(':visible');
+	_preferences.buttons = buttons.style.display === 'none';
 
 	if (_preferences.buttons) {
-		$buttons.show();
-		type = 'off';
+		buttons.style.display = '';
 	} else {
-		$buttons.hide();
-		type = 'on';
+		buttons.style.display = 'none';
 	}
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/view' + type + '.bmp',
-		function (url) {
-			this.ui.find('.toggle_btns').css('backgroundImage', 'url(' + url + ')');
-		}.bind(this)
-	);
+	const type = _preferences.buttons ? 'off' : 'on';
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/view${type}.bmp`, url => {
+		const toggleBtn = root.querySelector('.toggle_btns');
+		if (toggleBtn) {
+			toggleBtn.style.backgroundImage = `url(${url})`;
+		}
+	});
 
 	event.stopImmediatePropagation();
 };
@@ -235,100 +258,120 @@ BasicInfo.toggleButtons = function toggleButtons(event) {
  * @param {number} val2 (optional)
  */
 BasicInfo.update = function update(type, val1, val2) {
-	let perc = 100,
-		color = 'blue',
-		list,
-		i,
-		count,
-		str;
+	const root = _getRoot();
+	if (!root) return;
+
+	let perc = 100;
+	let color = 'blue';
+
 	switch (type) {
 		case 'name':
 		case 'blvl':
 		case 'jlvl':
-			this.ui.find('.' + type + '_value').text(val1);
+			root.querySelectorAll(`.${type}_value`).forEach(el => {
+				el.textContent = val1;
+			});
 			break;
 
 		case 'zeny': {
 			Session.zeny = val1;
-
-			list = val1.toString().split('');
-			count = list.length;
-			str = '';
-
-			for (i = 0; i < count; i++) {
+			const list = val1.toString().split('');
+			const count = list.length;
+			let str = '';
+			for (let i = 0; i < count; i++) {
 				str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 			}
-
-			this.ui.find('.' + type + '_value').text(str);
+			root.querySelectorAll(`.${type}_value`).forEach(el => {
+				el.textContent = str;
+			});
 			break;
 		}
 		case 'job':
 			Session.Character.job = val1;
-
-			this.ui.find('.job_value').text(MonsterTable[val1]);
+			root.querySelectorAll('.job_value').forEach(el => {
+				el.textContent = MonsterTable[val1];
+			});
 			break;
 
 		case 'bexp':
-		case 'jexp':
+		case 'jexp': {
+			const expEl = root.querySelector(`.${type}`);
 			if (!val2) {
-				this.ui.find('.' + type).hide();
+				if (expEl) {
+					expEl.style.display = 'none';
+				}
 				break;
 			}
-
-			this.ui.find('.' + type).show();
-			this.ui.find('.' + type + ' div').css('width', Math.min(100, Math.floor((val1 * 100) / val2)) + '%');
-			this.ui.find('.' + type).attr('title', ((val1 / val2) * 100).toFixed(1) + '%');
-			this.ui
-				.find('.' + type + '_value')
-				.text(Math.min(100, (Math.floor((val1 * 1000) / val2) * 0.1).toFixed(1)) + '%');
+			if (expEl) {
+				expEl.style.display = '';
+				const bar = expEl.querySelector('div');
+				if (bar) {
+					bar.style.width = `${Math.min(100, Math.floor((val1 * 100) / val2))}%`;
+				}
+				expEl.title = `${((val1 / val2) * 100).toFixed(1)}%`;
+			}
+			root.querySelectorAll(`.${type}_value`).forEach(el => {
+				el.textContent = `${Math.min(100, (Math.floor((val1 * 1000) / val2) * 0.1).toFixed(1))}%`;
+			});
 			break;
+		}
 
 		case 'weight':
-			this.ui.find('.weight_value').text((val1 / 10) | 0);
-			this.ui.find('.weight_total').text((val2 / 10) | 0);
-			this.ui.find('.weight').css('color', val1 < val2 / 2 ? '' : 'red');
-			this.ui.find('.weight').attr('title', ((val1 / val2) * 100).toFixed(1) + '%');
+			root.querySelectorAll('.weight_value').forEach(el => {
+				el.textContent = (val1 / 10) | 0;
+			});
+			root.querySelectorAll('.weight_total').forEach(el => {
+				el.textContent = (val2 / 10) | 0;
+			});
+			root.querySelectorAll('.weight').forEach(el => {
+				el.style.color = val1 < val2 / 2 ? '' : 'red';
+				el.title = `${((val1 / val2) * 100).toFixed(1)}%`;
+			});
 			break;
 
 		case 'hp':
 		case 'sp': {
 			perc = Math.floor((val1 * 100) / val2);
 			color = perc < 25 ? 'red' : 'blue';
-			this.ui.find('.' + type + '_value').text(val1);
-			this.ui.find('.' + type + '_max_value').text(val2);
-			this.ui.find('.' + type + '_perc').text(perc + '%');
+			root.querySelectorAll(`.${type}_value`).forEach(el => {
+				el.textContent = val1;
+			});
+			root.querySelectorAll(`.${type}_max_value`).forEach(el => {
+				el.textContent = val2;
+			});
+			root.querySelectorAll(`.${type}_perc`).forEach(el => {
+				el.textContent = `${perc}%`;
+			});
 
 			if (perc <= 0) {
-				this.ui.find('.' + type + '_bar div').css('backgroundImage', 'none');
+				root.querySelectorAll(`.${type}_bar div`).forEach(el => {
+					el.style.backgroundImage = 'none';
+				});
 				break;
 			}
 
-			Client.loadFile(
-				DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp',
-				function (url) {
-					this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
-				}.bind(this)
-			);
+			Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/gze${color}_left.bmp`, url => {
+				const el = root.querySelector(`.${type}_bar_left`);
+				if (el) {
+					el.style.backgroundImage = `url(${url})`;
+				}
+			});
 
-			Client.loadFile(
-				DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp',
-				function (url) {
-					this.ui.find('.' + type + '_bar_middle').css({
-						backgroundImage: 'url(' + url + ')',
-						width: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
-					});
-				}.bind(this)
-			);
+			Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/gze${color}_mid.bmp`, url => {
+				const el = root.querySelector(`.${type}_bar_middle`);
+				if (el) {
+					el.style.backgroundImage = `url(${url})`;
+					el.style.width = `${Math.floor(Math.min(perc, 100) * 1.27)}px`;
+				}
+			});
 
-			Client.loadFile(
-				DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp',
-				function (url) {
-					this.ui.find('.' + type + '_bar_right').css({
-						backgroundImage: 'url(' + url + ')',
-						left: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
-					});
-				}.bind(this)
-			);
+			Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/gze${color}_right.bmp`, url => {
+				const el = root.querySelector(`.${type}_bar_right`);
+				if (el) {
+					el.style.backgroundImage = `url(${url})`;
+					el.style.left = `${Math.floor(Math.min(perc, 100) * 1.27)}px`;
+				}
+			});
 			break;
 		}
 	}

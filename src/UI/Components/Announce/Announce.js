@@ -8,21 +8,22 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import Events from 'Core/Events.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import htmlText from './Announce.html?raw';
+import cssText from './Announce.css?raw';
 
 /**
  * Create Announce component
  */
-const Announce = new UIComponent('Announce');
+const Announce = new GUIComponent('Announce', cssText);
 
 /**
  * Mouse can cross this UI
  */
-Announce.mouseMode = UIComponent.MouseMode.CROSS;
+Announce.mouseMode = GUIComponent.MouseMode.CROSS;
 
 /**
  * @var {boolean} do not focus this UI
@@ -39,22 +40,20 @@ let _timer = 0;
  */
 const _life = 20 * 1000;
 
+Announce.render = () => htmlText;
+
+function _getRoot() {
+	return Announce._shadow || Announce._host;
+}
+
 /**
  * Initialize component
  */
 Announce.init = function init() {
-	this.canvas = document.createElement('canvas');
+	const root = _getRoot();
+	this.canvas = root.querySelector('canvas');
 	this.ctx = this.canvas.getContext('2d');
-
-	// this.ui needs to be jQuery because of the UIComponent base
-	this.ui = jQuery(this.canvas);
-
-	this.canvas.id = 'Announce';
-	Object.assign(this.canvas.style, {
-		position: 'absolute',
-		top: '40px',
-		zIndex: '40'
-	});
+	this._host.style.display = 'none';
 };
 
 /**
@@ -64,9 +63,6 @@ Announce.onRemove = function onRemove() {
 	if (_timer) {
 		Events.clearTimeout(_timer);
 		_timer = 0;
-	}
-	if (this.canvas.parentNode) {
-		this.canvas.parentNode.removeChild(this.canvas);
 	}
 };
 
@@ -90,8 +86,11 @@ Announce.set = function set(text, color, options = {}) {
 	const life = opts.life || _life;
 
 	let targetWidth = null;
-	if (opts.width === '100%') targetWidth = Renderer.width;
-	else if (opts.width) targetWidth = opts.width;
+	if (opts.width === '100%') {
+		targetWidth = Renderer.width;
+	} else if (opts.width) {
+		targetWidth = opts.width;
+	}
 
 	const maxWidth = targetWidth ? targetWidth - 20 : 500;
 	const lines = [];
@@ -99,16 +98,15 @@ Announce.set = function set(text, color, options = {}) {
 	this.ctx.font = `${fontSize}px Arial`;
 
 	if (allowNewlines) {
-		// Process '\n' explicitly as a new line
 		text.split('\n').forEach(line => {
 			const words = line.split(' ');
 			let currentLine = '';
 
 			words.forEach(word => {
-				const testLine = currentLine + word + ' ';
+				const testLine = `${currentLine}${word} `;
 				if (this.ctx.measureText(testLine).width > maxWidth) {
 					lines.push(currentLine.trim());
-					currentLine = word + ' ';
+					currentLine = `${word} `;
 				} else {
 					currentLine = testLine;
 				}
@@ -119,13 +117,12 @@ Announce.set = function set(text, color, options = {}) {
 			}
 		});
 	} else {
-		// Ignore '\n' and wrap text as a single block
 		let currentLine = '';
 		text.split(' ').forEach(word => {
-			const testLine = currentLine + word + ' ';
+			const testLine = `${currentLine}${word} `;
 			if (this.ctx.measureText(testLine).width > maxWidth) {
 				lines.push(currentLine.trim());
-				currentLine = word + ' ';
+				currentLine = `${word} `;
 			} else {
 				currentLine = testLine;
 			}
@@ -136,26 +133,22 @@ Announce.set = function set(text, color, options = {}) {
 		}
 	}
 
-	// Get new canvas size
 	this.canvas.width = targetWidth || 20 + Math.max(...lines.map(line => this.ctx.measureText(line).width));
 	this.canvas.height = opts.height || 10 + (fontSize + 5) * lines.length;
 
 	if (opts.width === '100%') {
-		this.canvas.style.left = '0px';
+		this._host.style.left = '0px';
 	} else {
-		this.canvas.style.left = `${(Renderer.width - this.canvas.width) >> 1}px`;
+		this._host.style.left = `${(Renderer.width - this.canvas.width) >> 1}px`;
 	}
 
-	// Updating canvas size resets font value
-	this.ctx.font = fontSize + 'px Arial';
+	this.ctx.font = `${fontSize}px Arial`;
 
-	// Display background
 	if (!opts.noBackground) {
 		this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-	// Display text
 	this.ctx.fillStyle = color || '#FFFF00';
 
 	if (targetWidth || opts.height) {
@@ -173,7 +166,6 @@ Announce.set = function set(text, color, options = {}) {
 		});
 	}
 
-	// Start timer
 	if (_timer) {
 		Events.clearTimeout(_timer);
 	}
