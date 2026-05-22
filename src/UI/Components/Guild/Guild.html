@@ -1,68 +1,68 @@
 <div id="Guild">
-	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+	<div class="titlebar">
+		<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 		<div class="right">
-			<button
+			<ui-button
 				class="base close"
-				data-background="basic_interface/sys_close_off.bmp"
-				data-hover="basic_interface/sys_close_on.bmp"
-			></button>
+				bg="basic_interface/sys_close_off.bmp"
+				hover="basic_interface/sys_close_on.bmp"
+			></ui-button>
 		</div>
 		<div class="clear"></div>
 	</div>
 
 	<div class="tabs">
 		<!--
-		--><button data-flag="0" class="info" data-text="340">Guild Info</button
+		--><button data-flag="0" class="info"><ui-text msg="340">Guild Info</ui-text></button
 		><!--
-		--><button data-flag="1" class="members" data-text="341">Guildsmen Info</button
+		--><button data-flag="1" class="members"><ui-text msg="341">Guildsmen Info</ui-text></button
 		><!--
-		--><button data-flag="2" class="positions" data-text="342">Position</button
+		--><button data-flag="2" class="positions"><ui-text msg="342">Position</ui-text></button
 		><!--
-		--><button data-flag="3" class="skills" data-text="343">Guild Skill</button
+		--><button data-flag="3" class="skills"><ui-text msg="343">Guild Skill</ui-text></button
 		><!--
-		--><button data-flag="4" class="history" data-text="344">Expel History</button
+		--><button data-flag="4" class="history"><ui-text msg="344">Expel History</ui-text></button
 		><!--
-		--><button data-flag="6" class="notice" data-text="345">Guild Notice</button>
+		--><button data-flag="6" class="notice"><ui-text msg="345">Guild Notice</ui-text></button>
 	</div>
 
 	<div class="panel">
 		<!-- INFO TAB -->
 		<div class="content info">
-			<div class="name"><span data-text="328">Guild Name</span> : <span class="value"></span></div>
-			<div class="level"><span data-text="329">Guild lvl</span> : <span class="value"></span></div>
-			<div class="master"><span data-text="330">Guild Master</span> : <span class="value"></span></div>
+			<div class="name"><ui-text msg="328">Guild Name</ui-text> : <span class="value"></span></div>
+			<div class="level"><ui-text msg="329">Guild lvl</ui-text> : <span class="value"></span></div>
+			<div class="master"><ui-text msg="330">Guild Master</ui-text> : <span class="value"></span></div>
 			<div class="members">
-				<span data-text="331">Guildsmen</span> : <span class="numMember">0</span> /
-				<span class="maxMember">0</span> <button data-background="basic_interface/grp_online.bmp"></button>
+				<ui-text msg="331">Guildsmen</ui-text> : <span class="numMember">0</span> /
+				<span class="maxMember">0</span> <ui-button bg="basic_interface/grp_online.bmp"></ui-button>
 				<span class="online"></span>
 			</div>
-			<div class="avglevel"><span data-text="332">Avg.lvl of Guildsmen</span> : <span class="value"></span></div>
-			<div class="territory"><span data-text="333">Territory</span> : <span class="value"></span></div>
+			<div class="avglevel"><ui-text msg="332">Avg.lvl of Guildsmen</ui-text> : <span class="value"></span></div>
+			<div class="territory"><ui-text msg="333">Territory</ui-text> : <span class="value"></span></div>
 			<div class="tendency">
-				<div class="title" data-text="334">Tendency : <span class="value"></span></div>
+				<div class="title"><ui-text msg="334">Tendency</ui-text> : <span class="value"></span></div>
 				<div class="righteous">R</div>
 				<div class="wiked">W</div>
 				<div class="vulgar">V</div>
 				<div class="famed">F</div>
 				<canvas width="90" height="90"></canvas>
 			</div>
-			<!-- TODO graphic -->
-			<div class="exp"><span data-text="335">EXP</span> : <span class="value"></span></div>
-			<div class="emblem" data-text="336">Emblem</div>
+			<div class="exp"><ui-text msg="335">EXP</ui-text> : <span class="value"></span></div>
+			<div class="emblem"><ui-text msg="336">Emblem</ui-text></div>
 			<div class="emblem_container"></div>
-			<button
+			<ui-button
 				class="emblem_edit"
-				data-background="btn_edit.bmp"
-				data-hover="btn_edit_a.bmp"
-				data-down="btn_edit_b.bmp"
+				bg="btn_edit.bmp"
+				hover="btn_edit_a.bmp"
+				down="btn_edit_b.bmp"
 			>
 				<input type="file" />
-			</button>
+			</ui-button>
 
-			<div class="tax"><span data-text="337">Tax Point</span> : <span class="value">0</span></div>
-			<div class="ally" data-text="338">Alliance</div>
+			<div class="tax"><ui-text msg="337">Tax Point</ui-text> : <span class="value">0</span></div>
+			<div class="ally"><ui-text msg="338">Alliance</ui-text></div>
 			<div class="ally_list"></div>
-			<div class="hostile" data-text="339">Antagonist</div>
+			<div class="hostile"><ui-text msg="339">Antagonist</ui-text></div>
 			<div class="hostile_list"></div>
 		</div>
 
@@ -71,13 +71,13 @@
 			<table>
 				<thead>
 					<tr>
-						<th data-text="407" class="name">Name</th>
-						<th data-text="503" class="position">Position</th>
-						<th data-text="504" class="job">Job</th>
-						<th data-text="408" class="level">Level</th>
-						<th data-text="505" class="note">Note</th>
-						<th data-text="506" class="devotion">Devotion</th>
-						<th data-text="507" class="tax">Tax Point</th>
+						<th class="name"><ui-text msg="407">Name</ui-text></th>
+						<th class="position"><ui-text msg="503">Position</ui-text></th>
+						<th class="job"><ui-text msg="504">Job</ui-text></th>
+						<th class="level"><ui-text msg="408">Level</ui-text></th>
+						<th class="note"><ui-text msg="505">Note</ui-text></th>
+						<th class="devotion"><ui-text msg="506">Devotion</ui-text></th>
+						<th class="tax"><ui-text msg="507">Tax Point</ui-text></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -102,11 +102,11 @@
 			<table>
 				<thead>
 					<tr>
-						<th data-text="510" class="id">Rank</th>
-						<th data-text="511" class="title">Position Title</th>
-						<th data-text="512" class="invite">Invitation</th>
-						<th data-text="513" class="punish">Punish</th>
-						<th data-text="514" class="tax">Tax</th>
+						<th class="id"><ui-text msg="510">Rank</ui-text></th>
+						<th class="title"><ui-text msg="511">Position Title</ui-text></th>
+						<th class="invite"><ui-text msg="512">Invitation</ui-text></th>
+						<th class="punish"><ui-text msg="513">Punish</ui-text></th>
+						<th class="tax"><ui-text msg="514">Tax</ui-text></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -116,10 +116,10 @@
 							<input type="text" value="" />
 						</td>
 						<td class="invite">
-							<button data-background="checkbox_0.bmp" class="off"></button>
+							<ui-button bg="checkbox_0.bmp" class="off"></ui-button>
 						</td>
 						<td class="punish">
-							<button data-background="checkbox_0.bmp" class="off"></button>
+							<ui-button bg="checkbox_0.bmp" class="off"></ui-button>
 						</td>
 						<td class="tax"><input type="text" value="0" /> %</td>
 					</tr>
@@ -132,29 +132,30 @@
 			<div class="skill_list">
 				<table>
 					<!-- Just to get reference, will be removed -->
-					<button
+					<ui-button
 						class="btn levelup"
-						data-background="basic_interface/skill_up_a.bmp"
-						data-hover="basic_interface/skill_up_b.bmp"
-						data-down="basic_interface/skill_up_c.bmp"
-					></button>
+						bg="basic_interface/skill_up_a.bmp"
+						hover="basic_interface/skill_up_b.bmp"
+						down="basic_interface/skill_up_c.bmp"
+					></ui-button>
 				</table>
 			</div>
 
-			<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
+			<div class="footer">
+				<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
 				<div class="text">Skill Points: <span class="skpoints_count">0</span></div>
-				<button
+				<ui-button
 					class="btn apply"
-					data-background="btn_apply.bmp"
-					data-hover="btn_apply_a.bmp"
-					data-down="btn_apply_b.bmp"
-				></button>
-				<button
+					bg="btn_apply.bmp"
+					hover="btn_apply_a.bmp"
+					down="btn_apply_b.bmp"
+				></ui-button>
+				<ui-button
 					class="btn reset"
-					data-background="btn_reset.bmp"
-					data-hover="btn_reset_a.bmp"
-					data-down="btn_reset_b.bmp"
-				></button>
+					bg="btn_reset.bmp"
+					hover="btn_reset_a.bmp"
+					down="btn_reset_b.bmp"
+				></ui-button>
 			</div>
 		</div>
 
@@ -163,8 +164,8 @@
 			<table>
 				<thead>
 					<tr>
-						<th data-text="407" class="name">Name</th>
-						<th data-text="462" class="reason">The Reason of Expulsion</th>
+						<th class="name"><ui-text msg="407">Name</ui-text></th>
+						<th class="reason"><ui-text msg="462">The Reason of Expulsion</ui-text></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -178,15 +179,16 @@
 
 		<!-- NOTICE TAB -->
 		<div class="content notice">
-			<div data-text="515" class="subjectTitle">Title</div>
+			<div class="subjectTitle"><ui-text msg="515">Title</ui-text></div>
 			<input type="text" class="subject" />
 
-			<div data-text="516" class="noticeTitle">Contents</div>
+			<div class="noticeTitle"><ui-text msg="516">Contents</ui-text></div>
 			<textarea class="notice"></textarea>
 		</div>
 	</div>
 
-	<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
-		<button class="btn_ok" data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp"></button>
+	<div class="footer">
+		<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
+		<ui-button class="btn_ok" bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp"></ui-button>
 	</div>
 </div>
