@@ -1048,6 +1048,7 @@ content.innerHTML = _formatROText(DB.getSkillDescription(id));
 | Move element to `document.body` without inline styles               | Apply inline styles before `element.remove()` (see §14)           | Elements outside shadow root lose all scoped CSS                                             |
 | Duplicate `width`/`height` on both `:host` and inner element        | Put dimensions on inner element only when content overflows (§15) | Conflicting size constraints create scrollbars in components with complex content            |
 | Check `event.isTrigger` in migrated handler                         | Remove the check entirely (see §16)                               | `isTrigger` is jQuery-only; native DOM events never set this property                        |
+| Inner element without explicit height when host uses `overflow: hidden` | Add `height: 100%` to inner element                              | `bottom`-anchored children (resize handles, footers) position relative to inner element, not clipped host (see §18) |
 | `element.style.display` to find visible element                     | Also check `getComputedStyle(element).display` (see §17)          | Inline style may be empty while CSS sets `display: none`                                     |
 
 ---
@@ -1183,6 +1184,40 @@ const visible = Array.from(root.querySelectorAll('.content')).find(el => {
 
 **RULE**: When searching for visible/hidden elements in Shadow DOM, use `getComputedStyle(element).display` as a fallback. Inline `style.display` only reflects explicitly set values, not CSS-declared ones.
 
+### 18. Inner element without `height: 100%` breaks `bottom`-anchored children when host clips with `overflow: hidden`
+
+**Bug**: In UIComponent, the root element (e.g., `#ShortCut`) had its height set directly via `this.ui.css('height', ...)`. Children using `position: absolute; bottom: 1px` were positioned relative to that same element's bottom. In GUIComponent, the host controls height via `this._host.style.height`, and `overflow: hidden` on `:host` clips content. But the inner element (e.g., `#ShortCut`) has no height constraint — it expands to fit all its children. A child anchored with `bottom: 1px` is positioned relative to the inner element's full height, not the host's clipped height, so it appears only when all content is visible.
+
+**Example**: ShortCut's resize handle uses `position: absolute; bottom: 1px; right: 1px` inside `#ShortCut`. The host height is set dynamically (e.g., `34px` for 1 row, `136px` for all 4). Without a height constraint on `#ShortCut`, the resize handle sits at the bottom of all 4 rows (~136px), invisible when the host clips to 1–3 rows.
+
+```css
+/* BROKEN — resize button invisible when fewer than 4 rows shown */
+:host {
+	width: 280px;
+	overflow: hidden;  /* clips to host height */
+}
+#ShortCut {
+	position: absolute;
+	width: 280px;
+	/* no height — expands to all 4 rows */
+}
+
+/* FIXED — inner element tracks host height */
+:host {
+	width: 280px;
+	overflow: hidden;
+}
+#ShortCut {
+	position: absolute;
+	width: 280px;
+	height: 100%;  /* matches host height, bottom-anchored children stay visible */
+}
+```
+
+**How to detect**: Search for children with `bottom: Npx` (resize handles, footers, status bars) inside the inner element. If the host uses `overflow: hidden` for dynamic height clipping, the inner element needs `height: 100%` to keep those children in view.
+
+**RULE**: When `:host` uses `overflow: hidden` to clip content and the inner element contains `bottom`-anchored children, add `height: 100%` to the inner element so it tracks the host's dynamic height.
+
 ---
 
 ## Reference: Guild Component (tabbed window, 6 content sections)
@@ -1285,5 +1320,55 @@ const visible = Array.from(root.querySelectorAll('.content')).find(el => {
 	position: absolute;
 	border-radius: 5px;
 	background: white;
+}
+```
+
+---
+
+## Reference: ShortCut / ShortCuts Components (hotkey bar + macro panel)
+
+### Files
+
+- `src/UI/Components/ShortCut/ShortCut.js` — Hotkey bar component (~680 lines, 4×9 slots for skills/items)
+- `src/UI/Components/ShortCut/ShortCut.html` — 4 rows of 9 slot containers with `data-background` styling
+- `src/UI/Components/ShortCut/ShortCut.css` — `:host` with `overflow: hidden` for dynamic row clipping, `#ShortCut` with `height: 100%`
+- `src/UI/Components/ShortCuts/ShortCuts.js` — Macro panel component (~460 lines, 10 text inputs + emoticons)
+- `src/UI/Components/ShortCuts/ShortCuts.html` — Titlebar, macro inputs, emoticons button with `data-background`/`data-hover`
+- `src/UI/Components/ShortCuts/ShortCuts.css` — `:host` with position only (no dimensions — see §15)
+
+### Key Patterns
+
+- **Dynamic height clipping with `overflow: hidden`**: ShortCut shows 1–4 rows controlled by `this._host.style.height`. The `:host` uses `overflow: hidden` to clip rows; inner `#ShortCut` uses `height: 100%` to keep the resize handle visible (see §18).
+- **Event delegation in Shadow DOM**: Delegated handlers use `e.target.closest('.icon')` and `e.target.closest('.container')` instead of jQuery's `.on(selector, handler)` pattern.
+- **Native drag-and-drop**: Uses `event.dataTransfer` directly (not `event.originalEvent.dataTransfer` as in jQuery). `dragover` must call `preventDefault()` to allow drops.
+- **`captureKeyEvents` for text inputs**: ShortCuts sets `captureKeyEvents = true` and implements `onKeyDown` to guard against global shortcut handlers stealing keystrokes from macro text inputs (see §8).
+- **Tooltip inside Shadow DOM**: ShortCut's tooltip uses `position: fixed` inside the shadow tree. Since `position: fixed` positions relative to the viewport (not the `overflow: hidden` host), the tooltip is not clipped.
+- **No dimensions on `:host` for ShortCuts**: Macro panel has static dimensions on `#ShortCuts` only, avoiding scrollbar conflicts (see §15).
+
+### CSS Patterns
+
+```css
+/* ShortCut — dynamic-height with overflow clipping */
+:host {
+	width: 280px;
+	top: 0px;
+	left: 480px;
+	overflow: hidden;
+}
+#ShortCut {
+	position: absolute;
+	width: 280px;
+	height: 100%;
+}
+
+/* ShortCuts — position only on :host */
+:host {
+	top: 172px;
+	left: 0px;
+}
+#ShortCuts {
+	position: absolute;
+	width: 380px;
+	height: 270px;
 }
 ```
