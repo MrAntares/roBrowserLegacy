@@ -1,6 +1,12 @@
+:host {
+	width: 280px;
+	top: 0px;
+	left: 480px;
+	overflow: hidden;
+}
+
 #ShortCut {
 	position: absolute;
-	overflow: hidden;
 	width: 280px;
 	background-repeat: repeat-y;
 }
