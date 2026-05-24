@@ -154,6 +154,7 @@ Viewer.init = function init() {
  */
 Viewer.onAppend = function onAppend() {
 	document.body.style.backgroundColor = 'white';
+	document.body.style.margin = '0';
 	document.body.style.overflow = 'auto';
 	moveToDirectory('/', true);
 };
