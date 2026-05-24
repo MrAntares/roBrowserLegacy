@@ -1,93 +1,126 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>roBrowserLegacy</title>
-        <style>
-            html, body { margin: 0; padding: 0; border: 0; height: 100%; width: 100%; overflow: hidden; }
-            #ro-preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; background: rgba(6, 8, 16, 0.97); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px; }
-            .pre-spinner { width: 48px; height: 48px; border: 4px solid rgba(232, 184, 75, 0.2); border-top-color: #e8b84b; border-radius: 50%; animation: ro-spin 0.8s linear infinite; }
-            @keyframes ro-spin { to { transform: rotate(360deg); } }
-            .pre-text { font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 3px; text-transform: uppercase; color: #e8b84b; display: flex; gap: 2px; }
-            .pre-text span { animation: ro-wave 1.2s ease-in-out infinite; animation-delay: calc(var(--i) * 0.08s); }
-            @keyframes ro-wave { 0%, 100% { opacity: 0.4; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
-        </style>
-
-        <script type="importmap">
-{    
-            "imports": {    
-                "jquery": "./src/Vendors/jquery-1.9.1.js",    
-                "bson": "./node_modules/bson/lib/bson.mjs",    
-                "lodash": "./node_modules/lodash-es/lodash.default.js",    
-                "src/": "./src/",    
-                "App/": "./src/App/",    
-                "Audio/": "./src/Audio/",    
-                "Controls/": "./src/Controls/",    
-                "Core/": "./src/Core/",    
-                "DB/": "./src/DB/",    
-                "Engine/": "./src/Engine/",    
-                "Loaders/": "./src/Loaders/",    
-                "Network/": "./src/Network/",    
-                "Plugins/": "./src/Plugins/",    
-                "Preferences/": "./src/Preferences/",    
-                "Renderer/": "./src/Renderer/",    
-                "UI/": "./src/UI/",    
-                "Utils/": "./src/Utils/",    
-                "Vendors/": "./src/Vendors/"    
+<!DOCTYPE html>    
+<html>    
+    <head>    
+        <meta charset="UTF-8">    
+        <title>roBrowserLegacy</title>    
+        <style>    
+            html, body {    
+                margin: 0; padding: 0; border: 0;    
+                height: 100%; width: 100%; overflow: hidden;    
             }    
-        }
-        </script>
-    </head>
-    <body>
-        <div id="ro-preloader">
-            <div class="pre-spinner"></div>
-            <p class="pre-text">
-                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>
-            </p>
-        </div>
-
-        <script src="Config.js"></script>
-        <script>
-            (function() {
-                var script = document.createElement('script');
-                script.src = 'Config.local.js';
-                script.onerror = function() { console.log('Config.local.js not found, using defaults from Config.js'); };
-                document.head.appendChild(script);
-            })();
-        </script>
-        <script>
-            function deepMerge(target, source) {
-                for (var key in source) {
-                    if (source.hasOwnProperty(key)) {
-                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-                            target[key] = deepMerge(target[key] || {}, source[key]);
-                        } else { target[key] = source[key]; }
-                    }
-                }
-                return target;
-            }
-
-            var COMPILED_APPS = { ONLINE: './Online.js' };
-            var SOURCE_APPS = {
-                MAPVIEWER: 'App/MapViewer.js',
-                GRFVIEWER: 'App/GrfViewer.js',
-                MODELVIEWER: 'App/ModelViewer.js',
-                STRVIEWER: 'App/StrViewer.js',
-                GRANNYMODELVIEWER: 'App/GrannyModelViewer.js',
-                EFFECTVIEWER: 'App/EffectViewer.js' };
-
-            window.addEventListener('load', function() {
-                var params = new URLSearchParams(window.location.search);
-                var appName = params.get('app') || 'ONLINE';
-                var config = deepMerge({}, window.ROConfigBase || {});
-                if (window.ROConfigLocal) { config = deepMerge(config, window.ROConfigLocal); }
-                window.ROConfig = config;
-                var scriptPath = COMPILED_APPS[appName] || SOURCE_APPS[appName];
-                if (!scriptPath) { console.error('Unknown app:', appName); return; }
-                import(scriptPath).then(function(mod) {
-                    if (typeof mod.default === 'function') { mod.default(); }
-                }).catch(function(err) { console.error('Failed to load app:', scriptPath, err); });
-            });
-        </script>
-    </body>
-</html>
+            #ro-preloader {    
+                position: fixed;    
+                top: 0; left: 0;    
+                width: 100%; height: 100%;    
+                z-index: 99999;    
+                background: rgba(6, 8, 16, 0.97);    
+                display: flex;    
+                align-items: center;    
+                justify-content: center;    
+                flex-direction: column;    
+                gap: 18px;    
+            }    
+            .pre-spinner {    
+                width: 48px; height: 48px;    
+                border: 4px solid rgba(232, 184, 75, 0.2);    
+                border-top-color: #e8b84b;    
+                border-radius: 50%;    
+                animation: ro-spin 0.8s linear infinite;    
+            }    
+            @keyframes ro-spin {    
+                to { transform: rotate(360deg); }    
+            }    
+            .pre-text {    
+                font-family: 'Cinzel', serif;    
+                font-size: 16px;    
+                letter-spacing: 3px;    
+                text-transform: uppercase;    
+                color: #e8b84b;    
+                display: flex;    
+                gap: 2px;    
+            }    
+            .pre-text span {    
+                animation: ro-wave 1.2s ease-in-out infinite;    
+                animation-delay: calc(var(--i) * 0.08s);    
+            }    
+            @keyframes ro-wave {    
+                0%, 100% { opacity: 0.4; transform: translateY(0); }    
+                50% { opacity: 1; transform: translateY(-4px); }    
+            }    
+        </style>    
+        <script src="api.js"></script>    
+    </head>    
+    <body>    
+        <div id="ro-preloader">    
+            <div class="pre-spinner"></div>    
+            <p class="pre-text">    
+                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>    
+            </p>    
+        </div>    
+    
+        <script src="Config.js"></script>    
+        <script>    
+            (function() {    
+                var script = document.createElement('script');    
+                script.src = 'Config.local.js';    
+                script.onerror = function() {    
+                    console.log('Config.local.js not found, using defaults from Config.js');    
+                };    
+                document.head.appendChild(script);    
+            })();    
+        </script>    
+        <script>    
+            function deepMerge(target, source) {    
+                for (var key in source) {    
+                    if (source.hasOwnProperty(key)) {    
+                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {    
+                            target[key] = deepMerge(target[key] || {}, source[key]);    
+                        } else {    
+                            target[key] = source[key];    
+                        }    
+                    }    
+                }    
+                return target;    
+            }    
+    
+            var APP_SCRIPTS = {    
+                ONLINE: 'Online.js',    
+                MAPVIEWER: 'MapViewer.js',    
+                GRFVIEWER: 'GrfViewer.js',    
+                MODELVIEWER: 'ModelViewer.js',    
+                STRVIEWER: 'StrViewer.js',    
+                GRANNYMODELVIEWER: 'GrannyModelViewer.js',    
+                EFFECTVIEWER: 'EffectViewer.js'    
+            };    
+            var APP_IDS = { 1: 'ONLINE', 2: 'MAPVIEWER', 3: 'GRFVIEWER', 4: 'MODELVIEWER', 5: 'STRVIEWER', 6: 'GRANNYMODELVIEWER', 7: 'EFFECTVIEWER' };    
+    
+            function loadApp(appName, extraConfig) {    
+                var scriptFile = APP_SCRIPTS[appName] || 'Online.js';    
+                var config = deepMerge({}, window.ROConfigBase || {});    
+                if (window.ROConfigLocal) { config = deepMerge(config, window.ROConfigLocal); }    
+                if (extraConfig) { config = deepMerge(config, extraConfig); }    
+                window.ROConfig = config;    
+                import('./' + scriptFile).then(function(mod) {    
+                    if (typeof mod.default === 'function') { mod.default(); }    
+                }).catch(function(err) { console.error('Failed to load app:', scriptFile, err); });    
+            }    
+    
+            window.addEventListener('load', function() {    
+                var params = new URLSearchParams(window.location.search);    
+                var appName = params.get('app');    
+                if (appName) {    
+                    loadApp(appName, null);    
+                } else {    
+                    window.addEventListener('message', function onMsg(event) {    
+                        if (!event.data || typeof event.data !== 'object') return;    
+                        if (!event.data.application) return;    
+                        window.removeEventListener('message', onMsg, false);    
+                        var name = APP_IDS[event.data.application] || 'ONLINE';    
+                        loadApp(name, event.data);    
+                        if (event.source) { event.source.postMessage('ready', '*'); }    
+                    }, false);    
+                }    
+            });    
+        </script>    
+    </body>    
+</html>    
