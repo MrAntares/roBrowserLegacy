@@ -28,27 +28,27 @@ async function launch(config) {
 			break;
 
 		case APP.MAPVIEWER:
-			await import('App/MapViewer.js').then(mod => mod.default());
+			await import('App/MapViewer.js');
 			break;
 
 		case APP.GRFVIEWER:
-			await import('App/GrfViewer.js').then(mod => mod.default());
+			await import('App/GrfViewer.js');
 			break;
 
 		case APP.MODELVIEWER:
-			await import('App/ModelViewer.js').then(mod => mod.default());
+			await import('App/ModelViewer.js');
 			break;
 
 		case APP.STRVIEWER:
-			await import('App/StrViewer.js').then(mod => mod.default());
+			await import('App/StrViewer.js');
 			break;
 
 		case APP.GRANNYMODELVIEWER:
-			await import('App/GrannyModelViewer.js').then(mod => mod.default());
+			await import('App/GrannyModelViewer.js');
 			break;
 
 		case APP.EFFECTVIEWER:
-			await import('App/EffectViewer.js').then(mod => mod.default());
+			await import('App/EffectViewer.js');
 			break;
 
 		default:

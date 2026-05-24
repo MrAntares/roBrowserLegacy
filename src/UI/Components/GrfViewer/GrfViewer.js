@@ -113,7 +113,7 @@ Viewer.init = function init() {
 			onWorldClick(el);
 			return;
 		}
-		if ((el = e.target.closest('.3d'))) {
+		if ((el = e.target.closest('.\\33 d'))) {
 			onObjectClick(el);
 			return;
 		}
