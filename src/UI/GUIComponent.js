@@ -14,16 +14,42 @@
  */
 
 import CommonCSS from './Common.css?raw';
-import Cursor from 'UI/CursorManager.js';
-import DB from 'DB/DBManager.js';
-import Client from 'Core/Client.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIPreferences from 'Preferences/UI.js';
 import Session from 'Engine/SessionStorage.js';
 import Targa from 'Loaders/Targa.js';
-import Renderer from 'Renderer/Renderer.js';
-import EntityManager from 'Renderer/EntityManager.js';
-import ScrollBar from 'UI/Scrollbar.js';
+
+/**
+ * Heavy modules loaded lazily to keep viewer bundles lightweight.
+ * In Online/full-game context these resolve instantly (already loaded).
+ * In viewer context they are never triggered.
+ */
+let _Cursor = null;
+let _DB = null;
+let _Client = null;
+let _Renderer = null;
+let _EntityManager = null;
+let _ScrollBar = null;
+
+const INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
+
+async function _loadHeavyDeps() {
+	if (_Cursor) return;
+	const [CursorMod, DBMod, ClientMod, RendererMod, EntityManagerMod, ScrollBarMod] = await Promise.all([
+		import('UI/CursorManager.js'),
+		import('DB/DBManager.js'),
+		import('Core/Client.js'),
+		import('Renderer/Renderer.js'),
+		import('Renderer/EntityManager.js'),
+		import('UI/Scrollbar.js')
+	]);
+	_Cursor = CursorMod.default;
+	_DB = DBMod.default;
+	_Client = ClientMod.default;
+	_Renderer = RendererMod.default;
+	_EntityManager = EntityManagerMod.default;
+	_ScrollBar = ScrollBarMod.default;
+}
 
 /**
  * Snap cache shared across all draggable instances (same as UIComponent)
@@ -99,6 +125,7 @@ class GUIComponent {
 	 */
 	prepare() {
 		if (this.__loaded) return;
+		_loadHeavyDeps();
 
 		// Create host element
 		this._host = document.createElement('div');
@@ -187,7 +214,7 @@ class GUIComponent {
 		if (this.mouseMode === MouseMode.FREEZE) {
 			Mouse.intersect = false;
 			Session.FreezeUI = true;
-			Cursor.setType(Cursor.ACTION.DEFAULT);
+			_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
 		}
 
 		// Hook
@@ -218,8 +245,8 @@ class GUIComponent {
 		const y = rect.top;
 		const width = rect.width;
 		const height = rect.height;
-		const WIDTH = Renderer.width;
-		const HEIGHT = Renderer.height;
+		const WIDTH = _Renderer?.width ?? window.innerWidth;
+		const HEIGHT = _Renderer?.height ?? window.innerHeight;
 
 		// Overflow bottom
 		if (y + height > HEIGHT) {
@@ -561,8 +588,8 @@ class GUIComponent {
 						const padY = component.gridSnap.padY || 0;
 
 						const curRect = host.getBoundingClientRect();
-						const maxXI = Math.floor((Renderer.width - width - padX) / gw);
-						const maxYI = Math.floor((Renderer.height - height - padY) / gh);
+						const maxXI = Math.floor(((_Renderer?.width ?? window.innerWidth) - width - padX) / gw);
+						const maxYI = Math.floor(((_Renderer?.height ?? window.innerHeight) - height - padY) / gh);
 
 						let gxi = Math.round((curRect.left - padX) / gw);
 						let gyi = Math.round((curRect.top - padY) / gh);
@@ -720,17 +747,17 @@ class GUIComponent {
 		].join(',');
 
 		let _hovering = false;
-		let _savedType = Cursor.ACTION.DEFAULT;
+		let _savedType = _Cursor?.ACTION?.DEFAULT ?? 0;
 
 		container.addEventListener('mouseover', e => {
 			const target = e.target;
 			if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
 				if (!_hovering) {
-					_savedType = Cursor.getActualType();
+					_savedType = _Cursor?.getActualType() ?? 0;
 					_hovering = true;
 				}
-				if (Cursor.getActualType() !== Cursor.ACTION.CLICK) {
-					Cursor.setType(Cursor.ACTION.CLICK);
+				if ((_Cursor?.getActualType() ?? 0) !== (_Cursor?.ACTION?.CLICK ?? 0)) {
+					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0);
 				}
 			}
 		});
@@ -745,31 +772,31 @@ class GUIComponent {
 			}
 
 			_hovering = false;
-			Cursor.setType(_savedType);
+			_Cursor?.setType(_savedType);
 		});
 
 		container.addEventListener('mousedown', e => {
 			const target = e.target;
 			if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
 				if (!_hovering) {
-					_savedType = Cursor.getActualType();
+					_savedType = _Cursor?.getActualType() ?? 0;
 					_hovering = true;
 				}
-				Cursor.setType(Cursor.ACTION.CLICK, true, 1);
+				_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
 			}
 		});
 
 		container.addEventListener('mouseup', e => {
 			const target = e.target;
 			if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
-				if (Cursor.getActualType() !== Cursor.ACTION.CLICK) {
-					Cursor.setType(Cursor.ACTION.CLICK);
+				if ((_Cursor?.getActualType() ?? 0) !== (_Cursor?.ACTION?.CLICK ?? 0)) {
+					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0);
 				}
 				return;
 			}
 			if (_hovering) {
 				_hovering = false;
-				Cursor.setType(_savedType);
+				_Cursor?.setType(_savedType);
 			}
 		});
 	}
@@ -786,8 +813,8 @@ class GUIComponent {
 					_enter++;
 					if (_intersect) {
 						Mouse.intersect = false;
-						Cursor.setType(Cursor.ACTION.DEFAULT);
-						EntityManager.setOverEntity(null);
+						_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
+						_EntityManager?.setOverEntity(null);
 					}
 				}
 			});
@@ -799,7 +826,7 @@ class GUIComponent {
 						if (!Session.FreezeUI) {
 							Mouse.intersect = true;
 						}
-						EntityManager.setOverEntity(null);
+						_EntityManager?.setOverEntity(null);
 					}
 				}
 			});
@@ -810,7 +837,7 @@ class GUIComponent {
 					_enter = 0;
 					if (_intersect) {
 						Mouse.intersect = true;
-						EntityManager.setOverEntity(null);
+						_EntityManager?.setOverEntity(null);
 					}
 				}
 			});
@@ -845,13 +872,13 @@ class GUIComponent {
 					if (node.nodeType !== 1) continue;
 
 					if (node._roScrollbarApplied) {
-						ScrollBar.applyDOMScrollbar(node);
+						_ScrollBar?.applyDOMScrollbar(node);
 						continue;
 					}
 
 					const oy = window.getComputedStyle(node).overflowY;
 					if (oy === 'auto' || oy === 'scroll') {
-						ScrollBar.applyDOMScrollbar(node);
+						_ScrollBar?.applyDOMScrollbar(node);
 					}
 				}
 			};
@@ -931,13 +958,13 @@ class GUIComponent {
 		};
 
 		// Localized text
-		if (msgId && DB.getMessage(msgId, '')) {
-			node.textContent = DB.getMessage(msgId, '');
+		if (msgId && _DB?.getMessage(msgId, '')) {
+			node.textContent = _DB?.getMessage(msgId, '');
 		}
 
 		// Default background
 		if (background) {
-			Client.loadFile(DB.INTERFACE_PATH + background, dataURI => {
+			_Client?.loadFile(INTERFACE_PATH + background, dataURI => {
 				bgUri = dataURI;
 				if (dataURI instanceof ArrayBuffer) {
 					try {
@@ -954,7 +981,7 @@ class GUIComponent {
 
 		// Active background
 		if (active) {
-			Client.loadFile(DB.INTERFACE_PATH + active, dataURI => {
+			_Client?.loadFile(INTERFACE_PATH + active, dataURI => {
 				activeUri = dataURI;
 				if (node.classList.contains('active')) {
 					state.active = true;
@@ -984,7 +1011,7 @@ class GUIComponent {
 
 		// Hover background
 		if (hover) {
-			Client.loadFile(DB.INTERFACE_PATH + hover, dataURI => {
+			_Client?.loadFile(INTERFACE_PATH + hover, dataURI => {
 				hoverUri = dataURI;
 			});
 			node.addEventListener('mouseover', () => {
@@ -999,7 +1026,7 @@ class GUIComponent {
 
 		// Down background
 		if (down) {
-			Client.loadFile(DB.INTERFACE_PATH + down, dataURI => {
+			_Client?.loadFile(INTERFACE_PATH + down, dataURI => {
 				downUri = dataURI;
 			});
 			node.addEventListener('mousedown', () => {
@@ -1021,8 +1048,8 @@ class GUIComponent {
 
 		// Preload images
 		if (preload) {
-			const files = preload.split(';').map(f => DB.INTERFACE_PATH + f.trim());
-			Client.loadFiles(files);
+			const files = preload.split(';').map(f => INTERFACE_PATH + f.trim());
+			_Client?.loadFiles(files);
 		}
 	}
 

@@ -20,7 +20,6 @@ import Session from 'Engine/SessionStorage.js';
 import Camera from 'Renderer/Camera.js';
 import MapControl from 'Controls/MapControl.js';
 import Mouse from 'Controls/MouseEventHandler.js';
-import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './EffectViewer.html?raw';
 import cssText from './EffectViewer.css?raw';
@@ -232,4 +231,4 @@ Camera.rotate = function Rotate(active) {
 /**
  * Stored component and return it
  */
-export default UIManager.addComponent(Viewer);
+export default Viewer;

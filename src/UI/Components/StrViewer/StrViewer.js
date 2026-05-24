@@ -15,7 +15,6 @@ import Renderer from 'Renderer/Renderer.js';
 import EffectManager from 'Renderer/EffectManager.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import Camera from 'Renderer/Camera.js';
-import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './StrViewer.html?raw';
 import cssText from './StrViewer.css?raw';
@@ -204,4 +203,4 @@ Viewer.stop = stop;
 /**
  * Stored component and return it
  */
-export default UIManager.addComponent(Viewer);
+export default Viewer;
