@@ -69,7 +69,7 @@ function next() {
 	}
 
 	_previous.classList.add('on');
-	if (_index + 1 >= _history.length) {
+	if (_index + 2 >= _history.length) {
 		_next.classList.remove('on');
 	}
 
