@@ -1,7 +1,7 @@
 /**
  * UI/Components/EffectViewer/EffectViewer.js
  *
- * Model Viewer (rsm file)
+ * Effect Viewer
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -21,13 +21,9 @@ import Camera from 'Renderer/Camera.js';
 import MapControl from 'Controls/MapControl.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './EffectViewer.html?raw';
 import cssText from './EffectViewer.css?raw';
-
-/**
- * Load dependencies
- */
 
 /**
  * @var {object} fog structure
@@ -44,14 +40,23 @@ const _fog = {
 let _selectedEffect = null;
 
 /**
- * Create GRFViewer component
+ * Create EffectViewer component
  */
-const Viewer = new UIComponent('EffectViewer', htmlText, cssText);
+const Viewer = new GUIComponent('EffectViewer', cssText);
+
+Viewer.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return Viewer._shadow || Viewer._host;
+}
 
 /**
  * Initialize Component
  */
-Viewer.init = function Init() {
+Viewer.init = function init() {
 	// Initialize WebGL
 	Renderer.init({
 		alpha: false,
@@ -75,13 +80,25 @@ Viewer.init = function Init() {
 	Camera.init();
 
 	// Initialize the dropdown
-	initDropDown(this.ui.find('select').get(0), this.ui.find('button').get(0));
+	const root = _getRoot();
+	initDropDown(root.querySelector('select'), root.querySelector('button'));
+};
+
+/**
+ * Once append to body, set body styles
+ */
+Viewer.onAppend = function onAppend() {
+	document.body.style.backgroundColor = '#45484d';
+	document.body.style.fontFamily = 'Arial';
+	document.body.style.margin = '0';
+	document.body.style.overflow = 'hidden';
 };
 
 /**
  * Initialise Drop Down list
  *
- * @param {HTMLElement} drop down
+ * @param {HTMLElement} select dropdown
+ * @param {HTMLElement} button play button
  */
 function initDropDown(select, button) {
 	let hash = decodeURIComponent(location.hash);
@@ -102,7 +119,7 @@ function initDropDown(select, button) {
 		const ef_name = getKeyByValue(EC, effectId);
 		select.add(
 			new Option(
-				ef_name !== undefined ? effectId + ' (' + ef_name + ')' : effectId,
+				ef_name !== undefined ? `${effectId} (${ef_name})` : effectId,
 				effectId,
 				null,
 				_selectedEffect === effectId
@@ -116,13 +133,14 @@ function initDropDown(select, button) {
 		loadEffect(this.value);
 	};
 
-	button.onclick = function () {
+	button.onclick = () => {
 		loadEffect(_selectedEffect);
 	};
 
 	loadEffect(0);
 
-	Viewer.ui.find('.head').show();
+	const root = _getRoot();
+	root.querySelector('.head').style.display = 'block';
 	select.focus();
 }
 
@@ -133,7 +151,7 @@ function saveEffectId(effectId) {
 /**
  * Start loading an effect
  *
- * @param {string} filename
+ * @param {string} effectId
  */
 function loadEffect(effectId) {
 	stop();
@@ -204,8 +222,6 @@ Camera.rotate = function Rotate(active) {
 		return;
 	}
 
-	// Check for double click (reset angle and zoom)
-	// if (action.tick + 500 > tick) {
 	this.angleFinal[1] = 0.0;
 	action.x = Mouse.screen.x;
 	action.y = Mouse.screen.y;

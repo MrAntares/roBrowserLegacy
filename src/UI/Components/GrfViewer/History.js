@@ -19,27 +19,27 @@ const _history = [];
 let _index = -1;
 
 /**
- * @var {object} previous jquery button
+ * @var {HTMLElement} previous button
  */
 let _previous;
 
 /**
- * @var {object} next jquery button
+ * @var {HTMLElement} next button
  */
 let _next;
 
 /**
  * Initialize history with buttons
  *
- * @param {object} previous jquery button
- * @param {object} next jquery button
+ * @param {HTMLElement} previousBtn
+ * @param {HTMLElement} nextBtn
  */
 function init(previousBtn, nextBtn) {
 	_previous = previousBtn;
 	_next = nextBtn;
 
-	_previous.removeClass('on');
-	_next.removeClass('on');
+	_previous.classList.remove('on');
+	_next.classList.remove('on');
 }
 
 /**
@@ -51,10 +51,10 @@ function push(link) {
 	_history.length = ++_index;
 	_history.push(link);
 
-	_next.removeClass('on');
+	_next.classList.remove('on');
 
 	if (_history.length > 1) {
-		_previous.addClass('on');
+		_previous.classList.add('on');
 	}
 }
 
@@ -68,9 +68,9 @@ function next() {
 		return null;
 	}
 
-	_previous.addClass('on');
+	_previous.classList.add('on');
 	if (_index + 1 >= _history.length) {
-		_next.removeClass('on');
+		_next.classList.remove('on');
 	}
 
 	return _history[++_index];
@@ -86,9 +86,9 @@ function previous() {
 		return null;
 	}
 
-	_next.addClass('on');
+	_next.classList.add('on');
 	if (_index - 2 < 0) {
-		_previous.removeClass('on');
+		_previous.classList.remove('on');
 	}
 
 	return _history[--_index];
@@ -98,8 +98,8 @@ function previous() {
  * Export
  */
 export default {
-	push: push,
-	next: next,
-	previous: previous,
-	init: init
+	push,
+	next,
+	previous,
+	init
 };

@@ -1,8 +1,15 @@
-body {
-	background-color: #45484d;
+:host {
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#EffectViewer {
+	position: absolute;
+	width: 100%;
+	height: 100%;
 	font-family: Arial;
-	margin: 0;
-	overflow: hidden;
 }
 #EffectViewer .warning {
 	display: none;
