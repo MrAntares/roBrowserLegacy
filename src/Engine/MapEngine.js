@@ -186,8 +186,13 @@ class MapEngine {
 
 				// Server send back AID
 				Network.read(fp => {
-					// if PACKETVER < 20070521, client send GID...
-					if (fp.length === 4) {
+					// PACKETVER < 20070521: the map-server prefixes the stream with a raw
+					// 4-byte account id (no packet header) before the first real packet.
+					// It must be consumed even when TCP coalesces it with following packets;
+					// the previous fp.length === 4 check only worked when the AID arrived in
+					// its own segment, otherwise the parser read the AID as an opcode and
+					// desynced the whole stream.
+					if (PACKETVER.value < 20070521 || fp.length === 4) {
 						Session.Character.GID = fp.readLong();
 					}
 				});
