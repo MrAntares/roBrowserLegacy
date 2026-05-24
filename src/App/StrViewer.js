@@ -53,3 +53,5 @@ export default function init() {
 	});
 	Thread.init();
 }
+
+init();

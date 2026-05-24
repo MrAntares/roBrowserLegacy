@@ -201,3 +201,5 @@ MapViewer.onMouseDown = function OnMouseDown() {
 };
 
 export default MapViewer.init;
+
+MapViewer.init();

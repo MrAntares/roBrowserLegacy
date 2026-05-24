@@ -17,3 +17,5 @@ export default function init() {
 		return 'Are you sure to exit ?';
 	};
 }
+
+init();
