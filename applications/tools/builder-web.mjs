@@ -619,6 +619,8 @@ function createApiHTML() {
                 window.ROConfig = config;    
                 import('./' + scriptFile).then(function(mod) {    
                     if (typeof mod.default === 'function') { mod.default(); }    
+                    var preloader = document.getElementById('ro-preloader');    
+                    if (preloader) { preloader.remove(); }    
                 }).catch(function(err) { console.error('Failed to load app:', scriptFile, err); });    
             }    
     
