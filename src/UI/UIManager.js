@@ -12,6 +12,8 @@ import UIComponent from 'UI/UIComponent.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
+import Renderer from 'Renderer/Renderer.js';
+import GameEngine from 'Engine/GameEngine.js';
 
 /**
  * Centralize popup position
@@ -19,8 +21,8 @@ import KEYS from 'Controls/KeyEventHandler.js';
  */
 function _popupPosition() {
 	return {
-		top: `${(window.innerHeight - 120) / 1.5 - 120}px`,
-		left: `${(window.innerWidth - 280) / 2.0}px`,
+		top: `${(Renderer.height - 120) / 1.5 - 120}px`,
+		left: `${(Renderer.width - 280) / 2.0}px`,
 		zIndex: '100'
 	};
 }
@@ -213,7 +215,7 @@ class UIManager {
 				_createButton('ok', () => {
 					overlay.remove();
 					WinError.remove();
-					import('Engine/GameEngine.js').then(m => m.default.reload());
+					GameEngine.reload();
 				})
 			);
 		};
@@ -225,7 +227,7 @@ class UIManager {
 				case KEYS.ESCAPE:
 					overlay.remove();
 					this.remove();
-					import('Engine/GameEngine.js').then(m => m.default.reload());
+					GameEngine.reload();
 			}
 		};
 

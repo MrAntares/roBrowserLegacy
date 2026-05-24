@@ -15,6 +15,7 @@ import Model from 'Loaders/Model.js';
 import Renderer from 'Renderer/Renderer.js';
 import ModelRenderer from 'Renderer/Map/Models.js';
 import Camera from 'Renderer/Camera.js';
+import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './ModelViewer.html?raw';
 import cssText from './ModelViewer.css?raw';
@@ -282,4 +283,4 @@ Viewer.stop = stop;
 /**
  * Stored component and return it
  */
-export default Viewer;
+export default UIManager.addComponent(Viewer);

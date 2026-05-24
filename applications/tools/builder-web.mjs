@@ -56,17 +56,21 @@ const entryMap = {
 	EffectViewer: 'src/App/EffectViewer.js'
 };
 
+var _viewerSourceCopied = false;
+
 (async function build() {
 	const basePath = dist + platform;
 
+	// Viewer apps load as source ES modules (dev mode) - keeps them lightweight.
+	// Only Online and ThreadEventHandler are compiled via Vite.
 	const modules = {
-		G: { path: '/GrannyModelViewer.js', action: () => compile('GrannyModelViewer', args['m']) },
-		D: { path: '/GrfViewer.js', action: () => compile('GrfViewer', args['m']) },
-		V: { path: '/MapViewer.js', action: () => compile('MapViewer', args['m']) },
-		M: { path: '/ModelViewer.js', action: () => compile('ModelViewer', args['m']) },
+		G: { path: null, action: () => copyViewerSource() },
+		D: { path: null, action: () => copyViewerSource() },
+		V: { path: null, action: () => copyViewerSource() },
+		M: { path: null, action: () => copyViewerSource() },
 		O: { path: '/Online.js', action: () => compile('Online', args['m']) },
-		S: { path: '/StrViewer.js', action: () => compile('StrViewer', args['m']) },
-		E: { path: '/EffectViewer.js', action: () => compile('EffectViewer', args['m']) },
+		S: { path: null, action: () => copyViewerSource() },
+		E: { path: null, action: () => copyViewerSource() },
 		T: { path: '/ThreadEventHandler.js', action: () => compile('ThreadEventHandler', args['m']) },
 		H: { path: '/index.html', action: () => createHTML(false, args, isAll) },
 		PWA: {
@@ -92,9 +96,11 @@ const entryMap = {
 
 	for (const key of activeModules) {
 		const { path: modPath, action } = modules[key];
-		const fullPath = `${basePath}${modPath}`;
-		if (fs.existsSync(fullPath)) {
-			fs.rmSync(fullPath, { recursive: true, force: true });
+		if (modPath) {
+			const fullPath = `${basePath}${modPath}`;
+			if (fs.existsSync(fullPath)) {
+				fs.rmSync(fullPath, { recursive: true, force: true });
+			}
 		}
 		await action();
 	}
@@ -515,124 +521,139 @@ window.ROConfigBase = {
 }
 
 function createApiHTML() {
-	const apiHtml = `<!DOCTYPE html>    
-<html>    
-    <head>    
-        <meta charset="UTF-8">    
-        <title>roBrowserLegacy</title>    
-        <style>    
-            html, body {    
-                margin: 0; padding: 0; border: 0;    
-                height: 100%; width: 100%; overflow: hidden;    
+	const apiHtml = `<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>roBrowserLegacy</title>
+        <style>
+            html, body { margin: 0; padding: 0; border: 0; height: 100%; width: 100%; overflow: hidden; }
+            #ro-preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; background: rgba(6, 8, 16, 0.97); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px; }
+            .pre-spinner { width: 48px; height: 48px; border: 4px solid rgba(232, 184, 75, 0.2); border-top-color: #e8b84b; border-radius: 50%; animation: ro-spin 0.8s linear infinite; }
+            @keyframes ro-spin { to { transform: rotate(360deg); } }
+            .pre-text { font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 3px; text-transform: uppercase; color: #e8b84b; display: flex; gap: 2px; }
+            .pre-text span { animation: ro-wave 1.2s ease-in-out infinite; animation-delay: calc(var(--i) * 0.08s); }
+            @keyframes ro-wave { 0%, 100% { opacity: 0.4; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+        </style>
+
+        <script type="importmap">
+{    
+            "imports": {    
+                "jquery": "./src/Vendors/jquery-1.9.1.js",    
+                "bson": "./node_modules/bson/lib/bson.mjs",    
+                "lodash": "./node_modules/lodash-es/lodash.default.js",    
+                "src/": "./src/",    
+                "App/": "./src/App/",    
+                "Audio/": "./src/Audio/",    
+                "Controls/": "./src/Controls/",    
+                "Core/": "./src/Core/",    
+                "DB/": "./src/DB/",    
+                "Engine/": "./src/Engine/",    
+                "Loaders/": "./src/Loaders/",    
+                "Network/": "./src/Network/",    
+                "Plugins/": "./src/Plugins/",    
+                "Preferences/": "./src/Preferences/",    
+                "Renderer/": "./src/Renderer/",    
+                "UI/": "./src/UI/",    
+                "Utils/": "./src/Utils/",    
+                "Vendors/": "./src/Vendors/"    
             }    
-            #ro-preloader {    
-                position: fixed;    
-                top: 0; left: 0;    
-                width: 100%; height: 100%;    
-                z-index: 99999;    
-                background: rgba(6, 8, 16, 0.97);    
-                display: flex;    
-                align-items: center;    
-                justify-content: center;    
-                flex-direction: column;    
-                gap: 18px;    
-            }    
-            .pre-spinner {    
-                width: 48px; height: 48px;    
-                border: 4px solid rgba(232, 184, 75, 0.2);    
-                border-top-color: #e8b84b;    
-                border-radius: 50%;    
-                animation: ro-spin 0.8s linear infinite;    
-            }    
-            @keyframes ro-spin {    
-                to { transform: rotate(360deg); }    
-            }    
-            .pre-text {    
-                font-family: 'Cinzel', serif;    
-                font-size: 16px;    
-                letter-spacing: 3px;    
-                text-transform: uppercase;    
-                color: #e8b84b;    
-                display: flex;    
-                gap: 2px;    
-            }    
-            .pre-text span {    
-                animation: ro-wave 1.2s ease-in-out infinite;    
-                animation-delay: calc(var(--i) * 0.08s);    
-            }    
-            @keyframes ro-wave {    
-                0%, 100% { opacity: 0.4; transform: translateY(0); }    
-                50% { opacity: 1; transform: translateY(-4px); }    
-            }    
-        </style>    
-    </head>    
-    <body>    
-        <div id="ro-preloader">    
-            <div class="pre-spinner"></div>    
-            <p class="pre-text">    
-                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>    
-            </p>    
-        </div>    
-    
-        <script src="Config.js"></script>    
-        <script>    
-            (function() {    
-                var script = document.createElement('script');    
-                script.src = 'Config.local.js';    
-                script.onerror = function() {    
-                    console.log('Config.local.js not found, using defaults from Config.js');    
-                };    
-                document.head.appendChild(script);    
-            })();    
-        </script>    
-        <script>    
-            function deepMerge(target, source) {    
-                for (var key in source) {    
-                    if (source.hasOwnProperty(key)) {    
-                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {    
-                            target[key] = deepMerge(target[key] || {}, source[key]);    
-                        } else {    
-                            target[key] = source[key];    
-                        }    
-                    }    
-                }    
-                return target;    
-            }    
-    
-            var APP_SCRIPTS = {    
-                ONLINE: 'Online.js',    
-                MAPVIEWER: 'MapViewer.js',    
-                GRFVIEWER: 'GrfViewer.js',    
-                MODELVIEWER: 'ModelViewer.js',    
-                STRVIEWER: 'StrViewer.js',    
-                GRANNYMODELVIEWER: 'GrannyModelViewer.js',    
-                EFFECTVIEWER: 'EffectViewer.js'    
-            };    
-    
-            window.addEventListener('load', function() {    
-                var params = new URLSearchParams(window.location.search);    
-                var appName = params.get('app') || 'ONLINE';    
-                var scriptFile = APP_SCRIPTS[appName] || 'Online.js';    
-    
-                var config = deepMerge({}, window.ROConfigBase || {});    
-                if (window.ROConfigLocal) {    
-                    config = deepMerge(config, window.ROConfigLocal);    
-                }    
-                window.ROConfig = config;    
-    
-                import('./' + scriptFile).then(function(mod) {    
-                    if (typeof mod.default === 'function') {    
-                        mod.default();    
-                    }    
-                }).catch(function(err) {    
-                    console.error('Failed to load app:', scriptFile, err);    
-                });    
-            });    
-        </script>    
-    </body>    
-</html>    
+        }
+        </script>
+    </head>
+    <body>
+        <div id="ro-preloader">
+            <div class="pre-spinner"></div>
+            <p class="pre-text">
+                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>
+            </p>
+        </div>
+
+        <script src="Config.js"></script>
+        <script>
+            (function() {
+                var script = document.createElement('script');
+                script.src = 'Config.local.js';
+                script.onerror = function() { console.log('Config.local.js not found, using defaults from Config.js'); };
+                document.head.appendChild(script);
+            })();
+        </script>
+        <script>
+            function deepMerge(target, source) {
+                for (var key in source) {
+                    if (source.hasOwnProperty(key)) {
+                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                            target[key] = deepMerge(target[key] || {}, source[key]);
+                        } else { target[key] = source[key]; }
+                    }
+                }
+                return target;
+            }
+
+            var COMPILED_APPS = { ONLINE: './Online.js' };
+            var SOURCE_APPS = {
+                MAPVIEWER: 'App/MapViewer.js',
+                GRFVIEWER: 'App/GrfViewer.js',
+                MODELVIEWER: 'App/ModelViewer.js',
+                STRVIEWER: 'App/StrViewer.js',
+                GRANNYMODELVIEWER: 'App/GrannyModelViewer.js',
+                EFFECTVIEWER: 'App/EffectViewer.js' };
+
+            window.addEventListener('load', function() {
+                var params = new URLSearchParams(window.location.search);
+                var appName = params.get('app') || 'ONLINE';
+                var config = deepMerge({}, window.ROConfigBase || {});
+                if (window.ROConfigLocal) { config = deepMerge(config, window.ROConfigLocal); }
+                window.ROConfig = config;
+                var scriptPath = COMPILED_APPS[appName] || SOURCE_APPS[appName];
+                if (!scriptPath) { console.error('Unknown app:', appName); return; }
+                import(scriptPath).then(function(mod) {
+                    if (typeof mod.default === 'function') { mod.default(); }
+                }).catch(function(err) { console.error('Failed to load app:', scriptPath, err); });
+            });
+        </script>
+    </body>
+</html>
 `;
 	fs.writeFileSync(dist + platform + '/api.html', apiHtml, { encoding: 'utf8' });
+}
+
+function copyViewerSource() {
+	if (_viewerSourceCopied) return;
+	_viewerSourceCopied = true;
+	const start = Date.now();
+	const projectRoot = path.resolve(__dirname, '../../');
+	const outDir = path.resolve(projectRoot, dist + platform);
+
+	// Copy src/ directory
+	fs.cpSync(path.join(projectRoot, 'src'), path.join(outDir, 'src'), { recursive: true });
+
+	// Copy api.js for sub-viewer frame functionality
+	const apiDir = path.join(outDir, 'applications', 'api');
+	fs.mkdirSync(apiDir, { recursive: true });
+	fs.copyFileSync(path.join(projectRoot, 'applications/api/api.js'), path.join(apiDir, 'api.js'));
+	fs.copyFileSync(path.join(projectRoot, 'applications/api/api.html'), path.join(apiDir, 'api.html'));
+
+	// Copy shared importmap.js for sub-viewer frames
+	const sharedDir = path.join(outDir, 'applications', 'shared');
+	fs.mkdirSync(sharedDir, { recursive: true });
+	fs.copyFileSync(path.join(projectRoot, 'applications/shared/importmap.js'), path.join(sharedDir, 'importmap.js'));
+
+	// Copy required node_modules
+	const bsonSrc = path.join(projectRoot, 'node_modules/bson/lib');
+	const bsonDest = path.join(outDir, 'node_modules/bson/lib');
+	if (fs.existsSync(bsonSrc)) {
+		fs.mkdirSync(bsonDest, { recursive: true });
+		fs.cpSync(bsonSrc, bsonDest, { recursive: true });
+	}
+	const lodashSrc = path.join(projectRoot, 'node_modules/lodash-es');
+	const lodashDest = path.join(outDir, 'node_modules/lodash-es');
+	if (fs.existsSync(lodashSrc)) {
+		fs.mkdirSync(lodashDest, { recursive: true });
+		fs.cpSync(lodashSrc, lodashDest, { recursive: true });
+	}
+
+	console.log('Viewer source files copied in', Date.now() - start, 'ms.');
 }
 
 function copyPwaFiles() {

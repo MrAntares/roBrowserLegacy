@@ -16,6 +16,7 @@ import GrannyModel from 'Loaders/GrannyModel.js';
 import Renderer from 'Renderer/Renderer.js';
 import ModelRenderer from 'Renderer/Map/Models.js';
 import Camera from 'Renderer/Camera.js';
+import UIManager from 'UI/UIManager.js';
 import UIComponent from 'UI/UIComponent.js';
 import htmlText from './GrannyModelViewer.html?raw';
 import cssText from './GrannyModelViewer.css?raw';
@@ -275,4 +276,4 @@ Viewer.stop = stop;
 /**
  * Stored component and return it
  */
-export default Viewer;
+export default UIManager.addComponent(Viewer);

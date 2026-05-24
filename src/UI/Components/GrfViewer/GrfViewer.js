@@ -17,6 +17,7 @@ import Events from 'Core/Events.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Sprite from 'Loaders/Sprite.js';
 import Targa from 'Loaders/Targa.js';
+import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './GrfViewer.html?raw';
 import cssText from './GrfViewer.css?raw';
@@ -1202,4 +1203,4 @@ const onGrannyClick = (() => {
 /**
  * Stored component and return it
  */
-export default Viewer;
+export default UIManager.addComponent(Viewer);
