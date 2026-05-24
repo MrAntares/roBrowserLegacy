@@ -220,7 +220,6 @@ function createHTML(includeManifest = false, buildArgs = {}, isAllBuild = false)
 			.map(v => `                <button class="app-btn" onclick="launchApp('${v.app}')">${v.label}</button>`)
 			.join('\n');
 
-		fs.copyFileSync('./applications/api/api.js', `${dist}${platform}/api.js`);
 		createApiHTML();
 
 		body = `${commonHead}    
@@ -321,19 +320,16 @@ ${buttons}
             </div>    
         </div>    
   
-        <script type="text/javascript" src="./api.js"></script>    
         <script type="text/javascript">    
             function launchApp(appName) {    
-                const ROConfig = {    
-                    type: ROBrowser.TYPE.POPUP,    
-                    application: ROBrowser.APP[appName],    
-                    remoteClient: 'https://grf.robrowser.com/',    
-                    width: 800,    
-                    height: 600,    
-                    development: true    
-                };    
-                const RO = new ROBrowser(ROConfig);    
-                RO.start();    
+                var w = 800, h = 600;    
+                var top = (screen.height - h) / 2;    
+                var left = (screen.width - w) / 2;    
+                window.open(    
+                    'api.html?app=' + appName,    
+                    '_blank',    
+                    'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left + ',menubar=0,toolbar=0,location=0,status=0,resizable=1,scrollbars=0'    
+                );    
             }    
         </script>    
     </body>    
@@ -539,37 +535,34 @@ function createApiHTML() {
                 align-items: center;    
                 justify-content: center;    
                 flex-direction: column;    
+                gap: 18px;    
             }    
-            #ro-preloader .pre-spinner {    
+            .pre-spinner {    
                 width: 48px; height: 48px;    
-                margin: 0 auto 16px;    
                 border: 4px solid rgba(232, 184, 75, 0.2);    
                 border-top-color: #e8b84b;    
                 border-radius: 50%;    
-                animation: ro-pre-spin 0.8s linear infinite;    
+                animation: ro-spin 0.8s linear infinite;    
             }    
-            #ro-preloader .pre-text {    
-                font-family: serif;    
+            @keyframes ro-spin {    
+                to { transform: rotate(360deg); }    
+            }    
+            .pre-text {    
+                font-family: 'Cinzel', serif;    
                 font-size: 16px;    
                 letter-spacing: 3px;    
                 text-transform: uppercase;    
                 color: #e8b84b;    
+                display: flex;    
+                gap: 2px;    
             }    
-            #ro-preloader .pre-text span {    
-                display: inline-block;    
-                animation: ro-pre-wave 1.2s ease-in-out infinite;    
+            .pre-text span {    
+                animation: ro-wave 1.2s ease-in-out infinite;    
                 animation-delay: calc(var(--i) * 0.08s);    
             }    
-            @keyframes ro-pre-spin {    
-                to { transform: rotate(360deg); }    
-            }    
-            @keyframes ro-pre-wave {    
-                0%, 60%, 100% { transform: translateY(0); }    
-                30% { transform: translateY(-8px); }    
-            }    
-            #ro-preloader.fade-out {    
-                opacity: 0;    
-                transition: opacity 0.3s ease;    
+            @keyframes ro-wave {    
+                0%, 100% { opacity: 0.4; transform: translateY(0); }    
+                50% { opacity: 1; transform: translateY(-4px); }    
             }    
         </style>    
     </head>    
@@ -607,40 +600,34 @@ function createApiHTML() {
             }    
     
             var APP_SCRIPTS = {    
-                1: 'Online.js',    
-                2: 'MapViewer.js',    
-                3: 'GrfViewer.js',    
-                4: 'ModelViewer.js',    
-                5: 'StrViewer.js',    
-                6: 'GrannyModelViewer.js',    
-                7: 'EffectViewer.js'    
+                ONLINE: 'Online.js',    
+                MAPVIEWER: 'MapViewer.js',    
+                GRFVIEWER: 'GrfViewer.js',    
+                MODELVIEWER: 'ModelViewer.js',    
+                STRVIEWER: 'StrViewer.js',    
+                GRANNYMODELVIEWER: 'GrannyModelViewer.js',    
+                EFFECTVIEWER: 'EffectViewer.js'    
             };    
     
-            addEventListener('message', function OnMessage(event) {    
-                if (event.source !== window.parent && event.source !== window.opener) {    
-                    return;    
-                }    
-                removeEventListener('message', OnMessage, false);    
+            window.addEventListener('load', function() {    
+                var params = new URLSearchParams(window.location.search);    
+                var appName = params.get('app') || 'ONLINE';    
+                var scriptFile = APP_SCRIPTS[appName] || 'Online.js';    
     
                 var config = deepMerge({}, window.ROConfigBase || {});    
                 if (window.ROConfigLocal) {    
                     config = deepMerge(config, window.ROConfigLocal);    
                 }    
-                config = deepMerge(config, event.data);    
                 window.ROConfig = config;    
-    
-                var appId = parseInt(config.application, 10) || 1;    
-                var scriptFile = APP_SCRIPTS[appId] || 'Online.js';    
     
                 import('./' + scriptFile).then(function(mod) {    
                     if (typeof mod.default === 'function') {    
                         mod.default();    
                     }    
-                    event.source.postMessage('ready', '*');    
                 }).catch(function(err) {    
                     console.error('Failed to load app:', scriptFile, err);    
                 });    
-            }, false);    
+            });    
         </script>    
     </body>    
 </html>    
