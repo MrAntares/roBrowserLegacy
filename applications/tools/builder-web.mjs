@@ -221,6 +221,7 @@ function createHTML(includeManifest = false, buildArgs = {}, isAllBuild = false)
 			.join('\n');
 
 		fs.copyFileSync('./applications/api/api.js', `${dist}${platform}/api.js`);
+		createApiHTML();
 
 		body = `${commonHead}    
   
@@ -515,6 +516,106 @@ window.ROConfigBase = {
 };  
 `;
 	fs.writeFileSync(dist + platform + '/Config.js', configContent, { encoding: 'utf8' });
+}
+
+function createApiHTML() {
+	const apiHtml = `<!DOCTYPE html>    
+<html>    
+    <head>    
+        <meta charset="UTF-8">    
+        <title>roBrowserLegacy</title>    
+        <style>    
+            html, body {    
+                margin: 0; padding: 0; border: 0;    
+                height: 100%; width: 100%; overflow: hidden;    
+            }    
+            #ro-preloader {    
+                position: fixed;    
+                top: 0; left: 0;    
+                width: 100%; height: 100%;    
+                z-index: 99999;    
+                background: rgba(6, 8, 16, 0.97);    
+                display: flex;    
+                align-items: center;    
+                justify-content: center;    
+                flex-direction: column;    
+            }    
+            #ro-preloader .pre-spinner {    
+                width: 48px; height: 48px;    
+                margin: 0 auto 16px;    
+                border: 4px solid rgba(232, 184, 75, 0.2);    
+                border-top-color: #e8b84b;    
+                border-radius: 50%;    
+                animation: ro-pre-spin 0.8s linear infinite;    
+            }    
+            #ro-preloader .pre-text {    
+                font-family: serif;    
+                font-size: 16px;    
+                letter-spacing: 3px;    
+                text-transform: uppercase;    
+                color: #e8b84b;    
+            }    
+            #ro-preloader .pre-text span {    
+                display: inline-block;    
+                animation: ro-pre-wave 1.2s ease-in-out infinite;    
+                animation-delay: calc(var(--i) * 0.08s);    
+            }    
+            @keyframes ro-pre-spin {    
+                to { transform: rotate(360deg); }    
+            }    
+            @keyframes ro-pre-wave {    
+                0%, 60%, 100% { transform: translateY(0); }    
+                30% { transform: translateY(-8px); }    
+            }    
+            #ro-preloader.fade-out {    
+                opacity: 0;    
+                transition: opacity 0.3s ease;    
+            }    
+        </style>    
+        <script type="module">    
+            const APP_SCRIPTS = {    
+                1: 'Online.js',    
+                2: 'MapViewer.js',    
+                3: 'GrfViewer.js',    
+                4: 'ModelViewer.js',    
+                5: 'StrViewer.js',    
+                6: 'GrannyModelViewer.js',    
+                7: 'EffectViewer.js'    
+            };    
+    
+            addEventListener('message', async function OnMessage(event) {    
+                if (event.source !== window.parent && event.source !== window.opener) {    
+                    return;    
+                }    
+                removeEventListener('message', OnMessage, false);    
+    
+                window.ROConfig = event.data;    
+                const appId = parseInt(event.data.application, 10) || 1;    
+                const scriptFile = APP_SCRIPTS[appId] || 'Online.js';    
+    
+                try {    
+                    const mod = await import('./' + scriptFile);    
+                    if (typeof mod.default === 'function') {    
+                        mod.default();    
+                    }    
+                    event.source.postMessage('ready', '*');    
+                } catch (err) {    
+                    console.error('Failed to load app:', scriptFile, err);    
+                }    
+            }, false);    
+        </script>    
+    </head>    
+    <body>    
+        <div id="ro-preloader">    
+            <div class="pre-spinner"></div>    
+            <p class="pre-text">    
+                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>    
+            </p>    
+        </div>    
+    </body>    
+</html>    
+`;
+	fs.writeFileSync(dist + platform + '/api.html', apiHtml, { encoding: 'utf8' });
 }
 
 function copyPwaFiles() {
