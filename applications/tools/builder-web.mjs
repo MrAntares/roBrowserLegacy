@@ -68,11 +68,11 @@ const entryMap = {
 		S: { path: '/StrViewer.js', action: () => compile('StrViewer', args['m']) },
 		E: { path: '/EffectViewer.js', action: () => compile('EffectViewer', args['m']) },
 		T: { path: '/ThreadEventHandler.js', action: () => compile('ThreadEventHandler', args['m']) },
-		H: { path: '/index.html', action: createHTML },
+		H: { path: '/index.html', action: () => createHTML(false, args, isAll) },
 		PWA: {
 			path: '/index.html',
 			action: () => {
-				createHTML(true);
+				createHTML(true, args, isAll);
 				copyPwaFiles();
 			}
 		}
@@ -164,10 +164,23 @@ async function compile(appName, isMinify) {
 	}
 }
 
-function createHTML(includeManifest = false) {
+function createHTML(includeManifest = false, buildArgs = {}, isAllBuild = false) {
 	const start = Date.now();
-	let manifest = includeManifest ? `<link rel="manifest" href="./manifest.webmanifest">` : ``;
-	const body = `<!DOCTYPE html>    
+	const manifest = includeManifest ? `<link rel="manifest" href="./manifest.webmanifest">` : ``;
+
+	const viewerButtonMap = [
+		{ flag: 'G', app: 'GRANNYMODELVIEWER', label: 'Granny Model Viewer' },
+		{ flag: 'D', app: 'GRFVIEWER', label: 'GRF Viewer' },
+		{ flag: 'V', app: 'MAPVIEWER', label: 'Map Viewer' },
+		{ flag: 'M', app: 'MODELVIEWER', label: 'Model Viewer' },
+		{ flag: 'S', app: 'STRVIEWER', label: 'STR Viewer' },
+		{ flag: 'E', app: 'EFFECTVIEWER', label: 'Effect Viewer' }
+	];
+
+	const viewerFlags = viewerButtonMap.map(v => v.flag);
+	const hasViewerFlags = isAllBuild || viewerFlags.some(flag => buildArgs[flag]);
+
+	const commonHead = `<!DOCTYPE html>    
 <html>    
     <head>    
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>    
@@ -196,7 +209,136 @@ function createHTML(includeManifest = false) {
         <meta property="og:locale" content="en_US">    
     
         <link rel="apple-touch-icon" href="./icon.png">    
-        ${manifest}    
+        ${manifest}`;
+
+	let body;
+
+	if (hasViewerFlags) {
+		const activeViewers = viewerButtonMap.filter(v => isAllBuild || buildArgs[v.flag]);
+		const buttons = activeViewers
+			.map(v => `                <button class="app-btn" onclick="launchApp('${v.app}')">${v.label}</button>`)
+			.join('\n');
+
+		fs.copyFileSync('./applications/api/api.js', `${dist}${platform}/api.js`);
+
+		body = `${commonHead}    
+  
+        <style>    
+            html, body {    
+                margin: 0; padding: 0; border: 0;    
+                height: 100%; width: 100%; overflow: hidden;    
+            }    
+            #ro-preloader {    
+                position: fixed;    
+                top: 0; left: 0;    
+                width: 100%; height: 100%;    
+                z-index: 99999;    
+                background: rgba(6, 8, 16, 0.97);    
+                display: flex;    
+                align-items: center;    
+                justify-content: center;    
+                flex-direction: column;    
+            }    
+            #ro-preloader .pre-spinner {    
+                width: 48px; height: 48px;    
+                margin: 0 auto 16px;    
+                border: 4px solid rgba(232, 184, 75, 0.2);    
+                border-top-color: #e8b84b;    
+                border-radius: 50%;    
+                animation: ro-pre-spin 0.8s linear infinite;    
+            }    
+            #ro-preloader .pre-text {    
+                font-family: serif;    
+                font-size: 16px;    
+                letter-spacing: 3px;    
+                text-transform: uppercase;    
+                color: #e8b84b;    
+            }    
+            #ro-preloader .pre-text span {    
+                display: inline-block;    
+                animation: ro-pre-wave 1.2s ease-in-out infinite;    
+                animation-delay: calc(var(--i) * 0.08s);    
+            }    
+            @keyframes ro-pre-spin {    
+                to { transform: rotate(360deg); }    
+            }    
+            @keyframes ro-pre-wave {    
+                0%, 60%, 100% { transform: translateY(0); }    
+                30% { transform: translateY(-8px); }    
+            }    
+            #ro-preloader.fade-out {    
+                opacity: 0;    
+                transition: opacity 0.3s ease;    
+            }    
+            .app-launcher {    
+                display: flex;    
+                flex-direction: column;    
+                align-items: center;    
+                justify-content: center;    
+                min-height: 100vh;    
+                background: rgba(6, 8, 16, 0.97);    
+                font-family: serif;    
+                color: #e8b84b;    
+            }    
+            .app-launcher h1 {    
+                font-size: 28px;    
+                letter-spacing: 3px;    
+                text-transform: uppercase;    
+                margin-bottom: 32px;    
+            }    
+            .button-grid {    
+                display: flex;    
+                flex-wrap: wrap;    
+                gap: 16px;    
+                justify-content: center;    
+                max-width: 600px;    
+            }    
+            .app-btn {    
+                padding: 14px 28px;    
+                font-family: serif;    
+                font-size: 16px;    
+                letter-spacing: 2px;    
+                color: #e8b84b;    
+                background: transparent;    
+                border: 2px solid rgba(232, 184, 75, 0.4);    
+                border-radius: 8px;    
+                cursor: pointer;    
+                transition: all 0.3s ease;    
+            }    
+            .app-btn:hover {    
+                background: rgba(232, 184, 75, 0.15);    
+                border-color: #e8b84b;    
+            }    
+        </style>    
+    </head>    
+    <body>    
+        <div class="app-launcher">    
+            <h1>roBrowser App Launcher</h1>    
+            <div class="button-grid">    
+${buttons}    
+            </div>    
+        </div>    
+  
+        <script type="text/javascript" src="./api.js"></script>    
+        <script type="text/javascript">    
+            function launchApp(appName) {    
+                const ROConfig = {    
+                    type: ROBrowser.TYPE.POPUP,    
+                    application: ROBrowser.APP[appName],    
+                    remoteClient: 'https://grf.robrowser.com/',    
+                    width: 800,    
+                    height: 600,    
+                    development: true    
+                };    
+                const RO = new ROBrowser(ROConfig);    
+                RO.start();    
+            }    
+        </script>    
+    </body>    
+</html>    
+`;
+	} else {
+		body = `${commonHead}    
   
         <style>    
             html, body {    
@@ -298,6 +440,8 @@ function createHTML(includeManifest = false) {
     </body>    
 </html>    
 `;
+	}
+
 	fs.writeFileSync(dist + platform + '/index.html', body, { encoding: 'utf8' });
 	createConfigJS();
 	console.log('index.html has been created in', Date.now() - start, 'ms.');
