@@ -3,7 +3,7 @@
     <head>    
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>    
         <meta charset="UTF-8">    
-        <title>roBrowser [2.0.0 - 2026-05-24 21:42:55]</title>    
+        <title>roBrowser [2.0.0 - 2026-05-24 22:01:01]</title>    
         <link rel="icon" type="image/png" href="./icon.png">    
     
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
@@ -131,19 +131,16 @@
             </div>    
         </div>    
   
-        <script type="text/javascript" src="./api.js"></script>    
         <script type="text/javascript">    
             function launchApp(appName) {    
-                const ROConfig = {    
-                    type: ROBrowser.TYPE.POPUP,    
-                    application: ROBrowser.APP[appName],    
-                    remoteClient: 'https://grf.robrowser.com/',    
-                    width: 800,    
-                    height: 600,    
-                    development: true    
-                };    
-                const RO = new ROBrowser(ROConfig);    
-                RO.start();    
+                var w = 800, h = 600;    
+                var top = (screen.height - h) / 2;    
+                var left = (screen.width - w) / 2;    
+                window.open(    
+                    'api.html?app=' + appName,    
+                    '_blank',    
+                    'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left + ',menubar=0,toolbar=0,location=0,status=0,resizable=1,scrollbars=0'    
+                );    
             }    
         </script>    
     </body>    
