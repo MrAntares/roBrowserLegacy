@@ -435,7 +435,7 @@ class EffectManager {
 					}
 
 					const effect = list[j];
-					const pos = effect._Params.Inst.position;
+					const pos = effect._Params && effect._Params.Inst ? effect._Params.Inst.position : null;
 
 					// Culling: If effect has position, check distance
 					// Some effects might track an entity, updating their position is usually done in render()

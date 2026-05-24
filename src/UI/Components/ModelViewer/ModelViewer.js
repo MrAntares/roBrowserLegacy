@@ -44,7 +44,8 @@ const _light = {
 	opacity: 1.0,
 	ambient: new Float32Array([Math.PI, Math.PI, Math.PI]),
 	diffuse: new Float32Array([0, 0, 0]),
-	direction: new Float32Array([0, 1, 0])
+	direction: new Float32Array([0, 1, 0]),
+	env: new Float32Array([1, 1, 1])
 };
 
 /**
