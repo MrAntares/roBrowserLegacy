@@ -168,7 +168,8 @@ function createHTML(includeManifest = false, buildArgs = {}, isAllBuild = false)
 	const start = Date.now();
 	const manifest = includeManifest ? `<link rel="manifest" href="./manifest.webmanifest">` : ``;
 
-	const viewerButtonMap = [
+	const appButtonMap = [
+		{ flag: 'O', app: 'ONLINE', label: 'Online' },
 		{ flag: 'G', app: 'GRANNYMODELVIEWER', label: 'Granny Model Viewer' },
 		{ flag: 'D', app: 'GRFVIEWER', label: 'GRF Viewer' },
 		{ flag: 'V', app: 'MAPVIEWER', label: 'Map Viewer' },
@@ -177,7 +178,7 @@ function createHTML(includeManifest = false, buildArgs = {}, isAllBuild = false)
 		{ flag: 'E', app: 'EFFECTVIEWER', label: 'Effect Viewer' }
 	];
 
-	const viewerFlags = viewerButtonMap.map(v => v.flag);
+	const viewerFlags = appButtonMap.filter(v => v.flag !== 'O').map(v => v.flag);
 	const hasViewerFlags = isAllBuild || viewerFlags.some(flag => buildArgs[flag]);
 
 	const commonHead = `<!DOCTYPE html>    
@@ -214,7 +215,7 @@ function createHTML(includeManifest = false, buildArgs = {}, isAllBuild = false)
 	let body;
 
 	if (hasViewerFlags) {
-		const activeViewers = viewerButtonMap.filter(v => isAllBuild || buildArgs[v.flag]);
+		const activeViewers = appButtonMap.filter(v => isAllBuild || buildArgs[v.flag]);
 		const buttons = activeViewers
 			.map(v => `                <button class="app-btn" onclick="launchApp('${v.app}')">${v.label}</button>`)
 			.join('\n');
