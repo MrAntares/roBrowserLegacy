@@ -100,8 +100,7 @@
                 if (window.ROConfigLocal) { config = deepMerge(config, window.ROConfigLocal); }    
                 if (extraConfig) { config = deepMerge(config, extraConfig); }    
                 window.ROConfig = config;    
-                import('./' + scriptFile).then(function(mod) {    
-                    if (typeof mod.default === 'function') { mod.default(); }    
+                import('./' + scriptFile).then(function() {    
                     var preloader = document.getElementById('ro-preloader');    
                     if (preloader) { preloader.remove(); }    
                 }).catch(function(err) { console.error('Failed to load app:', scriptFile, err); });    
