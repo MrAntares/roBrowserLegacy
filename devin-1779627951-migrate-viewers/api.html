@@ -51,8 +51,41 @@
                 transition: opacity 0.3s ease;    
             }    
         </style>    
-        <script type="module">    
-            const APP_SCRIPTS = {    
+    </head>    
+    <body>    
+        <div id="ro-preloader">    
+            <div class="pre-spinner"></div>    
+            <p class="pre-text">    
+                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>    
+            </p>    
+        </div>    
+    
+        <script src="Config.js"></script>    
+        <script>    
+            (function() {    
+                var script = document.createElement('script');    
+                script.src = 'Config.local.js';    
+                script.onerror = function() {    
+                    console.log('Config.local.js not found, using defaults from Config.js');    
+                };    
+                document.head.appendChild(script);    
+            })();    
+        </script>    
+        <script>    
+            function deepMerge(target, source) {    
+                for (var key in source) {    
+                    if (source.hasOwnProperty(key)) {    
+                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {    
+                            target[key] = deepMerge(target[key] || {}, source[key]);    
+                        } else {    
+                            target[key] = source[key];    
+                        }    
+                    }    
+                }    
+                return target;    
+            }    
+    
+            var APP_SCRIPTS = {    
                 1: 'Online.js',    
                 2: 'MapViewer.js',    
                 3: 'GrfViewer.js',    
@@ -62,34 +95,31 @@
                 7: 'EffectViewer.js'    
             };    
     
-            addEventListener('message', async function OnMessage(event) {    
+            addEventListener('message', function OnMessage(event) {    
                 if (event.source !== window.parent && event.source !== window.opener) {    
                     return;    
                 }    
                 removeEventListener('message', OnMessage, false);    
     
-                window.ROConfig = event.data;    
-                const appId = parseInt(event.data.application, 10) || 1;    
-                const scriptFile = APP_SCRIPTS[appId] || 'Online.js';    
+                var config = deepMerge({}, window.ROConfigBase || {});    
+                if (window.ROConfigLocal) {    
+                    config = deepMerge(config, window.ROConfigLocal);    
+                }    
+                config = deepMerge(config, event.data);    
+                window.ROConfig = config;    
     
-                try {    
-                    const mod = await import('./' + scriptFile);    
+                var appId = parseInt(config.application, 10) || 1;    
+                var scriptFile = APP_SCRIPTS[appId] || 'Online.js';    
+    
+                import('./' + scriptFile).then(function(mod) {    
                     if (typeof mod.default === 'function') {    
                         mod.default();    
                     }    
                     event.source.postMessage('ready', '*');    
-                } catch (err) {    
+                }).catch(function(err) {    
                     console.error('Failed to load app:', scriptFile, err);    
-                }    
+                });    
             }, false);    
         </script>    
-    </head>    
-    <body>    
-        <div id="ro-preloader">    
-            <div class="pre-spinner"></div>    
-            <p class="pre-text">    
-                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>    
-            </p>    
-        </div>    
     </body>    
 </html>    
