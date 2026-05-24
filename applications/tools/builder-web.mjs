@@ -565,6 +565,7 @@ function createApiHTML() {
                 50% { opacity: 1; transform: translateY(-4px); }    
             }    
         </style>    
+        <script src="api.js"></script>    
     </head>    
     <body>    
         <div id="ro-preloader">    
@@ -608,31 +609,41 @@ function createApiHTML() {
                 GRANNYMODELVIEWER: 'GrannyModelViewer.js',    
                 EFFECTVIEWER: 'EffectViewer.js'    
             };    
+            var APP_IDS = { 1: 'ONLINE', 2: 'MAPVIEWER', 3: 'GRFVIEWER', 4: 'MODELVIEWER', 5: 'STRVIEWER', 6: 'GRANNYMODELVIEWER', 7: 'EFFECTVIEWER' };    
+    
+            function loadApp(appName, extraConfig) {    
+                var scriptFile = APP_SCRIPTS[appName] || 'Online.js';    
+                var config = deepMerge({}, window.ROConfigBase || {});    
+                if (window.ROConfigLocal) { config = deepMerge(config, window.ROConfigLocal); }    
+                if (extraConfig) { config = deepMerge(config, extraConfig); }    
+                window.ROConfig = config;    
+                import('./' + scriptFile).then(function(mod) {    
+                    if (typeof mod.default === 'function') { mod.default(); }    
+                }).catch(function(err) { console.error('Failed to load app:', scriptFile, err); });    
+            }    
     
             window.addEventListener('load', function() {    
                 var params = new URLSearchParams(window.location.search);    
-                var appName = params.get('app') || 'ONLINE';    
-                var scriptFile = APP_SCRIPTS[appName] || 'Online.js';    
-    
-                var config = deepMerge({}, window.ROConfigBase || {});    
-                if (window.ROConfigLocal) {    
-                    config = deepMerge(config, window.ROConfigLocal);    
+                var appName = params.get('app');    
+                if (appName) {    
+                    loadApp(appName, null);    
+                } else {    
+                    window.addEventListener('message', function onMsg(event) {    
+                        if (!event.data || typeof event.data !== 'object') return;    
+                        if (!event.data.application) return;    
+                        window.removeEventListener('message', onMsg, false);    
+                        var name = APP_IDS[event.data.application] || 'ONLINE';    
+                        loadApp(name, event.data);    
+                        if (event.source) { event.source.postMessage('ready', '*'); }    
+                    }, false);    
                 }    
-                window.ROConfig = config;    
-    
-                import('./' + scriptFile).then(function(mod) {    
-                    if (typeof mod.default === 'function') {    
-                        mod.default();    
-                    }    
-                }).catch(function(err) {    
-                    console.error('Failed to load app:', scriptFile, err);    
-                });    
             });    
         </script>    
     </body>    
 </html>    
 `;
 	fs.writeFileSync(dist + platform + '/api.html', apiHtml, { encoding: 'utf8' });
+	fs.copyFileSync('./applications/api/api.js', dist + platform + '/api.js');
 }
 
 function copyPwaFiles() {

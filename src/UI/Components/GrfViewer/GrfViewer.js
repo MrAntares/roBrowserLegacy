@@ -1,4 +1,3 @@
-/* global ROBrowser */
 /**
  * UI/Components/GrfViewer/GrfViewer.js
  *
@@ -21,7 +20,7 @@ import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './GrfViewer.html?raw';
 import cssText from './GrfViewer.css?raw';
 import History from './History.js';
-import '../../../../applications/api/api.js';
+
 
 /**
  * Create GRFViewer component
@@ -755,18 +754,24 @@ function onImageClick(iconEl) {
  */
 const onObjectClick = (() => {
 	let ready = false;
+	let App = null;
 	const element = document.createElement('div');
 
-	const App = new ROBrowser({
-		target: element,
-		type: ROBrowser.TYPE.FRAME,
-		application: ROBrowser.APP.MODELVIEWER,
-		development: Configs.get('development', false),
-		api: true,
-		width: 500,
-		height: 400,
-		version: Configs.get('version', '')
-	});
+	function initApp() {
+		if (App) return true;
+		if (typeof ROBrowser === 'undefined') return false;
+		App = new ROBrowser({ // eslint-disable-line no-undef
+			target: element,
+			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
+			application: ROBrowser.APP.MODELVIEWER, // eslint-disable-line no-undef
+			development: Configs.get('development', false),
+			api: true,
+			width: 500,
+			height: 400,
+			version: Configs.get('version', '')
+		});
+		return true;
+	}
 
 	function onMessage(event) {
 		if (typeof event.data !== 'object') {
@@ -804,6 +809,7 @@ const onObjectClick = (() => {
 	}
 
 	return iconEl => {
+		if (!initApp()) return;
 		const root = _getRoot();
 		const path = iconEl.getAttribute('data-path').replace(/\\/g, '/');
 		const box = root.querySelector('#preview .box');
@@ -850,18 +856,24 @@ const onObjectClick = (() => {
  */
 const onEffectClick = (() => {
 	let ready = false;
+	let App = null;
 	const element = document.createElement('div');
 
-	const App = new ROBrowser({
-		target: element,
-		type: ROBrowser.TYPE.FRAME,
-		application: ROBrowser.APP.STRVIEWER,
-		development: Configs.get('development', false),
-		api: true,
-		width: 400,
-		height: 400,
-		version: Configs.get('version', '')
-	});
+	function initApp() {
+		if (App) return true;
+		if (typeof ROBrowser === 'undefined') return false;
+		App = new ROBrowser({ // eslint-disable-line no-undef
+			target: element,
+			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
+			application: ROBrowser.APP.STRVIEWER, // eslint-disable-line no-undef
+			development: Configs.get('development', false),
+			api: true,
+			width: 400,
+			height: 400,
+			version: Configs.get('version', '')
+		});
+		return true;
+	}
 
 	function onMessage(event) {
 		if (typeof event.data !== 'object') {
@@ -899,6 +911,7 @@ const onEffectClick = (() => {
 	}
 
 	return iconEl => {
+		if (!initApp()) return;
 		const root = _getRoot();
 		const path = iconEl.getAttribute('data-path').replace(/\\/g, '/');
 		const box = root.querySelector('#preview .box');
@@ -944,18 +957,24 @@ const onEffectClick = (() => {
  */
 const onWorldClick = (() => {
 	let ready = false;
+	let App = null;
 	const element = document.createElement('div');
 
-	const App = new ROBrowser({
-		target: element,
-		type: ROBrowser.TYPE.FRAME,
-		application: ROBrowser.APP.MAPVIEWER,
-		development: Configs.get('development', false),
-		api: true,
-		width: 600,
-		height: 480,
-		version: Configs.get('version', '')
-	});
+	function initApp() {
+		if (App) return true;
+		if (typeof ROBrowser === 'undefined') return false;
+		App = new ROBrowser({ // eslint-disable-line no-undef
+			target: element,
+			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
+			application: ROBrowser.APP.MAPVIEWER, // eslint-disable-line no-undef
+			development: Configs.get('development', false),
+			api: true,
+			width: 600,
+			height: 480,
+			version: Configs.get('version', '')
+		});
+		return true;
+	}
 
 	function onMessage(event) {
 		if (typeof event.data !== 'object') {
@@ -1005,6 +1024,7 @@ const onWorldClick = (() => {
 	}
 
 	return iconEl => {
+		if (!initApp()) return;
 		const root = _getRoot();
 		const path = iconEl.getAttribute('data-path').replace(/\\/g, '/');
 		const progress = root.querySelector('#progress');
@@ -1106,18 +1126,24 @@ function onTextClick(iconEl) {
  */
 const onGrannyClick = (() => {
 	let ready = false;
+	let App = null;
 	const element = document.createElement('div');
 
-	const App = new ROBrowser({
-		target: element,
-		type: ROBrowser.TYPE.FRAME,
-		application: ROBrowser.APP.GRANNYMODELVIEWER,
-		development: Configs.get('development', false),
-		api: true,
-		width: 500,
-		height: 400,
-		version: Configs.get('version', '')
-	});
+	function initApp() {
+		if (App) return true;
+		if (typeof ROBrowser === 'undefined') return false;
+		App = new ROBrowser({ // eslint-disable-line no-undef
+			target: element,
+			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
+			application: ROBrowser.APP.GRANNYMODELVIEWER, // eslint-disable-line no-undef
+			development: Configs.get('development', false),
+			api: true,
+			width: 500,
+			height: 400,
+			version: Configs.get('version', '')
+		});
+		return true;
+	}
 
 	// Ressource sharing (Currently unused, preserved for future development)
 	function _onMessage(event) {
@@ -1157,6 +1183,7 @@ const onGrannyClick = (() => {
 	}
 
 	return _iconEl => {
+		if (!initApp()) return;
 		alert('This module is under development.');
 		return;
 
