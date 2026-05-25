@@ -3,7 +3,7 @@
     <head>    
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>    
         <meta charset="UTF-8">    
-        <title>roBrowser [2.0.0 - 2026-05-22 10:13:40]</title>    
+        <title>roBrowser [2.0.0 - 2026-05-25 00:26:38]</title>    
         <link rel="icon" type="image/png" href="./icon.png">    
     
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
@@ -27,7 +27,7 @@
         <meta property="og:locale" content="en_US">    
     
         <link rel="apple-touch-icon" href="./icon.png">    
-            
+        <link rel="manifest" href="./manifest.webmanifest">    
   
         <style>    
             html, body {    
@@ -76,55 +76,72 @@
                 opacity: 0;    
                 transition: opacity 0.3s ease;    
             }    
+            .app-launcher {    
+                display: flex;    
+                flex-direction: column;    
+                align-items: center;    
+                justify-content: center;    
+                min-height: 100vh;    
+                background: rgba(6, 8, 16, 0.97);    
+                font-family: serif;    
+                color: #e8b84b;    
+            }    
+            .app-launcher h1 {    
+                font-size: 28px;    
+                letter-spacing: 3px;    
+                text-transform: uppercase;    
+                margin-bottom: 32px;    
+            }    
+            .button-grid {    
+                display: flex;    
+                flex-wrap: wrap;    
+                gap: 16px;    
+                justify-content: center;    
+                max-width: 600px;    
+            }    
+            .app-btn {    
+                padding: 14px 28px;    
+                font-family: serif;    
+                font-size: 16px;    
+                letter-spacing: 2px;    
+                color: #e8b84b;    
+                background: transparent;    
+                border: 2px solid rgba(232, 184, 75, 0.4);    
+                border-radius: 8px;    
+                cursor: pointer;    
+                transition: all 0.3s ease;    
+            }    
+            .app-btn:hover {    
+                background: rgba(232, 184, 75, 0.15);    
+                border-color: #e8b84b;    
+            }    
         </style>    
     </head>    
     <body>    
-        <div id="ro-preloader">    
-            <div class="pre-spinner"></div>    
-            <p class="pre-text">    
-                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>    
-            </p>    
+        <div class="app-launcher">    
+            <h1>roBrowser App Launcher</h1>    
+            <div class="button-grid">    
+                <button class="app-btn" onclick="launchApp('ONLINE')">Online</button>
+                <button class="app-btn" onclick="launchApp('GRANNYMODELVIEWER')">Granny Model Viewer</button>
+                <button class="app-btn" onclick="launchApp('GRFVIEWER')">GRF Viewer</button>
+                <button class="app-btn" onclick="launchApp('MAPVIEWER')">Map Viewer</button>
+                <button class="app-btn" onclick="launchApp('MODELVIEWER')">Model Viewer</button>
+                <button class="app-btn" onclick="launchApp('STRVIEWER')">STR Viewer</button>
+                <button class="app-btn" onclick="launchApp('EFFECTVIEWER')">Effect Viewer</button>    
+            </div>    
         </div>    
   
-        <script src="Config.js"></script>    
-        <script>    
-            // Load optional Config.local.js for overrides (fails silently if not present)    
-            (function() {    
-                var script = document.createElement('script');    
-                script.src = 'Config.local.js';    
-                script.onerror = function() {    
-                    console.log('Config.local.js not found, using defaults from Config.js');    
-                };    
-                document.head.appendChild(script);    
-            })();    
-        </script>    
-        <script>    
-            function deepMerge(target, source) {    
-                for (var key in source) {    
-                    if (source.hasOwnProperty(key)) {    
-                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {    
-                            target[key] = deepMerge(target[key] || {}, source[key]);    
-                        } else {    
-                            target[key] = source[key];    
-                        }    
-                    }    
-                }    
-                return target;    
+        <script type="text/javascript">    
+            function launchApp(appName) {    
+                var w = 800, h = 600;    
+                var top = (screen.height - h) / 2;    
+                var left = (screen.width - w) / 2;    
+                window.open(    
+                    'api.html?app=' + appName,    
+                    '_blank',    
+                    'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left + ',menubar=0,toolbar=0,location=0,status=0,resizable=1,scrollbars=0'    
+                );    
             }    
-    
-            window.addEventListener("load", (event) => {    
-                // Merge Config.js defaults with Config.local.js overrides    
-                var config = deepMerge({}, window.ROConfigBase || {});    
-                if (window.ROConfigLocal) {    
-                    config = deepMerge(config, window.ROConfigLocal);    
-                }    
-                window.ROConfig = config;    
-    
-				var script = document.createElement('script');    
-				script.type = 'module';    
-				script.src = 'Online.js';    
-				document.getElementsByTagName('body')[0].appendChild(script);  
-            });    
         </script>    
     </body>    
 </html>    
