@@ -16,7 +16,7 @@ import GrannyModel from 'Loaders/GrannyModel.js';
 import Renderer from 'Renderer/Renderer.js';
 import ModelRenderer from 'Renderer/Map/Models.js';
 import Camera from 'Renderer/Camera.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './GrannyModelViewer.html?raw';
 import cssText from './GrannyModelViewer.css?raw';
 
@@ -45,7 +45,8 @@ const _light = {
 	opacity: 1.0,
 	ambient: new Float32Array([Math.PI, Math.PI, Math.PI]),
 	diffuse: new Float32Array([0, 0, 0]),
-	direction: new Float32Array([0, 1, 0])
+	direction: new Float32Array([0, 1, 0]),
+	env: new Float32Array([1, 1, 1])
 };
 
 /**
@@ -64,7 +65,7 @@ const _GlobalParameters = {
 const _modelView = new Float32Array(4 * 4);
 
 /**
- * @var {mat3} normal Mat
+ * @var {mat3} normal mat
  */
 const _normalMat = new Float32Array(3 * 3);
 
@@ -74,14 +75,23 @@ const _normalMat = new Float32Array(3 * 3);
 let _model = null;
 
 /**
- * Create GRFViewer component
+ * Create GrannyModelViewer component
  */
-const Viewer = new UIComponent('GRFViewer', htmlText, cssText);
+const Viewer = new GUIComponent('GrannyModelViewer', cssText);
+
+Viewer.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return Viewer._shadow || Viewer._host;
+}
 
 /**
  * Initialize Component
  */
-Viewer.init = function Init() {
+Viewer.init = function init() {
 	// Initialize WebGL
 	Renderer.init({
 		alpha: true,
@@ -90,11 +100,13 @@ Viewer.init = function Init() {
 		antialias: true,
 		premultipliedAlpha: false
 	});
+
 	Renderer.show();
 
-	// Initialize the dropdown
+	const root = _getRoot();
+
 	if (!Configs.get('API')) {
-		initDropDown(this.ui.find('select').get(0));
+		initDropDown(root.querySelector('select'));
 	} else {
 		const hash = decodeURIComponent(location.hash);
 		location.hash = hash;
@@ -103,31 +115,37 @@ Viewer.init = function Init() {
 };
 
 /**
+ * Once append to body, set body styles
+ */
+Viewer.onAppend = function onAppend() {
+	document.body.style.backgroundColor = '#45484d';
+	document.body.style.fontFamily = 'Arial';
+	document.body.style.fontSize = '12px';
+	document.body.style.margin = '0';
+	document.body.style.overflow = 'hidden';
+};
+
+/**
  * Initialise Drop Down list
  *
- * @param {HTMLElement} drop down
+ * @param {HTMLElement} select dropdown
  */
 function initDropDown(select) {
-	// Search RSMs from the client
-	Client.search(/data\\[^\0]+\.gr2/gi, function (list) {
-		let i, count;
+	Client.search(/data\\[^\0]+\.gr2/gi, list => {
+		list.sort();
 
-		// Add selection
-		for (i = 0, count = list.length; i < count; ++i) {
+		for (let i = 0, count = list.length; i < count; ++i) {
 			list[i] = list[i].replace(/\\/g, '/');
 			select.add(new Option(list[i], list[i]), null);
 		}
 
-		// Bind change
 		select.onchange = function () {
 			loadModel((location.hash = this.value));
 		};
 
-		// Start loading a model ?
 		const hash = decodeURIComponent(location.hash);
 		location.hash = hash;
 
-		// Load RSM from url ?
 		if (hash.indexOf('.gr2') !== -1) {
 			loadModel(hash.substr(1));
 			select.value = hash.substr(1);
@@ -135,7 +153,8 @@ function initDropDown(select) {
 			loadModel(select.value);
 		}
 
-		Viewer.ui.find('.head').show();
+		const root = _getRoot();
+		root.querySelector('.head').style.display = 'block';
 		select.focus();
 	});
 }
@@ -159,7 +178,7 @@ function stop() {
 function loadModel(filename) {
 	stop();
 
-	Client.getFile(filename, function (buf) {
+	Client.getFile(filename, buf => {
 		_model = new GrannyModel(buf);
 
 		let i, count, j, size, total, offset, length;
@@ -176,7 +195,6 @@ function loadModel(filename) {
 		count = data.meshes.length;
 		total = 0;
 
-		// Extract meshes
 		for (i = 0, count = data.meshes.length; i < count; ++i) {
 			meshes = data.meshes[i];
 			index = Object.keys(meshes);
@@ -196,49 +214,42 @@ function loadModel(filename) {
 		count = objects.length;
 		offset = 0;
 
-		// Merge meshes to buffer
 		for (i = 0; i < count; ++i) {
 			object = objects[i];
 			length = object.mesh.length;
 
 			infos[i] = {
-				texture: 'data/texture/' + object.texture,
+				texture: `data/texture/${object.texture}`,
 				vertOffset: offset / 9,
 				vertCount: length / 9
 			};
 
-			// Add to buffer
 			buffer.set(object.mesh, offset);
 			offset += length;
 		}
 
-		// Load textures
 		i = -1;
 		function loadNextTexture() {
-			// Loading complete, rendering...
 			if (++i === count) {
-				// Initialize renderer
 				ModelRenderer.init(Renderer.getContext(), {
 					buffer: buffer,
 					infos: infos
 				});
 
-				// Start rendering
 				Renderer.render(render);
 				return;
 			}
 
 			Client.loadFile(
 				infos[i].texture,
-				function (url) {
-					infos[i].texture = url;
+				binaryData => {
+					infos[i].texture = binaryData;
 					loadNextTexture();
 				},
 				loadNextTexture
 			);
 		}
 
-		// Start loading textures
 		loadNextTexture();
 	});
 }
