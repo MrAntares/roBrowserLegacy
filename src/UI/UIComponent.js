@@ -10,16 +10,41 @@
 
 import CommonCSS from './Common.css?raw';
 import jQuery from 'Utils/jquery.js';
-import Cursor from 'UI/CursorManager.js';
-import DB from 'DB/DBManager.js';
-import Client from 'Core/Client.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIPreferences from 'Preferences/UI.js';
 import Session from 'Engine/SessionStorage.js';
 import Targa from 'Loaders/Targa.js';
-import Renderer from 'Renderer/Renderer.js';
-import EntityManager from 'Renderer/EntityManager.js';
-import ScrollBar from 'UI/Scrollbar.js';
+
+/**
+ * Heavy modules loaded lazily to keep viewer bundles lightweight.
+ * In Online/full-game context these resolve instantly (already loaded).
+ * In viewer context they are never triggered.
+ */
+let _Cursor = null;
+let _DB = null;
+let _Client = null;
+let _Renderer = null;
+let _EntityManager = null;
+let _ScrollBar = null;
+
+
+async function _loadHeavyDeps() {
+	if (_Cursor) return;
+	const [CursorMod, DBMod, ClientMod, RendererMod, EntityManagerMod, ScrollBarMod] = await Promise.all([
+		import('UI/CursorManager.js'),
+		import('DB/DBManager.js'),
+		import('Core/Client.js'),
+		import('Renderer/Renderer.js'),
+		import('Renderer/EntityManager.js'),
+		import('UI/Scrollbar.js')
+	]);
+	_Cursor = CursorMod.default;
+	_DB = DBMod.default;
+	_Client = ClientMod.default;
+	_Renderer = RendererMod.default;
+	_EntityManager = EntityManagerMod.default;
+	_ScrollBar = ScrollBarMod.default;
+}
 
 /**
  * Create a component
@@ -96,6 +121,7 @@ let _snapCache = [];
  * Prepare the component to be used
  */
 UIComponent.prototype.prepare = function prepare() {
+	_loadHeavyDeps();
 	if (this.__loaded) {
 		return;
 	}
@@ -139,8 +165,8 @@ UIComponent.prototype.prepare = function prepare() {
 				_enter++;
 				if (_intersect) {
 					Mouse.intersect = false;
-					Cursor.setType(Cursor.ACTION.DEFAULT);
-					EntityManager.setOverEntity(null);
+					_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
+					_EntityManager?.setOverEntity(null);
 				}
 			}
 		});
@@ -154,7 +180,7 @@ UIComponent.prototype.prepare = function prepare() {
 					if (!Session.FreezeUI) {
 						Mouse.intersect = true;
 					}
-					EntityManager.setOverEntity(null);
+					_EntityManager?.setOverEntity(null);
 				}
 			}
 		});
@@ -166,7 +192,7 @@ UIComponent.prototype.prepare = function prepare() {
 				_enter = 0;
 				if (_intersect) {
 					Mouse.intersect = true;
-					EntityManager.setOverEntity(null);
+					_EntityManager?.setOverEntity(null);
 				}
 			}
 		});
@@ -262,7 +288,7 @@ UIComponent.prototype.append = function append(target) {
 	if (this.mouseMode === UIComponent.MouseMode.FREEZE) {
 		Mouse.intersect = false;
 		Session.FreezeUI = true;
-		Cursor.setType(Cursor.ACTION.DEFAULT);
+		_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
 	}
 
 	if (this.onAppend) {
@@ -296,7 +322,7 @@ UIComponent.prototype.append = function append(target) {
 					return true;
 				})
 				.each(function () {
-					ScrollBar.applyDOMScrollbar(this);
+					_ScrollBar?.applyDOMScrollbar(this);
 				});
 		}
 
@@ -354,8 +380,8 @@ UIComponent.prototype.append = function append(target) {
 		const y = this.ui.offset().top;
 		const width = this.ui.width();
 		const height = this.ui.height();
-		const WIDTH = Renderer.width;
-		const HEIGHT = Renderer.height;
+		const WIDTH = _Renderer?.width ?? window.innerWidth;
+		const HEIGHT = _Renderer?.height ?? window.innerHeight;
 
 		if (y + height > HEIGHT) {
 			this.ui.css('top', HEIGHT - Math.min(height, HEIGHT));
@@ -619,8 +645,12 @@ UIComponent.prototype.draggable = function draggable(element) {
 					const padX = component.gridSnap.padX || 0;
 					const padY = component.gridSnap.padY || 0;
 
-					const maxXIndex = Math.floor((Renderer.width - container.width() - padX) / gw);
-					const maxYIndex = Math.floor((Renderer.height - container.height() - padY) / gh);
+					const maxXIndex = Math.floor(
+						((_Renderer?.width ?? window.innerWidth) - container.width() - padX) / gw
+					);
+					const maxYIndex = Math.floor(
+						((_Renderer?.height ?? window.innerHeight) - container.height() - padY) / gh
+					);
 
 					let gridXIndex = Math.round((pos.left - padX) / gw);
 					let gridYIndex = Math.round((pos.top - padY) / gh);
@@ -777,13 +807,13 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 	}
 
 	// text
-	if (msgId && DB.getMessage(msgId, '')) {
-		$node.text(DB.getMessage(msgId, ''));
+	if (msgId && _DB?.getMessage(msgId, '')) {
+		$node.text(_DB?.getMessage(msgId, ''));
 	}
 
 	// Default background
 	if (background) {
-		Client.loadFile(DB.INTERFACE_PATH + background, function (dataURI) {
+		_Client?.loadFile(_DB.INTERFACE_PATH + background, function (dataURI) {
 			bg_uri = dataURI;
 			if (dataURI instanceof ArrayBuffer) {
 				try {
@@ -800,7 +830,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 
 	// Active background
 	if (active) {
-		Client.loadFile(DB.INTERFACE_PATH + active, function (dataURI) {
+		_Client?.loadFile(_DB.INTERFACE_PATH + active, function (dataURI) {
 			active_uri = dataURI;
 
 			// Initialize active state if class is already present
@@ -836,7 +866,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 
 	// On mouse over
 	if (hover) {
-		Client.loadFile(DB.INTERFACE_PATH + hover, function (dataURI) {
+		_Client?.loadFile(_DB.INTERFACE_PATH + hover, function (dataURI) {
 			hover_uri = dataURI;
 		});
 		$node.mouseover(function () {
@@ -851,7 +881,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 
 	// On mouse down
 	if (down) {
-		Client.loadFile(DB.INTERFACE_PATH + down, function (dataURI) {
+		_Client?.loadFile(_DB.INTERFACE_PATH + down, function (dataURI) {
 			down_uri = dataURI;
 		});
 		$node.mousedown(function (event) {
@@ -877,9 +907,9 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 	if (preload) {
 		preloads = preload.split(';');
 		for (i = 0, count = preloads.length; i < count; ++i) {
-			preloads[i] = DB.INTERFACE_PATH + jQuery.trim(preloads[i]);
+			preloads[i] = _DB.INTERFACE_PATH + jQuery.trim(preloads[i]);
 		}
-		Client.loadFiles(preloads);
+		_Client?.loadFiles(preloads);
 	}
 };
 

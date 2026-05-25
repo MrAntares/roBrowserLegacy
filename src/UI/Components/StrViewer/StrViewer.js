@@ -1,7 +1,7 @@
 /**
  * UI/Components/StrViewer/StrViewer.js
  *
- * Model Viewer (rsm file)
+ * STR Effect Viewer
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -15,8 +15,7 @@ import Renderer from 'Renderer/Renderer.js';
 import EffectManager from 'Renderer/EffectManager.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import Camera from 'Renderer/Camera.js';
-import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './StrViewer.html?raw';
 import cssText from './StrViewer.css?raw';
 
@@ -38,24 +37,33 @@ const _fog = {
 };
 
 /**
- * @var {object} model View mat
+ * @var {mat4} model view mat
  */
 const _modelView = mat4.create();
 
 /**
- * @var {StrEffect} current effect
+ * @var {StrEffect} current str effect
  */
 let _strObject = null;
 
 /**
- * Create GRFViewer component
+ * Create StrViewer component
  */
-const Viewer = new UIComponent('StrViewer', htmlText, cssText);
+const Viewer = new GUIComponent('StrViewer', cssText);
+
+Viewer.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return Viewer._shadow || Viewer._host;
+}
 
 /**
  * Initialize Component
  */
-Viewer.init = function Init() {
+Viewer.init = function init() {
 	// Initialize WebGL
 	Renderer.init({
 		alpha: false,
@@ -69,9 +77,10 @@ Viewer.init = function Init() {
 	EffectManager.init(Renderer.getContext());
 	Client.init([]);
 
-	// Initialize the dropdown
+	const root = _getRoot();
+
 	if (!Configs.get('API')) {
-		initDropDown(this.ui.find('select').get(0));
+		initDropDown(root.querySelector('select'));
 	} else {
 		const hash = decodeURIComponent(location.hash);
 		location.hash = hash;
@@ -80,41 +89,46 @@ Viewer.init = function Init() {
 };
 
 /**
+ * Once append to body, set body styles
+ */
+Viewer.onAppend = function onAppend() {
+	document.body.style.backgroundColor = '#45484d';
+	document.body.style.fontFamily = 'Arial';
+	document.body.style.fontSize = '12px';
+	document.body.style.margin = '0';
+	document.body.style.overflow = 'hidden';
+};
+
+/**
  * Initialise Drop Down list
  *
- * @param {HTMLElement} drop down
+ * @param {HTMLElement} select dropdown
  */
 function initDropDown(select) {
-	// Search RSMs from the client
-	Client.search(/data\\[^\0]+\.str/gi, function (list) {
-		let i, count;
-
+	Client.search(/data\\[^\0]+\.str/gi, list => {
 		list.sort();
 
-		// Add selection
-		for (i = 0, count = list.length; i < count; ++i) {
+		for (let i = 0, count = list.length; i < count; ++i) {
 			list[i] = list[i].replace(/\\/g, '/');
 			select.add(new Option(list[i], list[i]), null);
 		}
 
-		// Bind change
 		select.onchange = function () {
 			loadEffect((location.hash = this.value));
 		};
 
-		// Start loading a model ?
 		const hash = decodeURIComponent(location.hash);
 		location.hash = hash;
 
-		// Load RSM from url ?
-		if (hash.indexOf('.rsm') !== -1) {
+		if (hash.indexOf('.str') !== -1) {
 			loadEffect(hash.substr(1));
 			select.value = hash.substr(1);
 		} else {
 			loadEffect(select.value);
 		}
 
-		Viewer.ui.find('.head').show();
+		const root = _getRoot();
+		root.querySelector('.head').style.display = 'block';
 		select.focus();
 	});
 }
@@ -127,7 +141,7 @@ function initDropDown(select) {
 function loadEffect(filename) {
 	stop();
 
-	Client.loadFile(filename, function (buf) {
+	Client.loadFile(filename, () => {
 		if (_strObject) {
 			_strObject._needCleanUp = true;
 		}
@@ -135,14 +149,10 @@ function loadEffect(filename) {
 		_strObject = new StrEffect(filename, [0, 0, 0], Renderer.tick);
 		_strObject._needCleanUp = false;
 
-		// Hacky way
 		Object.defineProperty(_strObject, 'needCleanUp', {
-			// Get stat
 			get: function () {
 				return this._needCleanUp;
 			},
-
-			// Repeat
 			set: function (val) {
 				if (val) {
 					this.startTick = Renderer.tick;
@@ -185,7 +195,7 @@ function render(tick, gl) {
 }
 
 /**
- * Exports methods
+ * Export
  */
 Viewer.loadEffect = loadEffect;
 Viewer.stop = stop;
@@ -193,4 +203,4 @@ Viewer.stop = stop;
 /**
  * Stored component and return it
  */
-export default UIManager.addComponent(Viewer);
+export default Viewer;

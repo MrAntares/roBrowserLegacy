@@ -68,11 +68,11 @@ const entryMap = {
 		S: { path: '/StrViewer.js', action: () => compile('StrViewer', args['m']) },
 		E: { path: '/EffectViewer.js', action: () => compile('EffectViewer', args['m']) },
 		T: { path: '/ThreadEventHandler.js', action: () => compile('ThreadEventHandler', args['m']) },
-		H: { path: '/index.html', action: createHTML },
+		H: { path: '/index.html', action: () => createHTML(false, args, isAll) },
 		PWA: {
 			path: '/index.html',
 			action: () => {
-				createHTML(true);
+				createHTML(true, args, isAll);
 				copyPwaFiles();
 			}
 		}
@@ -164,10 +164,24 @@ async function compile(appName, isMinify) {
 	}
 }
 
-function createHTML(includeManifest = false) {
+function createHTML(includeManifest = false, buildArgs = {}, isAllBuild = false) {
 	const start = Date.now();
-	let manifest = includeManifest ? `<link rel="manifest" href="./manifest.webmanifest">` : ``;
-	const body = `<!DOCTYPE html>    
+	const manifest = includeManifest ? `<link rel="manifest" href="./manifest.webmanifest">` : ``;
+
+	const appButtonMap = [
+		{ flag: 'O', app: 'ONLINE', label: 'Online' },
+		{ flag: 'G', app: 'GRANNYMODELVIEWER', label: 'Granny Model Viewer' },
+		{ flag: 'D', app: 'GRFVIEWER', label: 'GRF Viewer' },
+		{ flag: 'V', app: 'MAPVIEWER', label: 'Map Viewer' },
+		{ flag: 'M', app: 'MODELVIEWER', label: 'Model Viewer' },
+		{ flag: 'S', app: 'STRVIEWER', label: 'STR Viewer' },
+		{ flag: 'E', app: 'EFFECTVIEWER', label: 'Effect Viewer' }
+	];
+
+	const viewerFlags = appButtonMap.filter(v => v.flag !== 'O').map(v => v.flag);
+	const hasViewerFlags = isAllBuild || viewerFlags.some(flag => buildArgs[flag]);
+
+	const commonHead = `<!DOCTYPE html>    
 <html>    
     <head>    
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>    
@@ -196,7 +210,133 @@ function createHTML(includeManifest = false) {
         <meta property="og:locale" content="en_US">    
     
         <link rel="apple-touch-icon" href="./icon.png">    
-        ${manifest}    
+        ${manifest}`;
+
+	let body;
+
+	if (hasViewerFlags) {
+		const activeViewers = appButtonMap.filter(v => isAllBuild || buildArgs[v.flag]);
+		const buttons = activeViewers
+			.map(v => `                <button class="app-btn" onclick="launchApp('${v.app}')">${v.label}</button>`)
+			.join('\n');
+
+		createApiHTML();
+
+		body = `${commonHead}    
+  
+        <style>    
+            html, body {    
+                margin: 0; padding: 0; border: 0;    
+                height: 100%; width: 100%; overflow: hidden;    
+            }    
+            #ro-preloader {    
+                position: fixed;    
+                top: 0; left: 0;    
+                width: 100%; height: 100%;    
+                z-index: 99999;    
+                background: rgba(6, 8, 16, 0.97);    
+                display: flex;    
+                align-items: center;    
+                justify-content: center;    
+                flex-direction: column;    
+            }    
+            #ro-preloader .pre-spinner {    
+                width: 48px; height: 48px;    
+                margin: 0 auto 16px;    
+                border: 4px solid rgba(232, 184, 75, 0.2);    
+                border-top-color: #e8b84b;    
+                border-radius: 50%;    
+                animation: ro-pre-spin 0.8s linear infinite;    
+            }    
+            #ro-preloader .pre-text {    
+                font-family: serif;    
+                font-size: 16px;    
+                letter-spacing: 3px;    
+                text-transform: uppercase;    
+                color: #e8b84b;    
+            }    
+            #ro-preloader .pre-text span {    
+                display: inline-block;    
+                animation: ro-pre-wave 1.2s ease-in-out infinite;    
+                animation-delay: calc(var(--i) * 0.08s);    
+            }    
+            @keyframes ro-pre-spin {    
+                to { transform: rotate(360deg); }    
+            }    
+            @keyframes ro-pre-wave {    
+                0%, 60%, 100% { transform: translateY(0); }    
+                30% { transform: translateY(-8px); }    
+            }    
+            #ro-preloader.fade-out {    
+                opacity: 0;    
+                transition: opacity 0.3s ease;    
+            }    
+            .app-launcher {    
+                display: flex;    
+                flex-direction: column;    
+                align-items: center;    
+                justify-content: center;    
+                min-height: 100vh;    
+                background: rgba(6, 8, 16, 0.97);    
+                font-family: serif;    
+                color: #e8b84b;    
+            }    
+            .app-launcher h1 {    
+                font-size: 28px;    
+                letter-spacing: 3px;    
+                text-transform: uppercase;    
+                margin-bottom: 32px;    
+            }    
+            .button-grid {    
+                display: flex;    
+                flex-wrap: wrap;    
+                gap: 16px;    
+                justify-content: center;    
+                max-width: 600px;    
+            }    
+            .app-btn {    
+                padding: 14px 28px;    
+                font-family: serif;    
+                font-size: 16px;    
+                letter-spacing: 2px;    
+                color: #e8b84b;    
+                background: transparent;    
+                border: 2px solid rgba(232, 184, 75, 0.4);    
+                border-radius: 8px;    
+                cursor: pointer;    
+                transition: all 0.3s ease;    
+            }    
+            .app-btn:hover {    
+                background: rgba(232, 184, 75, 0.15);    
+                border-color: #e8b84b;    
+            }    
+        </style>    
+    </head>    
+    <body>    
+        <div class="app-launcher">    
+            <h1>roBrowser App Launcher</h1>    
+            <div class="button-grid">    
+${buttons}    
+            </div>    
+        </div>    
+  
+        <script type="text/javascript">    
+            function launchApp(appName) {    
+                var w = 800, h = 600;    
+                var top = (screen.height - h) / 2;    
+                var left = (screen.width - w) / 2;    
+                window.open(    
+                    'api.html?app=' + appName,    
+                    '_blank',    
+                    'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left + ',menubar=0,toolbar=0,location=0,status=0,resizable=1,scrollbars=0'    
+                );    
+            }    
+        </script>    
+    </body>    
+</html>    
+`;
+	} else {
+		body = `${commonHead}    
   
         <style>    
             html, body {    
@@ -298,6 +438,8 @@ function createHTML(includeManifest = false) {
     </body>    
 </html>    
 `;
+	}
+
 	fs.writeFileSync(dist + platform + '/index.html', body, { encoding: 'utf8' });
 	createConfigJS();
 	console.log('index.html has been created in', Date.now() - start, 'ms.');
@@ -370,6 +512,139 @@ window.ROConfigBase = {
 };  
 `;
 	fs.writeFileSync(dist + platform + '/Config.js', configContent, { encoding: 'utf8' });
+}
+
+function createApiHTML() {
+	const apiHtml = `<!DOCTYPE html>    
+<html>    
+    <head>    
+        <meta charset="UTF-8">    
+        <title>roBrowserLegacy</title>    
+        <style>    
+            html, body {    
+                margin: 0; padding: 0; border: 0;    
+                height: 100%; width: 100%; overflow: hidden;    
+            }    
+            #ro-preloader {    
+                position: fixed;    
+                top: 0; left: 0;    
+                width: 100%; height: 100%;    
+                z-index: 99999;    
+                background: rgba(6, 8, 16, 0.97);    
+                display: flex;    
+                align-items: center;    
+                justify-content: center;    
+                flex-direction: column;    
+                gap: 18px;    
+            }    
+            .pre-spinner {    
+                width: 48px; height: 48px;    
+                border: 4px solid rgba(232, 184, 75, 0.2);    
+                border-top-color: #e8b84b;    
+                border-radius: 50%;    
+                animation: ro-spin 0.8s linear infinite;    
+            }    
+            @keyframes ro-spin {    
+                to { transform: rotate(360deg); }    
+            }    
+            .pre-text {    
+                font-family: 'Cinzel', serif;    
+                font-size: 16px;    
+                letter-spacing: 3px;    
+                text-transform: uppercase;    
+                color: #e8b84b;    
+                display: flex;    
+                gap: 2px;    
+            }    
+            .pre-text span {    
+                animation: ro-wave 1.2s ease-in-out infinite;    
+                animation-delay: calc(var(--i) * 0.08s);    
+            }    
+            @keyframes ro-wave {    
+                0%, 100% { opacity: 0.4; transform: translateY(0); }    
+                50% { opacity: 1; transform: translateY(-4px); }    
+            }    
+        </style>    
+        <script src="api.js"></script>    
+    </head>    
+    <body>    
+        <div id="ro-preloader">    
+            <div class="pre-spinner"></div>    
+            <p class="pre-text">    
+                <span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">a</span><span style="--i:3">d</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">g</span><span style="--i:7">.</span><span style="--i:8">.</span><span style="--i:9">.</span>    
+            </p>    
+        </div>    
+    
+        <script src="Config.js"></script>    
+        <script>    
+            (function() {    
+                var script = document.createElement('script');    
+                script.src = 'Config.local.js';    
+                script.onerror = function() {    
+                    console.log('Config.local.js not found, using defaults from Config.js');    
+                };    
+                document.head.appendChild(script);    
+            })();    
+        </script>    
+        <script>    
+            function deepMerge(target, source) {    
+                for (var key in source) {    
+                    if (source.hasOwnProperty(key)) {    
+                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {    
+                            target[key] = deepMerge(target[key] || {}, source[key]);    
+                        } else {    
+                            target[key] = source[key];    
+                        }    
+                    }    
+                }    
+                return target;    
+            }    
+    
+            var APP_SCRIPTS = {    
+                ONLINE: 'Online.js',    
+                MAPVIEWER: 'MapViewer.js',    
+                GRFVIEWER: 'GrfViewer.js',    
+                MODELVIEWER: 'ModelViewer.js',    
+                STRVIEWER: 'StrViewer.js',    
+                GRANNYMODELVIEWER: 'GrannyModelViewer.js',    
+                EFFECTVIEWER: 'EffectViewer.js'    
+            };    
+            var APP_IDS = { 1: 'ONLINE', 2: 'MAPVIEWER', 3: 'GRFVIEWER', 4: 'MODELVIEWER', 5: 'STRVIEWER', 6: 'GRANNYMODELVIEWER', 7: 'EFFECTVIEWER' };    
+    
+            function loadApp(appName, extraConfig) {    
+                var scriptFile = APP_SCRIPTS[appName] || 'Online.js';    
+                var config = deepMerge({}, window.ROConfigBase || {});    
+                if (window.ROConfigLocal) { config = deepMerge(config, window.ROConfigLocal); }    
+                if (extraConfig) { config = deepMerge(config, extraConfig); }    
+                window.ROConfig = config;    
+                import('./' + scriptFile).then(function() {    
+                    var preloader = document.getElementById('ro-preloader');    
+                    if (preloader) { preloader.remove(); }    
+                }).catch(function(err) { console.error('Failed to load app:', scriptFile, err); });    
+            }    
+    
+            window.addEventListener('load', function() {    
+                var params = new URLSearchParams(window.location.search);    
+                var appName = params.get('app');    
+                if (appName) {    
+                    loadApp(appName, null);    
+                } else {    
+                    window.addEventListener('message', function onMsg(event) {    
+                        if (!event.data || typeof event.data !== 'object') return;    
+                        if (!event.data.application) return;    
+                        window.removeEventListener('message', onMsg, false);    
+                        var name = APP_IDS[event.data.application] || 'ONLINE';    
+                        loadApp(name, event.data);    
+                        if (event.source) { event.source.postMessage('ready', '*'); }    
+                    }, false);    
+                }    
+            });    
+        </script>    
+    </body>    
+</html>    
+`;
+	fs.writeFileSync(dist + platform + '/api.html', apiHtml, { encoding: 'utf8' });
+	fs.copyFileSync('./applications/api/api.js', dist + platform + '/api.js');
 }
 
 function copyPwaFiles() {

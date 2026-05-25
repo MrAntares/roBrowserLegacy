@@ -1,5 +1,7 @@
-body {
-	overflow: auto;
+:host {
+	top: 0;
+	left: 0;
+	width: 100%;
 	font-size: 14px;
 }
 

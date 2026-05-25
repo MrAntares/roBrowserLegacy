@@ -1,4 +1,3 @@
-/* global ROBrowser */
 /**
  * UI/Components/GrfViewer/GrfViewer.js
  *
@@ -9,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import Configs from 'Core/Configs.js';
 import Client from 'Core/Client.js';
 import Thread from 'Core/Thread.js';
@@ -18,21 +16,21 @@ import Events from 'Core/Events.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Sprite from 'Loaders/Sprite.js';
 import Targa from 'Loaders/Targa.js';
-import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './GrfViewer.html?raw';
 import cssText from './GrfViewer.css?raw';
 import History from './History.js';
-import '../../../../applications/api/api.js';
 
-// Ugly, require api.js to display models and map
+
 /**
  * Create GRFViewer component
  */
-const Viewer = new UIComponent('GRFViewer', htmlText, cssText);
+const Viewer = new GUIComponent('GRFViewer', cssText);
+
+Viewer.render = () => htmlText;
 
 /**
- * @var {number} The display is done asynchronus, keep reference of the thread
+ * @var {number} The display is done asynchronous, keep reference of the thread
  */
 let _thread = 0;
 
@@ -42,12 +40,19 @@ let _thread = 0;
 let _actionID = 0;
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return Viewer._shadow || Viewer._host;
+}
+
+/**
  * Initialize Component
  */
 Viewer.init = function init() {
-	const ui = this.ui;
+	const root = _getRoot();
 
-	Thread.hook('THREAD_READY', function () {
+	Thread.hook('THREAD_READY', () => {
 		const remoteClient = Configs.get('remoteClient');
 		if (remoteClient) {
 			Thread.send('SET_HOST', remoteClient);
@@ -56,65 +61,88 @@ Viewer.init = function init() {
 	});
 	Thread.init();
 
-	jQuery('head:first').append(
-		'<style type="text/css">' +
-			'	#previous { background-image:url(' +
-			new URL('./Icons/arw-left.png', import.meta.url).href +
-			'); }' +
-			'	#next     { background-image:url(' +
-			new URL('./Icons/arw-right.png', import.meta.url).href +
-			'); }' +
-			'	#progress { background-image:url(' +
-			new URL('./Icons/load.gif', import.meta.url).href +
-			'); }' +
-			'</style>'
-	);
+	// Inject icon styles into shadow DOM
+	const extraStyle = document.createElement('style');
+	extraStyle.textContent =
+		`#previous { background-image: url(${new URL('./Icons/arw-left.png', import.meta.url).href}); }` +
+		`#next { background-image: url(${new URL('./Icons/arw-right.png', import.meta.url).href}); }` +
+		`#progress { background-image: url(${new URL('./Icons/load.gif', import.meta.url).href}); }`;
+	this._shadow.appendChild(extraStyle);
 
-	// Drag drop the GRF.
-	ui.find('#info')
-		.on('dragover', function () {
-			this.style.backgroundColor = '#DFD';
-			return false;
-		})
-		.on('dragleave', function () {
-			this.style.backgroundColor = '#EEE';
-			return false;
-		})
-		.on('drop', function (event) {
-			this.style.backgroundColor = '#EEE';
-			processGRF(event.originalEvent);
-			return false;
-		});
-
-	// Load GRFs
-	ui.find('#file').change(processGRF);
-	ui.find('#info button').mousedown(function () {
-		ui.find('#file').click();
+	// Drag drop the GRF
+	const info = root.querySelector('#info');
+	info.addEventListener('dragover', e => {
+		info.style.backgroundColor = '#DFD';
+		e.preventDefault();
+	});
+	info.addEventListener('dragleave', () => {
+		info.style.backgroundColor = '#EEE';
+	});
+	info.addEventListener('drop', e => {
+		info.style.backgroundColor = '#EEE';
+		processGRF(e);
 	});
 
-	// Bind icons events
-	ui.on('click', '.directory', onDirectoryClick)
-		.on('click', '.audio', onAudioClick)
-		.on('click', '.img, .thumb', onImageClick)
-		.on('click', '.txt', onTextClick)
-		.on('click', '.map', onWorldClick)
-		.on('click', '.3d', onObjectClick)
-		.on('click', '.gr2', onGrannyClick)
-		.on('click', '.fx', onEffectClick)
-		.on('contextmenu', '.icon', function (event) {
-			showContextMenu(this, event);
-			return false;
-		});
+	// Load GRFs
+	root.querySelector('#file').addEventListener('change', processGRF);
+	root.querySelector('#info button').addEventListener('mousedown', () => {
+		root.querySelector('#file').click();
+	});
+
+	// Bind icon events via delegation
+	const grfviewerEl = root.querySelector('#grfviewer');
+	grfviewerEl.addEventListener('click', e => {
+		let el;
+		if ((el = e.target.closest('.directory'))) {
+			onDirectoryClick(el);
+			return;
+		}
+		if ((el = e.target.closest('.audio'))) {
+			onAudioClick(el);
+			return;
+		}
+		if ((el = e.target.closest('.img, .thumb'))) {
+			onImageClick(el);
+			return;
+		}
+		if ((el = e.target.closest('.txt'))) {
+			onTextClick(el);
+			return;
+		}
+		if ((el = e.target.closest('.map'))) {
+			onWorldClick(el);
+			return;
+		}
+		if ((el = e.target.closest('.\\33 d'))) {
+			onObjectClick(el);
+			return;
+		}
+		if ((el = e.target.closest('.gr2'))) {
+			onGrannyClick(el);
+			return;
+		}
+		if ((el = e.target.closest('.fx'))) {
+			onEffectClick(el);
+			return;
+		}
+	});
+	grfviewerEl.addEventListener('contextmenu', e => {
+		const icon = e.target.closest('.icon');
+		if (icon) {
+			showContextMenu(icon, e);
+			e.preventDefault();
+		}
+	});
 
 	// Initialize toolbar
 	initToolBar();
 
 	// Initialize history
-	History.init(ui.find('#previous'), ui.find('#next'));
+	History.init(root.querySelector('#previous'), root.querySelector('#next'));
 
 	// Renderer is not rendering, causing issue in src/UI/UIComponents.js#212
 	// Trigger manually the event.
-	setTimeout(function () {
+	setTimeout(() => {
 		Events.process(100);
 	}, 10);
 };
@@ -124,6 +152,8 @@ Viewer.init = function init() {
  */
 Viewer.onAppend = function onAppend() {
 	document.body.style.backgroundColor = 'white';
+	document.body.style.margin = '0';
+	document.body.style.overflow = 'auto';
 	moveToDirectory('/', true);
 };
 
@@ -131,10 +161,10 @@ Viewer.onAppend = function onAppend() {
  * Initialize tool bar
  */
 function initToolBar() {
-	const ui = Viewer.ui;
+	const root = _getRoot();
 
 	// Path submit
-	ui.find('#path').keydown(function (event) {
+	root.querySelector('#path').addEventListener('keydown', function (event) {
 		if (event.which === KEYS.ENTER) {
 			let value = this.value.replace(/^\s+|\s+$/g, '');
 			if (value.substr(-1) !== '/') {
@@ -145,7 +175,7 @@ function initToolBar() {
 	});
 
 	// History before
-	ui.find('#previous').click(function () {
+	root.querySelector('#previous').addEventListener('click', () => {
 		const path = History.previous();
 		if (path) {
 			moveToDirectory(path, false);
@@ -153,7 +183,7 @@ function initToolBar() {
 	});
 
 	// History after
-	ui.find('#next').click(function () {
+	root.querySelector('#next').addEventListener('click', () => {
 		const path = History.next();
 		if (path) {
 			moveToDirectory(path, false);
@@ -161,99 +191,96 @@ function initToolBar() {
 	});
 
 	// Search toolbar
-	ui.find('#search')
-		.focus(function () {
-			this.value = '';
-		})
-		.blur(function () {
-			this.value = this.value || 'Search...';
-		})
-		.keydown(function (event) {
-			if (event.which === KEYS.ENTER) {
-				const value = this.value.replace(/^\s+|\s+$/g, '');
-				if (value.length > 2) {
-					moveToDirectory('search/' + value, true);
-				}
+	const searchInput = root.querySelector('#search');
+	searchInput.addEventListener('focus', function () {
+		this.value = '';
+	});
+	searchInput.addEventListener('blur', function () {
+		this.value = this.value || 'Search...';
+	});
+	searchInput.addEventListener('keydown', function (event) {
+		if (event.which === KEYS.ENTER) {
+			const value = this.value.replace(/^\s+|\s+$/g, '');
+			if (value.length > 2) {
+				moveToDirectory(`search/${value}`, true);
 			}
-		});
+		}
+	});
 }
 
 /**
  * Context Menu feature
  *
- * @param {HTMLElement} icon
+ * @param {HTMLElement} iconElement
  * @param {object} event
  */
 function showContextMenu(iconElement, event) {
-	const contextmenu = Viewer.ui.find('#contextmenu');
-	const overlay = Viewer.ui.find('.overlay');
-	const header = contextmenu.find('.header:first');
-	const open = contextmenu.find('.open:first');
-	const save = contextmenu.find('.save:first');
-	const info = contextmenu.find('.info:first');
-	const icon = jQuery(iconElement);
+	const root = _getRoot();
+	const contextmenu = root.querySelector('#contextmenu');
+	const overlay = root.querySelector('.overlay');
+	const header = contextmenu.querySelector('.header');
+	const openBtn = contextmenu.querySelector('.open');
+	const saveLink = contextmenu.querySelector('.save');
+	const infoBtn = contextmenu.querySelector('.info');
+	const path = iconElement.getAttribute('data-path');
 
-	contextmenu
-		.css({
-			left: event.pageX,
-			top: event.pageY
-		})
-		.show();
+	contextmenu.style.left = `${event.pageX}px`;
+	contextmenu.style.top = `${event.pageY}px`;
+	contextmenu.style.display = 'block';
 
-	overlay
-		.one('mousedown', function () {
-			contextmenu.hide();
-			overlay.hide();
-		})
-		.show();
+	overlay.onmousedown = () => {
+		contextmenu.style.display = 'none';
+		overlay.style.display = 'none';
+	};
+	overlay.style.display = 'block';
 
-	// Clean up
-	open.removeClass('disable').off('mousedown');
-	save.removeClass('disable').off('mousedown');
-	info.removeClass('disable').off('mousedown');
-	save.off('click');
+	// Clean up previous handlers
+	openBtn.classList.remove('disable');
+	openBtn.onmousedown = null;
+	saveLink.classList.remove('disable');
+	saveLink.onclick = null;
+	saveLink.onmouseup = null;
+	infoBtn.classList.remove('disable');
+	infoBtn.onmousedown = null;
 
-	//Header
-	header.get(0).innerHTML = 'Path: ' + icon.data('path');
-	header.get(0).style.backgroundColor = null;
-	header.click(function () {
-		navigator.clipboard.writeText(icon.data('path'));
-		header.get(0).innerHTML = 'Copied: ' + icon.data('path');
-		header.get(0).style.backgroundColor = '#AAFFAA';
-	});
+	// Header
+	header.innerHTML = `Path: ${path}`;
+	header.style.backgroundColor = '';
+	header.onclick = () => {
+		navigator.clipboard.writeText(path);
+		header.innerHTML = `Copied: ${path}`;
+		header.style.backgroundColor = '#AAFFAA';
+	};
 
 	// Open
-	if (icon.hasClass('file')) {
-		open.addClass('disable');
+	if (iconElement.classList.contains('file')) {
+		openBtn.classList.add('disable');
 	} else {
-		open.one('mousedown', function () {
-			icon.click();
-			overlay.mousedown();
-		});
+		openBtn.onmousedown = () => {
+			iconElement.click();
+			overlay.onmousedown();
+		};
 	}
 
 	// Save
-	if (icon.hasClass('directory')) {
-		save.addClass('disable');
-		save.click(function () {
-			return false;
-		});
-		save.get(0).removeAttribute('download');
+	if (iconElement.classList.contains('directory')) {
+		saveLink.classList.add('disable');
+		saveLink.onclick = e => e.preventDefault();
+		saveLink.removeAttribute('download');
 	} else {
-		save.one('mouseup', function () {
-			overlay.mousedown();
-		});
+		saveLink.onmouseup = () => {
+			overlay.onmousedown();
+		};
 
-		Client.getFile(icon.data('path'), function (buffer) {
-			// Create temporary url, move to it and release it
+		Client.getFile(path, buffer => {
 			const url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
-			save.attr({ href: url, download: icon.text().trim() });
+			saveLink.href = url;
+			saveLink.download = iconElement.textContent.trim();
 		});
 	}
 
-	// Properties
-	// not supported yet.
-	info.addClass('disable');
+	// Properties - not supported yet
+	infoBtn.classList.add('disable');
 }
 
 /**
@@ -286,19 +313,18 @@ function moveToDirectory(path, save) {
  * Load GRF files
  *
  * @param {object} event
- * @return {boolean} false
  */
 function processGRF(event) {
-	Viewer.ui.find('#progress').show();
+	const root = _getRoot();
+	root.querySelector('#progress').style.display = 'block';
 
-	Client.onFilesLoaded = function () {
+	Client.onFilesLoaded = () => {
 		moveToDirectory('data/', true);
 	};
 	Client.init((event.dataTransfer || event.target).files);
 
 	event.preventDefault();
 	event.stopPropagation();
-	return false;
 }
 
 /**
@@ -307,10 +333,8 @@ function processGRF(event) {
  * @param {string} path
  */
 function showDirectory(path) {
-	// Stop displaying
 	clearTimeout(_thread);
 
-	// Clean up Input
 	path = decodeURIComponent(path) || '/';
 	path = path.replace(/\\/g, '/');
 
@@ -318,32 +342,26 @@ function showDirectory(path) {
 		path = path.substr(1);
 	}
 
-	// Build regex
-	const ui = Viewer.ui;
+	const root = _getRoot();
 	const directory = path.replace(/\//g, '\\\\');
-	const reg = directory + '([^(\\0|\\\\)]+)';
+	const reg = `${directory}([^(\\0|\\\\)]+)`;
 
-	// Clean windows
-	ui.find('#path').val(path);
-	ui.find('.icon').remove();
-	ui.find('#progress').show();
-	ui.find('#msg').hide();
+	root.querySelector('#path').value = path;
+	root.querySelectorAll('.icon').forEach(el => el.remove());
+	root.querySelector('#progress').style.display = 'block';
+	root.querySelector('#msg').style.display = 'none';
 
-	// Go back to the home
 	if (!path.length) {
-		ui.find('#info').show();
+		root.querySelector('#info').style.display = '';
 		renderFiles(['data']);
 		return;
 	}
 
-	ui.find('#info').hide();
+	root.querySelector('#info').style.display = 'none';
 
-	// Changing action to avoid conflict
 	const actionID = ++_actionID;
 
-	// Send request
-	Client.search(new RegExp(reg, 'gi'), function (list) {
-		// Organize files and directory and render them
+	Client.search(new RegExp(reg, 'gi'), list => {
 		if (actionID === _actionID) {
 			list.sort(sortFiles);
 			renderFiles(list);
@@ -357,20 +375,17 @@ function showDirectory(path) {
  * @param {string} keyword
  */
 function search(keyword) {
-	// Escape regex, and complete it
 	const escapedSearch = keyword.replace(/(\.|\\|\+|\*|\?|\[|\^|\]|\$|\(|\)|\{|\}|\=|\!|<|>|\||\:|\-)/g, '\\$1');
-	const reg = 'data\\\\([^(\\0\\)]+)?' + escapedSearch + '([^(\\0|\\\\)]+)?';
-	const ui = Viewer.ui;
+	const reg = `data\\\\([^(\\0\\)]+)?${escapedSearch}([^(\\0|\\\\)]+)?`;
+	const root = _getRoot();
 	const actionID = ++_actionID;
 
-	// Clean path
-	ui.find('.icon').remove();
-	ui.find('#progress').show();
-	ui.find('#info').hide();
-	ui.find('#msg').hide();
+	root.querySelectorAll('.icon').forEach(el => el.remove());
+	root.querySelector('#progress').style.display = 'block';
+	root.querySelector('#info').style.display = 'none';
+	root.querySelector('#msg').style.display = 'none';
 
-	// Send request
-	Client.search(new RegExp(reg, 'gi'), function (list) {
+	Client.search(new RegExp(reg, 'gi'), list => {
 		if (actionID === _actionID) {
 			list.sort(sortFiles);
 			renderFiles(list);
@@ -407,22 +422,22 @@ function sortFiles(a, b) {
  * @param {Array} list of files and directories
  */
 function renderFiles(list) {
-	Viewer.ui.find('#progress').hide();
+	const root = _getRoot();
+	root.querySelector('#progress').style.display = 'none';
 
-	// No file in directory ? (or error : the file isn't a directory)
 	if (!list.length) {
-		Viewer.ui.find('#msg').text('No file found.').show();
+		const msg = root.querySelector('#msg');
+		msg.textContent = 'No file found.';
+		msg.style.display = 'block';
 		return;
 	}
 
 	let i;
-
 	const reg = /(.*\\)/;
-
 	i = 0;
 	const count = list.length;
+	const grfviewerEl = root.querySelector('#grfviewer');
 
-	// Avoid freeze, stream to display files
 	function streamExecute() {
 		let j;
 		let html = '';
@@ -430,19 +445,13 @@ function renderFiles(list) {
 		for (j = 0; j < 200 && i + j < count; ++j) {
 			const type = getFileIcon(list[j + i]);
 			html +=
-				'<div class="icon ' +
-				type +
-				'" data-path="' +
-				list[j + i] +
-				'">' +
-				'	<img src="' +
-				new URL('./Icons/' + type + '.png', import.meta.url).href +
-				'" width="48" height="48"/><br/>' +
+				`<div class="icon ${type}" data-path="${list[j + i]}">` +
+				`	<img src="${new URL(`./Icons/${type}.png`, import.meta.url).href}" width="48" height="48"/><br/>` +
 				list[j + i].replace(reg, '') +
 				'</div>';
 		}
 
-		jQuery(html).appendTo('#grfviewer');
+		grfviewerEl.insertAdjacentHTML('beforeend', html);
 
 		i += j;
 
@@ -456,13 +465,13 @@ function renderFiles(list) {
 }
 
 /**
- * Get file thumbnail based on its extention
+ * Get file thumbnail based on its extension
  *
  * @param {string} filename
  * @return {string} icon name
  */
 function getFileIcon(filename) {
-	const ext = filename.split(/\.([^\.]+)$/)[1] || 'dir';
+	const ext = filename.split(/\.([^.]+)$/)[1] || 'dir';
 	let img = 'file';
 
 	switch (ext.toLowerCase()) {
@@ -515,7 +524,6 @@ function getFileIcon(filename) {
  * Display real thumbnails for each known file
  */
 function displayImagesThumbnail() {
-	// Stored action to know if user act during the process
 	const actionID = _actionID + 0;
 
 	function cleanUp() {
@@ -523,42 +531,38 @@ function displayImagesThumbnail() {
 	}
 
 	function process() {
-		// Stop here if we change page.
 		if (actionID !== _actionID) {
 			return;
 		}
 
-		const nodes = jQuery('.img:lt(5)');
+		const root = _getRoot();
+		const nodes = Array.from(root.querySelectorAll('.img')).slice(0, 5);
 		let load = 0;
 		const total = nodes.length;
 
-		// All thumbnails are already rendered
 		if (!total) {
 			return;
 		}
 
-		// Work with current loaded files
-		nodes.each(function () {
-			const self = jQuery(this);
+		nodes.forEach(el => {
+			const path = el.getAttribute('data-path');
 
-			Client.getFile(self.data('path'), function (data) {
-				// Clean from memory...
-				Memory.remove(self.data('path'));
-				self.removeClass('img').addClass('thumb');
+			Client.getFile(path, data => {
+				Memory.remove(path);
+				el.classList.remove('img');
+				el.classList.add('thumb');
 
-				const url = getImageThumbnail(self.data('path'), data);
+				const url = getImageThumbnail(path, data);
 
-				// Display image
 				if (url) {
-					const img = self.find('img:first').get(0);
-					if (url.match(/^blob\:/)) {
+					const img = el.querySelector('img');
+					if (url.match(/^blob:/)) {
 						img.onload = img.onerror = img.onabort = cleanUp;
 					}
 					img.decoding = 'async';
 					img.src = url;
 				}
 
-				// Fetch next range.
 				if (++load >= total) {
 					setTimeout(process, 4);
 				}
@@ -581,20 +585,17 @@ function getImageThumbnail(filename, data) {
 	const ext = filename.substr(-3).toLowerCase();
 
 	switch (ext) {
-		// Sprite support
 		case 'spr': {
 			const spr = new Sprite(data);
 			canvas = spr.getCanvasFromFrame(0);
 			return canvas.toDataURL();
 		}
 
-		// Palette support
 		case 'pal': {
 			canvas = document.createElement('canvas');
 			const ctx = canvas.getContext('2d');
 			const palette = new Uint8Array(data);
 
-			// 16 * 16 = 256
 			canvas.width = 16;
 			canvas.height = 16;
 			const imageData = ctx.createImageData(canvas.width, canvas.height);
@@ -610,88 +611,91 @@ function getImageThumbnail(filename, data) {
 			return canvas.toDataURL();
 		}
 
-		// Targa support
 		case 'tga': {
 			const tga = new Targa();
 			tga.load(new Uint8Array(data));
 			return tga.getDataURL();
 		}
 
-		// Image Support
 		default:
-			return URL.createObjectURL(new Blob([data], { type: 'image/' + ext }));
+			return URL.createObjectURL(new Blob([data], { type: `image/${ext}` }));
 	}
 }
 
 /**
  * User click on directory, open it
  */
-function onDirectoryClick() {
-	moveToDirectory(this.getAttribute('data-path') + '/', true);
+function onDirectoryClick(iconEl) {
+	moveToDirectory(`${iconEl.getAttribute('data-path')}/`, true);
 }
 
 /**
  * User click on an audio file, play it
  */
-function onAudioClick() {
-	const ui = Viewer.ui;
-	const path = this.getAttribute('data-path');
-	const box = ui.find('#preview .box');
+function onAudioClick(iconEl) {
+	const root = _getRoot();
+	const path = iconEl.getAttribute('data-path');
+	const box = root.querySelector('#preview .box');
+	const progress = root.querySelector('#progress');
+	const preview = root.querySelector('#preview');
 
-	ui.find('#progress').show();
+	progress.style.display = 'block';
 
-	Client.loadFile(path, function (url) {
-		// Create audio
+	Client.loadFile(path, url => {
 		const audio = document.createElement('audio');
 		audio.src = url;
 		audio.controls = true;
 		audio.play();
+		audio.addEventListener('click', e => e.stopPropagation());
 
-		// Show it on a box
-		box.css('top', (jQuery(window).height() - 100) / 2).append(
-			jQuery(audio).click(function (event) {
-				event.stopPropagation();
-			})
+		box.style.top = `${(window.innerHeight - 100) / 2}px`;
+		box.appendChild(audio);
+
+		progress.style.display = 'none';
+		preview.style.display = 'block';
+		preview.addEventListener(
+			'click',
+			() => {
+				preview.style.display = 'none';
+				const audioEl = box.querySelector('audio');
+				if (audioEl) {
+					audioEl.remove();
+				}
+			},
+			{ once: true }
 		);
-
-		ui.find('#progress').hide();
-		ui.find('#preview')
-			.show()
-			.one('click', function () {
-				jQuery(this).hide();
-				box.find('audio').unbind().remove();
-			});
 	});
 }
 
 /**
  * User click on an image, render it
  */
-function onImageClick() {
-	const ui = Viewer.ui;
-	const path = this.getAttribute('data-path');
-	const box = ui.find('#preview .box');
-	ui.find('#progress').show();
+function onImageClick(iconEl) {
+	const root = _getRoot();
+	const path = iconEl.getAttribute('data-path');
+	const box = root.querySelector('#preview .box');
+	const progress = root.querySelector('#progress');
+	const preview = root.querySelector('#preview');
 
-	Client.getFile(path, function (data) {
+	progress.style.display = 'block';
+
+	Client.getFile(path, data => {
 		let i, count, canvas;
 
 		switch (path.substr(-3)) {
-			// Sprite support
 			case 'spr': {
 				const spr = new Sprite(data);
-				box.css('top', 200);
+				box.style.top = '200px';
 
 				for (i = 0, count = spr.frames.length; i < count; ++i) {
 					canvas = spr.getCanvasFromFrame(i);
 					if (canvas) {
-						box.append(canvas);
+						box.appendChild(canvas);
 					}
 				}
 				break;
 			}
 
-			// Palette support
 			case 'pal': {
 				const palette = new Uint8Array(data);
 				canvas = document.createElement('canvas');
@@ -701,66 +705,74 @@ function onImageClick() {
 				canvas.height = 128;
 
 				for (i = 0, count = palette.length; i < count; i += 4) {
-					ctx.fillStyle = 'rgb(' + palette[i + 0] + ',' + palette[i + 1] + ',' + palette[i + 2] + ')';
+					ctx.fillStyle = `rgb(${palette[i + 0]},${palette[i + 1]},${palette[i + 2]})`;
 					ctx.fillRect((((i / 4) | 0) % 16) * 8, ((((i / 4) | 0) / 16) | 0) * 8, 8, 8);
 				}
 
-				box.css('top', jQuery(window).height() / 2 - 64).append(canvas);
+				box.style.top = `${window.innerHeight / 2 - 64}px`;
+				box.appendChild(canvas);
 				break;
 			}
 
-			// Targa support
 			case 'tga': {
 				const tga = new Targa();
 				tga.load(new Uint8Array(data));
-				box.css('top', jQuery(window).height() / 2 - 64).append(tga.getCanvas());
+				box.style.top = `${window.innerHeight / 2 - 64}px`;
+				box.appendChild(tga.getCanvas());
 				break;
 			}
 
-			// Image Support
 			default: {
-				const url = URL.createObjectURL(new Blob([data], { type: 'image/' + path.substr(-3) }));
+				const url = URL.createObjectURL(new Blob([data], { type: `image/${path.substr(-3)}` }));
 				const img = new Image();
 				img.decoding = 'async';
 				img.src = url;
 				img.onload = function () {
-					box.css('top', (jQuery(window).height() - this.height) / 2).append(this);
-
+					box.style.top = `${(window.innerHeight - this.height) / 2}px`;
+					box.appendChild(this);
 					URL.revokeObjectURL(url);
 				};
 				break;
 			}
 		}
 
-		// Display progress bar
-		ui.find('#preview').show();
-		ui.find('#progress').hide();
-		ui.find('#preview').one('click', function () {
-			jQuery(this).hide();
-			box.find('img, canvas').remove();
-		});
+		preview.style.display = 'block';
+		progress.style.display = 'none';
+		preview.addEventListener(
+			'click',
+			() => {
+				preview.style.display = 'none';
+				box.querySelectorAll('img, canvas').forEach(el => el.remove());
+			},
+			{ once: true }
+		);
 	});
 }
 
 /**
  * User click on a model, render it using ModelViewer
  */
-const onObjectClick = (function () {
+const onObjectClick = (() => {
 	let ready = false;
+	let App = null;
 	const element = document.createElement('div');
 
-	const App = new ROBrowser({
-		target: element,
-		type: ROBrowser.TYPE.FRAME,
-		application: ROBrowser.APP.MODELVIEWER,
-		development: Configs.get('development', false),
-		api: true,
-		width: 500,
-		height: 400,
-		version: Configs.get('version', '')
-	});
+	function initApp() {
+		if (App) return true;
+		if (typeof ROBrowser === 'undefined') return false;
+		App = new ROBrowser({ // eslint-disable-line no-undef
+			target: element,
+			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
+			application: ROBrowser.APP.MODELVIEWER, // eslint-disable-line no-undef
+			development: Configs.get('development', false),
+			api: true,
+			width: 500,
+			height: 400,
+			version: Configs.get('version', '')
+		});
+		return true;
+	}
 
-	// Ressource sharing
 	function onMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;
@@ -789,7 +801,6 @@ const onObjectClick = (function () {
 		}
 	}
 
-	// Wait for synchronisation with frame
 	function synchronise() {
 		if (!ready) {
 			App._APP.postMessage({ type: 'init' }, location.origin);
@@ -797,37 +808,41 @@ const onObjectClick = (function () {
 		}
 	}
 
-	return function () {
-		const ui = Viewer.ui;
-		const path = this.getAttribute('data-path').replace(/\\/g, '/');
+	return iconEl => {
+		if (!initApp()) return;
+		const root = _getRoot();
+		const path = iconEl.getAttribute('data-path').replace(/\\/g, '/');
+		const box = root.querySelector('#preview .box');
+		const preview = root.querySelector('#preview');
 
-		// Show iframe
-		ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
+		box.style.top = `${(window.innerHeight - 400) * 0.5}px`;
 		element.style.display = 'block';
 
-		ui.find('#preview').show();
+		preview.style.display = 'block';
 
-		// Unload app
-		ui.find('#preview').one('click', function () {
-			ui.find('#preview').hide();
-			element.style.display = 'none';
-			App._APP.postMessage({ type: 'stop' }, location.origin);
-			window.removeEventListener('message', onMessage, false);
-		});
+		preview.addEventListener(
+			'click',
+			() => {
+				preview.style.display = 'none';
+				element.style.display = 'none';
+				App._APP.postMessage({ type: 'stop' }, location.origin);
+				window.removeEventListener('message', onMessage, false);
+			},
+			{ once: true }
+		);
 
 		window.addEventListener('message', onMessage, false);
 
 		if (!ready) {
-			// Once app is ready
-			ui.find('#preview .box').append(element);
+			box.appendChild(element);
 
 			App.start();
-			App.onReady = function () {
+			App.onReady = () => {
 				App._APP.frameElement.style.border = '1px solid grey';
 				App._APP.frameElement.style.backgroundColor = '#45484d';
 				synchronise();
 			};
-			App.onload = function () {
+			App.onload = () => {
 				App._APP.postMessage({ type: 'load', data: path }, location.origin);
 			};
 		} else {
@@ -839,22 +854,27 @@ const onObjectClick = (function () {
 /**
  * User click on an effect, render it using StrViewer
  */
-const onEffectClick = (function () {
+const onEffectClick = (() => {
 	let ready = false;
+	let App = null;
 	const element = document.createElement('div');
 
-	const App = new ROBrowser({
-		target: element,
-		type: ROBrowser.TYPE.FRAME,
-		application: ROBrowser.APP.STRVIEWER,
-		development: Configs.get('development', false),
-		api: true,
-		width: 400,
-		height: 400,
-		version: Configs.get('version', '')
-	});
+	function initApp() {
+		if (App) return true;
+		if (typeof ROBrowser === 'undefined') return false;
+		App = new ROBrowser({ // eslint-disable-line no-undef
+			target: element,
+			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
+			application: ROBrowser.APP.STRVIEWER, // eslint-disable-line no-undef
+			development: Configs.get('development', false),
+			api: true,
+			width: 400,
+			height: 400,
+			version: Configs.get('version', '')
+		});
+		return true;
+	}
 
-	// Ressource sharing
 	function onMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;
@@ -883,7 +903,6 @@ const onEffectClick = (function () {
 		}
 	}
 
-	// Wait for synchronisation with frame
 	function synchronise() {
 		if (!ready) {
 			App._APP.postMessage({ type: 'init' }, location.origin);
@@ -891,36 +910,40 @@ const onEffectClick = (function () {
 		}
 	}
 
-	return function () {
-		const ui = Viewer.ui;
-		const path = this.getAttribute('data-path').replace(/\\/g, '/');
+	return iconEl => {
+		if (!initApp()) return;
+		const root = _getRoot();
+		const path = iconEl.getAttribute('data-path').replace(/\\/g, '/');
+		const box = root.querySelector('#preview .box');
+		const preview = root.querySelector('#preview');
 
-		// Show iframe
-		ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
-		ui.find('#preview').show();
+		box.style.top = `${(window.innerHeight - 400) * 0.5}px`;
+		preview.style.display = 'block';
 		element.style.display = 'block';
 
-		// Unload app
-		ui.find('#preview').one('click', function () {
-			ui.find('#preview').hide();
-			element.style.display = 'none';
-			App._APP.postMessage({ type: 'stop' }, location.origin);
-			window.removeEventListener('message', onMessage, false);
-		});
+		preview.addEventListener(
+			'click',
+			() => {
+				preview.style.display = 'none';
+				element.style.display = 'none';
+				App._APP.postMessage({ type: 'stop' }, location.origin);
+				window.removeEventListener('message', onMessage, false);
+			},
+			{ once: true }
+		);
 
 		window.addEventListener('message', onMessage, false);
 
 		if (!ready) {
-			// Once app is ready
-			ui.find('#preview .box').append(element);
+			box.appendChild(element);
 
 			App.start();
-			App.onReady = function () {
+			App.onReady = () => {
 				App._APP.frameElement.style.border = '1px solid grey';
 				App._APP.frameElement.style.backgroundColor = 'black';
 				synchronise();
 			};
-			App.onload = function () {
+			App.onload = () => {
 				App._APP.postMessage({ type: 'load', data: path }, location.origin);
 			};
 		} else {
@@ -932,22 +955,27 @@ const onEffectClick = (function () {
 /**
  * User click on a map, render it using MapViewer
  */
-const onWorldClick = (function () {
+const onWorldClick = (() => {
 	let ready = false;
+	let App = null;
 	const element = document.createElement('div');
 
-	const App = new ROBrowser({
-		target: element,
-		type: ROBrowser.TYPE.FRAME,
-		application: ROBrowser.APP.MAPVIEWER,
-		development: Configs.get('development', false),
-		api: true,
-		width: 600,
-		height: 480,
-		version: Configs.get('version', '')
-	});
+	function initApp() {
+		if (App) return true;
+		if (typeof ROBrowser === 'undefined') return false;
+		App = new ROBrowser({ // eslint-disable-line no-undef
+			target: element,
+			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
+			application: ROBrowser.APP.MAPVIEWER, // eslint-disable-line no-undef
+			development: Configs.get('development', false),
+			api: true,
+			width: 600,
+			height: 480,
+			version: Configs.get('version', '')
+		});
+		return true;
+	}
 
-	// Ressource sharing
 	function onMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;
@@ -976,9 +1004,8 @@ const onWorldClick = (function () {
 		}
 	}
 
-	// Redirect Thread result to frame
 	function threadRedirect(type) {
-		Thread.hook(type, function (data) {
+		Thread.hook(type, data => {
 			App._APP.postMessage(
 				{
 					type: type,
@@ -989,7 +1016,6 @@ const onWorldClick = (function () {
 		});
 	}
 
-	// Wait for synchronisation with frame
 	function synchronise() {
 		if (!ready) {
 			App._APP.postMessage({ type: 'init' }, location.origin);
@@ -997,41 +1023,45 @@ const onWorldClick = (function () {
 		}
 	}
 
-	return function () {
-		const ui = Viewer.ui;
-		const path = this.getAttribute('data-path').replace(/\\/g, '/');
+	return iconEl => {
+		if (!initApp()) return;
+		const root = _getRoot();
+		const path = iconEl.getAttribute('data-path').replace(/\\/g, '/');
+		const progress = root.querySelector('#progress');
+		const box = root.querySelector('#preview .box');
+		const preview = root.querySelector('#preview');
 
-		ui.find('#progress').show();
+		progress.style.display = 'block';
 		element.style.display = 'block';
 
-		// Show iframe
-		ui.find('#preview .box').css('top', (jQuery(window).height() - 480) * 0.5);
-		ui.find('#preview').show();
-		ui.find('#progress').hide();
+		box.style.top = `${(window.innerHeight - 480) * 0.5}px`;
+		preview.style.display = 'block';
+		progress.style.display = 'none';
 		document.body.style.overflow = 'hidden';
 
-		// Unload app
-		ui.find('#preview').one('click', function () {
-			ui.find('#preview').hide();
-			document.body.style.overflow = 'auto';
-			element.style.display = 'none';
+		preview.addEventListener(
+			'click',
+			() => {
+				preview.style.display = 'none';
+				document.body.style.overflow = 'auto';
+				element.style.display = 'none';
 
-			App._APP.postMessage({ type: 'stop' }, location.origin);
-			window.removeEventListener('message', onMessage, false);
-		});
+				App._APP.postMessage({ type: 'stop' }, location.origin);
+				window.removeEventListener('message', onMessage, false);
+			},
+			{ once: true }
+		);
 
 		window.addEventListener('message', onMessage, false);
 
 		if (!ready) {
-			// Once app is ready
-			ui.find('#preview .box').append(element);
+			box.appendChild(element);
 
 			App.start();
-			App.onReady = function () {
+			App.onReady = () => {
 				App._APP.frameElement.style.border = '1px solid grey';
 				App._APP.frameElement.style.backgroundColor = 'black';
 
-				// Hook Tread Map loading
 				threadRedirect('MAP_PROGRESS');
 				threadRedirect('MAP_WORLD');
 				threadRedirect('MAP_GROUND');
@@ -1040,7 +1070,7 @@ const onWorldClick = (function () {
 
 				synchronise();
 			};
-			App.onload = function () {
+			App.onload = () => {
 				App._APP.postMessage({ type: 'load', data: path }, location.origin);
 			};
 		} else {
@@ -1050,62 +1080,70 @@ const onWorldClick = (function () {
 })();
 
 /**
- *  User click on text, display it
+ * User click on text, display it
  */
-function onTextClick() {
-	const ui = Viewer.ui;
-	const path = this.getAttribute('data-path');
-	const progress = ui.find('#progress');
-	const box = ui.find('#preview .box');
+function onTextClick(iconEl) {
+	const root = _getRoot();
+	const path = iconEl.getAttribute('data-path');
+	const progress = root.querySelector('#progress');
+	const box = root.querySelector('#preview .box');
+	const preview = root.querySelector('#preview');
 
-	progress.show();
+	progress.style.display = 'block';
 
-	Client.loadFile(path, function (text) {
-		box.css('top', (jQuery(window).height() - 300) / 2).append(
-			jQuery('<pre/>')
-				.text(text)
-				.click(function (event) {
-					event.stopPropagation();
-				})
-				.css({
-					background: 'white',
-					width: '500px',
-					display: 'inline-block',
-					height: '300px',
-					overflow: 'scroll',
-					textAlign: 'left',
-					padding: '10px'
-				})
+	Client.loadFile(path, text => {
+		box.style.top = `${(window.innerHeight - 300) / 2}px`;
+		const pre = document.createElement('pre');
+		pre.textContent = text;
+		pre.addEventListener('click', e => e.stopPropagation());
+		Object.assign(pre.style, {
+			background: 'white',
+			width: '500px',
+			display: 'inline-block',
+			height: '300px',
+			overflow: 'scroll',
+			textAlign: 'left',
+			padding: '10px'
+		});
+		box.appendChild(pre);
+
+		progress.style.display = 'none';
+
+		preview.style.display = 'block';
+		preview.addEventListener(
+			'click',
+			() => {
+				preview.style.display = 'none';
+				box.querySelectorAll('pre').forEach(el => el.remove());
+			},
+			{ once: true }
 		);
-
-		progress.hide();
-
-		ui.find('#preview')
-			.show()
-			.one('click', function () {
-				ui.find('#preview').hide();
-				box.find('pre').unbind().remove();
-			});
 	});
 }
 
 /**
  * User click on a Granny model, render it using GrannyModelViewer
  */
-const onGrannyClick = (function () {
+const onGrannyClick = (() => {
 	let ready = false;
+	let App = null;
 	const element = document.createElement('div');
 
-	const App = new ROBrowser({
-		target: element,
-		type: ROBrowser.TYPE.FRAME,
-		application: ROBrowser.APP.GRANNYMODELVIEWER,
-		development: Configs.get('development', false),
-		api: true,
-		width: 500,
-		height: 400,
-		version: Configs.get('version', '')
-	});
+	function initApp() {
+		if (App) return true;
+		if (typeof ROBrowser === 'undefined') return false;
+		App = new ROBrowser({ // eslint-disable-line no-undef
+			target: element,
+			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
+			application: ROBrowser.APP.GRANNYMODELVIEWER, // eslint-disable-line no-undef
+			development: Configs.get('development', false),
+			api: true,
+			width: 500,
+			height: 400,
+			version: Configs.get('version', '')
+		});
+		return true;
+	}
 
 	// Ressource sharing (Currently unused, preserved for future development)
 	function _onMessage(event) {
@@ -1144,41 +1182,41 @@ const onGrannyClick = (function () {
 		}
 	}
 
-	return function () {
+	return _iconEl => {
+		if (!initApp()) return;
 		alert('This module is under development.');
 		return;
 
 		/*
-		const ui = Viewer.ui;
-		const path = this.getAttribute('data-path').replace(/\\/g, '/');
+		const root = _getRoot();
+		const path = _iconEl.getAttribute('data-path').replace(/\\/g, '/');
+		const box = root.querySelector('#preview .box');
+		const preview = root.querySelector('#preview');
 
-		// Show iframe
-		ui.find('#preview .box').css('top', (jQuery(window).height() - 400) * 0.5);
+		box.style.top = `${(window.innerHeight - 400) * 0.5}px`;
 		element.style.display = 'block';
 
-		ui.find('#preview').show();
+		preview.style.display = 'block';
 
-		// Unload app
-		ui.find('#preview').one('click', function () {
-			ui.find('#preview').hide();
+		preview.addEventListener('click', () => {
+			preview.style.display = 'none';
 			element.style.display = 'none';
 			App._APP.postMessage({ type: 'stop' }, location.origin);
 			window.removeEventListener('message', _onMessage, false);
-		});
+		}, { once: true });
 
 		window.addEventListener('message', _onMessage, false);
 
 		if (!ready) {
-			// Once app is ready
-			ui.find('#preview .box').append(element);
+			box.appendChild(element);
 
 			App.start();
-			App.onReady = function () {
+			App.onReady = () => {
 				App._APP.frameElement.style.border = '1px solid grey';
 				App._APP.frameElement.style.backgroundColor = '#45484d';
 				_synchronise();
 			};
-			App.onload = function () {
+			App.onload = () => {
 				App._APP.postMessage({ type: 'load', data: path }, location.origin);
 			};
 		} else {
@@ -1191,4 +1229,4 @@ const onGrannyClick = (function () {
 /**
  * Stored component and return it
  */
-export default UIManager.addComponent(Viewer);
+export default Viewer;
