@@ -905,9 +905,9 @@ In source code, the backslash must be doubled (`\\33`) because JavaScript string
 ```css
 /* UIComponent CSS — works because it's in the global stylesheet */
 body {
-    background-color: #45484d;
-    margin: 0;
-    overflow: hidden;
+	background-color: #45484d;
+	margin: 0;
+	overflow: hidden;
 }
 ```
 
@@ -917,9 +917,9 @@ In GUIComponent, CSS is scoped inside the shadow root. A `body` rule inside Shad
 
 ```javascript
 Viewer.onAppend = function onAppend() {
-    document.body.style.backgroundColor = '#45484d';
-    document.body.style.margin = '0';
-    document.body.style.overflow = 'hidden';
+	document.body.style.backgroundColor = '#45484d';
+	document.body.style.margin = '0';
+	document.body.style.overflow = 'hidden';
 };
 ```
 
@@ -935,10 +935,10 @@ Remove the `body { ... }` block from the component's CSS file — it does nothin
 
 ```css
 :host {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }
 ```
 
@@ -946,9 +946,9 @@ The inner container should also fill the host:
 
 ```css
 #ViewerName {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+	position: absolute;
+	width: 100%;
+	height: 100%;
 }
 ```
 

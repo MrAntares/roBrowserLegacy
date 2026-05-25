@@ -21,7 +21,6 @@ import htmlText from './GrfViewer.html?raw';
 import cssText from './GrfViewer.css?raw';
 import History from './History.js';
 
-
 /**
  * Create GRFViewer component
  */
@@ -760,7 +759,8 @@ const onObjectClick = (() => {
 	function initApp() {
 		if (App) return true;
 		if (typeof ROBrowser === 'undefined') return false;
-		App = new ROBrowser({ // eslint-disable-line no-undef
+		App = new ROBrowser({
+			// eslint-disable-line no-undef
 			target: element,
 			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
 			application: ROBrowser.APP.MODELVIEWER, // eslint-disable-line no-undef
@@ -862,7 +862,8 @@ const onEffectClick = (() => {
 	function initApp() {
 		if (App) return true;
 		if (typeof ROBrowser === 'undefined') return false;
-		App = new ROBrowser({ // eslint-disable-line no-undef
+		App = new ROBrowser({
+			// eslint-disable-line no-undef
 			target: element,
 			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
 			application: ROBrowser.APP.STRVIEWER, // eslint-disable-line no-undef
@@ -963,7 +964,8 @@ const onWorldClick = (() => {
 	function initApp() {
 		if (App) return true;
 		if (typeof ROBrowser === 'undefined') return false;
-		App = new ROBrowser({ // eslint-disable-line no-undef
+		App = new ROBrowser({
+			// eslint-disable-line no-undef
 			target: element,
 			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
 			application: ROBrowser.APP.MAPVIEWER, // eslint-disable-line no-undef
@@ -1132,7 +1134,8 @@ const onGrannyClick = (() => {
 	function initApp() {
 		if (App) return true;
 		if (typeof ROBrowser === 'undefined') return false;
-		App = new ROBrowser({ // eslint-disable-line no-undef
+		App = new ROBrowser({
+			// eslint-disable-line no-undef
 			target: element,
 			type: ROBrowser.TYPE.FRAME, // eslint-disable-line no-undef
 			application: ROBrowser.APP.GRANNYMODELVIEWER, // eslint-disable-line no-undef

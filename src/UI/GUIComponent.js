@@ -31,7 +31,6 @@ let _Renderer = null;
 let _EntityManager = null;
 let _ScrollBar = null;
 
-
 async function _loadHeavyDeps() {
 	if (_Cursor) return;
 	const [CursorMod, DBMod, ClientMod, RendererMod, EntityManagerMod, ScrollBarMod] = await Promise.all([
