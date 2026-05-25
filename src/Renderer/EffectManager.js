@@ -197,6 +197,10 @@ function repeatEffect(effect) {
 		RepeatParams,
 		EF_Inst_Par;
 
+	if (!Params || !Params.Inst) {
+		return 0;
+	}
+
 	if ((Params.Inst.persistent || Params.Inst.repeatEnd) && !effect._AlreadyRepeated) {
 		if (
 			Params.Inst.duration &&

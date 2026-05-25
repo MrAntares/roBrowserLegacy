@@ -31,7 +31,6 @@ let _Renderer = null;
 let _EntityManager = null;
 let _ScrollBar = null;
 
-const INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
 
 async function _loadHeavyDeps() {
 	if (_Cursor) return;
@@ -964,7 +963,7 @@ class GUIComponent {
 
 		// Default background
 		if (background) {
-			_Client?.loadFile(INTERFACE_PATH + background, dataURI => {
+			_Client?.loadFile(_DB.INTERFACE_PATH + background, dataURI => {
 				bgUri = dataURI;
 				if (dataURI instanceof ArrayBuffer) {
 					try {
@@ -981,7 +980,7 @@ class GUIComponent {
 
 		// Active background
 		if (active) {
-			_Client?.loadFile(INTERFACE_PATH + active, dataURI => {
+			_Client?.loadFile(_DB.INTERFACE_PATH + active, dataURI => {
 				activeUri = dataURI;
 				if (node.classList.contains('active')) {
 					state.active = true;
@@ -1011,7 +1010,7 @@ class GUIComponent {
 
 		// Hover background
 		if (hover) {
-			_Client?.loadFile(INTERFACE_PATH + hover, dataURI => {
+			_Client?.loadFile(_DB.INTERFACE_PATH + hover, dataURI => {
 				hoverUri = dataURI;
 			});
 			node.addEventListener('mouseover', () => {
@@ -1026,7 +1025,7 @@ class GUIComponent {
 
 		// Down background
 		if (down) {
-			_Client?.loadFile(INTERFACE_PATH + down, dataURI => {
+			_Client?.loadFile(_DB.INTERFACE_PATH + down, dataURI => {
 				downUri = dataURI;
 			});
 			node.addEventListener('mousedown', () => {
@@ -1048,7 +1047,7 @@ class GUIComponent {
 
 		// Preload images
 		if (preload) {
-			const files = preload.split(';').map(f => INTERFACE_PATH + f.trim());
+			const files = preload.split(';').map(f => _DB.INTERFACE_PATH + f.trim());
 			_Client?.loadFiles(files);
 		}
 	}

@@ -27,7 +27,6 @@ let _Renderer = null;
 let _EntityManager = null;
 let _ScrollBar = null;
 
-const INTERFACE_PATH = 'data/texture/\xc0\xaf\xc0\xfa\xc0\xce\xc5\xcd\xc6\xe4\xc0\xcc\xbd\xba/';
 
 async function _loadHeavyDeps() {
 	if (_Cursor) return;
@@ -814,7 +813,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 
 	// Default background
 	if (background) {
-		_Client?.loadFile(INTERFACE_PATH + background, function (dataURI) {
+		_Client?.loadFile(_DB.INTERFACE_PATH + background, function (dataURI) {
 			bg_uri = dataURI;
 			if (dataURI instanceof ArrayBuffer) {
 				try {
@@ -831,7 +830,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 
 	// Active background
 	if (active) {
-		_Client?.loadFile(INTERFACE_PATH + active, function (dataURI) {
+		_Client?.loadFile(_DB.INTERFACE_PATH + active, function (dataURI) {
 			active_uri = dataURI;
 
 			// Initialize active state if class is already present
@@ -867,7 +866,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 
 	// On mouse over
 	if (hover) {
-		_Client?.loadFile(INTERFACE_PATH + hover, function (dataURI) {
+		_Client?.loadFile(_DB.INTERFACE_PATH + hover, function (dataURI) {
 			hover_uri = dataURI;
 		});
 		$node.mouseover(function () {
@@ -882,7 +881,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 
 	// On mouse down
 	if (down) {
-		_Client?.loadFile(INTERFACE_PATH + down, function (dataURI) {
+		_Client?.loadFile(_DB.INTERFACE_PATH + down, function (dataURI) {
 			down_uri = dataURI;
 		});
 		$node.mousedown(function (event) {
@@ -908,7 +907,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 	if (preload) {
 		preloads = preload.split(';');
 		for (i = 0, count = preloads.length; i < count; ++i) {
-			preloads[i] = INTERFACE_PATH + jQuery.trim(preloads[i]);
+			preloads[i] = _DB.INTERFACE_PATH + jQuery.trim(preloads[i]);
 		}
 		_Client?.loadFiles(preloads);
 	}
