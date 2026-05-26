@@ -389,7 +389,7 @@ function close() {
 
 		s.close();
 
-		if (s.izZone) {
+		if (s.isZone) {
 			PacketCrypt.reset();
 		}
 
