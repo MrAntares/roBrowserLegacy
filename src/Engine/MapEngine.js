@@ -192,7 +192,7 @@ class MapEngine {
 					// the previous fp.length === 4 check only worked when the AID arrived in
 					// its own segment, otherwise the parser read the AID as an opcode and
 					// desynced the whole stream.
-					if (PACKETVER.value < 20070521 || fp.length === 4) {
+					if (PACKETVER.value < 20070521) {
 						Session.Character.GID = fp.readLong();
 					}
 				});
