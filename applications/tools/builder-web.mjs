@@ -653,8 +653,14 @@ async function copyPwaFiles() {
 	const bgPath = './src/UI/Components/Intro/images/background.jpg';
 	fs.copyFileSync('./applications/pwa/icon.png', dist + platform + '/icon.png');
 	fs.copyFileSync('./applications/pwa/manifest.webmanifest', dist + platform + '/manifest.webmanifest');
-	await sharp(bgPath).resize(1920, 1080).png().toFile(dist + platform + '/screenshotwide.png');
-	await sharp(bgPath).resize(390, 844).png().toFile(dist + platform + '/screenshotnarrow.png');
+	await sharp(bgPath)
+		.resize(1920, 1080)
+		.png()
+		.toFile(dist + platform + '/screenshotwide.png');
+	await sharp(bgPath)
+		.resize(390, 844)
+		.png()
+		.toFile(dist + platform + '/screenshotnarrow.png');
 	console.log('PWA files copied', Date.now() - start, 'ms.');
 }
 

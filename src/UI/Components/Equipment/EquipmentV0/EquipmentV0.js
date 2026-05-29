@@ -304,7 +304,9 @@ EquipmentV0.equip = function equip(item, location) {
 
 	Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', data => {
 		const btns = root.querySelectorAll(`.item[data-index="${item.index}"] button`);
-		btns.forEach(btn => { btn.style.backgroundImage = `url(${data})`; });
+		btns.forEach(btn => {
+			btn.style.backgroundImage = `url(${data})`;
+		});
 	});
 
 	if (!Inventory.getUI().equippedItems.includes(item.index)) {
@@ -591,7 +593,9 @@ EquipmentV0.onUpdateOwnerName = function () {
 	for (const index in _list) {
 		const item = _list[index];
 		if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
-			root.querySelectorAll(`.item[data-index="${index}"] .itemName`).forEach(nameEl => { nameEl.textContent = DB.getItemName(item); });
+			root.querySelectorAll(`.item[data-index="${index}"] .itemName`).forEach(nameEl => {
+				nameEl.textContent = DB.getItemName(item);
+			});
 		}
 	}
 };
