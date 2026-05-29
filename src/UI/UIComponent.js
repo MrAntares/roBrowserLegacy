@@ -119,8 +119,8 @@ let _snapCache = [];
 /**
  * Prepare the component to be used
  */
-UIComponent.prototype.prepare = function prepare() {
-	_loadHeavyDeps();
+UIComponent.prototype.prepare = async function prepare() {
+	await _loadHeavyDeps();
 	if (this.__loaded) {
 		return;
 	}
@@ -250,11 +250,11 @@ UIComponent.prototype.remove = function remove() {
  *
  * @param {string|jQueryElement} [target] - Target element to append the UI to. If not provided, appends to body.
  */
-UIComponent.prototype.append = function append(target) {
+UIComponent.prototype.append = async function append(target) {
 	this.__active = true;
 
 	if (!this.__loaded) {
-		this.prepare();
+		await this.prepare();
 
 		if (this.__active) {
 			this.append();

@@ -121,9 +121,9 @@ class GUIComponent {
 	 * mouse intersection and touch handling.
 	 * Equivalent to UIComponent.prototype.prepare().
 	 */
-	prepare() {
+	async prepare() {
 		if (this.__loaded) return;
-		_loadHeavyDeps();
+		await _loadHeavyDeps();
 
 		// Create host element
 		this._host = document.createElement('div');
@@ -184,11 +184,11 @@ class GUIComponent {
 	 *
 	 * @param {HTMLElement|string} [target] - Target element. Defaults to document.body.
 	 */
-	append(target) {
+	async append(target) {
 		this.__active = true;
 
 		if (!this.__loaded) {
-			this.prepare();
+			await this.prepare();
 			if (this.__active) this.append(target);
 			return;
 		}
