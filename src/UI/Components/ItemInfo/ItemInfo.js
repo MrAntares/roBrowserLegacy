@@ -265,7 +265,8 @@ ItemInfo.setItem = function setItem(item) {
 
 	const descInner = root.querySelector('.description-inner');
 	if (descInner) {
-		descInner.textContent = item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName;
+		const rawDesc = item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName;
+		descInner.innerHTML = DB.formatMsgToHtml(_escapeHTML(rawDesc));
 	}
 
 	if (item.HireExpireDate) {

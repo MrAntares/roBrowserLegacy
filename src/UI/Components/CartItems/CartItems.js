@@ -129,6 +129,7 @@ CartItems.init = function Init() {
 			}
 		});
 		content.addEventListener('contextmenu', e => {
+			e.preventDefault();
 			const item = e.target.closest('.item');
 			if (item) {
 				onItemInfo.call(item, e);

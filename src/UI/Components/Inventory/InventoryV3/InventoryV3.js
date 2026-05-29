@@ -141,6 +141,7 @@ InventoryV3.init = function Init() {
 			if (item) onItemDragEnd();
 		});
 		content.addEventListener('contextmenu', e => {
+			e.preventDefault();
 			const item = e.target.closest('.item');
 			if (item) onItemInfo.call(item, e);
 		});

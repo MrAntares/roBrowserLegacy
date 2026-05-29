@@ -176,6 +176,7 @@ EquipmentV4.init = function init() {
 	const content = root.querySelector('.content');
 	if (content) {
 		content.addEventListener('contextmenu', e => {
+			e.preventDefault();
 			const item = e.target.closest('.item');
 			if (item) onEquipmentInfo.call(item, e);
 		});

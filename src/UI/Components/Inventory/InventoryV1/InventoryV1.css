@@ -5,7 +5,6 @@
 
 /* ─── Root ───────────────────────────────────────────────────── */
 #InventoryV1 {
-	position: absolute;
 	height: 193px;
 	display: flex;
 	flex-direction: column;

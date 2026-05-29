@@ -26,6 +26,7 @@ let _Client = null;
 let _Renderer = null;
 let _EntityManager = null;
 let _ScrollBar = null;
+let _depsPromise = null;
 
 async function _loadHeavyDeps() {
 	if (_Cursor) return;
@@ -43,6 +44,13 @@ async function _loadHeavyDeps() {
 	_Renderer = RendererMod.default;
 	_EntityManager = EntityManagerMod.default;
 	_ScrollBar = ScrollBarMod.default;
+}
+
+function _ensureDeps() {
+	if (!_depsPromise) {
+		_depsPromise = _loadHeavyDeps();
+	}
+	return _depsPromise;
 }
 
 /**
@@ -119,8 +127,8 @@ let _snapCache = [];
 /**
  * Prepare the component to be used
  */
-UIComponent.prototype.prepare = async function prepare() {
-	await _loadHeavyDeps();
+UIComponent.prototype.prepare = function prepare() {
+	_ensureDeps();
 	if (this.__loaded) {
 		return;
 	}
@@ -250,11 +258,11 @@ UIComponent.prototype.remove = function remove() {
  *
  * @param {string|jQueryElement} [target] - Target element to append the UI to. If not provided, appends to body.
  */
-UIComponent.prototype.append = async function append(target) {
+UIComponent.prototype.append = function append(target) {
 	this.__active = true;
 
 	if (!this.__loaded) {
-		await this.prepare();
+		this.prepare();
 
 		if (this.__active) {
 			this.append();
@@ -770,7 +778,12 @@ UIComponent.prototype.draggable = function draggable(element) {
  * Parse a component html view (data-* attributes)
  */
 UIComponent.prototype.parseHTML = function parseHTML() {
-	const $node = jQuery(this);
+	const node = this;
+	if (!_Client || !_DB) {
+		_ensureDeps().then(() => parseHTML.call(node));
+		return;
+	}
+	const $node = jQuery(node);
 	const background = $node.data('background');
 	const preload = $node.data('preload');
 	const hover = $node.data('hover');
