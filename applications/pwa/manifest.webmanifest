@@ -14,24 +14,7 @@
 			"purpose": "any"
 		}
 	],
-	"screenshots": [
-		{
-			"src": "./screenshotwide.png",
-			"sizes": "1920x1080",
-			"type": "image/png",
-			"purpose": "any",
-			"form_factor": "wide",
-			"description": "roBrowser Progressive Web App."
-		},
-		{
-			"src": "./screenshotnarrow.png",
-			"sizes": "390x844",
-			"type": "image/png",
-			"purpose": "any",
-			"form_factor": "narrow",
-			"description": "roBrowser Progressive Web App."
-		}
-	],
+	"screenshots": [],
 	"protocol_handlers": [
 		{
 			"protocol": "http",

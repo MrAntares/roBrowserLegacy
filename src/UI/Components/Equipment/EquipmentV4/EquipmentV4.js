@@ -29,7 +29,7 @@ import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
-import GraphicsSettings from 'Preferences/GraphicsSettings.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 import htmlText from './EquipmentV4.html?raw';
 import cssText from './EquipmentV4.css?raw';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
