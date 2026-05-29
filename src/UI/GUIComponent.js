@@ -31,6 +31,8 @@ let _Renderer = null;
 let _EntityManager = null;
 let _ScrollBar = null;
 
+let _depsPromise = null;
+
 async function _loadHeavyDeps() {
 	if (_Cursor) return;
 	const [CursorMod, DBMod, ClientMod, RendererMod, EntityManagerMod, ScrollBarMod] = await Promise.all([
@@ -47,6 +49,13 @@ async function _loadHeavyDeps() {
 	_Renderer = RendererMod.default;
 	_EntityManager = EntityManagerMod.default;
 	_ScrollBar = ScrollBarMod.default;
+}
+
+function _ensureDeps() {
+	if (!_depsPromise) {
+		_depsPromise = _loadHeavyDeps();
+	}
+	return _depsPromise;
 }
 
 /**
@@ -123,7 +132,7 @@ class GUIComponent {
 	 */
 	prepare() {
 		if (this.__loaded) return;
-		_loadHeavyDeps();
+		_ensureDeps();
 
 		// Create host element
 		this._host = document.createElement('div');
@@ -927,6 +936,10 @@ class GUIComponent {
 	 * Static so it can be called from anywhere (e.g. dynamically created buttons).
 	 */
 	static processDataAttrs(node) {
+		if (!_Client || !_DB) {
+			_ensureDeps().then(() => GUIComponent.processDataAttrs(node));
+			return;
+		}
 		const background = node.dataset.background;
 		const hover = node.dataset.hover;
 		const down = node.dataset.down;

@@ -1,8 +1,11 @@
-/* ─── Root ───────────────────────────────────────────────────── */
-#InventoryV1 {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+}
+
+/* ─── Root ───────────────────────────────────────────────────── */
+#InventoryV1 {
+	position: relative;
 	height: 193px;
 	display: flex;
 	flex-direction: column;

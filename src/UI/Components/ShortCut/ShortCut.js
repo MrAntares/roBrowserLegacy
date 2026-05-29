@@ -550,6 +550,7 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 	let file, name;
 	const root = _getRoot();
 	const ui = root.querySelector(`.container[data-index="${index}"]`);
+	if (!ui) return;
 	ui.innerHTML = '';
 
 	if (!_list[index]) {
@@ -624,6 +625,7 @@ function setDelayOnIndex(index, delay) {
 	_list[index].Delay = Renderer.tick + delay;
 	const root = _getRoot();
 	const ui = root.querySelector(`.container[data-index="${index}"]`);
+	if (!ui) return;
 	const existing = ui.querySelector('.cooldown-overlay');
 	if (existing) {
 		existing.remove();

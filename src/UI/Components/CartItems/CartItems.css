@@ -1,7 +1,10 @@
-#cartitems {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+}
+
+#cartitems {
+	position: relative;
 }
 #cartitems table {
 	border-spacing: 0px;

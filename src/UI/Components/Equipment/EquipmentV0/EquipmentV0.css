@@ -1,5 +1,10 @@
+:host {
+	top: 0px;
+	left: 0px;
+}
+
 #EquipmentV0 {
-	position: absolute;
+	position: relative;
 	width: 280px;
 }
 
