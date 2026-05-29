@@ -822,11 +822,14 @@ function onItemOver(_e) {
 
 	const root = _getRoot();
 	const overlay = root.querySelector('.overlay');
+	const rootEl = root.querySelector('#InventoryV0') || root;
+	const itemRect = this.getBoundingClientRect();
+	const rootRect = rootEl.getBoundingClientRect();
 
 	if (overlay) {
 		overlay.style.display = 'block';
-		overlay.style.top = `${this.offsetTop}px`;
-		overlay.style.left = `${this.offsetLeft + 35}px`;
+		overlay.style.top = `${itemRect.top - rootRect.top}px`;
+		overlay.style.left = `${itemRect.left - rootRect.left + 35}px`;
 		overlay.textContent = `${DB.getItemName(item)}: ${item.count || 1}${quantity}`;
 
 		if (item.IsIdentified) {

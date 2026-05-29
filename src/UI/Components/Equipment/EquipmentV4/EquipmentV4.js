@@ -831,8 +831,11 @@ function onEquipmentOver() {
 
 	const root = _getRoot();
 	const overlay = root.querySelector('.overlay');
-	const top = this.offsetTop;
-	const left = this.offsetLeft;
+	const rootEl = root.querySelector('#EquipmentV4') || root;
+	const btnRect = this.getBoundingClientRect();
+	const rootRect = rootEl.getBoundingClientRect();
+	const top = btnRect.top - rootRect.top;
+	const left = btnRect.left - rootRect.left;
 	if (!top && !left) return;
 
 	if (overlay) {
