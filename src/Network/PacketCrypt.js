@@ -568,9 +568,20 @@ function Process(view) {
 }
 
 /**
+ * Reset encryption state when disconnecting from zone server
+ */
+function Reset() {
+	_keys[0] = 0;
+	_keys[1] = 0;
+	_keys[2] = 0;
+	_available = false;
+}
+
+/**
  * Export
  */
 export default {
 	init: Init,
-	process: Process
+	process: Process,
+	reset: Reset
 };
