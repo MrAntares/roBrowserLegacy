@@ -397,14 +397,13 @@ EquipmentV3.equip = function equip(item, location) {
 	});
 
 	Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', data => {
-		const btn = root.querySelector(`.item[data-index="${item.index}"] button`);
-		if (btn) btn.style.backgroundImage = `url(${data})`;
+		const btns = root.querySelectorAll(`.item[data-index="${item.index}"] button`);
+		btns.forEach(btn => { btn.style.backgroundImage = `url(${data})`; });
 	});
 
 	if (item.enchantgrade) {
 		Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', data => {
-			const el = root.querySelector(`.item[data-index="${item.index}"] .grade`);
-			if (el) el.style.backgroundImage = `url(${data})`;
+			root.querySelectorAll(`.item[data-index="${item.index}"] .grade`).forEach(el => { el.style.backgroundImage = `url(${data})`; });
 		});
 	}
 
@@ -722,8 +721,7 @@ EquipmentV3.onUpdateOwnerName = function () {
 	for (const index in EquipmentV3._itemlist) {
 		const item = EquipmentV3._itemlist[index];
 		if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
-			const nameEl = root.querySelector(`.item[data-index="${index}"] .itemName`);
-			if (nameEl) nameEl.textContent = DB.getItemName(item);
+			root.querySelectorAll(`.item[data-index="${index}"] .itemName`).forEach(nameEl => { nameEl.textContent = DB.getItemName(item); });
 		}
 	}
 };
