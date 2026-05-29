@@ -1,7 +1,10 @@
-.ItemInfo {
-	position: absolute;
+:host {
 	top: 0px;
 	left: 0px;
+}
+
+.ItemInfo {
+	position: absolute;
 	width: 280px;
 	background-repeat: no-repeat;
 	background-color: transparent;

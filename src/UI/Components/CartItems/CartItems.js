@@ -12,14 +12,14 @@
 
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
@@ -33,7 +33,9 @@ import Equipment from 'UI/Components/Equipment/Equipment.js';
 /**
  * Create Component
  */
-const CartItems = new UIComponent('CartItems', htmlText, cssText);
+const CartItems = new GUIComponent('CartItems', cssText);
+
+CartItems.render = () => htmlText;
 
 /**
  * Store inventory items
@@ -61,79 +63,136 @@ const _preferences = Preferences.get(
 	1.0
 );
 
+function _getRoot() {
+	return CartItems._shadow || CartItems._host;
+}
+
 /**
  * Initialize UI
  */
 CartItems.init = function Init() {
+	const root = _getRoot();
+
 	// Bind buttons
-	this.ui.find('.titlebar .base').mousedown(stopPropagation);
-	this.ui.find('.titlebar .mini').click(onToggleReduction);
-	this.ui.find('.footer .extend').mousedown(onResize);
-	this.ui.find('.titlebar .close').click(function () {
-		CartItems.ui.hide();
-	});
+	const baseBtn = root.querySelector('.titlebar .base');
+	if (baseBtn) {
+		baseBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+	}
+
+	const miniBtn = root.querySelector('.titlebar .mini');
+	if (miniBtn) {
+		miniBtn.addEventListener('click', onToggleReduction);
+	}
+
+	const extendBtn = root.querySelector('.footer .extend');
+	if (extendBtn) {
+		extendBtn.addEventListener('mousedown', onResize);
+	}
+
+	const closeBtn = root.querySelector('.titlebar .close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => {
+			CartItems._host.style.display = 'none';
+		});
+	}
 
 	// on drop item
-	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
+	this._host.addEventListener('drop', onDrop);
+	this._host.addEventListener('dragover', e => e.stopImmediatePropagation());
 
-		// Items event
-		.find('.container .content')
-		.on('mousewheel DOMMouseScroll', onScroll)
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
-		.on('contextmenu', '.item', onItemInfo)
-		.on('dblclick', '.item', onItemUsed);
+	// Items event (delegation)
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.addEventListener('wheel', onScroll);
+		content.addEventListener('mouseover', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOver.call(item, e);
+			}
+		});
+		content.addEventListener('mouseout', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOut();
+			}
+		});
+		content.addEventListener('dragstart', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemDragStart.call(item, e);
+			}
+		});
+		content.addEventListener('dragend', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemDragEnd();
+			}
+		});
+		content.addEventListener('contextmenu', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemInfo.call(item, e);
+			}
+		});
+		content.addEventListener('dblclick', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemUsed.call(item, e);
+			}
+		});
+	}
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 };
 
 /**
  * Apply preferences once append to body
  */
 CartItems.onAppend = function OnAppend() {
-	if (Session.Entity.hasCart == false) {
-		this.ui.hide();
+	if (Session.Entity.hasCart === false) {
+		this._host.style.display = 'none';
 	}
 
 	// Apply preferences
 	if (!_preferences.show) {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
-
-	/*Client.loadFile( DB.INTERFACE_PATH + 'basic_interface/tab_itm_0'+ (_preferences.tab+1) +'.bmp', function(data){
-			CartItems.ui.find('.tabs').css('backgroundImage', 'url("' + data + '")');
-		});*/
 
 	this.resize(_preferences.width, _preferences.height);
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	const hostRect = this._host.getBoundingClientRect();
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostRect.width)}px`;
 
-	_realSize = _preferences.reduce ? 0 : this.ui.height();
-	this.ui.find('.titlebar .mini').trigger('mousedown');
+	_realSize = _preferences.reduce ? 0 : hostRect.height;
+	const miniBtn = _getRoot().querySelector('.titlebar .mini');
+	if (miniBtn) {
+		miniBtn.dispatchEvent(new Event('mousedown'));
+	}
 };
 
 /**
  * Remove Inventory from window (and so clean up items)
  */
 CartItems.onRemove = function OnRemove() {
-	this.ui.find('.container .content').empty();
+	const root = _getRoot();
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.innerHTML = '';
+	}
 	this.list.length = 0;
-	jQuery('.ItemInfo').remove();
+
+	// Remove any ItemInfo instances from the document
+	document.querySelectorAll('.ItemInfo').forEach(el => el.remove());
 
 	// Save preferences
-	_preferences.show = this.ui.is(':visible');
+	_preferences.show = this._host.style.display !== 'none';
 	_preferences.reduce = !!_realSize;
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.width = Math.floor((this.ui.width() - (23 + 16 + 16 - 30)) / 32);
-	_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	const hostRect = this._host.getBoundingClientRect();
+	_preferences.width = Math.floor((hostRect.width - (23 + 16 + 16 - 30)) / 32);
+	_preferences.height = Math.floor((hostRect.height - (31 + 19 - 30)) / 32);
 	_preferences.save();
 };
 
@@ -143,30 +202,26 @@ CartItems.onRemove = function OnRemove() {
  * @param {object} key
  */
 CartItems.onShortCut = function onShurtCut(key) {
-	if (Session.Entity.hasCart == false) {
+	if (Session.Entity.hasCart === false) {
 		return;
 	}
 
 	switch (key.cmd) {
 		case 'TOGGLE':
-			this.ui.toggle();
-			if (this.ui.is(':visible')) {
+			if (this._host.style.display === 'none') {
+				this._host.style.display = '';
 				this.focus();
 			} else {
-				// Chrome bug
-				// when clicking double clicking an a weapon to equip
-				// the item disapear, if you don't move the mouse and
-				// triggered ALT+E then, the window disapear and you
-				// can't trigger the scene anymore
-				this.ui.trigger('mouseleave');
+				this._host.style.display = 'none';
+				this._host.dispatchEvent(new Event('mouseleave'));
 			}
 			break;
 	}
 };
 
 CartItems.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
-		this.ui.toggle();
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
+		this._host.style.display = this._host.style.display === 'none' ? '' : 'none';
 	}
 };
 
@@ -180,15 +235,15 @@ CartItems.resize = function Resize(width, height) {
 	width = Math.min(Math.max(width, 6), 9);
 	height = Math.min(Math.max(height, 2), 6);
 
-	this.ui.find('.container .content').css({
-		width: width * 32 + 13, // 13 = scrollbar
-		height: height * 32
-	});
+	const root = _getRoot();
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.style.width = `${width * 32 + 13}px`;
+		content.style.height = `${height * 32}px`;
+	}
 
-	this.ui.css({
-		width: 16 + 39 + width * 32,
-		height: 31 + 19 + height * 32
-	});
+	this._host.style.width = `${16 + 39 + width * 32}px`;
+	this._host.style.height = `${31 + 19 + height * 32}px`;
 };
 
 /**
@@ -198,15 +253,12 @@ CartItems.resize = function Resize(width, height) {
  * @returns {Item}
  */
 CartItems.getItemById = function GetItemById(id) {
-	let i, count;
 	const list = CartItems.list;
-
-	for (i = 0, count = list.length; i < count; ++i) {
+	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].ITID === id) {
 			return list[i];
 		}
 	}
-
 	return null;
 };
 
@@ -217,15 +269,12 @@ CartItems.getItemById = function GetItemById(id) {
  * @returns {Item}
  */
 CartItems.getItemByIndex = function getItemByIndex(index) {
-	let i, count;
 	const list = CartItems.list;
-
-	for (i = 0, count = list.length; i < count; ++i) {
+	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].index === index) {
 			return list[i];
 		}
 	}
-
 	return null;
 };
 
@@ -234,9 +283,7 @@ CartItems.getItemByIndex = function getItemByIndex(index) {
  * if the item index is exist you should clear it;[skybook888]
  */
 CartItems.setItems = function SetItems(items) {
-	let i, count;
-
-	for (i = 0, count = items.length; i < count; ++i) {
+	for (let i = 0, count = items.length; i < count; ++i) {
 		const object = this.getItemByIndex(items[i].index);
 		if (object) {
 			this.removeItem(object.index, object.count);
@@ -248,10 +295,23 @@ CartItems.setItems = function SetItems(items) {
 };
 
 CartItems.setCartInfo = function SetCartInfo(curCount, maxCount, curWeight, maxWeight) {
-	this.ui.find('.ncnt').text(curCount);
-	this.ui.find('.mcnt').text(maxCount);
-	this.ui.find('.nwt').text(curWeight / 10);
-	this.ui.find('.mwt').text(maxWeight / 10);
+	const root = _getRoot();
+	const ncnt = root.querySelector('.ncnt');
+	const mcnt = root.querySelector('.mcnt');
+	const nwt = root.querySelector('.nwt');
+	const mwt = root.querySelector('.mwt');
+	if (ncnt) {
+		ncnt.textContent = curCount;
+	}
+	if (mcnt) {
+		mcnt.textContent = maxCount;
+	}
+	if (nwt) {
+		nwt.textContent = curWeight / 10;
+	}
+	if (mwt) {
+		mwt.textContent = maxWeight / 10;
+	}
 };
 
 /**
@@ -264,11 +324,15 @@ CartItems.addItem = function AddItem(item) {
 
 	if (object) {
 		object.count += item.count;
-		this.ui.find('.item[data-index="' + item.index + '"] .count').text(object.count);
+		const root = _getRoot();
+		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+		if (countEl) {
+			countEl.textContent = object.count;
+		}
 		return;
 	}
 
-	object = jQuery.extend({}, item);
+	object = Object.assign({}, item);
 	if (this.addItemSub(object)) {
 		this.list.push(object);
 	}
@@ -282,29 +346,32 @@ CartItems.addItem = function AddItem(item) {
 CartItems.addItemSub = function AddItemSub(item) {
 	// Equip item (if not arrow)
 	if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-		//Equipment.equip(item);
 		return false;
 	}
 
 	const it = DB.getItemInfo(item.ITID);
-	const content = this.ui.find('.container .content');
+	const root = _getRoot();
+	const content = root.querySelector('.container .content');
+	if (!content) {
+		return true;
+	}
 
-	content.append(
-		'<div class="item" data-index="' +
-			item.index +
-			'" draggable="true">' +
+	content.insertAdjacentHTML(
+		'beforeend',
+		`<div class="item" data-index="${item.index}" draggable="true">` +
 			'<div class="icon"></div>' +
 			'<div class="grade"></div>' +
-			'<div class="amount"><span class="count">' +
-			(item.count || 1) +
-			'</span></div>' +
+			`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
 			'</div>'
 	);
 
-	if (content.height() < content[0].scrollHeight) {
-		this.ui.find('.hide').hide();
-	} else {
-		this.ui.find('.hide').show();
+	const hideEl = root.querySelector('.hide');
+	if (hideEl) {
+		if (content.offsetHeight < content.scrollHeight) {
+			hideEl.style.display = 'none';
+		} else {
+			hideEl.style.display = 'block';
+		}
 	}
 
 	Client.loadFile(
@@ -312,15 +379,21 @@ CartItems.addItemSub = function AddItemSub(item) {
 			'item/' +
 			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 			'.bmp',
-		function (data) {
-			content.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+		data => {
+			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
 		}
 	);
 
 	/* Grade System */
 	if (item.enchantgrade) {
-		Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', function (data) {
-			content.find('.item[data-index="' + item.index + '"] .grade').css('backgroundImage', 'url(' + data + ')');
+		Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', data => {
+			const grade = root.querySelector(`.item[data-index="${item.index}"] .grade`);
+			if (grade) {
+				grade.style.backgroundImage = `url(${data})`;
+			}
 		});
 	}
 
@@ -336,8 +409,6 @@ CartItems.addItemSub = function AddItemSub(item) {
 CartItems.removeItem = function RemoveItem(index, count) {
 	const item = this.getItemByIndex(index);
 
-	// Emulator failed to complete the operation
-	// do not remove item from inventory
 	if (!item || count <= 0) {
 		return null;
 	}
@@ -346,17 +417,28 @@ CartItems.removeItem = function RemoveItem(index, count) {
 		item.count -= count;
 
 		if (item.count > 0) {
-			this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
+			const root = _getRoot();
+			const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+			if (countEl) {
+				countEl.textContent = item.count;
+			}
 			return item;
 		}
 	}
 
 	this.list.splice(this.list.indexOf(item), 1);
-	this.ui.find('.item[data-index="' + item.index + '"]').remove();
+	const root = _getRoot();
+	const el = root.querySelector(`.item[data-index="${item.index}"]`);
+	if (el) {
+		el.remove();
+	}
 
-	const content = this.ui.find('.container .content');
-	if (content.height() === content[0].scrollHeight) {
-		this.ui.find('.hide').show();
+	const content = root.querySelector('.container .content');
+	const hideEl = root.querySelector('.hide');
+	if (content && hideEl) {
+		if (content.offsetHeight === content.scrollHeight) {
+			hideEl.style.display = 'block';
+		}
 	}
 
 	return item;
@@ -376,40 +458,41 @@ CartItems.updateItem = function UpdateItem(index, count) {
 	}
 
 	item.count = count;
+	const root = _getRoot();
 
 	// Update quantity
 	if (item.count > 0) {
-		this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
+		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+		if (countEl) {
+			countEl.textContent = item.count;
+		}
 		return;
 	}
 
 	// no quantity, remove
 	this.list.splice(this.list.indexOf(item), 1);
-	this.ui.find('.item[data-index="' + item.index + '"]').remove();
+	const el = root.querySelector(`.item[data-index="${item.index}"]`);
+	if (el) {
+		el.remove();
+	}
 
-	const content = this.ui.find('.container .content');
-	if (content.height() === content[0].scrollHeight) {
-		this.ui.find('.hide').show();
+	const content = root.querySelector('.container .content');
+	const hideEl = root.querySelector('.hide');
+	if (content && hideEl) {
+		if (content.offsetHeight === content.scrollHeight) {
+			hideEl.style.display = 'block';
+		}
 	}
 };
-
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
 
 /**
  * Extend inventory window size
  */
 function onResize() {
-	const ui = CartItems.ui;
-	const content = ui.find('.container .content');
-	const hide = ui.find('.hide');
-	const top = ui.position().top;
-	const left = ui.position().left;
+	const content = _getRoot().querySelector('.container .content');
+	const hideEl = _getRoot().querySelector('.hide');
+	const top = CartItems._host.offsetTop;
+	const left = CartItems._host.offsetLeft;
 	let lastWidth = 0;
 	let lastHeight = 0;
 
@@ -433,10 +516,12 @@ function onResize() {
 		lastHeight = h;
 
 		//Show or hide scrollbar
-		if (content.height() === content[0].scrollHeight) {
-			hide.show();
-		} else {
-			hide.hide();
+		if (content && hideEl) {
+			if (content.offsetHeight === content.scrollHeight) {
+				hideEl.style.display = 'block';
+			} else {
+				hideEl.style.display = 'none';
+			}
 		}
 	}
 
@@ -444,45 +529,36 @@ function onResize() {
 	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	const onMouseUp = event => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	};
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 /**
  * Hide/show inventory's content
  */
 function onToggleReduction() {
-	const ui = CartItems.ui;
+	const root = _getRoot();
+	const panel = root.querySelector('.panel');
 
 	if (_realSize) {
-		ui.find('.panel').show();
-		ui.height(_realSize);
+		if (panel) {
+			panel.style.display = 'block';
+		}
+		CartItems._host.style.height = `${_realSize}px`;
 		_realSize = 0;
 	} else {
-		_realSize = ui.height();
-		ui.height(17);
-		ui.find('.panel').hide();
+		_realSize = CartItems._host.getBoundingClientRect().height;
+		CartItems._host.style.height = '17px';
+		if (panel) {
+			panel.style.display = 'none';
+		}
 	}
 }
-
-/**
- * Update tab, reset inventory content
- */
-/*function requestFilter()
-	{
-		CartItems.ui.find('.container .content').empty();
-
-		var list = CartItems.list;
-		var i, count;
-
-		for (i = 0, count = list.length; i < count; ++i) {
-			CartItems.addItemSub( list[i] );
-		}
-	}*/ // UNUSED
 
 /**
  * Drop an item from storage to inventory
@@ -494,9 +570,9 @@ function onDrop(event) {
 	event.stopImmediatePropagation();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 
@@ -544,24 +620,26 @@ function onDrop(event) {
 function onScroll(event) {
 	let delta;
 
-	if (event.originalEvent.wheelDelta) {
-		delta = event.originalEvent.wheelDelta / 120;
+	if (event.wheelDelta) {
+		delta = event.wheelDelta / 120;
 		if (window.opera) {
 			delta = -delta;
 		}
-	} else if (event.originalEvent.detail) {
-		delta = -event.originalEvent.detail;
+	} else if (event.detail) {
+		delta = -event.detail;
+	} else {
+		delta = -Math.sign(event.deltaY);
 	}
 
-	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
+	event.currentTarget.scrollTop = Math.floor(event.currentTarget.scrollTop / 32) * 32 - delta * 32;
 	event.stopImmediatePropagation();
-	return false;
+	event.preventDefault();
 }
 
 /**
  * Show item name when mouse is over
  */
-function onItemOver() {
+function onItemOver(_e) {
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const item = CartItems.getItemByIndex(idx);
 
@@ -578,19 +656,21 @@ function onItemOver() {
 		quantity = ' Quantity';
 	}
 
-	// Get back data
-	const pos = jQuery(this).position();
-	const overlay = CartItems.ui.find('.overlay');
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
 
 	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top, left: pos.left + 35 });
-	overlay.text(DB.getItemName(item) + ': ' + (item.count || 1) + quantity);
+	if (overlay) {
+		overlay.style.display = 'block';
+		overlay.style.top = `${this.offsetTop}px`;
+		overlay.style.left = `${this.offsetLeft + 35}px`;
+		overlay.textContent = `${DB.getItemName(item)}: ${item.count || 1}${quantity}`;
 
-	if (item.IsIdentified) {
-		overlay.removeClass('grey');
-	} else {
-		overlay.addClass('grey');
+		if (item.IsIdentified) {
+			overlay.classList.remove('grey');
+		} else {
+			overlay.classList.add('grey');
+		}
 	}
 }
 
@@ -598,7 +678,11 @@ function onItemOver() {
  * Hide the item name
  */
 function onItemOut() {
-	CartItems.ui.find('.overlay').hide();
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
 /**
@@ -614,12 +698,13 @@ function onItemDragStart(event) {
 
 	// Set image to the drag drop element
 	const img = new Image();
-	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+	const iconEl = this.querySelector('.icon');
+	const url = iconEl ? iconEl.style.backgroundImage.match(/\(([^)]+)/)?.[1] : '';
 	img.decoding = 'async';
-	img.src = url.replace(/^\"/, '').replace(/\"$/, '');
+	img.src = url ? url.replace(/^["']/, '').replace(/["']$/, '') : '';
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -698,8 +783,10 @@ function onItemInfo(event) {
  * Alt Right Click Request Transfer
  */
 function transferItemToOtherUI(item) {
-	const isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
-	const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+	const storageUI = Storage.getUI();
+	const inventoryUI = Inventory.getUI();
+	const isStorageOpen = storageUI._host ? storageUI._host.style.display !== 'none' : false;
+	const isInventoryOpen = inventoryUI._host ? inventoryUI._host.style.display !== 'none' : false;
 
 	if (!item) {
 		return false;
@@ -729,10 +816,12 @@ function onItemUsed(event) {
 	}
 
 	event.stopImmediatePropagation();
-	return false;
+	event.preventDefault();
 }
 
 CartItems.reqRemoveItem = function reqRemoveItem() {};
+
+CartItems.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Create component and export it

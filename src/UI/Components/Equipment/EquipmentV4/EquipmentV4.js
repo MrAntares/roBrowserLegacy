@@ -15,7 +15,6 @@ import Network from 'Network/NetworkManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import ItemType from 'DB/Items/ItemType.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
@@ -24,25 +23,22 @@ import Camera from 'Renderer/Camera.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
-import GraphicsSettings from 'Preferences/Graphics.js';
+import GraphicsSettings from 'Preferences/GraphicsSettings.js';
 import htmlText from './EquipmentV4.html?raw';
 import cssText from './EquipmentV4.css?raw';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
 
-/**
- * Create Component
- */
-const EquipmentV4 = new UIComponent('EquipmentV4', htmlText, cssText);
+const EquipmentV4 = new GUIComponent('EquipmentV4', cssText);
 
-/**
- * @var {Preference} window preferences
- */
+EquipmentV4.render = () => htmlText;
+
 const _preferences = Preferences.get(
 	'EquipmentV4',
 	{
@@ -55,211 +51,232 @@ const _preferences = Preferences.get(
 	1.0
 );
 
-/**
- * @var {Array} equipment list
- */
 EquipmentV4._itemlist = {};
-
-/**
- * @var {CanvasRenderingContext2D} canvas context
- */
 const _ctx = [];
-
-/**
- * @var {boolean} show equipment to other people ?
- */
 let _showEquip = false;
-
-/**
- * @var {boolean} show costume ?
- */
 let _hideCostume = false;
-
-/**
- * @var {number} title id
- */
 let _currentTitleId = 0;
-
-/**
- * @var {jQuery} button that appeared when level up
- */
 let _btnLevelUp;
 
-/**
- * @var {jQuery} variable for UI tabs
- */
-const tabLinks = new Array();
-const contentDivs = new Array();
-let currentTabId = 'general'; // Variable to store the current tab's ID
+const tabLinks = {};
+const contentDivs = {};
+let currentTabId = 'general';
 
-/**
- * @var {jQuery} variable for Switch Equip
- */
 let switchappend;
 let switchUIopen;
 
-/**
- * Initialize UI
- */
-EquipmentV4.init = function init() {
-	_ctx.push(this.ui.find('canvas')[0].getContext('2d'));
-	_ctx.push(this.ui.find('canvas')[1].getContext('2d'));
+function _getRoot() {
+	return EquipmentV4._shadow || EquipmentV4._host;
+}
 
-	// Grab the tab links and content divs from the page
-	const tabListItems = document.getElementById('tabs').childNodes;
-	let i;
-	for (i = 0; i < tabListItems.length; i++) {
-		if (tabListItems[i].nodeName == 'DIV') {
-			const tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
-			const id = getHash(tabLink.getAttribute('href'));
-			tabLinks[id] = tabLink;
-			contentDivs[id] = document.getElementById(id);
+function escapeHTML(str) {
+	const div = document.createElement('div');
+	div.textContent = str;
+	return div.innerHTML;
+}
+
+EquipmentV4.init = function init() {
+	const root = _getRoot();
+	const canvases = root.querySelectorAll('canvas');
+	if (canvases[0]) _ctx.push(canvases[0].getContext('2d'));
+	if (canvases[1]) _ctx.push(canvases[1].getContext('2d'));
+
+	const tabsEl = root.querySelector('#tabs');
+	if (tabsEl) {
+		const tabListItems = tabsEl.childNodes;
+		for (let i = 0; i < tabListItems.length; i++) {
+			if (tabListItems[i].nodeName === 'DIV') {
+				const tabLink = getFirstChildWithTagName(tabListItems[i], 'A');
+				if (tabLink) {
+					const id = getHash(tabLink.getAttribute('href'));
+					tabLinks[id] = tabLink;
+					contentDivs[id] = root.querySelector(`#${id}`);
+				}
+			}
 		}
 	}
 
-	// Assign onclick events to the tab links, and
-	// highlight the first tab
-	i = 0;
+	let idx = 0;
 	for (const id in tabLinks) {
 		tabLinks[id].onclick = showTab;
 		tabLinks[id].onfocus = function () {
 			this.blur();
 		};
-		if (i == 0) {
-			tabLinks[id].className = 'tab selected';
-		}
-		i++;
+		if (idx === 0) tabLinks[id].className = 'tab selected';
+		idx++;
 	}
 
-	// Hide all content divs except the first
-	i = 0;
+	idx = 0;
 	for (const id in contentDivs) {
 		if (contentDivs[id]) {
-			if (i != 0) {
-				contentDivs[id].classList.add('content', 'hide');
-			}
-			i++;
+			if (idx !== 0) contentDivs[id].classList.add('content', 'hide');
+			idx++;
 		}
 	}
 
 	if (UIVersionManager.getEquipmentVersion() > 0) {
-		// Get button to open skill when level up
-		_btnLevelUp = jQuery('#lvlup_base')
-			.detach()
-			.mousedown(stopPropagation)
-			.click(() => {
-				_btnLevelUp.detach();
-				WinStats.getUI().ui.show();
+		const lvlupEl = root.querySelector('#lvlup_base');
+		if (lvlupEl) {
+			_btnLevelUp = lvlupEl;
+			lvlupEl.remove();
+			_btnLevelUp.addEventListener('mousedown', e => e.stopImmediatePropagation());
+			_btnLevelUp.addEventListener('click', () => {
+				if (_btnLevelUp.parentNode) _btnLevelUp.remove();
+				const winStatsUI = WinStats.getUI();
+				if (winStatsUI._host) winStatsUI._host.style.display = '';
 			});
+		}
 	} else {
-		this.ui.find('#equipment_footer').remove();
-		this.ui.addClass('equipmentV0');
-		this.ui.find('#lvlup_base').remove();
+		const footer = root.querySelector('#equipment_footer');
+		if (footer) footer.remove();
+		const rootEl = root.querySelector('#EquipmentV4');
+		if (rootEl) rootEl.classList.add('equipmentV0');
+		const lvlup = root.querySelector('#lvlup_base');
+		if (lvlup) lvlup.remove();
 	}
-	// Don't activate drag drop when clicking on buttons
-	this.ui.find('.titlebar .base').mousedown(stopPropagation);
-	this.ui.find('.titlebar .mini').click(function () {
-		EquipmentV4.ui.find('.panel').toggle();
-	});
-	this.ui.find('.titlebar .close').click(function () {
-		EquipmentV4.ui.hide();
-		Renderer.stop(renderCharacter);
-	});
 
-	this.ui.find('.removeOption').mousedown(onRemoveOption);
-	this.ui.find('.view_status').mousedown(toggleStatus);
-	this.ui.find('.show_equip').mousedown(toggleEquip);
-	this.ui.find('.show_costume').mousedown(toggleCostume);
+	const baseBtn = root.querySelector('.titlebar .base');
+	if (baseBtn) baseBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 
-	this.ui.find('.cartitems').click(onCartItems);
+	const miniBtn = root.querySelector('.titlebar .mini');
+	if (miniBtn) {
+		miniBtn.addEventListener('click', () => {
+			const panel = root.querySelector('.panel');
+			if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+		});
+	}
 
-	this.ui.find('.switch_equip').click(onSwtichEquip);
+	const closeBtn = root.querySelector('.titlebar .close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => {
+			EquipmentV4._host.style.display = 'none';
+			Renderer.stop(renderCharacter);
+		});
+	}
+
+	const removeOptBtn = root.querySelector('.removeOption');
+	if (removeOptBtn) removeOptBtn.addEventListener('mousedown', onRemoveOption);
+	const viewStatusBtn = root.querySelector('.view_status');
+	if (viewStatusBtn) viewStatusBtn.addEventListener('mousedown', toggleStatus);
+	const showEquipBtn = root.querySelector('.show_equip');
+	if (showEquipBtn) showEquipBtn.addEventListener('mousedown', toggleEquip);
+	const showCostumeBtn = root.querySelector('.show_costume');
+	if (showCostumeBtn) showCostumeBtn.addEventListener('mousedown', toggleCostume);
+	const cartBtn = root.querySelector('.cartitems');
+	if (cartBtn) cartBtn.addEventListener('click', onCartItems);
+	const switchEquipBtn = root.querySelector('.switch_equip');
+	if (switchEquipBtn) switchEquipBtn.addEventListener('click', onSwtichEquip);
 
 	this.loadTitles();
 
-	// drag, drop items
-	this.ui.on('dragover', onDragOver);
-	this.ui.on('dragleave', onDragLeave);
-	this.ui.on('drop', onDrop);
+	this._host.addEventListener('dragover', onDragOver);
+	this._host.addEventListener('dragleave', onDragLeave);
+	this._host.addEventListener('drop', onDrop);
 
-	// Bind items
-	this.ui
-		.find('.content')
-		.on('contextmenu', '.item', onEquipmentInfo)
-		.on('dblclick', '.item', onEquipmentUnEquip)
-		.on('mouseover', 'button', onEquipmentOver)
-		.on('mouseout', 'button', onEquipmentOut);
+	const content = root.querySelector('.content');
+	if (content) {
+		content.addEventListener('contextmenu', e => {
+			const item = e.target.closest('.item');
+			if (item) onEquipmentInfo.call(item, e);
+		});
+		content.addEventListener('dblclick', e => {
+			const item = e.target.closest('.item');
+			if (item) onEquipmentUnEquip.call(item, e);
+		});
+		content.addEventListener('mouseover', e => {
+			const btn = e.target.closest('button');
+			if (btn) onEquipmentOver.call(btn, e);
+		});
+		content.addEventListener('mouseout', e => {
+			const btn = e.target.closest('button');
+			if (btn) onEquipmentOut();
+		});
+	}
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 
-	switchappend = this.ui.find('.footer');
+	switchappend = root.querySelector('.footer');
 
-	EquipmentV4.ui.find('.show_costume').hide();
-	EquipmentV4.ui.find('.show_costume').next('span').hide();
+	const costumeBtn2 = root.querySelector('.show_costume');
+	if (costumeBtn2) costumeBtn2.style.display = 'none';
+	const costumeSpan = costumeBtn2 ? costumeBtn2.nextElementSibling : null;
+	if (costumeSpan && costumeSpan.tagName === 'SPAN') costumeSpan.style.display = 'none';
 
 	// Damage Skin Settings
-	const buttons = this.ui.find('#damageskin .skin-option');
-	buttons.each(function () {
-		jQuery(this)
-			.attr('data-background', 'showdamage/btn_damage.bmp')
-			.attr('data-hover', 'showdamage/btn_damage_press.bmp')
-			.attr('data-down', 'showdamage/btn_damage_pick.bmp');
+	const skinButtons = root.querySelectorAll('#damageskin .skin-option');
+	skinButtons.forEach(btn => {
+		btn.setAttribute('data-background', 'showdamage/btn_damage.bmp');
+		btn.setAttribute('data-hover', 'showdamage/btn_damage_press.bmp');
+		btn.setAttribute('data-down', 'showdamage/btn_damage_pick.bmp');
 	});
-	buttons.each(this.parseHTML);
-	buttons.off('mouseup');
-	buttons.on('mousedown', function (event) {
-		const skinId = parseInt(this.getAttribute('data-skin'), 10);
-		EquipmentV4.setDamageSkin(skinId);
+	if (this.parseHTML) {
+		skinButtons.forEach(btn => {
+			this.parseHTML.call(btn);
+		});
+	}
+	skinButtons.forEach(btn => {
+		btn.addEventListener('mousedown', function () {
+			const skinId = parseInt(this.getAttribute('data-skin'), 10);
+			EquipmentV4.setDamageSkin(skinId);
+		});
 	});
 	let savedSkin = GraphicsSettings.damageSkin;
 	savedSkin = savedSkin !== undefined && savedSkin !== null ? savedSkin : 0;
 	EquipmentV4.setDamageSkin(savedSkin);
 
 	// Damage Motion Settings
-	const motionChecks = this.ui.find('.motion-check');
-	motionChecks.each(this.parseHTML);
-	motionChecks.on('mousedown', function () {
-		const motionId = parseInt(this.getAttribute('data-motion'), 10);
-		EquipmentV4.setDamageMotion(motionId);
+	const motionChecks = root.querySelectorAll('.motion-check');
+	if (this.parseHTML) {
+		motionChecks.forEach(btn => {
+			this.parseHTML.call(btn);
+		});
+	}
+	motionChecks.forEach(btn => {
+		btn.addEventListener('mousedown', function () {
+			const motionId = parseInt(this.getAttribute('data-motion'), 10);
+			EquipmentV4.setDamageMotion(motionId);
+		});
 	});
 	let savedMotion = GraphicsSettings.damageMotion;
 	savedMotion = savedMotion !== undefined && savedMotion !== null ? savedMotion : 0;
 	EquipmentV4.setDamageMotion(savedMotion);
 };
 
-/**
- * Title Functions.
- */
 EquipmentV4.loadTitles = function () {
-	const titleList = this.ui.find('#title_list');
-	titleList.empty();
+	const root = _getRoot();
+	const titleList = root.querySelector('#title_list');
+	if (!titleList) return;
+	titleList.innerHTML = '';
 
 	const removeTitleText = DB.getMessage(2686) || 'Remove Title';
 	const removeSelectedClass = _currentTitleId === 0 ? ' selected' : '';
-	const removeElement = jQuery(
-		'<div class="title-option' + removeSelectedClass + '" data-title="0">' + removeTitleText + '</div>'
-	);
-	titleList.append(removeElement);
+	const removeEl = document.createElement('div');
+	removeEl.className = `title-option${removeSelectedClass}`;
+	removeEl.setAttribute('data-title', '0');
+	removeEl.textContent = removeTitleText;
+	titleList.appendChild(removeEl);
 
 	const allTitles = DB.getAllTitles();
 	for (const titleId in allTitles) {
 		if (allTitles.hasOwnProperty(titleId)) {
-			// TODO: Check if player finished achievment for title
 			const titleName = allTitles[titleId];
 			const selectedClass = parseInt(titleId) === _currentTitleId ? ' selected' : '';
-			const titleElement = jQuery(
-				'<div class="title-option' + selectedClass + '" data-title="' + titleId + '">' + titleName + '</div>'
-			);
-			titleList.append(titleElement);
+			const titleEl = document.createElement('div');
+			titleEl.className = `title-option${selectedClass}`;
+			titleEl.setAttribute('data-title', titleId);
+			titleEl.textContent = titleName;
+			titleList.appendChild(titleEl);
 		}
 	}
 
-	titleList.off('click', '.title-option');
-	titleList.on('click', '.title-option', function (e) {
-		e.preventDefault();
-		e.stopPropagation();
-		const titleId = parseInt(this.getAttribute('data-title'));
-		EquipmentV4.selectTitle(titleId);
+	titleList.addEventListener('click', e => {
+		const option = e.target.closest('.title-option');
+		if (option) {
+			e.preventDefault();
+			e.stopPropagation();
+			const titleId = parseInt(option.getAttribute('data-title'));
+			EquipmentV4.selectTitle(titleId);
+		}
 	});
 };
 
@@ -274,27 +291,20 @@ EquipmentV4.setTitle = function OnSetTitle(titleId) {
 	EquipmentV4.loadTitles();
 };
 
-/**
- * Function to show the selected tab and update the current tab ID.
- *
- * @return {boolean} false to stop the browser from following the link
- */
 function showTab() {
 	const selectedId = getHash(this.getAttribute('href'));
+	const root = _getRoot();
 
-	// Highlight the selected tab, and dim all others.
-	// Also show the selected content div, and hide all others.
 	for (const id in contentDivs) {
-		if (id == selectedId) {
+		if (id === selectedId) {
 			tabLinks[id].className = 'tab selected';
-			contentDivs[id].className = 'content';
+			if (contentDivs[id]) contentDivs[id].className = 'content';
 		} else {
 			tabLinks[id].className = 'tab';
-			contentDivs[id].classList.add('content', 'hide');
+			if (contentDivs[id]) contentDivs[id].classList.add('content', 'hide');
 		}
 	}
 
-	// Update the current tab ID
 	currentTabId = selectedId;
 
 	if (SwitchEquip.ui) {
@@ -303,78 +313,73 @@ function showTab() {
 
 	if (currentTabId !== 'general') {
 		if (SwitchEquip.ui) {
-			switchUIopen = SwitchEquip.ui.is(':visible');
-			SwitchEquip.ui.hide();
+			const switchHost = SwitchEquip._host || SwitchEquip.ui;
+			switchUIopen = switchHost.style ? switchHost.style.display !== 'none' : false;
+			if (switchHost.style) switchHost.style.display = 'none';
 		}
-		EquipmentV4.ui.find('.switch_equip').hide();
-		EquipmentV4.ui.find('.show_equip').hide();
-		EquipmentV4.ui.find('.show_equip').next('span').hide();
+		const switchBtn = root.querySelector('.switch_equip');
+		if (switchBtn) switchBtn.style.display = 'none';
+
+		const showEquipEl = root.querySelector('.show_equip');
+		if (showEquipEl) showEquipEl.style.display = 'none';
+		const showEquipSpan = showEquipEl ? showEquipEl.nextElementSibling : null;
+		if (showEquipSpan && showEquipSpan.tagName === 'SPAN') showEquipSpan.style.display = 'none';
+
 		if (currentTabId === 'costume') {
-			EquipmentV4.ui.find('.show_costume').show();
-			EquipmentV4.ui.find('.show_costume').next('span').show();
+			const costumeEl = root.querySelector('.show_costume');
+			if (costumeEl) costumeEl.style.display = '';
+			const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
+			if (costumeSpan && costumeSpan.tagName === 'SPAN') costumeSpan.style.display = '';
 		} else {
-			EquipmentV4.ui.find('.show_costume').hide();
-			EquipmentV4.ui.find('.show_costume').next('span').hide();
+			const costumeEl = root.querySelector('.show_costume');
+			if (costumeEl) costumeEl.style.display = 'none';
+			const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
+			if (costumeSpan && costumeSpan.tagName === 'SPAN') costumeSpan.style.display = 'none';
 		}
 	} else {
-		EquipmentV4.ui.find('.show_equip').show();
-		EquipmentV4.ui.find('.show_equip').next('span').show();
-		EquipmentV4.ui.find('.show_costume').hide();
-		EquipmentV4.ui.find('.show_costume').next('span').hide();
+		const showEquipEl = root.querySelector('.show_equip');
+		if (showEquipEl) showEquipEl.style.display = '';
+		const showEquipSpan = showEquipEl ? showEquipEl.nextElementSibling : null;
+		if (showEquipSpan && showEquipSpan.tagName === 'SPAN') showEquipSpan.style.display = '';
+
+		const costumeEl = root.querySelector('.show_costume');
+		if (costumeEl) costumeEl.style.display = 'none';
+		const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
+		if (costumeSpan && costumeSpan.tagName === 'SPAN') costumeSpan.style.display = 'none';
+
 		if (SwitchEquip.ui && switchUIopen) {
-			SwitchEquip.ui.show();
+			const switchHost = SwitchEquip._host || SwitchEquip.ui;
+			if (switchHost.style) switchHost.style.display = '';
 		}
-		EquipmentV4.ui.find('.switch_equip').show();
+		const switchBtn = root.querySelector('.switch_equip');
+		if (switchBtn) switchBtn.style.display = '';
 	}
 
-	// Stop the browser following the link
 	return false;
 }
 
-/**
- * Returns the first child element of the given parent element with the specified tag name.
- *
- * @param {Element} element - The parent element.
- * @param {string} tagName - The tag name of the child element to find.
- */
 function getFirstChildWithTagName(element, tagName) {
 	for (let i = 0; i < element.childNodes.length; i++) {
-		if (element.childNodes[i].nodeName == tagName.toUpperCase()) {
+		if (element.childNodes[i].nodeName === tagName.toUpperCase()) {
 			return element.childNodes[i];
 		}
 	}
 }
 
-/**
- * Returns the hash part of a URL.
- *
- * @param {string} url - The URL from which to extract the hash.
- * @return {string} The hash part of the URL.
- */
 function getHash(url) {
 	const hashPos = url.lastIndexOf('#');
 	return url.substring(hashPos + 1);
 }
 
-/**
- * Returns the current tab ID of the EquipmentV4 component.
- *
- * @return {string} The current tab ID.
- */
 EquipmentV4.getCurrentTabId = function () {
 	return currentTabId;
 };
 
-/**
- * Toggles the visibility of the CartItems UI if the Session.Entity has a cart.
- *
- * @return {void} This function does not return anything.
- */
 function onCartItems() {
-	if (Session.Entity.hasCart == false) {
-		return;
+	if (Session.Entity.hasCart === false) return;
+	if (CartItems._host) {
+		CartItems._host.style.display = CartItems._host.style.display === 'none' ? '' : 'none';
 	}
-	CartItems.ui.toggle();
 }
 
 function onRemoveOption() {
@@ -382,93 +387,84 @@ function onRemoveOption() {
 	Network.sendPacket(pkt);
 }
 
-/**
- * Append to body
- */
 EquipmentV4.onAppend = function onAppend() {
-	// Apply preferences
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	const hostRect = this._host.getBoundingClientRect();
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostRect.width)}px`;
 
-	// Hide window ?
 	if (!_preferences.show) {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
 
-	// Reduce window ?
 	if (_preferences.reduce) {
-		this.ui.find('.panel').hide();
+		const root = _getRoot();
+		const panel = root.querySelector('.panel');
+		if (panel) panel.style.display = 'none';
 	}
 
-	// Show status window ?
 	if (UIVersionManager.getEquipmentVersion() > 0) {
 		if (!_preferences.stats) {
-			this.ui.find('.status_component').hide();
-			Client.loadFile(
-				DB.INTERFACE_PATH + 'basic_interface/viewon.bmp',
-				function (data) {
-					this.ui.find('.view_status').css('backgroundImage', 'url(' + data + ')');
-				}.bind(this)
-			);
+			const root = _getRoot();
+			const statusComp = root.querySelector('.status_component');
+			if (statusComp) statusComp.style.display = 'none';
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/viewon.bmp', data => {
+				const r = _getRoot();
+				const btn = r.querySelector('.view_status');
+				if (btn) btn.style.backgroundImage = `url(${data})`;
+			});
 		}
 	}
 
-	if (this.ui.find('canvas').is(':visible')) {
+	const root = _getRoot();
+	const canvas = root.querySelector('canvas');
+	if (canvas && this._host.style.display !== 'none') {
 		Renderer.render(renderCharacter);
 	}
 
 	SwitchEquip.append(switchappend);
-	SwitchEquip.ui.hide();
+	if (SwitchEquip.ui) {
+		const switchHost = SwitchEquip._host || SwitchEquip.ui;
+		if (switchHost.style) switchHost.style.display = 'none';
+	}
 };
 
-/**
- * Remove Inventory from window (and so clean up items)
- */
 EquipmentV4.onRemove = function onRemove() {
-	if (UIVersionManager.getEquipmentVersion() > 0) {
-		_btnLevelUp.detach();
+	if (UIVersionManager.getEquipmentVersion() > 0 && _btnLevelUp && _btnLevelUp.parentNode) {
+		_btnLevelUp.remove();
 	}
 
-	// Stop rendering
 	Renderer.stop(renderCharacter);
 
-	// Clean equipments
 	EquipmentV4._itemlist = {};
-	this.ui.find('.col1, .col3, .ammo').empty();
+	const root = _getRoot();
+	root.querySelectorAll('.col1, .col3, .ammo').forEach(el => {
+		el.innerHTML = '';
+	});
 
-	// Save preferences
-	_preferences.show = this.ui.is(':visible');
-	_preferences.reduce = this.ui.find('.panel').css('display') === 'none';
-	_preferences.stats = this.ui.find('.status_component').css('display') !== 'none';
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.show = this._host.style.display !== 'none';
+	const panel = root.querySelector('.panel');
+	_preferences.reduce = panel ? panel.style.display === 'none' : false;
+	const statusComp = root.querySelector('.status_component');
+	_preferences.stats = statusComp ? statusComp.style.display !== 'none' : false;
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 };
 
-/**
- * Start/stop rendering character in UI
- */
 EquipmentV4.toggle = function toggle() {
-	this.ui.toggle();
-
-	if (this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
+		this._host.style.display = '';
 		Renderer.render(renderCharacter);
 		if (UIVersionManager.getEquipmentVersion() > 0) {
-			_btnLevelUp.detach();
+			if (_btnLevelUp && _btnLevelUp.parentNode) _btnLevelUp.remove();
 		}
 		this.focus();
 	} else {
+		this._host.style.display = 'none';
 		Renderer.stop(renderCharacter);
 	}
 };
 
-/**
- * Process shortcut
- *
- * @param {object} key
- */
 EquipmentV4.onShortCut = function onShurtCut(key) {
 	switch (key.cmd) {
 		case 'TOGGLE':
@@ -477,92 +473,69 @@ EquipmentV4.onShortCut = function onShurtCut(key) {
 	}
 };
 
-/**
- * Show or hide equipment
- *
- * @param {boolean} on
- */
 EquipmentV4.setEquipConfig = function setEquipConfig(on) {
 	_showEquip = on;
-
-	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '1' : '0') + '.bmp', function (data) {
-		EquipmentV4.ui.find('.show_equip').css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '1' : '0') + '.bmp', data => {
+		const root = _getRoot();
+		const btn = root.querySelector('.show_equip');
+		if (btn) btn.style.backgroundImage = `url(${data})`;
 	});
 };
 
-/**
- * Show or hide equipment
- *
- * @param {boolean} on
- */
 EquipmentV4.setCostumeConfig = function setCostumeConfig(on) {
 	_hideCostume = on;
-
-	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '0' : '1') + '.bmp', function (data) {
-		EquipmentV4.ui.find('.show_costume').css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '0' : '1') + '.bmp', data => {
+		const root = _getRoot();
+		const btn = root.querySelector('.show_costume');
+		if (btn) btn.style.backgroundImage = `url(${data})`;
 	});
 };
 
-/**
- * Add an equipment to the window
- *
- * @param {Item} item
- */
 EquipmentV4.equip = function equip(item, location) {
 	const it = DB.getItemInfo(item.ITID);
 	item.equipped = location;
 	EquipmentV4._itemlist[item.index] = item;
 
 	function add3Dots(string, limit) {
-		// html color codes broken inventory strings lenght
 		function stripHTML(str) {
 			const div = document.createElement('div');
 			div.innerHTML = str;
 			return div.textContent || div.innerText || '';
 		}
 		const text = stripHTML(string);
-		if (text.length > limit) {
-			return text.substring(0, limit) + '...';
-		}
+		if (text.length > limit) return text.substring(0, limit) + '...';
 		return text;
 	}
 
-	this.ui.find(getSelectorFromLocation(location)).html(
-		'<div class="item" data-index="' +
+	const root = _getRoot();
+	const selector = getSelectorFromLocation(location);
+	root.querySelectorAll(selector).forEach(cell => {
+		cell.innerHTML =
+			'<div class="item" data-index="' +
 			item.index +
 			'">' +
 			'<button><div class="grade"></div></button>' +
 			'<span class="itemName">' +
-			jQuery.escape(
+			escapeHTML(
 				add3Dots(
-					DB.getItemName(item, {
-						showItemGrade: false,
-						showItemSlots: false,
-						showItemOptions: false
-					}),
+					DB.getItemName(item, { showItemGrade: false, showItemSlots: false, showItemOptions: false }),
 					25
 				)
 			) +
 			'</span>' +
-			'</div>'
-	);
+			'</div>';
+	});
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp',
-		function (data) {
-			this.ui.find('.item[data-index="' + item.index + '"] button').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this)
-	);
+	Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', data => {
+		const btn = root.querySelector(`.item[data-index="${item.index}"] button`);
+		if (btn) btn.style.backgroundImage = `url(${data})`;
+	});
 
 	if (item.enchantgrade) {
-		Client.loadFile(
-			DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp',
-			function (data) {
-				this.ui
-					.find('.item[data-index="' + item.index + '"] .grade')
-					.css('backgroundImage', 'url(' + data + ')');
-			}.bind(this)
-		);
+		Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', data => {
+			const el = root.querySelector(`.item[data-index="${item.index}"] .grade`);
+			if (el) el.style.backgroundImage = `url(${data})`;
+		});
 	}
 
 	if (!Inventory.getUI().equippedItems.includes(item.index)) {
@@ -576,87 +549,60 @@ EquipmentV4.equip = function equip(item, location) {
 	}
 };
 
-/**
- * Remove equipment from window
- *
- * @param {number} item index
- * @param {number} item location
- */
 EquipmentV4.unEquip = function unEquip(index, location) {
 	const selector = getSelectorFromLocation(location);
+	const root = _getRoot();
 	const item = EquipmentV4._itemlist[index];
 	item.equipped = 0;
 
-	this.ui.find(selector).empty();
+	root.querySelectorAll(selector).forEach(el => {
+		el.innerHTML = '';
+	});
 	delete EquipmentV4._itemlist[index];
 
 	return item;
 };
 
-/**
- * Add the button when leveling up
- */
 EquipmentV4.onLevelUp = function onLevelUp() {
-	if (UIVersionManager.getEquipmentVersion() > 0) {
-		_btnLevelUp.appendTo('body');
+	if (UIVersionManager.getEquipmentVersion() > 0 && _btnLevelUp) {
+		document.body.appendChild(_btnLevelUp);
 	}
 };
 
-/**
- * Check equipment location for item
- * @param {number} location - The equipment location to check
- * @returns {item.wItemSpriteNumber} Object with { item }
- */
 EquipmentV4.checkEquipLoc = function checkEquipLoc(location) {
 	for (const key in EquipmentV4._itemlist) {
 		if (EquipmentV4._itemlist[key].location & location) {
 			return EquipmentV4._itemlist[key].wItemSpriteNumber;
 		}
 	}
-
 	return 0;
 };
 
-/**
- * Stop an event to propagate
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
-
-/**
- * Display or not status window
- */
 function toggleStatus() {
-	const self = EquipmentV4.ui.find('.view_status');
-	const status = WinStats.getUI().ui;
-	const state = status.is(':visible') ? 'on' : 'off';
+	const root = _getRoot();
+	const self = root.querySelector('.view_status');
+	const winStatsUI = WinStats.getUI();
+	const statusHost = winStatsUI._host || winStatsUI.ui;
+	const isVisible = statusHost ? (statusHost.style ? statusHost.style.display !== 'none' : true) : false;
+	const state = isVisible ? 'on' : 'off';
 
-	status.toggle();
+	if (statusHost && statusHost.style) {
+		statusHost.style.display = isVisible ? 'none' : '';
+	}
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', function (data) {
-		self.css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/view' + state + '.bmp', data => {
+		if (self) self.style.backgroundImage = `url(${data})`;
 	});
 }
 
-/**
- * Does player can see your equipment ?
- */
 function toggleEquip() {
 	EquipmentV4.onConfigUpdate(0, !_showEquip ? 1 : 0);
 }
 
-/**
- * Show Costume ?
- */
 function toggleCostume() {
 	EquipmentV4.onConfigUpdate(5, !_hideCostume ? 1 : 0);
 }
 
-/**
- * Rendering character
- */
 const renderCharacter = (function renderCharacterClosure() {
 	let _lastState = 0;
 	let _hasCart = 0;
@@ -673,7 +619,6 @@ const renderCharacter = (function renderCharacterClosure() {
 		save: false
 	};
 
-	// Current removable options
 	const HasAttachmentState =
 		StatusConst.EffectState.FALCON |
 		StatusConst.EffectState.RIDING |
@@ -710,33 +655,33 @@ const renderCharacter = (function renderCharacterClosure() {
 			bodypalette: Session.Entity.bodypalette
 		});
 
-		// If state change, we have to check if the new option is removable.
 		if (Session.Entity.effectState !== _lastState || _hasCart !== Session.Entity.hasCart) {
 			_lastState = Session.Entity.effectState;
 			_hasCart = Session.Entity.hasCart;
 
+			const root = _getRoot();
+			const removeOpt = root.querySelector('.removeOption');
+			const cartBtn = root.querySelector('.cartitems');
+
 			if (_lastState & HasAttachmentState || _hasCart) {
-				EquipmentV4.ui.find('.removeOption').show();
+				if (removeOpt) removeOpt.style.display = '';
 			} else {
-				EquipmentV4.ui.find('.removeOption').hide();
+				if (removeOpt) removeOpt.style.display = 'none';
 			}
 
 			if (_lastState & HasCartState || _hasCart) {
-				EquipmentV4.ui.find('.cartitems').show();
+				if (cartBtn) cartBtn.style.display = '';
 			} else {
-				EquipmentV4.ui.find('.cartitems').hide();
+				if (cartBtn) cartBtn.style.display = 'none';
 			}
 		}
 
-		// General Tab only shows normal headgears
 		if (currentTabId === 'general') {
 			equip_character.accessory = EquipmentV4.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 			equip_character.accessory2 = EquipmentV4.checkEquipLoc(EquipLocation.HEAD_TOP);
 			equip_character.accessory3 = EquipmentV4.checkEquipLoc(EquipLocation.HEAD_MID);
 			equip_character.robe = EquipmentV4.checkEquipLoc(EquipLocation.GARMENT);
-		}
-		// Costume Tab only shows costume headgears
-		else if (currentTabId === 'costume') {
+		} else if (currentTabId === 'costume') {
 			equip_character.accessory = EquipmentV4.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
 			equip_character.accessory2 = EquipmentV4.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
 			equip_character.accessory3 = EquipmentV4.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
@@ -746,14 +691,12 @@ const renderCharacter = (function renderCharacterClosure() {
 		_savedColor.set(equip_character.effectColor);
 		equip_character.effectColor.set(_cleanColor);
 
-		// Set action
 		Camera.direction = 0;
 		equip_character.direction = 0;
 		equip_character.headDir = 0;
 		equip_character.action = equip_character.ACTION.IDLE;
 		equip_character.animation = _animation;
 
-		// Rendering
 		for (let i = 0; i < _ctx.length; i++) {
 			const ctx = _ctx[i];
 			SpriteRenderer.bind2DContext(ctx, 30, 130);
@@ -763,140 +706,78 @@ const renderCharacter = (function renderCharacterClosure() {
 	};
 })();
 
-/**
- * Find elements in html base on item location
- *
- * @param {number} location
- * @returns {string} selector
- */
 function getSelectorFromLocation(location) {
 	const selector = [];
-
-	if (location & EquipLocation.HEAD_TOP) {
-		selector.push('.head_top');
-	}
-	if (location & EquipLocation.HEAD_MID) {
-		selector.push('.head_mid');
-	}
-	if (location & EquipLocation.HEAD_BOTTOM) {
-		selector.push('.head_bottom');
-	}
-	if (location & EquipLocation.ARMOR) {
-		selector.push('.armor');
-	}
-	if (location & EquipLocation.WEAPON) {
-		selector.push('.weapon');
-	}
-	if (location & EquipLocation.SHIELD) {
-		selector.push('.shield');
-	}
-	if (location & EquipLocation.GARMENT) {
-		selector.push('.garment');
-	}
-	if (location & EquipLocation.SHOES) {
-		selector.push('.shoes');
-	}
-	if (location & EquipLocation.ACCESSORY1) {
-		selector.push('.accessory1');
-	}
-	if (location & EquipLocation.ACCESSORY2) {
-		selector.push('.accessory2');
-	}
-	if (location & EquipLocation.AMMO) {
-		selector.push('.ammo');
-	}
-
-	// Costume Tab
-	if (location & EquipLocation.COSTUME_HEAD_TOP) {
-		selector.push('.costume_head_top');
-	}
-	if (location & EquipLocation.COSTUME_HEAD_MID) {
-		selector.push('.costume_head_mid');
-	}
-	if (location & EquipLocation.COSTUME_HEAD_BOTTOM) {
-		selector.push('.costume_head_bottom');
-	}
-	if (location & EquipLocation.SHADOW_ARMOR) {
-		selector.push('.shadow_armor');
-	}
-	if (location & EquipLocation.SHADOW_WEAPON) {
-		selector.push('.shadow_weapon');
-	}
-	if (location & EquipLocation.SHADOW_SHIELD) {
-		selector.push('.shadow_shield');
-	}
-	if (location & EquipLocation.COSTUME_ROBE) {
-		selector.push('.shadow_garment');
-	}
-	if (location & EquipLocation.SHADOW_SHOES) {
-		selector.push('.shadow_shoes');
-	}
-	if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) {
-		selector.push('.shadow_accessory1');
-	}
-	if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) {
-		selector.push('.shadow_accessory2');
-	}
-
+	if (location & EquipLocation.HEAD_TOP) selector.push('.head_top');
+	if (location & EquipLocation.HEAD_MID) selector.push('.head_mid');
+	if (location & EquipLocation.HEAD_BOTTOM) selector.push('.head_bottom');
+	if (location & EquipLocation.ARMOR) selector.push('.armor');
+	if (location & EquipLocation.WEAPON) selector.push('.weapon');
+	if (location & EquipLocation.SHIELD) selector.push('.shield');
+	if (location & EquipLocation.GARMENT) selector.push('.garment');
+	if (location & EquipLocation.SHOES) selector.push('.shoes');
+	if (location & EquipLocation.ACCESSORY1) selector.push('.accessory1');
+	if (location & EquipLocation.ACCESSORY2) selector.push('.accessory2');
+	if (location & EquipLocation.AMMO) selector.push('.ammo');
+	if (location & EquipLocation.COSTUME_HEAD_TOP) selector.push('.costume_head_top');
+	if (location & EquipLocation.COSTUME_HEAD_MID) selector.push('.costume_head_mid');
+	if (location & EquipLocation.COSTUME_HEAD_BOTTOM) selector.push('.costume_head_bottom');
+	if (location & EquipLocation.SHADOW_ARMOR) selector.push('.shadow_armor');
+	if (location & EquipLocation.SHADOW_WEAPON) selector.push('.shadow_weapon');
+	if (location & EquipLocation.SHADOW_SHIELD) selector.push('.shadow_shield');
+	if (location & EquipLocation.COSTUME_ROBE) selector.push('.shadow_garment');
+	if (location & EquipLocation.SHADOW_SHOES) selector.push('.shadow_shoes');
+	if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) selector.push('.shadow_accessory1');
+	if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) selector.push('.shadow_accessory2');
 	return selector.join(', ');
 }
 
-/**
- * Drag an item over the equipment, show where to place the item
- */
 function onDragOver(event) {
 	if (window._OBJ_DRAG_) {
 		const data = window._OBJ_DRAG_;
-		let item, selector, ui;
-
-		// Just support items for now ?
 		if (data.type === 'item') {
-			item = data.data;
-
+			const item = data.data;
 			if (
 				(item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.SHADOWGEAR) &&
 				item.IsIdentified &&
 				!item.IsDamaged
 			) {
-				selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
-				ui = EquipmentV4.ui.find(selector);
-
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (_data) {
-					ui.css('backgroundImage', 'url(' + _data + ')');
+				const selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
+				const root = _getRoot();
+				const cells = root.querySelectorAll(selector);
+				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', _data => {
+					cells.forEach(c => {
+						c.style.backgroundImage = `url(${_data})`;
+					});
 				});
 			}
 		}
 	}
-
 	event.stopImmediatePropagation();
 	return false;
 }
 
-/**
- * Drag out the window
- */
 function onDragLeave(event) {
-	EquipmentV4.ui.find('td').css('backgroundImage', 'none');
+	const root = _getRoot();
+	root.querySelectorAll('td').forEach(td => {
+		td.style.backgroundImage = 'none';
+	});
 	event.stopImmediatePropagation();
 	return false;
 }
 
-/**
- * Drop an item in the equipment, equip it if possible
- */
 function onDrop(event) {
 	let item, data;
+	event.stopImmediatePropagation();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 	} catch (_e) {
-		// ignore
+		return false;
 	}
 
-	// Just support items for now ?
 	if (data && data.type === 'item') {
 		item = data.data;
-
 		if (
 			(item.type === ItemType.WEAPON ||
 				item.type === ItemType.ARMOR ||
@@ -905,30 +786,25 @@ function onDrop(event) {
 			item.IsIdentified &&
 			!item.IsDamaged
 		) {
-			EquipmentV4.ui.find('td').css('backgroundImage', 'none');
+			const root = _getRoot();
+			root.querySelectorAll('td').forEach(td => {
+				td.style.backgroundImage = 'none';
+			});
 			EquipmentV4.onEquipItem(item.index, 'location' in item ? item.location : item.WearState);
 		}
 	}
 
-	event.stopImmediatePropagation();
 	return false;
 }
 
-/**
- * Right click on an item
- */
 function onEquipmentInfo(event) {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	const item = EquipmentV4._itemlist[index];
 
 	if (item) {
-		// Don't add the same UI twice, remove it
 		if (ItemInfo.uid === item.ITID) {
 			ItemInfo.remove();
-		}
-
-		// Add ui to window
-		else {
+		} else {
 			ItemInfo.append();
 			ItemInfo.uid = item.ITID;
 			ItemInfo.setItem(item);
@@ -939,186 +815,148 @@ function onEquipmentInfo(event) {
 	return false;
 }
 
-/**
- * Double click on an equipment to remove it
- */
 function onEquipmentUnEquip() {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	EquipmentV4.onUnEquip(index);
-	EquipmentV4.ui.find('.overlay').hide();
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) overlay.style.display = 'none';
 }
 
-/**
- * When mouse is over an equipment, display the item name
- */
 function onEquipmentOver() {
 	const idx = parseInt(this.parentNode.getAttribute('data-index'), 10);
 	const item = EquipmentV4._itemlist[idx];
+	if (!item) return;
 
-	if (!item) {
-		return;
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
+	const top = this.offsetTop;
+	const left = this.offsetLeft;
+	if (!top && !left) return;
+
+	if (overlay) {
+		overlay.style.display = 'block';
+		overlay.style.top = `${top - 22}px`;
+		overlay.style.left = `${left - 22}px`;
+		overlay.textContent = DB.getItemName(item);
 	}
-
-	// Get back data
-	const overlay = EquipmentV4.ui.find('.overlay');
-	const pos = jQuery(this).position();
-
-	// Possible jquery error
-	if (!pos.top && !pos.left) {
-		return;
-	}
-
-	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top - 22, left: pos.left - 22 });
-	overlay.text(DB.getItemName(item));
 }
 
-/**
- * Remove the item name
- */
 function onEquipmentOut() {
-	EquipmentV4.ui.find('.overlay').hide();
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) overlay.style.display = 'none';
 }
 
-/**
- * Updates the owner name of items in the Equipment window.
- */
 EquipmentV4.onUpdateOwnerName = function () {
+	const root = _getRoot();
 	for (const index in EquipmentV4._itemlist) {
 		const item = EquipmentV4._itemlist[index];
 		if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
-			EquipmentV4.ui
-				.find('.item[data-index="' + index + '"] .itemName')
-				.text(jQuery.escape(DB.getItemName(item)));
+			const nameEl = root.querySelector(`.item[data-index="${index}"] .itemName`);
+			if (nameEl) nameEl.textContent = DB.getItemName(item);
 		}
 	}
 };
 
-/**
- * Returns the number of equipped items in the Equipment window, excluding ammo.
- *
- * @return {number} The number of equipped items.
- */
 EquipmentV4.getNumber = function () {
 	let num = 0;
 	for (const key in EquipmentV4._itemlist) {
-		if (EquipmentV4._itemlist[key].location && EquipmentV4._itemlist[key].location != EquipLocation.AMMO) {
+		if (EquipmentV4._itemlist[key].location && EquipmentV4._itemlist[key].location !== EquipLocation.AMMO) {
 			num++;
 		}
 	}
 	return num;
 };
 
-/**
- * Toggles the SwitchEquip UI and positions it absolutely to overlap with the footer.
- */
 function onSwtichEquip() {
 	SwitchEquip.toggle();
 
-	// Position SwitchEquip UI absolutely to overlap with the footer
-	SwitchEquip.ui.css({
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		zIndex: 100 // Adjust zIndex as needed to control stacking order
-	});
+	if (SwitchEquip.ui) {
+		const switchHost = SwitchEquip._host || SwitchEquip.ui;
+		if (switchHost.style) {
+			switchHost.style.position = 'absolute';
+			switchHost.style.top = '0';
+			switchHost.style.left = '0';
+			switchHost.style.zIndex = '100';
+		}
+	}
 }
 
-/**
- * Parse Damage Skin Selector.
- */
 EquipmentV4.setDamageSkin = function setDamageSkin(skinId) {
-	const buttons = this.ui.find('#damageskin .skin-option');
-	const buttonSelected = this.ui.find('#damageskin .skin-option[data-skin=' + skinId + ']');
+	const root = _getRoot();
+	const buttons = root.querySelectorAll('#damageskin .skin-option');
+	const buttonSelected = root.querySelector(`#damageskin .skin-option[data-skin="${skinId}"]`);
 
 	GraphicsSettings.damageSkin = skinId;
 	GraphicsSettings.save();
 
-	buttons.each(function () {
-		jQuery(this)
-			.attr('data-background', 'showdamage/btn_damage.bmp')
-			.attr('data-hover', 'showdamage/btn_damage_press.bmp')
-			.attr('data-down', 'showdamage/btn_damage_pick.bmp');
+	buttons.forEach(btn => {
+		btn.setAttribute('data-background', 'showdamage/btn_damage.bmp');
+		btn.setAttribute('data-hover', 'showdamage/btn_damage_press.bmp');
+		btn.setAttribute('data-down', 'showdamage/btn_damage_pick.bmp');
 	});
-	buttons.each(this.parseHTML); // restore mouse events
-	buttons.off('mouseup');
+	if (this.parseHTML) {
+		buttons.forEach(btn => {
+			this.parseHTML.call(btn);
+		});
+	}
 
-	Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage.bmp', function (data) {
-		buttons.css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage.bmp', data => {
+		buttons.forEach(btn => {
+			btn.style.backgroundImage = `url(${data})`;
+		});
 	});
 
-	Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage_pick.bmp', function (data) {
-		buttonSelected.css('backgroundImage', 'url(' + data + ')');
-	});
+	if (buttonSelected) {
+		Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage_pick.bmp', data => {
+			buttonSelected.style.backgroundImage = `url(${data})`;
+		});
 
-	buttonSelected.off('mouseover mouseout');
+		buttonSelected.onmouseover = null;
+		buttonSelected.onmouseout = null;
+	}
 };
 
-/**
- * Parse Damage Drawing Preference.
- */
 EquipmentV4.setDamageMotion = function setDamageMotion(motionId) {
 	GraphicsSettings.damageMotion = motionId;
 	GraphicsSettings.save();
 
-	const checkboxes = this.ui.find('.motion-check');
+	const root = _getRoot();
+	const checkboxes = root.querySelectorAll('.motion-check');
 
-	checkboxes.each(function () {
-		const btn = jQuery(this);
-		const btnId = parseInt(btn.attr('data-motion'), 10);
-
+	checkboxes.forEach(btn => {
+		const btnId = parseInt(btn.getAttribute('data-motion'), 10);
 		const bgImage = btnId === motionId ? 'checkbox_1.bmp' : 'checkbox_0.bmp';
-
-		Client.loadFile(DB.INTERFACE_PATH + bgImage, function (data) {
-			btn.css('backgroundImage', 'url(' + data + ')');
+		Client.loadFile(DB.INTERFACE_PATH + bgImage, data => {
+			btn.style.backgroundImage = `url(${data})`;
 		});
 	});
 };
 
-/**
- * Function to check if an item with a given location exists in the equip switch list
- *
- * @param {data} data - The data to be checked against
- * @return {Object} The item in the equip switch list if found, otherwise 0
- */
 EquipmentV4.isInEquipList = function (data) {
 	for (const key in EquipmentV4._itemlist) {
 		if (EquipmentV4._itemlist[key].location & data) {
 			return EquipmentV4._itemlist[key];
 		}
 	}
-
 	return 0;
 };
 
-/**
- * Equips all items in _itemlist to SwitchEquip.
- */
 EquipmentV4.equipItemsToSwitch = function () {
 	const equipmentKeys = Object.keys(EquipmentV4._itemlist);
-
 	for (let i = 0; i < equipmentKeys.length; i++) {
 		const key = equipmentKeys[i];
 		const equipmentItem = EquipmentV4._itemlist[key];
-
-		// Check if the item's location is not in SwitchEquip._list
 		if (equipmentItem.location) {
-			// Equip the item to SwitchEquip
 			SwitchEquip.equip(equipmentItem, equipmentItem.location, false);
 		}
 	}
 };
 
-/**
- * Method to define
- */
 EquipmentV4.onUnEquip = function onUnEquip(/* index */) {};
 EquipmentV4.onConfigUpdate = function onConfigUpdate(/* type, value*/) {};
 EquipmentV4.onEquipItem = function onEquipItem(/* index, location */) {};
 EquipmentV4.onRemoveCart = function onRemoveCart() {};
 
-/**
- * Create component and export it
- */
 export default UIManager.addComponent(EquipmentV4);

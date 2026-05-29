@@ -1,7 +1,10 @@
-#InventoryV0 {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
+}
+
+#InventoryV0 {
+	position: absolute;
 	display: flex;
 	flex-direction: column;
 }

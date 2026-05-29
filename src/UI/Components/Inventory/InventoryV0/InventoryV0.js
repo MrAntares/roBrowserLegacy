@@ -12,13 +12,13 @@
 
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
@@ -35,7 +35,9 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 /**
  * Create Component
  */
-const InventoryV0 = new UIComponent('InventoryV0', htmlText, cssText);
+const InventoryV0 = new GUIComponent('InventoryV0', cssText);
+
+InventoryV0.render = () => htmlText;
 
 /**
  * Tab constant
@@ -83,85 +85,144 @@ const _preferences = Preferences.get(
 	1.0
 );
 
+function _getRoot() {
+	return InventoryV0._shadow || InventoryV0._host;
+}
+
 /**
  * Initialize UI
  */
 InventoryV0.init = function Init() {
+	const root = _getRoot();
+
 	// Bind buttons
-	this.ui.find('.titlebar .base').mousedown(stopPropagation);
-	this.ui.find('.titlebar .mini').click(onToggleReduction);
-	this.ui.find('.tabs button').mousedown(onSwitchTab);
-	this.ui.find('.footer .extend').mousedown(onResize);
-	this.ui.find('.titlebar .close').click(function () {
-		InventoryV0.ui.hide();
+	const baseBtn = root.querySelector('.titlebar .base');
+	if (baseBtn) {
+		baseBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+	}
+
+	const miniBtn = root.querySelector('.titlebar .mini');
+	if (miniBtn) {
+		miniBtn.addEventListener('click', onToggleReduction);
+	}
+
+	const tabButtons = root.querySelectorAll('.tabs button');
+	tabButtons.forEach(btn => {
+		btn.addEventListener('mousedown', onSwitchTab);
 	});
 
+	const extendBtn = root.querySelector('.footer .extend');
+	if (extendBtn) {
+		extendBtn.addEventListener('mousedown', onResize);
+	}
+
+	const closeBtn = root.querySelector('.titlebar .close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => {
+			InventoryV0._host.style.display = 'none';
+		});
+	}
+
 	// on drop item
-	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
+	this._host.addEventListener('drop', onDrop);
+	this._host.addEventListener('dragover', e => e.stopImmediatePropagation());
 
-		// Items event
-		.find('.container .content')
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
-		.on('contextmenu', '.item', onItemInfo)
-		.on('dblclick', '.item', onItemUsed)
-		.on('click', '.item', onItemClick);
+	// Items event (delegation)
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.addEventListener('mouseover', e => {
+			const item = e.target.closest('.item');
+			if (item) onItemOver.call(item, e);
+		});
+		content.addEventListener('mouseout', e => {
+			const item = e.target.closest('.item');
+			if (item) onItemOut();
+		});
+		content.addEventListener('dragstart', e => {
+			const item = e.target.closest('.item');
+			if (item) onItemDragStart.call(item, e);
+		});
+		content.addEventListener('dragend', e => {
+			const item = e.target.closest('.item');
+			if (item) onItemDragEnd();
+		});
+		content.addEventListener('contextmenu', e => {
+			const item = e.target.closest('.item');
+			if (item) onItemInfo.call(item, e);
+		});
+		content.addEventListener('dblclick', e => {
+			const item = e.target.closest('.item');
+			if (item) onItemUsed.call(item, e);
+		});
+		content.addEventListener('click', e => {
+			const item = e.target.closest('.item');
+			if (item) onItemClick.call(item, e);
+		});
+	}
 
-	this.ui.find('.ncnt').text(0);
-	this.ui.find('.mcnt').text(100);
+	const ncnt = root.querySelector('.ncnt');
+	if (ncnt) ncnt.textContent = '0';
+	const mcnt = root.querySelector('.mcnt');
+	if (mcnt) mcnt.textContent = '100';
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 };
 
 /**
  * Apply preferences once append to body
  */
 InventoryV0.onAppend = function OnAppend() {
+	const root = _getRoot();
+
 	// Apply preferences
 	if (!_preferences.show) {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_0' + (_preferences.tab + 1) + '.bmp', function (data) {
-		InventoryV0.ui.find('.tab-sprite').css('backgroundImage', 'url("' + data + '")');
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_0' + (_preferences.tab + 1) + '.bmp', data => {
+		const tabSprite = root.querySelector('.tab-sprite');
+		if (tabSprite) {
+			tabSprite.style.backgroundImage = `url("${data}")`;
+		}
 	});
 
 	this.resize(_preferences.width, _preferences.height);
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	const hostRect = this._host.getBoundingClientRect();
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostRect.width)}px`;
 
 	this.magnet.TOP = _preferences.magnet_top;
 	this.magnet.BOTTOM = _preferences.magnet_bottom;
 	this.magnet.LEFT = _preferences.magnet_left;
 	this.magnet.RIGHT = _preferences.magnet_right;
 
-	_realSize = _preferences.reduce ? 0 : this.ui.height();
-	this.ui.find('.titlebar .mini').trigger('mousedown');
+	_realSize = _preferences.reduce ? 0 : this._host.getBoundingClientRect().height;
+	const miniBtnAppend = root.querySelector('.titlebar .mini');
+	if (miniBtnAppend) {
+		miniBtnAppend.dispatchEvent(new Event('mousedown'));
+	}
 };
 
 /**
  * Remove Inventory from window (and so clean up items)
  */
 InventoryV0.onRemove = function OnRemove() {
-	this.ui.find('.container .content').empty();
+	const root = _getRoot();
+	const content = root.querySelector('.container .content');
+	if (content) content.innerHTML = '';
 	this.list.length = 0;
-	InventoryV0.newItems.length = 0; // Clear the new items array
-	jQuery('.ItemInfo').remove();
+	InventoryV0.newItems.length = 0;
+	document.querySelectorAll('.ItemInfo').forEach(el => el.remove());
 
 	// Save preferences
-	_preferences.show = this.ui.is(':visible');
+	_preferences.show = this._host.style.display !== 'none';
 	_preferences.reduce = !!_realSize;
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.width = Math.floor((this.ui.width() - (23 + 16 + 16 - 30)) / 32);
-	_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
+	const hostRect = this._host.getBoundingClientRect();
+	_preferences.width = Math.floor((hostRect.width - (23 + 16 + 16 - 30)) / 32);
+	_preferences.height = Math.floor((hostRect.height - (31 + 19 - 30)) / 32);
 	_preferences.magnet_top = this.magnet.TOP;
 	_preferences.magnet_bottom = this.magnet.BOTTOM;
 	_preferences.magnet_left = this.magnet.LEFT;
@@ -177,46 +238,57 @@ InventoryV0.onRemove = function OnRemove() {
 InventoryV0.onShortCut = function onShurtCut(key) {
 	switch (key.cmd) {
 		case 'TOGGLE':
-			this.ui.toggle();
-			if (this.ui.is(':visible')) {
+			if (this._host.style.display === 'none') {
+				this._host.style.display = '';
 				this.focus();
 			} else {
-				// Chrome bug
-				// when clicking double clicking an a weapon to equip
-				// the item disapear, if you don't move the mouse and
-				// triggered ALT+E then, the window disapear and you
-				// can't trigger the scene anymore
-				this.ui.trigger('mouseleave');
-				this.clearNewItems(); // Clear new items
-				this.ui.find('.new_item').css('backgroundImage', '');
+				this._host.dispatchEvent(new Event('mouseleave'));
+				this.clearNewItems();
+				const root = _getRoot();
+				root.querySelectorAll('.new_item').forEach(el => {
+					el.style.backgroundImage = '';
+				});
+				this._host.style.display = 'none';
 			}
 			break;
 	}
 
-	const changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-	if (changeUI) {
-		// Only applicable to BasicInfoV4 and BasicInfoV5
-		changeUI.hide();
+	const basicInfoUI = BasicInfo.getUI();
+	if (basicInfoUI._host) {
+		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		if (changeUI) {
+			changeUI.style.display = 'none';
+		}
 	}
 };
+
+function _getBasicInfoRoot(ui) {
+	return ui._shadow || ui._host || document;
+}
 
 /**
  * Show/Hide UI
  */
 InventoryV0.toggle = function toggle() {
-	this.ui.toggle();
-	if (this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
+		this._host.style.display = '';
 		this.focus();
 	} else {
-		this.ui.trigger('mouseleave');
-		this.clearNewItems(); // Clear new items
-		this.ui.find('.new_item').css('backgroundImage', '');
+		this._host.dispatchEvent(new Event('mouseleave'));
+		this.clearNewItems();
+		const root = _getRoot();
+		root.querySelectorAll('.new_item').forEach(el => {
+			el.style.backgroundImage = '';
+		});
+		this._host.style.display = 'none';
 	}
 
-	const changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-	if (changeUI) {
-		// Only applicable to BasicInfoV4 and BasicInfoV5
-		changeUI.hide();
+	const basicInfoUI = BasicInfo.getUI();
+	if (basicInfoUI._host) {
+		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		if (changeUI) {
+			changeUI.style.display = 'none';
+		}
 	}
 };
 
@@ -237,14 +309,14 @@ InventoryV0.resize = function Resize(width, height) {
 	width = Math.min(Math.max(width, 6), 8);
 	height = Math.min(Math.max(height, 2), 5);
 
-	this.ui.find('.container .content').css({
-		width: width * 32
-	});
+	const root = _getRoot();
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.style.width = `${width * 32}px`;
+	}
 
-	this.ui.css({
-		width: 27 + 16 + 16 + width * 32,
-		height: 31 + 4 + 27 + height * 32
-	});
+	this._host.style.width = `${27 + 16 + 16 + width * 32}px`;
+	this._host.style.height = `${31 + 4 + 27 + height * 32}px`;
 
 	this.updateScroll();
 };
@@ -253,44 +325,39 @@ InventoryV0.resize = function Resize(width, height) {
  * Force scroll clamping
  */
 InventoryV0.updateScroll = function updateScroll() {
-	const host = this.ui.find('.scroll-host');
-	if (host.length) {
-		const node = host[0];
-		const content = host.find('.content');
-		let ticker = 0;
+	const root = _getRoot();
+	const hostEl = root.querySelector('.scroll-host');
+	if (!hostEl) return;
 
-		const clamp = function () {
-			const maxScroll = Math.max(0, node.scrollHeight - node.clientHeight);
+	const contentEl = root.querySelector('.content');
+	let ticker = 0;
 
-			// If we have items and the last item is not reaching the bottom of the host
-			// and we are scrolled down, pull the list down.
-			const lastItem = content.find('.item:last');
-			if (lastItem.length) {
-				const itemRect = lastItem[0].getBoundingClientRect();
-				const hostRect = node.getBoundingClientRect();
+	const clamp = () => {
+		const maxScroll = Math.max(0, hostEl.scrollHeight - hostEl.clientHeight);
 
-				// If the bottom of the list is above the bottom of the host, but we can scroll up...
-				if (itemRect.bottom < hostRect.bottom && node.scrollTop > 0) {
-					node.scrollTop = Math.max(0, node.scrollTop - (hostRect.bottom - itemRect.bottom));
-				}
+		const lastItem = contentEl ? contentEl.querySelector('.item:last-child') : null;
+		if (lastItem) {
+			const itemRect = lastItem.getBoundingClientRect();
+			const hostRect = hostEl.getBoundingClientRect();
+
+			if (itemRect.bottom < hostRect.bottom && hostEl.scrollTop > 0) {
+				hostEl.scrollTop = Math.max(0, hostEl.scrollTop - (hostRect.bottom - itemRect.bottom));
 			}
+		}
 
-			// Final safety clamp
-			if (node.scrollTop > maxScroll) {
-				node.scrollTop = maxScroll;
-			}
+		if (hostEl.scrollTop > maxScroll) {
+			hostEl.scrollTop = maxScroll;
+		}
 
-			// Trigger custom scrollbar update if available
-			if (node._roScrollbarRestart) {
-				node._roScrollbarRestart();
-			}
+		if (hostEl._roScrollbarRestart) {
+			hostEl._roScrollbarRestart();
+		}
 
-			if (ticker++ < 20) {
-				requestAnimationFrame(clamp);
-			}
-		};
-		clamp();
-	}
+		if (ticker++ < 20) {
+			requestAnimationFrame(clamp);
+		}
+	};
+	clamp();
 };
 
 /**
@@ -300,15 +367,10 @@ InventoryV0.updateScroll = function updateScroll() {
  * @returns {Item}
  */
 InventoryV0.getItemById = function GetItemById(id) {
-	let i, count;
 	const list = InventoryV0.list;
-
-	for (i = 0, count = list.length; i < count; ++i) {
-		if (list[i].ITID === id) {
-			return list[i];
-		}
+	for (let i = 0, count = list.length; i < count; ++i) {
+		if (list[i].ITID === id) return list[i];
 	}
-
 	return null;
 };
 
@@ -319,15 +381,10 @@ InventoryV0.getItemById = function GetItemById(id) {
  * @returns {Item}
  */
 InventoryV0.getItemByIndex = function getItemByIndex(index) {
-	let i, count;
 	const list = InventoryV0.list;
-
-	for (i = 0, count = list.length; i < count; ++i) {
-		if (list[i].index === index) {
-			return list[i];
-		}
+	for (let i = 0, count = list.length; i < count; ++i) {
+		if (list[i].index === index) return list[i];
 	}
-
 	return null;
 };
 
@@ -336,16 +393,16 @@ InventoryV0.getItemByIndex = function getItemByIndex(index) {
  * if the item index is exist you should clear it;[skybook888]
  */
 InventoryV0.setItems = function SetItems(items) {
-	let i, count;
-
-	for (i = 0, count = items.length; i < count; ++i) {
+	const root = _getRoot();
+	for (let i = 0, count = items.length; i < count; ++i) {
 		const object = this.getItemByIndex(items[i].index);
 		if (object) {
 			this.removeItem(object.index, object.count);
 		}
 		if (this.addItemSub(items[i])) {
 			this.list.push(items[i]);
-			this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
+			const ncnt = root.querySelector('.ncnt');
+			if (ncnt) ncnt.textContent = this.list.length + Equipment.getUI().getNumber();
 			this.onUpdateItem(items[i].ITID, items[i].count ? items[i].count : 1);
 		}
 	}
@@ -387,6 +444,7 @@ function getItemTab(item) {
  */
 InventoryV0.addItem = function AddItem(item) {
 	let object = this.getItemByIndex(item.index);
+	const root = _getRoot();
 
 	// Check if the item was equipped
 	const equippedIndex = InventoryV0.equippedItems.indexOf(item.index);
@@ -396,52 +454,45 @@ InventoryV0.addItem = function AddItem(item) {
 		// Mark as new item
 		InventoryV0.newItems.push(item.index);
 
-		const changeUI = BasicInfo.getUI().ui.find('#item .btn_overlay');
-		if (changeUI) {
-			// Only applicable to BasicInfoV4 and BasicInfoV5
-			changeUI.show();
+		const basicInfoUI = BasicInfo.getUI();
+		if (basicInfoUI._host) {
+			const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+			if (changeUI) {
+				changeUI.style.display = 'block';
+			}
 		}
 	}
 
 	if (object) {
-		// Handle NaN values (equips)
-		if (isNaN(object.count)) {
-			object.count = 1;
-		}
-		if (isNaN(item.count)) {
-			item.count = 1;
-		}
+		if (isNaN(object.count)) object.count = 1;
+		if (isNaN(item.count)) item.count = 1;
 		object.count += item.count;
-		this.ui.find('.item[data-index="' + item.index + '"] .count').text(object.count);
+		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+		if (countEl) countEl.textContent = object.count;
 		this.onUpdateItem(object.ITID, object.count);
-		// Keep item marked as new
 		if (InventoryV0.newItems.indexOf(item.index) === -1) {
 			InventoryV0.newItems.push(item.index);
 		}
-		// Show new_item indicator if on the correct tab
 		if (getItemTab(item) === _preferences.tab) {
-			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
-				InventoryV0.ui
-					.find('.item[data-index="' + item.index + '"] .new_item')
-					.css('backgroundImage', 'url(' + data + ')');
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', data => {
+				const newItemEl = root.querySelector(`.item[data-index="${item.index}"] .new_item`);
+				if (newItemEl) newItemEl.style.backgroundImage = `url(${data})`;
 			});
 		}
 		return;
 	}
 
-	object = jQuery.extend({}, item);
+	object = Object.assign({}, item);
 	if (this.addItemSub(object)) {
 		this.list.push(object);
-		this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
+		const ncnt = root.querySelector('.ncnt');
+		if (ncnt) ncnt.textContent = this.list.length + Equipment.getUI().getNumber();
 		this.onUpdateItem(object.ITID, object.count);
 	}
 };
 
 /**
  * Check if item index is in newItems list
- *
- * @param {number} index - Item index to check
- * @returns {boolean} - True if item index is in newItems list, false otherwise
  */
 InventoryV0.isNewItem = function isNewItem(index) {
 	return InventoryV0.newItems.includes(index);
@@ -455,7 +506,6 @@ InventoryV0.isNewItem = function isNewItem(index) {
 InventoryV0.addItemSub = function AddItemSub(item) {
 	const tab = getItemTab(item);
 
-	// Equip item (if not arrow)
 	if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
 		Equipment.getUI().equip(item, item.WearState);
 		return false;
@@ -463,17 +513,16 @@ InventoryV0.addItemSub = function AddItemSub(item) {
 
 	if (tab === _preferences.tab) {
 		const it = DB.getItemInfo(item.ITID);
-		const content = this.ui.find('.container .content');
+		const root = _getRoot();
+		const content = root.querySelector('.container .content');
+		if (!content) return true;
 
-		content.append(
-			'<div class="item" data-index="' +
-				item.index +
-				'" draggable="true">' +
+		content.insertAdjacentHTML(
+			'beforeend',
+			`<div class="item" data-index="${item.index}" draggable="true">` +
 				'<div class="new_item"></div>' +
 				'<div class="icon"></div>' +
-				'<div class="amount"><span class="count">' +
-				(item.count || 1) +
-				'</span></div>' +
+				`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
 				'</div>'
 		);
 
@@ -482,21 +531,20 @@ InventoryV0.addItemSub = function AddItemSub(item) {
 				'item/' +
 				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 				'.bmp',
-			function (data) {
-				content
-					.find('.item[data-index="' + item.index + '"] .icon')
-					.css('backgroundImage', 'url(' + data + ')');
+			data => {
+				const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
+				if (icon) icon.style.backgroundImage = `url(${data})`;
 			}
 		);
 
 		if (InventoryV0.isNewItem(item.index)) {
-			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', function (data) {
-				content
-					.find('.item[data-index="' + item.index + '"] .new_item')
-					.css('backgroundImage', 'url(' + data + ')');
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/new_item.bmp', data => {
+				const newItemEl = root.querySelector(`.item[data-index="${item.index}"] .new_item`);
+				if (newItemEl) newItemEl.style.backgroundImage = `url(${data})`;
 			});
 		} else {
-			content.find('.item[data-index="' + item.index + '"] .new_item').css('backgroundImage', '');
+			const newItemEl = root.querySelector(`.item[data-index="${item.index}"] .new_item`);
+			if (newItemEl) newItemEl.style.backgroundImage = '';
 		}
 	}
 
@@ -511,29 +559,29 @@ InventoryV0.addItemSub = function AddItemSub(item) {
  */
 InventoryV0.removeItem = function RemoveItem(index, count) {
 	const item = this.getItemByIndex(index);
+	const root = _getRoot();
 
-	// Emulator failed to complete the operation
-	// do not remove item from inventory
-	if (!item || count <= 0) {
-		return null;
-	}
+	if (!item || count <= 0) return null;
 
 	if (item.count) {
 		item.count -= count;
-
 		if (item.count > 0) {
-			this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
+			const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+			if (countEl) countEl.textContent = item.count;
 			this.onUpdateItem(item.ITID, item.count);
 			return item;
 		}
 	}
 
 	this.list.splice(this.list.indexOf(item), 1);
-	this.ui.find('.item[data-index="' + item.index + '"]').remove();
-	this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
+	const el = root.querySelector(`.item[data-index="${item.index}"]`);
+	if (el) el.remove();
+	const ncnt = root.querySelector('.ncnt');
+	if (ncnt) ncnt.textContent = this.list.length + Equipment.getUI().getNumber();
 	this.onUpdateItem(item.ITID, 0);
 
-	InventoryV0.ui.find('.overlay').hide();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) overlay.style.display = 'none';
 
 	return item;
 };
@@ -546,24 +594,23 @@ InventoryV0.removeItem = function RemoveItem(index, count) {
  */
 InventoryV0.updateItem = function UpdateItem(index, count) {
 	const item = this.getItemByIndex(index);
-
-	if (!item) {
-		return;
-	}
+	if (!item) return;
 
 	item.count = count;
+	const root = _getRoot();
 
-	// Update quantity
 	if (item.count > 0) {
-		this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
+		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+		if (countEl) countEl.textContent = item.count;
 		this.onUpdateItem(item.ITID, item.count);
 		return;
 	}
 
-	// no quantity, remove
 	this.list.splice(this.list.indexOf(item), 1);
-	this.ui.find('.item[data-index="' + item.index + '"]').remove();
-	this.ui.find('.ncnt').text(this.list.length + Equipment.getUI().getNumber());
+	const el = root.querySelector(`.item[data-index="${item.index}"]`);
+	if (el) el.remove();
+	const ncnt = root.querySelector('.ncnt');
+	if (ncnt) ncnt.textContent = this.list.length + Equipment.getUI().getNumber();
 	this.onUpdateItem(item.ITID, 0);
 
 	this.updateScroll();
@@ -576,22 +623,16 @@ InventoryV0.updateItem = function UpdateItem(index, count) {
  */
 InventoryV0.useItem = function UseItem(item) {
 	switch (item.type) {
-		// Usable item
 		case ItemType.HEALING:
 		case ItemType.USABLE:
 		case ItemType.CASH:
 			InventoryV0.onUseItem(item.index);
 			break;
-
-		// Use card
 		case ItemType.CARD:
 			InventoryV0.onUseCard(item.index);
 			break;
-
 		case ItemType.DELAYCONSUME:
 			break;
-
-		// Equip item
 		case ItemType.WEAPON:
 		case ItemType.ARMOR:
 		case ItemType.SHADOWGEAR:
@@ -602,25 +643,14 @@ InventoryV0.useItem = function UseItem(item) {
 			}
 			break;
 	}
-
-	return;
 };
-
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
 
 /**
  * Extend inventory window size
  */
 function onResize() {
-	const ui = InventoryV0.ui;
-	const top = ui.position().top;
-	const left = ui.position().left;
+	const top = InventoryV0._host.offsetTop;
+	const left = InventoryV0._host.offsetLeft;
 	let lastWidth = 0;
 	let lastHeight = 0;
 
@@ -631,40 +661,39 @@ function onResize() {
 		let w = Math.floor((Mouse.screen.x - left - extraX) / 32);
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
-		// Maximum and minimum window size
 		w = Math.min(Math.max(w, 6), 8);
 		h = Math.min(Math.max(h, 2), 5);
 
-		if (w === lastWidth && h === lastHeight) {
-			return;
-		}
+		if (w === lastWidth && h === lastHeight) return;
 
 		InventoryV0.resize(w, h);
 		lastWidth = w;
 		lastHeight = h;
 	}
 
-	// Start resizing
 	const _Interval = setInterval(resizing, 30);
 
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	const onMouseUp = event => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	};
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 /**
  * Modify tab, filter display entries
  */
 function onSwitchTab() {
-	const idx = jQuery(this).index();
+	const root = _getRoot();
+	const buttons = root.querySelectorAll('.tabs button');
+	const idx = Array.from(buttons).indexOf(this);
 	_preferences.tab = parseInt(idx, 10);
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_0' + (idx + 1) + '.bmp', function (data) {
-		InventoryV0.ui.find('.tab-sprite').css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/tab_itm_0' + (idx + 1) + '.bmp', data => {
+		const tabSprite = root.querySelector('.tab-sprite');
+		if (tabSprite) tabSprite.style.backgroundImage = `url(${data})`;
 		requestFilter();
 	});
 }
@@ -673,16 +702,17 @@ function onSwitchTab() {
  * Hide/show inventory's content
  */
 function onToggleReduction() {
-	const ui = InventoryV0.ui;
+	const root = _getRoot();
+	const panel = root.querySelector('.panel');
 
 	if (_realSize) {
-		ui.find('.panel').show();
-		ui.height(_realSize);
+		if (panel) panel.style.display = 'flex';
+		InventoryV0._host.style.height = `${_realSize}px`;
 		_realSize = 0;
 	} else {
-		_realSize = ui.height();
-		ui.height(17);
-		ui.find('.panel').hide();
+		_realSize = InventoryV0._host.getBoundingClientRect().height;
+		InventoryV0._host.style.height = '17px';
+		if (panel) panel.style.display = 'none';
 	}
 }
 
@@ -690,15 +720,15 @@ function onToggleReduction() {
  * Update tab, reset inventory content
  */
 function requestFilter() {
-	const host = InventoryV0.ui.find('.scroll-host');
-	host.scrollTop(0);
+	const root = _getRoot();
+	const host = root.querySelector('.scroll-host');
+	if (host) host.scrollTop = 0;
 
-	InventoryV0.ui.find('.container .content').empty();
+	const content = root.querySelector('.container .content');
+	if (content) content.innerHTML = '';
 
 	const list = InventoryV0.list;
-	let i, count;
-
-	for (i = 0, count = list.length; i < count; ++i) {
+	for (let i = 0, count = list.length; i < count; ++i) {
 		InventoryV0.addItemSub(list[i]);
 	}
 
@@ -715,13 +745,12 @@ function onDrop(event) {
 	event.stopImmediatePropagation();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 
-	// Just allow item from storage
 	if (
 		data.type !== 'item' ||
 		(data.from !== 'Storage' && data.from !== 'CartItems' && data.from !== 'Mail' && data.from !== 'WriteRodex')
@@ -729,7 +758,6 @@ function onDrop(event) {
 		return false;
 	}
 
-	// Have to specify how much
 	if (item.count > 1) {
 		InputBox.append();
 		InputBox.setType('number', false, item.count);
@@ -741,15 +769,12 @@ function onDrop(event) {
 				case 'Storage':
 					Storage.reqRemoveItem(item.index, parseInt(count, 10));
 					break;
-
 				case 'CartItems':
 					CartItems.reqRemoveItem(item.index, parseInt(count, 10));
 					break;
-
 				case 'Mail':
 					Mail.reqRemoveItem(item.index, parseInt(count, 10));
 					break;
-
 				case 'WriteRodex':
 					WriteRodex.requestRemoveItemRodex(item.index, parseInt(count, 10));
 					break;
@@ -762,15 +787,12 @@ function onDrop(event) {
 		case 'Storage':
 			Storage.reqRemoveItem(item.index, 1);
 			break;
-
 		case 'CartItems':
 			CartItems.reqRemoveItem(item.index, 1);
 			break;
-
 		case 'Mail':
 			Mail.reqRemoveItem(item.index, 1);
 			break;
-
 		case 'WriteRodex':
 			WriteRodex.requestRemoveItemRodex(item.index, 1);
 			break;
@@ -782,13 +804,11 @@ function onDrop(event) {
 /**
  * Show item name when mouse is over
  */
-function onItemOver() {
+function onItemOver(_e) {
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const item = InventoryV0.getItemByIndex(idx);
 
-	if (!item) {
-		return;
-	}
+	if (!item) return;
 
 	let quantity = ' ea';
 	if (
@@ -799,19 +819,20 @@ function onItemOver() {
 		quantity = ' Quantity';
 	}
 
-	// Get back data
-	const pos = jQuery(this).position();
-	const overlay = InventoryV0.ui.find('.overlay');
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
 
-	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top, left: pos.left + 35 });
-	overlay.text(DB.getItemName(item) + ': ' + (item.count || 1) + quantity);
+	if (overlay) {
+		overlay.style.display = 'block';
+		overlay.style.top = `${this.offsetTop}px`;
+		overlay.style.left = `${this.offsetLeft + 35}px`;
+		overlay.textContent = `${DB.getItemName(item)}: ${item.count || 1}${quantity}`;
 
-	if (item.IsIdentified) {
-		overlay.removeClass('grey');
-	} else {
-		overlay.addClass('grey');
+		if (item.IsIdentified) {
+			overlay.classList.remove('grey');
+		} else {
+			overlay.classList.add('grey');
+		}
 	}
 }
 
@@ -819,7 +840,9 @@ function onItemOver() {
  * Hide the item name
  */
 function onItemOut() {
-	InventoryV0.ui.find('.overlay').hide();
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) overlay.style.display = 'none';
 }
 
 /**
@@ -829,20 +852,16 @@ function onItemDragStart(event) {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	const item = InventoryV0.getItemByIndex(index);
 
-	if (!item) {
-		return;
-	}
+	if (!item) return;
 
-	// Set image to the drag drop element
 	const img = new Image();
-	const url = this.querySelector('.icon')
-		.style.backgroundImage.match(/\((.*?)\)/)[1]
-		.replace(/('|")/g, '');
+	const iconEl = this.querySelector('.icon');
+	const url = iconEl ? iconEl.style.backgroundImage.match(/\((.*?)\)/)?.[1]?.replace(/('|")/g, '') : '';
 	img.decoding = 'async';
-	img.src = url.replace(/^\"/, '').replace(/\"$/, '');
+	img.src = url || '';
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -858,7 +877,6 @@ function onItemDragStart(event) {
 
 /**
  * Stop dragging an item
- *
  */
 function onItemDragEnd() {
 	delete window._OBJ_DRAG_;
@@ -873,24 +891,19 @@ function onItemInfo(event) {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	const item = InventoryV0.getItemByIndex(index);
 
-	if (!item) {
-		return false;
-	}
+	if (!item) return false;
 
-	// If right click w/ alt (Request Transfer Item)
 	if (event.altKey && event.which === 3) {
 		event.stopImmediatePropagation();
 		transferItemToOtherUI(item);
 		return false;
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
 		return false;
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
@@ -902,12 +915,11 @@ function onItemInfo(event) {
  * Alt Right Click Request Transfer
  */
 function transferItemToOtherUI(item) {
-	const isStorageOpen = Storage.getUI().ui ? Storage.getUI().ui.is(':visible') : false;
-	const isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
+	const storageUI = Storage.getUI();
+	const isStorageOpen = storageUI._host ? storageUI._host.style.display !== 'none' : false;
+	const isCartOpen = CartItems._host ? CartItems._host.style.display !== 'none' : false;
 
-	if (!item) {
-		return false;
-	}
+	if (!item) return false;
 
 	const count = item.count || 1;
 
@@ -933,20 +945,17 @@ function onItemUsed(event) {
 	}
 
 	event.stopImmediatePropagation();
-	return false;
+	event.preventDefault();
 }
 
 /**
  * Handle click event on an item
  */
 function onItemClick(event) {
-	// Shift + LEFT CLICK → insert <ItemName> in chat
 	if (event.shiftKey && event.which === 1) {
-		const idx = parseInt(jQuery(this).attr('data-index'), 10);
+		const idx = parseInt(this.getAttribute('data-index'), 10);
 		const item = InventoryV0.getItemByIndex(idx);
-		if (!item) {
-			return false;
-		}
+		if (!item) return false;
 
 		item.name = DB.getItemName(item);
 		const link =
@@ -956,7 +965,8 @@ function onItemClick(event) {
 			item.name +
 			'&gt;</span>';
 
-		const msgBox = ChatBox.ui.find('.input-chatbox')[0];
+		const chatRoot = ChatBox._shadow || ChatBox._host || document;
+		const msgBox = chatRoot.querySelector('.input-chatbox');
 		if (msgBox) {
 			msgBox.innerHTML += link + ' ';
 			msgBox.focus();

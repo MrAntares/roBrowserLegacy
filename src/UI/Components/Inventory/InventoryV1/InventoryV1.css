@@ -1,8 +1,11 @@
+:host {
+	top: 100px;
+	left: 100px;
+}
+
 /* ─── Root ───────────────────────────────────────────────────── */
 #InventoryV1 {
 	position: absolute;
-	top: 100px;
-	left: 100px;
 	height: 193px;
 	display: flex;
 	flex-direction: column;
