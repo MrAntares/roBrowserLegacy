@@ -278,7 +278,7 @@ Intro.onAppend = function onAppend() {
 		}
 		const msgEl = root.querySelector('.msg');
 		if (msgEl) msgEl.textContent = msg;
-		if (cleanBtn) cleanBtn.style.display = '';
+		if (cleanBtn) cleanBtn.style.display = 'inline-block';
 	});
 
 	// Resize handler
