@@ -619,20 +619,15 @@ function onDrop(event) {
  * Block the scroll to move 32px at each move
  */
 function onScroll(event) {
-	let delta;
+	const delta = event.deltaY > 0 ? -1 : 1;
+	const el = event.currentTarget;
 
-	if (event.wheelDelta) {
-		delta = event.wheelDelta / 120;
-		if (window.opera) {
-			delta = -delta;
-		}
-	} else if (event.detail) {
-		delta = -event.detail;
-	} else {
-		delta = -Math.sign(event.deltaY);
+	el.scrollTop = Math.floor(el.scrollTop / 32) * 32 - delta * 32;
+
+	if (el._roScrollbarRestart) {
+		el._roScrollbarRestart();
 	}
 
-	event.currentTarget.scrollTop = Math.floor(event.currentTarget.scrollTop / 32) * 32 - delta * 32;
 	event.stopImmediatePropagation();
 	event.preventDefault();
 }

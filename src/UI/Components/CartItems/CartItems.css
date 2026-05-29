@@ -4,6 +4,7 @@
 }
 
 #cartitems {
+	position: relative;
 }
 #cartitems table {
 	border-spacing: 0px;
