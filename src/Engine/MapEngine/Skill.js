@@ -892,7 +892,10 @@ export default function SkillEngine() {
 	Network.hookPacket(PACKET.ZC.SKILLINFO_LIST2, onSkillList);
 	Network.hookPacket(PACKET.ZC.SKILLINFO_UPDATE, onSkillUpdate);
 	Network.hookPacket(PACKET.ZC.SKILLINFO_UPDATE2, onSkillUpdate);
+	Network.hookPacket(PACKET.ZC.SKILLINFO_UPDATE3, onSkillUpdate);
 	Network.hookPacket(PACKET.ZC.ADD_SKILL, onSkillAdded);
+	Network.hookPacket(PACKET.ZC.ADD_SKILL2, onSkillAdded);
+	Network.hookPacket(PACKET.ZC.ADD_SKILL3, onSkillAdded);
 	Network.hookPacket(PACKET.ZC.SHORTCUT_KEY_LIST, onShortCutList);
 	Network.hookPacket(PACKET.ZC.SHORTCUT_KEY_LIST_V2, onShortCutList);
 	Network.hookPacket(PACKET.ZC.SHORTCUT_KEY_LIST_V3, onShortCutList);
