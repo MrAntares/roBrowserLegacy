@@ -14490,6 +14490,18 @@ PACKET.ZC.GUILD_AGIT_INFO = function PACKET_ZC_GUILD_AGIT_INFO(fp, end) {
 };
 PACKET.ZC.GUILD_AGIT_INFO.size = -1;
 
+// 0xb2a
+PACKET.ZC.ADD_SKILL2 = function PACKET_ZC_ADD_SKILL2(fp, end) {
+	this.data = {};
+	this.data.SKID = fp.readUShort();
+	this.data.type = fp.readLong();
+	this.data.level = fp.readShort();
+	this.data.spcost = fp.readShort();
+	this.data.attackRange = fp.readShort();
+	this.data.upgradable = fp.readUChar();
+};
+PACKET.ZC.ADD_SKILL2.size = 15;
+
 // 0xb2f
 PACKET.ZC.PROPERTY_HOMUN3 = function PACKET_ZC_PROPERTY_HOMUN3(fp, end) {
 	this.szName = fp.readString(NAME_LENGTH); // <name>.24B
@@ -14518,6 +14530,19 @@ PACKET.ZC.PROPERTY_HOMUN3 = function PACKET_ZC_PROPERTY_HOMUN3(fp, end) {
 };
 PACKET.ZC.PROPERTY_HOMUN3.size = 73;
 
+// 0xb31
+PACKET.ZC.ADD_SKILL3 = function PACKET_ZC_ADD_SKILL3(fp, end) {
+	this.data = {};
+	this.data.SKID = fp.readUShort();
+	this.data.type = fp.readLong();
+	this.data.level = fp.readShort();
+	this.data.spcost = fp.readShort();
+	this.data.attackRange = fp.readShort();
+	this.data.upgradable = fp.readUChar();
+	this.data.level2 = fp.readShort();
+};
+PACKET.ZC.ADD_SKILL3.size = 17;
+
 // 0xb32
 PACKET.ZC.SKILLINFO_LIST2 = function PACKET_ZC_SKILLINFO_LIST2(fp, end) {
 	this.skillList = (function () {
@@ -14537,6 +14562,18 @@ PACKET.ZC.SKILLINFO_LIST2 = function PACKET_ZC_SKILLINFO_LIST2(fp, end) {
 	})();
 };
 PACKET.ZC.SKILLINFO_LIST2.size = -1;
+
+// 0xb33
+PACKET.ZC.SKILLINFO_UPDATE3 = function PACKET_ZC_SKILLINFO_UPDATE3(fp, end) {
+	this.SKID = fp.readShort();
+	this.type = fp.readLong();
+	this.level = fp.readShort();
+	this.spcost = fp.readShort();
+	this.attackRange = fp.readShort();
+	this.upgradable = fp.readChar();
+	this.level2 = fp.readShort();
+};
+PACKET.ZC.SKILLINFO_UPDATE3.size = 17;
 
 //0xb37
 PACKET.ZC.EQUIPWIN_MICROSCOPE_V7 = function PACKET_ZC_EQUIPWIN_MICROSCOPE_V7(fp, end) {
