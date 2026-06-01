@@ -1,3 +1,10 @@
+:host {
+	width: 276px;
+	height: 116px;
+	top: 285px;
+	left: 100px;
+}
+
 #NpcMenu {
 	position: absolute;
 	border-radius: 5px;
@@ -5,8 +12,6 @@
 	height: 116px;
 	background-color: white;
 	padding: 2px;
-	left: 100px;
-	top: 285px;
 }
 
 #NpcMenu .title {
@@ -54,9 +59,7 @@
 }
 
 #NpcMenu .btn {
-	background-color: transparent;
 	position: absolute;
-	border: 0;
 	width: 42px;
 	height: 20px;
 	bottom: 5px;

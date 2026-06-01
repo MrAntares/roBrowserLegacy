@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
 import Client from 'Core/Client.js';
@@ -20,7 +19,8 @@ import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -29,9 +29,11 @@ import htmlText from './NpcStore.html?raw';
 import cssText from './NpcStore.css?raw';
 
 /**
- * Create NPC Menu component
+ * Create NPC Store component
  */
-const NpcStore = new UIComponent('NpcStore', htmlText, cssText);
+const NpcStore = new GUIComponent('NpcStore', cssText);
+
+NpcStore.render = () => htmlText;
 
 /**
  * @let {enum} Store type
@@ -50,7 +52,7 @@ NpcStore.Type = {
 /**
  * Freeze the mouse
  */
-NpcStore.mouseMode = UIComponent.MouseMode.FREEZE;
+NpcStore.mouseMode = GUIComponent.MouseMode.FREEZE;
 
 /**
  * @let {initialPreferences}
@@ -96,65 +98,143 @@ let _type;
 let _closePacketSent = false;
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return NpcStore._shadow || NpcStore._host;
+}
+
+/**
+ * Make a sub-window element draggable by its handle
+ */
+function _makeDraggable(element, handle) {
+	handle.addEventListener('mousedown', e => {
+		if (e.which !== 1) {
+			return;
+		}
+
+		const offsetX = element.offsetLeft - e.pageX;
+		const offsetY = element.offsetTop - e.pageY;
+
+		const onMove = ev => {
+			element.style.left = `${ev.pageX + offsetX}px`;
+			element.style.top = `${ev.pageY + offsetY}px`;
+		};
+
+		const onUp = ev => {
+			if (ev.which === 1) {
+				window.removeEventListener('mousemove', onMove);
+				window.removeEventListener('mouseup', onUp);
+			}
+		};
+
+		window.addEventListener('mousemove', onMove);
+		window.addEventListener('mouseup', onUp);
+
+		e.stopImmediatePropagation();
+	});
+}
+
+/**
+ * Helper: escape HTML
+ */
+function _escapeHTML(text) {
+	const div = document.createElement('div');
+	div.textContent = text;
+	return div.innerHTML;
+}
+
+/**
  * Initialize component
  */
 NpcStore.init = function init() {
-	const ui = this.ui;
-	const InputWindow = ui.find('.InputWindow');
-	const OutputWindow = ui.find('.OutputWindow');
-	const AvailableItemsWindow = ui.find('.AvailableItemsWindow');
-	const PurchaseResult = ui.find('.PurchaseResult');
+	const root = _getRoot();
 
-	ui.find('.btn.cancel').click(this.remove.bind(this));
+	root.querySelector('.btn.cancel').addEventListener('click', () => this.remove());
+	root.querySelector('.btn.buy').addEventListener('click', () => this.submit());
+	root.querySelector('.btn.sell').addEventListener('click', () => this.submit());
 
-	// Client do not send packet
-	ui.find('.btn.buy, .btn.sell').click(this.submit.bind(this));
-	ui.find('.selectall').mousedown(onToggleSelectAmount);
-
-	// Resize
-	InputWindow.find('.resize').mousedown(function () {
-		onResize(InputWindow);
-	});
-	OutputWindow.find('.resize').mousedown(function () {
-		onResize(OutputWindow);
-	});
-	AvailableItemsWindow.find('.resize').mousedown(function () {
-		onResize(AvailableItemsWindow);
-	});
-	PurchaseResult.find('.resize').mousedown(function () {
-		onResize(PurchaseResult);
-	});
-
-	// Items options
-	ui.find('.content')
-		.on('mousewheel DOMMouseScroll', onScroll)
-		.on('contextmenu', '.icon', onItemInfo)
-		.on('dblclick', '.item', onItemSelected)
-		.on('mousedown', '.item', onItemFocus)
-		.on('dragstart', '.item', onDragStart)
-		.on('dragend', '.item', function () {
-			delete window._OBJ_DRAG_;
+	const selectall = root.querySelector('.selectall');
+	if (selectall) {
+		selectall.addEventListener('mousedown', function () {
+			onToggleSelectAmount.call(this);
 		});
+	}
 
-	// Drop items
-	ui.find('.InputWindow, .OutputWindow, .AvailableItemsWindow')
-		.on('drop', onDrop)
-		.on('dragover', function (event) {
-			event.stopImmediatePropagation();
-			return false;
-		})
-		.on('mousedown', function () {
+	// Resize handlers
+	const InputWindow = root.querySelector('.InputWindow');
+	const OutputWindow = root.querySelector('.OutputWindow');
+	const AvailableItemsWindow = root.querySelector('.AvailableItemsWindow');
+	const PurchaseResult = root.querySelector('.PurchaseResult');
+
+	InputWindow.querySelector('.resize').addEventListener('mousedown', () => onResize(InputWindow));
+	OutputWindow.querySelector('.resize').addEventListener('mousedown', () => onResize(OutputWindow));
+	AvailableItemsWindow.querySelector('.resize').addEventListener('mousedown', () => onResize(AvailableItemsWindow));
+	PurchaseResult.querySelector('.resize').addEventListener('mousedown', () => onResize(PurchaseResult));
+
+	// Items options via event delegation on content areas
+	root.querySelectorAll('.content').forEach(content => {
+		content.addEventListener('wheel', function (event) {
+			onScroll.call(this, event);
+		});
+		content.addEventListener('contextmenu', e => {
+			const icon = e.target.closest('.icon');
+			if (icon) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				onItemInfo.call(icon, e);
+			}
+		});
+		content.addEventListener('dblclick', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemSelected.call(item);
+			}
+		});
+		content.addEventListener('mousedown', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemFocus.call(item);
+			}
+		});
+	});
+
+	// Drag start on items
+	root.addEventListener('dragstart', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onDragStart.call(item, e);
+		}
+	});
+	root.addEventListener('dragend', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			delete window._OBJ_DRAG_;
+		}
+	});
+
+	// Drop targets
+	[InputWindow, OutputWindow, AvailableItemsWindow].forEach(win => {
+		win.addEventListener('drop', function (event) {
+			onDrop.call(this, event);
+		});
+		win.addEventListener('dragover', e => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+		});
+		win.addEventListener('mousedown', () => {
 			NpcStore.focus();
 		});
+	});
 
-	// Hacky drag drop
-	this.draggable.call({ ui: InputWindow }, InputWindow.find('.titlebar'));
-	this.draggable.call({ ui: OutputWindow }, OutputWindow.find('.titlebar'));
-	this.draggable.call({ ui: AvailableItemsWindow }, AvailableItemsWindow.find('.titlebar'));
-	this.draggable.call({ ui: PurchaseResult }, PurchaseResult.find('.titlebar'));
+	// Draggable sub-windows
+	_makeDraggable(InputWindow, InputWindow.querySelector('.titlebar'));
+	_makeDraggable(OutputWindow, OutputWindow.querySelector('.titlebar'));
+	_makeDraggable(AvailableItemsWindow, AvailableItemsWindow.querySelector('.titlebar'));
+	_makeDraggable(PurchaseResult, PurchaseResult.querySelector('.titlebar'));
 
 	// MarketShop close
-	ui.find('.btn.ok').click(function () {
+	root.querySelector('.btn.ok').addEventListener('click', () => {
 		NpcStore.closeStore();
 	});
 };
@@ -165,55 +245,58 @@ NpcStore.init = function init() {
 NpcStore.onAppend = function onAppend() {
 	_closePacketSent = false;
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp',
-		function (data) {
-			this.ui.find('.selectall:first').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this)
-	);
-
-	// Seems like "EscapeWindow" is execute first, push it before.
-	const events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
+	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp', function (data) {
+		const root = _getRoot();
+		const selectall = root.querySelector('.selectall');
+		if (selectall) {
+			selectall.style.backgroundImage = `url(${data})`;
+		}
+	});
 };
 
 /**
  * Released movement and save preferences
  */
 NpcStore.onRemove = function onRemove() {
-	const InputWindow = this.ui.find('.InputWindow');
-	const OutputWindow = this.ui.find('.OutputWindow');
-	const AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
-	const PurchaseResult = this.ui.find('.PurchaseResult');
+	const root = _getRoot();
+	const InputWindow = root.querySelector('.InputWindow');
+	const OutputWindow = root.querySelector('.OutputWindow');
+	const AvailableItemsWindow = root.querySelector('.AvailableItemsWindow');
+	const PurchaseResult = root.querySelector('.PurchaseResult');
 
 	_input.length = 0;
 	_output.length = 0;
 
 	const currentPref = getCurrentPref();
 
-	currentPref.inputWindow.x = parseInt(InputWindow.css('left'), 10);
-	currentPref.inputWindow.y = parseInt(InputWindow.css('top'), 10);
-	currentPref.inputWindow.height = (InputWindow.find('.content').height() / 32) | 0;
+	currentPref.inputWindow.x = parseInt(InputWindow.style.left, 10);
+	currentPref.inputWindow.y = parseInt(InputWindow.style.top, 10);
+	currentPref.inputWindow.height = (InputWindow.querySelector('.content').offsetHeight / 32) | 0;
 
-	currentPref.outputWindow.x = parseInt(OutputWindow.css('left'), 10);
-	currentPref.outputWindow.y = parseInt(OutputWindow.css('top'), 10);
-	currentPref.outputWindow.height = (OutputWindow.find('.content').height() / 32) | 0;
+	currentPref.outputWindow.x = parseInt(OutputWindow.style.left, 10);
+	currentPref.outputWindow.y = parseInt(OutputWindow.style.top, 10);
+	currentPref.outputWindow.height = (OutputWindow.querySelector('.content').offsetHeight / 32) | 0;
 
-	currentPref.AvailableItemsWindow.x = parseInt(AvailableItemsWindow.css('left'), 10);
-	currentPref.AvailableItemsWindow.y = parseInt(AvailableItemsWindow.css('top'), 10);
-	currentPref.AvailableItemsWindow.height = (AvailableItemsWindow.find('.content').height() / 32) | 0;
+	currentPref.AvailableItemsWindow.x = parseInt(AvailableItemsWindow.style.left, 10);
+	currentPref.AvailableItemsWindow.y = parseInt(AvailableItemsWindow.style.top, 10);
+	currentPref.AvailableItemsWindow.height = (AvailableItemsWindow.querySelector('.content').offsetHeight / 32) | 0;
 
-	currentPref.PurchaseResult.x = parseInt(PurchaseResult.css('left'), 10);
-	currentPref.PurchaseResult.y = parseInt(PurchaseResult.css('top'), 10);
-	currentPref.PurchaseResult.height = (PurchaseResult.find('.content').height() / 32) | 0;
+	currentPref.PurchaseResult.x = parseInt(PurchaseResult.style.left, 10);
+	currentPref.PurchaseResult.y = parseInt(PurchaseResult.style.top, 10);
+	currentPref.PurchaseResult.height = (PurchaseResult.querySelector('.content').offsetHeight / 32) | 0;
 
 	_preferences.save();
 
-	this.ui.find('.content').empty();
-	this.ui.find('.total .result').text(0);
-	this.ui.find('.totalP .resultP').text(0);
+	root.querySelectorAll('.content').forEach(c => {
+		c.innerHTML = '';
+	});
+	root.querySelectorAll('.total .result').forEach(r => {
+		r.textContent = '0';
+	});
+	root.querySelectorAll('.totalP .resultP').forEach(r => {
+		r.textContent = '0';
+	});
 
-	// Ensure the server knows the store is closed (prevents movement lock)
 	if (!_closePacketSent) {
 		NpcStore.StoreClosePacket(_type);
 	}
@@ -221,14 +304,27 @@ NpcStore.onRemove = function onRemove() {
 
 /**
  * Key Listener
- *
- * Remove the UI when Escape key is pressed
  */
 NpcStore.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this.remove();
 	}
 };
+
+/**
+ * Helper to show/hide elements by selector
+ */
+function _hideAll(root, selector) {
+	root.querySelectorAll(selector).forEach(el => {
+		el.style.display = 'none';
+	});
+}
+
+function _showAll(root, selector) {
+	root.querySelectorAll(selector).forEach(el => {
+		el.style.display = '';
+	});
+}
 
 /**
  * Specify the type of the shop
@@ -236,48 +332,58 @@ NpcStore.onKeyDown = function onKeyDown(event) {
  * @param {number} type (see NpcStore.Type.*)
  */
 NpcStore.setType = function setType(type) {
+	const root = _getRoot();
+
 	switch (type) {
 		case NpcStore.Type.BUY:
 		case NpcStore.Type.MARKETSHOP:
-			this.ui
-				.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult')
-				.hide();
-			this.ui.find('.WinBuy').show();
+			_hideAll(
+				root,
+				'.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult'
+			);
+			_showAll(root, '.WinBuy');
 			break;
 
 		case NpcStore.Type.SELL:
-			this.ui
-				.find('.WinBuy, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult')
-				.hide();
-			this.ui.find('.WinSell').show();
+			_hideAll(
+				root,
+				'.WinBuy, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult'
+			);
+			_showAll(root, '.WinSell');
 			break;
 
 		case NpcStore.Type.VENDING_STORE:
-			this.ui.find('.WinBuy, .WinSell, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult').hide();
-			this.ui.find('.WinVendingStore').show();
+			_hideAll(root, '.WinBuy, .WinSell, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult');
+			_showAll(root, '.WinVendingStore');
 			break;
 
 		case NpcStore.Type.BUYING_STORE:
-			this.ui.find('.WinBuy, .WinSell, .WinCash, .WinVendingStore, .PurchaseResult').hide();
-			this.ui.find('.WinBuyingStore, .AvailableItemsWindow').show();
-			this.ui.find('.content').css('height', '160px');
-			this.ui.find('.contentAvailable').css('height', '65px');
+			_hideAll(root, '.WinBuy, .WinSell, .WinCash, .WinVendingStore, .PurchaseResult');
+			_showAll(root, '.WinBuyingStore, .AvailableItemsWindow');
+			root.querySelectorAll('.content').forEach(c => {
+				c.style.height = '160px';
+			});
+			root.querySelectorAll('.contentAvailable').forEach(c => {
+				c.style.height = '65px';
+			});
 			break;
 
 		case NpcStore.Type.BARTER_MARKET:
 		case NpcStore.Type.BARTER_MARKET_EXTENDED:
-			this.ui
-				.find('.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult')
-				.hide();
-			this.ui.find('.WinBuy').show();
-			this.ui.find('.total').hide();
+			_hideAll(
+				root,
+				'.WinSell, .WinVendingStore, .WinCash, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult'
+			);
+			_showAll(root, '.WinBuy');
+			_hideAll(root, '.total');
 			break;
 
 		case NpcStore.Type.CASH_SHOP:
-			this.ui
-				.find('.WinSell, .WinVendingStore, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult, .total')
-				.hide();
-			this.ui.find('.WinBuy').show();
+			_hideAll(
+				root,
+				'.WinSell, .WinVendingStore, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult, .total'
+			);
+			_showAll(root, '.WinBuy');
 			break;
 	}
 
@@ -285,26 +391,27 @@ NpcStore.setType = function setType(type) {
 
 	const currentPref = getCurrentPref();
 
-	const InputWindow = this.ui.find('.InputWindow');
-	const OutputWindow = this.ui.find('.OutputWindow');
-	const AvailableItemsWindow = this.ui.find('.AvailableItemsWindow');
-	const PurchaseResult = this.ui.find('.PurchaseResult');
+	const InputWindow = root.querySelector('.InputWindow');
+	const OutputWindow = root.querySelector('.OutputWindow');
+	const AvailableItemsWindow = root.querySelector('.AvailableItemsWindow');
+	const PurchaseResult = root.querySelector('.PurchaseResult');
 
-	// Apply saved positions
-	InputWindow.css({ top: currentPref.inputWindow.y, left: currentPref.inputWindow.x });
-	OutputWindow.css({ top: currentPref.outputWindow.y, left: currentPref.outputWindow.x });
-	AvailableItemsWindow.css({ top: currentPref.AvailableItemsWindow.y, left: currentPref.AvailableItemsWindow.x });
-	PurchaseResult.css({ top: currentPref.PurchaseResult.y, left: currentPref.PurchaseResult.x });
+	InputWindow.style.top = `${currentPref.inputWindow.y}px`;
+	InputWindow.style.left = `${currentPref.inputWindow.x}px`;
+	OutputWindow.style.top = `${currentPref.outputWindow.y}px`;
+	OutputWindow.style.left = `${currentPref.outputWindow.x}px`;
+	AvailableItemsWindow.style.top = `${currentPref.AvailableItemsWindow.y}px`;
+	AvailableItemsWindow.style.left = `${currentPref.AvailableItemsWindow.x}px`;
+	PurchaseResult.style.top = `${currentPref.PurchaseResult.y}px`;
+	PurchaseResult.style.left = `${currentPref.PurchaseResult.x}px`;
 
-	// Apply resize heights
-	resize(InputWindow.find('.content'), currentPref.inputWindow.height);
-	resize(OutputWindow.find('.content'), currentPref.outputWindow.height);
-	resize(AvailableItemsWindow.find('.content'), currentPref.AvailableItemsWindow.height);
-	resize(PurchaseResult.find('.content'), currentPref.PurchaseResult.height);
+	resize(InputWindow.querySelector('.content'), currentPref.inputWindow.height);
+	resize(OutputWindow.querySelector('.content'), currentPref.outputWindow.height);
+	resize(AvailableItemsWindow.querySelector('.content'), currentPref.AvailableItemsWindow.height);
+	resize(PurchaseResult.querySelector('.content'), currentPref.PurchaseResult.height);
 
-	// Apply width
-	InputWindow.css('width', currentPref.inputWindow.width);
-	OutputWindow.css('width', currentPref.outputWindow.width);
+	InputWindow.style.width = `${currentPref.inputWindow.width}px`;
+	OutputWindow.style.width = `${currentPref.outputWindow.width}px`;
 };
 
 /**
@@ -316,14 +423,21 @@ NpcStore.setList = function setList(items) {
 	let i, count;
 	let it, item, out;
 
-	this.ui.find('.content').empty();
-	this.ui.find('.total .result').text(0);
-	this.ui.find('.totalP .resultP').text(0);
+	const root = _getRoot();
+	root.querySelectorAll('.content').forEach(c => {
+		c.innerHTML = '';
+	});
+	root.querySelectorAll('.total .result').forEach(r => {
+		r.textContent = '0';
+	});
+	root.querySelectorAll('.totalP .resultP').forEach(r => {
+		r.textContent = '0';
+	});
 
 	_input.length = 0;
 	_output.length = 0;
-	const content = this.ui.find('.InputWindow .content');
-	const availableContent = this.ui.find('.AvailableItemsWindow .content');
+	const content = root.querySelector('.InputWindow .content');
+	const availableContent = root.querySelector('.AvailableItemsWindow .content');
 	switch (_type) {
 		case NpcStore.Type.BUY:
 		case NpcStore.Type.VENDING_STORE:
@@ -335,7 +449,7 @@ NpcStore.setList = function setList(items) {
 				}
 				items[i].count = items[i].count || Infinity;
 				items[i].IsIdentified = true;
-				out = jQuery.extend({}, items[i]);
+				out = Object.assign({}, items[i]);
 				out.count = 0;
 
 				addItem(content, items[i]);
@@ -351,20 +465,20 @@ NpcStore.setList = function setList(items) {
 				}
 				items[i].count = items[i].count || Infinity;
 				items[i].IsIdentified = true;
-				out = jQuery.extend({}, items[i]);
+				out = Object.assign({}, items[i]);
 				out.count = 0;
 
 				addItem(content, items[i]);
 				it = Inventory.getUI().getItemById(items[i].ITID);
 
 				if (it) {
-					item = jQuery.extend({}, it);
+					item = Object.assign({}, it);
 					item.ITID = it.ITID;
 					item.price = items[i].price;
 					item.count = 'count' in item ? item.count : 1;
 					item.maxCount = isFinite(items[i].count) ? items[i].count : 0;
 
-					out = jQuery.extend({}, item);
+					out = Object.assign({}, item);
 					out.count = 0;
 
 					addItem(availableContent, item);
@@ -383,7 +497,7 @@ NpcStore.setList = function setList(items) {
 				}
 				items[i].count = items[i].count || Infinity;
 				items[i].IsIdentified = true;
-				out = jQuery.extend({}, items[i]);
+				out = Object.assign({}, items[i]);
 				out.count = 0;
 
 				addItem(content, items[i]);
@@ -404,12 +518,12 @@ NpcStore.setList = function setList(items) {
 						: it;
 
 				if (condition) {
-					item = jQuery.extend({}, it);
+					item = Object.assign({}, it);
 					item.price = items[i].price;
 					item.overchargeprice = items[i].overchargeprice;
 					item.count = 'count' in item ? item.count : 1;
 
-					out = jQuery.extend({}, item);
+					out = Object.assign({}, item);
 					out.count = 0;
 
 					addItem(content, item);
@@ -426,8 +540,12 @@ NpcStore.setList = function setList(items) {
 NpcStore.setPriceLimit = function setPriceLimit(price) {
 	const prettyPrice = prettyZeny(price);
 	const text = DB.getMessage(1735);
-	const result = text.replace('%s', prettyPrice); // workaround
-	this.ui.find('.priceLimit').text(result);
+	const result = text.replace('%s', prettyPrice);
+	const root = _getRoot();
+	const priceLimit = root.querySelector('.priceLimit');
+	if (priceLimit) {
+		priceLimit.textContent = result;
+	}
 };
 
 /**
@@ -445,13 +563,19 @@ NpcStore.submit = function submit() {
 
 	NpcStore.onSubmit(output);
 
-	// work around - cashshop dont close after buy
-	this.ui.find('.OutputWindow').find('.content').empty();
-	this.ui.find('.totalP .resultP').text(0);
+	const root = _getRoot();
+	const outputContent = root.querySelector('.OutputWindow .content');
+	if (outputContent) {
+		outputContent.innerHTML = '';
+	}
+	const resultP = root.querySelector('.totalP .resultP');
+	if (resultP) {
+		resultP.textContent = '0';
+	}
 
 	for (let i = 0; i < count; ++i) {
 		if (_output[i] && _output[i].count) {
-			_output[i].count = 0; // clear
+			_output[i].count = 0;
 		}
 	}
 };
@@ -473,11 +597,16 @@ NpcStore.calculateCost = function calculateCost() {
 		}
 	}
 
-	this.ui.find('.total .result').text(prettyZeny(total));
-	this.ui.find('.totalP .resultP').text(prettyZeny(total));
+	const root = _getRoot();
+	root.querySelectorAll('.total .result').forEach(r => {
+		r.textContent = prettyZeny(total);
+	});
+	root.querySelectorAll('.totalP .resultP').forEach(r => {
+		r.textContent = prettyZeny(total);
+	});
 
 	if (_type === NpcStore.Type.BARTER_MARKET) {
-		this.ui.find('.total').hide();
+		_hideAll(root, '.total');
 	}
 
 	return total;
@@ -519,18 +648,18 @@ function prettyZeny(val, useStyle) {
 
 	if (useStyle) {
 		const style = [
-			'color:#000000; text-shadow:1px 0px #00ffff;', // 0 - 9
-			'color:#0000ff; text-shadow:1px 0px #ce00ce;', // 10 - 99
-			'color:#0000ff; text-shadow:1px 0px #00ffff;', // 100 - 999
-			'color:#ff0000; text-shadow:1px 0px #ffff00;', // 1,000 - 9,999
-			'color:#ff18ff;', // 10,000 - 99,999
-			'color:#0000ff;', // 100,000 - 999,999
-			'color:#000000; text-shadow:1px 0px #00ff00;', // 1,000,000 - 9,999,999
-			'color:#ff0000;', // 10,000,000 - 99,999,999
-			'color:#000000; text-shadow:1px 0px #cece63;', // 100,000,000 - 999,999,999
-			'color:#ff0000; text-shadow:1px 0px #ff007b;' // 1,000,000,000 - 9,999,999,999
+			'color:#000000; text-shadow:1px 0px #00ffff;',
+			'color:#0000ff; text-shadow:1px 0px #ce00ce;',
+			'color:#0000ff; text-shadow:1px 0px #00ffff;',
+			'color:#ff0000; text-shadow:1px 0px #ffff00;',
+			'color:#ff18ff;',
+			'color:#0000ff;',
+			'color:#000000; text-shadow:1px 0px #00ff00;',
+			'color:#ff0000;',
+			'color:#000000; text-shadow:1px 0px #cece63;',
+			'color:#ff0000; text-shadow:1px 0px #ff007b;'
 		];
-		str = '<span style="' + style[count - 1] + '">' + str + '</span>';
+		str = `<span style="${style[count - 1]}">${str}</span>`;
 	}
 
 	return str;
@@ -539,171 +668,118 @@ function prettyZeny(val, useStyle) {
 /**
  * Add item to the list
  *
- * @param {jQuery} content element
+ * @param {Element} content element
  * @param {Item} item info
  */
 function addItem(content, item) {
 	const it = DB.getItemInfo(item.ITID);
 	const currencyit = DB.getItemInfo(item.currencyITID);
-	const element = content.find('.item[data-index=' + item.index + ']:first');
+	const element = content.querySelector(`.item[data-index="${item.index}"]`);
 	let price;
 	let amountText;
 
 	let currency_item;
 	if (_type === NpcStore.Type.BARTER_MARKET) {
-		currency_item = { ...item }; // Shallow copy of the item
+		currency_item = { ...item };
 		currency_item.ITID = item.currencyITID;
 	}
 
-	// 0 as amount ? remove it
 	if (item.count === 0) {
-		if (element.length) {
+		if (element) {
 			element.remove();
 		}
 		return;
 	}
 
-	// Already here, update it
-	// Note: just the amount can be updated ?
-	if (element.length) {
-		amountText = _type == NpcStore.Type.BUYING_STORE && !content.hasClass('contentAvailable') ? ' ea.' : '';
-		element.find('.amount').text(isFinite(item.count) ? item.count + amountText : '');
+	if (element) {
+		amountText =
+			_type === NpcStore.Type.BUYING_STORE && !content.classList.contains('contentAvailable') ? ' ea.' : '';
+		const amountEl = element.querySelector('.amount');
+		if (amountEl) {
+			amountEl.textContent = isFinite(item.count) ? item.count + amountText : '';
+		}
 		return;
 	}
 
 	if (
-		!content.hasClass('contentAvailable') &&
+		!content.classList.contains('contentAvailable') &&
 		_type !== NpcStore.Type.BARTER_MARKET &&
 		_type !== NpcStore.Type.BARTER_MARKET_EXTENDED
 	) {
 		price = prettyZeny(item.price, _type === NpcStore.Type.VENDING_STORE || _type === NpcStore.Type.BUYING_STORE);
 
-		// Discount price
 		if ('discountprice' in item && item.price !== item.discountprice) {
 			price += ' -> ' + prettyZeny(item.discountprice);
 		} else if ('overchargeprice' in item && item.price !== item.overchargeprice) {
 			price += ' -> ' + prettyZeny(item.overchargeprice);
 		}
 
-		const buyingClass = _type == NpcStore.Type.BUYING_STORE ? ' amountBuying' : '';
-		amountText = _type == NpcStore.Type.BUYING_STORE ? ' ea.' : '';
-		// Create it
-		content.append(
-			'<div class="item" draggable="true" data-index="' +
-				item.index +
-				'">' +
-				'<div class="icon"></div>' +
-				'<div class="amount' +
-				buyingClass +
-				'">' +
-				(isFinite(item.count) ? item.count : _type === NpcStore.Type.BUYING_STORE ? 0 : '') +
-				amountText +
-				'</div>' +
-				'<div class="name">' +
-				jQuery.escape(DB.getItemName(item)) +
-				'</div>' +
-				'<div class="price">' +
-				price +
-				'</div>' +
-				'<div class="unity">Z</div>' +
-				'</div>'
-		);
+		const buyingClass = _type === NpcStore.Type.BUYING_STORE ? ' amountBuying' : '';
+		amountText = _type === NpcStore.Type.BUYING_STORE ? ' ea.' : '';
+		const html =
+			`<div class="item" draggable="true" data-index="${item.index}">` +
+			`<div class="icon"></div>` +
+			`<div class="amount${buyingClass}">` +
+			(isFinite(item.count) ? item.count : _type === NpcStore.Type.BUYING_STORE ? 0 : '') +
+			amountText +
+			`</div>` +
+			`<div class="name">${_escapeHTML(DB.getItemName(item))}</div>` +
+			`<div class="price">${price}</div>` +
+			`<div class="unity">Z</div>` +
+			`</div>`;
+		content.insertAdjacentHTML('beforeend', html);
 	} else if (_type === NpcStore.Type.BARTER_MARKET) {
-		content.append(
-			'<div class="item" draggable="true" data-index="' +
-				item.index +
-				'" data-weight="' +
-				item.weight +
-				'" data-location="' +
-				item.location +
-				'" data-viewSprite="' +
-				item.viewSprite +
-				'">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' +
-				(isFinite(item.count) ? item.count : '') +
-				'</div>' +
-				'<div class="name">' +
-				jQuery.escape(DB.getItemName(item)) +
-				'</div>' +
-				'<div class="currency_icon" data-item="' +
-				item.currencyITID +
-				'"></div>' +
-				'<div class="currency_amount">' +
-				item.currencyamount +
-				'</div>' +
-				'<div class="currency_nameOverlay">' +
-				jQuery.escape(DB.getItemName(currency_item)) +
-				' ' +
-				item.currencyamount +
-				' ea</div>' +
-				'</div>'
-		);
+		const html =
+			`<div class="item" draggable="true" data-index="${item.index}"` +
+			` data-weight="${item.weight}"` +
+			` data-location="${item.location}"` +
+			` data-viewSprite="${item.viewSprite}">` +
+			`<div class="icon"></div>` +
+			`<div class="amount">${isFinite(item.count) ? item.count : ''}</div>` +
+			`<div class="name">${_escapeHTML(DB.getItemName(item))}</div>` +
+			`<div class="currency_icon" data-item="${item.currencyITID}"></div>` +
+			`<div class="currency_amount">${item.currencyamount}</div>` +
+			`<div class="currency_nameOverlay">${_escapeHTML(DB.getItemName(currency_item))} ${item.currencyamount} ea</div>` +
+			`</div>`;
+		content.insertAdjacentHTML('beforeend', html);
 	} else if (_type === NpcStore.Type.BARTER_MARKET_EXTENDED) {
-		// Build the second layer (currency list)
 		let currencySlotsHTML = '';
 		let currencyOverlay = '';
 		if (item.currencyList && item.currencyList.length > 0) {
-			// Ensure fixed slots (2 slots max for currencies)
 			for (let i = 0; i < item.currencyList.length; i++) {
-				if (i < item.currencyList.length) {
-					const currency = item.currencyList[i];
-					const currencyItem = DB.getItemInfo(currency.ITID);
+				const currency = item.currencyList[i];
+				const currencyItem = DB.getItemInfo(currency.ITID);
 
-					//currency_item = { ...item };  // Shallow copy of the item
-					//currency_item.ITID = item.currencyITID;
+				currencySlotsHTML +=
+					`<div class="currency_slot" data-item="${currency.ITID}">` +
+					`<div class="expanded_currency_holder">` +
+					`<div class="expanded_currency_icon"></div>` +
+					`</div>` +
+					`<div class="expanded_currency_amount">${currency.amount}</div>` +
+					(currency.refine_level > 0
+						? `<div class="expanded_currency_refinelvl">+${currency.refine_level}</div>`
+						: '') +
+					`</div>`;
 
-					currencySlotsHTML +=
-						'<div class="currency_slot" data-item="' +
-						currency.ITID +
-						'">' +
-						'<div class="expanded_currency_holder">' +
-						'<div class="expanded_currency_icon"></div>' +
-						'</div>' +
-						'<div class="expanded_currency_amount">' +
-						currency.amount +
-						'</div>' +
-						(currency.refine_level > 0
-							? '<div class="expanded_currency_refinelvl">+' + currency.refine_level + '</div>'
-							: '') +
-						'</div>';
-
-					currencyOverlay +=
-						'' + jQuery.escape(currencyItem.identifiedDisplayName) + ' ' + currency.amount + ' ea<br>';
-				}
+				currencyOverlay += `${_escapeHTML(currencyItem.identifiedDisplayName)} ${currency.amount} ea<br>`;
 			}
 		}
-		content.append(
-			'<div class="item expanded-barter" draggable="true" data-index="' +
-				item.index +
-				'" data-weight="' +
-				item.weight +
-				'" data-location="' +
-				item.location +
-				'" data-viewSprite="' +
-				item.viewSprite +
-				'">' +
-				'<div class="expanded_currency_holder">' +
-				'<div class="icon"></div>' +
-				'</div>' +
-				'<div class="amount">' +
-				(isFinite(item.count) ? item.count : '') +
-				'</div>' +
-				'<div class="name">' +
-				jQuery.escape(DB.getItemName(item)) +
-				'</div>' +
-				'<div class="currency_section">' +
-				currencySlotsHTML +
-				'</div>' +
-				'<div class="expanded_price">' +
-				item.price +
-				'z</div>' +
-				'<div class="expanded_currency_nameOverlay">' +
-				currencyOverlay +
-				'</div>' +
-				'</div>'
-		);
-		// Lazy-load icons after appending
+		const html =
+			`<div class="item expanded-barter" draggable="true" data-index="${item.index}"` +
+			` data-weight="${item.weight}"` +
+			` data-location="${item.location}"` +
+			` data-viewSprite="${item.viewSprite}">` +
+			`<div class="expanded_currency_holder">` +
+			`<div class="icon"></div>` +
+			`</div>` +
+			`<div class="amount">${isFinite(item.count) ? item.count : ''}</div>` +
+			`<div class="name">${_escapeHTML(DB.getItemName(item))}</div>` +
+			`<div class="currency_section">${currencySlotsHTML}</div>` +
+			`<div class="expanded_price">${item.price}z</div>` +
+			`<div class="expanded_currency_nameOverlay">${currencyOverlay}</div>` +
+			`</div>`;
+		content.insertAdjacentHTML('beforeend', html);
+
 		if (item.currencyList && item.currencyList.length > 0) {
 			for (let i = 0; i < item.currencyList.length; i++) {
 				const currency = item.currencyList[i];
@@ -712,41 +788,43 @@ function addItem(content, item) {
 				Client.loadFile(
 					DB.INTERFACE_PATH + 'item/' + currencyItem.identifiedResourceName + '.bmp',
 					function (data) {
-						content
-							.find(`.currency_slot[data-item="${currency.ITID}"] .expanded_currency_icon`)
-							.css('backgroundImage', `url(${data})`);
+						const icons = content.querySelectorAll(
+							`.currency_slot[data-item="${currency.ITID}"] .expanded_currency_icon`
+						);
+						icons.forEach(icon => {
+							icon.style.backgroundImage = `url(${data})`;
+						});
 					}
 				);
 			}
 		}
 	} else {
-		content.append(
-			'<div class="item itemAvailable" draggable="true" data-index="' +
-				item.index +
-				'">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' +
-				(isFinite(item.count) ? item.count : '') +
-				'</div>' +
-				'<div class="nameOverlay">' +
-				jQuery.escape(DB.getItemName(item)) +
-				'</div>' +
-				'</div>'
-		);
+		const html =
+			`<div class="item itemAvailable" draggable="true" data-index="${item.index}">` +
+			`<div class="icon"></div>` +
+			`<div class="amount">${isFinite(item.count) ? item.count : ''}</div>` +
+			`<div class="nameOverlay">${_escapeHTML(DB.getItemName(item))}</div>` +
+			`</div>`;
+		content.insertAdjacentHTML('beforeend', html);
 	}
-	// Add the icon once loaded
+
 	Client.loadFile(
 		DB.INTERFACE_PATH +
 			'item/' +
 			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 			'.bmp',
 		function (data) {
-			content.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+			const icons = content.querySelectorAll(`.item[data-index="${item.index}"] .icon`);
+			icons.forEach(icon => {
+				icon.style.backgroundImage = `url(${data})`;
+			});
 		}
 	);
 
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/itemwin_mid.bmp', function (data) {
-		content.find('.expanded_currency_holder').css('backgroundImage', 'url(' + data + ')');
+		content.querySelectorAll('.expanded_currency_holder').forEach(holder => {
+			holder.style.backgroundImage = `url(${data})`;
+		});
 	});
 
 	Client.loadFile(
@@ -755,9 +833,10 @@ function addItem(content, item) {
 			(item.IsIdentified ? currencyit.identifiedResourceName : currencyit.unidentifiedResourceName) +
 			'.bmp',
 		function (data) {
-			content
-				.find('.item[data-index="' + item.index + '"] .currency_icon')
-				.css('backgroundImage', 'url(' + data + ')');
+			const icons = content.querySelectorAll(`.item[data-index="${item.index}"] .currency_icon`);
+			icons.forEach(icon => {
+				icon.style.backgroundImage = `url(${data})`;
+			});
 		}
 	);
 }
@@ -765,29 +844,28 @@ function addItem(content, item) {
 /**
  * Resize the content
  *
- * @param {jQueryElement} content
+ * @param {Element} content
  * @param {number} height
  */
 function resize(content, height) {
 	height = Math.min(Math.max(height, 2), 9);
-	content.css('height', height * 32);
+	content.style.height = `${height * 32}px`;
 }
 
 /**
  * Resizing window
  *
- * @param {jQueryElement} ui element
+ * @param {Element} ui element
  */
 function onResize(ui) {
-	const top = ui.position().top;
-	const content = ui.find('.content:first');
+	const top = ui.offsetTop;
+	const content = ui.querySelector('.content');
 	let lastHeight = 0;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
 
-		// Maximum and minimum window size
 		h = Math.min(Math.max(h, 2), 9);
 		if (h === lastHeight) {
 			return;
@@ -797,26 +875,20 @@ function onResize(ui) {
 		lastHeight = h;
 	}
 
-	// Start resizing
 	const interval = setInterval(resizing, 30);
 
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	function onMouseUp(event) {
 		if (event.which === 1) {
 			clearInterval(interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	}
+
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 /**
  * Transfer item from input to output (or the inverse)
- *
- * @param {jQueryElement} fromContent (input / output)
- * @param {jQueryElement} toContent (input / output)
- * @param {boolean} isAdding adding the content to the output element
- * @param {number} index item index
- * @param {number} count amount
  */
 const transferItem = (function () {
 	const tmpItem = {
@@ -836,6 +908,7 @@ const transferItem = (function () {
 	return function (fromContent, toContent, isAdding, index, count) {
 		const inputItem = _input[index];
 		const outputItem = _output[index];
+		const root = _getRoot();
 
 		if (isAdding) {
 			if (
@@ -849,42 +922,41 @@ const transferItem = (function () {
 			}
 
 			const originalCount = outputItem.count;
-			outputItem.count = Math.min(outputItem.count + count, inputItem.count); // Update count
+			outputItem.count = Math.min(outputItem.count + count, inputItem.count);
 
 			if (_type === NpcStore.Type.BARTER_MARKET) {
-				// Calculate weight
-				const inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
-				const inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
-				const currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
-				const currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
+				const inputCurrency = root.querySelector(`.InputWindow .item[data-index="${index}"]`);
+				const inputCurrencyDiv = root.querySelector(
+					`.InputWindow .item[data-index="${index}"] .currency_amount`
+				);
+				const currencyItemWeight = parseInt(inputCurrency.getAttribute('data-weight'), 10);
+				const currencyAmount = parseInt(inputCurrencyDiv.textContent, 10);
 				const additionalWeight = currencyItemWeight * (outputItem.count - originalCount);
 				const expectedWeight = Session.Character.weight + NpcStore.calculateWeight() + additionalWeight;
 
 				if (expectedWeight > Session.Character.max_weight) {
 					ChatBox.addText(DB.getMessage(56), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-					outputItem.count -= count; // Revert count change
+					outputItem.count -= count;
 					return;
 				}
 
 				outputItem.total_weight = currencyItemWeight * outputItem.count;
 
-				// First, update the items
 				updateTmpItem(inputItem, outputItem);
 				addItem(fromContent, tmpItem);
 				addItem(toContent, outputItem);
 
-				// Then, update currency properties
-				const outputCurrencyDiv = NpcStore.ui.find(
+				const outputCurrencyDiv = root.querySelector(
 					`.OutputWindow .item[data-index="${index}"] .currency_amount`
 				);
-				const currencyItemDiv = NpcStore.ui.find(`.OutputWindow .item[data-index="${index}"] .currency_icon`);
-				const currencyItem = parseInt(currencyItemDiv.attr('data-item'), 10);
+				const currencyItemDiv = root.querySelector(`.OutputWindow .item[data-index="${index}"] .currency_icon`);
+				const currencyItem = parseInt(currencyItemDiv.getAttribute('data-item'), 10);
 				const currencyTotal = currencyAmount * outputItem.count;
 
-				outputCurrencyDiv.text(currencyTotal); // Update displayed currency total
-				outputItem.shopIndex = index; // Assign shop index
-				outputItem.matcurrency = currencyItem; // Assign material currency ID
-				outputItem.matcurrencyamount = currencyTotal; // Assign material currency amount
+				outputCurrencyDiv.textContent = currencyTotal;
+				outputItem.shopIndex = index;
+				outputItem.matcurrency = currencyItem;
+				outputItem.matcurrencyamount = currencyTotal;
 			} else {
 				updateTmpItem(inputItem, outputItem);
 				addItem(fromContent, tmpItem);
@@ -904,19 +976,21 @@ const transferItem = (function () {
 			outputItem.count -= count;
 
 			if (_type === NpcStore.Type.BARTER_MARKET) {
-				const inputCurrency = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"]`);
-				const currencyItemWeight = parseInt(inputCurrency.attr('data-weight'), 10);
+				const inputCurrency = root.querySelector(`.InputWindow .item[data-index="${index}"]`);
+				const currencyItemWeight = parseInt(inputCurrency.getAttribute('data-weight'), 10);
 				outputItem.total_weight = currencyItemWeight * outputItem.count;
 
-				const inputCurrencyDiv = NpcStore.ui.find(`.InputWindow .item[data-index="${index}"] .currency_amount`);
-				const outputCurrencyDiv = NpcStore.ui.find(
+				const inputCurrencyDiv = root.querySelector(
+					`.InputWindow .item[data-index="${index}"] .currency_amount`
+				);
+				const outputCurrencyDiv = root.querySelector(
 					`.OutputWindow .item[data-index="${index}"] .currency_amount`
 				);
-				const currencyAmount = parseInt(inputCurrencyDiv.text(), 10);
+				const currencyAmount = parseInt(inputCurrencyDiv.textContent, 10);
 				const currencyTotal = currencyAmount * outputItem.count;
 
-				outputCurrencyDiv.text(currencyTotal);
-				outputItem.matcurrencyamount = currencyTotal; // Update material currency amount
+				outputCurrencyDiv.textContent = currencyTotal;
+				outputItem.matcurrencyamount = currencyTotal;
 			}
 
 			updateTmpItem(inputItem, outputItem);
@@ -925,17 +999,12 @@ const transferItem = (function () {
 		}
 
 		NpcStore.calculateCost();
-		NpcStore.calculateWeight(); // Update total weight after every operation
+		NpcStore.calculateWeight();
 	};
 })();
 
 /**
  * Request move item from box to another
- *
- * @param {number} item index
- * @param {jQueryElement} from the content
- * @param {jQueryElement} to the content
- * @param {boolean} add the content to the output box ?
  */
 function requestMoveItem(index, fromContent, toContent, isAdding) {
 	let count;
@@ -952,20 +1021,17 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 		count = _output[index].count;
 	}
 
-	// Can't buy more than one same stackable item
 	if ((_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE) && !isStackable && isAdding) {
-		if (toContent.find('.item[data-index="' + item.index + '"]:first').length) {
+		if (toContent.querySelector(`.item[data-index="${item.index}"]`)) {
 			return false;
 		}
 	}
 
-	// Just one item amount
 	if (item.count === 1 || (_type === NpcStore.Type.SELL && _preferences.select_all) || !isStackable) {
 		transferItem(fromContent, toContent, isAdding, index, isFinite(item.count) ? item.count : 1);
 		return false;
 	}
 
-	// Have to specify an amount
 	InputBox.append();
 	InputBox.setType('number', false, count);
 	InputBox.onSubmitRequest = function (_count) {
@@ -978,30 +1044,30 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 
 /**
  * Drop an input in the InputWindow or OutputWindow
- *
- * @param {jQueryEvent} event
  */
 function onDrop(event) {
 	let data;
 
+	event.preventDefault();
 	event.stopImmediatePropagation();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
 		return false;
 	}
 
-	// Just allow item from store
 	if (data.type !== 'item' || data.from !== 'NpcStore' || data.container === this.className) {
 		return false;
 	}
 
+	const root = _getRoot();
+
 	requestMoveItem(
 		data.index,
-		jQuery('.' + data.container + ' .content'),
-		jQuery(this).find('.content'),
-		this.className === 'OutputWindow'
+		root.querySelector('.' + data.container + ' .content'),
+		this.querySelector('.content'),
+		this.className.indexOf('OutputWindow') !== -1
 	);
 
 	return false;
@@ -1020,13 +1086,11 @@ function onItemInfo(event) {
 		return false;
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
 		return false;
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
@@ -1043,20 +1107,21 @@ function onItemSelected() {
 		return;
 	}
 
-	const input = NpcStore.ui.find('.InputWindow:first');
+	const root = _getRoot();
+	const input = root.querySelector('.InputWindow');
 
-	if (jQuery.contains(input.get(0), this)) {
+	if (input.contains(this)) {
 		from = input;
-		to = NpcStore.ui.find('.OutputWindow:first');
+		to = root.querySelector('.OutputWindow');
 	} else {
-		from = NpcStore.ui.find('.OutputWindow:first');
+		from = root.querySelector('.OutputWindow');
 		to = input;
 	}
 
 	requestMoveItem(
 		parseInt(this.getAttribute('data-index'), 10),
-		from.find('.content:first'),
-		to.find('.content:first'),
+		from.querySelector('.content'),
+		to.querySelector('.content'),
 		from === input
 	);
 }
@@ -1065,8 +1130,9 @@ function onItemSelected() {
  * Focus an item
  */
 function onItemFocus() {
-	NpcStore.ui.find('.item.selected').removeClass('selected');
-	jQuery(this).addClass('selected');
+	const root = _getRoot();
+	root.querySelectorAll('.item.selected').forEach(el => el.classList.remove('selected'));
+	this.classList.add('selected');
 }
 
 /**
@@ -1075,41 +1141,46 @@ function onItemFocus() {
 function onScroll(event) {
 	let delta;
 
-	if (event.originalEvent.wheelDelta) {
-		delta = event.originalEvent.wheelDelta / 120;
-		if (window.opera) {
-			delta = -delta;
-		}
-	} else if (event.originalEvent.detail) {
-		delta = -event.originalEvent.detail;
+	if (event.deltaY) {
+		delta = event.deltaY > 0 ? -1 : 1;
+	} else if (event.wheelDelta) {
+		delta = event.wheelDelta / 120;
+	} else if (event.detail) {
+		delta = -event.detail;
 	}
 
 	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
-	return false;
+	event.preventDefault();
 }
 
 /**
  * Start dragging an item
  */
 function onDragStart(event) {
-	const InputWindow = NpcStore.ui.find('.InputWindow:first').get(0);
-	const OutputWindow = NpcStore.ui.find('.OutputWindow:first').get(0);
-	const AvailableItemsWindow = NpcStore.ui.find('.AvailableItemsWindow:first').get(0);
+	const root = _getRoot();
+	const InputWindow = root.querySelector('.InputWindow');
+	const OutputWindow = root.querySelector('.OutputWindow');
+	const AvailableItemsWindow = root.querySelector('.AvailableItemsWindow');
 
-	const container = (
-		jQuery.contains(InputWindow, this)
-			? InputWindow
-			: jQuery.contains(AvailableItemsWindow, this)
-				? AvailableItemsWindow
-				: OutputWindow
-	).className;
+	let container;
+	if (InputWindow.contains(this)) {
+		container = InputWindow.className;
+	} else if (AvailableItemsWindow.contains(this)) {
+		container = AvailableItemsWindow.className;
+	} else {
+		container = OutputWindow.className;
+	}
+
 	const img = new Image();
-	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1].replace(/"/g, '');
-	img.decoding = 'async';
-	img.src = url;
+	const bgImage = this.firstChild.style.backgroundImage;
+	const match = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
+	if (match) {
+		img.decoding = 'async';
+		img.src = match[1];
+		event.dataTransfer.setDragImage(img, 12, 12);
+	}
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -1123,7 +1194,7 @@ function onDragStart(event) {
 }
 
 /**
- * Option to automatically buy/sell alls items instead of specify the amount
+ * Option to automatically buy/sell all items instead of specify the amount
  */
 function onToggleSelectAmount() {
 	_preferences.select_all = !_preferences.select_all;
@@ -1131,7 +1202,7 @@ function onToggleSelectAmount() {
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp',
 		function (data) {
-			this.style.backgroundImage = 'url(' + data + ')';
+			this.style.backgroundImage = `url(${data})`;
 		}.bind(this)
 	);
 }
@@ -1141,26 +1212,25 @@ function onToggleSelectAmount() {
  */
 NpcStore.closeStore = function () {
 	NpcStore.remove();
-	this.ui.find('.total').show();
+	const root = _getRoot();
+	root.querySelectorAll('.total').forEach(el => {
+		el.style.display = '';
+	});
 };
 
 /**
  * Handles packet to close store based on the store type
- *
- * @param {String} type - The store type (e.g., NpcStore.Type.MARKETSHOP, etc.)
  */
 NpcStore.StoreClosePacket = function (type) {
-	const inputWindow = NpcStore.ui.find('.InputWindow');
-	const outputWindow = NpcStore.ui.find('.OutputWindow');
+	const root = _getRoot();
+	const inputWindow = root.querySelector('.InputWindow');
+	const outputWindow = root.querySelector('.OutputWindow');
 
-	// Also remove the input box, if present
 	InputBox.remove();
 
 	let pkt;
 
 	if (PACKETVER.value < 20131223) {
-		// Before 20131223, NPC_TRADE_QUIT didn't exist.
-		// Send an empty buy/sell list to end the NPC trade state.
 		if (type === NpcStore.Type.SELL) {
 			pkt = new PACKET.CZ.PC_SELL_ITEMLIST();
 		} else {
@@ -1170,8 +1240,8 @@ NpcStore.StoreClosePacket = function (type) {
 		switch (type) {
 			case NpcStore.Type.MARKETSHOP:
 				pkt = new PACKET.CZ.NPC_MARKET_CLOSE();
-				inputWindow.show();
-				outputWindow.show();
+				inputWindow.style.display = '';
+				outputWindow.style.display = '';
 				break;
 			case NpcStore.Type.BARTER_MARKET:
 				pkt = new PACKET.CZ.NPC_BARTER_MARKET_CLOSE();
@@ -1184,7 +1254,6 @@ NpcStore.StoreClosePacket = function (type) {
 				break;
 			case NpcStore.Type.VENDING_STORE:
 			case NpcStore.Type.BUYING_STORE:
-				// Player stores don't use NPC close packets
 				_closePacketSent = true;
 				return;
 		}
@@ -1195,15 +1264,13 @@ NpcStore.StoreClosePacket = function (type) {
 
 /**
  * Returns Npc Store Type
- * @returns {_type}
  */
 NpcStore.getCurrentType = function () {
 	return _type;
 };
 
 /**
- * Returns the current preference for NPCStore Type, or initialize from defaults
- * @returns {_preferences[_type]}
+ * Returns the current preference for NPCStore Type
  */
 function getCurrentPref() {
 	if (!_preferences[_type]) {
@@ -1214,37 +1281,29 @@ function getCurrentPref() {
 
 /**
  * Update Marketshop Result UI
- *
- * @param {Array.<PACKET.ZC.NPC_MARKET_PURCHASE_RESULT.Item>} itemList
- * @param {Array.<PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2.Item>} itemList
  */
 NpcStore.onMarketShopResultUI = function (itemList) {
-	const InputWindow = NpcStore.ui.find('.InputWindow');
-	const OutputWindow = NpcStore.ui.find('.OutputWindow');
-	const OutputWindowcontent = OutputWindow.find('.content');
-	const resultUI = NpcStore.ui.find('.PurchaseResult');
-	const resultUIcontent = resultUI.find('.content');
+	const root = _getRoot();
+	const InputWindow = root.querySelector('.InputWindow');
+	const OutputWindow = root.querySelector('.OutputWindow');
+	const OutputWindowContent = OutputWindow.querySelector('.content');
+	const resultUI = root.querySelector('.PurchaseResult');
+	const resultUIContent = resultUI.querySelector('.content');
 
-	// Update UI
-	InputWindow.hide();
-	OutputWindow.hide();
-	resultUI.show();
-	resultUIcontent.empty();
+	InputWindow.style.display = 'none';
+	OutputWindow.style.display = 'none';
+	resultUI.style.display = 'block';
+	resultUIContent.innerHTML = '';
 
 	if (!itemList || itemList.length === 0) {
 		return;
 	}
 
-	// Hack (Using the itemList from packet rearranges the index, so clone OutputWindow instead)
-	resultUIcontent.append(OutputWindowcontent.children().clone());
+	resultUIContent.innerHTML = OutputWindowContent.innerHTML;
 
-	// Reapply resize logic for PurchaseResult
-	resultUI
-		.find('.resize')
-		.off('mousedown')
-		.on('mousedown', function () {
-			onResize(resultUI);
-		});
+	resultUI.querySelector('.resize').addEventListener('mousedown', () => {
+		onResize(resultUI);
+	});
 };
 
 /**
@@ -1257,6 +1316,6 @@ NpcStore.setClosePacketSent = function (bool) {
 };
 
 /**
- * Create componentand export it
+ * Create component and export it
  */
 export default UIManager.addComponent(NpcStore);

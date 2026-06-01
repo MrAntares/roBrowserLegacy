@@ -11,7 +11,6 @@
 
 import _htmlText from './Error.html?raw';
 import _cssText from './Error.css?raw';
-import jQuery from 'Vendors/jquery.js';
 
 /**
  * Error Namespace
@@ -21,17 +20,21 @@ class Error {
 	 * Initialize Metaling
 	 */
 	static init() {
-		this.ui = jQuery(_htmlText);
+		const wrapper = document.createElement('div');
+		wrapper.innerHTML = _htmlText;
+		this.ui = wrapper.firstElementChild;
 
-		// Add view to html
-		let style = jQuery('style:first');
-		if (!style.length) {
-			style = jQuery('<style type="text/css"></style>').appendTo('head');
+		let style = document.querySelector('style');
+		if (!style) {
+			style = document.createElement('style');
+			style.setAttribute('type', 'text/css');
+			document.head.appendChild(style);
 		}
-		style.append('\n' + _cssText);
-		jQuery('body').html(this.ui);
+		style.appendChild(document.createTextNode('\n' + _cssText));
+		document.body.innerHTML = '';
+		document.body.appendChild(this.ui);
 
-		this.ui.css('backgroundImage', 'url(' + new URL('./error.png', import.meta.url).href + ')');
+		this.ui.style.backgroundImage = `url(${new URL('./error.png', import.meta.url).href})`;
 	}
 
 	/**
@@ -44,16 +47,19 @@ class Error {
 		let url = new URL('../../../', import.meta.url).href;
 		error = error.stack || error;
 
-		url = url.replace(/\/([^\/]+)$/g, '/');
+		url = url.replace(/\/([^/]+)$/g, '/');
 		error = error.replace(/\n/g, '<br/>');
 		error = error.replace(new RegExp(url, 'g'), '');
-		error = error.replace(/\?[^\:]+/g, '');
+		error = error.replace(/\?[^:]+/g, '');
 
 		if (!this.ui) {
 			this.init();
 		}
 
-		this.ui.find('.trace').append(error + '<br />');
+		const trace = this.ui.querySelector('.trace');
+		if (trace) {
+			trace.insertAdjacentHTML('beforeend', `${error}<br />`);
+		}
 	}
 }
 

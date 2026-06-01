@@ -1,7 +1,12 @@
-#NpcBox {
-	position: absolute;
+:host {
+	width: 276px;
+	height: 176px;
 	top: 100px;
 	left: 100px;
+}
+
+#NpcBox {
+	position: absolute;
 	width: 276px;
 	height: 176px;
 	border-radius: 5px;
@@ -31,12 +36,9 @@
 	right: 8px;
 }
 #NpcBox .btn {
-	border: 0;
 	width: 42px;
 	height: 20px;
 	bottom: 4px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 	display: none;
 }
 

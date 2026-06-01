@@ -8,11 +8,11 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
 import htmlText from './NpcBox.html?raw';
@@ -21,7 +21,14 @@ import cssText from './NpcBox.css?raw';
 /**
  * Create NpcBox component
  */
-const NpcBox = new UIComponent('NpcBox', htmlText, cssText);
+const NpcBox = new GUIComponent('NpcBox', cssText);
+
+NpcBox.render = () => htmlText;
+
+/**
+ * Freeze mouse — NPC dialog blocks interaction
+ */
+NpcBox.mouseMode = GUIComponent.MouseMode.FREEZE;
 
 /**
  * @var {boolean} does the box need to be clean up?
@@ -34,32 +41,27 @@ let _needCleanUp = false;
 NpcBox.ownerID = 0;
 
 /**
- * Process NAVI tags in text (<NAVI>Display Name<INFO>mapname,x,y,0,000,flag</INFO></NAVI>)
- * @param {string} text - The text to process
- * @returns {string} HTML with processed NAVI tags
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return NpcBox._shadow || NpcBox._host;
+}
+
+/**
+ * Process NAVI tags in text
  */
 function processNAVITags(text) {
 	if (!text) {
 		return '';
 	}
 	text = String(text);
-	return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, function (match, displayName, naviInfo) {
-		return (
-			'<span class="navi-link" data-navi-info="' +
-			naviInfo +
-			'" data-navi-name="' +
-			displayName +
-			'">' +
-			displayName +
-			'</span>'
-		);
+	return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, (match, displayName, naviInfo) => {
+		return `<span class="navi-link" data-navi-info="${naviInfo}" data-navi-name="${displayName}">${displayName}</span>`;
 	});
 }
 
 /**
- * Process ITEM tags in text (<ITEM>Name<INFO>ID</INFO></ITEM>)
- * @param {string} text - The text to process
- * @returns {string} HTML with processed item tags
+ * Process ITEM tags in text
  */
 function processItemTags(text) {
 	if (!text) {
@@ -68,19 +70,16 @@ function processItemTags(text) {
 	if (typeof text !== 'string') {
 		text = String(text);
 	}
-	// PACKETVER.value < 20151104 ITEMLINK else ITEM
 	return text.replace(
 		/<(ITEMLINK|ITEM)>([\s\S]*?)<INFO>([\s\S]*?)<\/INFO><\/\1>/g,
-		function (match, tag, itemName, itemId) {
-			return '<span class="item-link" data-item-id="' + itemId + '">' + itemName + '</span>';
+		(match, tag, itemName, itemId) => {
+			return `<span class="item-link" data-item-id="${itemId}">${itemName}</span>`;
 		}
 	);
 }
 
 /**
  * Process color codes in text (^RRGGBB)
- * @param {string} text - The text to process
- * @returns {string} HTML with color spans
  */
 function processColorCodes(text) {
 	if (!text) {
@@ -88,16 +87,14 @@ function processColorCodes(text) {
 	}
 	text = String(text);
 	return text
-		.replace(/\^([0-9A-Fa-f]{6})/g, function (match, color) {
-			return '<span style="color:#' + color + '">';
+		.replace(/\^([0-9A-Fa-f]{6})/g, (match, color) => {
+			return `<span style="color:#${color}">`;
 		})
 		.replace(/\^000000/g, '</span>');
 }
 
 /**
- * Process all text formatting (color codes, NAVI tags, and item tags)
- * @param {string} text - The text to process
- * @returns {string} Fully processed HTML
+ * Process all text formatting
  */
 function processText(text) {
 	if (!text) {
@@ -113,59 +110,59 @@ function processText(text) {
  * Initialize Component
  */
 NpcBox.init = function init() {
-	this.ui.css({
-		top: Math.max(100, Renderer.height / 2 - 200),
-		left: Math.max(Renderer.width / 3, 20)
-	});
+	this._host.style.top = `${Math.max(100, Renderer.height / 2 - 200)}px`;
+	this._host.style.left = `${Math.max(Renderer.width / 3, 20)}px`;
 
-	// Bind mouse
-	this.ui.find('.next').click(NpcBox.next.bind(this));
-	this.ui.find('.close').click(NpcBox.close.bind(this));
+	const root = _getRoot();
 
-	// Content do not drag window (official)
-	// Will also fix the problem about the scrollbar
-	this.ui.find('.content').mousedown(function (event) {
-		event.stopImmediatePropagation();
-	});
+	const nextBtn = root.querySelector('.next');
+	if (nextBtn) {
+		nextBtn.addEventListener('click', () => NpcBox.next());
+	}
 
-	// Add click handler for item links
-	this.ui.on('click', '.item-link', function (event) {
-		const itemId = parseInt(jQuery(this).data('item-id'), 10);
-		if (!itemId) {
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => NpcBox.close());
+	}
+
+	const content = root.querySelector('.content');
+	if (content) {
+		content.addEventListener('mousedown', e => e.stopImmediatePropagation());
+	}
+
+	// Event delegation for item links inside shadow DOM
+	root.addEventListener('click', e => {
+		const itemLink = e.target.closest('.item-link');
+		if (itemLink) {
+			const itemId = parseInt(itemLink.dataset.itemId, 10);
+			if (!itemId) {
+				return;
+			}
+			if (ItemInfo.uid === itemId) {
+				ItemInfo.remove();
+				return;
+			}
+			ItemInfo.append();
+			ItemInfo.uid = itemId;
+			ItemInfo.setItem({ ITID: itemId, IsIdentified: true });
 			return;
 		}
 
-		// Don't add the same UI twice, remove it
-		if (ItemInfo.uid === itemId) {
-			ItemInfo.remove();
-			return;
+		const naviLink = e.target.closest('.navi-link');
+		if (naviLink) {
+			const naviInfo = naviLink.dataset.naviInfo;
+			const displayName = naviLink.dataset.naviName;
+			if (!naviInfo) {
+				return;
+			}
+			if (Navigation.uid === naviInfo && Navigation._host && Navigation._host.style.display !== 'none') {
+				Navigation.hide();
+				return;
+			}
+			Navigation.show();
+			Navigation.uid = naviInfo;
+			Navigation.setNaviInfo(naviInfo, displayName);
 		}
-
-		// Add ui to window
-		ItemInfo.append();
-		ItemInfo.uid = itemId;
-		ItemInfo.setItem({ ITID: itemId, IsIdentified: true });
-	});
-
-	// Add click handler for navi links
-	this.ui.on('click', '.navi-link', function (event) {
-		const naviInfo = jQuery(this).data('navi-info');
-		const displayName = jQuery(this).data('navi-name');
-
-		if (!naviInfo) {
-			return;
-		}
-
-		// If the Navigation window is already showing this location, toggle it off
-		if (Navigation.uid === naviInfo && Navigation.ui.is(':visible')) {
-			Navigation.hide();
-			return;
-		}
-
-		// Show the Navigation window and set the info
-		Navigation.show();
-		Navigation.uid = naviInfo;
-		Navigation.setNaviInfo(naviInfo, displayName);
 	});
 
 	this.draggable();
@@ -175,14 +172,26 @@ NpcBox.init = function init() {
  * Once NPC Box is removed from HTML, clean up data
  */
 NpcBox.onRemove = function onRemove() {
-	this.ui.find('.next').hide();
-	this.ui.find('.close').hide();
-	this.ui.find('.content').text('');
+	const root = _getRoot();
+
+	const nextBtn = root.querySelector('.next');
+	if (nextBtn) {
+		nextBtn.style.display = 'none';
+	}
+
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.style.display = 'none';
+	}
+
+	const content = root.querySelector('.content');
+	if (content) {
+		content.textContent = '';
+	}
 
 	_needCleanUp = false;
 	NpcBox.ownerID = 0;
 
-	// Cutin system
 	const cutin = document.getElementById('cutin');
 	if (cutin) {
 		document.body.removeChild(cutin);
@@ -193,27 +202,36 @@ NpcBox.onRemove = function onRemove() {
  * Add support for Enter key
  */
 NpcBox.onKeyDown = function onKeyDown(event) {
-	if (!this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
 		return true;
 	}
+
+	const root = _getRoot();
+
 	switch (event.which) {
-		case KEYS.SPACE: // Same as Enter
-		case KEYS.ENTER:
-			if (this.ui.find('.next').is(':visible')) {
+		case KEYS.SPACE:
+		case KEYS.ENTER: {
+			const nextBtn = root.querySelector('.next');
+			if (nextBtn && nextBtn.style.display !== 'none') {
 				this.next();
 				break;
-			} else if (this.ui.find('.close').is(':visible')) {
+			}
+			const closeBtn = root.querySelector('.close');
+			if (closeBtn && closeBtn.style.display !== 'none') {
 				this.close();
 				break;
 			}
 			return true;
+		}
 
-		case KEYS.ESCAPE:
-			if (this.ui.find('.close').is(':visible')) {
+		case KEYS.ESCAPE: {
+			const closeBtn = root.querySelector('.close');
+			if (closeBtn && closeBtn.style.display !== 'none') {
 				this.close();
 				break;
 			}
 			return true;
+		}
 
 		default:
 			return true;
@@ -229,16 +247,19 @@ NpcBox.onKeyDown = function onKeyDown(event) {
  * @param {string} text to display
  * @param {number} gid - npc id
  */
-NpcBox.setText = function SetText(text, gid) {
-	const content = this.ui.find('.content');
+NpcBox.setText = function setText(text, gid) {
+	const root = _getRoot();
+	const content = root.querySelector('.content');
 	NpcBox.ownerID = gid;
 
 	if (_needCleanUp) {
 		_needCleanUp = false;
-		content.text('');
+		content.textContent = '';
 	}
 
-	content.append(jQuery('<div/>').html(processText(text)));
+	const div = document.createElement('div');
+	div.innerHTML = processText(text);
+	content.appendChild(div);
 };
 
 /**
@@ -248,7 +269,11 @@ NpcBox.setText = function SetText(text, gid) {
  */
 NpcBox.addNext = function addNext(gid) {
 	NpcBox.ownerID = gid;
-	this.ui.find('.next').show();
+	const root = _getRoot();
+	const nextBtn = root.querySelector('.next');
+	if (nextBtn) {
+		nextBtn.style.display = 'block';
+	}
 };
 
 /**
@@ -258,32 +283,44 @@ NpcBox.addNext = function addNext(gid) {
  */
 NpcBox.addClose = function addClose(gid) {
 	NpcBox.ownerID = gid;
-	this.ui.find('.close').show();
+	const root = _getRoot();
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.style.display = 'block';
+	}
 };
 
 /**
  * Press "next" button
  */
-NpcBox.next = function Next() {
+NpcBox.next = function next() {
 	_needCleanUp = true;
-	this.ui.find('.next').hide();
+	const root = _getRoot();
+	const nextBtn = root.querySelector('.next');
+	if (nextBtn) {
+		nextBtn.style.display = 'none';
+	}
 	this.onNextPressed(NpcBox.ownerID);
 };
 
 /**
  * Press "close" button
  */
-NpcBox.close = function Close() {
+NpcBox.close = function close() {
 	_needCleanUp = true;
-	this.ui.find('.close').hide();
+	const root = _getRoot();
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.style.display = 'none';
+	}
 	this.onClosePressed(NpcBox.ownerID);
 };
 
 /**
  * Callback
  */
-NpcBox.onClosePressed = function OnClosePressed() {};
-NpcBox.onNextPressed = function OnNextPressed() {};
+NpcBox.onClosePressed = function onClosePressed() {};
+NpcBox.onNextPressed = function onNextPressed() {};
 
 /**
  * Create component based on view file and export it

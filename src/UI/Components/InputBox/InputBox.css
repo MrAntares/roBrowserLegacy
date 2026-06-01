@@ -1,11 +1,16 @@
+:host {
+	top: 0px;
+	left: 0px;
+	z-index: 1000;
+}
+
 #inputbox {
-	position: absolute;
+	position: relative;
 	width: 274px;
 	height: 44px;
 	border-radius: 5px;
 	background-color: white;
 	padding: 2px;
-	z-index: 1000;
 }
 #inputbox .border {
 	border-radius: 5px;
@@ -28,15 +33,12 @@
 	height: 16px;
 	margin-top: 3px;
 }
-#inputbox button {
-	border: 0;
+#inputbox ui-button {
 	width: 42px;
 	height: 20px;
 	position: absolute;
 	bottom: 13px;
 	right: 10px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #inputbox.number {
