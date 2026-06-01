@@ -1167,7 +1167,7 @@ Use `'block'` (or the appropriate display value) to override CSS `display: none`
 | `root.querySelector(sel)` when multiple elements may match               | Use `root.querySelectorAll(sel)` + `forEach` (see §28)            | `querySelector` returns only the first match; multi-slot items only update one slot                                 |
 | Setting `scrollTop` without syncing custom scrollbar                     | Call `element._roScrollbarRestart()` after (see §29)              | Scrollbar poller runs on 300ms interval; thumb jumps until it catches up                                            |
 | Custom `_formatROText()` when `DB.formatMsgToHtml()` exists              | Use `DB.formatMsgToHtml(text)` (see §30)                          | Centralized utility already handles `^rrggbb`, item substitution, newlines                                          |
-| `querySelector` on slot index without null check                         | Always null-guard: `if (!el) return;` (see §31)                   | Server packets may reference slot indices beyond what the HTML template provides                                     |
+| `querySelector` on slot index without null check                         | Always null-guard: `if (!el) return;` (see §31)                   | Server packets may reference slot indices beyond what the HTML template provides                                    |
 
 ---
 
@@ -1586,6 +1586,7 @@ Announce.init = function init() {
 ```
 
 **When to use which**:
+
 - `position: absolute` — when `:host` has explicit `width`/`height` (the host sizes itself; inner element fills it)
 - `position: relative` — when `:host` has NO explicit dimensions and must auto-size from inner content, AND the inner element has absolute children that need a positioning context
 
@@ -1601,7 +1602,7 @@ Announce.init = function init() {
 
 ```javascript
 // UIComponent (jQuery) — return false handled everything
-this.ui.find('.items').on('contextmenu', '.item', function() {
+this.ui.find('.items').on('contextmenu', '.item', function () {
 	showItemOptions(this);
 	return false; // ← jQuery: stopPropagation + preventDefault
 });
@@ -1659,7 +1660,9 @@ Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp'
 // CORRECT — updates ALL matching slots
 Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', data => {
 	const btns = root.querySelectorAll(`.item[data-index="${item.index}"] button`);
-	btns.forEach(btn => { btn.style.backgroundImage = `url(${data})`; });
+	btns.forEach(btn => {
+		btn.style.backgroundImage = `url(${data})`;
+	});
 });
 ```
 
@@ -1739,12 +1742,14 @@ ui.innerHTML = '';
 ### Files
 
 **Inventory** (4 variants via UIVersionManager):
+
 - `src/UI/Components/Inventory/InventoryV0/` — Pre-2009 variant (280×317)
 - `src/UI/Components/Inventory/InventoryV1/` — 2009-2012 variant with tabs
 - `src/UI/Components/Inventory/InventoryV2/` — 2012-2020 variant with favorites
 - `src/UI/Components/Inventory/InventoryV3/` — 2020+ variant with expanded features
 
 **Equipment** (5 variants via UIVersionManager):
+
 - `src/UI/Components/Equipment/EquipmentV0/` — Pre-2009 variant
 - `src/UI/Components/Equipment/EquipmentV1/` — 2009-2010 variant
 - `src/UI/Components/Equipment/EquipmentV2/` — 2010-2012 variant
@@ -1752,11 +1757,13 @@ ui.innerHTML = '';
 - `src/UI/Components/Equipment/EquipmentV4/` — 2017+ variant with costume slots
 
 **CartItems**:
+
 - `src/UI/Components/CartItems/CartItems.js` — Cart inventory (~700 lines)
 - `src/UI/Components/CartItems/CartItems.html` — Template with scrollable item list
 - `src/UI/Components/CartItems/CartItems.css` — Styles
 
 **ItemInfo**:
+
 - `src/UI/Components/ItemInfo/ItemInfo.js` — Item tooltip/detail popup (~530 lines)
 - `src/UI/Components/ItemInfo/ItemInfo.html` — Template with item details sections
 - `src/UI/Components/ItemInfo/ItemInfo.css` — Styles
