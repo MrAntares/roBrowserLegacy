@@ -1161,6 +1161,13 @@ Use `'block'` (or the appropriate display value) to override CSS `display: none`
 | Inner element without explicit height when host uses `overflow: hidden`  | Add `height: 100%` to inner element                               | `bottom`-anchored children (resize handles, footers) position relative to inner element, not clipped host (see §23) |
 | `this._host.style.display = 'none'` in `init()` for on-demand components | Do not hide — hide only in toggle-style components                | `append()` does not reset `display`; host stays permanently hidden (see §24)                                        |
 | `element.style.display` to find visible element                          | Also check `getComputedStyle(element).display` (see §22)          | Inline style may be empty while CSS sets `display: none`                                                            |
+| `position: absolute` on inner root when host should auto-size            | Use `position: relative` instead (see §25)                        | Absolute inner root collapses host width; relative provides position context while keeping normal flow              |
+| Omit `contextmenu` handler on right-click areas                          | Add `contextmenu` listener with `e.preventDefault()` (see §26)    | UIComponent's `return false` auto-prevented; native handlers must suppress explicitly                               |
+| `this.offsetTop` / `this.offsetLeft` for element position                | Use `getBoundingClientRect()` relative to root (see §27)          | Shadow DOM `offsetTop` is relative to intermediate positioned parent (scrollbar), not component root                |
+| `root.querySelector(sel)` when multiple elements may match               | Use `root.querySelectorAll(sel)` + `forEach` (see §28)            | `querySelector` returns only the first match; multi-slot items only update one slot                                 |
+| Setting `scrollTop` without syncing custom scrollbar                     | Call `element._roScrollbarRestart()` after (see §29)              | Scrollbar poller runs on 300ms interval; thumb jumps until it catches up                                            |
+| Custom `_formatROText()` when `DB.formatMsgToHtml()` exists              | Use `DB.formatMsgToHtml(text)` (see §30)                          | Centralized utility already handles `^rrggbb`, item substitution, newlines                                          |
+| `querySelector` on slot index without null check                         | Always null-guard: `if (!el) return;` (see §31)                   | Server packets may reference slot indices beyond what the HTML template provides                                     |
 
 ---
 
@@ -1331,7 +1338,7 @@ const visible = Array.from(root.querySelectorAll('.content')).find(el => {
 
 ---
 
-### 24. `init()` hiding breaks on-demand components
+### 24. `init()` hiding breaks on-demand components (toggle-style vs on-demand)
 
 **Bug**: Components that are appended on demand (e.g., Announce — appended only when a server announcement arrives) should NOT set `this._host.style.display = 'none'` in `init()`. GUIComponent's `append()` method does `parent.appendChild(this._host)` but does **not** reset `display`. The host stays permanently hidden even after `append()` is called.
 
@@ -1545,6 +1552,237 @@ Announce.init = function init() {
 
 #Announce canvas {
 	display: block;
+}
+```
+
+### 25. Inner root `position: relative` vs `position: absolute` for host auto-sizing
+
+**Bug**: The migration guide (§4a) recommends `position: absolute` on the inner root element for fixed-size components. However, when the host element should derive its width from the inner content (i.e., no explicit `width` on `:host`), `position: absolute` takes the inner element out of normal flow — the host collapses to 0×0 and the component appears too narrow.
+
+**Example**: Inventory has no fixed `width` on `:host` because it can be resized. The inner `#InventoryV0` needs to provide a positioning context for its absolute children (tabs, resize handle, overlays), but should also size the host:
+
+```css
+/* BROKEN — host collapses to 0 width, inventory appears as a narrow sliver */
+:host {
+	top: 100px;
+	left: 100px;
+}
+#InventoryV0 {
+	position: absolute; /* out of flow → host collapses */
+	width: 280px;
+	height: 317px;
+}
+
+/* FIXED — host auto-sizes from inner content, children still positioned correctly */
+:host {
+	top: 100px;
+	left: 100px;
+}
+#InventoryV0 {
+	position: relative; /* in flow → sizes host; still a containing block */
+	width: 280px;
+	height: 317px;
+}
+```
+
+**When to use which**:
+- `position: absolute` — when `:host` has explicit `width`/`height` (the host sizes itself; inner element fills it)
+- `position: relative` — when `:host` has NO explicit dimensions and must auto-size from inner content, AND the inner element has absolute children that need a positioning context
+
+**Affected components**: Inventory V0-V3, Equipment V0-V4, CartItems, ItemInfo — all use `position: relative` on the inner root because the host derives its size from the inner content.
+
+**RULE**: If `:host` omits `width`/`height`, use `position: relative` (not `absolute`) on the inner root. This keeps the inner element in normal flow (sizing the host) while still serving as a containing block for absolutely-positioned children.
+
+### 26. `contextmenu` event must be explicitly prevented in GUIComponent
+
+**Bug**: In UIComponent, jQuery's `.mousedown()` handlers that `return false` automatically call both `stopPropagation()` and `preventDefault()`, which suppresses the browser's native right-click context menu. After migrating to GUIComponent with native `addEventListener('mousedown', ...)`, the return value is ignored — the browser context menu appears on right-click in areas like Inventory, Equipment, and CartItems.
+
+**Fix**: Add an explicit `contextmenu` event listener with `preventDefault()` on any element that handles right-click:
+
+```javascript
+// UIComponent (jQuery) — return false handled everything
+this.ui.find('.items').on('contextmenu', '.item', function() {
+	showItemOptions(this);
+	return false; // ← jQuery: stopPropagation + preventDefault
+});
+
+// GUIComponent (native) — must prevent contextmenu explicitly
+root.addEventListener('contextmenu', e => {
+	const item = e.target.closest('.item');
+	if (item) {
+		e.preventDefault(); // ← suppress browser context menu
+		e.stopImmediatePropagation();
+		showItemOptions(item);
+	}
+});
+```
+
+**How to detect**: Search for right-click handling in the legacy component: `.mousedown()` handlers that check `event.which === 3`, or `.on('contextmenu', ...)`. All of these need corresponding `contextmenu` listeners with `preventDefault()` in the migrated version.
+
+**RULE**: Any GUIComponent that handles right-click must add a `contextmenu` event listener with `e.preventDefault()`. Native DOM does not interpret `return false` as jQuery does.
+
+### 27. `offsetTop`/`offsetLeft` → `getBoundingClientRect()` for overlay positioning
+
+**Bug**: Legacy UIComponent code uses jQuery's `.position()` to calculate element coordinates relative to the component root (e.g., for hover labels, tooltips, overlays). The natural native replacement — `element.offsetTop` / `element.offsetLeft` — gives coordinates relative to the element's `offsetParent`, which in Shadow DOM may be an intermediate positioned ancestor (e.g., the scrollbar widget sets `position: relative` on the scroll container). This causes overlays to appear in the wrong position.
+
+**Example**: Equipment hover label should appear above the hovered slot button. Using `offsetTop` gives position relative to the scroll container, not the component root:
+
+```javascript
+// WRONG — offsetTop relative to intermediate positioned parent (scrollbar container)
+overlay.style.top = `${button.offsetTop - 22}px`;
+overlay.style.left = `${button.offsetLeft - 22}px`;
+
+// CORRECT — getBoundingClientRect relative to component root
+const btnRect = button.getBoundingClientRect();
+const rootRect = rootEl.getBoundingClientRect();
+overlay.style.top = `${btnRect.top - rootRect.top - 22}px`;
+overlay.style.left = `${btnRect.left - rootRect.left - 22}px`;
+```
+
+**Why this differs from UIComponent**: jQuery's `.position()` internally uses `getBoundingClientRect()` and computes coordinates relative to the offset parent correctly, accounting for the parent chain. Native `offsetTop`/`offsetLeft` only look at the immediate `offsetParent`, which can be a scrollbar wrapper inserted by the custom scrollbar system.
+
+**RULE**: When positioning overlays, tooltips, or labels relative to another element inside Shadow DOM, use `getBoundingClientRect()` on both the target element and the reference root, then subtract. Do not use `offsetTop`/`offsetLeft` — the offset parent chain in Shadow DOM may include intermediate positioned elements.
+
+### 28. `querySelectorAll` for multi-match element updates
+
+**Bug**: When updating elements that can have multiple instances matching the same selector (e.g., multi-slot equipment items where the same `data-index` appears in multiple slots), `querySelector` returns only the first match. Only one slot gets updated.
+
+**Example**: A headgear occupying Head_Top + Head_Mid + Head_Bottom creates HTML in all three slots with `data-index="1"`. The async `Client.loadFile` callback uses `querySelector` to set the icon — only the first slot gets the image:
+
+```javascript
+// WRONG — only updates first matching slot
+Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', data => {
+	const btn = root.querySelector(`.item[data-index="${item.index}"] button`);
+	if (btn) btn.style.backgroundImage = `url(${data})`;
+});
+
+// CORRECT — updates ALL matching slots
+Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', data => {
+	const btns = root.querySelectorAll(`.item[data-index="${item.index}"] button`);
+	btns.forEach(btn => { btn.style.backgroundImage = `url(${data})`; });
+});
+```
+
+Apply the same pattern for item name and grade icon updates.
+
+**How to detect**: Any `Client.loadFile` callback (or other async callback) that updates DOM elements by a `data-index` or similar attribute where the same value may appear in multiple places. Common in Equipment components with multi-slot items.
+
+**RULE**: When an async callback updates DOM elements by attribute selector, use `querySelectorAll` + `forEach` instead of `querySelector` if the same attribute value can appear on multiple elements.
+
+### 29. Custom scrollbar thumb jumps when `scrollTop` is set programmatically
+
+**Bug**: CartItems (and similar components with custom scrollbars) implements a `wheel` event handler that sets `scrollTop` directly. The custom scrollbar's position poller runs on a 300ms interval — between polls, the thumb position and the actual scroll position are out of sync, causing the thumb to visually jump.
+
+**Fix**: After programmatically changing `scrollTop`, call `element._roScrollbarRestart()` to force the scrollbar thumb to sync immediately:
+
+```javascript
+// WRONG — scrollbar thumb jumps for up to 300ms
+container.addEventListener('wheel', e => {
+	e.preventDefault();
+	container.scrollTop += e.deltaY > 0 ? 32 : -32;
+});
+
+// CORRECT — scrollbar syncs immediately
+container.addEventListener('wheel', e => {
+	e.preventDefault();
+	container.scrollTop += e.deltaY > 0 ? 32 : -32;
+	if (container._roScrollbarRestart) {
+		container._roScrollbarRestart();
+	}
+});
+```
+
+**When to use**: Any time you programmatically modify `scrollTop` or `scrollLeft` on an element that has a custom scrollbar (added by `_setupScrollbars()` / `applyDOMScrollbar()`).
+
+**RULE**: After programmatic scroll changes, call `element._roScrollbarRestart()` to sync the custom scrollbar thumb. Check that the method exists before calling (defensive guard).
+
+### 30. Use `DB.formatMsgToHtml()` instead of local `_formatROText()`
+
+**Update to §13**: The migration guide (§13) describes creating a local `_formatROText()` helper for RO color code processing. Since then, `DB.formatMsgToHtml()` has been identified as a centralized utility in `DBManager` that performs the same processing (HTML sanitization, `^rrggbb` color codes, item ID substitution, newline conversion).
+
+**Preferred approach**: Import and use `DB.formatMsgToHtml()` instead of duplicating the logic:
+
+```javascript
+import DB from 'DB/DBManager.js';
+
+// Instead of a local _formatROText() helper:
+content.innerHTML = DB.formatMsgToHtml(DB.getItemDescription(itemId));
+```
+
+**When to still use a local helper**: If the component needs custom text processing beyond what `DB.formatMsgToHtml()` provides (e.g., additional tag whitelist, custom substitutions), create a local helper that wraps or extends it.
+
+**RULE**: Prefer `DB.formatMsgToHtml()` for RO text formatting. Only create a local `_formatROText()` if additional processing is needed beyond what the centralized utility provides.
+
+### 31. Null-guard slot queries for server packet mismatches
+
+**Bug**: Server packets may reference slot indices that exceed the number of HTML containers defined in the component template. For example, the ShortCut component renders 36 containers (4 rows × 9 slots), but the server may send 38 slot entries. A `querySelector` for index 37 returns `null`, and setting `.innerHTML` on it crashes.
+
+```javascript
+// WRONG — crashes when index exceeds HTML template slots
+const ui = root.querySelector(`.container[data-index="${index}"]`);
+ui.innerHTML = ''; // TypeError: Cannot set properties of null
+
+// CORRECT — guard against missing containers
+const ui = root.querySelector(`.container[data-index="${index}"]`);
+if (!ui) return;
+ui.innerHTML = '';
+```
+
+**How to detect**: Any function that receives indices from server packets (shortcut slots, equipment slots, inventory positions) and queries the DOM by those indices. The server's slot count may differ from the client's HTML template.
+
+**RULE**: Always null-check `querySelector` results when the query selector includes dynamic values from server data. Add an early `return` or `continue` if the element is not found.
+
+---
+
+## Reference: Inventory / Equipment / CartItems / ItemInfo Components (item management group)
+
+### Files
+
+**Inventory** (4 variants via UIVersionManager):
+- `src/UI/Components/Inventory/InventoryV0/` — Pre-2009 variant (280×317)
+- `src/UI/Components/Inventory/InventoryV1/` — 2009-2012 variant with tabs
+- `src/UI/Components/Inventory/InventoryV2/` — 2012-2020 variant with favorites
+- `src/UI/Components/Inventory/InventoryV3/` — 2020+ variant with expanded features
+
+**Equipment** (5 variants via UIVersionManager):
+- `src/UI/Components/Equipment/EquipmentV0/` — Pre-2009 variant
+- `src/UI/Components/Equipment/EquipmentV1/` — 2009-2010 variant
+- `src/UI/Components/Equipment/EquipmentV2/` — 2010-2012 variant
+- `src/UI/Components/Equipment/EquipmentV3/` — 2012-2017 variant
+- `src/UI/Components/Equipment/EquipmentV4/` — 2017+ variant with costume slots
+
+**CartItems**:
+- `src/UI/Components/CartItems/CartItems.js` — Cart inventory (~700 lines)
+- `src/UI/Components/CartItems/CartItems.html` — Template with scrollable item list
+- `src/UI/Components/CartItems/CartItems.css` — Styles
+
+**ItemInfo**:
+- `src/UI/Components/ItemInfo/ItemInfo.js` — Item tooltip/detail popup (~530 lines)
+- `src/UI/Components/ItemInfo/ItemInfo.html` — Template with item details sections
+- `src/UI/Components/ItemInfo/ItemInfo.css` — Styles
+
+### Key Patterns
+
+- **`position: relative` on inner root**: All 11 CSS files use `position: relative` (not `absolute`) on the inner root element because `:host` has no explicit `width`/`height` — the host auto-sizes from inner content (see §25). This also provides a positioning context for absolute children (tabs, resize handles, overlays).
+- **`contextmenu` prevention**: All components add explicit `contextmenu` event listeners with `e.preventDefault()` on item areas (see §26). Equipment adds it on equipment slot buttons; Inventory on item list containers.
+- **`getBoundingClientRect()` for hover labels**: Equipment's `onEquipmentOver()` and CartItems/Inventory's `onItemOver()` use `getBoundingClientRect()` relative to the component root for hover label positioning (see §27).
+- **`querySelectorAll` for multi-slot items**: Equipment `equip()` uses `querySelectorAll` + `forEach` to update icon, name, and grade in ALL matching slots (see §28). A headgear occupying Head_Top + Head_Mid creates HTML in multiple slots.
+- **Custom scrollbar sync**: CartItems calls `container._roScrollbarRestart()` after wheel-scroll changes `scrollTop` (see §29).
+- **`DB.formatMsgToHtml()` for color codes**: ItemInfo uses `DB.formatMsgToHtml()` for item descriptions containing `^rrggbb` color codes (see §30).
+- **Event delegation with `.closest()`**: Item click/right-click handlers use `e.target.closest('.item')` or `e.target.closest('button')` for delegation, replacing jQuery's `.on(event, selector, handler)`.
+- **Preference save/restore via `_host.style`**: All variants save `left`/`top` from `this._host.style.left` in `onRemove()` and restore in `onAppend()`.
+
+### CSS Pattern
+
+```css
+/* Inventory / Equipment / CartItems / ItemInfo — host auto-sizes from content */
+:host {
+	top: 100px;
+	left: 100px;
+}
+
+#InventoryV0 {
+	position: relative; /* ← NOT absolute — host auto-sizes; still provides position context */
 }
 ```
 
