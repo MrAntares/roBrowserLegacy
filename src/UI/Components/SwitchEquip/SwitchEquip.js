@@ -13,14 +13,13 @@ import EquipLocation from 'DB/Items/EquipmentLocation.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import ItemType from 'DB/Items/ItemType.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
 import Camera from 'Renderer/Camera.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import htmlText from './SwitchEquip.html?raw';
 import cssText from './SwitchEquip.css?raw';
@@ -31,7 +30,25 @@ import Inventory from 'UI/Components/Inventory/Inventory.js';
 /**
  * Create Component
  */
-const SwitchEquip = new UIComponent('SwitchEquip', htmlText, cssText);
+const SwitchEquip = new GUIComponent('SwitchEquip', cssText);
+
+SwitchEquip.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return SwitchEquip._shadow || SwitchEquip._host;
+}
+
+/**
+ * Escape HTML entities
+ */
+function _escapeHtml(str) {
+	const div = document.createElement('div');
+	div.appendChild(document.createTextNode(str));
+	return div.innerHTML;
+}
 
 /**
  * @var {Array} switchequipment list
@@ -47,34 +64,56 @@ const _swapctx = [];
  * Initialize UI
  */
 SwitchEquip.init = function init() {
-	_swapctx.push(this.ui.find('canvas')[0].getContext('2d'));
-	_swapctx.push(this.ui.find('canvas')[1].getContext('2d'));
+	const root = _getRoot();
+	const canvases = root.querySelectorAll('canvas');
+	_swapctx.push(canvases[0].getContext('2d'));
+	_swapctx.push(canvases[1].getContext('2d'));
 
-	// drag, drop items
-	this.ui.on('dragover', onDragOver);
-	this.ui.on('dragleave', onDragLeave);
-	this.ui.on('drop', onDrop);
+	const panel = root.querySelector('.panel');
+	if (panel) {
+		panel.addEventListener('dragover', onDragOver);
+		panel.addEventListener('dragleave', onDragLeave);
+		panel.addEventListener('drop', onDrop);
+	}
 
-	this.ui.find('.closeswap').click(function () {
-		SwitchEquip.toggle();
-	});
-	this.ui.find('.onswap').click(function () {
-		SwitchEquip.RequestSwitch();
-	});
+	const closeBtn = root.querySelector('.closeswap');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => {
+			SwitchEquip.toggle();
+		});
+	}
+
+	const swapBtn = root.querySelector('.onswap');
+	if (swapBtn) {
+		swapBtn.addEventListener('click', () => {
+			SwitchEquip.RequestSwitch();
+		});
+	}
 
 	// Set the active tab based on Equipment UI's current tab
 	const currentEquipTabId = Equipment.getUI().getCurrentTabId();
-
-	// Set the active tab and content div based on EquipmentV2's current tab
 	SwitchEquip.showSwapTab(currentEquipTabId);
 
-	// Bind items
-	this.ui
-		.find('.swapcontent')
-		.on('contextmenu', '.item', onSwitchEquipInfo)
-		.on('dblclick', '.item', onSwitchEquipUnEquip)
-		.on('mouseover', 'button', onSwitchEquipOver)
-		.on('mouseout', 'button', onSwitchEquipOut);
+	// Bind items on swapcontent tables
+	const swapcontents = root.querySelectorAll('.swapcontent');
+	for (const content of swapcontents) {
+		content.addEventListener('contextmenu', e => {
+			const item = e.target.closest('.item');
+			if (item) onSwitchEquipInfo.call(item, e);
+		});
+		content.addEventListener('dblclick', e => {
+			const item = e.target.closest('.item');
+			if (item) onSwitchEquipUnEquip.call(item, e);
+		});
+		content.addEventListener('mouseover', e => {
+			const btn = e.target.closest('button');
+			if (btn) onSwitchEquipOver.call(btn, e);
+		});
+		content.addEventListener('mouseout', e => {
+			const btn = e.target.closest('button');
+			if (btn) onSwitchEquipOut();
+		});
+	}
 };
 
 /**
@@ -83,17 +122,22 @@ SwitchEquip.init = function init() {
  * @param {string} tabId - The ID of the tab to show.
  */
 SwitchEquip.showSwapTab = function showSwapTab(tabId) {
+	const root = _getRoot();
+	if (!root) return;
+
 	const swapTabId = 'swap' + tabId;
 	const swapContentDivs = {
-		swapgeneral: document.getElementById('swapgeneral'),
-		swapcostume: document.getElementById('swapcostume')
+		swapgeneral: root.querySelector('#swapgeneral'),
+		swapcostume: root.querySelector('#swapcostume')
 	};
 
 	for (const id in swapContentDivs) {
-		if (id == swapTabId) {
-			swapContentDivs[id].classList.remove('hide');
-		} else {
-			swapContentDivs[id].classList.add('hide');
+		if (swapContentDivs[id]) {
+			if (id === swapTabId) {
+				swapContentDivs[id].classList.remove('hide');
+			} else {
+				swapContentDivs[id].classList.add('hide');
+			}
 		}
 	}
 };
@@ -104,11 +148,11 @@ SwitchEquip.showSwapTab = function showSwapTab(tabId) {
 SwitchEquip.onAppend = function onAppend() {
 	// Set the active tab based on Equipment UI's current tab
 	const currentEquipTabId = Equipment.getUI().getCurrentTabId();
-
-	// Set the active tab and content div based on EquipmentV2's current tab
 	SwitchEquip.showSwapTab(currentEquipTabId);
 
-	if (this.ui.find('canvas').is(':visible')) {
+	const root = _getRoot();
+	const canvas = root ? root.querySelector('canvas') : null;
+	if (canvas && this._host.style.display !== 'none') {
 		Renderer.render(swaprender);
 	}
 };
@@ -117,12 +161,15 @@ SwitchEquip.onAppend = function onAppend() {
  * Remove Inventory from window (and so clean up items)
  */
 SwitchEquip.onRemove = function onRemove() {
-	// Stop rendering
 	Renderer.stop(swaprender);
-
-	// Clean equipments
 	SwitchEquip._list = {};
-	this.ui.find('.col1, .col3, .ammo').empty();
+
+	const root = _getRoot();
+	if (root) {
+		root.querySelectorAll('.col1, .col3, .ammo').forEach(el => {
+			el.innerHTML = '';
+		});
+	}
 };
 
 /**
@@ -143,12 +190,12 @@ SwitchEquip.onShortCut = function onShurtCut(key) {
  * rendering or stopping the renderer based on visibility.
  */
 SwitchEquip.toggle = function toggle() {
-	this.ui.toggle();
-
-	if (this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
+		this._host.style.display = '';
 		Renderer.render(swaprender);
 		this.focus();
 	} else {
+		this._host.style.display = 'none';
 		Renderer.stop(swaprender);
 	}
 };
@@ -165,38 +212,33 @@ SwitchEquip.equip = function equip(item, location, inSwitchList) {
 	item.equipped = location;
 	SwitchEquip._list[item.index] = item;
 
-	function add3Dots(string, limit) {
-		const dots = '...';
+	const add3Dots = (string, limit) => {
 		if (string.length > limit) {
-			string = string.substring(0, limit) + dots;
+			return string.substring(0, limit) + '...';
 		}
-
 		return string;
+	};
+
+	const root = _getRoot();
+	const selector = getSelectorFromLocation(location);
+	const el = root.querySelector(selector);
+	if (el) {
+		el.innerHTML =
+			`<div class="item" data-index="${item.index}">` +
+			'<button></button>' +
+			`<span class="itemName">${add3Dots(_escapeHtml(DB.getItemName(item)), 19)}</span>` +
+			'</div>';
 	}
 
-	this.ui
-		.find(getSelectorFromLocation(location))
-		.html(
-			'<div class="item" data-index="' +
-				item.index +
-				'">' +
-				'<button></button>' +
-				'<span class="itemName">' +
-				add3Dots(jQuery.escape(DB.getItemName(item)), 19) +
-				'</span>' +
-				'</div>'
-		);
-
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp',
-		function (data) {
-			const button = this.ui.find('.item[data-index="' + item.index + '"] button');
-			button.css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', data => {
+		const button = root.querySelector(`.item[data-index="${item.index}"] button`);
+		if (button) {
+			button.style.backgroundImage = `url(${data})`;
 			if (!inSwitchList) {
-				button.css('filter', 'grayscale(100%)');
+				button.style.filter = 'grayscale(100%)';
 			}
-		}.bind(this)
-	);
+		}
+	});
 };
 
 /**
@@ -206,11 +248,13 @@ SwitchEquip.equip = function equip(item, location, inSwitchList) {
  * @param {number} item location
  */
 SwitchEquip.unEquip = function unEquip(index, location) {
+	const root = _getRoot();
 	const selector = getSelectorFromLocation(location);
 	const item = SwitchEquip._list[index];
 	item.equipped = 0;
 
-	this.ui.find(selector).empty();
+	const el = root.querySelector(selector);
+	if (el) el.innerHTML = '';
 	delete SwitchEquip._list[index];
 };
 
@@ -246,15 +290,12 @@ const swaprender = (function swaprenderClosure() {
 
 		const currentEquipTabId = Equipment.getUI().getCurrentTabId();
 
-		// General Tab only shows normal headgears
 		if (currentEquipTabId === 'general') {
 			swap_character.accessory = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 			swap_character.accessory2 = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_TOP);
 			swap_character.accessory3 = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_MID);
 			swap_character.robe = SwitchEquip.checkEquipLoc(EquipLocation.GARMENT);
-		}
-		// Costume Tab only shows costume headgears
-		else if (currentEquipTabId === 'costume') {
+		} else if (currentEquipTabId === 'costume') {
 			swap_character.accessory = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
 			swap_character.accessory2 = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
 			swap_character.accessory3 = SwitchEquip.checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
@@ -264,14 +305,12 @@ const swaprender = (function swaprenderClosure() {
 		_savedColor.set(swap_character.effectColor);
 		swap_character.effectColor.set(_cleanColor);
 
-		// Set action
 		Camera.direction = 0;
 		swap_character.direction = 0;
 		swap_character.headDir = 0;
 		swap_character.action = swap_character.ACTION.IDLE;
 		swap_character.animation = _animation;
 
-		// Rendering
 		for (let i = 0; i < _swapctx.length; i++) {
 			const ctx = _swapctx[i];
 			SpriteRenderer.bind2DContext(ctx, 30, 130);
@@ -290,71 +329,29 @@ const swaprender = (function swaprenderClosure() {
 function getSelectorFromLocation(location) {
 	const selector = [];
 
-	if (location & EquipLocation.HEAD_TOP) {
-		selector.push('.swap_head_top');
-	}
-	if (location & EquipLocation.HEAD_MID) {
-		selector.push('.swap_head_mid');
-	}
-	if (location & EquipLocation.HEAD_BOTTOM) {
-		selector.push('.swap_head_bottom');
-	}
-	if (location & EquipLocation.ARMOR) {
-		selector.push('.swap_armor');
-	}
-	if (location & EquipLocation.WEAPON) {
-		selector.push('.swap_weapon');
-	}
-	if (location & EquipLocation.SHIELD) {
-		selector.push('.swap_shield');
-	}
-	if (location & EquipLocation.GARMENT) {
-		selector.push('.swap_garment');
-	}
-	if (location & EquipLocation.SHOES) {
-		selector.push('.swap_shoes');
-	}
-	if (location & EquipLocation.ACCESSORY1) {
-		selector.push('.swap_accessory1');
-	}
-	if (location & EquipLocation.ACCESSORY2) {
-		selector.push('.swap_accessory2');
-	}
-	if (location & EquipLocation.AMMO) {
-		selector.push('.swap_ammo');
-	}
+	if (location & EquipLocation.HEAD_TOP) selector.push('.swap_head_top');
+	if (location & EquipLocation.HEAD_MID) selector.push('.swap_head_mid');
+	if (location & EquipLocation.HEAD_BOTTOM) selector.push('.swap_head_bottom');
+	if (location & EquipLocation.ARMOR) selector.push('.swap_armor');
+	if (location & EquipLocation.WEAPON) selector.push('.swap_weapon');
+	if (location & EquipLocation.SHIELD) selector.push('.swap_shield');
+	if (location & EquipLocation.GARMENT) selector.push('.swap_garment');
+	if (location & EquipLocation.SHOES) selector.push('.swap_shoes');
+	if (location & EquipLocation.ACCESSORY1) selector.push('.swap_accessory1');
+	if (location & EquipLocation.ACCESSORY2) selector.push('.swap_accessory2');
+	if (location & EquipLocation.AMMO) selector.push('.swap_ammo');
 
 	// Costume Tab
-	if (location & EquipLocation.COSTUME_HEAD_TOP) {
-		selector.push('.swap_costume_head_top');
-	}
-	if (location & EquipLocation.COSTUME_HEAD_MID) {
-		selector.push('.swap_costume_head_mid');
-	}
-	if (location & EquipLocation.COSTUME_HEAD_BOTTOM) {
-		selector.push('.swap_costume_head_bottom');
-	}
-	if (location & EquipLocation.SHADOW_ARMOR) {
-		selector.push('.swap_shadow_armor');
-	}
-	if (location & EquipLocation.SHADOW_WEAPON) {
-		selector.push('.swap_shadow_weapon');
-	}
-	if (location & EquipLocation.SHADOW_SHIELD) {
-		selector.push('.swap_shadow_shield');
-	}
-	if (location & EquipLocation.COSTUME_ROBE) {
-		selector.push('.swap_shadow_garment');
-	}
-	if (location & EquipLocation.SHADOW_SHOES) {
-		selector.push('.swap_shadow_shoes');
-	}
-	if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) {
-		selector.push('.swap_shadow_accessory1');
-	}
-	if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) {
-		selector.push('.swap_shadow_accessory2');
-	}
+	if (location & EquipLocation.COSTUME_HEAD_TOP) selector.push('.swap_costume_head_top');
+	if (location & EquipLocation.COSTUME_HEAD_MID) selector.push('.swap_costume_head_mid');
+	if (location & EquipLocation.COSTUME_HEAD_BOTTOM) selector.push('.swap_costume_head_bottom');
+	if (location & EquipLocation.SHADOW_ARMOR) selector.push('.swap_shadow_armor');
+	if (location & EquipLocation.SHADOW_WEAPON) selector.push('.swap_shadow_weapon');
+	if (location & EquipLocation.SHADOW_SHIELD) selector.push('.swap_shadow_shield');
+	if (location & EquipLocation.COSTUME_ROBE) selector.push('.swap_shadow_garment');
+	if (location & EquipLocation.SHADOW_SHOES) selector.push('.swap_shadow_shoes');
+	if (location & EquipLocation.SHADOW_R_ACCESSORY_SHADOW) selector.push('.swap_shadow_accessory1');
+	if (location & EquipLocation.SHADOW_L_ACCESSORY_SHADOW) selector.push('.swap_shadow_accessory2');
 
 	return selector.join(', ');
 }
@@ -365,28 +362,30 @@ function getSelectorFromLocation(location) {
 function onDragOver(event) {
 	if (window._OBJ_DRAG_) {
 		const data = window._OBJ_DRAG_;
-		let item, selector, ui;
 
-		// Just support items for now ?
 		if (data.type === 'item') {
-			item = data.data;
+			const item = data.data;
 
 			if (
 				(item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) &&
 				item.IsIdentified &&
 				!item.IsDamaged
 			) {
-				selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
-				ui = SwitchEquip.ui.find(selector);
+				const selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
+				const root = _getRoot();
+				const el = root.querySelector(selector);
 
-				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', function (_data) {
-					ui.css('backgroundImage', 'url(' + _data + ')');
-				});
+				if (el) {
+					Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', _data => {
+						el.style.backgroundImage = `url(${_data})`;
+					});
+				}
 			}
 		}
 	}
 
 	event.stopImmediatePropagation();
+	event.preventDefault();
 	return false;
 }
 
@@ -394,7 +393,10 @@ function onDragOver(event) {
  * Drag out the window
  */
 function onDragLeave(event) {
-	SwitchEquip.ui.find('td').css('backgroundImage', 'none');
+	const root = _getRoot();
+	root.querySelectorAll('td').forEach(td => {
+		td.style.backgroundImage = 'none';
+	});
 	event.stopImmediatePropagation();
 	return false;
 }
@@ -403,24 +405,26 @@ function onDragLeave(event) {
  * Drop an item in the equipment, equip it if possible
  */
 function onDrop(event) {
-	let item, data;
+	let data;
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
 		// Ignore parsing error
 	}
 
-	// Just support items for now ?
 	if (data && data.type === 'item') {
-		item = data.data;
+		const item = data.data;
 
 		if (
 			(item.type === ItemType.WEAPON || item.type === ItemType.ARMOR || item.type === ItemType.AMMO) &&
 			item.IsIdentified &&
 			!item.IsDamaged
 		) {
-			SwitchEquip.ui.find('td').css('backgroundImage', 'none');
+			const root = _getRoot();
+			root.querySelectorAll('td').forEach(td => {
+				td.style.backgroundImage = 'none';
+			});
 			SwitchEquip.onAddSwitchEquip(item.index, 'location' in item ? item.location : item.WearState);
 		}
 	}
@@ -437,13 +441,9 @@ function onSwitchEquipInfo(event) {
 	const item = SwitchEquip._list[index];
 
 	if (item) {
-		// Don't add the same UI twice, remove it
 		if (ItemInfo.uid === item.ITID) {
 			ItemInfo.remove();
-		}
-
-		// Add ui to window
-		else {
+		} else {
 			ItemInfo.append();
 			ItemInfo.uid = item.ITID;
 			ItemInfo.setItem(item);
@@ -451,6 +451,7 @@ function onSwitchEquipInfo(event) {
 	}
 
 	event.stopImmediatePropagation();
+	event.preventDefault();
 	return false;
 }
 
@@ -460,7 +461,10 @@ function onSwitchEquipInfo(event) {
 function onSwitchEquipUnEquip() {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	SwitchEquip.onRemoveSwitchEquip(index);
-	SwitchEquip.ui.find('.switchoverlay').hide();
+
+	const root = _getRoot();
+	const overlay = root.querySelector('.switchoverlay');
+	if (overlay) overlay.style.display = 'none';
 }
 
 /**
@@ -474,38 +478,42 @@ function onSwitchEquipOver() {
 		return;
 	}
 
-	// Get back data
-	const overlay = SwitchEquip.ui.find('.switchoverlay');
-	const pos = jQuery(this).position();
+	const root = _getRoot();
+	const overlay = root.querySelector('.switchoverlay');
+	if (!overlay) return;
 
-	// Possible jquery error
-	if (!pos.top && !pos.left) {
+	const posTop = this.offsetTop;
+	const posLeft = this.offsetLeft;
+
+	if (!posTop && !posLeft) {
 		return;
 	}
 
-	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top - 22, left: pos.left - 22 });
-	overlay.text(DB.getItemName(item));
+	overlay.style.display = '';
+	overlay.style.top = `${posTop - 22}px`;
+	overlay.style.left = `${posLeft - 22}px`;
+	overlay.textContent = DB.getItemName(item);
 }
 
 /**
  * Remove the item name
  */
 function onSwitchEquipOut() {
-	SwitchEquip.ui.find('.switchoverlay').hide();
+	const root = _getRoot();
+	const overlay = root.querySelector('.switchoverlay');
+	if (overlay) overlay.style.display = 'none';
 }
 
 /**
  * Update the owner name for the equipment items
  */
 SwitchEquip.onUpdateOwnerName = function () {
+	const root = _getRoot();
 	for (const index in SwitchEquip._list) {
 		const item = SwitchEquip._list[index];
 		if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
-			SwitchEquip.ui
-				.find('.item[data-index="' + index + '"] .itemName')
-				.text(jQuery.escape(DB.getItemName(item)));
+			const nameEl = root.querySelector(`.item[data-index="${index}"] .itemName`);
+			if (nameEl) nameEl.textContent = _escapeHtml(DB.getItemName(item));
 		}
 	}
 };
@@ -518,7 +526,7 @@ SwitchEquip.onUpdateOwnerName = function () {
 SwitchEquip.getNumber = function () {
 	let num = 0;
 	for (const key in SwitchEquip._list) {
-		if (SwitchEquip._list[key].location && SwitchEquip._list[key].location != EquipLocation.AMMO) {
+		if (SwitchEquip._list[key].location && SwitchEquip._list[key].location !== EquipLocation.AMMO) {
 			num++;
 		}
 	}
@@ -556,26 +564,26 @@ function sendEquipSwitchRequest() {
  * Disabling the button temporarily and updating its background image.
  */
 SwitchEquip.RequestSwitch = function () {
-	// Send the equip switch request
 	sendEquipSwitchRequest();
 
-	// Disable the button
-	const button = document.getElementById('swap-button');
+	const root = _getRoot();
+	const button = root.querySelector('#swap-button');
+	if (!button) return;
+
 	button.disabled = true;
 	button.classList.add('disabled');
 
-	Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/btn_change2_disable.bmp', function (data) {
-		button.style.backgroundImage = 'url(' + data + ')';
+	Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/btn_change2_disable.bmp', data => {
+		button.style.backgroundImage = `url(${data})`;
 	});
 
-	// Re-enable the button and revert the background image after 10 seconds
-	setTimeout(function () {
+	setTimeout(() => {
 		button.disabled = false;
 		button.classList.remove('disabled');
-		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/btn_change2_normal.bmp', function (data) {
-			button.style.backgroundImage = 'url(' + data + ')';
+		Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/btn_change2_normal.bmp', data => {
+			button.style.backgroundImage = `url(${data})`;
 		});
-	}, 10000); // 10000 milliseconds = 10 seconds
+	}, 10000);
 };
 
 /**
