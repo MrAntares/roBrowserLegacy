@@ -8,50 +8,81 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import Renderer from 'Renderer/Renderer.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import DB from 'DB/DBManager.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './InputBox.html?raw';
 import cssText from './InputBox.css?raw';
 
 /**
- * Create NpcBox component
+ * Create InputBox component
  */
-const InputBox = new UIComponent('InputBox', htmlText, cssText);
+const InputBox = new GUIComponent('InputBox', cssText);
+
+InputBox.render = () => htmlText;
+
+/**
+ * Freeze mouse — modal dialog
+ */
+InputBox.mouseMode = GUIComponent.MouseMode.FREEZE;
+
+/**
+ * Capture key events to allow typing in the input
+ */
+InputBox.captureKeyEvents = true;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return InputBox._shadow || InputBox._host;
+}
 
 /**
  * Initialize GUI
  */
-InputBox.init = function Init() {
+InputBox.init = function init() {
 	this.draggable();
-	this.ui.css({ top: (Renderer.height - 120) / 1.5 - 49, left: (Renderer.width - 280) / 2 + 1 });
-	this.ui.find('button').click(validate.bind(this));
-	this.ui.find('input').mousedown(function (event) {
-		event.stopImmediatePropagation();
-	});
+	this._host.style.top = `${(Renderer.height - 120) / 1.5 - 49}px`;
+	this._host.style.left = `${(Renderer.width - 280) / 2 + 1}px`;
 
-	this.overlay = jQuery('<div/>')
-		.addClass('win_popup_overlay')
-		.css('zIndex', 30)
-		.click(
-			function () {
-				this.remove();
-			}.bind(this)
-		);
+	const root = _getRoot();
+
+	const btn = root.querySelector('ui-button');
+	if (btn) {
+		btn.addEventListener('click', () => validate());
+	}
+
+	const input = root.querySelector('input');
+	if (input) {
+		input.addEventListener('mousedown', e => e.stopImmediatePropagation());
+	}
+
+	this._overlay = document.createElement('div');
+	this._overlay.className = 'win_popup_overlay';
+	this._overlay.style.zIndex = '30';
+	this._overlay.style.position = 'fixed';
+	this._overlay.style.top = '0';
+	this._overlay.style.left = '0';
+	this._overlay.style.width = '100%';
+	this._overlay.style.height = '100%';
+	this._overlay.addEventListener('click', () => {
+		InputBox.remove();
+	});
 };
 
 /**
  * Input Post-Render callback
- * Should append data, focus, select text, etc...
  */
-InputBox.onAppend = function OnAppend() {
-	const input = this.ui.find('input');
-	if (input.length) {
+InputBox.onAppend = function onAppend() {
+	const root = _getRoot();
+	const input = root.querySelector('input');
+	if (input) {
 		input.focus();
-		if (input.val()) {
+		if (input.value) {
 			input.select();
 		}
 	}
@@ -60,11 +91,20 @@ InputBox.onAppend = function OnAppend() {
 /**
  * Remove data from UI
  */
-InputBox.onRemove = function OnRemove() {
-	this.ui.find('input').val('');
-	this.ui.find('.text').text('');
-	this.ui.find('input').keydown(null);
-	this.overlay.detach();
+InputBox.onRemove = function onRemove() {
+	const root = _getRoot();
+	const input = root.querySelector('input');
+	if (input) {
+		input.value = '';
+		input.removeEventListener('keydown', null);
+	}
+	const text = root.querySelector('.text');
+	if (text) {
+		text.textContent = '';
+	}
+	if (this._overlay && this._overlay.parentNode) {
+		this._overlay.remove();
+	}
 };
 
 /**
@@ -73,9 +113,22 @@ InputBox.onRemove = function OnRemove() {
  * @param {object} event
  * @return {boolean}
  */
-InputBox.onKeyDown = function OnKeyDown(event) {
+InputBox.onKeyDown = function onKeyDown(event) {
+	const shadow = this._shadow || this._host;
+	const focused = shadow.activeElement;
+
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		if (!this.isPersistent && event.which === KEYS.ENTER) {
+			validate();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		event.stopImmediatePropagation();
+		return true;
+	}
+
 	if (!this.isPersistent && event.which === KEYS.ENTER) {
-		validate.call(this);
+		validate();
 		event.stopImmediatePropagation();
 		return false;
 	}
@@ -85,97 +138,136 @@ InputBox.onKeyDown = function OnKeyDown(event) {
 
 /**
  * Validate input
- *
- * @param {ClickEvent}
  */
 function validate() {
-	let text = this.ui.find('input').val();
+	const root = _getRoot();
+	const input = root.querySelector('input');
+	let text = input ? input.value : '';
 
-	if (!this.isPersistent || text.length) {
-		if (this.ui.hasClass('number')) {
+	if (!InputBox.isPersistent || text.length) {
+		const innerRoot = root.querySelector('#inputbox');
+		if (innerRoot && innerRoot.classList.contains('number')) {
 			text = parseInt(text, 10) | 0;
 		}
 
-		this.onSubmitRequest(text);
+		InputBox.onSubmitRequest(text);
 	}
 }
 
 /**
  * Set input type
  *
- * @param {string} input type (number or text)
- * @param {boolean} is the popup persistent ? false : clicking in any part of the game will remove the input
- * @param {string|number} default value to show in the input
+ * @param {string} type (number or text)
+ * @param {boolean} isPersistent
+ * @param {string|number} defaultVal
+ * @param {number} itemId
  */
 InputBox.setType = function setType(type, isPersistent, defaultVal, itemId = null) {
 	this.isPersistent = !!isPersistent;
+	const root = _getRoot();
+	const innerRoot = root.querySelector('#inputbox');
+	const textEl = root.querySelector('.text');
+	const input = root.querySelector('input');
 
 	if (!this.isPersistent) {
-		this.overlay.appendTo('body');
+		document.body.appendChild(this._overlay);
 	}
 
 	switch (type) {
 		case 'number':
-			this.ui.addClass('number');
-			this.ui.find('.text').text(DB.getMessage(1259));
-			this.ui.find('input').attr('type', 'text');
+			innerRoot.classList.add('number');
+			if (textEl) {
+				textEl.textContent = DB.getMessage(1259);
+			}
+			if (input) {
+				input.type = 'text';
+			}
 			defaultVal = defaultVal || 0;
 			break;
 
 		case 'price':
-			this.ui.addClass('number');
-			this.ui.find('.text').text('Input Price');
-			this.ui.find('input').attr('type', 'text');
+			innerRoot.classList.add('number');
+			if (textEl) {
+				textEl.textContent = 'Input Price';
+			}
+			if (input) {
+				input.type = 'text';
+			}
 			defaultVal = defaultVal || 0;
 			break;
 
 		case 'text':
-			this.ui.removeClass('number');
-			this.ui.find('.text').text('');
-			this.ui.find('input').attr('type', 'text');
+			innerRoot.classList.remove('number');
+			if (textEl) {
+				textEl.textContent = '';
+			}
+			if (input) {
+				input.type = 'text';
+			}
 			break;
 
 		case 'shopname':
-			this.ui.removeClass('number');
-			this.ui.find('.text').text('Input your Shop Name');
-			this.ui.find('input').attr('type', 'text');
+			innerRoot.classList.remove('number');
+			if (textEl) {
+				textEl.textContent = 'Input your Shop Name';
+			}
+			if (input) {
+				input.type = 'text';
+			}
 			break;
 
 		case 'pass':
-			this.ui.removeClass('number');
-			this.ui.find('.text').text('');
-			this.ui.find('input').attr('type', 'password');
+			innerRoot.classList.remove('number');
+			if (textEl) {
+				textEl.textContent = '';
+			}
+			if (input) {
+				input.type = 'password';
+			}
 			break;
 
 		case 'mail':
-			this.ui.removeClass('number');
-			this.ui.find('.text').text(DB.getMessage(300));
-			this.ui.find('input').attr('type', 'password');
+			innerRoot.classList.remove('number');
+			if (textEl) {
+				textEl.textContent = DB.getMessage(300);
+			}
+			if (input) {
+				input.type = 'password';
+			}
 			break;
 
 		case 'birthdate':
-			this.ui.removeClass('number');
-			this.ui.find('.text').text(DB.getMessage(1815));
-			this.ui.find('input').attr('type', 'text');
+			innerRoot.classList.remove('number');
+			if (textEl) {
+				textEl.textContent = DB.getMessage(1815);
+			}
+			if (input) {
+				input.type = 'text';
+			}
 			break;
 
 		case 'item':
-			this.ui.addClass('number');
-			this.ui.find('.text').text(DB.getItemInfo(itemId).identifiedDisplayName);
-			this.ui.find('input').attr('type', 'text');
+			innerRoot.classList.add('number');
+			if (textEl) {
+				textEl.textContent = DB.getItemInfo(itemId).identifiedDisplayName;
+			}
+			if (input) {
+				input.type = 'text';
+			}
 			defaultVal = defaultVal || 0;
 			break;
 	}
 
-	if (typeof defaultVal !== 'undefined') {
-		this.ui.find('input').val(defaultVal).select();
+	if (typeof defaultVal !== 'undefined' && input) {
+		input.value = defaultVal;
+		input.select();
 	}
 };
 
 /**
  * Callback to define
  */
-InputBox.onSubmitRequest = function OnSubmitRequest() {};
+InputBox.onSubmitRequest = function onSubmitRequest() {};
 
 /**
  * Stored component and return it

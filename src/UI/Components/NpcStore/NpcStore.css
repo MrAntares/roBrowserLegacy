@@ -1,3 +1,10 @@
+:host {
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+
 #NpcStore {
 	position: absolute;
 	top: 0px;
@@ -28,7 +35,6 @@
 	background-color: transparent;
 	position: relative;
 	border-radius: 0px 0px 3px 3px;
-	position: relative;
 }
 #NpcStore .resize {
 	position: absolute;
@@ -36,25 +42,21 @@
 	bottom: 1px;
 	width: 13px;
 	height: 13px;
-	border: none;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #NpcStore .btn {
 	width: 42px;
 	height: 20px;
-	border: none;
 	margin: 0;
-	background-color: transparent;
-	background-repeat: no-repeat;
 }
 #NpcStore .selectall {
+	display: inline-block;
 	vertical-align: 2px;
 	width: 10px;
 	height: 10px;
 	border: none;
 	background-color: transparent;
 	background-repeat: no-repeat;
+	cursor: pointer;
 }
 #NpcStore .ask_quantity {
 	padding-top: 7px;
@@ -177,6 +179,7 @@
 	width: 280px;
 	position: absolute;
 	z-index: 50;
+	pointer-events: auto;
 }
 #NpcStore .btn.buy,
 #NpcStore .btn.sell {

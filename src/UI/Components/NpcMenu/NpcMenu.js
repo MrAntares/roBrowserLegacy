@@ -8,18 +8,26 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import KEYS from 'Controls/KeyEventHandler.js';
+import DB from 'DB/DBManager.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './NpcMenu.html?raw';
 import cssText from './NpcMenu.css?raw';
 
 /**
  * Create NPC Menu component
  */
-const NpcMenu = new UIComponent('NpcMenu', htmlText, cssText);
+const NpcMenu = new GUIComponent('NpcMenu', cssText);
+
+NpcMenu.render = () => htmlText;
+
+/**
+ * Freeze mouse — NPC menu blocks interaction
+ */
+NpcMenu.mouseMode = GUIComponent.MouseMode.FREEZE;
 
 /**
  * @var {number} index selected in menu
@@ -32,93 +40,125 @@ let _index = 0;
 let _ownerID = 0;
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return NpcMenu._shadow || NpcMenu._host;
+}
+
+/**
+ * Helper: escape HTML
+ */
+function _escapeHTML(text) {
+	const div = document.createElement('div');
+	div.textContent = text;
+	return div.innerHTML;
+}
+
+/**
  * Initialize component
  */
 NpcMenu.init = function init() {
-	this.ui.find('.ok').click(validate.bind(this));
-	this.ui.find('.cancel').click(cancel.bind(this));
+	const root = _getRoot();
 
-	this.ui.css({
-		top: Math.max(376, Renderer.height / 2 + 76),
-		left: Math.max(Renderer.width / 3, 20)
-	});
+	const okBtn = root.querySelector('.ok');
+	if (okBtn) {
+		okBtn.addEventListener('click', () => validate());
+	}
+
+	const cancelBtn = root.querySelector('.cancel');
+	if (cancelBtn) {
+		cancelBtn.addEventListener('click', () => cancel());
+	}
+
+	this._host.style.top = `${Math.max(376, Renderer.height / 2 + 76)}px`;
+	this._host.style.left = `${Math.max(Renderer.width / 3, 20)}px`;
 
 	this.draggable();
 
-	const self = this;
-	this.ui
-		.find('.content')
-
-		// Manage indexes
-		.on('mousedown', 'div', function (event) {
-			selectIndex.call(self, jQuery(this));
-		})
-
-		// Select index
-		.on('dblclick', 'div', validate.bind(this))
-
-		// Stop drag drop
-		.mousedown(function (event) {
-			event.stopImmediatePropagation();
-			return false;
+	const content = root.querySelector('.content');
+	if (content) {
+		content.addEventListener('mousedown', e => {
+			const div = e.target.closest('div');
+			if (div && content.contains(div)) {
+				selectIndex(div);
+			}
+			e.stopImmediatePropagation();
 		});
+
+		content.addEventListener('dblclick', e => {
+			const div = e.target.closest('div');
+			if (div && content.contains(div)) {
+				validate();
+			}
+		});
+	}
 };
 
 /**
  * Clean up events
  */
 NpcMenu.onRemove = function onRemove() {
-	this.ui.find('.content').empty();
+	const root = _getRoot();
+	const content = root.querySelector('.content');
+	if (content) {
+		content.innerHTML = '';
+	}
 };
 
 /**
  * Bind KeyDown event
  */
 NpcMenu.onKeyDown = function onKeyDown(event) {
-	let count, top;
-	let content;
-	if (!this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
 		return true;
 	}
+
+	const root = _getRoot();
+	const content = root.querySelector('.content');
+
 	switch (event.which) {
-		case KEYS.SPACE: // Same as Enter
+		case KEYS.SPACE:
 		case KEYS.ENTER:
-			validate.call(this);
+			validate();
 			break;
 
 		case KEYS.ESCAPE:
-			cancel.call(this);
+			cancel();
 			break;
 
-		case KEYS.UP:
-			count = this.ui.find('.content div').length;
+		case KEYS.UP: {
+			const divs = content.querySelectorAll('div');
 			_index = Math.max(_index - 1, 0);
 
-			this.ui.find('.content div').removeClass('selected');
-			this.ui.find('.content div:eq(' + _index + ')').addClass('selected');
+			divs.forEach(d => d.classList.remove('selected'));
+			if (divs[_index]) {
+				divs[_index].classList.add('selected');
+			}
 
-			content = this.ui.find('.content')[0];
-			top = _index * 20;
-
+			const top = _index * 20;
 			if (top < content.scrollTop) {
 				content.scrollTop = top;
 			}
 			break;
+		}
 
-		case KEYS.DOWN:
-			count = this.ui.find('.content div').length;
+		case KEYS.DOWN: {
+			const divs = content.querySelectorAll('div');
+			const count = divs.length;
 			_index = Math.min(_index + 1, count - 1);
 
-			this.ui.find('.content div').removeClass('selected');
-			this.ui.find('.content div:eq(' + _index + ')').addClass('selected');
+			divs.forEach(d => d.classList.remove('selected'));
+			if (divs[_index]) {
+				divs[_index].classList.add('selected');
+			}
 
-			content = this.ui.find('.content')[0];
-			top = _index * 20;
-
+			const top = _index * 20;
 			if (top >= content.scrollTop + 80) {
 				content.scrollTop = top - 60;
 			}
 			break;
+		}
 
 		default:
 			return true;
@@ -134,56 +174,65 @@ NpcMenu.onKeyDown = function onKeyDown(event) {
  * @param {string} menu
  * @param {number} gid - npc id
  */
-NpcMenu.setMenu = function SetMenu(menu, gid) {
-	const content = this.ui.find('.content');
+NpcMenu.setMenu = function setMenu(menu, gid) {
+	const root = _getRoot();
+	const content = root.querySelector('.content');
 	const list = menu.split(':');
-	let i, j, count;
 
 	_ownerID = gid;
 	_index = 0;
 
-	content.empty();
+	content.innerHTML = '';
 
-	for (i = 0, j = 0, count = list.length; i < count; ++i) {
-		// Don't display empty menu
+	let j = 0;
+	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].length) {
-			jQuery('<div/>').text(list[i]).data('index', j++).appendTo(content);
+			const div = document.createElement('div');
+			div.innerHTML = DB.formatMsgToHtml(_escapeHTML(list[i]));
+			div.dataset.index = j++;
+			content.appendChild(div);
 		}
 	}
 
-	content.find('div:first').addClass('selected');
+	const first = content.querySelector('div');
+	if (first) {
+		first.classList.add('selected');
+	}
 };
 
 /**
  * Submit an index
  */
 function validate() {
-	this.onSelectMenu(_ownerID, _index + 1);
+	NpcMenu.onSelectMenu(_ownerID, _index + 1);
 }
 
 /**
  * Pressed cancel, client send "255" as value
  */
 function cancel() {
-	this.onSelectMenu(_ownerID, 255);
+	NpcMenu.onSelectMenu(_ownerID, 255);
 }
 
 /**
  * Select an index, change background color
  */
-function selectIndex($this) {
-	this.ui.find('.content div').removeClass('selected');
-	$this.addClass('selected');
+function selectIndex(div) {
+	const root = _getRoot();
+	const content = root.querySelector('.content');
+	const divs = content.querySelectorAll('div');
+	divs.forEach(d => d.classList.remove('selected'));
+	div.classList.add('selected');
 
-	_index = parseInt($this.data('index'), 10);
+	_index = parseInt(div.dataset.index, 10);
 }
 
 /**
  * Abstract callback to define
  */
-NpcMenu.onSelectMenu = function OnSelectMenu(/*gid, index*/) {};
+NpcMenu.onSelectMenu = function onSelectMenu(/* gid, index */) {};
 
 /**
- * Create componentand export it
+ * Create component and export it
  */
 export default UIManager.addComponent(NpcMenu);
