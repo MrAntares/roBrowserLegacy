@@ -1,3 +1,8 @@
+:host {
+	width: 794px;
+	height: 422px;
+}
+
 #charcreate_v4 {
 	position: absolute;
 	width: 794px;
@@ -13,23 +18,19 @@
 }
 
 #charcreate_v4 .human::before,
-.doram::before,
-.human::after,
-.doram::after {
+#charcreate_v4 .doram::before,
+#charcreate_v4 .human::after,
+#charcreate_v4 .doram::after {
 	content: '';
 	display: table;
 }
 #charcreate_v4 .human::after,
-.doram::after {
+#charcreate_v4 .doram::after {
 	clear: both;
 }
 #charcreate_v4 .race {
 	display: none;
 }
-
-/** Name
-#charcreate_v4 input { position:absolute; top:244px; left:62px; width: 97px; height:14px; padding-top:2px; padding-left:3px; background-color:transparent; border:0; }
-**/
 
 /** Human Race **/
 #charcreate_v4 .human_label {
@@ -57,7 +58,7 @@
 	width: 220px;
 }
 /** Human Chargen **/
-.human .chargen canvas {
+#charcreate_v4 .human .chargen canvas {
 	position: absolute;
 	top: 40px;
 	left: 25px;
@@ -89,7 +90,7 @@
 	width: 220px;
 }
 /** Doram Chargen **/
-.doram .chargen_doram canvas {
+#charcreate_v4 .doram .chargen_doram canvas {
 	position: absolute;
 	top: 40px;
 	left: 25px;
@@ -160,7 +161,6 @@
 	left: 30px;
 	height: 23px;
 	width: 22px;
-	border-width: 0px;
 }
 #charcreate_v4 #style .rot_right {
 	position: relative;
@@ -168,7 +168,6 @@
 	left: 130px;
 	height: 23px;
 	width: 22px;
-	border-width: 0px;
 }
 
 /** Char Name **/
@@ -218,11 +217,13 @@
 	position: absolute;
 	width: 36px;
 	height: 37px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #charcreate_v4 .hair-styles {
-	position: relative; /* Make the container a positioning context */
-	width: 100px; /* Adjust the width as needed */
-	height: 100px; /* Adjust the height as needed */
+	position: relative;
+	width: 100px;
+	height: 100px;
 }
 #charcreate_v4 .hair-style {
 	position: absolute;
@@ -273,11 +274,8 @@
 }
 #charcreate_v4 .btn {
 	position: absolute;
-	border: 0;
 	width: 42px;
 	height: 20px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #charcreate_v4 .make {
 	right: 25px;

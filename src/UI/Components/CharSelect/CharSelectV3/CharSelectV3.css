@@ -1,8 +1,12 @@
+:host {
+	width: 576px;
+	height: 358px;
+}
+
 #CharSelectV3 {
 	position: absolute;
 	width: 576px;
 	height: 358px;
-	z-index: 100;
 }
 
 /** Box **/
@@ -11,6 +15,8 @@
 	width: 134px;
 	height: 144px;
 	top: 30px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #CharSelectV3 canvas {
 	position: absolute;
@@ -32,9 +38,6 @@
 	left: 107px;
 	width: 32px;
 	height: 32px;
-	border: 0;
-	background-color: transparent;
-	background-repeat: no-repeat;
 }
 #CharSelectV3 .make2 {
 	position: absolute;
@@ -42,9 +45,6 @@
 	left: 270px;
 	width: 32px;
 	height: 32px;
-	border: 0;
-	background-color: transparent;
-	background-repeat: no-repeat;
 }
 #CharSelectV3 .make3 {
 	position: absolute;
@@ -52,9 +52,6 @@
 	left: 436px;
 	width: 32px;
 	height: 32px;
-	border: 0;
-	background-color: transparent;
-	background-repeat: no-repeat;
 }
 
 /** Arrow **/
@@ -63,9 +60,6 @@
 	top: 95px;
 	width: 14px;
 	height: 20px;
-	border: 0;
-	background-color: transparent;
-	background-repeat: no-repeat;
 }
 #CharSelectV3 .arrow.left {
 	left: 40px;
@@ -99,6 +93,14 @@
 #CharSelectV3 .pageinfo {
 	position: absolute;
 	top: 180px;
+}
+
+#CharSelectV3 .pageinfo .pagebtn .btn_pageinfo {
+	border: 0;
+	width: 8px;
+	height: 8px;
+	background-color: transparent;
+	background-repeat: no-repeat;
 }
 
 /** Characters infos **/
@@ -177,15 +179,12 @@
 }
 #CharSelectV3 .btn {
 	position: absolute;
-	border: 0;
 	width: 42px;
 	height: 20px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #CharSelectV3 .ok,
-#charselect .make {
+#CharSelectV3 .make {
 	right: 50px;
 }
 #CharSelectV3 .cancel {

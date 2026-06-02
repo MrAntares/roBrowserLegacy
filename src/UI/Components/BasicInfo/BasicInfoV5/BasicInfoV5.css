@@ -11,6 +11,8 @@
 	height: 150px;
 	font-size: 11px;
 	letter-spacing: 0.03em;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #BasicInfoV5.small .large {
 	display: none;
@@ -182,6 +184,8 @@
 	top: 9px;
 	width: 220px;
 	height: 184px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #BasicInfoV5 .bt_menu {
 	position: absolute;
@@ -199,6 +203,7 @@
 	margin: 0px;
 	background-color: transparent;
 	background-repeat: no-repeat;
+	background-size: contain;
 }
 #BasicInfoV5 .buttons .clear {
 	clear: both;
@@ -265,4 +270,7 @@
 	left: -7px;
 	z-index: 10;
 	display: none;
+	background-repeat: no-repeat;
+	background-color: transparent;
+	background-size: contain;
 }

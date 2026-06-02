@@ -14,7 +14,8 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CharCreatev4.html?raw';
 import cssText from './CharCreatev4.css?raw';
 import Client from 'Core/Client.js';
@@ -22,7 +23,9 @@ import Client from 'Core/Client.js';
 /**
  * Create Chararacter Selection namespace
  */
-const CharCreatev4 = new UIComponent('CharCreatev4', htmlText, cssText);
+const CharCreatev4 = new GUIComponent('CharCreatev4', cssText);
+
+CharCreatev4.render = () => htmlText;
 
 /**
  * @var {boolean} account sex
@@ -70,18 +73,20 @@ const _model = {
 };
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return CharCreatev4._shadow || CharCreatev4._host;
+}
+
+/**
  * Initialize UI
  */
 CharCreatev4.init = function init() {
-	_chargen.ctx = this.ui.find('#human')[0].getContext('2d');
-	_doram.ctx = this.ui.find('#doram')[0].getContext('2d');
-	_model.ctx = this.ui.find('#style_model')[0].getContext('2d');
-
-	// Setup GUI
-	this.ui.css({
-		top: (Renderer.height - 342) / 2,
-		left: (Renderer.width - 576) / 2
-	});
+	const root = _getRoot();
+	_chargen.ctx = root.querySelector('#human').getContext('2d');
+	_doram.ctx = root.querySelector('#doram').getContext('2d');
+	_model.ctx = root.querySelector('#style_model').getContext('2d');
 
 	this.draggable();
 
@@ -94,8 +99,8 @@ CharCreatev4.init = function init() {
 	_curcolor = 0;
 
 	// Update cursor
-	const radioInputs = document.querySelectorAll('input[type="radio"]');
-	const labels = document.querySelectorAll('label');
+	const radioInputs = root.querySelectorAll('input[type="radio"]');
+	const labels = root.querySelectorAll('label');
 
 	radioInputs.forEach(input => {
 		input.classList.add('event_add_cursor');
@@ -106,50 +111,48 @@ CharCreatev4.init = function init() {
 	});
 
 	// Bind Events
-	this.ui.find('.gender .male_button').mousedown(updateCharacterGeneric('gender', 1));
-	this.ui.find('.gender .female_button').mousedown(updateCharacterGeneric('gender', 0));
-	this.ui.find('#style .rot_left').mousedown(updateCharacterGeneric('direction', 0));
-	this.ui.find('#style .rot_right').mousedown(updateCharacterGeneric('direction', 1));
-	this.ui.find('.race').click(updateRace);
-	this.ui.on('click', '.hstyle_button', updateHStyle);
-	this.ui.on('click', '.hcolor_button', updateHColor);
+	root.querySelector('.gender .male_button').addEventListener('mousedown', updateCharacterGeneric('gender', 1));
+	root.querySelector('.gender .female_button').addEventListener('mousedown', updateCharacterGeneric('gender', 0));
+	root.querySelector('#style .rot_left').addEventListener('mousedown', updateCharacterGeneric('direction', 0));
+	root.querySelector('#style .rot_right').addEventListener('mousedown', updateCharacterGeneric('direction', 1));
 
-	this.ui.find('#char_name').mousedown(function (event) {
-		this.focus();
+	root.querySelectorAll('.race').forEach(el => {
+		el.addEventListener('click', updateRace);
+	});
+
+	// Event delegation for hairstyle buttons
+	root.addEventListener('click', event => {
+		const hstyleBtn = event.target.closest('.hstyle_button');
+		if (hstyleBtn) {
+			updateHStyle(hstyleBtn);
+			return;
+		}
+		const hcolorBtn = event.target.closest('.hcolor_button');
+		if (hcolorBtn) {
+			updateHColor(hcolorBtn);
+		}
+	});
+
+	const charNameInput = root.querySelector('#char_name');
+	charNameInput.addEventListener('mousedown', event => {
+		charNameInput.focus();
 		event.stopImmediatePropagation();
 	});
 
-	this.ui.find('.cancel').click(cancel);
-	this.ui.find('.return').click(cancel);
-	this.ui.find('.make').click(create);
+	root.querySelector('.cancel').addEventListener('click', cancel);
+	root.querySelector('.return').addEventListener('click', cancel);
+	root.querySelector('.make').addEventListener('click', create);
 
 	/* Msgstring Texts */
-	const title = this.ui.find('.title');
-	title.text(DB.getMessage(3356 - 1));
-
-	const human_title = this.ui.find('.human_title');
-	human_title.text(DB.getMessage(3017 - 1));
-
-	const human_desc = this.ui.find('.human_desc');
-	human_desc.text(DB.getMessage(3021 - 1));
-
-	const doram_title = this.ui.find('.doram_title');
-	doram_title.text(DB.getMessage(3019 - 1));
-
-	const doram_desc = this.ui.find('.doram_desc');
-	doram_desc.text(DB.getMessage(3022 - 1));
-
-	const hair_style = this.ui.find('.hair_style_title');
-	hair_style.text(DB.getMessage(3347 - 1));
-
-	const hair_color = this.ui.find('.hair_color_title');
-	hair_color.text(DB.getMessage(3348 - 1));
-
-	const return_msg = this.ui.find('.return');
-	return_msg.text(DB.getMessage(3352 - 1));
-
-	const create_msg = this.ui.find('.make');
-	create_msg.text(DB.getMessage(3346 - 1));
+	root.querySelector('.title').textContent = DB.getMessage(3356 - 1);
+	root.querySelector('.human_title').textContent = DB.getMessage(3017 - 1);
+	root.querySelector('.human_desc').textContent = DB.getMessage(3021 - 1);
+	root.querySelector('.doram_title').textContent = DB.getMessage(3019 - 1);
+	root.querySelector('.doram_desc').textContent = DB.getMessage(3022 - 1);
+	root.querySelector('.hair_style_title').textContent = DB.getMessage(3347 - 1);
+	root.querySelector('.hair_color_title').textContent = DB.getMessage(3348 - 1);
+	root.querySelector('.return').textContent = DB.getMessage(3352 - 1);
+	root.querySelector('.make').textContent = DB.getMessage(3346 - 1);
 };
 
 /**
@@ -165,6 +168,9 @@ CharCreatev4.setAccountSex = function setAccountSex(sex) {
  * Once add to HTML, start rendering
  */
 CharCreatev4.onAppend = function onAppend() {
+	this._host.style.top = `${(Renderer.height - 342) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 576) / 2}px`;
+
 	_chargen.render = true;
 	_chargen.entity.set({
 		sex: _accountSex,
@@ -193,7 +199,10 @@ CharCreatev4.onAppend = function onAppend() {
 		direction: 4
 	});
 
-	this.ui.find('#char_name').val('').focus();
+	const root = _getRoot();
+	const charNameInput = root.querySelector('#char_name');
+	charNameInput.value = '';
+	charNameInput.focus();
 
 	// Set default race and gender
 	_race = 'human';
@@ -218,7 +227,7 @@ CharCreatev4.onRemove = function onRemove() {
  * @return {boolean}
  */
 CharCreatev4.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		event.stopImmediatePropagation();
 		cancel();
 		return false;
@@ -230,13 +239,17 @@ CharCreatev4.onKeyDown = function onKeyDown(event) {
 /**
  * Update model hairstyle
  */
-function updateHStyle(event) {
+function updateHStyle(target) {
+	const root = _getRoot();
 	const type = 'head';
-	const value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
+	const value = parseInt(target.getAttribute('for'));
 
 	_prevhead = _model.entity.head;
-	Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_hairstyle_normal.bmp', function (dataURI) {
-		CharCreatev4.ui.find('.style' + _prevhead).css('backgroundImage', 'url(' + dataURI + ')');
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
+		const el = root.querySelector(`.style${_prevhead}`);
+		if (el) {
+			el.style.backgroundImage = `url(${dataURI})`;
+		}
 	});
 
 	_curhead = value;
@@ -247,18 +260,19 @@ function updateHStyle(event) {
 /**
  * Update model haircolor
  */
-function updateHColor(event) {
+function updateHColor(target) {
+	const root = _getRoot();
 	const type = 'headpalette';
-	const value = parseInt(CharCreatev4.ui.find(event.currentTarget).attr('for'));
+	const value = parseInt(target.getAttribute('for'));
 
 	_prevcolor = _model.entity.headpalette;
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'make_character_ver2/color0' + (parseInt(_prevcolor) + 1) + '_off.bmp',
-		function (dataURI) {
-			CharCreatev4.ui.find('.cstyle0' + _prevcolor).css('backgroundImage', 'url(' + dataURI + ')');
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/color0${parseInt(_prevcolor) + 1}_off.bmp`, dataURI => {
+		const el = root.querySelector(`.cstyle0${_prevcolor}`);
+		if (el) {
+			el.style.backgroundImage = `url(${dataURI})`;
 		}
-	);
+	});
 
 	_curcolor = value;
 
@@ -269,34 +283,38 @@ function updateHColor(event) {
  * Update model race
  */
 function updateRace() {
-	const select = CharCreatev4.ui.find('.race').filter(':checked');
+	const root = _getRoot();
+	const select = root.querySelector('.race:checked');
 	const type = 'race';
 	let value = 0;
 
-	if (select[0].id === 'human_race') {
-		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/img_human_on.bmp', function (dataURI) {
-			CharCreatev4.ui.find('.human_label').css('backgroundImage', 'url(' + dataURI + ')');
+	if (select && select.id === 'human_race') {
+		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/img_human_on.bmp`, dataURI => {
+			root.querySelector('.human_label').style.backgroundImage = `url(${dataURI})`;
 		});
-		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/img_doram_off.bmp', function (dataURI) {
-			CharCreatev4.ui.find('.doram_label').css('backgroundImage', 'url(' + dataURI + ')');
+		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/img_doram_off.bmp`, dataURI => {
+			root.querySelector('.doram_label').style.backgroundImage = `url(${dataURI})`;
 		});
 		value = 0;
 	}
 
-	if (select[0].id === 'doram_race') {
-		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/img_human_off.bmp', function (dataURI) {
-			CharCreatev4.ui.find('.human_label').css('backgroundImage', 'url(' + dataURI + ')');
+	if (select && select.id === 'doram_race') {
+		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/img_human_off.bmp`, dataURI => {
+			root.querySelector('.human_label').style.backgroundImage = `url(${dataURI})`;
 		});
-		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/img_doram_on.bmp', function (dataURI) {
-			CharCreatev4.ui.find('.doram_label').css('backgroundImage', 'url(' + dataURI + ')');
+		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/img_doram_on.bmp`, dataURI => {
+			root.querySelector('.doram_label').style.backgroundImage = `url(${dataURI})`;
 		});
 		value = 4218;
 	}
 
 	// In between changes of race, it needs to clear everything
 	for (let i = 1; i <= 24; i++) {
-		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_hairstyle_normal.bmp', function (dataURI) {
-			CharCreatev4.ui.find('.style' + i).css('backgroundImage', 'url(' + dataURI + ')');
+		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
+			const el = root.querySelector(`.style${i}`);
+			if (el) {
+				el.style.backgroundImage = `url(${dataURI})`;
+			}
 		});
 	}
 
@@ -315,17 +333,17 @@ function updateRace() {
  * @param {number} value
  */
 function updateCharacterGeneric(type, value) {
-	return function (event) {
+	return () => {
 		if (type === 'gender') {
 			updateHstyleList(type, value);
 		}
 		updateCharacter(type, value);
-		//event.stopImmediatePropagation();
-		//return false;
 	};
 }
 
 function updateHstyleList(type, value) {
+	const root = _getRoot();
+
 	switch (type) {
 		case 'gender':
 			if (value === 1) {
@@ -343,32 +361,37 @@ function updateHstyleList(type, value) {
 			break;
 	}
 
-	Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_male_off.bmp', function (dataURI) {
-		CharCreatev4.ui.find('#male_container').css('backgroundImage', 'url(' + dataURI + ')');
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_male_off.bmp`, dataURI => {
+		root.querySelector('#male_container').style.backgroundImage = `url(${dataURI})`;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_female_off.bmp', function (dataURI) {
-		CharCreatev4.ui.find('#female_container').css('backgroundImage', 'url(' + dataURI + ')');
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_female_off.bmp`, dataURI => {
+		root.querySelector('#female_container').style.backgroundImage = `url(${dataURI})`;
 	});
 
-	Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_' + _gender + '_on.bmp', function (dataURI) {
-		CharCreatev4.ui.find('#' + _gender + '_container').css('backgroundImage', 'url(' + dataURI + ')');
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_${_gender}_on.bmp`, dataURI => {
+		root.querySelector(`#${_gender}_container`).style.backgroundImage = `url(${dataURI})`;
 	});
 
 	// Hide everything first still
-	CharCreatev4.ui.find('.hair-style').css('display', 'none');
+	root.querySelectorAll('.hair-style').forEach(el => {
+		el.style.display = 'none';
+	});
 
 	// Show the correct one
-	CharCreatev4.ui.find('#' + _race + '_' + _gender + '').css('display', 'block');
+	const hairStyleEl = root.querySelector(`#${_race}_${_gender}`);
+	if (hairStyleEl) {
+		hairStyleEl.style.display = 'block';
+	}
 }
 
 /**
  * Send back informations to send the packet
  */
 function create() {
-	const ui = CharCreatev4.ui;
+	const root = _getRoot();
 
 	CharCreatev4.onCharCreationRequest(
-		ui.find('#char_name').val(),
+		root.querySelector('#char_name').value,
 		1,
 		1,
 		1,
@@ -383,6 +406,8 @@ function create() {
 }
 
 function cleanup() {
+	const root = _getRoot();
+
 	// Reset Default
 	_race = 'human';
 	_gender = 'male';
@@ -390,15 +415,33 @@ function cleanup() {
 	_curhead = 1;
 	_prevcolor = 0;
 	_curcolor = 0;
-	CharCreatev4.ui.find('#human_race').prop('checked', true);
-	CharCreatev4.ui.find('#male').prop('checked', true);
-	CharCreatev4.ui.find('.hstyle').prop('checked', false);
-	CharCreatev4.ui.find('#1_human_male').prop('checked', true);
-	CharCreatev4.ui.find('#0_color').prop('checked', true);
+
+	const humanRace = root.querySelector('#human_race');
+	if (humanRace) {
+		humanRace.checked = true;
+	}
+	const maleInput = root.querySelector('#male');
+	if (maleInput) {
+		maleInput.checked = true;
+	}
+	root.querySelectorAll('.hstyle').forEach(el => {
+		el.checked = false;
+	});
+	const defaultHstyle = root.querySelector('#1_human_male');
+	if (defaultHstyle) {
+		defaultHstyle.checked = true;
+	}
+	const defaultColor = root.querySelector('#0_color');
+	if (defaultColor) {
+		defaultColor.checked = true;
+	}
 
 	for (let i = 0; i <= 8; i++) {
-		Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/color0' + (i + 1) + '_off.bmp', function (dataURI) {
-			CharCreatev4.ui.find('.cstyle0' + i).css('backgroundImage', 'url(' + dataURI + ')');
+		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/color0${i + 1}_off.bmp`, dataURI => {
+			const el = root.querySelector(`.cstyle0${i}`);
+			if (el) {
+				el.style.backgroundImage = `url(${dataURI})`;
+			}
 		});
 	}
 
@@ -427,16 +470,14 @@ function updateCharacter(type, increment) {
 
 		case 'race':
 			_model.entity.job = increment;
-			_model.entity.head = 1; // Need to reset head as well
+			_model.entity.head = 1;
 			break;
 
 		case 'direction':
 			if (increment === 0) {
-				const dir = _model.entity.direction + 1;
-				_model.entity.direction = dir;
+				_model.entity.direction = _model.entity.direction + 1;
 			} else {
-				const dir = _model.entity.direction - 1;
-				_model.entity.direction = dir;
+				_model.entity.direction = _model.entity.direction - 1;
 			}
 			break;
 
@@ -462,6 +503,8 @@ function updateCharacter(type, increment) {
  * Rendering the Character
  */
 function render(tick) {
+	const root = _getRoot();
+
 	if (_race === 'human') {
 		if (_chargen.tick + 500 < tick) {
 			_chargen.entity.set({
@@ -497,30 +540,34 @@ function render(tick) {
 	_model.ctx.clearRect(0, 0, _model.ctx.canvas.width, _model.ctx.canvas.height);
 	_model.entity.renderEntity();
 
-	// Need this to persist, rendering resets them?
+	root.querySelector('#char_name').focus();
 
-	CharCreatev4.ui.find('#char_name').focus();
-
-	Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/img_' + _race + '_on.bmp', function (dataURI) {
-		CharCreatev4.ui.find('.' + _race + '_label').css('backgroundImage', 'url(' + dataURI + ')');
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/img_${_race}_on.bmp`, dataURI => {
+		root.querySelector(`.${_race}_label`).style.backgroundImage = `url(${dataURI})`;
 	});
 
-	Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_' + _gender + '_on.bmp', function (dataURI) {
-		CharCreatev4.ui.find('#' + _gender + '_container').css('backgroundImage', 'url(' + dataURI + ')');
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_${_gender}_on.bmp`, dataURI => {
+		root.querySelector(`#${_gender}_container`).style.backgroundImage = `url(${dataURI})`;
 	});
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'make_character_ver2/color0' + (parseInt(_curcolor) + 1) + '_on.bmp',
-		function (dataURI) {
-			CharCreatev4.ui.find('.cstyle0' + _curcolor).css('backgroundImage', 'url(' + dataURI + ')');
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/color0${parseInt(_curcolor) + 1}_on.bmp`, dataURI => {
+		const el = root.querySelector(`.cstyle0${_curcolor}`);
+		if (el) {
+			el.style.backgroundImage = `url(${dataURI})`;
 		}
-	);
-
-	Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_hairstyle_normal.bmp', function (dataURI) {
-		CharCreatev4.ui.find('.style' + _prevhead).css('backgroundImage', 'url(' + dataURI + ')');
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'make_character_ver2/bt_hairstyle_select.bmp', function (dataURI) {
-		CharCreatev4.ui.find('.style' + _curhead).css('backgroundImage', 'url(' + dataURI + ')');
+
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
+		const el = root.querySelector(`.style${_prevhead}`);
+		if (el) {
+			el.style.backgroundImage = `url(${dataURI})`;
+		}
+	});
+	Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_select.bmp`, dataURI => {
+		const el = root.querySelector(`.style${_curhead}`);
+		if (el) {
+			el.style.backgroundImage = `url(${dataURI})`;
+		}
 	});
 }
 

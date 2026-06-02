@@ -1,3 +1,8 @@
+:host {
+	width: 576px;
+	height: 358px;
+}
+
 #charcreate_v3 {
 	position: absolute;
 	width: 576px;
@@ -108,7 +113,6 @@
 	left: 30px;
 	height: 20px;
 	width: 20px;
-	border-width: 0px;
 }
 #charcreate_v3 #style .rot_right {
 	position: absolute;
@@ -116,7 +120,6 @@
 	left: 110px;
 	height: 20px;
 	width: 20px;
-	border-width: 0px;
 }
 
 #charcreate_v3 #style .category {
@@ -159,9 +162,6 @@
 	left: 445px;
 	width: 68px;
 	height: 20px;
-	background-repeat: no-repeat;
-	background-color: transparent;
-	border: 0;
 }
 #charcreate_v3 .button.close {
 	position: absolute;
@@ -169,7 +169,4 @@
 	right: 3px;
 	width: 11px;
 	height: 11px;
-	background-repeat: no-repeat;
-	background-color: transparent;
-	border: 0;
 }

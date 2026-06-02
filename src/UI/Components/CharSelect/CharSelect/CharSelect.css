@@ -1,8 +1,12 @@
+:host {
+	width: 576px;
+	height: 342px;
+}
+
 #charselect {
 	position: absolute;
 	width: 576px;
 	height: 342px;
-	z-index: 100;
 }
 
 /** Box **/
@@ -12,6 +16,8 @@
 	height: 144px;
 	top: 40px;
 	margin-left: -5px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #charselect canvas {
 	position: absolute;
@@ -33,9 +39,6 @@
 	top: 105px;
 	width: 13px;
 	height: 13px;
-	border: 0;
-	background-color: transparent;
-	background-repeat: no-repeat;
 }
 #charselect .arrow.left {
 	left: 40px;
@@ -155,11 +158,8 @@
 }
 #charselect .btn {
 	position: absolute;
-	border: 0;
 	width: 42px;
 	height: 20px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #charselect .ok,

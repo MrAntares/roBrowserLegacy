@@ -16,6 +16,17 @@ body {
 	margin: 0;
 }
 
+/* Prevent mobile browser auto-zoom on input focus and double-tap */
+:host {
+	touch-action: manipulation;
+}
+
+input,
+textarea,
+select {
+	touch-action: manipulation;
+}
+
 canvas {
 	touch-action: none;
 }

@@ -1,8 +1,12 @@
+:host {
+	min-width: 100%;
+	min-height: 100%;
+}
+
 #CharSelectV4 {
 	position: absolute;
 	min-width: 100%;
 	min-height: 100%;
-	z-index: 100;
 	top: 0;
 	left: 0;
 	display: flex;
@@ -62,6 +66,8 @@
 	right: 12px;
 	width: 25px;
 	height: 25px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 
 /** Slot info **/
@@ -174,38 +180,26 @@
 /** Buttons **/
 #CharSelectV4 .btn.delete {
 	position: absolute;
-	border: 0;
 	width: 131px;
 	height: 24px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #CharSelectV4 .btn.canceldelete {
 	position: absolute;
-	border: 0;
 	width: 131px;
 	height: 24px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #CharSelectV4 .btn.finaldelete {
 	position: absolute;
-	border: 0;
 	width: 131px;
 	height: 24px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #CharSelectV4 .btn.ok {
 	position: absolute;
-	border: 0;
 	width: 165px;
 	height: 110px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 	color: white;
 	padding-top: 20px;
 }
@@ -224,9 +218,6 @@
 	right: 5px;
 	width: 17px;
 	height: 18px;
-	border: none;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #CharSelectV4 .delete {
 	right: 33px;

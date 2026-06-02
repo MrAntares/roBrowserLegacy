@@ -14,7 +14,8 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CharCreatev3.html?raw';
 import cssText from './CharCreatev3.css?raw';
 import Client from 'Core/Client.js';
@@ -22,7 +23,9 @@ import Client from 'Core/Client.js';
 /**
  * Create Chararacter Selection namespace
  */
-const CharCreatev3 = new UIComponent('CharCreatev3', htmlText, cssText);
+const CharCreatev3 = new GUIComponent('CharCreatev3', cssText);
+
+CharCreatev3.render = () => htmlText;
 
 /**
  * @var {boolean} account sex
@@ -62,7 +65,7 @@ const CAP = {
 	[RACE.HUMAN]: {
 		HEAD: {
 			MIN: 1,
-			MAX: 29 //42 later value
+			MAX: 29
 		},
 		HEADPALETTE: {
 			MIN: 0,
@@ -72,7 +75,7 @@ const CAP = {
 	[RACE.DORAM]: {
 		HEAD: {
 			MIN: 1,
-			MAX: 6 //10 later value
+			MAX: 6
 		},
 		HEADPALETTE: {
 			MIN: 0,
@@ -81,7 +84,7 @@ const CAP = {
 	}
 };
 
-const RACE_MARK = DB.INTERFACE_PATH + 'make_character/select_mark_cha_create.bmp';
+const RACE_MARK = `${DB.INTERFACE_PATH}make_character/select_mark_cha_create.bmp`;
 
 /**
  * @var {object} chargen info
@@ -114,24 +117,26 @@ const _model = {
 };
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return CharCreatev3._shadow || CharCreatev3._host;
+}
+
+/**
  * Initialize UI
  */
 CharCreatev3.init = function init() {
-	_human.ctx = this.ui.find('#canvas_human')[0].getContext('2d');
-	_doram.ctx = this.ui.find('#canvas_doram')[0].getContext('2d');
-	_model.ctx = this.ui.find('#canvas_model')[0].getContext('2d');
-
-	// Setup GUI
-	this.ui.css({
-		top: (Renderer.height - 342) / 2,
-		left: (Renderer.width - 576) / 2
-	});
+	const root = _getRoot();
+	_human.ctx = root.querySelector('#canvas_human').getContext('2d');
+	_doram.ctx = root.querySelector('#canvas_doram').getContext('2d');
+	_model.ctx = root.querySelector('#canvas_model').getContext('2d');
 
 	this.draggable();
 
 	// Update cursor
-	const radioInputs = document.querySelectorAll('input[type="radio"]');
-	const labels = document.querySelectorAll('label');
+	const radioInputs = root.querySelectorAll('input[type="radio"]');
+	const labels = root.querySelectorAll('label');
 
 	radioInputs.forEach(input => {
 		input.classList.add('event_add_cursor');
@@ -142,58 +147,58 @@ CharCreatev3.init = function init() {
 	});
 
 	// Bind Events
-
-	this.ui.find('.race_select #human').click(function () {
+	root.querySelector('.race_select #human').addEventListener('click', () => {
 		updateCharacter(TYPE.RACE, RACE.HUMAN);
 	});
-	this.ui.find('.race_select #doram').click(function () {
+	root.querySelector('.race_select #doram').addEventListener('click', () => {
 		updateCharacter(TYPE.RACE, RACE.DORAM);
 	});
 
-	this.ui.find('#style .rot_left').click(function () {
+	root.querySelector('#style .rot_left').addEventListener('click', () => {
 		updateCharacter(TYPE.DIRECTION, DIRECTION.LEFT);
 	});
-	this.ui.find('#style .rot_right').click(function () {
+	root.querySelector('#style .rot_right').addEventListener('click', () => {
 		updateCharacter(TYPE.DIRECTION, DIRECTION.RIGHT);
 	});
 
-	this.ui.find('#style .gender .button.male').click(function () {
+	root.querySelector('#style .gender .button.male').addEventListener('click', () => {
 		updateCharacter(TYPE.GENDER, GENDER.MALE);
 	});
-	this.ui.find('#style .gender .button.female').click(function () {
+	root.querySelector('#style .gender .button.female').addEventListener('click', () => {
 		updateCharacter(TYPE.GENDER, GENDER.FEMALE);
 	});
 
-	this.ui.find('#style .hairstyle .left').click(function () {
+	root.querySelector('#style .hairstyle .left').addEventListener('click', () => {
 		updateCharacter(TYPE.HEAD, VALUE.DECREASE);
 	});
-	this.ui.find('#style .hairstyle .right').click(function () {
+	root.querySelector('#style .hairstyle .right').addEventListener('click', () => {
 		updateCharacter(TYPE.HEAD, VALUE.INCREASE);
 	});
 
-	this.ui.find('#style .haircolor .left').click(function () {
+	root.querySelector('#style .haircolor .left').addEventListener('click', () => {
 		updateCharacter(TYPE.HEADPALETTE, VALUE.DECREASE);
 	});
-	this.ui.find('#style .haircolor .right').click(function () {
+	root.querySelector('#style .haircolor .right').addEventListener('click', () => {
 		updateCharacter(TYPE.HEADPALETTE, VALUE.INCREASE);
 	});
 
-	this.ui.find('#char_name').click(function (event) {
-		this.focus();
+	const charNameInput = root.querySelector('#char_name');
+	charNameInput.addEventListener('click', event => {
+		charNameInput.focus();
 		event.stopImmediatePropagation();
 	});
 
-	this.ui.find('.button.close').click(cancel);
-	this.ui.find('.button.make').click(create);
+	root.querySelector('.button.close').addEventListener('click', cancel);
+	root.querySelector('.button.make').addEventListener('click', create);
 
 	/* Msgstring Texts */
-	this.ui.find('.race_select .human .title').text(DB.getMessage(3017 - 1));
-	this.ui.find('.race_select .human .desc').text(DB.getMessage(3021 - 1));
-	this.ui.find('.race_select .human .jobs').text(DB.getMessage(3018 - 1));
+	root.querySelector('.race_select .human .title').textContent = DB.getMessage(3017 - 1);
+	root.querySelector('.race_select .human .desc').textContent = DB.getMessage(3021 - 1);
+	root.querySelector('.race_select .human .jobs').textContent = DB.getMessage(3018 - 1);
 
-	this.ui.find('.race_select .doram .title').text(DB.getMessage(3019 - 1));
-	this.ui.find('.race_select .doram .desc').text(DB.getMessage(3022 - 1));
-	this.ui.find('.race_select .doram .jobs').text(DB.getMessage(3020 - 1));
+	root.querySelector('.race_select .doram .title').textContent = DB.getMessage(3019 - 1);
+	root.querySelector('.race_select .doram .desc').textContent = DB.getMessage(3022 - 1);
+	root.querySelector('.race_select .doram .jobs').textContent = DB.getMessage(3020 - 1);
 };
 
 /**
@@ -209,6 +214,9 @@ CharCreatev3.setAccountSex = function setAccountSex(sex) {
  * Once add to HTML, start rendering
  */
 CharCreatev3.onAppend = function onAppend() {
+	this._host.style.top = `${(Renderer.height - 342) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 576) / 2}px`;
+
 	_human.entity.set({
 		sex: _accountSex,
 		job: RACE.HUMAN,
@@ -237,7 +245,10 @@ CharCreatev3.onAppend = function onAppend() {
 	});
 	_model.render = true;
 
-	this.ui.find('#char_name').val('').focus();
+	const root = _getRoot();
+	const charNameInput = root.querySelector('#char_name');
+	charNameInput.value = '';
+	charNameInput.focus();
 
 	// Set default race and gender
 	setDefault();
@@ -259,7 +270,7 @@ CharCreatev3.onRemove = function onRemove() {
  * @return {boolean}
  */
 CharCreatev3.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		event.stopImmediatePropagation();
 		cancel();
 		return false;
@@ -269,38 +280,11 @@ CharCreatev3.onKeyDown = function onKeyDown(event) {
 };
 
 /**
- * Update model race
- */
-/*function updateRace (){
-		let select = CharCreatev3.ui.find('.race_select .race input.radio').filter(':checked');
-		let type = TYPE.RACE;
-		let race = RACE.HUMAN;
-		let marker = DB.INTERFACE_PATH + "make_character/select_mark_cha_create.bmp";
-
-		if (select[0].id === "human") {
-			Client.loadFile( marker, function(dataURI) {
-				CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'url(' + dataURI + ')');
-            });
-			CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'none');
-			race = RACE.HUMAN;
-		}
-
-		if (select[0].id === "doram") {
-			CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'none');
-			Client.loadFile( marker, function(dataURI) {
-				CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'url(' + dataURI + ')');
-            });
-			race = RACE.DORAM;
-		}
-
-		updateCharacter( type, race);
-	};*/ // UNUSED
-
-/**
  * Send back informations to send the packet
  */
 function create() {
-	const charname = CharCreatev3.ui.find('#char_name').val();
+	const root = _getRoot();
+	const charname = root.querySelector('#char_name').value;
 
 	CharCreatev3.onCharCreationRequest(
 		charname,
@@ -336,40 +320,42 @@ function cancel() {
  * @param {number} value
  */
 function updateCharacter(type, value) {
+	const root = _getRoot();
+
 	switch (type) {
 		case TYPE.GENDER:
 			_model.entity.sex = value;
 
 			if (_model.entity.sex == GENDER.MALE) {
-				Client.loadFile(DB.INTERFACE_PATH + 'make_character/btn_gender_m_press.bmp', function (dataURI) {
-					CharCreatev3.ui.find('#male_container').css('backgroundImage', 'url(' + dataURI + ')');
+				Client.loadFile(`${DB.INTERFACE_PATH}make_character/btn_gender_m_press.bmp`, dataURI => {
+					root.querySelector('#male_container').style.backgroundImage = `url(${dataURI})`;
 				});
-				Client.loadFile(DB.INTERFACE_PATH + 'make_character/btn_gender_f_out.bmp', function (dataURI) {
-					CharCreatev3.ui.find('#female_container').css('backgroundImage', 'url(' + dataURI + ')');
+				Client.loadFile(`${DB.INTERFACE_PATH}make_character/btn_gender_f_out.bmp`, dataURI => {
+					root.querySelector('#female_container').style.backgroundImage = `url(${dataURI})`;
 				});
 			} else {
-				Client.loadFile(DB.INTERFACE_PATH + 'make_character/btn_gender_m_out.bmp', function (dataURI) {
-					CharCreatev3.ui.find('#male_container').css('backgroundImage', 'url(' + dataURI + ')');
+				Client.loadFile(`${DB.INTERFACE_PATH}make_character/btn_gender_m_out.bmp`, dataURI => {
+					root.querySelector('#male_container').style.backgroundImage = `url(${dataURI})`;
 				});
-				Client.loadFile(DB.INTERFACE_PATH + 'make_character/btn_gender_f_press.bmp', function (dataURI) {
-					CharCreatev3.ui.find('#female_container').css('backgroundImage', 'url(' + dataURI + ')');
+				Client.loadFile(`${DB.INTERFACE_PATH}make_character/btn_gender_f_press.bmp`, dataURI => {
+					root.querySelector('#female_container').style.backgroundImage = `url(${dataURI})`;
 				});
 			}
 			break;
 
 		case TYPE.RACE:
 			_model.entity.job = value;
-			_model.entity.head = 1; // Need to reset head as well
+			_model.entity.head = 1;
 
 			if (_model.entity.job === RACE.HUMAN) {
-				Client.loadFile(RACE_MARK, function (dataURI) {
-					CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'url(' + dataURI + ')');
+				Client.loadFile(RACE_MARK, dataURI => {
+					root.querySelector('.race_select .human label').style.backgroundImage = `url(${dataURI})`;
 				});
-				CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'none');
+				root.querySelector('.race_select .doram label').style.backgroundImage = 'none';
 			} else {
-				CharCreatev3.ui.find('.race_select .human label').css('backgroundImage', 'none');
-				Client.loadFile(RACE_MARK, function (dataURI) {
-					CharCreatev3.ui.find('.race_select .doram label').css('backgroundImage', 'url(' + dataURI + ')');
+				root.querySelector('.race_select .human label').style.backgroundImage = 'none';
+				Client.loadFile(RACE_MARK, dataURI => {
+					root.querySelector('.race_select .doram label').style.backgroundImage = `url(${dataURI})`;
 				});
 			}
 
@@ -450,8 +436,8 @@ function render(tick) {
 	_model.ctx.clearRect(0, 0, _model.ctx.canvas.width, _model.ctx.canvas.height);
 	_model.entity.renderEntity();
 
-	// Need this to persist, rendering resets them?
-	CharCreatev3.ui.find('#char_name').focus();
+	const root = _getRoot();
+	root.querySelector('#char_name').focus();
 }
 
 /**

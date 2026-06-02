@@ -1,7 +1,14 @@
+:host {
+	width: 280px;
+	height: 179px;
+}
+
 #SwitchEquip {
 	position: absolute;
 	width: 280px;
 	height: 179px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 
 #SwitchEquip .clear {
@@ -42,6 +49,8 @@
 	width: 280px;
 	height: 179px;
 	border-spacing: 0;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #SwitchEquip .col1,
 #SwitchEquip .col3 {

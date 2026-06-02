@@ -1,3 +1,23 @@
+:host {
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+#MobileUI {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+#MobileUI button,
+#MobileUI .joystick-base {
+	pointer-events: auto;
+}
+
 #MobileUI * {
 	z-index: 1000;
 }
@@ -8,17 +28,17 @@
 }
 
 #MobileUI #toggleUIButton {
-	top: 3px;
-	left: 3px;
-	width: 25px;
-	height: 25px;
+	top: 1%;
+	left: 1%;
+	width: 6.5vmin;
+	height: 6.5vmin;
 }
 
 #MobileUI .buttons {
 	background: rgba(193, 193, 193, 0.33);
 	border-radius: 6px;
 	border: 1px solid grey;
-	font-size: 16px;
+	font-size: 4vmin;
 	font-weight: bold;
 }
 
@@ -27,11 +47,11 @@
 }
 
 #MobileUI .horizontal {
-	margin: 0px 15px;
+	margin: 0 3.5vmin;
 }
 
 #MobileUI .vertical {
-	margin: 15px 0px;
+	margin: 3.5vmin 0;
 }
 
 #MobileUI .disabled {
@@ -40,18 +60,18 @@
 
 #MobileUI #topBar {
 	left: 50%;
-	top: 3px;
+	top: 1%;
 	transform: translate(-50%, 0);
 }
 
 #MobileUI #leftBar {
-	left: 5px;
+	left: 1%;
 	bottom: 35%;
 	transform: translate(0, 50%);
 }
 
 #MobileUI #rightBar {
-	right: 5px;
+	right: 1%;
 	bottom: 35%;
 	transform: translate(0, 50%);
 }
@@ -62,26 +82,26 @@
 
 #MobileUI .active {
 	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
-	border: 2px solid rgba(144, 238, 144, 0.8); /* Soft border */
-	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4); /* Glowing effect */
-	border-radius: 8px; /* Smooth edges */
-	animation: pulse 1.5s infinite; /* Subtle pulsing animation */
+	border: 2px solid rgba(144, 238, 144, 0.8);
+	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);
+	border-radius: 8px;
+	animation: pulse 1.5s infinite;
 	transition:
 		background 0.3s ease,
 		box-shadow 0.3s ease,
-		transform 0.3s ease; /* Smooth transition for hover */
+		transform 0.3s ease;
 }
 
 #MobileUI #toggleUIButton:active {
 	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
-	border: 2px solid rgba(144, 238, 144, 0.8); /* Soft border */
-	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4); /* Glowing effect */
-	border-radius: 8px; /* Smooth edges */
-	animation: pulse 1.5s infinite; /* Subtle pulsing animation */
+	border: 2px solid rgba(144, 238, 144, 0.8);
+	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);
+	border-radius: 8px;
+	animation: pulse 1.5s infinite;
 	transition:
 		background 0.3s ease,
 		box-shadow 0.3s ease,
-		transform 0.3s ease; /* Smooth transition for hover */
+		transform 0.3s ease;
 }
 
 @keyframes pulse {
@@ -101,54 +121,54 @@
 }
 
 #MobileUI .primary {
-	width: 45px;
-	height: 45px;
+	width: 11vmin;
+	height: 11vmin;
 }
 
 #MobileUI .secondary {
-	width: 30px;
-	height: 30px;
+	width: 7.5vmin;
+	height: 7.5vmin;
 }
 
 /* Container for all buttons -MicromeX */
-#buttonContainer {
+#MobileUI #buttonContainer {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	position: absolute;
 	bottom: 10%;
 	right: 10%;
-	width: 150px;
-	height: 150px;
+	width: 37.5vmin;
+	height: 37.5vmin;
 	z-index: 1000;
 }
 
 /* Attack Button (center and larger) -MicromeX */
 #MobileUI .atkButton {
 	position: absolute;
-	width: 70px; /* Reduced size */
-	height: 70px;
+	width: 17.5vmin;
+	height: 17.5vmin;
 	background-color: #f44336;
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 28px; /* Adjusted font size */
+	font-size: 7vmin;
 	color: white;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2); /* Adjusted shadow for smaller size */
+	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
 	cursor: pointer;
 }
 
 /* Functional Buttons (around the attack button) -MicromeX */
 #MobileUI .pickupButton {
 	position: absolute;
-	width: 40px; /* Reduced size */
-	height: 40px;
+	width: 10vmin;
+	height: 10vmin;
 	background: rgba(193, 193, 193, 0.33);
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 25px; /* Adjusted font size */
+	font-size: 6.25vmin;
 	color: rgb(0, 0, 0);
 	display: flex;
 	justify-content: center;
@@ -159,12 +179,12 @@
 
 #MobileUI .talktonpcButton {
 	position: absolute;
-	width: 40px; /* Reduced size */
-	height: 40px;
+	width: 10vmin;
+	height: 10vmin;
 	background: rgba(193, 193, 193, 0.33);
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 25px; /* Adjusted font size */
+	font-size: 6.25vmin;
 	color: rgb(0, 0, 0);
 	display: flex;
 	justify-content: center;
@@ -175,12 +195,12 @@
 
 #MobileUI .switchshorcutButton {
 	position: absolute;
-	width: 40px; /* Reduced size */
-	height: 40px;
+	width: 10vmin;
+	height: 10vmin;
 	background: rgba(193, 193, 193, 0.33);
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 25px; /* Adjusted font size */
+	font-size: 6.25vmin;
 	font-weight: bold;
 	color: rgb(0, 0, 0);
 	display: flex;
@@ -193,12 +213,12 @@
 /* Functional Buttons (smaller and proportional) -MicromeX */
 #MobileUI .FButton {
 	position: absolute;
-	width: 30px; /* Reduced size */
-	height: 30px;
+	width: 7.5vmin;
+	height: 7.5vmin;
 	background: rgba(193, 193, 193, 0.33);
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 15px; /* Adjusted font size */
+	font-size: 3.75vmin;
 	font-weight: bold;
 	color: rgb(0, 0, 0);
 	display: flex;
@@ -209,300 +229,300 @@
 }
 
 /* Positioning Buttons Around Attack Button -MicromeX */
-#f1Button {
+#MobileUI #f1Button {
 	top: 97%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#f2Button {
+#MobileUI #f2Button {
 	top: 78%;
 	left: 24%;
 	transform: translate(-50%, -50%);
 }
-#f3Button {
+#MobileUI #f3Button {
 	top: 56%;
 	left: 24%;
 	transform: translate(-50%, -50%);
 }
-#f4Button {
+#MobileUI #f4Button {
 	top: 37%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#f5Button {
+#MobileUI #f5Button {
 	top: 30%;
 	left: 57%;
 	transform: translate(-50%, -50%);
 }
-#f6Button {
+#MobileUI #f6Button {
 	top: 37%;
 	left: 80%;
 	transform: translate(-50%, -50%);
 }
-#f7Button {
+#MobileUI #f7Button {
 	top: 7%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#f8Button {
+#MobileUI #f8Button {
 	top: 7%;
 	left: 57%;
 	transform: translate(-50%, -50%);
 }
-#f9Button {
+#MobileUI #f9Button {
 	top: 7%;
 	left: 80%;
 	transform: translate(-50%, -50%);
 }
 /* Positioning Buttons Around Attack Button -MicromeX */
-#n1Button {
+#MobileUI #n1Button {
 	top: 97%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#n2Button {
+#MobileUI #n2Button {
 	top: 78%;
 	left: 24%;
 	transform: translate(-50%, -50%);
 }
-#n3Button {
+#MobileUI #n3Button {
 	top: 56%;
 	left: 24%;
 	transform: translate(-50%, -50%);
 }
-#n4Button {
+#MobileUI #n4Button {
 	top: 37%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#n5Button {
+#MobileUI #n5Button {
 	top: 30%;
 	left: 57%;
 	transform: translate(-50%, -50%);
 }
-#n6Button {
+#MobileUI #n6Button {
 	top: 37%;
 	left: 80%;
 	transform: translate(-50%, -50%);
 }
-#n7Button {
+#MobileUI #n7Button {
 	top: 7%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#n8Button {
+#MobileUI #n8Button {
 	top: 7%;
 	left: 57%;
 	transform: translate(-50%, -50%);
 }
-#n9Button {
+#MobileUI #n9Button {
 	top: 7%;
 	left: 80%;
 	transform: translate(-50%, -50%);
 }
 /* Positioning Buttons Around Attack Button -MicromeX */
-#qButton {
+#MobileUI #qButton {
 	top: 97%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#wButton {
+#MobileUI #wButton {
 	top: 78%;
 	left: 24%;
 	transform: translate(-50%, -50%);
 }
-#eButton {
+#MobileUI #eButton {
 	top: 56%;
 	left: 24%;
 	transform: translate(-50%, -50%);
 }
-#rButton {
+#MobileUI #rButton {
 	top: 37%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#tButton {
+#MobileUI #tButton {
 	top: 30%;
 	left: 57%;
 	transform: translate(-50%, -50%);
 }
-#yButton {
+#MobileUI #yButton {
 	top: 37%;
 	left: 80%;
 	transform: translate(-50%, -50%);
 }
-#uButton {
+#MobileUI #uButton {
 	top: 7%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#iButton {
+#MobileUI #iButton {
 	top: 7%;
 	left: 57%;
 	transform: translate(-50%, -50%);
 }
-#oButton {
+#MobileUI #oButton {
 	top: 7%;
 	left: 80%;
 	transform: translate(-50%, -50%);
 }
 /* Positioning Buttons Around Attack Button -MicromeX */
-#aButton {
+#MobileUI #aButton {
 	top: 97%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#sButton {
+#MobileUI #sButton {
 	top: 78%;
 	left: 24%;
 	transform: translate(-50%, -50%);
 }
-#dButton {
+#MobileUI #dButton {
 	top: 56%;
 	left: 24%;
 	transform: translate(-50%, -50%);
 }
-#fButton {
+#MobileUI #fButton {
 	top: 37%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#gButton {
+#MobileUI #gButton {
 	top: 30%;
 	left: 57%;
 	transform: translate(-50%, -50%);
 }
-#hButton {
+#MobileUI #hButton {
 	top: 37%;
 	left: 80%;
 	transform: translate(-50%, -50%);
 }
-#jButton {
+#MobileUI #jButton {
 	top: 7%;
 	left: 35%;
 	transform: translate(-50%, -50%);
 }
-#kButton {
+#MobileUI #kButton {
 	top: 7%;
 	left: 57%;
 	transform: translate(-50%, -50%);
 }
-#lButton {
+#MobileUI #lButton {
 	top: 7%;
 	left: 80%;
 	transform: translate(-50%, -50%);
 }
 /* Pickup Button (slightly below attackButton) -MicromeX */
-#attackButton {
+#MobileUI #attackButton {
 	bottom: -10%;
 	left: 60%;
 	transform: translate(-50%, 0);
 }
 /* Pickup Button (slightly below attackButton) -MicromeX */
-#pickupButton {
+#MobileUI #pickupButton {
 	bottom: 10%;
 	left: 105%;
 	transform: translate(-50%, 0);
 }
 
 /* TalkToNpc Button (slightly below attackButton) -MicromeX */
-#talktonpcButton {
+#MobileUI #talktonpcButton {
 	bottom: -23%;
 	left: 105%;
 	transform: translate(-50%, 0);
 }
 /* TalkToNpc Button (slightly below attackButton) -MicromeX */
-#switchshorcutButton {
+#MobileUI #switchshorcutButton {
 	bottom: 43%;
 	left: 105%;
 	transform: translate(-50%, 0);
 }
 
 /* Hover Effect for Buttons -MicromeX */
-#f1Button:active,
-#f2Button:active,
-#f3Button:active,
-#f4Button:active,
-#f5Button:active,
-#f6Button:active,
-#f7Button:active,
-#f8Button:active,
-#f9Button:active,
-#n1Button:active,
-#n2Button:active,
-#n3Button:active,
-#n4Button:active,
-#n5Button:active,
-#n6Button:active,
-#n7Button:active,
-#n8Button:active,
-#n9Button:active,
-#qButton:active,
-#wButton:active,
-#eButton:active,
-#rButton:active,
-#tButton:active,
-#yButton:active,
-#uButton:active,
-#iButton:active,
-#oButton:active,
-#aButton:active,
-#sButton:active,
-#dButton:active,
-#fButton:active,
-#gButton:active,
-#hButton:active,
-#jButton:active,
-#kButton:active,
-#lButton:active,
-#switchshorcutButton:active,
-#pickupButton:active {
+#MobileUI #f1Button:active,
+#MobileUI #f2Button:active,
+#MobileUI #f3Button:active,
+#MobileUI #f4Button:active,
+#MobileUI #f5Button:active,
+#MobileUI #f6Button:active,
+#MobileUI #f7Button:active,
+#MobileUI #f8Button:active,
+#MobileUI #f9Button:active,
+#MobileUI #n1Button:active,
+#MobileUI #n2Button:active,
+#MobileUI #n3Button:active,
+#MobileUI #n4Button:active,
+#MobileUI #n5Button:active,
+#MobileUI #n6Button:active,
+#MobileUI #n7Button:active,
+#MobileUI #n8Button:active,
+#MobileUI #n9Button:active,
+#MobileUI #qButton:active,
+#MobileUI #wButton:active,
+#MobileUI #eButton:active,
+#MobileUI #rButton:active,
+#MobileUI #tButton:active,
+#MobileUI #yButton:active,
+#MobileUI #uButton:active,
+#MobileUI #iButton:active,
+#MobileUI #oButton:active,
+#MobileUI #aButton:active,
+#MobileUI #sButton:active,
+#MobileUI #dButton:active,
+#MobileUI #fButton:active,
+#MobileUI #gButton:active,
+#MobileUI #hButton:active,
+#MobileUI #jButton:active,
+#MobileUI #kButton:active,
+#MobileUI #lButton:active,
+#MobileUI #switchshorcutButton:active,
+#MobileUI #pickupButton:active {
 	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
-	border: 2px solid rgba(144, 238, 144, 0.8); /* Soft border -MicromeX */
-	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4); /* Glowing effect -MicromeX */
-	border-radius: 50%; /* Smooth edges */
-	animation: pulse 1.5s infinite; /* Subtle pulsing animation */
+	border: 2px solid rgba(144, 238, 144, 0.8);
+	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);
+	border-radius: 50%;
+	animation: pulse 1.5s infinite;
 	transition:
 		background 0.3s ease,
 		box-shadow 0.3s ease,
-		transform 0.3s ease; /* Smooth transition for hover -MicromeX */
+		transform 0.3s ease;
 }
 
-#talktonpcButton:active {
+#MobileUI #talktonpcButton:active {
 	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
-	border: 2px solid rgba(144, 238, 144, 0.8); /* Soft border -MicromeX */
-	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4); /* Glowing effect -MicromeX */
-	border-radius: 50%; /* Smooth edges */
-	animation: pulse 1.5s infinite; /* Subtle pulsing animation -MicromeX */
+	border: 2px solid rgba(144, 238, 144, 0.8);
+	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);
+	border-radius: 50%;
+	animation: pulse 1.5s infinite;
 	transition:
 		background 0.3s ease,
 		box-shadow 0.3s ease,
-		transform 0.3s ease; /* Smooth transition for hover -MicromeX */
+		transform 0.3s ease;
 }
 
-#attackButton:active {
-	background-color: #4caf50; /* Green color on active state */
-	box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.4); /* Enhanced shadow for depth */
-	border: 2px solid #388e3c; /* Add a darker green border for contrast */
+#MobileUI #attackButton:active {
+	background-color: #4caf50;
+	box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.4);
+	border: 2px solid #388e3c;
 	transition:
 		transform 0.2s ease,
 		background-color 0.2s ease,
 		box-shadow 0.2s ease,
-		border 0.2s ease; /* Smooth transition for multiple properties */
+		border 0.2s ease;
 }
 
 /* Joystick container -MicromeX */
-.joystick-container {
+#MobileUI .joystick-container {
 	position: absolute;
-	bottom: 7%; /* Adjusted for better fit */
-	left: 10%; /* Adjusted for better fit */
-	width: 100px; /* Reduced size */
-	height: 100px; /* Reduced size */
+	bottom: 7%;
+	left: 10%;
+	width: 25vmin;
+	height: 25vmin;
 	z-index: 1000;
 }
 
 /* Joystick base -MicromeX */
-.joystick-base {
+#MobileUI .joystick-base {
 	position: relative;
 	width: 100%;
 	height: 100%;
@@ -514,13 +534,13 @@
 }
 
 /* Joystick thumb -MicromeX */
-.joystick-thumb {
+#MobileUI .joystick-thumb {
 	position: absolute;
-	width: 40px; /* Reduced size */
-	height: 40px; /* Reduced size */
+	width: 10vmin;
+	height: 10vmin;
 	background: radial-gradient(circle, rgba(236, 240, 241, 1) 70%, rgba(189, 195, 199, 1) 100%);
 	border-radius: 50%;
-	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4); /* Adjusted shadow for smaller size */
-	touch-action: none; /* Prevent scrolling -MicromeX */
+	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);
+	touch-action: none;
 	cursor: grab;
 }

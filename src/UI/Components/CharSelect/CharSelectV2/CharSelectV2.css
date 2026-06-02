@@ -1,8 +1,12 @@
+:host {
+	width: 576px;
+	height: 358px;
+}
+
 #CharSelectV2 {
 	position: absolute;
 	width: 576px;
 	height: 358px;
-	z-index: 100;
 }
 
 /** Box **/
@@ -12,6 +16,8 @@
 	height: 144px;
 	top: 40px;
 	margin-left: -5px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #CharSelectV2 canvas {
 	position: absolute;
@@ -33,9 +39,6 @@
 	top: 105px;
 	width: 13px;
 	height: 13px;
-	border: 0;
-	background-color: transparent;
-	background-repeat: no-repeat;
 }
 #CharSelectV2 .arrow.left {
 	left: 40px;
@@ -155,15 +158,12 @@
 }
 #CharSelectV2 .btn {
 	position: absolute;
-	border: 0;
 	width: 42px;
 	height: 20px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #CharSelectV2 .ok,
-#charselect .make {
+#CharSelectV2 .make {
 	right: 50px;
 }
 #CharSelectV2 .cancel {

@@ -1,43 +1,20 @@
-<div id="charcreate" data-background="login_interface/win_make.bmp">
+<div id="charcreate">
+	<ui-image src="login_interface/win_make.bmp"></ui-image>
 	<div class="chargen">
-		<button class="left" data-background="scroll1left.bmp"></button>
-		<button class="up" data-background="scroll0up.bmp"></button>
-		<button class="right" data-background="scroll1right.bmp"></button>
+		<ui-button class="left" bg="scroll1left.bmp"></ui-button>
+		<ui-button class="up" bg="scroll0up.bmp"></ui-button>
+		<ui-button class="right" bg="scroll1right.bmp"></ui-button>
 		<canvas width="65" height="110"></canvas>
 	</div>
-	<input type="text" value="" />
+	<input type="text" data-background="login_interface/name-edit.bmp" value="" />
 
 	<div class="graph">
-		<button
-			class="str"
-			data-background="login_interface/arw-str0.bmp"
-			data-down="login_interface/arw-str1.bmp"
-		></button>
-		<button
-			class="agi"
-			data-background="login_interface/arw-agi0.bmp"
-			data-down="login_interface/arw-agi1.bmp"
-		></button>
-		<button
-			class="vit"
-			data-background="login_interface/arw-vit0.bmp"
-			data-down="login_interface/arw-vit1.bmp"
-		></button>
-		<button
-			class="int"
-			data-background="login_interface/arw-int0.bmp"
-			data-down="login_interface/arw-int1.bmp"
-		></button>
-		<button
-			class="dex"
-			data-background="login_interface/arw-dex0.bmp"
-			data-down="login_interface/arw-dex1.bmp"
-		></button>
-		<button
-			class="luk"
-			data-background="login_interface/arw-luk0.bmp"
-			data-down="login_interface/arw-luk1.bmp"
-		></button>
+		<ui-button class="str" bg="login_interface/arw-str0.bmp" down="login_interface/arw-str1.bmp"></ui-button>
+		<ui-button class="agi" bg="login_interface/arw-agi0.bmp" down="login_interface/arw-agi1.bmp"></ui-button>
+		<ui-button class="vit" bg="login_interface/arw-vit0.bmp" down="login_interface/arw-vit1.bmp"></ui-button>
+		<ui-button class="int" bg="login_interface/arw-int0.bmp" down="login_interface/arw-int1.bmp"></ui-button>
+		<ui-button class="dex" bg="login_interface/arw-dex0.bmp" down="login_interface/arw-dex1.bmp"></ui-button>
+		<ui-button class="luk" bg="login_interface/arw-luk0.bmp" down="login_interface/arw-luk1.bmp"></ui-button>
 		<canvas width="158" height="158"></canvas>
 	</div>
 
@@ -51,17 +28,7 @@
 	</div>
 
 	<div class="btns">
-		<button
-			class="btn cancel"
-			data-background="btn_cancel.bmp"
-			data-hover="btn_cancel_a.bmp"
-			data-down="btn_cancel_b.bmp"
-		></button>
-		<button
-			class="btn make"
-			data-background="btn_make.bmp"
-			data-hover="btn_make_a.bmp"
-			data-down="btn_make_b.bmp"
-		></button>
+		<ui-button class="btn cancel" bg="btn_cancel.bmp" hover="btn_cancel_a.bmp" down="btn_cancel_b.bmp"></ui-button>
+		<ui-button class="btn make" bg="btn_make.bmp" hover="btn_make_a.bmp" down="btn_make_b.bmp"></ui-button>
 	</div>
 </div>

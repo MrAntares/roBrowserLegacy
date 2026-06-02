@@ -11,6 +11,8 @@
 	height: 135px;
 	font-size: 11px;
 	letter-spacing: 0.03em;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #BasicInfoV3.small .large {
 	display: none;
@@ -181,6 +183,9 @@
 	height: 36px;
 	border: none;
 	margin: 0px;
+	background-repeat: no-repeat;
+	background-color: transparent;
+	background-size: contain;
 }
 #BasicInfoV3 .buttons .clear {
 	clear: both;

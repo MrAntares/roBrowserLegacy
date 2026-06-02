@@ -7,10 +7,9 @@
  *
 + */
 
-import jQuery from 'Utils/jquery.js';
 import Context from 'Core/Context.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -34,27 +33,17 @@ const mat2 = glMatrix.mat2;
 const direction = vec2.create();
 const rotate = mat2.create();
 
-//Configure keys here
-/*var MOVE = {
-		RIGHT: KEYS.RIGHT,
-		LEFT: KEYS.LEFT,
-		UP: KEYS.UP,
-		DOWN: KEYS.DOWN
-	};*/ // UNUSED
-
-//Multiple keys held
-//var KeyEvent = {}; // UNUSED
-
 //Memory
 const targetPos = [0, 0];
 
-//var keysDownTimeout = null; // UNUSED
 let movementTimer = null; // Timer for continuous joystick movement
 
 /**
  * Create Component
  */
-const MobileUI = new UIComponent('MobileUI', htmlText, cssText);
+const MobileUI = new GUIComponent('MobileUI', cssText);
+
+MobileUI.render = () => htmlText;
 
 /**
  * @var {Preferences} window preferences
@@ -74,249 +63,164 @@ const _preferences = Preferences.get(
 
 let showButtons = false;
 let autoTargetTimer;
-const C_AUTOTARGET_DELAY = 500; //in ms. Lower values increase targeting frequency, but might cause performance drop when there are many enemies around!
+const C_AUTOTARGET_DELAY = 500;
 
 let centerX, centerY;
 let maxDistance = 0;
-// var lastSentMove = Date.now(); // UNUSED
-let normalizedX = 0; // Current normalized x-axis input
-let normalizedY = 0; // Current normalized y-axis input
+let normalizedX = 0;
+let normalizedY = 0;
+
+// Joystick element references (captured in setupJoystick)
+let _joystickBase = null;
+let _joystickThumb = null;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return MobileUI._shadow || MobileUI._host;
+}
+
+/**
+ * Helper to bind click+touchstart on an element
+ */
+function bindButton(root, selector, handler) {
+	const el = root.querySelector(selector);
+	if (el) {
+		el.addEventListener('click', handler);
+		el.addEventListener('touchstart', handler);
+	}
+}
 
 /**
  * Initialize UI
  */
 MobileUI.init = function init() {
-	this.ui.find('#toggleUIButton').on('click touchstart', function (e) {
+	const root = _getRoot();
+
+	bindButton(root, '#toggleUIButton', e => {
 		toggleButtons();
 		stopPropagation(e);
 	});
-	this.ui.find('#fullscreenButton').on('click touchstart', function (e) {
+	bindButton(root, '#fullscreenButton', e => {
 		toggleFullScreen();
 		stopPropagation(e);
 	});
 
-	this.ui.find('#f1Button').on('click touchstart', function (e) {
-		logKeyPress(112);
-		stopPropagation(e);
-	});
-	this.ui.find('#f2Button').on('click touchstart', function (e) {
-		logKeyPress(113);
-		stopPropagation(e);
-	});
-	this.ui.find('#f3Button').on('click touchstart', function (e) {
-		logKeyPress(114);
-		stopPropagation(e);
-	});
-	this.ui.find('#f4Button').on('click touchstart', function (e) {
-		logKeyPress(115);
-		stopPropagation(e);
-	});
-	this.ui.find('#f5Button').on('click touchstart', function (e) {
-		logKeyPress(116);
-		stopPropagation(e);
-	});
-	this.ui.find('#f6Button').on('click touchstart', function (e) {
-		logKeyPress(117);
-		stopPropagation(e);
-	});
-	this.ui.find('#f7Button').on('click touchstart', function (e) {
-		logKeyPress(118);
-		stopPropagation(e);
-	});
-	this.ui.find('#f8Button').on('click touchstart', function (e) {
-		logKeyPress(119);
-		stopPropagation(e);
-	});
-	this.ui.find('#f9Button').on('click touchstart', function (e) {
-		logKeyPress(120);
-		stopPropagation(e);
+	// F-key buttons
+	const fKeyMap = [
+		['#f1Button', 112],
+		['#f2Button', 113],
+		['#f3Button', 114],
+		['#f4Button', 115],
+		['#f5Button', 116],
+		['#f6Button', 117],
+		['#f7Button', 118],
+		['#f8Button', 119],
+		['#f9Button', 120]
+	];
+
+	// Number key buttons
+	const nKeyMap = [
+		['#n1Button', 49],
+		['#n2Button', 50],
+		['#n3Button', 51],
+		['#n4Button', 52],
+		['#n5Button', 53],
+		['#n6Button', 54],
+		['#n7Button', 55],
+		['#n8Button', 56],
+		['#n9Button', 57]
+	];
+
+	// Letter key buttons
+	const letterKeyMap = [
+		['#qButton', 81],
+		['#wButton', 87],
+		['#eButton', 69],
+		['#rButton', 82],
+		['#tButton', 84],
+		['#yButton', 89],
+		['#uButton', 85],
+		['#iButton', 73],
+		['#oButton', 89],
+		['#aButton', 65],
+		['#sButton', 83],
+		['#dButton', 68],
+		['#fButton', 70],
+		['#gButton', 71],
+		['#hButton', 72],
+		['#jButton', 74],
+		['#kButton', 75],
+		['#lButton', 76]
+	];
+
+	[...fKeyMap, ...nKeyMap, ...letterKeyMap].forEach(([selector, keyCode]) => {
+		bindButton(root, selector, e => {
+			logKeyPress(keyCode);
+			stopPropagation(e);
+		});
 	});
 
-	this.ui.find('#n1Button').on('click touchstart', function (e) {
-		logKeyPress(49);
-		stopPropagation(e);
-	});
-	this.ui.find('#n2Button').on('click touchstart', function (e) {
-		logKeyPress(50);
-		stopPropagation(e);
-	});
-	this.ui.find('#n3Button').on('click touchstart', function (e) {
-		logKeyPress(51);
-		stopPropagation(e);
-	});
-	this.ui.find('#n4Button').on('click touchstart', function (e) {
-		logKeyPress(52);
-		stopPropagation(e);
-	});
-	this.ui.find('#n5Button').on('click touchstart', function (e) {
-		logKeyPress(53);
-		stopPropagation(e);
-	});
-	this.ui.find('#n6Button').on('click touchstart', function (e) {
-		logKeyPress(54);
-		stopPropagation(e);
-	});
-	this.ui.find('#n7Button').on('click touchstart', function (e) {
-		logKeyPress(55);
-		stopPropagation(e);
-	});
-	this.ui.find('#n8Button').on('click touchstart', function (e) {
-		logKeyPress(56);
-		stopPropagation(e);
-	});
-	this.ui.find('#n9Button').on('click touchstart', function (e) {
-		logKeyPress(57);
-		stopPropagation(e);
-	});
-
-	this.ui.find('#qButton').on('click touchstart', function (e) {
-		logKeyPress(81);
-		stopPropagation(e);
-	});
-	this.ui.find('#wButton').on('click touchstart', function (e) {
-		logKeyPress(87);
-		stopPropagation(e);
-	});
-	this.ui.find('#eButton').on('click touchstart', function (e) {
-		logKeyPress(69);
-		stopPropagation(e);
-	});
-	this.ui.find('#rButton').on('click touchstart', function (e) {
-		logKeyPress(82);
-		stopPropagation(e);
-	});
-	this.ui.find('#tButton').on('click touchstart', function (e) {
-		logKeyPress(84);
-		stopPropagation(e);
-	});
-	this.ui.find('#yButton').on('click touchstart', function (e) {
-		logKeyPress(89);
-		stopPropagation(e);
-	});
-	this.ui.find('#uButton').on('click touchstart', function (e) {
-		logKeyPress(85);
-		stopPropagation(e);
-	});
-	this.ui.find('#iButton').on('click touchstart', function (e) {
-		logKeyPress(73);
-		stopPropagation(e);
-	});
-	this.ui.find('#oButton').on('click touchstart', function (e) {
-		logKeyPress(89);
-		stopPropagation(e);
-	});
-
-	this.ui.find('#aButton').on('click touchstart', function (e) {
-		logKeyPress(65);
-		stopPropagation(e);
-	});
-	this.ui.find('#sButton').on('click touchstart', function (e) {
-		logKeyPress(83);
-		stopPropagation(e);
-	});
-	this.ui.find('#dButton').on('click touchstart', function (e) {
-		logKeyPress(68);
-		stopPropagation(e);
-	});
-	this.ui.find('#fButton').on('click touchstart', function (e) {
-		logKeyPress(70);
-		stopPropagation(e);
-	});
-	this.ui.find('#gButton').on('click touchstart', function (e) {
-		logKeyPress(71);
-		stopPropagation(e);
-	});
-	this.ui.find('#hButton').on('click touchstart', function (e) {
-		logKeyPress(72);
-		stopPropagation(e);
-	});
-	this.ui.find('#jButton').on('click touchstart', function (e) {
-		logKeyPress(74);
-		stopPropagation(e);
-	});
-	this.ui.find('#kButton').on('click touchstart', function (e) {
-		logKeyPress(75);
-		stopPropagation(e);
-	});
-	this.ui.find('#lButton').on('click touchstart', function (e) {
-		logKeyPress(76);
-		stopPropagation(e);
-	});
-
-	this.ui.find('#f10Button').on('click touchstart', function (e) {
+	bindButton(root, '#f10Button', e => {
 		logKeyPress(121);
 		stopPropagation(e);
 	});
-	this.ui.find('#f12Button').on('click touchstart', function (e) {
+	bindButton(root, '#f12Button', e => {
 		logKeyPress(123);
 		stopPropagation(e);
 	});
-	this.ui.find('#insButton').on('click touchstart', function (e) {
+	bindButton(root, '#insButton', e => {
 		logKeyPress(45);
 		stopPropagation(e);
 	});
 
-	this.ui.find('#toggleStatusButton').on('click touchstart', function (e) {
+	bindButton(root, '#toggleStatusButton', e => {
 		toggleStatus();
 		stopPropagation(e);
 	});
-	this.ui.find('#toggleTargetingButton').on('click touchstart', function (e) {
+	bindButton(root, '#toggleTargetingButton', e => {
 		toggleTouchTargeting();
 		stopPropagation(e);
 	});
-	this.ui.find('#toggleAutoFollowButton').on('click touchstart', function (e) {
+	bindButton(root, '#toggleAutoFollowButton', e => {
 		toggleAutoFollow();
 		stopPropagation(e);
 	});
-	this.ui.find('#toggleAutoTargetButton').on('click touchstart', function (e) {
+	bindButton(root, '#toggleAutoTargetButton', e => {
 		toggleAutoTargeting();
 		stopPropagation(e);
 	});
 
-	this.ui.find('#attackButton').on('click touchstart', function (e) {
+	bindButton(root, '#attackButton', e => {
 		attackTargeted();
 		stopPropagation(e);
 	});
 
-	this.ui.find('#pickupButton').on('click touchstart', function (e) {
+	bindButton(root, '#pickupButton', e => {
 		pickUpItem();
 		stopPropagation(e);
-	}); // Button for Picks up the nearest item - MicromeX
+	});
 
-	this.ui.find('#switchshorcutButton').on('click touchstart', function (e) {
+	bindButton(root, '#switchshorcutButton', e => {
 		switchSkillButtons();
 		stopPropagation(e);
 	});
 
-	this.ui
-		.find('.buttons')
-		.on('mousedown', function (e) {
-			jQuery(e.target).addClass('pressed');
-		})
-		.on('touchstart', function (e) {
-			jQuery(e.target).addClass('pressed');
-		})
-		.on('mouseup', function (e) {
-			jQuery(e.target).removeClass('pressed');
-		})
-		.on('touchend', function (e) {
-			jQuery(e.target).removeClass('pressed');
-		});
+	// Press effect for .buttons and .FButton
+	root.querySelectorAll('.buttons').forEach(btn => {
+		btn.addEventListener('mousedown', e => e.target.classList.add('pressed'));
+		btn.addEventListener('touchstart', e => e.target.classList.add('pressed'));
+		btn.addEventListener('mouseup', e => e.target.classList.remove('pressed'));
+		btn.addEventListener('touchend', e => e.target.classList.remove('pressed'));
+	});
 
-	this.ui
-		.find('.FButton')
-		.on('mousedown', function (e) {
-			jQuery(e.target).addClass('pressed');
-		})
-		.on('touchstart', function (e) {
-			jQuery(e.target).addClass('pressed');
-		})
-		.on('mouseup', function (e) {
-			jQuery(e.target).removeClass('pressed');
-		})
-		.on('touchend', function (e) {
-			jQuery(e.target).removeClass('pressed');
-		});
+	root.querySelectorAll('.FButton').forEach(btn => {
+		btn.addEventListener('mousedown', e => e.target.classList.add('pressed'));
+		btn.addEventListener('touchstart', e => e.target.classList.add('pressed'));
+		btn.addEventListener('mouseup', e => e.target.classList.remove('pressed'));
+		btn.addEventListener('touchend', e => e.target.classList.remove('pressed'));
+	});
 
 	// Initialize the joystick - MicromeX
 	setupJoystick();
@@ -363,52 +267,59 @@ function keyPress(k) {
  * Toggles MobileUI button bars visibility (and thus buttons)
  */
 function toggleButtons() {
+	const root = _getRoot();
+
 	if (showButtons) {
-		MobileUI.ui.find('#topBar').addClass('disabled');
-		MobileUI.ui.find('#leftBar').addClass('disabled');
-		MobileUI.ui.find('#rightBar').addClass('disabled');
-		MobileUI.ui.find('#joystickContainer').addClass('disabled');
-		MobileUI.ui.find('#buttonContainer').addClass('disabled');
-		MobileUI.ui.find('#attackButton').addClass('disabled');
-		MobileUI.ui.find('#pickupButton').addClass('disabled');
-		MobileUI.ui.find('#talktonpcButton').addClass('disabled');
-		MobileUI.ui.find('#switchshorcutButton').addClass('disabled');
-		MobileUI.ui.find('#f1Button').addClass('disabled');
-		MobileUI.ui.find('#f2Button').addClass('disabled');
-		MobileUI.ui.find('#f3Button').addClass('disabled');
-		MobileUI.ui.find('#f4Button').addClass('disabled');
-		MobileUI.ui.find('#f5Button').addClass('disabled');
-		MobileUI.ui.find('#f5Button').addClass('disabled');
-		MobileUI.ui.find('#f7Button').addClass('disabled');
-		MobileUI.ui.find('#f8Button').addClass('disabled');
-		MobileUI.ui.find('#f9Button').addClass('disabled');
-		MobileUI.ui.find('#n1Button').addClass('disabled');
-		MobileUI.ui.find('#n2Button').addClass('disabled');
-		MobileUI.ui.find('#n3Button').addClass('disabled');
-		MobileUI.ui.find('#n4Button').addClass('disabled');
-		MobileUI.ui.find('#n5Button').addClass('disabled');
-		MobileUI.ui.find('#n6Button').addClass('disabled');
-		MobileUI.ui.find('#n7Button').addClass('disabled');
-		MobileUI.ui.find('#n8Button').addClass('disabled');
-		MobileUI.ui.find('#n9Button').addClass('disabled');
-		MobileUI.ui.find('#qButton').addClass('disabled');
-		MobileUI.ui.find('#wButton').addClass('disabled');
-		MobileUI.ui.find('#eButton').addClass('disabled');
-		MobileUI.ui.find('#rButton').addClass('disabled');
-		MobileUI.ui.find('#tButton').addClass('disabled');
-		MobileUI.ui.find('#yButton').addClass('disabled');
-		MobileUI.ui.find('#uButton').addClass('disabled');
-		MobileUI.ui.find('#iButton').addClass('disabled');
-		MobileUI.ui.find('#oButton').addClass('disabled');
-		MobileUI.ui.find('#aButton').addClass('disabled');
-		MobileUI.ui.find('#sButton').addClass('disabled');
-		MobileUI.ui.find('#dButton').addClass('disabled');
-		MobileUI.ui.find('#fButton').addClass('disabled');
-		MobileUI.ui.find('#gButton').addClass('disabled');
-		MobileUI.ui.find('#hButton').addClass('disabled');
-		MobileUI.ui.find('#jButton').addClass('disabled');
-		MobileUI.ui.find('#kButton').addClass('disabled');
-		MobileUI.ui.find('#lButton').addClass('disabled');
+		// Hide all bars and buttons
+		[
+			'#topBar',
+			'#leftBar',
+			'#rightBar',
+			'#joystickContainer',
+			'#buttonContainer',
+			'#attackButton',
+			'#pickupButton',
+			'#talktonpcButton',
+			'#switchshorcutButton'
+		].forEach(sel => {
+			const el = root.querySelector(sel);
+			if (el) {
+				el.classList.add('disabled');
+			}
+		});
+
+		// Hide F-key buttons
+		for (let i = 1; i <= 9; i++) {
+			const fBtn = root.querySelector(`#f${i}Button`);
+			if (fBtn) {
+				fBtn.classList.add('disabled');
+			}
+		}
+
+		// Hide number, letter buttons
+		['n', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].forEach(key => {
+			const btn =
+				root.querySelector(`#${key}Button`) || root.querySelector(`#${key}${key === 'n' ? '' : 'B'}utton`);
+			if (btn) {
+				btn.classList.add('disabled');
+			}
+		});
+
+		// Hide number buttons specifically
+		for (let i = 1; i <= 9; i++) {
+			const nBtn = root.querySelector(`#n${i}Button`);
+			if (nBtn) {
+				nBtn.classList.add('disabled');
+			}
+		}
+
+		// Hide letter buttons
+		['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].forEach(key => {
+			const btn = root.querySelector(`#${key}Button`);
+			if (btn) {
+				btn.classList.add('disabled');
+			}
+		});
 
 		if (Session.TouchTargeting) {
 			toggleTouchTargeting();
@@ -416,24 +327,29 @@ function toggleButtons() {
 
 		showButtons = false;
 	} else {
-		MobileUI.ui.find('#topBar').removeClass('disabled');
-		MobileUI.ui.find('#leftBar').removeClass('disabled');
-		MobileUI.ui.find('#rightBar').removeClass('disabled');
-		MobileUI.ui.find('#joystickContainer').removeClass('disabled');
-		MobileUI.ui.find('#buttonContainer').removeClass('disabled');
-		MobileUI.ui.find('#attackButton').removeClass('disabled');
-		MobileUI.ui.find('#pickupButton').removeClass('disabled');
-		MobileUI.ui.find('#talktonpcButton').removeClass('disabled');
-		MobileUI.ui.find('#switchshorcutButton').removeClass('disabled');
-		MobileUI.ui.find('#f1Button').removeClass('disabled');
-		MobileUI.ui.find('#f2Button').removeClass('disabled');
-		MobileUI.ui.find('#f3Button').removeClass('disabled');
-		MobileUI.ui.find('#f4Button').removeClass('disabled');
-		MobileUI.ui.find('#f5Button').removeClass('disabled');
-		MobileUI.ui.find('#f6Button').removeClass('disabled');
-		MobileUI.ui.find('#f7Button').removeClass('disabled');
-		MobileUI.ui.find('#f8Button').removeClass('disabled');
-		MobileUI.ui.find('#f9Button').removeClass('disabled');
+		[
+			'#topBar',
+			'#leftBar',
+			'#rightBar',
+			'#joystickContainer',
+			'#buttonContainer',
+			'#attackButton',
+			'#pickupButton',
+			'#talktonpcButton',
+			'#switchshorcutButton'
+		].forEach(sel => {
+			const el = root.querySelector(sel);
+			if (el) {
+				el.classList.remove('disabled');
+			}
+		});
+
+		for (let i = 1; i <= 9; i++) {
+			const fBtn = root.querySelector(`#f${i}Button`);
+			if (fBtn) {
+				fBtn.classList.remove('disabled');
+			}
+		}
 
 		showButtons = true;
 	}
@@ -443,6 +359,8 @@ function toggleButtons() {
  * Toggles switch skill
  */
 function switchSkillButtons() {
+	const root = _getRoot();
+
 	const skillSets = [
 		[
 			'#f1Button',
@@ -454,7 +372,7 @@ function switchSkillButtons() {
 			'#f7Button',
 			'#f8Button',
 			'#f9Button'
-		], // First skill set
+		],
 		[
 			'#n1Button',
 			'#n2Button',
@@ -465,25 +383,30 @@ function switchSkillButtons() {
 			'#n7Button',
 			'#n8Button',
 			'#n9Button'
-		], // Second skill set
-		['#qButton', '#wButton', '#eButton', '#rButton', '#tButton', '#yButton', '#uButton', '#iButton', '#oButton'], // Third skill set
-		['#aButton', '#sButton', '#dButton', '#fButton', '#gButton', '#hButton', '#jButton', '#kButton', '#lButton'] // Fourth skill set
+		],
+		['#qButton', '#wButton', '#eButton', '#rButton', '#tButton', '#yButton', '#uButton', '#iButton', '#oButton'],
+		['#aButton', '#sButton', '#dButton', '#fButton', '#gButton', '#hButton', '#jButton', '#kButton', '#lButton']
 	];
 
-	const currentSetIndex = switchSkillButtons.currentSetIndex || 0; // Track current skill set
-	const nextSetIndex = (currentSetIndex + 1) % skillSets.length; // Cycle through skill sets
+	const currentSetIndex = switchSkillButtons.currentSetIndex || 0;
+	const nextSetIndex = (currentSetIndex + 1) % skillSets.length;
 
-	//  Hide all skill sets
-	skillSets.flat().forEach(button => {
-		MobileUI.ui.find(button).addClass('disabled');
+	// Hide all skill sets
+	skillSets.flat().forEach(selector => {
+		const el = root.querySelector(selector);
+		if (el) {
+			el.classList.add('disabled');
+		}
 	});
 
-	//  Show only the next set
-	skillSets[nextSetIndex].forEach(button => {
-		MobileUI.ui.find(button).removeClass('disabled');
+	// Show only the next set
+	skillSets[nextSetIndex].forEach(selector => {
+		const el = root.querySelector(selector);
+		if (el) {
+			el.classList.remove('disabled');
+		}
 	});
 
-	//  Update skill set index
 	switchSkillButtons.currentSetIndex = nextSetIndex;
 }
 
@@ -491,19 +414,23 @@ function switchSkillButtons() {
  * Toggles status view
  */
 function toggleStatus() {
-	// use jquery find id="StatusIcons" and hide/show
-	jQuery('#StatusIcons').toggle();
+	// StatusIcons is a separate component outside this shadow DOM
+	const statusIcons = document.querySelector('#StatusIcons');
+	if (statusIcons) {
+		statusIcons.style.display = statusIcons.style.display === 'none' ? '' : 'none';
+	}
 }
 
 /**
  * Toggles touch targeting
  */
 function toggleTouchTargeting() {
-	if (Session.TouchTargeting) {
-		MobileUI.ui.find('#toggleTargetingButton').removeClass('active');
+	const root = _getRoot();
 
-		MobileUI.ui.find('#toggleAutoFollowButton').addClass('disabled');
-		MobileUI.ui.find('#toggleAutoTargetButton').addClass('disabled');
+	if (Session.TouchTargeting) {
+		root.querySelector('#toggleTargetingButton').classList.remove('active');
+		root.querySelector('#toggleAutoFollowButton').classList.add('disabled');
+		root.querySelector('#toggleAutoTargetButton').classList.add('disabled');
 
 		if (Session.AutoTargeting) {
 			toggleAutoTargeting();
@@ -511,10 +438,9 @@ function toggleTouchTargeting() {
 
 		Session.TouchTargeting = false;
 	} else {
-		MobileUI.ui.find('#toggleTargetingButton').addClass('active');
-
-		MobileUI.ui.find('#toggleAutoFollowButton').removeClass('disabled');
-		MobileUI.ui.find('#toggleAutoTargetButton').removeClass('disabled');
+		root.querySelector('#toggleTargetingButton').classList.add('active');
+		root.querySelector('#toggleAutoFollowButton').classList.remove('disabled');
+		root.querySelector('#toggleAutoTargetButton').classList.remove('disabled');
 
 		Session.TouchTargeting = true;
 	}
@@ -524,11 +450,13 @@ function toggleTouchTargeting() {
  * Toggles automatic targeting
  */
 function toggleAutoTargeting() {
+	const root = _getRoot();
+
 	if (Session.AutoTargeting) {
-		MobileUI.ui.find('#toggleAutoTargetButton').removeClass('active');
+		root.querySelector('#toggleAutoTargetButton').classList.remove('active');
 		Session.AutoTargeting = false;
 	} else {
-		MobileUI.ui.find('#toggleAutoTargetButton').addClass('active');
+		root.querySelector('#toggleAutoTargetButton').classList.add('active');
 		Session.AutoTargeting = true;
 		autoTarget();
 	}
@@ -538,13 +466,15 @@ function toggleAutoTargeting() {
  * Toggles auto follow
  */
 function toggleAutoFollow() {
+	const root = _getRoot();
+
 	if (Session.autoFollow) {
-		MobileUI.ui.find('#toggleAutoFollowButton').removeClass('active');
+		root.querySelector('#toggleAutoFollowButton').classList.remove('active');
 		Session.autoFollow = false;
 	} else {
 		const entityFocus = EntityManager.getFocusEntity();
 		if (entityFocus) {
-			MobileUI.ui.find('#toggleAutoFollowButton').addClass('active');
+			root.querySelector('#toggleAutoFollowButton').classList.add('active');
 			Session.autoFollow = true;
 			Session.autoFollowTarget = entityFocus;
 			onAutoFollow();
@@ -562,7 +492,6 @@ function attackTargeted() {
 	let entityFocus = EntityManager.getFocusEntity();
 
 	if (!entityFocus || entityFocus.action === entityFocus.ACTION.DIE) {
-		//If no target, try picking one first
 		autoTarget();
 		entityFocus = EntityManager.getFocusEntity();
 	}
@@ -578,7 +507,6 @@ function attackTargeted() {
 			out
 		);
 
-		// Can't attack
 		if (!count) {
 			return true;
 		}
@@ -591,13 +519,11 @@ function attackTargeted() {
 		pkt.action = 7;
 		pkt.targetGID = entityFocus.GID;
 
-		// in range send packet
 		if (count < 2) {
 			Network.sendPacket(pkt);
 			return true;
 		}
 
-		// Move to entity
 		Session.moveAction = pkt;
 
 		if (PACKETVER.value >= 20180307) {
@@ -626,15 +552,11 @@ function autoTarget() {
 			entityFocus.onFocusEnd();
 			EntityManager.setFocusEntity(null);
 
-			//closestEntity.onMouseDown();
 			closestEntity.onFocus();
 			EntityManager.setFocusEntity(closestEntity);
 		} else if (!entityFocus) {
-			//closestEntity.onMouseDown();
 			closestEntity.onFocus();
 			EntityManager.setFocusEntity(closestEntity);
-		} else {
-			//Same entity, nothing to do
 		}
 	}
 
@@ -673,6 +595,8 @@ function stopPropagation(event) {
  * Auto follow logic
  */
 function onAutoFollow() {
+	const root = _getRoot();
+
 	if (Session.autoFollow) {
 		const player = Session.Entity;
 		const target = Session.autoFollowTarget;
@@ -680,11 +604,9 @@ function onAutoFollow() {
 		const dx = Math.abs(player.position[0] - target.position[0]);
 		const dy = Math.abs(player.position[1] - target.position[1]);
 
-		// Use square based range check instead of Pythagorean because of diagonals
 		if (dx > 1 || dy > 1) {
 			const dest = [0, 0];
 
-			// If there is valid cell send move packet
 			if (checkFreeCell(Math.round(target.position[0]), Math.round(target.position[1]), 1, dest)) {
 				let pkt;
 				if (PACKETVER.value >= 20180307) {
@@ -699,7 +621,7 @@ function onAutoFollow() {
 
 		Events.setTimeout(onAutoFollow, 500);
 	} else {
-		MobileUI.ui.find('#toggleAutoFollowButton').removeClass('active');
+		root.querySelector('#toggleAutoFollowButton').classList.remove('active');
 	}
 }
 
@@ -713,14 +635,12 @@ function pickUpItem() {
 		return;
 	}
 
-	// Find the nearest item
 	const closestItem = EntityManager.getClosestEntity(player, Session.Entity.constructor.TYPE_ITEM);
 
 	if (!closestItem) {
 		return;
 	}
 
-	// if the distance between Session.Entity and closestItem is greater then 2 so walk to the item
 	let dx = Math.abs(player.position[0] - closestItem.position[0]);
 	let dy = Math.abs(player.position[1] - closestItem.position[1]);
 	if (dx < 0) {
@@ -733,7 +653,6 @@ function pickUpItem() {
 	if ((dx < dy ? dy : dx) > 2) {
 		const dest = [0, 0];
 
-		// If there is valid cell send move packet
 		if (checkFreeCell(Math.round(closestItem.position[0]), Math.round(closestItem.position[1]), 1, dest)) {
 			let pkt;
 			if (PACKETVER.value >= 20180307) {
@@ -746,7 +665,6 @@ function pickUpItem() {
 		}
 	}
 
-	// Check the packet version and create the appropriate packet
 	let pickUpPacket;
 
 	if (PACKETVER.value >= 20180307) {
@@ -755,10 +673,8 @@ function pickUpItem() {
 		pickUpPacket = new PACKET.CZ.ITEM_PICKUP();
 	}
 
-	// Set the ITAID for the packet
 	pickUpPacket.ITAID = closestItem.GID;
 
-	// Send the packet to the server
 	Network.sendPacket(pickUpPacket);
 }
 
@@ -766,23 +682,22 @@ function pickUpItem() {
  * Joystick handling for both mouse and touch input - MicromeX
  */
 function setupJoystick() {
-	const joystickBase = document.getElementById('joystickBase');
-	const joystickThumb = document.getElementById('joystickThumb');
+	const root = _getRoot();
+	_joystickBase = root.querySelector('#joystickBase');
+	_joystickThumb = root.querySelector('#joystickThumb');
 
-	maxDistance = joystickBase.offsetWidth / 2;
+	maxDistance = _joystickBase.offsetWidth / 2;
 
-	joystickThumb.addEventListener('mousedown', startDrag);
-	joystickThumb.addEventListener('touchstart', startDrag);
+	_joystickThumb.addEventListener('mousedown', startDrag);
+	_joystickThumb.addEventListener('touchstart', startDrag);
 }
 
 function startDrag(event) {
 	event.preventDefault();
-	const joystickBase = document.getElementById('joystickBase');
 
 	const touch = event.touches ? event.touches[0] : event;
 
-	// Dynamically calculate the center of the joystick
-	const rect = joystickBase.getBoundingClientRect();
+	const rect = _joystickBase.getBoundingClientRect();
 	centerX = rect.left + rect.width / 2;
 	centerY = rect.top + rect.height / 2;
 
@@ -791,12 +706,11 @@ function startDrag(event) {
 	document.addEventListener('touchmove', moveJoystick);
 	document.addEventListener('touchend', stopDrag);
 
-	moveJoystick(touch); // Trigger initial movement
-	startMovement(); // Start periodic movement updates
+	moveJoystick(touch);
+	startMovement();
 }
 
 function moveJoystick(event) {
-	const joystickThumb = document.getElementById('joystickThumb');
 	const deadZone = 15;
 
 	const touch = event.touches ? event.touches[0] : event;
@@ -810,28 +724,24 @@ function moveJoystick(event) {
 	const offsetX = Math.cos(angle) * distance;
 	const offsetY = Math.sin(angle) * distance;
 
-	joystickThumb.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+	_joystickThumb.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
 
-	// Check for dead zone
 	if (distance < deadZone) {
 		normalizedX = 0;
 		normalizedY = 0;
 		return;
 	}
 
-	// Normalize movement (-1 to 1)
 	normalizedX = offsetX / maxDistance;
 	normalizedY = -offsetY / maxDistance;
 }
 
 function stopDrag() {
-	const joystickThumb = document.getElementById('joystickThumb');
-
-	joystickThumb.style.transform = 'translate(0, 0)'; // Reset to center
-	normalizedX = 0; // Reset normalized values
+	_joystickThumb.style.transform = 'translate(0, 0)';
+	normalizedX = 0;
 	normalizedY = 0;
 
-	stopMovement(); // Stop periodic movement updates
+	stopMovement();
 
 	document.removeEventListener('mousemove', moveJoystick);
 	document.removeEventListener('mouseup', stopDrag);
@@ -840,25 +750,21 @@ function stopDrag() {
 }
 
 function startMovement() {
-	const tileSize = 3; // Number of tiles to move per step
+	const tileSize = 3;
 
-	// Clear any existing timer to prevent duplicates
 	if (movementTimer) {
 		clearInterval(movementTimer);
 	}
 
-	// Function to execute movement logic
 	const executeMove = () => {
 		if (normalizedX !== 0 || normalizedY !== 0) {
 			moveCharacter(normalizedX, normalizedY, tileSize);
 		}
 	};
 
-	// execute immediately
 	executeMove();
 
-	// Start interval for continuous movement
-	movementTimer = setInterval(executeMove, 100); // 100ms interval for smooth movement
+	movementTimer = setInterval(executeMove, 100);
 }
 
 function stopMovement() {
@@ -873,7 +779,6 @@ function stopMovement() {
  * @param {number} x - Normalized x-axis input (-1 to 1)
  * @param {number} y - Normalized y-axis input (-1 to 1)
  * @param {number} tileSize - The size of each tile in the game world
- * @returns {Promise} Resolves when the character finishes moving
  */
 function moveCharacter(x, y, tileSize) {
 	const player = Session.Entity;
@@ -882,17 +787,14 @@ function moveCharacter(x, y, tileSize) {
 		return;
 	}
 
-	// Correct direction inversion by reversing the rotation angle
 	direction[0] = x;
 	direction[1] = y;
 
-	// Reverse the angle of rotation for proper alignment
 	mat2.identity(rotate);
 	mat2.rotate(rotate, rotate, ((-Camera.direction * 45) / 180) * Math.PI);
 
 	vec2.transformMat2(direction, direction, rotate);
 
-	// Calculate the new position
 	const newPos = [
 		Math.round(player.position[0] + direction[0] * tileSize),
 		Math.round(player.position[1] + direction[1] * tileSize)
@@ -900,26 +802,21 @@ function moveCharacter(x, y, tileSize) {
 
 	const dest = [0, 0];
 
-	// Search for a valid cell within range 5 of the target position
 	if (checkFreeCell(newPos[0], newPos[1], 5, dest)) {
-		// Check if the target position has changed
 		if (targetPos[0] !== dest[0] || targetPos[1] !== dest[1]) {
 			targetPos[0] = dest[0];
 			targetPos[1] = dest[1];
 
-			// Check the packet version and create the appropriate move packet
 			let movePacket;
 			if (PACKETVER.value >= 20180307) {
-				movePacket = new PACKET.CZ.REQUEST_MOVE2(); // Use the newer packet structure
+				movePacket = new PACKET.CZ.REQUEST_MOVE2();
 			} else {
-				movePacket = new PACKET.CZ.REQUEST_MOVE(); // Use the older packet structure
+				movePacket = new PACKET.CZ.REQUEST_MOVE();
 			}
 
-			// Set the destination for the move packet
 			movePacket.dest[0] = dest[0];
 			movePacket.dest[1] = dest[1];
 
-			// Send the packet to the server
 			Network.sendPacket(movePacket);
 		}
 	}
@@ -928,11 +825,10 @@ function moveCharacter(x, y, tileSize) {
 /**
  * Talk to NPC Button Function - MicromeX
  */
-
 function setupTalkToNpcButton() {
-	const talkButton = document.getElementById('talktonpcButton');
+	const root = _getRoot();
+	const talkButton = root.querySelector('#talktonpcButton');
 
-	// Function to find the nearest NPC within 2 tiles
 	function findNearestNpc() {
 		const player = Session.Entity;
 
@@ -941,16 +837,14 @@ function setupTalkToNpcButton() {
 		}
 
 		let nearestNpc = null;
-		let minDistance = 3; // Minimum distance in tiles (3 tiles)
+		let minDistance = 3;
 
-		// Iterate through all entities to find the nearest NPC
 		EntityManager.forEach(entity => {
 			if (entity.objecttype === entity.constructor.TYPE_NPC) {
 				const dx = entity.position[0] - player.position[0];
 				const dy = entity.position[1] - player.position[1];
 				const distance = Math.sqrt(dx ** 2 + dy ** 2);
 
-				// Check if the NPC is within 2 tiles and closer than the current nearest NPC - MicromeX
 				if (distance <= minDistance) {
 					minDistance = distance;
 					nearestNpc = entity;
@@ -961,7 +855,6 @@ function setupTalkToNpcButton() {
 		return nearestNpc;
 	}
 
-	// Function to talk to the nearest NPC - MicromeX
 	function talkToNearestNpc() {
 		const nearestNpc = findNearestNpc();
 
@@ -969,14 +862,12 @@ function setupTalkToNpcButton() {
 			return;
 		}
 
-		// Send the contact NPC packet
 		const talkPacket = new PACKET.CZ.CONTACTNPC();
-		talkPacket.NAID = nearestNpc.GID; // Target the NPC's GID - MicromeX
+		talkPacket.NAID = nearestNpc.GID;
 
 		Network.sendPacket(talkPacket);
 	}
 
-	// Add event listener to the button
 	talkButton.addEventListener('click', talkToNearestNpc);
 }
 
@@ -993,7 +884,6 @@ function checkFreeCell(x, y, range, out) {
 	const d_x = Session.Entity.position[0] < x ? -1 : 1;
 	const d_y = Session.Entity.position[1] < y ? -1 : 1;
 
-	// Search possible positions
 	for (r = 0; r <= range; ++r) {
 		for (_x = -r; _x <= r; ++_x) {
 			for (_y = -r; _y <= r; ++_y) {
@@ -1023,11 +913,11 @@ function isFreeCell(x, y) {
 
 	let free = true;
 
-	EntityManager.forEach(function (entity) {
+	EntityManager.forEach(entity => {
 		if (
-			entity.objecttype != entity.constructor.TYPE_EFFECT &&
-			entity.objecttype != entity.constructor.TYPE_UNIT &&
-			entity.objecttype != entity.constructor.TYPE_TRAP &&
+			entity.objecttype !== entity.constructor.TYPE_EFFECT &&
+			entity.objecttype !== entity.constructor.TYPE_UNIT &&
+			entity.objecttype !== entity.constructor.TYPE_TRAP &&
 			Math.round(entity.position[0]) === x &&
 			Math.round(entity.position[1]) === y
 		) {
@@ -1045,20 +935,17 @@ function isFreeCell(x, y) {
  * Apply preferences once append to body
  */
 MobileUI.onAppend = function onAppend() {
-	// Apply preferences
 	if (Session.isTouchDevice) {
-		this.ui.show();
+		this._host.style.display = 'block';
 	} else {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
 
-	this.ui.css({
-		top: 0,
-		left: 0,
-		zIndex: 1000,
-		width: Renderer.width,
-		height: Renderer.height
-	});
+	this._host.style.top = '0px';
+	this._host.style.left = '0px';
+	this._host.style.zIndex = '1000';
+	// Width/height handled by CSS :host { width:100%; height:100% }
+	// so the overlay always matches the viewport on resize/rotate.
 };
 
 /**
@@ -1069,7 +956,7 @@ MobileUI.onAppend = function onAppend() {
 MobileUI.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'SHOW':
-			Session.isTouchDevice = true; // Fake it to make it :D
+			Session.isTouchDevice = true;
 			this.show();
 			break;
 		case 'TOGGLE':
@@ -1091,7 +978,6 @@ MobileUI.onShortCut = function onShortCut(key) {
  * Removes MobileUI
  */
 MobileUI.onRemove = function onRemove() {
-	// Save preferences
 	_preferences.y = 0;
 	_preferences.x = 0;
 	_preferences.zIndex = 1000;
@@ -1108,7 +994,7 @@ MobileUI.onRemove = function onRemove() {
  * Shows MobileUI
  */
 MobileUI.show = function show() {
-	this.ui.show();
+	this._host.style.display = 'block';
 };
 
 /**
