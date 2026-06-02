@@ -9,6 +9,7 @@
  */
 
 import KEYS from 'Controls/KeyEventHandler.js';
+import DB from 'DB/DBManager.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
@@ -43,6 +44,15 @@ let _ownerID = 0;
  */
 function _getRoot() {
 	return NpcMenu._shadow || NpcMenu._host;
+}
+
+/**
+ * Helper: escape HTML
+ */
+function _escapeHTML(text) {
+	const div = document.createElement('div');
+	div.textContent = text;
+	return div.innerHTML;
 }
 
 /**
@@ -178,7 +188,7 @@ NpcMenu.setMenu = function setMenu(menu, gid) {
 	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].length) {
 			const div = document.createElement('div');
-			div.textContent = list[i];
+			div.innerHTML = DB.formatMsgToHtml(_escapeHTML(list[i]));
 			div.dataset.index = j++;
 			content.appendChild(div);
 		}
