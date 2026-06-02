@@ -16,6 +16,8 @@
 	height: 144px;
 	top: 40px;
 	margin-left: -5px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #CharSelectV2 canvas {
 	position: absolute;

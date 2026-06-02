@@ -250,6 +250,12 @@ CharSelectV3.setInfo = function setInfo(pkt) {
 function drawBall(btnContainer, index, sel) {
 	const btn = document.createElement('button');
 	btn.className = `btn_pageinfo btn_pageinfo${index}`;
+	btn.style.border = '0';
+	btn.style.width = '8px';
+	btn.style.height = '8px';
+	btn.style.backgroundColor = 'transparent';
+	btn.style.backgroundRepeat = 'no-repeat';
+	btn.style.cursor = 'pointer';
 
 	const img = document.createElement('img');
 	img.width = 8;
@@ -257,6 +263,10 @@ function drawBall(btnContainer, index, sel) {
 	const imagePath = sel ? 'select_character/page_ball_fill.bmp' : 'select_character/page_ball_empty.bmp';
 	Client.loadFile(DB.INTERFACE_PATH + imagePath, data => {
 		btn.style.backgroundImage = `url("${data}")`;
+	});
+
+	btn.addEventListener('click', () => {
+		moveCursorTo((index - 1) * 3);
 	});
 
 	btnContainer.appendChild(btn);
