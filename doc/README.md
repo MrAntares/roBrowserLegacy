@@ -598,7 +598,6 @@ Browser builds ignore this setting.
 ## 8. Play the Game
 
 - Access to `http://localhost:3000/` after moving all the files from your `ro-browser/dist/Web` to `ro-browser` (project root).
-- ![RO Browser Running on Browser locally.](img/start-robrowser.png)
 
 # 9. Troubleshooting
 
