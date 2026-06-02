@@ -18,7 +18,8 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import StatusConst from 'DB/Status/StatusState.js';
 import Camera from 'Renderer/Camera.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import htmlText from './CharSelectV2.html?raw';
 import cssText from './CharSelectV2.css?raw';
@@ -26,7 +27,9 @@ import cssText from './CharSelectV2.css?raw';
 /**
  * Create Chararacter Selection namespace
  */
-const CharSelectV2 = new UIComponent('CharSelectV2', htmlText, cssText);
+const CharSelectV2 = new GUIComponent('CharSelectV2', cssText);
+
+CharSelectV2.render = () => htmlText;
 
 /**
  * @var {Preferences} save where the cursor position is
@@ -80,55 +83,61 @@ let _sex = 0;
 let _disable_UI = false;
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return CharSelectV2._shadow || CharSelectV2._host;
+}
+
+/**
  * Initialize UI
  */
-CharSelectV2.init = function Init() {
-	const ui = this.ui;
+CharSelectV2.init = function init() {
+	const root = _getRoot();
 
-	ui.css({
-		top: (Renderer.height - 358) / 2,
-		left: (Renderer.width - 576) / 2
-	});
+	this.draggable();
 
 	// Bind buttons
-	ui.find('.ok').click(connect);
-	ui.find('.cancel').click(cancel);
-	ui.find('.make').click(create);
-	ui.find('.delete').click(reserve);
-	ui.find('.canceldelete').click(removedelete);
-	ui.find('.finaldelete').click(suppress);
+	root.querySelector('.ok').addEventListener('click', connect);
+	root.querySelector('.cancel').addEventListener('click', cancel);
+	root.querySelector('.make').addEventListener('click', create);
+	root.querySelector('.delete').addEventListener('click', reserve);
+	root.querySelector('.canceldelete').addEventListener('click', removedelete);
+	root.querySelector('.finaldelete').addEventListener('click', suppress);
 
-	ui.find('.arrow.left').mousedown(genericArrowDown(-1));
-	ui.find('.arrow.right').mousedown(genericArrowDown(+1));
+	root.querySelector('.arrow.left').addEventListener('mousedown', genericArrowDown(-1));
+	root.querySelector('.arrow.right').addEventListener('mousedown', genericArrowDown(+1));
 
 	// Bind canvas
-	ui.find('.slot1').mousedown(genericCanvasDown(0));
-	ui.find('.slot2').mousedown(genericCanvasDown(1));
-	ui.find('.slot3').mousedown(genericCanvasDown(2));
+	root.querySelector('.slot1').addEventListener('mousedown', genericCanvasDown(0));
+	root.querySelector('.slot2').addEventListener('mousedown', genericCanvasDown(1));
+	root.querySelector('.slot3').addEventListener('mousedown', genericCanvasDown(2));
 
-	ui.find('canvas')
-		.dblclick(function () {
+	root.querySelectorAll('canvas').forEach(canvas => {
+		canvas.addEventListener('dblclick', () => {
 			if (_slots[_index]) {
 				connect();
 			} else {
 				create();
 			}
-		})
-		.each(function () {
-			_ctx.push(this.getContext('2d'));
 		});
-
-	this.draggable();
+		_ctx.push(canvas.getContext('2d'));
+	});
 };
 
 /**
  * Once append to body
  */
 CharSelectV2.onAppend = function onAppend() {
+	const root = _getRoot();
+
+	this._host.style.top = `${(Renderer.height - 358) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 576) / 2}px`;
+
 	_index = _preferences.index;
 
-	this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
-	this.ui.find('.pageinfo .count').text(_maxSlots / 3);
+	root.querySelector('.slotinfo .number').textContent = `${_list.length} / ${_maxSlots}`;
+	root.querySelector('.pageinfo .count').textContent = _maxSlots / 3;
 
 	// Update values
 	moveCursorTo(_index);
@@ -141,9 +150,14 @@ CharSelectV2.onAppend = function onAppend() {
  * Stop rendering
  */
 CharSelectV2.onRemove = function onRemove() {
+	const root = _getRoot();
+
 	_preferences.index = _index;
 	_preferences.save();
-	this.ui.find('.timedelete').hide().text('');
+	root.querySelectorAll('.timedelete').forEach(el => {
+		el.style.display = 'none';
+		el.textContent = '';
+	});
 	Renderer.stop();
 };
 
@@ -153,7 +167,7 @@ CharSelectV2.onRemove = function onRemove() {
  * @param {object} event
  */
 CharSelectV2.onKeyDown = function onKeyDown(event) {
-	if (!this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
 		return true;
 	}
 	switch (event.which) {
@@ -197,6 +211,8 @@ CharSelectV2.onKeyDown = function onKeyDown(event) {
  * @param {object} pkt - packet structure
  */
 CharSelectV2.setInfo = function setInfo(pkt) {
+	const root = _getRoot();
+
 	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 9); // default 9 ?
 	_sex = pkt.sex;
 	_slots.length = 0;
@@ -213,8 +229,8 @@ CharSelectV2.setInfo = function setInfo(pkt) {
 		}
 	}
 
-	this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
-	this.ui.find('.pageinfo .count').text(_maxSlots / 3);
+	root.querySelector('.slotinfo .number').textContent = `${_list.length} / ${_maxSlots}`;
+	root.querySelector('.pageinfo .count').textContent = _maxSlots / 3;
 
 	moveCursorTo(_index);
 };
@@ -224,7 +240,7 @@ CharSelectV2.setInfo = function setInfo(pkt) {
  *
  * @param {number} error id
  */
-CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
+CharSelectV2.deleteAnswer = function deleteAnswer(error) {
 	this.on('keydown');
 
 	if (PACKETVER.value >= 20100803) {
@@ -236,6 +252,8 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
 
 			// Success (clean up character)
 			case 1: {
+				const root = _getRoot();
+
 				delete _slots[_index];
 				delete _entitySlots[_index];
 
@@ -253,7 +271,7 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
 
 				// Refresh UI
 				moveCursorTo(_index);
-				this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
+				root.querySelector('.slotinfo .number').textContent = `${_list.length} / ${_maxSlots}`;
 				return;
 			}
 
@@ -284,6 +302,8 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
 
 			// Success (clean up character)
 			case -1: {
+				const root = _getRoot();
+
 				delete _slots[_index];
 				delete _entitySlots[_index];
 
@@ -301,7 +321,7 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
 
 				// Refresh UI
 				moveCursorTo(_index);
-				this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
+				root.querySelector('.slotinfo .number').textContent = `${_list.length} / ${_maxSlots}`;
 				return;
 			}
 
@@ -319,13 +339,15 @@ CharSelectV2.deleteAnswer = function DeleteAnswer(error) {
  * @param {object} character data
  */
 CharSelectV2.addCharacter = function addCharacter(character) {
+	const root = _getRoot();
+
 	if (!('sex' in character) || character.sex === 99) {
 		character.sex = _sex;
 	}
 
 	//Adjust from remaining time to fixed datetime
 	if (character.DeleteDate) {
-		const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+		const now = Math.floor(Date.now() / 1000);
 		const timer =
 			(PACKETVER.value > 20130000 && PACKETVER.value <= 20141022) || PACKETVER.value >= 20150513
 				? character.DeleteDate + now
@@ -342,14 +364,14 @@ CharSelectV2.addCharacter = function addCharacter(character) {
 		_entitySlots[character.CharNum]._effectState & ~StatusConst.EffectState.INVISIBLE;
 
 	if (PACKETVER.value >= 20100803) {
-		if (_slots[character.CharNum].DeleteDate && Math.floor(_index / 3) == Math.floor(character.CharNum / 3)) {
+		if (_slots[character.CharNum].DeleteDate && Math.floor(_index / 3) === Math.floor(character.CharNum / 3)) {
 			const slotNum = ((character.CharNum + _maxSlots) % _maxSlots) + 1;
-			const countdown = this.ui.find('.timedelete.slot' + slotNum); // Adjusted selector
+			const countdown = root.querySelector(`.timedelete.slot${slotNum}`);
 			const entity = _entitySlots[character.CharNum];
 			if (countdown) {
-				countdown.attr('data-datetime', _slots[character.CharNum].DeleteDate);
-				countdown.text(formatDatetime(_slots[character.CharNum].DeleteDate));
-				countdown.show();
+				countdown.dataset.datetime = _slots[character.CharNum].DeleteDate;
+				countdown.textContent = formatDatetime(_slots[character.CharNum].DeleteDate);
+				countdown.style.display = 'block';
 			}
 			entity.setAction({
 				action: entity.ACTION.SIT,
@@ -386,7 +408,7 @@ CharSelectV2.onConnectRequest = function onConnectRequest() {};
  * @param {number} value to move
  */
 function genericArrowDown(value) {
-	return function (event) {
+	return event => {
 		moveCursorTo((_index + _maxSlots + value) % _maxSlots);
 		event.stopImmediatePropagation();
 		return false;
@@ -394,12 +416,12 @@ function genericArrowDown(value) {
 }
 
 /**
- * Generic method to handle mousedown on arrow
+ * Generic method to handle mousedown on canvas
  *
  * @param {number} value to move
  */
 function genericCanvasDown(value) {
-	return function (event) {
+	return event => {
 		moveCursorTo(Math.floor(_index / 3) * 3 + value);
 		event.stopImmediatePropagation();
 		return false;
@@ -415,7 +437,7 @@ function cancel() {
 			DB.getMessage(17),
 			'ok',
 			'cancel',
-			function () {
+			() => {
 				CharSelectV2.onExitRequest();
 			},
 			null
@@ -458,7 +480,6 @@ function formatDatetime(epoch) {
 	const minutes = datetime.getMinutes();
 	const seconds = datetime.getSeconds();
 
-	// Use the msgstringtable
 	const formattedDatetime = DB.getMessage(2097)
 		.replace('%d', `${month}`)
 		.replace('%d', `${day}`)
@@ -474,9 +495,9 @@ function formatDatetime(epoch) {
  *
  * @param {object} pkt - packet structure
  */
-CharSelectV2.reqdeleteAnswer = function ReqDelAnswer(pkt) {
+CharSelectV2.reqdeleteAnswer = function reqdeleteAnswer(pkt) {
 	this.on('keydown');
-	const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+	const now = Math.floor(Date.now() / 1000);
 	const result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
 	const info = _slots[_index];
 
@@ -516,19 +537,22 @@ CharSelectV2.reqdeleteAnswer = function ReqDelAnswer(pkt) {
  * Update UI and add timer
  */
 function requestdelete(index, timer) {
+	const root = _getRoot();
 	const entity = _entitySlots[index];
 	let action;
-	// Add the timer
-	const countdown = CharSelectV2.ui.find('.timedelete.slot' + ((index % 3) + 1));
+
+	const countdown = root.querySelector(`.timedelete.slot${(index % 3) + 1}`);
 	if (countdown) {
-		countdown.attr('data-datetime', timer);
-		countdown.text(formatDatetime(timer));
-		countdown.show();
+		countdown.dataset.datetime = timer;
+		countdown.textContent = formatDatetime(timer);
+		countdown.style.display = 'block';
 		if (Math.floor(Date.now() / 1000) > timer) {
-			countdown.removeClass('waitdelete').addClass('candelete');
+			countdown.classList.remove('waitdelete');
+			countdown.classList.add('candelete');
 			action = entity.ACTION.DIE;
 		} else {
-			countdown.removeClass('candelete').addClass('waitdelete');
+			countdown.classList.remove('candelete');
+			countdown.classList.add('waitdelete');
 			action = entity.ACTION.SIT;
 		}
 	}
@@ -537,12 +561,12 @@ function requestdelete(index, timer) {
 	entity.action = action;
 
 	// Adjust the buttons
-	CharSelectV2.ui.find('.delete').hide();
-	CharSelectV2.ui.find('.canceldelete').show();
+	root.querySelector('.delete').style.display = 'none';
+	root.querySelector('.canceldelete').style.display = 'block';
 	if (Math.floor(Date.now() / 1000) > timer) {
-		CharSelectV2.ui.find('.finaldelete').show();
+		root.querySelector('.finaldelete').style.display = 'block';
 	} else {
-		CharSelectV2.ui.find('.finaldelete').hide();
+		root.querySelector('.finaldelete').style.display = 'none';
 	}
 }
 
@@ -552,6 +576,8 @@ function requestdelete(index, timer) {
  */
 function removedelete() {
 	if (_slots[_index]) {
+		const root = _getRoot();
+
 		// Delete here as well? Though server should tell us this
 		_slots[_index].DeleteDate = 0;
 
@@ -560,15 +586,15 @@ function removedelete() {
 		render();
 
 		// Remove the timer
-		const countdown = CharSelectV2.ui.find('.timedelete.slot' + ((_index % 3) + 1)); // Adjusted selector
-		countdown.attr('data-datetime', 0);
-		countdown.text(formatDatetime(''));
-		countdown.hide();
+		const countdown = root.querySelector(`.timedelete.slot${(_index % 3) + 1}`);
+		countdown.dataset.datetime = 0;
+		countdown.textContent = formatDatetime('');
+		countdown.style.display = 'none';
 
 		// Adjust the buttons
-		CharSelectV2.ui.find('.canceldelete').hide();
-		CharSelectV2.ui.find('.finaldelete').hide();
-		CharSelectV2.ui.find('.delete').show();
+		root.querySelector('.canceldelete').style.display = 'none';
+		root.querySelector('.finaldelete').style.display = 'none';
+		root.querySelector('.delete').style.display = 'block';
 
 		// Send request to the server
 		CharSelectV2.onCancelDeleteRequest(_slots[_index].GID);
@@ -605,8 +631,8 @@ function suppress() {
  * @param {number} index
  */
 function moveCursorTo(index) {
-	const ui = CharSelectV2.ui;
-	const $charinfo = ui.find('.charinfo');
+	const root = _getRoot();
+	const charinfo = root.querySelector('.charinfo');
 
 	// Set the last entity to idle
 	let entity = _entitySlots[_index];
@@ -629,82 +655,86 @@ function moveCursorTo(index) {
 
 	// Move
 	_index = (index + _maxSlots) % _maxSlots;
-	ui.find('.box_select')
-		.removeClass('slot1 slot2 slot3')
-		.addClass('slot' + ((_index % 3) + 1));
+	const boxSelect = root.querySelector('.box_select');
+	boxSelect.classList.remove('slot1', 'slot2', 'slot3');
+	boxSelect.classList.add(`slot${(_index % 3) + 1}`);
 
 	// Set page
-	ui.find('.pageinfo .current').text(Math.floor(_index / 3) + 1);
+	root.querySelector('.pageinfo .current').textContent = Math.floor(_index / 3) + 1;
 
 	// Update page deltimes
 	for (let i = 0; i < 3; i++) {
 		const tmpIndex = _index - (_index % 3) + i;
 		info = _slots[tmpIndex];
 		entity = _entitySlots[tmpIndex];
-		const countdown = CharSelectV2.ui.find('.timedelete.slot' + ((tmpIndex % 3) + 1));
+		const countdown = root.querySelector(`.timedelete.slot${(tmpIndex % 3) + 1}`);
 
 		if (info && entity) {
 			if (info.DeleteDate && PACKETVER.value >= 20100803) {
-				countdown.attr('data-datetime', info.DeleteDate);
-				countdown.text(formatDatetime(info.DeleteDate));
-				countdown.show();
+				countdown.dataset.datetime = info.DeleteDate;
+				countdown.textContent = formatDatetime(info.DeleteDate);
+				countdown.style.display = 'block';
 				if (Math.floor(Date.now() / 1000) > info.DeleteDate) {
-					countdown.removeClass('waitdelete').addClass('candelete');
+					countdown.classList.remove('waitdelete');
+					countdown.classList.add('candelete');
 				} else {
-					countdown.removeClass('candelete').addClass('waitdelete');
+					countdown.classList.remove('candelete');
+					countdown.classList.add('waitdelete');
 				}
 				entity.action = entity.ACTION.SIT;
 			} else {
-				countdown.attr('data-datetime', 0);
-				countdown.text(formatDatetime(''));
-				countdown.hide();
+				countdown.dataset.datetime = 0;
+				countdown.textContent = formatDatetime('');
+				countdown.style.display = 'none';
 				entity.action = entity.ACTION.IDLE;
 			}
 		} else {
-			countdown.attr('data-datetime', 0);
-			countdown.text(formatDatetime(''));
-			countdown.hide();
+			countdown.dataset.datetime = 0;
+			countdown.textContent = formatDatetime('');
+			countdown.style.display = 'none';
 		}
 	}
 
 	// Not found, just clean up.
 	entity = _entitySlots[_index];
 	if (!entity) {
-		$charinfo.find('div').empty();
-		ui.find('.make').show();
-		ui.find('.delete').hide();
-		ui.find('.canceldelete').hide();
-		ui.find('.finaldelete').hide();
-		ui.find('.ok').hide();
+		charinfo.querySelectorAll('div').forEach(div => {
+			div.textContent = '';
+		});
+		root.querySelector('.make').style.display = 'block';
+		root.querySelector('.delete').style.display = 'none';
+		root.querySelector('.canceldelete').style.display = 'none';
+		root.querySelector('.finaldelete').style.display = 'none';
+		root.querySelector('.ok').style.display = 'none';
 		return;
 	}
 
 	info = _slots[_index];
 	// Bind new value
 	if (info.DeleteDate && PACKETVER.value >= 20100803) {
-		ui.find('.delete').hide();
-		ui.find('.canceldelete').show();
+		root.querySelector('.delete').style.display = 'none';
+		root.querySelector('.canceldelete').style.display = 'block';
 		if (Math.floor(Date.now() / 1000) > info.DeleteDate) {
-			ui.find('.finaldelete').show();
+			root.querySelector('.finaldelete').style.display = 'block';
 			action = entity.ACTION.DIE;
 		} else {
-			ui.find('.finaldelete').hide();
+			root.querySelector('.finaldelete').style.display = 'none';
 			action = entity.ACTION.SIT;
 		}
-		ui.find('.make').hide();
-		ui.find('.ok').show();
+		root.querySelector('.make').style.display = 'none';
+		root.querySelector('.ok').style.display = 'block';
 	} else {
 		if (PACKETVER.value >= 20100803) {
-			ui.find('.delete').show();
-			ui.find('.canceldelete').hide();
-			ui.find('.finaldelete').hide();
+			root.querySelector('.delete').style.display = 'block';
+			root.querySelector('.canceldelete').style.display = 'none';
+			root.querySelector('.finaldelete').style.display = 'none';
 		} else {
-			ui.find('.delete').hide();
-			ui.find('.canceldelete').hide();
-			ui.find('.finaldelete').show();
+			root.querySelector('.delete').style.display = 'none';
+			root.querySelector('.canceldelete').style.display = 'none';
+			root.querySelector('.finaldelete').style.display = 'block';
 		}
-		ui.find('.make').hide();
-		ui.find('.ok').show();
+		root.querySelector('.make').style.display = 'none';
+		root.querySelector('.ok').style.display = 'block';
 		action = entity.ACTION.READYFIGHT;
 	}
 
@@ -716,34 +746,30 @@ function moveCursorTo(index) {
 		repeat: true
 	});
 
-	$charinfo.find('.name').text(info.name);
-	$charinfo.find('.job').text(MonsterTable[info.job] || '');
-	$charinfo.find('.lvl').text(info.level);
-	$charinfo.find('.exp').text(info.exp);
-	$charinfo.find('.hp').text(info.hp);
-	$charinfo.find('.sp').text(info.sp);
-
-	//TODO: Check win_select.bmp size to insert it if needed ?
-	$charinfo.find('.map').text(DB.getMapName(info.lastMap, '') || '');
-	$charinfo.find('.str').text(info.Str);
-	$charinfo.find('.agi').text(info.Agi);
-	$charinfo.find('.vit').text(info.Vit);
-	$charinfo.find('.int').text(info.Int);
-	$charinfo.find('.dex').text(info.Dex);
-	$charinfo.find('.luk').text(info.Luk);
+	charinfo.querySelector('.name').textContent = info.name;
+	charinfo.querySelector('.job').textContent = MonsterTable[info.job] || '';
+	charinfo.querySelector('.lvl').textContent = info.level;
+	charinfo.querySelector('.exp').textContent = info.exp;
+	charinfo.querySelector('.hp').textContent = info.hp;
+	charinfo.querySelector('.sp').textContent = info.sp;
+	charinfo.querySelector('.map').textContent = DB.getMapName(info.lastMap, '') || '';
+	charinfo.querySelector('.str').textContent = info.Str;
+	charinfo.querySelector('.agi').textContent = info.Agi;
+	charinfo.querySelector('.vit').textContent = info.Vit;
+	charinfo.querySelector('.int').textContent = info.Int;
+	charinfo.querySelector('.dex').textContent = info.Dex;
+	charinfo.querySelector('.luk').textContent = info.Luk;
 }
 
 /**
  * Render sprites to canvas
  */
 function render() {
-	let i;
-
 	Camera.direction = 4;
 	const idx = Math.floor(_index / 3) * 3;
 	const count = _ctx.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		_ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);
 
 		if (_entitySlots[idx + i]) {

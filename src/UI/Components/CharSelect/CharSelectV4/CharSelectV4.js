@@ -18,16 +18,18 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import StatusConst from 'DB/Status/StatusState.js';
 import Camera from 'Renderer/Camera.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CharSelectV4.html?raw';
 import cssText from './CharSelectV4.css?raw';
 import Client from 'Core/Client.js';
-import jQuery from 'Utils/jquery.js';
 
 /**
  * Create Chararacter Selection namespace
  */
-const CharSelectV4 = new UIComponent('CharSelectV4', htmlText, cssText);
+const CharSelectV4 = new GUIComponent('CharSelectV4', cssText);
+
+CharSelectV4.render = () => htmlText;
 
 /**
  * @var {Preferences} save preferences for the last index
@@ -82,7 +84,7 @@ let img = 0;
 let _curindex = 0;
 let shouldRunBackgroundChange = false;
 
-let countdownInterval; // Variable to hold the interval
+let countdownInterval;
 
 /**
  * var {boolean} disable input
@@ -90,59 +92,69 @@ let countdownInterval; // Variable to hold the interval
 let _disable_UI = false;
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return CharSelectV4._shadow || CharSelectV4._host;
+}
+
+/**
  * Initialize UI
  */
-CharSelectV4.init = function Init() {
-	const ui = this.ui;
+CharSelectV4.init = function init() {
+	const root = _getRoot();
 
 	// Bind buttons
-	ui.find('.ok').click(connect);
-	ui.find('.cancel').click(cancel);
-	ui.find('.delete').click(reserve);
-	ui.find('.canceldelete').click(removedelete);
-	ui.find('.finaldelete').click(suppress);
+	root.querySelector('.ok').addEventListener('click', connect);
+	root.querySelector('.cancel').addEventListener('click', cancel);
+	root.querySelector('.delete').addEventListener('click', reserve);
+	root.querySelector('.canceldelete').addEventListener('click', removedelete);
+	root.querySelector('.finaldelete').addEventListener('click', suppress);
 
 	// Bind canvas
-	ui.find('#slot0').mousedown(genericCanvasDown(0));
-	ui.find('#slot1').mousedown(genericCanvasDown(1));
-	ui.find('#slot2').mousedown(genericCanvasDown(2));
-	ui.find('#slot3').mousedown(genericCanvasDown(3));
-	ui.find('#slot4').mousedown(genericCanvasDown(4));
-	ui.find('#slot5').mousedown(genericCanvasDown(5));
-	ui.find('#slot6').mousedown(genericCanvasDown(6));
-	ui.find('#slot7').mousedown(genericCanvasDown(7));
-	ui.find('#slot8').mousedown(genericCanvasDown(8));
-	ui.find('#slot9').mousedown(genericCanvasDown(9));
-	ui.find('#slot10').mousedown(genericCanvasDown(10));
-	ui.find('#slot11').mousedown(genericCanvasDown(11));
-	ui.find('#slot12').mousedown(genericCanvasDown(12));
-	ui.find('#slot13').mousedown(genericCanvasDown(13));
-	ui.find('#slot14').mousedown(genericCanvasDown(14));
+	for (let i = 0; i < 15; i++) {
+		const slot = root.querySelector(`#slot${i}`);
+		if (slot) {
+			slot.addEventListener('mousedown', genericCanvasDown(i));
+		}
+	}
 
-	ui.find('canvas')
-		.dblclick(function () {
+	root.querySelectorAll('canvas').forEach(canvas => {
+		canvas.addEventListener('dblclick', () => {
 			if (_slots[_index]) {
 				connect();
 			} else {
 				create();
 			}
-		})
-		.each(function () {
-			_ctx.push(this.getContext('2d'));
 		});
+		_ctx.push(canvas.getContext('2d'));
+	});
+
+	// Load charinfo panel background
+	Client.loadFile(`${DB.INTERFACE_PATH}select_character_ver3/img_info.bmp`, dataURI => {
+		root.querySelector('.charinfo').style.backgroundImage = `url(${dataURI})`;
+	});
+
+	// Load default slot backgrounds
+	for (let i = 0; i < 15; i++) {
+		const slotCanvas = root.querySelector(`#slot${i}`);
+		if (slotCanvas) {
+			Client.loadFile(`${DB.INTERFACE_PATH}select_character_ver3/img_slot2_normal.bmp`, dataURI => {
+				slotCanvas.style.backgroundImage = `url(${dataURI})`;
+			});
+		}
+	}
 };
+
 let _bgInterval = null;
+
 /**
  * Once append to body
  */
 CharSelectV4.onAppend = function onAppend() {
 	CharSelectV4.updateCharSlot();
 
-	//_index = _preferences.index;
-	const charselectready = CharSelectV4.ui;
-	if (charselectready) {
-		startCountdownInterval();
-	}
+	startCountdownInterval();
 
 	// Update values
 	moveCursorTo(_index);
@@ -171,7 +183,7 @@ CharSelectV4.onRemove = function onRemove() {
  * @param {object} event
  */
 CharSelectV4.onKeyDown = function onKeyDown(event) {
-	if (!this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
 		return true;
 	}
 	switch (event.which) {
@@ -217,7 +229,7 @@ CharSelectV4.onKeyDown = function onKeyDown(event) {
 CharSelectV4.setInfo = function setInfo(pkt) {
 	CharSelectV4.clearAllSlots();
 
-	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 15); // default 9 ?
+	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 15); // default 15 ?
 	_sex = pkt.sex;
 
 	if (pkt.charInfo) {
@@ -239,7 +251,6 @@ function formatDuration(seconds) {
 
 	const replacer = DB.getMessage(3349).includes('%d') ? '%d' : '%02d';
 
-	// Use the msgstringtable
 	return DB.getMessage(3349)
 		.replace(replacer, hours.toString().padStart(2, '0'))
 		.replace(replacer, minutes.toString().padStart(2, '0'))
@@ -250,24 +261,22 @@ function formatDuration(seconds) {
  * Countdown for delay in deletion
  */
 function updateAllVisibleCountdowns() {
-	const charselectready = CharSelectV4.ui;
-	if (charselectready) {
-		const visibleCountdowns = document.querySelectorAll('.timedelete:not(.hidden)');
+	const root = _getRoot();
+	const visibleCountdowns = root.querySelectorAll('.timedelete:not(.hidden)');
 
-		visibleCountdowns.forEach(countdownDiv => {
-			const deleteReservedDuration = parseInt(countdownDiv.dataset.duration, 10);
-			const updatedDuration = Math.max(0, deleteReservedDuration - 1); // Ensure non-negative duration
+	visibleCountdowns.forEach(countdownDiv => {
+		const deleteReservedDuration = parseInt(countdownDiv.dataset.duration, 10);
+		const updatedDuration = Math.max(0, deleteReservedDuration - 1);
 
-			countdownDiv.textContent = formatDuration(updatedDuration);
-			if (updatedDuration > 0) {
-				countdownDiv.style.color = 'red';
-			} else {
-				countdownDiv.style.color = 'blue';
-			}
+		countdownDiv.textContent = formatDuration(updatedDuration);
+		if (updatedDuration > 0) {
+			countdownDiv.style.color = 'red';
+		} else {
+			countdownDiv.style.color = 'blue';
+		}
 
-			countdownDiv.dataset.duration = updatedDuration.toString();
-		});
-	}
+		countdownDiv.dataset.duration = updatedDuration.toString();
+	});
 }
 
 /**
@@ -294,7 +303,7 @@ function stopCountdownInterval() {
  *
  * @param {object} pkt - packet structure
  */
-CharSelectV4.reqdeleteAnswer = function ReqDelAnswer(pkt) {
+CharSelectV4.reqdeleteAnswer = function reqdeleteAnswer(pkt) {
 	this.on('keydown');
 	const deleteReservedDate = pkt.DeleteReservedDate;
 	const result = typeof pkt.Result === 'undefined' ? -1 : pkt.Result;
@@ -306,7 +315,7 @@ CharSelectV4.reqdeleteAnswer = function ReqDelAnswer(pkt) {
 
 		case 1: {
 			// 1: none/success
-			const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+			const now = Math.floor(Date.now() / 1000);
 			info.DeleteDate = deleteReservedDate + now;
 			requestdelete(_index, deleteReservedDate);
 			break;
@@ -332,22 +341,23 @@ CharSelectV4.reqdeleteAnswer = function ReqDelAnswer(pkt) {
  * Update UI and add timer
  */
 function requestdelete(index, timer) {
+	const root = _getRoot();
+
 	// Make it sit
 	_entitySlots[index].action = 2;
-	//render();
 
 	// Add the timer
-	const countdown = document.querySelector('.timedelete.slot' + index);
+	const countdown = root.querySelector(`.timedelete.slot${index}`);
 	if (countdown) {
-		countdown.setAttribute('data-duration', timer);
+		countdown.dataset.duration = timer;
 		countdown.classList.remove('hidden');
 		countdown.style.display = 'block';
 	}
 
 	// Adjust the buttons
-	CharSelectV4.ui.find('.delete').hide();
-	CharSelectV4.ui.find('.canceldelete').show();
-	CharSelectV4.ui.find('.finaldelete').show();
+	root.querySelector('.delete').style.display = 'none';
+	root.querySelector('.canceldelete').style.display = 'block';
+	root.querySelector('.finaldelete').style.display = 'block';
 }
 
 /**
@@ -356,6 +366,8 @@ function requestdelete(index, timer) {
  */
 function removedelete() {
 	if (_slots[_index]) {
+		const root = _getRoot();
+
 		// Delete here as well? Though server should tell us this
 		_slots[_index].DeleteDate = 0;
 
@@ -364,17 +376,17 @@ function removedelete() {
 		render();
 
 		// Remove the timer
-		const countdown = document.querySelector('.timedelete.slot' + _index); // Adjusted selector
+		const countdown = root.querySelector(`.timedelete.slot${_index}`);
 		if (countdown) {
-			countdown.setAttribute('data-duration', 0);
+			countdown.dataset.duration = 0;
 			countdown.classList.add('hidden');
 			countdown.style.display = 'none';
 		}
 
 		// Adjust the buttons
-		CharSelectV4.ui.find('.canceldelete').hide();
-		CharSelectV4.ui.find('.finaldelete').hide();
-		CharSelectV4.ui.find('.delete').show();
+		root.querySelector('.canceldelete').style.display = 'none';
+		root.querySelector('.finaldelete').style.display = 'none';
+		root.querySelector('.delete').style.display = 'block';
 
 		// Send request to the server
 		CharSelectV4.onCancelDeleteRequest(_slots[_index].GID);
@@ -386,7 +398,7 @@ function removedelete() {
  *
  * @param {number} error id
  */
-CharSelectV4.deleteAnswer = function DeleteAnswer(error) {
+CharSelectV4.deleteAnswer = function deleteAnswer(error) {
 	this.on('keydown');
 
 	switch (error) {
@@ -486,12 +498,12 @@ CharSelectV4.onConnectRequest = function onConnectRequest() {};
 CharSelectV4.onCancelDeleteRequest = function onCancelDeleteRequest() {};
 
 /**
- * Generic method to handle mousedown on arrow
+ * Generic method to handle mousedown on canvas
  *
  * @param {number} value to move
  */
 function genericCanvasDown(value) {
-	return function (event) {
+	return event => {
 		moveCursorTo(value);
 		event.stopImmediatePropagation();
 		return false;
@@ -507,7 +519,7 @@ function cancel() {
 			DB.getMessage(17),
 			'ok',
 			'cancel',
-			function () {
+			() => {
 				CharSelectV4.onExitRequest();
 				CharSelectV4.clearAllSlots();
 			},
@@ -570,17 +582,19 @@ function suppress() {
  * @param {number} index
  */
 function moveCursorTo(index) {
-	const ui = CharSelectV4.ui;
-	const $charinfo = ui.find('.charinfo');
+	const root = _getRoot();
+	const charinfo = root.querySelector('.charinfo');
 
-	let entity = _slots[_index];
 	const prevIndex = _index;
-	// Update the flag based on whether an entity is present
+	let entity = _slots[_index];
 	shouldRunBackgroundChange = false;
 
 	if (entity) {
-		Client.loadFile(DB.INTERFACE_PATH + 'select_character_ver3/img_slot_normal.bmp', function (dataURI) {
-			ui.find('#slot' + prevIndex).css('backgroundImage', 'url(' + dataURI + ')');
+		Client.loadFile(`${DB.INTERFACE_PATH}select_character_ver3/img_slot_normal.bmp`, dataURI => {
+			const prevSlot = root.querySelector(`#slot${prevIndex}`);
+			if (prevSlot) {
+				prevSlot.style.backgroundImage = `url(${dataURI})`;
+			}
 		});
 	}
 
@@ -589,14 +603,16 @@ function moveCursorTo(index) {
 	// Not found, just clean up.
 	entity = _slots[_index];
 	if (!entity) {
-		$charinfo.find('div').empty();
-		ui.find('.delete').hide();
-		ui.find('.canceldelete').hide();
-		ui.find('.finaldelete').hide();
-		ui.find('.ok').hide();
-		const countdown = document.querySelector('.timedelete.slot' + _index);
+		charinfo.querySelectorAll('div').forEach(div => {
+			div.textContent = '';
+		});
+		root.querySelector('.delete').style.display = 'none';
+		root.querySelector('.canceldelete').style.display = 'none';
+		root.querySelector('.finaldelete').style.display = 'none';
+		root.querySelector('.ok').style.display = 'none';
+		const countdown = root.querySelector(`.timedelete.slot${_index}`);
 		if (countdown) {
-			countdown.setAttribute('data-duration', 0);
+			countdown.dataset.duration = 0;
 			countdown.classList.add('hidden');
 			countdown.style.display = 'none';
 		}
@@ -606,7 +622,6 @@ function moveCursorTo(index) {
 		shouldRunBackgroundChange = true;
 	}
 
-	// Call changeBackgroundEverySecond if the flag is true
 	if (shouldRunBackgroundChange === true) {
 		changeBackgroundEverySecond();
 	}
@@ -614,56 +629,50 @@ function moveCursorTo(index) {
 	const info = _slots[_index];
 	// Bind new value
 	if (info.DeleteDate) {
-		ui.find('.delete').hide();
-		ui.find('.canceldelete').show();
-		ui.find('.finaldelete').show();
+		root.querySelector('.delete').style.display = 'none';
+		root.querySelector('.canceldelete').style.display = 'block';
+		root.querySelector('.finaldelete').style.display = 'block';
 	} else {
-		ui.find('.canceldelete').hide();
-		ui.find('.finaldelete').hide();
-		ui.find('.delete').show();
+		root.querySelector('.canceldelete').style.display = 'none';
+		root.querySelector('.finaldelete').style.display = 'none';
+		root.querySelector('.delete').style.display = 'block';
 	}
 
-	ui.find('.ok').show();
+	root.querySelector('.ok').style.display = 'block';
 
-	$charinfo.find('.map').text(DB.getMapName(info.lastMap, '') || '');
-	$charinfo.find('.job').text(MonsterTable[info.job] || '');
-	$charinfo.find('.lvl').text(info.level);
-	$charinfo.find('.exp').text(info.exp);
-	$charinfo.find('.hp').text(info.hp);
-	$charinfo.find('.sp').text(info.sp);
-	$charinfo.find('.str').text(info.Str);
-	$charinfo.find('.agi').text(info.Agi);
-	$charinfo.find('.vit').text(info.Vit);
-	$charinfo.find('.int').text(info.Int);
-	$charinfo.find('.dex').text(info.Dex);
-	$charinfo.find('.luk').text(info.Luk);
+	charinfo.querySelector('.map').textContent = DB.getMapName(info.lastMap, '') || '';
+	charinfo.querySelector('.job').textContent = MonsterTable[info.job] || '';
+	charinfo.querySelector('.lvl').textContent = info.level;
+	charinfo.querySelector('.exp').textContent = info.exp;
+	charinfo.querySelector('.hp').textContent = info.hp;
+	charinfo.querySelector('.sp').textContent = info.sp;
+	charinfo.querySelector('.str').textContent = info.Str;
+	charinfo.querySelector('.agi').textContent = info.Agi;
+	charinfo.querySelector('.vit').textContent = info.Vit;
+	charinfo.querySelector('.int').textContent = info.Int;
+	charinfo.querySelector('.dex').textContent = info.Dex;
+	charinfo.querySelector('.luk').textContent = info.Luk;
 }
 
 function changeBackgroundEverySecond() {
-	const UIready = CharSelectV4.ui;
-	if (UIready) {
-		const backgroundchange = CharSelectV4.ui.find('#slot' + _curindex);
-		if (backgroundchange && shouldRunBackgroundChange === true) {
-			Client.loadFile(
-				DB.INTERFACE_PATH + 'select_character_ver3/img_slot_select' + img + '.bmp',
-				function (dataURI) {
-					backgroundchange.css({
-						backgroundImage: 'url(' + dataURI + ')',
-						width: '157px',
-						height: '197px',
-						'background-size': 'contain',
-						'background-repeat': 'no-repeat'
-					});
-				}
-			);
+	const root = _getRoot();
+	const backgroundchange = root.querySelector(`#slot${_curindex}`);
+	if (backgroundchange && shouldRunBackgroundChange === true) {
+		Client.loadFile(`${DB.INTERFACE_PATH}select_character_ver3/img_slot_select${img}.bmp`, dataURI => {
+			backgroundchange.style.backgroundImage = `url(${dataURI})`;
+			backgroundchange.style.width = '157px';
+			backgroundchange.style.height = '197px';
+			backgroundchange.style.backgroundSize = 'contain';
+			backgroundchange.style.backgroundRepeat = 'no-repeat';
+		});
 
-			// Increment the slot index and wrap around if needed
-			img = (img + 1) % 8;
-		}
+		// Increment the slot index and wrap around if needed
+		img = (img + 1) % 8;
 	}
 }
 
 CharSelectV4.updateCharSlot = function updateCharSlot(slotId) {
+	const root = _getRoot();
 	let start = 0;
 	let loopMax = Math.max(_maxSlots, _slots.length);
 
@@ -672,40 +681,48 @@ CharSelectV4.updateCharSlot = function updateCharSlot(slotId) {
 		loopMax = slotId + 1;
 	}
 
+	const charCanvases = root.querySelectorAll('.char_canvas');
+	const jobIcons = root.querySelectorAll('.job_icon');
+
 	for (let i = start; i < loopMax; ++i) {
-		jQuery(CharSelectV4.ui.find('.char_canvas')[i])
-			.find('.name')
-			.html(_slots[i] ? _slots[i].name : '');
+		if (charCanvases[i]) {
+			charCanvases[i].querySelector('.name').innerHTML = _slots[i] ? _slots[i].name : '';
+		}
 		if (!_slots[i]) {
-			const slotNum = i;
-			jQuery(CharSelectV4.ui.find('.job_icon')[slotNum]).css('background-image', '');
-			if (CharSelectV4.ui.find('#slot' + slotNum)) {
-				Client.loadFile(DB.INTERFACE_PATH + 'select_character_ver3/img_slot2_normal.bmp', function (dataURI) {
-					CharSelectV4.ui.find('#slot' + slotNum).css('backgroundImage', 'url(' + dataURI + ')');
+			if (jobIcons[i]) {
+				jobIcons[i].style.backgroundImage = '';
+			}
+			const slotCanvas = root.querySelector(`#slot${i}`);
+			if (slotCanvas) {
+				Client.loadFile(`${DB.INTERFACE_PATH}select_character_ver3/img_slot2_normal.bmp`, dataURI => {
+					slotCanvas.style.backgroundImage = `url(${dataURI})`;
 				});
 			}
-			const countdown = document.querySelector('.timedelete.slot' + slotNum); // Adjusted selector
+			const countdown = root.querySelector(`.timedelete.slot${i}`);
 			if (countdown) {
-				countdown.setAttribute('data-duration', 0);
+				countdown.dataset.duration = 0;
 				countdown.classList.add('hidden');
 				countdown.style.display = 'none';
 			}
 		} else {
-			Client.loadFile(DB.INTERFACE_PATH + 'select_character_ver3/img_slot_normal.bmp', function (dataURI) {
-				CharSelectV4.ui.find('#slot' + i).css('backgroundImage', 'url(' + dataURI + ')');
-			});
+			const slotCanvas = root.querySelector(`#slot${i}`);
+			if (slotCanvas) {
+				Client.loadFile(`${DB.INTERFACE_PATH}select_character_ver3/img_slot_normal.bmp`, dataURI => {
+					slotCanvas.style.backgroundImage = `url(${dataURI})`;
+				});
+			}
 
-			const slotJobIcon = jQuery(CharSelectV4.ui.find('.job_icon')[i]);
-
-			Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/icon_jobs_' + _slots[i].job + '.bmp', function (dataURI) {
-				slotJobIcon.css('backgroundImage', 'url(' + dataURI + ')');
-			});
+			if (jobIcons[i]) {
+				const slotJobIcon = jobIcons[i];
+				Client.loadFile(`${DB.INTERFACE_PATH}renewalparty/icon_jobs_${_slots[i].job}.bmp`, dataURI => {
+					slotJobIcon.style.backgroundImage = `url(${dataURI})`;
+				});
+			}
 
 			if (_slots[i].DeleteDate) {
-				const slotNum = i;
-				const countdown = document.querySelector('.timedelete.slot' + slotNum); // Adjusted selector
+				const countdown = root.querySelector(`.timedelete.slot${i}`);
 				if (countdown) {
-					countdown.setAttribute('data-duration', _slots[i].DeleteDate);
+					countdown.dataset.duration = _slots[i].DeleteDate;
 					countdown.classList.remove('hidden');
 					countdown.style.display = 'block';
 				}
@@ -725,19 +742,16 @@ CharSelectV4.clearAllSlots = function clearAllSlots() {
  * Render sprites to canvas
  */
 function render() {
-	let i;
-
 	Camera.direction = 4;
 	const idx = Math.floor(_index / _maxSlots) * _maxSlots;
 	const count = _ctx.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		_ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);
 
 		if (_entitySlots[idx + i]) {
 			SpriteRenderer.bind2DContext(_ctx[i], 78, 157);
-			if (_slots[idx + i] && _slots[idx + i].DeleteDate) // Pending for Deletion Characters are sitting
-			{
+			if (_slots[idx + i] && _slots[idx + i].DeleteDate) {
 				_entitySlots[idx + i].action = 2;
 			}
 			_entitySlots[idx + i].renderEntity();

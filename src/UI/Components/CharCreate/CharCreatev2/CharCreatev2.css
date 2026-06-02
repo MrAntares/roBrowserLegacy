@@ -1,3 +1,8 @@
+:host {
+	width: 150px;
+	height: 286px;
+}
+
 #charcreate_v2 {
 	position: absolute;
 	width: 150px;
@@ -80,13 +85,10 @@
 }
 
 /** Chargen **/
-#charcreate_v2 .content button {
+#charcreate_v2 .content ui-button {
 	position: absolute;
 	width: 13px;
 	height: 13px;
-	border: 0;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #charcreate_v2 .content .styleleft {
@@ -121,11 +123,8 @@
 }
 #charcreate_v2 .footer .btn {
 	position: absolute;
-	border: 0;
 	width: 42px;
 	height: 20px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #charcreate_v2 .footer .make {
 	right: 50px;

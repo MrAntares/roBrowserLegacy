@@ -14,14 +14,17 @@ import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CharCreate.html?raw';
 import cssText from './CharCreate.css?raw';
 
 /**
  * Create Chararacter Selection namespace
  */
-const CharCreate = new UIComponent('CharCreate', htmlText, cssText);
+const CharCreate = new GUIComponent('CharCreate', cssText);
+
+CharCreate.render = () => htmlText;
 
 /**
  * @var {boolean} account sex
@@ -44,33 +47,41 @@ const _chargen = {
 };
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return CharCreate._shadow || CharCreate._host;
+}
+
+/**
  * Initialize UI
  */
 CharCreate.init = function init() {
-	_graph = this.ui.find('.graph canvas')[0].getContext('2d');
-	_chargen.ctx = this.ui.find('.chargen canvas')[0].getContext('2d');
-
-	// Setup GUI
-	this.ui.css({
-		top: (Renderer.height - 342) / 2,
-		left: (Renderer.width - 576) / 2
-	});
+	const root = _getRoot();
+	_graph = root.querySelector('.graph canvas').getContext('2d');
+	_chargen.ctx = root.querySelector('.chargen canvas').getContext('2d');
 
 	this.draggable();
 
 	// Bind Events
-	this.ui.find('.chargen .left').mousedown(updateCharacterGeneric('head', -1));
-	this.ui.find('.chargen .right').mousedown(updateCharacterGeneric('head', +1));
-	this.ui.find('.chargen .up').mousedown(updateCharacterGeneric('headpalette', +1));
-	this.ui.find('.graph button').mousedown(updateStats);
+	root.querySelector('.chargen .left').addEventListener('mousedown', updateCharacterGeneric('head', -1));
+	root.querySelector('.chargen .right').addEventListener('mousedown', updateCharacterGeneric('head', +1));
+	root.querySelector('.chargen .up').addEventListener('mousedown', updateCharacterGeneric('headpalette', +1));
 
-	this.ui.find('input').mousedown(function (event) {
-		this.focus();
+	root.querySelectorAll('.graph button').forEach(btn => {
+		btn.addEventListener('mousedown', function (event) {
+			updateStats.call(this, event);
+		});
+	});
+
+	const input = root.querySelector('input');
+	input.addEventListener('mousedown', event => {
+		input.focus();
 		event.stopImmediatePropagation();
 	});
 
-	this.ui.find('.cancel').click(cancel);
-	this.ui.find('.make').click(create);
+	root.querySelector('.cancel').addEventListener('click', cancel);
+	root.querySelector('.make').addEventListener('click', create);
 };
 
 /**
@@ -86,6 +97,9 @@ CharCreate.setAccountSex = function setAccountSex(sex) {
  * Once add to HTML, start rendering
  */
 CharCreate.onAppend = function onAppend() {
+	this._host.style.top = `${(Renderer.height - 342) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 576) / 2}px`;
+
 	_chargen.render = true;
 	_chargen.entity.set({
 		sex: _accountSex,
@@ -94,7 +108,10 @@ CharCreate.onAppend = function onAppend() {
 		action: 0
 	});
 
-	this.ui.find('input').val('').focus();
+	const root = _getRoot();
+	const input = root.querySelector('input');
+	input.value = '';
+	input.focus();
 
 	Renderer.render(render);
 	updateGraphic();
@@ -115,7 +132,7 @@ CharCreate.onRemove = function onRemove() {
  * @return {boolean}
  */
 CharCreate.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		event.stopImmediatePropagation();
 		cancel();
 		return false;
@@ -131,7 +148,7 @@ CharCreate.onKeyDown = function onKeyDown(event) {
  * @param {number} value
  */
 function updateCharacterGeneric(type, value) {
-	return function (event) {
+	return event => {
 		updateCharacter(type, value);
 		event.stopImmediatePropagation();
 		return false;
@@ -142,16 +159,16 @@ function updateCharacterGeneric(type, value) {
  * Send back informations to send the packet
  */
 function create() {
-	const ui = CharCreate.ui;
+	const root = _getRoot();
 
 	CharCreate.onCharCreationRequest(
-		ui.find('input').val(),
-		parseInt(ui.find('.info .str').text(), 10),
-		parseInt(ui.find('.info .agi').text(), 10),
-		parseInt(ui.find('.info .vit').text(), 10),
-		parseInt(ui.find('.info .int').text(), 10),
-		parseInt(ui.find('.info .dex').text(), 10),
-		parseInt(ui.find('.info .luk').text(), 10),
+		root.querySelector('input').value,
+		parseInt(root.querySelector('.info .str').textContent, 10),
+		parseInt(root.querySelector('.info .agi').textContent, 10),
+		parseInt(root.querySelector('.info .vit').textContent, 10),
+		parseInt(root.querySelector('.info .int').textContent, 10),
+		parseInt(root.querySelector('.info .dex').textContent, 10),
+		parseInt(root.querySelector('.info .luk').textContent, 10),
 		_chargen.entity.head,
 		_chargen.entity.headpalette
 	);
@@ -200,8 +217,10 @@ function updateCharacter(type, increment) {
  * Update the stats and polygon
  */
 function updateStats() {
+	const root = _getRoot();
+
 	// Can't be upper than 9
-	if (CharCreate.ui.find('.info .' + this.className).text() === '9') {
+	if (root.querySelector(`.info .${this.className}`).textContent === '9') {
 		return;
 	}
 
@@ -216,8 +235,8 @@ function updateStats() {
 	};
 
 	// Update infos
-	CharCreate.ui.find('.info .' + this.className)[0].textContent++;
-	CharCreate.ui.find('.info .' + group[this.className])[0].textContent--;
+	root.querySelector(`.info .${this.className}`).textContent++;
+	root.querySelector(`.info .${group[this.className]}`).textContent--;
 
 	updateGraphic();
 }
@@ -226,6 +245,8 @@ function updateStats() {
  * Update the polygon
  */
 function updateGraphic() {
+	const root = _getRoot();
+
 	// Update graphique.
 	const ctx = _graph;
 	const width = ctx.canvas.width;
@@ -240,11 +261,11 @@ function updateGraphic() {
 	ctx.fillStyle = '#7b94ce';
 	ctx.translate(x, y);
 	ctx.beginPath();
-	ctx.moveTo(0, Math.floor((y / 10) * (parseInt(CharCreate.ui.find('.info .' + list[5]).text()) + 1)));
+	ctx.moveTo(0, Math.floor((y / 10) * (parseInt(root.querySelector(`.info .${list[5]}`).textContent) + 1)));
 
 	for (i = 0; i < 6; i++) {
 		ctx.rotate((60 * Math.PI) / 180);
-		ctx.lineTo(0, Math.floor((y / 10) * (parseInt(CharCreate.ui.find('.info .' + list[i]).text()) + 1)));
+		ctx.lineTo(0, Math.floor((y / 10) * (parseInt(root.querySelector(`.info .${list[i]}`).textContent) + 1)));
 	}
 
 	ctx.closePath();

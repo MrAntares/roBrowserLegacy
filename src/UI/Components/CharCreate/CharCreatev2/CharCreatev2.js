@@ -14,14 +14,17 @@ import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CharCreatev2.html?raw';
 import cssText from './CharCreatev2.css?raw';
 
 /**
  * Create Chararacter Selection namespace
  */
-const CharCreatev2 = new UIComponent('CharCreatev2', htmlText, cssText);
+const CharCreatev2 = new GUIComponent('CharCreatev2', cssText);
+
+CharCreatev2.render = () => htmlText;
 
 /**
  * @var {boolean} account sex
@@ -39,32 +42,35 @@ const _chargen = {
 };
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return CharCreatev2._shadow || CharCreatev2._host;
+}
+
+/**
  * Initialize UI
  */
 CharCreatev2.init = function init() {
-	_chargen.ctx = this.ui.find('.content canvas')[0].getContext('2d');
-
-	// Setup GUI
-	this.ui.css({
-		top: (Renderer.height - 286) / 2,
-		left: (Renderer.width - 150) / 2
-	});
+	const root = _getRoot();
+	_chargen.ctx = root.querySelector('.content canvas').getContext('2d');
 
 	this.draggable();
 
 	// Bind Events
-	this.ui.find('.content .styleleft').mousedown(updateCharacterGeneric('head', -1));
-	this.ui.find('.content .styleright').mousedown(updateCharacterGeneric('head', +1));
-	this.ui.find('.content .colorleft').mousedown(updateCharacterGeneric('headpalette', -1));
-	this.ui.find('.content .colorright').mousedown(updateCharacterGeneric('headpalette', +1));
+	root.querySelector('.content .styleleft').addEventListener('mousedown', updateCharacterGeneric('head', -1));
+	root.querySelector('.content .styleright').addEventListener('mousedown', updateCharacterGeneric('head', +1));
+	root.querySelector('.content .colorleft').addEventListener('mousedown', updateCharacterGeneric('headpalette', -1));
+	root.querySelector('.content .colorright').addEventListener('mousedown', updateCharacterGeneric('headpalette', +1));
 
-	this.ui.find('input').mousedown(function (event) {
-		this.focus();
+	const input = root.querySelector('input');
+	input.addEventListener('mousedown', event => {
+		input.focus();
 		event.stopImmediatePropagation();
 	});
 
-	this.ui.find('.cancel').click(cancel);
-	this.ui.find('.make').click(create);
+	root.querySelector('.cancel').addEventListener('click', cancel);
+	root.querySelector('.make').addEventListener('click', create);
 };
 
 /**
@@ -80,6 +86,9 @@ CharCreatev2.setAccountSex = function setAccountSex(sex) {
  * Once add to HTML, start rendering
  */
 CharCreatev2.onAppend = function onAppend() {
+	this._host.style.top = `${(Renderer.height - 286) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 150) / 2}px`;
+
 	_chargen.render = true;
 	_chargen.entity.set({
 		sex: _accountSex,
@@ -88,7 +97,10 @@ CharCreatev2.onAppend = function onAppend() {
 		action: 0
 	});
 
-	this.ui.find('input').val('').focus();
+	const root = _getRoot();
+	const input = root.querySelector('input');
+	input.value = '';
+	input.focus();
 
 	Renderer.render(render);
 };
@@ -108,7 +120,7 @@ CharCreatev2.onRemove = function onRemove() {
  * @return {boolean}
  */
 CharCreatev2.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		event.stopImmediatePropagation();
 		cancel();
 		return false;
@@ -124,7 +136,7 @@ CharCreatev2.onKeyDown = function onKeyDown(event) {
  * @param {number} value
  */
 function updateCharacterGeneric(type, value) {
-	return function (event) {
+	return event => {
 		updateCharacter(type, value);
 		event.stopImmediatePropagation();
 		return false;
@@ -135,10 +147,10 @@ function updateCharacterGeneric(type, value) {
  * Send back informations to send the packet
  */
 function create() {
-	const ui = CharCreatev2.ui;
+	const root = _getRoot();
 
 	CharCreatev2.onCharCreationRequest(
-		ui.find('input').val(),
+		root.querySelector('input').value,
 		1,
 		1,
 		1,

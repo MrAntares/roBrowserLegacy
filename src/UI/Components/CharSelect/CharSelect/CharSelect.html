@@ -1,17 +1,18 @@
-<div id="charselect" data-background="login_interface/win_select.bmp">
+<div id="charselect">
+	<ui-image src="login_interface/win_select.bmp"></ui-image>
 	<!-- BOX -->
-	<div class="box_select" data-background="login_interface/box_select.bmp"></div>
+	<ui-image class="box_select" src="login_interface/box_select.bmp"></ui-image>
 	<canvas class="slot1" width="126" height="132"></canvas>
 	<canvas class="slot2" width="126" height="132"></canvas>
 	<canvas class="slot3" width="126" height="132"></canvas>
 
 	<!-- Arrows -->
-	<button class="arrow left" data-background="scroll1left.bmp"></button>
-	<button class="arrow right" data-background="scroll1right.bmp"></button>
+	<ui-button class="arrow left" bg="scroll1left.bmp"></ui-button>
+	<ui-button class="arrow right" bg="scroll1right.bmp"></ui-button>
 
 	<!-- Slots infos -->
 	<div class="slotinfo">
-		<span class="number" data-text="2004">0 / 27</span>
+		<span class="number">0 / 27</span>
 		<span class="content"></span>
 	</div>
 
@@ -37,24 +38,9 @@
 
 	<!-- Buttons -->
 	<div class="btns">
-		<button
-			class="btn delete"
-			data-background="btn_del.bmp"
-			data-hover="btn_del_a.bmp"
-			data-down="btn_del_b.bmp"
-		></button>
-		<button
-			class="btn cancel"
-			data-background="btn_cancel.bmp"
-			data-hover="btn_cancel_a.bmp"
-			data-down="btn_cancel_b.bmp"
-		></button>
-		<button class="btn ok" data-background="btn_ok.bmp" data-hover="btn_ok_a.bmp" data-down="btn_ok_b.bmp"></button>
-		<button
-			class="btn make"
-			data-background="btn_make.bmp"
-			data-hover="btn_make_a.bmp"
-			data-down="btn_make_b.bmp"
-		></button>
+		<ui-button class="btn delete" bg="btn_del.bmp" hover="btn_del_a.bmp" down="btn_del_b.bmp"></ui-button>
+		<ui-button class="btn cancel" bg="btn_cancel.bmp" hover="btn_cancel_a.bmp" down="btn_cancel_b.bmp"></ui-button>
+		<ui-button class="btn ok" bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp"></ui-button>
+		<ui-button class="btn make" bg="btn_make.bmp" hover="btn_make_a.bmp" down="btn_make_b.bmp"></ui-button>
 	</div>
 </div>

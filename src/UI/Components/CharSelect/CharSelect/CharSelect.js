@@ -18,14 +18,17 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import StatusConst from 'DB/Status/StatusState.js';
 import Camera from 'Renderer/Camera.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CharSelect.html?raw';
 import cssText from './CharSelect.css?raw';
 
 /**
  * Create Chararacter Selection namespace
  */
-const CharSelect = new UIComponent('CharSelect', htmlText, cssText);
+const CharSelect = new GUIComponent('CharSelect', cssText);
+
+CharSelect.render = () => htmlText;
 
 /**
  * @var {Preferences} save where the cursor position is
@@ -79,53 +82,59 @@ let _sex = 0;
 let _disable_UI = false;
 
 /**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return CharSelect._shadow || CharSelect._host;
+}
+
+/**
  * Initialize UI
  */
-CharSelect.init = function Init() {
-	const ui = this.ui;
+CharSelect.init = function init() {
+	const root = _getRoot();
 
-	ui.css({
-		top: (Renderer.height - 342) / 2,
-		left: (Renderer.width - 576) / 2
-	});
+	this.draggable();
 
 	// Bind buttons
-	ui.find('.ok').click(connect);
-	ui.find('.cancel').click(cancel);
-	ui.find('.make').click(create);
-	ui.find('.delete').click(suppress);
+	root.querySelector('.ok').addEventListener('click', connect);
+	root.querySelector('.cancel').addEventListener('click', cancel);
+	root.querySelector('.make').addEventListener('click', create);
+	root.querySelector('.delete').addEventListener('click', suppress);
 
-	ui.find('.arrow.left').mousedown(genericArrowDown(-1));
-	ui.find('.arrow.right').mousedown(genericArrowDown(+1));
+	root.querySelector('.arrow.left').addEventListener('mousedown', genericArrowDown(-1));
+	root.querySelector('.arrow.right').addEventListener('mousedown', genericArrowDown(+1));
 
 	// Bind canvas
-	ui.find('.slot1').mousedown(genericCanvasDown(0));
-	ui.find('.slot2').mousedown(genericCanvasDown(1));
-	ui.find('.slot3').mousedown(genericCanvasDown(2));
+	root.querySelector('.slot1').addEventListener('mousedown', genericCanvasDown(0));
+	root.querySelector('.slot2').addEventListener('mousedown', genericCanvasDown(1));
+	root.querySelector('.slot3').addEventListener('mousedown', genericCanvasDown(2));
 
-	ui.find('canvas')
-		.dblclick(function () {
+	root.querySelectorAll('canvas').forEach(canvas => {
+		canvas.addEventListener('dblclick', () => {
 			if (_slots[_index]) {
 				connect();
 			} else {
 				create();
 			}
-		})
-		.each(function () {
-			_ctx.push(this.getContext('2d'));
 		});
-
-	this.draggable();
+		_ctx.push(canvas.getContext('2d'));
+	});
 };
 
 /**
  * Once append to body
  */
 CharSelect.onAppend = function onAppend() {
+	const root = _getRoot();
+
+	this._host.style.top = `${(Renderer.height - 342) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 576) / 2}px`;
+
 	_index = _preferences.index;
 
-	this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
-	this.ui.find('.pageinfo .count').text(_maxSlots / 3);
+	root.querySelector('.slotinfo .number').textContent = `${_list.length} / ${_maxSlots}`;
+	root.querySelector('.pageinfo .count').textContent = _maxSlots / 3;
 
 	// Update values
 	moveCursorTo(_index);
@@ -149,7 +158,7 @@ CharSelect.onRemove = function onRemove() {
  * @param {object} event
  */
 CharSelect.onKeyDown = function onKeyDown(event) {
-	if (!this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
 		return true;
 	}
 	switch (event.which) {
@@ -193,6 +202,8 @@ CharSelect.onKeyDown = function onKeyDown(event) {
  * @param {object} pkt - packet structure
  */
 CharSelect.setInfo = function setInfo(pkt) {
+	const root = _getRoot();
+
 	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 9); // default 9 ?
 	_sex = pkt.sex;
 	_slots.length = 0;
@@ -209,8 +220,8 @@ CharSelect.setInfo = function setInfo(pkt) {
 		}
 	}
 
-	this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
-	this.ui.find('.pageinfo .count').text(_maxSlots / 3);
+	root.querySelector('.slotinfo .number').textContent = `${_list.length} / ${_maxSlots}`;
+	root.querySelector('.pageinfo .count').textContent = _maxSlots / 3;
 
 	moveCursorTo(_index);
 };
@@ -220,7 +231,7 @@ CharSelect.setInfo = function setInfo(pkt) {
  *
  * @param {number} error id
  */
-CharSelect.deleteAnswer = function DeleteAnswer(error) {
+CharSelect.deleteAnswer = function deleteAnswer(error) {
 	this.on('keydown');
 
 	switch (error) {
@@ -230,6 +241,8 @@ CharSelect.deleteAnswer = function DeleteAnswer(error) {
 
 		// Success (clean up character)
 		case -1: {
+			const root = _getRoot();
+
 			delete _slots[_index];
 			delete _entitySlots[_index];
 
@@ -247,7 +260,7 @@ CharSelect.deleteAnswer = function DeleteAnswer(error) {
 
 			// Refresh UI
 			moveCursorTo(_index);
-			this.ui.find('.slotinfo .number').text(_list.length + ' / ' + _maxSlots);
+			root.querySelector('.slotinfo .number').textContent = `${_list.length} / ${_maxSlots}`;
 			return;
 		}
 
@@ -300,7 +313,7 @@ CharSelect.onConnectRequest = function onConnectRequest() {};
  * @param {number} value to move
  */
 function genericArrowDown(value) {
-	return function (event) {
+	return event => {
 		moveCursorTo((_index + _maxSlots + value) % _maxSlots);
 		event.stopImmediatePropagation();
 		return false;
@@ -313,7 +326,7 @@ function genericArrowDown(value) {
  * @param {number} value to move
  */
 function genericCanvasDown(value) {
-	return function (event) {
+	return event => {
 		moveCursorTo(Math.floor(_index / 3) * 3 + value);
 		event.stopImmediatePropagation();
 		return false;
@@ -329,7 +342,7 @@ function cancel() {
 			DB.getMessage(17),
 			'ok',
 			'cancel',
-			function () {
+			() => {
 				CharSelect.onExitRequest();
 			},
 			null
@@ -377,8 +390,8 @@ function suppress() {
  * @param {number} index
  */
 function moveCursorTo(index) {
-	const ui = CharSelect.ui;
-	const $charinfo = ui.find('.charinfo');
+	const root = _getRoot();
+	const charinfo = root.querySelector('.charinfo');
 
 	// Set the last entity to idle
 	let entity = _entitySlots[_index];
@@ -393,20 +406,22 @@ function moveCursorTo(index) {
 
 	// Move
 	_index = (index + _maxSlots) % _maxSlots;
-	ui.find('.box_select')
-		.removeClass('slot1 slot2 slot3')
-		.addClass('slot' + ((_index % 3) + 1));
+	const boxSelect = root.querySelector('.box_select');
+	boxSelect.classList.remove('slot1', 'slot2', 'slot3');
+	boxSelect.classList.add(`slot${(_index % 3) + 1}`);
 
 	// Set page
-	ui.find('.pageinfo .current').text(Math.floor(_index / 3) + 1);
+	root.querySelector('.pageinfo .current').textContent = Math.floor(_index / 3) + 1;
 
 	// Not found, just clean up.
 	entity = _entitySlots[_index];
 	if (!entity) {
-		$charinfo.find('div').empty();
-		ui.find('.make').show();
-		ui.find('.delete').hide();
-		ui.find('.ok').hide();
+		charinfo.querySelectorAll('div').forEach(div => {
+			div.textContent = '';
+		});
+		root.querySelector('.make').style.display = 'block';
+		root.querySelector('.delete').style.display = 'none';
+		root.querySelector('.ok').style.display = 'none';
 		return;
 	}
 
@@ -419,37 +434,35 @@ function moveCursorTo(index) {
 	});
 
 	// Bind new value
-	ui.find('.make').hide();
-	ui.find('.delete').show();
-	ui.find('.ok').show();
+	root.querySelector('.make').style.display = 'none';
+	root.querySelector('.delete').style.display = 'block';
+	root.querySelector('.ok').style.display = 'block';
 
 	const info = _slots[_index];
-	$charinfo.find('.name').text(info.name);
-	$charinfo.find('.job').text(MonsterTable[info.job] || '');
-	$charinfo.find('.lvl').text(info.level);
-	$charinfo.find('.exp').text(info.exp);
-	$charinfo.find('.hp').text(info.hp);
-	$charinfo.find('.sp').text(info.sp);
-	$charinfo.find('.map').text(DB.getMapName(info.lastMap, '') || '');
-	$charinfo.find('.str').text(info.Str);
-	$charinfo.find('.agi').text(info.Agi);
-	$charinfo.find('.vit').text(info.Vit);
-	$charinfo.find('.int').text(info.Int);
-	$charinfo.find('.dex').text(info.Dex);
-	$charinfo.find('.luk').text(info.Luk);
+	charinfo.querySelector('.name').textContent = info.name;
+	charinfo.querySelector('.job').textContent = MonsterTable[info.job] || '';
+	charinfo.querySelector('.lvl').textContent = info.level;
+	charinfo.querySelector('.exp').textContent = info.exp;
+	charinfo.querySelector('.hp').textContent = info.hp;
+	charinfo.querySelector('.sp').textContent = info.sp;
+	charinfo.querySelector('.map').textContent = DB.getMapName(info.lastMap, '') || '';
+	charinfo.querySelector('.str').textContent = info.Str;
+	charinfo.querySelector('.agi').textContent = info.Agi;
+	charinfo.querySelector('.vit').textContent = info.Vit;
+	charinfo.querySelector('.int').textContent = info.Int;
+	charinfo.querySelector('.dex').textContent = info.Dex;
+	charinfo.querySelector('.luk').textContent = info.Luk;
 }
 
 /**
  * Render sprites to canvas
  */
 function render() {
-	let i;
-
 	Camera.direction = 4;
 	const idx = Math.floor(_index / 3) * 3;
 	const count = _ctx.length;
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < count; ++i) {
 		_ctx[i].clearRect(0, 0, _ctx[i].canvas.width, _ctx[i].canvas.height);
 
 		if (_entitySlots[idx + i]) {
