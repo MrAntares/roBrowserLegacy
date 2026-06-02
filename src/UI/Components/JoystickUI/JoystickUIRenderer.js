@@ -21,7 +21,16 @@ import JoystickInputService from './JoystickInputService.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 
 let ui = null;
-let setIndicator = null;
+
+/**
+ * Get internal shadow root
+ * @returns {ShadowRoot|HTMLElement}
+ */
+function _getShadow() {
+	if (!ui) return null;
+	const host = ui[0];
+	return host.shadowRoot || host;
+}
 
 function setupUIHide() {
 	let lastMouseX = 0;
@@ -48,33 +57,37 @@ function setupUIHide() {
 
 function attach(root) {
 	ui = root;
-	setIndicator = ui.find('.set-indicator');
 	setupUIHide();
 }
 
 function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 	const item = ShortCut.getList()[shortcutIndex];
+	const shadow = _getShadow();
+	if (!shadow) return;
 
-	const $slot = ui.find('.slot').eq(joystickSlotIndex);
-	const $icon = $slot.find('.icon');
-	const $img = $icon.find('.img');
-	const $amount = $icon.find('.amount');
+	const slots = shadow.querySelectorAll('.slot');
+	const slot = slots[joystickSlotIndex];
+	if (!slot) return;
+
+	const icon = slot.querySelector('.icon');
+	const img = icon.querySelector('.img');
+	const amount = icon.querySelector('.amount');
 
 	if (!item || item.ID === 0) {
-		$icon.hide();
-		$img.css('backgroundImage', 'none');
-		$amount.text('');
+		icon.style.display = 'none';
+		img.style.backgroundImage = 'none';
+		amount.textContent = '';
 		return;
 	}
 
-	$icon.show();
+	icon.style.display = 'block';
 
 	if (item.isSkill && item.count) {
 		const skillInfo = SkillInfo[item.ID];
 		if (skillInfo) {
 			Client.loadFile(DB.INTERFACE_PATH + 'item/' + skillInfo.Name + '.bmp', function (url) {
-				$img.css('backgroundImage', 'url(' + url + ')');
-				$amount.text(item.count);
+				img.style.backgroundImage = 'url(' + url + ')';
+				amount.textContent = item.count;
 			});
 		}
 	} else {
@@ -94,8 +107,8 @@ function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 				count = 1;
 			}
 			Client.loadFile(DB.INTERFACE_PATH + 'item/' + fileName + '.bmp', function (url) {
-				$img.css('backgroundImage', 'url(' + url + ')');
-				$amount.text(count);
+				img.style.backgroundImage = 'url(' + url + ')';
+				amount.textContent = count;
 			});
 		}
 	}
@@ -141,25 +154,30 @@ function sync() {
 }
 
 function updateSetIndicator() {
-	if (!setIndicator) {
-		return;
+	const shadow = _getShadow();
+	if (!shadow) return;
+
+	shadow.querySelectorAll('.set-btn').forEach(el => el.classList.remove('active'));
+
+	const currentSet = SetManager.getCurrentSet();
+	const activeBtn = shadow.querySelector(`.set-btn:nth-child(${currentSet})`);
+	if (activeBtn) {
+		activeBtn.classList.add('active');
 	}
-	ui.find('.set-btn').removeClass('active');
-	ui.find('.set-btn:nth-child(' + SetManager.getCurrentSet() + ')').addClass('active');
 }
 
 function updateVisuals(buttons) {
-	if (!ui) {
-		return;
-	}
-	const containers = ui.find('.group-container');
+	const shadow = _getShadow();
+	if (!shadow) return;
 
-	containers.removeClass('active');
+	shadow.querySelectorAll('.group-container').forEach(el => el.classList.remove('active'));
 
 	const activeGroup = JoystickShortcutMapper.getGroup(buttons);
-
 	if (activeGroup !== '') {
-		ui.find('[data-group="' + activeGroup + '"]').addClass('active');
+		const active = shadow.querySelector(`[data-group="${activeGroup}"]`);
+		if (active) {
+			active.classList.add('active');
+		}
 	}
 }
 
@@ -179,6 +197,7 @@ function dispose() {
 	hide();
 	jQuery(document).off('mousemove.joystick');
 }
+
 export default {
 	attach: attach,
 	dispose: dispose,

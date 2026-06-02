@@ -1,18 +1,22 @@
-#shortcut-selection {
-	position: fixed;
+:host {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	z-index: 10000;
+	display: none;
+}
+
+#shortcut-selection {
+	position: absolute;
+	top: 0;
+	left: 0;
 	background: rgba(0, 0, 0, 0.95);
 	border: 2px solid #fff;
 	padding: 20px;
-	z-index: 10000;
 	color: white;
 	min-width: 780px;
 	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 	border-radius: 8px;
-	display: none;
-	/* Hidden by default */
 }
 
 #shortcut-selection h3 {

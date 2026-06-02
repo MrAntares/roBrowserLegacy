@@ -5,14 +5,14 @@
  *
  */
 
+import GUIComponent from 'UI/GUIComponent.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
-import jQuery from 'Utils/jquery.js';
 import htmlText from './JoystickSelectionUI.html?raw';
 import cssText from './JoystickSelectionUI.css?raw';
 
-const JoystickSelectionUI = new UIComponent('JoystickSelectionUI', htmlText, cssText);
+const JoystickSelectionUI = new GUIComponent('JoystickSelectionUI', cssText);
+JoystickSelectionUI.render = () => htmlText;
 
 // State variables
 let currentTab = 0;
@@ -32,6 +32,14 @@ function setClickInterval() {
 
 function isLocked() {
 	return clickLock !== null;
+}
+
+/**
+ * Get internal root (shadow)
+ * @returns {ShadowRoot|HTMLElement}
+ */
+function _getRoot() {
+	return JoystickSelectionUI._shadow || JoystickSelectionUI._host;
 }
 
 // Internal Helper: Get Combo String
@@ -82,8 +90,11 @@ function getJoystickComboForSlot(slotIndex) {
 }
 
 function updateGrid() {
-	const grid = JoystickSelectionUI.ui.find('.shortcut-grid');
-	grid.empty();
+	const root = _getRoot();
+	const grid = root.querySelector('.shortcut-grid');
+	if (!grid) return;
+
+	grid.innerHTML = '';
 
 	const startIdx = currentTab * 9;
 
@@ -93,39 +104,60 @@ function updateGrid() {
 		const isEmpty = !slot || (!slot.isSkill && !slot.ID);
 
 		const joystickCombo = getJoystickComboForSlot(globalIndex);
-		const displayText = joystickCombo || i + 1;
+		const displayText = joystickCombo || (i + 1).toString();
 
-		const slotDiv = jQuery('<div class="slot-btn" data-index="' + i + '">' + displayText + '</div>');
+		const slotDiv = document.createElement('div');
+		slotDiv.className = 'slot-btn';
+		slotDiv.dataset.index = i;
+		slotDiv.textContent = displayText;
 
 		if (isEmpty) {
-			slotDiv.addClass('empty');
+			slotDiv.classList.add('empty');
 		}
 
-		grid.append(slotDiv);
+		grid.appendChild(slotDiv);
 	}
 
 	updateSelection();
 }
 
 function updateSelection() {
-	const grid = JoystickSelectionUI.ui.find('.shortcut-grid');
-	grid.find('.slot-btn').removeClass('selected');
-	grid.find('.slot-btn[data-index="' + slotInTab + '"]').addClass('selected');
+	const root = _getRoot();
+	const grid = root.querySelector('.shortcut-grid');
+	if (!grid) return;
+
+	grid.querySelectorAll('.slot-btn').forEach(el => el.classList.remove('selected'));
+	const selected = grid.querySelector(`.slot-btn[data-index="${slotInTab}"]`);
+	if (selected) {
+		selected.classList.add('selected');
+	}
 }
 
 function updateTabButtons() {
-	const tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
-	tabButtons.find('.tab-btn').removeClass('active');
-	tabButtons.find('.tab-btn[data-tab="' + currentTab + '"]').addClass('active');
+	const root = _getRoot();
+	const tabButtons = root.querySelector('.tab-buttons');
+	if (!tabButtons) return;
+
+	tabButtons.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+	const active = tabButtons.querySelector(`.tab-btn[data-tab="${currentTab}"]`);
+	if (active) {
+		active.classList.add('active');
+	}
 }
 
 function createTabButtons() {
-	const tabButtons = JoystickSelectionUI.ui.find('.tab-buttons');
-	tabButtons.empty();
+	const root = _getRoot();
+	const tabButtons = root.querySelector('.tab-buttons');
+	if (!tabButtons) return;
+
+	tabButtons.innerHTML = '';
 
 	for (let t = 0; t < 4; t++) {
-		const tabBtn = jQuery('<button class="tab-btn" data-tab="' + t + '">Tab ' + (t + 1) + '</button>');
-		tabButtons.append(tabBtn);
+		const tabBtn = document.createElement('button');
+		tabBtn.className = 'tab-btn';
+		tabBtn.dataset.tab = t;
+		tabBtn.textContent = `Tab ${t + 1}`;
+		tabButtons.appendChild(tabBtn);
 	}
 }
 
@@ -234,10 +266,11 @@ JoystickSelectionUI.handleGamepadInput = function handleGamepadInput(buttons) {
 	return false;
 };
 
-JoystickSelectionUI.onAppend = function () {
+JoystickSelectionUI.init = function () {
 	// Initialize structure once attached
 	createTabButtons();
-	this.ui.hide();
+	this._host.style.position = 'fixed';
+	this._host.style.display = 'none';
 };
 
 JoystickSelectionUI.showSelection = function (data) {
@@ -249,16 +282,17 @@ JoystickSelectionUI.showSelection = function (data) {
 	updateTabButtons();
 
 	this.focus();
-	this.ui.show();
-	this.ui.css('display', 'block'); // Ensure display block for fixed positioning
+	this._host.style.display = 'block';
+	this._fixPositionOverflow();
 };
 
 JoystickSelectionUI.hideSelection = function () {
-	this.ui.hide();
+	this._host.style.display = 'none';
 	itemData = null;
 };
 
 JoystickSelectionUI.active = function () {
-	return this.ui && this.ui.is(':visible');
+	return this._host && this._host.style.display !== 'none';
 };
+
 export default UIManager.addComponent(JoystickSelectionUI);
