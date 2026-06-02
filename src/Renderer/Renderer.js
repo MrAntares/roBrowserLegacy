@@ -153,6 +153,12 @@ class Renderer {
 					return false;
 				});
 
+			// Listen for visual viewport changes (mobile input focus zoom, pinch zoom)
+			// to keep the canvas and camera in sync.
+			if (window.visualViewport) {
+				window.visualViewport.addEventListener('resize', this.onResize.bind(this));
+			}
+
 			this.render(null);
 			this.resize();
 		}

@@ -944,8 +944,8 @@ MobileUI.onAppend = function onAppend() {
 	this._host.style.top = '0px';
 	this._host.style.left = '0px';
 	this._host.style.zIndex = '1000';
-	this._host.style.width = `${Renderer.width}px`;
-	this._host.style.height = `${Renderer.height}px`;
+	// Width/height handled by CSS :host { width:100%; height:100% }
+	// so the overlay always matches the viewport on resize/rotate.
 };
 
 /**

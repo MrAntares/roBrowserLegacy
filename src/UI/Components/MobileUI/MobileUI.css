@@ -5,6 +5,9 @@
 }
 
 #MobileUI {
+	position: relative;
+	width: 100%;
+	height: 100%;
 	pointer-events: none;
 }
 
@@ -23,17 +26,17 @@
 }
 
 #MobileUI #toggleUIButton {
-	top: 3px;
-	left: 3px;
-	width: 25px;
-	height: 25px;
+	top: 1%;
+	left: 1%;
+	width: 6.5vmin;
+	height: 6.5vmin;
 }
 
 #MobileUI .buttons {
 	background: rgba(193, 193, 193, 0.33);
 	border-radius: 6px;
 	border: 1px solid grey;
-	font-size: 16px;
+	font-size: 4vmin;
 	font-weight: bold;
 }
 
@@ -42,11 +45,11 @@
 }
 
 #MobileUI .horizontal {
-	margin: 0px 15px;
+	margin: 0 3.5vmin;
 }
 
 #MobileUI .vertical {
-	margin: 15px 0px;
+	margin: 3.5vmin 0;
 }
 
 #MobileUI .disabled {
@@ -55,18 +58,18 @@
 
 #MobileUI #topBar {
 	left: 50%;
-	top: 3px;
+	top: 1%;
 	transform: translate(-50%, 0);
 }
 
 #MobileUI #leftBar {
-	left: 5px;
+	left: 1%;
 	bottom: 35%;
 	transform: translate(0, 50%);
 }
 
 #MobileUI #rightBar {
-	right: 5px;
+	right: 1%;
 	bottom: 35%;
 	transform: translate(0, 50%);
 }
@@ -116,13 +119,13 @@
 }
 
 #MobileUI .primary {
-	width: 45px;
-	height: 45px;
+	width: 11vmin;
+	height: 11vmin;
 }
 
 #MobileUI .secondary {
-	width: 30px;
-	height: 30px;
+	width: 7.5vmin;
+	height: 7.5vmin;
 }
 
 /* Container for all buttons -MicromeX */
@@ -133,20 +136,20 @@
 	position: absolute;
 	bottom: 10%;
 	right: 10%;
-	width: 150px;
-	height: 150px;
+	width: 37.5vmin;
+	height: 37.5vmin;
 	z-index: 1000;
 }
 
 /* Attack Button (center and larger) -MicromeX */
 #MobileUI .atkButton {
 	position: absolute;
-	width: 70px;
-	height: 70px;
+	width: 17.5vmin;
+	height: 17.5vmin;
 	background-color: #f44336;
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 28px;
+	font-size: 7vmin;
 	color: white;
 	display: flex;
 	justify-content: center;
@@ -158,12 +161,12 @@
 /* Functional Buttons (around the attack button) -MicromeX */
 #MobileUI .pickupButton {
 	position: absolute;
-	width: 40px;
-	height: 40px;
+	width: 10vmin;
+	height: 10vmin;
 	background: rgba(193, 193, 193, 0.33);
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 25px;
+	font-size: 6.25vmin;
 	color: rgb(0, 0, 0);
 	display: flex;
 	justify-content: center;
@@ -174,12 +177,12 @@
 
 #MobileUI .talktonpcButton {
 	position: absolute;
-	width: 40px;
-	height: 40px;
+	width: 10vmin;
+	height: 10vmin;
 	background: rgba(193, 193, 193, 0.33);
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 25px;
+	font-size: 6.25vmin;
 	color: rgb(0, 0, 0);
 	display: flex;
 	justify-content: center;
@@ -190,12 +193,12 @@
 
 #MobileUI .switchshorcutButton {
 	position: absolute;
-	width: 40px;
-	height: 40px;
+	width: 10vmin;
+	height: 10vmin;
 	background: rgba(193, 193, 193, 0.33);
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 25px;
+	font-size: 6.25vmin;
 	font-weight: bold;
 	color: rgb(0, 0, 0);
 	display: flex;
@@ -208,12 +211,12 @@
 /* Functional Buttons (smaller and proportional) -MicromeX */
 #MobileUI .FButton {
 	position: absolute;
-	width: 30px;
-	height: 30px;
+	width: 7.5vmin;
+	height: 7.5vmin;
 	background: rgba(193, 193, 193, 0.33);
 	border: 1px solid #666;
 	border-radius: 50%;
-	font-size: 15px;
+	font-size: 3.75vmin;
 	font-weight: bold;
 	color: rgb(0, 0, 0);
 	display: flex;
@@ -511,8 +514,8 @@
 	position: absolute;
 	bottom: 7%;
 	left: 10%;
-	width: 100px;
-	height: 100px;
+	width: 25vmin;
+	height: 25vmin;
 	z-index: 1000;
 }
 
@@ -531,8 +534,8 @@
 /* Joystick thumb -MicromeX */
 #MobileUI .joystick-thumb {
 	position: absolute;
-	width: 40px;
-	height: 40px;
+	width: 10vmin;
+	height: 10vmin;
 	background: radial-gradient(circle, rgba(236, 240, 241, 1) 70%, rgba(189, 195, 199, 1) 100%);
 	border-radius: 50%;
 	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);
