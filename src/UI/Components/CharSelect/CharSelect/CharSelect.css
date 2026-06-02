@@ -7,6 +7,8 @@
 	position: absolute;
 	width: 576px;
 	height: 342px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 
 /** Box **/

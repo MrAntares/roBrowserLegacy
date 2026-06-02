@@ -7,6 +7,8 @@
 	position: absolute;
 	width: 794px;
 	height: 422px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 
 #charcreate_v4 .title {
@@ -217,6 +219,8 @@
 	position: absolute;
 	width: 36px;
 	height: 37px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 #charcreate_v4 .hair-styles {
 	position: relative;
