@@ -17,7 +17,7 @@ class UIImage extends HTMLElement {
 		if (this._initialized) return;
 		this._initialized = true;
 		this.style.display = 'none';
-		this._loadSrc(this.getAttribute('src'));
+		this._applyBackground();
 	}
 
 	static get observedAttributes() {
@@ -25,27 +25,53 @@ class UIImage extends HTMLElement {
 	}
 
 	attributeChangedCallback(name, oldVal, newVal) {
-		if (name === 'src') this._loadSrc(newVal);
+		// Only reload on dynamic src changes after initial setup.
+		// During innerHTML parsing, attributeChangedCallback fires before
+		// connectedCallback — defer initial load to connectedCallback.
+		if (name === 'src' && this._initialized) {
+			this._applyBackground();
+		}
 	}
 
-	_loadSrc(path) {
+	_applyBackground() {
+		const path = this.getAttribute('src');
 		if (!path) return;
-		const target = this.parentElement;
-		if (!target) return;
 
-		Client.loadFile(DB.INTERFACE_PATH + path, dataURI => {
-			if (dataURI instanceof ArrayBuffer) {
-				try {
-					const tga = new Targa();
-					tga.load(new Uint8Array(dataURI));
-					target.style.backgroundImage = `url(${tga.getDataURL()})`;
-				} catch (e) {
-					console.error(e.message);
+		const target = this.parentElement;
+		if (!target) {
+			// Parent may not be available yet (e.g. during innerHTML parsing).
+			// Retry on next animation frame when the DOM tree is fully connected.
+			requestAnimationFrame(() => {
+				const retryTarget = this.parentElement;
+				if (retryTarget) {
+					this._loadImage(path, retryTarget);
 				}
-			} else {
-				target.style.backgroundImage = `url(${dataURI})`;
+			});
+			return;
+		}
+		this._loadImage(path, target);
+	}
+
+	_loadImage(path, target) {
+		Client.loadFile(
+			DB.INTERFACE_PATH + path,
+			dataURI => {
+				if (dataURI instanceof ArrayBuffer) {
+					try {
+						const tga = new Targa();
+						tga.load(new Uint8Array(dataURI));
+						target.style.backgroundImage = `url(${tga.getDataURL()})`;
+					} catch (e) {
+						console.error(`[ui-image] TGA decode error for "${path}":`, e.message);
+					}
+				} else {
+					target.style.backgroundImage = `url(${dataURI})`;
+				}
+			},
+			() => {
+				console.warn(`[ui-image] Failed to load: ${path}`);
 			}
-		});
+		);
 	}
 }
 
