@@ -34,8 +34,6 @@
 	left: 12px;
 	width: 128px;
 	height: 17px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #charcreate_v2 .header .title {
 	position: absolute;
@@ -47,8 +45,6 @@
 #charcreate_v2 .content {
 	width: 150px;
 	height: 240px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #charcreate_v2 .footer {
@@ -76,8 +72,6 @@
 	left: 21px;
 	width: 118px;
 	height: 29px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 /** Name **/
