@@ -1,5 +1,10 @@
+:host {
+	width: 200px;
+	top: 0px;
+	left: 0px;
+}
+
 #MakeArrowSelection {
-	z-index: 100;
 	position: absolute;
 	width: 200px;
 }
@@ -61,14 +66,11 @@
 	white-space: nowrap;
 }
 
-#MakeArrowSelection .btn {
+#MakeArrowSelection ui-button.btn {
 	position: absolute;
-	bottom: 0px;
-	border: 0;
+	bottom: 4px;
 	width: 42px;
 	height: 20px;
-	bottom: 4px;
-	background-color: transparent;
 }
 #MakeArrowSelection .ok {
 	right: 50px;

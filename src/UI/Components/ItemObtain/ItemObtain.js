@@ -9,29 +9,46 @@
  */
 
 import DB from 'DB/DBManager.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Events from 'Core/Events.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './ItemObtain.html?raw';
 import cssText from './ItemObtain.css?raw';
 
 /**
  * Create component
  */
-const ItemObtain = new UIComponent('ItemObtain', htmlText, cssText);
+const ItemObtain = new GUIComponent('ItemObtain', cssText);
+
+ItemObtain.render = () => htmlText;
 
 /**
  * Mouse can cross this UI
  */
-ItemObtain.mouseMode = UIComponent.MouseMode.CROSS;
+ItemObtain.mouseMode = GUIComponent.MouseMode.CROSS;
 
 /**
  * @var {boolean} do not focus this UI
  */
 ItemObtain.needFocus = false;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return ItemObtain._shadow || ItemObtain._host;
+}
+
+/**
+ * Escape HTML entities
+ */
+function _escapeHtml(str) {
+	const div = document.createElement('div');
+	div.appendChild(document.createTextNode(str));
+	return div.innerHTML;
+}
 
 /**
  * @var {TimeOut} timer
@@ -47,14 +64,16 @@ const _life = 5 * 1000;
  * Initialize component
  */
 ItemObtain.init = function init() {
-	// this.ui.css('zIndex', 45); // Between Interface and Game Announce
+	// this._host.style.zIndex = '45'; // Between Interface and Game Announce
 };
 
 /**
  * Once append to body
  */
 ItemObtain.onAppend = function onAppend() {
-	this.ui.css('left', (Renderer.width - this.ui.width()) >> 1);
+	const root = _getRoot();
+	const el = root.querySelector('#ItemObtain');
+	this._host.style.left = `${(Renderer.width - (el ? el.offsetWidth : 0)) >> 1}px`;
 };
 
 /**
@@ -80,31 +99,34 @@ ItemObtain.timeEnd = function timeEnd() {
  * @param {object} item
  */
 ItemObtain.set = function set(item) {
+	const root = _getRoot();
 	const it = DB.getItemInfo(item.ITID);
 	const display = DB.getItemName(item, { showItemSlots: false, showItemOptions: false });
 	const resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
 
 	this.placeOnTop();
 
-	this.ui
-		.find('.content')
-		.html(
-			'<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="' +
-				item.ITID +
-				'" width="24" height="24" /> ' +
-				jQuery.escape(display + ' ' + DB.getMessage(696).replace('%d', item.count || 1))
-		);
+	const content = root.querySelector('.content');
+	if (content) {
+		content.innerHTML =
+			`<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="item-${item.ITID}" width="24" height="24" /> ` +
+			_escapeHtml(`${display} ${DB.getMessage(696).replace('%d', item.count || 1)}`);
+	}
 
-	this.ui.css('left', (Renderer.width - this.ui.width()) >> 1);
+	const el = root.querySelector('#ItemObtain');
+	this._host.style.left = `${(Renderer.width - (el ? el.offsetWidth : 0)) >> 1}px`;
 
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'item/' + resource + '.bmp',
-		function (url) {
-			this.ui.find('img.' + item.ITID).attr('src', url);
-		}.bind(this)
+		(url) => {
+			const img = root.querySelector(`img.item-${item.ITID}`);
+			if (img) {
+				img.src = url;
+			}
+		}
 	);
 
-	// Start tomer
+	// Start timer
 	if (_timer) {
 		Events.clearTimeout(_timer);
 	}

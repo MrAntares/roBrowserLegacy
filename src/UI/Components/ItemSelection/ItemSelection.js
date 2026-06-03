@@ -8,50 +8,81 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './ItemSelection.html?raw';
 import cssText from './ItemSelection.css?raw';
 
 /**
  * Create ItemSelection namespace
  */
-const ItemSelection = new UIComponent('ItemSelection', htmlText, cssText);
+const ItemSelection = new GUIComponent('ItemSelection', cssText);
+
+ItemSelection.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return ItemSelection._shadow || ItemSelection._host;
+}
+
+/**
+ * Escape HTML entities
+ */
+function _escapeHtml(str) {
+	const div = document.createElement('div');
+	div.appendChild(document.createTextNode(str));
+	return div.innerHTML;
+}
 
 /**
  * Initialize UI
  */
 ItemSelection.init = function init() {
-	// Show at center.
-	this.ui.css({
-		top: (Renderer.height - 200) / 2,
-		left: (Renderer.width - 200) / 2
-	});
+	const root = _getRoot();
 
-	this.list = this.ui.find('.list:first');
+	this.list = root.querySelector('.list');
 	this.index = 0;
 
-	this.draggable(this.ui.find('.head'));
+	this.draggable(root.querySelector('.head'));
 
 	// Click Events
-	this.ui.find('.ok').click(this.selectIndex.bind(this));
-	this.ui.find('.cancel').click(
-		function () {
-			this.index = -1;
-			this.selectIndex();
-		}.bind(this)
-	);
+	root.querySelector('ui-button.ok').addEventListener('click', () => {
+		ItemSelection.selectIndex();
+	});
+	root.querySelector('ui-button.cancel').addEventListener('click', () => {
+		ItemSelection.index = -1;
+		ItemSelection.selectIndex();
+	});
 
 	// Bind events
-	this.ui.on('dblclick', '.item', this.selectIndex.bind(this)).on('mousedown', '.item', function () {
-		ItemSelection.setIndex(Math.floor(this.getAttribute('data-index')));
+	root.querySelector('#ItemSelection').addEventListener('dblclick', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			ItemSelection.selectIndex();
+		}
 	});
+	root.querySelector('#ItemSelection').addEventListener('mousedown', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			ItemSelection.setIndex(Math.floor(item.getAttribute('data-index')));
+		}
+	});
+};
+
+/**
+ * Once append to body
+ */
+ItemSelection.onAppend = function onAppend() {
+	this._host.style.top = `${(Renderer.height - 200) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 200) / 2}px`;
 };
 
 /**
@@ -60,27 +91,25 @@ ItemSelection.init = function init() {
  * @param {Array} list object to display
  */
 ItemSelection.setList = function setList(list, isSkill) {
-	let i, count;
-	let item, it, file, name;
+	const root = _getRoot();
+	const listEl = root.querySelector('.list');
+	listEl.innerHTML = '';
 
-	ItemSelection.list.empty();
-
-	for (i = 0, count = list.length; i < count; ++i) {
+	for (let i = 0, count = list.length; i < count; ++i) {
 		if (isSkill) {
 			if (list[i] > 0 && list[i] in SkillInfo) {
-				item = SkillInfo[list[i]];
-				file = item.Name;
-				name = item.SkillName;
+				const item = SkillInfo[list[i]];
+				const file = item.Name;
+				const name = item.SkillName;
 				addElement(DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
 			}
-			// else: skip empty
 		} else {
-			item = Inventory.getUI().getItemByIndex(list[i]);
+			const item = Inventory.getUI().getItemByIndex(list[i]);
 			if (item) {
-				it = DB.getItemInfo(item.ITID);
+				const it = DB.getItemInfo(item.ITID);
 				if (it) {
-					file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
-					name = DB.getItemName(item, {
+					const file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
+					const name = DB.getItemName(item, {
 						showItemGrade: false,
 						showItemSlots: false,
 						showItemOptions: false
@@ -98,23 +127,26 @@ ItemSelection.setList = function setList(list, isSkill) {
  * Add an element to the list
  *
  * @param {string} image url
- * @param {index} index in list
+ * @param {number} index in list
  * @param {string} element name
  */
 function addElement(url, index, name) {
-	ItemSelection.list.append(
-		'<div class="item" data-index="' +
-			index +
-			'">' +
-			'<div class="icon"></div>' +
-			'<span class="name">' +
-			jQuery.escape(name) +
-			'</span>' +
-			'</div>'
-	);
+	const root = _getRoot();
+	const listEl = root.querySelector('.list');
 
-	Client.loadFile(url, function (data) {
-		ItemSelection.list.find('div[data-index=' + index + '] .icon').css('backgroundImage', 'url(' + data + ')');
+	const div = document.createElement('div');
+	div.className = 'item';
+	div.setAttribute('data-index', index);
+	div.innerHTML =
+		'<div class="icon"></div>' +
+		`<span class="name">${_escapeHtml(name)}</span>`;
+	listEl.appendChild(div);
+
+	Client.loadFile(url, (data) => {
+		const icon = root.querySelector(`div[data-index="${index}"] .icon`);
+		if (icon) {
+			icon.style.backgroundImage = `url(${data})`;
+		}
 	});
 }
 
@@ -124,8 +156,15 @@ function addElement(url, index, name) {
  * @param {number} id in list
  */
 ItemSelection.setIndex = function setIndex(id) {
-	this.list.find('div[data-index=' + this.index + ']').css('backgroundColor', 'transparent');
-	this.list.find('div[data-index=' + id + ']').css('backgroundColor', '#cde0ff');
+	const root = _getRoot();
+	const prev = root.querySelector(`div[data-index="${this.index}"]`);
+	if (prev) {
+		prev.style.backgroundColor = 'transparent';
+	}
+	const next = root.querySelector(`div[data-index="${id}"]`);
+	if (next) {
+		next.style.backgroundColor = '#cde0ff';
+	}
 	this.index = id;
 };
 
@@ -150,7 +189,11 @@ ItemSelection.onRemove = function onRemove() {
  * @param {string} title
  */
 ItemSelection.setTitle = function setTitle(title) {
-	this.ui.find('.head .text').text(title);
+	const root = _getRoot();
+	const text = root.querySelector('.head .text');
+	if (text) {
+		text.textContent = title;
+	}
 };
 
 /**

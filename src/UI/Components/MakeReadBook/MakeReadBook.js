@@ -14,7 +14,8 @@ import DB from 'DB/DBManager.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './MakeReadBook.html?raw';
 import cssText from './MakeReadBook.css?raw';
 import Sprite from 'Loaders/Sprite.js';
@@ -23,12 +24,21 @@ import TextEncoding from 'Utils/CodepageManager.js';
 import Announce from 'UI/Components/Announce/Announce.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
-const sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
+const sleepNow = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 
 /**
  * Create Component
  */
-const MakeReadBook = new UIComponent('MakeReadBook', htmlText, cssText);
+const MakeReadBook = new GUIComponent('MakeReadBook', cssText);
+
+MakeReadBook.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return MakeReadBook._shadow || MakeReadBook._host;
+}
 
 /**
  * @var {Preferences} structure
@@ -83,7 +93,7 @@ MakeReadBook.startBook = function startBook(inforBook, item) {
 
 	_BOOK_INFORMATION['title'] = it.identifiedDisplayName;
 	const addColor = inforBook.substr(1, 7);
-	const validtext = inforBook.substr(7); // remover color background
+	const validtext = inforBook.substr(7);
 
 	const lineValidtext = validtext.split('\n');
 	const defoutValue = 15;
@@ -118,8 +128,8 @@ MakeReadBook.startBook = function startBook(inforBook, item) {
 	const validNewBookOpen = _BOOK_INFORMATION['itid'] === item.ITID;
 	_BOOK_INFORMATION['color'] = addColor;
 	_BOOK_INFORMATION['contents'] = contentsArray;
-	_BOOK_INFORMATION['pagesize'] = contentsArray.length; // length
-	_BOOK_INFORMATION['page'] = validNewBookOpen ? _BOOK_INFORMATION['page'] : 0; // length
+	_BOOK_INFORMATION['pagesize'] = contentsArray.length;
+	_BOOK_INFORMATION['page'] = validNewBookOpen ? _BOOK_INFORMATION['page'] : 0;
 	_BOOK_INFORMATION['bookmark_activated'] = validNewBookOpen;
 	_BOOK_INFORMATION['itid'] = item.ITID;
 	_BOOK_INFORMATION['book_open'] = false;
@@ -129,45 +139,63 @@ MakeReadBook.startBook = function startBook(inforBook, item) {
 MakeReadBook.openBook = function openBook() {
 	MakeReadBook.append();
 
-	this.ui.find('.panel').css('background-color', '#' + _BOOK_INFORMATION['color']);
-	this.ui.find('.footer').css('background-color', '#' + _BOOK_INFORMATION['color']);
+	const root = _getRoot();
 
-	this.ui.find('#titleBook').text(_BOOK_INFORMATION['title']);
+	const panel = root.querySelector('.panel');
+	if (panel) {
+		panel.style.backgroundColor = `#${_BOOK_INFORMATION['color']}`;
+	}
+	const footer = root.querySelector('.footer');
+	if (footer) {
+		footer.style.backgroundColor = `#${_BOOK_INFORMATION['color']}`;
+	}
+
+	const titleBook = root.querySelector('#titleBook');
+	if (titleBook) {
+		titleBook.textContent = _BOOK_INFORMATION['title'];
+	}
 
 	Client.getFiles(
 		[
 			'data/sprite/book/\xc3\xa5\xb4\xdd\xb1\xe2.spr',
 			'data/sprite/book/\xc3\xa5\xb0\xa5\xc7\xc7.spr',
-			'data/sprite/book/\xc3\xa5\xbf\xde\xc2\xca.spr', // previous
-			'data/sprite/book/\xc3\xa5\xbf\xc0\xb8\xa5\xc2\xca.spr' // next
+			'data/sprite/book/\xc3\xa5\xbf\xde\xc2\xca.spr',
+			'data/sprite/book/\xc3\xa5\xbf\xc0\xb8\xa5\xc2\xca.spr'
 		],
-		function (spr_close, spr_highlighter, spr_previous, spr_next) {
+		(spr_close, spr_highlighter, spr_previous, spr_next) => {
+			const innerRoot = _getRoot();
+
 			// close
 			const sprite_close = new Sprite(spr_close);
 			const canvas = sprite_close.getCanvasFromFrame(0);
 			canvas.className = 'clone_book event_add_cursor';
-			MakeReadBook.ui.find('.footer').find('canvas').remove();
-			MakeReadBook.ui.find('.footer').append(canvas);
-			const cloneBook = MakeReadBook.ui.find('.clone_book');
-			cloneBook.click(onClose);
+			const footerEl = innerRoot.querySelector('.footer');
+			footerEl.querySelectorAll('canvas').forEach((c) => c.remove());
+			footerEl.appendChild(canvas);
+			canvas.addEventListener('click', onClose);
 
 			// highlighter
 			const sprite_highlighter = new Sprite(spr_highlighter);
 			const canvas2 = sprite_highlighter.getCanvasFromFrame(0);
 			canvas2.className = 'highlighter event_add_cursor';
-			MakeReadBook.ui.find('#highlighter').find('canvas').remove();
-			MakeReadBook.ui.find('#highlighter').append(canvas2);
-			const highlighter = MakeReadBook.ui.find('.highlighter');
-			highlighter
-				.mouseover(function (e) {
-					e.stopImmediatePropagation();
-					MakeReadBook.ui.find('.bookmark').show();
-				})
-				.mouseout(function (e) {
-					e.stopImmediatePropagation();
-					MakeReadBook.ui.find('.bookmark').hide();
-				});
-			highlighter.click(function (e) {
+			const highlighterEl = innerRoot.querySelector('#highlighter');
+			highlighterEl.querySelectorAll('canvas').forEach((c) => c.remove());
+			highlighterEl.appendChild(canvas2);
+			canvas2.addEventListener('mouseover', (e) => {
+				e.stopImmediatePropagation();
+				const bookmark = innerRoot.querySelector('.bookmark');
+				if (bookmark) {
+					bookmark.style.display = 'block';
+				}
+			});
+			canvas2.addEventListener('mouseout', (e) => {
+				e.stopImmediatePropagation();
+				const bookmark = innerRoot.querySelector('.bookmark');
+				if (bookmark) {
+					bookmark.style.display = 'none';
+				}
+			});
+			canvas2.addEventListener('click', (e) => {
 				e.stopImmediatePropagation();
 				_BOOK_INFORMATION['bookmark_activated'] = true;
 				_BOOK_INFORMATION['bookmark_activated_page'] = _BOOK_INFORMATION['page'];
@@ -175,41 +203,51 @@ MakeReadBook.openBook = function openBook() {
 			});
 
 			// remove canvas next and previous
-			MakeReadBook.ui.find('#next_previous').find('canvas').remove();
+			const nextPrevEl = innerRoot.querySelector('#next_previous');
+			nextPrevEl.querySelectorAll('canvas').forEach((c) => c.remove());
+
 			// previous
 			const sprite_previous = new Sprite(spr_previous);
 			const canvas3 = sprite_previous.getCanvasFromFrame(0);
 			canvas3.className = 'previous_btn event_add_cursor';
-			MakeReadBook.ui.find('#next_previous').append(canvas3);
-			const previous_btn = MakeReadBook.ui.find('.previous_btn');
-			previous_btn
-				.mouseover(function (e) {
-					e.stopImmediatePropagation();
-					MakeReadBook.ui.find('.previous').show();
-				})
-				.mouseout(function (e) {
-					e.stopImmediatePropagation();
-					MakeReadBook.ui.find('.previous').hide();
-				});
+			nextPrevEl.appendChild(canvas3);
+			canvas3.addEventListener('mouseover', (e) => {
+				e.stopImmediatePropagation();
+				const prev = innerRoot.querySelector('.previous');
+				if (prev) {
+					prev.style.display = 'block';
+				}
+			});
+			canvas3.addEventListener('mouseout', (e) => {
+				e.stopImmediatePropagation();
+				const prev = innerRoot.querySelector('.previous');
+				if (prev) {
+					prev.style.display = 'none';
+				}
+			});
 
 			// next
 			const sprite_next = new Sprite(spr_next);
 			const canvas4 = sprite_next.getCanvasFromFrame(0);
 			canvas4.className = 'next_btn event_add_cursor';
-			MakeReadBook.ui.find('#next_previous').append(canvas4);
-			const next_btn = MakeReadBook.ui.find('.next_btn');
-			next_btn
-				.mouseover(function (e) {
-					e.stopImmediatePropagation();
-					MakeReadBook.ui.find('.next').show();
-				})
-				.mouseout(function (e) {
-					e.stopImmediatePropagation();
-					MakeReadBook.ui.find('.next').hide();
-				});
+			nextPrevEl.appendChild(canvas4);
+			canvas4.addEventListener('mouseover', (e) => {
+				e.stopImmediatePropagation();
+				const next = innerRoot.querySelector('.next');
+				if (next) {
+					next.style.display = 'block';
+				}
+			});
+			canvas4.addEventListener('mouseout', (e) => {
+				e.stopImmediatePropagation();
+				const next = innerRoot.querySelector('.next');
+				if (next) {
+					next.style.display = 'none';
+				}
+			});
 
 			// pagination
-			next_btn.click(function (e) {
+			canvas4.addEventListener('click', (e) => {
 				e.stopImmediatePropagation();
 				if (_BOOK_INFORMATION['page'] < _BOOK_INFORMATION['pagesize'] / 1 - 1) {
 					_BOOK_INFORMATION['page']++;
@@ -218,7 +256,7 @@ MakeReadBook.openBook = function openBook() {
 					_BOOK_INFORMATION.save();
 				}
 			});
-			previous_btn.click(function (e) {
+			canvas3.addEventListener('click', (e) => {
 				e.stopImmediatePropagation();
 				if (_BOOK_INFORMATION['page'] > 0) {
 					_BOOK_INFORMATION['page']--;
@@ -305,20 +343,19 @@ function cleanTextColor(text) {
  * Apply preferences once append to body
  */
 MakeReadBook.onAppend = function OnAppend() {
-	this.ui.show();
+	this._host.style.display = '';
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - 455)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - 555)}px`;
 
 	_BOOK_INFORMATION['book_open'] = true;
 	_BOOK_INFORMATION.save();
 
-	_preferences.show = this.ui.is(':visible');
+	_preferences.show = true;
 	_preferences.save();
 
-	this.draggable(this.ui.find('.titlebar'));
+	const root = _getRoot();
+	this.draggable(root.querySelector('.titlebar'));
 };
 
 /**
@@ -327,21 +364,18 @@ MakeReadBook.onAppend = function OnAppend() {
 MakeReadBook.onRemove = function OnRemove() {
 	try {
 		if (_preferences.show) {
-			this.ui.hide();
+			this._host.style.display = 'none';
 		}
-		// Save preferences
-		_preferences.show = this.ui.is(':visible');
+		_preferences.show = this._host.style.display !== 'none';
 		_preferences.reduce = !!_realSize;
-		_preferences.y = parseInt(this.ui.css('top'), 10);
-		_preferences.x = parseInt(this.ui.css('left'), 10);
-		_preferences.width = Math.floor((this.ui.width() - (23 + 16 + 16 - 30)) / 32);
-		_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
+		_preferences.y = parseInt(this._host.style.top, 10) || 0;
+		_preferences.x = parseInt(this._host.style.left, 10) || 0;
 		_preferences.magnet_top = this.magnet.TOP;
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
 		_preferences.magnet_left = this.magnet.LEFT;
 		_preferences.magnet_right = this.magnet.RIGHT;
 		_preferences.save();
-	} catch (error) {
+	} catch (_error) {
 		_preferences.show = false;
 		_preferences.save();
 	}
@@ -357,10 +391,8 @@ MakeReadBook.resize = function Resize(width, height) {
 	width = Math.min(Math.max(width, 6), 9);
 	height = Math.min(Math.max(height, 2), 6);
 
-	this.ui.css({
-		width: 23 + 16 + 16 + width * 32,
-		height: 31 + 19 + height * 32
-	});
+	this._host.style.width = `${23 + 16 + 16 + width * 32}px`;
+	this._host.style.height = `${31 + 19 + height * 32}px`;
 };
 
 /**
@@ -368,8 +400,10 @@ MakeReadBook.resize = function Resize(width, height) {
  */
 function onClose(e) {
 	try {
-		e.stopImmediatePropagation();
-	} catch (error) {
+		if (e) {
+			e.stopImmediatePropagation();
+		}
+	} catch (_error) {
 		// Ignore if event propagation has already stopped
 	}
 
@@ -381,77 +415,40 @@ function onClose(e) {
 }
 
 function page() {
-	MakeReadBook.ui.find('#textBook').text('');
-	const textBody = MakeReadBook.ui.find('#textBook');
+	const root = _getRoot();
+	const textBook = root.querySelector('#textBook');
+	if (textBook) {
+		textBook.textContent = '';
+	}
 
 	for (
 		let i = _BOOK_INFORMATION['page'] * 1;
 		i < _BOOK_INFORMATION['pagesize'] && i < (_BOOK_INFORMATION['page'] + 1) * 1;
 		i++
 	) {
-		textBody.text(TextEncoding.decodeString(_BOOK_INFORMATION['contents'][i]));
+		if (textBook) {
+			textBook.textContent = TextEncoding.decodeString(_BOOK_INFORMATION['contents'][i]);
+		}
 	}
-	MakeReadBook.ui
-		.find('#pageBook')
-		.text('(' + (_BOOK_INFORMATION['page'] + 1) + '/' + Math.ceil(_BOOK_INFORMATION['pagesize'] / 1) + ')');
+
+	const pageBook = root.querySelector('#pageBook');
+	if (pageBook) {
+		pageBook.textContent = `(${_BOOK_INFORMATION['page'] + 1}/${Math.ceil(_BOOK_INFORMATION['pagesize'] / 1)})`;
+	}
 }
 
 function adjustButtons() {
-	MakeReadBook.ui
-		.find('.next_btn')
-		.prop(
-			'disabled',
-			_BOOK_INFORMATION['pagesize'] <= 1 || _BOOK_INFORMATION['page'] > _BOOK_INFORMATION['pagesize'] / 1 - 1
-		);
-	MakeReadBook.ui
-		.find('.previous_btn')
-		.prop('disabled', _BOOK_INFORMATION['pagesize'] <= 1 || _BOOK_INFORMATION['page'] == 0);
+	const root = _getRoot();
+	const nextBtn = root.querySelector('.next_btn');
+	if (nextBtn) {
+		nextBtn.disabled =
+			_BOOK_INFORMATION['pagesize'] <= 1 || _BOOK_INFORMATION['page'] > _BOOK_INFORMATION['pagesize'] / 1 - 1;
+	}
+	const prevBtn = root.querySelector('.previous_btn');
+	if (prevBtn) {
+		prevBtn.disabled = _BOOK_INFORMATION['pagesize'] <= 1 || _BOOK_INFORMATION['page'] == 0;
+	}
 }
-
-/**
- * Extend MakeReadBook window size
- */
-/*function onResize()
-	 {
-		 let ui      = MakeReadBook.ui;
-		 let top     = ui.position().top;
-		 let left    = ui.position().left;
-		 let lastWidth  = 0;
-		 let lastHeight = 0;
-		 let _Interval;
-
-		 function resizing()
-		 {
-			 let extraX = 23 + 16 + 16 - 30;
-			 let extraY = 31 + 19 - 30;
-
-			 let w = Math.floor( (Mouse.screen.x - left - extraX) / 32 );
-			 let h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
-
-			 // Maximum and minimum window size
-			 w = Math.min( Math.max(w, 6), 9);
-			 h = Math.min( Math.max(h, 2), 6);
-
-			 if (w === lastWidth && h === lastHeight) {
-				 return;
-			 }
-
-			 MakeReadBook.resize( w, h );
-			 lastWidth  = w;
-			 lastHeight = h;
-		 }
-
-		 // Start resizing
-		 _Interval = setInterval( resizing, 30);
-
-		 // Stop resizing on left click
-		 jQuery(window).on('mouseup.resize', function(event){
-			 if (event.which === 1) {
-				 clearInterval(_Interval);
-				 jQuery(window).off('mouseup.resize');
-			 }
-		 });
-	 }*/ // UNUSED
 
 /**
  * Create component and export it

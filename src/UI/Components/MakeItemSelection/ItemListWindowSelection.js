@@ -6,7 +6,6 @@
  * @author Francisco Wallison
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Preferences from 'Core/Preferences.js';
@@ -16,8 +15,9 @@ import InputBox from 'UI/Components/InputBox/InputBox.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './ItemListWindowSelection.html?raw';
 import cssText from './ItemListWindowSelection.css?raw';
 
@@ -38,7 +38,25 @@ const _preferences = Preferences.get(
 /**
  * Create ItemListWindowSelection namespace
  */
-const ItemListWindowSelection = new UIComponent('ItemListWindowSelection', htmlText, cssText);
+const ItemListWindowSelection = new GUIComponent('ItemListWindowSelection', cssText);
+
+ItemListWindowSelection.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return ItemListWindowSelection._shadow || ItemListWindowSelection._host;
+}
+
+/**
+ * Escape HTML entities
+ */
+function _escapeHtml(str) {
+	const div = document.createElement('div');
+	div.appendChild(document.createTextNode(str));
+	return div.innerHTML;
+}
 
 /**
  * Store Convert Items items
@@ -49,32 +67,58 @@ ItemListWindowSelection.list = [];
  * Initialize UI
  */
 ItemListWindowSelection.init = function init() {
+	const root = _getRoot();
+
 	// Show at center.
-	this.ui.css({
-		top: (Renderer.height - 200) / 2,
-		left: (Renderer.width - 655) / 2
-	});
+	this._host.style.top = `${(Renderer.height - 200) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 655) / 2}px`;
 
 	this.list = [];
 
-	this.draggable(this.ui.find('.head'));
-	this.ui.find('.footer .extend').mousedown(onResize);
-	this.ui.find('.event_selectall').mousedown(onToggleSelectAmount);
+	this.draggable(root.querySelector('.head'));
+	root.querySelector('.footer .extend').addEventListener('mousedown', onResize);
+	root.querySelector('.event_selectall').addEventListener('mousedown', onToggleSelectAmount);
 
 	resizeHeight(_preferences.height);
 
-	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
-		.find('.container .content')
-		.on('mousewheel DOMMouseScroll', onScroll)
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
-		.on('contextmenu', '.item', onItemInfo);
+	const mainEl = root.querySelector('#ItemListWindowSelection');
+	mainEl.addEventListener('drop', onDrop);
+	mainEl.addEventListener('dragover', stopPropagation);
 
-	this.draggable(this.ui.find('.titlebar'));
+	const content = root.querySelector('.container .content');
+	content.addEventListener('wheel', onScroll);
+	content.addEventListener('mouseover', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemOver.call(item);
+		}
+	});
+	content.addEventListener('mouseout', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemOut();
+		}
+	});
+	content.addEventListener('dragstart', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemDragStart.call(item, e);
+		}
+	});
+	content.addEventListener('dragend', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemDragEnd();
+		}
+	});
+	content.addEventListener('contextmenu', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemInfo.call(item, e);
+		}
+	});
+
+	this.draggable(root.querySelector('.titlebar'));
 
 	this.setList(Inventory.getUI().list);
 };
@@ -93,42 +137,43 @@ ItemListWindowSelection.onAppend = function OnAppend() {
  * @param {Array} list object to display
  */
 ItemListWindowSelection.setList = function setList(listItems) {
-	this.ui.find('.container .content').empty();
+	const root = _getRoot();
+	root.querySelector('.container .content').innerHTML = '';
 	this.list = listItems;
-	let i, count;
 
-	for (i = 0, count = listItems.length; i < count; ++i) {
+	for (let i = 0, count = listItems.length; i < count; ++i) {
 		this.addItem(listItems[i]);
 	}
 };
 
 ItemListWindowSelection.addItem = function addItem(item) {
+	const root = _getRoot();
 	const it = DB.getItemInfo(item.ITID);
+	const content = root.querySelector('.container .content');
 
-	this.ui
-		.find('.container .content')
-		.append(
-			'<div class="item" data-index="' +
-				item.index +
-				'" draggable="true">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' +
-				(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
-				'</div>' +
-				'<span class="name">' +
-				jQuery.escape(DB.getItemName(item)) +
-				'</span>' +
-				'</div>'
-		);
+	const div = document.createElement('div');
+	div.className = 'item';
+	div.setAttribute('data-index', item.index);
+	div.setAttribute('draggable', 'true');
+	div.innerHTML =
+		'<div class="icon"></div>' +
+		'<div class="amount">' +
+		(item.count ? `<span class="count">${item.count}</span> ` : '') +
+		'</div>' +
+		`<span class="name">${_escapeHtml(DB.getItemName(item))}</span>`;
+	content.appendChild(div);
 
 	Client.loadFile(
 		DB.INTERFACE_PATH +
 			'item/' +
 			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 			'.bmp',
-		function (data) {
-			this.ui.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this)
+		(data) => {
+			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
+		}
 	);
 };
 
@@ -138,11 +183,11 @@ ItemListWindowSelection.addItem = function addItem(item) {
  * @param {Array} list object to display
  */
 ItemListWindowSelection.updateList = function UpdateList(item) {
+	const root = _getRoot();
 	this.list.push(item);
-	let i, count;
-	this.ui.find('.item').remove();
+	root.querySelectorAll('.item').forEach((el) => el.remove());
 
-	for (i = 0, count = this.list.length; i < count; ++i) {
+	for (let i = 0, count = this.list.length; i < count; ++i) {
 		this.addItem(this.list[i]);
 	}
 };
@@ -151,15 +196,12 @@ ItemListWindowSelection.updateList = function UpdateList(item) {
  * Extend ItemListWindowSelection window size
  */
 function onResize() {
-	const ui = ItemListWindowSelection.ui;
-	const top = ui.position().top;
+	const top = parseInt(ItemListWindowSelection._host.style.top, 10) || 0;
 	let lastHeight = 0;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
-
-		// Maximum and minimum window size
 		h = Math.min(Math.max(h, 8), 17);
 
 		if (h === lastHeight) {
@@ -170,26 +212,29 @@ function onResize() {
 		lastHeight = h;
 	}
 
-	// Start resizing
 	const _Interval = setInterval(resizing, 30);
 
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	function onMouseUp(event) {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	}
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 /**
  * Extend ItemListWindowSelection window size
  */
 function resizeHeight(height) {
+	const root = _getRoot();
 	height = Math.min(Math.max(height, 8), 17);
 
-	ItemListWindowSelection.ui.find('.container .content').css('height', height * 32);
-	ItemListWindowSelection.ui.css('height', 31 + 19 + height * 32);
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.style.height = `${height * 32}px`;
+	}
+	ItemListWindowSelection._host.style.height = `${31 + 19 + height * 32}px`;
 }
 
 /**
@@ -198,7 +243,11 @@ function resizeHeight(height) {
  * @param {string} title
  */
 ItemListWindowSelection.setTitle = function setTitle(title) {
-	this.ui.find('.head .text').text(title);
+	const root = _getRoot();
+	const text = root.querySelector('.head .text');
+	if (text) {
+		text.textContent = title;
+	}
 };
 
 /**
@@ -222,9 +271,9 @@ ItemListWindowSelection.addReturnMaterial = function AddReturnMaterial(item) {
  * @param {number} index in Storage
  */
 ItemListWindowSelection.removeItem = function removeItem(index, count) {
+	const root = _getRoot();
 	const i = getItemIndexById(index);
 
-	// Not found
 	if (i < 0) {
 		return null;
 	}
@@ -233,15 +282,20 @@ ItemListWindowSelection.removeItem = function removeItem(index, count) {
 		this.list[i].count -= count;
 
 		if (this.list[i].count > 0) {
-			this.ui.find('.item[data-index="' + index + '"] .count').text(this.list[i].count);
+			const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
+			if (countEl) {
+				countEl.textContent = this.list[i].count;
+			}
 			return this.list[i];
 		}
 	}
 
-	// Remove item
 	const item = this.list[i];
 	this.list.splice(i, 1);
-	this.ui.find('.item[data-index="' + index + '"]').remove();
+	const el = root.querySelector(`.item[data-index="${index}"]`);
+	if (el) {
+		el.remove();
+	}
 
 	return item;
 };
@@ -253,27 +307,27 @@ ItemListWindowSelection.removeItem = function removeItem(index, count) {
  * @param {number} count
  */
 ItemListWindowSelection.updateItem = function UpdateItem(index, count) {
+	const root = _getRoot();
 	const item = this.getItemByIndex(index);
 
 	if (!item) {
 		return;
 	}
 
-	item.count = item.count + count; // update item list
+	item.count = item.count + count;
 
-	// Update quantity
 	if (item.count > 0) {
-		this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
+		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+		if (countEl) {
+			countEl.textContent = item.count;
+		}
 		return;
 	}
 
-	// no quantity, remove
 	this.list.splice(this.list.indexOf(item), 1);
-	this.ui.find('.item[data-index="' + item.index + '"]').remove();
-
-	const content = this.ui.find('.container .content');
-	if (content.height() === content[0].scrollHeight) {
-		this.ui.find('.hide').show();
+	const el = root.querySelector(`.item[data-index="${item.index}"]`);
+	if (el) {
+		el.remove();
 	}
 };
 
@@ -284,10 +338,9 @@ ItemListWindowSelection.updateItem = function UpdateItem(index, count) {
  * @returns {Item}
  */
 ItemListWindowSelection.getItemByIndex = function getItemByIndex(index) {
-	let i, count;
 	const list = this.list;
 
-	for (i = 0, count = list.length; i < count; ++i) {
+	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].index === index) {
 			return list[i];
 		}
@@ -304,7 +357,11 @@ ItemListWindowSelection.getSelectAll = function getSelectAll() {
  * Mouse mouve out of an item, hide title description
  */
 function onItemOut() {
-	ItemListWindowSelection.ui.find('.overlay').hide();
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
 /**
@@ -318,15 +375,14 @@ function onItemDragStart(event) {
 		return;
 	}
 
-	// Set image to the drag drop element
 	const img = new Image();
-	let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-	url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
+	let url = this.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1];
+	url = url.replace(/^"/, '').replace(/"$/, '');
 	img.decoding = 'async';
 	img.src = url;
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -344,19 +400,22 @@ function onItemDragStart(event) {
  * Option to automatically buy/sell alls items instead of specify the amount
  */
 function onToggleSelectAmount() {
+	const root = _getRoot();
 	_preferences.select_all = !_preferences.select_all;
 
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp',
-		function (data) {
-			this.css('background-image', 'url(' + data + ')');
-		}.bind(ItemListWindowSelection.ui.find('.selectall'))
+		(data) => {
+			const btn = root.querySelector('.selectall');
+			if (btn) {
+				btn.style.backgroundImage = `url(${data})`;
+			}
+		}
 	);
 }
 
 /**
  * Display item description
- *
  */
 function onItemInfo(event) {
 	event.stopImmediatePropagation();
@@ -368,12 +427,10 @@ function onItemInfo(event) {
 		return false;
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === ItemListWindowSelection.list[i].ITID) {
 		ItemInfo.remove();
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = ItemListWindowSelection.list[i].ITID;
 	ItemInfo.setItem(ItemListWindowSelection.list[i]);
@@ -394,9 +451,7 @@ function onItemDragEnd() {
  * @param {number} item id
  */
 function getItemIndexById(index) {
-	let i, count;
-
-	for (i = 0, count = ItemListWindowSelection.list.length; i < count; ++i) {
+	for (let i = 0, count = ItemListWindowSelection.list.length; i < count; ++i) {
 		if (ItemListWindowSelection.list[i].index === index) {
 			return i;
 		}
@@ -414,21 +469,18 @@ function onDrop(event) {
 	let data;
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
 		// Ignore
 	}
 
 	event.stopImmediatePropagation();
 
-	// Just support items for now ?
 	if (!data || data.type !== 'item' || data.from !== 'ConvertItems') {
 		return false;
 	}
 
 	const item = data.data;
-
-	// validar se esta marcado
 	const valid_select_all = !ItemListWindowSelection.getSelectAll();
 
 	if (item.count > 1 && valid_select_all) {
@@ -438,6 +490,7 @@ function onDrop(event) {
 			InputBox.remove();
 
 			ConvertItems.removeItem(item.index, parseInt(count, 10));
+
 			item.count = parseInt(count, 10);
 			ItemListWindowSelection.addReturnMaterial(item);
 		};
@@ -445,7 +498,6 @@ function onDrop(event) {
 	}
 
 	ConvertItems.removeItem(item.index, item.count);
-
 	ItemListWindowSelection.addReturnMaterial(item);
 	return false;
 }
@@ -464,13 +516,13 @@ function stopPropagation(event) {
 function onScroll(event) {
 	let delta;
 
-	if (event.originalEvent.wheelDelta) {
-		delta = event.originalEvent.wheelDelta / 120;
+	if (event.wheelDelta) {
+		delta = event.wheelDelta / 120;
 		if (window.opera) {
 			delta = -delta;
 		}
-	} else if (event.originalEvent.detail) {
-		delta = -event.originalEvent.detail;
+	} else if (event.detail) {
+		delta = -event.detail;
 	}
 
 	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
@@ -481,28 +533,28 @@ function onScroll(event) {
  * Mouse over item, display name and informations
  */
 function onItemOver() {
+	const root = _getRoot();
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const i = getItemIndexById(idx);
 
-	// Not found
 	if (i < 0) {
 		return;
 	}
 
-	// Get back data
 	const item = ItemListWindowSelection.list[i];
-	const pos = jQuery(this).position();
-	const overlay = ItemListWindowSelection.ui.find('.overlay');
+	const rect = this.getBoundingClientRect();
+	const hostRect = ItemListWindowSelection._host.getBoundingClientRect();
+	const overlay = root.querySelector('.overlay');
 
-	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top - 10, left: pos.left + 35 });
-	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+	overlay.style.display = '';
+	overlay.style.top = `${rect.top - hostRect.top - 10}px`;
+	overlay.style.left = `${rect.left - hostRect.left + 35}px`;
+	overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
 
 	if (item.IsIdentified) {
-		overlay.removeClass('grey');
+		overlay.classList.remove('grey');
 	} else {
-		overlay.addClass('grey');
+		overlay.classList.add('grey');
 	}
 }
 

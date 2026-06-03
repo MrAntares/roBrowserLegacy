@@ -1,6 +1,10 @@
+:host {
+	top: 50px;
+	left: 0px;
+}
+
 #ItemObtain {
 	position: absolute;
-	top: 50px;
 	width: auto;
 	border-radius: 5px;
 	background: white;
