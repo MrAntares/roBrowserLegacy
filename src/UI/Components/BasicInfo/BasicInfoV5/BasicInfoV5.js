@@ -99,7 +99,7 @@ BasicInfoV5.init = function init() {
 		btn.addEventListener('click', e => BasicInfoV5.toggleButtons(e));
 	});
 
-	root.querySelectorAll('.buttons button').forEach(btn => {
+	root.querySelectorAll('.buttons > div[id]').forEach(btn => {
 		btn.addEventListener('click', () => {
 			switch (btn.id) {
 				case 'item':
