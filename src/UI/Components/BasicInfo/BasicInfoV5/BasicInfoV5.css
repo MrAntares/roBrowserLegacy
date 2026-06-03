@@ -10,9 +10,7 @@
 	width: 220px;
 	height: 150px;
 	font-size: 11px;
-	letter-spacing: 0.03em;
-	background-repeat: no-repeat;
-	background-color: transparent;
+	font-weight: bold;
 }
 #BasicInfoV5.small .large {
 	display: none;
@@ -32,10 +30,10 @@
 }
 
 #BasicInfoV5.large .buttons {
-	top: 159px;
+	top: 160px;
 }
 #BasicInfoV5.small .buttons {
-	top: 79px;
+	top: 80px;
 }
 
 #BasicInfoV5 .topbar .left {
@@ -104,6 +102,18 @@
 }
 #BasicInfoV5 .large .ap_bar {
 	top: 83px;
+	background: linear-gradient(
+		to bottom,
+		#5a5a63 0%,
+		#a5a5ad 15%,
+		#bdc6ce 30%,
+		#ceced6 45%,
+		#d6dede 65%,
+		#e7e7ef 70%,
+		#f7f7f7 80%
+	);
+	border-radius: 15px;
+	border: 1px solid #b5b5b5;
 }
 #BasicInfoV5 .large .hp_bar div,
 #BasicInfoV5 .large .sp_bar div,
@@ -184,26 +194,21 @@
 	top: 9px;
 	width: 220px;
 	height: 184px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #BasicInfoV5 .bt_menu {
 	position: absolute;
-	left: 2px;
-	width: 216px;
+	left: 0px;
+	width: 219px;
 	height: 9px;
 }
 #BasicInfoV5 .buttons:hover {
 }
-#BasicInfoV5 .buttons button {
+#BasicInfoV5 .buttons div {
 	float: left;
-	width: 22px;
-	height: 22px;
+	width: 32px;
+	height: 32px;
 	border: none;
-	margin: 0px;
-	background-color: transparent;
-	background-repeat: no-repeat;
-	background-size: contain;
+	margin: 6px;
 }
 #BasicInfoV5 .buttons .clear {
 	clear: both;
@@ -217,23 +222,55 @@
 	text-shadow: 1px 1px white;
 	white-space: nowrap;
 }
+#BasicInfoV5 .small .info-container {
+	position: absolute;
+	top: 17px;
+	height: 60px;
+	width: 220px;
+	background-color: #ffffff;
+}
+#BasicInfoV5 .small .hpcontainer,
+#BasicInfoV5 .small .spcontainer {
+	position: absolute;
+	width: 130px;
+}
+#BasicInfoV5 .small .expcontainer,
+#BasicInfoV5 .small .apcontainer {
+	position: absolute;
+	width: 65px;
+	left: 140px;
+}
 #BasicInfoV5 .small .line2 {
 	position: absolute;
-	top: 20px;
+	top: 3px;
 	left: 10px;
 	white-space: nowrap;
 }
 #BasicInfoV5 .small .line3 {
 	position: absolute;
-	top: 36px;
+	top: 20px;
 	left: 10px;
 	white-space: nowrap;
+	font-weight: normal;
+}
+#BasicInfoV5 .small .line3 .hp_max_value {
+	display: inline-block;
+	width: 65px;
+	text-align: left;
+	font-weight: normal;
 }
 #BasicInfoV5 .small .line4 {
 	position: absolute;
-	top: 52px;
+	top: 35px;
 	left: 10px;
 	white-space: nowrap;
+	font-weight: normal;
+}
+#BasicInfoV5 .small .line4 .sp_max_value {
+	display: inline-block;
+	width: 73px;
+	text-align: left;
+	font-weight: normal;
 }
 #BasicInfoV5 .toggle_btns {
 	border: none;
@@ -241,7 +278,7 @@
 	background-color: rgba(0, 0, 0, 0);
 }
 
-#BasicInfoV5 .buttons button .name {
+#BasicInfoV5 .buttons div .name {
 	position: relative;
 	display: none;
 	z-index: 1;
@@ -254,10 +291,10 @@
 	white-space: nowrap;
 	font-size: 0.6rem;
 }
-#BasicInfoV5 .buttons button:hover .name {
+#BasicInfoV5 .buttons div:hover .name {
 	display: table;
 }
-#BasicInfoV5 .buttons button .name {
+#BasicInfoV5 .buttons div .name {
 	display: none;
 }
 
@@ -270,7 +307,4 @@
 	left: -7px;
 	z-index: 10;
 	display: none;
-	background-repeat: no-repeat;
-	background-color: transparent;
-	background-size: contain;
 }

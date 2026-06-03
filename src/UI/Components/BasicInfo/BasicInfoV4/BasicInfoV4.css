@@ -10,9 +10,7 @@
 	width: 220px;
 	height: 135px;
 	font-size: 11px;
-	letter-spacing: 0.03em;
-	background-repeat: no-repeat;
-	background-color: transparent;
+	font-weight: bold;
 }
 #BasicInfoV4.small .large {
 	display: none;
@@ -38,6 +36,9 @@
 	top: 62px;
 }
 
+#BasicInfoV4 .topbar {
+	height: 16px;
+}
 #BasicInfoV4 .topbar .left {
 	position: absolute;
 	top: 3px;
@@ -167,30 +168,25 @@
 	left: 0px;
 	top: 9px;
 	width: 220px;
-	height: 184px;
-	background-repeat: no-repeat;
-	background-color: transparent;
+	display: grid;
+	grid-template-columns: auto auto auto auto auto;
+	justify-items: center;
+	background-position: left bottom;
 }
 #BasicInfoV4 .bt_menu {
 	position: absolute;
-	left: 2px;
-	width: 216px;
+	left: 0px;
+	width: 219px;
 	height: 9px;
 }
 #BasicInfoV4 .buttons:hover {
 }
 #BasicInfoV4 .buttons button {
-	float: left;
-	width: 22px;
-	height: 22px;
+	width: 32px;
+	height: 32px;
 	border: none;
-	margin: 0px;
-	background-color: transparent;
-	background-repeat: no-repeat;
-	background-size: contain;
-}
-#BasicInfoV4 .buttons .clear {
-	clear: both;
+	margin: 6px;
+	background: transparent;
 }
 
 /* REDUCED */
@@ -220,6 +216,7 @@
 }
 
 #BasicInfoV4 .buttons button .name {
+	pointer-events: none;
 	position: relative;
 	display: none;
 	z-index: 1;
@@ -240,15 +237,16 @@
 }
 
 #BasicInfoV4 .buttons .btn_overlay {
+	pointer-events: none;
 	width: 35px;
 	height: 40px;
 	border: none;
 	position: relative;
-	top: -13px;
-	left: -7px;
-	z-index: 10;
+	top: -6px;
+	left: 0;
 	display: none;
-	background-repeat: no-repeat;
-	background-color: transparent;
-	background-size: contain;
+}
+#BasicInfoV4 .buttons button:active .btn_overlay {
+	pointer-events: none;
+	top: -5px;
 }
