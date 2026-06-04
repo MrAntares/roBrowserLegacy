@@ -453,6 +453,9 @@ function getItemIndexById(index) {
  * @param {event}
  */
 function onDrop(event) {
+	event.preventDefault();
+	event.stopImmediatePropagation();
+
 	let data;
 
 	try {
@@ -460,8 +463,6 @@ function onDrop(event) {
 	} catch (_e) {
 		// Ignore
 	}
-
-	event.stopImmediatePropagation();
 
 	if (!data || data.type !== 'item' || data.from !== 'ItemListWindowSelection') {
 		return false;
@@ -492,8 +493,8 @@ function onDrop(event) {
  * Stop event propagation
  */
 function stopPropagation(event) {
+	event.preventDefault();
 	event.stopImmediatePropagation();
-	return false;
 }
 
 /**

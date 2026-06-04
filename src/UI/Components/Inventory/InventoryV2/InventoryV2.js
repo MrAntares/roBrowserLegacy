@@ -84,6 +84,18 @@ function _getRoot() {
 	return InventoryV2._shadow || InventoryV2._host;
 }
 
+function _sanitizeHtml(str) {
+	const whitelist = ['font', 'i', 'b'];
+	const div = document.createElement('div');
+	div.innerHTML = str;
+	div.querySelectorAll('*').forEach((el) => {
+		if (!whitelist.includes(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
+	return div.innerHTML;
+}
+
 function _getBasicInfoRoot(ui) {
 	return ui._shadow || ui._host || document;
 }
@@ -765,7 +777,7 @@ function onItemOver(_e) {
 		overlay.style.display = 'block';
 		overlay.style.top = `${itemRect.top - rootRect.top}px`;
 		overlay.style.left = `${itemRect.left - rootRect.left + 35}px`;
-		overlay.textContent = `${DB.getItemName(item)}: ${item.count || 1}${quantity}`;
+		overlay.innerHTML = _sanitizeHtml(`${DB.getItemName(item)}: ${item.count || 1}${quantity}`);
 		if (item.IsIdentified) {
 			overlay.classList.remove('grey');
 		} else {
