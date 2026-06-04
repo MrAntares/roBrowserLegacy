@@ -544,7 +544,11 @@ function addEvent(item) {
 		case ItemType.ETC: {
 			const filenameBook = `data/book/${item.ITID}.txt`;
 			Client.loadFile(filenameBook, data => {
-				MakeReadBook.startBook(data, item);
+				try {
+					MakeReadBook.startBook(data, item);
+				} catch (e) {
+					console.error('ItemInfo::addEvent() - startBook failed:', e.message);
+				}
 				eventsBooks();
 			});
 			break;

@@ -24,7 +24,7 @@ import TextEncoding from 'Utils/CodepageManager.js';
 import Announce from 'UI/Components/Announce/Announce.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
-const sleepNow = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+const sleepNow = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 /**
  * Create Component
@@ -91,9 +91,12 @@ const _preferences = Preferences.get(
 MakeReadBook.startBook = function startBook(inforBook, item) {
 	const it = DB.getItemInfo(item.ITID);
 
+	// Decode Uint8Array to string (Client.loadFile returns Uint8Array for .txt)
+	const bookText = inforBook instanceof Uint8Array ? TextEncoding.decode(inforBook) : inforBook;
+
 	_BOOK_INFORMATION['title'] = it.identifiedDisplayName;
-	const addColor = inforBook.substr(1, 7);
-	const validtext = inforBook.substr(7);
+	const addColor = bookText.substr(1, 7);
+	const validtext = bookText.substr(7);
 
 	const lineValidtext = validtext.split('\n');
 	const defoutValue = 15;
@@ -170,7 +173,7 @@ MakeReadBook.openBook = function openBook() {
 			const canvas = sprite_close.getCanvasFromFrame(0);
 			canvas.className = 'clone_book event_add_cursor';
 			const footerEl = innerRoot.querySelector('.footer');
-			footerEl.querySelectorAll('canvas').forEach((c) => c.remove());
+			footerEl.querySelectorAll('canvas').forEach(c => c.remove());
 			footerEl.appendChild(canvas);
 			canvas.addEventListener('click', onClose);
 
@@ -179,23 +182,23 @@ MakeReadBook.openBook = function openBook() {
 			const canvas2 = sprite_highlighter.getCanvasFromFrame(0);
 			canvas2.className = 'highlighter event_add_cursor';
 			const highlighterEl = innerRoot.querySelector('#highlighter');
-			highlighterEl.querySelectorAll('canvas').forEach((c) => c.remove());
+			highlighterEl.querySelectorAll('canvas').forEach(c => c.remove());
 			highlighterEl.appendChild(canvas2);
-			canvas2.addEventListener('mouseover', (e) => {
+			canvas2.addEventListener('mouseover', e => {
 				e.stopImmediatePropagation();
 				const bookmark = innerRoot.querySelector('.bookmark');
 				if (bookmark) {
 					bookmark.style.display = 'block';
 				}
 			});
-			canvas2.addEventListener('mouseout', (e) => {
+			canvas2.addEventListener('mouseout', e => {
 				e.stopImmediatePropagation();
 				const bookmark = innerRoot.querySelector('.bookmark');
 				if (bookmark) {
 					bookmark.style.display = 'none';
 				}
 			});
-			canvas2.addEventListener('click', (e) => {
+			canvas2.addEventListener('click', e => {
 				e.stopImmediatePropagation();
 				_BOOK_INFORMATION['bookmark_activated'] = true;
 				_BOOK_INFORMATION['bookmark_activated_page'] = _BOOK_INFORMATION['page'];
@@ -204,21 +207,21 @@ MakeReadBook.openBook = function openBook() {
 
 			// remove canvas next and previous
 			const nextPrevEl = innerRoot.querySelector('#next_previous');
-			nextPrevEl.querySelectorAll('canvas').forEach((c) => c.remove());
+			nextPrevEl.querySelectorAll('canvas').forEach(c => c.remove());
 
 			// previous
 			const sprite_previous = new Sprite(spr_previous);
 			const canvas3 = sprite_previous.getCanvasFromFrame(0);
 			canvas3.className = 'previous_btn event_add_cursor';
 			nextPrevEl.appendChild(canvas3);
-			canvas3.addEventListener('mouseover', (e) => {
+			canvas3.addEventListener('mouseover', e => {
 				e.stopImmediatePropagation();
 				const prev = innerRoot.querySelector('.previous');
 				if (prev) {
 					prev.style.display = 'block';
 				}
 			});
-			canvas3.addEventListener('mouseout', (e) => {
+			canvas3.addEventListener('mouseout', e => {
 				e.stopImmediatePropagation();
 				const prev = innerRoot.querySelector('.previous');
 				if (prev) {
@@ -231,14 +234,14 @@ MakeReadBook.openBook = function openBook() {
 			const canvas4 = sprite_next.getCanvasFromFrame(0);
 			canvas4.className = 'next_btn event_add_cursor';
 			nextPrevEl.appendChild(canvas4);
-			canvas4.addEventListener('mouseover', (e) => {
+			canvas4.addEventListener('mouseover', e => {
 				e.stopImmediatePropagation();
 				const next = innerRoot.querySelector('.next');
 				if (next) {
 					next.style.display = 'block';
 				}
 			});
-			canvas4.addEventListener('mouseout', (e) => {
+			canvas4.addEventListener('mouseout', e => {
 				e.stopImmediatePropagation();
 				const next = innerRoot.querySelector('.next');
 				if (next) {
@@ -247,7 +250,7 @@ MakeReadBook.openBook = function openBook() {
 			});
 
 			// pagination
-			canvas4.addEventListener('click', (e) => {
+			canvas4.addEventListener('click', e => {
 				e.stopImmediatePropagation();
 				if (_BOOK_INFORMATION['page'] < _BOOK_INFORMATION['pagesize'] / 1 - 1) {
 					_BOOK_INFORMATION['page']++;
@@ -256,7 +259,7 @@ MakeReadBook.openBook = function openBook() {
 					_BOOK_INFORMATION.save();
 				}
 			});
-			canvas3.addEventListener('click', (e) => {
+			canvas3.addEventListener('click', e => {
 				e.stopImmediatePropagation();
 				if (_BOOK_INFORMATION['page'] > 0) {
 					_BOOK_INFORMATION['page']--;
