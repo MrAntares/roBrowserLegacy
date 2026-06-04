@@ -91,8 +91,10 @@ const _preferences = Preferences.get(
 MakeReadBook.startBook = function startBook(inforBook, item) {
 	const it = DB.getItemInfo(item.ITID);
 
-	// Decode Uint8Array to string (Client.loadFile returns Uint8Array for .txt)
-	const bookText = inforBook instanceof Uint8Array ? TextEncoding.decode(inforBook) : inforBook;
+	// Convert Uint8Array to raw-byte string (Client.loadFile returns Uint8Array for .txt).
+	// Keep as raw bytes so TextEncoding.decodeString() in page() can decode the codepage.
+	const bookText =
+		inforBook instanceof Uint8Array ? Array.from(inforBook, b => String.fromCharCode(b)).join('') : inforBook;
 
 	_BOOK_INFORMATION['title'] = it.identifiedDisplayName;
 	const addColor = bookText.substr(1, 7);
@@ -421,7 +423,7 @@ function page() {
 	const root = _getRoot();
 	const textBook = root.querySelector('#textBook');
 	if (textBook) {
-		textBook.textContent = '';
+		textBook.innerHTML = '';
 	}
 
 	for (
@@ -430,7 +432,8 @@ function page() {
 		i++
 	) {
 		if (textBook) {
-			textBook.textContent = TextEncoding.decodeString(_BOOK_INFORMATION['contents'][i]);
+			const decoded = TextEncoding.decodeString(_BOOK_INFORMATION['contents'][i]);
+			textBook.innerHTML = DB.formatMsgToHtml(decoded);
 		}
 	}
 
