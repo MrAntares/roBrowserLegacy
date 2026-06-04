@@ -33,11 +33,17 @@ function _getRoot() {
 }
 
 /**
- * Escape HTML entities
+ * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
-function _escapeHtml(str) {
+function _sanitizeHtml(str) {
+	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
-	div.appendChild(document.createTextNode(str));
+	div.innerHTML = str;
+	div.querySelectorAll('*').forEach((el) => {
+		if (!whitelist.includes(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
 	return div.innerHTML;
 }
 
@@ -176,7 +182,7 @@ function addElement(url, index, name) {
 	div.setAttribute('data-index', index);
 	div.innerHTML =
 		'<div class="icon"></div>' +
-		`<span class="name">${_escapeHtml(name)}</span>`;
+		`<span class="name">${_sanitizeHtml(name)}</span>`;
 	listEl.appendChild(div);
 
 	Client.loadFile(url, (data) => {
@@ -210,9 +216,9 @@ MakeItemSelection.advance = function advance() {
 	okBtn.addEventListener('click', _okHandler);
 
 	listEl.style.backgroundColor = '#ffffff';
-	listEl.innerHTML = `<pre>${_escapeHtml(it.identifiedDisplayName)} - ${DB.getMessage(427)}\n${_escapeHtml(metal)}</pre>`;
+	listEl.innerHTML = `<pre>${_sanitizeHtml(it.identifiedDisplayName)} - ${DB.getMessage(427)}\n${_sanitizeHtml(metal)}</pre>`;
 
-	root.querySelector('.materials').style.display = '';
+	root.querySelector('.materials').style.display = 'block';
 };
 
 /**

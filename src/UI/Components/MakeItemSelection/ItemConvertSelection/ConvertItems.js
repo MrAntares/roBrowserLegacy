@@ -49,11 +49,17 @@ function _getRoot() {
 }
 
 /**
- * Escape HTML entities
+ * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
-function _escapeHtml(str) {
+function _sanitizeHtml(str) {
+	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
-	div.appendChild(document.createTextNode(str));
+	div.innerHTML = str;
+	div.querySelectorAll('*').forEach((el) => {
+		if (!whitelist.includes(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
 	return div.innerHTML;
 }
 
@@ -143,7 +149,7 @@ ConvertItems.addItem = function addItem(item) {
 		'<div class="amount">' +
 		(item.count ? `<span class="count">${item.count}</span> ` : '') +
 		'</div>' +
-		`<span class="name">${_escapeHtml(DB.getItemName(item))}</span>`;
+		`<span class="name">${_sanitizeHtml(DB.getItemName(item))}</span>`;
 	content.appendChild(div);
 
 	Client.loadFile(
@@ -526,7 +532,7 @@ function onItemOver() {
 	const hostRect = ConvertItems._host.getBoundingClientRect();
 	const overlay = root.querySelector('.overlay');
 
-	overlay.style.display = '';
+	overlay.style.display = 'block';
 	overlay.style.top = `${rect.top - hostRect.top - 10}px`;
 	overlay.style.left = `${rect.left - hostRect.left + 35}px`;
 	overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;

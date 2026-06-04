@@ -42,11 +42,17 @@ function _getRoot() {
 }
 
 /**
- * Escape HTML entities
+ * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
-function _escapeHtml(str) {
+function _sanitizeHtml(str) {
+	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
-	div.appendChild(document.createTextNode(str));
+	div.innerHTML = str;
+	div.querySelectorAll('*').forEach((el) => {
+		if (!whitelist.includes(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
 	return div.innerHTML;
 }
 
@@ -110,7 +116,7 @@ ItemObtain.set = function set(item) {
 	if (content) {
 		content.innerHTML =
 			`<img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" class="item-${item.ITID}" width="24" height="24" /> ` +
-			_escapeHtml(`${display} ${DB.getMessage(696).replace('%d', item.count || 1)}`);
+			_sanitizeHtml(`${display} ${DB.getMessage(696).replace('%d', item.count || 1)}`);
 	}
 
 	const el = root.querySelector('#ItemObtain');
