@@ -48,7 +48,7 @@ function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
 	div.innerHTML = str;
-	div.querySelectorAll('*').forEach((el) => {
+	div.querySelectorAll('*').forEach(el => {
 		if (!whitelist.includes(el.tagName.toLowerCase())) {
 			el.replaceWith(...el.childNodes);
 		}
@@ -122,15 +122,12 @@ ItemObtain.set = function set(item) {
 	const el = root.querySelector('#ItemObtain');
 	this._host.style.left = `${(Renderer.width - (el ? el.offsetWidth : 0)) >> 1}px`;
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'item/' + resource + '.bmp',
-		(url) => {
-			const img = root.querySelector(`img.item-${item.ITID}`);
-			if (img) {
-				img.src = url;
-			}
+	Client.loadFile(DB.INTERFACE_PATH + 'item/' + resource + '.bmp', url => {
+		const img = root.querySelector(`img.item-${item.ITID}`);
+		if (img) {
+			img.src = url;
 		}
-	);
+	});
 
 	// Start timer
 	if (_timer) {

@@ -93,7 +93,7 @@ function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
 	div.innerHTML = str;
-	div.querySelectorAll('*').forEach((el) => {
+	div.querySelectorAll('*').forEach(el => {
 		if (!whitelist.includes(el.tagName.toLowerCase())) {
 			el.replaceWith(...el.childNodes);
 		}

@@ -56,7 +56,7 @@ function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
 	div.innerHTML = str;
-	div.querySelectorAll('*').forEach((el) => {
+	div.querySelectorAll('*').forEach(el => {
 		if (!whitelist.includes(el.tagName.toLowerCase())) {
 			el.replaceWith(...el.childNodes);
 		}
@@ -93,31 +93,31 @@ ItemListWindowSelection.init = function init() {
 
 	const content = root.querySelector('.container .content');
 	content.addEventListener('wheel', onScroll);
-	content.addEventListener('mouseover', (e) => {
+	content.addEventListener('mouseover', e => {
 		const item = e.target.closest('.item');
 		if (item) {
 			onItemOver.call(item);
 		}
 	});
-	content.addEventListener('mouseout', (e) => {
+	content.addEventListener('mouseout', e => {
 		const item = e.target.closest('.item');
 		if (item) {
 			onItemOut();
 		}
 	});
-	content.addEventListener('dragstart', (e) => {
+	content.addEventListener('dragstart', e => {
 		const item = e.target.closest('.item');
 		if (item) {
 			onItemDragStart.call(item, e);
 		}
 	});
-	content.addEventListener('dragend', (e) => {
+	content.addEventListener('dragend', e => {
 		const item = e.target.closest('.item');
 		if (item) {
 			onItemDragEnd();
 		}
 	});
-	content.addEventListener('contextmenu', (e) => {
+	content.addEventListener('contextmenu', e => {
 		const item = e.target.closest('.item');
 		if (item) {
 			onItemInfo.call(item, e);
@@ -174,7 +174,7 @@ ItemListWindowSelection.addItem = function addItem(item) {
 			'item/' +
 			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 			'.bmp',
-		(data) => {
+		data => {
 			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
 			if (icon) {
 				icon.style.backgroundImage = `url(${data})`;
@@ -191,7 +191,7 @@ ItemListWindowSelection.addItem = function addItem(item) {
 ItemListWindowSelection.updateList = function UpdateList(item) {
 	const root = _getRoot();
 	this.list.push(item);
-	root.querySelectorAll('.item').forEach((el) => el.remove());
+	root.querySelectorAll('.item').forEach(el => el.remove());
 
 	for (let i = 0, count = this.list.length; i < count; ++i) {
 		this.addItem(this.list[i]);
@@ -409,15 +409,12 @@ function onToggleSelectAmount() {
 	const root = _getRoot();
 	_preferences.select_all = !_preferences.select_all;
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp',
-		(data) => {
-			const btn = root.querySelector('.selectall');
-			if (btn) {
-				btn.style.backgroundImage = `url(${data})`;
-			}
+	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp', data => {
+		const btn = root.querySelector('.selectall');
+		if (btn) {
+			btn.style.backgroundImage = `url(${data})`;
 		}
-	);
+	});
 }
 
 /**

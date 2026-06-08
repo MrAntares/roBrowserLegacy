@@ -39,7 +39,7 @@ function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
 	div.innerHTML = str;
-	div.querySelectorAll('*').forEach((el) => {
+	div.querySelectorAll('*').forEach(el => {
 		if (!whitelist.includes(el.tagName.toLowerCase())) {
 			el.replaceWith(...el.childNodes);
 		}
@@ -84,7 +84,7 @@ MakeItemSelection.init = function init() {
 	});
 
 	// Bind mousedown on items
-	root.querySelector('#MakeItemSelection').addEventListener('mousedown', (e) => {
+	root.querySelector('#MakeItemSelection').addEventListener('mousedown', e => {
 		const item = e.target.closest('.item');
 		if (item) {
 			MakeItemSelection.setIndex(Math.floor(item.getAttribute('data-index')));
@@ -96,7 +96,7 @@ MakeItemSelection.init = function init() {
 	materials.addEventListener('drop', onDrop);
 	materials.addEventListener('dragover', stopPropagation);
 
-	root.querySelectorAll('.materials .item').forEach((el) => el.remove());
+	root.querySelectorAll('.materials .item').forEach(el => el.remove());
 	materials.style.display = 'none';
 };
 
@@ -113,7 +113,7 @@ MakeItemSelection.setList = function setList(list) {
 
 	const materials = root.querySelector('.materials');
 	materials.style.display = 'none';
-	root.querySelectorAll('.materials .item').forEach((el) => el.remove());
+	root.querySelectorAll('.materials .item').forEach(el => el.remove());
 
 	let showMaterials = true;
 	this.mkType = 0;
@@ -149,7 +149,7 @@ MakeItemSelection.setCookingList = function setCookingList(list, mkType) {
 
 	const materials = root.querySelector('.materials');
 	materials.style.display = 'none';
-	root.querySelectorAll('.materials .item').forEach((el) => el.remove());
+	root.querySelectorAll('.materials .item').forEach(el => el.remove());
 
 	this.mkType = mkType;
 
@@ -180,12 +180,10 @@ function addElement(url, index, name) {
 	const div = document.createElement('div');
 	div.className = 'item';
 	div.setAttribute('data-index', index);
-	div.innerHTML =
-		'<div class="icon"></div>' +
-		`<span class="name">${_sanitizeHtml(name)}</span>`;
+	div.innerHTML = '<div class="icon"></div>' + `<span class="name">${_sanitizeHtml(name)}</span>`;
 	listEl.appendChild(div);
 
-	Client.loadFile(url, (data) => {
+	Client.loadFile(url, data => {
 		const icon = root.querySelector(`.list div[data-index="${index}"] .icon`);
 		if (icon) {
 			icon.style.backgroundImage = `url(${data})`;
@@ -246,7 +244,7 @@ MakeItemSelection.setIndex = function setIndex(id) {
 MakeItemSelection.selectIndex = function selectIndex() {
 	this.onIndexSelected(this.index, this.material, this.mkType);
 	if (this.index == -1) {
-		this.material.forEach((item) => Inventory.getUI().addItem(item));
+		this.material.forEach(item => Inventory.getUI().addItem(item));
 	}
 	this.remove();
 };
@@ -289,7 +287,7 @@ MakeItemSelection.onIndexSelected = function onIndexSelected() {};
  */
 MakeItemSelection.addMaterial = function AddMaterial(item, from) {
 	let singleMatUsed = false;
-	this.material.forEach((it) => {
+	this.material.forEach(it => {
 		if (validSingleMaterials.includes(it.ITID)) {
 			singleMatUsed = true;
 		}
@@ -332,7 +330,7 @@ MakeItemSelection.addItemSub = function AddItemSub(item) {
 			'item/' +
 			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 			'.bmp',
-		(data) => {
+		data => {
 			const icon = root.querySelector(`.materials .item[data-index="${item.index}"] .icon`);
 			if (icon) {
 				icon.style.backgroundImage = `url(${data})`;
@@ -394,7 +392,7 @@ function bindSelectEvents(showMaterials) {
 
 	if (showMaterials) {
 		_okHandler = () => MakeItemSelection.advance();
-		_dblClickHandler = (e) => {
+		_dblClickHandler = e => {
 			const item = e.target.closest('.item');
 			if (item) {
 				MakeItemSelection.advance();
@@ -402,7 +400,7 @@ function bindSelectEvents(showMaterials) {
 		};
 	} else {
 		_okHandler = () => MakeItemSelection.selectIndex();
-		_dblClickHandler = (e) => {
+		_dblClickHandler = e => {
 			const item = e.target.closest('.item');
 			if (item) {
 				MakeItemSelection.selectIndex();

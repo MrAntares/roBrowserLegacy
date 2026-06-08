@@ -38,7 +38,7 @@ function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
 	div.innerHTML = str;
-	div.querySelectorAll('*').forEach((el) => {
+	div.querySelectorAll('*').forEach(el => {
 		if (!whitelist.includes(el.tagName.toLowerCase())) {
 			el.replaceWith(...el.childNodes);
 		}
@@ -67,13 +67,13 @@ RefineWeaponSelection.init = function init() {
 	});
 
 	// Bind events
-	root.querySelector('#RefineWeaponSelection').addEventListener('dblclick', (e) => {
+	root.querySelector('#RefineWeaponSelection').addEventListener('dblclick', e => {
 		const item = e.target.closest('.item');
 		if (item) {
 			RefineWeaponSelection.selectIndex();
 		}
 	});
-	root.querySelector('#RefineWeaponSelection').addEventListener('mousedown', (e) => {
+	root.querySelector('#RefineWeaponSelection').addEventListener('mousedown', e => {
 		const item = e.target.closest('.item');
 		if (item) {
 			RefineWeaponSelection.setIndex(Math.floor(item.getAttribute('data-index')));
@@ -128,12 +128,10 @@ function addElement(url, index, name) {
 	const div = document.createElement('div');
 	div.className = 'item';
 	div.setAttribute('data-index', index);
-	div.innerHTML =
-		'<div class="icon"></div>' +
-		`<span class="name">${_sanitizeHtml(name)}</span>`;
+	div.innerHTML = '<div class="icon"></div>' + `<span class="name">${_sanitizeHtml(name)}</span>`;
 	listEl.appendChild(div);
 
-	Client.loadFile(url, (data) => {
+	Client.loadFile(url, data => {
 		const icon = root.querySelector(`div[data-index="${index}"] .icon`);
 		if (icon) {
 			icon.style.backgroundImage = `url(${data})`;
