@@ -1,7 +1,11 @@
-#ItemListWindowSelection {
-	position: absolute;
+:host {
+	width: 280px;
 	top: 100px;
 	left: 100px;
+}
+
+#ItemListWindowSelection {
+	position: absolute;
 	width: 280px;
 }
 #ItemListWindowSelection .body {
@@ -49,11 +53,9 @@
 	vertical-align: top;
 	background-position: -1px 0px;
 }
-#ItemListWindowSelection .tabs button {
+#ItemListWindowSelection .tabs ui-button {
 	width: 20px;
 	height: 30px;
-	border: none;
-	background-color: transparent;
 	display: block;
 }
 #ItemListWindowSelection .tabs .item {
@@ -134,19 +136,15 @@
 	bottom: 1px;
 	width: 13px;
 	height: 13px;
-	border: none;
 	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #ItemListWindowSelection .footer .close {
 	position: absolute;
-	border: none;
 	width: 42px;
 	height: 20px;
 	bottom: 4px;
 	right: 15px;
 	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #ItemListWindowSelection .ask_quantity {
@@ -157,7 +155,5 @@
 	vertical-align: 2px;
 	width: 10px;
 	height: 10px;
-	border: none;
-	background-color: transparent;
 	background-repeat: no-repeat;
 }

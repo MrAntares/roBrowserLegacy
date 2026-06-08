@@ -1,33 +1,33 @@
 <div id="MakeModelMessage">
-	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+	<div class="titlebar">
+		<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 		<div class="left">
-			<button
+			<ui-button
 				class="base"
-				data-background="basic_interface/sys_base_off.bmp"
-				data-hover="basic_interface/sys_base_on.bmp"
-			></button>
-			<!-- data-text does not exist -->
+				bg="basic_interface/sys_base_off.bmp"
+				hover="basic_interface/sys_base_on.bmp"
+			></ui-button>
 			<span class="text">Message</span>
 		</div>
 		<div class="clear"></div>
 	</div>
 	<div class="container">
 		<div class="text_message">
-			<span class="text" data-text="1584">Consumption items are used in the synthesis. Are you sure?</span>
+			<ui-text class="text" msg="1584">Consumption items are used in the synthesis. Are you sure?</ui-text>
 		</div>
 		<div class="btns">
-			<button
+			<ui-button
 				class="btn ok"
-				data-background="btn_ok.bmp"
-				data-hover="btn_ok_a.bmp"
-				data-down="btn_ok_b.bmp"
-			></button>
-			<button
+				bg="btn_ok.bmp"
+				hover="btn_ok_a.bmp"
+				down="btn_ok_b.bmp"
+			></ui-button>
+			<ui-button
 				class="btn cancel"
-				data-background="btn_cancel.bmp"
-				data-hover="btn_cancel_a.bmp"
-				data-down="btn_cancel_b.bmp"
-			></button>
+				bg="btn_cancel.bmp"
+				hover="btn_cancel_a.bmp"
+				down="btn_cancel_b.bmp"
+			></ui-button>
 		</div>
 	</div>
 </div>

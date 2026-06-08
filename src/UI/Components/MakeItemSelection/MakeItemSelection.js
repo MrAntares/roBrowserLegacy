@@ -8,21 +8,44 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
-import Renderer from 'Renderer/Renderer.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './MakeItemSelection.html?raw';
 import cssText from './MakeItemSelection.css?raw';
 
 /**
  * Create MakeItemSelection namespace
  */
-const MakeItemSelection = new UIComponent('MakeItemSelection', htmlText, cssText);
+const MakeItemSelection = new GUIComponent('MakeItemSelection', cssText);
+
+MakeItemSelection.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return MakeItemSelection._shadow || MakeItemSelection._host;
+}
+
+/**
+ * Sanitize HTML, allowing only whitelisted tags (font, i, b)
+ */
+function _sanitizeHtml(str) {
+	const whitelist = ['font', 'i', 'b'];
+	const div = document.createElement('div');
+	div.innerHTML = str;
+	div.querySelectorAll('*').forEach((el) => {
+		if (!whitelist.includes(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
+	return div.innerHTML;
+}
 
 const validMultipleMaterials = [
 	1000 //star crumb
@@ -36,40 +59,45 @@ const validSingleMaterials = [
 ];
 
 /**
+ * Track current ok/dblclick handlers so we can replace them
+ */
+let _okHandler = null;
+let _dblClickHandler = null;
+
+/**
  * Initialize UI
  */
 MakeItemSelection.init = function init() {
-	// Show at center.
-	this.ui.css({
-		top: (Renderer.height - 200) / 2,
-		left: (Renderer.width - 200) / 2
-	});
+	const root = _getRoot();
 
-	this.list = this.ui.find('.list:first');
+	this.list = root.querySelector('.list');
 	this.index = 0;
 	this.mkType = 0;
 	this.material = [];
 
-	this.draggable(this.ui.find('.head'));
+	this.draggable(root.querySelector('.head'));
 
 	// Click Events
-	this.ui.find('.cancel').click(
-		function () {
-			this.index = -1;
-			this.selectIndex();
-		}.bind(this)
-	);
+	root.querySelector('ui-button.cancel').addEventListener('click', () => {
+		MakeItemSelection.index = -1;
+		MakeItemSelection.selectIndex();
+	});
 
-	// Bind events
-	this.ui.on('mousedown', '.item', function () {
-		MakeItemSelection.setIndex(Math.floor(this.getAttribute('data-index')));
+	// Bind mousedown on items
+	root.querySelector('#MakeItemSelection').addEventListener('mousedown', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			MakeItemSelection.setIndex(Math.floor(item.getAttribute('data-index')));
+		}
 	});
 
 	// on drop item
-	this.ui.find('.materials').on('drop', onDrop).on('dragover', stopPropagation);
+	const materials = root.querySelector('.materials');
+	materials.addEventListener('drop', onDrop);
+	materials.addEventListener('dragover', stopPropagation);
 
-	this.ui.find('.item').remove();
-	this.ui.find('.materials').hide();
+	root.querySelectorAll('.materials .item').forEach((el) => el.remove());
+	materials.style.display = 'none';
 };
 
 /**
@@ -78,23 +106,24 @@ MakeItemSelection.init = function init() {
  * @param {Array} list object to display
  */
 MakeItemSelection.setList = function setList(list) {
-	let i, count;
-	let item, it, file, name, showMaterials;
+	const root = _getRoot();
+	const listEl = root.querySelector('.list');
+	listEl.innerHTML = '';
+	listEl.style.backgroundColor = '#f7f7f7';
 
-	MakeItemSelection.list.empty();
-	this.ui.find('.list').css('backgroundColor', '#f7f7f7');
-	this.ui.find('.materials').hide();
-	this.ui.find('.item').remove();
+	const materials = root.querySelector('.materials');
+	materials.style.display = 'none';
+	root.querySelectorAll('.materials .item').forEach((el) => el.remove());
 
-	showMaterials = true;
+	let showMaterials = true;
 	this.mkType = 0;
 	this.material = [];
 
-	for (i = 0, count = list.length; i < count; ++i) {
-		item = list[i];
-		it = DB.getItemInfo(item.ITID);
-		file = it.identifiedResourceName;
-		name = it.identifiedDisplayName;
+	for (let i = 0, count = list.length; i < count; ++i) {
+		const item = list[i];
+		const it = DB.getItemInfo(item.ITID);
+		const file = it.identifiedResourceName;
+		const name = it.identifiedDisplayName;
 
 		if (it.processitemlist === '') {
 			showMaterials = false;
@@ -104,7 +133,6 @@ MakeItemSelection.setList = function setList(list) {
 	}
 
 	this.setIndex(list[0].ITID);
-
 	bindSelectEvents(showMaterials);
 };
 
@@ -114,27 +142,27 @@ MakeItemSelection.setList = function setList(list) {
  * @param {Array} list object to display
  */
 MakeItemSelection.setCookingList = function setCookingList(list, mkType) {
-	let i, count;
-	let item, it, file, name;
+	const root = _getRoot();
+	const listEl = root.querySelector('.list');
+	listEl.innerHTML = '';
+	listEl.style.backgroundColor = '#f7f7f7';
 
-	MakeItemSelection.list.empty();
-	this.ui.find('.list').css('backgroundColor', '#f7f7f7');
-	this.ui.find('.materials').hide();
-	this.ui.find('.item').remove();
+	const materials = root.querySelector('.materials');
+	materials.style.display = 'none';
+	root.querySelectorAll('.materials .item').forEach((el) => el.remove());
 
-	this.mkType = mkType; // add mk type
+	this.mkType = mkType;
 
-	for (i = 0, count = list.length; i < count; ++i) {
-		item = list[i];
-		it = DB.getItemInfo(item);
-		file = it.identifiedResourceName;
-		name = it.identifiedDisplayName;
+	for (let i = 0, count = list.length; i < count; ++i) {
+		const item = list[i];
+		const it = DB.getItemInfo(item);
+		const file = it.identifiedResourceName;
+		const name = it.identifiedDisplayName;
 
 		addElement(DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
 	}
 
 	this.setIndex(list[0].ITID);
-
 	bindSelectEvents(false);
 };
 
@@ -142,23 +170,26 @@ MakeItemSelection.setCookingList = function setCookingList(list, mkType) {
  * Add an element to the list
  *
  * @param {string} image url
- * @param {index} index in list
+ * @param {number} index in list
  * @param {string} element name
  */
 function addElement(url, index, name) {
-	MakeItemSelection.list.append(
-		'<div class="item" data-index="' +
-			index +
-			'">' +
-			'<div class="icon"></div>' +
-			'<span class="name">' +
-			jQuery.escape(name) +
-			'</span>' +
-			'</div>'
-	);
+	const root = _getRoot();
+	const listEl = root.querySelector('.list');
 
-	Client.loadFile(url, function (data) {
-		MakeItemSelection.list.find('div[data-index=' + index + '] .icon').css('backgroundImage', 'url(' + data + ')');
+	const div = document.createElement('div');
+	div.className = 'item';
+	div.setAttribute('data-index', index);
+	div.innerHTML =
+		'<div class="icon"></div>' +
+		`<span class="name">${_sanitizeHtml(name)}</span>`;
+	listEl.appendChild(div);
+
+	Client.loadFile(url, (data) => {
+		const icon = root.querySelector(`.list div[data-index="${index}"] .icon`);
+		if (icon) {
+			icon.style.backgroundImage = `url(${data})`;
+		}
 	});
 }
 
@@ -168,21 +199,26 @@ function addElement(url, index, name) {
  * @param {number} index in list
  */
 MakeItemSelection.advance = function advance() {
-	MakeItemSelection.list.empty();
+	const root = _getRoot();
+	const listEl = root.querySelector('.list');
+	listEl.innerHTML = '';
+
 	const it = DB.getItemInfo(this.index);
-	const title = it.identifiedDisplayName + ' ' + DB.getMessage(426);
+	const title = `${it.identifiedDisplayName} ${DB.getMessage(426)}`;
 	const metal = it.processitemlist;
 	MakeItemSelection.setTitle(title);
 
-	this.ui.find('.ok').unbind('click');
-	this.ui.find('.ok').click(this.selectIndex.bind(this));
-	this.ui.find('.list').css('backgroundColor', '#ffffff');
+	const okBtn = root.querySelector('ui-button.ok');
+	if (_okHandler) {
+		okBtn.removeEventListener('click', _okHandler);
+	}
+	_okHandler = () => MakeItemSelection.selectIndex();
+	okBtn.addEventListener('click', _okHandler);
 
-	// Rune craft passa direto
-	this.ui
-		.find('.list')
-		.append(`<pre>${it.identifiedDisplayName} - ${DB.getMessage(427)}` + '\n' + `${metal}` + '</pre>');
-	this.ui.find('.materials').show();
+	listEl.style.backgroundColor = '#ffffff';
+	listEl.innerHTML = `<pre>${_sanitizeHtml(it.identifiedDisplayName)} - ${DB.getMessage(427)}\n${_sanitizeHtml(metal)}</pre>`;
+
+	root.querySelector('.materials').style.display = 'block';
 };
 
 /**
@@ -191,9 +227,16 @@ MakeItemSelection.advance = function advance() {
  * @param {number} id in list
  */
 MakeItemSelection.setIndex = function setIndex(id) {
+	const root = _getRoot();
 	id = id === 0 ? this.index : id;
-	this.list.find('div[data-index=' + this.index + ']').removeClass('select');
-	this.list.find('div[data-index=' + id + ']').addClass('select');
+	const prev = root.querySelector(`.list div[data-index="${this.index}"]`);
+	if (prev) {
+		prev.classList.remove('select');
+	}
+	const next = root.querySelector(`.list div[data-index="${id}"]`);
+	if (next) {
+		next.classList.add('select');
+	}
 	this.index = id;
 };
 
@@ -203,7 +246,7 @@ MakeItemSelection.setIndex = function setIndex(id) {
 MakeItemSelection.selectIndex = function selectIndex() {
 	this.onIndexSelected(this.index, this.material, this.mkType);
 	if (this.index == -1) {
-		this.material.forEach(item => Inventory.getUI().addItem(item));
+		this.material.forEach((item) => Inventory.getUI().addItem(item));
 	}
 	this.remove();
 };
@@ -216,7 +259,7 @@ MakeItemSelection.onRemove = function onRemove() {
 };
 
 MakeItemSelection.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 		this.remove();
 	}
 };
@@ -227,7 +270,11 @@ MakeItemSelection.onKeyDown = function onKeyDown(event) {
  * @param {string} title
  */
 MakeItemSelection.setTitle = function setTitle(title) {
-	this.ui.find('.head .text').text(title);
+	const root = _getRoot();
+	const text = root.querySelector('.head .text');
+	if (text) {
+		text.textContent = title;
+	}
 };
 
 /**
@@ -242,7 +289,7 @@ MakeItemSelection.onIndexSelected = function onIndexSelected() {};
  */
 MakeItemSelection.addMaterial = function AddMaterial(item, from) {
 	let singleMatUsed = false;
-	this.material.forEach(it => {
+	this.material.forEach((it) => {
 		if (validSingleMaterials.includes(it.ITID)) {
 			singleMatUsed = true;
 		}
@@ -269,26 +316,27 @@ MakeItemSelection.addMaterial = function AddMaterial(item, from) {
  * @param {object} Item
  */
 MakeItemSelection.addItemSub = function AddItemSub(item) {
+	const root = _getRoot();
 	const it = DB.getItemInfo(item.ITID);
-	const content = this.ui.find('.materials');
+	const content = root.querySelector('.materials');
 
-	content.append(
-		'<div class="item" data-index="' + item.index + '" draggable="false">' + '<div class="icon"></div>' + '</div>'
-	);
-
-	if (content.height() < content[0].scrollHeight) {
-		this.ui.find('.hide').hide();
-	} else {
-		this.ui.find('.hide').show();
-	}
+	const div = document.createElement('div');
+	div.className = 'item';
+	div.setAttribute('data-index', item.index);
+	div.setAttribute('draggable', 'false');
+	div.innerHTML = '<div class="icon"></div>';
+	content.appendChild(div);
 
 	Client.loadFile(
 		DB.INTERFACE_PATH +
 			'item/' +
 			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 			'.bmp',
-		function (data) {
-			content.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+		(data) => {
+			const icon = root.querySelector(`.materials .item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
 		}
 	);
 
@@ -301,17 +349,17 @@ MakeItemSelection.addItemSub = function AddItemSub(item) {
  * @param {event}
  */
 function onDrop(event) {
+	event.preventDefault();
+	event.stopImmediatePropagation();
+
 	let data;
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
 		// Ignore invalid JSON data
 	}
 
-	event.stopImmediatePropagation();
-
-	// Just support items for now ?
 	if (!data || data.type !== 'item' || data.from !== 'Inventory') {
 		return false;
 	}
@@ -327,24 +375,43 @@ function onDrop(event) {
  * Stop event propagation
  */
 function stopPropagation(event) {
+	event.preventDefault();
 	event.stopImmediatePropagation();
-	return false;
 }
 
 function bindSelectEvents(showMaterials) {
-	if (showMaterials) {
-		MakeItemSelection.ui.find('.ok').unbind('click');
-		MakeItemSelection.ui.find('.ok').click(MakeItemSelection.advance.bind(MakeItemSelection));
+	const root = _getRoot();
+	const okBtn = root.querySelector('ui-button.ok');
+	const mainEl = root.querySelector('#MakeItemSelection');
 
-		MakeItemSelection.ui.off('dblclick', '.item');
-		MakeItemSelection.ui.on('dblclick', '.item', MakeItemSelection.advance.bind(MakeItemSelection));
-	} else {
-		MakeItemSelection.ui.find('.ok').unbind('click');
-		MakeItemSelection.ui.find('.ok').click(MakeItemSelection.selectIndex.bind(MakeItemSelection));
-
-		MakeItemSelection.ui.off('dblclick', '.item');
-		MakeItemSelection.ui.on('dblclick', '.item', MakeItemSelection.selectIndex.bind(MakeItemSelection));
+	// Remove old handlers
+	if (_okHandler) {
+		okBtn.removeEventListener('click', _okHandler);
 	}
+	if (_dblClickHandler) {
+		mainEl.removeEventListener('dblclick', _dblClickHandler);
+	}
+
+	if (showMaterials) {
+		_okHandler = () => MakeItemSelection.advance();
+		_dblClickHandler = (e) => {
+			const item = e.target.closest('.item');
+			if (item) {
+				MakeItemSelection.advance();
+			}
+		};
+	} else {
+		_okHandler = () => MakeItemSelection.selectIndex();
+		_dblClickHandler = (e) => {
+			const item = e.target.closest('.item');
+			if (item) {
+				MakeItemSelection.selectIndex();
+			}
+		};
+	}
+
+	okBtn.addEventListener('click', _okHandler);
+	mainEl.addEventListener('dblclick', _dblClickHandler);
 }
 
 /**

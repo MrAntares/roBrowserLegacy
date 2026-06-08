@@ -1,7 +1,11 @@
-#ConvertItems {
-	position: absolute;
+:host {
+	width: 280px;
 	top: 100px;
 	left: 100px;
+}
+
+#ConvertItems {
+	position: absolute;
 	width: 280px;
 }
 #ConvertItems .body {
@@ -49,11 +53,9 @@
 	vertical-align: top;
 	background-position: -1px 0px;
 }
-#ConvertItems .tabs button {
+#ConvertItems .tabs ui-button {
 	width: 20px;
 	height: 30px;
-	border: none;
-	background-color: transparent;
 	display: block;
 }
 #ConvertItems .tabs .item {
@@ -134,19 +136,14 @@
 	bottom: 1px;
 	width: 13px;
 	height: 13px;
-	border: none;
 	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
-#ConvertItems .btn {
+#ConvertItems ui-button.btn {
 	top: 5px;
 	position: absolute;
-	border: 0;
 	width: 42px;
 	height: 20px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #ConvertItems .cancel {
 	right: 20px;

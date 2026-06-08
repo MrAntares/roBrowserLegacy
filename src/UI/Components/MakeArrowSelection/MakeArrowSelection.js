@@ -8,49 +8,86 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './MakeArrowSelection.html?raw';
 import cssText from './MakeArrowSelection.css?raw';
 
 /**
  * Create MakeArrowSelection namespace
  */
-const MakeArrowSelection = new UIComponent('MakeArrowSelection', htmlText, cssText);
+const MakeArrowSelection = new GUIComponent('MakeArrowSelection', cssText);
+
+MakeArrowSelection.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return MakeArrowSelection._shadow || MakeArrowSelection._host;
+}
+
+/**
+ * Sanitize HTML, allowing only whitelisted tags (font, i, b)
+ */
+function _sanitizeHtml(str) {
+	const whitelist = ['font', 'i', 'b'];
+	const div = document.createElement('div');
+	div.innerHTML = str;
+	div.querySelectorAll('*').forEach((el) => {
+		if (!whitelist.includes(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
+	return div.innerHTML;
+}
 
 /**
  * Initialize UI
  */
 MakeArrowSelection.init = function init() {
-	// Show at center.
-	this.ui.css({
-		top: (Renderer.height - 200) / 2,
-		left: (Renderer.width - 200) / 2
-	});
+	const root = _getRoot();
 
-	this.list = this.ui.find('.list:first');
+	this.list = root.querySelector('.list');
 	this.index = 0;
 
-	this.draggable(this.ui.find('.head'));
+	this.draggable(root.querySelector('.head'));
 
 	// Click Events
-	this.ui.find('.ok').click(this.selectIndex.bind(this));
-	this.ui.find('.cancel').click(
-		function () {
-			this.index = -1;
-			this.selectIndex();
-		}.bind(this)
-	);
+	root.querySelector('ui-button.ok').addEventListener('click', () => {
+		MakeArrowSelection.selectIndex();
+	});
+	root.querySelector('ui-button.cancel').addEventListener('click', () => {
+		MakeArrowSelection.index = -1;
+		MakeArrowSelection.selectIndex();
+	});
 
 	// Bind events
-	this.ui.on('dblclick', '.item', this.selectIndex.bind(this)).on('mousedown', '.item', function () {
-		MakeArrowSelection.setIndex(Math.floor(this.getAttribute('data-index')));
+	root.querySelector('#MakeArrowSelection').addEventListener('dblclick', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			MakeArrowSelection.selectIndex();
+		}
 	});
+	root.querySelector('#MakeArrowSelection').addEventListener('mousedown', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			MakeArrowSelection.setIndex(Math.floor(item.getAttribute('data-index')));
+		}
+	});
+};
+
+/**
+ * Once append to body
+ */
+MakeArrowSelection.onAppend = function onAppend() {
+	this._host.style.top = `${(Renderer.height - 200) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 200) / 2}px`;
 };
 
 /**
@@ -59,16 +96,15 @@ MakeArrowSelection.init = function init() {
  * @param {Array} list object to display
  */
 MakeArrowSelection.setList = function setList(list) {
-	let i, count;
-	let item, it, file, name;
+	const root = _getRoot();
+	const listEl = root.querySelector('.list');
+	listEl.innerHTML = '';
 
-	MakeArrowSelection.list.empty();
-
-	for (i = 0, count = list.length; i < count; ++i) {
-		item = list[i];
-		it = DB.getItemInfo(item.index);
-		file = it.identifiedResourceName;
-		name = it.identifiedDisplayName;
+	for (let i = 0, count = list.length; i < count; ++i) {
+		const item = list[i];
+		const it = DB.getItemInfo(item.index);
+		const file = it.identifiedResourceName;
+		const name = it.identifiedDisplayName;
 
 		addElement(DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i].index, name);
 	}
@@ -80,23 +116,26 @@ MakeArrowSelection.setList = function setList(list) {
  * Add an element to the list
  *
  * @param {string} image url
- * @param {index} index in list
+ * @param {number} index in list
  * @param {string} element name
  */
 function addElement(url, index, name) {
-	MakeArrowSelection.list.append(
-		'<div class="item" data-index="' +
-			index +
-			'">' +
-			'<div class="icon"></div>' +
-			'<span class="name">' +
-			jQuery.escape(name) +
-			'</span>' +
-			'</div>'
-	);
+	const root = _getRoot();
+	const listEl = root.querySelector('.list');
 
-	Client.loadFile(url, function (data) {
-		MakeArrowSelection.list.find('div[data-index=' + index + '] .icon').css('backgroundImage', 'url(' + data + ')');
+	const div = document.createElement('div');
+	div.className = 'item';
+	div.setAttribute('data-index', index);
+	div.innerHTML =
+		'<div class="icon"></div>' +
+		`<span class="name">${_sanitizeHtml(name)}</span>`;
+	listEl.appendChild(div);
+
+	Client.loadFile(url, (data) => {
+		const icon = root.querySelector(`div[data-index="${index}"] .icon`);
+		if (icon) {
+			icon.style.backgroundImage = `url(${data})`;
+		}
 	});
 }
 
@@ -106,8 +145,15 @@ function addElement(url, index, name) {
  * @param {number} id in list
  */
 MakeArrowSelection.setIndex = function setIndex(id) {
-	this.list.find('div[data-index=' + this.index + ']').css('backgroundColor', 'transparent');
-	this.list.find('div[data-index=' + id + ']').css('backgroundColor', '#cde0ff');
+	const root = _getRoot();
+	const prev = root.querySelector(`div[data-index="${this.index}"]`);
+	if (prev) {
+		prev.style.backgroundColor = 'transparent';
+	}
+	const next = root.querySelector(`div[data-index="${id}"]`);
+	if (next) {
+		next.style.backgroundColor = '#cde0ff';
+	}
 	this.index = id;
 };
 
@@ -132,7 +178,11 @@ MakeArrowSelection.onRemove = function onRemove() {
  * @param {string} title
  */
 MakeArrowSelection.setTitle = function setTitle(title) {
-	this.ui.find('.head .text').text(title);
+	const root = _getRoot();
+	const text = root.querySelector('.head .text');
+	if (text) {
+		text.textContent = title;
+	}
 };
 
 /**
@@ -141,7 +191,7 @@ MakeArrowSelection.setTitle = function setTitle(title) {
 MakeArrowSelection.onIndexSelected = function onIndexSelected() {};
 
 MakeArrowSelection.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 		this.remove();
 	}
 };

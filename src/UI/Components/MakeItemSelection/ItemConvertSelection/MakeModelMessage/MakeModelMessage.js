@@ -8,7 +8,8 @@
 
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './MakeModelMessage.html?raw';
 import cssText from './MakeModelMessage.css?raw';
 import ConvertItems from 'UI/Components/MakeItemSelection/ItemConvertSelection/ConvertItems.js';
@@ -16,22 +17,30 @@ import ConvertItems from 'UI/Components/MakeItemSelection/ItemConvertSelection/C
 /**
  * Create MakeModelMessage namespace
  */
-const MakeModelMessage = new UIComponent('MakeModelMessage', htmlText, cssText);
+const MakeModelMessage = new GUIComponent('MakeModelMessage', cssText);
+
+MakeModelMessage.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return MakeModelMessage._shadow || MakeModelMessage._host;
+}
 
 /**
  * Initialize UI
  */
 MakeModelMessage.init = function init() {
-	// Show at center.
-	this.ui.css({
-		top: (Renderer.height - 200) / 2,
-		left: (Renderer.width - 200) / 2
-	});
+	const root = _getRoot();
 
-	this.ui.find('.ok').on('click', onSendMaterial);
-	this.ui.find('.cancel').on('click', onClose);
+	this._host.style.top = `${(Renderer.height - 200) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 200) / 2}px`;
 
-	this.draggable(this.ui.find('.titlebar'));
+	root.querySelector('ui-button.ok').addEventListener('click', onSendMaterial);
+	root.querySelector('ui-button.cancel').addEventListener('click', onClose);
+
+	this.draggable(root.querySelector('.titlebar'));
 };
 
 function onSendMaterial(event) {

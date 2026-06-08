@@ -6,7 +6,6 @@
  * @author Francisco Wallison
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Preferences from 'Core/Preferences.js';
@@ -14,10 +13,11 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemListWindowSelection from 'UI/Components/MakeItemSelection/ItemListWindowSelection.js';
 import MakeModelMessage from 'UI/Components/MakeItemSelection/ItemConvertSelection/MakeModelMessage/MakeModelMessage.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './ConvertItems.html?raw';
 import cssText from './ConvertItems.css?raw';
 
@@ -37,7 +37,31 @@ const _preferences = Preferences.get(
 /**
  * Create ConvertItems namespace
  */
-const ConvertItems = new UIComponent('ConvertItems', htmlText, cssText);
+const ConvertItems = new GUIComponent('ConvertItems', cssText);
+
+ConvertItems.render = () => htmlText;
+
+/**
+ * Helper to get shadow root
+ */
+function _getRoot() {
+	return ConvertItems._shadow || ConvertItems._host;
+}
+
+/**
+ * Sanitize HTML, allowing only whitelisted tags (font, i, b)
+ */
+function _sanitizeHtml(str) {
+	const whitelist = ['font', 'i', 'b'];
+	const div = document.createElement('div');
+	div.innerHTML = str;
+	div.querySelectorAll('*').forEach((el) => {
+		if (!whitelist.includes(el.tagName.toLowerCase())) {
+			el.replaceWith(...el.childNodes);
+		}
+	});
+	return div.innerHTML;
+}
 
 /**
  * Store Convert Items items
@@ -48,71 +72,97 @@ ConvertItems.material = [];
  * Initialize UI
  */
 ConvertItems.init = function init() {
-	// Show at center.
-	this.ui.css({
-		top: (Renderer.height - 200) / 2,
-		left: (Renderer.width - 10) / 2
-	});
+	const root = _getRoot();
+
+	this._host.style.top = `${(Renderer.height - 200) / 2}px`;
+	this._host.style.left = `${(Renderer.width - 10) / 2}px`;
 
 	this.material = [];
 
-	this.draggable(this.ui.find('.head'));
-	this.ui.find('.footer .extend').mousedown(onResize);
-	this.ui.find('.trade').on('click', onMessageModel);
-	this.ui.find('.cancel').on('click', onClose);
+	this.draggable(root.querySelector('.head'));
+	root.querySelector('.footer .extend').addEventListener('mousedown', onResize);
+	root.querySelector('ui-button.trade').addEventListener('click', onMessageModel);
+	root.querySelector('ui-button.cancel').addEventListener('click', onClose);
 
 	resizeHeight(_preferences.height);
 
-	this.ui
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
+	const mainEl = root.querySelector('#ConvertItems');
+	mainEl.addEventListener('drop', onDrop);
+	mainEl.addEventListener('dragover', stopPropagation);
 
-		.find('.container .content')
-		.on('mousewheel DOMMouseScroll', onScroll)
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
-		.on('contextmenu', '.item', onItemInfo);
+	const content = root.querySelector('.container .content');
+	content.addEventListener('wheel', onScroll);
+	content.addEventListener('mouseover', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemOver.call(item);
+		}
+	});
+	content.addEventListener('mouseout', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemOut();
+		}
+	});
+	content.addEventListener('dragstart', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemDragStart.call(item, e);
+		}
+	});
+	content.addEventListener('dragend', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemDragEnd();
+		}
+	});
+	content.addEventListener('contextmenu', (e) => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemInfo.call(item, e);
+		}
+	});
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable(root.querySelector('.titlebar'));
 };
 
 /**
  * Apply preferences once append to body
  */
 ConvertItems.onAppend = function OnAppend() {
+	const root = _getRoot();
 	this.material = [];
-	this.ui.find('.item').remove();
+	root.querySelectorAll('.container .content .item').forEach((el) => el.remove());
 };
 
 ConvertItems.addItem = function addItem(item) {
+	const root = _getRoot();
 	const it = DB.getItemInfo(item.ITID);
+	const content = root.querySelector('.container .content');
 
-	this.ui
-		.find('.container .content')
-		.append(
-			'<div class="item" data-index="' +
-				item.index +
-				'" draggable="true">' +
-				'<div class="icon"></div>' +
-				'<div class="amount">' +
-				(item.count ? '<span class="count">' + item.count + '</span>' + ' ' : '') +
-				'</div>' +
-				'<span class="name">' +
-				jQuery.escape(DB.getItemName(item)) +
-				'</span>' +
-				'</div>'
-		);
+	const div = document.createElement('div');
+	div.className = 'item';
+	div.setAttribute('data-index', item.index);
+	div.setAttribute('draggable', 'true');
+	div.innerHTML =
+		'<div class="icon"></div>' +
+		'<div class="amount">' +
+		(item.count ? `<span class="count">${item.count}</span> ` : '') +
+		'</div>' +
+		`<span class="name">${_sanitizeHtml(DB.getItemName(item))}</span>`;
+	content.appendChild(div);
 
 	Client.loadFile(
 		DB.INTERFACE_PATH +
 			'item/' +
 			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 			'.bmp',
-		function (data) {
-			this.ui.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this)
+		(data) => {
+			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
+		}
 	);
 
 	return true;
@@ -125,27 +175,27 @@ ConvertItems.addItem = function addItem(item) {
  * @param {number} count
  */
 ConvertItems.updateItem = function UpdateItem(index, count) {
+	const root = _getRoot();
 	const item = this.getItemByIndex(index);
 
 	if (!item) {
 		return;
 	}
 
-	item.count = item.count + count; // update item list
+	item.count = item.count + count;
 
-	// Update quantity
 	if (item.count > 0) {
-		this.ui.find('.item[data-index="' + item.index + '"] .count').text(item.count);
+		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+		if (countEl) {
+			countEl.textContent = item.count;
+		}
 		return;
 	}
 
-	// no quantity, remove
 	this.material.splice(this.material.indexOf(item), 1);
-	this.ui.find('.item[data-index="' + item.index + '"]').remove();
-
-	const content = this.ui.find('.container .content');
-	if (content.height() === content[0].scrollHeight) {
-		this.ui.find('.hide').show();
+	const el = root.querySelector(`.item[data-index="${item.index}"]`);
+	if (el) {
+		el.remove();
 	}
 };
 
@@ -156,10 +206,9 @@ ConvertItems.updateItem = function UpdateItem(index, count) {
  * @returns {Item}
  */
 ConvertItems.getItemByIndex = function getItemByIndex(index) {
-	let i, count;
 	const list = ConvertItems.material;
 
-	for (i = 0, count = list.length; i < count; ++i) {
+	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].index === index) {
 			return list[i];
 		}
@@ -196,15 +245,12 @@ function onClose(event) {
  * Extend ConvertItems window size
  */
 function onResize() {
-	const ui = ConvertItems.ui;
-	const top = ui.position().top;
+	const top = parseInt(ConvertItems._host.style.top, 10) || 0;
 	let lastHeight = 0;
 
 	function resizing() {
 		const extraY = 31 + 19 - 30;
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
-
-		// Maximum and minimum window size
 		h = Math.min(Math.max(h, 8), 17);
 
 		if (h === lastHeight) {
@@ -215,26 +261,29 @@ function onResize() {
 		lastHeight = h;
 	}
 
-	// Start resizing
 	const _Interval = setInterval(resizing, 30);
 
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	function onMouseUp(event) {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	}
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 /**
  * Extend ConvertItems window size
  */
 function resizeHeight(height) {
+	const root = _getRoot();
 	height = Math.min(Math.max(height, 8), 17);
 
-	ConvertItems.ui.find('.container .content').css('height', height * 32);
-	ConvertItems.ui.css('height', 31 + 19 + height * 32);
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.style.height = `${height * 32}px`;
+	}
+	ConvertItems._host.style.height = `${31 + 19 + height * 32}px`;
 }
 
 /**
@@ -250,7 +299,11 @@ ConvertItems.onRemove = function onRemove() {
  * @param {string} title
  */
 ConvertItems.setTitle = function setTitle(title) {
-	this.ui.find('.head .text').text(title);
+	const root = _getRoot();
+	const text = root.querySelector('.head .text');
+	if (text) {
+		text.textContent = title;
+	}
 };
 
 /**
@@ -276,9 +329,9 @@ ConvertItems.addMaterial = function AddMaterial(item) {
  * @param {number} index in Storage
  */
 ConvertItems.removeItem = function removeItem(index, count) {
+	const root = _getRoot();
 	const i = getItemIndexById(index);
 
-	// Not found
 	if (i < 0) {
 		return null;
 	}
@@ -287,15 +340,20 @@ ConvertItems.removeItem = function removeItem(index, count) {
 		ConvertItems.material[i].count -= count;
 
 		if (ConvertItems.material[i].count > 0) {
-			this.ui.find('.item[data-index="' + index + '"] .count').text(ConvertItems.material[i].count);
+			const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
+			if (countEl) {
+				countEl.textContent = ConvertItems.material[i].count;
+			}
 			return ConvertItems.material[i];
 		}
 	}
 
-	// Remove item
 	const item = ConvertItems.material[i];
 	ConvertItems.material.splice(i, 1);
-	this.ui.find('.item[data-index="' + index + '"]').remove();
+	const el = root.querySelector(`.item[data-index="${index}"]`);
+	if (el) {
+		el.remove();
+	}
 
 	return item;
 };
@@ -304,7 +362,11 @@ ConvertItems.removeItem = function removeItem(index, count) {
  * Mouse mouve out of an item, hide title description
  */
 function onItemOut() {
-	ConvertItems.ui.find('.overlay').hide();
+	const root = _getRoot();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
 /**
@@ -318,15 +380,14 @@ function onItemDragStart(event) {
 		return;
 	}
 
-	// Set image to the drag drop element
 	const img = new Image();
-	let url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
-	url = url.replace(/^\"/, '').replace(/\"$/, ''); // Firefox bug
+	let url = this.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1];
+	url = url.replace(/^"/, '').replace(/"$/, '');
 	img.decoding = 'async';
 	img.src = url;
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -342,7 +403,6 @@ function onItemDragStart(event) {
 
 /**
  * Display item description
- *
  */
 function onItemInfo(event) {
 	event.stopImmediatePropagation();
@@ -354,12 +414,10 @@ function onItemInfo(event) {
 		return false;
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === ConvertItems.material[i].ITID) {
 		ItemInfo.remove();
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = ConvertItems.material[i].ITID;
 	ItemInfo.setItem(ConvertItems.material[i]);
@@ -380,9 +438,7 @@ function onItemDragEnd() {
  * @param {number} item id
  */
 function getItemIndexById(index) {
-	let i, count;
-
-	for (i = 0, count = ConvertItems.material.length; i < count; ++i) {
+	for (let i = 0, count = ConvertItems.material.length; i < count; ++i) {
 		if (ConvertItems.material[i].index === index) {
 			return i;
 		}
@@ -397,23 +453,22 @@ function getItemIndexById(index) {
  * @param {event}
  */
 function onDrop(event) {
+	event.preventDefault();
+	event.stopImmediatePropagation();
+
 	let data;
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
 		// Ignore
 	}
 
-	event.stopImmediatePropagation();
-
-	// Just support items for now ?
 	if (!data || data.type !== 'item' || data.from !== 'ItemListWindowSelection') {
 		return false;
 	}
 
 	const item = data.data;
-	// validar se esta marcado
 	const valid_select_all = !ItemListWindowSelection.getSelectAll();
 
 	if (item.count > 1 && valid_select_all) {
@@ -423,7 +478,6 @@ function onDrop(event) {
 			InputBox.remove();
 
 			ItemListWindowSelection.removeItem(item.index, parseInt(count, 10));
-
 			item.count = parseInt(count, 10);
 			ConvertItems.addMaterial(item);
 		};
@@ -431,7 +485,6 @@ function onDrop(event) {
 	}
 
 	ItemListWindowSelection.removeItem(item.index, item.count);
-
 	ConvertItems.addMaterial(item);
 	return false;
 }
@@ -440,8 +493,8 @@ function onDrop(event) {
  * Stop event propagation
  */
 function stopPropagation(event) {
+	event.preventDefault();
 	event.stopImmediatePropagation();
-	return false;
 }
 
 /**
@@ -450,13 +503,13 @@ function stopPropagation(event) {
 function onScroll(event) {
 	let delta;
 
-	if (event.originalEvent.wheelDelta) {
-		delta = event.originalEvent.wheelDelta / 120;
+	if (event.wheelDelta) {
+		delta = event.wheelDelta / 120;
 		if (window.opera) {
 			delta = -delta;
 		}
-	} else if (event.originalEvent.detail) {
-		delta = -event.originalEvent.detail;
+	} else if (event.detail) {
+		delta = -event.detail;
 	}
 
 	this.scrollTop = Math.floor(this.scrollTop / 32) * 32 - delta * 32;
@@ -467,28 +520,28 @@ function onScroll(event) {
  * Mouse over item, display name and informations
  */
 function onItemOver() {
+	const root = _getRoot();
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const i = getItemIndexById(idx);
 
-	// Not found
 	if (i < 0) {
 		return;
 	}
 
-	// Get back data
 	const item = ConvertItems.material[i];
-	const pos = jQuery(this).position();
-	const overlay = ConvertItems.ui.find('.overlay');
+	const rect = this.getBoundingClientRect();
+	const hostRect = ConvertItems._host.getBoundingClientRect();
+	const overlay = root.querySelector('.overlay');
 
-	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top - 10, left: pos.left + 35 });
-	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
+	overlay.style.display = 'block';
+	overlay.style.top = `${rect.top - hostRect.top - 10}px`;
+	overlay.style.left = `${rect.left - hostRect.left + 35}px`;
+	overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
 
 	if (item.IsIdentified) {
-		overlay.removeClass('grey');
+		overlay.classList.remove('grey');
 	} else {
-		overlay.addClass('grey');
+		overlay.classList.add('grey');
 	}
 }
 
