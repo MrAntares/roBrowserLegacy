@@ -87,7 +87,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). Electron uses `NodeSocket.js` (direct TCP via preload contextBridge). Both implement the same interface for `NetworkManager`.
 - **jQuery is legacy but load-bearing.** Used for DOM manipulation, event handling, and `$.Deferred` (being replaced by native Promise). Don't add new jQuery usage; replace it when touching existing code.
 - **Vendors are frozen.** `src/Vendors/` is excluded from ESLint. Never modify vendored files.
-- **UI has two component systems (migration in progress).** Legacy `UIComponent` uses jQuery + Light DOM + `data-*` attributes. New `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. See `doc/UIComponent_to_GUIComponent.md`.
+- **UI has two component systems (migration in progress).** Legacy `UIComponent` uses jQuery + Light DOM + `data-*` attributes. New `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. Primary guide: `doc/UIComponent_to_GUIComponent.md` (L1). For edge cases see `doc/UIComponent_to_GUIComponent_Scars.md` (L0, archive); for quick reflex lookup `doc/UIComponent_to_GUIComponent_Firmware.md` (L2).
 - **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files. Legacy components use `data-background` HTML attributes processed by `UIComponent.parseHTML()`. New components use `<ui-button>`, `<ui-text>`, `<ui-image>` Custom Elements. CSS is structural/positional only.
 
 ## Subsystem Reference
@@ -147,7 +147,10 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - `this.ui` proxy on GUIComponent provides jQuery-compatible API for UIManager interop
 - Both types coexist in UIManager — `addComponent()` accepts either
 
-    > **Migration docs**: [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) — step-by-step guide with Shadow DOM pitfalls  
+    > **Migration docs (3-layer memory):**
+    > - **L1 — Primary** [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix). **Start here.**
+    > - **L2 — Reflex** [`doc/UIComponent_to_GUIComponent_Firmware.md`](doc/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup. Not for reasoning.
+	> - **L0 — Archive** [`doc/UIComponent_to_GUIComponent_Scars.md`](doc/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component reference. Consult only for edge cases / when L1 is insufficient.
     > **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
     > **For Migrated & Remaining components list see:** https://github.com/MrAntares/roBrowserLegacy/issues/1140
 
@@ -335,7 +338,7 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 5. CSS: dimensions/position on `:host`, inner layout on `#Name`
 6. Register with `UIManager.addComponent()`
 7. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
-    > See [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) for full guide  
+    > Consult **L1** [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) first; fall back to **L0** [`_Scars.md`](doc/UIComponent_to_GUIComponent_Scars.md) for the full step-by-step checklist and pitfalls.  
     > See [`doc/CustomElements.md`](doc/CustomElements.md) for element reference
     > **Migrating an existing UIComponent:** Follow the step-by-step checklist in the migration guide. Key pitfalls: jQuery `.show()`/`.hide()` inside Shadow DOM, `$el.closest('body')` → `el.isConnected`, CSS `:host` dimensions.
 
