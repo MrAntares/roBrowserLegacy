@@ -5,8 +5,8 @@
 Consult order:
 
 1. L1 (Primary Brain)
-2. L0 (Historical Archive if unresolved)
-3. L2 (Reflex Compression / Recovery Layer)
+2. L2 (Reflex Compression / Recovery Layer)
+3. L0 (Historical Archive if unresolved)
 
 L0 is archival and should only be opened when:
 - L1 cannot answer.
