@@ -220,7 +220,11 @@ function UpdateBody(job) {
 	this.xSize = this.ySize = DB.isBaby(job) ? 4 : 5;
 
 	this.files.shadow.size = job in ShadowTable ? ShadowTable[job] : 1.0;
-	path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
+	// Don't force the GM/admin sprite when the entity is displaying a monster
+	// form (disguise or transformation) - otherwise a GM disguised as a monster
+	// shows the headless admin sprite instead of the monster.
+	const showAdminSprite = this.isAdmin && !shouldSuppressHead.call(this);
+	path = showAdminSprite ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
 	const Entity = this.constructor;
 
 	// Define Object type based on its id
