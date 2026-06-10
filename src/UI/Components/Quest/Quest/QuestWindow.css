@@ -1,7 +1,9 @@
-#QuestWindow {
-	position: absolute;
+:host {
 	right: 50px;
 	top: 250px;
+}
+
+#QuestWindow {
 	width: 230px;
 	display: table;
 	font-size: 0.75rem;

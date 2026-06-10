@@ -1,5 +1,9 @@
+:host {
+	top: 200px;
+	left: 582px;
+}
+
 #QuestInfoV1 {
-	position: absolute;
 	width: 350px;
 	height: 375px;
 }
@@ -21,8 +25,6 @@
 	right: 2px;
 	width: 11px;
 	height: 11px;
-	border: none;
-	background: none;
 }
 #QuestInfoV1 .titlebar .content .title {
 	position: absolute;

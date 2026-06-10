@@ -16,7 +16,8 @@ import Renderer from 'Renderer/Renderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
 import htmlText from './MiniMapV2.html?raw';
 import cssText from './MiniMapV2.css?raw';
@@ -24,17 +25,23 @@ import cssText from './MiniMapV2.css?raw';
 /**
  * Create MiniMap component
  */
-const MiniMapV2 = new UIComponent('MiniMapV2', htmlText, cssText);
+const MiniMapV2 = new GUIComponent('MiniMapV2', cssText);
 
 /**
  * Mouse cant cross this UI
  */
-MiniMapV2.mouseMode = UIComponent.MouseMode.STOP;
+MiniMapV2.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * @var {boolean} do not focus this UI
  */
 MiniMapV2.needFocus = false;
+
+MiniMapV2.render = () => htmlText;
+
+function _getRoot() {
+	return MiniMapV2._shadow || MiniMapV2._host;
+}
 
 /**
  * @var {Preferences}
@@ -118,72 +125,68 @@ const _zoomFactor = [1, 10, 6, 3, 2];
  * Initialize minimap
  */
 MiniMapV2.init = function init() {
-	function genericUpdateZoom(value) {
-		return function (event) {
-			MiniMapV2.updateZoom(value);
-			event.stopImmediatePropagation();
-			return false;
-		};
-	}
+	const root = _getRoot();
 
-	_ctx = this.ui.find('canvas')[0].getContext('2d');
+	_ctx = root.querySelector('canvas').getContext('2d');
 	this.opacity = 2;
 
-	Client.loadFile(DB.INTERFACE_PATH + 'map/map_arrow.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, (dataURI) => {
 		_arrow.src = dataURI;
 	});
 
-	Client.loadFile(DB.INTERFACE_PATH + 'information/store.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/store.bmp`, (dataURI) => {
 		_toolDealer.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/weaponshop.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/weaponshop.bmp`, (dataURI) => {
 		_weaponDealer.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/armorshops.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/armorshops.bmp`, (dataURI) => {
 		_armorDealer.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/smithy.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/smithy.bmp`, (dataURI) => {
 		_blacksmith.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/guide.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/guide.bmp`, (dataURI) => {
 		_guide.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/inn.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/inn.bmp`, (dataURI) => {
 		_inn.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/kafra.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, (dataURI) => {
 		_kafra.src = dataURI;
 	});
 
-	// Bind DOM elements
-	this.ui.find('.plus').mousedown(genericUpdateZoom(+1));
-	this.ui.find('.minus').mousedown(genericUpdateZoom(-1));
-
-	// Bind DOM elements
-	this.ui.find('.info_container button').mousedown(function () {
-		switch (this.className) {
-			case 'object':
-				_preferences.townInfoShow = !_preferences.townInfoShow;
-				_preferences.save();
-				break;
-
-			case 'mini':
-				break;
-
-			case 'viewon':
-				WorldMap.toggle();
-				break;
-
-			default:
-		}
+	root.querySelector('.plus').addEventListener('mousedown', (event) => {
+		MiniMapV2.updateZoom(+1);
+		event.stopImmediatePropagation();
+		event.preventDefault();
 	});
+	root.querySelector('.minus').addEventListener('mousedown', (event) => {
+		MiniMapV2.updateZoom(-1);
+		event.stopImmediatePropagation();
+		event.preventDefault();
+	});
+
+	const objectBtn = root.querySelector('.object');
+	if (objectBtn) {
+		objectBtn.addEventListener('mousedown', () => {
+			_preferences.townInfoShow = !_preferences.townInfoShow;
+			_preferences.save();
+		});
+	}
+
+	const viewonBtn = root.querySelector('.viewon');
+	if (viewonBtn) {
+		viewonBtn.addEventListener('mousedown', () => {
+			WorldMap.toggle();
+		});
+	}
 };
 
 /**
  * Once append to HTML
  */
 MiniMapV2.onAppend = function onAppend() {
-	// Set preferences
 	this.updateZoom(_preferences.zoom);
 	this.toggleOpacity(_preferences.opacity + 1);
 
@@ -201,10 +204,10 @@ MiniMapV2.setMap = function setMap(mapname) {
 	_towninfo = DB.getTownInfo(mapname.replace(/\..*/, ''));
 
 	let path = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapname.replace(/\..*/, '.bmp');
-	path = path.replace(/\//g, '\\'); // normalize path separator
+	path = path.replace(/\//g, '\\');
 	path = DB.mapalias[path] || path;
 
-	Client.loadFile('data/texture/' + path, function (dataURI) {
+	Client.loadFile(`data/texture/${path}`, (dataURI) => {
 		_map.src = dataURI;
 	});
 };
@@ -216,7 +219,6 @@ MiniMapV2.setMap = function setMap(mapname) {
  * @return {boolean}
  */
 MiniMapV2.onKeyDown = function onKeyDown(event) {
-	// Will not work on Chrome :(
 	if (event.which === KEYS.TAB && KEYS.CTRL) {
 		this.toggleOpacity();
 		event.stopImmediatePropagation();
@@ -230,17 +232,13 @@ MiniMapV2.onKeyDown = function onKeyDown(event) {
  * Once removed from HTML
  */
 MiniMapV2.onRemove = function onRemove() {
-	// Clean up memory
 	_party.length = 0;
 	_guild.length = 0;
 	_markers.length = 0;
 };
 
 MiniMapV2.addPartyMemberMark = function addPartyMemberMark(key, x, y) {
-	let i;
-	const count = _party.length;
-
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < _party.length; ++i) {
 		if (_party[i].key === key) {
 			_party[i].x = x;
 			_party[i].y = y;
@@ -249,12 +247,7 @@ MiniMapV2.addPartyMemberMark = function addPartyMemberMark(key, x, y) {
 		}
 	}
 
-	_party.push({
-		key: key,
-		x: x,
-		y: y,
-		color: this.getMemberColor(key)
-	});
+	_party.push({ key, x, y, color: this.getMemberColor(key) });
 };
 
 /**
@@ -265,7 +258,7 @@ MiniMapV2.getMemberColor = function getMemberColor(key) {
 		return _memberColors[key];
 	}
 	const r = Math.random;
-	const color = 'rgb(' + [(r() * 255) | 0, (r() * 255) | 0, (r() * 255) | 0] + ')';
+	const color = `rgb(${(r() * 255) | 0},${(r() * 255) | 0},${(r() * 255) | 0})`;
 	_memberColors[key] = color;
 	return color;
 };
@@ -276,10 +269,7 @@ MiniMapV2.getMemberColor = function getMemberColor(key) {
  * @param {number} key account id
  */
 MiniMapV2.removePartyMemberMark = function removePartyMemberMark(key) {
-	let i;
-	const count = _party.length;
-
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < _party.length; ++i) {
 		if (_party[i].key === key) {
 			_party.splice(i, 1);
 			break;
@@ -295,10 +285,7 @@ MiniMapV2.removePartyMemberMark = function removePartyMemberMark(key) {
  * @param {number} y position
  */
 MiniMapV2.addGuildMemberMark = function addGuildMemberMark(key, x, y) {
-	let i;
-	const count = _guild.length;
-
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < _guild.length; ++i) {
 		if (_guild[i].key === key) {
 			_guild[i].x = x;
 			_guild[i].y = y;
@@ -306,11 +293,7 @@ MiniMapV2.addGuildMemberMark = function addGuildMemberMark(key, x, y) {
 		}
 	}
 
-	_guild.push({
-		key: key,
-		x: x,
-		y: y
-	});
+	_guild.push({ key, x, y });
 };
 
 /**
@@ -319,10 +302,7 @@ MiniMapV2.addGuildMemberMark = function addGuildMemberMark(key, x, y) {
  * @param {number} key account id
  */
 MiniMapV2.removeGuildMemberMark = function removeGuildMemberMark(key) {
-	let i;
-	const count = _guild.length;
-
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < _guild.length; ++i) {
 		if (_guild[i].key === key) {
 			_guild.splice(i, 1);
 			break;
@@ -339,25 +319,23 @@ MiniMapV2.removeGuildMemberMark = function removeGuildMemberMark(key) {
  * @param {Array} color
  */
 MiniMapV2.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
-	let i;
-	const count = _markers.length;
 	const color = [(lcolor & 0x00ff0000) >> 16, (lcolor & 0x0000ff00) >> 8, lcolor & 0x000000ff];
 
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < _markers.length; ++i) {
 		if (_markers[i].key === key) {
 			_markers[i].x = x;
 			_markers[i].y = y;
-			_markers[i].color = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
+			_markers[i].color = `rgb(${color[0]},${color[1]},${color[2]})`;
 			_markers[i].tick = Renderer.tick + time;
 			return;
 		}
 	}
 
 	_markers.push({
-		key: key,
-		x: x,
-		y: y,
-		color: 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
+		key,
+		x,
+		y,
+		color: `rgb(${color[0]},${color[1]},${color[2]})`,
 		tick: Renderer.tick + time
 	});
 };
@@ -368,10 +346,7 @@ MiniMapV2.addNpcMark = function addNPCMark(key, x, y, lcolor, time) {
  * @param {number} key id
  */
 MiniMapV2.removeNpcMark = function removeNPCMark(key) {
-	let i;
-	const count = _markers.length;
-
-	for (i = 0; i < count; ++i) {
+	for (let i = 0; i < _markers.length; ++i) {
 		if (_markers[i].key === key) {
 			_markers.splice(i, 1);
 			break;
@@ -386,8 +361,15 @@ MiniMapV2.removeNpcMark = function removeNPCMark(key) {
  * @param {number} y increment
  */
 MiniMapV2.updateCoordinates = function updateCoordinates(x, y) {
-	MiniMapV2.ui.find('.coordinates .coord.x').html(Math.floor(x));
-	MiniMapV2.ui.find('.coordinates .coord.y').html(Math.floor(y));
+	const root = _getRoot();
+	const coordX = root.querySelector('.coordinates .coord.x');
+	const coordY = root.querySelector('.coordinates .coord.y');
+	if (coordX) {
+		coordX.textContent = Math.floor(x);
+	}
+	if (coordY) {
+		coordY.textContent = Math.floor(y);
+	}
 };
 
 /**
@@ -453,7 +435,6 @@ const render = (function renderClosure() {
 		let i, count;
 		let dot;
 
-		// closure
 		zoom = _zoomFactor[_preferences.zoom];
 		pos = Session.Entity.position;
 		max = Math.max(width, height);
@@ -461,10 +442,8 @@ const render = (function renderClosure() {
 		start_x = ((max - width) / 2) * f;
 		start_y = ((height - max) / 2) * f;
 
-		// update coords
 		MiniMapV2.updateCoordinates(pos[0], pos[1]);
 
-		// Rendering map
 		_ctx.clearRect(0, 0, 128, 128);
 
 		if (_map.complete && _map.width) {
@@ -548,14 +527,11 @@ const render = (function renderClosure() {
 
 		// Render NPC mark
 		if (tick % 1000 > 500) {
-			// blink effect
-
 			count = _markers.length;
 
 			for (i = 0; i < count; ++i) {
 				dot = _markers[i];
 
-				// Auto remove feature
 				if (dot.tick < Renderer.tick) {
 					_markers.splice(i, 1);
 					i--;
@@ -563,7 +539,6 @@ const render = (function renderClosure() {
 					continue;
 				}
 
-				// Render mark
 				_ctx.fillStyle = dot.color;
 				_ctx.fillRect(projectX(dot.x) - 1, projectY(dot.y) - 4, 2, 8);
 				_ctx.fillRect(projectX(dot.x) - 4, projectY(dot.y) - 1, 8, 2);

@@ -10,7 +10,7 @@
 
 import Preferences from 'Core/Preferences.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './QuestWindow.html?raw';
 import cssText from './QuestWindow.css?raw';
 
@@ -28,25 +28,23 @@ const _preferences = Preferences.get(
 /**
  * Create Component
  */
-const QuestWindow = new UIComponent('QuestWindow', htmlText, cssText);
+const QuestWindow = new GUIComponent('QuestWindow', cssText);
+
+QuestWindow.render = () => htmlText;
+
+function _getRoot() {
+	return QuestWindow._shadow || QuestWindow._host;
+}
 
 /**
  * Mouse can cross this UI
  */
-QuestWindow.mouseMode = UIComponent.MouseMode.CROSS;
+QuestWindow.mouseMode = GUIComponent.MouseMode.CROSS;
 
 /**
  * Initialize the component (event listener, etc.)
  */
-QuestWindow.init = function init() {
-	// Avoid drag drop problems
-	this.ui.find('.base').mousedown(function (event) {
-		event.stopImmediatePropagation();
-		return false;
-	});
-
-	this.ui.focus();
-};
+QuestWindow.init = function init() {};
 
 /**
  * Once append to the DOM, start to position the UI
@@ -62,7 +60,6 @@ QuestWindow.onAppend = function onAppend() {
  */
 QuestWindow.clean = function clean() {
 	QuestWindow.ui.hide();
-	this.ui.focus();
 };
 
 /**
@@ -71,13 +68,13 @@ QuestWindow.clean = function clean() {
  * @param {Array} quests
  */
 QuestWindow.setQuestList = function setQuestList(quests, questNotShowList) {
-	let $already_show = 0;
+	let already_show = 0;
 	for (const questID in quests) {
 		if (!questNotShowList.includes(quests[questID].questID)) {
 			if (!isInCooldown(quests[questID])) {
-				if (quests[questID].active == 1 && $already_show < 4) {
+				if (quests[questID].active == 1 && already_show < 4) {
 					QuestWindow.addQuestToUI(quests[questID]);
-					$already_show++;
+					already_show++;
 				}
 			}
 		}
@@ -96,34 +93,29 @@ function isInCooldown(quest) {
 }
 
 QuestWindow.ClearQuestList = function ClearQuestList() {
-	QuestWindow.ui.find('.quest-window-ul').html('');
+	const root = _getRoot();
+	const ul = root.querySelector('.quest-window-ul');
+	if (ul) {
+		ul.innerHTML = '';
+	}
 };
 
 QuestWindow.addQuestToUI = function addQuestToUI(quest) {
-	const title = quest.title.length > 25 ? quest.title.substr(0, 25) + '...' : quest.title;
-	const summary = quest.summary.length > 25 ? quest.summary.substr(0, 25) + '...' : quest.summary;
+	const root = _getRoot();
+	const title = quest.title.length > 25 ? `${quest.title.substr(0, 25)}...` : quest.title;
+	const summary = quest.summary.length > 25 ? `${quest.summary.substr(0, 25)}...` : quest.summary;
 	let list = '';
 	for (const huntID in quest.hunt_list) {
 		list +=
-			'<li>' +
-			quest.hunt_list[huntID].mobName +
-			' ( ' +
-			quest.hunt_list[huntID].huntCount +
-			' / ' +
-			quest.hunt_list[huntID].maxCount +
-			' )</li>';
+			`<li>${quest.hunt_list[huntID].mobName} ( ${quest.hunt_list[huntID].huntCount} / ${quest.hunt_list[huntID].maxCount} )</li>`;
 	}
-	QuestWindow.ui
-		.find('.quest-window-ul')
-		.append(
-			'<li class="quest-window-li"> <div class="quest-window-li-title">' +
-				title +
-				'</div> <div class="quest-window-li-summary">' +
-				summary +
-				'</div> <div class="quest-window-li-monster"><ul>' +
-				list +
-				'</ul></div> </li>'
+	const ul = root.querySelector('.quest-window-ul');
+	if (ul) {
+		ul.insertAdjacentHTML(
+			'beforeend',
+			`<li class="quest-window-li"> <div class="quest-window-li-title">${title}</div> <div class="quest-window-li-summary">${summary}</div> <div class="quest-window-li-monster"><ul>${list}</ul></div> </li>`
 		);
+	}
 };
 
 /**
