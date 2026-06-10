@@ -148,11 +148,12 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - Both types coexist in UIManager — `addComponent()` accepts either
 
     > **Migration docs (3-layer memory):**
+    >
     > - **L1 — Primary** [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix). **Start here.**
     > - **L2 — Reflex** [`doc/UIComponent_to_GUIComponent_Firmware.md`](doc/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup. Not for reasoning.
-	> - **L0 — Archive** [`doc/UIComponent_to_GUIComponent_Scars.md`](doc/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component reference. Consult only for edge cases / when L1 is insufficient.
-    > **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
-    > **For Migrated & Remaining components list see:** https://github.com/MrAntares/roBrowserLegacy/issues/1140
+    > - **L0 — Archive** [`doc/UIComponent_to_GUIComponent_Scars.md`](doc/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component reference. Consult only for edge cases / when L1 is insufficient.
+    >   **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
+    >   **For Migrated & Remaining components list see:** https://github.com/MrAntares/roBrowserLegacy/issues/1140
 
 - **Intro.js**: File upload & server selection
 - **WinList.js**: Character selection

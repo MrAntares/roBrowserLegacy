@@ -7,6 +7,7 @@ WARNING
 L0 is not operational memory.
 
 L0 contains:
+
 - scars
 - historical migrations
 - postmortems
