@@ -181,6 +181,9 @@ class GUIComponent {
 		// Mouse intersection handling
 		this._setupMouseMode();
 
+		// Prevent keydown from input elements from reaching global shortcut handlers
+		this._setupInputKeyGuard();
+
 		this._host.remove();
 
 		this.__loaded = true;
@@ -874,6 +877,29 @@ class GUIComponent {
 		}
 		// Shadow DOM cursor events (clickable hover detection)
 		this._setupShadowCursorEvents();
+	}
+
+	// ─── Input key guard ───────────────────────────────────
+
+	/**
+	 * Prevent keydown events from input elements inside the shadow root
+	 * from propagating to window-level game shortcut handlers.
+	 *
+	 * In Light DOM (UIComponent), document.activeElement correctly returns
+	 * the focused input, so ChatBox.onKeyDown can skip shortcuts. In Shadow
+	 * DOM, document.activeElement returns the host element, so global handlers
+	 * don't know an input is focused. This delegation fixes it centrally.
+	 */
+	_setupInputKeyGuard() {
+		const root = this._shadow || this._host;
+		if (!root) return;
+
+		root.addEventListener('keydown', (e) => {
+			const tag = e.target?.tagName;
+			if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+				e.stopPropagation();
+			}
+		});
 	}
 
 	// ─── Scrollbar setup ───────────────────────────────────
