@@ -165,17 +165,35 @@ class UIManager {
 			const el = component.ui ? component.ui[0] : null;
 			if (!el) continue;
 
+			// Skip non-draggable GUIComponents (their CSS position is intentional)
+			if (component._isDraggable !== undefined && !component._isDraggable) {
+				if (component.onResize) {
+					component.onResize();
+				}
+				continue;
+			}
+
 			const rect = el.getBoundingClientRect();
 			const x = rect.left;
 			const y = rect.top;
 			const width = rect.width;
 			const height = rect.height;
 
+			// Overflow bottom
 			if (y + height > HEIGHT) {
 				el.style.top = `${HEIGHT - Math.min(height, HEIGHT)}px`;
 			}
+			// Overflow top
+			if (y < 0) {
+				el.style.top = '0px';
+			}
+			// Overflow right
 			if (x + width > WIDTH) {
 				el.style.left = `${WIDTH - Math.min(width, WIDTH)}px`;
+			}
+			// Overflow left
+			if (x < 0) {
+				el.style.left = '0px';
 			}
 
 			// Magnet
