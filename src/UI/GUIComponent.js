@@ -897,7 +897,13 @@ class GUIComponent {
 		root.addEventListener('keydown', (e) => {
 			const tag = e.target?.tagName;
 			if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
-				e.stopPropagation();
+				// Only block printable character keys (typing) from reaching
+				// global shortcut handlers. Allow special keys (Enter, Escape,
+				// Tab, arrows, F-keys) and modifier combos (Ctrl+C, etc.)
+				// to propagate so component onKeyDown handlers can process them.
+				if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+					e.stopPropagation();
+				}
 			}
 		});
 	}
