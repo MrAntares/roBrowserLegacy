@@ -235,6 +235,12 @@ class GUIComponent {
 		// Fix position overflow
 		this._fixPositionOverflow();
 
+		// Listen for window resize to re-check overflow
+		if (!this._resizeHandler) {
+			this._resizeHandler = () => this._fixPositionOverflow();
+		}
+		window.addEventListener('resize', this._resizeHandler);
+
 		// Focus
 		this.focus();
 	}
@@ -321,6 +327,11 @@ class GUIComponent {
 			if (this.mouseMode === MouseMode.FREEZE) {
 				Mouse.intersect = true;
 				Session.FreezeUI = false;
+			}
+
+			// Resize listener cleanup
+			if (this._resizeHandler) {
+				window.removeEventListener('resize', this._resizeHandler);
 			}
 
 			// Scrollbar observer cleanup
