@@ -94,6 +94,9 @@ function isInCooldown(quest) {
 
 QuestWindow.ClearQuestList = function ClearQuestList() {
 	const root = _getRoot();
+	if (!root) {
+		return;
+	}
 	const ul = root.querySelector('.quest-window-ul');
 	if (ul) {
 		ul.innerHTML = '';
@@ -102,6 +105,9 @@ QuestWindow.ClearQuestList = function ClearQuestList() {
 
 QuestWindow.addQuestToUI = function addQuestToUI(quest) {
 	const root = _getRoot();
+	if (!root) {
+		return;
+	}
 	const title = quest.title.length > 25 ? `${quest.title.substr(0, 25)}...` : quest.title;
 	const summary = quest.summary.length > 25 ? `${quest.summary.substr(0, 25)}...` : quest.summary;
 	let list = '';

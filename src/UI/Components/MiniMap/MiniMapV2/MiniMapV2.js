@@ -435,6 +435,10 @@ const render = (function renderClosure() {
 		let i, count;
 		let dot;
 
+		if (!Session.Entity || !Session.Entity.position || !_ctx) {
+			return;
+		}
+
 		zoom = _zoomFactor[_preferences.zoom];
 		pos = Session.Entity.position;
 		max = Math.max(width, height);

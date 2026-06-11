@@ -234,6 +234,9 @@ function getCurrentMap() {
  * Get the current player position
  */
 function getPlayerPosition() {
+	if (!Session.Entity || !Session.Entity.position) {
+		return { x: 0, y: 0 };
+	}
 	const currentX = Math.ceil(Session.Entity.position[0]);
 	const currentY = Math.ceil(Session.Entity.position[1]);
 
@@ -416,7 +419,7 @@ Navigation.onAppend = function onAppend() {
 	this.clearPath();
 
 	// Start rendering
-	Renderer.render(this.render.bind(this));
+	Renderer.render(this.renderCanvas.bind(this));
 
 	// Initialize pathfinding worker
 	initializePathFindingWorker();
@@ -745,7 +748,7 @@ Navigation.addMarker = function addMarker(x, y, color, label) {
 /**
  * Render the map and markers
  */
-Navigation.render = function render(tick) {
+Navigation.renderCanvas = function renderCanvas(tick) {
 	const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
 	if (hostDisplay === 'none') {
 		return;
@@ -754,6 +757,10 @@ Navigation.render = function render(tick) {
 	const width = 280;
 	const height = 230;
 	const ctx = _ctx;
+
+	if (!ctx) {
+		return;
+	}
 
 	// Check if player position has changed
 	const currentMap = getCurrentMap();

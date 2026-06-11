@@ -173,6 +173,9 @@ QuestHelperV1.onAppend = function onAppend() {
 
 QuestHelperV1.setQuestInfo = function setQuestInfo(quest) {
 	const root = _getRoot();
+	if (!root) {
+		return;
+	}
 	const titleEl = root.querySelector('.title');
 	if (titleEl) {
 		titleEl.innerHTML = processText(quest.title);
@@ -217,6 +220,9 @@ QuestHelperV1.setQuestInfo = function setQuestInfo(quest) {
 
 QuestHelperV1.clearQuestDesc = function clearQuestDesc() {
 	const root = _getRoot();
+	if (!root) {
+		return;
+	}
 	const titleEl = root.querySelector('.title');
 	if (titleEl) {
 		titleEl.innerHTML = '';

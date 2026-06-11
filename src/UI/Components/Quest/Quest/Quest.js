@@ -136,21 +136,23 @@ Quest.clean = function clean() {
 	_active_menu = '';
 	_questList = {};
 	const root = _getRoot();
-	const activeList = root.querySelector('#active-quest-list');
-	if (activeList) {
-		activeList.style.display = '';
-	}
-	const inactiveList = root.querySelector('#inactive-quest-list');
-	if (inactiveList) {
-		inactiveList.style.display = 'none';
-	}
-	const featureList = root.querySelector('#feature-quest-list');
-	if (featureList) {
-		featureList.style.display = 'none';
-	}
-	const cooldownList = root.querySelector('#cooldown-quest-list');
-	if (cooldownList) {
-		cooldownList.style.display = 'none';
+	if (root) {
+		const activeList = root.querySelector('#active-quest-list');
+		if (activeList) {
+			activeList.style.display = '';
+		}
+		const inactiveList = root.querySelector('#inactive-quest-list');
+		if (inactiveList) {
+			inactiveList.style.display = 'none';
+		}
+		const featureList = root.querySelector('#feature-quest-list');
+		if (featureList) {
+			featureList.style.display = 'none';
+		}
+		const cooldownList = root.querySelector('#cooldown-quest-list');
+		if (cooldownList) {
+			cooldownList.style.display = 'none';
+		}
 	}
 	Quest.ClearQuestList();
 	QuestHelper.clearQuestDesc();
@@ -312,6 +314,9 @@ Quest.questExists = function questExists(questID) {
 
 Quest.addQuestToUI = function addQuest(quest) {
 	const root = _getRoot();
+	if (!root) {
+		return;
+	}
 	let ul_id = '';
 	const toggle_id = `qid${quest.questID}`;
 	const show_id = `sid${quest.questID}`;
@@ -547,6 +552,9 @@ function refreshQuestUI() {
 
 Quest.ClearQuestList = function ClearQuestList() {
 	const root = _getRoot();
+	if (!root) {
+		return;
+	}
 	root.querySelectorAll('.quest-list').forEach((el) => {
 		el.innerHTML = '';
 	});
