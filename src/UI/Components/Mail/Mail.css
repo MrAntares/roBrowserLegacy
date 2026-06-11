@@ -1,7 +1,10 @@
+:host {
+	position: absolute;
+}
+
 #Mail {
 	width: 250px;
 	height: 330px;
-	position: absolute;
 }
 
 #Mail .body {

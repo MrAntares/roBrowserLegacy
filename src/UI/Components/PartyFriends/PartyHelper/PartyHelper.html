@@ -1,80 +1,72 @@
 <div id="PartyHelper">
-	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+	<div class="titlebar">
+		<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 		<div class="left">
-			<button
+			<ui-button
 				class="base"
-				data-background="basic_interface/sys_base_off.bmp"
-				data-hover="basic_interface/sys_base_on.bmp"
-			></button>
-			<span class="text setup" data-text="291">Party Setup</span>
-			<span class="text friend-setup" data-text="355">Friend Setup</span>
-			<span class="text create" data-text="2054">Create Party</span>
-			<span class="text invite" data-text="2056">Create Party</span>
+				bg="basic_interface/sys_base_off.bmp"
+				hover="basic_interface/sys_base_on.bmp"
+			></ui-button>
+			<span class="text setup"><ui-text msg="291">Party Setup</ui-text></span>
+			<span class="text friend-setup"><ui-text msg="355">Friend Setup</ui-text></span>
+			<span class="text create"><ui-text msg="2054">Create Party</ui-text></span>
+			<span class="text invite"><ui-text msg="2056">Create Party</ui-text></span>
 		</div>
 		<div class="right">
-			<button
+			<ui-button
 				class="base close"
-				data-background="basic_interface/sys_close_off.bmp"
-				data-hover="basic_interface/sys_close_on.bmp"
-			></button>
+				bg="basic_interface/sys_close_off.bmp"
+				hover="basic_interface/sys_close_on.bmp"
+			></ui-button>
 		</div>
 		<div class="clear"></div>
 	</div>
 	<div class="content party-content">
 		<div class="create invite">
 			<p>
-				<span data-text="2057" class="create">Party Name:</span>
-				<span data-text="2058" class="invite">Player Name:</span>
+				<span class="create"><ui-text msg="2057">Party Name:</ui-text></span>
+				<span class="invite"><ui-text msg="2058">Player Name:</ui-text></span>
 			</p>
 			<input type="text" class="name" value="" />
 		</div>
 		<div class="exp_share setup">
-			<p data-text="292">How to share EXP</p>
-			<button class="on" data-value="0" data-background="radiobtn_on.bmp" data-text="287">Each Take</button>
-			<button class="off" data-value="1" data-background="radiobtn_off.bmp" data-text="288">Even Share</button>
+			<p><ui-text msg="292">How to share EXP</ui-text></p>
+			<button class="on" data-value="0"><ui-image src="radiobtn_on.bmp"></ui-image><ui-text msg="287">Each Take</ui-text></button>
+			<button class="off" data-value="1"><ui-image src="radiobtn_off.bmp"></ui-image><ui-text msg="288">Even Share</ui-text></button>
 		</div>
 		<div class="item_share setup create">
-			<p data-text="293">How to share Items</p>
-			<button class="on" data-value="0" data-background="radiobtn_on.bmp" data-text="289">Each Take</button>
-			<button class="off" data-value="1" data-background="radiobtn_off.bmp" data-text="290">Party Share</button>
+			<p><ui-text msg="293">How to share Items</ui-text></p>
+			<button class="on" data-value="0"><ui-image src="radiobtn_on.bmp"></ui-image><ui-text msg="289">Each Take</ui-text></button>
+			<button class="off" data-value="1"><ui-image src="radiobtn_off.bmp"></ui-image><ui-text msg="290">Party Share</ui-text></button>
 		</div>
 		<div class="item_sharing_type setup create">
-			<p data-text="738">Item Sharing type</p>
-			<button class="on" data-value="0" data-background="radiobtn_on.bmp" data-text="739">Individual</button>
-			<button class="off" data-value="1" data-background="radiobtn_off.bmp" data-text="740">Shared</button>
+			<p><ui-text msg="738">Item Sharing type</ui-text></p>
+			<button class="on" data-value="0"><ui-image src="radiobtn_on.bmp"></ui-image><ui-text msg="739">Individual</ui-text></button>
+			<button class="off" data-value="1"><ui-image src="radiobtn_off.bmp"></ui-image><ui-text msg="740">Shared</ui-text></button>
 		</div>
 	</div>
 	<div class="content friend-content">
 		<div class="friend-setup">
 			<div class="open1to1Stranger setting-row">
-				<button class="on" data-value="1" data-background="checkbox_1.bmp"></button>
-				<button class="off" data-value="0" data-background="checkbox_0.bmp"></button>
-				<span data-text="361">Open 1:1 Chat between Strangers</span>
+				<button class="on" data-value="1"><ui-image src="checkbox_1.bmp"></ui-image></button>
+				<button class="off" data-value="0"><ui-image src="checkbox_0.bmp"></ui-image></button>
+				<span><ui-text msg="361">Open 1:1 Chat between Strangers</ui-text></span>
 			</div>
 			<div class="open1to1Friend setting-row">
-				<button class="on" data-value="1" data-background="checkbox_1.bmp"></button>
-				<button class="off" data-value="0" data-background="checkbox_0.bmp"></button>
-				<span data-text="359">Open 1:1 Chat between Friends</span>
+				<button class="on" data-value="1"><ui-image src="checkbox_1.bmp"></ui-image></button>
+				<button class="off" data-value="0"><ui-image src="checkbox_0.bmp"></ui-image></button>
+				<span><ui-text msg="359">Open 1:1 Chat between Friends</ui-text></span>
 			</div>
 			<div class="alarm1to1 setting-row">
-				<button class="on" data-value="1" data-background="checkbox_1.bmp"></button>
-				<button class="off" data-value="0" data-background="checkbox_0.bmp"></button>
-				<span data-text="362">Alarm when receive a 1:1 Chat</span>
+				<button class="on" data-value="1"><ui-image src="checkbox_1.bmp"></ui-image></button>
+				<button class="off" data-value="0"><ui-image src="checkbox_0.bmp"></ui-image></button>
+				<span><ui-text msg="362">Alarm when receive a 1:1 Chat</ui-text></span>
 			</div>
 		</div>
 	</div>
-	<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
-		<button
-			class="btn ok"
-			data-background="basic_interface/btn_ok.bmp"
-			data-hover="basic_interface/btn_ok_a.bmp"
-			data-press="basic_interface/btn_ok_b.bmp"
-		></button>
-		<button
-			class="btn cancel"
-			data-background="btn_cancel.bmp"
-			data-hover="btn_cancel_a.bmp"
-			data-press="btn_cancel_b.bmp"
-		></button>
+	<div class="footer">
+		<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
+		<ui-button class="btn ok" bg="basic_interface/btn_ok.bmp" hover="basic_interface/btn_ok_a.bmp" down="basic_interface/btn_ok_b.bmp"></ui-button>
+		<ui-button class="btn cancel" bg="btn_cancel.bmp" hover="btn_cancel_a.bmp" down="btn_cancel_b.bmp"></ui-button>
 	</div>
 </div>

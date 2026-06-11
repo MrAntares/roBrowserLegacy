@@ -10,7 +10,6 @@
 
 import DB from 'DB/DBManager.js';
 import Camera from 'Renderer/Camera.js';
-import jQuery from 'Utils/jquery.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import Preferences from 'Core/Preferences.js';
 import MonsterTable from 'DB/Monsters/MonsterTable.js';
@@ -20,7 +19,8 @@ import Session from 'Engine/SessionStorage.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import PartyHelper from '../PartyHelper/PartyHelper.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
@@ -34,7 +34,7 @@ import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTarget
 /**
  * Create Component
  */
-const PartyFriendsV1 = new UIComponent('PartyFriendsV1', htmlText, cssText);
+const PartyFriendsV1 = new GUIComponent('PartyFriendsV1', cssText);
 let _detachedMembers = {}; // Map of AID -> Component
 
 /**
@@ -63,14 +63,11 @@ const _options = {
 
 /**
  * @let {Object} Local cache for restored positions to avoid redundant localStorage reads.
- * Persists for the lifetime of the session.
  */
 let _savedPositions = null;
 
 /**
- * @let {boolean} Set to true by clean() (logout/restart) so onRemove skips saving
- * detached positions — clean() already cleared _detachedMembers to {} so we
- * must not overwrite localStorage with an empty object.
+ * @let {boolean} Set to true by clean() so onRemove skips saving detached positions
  */
 let _skipSaveOnRemove = false;
 
@@ -93,61 +90,136 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return PartyFriendsV1._shadow || PartyFriendsV1._host;
+}
+
+/**
+ * Helper: escape HTML entities
+ */
+function _escapeHTML(str) {
+	const div = document.createElement('div');
+	div.appendChild(document.createTextNode(str));
+	return div.innerHTML;
+}
+
+/**
+ * Render HTML
+ */
+PartyFriendsV1.render = () => htmlText;
+
+/**
  * Initialize the component (event listener, etc.)
  */
 PartyFriendsV1.init = function init() {
+	const root = _root();
+
 	// Start loading the helper
 	PartyHelper.prepare();
 
 	// Avoid drag drop problems
-	this.ui.find('.base').mousedown(function (event) {
-		event.stopImmediatePropagation();
-		return false;
-	});
+	const baseBtn = root.querySelector('.base');
+	if (baseBtn) {
+		baseBtn.addEventListener('mousedown', (event) => {
+			event.stopImmediatePropagation();
+			event.preventDefault();
+		});
+	}
 
 	// Bind buttons
-	this.ui.find('.close').click(onClose);
-	this.ui.find('.lock').mousedown(onToggleLock);
-	this.ui.find('.switchtab.off').mousedown(onChangeTab);
-	this.ui.find('.remove').mousedown(onRequestRemoveSelection);
-	this.ui.find('.privatemessage').mousedown(onRequestPrivateMessage);
-	this.ui.find('.leave').mousedown(onRequestLeaveParty);
-	this.ui.find('.resize').mousedown(onResize);
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) closeBtn.addEventListener('click', onClose);
 
-	this.ui.find('.mail').mousedown(onOpenMailCreationWindow);
-	this.ui.find('.party.create').mousedown(onOpenPartyCreationWindow);
-	this.ui.find('.party.add').mousedown(onOpenPartyInviteWindow);
-	this.ui.find('.info').mousedown(onOpenPartyOptionWindow);
-	this.ui.find('.party.sort').mousedown(sortDetachedMembers);
+	root.querySelectorAll('.lock').forEach((el) => {
+		el.addEventListener('mousedown', onToggleLock);
+	});
 
-	this.ui
-		.find('.content')
-		.on('contextmenu', '.node', onRightClickInfo)
-		.on('mousedown', '.node', onMemberMouseDown)
-		.on('mouseover', '[data-tooltip]', onTooltipShow)
-		.on('mousemove', '[data-tooltip]', onTooltipMove)
-		.on('mouseout', '[data-tooltip]', onTooltipHide);
+	const switchTabOff = root.querySelector('.switchtab.off');
+	if (switchTabOff) switchTabOff.addEventListener('mousedown', onChangeTab);
 
-	this.draggable(this.ui.find('.titlebar'));
+	const removeBtn = root.querySelector('.remove');
+	if (removeBtn) removeBtn.addEventListener('mousedown', onRequestRemoveSelection);
+
+	const pmBtn = root.querySelector('.privatemessage');
+	if (pmBtn) pmBtn.addEventListener('mousedown', onRequestPrivateMessage);
+
+	const leaveBtn = root.querySelector('.leave');
+	if (leaveBtn) leaveBtn.addEventListener('mousedown', onRequestLeaveParty);
+
+	const resizeBtn = root.querySelector('.resize');
+	if (resizeBtn) resizeBtn.addEventListener('mousedown', onResize);
+
+	const mailBtn = root.querySelector('.mail');
+	if (mailBtn) mailBtn.addEventListener('mousedown', onOpenMailCreationWindow);
+
+	const createBtn = root.querySelector('.party.create');
+	if (createBtn) createBtn.addEventListener('mousedown', onOpenPartyCreationWindow);
+
+	const addBtn = root.querySelector('.party.add');
+	if (addBtn) addBtn.addEventListener('mousedown', onOpenPartyInviteWindow);
+
+	const infoBtn = root.querySelector('.info');
+	if (infoBtn) infoBtn.addEventListener('mousedown', onOpenPartyOptionWindow);
+
+	const sortBtn = root.querySelector('.party.sort');
+	if (sortBtn) sortBtn.addEventListener('mousedown', sortDetachedMembers);
+
+	// Delegated events on content
+	const content = root.querySelector('.content');
+	if (content) {
+		content.addEventListener('contextmenu', (event) => {
+			const node = event.target.closest('.node');
+			if (node) {
+				onRightClickInfo.call(node, event);
+			}
+		});
+
+		content.addEventListener('mousedown', (event) => {
+			const node = event.target.closest('.node');
+			if (node) {
+				onMemberMouseDown.call(node, event);
+			}
+		});
+
+		content.addEventListener('mouseover', (event) => {
+			const el = event.target.closest('[data-tooltip]');
+			if (el) onTooltipShow.call(el, event);
+		});
+
+		content.addEventListener('mousemove', (event) => {
+			const el = event.target.closest('[data-tooltip]');
+			if (el) onTooltipMove.call(el, event);
+		});
+
+		content.addEventListener('mouseout', (event) => {
+			const el = event.target.closest('[data-tooltip]');
+			if (el) onTooltipHide.call(el, event);
+		});
+	}
+
+	this.draggable('.titlebar');
 
 	// Save external window position when dragging ends
-	// If another window already exists at the new position, they swap.
 	PartyMemberExternal.onDragEnd = function (movedComponent) {
-		const pos = movedComponent.ui.position();
+		const pos = {
+			left: movedComponent._host.offsetLeft,
+			top: movedComponent._host.offsetTop
+		};
 		const oldPos = movedComponent._lastPos;
 
 		if (oldPos) {
 			for (const aid in _detachedMembers) {
 				const other = _detachedMembers[aid];
-				if (other && other !== movedComponent && other.ui) {
-					const otherPos = other.ui.position();
-					// Check if they are at the same grid anchor (using a small 5px tolerance)
+				if (other && other !== movedComponent && other._host) {
+					const otherPos = {
+						left: other._host.offsetLeft,
+						top: other._host.offsetTop
+					};
 					if (Math.abs(otherPos.left - pos.left) < 5 && Math.abs(otherPos.top - pos.top) < 5) {
-						// Swap: Move the existing window to the newly moved window's old position
-						other.ui.css({
-							left: oldPos.left,
-							top: oldPos.top
-						});
+						other._host.style.left = `${oldPos.left}px`;
+						other._host.style.top = `${oldPos.top}px`;
 						PartyFriendsV1.saveDetachedMembers();
 						return;
 					}
@@ -164,38 +236,38 @@ PartyFriendsV1.init = function init() {
  */
 function onMemberMouseDown(event) {
 	// Only left click blocks event propagation to game world
-	// Right clicks (which=3) are allowed to bubble for camera rotation (matches game client)
 	if (event.which === 1) {
 		event.stopPropagation();
 	} else {
 		return;
 	}
 
-	const node = jQuery(this);
-	const AID = node.data('aid');
+	const node = this;
+	const AID = parseInt(node.dataset.aid, 10);
 
-	// Suppress native drag and text selection
 	event.preventDefault();
 
 	// Selection change immediately on mousedown
-	onSelectionChange.call(this, event);
+	onSelectionChange.call(node, event);
 
-	const player = _party.find(member => member.AID == AID);
+	const player = _party.find((member) => member.AID == AID);
 
 	if (!player) {
 		return;
 	}
 
-	// Handle Skill Targeting (move this BEFORE detached check)
+	// Handle Skill Targeting
 	if (SkillTargetSelection && SkillTargetSelection.__active && !_preferences.friend) {
 		if (player.state === 0) {
 			SkillTargetSelection.intersectEntityId(player.AID);
 		}
 		SkillTargetSelection.remove();
-		return false;
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		return;
 	}
 
-	// Block ONLY dragging if already detached (keep selection and skill targeting working above)
+	// Block ONLY dragging if already detached
 	if (_detachedMembers[AID]) {
 		return;
 	}
@@ -217,10 +289,9 @@ function onMemberMouseDown(event) {
 	let ghostWrapper = null;
 	let ghostInner = null;
 
-	// Clean up any stale handlers
-	jQuery(window).off('.peeloff');
+	const nodeRect = node.getBoundingClientRect();
 
-	jQuery(window).on('mousemove.peeloff', function (moveEvent) {
+	function onMouseMove(moveEvent) {
 		if (!isDragging) {
 			if (Math.abs(moveEvent.pageX - startX) > threshold || Math.abs(moveEvent.pageY - startY) > threshold) {
 				isDragging = true;
@@ -229,47 +300,57 @@ function onMemberMouseDown(event) {
 					ContextMenu.remove();
 				}
 
-				// Create screen-wide drag shield so events DO NOT hit the canvas/game world underneath
-				ghostWrapper = jQuery(
-					'<div class="drag-shield" style="position:fixed; top:0; left:0; right:0; bottom:0; z-index:10000; background:transparent; cursor:grabbing;">' +
-						'<div id="PartyFriends" class="drag-ghost-wrapper" style="position:absolute; pointer-events:none; opacity:0.6; background:none !important; border:none !important; height:auto !important; width:auto !important;">' +
-						'<div class="content" style="background:none !important; height:auto !important; width:auto !important;">' +
-						'<div class="party info-v2"></div></div></div></div>'
-				).appendTo('body');
+				// Create screen-wide drag shield
+				ghostWrapper = document.createElement('div');
+				ghostWrapper.className = 'drag-shield';
+				ghostWrapper.style.cssText =
+					'position:fixed; top:0; left:0; right:0; bottom:0; z-index:10000; background:transparent; cursor:grabbing;';
 
-				ghostInner = ghostWrapper.find('.drag-ghost-wrapper');
+				ghostInner = document.createElement('div');
+				ghostInner.id = 'PartyFriends';
+				ghostInner.className = 'drag-ghost-wrapper';
+				ghostInner.style.cssText =
+					'position:absolute; pointer-events:none; opacity:0.6; background:none !important; border:none !important; height:auto !important; width:auto !important;';
 
-				const ghostContent = node.clone();
-				ghostInner.find('.party').append(ghostContent);
+				const ghostContent = document.createElement('div');
+				ghostContent.className = 'content';
+				ghostContent.style.cssText =
+					'background:none !important; height:auto !important; width:auto !important;';
+
+				const ghostParty = document.createElement('div');
+				ghostParty.className = 'party info-v2';
+
+				const clonedNode = node.cloneNode(true);
+				ghostParty.appendChild(clonedNode);
+				ghostContent.appendChild(ghostParty);
+				ghostInner.appendChild(ghostContent);
+				ghostWrapper.appendChild(ghostInner);
+				document.body.appendChild(ghostWrapper);
 
 				// Canvas content isn't cloned, redraw if possible
-				const srcCanvas = node.find('canvas')[0];
-				const dstCanvas = ghostContent.find('canvas')[0];
+				const srcCanvas = node.querySelector('canvas');
+				const dstCanvas = clonedNode.querySelector('canvas');
 				if (srcCanvas && dstCanvas) {
 					dstCanvas.width = srcCanvas.width;
 					dstCanvas.height = srcCanvas.height;
 					dstCanvas.getContext('2d').drawImage(srcCanvas, 0, 0);
 				}
 
-				ghostInner.css({
-					width: node.outerWidth(),
-					height: node.outerHeight()
-				});
+				ghostInner.style.width = `${node.offsetWidth}px`;
+				ghostInner.style.height = `${node.offsetHeight}px`;
 			}
 		}
 
 		if (isDragging && ghostInner) {
-			ghostInner.css({
-				left: moveEvent.clientX - (startX - node.offset().left),
-				top: moveEvent.clientY - (startY - node.offset().top)
-			});
-			// Prevent selection or native drag while custom dragging
+			ghostInner.style.left = `${moveEvent.clientX - (startX - nodeRect.left)}px`;
+			ghostInner.style.top = `${moveEvent.clientY - (startY - nodeRect.top)}px`;
 			moveEvent.preventDefault();
 		}
-	});
+	}
 
-	jQuery(window).on('mouseup.peeloff', function (upEvent) {
-		jQuery(window).off('mousemove.peeloff mouseup.peeloff');
+	function onMouseUp(upEvent) {
+		window.removeEventListener('mousemove', onMouseMove);
+		window.removeEventListener('mouseup', onMouseUp);
 
 		if (ghostWrapper) {
 			ghostWrapper.remove();
@@ -280,45 +361,46 @@ function onMemberMouseDown(event) {
 		if (isDragging) {
 			upEvent.stopImmediatePropagation();
 
-			const ui = PartyFriendsV1.ui;
-			const offset = ui.offset();
+			const hostEl = PartyFriendsV1._host;
+			const rect = hostEl.getBoundingClientRect();
 			const x = upEvent.pageX;
 			const y = upEvent.pageY;
 
 			// Check if dropped outside (with a small 10px buffer)
 			if (
-				x < offset.left - 10 ||
-				x > offset.left + ui.width() + 10 ||
-				y < offset.top - 10 ||
-				y > offset.top + ui.height() + 10
+				x < rect.left - 10 ||
+				x > rect.left + rect.width + 10 ||
+				y < rect.top - 10 ||
+				y > rect.top + rect.height + 10
 			) {
 				detachMember(AID, player, x, y);
 				PartyFriendsV1.saveDetachedMembers();
 			}
 		}
-	});
+	}
+
+	window.addEventListener('mousemove', onMouseMove);
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 /**
  * Find the next available slot for a detached member window.
- * Starts from left: 0, top: 100 and stacks vertically.
  */
 function getNextAvailableSlot() {
 	const startX = 0;
 	const startY = 100;
-	const stepY = 38 + 10; // external window height (38px) + gap (10px)
+	const stepY = 38 + 10;
 	let currentY = startY;
 
-	// Simple search: check if any detached member is overlapping with the candidate Y coordinate at X=0
 	let found = true;
 	while (found) {
 		found = false;
 		for (const aid in _detachedMembers) {
 			const ext = _detachedMembers[aid];
-			if (ext && ext.ui) {
-				const pos = ext.ui.position();
-				// If there's an existing window at this exact X and Y, move to the next slot
-				if (Math.abs(pos.left - startX) < 5 && Math.abs(pos.top - currentY) < 5) {
+			if (ext && ext._host) {
+				const posLeft = ext._host.offsetLeft;
+				const posTop = ext._host.offsetTop;
+				if (Math.abs(posLeft - startX) < 5 && Math.abs(posTop - currentY) < 5) {
 					currentY += stepY;
 					found = true;
 					break;
@@ -331,8 +413,7 @@ function getNextAvailableSlot() {
 }
 
 /**
- * Position all detached members into a neat vertical stack starting at (0, 100)
- * ordered by the current party list.
+ * Position all detached members into a neat vertical stack
  */
 function sortDetachedMembers() {
 	const startX = 0;
@@ -340,16 +421,13 @@ function sortDetachedMembers() {
 	const stepY = 38 + 10;
 	let currentY = startY;
 
-	// Iterate through the party list to maintain their order
 	for (let i = 0, count = _party.length; i < count; i++) {
 		const player = _party[i];
 		const external = _detachedMembers[player.AID];
 
-		if (external && external.ui) {
-			external.ui.css({
-				left: startX,
-				top: currentY
-			});
+		if (external && external._host) {
+			external._host.style.left = `${startX}px`;
+			external._host.style.top = `${currentY}px`;
 			currentY += stepY;
 		}
 	}
@@ -365,15 +443,16 @@ function detachMember(AID, player, x, y, restorePos) {
 		return;
 	}
 
-	const external = PartyMemberExternal.clone('PartyMemberExternal_' + AID, true);
-	external.name = 'PartyMemberExternal_' + AID; // Fix clone name overwrite
+	const external = PartyMemberExternal.clone(`PartyMemberExternal_${AID}`, true);
+	external.name = `PartyMemberExternal_${AID}`;
 	UIManager.addComponent(external);
 
 	// Cleanup external window and refresh party list
 	external.onRemove = function () {
 		delete _detachedMembers[AID];
 		delete UIManager.components[external.name];
-		jQuery('#ro-tooltip-party').removeClass('show');
+		const tooltip = document.getElementById('ro-tooltip-party');
+		if (tooltip) tooltip.style.display = 'none';
 		PartyFriendsV1.refreshPartyList();
 
 		if (external._closedByUser) {
@@ -391,16 +470,13 @@ function detachMember(AID, player, x, y, restorePos) {
 		initX = restorePos.x;
 		initY = restorePos.y;
 	} else {
-		// All initial detaches (dragging out or menu) snap to the next available slot in the stack
 		const slot = getNextAvailableSlot();
 		initX = slot.x;
 		initY = slot.y;
 	}
 
-	external.ui.css({
-		left: initX,
-		top: initY
-	});
+	external._host.style.left = `${initX}px`;
+	external._host.style.top = `${initY}px`;
 
 	_detachedMembers[AID] = external;
 	PartyFriendsV1.refreshPartyList();
@@ -410,52 +486,57 @@ function detachMember(AID, player, x, y, restorePos) {
  * Refresh the party list rendering
  */
 PartyFriendsV1.refreshPartyList = function refreshPartyList() {
-	const ui = this.ui.find('.content .party');
-	ui.empty();
+	const root = _root();
+	const partyContent = root.querySelector('.content .party');
+	if (partyContent) partyContent.innerHTML = '';
 
 	for (let i = 0; i < _party.length; i++) {
 		this.renderPartyMember(_party[i]);
 	}
 
-	this.ui.find('.count-box .inner-count').text(_party.length + '/12');
+	const innerCount = root.querySelector('.count-box .inner-count');
+	if (innerCount) innerCount.textContent = `${_party.length}/12`;
 };
 
 /**
  * Once append to the DOM, start to position the UI
  */
 PartyFriendsV1.onAppend = function onAppend() {
+	const root = _root();
+
 	// Initialize the tab
 	_preferences.friend = !_preferences.friend;
 	onChangeTab();
 
 	// Lock features
+	const lockOn = root.querySelector('.lock.on');
+	const lockOff = root.querySelector('.lock.off');
 	if (_preferences.lock) {
-		this.ui.find('.lock.on').show();
-		this.ui.find('.lock.off').hide();
+		if (lockOn) lockOn.style.display = 'inline-block';
+		if (lockOff) lockOff.style.display = 'none';
 	} else {
-		this.ui.find('.lock.on').hide();
-		this.ui.find('.lock.off').show();
+		if (lockOn) lockOn.style.display = 'none';
+		if (lockOff) lockOff.style.display = 'inline-block';
 	}
 
 	this.resize(_preferences.width, _preferences.height);
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	const hostHeight = this._host.offsetHeight || 0;
+	const hostWidth = this._host.offsetWidth || 0;
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostWidth)}px`;
 
 	// Load footer background
 	Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/bg_partymember.bmp', function (url) {
-		PartyFriendsV1.ui.find('.count-box').css({
-			backgroundImage: 'url(' + url + ')'
-		});
+		const countBox = root.querySelector('.count-box');
+		if (countBox) countBox.style.backgroundImage = `url(${url})`;
 	});
 
 	if (!_preferences.show) {
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
 
-	// Restore detached members for same-map teleports (no ZC_GROUP_LIST sent)
+	// Restore detached members for same-map teleports
 	for (let i = 0; i < _party.length; i++) {
 		restoreDetachedMember(_party[i]);
 	}
@@ -465,10 +546,11 @@ PartyFriendsV1.onAppend = function onAppend() {
  * Clean up UI
  */
 PartyFriendsV1.clean = function clean() {
+	const root = _root();
+
 	_party.length = 0;
 	_friends.length = 0;
 
-	// Remove detached windows; skip overwriting positions on logout
 	_skipSaveOnRemove = true;
 	for (const aid in _detachedMembers) {
 		if (_detachedMembers[aid]) {
@@ -482,11 +564,20 @@ PartyFriendsV1.clean = function clean() {
 	_options.item_share = 0;
 	_options.item_sharing_type = 0;
 
-	this.ui.find('.partyname').text('');
-	this.ui.find('.friendcount').text('0');
-	this.ui.find('.content .party, .content .friend').empty();
+	const partyName = root.querySelector('.partyname');
+	if (partyName) partyName.textContent = '';
 
-	this.ui.find('.count-box .inner-count').text('0/12');
+	const friendCount = root.querySelector('.friendcount');
+	if (friendCount) friendCount.textContent = '0';
+
+	const partyContent = root.querySelector('.content .party');
+	if (partyContent) partyContent.innerHTML = '';
+
+	const friendContent = root.querySelector('.content .friend');
+	if (friendContent) friendContent.innerHTML = '';
+
+	const innerCount = root.querySelector('.count-box .inner-count');
+	if (innerCount) innerCount.textContent = '0/12';
 
 	// Reset buttons
 	_preferences.friend = !_preferences.friend;
@@ -495,57 +586,55 @@ PartyFriendsV1.clean = function clean() {
 
 /**
  * Removing the UI from window, save preferences
- *
  */
 PartyFriendsV1.onRemove = function onRemove() {
-	// Save preferences
-	_preferences.show = this.ui.is(':visible');
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.show = this._host.style.display !== 'none';
+	_preferences.y = parseInt(this._host.style.top, 10) || 0;
+	_preferences.x = parseInt(this._host.style.left, 10) || 0;
 	_preferences.save();
 
-	// Save detached window positions on map transition (skip on logout)
 	if (!_skipSaveOnRemove && Object.keys(_detachedMembers).length > 0) {
 		this.saveDetachedMembers();
 	}
 	_skipSaveOnRemove = false;
 
-	// Invalidate position cache
 	_savedPositions = null;
 
-	// Force hide any wandering tooltips
-	jQuery('#ro-tooltip-party').removeClass('show');
+	const tooltip = document.getElementById('ro-tooltip-party');
+	if (tooltip) tooltip.style.display = 'none';
 };
 
 /**
  * Window Shortcuts
  */
-PartyFriendsV1.onShortCut = function onShurtCut(key) {
+PartyFriendsV1.onShortCut = function onShortCut(key) {
+	const isVisible = this._host.style.display !== 'none';
+
 	switch (key.cmd) {
 		case 'FRIEND':
 			if (_preferences.friend) {
-				this.ui.toggle();
+				this._host.style.display = isVisible ? 'none' : 'block';
 			} else {
 				_preferences.friend = false;
 				onChangeTab();
-				this.ui.show();
+				this._host.style.display = 'block';
 			}
 
-			if (this.ui.is(':visible')) {
+			if (this._host.style.display !== 'none') {
 				this.focus();
 			}
 			break;
 
 		case 'PARTY':
 			if (!_preferences.friend) {
-				this.ui.toggle();
+				this._host.style.display = isVisible ? 'none' : 'block';
 			} else {
 				_preferences.friend = true;
 				onChangeTab();
-				this.ui.show();
+				this._host.style.display = 'block';
 			}
 
-			if (this.ui.is(':visible')) {
+			if (this._host.style.display !== 'none') {
 				this.focus();
 			}
 			break;
@@ -556,17 +645,17 @@ PartyFriendsV1.onShortCut = function onShurtCut(key) {
  * Show/Hide UI
  */
 PartyFriendsV1.toggle = function toggle() {
-	this.ui.toggle();
+	const isVisible = this._host.style.display !== 'none';
+	this._host.style.display = isVisible ? 'none' : 'block';
 	PartyHelper.remove();
 
-	if (this.ui.is(':visible')) {
+	if (this._host.style.display !== 'none') {
 		this.focus();
 	}
 };
 
 PartyFriendsV1.onKeyDown = function onKeyDown(event) {
-	// Event.which is deprecated
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this.toggle();
 	}
 };
@@ -577,42 +666,42 @@ PartyFriendsV1.onKeyDown = function onKeyDown(event) {
  * @param {Array} friends list
  */
 PartyFriendsV1.setFriends = function setFriends(friends) {
+	const root = _root();
 	const count = friends.length;
-	const ui = this.ui.find('.content .friend');
+	const friendContent = root.querySelector('.content .friend');
 
 	_friends.length = friends.length;
-	ui.empty();
+	if (friendContent) friendContent.innerHTML = '';
 
 	for (let i = 0; i < count; i++) {
 		_friends[i] = friends[i];
-		ui.append(
-			'<div class="node' +
-				(friends[i].State === 0 ? ' online' : '') +
-				'">' +
-				'<span class="name">' +
-				jQuery.escape(friends[i].Name) +
-				'</span>' +
-				'</div>'
-		);
+		if (friendContent) {
+			friendContent.insertAdjacentHTML(
+				'beforeend',
+				`<div class="node${friends[i].State === 0 ? ' online' : ''}">` +
+					`<span class="name">${_escapeHTML(friends[i].Name)}</span>` +
+					`</div>`
+			);
+		}
 	}
 
-	this.ui.find('.friendcount').text(count);
+	const friendCountEl = root.querySelector('.friendcount');
+	if (friendCountEl) friendCountEl.textContent = String(count);
 	_index = -1;
 };
 
 /**
  * Update friend (online/offline) state
- *
- * @param {number} index
- * @param {boolean} state
  */
 PartyFriendsV1.updateFriendState = function updateFriendState(index, state) {
-	const node = this.ui.find('.content .friend .node:eq(' + index + ')');
+	const root = _root();
+	const nodes = root.querySelectorAll('.content .friend .node');
+	const node = nodes[index];
 
 	_friends[index].State = state;
 
 	if (state) {
-		node.css('backgroundImage', '');
+		if (node) node.style.backgroundImage = '';
 		ChatBox.addText(
 			DB.getMessage(1042).replace('%s', _friends[index].Name),
 			ChatBox.TYPE.BLUE,
@@ -627,24 +716,29 @@ PartyFriendsV1.updateFriendState = function updateFriendState(index, state) {
 		ChatBox.FILTER.PUBLIC_LOG
 	);
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (url) {
-		node.css('backgroundImage', 'url(' + url + ')');
+		if (node) node.style.backgroundImage = `url(${url})`;
 	});
 };
 
 /**
  * Update/Add a friend to the list
- *
- * @param {number} index
- * @param {object} friend data
  */
 PartyFriendsV1.updateFriend = function updateFriend(idx, friend) {
-	// Add it
+	const root = _root();
+	const friendContent = root.querySelector('.content .friend');
+
 	if (!_friends[idx]) {
 		_friends[idx] = {};
 
-		this.ui.find('.content .friend').append('<div class="node">' + '<span class="name"></span>' + '</div>');
+		if (friendContent) {
+			friendContent.insertAdjacentHTML(
+				'beforeend',
+				'<div class="node"><span class="name"></span></div>'
+			);
+		}
 
-		this.ui.find('.friendcount').text(_friends.length);
+		const friendCountEl = root.querySelector('.friendcount');
+		if (friendCountEl) friendCountEl.textContent = String(_friends.length);
 	}
 
 	_friends[idx].Name = friend.Name;
@@ -652,23 +746,30 @@ PartyFriendsV1.updateFriend = function updateFriend(idx, friend) {
 	_friends[idx].AID = friend.AID;
 	_friends[idx].State = friend.State || 0;
 
-	const node = this.ui.find('.content .friend .node:eq(' + idx + ')');
-	node.find('.name').text(friend.Name);
+	const nodes = root.querySelectorAll('.content .friend .node');
+	const node = nodes[idx];
+	if (node) {
+		const nameEl = node.querySelector('.name');
+		if (nameEl) nameEl.textContent = friend.Name;
+	}
 
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (url) {
-		node.css('backgroundImage', 'url(' + url + ')');
+		if (node) node.style.backgroundImage = `url(${url})`;
 	});
 };
 
 /**
  * Remove friend from list
- *
- * @param {number} index
  */
 PartyFriendsV1.removeFriend = function removeFriend(index) {
+	const root = _root();
 	_friends.splice(index, 1);
-	this.ui.find('.content .friend .node:eq(' + index + ')').remove();
-	this.ui.find('.friendcount').text(_friends.length);
+
+	const nodes = root.querySelectorAll('.content .friend .node');
+	if (nodes[index]) nodes[index].remove();
+
+	const friendCountEl = root.querySelector('.friendcount');
+	if (friendCountEl) friendCountEl.textContent = String(_friends.length);
 
 	if (_index === index) {
 		_index = -1;
@@ -677,16 +778,22 @@ PartyFriendsV1.removeFriend = function removeFriend(index) {
 
 /**
  * Add members to party
- *
- * @param {string} party name
- * @param {Array} member list
  */
 PartyFriendsV1.setParty = function setParty(name, members) {
-	this.ui.find('.partyname').text('(' + name + ')');
+	const root = _root();
+
+	const partyName = root.querySelector('.partyname');
+	if (partyName) partyName.textContent = `(${name})`;
 	Session.isPartyLeader = false;
 
-	this.ui.find('.party.create').hide();
-	this.ui.find('.party.leave, .party.sort').show();
+	const createBtn = root.querySelector('.party.create');
+	if (createBtn) createBtn.style.display = 'none';
+
+	const leaveBtn = root.querySelector('.party.leave');
+	if (leaveBtn) leaveBtn.style.display = '';
+
+	const sortBtn = root.querySelector('.party.sort');
+	if (sortBtn) sortBtn.style.display = '';
 
 	const count = members.length;
 	const newAIDs = {};
@@ -702,13 +809,15 @@ PartyFriendsV1.setParty = function setParty(name, members) {
 		for (let i = 0; i < _party.length; i++) {
 			if (!newAIDs[_party[i].AID]) {
 				const removed = _party.splice(i, 1)[0];
-				this.ui.find('.content .party .node[data-aid="' + removed.AID + '"]').remove();
+				const nodeEl = root.querySelector(`.content .party .node[data-aid="${removed.AID}"]`);
+				if (nodeEl) nodeEl.remove();
 				i--;
 			}
 		}
 	}
 
-	this.ui.find('.count-box .inner-count').text(_party.length + '/12');
+	const innerCount = root.querySelector('.count-box .inner-count');
+	if (innerCount) innerCount.textContent = `${_party.length}/12`;
 
 	// Garbage Collection: Remove windows for members who left the party
 	let removedCount = 0;
@@ -729,13 +838,12 @@ PartyFriendsV1.setParty = function setParty(name, members) {
 		}
 	}
 	if (removedCount > 0) {
-		console.log('[PartyFriendsV1] Cleaned up ' + removedCount + ' orphaned detached windows');
+		console.log(`[PartyFriendsV1] Cleaned up ${removedCount} orphaned detached windows`);
 	}
 };
 
 /**
  * Helper to restore a detached member from saved layout.
- * @param {object} player
  */
 function restoreDetachedMember(player) {
 	if (_detachedMembers[player.AID]) {
@@ -747,7 +855,7 @@ function restoreDetachedMember(player) {
 	}
 
 	if (_savedPositions === null) {
-		const key = 'PartyFriends_' + Session.Character.name + '_Detached';
+		const key = `PartyFriends_${Session.Character.name}_Detached`;
 		const savedStr = localStorage.getItem(key);
 		_savedPositions = {};
 		try {
@@ -767,7 +875,7 @@ function restoreDetachedMember(player) {
 
 /**
  * Helper to update the HP bar on a canvas
- * @param {jQuery} node
+ * @param {Element} node
  * @param {number} hp
  * @param {number} maxhp
  */
@@ -776,10 +884,14 @@ function updateCanvasLife(node, hp, maxhp) {
 	const lifeRatio = hasLife ? hp / maxhp : 0;
 	const barVisibility = hasLife ? 'visible' : 'hidden';
 
-	node.find('.hp-bar-container, .hp').css('visibility', barVisibility);
+	const hpBarContainer = node.querySelector('.hp-bar-container');
+	if (hpBarContainer) hpBarContainer.style.visibility = barVisibility;
+
+	const hpEl = node.querySelector('.hp');
+	if (hpEl) hpEl.style.visibility = barVisibility;
 
 	if (hasLife) {
-		const canvas = node.find('canvas').get(0);
+		const canvas = node.querySelector('canvas');
 		if (canvas) {
 			const ctx = canvas.getContext('2d');
 			const width = Math.floor(lifeRatio * 75);
@@ -789,18 +901,17 @@ function updateCanvasLife(node, hp, maxhp) {
 			ctx.fillStyle = lifeRatio <= 0.25 ? '#ef1010' : '#32cd32';
 			ctx.fillRect(0, 0, width, 5);
 		}
-		node.find('.hp').text(hp + '/' + maxhp);
+		if (hpEl) hpEl.textContent = `${hp}/${maxhp}`;
 	} else {
-		node.find('.hp').text('');
+		if (hpEl) hpEl.textContent = '';
 	}
 }
 
 /**
  * Add a new party member to the list
- *
- * @param {object} player information
  */
 PartyFriendsV1.addPartyMember = function addPartyMember(player) {
+	const root = _root();
 	const role = player.role || 0;
 	const count = _party.length;
 	let i;
@@ -808,10 +919,9 @@ PartyFriendsV1.addPartyMember = function addPartyMember(player) {
 	// Check if we are the leader
 	if (player.AID === Session.AID) {
 		Session.isPartyLeader = role === 0;
-		if (Session.isPartyLeader) {
-			this.ui.find('.party.add').show();
-		} else {
-			this.ui.find('.party.add').hide();
+		const addBtn = root.querySelector('.party.add');
+		if (addBtn) {
+			addBtn.style.display = Session.isPartyLeader ? '' : 'none';
 		}
 	}
 
@@ -837,10 +947,10 @@ PartyFriendsV1.addPartyMember = function addPartyMember(player) {
 			hasChanged = true;
 		}
 
-		_party[i] = jQuery.extend(_party[i], player);
+		Object.assign(_party[i], player);
 		player = _party[i];
 	} else {
-		player = jQuery.extend({}, player);
+		player = Object.assign({}, player);
 		_party.push(player);
 		hasChanged = true;
 	}
@@ -849,8 +959,8 @@ PartyFriendsV1.addPartyMember = function addPartyMember(player) {
 		return;
 	}
 
-	// Update member count
-	this.ui.find('.count-box .inner-count').text(_party.length + '/12');
+	const innerCount = root.querySelector('.count-box .inner-count');
+	if (innerCount) innerCount.textContent = `${_party.length}/12`;
 
 	// Handle detached state
 	if (_detachedMembers[player.AID]) {
@@ -864,9 +974,9 @@ PartyFriendsV1.addPartyMember = function addPartyMember(player) {
 
 /**
  * Render a party member into the UI
- * @param {object} player
  */
 PartyFriendsV1.renderPartyMember = function renderPartyMember(player) {
+	const root = _root();
 	const role = player.role || player.Role || 0;
 	const job = player.class_ || player.job || player.Job || 0;
 	const level = player.baseLevel || player.level || player.Level || 0;
@@ -877,112 +987,93 @@ PartyFriendsV1.renderPartyMember = function renderPartyMember(player) {
 	const jobName = MonsterTable[job] || 'Unknown';
 	const mapDisplay = DB.getMapName(player.mapName);
 
-	// Get color from MiniMap
 	const color = MiniMap && MiniMap.getMemberColor ? MiniMap.getMemberColor(player.AID) : 'white';
 	player.color = color;
 
-	const nameTooltip = player.characterName + ' (' + mapDisplay + ')';
+	const nameTooltip = `${player.characterName} (${mapDisplay})`;
 
 	const hasLife = !!(player.life && player.life.display);
-	// Use visibility (not display) so bar always occupies space, keeping status icon in a fixed position
 	const barVisibility = hasLife ? 'visible' : 'hidden';
 
 	const memberColor = isOnline ? player.color || '#333' : '#848ca5';
 
 	const html =
-		'<div class="node' +
-		(role === 0 ? ' leader' : '') +
-		(isOnline ? ' online' : '') +
-		(isDetached ? ' detached' : '') +
-		'" style="background-color: ' +
-		(isDetached ? '#deefff' : 'white') +
-		';" data-aid="' +
-		player.AID +
-		'" data-tooltip="' +
-		(isOnline ? jQuery.escape(nameTooltip) : '') +
-		'">' +
-		'<div class="job-icon-container" data-tooltip="' +
-		jQuery.escape(jobName) +
-		'">' +
-		'<div class="job-icon"></div>' +
-		'<div class="crown"></div>' +
-		'</div>' +
-		'<div class="info-container">' +
-		'<div class="row1">' +
-		'<span class="level">Lv. ' +
-		level +
-		'</span>' +
-		'<span class="name" style="color: ' +
-		memberColor +
-		';">' +
-		jQuery.escape(player.characterName) +
-		'</span>' +
-		'<span class="map" style="color: ' +
-		memberColor +
-		';">(' +
-		jQuery.escape(mapDisplay) +
-		')</span>' +
-		'</div>' +
-		'<div class="row2">' +
-		'<div class="hp-bar-container" style="visibility:' +
-		barVisibility +
-		'">' +
-		'<canvas class="life" width="75" height="5"></canvas>' +
-		'</div>' +
-		'<span class="hp" style="visibility:' +
-		barVisibility +
-		'"></span>' +
-		'<div class="status-icon"></div>' +
-		'</div>' +
-		'</div>' +
-		'</div>';
+		`<div class="node${role === 0 ? ' leader' : ''}${isOnline ? ' online' : ''}${isDetached ? ' detached' : ''}"` +
+		` style="background-color: ${isDetached ? '#deefff' : 'white'};"` +
+		` data-aid="${player.AID}"` +
+		` data-tooltip="${isOnline ? _escapeHTML(nameTooltip) : ''}"` +
+		`>` +
+		`<div class="job-icon-container" data-tooltip="${_escapeHTML(jobName)}">` +
+		`<div class="job-icon"></div>` +
+		`<div class="crown"></div>` +
+		`</div>` +
+		`<div class="info-container">` +
+		`<div class="row1">` +
+		`<span class="level">Lv. ${level}</span>` +
+		`<span class="name" style="color: ${memberColor};">${_escapeHTML(player.characterName)}</span>` +
+		`<span class="map" style="color: ${memberColor};">(${_escapeHTML(mapDisplay)})</span>` +
+		`</div>` +
+		`<div class="row2">` +
+		`<div class="hp-bar-container" style="visibility:${barVisibility}">` +
+		`<canvas class="life" width="75" height="5"></canvas>` +
+		`</div>` +
+		`<span class="hp" style="visibility:${barVisibility}"></span>` +
+		`<div class="status-icon"></div>` +
+		`</div>` +
+		`</div>` +
+		`</div>`;
 
-	let node = this.ui.find('.content .party .node[data-aid="' + player.AID + '"]');
-	if (node.length) {
-		node.replaceWith(html);
-		node = this.ui.find('.content .party .node[data-aid="' + player.AID + '"]');
+	let node = root.querySelector(`.content .party .node[data-aid="${player.AID}"]`);
+	if (node) {
+		node.outerHTML = html;
+		node = root.querySelector(`.content .party .node[data-aid="${player.AID}"]`);
 	} else {
-		this.ui.find('.content .party').append(html);
-		node = this.ui.find('.content .party .node:last');
+		const partyContent = root.querySelector('.content .party');
+		if (partyContent) {
+			partyContent.insertAdjacentHTML('beforeend', html);
+			node = root.querySelector(`.content .party .node[data-aid="${player.AID}"]`);
+		}
 	}
+
+	if (!node) return;
 
 	// Load Job Icon
 	Client.loadFile(
-		DB.INTERFACE_PATH + 'renewalparty/icon_jobs_' + job + (isDead ? '_die' : '') + '.bmp',
+		`${DB.INTERFACE_PATH}renewalparty/icon_jobs_${job}${isDead ? '_die' : ''}.bmp`,
 		function (url) {
-			node.find('.job-icon').css('backgroundImage', 'url(' + url + ')');
+			const jobIcon = node.querySelector('.job-icon');
+			if (jobIcon) jobIcon.style.backgroundImage = `url(${url})`;
 		}
 	);
 
 	// Load Crown
 	if (role === 0) {
 		Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/ico_partycrown.bmp', function (url) {
-			node.find('.crown').css('backgroundImage', 'url(' + url + ')');
+			const crown = node.querySelector('.crown');
+			if (crown) crown.style.backgroundImage = `url(${url})`;
 		});
 	}
 
 	// Load Status Icon
-	const statusFile = 'icon_party_' + (player.AID == Session.AID ? 'me.bmp' : isOnline ? 'on.bmp' : 'off.bmp');
+	const statusFile = `icon_party_${player.AID == Session.AID ? 'me.bmp' : isOnline ? 'on.bmp' : 'off.bmp'}`;
 	Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/' + statusFile, function (url) {
-		node.find('.status-icon').css('backgroundImage', 'url(' + url + ')');
+		const statusIcon = node.querySelector('.status-icon');
+		if (statusIcon) statusIcon.style.backgroundImage = `url(${url})`;
 	});
 
-	// Draw HP bar if life data is available
+	// Draw HP bar
 	updateCanvasLife(node, hasLife ? player.life.hp : undefined, hasLife ? player.life.hp_max : undefined);
 };
 
 /**
  * Remove a character from list
- *
- * @param {number} account id
- * @param {string} character name
  */
 PartyFriendsV1.removePartyMember = function removePartyMember(AID, characterName) {
+	const root = _root();
+
 	if (AID === Session.AID) {
-		// Remove all detached external windows
 		for (const aid in _detachedMembers) {
 			if (_detachedMembers[aid]) {
-				// Prevent onRemove from clearing preferences during global cleanup
 				_detachedMembers[aid].onRemove = function () {
 					delete UIManager.components[this.name];
 				};
@@ -993,10 +1084,20 @@ PartyFriendsV1.removePartyMember = function removePartyMember(AID, characterName
 
 		_party.length = 0;
 
-		this.ui.find('.content .party').empty();
-		this.ui.find('.partyname').text('');
-		this.ui.find('.party.create').show();
-		this.ui.find('.party.leave, .party.add').hide();
+		const partyContent = root.querySelector('.content .party');
+		if (partyContent) partyContent.innerHTML = '';
+
+		const partyNameEl = root.querySelector('.partyname');
+		if (partyNameEl) partyNameEl.textContent = '';
+
+		const createBtn = root.querySelector('.party.create');
+		if (createBtn) createBtn.style.display = '';
+
+		const leaveBtn = root.querySelector('.party.leave');
+		if (leaveBtn) leaveBtn.style.display = 'none';
+
+		const addBtn = root.querySelector('.party.add');
+		if (addBtn) addBtn.style.display = 'none';
 
 		ChatBox.addText(DB.getMessage(84), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
 		return;
@@ -1005,17 +1106,16 @@ PartyFriendsV1.removePartyMember = function removePartyMember(AID, characterName
 	const count = _party.length;
 
 	for (let i = 0; i < count; ++i) {
-		// Why Gravity doesn't send the GID ? Meaning we can't have the same
-		// character name twice (even in the same account).
 		if (_party[i].AID === AID && _party[i].characterName === characterName) {
 			_party.splice(i, 1);
-			this.ui.find('.content .party .node:eq(' + i + ')').remove();
-			this.ui.find('.count-box .inner-count').text(_party.length + '/12');
+			const nodes = root.querySelectorAll('.content .party .node');
+			if (nodes[i]) nodes[i].remove();
 
-			// Clean up detached external window if present
+			const innerCount = root.querySelector('.count-box .inner-count');
+			if (innerCount) innerCount.textContent = `${_party.length}/12`;
+
 			if (_detachedMembers[AID]) {
 				_detachedMembers[AID].remove();
-				// onRemove hook will handle delete + saveDetachedMembers
 			}
 
 			break;
@@ -1024,12 +1124,10 @@ PartyFriendsV1.removePartyMember = function removePartyMember(AID, characterName
 };
 
 /**
- * Extend inventory window size
- *
- * @param {number} width
- * @param {number} height
+ * Extend window size
  */
 PartyFriendsV1.resize = function resize(width, height) {
+	const root = _root();
 	width = Math.min(Math.max(width, 12), 13);
 	height = Math.min(Math.max(height, 6), 12);
 
@@ -1037,17 +1135,15 @@ PartyFriendsV1.resize = function resize(width, height) {
 	_preferences.height = height;
 	_preferences.save();
 
-	this.ui.find('.content').css({
-		width: width * 20,
-		height: height * 20
-	});
+	const content = root.querySelector('.content');
+	if (content) {
+		content.style.width = `${width * 20}px`;
+		content.style.height = `${height * 20}px`;
+	}
 };
 
 /**
- * Update player dead/alive state (separate from online/offline)
- *
- * @param {number} AID - account id
- * @param {boolean} isDead - true if the member has died
+ * Update player dead/alive state
  */
 PartyFriendsV1.updateMemberDead = function updateMemberDead(AID, isDead) {
 	const count = _party.length;
@@ -1062,7 +1158,6 @@ PartyFriendsV1.updateMemberDead = function updateMemberDead(AID, isDead) {
 		}
 	}
 
-	// Sync to detached external window if present
 	if (player && _detachedMembers[AID]) {
 		_detachedMembers[AID].setMember(AID, player);
 	}
@@ -1070,16 +1165,11 @@ PartyFriendsV1.updateMemberDead = function updateMemberDead(AID, isDead) {
 
 /**
  * Update player life in interface
- *
- * @param {number} account id
- * @param {canvas} canvas life element
- * @param {number} hp
- * @param {number} maxhp
  */
 PartyFriendsV1.updateMemberLife = function updateMemberLife(AID, canvas, hp, maxhp) {
+	const root = _root();
 	const count = _party.length;
 
-	// Update internal list
 	for (let i = 0; i < count; ++i) {
 		if (_party[i].AID === AID) {
 			if (!_party[i].life) {
@@ -1089,7 +1179,6 @@ PartyFriendsV1.updateMemberLife = function updateMemberLife(AID, canvas, hp, max
 			_party[i].life.hp_max = maxhp;
 			_party[i].life.display = true;
 
-			// Handle death state fallback (uses isDead, not state, to avoid overwriting online/offline)
 			if (hp === 0 && !_party[i].isDead) {
 				_party[i].isDead = true;
 				this.renderPartyMember(_party[i]);
@@ -1101,24 +1190,18 @@ PartyFriendsV1.updateMemberLife = function updateMemberLife(AID, canvas, hp, max
 		}
 	}
 
-	// Update external window
 	if (_detachedMembers[AID]) {
 		_detachedMembers[AID].updateMemberLife(hp, maxhp);
 	}
 
-	// Update main UI node if it exists
-	const node = this.ui.find('.content .party .node[data-aid="' + AID + '"]');
-	if (node.length) {
+	const node = root.querySelector(`.content .party .node[data-aid="${AID}"]`);
+	if (node) {
 		updateCanvasLife(node, hp, maxhp);
 	}
 };
 
 /**
  * Update party options
- *
- * @param {boolean} exp share option
- * @param {boolean} item share option
- * @param {boolean} item sharing option
  */
 PartyFriendsV1.setOptions = function setOptions(exp_share, item_share, item_sharing_type) {
 	if (exp_share !== undefined) {
@@ -1134,18 +1217,14 @@ PartyFriendsV1.setOptions = function setOptions(exp_share, item_share, item_shar
 
 /**
  * Check if character is a group member
- *
- * @param {string} character name
  */
 PartyFriendsV1.isGroupMember = function isGroupMember(characterName) {
 	const count = _party.length;
 	for (let i = 0; i < count; ++i) {
-		// No GID, need to compare using charactername (wtf)
 		if (_party[i].characterName === characterName) {
 			return true;
 		}
 	}
-
 	return false;
 };
 
@@ -1153,8 +1232,9 @@ PartyFriendsV1.isGroupMember = function isGroupMember(characterName) {
  * Resizing UI
  */
 function onResize() {
-	const top = PartyFriendsV1.ui.position().top;
-	const left = PartyFriendsV1.ui.position().left;
+	const hostEl = PartyFriendsV1._host;
+	const top = hostEl.offsetTop;
+	const left = hostEl.offsetLeft;
 	let lastWidth = 0;
 	let lastHeight = 0;
 
@@ -1165,7 +1245,6 @@ function onResize() {
 		let w = Math.floor((Mouse.screen.x - left - extraX) / 20);
 		let h = Math.floor((Mouse.screen.y - top - extraY) / 20);
 
-		// Maximum and minimum window size
 		w = Math.min(Math.max(w, 12), 13);
 		h = Math.min(Math.max(h, 6), 12);
 
@@ -1178,23 +1257,23 @@ function onResize() {
 		lastHeight = h;
 	}
 
-	// Start resizing
 	const _Interval = setInterval(resizing, 30);
 
-	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	function onMouseUp(event) {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	}
+
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 /**
  * Close the window
  */
 function onClose() {
-	PartyFriendsV1.ui.hide();
+	PartyFriendsV1._host.style.display = 'none';
 	PartyHelper.remove();
 }
 
@@ -1202,15 +1281,19 @@ function onClose() {
  * Enable or disable the lock features
  */
 function onToggleLock() {
+	const root = _root();
 	_preferences.lock = !_preferences.lock;
 	_preferences.save();
 
+	const lockOn = root.querySelector('.lock.on');
+	const lockOff = root.querySelector('.lock.off');
+
 	if (_preferences.lock) {
-		PartyFriendsV1.ui.find('.lock.on').show();
-		PartyFriendsV1.ui.find('.lock.off').hide();
+		if (lockOn) lockOn.style.display = 'inline-block';
+		if (lockOff) lockOff.style.display = 'none';
 	} else {
-		PartyFriendsV1.ui.find('.lock.on').hide();
-		PartyFriendsV1.ui.find('.lock.off').show();
+		if (lockOn) lockOn.style.display = 'none';
+		if (lockOff) lockOff.style.display = 'inline-block';
 	}
 }
 
@@ -1218,32 +1301,40 @@ function onToggleLock() {
  * Move to the other tab (Friend -> Party or Party -> Friend)
  */
 function onChangeTab() {
-	const ui = PartyFriendsV1.ui;
+	const root = _root();
 
 	_preferences.friend = !_preferences.friend;
 	_preferences.save();
 
-	// Initialize the tab
+	const showClass = (sel) => root.querySelectorAll(sel).forEach((el) => { el.style.display = ''; });
+	const hideClass = (sel) => root.querySelectorAll(sel).forEach((el) => { el.style.display = 'none'; });
+
 	if (_preferences.friend) {
-		ui.find('.friend').show();
-		ui.find('.party').hide();
+		showClass('.friend');
+		hideClass('.party');
 	} else {
-		ui.find('.friend').hide();
-		ui.find('.party').show();
+		hideClass('.friend');
+		showClass('.party');
 
 		if (Session.hasParty) {
-			ui.find('.party.create').hide();
-			ui.find('.party.sort').show();
+			const createBtn = root.querySelector('.party.create');
+			if (createBtn) createBtn.style.display = 'none';
+
+			const sortBtn = root.querySelector('.party.sort');
+			if (sortBtn) sortBtn.style.display = '';
 
 			if (!Session.isPartyLeader) {
-				ui.find('.party.add').hide();
+				const addBtn = root.querySelector('.party.add');
+				if (addBtn) addBtn.style.display = 'none';
 			}
 		} else {
-			ui.find('.party.add, .party.leave, .party.sort').hide();
+			hideClass('.party.add');
+			hideClass('.party.leave');
+			hideClass('.party.sort');
 		}
 	}
 
-	ui.find('.node').removeClass('selection');
+	root.querySelectorAll('.node').forEach((el) => el.classList.remove('selection'));
 	_index = -1;
 }
 
@@ -1262,8 +1353,7 @@ function onRequestRemoveSelection() {
 
 	const text = _preferences.friend ? DB.getMessage(356) : DB.getMessage(363);
 
-	// Are you sure that you want to delete/expel ?
-	UIManager.showPromptBox(text, 'ok', 'cancel', function () {
+	UIManager.showPromptBox(text, 'ok', 'cancel', () => {
 		if (_preferences.friend) {
 			PartyFriendsV1.onRemoveFriend(_index);
 		} else {
@@ -1274,7 +1364,6 @@ function onRequestRemoveSelection() {
 
 /**
  * Add nick name to chatbox
- * Or open a new conversation window (todo)
  */
 function onRequestPrivateMessage() {
 	if (_index < 0 || _preferences.lock) {
@@ -1301,20 +1390,18 @@ function onRightClickInfo(event) {
 		event.preventDefault();
 	}
 
-	// Ensure camera stops rotation when opening a menu (fix for stuck right drag)
 	if (Camera && Camera.rotate) {
 		Camera.rotate(false);
 	}
 
 	if (_preferences.lock) {
-		return false;
+		return;
 	}
 
-	// Update selection to the right-clicked node
 	onSelectionChange.call(this, event);
 
 	if (_index < 0) {
-		return false;
+		return;
 	}
 
 	ContextMenu.remove();
@@ -1323,7 +1410,7 @@ function onRightClickInfo(event) {
 	if (_preferences.friend) {
 		const friend = _friends[_index];
 		if (!friend) {
-			return false;
+			return;
 		}
 
 		ContextMenu.addElement(DB.getMessage(360), onRequestPrivateMessage);
@@ -1333,37 +1420,32 @@ function onRightClickInfo(event) {
 	} else {
 		const player = _party[_index];
 		if (!player) {
-			return false;
+			return;
 		}
 
 		const isMe = player.AID === Session.AID;
 		const isLeader = Session.isPartyLeader;
 		const isOnline = player.state === 0;
 
-		// All party members (including self) have "Send Message" (Mail)
 		ContextMenu.addElement(DB.getMessage(98), onOpenMailCreationWindow);
 
 		if (isMe) {
-			// Self: Leave party
 			ContextMenu.addElement(DB.getMessage(2055), onRequestLeaveParty);
 		} else {
-			// Others: 1:1 Chat
 			ContextMenu.addElement(DB.getMessage(360), onRequestPrivateMessage);
 
-			// Leader only: Expel and Assign Leader
 			if (isLeader) {
 				ContextMenu.addElement(DB.getMessage(97), onRequestRemoveSelection);
 				ContextMenu.addElement(DB.getMessage(1532), onRequestPartyDelegation);
 			}
 		}
 
-		// Online members (including self): Detach options
 		if (isOnline) {
-			ContextMenu.addElement(DB.getMessage(3101), function () {
+			ContextMenu.addElement(DB.getMessage(3101), () => {
 				detachMember(player.AID, player, Mouse.screen.x, Mouse.screen.y);
 				PartyFriendsV1.saveDetachedMembers();
 			});
-			ContextMenu.addElement(DB.getMessage(3102), function () {
+			ContextMenu.addElement(DB.getMessage(3102), () => {
 				if (_detachedMembers[player.AID]) {
 					_detachedMembers[player.AID].remove();
 					PartyFriendsV1.saveDetachedMembers();
@@ -1371,21 +1453,15 @@ function onRightClickInfo(event) {
 			});
 		}
 	}
-
-	return false;
 }
 
 /**
- * Request player information
- * (Not implemented yet in official client)
- * Currently unused, preserved for future development.
+ * Not implemented yet - preserved for future development.
  */
 function _onRequestInformation() {
 	if (_preferences.lock) {
 		return;
 	}
-
-	// Not implemented yet
 	UIManager.showMessageBox(DB.getMessage(191), 'ok');
 }
 
@@ -1397,23 +1473,20 @@ function onRequestLeaveParty() {
 		return;
 	}
 
-	// Are you sure that you want to leave ?
-	UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', function () {
+	UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', () => {
 		PartyFriendsV1.onRequestLeave();
 	});
 }
 
 /**
  * Request to change party leader
- * (need to be the leader)
  */
 function onRequestPartyDelegation() {
 	if (_preferences.lock) {
 		return;
 	}
 
-	// Do you want to delegate the real party?
-	UIManager.showPromptBox(DB.getMessage(1532), 'ok', 'cancel', function () {
+	UIManager.showPromptBox(DB.getMessage(1532), 'ok', 'cancel', () => {
 		PartyFriendsV1.onRequestChangeLeader(_party[_index].AID);
 	});
 }
@@ -1422,17 +1495,20 @@ function onRequestPartyDelegation() {
  * Change selection (click on a friend/party)
  */
 function onSelectionChange(event) {
-	PartyFriendsV1.ui.find('.node').removeClass('selection');
-	const node = jQuery(this);
-	node.addClass('selection');
+	const root = _root();
+	root.querySelectorAll('.node').forEach((el) => el.classList.remove('selection'));
 
-	const AID = node.data('aid');
+	const node = this;
+	node.classList.add('selection');
+
+	const AID = parseInt(node.dataset.aid, 10);
 	_index = -1;
 
 	if (_preferences.friend) {
-		_index = PartyFriendsV1.ui.find(this.parentNode).find('.node').index(this);
+		const nodes = Array.from(node.parentNode.querySelectorAll('.node'));
+		_index = nodes.indexOf(node);
 	} else {
-		const player = _party.find(member => member.AID == AID);
+		const player = _party.find((member) => member.AID == AID);
 		_index = _party.indexOf(player);
 	}
 }
@@ -1523,7 +1599,7 @@ PartyFriendsV1.onRequestPartyCreation = function () {};
 PartyFriendsV1.onRequestSettingUpdate = function () {};
 
 /**
- * Custom RO-style tooltips
+ * Custom RO-style tooltips (global, outside shadow DOM)
  */
 function onTooltipShow(event) {
 	if (event.__tooltipHandled) {
@@ -1531,13 +1607,18 @@ function onTooltipShow(event) {
 	}
 	event.__tooltipHandled = true;
 
-	const text = jQuery(this).attr('data-tooltip');
+	const text = this.getAttribute('data-tooltip');
 	if (text) {
-		let tooltip = jQuery('#ro-tooltip-party');
-		if (!tooltip.length) {
-			tooltip = jQuery('<div id="ro-tooltip-party" class="ro-tooltip"></div>').appendTo('body');
+		let tooltip = document.getElementById('ro-tooltip-party');
+		if (!tooltip) {
+			tooltip = document.createElement('div');
+			tooltip.id = 'ro-tooltip-party';
+			tooltip.className = 'ro-tooltip';
+			tooltip.style.cssText = 'display:none;position:fixed;background-color:rgba(0,0,0,0.8);text-shadow:1px 1px black;color:white;padding:2px 6px;white-space:nowrap;z-index:20000;border-radius:2px;pointer-events:none;line-height:1.2;font-size:11px;';
+			document.body.appendChild(tooltip);
 		}
-		tooltip.text(text).addClass('show');
+		tooltip.textContent = text;
+		tooltip.style.display = 'block';
 	}
 }
 
@@ -1547,12 +1628,10 @@ function onTooltipMove(event) {
 	}
 	event.__tooltipMoved = true;
 
-	const tooltip = jQuery('#ro-tooltip-party');
-	if (tooltip.hasClass('show')) {
-		tooltip.css({
-			top: event.clientY + 15,
-			left: event.clientX + 10
-		});
+	const tooltip = document.getElementById('ro-tooltip-party');
+	if (tooltip && tooltip.style.display === 'block') {
+		tooltip.style.top = `${event.clientY + 15}px`;
+		tooltip.style.left = `${event.clientX + 10}px`;
 	}
 }
 
@@ -1562,7 +1641,8 @@ function onTooltipHide(event) {
 	}
 	event.__tooltipHidden = true;
 
-	jQuery('#ro-tooltip-party').removeClass('show');
+	const tooltip = document.getElementById('ro-tooltip-party');
+	if (tooltip) tooltip.style.display = 'none';
 }
 
 /**
@@ -1580,22 +1660,21 @@ PartyFriendsV1.saveDetachedMembers = function () {
 		return;
 	}
 
-	const key = 'PartyFriends_' + Session.Character.name + '_Detached';
+	const key = `PartyFriends_${Session.Character.name}_Detached`;
 	const saved = {};
 	let count = 0;
 
 	for (const aid in _detachedMembers) {
 		const ext = _detachedMembers[aid];
-		if (ext && ext.ui) {
-			const pos = ext.ui.position();
-			saved[aid] = { x: pos.left, y: pos.top };
+		if (ext && ext._host) {
+			saved[aid] = { x: ext._host.offsetLeft, y: ext._host.offsetTop };
 			count++;
 		}
 	}
 
 	localStorage.setItem(key, JSON.stringify(saved));
 	if (count > 0) {
-		console.log('[PartyFriendsV1] Saved ' + count + ' detached windows for ' + Session.Character.name);
+		console.log(`[PartyFriendsV1] Saved ${count} detached windows for ${Session.Character.name}`);
 	}
 };
 

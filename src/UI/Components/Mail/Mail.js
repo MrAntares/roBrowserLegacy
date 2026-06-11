@@ -9,7 +9,6 @@
 
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
-import jQuery from 'Utils/jquery.js';
 import Preferences from 'Core/Preferences.js';
 import Client from 'Core/Client.js';
 import Session from 'Engine/SessionStorage.js';
@@ -20,14 +19,15 @@ import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './Mail.html?raw';
 import cssText from './Mail.css?raw';
 
 /**
  * Create Component
  */
-const Mail = new UIComponent('Mail', htmlText, cssText);
+const Mail = new GUIComponent('Mail', cssText);
 
 /**
  * Store Mail items
@@ -69,104 +69,159 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return Mail._shadow || Mail._host;
+}
+
+/**
+ * Render HTML
+ */
+Mail.render = () => htmlText;
+
+/**
+ * Has input fields, protect key events
+ */
+Mail.captureKeyEvents = true;
+
+/**
  * Apply preferences once append to body
  */
 Mail.onAppend = function OnAppend() {
-	this.ui.find('.right .close').on('click', this.onClosePressed.bind(this)).removeClass('hover');
-	this.ui.find('#inbox').on('click', offCreateMessagesOnWindowMailbox); // remove all item reset layout
-	this.ui.find('#write').on('click', openWindowCreateMessages); // remove all item reset layouts
-	this.ui.find('#create_mail_cancel').on('click', offCreateMessagesOnWindowMailbox); // remove all item reset layout
-	this.ui.find('#create_mail_send').on('click', sendCreateMessagesMail); // send mail
+	const root = _root();
+
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) closeBtn.addEventListener('click', this.onClosePressed.bind(this));
+
+	const inboxBtn = root.querySelector('#inbox');
+	if (inboxBtn) inboxBtn.addEventListener('click', offCreateMessagesOnWindowMailbox);
+
+	const writeBtn = root.querySelector('#write');
+	if (writeBtn) writeBtn.addEventListener('click', openWindowCreateMessages);
+
+	const cancelBtn = root.querySelector('#create_mail_cancel');
+	if (cancelBtn) cancelBtn.addEventListener('click', offCreateMessagesOnWindowMailbox);
+
+	const sendBtn = root.querySelector('#create_mail_send');
+	if (sendBtn) sendBtn.addEventListener('click', sendCreateMessagesMail);
 
 	updatePageMailItems();
 
-	this.ui
-		.find('.container_item')
-		// on drop item
-		.on('drop', onDrop)
-		.on('dragover', stopPropagation)
-		// item
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd)
-		.on('contextmenu', '.item', onItemInfo);
+	const containerItem = root.querySelector('.container_item');
+	if (containerItem) {
+		containerItem.addEventListener('drop', onDrop);
+		containerItem.addEventListener('dragover', stopPropagation);
+
+		containerItem.addEventListener('mouseover', (event) => {
+			const item = event.target.closest('.item');
+			if (item) onItemOver.call(item, event);
+		});
+		containerItem.addEventListener('mouseout', (event) => {
+			const item = event.target.closest('.item');
+			if (item) onItemOut.call(item, event);
+		});
+		containerItem.addEventListener('dragstart', (event) => {
+			const item = event.target.closest('.item');
+			if (item) onItemDragStart.call(item, event);
+		});
+		containerItem.addEventListener('dragend', (event) => {
+			const item = event.target.closest('.item');
+			if (item) onItemDragEnd.call(item, event);
+		});
+		containerItem.addEventListener('contextmenu', (event) => {
+			const item = event.target.closest('.item');
+			if (item) onItemInfo.call(item, event);
+		});
+	}
 
 	// Validate information dragged into text field
-	this.ui.find('input[type=text]').on('drop', onDropText).on('dragover', stopPropagation);
+	root.querySelectorAll('input[type=text]').forEach((input) => {
+		input.addEventListener('drop', onDropText);
+		input.addEventListener('dragover', stopPropagation);
+	});
 
-	this.ui.find('textarea').on('drop', onDropText).on('dragover', stopPropagation);
+	const textarea = root.querySelector('textarea');
+	if (textarea) {
+		textarea.addEventListener('drop', onDropText);
+		textarea.addEventListener('dragover', stopPropagation);
+	}
 
-	this.ui.find('#zeny_amt').on('click', onAddZenyInput);
-	this.ui.find('#zeny_ok').on('click', onValidZenyInput);
+	const zenyAmtBtn = root.querySelector('#zeny_amt');
+	if (zenyAmtBtn) zenyAmtBtn.addEventListener('click', onAddZenyInput);
+
+	const zenyOkBtn = root.querySelector('#zeny_ok');
+	if (zenyOkBtn) zenyOkBtn.addEventListener('click', onValidZenyInput);
 
 	onWindowMailbox();
 
 	// Apply preferences
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	const hostHeight = this._host.offsetHeight || 0;
+	const hostWidth = this._host.offsetWidth || 0;
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostWidth)}px`;
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 };
 
 /**
  * Add item to inventory
- *
- * @param {object} Index
  */
 Mail.addItemSub = function AddItemSub(Index) {
+	const root = _root();
 	const item = _preferences.item_add_email;
 	if (item.index !== Index) {
 		return false;
 	}
-	// Equip item (if not arrow)
 	if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-		//Equipment.equip(item);
 		return false;
 	}
 
 	const it = DB.getItemInfo(item.ITID);
-	const content = this.ui.find('.container_item');
-	this.ui.find('.item').remove();
-	content.append(
-		'<div class="item" data-index="' +
-			item.index +
-			'" draggable="true">' +
-			'<div class="icon"></div>' +
-			'<div class="amount"><span class="count">' +
-			(item.count || 1) +
-			'</span></div>' +
-			'</div>'
-	);
-	this.ui.find('.hide').show();
+	const content = root.querySelector('.container_item');
+
+	const oldItem = root.querySelector('.item');
+	if (oldItem) oldItem.remove();
+
+	if (content) {
+		content.insertAdjacentHTML(
+			'beforeend',
+			`<div class="item" data-index="${item.index}" draggable="true">` +
+				`<div class="icon"></div>` +
+				`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
+				`</div>`
+		);
+	}
+
+	const hideEl = root.querySelector('.hide');
+	if (hideEl) hideEl.style.display = 'block';
+
 	Client.loadFile(
-		DB.INTERFACE_PATH +
-			'item/' +
-			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-			'.bmp',
-		function (data) {
-			content.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+		`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
+		(data) => {
+			const icon = content ? content.querySelector(`.item[data-index="${item.index}"] .icon`) : null;
+			if (icon) icon.style.backgroundImage = `url(${data})`;
 		}
 	);
 	return true;
 };
 
 /**
- * Send from mail to inventory
- * Remove item
+ * Send from mail to inventory - Remove item
  */
 Mail.removeItem = function removeItem() {
-	this.ui.find('.item').remove();
+	const root = _root();
+	const item = root.querySelector('.item');
+	if (item) item.remove();
 };
 
 /**
- * Send from mail to inventory
- * Remove zenys
+ * Send from mail to inventory - Remove zenys
  */
 Mail.removeZeny = function removeZeny() {
-	this.ui.find('.input_zeny_amt').val('');
+	const root = _root();
+	const input = root.querySelector('.input_zeny_amt');
+	if (input) input.value = '';
 };
 
 /**
@@ -174,13 +229,10 @@ Mail.removeZeny = function removeZeny() {
  */
 Mail.onRemove = function OnRemove() {
 	this.list.length = 0;
-	// Save preferences
-	_preferences.show = this.ui.is(':visible');
+	_preferences.show = this._host.style.display !== 'none';
 	_preferences.reduce = !!_realSize;
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.width = Math.floor((this.ui.width() - (23 + 16 + 16 - 30)) / 32);
-	_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
+	_preferences.y = parseInt(this._host.style.top, 10) || 0;
+	_preferences.x = parseInt(this._host.style.left, 10) || 0;
 	_preferences.magnet_top = this.magnet.TOP;
 	_preferences.magnet_bottom = this.magnet.BOTTOM;
 	_preferences.magnet_left = this.magnet.LEFT;
@@ -190,24 +242,21 @@ Mail.onRemove = function OnRemove() {
 
 /**
  * Extend Mail window size
- *
- * @param {number} width
- * @param {number} height
  */
 Mail.resize = function Resize(width, height) {
+	const root = _root();
 	width = Math.min(Math.max(width, 6), 9);
 	height = Math.min(Math.max(height, 2), 6);
 
-	this.ui.css({
-		width: 23 + 16 + 16 + width * 32,
-		height: 31 + 19 + height * 32
-	});
+	const mailEl = root.querySelector('#Mail');
+	if (mailEl) {
+		mailEl.style.width = `${23 + 16 + 16 + width * 32}px`;
+		mailEl.style.height = `${31 + 19 + height * 32}px`;
+	}
 };
 
 /**
  * Extend Mail window size
- *
- * @param {object} read
  */
 Mail.mailList = function mailList(read) {
 	Mail.list = read;
@@ -216,8 +265,6 @@ Mail.mailList = function mailList(read) {
 
 /**
  * Mail receive
- *
- * @param {object} newMail
  */
 Mail.mailReceiveUpdate = function mailReceiveUpdate(newMail) {
 	if (Mail.list.mailList === undefined) {
@@ -225,7 +272,7 @@ Mail.mailReceiveUpdate = function mailReceiveUpdate(newMail) {
 	}
 	Mail.list.MailNumber = Mail.MailNumber + 1;
 	let validIsOpen = 0;
-	Mail.list.mailList = Mail.list.mailList.map(el => {
+	Mail.list.mailList = Mail.list.mailList.map((el) => {
 		let newElement = {};
 
 		if (el.MailID == newMail.MailID) {
@@ -246,15 +293,11 @@ Mail.mailReceiveUpdate = function mailReceiveUpdate(newMail) {
 	if (!validIsOpen) {
 		Mail.list.mailList.push(newMail);
 	}
-	// List Email
 	Mail.parseMailrefreshinbox();
 };
 
 /**
  * Search in a list for an item by its index
- *
- * @param {number} index
- * @returns {object}
  */
 Mail.getItemByIndex = function getItemByIndex(index) {
 	const list = _preferences.item_add_email;
@@ -268,42 +311,59 @@ Mail.getItemByIndex = function getItemByIndex(index) {
 
 /**
  * Responder to a mail.
- * @param {string} fromName
  */
 Mail.replyNewMail = function replyNewMail(fromName) {
+	const root = _root();
 	onWindowCreateMessages();
-	Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, ''));
+	const textTo = root.querySelector('.text_to');
+	if (textTo) textTo.value = fromName.replace(/^(\$|\%)/, '').replace(/\t/g, '');
 };
 
 /**
- * Responder to a mail.
- * @param {string} fromName
+ * Responder to a mail from friends.
  */
 Mail.replyNewMailFriends = async function replyNewMailFriends(fromName) {
+	const root = _root();
 	Mail.append();
 	sleep(1).then(() => {
-		// Do something after the sleep!
 		onWindowCreateMessages();
 		offWindowListMail();
-		Mail.ui.find('.text_to').val(fromName.replace(/^(\$|\%)/, '').replace(/\t/g, ''));
-		Mail.ui.find('#inbox').off('click');
-		Mail.ui
-			.find('#inbox')
-			.prop('disabled', false)
-			.on('click', function () {});
-		Mail.ui.find('#create_mail_cancel').off('click');
-		Mail.ui.find('#create_mail_cancel').on('click', this.onClosePressed.bind(this));
+		const textTo = root.querySelector('.text_to');
+		if (textTo) textTo.value = fromName.replace(/^(\$|\%)/, '').replace(/\t/g, '');
+
+		const inboxBtn = root.querySelector('#inbox');
+		if (inboxBtn) {
+			inboxBtn.replaceWith(inboxBtn.cloneNode(true));
+			const newInbox = root.querySelector('#inbox');
+			if (newInbox) {
+				newInbox.disabled = false;
+				newInbox.addEventListener('click', () => {});
+			}
+		}
+
+		const cancelBtn = root.querySelector('#create_mail_cancel');
+		if (cancelBtn) {
+			cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+			const newCancel = root.querySelector('#create_mail_cancel');
+			if (newCancel) newCancel.addEventListener('click', this.onClosePressed.bind(this));
+		}
 	});
 };
 
 Mail.clearFieldsItemZeny = function clearFieldsItemZeny() {
-	this.ui.find('.item').remove();
-	this.ui.find('.input_zeny_amt').val('');
-	this.ui.find('#create_mail_send').prop('disabled', false);
+	const root = _root();
+	const item = root.querySelector('.item');
+	if (item) item.remove();
+
+	const zenyInput = root.querySelector('.input_zeny_amt');
+	if (zenyInput) zenyInput.value = '';
+
+	const sendBtn = root.querySelector('#create_mail_send');
+	if (sendBtn) sendBtn.disabled = false;
 };
 
 Mail.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this.remove();
 	}
 };
@@ -312,22 +372,32 @@ Mail.onKeyDown = function onKeyDown(event) {
  * Update item pagination
  */
 function updatePageMailItems() {
-	Mail.ui.find('.next').click(function (e) {
-		e.stopImmediatePropagation();
-		if (Mail.page < Mail.list.mailList.length / Mail.pageSize - 1) {
-			Mail.page++;
-			createMailList();
-			adjustButtons();
-		}
-	});
-	Mail.ui.find('.prev').click(function (e) {
-		e.stopImmediatePropagation();
-		if (Mail.page > 0) {
-			Mail.page--;
-			createMailList();
-			adjustButtons();
-		}
-	});
+	const root = _root();
+
+	const nextBtn = root.querySelector('.next');
+	if (nextBtn) {
+		nextBtn.addEventListener('click', (e) => {
+			e.stopImmediatePropagation();
+			if (Mail.page < Mail.list.mailList.length / Mail.pageSize - 1) {
+				Mail.page++;
+				createMailList();
+				adjustButtons();
+			}
+		});
+	}
+
+	const prevBtn = root.querySelector('.prev');
+	if (prevBtn) {
+		prevBtn.addEventListener('click', (e) => {
+			e.stopImmediatePropagation();
+			if (Mail.page > 0) {
+				Mail.page--;
+				createMailList();
+				adjustButtons();
+			}
+		});
+	}
+
 	createMailList();
 }
 
@@ -335,33 +405,51 @@ function updatePageMailItems() {
  * Create messages window size
  */
 function onWindowMailbox() {
-	// List Email
+	const root = _root();
+
 	Mail.parseMailrefreshinbox();
 
-	// Off window create mail
-	Mail.ui.find('#create_mail_send').prop('disabled', false);
-	Mail.ui.find('.block_create_mail').hide();
-	Mail.ui.find('.text_to').val('');
-	Mail.ui.find('.input_title').val('');
-	Mail.ui.find('.textarea_mail').val('');
-	Mail.ui.find('.input_zeny_amt').val('');
-	Mail.ui.find('.input_add_item').val('');
+	const sendBtn = root.querySelector('#create_mail_send');
+	if (sendBtn) sendBtn.disabled = false;
 
-	// on window list mail
-	Mail.ui.find('.prev_next').show();
-	Mail.ui.find('.block_mail').show();
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/maillist1_bg.bmp',
-		function (url) {
-			Mail.ui.find('.body').css('backgroundImage', 'url(' + url + ')');
-		}.bind(this)
-	);
-	Mail.ui.find('#title').text(DB.getMessage(1025));
+	const createMail = root.querySelector('.block_create_mail');
+	if (createMail) createMail.style.display = 'none';
+
+	const textTo = root.querySelector('.text_to');
+	if (textTo) textTo.value = '';
+
+	const inputTitle = root.querySelector('.input_title');
+	if (inputTitle) inputTitle.value = '';
+
+	const textareaMail = root.querySelector('.textarea_mail');
+	if (textareaMail) textareaMail.value = '';
+
+	const zenyInput = root.querySelector('.input_zeny_amt');
+	if (zenyInput) zenyInput.value = '';
+
+	const addItemInput = root.querySelector('.input_add_item');
+	if (addItemInput) addItemInput.value = '';
+
+	const prevNext = root.querySelector('.prev_next');
+	if (prevNext) prevNext.style.display = 'flex';
+
+	const blockMail = root.querySelector('.block_mail');
+	if (blockMail) blockMail.style.display = 'block';
+
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/maillist1_bg.bmp', (url) => {
+		const body = root.querySelector('.body');
+		if (body) body.style.backgroundImage = `url(${url})`;
+	});
+
+	const title = root.querySelector('#title');
+	if (title) title.textContent = DB.getMessage(1025);
 }
 
 function createMailList() {
-	const content = Mail.ui.find('.list_item_mail');
-	Mail.ui.find('.item_mail').remove();
+	const root = _root();
+	const content = root.querySelector('.list_item_mail');
+
+	root.querySelectorAll('.item_mail').forEach((el) => el.remove());
 
 	if (Mail.list.length == 0) {
 		return;
@@ -378,71 +466,73 @@ function createMailList() {
 				: Mail.list.mailList[i].HEADER;
 		const mailId = Mail.list.mailList[i].MailID;
 		const isOpen = Mail.list.mailList[i].isOpen;
-		content.append(
-			`<div class="item_mail">
+
+		if (content) {
+			content.insertAdjacentHTML(
+				'beforeend',
+				`<div class="item_mail">
 					<div class="envelop" style="flex: 1;">
-						<div class="btn_envelop" id="envelop_` +
-				mailId +
-				`"></div>
+						<div class="btn_envelop" id="envelop_${mailId}"></div>
 					</div>
 					<div class="to_title" style="flex: 3;">
 						<div class="flex">
-							<div  style="flex: 3;">
-								<span id="from_name_` +
-				mailId +
-				'" class="event_add_cursor tooltip name_data" > ' +
-				from_name +
-				`
-									<span class="tooltiptext to">` +
-				Mail.list.mailList[i].FromName +
-				`</samp>
+							<div style="flex: 3;">
+								<span id="from_name_${mailId}" class="event_add_cursor tooltip name_data"> ${from_name}
+									<span class="tooltiptext to">${Mail.list.mailList[i].FromName}</span>
 								</span>
 							</div>
-							<div   style="flex: 3;">
-								<span class="name_data">` +
-				formateDeleteTime(Mail.list.mailList[i].DeleteTime) +
-				` </samp>
+							<div style="flex: 3;">
+								<span class="name_data">${formateDeleteTime(Mail.list.mailList[i].DeleteTime)}</span>
 							</div>
-
 						</div>
-						<div >
-							<span id="from_header_` +
-				mailId +
-				'" data-id="' +
-				mailId +
-				'" class="event_add_cursor tooltip"> ' +
-				header +
-				`
-								<span class="tooltiptext title">` +
-				Mail.list.mailList[i].HEADER +
-				` </samp>
+						<div>
+							<span id="from_header_${mailId}" data-id="${mailId}" class="event_add_cursor tooltip"> ${header}
+								<span class="tooltiptext title">${Mail.list.mailList[i].HEADER}</span>
 							</span>
 						</div>
 					</div>
 				</div>`
-		);
+			);
+		}
+
 		if (!isOpen) {
-			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', function (data) {
-				content.find('#envelop_' + mailId).css('backgroundImage', 'url(' + data + ')');
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', (data) => {
+				const envelop = root.querySelector(`#envelop_${mailId}`);
+				if (envelop) envelop.style.backgroundImage = `url(${data})`;
 			});
 		}
-		Mail.ui.find('#from_name_' + mailId).on('click', () => {
-			Mail.replyNewMail(Mail.ui.find('#from_name_' + mailId + ' .to').text());
-		});
-		Mail.ui.find('#from_header_' + mailId).on('click', event => {
-			Mail.openMail(jQuery(event.currentTarget).data('id'));
-		});
+
+		const fromNameEl = root.querySelector(`#from_name_${mailId}`);
+		if (fromNameEl) {
+			fromNameEl.addEventListener('click', () => {
+				const toEl = root.querySelector(`#from_name_${mailId} .to`);
+				if (toEl) Mail.replyNewMail(toEl.textContent);
+			});
+		}
+
+		const fromHeaderEl = root.querySelector(`#from_header_${mailId}`);
+		if (fromHeaderEl) {
+			fromHeaderEl.addEventListener('click', (event) => {
+				Mail.openMail(parseInt(event.currentTarget.dataset.id, 10));
+			});
+		}
 	}
+
 	if (Mail.list.mailList.length === 0) {
-		Mail.ui.find('.prev_next').hide();
+		const prevNext = root.querySelector('.prev_next');
+		if (prevNext) prevNext.style.display = 'none';
 	} else {
-		Mail.ui.find('#infor_page').text(Mail.page + 1 + '/' + Math.ceil(Mail.list.mailList.length / Mail.pageSize));
+		const inforPage = root.querySelector('#infor_page');
+		if (inforPage) {
+			inforPage.textContent = `${Mail.page + 1}/${Math.ceil(Mail.list.mailList.length / Mail.pageSize)}`;
+		}
 	}
 
 	adjustButtons();
 }
 
 function adjustButtons() {
+	const root = _root();
 	if (Mail.list.length == 0) {
 		return;
 	}
@@ -459,58 +549,62 @@ function adjustButtons() {
 		addEventNextAndPrevRemove('prev');
 	}
 
-	Mail.ui
-		.find('.next span')
-		.prop('disabled', mailLength <= Mail.pageSize || Mail.page > mailLength / Mail.pageSize - 1);
-	Mail.ui.find('.prev span').prop('disabled', mailLength <= Mail.pageSize || Mail.page == 0);
+	const nextSpan = root.querySelector('.next span');
+	if (nextSpan) nextSpan.disabled = mailLength <= Mail.pageSize || Mail.page > mailLength / Mail.pageSize - 1;
+
+	const prevSpan = root.querySelector('.prev span');
+	if (prevSpan) prevSpan.disabled = mailLength <= Mail.pageSize || Mail.page == 0;
 }
 
 function addEventNextAndPrevAdd(eventName) {
-	const overlay = Mail.ui.find('.prev_next .overlay_' + eventName + '');
-	const text = Mail.ui.find('.prev_next .' + eventName + ' span');
-	text.addClass('event_add_cursor');
-	overlay.text(text.text());
+	const root = _root();
+	const overlay = root.querySelector(`.prev_next .overlay_${eventName}`);
+	const text = root.querySelector(`.prev_next .${eventName} span`);
+	if (text) text.classList.add('event_add_cursor');
+	if (overlay && text) overlay.textContent = text.textContent;
 
-	Mail.ui
-		.find('.' + eventName + ' .event_add_cursor')
-		.mouseover(function () {
-			if (text.hasClass('event_add_cursor')) {
-				overlay.show();
+	const cursor = root.querySelector(`.${eventName} .event_add_cursor`);
+	if (cursor) {
+		cursor.addEventListener('mouseover', () => {
+			if (text && text.classList.contains('event_add_cursor') && overlay) {
+				overlay.style.display = 'block';
 			}
-		})
-		.mouseout(function () {
-			overlay.hide();
 		});
+		cursor.addEventListener('mouseout', () => {
+			if (overlay) overlay.style.display = 'none';
+		});
+	}
 }
 
 function addEventNextAndPrevRemove(eventName) {
-	// Get back data
-	const overlay = Mail.ui.find('.prev_next .overlay_' + eventName + '');
-	const text = Mail.ui.find('.prev_next .' + eventName + ' span');
-	// Display box
-	overlay.hide();
-	text.removeClass('event_add_cursor');
+	const root = _root();
+	const overlay = root.querySelector(`.prev_next .overlay_${eventName}`);
+	const text = root.querySelector(`.prev_next .${eventName} span`);
+	if (overlay) overlay.style.display = 'none';
+	if (text) text.classList.remove('event_add_cursor');
 }
 
 function offCreateMessagesOnWindowMailbox(event) {
 	event.stopImmediatePropagation();
 	onWindowMailbox();
-	// Reset mail item and/or Zeny
-	removeCreateAllItem(); // CZ_MAIL_RESET_ITEM
+	removeCreateAllItem();
 }
 
 function sendCreateMessagesMail(event) {
+	const root = _root();
 	event.stopImmediatePropagation();
-	if (Mail.ui.find('#zeny_ok').is(':visible')) {
+
+	const zenyOk = root.querySelector('#zeny_ok');
+	if (zenyOk && zenyOk.style.display !== 'none') {
 		ChatBox.addText(DB.getMessage(1110), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		return;
 	}
 
-	let to = Mail.ui.find('.text_to').val();
+	let to = root.querySelector('.text_to')?.value || '';
 	to = to.length > 50 ? to.substring(0, 50) : to;
-	let title = Mail.ui.find('.input_title').val();
+	let title = root.querySelector('.input_title')?.value || '';
 	title = title.length > 50 ? title.substring(0, 50) : title;
-	let message = Mail.ui.find('.textarea_mail').val();
+	let message = root.querySelector('.textarea_mail')?.value || '';
 	message = message.length > 198 ? message.substring(0, 198) : message;
 
 	if (title === '') {
@@ -524,7 +618,10 @@ function sendCreateMessagesMail(event) {
 		msg_len: message.length,
 		msg: message
 	};
-	Mail.ui.find('#create_mail_send').prop('disabled', true);
+
+	const sendBtn = root.querySelector('#create_mail_send');
+	if (sendBtn) sendBtn.disabled = true;
+
 	Mail.parseMailSend(send_message);
 }
 
@@ -537,57 +634,75 @@ function openWindowCreateMessages(event) {
  * Open Create messages window size
  */
 function onWindowCreateMessages() {
-	// Reset mail item and/or Zeny
-	removeCreateAllItem(); // CZ_MAIL_RESET_ITEM
-
-	// Off window list mail
+	const root = _root();
+	removeCreateAllItem();
 	offWindowListMail();
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp',
-		function (url) {
-			Mail.ui.find('.body').css('backgroundImage', 'url(' + url + ')');
-		}.bind(this)
-	);
-	Mail.ui.find('#title').text(DB.getMessage(1026));
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp', (url) => {
+		const body = root.querySelector('.body');
+		if (body) body.style.backgroundImage = `url(${url})`;
+	});
+
+	const title = root.querySelector('#title');
+	if (title) title.textContent = DB.getMessage(1026);
 }
 
 function offWindowListMail() {
-	// Off window list mail
-	Mail.ui.find('.prev_next').hide();
-	Mail.ui.find('.block_mail').hide();
+	const root = _root();
+	const prevNext = root.querySelector('.prev_next');
+	if (prevNext) prevNext.style.display = 'none';
 
-	// Off window create mail
-	Mail.ui.find('.block_create_mail').show();
-	//Focus textArea
-	Mail.ui.find('.textarea_mail').focus();
+	const blockMail = root.querySelector('.block_mail');
+	if (blockMail) blockMail.style.display = 'none';
+
+	const createMail = root.querySelector('.block_create_mail');
+	if (createMail) createMail.style.display = 'block';
+
+	const textarea = root.querySelector('.textarea_mail');
+	if (textarea) textarea.focus();
 }
 
 function onAddZenyInput(event) {
+	const root = _root();
 	event.stopImmediatePropagation();
-	Mail.ui.find('#zeny_amt').hide();
-	Mail.ui.find('#zeny_ok').show();
-	Mail.ui.find('.input_zeny_amt').prop('disabled', false);
-	Mail.ui.find('.input_zeny_amt').focus();
-	Mail.ui.find('.input_zeny_amt').select();
-	Mail.parseMailWinopen(2); // reset zeny
+
+	const zenyAmt = root.querySelector('#zeny_amt');
+	if (zenyAmt) zenyAmt.style.display = 'none';
+
+	const zenyOk = root.querySelector('#zeny_ok');
+	if (zenyOk) zenyOk.style.display = 'inline-block';
+
+	const input = root.querySelector('.input_zeny_amt');
+	if (input) {
+		input.disabled = false;
+		input.focus();
+		input.select();
+	}
+
+	Mail.parseMailWinopen(2);
 }
 
 function onValidZenyInput(event) {
+	const root = _root();
 	event.stopImmediatePropagation();
-	Mail.ui.find('#zeny_amt').show();
-	Mail.ui.find('#zeny_ok').hide();
-	let val_Zeny = Mail.ui.find('.input_zeny_amt').val().split(',').join('');
+
+	const zenyAmt = root.querySelector('#zeny_amt');
+	if (zenyAmt) zenyAmt.style.display = 'inline-block';
+
+	const zenyOk = root.querySelector('#zeny_ok');
+	if (zenyOk) zenyOk.style.display = 'none';
+
+	const input = root.querySelector('.input_zeny_amt');
+	let val_Zeny = input ? input.value.split(',').join('') : '0';
 	val_Zeny = Math.min(Math.max(0, val_Zeny), Session.zeny);
 	val_Zeny = isNaN(val_Zeny) ? 0 : val_Zeny;
 
-	Mail.ui.find('.input_zeny_amt').val(prettifyZeny(val_Zeny));
-	Mail.ui.find('.input_zeny_amt').prop('disabled', true);
-	// add zeny to mail
-	Mail.parseMailSetattach(
-		0, //zeny
-		val_Zeny
-	);
+	if (input) {
+		input.value = prettifyZeny(val_Zeny);
+		input.disabled = true;
+	}
+
+	Mail.parseMailSetattach(0, val_Zeny);
 }
 
 /**
@@ -595,7 +710,7 @@ function onValidZenyInput(event) {
  */
 function stopPropagation(event) {
 	event.stopImmediatePropagation();
-	return false;
+	event.preventDefault();
 }
 
 /**
@@ -604,58 +719,54 @@ function stopPropagation(event) {
 function onDrop(event) {
 	let item, data;
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
-		return false;
+	} catch (_e) {
+		return;
 	}
 
-	// Just allow item from storage
 	if (data.type !== 'item' || data.from == 'Storage' || data.from == 'Mail') {
-		return false;
+		return;
 	}
 
-	// Have to specify how much
 	if (item.count > 1) {
 		InputBox.append();
 		InputBox.setType('number', false, item.count);
 		InputBox.onSubmitRequest = function OnSubmitRequest(count) {
 			InputBox.remove();
-			Mail.parseMailWinopen(1); // remove item
+			Mail.parseMailWinopen(1);
 
 			if (data.from == 'Inventory') {
 				Inventory.getUI().removeItem(item.index, parseInt(count, 10));
 			}
 
 			Mail.parseMailSetattach(item.index, parseInt(count, 10));
-			// add itens
 			_preferences.item_add_email = item;
 			_preferences.item_add_email.count = parseInt(count, 10);
 			_preferences.save();
 		};
-		return false;
+		return;
 	}
 
 	if (data.from == 'Inventory') {
 		Inventory.getUI().removeItem(item.index, 1);
 	}
-	Mail.parseMailWinopen(1); // remove item
+	Mail.parseMailWinopen(1);
 
 	Mail.parseMailSetattach(item.index, 1);
-	// add itens
 	_preferences.item_add_email = item;
 	_preferences.item_add_email.count = 1;
 	_preferences.save();
-
-	return false;
 }
 
 /**
  * Show item name when mouse is over
  */
 function onItemOver() {
+	const root = _root();
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const item = Mail.getItemByIndex(idx);
 
@@ -663,17 +774,16 @@ function onItemOver() {
 		return;
 	}
 
-	// Get back data
-	const overlay = Mail.ui.find('.container_item .overlay');
+	const overlay = root.querySelector('.container_item .overlay');
+	if (overlay) {
+		overlay.style.display = 'block';
+		overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
 
-	// Display box
-	overlay.show();
-	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
-
-	if (item.IsIdentified) {
-		overlay.removeClass('grey');
-	} else {
-		overlay.addClass('grey');
+		if (item.IsIdentified) {
+			overlay.classList.remove('grey');
+		} else {
+			overlay.classList.add('grey');
+		}
 	}
 }
 
@@ -681,7 +791,9 @@ function onItemOver() {
  * Hide the item name
  */
 function onItemOut() {
-	Mail.ui.find('.container_item .overlay').hide();
+	const root = _root();
+	const overlay = root.querySelector('.container_item .overlay');
+	if (overlay) overlay.style.display = 'none';
 }
 
 /**
@@ -695,14 +807,13 @@ function onItemDragStart(event) {
 		return;
 	}
 
-	// Set image to the drag drop element
 	const img = new Image();
-	const url = this.firstChild.style.backgroundImage.match(/\(([^\)]+)/)[1];
+	const url = this.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1];
 	img.decoding = 'async';
-	img.src = url.replace(/^\"/, '').replace(/\"$/, '');
+	img.src = url.replace(/^"/, '').replace(/"$/, '');
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -718,7 +829,6 @@ function onItemDragStart(event) {
 
 /**
  * Stop dragging an item
- *
  */
 function onItemDragEnd() {
 	delete window._OBJ_DRAG_;
@@ -734,28 +844,21 @@ function onItemInfo(event) {
 	const item = Mail.getItemByIndex(index);
 
 	if (!item) {
-		return false;
+		return;
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
-		return false;
+		return;
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
-
-	return false;
 }
 
 /**
  * Prettify number (15000 -> 15,000)
- *
- * @param {number} value
- * @return {string}
  */
 function prettifyZeny(value) {
 	const num = String(value);
@@ -766,7 +869,7 @@ function prettifyZeny(value) {
 	while (i < len) {
 		out = num[len - i - 1] + out;
 		if ((i + 1) % 3 === 0 && i + 1 !== len) {
-			out = ',' + out;
+			out = `,${out}`;
 		}
 		++i;
 	}
@@ -776,28 +879,19 @@ function prettifyZeny(value) {
 
 /**
  * Converte DeleteTime
- *
- * @param {number} value
- * @return {string}
  */
 function formateDeleteTime(value) {
-	// convert unix timestamp to milliseconds
 	const ts_ms = value * 1000;
-	// initialize new Date object
 	const date_ob = new Date(ts_ms);
-	// year as 4 digits (YYYY)
 	const year = date_ob.getFullYear();
-	// month as 2 digits (MM)
-	const month = ('0' + (date_ob.getMonth() + 1)).slice(-2);
-	// date as 2 digits (DD)
-	const date = ('0' + date_ob.getDate()).slice(-2);
+	const month = (`0${date_ob.getMonth() + 1}`).slice(-2);
+	const date = (`0${date_ob.getDate()}`).slice(-2);
 
-	return month + ' ' + date + ' ' + (year + '').substring(2, 4);
+	return `${month} ${date} ${String(year).substring(2, 4)}`;
 }
 
 function removeCreateAllItem() {
 	Mail.parseMailWinopen(0);
-	// Layout reset zeny / item
 	Mail.clearFieldsItemZeny();
 }
 
@@ -806,25 +900,23 @@ function removeCreateAllItem() {
  */
 function onDropText(event) {
 	event.stopImmediatePropagation();
+	event.preventDefault();
 	let data;
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
-	} catch (e) {
-		return false;
+		data = JSON.parse(event.dataTransfer.getData('Text'));
+	} catch (_e) {
+		return;
 	}
 
-	// Valid if the message type
 	if (data.type == 'item') {
-		return false;
+		return;
 	}
 
-	jQuery(event.currentTarget).val(data);
-	return false;
+	event.currentTarget.value = data;
 }
 
-// sleep time expects milliseconds
 function sleep(time) {
-	return new Promise(resolve => setTimeout(resolve, time));
+	return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 /**
