@@ -70,7 +70,7 @@ HomunInformations.init = function init() {
 
 	const baseEl = root.querySelector('.base');
 	if (baseEl) {
-		baseEl.addEventListener('mousedown', (e) => {
+		baseEl.addEventListener('mousedown', e => {
 			e.stopImmediatePropagation();
 		});
 	}
@@ -134,7 +134,7 @@ HomunInformations.init = function init() {
 HomunInformations.onAppend = function onAppend() {
 	const root = _getRoot();
 
-	Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences.autoFeed ? '1' : '0'}.bmp`, (data) => {
+	Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences.autoFeed ? '1' : '0'}.bmp`, data => {
 		const el = root.querySelector('.homun_auto_feed');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
@@ -421,46 +421,37 @@ HomunInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
 	}
 
 	if (perc <= 0) {
-		root.querySelectorAll(`.${type}_bar div`).forEach((el) => {
+		root.querySelectorAll(`.${type}_bar div`).forEach(el => {
 			el.style.backgroundImage = 'none';
 		});
 	}
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + `basic_interface/gze${color}_left.bmp`,
-		function (url) {
-			const el = root.querySelector(`.${type}_bar_left`);
-			if (el) {
-				el.style.backgroundImage = `url(${url})`;
-			}
+	Client.loadFile(DB.INTERFACE_PATH + `basic_interface/gze${color}_left.bmp`, function (url) {
+		const el = root.querySelector(`.${type}_bar_left`);
+		if (el) {
+			el.style.backgroundImage = `url(${url})`;
 		}
-	);
+	});
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + `basic_interface/gze${color}_mid.bmp`,
-		function (url) {
-			const el = root.querySelector(`.${type}_bar_middle`);
-			if (el) {
-				Object.assign(el.style, {
-					backgroundImage: `url(${url})`,
-					width: `${Math.floor(Math.min(perc, 100) * 0.75)}px`
-				});
-			}
+	Client.loadFile(DB.INTERFACE_PATH + `basic_interface/gze${color}_mid.bmp`, function (url) {
+		const el = root.querySelector(`.${type}_bar_middle`);
+		if (el) {
+			Object.assign(el.style, {
+				backgroundImage: `url(${url})`,
+				width: `${Math.floor(Math.min(perc, 100) * 0.75)}px`
+			});
 		}
-	);
+	});
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + `basic_interface/gze${color}_right.bmp`,
-		function (url) {
-			const el = root.querySelector(`.${type}_bar_right`);
-			if (el) {
-				Object.assign(el.style, {
-					backgroundImage: `url(${url})`,
-					left: `${Math.floor(Math.min(perc, 100) * 1.27)}px`
-				});
-			}
+	Client.loadFile(DB.INTERFACE_PATH + `basic_interface/gze${color}_right.bmp`, function (url) {
+		const el = root.querySelector(`.${type}_bar_right`);
+		if (el) {
+			Object.assign(el.style, {
+				backgroundImage: `url(${url})`,
+				left: `${Math.floor(Math.min(perc, 100) * 1.27)}px`
+			});
 		}
-	);
+	});
 
 	const summaryEl = root.querySelector(`.${type}2`);
 	if (summaryEl) {
@@ -581,15 +572,12 @@ HomunInformations.setFeedConfig = function setFeedConfig(flag) {
 	_preferences.save();
 	const root = _getRoot();
 	if (root) {
-		Client.loadFile(
-			DB.INTERFACE_PATH + `checkbox_${_preferences.autoFeed ? '1' : '0'}.bmp`,
-			(data) => {
-				const el = root.querySelector('.homun_auto_feed');
-				if (el) {
-					el.style.backgroundImage = `url(${data})`;
-				}
+		Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences.autoFeed ? '1' : '0'}.bmp`, data => {
+			const el = root.querySelector('.homun_auto_feed');
+			if (el) {
+				el.style.backgroundImage = `url(${data})`;
 			}
-		);
+		});
 	}
 	autoFeedCheck();
 };
