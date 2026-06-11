@@ -842,9 +842,7 @@ ChatBox.onRemove = function OnRemove() {
 	_preferences.save();
 
 	this.lastTabID = -1;
-	this.tabCount = 0;
 	this.activeTab = 0;
-	this.tabs = [];
 };
 
 /**
