@@ -371,6 +371,9 @@ Navigation.init = function init() {
 	root.querySelector('.search-button').addEventListener('click', () => this.onSearch());
 
 	const searchInput = root.querySelector('.search-input');
+	searchInput.addEventListener('keydown', (e) => {
+		e.stopPropagation();
+	});
 	searchInput.addEventListener('keypress', (e) => {
 		if (e.which === KEYS.ENTER || e.key === 'Enter') {
 			this.onSearch();
