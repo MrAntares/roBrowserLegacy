@@ -148,6 +148,8 @@ MercenaryInformations.reqDeleteMercenary = function reqDeleteMercenary() {
 		const pkt = new PACKET.CZ.MER_COMMAND();
 		pkt.command = 2;
 		Network.sendPacket(pkt);
+		MercenaryInformations.ui.hide();
+		SkillListMH.mercenary.ui.hide();
 	});
 };
 
