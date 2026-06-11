@@ -243,9 +243,12 @@ class GUIComponent {
 	 * Fix component position after append or screen resize.
 	 * Ensures the component stays within the visible viewport
 	 * and respects magnet constraints.
+	 *
+	 * Skipped for non-draggable (fixed-position) components since their
+	 * CSS position is intentional and should not be overridden.
 	 */
 	_fixPositionOverflow() {
-		if (!this._host) return;
+		if (!this._host || !this._isDraggable) return;
 
 		const rect = this._host.getBoundingClientRect();
 		const x = rect.left;
@@ -260,9 +263,19 @@ class GUIComponent {
 			this._host.style.top = HEIGHT - Math.min(height, HEIGHT) + 'px';
 		}
 
+		// Overflow top
+		if (y < 0) {
+			this._host.style.top = '0px';
+		}
+
 		// Overflow right
 		if (x + width > WIDTH) {
 			this._host.style.left = WIDTH - Math.min(width, WIDTH) + 'px';
+		}
+
+		// Overflow left
+		if (x < 0) {
+			this._host.style.left = '0px';
 		}
 
 		// Magnet constraints
@@ -509,6 +522,8 @@ class GUIComponent {
 		const SNAP_DISTANCE = 10;
 
 		if (!host) return this;
+
+		this._isDraggable = true;
 
 		// Resolve handle element
 		let handleEl;

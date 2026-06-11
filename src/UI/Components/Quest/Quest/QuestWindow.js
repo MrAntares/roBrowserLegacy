@@ -9,7 +9,6 @@
  */
 
 import Preferences from 'Core/Preferences.js';
-import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './QuestWindow.html?raw';
@@ -51,10 +50,6 @@ QuestWindow.init = function init() {};
  * Once append to the DOM, start to position the UI
  */
 QuestWindow.onAppend = function onAppend() {
-	const width = this._host.offsetWidth || 230;
-	this._host.style.left = `${Math.max(0, Renderer.width - width - 50)}px`;
-	this._host.style.top = '250px';
-
 	if (!_preferences.showwindow) {
 		this.ui.hide();
 	}

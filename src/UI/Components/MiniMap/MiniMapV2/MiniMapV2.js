@@ -187,10 +187,6 @@ MiniMapV2.init = function init() {
  * Once append to HTML
  */
 MiniMapV2.onAppend = function onAppend() {
-	const width = this._host.offsetWidth || 128;
-	this._host.style.left = `${Math.max(0, Renderer.width - width - 16)}px`;
-	this._host.style.top = '16px';
-
 	this.updateZoom(_preferences.zoom);
 	this.toggleOpacity(_preferences.opacity + 1);
 
