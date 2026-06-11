@@ -8,12 +8,12 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Renderer from 'Renderer/Renderer.js';
 import MapRenderer from 'Renderer/MapRenderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import Client from 'Core/Client.js';
@@ -25,7 +25,13 @@ import MapPathFinder from './MapPathFinder.js';
 /**
  * Create Navigation component
  */
-const Navigation = new UIComponent('Navigation', htmlText, cssText);
+const Navigation = new GUIComponent('Navigation', cssText);
+
+Navigation.render = () => htmlText;
+
+function _getRoot() {
+	return Navigation._shadow || Navigation._host;
+}
 
 /**
  * Async image create helper
@@ -85,7 +91,7 @@ let _lastPathUpdate = 0;
 /**
  * @var {number} Minimum time between path recalculations (in ms)
  */
-const _pathUpdateThrottle = 500; // Update at most every 500ms
+const _pathUpdateThrottle = 500;
 
 /**
  * @var {boolean} Lock for path update
@@ -99,30 +105,16 @@ let _pathFindingWorker = null;
 
 /**
  * @var {Object} map data
- * @property {number} width - Map width
- * @property {number} height - Map height
- * @property {Array} cells - Map cells
- * @property {Array} cellTypes - Map cell types
- * @property {number} walkableType - Walkable type
- * @property {string} map - Map name
  */
 let _mapData = null;
 
 /**
  * @var {Object} target data
- * @property {number} x - X coordinate
- * @property {number} y - Y coordinate
- * @property {string} map - Map name
- * @property {string} displayName - Display name
  */
 let _targetData = null;
 
 /**
- * @var {Object} target data
- * @property {number} x - X coordinate
- * @property {number} y - Y coordinate
- * @property {string} map - Map name
- * @property {string} displayName - Display name
+ * @var {Object} final target data
  */
 let _finalTargetData = null;
 
@@ -132,64 +124,63 @@ let _finalTargetData = null;
 let _isMapClickTarget = false;
 
 /**
+ * @var {boolean} blinking state for target coordinates
+ */
+let _blinking = false;
+
+/**
+ * @var {number} fade interval ID for blinking
+ */
+let _fadeInterval = null;
+
+/**
+ * @var {string} original color for blinking restore
+ */
+let _originalColor = '';
+
+/**
+ * Document click handler reference for cleanup
+ */
+let _documentClickHandler = null;
+
+/**
  * Local utility functions
  */
 
 /**
  * Normalize a map name (remove .gat extension)
- *
- * @param {string} mapName - Map name to normalize
- * @returns {string} Normalized map name
  */
 function normalizeMapName(mapName) {
-	// Remove .gat extension and convert to lowercase
 	mapName = mapName.replace(/\.gat$/, '').toLowerCase();
-
-	// Handle map variations with _a, _b, _c, _d suffixes
 	mapName = mapName.replace(/^(.+)_[a-d]$/, '$1');
-
 	return mapName;
 }
 
 /**
  * Format coordinates with consistent styling
- *
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {Object} options - Options for formatting
- * @param {boolean} options.floor - Whether to floor the coordinates (default: true)
- * @returns {string} Formatted coordinates
  */
 function formatCoordinates(x, y, options) {
 	options = options || {};
 	const shouldFloor = options.floor !== false;
 
 	if (shouldFloor) {
-		return Math.floor(x) + ',' + Math.floor(y);
+		return `${Math.floor(x)},${Math.floor(y)}`;
 	}
-	return x + ',' + y;
+	return `${x},${y}`;
 }
 
 /**
  * Format target coordinates text with consistent styling
- *
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {Object} options - Options for formatting
- * @param {string} options.targetMap - Target map name for cross-map paths
- * @param {number} options.warpCount - Number of warps for multi-hop paths
- * @param {boolean} options.noPathFound - Whether no path was found
- * @returns {string} Formatted text
  */
 function formatTargetCoordinates(x, y, options) {
 	options = options || {};
 
-	let text = Math.floor(x) + ',' + Math.floor(y);
+	let text = `${Math.floor(x)},${Math.floor(y)}`;
 
 	if (options.noPathFound) {
 		text += ' (no path found)';
 	} else if (options.targetMap && options.targetMap !== getCurrentMap()) {
-		text += ' (' + options.targetMap + ')';
+		text += ` (${options.targetMap})`;
 	}
 
 	return text;
@@ -197,21 +188,14 @@ function formatTargetCoordinates(x, y, options) {
 
 /**
  * Format location title with consistent styling
- *
- * @param {string} currentMap - Current map name
- * @param {string} targetMap - Target map name (optional)
- * @param {string} displayName - Display name to use instead of map name
- * @returns {string} Formatted title
  */
 function formatLocationTitle(currentMap, targetMap, displayName) {
 	let text;
 
 	if (!displayName && targetMap && currentMap !== targetMap) {
-		text = '[' + currentMap + ' → ' + targetMap;
-
-		text += ']';
+		text = `[${currentMap} → ${targetMap}]`;
 	} else {
-		text = '[' + (displayName || currentMap) + ']';
+		text = `[${displayName || currentMap}]`;
 	}
 
 	return text;
@@ -219,29 +203,18 @@ function formatLocationTitle(currentMap, targetMap, displayName) {
 
 /**
  * Convert map coordinates to screen coordinates
- *
- * @param {number} x - Map X coordinate
- * @param {number} y - Map Y coordinate
- * @param {number} width - Canvas width
- * @param {number} height - Canvas height
- * @returns {Object} Screen coordinates {x, y}
  */
 function mapToScreen(x, y, width, height) {
-	// Calculate scaling to fit the map image to the view
 	const scaleX = width / _mapData.width;
 	const scaleY = height / _mapData.height;
 	const scale = Math.min(scaleX, scaleY);
 
-	// Calculate the scaled map dimensions
 	const mapWidth = _mapData.width * scale;
 	const mapHeight = _mapData.height * scale;
 
-	// Calculate offsets to center the map
 	const offsetX = (width - mapWidth) / 2;
 	const offsetY = (height - mapHeight) / 2;
 
-	// For the Y coordinate, we need to invert it because the game's coordinate system
-	// has Y increasing as you go south, but on the screen Y increases as you go down
 	const screenX = (x / _mapData.width) * mapWidth + offsetX;
 	const screenY = ((_mapData.height - y) / _mapData.height) * mapHeight + offsetY;
 
@@ -250,8 +223,6 @@ function mapToScreen(x, y, width, height) {
 
 /**
  * Get the current map name
- *
- * @returns {string} Current map name
  */
 function getCurrentMap() {
 	if (MapRenderer && MapRenderer.currentMap) {
@@ -261,10 +232,11 @@ function getCurrentMap() {
 
 /**
  * Get the current player position
- *
- * @returns {Object} Current player position {x, y}
  */
 function getPlayerPosition() {
+	if (!Session.Entity || !Session.Entity.position) {
+		return { x: 0, y: 0 };
+	}
 	const currentX = Math.ceil(Session.Entity.position[0]);
 	const currentY = Math.ceil(Session.Entity.position[1]);
 
@@ -275,7 +247,6 @@ function getPlayerPosition() {
  * Terminate the pathfinding worker
  */
 function terminatePathFindingWorker() {
-	// Terminate worker
 	if (_pathFindingWorker) {
 		_pathFindingWorker.terminate();
 		_pathFindingWorker = null;
@@ -320,34 +291,24 @@ function resetPathFindingWorker() {
 
 /**
  * Convert screen coordinates to map coordinates
- *
- * @param {number} screenX - X coordinate on screen
- * @param {number} screenY - Y coordinate on screen
- * @returns {Object} Map coordinates {x, y}
  */
 Navigation.screenToMapCoordinates = function screenToMapCoordinates(screenX, screenY) {
 	const width = 280;
 	const height = 230;
 
-	// Calculate scaling to fit the map image to the view
 	const scaleX = width / _mapData.width;
 	const scaleY = height / _mapData.height;
 	const scale = Math.min(scaleX, scaleY);
 
-	// Calculate the scaled map dimensions
 	const scaledMapWidth = _mapData.width * scale;
 	const scaledMapHeight = _mapData.height * scale;
 
-	// Calculate offsets from the centered map
 	const offsetX = (width - scaledMapWidth) / 2;
 	const offsetY = (height - scaledMapHeight) / 2;
 
-	// Convert screen coordinates back to map coordinates
 	let mapX = ((screenX - offsetX) / scaledMapWidth) * _mapData.width;
-	// Invert Y coordinate to match the game's coordinate system
 	let mapY = _mapData.height - ((screenY - offsetY) / scaledMapHeight) * _mapData.height;
 
-	// Clamp to map boundaries
 	mapX = Math.max(0, Math.min(_mapData.width, mapX));
 	mapY = Math.max(0, Math.min(_mapData.height, mapY));
 
@@ -358,92 +319,93 @@ Navigation.screenToMapCoordinates = function screenToMapCoordinates(screenX, scr
  * Initialize component
  */
 Navigation.init = function init() {
-	// Initialize _mapData.walkableType from Altitude.TYPE.WALKABLE
+	const root = _getRoot();
+
 	_mapData = {
 		walkableType: Altitude.TYPE.WALKABLE
 	};
 
-	this.ui.css({
-		top: Math.max(0, Math.min(Renderer.height - this.ui.height(), 200)),
-		left: Math.max(0, Math.min(Renderer.width - this.ui.width(), 200))
-	});
+	this._host.style.top = `${Math.max(0, Math.min(Renderer.height - 300, 200))}px`;
+	this._host.style.left = `${Math.max(0, Math.min(Renderer.width - 300, 200))}px`;
 
 	// Get canvas context
 	const canvas = document.createElement('canvas');
 	canvas.width = 280;
 	canvas.height = 230;
 	_ctx = canvas.getContext('2d');
-	this.ui.find('.map-display').append(canvas);
+	const mapDisplay = root.querySelector('.map-display');
+	if (mapDisplay) {
+		mapDisplay.appendChild(canvas);
+	}
 
 	// Load arrow image
-	Client.loadFile(DB.INTERFACE_PATH + 'map/map_arrow.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, (dataURI) => {
 		_arrow.src = dataURI;
 	});
 
 	// Load town info icons
-	Client.loadFile(DB.INTERFACE_PATH + 'information/store.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/store.bmp`, (dataURI) => {
 		_toolDealer.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/weaponshop.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/weaponshop.bmp`, (dataURI) => {
 		_weaponDealer.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/armorshops.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/armorshops.bmp`, (dataURI) => {
 		_armorDealer.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/smithy.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/smithy.bmp`, (dataURI) => {
 		_blacksmith.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/guide.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/guide.bmp`, (dataURI) => {
 		_guide.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/inn.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/inn.bmp`, (dataURI) => {
 		_inn.src = dataURI;
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'information/kafra.bmp', function (dataURI) {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, (dataURI) => {
 		_kafra.src = dataURI;
 	});
 
 	// Bind events
-	this.ui.find('.close').click(this.hide.bind(this));
-	this.ui.find('.search-button').click(this.onSearch.bind(this));
-	this.ui.find('.search-input').keypress(
-		function (e) {
-			if (e.which === KEYS.ENTER || e.key === 'Enter') {
-				this.onSearch();
-			}
-		}.bind(this)
-	);
+	root.querySelector('.close').addEventListener('click', () => this.hide());
+	root.querySelector('.search-button').addEventListener('click', () => this.onSearch());
+
+	const searchInput = root.querySelector('.search-input');
+	searchInput.addEventListener('keypress', (e) => {
+		if (e.which === KEYS.ENTER || e.key === 'Enter') {
+			this.onSearch();
+		}
+	});
 
 	// Focus handling for search input
-	this.ui.find('.search-input').focus(
-		function () {
-			// If there are search results, show them when focusing the input
-			const resultsContainer = this.ui.find('.search-results');
-			if (resultsContainer.length > 0 && resultsContainer.children().length > 0) {
-				resultsContainer.show();
-			}
-		}.bind(this)
-	);
+	searchInput.addEventListener('focus', () => {
+		const resultsContainer = root.querySelector('.search-results');
+		if (resultsContainer && resultsContainer.children.length > 0) {
+			resultsContainer.style.display = '';
+		}
+	});
 
-	// Hide search results when clicking outside
-	jQuery(document).click(
-		function (e) {
-			if (!jQuery(e.target).closest('.search-results, .search-input, .search-button, .search-type').length) {
-				this.ui.find('.search-results').hide();
+	// Hide search results when clicking outside (on document level)
+	_documentClickHandler = (e) => {
+		if (!e.target.closest('.search-results, .search-input, .search-button, .search-type')) {
+			const resultsContainer = root.querySelector('.search-results');
+			if (resultsContainer) {
+				resultsContainer.style.display = 'none';
 			}
-		}.bind(this)
-	);
+		}
+	};
+	document.addEventListener('click', _documentClickHandler);
 
 	// Map click event for navigation
-	this.ui.find('.map-display').click(this.onMapClick.bind(this));
+	root.querySelector('.map-display').addEventListener('click', (e) => this.onMapClick(e));
 
 	// Mouse move event for displaying coordinates
-	this.ui.find('.map-display').mousemove(this.onMapMouseMove.bind(this));
+	root.querySelector('.map-display').addEventListener('mousemove', (e) => this.onMapMouseMove(e));
 
 	// Mouse leave event to reset coordinates display
-	this.ui.find('.map-display').mouseleave(this.onMapMouseLeave.bind(this));
+	root.querySelector('.map-display').addEventListener('mouseleave', () => this.onMapMouseLeave());
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 
 	// Hide the UI initially
 	this.ui.hide();
@@ -456,12 +418,8 @@ Navigation.onAppend = function onAppend() {
 	// Clear path for clean render
 	this.clearPath();
 
-	// Seems like "EscapeWindow" is execute first, push it before.
-	const events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
-
 	// Start rendering
-	Renderer.render(this.render.bind(this));
+	Renderer.render(this.renderCanvas.bind(this));
 
 	// Initialize pathfinding worker
 	initializePathFindingWorker();
@@ -490,14 +448,20 @@ Navigation.onAppend = function onAppend() {
 Navigation.onRemove = function onRemove() {
 	this.clearPath();
 	terminatePathFindingWorker();
+
+	// Clean up document-level event listener
+	if (_documentClickHandler) {
+		document.removeEventListener('click', _documentClickHandler);
+	}
 };
 
 /**
  * Handle search button click
  */
 Navigation.onSearch = function onSearch() {
-	const query = this.ui.find('.search-input').val().trim();
-	const type = this.ui.find('.search-type').val();
+	const root = _getRoot();
+	const query = root.querySelector('.search-input').value.trim();
+	const type = root.querySelector('.search-type').value;
 
 	if (query.length < 2) {
 		return;
@@ -512,83 +476,74 @@ Navigation.onSearch = function onSearch() {
 
 /**
  * Display search results
- *
- * @param {Array} results - Array of search results
  */
 Navigation.displaySearchResults = function displaySearchResults(results) {
-	// Clear any existing results
-	let resultsContainer = this.ui.find('.search-results');
-	if (resultsContainer.length === 0) {
-		// Create results container if it doesn't exist
-		resultsContainer = jQuery('<div class="search-results"></div>');
-		this.ui.find('.content').append(resultsContainer);
+	const root = _getRoot();
+
+	// Get or create results container
+	let resultsContainer = root.querySelector('.search-results');
+	if (!resultsContainer) {
+		resultsContainer = document.createElement('div');
+		resultsContainer.className = 'search-results';
+		root.querySelector('.content').appendChild(resultsContainer);
 	} else {
-		resultsContainer.empty();
+		resultsContainer.innerHTML = '';
 	}
 
 	// If no results, show a message
 	if (results.length === 0) {
-		resultsContainer.append('<div class="no-results">No results found</div>');
-		resultsContainer.show();
+		resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+		resultsContainer.style.display = '';
 		return;
 	}
 
 	// Create results list
-	const resultsList = jQuery('<ul class="results-list"></ul>');
-	resultsContainer.append(resultsList);
+	const resultsList = document.createElement('ul');
+	resultsList.className = 'results-list';
+	resultsContainer.appendChild(resultsList);
 
 	// Add each result to the list
 	for (let i = 0; i < results.length; i++) {
 		const result = results[i];
-		const resultItem = jQuery('<li class="result-item"></li>');
+		const resultItem = document.createElement('li');
+		resultItem.className = 'result-item';
 
 		// Add type icon (NPC or MOB)
 		const typeIcon = result.type === 'NPC' ? 'npc_icon' : 'mob_icon';
-		resultItem.append('<span class="result-type ' + typeIcon + '">' + result.type + '</span>');
+		resultItem.innerHTML =
+			`<span class="result-type ${typeIcon}">${result.type}</span>` +
+			`<span class="result-name">${result.name}</span>` +
+			`<span class="result-map">${result.mapName}</span>`;
 
-		// Add result name
-		resultItem.append('<span class="result-name">' + result.name + '</span>');
+		// Store result data
+		resultItem._resultData = result;
 
-		// Add map name
-		resultItem.append('<span class="result-map">' + result.mapName + '</span>');
+		// Add click handler
+		resultItem.addEventListener('click', () => {
+			this.navigateToSearchResult(result);
+		});
 
-		// Store result data for navigation
-		resultItem.data('result', result);
-
-		// Add click handler using a closure to capture the current result
-		(function (self, currentResult) {
-			resultItem.on('click', function () {
-				self.navigateToSearchResult(currentResult);
-			});
-		})(this, result);
-
-		resultsList.append(resultItem);
+		resultsList.appendChild(resultItem);
 	}
 
 	// Show the results container
-	resultsContainer.show();
+	resultsContainer.style.display = '';
 };
 
 /**
  * Navigate to a search result
- *
- * @param {Object} result - The search result to navigate to
  */
 Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
-	// Validate result
 	if (!result || !result.mapName) {
 		return;
 	}
 
-	// Store the target result for later reference
 	this.targetResult = result;
 	_isMapClickTarget = false;
 
-	// Get current map and position
 	const currentMap = getCurrentMap();
 	const currentPos = getPlayerPosition();
 
-	// Use our unified navigation function
 	this.navigateTo({
 		startMap: currentMap,
 		startX: currentPos.x,
@@ -600,19 +555,17 @@ Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
 	});
 
 	// Hide the search results
-	this.ui.find('.search-results').hide();
+	const root = _getRoot();
+	const resultsContainer = root.querySelector('.search-results');
+	if (resultsContainer) {
+		resultsContainer.style.display = 'none';
+	}
 };
 
 /**
  * Find the closest walkable cell to the given coordinates
- *
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {number} maxRadius - Maximum search radius (default: 10)
- * @returns {Object|null} The closest walkable cell coordinates or null if none found
  */
 Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxRadius) {
-	// If the cell is already walkable, return it
 	if (x >= 0 && x < _mapData.width && y >= 0 && y < _mapData.height) {
 		const index = x + y * _mapData.width;
 		const cellType = _mapData.cellTypes[index];
@@ -627,12 +580,9 @@ Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxR
 	let bestDistance = Infinity;
 	let bestCell = null;
 
-	// Search in increasing radius until we find a walkable cell or reach maxRadius
 	while (radius <= maxRadius) {
-		// Check cells in a square around the target
 		for (let offsetY = -radius; offsetY <= radius; offsetY++) {
 			for (let offsetX = -radius; offsetX <= radius; offsetX++) {
-				// Only check cells on the perimeter of the square
 				if (Math.abs(offsetX) !== radius && Math.abs(offsetY) !== radius) {
 					continue;
 				}
@@ -640,14 +590,11 @@ Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxR
 				const cx = x + offsetX;
 				const cy = y + offsetY;
 
-				// Check if cell is within map bounds
 				if (cx >= 0 && cx < _mapData.width && cy >= 0 && cy < _mapData.height) {
 					const index = cx + cy * _mapData.width;
 					const cellType = _mapData.cellTypes[index];
 
-					// Check if cell is walkable
 					if (cellType & _mapData.walkableType) {
-						// Calculate distance to original point
 						const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 						if (distance < bestDistance) {
 							bestDistance = distance;
@@ -658,7 +605,6 @@ Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxR
 			}
 		}
 
-		// If we found a walkable cell, return it
 		if (bestCell) {
 			return bestCell;
 		}
@@ -666,32 +612,26 @@ Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxR
 		radius++;
 	}
 
-	// If no walkable cell found, return null instead of the original coordinates
 	return null;
 };
 
 /**
  * Handle map click event
- *
- * @param {Object} event - Mouse event
  */
 Navigation.onMapClick = function onMapClick(event) {
-	const mapDisplay = this.ui.find('.map-display');
-	const offset = mapDisplay.offset();
-	const x = Math.floor(event.pageX - offset.left);
-	const y = Math.floor(event.pageY - offset.top);
+	const root = _getRoot();
+	const mapDisplay = root.querySelector('.map-display');
+	const rect = mapDisplay.getBoundingClientRect();
+	const x = Math.floor(event.clientX - rect.left);
+	const y = Math.floor(event.clientY - rect.top);
 
-	// Convert screen coordinates to map coordinates
 	const mapCoords = this.screenToMapCoordinates(x, y);
 
-	// Get current map and position
 	const currentMap = getCurrentMap();
 	const currentPos = getPlayerPosition();
 
-	// Set flag that this target was set by map click
 	_isMapClickTarget = true;
 
-	// Use the unified navigation function with the current map as both start and end map
 	this.navigateTo({
 		startMap: currentMap,
 		startX: currentPos.x,
@@ -705,18 +645,13 @@ Navigation.onMapClick = function onMapClick(event) {
 
 /**
  * Load a map for display
- *
- * @param {string} mapName - The name of the map to load
- * @param {string} displayName - Optional display name for the map
  */
 Navigation.loadMap = function loadMap(mapName, displayName) {
-	// Clear target if it was set by map click and we're changing maps
 	if (_isMapClickTarget && _mapData && _mapData.map && _mapData.map !== mapName) {
 		this.clear();
 		_isMapClickTarget = false;
 	}
 
-	// Ensure we have the map name without extension for loading
 	const mapBaseName = mapName.replace(/\..*/, '');
 
 	// Load town info
@@ -724,53 +659,46 @@ Navigation.loadMap = function loadMap(mapName, displayName) {
 
 	// Get the correct map path using DB.mapalias
 	let bmpPath = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapBaseName + '.bmp';
-	bmpPath = bmpPath.replace(/\//g, '\\'); // normalize path separator
+	bmpPath = bmpPath.replace(/\//g, '\\');
 	bmpPath = DB.mapalias[bmpPath] || bmpPath;
 
-	// Load the map image using the correct bmpPath
-	Client.loadFile('data/texture/' + bmpPath, function (dataURI) {
+	// Load the map image
+	Client.loadFile('data/texture/' + bmpPath, (dataURI) => {
 		if (dataURI) {
 			_map.src = dataURI;
 		} else {
-			// If map not found, use a placeholder image
 			_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 		}
 	});
 
 	// Get the correct map path using DB.mapalias
 	let gatPath = mapBaseName + '.gat';
-	gatPath = gatPath.replace(/\//g, '\\'); // normalize path separator
+	gatPath = gatPath.replace(/\//g, '\\');
 	gatPath = DB.mapalias[gatPath] || gatPath;
 
 	// Load the GAT file for pathfinding
 	Client.loadFile(
 		'data/' + gatPath,
-		function (gatData) {
+		(gatData) => {
 			if (gatData) {
-				// If we have GAT data, use it directly for pathfinding
 				if (gatData.cells && gatData.width && gatData.height) {
-					// Update _mapData with the new map information
 					_mapData.width = gatData.width;
 					_mapData.height = gatData.height;
 					_mapData.cells = gatData.cells;
 
-					// Create cell types array for the worker and store in _mapData
 					const cellCount = gatData.width * gatData.height;
 					const cellTypes = new Uint8Array(cellCount);
 
-					// Extract cell types directly from GAT data
-					// Each cell in gatData has 5 values, with the type at index 4
 					for (let i = 0; i < cellCount; i++) {
-						const cellIndex = i * 5 + 4; // Get the type value (5th value in each cell)
+						const cellIndex = i * 5 + 4;
 						cellTypes[i] = gatData.cells[cellIndex];
 					}
 
-					// Store cell types in _mapData
 					_mapData.cellTypes = cellTypes;
 					_mapData.map = mapBaseName;
 				}
 			}
-		}.bind(this)
+		}
 	);
 
 	this.setMapNameText(mapName);
@@ -780,14 +708,17 @@ Navigation.loadMap = function loadMap(mapName, displayName) {
  * Clear the end marker
  */
 Navigation.clear = function clear() {
-	// Clear the path
 	this.clearPath();
 	_finalTargetData = null;
 	_targetData = null;
 	_isMapClickTarget = false;
 
 	// Hide the target coordinates display
-	this.ui.find('.target-info').hide();
+	const root = _getRoot();
+	const targetInfo = root.querySelector('.target-info');
+	if (targetInfo) {
+		targetInfo.style.display = 'none';
+	}
 
 	// Update location title with current map name
 	const currentMap = getCurrentMap();
@@ -804,11 +735,6 @@ Navigation.clearPath = function clearPath() {
 
 /**
  * Add a marker to the map
- *
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {string} color - Color of the marker
- * @param {string} label - Optional label for the marker
  */
 Navigation.addMarker = function addMarker(x, y, color, label) {
 	_markers.push({
@@ -822,8 +748,9 @@ Navigation.addMarker = function addMarker(x, y, color, label) {
 /**
  * Render the map and markers
  */
-Navigation.render = function render(tick) {
-	if (!this.ui.is(':visible')) {
+Navigation.renderCanvas = function renderCanvas(tick) {
+	const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
+	if (hostDisplay === 'none') {
 		return;
 	}
 
@@ -831,11 +758,14 @@ Navigation.render = function render(tick) {
 	const height = 230;
 	const ctx = _ctx;
 
+	if (!ctx) {
+		return;
+	}
+
 	// Check if player position has changed
 	const currentMap = getCurrentMap();
 	const currentPos = getPlayerPosition();
 	if (_finalTargetData && tick - _lastPathUpdate > _pathUpdateThrottle && !_pathUpdateLock) {
-		// Recalculate path if we have an end position, but throttle updates
 		this.navigateTo({
 			startMap: currentMap,
 			startX: currentPos.x,
@@ -857,12 +787,10 @@ Navigation.render = function render(tick) {
 
 	// Draw the map image if loaded
 	if (_map.complete && _map.width) {
-		// Calculate scaling to fit the map image to the view
 		const scaleX = width / _mapData.width;
 		const scaleY = height / _mapData.height;
 		const scale = Math.min(scaleX, scaleY);
 
-		// Draw the map with proper scaling and position
 		ctx.save();
 		ctx.translate(width / 2, height / 2);
 		ctx.scale(scale, scale);
@@ -918,23 +846,19 @@ Navigation.render = function render(tick) {
 	if (_path && _path.length > 0) {
 		ctx.lineWidth = 2;
 
-		// Draw each path segment
 		let currentSegment = [];
 		for (let i = 0; i < _path.length; i++) {
 			const point = _path[i];
 			const pos = mapToScreenBound(point.x, point.y);
 
-			// Start a new segment
 			if (currentSegment.length === 0) {
 				currentSegment.push(pos);
 				continue;
 			}
 
-			// If this is a warp point or the last point, draw the current segment
 			if (point.isWarp || i === _path.length - 1) {
 				currentSegment.push(pos);
 
-				// Draw the path segment
 				ctx.strokeStyle = 'cyan';
 				ctx.beginPath();
 				ctx.moveTo(currentSegment[0].x, currentSegment[0].y);
@@ -943,37 +867,29 @@ Navigation.render = function render(tick) {
 				}
 				ctx.stroke();
 
-				// Draw warp marker if this is a warp point
 				if (point.isWarp) {
-					// Draw warp entry point
 					ctx.beginPath();
 					ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
 					ctx.fillStyle = 'yellow';
 					ctx.fill();
 
-					// If there's a next point, it's the warp exit
 					if (i + 1 < _path.length) {
 						const exitPos = mapToScreenBound(_path[i + 1].x, _path[i + 1].y);
 
-						// Draw warp exit point
 						ctx.beginPath();
 						ctx.arc(exitPos.x, exitPos.y, 3, 0, Math.PI * 2);
 						ctx.fillStyle = 'yellow';
 						ctx.fill();
 
-						// Start new segment from the exit point
 						currentSegment = [exitPos];
-						i++; // Skip the exit point in the next iteration
+						i++;
 					} else {
-						// Start new segment from this point
 						currentSegment = [pos];
 					}
 				} else {
-					// For non-warp points (like the end of the path)
 					currentSegment = [pos];
 				}
 			} else {
-				// Add point to current segment
 				currentSegment.push(pos);
 			}
 		}
@@ -990,12 +906,9 @@ Navigation.render = function render(tick) {
 
 	// Draw start marker (player position)
 	const startPos = mapToScreenBound(currentPos.x, currentPos.y);
-	// Draw player arrow if loaded
 	if (_arrow.complete && _arrow.width) {
 		ctx.save();
 		ctx.translate(startPos.x, startPos.y);
-
-		// Rotate arrow based on player direction if available
 		ctx.rotate(((Session.Entity.direction + 4) * 45 * Math.PI) / 180);
 		ctx.drawImage(_arrow, -_arrow.width / 2, -_arrow.height / 2);
 		ctx.restore();
@@ -1021,14 +934,14 @@ Navigation.render = function render(tick) {
 
 /**
  * Update the target coordinates text
- *
- * @param {boolean} noPathFound - Whether to show "no path found" message
  */
 Navigation.updateTargetText = function updateTargetText(noPathFound) {
-	this.ui.find('.target-info').show();
+	const root = _getRoot();
+	const targetInfo = root.querySelector('.target-info');
+	if (targetInfo) {
+		targetInfo.style.display = 'flex';
+	}
 
-	// Use the existing setTargetCoordinatesText function with the noPathFound option
-	// This will properly format the text using formatTargetCoordinates
 	if (_finalTargetData) {
 		this.setTargetCoordinatesText(_finalTargetData.x, _finalTargetData.y, {
 			noPathFound: noPathFound,
@@ -1039,151 +952,140 @@ Navigation.updateTargetText = function updateTargetText(noPathFound) {
 
 /**
  * Set target coordinates text with proper formatting
- *
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {Object} options - Options for formatting
  */
 Navigation.setTargetCoordinatesText = function setTargetCoordinatesText(x, y, options) {
-	if (!this.ui) {
+	const root = _getRoot();
+	if (!root) {
 		return;
 	}
 
 	const text = formatTargetCoordinates(x, y, options);
-	this.ui.find('.target-coordinates').text(text);
-	this.ui.find('.target-coordinates').show();
-	this.ui.find('.target-info').show();
+	const targetCoords = root.querySelector('.target-coordinates');
+	if (targetCoords) {
+		targetCoords.textContent = text;
+		targetCoords.style.display = '';
+	}
+	const targetInfo = root.querySelector('.target-info');
+	if (targetInfo) {
+		targetInfo.style.display = 'flex';
+	}
 };
 
 Navigation.setTargetCoordinatesBlinking = function setTargetCoordinatesBlinking(blinking) {
-	if (!this.ui) {
+	const root = _getRoot();
+	if (!root) {
 		return;
 	}
 
-	const targetCoordinates = this.ui.find('.target-coordinates');
+	const targetCoordinates = root.querySelector('.target-coordinates');
+	if (!targetCoordinates) {
+		return;
+	}
 
 	if (blinking) {
-		// Start blinking effect if not already blinking
-		if (!targetCoordinates.data('blinking')) {
-			targetCoordinates.data('blinking', true);
+		if (!_blinking) {
+			_blinking = true;
+			_originalColor = getComputedStyle(targetCoordinates).color || '#ffffff';
 
-			// Store original color
-			const originalColor = targetCoordinates.css('color') || '#ffffff';
-			targetCoordinates.data('originalColor', originalColor);
-
-			// Set up interval for fading effect
 			let fadeStep = 0;
-			let fadeDirection = -1; // Start by fading out
-			const fadeInterval = setInterval(function () {
+			let fadeDirection = -1;
+			_fadeInterval = setInterval(() => {
 				fadeStep += fadeDirection * 0.1;
 
-				// Change direction when reaching limits
 				if (fadeStep <= 0.3) {
-					fadeDirection = 1; // Start fading in
+					fadeDirection = 1;
 				} else if (fadeStep >= 1) {
-					fadeDirection = -1; // Start fading out
+					fadeDirection = -1;
 				}
 
-				// Apply opacity
-				targetCoordinates.css('opacity', fadeStep);
-			}, 50); // Update every 50ms for smooth animation
-
-			// Store interval ID for later cleanup
-			targetCoordinates.data('fadeInterval', fadeInterval);
+				targetCoordinates.style.opacity = fadeStep;
+			}, 50);
 		}
 	} else {
-		// Stop fading effect
-		if (targetCoordinates.data('blinking')) {
-			clearInterval(targetCoordinates.data('fadeInterval'));
-			targetCoordinates.css('opacity', 1); // Restore full opacity
-			targetCoordinates.css('color', targetCoordinates.data('originalColor'));
-			targetCoordinates.data('blinking', false);
+		if (_blinking) {
+			clearInterval(_fadeInterval);
+			_fadeInterval = null;
+			targetCoordinates.style.opacity = '1';
+			targetCoordinates.style.color = _originalColor;
+			_blinking = false;
 		}
 	}
 };
 
 /**
  * Set location title with proper formatting
- *
- * @param {string} currentMap - Current map name
- * @param {string} targetMap - Target map name (optional)
- * @param {Object} options - Options for formatting
  */
 Navigation.setLocationTitle = function setLocationTitle(currentMap, targetMap, displayName) {
-	if (!this.ui) {
+	const root = _getRoot();
+	if (!root) {
 		return;
 	}
 
 	const title = formatLocationTitle(currentMap, targetMap, displayName);
-	this.ui.find('.location-title').text(title);
+	const locationTitle = root.querySelector('.location-title');
+	if (locationTitle) {
+		locationTitle.textContent = title;
+	}
 };
 
 /**
  * Set coordinates text with proper formatting
- *
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {Object} options - Options for formatting
  */
 Navigation.setCoordinatesText = function setCoordinatesText(x, y, options) {
-	if (!this.ui) {
+	const root = _getRoot();
+	if (!root) {
 		return;
 	}
 
 	const text = formatCoordinates(x, y, options);
-	this.ui.find('.coordinates').text(text);
+	const coords = root.querySelector('.coordinates');
+	if (coords) {
+		coords.textContent = text;
+	}
 };
 
 /**
  * Set map name text with proper formatting
- *
- * @param {string} mapName - Map name
- * @param {Object} options - Options for formatting
  */
 Navigation.setMapNameText = function setMapNameText(mapName) {
-	if (!this.ui) {
+	const root = _getRoot();
+	if (!root) {
 		return;
 	}
 
-	this.ui.find('.map-name').text(normalizeMapName(mapName));
+	const mapNameEl = root.querySelector('.map-name');
+	if (mapNameEl) {
+		mapNameEl.textContent = normalizeMapName(mapName);
+	}
 };
 
 /**
  * Set mouse coordinates text with proper formatting
- *
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {Object} options - Options for formatting
  */
 Navigation.setMouseCoordinatesText = function setMouseCoordinatesText(x, y, options) {
-	if (!this.ui) {
+	const root = _getRoot();
+	if (!root) {
 		return;
 	}
 
 	const text = formatCoordinates(x, y, options);
-	this.ui.find('.mouse-coordinates').text(text);
+	const mouseCoords = root.querySelector('.mouse-coordinates');
+	if (mouseCoords) {
+		mouseCoords.textContent = text;
+	}
 };
 
 /**
- * Find a path between two points using a simplified A* algorithm in a web worker
- *
- * @param {number} startX - Start X coordinate
- * @param {number} startY - Start Y coordinate
- * @param {number} endX - End X coordinate
- * @param {number} endY - End Y coordinate
- * @returns {Array} Array of path points
+ * Find a path between two points using a web worker
  */
 Navigation.findPath = function findPath(startX, startY, endX, endY) {
-	// Send path request to worker
 	if (_pathFindingWorker && !_pathUpdateLock) {
 		_pathUpdateLock = true;
 
-		// Get warp information for the current map
 		const naviLinkTable = DB.getNaviLinkTable();
 		const currentMap = getCurrentMap();
 		const warps = [];
 
-		// Process NaviLinkTable to find same-map warps
 		if (naviLinkTable && naviLinkTable.length) {
 			for (let i = 0; i < naviLinkTable.length; i++) {
 				const warp = naviLinkTable[i];
@@ -1194,7 +1096,6 @@ Navigation.findPath = function findPath(startX, startY, endX, endY) {
 				const srcMap = warp[0].replace(/\.gat$/, '').toLowerCase();
 				const destMap = warp[8].replace(/\.gat$/, '').toLowerCase();
 
-				// Only include warps that start and end in the current map
 				if (srcMap === currentMap && destMap === currentMap) {
 					warps.push({
 						id: warp[1],
@@ -1208,7 +1109,6 @@ Navigation.findPath = function findPath(startX, startY, endX, endY) {
 			}
 		}
 
-		// Add warps to mapData
 		_mapData.warps = warps;
 
 		_pathFindingWorker.postMessage({
@@ -1228,7 +1128,8 @@ Navigation.findPath = function findPath(startX, startY, endX, endY) {
  * Toggle the navigation window (show/hide)
  */
 Navigation.toggle = function toggle() {
-	if (this.ui.is(':visible')) {
+	const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
+	if (hostDisplay !== 'none') {
 		this.hide();
 	} else {
 		this.show();
@@ -1239,19 +1140,24 @@ Navigation.toggle = function toggle() {
  * Show the navigation window
  */
 Navigation.show = function show() {
-	// Initialize variables
+	const root = _getRoot();
+
 	this.clearPath();
 	initializePathFindingWorker();
 
 	// Hide coordinate displays initially
-	this.ui.find('.mouse-info').hide();
-	this.ui.find('.target-info').hide();
+	const mouseInfo = root.querySelector('.mouse-info');
+	if (mouseInfo) {
+		mouseInfo.style.display = 'none';
+	}
+	const targetInfo = root.querySelector('.target-info');
+	if (targetInfo) {
+		targetInfo.style.display = 'none';
+	}
 
-	// Get current map name and player position
 	const mapName = getCurrentMap();
 	const currentPos = getPlayerPosition();
 
-	// Use navigateTo to recalculate the path
 	if (_finalTargetData) {
 		this.navigateTo({
 			startMap: mapName,
@@ -1264,11 +1170,10 @@ Navigation.show = function show() {
 		});
 	}
 
-	// Update map name display
 	this.setMapNameText(mapName);
 
-	// Set the location title if not already set
-	if (!this.ui.find('.location-title').text()) {
+	const locationTitle = root.querySelector('.location-title');
+	if (locationTitle && !locationTitle.textContent) {
 		this.setLocationTitle(mapName, null);
 	}
 
@@ -1279,35 +1184,35 @@ Navigation.show = function show() {
  * Hide the navigation window
  */
 Navigation.hide = function hide() {
-	// Don't clear any data, just hide the UI
 	this.ui.hide();
 	terminatePathFindingWorker();
 };
 
 Navigation.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && hostDisplay !== 'none') {
 		this.hide();
 	}
 };
 
 /**
  * Handle mouse movement over the map to display coordinates
- *
- * @param {MouseEvent} event - The mouse event
  */
 Navigation.onMapMouseMove = function onMapMouseMove(event) {
-	const mapDisplay = this.ui.find('.map-display');
-	const offset = mapDisplay.offset();
-	const x = Math.floor(event.pageX - offset.left);
-	const y = Math.floor(event.pageY - offset.top);
+	const root = _getRoot();
+	const mapDisplay = root.querySelector('.map-display');
+	const rect = mapDisplay.getBoundingClientRect();
+	const x = Math.floor(event.clientX - rect.left);
+	const y = Math.floor(event.clientY - rect.top);
 
-	// Convert screen coordinates to map coordinates
 	const mapCoords = this.screenToMapCoordinates(x, y);
 	const mapX = Math.floor(mapCoords.x);
 	const mapY = Math.floor(mapCoords.y);
 
-	// Update the mouse coordinates display
-	this.ui.find('.mouse-info').show();
+	const mouseInfo = root.querySelector('.mouse-info');
+	if (mouseInfo) {
+		mouseInfo.style.display = 'flex';
+	}
 	this.setMouseCoordinatesText(mapX, mapY);
 };
 
@@ -1315,18 +1220,17 @@ Navigation.onMapMouseMove = function onMapMouseMove(event) {
  * Handle mouse leaving the map area
  */
 Navigation.onMapMouseLeave = function onMapMouseLeave() {
-	// Hide the mouse coordinates display
-	this.ui.find('.mouse-info').hide();
+	const root = _getRoot();
+	const mouseInfo = root.querySelector('.mouse-info');
+	if (mouseInfo) {
+		mouseInfo.style.display = 'none';
+	}
 };
 
 /**
  * Set the content of the navigation window based on NAVI info
- *
- * @param {string} naviInfo - The NAVI info string (mapname,x,y,0,000,flag)
- * @param {string} displayName - Optional display name for the location
  */
 Navigation.setNaviInfo = function setNaviInfo(naviInfo, displayName) {
-	// Parse the NAVI info
 	const parts = naviInfo.split(',');
 	if (parts.length < 3) {
 		return;
@@ -1337,14 +1241,16 @@ Navigation.setNaviInfo = function setNaviInfo(naviInfo, displayName) {
 	const y = parseInt(parts[2], 10);
 
 	// Clear the search input
-	this.ui.find('.search-input').val('');
+	const root = _getRoot();
+	const searchInput = root.querySelector('.search-input');
+	if (searchInput) {
+		searchInput.value = '';
+	}
 	_isMapClickTarget = false;
 
-	// Get current map and position
 	const currentMap = getCurrentMap();
 	const currentPos = getPlayerPosition();
 
-	// Use the unified navigation function
 	this.navigateTo({
 		startMap: currentMap,
 		startX: currentPos.x,
@@ -1358,12 +1264,10 @@ Navigation.setNaviInfo = function setNaviInfo(naviInfo, displayName) {
 
 /**
  * Wait for map data to be loaded
- *
- * @param {Function} callback - Callback function to call when map data is loaded
  */
 Navigation.waitForMapData = function waitForMapData(callback) {
 	if (!_mapData || _mapData.map !== getCurrentMap()) {
-		setTimeout(function () {
+		setTimeout(() => {
 			Navigation.waitForMapData(callback);
 		}, 100);
 	} else {
@@ -1373,18 +1277,9 @@ Navigation.waitForMapData = function waitForMapData(callback) {
 
 /**
  * Unified navigation function that handles both same-map and cross-map navigation
- *
- * @param {Object} options - Navigation options
- * @param {string} options.startMap - Starting map name
- * @param {number} options.startX - Starting X coordinate
- * @param {number} options.startY - Starting Y coordinate
- * @param {string} options.endMap - Destination map name
- * @param {number} options.endX - Destination X coordinate
- * @param {number} options.endY - Destination Y coordinate
- * @param {string} options.displayName - Optional display name for the destination
  */
 Navigation.navigateTo = function navigateTo(options) {
-	// Normalize map names
+	const root = _getRoot();
 	const startMap = normalizeMapName(options.startMap);
 	const endMap = normalizeMapName(options.endMap);
 	const displayName = options.displayName;
@@ -1401,7 +1296,6 @@ Navigation.navigateTo = function navigateTo(options) {
 		this.setTargetCoordinatesBlinking(true);
 	}
 
-	// Store the target information
 	_finalTargetData = {
 		map: endMap,
 		x: options.endX,
@@ -1410,12 +1304,12 @@ Navigation.navigateTo = function navigateTo(options) {
 	};
 
 	// Get warp types based on Services checkbox
-	let warpTypes = [200, 201]; // Default warp types (free)
-	if (this.ui.find('.services-toggle').is(':checked')) {
-		warpTypes = [200, 201, 202, 203, 204, 205]; // Include service warps (includes paid warps)
+	let warpTypes = [200, 201];
+	const servicesToggle = root.querySelector('.services-toggle');
+	if (servicesToggle && servicesToggle.checked) {
+		warpTypes = [200, 201, 202, 203, 204, 205];
 	}
 
-	// Cross-map navigation - find path to next warp
 	const path = MapPathFinder.findPathBetweenMaps(
 		startMap,
 		options.startX,
@@ -1427,13 +1321,11 @@ Navigation.navigateTo = function navigateTo(options) {
 	);
 
 	if (path && path.length > 0) {
-		// Get the first segment (path to next warp)
 		const target = path[0];
 
 		this.waitForMapData(function () {
 			const walkableCell = this.findClosestWalkableCell(target.x, target.y);
 
-			// Find path
 			if (walkableCell) {
 				_targetData = {
 					x: walkableCell.x,

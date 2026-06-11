@@ -590,7 +590,7 @@ class AIDriver {
 			preloadFiles(files, AIDriver.MER_AI);
 			await doFiles(files, AIDriver.MER_AI);
 		} catch (error) {
-			console.error('Error loading AI files:', error);
+			console.warn('[AIDriver] AI files not available, skipping AI initialization:', error.message || error);
 			if (typeof onEnd === 'function') {
 				onEnd();
 			}

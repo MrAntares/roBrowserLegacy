@@ -1,5 +1,9 @@
+:host {
+	top: 200px;
+	left: 582px;
+}
+
 #QuestInfo {
-	position: absolute;
 	width: 342px;
 	height: 412px;
 }
@@ -111,12 +115,9 @@
 
 #QuestInfo .titlebar .quest-info-bottom-panel .quest-info-bottom-text .quest-info-bottom-btn {
 	margin-top: 5px;
-	border: 0;
 	width: 42px;
 	height: 20px;
 	bottom: 4px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 .quest-ui-img-poring {

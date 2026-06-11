@@ -1,5 +1,9 @@
+:host {
+	top: 200px;
+	left: 200px;
+}
+
 #Quest {
-	position: absolute;
 	width: 381px;
 	height: 466px;
 }
@@ -184,16 +188,12 @@
 
 #Quest .quest-bottom-panel .close-quest-container .close-quest-container-btn {
 	margin-top: 5px;
-	border: 0;
 	width: 42px;
 	height: 20px;
 	bottom: 4px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 .quest-info-container {
-	position: absoluFte;
 	width: 342px;
 	height: 412px;
 }

@@ -1,5 +1,9 @@
+:host {
+	top: 200px;
+	left: 200px;
+}
+
 #QuestV1 {
-	position: absolute;
 	width: 350px;
 	height: 250px;
 }
@@ -46,8 +50,6 @@
 	left: 4px;
 	width: 11px;
 	height: 11px;
-	border: none;
-	background: none;
 }
 #QuestV1 .titlebar .header .btn-right {
 	position: absolute;
@@ -55,8 +57,6 @@
 	right: 2px;
 	width: 11px;
 	height: 11px;
-	border: none;
-	background: none;
 }
 
 /** Content **/
@@ -157,11 +157,8 @@
 }
 #QuestV1 .titlebar .footer .btn {
 	position: absolute;
-	border: 0;
 	width: 42px;
 	height: 20px;
-	background-repeat: no-repeat;
-	background-color: transparent;
 }
 #QuestV1 .titlebar .footer .close {
 	right: 50px;

@@ -13,20 +13,26 @@ import Preferences from 'Core/Preferences.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import QuestHelper from './QuestHelperV1.js';
 import htmlText from './QuestV1.html?raw';
 import cssText from './QuestV1.css?raw';
-import jQuery from 'Utils/jquery.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Session from 'Engine/SessionStorage.js';
 
 /**
  * Create Component
  */
-const QuestV1 = new UIComponent('QuestV1', htmlText, cssText);
+const QuestV1 = new GUIComponent('QuestV1', cssText);
+
+QuestV1.render = () => htmlText;
+
+function _getRoot() {
+	return QuestV1._shadow || QuestV1._host;
+}
 
 /**
  * @var {number} index of selection
@@ -37,11 +43,6 @@ let _index = -1;
  * @var {Array} quest list
  */
 let _questList = [];
-
-/**
- * @var {Array} quest list
- */
-/*var _questNotShowList = [];*/ // UNUSED
 
 /**
  * @var {string} _active_menu active click menu
@@ -66,21 +67,24 @@ const _preferences = Preferences.get(
  * Initialize the component (event listener, etc.)
  */
 QuestV1.init = function init() {
+	const root = _getRoot();
+
 	QuestHelper.prepare();
 
-	// Avoid drag drop problems
-	this.ui.find('.base').mousedown(function (event) {
-		event.stopImmediatePropagation();
-		return false;
+	root.querySelector('.view').addEventListener('click', () => onClickView());
+	root.querySelector('.close').addEventListener('click', () => onClose());
+	root.querySelector('.btn-right').addEventListener('click', () => onClose());
+
+	root.querySelectorAll('.quest-menu-item').forEach((item) => {
+		item.addEventListener('click', (e) => onClickMenu(e));
 	});
 
-	this.ui.find('.view').click(onClickView);
-	this.ui.find('.close').click(onClose);
-	this.ui.find('.btn-right').click(onClose);
+	const activeList = root.querySelector('#active-quest-list');
+	if (activeList) {
+		activeList.style.display = '';
+	}
 
-	this.ui.on('click', '.quest-menu-item', onClickMenu);
-	this.ui.find('#active-quest-list').show();
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 };
 
 /**
@@ -89,21 +93,21 @@ QuestV1.init = function init() {
 QuestV1.onAppend = function onAppend() {
 	_index = -1;
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - 350)}px`;
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - 250)}px`;
+
+	const root = _getRoot();
+
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_que_01.bmp`, (data) => {
+		const el = root.querySelector('.quest-menu');
+		if (el) {
+			el.style.backgroundImage = `url(${data})`;
+		}
 	});
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/tab_que_01.bmp',
-		function (data) {
-			QuestV1.ui.find('.quest-menu').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this)
-	);
-
-	QuestV1.ui.find('#active-quest-list').show();
-	QuestV1.ui.find('#inactive-quest-list').hide();
-	QuestV1.ui.find('#all-quest-list').hide();
+	root.querySelector('#active-quest-list').style.display = '';
+	root.querySelector('#inactive-quest-list').style.display = 'none';
+	root.querySelector('#all-quest-list').style.display = 'none';
 
 	if (!_preferences.show) {
 		this.ui.hide();
@@ -116,9 +120,21 @@ QuestV1.onAppend = function onAppend() {
 QuestV1.clean = function clean() {
 	_active_menu = '';
 	_questList = {};
-	QuestV1.ui.find('#active-quest-list').hide();
-	QuestV1.ui.find('#inactive-quest-list').hide();
-	QuestV1.ui.find('#all-quest-list').hide();
+	const root = _getRoot();
+	if (root) {
+		const activeList = root.querySelector('#active-quest-list');
+		if (activeList) {
+			activeList.style.display = 'none';
+		}
+		const inactiveList = root.querySelector('#inactive-quest-list');
+		if (inactiveList) {
+			inactiveList.style.display = 'none';
+		}
+		const allList = root.querySelector('#all-quest-list');
+		if (allList) {
+			allList.style.display = 'none';
+		}
+	}
 	QuestV1.ClearQuestList();
 	QuestHelper.clearQuestDesc();
 	onClose();
@@ -126,13 +142,12 @@ QuestV1.clean = function clean() {
 
 /**
  * Removing the UI from window, save preferences
- *
  */
 QuestV1.onRemove = function onRemove() {
-	// Save preferences
-	_preferences.show = this.ui.is(':visible');
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+	const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
+	_preferences.show = hostDisplay !== 'none';
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 };
 
@@ -141,12 +156,16 @@ QuestV1.onRemove = function onRemove() {
  */
 QuestV1.onShortCut = function onShurtCut(key) {
 	switch (key.cmd) {
-		case 'TOGGLE':
-			this.ui.toggle();
-			if (this.ui.is(':visible')) {
+		case 'TOGGLE': {
+			const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
+			if (hostDisplay !== 'none') {
+				this.ui.hide();
+			} else {
+				this.ui.show();
 				this.focus();
 			}
 			break;
+		}
 	}
 };
 
@@ -154,7 +173,8 @@ QuestV1.onShortCut = function onShurtCut(key) {
  * Show/Hide UI
  */
 QuestV1.toggle = function toggle() {
-	if (this.ui.is(':visible')) {
+	const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
+	if (hostDisplay !== 'none') {
 		this.ui.hide();
 	} else {
 		this.ui.show();
@@ -267,82 +287,125 @@ QuestV1.questExists = function questExists(questID) {
 };
 
 QuestV1.addQuestToUI = function addQuest(quest) {
-	const toggle_id = 'qid' + quest.questID;
-	const title = quest.title.length > 30 ? quest.title.substr(0, 30) + '...' : quest.title;
-	const pattern = /^ico\_/; // new system ico_xx.bmp - not supported on this version
+	const root = _getRoot();
+	if (!root) {
+		return;
+	}
+	const toggle_id = `qid${quest.questID}`;
+	const title = quest.title.length > 30 ? `${quest.title.substr(0, 30)}...` : quest.title;
+	const pattern = /^ico_/;
 	const quest_icon = pattern.test(quest.icon) ? 'SG_FEEL.bmp' : quest.icon;
 	const li_text =
-		'<li id="' +
-		toggle_id +
-		'" class="quest-item ' +
-		toggle_id +
-		'"><div class="quest-item-icon"> <div class="quest-item-icon-image" data-background="item/' +
-		quest_icon +
-		'"></div> </div> <div class="quest-item-title"> <span class="quest-item-title-text">' +
-		title +
-		'</span> </div></li>';
+		`<div class="quest-item-icon"> <div class="quest-item-icon-image"></div> </div> <div class="quest-item-title"> <span class="quest-item-title-text">${title}</span> </div>`;
 
 	const ul_id = quest.active == 1 ? '#active-quest-list' : '#inactive-quest-list';
 
-	this.ui.find(ul_id).append(li_text);
-	this.ui.find('#' + toggle_id).on('contextmenu', onClickQuestToggle);
-	this.ui.find('#' + toggle_id).on('click', onClickQuest);
-	this.ui.find('#all-quest-list').append(li_text);
-	this.ui.find('.' + toggle_id).on('click', onClickQuest);
-	this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
+	// Create list item for main list
+	const li = document.createElement('li');
+	li.id = toggle_id;
+	li.className = `quest-item ${toggle_id}`;
+	li.innerHTML = li_text;
+
+	// Load quest icon
+	Client.loadFile(`${DB.INTERFACE_PATH}item/${quest_icon}`, (data) => {
+		const iconEl = li.querySelector('.quest-item-icon-image');
+		if (iconEl) {
+			iconEl.style.backgroundImage = `url(${data})`;
+		}
+	});
+
+	li.addEventListener('contextmenu', (e) => onClickQuestToggle(e));
+	li.addEventListener('click', (e) => onClickQuest(e));
+
+	const ul = root.querySelector(ul_id);
+	if (ul) {
+		ul.appendChild(li);
+	}
+
+	// Create duplicate for "all" list
+	const liAll = document.createElement('li');
+	liAll.className = `quest-item ${toggle_id}`;
+	liAll.innerHTML = li_text;
+
+	Client.loadFile(`${DB.INTERFACE_PATH}item/${quest_icon}`, (data) => {
+		const iconEl = liAll.querySelector('.quest-item-icon-image');
+		if (iconEl) {
+			iconEl.style.backgroundImage = `url(${data})`;
+		}
+	});
+
+	liAll.addEventListener('click', (e) => onClickQuest(e));
+
+	const allList = root.querySelector('#all-quest-list');
+	if (allList) {
+		allList.appendChild(liAll);
+	}
 };
 
 function onClickMenu(e) {
-	const quest_element = jQuery(e.currentTarget);
+	const root = _getRoot();
+	const menuItem = e.currentTarget;
+	const menuId = menuItem.id;
 
-	if (_active_menu == quest_element.attr('id')) {
+	if (_active_menu === menuId) {
 		return;
 	}
-	_active_menu = quest_element.attr('id');
+	_active_menu = menuId;
 
 	let background_image = '';
-	QuestV1.ui.find('#active-quest-list').hide();
-	QuestV1.ui.find('#inactive-quest-list').hide();
-	QuestV1.ui.find('#all-quest-list').hide();
+	root.querySelector('#active-quest-list').style.display = 'none';
+	root.querySelector('#inactive-quest-list').style.display = 'none';
+	root.querySelector('#all-quest-list').style.display = 'none';
+
 	switch (_active_menu) {
 		case 'inactive':
 			background_image = 'tab_que_02';
-			QuestV1.ui.find('#inactive-quest-list').show();
+			root.querySelector('#inactive-quest-list').style.display = '';
 			break;
 		case 'all':
 			background_image = 'tab_que_03';
-			QuestV1.ui.find('#all-quest-list').show();
+			root.querySelector('#all-quest-list').style.display = '';
 			break;
 		default:
 			background_image = 'tab_que_01';
-			QuestV1.ui.find('#active-quest-list').show();
+			root.querySelector('#active-quest-list').style.display = '';
 	}
 
-	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/' + background_image + '.bmp',
-		function (data) {
-			QuestV1.ui.find('.quest-menu').css('backgroundImage', 'url(' + data + ')');
-		}.bind(this)
-	);
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/${background_image}.bmp`, (data) => {
+		const el = root.querySelector('.quest-menu');
+		if (el) {
+			el.style.backgroundImage = `url(${data})`;
+		}
+	});
 
 	QuestHelper.clearQuestDesc();
 }
 
 function onClickQuest(e) {
-	const toggle_element = jQuery(e.currentTarget);
-	const tid = toggle_element.attr('id');
-	const id = tid.replace('qid', '');
+	const root = _getRoot();
+	const toggleEl = e.currentTarget;
+	const tid = toggleEl.id || toggleEl.className.match(/qid(\d+)/)?.[0];
+	const id = tid ? tid.replace('qid', '') : null;
+	if (!id) {
+		return;
+	}
+
 	if (_index > -1) {
-		QuestV1.ui.find('.qid' + _index).css('background-color', 'white');
-		QuestV1.ui.find('#qid' + _index).css('background-color', 'white');
+		root.querySelectorAll(`.qid${_index}`).forEach((el) => {
+			el.style.backgroundColor = 'white';
+		});
+		const prevById = root.querySelector(`#qid${_index}`);
+		if (prevById) {
+			prevById.style.backgroundColor = 'white';
+		}
 	}
 	_index = id;
-	toggle_element.css('background-color', 'lightgray');
+	toggleEl.style.backgroundColor = 'lightgray';
 }
 
 function onClickQuestToggle(e) {
-	const toggle_element = jQuery(e.currentTarget);
-	const tid = toggle_element.attr('id');
+	const toggleEl = e.currentTarget;
+	const tid = toggleEl.id;
 	const id = tid.replace('qid', '');
 	const _pkt = new PACKET.CZ.ACTIVE_QUEST();
 	_pkt.questID = _questList[id].questID;
@@ -350,14 +413,13 @@ function onClickQuestToggle(e) {
 	Network.sendPacket(_pkt);
 }
 
-function onClickView(e) {
+function onClickView() {
 	if (_index > -1) {
 		QuestHelper.clearQuestDesc();
 		QuestHelper.setQuestInfo(_questList[_index]);
 		QuestHelper.prepare();
 		QuestHelper.append();
 		QuestHelper.ui.show();
-		QuestHelper.ui.focus();
 	}
 }
 
@@ -367,7 +429,13 @@ function refreshQuestUI() {
 }
 
 QuestV1.ClearQuestList = function ClearQuestList() {
-	QuestV1.ui.find('.quest-list').html('');
+	const root = _getRoot();
+	if (!root) {
+		return;
+	}
+	root.querySelectorAll('.quest-list').forEach((el) => {
+		el.innerHTML = '';
+	});
 };
 
 /**
