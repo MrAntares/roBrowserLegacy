@@ -221,7 +221,7 @@ Mail.removeItem = function removeItem() {
 Mail.removeZeny = function removeZeny() {
 	const root = _root();
 	const input = root.querySelector('.input_zeny_amt');
-	if (input) input.value = '';
+	if (input) input.value = '0';
 };
 
 /**
@@ -356,7 +356,7 @@ Mail.clearFieldsItemZeny = function clearFieldsItemZeny() {
 	if (item) item.remove();
 
 	const zenyInput = root.querySelector('.input_zeny_amt');
-	if (zenyInput) zenyInput.value = '';
+	if (zenyInput) zenyInput.value = '0';
 
 	const sendBtn = root.querySelector('#create_mail_send');
 	if (sendBtn) sendBtn.disabled = false;
@@ -442,7 +442,7 @@ function onWindowMailbox() {
 	if (textareaMail) textareaMail.value = '';
 
 	const zenyInput = root.querySelector('.input_zeny_amt');
-	if (zenyInput) zenyInput.value = '';
+	if (zenyInput) zenyInput.value = '0';
 
 	const addItemInput = root.querySelector('.input_add_item');
 	if (addItemInput) addItemInput.value = '';
@@ -612,7 +612,7 @@ function sendCreateMessagesMail(event) {
 	event.stopImmediatePropagation();
 
 	const zenyOk = root.querySelector('#zeny_ok');
-	if (zenyOk && zenyOk.style.display !== 'none') {
+	if (zenyOk && window.getComputedStyle(zenyOk).display !== 'none') {
 		ChatBox.addText(DB.getMessage(1110), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		return;
 	}

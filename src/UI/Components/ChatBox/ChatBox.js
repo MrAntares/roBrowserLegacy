@@ -1170,6 +1170,11 @@ ChatBox.addText = function addText(text, colorType, filterType, color, override)
 		return span;
 	});
 
+	// Auto-detect client-generated HTML (nickname links in whispers)
+	if (!override && /<span\s+class="nickname-link"/.test(text)) {
+		override = true;
+	}
+
 	if (isNaN(filterType)) {
 		filterType = ChatBox.FILTER.PUBLIC_LOG;
 	}

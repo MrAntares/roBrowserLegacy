@@ -423,7 +423,6 @@ class MapEngine {
 			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
 			Escape.onResurectionRequest = onResurectionRequest;
 			ChatBox.onRequestTalk = onRequestTalk;
-			WhisperBox.onRequestTalk = onRequestTalk;
 		}
 
 		// Init selected UIs when needed
