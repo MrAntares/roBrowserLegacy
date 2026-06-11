@@ -423,6 +423,7 @@ class MapEngine {
 			Escape.onReturnSavePointRequest = onReturnSavePointRequest;
 			Escape.onResurectionRequest = onResurectionRequest;
 			ChatBox.onRequestTalk = onRequestTalk;
+			WhisperBox.onRequestTalk = onRequestTalk;
 		}
 
 		// Init selected UIs when needed
@@ -933,6 +934,8 @@ function onRequestTalk(user, text, target) {
 		pkt.receiver = user;
 		pkt.msg = text;
 		Network.sendPacket(pkt);
+		ChatBox.PrivateMessageStorage.nick = user;
+		ChatBox.PrivateMessageStorage.msg = text;
 		return;
 	}
 
