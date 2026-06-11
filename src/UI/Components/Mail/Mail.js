@@ -363,9 +363,26 @@ Mail.clearFieldsItemZeny = function clearFieldsItemZeny() {
 };
 
 Mail.onKeyDown = function onKeyDown(event) {
+	const shadow = this._shadow || this._host;
+	const focused = shadow ? shadow.activeElement : null;
+
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			this.remove();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		event.stopImmediatePropagation();
+		return true;
+	}
+
 	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this.remove();
+		event.stopImmediatePropagation();
+		return false;
 	}
+
+	return true;
 };
 
 /*

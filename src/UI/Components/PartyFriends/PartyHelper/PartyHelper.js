@@ -11,6 +11,7 @@
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import htmlText from './PartyHelper.html?raw';
 import cssText from './PartyHelper.css?raw';
@@ -171,15 +172,36 @@ PartyHelper.init = function init() {
 	}, true);
 
 	this.draggable('.titlebar');
+};
 
-	// Close on Esc key
-	this._onKeyDown = (event) => {
-		if (event.which === 27 || event.key === 'Escape') {
+/**
+ * Key handler — block shortcuts when input is focused
+ */
+PartyHelper.onKeyDown = function onKeyDown(event) {
+	const shadow = this._shadow || this._host;
+	const focused = shadow ? shadow.activeElement : null;
+
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			PartyHelper.remove();
 			event.stopImmediatePropagation();
-			event.preventDefault();
+			return false;
 		}
-	};
+		if (event.which === KEYS.ENTER || event.key === 'Enter') {
+			// Let the nameInput keydown handler deal with Enter
+			return true;
+		}
+		event.stopImmediatePropagation();
+		return true;
+	}
+
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+		PartyHelper.remove();
+		event.stopImmediatePropagation();
+		return false;
+	}
+
+	return true;
 };
 
 /**

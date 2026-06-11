@@ -985,7 +985,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 		// Message from history
 		case KEYS.UP:
 			if (!document.querySelector('#NpcMenu')) {
-				if (shadowActive === messageBox) {
+				if (activeElement === messageBox) {
 					if (shouldLetChatInputHandleVerticalArrows(messageBox, 'up')) {
 						event.stopImmediatePropagation();
 						return true;
@@ -994,7 +994,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 					break;
 				}
 
-				if (shadowActive === nickBox) {
+				if (activeElement === nickBox) {
 					nickBox.value = _historyNickName.previous();
 					nickBox.select();
 					break;
@@ -1004,7 +1004,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 
 		case KEYS.DOWN:
 			if (!document.querySelector('#NpcMenu')) {
-				if (shadowActive === messageBox) {
+				if (activeElement === messageBox) {
 					if (shouldLetChatInputHandleVerticalArrows(messageBox, 'down')) {
 						event.stopImmediatePropagation();
 						return true;
@@ -1013,7 +1013,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 					break;
 				}
 
-				if (shadowActive === nickBox) {
+				if (activeElement === nickBox) {
 					nickBox.value = _historyNickName.next();
 					nickBox.select();
 					break;
@@ -1043,7 +1043,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 				return true;
 			}
 
-			if (shadowActive === messageBox) {
+			if (activeElement === messageBox) {
 				this.submit();
 				event.stopImmediatePropagation();
 				return false;
