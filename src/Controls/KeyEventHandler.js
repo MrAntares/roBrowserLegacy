@@ -228,6 +228,25 @@ jQuery(window).on('focus', function (event) {
 });
 
 /**
+ * Get the actual focused element, piercing through Shadow DOM boundaries.
+ * In Light DOM, document.activeElement returns the focused element directly.
+ * In Shadow DOM, it returns the host element; this helper traverses into
+ * shadow roots to find the real focused element (e.g., an <input> inside
+ * a GUIComponent's shadow root).
+ */
+Object.defineProperty(KEYS, 'getDeepActiveElement', {
+	writable: false,
+	enumerable: false,
+	value: function getDeepActiveElement() {
+		let el = document.activeElement;
+		while (el?.shadowRoot?.activeElement) {
+			el = el.shadowRoot.activeElement;
+		}
+		return el;
+	}
+});
+
+/**
  * Export
  */
 export default KEYS;

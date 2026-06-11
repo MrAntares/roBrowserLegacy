@@ -220,7 +220,7 @@ ChatBox.init = function init() {
 			function () {
 				Events.setTimeout(
 					function () {
-						const active = document.activeElement;
+						const active = KEYS.getDeepActiveElement();
 						const movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
 						const isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
 						if (!movedInsideChatbox && !isTextInput) {
@@ -320,7 +320,7 @@ ChatBox.init = function init() {
 		function () {
 			Events.setTimeout(
 				function () {
-					const active = document.activeElement;
+					const active = KEYS.getDeepActiveElement();
 					const movedInsideChatbox = active && jQuery(active).closest('#chatbox').length;
 					const isTextInput = active && active.tagName && active.tagName.match(/input|select|textarea/i);
 					const isChatMessage = active === this.ui.find('.input-chatbox')[0];
@@ -814,7 +814,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 		ChatBoxSettings.updateTab(ChatBox.activeTab, this.value);
 	});
 
-	const activeElement = document.activeElement;
+	const activeElement = KEYS.getDeepActiveElement();
 	const isChatInputFocused = activeElement === messageBox[0] || activeElement === nickBox[0];
 	const isOtherTextInputFocused =
 		activeElement &&
@@ -1045,7 +1045,8 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 ChatBox.toggleChat = function toggleChat() {
 	const messageBox = this.ui.find('.input-chatbox');
 
-	if (document.activeElement.tagName === 'INPUT' && document.activeElement !== messageBox[0]) {
+	const activeElement = KEYS.getDeepActiveElement();
+	if (activeElement.tagName === 'INPUT' && activeElement !== messageBox[0]) {
 		return true;
 	}
 
