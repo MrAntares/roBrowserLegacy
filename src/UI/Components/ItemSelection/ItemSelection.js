@@ -27,13 +27,6 @@ const ItemSelection = new GUIComponent('ItemSelection', cssText);
 ItemSelection.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return ItemSelection._shadow || ItemSelection._host;
-}
-
-/**
  * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
 function _sanitizeHtml(str) {
@@ -52,7 +45,7 @@ function _sanitizeHtml(str) {
  * Initialize UI
  */
 ItemSelection.init = function init() {
-	const root = _getRoot();
+	const root = ItemSelection.getRoot();
 
 	this.list = root.querySelector('.list');
 	this.index = 0;
@@ -97,7 +90,7 @@ ItemSelection.onAppend = function onAppend() {
  * @param {Array} list object to display
  */
 ItemSelection.setList = function setList(list, isSkill) {
-	const root = _getRoot();
+	const root = ItemSelection.getRoot();
 	const listEl = root.querySelector('.list');
 	listEl.innerHTML = '';
 
@@ -137,7 +130,7 @@ ItemSelection.setList = function setList(list, isSkill) {
  * @param {string} element name
  */
 function addElement(url, index, name) {
-	const root = _getRoot();
+	const root = ItemSelection.getRoot();
 	const listEl = root.querySelector('.list');
 
 	const div = document.createElement('div');
@@ -160,7 +153,7 @@ function addElement(url, index, name) {
  * @param {number} id in list
  */
 ItemSelection.setIndex = function setIndex(id) {
-	const root = _getRoot();
+	const root = ItemSelection.getRoot();
 	const prev = root.querySelector(`div[data-index="${this.index}"]`);
 	if (prev) {
 		prev.style.backgroundColor = 'transparent';
@@ -193,7 +186,7 @@ ItemSelection.onRemove = function onRemove() {
  * @param {string} title
  */
 ItemSelection.setTitle = function setTitle(title) {
-	const root = _getRoot();
+	const root = ItemSelection.getRoot();
 	const text = root.querySelector('.head .text');
 	if (text) {
 		text.textContent = title;

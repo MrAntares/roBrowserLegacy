@@ -287,10 +287,7 @@ Bank.onAppend = function onAppend() {
  * Key Handler
  */
 Bank.onKeyDown = function onKeyDown(event) {
-	const root = this._shadow || this._host;
-	const activeEl = root.activeElement;
-
-	if (activeEl && activeEl.tagName && activeEl.tagName.match(/input|select|textarea/i)) {
+	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			reqCloseBank();
 			event.stopImmediatePropagation();

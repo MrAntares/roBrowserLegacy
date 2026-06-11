@@ -144,10 +144,7 @@ Trade.init = function init() {
  * Guard keyboard input for the zeny <input> inside Shadow DOM
  */
 Trade.onKeyDown = function onKeyDown(event) {
-	const shadow = this._shadow || this._host;
-	const focused = shadow.activeElement;
-
-	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+	if (this.isEditableFocused()) {
 		event.stopImmediatePropagation();
 		return true;
 	}

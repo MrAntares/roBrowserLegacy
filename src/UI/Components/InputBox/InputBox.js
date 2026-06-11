@@ -35,13 +35,6 @@ InputBox.mouseMode = GUIComponent.MouseMode.FREEZE;
 InputBox.captureKeyEvents = true;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return InputBox._shadow || InputBox._host;
-}
-
-/**
  * Initialize GUI
  */
 InputBox.init = function init() {
@@ -49,7 +42,7 @@ InputBox.init = function init() {
 	this._host.style.top = `${(Renderer.height - 120) / 1.5 - 49}px`;
 	this._host.style.left = `${(Renderer.width - 280) / 2 + 1}px`;
 
-	const root = _getRoot();
+	const root = InputBox.getRoot();
 
 	const btn = root.querySelector('ui-button');
 	if (btn) {
@@ -78,7 +71,7 @@ InputBox.init = function init() {
  * Input Post-Render callback
  */
 InputBox.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = InputBox.getRoot();
 	const input = root.querySelector('input');
 	if (input) {
 		input.focus();
@@ -92,7 +85,7 @@ InputBox.onAppend = function onAppend() {
  * Remove data from UI
  */
 InputBox.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = InputBox.getRoot();
 	const input = root.querySelector('input');
 	if (input) {
 		input.value = '';
@@ -114,10 +107,7 @@ InputBox.onRemove = function onRemove() {
  * @return {boolean}
  */
 InputBox.onKeyDown = function onKeyDown(event) {
-	const shadow = this._shadow || this._host;
-	const focused = shadow.activeElement;
-
-	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+	if (this.isEditableFocused()) {
 		if (!this.isPersistent && event.which === KEYS.ENTER) {
 			validate();
 			event.stopImmediatePropagation();
@@ -140,7 +130,7 @@ InputBox.onKeyDown = function onKeyDown(event) {
  * Validate input
  */
 function validate() {
-	const root = _getRoot();
+	const root = InputBox.getRoot();
 	const input = root.querySelector('input');
 	let text = input ? input.value : '';
 
@@ -164,7 +154,7 @@ function validate() {
  */
 InputBox.setType = function setType(type, isPersistent, defaultVal, itemId = null) {
 	this.isPersistent = !!isPersistent;
-	const root = _getRoot();
+	const root = InputBox.getRoot();
 	const innerRoot = root.querySelector('#inputbox');
 	const textEl = root.querySelector('.text');
 	const input = root.querySelector('input');

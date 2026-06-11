@@ -83,17 +83,10 @@ let _sex = 0;
 let _disable_UI = false;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return CharSelectV2._shadow || CharSelectV2._host;
-}
-
-/**
  * Initialize UI
  */
 CharSelectV2.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	this.draggable();
 
@@ -129,7 +122,7 @@ CharSelectV2.init = function init() {
  * Once append to body
  */
 CharSelectV2.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	this._host.style.top = `${(Renderer.height - 358) / 2}px`;
 	this._host.style.left = `${(Renderer.width - 576) / 2}px`;
@@ -150,7 +143,7 @@ CharSelectV2.onAppend = function onAppend() {
  * Stop rendering
  */
 CharSelectV2.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	_preferences.index = _index;
 	_preferences.save();
@@ -211,7 +204,7 @@ CharSelectV2.onKeyDown = function onKeyDown(event) {
  * @param {object} pkt - packet structure
  */
 CharSelectV2.setInfo = function setInfo(pkt) {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 9); // default 9 ?
 	_sex = pkt.sex;
@@ -252,7 +245,7 @@ CharSelectV2.deleteAnswer = function deleteAnswer(error) {
 
 			// Success (clean up character)
 			case 1: {
-				const root = _getRoot();
+				const root = this.getRoot();
 
 				delete _slots[_index];
 				delete _entitySlots[_index];
@@ -302,7 +295,7 @@ CharSelectV2.deleteAnswer = function deleteAnswer(error) {
 
 			// Success (clean up character)
 			case -1: {
-				const root = _getRoot();
+				const root = this.getRoot();
 
 				delete _slots[_index];
 				delete _entitySlots[_index];
@@ -339,7 +332,7 @@ CharSelectV2.deleteAnswer = function deleteAnswer(error) {
  * @param {object} character data
  */
 CharSelectV2.addCharacter = function addCharacter(character) {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	if (!('sex' in character) || character.sex === 99) {
 		character.sex = _sex;
@@ -537,7 +530,7 @@ CharSelectV2.reqdeleteAnswer = function reqdeleteAnswer(pkt) {
  * Update UI and add timer
  */
 function requestdelete(index, timer) {
-	const root = _getRoot();
+	const root = CharSelectV2.getRoot();
 	const entity = _entitySlots[index];
 	let action;
 
@@ -576,7 +569,7 @@ function requestdelete(index, timer) {
  */
 function removedelete() {
 	if (_slots[_index]) {
-		const root = _getRoot();
+		const root = CharSelectV2.getRoot();
 
 		// Delete here as well? Though server should tell us this
 		_slots[_index].DeleteDate = 0;
@@ -631,7 +624,7 @@ function suppress() {
  * @param {number} index
  */
 function moveCursorTo(index) {
-	const root = _getRoot();
+	const root = CharSelectV2.getRoot();
 	const charinfo = root.querySelector('.charinfo');
 
 	// Set the last entity to idle

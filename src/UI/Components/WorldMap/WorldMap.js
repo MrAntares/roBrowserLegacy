@@ -113,19 +113,20 @@ function onSelect() {
  * @param {string} name eg. `"worldmap_localizing1"`
  */
 function selectMap(name = null) {
+	let mapName = 'worldmap.jpg';
 	// If no name provided, use the first available map
 	if (!name) {
 		if (MAPS.length > 0) {
-			name = MAPS[0].id;
+			mapName = MAPS[0].id;
 		} else {
-			name = 'worldmap.jpg';
+			mapName = 'worldmap.jpg';
 		}
 	}
 	// load map image asset and render it
-	Client.loadFile(DB.INTERFACE_PATH + name, data => {
+	Client.loadFile(DB.INTERFACE_PATH + mapName, data => {
 		// find map data by name and render it
 		for (const map of MAPS) {
-			if (map.id === name) {
+			if (map.id === mapName) {
 				createWorldMapView(map, data);
 				resizeMap();
 				break;
@@ -170,7 +171,8 @@ function onWorldMapSectionClick(e) {
 	const mapId = section.id;
 
 	Navigation.show();
-	Navigation.ui.find('.search-input').val(displayName || mapId);
+	const input = Navigation.getRoot().querySelector('.search-input');
+	if (input) input.value = displayName || mapId;
 	Navigation.onSearch();
 	Navigation.focus();
 }
@@ -574,10 +576,7 @@ WorldMap.toggle = function toggle() {
 WorldMap.captureKeyEvents = true;
 
 WorldMap.onKeyDown = function onKeyDown(event) {
-	const shadow = this._shadow || this._host;
-	const focused = shadow.activeElement;
-
-	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			this.toggle();
 			event.stopImmediatePropagation();

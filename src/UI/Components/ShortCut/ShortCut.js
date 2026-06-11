@@ -71,17 +71,10 @@ const _preferences = Preferences.get(
 );
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return ShortCut._shadow || ShortCut._host;
-}
-
-/**
  * Initialize UI
  */
 ShortCut.init = function init() {
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 
 	const resizeBtn = root.querySelector('.resize');
 	if (resizeBtn) {
@@ -183,7 +176,7 @@ ShortCut.onAppend = function onAppend() {
  */
 ShortCut.onRemove = function onRemove() {
 	// Hide tooltip
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 	const tooltip = root.querySelector('.shortcut-tooltip');
 	if (tooltip) {
 		tooltip.classList.remove('show');
@@ -206,7 +199,7 @@ ShortCut.onRemove = function onRemove() {
  */
 ShortCut.clean = function clean() {
 	_list.length = 0;
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 	root.querySelectorAll('.container').forEach(el => {
 		el.innerHTML = '';
 	});
@@ -267,7 +260,7 @@ ShortCut.getSkillById = function getSkillById(id) {
  */
 ShortCut.setList = function setList(list) {
 	let skill;
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 
 	root.querySelectorAll('.container').forEach(el => {
 		el.innerHTML = '';
@@ -300,7 +293,7 @@ ShortCut.setList = function setList(list) {
  * Update tooltip for empty slots with hotkey only
  */
 function updateEmptySlotTooltips() {
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 	const containers = root.querySelectorAll('.container');
 
 	for (let i = 0; i < containers.length; ++i) {
@@ -319,7 +312,7 @@ function updateEmptySlotTooltips() {
  * Called when hotkey settings change
  */
 ShortCut.updateAllTooltips = function updateAllTooltips() {
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 
 	for (let i = 0, size = _list.length; i < size; ++i) {
 		const container = root.querySelector(`.container[data-index="${i}"]`);
@@ -444,7 +437,7 @@ function onContainerMouseEnter(event) {
 	const tooltipText = container.getAttribute('data-tooltip');
 
 	if (tooltipText) {
-		const root = _getRoot();
+		const root = ShortCut.getRoot();
 		const tooltip = root.querySelector('.shortcut-tooltip');
 		const host = ShortCut._host;
 		const hostRect = host.getBoundingClientRect();
@@ -479,7 +472,7 @@ function onContainerMouseEnter(event) {
  * Hide fixed tooltip on container leave
  */
 function onContainerMouseLeave() {
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 	const tooltip = root.querySelector('.shortcut-tooltip');
 	if (tooltip) {
 		tooltip.classList.remove('show');
@@ -548,7 +541,7 @@ function onResize(event) {
  */
 ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 	let file, name;
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 	const ui = root.querySelector(`.container[data-index="${index}"]`);
 	if (!ui) return;
 	ui.innerHTML = '';
@@ -623,7 +616,7 @@ function setDelayOnIndex(index, delay) {
 	}
 
 	_list[index].Delay = Renderer.tick + delay;
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 	const ui = root.querySelector(`.container[data-index="${index}"]`);
 	if (!ui) return;
 	const existing = ui.querySelector('.cooldown-overlay');
@@ -708,7 +701,7 @@ ShortCut.removeElement = function removeElement(isSkill, ID, row, amount) {
 		return;
 	}
 
-	const root = _getRoot();
+	const root = ShortCut.getRoot();
 
 	for (let i = row * 9, count = Math.min(_list.length, row * 9 + 9); i < count; ++i) {
 		if (_list[i] && _list[i].isSkill == isSkill && _list[i].ID === ID && (!isSkill || _list[i].count == amount)) {

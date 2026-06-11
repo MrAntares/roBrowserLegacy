@@ -34,14 +34,6 @@ function isLocked() {
 	return clickLock !== null;
 }
 
-/**
- * Get internal root (shadow)
- * @returns {ShadowRoot|HTMLElement}
- */
-function _getRoot() {
-	return JoystickSelectionUI._shadow || JoystickSelectionUI._host;
-}
-
 // Internal Helper: Get Combo String
 function getJoystickComboForSlot(slotIndex) {
 	const combos = {
@@ -90,7 +82,7 @@ function getJoystickComboForSlot(slotIndex) {
 }
 
 function updateGrid() {
-	const root = _getRoot();
+	const root = JoystickSelectionUI.getRoot();
 	const grid = root.querySelector('.shortcut-grid');
 	if (!grid) return;
 
@@ -122,7 +114,7 @@ function updateGrid() {
 }
 
 function updateSelection() {
-	const root = _getRoot();
+	const root = JoystickSelectionUI.getRoot();
 	const grid = root.querySelector('.shortcut-grid');
 	if (!grid) return;
 
@@ -134,7 +126,7 @@ function updateSelection() {
 }
 
 function updateTabButtons() {
-	const root = _getRoot();
+	const root = JoystickSelectionUI.getRoot();
 	const tabButtons = root.querySelector('.tab-buttons');
 	if (!tabButtons) return;
 
@@ -146,7 +138,7 @@ function updateTabButtons() {
 }
 
 function createTabButtons() {
-	const root = _getRoot();
+	const root = JoystickSelectionUI.getRoot();
 	const tabButtons = root.querySelector('.tab-buttons');
 	if (!tabButtons) return;
 

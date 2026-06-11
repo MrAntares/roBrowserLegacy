@@ -117,17 +117,10 @@ const _model = {
 };
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return CharCreatev3._shadow || CharCreatev3._host;
-}
-
-/**
  * Initialize UI
  */
 CharCreatev3.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	_human.ctx = root.querySelector('#canvas_human').getContext('2d');
 	_doram.ctx = root.querySelector('#canvas_doram').getContext('2d');
 	_model.ctx = root.querySelector('#canvas_model').getContext('2d');
@@ -245,7 +238,7 @@ CharCreatev3.onAppend = function onAppend() {
 	});
 	_model.render = true;
 
-	const root = _getRoot();
+	const root = this.getRoot();
 	const charNameInput = root.querySelector('#char_name');
 	charNameInput.value = '';
 	charNameInput.focus();
@@ -283,7 +276,7 @@ CharCreatev3.onKeyDown = function onKeyDown(event) {
  * Send back informations to send the packet
  */
 function create() {
-	const root = _getRoot();
+	const root = CharCreatev3.getRoot();
 	const charname = root.querySelector('#char_name').value;
 
 	CharCreatev3.onCharCreationRequest(
@@ -320,7 +313,7 @@ function cancel() {
  * @param {number} value
  */
 function updateCharacter(type, value) {
-	const root = _getRoot();
+	const root = CharCreatev3.getRoot();
 
 	switch (type) {
 		case TYPE.GENDER:
@@ -436,7 +429,7 @@ function render(tick) {
 	_model.ctx.clearRect(0, 0, _model.ctx.canvas.width, _model.ctx.canvas.height);
 	_model.entity.renderEntity();
 
-	const root = _getRoot();
+	const root = CharCreatev3.getRoot();
 	root.querySelector('#char_name').focus();
 }
 

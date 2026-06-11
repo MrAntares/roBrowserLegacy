@@ -63,15 +63,11 @@ const _preferences = Preferences.get(
 	1.0
 );
 
-function _getRoot() {
-	return CartItems._shadow || CartItems._host;
-}
-
 /**
  * Initialize UI
  */
 CartItems.init = function Init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	// Bind buttons
 	const baseBtn = root.querySelector('.titlebar .base');
@@ -166,7 +162,7 @@ CartItems.onAppend = function OnAppend() {
 	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostRect.width)}px`;
 
 	_realSize = _preferences.reduce ? 0 : hostRect.height;
-	const miniBtn = _getRoot().querySelector('.titlebar .mini');
+	const miniBtn = this.getRoot().querySelector('.titlebar .mini');
 	if (miniBtn) {
 		miniBtn.dispatchEvent(new Event('mousedown'));
 	}
@@ -176,7 +172,7 @@ CartItems.onAppend = function OnAppend() {
  * Remove Inventory from window (and so clean up items)
  */
 CartItems.onRemove = function OnRemove() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.innerHTML = '';
@@ -236,7 +232,7 @@ CartItems.resize = function Resize(width, height) {
 	width = Math.min(Math.max(width, 6), 9);
 	height = Math.min(Math.max(height, 2), 6);
 
-	const root = _getRoot();
+	const root = this.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.style.width = `${width * 32 + 13}px`;
@@ -296,7 +292,7 @@ CartItems.setItems = function SetItems(items) {
 };
 
 CartItems.setCartInfo = function SetCartInfo(curCount, maxCount, curWeight, maxWeight) {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const ncnt = root.querySelector('.ncnt');
 	const mcnt = root.querySelector('.mcnt');
 	const nwt = root.querySelector('.nwt');
@@ -325,7 +321,7 @@ CartItems.addItem = function AddItem(item) {
 
 	if (object) {
 		object.count += item.count;
-		const root = _getRoot();
+		const root = this.getRoot();
 		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
 		if (countEl) {
 			countEl.textContent = object.count;
@@ -351,7 +347,7 @@ CartItems.addItemSub = function AddItemSub(item) {
 	}
 
 	const it = DB.getItemInfo(item.ITID);
-	const root = _getRoot();
+	const root = this.getRoot();
 	const content = root.querySelector('.container .content');
 	if (!content) {
 		return true;
@@ -418,7 +414,7 @@ CartItems.removeItem = function RemoveItem(index, count) {
 		item.count -= count;
 
 		if (item.count > 0) {
-			const root = _getRoot();
+			const root = this.getRoot();
 			const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
 			if (countEl) {
 				countEl.textContent = item.count;
@@ -428,7 +424,7 @@ CartItems.removeItem = function RemoveItem(index, count) {
 	}
 
 	this.list.splice(this.list.indexOf(item), 1);
-	const root = _getRoot();
+	const root = this.getRoot();
 	const el = root.querySelector(`.item[data-index="${item.index}"]`);
 	if (el) {
 		el.remove();
@@ -459,7 +455,7 @@ CartItems.updateItem = function UpdateItem(index, count) {
 	}
 
 	item.count = count;
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	// Update quantity
 	if (item.count > 0) {
@@ -490,8 +486,8 @@ CartItems.updateItem = function UpdateItem(index, count) {
  * Extend inventory window size
  */
 function onResize() {
-	const content = _getRoot().querySelector('.container .content');
-	const hideEl = _getRoot().querySelector('.hide');
+	const content = CartItems.getRoot().querySelector('.container .content');
+	const hideEl = CartItems.getRoot().querySelector('.hide');
 	const top = CartItems._host.offsetTop;
 	const left = CartItems._host.offsetLeft;
 	let lastWidth = 0;
@@ -543,7 +539,7 @@ function onResize() {
  * Hide/show inventory's content
  */
 function onToggleReduction() {
-	const root = _getRoot();
+	const root = CartItems.getRoot();
 	const panel = root.querySelector('.panel');
 
 	if (_realSize) {
@@ -652,7 +648,7 @@ function onItemOver(_e) {
 		quantity = ' Quantity';
 	}
 
-	const root = _getRoot();
+	const root = CartItems.getRoot();
 	const overlay = root.querySelector('.overlay');
 	const rootEl = root.querySelector('#cartitems') || root;
 	const itemRect = this.getBoundingClientRect();
@@ -677,7 +673,7 @@ function onItemOver(_e) {
  * Hide the item name
  */
 function onItemOut() {
-	const root = _getRoot();
+	const root = CartItems.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) {
 		overlay.style.display = 'none';

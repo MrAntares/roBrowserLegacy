@@ -42,13 +42,6 @@ const ConvertItems = new GUIComponent('ConvertItems', cssText);
 ConvertItems.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return ConvertItems._shadow || ConvertItems._host;
-}
-
-/**
  * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
 function _sanitizeHtml(str) {
@@ -72,7 +65,7 @@ ConvertItems.material = [];
  * Initialize UI
  */
 ConvertItems.init = function init() {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 
 	this._host.style.top = `${(Renderer.height - 200) / 2}px`;
 	this._host.style.left = `${(Renderer.width - 10) / 2}px`;
@@ -130,13 +123,13 @@ ConvertItems.init = function init() {
  * Apply preferences once append to body
  */
 ConvertItems.onAppend = function OnAppend() {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 	this.material = [];
 	root.querySelectorAll('.container .content .item').forEach(el => el.remove());
 };
 
 ConvertItems.addItem = function addItem(item) {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 	const it = DB.getItemInfo(item.ITID);
 	const content = root.querySelector('.container .content');
 
@@ -175,7 +168,7 @@ ConvertItems.addItem = function addItem(item) {
  * @param {number} count
  */
 ConvertItems.updateItem = function UpdateItem(index, count) {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 	const item = this.getItemByIndex(index);
 
 	if (!item) {
@@ -276,7 +269,7 @@ function onResize() {
  * Extend ConvertItems window size
  */
 function resizeHeight(height) {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 	height = Math.min(Math.max(height, 8), 17);
 
 	const content = root.querySelector('.container .content');
@@ -299,7 +292,7 @@ ConvertItems.onRemove = function onRemove() {
  * @param {string} title
  */
 ConvertItems.setTitle = function setTitle(title) {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 	const text = root.querySelector('.head .text');
 	if (text) {
 		text.textContent = title;
@@ -329,7 +322,7 @@ ConvertItems.addMaterial = function AddMaterial(item) {
  * @param {number} index in Storage
  */
 ConvertItems.removeItem = function removeItem(index, count) {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 	const i = getItemIndexById(index);
 
 	if (i < 0) {
@@ -362,7 +355,7 @@ ConvertItems.removeItem = function removeItem(index, count) {
  * Mouse mouve out of an item, hide title description
  */
 function onItemOut() {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) {
 		overlay.style.display = 'none';
@@ -520,7 +513,7 @@ function onScroll(event) {
  * Mouse over item, display name and informations
  */
 function onItemOver() {
-	const root = _getRoot();
+	const root = ConvertItems.getRoot();
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const i = getItemIndexById(idx);
 

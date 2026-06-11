@@ -43,17 +43,10 @@ const _preferences = Preferences.get(
 );
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return MercenaryInformations._shadow || MercenaryInformations._host;
-}
-
-/**
  * Initialize UI
  */
 MercenaryInformations.init = function init() {
-	const root = _getRoot();
+	const root = MercenaryInformations.getRoot();
 
 	this.draggable('.content');
 
@@ -188,7 +181,7 @@ MercenaryInformations.formatExpireDate = function formatExpireDate(timestamp) {
  * @param {number} timestamp - Unix timestamp for expiration
  */
 MercenaryInformations.setTimeLeft = function setTimeLeft(timestamp) {
-	const root = _getRoot();
+	const root = MercenaryInformations.getRoot();
 
 	if (!timestamp) {
 		const timeleftEl = root.querySelector('.block2 .timeleft');
@@ -227,7 +220,7 @@ MercenaryInformations.setTimeLeft = function setTimeLeft(timestamp) {
  * @param {number} kills - Number of monsters killed
  */
 MercenaryInformations.setKills = function setKills(kills) {
-	const root = _getRoot();
+	const root = MercenaryInformations.getRoot();
 
 	if (kills === undefined) {
 		const killsEl = root.querySelector('.block2 .kills');
@@ -261,7 +254,7 @@ MercenaryInformations.setKills = function setKills(kills) {
  * Update UI with mercenary data
  */
 MercenaryInformations.setInformations = function setInformations(info) {
-	const root = _getRoot();
+	const root = MercenaryInformations.getRoot();
 
 	const nameEl = root.querySelector('.name');
 	if (nameEl) {
@@ -298,7 +291,7 @@ MercenaryInformations.setInformations = function setInformations(info) {
  * Set hp and sp bar
  */
 MercenaryInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
-	const root = _getRoot();
+	const root = MercenaryInformations.getRoot();
 	const perc = Math.floor((val * 100) / val2);
 	const color = perc < 25 ? 'red' : 'blue';
 
@@ -404,7 +397,7 @@ MercenaryInformations.setTarget = function setTarget(targetId) {
  * Set faith value
  */
 MercenaryInformations.setFaith = function setFaith(faith) {
-	const root = _getRoot();
+	const root = MercenaryInformations.getRoot();
 	const el = root.querySelector('.block2 .faith');
 	if (el) {
 		el.textContent = faith;

@@ -31,10 +31,6 @@ const Quest = new GUIComponent('Quest', cssText);
 
 Quest.render = () => htmlText;
 
-function _getRoot() {
-	return Quest._shadow || Quest._host;
-}
-
 /**
  * @var {Array} quest list
  */
@@ -68,7 +64,7 @@ const _preferences = Preferences.get(
  * Initialize the component (event listener, etc.)
  */
 Quest.init = function init() {
-	const root = _getRoot();
+	const root = Quest.getRoot();
 
 	QuestHelper.prepare();
 	QuestWindow.prepare();
@@ -105,7 +101,7 @@ Quest.onAppend = function onAppend() {
 	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - 381)}px`;
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - 466)}px`;
 
-	const root = _getRoot();
+	const root = Quest.getRoot();
 
 	const checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
 	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${checkbox_background}.bmp`, data => {
@@ -135,7 +131,7 @@ Quest.onAppend = function onAppend() {
 Quest.clean = function clean() {
 	_active_menu = '';
 	_questList = {};
-	const root = _getRoot();
+	const root = Quest.getRoot();
 	if (root) {
 		const activeList = root.querySelector('#active-quest-list');
 		if (activeList) {
@@ -313,7 +309,7 @@ Quest.questExists = function questExists(questID) {
 };
 
 Quest.addQuestToUI = function addQuest(quest) {
-	const root = _getRoot();
+	const root = Quest.getRoot();
 	if (!root) {
 		return;
 	}
@@ -436,7 +432,7 @@ Quest.addQuestToUI = function addQuest(quest) {
 };
 
 function onClickMenu(e) {
-	const root = _getRoot();
+	const root = Quest.getRoot();
 	const menuItem = e.currentTarget;
 	const menuId = menuItem.id;
 
@@ -480,7 +476,7 @@ function onClickMenu(e) {
 }
 
 function onClickQuestCheckbox() {
-	const root = _getRoot();
+	const root = Quest.getRoot();
 	let checkbox_background;
 	if (_preferences.showwindow) {
 		checkbox_background = 'checkbox_off';
@@ -501,7 +497,6 @@ function onClickQuestCheckbox() {
 }
 
 function onClickQuestToggle(e) {
-	const root = _getRoot();
 	const toggleEl = e.currentTarget;
 	const tid = toggleEl.id;
 	const id = tid.replace('qid', '');
@@ -512,7 +507,7 @@ function onClickQuestToggle(e) {
 }
 
 function onClickQuestDisplay(e) {
-	const root = _getRoot();
+	const root = Quest.getRoot();
 	const displayEl = e.currentTarget;
 	const cid = displayEl.id;
 	const id = cid.replace('sid', '');
@@ -551,7 +546,7 @@ function refreshQuestUI() {
 }
 
 Quest.ClearQuestList = function ClearQuestList() {
-	const root = _getRoot();
+	const root = Quest.getRoot();
 	if (!root) {
 		return;
 	}

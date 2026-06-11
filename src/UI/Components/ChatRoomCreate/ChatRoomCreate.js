@@ -167,16 +167,13 @@ ChatRoomCreate.prefill = function prefill(title, limit, type) {
  * @return {boolean}
  */
 ChatRoomCreate.onKeyDown = function onKeyDown(event) {
-	const root = this._shadow || this._host;
-	const active = root.activeElement;
-
 	// Guard: don't intercept keys when hidden
 	if (this._host.style.display === 'none') {
 		return true;
 	}
 
 	// Input inside our shadow is focused — protect keystrokes
-	if (active && active.tagName && /input|select|textarea/i.test(active.tagName)) {
+	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ENTER) {
 			parseChatSetup.call(this);
 			event.stopImmediatePropagation();

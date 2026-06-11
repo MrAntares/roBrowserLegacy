@@ -54,17 +54,10 @@ HomunInformations.base_exp = 0;
 HomunInformations.base_exp_next = 1;
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return HomunInformations._shadow || HomunInformations._host;
-}
-
-/**
  * Initialize component
  */
 HomunInformations.init = function init() {
-	const root = _getRoot();
+	const root = HomunInformations.getRoot();
 
 	this.draggable('.content');
 
@@ -132,7 +125,7 @@ HomunInformations.init = function init() {
 };
 
 HomunInformations.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = HomunInformations.getRoot();
 
 	Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences.autoFeed ? '1' : '0'}.bmp`, data => {
 		const el = root.querySelector('.homun_auto_feed');
@@ -246,10 +239,9 @@ HomunInformations.onShortCut = function onShortCut(key) {
  * Protects input fields from being consumed by global handlers
  */
 HomunInformations.onKeyDown = function onKeyDown(event) {
-	const shadow = this._shadow || this._host;
-	const focused = shadow.activeElement;
+	const focused = this.getRoot().activeElement;
 
-	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			focused.blur();
 			event.stopImmediatePropagation();
@@ -279,7 +271,7 @@ HomunInformations.onKeyDown = function onKeyDown(event) {
  * @param {object} homunculus info
  */
 HomunInformations.setInformations = function setInformations(info) {
-	const root = _getRoot();
+	const root = HomunInformations.getRoot();
 
 	if (!this.__loaded) {
 		this.append();
@@ -401,7 +393,7 @@ HomunInformations.setInformations = function setInformations(info) {
  * Set hp and sp bar
  */
 HomunInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
-	const root = _getRoot();
+	const root = HomunInformations.getRoot();
 	const perc = Math.floor((val * 100) / val2);
 	const color = perc < 25 ? 'red' : 'blue';
 
@@ -465,7 +457,7 @@ HomunInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
  * @param {number} intimacy
  */
 HomunInformations.setIntimacy = function setIntimacy(val) {
-	const root = _getRoot();
+	const root = HomunInformations.getRoot();
 	const el = root.querySelector('.intimacy');
 	if (el) {
 		el.textContent = DB.getMessage(val < 100 ? 672 : val < 250 ? 673 : val < 600 ? 669 : val < 900 ? 674 : 675);
@@ -476,7 +468,7 @@ HomunInformations.setIntimacy = function setIntimacy(val) {
  * Set exp value
  */
 HomunInformations.setExp = function setExp(exp, maxEXP) {
-	const root = _getRoot();
+	const root = HomunInformations.getRoot();
 	if (!root) {
 		return;
 	}
@@ -509,7 +501,7 @@ HomunInformations.setExp = function setExp(exp, maxEXP) {
  * @param {number} hunger
  */
 HomunInformations.setHunger = function setHunger(val) {
-	const root = _getRoot();
+	const root = HomunInformations.getRoot();
 	if (!root) {
 		return;
 	}
@@ -570,7 +562,7 @@ HomunInformations.resetAI = function resetAI() {
 HomunInformations.setFeedConfig = function setFeedConfig(flag) {
 	_preferences.autoFeed = flag;
 	_preferences.save();
-	const root = _getRoot();
+	const root = HomunInformations.getRoot();
 	if (root) {
 		Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences.autoFeed ? '1' : '0'}.bmp`, data => {
 			const el = root.querySelector('.homun_auto_feed');

@@ -55,13 +55,6 @@ let _taHideTimer = null;
 let isFirstTime = true;
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return PvPTimer._shadow || PvPTimer._host;
-}
-
-/**
  * Initialize UI
  */
 PvPTimer.init = function init() {
@@ -80,7 +73,7 @@ PvPTimer.init = function init() {
 		}
 	);
 
-	const root = _getRoot();
+	const root = this.getRoot();
 	_timerCanvas = root.querySelector('.pvp-timer-canvas');
 	_taCanvas = root.querySelector('.pvp-timeattack-canvas');
 

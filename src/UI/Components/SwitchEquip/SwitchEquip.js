@@ -35,13 +35,6 @@ const SwitchEquip = new GUIComponent('SwitchEquip', cssText);
 SwitchEquip.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return SwitchEquip._shadow || SwitchEquip._host;
-}
-
-/**
  * Escape HTML entities
  */
 function _escapeHtml(str) {
@@ -64,7 +57,7 @@ const _swapctx = [];
  * Initialize UI
  */
 SwitchEquip.init = function init() {
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	const canvases = root.querySelectorAll('canvas');
 	_swapctx.push(canvases[0].getContext('2d'));
 	_swapctx.push(canvases[1].getContext('2d'));
@@ -122,7 +115,7 @@ SwitchEquip.init = function init() {
  * @param {string} tabId - The ID of the tab to show.
  */
 SwitchEquip.showSwapTab = function showSwapTab(tabId) {
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	if (!root) return;
 
 	const swapTabId = 'swap' + tabId;
@@ -150,7 +143,7 @@ SwitchEquip.onAppend = function onAppend() {
 	const currentEquipTabId = Equipment.getUI().getCurrentTabId();
 	SwitchEquip.showSwapTab(currentEquipTabId);
 
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	const canvas = root ? root.querySelector('canvas') : null;
 	if (canvas && this._host.style.display !== 'none') {
 		Renderer.render(swaprender);
@@ -164,7 +157,7 @@ SwitchEquip.onRemove = function onRemove() {
 	Renderer.stop(swaprender);
 	SwitchEquip._list = {};
 
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	if (root) {
 		root.querySelectorAll('.col1, .col3, .ammo').forEach(el => {
 			el.innerHTML = '';
@@ -219,7 +212,7 @@ SwitchEquip.equip = function equip(item, location, inSwitchList) {
 		return string;
 	};
 
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	const selector = getSelectorFromLocation(location);
 	const el = root.querySelector(selector);
 	if (el) {
@@ -248,7 +241,7 @@ SwitchEquip.equip = function equip(item, location, inSwitchList) {
  * @param {number} item location
  */
 SwitchEquip.unEquip = function unEquip(index, location) {
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	const selector = getSelectorFromLocation(location);
 	const item = SwitchEquip._list[index];
 	item.equipped = 0;
@@ -372,7 +365,7 @@ function onDragOver(event) {
 				!item.IsDamaged
 			) {
 				const selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
-				const root = _getRoot();
+				const root = SwitchEquip.getRoot();
 				const el = root.querySelector(selector);
 
 				if (el) {
@@ -393,7 +386,7 @@ function onDragOver(event) {
  * Drag out the window
  */
 function onDragLeave(event) {
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	root.querySelectorAll('td').forEach(td => {
 		td.style.backgroundImage = 'none';
 	});
@@ -421,7 +414,7 @@ function onDrop(event) {
 			item.IsIdentified &&
 			!item.IsDamaged
 		) {
-			const root = _getRoot();
+			const root = SwitchEquip.getRoot();
 			root.querySelectorAll('td').forEach(td => {
 				td.style.backgroundImage = 'none';
 			});
@@ -462,7 +455,7 @@ function onSwitchEquipUnEquip() {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	SwitchEquip.onRemoveSwitchEquip(index);
 
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	const overlay = root.querySelector('.switchoverlay');
 	if (overlay) overlay.style.display = 'none';
 }
@@ -478,7 +471,7 @@ function onSwitchEquipOver() {
 		return;
 	}
 
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	const overlay = root.querySelector('.switchoverlay');
 	if (!overlay) return;
 
@@ -499,7 +492,7 @@ function onSwitchEquipOver() {
  * Remove the item name
  */
 function onSwitchEquipOut() {
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	const overlay = root.querySelector('.switchoverlay');
 	if (overlay) overlay.style.display = 'none';
 }
@@ -508,7 +501,7 @@ function onSwitchEquipOut() {
  * Update the owner name for the equipment items
  */
 SwitchEquip.onUpdateOwnerName = function () {
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	for (const index in SwitchEquip._list) {
 		const item = SwitchEquip._list[index];
 		if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
@@ -566,7 +559,7 @@ function sendEquipSwitchRequest() {
 SwitchEquip.RequestSwitch = function () {
 	sendEquipSwitchRequest();
 
-	const root = _getRoot();
+	const root = SwitchEquip.getRoot();
 	const button = root.querySelector('#swap-button');
 	if (!button) return;
 

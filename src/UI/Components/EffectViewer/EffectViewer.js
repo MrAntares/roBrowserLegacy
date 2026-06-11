@@ -46,13 +46,6 @@ const Viewer = new GUIComponent('EffectViewer', cssText);
 Viewer.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return Viewer._shadow || Viewer._host;
-}
-
-/**
  * Initialize Component
  */
 Viewer.init = function init() {
@@ -79,7 +72,7 @@ Viewer.init = function init() {
 	Camera.init();
 
 	// Initialize the dropdown
-	const root = _getRoot();
+	const root = this.getRoot();
 	initDropDown(root.querySelector('select'), root.querySelector('button'));
 };
 
@@ -138,7 +131,7 @@ function initDropDown(select, button) {
 
 	loadEffect(0);
 
-	const root = _getRoot();
+	const root = Viewer.getRoot();
 	root.querySelector('.head').style.display = 'block';
 	select.focus();
 }

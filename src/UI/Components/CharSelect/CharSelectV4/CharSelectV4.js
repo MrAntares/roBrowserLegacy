@@ -92,17 +92,10 @@ let countdownInterval;
 let _disable_UI = false;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return CharSelectV4._shadow || CharSelectV4._host;
-}
-
-/**
  * Initialize UI
  */
 CharSelectV4.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	// Bind buttons
 	root.querySelector('.ok').addEventListener('click', connect);
@@ -261,7 +254,7 @@ function formatDuration(seconds) {
  * Countdown for delay in deletion
  */
 function updateAllVisibleCountdowns() {
-	const root = _getRoot();
+	const root = CharSelectV4.getRoot();
 	const visibleCountdowns = root.querySelectorAll('.timedelete:not(.hidden)');
 
 	visibleCountdowns.forEach(countdownDiv => {
@@ -341,7 +334,7 @@ CharSelectV4.reqdeleteAnswer = function reqdeleteAnswer(pkt) {
  * Update UI and add timer
  */
 function requestdelete(index, timer) {
-	const root = _getRoot();
+	const root = CharSelectV4.getRoot();
 
 	// Make it sit
 	_entitySlots[index].action = 2;
@@ -366,7 +359,7 @@ function requestdelete(index, timer) {
  */
 function removedelete() {
 	if (_slots[_index]) {
-		const root = _getRoot();
+		const root = CharSelectV4.getRoot();
 
 		// Delete here as well? Though server should tell us this
 		_slots[_index].DeleteDate = 0;
@@ -582,7 +575,7 @@ function suppress() {
  * @param {number} index
  */
 function moveCursorTo(index) {
-	const root = _getRoot();
+	const root = CharSelectV4.getRoot();
 	const charinfo = root.querySelector('.charinfo');
 
 	const prevIndex = _index;
@@ -655,7 +648,7 @@ function moveCursorTo(index) {
 }
 
 function changeBackgroundEverySecond() {
-	const root = _getRoot();
+	const root = CharSelectV4.getRoot();
 	const backgroundchange = root.querySelector(`#slot${_curindex}`);
 	if (backgroundchange && shouldRunBackgroundChange === true) {
 		Client.loadFile(`${DB.INTERFACE_PATH}select_character_ver3/img_slot_select${img}.bmp`, dataURI => {
@@ -672,7 +665,7 @@ function changeBackgroundEverySecond() {
 }
 
 CharSelectV4.updateCharSlot = function updateCharSlot(slotId) {
-	const root = _getRoot();
+	const root = this.getRoot();
 	let start = 0;
 	let loopMax = Math.max(_maxSlots, _slots.length);
 

@@ -71,13 +71,6 @@ SkillDescription.render = () => htmlText;
 SkillDescription.uid = -1;
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return SkillDescription._shadow || SkillDescription._host;
-}
-
-/**
  * Possible to exit using ESCAPE
  */
 SkillDescription.onKeyDown = function onKeyDown(event) {
@@ -97,7 +90,7 @@ SkillDescription.onRemove = function onRemove() {
  * Initialize UI
  */
 SkillDescription.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
@@ -116,7 +109,7 @@ SkillDescription.init = function init() {
 SkillDescription.setSkill = function setSkill(id) {
 	this.uid = id;
 
-	const root = _getRoot();
+	const root = this.getRoot();
 	const content = root.querySelector('.content');
 	if (content) {
 		content.innerHTML = _formatROText(DB.getSkillDescription(id));

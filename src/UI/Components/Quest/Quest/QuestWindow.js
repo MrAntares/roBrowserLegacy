@@ -32,10 +32,6 @@ const QuestWindow = new GUIComponent('QuestWindow', cssText);
 
 QuestWindow.render = () => htmlText;
 
-function _getRoot() {
-	return QuestWindow._shadow || QuestWindow._host;
-}
-
 /**
  * Mouse can cross this UI
  */
@@ -93,7 +89,7 @@ function isInCooldown(quest) {
 }
 
 QuestWindow.ClearQuestList = function ClearQuestList() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	if (!root) {
 		return;
 	}
@@ -104,7 +100,7 @@ QuestWindow.ClearQuestList = function ClearQuestList() {
 };
 
 QuestWindow.addQuestToUI = function addQuestToUI(quest) {
-	const root = _getRoot();
+	const root = this.getRoot();
 	if (!root) {
 		return;
 	}

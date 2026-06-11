@@ -73,17 +73,10 @@ const _model = {
 };
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return CharCreatev4._shadow || CharCreatev4._host;
-}
-
-/**
  * Initialize UI
  */
 CharCreatev4.init = function init() {
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 	_chargen.ctx = root.querySelector('#human').getContext('2d');
 	_doram.ctx = root.querySelector('#doram').getContext('2d');
 	_model.ctx = root.querySelector('#style_model').getContext('2d');
@@ -199,7 +192,7 @@ CharCreatev4.onAppend = function onAppend() {
 		direction: 4
 	});
 
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 	const charNameInput = root.querySelector('#char_name');
 	charNameInput.value = '';
 	charNameInput.focus();
@@ -240,7 +233,7 @@ CharCreatev4.onKeyDown = function onKeyDown(event) {
  * Update model hairstyle
  */
 function updateHStyle(target) {
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 	const type = 'head';
 	const value = parseInt(target.getAttribute('for'));
 
@@ -261,7 +254,7 @@ function updateHStyle(target) {
  * Update model haircolor
  */
 function updateHColor(target) {
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 	const type = 'headpalette';
 	const value = parseInt(target.getAttribute('for'));
 
@@ -283,7 +276,7 @@ function updateHColor(target) {
  * Update model race
  */
 function updateRace() {
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 	const select = root.querySelector('.race:checked');
 	const type = 'race';
 	let value = 0;
@@ -342,7 +335,7 @@ function updateCharacterGeneric(type, value) {
 }
 
 function updateHstyleList(type, value) {
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 
 	switch (type) {
 		case 'gender':
@@ -388,7 +381,7 @@ function updateHstyleList(type, value) {
  * Send back informations to send the packet
  */
 function create() {
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 
 	CharCreatev4.onCharCreationRequest(
 		root.querySelector('#char_name').value,
@@ -406,7 +399,7 @@ function create() {
 }
 
 function cleanup() {
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 
 	// Reset Default
 	_race = 'human';
@@ -503,7 +496,7 @@ function updateCharacter(type, increment) {
  * Rendering the Character
  */
 function render(tick) {
-	const root = _getRoot();
+	const root = CharCreatev4.getRoot();
 
 	if (_race === 'human') {
 		if (_chargen.tick + 500 < tick) {

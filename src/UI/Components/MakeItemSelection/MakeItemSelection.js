@@ -26,13 +26,6 @@ const MakeItemSelection = new GUIComponent('MakeItemSelection', cssText);
 MakeItemSelection.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return MakeItemSelection._shadow || MakeItemSelection._host;
-}
-
-/**
  * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
 function _sanitizeHtml(str) {
@@ -68,7 +61,7 @@ let _dblClickHandler = null;
  * Initialize UI
  */
 MakeItemSelection.init = function init() {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 
 	this.list = root.querySelector('.list');
 	this.index = 0;
@@ -106,7 +99,7 @@ MakeItemSelection.init = function init() {
  * @param {Array} list object to display
  */
 MakeItemSelection.setList = function setList(list) {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 	const listEl = root.querySelector('.list');
 	listEl.innerHTML = '';
 	listEl.style.backgroundColor = '#f7f7f7';
@@ -142,7 +135,7 @@ MakeItemSelection.setList = function setList(list) {
  * @param {Array} list object to display
  */
 MakeItemSelection.setCookingList = function setCookingList(list, mkType) {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 	const listEl = root.querySelector('.list');
 	listEl.innerHTML = '';
 	listEl.style.backgroundColor = '#f7f7f7';
@@ -174,7 +167,7 @@ MakeItemSelection.setCookingList = function setCookingList(list, mkType) {
  * @param {string} element name
  */
 function addElement(url, index, name) {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 	const listEl = root.querySelector('.list');
 
 	const div = document.createElement('div');
@@ -197,7 +190,7 @@ function addElement(url, index, name) {
  * @param {number} index in list
  */
 MakeItemSelection.advance = function advance() {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 	const listEl = root.querySelector('.list');
 	listEl.innerHTML = '';
 
@@ -225,7 +218,7 @@ MakeItemSelection.advance = function advance() {
  * @param {number} id in list
  */
 MakeItemSelection.setIndex = function setIndex(id) {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 	id = id === 0 ? this.index : id;
 	const prev = root.querySelector(`.list div[data-index="${this.index}"]`);
 	if (prev) {
@@ -268,7 +261,7 @@ MakeItemSelection.onKeyDown = function onKeyDown(event) {
  * @param {string} title
  */
 MakeItemSelection.setTitle = function setTitle(title) {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 	const text = root.querySelector('.head .text');
 	if (text) {
 		text.textContent = title;
@@ -314,7 +307,7 @@ MakeItemSelection.addMaterial = function AddMaterial(item, from) {
  * @param {object} Item
  */
 MakeItemSelection.addItemSub = function AddItemSub(item) {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 	const it = DB.getItemInfo(item.ITID);
 	const content = root.querySelector('.materials');
 
@@ -378,7 +371,7 @@ function stopPropagation(event) {
 }
 
 function bindSelectEvents(showMaterials) {
-	const root = _getRoot();
+	const root = MakeItemSelection.getRoot();
 	const okBtn = root.querySelector('ui-button.ok');
 	const mainEl = root.querySelector('#MakeItemSelection');
 

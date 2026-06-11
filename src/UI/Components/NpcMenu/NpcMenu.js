@@ -40,13 +40,6 @@ let _index = 0;
 let _ownerID = 0;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return NpcMenu._shadow || NpcMenu._host;
-}
-
-/**
  * Helper: escape HTML
  */
 function _escapeHTML(text) {
@@ -59,7 +52,7 @@ function _escapeHTML(text) {
  * Initialize component
  */
 NpcMenu.init = function init() {
-	const root = _getRoot();
+	const root = NpcMenu.getRoot();
 
 	const okBtn = root.querySelector('.ok');
 	if (okBtn) {
@@ -99,7 +92,7 @@ NpcMenu.init = function init() {
  * Clean up events
  */
 NpcMenu.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = NpcMenu.getRoot();
 	const content = root.querySelector('.content');
 	if (content) {
 		content.innerHTML = '';
@@ -114,7 +107,7 @@ NpcMenu.onKeyDown = function onKeyDown(event) {
 		return true;
 	}
 
-	const root = _getRoot();
+	const root = NpcMenu.getRoot();
 	const content = root.querySelector('.content');
 
 	switch (event.which) {
@@ -175,7 +168,7 @@ NpcMenu.onKeyDown = function onKeyDown(event) {
  * @param {number} gid - npc id
  */
 NpcMenu.setMenu = function setMenu(menu, gid) {
-	const root = _getRoot();
+	const root = NpcMenu.getRoot();
 	const content = root.querySelector('.content');
 	const list = menu.split(':');
 
@@ -218,7 +211,7 @@ function cancel() {
  * Select an index, change background color
  */
 function selectIndex(div) {
-	const root = _getRoot();
+	const root = NpcMenu.getRoot();
 	const content = root.querySelector('.content');
 	const divs = content.querySelectorAll('div');
 	divs.forEach(d => d.classList.remove('selected'));

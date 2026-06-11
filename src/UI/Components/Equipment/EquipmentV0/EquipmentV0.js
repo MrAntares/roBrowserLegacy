@@ -52,10 +52,6 @@ let _ctx;
 let _showEquip = false;
 let _btnLevelUp;
 
-function _getRoot() {
-	return EquipmentV0._shadow || EquipmentV0._host;
-}
-
 function escapeHTML(str) {
 	const div = document.createElement('div');
 	div.textContent = str;
@@ -63,7 +59,7 @@ function escapeHTML(str) {
 }
 
 EquipmentV0.init = function init() {
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	const canvas = root.querySelector('canvas');
 	if (canvas) _ctx = canvas.getContext('2d');
 
@@ -171,7 +167,7 @@ EquipmentV0.onAppend = function onAppend() {
 	}
 
 	if (_preferences.reduce) {
-		const root = _getRoot();
+		const root = EquipmentV0.getRoot();
 		const panel = root.querySelector('.panel');
 		if (panel) panel.style.display = 'none';
 	}
@@ -182,14 +178,14 @@ EquipmentV0.onAppend = function onAppend() {
 			winStats.embed(EquipmentV0._host);
 		} else {
 			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/viewon.bmp', data => {
-				const root = _getRoot();
+				const root = EquipmentV0.getRoot();
 				const btn = root.querySelector('.view_status');
 				if (btn) btn.style.backgroundImage = `url(${data})`;
 			});
 		}
 	}
 
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	const canvas = root.querySelector('canvas');
 	if (canvas && this._host.style.display !== 'none') {
 		Renderer.render(renderCharacter);
@@ -204,7 +200,7 @@ EquipmentV0.onRemove = function onRemove() {
 	Renderer.stop(renderCharacter);
 
 	_list = {};
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	root.querySelectorAll('.col1, .col3, .ammo').forEach(el => {
 		el.innerHTML = '';
 	});
@@ -249,7 +245,7 @@ EquipmentV0.onShortCut = function onShurtCut(key) {
 EquipmentV0.setEquipConfig = function setEquipConfig(on) {
 	_showEquip = on;
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '1' : '0') + '.bmp', data => {
-		const root = _getRoot();
+		const root = EquipmentV0.getRoot();
 		const btn = root.querySelector('.show_equip');
 		if (btn) btn.style.backgroundImage = `url(${data})`;
 	});
@@ -282,7 +278,7 @@ EquipmentV0.equip = function equip(item, location) {
 		return text;
 	}
 
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	const selector = getSelectorFromLocation(location);
 	const cells = root.querySelectorAll(selector);
 	cells.forEach(cell => {
@@ -316,7 +312,7 @@ EquipmentV0.equip = function equip(item, location) {
 
 EquipmentV0.unEquip = function unEquip(index, location) {
 	const selector = getSelectorFromLocation(location);
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	const item = _list[index];
 
 	root.querySelectorAll(selector).forEach(el => {
@@ -341,7 +337,7 @@ function hideStatus() {
 }
 
 function toggleStatus() {
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	const self = root.querySelector('.view_status');
 	const winStats = WinStats.getUI();
 	const isVisible = winStats.isEmbedded();
@@ -413,7 +409,7 @@ const renderCharacter = (function renderCharacterClosure() {
 			_lastState = character.effectState;
 			_hasCart = character.hasCart;
 
-			const root = _getRoot();
+			const root = EquipmentV0.getRoot();
 			const removeOpt = root.querySelector('.removeOption');
 			const cartBtn = root.querySelector('.cartitems');
 
@@ -479,7 +475,7 @@ function onDragOver(event) {
 				!item.IsDamaged
 			) {
 				const selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
-				const root = _getRoot();
+				const root = EquipmentV0.getRoot();
 				const cells = root.querySelectorAll(selector);
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', _data => {
 					cells.forEach(c => {
@@ -494,7 +490,7 @@ function onDragOver(event) {
 }
 
 function onDragLeave(event) {
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	root.querySelectorAll('td').forEach(td => {
 		td.style.backgroundImage = 'none';
 	});
@@ -522,7 +518,7 @@ function onDrop(event) {
 			item.IsIdentified &&
 			!item.IsDamaged
 		) {
-			const root = _getRoot();
+			const root = EquipmentV0.getRoot();
 			root.querySelectorAll('td').forEach(td => {
 				td.style.backgroundImage = 'none';
 			});
@@ -554,7 +550,7 @@ function onEquipmentInfo(event) {
 function onEquipmentUnEquip() {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	EquipmentV0.onUnEquip(index);
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) overlay.style.display = 'none';
 }
@@ -564,7 +560,7 @@ function onEquipmentOver() {
 	const item = _list[idx];
 	if (!item) return;
 
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	const overlay = root.querySelector('.overlay');
 	const rootEl = root.querySelector('#EquipmentV0') || root;
 	const btnRect = this.getBoundingClientRect();
@@ -583,13 +579,13 @@ function onEquipmentOver() {
 }
 
 function onEquipmentOut() {
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) overlay.style.display = 'none';
 }
 
 EquipmentV0.onUpdateOwnerName = function () {
-	const root = _getRoot();
+	const root = EquipmentV0.getRoot();
 	for (const index in _list) {
 		const item = _list[index];
 		if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {

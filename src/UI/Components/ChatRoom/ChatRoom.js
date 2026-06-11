@@ -355,10 +355,9 @@ ChatRoom.removeMember = function removeMember(name) {
  * Key Event Handler
  */
 ChatRoom.onKeyDown = function onKeyDown(event) {
-	const root = this._shadow || this._host;
-	const active = root.activeElement;
+	const active = this.getRoot().activeElement;
 
-	if (active && active.tagName && active.tagName.match(/input|textarea|select/i)) {
+	if (this.isEditableFocused()) {
 		// Input focused — let the keystroke through but block other handlers
 		if (event.which === KEYS.ENTER) {
 			sendChatMessage();

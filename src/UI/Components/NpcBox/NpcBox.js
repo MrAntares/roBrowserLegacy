@@ -41,13 +41,6 @@ let _needCleanUp = false;
 NpcBox.ownerID = 0;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return NpcBox._shadow || NpcBox._host;
-}
-
-/**
  * Process NAVI tags in text
  */
 function processNAVITags(text) {
@@ -113,7 +106,7 @@ NpcBox.init = function init() {
 	this._host.style.top = `${Math.max(100, Renderer.height / 2 - 200)}px`;
 	this._host.style.left = `${Math.max(Renderer.width / 3, 20)}px`;
 
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
@@ -172,7 +165,7 @@ NpcBox.init = function init() {
  * Once NPC Box is removed from HTML, clean up data
  */
 NpcBox.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
@@ -206,7 +199,7 @@ NpcBox.onKeyDown = function onKeyDown(event) {
 		return true;
 	}
 
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 
 	switch (event.which) {
 		case KEYS.SPACE:
@@ -248,7 +241,7 @@ NpcBox.onKeyDown = function onKeyDown(event) {
  * @param {number} gid - npc id
  */
 NpcBox.setText = function setText(text, gid) {
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const content = root.querySelector('.content');
 	NpcBox.ownerID = gid;
 
@@ -269,7 +262,7 @@ NpcBox.setText = function setText(text, gid) {
  */
 NpcBox.addNext = function addNext(gid) {
 	NpcBox.ownerID = gid;
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
 		nextBtn.style.display = 'block';
@@ -283,7 +276,7 @@ NpcBox.addNext = function addNext(gid) {
  */
 NpcBox.addClose = function addClose(gid) {
 	NpcBox.ownerID = gid;
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
 		closeBtn.style.display = 'block';
@@ -295,7 +288,7 @@ NpcBox.addClose = function addClose(gid) {
  */
 NpcBox.next = function next() {
 	_needCleanUp = true;
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
 		nextBtn.style.display = 'none';
@@ -308,7 +301,7 @@ NpcBox.next = function next() {
  */
 NpcBox.close = function close() {
 	_needCleanUp = true;
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
 		closeBtn.style.display = 'none';

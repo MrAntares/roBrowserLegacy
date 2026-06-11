@@ -22,17 +22,10 @@ const MakeModelMessage = new GUIComponent('MakeModelMessage', cssText);
 MakeModelMessage.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return MakeModelMessage._shadow || MakeModelMessage._host;
-}
-
-/**
  * Initialize UI
  */
 MakeModelMessage.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	this._host.style.top = `${(Renderer.height - 200) / 2}px`;
 	this._host.style.left = `${(Renderer.width - 200) / 2}px`;

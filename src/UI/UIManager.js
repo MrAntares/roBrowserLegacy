@@ -12,6 +12,7 @@ import UIComponent from 'UI/UIComponent.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
+import ClampToViewport from 'UI/ClampToViewport.js';
 
 /**
  * Centralize popup position
@@ -158,52 +159,11 @@ class UIManager {
 	 */
 	static fixResizeOverflow(WIDTH, HEIGHT) {
 		const keys = Object.keys(this.components);
-
 		for (let i = 0; i < keys.length; ++i) {
 			const component = this.components[keys[i]];
-
 			const el = component.ui ? component.ui[0] : null;
 			if (!el) continue;
-
-			// Skip non-draggable GUIComponents (their CSS position is intentional)
-			if (component._isDraggable !== undefined && !component._isDraggable) {
-				if (component.onResize) {
-					component.onResize();
-				}
-				continue;
-			}
-
-			const rect = el.getBoundingClientRect();
-			const x = rect.left;
-			const y = rect.top;
-			const width = rect.width;
-			const height = rect.height;
-
-			// Overflow bottom
-			if (y + height > HEIGHT) {
-				el.style.top = `${HEIGHT - Math.min(height, HEIGHT)}px`;
-			}
-			// Overflow top
-			if (y < 0) {
-				el.style.top = '0px';
-			}
-			// Overflow right
-			if (x + width > WIDTH) {
-				el.style.left = `${WIDTH - Math.min(width, WIDTH)}px`;
-			}
-			// Overflow left
-			if (x < 0) {
-				el.style.left = '0px';
-			}
-
-			// Magnet
-			if (component.magnet.BOTTOM) {
-				el.style.top = `${HEIGHT - height}px`;
-			}
-			if (component.magnet.RIGHT) {
-				el.style.left = `${WIDTH - width}px`;
-			}
-
+			ClampToViewport(el, WIDTH, HEIGHT, component.magnet);
 			if (component.onResize) {
 				component.onResize();
 			}

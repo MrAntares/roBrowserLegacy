@@ -80,10 +80,6 @@ InventoryV2.itemcomp = _preferences.itemcomp;
 InventoryV2.npcsalelock = _preferences.npcsalelock;
 let lockOverlayTimeout;
 
-function _getRoot() {
-	return InventoryV2._shadow || InventoryV2._host;
-}
-
 function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
@@ -101,7 +97,7 @@ function _getBasicInfoRoot(ui) {
 }
 
 InventoryV2.init = function Init() {
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 
 	const baseBtn = root.querySelector('.titlebar .base');
 	if (baseBtn) baseBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
@@ -232,13 +228,13 @@ InventoryV2.onAppend = function OnAppend() {
 	this.magnet.RIGHT = _preferences.magnet_right;
 
 	_realSize = _preferences.reduce ? 0 : this._host.getBoundingClientRect().height;
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const miniBtnAppend = root.querySelector('.titlebar .mini');
 	if (miniBtnAppend) miniBtnAppend.dispatchEvent(new Event('mousedown'));
 };
 
 InventoryV2.onRemove = function OnRemove() {
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) content.innerHTML = '';
 	this.list.length = 0;
@@ -268,7 +264,7 @@ InventoryV2.onShortCut = function onShurtCut(key) {
 			} else {
 				this._host.dispatchEvent(new Event('mouseleave'));
 				this.clearNewItems();
-				const root = _getRoot();
+				const root = InventoryV2.getRoot();
 				root.querySelectorAll('.new_item').forEach(el => {
 					el.style.backgroundImage = '';
 				});
@@ -291,7 +287,7 @@ InventoryV2.toggle = function toggle() {
 	} else {
 		this._host.dispatchEvent(new Event('mouseleave'));
 		this.clearNewItems();
-		const root = _getRoot();
+		const root = InventoryV2.getRoot();
 		root.querySelectorAll('.new_item').forEach(el => {
 			el.style.backgroundImage = '';
 		});
@@ -312,7 +308,7 @@ InventoryV2.clearNewItems = function clearNewItems() {
 InventoryV2.resize = function Resize(width) {
 	width = Math.min(Math.max(width, 6), 8);
 
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) content.style.width = `${width * 32}px`;
 
@@ -322,7 +318,7 @@ InventoryV2.resize = function Resize(width) {
 };
 
 InventoryV2.updateScroll = function updateScroll() {
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const hostEl = root.querySelector('.scroll-host');
 	if (!hostEl) return;
 
@@ -363,7 +359,7 @@ InventoryV2.getItemByIndex = function getItemByIndex(index) {
 };
 
 InventoryV2.setItems = function SetItems(items) {
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	for (let i = 0, count = items.length; i < count; ++i) {
 		const object = this.getItemByIndex(items[i].index);
 		if (object) this.removeItem(object.index, object.count);
@@ -399,7 +395,7 @@ function getItemTab(item) {
 
 InventoryV2.addItem = function AddItem(item) {
 	let object = this.getItemByIndex(item.index);
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 
 	const equippedIndex = InventoryV2.equippedItems.indexOf(item.index);
 	if (equippedIndex !== -1) {
@@ -465,7 +461,7 @@ InventoryV2.addItemSub = function AddItemSub(item) {
 
 	if (tab === _preferences.tab) {
 		const it = DB.getItemInfo(item.ITID);
-		const root = _getRoot();
+		const root = InventoryV2.getRoot();
 		const content = root.querySelector('.container .content');
 		if (!content) return true;
 
@@ -522,7 +518,7 @@ InventoryV2.isInEquipSwitchList = function (location) {
 
 InventoryV2.removeItem = function RemoveItem(index, count) {
 	const item = this.getItemByIndex(index);
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 
 	if (!item || count <= 0) return null;
 
@@ -554,7 +550,7 @@ InventoryV2.updateItem = function UpdateItem(index, count) {
 	if (!item) return;
 
 	item.count = count;
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 
 	if (item.count > 0) {
 		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
@@ -621,7 +617,7 @@ function onResize() {
 }
 
 function onSwitchTab() {
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const buttons = root.querySelectorAll('.tabs button');
 	const idx = Array.from(buttons).indexOf(this);
 	_preferences.tab = parseInt(idx, 10);
@@ -665,7 +661,7 @@ function onSwitchTab() {
 }
 
 function onToggleReduction() {
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const panel = root.querySelector('.panel');
 
 	if (_realSize) {
@@ -680,7 +676,7 @@ function onToggleReduction() {
 }
 
 function requestFilter() {
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const host = root.querySelector('.scroll-host');
 	if (host) host.scrollTop = 0;
 
@@ -768,7 +764,7 @@ function onItemOver(_e) {
 		quantity = ' Quantity';
 	}
 
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const overlay = root.querySelector('.overlay');
 	const rootEl = root.querySelector('#InventoryV2') || root;
 	const itemRect = this.getBoundingClientRect();
@@ -787,7 +783,7 @@ function onItemOver(_e) {
 }
 
 function onItemOut() {
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) overlay.style.display = 'none';
 }
@@ -969,7 +965,7 @@ function onItemLock() {
 	InventoryV2.itemlock = _preferences.itemlock;
 	const lockImg = _preferences.itemlock ? 'inventory/item_drop_lock_on.bmp' : 'inventory/item_drop_lock_off.bmp';
 	Client.loadFile(DB.INTERFACE_PATH + lockImg, data => {
-		const root = _getRoot();
+		const root = InventoryV2.getRoot();
 		const btn = root.querySelector('.item_drop_lock');
 		if (btn) btn.style.backgroundImage = `url(${data})`;
 	});
@@ -980,7 +976,7 @@ function onItemCompare() {
 	InventoryV2.itemcomp = _preferences.itemcomp;
 	const compImg = _preferences.itemcomp ? 'inventory/item_compare_on.bmp' : 'inventory/item_compare_off.bmp';
 	Client.loadFile(DB.INTERFACE_PATH + compImg, data => {
-		const root = _getRoot();
+		const root = InventoryV2.getRoot();
 		const btn = root.querySelector('.item_compare');
 		if (btn) btn.style.backgroundImage = `url(${data})`;
 	});
@@ -989,7 +985,7 @@ function onItemCompare() {
 function onNPCLock() {
 	_preferences.npcsalelock = !_preferences.npcsalelock;
 	InventoryV2.npcsalelock = _preferences.npcsalelock;
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 
 	if (_preferences.npcsalelock) {
 		const dealOn = root.querySelector('.deallock_on');
@@ -1034,7 +1030,7 @@ InventoryV2.addItemtoSwitch = function (index) {
 
 	this.equipswitchlist.push(item);
 
-	const root = _getRoot();
+	const root = InventoryV2.getRoot();
 	Client.loadFile(DB.INTERFACE_PATH + 'swap_equipment/bg_change.bmp', data => {
 		const el = root.querySelector(`.item[data-index="${item.index}"] .switch1`);
 		if (el) el.style.backgroundImage = `url(${data})`;
@@ -1058,7 +1054,7 @@ InventoryV2.removeItemFromSwitch = function (index) {
 	const existingItemIndex = this.equipswitchlist.findIndex(existingItem => existingItem.index === item.index);
 
 	if (existingItemIndex > -1) {
-		const root = _getRoot();
+		const root = InventoryV2.getRoot();
 		const sw1 = root.querySelector(`.item[data-index="${item.index}"] .switch1`);
 		if (sw1) sw1.style.backgroundImage = 'none';
 		const sw2 = root.querySelector(`.item[data-index="${item.index}"] .switch2`);

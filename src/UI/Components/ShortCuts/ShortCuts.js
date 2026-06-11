@@ -91,13 +91,6 @@ const _preferences = Preferences.get(
 );
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return ShortCuts._shadow || ShortCuts._host;
-}
-
-/**
  * Capture key events so text inputs inside Shadow DOM work correctly
  */
 ShortCuts.captureKeyEvents = true;
@@ -106,10 +99,9 @@ ShortCuts.captureKeyEvents = true;
  * Key handler: let typing work in macro inputs, handle Enter/Escape
  */
 ShortCuts.onKeyDown = function onKeyDown(event) {
-	const shadow = this._shadow || this._host;
-	const focused = shadow.activeElement;
+	const focused = this.getRoot().activeElement;
 
-	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			focused.blur();
 			event.stopImmediatePropagation();
@@ -127,7 +119,7 @@ ShortCuts.onKeyDown = function onKeyDown(event) {
  * Initialize UI
  */
 ShortCuts.init = function init() {
-	const root = _getRoot();
+	const root = ShortCuts.getRoot();
 
 	const footerBtns = root.querySelectorAll('.footer button');
 	footerBtns.forEach(btn => {
@@ -183,7 +175,7 @@ ShortCuts.onAppend = function onAppend() {
  * Remove ShortCuts from window (and so clean up items)
  */
 ShortCuts.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = ShortCuts.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.innerHTML = '';
@@ -223,7 +215,7 @@ ShortCuts.onShortCut = function onShortCut(key) {
 				this._host.style.display = 'none';
 			}
 			// Remove input focus
-			_getRoot()
+			this.getRoot()
 				.querySelectorAll('.macro_')
 				.forEach(el => el.classList.remove('input_macro_focus'));
 			if (this._host.style.display !== 'none') {
@@ -303,7 +295,7 @@ ShortCuts.resize = function resize(width, height) {
 	width = Math.min(Math.max(width, 6), 9);
 	height = Math.min(Math.max(height, 2), 6);
 
-	const root = _getRoot();
+	const root = ShortCuts.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.style.width = `${width * 32 + 13}px`;
@@ -327,7 +319,7 @@ function onClose() {
 // Currently unused, preserved for future development.
 function _onResize() {
 	const host = ShortCuts._host;
-	const root = _getRoot();
+	const root = ShortCuts.getRoot();
 	const content = root.querySelector('.container .content');
 	const hide = root.querySelector('.hide');
 	const top = host.offsetTop;
@@ -410,7 +402,7 @@ function executeFlag(value) {
 }
 
 function loadValuesAlt() {
-	const root = _getRoot();
+	const root = ShortCuts.getRoot();
 	const length = Object.keys(_MACRO_INIT).length - 3;
 	for (let index = 0; index < length; index++) {
 		const element = _MACRO_INIT[`Num_${index}`];
@@ -422,7 +414,7 @@ function loadValuesAlt() {
 }
 
 function addValuesAlt() {
-	const root = _getRoot();
+	const root = ShortCuts.getRoot();
 	root.querySelectorAll('.macro input').forEach(input => {
 		input.addEventListener('blur', () => {
 			const index = input.id.split('macro_')[1];

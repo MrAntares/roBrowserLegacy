@@ -63,15 +63,11 @@ const _preferences = Preferences.get(
 	1.0
 );
 
-function _getRoot() {
-	return BasicInfo._shadow || BasicInfo._host;
-}
-
 /**
  * Initialize UI
  */
 BasicInfo.init = function init() {
-	const root = _getRoot();
+	const root = BasicInfo.getRoot();
 
 	root.querySelectorAll('.topbar button').forEach(btn => {
 		btn.addEventListener('mousedown', e => e.stopImmediatePropagation());
@@ -126,7 +122,7 @@ BasicInfo.init = function init() {
  * Execute elements in memory
  */
 BasicInfo.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = BasicInfo.getRoot();
 	const hostRect = this._host.getBoundingClientRect();
 
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
@@ -156,7 +152,7 @@ BasicInfo.onAppend = function onAppend() {
  * Once remove, save preferences
  */
 BasicInfo.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = BasicInfo.getRoot();
 	const inner = root.querySelector('#basicinfo');
 
 	_preferences.x = parseInt(this._host.style.left, 10);
@@ -188,7 +184,7 @@ BasicInfo.onShortCut = function onShortCut(key) {
  * Switch window size
  */
 BasicInfo.toggleMode = function toggleMode() {
-	const root = _getRoot();
+	const root = BasicInfo.getRoot();
 	const inner = root.querySelector('#basicinfo');
 	if (!inner) return;
 
@@ -227,7 +223,7 @@ BasicInfo.toggleMode = function toggleMode() {
  * Toggle the list of buttons
  */
 BasicInfo.toggleButtons = function toggleButtons(event) {
-	const root = _getRoot();
+	const root = BasicInfo.getRoot();
 	const buttons = root.querySelector('.buttons');
 	if (!buttons) return;
 
@@ -258,7 +254,7 @@ BasicInfo.toggleButtons = function toggleButtons(event) {
  * @param {number} val2 (optional)
  */
 BasicInfo.update = function update(type, val1, val2) {
-	const root = _getRoot();
+	const root = BasicInfo.getRoot();
 	if (!root) return;
 
 	let perc = 100;
