@@ -136,8 +136,9 @@ PartyFriendsV1.init = function init() {
 		el.addEventListener('mousedown', onToggleLock);
 	});
 
-	const switchTabOff = root.querySelector('.switchtab.off');
-	if (switchTabOff) switchTabOff.addEventListener('mousedown', onChangeTab);
+	root.querySelectorAll('.switchtab.off').forEach((el) => {
+		el.addEventListener('mousedown', onChangeTab);
+	});
 
 	const removeBtn = root.querySelector('.remove');
 	if (removeBtn) removeBtn.addEventListener('mousedown', onRequestRemoveSelection);

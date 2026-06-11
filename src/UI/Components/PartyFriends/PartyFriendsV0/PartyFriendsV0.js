@@ -124,8 +124,9 @@ PartyFriendsV0.init = function init() {
 	if (lockOn) lockOn.addEventListener('mousedown', onToggleLock);
 	if (lockOff) lockOff.addEventListener('mousedown', onToggleLock);
 
-	const switchOff = root.querySelector('.switchtab.off');
-	if (switchOff) switchOff.addEventListener('mousedown', onChangeTab);
+	root.querySelectorAll('.switchtab.off').forEach((el) => {
+		el.addEventListener('mousedown', onChangeTab);
+	});
 
 	const removeBtn = root.querySelector('.remove');
 	if (removeBtn) removeBtn.addEventListener('mousedown', onRequestRemoveSelection);
@@ -1020,7 +1021,19 @@ function onOpenMailCreationWindow() {
 	if (_preferences.lock) {
 		return;
 	}
-	Mail.append();
+
+	let recipient = '';
+	if (_preferences.friend && _friends[_index]) {
+		recipient = _friends[_index].Name;
+	} else if (!_preferences.friend && _party[_index]) {
+		recipient = _party[_index].characterName;
+	}
+
+	if (recipient) {
+		Mail.replyNewMailFriends(recipient);
+	} else {
+		Mail.append();
+	}
 }
 
 PartyFriendsV0.mouseMode = GUIComponent.MouseMode.STOP;
