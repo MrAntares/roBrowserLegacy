@@ -1,7 +1,12 @@
-#HomunInformations {
-	position: absolute;
+:host {
+	width: 280px;
+	height: 190px;
 	top: 100px;
 	left: 100px;
+}
+
+#HomunInformations {
+	position: absolute;
 	width: 280px;
 	height: 190px;
 	background-color: white;
@@ -72,7 +77,6 @@
 
 #HomunInformations .modify {
 	position: absolute;
-	background-color: grey;
 	top: 22px;
 	right: 5px;
 	border: 0;
@@ -83,7 +87,6 @@
 }
 #HomunInformations .skill {
 	position: absolute;
-	background-color: grey;
 	top: 45px;
 	right: 5px;
 	border: 0;
@@ -94,7 +97,6 @@
 }
 #HomunInformations .del {
 	position: absolute;
-	background-color: grey;
 	top: 45px;
 	right: 50px;
 	border: 0;
@@ -288,7 +290,6 @@
 
 #HomunInformations .feed {
 	position: absolute;
-	background-color: grey;
 	top: 155px;
 	right: 5px;
 	border: 0;

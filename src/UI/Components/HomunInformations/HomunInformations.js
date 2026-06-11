@@ -13,14 +13,15 @@ import Renderer from 'Renderer/Renderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
-import htmlText from './HomunInformations.html?raw';
-import cssText from './HomunInformations.css?raw';
 import Session from 'Engine/SessionStorage.js';
 import AIDriver from 'Core/AIDriver.js';
 import Configs from 'Core/Configs.js';
 import PACKETVER from 'Network/PacketVerManager.js';
+import 'UI/Elements/Elements.js';
+import htmlText from './HomunInformations.html?raw';
+import cssText from './HomunInformations.css?raw';
 
 let autoFeedInterval;
 const autoFeedIntervalMs = 1000 * 60 * 1; // feed every 1 minutes when auto feed is enabled
@@ -29,7 +30,11 @@ const autoFeedPercent = 30;
 /**
  * Create Component
  */
-const HomunInformations = new UIComponent('HomunInformations', htmlText, cssText);
+const HomunInformations = new GUIComponent('HomunInformations', cssText);
+
+HomunInformations.render = () => htmlText;
+
+HomunInformations.captureKeyEvents = true;
 
 /**
  * @var {Preferences} Window preferences (localStorage)
@@ -49,30 +54,76 @@ HomunInformations.base_exp = 0;
 HomunInformations.base_exp_next = 1;
 
 /**
+ * Helper to get the shadow root
+ */
+function _getRoot() {
+	return HomunInformations._shadow || HomunInformations._host;
+}
+
+/**
  * Initialize component
  */
 HomunInformations.init = function init() {
-	this.draggable(this.ui.find('.content'));
+	const root = _getRoot();
 
-	this.ui.find('.base').mousedown(stopPropagation);
-	this.ui.find('.close').click(onClose);
-	this.ui.find('.modify').click(onChangeName);
-	this.ui.find('.feed').click(onFeed);
-	this.ui.find('.del').click(onDelete);
-	this.ui.find('.homun_auto_feed').click(homunToggleAutoFeed);
+	this.draggable('.content');
 
-	if (!_preferences.show) {
-		this.ui.hide();
+	const baseEl = root.querySelector('.base');
+	if (baseEl) {
+		baseEl.addEventListener('mousedown', (e) => {
+			e.stopImmediatePropagation();
+		});
 	}
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => {
+			this._host.style.display = 'none';
+			SkillListMH.homunculus.ui.hide();
+		});
+	}
 
-	this.ui.find('.skill').mousedown(function () {
-		SkillListMH.homunculus.toggle();
-	});
+	const modifyBtn = root.querySelector('.modify');
+	if (modifyBtn) {
+		modifyBtn.addEventListener('click', () => {
+			const input = root.querySelector('.name');
+			if (input) {
+				HomunInformations.reqNameEdit(input.value);
+			}
+		});
+	}
+
+	const feedBtn = root.querySelector('.feed');
+	if (feedBtn) {
+		feedBtn.addEventListener('click', () => {
+			HomunInformations.reqHomunFeed();
+		});
+	}
+
+	const delBtn = root.querySelector('.del');
+	if (delBtn) {
+		delBtn.addEventListener('click', () => {
+			HomunInformations.reqDeleteHomun();
+		});
+	}
+
+	const autoFeedBtn = root.querySelector('.homun_auto_feed');
+	if (autoFeedBtn) {
+		autoFeedBtn.addEventListener('click', () => {
+			homunToggleAutoFeed();
+		});
+	}
+
+	if (!_preferences.show) {
+		this._host.style.display = 'none';
+	}
+
+	const skillBtn = root.querySelector('.skill');
+	if (skillBtn) {
+		skillBtn.addEventListener('mousedown', () => {
+			SkillListMH.homunculus.toggle();
+		});
+	}
 
 	// If no aggressive level defined, default to 1
 	// otherwise toggle and untoggle to remain the same
@@ -81,24 +132,33 @@ HomunInformations.init = function init() {
 };
 
 HomunInformations.onAppend = function onAppend() {
-	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.autoFeed ? '1' : '0') + '.bmp', function (data) {
-		HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
+	const root = _getRoot();
+
+	Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences.autoFeed ? '1' : '0'}.bmp`, (data) => {
+		const el = root.querySelector('.homun_auto_feed');
+		if (el) {
+			el.style.backgroundImage = `url(${data})`;
+		}
 	});
 
 	if (PACKETVER.value < 20170920) {
 		if (Configs.get('enableHomunAutoFeed', false)) {
-			// added support to autofeed for older clients with setInterval
 			HomunInformations.startAutoFeed();
 		} else {
-			HomunInformations.ui.find('.feeding').hide();
+			const feeding = root.querySelector('.feeding');
+			if (feeding) {
+				feeding.style.display = 'none';
+			}
 		}
 	}
+
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 };
 
 // feed homunculus every 1 minutes when enableHomunAutoFeed is enabled
 HomunInformations.startAutoFeed = function startAutoFeed() {
 	window.clearInterval(autoFeedInterval);
-	// feed every 1 minutes (default value). No zero value
 	autoFeedInterval = window.setInterval(
 		autoFeedCheck,
 		Number(Configs.get('homunAutoFeedTimeMs')) || autoFeedIntervalMs
@@ -112,19 +172,12 @@ HomunInformations.stopAutoFeed = function stopAutoFeed() {
 
 /**
  * Checks if homun should be fed or not
- * - feed when hunger drops below 31 (default value)
- * - feed should restore about 10 hunger
- * - 1 hunger is lost every 60 seconds
- *
- * @return {void}
  */
 function autoFeedCheck() {
-	// check is feature enabled (ui toggeled)
 	if (_preferences.autoFeed != 1) {
 		return;
 	}
 
-	// check current player
 	const player = Session.Entity;
 	if (!player) {
 		return;
@@ -133,7 +186,6 @@ function autoFeedCheck() {
 		return;
 	}
 
-	// check current homunculus
 	if (!Session.homunId) {
 		return;
 	}
@@ -144,37 +196,19 @@ function autoFeedCheck() {
 	if (entity.life.hp <= 0) {
 		return;
 	}
-	// get the auto feed break point from the config or default
 	if (entity.life.hunger > Number(Configs.get('homunAutoFeedPercent', autoFeedPercent))) {
 		return;
 	}
-	// hunger is now at 30, so feed +10 points
 	HomunInformations.sendHomunFeed();
-}
-
-/**
- * feed homunculus
- */
-function onFeed() {
-	HomunInformations.reqHomunFeed();
-}
-
-/**
- * delete homunculus
- */
-function onDelete() {
-	HomunInformations.reqDeleteHomun();
-	return true;
 }
 
 /**
  * Once remove from body, save user preferences
  */
 HomunInformations.onRemove = function onRemove() {
-	// Save preferences
-	_preferences.show = this.ui.is(':visible');
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.show = this._host.style.display !== 'none';
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 	HomunInformations.stopAutoFeed();
 	this.stopAI();
@@ -186,26 +220,19 @@ HomunInformations.onRemove = function onRemove() {
  * @param {object} key
  */
 HomunInformations.onShortCut = function onShortCut(key) {
-	// Not in body
-	if (!this.ui) {
-		return;
-	}
-
 	switch (key.cmd) {
 		case 'TOGGLE':
 			if (Session.homunId) {
-				this.ui.toggle();
-				if (this.ui.is(':visible')) {
+				if (this._host.style.display === 'none') {
+					this._host.style.display = '';
 					this.focus();
 				} else {
-					this.ui.show();
-				}
-				if (!this.ui.is(':visible')) {
+					this._host.style.display = 'none';
 					SkillListMH.homunculus.ui.hide();
 				}
 			} else {
 				SkillListMH.homunculus.ui.hide();
-				this.ui.hide();
+				this._host.style.display = 'none';
 			}
 			break;
 		case 'AGGRESSIVE':
@@ -214,10 +241,36 @@ HomunInformations.onShortCut = function onShortCut(key) {
 	}
 };
 
+/**
+ * Handle keyboard events inside shadow DOM
+ * Protects input fields from being consumed by global handlers
+ */
 HomunInformations.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
-		this.ui.toggle();
+	const shadow = this._shadow || this._host;
+	const focused = shadow.activeElement;
+
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			focused.blur();
+			event.stopImmediatePropagation();
+			return false;
+		}
+		if (event.which === KEYS.ENTER) {
+			if (focused.classList.contains('name')) {
+				HomunInformations.reqNameEdit(focused.value);
+			}
+			event.stopImmediatePropagation();
+			return false;
+		}
+		event.stopImmediatePropagation();
+		return true;
 	}
+
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
+		this._host.style.display = 'none';
+	}
+
+	return true;
 };
 
 /**
@@ -226,40 +279,73 @@ HomunInformations.onKeyDown = function onKeyDown(event) {
  * @param {object} homunculus info
  */
 HomunInformations.setInformations = function setInformations(info) {
+	const root = _getRoot();
+
 	if (!this.__loaded) {
 		this.append();
-		this.ui.hide();
+		this._host.style.display = 'none';
 	}
+
 	if (info.szName) {
-		this.ui.find('.name').val(info.szName);
+		const nameInput = root.querySelector('.name');
+		if (nameInput) {
+			nameInput.value = info.szName;
+		}
 	}
 	if (info.nLevel) {
-		this.ui.find('.level').text(info.nLevel);
+		const levelEl = root.querySelector('.level');
+		if (levelEl) {
+			levelEl.textContent = info.nLevel;
+		}
 	}
 
 	if (info.atk) {
-		this.ui.find('.stats .atk').text(info.atk);
+		const el = root.querySelector('.stats .atk');
+		if (el) {
+			el.textContent = info.atk;
+		}
 	}
 	if (info.Matk) {
-		this.ui.find('.stats .Matk').text(info.Matk);
+		const el = root.querySelector('.stats .Matk');
+		if (el) {
+			el.textContent = info.Matk;
+		}
 	}
 	if (info.hit) {
-		this.ui.find('.stats .hit').text(info.hit);
+		const el = root.querySelector('.stats .hit');
+		if (el) {
+			el.textContent = info.hit;
+		}
 	}
 	if (info.critical) {
-		this.ui.find('.stats .critical').text(info.critical);
+		const el = root.querySelector('.stats .critical');
+		if (el) {
+			el.textContent = info.critical;
+		}
 	}
 	if (info.def) {
-		this.ui.find('.stats .def').text(info.def);
+		const el = root.querySelector('.stats .def');
+		if (el) {
+			el.textContent = info.def;
+		}
 	}
 	if (info.Mdef) {
-		this.ui.find('.stats .Mdef').text(info.Mdef);
+		const el = root.querySelector('.stats .Mdef');
+		if (el) {
+			el.textContent = info.Mdef;
+		}
 	}
 	if (info.flee) {
-		this.ui.find('.stats .flee').text(info.flee);
+		const el = root.querySelector('.stats .flee');
+		if (el) {
+			el.textContent = info.flee;
+		}
 	}
 	if (info.aspd) {
-		this.ui.find('.stats .aspd').text(Math.floor(200 - info.aspd / 10));
+		const el = root.querySelector('.stats .aspd');
+		if (el) {
+			el.textContent = Math.floor(200 - info.aspd / 10);
+		}
 	}
 
 	if (info.hp && info.maxHP) {
@@ -283,9 +369,27 @@ HomunInformations.setInformations = function setInformations(info) {
 	}
 
 	if (info.bModified < 5) {
-		this.ui.find('.name, .modify').removeClass('disabled').attr('disabled', false);
+		const nameInput = root.querySelector('.name');
+		if (nameInput) {
+			nameInput.classList.remove('disabled');
+			nameInput.disabled = false;
+		}
+		const modBtn = root.querySelector('.modify');
+		if (modBtn) {
+			modBtn.classList.remove('disabled');
+			modBtn.disabled = false;
+		}
 	} else {
-		this.ui.find('.name, .modify').addClass('disabled').attr('disabled', true);
+		const nameInput = root.querySelector('.name');
+		if (nameInput) {
+			nameInput.classList.add('disabled');
+			nameInput.disabled = true;
+		}
+		const modBtn = root.querySelector('.modify');
+		if (modBtn) {
+			modBtn.classList.add('disabled');
+			modBtn.disabled = true;
+		}
 	}
 
 	if (info.SKPoint) {
@@ -294,51 +398,74 @@ HomunInformations.setInformations = function setInformations(info) {
 };
 
 /**
- * Set hp and sp bar (menu)
- *
- * @param type
- * @param val
- * @param val2
+ * Set hp and sp bar
  */
 HomunInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
+	const root = _getRoot();
 	const perc = Math.floor((val * 100) / val2);
 	const color = perc < 25 ? 'red' : 'blue';
-	this.ui.find('.' + type + '_value').text(val);
-	this.ui.find('.' + type + '_max_value').text(val2);
-	this.ui.find('.' + type + '_perc').text(perc + '%');
+
+	const valueEl = root.querySelector(`.${type}_value`);
+	if (valueEl) {
+		valueEl.textContent = val;
+	}
+
+	const maxValueEl = root.querySelector(`.${type}_max_value`);
+	if (maxValueEl) {
+		maxValueEl.textContent = val2;
+	}
+
+	const percEl = root.querySelector(`.${type}_perc`);
+	if (percEl) {
+		percEl.textContent = `${perc}%`;
+	}
 
 	if (perc <= 0) {
-		this.ui.find('.' + type + '_bar div').css('backgroundImage', 'none');
+		root.querySelectorAll(`.${type}_bar div`).forEach((el) => {
+			el.style.backgroundImage = 'none';
+		});
 	}
 
 	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_left.bmp',
+		DB.INTERFACE_PATH + `basic_interface/gze${color}_left.bmp`,
 		function (url) {
-			this.ui.find('.' + type + '_bar_left').css('backgroundImage', 'url(' + url + ')');
-		}.bind(this)
+			const el = root.querySelector(`.${type}_bar_left`);
+			if (el) {
+				el.style.backgroundImage = `url(${url})`;
+			}
+		}
 	);
 
 	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_mid.bmp',
+		DB.INTERFACE_PATH + `basic_interface/gze${color}_mid.bmp`,
 		function (url) {
-			this.ui.find('.' + type + '_bar_middle').css({
-				backgroundImage: 'url(' + url + ')',
-				width: Math.floor(Math.min(perc, 100) * 0.75) + 'px'
-			});
-		}.bind(this)
+			const el = root.querySelector(`.${type}_bar_middle`);
+			if (el) {
+				Object.assign(el.style, {
+					backgroundImage: `url(${url})`,
+					width: `${Math.floor(Math.min(perc, 100) * 0.75)}px`
+				});
+			}
+		}
 	);
 
 	Client.loadFile(
-		DB.INTERFACE_PATH + 'basic_interface/gze' + color + '_right.bmp',
+		DB.INTERFACE_PATH + `basic_interface/gze${color}_right.bmp`,
 		function (url) {
-			this.ui.find('.' + type + '_bar_right').css({
-				backgroundImage: 'url(' + url + ')',
-				left: Math.floor(Math.min(perc, 100) * 1.27) + 'px'
-			});
-		}.bind(this)
+			const el = root.querySelector(`.${type}_bar_right`);
+			if (el) {
+				Object.assign(el.style, {
+					backgroundImage: `url(${url})`,
+					left: `${Math.floor(Math.min(perc, 100) * 1.27)}px`
+				});
+			}
+		}
 	);
 
-	this.ui.find('.' + type + '2').text(val + '/' + val2);
+	const summaryEl = root.querySelector(`.${type}2`);
+	if (summaryEl) {
+		summaryEl.textContent = `${val}/${val2}`;
+	}
 };
 
 /**
@@ -347,45 +474,42 @@ HomunInformations.setHpSpBar = function setHpSpBar(type, val, val2) {
  * @param {number} intimacy
  */
 HomunInformations.setIntimacy = function setIntimacy(val) {
-	if (!this.ui) {
-		return;
+	const root = _getRoot();
+	const el = root.querySelector('.intimacy');
+	if (el) {
+		el.textContent = DB.getMessage(val < 100 ? 672 : val < 250 ? 673 : val < 600 ? 669 : val < 900 ? 674 : 675);
 	}
-
-	this.ui
-		.find('.intimacy')
-		.text(DB.getMessage(val < 100 ? 672 : val < 250 ? 673 : val < 600 ? 669 : val < 900 ? 674 : 675));
 };
 
 /**
  * Set exp value
- *
- * @param exp
- * @param maxEXP
  */
 HomunInformations.setExp = function setExp(exp, maxEXP) {
-	if (!this.ui) {
+	const root = _getRoot();
+	if (!root) {
 		return;
 	}
 
-	const canvasExp = this.ui.find('.block2 canvas.life.title_exp');
-	const ctx = canvasExp.get(0).getContext('2d');
+	const canvas = root.querySelector('.block2 canvas.life.title_exp');
+	if (!canvas) {
+		return;
+	}
+	const ctx = canvas.getContext('2d');
 
 	const width = 60,
 		height = 5;
 	const exp_per = exp / maxEXP;
 
-	// // border
-	// ctx.fillStyle = '#10189c';
-	// ctx.fillRect( 0, 0, width, height );
-
-	// empty
 	ctx.fillStyle = '#424242';
 	ctx.fillRect(1, 1, width - 2, height - 2);
 
 	ctx.fillStyle = '#205cc3';
 	ctx.fillRect(1, 1, Math.round((width - 2) * exp_per), 3);
 
-	this.ui.find('.exp').text(exp + '/' + maxEXP);
+	const expEl = root.querySelector('.exp');
+	if (expEl) {
+		expEl.textContent = `${exp}/${maxEXP}`;
+	}
 };
 
 /**
@@ -394,29 +518,31 @@ HomunInformations.setExp = function setExp(exp, maxEXP) {
  * @param {number} hunger
  */
 HomunInformations.setHunger = function setHunger(val) {
-	if (!this.ui) {
+	const root = _getRoot();
+	if (!root) {
 		return;
 	}
 
-	const canvasHunger = this.ui.find('.block2 canvas.life.title_hunger');
-	const ctx = canvasHunger.get(0).getContext('2d');
+	const canvas = root.querySelector('.block2 canvas.life.title_hunger');
+	if (!canvas) {
+		return;
+	}
+	const ctx = canvas.getContext('2d');
 
 	const width = 60,
 		height = 5;
 	const hunger_per = val / 100;
 
-	// // border
-	// ctx.fillStyle = '#10189c';
-	// ctx.fillRect( 0, 0, width, height );
-
-	// empty
 	ctx.fillStyle = '#424242';
 	ctx.fillRect(1, 1, width - 2, height - 2);
 
 	ctx.fillStyle = hunger_per < 0.25 ? '#ff1e00' : '#205cc3';
 	ctx.fillRect(1, 1, Math.round((width - 2) * hunger_per), 3);
 
-	this.ui.find('.hunger').text(val + '/' + 100);
+	const hungerEl = root.querySelector('.hunger');
+	if (hungerEl) {
+		hungerEl.textContent = `${val}/100`;
+	}
 };
 
 HomunInformations.toggleAggressive = function toggleAggressive() {
@@ -432,7 +558,7 @@ HomunInformations.startAI = function startAI() {
 			if (Session.homunId) {
 				const entity = EntityManager.get(Session.homunId);
 				if (entity) {
-					AIDriver.exec('AI(' + Session.homunId + ')');
+					AIDriver.exec(`AI(${Session.homunId})`);
 				}
 			}
 		}, 100);
@@ -453,12 +579,15 @@ HomunInformations.resetAI = function resetAI() {
 HomunInformations.setFeedConfig = function setFeedConfig(flag) {
 	_preferences.autoFeed = flag;
 	_preferences.save();
-	// server sent this info before of homun
-	if (HomunInformations.ui) {
+	const root = _getRoot();
+	if (root) {
 		Client.loadFile(
-			DB.INTERFACE_PATH + 'checkbox_' + (_preferences.autoFeed ? '1' : '0') + '.bmp',
-			function (data) {
-				HomunInformations.ui.find('.homun_auto_feed').css('backgroundImage', 'url(' + data + ')');
+			DB.INTERFACE_PATH + `checkbox_${_preferences.autoFeed ? '1' : '0'}.bmp`,
+			(data) => {
+				const el = root.querySelector('.homun_auto_feed');
+				if (el) {
+					el.style.backgroundImage = `url(${data})`;
+				}
 			}
 		);
 	}
@@ -474,30 +603,6 @@ function homunToggleAutoFeed() {
 		return;
 	}
 	HomunInformations.onConfigUpdate(3, _preferences.autoFeed ? 1 : 0);
-}
-
-/**
- * Request to modify homun's name
- */
-function onChangeName() {
-	const input = HomunInformations.ui.find('.name');
-	HomunInformations.reqNameEdit(input.val());
-}
-
-/**
- * Closing window
- */
-function onClose() {
-	HomunInformations.ui.hide();
-	SkillListMH.homunculus.ui.hide();
-}
-
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
 }
 
 /**
