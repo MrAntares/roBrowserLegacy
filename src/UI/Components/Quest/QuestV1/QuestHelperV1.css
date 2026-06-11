@@ -6,6 +6,7 @@
 #QuestInfoV1 {
 	width: 350px;
 	height: 375px;
+	overflow: hidden;
 }
 
 #QuestInfoV1 .titlebar {
@@ -50,6 +51,7 @@
 #QuestInfoV1 .titlebar .content .monster .monster-select {
 	border: none;
 	min-width: 110px;
+	max-width: 160px;
 }
 #QuestInfoV1 .titlebar .content .killed {
 	position: absolute;
