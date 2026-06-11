@@ -75,8 +75,8 @@ QuestV1.init = function init() {
 	root.querySelector('.close').addEventListener('click', () => onClose());
 	root.querySelector('.btn-right').addEventListener('click', () => onClose());
 
-	root.querySelectorAll('.quest-menu-item').forEach((item) => {
-		item.addEventListener('click', (e) => onClickMenu(e));
+	root.querySelectorAll('.quest-menu-item').forEach(item => {
+		item.addEventListener('click', e => onClickMenu(e));
 	});
 
 	const activeList = root.querySelector('#active-quest-list');
@@ -98,7 +98,7 @@ QuestV1.onAppend = function onAppend() {
 
 	const root = _getRoot();
 
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_que_01.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_que_01.bmp`, data => {
 		const el = root.querySelector('.quest-menu');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
@@ -295,8 +295,7 @@ QuestV1.addQuestToUI = function addQuest(quest) {
 	const title = quest.title.length > 30 ? `${quest.title.substr(0, 30)}...` : quest.title;
 	const pattern = /^ico_/;
 	const quest_icon = pattern.test(quest.icon) ? 'SG_FEEL.bmp' : quest.icon;
-	const li_text =
-		`<div class="quest-item-icon"> <div class="quest-item-icon-image"></div> </div> <div class="quest-item-title"> <span class="quest-item-title-text">${title}</span> </div>`;
+	const li_text = `<div class="quest-item-icon"> <div class="quest-item-icon-image"></div> </div> <div class="quest-item-title"> <span class="quest-item-title-text">${title}</span> </div>`;
 
 	const ul_id = quest.active == 1 ? '#active-quest-list' : '#inactive-quest-list';
 
@@ -307,15 +306,15 @@ QuestV1.addQuestToUI = function addQuest(quest) {
 	li.innerHTML = li_text;
 
 	// Load quest icon
-	Client.loadFile(`${DB.INTERFACE_PATH}item/${quest_icon}`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}item/${quest_icon}`, data => {
 		const iconEl = li.querySelector('.quest-item-icon-image');
 		if (iconEl) {
 			iconEl.style.backgroundImage = `url(${data})`;
 		}
 	});
 
-	li.addEventListener('contextmenu', (e) => onClickQuestToggle(e));
-	li.addEventListener('click', (e) => onClickQuest(e));
+	li.addEventListener('contextmenu', e => onClickQuestToggle(e));
+	li.addEventListener('click', e => onClickQuest(e));
 
 	const ul = root.querySelector(ul_id);
 	if (ul) {
@@ -327,14 +326,14 @@ QuestV1.addQuestToUI = function addQuest(quest) {
 	liAll.className = `quest-item ${toggle_id}`;
 	liAll.innerHTML = li_text;
 
-	Client.loadFile(`${DB.INTERFACE_PATH}item/${quest_icon}`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}item/${quest_icon}`, data => {
 		const iconEl = liAll.querySelector('.quest-item-icon-image');
 		if (iconEl) {
 			iconEl.style.backgroundImage = `url(${data})`;
 		}
 	});
 
-	liAll.addEventListener('click', (e) => onClickQuest(e));
+	liAll.addEventListener('click', e => onClickQuest(e));
 
 	const allList = root.querySelector('#all-quest-list');
 	if (allList) {
@@ -371,7 +370,7 @@ function onClickMenu(e) {
 			root.querySelector('#active-quest-list').style.display = '';
 	}
 
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/${background_image}.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/${background_image}.bmp`, data => {
 		const el = root.querySelector('.quest-menu');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
@@ -391,7 +390,7 @@ function onClickQuest(e) {
 	}
 
 	if (_index > -1) {
-		root.querySelectorAll(`.qid${_index}`).forEach((el) => {
+		root.querySelectorAll(`.qid${_index}`).forEach(el => {
 			el.style.backgroundColor = 'white';
 		});
 		const prevById = root.querySelector(`#qid${_index}`);
@@ -433,7 +432,7 @@ QuestV1.ClearQuestList = function ClearQuestList() {
 	if (!root) {
 		return;
 	}
-	root.querySelectorAll('.quest-list').forEach((el) => {
+	root.querySelectorAll('.quest-list').forEach(el => {
 		el.innerHTML = '';
 	});
 };

@@ -77,12 +77,12 @@ Quest.init = function init() {
 
 	const closeBtn = root.querySelector('.close-quest-container-btn');
 	if (closeBtn) {
-		closeBtn.addEventListener('mousedown', (e) => e.stopImmediatePropagation());
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 		closeBtn.addEventListener('click', () => onClose());
 	}
 
-	root.querySelectorAll('.quest-menu-item').forEach((item) => {
-		item.addEventListener('click', (e) => onClickMenu(e));
+	root.querySelectorAll('.quest-menu-item').forEach(item => {
+		item.addEventListener('click', e => onClickMenu(e));
 	});
 
 	const activeList = root.querySelector('#active-quest-list');
@@ -108,14 +108,14 @@ Quest.onAppend = function onAppend() {
 	const root = _getRoot();
 
 	const checkbox_background = _preferences.showwindow ? 'checkbox_on' : 'checkbox_off';
-	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${checkbox_background}.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${checkbox_background}.bmp`, data => {
 		const el = root.querySelector('.toggle-quest-image');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
 		}
 	});
 
-	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_quest1.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_quest1.bmp`, data => {
 		const el = root.querySelector('.titlebar');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
@@ -371,19 +371,19 @@ Quest.addQuestToUI = function addQuest(quest) {
 	li.innerHTML = li_text;
 
 	// Load background images for the quest item
-	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_questlist.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_questlist.bmp`, data => {
 		li.style.backgroundImage = `url(${data})`;
 	});
 
 	// Load quest icon
-	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${quest.icon}`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${quest.icon}`, data => {
 		const iconEl = li.querySelector('.quest-item-icon-image');
 		if (iconEl) {
 			iconEl.style.backgroundImage = `url(${data})`;
 		}
 	});
 
-	li.addEventListener('click', (e) => {
+	li.addEventListener('click', e => {
 		if (e.target.tagName.toLowerCase() === 'button') {
 			return;
 		}
@@ -396,12 +396,12 @@ Quest.addQuestToUI = function addQuest(quest) {
 
 	// Hover effect
 	li.addEventListener('mouseenter', () => {
-		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_questlist_check.bmp`, (data) => {
+		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_questlist_check.bmp`, data => {
 			li.style.backgroundImage = `url(${data})`;
 		});
 	});
 	li.addEventListener('mouseleave', () => {
-		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_questlist.bmp`, (data) => {
+		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_questlist.bmp`, data => {
 			li.style.backgroundImage = `url(${data})`;
 		});
 	});
@@ -411,15 +411,15 @@ Quest.addQuestToUI = function addQuest(quest) {
 	// Bind toggle button
 	const toggleBtn = root.querySelector(`#${toggle_id}`);
 	if (toggleBtn) {
-		toggleBtn.addEventListener('click', (e) => onClickQuestToggle(e));
+		toggleBtn.addEventListener('click', e => onClickQuestToggle(e));
 
 		// Load toggle icon
 		if (quest.active == 1) {
-			Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bt_lock_open.bmp`, (data) => {
+			Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bt_lock_open.bmp`, data => {
 				toggleBtn.style.backgroundImage = `url(${data})`;
 			});
 		} else {
-			Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bt_lock.bmp`, (data) => {
+			Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bt_lock.bmp`, data => {
 				toggleBtn.style.backgroundImage = `url(${data})`;
 			});
 		}
@@ -428,8 +428,8 @@ Quest.addQuestToUI = function addQuest(quest) {
 	// Bind show button
 	const showBtn = root.querySelector(`#${show_id}`);
 	if (showBtn) {
-		showBtn.addEventListener('click', (e) => onClickQuestDisplay(e));
-		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${bt_check}.bmp`, (data) => {
+		showBtn.addEventListener('click', e => onClickQuestDisplay(e));
+		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${bt_check}.bmp`, data => {
 			showBtn.style.backgroundImage = `url(${data})`;
 		});
 	}
@@ -469,7 +469,7 @@ function onClickMenu(e) {
 			root.querySelector('#active-quest-list').style.display = '';
 	}
 
-	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${background_image}.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${background_image}.bmp`, data => {
 		const titlebar = root.querySelector('.titlebar');
 		if (titlebar) {
 			titlebar.style.backgroundImage = `url(${data})`;
@@ -492,7 +492,7 @@ function onClickQuestCheckbox() {
 	_preferences.showwindow = !_preferences.showwindow;
 	_preferences.save();
 
-	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${checkbox_background}.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${checkbox_background}.bmp`, data => {
 		const el = root.querySelector('.toggle-quest-image');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
@@ -528,7 +528,7 @@ function onClickQuestDisplay(e) {
 		checkbox_background = 'bt_check_off';
 	}
 
-	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${checkbox_background}.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/${checkbox_background}.bmp`, data => {
 		const el = root.querySelector(`#${cid}`);
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
@@ -555,7 +555,7 @@ Quest.ClearQuestList = function ClearQuestList() {
 	if (!root) {
 		return;
 	}
-	root.querySelectorAll('.quest-list').forEach((el) => {
+	root.querySelectorAll('.quest-list').forEach(el => {
 		el.innerHTML = '';
 	});
 };

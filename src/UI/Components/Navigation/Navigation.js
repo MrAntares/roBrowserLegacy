@@ -339,30 +339,30 @@ Navigation.init = function init() {
 	}
 
 	// Load arrow image
-	Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, dataURI => {
 		_arrow.src = dataURI;
 	});
 
 	// Load town info icons
-	Client.loadFile(`${DB.INTERFACE_PATH}information/store.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/store.bmp`, dataURI => {
 		_toolDealer.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/weaponshop.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/weaponshop.bmp`, dataURI => {
 		_weaponDealer.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/armorshops.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/armorshops.bmp`, dataURI => {
 		_armorDealer.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/smithy.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/smithy.bmp`, dataURI => {
 		_blacksmith.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/guide.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/guide.bmp`, dataURI => {
 		_guide.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/inn.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/inn.bmp`, dataURI => {
 		_inn.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, dataURI => {
 		_kafra.src = dataURI;
 	});
 
@@ -371,7 +371,7 @@ Navigation.init = function init() {
 	root.querySelector('.search-button').addEventListener('click', () => this.onSearch());
 
 	const searchInput = root.querySelector('.search-input');
-	searchInput.addEventListener('keypress', (e) => {
+	searchInput.addEventListener('keypress', e => {
 		if (e.which === KEYS.ENTER || e.key === 'Enter') {
 			this.onSearch();
 		}
@@ -386,7 +386,7 @@ Navigation.init = function init() {
 	});
 
 	// Hide search results when clicking outside (on document level)
-	_documentClickHandler = (e) => {
+	_documentClickHandler = e => {
 		if (!e.target.closest('.search-results, .search-input, .search-button, .search-type')) {
 			const resultsContainer = root.querySelector('.search-results');
 			if (resultsContainer) {
@@ -397,10 +397,10 @@ Navigation.init = function init() {
 	document.addEventListener('click', _documentClickHandler);
 
 	// Map click event for navigation
-	root.querySelector('.map-display').addEventListener('click', (e) => this.onMapClick(e));
+	root.querySelector('.map-display').addEventListener('click', e => this.onMapClick(e));
 
 	// Mouse move event for displaying coordinates
-	root.querySelector('.map-display').addEventListener('mousemove', (e) => this.onMapMouseMove(e));
+	root.querySelector('.map-display').addEventListener('mousemove', e => this.onMapMouseMove(e));
 
 	// Mouse leave event to reset coordinates display
 	root.querySelector('.map-display').addEventListener('mouseleave', () => this.onMapMouseLeave());
@@ -663,7 +663,7 @@ Navigation.loadMap = function loadMap(mapName, displayName) {
 	bmpPath = DB.mapalias[bmpPath] || bmpPath;
 
 	// Load the map image
-	Client.loadFile('data/texture/' + bmpPath, (dataURI) => {
+	Client.loadFile('data/texture/' + bmpPath, dataURI => {
 		if (dataURI) {
 			_map.src = dataURI;
 		} else {
@@ -677,29 +677,26 @@ Navigation.loadMap = function loadMap(mapName, displayName) {
 	gatPath = DB.mapalias[gatPath] || gatPath;
 
 	// Load the GAT file for pathfinding
-	Client.loadFile(
-		'data/' + gatPath,
-		(gatData) => {
-			if (gatData) {
-				if (gatData.cells && gatData.width && gatData.height) {
-					_mapData.width = gatData.width;
-					_mapData.height = gatData.height;
-					_mapData.cells = gatData.cells;
+	Client.loadFile('data/' + gatPath, gatData => {
+		if (gatData) {
+			if (gatData.cells && gatData.width && gatData.height) {
+				_mapData.width = gatData.width;
+				_mapData.height = gatData.height;
+				_mapData.cells = gatData.cells;
 
-					const cellCount = gatData.width * gatData.height;
-					const cellTypes = new Uint8Array(cellCount);
+				const cellCount = gatData.width * gatData.height;
+				const cellTypes = new Uint8Array(cellCount);
 
-					for (let i = 0; i < cellCount; i++) {
-						const cellIndex = i * 5 + 4;
-						cellTypes[i] = gatData.cells[cellIndex];
-					}
-
-					_mapData.cellTypes = cellTypes;
-					_mapData.map = mapBaseName;
+				for (let i = 0; i < cellCount; i++) {
+					const cellIndex = i * 5 + 4;
+					cellTypes[i] = gatData.cells[cellIndex];
 				}
+
+				_mapData.cellTypes = cellTypes;
+				_mapData.map = mapBaseName;
 			}
 		}
-	);
+	});
 
 	this.setMapNameText(mapName);
 };

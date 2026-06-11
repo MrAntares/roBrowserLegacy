@@ -112,8 +112,7 @@ QuestWindow.addQuestToUI = function addQuestToUI(quest) {
 	const summary = quest.summary.length > 25 ? `${quest.summary.substr(0, 25)}...` : quest.summary;
 	let list = '';
 	for (const huntID in quest.hunt_list) {
-		list +=
-			`<li>${quest.hunt_list[huntID].mobName} ( ${quest.hunt_list[huntID].huntCount} / ${quest.hunt_list[huntID].maxCount} )</li>`;
+		list += `<li>${quest.hunt_list[huntID].mobName} ( ${quest.hunt_list[huntID].huntCount} / ${quest.hunt_list[huntID].maxCount} )</li>`;
 	}
 	const ul = root.querySelector('.quest-window-ul');
 	if (ul) {

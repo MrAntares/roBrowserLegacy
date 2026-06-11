@@ -128,37 +128,37 @@ MiniMap.init = function init() {
 	_ctx = root.querySelector('canvas').getContext('2d');
 	this.opacity = 2;
 
-	Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, dataURI => {
 		_arrow.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/store.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/store.bmp`, dataURI => {
 		_toolDealer.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/weaponshop.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/weaponshop.bmp`, dataURI => {
 		_weaponDealer.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/armorshops.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/armorshops.bmp`, dataURI => {
 		_armorDealer.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/smithy.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/smithy.bmp`, dataURI => {
 		_blacksmith.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/guide.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/guide.bmp`, dataURI => {
 		_guide.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/inn.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/inn.bmp`, dataURI => {
 		_inn.src = dataURI;
 	});
-	Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, (dataURI) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, dataURI => {
 		_kafra.src = dataURI;
 	});
 
-	root.querySelector('.plus').addEventListener('mousedown', (event) => {
+	root.querySelector('.plus').addEventListener('mousedown', event => {
 		MiniMap.updateZoom(+1);
 		event.stopImmediatePropagation();
 		event.preventDefault();
 	});
-	root.querySelector('.minus').addEventListener('mousedown', (event) => {
+	root.querySelector('.minus').addEventListener('mousedown', event => {
 		MiniMap.updateZoom(-1);
 		event.stopImmediatePropagation();
 		event.preventDefault();
@@ -189,7 +189,7 @@ MiniMap.setMap = function setMap(mapname) {
 	path = path.replace(/\//g, '\\');
 	path = DB.mapalias[path] || path;
 
-	Client.loadFile(`data/texture/${path}`, (dataURI) => {
+	Client.loadFile(`data/texture/${path}`, dataURI => {
 		_map.src = dataURI;
 	});
 };

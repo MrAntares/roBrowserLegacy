@@ -112,12 +112,12 @@ QuestHelper.init = function init() {
 
 	const closeBtn = root.querySelector('.quest-info-bottom-btn');
 	if (closeBtn) {
-		closeBtn.addEventListener('mousedown', (e) => e.stopImmediatePropagation());
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 		closeBtn.addEventListener('click', () => onClickClose());
 	}
 
 	// Add click handler for item links (delegated)
-	root.addEventListener('click', (event) => {
+	root.addEventListener('click', event => {
 		const itemLink = event.target.closest('.item-link');
 		if (itemLink) {
 			const itemId = parseInt(itemLink.dataset.itemId, 10);
@@ -155,14 +155,14 @@ QuestHelper.init = function init() {
 	this.draggable('.titlebar');
 
 	// Load poring images
-	root.querySelectorAll('.quest-ui-img-poring').forEach((el) => {
-		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/img_poring.bmp`, (data) => {
+	root.querySelectorAll('.quest-ui-img-poring').forEach(el => {
+		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/img_poring.bmp`, data => {
 			el.style.backgroundImage = `url(${data})`;
 		});
 	});
 
 	// Load titlebar background
-	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_questsub.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/bg_questsub.bmp`, data => {
 		const titlebar = root.querySelector('.titlebar');
 		if (titlebar) {
 			titlebar.style.backgroundImage = `url(${data})`;
@@ -195,8 +195,7 @@ QuestHelper.setQuestInfo = function setQuestInfo(quest) {
 
 	let list = '';
 	for (const huntID in quest.hunt_list) {
-		list +=
-			`<li>${processText(quest.hunt_list[huntID].mobName)} ( ${quest.hunt_list[huntID].huntCount} / ${quest.hunt_list[huntID].maxCount} )</li>`;
+		list += `<li>${processText(quest.hunt_list[huntID].mobName)} ( ${quest.hunt_list[huntID].huntCount} / ${quest.hunt_list[huntID].maxCount} )</li>`;
 	}
 	const monsterEl = root.querySelector('.quest-info-monster-panel-text .quest-ui-text-span');
 	if (monsterEl) {
@@ -225,14 +224,16 @@ QuestHelper.setQuestInfo = function setQuestInfo(quest) {
 		if (itemListEl) {
 			itemListEl.insertAdjacentHTML('beforeend', item_li);
 		}
-		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/img_questiocn.bmp`, (data) => {
+		Client.loadFile(`${DB.INTERFACE_PATH}renew_questui/img_questiocn.bmp`, data => {
 			const el = root.querySelector(`.quest-reward-item[data-index="${quest.reward_item_list[i].ItemID}"]`);
 			if (el) {
 				el.style.backgroundImage = `url(${data})`;
 			}
 		});
-		Client.loadFile(`${DB.INTERFACE_PATH}item/${it.identifiedResourceName}.bmp`, (data) => {
-			const el = root.querySelector(`.quest-reward-item[data-index="${quest.reward_item_list[i].ItemID}"] .quest-icon`);
+		Client.loadFile(`${DB.INTERFACE_PATH}item/${it.identifiedResourceName}.bmp`, data => {
+			const el = root.querySelector(
+				`.quest-reward-item[data-index="${quest.reward_item_list[i].ItemID}"] .quest-icon`
+			);
 			if (el) {
 				el.style.backgroundImage = `url(${data})`;
 			}

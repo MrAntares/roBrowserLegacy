@@ -112,12 +112,12 @@ QuestHelperV1.init = function init() {
 
 	const closeBtn = root.querySelector('.quest-info-close-btn');
 	if (closeBtn) {
-		closeBtn.addEventListener('mousedown', (e) => e.stopImmediatePropagation());
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 		closeBtn.addEventListener('click', () => onClickClose());
 	}
 
 	// Add click handler for item links (delegated)
-	root.addEventListener('click', (event) => {
+	root.addEventListener('click', event => {
 		const itemLink = event.target.closest('.item-link');
 		if (itemLink) {
 			const itemId = parseInt(itemLink.dataset.itemId, 10);
@@ -155,7 +155,7 @@ QuestHelperV1.init = function init() {
 	this.draggable('.titlebar');
 
 	// Load titlebar background
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/quest_window.bmp`, (data) => {
+	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/quest_window.bmp`, data => {
 		const titlebar = root.querySelector('.titlebar');
 		if (titlebar) {
 			titlebar.style.backgroundImage = `url(${data})`;
@@ -203,8 +203,7 @@ QuestHelperV1.setQuestInfo = function setQuestInfo(quest) {
 			}
 			first = false;
 		}
-		list +=
-			`<option current="${quest.hunt_list[huntID].huntCount}" max="${quest.hunt_list[huntID].maxCount}">${processText(quest.hunt_list[huntID].mobName)}</option>`;
+		list += `<option current="${quest.hunt_list[huntID].huntCount}" max="${quest.hunt_list[huntID].maxCount}">${processText(quest.hunt_list[huntID].mobName)}</option>`;
 	}
 	list += '</select>';
 	const monsterEl = root.querySelector('.monster');
@@ -214,7 +213,7 @@ QuestHelperV1.setQuestInfo = function setQuestInfo(quest) {
 
 	const selectEl = root.querySelector('.monster-select');
 	if (selectEl) {
-		selectEl.addEventListener('change', (e) => onSelectMonster(e));
+		selectEl.addEventListener('change', e => onSelectMonster(e));
 	}
 };
 
