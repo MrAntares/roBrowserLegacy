@@ -25,6 +25,12 @@ class BGM {
 	static isInit = false;
 	static audio = document.createElement('audio');
 
+	// Cache to persist playback position when switching BGMs
+	static cache = {
+		filename: null,
+		currentTime: 0
+	};
+
 	/**
 	 * Initialize player
 	 * Fixed a known bug
@@ -47,6 +53,9 @@ class BGM {
 			'ended',
 			() => {
 				BGM.audio.currentTime = 0;
+				if (BGM.cache.filename === BGM.filename) {
+					BGM.cache.currentTime = 0;
+				}
 				BGM.audio.play();
 			},
 			false
@@ -81,7 +90,6 @@ class BGM {
 	 *
 	 * @param {string} filename
 	 */
-
 	static play(filename) {
 		if (!filename) return;
 		if (filename.match(/bgm/i)) {
@@ -91,6 +99,13 @@ class BGM {
 		if (BGM.filename === filename && BGM.audio && !BGM.audio.paused) {
 			return;
 		}
+
+		// Save current progress before switching BGMs
+		if (BGM.filename && BGM.audio) {
+			BGM.cache.filename = BGM.filename;
+			BGM.cache.currentTime = BGM.audio.currentTime;
+		}
+
 		BGM.filename = filename;
 		const myToken = ++_playToken;
 		if (Preferences.BGM.play) {
@@ -119,8 +134,16 @@ class BGM {
 			url = url.replace(/mp3$/i, BGM.extension);
 		}
 
+		// Check if the new BGM matches the one in the cache
+		const isSameBGM = BGM.cache.filename === BGM.filename;
+		const targetTime = isSameBGM ? BGM.cache.currentTime : 0;
+
 		BGM.audio.src = url;
 		BGM.audio.volume = BGM.volume;
+
+		// Restore playback position if the BGM is the same
+		BGM.audio.currentTime = targetTime;
+
 		const playPromise = BGM.audio.play();
 		if (playPromise) {
 			playPromise.catch(err => {
@@ -137,6 +160,9 @@ class BGM {
 	static stop() {
 		_playToken++;
 		if (BGM.audio) {
+			// Save current progress before pausing the global playback
+			BGM.cache.filename = BGM.filename;
+			BGM.cache.currentTime = BGM.audio.currentTime;
 			BGM.audio.pause();
 		}
 	}
@@ -154,6 +180,7 @@ class BGM {
 		BGM.audio.volume = volume;
 	}
 }
+
 /**
  * Export
  */
