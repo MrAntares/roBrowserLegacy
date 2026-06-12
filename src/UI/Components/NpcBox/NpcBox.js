@@ -17,6 +17,8 @@ import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
 import htmlText from './NpcBox.html?raw';
 import cssText from './NpcBox.css?raw';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 
 /**
  * Create NpcBox component
@@ -191,10 +193,22 @@ NpcBox.onRemove = function onRemove() {
 	}
 };
 
+function _isVisible(el) {
+	return !!el && getComputedStyle(el).display !== 'none';
+}
+
 /**
  * Add support for Enter key
  */
 NpcBox.onKeyDown = function onKeyDown(event) {
+	if (NpcMenu._host && NpcMenu._host.style.display !== 'none' && NpcMenu.__active) {
+		return true;
+	}
+
+	if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+		return true;
+	}
+
 	if (this._host.style.display === 'none') {
 		return true;
 	}
@@ -205,12 +219,12 @@ NpcBox.onKeyDown = function onKeyDown(event) {
 		case KEYS.SPACE:
 		case KEYS.ENTER: {
 			const nextBtn = root.querySelector('.next');
-			if (nextBtn && nextBtn.style.display !== 'none') {
+			if (_isVisible(nextBtn)) {
 				this.next();
 				break;
 			}
 			const closeBtn = root.querySelector('.close');
-			if (closeBtn && closeBtn.style.display !== 'none') {
+			if (_isVisible(closeBtn)) {
 				this.close();
 				break;
 			}
@@ -219,7 +233,7 @@ NpcBox.onKeyDown = function onKeyDown(event) {
 
 		case KEYS.ESCAPE: {
 			const closeBtn = root.querySelector('.close');
-			if (closeBtn && closeBtn.style.display !== 'none') {
+			if (_isVisible(closeBtn)) {
 				this.close();
 				break;
 			}

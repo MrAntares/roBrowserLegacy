@@ -25,6 +25,9 @@ import DB from 'DB/DBManager.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import Friends from 'Engine/MapEngine/Friends.js';
+import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 
 /**
  * Create Component
@@ -355,6 +358,18 @@ ChatRoom.removeMember = function removeMember(name) {
  * Key Event Handler
  */
 ChatRoom.onKeyDown = function onKeyDown(event) {
+	if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+		return true;
+	}
+
+	if (NpcMenu._host && NpcMenu._host.style.display !== 'none' && NpcMenu.__active) {
+		return true;
+	}
+
+	if (NpcBox._host && NpcBox._host.style.display !== 'none' && NpcBox.__active) {
+		return true;
+	}
+
 	if (ChatRoom.isEditableFocused()) {
 		// Input focused — let the keystroke through but block other handlers
 		if (event.which === KEYS.ENTER) {

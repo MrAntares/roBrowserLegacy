@@ -92,6 +92,11 @@ let _responseTimeout = null;
  * Click on roulette icon
  */
 function onClickIcon() {
+	if (Roulette.ui.is(':visible')) {
+		Roulette.onClose();
+		return;
+	}
+
 	const pkt = new PACKET.CZ.REQ_OPEN_ROULETTE();
 	Network.sendPacket(pkt);
 
@@ -175,8 +180,10 @@ function addRouletteIcon() {
  * Remove from DOM
  */
 Roulette.onRemove = function onRemove() {
-	_iconBtn.remove();
-	_iconBtn = null;
+	if (_iconBtn) {
+		_iconBtn.remove();
+		_iconBtn = null;
+	}
 	_preferences.show = this.ui.is(':visible');
 	_preferences.x = parseInt(this.ui.css('left'), 10);
 	_preferences.y = parseInt(this.ui.css('top'), 10);

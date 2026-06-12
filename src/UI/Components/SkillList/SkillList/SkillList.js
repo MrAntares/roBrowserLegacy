@@ -1090,7 +1090,7 @@ function onApplyChoice(comp) {
 	});
 
 	totalCounter = 0;
-	const root = this.getRoot();
+	const root = comp.getRoot();
 	const skpointsEl = root.querySelector('.skpoints_count');
 	if (skpointsEl) {
 		skpointsEl.textContent = `${_points - totalCounter}`;

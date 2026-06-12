@@ -16,6 +16,7 @@ import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
 import htmlText from './NpcMenu.html?raw';
 import cssText from './NpcMenu.css?raw';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 
 /**
  * Create NPC Menu component
@@ -103,6 +104,10 @@ NpcMenu.onRemove = function onRemove() {
  * Bind KeyDown event
  */
 NpcMenu.onKeyDown = function onKeyDown(event) {
+	if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+		return true;
+	}
+
 	if (this._host.style.display === 'none') {
 		return true;
 	}

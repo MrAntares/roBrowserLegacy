@@ -107,22 +107,15 @@ InputBox.onRemove = function onRemove() {
  * @return {boolean}
  */
 InputBox.onKeyDown = function onKeyDown(event) {
-	if (this.isEditableFocused()) {
-		if (!this.isPersistent && event.which === KEYS.ENTER) {
-			validate();
-			event.stopImmediatePropagation();
-			return false;
-		}
-		event.stopImmediatePropagation();
-		return true;
-	}
-
-	if (!this.isPersistent && event.which === KEYS.ENTER) {
+	if (event.which === KEYS.ENTER) {
 		validate();
 		event.stopImmediatePropagation();
 		return false;
 	}
-
+	if (this.isEditableFocused()) {
+		event.stopImmediatePropagation();
+		return true;
+	}
 	return true;
 };
 

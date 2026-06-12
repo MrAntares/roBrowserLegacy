@@ -114,8 +114,8 @@ function onSelect() {
  */
 function selectMap(name = null) {
 	// If no name provided, use the first available map
-	if (!name || name === null) {
-		if (MAPS.length > 0) {
+	if (!name || name === null || name === '') {
+		if (MAPS.length > 0 && MAPS[0].id !== null && MAPS[0].id !== '') {
 			name = MAPS[0].id;
 		} else {
 			name = 'worldmap.jpg';

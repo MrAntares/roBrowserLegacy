@@ -20,7 +20,9 @@ import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './Bank.html?raw';
 import cssText from './Bank.css?raw';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
-
+import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 /**
  * Create Component
  */
@@ -287,6 +289,18 @@ Bank.onAppend = function onAppend() {
  * Key Handler
  */
 Bank.onKeyDown = function onKeyDown(event) {
+	if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+		return true;
+	}
+
+	if (NpcMenu._host && NpcMenu._host.style.display !== 'none' && NpcMenu.__active) {
+		return true;
+	}
+
+	if (NpcBox._host && NpcBox._host.style.display !== 'none' && NpcBox.__active) {
+		return true;
+	}
+
 	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			reqCloseBank();

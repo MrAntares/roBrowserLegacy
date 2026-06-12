@@ -973,7 +973,7 @@ function onItemClick(event) {
 			item.name +
 			'&gt;</span>';
 
-		const chatRoot = ChatBox.getRoot();
+		const chatRoot = ChatBox._shadow || ChatBox._host || document;
 		const msgBox = chatRoot.querySelector('.input-chatbox');
 		if (msgBox) {
 			msgBox.innerHTML += link + ' ';

@@ -15,6 +15,9 @@ import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './ChatRoomCreate.html?raw';
 import cssText from './ChatRoomCreate.css?raw';
+import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 
 /**
  * Create Component
@@ -167,6 +170,18 @@ ChatRoomCreate.prefill = function prefill(title, limit, type) {
  * @return {boolean}
  */
 ChatRoomCreate.onKeyDown = function onKeyDown(event) {
+	if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+		return true;
+	}
+
+	if (NpcMenu._host && NpcMenu._host.style.display !== 'none' && NpcMenu.__active) {
+		return true;
+	}
+
+	if (NpcBox._host && NpcBox._host.style.display !== 'none' && NpcBox.__active) {
+		return true;
+	}
+
 	// Guard: don't intercept keys when hidden
 	if (this._host.style.display === 'none') {
 		return true;

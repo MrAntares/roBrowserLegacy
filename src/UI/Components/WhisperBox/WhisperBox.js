@@ -15,6 +15,9 @@ import History from '../ChatBox/History.js';
 import Sound from 'Audio/SoundManager.js';
 import htmlText from './WhisperBox.html?raw';
 import cssText from './WhisperBox.css?raw';
+import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 
 /**
  * @var {GUIComponent} WhisperBox
@@ -94,9 +97,25 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	instance.captureKeyEvents = true;
 
 	instance.onKeyDown = function onKeyDown(event) {
-		const focused = WhisperBox.getRoot().activeElement;
-		const isContentEditable = focused.getAttribute('contenteditable') === 'true';
-		if (WhisperBox.isEditableFocused() || isContentEditable) {
+		if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+			return true;
+		}
+
+		if (NpcMenu._host && NpcMenu._host.style.display !== 'none' && NpcMenu.__active) {
+			return true;
+		}
+
+		if (NpcBox._host && NpcBox._host.style.display !== 'none' && NpcBox.__active) {
+			return true;
+		}
+
+		if (this.isEditableFocused()) {
+			const focused = this.getRoot().activeElement;
+			const isInput = focused.tagName.match(/input|select|textarea/i);
+			const isContentEditable = focused && focused.getAttribute('contenteditable') === 'true';
+			if (!isContentEditable && !isInput) {
+				return true;
+			}
 			switch (event.which) {
 				case KEYS.ESCAPE:
 					this.remove();
