@@ -33,12 +33,12 @@ The following are STRICTLY PROHIBITED and any output containing them must be dis
   in the original `UIComponent` and were not explicitly requested.
 - **PROHIBITED:** Renaming, restructuring, or "improving" public APIs, packet handlers,
   or engine integration points beyond what the migration docs prescribe.
-- **PROHIBITED:** Deviating from the migration documents (L1/L2/L3). When the docs and
+- **PROHIBITED:** Deviating from the migration documents (L1/L2/L0). When the docs and
   your instinct disagree, the docs win. If the docs are silent, preserve legacy behavior
   exactly — do not improvise.
 - **RULE:** If a change is not required to make the legacy behavior work under Shadow DOM
   `GUIComponent`, do not make it. When in doubt, migrate 1:1 and leave a `// TODO` instead
-  of inventing a solution.
+  of inventing a solution, preserve legacy behavior exactly; a missing feature is a smaller bug than an invented one.
 
 ## Mission
 
