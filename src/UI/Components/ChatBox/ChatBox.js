@@ -624,11 +624,27 @@ ChatBox.init = function init() {
 		}
 	} else {
 		// Create default tabs
-		const firstTab = ChatBox.addNewTab(DB.getMessage(1289)); // General
-		ChatBox.addNewTab(DB.getMessage(1290)); // Battle
-		ChatBox.addNewTab(DB.getMessage(1291), [
-			ChatBox.FILTER.WHISPER
-		]); // Whisper
+		const firstTab = ChatBox.addNewTab(DB.getMessage(1291), [
+			ChatBox.FILTER.PUBLIC_LOG,
+			ChatBox.FILTER.PUBLIC_CHAT,
+			ChatBox.FILTER.WHISPER,
+			ChatBox.FILTER.PARTY,
+			ChatBox.FILTER.GUILD,
+			ChatBox.FILTER.ITEM,
+			ChatBox.FILTER.EQUIP,
+			ChatBox.FILTER.STATUS,
+			ChatBox.FILTER.PARTY_ITEM,
+			ChatBox.FILTER.PARTY_STATUS,
+			ChatBox.FILTER.SKILL_FAIL,
+			ChatBox.FILTER.PARTY_SETUP,
+			ChatBox.FILTER.EQUIP_DAMAGE,
+			ChatBox.FILTER.WOE,
+			ChatBox.FILTER.PARTY_SEARCH,
+			ChatBox.FILTER.QUEST,
+			ChatBox.FILTER.BATTLEFIELD,
+			ChatBox.FILTER.CLAN
+		]); // Public Log
+
 		ChatBox.addNewTab(DB.getMessage(1292)); // Battle Log
 
 		// switch to first
