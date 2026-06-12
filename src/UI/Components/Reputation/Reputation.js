@@ -148,7 +148,7 @@ Reputation.toggle = function toggle() {
 
 	// Reset paging explicitly
 	Reputation.page.current = 0;
-
+	Reputation.focus();
 	Reputation.ui.show();
 };
 

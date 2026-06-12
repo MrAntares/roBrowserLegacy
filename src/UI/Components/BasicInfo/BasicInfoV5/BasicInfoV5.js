@@ -32,6 +32,7 @@ import Navigation from 'UI/Components/Navigation/Navigation.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
+import Reputation from 'UI/Components/Reputation/Reputation.js';
 import htmlText from './BasicInfoV5.html?raw';
 import cssText from './BasicInfoV5.css?raw';
 
@@ -143,6 +144,9 @@ BasicInfoV5.init = function init() {
 					if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
 						Achievement.toggle();
 					}
+					break;
+				case 'repute':
+					Reputation.toggle();
 					break;
 			}
 		});

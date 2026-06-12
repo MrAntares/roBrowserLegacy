@@ -133,7 +133,11 @@ function onMenuAppear(pkt) {
 function onInputAppear(pkt) {
 	const type = pkt instanceof PACKET.ZC.OPEN_EDITDLGSTR ? 'text' : 'number';
 	const id = pkt.NAID;
-
+	const oldAppend = InputBox.onAppend;
+	InputBox.onAppend = function () {
+		InputBox.setType(type, true);
+		oldAppend();
+	};
 	InputBox.onSubmitRequest = function OnSubmitRequest(data) {
 		InputBox.remove();
 		let _pkt;

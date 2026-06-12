@@ -3729,7 +3729,8 @@ class DB {
 	 * @returns {?Object} Reputation group list or null if not found
 	 */
 	static getReputeGroupList(repute_group) {
-		return ReputeGroup[repute_group].ReputeList || null;
+		const group = ReputeGroup[repute_group];
+		return (group && group.ReputeList) || null;
 	}
 
 	/**
