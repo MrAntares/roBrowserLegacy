@@ -118,46 +118,50 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 
 		if (this.isEditableFocused()) {
 			const focused = this.getRoot().activeElement;
-			const isInput = focused.tagName.match(/input|select|textarea/i);
-			const isContentEditable = focused && focused.getAttribute('contenteditable') === 'true';
-			if (!isContentEditable && !isInput) {
-				return true;
-			}
-			switch (event.which) {
-				case KEYS.ESCAPE:
-					this.remove();
-					event.stopImmediatePropagation();
-					return false;
+			const isInput = !!(focused && focused.tagName && focused.tagName.match(/input|select|textarea/i));
+			const isContentEditable = !!(
+				focused &&
+				focused.getAttribute &&
+				focused.getAttribute('contenteditable') === 'true'
+			);
 
-				case KEYS.ENTER: {
-					const text = extractChatMessage(this._inputEl);
-					const msg = text.replace(/\u00A0/g, ' ').trim();
-					if (msg.length) {
-						this.history.push(msg);
-						WhisperBox.onRequestTalk(this.nickname, msg);
-						this._inputEl.innerHTML = '';
-					}
-					event.stopImmediatePropagation();
-					return false;
-				}
+			if (isInput || isContentEditable) {
+				switch (event.which) {
+					case KEYS.ESCAPE:
+						this.remove();
+						event.stopImmediatePropagation();
+						return false;
 
-				case KEYS.UP:
-				case KEYS.DOWN: {
-					const historyMsg = event.which === KEYS.UP ? this.history.previous() : this.history.next();
-					this._inputEl.innerHTML = historyMsg;
-					setCaretToEnd(this._inputEl);
-					event.stopImmediatePropagation();
-					return false;
-				}
-
-				default: {
-					const currentText = extractChatMessage(this._inputEl);
-					if (event.which >= 32 && currentText.length >= 100 && !event.ctrlKey && !event.altKey) {
+					case KEYS.ENTER: {
+						const text = extractChatMessage(this._inputEl);
+						const msg = text.replace(/\u00A0/g, ' ').trim();
+						if (msg.length) {
+							this.history.push(msg);
+							WhisperBox.onRequestTalk(this.nickname, msg);
+							this._inputEl.innerHTML = '';
+						}
 						event.stopImmediatePropagation();
 						return false;
 					}
-					event.stopImmediatePropagation();
-					return true;
+
+					case KEYS.UP:
+					case KEYS.DOWN: {
+						const historyMsg = event.which === KEYS.UP ? this.history.previous() : this.history.next();
+						this._inputEl.innerHTML = historyMsg;
+						setCaretToEnd(this._inputEl);
+						event.stopImmediatePropagation();
+						return false;
+					}
+
+					default: {
+						const currentText = extractChatMessage(this._inputEl);
+						if (event.which >= 32 && currentText.length >= 100 && !event.ctrlKey && !event.altKey) {
+							event.stopImmediatePropagation();
+							return false;
+						}
+						event.stopImmediatePropagation();
+						return true;
+					}
 				}
 			}
 		}

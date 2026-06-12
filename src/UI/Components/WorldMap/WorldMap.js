@@ -568,6 +568,7 @@ WorldMap.toggle = function toggle() {
 		hideTooltip();
 	} else {
 		this._host.style.display = '';
+		selectMap();
 		this.focus();
 	}
 };

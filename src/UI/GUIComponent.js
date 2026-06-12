@@ -460,7 +460,9 @@ class GUIComponent {
 	isEditableFocused() {
 		const root = this.getRoot();
 		const active = root && root.activeElement;
-		return !!(active && active.tagName && /input|textarea|select/i.test(active.tagName));
+		if (!active) return false;
+		if (active.tagName && /input|textarea|select/i.test(active.tagName)) return true;
+		return active.isContentEditable === true;
 	}
 
 	// ─── Private: zIndex helpers (cross-compatible) ────────
