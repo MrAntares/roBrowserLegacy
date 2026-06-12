@@ -934,6 +934,8 @@ function onRequestTalk(user, text, target) {
 		pkt.receiver = user;
 		pkt.msg = text;
 		Network.sendPacket(pkt);
+		ChatBox.PrivateMessageStorage.nick = user;
+		ChatBox.PrivateMessageStorage.msg = text;
 		return;
 	}
 

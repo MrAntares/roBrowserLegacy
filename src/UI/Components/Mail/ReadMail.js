@@ -15,7 +15,8 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import Mail from 'UI/Components/Mail/Mail.js';
 import htmlText from './ReadMail.html?raw';
 import cssText from './ReadMail.css?raw';
@@ -23,7 +24,7 @@ import cssText from './ReadMail.css?raw';
 /**
  * Create Component
  */
-const ReadMail = new UIComponent('ReadMail', htmlText, cssText);
+const ReadMail = new GUIComponent('ReadMail', cssText);
 
 /**
  * Store ReadMail items
@@ -57,24 +58,51 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return ReadMail._shadow || ReadMail._host;
+}
+
+/**
+ * Render HTML
+ */
+ReadMail.render = () => htmlText;
+
+/**
  * Initialize Component
  */
 ReadMail.onAppend = function onAppend() {
-	// Bind buttons
-	ReadMail.ui.find('.right .close').click(function (event) {
-		event.stopImmediatePropagation();
-		ReadMail.remove();
-	});
-	ReadMail.ui.find('#read_mail_del').click(deleteMail);
-	ReadMail.ui.find('#read_mail_remail').click(replyMail);
-	ReadMail.ui.find('#read_mail_return').click(returnMail);
+	const root = _root();
 
-	ReadMail.ui.css({
-		top: Math.min(Math.max(0, parseInt(Mail.ui.css('top'), 10)), Renderer.height - ReadMail.ui.height()),
-		left: Math.min(Math.max(0, parseInt(Mail.ui.css('left'), 10)) + 300, Renderer.width - ReadMail.ui.width())
-	});
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', event => {
+			event.stopImmediatePropagation();
+			ReadMail.remove();
+		});
+	}
 
-	ReadMail.draggable(ReadMail.ui.find('.titlebar'));
+	const delBtn = root.querySelector('#read_mail_del');
+	if (delBtn) delBtn.addEventListener('click', deleteMail);
+
+	const remailBtn = root.querySelector('#read_mail_remail');
+	if (remailBtn) remailBtn.addEventListener('click', replyMail);
+
+	const returnBtn = root.querySelector('#read_mail_return');
+	if (returnBtn) returnBtn.addEventListener('click', returnMail);
+
+	// Position relative to Mail window
+	const mailHost = Mail._host;
+	const mailTop = mailHost ? parseInt(mailHost.style.top, 10) || 0 : 0;
+	const mailLeft = mailHost ? parseInt(mailHost.style.left, 10) || 0 : 0;
+	const hostHeight = this._host.offsetHeight || 0;
+	const hostWidth = this._host.offsetWidth || 0;
+
+	this._host.style.top = `${Math.min(Math.max(0, mailTop), Renderer.height - hostHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, mailLeft + 300), Renderer.width - hostWidth)}px`;
+
+	this.draggable('.titlebar');
 };
 
 /**
@@ -82,13 +110,10 @@ ReadMail.onAppend = function onAppend() {
  */
 ReadMail.onRemove = function OnRemove() {
 	this.list.length = 0;
-	// Save preferences
-	_preferences.show = this.ui.is(':visible');
+	_preferences.show = this._host.style.display !== 'none';
 	_preferences.reduce = !!_realSize;
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
-	_preferences.width = Math.floor((this.ui.width() - (23 + 16 + 16 - 30)) / 32);
-	_preferences.height = Math.floor((this.ui.height() - (31 + 19 - 30)) / 32);
+	_preferences.y = parseInt(this._host.style.top, 10) || 0;
+	_preferences.x = parseInt(this._host.style.left, 10) || 0;
 	_preferences.magnet_top = this.magnet.TOP;
 	_preferences.magnet_bottom = this.magnet.BOTTOM;
 	_preferences.magnet_left = this.magnet.LEFT;
@@ -99,14 +124,24 @@ ReadMail.onRemove = function OnRemove() {
 ReadMail.openEmail = function openEmail(inforMail) {
 	ReadMail.remove();
 	ReadMail.append();
+
+	// Re-query after re-append
+	const freshRoot = _root();
 	const textSender = inforMail.FromName;
 	const textTitle = inforMail.Header;
 	const textMessage = inforMail.msg === '(no message)' ? '' : inforMail.msg;
 
-	this.ui.find('.text_sender').text(textSender);
-	this.ui.find('.text_title').text(textTitle);
-	this.ui.find('.textarea_mail').val(textMessage);
-	this.ui.find('.btn_return_reply_remove').data('mailID', inforMail.MailID);
+	const senderEl = freshRoot.querySelector('.text_sender');
+	if (senderEl) senderEl.textContent = textSender;
+
+	const titleEl = freshRoot.querySelector('.text_title');
+	if (titleEl) titleEl.textContent = textTitle;
+
+	const textarea = freshRoot.querySelector('.textarea_mail');
+	if (textarea) textarea.value = textMessage;
+
+	const btnContainer = freshRoot.querySelector('.btn_return_reply_remove');
+	if (btnContainer) btnContainer.dataset.mailID = inforMail.MailID;
 
 	if (inforMail.ITID != 0 || inforMail.Money != 0) {
 		addItemSub(inforMail);
@@ -116,96 +151,126 @@ ReadMail.openEmail = function openEmail(inforMail) {
 };
 
 ReadMail.resetItemZeny = function resetItemZeny() {
+	const root = _root();
 	_preferences.item_add_email = {};
 	_preferences.save();
 	removeValueItemZeny();
-	ReadMail.ui.find('.zeny_item_infor_box').remove();
+	const infoBox = root.querySelector('.zeny_item_infor_box');
+	if (infoBox) infoBox.remove();
 };
 
 ReadMail.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
 		this.remove();
 	}
 };
 
 function addItemSub(itemMail) {
+	const root = _root();
 	removeValueItemZeny();
-	const zenyItemContainer = ReadMail.ui.find('.zeny_item_container');
+
+	const zenyItemContainer = root.querySelector('.zeny_item_container');
+
 	if (itemMail.ITID != 0 && itemMail.count > 0) {
 		const item = itemMail;
 		const it = DB.getItemInfo(item.ITID);
-		const content = ReadMail.ui.find('.container_item');
-		content.append(
-			'<div class="item" data-index="' +
-				item.index +
-				'" draggable="true">' +
-				'<div class="icon"></div>' +
-				'<div class="amount"><span class="count">' +
-				(item.count || 1) +
-				'</span></div>' +
-				'</div>'
-		);
-		ReadMail.ui.find('.hide').show();
+		const content = root.querySelector('.container_item');
+		if (content) {
+			content.insertAdjacentHTML(
+				'beforeend',
+				`<div class="item" data-index="${item.index}" draggable="true">` +
+					`<div class="icon"></div>` +
+					`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
+					`</div>`
+			);
+		}
+
+		const hideEl = root.querySelector('.hide');
+		if (hideEl) hideEl.style.display = 'block';
+
 		Client.loadFile(
-			DB.INTERFACE_PATH +
-				'item/' +
-				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-				'.bmp',
-			function (data) {
-				content
-					.find('.item[data-index="' + item.index + '"] .icon')
-					.css('backgroundImage', 'url(' + data + ')');
+			`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
+			data => {
+				if (content) {
+					const icon = content.querySelector(`.item[data-index="${item.index}"] .icon`);
+					if (icon) icon.style.backgroundImage = `url(${data})`;
+				}
 			}
 		);
 
-		ReadMail.ui
-			.find('.container_item')
-			// item
-			.on('mouseover', '.item', onItemOver)
-			.on('mouseout', '.item', onItemOut)
-			.on('contextmenu', '.item', onItemInfo);
+		if (content) {
+			content.addEventListener('mouseover', event => {
+				const el = event.target.closest('.item');
+				if (el) onItemOver.call(el, event);
+			});
+			content.addEventListener('mouseout', event => {
+				const el = event.target.closest('.item');
+				if (el) onItemOut.call(el, event);
+			});
+			content.addEventListener('contextmenu', event => {
+				const el = event.target.closest('.item');
+				if (el) onItemInfo.call(el, event);
+			});
+		}
 	}
 
 	if (itemMail.Money > 0) {
-		ReadMail.ui.find('.input_zeny_amt').val(prettifyZeny(itemMail.Money));
-		ReadMail.ui.find('.input_zeny_amt').prop('disabled', true);
+		const zenyInput = root.querySelector('.input_zeny_amt');
+		if (zenyInput) {
+			zenyInput.value = prettifyZeny(itemMail.Money);
+			zenyInput.disabled = true;
+		}
 	}
 
-	ReadMail.ui.find('.zeny_item_infor_box').remove();
-	zenyItemContainer.append('<div class="zeny_item_infor_box"></div>');
-	ReadMail.ui
-		.find('.zeny_item_infor')
-		.mouseover(function () {
-			ReadMail.ui.find('.zeny_item_infor_box').show();
-		})
-		.mouseout(function () {
-			ReadMail.ui.find('.zeny_item_infor_box').hide();
+	const oldInfoBox = root.querySelector('.zeny_item_infor_box');
+	if (oldInfoBox) oldInfoBox.remove();
+
+	if (zenyItemContainer) {
+		zenyItemContainer.insertAdjacentHTML('beforeend', '<div class="zeny_item_infor_box"></div>');
+	}
+
+	const inforEl = root.querySelector('.zeny_item_infor');
+	if (inforEl) {
+		inforEl.addEventListener('mouseover', () => {
+			const box = root.querySelector('.zeny_item_infor_box');
+			if (box) box.style.display = 'block';
 		});
+		inforEl.addEventListener('mouseout', () => {
+			const box = root.querySelector('.zeny_item_infor_box');
+			if (box) box.style.display = 'none';
+		});
+	}
 
 	_preferences.item_add_email = itemMail;
 	_preferences.save();
 
-	ReadMail.ui.find('.zeny_item_infor').click(function (event) {
-		event.stopImmediatePropagation();
-		if (!validItemMoneyExists()) {
-			const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
-			Mail.parseMailgetattach(mailID);
-		}
-	});
+	if (inforEl) {
+		inforEl.addEventListener('click', event => {
+			event.stopImmediatePropagation();
+			if (!validItemMoneyExists()) {
+				const btnContainer = root.querySelector('.btn_return_reply_remove');
+				const mailID = btnContainer ? btnContainer.dataset.mailID : null;
+				if (mailID) Mail.parseMailgetattach(parseInt(mailID, 10));
+			}
+		});
+	}
 }
 
 /**
  * Hide the item name
  */
 function onItemOut(event) {
+	const root = _root();
 	event.stopImmediatePropagation();
-	ReadMail.ui.find('.container_item .overlay').hide();
+	const overlay = root.querySelector('.container_item .overlay');
+	if (overlay) overlay.style.display = 'none';
 }
 
 /**
  * Show item name when mouse is over
  */
 function onItemOver(event) {
+	const root = _root();
 	event.stopImmediatePropagation();
 	const item = _preferences.item_add_email;
 
@@ -213,17 +278,16 @@ function onItemOver(event) {
 		return;
 	}
 
-	// Get back data
-	const overlay = ReadMail.ui.find('.container_item .overlay');
+	const overlay = root.querySelector('.container_item .overlay');
+	if (overlay) {
+		overlay.style.display = 'block';
+		overlay.textContent = `${DB.getItemName(item)} ${item.count || 1} ea`;
 
-	// Display box
-	overlay.show();
-	overlay.text(DB.getItemName(item) + ' ' + (item.count || 1) + ' ea');
-
-	if (item.IsIdentified) {
-		overlay.removeClass('grey');
-	} else {
-		overlay.addClass('grey');
+		if (item.IsIdentified) {
+			overlay.classList.remove('grey');
+		} else {
+			overlay.classList.add('grey');
+		}
 	}
 }
 
@@ -235,35 +299,35 @@ function onItemInfo(event) {
 
 	const item = _preferences.item_add_email;
 	if (!item) {
-		return false;
+		return;
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
-		return false;
+		return;
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
-
-	return false;
 }
 
 function replyMail(event) {
+	const root = _root();
 	event.stopImmediatePropagation();
-	const textSender = ReadMail.ui.find('.text_sender').text();
+	const senderEl = root.querySelector('.text_sender');
+	const textSender = senderEl ? senderEl.textContent : '';
 	Mail.replyNewMail(textSender);
 }
 
 function deleteMail(event) {
+	const root = _root();
 	event.stopImmediatePropagation();
 
 	if (validItemMoneyExists()) {
-		const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
-		Mail.deleteMail(mailID);
+		const btnContainer = root.querySelector('.btn_return_reply_remove');
+		const mailID = btnContainer ? btnContainer.dataset.mailID : null;
+		if (mailID) Mail.deleteMail(parseInt(mailID, 10));
 	} else {
 		ChatBox.addText(DB.getMessage(1105), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 	}
@@ -280,55 +344,17 @@ function validItemMoneyExists() {
 }
 
 function returnMail(event) {
+	const root = _root();
 	event.stopImmediatePropagation();
-	const mailID = ReadMail.ui.find('.btn_return_reply_remove').data('mailID');
-	const textSender = ReadMail.ui.find('.text_sender').text();
-	Mail.returnMail(mailID, textSender);
+	const btnContainer = root.querySelector('.btn_return_reply_remove');
+	const mailID = btnContainer ? btnContainer.dataset.mailID : null;
+	const senderEl = root.querySelector('.text_sender');
+	const textSender = senderEl ? senderEl.textContent : '';
+	if (mailID) Mail.returnMail(parseInt(mailID, 10), textSender);
 }
 
 /**
- * Extend Mail window size
- */
-/*function onResize()
-	 {
-		let ui         = ReadMail.ui;
-		let top        = ui.position().top;
-		let lastHeight = 0;
-		let _Interval;
-
-		function resizing()
-		{
-			let extraY = 31 + 19 - 30;
-			let h = Math.floor( (Mouse.screen.y - top  - extraY) / 32 );
-
-			// Maximum and minimum window size
-			h = Math.min( Math.max(h, 8), 17);
-
-			if (h === lastHeight) {
-				return;
-			}
-
-			resizeHeight(h);
-			lastHeight = h;
-		}
-
-		// Start resizing
-		_Interval = setInterval( resizing, 30);
-
-		// Stop resizing on left click
-		jQuery(window).on('mouseup.resize', function(event){
-			if (event.which === 1) {
-				clearInterval(_Interval);
-				jQuery(window).off('mouseup.resize');
-			}
-		});
-	 }*/ //UNUSED
-
-/**
  * Prettify number (15000 -> 15,000)
- *
- * @param {number}
- * @return {string}
  */
 function prettifyZeny(value) {
 	const num = String(value);
@@ -339,7 +365,7 @@ function prettifyZeny(value) {
 	while (i < len) {
 		out = num[len - i - 1] + out;
 		if ((i + 1) % 3 === 0 && i + 1 !== len) {
-			out = ',' + out;
+			out = `,${out}`;
 		}
 		++i;
 	}
@@ -348,8 +374,12 @@ function prettifyZeny(value) {
 }
 
 function removeValueItemZeny() {
-	ReadMail.ui.find('.item').remove();
-	ReadMail.ui.find('.input_zeny_amt').val('');
+	const root = _root();
+	const item = root.querySelector('.item');
+	if (item) item.remove();
+
+	const zenyInput = root.querySelector('.input_zeny_amt');
+	if (zenyInput) zenyInput.value = '';
 }
 
 /**

@@ -1,5 +1,8 @@
-#PartyHelper {
+:host {
 	position: absolute;
+}
+
+#PartyHelper {
 	width: 130px;
 }
 

@@ -5,11 +5,11 @@
  *
  */
 
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './PartyMemberExternal.html?raw';
 import cssText from './PartyMemberExternal.css?raw';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
@@ -25,18 +25,32 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 /**
  * Create Component
  */
-const PartyMemberExternal = new UIComponent('PartyMemberExternal', htmlText, cssText);
+const PartyMemberExternal = new GUIComponent('PartyMemberExternal', cssText);
 
-// No module-level variables for state!
+/**
+ * Helper: query inside shadow root
+ */
+function _root(comp) {
+	return comp._shadow || comp._host;
+}
+
+/**
+ * Render HTML
+ */
+PartyMemberExternal.render = () => htmlText;
 
 /**
  * Initialize the component
  */
 PartyMemberExternal.init = function init() {
 	const self = this;
+	const root = _root(this);
 
-	this.ui.on('mousedown', function (event) {
-		self._lastPos = self.ui.position();
+	root.addEventListener('mousedown', event => {
+		self._lastPos = {
+			top: self._host.offsetTop,
+			left: self._host.offsetLeft
+		};
 		event.preventDefault();
 		event.stopPropagation();
 
@@ -60,7 +74,7 @@ PartyMemberExternal.init = function init() {
 	});
 
 	// Right-click context menu
-	this.ui.on('contextmenu', function (event) {
+	root.addEventListener('contextmenu', event => {
 		event.preventDefault();
 		event.stopImmediatePropagation();
 
@@ -71,18 +85,18 @@ PartyMemberExternal.init = function init() {
 
 		// Block context menu when UI is locked
 		if (PartyFriendsV1 && PartyFriendsV1.isLocked && PartyFriendsV1.isLocked()) {
-			return false;
+			return;
 		}
 
 		if (!ContextMenu) {
-			return false;
+			return;
 		}
 
 		ContextMenu.remove();
 		ContextMenu.append();
 
 		// Send Mail
-		ContextMenu.addElement(DB.getMessage(98), function () {
+		ContextMenu.addElement(DB.getMessage(98), () => {
 			if (!self._player) {
 				return;
 			}
@@ -95,8 +109,8 @@ PartyMemberExternal.init = function init() {
 
 		if (isMe) {
 			// Self: Leave party
-			ContextMenu.addElement(DB.getMessage(2055), function () {
-				UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', function () {
+			ContextMenu.addElement(DB.getMessage(2055), () => {
+				UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', () => {
 					if (PartyFriends && PartyFriends.onRequestLeave) {
 						PartyFriends.onRequestLeave();
 					} else {
@@ -109,27 +123,29 @@ PartyMemberExternal.init = function init() {
 			});
 		} else {
 			// Others: 1:1 Chat
-			ContextMenu.addElement(DB.getMessage(360), function () {
+			ContextMenu.addElement(DB.getMessage(360), () => {
 				if (!self._player) {
 					return;
 				}
 				if (WhisperBox) {
 					WhisperBox.show(self._player.characterName);
 				} else if (ChatBox) {
-					// Fallback to chatbox if whisperbox is not available
-					ChatBox.ui.find('.username').val(self._player.characterName);
-					ChatBox.ui.find('.message').select();
+					const chatRoot = ChatBox._shadow || ChatBox._host;
+					if (chatRoot) {
+						const usernameInput = chatRoot.querySelector('.username');
+						if (usernameInput) usernameInput.value = self._player.characterName;
+						const messageInput = chatRoot.querySelector('.message');
+						if (messageInput) messageInput.focus();
+					}
 				}
 			});
 		}
 
 		// Remove small party window
-		ContextMenu.addElement('Remove small party window', function () {
+		ContextMenu.addElement('Remove small party window', () => {
 			self._closedByUser = true;
 			self.remove();
 		});
-
-		return false;
 	});
 
 	this.gridSnap = {
@@ -139,7 +155,7 @@ PartyMemberExternal.init = function init() {
 		padY: 4
 	};
 	this.snapDuration = 80;
-	this.draggable(this.ui);
+	this.draggable();
 
 	this.onDragEnd = function () {
 		if (PartyMemberExternal.onDragEnd) {
@@ -148,9 +164,10 @@ PartyMemberExternal.init = function init() {
 	};
 
 	// Tooltip events
-	this.ui.on('mouseenter', onTooltipShow);
-	this.ui.on('mousemove', onTooltipMove);
-	this.ui.on('mouseleave', onTooltipHide);
+	const hostEl = this._host;
+	hostEl.addEventListener('mouseenter', onTooltipShow);
+	hostEl.addEventListener('mousemove', onTooltipMove);
+	hostEl.addEventListener('mouseleave', onTooltipHide);
 };
 
 /**
@@ -180,7 +197,9 @@ PartyMemberExternal.setMember = function setMember(AID, player) {
  * @param {object} player
  */
 PartyMemberExternal.update = function update(player) {
-	const ui = this.ui;
+	const root = _root(this);
+	if (!root) return;
+
 	const level = player.baseLevel || player.level || player.Level || 0;
 	const jobID = player.class_ || player.job || player.Job || 0;
 	const state = player.state || 0;
@@ -189,76 +208,104 @@ PartyMemberExternal.update = function update(player) {
 	const isOnline = state === 0;
 	const isLeader = role === 0;
 
-	ui.find('.name').text(player.characterName);
-	ui.find('.level').text('Lv. ' + level);
+	const nameEl = root.querySelector('.name');
+	if (nameEl) nameEl.textContent = player.characterName;
+
+	const levelEl = root.querySelector('.level');
+	if (levelEl) levelEl.textContent = `Lv. ${level}`;
 
 	// Draw HP if available
 	updateCanvasLife(
-		ui,
+		root,
 		player.life && player.life.display ? player.life.hp : undefined,
 		player.life && player.life.display ? player.life.hp_max : undefined
 	);
 
 	// Job Icon
-	const jobIcon = ui.find('.job-icon');
+	const jobIcon = root.querySelector('.job-icon');
 	const isDead = !!player.isDead;
-	const asset = isDead ? 'icon_jobs_' + jobID + '_die.bmp' : 'icon_jobs_' + jobID + '.bmp';
+	const asset = isDead ? `icon_jobs_${jobID}_die.bmp` : `icon_jobs_${jobID}.bmp`;
 
 	Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/' + asset, function (url) {
-		jobIcon.css('backgroundImage', 'url(' + url + ')');
+		if (jobIcon) jobIcon.style.backgroundImage = `url(${url})`;
 	});
 
 	// Crown
-	ui.find('.crown').toggle(isLeader);
+	const crownEl = root.querySelector('.crown');
+	if (crownEl) {
+		crownEl.style.display = isLeader ? 'block' : 'none';
+	}
 	if (isLeader) {
 		Client.loadFile(DB.INTERFACE_PATH + 'renewalparty/ico_partycrown.bmp', function (url) {
-			ui.find('.crown').css('backgroundImage', 'url(' + url + ')');
+			if (crownEl) crownEl.style.backgroundImage = `url(${url})`;
 		});
 	}
 
 	// Tooltip and UI Text
 	const mapDisplay = DB.getMapName(player.mapName || '');
-	const tooltipText = 'Lv.' + level + ' ' + player.characterName + '(' + mapDisplay + ')';
-	this.ui.attr('data-tooltip', tooltipText);
+	const tooltipText = `Lv.${level} ${player.characterName}(${mapDisplay})`;
+	this._host.dataset.tooltip = tooltipText;
 
 	const memberColor = isOnline ? 'white' : '#adadad';
-	ui.find('.name').text(player.characterName).css('color', memberColor);
-	ui.find('.map')
-		.text('(' + mapDisplay + ')')
-		.css('color', memberColor);
-	ui.find('.level')
-		.text('Lv. ' + level)
-		.css('color', memberColor);
+	if (nameEl) {
+		nameEl.textContent = player.characterName;
+		nameEl.style.color = memberColor;
+	}
 
-	ui.toggleClass('online', isOnline);
+	const mapEl = root.querySelector('.map');
+	if (mapEl) {
+		mapEl.textContent = `(${mapDisplay})`;
+		mapEl.style.color = memberColor;
+	}
+
+	if (levelEl) {
+		levelEl.textContent = `Lv. ${level}`;
+		levelEl.style.color = memberColor;
+	}
+
+	const innerRoot = root.querySelector('#PartyMemberExternal');
+	if (innerRoot) {
+		if (isOnline) {
+			innerRoot.classList.add('online');
+		} else {
+			innerRoot.classList.remove('online');
+		}
+	}
 };
 
 /**
- * Custom RO-style tooltips
+ * Custom RO-style tooltips (global, outside shadow DOM)
  */
 function onTooltipShow(event) {
-	const text = jQuery(this).attr('data-tooltip');
+	const text = event.currentTarget.dataset.tooltip;
 	if (text) {
-		let tooltip = jQuery('#ro-tooltip-party');
-		if (!tooltip.length) {
-			tooltip = jQuery('<div id="ro-tooltip-party" class="ro-tooltip"></div>').appendTo('body');
+		let tooltip = document.getElementById('ro-tooltip-party');
+		if (!tooltip) {
+			tooltip = document.createElement('div');
+			tooltip.id = 'ro-tooltip-party';
+			tooltip.className = 'ro-tooltip';
+			tooltip.style.cssText =
+				'display:none;position:fixed;background-color:rgba(0,0,0,0.8);text-shadow:1px 1px black;color:white;padding:2px 6px;white-space:nowrap;z-index:20000;border-radius:2px;pointer-events:none;line-height:1.2;font-size:11px;';
+			document.body.appendChild(tooltip);
 		}
-		tooltip.text(text).addClass('show');
+		tooltip.textContent = text;
+		tooltip.style.display = 'block';
 	}
 }
 
 function onTooltipMove(event) {
-	const tooltip = jQuery('#ro-tooltip-party');
-	if (tooltip.hasClass('show')) {
-		tooltip.css({
-			top: event.clientY + 15,
-			left: event.clientX + 10
-		});
+	const tooltip = document.getElementById('ro-tooltip-party');
+	if (tooltip && tooltip.style.display === 'block') {
+		tooltip.style.top = `${event.clientY + 15}px`;
+		tooltip.style.left = `${event.clientX + 10}px`;
 	}
 }
 
-function onTooltipHide(event) {
-	jQuery('#ro-tooltip-party').removeClass('show');
+function onTooltipHide() {
+	const tooltip = document.getElementById('ro-tooltip-party');
+	if (tooltip) {
+		tooltip.style.display = 'none';
+	}
 }
 
 /**
@@ -267,24 +314,25 @@ function onTooltipHide(event) {
  * @param {number} maxhp
  */
 PartyMemberExternal.updateMemberLife = function updateMemberLife(hp, maxhp) {
-	updateCanvasLife(this.ui, hp, maxhp);
+	const root = _root(this);
+	if (root) updateCanvasLife(root, hp, maxhp);
 };
 
 /**
  * Helper to update the HP bar on a canvas
- * @param {jQuery} node
+ * @param {Element} root
  * @param {number} hp
  * @param {number} maxhp
  */
-function updateCanvasLife(node, hp, maxhp) {
+function updateCanvasLife(root, hp, maxhp) {
 	const hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
 	const lifeRatio = hasLife ? hp / maxhp : 0;
-	const barVisibility = 'visible'; // Always visible
 
-	node.find('.hp-bar-container').css('visibility', barVisibility);
+	const hpBarContainer = root.querySelector('.hp-bar-container');
+	if (hpBarContainer) hpBarContainer.style.visibility = 'visible';
 
 	if (hasLife) {
-		const canvas = node.find('canvas').get(0);
+		const canvas = root.querySelector('canvas');
 		if (canvas) {
 			const ctx = canvas.getContext('2d');
 			const width = Math.floor(lifeRatio * 75);
@@ -294,14 +342,16 @@ function updateCanvasLife(node, hp, maxhp) {
 			ctx.fillStyle = lifeRatio <= 0.25 ? '#ef1010' : '#32cd32';
 			ctx.fillRect(0, 0, width, 5);
 		}
-		node.find('.hp-text').text(hp + '/' + maxhp);
+		const hpText = root.querySelector('.hp-text');
+		if (hpText) hpText.textContent = `${hp}/${maxhp}`;
 	} else {
-		const canvas = node.find('canvas').get(0);
+		const canvas = root.querySelector('canvas');
 		if (canvas) {
 			const ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, 75, 5);
 		}
-		node.find('.hp-text').text('');
+		const hpText = root.querySelector('.hp-text');
+		if (hpText) hpText.textContent = '';
 	}
 }
 

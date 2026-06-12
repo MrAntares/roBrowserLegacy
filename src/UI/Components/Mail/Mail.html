@@ -1,15 +1,16 @@
 <div id="Mail">
-	<div class="body" data-background="basic_interface/maillist1_bg.bmp">
+	<div class="body">
+		<ui-image src="basic_interface/maillist1_bg.bmp"></ui-image>
 		<div class="titlebar">
 			<div class="left">
-				<span class="text" id="title" data-text="1025">Mail List</span>
+				<span class="text" id="title"><ui-text msg="1025">Mail List</ui-text></span>
 			</div>
 			<div class="right">
-				<button
+				<ui-button
 					class="base close"
-					data-background="basic_interface/close2.bmp"
-					data-hover="basic_interface/close2_a.bmp"
-				></button>
+					bg="basic_interface/close2.bmp"
+					hover="basic_interface/close2_a.bmp"
+				></ui-button>
 			</div>
 		</div>
 
@@ -30,27 +31,31 @@
 							<div class="flex prev_next">
 								<div class="prev">
 									<div class="overlay_prev"></div>
-									<span class="text_pagination" data-text="1053">Prev</span>
+									<span class="text_pagination"><ui-text msg="1053">Prev</ui-text></span>
 								</div>
 								<div class="pagination">
 									<span class="text" id="infor_page">1/1</span>
 								</div>
 								<div class="next">
 									<div class="overlay_next margin_next"></div>
-									<span class="text_pagination margin_next" data-text="1054">Next</span>
+									<span class="text_pagination margin_next"><ui-text msg="1054">Next</ui-text></span>
 								</div>
 							</div>
 						</div>
 						<!-- create mail -->
 						<div class="block_create_mail">
 							<div class="to_create_mail">
-								<span class="text text_to_title"> <span data-text="1099">To</span> :</span>
+								<span class="text text_to_title">
+									<span><ui-text msg="1099">To</ui-text></span> :</span
+								>
 								<div style="flex: 4">
 									<input class="text_to" type="text" value="" maxlength="50" />
 								</div>
 							</div>
 							<div class="title_create_mail">
-								<span class="text text_title_create_mail"> <span data-text="1100">Title</span> :</span>
+								<span class="text text_title_create_mail">
+									<span><ui-text msg="1100">Title</ui-text></span> :</span
+								>
 								<div style="flex: 4">
 									<input class="input_title" type="text" value="" maxlength="50" />
 								</div>
@@ -59,20 +64,20 @@
 								<textarea class="textarea_mail" maxlength="198"></textarea>
 							</div>
 							<div class="block_zeny_item">
-								<button
+								<ui-button
 									class="add_zeny"
 									id="zeny_amt"
-									data-background="basic_interface/inputzeny.bmp"
-									data-hover="basic_interface/inputzeny_a.bmp"
-								></button>
-								<button
+									bg="basic_interface/inputzeny.bmp"
+									hover="basic_interface/inputzeny_a.bmp"
+								></ui-button>
+								<ui-button
 									class="add_zeny"
 									id="zeny_ok"
-									data-background="basic_interface/setzeny.bmp"
-									data-hover="basic_interface/setzeny_a.bmp"
-								></button>
+									bg="basic_interface/setzeny.bmp"
+									hover="basic_interface/setzeny_a.bmp"
+								></ui-button>
 								<div class="block_zeny">
-									<input class="input_zeny_amt" type="text" value="" maxlength="9" disabled />
+									<input class="input_zeny_amt" type="text" value="0" maxlength="9" disabled />
 								</div>
 
 								<div class="block_item">
@@ -83,18 +88,18 @@
 							</div>
 
 							<div class="block_send_cancel">
-								<button
+								<ui-button
 									class="create_mail_btn"
 									id="create_mail_send"
-									data-background="basic_interface/send.bmp"
-									data-hover="basic_interface/send_a.bmp"
-								></button>
-								<button
+									bg="basic_interface/send.bmp"
+									hover="basic_interface/send_a.bmp"
+								></ui-button>
+								<ui-button
 									class="create_mail_btn"
 									id="create_mail_cancel"
-									data-background="basic_interface/cancel2.bmp"
-									data-hover="basic_interface/cancel2_a.bmp"
-								></button>
+									bg="basic_interface/cancel2.bmp"
+									hover="basic_interface/cancel2_a.bmp"
+								></ui-button>
 							</div>
 						</div>
 					</div>
