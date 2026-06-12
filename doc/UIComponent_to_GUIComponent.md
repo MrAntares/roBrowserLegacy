@@ -15,11 +15,13 @@ L0 is archival and should only be opened when:
 - Historical reasoning is required.
 
 Memory Layers
+
 ```
 ├── L1 = doc/UIComponent_to_GUIComponent.md
 ├── L2 = doc/UIComponent_to_GUIComponent_Firmware.md
 └── L0 = doc/UIComponent_to_GUIComponent_Scars.md
 ```
+
 ## ⛔ PROHIBITED — Scope Discipline (read before anything else)
 
 You are performing a **mechanical, behavior-preserving migration** — not a redesign.
