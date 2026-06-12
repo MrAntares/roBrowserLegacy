@@ -116,7 +116,11 @@ function onStatusParameterChange(pkt) {
 	WinStats.getUI().update('int3', pkt.standardInt);
 	WinStats.getUI().update('dex3', pkt.standardDex);
 	WinStats.getUI().update('luk3', pkt.standardLuk);
-	WinStats.getUI().update('aspd', (pkt.ASPD + pkt.plusASPD) / 4);
+	const aspdValue = (pkt.ASPD + pkt.plusASPD) / 4;
+	WinStats.getUI().update('aspd', aspdValue);
+	if (Session.Entity) {
+		Session.Entity.attack_speed = aspdValue * 2;
+	}
 	WinStats.getUI().update('atak', pkt.attPower);
 	WinStats.getUI().update('atak2', pkt.refiningPower);
 	WinStats.getUI().update('matak', pkt.min_mattPower);
@@ -491,6 +495,9 @@ function onParameterChange(pkt) {
 
 		case StatusProperty.ASPD:
 			WinStats.getUI().update('aspd', amount);
+			if (Session.Entity) {
+				Session.Entity.attack_speed = amount * 2;
+			}
 			break;
 
 		case StatusProperty.JOBLEVEL:
