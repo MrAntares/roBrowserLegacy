@@ -34,13 +34,6 @@ const MakeReadBook = new GUIComponent('MakeReadBook', cssText);
 MakeReadBook.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return MakeReadBook._shadow || MakeReadBook._host;
-}
-
-/**
  * @var {Preferences} structure
  */
 const _BOOK_INFORMATION = Preferences.get(
@@ -144,7 +137,7 @@ MakeReadBook.startBook = function startBook(inforBook, item) {
 MakeReadBook.openBook = function openBook() {
 	MakeReadBook.append();
 
-	const root = _getRoot();
+	const root = MakeReadBook.getRoot();
 
 	const panel = root.querySelector('.panel');
 	if (panel) {
@@ -168,7 +161,7 @@ MakeReadBook.openBook = function openBook() {
 			'data/sprite/book/\xc3\xa5\xbf\xc0\xb8\xa5\xc2\xca.spr'
 		],
 		(spr_close, spr_highlighter, spr_previous, spr_next) => {
-			const innerRoot = _getRoot();
+			const innerRoot = MakeReadBook.getRoot();
 
 			// close
 			const sprite_close = new Sprite(spr_close);
@@ -359,7 +352,7 @@ MakeReadBook.onAppend = function OnAppend() {
 	_preferences.show = true;
 	_preferences.save();
 
-	const root = _getRoot();
+	const root = MakeReadBook.getRoot();
 	this.draggable(root.querySelector('.titlebar'));
 };
 
@@ -420,7 +413,7 @@ function onClose(e) {
 }
 
 function page() {
-	const root = _getRoot();
+	const root = MakeReadBook.getRoot();
 	const textBook = root.querySelector('#textBook');
 	if (textBook) {
 		textBook.innerHTML = '';
@@ -444,7 +437,7 @@ function page() {
 }
 
 function adjustButtons() {
-	const root = _getRoot();
+	const root = MakeReadBook.getRoot();
 	const nextBtn = root.querySelector('.next_btn');
 	if (nextBtn) {
 		nextBtn.disabled =

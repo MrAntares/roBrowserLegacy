@@ -81,13 +81,6 @@ const Viewer = new GUIComponent('GRFViewer', cssText);
 Viewer.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return Viewer._shadow || Viewer._host;
-}
-
-/**
  * Initialize Component
  */
 Viewer.init = function init() {
@@ -102,7 +95,7 @@ Viewer.init = function init() {
 
 	Renderer.show();
 
-	const root = _getRoot();
+	const root = Viewer.getRoot();
 
 	if (!Configs.get('API')) {
 		initDropDown(root.querySelector('select'));
@@ -151,7 +144,7 @@ function initDropDown(select) {
 			loadModel(select.value);
 		}
 
-		const root = _getRoot();
+		const root = Viewer.getRoot();
 		root.querySelector('.head').style.display = 'block';
 		select.focus();
 	});

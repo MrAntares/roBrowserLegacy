@@ -60,7 +60,7 @@ let _start = 0;
  * Initialize UI
  */
 SlotMachine.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const canvas = root.querySelector('canvas');
 	_ctx = canvas.getContext('2d');
 

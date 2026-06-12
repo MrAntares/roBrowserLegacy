@@ -39,10 +39,6 @@ MiniMapV2.needFocus = false;
 
 MiniMapV2.render = () => htmlText;
 
-function _getRoot() {
-	return MiniMapV2._shadow || MiniMapV2._host;
-}
-
 /**
  * @var {Preferences}
  */
@@ -125,7 +121,7 @@ const _zoomFactor = [1, 10, 6, 3, 2];
  * Initialize minimap
  */
 MiniMapV2.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	_ctx = root.querySelector('canvas').getContext('2d');
 	this.opacity = 2;
@@ -361,7 +357,7 @@ MiniMapV2.removeNpcMark = function removeNPCMark(key) {
  * @param {number} y increment
  */
 MiniMapV2.updateCoordinates = function updateCoordinates(x, y) {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const coordX = root.querySelector('.coordinates .coord.x');
 	const coordY = root.querySelector('.coordinates .coord.y');
 	if (coordX) {

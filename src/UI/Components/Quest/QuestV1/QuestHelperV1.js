@@ -27,10 +27,6 @@ const QuestHelperV1 = new GUIComponent('QuestHelperV1', cssText);
 
 QuestHelperV1.render = () => htmlText;
 
-function _getRoot() {
-	return QuestHelperV1._shadow || QuestHelperV1._host;
-}
-
 /**
  * @var {Preferences} structure
  */
@@ -108,7 +104,7 @@ function processText(text) {
  * Initialize the component (event listener, etc.)
  */
 QuestHelperV1.init = function init() {
-	const root = _getRoot();
+	const root = QuestHelperV1.getRoot();
 
 	const closeBtn = root.querySelector('.quest-info-close-btn');
 	if (closeBtn) {
@@ -172,7 +168,7 @@ QuestHelperV1.onAppend = function onAppend() {
 };
 
 QuestHelperV1.setQuestInfo = function setQuestInfo(quest) {
-	const root = _getRoot();
+	const root = QuestHelperV1.getRoot();
 	if (!root) {
 		return;
 	}
@@ -218,7 +214,7 @@ QuestHelperV1.setQuestInfo = function setQuestInfo(quest) {
 };
 
 QuestHelperV1.clearQuestDesc = function clearQuestDesc() {
-	const root = _getRoot();
+	const root = QuestHelperV1.getRoot();
 	if (!root) {
 		return;
 	}
@@ -285,7 +281,7 @@ function onClose() {
 }
 
 function onSelectMonster(e) {
-	const root = _getRoot();
+	const root = QuestHelperV1.getRoot();
 	const selectedOption = e.currentTarget.options[e.currentTarget.selectedIndex];
 	const killedEl = root.querySelector('.killed');
 	if (killedEl) {

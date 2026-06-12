@@ -22,13 +22,6 @@ import htmlText from './SkillListMH.html?raw';
 import cssText from './SkillListMH.css?raw';
 
 /**
- * Helper: query inside shadow root
- */
-function _root(comp) {
-	return comp._shadow || comp._host;
-}
-
-/**
  * Helper: escape HTML
  */
 function _escapeHTML(text) {
@@ -68,7 +61,7 @@ function createSkillListMH(type) {
 	comp._rArrow = null;
 
 	comp.init = function init() {
-		const root = _root(this);
+		const root = this.getRoot();
 
 		root.querySelector('.titlebar .text').textContent =
 			this._skillType === 'homunculus' ? 'Homunculus Skills' : 'Mercenary Skills';
@@ -273,7 +266,7 @@ function createSkillListMH(type) {
 		width = Math.min(Math.max(width, 8), 8);
 		height = Math.min(Math.max(height, 4), 10);
 
-		const root = _root(this);
+		const root = this.getRoot();
 		const content = root.querySelector('.content');
 		if (content) {
 			content.style.width = `${width * 32}px`;
@@ -290,7 +283,7 @@ function createSkillListMH(type) {
 		_preferences.y = parseInt(this._host.style.top, 10) || 0;
 		_preferences.x = parseInt(this._host.style.left, 10) || 0;
 
-		const root = _root(this);
+		const root = this.getRoot();
 		const content = root.querySelector('.content');
 		if (content) {
 			_preferences.width = Math.floor(parseInt(content.style.width, 10) / 32) || 8;
@@ -323,7 +316,7 @@ function createSkillListMH(type) {
 		}
 
 		this.list.length = 0;
-		const root = _root(this);
+		const root = this.getRoot();
 		const table = root.querySelector('.content table');
 		if (table) {
 			table.innerHTML = '';
@@ -339,7 +332,7 @@ function createSkillListMH(type) {
 			return;
 		}
 
-		const root = _root(this);
+		const root = this.getRoot();
 		const existing = root.querySelector(`.skill.id${skill.SKID}`);
 		if (existing) {
 			this.updateSkill(skill);
@@ -435,7 +428,7 @@ function createSkillListMH(type) {
 			target.type = skill.type;
 		}
 
-		const root = _root(this);
+		const root = this.getRoot();
 		const element = root.querySelector(`.skill.id${skill.SKID}`);
 		if (!element) {
 			return;
@@ -488,7 +481,7 @@ function createSkillListMH(type) {
 	};
 
 	comp.setPoints = function setPoints(amount) {
-		const root = _root(this);
+		const root = this.getRoot();
 		const el = root.querySelector('.skpoints_count');
 		if (el) {
 			el.textContent = amount;
@@ -530,7 +523,7 @@ function createSkillListMH(type) {
 		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level) {
 			skill.selectedLevel = level + 1;
-			const root = _root(this);
+			const root = this.getRoot();
 			const element = root.querySelector(`.skill.id${skill.SKID}`);
 			if (element) {
 				const current = element.querySelector('.level .current');
@@ -545,7 +538,7 @@ function createSkillListMH(type) {
 		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level > 1) {
 			skill.selectedLevel = level - 1;
-			const root = _root(this);
+			const root = this.getRoot();
 			const element = root.querySelector(`.skill.id${skill.SKID}`);
 			if (element) {
 				const current = element.querySelector('.level .current');

@@ -31,7 +31,7 @@ ContextMenu.needFocus = true;
  * Initialize event handler
  */
 ContextMenu.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	// Click anywhere on the overlay → close
 	root.querySelector('#ContextMenu').addEventListener('mousedown', () => {
@@ -48,7 +48,7 @@ ContextMenu.init = function init() {
  * Position menu at mouse cursor
  */
 ContextMenu.onAppend = function onAppend() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const menu = root.querySelector('.menu');
 	const width = menu.offsetWidth;
 	const height = menu.offsetHeight;
@@ -71,7 +71,7 @@ ContextMenu.onAppend = function onAppend() {
  * Clean up menu contents
  */
 ContextMenu.onRemove = function onRemove() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.menu').innerHTML = '';
 };
 
@@ -82,7 +82,7 @@ ContextMenu.onRemove = function onRemove() {
  * @param {function} callback once clicked
  */
 ContextMenu.addElement = function addElement(text, callback) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const item = document.createElement('div');
 	item.textContent = text;
 	item.addEventListener('click', () => {
@@ -96,7 +96,7 @@ ContextMenu.addElement = function addElement(text, callback) {
  * Add a delimiter to the links
  */
 ContextMenu.nextGroup = function nextGroup() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.menu').appendChild(document.createElement('hr'));
 };
 

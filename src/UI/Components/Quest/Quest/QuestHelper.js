@@ -27,10 +27,6 @@ const QuestHelper = new GUIComponent('QuestHelper', cssText);
 
 QuestHelper.render = () => htmlText;
 
-function _getRoot() {
-	return QuestHelper._shadow || QuestHelper._host;
-}
-
 /**
  * @var {Preferences} structure
  */
@@ -108,7 +104,7 @@ function processText(text) {
  * Initialize the component (event listener, etc.)
  */
 QuestHelper.init = function init() {
-	const root = _getRoot();
+	const root = QuestHelper.getRoot();
 
 	const closeBtn = root.querySelector('.quest-info-bottom-btn');
 	if (closeBtn) {
@@ -179,7 +175,7 @@ QuestHelper.onAppend = function onAppend() {
 };
 
 QuestHelper.setQuestInfo = function setQuestInfo(quest) {
-	const root = _getRoot();
+	const root = QuestHelper.getRoot();
 	if (!root) {
 		return;
 	}
@@ -251,7 +247,7 @@ QuestHelper.setQuestInfo = function setQuestInfo(quest) {
 };
 
 QuestHelper.clearQuestDesc = function clearQuestDesc() {
-	const root = _getRoot();
+	const root = QuestHelper.getRoot();
 	if (!root) {
 		return;
 	}

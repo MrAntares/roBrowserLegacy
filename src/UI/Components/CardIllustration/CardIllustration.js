@@ -29,7 +29,7 @@ CardIllustration.render = () => htmlText;
  * Initialize events
  */
 CardIllustration.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.close').addEventListener('click', this.remove.bind(this));
 	this.draggable();
 };
@@ -40,12 +40,12 @@ CardIllustration.init = function init() {
  * @param {object} item
  */
 CardIllustration.setCard = function setCard(item) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.titlebar .text').textContent = item.identifiedDisplayName;
 	root.querySelector('.content').style.backgroundImage = 'none';
 
 	Client.loadFile(`${DB.INTERFACE_PATH}cardbmp/${item.illustResourcesName}.bmp`, data => {
-		const r = CardIllustration._shadow || CardIllustration._host;
+		const r = CardIllustration.getRoot();
 		r.querySelector('.content').style.backgroundImage = `url(${data})`;
 	});
 };

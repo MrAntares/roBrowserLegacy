@@ -18,6 +18,7 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import UIPreferences from 'Preferences/UI.js';
 import Session from 'Engine/SessionStorage.js';
 import Targa from 'Loaders/Targa.js';
+import ClampToViewport from 'UI/ClampToViewport.js';
 
 /**
  * Heavy modules loaded lazily to keep viewer bundles lightweight.
@@ -125,6 +126,14 @@ class GUIComponent {
 	static MouseMode = MouseMode;
 
 	// ─── Lifecycle: prepare ────────────────────────────────
+
+	/**
+	 * Get the root element of the component.
+	 */
+
+	getRoot() {
+		return this._shadow || this._host;
+	}
 
 	/**
 	 * Build the Shadow DOM, inject CSS, call init(), set up
@@ -250,43 +259,9 @@ class GUIComponent {
 	 */
 	_fixPositionOverflow() {
 		if (!this._host || !this._isDraggable) return;
-
-		const rect = this._host.getBoundingClientRect();
-		const x = rect.left;
-		const y = rect.top;
-		const width = rect.width;
-		const height = rect.height;
 		const WIDTH = _Renderer?.width ?? window.innerWidth;
 		const HEIGHT = _Renderer?.height ?? window.innerHeight;
-
-		// Overflow bottom
-		if (y + height > HEIGHT) {
-			this._host.style.top = HEIGHT - Math.min(height, HEIGHT) + 'px';
-		}
-
-		// Overflow top
-		if (y < 0) {
-			this._host.style.top = '0px';
-		}
-
-		// Overflow right
-		if (x + width > WIDTH) {
-			this._host.style.left = WIDTH - Math.min(width, WIDTH) + 'px';
-		}
-
-		// Overflow left
-		if (x < 0) {
-			this._host.style.left = '0px';
-		}
-
-		// Magnet constraints
-		if (this.magnet.BOTTOM) {
-			this._host.style.top = HEIGHT - height + 'px';
-		}
-		if (this.magnet.RIGHT) {
-			this._host.style.left = WIDTH - width + 'px';
-		}
-		// TOP and LEFT magnets don't need adjustment (already at 0)
+		ClampToViewport(this._host, WIDTH, HEIGHT, this.magnet);
 	}
 
 	// ─── Lifecycle: remove ─────────────────────────────────
@@ -476,6 +451,19 @@ class GUIComponent {
 			window.removeEventListener('keydown', this._keyHandler, true); // capture phase
 			this._keyHandler = null;
 		}
+	}
+
+	/**
+	 * Check if an editable element is focused.
+	 * @returns {boolean}
+	 */
+	isEditableFocused() {
+		const root = this.getRoot();
+		const active = root && root.activeElement;
+		if (!active || !active.tagName) return false;
+		if (/input|textarea|select/i.test(active.tagName)) return true;
+		else if (active.getAttribute('contenteditable') === 'true') return true;
+		return false;
 	}
 
 	// ─── Private: zIndex helpers (cross-compatible) ────────

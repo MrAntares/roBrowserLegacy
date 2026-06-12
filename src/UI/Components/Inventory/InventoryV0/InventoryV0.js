@@ -85,10 +85,6 @@ const _preferences = Preferences.get(
 	1.0
 );
 
-function _getRoot() {
-	return InventoryV0._shadow || InventoryV0._host;
-}
-
 function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
 	const div = document.createElement('div');
@@ -105,7 +101,7 @@ function _sanitizeHtml(str) {
  * Initialize UI
  */
 InventoryV0.init = function Init() {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 
 	// Bind buttons
 	const baseBtn = root.querySelector('.titlebar .base');
@@ -185,7 +181,7 @@ InventoryV0.init = function Init() {
  * Apply preferences once append to body
  */
 InventoryV0.onAppend = function OnAppend() {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 
 	// Apply preferences
 	if (!_preferences.show) {
@@ -221,7 +217,7 @@ InventoryV0.onAppend = function OnAppend() {
  * Remove Inventory from window (and so clean up items)
  */
 InventoryV0.onRemove = function OnRemove() {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) content.innerHTML = '';
 	this.list.length = 0;
@@ -257,7 +253,7 @@ InventoryV0.onShortCut = function onShurtCut(key) {
 			} else {
 				this._host.dispatchEvent(new Event('mouseleave'));
 				this.clearNewItems();
-				const root = _getRoot();
+				const root = InventoryV0.getRoot();
 				root.querySelectorAll('.new_item').forEach(el => {
 					el.style.backgroundImage = '';
 				});
@@ -268,16 +264,12 @@ InventoryV0.onShortCut = function onShurtCut(key) {
 
 	const basicInfoUI = BasicInfo.getUI();
 	if (basicInfoUI._host) {
-		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 		if (changeUI) {
 			changeUI.style.display = 'none';
 		}
 	}
 };
-
-function _getBasicInfoRoot(ui) {
-	return ui._shadow || ui._host || document;
-}
 
 /**
  * Show/Hide UI
@@ -289,7 +281,7 @@ InventoryV0.toggle = function toggle() {
 	} else {
 		this._host.dispatchEvent(new Event('mouseleave'));
 		this.clearNewItems();
-		const root = _getRoot();
+		const root = InventoryV0.getRoot();
 		root.querySelectorAll('.new_item').forEach(el => {
 			el.style.backgroundImage = '';
 		});
@@ -298,7 +290,7 @@ InventoryV0.toggle = function toggle() {
 
 	const basicInfoUI = BasicInfo.getUI();
 	if (basicInfoUI._host) {
-		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 		if (changeUI) {
 			changeUI.style.display = 'none';
 		}
@@ -322,7 +314,7 @@ InventoryV0.resize = function Resize(width, height) {
 	width = Math.min(Math.max(width, 6), 8);
 	height = Math.min(Math.max(height, 2), 5);
 
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.style.width = `${width * 32}px`;
@@ -338,7 +330,7 @@ InventoryV0.resize = function Resize(width, height) {
  * Force scroll clamping
  */
 InventoryV0.updateScroll = function updateScroll() {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	const hostEl = root.querySelector('.scroll-host');
 	if (!hostEl) return;
 
@@ -406,7 +398,7 @@ InventoryV0.getItemByIndex = function getItemByIndex(index) {
  * if the item index is exist you should clear it;[skybook888]
  */
 InventoryV0.setItems = function SetItems(items) {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	for (let i = 0, count = items.length; i < count; ++i) {
 		const object = this.getItemByIndex(items[i].index);
 		if (object) {
@@ -457,7 +449,7 @@ function getItemTab(item) {
  */
 InventoryV0.addItem = function AddItem(item) {
 	let object = this.getItemByIndex(item.index);
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 
 	// Check if the item was equipped
 	const equippedIndex = InventoryV0.equippedItems.indexOf(item.index);
@@ -469,7 +461,7 @@ InventoryV0.addItem = function AddItem(item) {
 
 		const basicInfoUI = BasicInfo.getUI();
 		if (basicInfoUI._host) {
-			const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+			const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 			if (changeUI) {
 				changeUI.style.display = 'block';
 			}
@@ -526,7 +518,7 @@ InventoryV0.addItemSub = function AddItemSub(item) {
 
 	if (tab === _preferences.tab) {
 		const it = DB.getItemInfo(item.ITID);
-		const root = _getRoot();
+		const root = InventoryV0.getRoot();
 		const content = root.querySelector('.container .content');
 		if (!content) return true;
 
@@ -572,7 +564,7 @@ InventoryV0.addItemSub = function AddItemSub(item) {
  */
 InventoryV0.removeItem = function RemoveItem(index, count) {
 	const item = this.getItemByIndex(index);
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 
 	if (!item || count <= 0) return null;
 
@@ -610,7 +602,7 @@ InventoryV0.updateItem = function UpdateItem(index, count) {
 	if (!item) return;
 
 	item.count = count;
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 
 	if (item.count > 0) {
 		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
@@ -699,7 +691,7 @@ function onResize() {
  * Modify tab, filter display entries
  */
 function onSwitchTab() {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	const buttons = root.querySelectorAll('.tabs button');
 	const idx = Array.from(buttons).indexOf(this);
 	_preferences.tab = parseInt(idx, 10);
@@ -715,7 +707,7 @@ function onSwitchTab() {
  * Hide/show inventory's content
  */
 function onToggleReduction() {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	const panel = root.querySelector('.panel');
 
 	if (_realSize) {
@@ -733,7 +725,7 @@ function onToggleReduction() {
  * Update tab, reset inventory content
  */
 function requestFilter() {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	const host = root.querySelector('.scroll-host');
 	if (host) host.scrollTop = 0;
 
@@ -832,7 +824,7 @@ function onItemOver(_e) {
 		quantity = ' Quantity';
 	}
 
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	const overlay = root.querySelector('.overlay');
 	const rootEl = root.querySelector('#InventoryV0') || root;
 	const itemRect = this.getBoundingClientRect();
@@ -856,7 +848,7 @@ function onItemOver(_e) {
  * Hide the item name
  */
 function onItemOut() {
-	const root = _getRoot();
+	const root = InventoryV0.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) overlay.style.display = 'none';
 }

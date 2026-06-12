@@ -150,7 +150,7 @@ Read the original component (JS, CSS, HTML) and answer these questions:
 ### Phase 3: Convert JS
 
 - [ ] Replace jQuery DOM queries with `this._shadow.querySelector()` / `querySelectorAll()` (§5)
-- [ ] Use `_getRoot()` helper for module-level singletons (§5)
+- [ ] Use `ComponentName.getRoot()` / `this.getRoot()` helper for module-level singletons (§5)
 - [ ] Replace jQuery event binding with `addEventListener` (§6)
 - [ ] Bind events in `init()`, restore state in `onAppend()`, save in `onRemove()` — never bind in `onAppend()`
 - [ ] Replace `.text(value)` → `.textContent` (plain text) or `DB.formatMsgToHtml()` + `.innerHTML` (game text with `^rrggbb`) (§13, §30)
@@ -444,27 +444,23 @@ this.ui.find('.close').click(function() { ... });
 **After (native DOM):**
 
 ```javascript
-const root = this._shadow || this._host;
+const root = ComponentName.getRoot();
 root.querySelector('.content.info .name .value').textContent = clan.name;
 
 const closeBtn = root.querySelector('.close');
 closeBtn.addEventListener('click', () => { ... });
 ```
 
-**RULE**: Always query from `this._shadow` (or `this._host`), never from `document`. Elements inside Shadow DOM are invisible to `document.querySelector()`.
+**RULE**: Always query from `ComponentName.getRoot()` / `this.getRoot()`, never from `document`. Elements inside Shadow DOM are invisible to `document.querySelector()`.
 
-#### Helper: `_getRoot()` for module-level components
+#### Helper: `ComponentName.getRoot()` / `this.getRoot()` for module-level components
 
-For components defined as module-level singletons (not using `this` inside methods), create a `_getRoot()` helper to avoid repeating the shadow root lookup:
+For components defined as module-level singletons (not using `this` inside methods) use `ComponentName.getRoot()` / `this.getRoot()` helper to avoid repeating the shadow root lookup:
 
 ```javascript
-function _getRoot() {
-	return StatusIcons._shadow || StatusIcons._host;
-}
-
 // Usage in any function:
 function resetPositions() {
-	const root = _getRoot();
+	const root = ComponentName.getRoot();
 	const elements = root.querySelectorAll('.state');
 	// ...
 }
@@ -489,7 +485,7 @@ Guild.init = function init() {
 ```javascript
 Clan.init = function init() {
 	this.draggable('.titlebar');
-	const root = this._shadow || this._host;
+	const root = Clan.getRoot();
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
 		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
@@ -781,7 +777,7 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
 	var focused = shadow.activeElement;
 
 	// If an input inside the shadow is focused, let the browser handle the keystroke
-	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+	if (ChatRoomCreate.isEditableFocused()) {
 		// Still handle Enter/Escape for form submission/close
 		if (event.which === KEYS.ENTER) {
 			submitForm.call(this);
@@ -1145,7 +1141,7 @@ _Client?.loadFile(_DB.INTERFACE_PATH + background, ...);
 Viewer.ui.find('.head').show();
 
 // AFTER (GUIComponent — native DOM)
-const root = _getRoot();
+const root = Viewer.getRoot();
 root.querySelector('.head').style.display = 'block';
 ```
 
@@ -1375,7 +1371,7 @@ This differs from toggle-style components (e.g., Clan, Inventory) that start hid
 ```javascript
 // WRONG — on-demand component hidden permanently
 Announce.init = function init() {
-	const root = _getRoot();
+	const root = Announce.getRoot();
 	this.canvas = root.querySelector('canvas');
 	this.ctx = this.canvas.getContext('2d');
 	this._host.style.display = 'none'; // ← BUG: append() won't undo this
@@ -1383,7 +1379,7 @@ Announce.init = function init() {
 
 // CORRECT — no hiding for on-demand components
 Announce.init = function init() {
-	const root = _getRoot();
+	const root = Announce.getRoot();
 	this.canvas = root.querySelector('canvas');
 	this.ctx = this.canvas.getContext('2d');
 };
@@ -1897,7 +1893,7 @@ select {
 
 **Note**: `touch-action: manipulation` prevents double-tap zoom but does NOT prevent iOS Safari's input-focus zoom (which triggers when `font-size < 16px`). The only CSS-only fix for input-focus zoom is setting `font-size: 16px` on inputs — but this may break the asset-driven UI layout. As a mitigation, the Renderer listens to `visualViewport` resize events to keep the canvas in sync if the browser does zoom.
 
-### 42. UIComponent inside GUIComponent Shadow DOM — migrate or use `_getRoot()`
+### 42. UIComponent inside GUIComponent Shadow DOM — use `ComponentName.getRoot()` helper
 
 **Bug**: If a legacy `UIComponent` is appended inside a `GUIComponent`'s Shadow DOM (e.g., SwitchEquip inside EquipmentV4), it breaks because `UIComponent` uses `document.getElementById()` and `document.querySelector()` to find its elements. These global DOM queries cannot see into Shadow DOM.
 
@@ -1906,7 +1902,7 @@ select {
 document.getElementById('SwitchEquip'); // → null (element is inside shadow DOM)
 ```
 
-**Fix**: Migrate the inner component to GUIComponent as well, using `_getRoot()` to query within the correct shadow root. If migration is impractical, ensure the UIComponent's root element is appended to `document.body` (not inside another component's shadow DOM).
+**Fix**: Migrate the inner component to GUIComponent as well, using `ComponentName.getRoot()` / `this.getRoot()` to query within the correct shadow root. If migration is impractical, ensure the UIComponent's root element is appended to `document.body` (not inside another component's shadow DOM).
 
 **RULE**: Do not embed a `UIComponent` inside a `GUIComponent`'s Shadow DOM. Either migrate the inner component to GUIComponent, or keep it as a sibling in `document.body`.
 
@@ -1919,7 +1915,7 @@ Compact reference for all migrated components. Each row lists the component, its
 | Component                   | CSS Strategy                                                                     | Mouse Mode | Key Pitfalls       | Notes                                                                                             |
 | --------------------------- | -------------------------------------------------------------------------------- | ---------- | ------------------ | ------------------------------------------------------------------------------------------------- |
 | **Clan**                    | Fixed-size: `:host { width; height }`, inner `position: absolute`                | STOP       | §4a, §20           | First migration; still uses some `this.ui` proxy calls                                            |
-| **StatusIcons**             | Dynamic-size: no dims on `:host`, `overflow: visible`, inner `display: block`    | CROSS      | §4b, §9, §11       | `_getRoot()` helper; mixed arrow/regular callbacks for `Texture.load`                             |
+| **StatusIcons**             | Dynamic-size: no dims on `:host`, `overflow: visible`, inner `display: block`    | CROSS      | §4b, §9, §11       | `StatusIcons.getRoot()` helper; mixed arrow/regular callbacks for `Texture.load`                  |
 | **SkillTargetSelection**    | Overlay: `:host { pointer-events: none }`, children `position: fixed`            | CROSS      | §10, §11, §12      | Capture-phase mousedown; `needFocus = false`                                                      |
 | **SkillDescription**        | Tooltip: no fixed dims, dynamic positioning                                      | STOP       | §13, §30           | `DB.formatMsgToHtml()` for skill descriptions                                                     |
 | **Guild**                   | No dims on `:host` (avoids scrollbar §20), inner `position: absolute`            | STOP       | §10, §20, §21, §22 | 6 tabs; `getComputedStyle()` for visible tab detection                                            |

@@ -28,7 +28,7 @@ CashShopIcon.render = () => htmlText;
  * One-time setup — bind events here (runs once during prepare)
  */
 CashShopIcon.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const btn = root.querySelector('.cashshop-icon');
 	if (btn) {
 		btn.addEventListener('mousedown', e => e.stopImmediatePropagation());

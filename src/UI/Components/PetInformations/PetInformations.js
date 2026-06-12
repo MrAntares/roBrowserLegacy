@@ -47,19 +47,12 @@ const _preferences = Preferences.get(
 let petAutoFeeding = 0;
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return PetInformations._shadow || PetInformations._host;
-}
-
-/**
  * Initialize component
  */
 PetInformations.init = function init() {
 	this.draggable('.titlebar');
 
-	const root = _getRoot();
+	const root = PetInformations.getRoot();
 
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
@@ -124,7 +117,7 @@ PetInformations.init = function init() {
 };
 
 PetInformations.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = PetInformations.getRoot();
 
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (petAutoFeeding ? '1' : '0') + '.bmp', data => {
 		const el = root.querySelector('.pet_auto_feed');
@@ -178,7 +171,7 @@ PetInformations.onShortCut = function onShortCut(key) {
  * @param {object} pet info
  */
 PetInformations.setInformations = function setInformations(info) {
-	const root = _getRoot();
+	const root = PetInformations.getRoot();
 
 	const nameInput = root.querySelector('.name');
 	if (nameInput) {
@@ -260,7 +253,7 @@ PetInformations.setInformations = function setInformations(info) {
  * @param {number} intimacy
  */
 PetInformations.setIntimacy = function setIntimacy(val) {
-	const root = _getRoot();
+	const root = PetInformations.getRoot();
 	const el = root.querySelector('.intimacy');
 	if (el) {
 		el.textContent = DB.getMessage(val < 100 ? 672 : val < 250 ? 673 : val < 600 ? 669 : val < 900 ? 674 : 675);
@@ -270,7 +263,7 @@ PetInformations.setIntimacy = function setIntimacy(val) {
 PetInformations.setFeedConfig = function setFeedConfig(flag) {
 	petAutoFeeding = flag;
 
-	const root = _getRoot();
+	const root = PetInformations.getRoot();
 	if (root) {
 		Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (petAutoFeeding ? '1' : '0') + '.bmp', data => {
 			const el = root.querySelector('.pet_auto_feed');
@@ -287,7 +280,7 @@ PetInformations.setFeedConfig = function setFeedConfig(flag) {
  * @param {number} hunger
  */
 PetInformations.setHunger = function setHunger(val) {
-	const root = _getRoot();
+	const root = PetInformations.getRoot();
 	const el = root.querySelector('.hunger');
 	if (el) {
 		el.textContent = DB.getMessage(val < 10 ? 667 : val < 25 ? 668 : val < 75 ? 669 : val < 90 ? 670 : 671);
@@ -299,10 +292,9 @@ PetInformations.setHunger = function setHunger(val) {
  * Protects input fields from being consumed by global handlers
  */
 PetInformations.onKeyDown = function onKeyDown(event) {
-	const shadow = this._shadow || this._host;
-	const focused = shadow.activeElement;
+	const focused = this.getRoot().activeElement;
 
-	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			focused.blur();
 			event.stopImmediatePropagation();

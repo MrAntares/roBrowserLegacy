@@ -32,6 +32,7 @@ import Navigation from 'UI/Components/Navigation/Navigation.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
+import Reputation from 'UI/Components/Reputation/Reputation.js';
 import htmlText from './BasicInfoV5.html?raw';
 import cssText from './BasicInfoV5.css?raw';
 
@@ -71,15 +72,11 @@ const _preferences = Preferences.get(
 	1.0
 );
 
-function _getRoot() {
-	return BasicInfoV5._shadow || BasicInfoV5._host;
-}
-
 /**
  * Initialize UI
  */
 BasicInfoV5.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	root.querySelectorAll('.topbar div').forEach(el => {
 		el.addEventListener('mousedown', e => e.stopImmediatePropagation());
@@ -148,6 +145,9 @@ BasicInfoV5.init = function init() {
 						Achievement.toggle();
 					}
 					break;
+				case 'repute':
+					Reputation.toggle();
+					break;
 			}
 		});
 	});
@@ -160,7 +160,7 @@ BasicInfoV5.init = function init() {
  * Execute elements in memory
  */
 BasicInfoV5.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const hostRect = this._host.getBoundingClientRect();
 
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
@@ -206,7 +206,7 @@ BasicInfoV5.onAppend = function onAppend() {
  * Once remove, save preferences
  */
 BasicInfoV5.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const inner = root.querySelector('#BasicInfoV5');
 	const buttons = root.querySelector('.buttons');
 
@@ -238,7 +238,7 @@ BasicInfoV5.onShortCut = function onShortCut(key) {
  * Switch window size
  */
 BasicInfoV5.toggleMode = function toggleMode() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const inner = root.querySelector('#BasicInfoV5');
 	if (!inner) return;
 
@@ -264,7 +264,7 @@ BasicInfoV5.toggleMode = function toggleMode() {
  * Toggle the list of buttons
  */
 BasicInfoV5.toggleButtons = function toggleButtons(event) {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const buttons = root.querySelector('.buttons');
 	if (!buttons) return;
 
@@ -294,7 +294,7 @@ BasicInfoV5.toggleButtons = function toggleButtons(event) {
  * @param {number} val2 (optional)
  */
 BasicInfoV5.update = function update(type, val1, val2) {
-	const root = _getRoot();
+	const root = this.getRoot();
 	if (!root) return;
 
 	let perc = 100;

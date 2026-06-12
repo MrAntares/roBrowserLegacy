@@ -25,7 +25,7 @@ SoundOption.render = () => htmlText;
 const _preferences = Preferences.get('SoundOption', { x: 300, y: 300 }, 1.0);
 
 SoundOption.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const baseBtn = root.querySelector('.base');
 	if (baseBtn) {
@@ -68,7 +68,7 @@ SoundOption.onAppend = function onAppend() {
 	this._host.style.top = _preferences.y + 'px';
 	this._host.style.left = _preferences.x + 'px';
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const soundSlider = root.querySelector('.sound');
 	if (soundSlider) soundSlider.value = AudioSettings.Sound.volume * 100;

@@ -133,25 +133,6 @@ function onMenuAppear(pkt) {
 function onInputAppear(pkt) {
 	const type = pkt instanceof PACKET.ZC.OPEN_EDITDLGSTR ? 'text' : 'number';
 	const id = pkt.NAID;
-
-	InputBox.onAppend = function OnAppend() {
-		InputBox.setType(type, true);
-		this.ui.find('input').select();
-		this.ui.find('input').focus();
-
-		this.ui.find('input').keydown(function (e) {
-			const enterKey = 13;
-			if (e.keyCode !== enterKey) {
-				return;
-			}
-
-			const text = InputBox.ui.find('input').val();
-			if (text.length > 0) {
-				InputBox.onSubmitRequest(text);
-			}
-		});
-	};
-
 	InputBox.onSubmitRequest = function OnSubmitRequest(data) {
 		InputBox.remove();
 		let _pkt;
@@ -174,6 +155,7 @@ function onInputAppear(pkt) {
 	};
 
 	InputBox.append();
+	InputBox.setType(type, true);
 }
 
 /**

@@ -17,6 +17,8 @@ import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
 import htmlText from './NpcBox.html?raw';
 import cssText from './NpcBox.css?raw';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 
 /**
  * Create NpcBox component
@@ -39,13 +41,6 @@ let _needCleanUp = false;
  * @var {integer} NPC GID
  */
 NpcBox.ownerID = 0;
-
-/**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return NpcBox._shadow || NpcBox._host;
-}
 
 /**
  * Process NAVI tags in text
@@ -113,7 +108,7 @@ NpcBox.init = function init() {
 	this._host.style.top = `${Math.max(100, Renderer.height / 2 - 200)}px`;
 	this._host.style.left = `${Math.max(Renderer.width / 3, 20)}px`;
 
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
@@ -172,7 +167,7 @@ NpcBox.init = function init() {
  * Once NPC Box is removed from HTML, clean up data
  */
 NpcBox.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
@@ -198,26 +193,38 @@ NpcBox.onRemove = function onRemove() {
 	}
 };
 
+function _isVisible(el) {
+	return !!el && getComputedStyle(el).display !== 'none';
+}
+
 /**
  * Add support for Enter key
  */
 NpcBox.onKeyDown = function onKeyDown(event) {
+	if (NpcMenu._host && NpcMenu._host.style.display !== 'none' && NpcMenu.__active) {
+		return true;
+	}
+
+	if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+		return true;
+	}
+
 	if (this._host.style.display === 'none') {
 		return true;
 	}
 
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 
 	switch (event.which) {
 		case KEYS.SPACE:
 		case KEYS.ENTER: {
 			const nextBtn = root.querySelector('.next');
-			if (nextBtn && nextBtn.style.display !== 'none') {
+			if (_isVisible(nextBtn)) {
 				this.next();
 				break;
 			}
 			const closeBtn = root.querySelector('.close');
-			if (closeBtn && closeBtn.style.display !== 'none') {
+			if (_isVisible(closeBtn)) {
 				this.close();
 				break;
 			}
@@ -226,7 +233,7 @@ NpcBox.onKeyDown = function onKeyDown(event) {
 
 		case KEYS.ESCAPE: {
 			const closeBtn = root.querySelector('.close');
-			if (closeBtn && closeBtn.style.display !== 'none') {
+			if (_isVisible(closeBtn)) {
 				this.close();
 				break;
 			}
@@ -248,7 +255,7 @@ NpcBox.onKeyDown = function onKeyDown(event) {
  * @param {number} gid - npc id
  */
 NpcBox.setText = function setText(text, gid) {
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const content = root.querySelector('.content');
 	NpcBox.ownerID = gid;
 
@@ -269,7 +276,7 @@ NpcBox.setText = function setText(text, gid) {
  */
 NpcBox.addNext = function addNext(gid) {
 	NpcBox.ownerID = gid;
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
 		nextBtn.style.display = 'block';
@@ -283,7 +290,7 @@ NpcBox.addNext = function addNext(gid) {
  */
 NpcBox.addClose = function addClose(gid) {
 	NpcBox.ownerID = gid;
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
 		closeBtn.style.display = 'block';
@@ -295,7 +302,7 @@ NpcBox.addClose = function addClose(gid) {
  */
 NpcBox.next = function next() {
 	_needCleanUp = true;
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
 		nextBtn.style.display = 'none';
@@ -308,7 +315,7 @@ NpcBox.next = function next() {
  */
 NpcBox.close = function close() {
 	_needCleanUp = true;
-	const root = _getRoot();
+	const root = NpcBox.getRoot();
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
 		closeBtn.style.display = 'none';

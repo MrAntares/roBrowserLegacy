@@ -76,7 +76,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 
 		this.draggable('.titlebar');
 
-		_root = this._shadow || this._host;
+		_root = this.getRoot();
 
 		// Base stat up buttons
 		const upButtons = _root.querySelectorAll('.up button');

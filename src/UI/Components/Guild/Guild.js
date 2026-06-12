@@ -70,7 +70,7 @@ let _checkbox_off, _checkbox_on;
  * Helper: query inside shadow root
  */
 function _root(comp) {
-	return comp._shadow || comp._host;
+	return comp.getRoot();
 }
 
 /**

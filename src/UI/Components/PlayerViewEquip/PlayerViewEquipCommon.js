@@ -225,7 +225,7 @@ export function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, cos
 	// ─── Init ──────────────────────────────────────────────
 
 	Component.init = function init() {
-		_root = this._shadow || this._host;
+		_root = this.getRoot();
 		_overlay = _root.querySelector('.overlay');
 		_panel = _root.querySelector('.panel');
 

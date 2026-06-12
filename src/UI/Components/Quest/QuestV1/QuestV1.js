@@ -30,10 +30,6 @@ const QuestV1 = new GUIComponent('QuestV1', cssText);
 
 QuestV1.render = () => htmlText;
 
-function _getRoot() {
-	return QuestV1._shadow || QuestV1._host;
-}
-
 /**
  * @var {number} index of selection
  */
@@ -67,7 +63,7 @@ const _preferences = Preferences.get(
  * Initialize the component (event listener, etc.)
  */
 QuestV1.init = function init() {
-	const root = _getRoot();
+	const root = QuestV1.getRoot();
 
 	QuestHelper.prepare();
 
@@ -96,7 +92,7 @@ QuestV1.onAppend = function onAppend() {
 	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - 350)}px`;
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - 250)}px`;
 
-	const root = _getRoot();
+	const root = QuestV1.getRoot();
 
 	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_que_01.bmp`, data => {
 		const el = root.querySelector('.quest-menu');
@@ -120,7 +116,7 @@ QuestV1.onAppend = function onAppend() {
 QuestV1.clean = function clean() {
 	_active_menu = '';
 	_questList = {};
-	const root = _getRoot();
+	const root = QuestV1.getRoot();
 	if (root) {
 		const activeList = root.querySelector('#active-quest-list');
 		if (activeList) {
@@ -287,7 +283,7 @@ QuestV1.questExists = function questExists(questID) {
 };
 
 QuestV1.addQuestToUI = function addQuest(quest) {
-	const root = _getRoot();
+	const root = QuestV1.getRoot();
 	if (!root) {
 		return;
 	}
@@ -342,7 +338,7 @@ QuestV1.addQuestToUI = function addQuest(quest) {
 };
 
 function onClickMenu(e) {
-	const root = _getRoot();
+	const root = QuestV1.getRoot();
 	const menuItem = e.currentTarget;
 	const menuId = menuItem.id;
 
@@ -381,7 +377,7 @@ function onClickMenu(e) {
 }
 
 function onClickQuest(e) {
-	const root = _getRoot();
+	const root = QuestV1.getRoot();
 	const toggleEl = e.currentTarget;
 	const tid = toggleEl.id || toggleEl.className.match(/qid(\d+)/)?.[0];
 	const id = tid ? tid.replace('qid', '') : null;
@@ -428,7 +424,7 @@ function refreshQuestUI() {
 }
 
 QuestV1.ClearQuestList = function ClearQuestList() {
-	const root = _getRoot();
+	const root = QuestV1.getRoot();
 	if (!root) {
 		return;
 	}

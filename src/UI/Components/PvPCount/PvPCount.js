@@ -44,13 +44,6 @@ let ranking = 0;
 let total = 0;
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return PvPCount._shadow || PvPCount._host;
-}
-
-/**
  * Initialize UI
  */
 PvPCount.init = function init() {
@@ -62,7 +55,7 @@ PvPCount.init = function init() {
 		}
 	);
 
-	const root = _getRoot();
+	const root = this.getRoot();
 	_rankCanvas = root.querySelector('.pvp-rank-canvas');
 
 	if (!_rankCanvas) {

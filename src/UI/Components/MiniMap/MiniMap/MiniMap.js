@@ -38,10 +38,6 @@ MiniMap.needFocus = false;
 
 MiniMap.render = () => htmlText;
 
-function _getRoot() {
-	return MiniMap._shadow || MiniMap._host;
-}
-
 /**
  * @var {Preferences}
  */
@@ -123,7 +119,7 @@ const _zoomFactor = [1, 10, 6, 3, 2];
  * Initialize minimap
  */
 MiniMap.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	_ctx = root.querySelector('canvas').getContext('2d');
 	this.opacity = 2;

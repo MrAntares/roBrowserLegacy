@@ -35,13 +35,6 @@ ItemObtain.mouseMode = GUIComponent.MouseMode.CROSS;
 ItemObtain.needFocus = false;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return ItemObtain._shadow || ItemObtain._host;
-}
-
-/**
  * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
 function _sanitizeHtml(str) {
@@ -77,7 +70,7 @@ ItemObtain.init = function init() {
  * Once append to body
  */
 ItemObtain.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const el = root.querySelector('#ItemObtain');
 	this._host.style.left = `${(Renderer.width - (el ? el.offsetWidth : 0)) >> 1}px`;
 };
@@ -105,7 +98,7 @@ ItemObtain.timeEnd = function timeEnd() {
  * @param {object} item
  */
 ItemObtain.set = function set(item) {
-	const root = _getRoot();
+	const root = this.getRoot();
 	const it = DB.getItemInfo(item.ITID);
 	const display = DB.getItemName(item, { showItemSlots: false, showItemOptions: false });
 	const resource = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;

@@ -20,6 +20,23 @@ Memory Layers
 ├── L2 = doc/UIComponent_to_GUIComponent_Firmware.md
 └── L0 = doc/UIComponent_to_GUIComponent_Scars.md
 
+## ⛔ PROHIBITED — Scope Discipline (read before anything else)
+
+You are performing a **mechanical, behavior-preserving migration** — not a redesign.
+The following are STRICTLY PROHIBITED and any output containing them must be discarded:
+- **PROHIBITED:** Inventing new architecture, new components, new tabs/panels/views, or
+  new UI surfaces that do not already exist in the legacy module.
+- **PROHIBITED:** Adding features, options, buttons, or behaviors that were not present
+  in the original `UIComponent` and were not explicitly requested.
+- **PROHIBITED:** Renaming, restructuring, or "improving" public APIs, packet handlers,
+  or engine integration points beyond what the migration docs prescribe.
+- **PROHIBITED:** Deviating from the migration documents (L1/L2/L3). When the docs and
+  your instinct disagree, the docs win. If the docs are silent, preserve legacy behavior
+  exactly — do not improvise.
+**RULE:** If a change is not required to make the legacy behavior work under Shadow DOM
+`GUIComponent`, do not make it. When in doubt, migrate 1:1 and leave a `// TODO` instead
+of inventing a solution.
+
 ## Mission
 
 Migrate legacy jQuery `UIComponent` modules to Shadow DOM `GUIComponent` with minimum errors; preserve behavior, layout, input semantics, and engine integration.
@@ -31,7 +48,7 @@ Migrate legacy jQuery `UIComponent` modules to Shadow DOM `GUIComponent` with mi
 | Invariant                    | Rule                                                                                                             | Violation                                                   |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | Native DOM Ownership         | New component code uses native DOM only; `this.ui` is interop-only.                                              | Hidden legacy coupling and inconsistent behavior.           |
-| Shadow Isolation             | Query inside `this._shadow` or `_getRoot()`; never query `document` for internal nodes.                          | Lookups fail silently.                                      |
+| Shadow Isolation             | Query inside `ComponentName.getRoot()` / `this.getRoot()`; never query `document` for internal nodes.            | Lookups fail silently.                                      |
 | Host Geometry Authority      | `:host` owns `top`, `left`, `width`, `height`.                                                                   | Dragging, snapping, overflow, and viewport alignment break. |
 | Inner Layout Authority       | Inner root owns internal layout and anchoring.                                                                   | Children escape or collapse.                                |
 | Lifecycle Separation         | Bind in `init()`, restore in `onAppend()`, save/cleanup in `onRemove()`.                                         | Duplicate handlers, lost state, repeated setup.             |
@@ -90,27 +107,27 @@ Migrate legacy jQuery `UIComponent` modules to Shadow DOM `GUIComponent` with mi
 
 ## 4. Event / Input / DOM Rules
 
-| Trigger                     | Action                                                                               | Notes                                                                     |                  |                                 |
-| --------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- | ---------------- | ------------------------------- |
-| Internal DOM access         | Use `this._shadow.querySelector()` / `querySelectorAll()` or `_getRoot()`.           | Never use `document.querySelector()` for shadow content.                  |                  |                                 |
-| Singleton module access     | Use `\_getRoot() { return comp.\_shadow                                              |                                                                           | comp.\_host; }`. | Centralizes shadow-root lookup. |
-| jQuery events               | Replace with `addEventListener()`.                                                   | No jQuery return-value semantics.                                         |                  |                                 |
-| `return false`              | Replace with `preventDefault()` + `stopImmediatePropagation()`.                      | Native return values are ignored.                                         |                  |                                 |
-| Priority-sensitive handlers | Register with capture phase (`{ capture:true }`).                                    | Replaces jQuery queue hacks.                                              |                  |                                 |
-| Right-click logic           | Add `contextmenu` listener and block default.                                        | Browser menu is suppressed.                                               |                  |                                 |
-| Programmatic events         | Dispatch `new CustomEvent(name, { detail, bubbles:true })`.                          | Synthetic events carry payload explicitly.                                |                  |                                 |
-| Text with RO formatting     | Use `DB.formatMsgToHtml()` then `innerHTML`.                                         | Preserves color codes and markup.                                         |                  |                                 |
-| Plain text                  | Use `textContent`.                                                                   | No formatter overhead.                                                    |                  |                                 |
-| Visibility toggle           | Use explicit inline `display` values.                                                | Do not rely on `.show()` defaults.                                        |                  |                                 |
-| Visibility check            | Use `getComputedStyle(el).display !== 'none'` when inline state is insufficient.     | Visibility detection matches rendered state.                              |                  |                                 |
-| DOM presence check          | Use `element.isConnected`.                                                           | Shadow-safe replacement for `closest('body')` / `contains(document, el)`. |                  |                                 |
-| Async/server selector       | Null-guard before writing.                                                           | Missing nodes do not crash.                                               |                  |                                 |
-| Repeated matches            | Use `querySelectorAll(...).forEach(...)`.                                            | All matching nodes update.                                                |                  |                                 |
-| Overlay/tooltip positioning | Compute offsets from `getBoundingClientRect()` deltas.                               | Coordinates stay relative to the host/root.                               |                  |                                 |
-| Programmatic scroll changes | Call `_roScrollbarRestart()` if present.                                             | Custom scrollbar state resyncs immediately.                               |                  |                                 |
-| Dynamic `this` callbacks    | Keep `function()` when the caller uses `.call()` / `.apply()` / dynamic `this`.      | Arrow functions break canvas/asset callbacks.                             |                  |                                 |
-| Inputs inside shadow        | Set `captureKeyEvents = true` and guard `onKeyDown` with `shadowRoot.activeElement`. | Typing is not stolen by global key handlers.                              |                  |                                 |
-| Native style writes         | Use `Object.assign(el.style, {...})` or direct style properties.                     | Avoid jQuery `.css()` assumptions.                                        |                  |                                 |
+| Trigger                     | Action                                                                                                                     | Notes                                                                     |     |     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | --- | --- |
+| Internal DOM access         | Use `this._shadow.querySelector()` / `querySelectorAll()` or `ComponentName.getRoot()` / `this.getRoot()`.                 | Never use `document.querySelector()` for shadow content.                  |     |     |
+| Singleton module access     | Use `ComponentName.getRoot()` (returns `_shadow` or `_host`).                                                              | Centralizes shadow-root lookup.                                           |
+| jQuery events               | Replace with `addEventListener()`.                                                                                         | No jQuery return-value semantics.                                         |     |     |
+| `return false`              | Replace with `preventDefault()` + `stopImmediatePropagation()`.                                                            | Native return values are ignored.                                         |     |     |
+| Priority-sensitive handlers | Register with capture phase (`{ capture:true }`).                                                                          | Replaces jQuery queue hacks.                                              |     |     |
+| Right-click logic           | Add `contextmenu` listener and block default.                                                                              | Browser menu is suppressed.                                               |     |     |
+| Programmatic events         | Dispatch `new CustomEvent(name, { detail, bubbles:true })`.                                                                | Synthetic events carry payload explicitly.                                |     |     |
+| Text with RO formatting     | Use `DB.formatMsgToHtml()` then `innerHTML`.                                                                               | Preserves color codes and markup.                                         |     |     |
+| Plain text                  | Use `textContent`.                                                                                                         | No formatter overhead.                                                    |     |     |
+| Visibility toggle           | Use explicit inline `display` values.                                                                                      | Do not rely on `.show()` defaults.                                        |     |     |
+| Visibility check            | Use `getComputedStyle(el).display !== 'none'` when inline state is insufficient.                                           | Visibility detection matches rendered state.                              |     |     |
+| DOM presence check          | Use `element.isConnected`.                                                                                                 | Shadow-safe replacement for `closest('body')` / `contains(document, el)`. |     |     |
+| Async/server selector       | Null-guard before writing.                                                                                                 | Missing nodes do not crash.                                               |     |     |
+| Repeated matches            | Use `querySelectorAll(...).forEach(...)`.                                                                                  | All matching nodes update.                                                |     |     |
+| Overlay/tooltip positioning | Compute offsets from `getBoundingClientRect()` deltas.                                                                     | Coordinates stay relative to the host/root.                               |     |     |
+| Programmatic scroll changes | Call `_roScrollbarRestart()` if present.                                                                                   | Custom scrollbar state resyncs immediately.                               |     |     |
+| Dynamic `this` callbacks    | Keep `function()` when the caller uses `.call()` / `.apply()` / dynamic `this`.                                            | Arrow functions break canvas/asset callbacks.                             |     |     |
+| Inputs inside shadow        | Set `captureKeyEvents = true` and guard `onKeyDown` with `ComponentName.isEditableFocused()` / `this.isEditableFocused()`. | Typing is not stolen by global key handlers.                              |     |     |
+| Native style writes         | Use `Object.assign(el.style, {...})` or direct style properties.                                                           | Avoid jQuery `.css()` assumptions.                                        |     |     |
 
 ---
 

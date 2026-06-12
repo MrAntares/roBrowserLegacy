@@ -37,7 +37,7 @@ PCGoldTimer.render = () => htmlText;
  * Initialize component and bind click event
  */
 PCGoldTimer.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const container = root.querySelector('.container');
 	if (container) {
 		container.addEventListener('click', onClickPCGoldTimer);
@@ -48,7 +48,7 @@ PCGoldTimer.init = function init() {
  * Apply preferences once append to body
  */
 PCGoldTimer.onAppend = function onAppend() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	// set background image
 	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/${_data.backgroundImage}`, function (url) {
@@ -108,7 +108,7 @@ function onClickPCGoldTimer() {
 }
 
 PCGoldTimer.startTimer = function startTimer() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	this.timer = setInterval(function () {
 		// timer display how many time is missing to reach 00:00 from 60:00
 		const millisecondsMissing = 60 * 60 * 1000 - (Date.now() - _data.startTime + _data.playedTime * 1000);

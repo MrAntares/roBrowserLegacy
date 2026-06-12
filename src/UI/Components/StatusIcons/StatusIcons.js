@@ -52,13 +52,6 @@ let _last_updated_time = Date.now();
 const _render_time = 500;
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return StatusIcons._shadow || StatusIcons._host;
-}
-
-/**
  * Start rendering icons
  */
 StatusIcons.onAppend = function onAppend() {
@@ -76,7 +69,7 @@ StatusIcons.onRemove = function onRemove() {
  * Clean up component
  */
 StatusIcons.clean = function clean() {
-	const root = _getRoot();
+	const root = StatusIcons.getRoot();
 	const container = root.querySelector('#StatusIcons');
 	if (container) {
 		container.innerHTML = '';
@@ -176,7 +169,7 @@ function addResizedStatusIcon(img, index) {
  * Used when one element is removed.
  */
 function resetElementsPosition() {
-	const root = _getRoot();
+	const root = StatusIcons.getRoot();
 	const elements = root.querySelectorAll('.state');
 	const count = elements.length;
 	let x = 0;
@@ -272,7 +265,7 @@ function createElement(index) {
  * @param {CanvasElement}
  */
 function addElement(element) {
-	const root = _getRoot();
+	const root = StatusIcons.getRoot();
 	const elements = root.querySelectorAll('.state');
 	const max = ((Renderer.height - 166) / 36) | 0;
 	const count = elements.length;

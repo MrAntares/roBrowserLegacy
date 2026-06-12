@@ -75,13 +75,6 @@ let _joystickBase = null;
 let _joystickThumb = null;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return MobileUI._shadow || MobileUI._host;
-}
-
-/**
  * Helper to bind click+touchstart on an element
  */
 function bindButton(root, selector, handler) {
@@ -96,7 +89,7 @@ function bindButton(root, selector, handler) {
  * Initialize UI
  */
 MobileUI.init = function init() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 
 	bindButton(root, '#toggleUIButton', e => {
 		toggleButtons();
@@ -267,7 +260,7 @@ function keyPress(k) {
  * Toggles MobileUI button bars visibility (and thus buttons)
  */
 function toggleButtons() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 
 	if (showButtons) {
 		// Hide all bars and buttons
@@ -359,7 +352,7 @@ function toggleButtons() {
  * Toggles switch skill
  */
 function switchSkillButtons() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 
 	const skillSets = [
 		[
@@ -425,7 +418,7 @@ function toggleStatus() {
  * Toggles touch targeting
  */
 function toggleTouchTargeting() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 
 	if (Session.TouchTargeting) {
 		root.querySelector('#toggleTargetingButton').classList.remove('active');
@@ -450,7 +443,7 @@ function toggleTouchTargeting() {
  * Toggles automatic targeting
  */
 function toggleAutoTargeting() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 
 	if (Session.AutoTargeting) {
 		root.querySelector('#toggleAutoTargetButton').classList.remove('active');
@@ -466,7 +459,7 @@ function toggleAutoTargeting() {
  * Toggles auto follow
  */
 function toggleAutoFollow() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 
 	if (Session.autoFollow) {
 		root.querySelector('#toggleAutoFollowButton').classList.remove('active');
@@ -595,7 +588,7 @@ function stopPropagation(event) {
  * Auto follow logic
  */
 function onAutoFollow() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 
 	if (Session.autoFollow) {
 		const player = Session.Entity;
@@ -682,7 +675,7 @@ function pickUpItem() {
  * Joystick handling for both mouse and touch input - MicromeX
  */
 function setupJoystick() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 	_joystickBase = root.querySelector('#joystickBase');
 	_joystickThumb = root.querySelector('#joystickThumb');
 
@@ -826,7 +819,7 @@ function moveCharacter(x, y, tileSize) {
  * Talk to NPC Button Function - MicromeX
  */
 function setupTalkToNpcButton() {
-	const root = _getRoot();
+	const root = MobileUI.getRoot();
 	const talkButton = root.querySelector('#talktonpcButton');
 
 	function findNearestNpc() {

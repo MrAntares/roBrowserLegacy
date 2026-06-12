@@ -15,6 +15,9 @@ import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './ChatRoomCreate.html?raw';
 import cssText from './ChatRoomCreate.css?raw';
+import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 
 /**
  * Create Component
@@ -65,7 +68,7 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 ChatRoomCreate.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	// Close / Cancel
 	root.querySelector('.close').addEventListener('mousedown', event => {
@@ -125,7 +128,7 @@ ChatRoomCreate.onRemove = function onRemove() {
  */
 ChatRoomCreate.show = function showSetup() {
 	this._host.style.display = '';
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.title').focus();
 	this._fixPositionOverflow();
 
@@ -137,7 +140,7 @@ ChatRoomCreate.show = function showSetup() {
  */
 ChatRoomCreate.hide = function hideSetup() {
 	this._host.style.display = 'none';
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.setup').reset();
 	ChatRoomCreate.editMode = false;
 	_preferences.show = false;
@@ -151,7 +154,7 @@ ChatRoomCreate.hide = function hideSetup() {
  * @param {string} password
  */
 ChatRoomCreate.prefill = function prefill(title, limit, type) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('input[name=title]').value = title ?? '';
 	root.querySelector('select[name=limit]').value = limit ?? 20;
 	const radio = root.querySelector('input[name=public][value="' + (type ?? 1) + '"]');
@@ -167,8 +170,17 @@ ChatRoomCreate.prefill = function prefill(title, limit, type) {
  * @return {boolean}
  */
 ChatRoomCreate.onKeyDown = function onKeyDown(event) {
-	const root = this._shadow || this._host;
-	const active = root.activeElement;
+	if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+		return true;
+	}
+
+	if (NpcMenu._host && NpcMenu._host.style.display !== 'none' && NpcMenu.__active) {
+		return true;
+	}
+
+	if (NpcBox._host && NpcBox._host.style.display !== 'none' && NpcBox.__active) {
+		return true;
+	}
 
 	// Guard: don't intercept keys when hidden
 	if (this._host.style.display === 'none') {
@@ -176,7 +188,7 @@ ChatRoomCreate.onKeyDown = function onKeyDown(event) {
 	}
 
 	// Input inside our shadow is focused — protect keystrokes
-	if (active && active.tagName && /input|select|textarea/i.test(active.tagName)) {
+	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ENTER) {
 			parseChatSetup.call(this);
 			event.stopImmediatePropagation();
@@ -228,7 +240,7 @@ ChatRoomCreate.toggle = function toggle() {
  * Parse and send chat room request
  */
 function parseChatSetup() {
-	const root = this._shadow || this._host;
+	const root = ChatRoomCreate.getRoot();
 
 	this.title = root.querySelector('input[name=title]').value;
 	this.limit = parseInt(root.querySelector('select[name=limit]').value, 10);

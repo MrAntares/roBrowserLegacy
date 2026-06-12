@@ -29,10 +29,6 @@ const Navigation = new GUIComponent('Navigation', cssText);
 
 Navigation.render = () => htmlText;
 
-function _getRoot() {
-	return Navigation._shadow || Navigation._host;
-}
-
 /**
  * Async image create helper
  */
@@ -319,7 +315,7 @@ Navigation.screenToMapCoordinates = function screenToMapCoordinates(screenX, scr
  * Initialize component
  */
 Navigation.init = function init() {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 
 	_mapData = {
 		walkableType: Altitude.TYPE.WALKABLE
@@ -459,7 +455,7 @@ Navigation.onRemove = function onRemove() {
  * Handle search button click
  */
 Navigation.onSearch = function onSearch() {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const query = root.querySelector('.search-input').value.trim();
 	const type = root.querySelector('.search-type').value;
 
@@ -478,7 +474,7 @@ Navigation.onSearch = function onSearch() {
  * Display search results
  */
 Navigation.displaySearchResults = function displaySearchResults(results) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 
 	// Get or create results container
 	let resultsContainer = root.querySelector('.search-results');
@@ -555,7 +551,7 @@ Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
 	});
 
 	// Hide the search results
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const resultsContainer = root.querySelector('.search-results');
 	if (resultsContainer) {
 		resultsContainer.style.display = 'none';
@@ -619,7 +615,7 @@ Navigation.findClosestWalkableCell = function findClosestWalkableCell(x, y, maxR
  * Handle map click event
  */
 Navigation.onMapClick = function onMapClick(event) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const mapDisplay = root.querySelector('.map-display');
 	const rect = mapDisplay.getBoundingClientRect();
 	const x = Math.floor(event.clientX - rect.left);
@@ -711,7 +707,7 @@ Navigation.clear = function clear() {
 	_isMapClickTarget = false;
 
 	// Hide the target coordinates display
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const targetInfo = root.querySelector('.target-info');
 	if (targetInfo) {
 		targetInfo.style.display = 'none';
@@ -933,7 +929,7 @@ Navigation.renderCanvas = function renderCanvas(tick) {
  * Update the target coordinates text
  */
 Navigation.updateTargetText = function updateTargetText(noPathFound) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const targetInfo = root.querySelector('.target-info');
 	if (targetInfo) {
 		targetInfo.style.display = 'flex';
@@ -951,7 +947,7 @@ Navigation.updateTargetText = function updateTargetText(noPathFound) {
  * Set target coordinates text with proper formatting
  */
 Navigation.setTargetCoordinatesText = function setTargetCoordinatesText(x, y, options) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	if (!root) {
 		return;
 	}
@@ -969,7 +965,7 @@ Navigation.setTargetCoordinatesText = function setTargetCoordinatesText(x, y, op
 };
 
 Navigation.setTargetCoordinatesBlinking = function setTargetCoordinatesBlinking(blinking) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	if (!root) {
 		return;
 	}
@@ -1013,7 +1009,7 @@ Navigation.setTargetCoordinatesBlinking = function setTargetCoordinatesBlinking(
  * Set location title with proper formatting
  */
 Navigation.setLocationTitle = function setLocationTitle(currentMap, targetMap, displayName) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	if (!root) {
 		return;
 	}
@@ -1029,7 +1025,7 @@ Navigation.setLocationTitle = function setLocationTitle(currentMap, targetMap, d
  * Set coordinates text with proper formatting
  */
 Navigation.setCoordinatesText = function setCoordinatesText(x, y, options) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	if (!root) {
 		return;
 	}
@@ -1045,7 +1041,7 @@ Navigation.setCoordinatesText = function setCoordinatesText(x, y, options) {
  * Set map name text with proper formatting
  */
 Navigation.setMapNameText = function setMapNameText(mapName) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	if (!root) {
 		return;
 	}
@@ -1060,7 +1056,7 @@ Navigation.setMapNameText = function setMapNameText(mapName) {
  * Set mouse coordinates text with proper formatting
  */
 Navigation.setMouseCoordinatesText = function setMouseCoordinatesText(x, y, options) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	if (!root) {
 		return;
 	}
@@ -1137,7 +1133,7 @@ Navigation.toggle = function toggle() {
  * Show the navigation window
  */
 Navigation.show = function show() {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 
 	this.clearPath();
 	initializePathFindingWorker();
@@ -1196,7 +1192,7 @@ Navigation.onKeyDown = function onKeyDown(event) {
  * Handle mouse movement over the map to display coordinates
  */
 Navigation.onMapMouseMove = function onMapMouseMove(event) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const mapDisplay = root.querySelector('.map-display');
 	const rect = mapDisplay.getBoundingClientRect();
 	const x = Math.floor(event.clientX - rect.left);
@@ -1217,7 +1213,7 @@ Navigation.onMapMouseMove = function onMapMouseMove(event) {
  * Handle mouse leaving the map area
  */
 Navigation.onMapMouseLeave = function onMapMouseLeave() {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const mouseInfo = root.querySelector('.mouse-info');
 	if (mouseInfo) {
 		mouseInfo.style.display = 'none';
@@ -1238,7 +1234,7 @@ Navigation.setNaviInfo = function setNaviInfo(naviInfo, displayName) {
 	const y = parseInt(parts[2], 10);
 
 	// Clear the search input
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const searchInput = root.querySelector('.search-input');
 	if (searchInput) {
 		searchInput.value = '';
@@ -1276,7 +1272,7 @@ Navigation.waitForMapData = function waitForMapData(callback) {
  * Unified navigation function that handles both same-map and cross-map navigation
  */
 Navigation.navigateTo = function navigateTo(options) {
-	const root = _getRoot();
+	const root = Navigation.getRoot();
 	const startMap = normalizeMapName(options.startMap);
 	const endMap = normalizeMapName(options.endMap);
 	const displayName = options.displayName;

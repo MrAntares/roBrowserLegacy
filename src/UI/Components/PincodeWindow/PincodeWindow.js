@@ -63,7 +63,7 @@ PincodeWindow.setUserSeed = function setUserSeed(value) {
 };
 
 function shuffleUsingKeypad(keypad) {
-	const root = PincodeWindow._shadow || PincodeWindow._host;
+	const root = PincodeWindow.getRoot();
 	if (!root || !keypad) {
 		return;
 	}
@@ -104,7 +104,7 @@ function advanceVisualSeed() {
  * Initialize UI
  */
 PincodeWindow.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	this._host.style.top = (Renderer.height - 358) / 2 + 'px';
 	this._host.style.left = (Renderer.width - 576) / 2 + 'px';
@@ -229,7 +229,7 @@ function stopPropagation(event) {
 
 PincodeWindow.selectInput = function selectInput(selection) {
 	PincodeWindow.sel_input = selection;
-	const root = PincodeWindow._shadow || PincodeWindow._host;
+	const root = PincodeWindow.getRoot();
 	if (!root) return;
 
 	const passEl = root.querySelector('.pass');
@@ -274,7 +274,7 @@ PincodeWindow.onOldPincodeCheckResult = function onOldPincodeCheckResult(result)
  * Called by the parent when we have received a pincode reset request from the server.
  */
 PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
-	const root = PincodeWindow._shadow || PincodeWindow._host;
+	const root = PincodeWindow.getRoot();
 	if (!root) return;
 
 	if (PincodeWindow._resetstate === 3) {
@@ -361,7 +361,7 @@ PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
  * Called by us when the user clicks on the change button in the UI.
  */
 PincodeWindow.userChangePin = function userChangePin() {
-	const root = PincodeWindow._shadow || PincodeWindow._host;
+	const root = PincodeWindow.getRoot();
 	if (!root) return;
 
 	if (PincodeWindow._resetstate === 3) {
@@ -575,7 +575,7 @@ PincodeWindow.onUserPincodeResetReq = function onUserPincodeResetReq() {
 };
 
 function render() {
-	const root = PincodeWindow._shadow || PincodeWindow._host;
+	const root = PincodeWindow.getRoot();
 	if (!root) return;
 
 	let str = '';

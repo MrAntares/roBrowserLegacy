@@ -83,7 +83,7 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 Emoticons.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const contentEl = root.querySelector('.content');
 
 	Client.loadFiles(
@@ -163,7 +163,7 @@ Emoticons.onRemove = function onRemove() {
  * @param {number} direction
  */
 Emoticons.movePage = function movePage(direction) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const prevBtn = root.querySelector('.prev');
 	const nextBtn = root.querySelector('.next');
 

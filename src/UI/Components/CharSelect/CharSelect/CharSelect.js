@@ -82,17 +82,10 @@ let _sex = 0;
 let _disable_UI = false;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return CharSelect._shadow || CharSelect._host;
-}
-
-/**
  * Initialize UI
  */
 CharSelect.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	this.draggable();
 
@@ -126,7 +119,7 @@ CharSelect.init = function init() {
  * Once append to body
  */
 CharSelect.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	this._host.style.top = `${(Renderer.height - 342) / 2}px`;
 	this._host.style.left = `${(Renderer.width - 576) / 2}px`;
@@ -202,7 +195,7 @@ CharSelect.onKeyDown = function onKeyDown(event) {
  * @param {object} pkt - packet structure
  */
 CharSelect.setInfo = function setInfo(pkt) {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 9); // default 9 ?
 	_sex = pkt.sex;
@@ -241,7 +234,7 @@ CharSelect.deleteAnswer = function deleteAnswer(error) {
 
 		// Success (clean up character)
 		case -1: {
-			const root = _getRoot();
+			const root = this.getRoot();
 
 			delete _slots[_index];
 			delete _entitySlots[_index];
@@ -390,7 +383,7 @@ function suppress() {
  * @param {number} index
  */
 function moveCursorTo(index) {
-	const root = _getRoot();
+	const root = CharSelect.getRoot();
 	const charinfo = root.querySelector('.charinfo');
 
 	// Set the last entity to idle

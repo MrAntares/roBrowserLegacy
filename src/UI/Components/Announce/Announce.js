@@ -42,15 +42,11 @@ const _life = 20 * 1000;
 
 Announce.render = () => htmlText;
 
-function _getRoot() {
-	return Announce._shadow || Announce._host;
-}
-
 /**
  * Initialize component
  */
 Announce.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	this.canvas = root.querySelector('canvas');
 	this.ctx = this.canvas.getContext('2d');
 };

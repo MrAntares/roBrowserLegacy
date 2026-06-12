@@ -59,7 +59,7 @@ const C_ASPECTY = 4;
  * Initialize UI
  */
 WorldMap.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const bases = root.querySelectorAll('.titlebar .base');
 	bases.forEach(el => el.addEventListener('mousedown', stopPropagation));
@@ -90,7 +90,7 @@ WorldMap.init = function init() {
  * Create WorldMap list of maps (select Element)
  */
 function setMapList() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const selectEl = root.querySelector('#WorldMaps');
 	if (!selectEl) return;
 	let list = '';
@@ -103,7 +103,7 @@ function setMapList() {
 }
 
 function onSelect() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	selectMap(root.querySelector('.titlebar select').value);
 }
 
@@ -114,8 +114,8 @@ function onSelect() {
  */
 function selectMap(name = null) {
 	// If no name provided, use the first available map
-	if (!name) {
-		if (MAPS.length > 0) {
+	if (!name || name === null || name === '') {
+		if (MAPS.length > 0 && MAPS[0].id !== null && MAPS[0].id !== '') {
 			name = MAPS[0].id;
 		} else {
 			name = 'worldmap.jpg';
@@ -138,7 +138,7 @@ function selectMap(name = null) {
  * Resize world map
  */
 function resizeMap() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const mapContainer = root.querySelector('.map-view');
 	if (!mapContainer) return;
 
@@ -170,7 +170,8 @@ function onWorldMapSectionClick(e) {
 	const mapId = section.id;
 
 	Navigation.show();
-	Navigation.ui.find('.search-input').val(displayName || mapId);
+	const input = Navigation.getRoot().querySelector('.search-input');
+	if (input) input.value = displayName || mapId;
 	Navigation.onSearch();
 	Navigation.focus();
 }
@@ -202,7 +203,7 @@ function onWorldMapMouseOut(e) {
  * @param {*} section
  */
 function showTooltip(section) {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const tooltip = root.querySelector('#map-tooltip');
 	if (!tooltip) return;
 
@@ -240,7 +241,7 @@ function showTooltip(section) {
  * Hide tooltip
  */
 function hideTooltip() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const tooltip = root.querySelector('#map-tooltip');
 	if (tooltip) {
 		tooltip.style.display = 'none';
@@ -255,7 +256,7 @@ function hideTooltip() {
  * @param {string} imgData world map image data as a base64
  */
 function createWorldMapView(map, imgData) {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const container = root.querySelector('.map .content');
 	const worldmap = document.createElement('div');
 	const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
@@ -442,7 +443,7 @@ function loadAirplane(mapView) {
  * @todo use server time and set position and angle
  */
 function setAirplanePosition(airplane) {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const el = airplane || root.querySelector('.worldmap #midgard-airplane');
 	if (!el) return;
 	el.style.top = '35%';
@@ -567,6 +568,7 @@ WorldMap.toggle = function toggle() {
 		hideTooltip();
 	} else {
 		this._host.style.display = '';
+		selectMap();
 		this.focus();
 	}
 };
@@ -574,10 +576,7 @@ WorldMap.toggle = function toggle() {
 WorldMap.captureKeyEvents = true;
 
 WorldMap.onKeyDown = function onKeyDown(event) {
-	const shadow = this._shadow || this._host;
-	const focused = shadow.activeElement;
-
-	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+	if (this.isEditableFocused()) {
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 			this.toggle();
 			event.stopImmediatePropagation();
@@ -629,7 +628,7 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
 		}
 	});
 
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('membersonmap'));
 	for (const mapId of Object.keys(_partyMembersByMap)) {
 		const el = root.querySelector('.worldmap .section#' + CSS.escape(mapId));
@@ -641,7 +640,7 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
  * Toggle all maps
  */
 function onToggleMaps() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	if (WorldMap.showAllMaps) {
 		root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('allmapvisible'));
 		WorldMap.showAllMaps = false;
@@ -656,7 +655,7 @@ function onToggleMaps() {
  */
 function onShowLVL() {
 	WorldMap.showLVLMode = !WorldMap.showLVLMode;
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (WorldMap.showLVLMode ? '1' : '0') + '.bmp', function (data) {
 		const btn = root.querySelector('.showlvl');

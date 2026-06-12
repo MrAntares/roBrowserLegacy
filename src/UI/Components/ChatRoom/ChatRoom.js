@@ -25,6 +25,9 @@ import DB from 'DB/DBManager.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import Friends from 'Engine/MapEngine/Friends.js';
+import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
+import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
+import InputBox from 'UI/Components/InputBox/InputBox.js';
 
 /**
  * Create Component
@@ -95,7 +98,7 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 ChatRoom.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	// Close button
 	const closeBtn = root.querySelector('.close');
@@ -120,7 +123,7 @@ ChatRoom.init = function init() {
  * Once appended to DOM
  */
 ChatRoom.onAppend = function onAppend() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	this.isOpen = true;
 	_gridWidth = _preferences.width;
@@ -148,7 +151,7 @@ ChatRoom.onRemove = function onRemove() {
 	this.owner = '';
 	this.isOpen = false;
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const messages = root.querySelector('.messages');
 	if (messages) messages.innerHTML = '';
 
@@ -252,7 +255,7 @@ function onMemberContextMenu(event) {
  * Update ChatRoom parameters (title, count, members list)
  */
 ChatRoom.updateChat = function updateChat() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const titleEl = root.querySelector('.titlebar .title');
 	const countEl = root.querySelector('.titlebar .count');
 	const membersEl = root.querySelector('.members');
@@ -296,7 +299,7 @@ ChatRoom.updateChat = function updateChat() {
  * Parse and send chat room messages
  */
 function sendChatMessage() {
-	const root = ChatRoom._shadow || ChatRoom._host;
+	const root = ChatRoom.getRoot();
 	const input = root.querySelector('.send input[name=message]');
 	const message = input.value;
 
@@ -321,7 +324,7 @@ function sendChatMessage() {
  * @param {string} type
  */
 ChatRoom.message = function displayMessage(message, type) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const element = document.createElement('div');
 	element.textContent = message;
 
@@ -355,10 +358,19 @@ ChatRoom.removeMember = function removeMember(name) {
  * Key Event Handler
  */
 ChatRoom.onKeyDown = function onKeyDown(event) {
-	const root = this._shadow || this._host;
-	const active = root.activeElement;
+	if (InputBox._host && InputBox._host.style.display !== 'none' && InputBox.__active) {
+		return true;
+	}
 
-	if (active && active.tagName && active.tagName.match(/input|textarea|select/i)) {
+	if (NpcMenu._host && NpcMenu._host.style.display !== 'none' && NpcMenu.__active) {
+		return true;
+	}
+
+	if (NpcBox._host && NpcBox._host.style.display !== 'none' && NpcBox.__active) {
+		return true;
+	}
+
+	if (ChatRoom.isEditableFocused()) {
 		// Input focused — let the keystroke through but block other handlers
 		if (event.which === KEYS.ENTER) {
 			sendChatMessage();
@@ -366,6 +378,7 @@ ChatRoom.onKeyDown = function onKeyDown(event) {
 			return false;
 		}
 		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			const active = ChatRoom.getRoot().activeElement;
 			active.blur();
 			event.stopImmediatePropagation();
 			return false;
@@ -441,7 +454,7 @@ function resize(width, height) {
 	_gridWidth = width;
 	_gridHeight = height;
 
-	const root = ChatRoom._shadow || ChatRoom._host;
+	const root = ChatRoom.getRoot();
 	const inner = root.querySelector('#ChatRoom');
 	if (inner) {
 		inner.style.width = 23 + 16 + 16 + width * 32 + 'px';

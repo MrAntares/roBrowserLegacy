@@ -42,17 +42,10 @@ const _chargen = {
 };
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return CharCreatev2._shadow || CharCreatev2._host;
-}
-
-/**
  * Initialize UI
  */
 CharCreatev2.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 	_chargen.ctx = root.querySelector('.content canvas').getContext('2d');
 
 	this.draggable();
@@ -97,7 +90,7 @@ CharCreatev2.onAppend = function onAppend() {
 		action: 0
 	});
 
-	const root = _getRoot();
+	const root = this.getRoot();
 	const input = root.querySelector('input');
 	input.value = '';
 	input.focus();
@@ -147,7 +140,7 @@ function updateCharacterGeneric(type, value) {
  * Send back informations to send the packet
  */
 function create() {
-	const root = _getRoot();
+	const root = CharCreatev2.getRoot();
 
 	CharCreatev2.onCharCreationRequest(
 		root.querySelector('input').value,

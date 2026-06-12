@@ -24,7 +24,7 @@ function StorageFilter(tabId) {
 	this.render = () => htmlText;
 
 	this.onRemove = function () {
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		const content = root.querySelector('.content');
 		if (content) {
 			content.innerHTML = '';
@@ -63,7 +63,7 @@ StorageFilter.prototype.constructor = StorageFilter;
 
 StorageFilter.prototype.init = function init() {
 	const self = this;
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const closeBtn = root.querySelector('.titlebar .right .close');
 	if (closeBtn) {
@@ -129,7 +129,7 @@ StorageFilter.prototype.onAppend = function onAppend() {
 StorageFilter.prototype.setItems = function setItems(title, items, tabId) {
 	this._list = items.slice(0);
 	this._currentTabId = tabId;
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const titleEl = root.querySelector('.titlebar .text');
 	if (titleEl) {
 		titleEl.textContent = title;
@@ -146,7 +146,7 @@ StorageFilter.prototype.setItems = function setItems(title, items, tabId) {
 
 StorageFilter.prototype.renderItem = function renderItem(item) {
 	const it = DB.getItemInfo(item.ITID);
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const content = root.querySelector('.content');
 
 	const itemEl = document.createElement('div');
@@ -217,7 +217,7 @@ StorageFilter.prototype.onItemOver = function onItemOver(itemEl, root) {
 
 StorageFilter.prototype.onItemOut = function onItemOut(root) {
 	if (!root) {
-		root = this._shadow || this._host;
+		root = this.getRoot();
 	}
 	const overlay = root.querySelector('.overlay');
 	if (overlay) {
@@ -281,7 +281,7 @@ StorageFilter.prototype.onItemInfo = function onItemInfo(event, itemEl) {
 
 StorageFilter.prototype.resizeHeight = function resizeHeight(height) {
 	height = Math.min(Math.max(height, 4), 10);
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const content = root.querySelector('.content');
 	if (content) {
 		content.style.height = `${height * 32}px`;
@@ -334,10 +334,10 @@ StorageFilter.prototype.removeItem = function removeItem(index, count) {
 	}
 
 	const item = this._list[i];
+	const root = this.getRoot();
 	if (item.count) {
 		item.count -= count;
 		if (item.count > 0) {
-			const root = this._shadow || this._host;
 			const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
 			if (countEl) {
 				countEl.textContent = item.count;
@@ -346,7 +346,6 @@ StorageFilter.prototype.removeItem = function removeItem(index, count) {
 		}
 	}
 	this._list.splice(i, 1);
-	const root = this._shadow || this._host;
 	const el = root.querySelector(`.item[data-index="${index}"]`);
 	if (el) {
 		el.remove();
@@ -361,7 +360,7 @@ StorageFilter.prototype.addItem = function addItem(item) {
 	for (let j = 0, count_ = this._list.length; j < count_; ++j) {
 		if (this._list[j].index === item.index) {
 			this._list[j].count += item.count;
-			const root = this._shadow || this._host;
+			const root = this.getRoot();
 			const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
 			if (countEl) {
 				countEl.textContent = this._list[j].count;

@@ -43,7 +43,7 @@ class AchievementComponent extends GUIComponent {
 	}
 
 	init() {
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 
 		MAJOR_CATEGORIES = [
 			{ id: 0, name: DB.getMessage(2656) },
@@ -169,7 +169,7 @@ class AchievementComponent extends GUIComponent {
 	updateHeaderAndView() {
 		if (this._host.style.display === 'none') return;
 
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		const ach = Session.Achievement || { rank: 0, total_points: 0, list: {} };
 
 		root.querySelector('.js-rank').textContent = ach.rank;
@@ -223,7 +223,7 @@ class AchievementComponent extends GUIComponent {
 	}
 
 	renderSidebar() {
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		const sidebar = root.querySelector('.js-sidebar');
 		sidebar.innerHTML = '';
 
@@ -277,7 +277,7 @@ class AchievementComponent extends GUIComponent {
 	}
 
 	renderOverview() {
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		root.querySelector('.bg-list').style.display = 'none';
 		root.querySelector('.bg-summary').style.display = 'block';
 		root.querySelector('.js-pane-listd').style.display = 'none';
@@ -420,7 +420,7 @@ class AchievementComponent extends GUIComponent {
 	}
 
 	renderList() {
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		root.querySelector('.bg-list').style.display = 'block';
 		root.querySelector('.bg-summary').style.display = 'none';
 		root.querySelector('.js-pane-overview').style.display = 'none';
@@ -538,7 +538,7 @@ class AchievementComponent extends GUIComponent {
 	}
 
 	renderDetail() {
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		const allAch = DB.getAchievementTable();
 		const sessAch = Session.Achievement && Session.Achievement.list ? Session.Achievement.list : {};
 

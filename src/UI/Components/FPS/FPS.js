@@ -56,7 +56,7 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 FPS.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const baseBtn = root.querySelector('.base');
 	if (baseBtn) {
@@ -84,7 +84,7 @@ FPS.onAppend = function onAppend() {
 	this._host.style.left = _preferences.x + 'px';
 	this._host.style.display = _preferences.show ? '' : 'none';
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const fpsEl = root.querySelector('#fpsCounter');
 	const fpsRoot = root.querySelector('#FPS');
 

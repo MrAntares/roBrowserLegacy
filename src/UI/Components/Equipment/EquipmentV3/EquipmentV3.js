@@ -63,10 +63,6 @@ let switchappend;
 let switchUIopen;
 let _currentTitleId = 0;
 
-function _getRoot() {
-	return EquipmentV3._shadow || EquipmentV3._host;
-}
-
 function escapeHTML(str) {
 	const div = document.createElement('div');
 	div.textContent = str;
@@ -74,7 +70,7 @@ function escapeHTML(str) {
 }
 
 EquipmentV3.init = function init() {
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const canvases = root.querySelectorAll('canvas');
 	if (canvases[0]) _ctx.push(canvases[0].getContext('2d'));
 	if (canvases[1]) _ctx.push(canvases[1].getContext('2d'));
@@ -197,7 +193,7 @@ EquipmentV3.init = function init() {
 
 function showTab() {
 	const selectedId = getHash(this.getAttribute('href'));
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 
 	for (const id in contentDivs) {
 		if (id === selectedId) {
@@ -274,25 +270,25 @@ EquipmentV3.onAppend = function onAppend() {
 	}
 
 	if (_preferences.reduce) {
-		const root = _getRoot();
+		const root = EquipmentV3.getRoot();
 		const panel = root.querySelector('.panel');
 		if (panel) panel.style.display = 'none';
 	}
 
 	if (UIVersionManager.getEquipmentVersion() > 0) {
 		if (!_preferences.stats) {
-			const root = _getRoot();
+			const root = EquipmentV3.getRoot();
 			const statusComp = root.querySelector('.status_component');
 			if (statusComp) statusComp.style.display = 'none';
 			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/viewon.bmp', data => {
-				const r = _getRoot();
+				const r = EquipmentV3.getRoot();
 				const btn = r.querySelector('.view_status');
 				if (btn) btn.style.backgroundImage = `url(${data})`;
 			});
 		}
 	}
 
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const canvas = root.querySelector('canvas');
 	if (canvas && this._host.style.display !== 'none') {
 		Renderer.render(renderCharacter);
@@ -313,7 +309,7 @@ EquipmentV3.onRemove = function onRemove() {
 	Renderer.stop(renderCharacter);
 
 	EquipmentV3._itemlist = {};
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	root.querySelectorAll('.col1, .col3, .ammo').forEach(el => {
 		el.innerHTML = '';
 	});
@@ -353,7 +349,7 @@ EquipmentV3.onShortCut = function onShurtCut(key) {
 EquipmentV3.setEquipConfig = function setEquipConfig(on) {
 	_showEquip = on;
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '1' : '0') + '.bmp', data => {
-		const root = _getRoot();
+		const root = EquipmentV3.getRoot();
 		const btn = root.querySelector('.show_equip');
 		if (btn) btn.style.backgroundImage = `url(${data})`;
 	});
@@ -377,7 +373,7 @@ EquipmentV3.equip = function equip(item, location) {
 		return text;
 	}
 
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const selector = getSelectorFromLocation(location);
 	root.querySelectorAll(selector).forEach(cell => {
 		cell.innerHTML =
@@ -424,7 +420,7 @@ EquipmentV3.equip = function equip(item, location) {
 
 EquipmentV3.unEquip = function unEquip(index, location) {
 	const selector = getSelectorFromLocation(location);
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const item = EquipmentV3._itemlist[index];
 	item.equipped = 0;
 
@@ -452,7 +448,7 @@ EquipmentV3.checkEquipLoc = function checkEquipLoc(location) {
 };
 
 function toggleStatus() {
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const self = root.querySelector('.view_status');
 	const winStatsUI = WinStats.getUI();
 	const statusHost = winStatsUI._host || winStatsUI.ui;
@@ -528,7 +524,7 @@ const renderCharacter = (function renderCharacterClosure() {
 			_lastState = Session.Entity.effectState;
 			_hasCart = Session.Entity.hasCart;
 
-			const root = _getRoot();
+			const root = EquipmentV3.getRoot();
 			const removeOpt = root.querySelector('.removeOption');
 			const cartBtn = root.querySelector('.cartitems');
 
@@ -612,7 +608,7 @@ function onDragOver(event) {
 				!item.IsDamaged
 			) {
 				const selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
-				const root = _getRoot();
+				const root = EquipmentV3.getRoot();
 				const cells = root.querySelectorAll(selector);
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', _data => {
 					cells.forEach(c => {
@@ -627,7 +623,7 @@ function onDragOver(event) {
 }
 
 function onDragLeave(event) {
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	root.querySelectorAll('td').forEach(td => {
 		td.style.backgroundImage = 'none';
 	});
@@ -655,7 +651,7 @@ function onDrop(event) {
 			item.IsIdentified &&
 			!item.IsDamaged
 		) {
-			const root = _getRoot();
+			const root = EquipmentV3.getRoot();
 			root.querySelectorAll('td').forEach(td => {
 				td.style.backgroundImage = 'none';
 			});
@@ -687,7 +683,7 @@ function onEquipmentInfo(event) {
 function onEquipmentUnEquip() {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	EquipmentV3.onUnEquip(index);
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) overlay.style.display = 'none';
 }
@@ -697,7 +693,7 @@ function onEquipmentOver() {
 	const item = EquipmentV3._itemlist[idx];
 	if (!item) return;
 
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const overlay = root.querySelector('.overlay');
 	const rootEl = root.querySelector('#EquipmentV3') || root;
 	const btnRect = this.getBoundingClientRect();
@@ -715,13 +711,13 @@ function onEquipmentOver() {
 }
 
 function onEquipmentOut() {
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) overlay.style.display = 'none';
 }
 
 EquipmentV3.onUpdateOwnerName = function () {
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	for (const index in EquipmentV3._itemlist) {
 		const item = EquipmentV3._itemlist[index];
 		if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {
@@ -757,7 +753,7 @@ function onSwtichEquip() {
 }
 
 EquipmentV3.loadTitles = function () {
-	const root = _getRoot();
+	const root = EquipmentV3.getRoot();
 	const titleList = root.querySelector('#title_list');
 	if (!titleList) return;
 	titleList.innerHTML = '';

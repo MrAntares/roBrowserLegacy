@@ -51,7 +51,7 @@ const CART_TYPES = [10, 11, 12];
  * Initialize UI
  */
 CartDecoration.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	this._host.style.top = (Renderer.height - 100) / 2.0 + 'px';
 	this._host.style.left = (Renderer.width - 255) / 2.0 + 'px';
@@ -114,7 +114,7 @@ CartDecoration.onAppend = function onAppend() {
  * @param {object} pkt - parsed ZC_SELECTCART packet
  */
 CartDecoration.onSelectCart = function onSelectCart(pkt) {
-	const root = CartDecoration._shadow || CartDecoration._host;
+	const root = CartDecoration.getRoot();
 	_identity = pkt.identity;
 
 	root.querySelectorAll('.cart').forEach(el => {
@@ -177,7 +177,7 @@ function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
  * Render loop
  */
 function render() {
-	const root = CartDecoration._shadow || CartDecoration._host;
+	const root = CartDecoration.getRoot();
 	const canvases = root.querySelectorAll('.canvas');
 
 	canvases.forEach(el => {

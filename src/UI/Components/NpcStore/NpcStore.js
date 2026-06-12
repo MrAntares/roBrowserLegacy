@@ -98,13 +98,6 @@ let _type;
 let _closePacketSent = false;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return NpcStore._shadow || NpcStore._host;
-}
-
-/**
  * Make a sub-window element draggable by its handle
  */
 function _makeDraggable(element, handle) {
@@ -148,7 +141,7 @@ function _escapeHTML(text) {
  * Initialize component
  */
 NpcStore.init = function init() {
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 
 	root.querySelector('.btn.cancel').addEventListener('click', () => this.remove());
 	root.querySelector('.btn.buy').addEventListener('click', () => this.submit());
@@ -246,7 +239,7 @@ NpcStore.onAppend = function onAppend() {
 	_closePacketSent = false;
 
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp', function (data) {
-		const root = _getRoot();
+		const root = NpcStore.getRoot();
 		const selectall = root.querySelector('.selectall');
 		if (selectall) {
 			selectall.style.backgroundImage = `url(${data})`;
@@ -258,7 +251,7 @@ NpcStore.onAppend = function onAppend() {
  * Released movement and save preferences
  */
 NpcStore.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	const InputWindow = root.querySelector('.InputWindow');
 	const OutputWindow = root.querySelector('.OutputWindow');
 	const AvailableItemsWindow = root.querySelector('.AvailableItemsWindow');
@@ -332,7 +325,7 @@ function _showAll(root, selector) {
  * @param {number} type (see NpcStore.Type.*)
  */
 NpcStore.setType = function setType(type) {
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 
 	switch (type) {
 		case NpcStore.Type.BUY:
@@ -423,7 +416,7 @@ NpcStore.setList = function setList(items) {
 	let i, count;
 	let it, item, out;
 
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	root.querySelectorAll('.content').forEach(c => {
 		c.innerHTML = '';
 	});
@@ -541,7 +534,7 @@ NpcStore.setPriceLimit = function setPriceLimit(price) {
 	const prettyPrice = prettyZeny(price);
 	const text = DB.getMessage(1735);
 	const result = text.replace('%s', prettyPrice);
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	const priceLimit = root.querySelector('.priceLimit');
 	if (priceLimit) {
 		priceLimit.textContent = result;
@@ -563,7 +556,7 @@ NpcStore.submit = function submit() {
 
 	NpcStore.onSubmit(output);
 
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	const outputContent = root.querySelector('.OutputWindow .content');
 	if (outputContent) {
 		outputContent.innerHTML = '';
@@ -597,7 +590,7 @@ NpcStore.calculateCost = function calculateCost() {
 		}
 	}
 
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	root.querySelectorAll('.total .result').forEach(r => {
 		r.textContent = prettyZeny(total);
 	});
@@ -908,7 +901,7 @@ const transferItem = (function () {
 	return function (fromContent, toContent, isAdding, index, count) {
 		const inputItem = _input[index];
 		const outputItem = _output[index];
-		const root = _getRoot();
+		const root = NpcStore.getRoot();
 
 		if (isAdding) {
 			if (
@@ -1061,7 +1054,7 @@ function onDrop(event) {
 		return false;
 	}
 
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 
 	requestMoveItem(
 		data.index,
@@ -1107,7 +1100,7 @@ function onItemSelected() {
 		return;
 	}
 
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	const input = root.querySelector('.InputWindow');
 
 	if (input.contains(this)) {
@@ -1130,7 +1123,7 @@ function onItemSelected() {
  * Focus an item
  */
 function onItemFocus() {
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	root.querySelectorAll('.item.selected').forEach(el => el.classList.remove('selected'));
 	this.classList.add('selected');
 }
@@ -1157,7 +1150,7 @@ function onScroll(event) {
  * Start dragging an item
  */
 function onDragStart(event) {
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	const InputWindow = root.querySelector('.InputWindow');
 	const OutputWindow = root.querySelector('.OutputWindow');
 	const AvailableItemsWindow = root.querySelector('.AvailableItemsWindow');
@@ -1212,7 +1205,7 @@ function onToggleSelectAmount() {
  */
 NpcStore.closeStore = function () {
 	NpcStore.remove();
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	root.querySelectorAll('.total').forEach(el => {
 		el.style.display = '';
 	});
@@ -1222,7 +1215,7 @@ NpcStore.closeStore = function () {
  * Handles packet to close store based on the store type
  */
 NpcStore.StoreClosePacket = function (type) {
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	const inputWindow = root.querySelector('.InputWindow');
 	const outputWindow = root.querySelector('.OutputWindow');
 
@@ -1283,7 +1276,7 @@ function getCurrentPref() {
  * Update Marketshop Result UI
  */
 NpcStore.onMarketShopResultUI = function (itemList) {
-	const root = _getRoot();
+	const root = NpcStore.getRoot();
 	const InputWindow = root.querySelector('.InputWindow');
 	const OutputWindow = root.querySelector('.OutputWindow');
 	const OutputWindowContent = OutputWindow.querySelector('.content');

@@ -29,7 +29,7 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	Component.init = function init() {
 		this.draggable();
 
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		// Save element references
 		_inputUsername = root.querySelector('.user');
 		_inputPassword = root.querySelector('.pass');

@@ -26,13 +26,6 @@ const MakeArrowSelection = new GUIComponent('MakeArrowSelection', cssText);
 MakeArrowSelection.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return MakeArrowSelection._shadow || MakeArrowSelection._host;
-}
-
-/**
  * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
 function _sanitizeHtml(str) {
@@ -51,7 +44,7 @@ function _sanitizeHtml(str) {
  * Initialize UI
  */
 MakeArrowSelection.init = function init() {
-	const root = _getRoot();
+	const root = MakeArrowSelection.getRoot();
 
 	this.list = root.querySelector('.list');
 	this.index = 0;
@@ -96,7 +89,7 @@ MakeArrowSelection.onAppend = function onAppend() {
  * @param {Array} list object to display
  */
 MakeArrowSelection.setList = function setList(list) {
-	const root = _getRoot();
+	const root = MakeArrowSelection.getRoot();
 	const listEl = root.querySelector('.list');
 	listEl.innerHTML = '';
 
@@ -120,7 +113,7 @@ MakeArrowSelection.setList = function setList(list) {
  * @param {string} element name
  */
 function addElement(url, index, name) {
-	const root = _getRoot();
+	const root = MakeArrowSelection.getRoot();
 	const listEl = root.querySelector('.list');
 
 	const div = document.createElement('div');
@@ -143,7 +136,7 @@ function addElement(url, index, name) {
  * @param {number} id in list
  */
 MakeArrowSelection.setIndex = function setIndex(id) {
-	const root = _getRoot();
+	const root = MakeArrowSelection.getRoot();
 	const prev = root.querySelector(`div[data-index="${this.index}"]`);
 	if (prev) {
 		prev.style.backgroundColor = 'transparent';
@@ -176,7 +169,7 @@ MakeArrowSelection.onRemove = function onRemove() {
  * @param {string} title
  */
 MakeArrowSelection.setTitle = function setTitle(title) {
-	const root = _getRoot();
+	const root = MakeArrowSelection.getRoot();
 	const text = root.querySelector('.head .text');
 	if (text) {
 		text.textContent = title;

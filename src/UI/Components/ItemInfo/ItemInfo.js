@@ -80,10 +80,6 @@ const MOVE_INFO_MESSAGES = [
 	{ key: 'NPCSale', msgId: 2795 }
 ];
 
-function _getRoot() {
-	return ItemInfo._shadow || ItemInfo._host;
-}
-
 /**
  * Helper: escape HTML keeping whitelisted tags
  */
@@ -115,7 +111,7 @@ ItemInfo.onKeyDown = function onKeyDown(event) {
  * Once append
  */
 ItemInfo.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = ItemInfo.getRoot();
 	const descInner = root.querySelector('.description-inner');
 	if (descInner) {
 		resize(descInner.offsetHeight + 45);
@@ -144,7 +140,7 @@ ItemInfo.onRemove = function onRemove() {
  * Initialize UI
  */
 ItemInfo.init = function init() {
-	const root = _getRoot();
+	const root = ItemInfo.getRoot();
 
 	this._host.style.top = '200px';
 	this._host.style.left = '480px';
@@ -186,7 +182,7 @@ ItemInfo.init = function init() {
  */
 ItemInfo.setItem = function setItem(item) {
 	const it = DB.getItemInfo(item.ITID);
-	const root = _getRoot();
+	const root = ItemInfo.getRoot();
 	const cardList = root.querySelector('.cardlist .border');
 	const optionContainer = root.querySelector('.option-container');
 
@@ -434,7 +430,7 @@ function addCard(cardList, itemId, index, slotCount) {
 	);
 
 	Client.loadFile(DB.INTERFACE_PATH + file, data => {
-		const root = _getRoot();
+		const root = ItemInfo.getRoot();
 		const element = root.querySelector(`.cardlist .item[data-index="${index}"] .icon`);
 		if (element) {
 			element.style.backgroundImage = `url(${data})`;
@@ -489,7 +485,7 @@ function onResize() {
  * @param {number} height
  */
 function resize(height) {
-	const root = _getRoot();
+	const root = ItemInfo.getRoot();
 	const container = root.querySelector('.container');
 	const description = root.querySelector('.description');
 	const descriptionInner = root.querySelector('.description-inner');
@@ -515,7 +511,7 @@ function resize(height) {
 }
 
 function addEvent(item) {
-	const root = _getRoot();
+	const root = ItemInfo.getRoot();
 	let event = root.querySelector('.event_view');
 	if (!event) {
 		if (!validateFieldsExist(event)) {
@@ -562,7 +558,7 @@ function addEvent(item) {
 }
 
 function updatePreviewButton(item) {
-	const root = _getRoot();
+	const root = ItemInfo.getRoot();
 	const previewButton = root.querySelector('.btn_mounting');
 	if (!previewButton) {
 		return;
@@ -651,7 +647,7 @@ function toggleItemPreview(item) {
 }
 
 function eventsBooks() {
-	const root = _getRoot();
+	const root = ItemInfo.getRoot();
 	const event = root.querySelector('.event_view');
 	if (!event) {
 		return;
@@ -755,7 +751,7 @@ const rendering = (function renderingClosure() {
 })();
 
 function validateFieldsExist(event) {
-	const root = _getRoot();
+	const root = ItemInfo.getRoot();
 
 	if (!event) {
 		const validExitElement =

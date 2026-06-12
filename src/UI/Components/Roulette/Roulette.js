@@ -92,6 +92,11 @@ let _responseTimeout = null;
  * Click on roulette icon
  */
 function onClickIcon() {
+	if (Roulette.ui.is(':visible')) {
+		Roulette.onClose();
+		return;
+	}
+
 	const pkt = new PACKET.CZ.REQ_OPEN_ROULETTE();
 	Network.sendPacket(pkt);
 
@@ -125,69 +130,60 @@ Roulette.onAppend = function onAppend() {
 	if (ROConfig.enableRoulette === false) {
 		return;
 	}
-
-	// Check if PACKETVER >= 20141008 (Roulette requires this version)
+	// Roulette requires PACKETVER >= 20141008
 	if (PACKETVER.value < 20141008) {
 		return;
 	}
-
-	// Try to add button with retry logic
-	let attempts = 0;
-	const maxAttempts = 20;
-
-	const tryAddButton = function () {
-		attempts++;
-		const miniMapComponent = MiniMap.getUI();
-
-		if (miniMapComponent && miniMapComponent.ui) {
-			clearTimeout(retryTimeout);
-			addButtonToMiniMap(miniMapComponent.ui);
-		} else if (attempts < maxAttempts) {
-			retryTimeout = setTimeout(tryAddButton, 500);
-		}
-	};
-
-	let retryTimeout = setTimeout(tryAddButton, 100);
+	addRouletteIcon();
 };
 
 /**
- * Add button to MiniMap UI element
+ * @var {HTMLButtonElement|null} Standalone roulette icon (light DOM)
  */
-function addButtonToMiniMap(miniMapUI) {
-	try {
-		// Check if button already exists
-		if (miniMapUI.find('.rouletteIcon').length === 0) {
-			miniMapUI.append('<button class="rouletteIcon"></button>');
-			miniMapUI.on('click', '.rouletteIcon', onClickIcon);
 
-			// Load roulette icon
-			const iconPath = 'basic_interface/roullette/RoulletteIcon.bmp';
-
-			Client.loadFile(DB.INTERFACE_PATH + iconPath, function (data) {
-				const btn = miniMapUI.find('.rouletteIcon');
-				btn.css({
-					backgroundImage: 'url(' + data + ')',
-					backgroundSize: 'contain',
-					backgroundRepeat: 'no-repeat',
-					backgroundPosition: 'center',
-					position: 'absolute',
-					top: '57px',
-					left: '-45px',
-					width: '43px',
-					height: '43px',
-					border: 'none'
-				});
-			});
+let _iconBtn = null;
+/**
+ * Create the roulette icon as a standalone light-DOM button.
+ * NOTE: temporary light-DOM solution — should become its own
+ * GUIComponent (like CashShopIcon) when Roulette is migrated.
+ */
+function addRouletteIcon() {
+	if (_iconBtn) return;
+	_iconBtn = document.createElement('button');
+	_iconBtn.className = 'rouletteIcon';
+	Object.assign(_iconBtn.style, {
+		position: 'absolute',
+		top: '74px',
+		right: '145px',
+		width: '43px',
+		height: '43px',
+		border: 'none',
+		backgroundColor: 'transparent',
+		backgroundRepeat: 'no-repeat',
+		backgroundSize: 'contain',
+		backgroundPosition: 'center',
+		zIndex: '50',
+		cursor: 'pointer'
+	});
+	_iconBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+	_iconBtn.addEventListener('click', onClickIcon);
+	document.body.appendChild(_iconBtn);
+	const iconPath = 'basic_interface/roullette/RoulletteIcon.bmp';
+	Client.loadFile(DB.INTERFACE_PATH + iconPath, function (data) {
+		if (_iconBtn) {
+			_iconBtn.style.backgroundImage = 'url(' + data + ')';
 		}
-	} catch (e) {
-		console.error('[Roulette] Failed to add button:', e);
-	}
+	});
 }
 
 /**
  * Remove from DOM
  */
 Roulette.onRemove = function onRemove() {
+	if (_iconBtn) {
+		_iconBtn.remove();
+		_iconBtn = null;
+	}
 	_preferences.show = this.ui.is(':visible');
 	_preferences.x = parseInt(this.ui.css('left'), 10);
 	_preferences.y = parseInt(this.ui.css('top'), 10);

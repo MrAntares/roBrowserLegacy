@@ -91,17 +91,10 @@ let _skillLevel;
 let _mousedownHandler = null;
 
 /**
- * Helper to get the shadow root
- */
-function _getRoot() {
-	return SkillTargetSelection._shadow || SkillTargetSelection._host;
-}
-
-/**
  * Initialize component
  */
 SkillTargetSelection.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	_skillName = root.querySelector('.skill-name');
 	_description = root.querySelector('.skill-description');

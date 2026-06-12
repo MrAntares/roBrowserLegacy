@@ -84,17 +84,10 @@ let _sex = 0;
 let _disable_UI = false;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return CharSelectV3._shadow || CharSelectV3._host;
-}
-
-/**
  * Initialize UI
  */
 CharSelectV3.init = function init() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	this.draggable();
 
@@ -143,7 +136,7 @@ CharSelectV3.init = function init() {
  * Once append to body
  */
 CharSelectV3.onAppend = function onAppend() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	this._host.style.top = `${(Renderer.height - 358) / 2}px`;
 	this._host.style.left = `${(Renderer.width - 576) / 2}px`;
@@ -163,7 +156,7 @@ CharSelectV3.onAppend = function onAppend() {
  * Stop rendering
  */
 CharSelectV3.onRemove = function onRemove() {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	_preferences.index = _index;
 	_preferences.save();
@@ -224,7 +217,7 @@ CharSelectV3.onKeyDown = function onKeyDown(event) {
  * @param {object} pkt - packet structure
  */
 CharSelectV3.setInfo = function setInfo(pkt) {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	_maxSlots = Math.floor(pkt.TotalSlotNum + pkt.PremiumStartSlot || 9); // default 9 ?
 	_sex = pkt.sex;
@@ -279,7 +272,7 @@ function drawBall(btnContainer, index, sel) {
  * @param {number} error id
  */
 CharSelectV3.deleteAnswer = function deleteAnswer(error) {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	this.on('keydown');
 
@@ -339,7 +332,7 @@ CharSelectV3.deleteAnswer = function deleteAnswer(error) {
  * @param {object} character data
  */
 CharSelectV3.addCharacter = function addCharacter(character) {
-	const root = _getRoot();
+	const root = this.getRoot();
 
 	if (!('sex' in character) || character.sex === 99) {
 		character.sex = _sex;
@@ -535,7 +528,7 @@ CharSelectV3.reqdeleteAnswer = function reqdeleteAnswer(pkt) {
  * Update UI and add timer
  */
 function requestdelete(index, timer) {
-	const root = _getRoot();
+	const root = CharSelectV3.getRoot();
 	const entity = _entitySlots[index];
 	let action;
 
@@ -574,7 +567,7 @@ function requestdelete(index, timer) {
  */
 function removedelete() {
 	if (_slots[_index]) {
-		const root = _getRoot();
+		const root = CharSelectV3.getRoot();
 
 		// Delete here as well? Though server should tell us this
 		_slots[_index].DeleteDate = 0;
@@ -629,7 +622,7 @@ function suppress() {
  * @param {number} index
  */
 function moveCursorTo(index) {
-	const root = _getRoot();
+	const root = CharSelectV3.getRoot();
 	const charinfo = root.querySelector('.charinfo');
 
 	// Set the last entity to idle

@@ -57,10 +57,6 @@ const tabLinks = {};
 const contentDivs = {};
 let currentTabId = 'general';
 
-function _getRoot() {
-	return EquipmentV1._shadow || EquipmentV1._host;
-}
-
 function escapeHTML(str) {
 	const div = document.createElement('div');
 	div.textContent = str;
@@ -68,7 +64,7 @@ function escapeHTML(str) {
 }
 
 EquipmentV1.init = function init() {
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	const canvases = root.querySelectorAll('canvas');
 	if (canvases[0]) _ctx.push(canvases[0].getContext('2d'));
 	if (canvases[1]) _ctx.push(canvases[1].getContext('2d'));
@@ -243,7 +239,7 @@ EquipmentV1.onAppend = function onAppend() {
 	}
 
 	if (_preferences.reduce) {
-		const root = _getRoot();
+		const root = EquipmentV1.getRoot();
 		const panel = root.querySelector('.panel');
 		if (panel) panel.style.display = 'none';
 	}
@@ -254,14 +250,14 @@ EquipmentV1.onAppend = function onAppend() {
 			winStats.embed(EquipmentV1._host);
 		} else {
 			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/viewon.bmp', data => {
-				const root = _getRoot();
+				const root = EquipmentV1.getRoot();
 				const btn = root.querySelector('.view_status');
 				if (btn) btn.style.backgroundImage = `url(${data})`;
 			});
 		}
 	}
 
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	const canvas = root.querySelector('canvas');
 	if (canvas && this._host.style.display !== 'none') {
 		Renderer.render(renderCharacter);
@@ -276,7 +272,7 @@ EquipmentV1.onRemove = function onRemove() {
 	Renderer.stop(renderCharacter);
 
 	_list = {};
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	root.querySelectorAll('.col1, .col3, .ammo').forEach(el => {
 		el.innerHTML = '';
 	});
@@ -321,7 +317,7 @@ EquipmentV1.onShortCut = function onShurtCut(key) {
 EquipmentV1.setEquipConfig = function setEquipConfig(on) {
 	_showEquip = on;
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '1' : '0') + '.bmp', data => {
-		const root = _getRoot();
+		const root = EquipmentV1.getRoot();
 		const btn = root.querySelector('.show_equip');
 		if (btn) btn.style.backgroundImage = `url(${data})`;
 	});
@@ -345,7 +341,7 @@ EquipmentV1.equip = function equip(item, location) {
 		return text;
 	}
 
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	const selector = getSelectorFromLocation(location);
 	root.querySelectorAll(selector).forEach(cell => {
 		cell.innerHTML =
@@ -378,7 +374,7 @@ EquipmentV1.equip = function equip(item, location) {
 
 EquipmentV1.unEquip = function unEquip(index, location) {
 	const selector = getSelectorFromLocation(location);
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	const item = _list[index];
 	item.equipped = 0;
 
@@ -413,7 +409,7 @@ function hideStatus() {
 }
 
 function toggleStatus() {
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	const self = root.querySelector('.view_status');
 	const winStats = WinStats.getUI();
 	const isVisible = winStats.isEmbedded();
@@ -492,7 +488,7 @@ const renderCharacter = (function renderCharacterClosure() {
 			_lastState = Session.Entity.effectState;
 			_hasCart = Session.Entity.hasCart;
 
-			const root = _getRoot();
+			const root = EquipmentV1.getRoot();
 			const removeOpt = root.querySelector('.removeOption');
 			const cartBtn = root.querySelector('.cartitems');
 
@@ -576,7 +572,7 @@ function onDragOver(event) {
 				!item.IsDamaged
 			) {
 				const selector = getSelectorFromLocation('location' in item ? item.location : item.WearLocation);
-				const root = _getRoot();
+				const root = EquipmentV1.getRoot();
 				const cells = root.querySelectorAll(selector);
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/item_invert.bmp', _data => {
 					cells.forEach(c => {
@@ -591,7 +587,7 @@ function onDragOver(event) {
 }
 
 function onDragLeave(event) {
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	root.querySelectorAll('td').forEach(td => {
 		td.style.backgroundImage = 'none';
 	});
@@ -619,7 +615,7 @@ function onDrop(event) {
 			item.IsIdentified &&
 			!item.IsDamaged
 		) {
-			const root = _getRoot();
+			const root = EquipmentV1.getRoot();
 			root.querySelectorAll('td').forEach(td => {
 				td.style.backgroundImage = 'none';
 			});
@@ -651,7 +647,7 @@ function onEquipmentInfo(event) {
 function onEquipmentUnEquip() {
 	const index = parseInt(this.getAttribute('data-index'), 10);
 	EquipmentV1.onUnEquip(index);
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) overlay.style.display = 'none';
 }
@@ -661,7 +657,7 @@ function onEquipmentOver() {
 	const item = _list[idx];
 	if (!item) return;
 
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	const overlay = root.querySelector('.overlay');
 	const rootEl = root.querySelector('#EquipmentV1') || root;
 	const btnRect = this.getBoundingClientRect();
@@ -679,13 +675,13 @@ function onEquipmentOver() {
 }
 
 function onEquipmentOut() {
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) overlay.style.display = 'none';
 }
 
 EquipmentV1.onUpdateOwnerName = function () {
-	const root = _getRoot();
+	const root = EquipmentV1.getRoot();
 	for (const index in _list) {
 		const item = _list[index];
 		if (item.slot && [0x00ff, 0x00fe, 0xff00].includes(item.slot.card1)) {

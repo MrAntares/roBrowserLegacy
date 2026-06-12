@@ -43,13 +43,6 @@ const ItemListWindowSelection = new GUIComponent('ItemListWindowSelection', cssT
 ItemListWindowSelection.render = () => htmlText;
 
 /**
- * Helper to get shadow root
- */
-function _getRoot() {
-	return ItemListWindowSelection._shadow || ItemListWindowSelection._host;
-}
-
-/**
  * Sanitize HTML, allowing only whitelisted tags (font, i, b)
  */
 function _sanitizeHtml(str) {
@@ -73,7 +66,7 @@ ItemListWindowSelection.list = [];
  * Initialize UI
  */
 ItemListWindowSelection.init = function init() {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 
 	// Show at center.
 	this._host.style.top = `${(Renderer.height - 200) / 2}px`;
@@ -143,7 +136,7 @@ ItemListWindowSelection.onAppend = function OnAppend() {
  * @param {Array} list object to display
  */
 ItemListWindowSelection.setList = function setList(listItems) {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	root.querySelector('.container .content').innerHTML = '';
 	this.list = listItems;
 
@@ -153,7 +146,7 @@ ItemListWindowSelection.setList = function setList(listItems) {
 };
 
 ItemListWindowSelection.addItem = function addItem(item) {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	const it = DB.getItemInfo(item.ITID);
 	const content = root.querySelector('.container .content');
 
@@ -189,7 +182,7 @@ ItemListWindowSelection.addItem = function addItem(item) {
  * @param {Array} list object to display
  */
 ItemListWindowSelection.updateList = function UpdateList(item) {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	this.list.push(item);
 	root.querySelectorAll('.item').forEach(el => el.remove());
 
@@ -233,7 +226,7 @@ function onResize() {
  * Extend ItemListWindowSelection window size
  */
 function resizeHeight(height) {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	height = Math.min(Math.max(height, 8), 17);
 
 	const content = root.querySelector('.container .content');
@@ -249,7 +242,7 @@ function resizeHeight(height) {
  * @param {string} title
  */
 ItemListWindowSelection.setTitle = function setTitle(title) {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	const text = root.querySelector('.head .text');
 	if (text) {
 		text.textContent = title;
@@ -277,7 +270,7 @@ ItemListWindowSelection.addReturnMaterial = function AddReturnMaterial(item) {
  * @param {number} index in Storage
  */
 ItemListWindowSelection.removeItem = function removeItem(index, count) {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	const i = getItemIndexById(index);
 
 	if (i < 0) {
@@ -313,7 +306,7 @@ ItemListWindowSelection.removeItem = function removeItem(index, count) {
  * @param {number} count
  */
 ItemListWindowSelection.updateItem = function UpdateItem(index, count) {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	const item = this.getItemByIndex(index);
 
 	if (!item) {
@@ -363,7 +356,7 @@ ItemListWindowSelection.getSelectAll = function getSelectAll() {
  * Mouse mouve out of an item, hide title description
  */
 function onItemOut() {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) {
 		overlay.style.display = 'none';
@@ -406,7 +399,7 @@ function onItemDragStart(event) {
  * Option to automatically buy/sell alls items instead of specify the amount
  */
 function onToggleSelectAmount() {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	_preferences.select_all = !_preferences.select_all;
 
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (_preferences.select_all ? 1 : 0) + '.bmp', data => {
@@ -537,7 +530,7 @@ function onScroll(event) {
  * Mouse over item, display name and informations
  */
 function onItemOver() {
-	const root = _getRoot();
+	const root = ItemListWindowSelection.getRoot();
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const i = getItemIndexById(idx);
 
