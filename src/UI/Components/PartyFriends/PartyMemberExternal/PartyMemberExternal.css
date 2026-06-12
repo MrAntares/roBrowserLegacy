@@ -1,5 +1,8 @@
-#PartyMemberExternal {
+:host {
 	position: absolute;
+}
+
+#PartyMemberExternal {
 	width: 150px;
 	height: 38px;
 	display: flex;
@@ -115,23 +118,4 @@
 
 #PartyMemberExternal .status-icon {
 	display: none;
-}
-
-.ro-tooltip {
-	display: none;
-	position: fixed;
-	background-color: rgba(0, 0, 0, 0.8);
-	text-shadow: 1px 1px black;
-	color: white;
-	padding: 2px 6px;
-	white-space: nowrap;
-	z-index: 20000;
-	border-radius: 2px;
-	pointer-events: none;
-	line-height: 1.2;
-	font-size: 11px;
-}
-
-.ro-tooltip.show {
-	display: block;
 }

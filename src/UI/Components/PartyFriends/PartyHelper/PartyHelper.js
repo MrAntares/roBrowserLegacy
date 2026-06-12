@@ -9,9 +9,9 @@
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
-// Currently unused, preserved for future development.
-import _jQuery from 'Utils/jquery.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
+import KEYS from 'Controls/KeyEventHandler.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import htmlText from './PartyHelper.html?raw';
 import cssText from './PartyHelper.css?raw';
@@ -20,7 +20,7 @@ import WhisperBox from 'UI/Components/WhisperBox/WhisperBox.js';
 /**
  * Create Component
  */
-const PartyHelper = new UIComponent('PartyHelper', htmlText, cssText);
+const PartyHelper = new GUIComponent('PartyHelper', cssText);
 
 /**
  * Window type constants
@@ -38,78 +38,120 @@ PartyHelper.Type = {
 let _type = PartyHelper.Type.CREATE;
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return PartyHelper._shadow || PartyHelper._host;
+}
+
+/**
+ * Render HTML
+ */
+PartyHelper.render = () => htmlText;
+
+/**
+ * Has input fields — protect keyboard events
+ */
+PartyHelper.captureKeyEvents = true;
+
+/**
  * Initialize component event listeners
  */
 PartyHelper.init = function init() {
+	const root = _root();
+
 	// Stop propagation to prevent drag/drop conflicts
-	this.ui.find('.base').mousedown(function (event) {
-		event.stopImmediatePropagation();
-		return false;
-	});
+	const baseBtn = root.querySelector('.base');
+	if (baseBtn) {
+		baseBtn.addEventListener('mousedown', (e) => {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+		});
+	}
 
 	// Close window handlers
-	this.ui.on('click', '.close', function () {
-		PartyHelper.remove();
-	});
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => {
+			PartyHelper.remove();
+		});
+	}
 
-	this.ui.on('click', '.cancel', function () {
-		PartyHelper.remove();
-	});
+	const cancelBtn = root.querySelector('.cancel');
+	if (cancelBtn) {
+		cancelBtn.addEventListener('click', () => {
+			PartyHelper.remove();
+		});
+	}
 
 	// Validation handler
-	this.ui.find('.ok').click(function () {
-		onValidate();
-	});
-
-	// Enter key validation
-	this.ui.on('keydown', '.name', function (event) {
-		if (event.which === 13) {
+	const okBtn = root.querySelector('.ok');
+	if (okBtn) {
+		okBtn.addEventListener('click', () => {
 			onValidate();
-			return false;
-		}
-		return true;
-	});
+		});
+	}
+
+	// Enter key validation on name input
+	const nameInput = root.querySelector('.name');
+	if (nameInput) {
+		nameInput.addEventListener('keydown', (event) => {
+			if (event.which === 13 || event.key === 'Enter') {
+				onValidate();
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			}
+		});
+	}
 
 	// Setting-row toggle handler (WhisperBox preferences)
-	this.ui.on('mousedown', '.setting-row', function (event) {
-		const on = this.querySelector('.on');
-		const off = this.querySelector('.off');
+	root.querySelectorAll('.setting-row').forEach((row) => {
+		row.addEventListener('mousedown', (event) => {
+			const on = row.querySelector('.on');
+			const off = row.querySelector('.off');
 
-		if (!on || !off) {
-			return;
-		}
+			if (!on || !off) {
+				return;
+			}
 
-		// Toggle visual state
-		on.classList.remove('on');
-		on.classList.add('off');
-		off.classList.remove('off');
-		off.classList.add('on');
+			// Toggle visual state
+			on.classList.remove('on');
+			on.classList.add('off');
+			off.classList.remove('off');
+			off.classList.add('on');
 
-		// Save preferences immediately
-		const prefs = WhisperBox.preferences;
+			// Save preferences immediately
+			const prefs = WhisperBox.preferences;
+			const rootEl = _root();
 
-		prefs.open1to1Stranger = parseInt(PartyHelper.ui.find('.open1to1Stranger .on').attr('data-value'), 10) === 1;
-		prefs.open1to1Friend = parseInt(PartyHelper.ui.find('.open1to1Friend .on').attr('data-value'), 10) === 1;
-		prefs.alarm1to1 = parseInt(PartyHelper.ui.find('.alarm1to1 .on').attr('data-value'), 10) === 1;
-		prefs.save();
+			const strangerOn = rootEl.querySelector('.open1to1Stranger .on');
+			const friendOn = rootEl.querySelector('.open1to1Friend .on');
+			const alarmOn = rootEl.querySelector('.alarm1to1 .on');
 
-		event.stopImmediatePropagation();
-		return false;
+			prefs.open1to1Stranger = strangerOn ? parseInt(strangerOn.dataset.value, 10) === 1 : prefs.open1to1Stranger;
+			prefs.open1to1Friend = friendOn ? parseInt(friendOn.dataset.value, 10) === 1 : prefs.open1to1Friend;
+			prefs.alarm1to1 = alarmOn ? parseInt(alarmOn.dataset.value, 10) === 1 : prefs.alarm1to1;
+			prefs.save();
+
+			event.stopImmediatePropagation();
+			event.preventDefault();
+		});
 	});
 
-	// Radio button toggle logic
-	this.ui.on('mousedown', '.off', function (event) {
-		if (PartyHelper.ui.find('.content').hasClass('disabled')) {
-			return;
-		}
+	// Radio button toggle logic (non-setting-row)
+	root.addEventListener('mousedown', (event) => {
+		const off = event.target.closest('.off');
+		if (!off) return;
 
-		// Managed by setting-row handler
-		if (this.parentNode.classList.contains('setting-row')) {
-			return;
-		}
+		// Setting-row buttons are managed by their own handler
+		if (off.parentNode.classList.contains('setting-row')) return;
 
-		const off = this;
-		const on = this.parentNode.getElementsByClassName('on')[0];
+		// Check if content is disabled
+		const contentEl = root.querySelector('.content');
+		if (contentEl && contentEl.classList.contains('disabled')) return;
+
+		const on = off.parentNode.querySelector('.on');
+		if (!on) return;
 
 		on.className = 'off';
 		off.className = 'on';
@@ -119,42 +161,68 @@ PartyHelper.init = function init() {
 		off.style.backgroundImage = tmp;
 	});
 
-	// Block interaction on 'on' buttons
-	this.ui.on('mousedown', '.on', function (event) {
-		if (this.parentNode.classList.contains('setting-row')) {
-			return;
-		}
+	// Block interaction on 'on' buttons (non-setting-row)
+	root.addEventListener('mousedown', (event) => {
+		const on = event.target.closest('.on');
+		if (!on) return;
+		if (on.parentNode.classList.contains('setting-row')) return;
+
 		event.stopImmediatePropagation();
-		return false;
-	});
+		event.preventDefault();
+	}, true);
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
+};
 
-	// Close on Esc key
-	const self = this;
-	this._onKeyDown = function (event) {
-		if (event.which === 27) {
-			// Escape
-			self.remove();
+/**
+ * Key handler — block shortcuts when input is focused
+ */
+PartyHelper.onKeyDown = function onKeyDown(event) {
+	const shadow = this._shadow || this._host;
+	const focused = shadow ? shadow.activeElement : null;
+
+	if (focused && focused.tagName && focused.tagName.match(/input|select|textarea/i)) {
+		if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+			PartyHelper.remove();
 			event.stopImmediatePropagation();
 			return false;
 		}
-	};
+		if (event.which === KEYS.ENTER || event.key === 'Enter') {
+			// Let the nameInput keydown handler deal with Enter
+			return true;
+		}
+		event.stopImmediatePropagation();
+		return true;
+	}
+
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+		PartyHelper.remove();
+		event.stopImmediatePropagation();
+		return false;
+	}
+
+	return true;
 };
 
 /**
  * Position UI relative to PartyFriends window
  */
 PartyHelper.onAppend = function onAppend() {
-	const base = UIManager.getComponent('PartyFriends').ui;
+	const base = UIManager.getComponent('PartyFriends');
+	const root = _root();
 
-	this.ui.find('.party-content, .friend-content').hide();
-	this.ui.find('.name').val('');
+	const partyContent = root.querySelector('.party-content');
+	const friendContent = root.querySelector('.friend-content');
+	if (partyContent) partyContent.style.display = 'none';
+	if (friendContent) friendContent.style.display = 'none';
 
-	this.ui.css({
-		top: base.css('top'),
-		left: parseInt(base.css('left'), 10) + base.width() + 10
-	});
+	const nameInput = root.querySelector('.name');
+	if (nameInput) nameInput.value = '';
+
+	if (base && base._host) {
+		this._host.style.top = base._host.style.top;
+		this._host.style.left = `${parseInt(base._host.style.left, 10) + (base._host.offsetWidth || 0) + 10}px`;
+	}
 
 	window.addEventListener('keydown', this._onKeyDown, true);
 };
@@ -163,8 +231,16 @@ PartyHelper.onAppend = function onAppend() {
  * Cleanup on window removal
  */
 PartyHelper.onRemove = function onRemove() {
-	this.ui.find('.party-content, .friend-content').hide();
-	this.ui.find('.name').val('');
+	const root = _root();
+
+	const partyContent = root.querySelector('.party-content');
+	const friendContent = root.querySelector('.friend-content');
+	if (partyContent) partyContent.style.display = 'none';
+	if (friendContent) friendContent.style.display = 'none';
+
+	const nameInput = root.querySelector('.name');
+	if (nameInput) nameInput.value = '';
+
 	window.removeEventListener('keydown', this._onKeyDown, true);
 };
 
@@ -173,59 +249,84 @@ PartyHelper.onRemove = function onRemove() {
  * @param {number} type
  */
 PartyHelper.setType = function setType(type) {
-	this.ui.find('.content').removeClass('disabled');
-	this.ui.find('.footer').show();
+	const root = _root();
+
+	const contentEls = root.querySelectorAll('.content');
+	contentEls.forEach((el) => el.classList.remove('disabled'));
+
+	const footer = root.querySelector('.footer');
+	if (footer) footer.style.display = 'block';
 
 	// Restrict Friend Setup by packet version
 	if (type === PartyHelper.Type.FRIEND_SETUP && PACKETVER.value < 20090617) {
 		type = PartyHelper.Type.SETUP;
 	}
 
+	const innerRoot = root.querySelector('#PartyHelper');
+	const friendContent = root.querySelector('.friend-content');
+	const partyContent = root.querySelector('.party-content');
+	const footerBtns = root.querySelectorAll('.footer .btn');
+
+	// Helper to show/hide elements by selector
+	const show = (sel) => root.querySelectorAll(sel).forEach((el) => { el.style.display = ''; });
+	const hide = (sel) => root.querySelectorAll(sel).forEach((el) => { el.style.display = 'none'; });
+
 	switch (type) {
 		case PartyHelper.Type.CREATE:
-			this.ui.css('width', '130px');
-			this.ui.find('.friend-content').hide();
-			this.ui.find('.party-content').show();
-			this.ui.find('.setup, .invite').hide();
-			this.ui.find('.create').show();
-			this.ui.find('.titlebar .setup, .titlebar .invite, .titlebar .friend-setup').hide();
-			this.ui.find('.titlebar .create').show();
-			this.ui.find('.footer').css('height', '27px');
-			this.ui.find('.footer .btn').show();
+			if (innerRoot) innerRoot.style.width = '130px';
+			if (friendContent) friendContent.style.display = 'none';
+			if (partyContent) partyContent.style.display = 'block';
+			hide('.setup');
+			hide('.invite');
+			show('.create');
+			hide('.titlebar .setup');
+			hide('.titlebar .invite');
+			hide('.titlebar .friend-setup');
+			show('.titlebar .create');
+			if (footer) footer.style.height = '27px';
+			footerBtns.forEach((el) => { el.style.display = ''; });
 			break;
 
 		case PartyHelper.Type.INVITE:
-			this.ui.css('width', '130px');
-			this.ui.find('.friend-content').hide();
-			this.ui.find('.party-content').show();
-			this.ui.find('.setup, .create').hide();
-			this.ui.find('.invite').show();
-			this.ui.find('.titlebar .setup, .titlebar .create, .titlebar .friend-setup').hide();
-			this.ui.find('.titlebar .invite').show();
-			this.ui.find('.footer').css('height', '27px');
-			this.ui.find('.footer .btn').show();
+			if (innerRoot) innerRoot.style.width = '130px';
+			if (friendContent) friendContent.style.display = 'none';
+			if (partyContent) partyContent.style.display = 'block';
+			hide('.setup');
+			hide('.create');
+			show('.invite');
+			hide('.titlebar .setup');
+			hide('.titlebar .create');
+			hide('.titlebar .friend-setup');
+			show('.titlebar .invite');
+			if (footer) footer.style.height = '27px';
+			footerBtns.forEach((el) => { el.style.display = ''; });
 			break;
 
 		case PartyHelper.Type.SETUP:
-			this.ui.css('width', '130px');
-			this.ui.find('.friend-content').hide();
-			this.ui.find('.party-content').show();
-			this.ui.find('.create, .invite').hide();
-			this.ui.find('.setup').show();
-			this.ui.find('.titlebar .create, .titlebar .invite, .titlebar .friend-setup').hide();
-			this.ui.find('.titlebar .setup').show();
-			this.ui.find('.footer').css('height', '27px');
-			this.ui.find('.footer .btn').show();
+			if (innerRoot) innerRoot.style.width = '130px';
+			if (friendContent) friendContent.style.display = 'none';
+			if (partyContent) partyContent.style.display = 'block';
+			hide('.create');
+			hide('.invite');
+			show('.setup');
+			hide('.titlebar .create');
+			hide('.titlebar .invite');
+			hide('.titlebar .friend-setup');
+			show('.titlebar .setup');
+			if (footer) footer.style.height = '27px';
+			footerBtns.forEach((el) => { el.style.display = ''; });
 			break;
 
 		case PartyHelper.Type.FRIEND_SETUP:
-			this.ui.css('width', '230px');
-			this.ui.find('.party-content').hide();
-			this.ui.find('.friend-content').show();
-			this.ui.find('.titlebar .create, .titlebar .invite, .titlebar .setup').hide();
-			this.ui.find('.titlebar .friend-setup').show();
-			this.ui.find('.footer').css('height', '20px');
-			this.ui.find('.footer .btn').hide();
+			if (innerRoot) innerRoot.style.width = '230px';
+			if (partyContent) partyContent.style.display = 'none';
+			if (friendContent) friendContent.style.display = 'block';
+			hide('.titlebar .create');
+			hide('.titlebar .invite');
+			hide('.titlebar .setup');
+			show('.titlebar .friend-setup');
+			if (footer) footer.style.height = '20px';
+			footerBtns.forEach((el) => { el.style.display = 'none'; });
 			break;
 	}
 
@@ -238,6 +339,8 @@ PartyHelper.setType = function setType(type) {
  * @param {boolean} editable
  */
 PartyHelper.setOptions = function setOptions(options, editable) {
+	const root = _root();
+
 	function swap(off) {
 		const on = off.parentNode.querySelector('.on');
 		const tmp = on.style.backgroundImage;
@@ -251,23 +354,25 @@ PartyHelper.setOptions = function setOptions(options, editable) {
 
 	const list = ['exp_share', 'item_share', 'item_sharing_type'];
 	const count = list.length;
-	let element;
 
 	for (let i = 0; i < count; ++i) {
 		if (options[list[i]] === undefined) {
 			continue;
 		}
 
-		element = this.ui.find('.' + list[i]).find('.off')[0];
-		if (options[list[i]] == element.dataset.value) {
+		const container = root.querySelector(`.${list[i]}`);
+		if (!container) continue;
+		const element = container.querySelector('.off');
+		if (element && options[list[i]] == element.dataset.value) {
 			swap(element);
 		}
 	}
 
+	const contentEls = root.querySelectorAll('.content');
 	if (!editable) {
-		this.ui.find('.content').addClass('disabled');
+		contentEls.forEach((el) => el.classList.add('disabled'));
 	} else {
-		this.ui.find('.content').removeClass('disabled');
+		contentEls.forEach((el) => el.classList.remove('disabled'));
 	}
 };
 
@@ -276,6 +381,8 @@ PartyHelper.setOptions = function setOptions(options, editable) {
  * @param {object} options
  */
 PartyHelper.setFriendOptions = function setFriendOptions(options) {
+	const root = _root();
+
 	function swap(off) {
 		const on = off.parentNode.querySelector('.on');
 		on.className = 'off';
@@ -287,11 +394,12 @@ PartyHelper.setFriendOptions = function setFriendOptions(options) {
 
 	for (let i = 0; i < count; ++i) {
 		const value = options[list[i]] === true || options[list[i]] == 1;
-		const row = this.ui.find('.' + list[i]);
-		const on = row.find('.on')[0];
-		const off = row.find('.off')[0];
+		const row = root.querySelector(`.${list[i]}`);
+		if (!row) continue;
+		const on = row.querySelector('.on');
+		const off = row.querySelector('.off');
 
-		if (on && value !== (on.dataset.value == 1)) {
+		if (on && off && value !== (on.dataset.value == 1)) {
 			swap(off);
 		}
 	}
@@ -309,37 +417,47 @@ PartyHelper.getType = function getType() {
  * Validate and process form data
  */
 function onValidate() {
-	let name;
+	const root = _root();
 	const PartyFriends = UIManager.getComponent('PartyFriends');
 
 	switch (_type) {
-		case PartyHelper.Type.CREATE:
-			name = PartyHelper.ui.find('.content .name').val();
+		case PartyHelper.Type.CREATE: {
+			const nameInput = root.querySelector('.content .name');
+			const name = nameInput ? nameInput.value : '';
 			if (name.length) {
+				const itemShareOn = root.querySelector('.item_share .on');
+				const itemSharingOn = root.querySelector('.item_sharing_type .on');
 				PartyFriends.onRequestPartyCreation(
 					name,
-					PartyHelper.ui.find('.item_share .on').data('value'),
-					PartyHelper.ui.find('.item_sharing_type .on').data('value')
+					itemShareOn ? parseInt(itemShareOn.dataset.value, 10) : 0,
+					itemSharingOn ? parseInt(itemSharingOn.dataset.value, 10) : 0
 				);
 				PartyHelper.remove();
 			}
 			break;
+		}
 
-		case PartyHelper.Type.INVITE:
-			name = PartyHelper.ui.find('.content .name').val();
+		case PartyHelper.Type.INVITE: {
+			const nameInput = root.querySelector('.content .name');
+			const name = nameInput ? nameInput.value : '';
 			if (name.length) {
 				PartyFriends.onRequestAddingMember(0, name);
 			}
 			break;
+		}
 
-		case PartyHelper.Type.SETUP:
+		case PartyHelper.Type.SETUP: {
+			const expShareOn = root.querySelector('.exp_share .on');
+			const itemShareOn = root.querySelector('.item_share .on');
+			const itemSharingOn = root.querySelector('.item_sharing_type .on');
 			PartyFriends.onRequestSettingUpdate(
-				PartyHelper.ui.find('.exp_share .on').data('value'),
-				PartyHelper.ui.find('.item_share .on').data('value'),
-				PartyHelper.ui.find('.item_sharing_type .on').data('value')
+				expShareOn ? parseInt(expShareOn.dataset.value, 10) : 0,
+				itemShareOn ? parseInt(itemShareOn.dataset.value, 10) : 0,
+				itemSharingOn ? parseInt(itemSharingOn.dataset.value, 10) : 0
 			);
 			PartyHelper.remove();
 			break;
+		}
 	}
 }
 
@@ -349,6 +467,8 @@ function onValidate() {
 PartyHelper.onCreate = function onCreate() {};
 PartyHelper.onInvite = function onInvite() {};
 PartyHelper.onSetupUpdate = function onSetUpUpdate() {};
+
+PartyHelper.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Export component

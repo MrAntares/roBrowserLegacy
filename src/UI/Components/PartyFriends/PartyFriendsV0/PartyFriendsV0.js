@@ -9,7 +9,6 @@
  */
 
 import DB from 'DB/DBManager.js';
-import jQuery from 'Utils/jquery.js';
 import Preferences from 'Core/Preferences.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -17,7 +16,8 @@ import Session from 'Engine/SessionStorage.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import 'UI/Elements/Elements.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PartyHelper from '../PartyHelper/PartyHelper.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
@@ -31,7 +31,7 @@ import cssText from './PartyFriendsV0.css?raw';
 /**
  * Create Component
  */
-const PartyFriendsV0 = new UIComponent('PartyFriendsV0', htmlText, cssText);
+const PartyFriendsV0 = new GUIComponent('PartyFriendsV0', cssText);
 
 /**
  * @var {number} index of selection
@@ -75,35 +75,103 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return PartyFriendsV0._shadow || PartyFriendsV0._host;
+}
+
+/**
+ * Helper: escape HTML (replace jQuery.escape)
+ */
+function _escapeHTML(text) {
+	const div = document.createElement('div');
+	div.textContent = text;
+	return div.innerHTML;
+}
+
+/**
+ * Render HTML
+ */
+PartyFriendsV0.render = () => htmlText;
+
+/**
  * Initialize the component (event listener, etc.)
  */
 PartyFriendsV0.init = function init() {
+	const root = _root();
+
 	// Start loading the helper
 	PartyHelper.prepare();
 
 	// Avoid drag drop problems
-	this.ui.find('.base').mousedown(function (event) {
-		event.stopImmediatePropagation();
-		return false;
-	});
+	const baseBtn = root.querySelector('.base');
+	if (baseBtn) {
+		baseBtn.addEventListener('mousedown', (e) => {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+		});
+	}
 
 	// Bind buttons
-	this.ui.find('.close').click(onClose);
-	this.ui.find('.lock').mousedown(onToggleLock);
-	this.ui.find('.switchtab.off').mousedown(onChangeTab);
-	this.ui.find('.remove').mousedown(onRequestRemoveSelection);
-	this.ui.find('.privatemessage').mousedown(onRequestPrivateMessage);
-	this.ui.find('.leave').mousedown(onRequestLeaveParty);
-	this.ui.find('.resize').mousedown(onResize);
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', onClose);
+	}
 
-	this.ui.find('.mail').mousedown(onOpenMailCreationWindow);
-	this.ui.find('.party.create').mousedown(onOpenPartyCreationWindow);
-	this.ui.find('.party.add').mousedown(onOpenPartyInviteWindow);
-	this.ui.find('.info').mousedown(onOpenPartyOptionWindow);
+	const lockOn = root.querySelector('.lock.on');
+	const lockOff = root.querySelector('.lock.off');
+	if (lockOn) lockOn.addEventListener('mousedown', onToggleLock);
+	if (lockOff) lockOff.addEventListener('mousedown', onToggleLock);
 
-	this.ui.find('.content').on('contextmenu', '.node', onRightClickInfo).on('mousedown', '.node', onSelectionChange);
+	root.querySelectorAll('.switchtab.off').forEach((el) => {
+		el.addEventListener('mousedown', onChangeTab);
+	});
 
-	this.draggable(this.ui.find('.titlebar'));
+	const removeBtn = root.querySelector('.remove');
+	if (removeBtn) removeBtn.addEventListener('mousedown', onRequestRemoveSelection);
+
+	const pmBtn = root.querySelector('.privatemessage');
+	if (pmBtn) pmBtn.addEventListener('mousedown', onRequestPrivateMessage);
+
+	const leaveBtn = root.querySelector('.party.leave');
+	if (leaveBtn) leaveBtn.addEventListener('mousedown', onRequestLeaveParty);
+
+	const resizeBtn = root.querySelector('.resize');
+	if (resizeBtn) resizeBtn.addEventListener('mousedown', onResize);
+
+	const mailBtn = root.querySelector('.mail');
+	if (mailBtn) mailBtn.addEventListener('mousedown', onOpenMailCreationWindow);
+
+	const createBtn = root.querySelector('.party.create');
+	if (createBtn) createBtn.addEventListener('mousedown', onOpenPartyCreationWindow);
+
+	const addBtn = root.querySelector('.party.add');
+	if (addBtn) addBtn.addEventListener('mousedown', onOpenPartyInviteWindow);
+
+	const infoBtn = root.querySelector('.info');
+	if (infoBtn) infoBtn.addEventListener('mousedown', onOpenPartyOptionWindow);
+
+	// Context menu and selection on nodes
+	const contentEl = root.querySelector('.content');
+	if (contentEl) {
+		contentEl.addEventListener('contextmenu', (e) => {
+			const node = e.target.closest('.node');
+			if (node) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				onRightClickInfo();
+			}
+		});
+		contentEl.addEventListener('mousedown', (e) => {
+			const node = e.target.closest('.node');
+			if (node) {
+				onSelectionChange(node);
+			}
+		});
+	}
+
+	this.draggable('.titlebar');
 };
 
 /**
@@ -115,20 +183,22 @@ PartyFriendsV0.onAppend = function onAppend() {
 	onChangeTab();
 
 	// Lock features
+	const root = _root();
+	const lockOn = root.querySelector('.lock.on');
+	const lockOff = root.querySelector('.lock.off');
+
 	if (_preferences.lock) {
-		this.ui.find('.lock.on').show();
-		this.ui.find('.lock.off').hide();
+		if (lockOn) lockOn.style.display = 'inline-block';
+		if (lockOff) lockOff.style.display = 'none';
 	} else {
-		this.ui.find('.lock.on').hide();
-		this.ui.find('.lock.off').show();
+		if (lockOn) lockOn.style.display = 'none';
+		if (lockOff) lockOff.style.display = 'inline-block';
 	}
 
 	this.resize(_preferences.width, _preferences.height);
 
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - (this._host.offsetHeight || 0))}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - (this._host.offsetWidth || 0))}px`;
 
 	if (!_preferences.show) {
 		this.ui.hide();
@@ -147,9 +217,18 @@ PartyFriendsV0.clean = function clean() {
 	_options.item_share = 0;
 	_options.item_sharing_type = 0;
 
-	this.ui.find('.partyname').text('');
-	this.ui.find('.friendcount').text('0');
-	this.ui.find('.content .party, .content .friend').empty();
+	const root = _root();
+	const partyName = root.querySelector('.partyname');
+	if (partyName) partyName.textContent = '';
+
+	const friendCount = root.querySelector('.friendcount');
+	if (friendCount) friendCount.textContent = '0';
+
+	const partyContent = root.querySelector('.content .party');
+	if (partyContent) partyContent.innerHTML = '';
+
+	const friendContent = root.querySelector('.content .friend');
+	if (friendContent) friendContent.innerHTML = '';
 
 	// Reset buttons
 	_preferences.friend = !_preferences.friend;
@@ -158,20 +237,18 @@ PartyFriendsV0.clean = function clean() {
 
 /**
  * Removing the UI from window, save preferences
- *
  */
 PartyFriendsV0.onRemove = function onRemove() {
-	// Save preferences
 	_preferences.show = this.ui.is(':visible');
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 };
 
 /**
  * Window Shortcuts
  */
-PartyFriendsV0.onShortCut = function onShurtCut(key) {
+PartyFriendsV0.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'FRIEND':
 			if (_preferences.friend) {
@@ -215,7 +292,6 @@ PartyFriendsV0.toggle = function toggle() {
 };
 
 PartyFriendsV0.onKeyDown = function onKeyDown(event) {
-	// Event.which is deprecated
 	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 		this.toggle();
 	}
@@ -228,25 +304,22 @@ PartyFriendsV0.onKeyDown = function onKeyDown(event) {
  */
 PartyFriendsV0.setFriends = function setFriends(friends) {
 	const count = friends.length;
-	const ui = this.ui.find('.content .friend');
+	const root = _root();
+	const friendContainer = root.querySelector('.content .friend');
 
 	_friends.length = friends.length;
-	ui.empty();
+	if (friendContainer) friendContainer.innerHTML = '';
 
 	for (let i = 0; i < count; i++) {
 		_friends[i] = friends[i];
-		ui.append(
-			'<div class="node' +
-				(friends[i].State === 0 ? ' online' : '') +
-				'">' +
-				'<span class="name">' +
-				jQuery.escape(friends[i].Name) +
-				'</span>' +
-				'</div>'
-		);
+		const div = document.createElement('div');
+		div.className = `node${friends[i].State === 0 ? ' online' : ''}`;
+		div.innerHTML = `<span class="name">${_escapeHTML(friends[i].Name)}</span>`;
+		if (friendContainer) friendContainer.appendChild(div);
 	}
 
-	this.ui.find('.friendcount').text(count);
+	const friendCount = root.querySelector('.friendcount');
+	if (friendCount) friendCount.textContent = String(count);
 	_index = -1;
 };
 
@@ -257,12 +330,14 @@ PartyFriendsV0.setFriends = function setFriends(friends) {
  * @param {boolean} state
  */
 PartyFriendsV0.updateFriendState = function updateFriendState(index, state) {
-	const node = this.ui.find('.content .friend .node:eq(' + index + ')');
+	const root = _root();
+	const nodes = root.querySelectorAll('.content .friend .node');
+	const node = nodes[index];
 
 	_friends[index].State = state;
 
 	if (state) {
-		node.css('backgroundImage', '');
+		if (node) node.style.backgroundImage = '';
 		ChatBox.addText(
 			DB.getMessage(1042).replace('%s', _friends[index].Name),
 			ChatBox.TYPE.BLUE,
@@ -277,7 +352,7 @@ PartyFriendsV0.updateFriendState = function updateFriendState(index, state) {
 		ChatBox.FILTER.PUBLIC_LOG
 	);
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (url) {
-		node.css('backgroundImage', 'url(' + url + ')');
+		if (node) node.style.backgroundImage = `url(${url})`;
 	});
 };
 
@@ -288,13 +363,22 @@ PartyFriendsV0.updateFriendState = function updateFriendState(index, state) {
  * @param {object} friend data
  */
 PartyFriendsV0.updateFriend = function updateFriend(idx, friend) {
+	const root = _root();
+
 	// Add it
 	if (!_friends[idx]) {
 		_friends[idx] = {};
 
-		this.ui.find('.content .friend').append('<div class="node">' + '<span class="name"></span>' + '</div>');
+		const friendContainer = root.querySelector('.content .friend');
+		if (friendContainer) {
+			const div = document.createElement('div');
+			div.className = 'node';
+			div.innerHTML = '<span class="name"></span>';
+			friendContainer.appendChild(div);
+		}
 
-		this.ui.find('.friendcount').text(_friends.length);
+		const friendCount = root.querySelector('.friendcount');
+		if (friendCount) friendCount.textContent = String(_friends.length);
 	}
 
 	_friends[idx].Name = friend.Name;
@@ -302,11 +386,15 @@ PartyFriendsV0.updateFriend = function updateFriend(idx, friend) {
 	_friends[idx].AID = friend.AID;
 	_friends[idx].State = friend.State || 0;
 
-	const node = this.ui.find('.content .friend .node:eq(' + idx + ')');
-	node.find('.name').text(friend.Name);
+	const nodes = root.querySelectorAll('.content .friend .node');
+	const node = nodes[idx];
+	if (node) {
+		const nameEl = node.querySelector('.name');
+		if (nameEl) nameEl.textContent = friend.Name;
+	}
 
 	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (url) {
-		node.css('backgroundImage', 'url(' + url + ')');
+		if (node) node.style.backgroundImage = `url(${url})`;
 	});
 };
 
@@ -317,8 +405,13 @@ PartyFriendsV0.updateFriend = function updateFriend(idx, friend) {
  */
 PartyFriendsV0.removeFriend = function removeFriend(index) {
 	_friends.splice(index, 1);
-	this.ui.find('.content .friend .node:eq(' + index + ')').remove();
-	this.ui.find('.friendcount').text(_friends.length);
+
+	const root = _root();
+	const nodes = root.querySelectorAll('.content .friend .node');
+	if (nodes[index]) nodes[index].remove();
+
+	const friendCount = root.querySelector('.friendcount');
+	if (friendCount) friendCount.textContent = String(_friends.length);
 
 	if (_index === index) {
 		_index = -1;
@@ -332,12 +425,20 @@ PartyFriendsV0.removeFriend = function removeFriend(index) {
  * @param {Array} member list
  */
 PartyFriendsV0.setParty = function setParty(name, members) {
-	this.ui.find('.partyname').text('(' + name + ')');
-	this.ui.find('.content .party').empty();
+	const root = _root();
+
+	const partyName = root.querySelector('.partyname');
+	if (partyName) partyName.textContent = `(${name})`;
+
+	const partyContent = root.querySelector('.content .party');
+	if (partyContent) partyContent.innerHTML = '';
+
 	Session.isPartyLeader = false;
 
-	this.ui.find('.party.create').hide();
-	this.ui.find('.party.leave').show();
+	const createBtn = root.querySelector('.party.create');
+	const leaveBtn = root.querySelector('.party.leave');
+	if (createBtn) createBtn.style.display = 'none';
+	if (leaveBtn) leaveBtn.style.display = 'inline-block';
 
 	const count = members.length;
 
@@ -357,83 +458,85 @@ PartyFriendsV0.setParty = function setParty(name, members) {
 PartyFriendsV0.addPartyMember = function addPartyMember(player) {
 	const role = player.role || player.Role || 0;
 	const count = _party.length;
+	const root = _root();
 	let node;
 
 	// Check if we are the leader
 	if (player.AID === Session.AID) {
 		Session.isPartyLeader = role === 0;
-		if (Session.isPartyLeader) {
-			this.ui.find('.party.add').show();
-		} else {
-			this.ui.find('.party.add').hide();
+		const addBtn = root.querySelector('.party.add');
+		if (addBtn) {
+			addBtn.style.display = Session.isPartyLeader ? 'inline-block' : 'none';
 		}
 	}
 
 	// Search for duplicates entries
+	const nodes = root.querySelectorAll('.content .party .node');
 	for (let i = 0; i < count; ++i) {
-		// No GID, need to compare using charactername (wtf)
 		if (_party[i].AID === player.AID && _party[i].characterName === player.characterName) {
-			node = this.ui.find('.content .party .node:eq(' + i + ')');
+			node = nodes[i];
 			break;
 		}
 	}
+
 	// Update
 	if (node) {
-		node.removeClass('leader online');
+		node.classList.remove('leader', 'online');
 
 		if (role === 0) {
-			node.addClass('leader');
+			node.classList.add('leader');
 		}
 		if (player.state === 0) {
-			node.addClass('online');
+			node.classList.add('online');
 		}
 
-		node.css('backgroundImage', '');
-		node.find('.name').text(player.characterName);
-		node.find('.map').text('(' + DB.getMapName(player.mapName) + ')');
+		node.style.backgroundImage = '';
+		const nameEl = node.querySelector('.name');
+		if (nameEl) nameEl.textContent = player.characterName;
+		const mapEl = node.querySelector('.map');
+		if (mapEl) mapEl.textContent = `(${DB.getMapName(player.mapName)})`;
 	}
 
 	// Create
 	else {
-		player = jQuery.extend({}, player);
+		player = Object.assign({}, player);
 
 		_party.push(player);
-		this.ui
-			.find('.content .party')
-			.append(
-				'<div class="node' +
-					(role === 0 ? ' leader' : '') +
-					(player.state === 0 ? ' online' : '') +
-					'">' +
-					'<span class="name">' +
-					jQuery.escape(player.characterName) +
-					'</span>' +
-					'<span class="map">(' +
-					jQuery.escape(DB.getMapName(player.mapName)) +
-					')</span>' +
-					'<canvas class="life" width="60" height="5"></canvas> <span class="hp"></span>' +
-					'</div>'
-			);
-
-		node = this.ui.find('.content .party .node').last();
+		const partyContent = root.querySelector('.content .party');
+		if (partyContent) {
+			const div = document.createElement('div');
+			div.className = `node${role === 0 ? ' leader' : ''}${player.state === 0 ? ' online' : ''}`;
+			div.innerHTML =
+				`<span class="name">${_escapeHTML(player.characterName)}</span>` +
+				`<span class="map">(${_escapeHTML(DB.getMapName(player.mapName))})</span>` +
+				'<canvas class="life" width="60" height="5"></canvas> <span class="hp"></span>';
+			partyContent.appendChild(div);
+			node = div;
+		}
 	}
 
-	node.find('.hp').text('');
+	if (!node) return;
 
-	const ctx = node.find('canvas').get(0).getContext('2d');
-	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	const hpEl = node.querySelector('.hp');
+	if (hpEl) hpEl.textContent = '';
 
-	// Update life
-	if (player.life && player.life.display) {
-		ctx.drawImage(player.life.canvas, 0, 0, 60, 5, 0, 0, 60, 5);
-		node.find('.hp').text(player.life.hp + '/' + player.life.hp_max);
+	const canvas = node.querySelector('canvas');
+	if (canvas) {
+		const ctx = canvas.getContext('2d');
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+		// Update life
+		if (player.life && player.life.display) {
+			ctx.drawImage(player.life.canvas, 0, 0, 60, 5, 0, 0, 60, 5);
+			if (hpEl) hpEl.textContent = `${player.life.hp}/${player.life.hp_max}`;
+		}
 	}
 
 	// Add texture
 	const texture = role === 0 && player.state === 0 ? 'grp_leader.bmp' : player.state === 0 ? 'grp_online.bmp' : '';
 	if (texture) {
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/' + texture, function (url) {
-			node.css('backgroundImage', 'url(' + url + ')');
+			if (node) node.style.backgroundImage = `url(${url})`;
 		});
 	}
 };
@@ -445,26 +548,36 @@ PartyFriendsV0.addPartyMember = function addPartyMember(player) {
  * @param {string} character name
  */
 PartyFriendsV0.removePartyMember = function removePartyMember(AID, characterName) {
+	const root = _root();
+
 	if (AID === Session.AID) {
 		_party.length = 0;
 
-		this.ui.find('.content .party').empty();
-		this.ui.find('.partyname').text('');
-		this.ui.find('.party.create').show();
-		this.ui.find('.party.leave, .party.add').hide();
+		const partyContent = root.querySelector('.content .party');
+		if (partyContent) partyContent.innerHTML = '';
+
+		const partyName = root.querySelector('.partyname');
+		if (partyName) partyName.textContent = '';
+
+		const createBtn = root.querySelector('.party.create');
+		if (createBtn) createBtn.style.display = 'inline-block';
+
+		const leaveBtn = root.querySelector('.party.leave');
+		const addBtn = root.querySelector('.party.add');
+		if (leaveBtn) leaveBtn.style.display = 'none';
+		if (addBtn) addBtn.style.display = 'none';
 
 		ChatBox.addText(DB.getMessage(84), ChatBox.TYPE.BLUE, ChatBox.FILTER.PARTY_SETUP);
 		return;
 	}
 
 	const count = _party.length;
+	const nodes = root.querySelectorAll('.content .party .node');
 
 	for (let i = 0; i < count; ++i) {
-		// Why Gravity doesn't send the GID ? Meaning we can't have the same
-		// character name twice (even in the same account).
 		if (_party[i].AID === AID && _party[i].characterName === characterName) {
 			_party.splice(i, 1);
-			this.ui.find('.content .party .node:eq(' + i + ')').remove();
+			if (nodes[i]) nodes[i].remove();
 			break;
 		}
 	}
@@ -484,10 +597,12 @@ PartyFriendsV0.resize = function resize(width, height) {
 	_preferences.height = height;
 	_preferences.save();
 
-	this.ui.find('.content').css({
-		width: width * 20,
-		height: height * 20
-	});
+	const root = _root();
+	const content = root.querySelector('.content');
+	if (content) {
+		content.style.width = `${width * 20}px`;
+		content.style.height = `${height * 20}px`;
+	}
 };
 
 /**
@@ -500,18 +615,20 @@ PartyFriendsV0.resize = function resize(width, height) {
  */
 PartyFriendsV0.updateMemberLife = function updateMemberLife(AID, canvas, hp, maxhp) {
 	const count = _party.length;
-	let node;
+	const root = _root();
+	const nodes = root.querySelectorAll('.content .party .node');
 
 	for (let i = 0; i < count; ++i) {
-		// No GID data, so have to check for the online character in
-		// the account (since we can have multiple players in a team
-		// using the same account).
 		if (_party[i].AID === AID && _party[i].state === 0) {
-			node = this.ui.find('.content .party .node:eq(' + i + ')');
-			const ctx = node.find('canvas').get(0).getContext('2d');
-
-			ctx.drawImage(canvas, 0, 0, 60, 5, 0, 0, 60, 5);
-			node.find('.hp').text(hp + '/' + maxhp);
+			const node = nodes[i];
+			if (!node) break;
+			const cvs = node.querySelector('canvas');
+			if (cvs) {
+				const ctx = cvs.getContext('2d');
+				ctx.drawImage(canvas, 0, 0, 60, 5, 0, 0, 60, 5);
+			}
+			const hpEl = node.querySelector('.hp');
+			if (hpEl) hpEl.textContent = `${hp}/${maxhp}`;
 			break;
 		}
 	}
@@ -544,7 +661,6 @@ PartyFriendsV0.setOptions = function setOptions(exp_share, item_share, item_shar
 PartyFriendsV0.isGroupMember = function isGroupMember(characterName) {
 	const count = _party.length;
 	for (let i = 0; i < count; ++i) {
-		// No GID, need to compare using charactername (wtf)
 		if (_party[i].characterName === characterName) {
 			return true;
 		}
@@ -557,9 +673,9 @@ PartyFriendsV0.isGroupMember = function isGroupMember(characterName) {
  * Resizing UI
  */
 function onResize() {
-	const ui = PartyFriendsV0.ui;
-	const top = ui.position().top;
-	const left = ui.position().left;
+	const host = PartyFriendsV0._host;
+	const top = host.offsetTop;
+	const left = host.offsetLeft;
 	let lastWidth = 0;
 	let lastHeight = 0;
 
@@ -587,12 +703,13 @@ function onResize() {
 	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
-	jQuery(window).on('mouseup.resize', function (event) {
+	const onMouseUp = (event) => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
-			jQuery(window).off('mouseup.resize');
+			window.removeEventListener('mouseup', onMouseUp);
 		}
-	});
+	};
+	window.addEventListener('mouseup', onMouseUp);
 }
 
 /**
@@ -610,12 +727,16 @@ function onToggleLock() {
 	_preferences.lock = !_preferences.lock;
 	_preferences.save();
 
+	const root = _root();
+	const lockOn = root.querySelector('.lock.on');
+	const lockOff = root.querySelector('.lock.off');
+
 	if (_preferences.lock) {
-		PartyFriendsV0.ui.find('.lock.on').show();
-		PartyFriendsV0.ui.find('.lock.off').hide();
+		if (lockOn) lockOn.style.display = 'inline-block';
+		if (lockOff) lockOff.style.display = 'none';
 	} else {
-		PartyFriendsV0.ui.find('.lock.on').hide();
-		PartyFriendsV0.ui.find('.lock.off').show();
+		if (lockOn) lockOn.style.display = 'none';
+		if (lockOff) lockOff.style.display = 'inline-block';
 	}
 }
 
@@ -623,31 +744,47 @@ function onToggleLock() {
  * Move to the other tab (Friend -> Party or Party -> Friend)
  */
 function onChangeTab() {
-	const ui = PartyFriendsV0.ui;
+	const root = _root();
 
 	_preferences.friend = !_preferences.friend;
 	_preferences.save();
 
-	// Initialize the tab
+	// Show/hide elements based on tab
+	const friendEls = root.querySelectorAll('.friend');
+	const partyEls = root.querySelectorAll('.party');
+
 	if (_preferences.friend) {
-		ui.find('.friend').show();
-		ui.find('.party').hide();
+		friendEls.forEach((el) => {
+			el.style.display = '';
+		});
+		partyEls.forEach((el) => {
+			el.style.display = 'none';
+		});
 	} else {
-		ui.find('.friend').hide();
-		ui.find('.party').show();
+		friendEls.forEach((el) => {
+			el.style.display = 'none';
+		});
+		partyEls.forEach((el) => {
+			el.style.display = '';
+		});
 
 		if (Session.hasParty) {
-			ui.find('.party.create').hide();
+			const createBtn = root.querySelector('.party.create');
+			if (createBtn) createBtn.style.display = 'none';
 
 			if (!Session.isPartyLeader) {
-				ui.find('.party.add').hide();
+				const addBtn = root.querySelector('.party.add');
+				if (addBtn) addBtn.style.display = 'none';
 			}
 		} else {
-			ui.find('.party.add, .party.leave').hide();
+			const addBtn = root.querySelector('.party.add');
+			const leaveBtn = root.querySelector('.party.leave');
+			if (addBtn) addBtn.style.display = 'none';
+			if (leaveBtn) leaveBtn.style.display = 'none';
 		}
 	}
 
-	ui.find('.node').removeClass('selection');
+	root.querySelectorAll('.node').forEach((n) => n.classList.remove('selection'));
 	_index = -1;
 }
 
@@ -667,7 +804,7 @@ function onRequestRemoveSelection() {
 	const text = _preferences.friend ? DB.getMessage(356) : DB.getMessage(363);
 
 	// Are you sure that you want to delete/expel ?
-	UIManager.showPromptBox(text, 'ok', 'cancel', function () {
+	UIManager.showPromptBox(text, 'ok', 'cancel', () => {
 		if (_preferences.friend) {
 			PartyFriendsV0.onRemoveFriend(_index);
 		} else {
@@ -692,8 +829,13 @@ function onRequestPrivateMessage() {
 		return;
 	}
 
-	ChatBox.ui.find('.username').val(name);
-	ChatBox.ui.find('.message').select();
+	const chatRoot = ChatBox._shadow || ChatBox._host;
+	if (chatRoot) {
+		const usernameInput = chatRoot.querySelector('.username');
+		if (usernameInput) usernameInput.value = name;
+		const messageInput = chatRoot.querySelector('.message');
+		if (messageInput) messageInput.focus();
+	}
 }
 
 /**
@@ -705,8 +847,13 @@ PartyFriendsV0.onOpenChat1to1 = function onOpenChat1to1(name) {
 		return;
 	}
 
-	ChatBox.ui.find('.username').val(name);
-	ChatBox.ui.find('.message').select();
+	const chatRoot = ChatBox._shadow || ChatBox._host;
+	if (chatRoot) {
+		const usernameInput = chatRoot.querySelector('.username');
+		if (usernameInput) usernameInput.value = name;
+		const messageInput = chatRoot.querySelector('.message');
+		if (messageInput) messageInput.focus();
+	}
 };
 
 /**
@@ -744,14 +891,12 @@ function onRightClickInfo() {
 
 /**
  * Request player information
- * (Not implemented yet in official client)
  */
 function onRequestInformation() {
 	if (_preferences.lock) {
 		return;
 	}
 
-	// Not implemented yet
 	UIManager.showMessageBox(DB.getMessage(191), 'ok');
 }
 
@@ -763,23 +908,20 @@ function onRequestLeaveParty() {
 		return;
 	}
 
-	// Are you sure that you want to leave ?
-	UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', function () {
+	UIManager.showPromptBox(DB.getMessage(357), 'ok', 'cancel', () => {
 		PartyFriendsV0.onRequestLeave();
 	});
 }
 
 /**
  * Request to change party leader
- * (need to be the leader)
  */
 function onRequestPartyDelegation() {
 	if (_preferences.lock) {
 		return;
 	}
 
-	// Do you want to delegate the real party?
-	UIManager.showPromptBox(DB.getMessage(1532), 'ok', 'cancel', function () {
+	UIManager.showPromptBox(DB.getMessage(1532), 'ok', 'cancel', () => {
 		PartyFriendsV0.onRequestChangeLeader(_party[_index].AID);
 	});
 }
@@ -787,12 +929,16 @@ function onRequestPartyDelegation() {
 /**
  * Change selection (click on a friend/party)
  */
-function onSelectionChange(event) {
-	PartyFriendsV0.ui.find('.content .name').removeClass('selection');
-	const node = jQuery(this);
-	node.find('.name').addClass('selection');
+function onSelectionChange(nodeEl) {
+	const root = _root();
+	root.querySelectorAll('.content .name').forEach((el) => el.classList.remove('selection'));
 
-	_index = PartyFriendsV0.ui.find(this.parentNode).find('.node').index(this);
+	const nameEl = nodeEl.querySelector('.name');
+	if (nameEl) nameEl.classList.add('selection');
+
+	const parent = nodeEl.parentNode;
+	const siblings = parent.querySelectorAll('.node');
+	_index = Array.prototype.indexOf.call(siblings, nodeEl);
 
 	if (SkillTargetSelection.intersectEntityId) {
 		const entityId = _preferences.friend ? _friends[_index].AID : _party[_index].AID;
@@ -810,10 +956,6 @@ PartyFriendsV0.onRequestChangeLeader = function onRequestChangeLeader() {};
 PartyFriendsV0.onExpelMember = function onExpelMember() {};
 PartyFriendsV0.onRemoveFriend = function onRemoveFriend() {};
 PartyFriendsV0.onRequestSettingUpdate = function onRequestSettingUpdate() {};
-
-/**
- * Internal functions to manage the windows
- */
 
 /**
  * Open the party info window
@@ -879,8 +1021,22 @@ function onOpenMailCreationWindow() {
 	if (_preferences.lock) {
 		return;
 	}
-	Mail.append();
+
+	let recipient = '';
+	if (_preferences.friend && _friends[_index]) {
+		recipient = _friends[_index].Name;
+	} else if (!_preferences.friend && _party[_index]) {
+		recipient = _party[_index].characterName;
+	}
+
+	if (recipient) {
+		Mail.replyNewMailFriends(recipient);
+	} else {
+		Mail.append();
+	}
 }
+
+PartyFriendsV0.mouseMode = GUIComponent.MouseMode.STOP;
 
 /**
  * Storing Requirement

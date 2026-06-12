@@ -1,4 +1,4 @@
-#PartyFriends {
+:host {
 	position: absolute;
 }
 
@@ -113,7 +113,8 @@
 	background-repeat: repeat-x;
 	background-color: transparent;
 }
-#PartyFriends .navigation button {
+#PartyFriends .navigation button,
+#PartyFriends .navigation ui-button {
 	float: left;
 	border: none;
 	background: none;
@@ -121,7 +122,8 @@
 	height: 20px;
 	position: relative;
 }
-#PartyFriends .navigation button .overlay {
+#PartyFriends .navigation button .overlay,
+#PartyFriends .navigation ui-button .overlay {
 	position: absolute;
 	display: none;
 	top: -20px;
@@ -133,7 +135,8 @@
 	color: white;
 	text-shadow: 1px 1px black;
 }
-#PartyFriends .navigation button:hover .overlay {
+#PartyFriends .navigation button:hover .overlay,
+#PartyFriends .navigation ui-button:hover .overlay {
 	display: block;
 }
 

@@ -11,6 +11,7 @@ import 'UI/Elements/Elements.js';
 import Preferences from 'Core/Preferences.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import Renderer from 'Renderer/Renderer.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import History from '../ChatBox/History.js';
 import Sound from 'Audio/SoundManager.js';
 import htmlText from './WhisperBox.html?raw';
@@ -55,8 +56,14 @@ WhisperBox.captureKeyEvents = true;
 /**
  * Initialize component
  */
+WhisperBox._chatBoxNickHandlerAttached = false;
+
 WhisperBox.init = function init() {
 	this.clearAll();
+	if (!this._chatBoxNickHandlerAttached) {
+		setupNicknameLinkHandler(ChatBox);
+		this._chatBoxNickHandlerAttached = true;
+	}
 };
 
 /**
@@ -209,7 +216,6 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	});
 
 	setupItemLinkHandler(instance);
-	setupNicknameLinkHandler(instance);
 	initResizable(instance);
 
 	const offset = (this._spawnCounter % 10) * 20;
@@ -321,6 +327,11 @@ function setupItemLinkHandler(instance) {
  */
 function setupNicknameLinkHandler(instance) {
 	const root = instance._shadow || instance._host;
+	root.addEventListener('mousedown', event => {
+		if (event.target.closest('.nickname-link')) {
+			event.stopPropagation();
+		}
+	});
 	root.addEventListener('click', event => {
 		const link = event.target.closest('.nickname-link');
 		if (!link) {

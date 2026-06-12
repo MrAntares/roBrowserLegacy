@@ -1,7 +1,10 @@
+:host {
+	position: absolute;
+}
+
 #ReadMail {
 	width: 250px;
 	height: 330px;
-	position: absolute;
 }
 
 #ReadMail .body {

@@ -1,3 +1,7 @@
+:host {
+	position: absolute;
+}
+
 #chatbox {
 	position: relative;
 	left: 5px;
