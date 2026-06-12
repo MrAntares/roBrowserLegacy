@@ -92,10 +92,6 @@ function _sanitizeHtml(str) {
 	return div.innerHTML;
 }
 
-function _getBasicInfoRoot(ui) {
-	return ui._shadow || ui._host || document;
-}
-
 InventoryV2.init = function Init() {
 	const root = InventoryV2.getRoot();
 
@@ -275,7 +271,7 @@ InventoryV2.onShortCut = function onShurtCut(key) {
 
 	const basicInfoUI = BasicInfo.getUI();
 	if (basicInfoUI._host) {
-		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 		if (changeUI) changeUI.style.display = 'none';
 	}
 };
@@ -296,7 +292,7 @@ InventoryV2.toggle = function toggle() {
 
 	const basicInfoUI = BasicInfo.getUI();
 	if (basicInfoUI._host) {
-		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 		if (changeUI) changeUI.style.display = 'none';
 	}
 };
@@ -404,7 +400,7 @@ InventoryV2.addItem = function AddItem(item) {
 		InventoryV2.newItems.push(item.index);
 		const basicInfoUI = BasicInfo.getUI();
 		if (basicInfoUI._host) {
-			const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+			const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 			if (changeUI) changeUI.style.display = 'block';
 		}
 	}

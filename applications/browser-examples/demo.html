@@ -211,13 +211,17 @@
 				var xhr = new XMLHttpRequest();
 				xhr.open('GET', url, true);
 				xhr.responseType = 'json';
+				xhr.timeout = 1000;
 				xhr.onload = function () {
 					var status = xhr.status;
-					if (status === 200) {
-						callback(null, xhr.response);
-					} else {
-						callback(status, xhr.response);
-					}
+					if (status === 200) callback(null, xhr.response);
+					else callback(status, xhr.response);
+				};
+				xhr.onerror = function () {
+					callback(-1, null);
+				};
+				xhr.ontimeout = function () {
+					callback(-1, null);
 				};
 				xhr.send();
 			};

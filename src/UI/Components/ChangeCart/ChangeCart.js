@@ -47,7 +47,7 @@ const _layerEntity = new Entity();
  * Initialize UI
  */
 ChangeCart.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const carts = root.querySelectorAll('.cart');
 
 	this._host.style.top = (Renderer.height - 100) / 2.0 + 'px';
@@ -136,7 +136,7 @@ function updateList(blvl) {
 		return;
 	}
 
-	const root = ChangeCart._shadow || ChangeCart._host;
+	const root = ChangeCart.getRoot();
 	root.querySelectorAll('.cart').forEach(el => {
 		el.style.display = 'none';
 	});
@@ -219,7 +219,7 @@ function drawActionToCanvas(ctx, act, spr, actionId, x, y) {
  * Rendering the Carts
  */
 function render(tick) {
-	const root = ChangeCart._shadow || ChangeCart._host;
+	const root = ChangeCart.getRoot();
 	const canvases = root.querySelectorAll('.canvas');
 
 	canvases.forEach(el => {

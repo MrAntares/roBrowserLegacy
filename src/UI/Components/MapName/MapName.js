@@ -97,7 +97,7 @@ MapName.setMap = function setMap(mapname) {
 		this.prepare();
 	}
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	_prevMap = _currMap;
 	_currMap = mapname;
@@ -133,10 +133,8 @@ MapName.setMap = function setMap(mapname) {
  * Remove MapName from window (and so clean up items)
  */
 MapName.onRemove = function OnRemove() {
-	if (!this._shadow && !this._host) {
-		return;
-	}
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
+	if (!root) return;
 
 	root.querySelector('.mapbg').style.backgroundImage = 'none';
 	root.querySelector('.mapsubtitle').textContent = '';

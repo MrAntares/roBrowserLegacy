@@ -71,7 +71,7 @@ function escapeHtml(text) {
  * Initialize UI
  */
 Trade.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	// Bind buttons
 	const okBtn = root.querySelector('.ok.enabled');
@@ -159,7 +159,7 @@ Trade.onAppend = function onAppend() {
 	// Clean up (interface)
 	resetUI.call(this);
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const titleEl = root.querySelector('.titlebar .title');
 	if (titleEl) {
 		titleEl.textContent = this.title;
@@ -186,7 +186,7 @@ function resetUI() {
 	_recv.length = 0;
 	_send.length = 0;
 
-	const root = this._shadow || this._host;
+	const root = Trade.getRoot();
 
 	const overlay = root.querySelector('.overlay');
 	if (overlay) {
@@ -246,7 +246,7 @@ Trade.addItemFromInventory = function addItemFromInventory(index, success) {
 		return;
 	}
 
-	const root = this._shadow || this._host;
+	const root = Trade.getRoot();
 
 	// ZENY
 	if (index === 0) {
@@ -290,7 +290,7 @@ Trade.addItemFromInventory = function addItemFromInventory(index, success) {
  * @param {object} item
  */
 Trade.addItem = function addItem(item) {
-	const root = this._shadow || this._host;
+	const root = Trade.getRoot();
 
 	// ZENY
 	if (item.ITID === 0) {
@@ -364,7 +364,7 @@ function onRequestAddItem(index, count) {
  * @param {string} element - 'send' or 'recv'
  */
 Trade.conclude = function conclude(element) {
-	const root = this._shadow || this._host;
+	const root = Trade.getRoot();
 
 	const box = root.querySelector(`.box.${element}`);
 	if (box) {
@@ -420,7 +420,7 @@ function onCancel() {
  * Conclude our part
  */
 function onConclude() {
-	const root = Trade._shadow || Trade._host;
+	const root = Trade.getRoot();
 	const zenySend = root.querySelector('.zeny.send');
 	let zeny = parseInt(zenySend ? zenySend.value : '0', 10) || 0;
 	zeny = Math.min(Math.max(0, zeny), Session.zeny);
@@ -434,7 +434,7 @@ function onConclude() {
  */
 function onTrade() {
 	Trade.onTradeSubmit();
-	const root = Trade._shadow || Trade._host;
+	const root = Trade.getRoot();
 	const tradeEnabled = root.querySelector('.trade.enabled');
 	const tradeDisabled = root.querySelector('.trade.disabled');
 	if (tradeEnabled) {
@@ -505,7 +505,7 @@ function onItemOver(itemEl) {
 		return;
 	}
 
-	const root = Trade._shadow || Trade._host;
+	const root = Trade.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (!overlay) {
 		return;
@@ -533,7 +533,7 @@ function onItemOver(itemEl) {
  * Hide the item title when mouse is not over anymore
  */
 function onItemOut() {
-	const root = Trade._shadow || Trade._host;
+	const root = Trade.getRoot();
 	const overlay = root.querySelector('.overlay');
 	if (overlay) {
 		overlay.style.display = 'none';

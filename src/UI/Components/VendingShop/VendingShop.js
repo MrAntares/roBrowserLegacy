@@ -76,7 +76,7 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 VendingShop.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const closeBtn = root.querySelector('.btn.close');
 	if (closeBtn) {
@@ -148,7 +148,7 @@ VendingShop.onAppend = function onAppend() {
 	_realSize = _preferences.reduce ? 0 : hostRect.height;
 	const messageText = DB.getMessage(226);
 	const titleShop = Vending._shopname.length > 25 ? `${Vending._shopname.substring(0, 25)}...` : Vending._shopname;
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const shopnameEl = root.querySelector('.text.shopname');
 	if (shopnameEl) {
 		shopnameEl.textContent = `${messageText} : ${titleShop}`;
@@ -168,7 +168,7 @@ VendingShop.setType = function setType(type) {
  * Remove Inventory from window (and so clean up items)
  */
 VendingShop.onRemove = function onRemove() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.innerHTML = '';
@@ -200,7 +200,7 @@ VendingShop.resize = function resize(width, height) {
 	width = Math.min(Math.max(width, 6), 9);
 	height = Math.min(Math.max(height, 2), 6);
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.style.width = `${width * 32 + 13}px`;
@@ -279,7 +279,7 @@ VendingShop.addItem = function addItem(item) {
 
 	if (object) {
 		object.count += item.count;
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
 		if (countEl) {
 			countEl.textContent = object.count;
@@ -300,7 +300,7 @@ VendingShop.addItem = function addItem(item) {
  */
 VendingShop.addItemSub = function addItemSub(item) {
 	const it = DB.getItemInfo(item.ITID);
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const content = root.querySelector('.container .content');
 	if (!content) {
 		return false;
@@ -351,7 +351,7 @@ VendingShop.removeItem = function removeItem(index, count) {
 	const msg = DB.getMessage(231).replace('%s', DB.getItemName(item)).replace('%d', count);
 	ChatBox.addText(msg, ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	if (item.count) {
 		item.count -= count;
@@ -400,7 +400,7 @@ VendingShop.updateItem = function updateItem(index, count) {
 
 	item.count = count;
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	if (item.count > 0) {
 		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
@@ -466,7 +466,7 @@ function prettyZeny(val, useStyle) {
  */
 function _onToggleReduction() {
 	const host = VendingShop._host;
-	const root = VendingShop._shadow || host;
+	const root = VendingShop.getRoot();
 
 	if (_realSize) {
 		const panel = root.querySelector('.panel');
@@ -490,7 +490,7 @@ function _onToggleReduction() {
  * @preserved currently unused, might be needed in the future
  */
 function _requestFilter() {
-	const root = VendingShop._shadow || VendingShop._host;
+	const root = VendingShop.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.innerHTML = '';
@@ -619,7 +619,7 @@ function onItemUsed(event, itemEl) {
 
 	if (item) {
 		VendingShop.useItem(item);
-		onItemOut(VendingShop._shadow || VendingShop._host);
+		onItemOut(VendingShop.getRoot());
 	}
 
 	event.stopImmediatePropagation();

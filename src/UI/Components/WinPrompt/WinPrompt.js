@@ -36,7 +36,7 @@ WinPrompt.init = function init() {
 WinPrompt.ask = function ask(text, btn_yes, btn_no, onYes, onNo) {
 	if (!this.__loaded) this.prepare();
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	// Set text
 	const textEl = root.querySelector('.text');

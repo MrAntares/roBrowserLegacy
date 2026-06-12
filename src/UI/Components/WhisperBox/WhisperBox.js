@@ -94,7 +94,9 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	instance.captureKeyEvents = true;
 
 	instance.onKeyDown = function onKeyDown(event) {
-		if (this.isEditableFocused()) {
+		const focused = WhisperBox.getRoot().activeElement;
+		const isContentEditable = focused.getAttribute('contenteditable') === 'true';
+		if (WhisperBox.isEditableFocused() || isContentEditable) {
 			switch (event.which) {
 				case KEYS.ESCAPE:
 					this.remove();
@@ -142,7 +144,7 @@ WhisperBox.show = function show(nickname, bHasMessage) {
 	instance.prepare();
 	instance.append();
 
-	const root = instance._shadow || instance._host;
+	const root = instance.getRoot();
 	instance._contentEl = root.querySelector('.content');
 	instance._inputEl = root.querySelector('.input-whisper');
 
@@ -288,7 +290,7 @@ function extractChatMessage(inputEl) {
  * @param {GUIComponent} instance
  */
 function setupItemLinkHandler(instance) {
-	const root = instance._shadow || instance._host;
+	const root = instance.getRoot();
 	root.addEventListener('click', event => {
 		const link = event.target.closest('.item-link');
 		if (!link) {
@@ -312,7 +314,7 @@ function setupItemLinkHandler(instance) {
  * @param {GUIComponent} instance
  */
 function setupNicknameLinkHandler(instance) {
-	const root = instance._shadow || instance._host;
+	const root = instance.getRoot();
 	root.addEventListener('click', event => {
 		const link = event.target.closest('.nickname-link');
 		if (!link) {
@@ -336,7 +338,7 @@ WhisperBox.onRequestTalk = function onRequestTalk(_nickname, _text) {};
  * @param {GUIComponent} instance
  */
 function initResizable(instance) {
-	const root = instance._shadow || instance._host;
+	const root = instance.getRoot();
 	const resizer = root.querySelector('.resizer');
 	if (!resizer) {
 		return;

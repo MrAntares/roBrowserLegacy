@@ -59,7 +59,7 @@ const C_ASPECTY = 4;
  * Initialize UI
  */
 WorldMap.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const bases = root.querySelectorAll('.titlebar .base');
 	bases.forEach(el => el.addEventListener('mousedown', stopPropagation));
@@ -90,7 +90,7 @@ WorldMap.init = function init() {
  * Create WorldMap list of maps (select Element)
  */
 function setMapList() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const selectEl = root.querySelector('#WorldMaps');
 	if (!selectEl) return;
 	let list = '';
@@ -103,7 +103,7 @@ function setMapList() {
 }
 
 function onSelect() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	selectMap(root.querySelector('.titlebar select').value);
 }
 
@@ -113,20 +113,19 @@ function onSelect() {
  * @param {string} name eg. `"worldmap_localizing1"`
  */
 function selectMap(name = null) {
-	let mapName = 'worldmap.jpg';
 	// If no name provided, use the first available map
-	if (!name) {
+	if (!name || name === null) {
 		if (MAPS.length > 0) {
-			mapName = MAPS[0].id;
+			name = MAPS[0].id;
 		} else {
-			mapName = 'worldmap.jpg';
+			name = 'worldmap.jpg';
 		}
 	}
 	// load map image asset and render it
-	Client.loadFile(DB.INTERFACE_PATH + mapName, data => {
+	Client.loadFile(DB.INTERFACE_PATH + name, data => {
 		// find map data by name and render it
 		for (const map of MAPS) {
-			if (map.id === mapName) {
+			if (map.id === name) {
 				createWorldMapView(map, data);
 				resizeMap();
 				break;
@@ -139,7 +138,7 @@ function selectMap(name = null) {
  * Resize world map
  */
 function resizeMap() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const mapContainer = root.querySelector('.map-view');
 	if (!mapContainer) return;
 
@@ -204,7 +203,7 @@ function onWorldMapMouseOut(e) {
  * @param {*} section
  */
 function showTooltip(section) {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const tooltip = root.querySelector('#map-tooltip');
 	if (!tooltip) return;
 
@@ -242,7 +241,7 @@ function showTooltip(section) {
  * Hide tooltip
  */
 function hideTooltip() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const tooltip = root.querySelector('#map-tooltip');
 	if (tooltip) {
 		tooltip.style.display = 'none';
@@ -257,7 +256,7 @@ function hideTooltip() {
  * @param {string} imgData world map image data as a base64
  */
 function createWorldMapView(map, imgData) {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const container = root.querySelector('.map .content');
 	const worldmap = document.createElement('div');
 	const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, '');
@@ -444,7 +443,7 @@ function loadAirplane(mapView) {
  * @todo use server time and set position and angle
  */
 function setAirplanePosition(airplane) {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	const el = airplane || root.querySelector('.worldmap #midgard-airplane');
 	if (!el) return;
 	el.style.top = '35%';
@@ -628,7 +627,7 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
 		}
 	});
 
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('membersonmap'));
 	for (const mapId of Object.keys(_partyMembersByMap)) {
 		const el = root.querySelector('.worldmap .section#' + CSS.escape(mapId));
@@ -640,7 +639,7 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
  * Toggle all maps
  */
 function onToggleMaps() {
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 	if (WorldMap.showAllMaps) {
 		root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('allmapvisible'));
 		WorldMap.showAllMaps = false;
@@ -655,7 +654,7 @@ function onToggleMaps() {
  */
 function onShowLVL() {
 	WorldMap.showLVLMode = !WorldMap.showLVLMode;
-	const root = WorldMap._shadow || WorldMap._host;
+	const root = WorldMap.getRoot();
 
 	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (WorldMap.showLVLMode ? '1' : '0') + '.bmp', function (data) {
 		const btn = root.querySelector('.showlvl');

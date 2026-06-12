@@ -175,6 +175,8 @@ function addRouletteIcon() {
  * Remove from DOM
  */
 Roulette.onRemove = function onRemove() {
+	_iconBtn.remove();
+	_iconBtn = null;
 	_preferences.show = this.ui.is(':visible');
 	_preferences.x = parseInt(this.ui.css('left'), 10);
 	_preferences.y = parseInt(this.ui.css('top'), 10);

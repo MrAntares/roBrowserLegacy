@@ -26,9 +26,17 @@ export default function UIClamp(el, WIDTH, HEIGHT, magnet) {
 	if (y + height > HEIGHT) {
 		el.style.top = HEIGHT - Math.min(height, HEIGHT) + 'px';
 	}
+	// Overflow top
+	if (y < 0) {
+		el.style.top = '0px';
+	}
 	// Overflow right
 	if (x + width > WIDTH) {
 		el.style.left = WIDTH - Math.min(width, WIDTH) + 'px';
+	}
+	// Overflow left
+	if (x < 0) {
+		el.style.left = '0px';
 	}
 	// Magnet constraints (TOP/LEFT already at 0, no adjustment needed)
 	if (magnet) {

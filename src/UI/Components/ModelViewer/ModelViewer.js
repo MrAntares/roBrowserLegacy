@@ -95,7 +95,7 @@ Viewer.init = function init() {
 
 	Renderer.show();
 
-	const root = this.getRoot();
+	const root = Viewer.getRoot();
 
 	if (!Configs.get('API')) {
 		initDropDown(root.querySelector('select'));
@@ -144,7 +144,7 @@ function initDropDown(select) {
 			loadModel(select.value);
 		}
 
-		const root = this.getRoot();
+		const root = Viewer.getRoot();
 		root.querySelector('.head').style.display = 'block';
 		select.focus();
 	});

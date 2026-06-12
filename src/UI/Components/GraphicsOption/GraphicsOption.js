@@ -48,7 +48,7 @@ GraphicsOption.render = () => htmlText;
  * Initialize UI
  */
 GraphicsOption.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const baseBtn = root.querySelector('.base');
 	if (baseBtn) {
@@ -121,7 +121,7 @@ GraphicsOption.onAppend = function onAppend() {
 	this._host.style.top = `${_preferences.y}px`;
 	this._host.style.left = `${_preferences.x}px`;
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	root.querySelector('.details').value = GraphicsSettings.quality;
 	root.querySelector('.screensize').value = GraphicsSettings.screensize;
@@ -361,7 +361,7 @@ function onUpdateScreenSize() {
 function onTabSwitch(event) {
 	const btn = event.currentTarget;
 	const tabName = btn.dataset.tab;
-	const root = GraphicsOption._shadow || GraphicsOption._host;
+	const root = GraphicsOption.getRoot();
 
 	root.querySelectorAll('.tab-button').forEach(b => {
 		b.classList.remove('selected');

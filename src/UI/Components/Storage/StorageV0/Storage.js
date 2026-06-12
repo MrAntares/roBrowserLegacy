@@ -51,7 +51,7 @@ const _preferences = Preferences.get(
 );
 
 Storage.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const tabButtons = root.querySelectorAll('.tabs button');
 	tabButtons.forEach((btn, idx) => {
@@ -136,7 +136,7 @@ Storage.onAppend = function onAppend() {
 };
 
 Storage.onRemove = function onRemove() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.innerHTML = '';
@@ -162,7 +162,7 @@ Storage.addItem = function addItem(item) {
 
 	if (i > -1) {
 		_list[i].count += item.count;
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
 		if (countEl) {
 			countEl.textContent = _list[i].count;
@@ -216,7 +216,7 @@ Storage.addItemSub = function addItemSub(item) {
 
 	if (tab === _preferences.tab) {
 		const it = DB.getItemInfo(item.ITID);
-		const root = this._shadow || this._host;
+		const root = this.getRoot();
 		const content = root.querySelector('.container .content');
 
 		const itemEl = document.createElement('div');
@@ -268,12 +268,11 @@ Storage.removeItem = function removeItem(index, count) {
 	if (i < 0) {
 		return null;
 	}
-
+	const root = this.getRoot();
 	if (_list[i].count) {
 		_list[i].count -= count;
 
 		if (_list[i].count > 0) {
-			const root = this._shadow || this._host;
 			const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
 			if (countEl) {
 				countEl.textContent = _list[i].count;
@@ -284,7 +283,6 @@ Storage.removeItem = function removeItem(index, count) {
 
 	const item = _list[i];
 	_list.splice(i, 1);
-	const root = this._shadow || this._host;
 	const el = root.querySelector(`.item[data-index="${index}"]`);
 	if (el) {
 		el.remove();
@@ -294,7 +292,7 @@ Storage.removeItem = function removeItem(index, count) {
 };
 
 Storage.setItemInfo = function setItemInfo(current, limit) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const currentEl = root.querySelector('.footer .current');
 	const limitEl = root.querySelector('.footer .limit');
 	if (currentEl) {
@@ -344,7 +342,7 @@ function onResize() {
 function resizeHeight(height) {
 	height = Math.min(Math.max(height, 8), 17);
 
-	const root = Storage._shadow || Storage._host;
+	const root = Storage.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.style.height = `${height * 32}px`;
@@ -356,7 +354,7 @@ function onSwitchTab(idx) {
 	_preferences.tab = idx;
 
 	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/tab_itm_ex_0${idx + 1}.bmp`, data => {
-		const root = Storage._shadow || Storage._host;
+		const root = Storage.getRoot();
 		const tabs = root.querySelector('.tabs');
 		if (tabs) {
 			tabs.style.backgroundImage = `url("${data}")`;
@@ -408,7 +406,7 @@ function onDrop(event) {
 }
 
 function requestFilter() {
-	const root = Storage._shadow || Storage._host;
+	const root = Storage.getRoot();
 	const content = root.querySelector('.container .content');
 	if (content) {
 		content.innerHTML = '';

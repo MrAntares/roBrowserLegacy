@@ -24,10 +24,6 @@ import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js
 import htmlText from './SkillListV0.html?raw';
 import cssText from './SkillListV0.css?raw';
 
-function _root(comp) {
-	return comp._shadow || comp._host;
-}
-
 function _escapeHTML(text) {
 	const div = document.createElement('div');
 	div.textContent = text;
@@ -68,7 +64,7 @@ const hasSkills = [];
 let _justDragged = false;
 
 SkillListV0.init = function init() {
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 
 	root.querySelector('.titlebar .base')?.addEventListener('mousedown', e => {
 		e.stopImmediatePropagation();
@@ -257,7 +253,7 @@ SkillListV0.onAppend = function onAppend() {
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - 100)}px`;
 	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - 100)}px`;
 
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	const cb = root.querySelector('.view_skill_info');
 	if (cb) {
 		cb.checked = _preferences.skillInfo;
@@ -273,7 +269,7 @@ SkillListV0.onRemove = function onRemove() {
 	_preferences.y = parseInt(this._host.style.top, 10) || 0;
 	_preferences.x = parseInt(this._host.style.left, 10) || 0;
 
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	const content = root.querySelector('.content');
 	if (content) {
 		_preferences.width = Math.floor(parseInt(content.style.width, 10) / 32) || 8;
@@ -304,7 +300,7 @@ SkillListV0.onShortCut = function onShortCut(key) {
 };
 
 SkillListV0.setSkills = function setSkills(skills) {
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	root.querySelectorAll('.upgradable').forEach(el => el.classList.remove('upgradable'));
 
 	let skillJobId = Session.Character.job;
@@ -506,7 +502,7 @@ SkillListV0.addSkill = function addSkill(skill) {
 		return;
 	}
 
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	if (root.querySelector(`.skill.id${skill.SKID}`)) {
 		this.updateSkill(skill);
 		return;
@@ -517,7 +513,7 @@ SkillListV0.addSkill = function addSkill(skill) {
 };
 
 SkillListV0.prepareSkillTree = function prepareSkillTree(items, list) {
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	Object.entries(items).forEach(([key, value]) => {
 		const sk = SkillInfo[key];
 		const className = 'disabled';
@@ -574,7 +570,7 @@ SkillListV0.prepareSkillTree = function prepareSkillTree(items, list) {
 };
 
 SkillListV0.addSkillBig = function addSkillBig(skill) {
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	const sk = SkillInfo[skill.SKID];
 	const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 	const element = document.createElement('div');
@@ -632,7 +628,7 @@ SkillListV0.addSkillBig = function addSkillBig(skill) {
 };
 
 SkillListV0.addSkillMini = function addSkillMini(skill) {
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	const sk = SkillInfo[skill.SKID];
 	const levelup = _btnIncSkill.cloneNode(true);
 	levelup.addEventListener('click', function () {
@@ -713,7 +709,7 @@ SkillListV0.updateSkill = function updateSkill(skill) {
 		target.type = skill.type;
 	}
 
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	const elements = root.querySelectorAll(`.skill.id${skill.SKID}`);
 	elements.forEach(element => {
 		for (const el of element.querySelectorAll('.level .current, .level .max')) {
@@ -764,7 +760,7 @@ SkillListV0.useSkill = function useSkill(skill, level) {
 };
 
 SkillListV0.setPoints = function setPoints(amount) {
-	const root = _root(this);
+	const root = SkillListV0.getRoot();
 	const el = root.querySelector('.skpoints_count');
 	if (el) {
 		el.textContent = amount;
@@ -840,7 +836,7 @@ function onResize(e, comp) {
 }
 
 function resize(comp, width, height) {
-	const root = _root(comp);
+	const root = comp.getRoot();
 	if (_preferences.mini) {
 		width = Math.min(Math.max(width, 8), 8);
 		height = Math.min(Math.max(height, 4), 10);
@@ -910,7 +906,7 @@ function onApplyChoice(comp) {
 	});
 
 	totalCounter = 0;
-	const root = _root(comp);
+	const root = comp.getRoot();
 	const skpointsEl = root.querySelector('.skpoints_count');
 	if (skpointsEl) {
 		skpointsEl.textContent = `${_points - totalCounter}`;
@@ -919,7 +915,7 @@ function onApplyChoice(comp) {
 }
 
 function onResetChoice(comp) {
-	const root = _root(comp);
+	const root = comp.getRoot();
 	rememberChoice.forEach((_count, skillId) => {
 		if (!skillDependencyTree[skillId]) {
 			return;

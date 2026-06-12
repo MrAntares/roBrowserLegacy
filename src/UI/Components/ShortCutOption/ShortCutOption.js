@@ -46,7 +46,7 @@ ShortCutOption.render = () => htmlText;
  * Initialize UI
  */
 ShortCutOption.init = function () {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	let close = root.querySelector('.close');
 	function closebtn(btn) {
@@ -217,7 +217,7 @@ function tempMatch(key) {
 ShortCutOption.onKeyDown = function (event) {
 	if (ShortCutOption.isCapturing) {
 		if (16 != event.which && 17 != event.which && 18 != event.which) {
-			const root = ShortCutOption._shadow || ShortCutOption._host;
+			const root = ShortCutOption.getRoot();
 			const box = root.querySelector('td.selected');
 			const currentSC = box ? box.dataset.button : null;
 
@@ -300,7 +300,7 @@ ShortCutOption.onKeyDown = function (event) {
  * Updates the key list on the UI
  */
 function updateKeyList() {
-	const root = ShortCutOption._shadow || ShortCutOption._host;
+	const root = ShortCutOption.getRoot();
 	const cells = root.querySelectorAll('td[data-button]');
 	for (let i = 0; i < cells.length; i++) {
 		const btnName = cells[i].dataset.button;
@@ -320,7 +320,7 @@ function updateKeyList() {
  * Resets key bindings to initial
  */
 function resetKeysToDefault() {
-	const root = ShortCutOption._shadow || ShortCutOption._host;
+	const root = ShortCutOption.getRoot();
 	Object.keys(ShortCuts).forEach(function (SC) {
 		// Set empty customs
 		ShortCutsTemp[SC] = {};
@@ -359,7 +359,7 @@ function applySettings() {
 	ShortCutsTemp = {};
 	updateKeyList();
 
-	const root = ShortCutOption._shadow || ShortCutOption._host;
+	const root = ShortCutOption.getRoot();
 	root.querySelectorAll('td.changed').forEach(function (el) {
 		el.classList.remove('changed');
 	});
@@ -378,7 +378,7 @@ function cancelSettings() {
 	ShortCutsTemp = {};
 	updateKeyList();
 
-	const root = ShortCutOption._shadow || ShortCutOption._host;
+	const root = ShortCutOption.getRoot();
 	root.querySelectorAll('td.changed').forEach(function (el) {
 		el.classList.remove('changed');
 	});

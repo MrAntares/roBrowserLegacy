@@ -31,7 +31,7 @@ EntitySignboard.needFocus = false;
  * Once in HTML
  */
 EntitySignboard.onAppend = function onAppend() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const btn = root.querySelector('button');
 
 	if (btn) {
@@ -65,7 +65,7 @@ EntitySignboard.onAppend = function onAppend() {
  * Remove data from UI
  */
 EntitySignboard.onRemove = function onRemove() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const btn = root.querySelector('button');
 
 	if (btn) {
@@ -87,7 +87,7 @@ EntitySignboard.onRemove = function onRemove() {
  * @param {string} icon_location - icon url
  */
 EntitySignboard.setTitle = function setTitle(title, icon_location) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const signboard = root.querySelector('.EntitySignboard');
 
 	// Load signboard background
@@ -131,7 +131,7 @@ EntitySignboard.setTitle = function setTitle(title, icon_location) {
  * @param {string} icon_location - icon url
  */
 EntitySignboard.setIconOnly = function setIconOnly(icon_location) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.title').style.display = 'none';
 	root.querySelector('.overlay').style.display = 'none';
 

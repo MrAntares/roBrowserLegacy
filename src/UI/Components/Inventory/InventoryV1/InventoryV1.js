@@ -112,10 +112,6 @@ function _sanitizeHtml(str) {
 	return div.innerHTML;
 }
 
-function _getBasicInfoRoot(ui) {
-	return ui._shadow || ui._host || document;
-}
-
 /**
  * Initialize UI
  */
@@ -339,7 +335,7 @@ InventoryV1.onShortCut = function onShurtCut(key) {
 
 	const basicInfoUI = BasicInfo.getUI();
 	if (basicInfoUI._host) {
-		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 		if (changeUI) changeUI.style.display = 'none';
 	}
 };
@@ -363,7 +359,7 @@ InventoryV1.toggle = function toggle() {
 
 	const basicInfoUI = BasicInfo.getUI();
 	if (basicInfoUI._host) {
-		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 		if (changeUI) changeUI.style.display = 'none';
 	}
 };
@@ -519,7 +515,7 @@ InventoryV1.addItem = function AddItem(item) {
 
 		const basicInfoUI = BasicInfo.getUI();
 		if (basicInfoUI._host) {
-			const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+			const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 			if (changeUI) changeUI.style.display = 'block';
 		}
 	}

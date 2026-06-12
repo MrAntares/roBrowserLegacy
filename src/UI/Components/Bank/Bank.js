@@ -52,7 +52,7 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 Bank.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	let isMax = false;
 	const inputDepo = root.querySelector('.depo');
 
@@ -131,7 +131,7 @@ Bank.init = function init() {
  * Check if input value is valid
  */
 function CheckValue(value) {
-	const root = Bank._shadow || Bank._host;
+	const root = Bank.getRoot();
 	const error = root.querySelector('.errorupdate');
 
 	if (value === '') {
@@ -173,7 +173,7 @@ function CheckValue(value) {
  * Send Request to server to deposit
  */
 function sendDepositRequest(value) {
-	const root = Bank._shadow || Bank._host;
+	const root = Bank.getRoot();
 	const input = root.querySelector('.depo');
 
 	if (CheckValue(value) === false) {
@@ -213,7 +213,7 @@ function sendDepositRequest(value) {
  * Send Request to server to withdraw
  */
 function sendWithdrawRequest(value) {
-	const root = Bank._shadow || Bank._host;
+	const root = Bank.getRoot();
 	const input = root.querySelector('.depo');
 	const error = root.querySelector('.errorupdate');
 
@@ -273,7 +273,7 @@ function getIntValueFromFormattedString(formattedString) {
  * Append to body
  */
 Bank.onAppend = function onAppend() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	this._host.style.top = Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight) + 'px';
 	this._host.style.left = Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth) + 'px';
@@ -358,7 +358,7 @@ Bank.onRemove = function onRemove() {
 	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const error = root.querySelector('.errorupdate');
 	if (error) {
 		error.textContent = '';
@@ -369,7 +369,7 @@ Bank.onRemove = function onRemove() {
  * Public methods for Engine/MapEngine/Bank.js
  */
 Bank.updateBankDisplay = function updateBankDisplay(bankMoney, handMoney) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const inbank = root.querySelector('.inbank.currency');
 	const onhand = root.querySelector('.onhand.currency');
 	if (inbank) {
@@ -381,7 +381,7 @@ Bank.updateBankDisplay = function updateBankDisplay(bankMoney, handMoney) {
 };
 
 Bank.setError = function setError(message) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const error = root.querySelector('.errorupdate');
 	if (error) {
 		error.textContent = message;
@@ -389,7 +389,7 @@ Bank.setError = function setError(message) {
 };
 
 Bank.clearError = function clearError() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const error = root.querySelector('.errorupdate');
 	if (error) {
 		error.textContent = '';
@@ -397,7 +397,7 @@ Bank.clearError = function clearError() {
 };
 
 Bank.clearInput = function clearInput() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const input = root.querySelector('.depo');
 	if (input) {
 		input.value = '';
@@ -405,7 +405,7 @@ Bank.clearInput = function clearInput() {
 };
 
 Bank.focusInput = function focusInput() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const input = root.querySelector('.depo');
 	if (input) {
 		input.focus();
@@ -413,7 +413,7 @@ Bank.focusInput = function focusInput() {
 };
 
 Bank.getBankAmount = function getBankAmount() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const inbank = root.querySelector('.inbank.currency');
 	if (inbank) {
 		return inbank.textContent;

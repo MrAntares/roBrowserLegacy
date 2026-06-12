@@ -38,7 +38,7 @@ EntityRoom.init = function init() {};
  */
 EntityRoom.onAppend = function onAppend() {
 	// event listeners registered here because src/Renderer/Entity/EntityRoom.js:99 overrides init (this.node = EntityRoom.clone('EntityRoom', true); this.node.init = init;)
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const btn = root.querySelector('button');
 
 	if (btn) {
@@ -74,7 +74,7 @@ EntityRoom.onAppend = function onAppend() {
  * Remove data from UI
  */
 EntityRoom.onRemove = function onRemove() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const btn = root.querySelector('button');
 
 	// Remove the handler to avoid stacking when re-append
@@ -97,7 +97,7 @@ EntityRoom.onRemove = function onRemove() {
  * @param {string} url - icon url
  */
 EntityRoom.setTitle = function setTitle(title, url) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const imgEl = root.querySelector('button img');
 	const titleEl = root.querySelector('.title');
 	const overlayEl = root.querySelector('.overlay');

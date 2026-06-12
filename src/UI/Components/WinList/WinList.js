@@ -31,7 +31,7 @@ WinList.init = function init() {
 	this._host.style.left = `${(Renderer.width - 280) / 2}px`;
 	this.draggable();
 
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	this._listEl = root.querySelector('.list');
 	this.list = null;
 	this.index = 0;

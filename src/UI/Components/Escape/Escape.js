@@ -32,7 +32,7 @@ Escape.render = () => htmlText;
  * Initialize UI
  */
 Escape.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const rect = this._host.getBoundingClientRect();
 	this._host.style.top = (Renderer.height - rect.height) * 0.75 + 'px';
 	this._host.style.left = (Renderer.width - rect.width) * 0.5 + 'px';
@@ -90,7 +90,7 @@ Escape.onAppend = function onAppend() {
  */
 Escape.onRemove = function onRemove() {
 	this._host.style.display = 'none';
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
 		el.style.display = 'none';
 	});
@@ -153,7 +153,7 @@ function onToggleShortcutUI() {
  * Show death menu (called when player dies)
  */
 Escape.showDeathMenu = function showDeathMenu(hasSiegfried) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	this._host.style.display = '';
 	root.querySelector('.savepoint').style.display = '';
 	if (hasSiegfried) {
@@ -169,7 +169,7 @@ Escape.showDeathMenu = function showDeathMenu(hasSiegfried) {
  */
 Escape.resetMenu = function resetMenu() {
 	this._host.style.display = 'none';
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelectorAll('.resurection, .savepoint').forEach(function (el) {
 		el.style.display = 'none';
 	});

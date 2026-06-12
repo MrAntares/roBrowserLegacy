@@ -53,7 +53,7 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 ChatBoxSettings.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	const extendBtn = root.querySelector('.extend');
 	if (extendBtn) {
@@ -168,7 +168,7 @@ ChatBoxSettings.toggle = function toggle() {
 };
 
 ChatBoxSettings.updateTab = function updateTab(tabID, tabName) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	const optList = ChatBoxSettings.tabOption[tabID];
 	const buttons = root.querySelectorAll('.content .listoption button');
 
@@ -200,7 +200,7 @@ ChatBoxSettings.updateTab = function updateTab(tabID, tabName) {
  */
 function resize(height) {
 	height = Math.min(Math.max(height, 3), 8);
-	const root = ChatBoxSettings._shadow || ChatBoxSettings._host;
+	const root = ChatBoxSettings.getRoot();
 	const content = root.querySelector('.content');
 	if (content) {
 		content.style.height = height * 32 + 'px';

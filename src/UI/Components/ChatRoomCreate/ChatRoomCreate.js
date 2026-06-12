@@ -65,7 +65,7 @@ const _preferences = Preferences.get(
  * Initialize UI
  */
 ChatRoomCreate.init = function init() {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 
 	// Close / Cancel
 	root.querySelector('.close').addEventListener('mousedown', event => {
@@ -125,7 +125,7 @@ ChatRoomCreate.onRemove = function onRemove() {
  */
 ChatRoomCreate.show = function showSetup() {
 	this._host.style.display = '';
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.title').focus();
 	this._fixPositionOverflow();
 
@@ -137,7 +137,7 @@ ChatRoomCreate.show = function showSetup() {
  */
 ChatRoomCreate.hide = function hideSetup() {
 	this._host.style.display = 'none';
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('.setup').reset();
 	ChatRoomCreate.editMode = false;
 	_preferences.show = false;
@@ -151,7 +151,7 @@ ChatRoomCreate.hide = function hideSetup() {
  * @param {string} password
  */
 ChatRoomCreate.prefill = function prefill(title, limit, type) {
-	const root = this._shadow || this._host;
+	const root = this.getRoot();
 	root.querySelector('input[name=title]').value = title ?? '';
 	root.querySelector('select[name=limit]').value = limit ?? 20;
 	const radio = root.querySelector('input[name=public][value="' + (type ?? 1) + '"]');
@@ -225,7 +225,7 @@ ChatRoomCreate.toggle = function toggle() {
  * Parse and send chat room request
  */
 function parseChatSetup() {
-	const root = this._shadow || this._host;
+	const root = ChatRoomCreate.getRoot();
 
 	this.title = root.querySelector('input[name=title]').value;
 	this.limit = parseInt(root.querySelector('select[name=limit]').value, 10);

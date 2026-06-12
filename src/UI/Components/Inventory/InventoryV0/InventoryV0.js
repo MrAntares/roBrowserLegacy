@@ -264,16 +264,12 @@ InventoryV0.onShortCut = function onShurtCut(key) {
 
 	const basicInfoUI = BasicInfo.getUI();
 	if (basicInfoUI._host) {
-		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 		if (changeUI) {
 			changeUI.style.display = 'none';
 		}
 	}
 };
-
-function _getBasicInfoRoot(ui) {
-	return ui._shadow || ui._host || document;
-}
 
 /**
  * Show/Hide UI
@@ -294,7 +290,7 @@ InventoryV0.toggle = function toggle() {
 
 	const basicInfoUI = BasicInfo.getUI();
 	if (basicInfoUI._host) {
-		const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+		const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 		if (changeUI) {
 			changeUI.style.display = 'none';
 		}
@@ -465,7 +461,7 @@ InventoryV0.addItem = function AddItem(item) {
 
 		const basicInfoUI = BasicInfo.getUI();
 		if (basicInfoUI._host) {
-			const changeUI = _getBasicInfoRoot(basicInfoUI).querySelector('#item .btn_overlay');
+			const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 			if (changeUI) {
 				changeUI.style.display = 'block';
 			}
@@ -977,7 +973,7 @@ function onItemClick(event) {
 			item.name +
 			'&gt;</span>';
 
-		const chatRoot = ChatBox._shadow || ChatBox._host || document;
+		const chatRoot = ChatBox.getRoot();
 		const msgBox = chatRoot.querySelector('.input-chatbox');
 		if (msgBox) {
 			msgBox.innerHTML += link + ' ';
