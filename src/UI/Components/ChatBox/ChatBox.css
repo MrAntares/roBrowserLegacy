@@ -1,8 +1,7 @@
 #chatbox {
-	position: absolute;
+	position: relative;
 	left: 5px;
 	width: 595px;
-	max-width: 95%;
 }
 
 /** Tabs **/
