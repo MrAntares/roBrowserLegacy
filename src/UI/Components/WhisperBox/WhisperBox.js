@@ -327,6 +327,11 @@ function setupItemLinkHandler(instance) {
  */
 function setupNicknameLinkHandler(instance) {
 	const root = instance._shadow || instance._host;
+	root.addEventListener('mousedown', event => {
+		if (event.target.closest('.nickname-link')) {
+			event.stopPropagation();
+		}
+	});
 	root.addEventListener('click', event => {
 		const link = event.target.closest('.nickname-link');
 		if (!link) {
