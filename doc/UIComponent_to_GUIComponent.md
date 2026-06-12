@@ -24,6 +24,7 @@ Memory Layers
 
 You are performing a **mechanical, behavior-preserving migration** — not a redesign.
 The following are STRICTLY PROHIBITED and any output containing them must be discarded:
+
 - **PROHIBITED:** Inventing new architecture, new components, new tabs/panels/views, or
   new UI surfaces that do not already exist in the legacy module.
 - **PROHIBITED:** Adding features, options, buttons, or behaviors that were not present
@@ -33,9 +34,9 @@ The following are STRICTLY PROHIBITED and any output containing them must be dis
 - **PROHIBITED:** Deviating from the migration documents (L1/L2/L3). When the docs and
   your instinct disagree, the docs win. If the docs are silent, preserve legacy behavior
   exactly — do not improvise.
-**RULE:** If a change is not required to make the legacy behavior work under Shadow DOM
-`GUIComponent`, do not make it. When in doubt, migrate 1:1 and leave a `// TODO` instead
-of inventing a solution.
+  **RULE:** If a change is not required to make the legacy behavior work under Shadow DOM
+  `GUIComponent`, do not make it. When in doubt, migrate 1:1 and leave a `// TODO` instead
+  of inventing a solution.
 
 ## Mission
 
