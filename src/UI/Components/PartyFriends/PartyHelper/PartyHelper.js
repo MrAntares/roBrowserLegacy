@@ -63,7 +63,7 @@ PartyHelper.init = function init() {
 	// Stop propagation to prevent drag/drop conflicts
 	const baseBtn = root.querySelector('.base');
 	if (baseBtn) {
-		baseBtn.addEventListener('mousedown', (e) => {
+		baseBtn.addEventListener('mousedown', e => {
 			e.stopImmediatePropagation();
 			e.preventDefault();
 		});
@@ -95,7 +95,7 @@ PartyHelper.init = function init() {
 	// Enter key validation on name input
 	const nameInput = root.querySelector('.name');
 	if (nameInput) {
-		nameInput.addEventListener('keydown', (event) => {
+		nameInput.addEventListener('keydown', event => {
 			if (event.which === 13 || event.key === 'Enter') {
 				onValidate();
 				event.preventDefault();
@@ -105,8 +105,8 @@ PartyHelper.init = function init() {
 	}
 
 	// Setting-row toggle handler (WhisperBox preferences)
-	root.querySelectorAll('.setting-row').forEach((row) => {
-		row.addEventListener('mousedown', (event) => {
+	root.querySelectorAll('.setting-row').forEach(row => {
+		row.addEventListener('mousedown', event => {
 			const on = row.querySelector('.on');
 			const off = row.querySelector('.off');
 
@@ -139,7 +139,7 @@ PartyHelper.init = function init() {
 	});
 
 	// Radio button toggle logic (non-setting-row)
-	root.addEventListener('mousedown', (event) => {
+	root.addEventListener('mousedown', event => {
 		const off = event.target.closest('.off');
 		if (!off) return;
 
@@ -162,14 +162,18 @@ PartyHelper.init = function init() {
 	});
 
 	// Block interaction on 'on' buttons (non-setting-row)
-	root.addEventListener('mousedown', (event) => {
-		const on = event.target.closest('.on');
-		if (!on) return;
-		if (on.parentNode.classList.contains('setting-row')) return;
+	root.addEventListener(
+		'mousedown',
+		event => {
+			const on = event.target.closest('.on');
+			if (!on) return;
+			if (on.parentNode.classList.contains('setting-row')) return;
 
-		event.stopImmediatePropagation();
-		event.preventDefault();
-	}, true);
+			event.stopImmediatePropagation();
+			event.preventDefault();
+		},
+		true
+	);
 
 	this.draggable('.titlebar');
 };
@@ -252,7 +256,7 @@ PartyHelper.setType = function setType(type) {
 	const root = _root();
 
 	const contentEls = root.querySelectorAll('.content');
-	contentEls.forEach((el) => el.classList.remove('disabled'));
+	contentEls.forEach(el => el.classList.remove('disabled'));
 
 	const footer = root.querySelector('.footer');
 	if (footer) footer.style.display = 'block';
@@ -268,8 +272,14 @@ PartyHelper.setType = function setType(type) {
 	const footerBtns = root.querySelectorAll('.footer .btn');
 
 	// Helper to show/hide elements by selector
-	const show = (sel) => root.querySelectorAll(sel).forEach((el) => { el.style.display = ''; });
-	const hide = (sel) => root.querySelectorAll(sel).forEach((el) => { el.style.display = 'none'; });
+	const show = sel =>
+		root.querySelectorAll(sel).forEach(el => {
+			el.style.display = '';
+		});
+	const hide = sel =>
+		root.querySelectorAll(sel).forEach(el => {
+			el.style.display = 'none';
+		});
 
 	switch (type) {
 		case PartyHelper.Type.CREATE:
@@ -284,7 +294,9 @@ PartyHelper.setType = function setType(type) {
 			hide('.titlebar .friend-setup');
 			show('.titlebar .create');
 			if (footer) footer.style.height = '27px';
-			footerBtns.forEach((el) => { el.style.display = ''; });
+			footerBtns.forEach(el => {
+				el.style.display = '';
+			});
 			break;
 
 		case PartyHelper.Type.INVITE:
@@ -299,7 +311,9 @@ PartyHelper.setType = function setType(type) {
 			hide('.titlebar .friend-setup');
 			show('.titlebar .invite');
 			if (footer) footer.style.height = '27px';
-			footerBtns.forEach((el) => { el.style.display = ''; });
+			footerBtns.forEach(el => {
+				el.style.display = '';
+			});
 			break;
 
 		case PartyHelper.Type.SETUP:
@@ -314,7 +328,9 @@ PartyHelper.setType = function setType(type) {
 			hide('.titlebar .friend-setup');
 			show('.titlebar .setup');
 			if (footer) footer.style.height = '27px';
-			footerBtns.forEach((el) => { el.style.display = ''; });
+			footerBtns.forEach(el => {
+				el.style.display = '';
+			});
 			break;
 
 		case PartyHelper.Type.FRIEND_SETUP:
@@ -326,7 +342,9 @@ PartyHelper.setType = function setType(type) {
 			hide('.titlebar .setup');
 			show('.titlebar .friend-setup');
 			if (footer) footer.style.height = '20px';
-			footerBtns.forEach((el) => { el.style.display = 'none'; });
+			footerBtns.forEach(el => {
+				el.style.display = 'none';
+			});
 			break;
 	}
 
@@ -370,9 +388,9 @@ PartyHelper.setOptions = function setOptions(options, editable) {
 
 	const contentEls = root.querySelectorAll('.content');
 	if (!editable) {
-		contentEls.forEach((el) => el.classList.add('disabled'));
+		contentEls.forEach(el => el.classList.add('disabled'));
 	} else {
-		contentEls.forEach((el) => el.classList.remove('disabled'));
+		contentEls.forEach(el => el.classList.remove('disabled'));
 	}
 };
 

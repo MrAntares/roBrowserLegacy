@@ -77,7 +77,7 @@ ReadMail.onAppend = function onAppend() {
 
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {
-		closeBtn.addEventListener('click', (event) => {
+		closeBtn.addEventListener('click', event => {
 			event.stopImmediatePropagation();
 			ReadMail.remove();
 		});
@@ -94,8 +94,8 @@ ReadMail.onAppend = function onAppend() {
 
 	// Position relative to Mail window
 	const mailHost = Mail._host;
-	const mailTop = mailHost ? (parseInt(mailHost.style.top, 10) || 0) : 0;
-	const mailLeft = mailHost ? (parseInt(mailHost.style.left, 10) || 0) : 0;
+	const mailTop = mailHost ? parseInt(mailHost.style.top, 10) || 0 : 0;
+	const mailLeft = mailHost ? parseInt(mailHost.style.left, 10) || 0 : 0;
 	const hostHeight = this._host.offsetHeight || 0;
 	const hostWidth = this._host.offsetWidth || 0;
 
@@ -190,7 +190,7 @@ function addItemSub(itemMail) {
 
 		Client.loadFile(
 			`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
-			(data) => {
+			data => {
 				if (content) {
 					const icon = content.querySelector(`.item[data-index="${item.index}"] .icon`);
 					if (icon) icon.style.backgroundImage = `url(${data})`;
@@ -199,15 +199,15 @@ function addItemSub(itemMail) {
 		);
 
 		if (content) {
-			content.addEventListener('mouseover', (event) => {
+			content.addEventListener('mouseover', event => {
 				const el = event.target.closest('.item');
 				if (el) onItemOver.call(el, event);
 			});
-			content.addEventListener('mouseout', (event) => {
+			content.addEventListener('mouseout', event => {
 				const el = event.target.closest('.item');
 				if (el) onItemOut.call(el, event);
 			});
-			content.addEventListener('contextmenu', (event) => {
+			content.addEventListener('contextmenu', event => {
 				const el = event.target.closest('.item');
 				if (el) onItemInfo.call(el, event);
 			});
@@ -245,7 +245,7 @@ function addItemSub(itemMail) {
 	_preferences.save();
 
 	if (inforEl) {
-		inforEl.addEventListener('click', (event) => {
+		inforEl.addEventListener('click', event => {
 			event.stopImmediatePropagation();
 			if (!validItemMoneyExists()) {
 				const btnContainer = root.querySelector('.btn_return_reply_remove');

@@ -122,7 +122,7 @@ PartyFriendsV1.init = function init() {
 	// Avoid drag drop problems
 	const baseBtn = root.querySelector('.base');
 	if (baseBtn) {
-		baseBtn.addEventListener('mousedown', (event) => {
+		baseBtn.addEventListener('mousedown', event => {
 			event.stopImmediatePropagation();
 			event.preventDefault();
 		});
@@ -132,11 +132,11 @@ PartyFriendsV1.init = function init() {
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) closeBtn.addEventListener('click', onClose);
 
-	root.querySelectorAll('.lock').forEach((el) => {
+	root.querySelectorAll('.lock').forEach(el => {
 		el.addEventListener('mousedown', onToggleLock);
 	});
 
-	root.querySelectorAll('.switchtab.off').forEach((el) => {
+	root.querySelectorAll('.switchtab.off').forEach(el => {
 		el.addEventListener('mousedown', onChangeTab);
 	});
 
@@ -170,31 +170,31 @@ PartyFriendsV1.init = function init() {
 	// Delegated events on content
 	const content = root.querySelector('.content');
 	if (content) {
-		content.addEventListener('contextmenu', (event) => {
+		content.addEventListener('contextmenu', event => {
 			const node = event.target.closest('.node');
 			if (node) {
 				onRightClickInfo.call(node, event);
 			}
 		});
 
-		content.addEventListener('mousedown', (event) => {
+		content.addEventListener('mousedown', event => {
 			const node = event.target.closest('.node');
 			if (node) {
 				onMemberMouseDown.call(node, event);
 			}
 		});
 
-		content.addEventListener('mouseover', (event) => {
+		content.addEventListener('mouseover', event => {
 			const el = event.target.closest('[data-tooltip]');
 			if (el) onTooltipShow.call(el, event);
 		});
 
-		content.addEventListener('mousemove', (event) => {
+		content.addEventListener('mousemove', event => {
 			const el = event.target.closest('[data-tooltip]');
 			if (el) onTooltipMove.call(el, event);
 		});
 
-		content.addEventListener('mouseout', (event) => {
+		content.addEventListener('mouseout', event => {
 			const el = event.target.closest('[data-tooltip]');
 			if (el) onTooltipHide.call(el, event);
 		});
@@ -251,7 +251,7 @@ function onMemberMouseDown(event) {
 	// Selection change immediately on mousedown
 	onSelectionChange.call(node, event);
 
-	const player = _party.find((member) => member.AID == AID);
+	const player = _party.find(member => member.AID == AID);
 
 	if (!player) {
 		return;
@@ -732,10 +732,7 @@ PartyFriendsV1.updateFriend = function updateFriend(idx, friend) {
 		_friends[idx] = {};
 
 		if (friendContent) {
-			friendContent.insertAdjacentHTML(
-				'beforeend',
-				'<div class="node"><span class="name"></span></div>'
-			);
+			friendContent.insertAdjacentHTML('beforeend', '<div class="node"><span class="name"></span></div>');
 		}
 
 		const friendCountEl = root.querySelector('.friendcount');
@@ -1039,13 +1036,10 @@ PartyFriendsV1.renderPartyMember = function renderPartyMember(player) {
 	if (!node) return;
 
 	// Load Job Icon
-	Client.loadFile(
-		`${DB.INTERFACE_PATH}renewalparty/icon_jobs_${job}${isDead ? '_die' : ''}.bmp`,
-		function (url) {
-			const jobIcon = node.querySelector('.job-icon');
-			if (jobIcon) jobIcon.style.backgroundImage = `url(${url})`;
-		}
-	);
+	Client.loadFile(`${DB.INTERFACE_PATH}renewalparty/icon_jobs_${job}${isDead ? '_die' : ''}.bmp`, function (url) {
+		const jobIcon = node.querySelector('.job-icon');
+		if (jobIcon) jobIcon.style.backgroundImage = `url(${url})`;
+	});
 
 	// Load Crown
 	if (role === 0) {
@@ -1307,8 +1301,14 @@ function onChangeTab() {
 	_preferences.friend = !_preferences.friend;
 	_preferences.save();
 
-	const showClass = (sel) => root.querySelectorAll(sel).forEach((el) => { el.style.display = ''; });
-	const hideClass = (sel) => root.querySelectorAll(sel).forEach((el) => { el.style.display = 'none'; });
+	const showClass = sel =>
+		root.querySelectorAll(sel).forEach(el => {
+			el.style.display = '';
+		});
+	const hideClass = sel =>
+		root.querySelectorAll(sel).forEach(el => {
+			el.style.display = 'none';
+		});
 
 	if (_preferences.friend) {
 		showClass('.friend');
@@ -1335,7 +1335,7 @@ function onChangeTab() {
 		}
 	}
 
-	root.querySelectorAll('.node').forEach((el) => el.classList.remove('selection'));
+	root.querySelectorAll('.node').forEach(el => el.classList.remove('selection'));
 	_index = -1;
 }
 
@@ -1497,7 +1497,7 @@ function onRequestPartyDelegation() {
  */
 function onSelectionChange(event) {
 	const root = _root();
-	root.querySelectorAll('.node').forEach((el) => el.classList.remove('selection'));
+	root.querySelectorAll('.node').forEach(el => el.classList.remove('selection'));
 
 	const node = this;
 	node.classList.add('selection');
@@ -1509,7 +1509,7 @@ function onSelectionChange(event) {
 		const nodes = Array.from(node.parentNode.querySelectorAll('.node'));
 		_index = nodes.indexOf(node);
 	} else {
-		const player = _party.find((member) => member.AID == AID);
+		const player = _party.find(member => member.AID == AID);
 		_index = _party.indexOf(player);
 	}
 }
@@ -1615,7 +1615,8 @@ function onTooltipShow(event) {
 			tooltip = document.createElement('div');
 			tooltip.id = 'ro-tooltip-party';
 			tooltip.className = 'ro-tooltip';
-			tooltip.style.cssText = 'display:none;position:fixed;background-color:rgba(0,0,0,0.8);text-shadow:1px 1px black;color:white;padding:2px 6px;white-space:nowrap;z-index:20000;border-radius:2px;pointer-events:none;line-height:1.2;font-size:11px;';
+			tooltip.style.cssText =
+				'display:none;position:fixed;background-color:rgba(0,0,0,0.8);text-shadow:1px 1px black;color:white;padding:2px 6px;white-space:nowrap;z-index:20000;border-radius:2px;pointer-events:none;line-height:1.2;font-size:11px;';
 			document.body.appendChild(tooltip);
 		}
 		tooltip.textContent = text;

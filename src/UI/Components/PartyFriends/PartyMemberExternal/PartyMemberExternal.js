@@ -46,7 +46,7 @@ PartyMemberExternal.init = function init() {
 	const self = this;
 	const root = _root(this);
 
-	root.addEventListener('mousedown', (event) => {
+	root.addEventListener('mousedown', event => {
 		self._lastPos = {
 			top: self._host.offsetTop,
 			left: self._host.offsetLeft
@@ -74,7 +74,7 @@ PartyMemberExternal.init = function init() {
 	});
 
 	// Right-click context menu
-	root.addEventListener('contextmenu', (event) => {
+	root.addEventListener('contextmenu', event => {
 		event.preventDefault();
 		event.stopImmediatePropagation();
 
@@ -284,7 +284,8 @@ function onTooltipShow(event) {
 			tooltip = document.createElement('div');
 			tooltip.id = 'ro-tooltip-party';
 			tooltip.className = 'ro-tooltip';
-			tooltip.style.cssText = 'display:none;position:fixed;background-color:rgba(0,0,0,0.8);text-shadow:1px 1px black;color:white;padding:2px 6px;white-space:nowrap;z-index:20000;border-radius:2px;pointer-events:none;line-height:1.2;font-size:11px;';
+			tooltip.style.cssText =
+				'display:none;position:fixed;background-color:rgba(0,0,0,0.8);text-shadow:1px 1px black;color:white;padding:2px 6px;white-space:nowrap;z-index:20000;border-radius:2px;pointer-events:none;line-height:1.2;font-size:11px;';
 			document.body.appendChild(tooltip);
 		}
 		tooltip.textContent = text;

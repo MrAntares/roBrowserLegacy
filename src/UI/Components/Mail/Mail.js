@@ -113,30 +113,30 @@ Mail.onAppend = function OnAppend() {
 		containerItem.addEventListener('drop', onDrop);
 		containerItem.addEventListener('dragover', stopPropagation);
 
-		containerItem.addEventListener('mouseover', (event) => {
+		containerItem.addEventListener('mouseover', event => {
 			const item = event.target.closest('.item');
 			if (item) onItemOver.call(item, event);
 		});
-		containerItem.addEventListener('mouseout', (event) => {
+		containerItem.addEventListener('mouseout', event => {
 			const item = event.target.closest('.item');
 			if (item) onItemOut.call(item, event);
 		});
-		containerItem.addEventListener('dragstart', (event) => {
+		containerItem.addEventListener('dragstart', event => {
 			const item = event.target.closest('.item');
 			if (item) onItemDragStart.call(item, event);
 		});
-		containerItem.addEventListener('dragend', (event) => {
+		containerItem.addEventListener('dragend', event => {
 			const item = event.target.closest('.item');
 			if (item) onItemDragEnd.call(item, event);
 		});
-		containerItem.addEventListener('contextmenu', (event) => {
+		containerItem.addEventListener('contextmenu', event => {
 			const item = event.target.closest('.item');
 			if (item) onItemInfo.call(item, event);
 		});
 	}
 
 	// Validate information dragged into text field
-	root.querySelectorAll('input[type=text]').forEach((input) => {
+	root.querySelectorAll('input[type=text]').forEach(input => {
 		input.addEventListener('drop', onDropText);
 		input.addEventListener('dragover', stopPropagation);
 	});
@@ -198,7 +198,7 @@ Mail.addItemSub = function AddItemSub(Index) {
 
 	Client.loadFile(
 		`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
-		(data) => {
+		data => {
 			const icon = content ? content.querySelector(`.item[data-index="${item.index}"] .icon`) : null;
 			if (icon) icon.style.backgroundImage = `url(${data})`;
 		}
@@ -272,7 +272,7 @@ Mail.mailReceiveUpdate = function mailReceiveUpdate(newMail) {
 	}
 	Mail.list.MailNumber = Mail.MailNumber + 1;
 	let validIsOpen = 0;
-	Mail.list.mailList = Mail.list.mailList.map((el) => {
+	Mail.list.mailList = Mail.list.mailList.map(el => {
 		let newElement = {};
 
 		if (el.MailID == newMail.MailID) {
@@ -393,7 +393,7 @@ function updatePageMailItems() {
 
 	const nextBtn = root.querySelector('.next');
 	if (nextBtn) {
-		nextBtn.addEventListener('click', (e) => {
+		nextBtn.addEventListener('click', e => {
 			e.stopImmediatePropagation();
 			if (Mail.page < Mail.list.mailList.length / Mail.pageSize - 1) {
 				Mail.page++;
@@ -405,7 +405,7 @@ function updatePageMailItems() {
 
 	const prevBtn = root.querySelector('.prev');
 	if (prevBtn) {
-		prevBtn.addEventListener('click', (e) => {
+		prevBtn.addEventListener('click', e => {
 			e.stopImmediatePropagation();
 			if (Mail.page > 0) {
 				Mail.page--;
@@ -453,7 +453,7 @@ function onWindowMailbox() {
 	const blockMail = root.querySelector('.block_mail');
 	if (blockMail) blockMail.style.display = 'block';
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/maillist1_bg.bmp', (url) => {
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/maillist1_bg.bmp', url => {
 		const body = root.querySelector('.body');
 		if (body) body.style.backgroundImage = `url(${url})`;
 	});
@@ -466,7 +466,7 @@ function createMailList() {
 	const root = _root();
 	const content = root.querySelector('.list_item_mail');
 
-	root.querySelectorAll('.item_mail').forEach((el) => el.remove());
+	root.querySelectorAll('.item_mail').forEach(el => el.remove());
 
 	if (Mail.list.length == 0) {
 		return;
@@ -513,7 +513,7 @@ function createMailList() {
 		}
 
 		if (!isOpen) {
-			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', (data) => {
+			Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/envelop.bmp', data => {
 				const envelop = root.querySelector(`#envelop_${mailId}`);
 				if (envelop) envelop.style.backgroundImage = `url(${data})`;
 			});
@@ -529,7 +529,7 @@ function createMailList() {
 
 		const fromHeaderEl = root.querySelector(`#from_header_${mailId}`);
 		if (fromHeaderEl) {
-			fromHeaderEl.addEventListener('click', (event) => {
+			fromHeaderEl.addEventListener('click', event => {
 				Mail.openMail(parseInt(event.currentTarget.dataset.id, 10));
 			});
 		}
@@ -655,7 +655,7 @@ function onWindowCreateMessages() {
 	removeCreateAllItem();
 	offWindowListMail();
 
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp', (url) => {
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/maillist2_bg.bmp', url => {
 		const body = root.querySelector('.body');
 		if (body) body.style.backgroundImage = `url(${url})`;
 	});
@@ -901,8 +901,8 @@ function formateDeleteTime(value) {
 	const ts_ms = value * 1000;
 	const date_ob = new Date(ts_ms);
 	const year = date_ob.getFullYear();
-	const month = (`0${date_ob.getMonth() + 1}`).slice(-2);
-	const date = (`0${date_ob.getDate()}`).slice(-2);
+	const month = `0${date_ob.getMonth() + 1}`.slice(-2);
+	const date = `0${date_ob.getDate()}`.slice(-2);
 
 	return `${month} ${date} ${String(year).substring(2, 4)}`;
 }
@@ -933,7 +933,7 @@ function onDropText(event) {
 }
 
 function sleep(time) {
-	return new Promise((resolve) => setTimeout(resolve, time));
+	return new Promise(resolve => setTimeout(resolve, time));
 }
 
 /**

@@ -197,7 +197,7 @@ ChatBox.init = function init() {
 	// For GUIComponent, set up manual mouse intersection blocking on interactive elements.
 	const interactiveSelector = '.input, .chat-function, .battlemode, .event_add_cursor';
 	const interactiveEls = root.querySelectorAll(interactiveSelector);
-	interactiveEls.forEach((el) => {
+	interactiveEls.forEach(el => {
 		let _intersect;
 		let _enter = 0;
 		el.addEventListener('mouseenter', () => {
@@ -295,19 +295,25 @@ ChatBox.init = function init() {
 
 		inputChatbox.maxLength = MAX_LENGTH;
 
-		inputChatbox.addEventListener('input', (event) => {
+		inputChatbox.addEventListener('input', event => {
 			const currentText = extractChatMessage(inputChatbox);
 			if (currentText.length >= MAX_LENGTH) {
 				event.preventDefault();
 			}
 		});
 
-		inputChatbox.addEventListener('keydown', (event) => {
+		inputChatbox.addEventListener('keydown', event => {
 			const currentText = extractChatMessage(inputChatbox);
 			if (currentText.length >= MAX_LENGTH) {
 				const allowedKeys = [
-					'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown',
-					'Backspace', 'Delete', 'Enter', 'Insert'
+					'ArrowLeft',
+					'ArrowUp',
+					'ArrowRight',
+					'ArrowDown',
+					'Backspace',
+					'Delete',
+					'Enter',
+					'Insert'
 				];
 
 				if (allowedKeys.includes(event.key)) {
@@ -322,7 +328,7 @@ ChatBox.init = function init() {
 			}
 		});
 
-		inputChatbox.addEventListener('paste', (event) => {
+		inputChatbox.addEventListener('paste', event => {
 			event.preventDefault();
 
 			const clipboard = (event.originalEvent || event).clipboardData || event.clipboardData;
@@ -366,13 +372,13 @@ ChatBox.init = function init() {
 	}
 
 	// Validate information dragged into text field
-	root.querySelectorAll('input[type=text]').forEach((input) => {
+	root.querySelectorAll('input[type=text]').forEach(input => {
 		input.addEventListener('drop', onDropText);
 		input.addEventListener('dragover', stopPropagation);
 	});
 
 	// Button change name (tab inputs)
-	root.querySelectorAll('.header input').forEach((input) => {
+	root.querySelectorAll('.header input').forEach(input => {
 		input.addEventListener('dblclick', function () {
 			this.type = 'text';
 			this.select();
@@ -410,7 +416,7 @@ ChatBox.init = function init() {
 				left: pos.left - ui.width() - 5
 			});
 		});
-		listBtn.addEventListener('mousedown', (event) => {
+		listBtn.addEventListener('mousedown', event => {
 			event.stopImmediatePropagation();
 			event.preventDefault();
 		});
@@ -418,7 +424,7 @@ ChatBox.init = function init() {
 
 	const draggableEl = root.querySelector('.draggable');
 	if (draggableEl) {
-		draggableEl.addEventListener('mousedown', (event) => {
+		draggableEl.addEventListener('mousedown', event => {
 			event.stopPropagation();
 		});
 	}
@@ -443,7 +449,7 @@ ChatBox.init = function init() {
 				left: pos.left - ui.width() + 25
 			});
 		});
-		filterBtn.addEventListener('mousedown', (event) => {
+		filterBtn.addEventListener('mousedown', event => {
 			event.stopImmediatePropagation();
 			event.preventDefault();
 		});
@@ -452,7 +458,7 @@ ChatBox.init = function init() {
 	// Change size
 	const sizeBtn = root.querySelector('.input .size');
 	if (sizeBtn) {
-		sizeBtn.addEventListener('click', (event) => {
+		sizeBtn.addEventListener('click', event => {
 			ChatBox.updateHeight(true);
 			event.stopImmediatePropagation();
 			event.preventDefault();
@@ -460,7 +466,7 @@ ChatBox.init = function init() {
 	}
 
 	// Scroll feature should block at each line
-	root.querySelectorAll('.content').forEach((el) => {
+	root.querySelectorAll('.content').forEach(el => {
 		el.addEventListener('wheel', onScroll);
 	});
 
@@ -469,44 +475,56 @@ ChatBox.init = function init() {
 		let _tabIntersect;
 		let _tabEnter = 0;
 
-		root.querySelector('#chatbox').addEventListener('mouseenter', (event) => {
-			if (event.target.closest('table.header tr td.tab')) {
-				if (_tabEnter === 0) {
-					_tabIntersect = Mouse.intersect;
-					_tabEnter++;
-					if (_tabIntersect) {
-						Mouse.intersect = false;
-						Cursor.setType(Cursor.ACTION.DEFAULT);
-						EntityManager.setOverEntity(null);
+		root.querySelector('#chatbox').addEventListener(
+			'mouseenter',
+			event => {
+				if (event.target.closest('table.header tr td.tab')) {
+					if (_tabEnter === 0) {
+						_tabIntersect = Mouse.intersect;
+						_tabEnter++;
+						if (_tabIntersect) {
+							Mouse.intersect = false;
+							Cursor.setType(Cursor.ACTION.DEFAULT);
+							EntityManager.setOverEntity(null);
+						}
 					}
 				}
-			}
-		}, true);
+			},
+			true
+		);
 
-		root.querySelector('#chatbox').addEventListener('mouseleave', (event) => {
-			if (event.target.closest('table.header tr td.tab')) {
-				if (_tabEnter > 0) {
-					_tabEnter--;
-					if (_tabEnter === 0 && _tabIntersect) {
-						Mouse.intersect = true;
-						EntityManager.setOverEntity(null);
+		root.querySelector('#chatbox').addEventListener(
+			'mouseleave',
+			event => {
+				if (event.target.closest('table.header tr td.tab')) {
+					if (_tabEnter > 0) {
+						_tabEnter--;
+						if (_tabEnter === 0 && _tabIntersect) {
+							Mouse.intersect = true;
+							EntityManager.setOverEntity(null);
+						}
 					}
 				}
-			}
-		}, true);
+			},
+			true
+		);
 
 		// Prevent walking when clicking tabs
-		root.querySelector('#chatbox').addEventListener('mousedown', (event) => {
-			if (event.target.closest('table.header tr td.tab')) {
-				event.stopPropagation();
-			}
-		}, true);
+		root.querySelector('#chatbox').addEventListener(
+			'mousedown',
+			event => {
+				if (event.target.closest('table.header tr td.tab')) {
+					event.stopPropagation();
+				}
+			},
+			true
+		);
 	})();
 
 	// Prevent map right-click (camera rotate) when using chat right-click features
 	const chatBody = root.querySelector('.body');
 	if (chatBody) {
-		chatBody.addEventListener('mousedown', (event) => {
+		chatBody.addEventListener('mousedown', event => {
 			if (event.which !== 3) {
 				return;
 			}
@@ -518,7 +536,7 @@ ChatBox.init = function init() {
 	// Chat font scale context menu (right click)
 	const chatboxEl = root.querySelector('#chatbox');
 	if (chatboxEl) {
-		chatboxEl.addEventListener('contextmenu', (event) => {
+		chatboxEl.addEventListener('contextmenu', event => {
 			const target = event.target;
 			if (target.closest('.body, .contentwrapper, .content')) {
 				if (target.closest('a, .item-link, .event_add_cursor, .chat-function, td.tab')) {
@@ -542,7 +560,7 @@ ChatBox.init = function init() {
 
 	// Clicking interactive elements in chat should not trigger map movement
 	if (chatboxEl) {
-		chatboxEl.addEventListener('mousedown', (event) => {
+		chatboxEl.addEventListener('mousedown', event => {
 			if (event.target.closest('.content a, .content .item-link')) {
 				event.stopPropagation();
 			}
@@ -571,7 +589,7 @@ ChatBox.init = function init() {
 
 	// Tab click handler (delegated)
 	if (chatboxEl) {
-		chatboxEl.addEventListener('click', (event) => {
+		chatboxEl.addEventListener('click', event => {
 			const tab = event.target.closest('table.header tr td.tab');
 			if (tab) {
 				event.stopImmediatePropagation();
@@ -676,7 +694,7 @@ ChatBox.clean = function Clean() {
 	const root = _root();
 
 	const contents = root.querySelectorAll('.content');
-	contents.forEach((content) => {
+	contents.forEach(content => {
 		const matches = content.innerHTML.match(/(blob:[^"]+)/g);
 		if (matches) {
 			for (let i = 0, count = matches.length; i < count; ++i) {
@@ -734,17 +752,28 @@ ChatBox.addNewTab = function addNewTab(name, settings) {
 	}
 	if (!settings) {
 		settings = [
-			ChatBox.FILTER.PUBLIC_LOG, ChatBox.FILTER.PUBLIC_CHAT,
-			ChatBox.FILTER.WHISPER, ChatBox.FILTER.PARTY,
-			ChatBox.FILTER.GUILD, ChatBox.FILTER.ITEM,
-			ChatBox.FILTER.EQUIP, ChatBox.FILTER.STATUS,
-			ChatBox.FILTER.PARTY_ITEM, ChatBox.FILTER.PARTY_STATUS,
-			ChatBox.FILTER.SKILL_FAIL, ChatBox.FILTER.PARTY_SETUP,
-			ChatBox.FILTER.EQUIP_DAMAGE, ChatBox.FILTER.WOE,
-			ChatBox.FILTER.PARTY_SEARCH, ChatBox.FILTER.BATTLE,
-			ChatBox.FILTER.PARTY_BATTLE, ChatBox.FILTER.EXP,
-			ChatBox.FILTER.PARTY_EXP, ChatBox.FILTER.QUEST,
-			ChatBox.FILTER.BATTLEFIELD, ChatBox.FILTER.CLAN
+			ChatBox.FILTER.PUBLIC_LOG,
+			ChatBox.FILTER.PUBLIC_CHAT,
+			ChatBox.FILTER.WHISPER,
+			ChatBox.FILTER.PARTY,
+			ChatBox.FILTER.GUILD,
+			ChatBox.FILTER.ITEM,
+			ChatBox.FILTER.EQUIP,
+			ChatBox.FILTER.STATUS,
+			ChatBox.FILTER.PARTY_ITEM,
+			ChatBox.FILTER.PARTY_STATUS,
+			ChatBox.FILTER.SKILL_FAIL,
+			ChatBox.FILTER.PARTY_SETUP,
+			ChatBox.FILTER.EQUIP_DAMAGE,
+			ChatBox.FILTER.WOE,
+			ChatBox.FILTER.PARTY_SEARCH,
+			ChatBox.FILTER.BATTLE,
+			ChatBox.FILTER.PARTY_BATTLE,
+			ChatBox.FILTER.EXP,
+			ChatBox.FILTER.PARTY_EXP,
+			ChatBox.FILTER.QUEST,
+			ChatBox.FILTER.BATTLEFIELD,
+			ChatBox.FILTER.CLAN
 		];
 	}
 
@@ -756,19 +785,22 @@ ChatBox.addNewTab = function addNewTab(name, settings) {
 	tab.name = tabName;
 
 	// Remove current active state
-	root.querySelectorAll('table.header tr td.tab div').forEach((el) => el.classList.remove('on'));
-	root.querySelectorAll('.body .content').forEach((el) => el.classList.remove('active'));
+	root.querySelectorAll('table.header tr td.tab div').forEach(el => el.classList.remove('on'));
+	root.querySelectorAll('.body .content').forEach(el => el.classList.remove('active'));
 
 	// Add new elements as active
 	const opttab = root.querySelector('table.header tr .opttab');
 	if (opttab) {
-		opttab.insertAdjacentHTML('beforebegin', `
+		opttab.insertAdjacentHTML(
+			'beforebegin',
+			`
 			<td class="tab" data-tab="${tabID}">
 				<div class="on">
 					<input type="text" value="${tabName}"/>
 				</div>
 			</td>
-		`);
+		`
+		);
 	}
 
 	const newTabInput = root.querySelector(`table.header tr td.tab[data-tab="${tabID}"] div input`);
@@ -780,7 +812,10 @@ ChatBox.addNewTab = function addNewTab(name, settings) {
 
 	const contentWrapper = root.querySelector('.body .contentwrapper');
 	if (contentWrapper) {
-		contentWrapper.insertAdjacentHTML('beforeend', `<div class="content active" data-content="${tabID}" data-scrollbar-skin="chatbox"></div>`);
+		contentWrapper.insertAdjacentHTML(
+			'beforeend',
+			`<div class="content active" data-content="${tabID}" data-scrollbar-skin="chatbox"></div>`
+		);
 	}
 
 	// Bind scroll handler on new content
@@ -804,8 +839,8 @@ ChatBox.addNewTab = function addNewTab(name, settings) {
 ChatBox.switchTab = function switchTab(tabID) {
 	const root = _root();
 
-	root.querySelectorAll('table.header tr td.tab div').forEach((el) => el.classList.remove('on'));
-	root.querySelectorAll('.body .content').forEach((el) => el.classList.remove('active'));
+	root.querySelectorAll('table.header tr td.tab div').forEach(el => el.classList.remove('on'));
+	root.querySelectorAll('.body .content').forEach(el => el.classList.remove('active'));
 
 	this.activeTab = tabID;
 
@@ -935,9 +970,12 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 
 				if (event.ctrlKey || KEYS.CTRL) {
 					const isEditingCombo =
-						event.which === KEYS.C || event.which === KEYS.V ||
-						event.which === KEYS.X || event.which === KEYS.A ||
-						event.which === KEYS.Z || event.which === KEYS.Y;
+						event.which === KEYS.C ||
+						event.which === KEYS.V ||
+						event.which === KEYS.X ||
+						event.which === KEYS.A ||
+						event.which === KEYS.Z ||
+						event.which === KEYS.Y;
 
 					if (!isEditingCombo) {
 						if (ChatBox.processBattleMode(event.which)) {
@@ -955,10 +993,14 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 
 				if (event.altKey || KEYS.ALT) {
 					const isAltEditingCombo =
-						event.which === KEYS.LEFT || event.which === KEYS.RIGHT ||
-						event.which === KEYS.UP || event.which === KEYS.DOWN ||
-						event.which === KEYS.BACKSPACE || event.which === KEYS.DELETE ||
-						event.which === KEYS.HOME || event.which === KEYS.END;
+						event.which === KEYS.LEFT ||
+						event.which === KEYS.RIGHT ||
+						event.which === KEYS.UP ||
+						event.which === KEYS.DOWN ||
+						event.which === KEYS.BACKSPACE ||
+						event.which === KEYS.DELETE ||
+						event.which === KEYS.HOME ||
+						event.which === KEYS.END;
 
 					if (!isAltEditingCombo) {
 						if (ChatBox.processBattleMode(event.which)) {
@@ -1046,10 +1088,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 
 		// Send message
 		case KEYS.ENTER: {
-			if (
-				document.activeElement.className === 'message input-chatbox' &&
-				document.activeElement !== messageBox
-			) {
+			if (document.activeElement.className === 'message input-chatbox' && document.activeElement !== messageBox) {
 				return true;
 			}
 
@@ -1128,7 +1167,7 @@ ChatBox.submit = function Submit() {
 			$text.focus();
 		}
 		const chatmode = isChatOn ? 'on' : 'off';
-		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/chatmode_${chatmode}.bmp`, (data) => {
+		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/chatmode_${chatmode}.bmp`, data => {
 			const chatmodeBtn = root.querySelector('.chat-function .chatmode');
 			if (chatmodeBtn) chatmodeBtn.style.backgroundImage = `url(${data})`;
 		});
@@ -1165,7 +1204,7 @@ function extractChatMessage(inputEl) {
 	if (!inputEl) return '';
 	const clone = inputEl.cloneNode(true);
 
-	clone.querySelectorAll('span.item-link').forEach((el) => {
+	clone.querySelectorAll('span.item-link').forEach(el => {
 		const itemData = el.getAttribute('data-item') || el.dataset.item || '';
 		el.replaceWith(document.createTextNode(itemData));
 	});
@@ -1226,7 +1265,7 @@ function flushMessageBuffer() {
 
 	const messagesByTab = {};
 
-	messages.forEach((msg) => {
+	messages.forEach(msg => {
 		ChatBox.tabs.forEach((tab, TabNum) => {
 			const chatTabOption = ChatBoxSettings.tabOption[TabNum];
 
@@ -1242,14 +1281,14 @@ function flushMessageBuffer() {
 		});
 	});
 
-	Object.keys(messagesByTab).forEach((TabNum) => {
+	Object.keys(messagesByTab).forEach(TabNum => {
 		const content = root.querySelector(`.content[data-content="${TabNum}"]`);
 		if (!content) return;
 
 		const fragment = document.createDocumentFragment();
 		const wasAtBottom = shouldScrollDownBeforeAdd(content, content.offsetHeight);
 
-		messagesByTab[TabNum].forEach((msg) => {
+		messagesByTab[TabNum].forEach(msg => {
 			const color = msg.color || getColorForType(msg.colorType);
 			const div = document.createElement('div');
 			div.style.color = color;
@@ -1477,7 +1516,8 @@ ChatBox.saveCurrentTabChat = function saveCurrentTabChat() {
 
 	const contentEl = root.querySelector(`.content[data-content="${ChatBox.activeTab}"]`);
 
-	data = '<html><head><title>Chat History</title><style> body { background-color: DarkSlateGray; } </style></head><body>';
+	data =
+		'<html><head><title>Chat History</title><style> body { background-color: DarkSlateGray; } </style></head><body>';
 	data += contentEl ? contentEl.outerHTML : '';
 	data += '</body></html>';
 
@@ -1636,13 +1676,13 @@ ChatBox.applyFontScale = function applyFontScale() {
 	_preferences.fontScale = scale;
 
 	// Chat log
-	root.querySelectorAll('.content').forEach((el) => {
+	root.querySelectorAll('.content').forEach(el => {
 		el.style.fontSize = `${fontSize}px`;
 		el.style.lineHeight = `${lineHeight}px`;
 	});
 
 	// Chat input
-	root.querySelectorAll('.input input, .input .message').forEach((el) => {
+	root.querySelectorAll('.input input, .input .message').forEach(el => {
 		el.style.fontFamily = 'Arial';
 		el.style.fontSize = `${fontSize}px`;
 	});
@@ -1664,9 +1704,9 @@ function makeResizableDiv() {
 	let originalAnchorY = 0;
 	let originalMouseY = 0;
 
-	const fixHeight = (height) => Math.floor(height / MAGIC_NUMBER) * MAGIC_NUMBER;
+	const fixHeight = height => Math.floor(height / MAGIC_NUMBER) * MAGIC_NUMBER;
 
-	const resize = (e) => {
+	const resize = e => {
 		let height = fixHeight(originalHeight - (e.pageY - originalMouseY));
 		height = Math.max(MAGIC_NUMBER, Math.min(MAGIC_NUMBER * 5, height));
 
@@ -1686,7 +1726,7 @@ function makeResizableDiv() {
 		window.removeEventListener('mouseup', stopResize);
 	};
 
-	resizer.addEventListener('mousedown', (e) => {
+	resizer.addEventListener('mousedown', e => {
 		e.preventDefault();
 		const contentWrapper = root.querySelector('.contentwrapper');
 		originalHeight = contentWrapper ? contentWrapper.offsetHeight : 0;
@@ -1703,7 +1743,7 @@ ChatBox._setupItemLinkHandler = function _setupItemLinkHandler() {
 	const root = _root();
 	if (!root) return;
 
-	root.addEventListener('click', (event) => {
+	root.addEventListener('click', event => {
 		const link = event.target.closest('.item-link');
 		if (!link) return;
 

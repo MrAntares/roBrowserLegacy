@@ -107,7 +107,7 @@ PartyFriendsV0.init = function init() {
 	// Avoid drag drop problems
 	const baseBtn = root.querySelector('.base');
 	if (baseBtn) {
-		baseBtn.addEventListener('mousedown', (e) => {
+		baseBtn.addEventListener('mousedown', e => {
 			e.stopImmediatePropagation();
 			e.preventDefault();
 		});
@@ -124,7 +124,7 @@ PartyFriendsV0.init = function init() {
 	if (lockOn) lockOn.addEventListener('mousedown', onToggleLock);
 	if (lockOff) lockOff.addEventListener('mousedown', onToggleLock);
 
-	root.querySelectorAll('.switchtab.off').forEach((el) => {
+	root.querySelectorAll('.switchtab.off').forEach(el => {
 		el.addEventListener('mousedown', onChangeTab);
 	});
 
@@ -155,7 +155,7 @@ PartyFriendsV0.init = function init() {
 	// Context menu and selection on nodes
 	const contentEl = root.querySelector('.content');
 	if (contentEl) {
-		contentEl.addEventListener('contextmenu', (e) => {
+		contentEl.addEventListener('contextmenu', e => {
 			const node = e.target.closest('.node');
 			if (node) {
 				e.preventDefault();
@@ -163,7 +163,7 @@ PartyFriendsV0.init = function init() {
 				onRightClickInfo();
 			}
 		});
-		contentEl.addEventListener('mousedown', (e) => {
+		contentEl.addEventListener('mousedown', e => {
 			const node = e.target.closest('.node');
 			if (node) {
 				onSelectionChange(node);
@@ -703,7 +703,7 @@ function onResize() {
 	const _Interval = setInterval(resizing, 30);
 
 	// Stop resizing on left click
-	const onMouseUp = (event) => {
+	const onMouseUp = event => {
 		if (event.which === 1) {
 			clearInterval(_Interval);
 			window.removeEventListener('mouseup', onMouseUp);
@@ -754,17 +754,17 @@ function onChangeTab() {
 	const partyEls = root.querySelectorAll('.party');
 
 	if (_preferences.friend) {
-		friendEls.forEach((el) => {
+		friendEls.forEach(el => {
 			el.style.display = '';
 		});
-		partyEls.forEach((el) => {
+		partyEls.forEach(el => {
 			el.style.display = 'none';
 		});
 	} else {
-		friendEls.forEach((el) => {
+		friendEls.forEach(el => {
 			el.style.display = 'none';
 		});
-		partyEls.forEach((el) => {
+		partyEls.forEach(el => {
 			el.style.display = '';
 		});
 
@@ -784,7 +784,7 @@ function onChangeTab() {
 		}
 	}
 
-	root.querySelectorAll('.node').forEach((n) => n.classList.remove('selection'));
+	root.querySelectorAll('.node').forEach(n => n.classList.remove('selection'));
 	_index = -1;
 }
 
@@ -931,7 +931,7 @@ function onRequestPartyDelegation() {
  */
 function onSelectionChange(nodeEl) {
 	const root = _root();
-	root.querySelectorAll('.content .name').forEach((el) => el.classList.remove('selection'));
+	root.querySelectorAll('.content .name').forEach(el => el.classList.remove('selection'));
 
 	const nameEl = nodeEl.querySelector('.name');
 	if (nameEl) nameEl.classList.add('selection');
