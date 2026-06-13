@@ -1,23 +1,160 @@
+version: '3.7'
+
+networks:
+    ro-network:
+        driver: bridge
+
+volumes:
+    rathenadb:
+        driver: local
+
 services:
-    ro-browser:
+    # --- DATABASE (rAthena Native) ---
+    db:
+        image: 'mariadb:noble'
+        container_name: 'rathena-db'
+        networks:
+            - ro-network
+        ports:
+            - '3306:3306' # Permite conexões externas ao banco a partir do Windows
+        volumes:
+            - 'rathenadb:/var/lib/mysql'
+            - './rathena/sql-files/:/docker-entrypoint-initdb.d' # Inicializa o banco com o schema original
+        environment:
+            MYSQL_ROOT_PASSWORD: ragnarok
+            MYSQL_DATABASE: ragnarok
+            MYSQL_USER: ragnarok
+            MYSQL_PASSWORD: ragnarok
+
+    # --- RATHENA BUILDER (rAthena Native) ---
+    builder:
+        image: 'rathena:local'
+        container_name: 'rathena-builder'
+        command: '/rathena/tools/docker/builder.sh'
+        networks:
+            - ro-network
+        volumes:
+            - './rathena:/rathena' # Mapeia a subpasta local do rAthena
+            - './rathena/tools/docker/asset/inter_conf.txt:/rathena/conf/import/inter_conf.txt'
+            - './rathena/tools/docker/asset/char_conf.txt:/rathena/conf/import/char_conf.txt'
+            - './rathena/tools/docker/asset/map_conf.txt:/rathena/conf/import/map_conf.txt'
+        init: true
+        tty: true
+        stdin_open: true
+        build:
+            context: ./rathena/tools/docker
+            dockerfile: Dockerfile
+        environment:
+            BUILDER_CONFIGURE: '--enable-packetver=20211103'
+
+    # --- RATHENA LOGIN SERVER (rAthena Native) ---
+    login:
+        image: 'rathena:local'
+        container_name: 'rathena-login'
+        command: sh -c "/bin/wait-for db:3306 -- /rathena/login-server"
+        ports:
+            - '6900:6900'
+        networks:
+            - ro-network
+        volumes:
+            - './rathena:/rathena'
+            - './rathena/tools/docker/asset/inter_conf.txt:/rathena/conf/import/inter_conf.txt'
+            - './rathena/tools/docker/asset/char_conf.txt:/rathena/conf/import/char_conf.txt'
+            - './rathena/tools/docker/asset/map_conf.txt:/rathena/conf/import/map_conf.txt'
+        init: true
+        tty: true
+        stdin_open: true
+        build:
+            context: ./rathena/tools/docker
+            dockerfile: Dockerfile
+        depends_on:
+            - db
+
+    # --- RATHENA CHAR SERVER (rAthena Native) ---
+    char:
+        image: 'rathena:local'
+        container_name: 'rathena-char'
+        command: sh -c "/bin/wait-for db:3306 -- /rathena/char-server"
+        ports:
+            - '6121:6121'
+        networks:
+            - ro-network
+        volumes:
+            - './rathena:/rathena'
+            - './rathena/tools/docker/asset/inter_conf.txt:/rathena/conf/import/inter_conf.txt'
+            - './rathena/tools/docker/asset/char_conf.txt:/rathena/conf/import/char_conf.txt'
+            - './rathena/tools/docker/asset/map_conf.txt:/rathena/conf/import/map_conf.txt'
+        init: true
+        tty: true
+        stdin_open: true
+        build:
+            context: ./rathena/tools/docker
+            dockerfile: Dockerfile
+        depends_on:
+            - login
+
+    # --- RATHENA MAP SERVER (rAthena Native) ---
+    map:
+        image: 'rathena:local'
+        container_name: 'rathena-map'
+        command: sh -c "/bin/wait-for db:3306 -- /rathena/map-server"
+        ports:
+            - '5121:5121'
+        networks:
+            - ro-network
+        volumes:
+            - './rathena:/rathena'
+            - './rathena/tools/docker/asset/inter_conf.txt:/rathena/conf/import/inter_conf.txt'
+            - './rathena/tools/docker/asset/char_conf.txt:/rathena/conf/import/char_conf.txt'
+            - './rathena/tools/docker/asset/map_conf.txt:/rathena/conf/import/map_conf.txt'
+        init: true
+        tty: true
+        stdin_open: true
+        build:
+            context: ./rathena/tools/docker
+            dockerfile: Dockerfile
+        depends_on:
+            - char
+
+    # --- ROBROWSER FRONTEND (Vite Dev Server) ---
+    ro-browser-dev:
         build:
             context: .
             dockerfile: Dockerfile
             target: dev
+        container_name: robrowser-vite-dev
+        networks:
+            - ro-network
         ports:
-            - '8000:8000'
-            # You can use to serve wsproxy.
-            #- "5999:5999"
+            - '3000:3000'
+            - '5999:5999' # WebSocket Proxy
         volumes:
             - ./:/app
+            - /app/node_modules/
+        environment:
+            - NODE_ENV=development
         tty: true
+        working_dir: /app
+        command: >
+            bash -c "set -e;
+            echo '=== Instalando dependências do projeto ===';
+            npm install;
+            echo '=== Inicializando Proxy em Background ===';
+            wsproxy &
+            echo '=== Subindo o Vite Dev Server ===';
+            npx vite --host 0.0.0.0 --port 3000"
 
-    serve-dist:
+    # --- REMOTE CLIENT PHP ---
+    remote-client-php:
         build:
-            context: .
-            dockerfile: Dockerfile
-            target: dist-server
+            context: ./roBrowserLegacy-RemoteClient-PHP
+            dockerfile: docker/apache/Dockerfile
+        container_name: remote-client-php
+        networks:
+            - ro-network
         ports:
-            - '8080:8080'
-        volumes:
-            - ./dist/Web:/var/www/html
+            - '8080:80'
+        environment:
+            - DEBUG=true
+            - CLIENT_RESPATH=/var/www/html/resources/
+            - CLIENT_DATAINI=DATA.INI

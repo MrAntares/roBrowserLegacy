@@ -1,4 +1,4 @@
-FROM node:20.10.0 AS builder
+FROM node:24-bookworm AS builder
 
 LABEL org.opencontainers.image.description="Builds roBrowserLegacy JS bundles and HTML."
 
@@ -16,7 +16,6 @@ RUN npm install
 
 # Copy source and build
 COPY . .
-RUN npm run build:all
 
 # Copy Config.local.js into the dist output so it's served alongside index.html.
 # NOTE: Config.local.js is excluded from the build context via .dockerignore to
@@ -25,7 +24,7 @@ RUN npm run build:all
 
 # ---
 
-FROM node:20.10.0 AS dev
+FROM node:24-bookworm AS dev
 
 LABEL org.opencontainers.image.description="Creates a environment to host the NodeJS and NPM environment."
 
@@ -39,11 +38,10 @@ RUN apt-get update -y -qq && \
 
 WORKDIR /app
 
-EXPOSE 8000
+EXPOSE 3000
+EXPOSE 5999
 
-# Fixed: previously was ["/bin/bash", "-l", "-c", "sleep", "360h"] which passes
-# "sleep" as the -c script and "360h" as $0, causing bash to exit immediately.
-ENTRYPOINT ["/bin/bash", "-c", "sleep 360h"]
+ENTRYPOINT []
 
 # ---
 
@@ -89,9 +87,6 @@ RUN cat <<EOF > /etc/apache2/sites-enabled/dist.conf
 EOF
 
 RUN echo "Listen 8080" >> /etc/apache2/ports.conf
-
-# Copy the built dist files from the builder stage
-COPY --from=builder --chown=www-data:www-data /app/dist/Web /var/www/html
 
 EXPOSE 8080
 

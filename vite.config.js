@@ -39,6 +39,8 @@ export default defineConfig({
 		}
 	},
 	build: {
+		sourcemap: false, // Saves RAM
+		minify: false, // Makes the build run much faster
 		outDir: 'dist/Web',
 		rollupOptions: {
 			input: {
@@ -47,17 +49,32 @@ export default defineConfig({
 		}
 	},
 	server: {
+		host: '0.0.0.0',
 		port: 3000,
-		open: true,
-		proxy: {  
-			'/emblem': {  
-				target: 'http://127.0.0.1:8888',  
-				changeOrigin: true,  
-			},  
-			'/userconfig': {  
-				target: 'http://127.0.0.1:8888',  
-				changeOrigin: true,  
-			}  
+		cors: true,
+		watch: {
+			usePolling: true, // Necessary in WSL2/Docker Windows, but can be heavy
+			interval: 1000    // Increase the interval to relieve the CPU
+		},		
+		proxy: {
+			'/get': {
+				target: 'http://rathena-backend:8888',
+				changeOrigin: true,
+				secure: false,
+				ws: false
+			},
+			'/userconfig': {
+				target: 'http://rathena-backend:8888',
+				changeOrigin: true,
+				secure: false,
+				ws: false
+			},
+			'/remote-client': {
+				target: 'http://remote-client-php:80',
+				changeOrigin: true,
+				secure: false,
+				rewrite: (path) => path.replace(/^\/remote-client/, '')
+			}
 		}
-	}
+	}	
 });
