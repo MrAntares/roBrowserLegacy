@@ -54,6 +54,11 @@ let _rowCount = 0;
 let _lastServerHotkeys = null;
 
 /**
+ * Cache for active animation frames
+ */
+const _activeAnimations = new Map();
+
+/**
  * @var {Preference} structure to save informations about shortcut
  */
 const _preferences = Preferences.get(
@@ -182,6 +187,12 @@ ShortCut.onRemove = function onRemove() {
 		tooltip.classList.remove('show');
 	}
 
+	// Cancels all active animation loops defensively to prevent leaks in unattached elements
+	for (const [index, animationId] of _activeAnimations.entries()) {
+		cancelAnimationFrame(animationId);
+	}
+	_activeAnimations.clear();
+
 	// Save preferences
 	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.x = parseInt(this._host.style.left, 10);
@@ -198,6 +209,12 @@ ShortCut.onRemove = function onRemove() {
  * Used only from MapEngine when exiting the game
  */
 ShortCut.clean = function clean() {
+	// Cancels all active animation loops immediately to prevent post-logout TypeError
+	for (const [index, animationId] of _activeAnimations.entries()) {
+		cancelAnimationFrame(animationId);
+	}
+	_activeAnimations.clear();
+
 	_list.length = 0;
 	const root = ShortCut.getRoot();
 	root.querySelectorAll('.container').forEach(el => {
@@ -610,6 +627,11 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
  * @param {number} delay in ms
  */
 function setDelayOnIndex(index, delay) {
+	// Safety validation to ensure the index exists in the list
+	if (!_list[index]) {
+		return;
+	}
+
 	// do nothing, the new delay would end sooner.
 	if (_list[index].Delay && _list[index].Delay >= Renderer.tick + delay) {
 		return;
@@ -635,17 +657,32 @@ function setDelayOnIndex(index, delay) {
 		}
 	}
 
-	let animationId;
+	// Cancel any previous animation frame scheduled for the same index
+	if (_activeAnimations.has(index)) {
+		cancelAnimationFrame(_activeAnimations.get(index));
+		_activeAnimations.delete(index);
+	}
 
 	function updateCooldown() {
+		// Safety check against post-destruction or logout leaks
+		if (!_list || !_list[index]) {
+			overlay.remove();
+			if (_activeAnimations.has(index)) {
+				cancelAnimationFrame(_activeAnimations.get(index));
+				_activeAnimations.delete(index);
+			}
+			return;
+		}
+
 		const now = Renderer.tick;
 		const remaining = _list[index].Delay - now;
 
 		if (remaining <= 0 || !_list[index].Delay) {
 			overlay.remove();
 			_list[index].Delay = 0;
-			if (animationId) {
-				cancelAnimationFrame(animationId);
+			if (_activeAnimations.has(index)) {
+				cancelAnimationFrame(_activeAnimations.get(index));
+				_activeAnimations.delete(index);
 			}
 			return;
 		}
@@ -654,10 +691,12 @@ function setDelayOnIndex(index, delay) {
 		const degrees = (1 - percentage) * 360;
 		overlay.style.background = `conic-gradient(transparent 0deg, transparent ${degrees}deg, rgba(0,0,0,0.75) ${degrees}deg)`;
 
-		animationId = requestAnimationFrame(updateCooldown);
+		const animationId = requestAnimationFrame(updateCooldown);
+		_activeAnimations.set(index, animationId);
 	}
 
-	animationId = requestAnimationFrame(updateCooldown);
+	const animationId = requestAnimationFrame(updateCooldown);
+	_activeAnimations.set(index, animationId);
 }
 
 /**
