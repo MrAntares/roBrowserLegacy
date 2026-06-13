@@ -61,7 +61,7 @@ CharCreate.init = function init() {
 	root.querySelector('.chargen .right').addEventListener('mousedown', updateCharacterGeneric('head', +1));
 	root.querySelector('.chargen .up').addEventListener('mousedown', updateCharacterGeneric('headpalette', +1));
 
-	root.querySelectorAll('.graph button').forEach(btn => {
+	root.querySelectorAll('.graph ui-button').forEach(btn => {
 		btn.addEventListener('mousedown', function (event) {
 			updateStats.call(this, event);
 		});
