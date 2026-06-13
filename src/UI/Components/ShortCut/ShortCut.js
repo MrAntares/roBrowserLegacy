@@ -187,6 +187,12 @@ ShortCut.onRemove = function onRemove() {
 		tooltip.classList.remove('show');
 	}
 
+	// Cancels all active animation loops defensively to prevent leaks in unattached elements
+	for (const [index, animationId] of _activeAnimations.entries()) {
+		cancelAnimationFrame(animationId);
+	}
+	_activeAnimations.clear();
+
 	// Save preferences
 	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.x = parseInt(this._host.style.left, 10);
@@ -203,7 +209,7 @@ ShortCut.onRemove = function onRemove() {
  * Used only from MapEngine when exiting the game
  */
 ShortCut.clean = function clean() {
-	// Cancel all active animation frames
+	// Cancels all active animation loops immediately to prevent post-logout TypeError
 	for (const [index, animationId] of _activeAnimations.entries()) {
 		cancelAnimationFrame(animationId);
 	}
