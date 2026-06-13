@@ -58,13 +58,13 @@ export default defineConfig({
 		},		
 		proxy: {
 			'/get': {
-				target: 'http://rathena-backend:8888',
+				target: 'http://rathena-web:8888',
 				changeOrigin: true,
 				secure: false,
 				ws: false
 			},
 			'/userconfig': {
-				target: 'http://rathena-backend:8888',
+				target: 'http://rathena-web:8888',
 				changeOrigin: true,
 				secure: false,
 				ws: false

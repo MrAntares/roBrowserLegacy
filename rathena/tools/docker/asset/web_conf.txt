@@ -1,0 +1,10 @@
+web_port: 8888  
+allow_gifs: yes  
+allowed_origin_cors: http://localhost:3000
+
+// MySQL Web Server  
+web_server_ip: db  
+web_server_port: 3306  
+web_server_id: ragnarok  
+web_server_pw: ragnarok  
+web_server_db: ragnarok
