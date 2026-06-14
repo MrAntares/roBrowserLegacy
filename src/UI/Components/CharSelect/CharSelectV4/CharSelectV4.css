@@ -196,13 +196,28 @@
 	height: 24px;
 }
 
+#CharSelectV4 .btn.delete,
+#CharSelectV4 .btn.canceldelete,
+#CharSelectV4 .btn.finaldelete {
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: 0;
+	text-align: center;
+	line-height: 24px;
+}
+
 #CharSelectV4 .btn.ok {
 	position: absolute;
 	width: 165px;
 	height: 110px;
 	color: white;
 	padding-top: 20px;
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: 0;
+	text-align: center;
 }
+
 #CharSelectV4 .btn.ok:hover {
 	text-shadow: #000 1px 1px;
 }

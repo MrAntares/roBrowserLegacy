@@ -69,6 +69,7 @@ R44 → PROGRAMMATIC_EVENT -> CustomEvent(detail)
 R45 → MOBILE_TOUCH -> host touch-action + visualViewport note
 R46 → SNAP_CACHE -> jQuery-compatible offsetParent
 R47 → ASSET_PATH -> DBManager.INTERFACE_PATH
+R48 → UI_BUTTON_STYLING → RESTORE_BG_REPEAT+BORDER; TEXT_ALIGN_ON_BUTTON_NOT_UI_TEXT
 
 ---
 
@@ -115,6 +116,12 @@ pointer-events:none_host => pointer-events:auto_child
 server_index_selector => null_guard
 
 toggle_visibility_css => inline_visibility
+
+ui-button_no_ua_style => restore_bg-repeat+border
+
+ui-button_plain_text => flex_center
+
+ui-button_ui-text_child => text-align(+line-height)\_on_button
 
 UIComponent_embed => migrate_child
 
@@ -184,6 +191,8 @@ FREEZE_MODE => POINTER_EVENTS_ENABLED
 
 TOGGLEABLE_BACKGROUND => BUTTON_OR_DIV
 
+UI_BUTTON_TEXT_OR_BG => RESTORE_STYLING+ALIGN_ON_BUTTON
+
 EMBED_LEGACY_COMPONENT => MIGRATE_CHILD
 
 HOST_INNER_SAME_DIMENSIONS => AUDIT
@@ -245,6 +254,8 @@ EVENT_ORDER_REGRESSION => CAPTURE_PHASE
 BODY_STYLE_IGNORED => GLOBAL_OR_ONAPPEND
 
 RO_FORMATTING_LOST => FORMATTER_PIPELINE
+
+BUTTON_BG_TILES|LABEL_TOPLEFT => RESTORE_UI_BUTTON_STYLING+ALIGN_ON_BUTTON
 
 LEGACY_CHILD_UNREACHABLE => MIGRATE_CHILD
 

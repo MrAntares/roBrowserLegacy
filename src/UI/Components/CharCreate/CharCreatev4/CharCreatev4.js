@@ -420,11 +420,11 @@ function cleanup() {
 	root.querySelectorAll('.hstyle').forEach(el => {
 		el.checked = false;
 	});
-	const defaultHstyle = root.querySelector('#1_human_male');
+	const defaultHstyle = root.querySelector('[id="1_human_male"]');
 	if (defaultHstyle) {
 		defaultHstyle.checked = true;
 	}
-	const defaultColor = root.querySelector('#0_color');
+	const defaultColor = root.querySelector('[id="0_color"]');
 	if (defaultColor) {
 		defaultColor.checked = true;
 	}

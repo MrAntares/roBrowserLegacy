@@ -129,3 +129,12 @@
 #charcreate .cancel {
 	right: 4px;
 }
+
+#charcreate .btns ui-button {
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
