@@ -1153,45 +1153,46 @@ Use `'block'` (or the appropriate display value) to override CSS `display: none`
 
 ## Quick Reference: What NOT to do
 
-| Don't                                                                    | Do instead                                                        | Why                                                                                                                 |
-| ------------------------------------------------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `jQuery(element).show()` inside shadow                                   | `element.style.display = ''`                                      | jQuery sets `display:block`, kills flex/grid                                                                        |
-| `$el.closest('body').length`                                             | `el.isConnected`                                                  | `.closest()` can't cross shadow boundary                                                                            |
-| `document.querySelector('.my-shadow-element')`                           | `this._shadow.querySelector(...)`                                 | Global queries can't see shadow content                                                                             |
-| `this.ui.find('.foo')`                                                   | `this._shadow.querySelector('.foo')`                              | Proxy is for interop only                                                                                           |
-| `this.ui.css('top', '100px')`                                            | `this._host.style.top = '100px'`                                  | Proxy is for interop only                                                                                           |
-| `this.ui.show()` / `this.ui.hide()`                                      | `this._host.style.display = ''` / `= 'none'`                      | Proxy is for interop only                                                                                           |
-| `this.ui.is(':visible')`                                                 | `this._host.style.display !== 'none'`                             | Proxy is for interop only                                                                                           |
-| Put `top`/`left` on inner element                                        | Put on `:host`                                                    | Breaks magnetic snap positioning                                                                                    |
-| Omit `:host { width; height }`                                           | Always declare dimensions on `:host`                              | Host collapses to 0×0, snap/overflow broken                                                                         |
-| Register click handlers on `document.body` expecting shadow targets      | Register inside `this._container`                                 | Event retargeting hides real target                                                                                 |
-| Bind events in `onAppend()`                                              | Bind in `init()`, restore state in `onAppend()`                   | `onAppend()` runs every time — duplicates bindings                                                                  |
-| Set `position`/`z-index` on `:host` in CSS                               | Omit — set automatically by JS                                    | Redundant, may conflict                                                                                             |
-| `onKeyDown` without `shadowRoot.activeElement` guard                     | Check `(this._shadow \|\| this._host).activeElement.tagName`      | `document.activeElement` returns host, not the real input inside shadow                                             |
-| `position: absolute` on inner div of dynamic-size component              | `display: block` (no positioning)                                 | Creates 0×0 containing block that breaks child positioning (see §4b)                                                |
-| `content.textContent = DB.getSkillDescription(id)`                       | `content.innerHTML = _formatROText(...)`                          | jQuery `.text()` is overridden to process `^rrggbb` colors, `^nItemID`, newlines (see §13)                          |
-| Convert all callbacks to arrow functions blindly                         | Keep `function()` when caller uses `.call()`/`.apply()`           | Arrow functions ignore dynamic `this` binding (see §9)                                                              |
-| CSS `display: none` + `element.style.display = ''` to show               | Use explicit `'block'`/`'none'`, or omit CSS `display: none`      | Empty string removes inline style, falls back to CSS `none` (see §10)                                               |
-| Assume children inherit only scoped styles from `:host`                  | Add `pointer-events: auto` on children if `:host` is `none`       | Inheritable CSS crosses shadow boundary: `pointer-events`, `color`, `cursor`, etc. (see §11)                        |
-| `jQuery._data(window,'events').unshift(events.pop())`                    | `addEventListener(event, handler, true)` (capture phase)          | Native DOM has no queue reordering; capture phase guarantees priority (see §12)                                     |
-| `return false` from native event handler                                 | Explicit `stopImmediatePropagation()` + `preventDefault()`        | Native handler return values are ignored; only jQuery interprets `return false` (see §12)                           |
-| Move element to `document.body` without inline styles                    | Apply inline styles before `element.remove()` (see §24)           | Elements outside shadow root lose all scoped CSS                                                                    |
-| Duplicate `width`/`height` on both `:host` and inner element             | Put dimensions on inner element only when content overflows (§15) | Conflicting size constraints create scrollbars in components with complex content                                   |
-| Check `event.isTrigger` in migrated handler                              | Remove the check entirely (see §21)                               | `isTrigger` is jQuery-only; native DOM events never set this property                                               |
-| Inner element without explicit height when host uses `overflow: hidden`  | Add `height: 100%` to inner element                               | `bottom`-anchored children (resize handles, footers) position relative to inner element, not clipped host (see §23) |
-| `this._host.style.display = 'none'` in `init()` for on-demand components | Do not hide — hide only in toggle-style components                | `append()` does not reset `display`; host stays permanently hidden (see §24)                                        |
-| `element.style.display` to find visible element                          | Also check `getComputedStyle(element).display` (see §22)          | Inline style may be empty while CSS sets `display: none`                                                            |
-| `position: absolute` on inner root when host should auto-size            | Use `position: relative` instead (see §25)                        | Absolute inner root collapses host width; relative provides position context while keeping normal flow              |
-| Omit `contextmenu` handler on right-click areas                          | Add `contextmenu` listener with `e.preventDefault()` (see §26)    | UIComponent's `return false` auto-prevented; native handlers must suppress explicitly                               |
-| `this.offsetTop` / `this.offsetLeft` for element position                | Use `getBoundingClientRect()` relative to root (see §27)          | Shadow DOM `offsetTop` is relative to intermediate positioned parent (scrollbar), not component root                |
-| `root.querySelector(sel)` when multiple elements may match               | Use `root.querySelectorAll(sel)` + `forEach` (see §28)            | `querySelector` returns only the first match; multi-slot items only update one slot                                 |
-| Setting `scrollTop` without syncing custom scrollbar                     | Call `element._roScrollbarRestart()` after (see §29)              | Scrollbar poller runs on 300ms interval; thumb jumps until it catches up                                            |
-| Custom `_formatROText()` when `DB.formatMsgToHtml()` exists              | Use `DB.formatMsgToHtml(text)` (see §30)                          | Centralized utility already handles `^rrggbb`, item substitution, newlines                                          |
-| `querySelector` on slot index without null check                         | Always null-guard: `if (!el) return;` (see §31)                   | Server packets may reference slot indices beyond what the HTML template provides                                    |
-| `<ui-button>` for toggleable elements (checkboxes, state indicators)     | Use `<button>` or `<div>` and manage `backgroundImage` yourself   | `<ui-button>` resets `backgroundImage` on `mouseup` to the `bg` attribute value (see §33)                           |
-| `pointer-events: none` on `:host` for FREEZE mode full-viewport          | Omit `pointer-events: none` — FREEZE mode needs the host to block | Clicks pass through to the game canvas behind the UI (see §35)                                                      |
-| `draggable()` for sub-windows inside a component                         | Write a custom `_makeDraggable(element, handle)` helper (see §32) | `draggable()` operates on `_host` only — cannot drag sub-elements independently                                     |
-| Plain `<div>` for clickable elements expecting hand cursor               | Use `<button>`, `<ui-button>`, `<a>`, or `.item-link` class       | Game's sprite cursor only shows hand for elements in `CLICKABLE_SELECTOR` (see §34)                                 |
+| Don't                                                                      | Do instead                                                                                                  | Why                                                                                                                   |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `jQuery(element).show()` inside shadow                                     | `element.style.display = ''`                                                                                | jQuery sets `display:block`, kills flex/grid                                                                          |
+| `$el.closest('body').length`                                               | `el.isConnected`                                                                                            | `.closest()` can't cross shadow boundary                                                                              |
+| `document.querySelector('.my-shadow-element')`                             | `this._shadow.querySelector(...)`                                                                           | Global queries can't see shadow content                                                                               |
+| `this.ui.find('.foo')`                                                     | `this._shadow.querySelector('.foo')`                                                                        | Proxy is for interop only                                                                                             |
+| `this.ui.css('top', '100px')`                                              | `this._host.style.top = '100px'`                                                                            | Proxy is for interop only                                                                                             |
+| `this.ui.show()` / `this.ui.hide()`                                        | `this._host.style.display = ''` / `= 'none'`                                                                | Proxy is for interop only                                                                                             |
+| `this.ui.is(':visible')`                                                   | `this._host.style.display !== 'none'`                                                                       | Proxy is for interop only                                                                                             |
+| Put `top`/`left` on inner element                                          | Put on `:host`                                                                                              | Breaks magnetic snap positioning                                                                                      |
+| Omit `:host { width; height }`                                             | Always declare dimensions on `:host`                                                                        | Host collapses to 0×0, snap/overflow broken                                                                           |
+| Register click handlers on `document.body` expecting shadow targets        | Register inside `this._container`                                                                           | Event retargeting hides real target                                                                                   |
+| Bind events in `onAppend()`                                                | Bind in `init()`, restore state in `onAppend()`                                                             | `onAppend()` runs every time — duplicates bindings                                                                    |
+| Set `position`/`z-index` on `:host` in CSS                                 | Omit — set automatically by JS                                                                              | Redundant, may conflict                                                                                               |
+| `onKeyDown` without `shadowRoot.activeElement` guard                       | Check `(this._shadow \|\| this._host).activeElement.tagName`                                                | `document.activeElement` returns host, not the real input inside shadow                                               |
+| `position: absolute` on inner div of dynamic-size component                | `display: block` (no positioning)                                                                           | Creates 0×0 containing block that breaks child positioning (see §4b)                                                  |
+| `content.textContent = DB.getSkillDescription(id)`                         | `content.innerHTML = _formatROText(...)`                                                                    | jQuery `.text()` is overridden to process `^rrggbb` colors, `^nItemID`, newlines (see §13)                            |
+| Convert all callbacks to arrow functions blindly                           | Keep `function()` when caller uses `.call()`/`.apply()`                                                     | Arrow functions ignore dynamic `this` binding (see §9)                                                                |
+| CSS `display: none` + `element.style.display = ''` to show                 | Use explicit `'block'`/`'none'`, or omit CSS `display: none`                                                | Empty string removes inline style, falls back to CSS `none` (see §10)                                                 |
+| Assume children inherit only scoped styles from `:host`                    | Add `pointer-events: auto` on children if `:host` is `none`                                                 | Inheritable CSS crosses shadow boundary: `pointer-events`, `color`, `cursor`, etc. (see §11)                          |
+| `jQuery._data(window,'events').unshift(events.pop())`                      | `addEventListener(event, handler, true)` (capture phase)                                                    | Native DOM has no queue reordering; capture phase guarantees priority (see §12)                                       |
+| `return false` from native event handler                                   | Explicit `stopImmediatePropagation()` + `preventDefault()`                                                  | Native handler return values are ignored; only jQuery interprets `return false` (see §12)                             |
+| Move element to `document.body` without inline styles                      | Apply inline styles before `element.remove()` (see §24)                                                     | Elements outside shadow root lose all scoped CSS                                                                      |
+| Duplicate `width`/`height` on both `:host` and inner element               | Put dimensions on inner element only when content overflows (§15)                                           | Conflicting size constraints create scrollbars in components with complex content                                     |
+| Check `event.isTrigger` in migrated handler                                | Remove the check entirely (see §21)                                                                         | `isTrigger` is jQuery-only; native DOM events never set this property                                                 |
+| Inner element without explicit height when host uses `overflow: hidden`    | Add `height: 100%` to inner element                                                                         | `bottom`-anchored children (resize handles, footers) position relative to inner element, not clipped host (see §23)   |
+| `this._host.style.display = 'none'` in `init()` for on-demand components   | Do not hide — hide only in toggle-style components                                                          | `append()` does not reset `display`; host stays permanently hidden (see §24)                                          |
+| `element.style.display` to find visible element                            | Also check `getComputedStyle(element).display` (see §22)                                                    | Inline style may be empty while CSS sets `display: none`                                                              |
+| `position: absolute` on inner root when host should auto-size              | Use `position: relative` instead (see §25)                                                                  | Absolute inner root collapses host width; relative provides position context while keeping normal flow                |
+| Omit `contextmenu` handler on right-click areas                            | Add `contextmenu` listener with `e.preventDefault()` (see §26)                                              | UIComponent's `return false` auto-prevented; native handlers must suppress explicitly                                 |
+| `this.offsetTop` / `this.offsetLeft` for element position                  | Use `getBoundingClientRect()` relative to root (see §27)                                                    | Shadow DOM `offsetTop` is relative to intermediate positioned parent (scrollbar), not component root                  |
+| `root.querySelector(sel)` when multiple elements may match                 | Use `root.querySelectorAll(sel)` + `forEach` (see §28)                                                      | `querySelector` returns only the first match; multi-slot items only update one slot                                   |
+| Setting `scrollTop` without syncing custom scrollbar                       | Call `element._roScrollbarRestart()` after (see §29)                                                        | Scrollbar poller runs on 300ms interval; thumb jumps until it catches up                                              |
+| Custom `_formatROText()` when `DB.formatMsgToHtml()` exists                | Use `DB.formatMsgToHtml(text)` (see §30)                                                                    | Centralized utility already handles `^rrggbb`, item substitution, newlines                                            |
+| `querySelector` on slot index without null check                           | Always null-guard: `if (!el) return;` (see §31)                                                             | Server packets may reference slot indices beyond what the HTML template provides                                      |
+| `<ui-button>` for toggleable elements (checkboxes, state indicators)       | Use `<button>` or `<div>` and manage `backgroundImage` yourself                                             | `<ui-button>` resets `backgroundImage` on `mouseup` to the `bg` attribute value (see §33)                             |
+| `pointer-events: none` on `:host` for FREEZE mode full-viewport            | Omit `pointer-events: none` — FREEZE mode needs the host to block                                           | Clicks pass through to the game canvas behind the UI (see §35)                                                        |
+| `draggable()` for sub-windows inside a component                           | Write a custom `_makeDraggable(element, handle)` helper (see §32)                                           | `draggable()` operates on `_host` only — cannot drag sub-elements independently                                       |
+| Plain `<div>` for clickable elements expecting hand cursor                 | Use `<button>`, `<ui-button>`, `<a>`, or `.item-link` class                                                 | Game's sprite cursor only shows hand for elements in `CLICKABLE_SELECTOR` (see §34)                                   |
+| Assume `<ui-button>` supplies `background-repeat`/`border` or centers text | Restore `background-repeat:no-repeat;border:0` + flex (plain text) / `text-align` (`<ui-text>` child) (§43) | `<ui-button>` is `extends HTMLElement` — only sets `backgroundImage`, no UA button styling → tiled bg, top-left label |
 
 ---
 
@@ -1905,6 +1906,52 @@ document.getElementById('SwitchEquip'); // → null (element is inside shadow DO
 **Fix**: Migrate the inner component to GUIComponent as well, using `ComponentName.getRoot()` / `this.getRoot()` to query within the correct shadow root. If migration is impractical, ensure the UIComponent's root element is appended to `document.body` (not inside another component's shadow DOM).
 
 **RULE**: Do not embed a `UIComponent` inside a `GUIComponent`'s Shadow DOM. Either migrate the inner component to GUIComponent, or keep it as a sibling in `document.body`.
+
+---
+
+### 43. `<ui-button>` carries no button styling — restore background-repeat/border + text alignment
+
+**Bug**: `<ui-button>` (`src/UI/Elements/UIButton.js`) is an autonomous custom element (`extends HTMLElement`), so it has the default `display: inline` and **none** of the user-agent `<button>` styling. `connectedCallback` only sets `style.backgroundImage` — it never sets `background-repeat`, `background-color`, `border`, or any text alignment. Migrations that removed `border: 0; background-repeat: no-repeat; background-color: transparent` from the old `button` CSS selectors (assuming `<ui-button>` would supply them) regress two ways:
+
+1. **Background tiles** when the CSS box is larger than the BMP (default `background-repeat: repeat`) — e.g. a close button sized 42×20 over a smaller image duplicates the asset.
+2. **Injected text is not centered** — it lands top-left because there is no UA centering.
+
+**Fix** — two text patterns depending on how the label is provided:
+
+- **Plain text** set via `.textContent` directly on the `<ui-button>` → flex centering works (anonymous text is blockified):
+
+```css
+#charcreate_v4 .btns ui-button {
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+```
+
+- **`<ui-text>` child** (`src/UI/Elements/UIText.js`, also `display: inline`) → flex does NOT reliably center the inline child; use `text-align` (+ `line-height` for vertical):
+
+```css
+#CharSelectV4 .btn.delete,
+#CharSelectV4 .btn.canceldelete,
+#CharSelectV4 .btn.finaldelete {
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: 0;
+	text-align: center;
+	line-height: 24px; /* = button height → vertical center */
+}
+```
+
+Do NOT style the `<ui-text>` itself (`display: block; width: 100%`) — it shifts the label and misaligns. Keep alignment on the button. For tall image buttons with top-anchored text (e.g. `bt_gamestart` with `padding-top`), use `text-align: center` only, omit `line-height`.
+
+**Distinct from §33**: §33 is about `<ui-button>` overwriting `backgroundImage` at runtime (use `<button>` for toggles). §36 is about `<ui-button>` lacking static button styling (restore it in component CSS).
+
+**How to detect**: After migration, a `<ui-button>` whose CSS box differs from the BMP size shows a tiled background; any `<ui-button>` containing text (`.textContent` or `<ui-text>`) shows the label top-left.
+
+**RULE**: When a migrated `<ui-button>` shows a tiled background or misaligned label, restore `background-repeat: no-repeat; background-color: transparent; border: 0` on the button selector. Center plain `.textContent` with `display: flex; align-items: center; justify-content: center`; center a `<ui-text>` child with `text-align: center` (+ `line-height` = button height). Never align by styling the inner `<ui-text>`.
 
 ---
 
