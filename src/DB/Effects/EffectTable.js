@@ -1734,10 +1734,10 @@ export default {
 			type: 'SPR',
 			attachedEntity: true,
 			delayFrame: 30,
-			duplicate: 4,
 			file: '\xc3\xe0\xba\xb9',
 			frame: 0,
-			timeBetweenDupli: 100,
+			repeat: true,
+			duration: 1500,
 			head: true,
 			yOffset: -120
 		},

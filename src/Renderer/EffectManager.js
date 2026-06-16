@@ -137,14 +137,18 @@ function spamSprite(Params) {
 
 	// Sprite effect
 	// Use Params.Inst.effectID as uid (for hat effects this is the hatEffectID)
-	// Fall back to Params.effect.effectID for other cases
+	// Fall back to Params.effect.effectID for other cases.
+	// Append duplicateID to make each duplicate instance independent.
+	const baseUid = Params.Inst.effectID || Params.effect.effectID;
+	const uid = Params.Inst.duplicateID > 0 ? `${baseUid}_${Params.Inst.duplicateID}` : baseUid;
+
 	entity.attachments.add({
-		uid: Params.Inst.effectID || Params.effect.effectID,
+		uid: uid,
 		file: Params.effect.file,
 		head: !!Params.effect.head,
 		direction: !!Params.effect.direction,
 		repeat: Params.effect.repeat || Params.Inst.persistent,
-		duplicate: Params.effect.duplicate,
+		duration: Params.effect.duration,
 		stopAtEnd: Params.effect.stopAtEnd,
 		xOffset: Params.effect.xOffset,
 		yOffset: Params.effect.yOffset,
