@@ -45,7 +45,7 @@ class AttachmentManager {
 	 * @param {object} attachment options
 	 */
 	add(attachment) {
-		if (attachment.uid) {
+		if (attachment.uid && !attachment.stackable) {
 			this.remove(attachment.uid);
 		}
 
@@ -69,7 +69,7 @@ class AttachmentManager {
 		}
 
 		attachment.repeat = attachment.repeat || false;
-		attachment.duplicate = attachment.duplicate || 0;
+		attachment.duration = attachment.duration || 0;
 		attachment.stopAtEnd = attachment.stopAtEnd || false;
 		attachment.delay = attachment.delay || false;
 		attachment.renderBefore = attachment.renderBefore || false;
@@ -313,16 +313,10 @@ class AttachmentManager {
 
 		// repeat animation
 		else if (attachment.repeat) {
-			layers = animations[Math.floor((tick - attachment.startTick) / delay) % animations.length].layers;
-		}
-
-		// repeat duplicate times
-		else if (attachment.duplicate > 0) {
-			const index = Math.floor((tick - attachment.startTick) / delay) % animations.length;
-			layers = animations[index].layers;
-			if (index == animations.length - 1) {
-				attachment.duplicate--;
+			if (attachment.duration > 0 && (tick - attachment.startTick) >= attachment.duration) {
+				return true; // duration expired, remove attachment
 			}
+			layers = animations[Math.floor((tick - attachment.startTick) / delay) % animations.length].layers;
 		}
 
 		// stop at end
