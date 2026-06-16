@@ -45,7 +45,7 @@ class AttachmentManager {
 	 * @param {object} attachment options
 	 */
 	add(attachment) {
-		if (attachment.uid) {
+		if (attachment.uid && !attachment.stackable) {
 			this.remove(attachment.uid);
 		}
 

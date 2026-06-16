@@ -149,6 +149,7 @@ function spamSprite(Params) {
 		direction: !!Params.effect.direction,
 		repeat: Params.effect.repeat || Params.Inst.persistent,
 		duration: Params.effect.duration,
+		stackable: !!Params.effect.stackable,
 		stopAtEnd: Params.effect.stopAtEnd,
 		xOffset: Params.effect.xOffset,
 		yOffset: Params.effect.yOffset,

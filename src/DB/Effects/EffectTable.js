@@ -1738,6 +1738,7 @@ export default {
 			frame: 0,
 			repeat: true,
 			duration: 1500,
+			stackable: true,
 			head: true,
 			yOffset: -120
 		},
