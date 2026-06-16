@@ -313,7 +313,7 @@ class AttachmentManager {
 
 		// repeat animation
 		else if (attachment.repeat) {
-			if (attachment.duration > 0 && (tick - attachment.startTick) >= attachment.duration) {
+			if (attachment.duration > 0 && tick - attachment.startTick >= attachment.duration) {
 				return true; // duration expired, remove attachment
 			}
 			layers = animations[Math.floor((tick - attachment.startTick) / delay) % animations.length].layers;
