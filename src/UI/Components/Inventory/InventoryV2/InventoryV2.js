@@ -119,7 +119,10 @@ InventoryV2.init = function Init() {
 	}
 
 	this._host.addEventListener('drop', onDrop);
-	this._host.addEventListener('dragover', e => e.stopImmediatePropagation());
+	this._host.addEventListener('dragover', e => {
+		e.stopImmediatePropagation();
+		e.preventDefault();
+	});
 
 	const content = root.querySelector('.container .content');
 	if (content) {
