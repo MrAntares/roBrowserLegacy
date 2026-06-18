@@ -1,8 +1,13 @@
-#CaptchaSelector {
+:host {
+	position: absolute;
 	width: 210px;
 	height: 310px;
-	position: absolute;
 	z-index: 50;
+}
+
+#CaptchaSelector {
+	width: 100%;
+	height: 100%;
 	background-color: #ffffff;
 	font-size: 12px;
 }
@@ -22,7 +27,6 @@
 #CaptchaSelector .base {
 	width: 11px;
 	height: 11px;
-	border: none;
 	background-color: transparent;
 	background-repeat: no-repeat;
 	vertical-align: middle;
@@ -32,7 +36,6 @@
 	text-shadow: 1px 1px white;
 	vertical-align: -2px;
 	white-space: nowrap;
-	/* chrome bug */
 	display: inline-block;
 	width: 32px;
 	height: 13px;
@@ -61,6 +64,8 @@
 
 #CaptchaSelector .options {
 	height: 22px;
+	display: flex;
+	align-items: center;
 }
 
 #CaptchaSelector .player_list {
@@ -79,11 +84,6 @@
 	display: flex;
 	align-items: center;
 	gap: 5px;
-}
-
-#CaptchaSelector .options {
-	display: flex;
-	align-items: center;
 }
 
 #CaptchaSelector .footer {
@@ -110,11 +110,11 @@
 
 #CaptchaSelector .btn_active,
 #CaptchaSelector .footer .btn {
-	border: 0;
 	width: 42px;
 	height: 20px;
 	background-repeat: no-repeat;
 	background-color: transparent;
+	border: 0;
 }
 
 #CaptchaSelector .btn_active {
@@ -133,9 +133,18 @@
 	height: 35px;
 	background-color: #ffffff;
 	border-radius: 3px;
+	display: none;
 }
 
 #CaptchaSelector li a {
 	text-decoration: underline;
 	color: black;
+}
+
+#CaptchaSelector .player_list li .remove {
+	width: 11px;
+	height: 11px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
 }

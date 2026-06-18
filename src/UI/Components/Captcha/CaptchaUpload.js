@@ -8,19 +8,19 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import DB from 'DB/DBManager.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CaptchaUpload.html?raw';
 import cssText from './CaptchaUpload.css?raw';
 
 /**
  * Create Component
  */
-const CaptchaUpload = new UIComponent('CaptchaUpload', htmlText, cssText);
+const CaptchaUpload = new GUIComponent('CaptchaUpload', cssText);
 
 /**
  * Preferences
@@ -34,117 +34,132 @@ const _preferences = Preferences.get(
 	2.0
 );
 
+CaptchaUpload.render = () => htmlText;
+
+CaptchaUpload.captureKeyEvents = true;
+
 /**
  * Initialize GUI
  */
-CaptchaUpload.init = function Init() {
-	const selfCaptchaUpload = this;
-	this.ui.find('.close').click(this.remove.bind(this));
+CaptchaUpload.init = function init() {
+	const root = this.getRoot();
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => this.remove());
+	}
 	this.draggable('.titlebar');
 
-	// Browse Button click
-	this.ui.find('#captcha_browse_btn').click(function () {
-		selfCaptchaUpload.ui.find('#captcha_file_input').click();
-	});
+	const browseBtn = root.querySelector('.btn_browse');
+	const fileInput = root.querySelector('.captcha_file_input');
 
-	// File Input Change
-	this.ui.find('#captcha_file_input').change(function (evt) {
-		const file = evt.target.files[0];
-		if (file) {
-			// show the file name in the input
-			selfCaptchaUpload.ui.find('#captcha_file_text').val(file.name);
+	if (browseBtn && fileInput) {
+		browseBtn.addEventListener('click', () => {
+			fileInput.click();
+		});
+	}
 
-			// show the image in the preview box
-			const reader = new FileReader();
-			reader.onload = function (e) {
-				const img = jQuery('<img/>').attr('src', e.target.result);
-				selfCaptchaUpload.ui.find('.preview_box').empty().append(img);
-			};
-			reader.readAsDataURL(file);
-
-			// compress the image
-			Promise.resolve(selfCaptchaUpload.compressImage(file)).then(function (imageData) {
-				selfCaptchaUpload.imageData = imageData;
-			});
-		}
-	});
-
-	// answer input change
-	this.ui.find('.answer_input').change(function () {
-		// if length is bigger then 16, then delete the extra characters
-		const answer_input = selfCaptchaUpload.ui.find('.answer_input');
-		if (answer_input.val().length > 16) {
-			answer_input.val(answer_input.val().slice(0, 16));
-		}
-		selfCaptchaUpload.answer = answer_input.val();
-	});
-
-	// Confirm Button
-	this.ui.find('.ok').click(function () {
-		// check if is there any answer
-		if (!selfCaptchaUpload.answer || selfCaptchaUpload.answer.length === 0) {
-			UIManager.showMessageBox(DB.getMessage(2872), 'ok', function () {}, true);
-			return;
-		}
-
-		// check if is there any file selected
-		if (!selfCaptchaUpload.imageData) {
-			UIManager.showMessageBox(DB.getMessage(2874), 'ok', function () {}, true);
-			return;
-		}
-
-		// confirm if answer is the same as the one in the image
-		UIManager.showPromptBox(
-			DB.getMessage(2873).replace('%s', selfCaptchaUpload.answer),
-			'ok',
-			'cancel',
-			function () {
-				if (selfCaptchaUpload.requestUploadCaptcha && selfCaptchaUpload.imageData) {
-					selfCaptchaUpload.requestUploadCaptcha(
-						selfCaptchaUpload.imageData.length,
-						selfCaptchaUpload.answer
-					);
+	if (fileInput) {
+		fileInput.addEventListener('change', evt => {
+			const file = evt.target.files[0];
+			if (file) {
+				const fileText = root.querySelector('.captcha_file_text');
+				if (fileText) {
+					fileText.value = file.name;
 				}
+
+				const reader = new FileReader();
+				reader.onload = e => {
+					const previewBox = root.querySelector('.preview_box');
+					if (previewBox) {
+						previewBox.innerHTML = '';
+						const img = document.createElement('img');
+						img.src = e.target.result;
+						previewBox.appendChild(img);
+					}
+				};
+				reader.readAsDataURL(file);
+
+				Promise.resolve(this.compressImage(file)).then(imageData => {
+					this.imageData = imageData;
+				});
 			}
-		);
-	});
+		});
+	}
+
+	const answerInput = root.querySelector('.answer_input');
+	if (answerInput) {
+		answerInput.addEventListener('change', () => {
+			if (answerInput.value.length > 16) {
+				answerInput.value = answerInput.value.slice(0, 16);
+			}
+			this.answer = answerInput.value;
+		});
+	}
+
+	const okBtn = root.querySelector('.ok');
+	if (okBtn) {
+		okBtn.addEventListener('click', () => {
+			if (!this.answer || this.answer.length === 0) {
+				UIManager.showMessageBox(DB.getMessage(2872), 'ok', () => {}, true);
+				return;
+			}
+
+			if (!this.imageData) {
+				UIManager.showMessageBox(DB.getMessage(2874), 'ok', () => {}, true);
+				return;
+			}
+
+			UIManager.showPromptBox(DB.getMessage(2873).replace('%s', this.answer), 'ok', 'cancel', () => {
+				if (this.requestUploadCaptcha && this.imageData) {
+					this.requestUploadCaptcha(this.imageData.length, this.answer);
+				}
+			});
+		});
+	}
+};
+
+CaptchaUpload.onKeyDown = function onKeyDown(event) {
+	if (CaptchaUpload.isEditableFocused()) {
+		return true;
+	}
+	return true;
 };
 
 /**
  * Append to DOM
  */
-CaptchaUpload.onAppend = function OnAppend() {
-	// Apply preferences
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+CaptchaUpload.onAppend = function onAppend() {
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth)}px`;
 };
 
 /**
  * Remove data from UI
  */
-CaptchaUpload.onRemove = function OnRemove() {
-	// save preferences
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+CaptchaUpload.onRemove = function onRemove() {
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 
-	// clean inputs
-	this.ui.find('.preview_box').empty();
-	this.ui.find('input').val('');
+	const root = this.getRoot();
+	const previewBox = root.querySelector('.preview_box');
+	if (previewBox) {
+		previewBox.innerHTML = '';
+	}
+	root.querySelectorAll('input').forEach(input => {
+		input.value = '';
+	});
 
-	// clean data
 	this.answer = null;
 	this.imageData = null;
 };
 
 CaptchaUpload.uploadError = function uploadError() {
-	UIManager.showMessageBox(DB.getMessage(2881), 'ok', function () {}, true);
+	UIManager.showMessageBox(DB.getMessage(2881), 'ok', () => {}, true);
 };
 
 CaptchaUpload.uploadSuccess = function uploadSuccess() {
-	UIManager.showMessageBox(DB.getMessage(2880), 'ok', function () {}, true);
+	UIManager.showMessageBox(DB.getMessage(2880), 'ok', () => {}, true);
 };
 
 /**
