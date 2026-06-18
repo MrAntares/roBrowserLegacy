@@ -219,6 +219,20 @@ class AIDriver {
 				return dx * dx + dy * dy;
 			}
 
+			function canUseAISkill(entity) {
+				if (!entity || entity.action === entity.ACTION.DIE || entity.action === entity.ACTION.HURT) {
+					return false;
+				}
+
+				return [
+					entity.ACTION.IDLE,
+					entity.ACTION.WALK,
+					entity.ACTION.ATTACK,
+					entity.ACTION.ATTACK2,
+					entity.ACTION.ATTACK3
+				].some(action => action >= 0 && action === entity.action);
+			}
+
 			ctx.GetActors = function () {
 				AIDriver.exec('status = MyState', isHoAI);
 				const res = [0];
@@ -316,7 +330,7 @@ class AIDriver {
 						);
 						if (range >= dist) {
 							// check if homun is in a valid state to cast skill
-							if (homun && [0, 1, 4].includes(homun.action)) {
+							if (canUseAISkill(homun)) {
 								let pkt;
 								if (PACKETVER.value >= 20180307) {
 									pkt = new PACKET.CZ.USE_SKILL2();
