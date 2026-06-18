@@ -1,9 +1,15 @@
-#Enchant {
+:host {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 690px;
 	height: 470px;
+}
+
+#Enchant {
+	position: relative;
+	width: 100%;
+	height: 100%;
 
 	color: #2d3a55;
 	box-sizing: border-box;
@@ -11,21 +17,6 @@
 	--enchant-scroll-down: none;
 	--enchant-scroll-track: none;
 	--enchant-scroll-thumb: none;
-}
-
-#EnchantEffectOverlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: transparent;
-	z-index: 1000;
-	display: none;
-}
-
-body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverlay) {
-	filter: brightness(0.6);
 }
 
 #Enchant .container {
@@ -299,19 +290,19 @@ body.enchant-effect-active > *:not(canvas):not(.cursor):not(#EnchantEffectOverla
 	left: 68px;
 }
 
-#Enchant .action_tabs .tab[data-action=\"random\"] {
+#Enchant .action_tabs .tab[data-action="random"] {
 	left: 0;
 }
 
-#Enchant .action_tabs .tab[data-action=\"perfect\"] {
+#Enchant .action_tabs .tab[data-action="perfect"] {
 	left: 65px;
 }
 
-#Enchant .action_tabs .tab[data-action=\"upgrade\"] {
+#Enchant .action_tabs .tab[data-action="upgrade"] {
 	left: 130px;
 }
 
-#Enchant .action_tabs .tab[data-action=\"reset\"] {
+#Enchant .action_tabs .tab[data-action="reset"] {
 	left: 195px;
 }
 
