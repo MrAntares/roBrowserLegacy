@@ -1,5 +1,8 @@
-#CashShop {
+:host {
 	position: absolute;
+}
+
+#CashShop {
 	display: flex;
 	flex-direction: column;
 	width: 723px;
@@ -563,6 +566,6 @@
 	background-size: cover;
 }
 
-.item-desc-top {
+#CashShop .item-desc-top {
 	height: 20px;
 }
