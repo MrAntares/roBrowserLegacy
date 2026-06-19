@@ -53,6 +53,8 @@ let refine_no_bsb = 0;
 let refine_item_broken = 0;
 let refine_new_mats = 0;
 let refine_ongoing = 0;
+let refine_current_chance = 0;
+let refine_current_zeny = 0;
 let initialsuccess;
 let currentLoopHandle;
 Refine.imageLoopTimeout = 0;
@@ -251,6 +253,8 @@ function clearRefineStates() {
 	refine_no_zeny = 0;
 	refine_no_bsb = 0;
 	refine_new_mats = 0;
+	refine_current_chance = 0;
+	refine_current_zeny = 0;
 }
 
 /**
@@ -577,6 +581,10 @@ function onPopulateMaterials() {
 				Refine.ui.find('.refine_zeny').text(material.zeny);
 				Refine.ui.find('.refine_zeny_cont').text(material.zeny);
 
+				// Store fresh chance/zeny for re-apply after the result animation
+				refine_current_chance = material.chance;
+				refine_current_zeny = material.zeny;
+
 				// Set the refine_item_mat value to the selected material itemId
 				refine_item_mat = material.itemId;
 				refine_fee = material.zeny;
@@ -694,6 +702,12 @@ function selectMaterial(material, item) {
 	if (onCheckItemBroken()) {
 		refine_can_cont = 0;
 	}
+
+	// Store the fresh chance/zeny so onUpdateRefineUI can re-apply them after the
+	// result animation finishes (server resends REFINING_MATERIAL_LIST with the
+	// recalculated chance for the new refine level after every attempt).
+	refine_current_chance = material.chance;
+	refine_current_zeny = material.zeny;
 
 	Refine.ui.find('.chance_rate').text(DB.getMessage(3285).replace('%d%', material.chance));
 	Refine.ui.find('.refine_zeny_cont').text(material.zeny);
@@ -1073,6 +1087,10 @@ function onUpdateRefineUI(result) {
 	}
 
 	if (refine_can_cont && !refine_new_mats && !refine_item_broken) {
+		// Re-apply the fresh chance/zeny captured from the latest REFINING_MATERIAL_LIST
+		// so the continuous-refine view never shows the previous level's values.
+		Refine.ui.find('.chance_rate').text(DB.getMessage(3285).replace('%d%', refine_current_chance));
+		Refine.ui.find('.refine_zeny_cont').text(refine_current_zeny);
 		Refine.ui.find('.chance_rate').show();
 		Refine.ui.find('.refine_zeny_cont').show();
 	}
@@ -1090,6 +1108,16 @@ function onUpdateRefineUI(result) {
 	// Show again the hidden UIs that has been updated
 	Refine.ui.find('.back_button').show();
 	Refine.ui.find('.refine_cont').show();
+
+	// Re-read the item from inventory (already updated to the new RefiningLevel by
+	// onRefineResult) and repaint the name so the continuous-refine view shows the
+	// real +N instead of the previous iteration's value. Skip if the item broke.
+	if (!refine_item_broken) {
+		const refineditem = Inventory.getUI().getItemByIndex(refine_item_index);
+		if (refineditem) {
+			Refine.ui.find('.item_to_refine_name').text(DB.getItemName(refineditem));
+		}
+	}
 
 	// Hack: Show it here for the surprise
 	Refine.ui.find('.item_to_refine_name').show();
