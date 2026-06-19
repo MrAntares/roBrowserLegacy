@@ -109,7 +109,13 @@ InventoryV3.init = function Init() {
 	const tabButtons = root.querySelectorAll('.tabs button');
 	tabButtons.forEach(btn => {
 		btn.addEventListener('mousedown', onSwitchTab);
-		btn.addEventListener('dragover', e => e.stopImmediatePropagation());
+		btn.addEventListener('dragover', e => {
+			// preventDefault is required to mark the tab as a valid drop target;
+			// without it the browser never fires the `drop` event (so dragging an
+			// item onto a tab — e.g. to favorite it — silently did nothing).
+			e.preventDefault();
+			e.stopImmediatePropagation();
+		});
 		btn.addEventListener('drop', onTabDrop);
 	});
 
@@ -185,18 +191,13 @@ InventoryV3.init = function Init() {
 		if (btn) btn.style.backgroundImage = `url(${data})`;
 	});
 
-	const lockSale = _preferences.npcsalelock
-		? root.querySelector('.deallock_on')
-		: root.querySelector('.deallock_off');
-	if (_preferences.tab !== InventoryV3.TAB.FAV) {
-		if (lockSale) lockSale.style.display = 'none';
-		const sortEl = root.querySelector('.sort');
-		if (sortEl) sortEl.style.display = 'none';
-	} else {
-		if (lockSale) lockSale.style.display = '';
-		const sortEl = root.querySelector('.sort');
-		if (sortEl) sortEl.style.display = '';
-	}
+	const dealOn = root.querySelector('.deallock_on');
+	const dealOff = root.querySelector('.deallock_off');
+	const onFavTab = _preferences.tab === InventoryV3.TAB.FAV;
+	if (dealOn) dealOn.classList.toggle('hidden', !(onFavTab && _preferences.npcsalelock));
+	if (dealOff) dealOff.classList.toggle('hidden', !(onFavTab && !_preferences.npcsalelock));
+	const sortEl = root.querySelector('.sort');
+	if (sortEl) sortEl.style.display = onFavTab ? '' : 'none';
 
 	const itemExpansion = root.querySelector('.item_expansion');
 	if (itemExpansion) itemExpansion.addEventListener('click', onInventoryExpand);
@@ -670,38 +671,18 @@ function onSwitchTab() {
 	buttons.forEach(b => b.classList.remove('selected'));
 	this.classList.add('selected');
 
-	if (_preferences.tab !== InventoryV3.TAB.FAV) {
-		const dealOn = root.querySelector('.deallock_on');
-		if (dealOn) dealOn.style.display = 'none';
-		const dealOff = root.querySelector('.deallock_off');
-		if (dealOff) dealOff.style.display = 'none';
-		const lockOverlay = root.querySelector('.lockoverlay');
-		if (lockOverlay) lockOverlay.style.display = 'none';
-		const lockMsg = root.querySelector('.lockoverlaymsg');
-		if (lockMsg) lockMsg.style.display = 'none';
-		const sort = root.querySelector('.sort');
-		if (sort) sort.style.display = 'none';
-	} else {
-		if (_preferences.npcsalelock) {
-			const dealOn = root.querySelector('.deallock_on');
-			if (dealOn) dealOn.style.display = '';
-			const lockOverlay = root.querySelector('.lockoverlay');
-			if (lockOverlay) lockOverlay.style.display = '';
-			const dealOff = root.querySelector('.deallock_off');
-			if (dealOff) dealOff.style.display = 'none';
-		} else {
-			const dealOn = root.querySelector('.deallock_on');
-			if (dealOn) dealOn.style.display = 'none';
-			const lockOverlay = root.querySelector('.lockoverlay');
-			if (lockOverlay) lockOverlay.style.display = 'none';
-			const lockMsg = root.querySelector('.lockoverlaymsg');
-			if (lockMsg) lockMsg.style.display = 'none';
-			const dealOff = root.querySelector('.deallock_off');
-			if (dealOff) dealOff.style.display = '';
-		}
-		const sort = root.querySelector('.sort');
-		if (sort) sort.style.display = '';
-	}
+	const dealOn = root.querySelector('.deallock_on');
+	const dealOff = root.querySelector('.deallock_off');
+	const lockOverlay = root.querySelector('.lockoverlay');
+	const lockMsg = root.querySelector('.lockoverlaymsg');
+	const sort = root.querySelector('.sort');
+	const onFavTab = _preferences.tab === InventoryV3.TAB.FAV;
+
+	if (dealOn) dealOn.classList.toggle('hidden', !(onFavTab && _preferences.npcsalelock));
+	if (dealOff) dealOff.classList.toggle('hidden', !(onFavTab && !_preferences.npcsalelock));
+	if (lockOverlay) lockOverlay.style.display = onFavTab && _preferences.npcsalelock ? '' : 'none';
+	if (lockMsg) lockMsg.style.display = 'none';
+	if (sort) sort.style.display = onFavTab ? '' : 'none';
 }
 
 function onToggleReduction() {
@@ -1123,29 +1104,26 @@ function onNPCLock() {
 	InventoryV3.npcsalelock = _preferences.npcsalelock;
 	const root = InventoryV3.getRoot();
 
+	const dealOn = root.querySelector('.deallock_on');
+	const dealOff = root.querySelector('.deallock_off');
+	if (dealOn) dealOn.classList.toggle('hidden', !_preferences.npcsalelock);
+	if (dealOff) dealOff.classList.toggle('hidden', _preferences.npcsalelock);
+
 	if (_preferences.npcsalelock) {
-		const dealOn = root.querySelector('.deallock_on');
-		if (dealOn) dealOn.style.display = '';
 		const lockOverlay = root.querySelector('.lockoverlay');
 		if (lockOverlay) lockOverlay.style.display = '';
 		const lockMsg = root.querySelector('.lockoverlaymsg');
 		if (lockMsg) lockMsg.style.display = '';
-		const dealOff = root.querySelector('.deallock_off');
-		if (dealOff) dealOff.style.display = 'none';
 
 		lockOverlayTimeout = setTimeout(() => {
 			const msg = root.querySelector('.lockoverlaymsg');
 			if (msg) msg.style.display = 'none';
 		}, 3000);
 	} else {
-		const dealOn = root.querySelector('.deallock_on');
-		if (dealOn) dealOn.style.display = 'none';
 		const lockOverlay = root.querySelector('.lockoverlay');
 		if (lockOverlay) lockOverlay.style.display = 'none';
 		const lockMsg = root.querySelector('.lockoverlaymsg');
 		if (lockMsg) lockMsg.style.display = 'none';
-		const dealOff = root.querySelector('.deallock_off');
-		if (dealOff) dealOff.style.display = '';
 	}
 }
 
