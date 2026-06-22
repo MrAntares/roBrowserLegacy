@@ -61,6 +61,7 @@ CaptchaAnswer.init = function init() {
 
 CaptchaAnswer.onKeyDown = function onKeyDown(event) {
 	if (CaptchaAnswer.isEditableFocused()) {
+		event.stopImmediatePropagation();
 		return true;
 	}
 	return true;

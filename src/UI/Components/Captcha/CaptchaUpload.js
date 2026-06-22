@@ -120,6 +120,7 @@ CaptchaUpload.init = function init() {
 
 CaptchaUpload.onKeyDown = function onKeyDown(event) {
 	if (CaptchaUpload.isEditableFocused()) {
+		event.stopImmediatePropagation();
 		return true;
 	}
 	return true;

@@ -130,6 +130,7 @@ CaptchaSelector.init = function init() {
 
 CaptchaSelector.onKeyDown = function onKeyDown(event) {
 	if (CaptchaSelector.isEditableFocused()) {
+		event.stopImmediatePropagation();
 		return true;
 	}
 	return true;
