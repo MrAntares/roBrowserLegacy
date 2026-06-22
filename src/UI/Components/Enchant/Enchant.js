@@ -591,10 +591,10 @@ function showEffectOverlay() {
 	ensureEffectStyle();
 	const overlay = ensureEffectOverlay();
 	if (EnchantEffectState.overlayActive) {
-		overlay.style.display = '';
+		overlay.style.display = 'block';
 		return;
 	}
-	overlay.style.display = '';
+	overlay.style.display = 'block';
 	EnchantEffectState.overlayActive = true;
 	document.body.classList.add('enchant-effect-active');
 	ensureEffectRenderActive();
