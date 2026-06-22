@@ -9,13 +9,16 @@
  */
 
 import StatusTable from 'DB/Status/StatusInfo.js';
+import SC from 'DB/Status/StatusConst.js';
 import DB from 'DB/DBManager.js';
+import JobId from 'DB/Jobs/JobConst.js';
 import Texture from 'Utils/Texture.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
+import Session from 'Engine/SessionStorage.js';
 import htmlText from './StatusIcons.html?raw';
 import cssText from './StatusIcons.css?raw';
 
@@ -50,6 +53,37 @@ let _last_updated_time = Date.now();
  * @var {int} render wait time
  */
 const _render_time = 500;
+
+// TaeKwon Master tree triggers the TK_SEVENWIND (Warm Wind) icon swap
+// in the native ragexe client, regardless of buff source.
+const TKM_JOBS = new Set([
+	JobId.TAEKWON, // 4046
+	JobId.STAR, // 4047
+	JobId.STAR2, // 4048
+	JobId.LINKER, // 4049
+	JobId.TAEKWON_B, // 4225
+	JobId.STAR_B, // 4226
+	JobId.LINKER_B, // 4227
+	JobId.STAR2_B, // 4238
+	JobId.STAR_EMPEROR, // 4239
+	JobId.SOUL_REAPER, // 4240
+	JobId.STAR_EMPEROR_B, // 4241
+	JobId.SOUL_REAPER_B, // 4242
+	JobId.STAR_EMPEROR2, // 4243
+	JobId.STAR_EMPEROR2_B, // 4244
+	JobId.SOUL_REAPER2, // 4245
+	JobId.SOUL_REAPER2_B // 4246
+]);
+
+const TKM_ICON_OVERRIDE = {
+	[SC.ASPERSIO]: 'i_p_SAINT.tga',
+	[SC.PROPERTYFIRE]: 'i_p_FIRE.tga',
+	[SC.PROPERTYWATER]: 'i_p_WATER.tga',
+	[SC.PROPERTYWIND]: 'i_p_WIND.tga',
+	[SC.PROPERTYGROUND]: 'i_p_EARTH.tga',
+	[SC.PROPERTYDARK]: 'i_p_DARK.tga',
+	[SC.PROPERTYTELEKINESIS]: 'i_p_TELE.tga'
+};
 
 /**
  * Start rendering icons
@@ -117,8 +151,10 @@ StatusIcons.update = function update(index, state, life) {
 		return;
 	}
 
-	// Load image
-	Client.loadFile(`data/texture/effect/${StatusTable[index].icon}`, data => {
+	// Load image (TKM Warm Wind override applies for TaeKwon-tree jobs)
+	const isTKM = Session.Entity && TKM_JOBS.has(Session.Entity.job);
+	const iconName = (isTKM && TKM_ICON_OVERRIDE[index]) || StatusTable[index].icon;
+	Client.loadFile(`data/texture/effect/${iconName}`, data => {
 		Texture.load(data, function () {
 			if (_status[index] && !_status[index].img) {
 				addResizedStatusIcon(this, index);
