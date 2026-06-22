@@ -139,10 +139,10 @@ CashShop.render = () => htmlText;
 CashShop.init = function init() {
 	const root = _root();
 
-	const baseBtn = root.querySelector('.titlebar .base');
-	if (baseBtn) {
-		baseBtn.addEventListener('mousedown', stopPropagation);
-	}
+	const baseBtns = root.querySelectorAll('.titlebar .base');
+	baseBtns.forEach(btn => {
+		btn.addEventListener('mousedown', stopPropagation);
+	});
 
 	const closeBtn = root.querySelector('.titlebar .close');
 	if (closeBtn) {
@@ -953,7 +953,7 @@ function onClickActionBuyItem() {
 		if (CashShop.cartItem.length > 0) {
 			const pkt = new PACKET.CZ.SE_PC_BUY_CASHITEM_LIST();
 			const freePointsInput = root.querySelector('#use-free-points');
-			const useFreePoints = freePointsInput ? freePointsInput.value : 0;
+			const useFreePoints = (freePointsInput ? freePointsInput.value : 0) || 0;
 			if (useFreePoints >= 0 && useFreePoints <= CashShop.kafraPoints) {
 				pkt.kafraPoints = useFreePoints;
 				pkt.item_list = CashShop.cartItem;
