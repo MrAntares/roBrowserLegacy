@@ -1929,7 +1929,6 @@ Enchant.onRemove = function onRemove() {
 		}
 	}
 	hideHoverOverlay();
-	hideEffectOverlay();
 	setStatus('', false);
 };
 
