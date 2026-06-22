@@ -273,7 +273,7 @@ CashShop.init = function init() {
 
 	const cartListItems = root.querySelector('#cart-list .items');
 	if (cartListItems && cartListItems.children.length > 0) {
-		CashShop.onResetCartListCashShop();
+		onResetCartListCashShop();
 	}
 
 	CashShop.loadCashShopBanner();
