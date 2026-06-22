@@ -230,7 +230,7 @@ CheckAttendance.cleanUI = function cleanUI() {
 	if (totalDaysEl) {
 		totalDaysEl.innerHTML = '';
 	}
-	const remainingEl = root.querySelector('.remaining-days-text');
+	const remainingEl = root.querySelector('.remaining-day-text');
 	if (remainingEl) {
 		remainingEl.innerHTML = '';
 	}
