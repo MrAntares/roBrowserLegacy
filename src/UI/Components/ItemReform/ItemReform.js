@@ -6,7 +6,6 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import ItemType from 'DB/Items/ItemType.js';
@@ -14,7 +13,8 @@ import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
 import EffectManager from 'Renderer/EffectManager.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
@@ -29,7 +29,17 @@ import PACKET from 'Network/PacketStructure.js';
 /**
  * Create Component
  */
-const ItemReform = new UIComponent('ItemReform', htmlText, cssText);
+const ItemReform = new GUIComponent('ItemReform', cssText);
+
+/**
+ * Render HTML
+ */
+ItemReform.render = () => htmlText;
+
+/**
+ * Use capture phase for keydown so Escape is handled before EscapeWindow
+ */
+ItemReform.captureKeyEvents = true;
 
 let ReformInfo = {};
 let SelectedReformInfo = {};
@@ -42,11 +52,20 @@ const ReformUIState = {
 };
 
 /**
- * Once append to the DOM
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return ItemReform._shadow || ItemReform._host;
+}
+
+/**
+ * Key handler
  */
 ItemReform.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 		ItemReform.remove();
+		event.preventDefault();
+		event.stopImmediatePropagation();
 	}
 };
 
@@ -54,31 +73,73 @@ ItemReform.onKeyDown = function onKeyDown(event) {
  * Once append
  */
 ItemReform.onAppend = function onAppend() {
-	// Seems like "EscapeWindow" is execute first, push it before.
-	const events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
+	const root = _root();
+	const details = root.querySelector('.information_details');
+	const reformEnabled = root.querySelector('.reform_enabled');
+	const reformDisabled = root.querySelector('.reform_disabled');
 
-	ItemReform.ui.find('.information_details').hide();
-	ItemReform.ui.find('.reform_enabled').hide();
-	ItemReform.ui.find('.reform_disabled').show();
+	if (details) {
+		details.style.display = 'none';
+	}
+	if (reformEnabled) {
+		reformEnabled.style.display = 'none';
+	}
+	if (reformDisabled) {
+		reformDisabled.style.display = 'inline-block';
+	}
 };
 
 /**
  * Once removed from html
  */
 ItemReform.onRemove = function onRemove() {
+	const root = _root();
+
 	ReformInfo = {};
 	SelectedReformInfo = {};
-	ItemReform.ui.find('.available_material_list').empty();
-	ItemReform.ui.find('.material_list').empty();
-	ItemReform.ui.find('.result_item_text').empty();
-	ItemReform.ui.find('.base_item').empty();
-	ItemReform.ui.find('.result_item').empty();
-	ItemReform.ui.find('.info_msg').empty();
-	ItemReform.ui.find('.information_details').hide();
-	ItemReform.ui.find('.reform_enabled').hide();
-	ItemReform.ui.find('.reform_disabled').show();
-	ItemReform.ui.find('.some_notifs').hide();
+
+	const availableMatList = root.querySelector('.available_material_list');
+	const materialList = root.querySelector('.material_list');
+	const resultItemText = root.querySelector('.result_item_text');
+	const baseItem = root.querySelector('.base_item');
+	const resultItem = root.querySelector('.result_item');
+	const infoMsg = root.querySelector('.info_msg');
+	const details = root.querySelector('.information_details');
+	const reformEnabled = root.querySelector('.reform_enabled');
+	const reformDisabled = root.querySelector('.reform_disabled');
+	const someNotifs = root.querySelector('.some_notifs');
+
+	if (availableMatList) {
+		availableMatList.innerHTML = '';
+	}
+	if (materialList) {
+		materialList.innerHTML = '';
+	}
+	if (resultItemText) {
+		resultItemText.innerHTML = '';
+	}
+	if (baseItem) {
+		baseItem.innerHTML = '';
+	}
+	if (resultItem) {
+		resultItem.innerHTML = '';
+	}
+	if (infoMsg) {
+		infoMsg.innerHTML = '';
+	}
+	if (details) {
+		details.style.display = 'none';
+	}
+	if (reformEnabled) {
+		reformEnabled.style.display = 'none';
+	}
+	if (reformDisabled) {
+		reformDisabled.style.display = 'inline-block';
+	}
+	if (someNotifs) {
+		someNotifs.style.display = 'none';
+	}
+
 	resetReformUIState();
 };
 
@@ -93,21 +154,80 @@ function resetReformUIState() {
  * Initialize UI
  */
 ItemReform.init = function init() {
-	// UI initializations
-	this.ui.css({ top: 200, left: 480 });
-	this.draggable(this.ui.find('.titlebar'));
+	const root = _root();
 
-	// Functions bind
-	this.ui.find('.close, .cancel').click(onRequestReformClose);
-	this.ui
-		.find('.available_material_list')
-		.on('click', '.item', onMaterialSelect)
-		.on('mouseover', '.item', onHoverContainer)
-		.on('mouseout', '.item', onHoverOutContainer);
-	this.ui.find('.information_details').on('mouseover', onHoverDetails).on('mouseout', onHoverOutDetails);
-	this.ui.find('.reform_enabled').click(onRequestItemReform);
-	this.ui.find('.panel').on('contextmenu', '.item', onItemInfo);
-	this.ui.find('.panel .left_panel').on('mouseover', '.item', onItemOver).on('mouseout', '.item', onItemOut);
+	Object.assign(this._host.style, { top: '200px', left: '480px' });
+	this.draggable('.titlebar');
+
+	const closeBtn = root.querySelector('.close');
+	const cancelBtn = root.querySelector('.cancel');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', onRequestReformClose);
+	}
+	if (cancelBtn) {
+		cancelBtn.addEventListener('click', onRequestReformClose);
+	}
+
+	const availableMatList = root.querySelector('.available_material_list');
+	if (availableMatList) {
+		availableMatList.addEventListener('click', (e) => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onMaterialSelect(item);
+			}
+		});
+		availableMatList.addEventListener('mouseover', (e) => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onHoverContainer(item);
+			}
+		});
+		availableMatList.addEventListener('mouseout', (e) => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onHoverOutContainer(item);
+			}
+		});
+	}
+
+	const infoDetails = root.querySelector('.information_details');
+	if (infoDetails) {
+		infoDetails.addEventListener('mouseover', onHoverDetails);
+		infoDetails.addEventListener('mouseout', onHoverOutDetails);
+	}
+
+	const reformEnabled = root.querySelector('.reform_enabled');
+	if (reformEnabled) {
+		reformEnabled.addEventListener('click', onRequestItemReform);
+	}
+
+	const panel = root.querySelector('.panel');
+	if (panel) {
+		panel.addEventListener('contextmenu', (e) => {
+			const item = e.target.closest('.item');
+			if (item) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				onItemInfo(item);
+			}
+		});
+	}
+
+	const leftPanel = root.querySelector('.panel .left_panel');
+	if (leftPanel) {
+		leftPanel.addEventListener('mouseover', (e) => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOver(e, item);
+			}
+		});
+		leftPanel.addEventListener('mouseout', (e) => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOut();
+			}
+		});
+	}
 };
 
 /**
@@ -130,7 +250,7 @@ function GetInventoryItemsById(id) {
 }
 
 /**
- * Opens the Laphine UI and initializes its state based on the provided packet data.
+ * Opens the Reform UI and initializes its state based on the provided packet data.
  * @param {object} pkt - The packet containing item information.
  */
 function onOpenReformUI(pkt) {
@@ -138,7 +258,6 @@ function onOpenReformUI(pkt) {
 		ReformInfo = {};
 		SelectedReformInfo = {};
 
-		// Assume lapine_list is already loaded and available
 		const reformids = DB.findReformListByItemID(pkt.ITID);
 
 		const item = Inventory.getUI().getItemById(pkt.ITID);
@@ -151,9 +270,14 @@ function onOpenReformUI(pkt) {
 
 		if (reformids) {
 			ReformInfo = DB.getAllReformInfos(reformids);
-			checkReformCriteria(); // Call to check the criteria
+			checkReformCriteria();
 			ItemReform.append();
-			ItemReform.ui.find('.item_text').text(DB.getItemName(item));
+
+			const root = _root();
+			const itemText = root.querySelector('.item_text');
+			if (itemText) {
+				itemText.textContent = DB.getItemName(item);
+			}
 		} else {
 			console.warn('Item with ID', pkt.itemId, 'not found in Reform List.');
 		}
@@ -164,37 +288,34 @@ function onOpenReformUI(pkt) {
  * Checks inventory items against reform criteria.
  */
 function checkReformCriteria() {
-	const availableMatList = ItemReform.ui.find('.available_material_list');
-	availableMatList.empty(); // Clear the list before populating
+	const root = _root();
+	const availableMatList = root.querySelector('.available_material_list');
+	if (!availableMatList) {
+		return;
+	}
+	availableMatList.innerHTML = '';
 
 	let availableMats = 0;
-	// Iterate through each reform entry in ReformInfo
 	for (const reform of ReformInfo) {
 		const baseItemId = reform.BaseItemId;
 
-		// Get all inventory items with the current BaseItemId
 		const items = GetInventoryItemsById(baseItemId);
 
-		// Check each item against the reform criteria
 		for (const item of items) {
-			// Check refining level
 			if (item.RefiningLevel < reform.NeedRefineMin || item.RefiningLevel > reform.NeedRefineMax) {
-				continue; // Skip this item if refining level doesn't match
+				continue;
 			}
 
-			// Check options
-			const optionCount = item.Options.filter(option => option.index !== 0).length;
+			const optionCount = item.Options.filter((option) => option.index !== 0).length;
 			if (optionCount < reform.NeedOptionNumMin) {
-				continue; // Skip this item if option count doesn't match
+				continue;
 			}
 
-			// Check empty sockets
-			const cardCount = Object.values(item.slot).filter(slot => slot !== 0).length;
+			const cardCount = Object.values(item.slot).filter((slot) => slot !== 0).length;
 			if (reform.IsEmptySocket && cardCount > 0) {
-				continue; // Skip this item if empty socket requirement is true and there is card in it
+				continue;
 			}
 
-			// Item passes all checks, process as needed
 			availableMats++;
 			onAddMaterialItem(item);
 		}
@@ -209,81 +330,87 @@ function checkReformCriteria() {
  * Handles the addition of an item in the UI from the available materials list.
  */
 function onAddMaterialItem(item) {
-	const availableMatList = ItemReform.ui.find('.available_material_list');
+	const root = _root();
+	const availableMatList = root.querySelector('.available_material_list');
+	if (!availableMatList) {
+		return;
+	}
 
 	const it = DB.getItemInfo(item.ITID);
-	// Add item details
-	const newItem = jQuery(
-		'<div class="item" data-index="' +
-			item.index +
-			'">' +
-			'<div class="item_container" "data-index="' +
-			item.index +
-			'">' +
-			'<div class="icon"></div>' +
-			'<div class="name">' +
-			DB.getItemName(item, { showItemGrade: false, showItemOptions: false }) +
-			'</div>' +
-			'</div></div>'
-	);
 
-	availableMatList.append(newItem);
+	const newItem = document.createElement('div');
+	newItem.className = 'item';
+	newItem.setAttribute('data-index', item.index);
+	newItem.innerHTML =
+		`<div class="item_container" data-index="${item.index}">` +
+		`<div class="icon"></div>` +
+		`<div class="name">${DB.getItemName(item, { showItemGrade: false, showItemOptions: false })}</div>` +
+		`</div>`;
+
+	availableMatList.appendChild(newItem);
 
 	Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function (data) {
-		availableMatList
-			.find('.item[data-index="' + item.index + '"] .icon')
-			.css('backgroundImage', 'url(' + data + ')');
+		const icon = availableMatList.querySelector(`.item[data-index="${item.index}"] .icon`);
+		if (icon) {
+			icon.style.backgroundImage = `url(${data})`;
+		}
 	});
 
 	Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
-		availableMatList.find('.item[data-index="' + item.index + '"]').css('backgroundImage', 'url(' + data + ')');
+		const el = availableMatList.querySelector(`.item[data-index="${item.index}"]`);
+		if (el) {
+			el.style.backgroundImage = `url(${data})`;
+		}
 	});
 }
 
 /**
  * Handles the selection of a material in the UI.
  */
-function onMaterialSelect() {
-	const idx = parseInt(this.getAttribute('data-index'), 10);
+function onMaterialSelect(element) {
+	const idx = parseInt(element.getAttribute('data-index'), 10);
 	const item = Inventory.getUI().getItemByIndex(idx);
 
 	if (!item) {
-		return false;
+		return;
 	}
 
 	ReformUIState.index = item.index;
 
-	// Assuming reformInfos is available in the scope
-	SelectedReformInfo = ReformInfo.find(info => info.BaseItemId === item.ITID);
+	SelectedReformInfo = ReformInfo.find((info) => info.BaseItemId === item.ITID);
 
 	if (!SelectedReformInfo) {
-		return false;
+		return;
 	}
 
-	// Update UI
 	UpdatePossibleReformUI(item, SelectedReformInfo);
 
-	const availableMatList = ItemReform.ui.find('.available_material_list');
+	const root = _root();
+	const availableMatList = root.querySelector('.available_material_list');
+	if (!availableMatList) {
+		return;
+	}
 
-	availableMatList
-		.find('.item')
-		.removeClass('selected')
-		.each(function () {
-			const resetIdx = parseInt(this.getAttribute('data-index'), 10);
-			const resetItem = Inventory.getUI().getItemByIndex(resetIdx);
-			if (resetItem) {
-				Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
-					availableMatList
-						.find('.item[data-index="' + resetItem.index + '"]')
-						.css('backgroundImage', 'url(' + data + ')');
-				});
-			}
-		});
+	availableMatList.querySelectorAll('.item').forEach((el) => {
+		el.classList.remove('selected');
+		const resetIdx = parseInt(el.getAttribute('data-index'), 10);
+		const resetItem = Inventory.getUI().getItemByIndex(resetIdx);
+		if (resetItem) {
+			Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
+				const target = availableMatList.querySelector(`.item[data-index="${resetItem.index}"]`);
+				if (target) {
+					target.style.backgroundImage = `url(${data})`;
+				}
+			});
+		}
+	});
 
-	// Add 'selected' class to the clicked item and change its background
-	jQuery(this).addClass('selected');
+	element.classList.add('selected');
 	Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item_press.bmp', function (data) {
-		availableMatList.find('.item[data-index="' + item.index + '"]').css('backgroundImage', 'url(' + data + ')');
+		const target = availableMatList.querySelector(`.item[data-index="${item.index}"]`);
+		if (target) {
+			target.style.backgroundImage = `url(${data})`;
+		}
 	});
 
 	showMessage(DB.getMessage(3855));
@@ -292,44 +419,58 @@ function onMaterialSelect() {
 /**
  * Handles the hover event on a container element.
  */
-function onHoverContainer() {
-	if (jQuery(this).hasClass('selected')) {
-		return false;
+function onHoverContainer(element) {
+	if (element.classList.contains('selected')) {
+		return;
 	}
 
-	const idx = parseInt(this.getAttribute('data-index'), 10);
+	const idx = parseInt(element.getAttribute('data-index'), 10);
 	const item = Inventory.getUI().getItemByIndex(idx);
 
 	if (!item) {
-		return false;
+		return;
 	}
 
-	const availableMatList = ItemReform.ui.find('.available_material_list');
+	const root = _root();
+	const availableMatList = root.querySelector('.available_material_list');
+	if (!availableMatList) {
+		return;
+	}
 
 	Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item_over.bmp', function (data) {
-		availableMatList.find('.item[data-index="' + item.index + '"]').css('backgroundImage', 'url(' + data + ')');
+		const target = availableMatList.querySelector(`.item[data-index="${item.index}"]`);
+		if (target) {
+			target.style.backgroundImage = `url(${data})`;
+		}
 	});
 }
 
 /**
  * Handles the hover out event on a container element.
  */
-function onHoverOutContainer() {
-	if (jQuery(this).hasClass('selected')) {
-		return false;
+function onHoverOutContainer(element) {
+	if (element.classList.contains('selected')) {
+		return;
 	}
 
-	const idx = parseInt(this.getAttribute('data-index'), 10);
+	const idx = parseInt(element.getAttribute('data-index'), 10);
 	const item = Inventory.getUI().getItemByIndex(idx);
 
 	if (!item) {
-		return false;
+		return;
 	}
 
-	const availableMatList = ItemReform.ui.find('.available_material_list');
+	const root = _root();
+	const availableMatList = root.querySelector('.available_material_list');
+	if (!availableMatList) {
+		return;
+	}
 
 	Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
-		availableMatList.find('.item[data-index="' + item.index + '"]').css('backgroundImage', 'url(' + data + ')');
+		const target = availableMatList.querySelector(`.item[data-index="${item.index}"]`);
+		if (target) {
+			target.style.backgroundImage = `url(${data})`;
+		}
 	});
 }
 
@@ -340,12 +481,14 @@ function onHoverOutContainer() {
  * @param {Object} info - The reform info object.
  */
 function UpdatePossibleReformUI(item, info) {
-	// Show Reform Info Details
-	ItemReform.ui.find('.information_details').show();
+	const root = _root();
 
-	// Determine the result item first
-	const resultItem = { ...item }; // Shallow copy of the item
-	// Changes in the result item
+	const details = root.querySelector('.information_details');
+	if (details) {
+		details.style.display = '';
+	}
+
+	const resultItem = { ...item };
 	resultItem.ITID = info.ResultItemId;
 	resultItem.RefiningLevel = item.RefiningLevel + info.ChangeRefineValue;
 	if (!info.PreserveGrade) {
@@ -355,58 +498,62 @@ function UpdatePossibleReformUI(item, info) {
 		resultItem.slot = { card1: 0, card2: 0, card3: 0, card4: 0 };
 	}
 
-	// Save the resultItem to the state object
 	ReformUIState.resultItem = resultItem;
 
-	// Update UI
 	// Result Item
 	const result_it = DB.getItemInfo(resultItem.ITID);
-	const resultItemDiv = ItemReform.ui.find('.result_item');
+	const resultItemDiv = root.querySelector('.result_item');
 
-	const result_item_view = jQuery(
-		'<div class="item resultitem" data-index="' + resultItem.ITID + '">' + '<div class="icon"></div>' + '</div>'
-	);
-	resultItemDiv.empty().append(result_item_view);
+	if (resultItemDiv) {
+		resultItemDiv.innerHTML =
+			`<div class="item resultitem" data-index="${resultItem.ITID}">` +
+			`<div class="icon"></div>` +
+			`</div>`;
 
-	Client.loadFile(DB.INTERFACE_PATH + 'item/' + result_it.identifiedResourceName + '.bmp', function (data) {
-		resultItemDiv
-			.find('.item[data-index="' + resultItem.ITID + '"] .icon')
-			.css('backgroundImage', 'url(' + data + ')');
-	});
+		Client.loadFile(DB.INTERFACE_PATH + 'item/' + result_it.identifiedResourceName + '.bmp', function (data) {
+			const icon = resultItemDiv.querySelector(`.item[data-index="${resultItem.ITID}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
+		});
+	}
 
 	// Base Item
 	const it = DB.getItemInfo(item.ITID);
-	const baseItemDiv = ItemReform.ui.find('.base_item');
+	const baseItemDiv = root.querySelector('.base_item');
 
-	const base_item_view = jQuery(
-		'<div class="item "data-index="' + item.index + '">' + '<div class="icon"></div>' + '</div>'
-	);
-	baseItemDiv.empty().append(base_item_view);
+	if (baseItemDiv) {
+		baseItemDiv.innerHTML =
+			`<div class="item" data-index="${item.index}">` +
+			`<div class="icon"></div>` +
+			`</div>`;
 
-	Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function (data) {
-		baseItemDiv.find('.item[data-index="' + item.index + '"] .icon').css('backgroundImage', 'url(' + data + ')');
-	});
+		Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function (data) {
+			const icon = baseItemDiv.querySelector(`.item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
+		});
+	}
 
-	ItemReform.ui
-		.find('.result_item_text')
-		.empty()
-		.text(DB.getItemName(resultItem, { showItemOptions: false }));
+	const resultItemText = root.querySelector('.result_item_text');
+	if (resultItemText) {
+		resultItemText.textContent = DB.getItemName(resultItem, { showItemOptions: false });
+	}
 
 	// Populate Material List
-	const materialDiv = ItemReform.ui.find('.material_list');
+	const materialDiv = root.querySelector('.material_list');
+	if (!materialDiv) {
+		return;
+	}
 
-	// Clear the existing items if needed
-	materialDiv.empty();
+	materialDiv.innerHTML = '';
 
-	// Sort the materials in ascending order based on MaterialItemID
 	const sortedMaterials = info.Materials.slice().sort((a, b) => a.MaterialItemID - b.MaterialItemID);
-
-	// Limit to a maximum of 6 items if needed
 	const limitedMaterials = sortedMaterials.slice(0, 6);
 
 	let withenoughMat = 0;
-	// Iterate through each material in the sorted array
-	limitedMaterials.forEach(material => {
+	limitedMaterials.forEach((material) => {
 		const mat_it = DB.getItemInfo(material.MaterialItemID);
 		const mat_item = Inventory.getUI().getItemById(material.MaterialItemID);
 		let inventory_mat_count;
@@ -424,72 +571,61 @@ function UpdatePossibleReformUI(item, info) {
 
 		const itemClass = inventory_mat_count >= material.Amount ? '' : 'red';
 
-		// Create a new div for each material
-		const newMat = jQuery(
-			'<div class="item dummy" data-index="' +
-				material.MaterialItemID +
-				'">' +
-				'<div class="icon"></div>' +
-				'<div class="count ' +
-				itemClass +
-				'">' +
-				inventory_mat_count +
-				' / ' +
-				material.Amount +
-				'</div>' +
-				'</div>'
-		);
+		const newMat = document.createElement('div');
+		newMat.className = 'item dummy';
+		newMat.setAttribute('data-index', material.MaterialItemID);
+		newMat.innerHTML =
+			`<div class="icon"></div>` +
+			`<div class="count ${itemClass}">${inventory_mat_count} / ${material.Amount}</div>`;
 
-		// Append the new material div to the material list
-		materialDiv.append(newMat);
+		materialDiv.appendChild(newMat);
 
 		Client.loadFile(DB.INTERFACE_PATH + 'item/' + mat_it.identifiedResourceName + '.bmp', function (data) {
-			materialDiv
-				.find('.item[data-index="' + material.MaterialItemID + '"] .icon')
-				.css('backgroundImage', 'url(' + data + ')');
+			const icon = materialDiv.querySelector(`.item[data-index="${material.MaterialItemID}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
 		});
 	});
 
 	if (withenoughMat >= limitedMaterials.length) {
-		ItemReform.ui.find('.reform_disabled').hide();
-		ItemReform.ui.find('.reform_enabled').show();
+		const reformDisabled = root.querySelector('.reform_disabled');
+		const reformEnabled = root.querySelector('.reform_enabled');
+		if (reformDisabled) {
+			reformDisabled.style.display = 'none';
+		}
+		if (reformEnabled) {
+			reformEnabled.style.display = 'inline-block';
+		}
 	}
 }
 
 /**
  * Handles the hover event for displaying item details in the NpcBox.
  */
-function onHoverDetails(event) {
+let _npcBoxMoveHandler = null;
+
+function onHoverDetails() {
 	if (SelectedReformInfo) {
-		// InformationString array
 		const infoText = SelectedReformInfo.InformationString.join('\n');
 
-		// Display the information in NpcBox
 		NpcBox.append();
 		NpcBox.setText(infoText, 0);
 
 		NpcBox.ui.css('height', '150px');
 		NpcBox.ui.find('.border').css('height', '139px');
 
-		// Initial position update
 		function updateNpcBoxPosition(e) {
 			NpcBox.ui.css({
-				top: e.pageY + 10, // 10 pixels below the mouse cursor
+				top: e.pageY + 10,
 				left: e.pageX
 			});
 		}
 
-		// Add NpcBox to body so it can follow cursor correctly
-		jQuery('body').append(NpcBox.ui);
+		document.body.appendChild(NpcBox._host || NpcBox.ui[0]);
 
-		// Update position on mouse move
-		jQuery(document).on('mousemove', updateNpcBoxPosition);
-
-		// Remove the event listener on mouse out
-		jQuery(event.currentTarget).on('mouseout', function () {
-			jQuery(document).off('mousemove', updateNpcBoxPosition);
-			onHoverOutDetails();
-		});
+		_npcBoxMoveHandler = updateNpcBoxPosition;
+		document.addEventListener('mousemove', _npcBoxMoveHandler);
 	}
 }
 
@@ -498,6 +634,10 @@ function onHoverDetails(event) {
  */
 function onHoverOutDetails() {
 	if (SelectedReformInfo) {
+		if (_npcBoxMoveHandler) {
+			document.removeEventListener('mousemove', _npcBoxMoveHandler);
+			_npcBoxMoveHandler = null;
+		}
 		if (NpcBox.ui.is(':visible')) {
 			NpcBox.remove();
 		}
@@ -513,32 +653,25 @@ function onItemReformResult(pkt) {
 			case 0: {
 				const item = Inventory.getUI().getItemByIndex(pkt.index);
 
-				// Show Success effect
 				const EF_Init_Par = {
 					effectId: EffectConst.EF_NEW_SUCCESS,
 					ownerAID: Session.AID
 				};
 
-				// Function to handle the delay
 				function handleEffectAndPreview() {
-					// Show the success effect
 					EffectManager.spam(EF_Init_Par);
 
 					if (ReformUIState.timeout) {
 						clearTimeout(ReformUIState.timeout);
 					}
 
-					// Delay the execution of showItemPreview by 3 seconds
-					ReformUIState.timeout = setTimeout(function () {
-						// Show Item Preview
+					ReformUIState.timeout = setTimeout(() => {
 						showItemPreview(item);
-					}, 3000); // 3000 milliseconds = 3 seconds
+					}, 3000);
 				}
 
-				// Call the function to handle effect and preview
 				handleEffectAndPreview();
 
-				// Close UI
 				onRequestReformClose();
 				break;
 			}
@@ -549,7 +682,7 @@ function onItemReformResult(pkt) {
 }
 
 /**
- * Handles the close request of the Laphine UI and sends the appropriate packet.
+ * Handles the close request of the Reform UI and sends the appropriate packet.
  */
 function onRequestReformClose() {
 	ItemReform.remove();
@@ -562,8 +695,16 @@ function onRequestReformClose() {
  * Handles showing of message for notifications.
  */
 function showMessage(message) {
-	ItemReform.ui.find('.info_msg').empty().text(message);
-	ItemReform.ui.find('.some_notifs').show();
+	const root = _root();
+	const infoMsg = root.querySelector('.info_msg');
+	const someNotifs = root.querySelector('.some_notifs');
+
+	if (infoMsg) {
+		infoMsg.textContent = message;
+	}
+	if (someNotifs) {
+		someNotifs.style.display = '';
+	}
 }
 
 /**
@@ -580,90 +721,90 @@ function onRequestItemReform() {
 /**
  * Show item name when mouse is over
  */
-function onItemOver(event) {
-	const idx = parseInt(this.getAttribute('data-index'), 10);
+function onItemOver(event, element) {
+	const idx = parseInt(element.getAttribute('data-index'), 10);
 	let item;
 
-	if (this.classList.contains('dummy')) {
-		// Get the item using item.ITID as the only member
+	if (element.classList.contains('dummy')) {
 		item = { ITID: idx, IsIdentified: 1 };
-	} else if (this.classList.contains('resultitem')) {
+	} else if (element.classList.contains('resultitem')) {
 		item = ReformUIState.resultItem;
 	} else {
-		// Normal way to get the item by index
 		item = Inventory.getUI().getItemByIndex(idx);
 	}
 
-	// Get back data
-	const overlay = ItemReform.ui.find('.overlay');
+	const root = _root();
+	const overlay = root.querySelector('.overlay');
 
-	// Display box
-	overlay.show();
-	overlay.text(DB.getItemName(item, { showItemOptions: false }));
-
-	if (item.IsIdentified) {
-		overlay.removeClass('grey');
-	} else {
-		overlay.addClass('grey');
+	if (!overlay) {
+		return;
 	}
 
-	// Get the offset of the UI container
-	const uiOffset = ItemReform.ui.offset();
+	overlay.style.display = 'block';
+	overlay.textContent = DB.getItemName(item, { showItemOptions: false });
 
-	// Update overlay position based on mouse coordinates and UI offset
+	if (item.IsIdentified) {
+		overlay.classList.remove('grey');
+	} else {
+		overlay.classList.add('grey');
+	}
+
+	const hostRect = ItemReform._host.getBoundingClientRect();
+
 	function updateOverlayPosition(e) {
-		overlay.css({
-			top: e.pageY - uiOffset.top + 10 + 'px', // Adjust for UI offset
-			left: e.pageX - uiOffset.left + 10 + 'px' // Adjust for UI offset
+		Object.assign(overlay.style, {
+			top: `${e.pageY - hostRect.top + 10}px`,
+			left: `${e.pageX - hostRect.left + 10}px`
 		});
 	}
 
-	// Initial position update
 	updateOverlayPosition(event);
 
-	// Update position on mouse move
-	jQuery(document).on('mousemove', updateOverlayPosition);
+	function moveHandler(e) {
+		updateOverlayPosition(e);
+	}
 
-	// Remove the event listener on mouse out
-	jQuery(event.currentTarget).on('mouseout', function () {
-		jQuery(document).off('mousemove', updateOverlayPosition);
+	function outHandler() {
+		document.removeEventListener('mousemove', moveHandler);
+		element.removeEventListener('mouseout', outHandler);
 		onItemOut();
-	});
+	}
+
+	document.addEventListener('mousemove', moveHandler);
+	element.addEventListener('mouseout', outHandler);
 }
 
 /**
  * Hide the item name
  */
 function onItemOut() {
-	ItemReform.ui.find('.overlay').hide();
+	const root = _root();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
 /**
  * Get item info (open description window)
  */
-function onItemInfo(event) {
-	event.stopImmediatePropagation();
-
-	const idx = parseInt(this.getAttribute('data-index'), 10);
+function onItemInfo(element) {
+	const idx = parseInt(element.getAttribute('data-index'), 10);
 	let item;
 
-	if (this.classList.contains('dummy')) {
-		// Get the item using item.ITID as the only member
+	if (element.classList.contains('dummy')) {
 		item = { ITID: idx, IsIdentified: 1 };
-	} else if (this.classList.contains('resultitem')) {
+	} else if (element.classList.contains('resultitem')) {
 		item = ReformUIState.resultItem;
 	} else {
-		// Normal way to get the item by index
 		item = Inventory.getUI().getItemByIndex(idx);
 	}
 
 	if (!item) {
-		return false;
+		return;
 	}
 
 	showItemPreview(item);
-
-	return false;
 }
 
 /**
@@ -672,37 +813,30 @@ function onItemInfo(event) {
  * @param {Object} item - The item to display.
  */
 function showItemPreview(item) {
-	// Remove existing compare UI if it's currently displayed
 	if (ItemCompare.ui) {
 		ItemCompare.remove();
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
 		if (ItemCompare.ui) {
 			ItemCompare.remove();
 		}
-		return false;
+		return;
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
 
-	// Check if there is an equipped item in the same location
 	const compareItem = Equipment.getUI().isInEquipList(item.location);
 
-	// If a comparison item is found, display comparison
 	if (compareItem && Inventory.getUI().itemcomp) {
 		ItemCompare.prepare();
 		ItemCompare.append();
 		ItemCompare.uid = compareItem.ITID;
 		ItemCompare.setItem(compareItem);
 	}
-
-	return false;
 }
 
 /**
