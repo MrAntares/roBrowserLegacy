@@ -381,7 +381,7 @@ function onOpenRefineUI() {
 
 	const refineRect = Refine._host.getBoundingClientRect();
 	const refineWidth = Refine._host.offsetWidth;
-	const refineHeight = Refine._host.offsetHeight - Inventory.getUI().ui.outerHeight();
+	const refineHeight = Refine._host.offsetHeight - Inventory.getUI().ui.height();
 
 	Inventory.getUI().ui.css({
 		position: 'absolute',
