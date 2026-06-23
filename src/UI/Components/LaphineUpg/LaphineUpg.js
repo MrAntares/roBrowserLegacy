@@ -675,8 +675,9 @@ function onItemOver() {
 	const itemRect = this.getBoundingClientRect();
 	const containerRect = parentContainer.getBoundingClientRect();
 	const panelRect = root.querySelector('.panel').getBoundingClientRect();
+	const overlayHeight = overlay.offsetHeight || 23;
 
-	const top = itemRect.top - containerRect.top + (containerRect.top - panelRect.top) - 5;
+	const top = itemRect.top - containerRect.top + (containerRect.top - panelRect.top) - overlayHeight + 25;
 	const left = itemRect.left - panelRect.left;
 
 	overlay.style.display = 'block';
