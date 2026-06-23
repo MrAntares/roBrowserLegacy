@@ -78,8 +78,11 @@ PetEvolution.init = function init() {
 };
 
 PetEvolution.onAppend = function onAppend() {
-	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
-	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+	const rect = this._host.getBoundingClientRect();
+	const hostHeight = rect.height || 380;
+	const hostWidth = rect.width || 280;
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostWidth)}px`;
 };
 
 /**
