@@ -54,6 +54,7 @@ let EnchantGrade_blessing_used = false;
 let EnchantGrade_currentBlessing = 0;
 let EnchantGrade_current_success = 0;
 let materialNormal, materialOver, materialPick, startNormal, startDisable;
+let _materialSlotAbort = null;
 EnchantGrade.imageLoopTimeout = {};
 
 /**
@@ -167,6 +168,20 @@ EnchantGrade.init = function init() {
 			}
 		});
 	}
+
+	Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/btn_material.bmp', d => {
+		materialNormal = d;
+		root.querySelectorAll('.material_slot').forEach(slot => {
+			slot.style.backgroundImage = `url(${d})`;
+		});
+	});
+	Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/btn_start_disable.bmp', d => {
+		startDisable = d;
+		const startBtn = root.querySelector('.start_grade');
+		if (startBtn) {
+			startBtn.style.backgroundImage = `url(${d})`;
+		}
+	});
 };
 
 /**
@@ -223,7 +238,8 @@ EnchantGrade.onOpenEnchantGradeUI = function onOpenEnchantGradeUI() {
 	EnchantGrade.append();
 
 	const invUI = Inventory.getUI();
-	const isInventoryOpen = invUI && invUI._host ? invUI._host.isConnected : false;
+	const isInventoryOpen =
+		invUI && invUI._host ? invUI._host.isConnected && invUI._host.style.display !== 'none' : false;
 
 	if (!isInventoryOpen) {
 		invUI.toggle();
@@ -637,87 +653,105 @@ function onPopulateMaterials() {
 	Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/btn_start.bmp', d => (startNormal = d));
 	Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/btn_start_disable.bmp', d => (startDisable = d));
 
+	if (_materialSlotAbort) {
+		_materialSlotAbort.abort();
+	}
+	_materialSlotAbort = new AbortController();
+	const _slotSignal = _materialSlotAbort.signal;
+
 	root.querySelectorAll('.material_slot').forEach(slot => {
-		slot.addEventListener('mouseenter', function () {
-			if (this === selectedMaterialBtn) {
-				return;
-			}
-			this.style.backgroundImage = `url(${materialOver})`;
-		});
-		slot.addEventListener('mouseleave', function () {
-			if (this === selectedMaterialBtn) {
-				return;
-			}
-			this.style.backgroundImage = `url(${materialNormal})`;
-		});
-		slot.addEventListener('click', function () {
-			if (!this.dataset.index) {
-				return;
-			}
+		slot.addEventListener(
+			'mouseenter',
+			function () {
+				if (this === selectedMaterialBtn) {
+					return;
+				}
+				this.style.backgroundImage = `url(${materialOver})`;
+			},
+			{ signal: _slotSignal }
+		);
+		slot.addEventListener(
+			'mouseleave',
+			function () {
+				if (this === selectedMaterialBtn) {
+					return;
+				}
+				this.style.backgroundImage = `url(${materialNormal})`;
+			},
+			{ signal: _slotSignal }
+		);
+		slot.addEventListener(
+			'click',
+			function () {
+				if (!this.dataset.index) {
+					return;
+				}
 
-			if (EnchantGrade_blessing_used) {
-				UIManager.showMessageBox(DB.getMessage(3831), 'ok');
-				onResetBlessing();
-			}
+				if (EnchantGrade_blessing_used) {
+					UIManager.showMessageBox(DB.getMessage(3831), 'ok');
+					onResetBlessing();
+				}
 
-			if (selectedMaterialBtn && selectedMaterialBtn !== this) {
-				selectedMaterialBtn.style.backgroundImage = `url(${materialNormal})`;
-			}
+				if (selectedMaterialBtn && selectedMaterialBtn !== this) {
+					selectedMaterialBtn.style.backgroundImage = `url(${materialNormal})`;
+				}
 
-			selectedMaterialBtn = this;
-			this.style.backgroundImage = `url(${materialPick})`;
+				selectedMaterialBtn = this;
+				this.style.backgroundImage = `url(${materialPick})`;
 
-			EnchantGrade_item_mat = Number(this.dataset.index);
-			const material_ITID = Number(this.dataset.itemid);
-			const material_amount = Number(this.dataset.amount);
-			const price = Number(this.dataset.price);
-			const breakable = Number(this.dataset.breakable);
+				EnchantGrade_item_mat = Number(this.dataset.index);
+				const material_ITID = Number(this.dataset.itemid);
+				const material_amount = Number(this.dataset.amount);
+				const price = Number(this.dataset.price);
+				const breakable = Number(this.dataset.breakable);
 
-			let insufficent = false;
+				let insufficent = false;
 
-			const zenyCost = root.querySelector('.zeny_cost_container');
-			if (zenyCost) {
-				zenyCost.textContent = price;
-			}
+				const zenyCost = root.querySelector('.zeny_cost_container');
+				if (zenyCost) {
+					zenyCost.textContent = price;
+				}
 
-			const item = Inventory.getUI().getItemById(material_ITID);
-			const material_count = item ? item.count : 0;
+				const item = Inventory.getUI().getItemById(material_ITID);
+				const material_count = item ? item.count : 0;
 
-			if (!item || material_count < material_amount) {
-				insufficent = true;
-			}
+				if (!item || material_count < material_amount) {
+					insufficent = true;
+				}
 
-			if (Session.zeny < price) {
-				insufficent = true;
-			}
+				if (Session.zeny < price) {
+					insufficent = true;
+				}
 
-			const scenarios = [];
-			scenarios.push(breakable === 1 ? 'destroyable' : 'non_destroyable');
-			if (insufficent) {
-				scenarios.push('insufficient');
-			}
+				const scenarios = [];
+				scenarios.push(breakable === 1 ? 'destroyable' : 'non_destroyable');
+				if (insufficent) {
+					scenarios.push('insufficient');
+				}
 
-			if (EnchantGrade_can_cont) {
-				setMessages(...scenarios);
-			}
+				if (EnchantGrade_can_cont) {
+					setMessages(...scenarios);
+				}
 
-			if (insufficent === false) {
-				const startButton = root.querySelector('.start_grade');
-				if (startButton) {
-					const newStartBtn = startButton.cloneNode(true);
-					startButton.parentNode.replaceChild(newStartBtn, startButton);
+				if (insufficent === false) {
+					const startButton = root.querySelector('.start_grade');
+					if (startButton) {
+						const newStartBtn = startButton.cloneNode(true);
+						startButton.parentNode.replaceChild(newStartBtn, startButton);
 
-					if (EnchantGrade_can_cont === true) {
-						newStartBtn.style.backgroundImage = `url(${startNormal})`;
-						newStartBtn.addEventListener('click', () => {
-							onRequestEnchantGrade();
-						});
-					} else {
-						newStartBtn.style.backgroundImage = `url(${startDisable})`;
+						if (EnchantGrade_can_cont === true) {
+							newStartBtn.style.backgroundImage = `url(${startNormal})`;
+							newStartBtn.addEventListener('click', () => {
+								onRequestEnchantGrade();
+							});
+						} else {
+							newStartBtn.style.backgroundImage = `url(${startDisable})`;
+						}
 					}
 				}
-			}
-		});
+			},
+			{ signal: _slotSignal }
+		);
 	});
 }
 
@@ -796,6 +830,11 @@ function onRemoveItem() {
 	}
 	setMessages('initial');
 
+	if (_materialSlotAbort) {
+		_materialSlotAbort.abort();
+		_materialSlotAbort = null;
+	}
+
 	const slots = root.querySelectorAll('.material_slot');
 	slots.forEach(slot => {
 		delete slot.dataset.index;
@@ -806,9 +845,9 @@ function onRemoveItem() {
 		delete slot.dataset.breakable;
 		slot.innerHTML = '';
 		slot.classList.remove('selected');
-		const newSlot = slot.cloneNode(true);
-		slot.parentNode.replaceChild(newSlot, slot);
-		newSlot.style.backgroundImage = `url(${materialNormal})`;
+		if (materialNormal) {
+			slot.style.backgroundImage = `url(${materialNormal})`;
+		}
 	});
 
 	const startBtn = root.querySelector('.start_grade');
