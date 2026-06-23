@@ -116,7 +116,10 @@ ItemCompare.init = function init() {
 		});
 	}
 
-	this.draggable('.title');
+	// Use ItemInfo's title as drag handle to preserve linked-drag behavior
+	const itemInfoRoot = ItemInfo.getRoot();
+	const itemInfoTitle = itemInfoRoot ? itemInfoRoot.querySelector('.title') : null;
+	this.draggable(itemInfoTitle || '.title');
 };
 
 /**
