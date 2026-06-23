@@ -252,7 +252,9 @@ function onRequestEvolve() {
  * Closing window
  */
 function onClose() {
-	PetEvolution._host.style.display = 'none';
+	if (PetEvolution._host) {
+		PetEvolution._host.style.display = 'none';
+	}
 
 	// Clear variables
 	currentMaterials = [];
@@ -312,7 +314,9 @@ function onPetEvolveResult(pkt) {
 				ChatBox.addText(DB.getMessage(2576), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 			case 6: // Success
-				PetEvolution._host.style.display = 'none';
+				if (PetEvolution._host) {
+					PetEvolution._host.style.display = 'none';
+				}
 				break;
 			default:
 				break;
