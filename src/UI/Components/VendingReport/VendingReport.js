@@ -160,7 +160,7 @@ VendingReport.reset = function reset() {
 	const root = _root();
 	const content = root.querySelector('.container .content');
 	if (content) {
-		content.innerHTML = '';
+		content.querySelectorAll('.item').forEach(el => el.remove());
 	}
 };
 
