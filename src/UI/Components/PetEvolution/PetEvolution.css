@@ -1,10 +1,14 @@
-#PetEvolution {
-	position: absolute;
-	top: 100px;
-	left: 100px;
+:host {
 	width: 280px;
 	height: 380px;
-	font-size: 12px;
+	top: 200px;
+	left: 200px;
+}
+
+#PetEvolution {
+	position: absolute;
+	width: 280px;
+	height: 380px;
 	background-color: white;
 	border-radius: 5px;
 }
@@ -28,9 +32,8 @@
 	text-shadow: 1px 1px white;
 	vertical-align: -2px;
 	white-space: nowrap;
-	/* chrome bug */
 	display: inline-block;
-	width: 50px;
+	width: 80px;
 	height: 13px;
 	font-size: 11px;
 	font-weight: bold;
@@ -52,69 +55,58 @@
 	background-repeat: no-repeat;
 	position: relative;
 	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 10px;
+	height: calc(100% - 17px);
 }
 
 #PetEvolution .pet_illust_holder {
-	position: relative;
 	display: flex;
-	justify-content: center;
 	align-items: center;
-	top: 5px;
-	gap: 15px;
-	height: 136px;
-	width: 280px;
+	justify-content: center;
+	width: 100%;
+	height: 100px;
+	margin-top: 10px;
 }
 
 #PetEvolution .base_pet_illust,
 #PetEvolution .target_pet_illust {
-	height: 134px;
-	width: 90px;
+	width: 100px;
+	height: 100px;
+	background-size: contain;
 	background-repeat: no-repeat;
-	border: 1px solid black;
-	box-shadow: grey 3px 2px 1px 0px;
+	background-position: center;
 }
 
 #PetEvolution .next {
-	height: 43px;
-	width: 43px;
-	background-repeat: no-repeat;
+	font-size: 18px;
+	margin: 0 10px;
+	color: #333;
 }
 
 #PetEvolution .pet_eggID_holder {
 	display: flex;
-	text-decoration: underline;
-	justify-content: center;
-	align-items: flex-start;
-	width: 280px;
-	margin-top: 5px;
-	position: relative;
-	top: 5px;
-	margin-bottom: 15px;
-	color: blue;
-	gap: 15px;
+	justify-content: space-around;
+	width: 100%;
+	padding: 5px 0;
+	text-align: center;
 }
 
 #PetEvolution .base_petEggId,
 #PetEvolution .target_petEggId {
-	width: 100px;
-	text-align: center;
-	text-decoration: underline;
-	color: blue;
 	cursor: pointer;
+	color: blue;
+	text-decoration: underline;
+	font-size: 11px;
 }
 
 #PetEvolution .pet_eggID_holder > div:nth-child(2) {
-	width: 43px;
+	margin-left: 20px;
 }
 
 #PetEvolution .evo_requirements {
-	width: 260px;
-	height: 135px;
+	padding: 5px 15px;
+	font-size: 11px;
+	overflow-y: auto;
+	max-height: 140px;
 }
 
 #PetEvolution .evo_item_name {
@@ -123,14 +115,19 @@
 }
 
 #PetEvolution .footer {
+	position: absolute;
+	bottom: 10px;
+	width: 100%;
 	display: flex;
-	gap: 5px;
-	margin-left: 40px;
+	justify-content: center;
+	gap: 10px;
 }
 
 #PetEvolution .evolve,
 #PetEvolution .big_cancel {
+	width: 42px;
 	height: 20px;
-	width: 100px;
-	border: none;
+	border: 0;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
