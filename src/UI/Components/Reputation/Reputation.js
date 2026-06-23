@@ -103,13 +103,12 @@ Reputation.init = function init() {
 	// Binds
 	this.draggable(root.querySelector('.titlebar'));
 
-	const baseBtn = root.querySelector('.base');
-	if (baseBtn) {
-		baseBtn.addEventListener('mousedown', e => {
+	root.querySelectorAll('.base').forEach(el => {
+		el.addEventListener('mousedown', e => {
 			e.stopImmediatePropagation();
 			e.preventDefault();
 		});
-	}
+	});
 
 	const closeBtn = root.querySelector('.close');
 	if (closeBtn) {

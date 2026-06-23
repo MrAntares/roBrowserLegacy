@@ -114,6 +114,8 @@
 	position: absolute;
 	top: 0px;
 	right: 0px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 
 #Reputation .rep_group_total_points_wrapper {
