@@ -6,12 +6,12 @@
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
 import Network from 'Network/NetworkManager.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
@@ -25,10 +25,10 @@ import PACKET from 'Network/PacketStructure.js';
 /**
  * Create Component
  */
-const LaphineSys = new UIComponent('LaphineSys', htmlText, cssText);
+const LaphineSys = new GUIComponent('LaphineSys', cssText);
 
 /**
- * @var {number} LaphineSys
+ * @var {object} LaphineUIState
  */
 const LaphineUIState = {
 	itemId: null,
@@ -43,10 +43,22 @@ const LaphineUIState = {
 LaphineSys.submittedItems = [];
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return LaphineSys._shadow || LaphineSys._host;
+}
+
+/**
+ * Render HTML
+ */
+LaphineSys.render = () => htmlText;
+
+/**
  * Once append to the DOM
  */
 LaphineSys.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
+	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
 		LaphineSys.remove();
 	}
 };
@@ -55,56 +67,138 @@ LaphineSys.onKeyDown = function onKeyDown(event) {
  * Once append
  */
 LaphineSys.onAppend = function onAppend() {
-	// Seems like "EscapeWindow" is execute first, push it before.
-	const events = jQuery._data(window, 'events').keydown;
-	events.unshift(events.pop());
+	const root = _root();
 
-	LaphineSys.ui.find('.some_notifs').hide();
-	LaphineSys.ui.find('.make_enabled').hide();
-	LaphineSys.ui.find('.make_disabled').show();
+	root.querySelector('.some_notifs').style.display = 'none';
+	root.querySelector('.make_enabled').style.display = 'none';
+	root.querySelector('.make_disabled').style.display = 'block';
 };
 
 /**
  * Once removed from html
  */
 LaphineSys.onRemove = function onRemove() {
+	const root = _root();
+
 	LaphineSys.submittedItems.length = 0;
-	LaphineSys.ui.find('.submit_button_enabled').show();
-	LaphineSys.ui.find('.submit_button_disabled').hide();
-	LaphineSys.ui.find('.submitted_mat_list').empty();
-	LaphineSys.ui.find('.mat_count_submitted').text('0');
-	LaphineSys.ui.find('.some_notifs').hide();
+	root.querySelector('.submit_button_enabled').style.display = 'block';
+	root.querySelector('.submit_button_disabled').style.display = 'none';
+	root.querySelector('.submitted_mat_list').innerHTML = '';
+	root.querySelector('.mat_count_submitted').textContent = '0';
+	root.querySelector('.some_notifs').style.display = 'none';
 };
 
 /**
  * Initialize UI
  */
 LaphineSys.init = function init() {
+	const root = _root();
+
 	// UI initializations
-	this.ui.find('.mat_count_submitted').text('0');
-	this.ui.find('.submit_button_disabled').hide();
-	this.ui.find('.some_notifs').hide();
-	this.ui.css({ top: 200, left: 480 });
-	this.draggable(this.ui.find('.titlebar'));
+	root.querySelector('.mat_count_submitted').textContent = '0';
+	root.querySelector('.submit_button_disabled').style.display = 'none';
+	root.querySelector('.some_notifs').style.display = 'none';
+	this._host.style.top = '200px';
+	this._host.style.left = '480px';
+	this.draggable('.titlebar');
 
-	// Functions bind
-	this.ui.find('.close, .cancel').click(onRequestLaphineClose);
-	this.ui
-		.find('.available_mat_list, .left_panel')
-		.on('dragover', stopPropagation)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd);
-	this.ui.find('.submit_button_enabled').click(onSubmitItem);
-	this.ui.find('.available_mat_list').on('click', '.item', onItemSelect).on('drop', onRemoveSubmitDrop);
-	this.ui.find('.left_panel').on('drop', onSubmitItemDrop);
-	this.ui.find('.make_enabled').click(onRequestSynthesis);
-	this.ui
-		.find('.available_mat_list, .submitted_mat_list')
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('contextmenu', '.item', onItemInfo);
+	// Close / Cancel
+	root.querySelector('.close').addEventListener('click', onRequestLaphineClose);
+	root.querySelector('.cancel').addEventListener('click', onRequestLaphineClose);
 
-	// Setting chatbox scrollbar
+	// Drag and drop on available_mat_list and left_panel
+	const availableMatList = root.querySelector('.available_mat_list');
+	const leftPanel = root.querySelector('.left_panel');
+
+	availableMatList.addEventListener('dragover', stopPropagation);
+	leftPanel.addEventListener('dragover', stopPropagation);
+
+	availableMatList.addEventListener('dragstart', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemDragStart.call(item, e);
+		}
+	});
+	availableMatList.addEventListener('dragend', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemDragEnd.call(item, e);
+		}
+	});
+	leftPanel.addEventListener('dragstart', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemDragStart.call(item, e);
+		}
+	});
+	leftPanel.addEventListener('dragend', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemDragEnd.call(item, e);
+		}
+	});
+
+	// Submit button
+	root.querySelector('.submit_button_enabled').addEventListener('click', onSubmitItem);
+
+	// Click on available items
+	availableMatList.addEventListener('click', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemSelect.call(item, e);
+		}
+	});
+
+	// Drop to remove from submitted
+	availableMatList.addEventListener('drop', onRemoveSubmitDrop);
+
+	// Drop to submit item
+	leftPanel.addEventListener('drop', onSubmitItemDrop);
+
+	// Make button
+	root.querySelector('.make_enabled').addEventListener('click', onRequestSynthesis);
+
+	// Hover / context on items
+	availableMatList.addEventListener('mouseover', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemOver.call(item, e);
+		}
+	});
+	availableMatList.addEventListener('mouseout', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemOut();
+		}
+	});
+	availableMatList.addEventListener('contextmenu', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemInfo.call(item, e);
+		}
+	});
+
+	const submittedMatList = root.querySelector('.submitted_mat_list');
+	submittedMatList.addEventListener('mouseover', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemOver.call(item, e);
+		}
+	});
+	submittedMatList.addEventListener('mouseout', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemOut();
+		}
+	});
+	submittedMatList.addEventListener('contextmenu', e => {
+		const item = e.target.closest('.item');
+		if (item) {
+			onItemInfo.call(item, e);
+		}
+	});
+
+	// Setting scrollbar styles inside shadow DOM
 	Client.loadFiles(
 		[
 			DB.INTERFACE_PATH + 'lapine/scrollbar_bg_btm.bmp',
@@ -134,51 +228,22 @@ LaphineSys.init = function init() {
 			thumbPressMid,
 			thumbPressTop
 		) {
-			jQuery('style:first').append(
-				[
-					'#LaphineSys .available_mat_list::-webkit-scrollbar { width: 8px; height: 0px; }',
-					'#LaphineSys .available_mat_list::-webkit-scrollbar-corner { display: none; }',
-					'#LaphineSys .available_mat_list::-webkit-scrollbar-button:vertical:increment { background: url(' +
-						bgBottom +
-						') center center no-repeat, url(' +
-						bgMid +
-						') top no-repeat; height: 15px; width: 7px; background-color: transparent; }',
-					'#LaphineSys .available_mat_list::-webkit-scrollbar-button:vertical:decrement { background: url(' +
-						bgTop +
-						') center center no-repeat, url(' +
-						bgMid +
-						') bottom no-repeat; height: 15px; width: 7px; background-color: transparent; }',
-					'#LaphineSys .available_mat_list::-webkit-scrollbar-track-piece:vertical { background: url(' +
-						bgTop +
-						') top no-repeat, url(' +
-						bgMid +
-						') center repeat-y, url(' +
-						bgBottom +
-						') bottom no-repeat; }',
-					'#LaphineSys .available_mat_list::-webkit-scrollbar-thumb:vertical { background: url(' +
-						thumbOutTop +
-						') top no-repeat, url(' +
-						thumbOutMid +
-						') center repeat-y, url(' +
-						thumbOutBottom +
-						') bottom no-repeat !important; border-radius: 100px; }',
-					'#LaphineSys .available_mat_list::-webkit-scrollbar-thumb:vertical:hover { background: url(' +
-						thumbOverTop +
-						') top no-repeat, url(' +
-						thumbOverMid +
-						') center repeat-y, url(' +
-						thumbOverBottom +
-						') bottom no-repeat !important; border-radius: 100px; }',
-					'#LaphineSys .available_mat_list::-webkit-scrollbar-thumb:vertical:active { background: url(' +
-						thumbPressTop +
-						') top no-repeat, url(' +
-						thumbPressMid +
-						') center repeat-y, url(' +
-						thumbPressBottom +
-						') bottom no-repeat !important; border-radius: 100px; }',
-					'#LaphineSys .available_mat_list::-webkit-scrollbar-thumb:vertical{ -webkit-border-image: none; }'
-				].join('\n')
-			);
+			const style = document.createElement('style');
+			style.textContent = [
+				'#LaphineSys .available_mat_list::-webkit-scrollbar { width: 8px; height: 0px; }',
+				'#LaphineSys .available_mat_list::-webkit-scrollbar-corner { display: none; }',
+				`#LaphineSys .available_mat_list::-webkit-scrollbar-button:vertical:increment { background: url(${bgBottom}) center center no-repeat, url(${bgMid}) top no-repeat; height: 15px; width: 7px; background-color: transparent; }`,
+				`#LaphineSys .available_mat_list::-webkit-scrollbar-button:vertical:decrement { background: url(${bgTop}) center center no-repeat, url(${bgMid}) bottom no-repeat; height: 15px; width: 7px; background-color: transparent; }`,
+				`#LaphineSys .available_mat_list::-webkit-scrollbar-track-piece:vertical { background: url(${bgTop}) top no-repeat, url(${bgMid}) center repeat-y, url(${bgBottom}) bottom no-repeat; }`,
+				`#LaphineSys .available_mat_list::-webkit-scrollbar-thumb:vertical { background: url(${thumbOutTop}) top no-repeat, url(${thumbOutMid}) center repeat-y, url(${thumbOutBottom}) bottom no-repeat !important; border-radius: 100px; }`,
+				`#LaphineSys .available_mat_list::-webkit-scrollbar-thumb:vertical:hover { background: url(${thumbOverTop}) top no-repeat, url(${thumbOverMid}) center repeat-y, url(${thumbOverBottom}) bottom no-repeat !important; border-radius: 100px; }`,
+				`#LaphineSys .available_mat_list::-webkit-scrollbar-thumb:vertical:active { background: url(${thumbPressTop}) top no-repeat, url(${thumbPressMid}) center repeat-y, url(${thumbPressBottom}) bottom no-repeat !important; border-radius: 100px; }`,
+				'#LaphineSys .available_mat_list::-webkit-scrollbar-thumb:vertical{ -webkit-border-image: none; }'
+			].join('\n');
+			const shadow = LaphineSys._shadow;
+			if (shadow) {
+				shadow.appendChild(style);
+			}
 		}
 	);
 };
@@ -189,11 +254,9 @@ LaphineSys.init = function init() {
  */
 function onOpenLaphineUI(pkt) {
 	if (pkt) {
-		// Assume lapine_list is already loaded and available
 		const laphineInfo = DB.getLaphineSysInfoById(pkt.itemId);
 
 		if (laphineInfo) {
-			// Update the state object
 			LaphineUIState.itemId = laphineInfo.ItemID;
 			LaphineUIState.needCount = laphineInfo.NeedCount;
 			LaphineUIState.needRefineMin = laphineInfo.NeedRefineMin;
@@ -201,7 +264,6 @@ function onOpenLaphineUI(pkt) {
 			LaphineUIState.sourceItems = laphineInfo.SourceItems;
 			LaphineUIState.needSourceString = laphineInfo.NeedSource_String;
 
-			// Use a function to build/update your UI
 			onUpdateLaphineUI();
 			populateAvailableMatList();
 			LaphineSys.append();
@@ -221,9 +283,10 @@ function onUpdateLaphineUI() {
 		return false;
 	}
 
-	LaphineSys.ui.find('.item_text').text(DB.getItemName(item));
-	LaphineSys.ui.find('.mat_info_list').text(LaphineUIState.needSourceString);
-	LaphineSys.ui.find('.mat_count_needed').text(LaphineUIState.needCount);
+	const root = _root();
+	root.querySelector('.item_text').textContent = DB.getItemName(item);
+	root.querySelector('.mat_info_list').textContent = LaphineUIState.needSourceString;
+	root.querySelector('.mat_count_needed').textContent = LaphineUIState.needCount;
 }
 
 /**
@@ -249,8 +312,9 @@ function GetInventoryItemsById(id) {
  * Populates the list of available materials.
  */
 function populateAvailableMatList() {
-	const availableMatList = LaphineSys.ui.find('.available_mat_list');
-	availableMatList.empty(); // Clear the list before populating
+	const root = _root();
+	const availableMatList = root.querySelector('.available_mat_list');
+	availableMatList.innerHTML = '';
 
 	LaphineUIState.sourceItems.forEach(sourceItem => {
 		const matchingItems = GetInventoryItemsById(sourceItem.id);
@@ -268,9 +332,9 @@ function populateAvailableMatList() {
  * Handles the addition of an item in the UI from the available materials list.
  */
 function onAddMaterialItem(item, inventory_count, source_needcount, source_iconname) {
-	const availableMatList = LaphineSys.ui.find('.available_mat_list');
+	const root = _root();
+	const availableMatList = root.querySelector('.available_mat_list');
 
-	// Determine if the item is selectable based on item type and corresponding criteria
 	let isSelectable;
 	if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) {
 		isSelectable =
@@ -279,41 +343,35 @@ function onAddMaterialItem(item, inventory_count, source_needcount, source_iconn
 		isSelectable = inventory_count >= source_needcount;
 	}
 
-	const draggableAttr = !isSelectable ? '' : 'draggable="true"';
-	const itemClass = isSelectable ? '' : 'unselectable';
+	const draggableAttr = !isSelectable ? '' : ' draggable="true"';
+	const itemClass = isSelectable ? '' : ' unselectable';
 
-	// Add item details
-	const newItem = jQuery(
-		'<div class="item ' +
-			itemClass +
-			'" data-index="' +
-			item.index +
-			'" ' +
-			draggableAttr +
-			'>' +
-			'<div class="icon"></div>' +
-			'<div class="amount">' +
-			inventory_count +
-			'</div>' +
-			'<div class="name">' +
-			DB.getItemName(item) +
-			'</div>' +
-			'</div>'
-	);
+	const newItemHTML =
+		`<div class="item${itemClass}" data-index="${item.index}"${draggableAttr}>` +
+		`<div class="icon"></div>` +
+		`<div class="amount">${inventory_count}</div>` +
+		`<div class="name">${DB.getItemName(item)}</div>` +
+		`</div>`;
 
-	newItem.dblclick(onSubmitItem); // Add double-click event listener to submit item
-	availableMatList.append(newItem);
+	availableMatList.insertAdjacentHTML('beforeend', newItemHTML);
 
-	Client.loadFile(DB.INTERFACE_PATH + 'item/' + source_iconname + '.bmp', function (data) {
-		availableMatList
-			.find('.item[data-index="' + item.index + '"] .icon')
-			.css('backgroundImage', 'url(' + data + ')');
+	const newItemEl = availableMatList.querySelector(`.item[data-index="${item.index}"]`);
+	if (newItemEl) {
+		newItemEl.addEventListener('dblclick', onSubmitItem);
+	}
+
+	Client.loadFile(DB.INTERFACE_PATH + 'item/' + source_iconname + '.bmp', data => {
+		const icon = availableMatList.querySelector(`.item[data-index="${item.index}"] .icon`);
+		if (icon) {
+			icon.style.backgroundImage = `url(${data})`;
+		}
 	});
 
-	Client.loadFile(DB.INTERFACE_PATH + 'lapine/list_selected_item.bmp', function (data) {
-		availableMatList
-			.find('.item[data-index="' + item.index + '"] .name')
-			.css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'lapine/list_selected_item.bmp', data => {
+		const name = availableMatList.querySelector(`.item[data-index="${item.index}"] .name`);
+		if (name) {
+			name.style.backgroundImage = `url(${data})`;
+		}
 	});
 }
 
@@ -348,64 +406,67 @@ function onRequestLaphineClose() {
 /**
  * Handles the selection of an item from the available materials list.
  */
-function onItemSelect() {
-	// Check if the clicked item has the class 'unselectable'
-	if (jQuery(this).hasClass('unselectable')) {
-		return false; // Exit the function early
+function onItemSelect(e) {
+	if (this.classList.contains('unselectable')) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		return;
 	}
 
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const item = Inventory.getUI().getItemByIndex(idx);
 
 	if (!item) {
-		return false;
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		return;
 	}
 
-	LaphineSys.ui.find('.name').removeClass('selected');
-	LaphineSys.ui.find('.item[data-index="' + item.index + '"] .name').addClass('selected');
+	const root = _root();
+	root.querySelectorAll('.name').forEach(el => el.classList.remove('selected'));
+	const nameEl = root.querySelector(`.item[data-index="${item.index}"] .name`);
+	if (nameEl) {
+		nameEl.classList.add('selected');
+	}
 }
 
 /**
  * Submits a selected item and updates the UI accordingly.
  */
 function onSubmitItem() {
-	const submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10);
-	const neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
+	const root = _root();
+	const submittedCount = parseInt(root.querySelector('.mat_count_submitted').textContent, 10);
+	const neededCount = parseInt(root.querySelector('.mat_count_needed').textContent, 10);
 
 	if (submittedCount >= neededCount) {
-		return false;
+		return;
 	}
 
-	// Check if there's a currently selected item in the .name class
-	const selectedItem = LaphineSys.ui.find('.item .name.selected');
+	const selectedItem = root.querySelector('.item .name.selected');
 	let idx;
 
-	if (selectedItem.length > 0) {
-		idx = parseInt(selectedItem.closest('.item').data('index'), 10);
+	if (selectedItem) {
+		idx = parseInt(selectedItem.closest('.item').getAttribute('data-index'), 10);
 	} else {
 		idx = parseInt(this.getAttribute('data-index'), 10);
 	}
 
 	const item = Inventory.getUI().getItemByIndex(idx);
 
-	// Ensure the item is valid
 	if (!item) {
-		return false;
+		return;
 	}
 
-	// Check if the item is already submitted
 	if (LaphineSys.submittedItems.some(submittedItem => submittedItem.index === item.index)) {
-		return; // Item already submitted
+		return;
 	}
 
-	// Get the source item count from LaphineUIState.sourceItems
 	const sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
 	if (!sourceItem) {
-		return; // Source item not found
+		return;
 	}
 
-	// Check if the clicked item has the class 'unselectable'
-	if (jQuery(this).hasClass('unselectable')) {
+	if (this.classList && this.classList.contains('unselectable')) {
 		let message;
 		if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) {
 			if (item.RefiningLevel > LaphineUIState.needRefineMax) {
@@ -419,7 +480,7 @@ function onSubmitItem() {
 			message = DB.getMessage(2898).replace('%d', sourceItem.count);
 			showMessage(message);
 		}
-		return false; // Exit the function early
+		return;
 	}
 
 	onUpdateSubmitList(item);
@@ -427,32 +488,32 @@ function onSubmitItem() {
 
 function onUpdateSubmitList(item) {
 	const it = DB.getItemInfo(item.ITID);
-	const submittedMatList = LaphineSys.ui.find('.submitted_mat_list');
+	const root = _root();
+	const submittedMatList = root.querySelector('.submitted_mat_list');
 
 	const sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
 
-	// Determine the count based on item type
 	const itemCount = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : sourceItem.count;
 
-	const newItem = jQuery(
-		'<div class="item" data-index="' +
-			item.index +
-			'" draggable="true">' +
-			'<div class="shadow"></div>' +
-			'<div class="icon"></div>' +
-			'<div class="amount">' +
-			sourceItem.count +
-			'</div>' +
-			'</div>'
-	);
+	const newItemHTML =
+		`<div class="item" data-index="${item.index}" draggable="true">` +
+		`<div class="shadow"></div>` +
+		`<div class="icon"></div>` +
+		`<div class="amount">${sourceItem.count}</div>` +
+		`</div>`;
 
-	newItem.dblclick(onItemRemove); // Add double-click event listener to remove item
-	submittedMatList.append(newItem);
+	submittedMatList.insertAdjacentHTML('beforeend', newItemHTML);
 
-	Client.loadFile(DB.INTERFACE_PATH + 'lapine/shadow_item_off.bmp', function (data) {
-		submittedMatList
-			.find('.item[data-index="' + item.index + '"] .shadow')
-			.css('backgroundImage', 'url(' + data + ')');
+	const newItemEl = submittedMatList.querySelector(`.item[data-index="${item.index}"]`);
+	if (newItemEl) {
+		newItemEl.addEventListener('dblclick', onItemRemove);
+	}
+
+	Client.loadFile(DB.INTERFACE_PATH + 'lapine/shadow_item_off.bmp', data => {
+		const shadow = submittedMatList.querySelector(`.item[data-index="${item.index}"] .shadow`);
+		if (shadow) {
+			shadow.style.backgroundImage = `url(${data})`;
+		}
 	});
 
 	Client.loadFile(
@@ -460,50 +521,46 @@ function onUpdateSubmitList(item) {
 			'item/' +
 			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 			'.bmp',
-		function (data) {
-			submittedMatList
-				.find('.item[data-index="' + item.index + '"] .icon')
-				.css('backgroundImage', 'url(' + data + ')');
+		data => {
+			const icon = submittedMatList.querySelector(`.item[data-index="${item.index}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
 		}
 	);
 
-	// Add the item index and count to the submitted items list
 	LaphineSys.submittedItems.push({
 		index: item.index,
 		count: itemCount
 	});
 
-	// Update the count of submitted items
-	const submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10) + 1;
-	LaphineSys.ui.find('.mat_count_submitted').text(submittedCount);
+	const submittedCount = parseInt(root.querySelector('.mat_count_submitted').textContent, 10) + 1;
+	root.querySelector('.mat_count_submitted').textContent = submittedCount;
 
-	// Check if the needed count is reached
-	const neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
+	const neededCount = parseInt(root.querySelector('.mat_count_needed').textContent, 10);
 	if (submittedCount >= neededCount) {
-		LaphineSys.ui.find('.submit_button_enabled').hide();
-		LaphineSys.ui.find('.submit_button_disabled').show();
-		LaphineSys.ui.find('.make_disabled').hide();
-		LaphineSys.ui.find('.make_enabled').show();
+		root.querySelector('.submit_button_enabled').style.display = 'none';
+		root.querySelector('.submit_button_disabled').style.display = 'block';
+		root.querySelector('.make_disabled').style.display = 'none';
+		root.querySelector('.make_enabled').style.display = 'inline-block';
 	}
 
-	// Adjust the layout of the submitted materials list
 	adjustSubmittedMatList();
 
-	// Update the available materials list
-	updateAvailableMatList(item.ITID, item.index, sourceItem.count, false); // false for decreasing the count
+	updateAvailableMatList(item.ITID, item.index, sourceItem.count, false);
 }
 
 /**
  * Adjusts the layout of the submitted materials list.
  */
 function adjustSubmittedMatList() {
-	const submittedMatList = LaphineSys.ui.find('.submitted_mat_list');
-	const items = submittedMatList.find('.item');
+	const root = _root();
+	const submittedMatList = root.querySelector('.submitted_mat_list');
+	const items = submittedMatList.querySelectorAll('.item');
 	const numItems = items.length;
 	const numRows = Math.ceil(numItems / 5);
 
-	// Adjust the top position based on the number of rows
-	submittedMatList.css('top', 145 - (numRows - 1) * 28); // Adjust the top position based on the number of rows
+	submittedMatList.style.top = `${145 - (numRows - 1) * 28}px`;
 }
 
 /**
@@ -514,40 +571,36 @@ function onItemRemove() {
 	const item = Inventory.getUI().getItemByIndex(idx);
 
 	if (item) {
-		onRemoveItemSubmitList(item, this); // Pass the DOM element to the next function
+		onRemoveItemSubmitList(item, this);
 	}
 }
 
 function onRemoveItemSubmitList(item, element = null) {
+	const root = _root();
 	const itemIndex = LaphineSys.submittedItems.findIndex(submittedItem => submittedItem.index === item.index);
 	if (itemIndex !== -1) {
-		// Remove the item from the submitted items list
 		LaphineSys.submittedItems.splice(itemIndex, 1);
 
-		// If element is not provided, find the corresponding DOM element
 		if (!element) {
-			element = LaphineSys.ui.find(`.item[data-index="${item.index}"]`);
+			element = root.querySelector(`.submitted_mat_list .item[data-index="${item.index}"]`);
 		}
 
-		// Remove the item from the DOM
-		jQuery(element).remove();
+		if (element) {
+			element.remove();
+		}
 
-		// Update the count of submitted items
-		const submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10) - 1;
-		LaphineSys.ui.find('.mat_count_submitted').text(submittedCount);
+		const submittedCount = parseInt(root.querySelector('.mat_count_submitted').textContent, 10) - 1;
+		root.querySelector('.mat_count_submitted').textContent = submittedCount;
 
-		// Show the enabled submit button if the needed count is not reached
-		const neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
+		const neededCount = parseInt(root.querySelector('.mat_count_needed').textContent, 10);
 		if (submittedCount < neededCount) {
-			LaphineSys.ui.find('.submit_button_enabled').show();
-			LaphineSys.ui.find('.submit_button_disabled').hide();
+			root.querySelector('.submit_button_enabled').style.display = 'block';
+			root.querySelector('.submit_button_disabled').style.display = 'none';
 		}
 
-		// Adjust the layout of the submitted materials list
 		adjustSubmittedMatList();
 
-		// Update the available materials list
-		updateAvailableMatList(item.ITID, item.index, item.count, true); // true for increasing the count
+		updateAvailableMatList(item.ITID, item.index, item.count, true);
 	}
 }
 
@@ -555,36 +608,44 @@ function onRemoveItemSubmitList(item, element = null) {
  * Handles the changes in UI when submitting and removing item from submitted list.
  */
 function updateAvailableMatList(itemId, itemIndex, countChange, increase) {
-	const availableMatList = LaphineSys.ui.find('.available_mat_list');
+	const root = _root();
+	const availableMatList = root.querySelector('.available_mat_list');
 	let itemExists = false;
 
-	availableMatList.find('.item').each(function () {
-		const idx = parseInt(jQuery(this).attr('data-index'), 10);
+	availableMatList.querySelectorAll('.item').forEach(el => {
+		const idx = parseInt(el.getAttribute('data-index'), 10);
 		const item = Inventory.getUI().getItemByIndex(idx);
 
 		if (item.ITID === itemId && idx === itemIndex) {
 			itemExists = true;
-			const selectedItem = jQuery(this);
 			let tempCount = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : item.count;
 			if (increase) {
-				selectedItem.removeClass('unselectable');
-				selectedItem.find('.amount').text(tempCount);
-				selectedItem.attr('draggable', 'true'); // Set draggable to true
+				el.classList.remove('unselectable');
+				const amountEl = el.querySelector('.amount');
+				if (amountEl) {
+					amountEl.textContent = tempCount;
+				}
+				el.setAttribute('draggable', 'true');
 			} else {
 				tempCount -= countChange;
 				if (tempCount <= 0) {
-					selectedItem.remove();
+					el.remove();
 				} else {
-					selectedItem.addClass('unselectable');
-					selectedItem.find('.name').removeClass('selected');
-					selectedItem.find('.amount').text(tempCount);
-					selectedItem.attr('draggable', 'false'); // Set draggable to false
+					el.classList.add('unselectable');
+					const nameEl = el.querySelector('.name');
+					if (nameEl) {
+						nameEl.classList.remove('selected');
+					}
+					const amountEl = el.querySelector('.amount');
+					if (amountEl) {
+						amountEl.textContent = tempCount;
+					}
+					el.setAttribute('draggable', 'false');
 				}
 			}
 		}
 	});
 
-	// If item doesn't exist and should be increased, add it back
 	if (increase && !itemExists) {
 		const item = Inventory.getUI().getItemByIndex(itemIndex);
 		if (item) {
@@ -602,8 +663,16 @@ function updateAvailableMatList(itemId, itemIndex, countChange, increase) {
  * Handles showing of message for notifications.
  */
 function showMessage(message) {
-	LaphineSys.ui.find('.info_msg').empty().text(message);
-	LaphineSys.ui.find('.some_notifs').show();
+	const root = _root();
+	const infoMsg = root.querySelector('.info_msg');
+	if (infoMsg) {
+		infoMsg.textContent = '';
+		infoMsg.textContent = message;
+	}
+	const notifs = root.querySelector('.some_notifs');
+	if (notifs) {
+		notifs.style.display = 'block';
+	}
 }
 
 /**
@@ -614,9 +683,7 @@ function onRequestSynthesis() {
 	pkt.itemId = LaphineUIState.itemId;
 	pkt.items = [];
 
-	// Check if the number of submitted items matches the needed count
 	if (LaphineSys.submittedItems.length === LaphineUIState.needCount) {
-		// Iterate through the submitted items and add them to pkt.items
 		for (let i = 0; i < LaphineSys.submittedItems.length; i++) {
 			const submittedItem = LaphineSys.submittedItems[i];
 			pkt.items.push({
@@ -625,9 +692,8 @@ function onRequestSynthesis() {
 			});
 		}
 	} else {
-		// Handle the case where the number of submitted items does not match the needed count
 		console.warn('[Laphine Synthesis] The number of submitted items does not match the needed count.');
-		return; // Exit the function early if the counts do not match
+		return;
 	}
 
 	Network.sendPacket(pkt);
@@ -644,31 +710,30 @@ function onItemOver() {
 		return;
 	}
 
-	// Get back data
-	const pos = jQuery(this);
-	const overlay = LaphineSys.ui.find('.overlay');
+	const root = _root();
+	const overlay = root.querySelector('.overlay');
 
-	// Determine the immediate parent container explicitly based on the context
-	const parentContainer = jQuery(this).closest('.available_mat_list, .submitted_mat_list');
-	const itemPos = pos.position();
-	const containerPos = parentContainer.position();
+	const parentContainer = this.closest('.available_mat_list') || this.closest('.submitted_mat_list');
+	if (!parentContainer) {
+		return;
+	}
 
-	// Calculate the desired position of the overlay relative to the container
-	const top = itemPos.top - overlay.outerHeight() + 25;
-	const left = itemPos.left;
+	const itemRect = this.getBoundingClientRect();
+	const containerRect = parentContainer.getBoundingClientRect();
+	const panelRect = root.querySelector('.panel').getBoundingClientRect();
 
-	// Display box
-	overlay.show();
-	overlay.css({
-		top: top + containerPos.top, // Adjust position relative to the container
-		left: left + containerPos.left
-	});
-	overlay.text(DB.getItemName(item));
+	const top = itemRect.top - containerRect.top + (containerRect.top - panelRect.top) - 5;
+	const left = itemRect.left - panelRect.left;
+
+	overlay.style.display = 'block';
+	overlay.style.top = `${top}px`;
+	overlay.style.left = `${left}px`;
+	overlay.textContent = DB.getItemName(item);
 
 	if (item.IsIdentified) {
-		overlay.removeClass('grey');
+		overlay.classList.remove('grey');
 	} else {
-		overlay.addClass('grey');
+		overlay.classList.add('grey');
 	}
 }
 
@@ -676,7 +741,8 @@ function onItemOver() {
  * Hide the item name
  */
 function onItemOut() {
-	LaphineSys.ui.find('.overlay').hide();
+	const root = _root();
+	root.querySelector('.overlay').style.display = 'none';
 }
 
 /**
@@ -684,7 +750,7 @@ function onItemOut() {
  */
 function stopPropagation(event) {
 	event.stopImmediatePropagation();
-	return false;
+	event.preventDefault();
 }
 
 /**
@@ -698,16 +764,21 @@ function onItemDragStart(event) {
 		return;
 	}
 
-	// Set image to the drag drop element
 	const img = new Image();
-	const url = this.querySelector('.icon')
-		.style.backgroundImage.match(/\((.*?)\)/)[1]
-		.replace(/('|")/g, '');
+	const iconEl = this.querySelector('.icon');
+	if (!iconEl) {
+		return;
+	}
+	const match = iconEl.style.backgroundImage.match(/\((.*?)\)/);
+	if (!match) {
+		return;
+	}
+	const url = match[1].replace(/('|")/g, '');
 	img.decoding = 'async';
-	img.src = url.replace(/^\"/, '').replace(/\"$/, '');
+	img.src = url.replace(/^"/, '').replace(/"$/, '');
 
-	event.originalEvent.dataTransfer.setDragImage(img, 12, 12);
-	event.originalEvent.dataTransfer.setData(
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData(
 		'Text',
 		JSON.stringify(
 			(window._OBJ_DRAG_ = {
@@ -723,7 +794,6 @@ function onItemDragStart(event) {
 
 /**
  * Stop dragging an item
- *
  */
 function onItemDragEnd() {
 	delete window._OBJ_DRAG_;
@@ -731,59 +801,38 @@ function onItemDragEnd() {
 
 /**
  * Drop an item from available_mat_list into submitted_mat_list
- *
- * @param {event}
  */
 function onSubmitItemDrop(event) {
 	let item, data;
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
-		return false;
+	} catch (_e) {
+		return;
 	}
 
-	// Just allow item from storage
 	if (data.type !== 'item') {
-		return false;
+		return;
 	}
 
-	const submittedCount = parseInt(LaphineSys.ui.find('.mat_count_submitted').text(), 10);
-	const neededCount = parseInt(LaphineSys.ui.find('.mat_count_needed').text(), 10);
+	const root = _root();
+	const submittedCount = parseInt(root.querySelector('.mat_count_submitted').textContent, 10);
+	const neededCount = parseInt(root.querySelector('.mat_count_needed').textContent, 10);
 
 	if (submittedCount >= neededCount) {
-		return false;
+		return;
 	}
 
-	// Check if the item is already submitted
 	if (LaphineSys.submittedItems.some(submittedItem => submittedItem.index === item.index)) {
-		return; // Item already submitted
+		return;
 	}
 
-	// Get the source item count from LaphineUIState.sourceItems
 	const sourceItem = LaphineUIState.sourceItems.find(si => si.id === item.ITID);
 	if (!sourceItem) {
-		return; // Source item not found
-	}
-
-	// Check if the clicked item has the class 'unselectable'
-	if (jQuery(this).hasClass('unselectable')) {
-		let message;
-		if (item.type === ItemType.WEAPON || item.type === ItemType.ARMOR) {
-			if (item.RefiningLevel > LaphineUIState.needRefineMax) {
-				message = DB.getMessage(3644);
-				showMessage(message);
-			} else {
-				message = DB.getMessage(2899);
-				showMessage(message);
-			}
-		} else {
-			message = DB.getMessage(2898).replace('%d', sourceItem.count);
-			showMessage(message);
-		}
-		return false; // Exit the function early
+		return;
 	}
 
 	if (item) {
@@ -793,33 +842,31 @@ function onSubmitItemDrop(event) {
 
 /**
  * Drop an item from submitted_mat_list into available_mat_list
- *
- * @param {event}
  */
 function onRemoveSubmitDrop(event) {
 	let item, data;
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
-		return false;
+	} catch (_e) {
+		return;
 	}
 
-	// Just allow item from storage
 	if (data.type !== 'item') {
-		return false;
+		return;
 	}
 
 	if (!item) {
-		return false;
+		return;
 	}
 
-	// Locate the DOM element based on the item's index
-	const element = LaphineSys.ui.find(`.item[data-index="${item.index}"]`);
+	const root = _root();
+	const element = root.querySelector(`.submitted_mat_list .item[data-index="${item.index}"]`);
 
-	onRemoveItemSubmitList(item, element.get(0)); // Pass the DOM element to the function
+	onRemoveItemSubmitList(item, element);
 }
 
 /**
@@ -827,45 +874,39 @@ function onRemoveSubmitDrop(event) {
  */
 function onItemInfo(event) {
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const item = Inventory.getUI().getItemByIndex(idx);
 
 	if (!item) {
-		return false;
+		return;
 	}
 
-	// Remove existing compare UI if it's currently displayed
 	if (ItemCompare.ui) {
 		ItemCompare.remove();
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
 		if (ItemCompare.ui) {
 			ItemCompare.remove();
 		}
-		return false;
+		return;
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
 
-	// Check if there is an equipped item in the same location
 	const compareItem = Equipment.getUI().isInEquipList(item.location);
 
-	// If a comparison item is found, display comparison
 	if (compareItem && Inventory.getUI().itemcomp) {
 		ItemCompare.prepare();
 		ItemCompare.append();
 		ItemCompare.uid = compareItem.ITID;
 		ItemCompare.setItem(compareItem);
 	}
-
-	return false;
 }
 
 /**
