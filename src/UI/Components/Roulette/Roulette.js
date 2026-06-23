@@ -97,7 +97,7 @@ let _responseTimeout = null;
  * Click on roulette icon
  */
 function onClickIcon() {
-	if (Roulette.ui.is(':visible')) {
+	if (Roulette._host.style.display !== 'none') {
 		Roulette.onClose();
 		return;
 	}
@@ -324,6 +324,10 @@ Roulette.startSpin = function startSpin(resultIndex) {
 
 	const wheelSlots = root.querySelector('.wheel-slots');
 	if (!wheelSlots) {
+		_isSpinning = false;
+		if (btnSpin) {
+			btnSpin.disabled = false;
+		}
 		return;
 	}
 	const numSlots = _rouletteInfo.items.length || 10;
