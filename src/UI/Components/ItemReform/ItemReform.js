@@ -140,6 +140,14 @@ ItemReform.onRemove = function onRemove() {
 		someNotifs.style.display = 'none';
 	}
 
+	if (_npcBoxMoveHandler) {
+		document.removeEventListener('mousemove', _npcBoxMoveHandler);
+		_npcBoxMoveHandler = null;
+	}
+	if (NpcBox.ui && NpcBox.ui.is(':visible')) {
+		NpcBox.remove();
+	}
+
 	resetReformUIState();
 };
 
@@ -184,7 +192,7 @@ ItemReform.init = function init() {
 		});
 		availableMatList.addEventListener('mouseout', (e) => {
 			const item = e.target.closest('.item');
-			if (item) {
+			if (item && (!e.relatedTarget || !item.contains(e.relatedTarget))) {
 				onHoverOutContainer(item);
 			}
 		});
@@ -223,7 +231,7 @@ ItemReform.init = function init() {
 		});
 		leftPanel.addEventListener('mouseout', (e) => {
 			const item = e.target.closest('.item');
-			if (item) {
+			if (item && (!e.relatedTarget || !item.contains(e.relatedTarget))) {
 				onItemOut();
 			}
 		});
@@ -764,7 +772,10 @@ function onItemOver(event, element) {
 		updateOverlayPosition(e);
 	}
 
-	function outHandler() {
+	function outHandler(e) {
+		if (element.contains(e.relatedTarget)) {
+			return;
+		}
 		document.removeEventListener('mousemove', moveHandler);
 		element.removeEventListener('mouseout', outHandler);
 		onItemOut();
