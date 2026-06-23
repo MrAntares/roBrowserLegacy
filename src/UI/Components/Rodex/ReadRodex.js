@@ -12,7 +12,7 @@ import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
 import Client from 'Core/Client.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './ReadRodex.html?raw';
 import cssText from './ReadRodex.css?raw';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
@@ -20,7 +20,7 @@ import Rodex from 'UI/Components/Rodex/Rodex.js';
 /**
  * Create Component
  */
-const ReadRodex = new UIComponent('ReadRodex', htmlText, cssText);
+const ReadRodex = new GUIComponent('ReadRodex', cssText);
 
 ReadRodex.MailID = 0;
 ReadRodex.openType = 0;
@@ -37,71 +37,109 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return ReadRodex._shadow || ReadRodex._host;
+}
+
+/**
+ * Render HTML
+ */
+ReadRodex.render = () => htmlText;
+
+/**
  * Initialize Component
  */
 ReadRodex.onAppend = function onAppend() {
+	const root = _root();
+
 	// Bind buttons
-	ReadRodex.ui.find('.right .close').on('click', onClickClose);
+	root.querySelector('.right .close').addEventListener('click', onClickClose);
 
-	ReadRodex.ui.css({
-		top: Math.min(Math.max(0, parseInt(Rodex.ui.css('top'), 10)), Renderer.height - ReadRodex.ui.height()),
-		left: Math.min(Math.max(0, parseInt(Rodex.ui.css('left'), 10)) + 310, Renderer.width - ReadRodex.ui.width())
-	});
+	const rodexTop = parseInt(Rodex._host.style.top, 10) || 0;
+	const rodexLeft = parseInt(Rodex._host.style.left, 10) || 0;
 
-	ReadRodex.draggable(ReadRodex.ui.find('.titlebar'));
+	this._host.style.top = `${Math.min(Math.max(0, rodexTop), Renderer.height - this._host.offsetHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, rodexLeft) + 310, Renderer.width - this._host.offsetWidth)}px`;
+
+	this.draggable(root.querySelector('.titlebar'));
 };
 
 /**
  * Remove Mail from window (and so clean up items)
  */
 ReadRodex.onRemove = function OnRemove() {
-	_preferences.show = this.ui.is(':visible');
+	_preferences.show = this._host.style.display !== 'none';
 	_preferences.save();
 };
 
 ReadRodex.initData = function initData(data, mail) {
+	const root = _root();
+
 	ReadRodex.MailID = mail.MailID;
 	ReadRodex.openType = mail.openType;
 	ReadRodex.SenderName = mail.SenderName;
-	ReadRodex.ui.find('.name').html(mail.SenderName);
-	ReadRodex.ui.find('.title-text').html(mail.title);
-	ReadRodex.ui.find('.content-text').html(data.Textcontent);
-	ReadRodex.ui.find('.value').html(prettifyZeny(data.zeny));
-	this.ui.find('.get-content').on('click', onClickGetItems);
-	this.ui.find('.get-zeny').on('click', onClickGetZeny);
-	this.ui.find('.delete').on('click', onClickDelete);
-	this.ui.find('.reply').on('click', onClickReply);
-	const content = ReadRodex.ui.find('.item-list');
-	content.html('');
+
+	const nameEl = root.querySelector('.name');
+	if (nameEl) {
+		nameEl.textContent = mail.SenderName;
+	}
+	const titleEl = root.querySelector('.title-text');
+	if (titleEl) {
+		titleEl.textContent = mail.title;
+	}
+	const contentEl = root.querySelector('.content-text');
+	if (contentEl) {
+		contentEl.textContent = data.Textcontent;
+	}
+	const valueEl = root.querySelector('.value');
+	if (valueEl) {
+		valueEl.textContent = prettifyZeny(data.zeny);
+	}
+
+	root.querySelector('.get-content').addEventListener('click', onClickGetItems);
+	root.querySelector('.get-zeny').addEventListener('click', onClickGetZeny);
+	root.querySelector('.delete').addEventListener('click', onClickDelete);
+	root.querySelector('.reply').addEventListener('click', onClickReply);
+
+	const content = root.querySelector('.item-list');
+	content.innerHTML = '';
+
 	for (let i = 0; i < data.ItemList.length; i++) {
 		const item = data.ItemList[i];
 		const it = DB.getItemInfo(item.ITID);
-		content.append(
-			'<div class="item" data-index="' +
-				i +
-				'">' +
+		content.insertAdjacentHTML(
+			'beforeend',
+			`<div class="item" data-index="${i}">` +
 				'<div class="icon"></div>' +
-				'<div class="amount"><span class="count">' +
-				(item.count || 1) +
-				'</span></div>' +
+				`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
 				'</div>'
 		);
-		Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function (url) {
-			content.find('.item[data-index="' + i + '"] .icon').css('backgroundImage', 'url(' + url + ')');
+		Client.loadFile(`${DB.INTERFACE_PATH}item/${it.identifiedResourceName}.bmp`, (url) => {
+			const icon = root.querySelector(`.item[data-index="${i}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${url})`;
+			}
 		});
 	}
+
+	const getContentBtn = root.querySelector('.get-content');
 	if (data.ItemList.length > 0) {
-		this.ui.find('.get-content').show();
+		getContentBtn.style.display = '';
 	} else {
-		this.ui.find('.get-content').hide();
+		getContentBtn.style.display = 'none';
 	}
+
+	const getZenyBtn = root.querySelector('.get-zeny');
 	if (data.zeny > 0) {
-		this.ui.find('.get-zeny').show();
+		getZenyBtn.style.display = '';
 	} else {
-		this.ui.find('.get-zeny').hide();
+		getZenyBtn.style.display = 'none';
 	}
-	ReadRodex.ui.show();
-	ReadRodex.ui.focus();
+
+	this._host.style.display = '';
+	this.focus();
 };
 
 function onClickClose(e) {
@@ -109,7 +147,7 @@ function onClickClose(e) {
 	ReadRodex.MailID = 0;
 	ReadRodex.openType = 0;
 	ReadRodex.SenderName = '';
-	ReadRodex.ui.hide();
+	ReadRodex._host.style.display = 'none';
 }
 
 function onClickGetItems(e) {
@@ -124,7 +162,7 @@ function onClickGetZeny(e) {
 
 function onClickDelete(e) {
 	e.stopImmediatePropagation();
-	UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', function () {
+	UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', () => {
 		Rodex.requestDeleteRodex(ReadRodex.openType, ReadRodex.MailID);
 	});
 }
@@ -135,18 +173,26 @@ function onClickReply(e) {
 }
 
 ReadRodex.clearItemList = function clearItemList() {
-	ReadRodex.ui.find('.item-list').html('');
+	const root = _root();
+	const itemList = root.querySelector('.item-list');
+	if (itemList) {
+		itemList.innerHTML = '';
+	}
 };
 
 ReadRodex.clearZeny = function clearZeny() {
-	ReadRodex.ui.find('.value').html('');
+	const root = _root();
+	const valueEl = root.querySelector('.value');
+	if (valueEl) {
+		valueEl.textContent = '';
+	}
 };
 
 ReadRodex.close = function close() {
 	ReadRodex.MailID = 0;
 	ReadRodex.openType = 0;
 	ReadRodex.SenderName = '';
-	ReadRodex.ui.hide();
+	ReadRodex._host.style.display = 'none';
 };
 
 /**
@@ -171,10 +217,6 @@ function prettifyZeny(value) {
 
 	return out;
 }
-
-/**
- * Callbacks
- */
 
 /**
  * Create component and export it
