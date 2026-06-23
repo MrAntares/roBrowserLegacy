@@ -1,9 +1,14 @@
-#Reputation {
+:host {
 	position: absolute;
 	top: 100px;
 	left: 100px;
 	width: 665px;
 	height: 450px;
+}
+
+#Reputation {
+	width: 100%;
+	height: 100%;
 	background-color: white;
 	border-radius: 5px;
 }
@@ -200,7 +205,7 @@
 	margin-right: 25px;
 }
 
-#Reputation .paginator button {
+#Reputation .paginator ui-button {
 	width: 7px;
 	height: 11px;
 	border: none;
@@ -223,4 +228,6 @@
 	border: none;
 	margin-top: 5px;
 	margin-right: 10px;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
