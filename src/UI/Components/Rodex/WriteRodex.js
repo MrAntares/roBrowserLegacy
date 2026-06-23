@@ -65,8 +65,8 @@ WriteRodex.onAppend = function onAppend() {
 	root.querySelector('.send').addEventListener('click', onClickSend);
 	root.querySelector('.value').addEventListener('input', WriteRodex.updateTax);
 
-	const rodexTop = parseInt(Rodex._host.style.top, 10) || 0;
-	const rodexLeft = parseInt(Rodex._host.style.left, 10) || 0;
+	const rodexTop = Rodex._host ? parseInt(Rodex._host.style.top, 10) || 0 : 0;
+	const rodexLeft = Rodex._host ? parseInt(Rodex._host.style.left, 10) || 0 : 0;
 
 	this._host.style.top = `${Math.min(Math.max(0, rodexTop) - 20, Renderer.height - this._host.offsetHeight)}px`;
 	this._host.style.left = `${Math.min(Math.max(0, rodexLeft) + 330, Renderer.width - this._host.offsetWidth)}px`;

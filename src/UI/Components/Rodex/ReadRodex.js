@@ -57,8 +57,8 @@ ReadRodex.onAppend = function onAppend() {
 	// Bind buttons
 	root.querySelector('.right .close').addEventListener('click', onClickClose);
 
-	const rodexTop = parseInt(Rodex._host.style.top, 10) || 0;
-	const rodexLeft = parseInt(Rodex._host.style.left, 10) || 0;
+	const rodexTop = Rodex._host ? parseInt(Rodex._host.style.top, 10) || 0 : 0;
+	const rodexLeft = Rodex._host ? parseInt(Rodex._host.style.left, 10) || 0 : 0;
 
 	this._host.style.top = `${Math.min(Math.max(0, rodexTop), Renderer.height - this._host.offsetHeight)}px`;
 	this._host.style.left = `${Math.min(Math.max(0, rodexLeft) + 310, Renderer.width - this._host.offsetWidth)}px`;
@@ -192,7 +192,9 @@ ReadRodex.close = function close() {
 	ReadRodex.MailID = 0;
 	ReadRodex.openType = 0;
 	ReadRodex.SenderName = '';
-	ReadRodex._host.style.display = 'none';
+	if (ReadRodex._host) {
+		ReadRodex._host.style.display = 'none';
+	}
 };
 
 /**

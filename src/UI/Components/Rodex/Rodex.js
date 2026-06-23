@@ -264,7 +264,7 @@ Rodex.updateDeletedMailContent = function updateDeletedMailContent(openType, Mai
  * Show/Hide UI
  */
 Rodex.toggle = function toggle() {
-	if (this._host.style.display !== 'none') {
+	if (this._host && this._host.style.display !== 'none') {
 		Rodex.closeRodexBox();
 		this._host.style.display = 'none';
 	} else {
@@ -276,7 +276,7 @@ Rodex.toggle = function toggle() {
 };
 
 Rodex.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host && this._host.style.display !== 'none') {
 		this.toggle();
 	}
 };
