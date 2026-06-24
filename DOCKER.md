@@ -23,7 +23,7 @@ folder (see `roBrowserLegacy-RemoteClient-PHP/DropYourRemoteClientHere.txt`).
 ```bash
 docker compose -f docker-compose.AIO.yaml up --build
 ```
-4. Open the game
+### 4. Open the game
 http://localhost:3000/applications/browser-examples/demo.html
 
 ---
