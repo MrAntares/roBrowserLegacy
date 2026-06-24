@@ -1174,10 +1174,19 @@ ShortCut.saveToServer = function saveToServer() {
 			webserverAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 		}
 		xhr.open('POST', `${webserverAddress}/userconfig/save`, true);
+		xhr.timeout = 5000;
 		xhr.onload = () => {
 			if (xhr.status === 200) {
 				console.log('Hotkeys saved to server successfully');
+			} else {
+				console.warn('Hotkey save returned non-200 status:', xhr.status);
 			}
+		};
+		xhr.onerror = () => {
+			console.warn('Hotkey save failed: web-server unreachable');
+		};
+		xhr.ontimeout = () => {
+			console.warn('Hotkey save timed out');
 		};
 		xhr.send(formData);
 	}
@@ -1196,21 +1205,38 @@ ShortCut.loadFromServer = function loadFromServer(callback) {
 			webserverAddress = Configs.get('webserverAddress', 'http://127.0.0.1:8888');
 		}
 		xhr.open('POST', `${webserverAddress}/userconfig/load`, true);
+		xhr.timeout = 5000;
 		xhr.onload = () => {
 			if (xhr.status === 200) {
 				try {
 					const serverData = JSON.parse(xhr.responseText);
 					_lastServerHotkeys = JSON.parse(JSON.stringify(serverData));
 					convertHotkeysFromServerFormat(serverData);
-					if (callback) {
-						callback();
-					}
 				} catch (e) {
 					console.error('Error parsing server hotkeys:', e);
 				}
+			} else {
+				console.warn('Hotkey load returned non-200 status:', xhr.status);
+			}
+			if (callback) {
+				callback();
+			}
+		};
+		xhr.onerror = () => {
+			console.warn('Hotkey load failed: web-server unreachable');
+			if (callback) {
+				callback();
+			}
+		};
+		xhr.ontimeout = () => {
+			console.warn('Hotkey load timed out');
+			if (callback) {
+				callback();
 			}
 		};
 		xhr.send(formData);
+	} else if (callback) {
+		callback();
 	}
 };
 

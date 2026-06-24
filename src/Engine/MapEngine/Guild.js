@@ -173,8 +173,13 @@ class GuildEngine {
 			xhr.open('POST', webserverAddress + '/emblem/download', true);
 			xhr.responseType = 'blob';
 
+			xhr.timeout = 5000;
 			xhr.onload = () => {
-				if (xhr.status === 200) {
+				if (xhr.status !== 200) {
+					console.warn('Emblem download returned non-200 status:', xhr.status);
+					return;
+				}
+				try {
 					const contentType = xhr.getResponseHeader('Content-Type');
 					const isGif = contentType === 'image/gif';
 					if (!isGif) {
@@ -226,8 +231,16 @@ class GuildEngine {
 							}
 						});
 					}
+				} catch (e) {
+					console.error('Error processing guild emblem:', e);
 				}
 			}; // End xhr.onload
+			xhr.onerror = () => {
+				console.warn('Emblem download failed: web-server unreachable');
+			};
+			xhr.ontimeout = () => {
+				console.warn('Emblem download timed out');
+			};
 
 			xhr.send(formData);
 		} else {
@@ -442,15 +455,25 @@ class GuildEngine {
 			}
 			xhr.open('POST', webserverAddress + '/emblem/upload', true);
 
+			xhr.timeout = 5000;
 			xhr.onload = () => {
-				if (xhr.status === 200) {
+				if (xhr.status !== 200) {
+					console.warn('Emblem upload returned non-200 status:', xhr.status);
+					return;
+				}
+				try {
 					const response = JSON.parse(xhr.responseText);
 					console.log('Emblem uploaded successfully, version:', response.version);
 
 					GuildEngine.requestGuildEmblem(Session.Entity.GUID, response.version, (image, _gif) => {
 						Guild.setEmblem(image);
 					});
+				} catch (e) {
+					console.error('Error parsing emblem upload response:', e);
 				}
+			};
+			xhr.onerror = () => {
+				console.warn('Emblem upload failed: web-server unreachable');
 			};
 
 			xhr.send(formData);

@@ -3,10 +3,11 @@
  *
  * This is a modified build of wasmoon (Lua 5.1 WASM runtime).
  *
- * Changes from upstream:
- * - All URL-based WASM resolution was removed
- * - locateFile / fetch / XHR loading paths were removed
- * - liblua5.1.wasm is ALWAYS loaded locally from the bundled build
+ * Changes from upstream:  
+ * - Remote/URL-based WASM resolution was removed  
+ * - fetch / XHR remote loading paths were removed  
+ * - locateFile is kept, but only resolves the locally bundled liblua5.1.wasm  
+ * - liblua5.1.wasm is ALWAYS loaded locally from the bundled build  
  *
  * Why this was done:
  * - Avoid Vite "has been externalized for browser compatibility" warnings
@@ -16,10 +17,8 @@
  * - Ensure deterministic bundling inside the application
  *
  * Because of this:
- * - DO NOT add customWasmUri support
- * - DO NOT add luaWasmUri config
- * - DO NOT restore locateFile overrides
- * - DO NOT reintroduce fetch/XHR wasm loading
+ * - DO NOT change the current customWasmUri handling (must stay local via `url`) 
+ * - DO NOT reintroduce remote fetch/XHR wasm loading  
  * - DO NOT switch back to npm wasmoon build
  *
  * The WASM must remain statically bundled and locally resolved.
@@ -1453,7 +1452,7 @@ var exports = {};
 				function ya() { if (!sa) { var a = za(); 0 == a && (a += 4); var b = G[a >> 2], c = G[a + 4 >> 2]; 34821223 == b && 2310721022 == c || g(`Stack overflow! Stack cookie has been overwritten at ${Aa(a)}, expected hex dwords 0x89BACDFE and 0x2135467, but received ${Aa(c)} ${Aa(b)}`); 1668509029 != G[0] && g("Runtime error: The application has corrupted its heap memory area (address zero)!"); } } var Ba = new Int16Array(1), Ca = new Int8Array(Ba.buffer); Ba[0] = 25459;
 				if (115 !== Ca[0] || 99 !== Ca[1]) throw "Runtime error: expected the system to be little-endian! (Run with -sSUPPORT_BIG_ENDIAN to bypass)"; var Da = [], Ea = [], Fa = [], Ga = !1; u(Math.imul, "This browser does not support Math.imul(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill"); u(Math.fround, "This browser does not support Math.fround(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill"); u(Math.clz32, "This browser does not support Math.clz32(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill");
 				u(Math.trunc, "This browser does not support Math.trunc(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill"); var Ha = 0, H = null, Ia = null, Ja = {}; function Ka(a) { for (var b = a; ;) { if (!Ja[a]) return a; a = b + Math.random(); } }
-				function La(a) { Ha++; a ? (u(!Ja[a]), Ja[a] = 1, null === H && "undefined" != typeof setInterval && (H = setInterval(() => { if (sa) clearInterval(H), H = null; else { var b = !1, c; for (c in Ja) b || (b = !0, z("still waiting on run dependencies:")), z(`dependency: ${c}`); b && z("(end of list)"); } }, 1E4))) : z("warning: run dependency added without ID"); } function Ma(a) { Ha--; a ? (u(Ja[a]), delete Ja[a]) : z("warning: run dependency removed without ID"); 0 == Ha && (null !== H && (clearInterval(H), H = null), Ia && (a = Ia, Ia = null, a())); }
+				function La(a) { Ha++; a ? (u(!Ja[a]), Ja[a] = 1, null === H && "undefined" != typeof setInterval && (H = setInterval(() => { if (sa) clearInterval(H), H = null; else { var b = !1, c; for (c in Ja) b || (b = !0, z("still waiting on run dependencies:")), z(`dependency: ${c}`); b && z("(end of list)"); } }, 6E4))) : z("warning: run dependency added without ID"); } function Ma(a) { Ha--; a ? (u(Ja[a]), delete Ja[a]) : z("warning: run dependency removed without ID"); 0 == Ha && (null !== H && (clearInterval(H), H = null), Ia && (a = Ia, Ia = null, a())); }
 				function g(a) { a = "Aborted(" + a + ")"; z(a); sa = !0; a = new WebAssembly.RuntimeError(a); ba(a); throw a; } var Na = a => a.startsWith("data:application/octet-stream;base64,"), oa = a => a.startsWith("file://"); function J(a) { return (...b) => { u(Ga, `native function \`${a}\` called before runtime initialization`); var c = Oa[a]; u(c, `exported native function \`${a}\` not found`); return c(...b) } } var L; if (e.locateFile) { if (L = "liblua5.1.wasm", !Na(L)) { var Pa = L; L = e.locateFile ? e.locateFile(Pa, r) : r + Pa; } } else L = (new URL("liblua5.1.wasm", (typeof document === 'undefined' && typeof location === 'undefined' ? "" : typeof document === 'undefined' ? location.href : (_documentCurrentScript && _documentCurrentScript.src || new URL('index.js', document.baseURI).href)))).href;
 				function Qa(a) { if (ka) return ka(a); throw "both async and sync fetching of the wasm failed"; } function Ra(a) { if (fa || l) { if ("function" == typeof fetch && !oa(a)) return fetch(a, { credentials: "same-origin" }).then(b => { if (!b.ok) throw `failed to load wasm binary file at '${a}'`; return b.arrayBuffer() }).catch(() => Qa(a)); if (ja) return new Promise((b, c) => { ja(a, d => b(new Uint8Array(d)), c); }) } return Promise.resolve().then(() => Qa(a)) }
 				function Sa(a, b, c) { return Ra(a).then(d => WebAssembly.instantiate(d, b)).then(c, d => { z(`failed to asynchronously prepare wasm: ${d}`); oa(L) && z(`warning: Loading from a file URI (${L}) is not supported in most browsers. See https://emscripten.org/docs/getting_started/FAQ.html#how-do-i-run-a-local-webserver-for-testing-why-does-my-program-stall-in-downloading-or-preparing`); g(d); }) }
