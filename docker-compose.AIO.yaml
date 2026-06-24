@@ -29,21 +29,6 @@ services:
             MYSQL_USER: ragnarok
             MYSQL_PASSWORD: ragnarok
 
-    # --- Create admin acount ---
-    init-admin:
-        image: 'mariadb:noble'
-        container_name: 'rathena-init-admin'
-        networks:
-            - ro-network
-        depends_on:
-            db:
-                condition: service_healthy
-        command: |
-            mariadb -h db -P 3306 -uroot -pragnarok ragnarok -e "
-            INSERT IGNORE INTO login (account_id, userid, user_pass, sex, email, group_id, pincode) 
-            VALUES (1, 'admin', 'admin', 'M', 'admin@localhost', 99, '0000');
-            "
-
     # --- RATHENA BUILDER (rAthena Native) ---
     builder:
         image: 'rathena:local'
