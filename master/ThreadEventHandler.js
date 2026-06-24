@@ -25,9 +25,9 @@ var mask = new Uint8Array([
 	2,
 	1
 ]);
-var tmp = new Uint8Array(8);
-var tmp2 = new Uint8Array(8);
-var clean = new Uint8Array(8);
+var tmp = /* @__PURE__ */ new Uint8Array(8);
+var tmp2 = /* @__PURE__ */ new Uint8Array(8);
+var clean = /* @__PURE__ */ new Uint8Array(8);
 /**
 * Initial permutation (IP).
 *
@@ -628,7 +628,7 @@ function shuffleDec(src, index) {
 */
 shuffleDec.table = (function init_substitution() {
 	let i, count;
-	const out = new Uint8Array(256);
+	const out = /* @__PURE__ */ new Uint8Array(256);
 	const list = [
 		0,
 		43,
@@ -911,7 +911,7 @@ var iconv = (() => {
 		if (!Buffer2.TYPED_ARRAY_SUPPORT && typeof console !== "undefined" && typeof console.error === "function") console.error("This browser lacks typed array (Uint8Array) support which is required by `buffer` v5.x. Use `buffer` v4.x if you require old browser support.");
 		function typedArraySupport() {
 			try {
-				const arr = new Uint8Array(1);
+				const arr = /* @__PURE__ */ new Uint8Array(1);
 				const proto = { foo: function() {
 					return 42;
 				} };
@@ -11133,10 +11133,10 @@ var CodepageManager = {
 	encode: function encode(str, charset = null) {
 		if (typeof str !== "string") {
 			console.error(`[TextEncoding.encode] Invalid input type: expected "string", got "${typeof str}".`, str);
-			return new Uint8Array(0);
+			return /* @__PURE__ */ new Uint8Array(0);
 		} else if (charset && !iconv.encodingExists(charset)) {
 			console.error(`[TextEncoding.decode] Invalid charset: "${charset}".`, str);
-			return new Uint8Array(0);
+			return /* @__PURE__ */ new Uint8Array(0);
 		}
 		return iconv.encode(str, charset || this.userCharset);
 	},
@@ -11502,9 +11502,9 @@ var codeLenCodeMap = new Uint32Array([
 	1,
 	15
 ]);
-var _codeLenCodeLengths = new Uint32Array(19);
-var _clean_codeLenCodeLengths = new Uint32Array(19);
-var _codeLengths = new Uint8Array(640);
+var _codeLenCodeLengths = /* @__PURE__ */ new Uint32Array(19);
+var _clean_codeLenCodeLengths = /* @__PURE__ */ new Uint32Array(19);
+var _codeLengths = /* @__PURE__ */ new Uint8Array(640);
 var lengthDecode = new Uint32Array([
 	3,
 	4,
@@ -16036,7 +16036,7 @@ exports.mat4.perspective = function(fovy, aspect, near, far, dest) {
 * @returns {vec3} resulting vector
 */
 exports.mat4.multiplyVec3 = function(vec, mat) {
-	const out = new Float32Array(3);
+	const out = /* @__PURE__ */ new Float32Array(3);
 	const x = vec[0], y = vec[1], z = vec[2];
 	out[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
 	out[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
@@ -17611,7 +17611,7 @@ function getRotationAtFrame(keyframes, frame, animLen) {
 * SLERP quaternion interpolation
 */
 function slerpQuat(q1, q2, t) {
-	const result = new Float32Array(4);
+	const result = /* @__PURE__ */ new Float32Array(4);
 	let dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
 	let q2Sign = 1;
 	if (dot < 0) {
@@ -17848,7 +17848,7 @@ var SPR = class SPR {
 	* The exact byte layout depends on the chosen packing below.
 	*/
 	convert32bPal(pal, flip = false) {
-		const pal32 = new Uint32Array(256);
+		const pal32 = /* @__PURE__ */ new Uint32Array(256);
 		for (let i = 0; i < 256; i++) {
 			const r = pal[i * 4 + 0];
 			const g = pal[i * 4 + 1];
