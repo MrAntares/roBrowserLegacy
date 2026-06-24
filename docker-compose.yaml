@@ -172,7 +172,7 @@ services:
             /rathena/web-server  
             "
         ports:
-            - '8888:8888' # Porta padrão configurada em web_athena.conf
+            - '8888:8888'
         networks:
             - ro-network
         volumes:
@@ -207,6 +207,7 @@ services:
             - /app/node_modules/
         environment:
             - NODE_ENV=development
+            - RO_PROXY_TARGET=docker
         tty: true
         working_dir: /app
         depends_on:

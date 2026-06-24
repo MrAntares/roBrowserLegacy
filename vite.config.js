@@ -5,6 +5,40 @@ import uiCssHmrPlugin from './vite/csshotreload.plugin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const isDocker = process.env.RO_PROXY_TARGET === 'docker';
+const webTarget = isDocker ? 'http://rathena-web:8888' : 'http://127.0.0.1:8888';  
+const remoteClientTarget = isDocker ? 'http://remote-client-php:80' : 'http://127.0.0.1:8000';  
+  
+const _proxy = {  
+	'/get': {  
+		target: webTarget,  
+		changeOrigin: true,  
+		secure: false,  
+		ws: false  
+	},  
+	'/emblem': {  
+		target: webTarget,  
+		changeOrigin: true,  
+		secure: false,  
+		ws: false  
+	},  
+	'/userconfig': {  
+		target: webTarget,  
+		changeOrigin: true,  
+		secure: false,  
+		ws: false  
+	}  
+};  
+  
+if (isDocker) {  
+	_proxy['/remote-client'] = {  
+		target: remoteClientTarget,  
+		changeOrigin: true,  
+		secure: false,  
+		rewrite: path => path.replace(/^\/remote-client/, '')  
+	};  
+}  
+
 export default defineConfig({
 	plugins: [uiCssHmrPlugin()],
 	root: './',
@@ -49,32 +83,16 @@ export default defineConfig({
 		}
 	},
 	server: {
-		host: '0.0.0.0',
+		host: isDocker ? '0.0.0.0' : 'localhost', 
 		port: 3000,
-		cors: true,
-		watch: {
-			usePolling: true, // Necessary in WSL2/Docker Windows, but can be heavy
-			interval: 1000    // Increase the interval to relieve the CPU
-		},		
-		proxy: {
-			'/get': {
-				target: 'http://rathena-web:8888',
-				changeOrigin: true,
-				secure: false,
-				ws: false
-			},
-			'/userconfig': {
-				target: 'http://rathena-web:8888',
-				changeOrigin: true,
-				secure: false,
-				ws: false
-			},
-			'/remote-client': {
-				target: 'http://remote-client-php:80',
-				changeOrigin: true,
-				secure: false,
-				rewrite: (path) => path.replace(/^\/remote-client/, '')
-			}
-		}
+		open: !isDocker,
+		cors: true,  
+		...(isDocker && {  
+			watch: {  
+				usePolling: true, 
+				interval: 1000  
+			}  
+		}),
+		proxy: _proxy
 	}	
 });
