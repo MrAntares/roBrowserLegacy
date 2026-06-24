@@ -11,7 +11,6 @@
 import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
 import TextEncoding from 'Utils/CodepageManager.js';
-import CLua from 'Vendors/wasmoon-lua5.1.js';
 import JobId from './Jobs/JobConst.js';
 import ClassTable from './Jobs/JobNameTable.js';
 import PaletteTable from './Jobs/PalNameTable.js';
@@ -53,7 +52,6 @@ import MapInfo from './Map/MapTable.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
-import wasmUrl from 'Vendors/liblua5.1.wasm?url';
 import MemoryManager from 'Core/MemoryManager.js';
 
 //Pet
@@ -67,8 +65,6 @@ let HO_AI;
 let MER_AI;
 let default_HO_AI;
 let default_MER_AI;
-
-startLua();
 
 /**
  * @const {Array} message string
@@ -362,8 +358,9 @@ class DB {
 	static isLoaded = false;
 	static count = 0;
 	static index = 0;
-	static lazyInit() {
+	static async lazyInit() {
 		console.log('Loading DB files...');
+		await startLua();
 		// Callback
 		DB.index = 0;
 		DB.count = 0;
@@ -3772,11 +3769,20 @@ class DB {
 }
 
 async function startLua() {
-	lua = await CLua.Lua.create({ customWasmUri: wasmUrl });
-	HO_AI = await CLua.Lua.create({ customWasmUri: wasmUrl });
-	MER_AI = await CLua.Lua.create({ customWasmUri: wasmUrl });
-	default_HO_AI = await CLua.Lua.create({ customWasmUri: wasmUrl });
-	default_MER_AI = await CLua.Lua.create({ customWasmUri: wasmUrl });
+	const wasmUrl = (await import('Vendors/liblua5.1.wasm?url')).default;
+	const CLua = (await import('Vendors/wasmoon-lua5.1.js')).default;
+	const [l, ha, ma, dha, dma] = await Promise.all([
+		CLua.Lua.create({ customWasmUri: wasmUrl }),
+		CLua.Lua.create({ customWasmUri: wasmUrl }),
+		CLua.Lua.create({ customWasmUri: wasmUrl }),
+		CLua.Lua.create({ customWasmUri: wasmUrl }),
+		CLua.Lua.create({ customWasmUri: wasmUrl })
+	]);
+	lua = l;
+	HO_AI = ha;
+	MER_AI = ma;
+	default_HO_AI = dha;
+	default_MER_AI = dma;
 }
 
 function loadFontFromClient(fontPath) {

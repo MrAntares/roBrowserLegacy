@@ -62,6 +62,9 @@ export default defineConfig({
 			Vendors: path.resolve(__dirname, './src/Vendors')
 		}
 	},
+	optimizeDeps: {  
+		include: ['bson', 'lodash', 'rijndael-js']  
+	},
 	test: {
 		environment: 'jsdom',
 		include: ['tests/**/*.test.js'],
