@@ -19,11 +19,16 @@ existing files in it (e.g. `rathena/DropYourRemoteClientHereDontOverride.txt`).
 ### 2. Drop your Remote Client
 Copy your remote client assets into the `roBrowserLegacy-RemoteClient-PHP/`
 folder (see `roBrowserLegacy-RemoteClient-PHP/DropYourRemoteClientHere.txt`).
-### 3. Build and run
+### 3. Change Target build PACKETVER in docker-compose.AIO
+Find the line "BUILDER_CONFIGURE" to change to your packet version builder target
+```bash
+BUILDER_CONFIGURE: '--enable-packetver=20250618' # <- Configure your wanted packet version here
+```
+### 4. Build and run
 ```bash
 docker compose -f docker-compose.AIO.yaml up --build
 ```
-### 4. Open the game
+### 5. Open the game
 http://localhost:3000/applications/browser-examples/demo.html
 
 ---
