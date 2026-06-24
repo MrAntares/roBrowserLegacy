@@ -65,13 +65,13 @@ wss.on('connection', (ws, req) => {
 
 	tcp.setNoDelay(true);
 
-	ws.on('message', (message) => {
+	ws.on('message', message => {
 		if (tcp.writable) {
 			tcp.write(message);
 		}
 	});
 
-	tcp.on('data', (data) => {
+	tcp.on('data', data => {
 		if (ws.readyState === ws.OPEN) {
 			ws.send(data);
 		}
@@ -86,7 +86,7 @@ wss.on('connection', (ws, req) => {
 	ws.on('close', cleanup);
 	ws.on('error', cleanup);
 	tcp.on('close', cleanup);
-	tcp.on('error', (err) => {
+	tcp.on('error', err => {
 		console.error(`[wsProxy] TCP Error for ${target}:`, err.message);
 		cleanup();
 	});

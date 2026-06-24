@@ -11,24 +11,36 @@ that handles three responsibilities in a single process:
 ---
 
 ## All-in-One quick start (rAthena + roBrowser + Remote Client)
+
 For a single-VM setup that runs rAthena, the roBrowserLegacy dev frontend, and
 the PHP Remote Client together, use `docker-compose.AIO.yaml`.
+
 ### 1. Drop your rAthena source
+
 Copy your rAthena source into the `rathena/` folder **without overwriting** the
 existing files in it (e.g. `rathena/DropYourRemoteClientHereDontOverride.txt`).
+
 ### 2. Drop your Remote Client
+
 Copy your remote client assets into the `roBrowserLegacy-RemoteClient-PHP/`
 folder (see `roBrowserLegacy-RemoteClient-PHP/DropYourRemoteClientHere.txt`).
+
 ### 3. Change Target build PACKETVER in docker-compose.AIO
+
 Find the line "BUILDER_CONFIGURE" to change to your packet version builder target
+
 ```bash
 BUILDER_CONFIGURE: '--enable-packetver=20250618' # <- Configure your wanted packet version here
 ```
+
 ### 4. Build and run
+
 ```bash
 docker compose -f docker-compose.AIO.yaml up --build
 ```
+
 ### 5. Open the game
+
 http://localhost:3000/applications/browser-examples/demo.html
 
 ---
