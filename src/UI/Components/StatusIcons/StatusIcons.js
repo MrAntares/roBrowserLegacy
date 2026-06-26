@@ -11,7 +11,6 @@
 import StatusTable from 'DB/Status/StatusInfo.js';
 import SC from 'DB/Status/StatusConst.js';
 import DB from 'DB/DBManager.js';
-import JobId from 'DB/Jobs/JobConst.js';
 import Texture from 'Utils/Texture.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -53,27 +52,6 @@ let _last_updated_time = Date.now();
  * @var {int} render wait time
  */
 const _render_time = 500;
-
-// TaeKwon Master tree triggers the TK_SEVENWIND (Warm Wind) icon swap
-// in the native ragexe client, regardless of buff source.
-const TKM_JOBS = new Set([
-	JobId.TAEKWON, // 4046
-	JobId.STAR, // 4047
-	JobId.STAR2, // 4048
-	JobId.LINKER, // 4049
-	JobId.TAEKWON_B, // 4225
-	JobId.STAR_B, // 4226
-	JobId.LINKER_B, // 4227
-	JobId.STAR2_B, // 4238
-	JobId.STAR_EMPEROR, // 4239
-	JobId.SOUL_REAPER, // 4240
-	JobId.STAR_EMPEROR_B, // 4241
-	JobId.SOUL_REAPER_B, // 4242
-	JobId.STAR_EMPEROR2, // 4243
-	JobId.STAR_EMPEROR2_B, // 4244
-	JobId.SOUL_REAPER2, // 4245
-	JobId.SOUL_REAPER2_B // 4246
-]);
 
 const TKM_ICON_OVERRIDE = {
 	[SC.ASPERSIO]: 'i_p_SAINT.tga',
@@ -146,14 +124,40 @@ StatusIcons.update = function update(index, state, life) {
 		_status[index].end = Infinity;
 	}
 
-	// Image already loaded
+	// Image already loaded.
+	//
+	// For statuses with a TKM (Warm Wind) icon override, the variant
+	// can flip when the player's job changes (e.g. @job from a
+	// TaeKwon-tree class to another, or vice versa). The official
+	// client also re-resolves the icon path on every status update —
+	// so as long as the server re-emits the status (re-cast, refresh
+	// scroll), we pick up the new variant. If the buff is held
+	// without any re-emit, the cached icon stays, which matches the
+	// official client behaviour.
 	if (_status[index].img) {
-		return;
+		if (TKM_ICON_OVERRIDE[index]) {
+			const isTKM = Session.Entity && DB.isTaeKwon(Session.Entity._job);
+			const wantVariant = (isTKM && TKM_ICON_OVERRIDE[index]) || null;
+			if (_status[index].tkmVariant !== wantVariant) {
+				_status[index].img = null;
+			} else {
+				return;
+			}
+		} else {
+			return;
+		}
 	}
 
-	// Load image (TKM Warm Wind override applies for TaeKwon-tree jobs)
-	const isTKM = Session.Entity && TKM_JOBS.has(Session.Entity.job);
-	const iconName = (isTKM && TKM_ICON_OVERRIDE[index]) || StatusTable[index].icon;
+	loadStatusIcon(index);
+
+	ScreenEffectManager.parseStatus(index);
+};
+
+function loadStatusIcon(index) {
+	const isTKM = Session.Entity && DB.isTaeKwon(Session.Entity._job);
+	const tkmVariant = (isTKM && TKM_ICON_OVERRIDE[index]) || null;
+	const iconName = tkmVariant || StatusTable[index].icon;
+	_status[index].tkmVariant = tkmVariant;
 	Client.loadFile(`data/texture/effect/${iconName}`, data => {
 		Texture.load(data, function () {
 			if (_status[index] && !_status[index].img) {
@@ -161,9 +165,7 @@ StatusIcons.update = function update(index, state, life) {
 			}
 		});
 	});
-
-	ScreenEffectManager.parseStatus(index);
-};
+}
 
 function addResizedStatusIcon(img, index) {
 	if (img.width < 33 && img.height < 33) {

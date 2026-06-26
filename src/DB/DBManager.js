@@ -18,6 +18,7 @@ import PaletteTable from './Jobs/PalNameTable.js';
 import WeaponAction from './Jobs/WeaponAction.js';
 import WeaponJobTable from './Jobs/WeaponJobTable.js';
 import BabyTable from './Jobs/BabyTable.js';
+import TaeKwonTable from './Jobs/TaeKwonTable.js';
 import HairIndexTable from './Jobs/HairIndexTable.js';
 import MonsterTable from './Monsters/MonsterTable.js';
 import MonsterNameTable from './Monsters/MonsterNameTable.js';
@@ -943,6 +944,22 @@ class DB {
 	 */
 	static isBaby(jobid) {
 		return BabyTable.indexOf(jobid) > -1;
+	}
+
+	/**
+	 * Is character a TaeKwon-tree job (TaeKwon → Star Gladiator /
+	 * Soul Linker → Star Emperor / Soul Reaper / Sky Emperor /
+	 * Soul Ascetic, incl. baby and union variants) ?
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static isTaeKwon(jobid) {
+		// Coerce to Number — UpdateBody's `for (baseJob in MountTable)` loop
+		// can leave `_job` as a string after a mount-sprite remap (e.g.
+		// STAR_EMPEROR2 4243 → STAR_EMPEROR "4239"), which would defeat
+		// the strict-equality lookup of TaeKwonTable.indexOf().
+		return TaeKwonTable.indexOf(+jobid) > -1;
 	}
 
 	static isMadogear(jobid) {
