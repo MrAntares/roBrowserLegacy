@@ -189,7 +189,9 @@ function UpdateBody(job) {
 	for (baseJob in MountTable) {
 		if (MountTable[baseJob] === job) {
 			this.costume = job;
-			job = baseJob;
+			// `for...in` yields string keys; coerce back to Number so
+			// downstream `_job` lookups (DB.isX, ===) don't miss.
+			job = +baseJob;
 			break;
 		}
 	}
@@ -197,7 +199,7 @@ function UpdateBody(job) {
 	for (baseJob in AllMountTable) {
 		if (AllMountTable[baseJob] === job) {
 			this.costume = job;
-			job = baseJob;
+			job = +baseJob;
 			break;
 		}
 	}
