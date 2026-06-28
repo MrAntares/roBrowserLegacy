@@ -18,7 +18,6 @@ import PaletteTable from './Jobs/PalNameTable.js';
 import WeaponAction from './Jobs/WeaponAction.js';
 import WeaponJobTable from './Jobs/WeaponJobTable.js';
 import BabyTable from './Jobs/BabyTable.js';
-import TaeKwonTable from './Jobs/TaeKwonTable.js';
 import HairIndexTable from './Jobs/HairIndexTable.js';
 import MonsterTable from './Monsters/MonsterTable.js';
 import MonsterNameTable from './Monsters/MonsterNameTable.js';
@@ -955,11 +954,12 @@ class DB {
 	 * @return {boolean}
 	 */
 	static isTaeKwon(jobid) {
-		// Coerce to Number — UpdateBody's `for (baseJob in MountTable)` loop
-		// can leave `_job` as a string after a mount-sprite remap (e.g.
-		// STAR_EMPEROR2 4243 → STAR_EMPEROR "4239"), which would defeat
-		// the strict-equality lookup of TaeKwonTable.indexOf().
-		return TaeKwonTable.indexOf(+jobid) > -1;
+		return (
+			(jobid >= 4046 && jobid <= 4049) ||   // 1st/2nd
+			(jobid >= 4225 && jobid <= 4227) ||   // baby 1st/2nd
+			(jobid >= 4238 && jobid <= 4246) ||   // 3rd jobs + baby variants
+			jobid == 4302 || jobid == 4303 || jobid == 4316  // 4th jobs
+		);
 	}
 
 	static isMadogear(jobid) {
