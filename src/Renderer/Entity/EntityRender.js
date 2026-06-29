@@ -457,6 +457,15 @@ const renderEntity = (function renderEntityClosure() {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
 				break;
+			case Entity.TYPE_NPC:
+			case Entity.TYPE_NPC2:
+				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+				SpriteRenderer.zIndex = 150;
+				// Static NPC billboards can write depth safely and need it to occlude later transparent water.
+				SpriteRenderer.runWithDepth(true, true, false, function () {
+					renderElement(self, self.files.body, 'body', _position, true);
+				});
+				break;
 			default:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 				SpriteRenderer.zIndex = 150;
