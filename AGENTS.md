@@ -138,10 +138,11 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 ### UI Components (`src/UI/Components/`, 95 directories)
 
 **Two base classes coexist during migration:**
-| Base Class | File | DOM Model | CSS Isolation | Dependencies |
-| --- | --- | --- | --- | --- |
-| **UIComponent** (legacy) | `src/UI/UIComponent.js` | Light DOM, jQuery | Global `<style>` tag | jQuery, `data-*` attributes |
-| **GUIComponent** (new) | `src/UI/GUIComponent.js` | Shadow DOM (`attachShadow`) | Scoped per component | Native DOM, Custom Elements |
+
+| Base Class               | File                     | DOM Model                   | CSS Isolation        | Dependencies                |
+| ------------------------ | ------------------------ | --------------------------- | -------------------- | --------------------------- |
+| **UIComponent** (legacy) | `src/UI/UIComponent.js`  | Light DOM, jQuery           | Global `<style>` tag | jQuery, `data-*` attributes |
+| **GUIComponent** (new)   | `src/UI/GUIComponent.js` | Shadow DOM (`attachShadow`) | Scoped per component | Native DOM, Custom Elements |
 
 - GUIComponent uses `<ui-button>`, `<ui-text>`, `<ui-image>` (registered in `src/UI/Elements/Elements.js`) instead of `data-background`/`data-hover`/`data-down`/`data-text` attributes
 - `this.ui` proxy on GUIComponent provides jQuery-compatible API for UIManager interop

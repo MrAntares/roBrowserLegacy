@@ -29,48 +29,51 @@ assignees: ''
 
 <details>
   <summary>Environment</summary>
-  
+
 - **Execution mode**
-  - [ ] Development \(development: true\)
-  - [ ] Production \(development: false\)
+    - [ ] Development \(development: true\)
+    - [ ] Production \(development: false\)
 - **Application type**
-  - [ ] ONLINE
-  - [ ] MAPVIEWER
-  - [ ] GRFVIEWER
-  - [ ] MODELVIEWER
-  - [ ] STRVIEWER
-  - [ ] Other: [________]
+    - [ ] ONLINE
+    - [ ] MAPVIEWER
+    - [ ] GRFVIEWER
+    - [ ] MODELVIEWER
+    - [ ] STRVIEWER
+    - [ ] Other: [________]
 - **Packet/Client version**
-  - [________]
+    - [________]
 - **Assets**:
-  - [ ] Local (drag GRF)
-  - [ ] Remote Client - URL: [_________]
+    - [ ] Local (drag GRF)
+    - [ ] Remote Client - URL: [_________]
 - **WebSocket Proxy**:
-  - [ ] wsProxy - URL: [________]
-  - [ ] Other: [________]
+    - [ ] wsProxy - URL: [________]
+    - [ ] Other: [________]
 - **Browser** (e.g., Chrome 120, Firefox 119)
-  - [________]
+    - [________]
 - **Device** (e.g., Windows 11, iPhone 14, Xbox One)
-  - [________]
+    - [________]
 - **Emulator**:
-  - [ ] rAthena
-  - [ ] Hercules
-  - [ ] Other: [________]
+    - [ ] rAthena
+    - [ ] Hercules
+    - [ ] Other: [________]
+
 </details>
 <details>
   <summary>Additional context</summary>
-  
+
 - **Enabled plugins**
-  - [list_plugins_here]
+    - [list_plugins_here]
 - **Custom ROConfig settings**
-  - [list_custom_settings_here]
+    - [list_custom_settings_here]
 - **Extra information that helps reproduce the issue**
+
 </details>
 <details>
   <summary>Debugging</summary>
-  
+
 - Have you tried running in development mode? (`development: true`)
-  - [ ] Yes, I have.
+    - [ ] Yes, I have.
 - Have you checked the console (F12) and the Network tab?
-  - [ ] Yes, I have.
+    - [ ] Yes, I have.
+
 </details>

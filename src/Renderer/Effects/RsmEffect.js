@@ -652,7 +652,7 @@ class RsmEffect {
 
 	init(gl, tick) {
 		const self = this;
-		let i, count, j, size, total, offset, length /*, pos -UNUSED*/;
+		let i, count, j, size, total, offset, length; /*, pos -UNUSED*/
 
 		Client.getFile(this.filename, function (buf) {
 			self.model = new Model(buf);

@@ -952,10 +952,12 @@ class DB {
 	 */
 	static isTaeKwon(jobid) {
 		return (
-			(jobid >= 4046 && jobid <= 4049) ||   // 1st/2nd
-			(jobid >= 4225 && jobid <= 4227) ||   // baby 1st/2nd
-			(jobid >= 4238 && jobid <= 4246) ||   // 3rd jobs + baby variants
-			jobid == 4302 || jobid == 4303 || jobid == 4316  // 4th jobs
+			(jobid >= 4046 && jobid <= 4049) || // 1st/2nd
+			(jobid >= 4225 && jobid <= 4227) || // baby 1st/2nd
+			(jobid >= 4238 && jobid <= 4246) || // 3rd jobs + baby variants
+			jobid == 4302 ||
+			jobid == 4303 ||
+			jobid == 4316 // 4th jobs
 		);
 	}
 

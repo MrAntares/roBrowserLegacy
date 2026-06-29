@@ -64,13 +64,9 @@ SkillEffect[SK.SM_PROVOKE] = { successEffectId: 67 }; //Provoke
 SkillEffect[SK.SM_MAGNUM] = { effectIdOnCaster: 17, effectId: 'quake_magnum' }; //Magnum Break
 SkillEffect[SK.SM_ENDURE] = { effectId: 11 }; //Endure
 // Mage
-SkillEffect[SK.MG_SIGHT] = {
-	/* effectId: 22 not here*/
-}; //Sight
+SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
 SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
-SkillEffect[SK.MG_SAFETYWALL] = {
-	/*not here*/
-}; //Safety Wall
+SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
 SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Soul Strike
 SkillEffect[SK.MG_COLDBOLT] = { beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51 }; //Cold Bolt
 SkillEffect[SK.MG_FROSTDIVER] = { effectId: 27, hitEffectId: 28 }; //Frost Diver
@@ -83,12 +79,8 @@ SkillEffect[SK.MG_THUNDERSTORM] = { effectId: 30, hitEffectId: 52 }; //Thunderst
 // Acolyte
 SkillEffect[SK.AL_RUWACH] = { hitEffectId: 1 /*state effect not here*/ }; //Ruwach
 SkillEffect[SK.AL_PNEUMA] = { groundEffectId: 141 }; //Pneuma
-SkillEffect[SK.AL_TELEPORT] = {
-	/*not here*/
-}; //Teleport
-SkillEffect[SK.AL_WARP] = {
-	/*not here*/
-}; //Warp Portal
+SkillEffect[SK.AL_TELEPORT] = {/*not here*/}; //Teleport
+SkillEffect[SK.AL_WARP] = {/*not here*/}; //Warp Portal
 SkillEffect[SK.AL_HEAL] = { effectId: 312, hitEffectId: 320 }; //Heal
 SkillEffect[SK.AL_INCAGI] = { effectId: 37 }; //Increase AGI
 SkillEffect[SK.AL_DECAGI] = { effectId: 38 }; //Decrease AGI
@@ -107,9 +99,7 @@ SkillEffect[SK.AC_DOUBLE] = { beginCastEffectId: 16, beforeHitEffectId: 'ef_arro
 SkillEffect[SK.AC_SHOWER] = { effectId: 'ef_arrow_shower_projectile', hitEffectId: 1 }; //Arrow Shower
 // Thief
 SkillEffect[SK.TF_STEAL] = { successEffectId: 18 }; //Steal
-SkillEffect[SK.TF_HIDING] = {
-	/*Handled by state*/
-}; //Hiding
+SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
 SkillEffect[SK.TF_POISON] = { hitEffectId: 20 }; //Envenom
 SkillEffect[SK.TF_DETOXIFY] = { effectId: 21 }; //Detoxify
 // All
@@ -483,9 +473,7 @@ SkillEffect[SK.TK_READYCOUNTER] = {}; //Counter Kick Stance
 SkillEffect[SK.TK_COUNTER] = { effectId: 415 }; //Counter Kick
 SkillEffect[SK.TK_DODGE] = {}; //Tumbling
 SkillEffect[SK.TK_JUMPKICK] = { effectId: 439, hitEffectId: 457 }; //Flying Kick
-SkillEffect[SK.TK_SEVENWIND] = {
-	/* 467 - 473 is done by entity */
-}; //Mild Wind
+SkillEffect[SK.TK_SEVENWIND] = {/* 467 - 473 is done by entity */}; //Mild Wind
 SkillEffect[SK.TK_HIGHJUMP] = { hideCastAura: true, groundEffectId: 411, effectIdOnCaster: 445 /*down 446*/ }; //Taekwon Jump
 // Star Gladiator
 SkillEffect[SK.SG_FEEL] = { effectId: 432 }; //Feeling the Sun Moon and Stars
@@ -549,9 +537,7 @@ SkillEffect[SK.CG_TAROTCARD] = { successEffectId: 500 }; //Tarot Card of Fate
 SkillEffect[SK.CR_ACIDDEMONSTRATION] = { effectId: 537 }; //Acid Demonstration
 SkillEffect[SK.CR_CULTIVATION] = {}; //Plant Cultivation
 SkillEffect[SK.ITEM_ENCHANTARMS] = {}; //Weapon Enchantment
-SkillEffect[SK.TK_MISSION] = {
-	/*effect/piring.wav*/
-}; //Taekwon Mission
+SkillEffect[SK.TK_MISSION] = {/*effect/piring.wav*/}; //Taekwon Mission
 SkillEffect[SK.SL_HIGH] = { effectId: [424, 503] }; //Spirit of Rebirth
 SkillEffect[SK.KN_ONEHAND] = SkillEffect[SK.KN_TWOHANDQUICKEN]; //Onehand Quicken
 SkillEffect[SK.AM_TWILIGHT1] = { effectId: 497 }; //Twilight Alchemy 1
@@ -567,9 +553,7 @@ SkillEffect[SK.GS_MADNESSCANCEL] = { effectId: 625 }; //Madness Canceller
 SkillEffect[SK.GS_ADJUSTMENT] = { effectId: 626 }; //AdJustment
 SkillEffect[SK.GS_INCREASING] = { effectId: 456 }; //Increasing Accuracy
 SkillEffect[SK.GS_MAGICALBULLET] = { effectId: 644 }; //Magical Bullet
-SkillEffect[SK.GS_CRACKER] = {
-	/*effect\\cracker.wav*/
-}; //Cracker
+SkillEffect[SK.GS_CRACKER] = {/*effect\\cracker.wav*/}; //Cracker
 SkillEffect[SK.GS_TRACKING] = { effectId: 646, hitEffectId: 647 }; //Tracking
 SkillEffect[SK.GS_DISARM] = { effectId: 627 }; //Disarm
 SkillEffect[SK.GS_PIERCINGSHOT] = {}; //Piercing Shot
@@ -1074,9 +1058,7 @@ SkillEffect[SK.HLIF_CHANGE] = { effectId: 505 }; //Change
 SkillEffect[SK.HAMI_CASTLE] = { effectId: 570 }; //Castling
 SkillEffect[SK.HAMI_DEFENCE] = { effectId: 569 }; //Defense
 SkillEffect[SK.HAMI_BLOODLUST] = { effectId: 571 }; //Bloodlust
-SkillEffect[SK.HFLI_MOON] = {
-	/*565 - 567*/
-}; //Moonlight
+SkillEffect[SK.HFLI_MOON] = {/*565 - 567*/}; //Moonlight
 SkillEffect[SK.HFLI_FLEET] = { effectId: 564 }; //Fleeting Move
 SkillEffect[SK.HFLI_SPEED] = { effectId: 564 }; //Speed
 SkillEffect[SK.HFLI_SBR44] = {}; //S.B.R.44

@@ -3866,7 +3866,7 @@ var iconv = (() => {
 				for (var k = 1; k < chunk.length; k++) {
 					var part = chunk[k];
 					if (typeof part === 'string') {
-						for (var l = 0; l < part.length; ) {
+						for (var l = 0; l < part.length;) {
 							var code = part.charCodeAt(l++);
 							if (code >= 55296 && code < 56320) {
 								var codeTrail = part.charCodeAt(l++);
