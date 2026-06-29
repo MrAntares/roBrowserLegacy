@@ -942,6 +942,23 @@ class DB {
 		return BabyTable.indexOf(jobid) > -1;
 	}
 
+	/**
+	 * Is character a TaeKwon-tree job (TaeKwon → Star Gladiator /
+	 * Soul Linker → Star Emperor / Soul Reaper / Sky Emperor /
+	 * Soul Ascetic, incl. baby and union variants) ?
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static isTaeKwon(jobid) {
+		return (
+			(jobid >= 4046 && jobid <= 4049) ||   // 1st/2nd
+			(jobid >= 4225 && jobid <= 4227) ||   // baby 1st/2nd
+			(jobid >= 4238 && jobid <= 4246) ||   // 3rd jobs + baby variants
+			jobid == 4302 || jobid == 4303 || jobid == 4316  // 4th jobs
+		);
+	}
+
 	static isMadogear(jobid) {
 		return jobid == 4086 || jobid == 4087 || jobid == 4112 || jobid == 4279;
 	}

@@ -9,6 +9,7 @@
  */
 
 import StatusTable from 'DB/Status/StatusInfo.js';
+import SC from 'DB/Status/StatusConst.js';
 import DB from 'DB/DBManager.js';
 import Texture from 'Utils/Texture.js';
 import Client from 'Core/Client.js';
@@ -16,6 +17,7 @@ import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
+import Session from 'Engine/SessionStorage.js';
 import htmlText from './StatusIcons.html?raw';
 import cssText from './StatusIcons.css?raw';
 
@@ -50,6 +52,16 @@ let _last_updated_time = Date.now();
  * @var {int} render wait time
  */
 const _render_time = 500;
+
+const TKM_ICON_OVERRIDE = {
+	[SC.ASPERSIO]: 'i_p_SAINT.tga',
+	[SC.PROPERTYFIRE]: 'i_p_FIRE.tga',
+	[SC.PROPERTYWATER]: 'i_p_WATER.tga',
+	[SC.PROPERTYWIND]: 'i_p_WIND.tga',
+	[SC.PROPERTYGROUND]: 'i_p_EARTH.tga',
+	[SC.PROPERTYDARK]: 'i_p_DARK.tga',
+	[SC.PROPERTYTELEKINESIS]: 'i_p_TELE.tga'
+};
 
 /**
  * Start rendering icons
@@ -112,22 +124,48 @@ StatusIcons.update = function update(index, state, life) {
 		_status[index].end = Infinity;
 	}
 
-	// Image already loaded
+	// Image already loaded.
+	//
+	// For statuses with a TKM (Warm Wind) icon override, the variant
+	// can flip when the player's job changes (e.g. @job from a
+	// TaeKwon-tree class to another, or vice versa). The official
+	// client also re-resolves the icon path on every status update —
+	// so as long as the server re-emits the status (re-cast, refresh
+	// scroll), we pick up the new variant. If the buff is held
+	// without any re-emit, the cached icon stays, which matches the
+	// official client behaviour.
 	if (_status[index].img) {
-		return;
+		if (TKM_ICON_OVERRIDE[index]) {
+			const isTKM = Session.Entity && DB.isTaeKwon(Session.Entity._job);
+			const wantVariant = (isTKM && TKM_ICON_OVERRIDE[index]) || null;
+			if (_status[index].tkmVariant !== wantVariant) {
+				_status[index].img = null;
+			} else {
+				return;
+			}
+		} else {
+			return;
+		}
 	}
 
-	// Load image
-	Client.loadFile(`data/texture/effect/${StatusTable[index].icon}`, data => {
+	loadStatusIcon(index);
+
+	ScreenEffectManager.parseStatus(index);
+};
+
+function loadStatusIcon(index) {
+	const isTKM = Session.Entity && DB.isTaeKwon(Session.Entity._job);
+	const tkmVariant = (isTKM && TKM_ICON_OVERRIDE[index]) || null;
+	const iconName = tkmVariant || StatusTable[index].icon;
+	_status[index].tkmVariant = tkmVariant;
+	Client.loadFile(`data/texture/effect/${iconName}`, data => {
 		Texture.load(data, function () {
 			if (_status[index] && !_status[index].img) {
 				addResizedStatusIcon(this, index);
 			}
 		});
 	});
-
-	ScreenEffectManager.parseStatus(index);
-};
+}
 
 function addResizedStatusIcon(img, index) {
 	if (img.width < 33 && img.height < 33) {
