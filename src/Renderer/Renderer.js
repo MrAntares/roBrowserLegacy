@@ -415,7 +415,7 @@ class Renderer {
 	 * Start rendering
 	 */
 	static render(fn) {
-		if (fn) {
+		if (fn && !this.renderCallbacks.includes(fn)) {
 			this.renderCallbacks.push(fn);
 		}
 

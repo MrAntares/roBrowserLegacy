@@ -18,6 +18,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import JobId from 'DB/Jobs/JobConst.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
+import Configs from 'Core/Configs.js';
 
 /**
  * Load dependencies
@@ -806,14 +807,17 @@ function getAnimationDelay(type, entity, act) {
 		return (act.delay / 150) * entity.walk.speed;
 	}
 
-	// Delay on attack
+	// Delay on attack / skill
 	if (
 		entity.action === entity.ACTION.ATTACK ||
 		entity.action === entity.ACTION.ATTACK1 ||
 		entity.action === entity.ACTION.ATTACK2 ||
-		entity.action === entity.ACTION.ATTACK3
+		entity.action === entity.ACTION.ATTACK3 ||
+		entity.action === entity.ACTION.SKILL
 	) {
-		return entity.attack_speed / act.animations.length;
+		const animLength = (act.animations && act.animations.length) || 1;
+		const attackSpeed = Math.max(1, entity.attack_speed || 300);
+		return attackSpeed / Math.max(1, animLength);
 	}
 
 	return act.delay;
