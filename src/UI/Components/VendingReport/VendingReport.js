@@ -8,21 +8,21 @@
  */
 
 import DB from 'DB/DBManager.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import VendingShop from 'UI/Components/VendingShop/VendingShop.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './VendingReport.html?raw';
 import cssText from './VendingReport.css?raw';
 
 /**
  * Create Component
  */
-const VendingReport = new UIComponent('VendingReport', htmlText, cssText);
+const VendingReport = new GUIComponent('VendingReport', cssText);
 
 /**
  * Store bought items
@@ -38,6 +38,8 @@ const VendingReportTable = {
 VendingReport._resizing = false;
 VendingReport._startY = 0;
 VendingReport._startHeight = 0;
+VendingReport._boundResizeDrag = null;
+VendingReport._boundResizeStop = null;
 
 /**
  * @var {Preferences} structure
@@ -54,48 +56,86 @@ const _preferences = Preferences.get(
 );
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return VendingReport._shadow || VendingReport._host;
+}
+
+/**
+ * Render HTML
+ */
+VendingReport.render = () => htmlText;
+
+/**
  * Initialize UI
  */
 VendingReport.init = function Init() {
-	// Bind buttons
-	this.ui.find('.btn.close').click(function () {
-		VendingReport.onClose();
-	});
+	const root = _root();
 
-	const self = this;
+	// Bind close button
+	const closeBtn = root.querySelector('.btn.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => {
+			VendingReport.onClose();
+		});
+	}
 
-	this.ui.find('.extend').on('mousedown', function (e) {
-		e.preventDefault();
+	// Bind resize handle
+	const extendBtn = root.querySelector('.extend');
+	if (extendBtn) {
+		extendBtn.addEventListener('mousedown', e => {
+			e.preventDefault();
 
-		self._resizing = true;
-		self._startY = e.clientY;
-		self._startHeight = self.ui.find('.container .content').height();
+			this._resizing = true;
+			this._startY = e.clientY;
+			const content = root.querySelector('.container .content');
+			this._startHeight = content ? content.getBoundingClientRect().height : 0;
 
-		jQuery(document)
-			.on('mousemove.vendingResize', self.onResizeDrag.bind(self))
-			.on('mouseup.vendingResize', self.onResizeStop.bind(self));
-	});
+			this._boundResizeDrag = this.onResizeDrag.bind(this);
+			this._boundResizeStop = this.onResizeStop.bind(this);
 
-	this.ui
-		// Items event
-		.find('.container .content')
-		.on('mousewheel DOMMouseScroll', onScrollWheel)
-		.on('wheel', onScrollWheel)
-		.on('scroll', onScrollSync)
-		.on('mouseover', '.item', onItemOver)
-		.on('mouseout', '.item', onItemOut)
-		.on('contextmenu', '.item', onItemInfo);
+			document.addEventListener('mousemove', this._boundResizeDrag);
+			document.addEventListener('mouseup', this._boundResizeStop);
+		});
+	}
 
-	this.draggable(this.ui.find('.titlebar'));
+	// Content events
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.addEventListener('wheel', onScrollWheel);
+		content.addEventListener('scroll', onScrollSync);
+
+		content.addEventListener('mouseover', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOver.call(item, e);
+			}
+		});
+
+		content.addEventListener('mouseout', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemOut.call(item, e);
+			}
+		});
+
+		content.addEventListener('contextmenu', e => {
+			const item = e.target.closest('.item');
+			if (item) {
+				onItemInfo.call(item, e);
+			}
+		});
+	}
+
+	this.draggable(root.querySelector('.titlebar'));
 };
 
 /**
  * Apply preferences once append to body
  */
 VendingReport.onAppend = function OnAppend() {
-	//this.resize( _preferences.width, _preferences.height );
-
-	this.ui.show();
+	this._host.style.display = '';
 };
 
 /**
@@ -103,26 +143,29 @@ VendingReport.onAppend = function OnAppend() {
  */
 VendingReport.onRemove = function OnRemove() {
 	VendingReport.reset();
-	jQuery('.ItemInfo').remove();
+	ItemInfo.remove();
 
 	// Save preferences
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.y = parseInt(this._host.style.top, 10) || 0;
+	_preferences.x = parseInt(this._host.style.left, 10) || 0;
 	_preferences.save();
 
-	this.ui.hide();
+	this._host.style.display = 'none';
 };
 
 VendingReport.reset = function reset() {
 	VendingReportTable.list.length = 0;
 	VendingReportTable._nextIndex = 0;
 
-	this.ui.find('.container .content').empty();
+	const root = _root();
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.querySelectorAll('.item').forEach(el => el.remove());
+	}
 };
 
 /**
  * Extend window size
- *
  */
 VendingReport.onResizeDrag = function (e) {
 	if (!this._resizing) {
@@ -137,8 +180,12 @@ VendingReport.onResizeDrag = function (e) {
 
 	newHeight = Math.min(Math.max(newHeight, MIN_HEIGHT), MAX_HEIGHT);
 
-	this.ui.find('.container .content').height(newHeight);
-	this.ui.height(newHeight + 31 + 19);
+	const root = _root();
+	const content = root.querySelector('.container .content');
+	if (content) {
+		content.style.height = `${newHeight}px`;
+	}
+	this._host.style.height = `${newHeight + 31 + 19}px`;
 };
 
 /**
@@ -151,7 +198,14 @@ VendingReport.onResizeDrag = function (e) {
 VendingReport.onResizeStop = function () {
 	this._resizing = false;
 
-	jQuery(document).off('.vendingResize');
+	if (this._boundResizeDrag) {
+		document.removeEventListener('mousemove', this._boundResizeDrag);
+	}
+	if (this._boundResizeStop) {
+		document.removeEventListener('mouseup', this._boundResizeStop);
+	}
+	this._boundResizeDrag = null;
+	this._boundResizeStop = null;
 };
 
 /**
@@ -173,16 +227,16 @@ VendingReport.add = function add(pkt) {
 	const entity = EntityManager.getByCID(pkt.CID);
 	const buyer = entity ? entity.display.name : 'Unknown';
 
-	// Clone shop item snapshot
-	const reportItem = jQuery.extend({}, shopItem, {
+	const reportItem = {
+		...shopItem,
 		reportId: ++VendingReportTable._nextIndex,
-		shopindex: pkt.index, // original shop slot
-		count: pkt.count, // sold count (override shop count)
+		shopindex: pkt.index,
+		count: pkt.count,
 		buyer: buyer,
 		zeny: pkt.zeny,
 		date: formatUnixDate(pkt.date),
 		date_raw: pkt.date
-	});
+	};
 
 	this.addItem(reportItem);
 };
@@ -193,7 +247,6 @@ VendingReport.add = function add(pkt) {
  * @param {object} Item
  */
 VendingReport.addItem = function addItem(item) {
-	// Every item is a unique transaction
 	VendingReportTable.list.push(item);
 	this.addItemSub(item);
 };
@@ -205,41 +258,33 @@ VendingReport.addItem = function addItem(item) {
  */
 VendingReport.addItemSub = function addItemSub(item) {
 	const it = DB.getItemInfo(item.ITID);
-	const content = this.ui.find('.container .content');
+	const root = _root();
+	const content = root.querySelector('.container .content');
 
-	content.append(
-		'<div class="item" data-ITID="' +
-			item.ITID +
-			'" data-index="' +
-			item.shopindex +
-			'" data-id="' +
-			item.reportId +
-			'">' +
-			'<div class="icon"></div>' +
-			'<div class="info">' +
-			'<div class="count">' +
-			item.count +
-			'</div>' +
-			'<div class="buyer">' +
-			item.buyer +
-			'</div>' +
-			'<div class="zeny">' +
-			prettyZeny(item.zeny, false).toLocaleString() +
-			' Zeny</div>' +
-			'<div class="date">' +
-			item.date +
-			'</div>' +
-			'</div>' +
-			'</div>'
+	if (!content) {
+		return false;
+	}
+
+	content.insertAdjacentHTML(
+		'beforeend',
+		`<div class="item" data-ITID="${item.ITID}" data-index="${item.shopindex}" data-id="${item.reportId}">` +
+			`<div class="icon"></div>` +
+			`<div class="info">` +
+			`<div class="count">${item.count}</div>` +
+			`<div class="buyer">${item.buyer}</div>` +
+			`<div class="zeny">${prettyZeny(item.zeny, false)} Zeny</div>` +
+			`<div class="date">${item.date}</div>` +
+			`</div>` +
+			`</div>`
 	);
 
 	Client.loadFile(
-		DB.INTERFACE_PATH +
-			'item/' +
-			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-			'.bmp',
-		function (data) {
-			content.find('.item[data-id="' + item.reportId + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+		`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
+		data => {
+			const icon = content.querySelector(`.item[data-id="${item.reportId}"] .icon`);
+			if (icon) {
+				icon.style.backgroundImage = `url(${data})`;
+			}
 		}
 	);
 
@@ -276,7 +321,7 @@ function prettyZeny(val, useStyle) {
 			'color:#000000; text-shadow:1px 0px #cece63;', // 100,000,000 - 999,999,999
 			'color:#ff0000; text-shadow:1px 0px #ff007b;' // 1,000,000,000 - 9,999,999,999
 		];
-		str = '<span style="' + style[count - 1] + '">' + str + '</span>';
+		str = `<span style="${style[count - 1]}">${str}</span>`;
 	}
 
 	return str;
@@ -286,21 +331,18 @@ function prettyZeny(val, useStyle) {
  * Handle mouse wheel event to scroll the content.
  *
  * @param {Event} event The mouse wheel event.
- *
- * @return {boolean} false to prevent default handling.
  */
 function onScrollWheel(event) {
 	event.preventDefault();
 	event.stopImmediatePropagation();
 
 	const ROW_HEIGHT = 24;
-	const oe = event.originalEvent;
 
 	let delta = 0;
-	if (oe.wheelDelta) {
-		delta = oe.wheelDelta > 0 ? 1 : -1;
-	} else if (oe.deltaY) {
-		delta = oe.deltaY < 0 ? 1 : -1;
+	if (event.wheelDelta) {
+		delta = event.wheelDelta > 0 ? 1 : -1;
+	} else if (event.deltaY) {
+		delta = event.deltaY < 0 ? 1 : -1;
 	}
 
 	let target = this.scrollTop - delta * ROW_HEIGHT;
@@ -312,8 +354,6 @@ function onScrollWheel(event) {
 
 	this.scrollTop = target;
 	this.style.backgroundPositionY = -target + 'px';
-
-	return false;
 }
 
 /**
@@ -322,7 +362,6 @@ function onScrollWheel(event) {
  * This function is called whenever the content is scrolled.
  */
 function onScrollSync() {
-	// Just follow the scroll position
 	this.style.backgroundPositionY = -this.scrollTop + 'px';
 }
 
@@ -337,17 +376,24 @@ function onItemOver() {
 		return;
 	}
 
-	// Get back data
-	const pos = jQuery(this).position();
-	const overlay = VendingReport.ui.find('.overlay');
+	const root = _root();
+	const overlay = root.querySelector('.overlay');
+	const innerRoot = root.querySelector('#VendingReport');
 
-	// Display box
-	overlay.show();
-	overlay.css({ top: pos.top, left: pos.left + 35 });
-	overlay.text(DB.getItemName(item));
+	if (!overlay || !innerRoot) {
+		return;
+	}
+
+	const itemRect = this.getBoundingClientRect();
+	const rootRect = innerRoot.getBoundingClientRect();
+
+	overlay.style.display = 'block';
+	overlay.style.top = `${itemRect.top - rootRect.top}px`;
+	overlay.style.left = `${itemRect.left - rootRect.left + 35}px`;
+	overlay.textContent = DB.getItemName(item);
 
 	if (item.IsIdentified) {
-		overlay.removeClass('grey');
+		overlay.classList.remove('grey');
 	}
 }
 
@@ -355,7 +401,11 @@ function onItemOver() {
  * Hide the item name
  */
 function onItemOut() {
-	VendingReport.ui.find('.overlay').hide();
+	const root = _root();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
 /**
@@ -363,26 +413,25 @@ function onItemOut() {
  */
 function onItemInfo(event) {
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	const index = parseInt(this.getAttribute('data-id'), 10);
 	const item = VendingReport.getItemByIndex(index);
 
 	if (!item) {
-		return false;
+		return;
 	}
 
 	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
-		return false;
+		return;
 	}
 
 	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
-
-	return false;
 }
 
 /**
@@ -392,10 +441,9 @@ function onItemInfo(event) {
  * @returns {Item}
  */
 VendingReport.getItemByIndex = function getItemByIndex(index) {
-	let i, count;
 	const list = VendingReportTable.list;
 
-	for (i = 0, count = list.length; i < count; ++i) {
+	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].reportId === index) {
 			return list[i];
 		}
@@ -430,7 +478,7 @@ function formatUnixDate(unixTimestamp) {
  * Close
  */
 VendingReport.onClose = function onClose() {
-	this.onRemove();
+	this.remove();
 };
 
 /**

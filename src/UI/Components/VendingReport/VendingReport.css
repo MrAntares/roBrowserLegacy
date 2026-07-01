@@ -1,8 +1,11 @@
-#VendingReport {
-	position: absolute;
+:host {
 	top: 100px;
 	left: 100px;
 	width: 400px;
+}
+
+#VendingReport {
+	position: absolute;
 }
 
 #VendingReport .titlebar {
