@@ -9,10 +9,11 @@
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
+import Renderer from 'Renderer/Renderer.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
@@ -22,7 +23,9 @@ import cssText from './PetEvolution.css?raw';
 /**
  * Create Component
  */
-const PetEvolution = new UIComponent('PetEvolution', htmlText, cssText);
+const PetEvolution = new GUIComponent('PetEvolution', cssText);
+
+PetEvolution.render = () => htmlText;
 
 /**
  * Variables
@@ -47,24 +50,48 @@ const _preferences = Preferences.get(
  * Initialize component
  */
 PetEvolution.init = function init() {
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 
-	this.ui.find('.base').mousedown(stopPropagation);
-	this.ui.find('.close').click(onClose);
-	this.ui.find('.big_cancel').click(onClose);
-	this.ui.find('.evolve').click(onRequestEvolve);
+	const root = PetEvolution.getRoot();
+
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
+		closeBtn.addEventListener('click', () => {
+			onClose();
+		});
+	}
+
+	const cancelBtn = root.querySelector('.big_cancel');
+	if (cancelBtn) {
+		cancelBtn.addEventListener('click', () => {
+			onClose();
+		});
+	}
+
+	const evolveBtn = root.querySelector('.evolve');
+	if (evolveBtn) {
+		evolveBtn.addEventListener('click', () => {
+			onRequestEvolve();
+		});
+	}
 };
 
-PetEvolution.onAppend = function onAppend() {};
+PetEvolution.onAppend = function onAppend() {
+	const rect = this._host.getBoundingClientRect();
+	const hostHeight = rect.height || 380;
+	const hostWidth = rect.width || 280;
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostWidth)}px`;
+};
 
 /**
  * Once remove from body, save user preferences
  */
 PetEvolution.onRemove = function onRemove() {
-	// Save preferences
-	_preferences.show = this.ui.is(':visible');
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+	_preferences.show = this._host.style.display !== 'none';
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 
 	// Clear variables
@@ -78,6 +105,7 @@ PetEvolution.onRemove = function onRemove() {
  * @param {object} pet evolution info
  */
 PetEvolution.SetInfo = function SetInfo(baseJobID) {
+	const root = PetEvolution.getRoot();
 	const baseData = DB.getPetByJobID(baseJobID);
 
 	if (!baseData) {
@@ -92,24 +120,40 @@ PetEvolution.SetInfo = function SetInfo(baseJobID) {
 	}
 
 	Client.loadFile('data/texture/userinterface/illust/' + baseData.PetIllust, function (url) {
-		PetEvolution.ui.find('.base_pet_illust').css('backgroundImage', 'url(' + url + ')');
+		const el = root.querySelector('.base_pet_illust');
+		if (el) {
+			el.style.backgroundImage = `url(${url})`;
+		}
 	});
 	Client.loadFile('data/texture/userinterface/illust/' + evoData.PetIllust, function (url) {
-		PetEvolution.ui.find('.target_pet_illust').css('backgroundImage', 'url(' + url + ')');
+		const el = root.querySelector('.target_pet_illust');
+		if (el) {
+			el.style.backgroundImage = `url(${url})`;
+		}
 	});
 
 	targetEvoPetEggId = evoData.PetEggID;
 
-	PetEvolution.ui.find('.base_petEggId').text(baseData.PetString).attr('data-index', baseData.PetEggID);
-	PetEvolution.ui.find('.target_petEggId').text(evoData.PetString).attr('data-index', evoData.PetEggID);
+	const basePetEggEl = root.querySelector('.base_petEggId');
+	if (basePetEggEl) {
+		basePetEggEl.textContent = baseData.PetString;
+		basePetEggEl.setAttribute('data-index', baseData.PetEggID);
+		basePetEggEl.addEventListener('click', onItemInfo);
+	}
 
-	// Add ItemInfo
-	PetEvolution.ui.find('.base_petEggId').click(onItemInfo);
-	PetEvolution.ui.find('.target_petEggId').click(onItemInfo);
+	const targetPetEggEl = root.querySelector('.target_petEggId');
+	if (targetPetEggEl) {
+		targetPetEggEl.textContent = evoData.PetString;
+		targetPetEggEl.setAttribute('data-index', evoData.PetEggID);
+		targetPetEggEl.addEventListener('click', onItemInfo);
+	}
 
 	// === Evolution Requirements ===
-	const reqBox = PetEvolution.ui.find('.evo_requirements');
-	reqBox.empty();
+	const reqBox = root.querySelector('.evo_requirements');
+	if (!reqBox) {
+		return;
+	}
+	reqBox.innerHTML = '';
 
 	const targetEggID = Number(Object.keys(baseData.Evolution)[0]);
 	const materials = baseData.Evolution[targetEggID];
@@ -121,13 +165,13 @@ PetEvolution.SetInfo = function SetInfo(baseJobID) {
 	const title = document.createElement('div');
 	title.className = 'evo_requirements_title';
 	title.textContent = DB.getMessage(2569);
-	reqBox.append(title);
+	reqBox.appendChild(title);
 
 	// Spacer / empty row
 	const spacer = document.createElement('div');
 	spacer.className = 'evo_requirement_spacer';
 	spacer.style.height = '20px';
-	reqBox.append(spacer);
+	reqBox.appendChild(spacer);
 
 	// Materials
 	materials.forEach(mat => {
@@ -154,20 +198,20 @@ PetEvolution.SetInfo = function SetInfo(baseJobID) {
 		row.appendChild(nameSpan);
 		row.appendChild(amountSpan);
 
-		reqBox.append(row);
+		reqBox.appendChild(row);
 	});
 
 	// Spacer / empty row
 	const spacer2 = document.createElement('div');
 	spacer2.className = 'evo_requirement_spacer2';
 	spacer2.style.height = '35px';
-	reqBox.append(spacer2);
+	reqBox.appendChild(spacer2);
 
 	// Title
 	const title2 = document.createElement('div');
 	title2.className = 'evo_requirements_title2';
 	title2.textContent = DB.getMessage(2570);
-	reqBox.append(title2);
+	reqBox.appendChild(title2);
 };
 
 /**
@@ -211,19 +255,13 @@ function onRequestEvolve() {
  * Closing window
  */
 function onClose() {
-	PetEvolution.ui.hide();
+	if (PetEvolution._host) {
+		PetEvolution._host.style.display = 'none';
+	}
 
 	// Clear variables
 	currentMaterials = [];
 	targetEvoPetEggId = 0;
-}
-
-/**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
 }
 
 /**
@@ -232,29 +270,27 @@ function stopPropagation(event) {
 function onItemInfo(event) {
 	event.stopImmediatePropagation();
 
-	const ITID = parseInt(this.getAttribute('data-index'), 10);
+	const ITID = parseInt(event.currentTarget.getAttribute('data-index'), 10);
 	const item = DB.getItemInfo(ITID);
+
+	if (!item) {
+		return;
+	}
 
 	// Hack
 	item.ITID = ITID;
 	item.IsIdentified = 1;
 
-	if (!item) {
-		return false;
-	}
-
 	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
-		return false;
+		return;
 	}
 
 	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
-
-	return false;
 }
 
 /**
@@ -281,8 +317,8 @@ function onPetEvolveResult(pkt) {
 				ChatBox.addText(DB.getMessage(2576), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 				break;
 			case 6: // Success
-				if (PetEvolution.ui) {
-					PetEvolution.ui.hide();
+				if (PetEvolution._host) {
+					PetEvolution._host.style.display = 'none';
 				}
 				break;
 			default:
