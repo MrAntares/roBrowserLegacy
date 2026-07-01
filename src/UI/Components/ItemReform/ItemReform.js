@@ -178,19 +178,19 @@ ItemReform.init = function init() {
 
 	const availableMatList = root.querySelector('.available_material_list');
 	if (availableMatList) {
-		availableMatList.addEventListener('click', (e) => {
+		availableMatList.addEventListener('click', e => {
 			const item = e.target.closest('.item');
 			if (item) {
 				onMaterialSelect(item);
 			}
 		});
-		availableMatList.addEventListener('mouseover', (e) => {
+		availableMatList.addEventListener('mouseover', e => {
 			const item = e.target.closest('.item');
 			if (item) {
 				onHoverContainer(item);
 			}
 		});
-		availableMatList.addEventListener('mouseout', (e) => {
+		availableMatList.addEventListener('mouseout', e => {
 			const item = e.target.closest('.item');
 			if (item && (!e.relatedTarget || !item.contains(e.relatedTarget))) {
 				onHoverOutContainer(item);
@@ -211,7 +211,7 @@ ItemReform.init = function init() {
 
 	const panel = root.querySelector('.panel');
 	if (panel) {
-		panel.addEventListener('contextmenu', (e) => {
+		panel.addEventListener('contextmenu', e => {
 			const item = e.target.closest('.item');
 			if (item) {
 				e.preventDefault();
@@ -223,13 +223,13 @@ ItemReform.init = function init() {
 
 	const leftPanel = root.querySelector('.panel .left_panel');
 	if (leftPanel) {
-		leftPanel.addEventListener('mouseover', (e) => {
+		leftPanel.addEventListener('mouseover', e => {
 			const item = e.target.closest('.item');
 			if (item) {
 				onItemOver(e, item);
 			}
 		});
-		leftPanel.addEventListener('mouseout', (e) => {
+		leftPanel.addEventListener('mouseout', e => {
 			const item = e.target.closest('.item');
 			if (item && (!e.relatedTarget || !item.contains(e.relatedTarget))) {
 				onItemOut();
@@ -314,12 +314,12 @@ function checkReformCriteria() {
 				continue;
 			}
 
-			const optionCount = item.Options.filter((option) => option.index !== 0).length;
+			const optionCount = item.Options.filter(option => option.index !== 0).length;
 			if (optionCount < reform.NeedOptionNumMin) {
 				continue;
 			}
 
-			const cardCount = Object.values(item.slot).filter((slot) => slot !== 0).length;
+			const cardCount = Object.values(item.slot).filter(slot => slot !== 0).length;
 			if (reform.IsEmptySocket && cardCount > 0) {
 				continue;
 			}
@@ -385,7 +385,7 @@ function onMaterialSelect(element) {
 
 	ReformUIState.index = item.index;
 
-	SelectedReformInfo = ReformInfo.find((info) => info.BaseItemId === item.ITID);
+	SelectedReformInfo = ReformInfo.find(info => info.BaseItemId === item.ITID);
 
 	if (!SelectedReformInfo) {
 		return;
@@ -399,7 +399,7 @@ function onMaterialSelect(element) {
 		return;
 	}
 
-	availableMatList.querySelectorAll('.item').forEach((el) => {
+	availableMatList.querySelectorAll('.item').forEach(el => {
 		el.classList.remove('selected');
 		const resetIdx = parseInt(el.getAttribute('data-index'), 10);
 		const resetItem = Inventory.getUI().getItemByIndex(resetIdx);
@@ -514,9 +514,7 @@ function UpdatePossibleReformUI(item, info) {
 
 	if (resultItemDiv) {
 		resultItemDiv.innerHTML =
-			`<div class="item resultitem" data-index="${resultItem.ITID}">` +
-			`<div class="icon"></div>` +
-			`</div>`;
+			`<div class="item resultitem" data-index="${resultItem.ITID}">` + `<div class="icon"></div>` + `</div>`;
 
 		Client.loadFile(DB.INTERFACE_PATH + 'item/' + result_it.identifiedResourceName + '.bmp', function (data) {
 			const icon = resultItemDiv.querySelector(`.item[data-index="${resultItem.ITID}"] .icon`);
@@ -531,10 +529,7 @@ function UpdatePossibleReformUI(item, info) {
 	const baseItemDiv = root.querySelector('.base_item');
 
 	if (baseItemDiv) {
-		baseItemDiv.innerHTML =
-			`<div class="item" data-index="${item.index}">` +
-			`<div class="icon"></div>` +
-			`</div>`;
+		baseItemDiv.innerHTML = `<div class="item" data-index="${item.index}">` + `<div class="icon"></div>` + `</div>`;
 
 		Client.loadFile(DB.INTERFACE_PATH + 'item/' + it.identifiedResourceName + '.bmp', function (data) {
 			const icon = baseItemDiv.querySelector(`.item[data-index="${item.index}"] .icon`);
@@ -561,7 +556,7 @@ function UpdatePossibleReformUI(item, info) {
 	const limitedMaterials = sortedMaterials.slice(0, 6);
 
 	let withenoughMat = 0;
-	limitedMaterials.forEach((material) => {
+	limitedMaterials.forEach(material => {
 		const mat_it = DB.getItemInfo(material.MaterialItemID);
 		const mat_item = Inventory.getUI().getItemById(material.MaterialItemID);
 		let inventory_mat_count;

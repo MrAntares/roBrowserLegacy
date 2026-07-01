@@ -280,8 +280,8 @@ function showHoverOverlay(text, identified, target) {
 	const targetRect = target.getBoundingClientRect();
 	overlay.textContent = text;
 	Object.assign(overlay.style, {
-		top: (targetRect.top - hostRect.top) + 'px',
-		left: (targetRect.left - hostRect.left + 35) + 'px'
+		top: targetRect.top - hostRect.top + 'px',
+		left: targetRect.left - hostRect.left + 35 + 'px'
 	});
 	overlay.classList.toggle('grey', !identified);
 	overlay.style.display = 'block';
@@ -672,7 +672,7 @@ function cacheEffectDuration(effectId) {
 }
 
 function preloadEnchantEffectDurations() {
-	Object.keys(EnchantEffectGroups).forEach((key) => {
+	Object.keys(EnchantEffectGroups).forEach(key => {
 		const group = EnchantEffectGroups[key];
 		cacheEffectDuration(group.intro);
 		cacheEffectDuration(group.success);
@@ -744,7 +744,7 @@ function loadItemIcon(target, itemId, isIdentified) {
 	if (!name) {
 		return;
 	}
-	Client.loadFile(DB.INTERFACE_PATH + 'item/' + name + '.bmp', (data) => {
+	Client.loadFile(DB.INTERFACE_PATH + 'item/' + name + '.bmp', data => {
 		target.style.backgroundImage = `url(${data})`;
 	});
 }
@@ -760,7 +760,7 @@ function loadItemCollection(target, itemId, isIdentified) {
 	}
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'collection/' + name + '.bmp',
-		(data) => {
+		data => {
 			target.style.backgroundImage = `url(${data})`;
 		},
 		() => {
@@ -777,7 +777,7 @@ function loadGradeIcon(target, grade) {
 		target.style.backgroundImage = '';
 		return;
 	}
-	Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + grade + '.bmp', (data) => {
+	Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + grade + '.bmp', data => {
 		target.style.backgroundImage = `url(${data})`;
 	});
 }
@@ -853,7 +853,7 @@ function renderMaterials(materials) {
 		return;
 	}
 	const inventoryUI = Inventory.getUI && Inventory.getUI();
-	materials.forEach((mat) => {
+	materials.forEach(mat => {
 		const entry = document.createElement('div');
 		entry.className = 'material';
 		const icon = document.createElement('div');
@@ -874,7 +874,8 @@ function renderMaterials(materials) {
 		if (mat.count != null) {
 			count.textContent = matId ? current + '/' + required : 'x' + required;
 		}
-		entry.dataset.background = matId && current >= required ? 'enchantui/bg_enc_on.bmp' : 'enchantui/bg_enc_off.bmp';
+		entry.dataset.background =
+			matId && current >= required ? 'enchantui/bg_enc_on.bmp' : 'enchantui/bg_enc_off.bmp';
 		entry.appendChild(icon);
 		entry.appendChild(nameEl);
 		entry.appendChild(count);
@@ -901,7 +902,7 @@ function renderEnchantList(entries, selectedKey) {
 	if (!entries || !entries.length) {
 		return;
 	}
-	entries.forEach((entry) => {
+	entries.forEach(entry => {
 		const row = document.createElement('div');
 		row.className = 'enchant_entry';
 		const icon = document.createElement('div');
@@ -963,7 +964,7 @@ function renderItemList() {
 	let selectedValid = false;
 	const candidates = [];
 
-	items.forEach((item) => {
+	items.forEach(item => {
 		const result = validateItem(item);
 		if (!result.ok) {
 			return;
@@ -991,7 +992,7 @@ function renderItemList() {
 		return;
 	}
 
-	candidates.forEach((item) => {
+	candidates.forEach(item => {
 		const entry = document.createElement('button');
 		entry.className = 'item_entry';
 		const slot = document.createElement('div');
@@ -1066,7 +1067,7 @@ function renderSlots() {
 	empty.style.display = hasItem ? 'none' : 'flex';
 
 	const baseSlots = hasItem ? getBaseSlotCount(EnchantState.item) : 0;
-	list.querySelectorAll('.slot_entry').forEach((entry) => {
+	list.querySelectorAll('.slot_entry').forEach(entry => {
 		const slotNum = parseInt(entry.dataset.slot, 10);
 		const icon = entry.querySelector('.slot_icon');
 		const slotItem = hasItem ? getSlotValue(EnchantState.item, slotNum) : 0;
@@ -1088,7 +1089,7 @@ function updateTabs(availability) {
 	if (!root) {
 		return;
 	}
-	root.querySelectorAll('.action_tabs .tab').forEach((tab) => {
+	root.querySelectorAll('.action_tabs .tab').forEach(tab => {
 		const action = tab.dataset.action;
 		tab.classList.toggle('active', EnchantState.action === action);
 		tab.classList.toggle('disabled', availability && availability[action] === false);
@@ -1102,7 +1103,7 @@ function updateActionSections() {
 	if (!root) {
 		return;
 	}
-	root.querySelectorAll('.action_section').forEach((section) => {
+	root.querySelectorAll('.action_section').forEach(section => {
 		section.classList.remove('active');
 	});
 	const activeSection = root.querySelector('.' + EnchantState.action + '_section');
@@ -1181,7 +1182,7 @@ function refreshActionContent() {
 
 		let hasEnchant = false;
 		const slotOrder = group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
-		slotOrder.forEach((orderSlot) => {
+		slotOrder.forEach(orderSlot => {
 			if (orderSlot >= baseSlots && getSlotValue(item, orderSlot)) {
 				hasEnchant = true;
 			}
@@ -1191,7 +1192,7 @@ function refreshActionContent() {
 		}
 
 		if (!availability[EnchantState.action]) {
-			const nextAction = Object.keys(availability).find((key) => availability[key]);
+			const nextAction = Object.keys(availability).find(key => availability[key]);
 			EnchantState.action = nextAction || EnchantState.action;
 		}
 
@@ -1210,8 +1211,11 @@ function refreshActionContent() {
 				actionReady = availability.random && canAffordCost(require.zeny, require.materials);
 				if (slotData.random) {
 					const randomList = slotData.random[grade] || slotData.random[0] || [];
-					listEntries = randomList.map((entry) => ({
-						key: entry.id || entry.base || (entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base),
+					listEntries = randomList.map(entry => ({
+						key:
+							entry.id ||
+							entry.base ||
+							(entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base),
 						id: entry.id,
 						base: entry.base,
 						label: entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base,
@@ -1232,7 +1236,7 @@ function refreshActionContent() {
 			}
 			if (slotData && slotData.perfect) {
 				const perfectList = Object.keys(slotData.perfect);
-				perfectList.forEach((key) => {
+				perfectList.forEach(key => {
 					const entry = slotData.perfect[key];
 					const label = entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base;
 					if (select) {
@@ -1280,7 +1284,7 @@ function refreshActionContent() {
 				upgradeSelect.innerHTML = '';
 			}
 			if (upgradeCandidates.length) {
-				upgradeCandidates.forEach((candidate) => {
+				upgradeCandidates.forEach(candidate => {
 					const currentName = getItemDisplayName(candidate.currentId, candidate.baseName);
 					const resultId = candidate.entry.result
 						? candidate.entry.result.id || DB.getItemIdfromBase(candidate.entry.result.base)
@@ -1305,7 +1309,7 @@ function refreshActionContent() {
 				});
 				if (
 					!EnchantState.selectedUpgradeSlot ||
-					!upgradeCandidates.find((candidate) => candidate.slotNum === EnchantState.selectedUpgradeSlot)
+					!upgradeCandidates.find(candidate => candidate.slotNum === EnchantState.selectedUpgradeSlot)
 				) {
 					EnchantState.selectedUpgradeSlot = upgradeCandidates[0].slotNum;
 				}
@@ -1313,7 +1317,7 @@ function refreshActionContent() {
 					upgradeSelect.value = EnchantState.selectedUpgradeSlot;
 				}
 				const selectedEntry = upgradeCandidates.find(
-					(candidate) => candidate.slotNum === EnchantState.selectedUpgradeSlot
+					candidate => candidate.slotNum === EnchantState.selectedUpgradeSlot
 				);
 				if (selectedEntry) {
 					EnchantState.selectedSlot = selectedEntry.slotNum;
@@ -1324,8 +1328,7 @@ function refreshActionContent() {
 					}
 					renderCosts(100000, selectedEntry.entry.zeny, selectedEntry.entry.materials);
 					actionReady =
-						availability.upgrade &&
-						canAffordCost(selectedEntry.entry.zeny, selectedEntry.entry.materials);
+						availability.upgrade && canAffordCost(selectedEntry.entry.zeny, selectedEntry.entry.materials);
 					selectedKey = String(EnchantState.selectedUpgradeSlot);
 				}
 			} else {
@@ -1623,7 +1626,7 @@ function onRequestAction() {
 	};
 
 	EnchantState.pendingLock = true;
-	root.querySelectorAll('.close, .close_btn').forEach((btn) => {
+	root.querySelectorAll('.close, .close_btn').forEach(btn => {
 		btn.disabled = true;
 	});
 	Network.sendPacket(pkt);
@@ -1640,7 +1643,7 @@ function applyEnchantResult(item, action, slotNum, itid) {
 			EnchantState.group && EnchantState.group.slotOrder && EnchantState.group.slotOrder.length
 				? EnchantState.group.slotOrder
 				: [0, 1, 2, 3];
-		slotOrder.forEach((orderSlot) => {
+		slotOrder.forEach(orderSlot => {
 			if (orderSlot >= baseSlots) {
 				setSlotValue(item, orderSlot, 0);
 			}
@@ -1756,36 +1759,40 @@ Enchant.init = function init() {
 		applyScrollSkin
 	);
 
-	root.querySelectorAll('.close, .close_btn').forEach((btn) => {
+	root.querySelectorAll('.close, .close_btn').forEach(btn => {
 		btn.addEventListener('click', onRequestClose);
 	});
 
 	const itemList = root.querySelector('.item_list');
 	if (itemList) {
 		itemList.addEventListener('click', onItemSelect);
-		itemList.addEventListener('mouseover', (e) => {
+		itemList.addEventListener('mouseover', e => {
 			const slot = e.target.closest('.item_slot');
 			if (slot) {
 				onIconOver({ currentTarget: slot });
 			}
 		});
-		itemList.addEventListener('mouseout', (e) => {
+		itemList.addEventListener('mouseout', e => {
 			const slot = e.target.closest('.item_slot');
 			if (slot) {
 				onIconOut();
 			}
 		});
-		itemList.addEventListener('contextmenu', (e) => {
+		itemList.addEventListener('contextmenu', e => {
 			const slot = e.target.closest('.item_slot');
 			if (slot) {
-				onIconInfo({ currentTarget: slot, preventDefault: () => e.preventDefault(), stopImmediatePropagation: () => e.stopImmediatePropagation() });
+				onIconInfo({
+					currentTarget: slot,
+					preventDefault: () => e.preventDefault(),
+					stopImmediatePropagation: () => e.stopImmediatePropagation()
+				});
 			}
 		});
 	}
 
 	const actionTabs = root.querySelector('.action_tabs');
 	if (actionTabs) {
-		actionTabs.addEventListener('click', (e) => {
+		actionTabs.addEventListener('click', e => {
 			const tab = e.target.closest('.tab');
 			if (tab) {
 				onActionSelect({ currentTarget: tab });
@@ -1805,44 +1812,52 @@ Enchant.init = function init() {
 
 	const materialList = root.querySelector('.material_list');
 	if (materialList) {
-		materialList.addEventListener('mouseover', (e) => {
+		materialList.addEventListener('mouseover', e => {
 			const icon = e.target.closest('.icon');
 			if (icon) {
 				onIconOver({ currentTarget: icon });
 			}
 		});
-		materialList.addEventListener('mouseout', (e) => {
+		materialList.addEventListener('mouseout', e => {
 			const icon = e.target.closest('.icon');
 			if (icon) {
 				onIconOut();
 			}
 		});
-		materialList.addEventListener('contextmenu', (e) => {
+		materialList.addEventListener('contextmenu', e => {
 			const icon = e.target.closest('.icon');
 			if (icon) {
-				onIconInfo({ currentTarget: icon, preventDefault: () => e.preventDefault(), stopImmediatePropagation: () => e.stopImmediatePropagation() });
+				onIconInfo({
+					currentTarget: icon,
+					preventDefault: () => e.preventDefault(),
+					stopImmediatePropagation: () => e.stopImmediatePropagation()
+				});
 			}
 		});
 	}
 
 	const slotList = root.querySelector('.slot_list');
 	if (slotList) {
-		slotList.addEventListener('mouseover', (e) => {
+		slotList.addEventListener('mouseover', e => {
 			const icon = e.target.closest('.slot_icon');
 			if (icon) {
 				onIconOver({ currentTarget: icon });
 			}
 		});
-		slotList.addEventListener('mouseout', (e) => {
+		slotList.addEventListener('mouseout', e => {
 			const icon = e.target.closest('.slot_icon');
 			if (icon) {
 				onIconOut();
 			}
 		});
-		slotList.addEventListener('contextmenu', (e) => {
+		slotList.addEventListener('contextmenu', e => {
 			const icon = e.target.closest('.slot_icon');
 			if (icon) {
-				onIconInfo({ currentTarget: icon, preventDefault: () => e.preventDefault(), stopImmediatePropagation: () => e.stopImmediatePropagation() });
+				onIconInfo({
+					currentTarget: icon,
+					preventDefault: () => e.preventDefault(),
+					stopImmediatePropagation: () => e.stopImmediatePropagation()
+				});
 			}
 		});
 	}
@@ -1850,22 +1865,26 @@ Enchant.init = function init() {
 	const enchantList = root.querySelector('.enchant_list');
 	if (enchantList) {
 		enchantList.addEventListener('click', onEnchantListSelect);
-		enchantList.addEventListener('mouseover', (e) => {
+		enchantList.addEventListener('mouseover', e => {
 			const icon = e.target.closest('.entry_icon');
 			if (icon) {
 				onIconOver({ currentTarget: icon });
 			}
 		});
-		enchantList.addEventListener('mouseout', (e) => {
+		enchantList.addEventListener('mouseout', e => {
 			const icon = e.target.closest('.entry_icon');
 			if (icon) {
 				onIconOut();
 			}
 		});
-		enchantList.addEventListener('contextmenu', (e) => {
+		enchantList.addEventListener('contextmenu', e => {
 			const icon = e.target.closest('.entry_icon');
 			if (icon) {
-				onIconInfo({ currentTarget: icon, preventDefault: () => e.preventDefault(), stopImmediatePropagation: () => e.stopImmediatePropagation() });
+				onIconInfo({
+					currentTarget: icon,
+					preventDefault: () => e.preventDefault(),
+					stopImmediatePropagation: () => e.stopImmediatePropagation()
+				});
 			}
 		});
 	}
@@ -1885,14 +1904,14 @@ Enchant.onRemove = function onRemove() {
 	const root = _root();
 	clearState();
 	if (root) {
-		root.querySelectorAll('.close, .close_btn').forEach((btn) => {
+		root.querySelectorAll('.close, .close_btn').forEach(btn => {
 			btn.disabled = false;
 		});
-		root.querySelectorAll('.slot_entry').forEach((entry) => {
+		root.querySelectorAll('.slot_entry').forEach(entry => {
 			entry.classList.remove('locked', 'active');
 			entry.title = '';
 		});
-		root.querySelectorAll('.slot_icon').forEach((icon) => {
+		root.querySelectorAll('.slot_icon').forEach(icon => {
 			icon.style.backgroundImage = '';
 		});
 		const materialList = root.querySelector('.material_list');

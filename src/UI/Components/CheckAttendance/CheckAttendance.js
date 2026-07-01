@@ -58,7 +58,7 @@ CheckAttendance.init = function init() {
 
 	const baseEl = root.querySelector('.base');
 	if (baseEl) {
-		baseEl.addEventListener('mousedown', (event) => {
+		baseEl.addEventListener('mousedown', event => {
 			event.stopImmediatePropagation();
 			event.preventDefault();
 		});
@@ -206,7 +206,7 @@ CheckAttendance.updateUI = function updateUI() {
 
 		const dataAttrSelector = '[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]';
 		if (daysList) {
-			daysList.querySelectorAll(dataAttrSelector).forEach((node) => {
+			daysList.querySelectorAll(dataAttrSelector).forEach(node => {
 				GUIComponent.processDataAttrs(node);
 			});
 		}

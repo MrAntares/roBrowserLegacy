@@ -184,7 +184,7 @@ Refine.init = function init() {
 
 	const titlebarBase = root.querySelector('.titlebar .base');
 	if (titlebarBase) {
-		titlebarBase.addEventListener('mousedown', (event) => {
+		titlebarBase.addEventListener('mousedown', event => {
 			event.stopImmediatePropagation();
 		});
 	}
@@ -214,29 +214,29 @@ Refine.init = function init() {
 	const itemToRefine = root.querySelector('.item_to_refine');
 	if (itemToRefine) {
 		itemToRefine.addEventListener('drop', onItemDrop);
-		itemToRefine.addEventListener('dragover', (event) => {
+		itemToRefine.addEventListener('dragover', event => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
 		});
-		itemToRefine.addEventListener('dragstart', (event) => {
+		itemToRefine.addEventListener('dragstart', event => {
 			const item = event.target.closest('.item');
 			if (item) {
 				onItemDragStart(event);
 			}
 		});
-		itemToRefine.addEventListener('dragend', (event) => {
+		itemToRefine.addEventListener('dragend', event => {
 			const item = event.target.closest('.item');
 			if (item) {
 				onItemDragEnd(event);
 			}
 		});
-		itemToRefine.addEventListener('dblclick', (event) => {
+		itemToRefine.addEventListener('dblclick', event => {
 			const item = event.target.closest('.item');
 			if (item && refine_ongoing === 0) {
 				onRemoveItem(true);
 			}
 		});
-		itemToRefine.addEventListener('contextmenu', (event) => {
+		itemToRefine.addEventListener('contextmenu', event => {
 			const item = event.target.closest('.item');
 			if (item) {
 				onItemInfo.call(item, event);
@@ -247,7 +247,7 @@ Refine.init = function init() {
 	// Materials hover/contextmenu
 	const materials = root.querySelector('.materials');
 	if (materials) {
-		materials.addEventListener('mouseover', (event) => {
+		materials.addEventListener('mouseover', event => {
 			const item = event.target.closest('.item');
 			if (item) {
 				onItemOver.call(item, event);
@@ -256,7 +256,7 @@ Refine.init = function init() {
 		materials.addEventListener('mouseout', () => {
 			onItemOut();
 		});
-		materials.addEventListener('contextmenu', (event) => {
+		materials.addEventListener('contextmenu', event => {
 			const item = event.target.closest('.item');
 			if (item) {
 				onItemInfo.call(item, event);
@@ -267,7 +267,7 @@ Refine.init = function init() {
 	// Refine_cont hover
 	const refineCont = root.querySelector('.refine_cont');
 	if (refineCont) {
-		refineCont.addEventListener('mouseover', (event) => {
+		refineCont.addEventListener('mouseover', event => {
 			onItemOver.call(refineCont, event);
 		});
 		refineCont.addEventListener('mouseout', () => {
@@ -534,15 +534,12 @@ function onRefineUIUpdateMaterials(pkt) {
 		);
 
 		if (item.enchantgrade) {
-			Client.loadFile(
-				DB.INTERFACE_PATH + `grade_enchant/grade_icon${item.enchantgrade}.bmp`,
-				function (data) {
-					const grade = content.querySelector(`.item[data-index="${item.index}"] .grade`);
-					if (grade) {
-						grade.style.backgroundImage = `url(${data})`;
-					}
+			Client.loadFile(DB.INTERFACE_PATH + `grade_enchant/grade_icon${item.enchantgrade}.bmp`, function (data) {
+				const grade = content.querySelector(`.item[data-index="${item.index}"] .grade`);
+				if (grade) {
+					grade.style.backgroundImage = `url(${data})`;
 				}
-			);
+			});
 		}
 
 		const itemname = root.querySelector('.item_to_refine_name');
@@ -593,7 +590,9 @@ function onPopulateMaterials() {
 	const root = _root();
 
 	// Clear any existing materials
-	root.querySelectorAll('.materials .mat_overlay .material_0, .materials .mat_overlay .material_1, .materials .mat_overlay .material_2, .materials .mat_overlay .material_3').forEach((el) => {
+	root.querySelectorAll(
+		'.materials .mat_overlay .material_0, .materials .mat_overlay .material_1, .materials .mat_overlay .material_2, .materials .mat_overlay .material_3'
+	).forEach(el => {
 		el.innerHTML = '';
 	});
 	const bsbContainer = root.querySelector('.bsb_overlay .bsb');
@@ -666,7 +665,7 @@ function onPopulateMaterials() {
 						}
 					}
 
-					root.querySelectorAll('.mat_overlay').forEach((el) => el.classList.remove('selected'));
+					root.querySelectorAll('.mat_overlay').forEach(el => el.classList.remove('selected'));
 					materialDiv.closest('.mat_overlay').classList.add('selected');
 
 					// Clone the material and append it to the selected_mat
@@ -780,7 +779,7 @@ function onPopulateMaterials() {
 							someNotifs.style.display = 'none';
 						}
 					} else {
-						root.querySelectorAll('.bsb_overlay').forEach((el) => el.classList.remove('selected'));
+						root.querySelectorAll('.bsb_overlay').forEach(el => el.classList.remove('selected'));
 						bsbOverlay.classList.add('selected');
 
 						// Clone the blacksmith blessing and append it to the selected_mat
@@ -964,14 +963,14 @@ function onRemoveItem(backtowait) {
 	if (bsbSelected) {
 		bsbSelected.innerHTML = '';
 	}
-	root.querySelectorAll('.materials .item').forEach((el) => {
+	root.querySelectorAll('.materials .item').forEach(el => {
 		el.innerHTML = '';
 	});
-	root.querySelectorAll('.bsb .item').forEach((el) => {
+	root.querySelectorAll('.bsb .item').forEach(el => {
 		el.innerHTML = '';
 	});
-	root.querySelectorAll('.mat_overlay').forEach((el) => el.classList.remove('selected'));
-	root.querySelectorAll('.bsb_overlay').forEach((el) => el.classList.remove('selected'));
+	root.querySelectorAll('.mat_overlay').forEach(el => el.classList.remove('selected'));
+	root.querySelectorAll('.bsb_overlay').forEach(el => el.classList.remove('selected'));
 
 	if (backtowait === true) {
 		if (currentLoopHandle) {
@@ -1020,10 +1019,10 @@ function clearMaterials() {
 		refineZeny.innerHTML = '';
 	}
 
-	root.querySelectorAll('.materials .item').forEach((el) => {
+	root.querySelectorAll('.materials .item').forEach(el => {
 		el.style.display = 'none';
 	});
-	root.querySelectorAll('.bsb .item').forEach((el) => {
+	root.querySelectorAll('.bsb .item').forEach(el => {
 		el.style.display = 'none';
 	});
 
@@ -1036,8 +1035,8 @@ function clearMaterials() {
 		bsbSelected.innerHTML = '';
 	}
 
-	root.querySelectorAll('.mat_overlay').forEach((el) => el.classList.remove('selected'));
-	root.querySelectorAll('.bsb_overlay').forEach((el) => el.classList.remove('selected'));
+	root.querySelectorAll('.mat_overlay').forEach(el => el.classList.remove('selected'));
+	root.querySelectorAll('.bsb_overlay').forEach(el => el.classList.remove('selected'));
 
 	const refineButton = root.querySelector('.refine_button');
 	if (refineButton) {

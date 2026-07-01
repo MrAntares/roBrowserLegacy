@@ -175,8 +175,7 @@ Rodex.createRodexList = function createRodexList(tabID = 0, search = false, term
 		const mail_content = Rodex.attachmentType[mail.type];
 		const remaining_days = parseInt(mail.expireDateTime / 60 / 60 / 24);
 		const openType = typeof mail.openType !== 'undefined' ? mail.openType : 0;
-		const mail_html =
-			`<li class="mail-item">
+		const mail_html = `<li class="mail-item">
 				<div class="mail-checkbox" data-background="basic_interface/rodexsystem/renewal/checkbox_off.bmp">
 				</div>
 				<div class="mail-image" data-background="basic_interface/rodexsystem/renewal/${mail_image}.bmp">
@@ -354,13 +353,13 @@ function onClickSearchTitle(e) {
 	e.stopImmediatePropagation();
 	Rodex.searchType = 1;
 	const root = _root();
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_off.bmp', (data) => {
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_off.bmp', data => {
 		const el = root.querySelector('.search-sender');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
 		}
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_on.bmp', (data) => {
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_on.bmp', data => {
 		const el = root.querySelector('.search-title');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
@@ -372,13 +371,13 @@ function onClickSearchSender(e) {
 	e.stopImmediatePropagation();
 	Rodex.searchType = 2;
 	const root = _root();
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_on.bmp', (data) => {
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_on.bmp', data => {
 		const el = root.querySelector('.search-sender');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;
 		}
 	});
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_off.bmp', (data) => {
+	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_off.bmp', data => {
 		const el = root.querySelector('.search-title');
 		if (el) {
 			el.style.backgroundImage = `url(${data})`;

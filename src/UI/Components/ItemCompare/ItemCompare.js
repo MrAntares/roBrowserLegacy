@@ -192,9 +192,7 @@ ItemCompare.setItem = function setItem(item) {
 
 	const descInner = root.querySelector('.description-inner');
 	if (descInner) {
-		descInner.textContent = item.IsIdentified
-			? it.identifiedDescriptionName
-			: it.unidentifiedDescriptionName;
+		descInner.textContent = item.IsIdentified ? it.identifiedDescriptionName : it.unidentifiedDescriptionName;
 	}
 
 	// Add view button (for cards)

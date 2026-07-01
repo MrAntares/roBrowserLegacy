@@ -116,7 +116,7 @@ ReadRodex.initData = function initData(data, mail) {
 				`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
 				'</div>'
 		);
-		Client.loadFile(`${DB.INTERFACE_PATH}item/${it.identifiedResourceName}.bmp`, (url) => {
+		Client.loadFile(`${DB.INTERFACE_PATH}item/${it.identifiedResourceName}.bmp`, url => {
 			const icon = root.querySelector(`.item[data-index="${i}"] .icon`);
 			if (icon) {
 				icon.style.backgroundImage = `url(${url})`;

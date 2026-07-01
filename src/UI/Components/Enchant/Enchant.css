@@ -290,19 +290,19 @@
 	left: 68px;
 }
 
-#Enchant .action_tabs .tab[data-action="random"] {
+#Enchant .action_tabs .tab[data-action='random'] {
 	left: 0;
 }
 
-#Enchant .action_tabs .tab[data-action="perfect"] {
+#Enchant .action_tabs .tab[data-action='perfect'] {
 	left: 65px;
 }
 
-#Enchant .action_tabs .tab[data-action="upgrade"] {
+#Enchant .action_tabs .tab[data-action='upgrade'] {
 	left: 130px;
 }
 
-#Enchant .action_tabs .tab[data-action="reset"] {
+#Enchant .action_tabs .tab[data-action='reset'] {
 	left: 195px;
 }
 

@@ -174,13 +174,15 @@ function onClickSend(e) {
 	}
 
 	const title =
-		root.querySelector('.title-text').value
-			.replace(/^(\$|\%)/, '')
+		root
+			.querySelector('.title-text')
+			.value.replace(/^(\$|\%)/, '')
 			.replace(/\t/g, '')
 			.substring(0, 23) + String.fromCharCode(0);
 	const body =
-		root.querySelector('.content-text').value
-			.replace(/^(\$|\%)/, '')
+		root
+			.querySelector('.content-text')
+			.value.replace(/^(\$|\%)/, '')
 			.replace(/\t/g, '')
 			.substring(0, 499) + String.fromCharCode(0);
 	const Titlelength = title.length;
@@ -237,7 +239,7 @@ WriteRodex.addItem = function addItem(item) {
 
 	Client.loadFile(
 		`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`,
-		(data) => {
+		data => {
 			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
 			if (icon) {
 				icon.style.backgroundImage = `url(${data})`;
