@@ -9,17 +9,17 @@
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './CaptchaPreview.html?raw';
 import cssText from './CaptchaPreview.css?raw';
-import jQuery from 'Utils/jquery.js';
 
 /**
  * Create Component
  */
-const CaptchaPreview = new UIComponent('CaptchaPreview', htmlText, cssText);
+const CaptchaPreview = new GUIComponent('CaptchaPreview', cssText);
 
 /**
  * Preferences
@@ -33,49 +33,58 @@ const _preferences = Preferences.get(
 	2.0
 );
 
+CaptchaPreview.render = () => htmlText;
+
 /**
  * Initialize GUI
  */
-CaptchaPreview.init = function Init() {
-	this.ui.find('.close').click(this.remove.bind(this));
+CaptchaPreview.init = function init() {
+	const root = this.getRoot();
+	const closeBtn = root.querySelector('.close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => this.remove());
+	}
 	this.draggable('.titlebar');
 };
 
 /**
  * Append to DOM
  */
-CaptchaPreview.onAppend = function OnAppend() {
-	// Apply preferences
-	this.ui.css({
-		top: Math.min(Math.max(0, _preferences.y), Renderer.height - this.ui.height()),
-		left: Math.min(Math.max(0, _preferences.x), Renderer.width - this.ui.width())
-	});
+CaptchaPreview.onAppend = function onAppend() {
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth)}px`;
 };
 
 /**
  * Remove data from UI
  */
-CaptchaPreview.onRemove = function OnRemove() {
-	// save preferences
-	_preferences.y = parseInt(this.ui.css('top'), 10);
-	_preferences.x = parseInt(this.ui.css('left'), 10);
+CaptchaPreview.onRemove = function onRemove() {
+	_preferences.y = parseInt(this._host.style.top, 10);
+	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
 
-	// clean inputs
-	this.ui.find('.preview_box').empty();
+	const root = this.getRoot();
+	const previewBox = root.querySelector('.preview_box');
+	if (previewBox) {
+		previewBox.innerHTML = '';
+	}
 };
 
 /**
  * Set Image
  */
-CaptchaPreview.setImage = function SetImage(imageData) {
-	// imageData is expected to be Uint8Array or Blob usually, need to convert to URL
-	// If it's pure binary from packet, we might need conversion
-	const blob = new Blob([imageData], { type: 'image/bmp' }); // Assuming BMP as typical in RO
+CaptchaPreview.setImage = function setImage(imageData) {
+	const blob = new Blob([imageData], { type: 'image/bmp' });
 	const url = URL.createObjectURL(blob);
 
-	const img = jQuery('<img/>').attr('src', url);
-	this.ui.find('.preview_box').empty().append(img);
+	const root = this.getRoot();
+	const previewBox = root.querySelector('.preview_box');
+	if (previewBox) {
+		previewBox.innerHTML = '';
+		const img = document.createElement('img');
+		img.src = url;
+		previewBox.appendChild(img);
+	}
 };
 
 /**

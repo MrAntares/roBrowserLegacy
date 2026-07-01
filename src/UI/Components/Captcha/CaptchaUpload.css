@@ -1,7 +1,12 @@
-#CaptchaUpload {
+:host {
 	position: absolute;
 	width: 280px;
 	height: 200px;
+}
+
+#CaptchaUpload {
+	width: 100%;
+	height: 100%;
 	background-color: #ffffff;
 	font-size: 12px;
 	border-radius: 3px;
@@ -22,7 +27,6 @@
 #CaptchaUpload .titlebar .base {
 	width: 11px;
 	height: 11px;
-	border: none;
 	background-color: transparent;
 	background-repeat: no-repeat;
 	vertical-align: middle;
@@ -32,7 +36,6 @@
 	text-shadow: 1px 1px white;
 	vertical-align: -2px;
 	white-space: nowrap;
-	/* chrome bug */
 	display: inline-block;
 	width: 32px;
 	height: 13px;
@@ -60,11 +63,11 @@
 }
 
 #CaptchaUpload .btn {
-	border: 0;
 	width: 42px;
 	height: 20px;
 	background-repeat: no-repeat;
 	background-color: transparent;
+	border: 0;
 	margin-left: 5px;
 }
 
@@ -76,7 +79,7 @@
 	align-items: center;
 }
 
-#CaptchaUpload #captcha_file_text {
+#CaptchaUpload .captcha_file_text {
 	width: 170px;
 	border: 1px solid #7f9db9;
 	background-color: #fff;
@@ -88,7 +91,6 @@
 	width: 18px;
 	height: 18px;
 	cursor: pointer;
-	border: none;
 	background-color: transparent;
 	background-repeat: no-repeat;
 }
