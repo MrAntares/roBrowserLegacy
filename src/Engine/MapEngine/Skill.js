@@ -803,21 +803,17 @@ function onSpiritSphere(pkt) {
 	if (pkt.num > 0) {
 		const entity = EntityManager.get(pkt.AID);
 		if (entity) {
-			const isMonk = entity._job && [15, 4016, 4038, 4070, 4077, 4106].includes(entity._job); //Monk classes
-			const isGS = entity._job && [24, 4215, 4216, 4228, 4229].includes(entity._job); //Gunslinger classes
-			const isRG = entity._job && [4066, 4082, 4083, 4102, 4110].includes(entity._job); //Royal Guard
-
 			const EF_Init_Par = {
 				effectId: EffectConst.EF_CHOOKGI,
 				ownerAID: pkt.AID,
 				spiritNum: pkt.num
 			};
 
-			if (isMonk) {
+			if (DB.isMonk(entity._job)) {
 				EF_Init_Par.effectId = EffectConst.EF_CHOOKGI2;
-			} else if (isGS) {
+			} else if (DB.isGunslinger(entity._job)) {
 				EF_Init_Par.effectId = EffectConst.EF_CHOOKGI3;
-			} else if (isRG) {
+			} else if (DB.isRoyalGuard(entity._job)) {
 				EF_Init_Par.effectId = EffectConst.EF_CHOOKGI_N;
 			}
 
