@@ -1066,7 +1066,6 @@ class DB {
 		JobId.SKY_EMPEROR2,
 		JobId.SOUL_ASCETIC,
 		//JobId.SOUL_ASCETIC2, //missing from const
-		JobId.SPIRIT_HANDLER,
 
 		JobId.TAEKWON_B,
 		JobId.STAR_B,
@@ -1076,6 +1075,8 @@ class DB {
 		JobId.STAR_EMPEROR2_B,
 		JobId.SOUL_REAPER_B,
 		JobId.SOUL_REAPER2_B,
+		//JobId.SOUL_ASCETIC_B, //missing from const
+		//JobId.SOUL_ASCETIC2_B //missing from const
 		
 		JobId.PORING_TAEKWON,
 		JobId.PORING_STAR,
@@ -1099,12 +1100,15 @@ class DB {
 	static S_JOBS_GS = new Set([
 		JobId.GUNSLINGER,
 		JobId.REBELLION,
+		JobId.NIGHT_WATCH,
 
 		JobId.GUNSLINGER_B,
 		JobId.REBELLION_B,
 
 		JobId.PECO_GUNNER,
 		JobId.PECO_REBELLION,
+		//JobId.PECO_GUNNER_B, //missing from const
+		//JobId.PECO_REBELLION_B, //missing from const
 	]);
 	static isGunslinger(jobid) {
 		return this.S_JOBS_GS.has(jobid);
