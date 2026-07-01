@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 
 /**
  * Keys Constants
@@ -212,16 +211,18 @@ Object.defineProperty(KEYS, 'getKeyIdString', {
 /**
  * Keys CTRL/ALT/SHIFT Manager
  */
-jQuery(window).bind('keydown keyup', function (event) {
+const onKeyEvent = (event) => {
 	KEYS.SHIFT = !!event.shiftKey;
 	KEYS.CTRL = !!event.ctrlKey;
 	KEYS.ALT = !!event.altKey;
-});
+};
+window.addEventListener('keydown', onKeyEvent);
+window.addEventListener('keyup', onKeyEvent);
 
 /**
  * Reset keys state when window got focused
  */
-jQuery(window).on('focus', function (event) {
+window.addEventListener('focus', () => {
 	KEYS.SHIFT = false;
 	KEYS.CTRL = false;
 	KEYS.ALT = false;

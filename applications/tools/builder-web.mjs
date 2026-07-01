@@ -18,7 +18,6 @@ const platform = 'Web';
 
 // Aliases (same as vite.config.js)
 const aliases = {
-	jquery: path.resolve(__dirname, '../../src/Vendors/jquery-1.9.1.js'),
 	App: path.resolve(__dirname, '../../src/App'),
 	Audio: path.resolve(__dirname, '../../src/Audio'),
 	Controls: path.resolve(__dirname, '../../src/Controls'),

@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import UIManager from 'UI/UIManager.js';
 import Cursor from 'UI/CursorManager.js';
@@ -68,12 +67,12 @@ class MapControl {
 		Mobile.onTouchEnd = onMouseUp.bind(this);
 
 		// Attach events
-		jQuery(Renderer.canvas)
-			.on('mousewheel DOMMouseScroll', onMouseWheel)
-			.on('dragover', onDragOver)
-			.on('drop', onDrop.bind(this));
+		Renderer.canvas.addEventListener('wheel', onMouseWheel);
+		Renderer.canvas.addEventListener('dragover', onDragOver);
+		Renderer.canvas.addEventListener('drop', onDrop.bind(this));
 
-		jQuery(window).on('mousedown.map', onMouseDown.bind(this)).on('mouseup.map', onMouseUp.bind(this));
+		window.addEventListener('mousedown', onMouseDown.bind(this));
+		window.addEventListener('mouseup', onMouseUp.bind(this));
 	}
 }
 
@@ -248,7 +247,7 @@ function onMouseUp(event) {
  */
 function onMouseWheel(event) {
 	if (Mouse.state === Mouse.MOUSE_STATE.USESKILL) {
-		if (event.originalEvent.wheelDelta > 0) {
+		if (event.deltaY < 0) {
 			SkillTargetSelection.setSkillLevelDelta(1);
 		} else {
 			SkillTargetSelection.setSkillLevelDelta(-1);
@@ -256,16 +255,7 @@ function onMouseWheel(event) {
 		return;
 	}
 	// Zooming on the scene
-	// Cross browser delta
-	let delta;
-	if (event.originalEvent.wheelDelta) {
-		delta = event.originalEvent.wheelDelta / 120;
-		if (window.opera) {
-			delta = -delta;
-		}
-	} else if (event.originalEvent.detail) {
-		delta = -event.originalEvent.detail;
-	}
+	const delta = event.deltaY < 0 ? 1 : event.deltaY > 0 ? -1 : 0;
 
 	Camera.setZoom(delta);
 }
@@ -275,7 +265,7 @@ function onMouseWheel(event) {
  */
 function onDragOver(event) {
 	event.stopImmediatePropagation();
-	return false;
+	event.preventDefault();
 }
 
 /**
@@ -285,39 +275,44 @@ function onDrop(event) {
 	let data;
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 	} catch (e) {
 		console.error(e);
 	}
 
 	// Stop default behavior
+	event.preventDefault();
 	event.stopImmediatePropagation();
 	if (!data) {
-		return false;
+		return;
 	}
 
 	// Hacky way to trigger mouseleave (mouseleave isn't
 	// triggered when dragging an object).
 	// ondragleave event is not relyable to do it (not working as intended)
 	if (data.from) {
-		UIManager.getComponent(data.from).ui.trigger('mouseleave');
+		const comp = UIManager.getComponent(data.from);
+		if (comp && comp.ui) {
+			const el = comp.ui[0] || comp.ui;
+			el.dispatchEvent(new MouseEvent('mouseleave', { bubbles: false }));
+		}
 	}
 
 	// Just support items ?
 	if (data.type !== 'item' || data.from !== 'Inventory') {
-		return false;
+		return;
 	}
 
 	// Can't drop an item on map if Equipment window is open
 	if (Equipment.getUI().ui.is(':visible')) {
 		ChatBox.addText(DB.getMessage(189), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM);
-		return false;
+		return;
 	}
 
 	// Item Drop Lock
 	const InventoryVersion = UIManager.getComponent('Inventory').name;
 	if (InventoryVersion !== 'InventoryV0' && Inventory.getUI().itemlock === true) {
-		return false;
+		return;
 	}
 
 	const item = data.data;
@@ -336,8 +331,6 @@ function onDrop(event) {
 	else {
 		MapControl.onRequestDropItem(item.index, 1);
 	}
-
-	return false;
 }
 
 /**

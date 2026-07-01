@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import UIComponent from 'UI/UIComponent.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
@@ -30,7 +29,7 @@ function _popupPosition() {
  * Create a button with data-attributes for parseHTML to process
  * @param {string} name - button name (ex: 'ok', 'cancel')
  * @param {function} onClick - click callback (fires once)
- * @param {function} parseHTML - reference to UIComponent.prototype.parseHTML
+ * @param {function} parseHTML - reference to GUIComponent.processDataAttrs
  * @returns {HTMLButtonElement}
  */
 function _createButton(name, onClick) {
@@ -107,10 +106,10 @@ class UIManager {
 	/**
 	 * Store a component in the manager
 	 *
-	 * @param {UIComponent} component object
+	 * @param {GUIComponent} component object
 	 */
 	static addComponent(component) {
-		if (!(component instanceof UIComponent) && !(component instanceof GUIComponent)) {
+		if (!(component instanceof GUIComponent)) {
 			throw new Error('UIManager::addComponent() - Invalid type of component');
 		}
 
@@ -123,7 +122,7 @@ class UIManager {
 	 * Get component stored in manager
 	 *
 	 * @param {string} component name
-	 * @return {UIComponent} object
+	 * @return {GUIComponent} object
 	 */
 	static getComponent(name) {
 		const versionAlias = UIVersionManager.getUIAlias(name);
@@ -305,7 +304,7 @@ class UIManager {
 	 * @param {string} newCssText
 	 */
 	static reloadCSS(componentName, newCssText) {
-		UIComponent.reloadCSS(componentName, newCssText);
+		GUIComponent.reloadCSS(componentName, newCssText);
 	}
 }
 /**

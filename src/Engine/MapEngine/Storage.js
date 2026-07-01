@@ -9,7 +9,6 @@
 /**
  * Load dependencies
  */
-import jQuery from 'Utils/jquery.js';
 import Network from 'Network/NetworkManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -61,7 +60,7 @@ function onStorageList(pkt) {
  * @param {object} pkt - PACKET.ZC.ADD_ITEM_TO_STORE
  */
 function onStorageItemAdded(pkt) {
-	Storage.getUI().addItem(jQuery.extend({}, pkt));
+	Storage.getUI().addItem(Object.assign({}, pkt));
 }
 
 /**
