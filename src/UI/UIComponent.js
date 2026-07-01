@@ -9,7 +9,7 @@
  */
 
 import CommonCSS from './Common.css?raw';
-import { animateElement } from 'Utils/HtmlHelper.js';
+import jQuery from 'Utils/jquery.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIPreferences from 'Preferences/UI.js';
 import Session from 'Engine/SessionStorage.js';
@@ -54,405 +54,6 @@ function _ensureDeps() {
 }
 
 /**
- * CSS properties that are unitless (don't need 'px')
- */
-const CSS_NUMBER = {
-	zIndex: true,
-	opacity: true,
-	fontWeight: true,
-	lineHeight: true,
-	columnCount: true
-};
-
-/**
- * Create a minimal find-results wrapper with jQuery-compatible API.
- * @param {NodeList|Array} results
- * @param {HTMLElement} host - the proxy host for addBack()
- * @returns {Object}
- */
-function _createFindWrapper(results, host) {
-	const arr = Array.from(results);
-	const wrapper = {
-		length: arr.length,
-		each(fn) {
-			arr.forEach((el, i) => fn.call(el, i, el));
-			return wrapper;
-		},
-		text(val) {
-			if (val === undefined) return arr[0]?.textContent || '';
-			arr.forEach(el => { el.textContent = val; });
-			return wrapper;
-		},
-		show() {
-			arr.forEach(el => { el.style.display = ''; });
-			return wrapper;
-		},
-		hide() {
-			arr.forEach(el => { el.style.display = 'none'; });
-			return wrapper;
-		},
-		css(p, v) {
-			if (typeof p === 'object') {
-				arr.forEach(el => {
-					for (const [k, val] of Object.entries(p)) {
-						el.style[k] = typeof val === 'number' && !CSS_NUMBER[k] ? val + 'px' : String(val);
-					}
-				});
-				return wrapper;
-			}
-			if (v === undefined) {
-				return arr[0]
-					? window.getComputedStyle(arr[0]).getPropertyValue(p.replace(/([A-Z])/g, '-$1').toLowerCase()) || arr[0].style[p]
-					: '';
-			}
-			arr.forEach(el => {
-				el.style[p] = typeof v === 'number' && !CSS_NUMBER[p] ? v + 'px' : String(v);
-			});
-			return wrapper;
-		},
-		click(fn) {
-			arr.forEach(el => el.addEventListener('click', fn));
-			return wrapper;
-		},
-		on(events, fn) {
-			events.split(/\s+/).forEach(evt => {
-				const type = evt.split('.')[0];
-				arr.forEach(el => el.addEventListener(type, fn));
-			});
-			return wrapper;
-		},
-		height() { return arr[0] ? arr[0].getBoundingClientRect().height : 0; },
-		width() { return arr[0] ? arr[0].getBoundingClientRect().width : 0; },
-		addClass(cls) { arr.forEach(el => el.classList.add(cls)); return wrapper; },
-		removeClass(cls) { arr.forEach(el => el.classList.remove(cls)); return wrapper; },
-		hasClass(cls) { return arr[0] ? arr[0].classList.contains(cls) : false; },
-		val(v) {
-			if (v === undefined) return arr[0]?.value || '';
-			arr.forEach(el => { el.value = v; });
-			return wrapper;
-		},
-		attr(name, val) {
-			if (val === undefined) return arr[0]?.getAttribute(name) ?? '';
-			arr.forEach(el => el.setAttribute(name, val));
-			return wrapper;
-		},
-		data(key) { return arr[0]?.dataset[key]; },
-		html(val) {
-			if (val === undefined) return arr[0]?.innerHTML || '';
-			arr.forEach(el => { el.innerHTML = val; });
-			return wrapper;
-		},
-		empty() { arr.forEach(el => { el.innerHTML = ''; }); return wrapper; },
-		append(child) {
-			if (arr[0]) {
-				if (typeof child === 'string') {
-					arr[0].insertAdjacentHTML('beforeend', child);
-				} else {
-					arr[0].appendChild(child[0] || child);
-				}
-			}
-			return wrapper;
-		},
-		remove() {
-			arr.forEach(el => { if (el.parentNode) el.parentNode.removeChild(el); });
-			return wrapper;
-		},
-		is(sel) {
-			if (sel === ':visible') {
-				return arr[0] ? arr[0].style.display !== 'none' && arr[0].offsetParent !== null : false;
-			}
-			return arr[0] ? arr[0].matches(sel) : false;
-		},
-		trigger(eventName) {
-			arr.forEach(el => el.dispatchEvent(new CustomEvent(eventName, { bubbles: true })));
-			return wrapper;
-		},
-		focus() { if (arr[0]) arr[0].focus(); return wrapper; },
-		blur() { if (arr[0]) arr[0].blur(); return wrapper; },
-		mousedown(fn) { arr.forEach(el => el.addEventListener('mousedown', fn)); return wrapper; },
-		mouseup(fn) { arr.forEach(el => el.addEventListener('mouseup', fn)); return wrapper; },
-		index(el) {
-			const target = el[0] || el;
-			return arr.indexOf(target);
-		},
-		eq(i) {
-			return arr[i] ? _createUIProxy(arr[i]) : { length: 0 };
-		},
-		not(sel) {
-			return _createFindWrapper(arr.filter(el => !el.matches(sel)), host);
-		},
-		filter(fn) {
-			return _createFindWrapper(arr.filter((el, i) => fn.call(el, i, el)), host);
-		},
-		addBack() {
-			return _createFindWrapper([host, ...arr], host);
-		},
-		find(sel) {
-			if (!arr[0]) return _createFindWrapper([], host);
-			return _createFindWrapper(arr[0].querySelectorAll(sel), arr[0]);
-		}
-	};
-	for (let i = 0; i < arr.length; i++) {
-		wrapper[i] = arr[i];
-	}
-	return wrapper;
-}
-
-/**
- * Create a jQuery-compatible proxy wrapping a single DOM element.
- * Provides the subset of jQuery API used by UIComponent and its children
- * for backward compatibility during the migration period.
- *
- * @param {HTMLElement} host - The raw DOM element to wrap
- * @returns {Object} jQuery-compatible proxy
- */
-function _createUIProxy(host) {
-	let _animHandle = null;
-	const _handlers = new Map();
-
-	const proxy = {
-		0: host,
-		length: host ? 1 : 0,
-
-		css(prop, value) {
-			if (typeof prop === 'object') {
-				for (const [k, v] of Object.entries(prop)) {
-					host.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? v + 'px' : String(v);
-				}
-				return proxy;
-			}
-			if (value === undefined) {
-				return (
-					window.getComputedStyle(host).getPropertyValue(prop.replace(/([A-Z])/g, '-$1').toLowerCase()) ||
-					host.style[prop]
-				);
-			}
-			host.style[prop] = typeof value === 'number' && !CSS_NUMBER[prop] ? value + 'px' : String(value);
-			return proxy;
-		},
-
-		find(selector) {
-			return _createFindWrapper(host.querySelectorAll(selector), host);
-		},
-
-		each(fn) {
-			fn.call(host, 0, host);
-			return proxy;
-		},
-
-		appendTo(target) {
-			const t = typeof target === 'string' ? document.querySelector(target) : (target[0] || target);
-			if (t) t.appendChild(host);
-			return proxy;
-		},
-
-		detach() {
-			if (host.parentNode) host.parentNode.removeChild(host);
-			return proxy;
-		},
-
-		parent() {
-			return {
-				length: host.parentNode ? 1 : 0,
-				append(child) {
-					host.parentNode?.appendChild(child[0] || child);
-				}
-			};
-		},
-
-		trigger(eventName) {
-			if (typeof eventName === 'string') {
-				host.dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
-			}
-			return proxy;
-		},
-
-		on(events, fn) {
-			events.split(/\s+/).forEach(evt => {
-				const type = evt.split('.')[0];
-				host.addEventListener(type, fn);
-				if (!_handlers.has(evt)) _handlers.set(evt, new Set());
-				_handlers.get(evt).add(fn);
-			});
-			return proxy;
-		},
-
-		off(events) {
-			if (events) {
-				events.split(/\s+/).forEach(evt => {
-					const type = evt.split('.')[0];
-					const fns = _handlers.get(evt);
-					if (fns) {
-						fns.forEach(fn => host.removeEventListener(type, fn));
-						_handlers.delete(evt);
-					}
-				});
-			}
-			return proxy;
-		},
-
-		mouseenter(fn) { host.addEventListener('mouseenter', fn); return proxy; },
-		mouseleave(fn) { host.addEventListener('mouseleave', fn); return proxy; },
-		mousedown(fn) { host.addEventListener('mousedown', fn); return proxy; },
-		mouseup(fn) { host.addEventListener('mouseup', fn); return proxy; },
-		mouseover(fn) { host.addEventListener('mouseover', fn); return proxy; },
-		mouseout(fn) { host.addEventListener('mouseout', fn); return proxy; },
-
-		offset(val) {
-			if (val) {
-				if (val.top !== undefined) host.style.top = val.top + 'px';
-				if (val.left !== undefined) host.style.left = val.left + 'px';
-				return proxy;
-			}
-			const rect = host.getBoundingClientRect();
-			return { left: rect.left + window.scrollX, top: rect.top + window.scrollY };
-		},
-
-		position() {
-			return { left: host.offsetLeft, top: host.offsetTop };
-		},
-
-		width() { return host.getBoundingClientRect().width; },
-		height() { return host.getBoundingClientRect().height; },
-		outerWidth() { return host.offsetWidth; },
-		outerHeight() { return host.offsetHeight; },
-
-		is(selector) {
-			if (selector === ':visible') {
-				return host.style.display !== 'none' && host.offsetParent !== null;
-			}
-			return host.matches(selector);
-		},
-
-		filter(fn) {
-			if (fn.call(host, 0, host)) {
-				return proxy;
-			}
-			return { length: 0, 0: undefined };
-		},
-
-		offsetParent() {
-			let el = host.offsetParent || document.documentElement;
-			while (el && el !== document.documentElement && window.getComputedStyle(el).position === 'static') {
-				el = el.offsetParent;
-			}
-			el = el || document.documentElement;
-			return { length: el ? 1 : 0, 0: el };
-		},
-
-		stop() {
-			if (_animHandle) {
-				_animHandle.stop();
-				_animHandle = null;
-			}
-			return proxy;
-		},
-
-		animate(props, duration, callback) {
-			proxy.stop();
-			_animHandle = animateElement(host, props, duration, callback);
-			return proxy;
-		},
-
-		data(key) {
-			return host.dataset[key];
-		},
-
-		hasClass(cls) { return host.classList.contains(cls); },
-		addClass(cls) { host.classList.add(cls); return proxy; },
-		removeClass(cls) { host.classList.remove(cls); return proxy; },
-		toggleClass(cls, force) {
-			host.classList.toggle(cls, force);
-			return proxy;
-		},
-
-		text(val) {
-			if (val === undefined) return host.textContent;
-			host.textContent = val;
-			return proxy;
-		},
-
-		html(val) {
-			if (val === undefined) return host.innerHTML;
-			host.innerHTML = val;
-			return proxy;
-		},
-
-		val(v) {
-			if (v === undefined) return host.value;
-			host.value = v;
-			return proxy;
-		},
-
-		attr(name, val) {
-			if (val === undefined) return host.getAttribute(name);
-			host.setAttribute(name, val);
-			return proxy;
-		},
-
-		prop(name, val) {
-			if (val === undefined) return host[name];
-			host[name] = val;
-			return proxy;
-		},
-
-		empty() { host.innerHTML = ''; return proxy; },
-
-		append(child) {
-			if (typeof child === 'string') {
-				host.insertAdjacentHTML('beforeend', child);
-			} else {
-				host.appendChild(child[0] || child);
-			}
-			return proxy;
-		},
-
-		prepend(child) {
-			if (typeof child === 'string') {
-				host.insertAdjacentHTML('afterbegin', child);
-			} else {
-				host.insertBefore(child[0] || child, host.firstChild);
-			}
-			return proxy;
-		},
-
-		remove() {
-			if (host.parentNode) host.parentNode.removeChild(host);
-			return proxy;
-		},
-
-		show() { host.style.display = ''; return proxy; },
-		hide() { host.style.display = 'none'; return proxy; },
-		toggle() {
-			host.style.display = host.style.display === 'none' ? '' : 'none';
-			return proxy;
-		},
-
-		closest(sel) {
-			const found = host.closest(sel);
-			return found ? _createUIProxy(found) : { length: 0 };
-		},
-
-		children(sel) {
-			if (sel) return _createFindWrapper(host.querySelectorAll(':scope > ' + sel), host);
-			return _createFindWrapper(host.querySelectorAll(':scope > *'), host);
-		},
-
-		scrollTop(val) {
-			if (val === undefined) return host.scrollTop;
-			host.scrollTop = val;
-			return proxy;
-		},
-
-		focus() { host.focus(); return proxy; },
-		select() { if (host.select) host.select(); return proxy; }
-	};
-
-	return proxy;
-}
-
-
-/**
  * Create a component
  *
  * @param {string} name
@@ -472,15 +73,13 @@ function UIComponent(name, htmlText, cssText) {
 }
 
 /**
- * @var {HTMLElement} <style>
+ * @var {jQueryElement} <style>
  */
-let _style = document.querySelector('style');
-if (!_style) {
-	_style = document.createElement('style');
-	_style.type = 'text/css';
-	document.head.appendChild(_style);
+let _style = jQuery('style:first');
+if (!_style.length) {
+	_style = jQuery('<style type="text/css"></style>').appendTo('head');
 }
-_style.textContent += CommonCSS;
+_style.append(CommonCSS);
 
 function getComponentZIndex(comp) {
 	if (comp._host) return comp._host.style.zIndex; // GUIComponent
@@ -535,25 +134,22 @@ UIComponent.prototype.prepare = function prepare() {
 	}
 
 	if (this._htmlText) {
-		const _template = document.createElement('template');
-		_template.innerHTML = this._htmlText.trim();
-		this.ui = _createUIProxy(_template.content.firstElementChild);
+		this.ui = jQuery(this._htmlText);
 		this.ui.css('zIndex', 50);
 	}
 
 	// Add style to view
 	if (this._cssText) {
 		// Avoid adding css each time the same component is created
-		if (_style.textContent.indexOf('\n\n/** ' + this.name + ' **/\n') === -1) {
-			_style.textContent += '\n\n/** ' + this.name + ' **/\n' + this._cssText;
+		if (_style.text().indexOf('\n\n/** ' + this.name + ' **/\n') === -1) {
+			_style.append('\n\n/** ' + this.name + ' **/\n' + this._cssText);
 		}
-		document.body.appendChild(this.ui[0]);
+		jQuery('body').append(this.ui);
 	}
 
 	// Prepare html
 	if (this._htmlText) {
-		this.parseHTML.call(this.ui[0]);
-		this.ui[0].querySelectorAll('*').forEach(el => this.parseHTML.call(el));
+		this.ui.each(this.parseHTML).find('*').each(this.parseHTML);
 	}
 
 	// Initialize
@@ -568,10 +164,9 @@ UIComponent.prototype.prepare = function prepare() {
 		let _intersect,
 			_enter = 0;
 		const element = this.__mouseStopBlock || this.ui;
-		const rawEl = element[0] || element;
 
 		// stop intersection
-		rawEl.addEventListener('mouseenter', () => {
+		element.mouseenter(function () {
 			if (_enter === 0) {
 				_intersect = Mouse.intersect;
 				_enter++;
@@ -584,7 +179,7 @@ UIComponent.prototype.prepare = function prepare() {
 		});
 
 		// restore previous state
-		rawEl.addEventListener('mouseleave', () => {
+		element.mouseleave(function () {
 			if (_enter > 0) {
 				_enter--;
 
@@ -599,7 +194,7 @@ UIComponent.prototype.prepare = function prepare() {
 
 		// Custom fix for firefox, mouseleave isn't trigger when element is
 		// removed from body, test case: http://jsfiddle.net/7h4sj/
-		rawEl.addEventListener('x_remove', () => {
+		element.on('x_remove', function () {
 			if (_enter > 0) {
 				_enter = 0;
 				if (_intersect) {
@@ -610,13 +205,13 @@ UIComponent.prototype.prepare = function prepare() {
 		});
 
 		// Focus the UI on mousedown
-		rawEl.addEventListener('mousedown', this.focus.bind(this));
+		element.mousedown(this.focus.bind(this));
 	}
 
 	if (this.mouseMode !== UIComponent.MouseMode.CROSS) {
-		const rawEl = (this.__mouseStopBlock || this.ui)[0] || this.__mouseStopBlock || this.ui;
+		const element = this.__mouseStopBlock || this.ui;
 		// Do not cross
-		rawEl.addEventListener('touchstart', event => {
+		element.on('touchstart', function (event) {
 			event.stopImmediatePropagation();
 		});
 	}
@@ -640,10 +235,7 @@ UIComponent.prototype.remove = function remove() {
 		}
 
 		if (this.onKeyDown) {
-			if (this._keydownHandler) {
-				window.removeEventListener('keydown', this._keydownHandler);
-				this._keydownHandler = null;
-			}
+			jQuery(window).off('keydown.' + this.name);
 		}
 
 		this.ui.trigger('x_remove');
@@ -664,7 +256,7 @@ UIComponent.prototype.remove = function remove() {
 /**
  * Add the component to HTML
  *
- * @param {string|HTMLElement} [target] - Target element to append the UI to. If not provided, appends to body.
+ * @param {string|jQueryElement} [target] - Target element to append the UI to. If not provided, appends to body.
  */
 UIComponent.prototype.append = function append(target) {
 	this.__active = true;
@@ -680,26 +272,24 @@ UIComponent.prototype.append = function append(target) {
 	}
 
 	// Determine the target element
-	let targetEl;
+	let $target;
 	if (target) {
-		targetEl = typeof target === 'string' ? document.querySelector(target) : (target[0] || target);
-		if (!targetEl) {
+		$target = jQuery(target);
+		if (!$target.length) {
 			console.error('Error: Unable to find target element for appending UI.');
 			return;
 		}
 	} else {
-		targetEl = document.body;
+		$target = jQuery('body');
 	}
 
 	// Append UI content to the target element
-	targetEl.appendChild(this.ui[0]);
+	this.ui.appendTo($target);
 
 	if (this.onKeyDown) {
-		if (this._keydownHandler) {
-			window.removeEventListener('keydown', this._keydownHandler);
-		}
-		this._keydownHandler = this.onKeyDown.bind(this);
-		window.addEventListener('keydown', this._keydownHandler);
+		jQuery(window)
+			.off('keydown.' + this.name)
+			.on('keydown.' + this.name, this.onKeyDown.bind(this));
 	}
 
 	if (this.mouseMode === UIComponent.MouseMode.FREEZE) {
@@ -720,19 +310,27 @@ UIComponent.prototype.append = function append(target) {
 		}
 
 		function checkScrollbars(root) {
-			if (!root || root.nodeType !== 1) return;
-			const elements = [root, ...root.querySelectorAll('*')];
-			for (const el of elements) {
-				if (el.nodeType !== 1) continue;
-				if (el._roScrollbarApplied) {
-					_ScrollBar?.applyDOMScrollbar(el);
-					continue;
-				}
-				const oy = window.getComputedStyle(el).overflowY;
-				if (oy === 'auto' || oy === 'scroll') {
-					_ScrollBar?.applyDOMScrollbar(el);
-				}
-			}
+			jQuery(root)
+				.find('*')
+				.addBack()
+				.filter(function () {
+					if (this.nodeType !== 1) {
+						return false;
+					}
+					if (this._roScrollbarApplied) {
+						return true;
+					}
+
+					const oy = window.getComputedStyle(this).overflowY;
+					if (oy !== 'auto' && oy !== 'scroll') {
+						return false;
+					}
+
+					return true;
+				})
+				.each(function () {
+					_ScrollBar?.applyDOMScrollbar(this);
+				});
 		}
 
 		// Stagger checks to wait for CSS parsing completion
@@ -785,21 +383,19 @@ UIComponent.prototype.append = function append(target) {
 
 	//Fix position after append (screen changed since last time and it loads invalid positions)
 	if (this.ui) {
-		const uiEl = this.ui[0];
-		const rect = uiEl.getBoundingClientRect();
-		const x = rect.left + window.scrollX;
-		const y = rect.top + window.scrollY;
-		const width = uiEl.offsetWidth;
-		const height = uiEl.offsetHeight;
+		const x = this.ui.offset().left;
+		const y = this.ui.offset().top;
+		const width = this.ui.width();
+		const height = this.ui.height();
 		const WIDTH = _Renderer?.width ?? window.innerWidth;
 		const HEIGHT = _Renderer?.height ?? window.innerHeight;
 
 		if (y + height > HEIGHT) {
-			uiEl.style.top = (HEIGHT - Math.min(height, HEIGHT)) + 'px';
+			this.ui.css('top', HEIGHT - Math.min(height, HEIGHT));
 		}
 
 		if (x + width > WIDTH) {
-			uiEl.style.left = (WIDTH - Math.min(width, WIDTH)) + 'px';
+			this.ui.css('left', WIDTH - Math.min(width, WIDTH));
 		}
 
 		//Magnet
@@ -807,13 +403,13 @@ UIComponent.prototype.append = function append(target) {
 			//nothing to do
 		}
 		if (this.magnet.BOTTOM) {
-			uiEl.style.top = (HEIGHT - height) + 'px';
+			this.ui.css('top', HEIGHT - height);
 		}
 		if (this.magnet.LEFT) {
 			//nothing to do
 		}
 		if (this.magnet.RIGHT) {
-			uiEl.style.left = (WIDTH - width) + 'px';
+			this.ui.css('left', WIDTH - width);
 		}
 	}
 
@@ -916,11 +512,9 @@ UIComponent.prototype.on = function on(type) {
 	switch (type.toLowerCase()) {
 		case 'keydown':
 			if (this.onKeyDown) {
-				if (this._keydownHandler) {
-					window.removeEventListener('keydown', this._keydownHandler);
-				}
-				this._keydownHandler = this.onKeyDown.bind(this);
-				window.addEventListener('keydown', this._keydownHandler);
+				jQuery(window)
+					.off('keydown.' + this.name)
+					.on('keydown.' + this.name, this.onKeyDown.bind(this));
 			}
 			break;
 	}
@@ -934,10 +528,7 @@ UIComponent.prototype.on = function on(type) {
 UIComponent.prototype.off = function off(type) {
 	switch (type.toLowerCase()) {
 		case 'keydown':
-			if (this._keydownHandler) {
-				window.removeEventListener('keydown', this._keydownHandler);
-				this._keydownHandler = null;
-			}
+			jQuery(window).off('keydown.' + this.name);
 			break;
 	}
 };
@@ -946,27 +537,30 @@ UIComponent.prototype.off = function off(type) {
  * Drag an element
  */
 UIComponent.prototype.draggable = function draggable(element) {
-	const containerEl = this.ui[0];
-	if (!containerEl || containerEl.nodeType !== 1) return this;
-	const container = this.ui;
+	const container = jQuery(this.ui).filter(function () {
+		return this.nodeType === 1;
+	});
 
 	const component = this;
 	const SNAP_DISTANCE = 10;
 
-	// Resolve drag handle element
-	let dragEl;
+	// Global variable
 	if (!element) {
-		dragEl = containerEl;
-	} else {
-		dragEl = element[0] || element;
-		if (!dragEl || dragEl.nodeType !== 1) return this;
+		element = this.ui;
+	}
+
+	element = jQuery(element).filter(function () {
+		return this.nodeType === 1;
+	});
+	if (!container.length || !element.length) {
+		return this;
 	}
 
 	// Drag drop stuff
-	function onDragStart(event) {
+	element.on('mousedown touchstart', function (event) {
 		if (event.type === 'touchstart') {
-			Mouse.screen.x = event.touches[0].pageX;
-			Mouse.screen.y = event.touches[0].pageY;
+			Mouse.screen.x = event.originalEvent.touches[0].pageX;
+			Mouse.screen.y = event.originalEvent.touches[0].pageY;
 		}
 
 		// Only on left click
@@ -988,7 +582,7 @@ UIComponent.prototype.draggable = function draggable(element) {
 
 		_snapCache = [];
 		if (UIPreferences.windowmagnet && component.manager) {
-			const containerParent = containerEl.offsetParent;
+			const containerParent = container.offsetParent();
 			const components = component.manager.components;
 
 			for (const name in components) {
@@ -1006,9 +600,8 @@ UIComponent.prototype.draggable = function draggable(element) {
 					continue;
 				}
 
-				const otherEl = other.ui[0];
-				const otherParent = otherEl ? otherEl.offsetParent : null;
-				if (containerParent && otherParent && otherParent !== containerParent) {
+				const otherParent = other.ui.offsetParent();
+				if (containerParent.length && otherParent.length && otherParent[0] !== containerParent[0]) {
 					continue;
 				}
 
@@ -1050,8 +643,8 @@ UIComponent.prototype.draggable = function draggable(element) {
 		drag = requestAnimationFrame(dragging);
 
 		// Stop the drag
-		function onDragEnd(ev) {
-			if (ev.type === 'touchend' || ev.which === 1) {
+		jQuery(window).on('mouseup.dragdrop touchend.dragdrop', function (ev) {
+			if (ev.type === 'touchend' || ev.which === 1 || ev.isTrigger) {
 				if (component.gridSnap) {
 					const pos = container.position();
 					const gw = component.gridSnap.width;
@@ -1080,14 +673,14 @@ UIComponent.prototype.draggable = function draggable(element) {
 						.animate(
 							{ left: snappedX, top: snappedY, opacity: 1.0 },
 							component.snapDuration || 150,
-							() => {
+							function () {
 								if (component.onDragEnd) {
 									component.onDragEnd();
 								}
 							}
 						);
 				} else {
-					container.stop().animate({ opacity: 1.0 }, 150, () => {
+					container.stop().animate({ opacity: 1.0 }, 150, function () {
 						if (component.onDragEnd) {
 							component.onDragEnd();
 						}
@@ -1095,13 +688,10 @@ UIComponent.prototype.draggable = function draggable(element) {
 				}
 
 				cancelAnimationFrame(drag);
-				window.removeEventListener('mouseup', onDragEnd);
-				window.removeEventListener('touchend', onDragEnd);
+				jQuery(window).off('mouseup.dragdrop touchend.dragdrop');
 				_snapCache = [];
 			}
-		}
-		window.addEventListener('mouseup', onDragEnd);
-		window.addEventListener('touchend', onDragEnd);
+		});
 
 		// Process dragging
 		function dragging() {
@@ -1179,10 +769,7 @@ UIComponent.prototype.draggable = function draggable(element) {
 			container.css('opacity', Math.max(currentOpacity, 0.7));
 			drag = requestAnimationFrame(dragging);
 		}
-	}
-
-	dragEl.addEventListener('mousedown', onDragStart);
-	dragEl.addEventListener('touchstart', onDragStart);
+	});
 
 	return this;
 };
@@ -1196,12 +783,13 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 		_ensureDeps().then(() => parseHTML.call(node));
 		return;
 	}
-	const background = node.dataset.background;
-	const preload = node.dataset.preload;
-	const hover = node.dataset.hover;
-	const down = node.dataset.down;
-	const active = node.dataset.active;
-	const msgId = node.dataset.text;
+	const $node = jQuery(node);
+	const background = $node.data('background');
+	const preload = $node.data('preload');
+	const hover = $node.data('hover');
+	const down = $node.data('down');
+	const active = $node.data('active');
+	const msgId = $node.data('text');
 
 	let preloads, i, count;
 
@@ -1218,21 +806,21 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 
 	function updateBackground() {
 		if (state.down && down_uri) {
-			node.style.backgroundImage = 'url(' + down_uri + ')';
+			$node.css('backgroundImage', 'url(' + down_uri + ')');
 		} else if (state.active && active_uri) {
-			node.style.backgroundImage = 'url(' + active_uri + ')';
+			$node.css('backgroundImage', 'url(' + active_uri + ')');
 		} else if (state.hover && hover_uri) {
-			node.style.backgroundImage = 'url(' + hover_uri + ')';
+			$node.css('backgroundImage', 'url(' + hover_uri + ')');
 		} else if (bg_uri) {
-			node.style.backgroundImage = 'url(' + bg_uri + ')';
+			$node.css('backgroundImage', 'url(' + bg_uri + ')');
 		} else {
-			node.style.backgroundImage = '';
+			$node.css('backgroundImage', '');
 		}
 	}
 
 	// text
 	if (msgId && _DB?.getMessage(msgId, '')) {
-		node.textContent = _DB?.getMessage(msgId, '');
+		$node.text(_DB?.getMessage(msgId, ''));
 	}
 
 	// Default background
@@ -1258,7 +846,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 			active_uri = dataURI;
 
 			// Initialize active state if class is already present
-			if (node.classList.contains('active')) {
+			if ($node.hasClass('active')) {
 				state.active = true;
 				updateBackground();
 			}
@@ -1268,7 +856,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 		const observer = new MutationObserver(function (mutations) {
 			mutations.forEach(function (mutation) {
 				if (mutation.attributeName === 'class') {
-					const isActive = node.classList.contains('active');
+					const isActive = $node.hasClass('active');
 					if (state.active !== isActive) {
 						state.active = isActive;
 						updateBackground();
@@ -1277,13 +865,13 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 			});
 		});
 
-		observer.observe(node, {
+		observer.observe($node[0], {
 			attributes: true,
 			attributeFilter: ['class']
 		});
 
 		// Clean up observer when node is removed
-		node.addEventListener('remove', () => {
+		$node.on('remove', function () {
 			observer.disconnect();
 		});
 	}
@@ -1293,11 +881,11 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 		_Client?.loadFile(_DB.INTERFACE_PATH + hover, function (dataURI) {
 			hover_uri = dataURI;
 		});
-		node.addEventListener('mouseover', () => {
+		$node.mouseover(function () {
 			state.hover = true;
 			updateBackground();
 		});
-		node.addEventListener('mouseout', () => {
+		$node.mouseout(function () {
 			state.hover = false;
 			updateBackground();
 		});
@@ -1308,18 +896,18 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 		_Client?.loadFile(_DB.INTERFACE_PATH + down, function (dataURI) {
 			down_uri = dataURI;
 		});
-		node.addEventListener('mousedown', () => {
+		$node.mousedown(function (event) {
 			state.down = true;
 			updateBackground();
 		});
-		node.addEventListener('mouseup', () => {
+		$node.mouseup(function () {
 			state.down = false;
 			updateBackground();
 		});
 
 		// If not hovering, we need to handle mouseout to reset down state if dragged out
 		if (!hover) {
-			node.addEventListener('mouseout', () => {
+			$node.mouseout(function () {
 				state.down = false;
 				state.hover = false; // Just in case
 				updateBackground();
@@ -1331,7 +919,7 @@ UIComponent.prototype.parseHTML = function parseHTML() {
 	if (preload) {
 		preloads = preload.split(';');
 		for (i = 0, count = preloads.length; i < count; ++i) {
-			preloads[i] = _DB.INTERFACE_PATH + preloads[i].trim();
+			preloads[i] = _DB.INTERFACE_PATH + jQuery.trim(preloads[i]);
 		}
 		_Client?.loadFiles(preloads);
 	}
