@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import MemoryManager from 'Core/MemoryManager.js';
 import Graphics from 'Preferences/Graphics.js';
@@ -306,8 +305,14 @@ function bindMouseEvents() {
 		.cursor { pointer-events: none; z-index: 9999; position: fixed; width: 50px; height: 50px; overflow: hidden; display: none; }
 		.cursor__sprite { position: absolute; top: 0; left: 0; }
 	`;
-	jQuery('head').append(`<style type="text/css">${cursorCSS}</style>`);
-	jQuery('body').append('<div class="cursor"></div>');
+	const styleEl = document.createElement('style');
+	styleEl.type = 'text/css';
+	styleEl.textContent = cursorCSS;
+	document.head.appendChild(styleEl);
+
+	const cursorDiv = document.createElement('div');
+	cursorDiv.className = 'cursor';
+	document.body.appendChild(cursorDiv);
 	_selector = document.querySelector('.cursor');
 
 	const CLICKABLE_SELECTOR = [
@@ -551,11 +556,16 @@ function createSpriteSheet() {
 		const spriteSheetBlobURL = URL.createObjectURL(blob);
 
 		// Append the sprite sheet to the DOM
-		const imageElem = jQuery('<img class="cursor__sprite" src="' + spriteSheetBlobURL + '">');
-		imageElem.one('load', function (e) {
+		const imageElem = document.createElement('img');
+		imageElem.className = 'cursor__sprite';
+		imageElem.src = spriteSheetBlobURL;
+		imageElem.addEventListener('load', (e) => {
 			URL.revokeObjectURL(e.target.src);
-		});
-		jQuery('.cursor').append(imageElem);
+		}, { once: true });
+		const cursorEl = document.querySelector('.cursor');
+		if (cursorEl) {
+			cursorEl.appendChild(imageElem);
+		}
 	}
 
 	for (let i = 0; i < totalSprites; i++) {

@@ -10,7 +10,6 @@
  */
 
 // Load dependencies
-import jQuery from 'Utils/jquery.js';
 import Queue from 'Utils/Queue.js';
 import Sound from 'Audio/SoundManager.js';
 import BGM from 'Audio/BGM.js';
@@ -279,38 +278,39 @@ function loadClientInfo(callback) {
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(xml, 'application/xml');
 
-			const connections = jQuery(doc).find('clientinfo connection');
-			const stop = connections.length - 1;
-			const list = [];
+			const _getChildText = (parent, tag) => {
+				const el = parent.querySelector(tag);
+				return el ? el.textContent : '';
+			};
+
+			const connections = doc.querySelectorAll('clientinfo connection');
 
 			if (!connections.length) {
 				callback();
+				return;
 			}
 
-			connections.each((index, element) => {
-				const connection = jQuery(element);
-
-				list.push(connection.find('display:first').text());
+			connections.forEach((element, index) => {
 				_servers.push({
-					display: connection.find('display:first').text(),
-					desc: connection.find('desc:first').text(),
-					address: connection.find('address:first').text(),
-					port: connection.find('port:first').text(),
-					version: connection.find('version:first').text(),
-					langtype: connection.find('langtype:first').text(),
-					packetver: connection.find('packetver:first').text(),
-					registrationweb: connection.find('registrationweb:first').text(),
-					renewal: ['true', '1', 1, true].includes(connection.find('renewal:first').text().toLowerCase()),
+					display: _getChildText(element, 'display'),
+					desc: _getChildText(element, 'desc'),
+					address: _getChildText(element, 'address'),
+					port: _getChildText(element, 'port'),
+					version: _getChildText(element, 'version'),
+					langtype: _getChildText(element, 'langtype'),
+					packetver: _getChildText(element, 'packetver'),
+					registrationweb: _getChildText(element, 'registrationweb'),
+					renewal: ['true', '1', 1, true].includes(_getChildText(element, 'renewal').toLowerCase()),
 					adminList: (() => {
 						const _list = [];
-						connection.find('yellow admin, aid admin').each(function () {
-							_list.push(parseInt(this.textContent, 10));
+						element.querySelectorAll('yellow admin, aid admin').forEach(adminEl => {
+							_list.push(parseInt(adminEl.textContent, 10));
 						});
 						return _list;
 					})()
 				});
 
-				if (index === stop) {
+				if (index === connections.length - 1) {
 					callback();
 				}
 			});

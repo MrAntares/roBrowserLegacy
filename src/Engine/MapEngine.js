@@ -9,7 +9,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import SoundManager from 'Audio/SoundManager.js';
@@ -621,8 +620,6 @@ function onConnectionRefused(pkt) {
  * @param {object} pkt - PACKET.ZC.NPCACK_MAPMOVE
  */
 function onMapChange(pkt) {
-	jQuery(window).off('keydown.map');
-
 	MapRenderer.onLoad = () => {
 		Session.Entity.set({
 			PosDir: [pkt.xPos, pkt.yPos, 0],
@@ -771,7 +768,6 @@ function onMapChange(pkt) {
  * @param {object} pkt - PACKET.ZC.NPCACK_SERVERMOVE
  */
 function onServerChange(pkt) {
-	jQuery(window).off('keydown.map');
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }
 

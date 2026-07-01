@@ -11,7 +11,6 @@
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import InventoryUI from 'UI/Components/Inventory/Inventory.js';
 import SetManager from './JoystickSetManager.js';
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import ControlsSettings from 'Preferences/Controls.js';
@@ -32,12 +31,14 @@ function _getShadow() {
 	return host.shadowRoot || host;
 }
 
+let _mouseMoveHandler = null;
+
 function setupUIHide() {
 	let lastMouseX = 0;
 	let lastMouseY = 0;
 
-	function onMouseMove(event) {
-		if (!ui || !ui.is(':visible')) {
+	_mouseMoveHandler = (event) => {
+		if (!ui || !_isVisible()) {
 			return;
 		}
 
@@ -50,9 +51,16 @@ function setupUIHide() {
 		}
 		lastMouseX = event.clientX;
 		lastMouseY = event.clientY;
-	}
+	};
 
-	jQuery(document).on('mousemove.joystick', onMouseMove);
+	document.addEventListener('mousemove', _mouseMoveHandler);
+}
+
+function _isVisible() {
+	if (!ui) return false;
+	const host = ui[0];
+	if (!host) return false;
+	return host.style.display !== 'none';
 }
 
 function attach(root) {
@@ -182,20 +190,23 @@ function updateVisuals(buttons) {
 }
 
 function show() {
-	if (ui && !ui.is(':visible')) {
+	if (ui && !_isVisible()) {
 		ui.show();
 	}
 }
 
 function hide() {
-	if (ui && ui.is(':visible')) {
+	if (ui && _isVisible()) {
 		ui.hide();
 	}
 }
 
 function dispose() {
 	hide();
-	jQuery(document).off('mousemove.joystick');
+	if (_mouseMoveHandler) {
+		document.removeEventListener('mousemove', _mouseMoveHandler);
+		_mouseMoveHandler = null;
+	}
 }
 
 export default {

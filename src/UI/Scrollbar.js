@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-import jQuery from 'Utils/jquery.js';
 import Texture from 'Utils/Texture.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
@@ -158,7 +157,10 @@ class ScrollBar {
 			].join('\n');
 
 			ScrollBar._cssText = css;
-			jQuery('style:first').append(css);
+			const firstStyle = document.querySelector('style');
+			if (firstStyle) {
+				firstStyle.textContent += css;
+			}
 		}
 	}
 
@@ -168,15 +170,15 @@ class ScrollBar {
 	 */
 	static applyDOMScrollbar(element) {
 		if (element._roScrollbarApplied) {
-			const $wrapper = jQuery(element).children('.ro-custom-scrollbar');
-			if ($wrapper.length === 0) {
+			const wrapper = element.querySelector(':scope > .ro-custom-scrollbar');
+			if (!wrapper) {
 				element._roScrollbarApplied = false;
 			} else {
 				const currentSkinName = element.dataset.scrollbarSkin || 'default';
 				if (element._roScrollbarSkin !== currentSkinName) {
 					// Skin changed, need to re-apply visuals
 					element._roScrollbarApplied = false;
-					$wrapper.remove();
+					wrapper.parentNode.removeChild(wrapper);
 				} else {
 					if (element._roScrollbarRestart) {
 						element._roScrollbarRestart();
@@ -194,7 +196,6 @@ class ScrollBar {
 		}
 
 		element._roScrollbarApplied = true;
-		const $element = jQuery(element);
 		const shadowRoot = element.getRootNode();
 		if (shadowRoot instanceof ShadowRoot && !shadowRoot.querySelector('style[data-scrollbar]')) {
 			const scrollbarStyle = document.createElement('style');
@@ -208,78 +209,84 @@ class ScrollBar {
 
 		element._roScrollbarSkin = skinName;
 
-		if ($element.css('position') === 'static') {
-			$element.css('position', 'relative');
+		const computedStyle = getComputedStyle(element);
+		if (computedStyle.position === 'static') {
+			element.style.position = 'relative';
 		}
 
 		// Ensure native scrollbar is removed and layout is preserved
 		if (element._roOriginalPaddingRight === undefined) {
-			element._roOriginalPaddingRight = parseInt($element.css('padding-right')) || 0;
+			element._roOriginalPaddingRight = parseInt(computedStyle.paddingRight) || 0;
 		}
 
-		$element.css({
-			'overflow-y': 'hidden',
-			'box-sizing': 'border-box'
-		});
+		element.style.overflowY = 'hidden';
+		element.style.boxSizing = 'border-box';
 
 		// Build scrollbar DOM wrapper
-		const $scrollbar = jQuery('<div class="ro-custom-scrollbar skin-' + skinName + '"></div>');
-		const $upBtn = jQuery('<div class="btn-up"></div>');
-		const $track = jQuery('<div class="track"></div>');
-		const $thumb = jQuery('<div class="thumb"></div>');
-		const $downBtn = jQuery('<div class="btn-down"></div>');
+		const scrollbar = document.createElement('div');
+		scrollbar.className = `ro-custom-scrollbar skin-${skinName}`;
+		const upBtn = document.createElement('div');
+		upBtn.className = 'btn-up';
+		const track = document.createElement('div');
+		track.className = 'track';
+		const thumb = document.createElement('div');
+		thumb.className = 'thumb';
+		const downBtn = document.createElement('div');
+		downBtn.className = 'btn-down';
 
 		const width = skin.width || 13;
-		$scrollbar.css('width', width + 'px');
+		scrollbar.style.width = `${width}px`;
 
 		if (skin.btnHeight || skin.btnWidth) {
 			const bHeight = skin.btnHeight || (skin.name === 'default' ? 12 : 13);
 			const bWidth = skin.btnWidth || width;
-			$upBtn.css({ height: bHeight + 'px', width: bWidth + 'px', margin: '0 auto' });
-			$downBtn.css({ height: bHeight + 'px', width: bWidth + 'px', margin: '0 auto' });
+			Object.assign(upBtn.style, { height: `${bHeight}px`, width: `${bWidth}px`, margin: '0 auto' });
+			Object.assign(downBtn.style, { height: `${bHeight}px`, width: `${bWidth}px`, margin: '0 auto' });
 		}
 
-		$track.append($thumb);
-		$scrollbar.append($upBtn).append($track).append($downBtn);
-		$element.append($scrollbar);
+		track.appendChild(thumb);
+		scrollbar.appendChild(upBtn);
+		scrollbar.appendChild(track);
+		scrollbar.appendChild(downBtn);
+		element.appendChild(scrollbar);
 
 		// Prevent clicks and interactions from passing through to the game world
-		$scrollbar.on(
-			'mousedown mouseup click dblclick contextmenu pointerdown pointerup pointermove wheel',
-			function (e) {
+		const stopEvents = ['mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'pointerdown', 'pointerup', 'pointermove', 'wheel'];
+		for (const evtName of stopEvents) {
+			scrollbar.addEventListener(evtName, e => {
 				e.stopPropagation();
-			}
-		);
+			});
+		}
 
 		// Apply background styles from skin
-		$upBtn.css({ 'background-image': 'url(' + skin.up + ')', 'background-color': 'transparent' });
-		$downBtn.css({ 'background-image': 'url(' + skin.down + ')', 'background-color': 'transparent' });
+		Object.assign(upBtn.style, { backgroundImage: `url(${skin.up})`, backgroundColor: 'transparent' });
+		Object.assign(downBtn.style, { backgroundImage: `url(${skin.down})`, backgroundColor: 'transparent' });
 
 		if (skin.mid) {
-			$track.css({ 'background-image': 'url(' + skin.mid + ')', 'background-color': 'transparent' });
+			Object.assign(track.style, { backgroundImage: `url(${skin.mid})`, backgroundColor: 'transparent' });
 		} else {
-			$track.css({
-				'background-image': 'none',
-				'background-color': skin.colors.track || 'transparent',
+			Object.assign(track.style, {
+				backgroundImage: 'none',
+				backgroundColor: skin.colors.track || 'transparent',
 				border: 'none',
-				width: (skin.trackWidth || width) + 'px',
+				width: `${skin.trackWidth || width}px`,
 				margin: '0 auto'
 			});
 		}
 
 		if (skin.thumb) {
-			$thumb.css({
-				'-webkit-border-image': 'url(' + skin.thumb + ') 4 0 4 0 fill',
-				'border-image': 'url(' + skin.thumb + ') 4 0 4 0 fill',
-				'background-color': 'transparent'
+			Object.assign(thumb.style, {
+				webkitBorderImage: `url(${skin.thumb}) 4 0 4 0 fill`,
+				borderImage: `url(${skin.thumb}) 4 0 4 0 fill`,
+				backgroundColor: 'transparent'
 			});
 		} else {
 			const tWidth = skin.trackWidth || width;
-			$thumb.css({
-				'background-color': skin.colors.thumb || 'grey',
-				'-webkit-border-image': 'none',
-				'border-image': 'none',
-				width: tWidth + 'px'
+			Object.assign(thumb.style, {
+				backgroundColor: skin.colors.thumb || 'grey',
+				webkitBorderImage: 'none',
+				borderImage: 'none',
+				width: `${tWidth}px`
 			});
 		}
 
@@ -291,41 +298,41 @@ class ScrollBar {
 		 * Update thumb position relative to scroll position
 		 */
 		const updateThumb = () => {
-			const h = $element[0].clientHeight;
-			const sh = $element[0].scrollHeight;
+			const h = element.clientHeight;
+			const sh = element.scrollHeight;
 
 			if (sh <= h) {
-				$scrollbar[0].style.display = 'none';
-				$element.css('padding-right', element._roOriginalPaddingRight + 'px');
+				scrollbar.style.display = 'none';
+				element.style.paddingRight = `${element._roOriginalPaddingRight}px`;
 				return;
 			}
 
-			$scrollbar[0].style.display = '';
-			$element.css('padding-right', element._roOriginalPaddingRight + (skin.width || 13) + 'px');
+			scrollbar.style.display = '';
+			element.style.paddingRight = `${element._roOriginalPaddingRight + (skin.width || 13)}px`;
 
-			const st = $element[0].scrollTop;
+			const st = element.scrollTop;
 
 			// Sync wrapper size and position
-			$scrollbar.css({
-				top: st + 'px',
-				height: h + 'px',
+			Object.assign(scrollbar.style, {
+				top: `${st}px`,
+				height: `${h}px`,
 				right: '0px'
 			});
 
-			const trackHeight = $track.height();
+			const trackHeight = track.clientHeight;
 			if (trackHeight <= 0) {
 				return;
 			}
 
 			const ratio = h / sh;
 			const thumbHeight = Math.max(10, Math.floor(trackHeight * ratio));
-			$thumb.css('height', thumbHeight + 'px');
+			thumb.style.height = `${thumbHeight}px`;
 
 			const maxScrollTop = sh - h;
 			const maxThumbTop = trackHeight - thumbHeight;
 			const thumbTop = (st / maxScrollTop) * maxThumbTop;
 
-			$thumb.css('top', thumbTop + 'px');
+			thumb.style.top = `${thumbTop}px`;
 		};
 
 		let poller = null;
@@ -336,7 +343,7 @@ class ScrollBar {
 				clearInterval(poller);
 			}
 			poller = setInterval(() => {
-				if (!$element[0].isConnected) {
+				if (!element.isConnected) {
 					clearInterval(poller);
 					poller = null;
 					return;
@@ -348,88 +355,99 @@ class ScrollBar {
 		// Start tracking content height
 		element._roScrollbarRestart();
 
-		$element.on('wheel', e => {
-			const h = $element[0].clientHeight;
-			const sh = $element[0].scrollHeight;
+		element.addEventListener('wheel', e => {
+			const h = element.clientHeight;
+			const sh = element.scrollHeight;
 			if (sh <= h) {
 				return;
 			}
 
-			const delta = e.originalEvent.deltaY > 0 ? 1 : -1;
-			$element[0].scrollTop += delta * 20;
+			const delta = e.deltaY > 0 ? 1 : -1;
+			element.scrollTop += delta * 20;
 
 			updateThumb();
 			e.preventDefault();
 			e.stopPropagation();
 		});
 
-		$upBtn.mousedown(() => {
-			$element[0].scrollTop -= 20;
+		upBtn.addEventListener('mousedown', () => {
+			element.scrollTop -= 20;
 			updateThumb();
 		});
 
-		$downBtn.mousedown(() => {
-			$element[0].scrollTop += 20;
+		downBtn.addEventListener('mousedown', () => {
+			element.scrollTop += 20;
 			updateThumb();
 		});
 
-		$thumb.on('pointerdown', e => {
+		thumb.addEventListener('pointerdown', e => {
 			isDragging = true;
-			startY = e.originalEvent.clientY;
-			startThumbY = parseInt($thumb.css('top'), 10) || 0;
+			startY = e.clientY;
+			startThumbY = parseInt(thumb.style.top, 10) || 0;
 			e.preventDefault();
 
-			if (e.originalEvent.pointerId !== undefined) {
+			if (e.pointerId !== undefined) {
 				try {
-					$thumb[0].setPointerCapture(e.originalEvent.pointerId);
+					thumb.setPointerCapture(e.pointerId);
 				} catch (_e) {
 					// Ignore DOM exceptions on capture
 				}
 			}
 		});
 
-		$thumb.on('pointermove', e => {
+		thumb.addEventListener('pointermove', e => {
 			if (!isDragging) {
 				return;
 			}
 
-			const h = $element[0].clientHeight;
-			const sh = $element[0].scrollHeight;
-			const trackHeight = $track.height();
-			const thumbHeight = $thumb.height();
+			const h = element.clientHeight;
+			const sh = element.scrollHeight;
+			const trackHeight = track.clientHeight;
+			const thumbHeight = thumb.clientHeight;
 
 			const maxScrollTop = sh - h;
 			const maxThumbTop = trackHeight - thumbHeight;
 
-			const deltaY = e.originalEvent.clientY - startY;
+			const deltaY = e.clientY - startY;
 			const newThumbTop = Math.max(0, Math.min(startThumbY + deltaY, maxThumbTop));
 
 			const percentage = newThumbTop / maxThumbTop;
-			$element[0].scrollTop = percentage * maxScrollTop;
+			element.scrollTop = percentage * maxScrollTop;
 			updateThumb();
 		});
 
-		$thumb.on('pointerup pointercancel', e => {
+		thumb.addEventListener('pointerup', e => {
 			isDragging = false;
-			if (e.originalEvent.pointerId !== undefined) {
+			if (e.pointerId !== undefined) {
 				try {
-					$thumb[0].releasePointerCapture(e.originalEvent.pointerId);
+					thumb.releasePointerCapture(e.pointerId);
 				} catch (_e) {
 					// Ignore DOM exceptions
 				}
 			}
 		});
 
-		$track.mousedown(e => {
-			if (e.target === $thumb[0]) {
+		thumb.addEventListener('pointercancel', e => {
+			isDragging = false;
+			if (e.pointerId !== undefined) {
+				try {
+					thumb.releasePointerCapture(e.pointerId);
+				} catch (_e) {
+					// Ignore DOM exceptions
+				}
+			}
+		});
+
+		track.addEventListener('mousedown', e => {
+			if (e.target === thumb) {
 				return;
 			}
 			const clickY = e.offsetY;
-			const thumbTop = parseInt($thumb.css('top'), 10) || 0;
+			const thumbTop = parseInt(thumb.style.top, 10) || 0;
 			if (clickY < thumbTop) {
-				$element[0].scrollTop -= $element[0].clientHeight;
+				element.scrollTop -= element.clientHeight;
 			} else {
-				$element[0].scrollTop += $element[0].clientHeight;
+				element.scrollTop += element.clientHeight;
 			}
 			updateThumb();
 		});
