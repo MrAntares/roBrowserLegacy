@@ -4,7 +4,6 @@
  * Enchant UI Window
  */
 
-import jQuery from 'Utils/jquery.js';
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import EffectDB from 'DB/Effects/EffectTable.js';
@@ -18,7 +17,7 @@ import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import Session from 'Engine/SessionStorage.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
@@ -26,7 +25,15 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import htmlText from './Enchant.html?raw';
 import cssText from './Enchant.css?raw';
 
-const Enchant = new UIComponent('Enchant', htmlText, cssText);
+const Enchant = new GUIComponent('Enchant', cssText);
+
+Enchant.render = () => htmlText;
+
+Enchant.captureKeyEvents = true;
+
+function _root() {
+	return Enchant._shadow || Enchant._host;
+}
 
 const EnchantState = {
 	groupId: 0,
@@ -109,6 +116,8 @@ const EnchantEffectFog = {
 	factor: 1.0,
 	color: new Float32Array([1, 1, 1])
 };
+
+let _effectStyleNode = null;
 
 function clearState() {
 	EnchantState.groupId = 0;
@@ -235,36 +244,58 @@ function getUpgradeCandidates(item, group) {
 }
 
 function setStatus(message, isError) {
-	const status = Enchant.ui.find('.status');
-	status.text(message || '');
-	status.toggleClass('error', !!isError);
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const status = root.querySelector('.status');
+	if (!status) {
+		return;
+	}
+	status.textContent = message || '';
+	status.classList.toggle('error', !!isError);
 }
 
 function setCaution(message) {
-	Enchant.ui.find('.caution').text(message || '');
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const caution = root.querySelector('.caution');
+	if (caution) {
+		caution.textContent = message || '';
+	}
 }
 
 function showHoverOverlay(text, identified, target) {
-	if (!Enchant.ui || !text) {
+	const root = _root();
+	if (!root || !text) {
 		return;
 	}
-	const overlay = Enchant.ui.find('.overlay');
-	const uiOffset = Enchant.ui.offset();
-	const targetOffset = target.offset();
-	overlay.text(text);
-	overlay.css({
-		top: targetOffset.top - uiOffset.top,
-		left: targetOffset.left - uiOffset.left + 35
+	const overlay = root.querySelector('.overlay');
+	if (!overlay) {
+		return;
+	}
+	const hostRect = Enchant._host.getBoundingClientRect();
+	const targetRect = target.getBoundingClientRect();
+	overlay.textContent = text;
+	Object.assign(overlay.style, {
+		top: (targetRect.top - hostRect.top) + 'px',
+		left: (targetRect.left - hostRect.left + 35) + 'px'
 	});
-	overlay.toggleClass('grey', !identified);
-	overlay.show();
+	overlay.classList.toggle('grey', !identified);
+	overlay.style.display = 'block';
 }
 
 function hideHoverOverlay() {
-	if (!Enchant.ui) {
+	const root = _root();
+	if (!root) {
 		return;
 	}
-	Enchant.ui.find('.overlay').hide();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
 function showItemInfo(item) {
@@ -282,10 +313,14 @@ function showItemInfo(item) {
 }
 
 function updateSubpageSkin() {
-	if (!Enchant.ui) {
+	const root = _root();
+	if (!root) {
 		return;
 	}
-	const target = Enchant.ui.find('.subpage');
+	const target = root.querySelector('.subpage');
+	if (!target) {
+		return;
+	}
 	let skin = EnchantAssets.subpage.normal;
 	if (EnchantState.action === 'upgrade' && EnchantAssets.subpage.upgrade) {
 		skin = EnchantAssets.subpage.upgrade;
@@ -293,82 +328,99 @@ function updateSubpageSkin() {
 		skin = EnchantAssets.subpage.reset;
 	}
 	if (skin) {
-		target.css('backgroundImage', 'url(' + skin + ')');
+		target.style.backgroundImage = `url(${skin})`;
 	}
 }
 
 function updateMenuSkin() {
-	if (!Enchant.ui) {
+	const root = _root();
+	if (!root) {
 		return;
 	}
-	const target = Enchant.ui.find('.action_tabs');
+	const target = root.querySelector('.action_tabs');
+	if (!target) {
+		return;
+	}
 	const skin = EnchantAssets.menuTabs[EnchantState.action] || EnchantAssets.menuTabs.random;
 	if (skin) {
-		target.css('backgroundImage', 'url(' + skin + ')');
+		target.style.backgroundImage = `url(${skin})`;
 	}
 }
 
 function updateActionButtonSkin(button, enabled) {
-	if (!button || !button.length) {
+	if (!button) {
 		return;
 	}
 	if (!EnchantAssets.actionButton.normal) {
 		return;
 	}
 	if (!enabled && EnchantAssets.actionButton.disabled) {
-		button.css('backgroundImage', 'url(' + EnchantAssets.actionButton.disabled + ')');
+		button.style.backgroundImage = `url(${EnchantAssets.actionButton.disabled})`;
 		return;
 	}
-	button.css('backgroundImage', 'url(' + EnchantAssets.actionButton.normal + ')');
+	button.style.backgroundImage = `url(${EnchantAssets.actionButton.normal})`;
 }
 
 function bindActionButtonSkin() {
-	const button = Enchant.ui.find('.action_btn');
-	button.off('.enchant_skin');
-	button.on('mouseover.enchant_skin', function () {
-		if (!EnchantAssets.actionButton.hover || button.hasClass('disabled')) {
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const button = root.querySelector('.action_btn');
+	if (!button) {
+		return;
+	}
+	button.addEventListener('mouseover', () => {
+		if (!EnchantAssets.actionButton.hover || button.classList.contains('disabled')) {
 			return;
 		}
-		button.css('backgroundImage', 'url(' + EnchantAssets.actionButton.hover + ')');
+		button.style.backgroundImage = `url(${EnchantAssets.actionButton.hover})`;
 	});
-	button.on('mouseout.enchant_skin', function () {
-		if (button.hasClass('disabled')) {
+	button.addEventListener('mouseout', () => {
+		if (button.classList.contains('disabled')) {
 			return;
 		}
-		button.css('backgroundImage', 'url(' + EnchantAssets.actionButton.normal + ')');
+		button.style.backgroundImage = `url(${EnchantAssets.actionButton.normal})`;
 	});
-	button.on('mousedown.enchant_skin', function () {
-		if (!EnchantAssets.actionButton.down || button.hasClass('disabled')) {
+	button.addEventListener('mousedown', () => {
+		if (!EnchantAssets.actionButton.down || button.classList.contains('disabled')) {
 			return;
 		}
-		button.css('backgroundImage', 'url(' + EnchantAssets.actionButton.down + ')');
+		button.style.backgroundImage = `url(${EnchantAssets.actionButton.down})`;
 	});
-	button.on('mouseup.enchant_skin', function () {
-		if (button.hasClass('disabled')) {
+	button.addEventListener('mouseup', () => {
+		if (button.classList.contains('disabled')) {
 			return;
 		}
 		const skin = EnchantAssets.actionButton.hover || EnchantAssets.actionButton.normal;
-		button.css('backgroundImage', 'url(' + skin + ')');
+		button.style.backgroundImage = `url(${skin})`;
 	});
 }
 
 function applyScrollSkin(up, down, bg, thumb) {
-	if (!Enchant.ui || !Enchant.ui.length) {
+	const root = _root();
+	if (!root) {
 		return;
 	}
-	const root = Enchant.ui[0];
-	root.style.setProperty('--enchant-scroll-up', 'url(' + up + ')');
-	root.style.setProperty('--enchant-scroll-down', 'url(' + down + ')');
-	root.style.setProperty('--enchant-scroll-track', 'url(' + bg + ')');
-	root.style.setProperty('--enchant-scroll-thumb', 'url(' + thumb + ')');
+	const inner = root.querySelector('#Enchant');
+	if (!inner) {
+		return;
+	}
+	inner.style.setProperty('--enchant-scroll-up', `url(${up})`);
+	inner.style.setProperty('--enchant-scroll-down', `url(${down})`);
+	inner.style.setProperty('--enchant-scroll-track', `url(${bg})`);
+	inner.style.setProperty('--enchant-scroll-thumb', `url(${thumb})`);
 }
 
 function ensureEffectOverlay() {
 	if (EnchantEffectState.overlayNode) {
 		return EnchantEffectState.overlayNode;
 	}
-	EnchantEffectState.overlayNode = jQuery('<div id="EnchantEffectOverlay"></div>').appendTo('body');
-	return EnchantEffectState.overlayNode;
+	const overlay = document.createElement('div');
+	overlay.id = 'EnchantEffectOverlay';
+	document.body.appendChild(overlay);
+	EnchantEffectState.overlayNode = overlay;
+	return overlay;
 }
 
 function getEffectAnchorPosition() {
@@ -524,15 +576,27 @@ function spawnEnchantEffect(effectId) {
 	ensureEffectRenderActive();
 }
 
-function showEffectOverlay() {
-	const overlay = ensureEffectOverlay();
-	if (EnchantEffectState.overlayActive) {
-		overlay.show();
+function ensureEffectStyle() {
+	if (_effectStyleNode) {
 		return;
 	}
-	overlay.show();
+	_effectStyleNode = document.createElement('style');
+	_effectStyleNode.textContent =
+		'#EnchantEffectOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:transparent;z-index:1000;display:none;}' +
+		'body.enchant-effect-active>*:not(canvas):not(.cursor):not(#EnchantEffectOverlay){filter:brightness(0.6);}';
+	document.head.appendChild(_effectStyleNode);
+}
+
+function showEffectOverlay() {
+	ensureEffectStyle();
+	const overlay = ensureEffectOverlay();
+	if (EnchantEffectState.overlayActive) {
+		overlay.style.display = 'block';
+		return;
+	}
+	overlay.style.display = 'block';
 	EnchantEffectState.overlayActive = true;
-	jQuery('body').addClass('enchant-effect-active');
+	document.body.classList.add('enchant-effect-active');
 	ensureEffectRenderActive();
 }
 
@@ -550,10 +614,10 @@ function hideEffectOverlay() {
 		Renderer.canvas.style.pointerEvents = EnchantEffectState.canvasStyles.pointerEvents;
 	}
 	if (EnchantEffectState.overlayNode) {
-		EnchantEffectState.overlayNode.hide();
+		EnchantEffectState.overlayNode.style.display = 'none';
 	}
 	EnchantEffectState.overlayActive = false;
-	jQuery('body').removeClass('enchant-effect-active');
+	document.body.classList.remove('enchant-effect-active');
 	stopEffectRenderIfIdle();
 }
 
@@ -562,7 +626,7 @@ function scheduleEffectOverlayHide(delay) {
 		clearTimeout(EnchantEffectState.overlayTimer);
 	}
 	const timeout = Math.max(Number(delay) || 0, 0);
-	EnchantEffectState.overlayTimer = setTimeout(function () {
+	EnchantEffectState.overlayTimer = setTimeout(() => {
 		hideEffectOverlay();
 	}, timeout);
 }
@@ -608,7 +672,7 @@ function cacheEffectDuration(effectId) {
 }
 
 function preloadEnchantEffectDurations() {
-	Object.keys(EnchantEffectGroups).forEach(function (key) {
+	Object.keys(EnchantEffectGroups).forEach((key) => {
 		const group = EnchantEffectGroups[key];
 		cacheEffectDuration(group.intro);
 		cacheEffectDuration(group.success);
@@ -660,7 +724,7 @@ function playResultEffect(action, success) {
 		clearTimeout(EnchantEffectState.resultTimer);
 	}
 	if (delay > 0) {
-		EnchantEffectState.resultTimer = setTimeout(function () {
+		EnchantEffectState.resultTimer = setTimeout(() => {
 			playEffect(effectId);
 		}, delay);
 	} else {
@@ -680,8 +744,8 @@ function loadItemIcon(target, itemId, isIdentified) {
 	if (!name) {
 		return;
 	}
-	Client.loadFile(DB.INTERFACE_PATH + 'item/' + name + '.bmp', function (data) {
-		target.css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'item/' + name + '.bmp', (data) => {
+		target.style.backgroundImage = `url(${data})`;
 	});
 }
 
@@ -696,25 +760,25 @@ function loadItemCollection(target, itemId, isIdentified) {
 	}
 	Client.loadFile(
 		DB.INTERFACE_PATH + 'collection/' + name + '.bmp',
-		function (data) {
-			target.css('backgroundImage', 'url(' + data + ')');
+		(data) => {
+			target.style.backgroundImage = `url(${data})`;
 		},
-		function () {
+		() => {
 			loadItemIcon(target, itemId, isIdentified);
 		}
 	);
 }
 
 function loadGradeIcon(target, grade) {
-	if (!target || !target.length) {
+	if (!target) {
 		return;
 	}
 	if (!grade || grade <= 0) {
-		target.css('backgroundImage', '');
+		target.style.backgroundImage = '';
 		return;
 	}
-	Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + grade + '.bmp', function (data) {
-		target.css('backgroundImage', 'url(' + data + ')');
+	Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + grade + '.bmp', (data) => {
+		target.style.backgroundImage = `url(${data})`;
 	});
 }
 
@@ -776,17 +840,28 @@ function canAffordCost(zeny, materials) {
 }
 
 function renderMaterials(materials) {
-	const list = Enchant.ui.find('.material_list');
-	list.empty();
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const list = root.querySelector('.material_list');
+	if (!list) {
+		return;
+	}
+	list.innerHTML = '';
 	if (!materials || !materials.length) {
 		return;
 	}
 	const inventoryUI = Inventory.getUI && Inventory.getUI();
-	materials.forEach(function (mat) {
-		const entry = jQuery('<div class="material"></div>');
-		const icon = jQuery('<div class="icon"></div>');
-		const name = jQuery('<div class="name"></div>');
-		const count = jQuery('<div class="count"></div>');
+	materials.forEach((mat) => {
+		const entry = document.createElement('div');
+		entry.className = 'material';
+		const icon = document.createElement('div');
+		icon.className = 'icon';
+		const nameEl = document.createElement('div');
+		nameEl.className = 'name';
+		const count = document.createElement('div');
+		count.className = 'count';
 		const matId = resolveMaterialId(mat);
 		const label = matId ? getItemDisplayName(matId, mat.base) : mat.base || 'Unknown';
 		let current = 0;
@@ -795,56 +870,68 @@ function renderMaterials(materials) {
 			const inventoryItem = inventoryUI.getItemById(matId);
 			current = inventoryItem ? inventoryItem.count : 0;
 		}
-		name.text(label);
+		nameEl.textContent = label;
 		if (mat.count != null) {
-			count.text(matId ? current + '/' + required : 'x' + required);
+			count.textContent = matId ? current + '/' + required : 'x' + required;
 		}
-		entry.attr(
-			'data-background',
-			matId && current >= required ? 'enchantui/bg_enc_on.bmp' : 'enchantui/bg_enc_off.bmp'
-		);
-		entry.append(icon).append(name).append(count);
-		list.append(entry);
-		Enchant.parseHTML.call(entry[0]);
-		icon.attr('data-name', label);
+		entry.dataset.background = matId && current >= required ? 'enchantui/bg_enc_on.bmp' : 'enchantui/bg_enc_off.bmp';
+		entry.appendChild(icon);
+		entry.appendChild(nameEl);
+		entry.appendChild(count);
+		list.appendChild(entry);
+		GUIComponent.processDataAttrs(entry);
+		icon.dataset.name = label;
 		if (matId) {
-			icon.attr('data-itid', matId);
+			icon.dataset.itid = matId;
 			loadItemIcon(icon, matId, true);
 		}
 	});
 }
 
 function renderEnchantList(entries, selectedKey) {
-	const list = Enchant.ui.find('.enchant_list');
-	list.empty();
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const list = root.querySelector('.enchant_list');
+	if (!list) {
+		return;
+	}
+	list.innerHTML = '';
 	if (!entries || !entries.length) {
 		return;
 	}
-	entries.forEach(function (entry) {
-		const row = jQuery('<div class="enchant_entry"></div>');
-		const icon = jQuery('<div class="entry_icon"></div>');
-		const text = jQuery('<div class="entry_text"></div>');
-		const name = jQuery('<div class="entry_name"></div>');
+	entries.forEach((entry) => {
+		const row = document.createElement('div');
+		row.className = 'enchant_entry';
+		const icon = document.createElement('div');
+		icon.className = 'entry_icon';
+		const text = document.createElement('div');
+		text.className = 'entry_text';
+		const name = document.createElement('div');
+		name.className = 'entry_name';
 		const itid = entry.id || (entry.base ? DB.getItemIdfromBase(entry.base) : 0);
-		name.text(entry.label || '');
-		text.append(name);
+		name.textContent = entry.label || '';
+		text.appendChild(name);
 		if (entry.subLabel) {
-			const sub = jQuery('<div class="entry_sub"></div>');
-			sub.text(entry.subLabel);
-			text.append(sub);
+			const sub = document.createElement('div');
+			sub.className = 'entry_sub';
+			sub.textContent = entry.subLabel;
+			text.appendChild(sub);
 		}
-		row.attr('data-key', entry.key);
-		row.attr('data-itid', itid || 0);
-		row.attr('data-name', entry.label || '');
-		row.attr('data-background', 'enchantui/btn_enc_item.bmp');
-		row.attr('data-hover', 'enchantui/btn_enc_item_over.bmp');
-		row.attr('data-down', 'enchantui/btn_enc_item_press.bmp');
-		row.attr('data-active', 'enchantui/btn_enc_item_press.bmp');
-		row.toggleClass('disabled', !!entry.disabled);
-		row.toggleClass('active', selectedKey != null && String(entry.key) === String(selectedKey));
-		row.append(icon).append(text);
-		list.append(row);
-		Enchant.parseHTML.call(row[0]);
+		row.dataset.key = entry.key;
+		row.dataset.itid = itid || 0;
+		row.dataset.name = entry.label || '';
+		row.dataset.background = 'enchantui/btn_enc_item.bmp';
+		row.dataset.hover = 'enchantui/btn_enc_item_over.bmp';
+		row.dataset.down = 'enchantui/btn_enc_item_press.bmp';
+		row.dataset.active = 'enchantui/btn_enc_item_press.bmp';
+		row.classList.toggle('disabled', !!entry.disabled);
+		row.classList.toggle('active', selectedKey != null && String(entry.key) === String(selectedKey));
+		row.appendChild(icon);
+		row.appendChild(text);
+		list.appendChild(row);
+		GUIComponent.processDataAttrs(row);
 		if (itid) {
 			loadItemIcon(icon, itid, true);
 		}
@@ -852,11 +939,21 @@ function renderEnchantList(entries, selectedKey) {
 }
 
 function renderItemList() {
-	const list = Enchant.ui.find('.item_list');
-	list.empty();
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const list = root.querySelector('.item_list');
+	if (!list) {
+		return;
+	}
+	list.innerHTML = '';
 
 	if (!EnchantState.group) {
-		list.append('<div class="item_list_empty">Enchant data missing.</div>');
+		const empty = document.createElement('div');
+		empty.className = 'item_list_empty';
+		empty.textContent = 'Enchant data missing.';
+		list.appendChild(empty);
 		return;
 	}
 
@@ -866,7 +963,7 @@ function renderItemList() {
 	let selectedValid = false;
 	const candidates = [];
 
-	items.forEach(function (item) {
+	items.forEach((item) => {
 		const result = validateItem(item);
 		if (!result.ok) {
 			return;
@@ -887,45 +984,62 @@ function renderItemList() {
 	}
 
 	if (!candidates.length) {
-		list.append('<div class="item_list_empty">No enchantable items.</div>');
+		const empty = document.createElement('div');
+		empty.className = 'item_list_empty';
+		empty.textContent = 'No enchantable items.';
+		list.appendChild(empty);
 		return;
 	}
 
-	candidates.forEach(function (item) {
-		const entry = jQuery('<button class="item_entry"></button>');
-		const slot = jQuery('<div class="item_slot"></div>');
-		const info = jQuery('<div class="item_info"></div>');
-		const name = jQuery('<div class="item_name"></div>');
-		const grade = jQuery('<div class="item_grade"></div>');
+	candidates.forEach((item) => {
+		const entry = document.createElement('button');
+		entry.className = 'item_entry';
+		const slot = document.createElement('div');
+		slot.className = 'item_slot';
+		const info = document.createElement('div');
+		info.className = 'item_info';
+		const name = document.createElement('div');
+		name.className = 'item_name';
+		const grade = document.createElement('div');
+		grade.className = 'item_grade';
 		const itemName = DB.getItemName(item, {
 			showItemRefine: true,
 			showItemGrade: false,
 			showItemOptions: false
 		});
 
-		name.text(itemName);
-		info.append(name).append(grade);
+		name.textContent = itemName;
+		info.appendChild(name);
+		info.appendChild(grade);
 
-		entry.attr('data-index', item.index);
-		entry.attr('data-name', itemName);
-		entry.attr('data-background', 'enchantui/bg_enc_gear.bmp');
-		entry.attr('data-hover', 'enchantui/bg_enc_gear_over.bmp');
-		entry.attr('data-down', 'enchantui/bg_enc_gear_press.bmp');
-		entry.attr('data-active', 'enchantui/bg_enc_gear_press.bmp');
-		entry.toggleClass('active', selectedIndex && item.index === selectedIndex);
-		entry.append(slot).append(info);
-		list.append(entry);
-		Enchant.parseHTML.call(entry[0]);
-		slot.attr('data-itid', item.ITID);
-		slot.attr('data-name', itemName);
+		entry.dataset.index = item.index;
+		entry.dataset.name = itemName;
+		entry.dataset.background = 'enchantui/bg_enc_gear.bmp';
+		entry.dataset.hover = 'enchantui/bg_enc_gear_over.bmp';
+		entry.dataset.down = 'enchantui/bg_enc_gear_press.bmp';
+		entry.dataset.active = 'enchantui/bg_enc_gear_press.bmp';
+		entry.classList.toggle('active', !!(selectedIndex && item.index === selectedIndex));
+		entry.appendChild(slot);
+		entry.appendChild(info);
+		list.appendChild(entry);
+		GUIComponent.processDataAttrs(entry);
+		slot.dataset.itid = item.ITID;
+		slot.dataset.name = itemName;
 		loadItemIcon(slot, item.ITID, item.IsIdentified);
 		loadGradeIcon(grade, getItemGrade(item));
 	});
 }
 
 function renderItemPreview() {
-	const preview = Enchant.ui.find('.preview_item');
-	preview.css('backgroundImage', '');
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const preview = root.querySelector('.preview_item');
+	if (!preview) {
+		return;
+	}
+	preview.style.backgroundImage = '';
 	if (!EnchantState.item) {
 		return;
 	}
@@ -933,63 +1047,104 @@ function renderItemPreview() {
 }
 
 function renderSlots() {
-	const list = Enchant.ui.find('.slot_list');
-	let empty = list.find('.slot_empty');
-	if (!empty.length) {
-		empty = jQuery('<div class="slot_empty">Select an item</div>');
-		list.append(empty);
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const list = root.querySelector('.slot_list');
+	if (!list) {
+		return;
+	}
+	let empty = list.querySelector('.slot_empty');
+	if (!empty) {
+		empty = document.createElement('div');
+		empty.className = 'slot_empty';
+		empty.textContent = 'Select an item';
+		list.appendChild(empty);
 	}
 	const hasItem = !!(EnchantState.item && EnchantState.group);
-	empty.toggle(!hasItem);
+	empty.style.display = hasItem ? 'none' : 'flex';
 
 	const baseSlots = hasItem ? getBaseSlotCount(EnchantState.item) : 0;
-	list.find('.slot_entry').each(function () {
-		const entry = jQuery(this);
-		const slotNum = parseInt(entry.attr('data-slot'), 10);
-		const icon = entry.find('.slot_icon');
+	list.querySelectorAll('.slot_entry').forEach((entry) => {
+		const slotNum = parseInt(entry.dataset.slot, 10);
+		const icon = entry.querySelector('.slot_icon');
 		const slotItem = hasItem ? getSlotValue(EnchantState.item, slotNum) : 0;
-		entry.toggleClass('locked', hasItem && slotNum < baseSlots);
-		entry.toggleClass('active', hasItem && slotNum === EnchantState.selectedSlot);
-		entry.toggleClass('empty', !slotItem);
-		entry.attr('data-itid', slotItem || 0);
-		icon.css('backgroundImage', '');
-		if (slotItem) {
+		entry.classList.toggle('locked', hasItem && slotNum < baseSlots);
+		entry.classList.toggle('active', hasItem && slotNum === EnchantState.selectedSlot);
+		entry.classList.toggle('empty', !slotItem);
+		entry.dataset.itid = slotItem || 0;
+		if (icon) {
+			icon.style.backgroundImage = '';
+		}
+		if (slotItem && icon) {
 			loadItemIcon(icon, slotItem, true);
 		}
 	});
 }
 
 function updateTabs(availability) {
-	Enchant.ui.find('.action_tabs .tab').each(function () {
-		const action = this.dataset.action;
-		jQuery(this).toggleClass('active', EnchantState.action === action);
-		jQuery(this).toggleClass('disabled', availability && availability[action] === false);
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	root.querySelectorAll('.action_tabs .tab').forEach((tab) => {
+		const action = tab.dataset.action;
+		tab.classList.toggle('active', EnchantState.action === action);
+		tab.classList.toggle('disabled', availability && availability[action] === false);
 	});
 	updateSubpageSkin();
 	updateMenuSkin();
 }
 
 function updateActionSections() {
-	Enchant.ui.find('.action_section').removeClass('active');
-	Enchant.ui.find('.' + EnchantState.action + '_section').addClass('active');
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	root.querySelectorAll('.action_section').forEach((section) => {
+		section.classList.remove('active');
+	});
+	const activeSection = root.querySelector('.' + EnchantState.action + '_section');
+	if (activeSection) {
+		activeSection.classList.add('active');
+	}
 }
 
 function updateActionButton(enabled) {
-	const button = Enchant.ui.find('.action_btn');
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const button = root.querySelector('.action_btn');
+	if (!button) {
+		return;
+	}
 	const label = EnchantState.action === 'reset' ? 'Reset' : 'Enchant';
-	button.text('');
-	button.attr('title', label);
-	button.toggleClass('disabled', !enabled);
+	button.textContent = '';
+	button.title = label;
+	button.classList.toggle('disabled', !enabled);
 	updateActionButtonSkin(button, enabled);
 }
 
 function renderCosts(rate, zeny, materials) {
+	const root = _root();
+	if (!root) {
+		return;
+	}
 	const zenyText = zeny != null ? formatZeny(zeny) : '';
-	Enchant.ui.find('.zeny_cost').text(zenyText);
+	const zenyCost = root.querySelector('.zeny_cost');
+	if (zenyCost) {
+		zenyCost.textContent = zenyText;
+	}
 	renderMaterials(materials);
 }
 
 function refreshActionContent() {
+	const root = _root();
+	if (!root) {
+		return;
+	}
 	const group = EnchantState.group;
 	const item = EnchantState.item;
 	let actionReady = false;
@@ -1002,7 +1157,10 @@ function refreshActionContent() {
 	let listEntries = [];
 	let selectedKey = null;
 
-	Enchant.ui.find('.upgrade_result').text('');
+	const upgradeResult = root.querySelector('.upgrade_result');
+	if (upgradeResult) {
+		upgradeResult.textContent = '';
+	}
 
 	if (group && item) {
 		const slotNum = getNextEnchantSlot(item, group);
@@ -1023,7 +1181,7 @@ function refreshActionContent() {
 
 		let hasEnchant = false;
 		const slotOrder = group.slotOrder && group.slotOrder.length ? group.slotOrder : [0, 1, 2, 3];
-		slotOrder.forEach(function (orderSlot) {
+		slotOrder.forEach((orderSlot) => {
 			if (orderSlot >= baseSlots && getSlotValue(item, orderSlot)) {
 				hasEnchant = true;
 			}
@@ -1033,9 +1191,7 @@ function refreshActionContent() {
 		}
 
 		if (!availability[EnchantState.action]) {
-			const nextAction = Object.keys(availability).find(function (key) {
-				return availability[key];
-			});
+			const nextAction = Object.keys(availability).find((key) => availability[key]);
 			EnchantState.action = nextAction || EnchantState.action;
 		}
 
@@ -1054,16 +1210,13 @@ function refreshActionContent() {
 				actionReady = availability.random && canAffordCost(require.zeny, require.materials);
 				if (slotData.random) {
 					const randomList = slotData.random[grade] || slotData.random[0] || [];
-					listEntries = randomList.map(function (entry) {
-						const label = entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base;
-						return {
-							key: entry.id || entry.base || label,
-							id: entry.id,
-							base: entry.base,
-							label: label,
-							disabled: true
-						};
-					});
+					listEntries = randomList.map((entry) => ({
+						key: entry.id || entry.base || (entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base),
+						id: entry.id,
+						base: entry.base,
+						label: entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base,
+						disabled: true
+					}));
 				}
 			} else {
 				renderCosts(null, 0, []);
@@ -1072,15 +1225,22 @@ function refreshActionContent() {
 
 		if (EnchantState.action === 'perfect') {
 			EnchantState.selectedSlot = slotNum;
-			const select = Enchant.ui.find('.perfect_select');
-			select.empty();
+			const select = root.querySelector('.perfect_select');
 			const perfectEntries = [];
+			if (select) {
+				select.innerHTML = '';
+			}
 			if (slotData && slotData.perfect) {
 				const perfectList = Object.keys(slotData.perfect);
-				perfectList.forEach(function (key) {
+				perfectList.forEach((key) => {
 					const entry = slotData.perfect[key];
 					const label = entry.id ? getItemDisplayName(entry.id, entry.base) : entry.base;
-					select.append('<option value="' + key + '">' + label + '</option>');
+					if (select) {
+						const option = document.createElement('option');
+						option.value = key;
+						option.textContent = label;
+						select.appendChild(option);
+					}
 					perfectEntries.push({
 						key: key,
 						id: entry.id,
@@ -1090,14 +1250,18 @@ function refreshActionContent() {
 				});
 				if (perfectList.length) {
 					if (EnchantState.selectedPerfect && slotData.perfect[EnchantState.selectedPerfect]) {
-						select.val(EnchantState.selectedPerfect);
+						if (select) {
+							select.value = EnchantState.selectedPerfect;
+						}
 						const selected = slotData.perfect[EnchantState.selectedPerfect];
 						renderCosts(100000, selected.zeny, selected.materials);
 						actionReady = availability.perfect && canAffordCost(selected.zeny, selected.materials);
 						selectedKey = EnchantState.selectedPerfect;
 					} else {
 						EnchantState.selectedPerfect = null;
-						select.prop('selectedIndex', -1);
+						if (select) {
+							select.selectedIndex = -1;
+						}
 						renderCosts(null, 0, []);
 					}
 				} else {
@@ -1110,11 +1274,13 @@ function refreshActionContent() {
 		}
 
 		if (EnchantState.action === 'upgrade') {
-			const upgradeSelect = Enchant.ui.find('.upgrade_select');
-			upgradeSelect.empty();
+			const upgradeSelect = root.querySelector('.upgrade_select');
 			const upgradeEntries = [];
+			if (upgradeSelect) {
+				upgradeSelect.innerHTML = '';
+			}
 			if (upgradeCandidates.length) {
-				upgradeCandidates.forEach(function (candidate) {
+				upgradeCandidates.forEach((candidate) => {
 					const currentName = getItemDisplayName(candidate.currentId, candidate.baseName);
 					const resultId = candidate.entry.result
 						? candidate.entry.result.id || DB.getItemIdfromBase(candidate.entry.result.base)
@@ -1124,17 +1290,12 @@ function refreshActionContent() {
 						: candidate.entry.result
 							? candidate.entry.result.base
 							: '';
-					upgradeSelect.append(
-						'<option value="' +
-							candidate.slotNum +
-							'">Slot ' +
-							(candidate.slotNum + 1) +
-							': ' +
-							currentName +
-							' -> ' +
-							resultName +
-							'</option>'
-					);
+					if (upgradeSelect) {
+						const option = document.createElement('option');
+						option.value = candidate.slotNum;
+						option.textContent = `Slot ${candidate.slotNum + 1}: ${currentName} -> ${resultName}`;
+						upgradeSelect.appendChild(option);
+					}
 					upgradeEntries.push({
 						key: String(candidate.slotNum),
 						id: resultId || 0,
@@ -1144,24 +1305,27 @@ function refreshActionContent() {
 				});
 				if (
 					!EnchantState.selectedUpgradeSlot ||
-					!upgradeCandidates.find(function (candidate) {
-						return candidate.slotNum === EnchantState.selectedUpgradeSlot;
-					})
+					!upgradeCandidates.find((candidate) => candidate.slotNum === EnchantState.selectedUpgradeSlot)
 				) {
 					EnchantState.selectedUpgradeSlot = upgradeCandidates[0].slotNum;
 				}
-				upgradeSelect.val(EnchantState.selectedUpgradeSlot);
-				const selectedEntry = upgradeCandidates.find(function (candidate) {
-					return candidate.slotNum === EnchantState.selectedUpgradeSlot;
-				});
+				if (upgradeSelect) {
+					upgradeSelect.value = EnchantState.selectedUpgradeSlot;
+				}
+				const selectedEntry = upgradeCandidates.find(
+					(candidate) => candidate.slotNum === EnchantState.selectedUpgradeSlot
+				);
 				if (selectedEntry) {
 					EnchantState.selectedSlot = selectedEntry.slotNum;
-					Enchant.ui
-						.find('.upgrade_result')
-						.text('Result: ' + (selectedEntry.entry.result ? selectedEntry.entry.result.base : ''));
+					const ur = root.querySelector('.upgrade_result');
+					if (ur) {
+						ur.textContent =
+							'Result: ' + (selectedEntry.entry.result ? selectedEntry.entry.result.base : '');
+					}
 					renderCosts(100000, selectedEntry.entry.zeny, selectedEntry.entry.materials);
 					actionReady =
-						availability.upgrade && canAffordCost(selectedEntry.entry.zeny, selectedEntry.entry.materials);
+						availability.upgrade &&
+						canAffordCost(selectedEntry.entry.zeny, selectedEntry.entry.materials);
 					selectedKey = String(EnchantState.selectedUpgradeSlot);
 				}
 			} else {
@@ -1236,13 +1400,12 @@ function getInventoryItemByIndex(index) {
 }
 
 function resolveItemContext(target) {
-	const node = jQuery(target);
-	const slotEntry = node.closest('.slot_entry');
-	if (slotEntry.length) {
+	const slotEntry = target.closest('.slot_entry');
+	if (slotEntry) {
 		if (!EnchantState.item) {
 			return null;
 		}
-		const slotNum = parseInt(slotEntry.attr('data-slot'), 10);
+		const slotNum = parseInt(slotEntry.dataset.slot, 10);
 		if (isNaN(slotNum)) {
 			return null;
 		}
@@ -1258,45 +1421,45 @@ function resolveItemContext(target) {
 		};
 	}
 
-	const itemEntry = node.closest('.item_entry');
-	if (itemEntry.length) {
-		const index = parseInt(itemEntry.attr('data-index'), 10);
+	const itemEntry = target.closest('.item_entry');
+	if (itemEntry) {
+		const index = parseInt(itemEntry.dataset.index, 10);
 		let invItem = !isNaN(index) ? getInventoryItemByIndex(index) : null;
 		if (!invItem) {
-			const itemId = parseInt(node.attr('data-itid'), 10);
+			const itemId = parseInt(target.dataset.itid, 10);
 			if (!isNaN(itemId) && itemId) {
 				invItem = { ITID: itemId, IsIdentified: 1 };
 			}
 		}
 		return {
 			item: invItem,
-			label: node.attr('data-name') || itemEntry.attr('data-name') || '',
+			label: target.dataset.name || itemEntry.dataset.name || '',
 			identified: invItem ? !!invItem.IsIdentified : true,
-			anchor: node
+			anchor: target
 		};
 	}
 
-	const materialIcon = node.closest('.material .icon');
-	if (materialIcon.length) {
-		const matId = parseInt(materialIcon.attr('data-itid'), 10);
+	const materialIcon = target.closest('.material .icon');
+	if (materialIcon) {
+		const matId = parseInt(materialIcon.dataset.itid, 10);
 		const matItem = !isNaN(matId) && matId ? { ITID: matId, IsIdentified: 1 } : null;
 		return {
 			item: matItem,
-			label: materialIcon.attr('data-name') || '',
+			label: materialIcon.dataset.name || '',
 			identified: true,
 			anchor: materialIcon
 		};
 	}
 
-	const enchantEntry = node.closest('.enchant_entry');
-	if (enchantEntry.length) {
-		const enchantId = parseInt(enchantEntry.attr('data-itid'), 10);
+	const enchantEntry = target.closest('.enchant_entry');
+	if (enchantEntry) {
+		const enchantId = parseInt(enchantEntry.dataset.itid, 10);
 		const enchantItem = !isNaN(enchantId) && enchantId ? { ITID: enchantId, IsIdentified: 1 } : null;
 		return {
 			item: enchantItem,
-			label: enchantEntry.attr('data-name') || '',
+			label: enchantEntry.dataset.name || '',
 			identified: true,
-			anchor: node
+			anchor: target
 		};
 	}
 
@@ -1315,7 +1478,7 @@ function onIconOver(event) {
 	if (!label) {
 		return;
 	}
-	showHoverOverlay(label, context.identified, context.anchor || jQuery(event.currentTarget));
+	showHoverOverlay(label, context.identified, context.anchor || event.currentTarget);
 }
 
 function onIconOut() {
@@ -1329,34 +1492,36 @@ function onIconInfo(event) {
 	if (context && context.item) {
 		showItemInfo(context.item);
 	}
-	return false;
 }
 
 function onActionSelect(event) {
 	const action = event.currentTarget.dataset.action;
-	if (jQuery(event.currentTarget).hasClass('disabled')) {
+	if (event.currentTarget.classList.contains('disabled')) {
 		return;
 	}
 	EnchantState.action = action;
 	refreshUI();
 }
 
-function onPerfectChange() {
-	EnchantState.selectedPerfect = this.value;
+function onPerfectChange(event) {
+	EnchantState.selectedPerfect = event.currentTarget.value;
 	refreshUI();
 }
 
-function onUpgradeChange() {
-	EnchantState.selectedUpgradeSlot = parseInt(this.value, 10);
+function onUpgradeChange(event) {
+	EnchantState.selectedUpgradeSlot = parseInt(event.currentTarget.value, 10);
 	refreshUI();
 }
 
 function onEnchantListSelect(event) {
-	const entry = jQuery(event.currentTarget);
-	if (entry.hasClass('disabled')) {
+	const entry = event.target.closest('.enchant_entry');
+	if (!entry) {
 		return;
 	}
-	const key = entry.attr('data-key');
+	if (entry.classList.contains('disabled')) {
+		return;
+	}
+	const key = entry.dataset.key;
 	if (EnchantState.action === 'perfect') {
 		EnchantState.selectedPerfect = key;
 		refreshUI();
@@ -1372,8 +1537,11 @@ function onEnchantListSelect(event) {
 }
 
 function onItemSelect(event) {
-	const entry = jQuery(event.currentTarget);
-	const index = parseInt(entry.attr('data-index'), 10);
+	const entry = event.target.closest('.item_entry');
+	if (!entry) {
+		return;
+	}
+	const index = parseInt(entry.dataset.index, 10);
 	if (isNaN(index)) {
 		return;
 	}
@@ -1386,7 +1554,12 @@ function onItemSelect(event) {
 }
 
 function onRequestAction() {
-	if (Enchant.ui.find('.action_btn').hasClass('disabled')) {
+	const root = _root();
+	if (!root) {
+		return;
+	}
+	const actionBtn = root.querySelector('.action_btn');
+	if (actionBtn && actionBtn.classList.contains('disabled')) {
 		return;
 	}
 	if (!EnchantState.group || !EnchantState.item) {
@@ -1450,7 +1623,9 @@ function onRequestAction() {
 	};
 
 	EnchantState.pendingLock = true;
-	Enchant.ui.find('.close, .close_btn').prop('disabled', true);
+	root.querySelectorAll('.close, .close_btn').forEach((btn) => {
+		btn.disabled = true;
+	});
 	Network.sendPacket(pkt);
 	setStatus('Request sent...', false);
 }
@@ -1465,7 +1640,7 @@ function applyEnchantResult(item, action, slotNum, itid) {
 			EnchantState.group && EnchantState.group.slotOrder && EnchantState.group.slotOrder.length
 				? EnchantState.group.slotOrder
 				: [0, 1, 2, 3];
-		slotOrder.forEach(function (orderSlot) {
+		slotOrder.forEach((orderSlot) => {
 			if (orderSlot >= baseSlots) {
 				setSlotValue(item, orderSlot, 0);
 			}
@@ -1507,14 +1682,18 @@ function onRequestClose() {
 }
 
 Enchant.onKeyDown = function onKeyDown(event) {
+	if (Enchant.isEditableFocused()) {
+		return;
+	}
 	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && Enchant.ui.is(':visible')) {
 		onRequestClose();
 	}
 };
 
 Enchant.init = function init() {
+	const root = _root();
 	this.ui.css({ top: 200, left: 360 });
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable(root.querySelector('.titlebar'));
 	preloadEnchantEffectDurations();
 
 	Client.loadFiles(
@@ -1560,10 +1739,10 @@ Enchant.init = function init() {
 			EnchantAssets.actionButton.down = down;
 			EnchantAssets.actionButton.disabled = disabled;
 			bindActionButtonSkin();
-			updateActionButtonSkin(
-				Enchant.ui.find('.action_btn'),
-				!Enchant.ui.find('.action_btn').hasClass('disabled')
-			);
+			const actionBtn = _root() ? _root().querySelector('.action_btn') : null;
+			if (actionBtn) {
+				updateActionButtonSkin(actionBtn, !actionBtn.classList.contains('disabled'));
+			}
 		}
 	);
 
@@ -1577,33 +1756,124 @@ Enchant.init = function init() {
 		applyScrollSkin
 	);
 
-	this.ui.find('.close, .close_btn').click(onRequestClose);
-	this.ui.find('.item_list').on('click', '.item_entry', onItemSelect);
-	this.ui
-		.find('.item_list')
-		.on('mouseover', '.item_slot', onIconOver)
-		.on('mouseout', '.item_slot', onIconOut)
-		.on('contextmenu', '.item_slot', onIconInfo);
-	this.ui.find('.action_tabs').on('click', '.tab', onActionSelect);
-	this.ui.find('.perfect_select').change(onPerfectChange);
-	this.ui.find('.upgrade_select').change(onUpgradeChange);
-	this.ui
-		.find('.material_list')
-		.on('mouseover', '.icon', onIconOver)
-		.on('mouseout', '.icon', onIconOut)
-		.on('contextmenu', '.icon', onIconInfo);
-	this.ui
-		.find('.slot_list')
-		.on('mouseover', '.slot_icon', onIconOver)
-		.on('mouseout', '.slot_icon', onIconOut)
-		.on('contextmenu', '.slot_icon', onIconInfo);
-	this.ui
-		.find('.enchant_list')
-		.on('click', '.enchant_entry', onEnchantListSelect)
-		.on('mouseover', '.entry_icon', onIconOver)
-		.on('mouseout', '.entry_icon', onIconOut)
-		.on('contextmenu', '.entry_icon', onIconInfo);
-	this.ui.find('.action_btn').click(onRequestAction);
+	root.querySelectorAll('.close, .close_btn').forEach((btn) => {
+		btn.addEventListener('click', onRequestClose);
+	});
+
+	const itemList = root.querySelector('.item_list');
+	if (itemList) {
+		itemList.addEventListener('click', onItemSelect);
+		itemList.addEventListener('mouseover', (e) => {
+			const slot = e.target.closest('.item_slot');
+			if (slot) {
+				onIconOver({ currentTarget: slot });
+			}
+		});
+		itemList.addEventListener('mouseout', (e) => {
+			const slot = e.target.closest('.item_slot');
+			if (slot) {
+				onIconOut();
+			}
+		});
+		itemList.addEventListener('contextmenu', (e) => {
+			const slot = e.target.closest('.item_slot');
+			if (slot) {
+				onIconInfo({ currentTarget: slot, preventDefault: () => e.preventDefault(), stopImmediatePropagation: () => e.stopImmediatePropagation() });
+			}
+		});
+	}
+
+	const actionTabs = root.querySelector('.action_tabs');
+	if (actionTabs) {
+		actionTabs.addEventListener('click', (e) => {
+			const tab = e.target.closest('.tab');
+			if (tab) {
+				onActionSelect({ currentTarget: tab });
+			}
+		});
+	}
+
+	const perfectSelect = root.querySelector('.perfect_select');
+	if (perfectSelect) {
+		perfectSelect.addEventListener('change', onPerfectChange);
+	}
+
+	const upgradeSelect = root.querySelector('.upgrade_select');
+	if (upgradeSelect) {
+		upgradeSelect.addEventListener('change', onUpgradeChange);
+	}
+
+	const materialList = root.querySelector('.material_list');
+	if (materialList) {
+		materialList.addEventListener('mouseover', (e) => {
+			const icon = e.target.closest('.icon');
+			if (icon) {
+				onIconOver({ currentTarget: icon });
+			}
+		});
+		materialList.addEventListener('mouseout', (e) => {
+			const icon = e.target.closest('.icon');
+			if (icon) {
+				onIconOut();
+			}
+		});
+		materialList.addEventListener('contextmenu', (e) => {
+			const icon = e.target.closest('.icon');
+			if (icon) {
+				onIconInfo({ currentTarget: icon, preventDefault: () => e.preventDefault(), stopImmediatePropagation: () => e.stopImmediatePropagation() });
+			}
+		});
+	}
+
+	const slotList = root.querySelector('.slot_list');
+	if (slotList) {
+		slotList.addEventListener('mouseover', (e) => {
+			const icon = e.target.closest('.slot_icon');
+			if (icon) {
+				onIconOver({ currentTarget: icon });
+			}
+		});
+		slotList.addEventListener('mouseout', (e) => {
+			const icon = e.target.closest('.slot_icon');
+			if (icon) {
+				onIconOut();
+			}
+		});
+		slotList.addEventListener('contextmenu', (e) => {
+			const icon = e.target.closest('.slot_icon');
+			if (icon) {
+				onIconInfo({ currentTarget: icon, preventDefault: () => e.preventDefault(), stopImmediatePropagation: () => e.stopImmediatePropagation() });
+			}
+		});
+	}
+
+	const enchantList = root.querySelector('.enchant_list');
+	if (enchantList) {
+		enchantList.addEventListener('click', onEnchantListSelect);
+		enchantList.addEventListener('mouseover', (e) => {
+			const icon = e.target.closest('.entry_icon');
+			if (icon) {
+				onIconOver({ currentTarget: icon });
+			}
+		});
+		enchantList.addEventListener('mouseout', (e) => {
+			const icon = e.target.closest('.entry_icon');
+			if (icon) {
+				onIconOut();
+			}
+		});
+		enchantList.addEventListener('contextmenu', (e) => {
+			const icon = e.target.closest('.entry_icon');
+			if (icon) {
+				onIconInfo({ currentTarget: icon, preventDefault: () => e.preventDefault(), stopImmediatePropagation: () => e.stopImmediatePropagation() });
+			}
+		});
+	}
+
+	const actionBtn = root.querySelector('.action_btn');
+	if (actionBtn) {
+		actionBtn.addEventListener('click', onRequestAction);
+	}
 };
 
 Enchant.onAppend = function onAppend() {
@@ -1612,18 +1882,52 @@ Enchant.onAppend = function onAppend() {
 };
 
 Enchant.onRemove = function onRemove() {
+	const root = _root();
 	clearState();
-	Enchant.ui.find('.close, .close_btn').prop('disabled', false);
-	this.ui.find('.slot_entry').removeClass('locked active').attr('title', '');
-	this.ui.find('.slot_icon').css('backgroundImage', '');
-	this.ui.find('.material_list').empty();
-	this.ui.find('.enchant_list').empty();
-	this.ui.find('.perfect_select').empty();
-	this.ui.find('.upgrade_select').empty();
-	this.ui.find('.upgrade_result').text('');
-	this.ui.find('.zeny_cost').text('');
-	this.ui.find('.item_list').empty();
-	this.ui.find('.preview_item').css('backgroundImage', '');
+	if (root) {
+		root.querySelectorAll('.close, .close_btn').forEach((btn) => {
+			btn.disabled = false;
+		});
+		root.querySelectorAll('.slot_entry').forEach((entry) => {
+			entry.classList.remove('locked', 'active');
+			entry.title = '';
+		});
+		root.querySelectorAll('.slot_icon').forEach((icon) => {
+			icon.style.backgroundImage = '';
+		});
+		const materialList = root.querySelector('.material_list');
+		if (materialList) {
+			materialList.innerHTML = '';
+		}
+		const enchantList = root.querySelector('.enchant_list');
+		if (enchantList) {
+			enchantList.innerHTML = '';
+		}
+		const perfectSelect = root.querySelector('.perfect_select');
+		if (perfectSelect) {
+			perfectSelect.innerHTML = '';
+		}
+		const upgradeSelect = root.querySelector('.upgrade_select');
+		if (upgradeSelect) {
+			upgradeSelect.innerHTML = '';
+		}
+		const upgradeResult = root.querySelector('.upgrade_result');
+		if (upgradeResult) {
+			upgradeResult.textContent = '';
+		}
+		const zenyCost = root.querySelector('.zeny_cost');
+		if (zenyCost) {
+			zenyCost.textContent = '';
+		}
+		const itemList = root.querySelector('.item_list');
+		if (itemList) {
+			itemList.innerHTML = '';
+		}
+		const previewItem = root.querySelector('.preview_item');
+		if (previewItem) {
+			previewItem.style.backgroundImage = '';
+		}
+	}
 	hideHoverOverlay();
 	setStatus('', false);
 };
@@ -1637,7 +1941,7 @@ Enchant.onOpenEnchantUI = function onOpenEnchantUI(groupId) {
 	}
 	Enchant.append();
 	Enchant.ui.show();
-	Enchant.ui.focus();
+	Enchant.focus();
 	refreshUI();
 };
 
