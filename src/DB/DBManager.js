@@ -943,26 +943,215 @@ class DB {
 	}
 
 	/**
-	 * Is character a TaeKwon-tree job (TaeKwon → Star Gladiator /
-	 * Soul Linker → Star Emperor / Soul Reaper / Sky Emperor /
-	 * Soul Ascetic, incl. baby and union variants) ?
+	 * Is character a Assassin class
 	 *
 	 * @param {number} jobid
 	 * @return {boolean}
 	 */
-	static isTaeKwon(jobid) {
-		return (
-			(jobid >= 4046 && jobid <= 4049) || // 1st/2nd
-			(jobid >= 4225 && jobid <= 4227) || // baby 1st/2nd
-			(jobid >= 4238 && jobid <= 4246) || // 3rd jobs + baby variants
-			jobid == 4302 ||
-			jobid == 4303 ||
-			jobid == 4316 // 4th jobs
-		);
+	static S_JOBS_ASSASSIN = new Set([
+		JobId.ASSASSIN,
+		JobId.ASSASSIN_H,
+		JobId.GUILLOTINE_CROSS,
+		JobId.GUILLOTINE_CROSS_H,
+		JobId.SHADOW_CROSS,
+
+		JobId.ASSASSIN_B,
+		JobId.GUILLOTINE_CROSS_B,
+
+		JobId.DOG_ASSASSIN,
+		JobId.DOG_ASSA_X,
+		JobId.DOG_G_CROSS,
+		JobId.DOG_ASSASSIN_B,
+		JobId.DOG_G_CROSS_B,
+		JobId.SHADOW_CROSS_RIDING,
+	]);
+	static isAssassin(jobid) {
+		return this.S_JOBS_ASSASSIN.has(jobid);
 	}
 
+	/**
+	 * Is character a Hunter class
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static S_JOBS_HUNTER = new Set([
+		JobId.HUNTER,
+		JobId.HUNTER_H,
+		JobId.RANGER,
+		JobId.RANGER_H,
+		JobId.WINDHAWK,
+		JobId.WINDHAWK2,
+
+		JobId.HUNTER_B,
+		JobId.RANGER_B,
+
+		JobId.OSTRICH_HUNTER,
+		JobId.OSTRICH_SNIPER,
+		JobId.OSTRICH_RANGER,
+		JobId.OSTRICH_HUNTER_B,
+		JobId.OSTRICH_RANGER_B,
+		JobId.WINDHAWK_RIDING,
+	]);
+	static isHunter(jobid) {
+		return this.S_JOBS_HUNTER.has(jobid);
+	}
+
+	/**
+	 * Is character a Monk class
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static S_JOBS_MONK = new Set([
+		JobId.MONK,
+		JobId.MONK_H,
+		JobId.SURA,
+		JobId.SURA_H,
+		JobId.INQUISITOR,
+
+		JobId.MONK_B,
+		JobId.SURA_B,
+
+		JobId.SHEEP_MONK,
+		JobId.SHEEP_CHAMP, // lolz.. MONK_H
+		JobId.SHEEP_SURA,
+		JobId.SHEEP_MONK_B,
+		JobId.SHEEP_SURA_B,
+		JobId.INQUISITOR_RIDING,
+	]);
+	static isMonk(jobid) {
+		return this.S_JOBS_MONK.has(jobid);
+	}
+
+	/**
+	 * Is character a SN class
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static S_JOBS_SN = new Set([
+		JobId.SUPERNOVICE,
+		JobId.SUPERNOVICE2,
+		JobId.HYPER_NOVICE,
+
+		JobId.SUPERNOVICE_B,
+		JobId.SUPERNOVICE2_B,
+
+		JobId.PORING_SNOVICE,
+		JobId.PORING_SNOVICE2,
+		JobId.PORING_SNOVICE_B,
+		JobId.PORING_SNOVICE2_B,
+	]);
+	static isSuperNovice(jobid) {
+		return this.S_JOBS_SN.has(jobid);
+	}
+
+	/**
+	 * Is character a TaeKwon class 
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static S_JOBS_TAEKWON = new Set([
+		JobId.TAEKWON,
+		JobId.STAR,
+		JobId.STAR2,
+		JobId.LINKER,
+		JobId.STAR_EMPEROR,
+		JobId.STAR_EMPEROR2,
+		JobId.SOUL_REAPER,
+		JobId.SOUL_REAPER2,
+		JobId.SKY_EMPEROR,
+		JobId.SKY_EMPEROR2,
+		JobId.SOUL_ASCETIC,
+		//JobId.SOUL_ASCETIC2, //missing from const
+
+		JobId.TAEKWON_B,
+		JobId.STAR_B,
+		JobId.STAR2_B,
+		JobId.LINKER_B,
+		JobId.STAR_EMPEROR_B,
+		JobId.STAR_EMPEROR2_B,
+		JobId.SOUL_REAPER_B,
+		JobId.SOUL_REAPER2_B,
+		//JobId.SOUL_ASCETIC_B, //missing from const
+		//JobId.SOUL_ASCETIC2_B //missing from const
+		
+		JobId.PORING_TAEKWON,
+		JobId.PORING_STAR,
+		JobId.FROG_LINKER,
+		//JobId.PORING_TAEKWON_B, //missing from const
+		//JobId.PORING_STAR_B, //missing from const
+		//JobId.FROG_LINKER_B, //missing from const
+		// Missing 3rd/4th
+
+	]);
+	static isTaeKwon(jobid) {
+		return this.S_JOBS_TAEKWON.has(jobid);
+	}
+
+	/**
+	 * Is character a Gunslinger class 
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static S_JOBS_GS = new Set([
+		JobId.GUNSLINGER,
+		JobId.REBELLION,
+		JobId.NIGHT_WATCH,
+
+		JobId.GUNSLINGER_B,
+		JobId.REBELLION_B,
+
+		JobId.PECO_GUNNER,
+		JobId.PECO_REBELLION,
+		//JobId.PECO_GUNNER_B, //missing from const
+		//JobId.PECO_REBELLION_B, //missing from const
+	]);
+	static isGunslinger(jobid) {
+		return this.S_JOBS_GS.has(jobid);
+	}
+
+	/**
+	 * Is character a Royal Guard class 
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static S_JOBS_RG = new Set([
+		JobId.ROYAL_GUARD,
+		JobId.ROYAL_GUARD_H,
+		JobId.ROYAL_GUARD2,
+		JobId.ROYAL_GUARD2_H,
+		JobId.IMPERIAL_GUARD,
+
+		JobId.ROYAL_GUARD_B,
+		JobId.ROYAL_GUARD2_B,
+
+		JobId.LION_ROYAL_GUARD,
+		JobId.LION_ROYAL_GUARD_B,
+		JobId.IMPERIAL_GUARD_RIDING,
+	]);
+	static isRoyalGuard(jobid) {
+		return this.S_JOBS_RG.has(jobid);
+	}
+
+	/**
+	 * Is character using Madogear
+	 *
+	 * @param {number} jobid
+	 * @return {boolean}
+	 */
+	static S_JOBS_MADO = new Set([
+		JobId.MECHANIC2,
+		JobId.MECHANIC2_H,
+		JobId.MECHANIC2_B,
+		JobId.MEISTER2,
+	]);
 	static isMadogear(jobid) {
-		return jobid == 4086 || jobid == 4087 || jobid == 4112 || jobid == 4279;
+		return this.S_JOBS_MADO.has(jobid);
 	}
 
 	static isElem(jobid) {
@@ -2082,18 +2271,6 @@ class DB {
 
 	static isKatar(weaponType) {
 		return weaponType == WeaponType.KATAR;
-	}
-
-	static isAssassin(jobID) {
-		return (
-			jobID == JobId.ASSASSIN ||
-			jobID == JobId.ASSASSIN_H ||
-			jobID == JobId.ASSASSIN_B ||
-			jobID == JobId.GUILLOTINE_CROSS ||
-			jobID == JobId.GUILLOTINE_CROSS_H ||
-			jobID == JobId.GUILLOTINE_CROSS_B ||
-			jobID == JobId.SHADOW_CROSS
-		);
 	}
 
 	/**

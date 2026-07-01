@@ -17,6 +17,7 @@ import Ground from 'Renderer/Map/Ground.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
 import JobId from 'DB/Jobs/JobConst.js';
+import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 
 /**
@@ -323,15 +324,7 @@ const renderEntity = (function renderEntityClosure() {
 					if (!(direction > 2 && direction < 6)) {
 						// looking front
 						if (Session.Playing == true && self.hasCart == true) {
-							cartidx = [
-								JobId.NOVICE,
-								JobId.SUPERNOVICE,
-								JobId.SUPERNOVICE_B,
-								JobId.SUPERNOVICE2,
-								JobId.SUPERNOVICE2_B
-							].includes(self._job)
-								? 0
-								: self.CartNum;
+							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
 
 							// Draw Cart
 							SpriteRenderer.runWithDepth(true, false, false, function () {
@@ -414,15 +407,7 @@ const renderEntity = (function renderEntityClosure() {
 						// Draw Cart
 						if (Session.Playing == true && self.hasCart == true) {
 							SpriteRenderer.zIndex = bodyZOffset + 500;
-							cartidx = [
-								JobId.NOVICE,
-								JobId.SUPERNOVICE,
-								JobId.SUPERNOVICE_B,
-								JobId.SUPERNOVICE2,
-								JobId.SUPERNOVICE2_B
-							].includes(self._job)
-								? 0
-								: self.CartNum;
+							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
 							SpriteRenderer.runWithDepth(true, false, false, function () {
 								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);

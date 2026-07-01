@@ -147,7 +147,7 @@ function onEntitySpam(pkt) {
 
 	if (
 		pkt.effectState & StatusState.EffectState.FALCON &&
-		[11, 4012, 4034, 4056, 4062, 4098, 4257, 4270, 4278].includes(pkt.job)
+		DB.isHunter(pkt.job)
 	) {
 		if (!entity.falcon) {
 			entity.falcon = new Entity();

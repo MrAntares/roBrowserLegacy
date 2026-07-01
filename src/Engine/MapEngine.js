@@ -965,7 +965,7 @@ function onRequestTalk(user, text, target) {
 	Network.sendPacket(pkt);
 
 	//Super Novice Chant
-	if (chatLines > 7 && [23, 4045, 4128, 4172, 4190, 4191, 4192, 4193].includes(Session.Entity._job)) {
+	if (chatLines > 7 && DB.isSuperNovice(Session.Entity._job)) {
 		if (Math.floor((BasicInfo.getUI().base_exp / BasicInfo.getUI().base_exp_next) * 1000.0) % 100 == 0) {
 			if (text == DB.getMessage(790)) {
 				snCounter = 1;
