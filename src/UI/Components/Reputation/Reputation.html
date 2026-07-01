@@ -1,19 +1,20 @@
 <div id="Reputation">
-	<div class="titlebar" data-background="basic_interface/titlebar_mid.bmp">
+	<div class="titlebar">
+		<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
 		<div class="left">
-			<button
+			<ui-button
 				class="base"
-				data-background="basic_interface/sys_base_off.bmp"
-				data-hover="basic_interface/sys_base_on.bmp"
-			></button>
-			<span class="text" data-text="3827"></span>
+				bg="basic_interface/sys_base_off.bmp"
+				hover="basic_interface/sys_base_on.bmp"
+			></ui-button>
+			<ui-text class="text" msg="3827"></ui-text>
 		</div>
 		<div class="right">
-			<button
+			<ui-button
 				class="base close"
-				data-background="basic_interface/sys_close_off.bmp"
-				data-hover="basic_interface/sys_close_on.bmp"
-			></button>
+				bg="basic_interface/sys_close_off.bmp"
+				hover="basic_interface/sys_close_on.bmp"
+			></ui-button>
 		</div>
 		<div class="clear"></div>
 	</div>
@@ -23,22 +24,21 @@
 				<select id="repute_groups" class="rep_group_selector">
 					<option value="all" data-text="3829"></option>
 				</select>
-				<button
-					type="button"
+				<ui-button
 					class="select-arrow"
-					data-background="basic_interface/txtbox_btn_a.bmp"
-					data-hover="basic_interface/txtbox_btn_b.bmp"
-					data-down="basic_interface/txtbox_btn_c.bmp"
-				></button>
+					bg="basic_interface/txtbox_btn_a.bmp"
+					hover="basic_interface/txtbox_btn_b.bmp"
+					down="basic_interface/txtbox_btn_c.bmp"
+				></ui-button>
 			</div>
 			<div class="search_wrapper">
 				<input class="rep_group_searchbar" type="text" />
-				<button
+				<ui-button
 					class="search"
-					data-background="reputation/btn_search.bmp"
-					data-hover="reputation/btn_search_over.bmp"
-					data-down="reputation/btn_search_press.bmp"
-				></button>
+					bg="reputation/btn_search.bmp"
+					hover="reputation/btn_search_over.bmp"
+					down="reputation/btn_search_press.bmp"
+				></ui-button>
 			</div>
 			<div class="rep_group_total_points_wrapper">
 				<div class="rep_group_text">GROUP:</div>
@@ -48,17 +48,18 @@
 		</div>
 		<div class="content"></div>
 		<div class="paginator">
-			<button class="page_prev" data-background="reputation/arrow_prev.bmp"></button>
+			<ui-button class="page_prev" bg="reputation/arrow_prev.bmp"></ui-button>
 			<span class="page_text">1 / 1</span>
-			<button class="page_next" data-background="reputation/arrow_next.bmp"></button>
+			<ui-button class="page_next" bg="reputation/arrow_next.bmp"></ui-button>
 		</div>
-		<div class="footer" data-background="basic_interface/btnbar_mid2.bmp">
-			<button
+		<div class="footer">
+			<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
+			<ui-button
 				class="big_btn_close"
-				data-background="basic_interface/btn_close.bmp"
-				data-hover="basic_interface/btn_close_a.bmp"
-				data-down="basic_interface/btn_close_b.bmp"
-			></button>
+				bg="basic_interface/btn_close.bmp"
+				hover="basic_interface/btn_close_a.bmp"
+				down="basic_interface/btn_close_b.bmp"
+			></ui-button>
 		</div>
 	</div>
 </div>
