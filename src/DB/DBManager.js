@@ -1041,7 +1041,8 @@ class DB {
 		JobId.PORING_SNOVICE,
 		JobId.PORING_SNOVICE2,
 		JobId.PORING_SNOVICE_B,
-		JobId.PORING_SNOVICE2_B
+		JobId.PORING_SNOVICE2_B,
+		JobId.HYPER_NOVICE_RIDING
 	]);
 	static isSuperNovice(jobid) {
 		return this.S_JOBS_SN.has(jobid);
@@ -1080,11 +1081,17 @@ class DB {
 
 		JobId.PORING_TAEKWON,
 		JobId.PORING_STAR,
-		JobId.FROG_LINKER
-		//JobId.PORING_TAEKWON_B, //missing from const
-		//JobId.PORING_STAR_B, //missing from const
-		//JobId.FROG_LINKER_B, //missing from const
-		// Missing 3rd/4th
+		JobId.FROG_LINKER,
+		JobId.PORING_TAEKWON_B,
+		JobId.PORING_STAR_B,
+		JobId.FROG_LINKER_B,
+		JobId.HAETAE_STAR_EMPEROR,
+		JobId.HAETAE_SOUL_REAPER,
+		JobId.HAETAE_STAR_EMPEROR_B,
+		JobId.HAETAE_SOUL_REAPER_B,
+
+		JobId.SKY_EMPEROR_RIDING,
+		JobId.SOUL_ASCETIC_RIDING
 	]);
 	static isTaeKwon(jobid) {
 		return this.S_JOBS_TAEKWON.has(jobid);
@@ -1105,9 +1112,10 @@ class DB {
 		JobId.REBELLION_B,
 
 		JobId.PECO_GUNNER,
-		JobId.PECO_REBELLION
-		//JobId.PECO_GUNNER_B, //missing from const
-		//JobId.PECO_REBELLION_B, //missing from const
+		JobId.PECO_REBELLION,
+		JobId.NIGHT_WATCH_RIDING,
+		JobId.PECO_GUNNER_B,
+		JobId.PECO_REBELLION_B
 	]);
 	static isGunslinger(jobid) {
 		return this.S_JOBS_GS.has(jobid);
