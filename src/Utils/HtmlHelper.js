@@ -19,6 +19,39 @@ function escapeHtml(text) {
 }
 
 /**
+ * Sanitize HTML by stripping all tags except a whitelist.
+ * Preserves <font>, <i>, and <b> tags (matches old jQuery.escape behavior).
+ *
+ * @param {string} text
+ * @returns {string} sanitized HTML string
+ */
+const _allowedTags = new Set(['font', 'i', 'b']);
+
+function sanitizeHtml(text) {
+	const container = document.createElement('div');
+	container.innerHTML = text;
+
+	const walk = (node) => {
+		const children = Array.from(node.childNodes);
+		for (const child of children) {
+			if (child.nodeType === 1) {
+				if (_allowedTags.has(child.tagName.toLowerCase())) {
+					walk(child);
+				} else {
+					while (child.firstChild) {
+						node.insertBefore(child.firstChild, child);
+					}
+					node.removeChild(child);
+				}
+			}
+		}
+	};
+
+	walk(container);
+	return container.innerHTML;
+}
+
+/**
  * Animate CSS properties on an element using requestAnimationFrame.
  * Replaces jQuery.animate() for simple numeric/opacity transitions.
  *
@@ -74,4 +107,4 @@ function animateElement(element, props, duration, callback) {
 	};
 }
 
-export { escapeHtml, animateElement };
+export { escapeHtml, sanitizeHtml, animateElement };

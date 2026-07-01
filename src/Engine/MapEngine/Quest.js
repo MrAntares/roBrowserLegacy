@@ -15,7 +15,7 @@ import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import Quest from 'UI/Components/Quest/Quest.js';
-import { escapeHtml } from 'Utils/HtmlHelper.js';
+import { sanitizeHtml } from 'Utils/HtmlHelper.js';
 
 /**
  * Quest List
@@ -135,9 +135,9 @@ function onUpdateMissionHunt(pkt) {
 				const quest_info = DB.getQuestInfo(local_hunt.questID);
 				const local_quest = {
 					questID: local_hunt.questID,
-					title: quest_info.Title ? escapeHtml(quest_info.Title) : '',
-					summary: quest_info.Summary ? escapeHtml(quest_info.Summary) : '',
-					description: quest_info.Description ? escapeHtml(quest_info.Description) : '',
+					title: quest_info.Title ? sanitizeHtml(quest_info.Title) : '',
+					summary: quest_info.Summary ? sanitizeHtml(quest_info.Summary) : '',
+					description: quest_info.Description ? sanitizeHtml(quest_info.Description) : '',
 					icon: quest_info.IconName ? quest_info.IconName : 'ico_nq.bmp',
 					npc_spr: quest_info.NpcSpr || null,
 					npc_navi: quest_info.NpcNavi || null,

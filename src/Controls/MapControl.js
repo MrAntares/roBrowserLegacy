@@ -281,9 +281,10 @@ function onDrop(event) {
 	}
 
 	// Stop default behavior
+	event.preventDefault();
 	event.stopImmediatePropagation();
 	if (!data) {
-		return false;
+		return;
 	}
 
 	// Hacky way to trigger mouseleave (mouseleave isn't
@@ -299,19 +300,19 @@ function onDrop(event) {
 
 	// Just support items ?
 	if (data.type !== 'item' || data.from !== 'Inventory') {
-		return false;
+		return;
 	}
 
 	// Can't drop an item on map if Equipment window is open
 	if (Equipment.getUI().ui.is(':visible')) {
 		ChatBox.addText(DB.getMessage(189), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM);
-		return false;
+		return;
 	}
 
 	// Item Drop Lock
 	const InventoryVersion = UIManager.getComponent('Inventory').name;
 	if (InventoryVersion !== 'InventoryV0' && Inventory.getUI().itemlock === true) {
-		return false;
+		return;
 	}
 
 	const item = data.data;
@@ -330,8 +331,6 @@ function onDrop(event) {
 	else {
 		MapControl.onRequestDropItem(item.index, 1);
 	}
-
-	return false;
 }
 
 /**

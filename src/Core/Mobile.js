@@ -159,6 +159,7 @@ const onTouchStart = (function onTouchStartClosure() {
 	return function (event) {
 		remoteAutoFocus();
 		_touches = event.touches;
+		event.preventDefault();
 		event.stopImmediatePropagation();
 
 		// Delayed click (to detect gesture)
@@ -172,7 +173,7 @@ const onTouchStart = (function onTouchStartClosure() {
 			_scale = touchDistance(_touches);
 			_angle = touchAngle(_touches);
 			_processGesture = true;
-			return false;
+			return;
 		}
 
 		Mouse.screen.x = _touches[0].pageX;
@@ -184,7 +185,6 @@ const onTouchStart = (function onTouchStartClosure() {
 		}
 
 		_timer = Events.setTimeout(delayedClick, 200);
-		return false;
 	};
 })();
 
@@ -273,7 +273,7 @@ function touchDevice() {
 window.addEventListener('touchstart', touchDevice, { once: true });
 
 // Touch controls
-window.addEventListener('touchstart', onTouchStart);
+window.addEventListener('touchstart', onTouchStart, { passive: false });
 window.addEventListener('touchend', onTouchEnd);
 window.addEventListener('touchmove', onTouchMove);
 
