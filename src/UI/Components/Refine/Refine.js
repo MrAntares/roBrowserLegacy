@@ -11,24 +11,24 @@ import Configs from 'Core/Configs.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
-import jQuery from 'Utils/jquery.js';
 import Client from 'Core/Client.js';
 import Session from 'Engine/SessionStorage.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import Announce from 'UI/Components/Announce/Announce.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import ItemCompare from 'UI/Components/ItemCompare/ItemCompare.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './Refine.html?raw';
 import cssText from './Refine.css?raw';
 
 /**
  * Create Component
  */
-const Refine = new UIComponent('Refine', htmlText, cssText);
+const Refine = new GUIComponent('Refine', cssText);
 
 /**
  * Blacksmtith's Blessing ItemID
@@ -63,12 +63,11 @@ Refine.hammer = 0;
 
 /**
  * Mapping for messageID and ItemID for Refine Info
- * @var {messageID} : @var {itemId}
  */
 const itemMessageMapping = {
-	2988: [1000336, 1000355, 1000368, 1000369, 1000370, 1000371], // Equipment will dissapear when refine fails
-	2989: [6225, 6226, 1000331, 1000333], // Equipment's refine level will be decreased when refine fails
-	2990: [6223, 6624] // Equipment will dissapear or refine level will decrease when refine fails
+	2988: [1000336, 1000355, 1000368, 1000369, 1000370, 1000371],
+	2989: [6225, 6226, 1000331, 1000333],
+	2990: [6223, 6624]
 };
 
 /**
@@ -163,47 +162,150 @@ const images = {
 };
 
 /**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return Refine._shadow || Refine._host;
+}
+
+/**
+ * Render HTML
+ */
+Refine.render = () => htmlText;
+
+/**
  * Initialize UI
  */
 Refine.init = function init() {
-	this.ui.css({ top: 200, left: 300 });
-	this.ui.find('.titlebar .base').mousedown(stopPropagation);
-	this.ui.find('.titlebar .close').click(onRefineClose);
-	this.ui.find('.footer .cancel').click(onRefineClose);
+	const root = _root();
 
-	this.draggable(this.ui.find('.titlebar'));
+	this._host.style.top = '200px';
+	this._host.style.left = '300px';
+
+	const titlebarBase = root.querySelector('.titlebar .base');
+	if (titlebarBase) {
+		titlebarBase.addEventListener('mousedown', (event) => {
+			event.stopImmediatePropagation();
+		});
+	}
+
+	const closeBtn = root.querySelector('.titlebar .close');
+	if (closeBtn) {
+		closeBtn.addEventListener('click', onRefineClose);
+	}
+
+	const cancelBtn = root.querySelector('.cancel');
+	if (cancelBtn) {
+		cancelBtn.addEventListener('click', onRefineClose);
+	}
+
+	this.draggable('.titlebar');
 
 	// Update success div text
-	const successdiv = this.ui.find('.success');
+	const successdiv = root.querySelector('.success');
 	const initialValue = 0;
 	const successtext = DB.getMessage(3724);
 	initialsuccess = successtext.replace('%d%', `<span class="number">${initialValue}</span>`);
-	successdiv.html(initialsuccess);
+	if (successdiv) {
+		successdiv.innerHTML = initialsuccess;
+	}
 
-	// Some Functions
-	this.ui
-		.find('.item_to_refine')
-		.on('drop', onItemDrop)
-		.on('dragover', stopPropagation)
-		.on('dragstart', '.item', onItemDragStart)
-		.on('dragend', '.item', onItemDragEnd);
-	this.ui.find('.materials').on('mouseover', '.item', onItemOver).on('mouseout', onItemOut);
-	this.ui.find('.materials').on('contextmenu', '.item', onItemInfo);
-	this.ui.find('.item_to_refine').on('contextmenu', '.item', onItemInfo);
-	this.ui.find('.refine_cont').on('mouseover', onItemOver).on('mouseout', onItemOut);
-	this.ui.find('.panel .item_to_refine').on('dblclick', '.item', function () {
-		if (refine_ongoing === 0) {
-			onRemoveItem(true);
-		}
-	});
-	this.ui.find('.refine_enabled').click(onRequestRefine);
-	this.ui.find('.success_refine_cont_enabled').click(onRequestRefine);
-	this.ui.find('.fail_refine_cont_enabled').click(onRequestRefine);
-	this.ui.find('.back_button').click(onCancelContRefine);
+	// Item drop/drag on .item_to_refine
+	const itemToRefine = root.querySelector('.item_to_refine');
+	if (itemToRefine) {
+		itemToRefine.addEventListener('drop', onItemDrop);
+		itemToRefine.addEventListener('dragover', (event) => {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		});
+		itemToRefine.addEventListener('dragstart', (event) => {
+			const item = event.target.closest('.item');
+			if (item) {
+				onItemDragStart(event);
+			}
+		});
+		itemToRefine.addEventListener('dragend', (event) => {
+			const item = event.target.closest('.item');
+			if (item) {
+				onItemDragEnd(event);
+			}
+		});
+		itemToRefine.addEventListener('dblclick', (event) => {
+			const item = event.target.closest('.item');
+			if (item && refine_ongoing === 0) {
+				onRemoveItem(true);
+			}
+		});
+		itemToRefine.addEventListener('contextmenu', (event) => {
+			const item = event.target.closest('.item');
+			if (item) {
+				onItemInfo.call(item, event);
+			}
+		});
+	}
+
+	// Materials hover/contextmenu
+	const materials = root.querySelector('.materials');
+	if (materials) {
+		materials.addEventListener('mouseover', (event) => {
+			const item = event.target.closest('.item');
+			if (item) {
+				onItemOver.call(item, event);
+			}
+		});
+		materials.addEventListener('mouseout', () => {
+			onItemOut();
+		});
+		materials.addEventListener('contextmenu', (event) => {
+			const item = event.target.closest('.item');
+			if (item) {
+				onItemInfo.call(item, event);
+			}
+		});
+	}
+
+	// Refine_cont hover
+	const refineCont = root.querySelector('.refine_cont');
+	if (refineCont) {
+		refineCont.addEventListener('mouseover', (event) => {
+			onItemOver.call(refineCont, event);
+		});
+		refineCont.addEventListener('mouseout', () => {
+			onItemOut();
+		});
+	}
+
+	// Refine buttons
+	const refineEnabled = root.querySelector('.refine_enabled');
+	if (refineEnabled) {
+		refineEnabled.addEventListener('click', onRequestRefine);
+	}
+
+	const successContEnabled = root.querySelector('.success_refine_cont_enabled');
+	if (successContEnabled) {
+		successContEnabled.addEventListener('click', onRequestRefine);
+	}
+
+	const failContEnabled = root.querySelector('.fail_refine_cont_enabled');
+	if (failContEnabled) {
+		failContEnabled.addEventListener('click', onRequestRefine);
+	}
+
+	const backButton = root.querySelector('.back_button');
+	if (backButton) {
+		backButton.addEventListener('click', onCancelContRefine);
+	}
 
 	// Hide buttons
-	this.ui.find('.refine_enabled').hide();
-	this.ui.find('.some_notifs').hide();
+	if (refineEnabled) {
+		refineEnabled.style.display = 'none';
+	}
+
+	const someNotifs = root.querySelector('.some_notifs');
+	if (someNotifs) {
+		someNotifs.style.display = 'none';
+	}
+
 	onHideContRefineButtons();
 };
 
@@ -211,13 +313,15 @@ Refine.init = function init() {
  * Append to body
  */
 Refine.onAppend = function onAppend() {
+	const root = _root();
+
 	Refine.hammer = 0;
-	Refine.ui.find('.refine_button').show();
+	const refineButton = root.querySelector('.refine_button');
+	if (refineButton) {
+		refineButton.style.display = 'block';
+	}
 
-	// Clear any existing timeout
 	clearTimeout(Refine.imageLoopTimeout);
-
-	// Start the image loop with the 'waiting' phase
 	controlPhase('waiting', true, 250);
 };
 
@@ -258,21 +362,13 @@ function clearRefineStates() {
 }
 
 /**
- * Stop event propagation
- */
-function stopPropagation(event) {
-	event.stopImmediatePropagation();
-	return false;
-}
-
-/**
  * Handles packet received from server to open Refine UI
  * PACKET.ZC.OPEN_REFINING_UI
  */
 function onOpenRefineUI() {
 	if (!Configs.get('enableRefineUI') || PACKETVER.value < 20161012) {
 		console.warn('Renewal Refine is enabled in your server. Please enable refine UI in your configs.');
-		return false; // Exit early if conditions are not met
+		return false;
 	}
 
 	Refine.append();
@@ -283,14 +379,14 @@ function onOpenRefineUI() {
 		Inventory.getUI().toggle();
 	}
 
-	const RefineInfoPos = Refine.ui.offset();
-	const RefineWidth = Refine.ui.outerWidth();
-	const RefineHeight = Refine.ui.outerHeight() - Inventory.getUI().ui.outerHeight();
+	const refineRect = Refine._host.getBoundingClientRect();
+	const refineWidth = Refine._host.offsetWidth;
+	const refineHeight = Refine._host.offsetHeight - Inventory.getUI().ui.height();
 
 	Inventory.getUI().ui.css({
 		position: 'absolute',
-		top: RefineInfoPos.top ? RefineInfoPos.top + RefineHeight : 200,
-		left: RefineInfoPos.left ? RefineInfoPos.left + RefineWidth : 300
+		top: refineRect.top ? refineRect.top + refineHeight : 200,
+		left: refineRect.left ? refineRect.left + refineWidth : 300
 	});
 
 	return false;
@@ -304,8 +400,6 @@ function onRefineClose() {
 
 	const pkt = new PACKET.CZ.CLOSE_REFINING_UI();
 	Network.sendPacket(pkt);
-
-	return false;
 }
 
 /**
@@ -326,7 +420,10 @@ function controlPhase(phase, shouldLoop, interval, callback) {
 
 	function showImages() {
 		Client.loadFile(DB.INTERFACE_PATH + 'refining_renewal/' + imageArray[currentImageIndex], function (data) {
-			Refine.ui.find('.image-container').css('backgroundImage', 'url(' + data + ')');
+			const container = _root().querySelector('.image-container');
+			if (container) {
+				container.style.backgroundImage = `url(${data})`;
+			}
 			currentImageIndex++;
 
 			if (currentImageIndex >= imageArray.length) {
@@ -340,34 +437,30 @@ function controlPhase(phase, shouldLoop, interval, callback) {
 				}
 			}
 
-			// Save the timeout ID to clear it later if needed
 			Refine.imageLoopTimeout = setTimeout(showImages, interval);
 		});
 	}
 
-	// Start showing the images
 	showImages();
 }
 
 /**
  * Drop an item from inventory to Refine UI
- *
- * @param {event}
  */
 function onItemDrop(event) {
 	let item, data;
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	try {
-		data = JSON.parse(event.originalEvent.dataTransfer.getData('Text'));
+		data = JSON.parse(event.dataTransfer.getData('Text'));
 		item = data.data;
-	} catch (e) {
-		return false;
+	} catch (_e) {
+		return;
 	}
 
-	// Just allow item from storage
 	if (data.type !== 'item' || data.from !== 'Inventory') {
-		return false;
+		return;
 	}
 
 	if (item) {
@@ -391,14 +484,14 @@ Refine.onRequestItemRefine = function onRequestItemRefine(item) {
 function onRefineUIUpdateMaterials(pkt) {
 	if (!Configs.get('enableRefineUI') || PACKETVER.value < 20161012) {
 		console.warn('Renewal Refine is enabled in your server. Please enable refine UI in your configs.');
-		return false; // Exit early if conditions are not met
+		return false;
 	}
 
+	const root = _root();
+
 	if (pkt && pkt.MaterialInfo.length > 0) {
-		// Check if there is already an item in refine UI
-		const existingItem = Refine.ui.find('.item_to_refine .item');
-		if (existingItem.length > 0) {
-			// Remove existing item from refine UI
+		const existingItem = root.querySelector('.item_to_refine .item');
+		if (existingItem) {
 			onRemoveItem(false);
 		}
 
@@ -411,19 +504,17 @@ function onRefineUIUpdateMaterials(pkt) {
 		if (!Refine.hammer) {
 			onPopulateMaterials();
 
-			// Clear any existing timeout
 			clearTimeout(Refine.imageLoopTimeout);
 			const isbsbenabled = blacksmithBlessing ? 'a' : 'b';
-			controlPhase('ready' + isbsbenabled, false, 250);
+			controlPhase(`ready${isbsbenabled}`, false, 250);
 		}
 
 		const it = DB.getItemInfo(item.ITID);
-		const content = Refine.ui.find('.item_to_refine');
+		const content = root.querySelector('.item_to_refine');
 
-		content.append(
-			'<div class="item" data-index="' +
-				item.index +
-				'" draggable="true">' +
+		content.insertAdjacentHTML(
+			'beforeend',
+			`<div class="item" data-index="${item.index}" draggable="true">` +
 				'<div class="icon"></div>' +
 				'<div class="grade"></div>' +
 				'</div>'
@@ -435,58 +526,58 @@ function onRefineUIUpdateMaterials(pkt) {
 				(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 				'.bmp',
 			function (data) {
-				content
-					.find('.item[data-index="' + item.index + '"] .icon')
-					.css('backgroundImage', 'url(' + data + ')');
+				const icon = content.querySelector(`.item[data-index="${item.index}"] .icon`);
+				if (icon) {
+					icon.style.backgroundImage = `url(${data})`;
+				}
 			}
 		);
 
 		if (item.enchantgrade) {
 			Client.loadFile(
-				DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp',
+				DB.INTERFACE_PATH + `grade_enchant/grade_icon${item.enchantgrade}.bmp`,
 				function (data) {
-					content
-						.find('.item[data-index="' + item.index + '"] .grade')
-						.css('backgroundImage', 'url(' + data + ')');
+					const grade = content.querySelector(`.item[data-index="${item.index}"] .grade`);
+					if (grade) {
+						grade.style.backgroundImage = `url(${data})`;
+					}
 				}
 			);
 		}
 
-		const itemname = Refine.ui.find('.item_to_refine_name');
-		itemname.text(DB.getItemName(item));
+		const itemname = root.querySelector('.item_to_refine_name');
+		if (itemname) {
+			itemname.textContent = DB.getItemName(item);
+		}
 
 		// Select previously selected material if available
 		if (Refine.hammer >= 1 && refine_item_mat) {
-			let materialFound = false; // Flag to track if the material was found
+			let materialFound = false;
 			let foundItem, foundMaterial;
 
 			for (let i = 0; i < refiningMaterials.length; i++) {
 				foundMaterial = refiningMaterials[i];
 				if (foundMaterial.itemId === refine_item_mat) {
 					foundItem = Inventory.getUI().getItemById(foundMaterial.itemId);
-					materialFound = true; // Material found
+					materialFound = true;
 					refine_new_mats = 0;
 					break;
 				}
 			}
 
-			// Show message if material was not found (Usually happens when item is already +10)
 			if (!materialFound) {
 				refine_new_mats = 1;
 				showMessage(3242, 3, 'error');
 			}
 
-			// We update BSB value first
 			if (refine_bsb) {
 				if (blacksmithBlessing === 0) {
-					// From with BSB to no more BSB
 					refine_new_mats = 1;
 					showMessage(3242, 3, 'error');
 				}
 				refine_bsb = blacksmithBlessing;
 			}
 
-			// Update UI
 			selectMaterial(foundMaterial, foundItem);
 		}
 	} else {
@@ -497,28 +588,36 @@ function onRefineUIUpdateMaterials(pkt) {
 
 /**
  * Handles populating materials needed for refining
- * Controls for selecting and de-selecting materials
  */
 function onPopulateMaterials() {
+	const root = _root();
+
 	// Clear any existing materials
-	Refine.ui.find('.materials .mat_overlay .material').empty();
-	Refine.ui.find('.bsb_overlay .bsb').empty();
+	root.querySelectorAll('.materials .mat_overlay .material_0, .materials .mat_overlay .material_1, .materials .mat_overlay .material_2, .materials .mat_overlay .material_3').forEach((el) => {
+		el.innerHTML = '';
+	});
+	const bsbContainer = root.querySelector('.bsb_overlay .bsb');
+	if (bsbContainer) {
+		bsbContainer.innerHTML = '';
+	}
 
 	// Update materials
 	for (let i = 0; i < refiningMaterials.length; i++) {
 		(function (idx) {
-			const material = refiningMaterials[i];
+			const material = refiningMaterials[idx];
 			const it = DB.getItemInfo(material.itemId);
 			const item = Inventory.getUI().getItemById(material.itemId);
-			const materialDiv = Refine.ui.find('.material_' + i);
+			const materialDiv = root.querySelector(`.material_${idx}`);
 
-			// Clear previous items
-			materialDiv.empty();
+			if (!materialDiv) {
+				return;
+			}
 
-			materialDiv.append(
-				'<div class="item" data-index="' +
-					material.itemId +
-					'" draggable="false">' +
+			materialDiv.innerHTML = '';
+
+			materialDiv.insertAdjacentHTML(
+				'beforeend',
+				`<div class="item" data-index="${material.itemId}" draggable="false">` +
 					'<div class="icon"></div>' +
 					'<div class="mat_count"></div>' +
 					'</div>'
@@ -530,81 +629,111 @@ function onPopulateMaterials() {
 					(it.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
 					'.bmp',
 				function (data) {
-					materialDiv
-						.find('.item[data-index="' + material.itemId + '"] .icon')
-						.css('backgroundImage', 'url(' + data + ')');
+					const icon = materialDiv.querySelector(`.item[data-index="${material.itemId}"] .icon`);
+					if (icon) {
+						icon.style.backgroundImage = `url(${data})`;
+					}
 				}
 			);
 
 			const count = item ? item.count : 0;
-			const countmsg = materialDiv.find('.item[data-index="' + material.itemId + '"] .mat_count');
-			// Wrap the count in a span if it's 0
-			if (count === 0) {
-				countmsg.html('<span style="color: #ce1029;">' + count + '</span>/1');
-			} else {
-				countmsg.text(count + '/1');
+			const countmsg = materialDiv.querySelector(`.item[data-index="${material.itemId}"] .mat_count`);
+			if (countmsg) {
+				if (count === 0) {
+					countmsg.innerHTML = `<span style="color: #ce1029;">${count}</span>/1`;
+				} else {
+					countmsg.textContent = `${count}/1`;
+				}
 			}
 
 			// Material Selection upon clicking
-			materialDiv.find('.icon').click(function () {
-				const clickedItemId = material.itemId;
-				const clickedItem = Inventory.getUI().getItemById(clickedItemId);
-				const clickedCount = clickedItem ? clickedItem.count : 0;
+			const iconEl = materialDiv.querySelector('.icon');
+			if (iconEl) {
+				iconEl.addEventListener('click', () => {
+					const clickedItemId = material.itemId;
+					const clickedItem = Inventory.getUI().getItemById(clickedItemId);
+					const clickedCount = clickedItem ? clickedItem.count : 0;
 
-				if (clickedCount === 0) {
-					return false;
-				}
-
-				// Check if item ID exists in the mapping and show corresponding message
-				for (const messageID in itemMessageMapping) {
-					if (itemMessageMapping[messageID].includes(clickedItemId)) {
-						showMessage(messageID, 0, 'info'); // Adjust timeout and type as needed
-						break;
+					if (clickedCount === 0) {
+						return;
 					}
-				}
 
-				Refine.ui.find('.mat_overlay').removeClass('selected'); // Remove selected class from all overlays
-				materialDiv.closest('.mat_overlay').addClass('selected'); // Add selected class to the parent overlay
+					// Check if item ID exists in the mapping and show corresponding message
+					for (const messageID in itemMessageMapping) {
+						if (itemMessageMapping[messageID].includes(clickedItemId)) {
+							showMessage(messageID, 0, 'info');
+							break;
+						}
+					}
 
-				// Clone the material and append it to the selected_mat
-				const clonedMaterial = materialDiv.find('.item').clone();
-				clonedMaterial.find('.mat_count').remove(); // Remove mat_count from the clone
+					root.querySelectorAll('.mat_overlay').forEach((el) => el.classList.remove('selected'));
+					materialDiv.closest('.mat_overlay').classList.add('selected');
 
-				Refine.ui.find('.selected_mat').empty().append(clonedMaterial);
+					// Clone the material and append it to the selected_mat
+					const originalItem = materialDiv.querySelector('.item');
+					const clonedMaterial = originalItem.cloneNode(true);
+					const matCount = clonedMaterial.querySelector('.mat_count');
+					if (matCount) {
+						matCount.remove();
+					}
 
-				// Enable refine button
-				Refine.ui.find('.refine_enabled').show();
+					const selectedMat = root.querySelector('.selected_mat');
+					selectedMat.innerHTML = '';
+					selectedMat.appendChild(clonedMaterial);
 
-				// Update success and refining_zeny
-				Refine.ui.find('.success .number').text(material.chance);
-				Refine.ui.find('.chance_rate').text(DB.getMessage(3285).replace('%d%', material.chance));
-				Refine.ui.find('.refine_zeny').text(material.zeny);
-				Refine.ui.find('.refine_zeny_cont').text(material.zeny);
+					// Enable refine button
+					const refineEnabled = root.querySelector('.refine_enabled');
+					if (refineEnabled) {
+						refineEnabled.style.display = 'block';
+					}
 
-				// Store fresh chance/zeny for re-apply after the result animation
-				refine_current_chance = material.chance;
-				refine_current_zeny = material.zeny;
+					// Update success and refining_zeny
+					const numberEl = root.querySelector('.success .number');
+					if (numberEl) {
+						numberEl.textContent = material.chance;
+					}
+					const chanceRate = root.querySelector('.chance_rate');
+					if (chanceRate) {
+						chanceRate.textContent = DB.getMessage(3285).replace('%d%', material.chance);
+					}
+					const refineZeny = root.querySelector('.refine_zeny');
+					if (refineZeny) {
+						refineZeny.textContent = material.zeny;
+					}
+					const refineZenyCont = root.querySelector('.refine_zeny_cont');
+					if (refineZenyCont) {
+						refineZenyCont.textContent = material.zeny;
+					}
 
-				// Set the refine_item_mat value to the selected material itemId
-				refine_item_mat = material.itemId;
-				refine_fee = material.zeny;
+					// Store fresh chance/zeny for re-apply after the result animation
+					refine_current_chance = material.chance;
+					refine_current_zeny = material.zeny;
 
-				Refine.ui.find('.refine_cont').addClass('item').attr('data-index', material.itemId);
-			});
-		})(i); // IIFE to capture the current value of i
+					// Set the refine_item_mat value to the selected material itemId
+					refine_item_mat = material.itemId;
+					refine_fee = material.zeny;
+
+					const refineCont = root.querySelector('.refine_cont');
+					if (refineCont) {
+						refineCont.classList.add('item');
+						refineCont.setAttribute('data-index', material.itemId);
+					}
+				});
+			}
+		})(i);
 	}
 
 	// Update blacksmith blessing if applicable
 	if (blacksmithBlessing) {
-		const bsbDiv = Refine.ui.find('.bsb_overlay .bsb');
+		const bsbDiv = root.querySelector('.bsb_overlay .bsb');
 		const bsbItem = DB.getItemInfo(BSB_ITID);
 		const item = Inventory.getUI().getItemById(BSB_ITID);
-		bsbDiv.append(
-			'<div class="item" data-index="' +
-				BSB_ITID +
-				'" draggable="false">' +
+		bsbDiv.insertAdjacentHTML(
+			'beforeend',
+			`<div class="item" data-index="${BSB_ITID}" draggable="false">` +
 				'<div class="icon"></div>' +
-				'<div class="mat_count"></div>'
+				'<div class="mat_count"></div>' +
+				'</div>'
 		);
 
 		Client.loadFile(
@@ -613,51 +742,72 @@ function onPopulateMaterials() {
 				(bsbItem.IsIdentified ? bsbItem.identifiedResourceName : bsbItem.unidentifiedResourceName) +
 				'.bmp',
 			function (data) {
-				bsbDiv.find('.item[data-index="' + BSB_ITID + '"] .icon').css('backgroundImage', 'url(' + data + ')');
+				const icon = bsbDiv.querySelector(`.item[data-index="${BSB_ITID}"] .icon`);
+				if (icon) {
+					icon.style.backgroundImage = `url(${data})`;
+				}
 			}
 		);
 
 		const bsbCountOuter = item ? item.count : 0;
-		const bsbcountmsg = bsbDiv.find('.item[data-index="' + BSB_ITID + '"] .mat_count');
-		// Wrap the count in a span if it's 0
-		if (bsbCountOuter === 0) {
-			bsbcountmsg.html('<span style="color: #ce1029;">' + bsbCountOuter + '</span>/' + blacksmithBlessing);
-		} else {
-			bsbcountmsg.text(bsbCountOuter + '/' + blacksmithBlessing);
+		const bsbcountmsg = bsbDiv.querySelector(`.item[data-index="${BSB_ITID}"] .mat_count`);
+		if (bsbcountmsg) {
+			if (bsbCountOuter === 0) {
+				bsbcountmsg.innerHTML = `<span style="color: #ce1029;">${bsbCountOuter}</span>/${blacksmithBlessing}`;
+			} else {
+				bsbcountmsg.textContent = `${bsbCountOuter}/${blacksmithBlessing}`;
+			}
 		}
 
 		// Add select functionality
-		bsbDiv.find('.icon').click(function () {
-			const bsbInventoryItem = Inventory.getUI().getItemById(BSB_ITID);
-			const currentBsbCount = bsbInventoryItem ? bsbInventoryItem.count : 0;
+		const bsbIcon = bsbDiv.querySelector('.icon');
+		if (bsbIcon) {
+			bsbIcon.addEventListener('click', () => {
+				const bsbInventoryItem = Inventory.getUI().getItemById(BSB_ITID);
+				const currentBsbCount = bsbInventoryItem ? bsbInventoryItem.count : 0;
 
-			if (currentBsbCount >= blacksmithBlessing) {
-				const bsbOverlay = bsbDiv.closest('.bsb_overlay');
+				if (currentBsbCount >= blacksmithBlessing) {
+					const bsbOverlay = bsbDiv.closest('.bsb_overlay');
 
-				if (bsbOverlay.hasClass('selected')) {
-					bsbOverlay.removeClass('selected');
-					Refine.ui.find('.bsb_selected').empty();
-					Refine.ui.find('.some_notifs').hide();
+					if (bsbOverlay.classList.contains('selected')) {
+						bsbOverlay.classList.remove('selected');
+						const bsbSelected = root.querySelector('.bsb_selected');
+						if (bsbSelected) {
+							bsbSelected.innerHTML = '';
+						}
+						const someNotifs = root.querySelector('.some_notifs');
+						if (someNotifs) {
+							someNotifs.style.display = 'none';
+						}
+					} else {
+						root.querySelectorAll('.bsb_overlay').forEach((el) => el.classList.remove('selected'));
+						bsbOverlay.classList.add('selected');
+
+						// Clone the blacksmith blessing and append it to the selected_mat
+						const originalItem = bsbDiv.querySelector('.item');
+						const clonedBSB = originalItem.cloneNode(true);
+						const matCount = clonedBSB.querySelector('.mat_count');
+						if (matCount) {
+							matCount.remove();
+						}
+
+						const bsbSelected = root.querySelector('.bsb_selected');
+						if (bsbSelected) {
+							bsbSelected.innerHTML = '';
+							bsbSelected.appendChild(clonedBSB);
+						}
+
+						// BSB will be used
+						refine_bsb = blacksmithBlessing;
+
+						// Show Info
+						showMessage(2967, 0, 'info');
+					}
 				} else {
-					Refine.ui.find('.bsb_overlay').removeClass('selected'); // Remove selected class from all overlays
-					bsbOverlay.addClass('selected'); // Add selected class to the parent overlay
-
-					// Clone the blacksmith blessing and append it to the selected_mat
-					const clonedBSB = bsbDiv.find('.item').clone();
-					clonedBSB.find('.mat_count').remove(); // Remove mat_count from the clone
-
-					Refine.ui.find('.bsb_selected').empty().append(clonedBSB);
-
-					// BSB will be used
-					refine_bsb = blacksmithBlessing;
-
-					// Show Info
-					showMessage(2967, 0, 'info');
+					showMessage(2969, 3, 'error');
 				}
-			} else {
-				showMessage(2969, 3, 'error'); // Show error message with ID 2969 for 3 seconds
-			}
-		});
+			});
+		}
 	}
 }
 
@@ -665,100 +815,106 @@ function onPopulateMaterials() {
  * Handles update of variables for UI changes based on Refine result
  */
 function selectMaterial(material, item) {
+	const root = _root();
 	const count = item ? item.count || 0 : 0;
 
-	// Initial assumption that refining can continue
 	refine_can_cont = 1;
 
-	// Check for materials
 	if (count) {
 		refine_no_mats = 0;
 	} else {
-		refine_no_mats = 1; // No more Mats
+		refine_no_mats = 1;
 		refine_can_cont = 0;
 	}
 
-	// Check for BSB
 	if (refine_bsb) {
 		const bsbinInventory = Inventory.getUI().getItemById(BSB_ITID);
 		const bsbCount = bsbinInventory ? bsbinInventory.count || 0 : 0;
 
 		if (!bsbinInventory || bsbCount < refine_bsb) {
-			refine_no_bsb = 1; // No more BSB
+			refine_no_bsb = 1;
 			refine_can_cont = 0;
 		} else {
 			refine_no_bsb = 0;
 		}
 	}
 
-	// Check for zeny
 	refine_fee = material.zeny;
 	if (Session.zeny < material.zeny) {
 		refine_no_zeny = 1;
 		refine_can_cont = 0;
 	}
 
-	// Check for broken item
 	if (onCheckItemBroken()) {
 		refine_can_cont = 0;
 	}
 
-	// Store the fresh chance/zeny so onUpdateRefineUI can re-apply them after the
-	// result animation finishes (server resends REFINING_MATERIAL_LIST with the
-	// recalculated chance for the new refine level after every attempt).
 	refine_current_chance = material.chance;
 	refine_current_zeny = material.zeny;
 
-	Refine.ui.find('.chance_rate').text(DB.getMessage(3285).replace('%d%', material.chance));
-	Refine.ui.find('.refine_zeny_cont').text(material.zeny);
+	const chanceRate = root.querySelector('.chance_rate');
+	if (chanceRate) {
+		chanceRate.textContent = DB.getMessage(3285).replace('%d%', material.chance);
+	}
+	const refineZenyCont = root.querySelector('.refine_zeny_cont');
+	if (refineZenyCont) {
+		refineZenyCont.textContent = material.zeny;
+	}
 
 	if (refine_can_cont && !refine_new_mats && !refine_item_broken) {
 		refine_result_div = refine_result ? 'fail_refine_cont_enabled' : 'success_refine_cont_enabled';
 	} else {
 		refine_result_div = refine_result ? 'fail_refine_cont_disabled' : 'success_refine_cont_disabled';
-		Refine.ui.find('.refine_cont').removeClass('item').removeAttr('data-index');
+		const refineCont = root.querySelector('.refine_cont');
+		if (refineCont) {
+			refineCont.classList.remove('item');
+			refineCont.removeAttribute('data-index');
+		}
 	}
 }
 
 /**
  * Show item name when mouse is over
  */
-function onItemOver() {
+function onItemOver(event) {
+	const root = _root();
 	const idx = parseInt(this.getAttribute('data-index'), 10);
 	const it = DB.getItemInfo(idx);
 
 	if (!idx) {
-		return false;
+		return;
 	}
 
-	// Get the position relative to the .item element
-	const pos = jQuery(this).offset();
-	const overlay = Refine.ui.find('.overlay');
+	const itemRect = this.getBoundingClientRect();
+	const overlay = root.querySelector('.overlay');
+	if (!overlay) {
+		return;
+	}
 
-	// Determine the immediate parent container explicitly based on the context
-	const parentContainer = jQuery(this).closest('.materials, .refine_cont');
-	const containerOffset = parentContainer.offset();
+	const parentContainer = this.closest('.materials') || this.closest('.refine_cont');
+	if (!parentContainer) {
+		return;
+	}
+	const containerRect = parentContainer.getBoundingClientRect();
 
-	// Calculate the desired position of the overlay relative to the container
 	let top, left;
-	if (parentContainer.hasClass('materials')) {
-		top = pos.top - containerOffset.top + 30;
-		left = pos.left - containerOffset.left + jQuery(this).outerWidth() - 39;
-	} else if (parentContainer.hasClass('refine_cont')) {
-		top = pos.top - containerOffset.top + 242;
-		left = pos.left - containerOffset.left + jQuery(this).outerWidth() + 41;
+	if (parentContainer.classList.contains('materials')) {
+		top = itemRect.top - containerRect.top + 30;
+		left = itemRect.left - containerRect.left + this.offsetWidth - 39;
+	} else if (parentContainer.classList.contains('refine_cont')) {
+		top = itemRect.top - containerRect.top + 242;
+		left = itemRect.left - containerRect.left + this.offsetWidth + 41;
 	}
 
-	// Display box
-	overlay.show();
-	// Adjust the position of the overlay to be on top of the item within the container
-	overlay.css({ top: top, left: left });
-	overlay.text(it.identifiedDisplayName);
+	overlay.style.display = 'block';
+	overlay.style.top = `${top}px`;
+	overlay.style.left = `${left}px`;
+	overlay.textContent = it.identifiedDisplayName;
 
 	if (it.IsIdentified) {
-		overlay.removeClass('grey');
+		overlay.classList.remove('grey');
 	} else {
-		overlay.addClass('grey');
+		overlay.classList.add('grey');
 	}
 }
 
@@ -766,35 +922,58 @@ function onItemOver() {
  * Hide the item name
  */
 function onItemOut() {
-	Refine.ui.find('.overlay').hide();
+	const root = _root();
+	const overlay = root.querySelector('.overlay');
+	if (overlay) {
+		overlay.style.display = 'none';
+	}
 }
 
 /**
  * Handles clearance of variables and UI components when changing Item
  */
 function onRemoveItem(backtowait) {
-	// Clear refiningMaterials and blacksmithBlessing
+	const root = _root();
+
 	refiningMaterials = [];
 	blacksmithBlessing = 0;
 
-	// Clear .item_to_refine and .item_to_refine_name
-	Refine.ui.find('.item_to_refine').empty();
-	Refine.ui.find('.item_to_refine_name').text('');
+	const itemToRefine = root.querySelector('.item_to_refine');
+	if (itemToRefine) {
+		itemToRefine.innerHTML = '';
+	}
+	const itemToRefineName = root.querySelector('.item_to_refine_name');
+	if (itemToRefineName) {
+		itemToRefineName.textContent = '';
+	}
 
-	// Update .success .number.text to 0
-	Refine.ui.find('.success .number').text('0');
-	Refine.ui.find('.refine_zeny').empty();
+	const successNumber = root.querySelector('.success .number');
+	if (successNumber) {
+		successNumber.textContent = '0';
+	}
+	const refineZeny = root.querySelector('.refine_zeny');
+	if (refineZeny) {
+		refineZeny.innerHTML = '';
+	}
 
-	// Clear selected materials
-	Refine.ui.find('.selected_mat').empty();
-	Refine.ui.find('.bsb_selected').empty();
-	Refine.ui.find('.materials .item').empty();
-	Refine.ui.find('.bsb .item').empty();
-	Refine.ui.find('.mat_overlay').removeClass('selected');
-	Refine.ui.find('.bsb_overlay').removeClass('selected');
+	const selectedMat = root.querySelector('.selected_mat');
+	if (selectedMat) {
+		selectedMat.innerHTML = '';
+	}
+	const bsbSelected = root.querySelector('.bsb_selected');
+	if (bsbSelected) {
+		bsbSelected.innerHTML = '';
+	}
+	root.querySelectorAll('.materials .item').forEach((el) => {
+		el.innerHTML = '';
+	});
+	root.querySelectorAll('.bsb .item').forEach((el) => {
+		el.innerHTML = '';
+	});
+	root.querySelectorAll('.mat_overlay').forEach((el) => el.classList.remove('selected'));
+	root.querySelectorAll('.bsb_overlay').forEach((el) => el.classList.remove('selected'));
 
 	if (backtowait === true) {
-		// Clear current animation first
 		if (currentLoopHandle) {
 			clearTimeout(currentLoopHandle);
 			currentLoopHandle = null;
@@ -804,13 +983,21 @@ function onRemoveItem(backtowait) {
 			Refine.imageLoopTimeout = null;
 		}
 
-		// Make the phase go back to waiting
 		controlPhase('waiting', true, 250);
 
-		// UI changes
-		Refine.ui.find('.some_notifs').hide();
-		Refine.ui.find('.refine_button').show();
-		Refine.ui.find('.success').empty().html(initialsuccess);
+		const someNotifs = root.querySelector('.some_notifs');
+		if (someNotifs) {
+			someNotifs.style.display = 'none';
+		}
+		const refineButton = root.querySelector('.refine_button');
+		if (refineButton) {
+			refineButton.style.display = 'block';
+		}
+		const successEl = root.querySelector('.success');
+		if (successEl) {
+			successEl.innerHTML = initialsuccess;
+			successEl.style.display = 'block';
+		}
 
 		onHideContRefineButtons();
 		clearRefineStates();
@@ -821,21 +1008,41 @@ function onRemoveItem(backtowait) {
  * Handles clearing of material components after requesting to refine
  */
 function clearMaterials() {
-	Refine.ui.find('.success').empty().hide();
-	Refine.ui.find('.refine_zeny').empty();
+	const root = _root();
 
-	Refine.ui.find('.materials .item').hide();
-	Refine.ui.find('.bsb .item').hide();
+	const successEl = root.querySelector('.success');
+	if (successEl) {
+		successEl.innerHTML = '';
+		successEl.style.display = 'none';
+	}
+	const refineZeny = root.querySelector('.refine_zeny');
+	if (refineZeny) {
+		refineZeny.innerHTML = '';
+	}
 
-	// Needs to reselect
-	Refine.ui.find('.selected_mat').empty();
-	Refine.ui.find('.bsb_selected').empty();
+	root.querySelectorAll('.materials .item').forEach((el) => {
+		el.style.display = 'none';
+	});
+	root.querySelectorAll('.bsb .item').forEach((el) => {
+		el.style.display = 'none';
+	});
 
-	Refine.ui.find('.mat_overlay').removeClass('selected');
-	Refine.ui.find('.bsb_overlay').removeClass('selected');
+	const selectedMat = root.querySelector('.selected_mat');
+	if (selectedMat) {
+		selectedMat.innerHTML = '';
+	}
+	const bsbSelected = root.querySelector('.bsb_selected');
+	if (bsbSelected) {
+		bsbSelected.innerHTML = '';
+	}
 
-	// Disable refine_button
-	Refine.ui.find('.refine_button').hide();
+	root.querySelectorAll('.mat_overlay').forEach((el) => el.classList.remove('selected'));
+	root.querySelectorAll('.bsb_overlay').forEach((el) => el.classList.remove('selected'));
+
+	const refineButton = root.querySelector('.refine_button');
+	if (refineButton) {
+		refineButton.style.display = 'none';
+	}
 }
 
 /**
@@ -845,6 +1052,7 @@ function clearMaterials() {
  * @param {string} type - The type of message ('error' or 'info')
  */
 function showMessage(messageID, timeout, type) {
+	const root = _root();
 	const message = DB.getMessage(messageID);
 	let messageClass;
 
@@ -860,22 +1068,31 @@ function showMessage(messageID, timeout, type) {
 			break;
 	}
 
-	// Clear any existing timeout
 	if (Refine.messageTimeOut) {
 		clearTimeout(Refine.messageTimeOut);
 	}
 
-	// Ensure .info_msg has no class of .red and .blue
-	Refine.ui.find('.info_msg').removeClass('red blue');
+	const infoMsg = root.querySelector('.info_msg');
+	if (infoMsg) {
+		infoMsg.classList.remove('red', 'blue');
+		infoMsg.textContent = message;
+		infoMsg.classList.add(messageClass);
+	}
 
-	Refine.ui.find('.info_msg').text(message).addClass(messageClass);
-	Refine.ui.find('.some_notifs').show();
+	const someNotifs = root.querySelector('.some_notifs');
+	if (someNotifs) {
+		someNotifs.style.display = 'block';
+	}
 
 	if (timeout > 0) {
-		Refine.messageTimeOut = setTimeout(function () {
-			Refine.ui.find('.info_msg').removeClass(messageClass);
-			Refine.ui.find('.some_notifs').hide();
-		}, timeout * 1000); // Convert seconds to milliseconds
+		Refine.messageTimeOut = setTimeout(() => {
+			if (infoMsg) {
+				infoMsg.classList.remove(messageClass);
+			}
+			if (someNotifs) {
+				someNotifs.style.display = 'none';
+			}
+		}, timeout * 1000);
 	}
 }
 
@@ -883,39 +1100,45 @@ function showMessage(messageID, timeout, type) {
  * Send the server request to refine the item
  */
 function onRequestRefine() {
+	const root = _root();
 	const item = Inventory.getUI().getItemByIndex(refine_item_index);
 	const material = Inventory.getUI().getItemById(refine_item_mat);
 
 	if (!item) {
-		return false;
+		return;
 	}
 
 	if (!material) {
-		return false;
+		return;
 	}
 
 	if (Session.zeny < refine_fee) {
 		showMessage(2968, 3, 'error');
-		return false;
+		return;
 	}
 
 	if (!Refine.hammer) {
 		clearMaterials();
 	}
 
-	// Increase hammer
 	Refine.hammer++;
 
-	// Hide the previous refine button first
-	Refine.ui.find('.refine_button').hide();
+	const refineButton = root.querySelector('.refine_button');
+	if (refineButton) {
+		refineButton.style.display = 'none';
+	}
 
-	// Hack: Hide it here for the surprise
-	Refine.ui.find('.item_to_refine_name').hide();
-	Refine.ui.find('.success').hide();
+	const itemToRefineName = root.querySelector('.item_to_refine_name');
+	if (itemToRefineName) {
+		itemToRefineName.style.display = 'none';
+	}
+	const successEl = root.querySelector('.success');
+	if (successEl) {
+		successEl.style.display = 'none';
+	}
 
 	refine_ongoing = 1;
 
-	// Send request to server
 	const pkt = new PACKET.CZ.REQ_REFINING();
 	pkt.index = refine_item_index;
 	pkt.itemId = refine_item_mat;
@@ -928,10 +1151,17 @@ function onRequestRefine() {
  * @param {pkt} - PACKET.ZC.ACK_ITEMREFINING
  */
 Refine.onRefineResult = function onRefineResult(pkt) {
+	const root = _root();
+
 	if (pkt) {
-		// Hide some UIs
-		Refine.ui.find('.back_button').hide();
-		Refine.ui.find('.refine_cont').hide();
+		const backButton = root.querySelector('.back_button');
+		if (backButton) {
+			backButton.style.display = 'none';
+		}
+		const refineCont = root.querySelector('.refine_cont');
+		if (refineCont) {
+			refineCont.style.display = 'none';
+		}
 
 		const item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
 		if (item) {
@@ -939,24 +1169,23 @@ Refine.onRefineResult = function onRefineResult(pkt) {
 			Inventory.getUI().addItem(item);
 		}
 
-		// Stop the current ongoing loop before running the animation
 		stopCurrentLoop();
 
 		refine_result = pkt.result;
 
 		switch (pkt.result) {
-			case 0: // success
+			case 0:
 				refine_can_cont = 1;
-				onAnimateResult('success', function () {
+				onAnimateResult('success', () => {
 					onUpdateRefineUI('success');
 					startLoopingPhase('success_wait');
 				});
 				break;
-			case 1: // failure
-			case 3: // bsb failure
+			case 1:
+			case 3:
 				onShowFailure(pkt.result);
 				break;
-			case 2: // downgrade
+			case 2:
 				onShowFailure(pkt.result);
 				break;
 		}
@@ -969,7 +1198,7 @@ Refine.onRefineResult = function onRefineResult(pkt) {
 function onShowFailure(result) {
 	const showResult = result === 2 ? 'downgrade' : 'fail';
 
-	onAnimateResult('fail', function () {
+	onAnimateResult('fail', () => {
 		onUpdateRefineUI(showResult);
 		startLoopingPhase('fail_wait');
 	});
@@ -981,11 +1210,11 @@ function onShowFailure(result) {
 function onAnimateResult(result, callback) {
 	function runSuccessSequence() {
 		if (refine_bsb) {
-			controlPhase('processa', false, 50, function () {
+			controlPhase('processa', false, 50, () => {
 				controlPhase('success', false, 50, callback);
 			});
 		} else {
-			controlPhase('processb', false, 50, function () {
+			controlPhase('processb', false, 50, () => {
 				controlPhase('success', false, 50, callback);
 			});
 		}
@@ -993,11 +1222,11 @@ function onAnimateResult(result, callback) {
 
 	function runFailSequence() {
 		if (refine_bsb) {
-			controlPhase('processa', false, 50, function () {
+			controlPhase('processa', false, 50, () => {
 				controlPhase('fail', false, 50, callback);
 			});
 		} else {
-			controlPhase('processb', false, 50, function () {
+			controlPhase('processb', false, 50, () => {
 				controlPhase('fail', false, 50, callback);
 			});
 		}
@@ -1043,56 +1272,79 @@ function stopCurrentLoop() {
  * Handles how the UI changes depending on Refine result
  */
 function onUpdateRefineUI(result) {
-	// Hide all continous buttons first to just show the needed one for result
+	const root = _root();
+
 	onHideContRefineButtons();
 
 	switch (result) {
-		case 'success':
-			Refine.ui.find('.back_success').show();
-			Refine.ui.find('.success').text(DB.getMessage(2971)).show();
-			ChatBox.addText(
-				DB.getMessage(498), // Upgrade success!!
-				ChatBox.TYPE.BLUE,
-				ChatBox.FILTER.PUBLIC_LOG
-			);
+		case 'success': {
+			const backSuccess = root.querySelector('.back_success');
+			if (backSuccess) {
+				backSuccess.style.display = 'block';
+			}
+			const successEl = root.querySelector('.success');
+			if (successEl) {
+				successEl.textContent = DB.getMessage(2971);
+				successEl.style.display = 'block';
+			}
+			ChatBox.addText(DB.getMessage(498), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 			break;
-		case 'fail':
+		}
+		case 'fail': {
 			onCheckItemBroken();
-			Refine.ui.find('.back_fail').show();
-			Refine.ui.find('.success').text(DB.getMessage(2972)).show();
-			ChatBox.addText(
-				DB.getMessage(499), // Upgrade failed!!
-				ChatBox.TYPE.BLUE,
-				ChatBox.FILTER.PUBLIC_LOG
-			);
+			const backFail = root.querySelector('.back_fail');
+			if (backFail) {
+				backFail.style.display = 'block';
+			}
+			const successEl = root.querySelector('.success');
+			if (successEl) {
+				successEl.textContent = DB.getMessage(2972);
+				successEl.style.display = 'block';
+			}
+			ChatBox.addText(DB.getMessage(499), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 			break;
-		case 'downgrade':
+		}
+		case 'downgrade': {
 			onCheckItemBroken();
-			Refine.ui.find('.back_fail').show();
-			Refine.ui.find('.success').text(DB.getMessage(2972)).show();
-			ChatBox.addText(
-				DB.getMessage(1537), // Is now refining the value lowered
-				ChatBox.TYPE.BLUE,
-				ChatBox.FILTER.PUBLIC_LOG
-			);
+			const backFail = root.querySelector('.back_fail');
+			if (backFail) {
+				backFail.style.display = 'block';
+			}
+			const successEl = root.querySelector('.success');
+			if (successEl) {
+				successEl.textContent = DB.getMessage(2972);
+				successEl.style.display = 'block';
+			}
+			ChatBox.addText(DB.getMessage(1537), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);
 			break;
+		}
 		default:
 			break;
 	}
 
-	Refine.ui.find('.refine_text_cont').show();
+	const refineTextCont = root.querySelector('.refine_text_cont');
+	if (refineTextCont) {
+		refineTextCont.style.display = 'block';
+	}
 
 	if (refine_result_div) {
-		Refine.ui.find('.' + refine_result_div).show();
+		const resultEl = root.querySelector(`.${refine_result_div}`);
+		if (resultEl) {
+			resultEl.style.display = 'block';
+		}
 	}
 
 	if (refine_can_cont && !refine_new_mats && !refine_item_broken) {
-		// Re-apply the fresh chance/zeny captured from the latest REFINING_MATERIAL_LIST
-		// so the continuous-refine view never shows the previous level's values.
-		Refine.ui.find('.chance_rate').text(DB.getMessage(3285).replace('%d%', refine_current_chance));
-		Refine.ui.find('.refine_zeny_cont').text(refine_current_zeny);
-		Refine.ui.find('.chance_rate').show();
-		Refine.ui.find('.refine_zeny_cont').show();
+		const chanceRate = root.querySelector('.chance_rate');
+		if (chanceRate) {
+			chanceRate.textContent = DB.getMessage(3285).replace('%d%', refine_current_chance);
+			chanceRate.style.display = 'block';
+		}
+		const refineZenyCont = root.querySelector('.refine_zeny_cont');
+		if (refineZenyCont) {
+			refineZenyCont.textContent = refine_current_zeny;
+			refineZenyCont.style.display = 'block';
+		}
 	}
 
 	if (refine_no_mats) {
@@ -1105,22 +1357,29 @@ function onUpdateRefineUI(result) {
 		showMessage(3245, 3, 'error');
 	}
 
-	// Show again the hidden UIs that has been updated
-	Refine.ui.find('.back_button').show();
-	Refine.ui.find('.refine_cont').show();
+	const backButton = root.querySelector('.back_button');
+	if (backButton) {
+		backButton.style.display = 'block';
+	}
+	const refineCont = root.querySelector('.refine_cont');
+	if (refineCont) {
+		refineCont.style.display = 'block';
+	}
 
-	// Re-read the item from inventory (already updated to the new RefiningLevel by
-	// onRefineResult) and repaint the name so the continuous-refine view shows the
-	// real +N instead of the previous iteration's value. Skip if the item broke.
 	if (!refine_item_broken) {
 		const refineditem = Inventory.getUI().getItemByIndex(refine_item_index);
 		if (refineditem) {
-			Refine.ui.find('.item_to_refine_name').text(DB.getItemName(refineditem));
+			const itemToRefineName = root.querySelector('.item_to_refine_name');
+			if (itemToRefineName) {
+				itemToRefineName.textContent = DB.getItemName(refineditem);
+			}
 		}
 	}
 
-	// Hack: Show it here for the surprise
-	Refine.ui.find('.item_to_refine_name').show();
+	const itemToRefineName = root.querySelector('.item_to_refine_name');
+	if (itemToRefineName) {
+		itemToRefineName.style.display = 'block';
+	}
 
 	refine_ongoing = 0;
 }
@@ -1129,27 +1388,66 @@ function onUpdateRefineUI(result) {
  * Handles hiding all buttons used in Continous Refine
  */
 function onHideContRefineButtons() {
-	Refine.ui.find('.back_button').hide();
-	Refine.ui.find('.refine_cont').hide();
-	Refine.ui.find('.back_success').hide();
-	Refine.ui.find('.back_fail').hide();
-	Refine.ui.find('.success_refine_cont_enabled').hide();
-	Refine.ui.find('.success_refine_cont_disabled').hide();
-	Refine.ui.find('.fail_refine_cont_enabled').hide();
-	Refine.ui.find('.fail_refine_cont_disabled').hide();
-	Refine.ui.find('.refine_text_cont').hide();
-	Refine.ui.find('.chance_rate').hide();
-	Refine.ui.find('.refine_zeny_cont').hide();
+	const root = _root();
+
+	const backButton = root.querySelector('.back_button');
+	if (backButton) {
+		backButton.style.display = 'none';
+	}
+	const refineCont = root.querySelector('.refine_cont');
+	if (refineCont) {
+		refineCont.style.display = 'none';
+	}
+	const backSuccess = root.querySelector('.back_success');
+	if (backSuccess) {
+		backSuccess.style.display = 'none';
+	}
+	const backFail = root.querySelector('.back_fail');
+	if (backFail) {
+		backFail.style.display = 'none';
+	}
+	const successContEnabled = root.querySelector('.success_refine_cont_enabled');
+	if (successContEnabled) {
+		successContEnabled.style.display = 'none';
+	}
+	const successContDisabled = root.querySelector('.success_refine_cont_disabled');
+	if (successContDisabled) {
+		successContDisabled.style.display = 'none';
+	}
+	const failContEnabled = root.querySelector('.fail_refine_cont_enabled');
+	if (failContEnabled) {
+		failContEnabled.style.display = 'none';
+	}
+	const failContDisabled = root.querySelector('.fail_refine_cont_disabled');
+	if (failContDisabled) {
+		failContDisabled.style.display = 'none';
+	}
+	const refineTextCont = root.querySelector('.refine_text_cont');
+	if (refineTextCont) {
+		refineTextCont.style.display = 'none';
+	}
+	const chanceRate = root.querySelector('.chance_rate');
+	if (chanceRate) {
+		chanceRate.style.display = 'none';
+	}
+	const refineZenyCont = root.querySelector('.refine_zeny_cont');
+	if (refineZenyCont) {
+		refineZenyCont.style.display = 'none';
+	}
 }
 
 /**
  * Check if the item being refined is broken
  */
 function onCheckItemBroken() {
+	const root = _root();
 	const refineditem = Inventory.getUI().getItemByIndex(refine_item_index);
 	if (!refineditem) {
 		refine_result_div = 'fail_refine_cont_disabled';
-		Refine.ui.find('.item_to_refine_name').text(DB.getMessage(3246));
+		const itemToRefineName = root.querySelector('.item_to_refine_name');
+		if (itemToRefineName) {
+			itemToRefineName.textContent = DB.getMessage(3246);
+		}
 		refine_item_broken = 1;
 		return true;
 	} else {
@@ -1162,6 +1460,8 @@ function onCheckItemBroken() {
  * Handles event when Back button was pressed during Continous Refine
  */
 function onCancelContRefine() {
+	const root = _root();
+
 	Refine.hammer = 0;
 	onHideContRefineButtons();
 	stopCurrentLoop();
@@ -1169,13 +1469,20 @@ function onCancelContRefine() {
 	if (!refine_item_broken) {
 		onPopulateMaterials();
 		const isbsbenabled = blacksmithBlessing ? 'a' : 'b';
-		controlPhase('ready' + isbsbenabled, false, 250);
+		controlPhase(`ready${isbsbenabled}`, false, 250);
 	} else {
 		onRemoveItem(true);
 	}
 
-	Refine.ui.find('.refine_button').show();
-	Refine.ui.find('.success').empty().html(initialsuccess);
+	const refineButton = root.querySelector('.refine_button');
+	if (refineButton) {
+		refineButton.style.display = 'block';
+	}
+	const successEl = root.querySelector('.success');
+	if (successEl) {
+		successEl.innerHTML = initialsuccess;
+		successEl.style.display = 'block';
+	}
 }
 
 /**
@@ -1183,66 +1490,55 @@ function onCancelContRefine() {
  */
 function onItemInfo(event) {
 	event.stopImmediatePropagation();
+	event.preventDefault();
 
 	const ITID = parseInt(this.getAttribute('data-index'), 10);
-	// Materials have item.ID as data-index, Item to be refine has item.index as data-index
 	const item = Inventory.getUI().getItemById(ITID)
 		? Inventory.getUI().getItemById(ITID)
 		: Inventory.getUI().getItemByIndex(ITID);
 
 	if (!item) {
-		return false;
+		return;
 	}
 
-	// Remove existing compare UI if it's currently displayed
 	if (ItemCompare.ui) {
 		ItemCompare.remove();
 	}
 
-	// Don't add the same UI twice, remove it
 	if (ItemInfo.uid === item.ITID) {
 		ItemInfo.remove();
 		if (ItemCompare.ui) {
 			ItemCompare.remove();
 		}
-		return false;
+		return;
 	}
 
-	// Add ui to window
 	ItemInfo.append();
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
 
-	// Check if there is an equipped item in the same location
 	const compareItem = Equipment.getUI().isInEquipList(item.location);
 
-	// If a comparison item is found, display comparison
 	if (compareItem && Inventory.getUI().itemcomp) {
 		ItemCompare.prepare();
 		ItemCompare.append();
 		ItemCompare.uid = compareItem.ITID;
 		ItemCompare.setItem(compareItem);
 	}
-
-	return false;
 }
 
 /**
  * Check if Refine UI is open
  */
 Refine.isRefineOpen = function isRefineOpen() {
-	if (Refine.ui && Refine.ui.is(':visible')) {
-		return true;
-	} else {
-		return false;
-	}
+	return !!(Refine._host && Refine._host.isConnected);
 };
 
 /**
  * Start dragging an item
  */
 function onItemDragStart(event) {
-	event.originalEvent.dataTransfer.setData('text', event.target.id);
+	event.dataTransfer.setData('text', event.target.id);
 }
 
 /**
@@ -1253,9 +1549,9 @@ function onItemDragEnd(event) {
 		return;
 	}
 
-	const rect = Refine.ui[0].getBoundingClientRect();
-	const mouseX = event.clientX || event.originalEvent.clientX;
-	const mouseY = event.clientY || event.originalEvent.clientY;
+	const rect = Refine._host.getBoundingClientRect();
+	const mouseX = event.clientX;
+	const mouseY = event.clientY;
 
 	if (mouseX < rect.left || mouseX > rect.right || mouseY < rect.top || mouseY > rect.bottom) {
 		onRemoveItem(true);
