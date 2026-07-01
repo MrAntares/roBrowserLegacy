@@ -13,7 +13,8 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import Session from 'Engine/SessionStorage.js';
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import 'UI/Elements/Elements.js';
 import htmlText from './ItemPreview.html?raw';
 import cssText from './ItemPreview.css?raw';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
@@ -22,7 +23,12 @@ import Entity from 'Renderer/Entity/Entity.js';
 /**
  * Create Component
  */
-const ItemPreview = new UIComponent('ItemPreview', htmlText, cssText);
+const ItemPreview = new GUIComponent('ItemPreview', cssText);
+
+/**
+ * Render HTML
+ */
+ItemPreview.render = () => htmlText;
 
 /**
  * @var {CanvasRenderingContext2D}
@@ -60,29 +66,30 @@ let _remove = false;
  * Initialize UI
  */
 ItemPreview.init = function init() {
-	this.ui.css({ top: 200, left: 520 });
-	_ctx = this.ui.find('canvas')[0].getContext('2d');
+	const root = this.getRoot();
 
-	this.ui.find('.close').click(function () {
+	_ctx = root.querySelector('canvas').getContext('2d');
+
+	root.querySelector('.close').addEventListener('click', () => {
 		ItemPreview.remove();
 	});
 
-	this.ui.find('.rot_left').click(function (event) {
+	root.querySelector('.rot_left').addEventListener('click', event => {
 		event.stopImmediatePropagation();
 		rotatePreview(1);
 	});
 
-	this.ui.find('.rot_right').click(function (event) {
+	root.querySelector('.rot_right').addEventListener('click', event => {
 		event.stopImmediatePropagation();
 		rotatePreview(-1);
 	});
 
-	this.ui.find('.reset').click(function (event) {
+	root.querySelector('.reset').addEventListener('click', event => {
 		event.stopImmediatePropagation();
 		resetPreview();
 	});
 
-	this.draggable(this.ui.find('.titlebar'));
+	this.draggable('.titlebar');
 };
 
 /**
@@ -91,21 +98,23 @@ ItemPreview.init = function init() {
 ItemPreview.onAppend = function onAppend() {
 	if (ItemInfo.ui) {
 		const itemInfoPosition = ItemInfo.ui.offset();
-		const itemInfoWidth = ItemInfo.ui.outerWidth();
+		const itemInfoWidth = ItemInfo.ui.width();
+		const hostWidth = this._host.offsetWidth;
+		const hostHeight = this._host.offsetHeight;
 		let left = itemInfoPosition.left + itemInfoWidth + 10;
 		let top = itemInfoPosition.top;
 
-		if (left + this.ui.outerWidth() > Renderer.width) {
-			left = Math.max(0, itemInfoPosition.left - this.ui.outerWidth() - 10);
+		if (left + hostWidth > Renderer.width) {
+			left = Math.max(0, itemInfoPosition.left - hostWidth - 10);
 		}
 
-		if (top + this.ui.outerHeight() > Renderer.height) {
-			top = Math.max(0, Renderer.height - this.ui.outerHeight());
+		if (top + hostHeight > Renderer.height) {
+			top = Math.max(0, Renderer.height - hostHeight);
 		}
 
-		this.ui.css({
-			top: top || 200,
-			left: left || 200
+		Object.assign(this._host.style, {
+			top: `${top || 200}px`,
+			left: `${left || 200}px`
 		});
 	}
 
