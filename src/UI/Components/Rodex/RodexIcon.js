@@ -8,7 +8,7 @@
  */
 
 import UIManager from 'UI/UIManager.js';
-import UIComponent from 'UI/UIComponent.js';
+import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './RodexIcon.html?raw';
 import cssText from './RodexIcon.css?raw';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
@@ -16,29 +16,43 @@ import Rodex from 'UI/Components/Rodex/Rodex.js';
 /**
  * Create Component
  */
-const RodexIcon = new UIComponent('RodexIcon', htmlText, cssText);
+const RodexIcon = new GUIComponent('RodexIcon', cssText);
+
+/**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return RodexIcon._shadow || RodexIcon._host;
+}
+
+/**
+ * Render HTML
+ */
+RodexIcon.render = () => htmlText;
 
 /**
  * Apply preferences once append to body
  */
 RodexIcon.onAppend = function OnAppend() {
-	const icon = this.ui.find('.rodex-icon');
-	icon.on('click', onClickRodexIcon);
-	icon.focus();
+	const root = _root();
+	const icon = root.querySelector('.rodex-icon');
+	icon.addEventListener('click', onClickRodexIcon);
 };
 
 RodexIcon.toggle = function toggle() {
-	this.ui.toggle();
-	if (this.ui.is(':visible')) {
+	if (this._host.style.display === 'none') {
+		this._host.style.display = '';
 		this.focus();
+	} else {
+		this._host.style.display = 'none';
 	}
 };
 
 function onClickRodexIcon() {
 	Rodex.openRodexBox();
 	Rodex.append();
-	Rodex.ui.show();
-	Rodex.ui.focus();
+	Rodex._host.style.display = '';
+	Rodex.focus();
 }
 
 /**
