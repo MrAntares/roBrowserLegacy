@@ -1,7 +1,13 @@
-#EnchantGrade {
+:host {
 	position: absolute;
 	height: 330px;
 	width: 400px;
+}
+
+#EnchantGrade {
+	height: 100%;
+	width: 100%;
+	position: relative;
 }
 
 #EnchantGrade .container {
@@ -116,8 +122,8 @@
 	top: 18px;
 	left: 0px;
 	display: flex;
-	justify-content: flex-end; /* Pushes content to the right */
-	align-items: center; /* Vertically centers the button */
+	justify-content: flex-end;
+	align-items: center;
 	border: none;
 	position: relative;
 }
@@ -154,8 +160,8 @@
 }
 
 #EnchantGrade .material_slot1,
-.material_slot2,
-.material_slot3 {
+#EnchantGrade .material_slot2,
+#EnchantGrade .material_slot3 {
 	height: 37px;
 	width: 235px;
 	border: none;
@@ -167,8 +173,8 @@
 }
 
 #EnchantGrade .material_slot1 .item,
-.material_slot2 .item,
-.material_slot3 .item {
+#EnchantGrade .material_slot2 .item,
+#EnchantGrade .material_slot3 .item {
 	height: 24px;
 	width: 24px;
 	position: relative;
@@ -196,7 +202,7 @@
 }
 
 #EnchantGrade .add_material_btn,
-.remove_material_btn {
+#EnchantGrade .remove_material_btn {
 	height: 15px;
 	width: 32px;
 	border: none;
@@ -246,9 +252,11 @@
 	height: 20px;
 	width: 44px;
 	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
 }
 
-#enchant_tooltip {
+#EnchantGrade .enchant_tooltip {
 	position: absolute;
 	z-index: 9999;
 	pointer-events: none;
@@ -257,9 +265,6 @@
 	padding: 6px 8px;
 	color: #fff;
 	white-space: nowrap;
-}
-
-.enchant_tooltip.hidden {
 	display: none;
 }
 
@@ -289,17 +294,6 @@
 	width: 50px;
 	top: 185px;
 	left: 106px;
-}
-
-#EnchantGrade .enchant_container .item .grade {
-	position: absolute;
-	width: 12px;
-	height: 12px;
-	background-color: transparent;
-	background-repeat: no-repeat;
-	pointer-events: none;
-	z-index: 2;
-	top: 12px;
 }
 
 #EnchantGrade .item_to_EnchantGrade_name {
@@ -376,7 +370,7 @@
 	position: absolute;
 	height: 53px;
 	width: 46px;
-	background-size: 0px; /* Hide */
+	background-size: 0px;
 }
 
 #EnchantGrade .mat_overlay.selected,
@@ -543,7 +537,6 @@
 }
 
 #EnchantGrade .EnchantGrade_cont.item {
-	/* Override conflicting properties */
 	position: absolute !important;
 	float: none !important;
 	height: 50px !important;
