@@ -1124,7 +1124,7 @@ class DB {
 		JobId.IMPERIAL_GUARD_RIDING
 	]);
 	static isRoyalGuard(jobid) {
-		return S_JOBS_RG.has(jobid);
+		return this.S_JOBS_RG.has(jobid);
 	}
 
 	/**
