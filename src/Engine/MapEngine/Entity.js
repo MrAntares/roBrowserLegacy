@@ -145,10 +145,7 @@ function onEntitySpam(pkt) {
 		}
 	}
 
-	if (
-		pkt.effectState & StatusState.EffectState.FALCON &&
-		DB.isHunter(pkt.job)
-	) {
+	if (pkt.effectState & StatusState.EffectState.FALCON && DB.isHunter(pkt.job)) {
 		if (!entity.falcon) {
 			entity.falcon = new Entity();
 		}

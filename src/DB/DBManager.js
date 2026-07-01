@@ -963,7 +963,7 @@ class DB {
 		JobId.DOG_G_CROSS,
 		JobId.DOG_ASSASSIN_B,
 		JobId.DOG_G_CROSS_B,
-		JobId.SHADOW_CROSS_RIDING,
+		JobId.SHADOW_CROSS_RIDING
 	]);
 	static isAssassin(jobid) {
 		return this.S_JOBS_ASSASSIN.has(jobid);
@@ -991,7 +991,7 @@ class DB {
 		JobId.OSTRICH_RANGER,
 		JobId.OSTRICH_HUNTER_B,
 		JobId.OSTRICH_RANGER_B,
-		JobId.WINDHAWK_RIDING,
+		JobId.WINDHAWK_RIDING
 	]);
 	static isHunter(jobid) {
 		return this.S_JOBS_HUNTER.has(jobid);
@@ -1018,7 +1018,7 @@ class DB {
 		JobId.SHEEP_SURA,
 		JobId.SHEEP_MONK_B,
 		JobId.SHEEP_SURA_B,
-		JobId.INQUISITOR_RIDING,
+		JobId.INQUISITOR_RIDING
 	]);
 	static isMonk(jobid) {
 		return this.S_JOBS_MONK.has(jobid);
@@ -1041,14 +1041,14 @@ class DB {
 		JobId.PORING_SNOVICE,
 		JobId.PORING_SNOVICE2,
 		JobId.PORING_SNOVICE_B,
-		JobId.PORING_SNOVICE2_B,
+		JobId.PORING_SNOVICE2_B
 	]);
 	static isSuperNovice(jobid) {
 		return this.S_JOBS_SN.has(jobid);
 	}
 
 	/**
-	 * Is character a TaeKwon class 
+	 * Is character a TaeKwon class
 	 *
 	 * @param {number} jobid
 	 * @return {boolean}
@@ -1077,22 +1077,21 @@ class DB {
 		JobId.SOUL_REAPER2_B,
 		//JobId.SOUL_ASCETIC_B, //missing from const
 		//JobId.SOUL_ASCETIC2_B //missing from const
-		
+
 		JobId.PORING_TAEKWON,
 		JobId.PORING_STAR,
-		JobId.FROG_LINKER,
+		JobId.FROG_LINKER
 		//JobId.PORING_TAEKWON_B, //missing from const
 		//JobId.PORING_STAR_B, //missing from const
 		//JobId.FROG_LINKER_B, //missing from const
 		// Missing 3rd/4th
-
 	]);
 	static isTaeKwon(jobid) {
 		return this.S_JOBS_TAEKWON.has(jobid);
 	}
 
 	/**
-	 * Is character a Gunslinger class 
+	 * Is character a Gunslinger class
 	 *
 	 * @param {number} jobid
 	 * @return {boolean}
@@ -1106,7 +1105,7 @@ class DB {
 		JobId.REBELLION_B,
 
 		JobId.PECO_GUNNER,
-		JobId.PECO_REBELLION,
+		JobId.PECO_REBELLION
 		//JobId.PECO_GUNNER_B, //missing from const
 		//JobId.PECO_REBELLION_B, //missing from const
 	]);
@@ -1115,7 +1114,7 @@ class DB {
 	}
 
 	/**
-	 * Is character a Royal Guard class 
+	 * Is character a Royal Guard class
 	 *
 	 * @param {number} jobid
 	 * @return {boolean}
@@ -1132,7 +1131,7 @@ class DB {
 
 		JobId.LION_ROYAL_GUARD,
 		JobId.LION_ROYAL_GUARD_B,
-		JobId.IMPERIAL_GUARD_RIDING,
+		JobId.IMPERIAL_GUARD_RIDING
 	]);
 	static isRoyalGuard(jobid) {
 		return this.S_JOBS_RG.has(jobid);
@@ -1144,12 +1143,7 @@ class DB {
 	 * @param {number} jobid
 	 * @return {boolean}
 	 */
-	static S_JOBS_MADO = new Set([
-		JobId.MECHANIC2,
-		JobId.MECHANIC2_H,
-		JobId.MECHANIC2_B,
-		JobId.MEISTER2,
-	]);
+	static S_JOBS_MADO = new Set([JobId.MECHANIC2, JobId.MECHANIC2_H, JobId.MECHANIC2_B, JobId.MEISTER2]);
 	static isMadogear(jobid) {
 		return this.S_JOBS_MADO.has(jobid);
 	}
