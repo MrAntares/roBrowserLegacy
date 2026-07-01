@@ -1,4 +1,4 @@
-#ItemReform {
+:host {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -189,7 +189,7 @@
 }
 
 #ItemReform .material_list .item:nth-child(3n + 1) {
-	margin-left: 0; /* Ensure first item in each row aligns correctly */
+	margin-left: 0;
 }
 
 #ItemReform .count {
@@ -241,6 +241,9 @@
 #ItemReform .reform_disabled {
 	height: 20px;
 	width: 56px;
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: 0;
 }
 
 #ItemReform .cancel {
@@ -257,7 +260,7 @@
 	background-size: 56px 20px;
 	background-repeat: no-repeat;
 	text-align: center;
-	align-content: center;
+	line-height: 20px;
 }
 
 #ItemReform .reform_disabled {
