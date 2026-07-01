@@ -1,7 +1,12 @@
-#Roulette {
-	position: absolute;
+:host {
 	width: 600px;
 	height: 500px;
+}
+
+#Roulette {
+	position: absolute;
+	width: 100%;
+	height: 100%;
 	z-index: 50;
 }
 
@@ -227,35 +232,4 @@
 	100% {
 		transform: translate(-50%, -50%) rotate(1800deg);
 	}
-}
-
-/* Roulette icon button in MiniMap - positioned below cashshop */
-#MiniMapV2 .rouletteIcon,
-#MiniMapV0 .rouletteIcon,
-#MiniMap .rouletteIcon {
-	position: absolute !important;
-	height: 43px !important;
-	width: 43px !important;
-	border: none !important;
-	top: 57px !important;
-	left: -45px !important;
-	background-size: contain !important;
-	background-repeat: no-repeat !important;
-	background-position: center !important;
-	display: block !important;
-	min-width: 43px !important;
-	min-height: 43px !important;
-	background-color: rgba(0, 0, 0, 0);
-}
-
-#MiniMapV2 .rouletteIcon:hover,
-#MiniMapV0 .rouletteIcon:hover,
-#MiniMap .rouletteIcon:hover {
-	filter: brightness(1.1);
-}
-
-#MiniMapV2 .rouletteIcon:active,
-#MiniMapV0 .rouletteIcon:active,
-#MiniMap .rouletteIcon:active {
-	transform: scale(0.95);
 }
