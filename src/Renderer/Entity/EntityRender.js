@@ -407,15 +407,7 @@ const renderEntity = (function renderEntityClosure() {
 						// Draw Cart
 						if (Session.Playing == true && self.hasCart == true) {
 							SpriteRenderer.zIndex = bodyZOffset + 500;
-							cartidx = [
-								JobId.NOVICE,
-								JobId.SUPERNOVICE,
-								JobId.SUPERNOVICE_B,
-								JobId.SUPERNOVICE2,
-								JobId.SUPERNOVICE2_B
-							].includes(self._job)
-								? 0
-								: self.CartNum;
+							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
 							SpriteRenderer.runWithDepth(true, false, false, function () {
 								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
 								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);

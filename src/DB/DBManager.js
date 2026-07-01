@@ -961,6 +961,8 @@ class DB {
 		JobId.DOG_ASSASSIN,
 		JobId.DOG_ASSA_X,
 		JobId.DOG_G_CROSS,
+		JobId.DOG_ASSASSIN_B,
+		JobId.DOG_G_CROSS_B,
 		JobId.SHADOW_CROSS_RIDING
 	]);
 	static isAssassin(jobid) {
@@ -984,9 +986,11 @@ class DB {
 		JobId.HUNTER_B,
 		JobId.RANGER_B,
 
-		JobId.DOG_ASSASSIN,
-		JobId.DOG_ASSA_X,
-		JobId.DOG_G_CROSS,
+		JobId.OSTRICH_HUNTER,
+		JobId.OSTRICH_SNIPER,
+		JobId.OSTRICH_RANGER,
+		JobId.OSTRICH_HUNTER_B,
+		JobId.OSTRICH_RANGER_B,
 		JobId.WINDHAWK_RIDING
 	]);
 	static isHunter(jobid) {
@@ -1035,12 +1039,12 @@ class DB {
 		JobId.SUPERNOVICE2_B,
 
 		JobId.PORING_SNOVICE,
-		JobId.PORING_SNOVICE_B,
 		JobId.PORING_SNOVICE2,
+		JobId.PORING_SNOVICE_B,
 		JobId.PORING_SNOVICE2_B,
 	]);
 	static isSuperNovice(jobid) {
-		return this.S_JOBS_ASSASSIN.has(jobid);
+		return this.S_JOBS_SN.has(jobid);
 	}
 
 	/**
@@ -1075,7 +1079,10 @@ class DB {
 		
 		JobId.PORING_TAEKWON,
 		JobId.PORING_STAR,
-		JobId.FROG_LINKER
+		JobId.FROG_LINKER,
+		//JobId.PORING_TAEKWON_B, //missing from const
+		//JobId.PORING_STAR_B, //missing from const
+		//JobId.FROG_LINKER_B, //missing from const
 		// Missing 3rd/4th
 
 	]);
@@ -1136,7 +1143,8 @@ class DB {
 	static S_JOBS_MADO = new Set([
 		JobId.MECHANIC2,
 		JobId.MECHANIC2_H,
-		JobId.MEISTER2
+		JobId.MECHANIC2_B
+		JobId.MEISTER2,
 	]);
 	static isMadogear(jobid) {
 		return this.S_JOBS_MADO.has(jobid);
