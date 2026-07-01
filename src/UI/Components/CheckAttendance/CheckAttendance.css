@@ -1,3 +1,8 @@
+:host {
+	width: 488px;
+	height: 413px;
+}
+
 #CheckAttendance {
 	position: absolute;
 	width: 488px;
@@ -195,4 +200,7 @@
 	position: absolute;
 	top: 35%;
 	left: 35%;
+	display: inline-block;
+	text-align: center;
+	line-height: 30px;
 }

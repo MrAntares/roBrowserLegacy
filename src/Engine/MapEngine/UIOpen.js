@@ -48,7 +48,7 @@ function onUIOpen(pkt) {
 				CheckAttendance.cleanUI();
 				CheckAttendance.append();
 				CheckAttendance.ui.show();
-				CheckAttendance.ui.focus();
+				CheckAttendance.focus();
 			}
 			break;
 		case 8:
