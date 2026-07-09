@@ -59,6 +59,5 @@ window.ROConfigBase = {
     saveFiles: true,  
     ThirdPersonCamera: false,  
     transitionDuration: 500,  
-    restoreChatFocus: false,  
-    useSystemFolderFont: false  
+    restoreChatFocus: false
 };  

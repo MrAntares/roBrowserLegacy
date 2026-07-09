@@ -77,6 +77,5 @@ window.ROConfigLocal = {
     registrationweb: '',  
     saveFiles: true,  
     ThirdPersonCamera: false,  
-    transitionDuration: 500,  
-    useSystemFolderFont: false  
+    transitionDuration: 500
 };
