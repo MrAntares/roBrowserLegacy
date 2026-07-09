@@ -682,7 +682,7 @@ function onSwitchTab() {
 	if (dealOff) dealOff.classList.toggle('hidden', !(onFavTab && !_preferences.npcsalelock));
 	if (lockOverlay) lockOverlay.style.display = onFavTab && _preferences.npcsalelock ? '' : 'none';
 	if (lockMsg) lockMsg.style.display = 'none';
-	if (sort) sort.style.display = onFavTab ? '' : 'none';
+	if (sort) sort.classList.toggle('hidden', !onFavTab);
 }
 
 function onToggleReduction() {
