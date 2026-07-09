@@ -31,7 +31,7 @@ function sanitizeHtml(text) {
 	const container = document.createElement('div');
 	container.innerHTML = text;
 
-	const walk = (node) => {
+	const walk = node => {
 		const children = Array.from(node.childNodes);
 		for (const child of children) {
 			if (child.nodeType === 1) {
@@ -62,10 +62,22 @@ function sanitizeHtml(text) {
  * @returns {{ stop: function }} - Handle to cancel the animation
  */
 const _pixelProps = new Set([
-	'left', 'top', 'right', 'bottom', 'width', 'height',
-	'marginTop', 'marginLeft', 'marginRight', 'marginBottom',
-	'paddingTop', 'paddingLeft', 'paddingRight', 'paddingBottom',
-	'fontSize', 'borderWidth'
+	'left',
+	'top',
+	'right',
+	'bottom',
+	'width',
+	'height',
+	'marginTop',
+	'marginLeft',
+	'marginRight',
+	'marginBottom',
+	'paddingTop',
+	'paddingLeft',
+	'paddingRight',
+	'paddingBottom',
+	'fontSize',
+	'borderWidth'
 ]);
 
 function animateElement(element, props, duration, callback) {

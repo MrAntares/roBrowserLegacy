@@ -30,7 +30,7 @@ VendingModelMessage.init = function init() {
 		left: (Renderer.width - 200) / 2 + 'px'
 	});
 
-	this._shadow.querySelector('.ok').addEventListener('click', (e) => {
+	this._shadow.querySelector('.ok').addEventListener('click', e => {
 		e.stopImmediatePropagation();
 		VendingModelMessage.onRemove();
 	});

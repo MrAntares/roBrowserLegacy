@@ -152,13 +152,15 @@ function rightClick(holding = false) {
 }
 
 function _dispatchMouseEvent(target, type, which) {
-	target.dispatchEvent(new MouseEvent(type, {
-		bubbles: true,
-		cancelable: true,
-		view: window,
-		button: which === 3 ? 2 : 0,
-		which: which
-	}));
+	target.dispatchEvent(
+		new MouseEvent(type, {
+			bubbles: true,
+			cancelable: true,
+			view: window,
+			button: which === 3 ? 2 : 0,
+			which: which
+		})
+	);
 }
 
 function handleWorldLeftClick() {
@@ -194,12 +196,14 @@ function changeCameraZoom(zoom) {
 }
 
 function _dispatchKeyEvent(target, type, which) {
-	target.dispatchEvent(new KeyboardEvent(type, {
-		bubbles: true,
-		cancelable: true,
-		which: which,
-		keyCode: which
-	}));
+	target.dispatchEvent(
+		new KeyboardEvent(type, {
+			bubbles: true,
+			cancelable: true,
+			which: which,
+			keyCode: which
+		})
+	);
 }
 
 function esc() {
@@ -256,12 +260,14 @@ function navigateDraggableItems(direction) {
 		return;
 	}
 
-	let allDraggables = Array.from(container.querySelectorAll('.item, .skill'))
-		.filter(item => !item.matches('.tabs button, .tab-btn'));
+	let allDraggables = Array.from(container.querySelectorAll('.item, .skill')).filter(
+		item => !item.matches('.tabs button, .tab-btn')
+	);
 
 	if (allDraggables.length === 0) {
-		allDraggables = Array.from(document.querySelectorAll('.item, .skill'))
-			.filter(item => item.offsetParent !== null && !item.matches('.tabs button, .tab-btn'));
+		allDraggables = Array.from(document.querySelectorAll('.item, .skill')).filter(
+			item => item.offsetParent !== null && !item.matches('.tabs button, .tab-btn')
+		);
 	}
 
 	// Check if we're in a skill container by looking for skill-specific structure

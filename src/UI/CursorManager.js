@@ -559,9 +559,13 @@ function createSpriteSheet() {
 		const imageElem = document.createElement('img');
 		imageElem.className = 'cursor__sprite';
 		imageElem.src = spriteSheetBlobURL;
-		imageElem.addEventListener('load', (e) => {
-			URL.revokeObjectURL(e.target.src);
-		}, { once: true });
+		imageElem.addEventListener(
+			'load',
+			e => {
+				URL.revokeObjectURL(e.target.src);
+			},
+			{ once: true }
+		);
 		const cursorEl = document.querySelector('.cursor');
 		if (cursorEl) {
 			cursorEl.appendChild(imageElem);

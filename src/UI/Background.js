@@ -310,11 +310,7 @@ class Background {
 
 		// Draw percent
 		_ctx.fillStyle = 'rgb(255,255,0)';
-		_ctx.fillText(
-			percent + '%',
-			Math.floor((_canvas.width - _ctx.measureText(percent + '%').width) * 0.5),
-			y + 11
-		);
+		_ctx.fillText(percent + '%', Math.floor((_canvas.width - _ctx.measureText(percent + '%').width) * 0.5), y + 11);
 	}
 }
 

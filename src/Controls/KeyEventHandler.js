@@ -8,7 +8,6 @@
  * @author Vincent Thibault
  */
 
-
 /**
  * Keys Constants
  */
@@ -211,7 +210,7 @@ Object.defineProperty(KEYS, 'getKeyIdString', {
 /**
  * Keys CTRL/ALT/SHIFT Manager
  */
-const onKeyEvent = (event) => {
+const onKeyEvent = event => {
 	KEYS.SHIFT = !!event.shiftKey;
 	KEYS.CTRL = !!event.ctrlKey;
 	KEYS.ALT = !!event.altKey;

@@ -251,7 +251,17 @@ class ScrollBar {
 		element.appendChild(scrollbar);
 
 		// Prevent clicks and interactions from passing through to the game world
-		const stopEvents = ['mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'pointerdown', 'pointerup', 'pointermove', 'wheel'];
+		const stopEvents = [
+			'mousedown',
+			'mouseup',
+			'click',
+			'dblclick',
+			'contextmenu',
+			'pointerdown',
+			'pointerup',
+			'pointermove',
+			'wheel'
+		];
 		for (const evtName of stopEvents) {
 			scrollbar.addEventListener(evtName, e => {
 				e.stopPropagation();

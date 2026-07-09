@@ -37,7 +37,7 @@ function setupUIHide() {
 	let lastMouseX = 0;
 	let lastMouseY = 0;
 
-	_mouseMoveHandler = (event) => {
+	_mouseMoveHandler = event => {
 		if (!ui || !_isVisible()) {
 			return;
 		}
