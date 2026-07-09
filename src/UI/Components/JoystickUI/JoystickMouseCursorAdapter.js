@@ -13,7 +13,6 @@ import Mouse from 'Controls/MouseEventHandler.js';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
 import ControlsSettings from 'Preferences/Controls.js';
-import jQuery from 'Utils/jquery.js';
 import Interaction from './JoystickInteractionService.js';
 
 function move(dx, dy) {
@@ -152,20 +151,24 @@ function rightClick(holding = false) {
 	}, 100);
 }
 
+function _dispatchMouseEvent(target, type, which) {
+	target.dispatchEvent(new MouseEvent(type, {
+		bubbles: true,
+		cancelable: true,
+		view: window,
+		button: which === 3 ? 2 : 0,
+		which: which
+	}));
+}
+
 function handleWorldLeftClick() {
 	if (!Mouse.intersect) {
 		Mouse.intersect = true;
 	}
-	jQuery(Renderer.canvas).trigger({
-		type: 'mousedown',
-		which: 1
-	});
+	_dispatchMouseEvent(Renderer.canvas, 'mousedown', 1);
 
 	setTimeout(function () {
-		jQuery(Renderer.canvas).trigger({
-			type: 'mouseup',
-			which: 1
-		});
+		_dispatchMouseEvent(Renderer.canvas, 'mouseup', 1);
 	}, 100);
 }
 
@@ -173,16 +176,10 @@ function handleWorldRightClick() {
 	if (!Mouse.intersect) {
 		Mouse.intersect = true;
 	}
-	jQuery(Renderer.canvas).trigger({
-		type: 'mousedown',
-		which: 3
-	});
+	_dispatchMouseEvent(Renderer.canvas, 'mousedown', 3);
 
 	setTimeout(function () {
-		jQuery(Renderer.canvas).trigger({
-			type: 'mouseup',
-			which: 3
-		});
+		_dispatchMouseEvent(Renderer.canvas, 'mouseup', 3);
 	}, 100);
 }
 
@@ -196,18 +193,21 @@ function changeCameraZoom(zoom) {
 	Camera.setZoom(zoom);
 }
 
+function _dispatchKeyEvent(target, type, which) {
+	target.dispatchEvent(new KeyboardEvent(type, {
+		bubbles: true,
+		cancelable: true,
+		which: which,
+		keyCode: which
+	}));
+}
+
 function esc() {
-	jQuery(document).trigger({
-		type: 'keydown',
-		which: 27
-	}); // Esc
+	_dispatchKeyEvent(document, 'keydown', 27); // Esc
 }
 
 function enter() {
-	jQuery(document).trigger({
-		type: 'keydown',
-		which: 13
-	}); // Enter
+	_dispatchKeyEvent(document, 'keydown', 13); // Enter
 }
 
 function contextMenu() {
@@ -252,18 +252,16 @@ function navigateDraggableItems(direction) {
 				keyCode = 39;
 				break;
 		}
-		jQuery(document).trigger({
-			type: 'keydown',
-			which: keyCode
-		});
+		_dispatchKeyEvent(document, 'keydown', keyCode);
 		return;
 	}
 
-	const $container = jQuery(container);
-	let allDraggables = $container.find('.item, .skill').not('.tabs button, .tab-btn');
+	let allDraggables = Array.from(container.querySelectorAll('.item, .skill'))
+		.filter(item => !item.matches('.tabs button, .tab-btn'));
 
 	if (allDraggables.length === 0) {
-		allDraggables = jQuery('.item:visible, .skill:visible').not('.tabs button, .tab-btn');
+		allDraggables = Array.from(document.querySelectorAll('.item, .skill'))
+			.filter(item => item.offsetParent !== null && !item.matches('.tabs button, .tab-btn'));
 	}
 
 	// Check if we're in a skill container by looking for skill-specific structure
@@ -276,7 +274,7 @@ function navigateDraggableItems(direction) {
 
 	const draggableElement = container.closest('.item, .skill');
 
-	const currentIndex = allDraggables.index(draggableElement);
+	const currentIndex = allDraggables.indexOf(draggableElement);
 	let newIndex = currentIndex;
 
 	// Use fixed grid width based on container type
@@ -286,9 +284,9 @@ function navigateDraggableItems(direction) {
 		GRID_WIDTH = 7;
 	} else {
 		// Items: calculate based on container width and icon size
-		const containerWidth = $container.width() || 200;
-		const iconElement = jQuery(draggableElement).find('.icon');
-		const iconWidth = iconElement.width() || 24; // .icon has fixed 24px width
+		const containerWidth = container.clientWidth || 200;
+		const iconElement = draggableElement.querySelector('.icon');
+		const iconWidth = (iconElement && iconElement.clientWidth) || 24; // .icon has fixed 24px width
 		const iconMargin = 4; // margin from CSS: margin: 4px 4px 4px 4px
 		const totalIconWidth = iconWidth + iconMargin * 2;
 		GRID_WIDTH = Math.max(6, Math.min(8, Math.floor(containerWidth / totalIconWidth)));
@@ -313,12 +311,12 @@ function navigateDraggableItems(direction) {
 	newIndex = Math.max(0, Math.min(allDraggables.length - 1, newIndex));
 
 	if (newIndex !== currentIndex && newIndex < allDraggables.length) {
-		const targetElement = allDraggables.eq(newIndex);
-		const targetOffset = targetElement.offset();
+		const targetElement = allDraggables[newIndex];
+		const targetRect = targetElement.getBoundingClientRect();
 
-		if (targetOffset) {
-			const targetCenterX = targetOffset.left + targetElement.outerWidth() / 2;
-			const targetCenterY = targetOffset.top + targetElement.outerHeight() / 2;
+		if (targetRect) {
+			const targetCenterX = targetRect.left + targetRect.width / 2;
+			const targetCenterY = targetRect.top + targetRect.height / 2;
 
 			// Move mouse to target element
 			Mouse.screen.x = targetCenterX;
@@ -335,15 +333,9 @@ function navigateDraggableItems(direction) {
 
 function quickCastClick() {
 	setTimeout(function () {
-		jQuery(Renderer.canvas).trigger({
-			type: 'mousedown',
-			which: 1
-		});
+		_dispatchMouseEvent(Renderer.canvas, 'mousedown', 1);
 		setTimeout(function () {
-			jQuery(Renderer.canvas).trigger({
-				type: 'mouseup',
-				which: 1
-			});
+			_dispatchMouseEvent(Renderer.canvas, 'mouseup', 1);
 		}, 100);
 	}, 100);
 }
