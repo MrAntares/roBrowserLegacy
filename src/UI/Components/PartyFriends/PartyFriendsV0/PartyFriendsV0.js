@@ -82,7 +82,7 @@ function _root() {
 }
 
 /**
- * Helper: escape HTML (replace jQuery.escape)
+ * Helper: escape HTML
  */
 function _escapeHTML(text) {
 	const div = document.createElement('div');

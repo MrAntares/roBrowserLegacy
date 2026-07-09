@@ -69,7 +69,6 @@ export default [
       'src/Vendors/**',
       'src/Libs/**',
       'src/lib/**',
-      'src/Utils/jquery.js',
       'src/Utils/three.js',
       'src/Utils/gl-matrix.js',
       'test/',
@@ -92,9 +91,7 @@ export default [
       sourceType: 'module',  
       globals: {  
         ...globals.browser,  
-        ...globals.es2025,
-        jQuery: 'readonly',  
-        $: 'readonly',  
+        ...globals.es2025, 
         FileReaderSync: 'readonly',  
         importScripts: 'readonly',  
         Buffer: 'readonly',  

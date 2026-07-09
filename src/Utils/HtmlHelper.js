@@ -1,7 +1,7 @@
 /**
  * Utils/HtmlHelper.js
  *
- * Shared HTML/DOM utility helpers (replaces jQuery.escape, jQuery.animate, etc.).
+ * Shared HTML/DOM utility helpers.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
@@ -20,7 +20,7 @@ function escapeHtml(text) {
 
 /**
  * Sanitize HTML by stripping all tags except a whitelist.
- * Preserves <font>, <i>, and <b> tags (matches old jQuery.escape behavior).
+ * Preserves <font>, <i>, and <b> tags.
  *
  * @param {string} text
  * @returns {string} sanitized HTML string
