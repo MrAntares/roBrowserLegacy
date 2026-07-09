@@ -41,7 +41,7 @@ differences as config flags, and `export default createFoo({...})`.
 
 | Family          | Factory file                                                 | PR                                              | 1:1 reference? | Notes                                                                                          |  
 | --------------- | ------------------------------------------------------------ | ----------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------- |  
-| WinLogin        | `src/UI/Components/WinLogin/WinLoginCommon.js`               | #1072(38d5ea6855fccc7378b9c00a57ad38fa66aded65) | ✅ YES         | Cleanest reference. `createWinLogin({ name, htmlText, cssText, Background })`.                  |  
+| WinLogin        | `src/UI/Components/WinLogin/WinLoginCommon.js`               | #1072(38d5ea6855fccc7378b9c00a57ad38fa66aded65) | ✅ YES         | Cleanest reference. `createWinLogin({ name, htmlText, cssText })`.                  |  
 | PlayerViewEquip | `src/UI/Components/PlayerViewEquip/PlayerViewEquipCommon.js` | #1073(3ea9e147eee47baf04ab89a7ecf0f3f2296e4a67) | ✅ YES         | Best reference for HTML-diverging versions: HTML generated via `generateHTML(flags)`.          |  
 | WinStats        | `src/UI/Components/WinStats/WinStatsCommon.js`               | #1075(3194fe2af86208ef287e8d4a6bdbef2f7ed71efe) | ⚠️ NO          | Operator intentionally broke 1:1 (fixed resize bug #901, added `embed`/`unembed`). Do NOT copy its architecture as a 1:1 template. |  
   
@@ -78,7 +78,6 @@ authorizes a deviation for a specific family.
 | Different HTML, same JS     | Pass `htmlText` per version                                                    | WinLogin V1/V2/V3                              |  
 | Structural HTML variation   | Generate HTML in factory from flags; pass flags not HTML                       | PlayerViewEquip `hasTabs`, `costumeRows`       |  
 | Extra feature in one version| Boolean flag gating the code path                                              | WinStats `hasTraits`                           |  
-| Attached sub-component      | Pass the sub-component module as config                                        | WinLogin `Background`                          |  
   
 ---  
   
