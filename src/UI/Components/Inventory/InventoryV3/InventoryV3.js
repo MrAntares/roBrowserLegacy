@@ -210,7 +210,7 @@ InventoryV3.init = function Init() {
 	if (overlayClose) {
 		overlayClose.addEventListener('click', () => {
 			const msg = root.querySelector('.lockoverlaymsg');
-			if (msg) msg.style.display = 'none';
+			if (msg) msg.classList.add('hidden');
 			clearTimeout(lockOverlayTimeout);
 		});
 	}
@@ -680,8 +680,8 @@ function onSwitchTab() {
 
 	if (dealOn) dealOn.classList.toggle('hidden', !(onFavTab && _preferences.npcsalelock));
 	if (dealOff) dealOff.classList.toggle('hidden', !(onFavTab && !_preferences.npcsalelock));
-	if (lockOverlay) lockOverlay.style.display = onFavTab && _preferences.npcsalelock ? '' : 'none';
-	if (lockMsg) lockMsg.style.display = 'none';
+	if (lockOverlay) lockOverlay.classList.toggle('hidden', !(onFavTab && _preferences.npcsalelock));
+	if (lockMsg) lockMsg.classList.add('hidden');
 	if (sort) sort.classList.toggle('hidden', !onFavTab);
 }
 
@@ -1111,19 +1111,19 @@ function onNPCLock() {
 
 	if (_preferences.npcsalelock) {
 		const lockOverlay = root.querySelector('.lockoverlay');
-		if (lockOverlay) lockOverlay.style.display = '';
+		if (lockOverlay) lockOverlay.classList.remove('hidden');
 		const lockMsg = root.querySelector('.lockoverlaymsg');
-		if (lockMsg) lockMsg.style.display = '';
+		if (lockMsg) lockMsg.classList.remove('hidden');
 
 		lockOverlayTimeout = setTimeout(() => {
 			const msg = root.querySelector('.lockoverlaymsg');
-			if (msg) msg.style.display = 'none';
+			if (msg) msg.classList.add('hidden');
 		}, 3000);
 	} else {
 		const lockOverlay = root.querySelector('.lockoverlay');
-		if (lockOverlay) lockOverlay.style.display = 'none';
+		if (lockOverlay) lockOverlay.classList.add('hidden');
 		const lockMsg = root.querySelector('.lockoverlaymsg');
-		if (lockMsg) lockMsg.style.display = 'none';
+		if (lockMsg) lockMsg.classList.add('hidden');
 	}
 }
 
