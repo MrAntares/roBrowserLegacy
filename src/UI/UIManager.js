@@ -9,6 +9,7 @@
  */
 
 import GUIComponent from 'UI/GUIComponent.js';
+import CommonCSS from 'UI/Common.css?raw';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import ClampToViewport from 'UI/ClampToViewport.js';
@@ -61,6 +62,20 @@ function _createOverlay() {
 	document.body.appendChild(overlay);
 	return overlay;
 }
+
+// Common CSS must live in a global <style> tag so document-level rules
+// (body font-size/family, focus reset) apply to light DOM and are inherited
+// by every component's Shadow DOM. UIComponent.js used to inject this at load;
+// it now lives here since UIManager is always loaded.
+(function injectCommonCSS() {
+	let style = document.querySelector('style[data-common]');
+	if (!style) {
+		style = document.createElement('style');
+		style.setAttribute('data-common', '');
+		style.textContent = CommonCSS;
+		document.head.appendChild(style);
+	}
+})();
 
 // Overlay CSS must live in the global <style> tag because overlay divs
 // are appended to document.body (light DOM), not inside any Shadow DOM.
