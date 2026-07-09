@@ -25,7 +25,6 @@ const _allowedTags = new Set(['font', 'i', 'b']);
 /**
  * Sanitize and format RO text with ^rrggbb color codes, ^nItemID^NNN
  * item name substitution, and newline conversion.
- * Replicates the logic from Utils/jquery.js overridden .text() method.
  *
  * @param {string} value - raw skill description text
  * @returns {string} safe HTML string

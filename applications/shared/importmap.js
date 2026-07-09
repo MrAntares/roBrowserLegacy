@@ -12,7 +12,6 @@
 	}
 	var importMap = {
 		imports: {
-			jquery: projectRoot + 'src/Vendors/jquery-1.9.1.js',
 			bson: projectRoot + 'node_modules/bson/lib/bson.mjs',
 			lodash: projectRoot + 'node_modules/lodash-es/lodash.default.js',
 			'src/': projectRoot + 'src/',

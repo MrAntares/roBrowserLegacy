@@ -434,7 +434,7 @@ function onResize() {
 	// Start resizing
 	const _Interval = setInterval(resizeProcess, 30);
 
-	// Stop resizing (native DOM instead of jQuery(window).one)
+	// Stop resizing
 	function onMouseUp(event) {
 		if (event.which === 1) {
 			clearInterval(_Interval);

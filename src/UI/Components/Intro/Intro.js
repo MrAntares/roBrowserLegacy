@@ -1,7 +1,7 @@
 /**
  * UI/Components/Intro/Intro.js
  *
- * Intro Manager — GUIComponent, no jQuery, no image assets
+ * Intro Manager — GUIComponent
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *

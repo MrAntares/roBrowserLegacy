@@ -4,11 +4,7 @@
  * Modern base class for UI components using Shadow DOM.
  * Drop-in replacement for UIComponent — provides the same automation
  * (prepare, append, remove, focus, draggable, clone, scrollbar, etc.)
- * but uses native DOM + Shadow DOM instead of jQuery.
- *
- * During the transition period, this.ui is a jQuery-compatible proxy
- * so UIManager and old UIComponent instances can interact with
- * GUIComponent instances without changes.
+ * but uses native DOM + Shadow DOM instead of old UIComponent.
  *
  * @author AoShinHo
  */

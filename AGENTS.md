@@ -31,23 +31,22 @@ import Configs from 'Core/Configs.js';
 
 ### Module Path Aliases
 
-| Alias       | Path                        |
-| ----------- | --------------------------- |
-| jquery      | src/Vendors/jquery-1.9.1.js |
-| App         | src/App/                    |
-| Audio       | src/Audio/                  |
-| Controls    | src/Controls/               |
-| Core        | src/Core/                   |
-| DB          | src/DB/                     |
-| Engine      | src/Engine/                 |
-| Loaders     | src/Loaders/                |
-| Network     | src/Network/                |
-| Plugins     | src/Plugins/                |
-| Preferences | src/Preferences/            |
-| Renderer    | src/Renderer/               |
-| UI          | src/UI/                     |
-| Utils       | src/Utils/                  |
-| Vendors     | src/Vendors/                |
+| Alias       | Path             |
+| ----------- | ---------------- |
+| App         | src/App/         |
+| Audio       | src/Audio/       |
+| Controls    | src/Controls/    |
+| Core        | src/Core/        |
+| DB          | src/DB/          |
+| Engine      | src/Engine/      |
+| Loaders     | src/Loaders/     |
+| Network     | src/Network/     |
+| Plugins     | src/Plugins/     |
+| Preferences | src/Preferences/ |
+| Renderer    | src/Renderer/    |
+| UI          | src/UI/          |
+| Utils       | src/Utils/       |
+| Vendors     | src/Vendors/     |
 
 Example: `import Sprite from 'Loaders/Sprite.js';`
 
@@ -58,13 +57,13 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 3. **Loaders** (`src/Loaders/`): 12 asset parsers — GameFileDecrypt, GameFile, Sprite, Action, Ground (.gnd), Altitude (.gat), World (.rsw), Str (.str effects), Model, GrannyModel, MapLoader, Targa
 4. **Database** (`src/DB/`): DBManager + data subdirectories (Effects, Items, Jobs, Map, Monsters, Pets, Skills, Status) + Emotions, TownInfo
 5. **Renderer** (`src/Renderer/`): Renderer.js (WebGL context), MapRenderer, EntityManager, EffectManager, ScreenEffectManager, SignboardManager, Camera, SpriteRenderer, ItemObject + subdirectories (Effects, Entity, Map)
-6. **UI** (`src/UI/`): UIManager, UIVersionManager, UIComponent (legacy base class, jQuery), GUIComponent (new base class, Shadow DOM), Custom Elements (`src/UI/Elements/`), CursorManager, Scrollbar, Background, 95 component directories
+6. **UI** (`src/UI/`): UIManager, UIVersionManager, GUIComponent (new base class, Shadow DOM), Custom Elements (`src/UI/Elements/`), CursorManager, Scrollbar, Background, 95 component directories
 7. **Controls** (`src/Controls/`): EntityControl, MapControl, KeyEventHandler, MouseEventHandler, ProcessCommand, BattleMode, ScreenShot
 8. **Audio** (`src/Audio/`): BGM.js, SoundManager.js
 9. **Core** (`src/Core/`): Client, Configs, Context, Events, FileManager, FileSystem, MemoryItem, MemoryManager, Mobile, Preferences, Thread, ThreadEventHandler, AIDriver
 10. **Preferences** (`src/Preferences/`): Audio, Graphics, Controls, UI, Camera, Map, ShortCutControls (7 modules)
 11. **Plugins** (`src/Plugins/`): PluginManager.js
-12. **Utils** (`src/Utils/`): BinaryReader, BinaryWriter, Struct, Inflate, PathFinding, WebGL, Texture, Executable, CRC32, CodepageManager, ConsoleManager, HTMLEntity, Queue, Base62, colors, partyColors, gl-matrix, jquery
+12. **Utils** (`src/Utils/`): BinaryReader, BinaryWriter, Struct, Inflate, PathFinding, WebGL, Texture, Executable, CRC32, CodepageManager, ConsoleManager, HTMLEntity, Queue, Base62, colors, partyColors, gl-matrix
 
 ### Data Flow
 
@@ -83,12 +82,10 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
 - **Entity system uses composition, not inheritance.** 17 mixin modules (`EntityWalk`, `EntityCast`, `EntityState`, `EntityRender`, etc.) are mixed into `Entity.js`. Do not refactor to class inheritance — the mixins are applied dynamically at runtime.
 - **Packet versioning is date-based.** PACKETVER is auto-detected from the kRO executable's PE timestamp. `PacketVersions.js` uses date-range switches. Changing detection logic in `PacketVerManager.js` can break compatibility with 23 packet versions.
-- **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files via `data-background` HTML attributes. `UIComponent.parseHTML()` loads them at runtime. CSS is structural/positional only.
 - **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). Electron uses `NodeSocket.js` (direct TCP via preload contextBridge). Both implement the same interface for `NetworkManager`.
-- **jQuery is legacy but load-bearing.** Used for DOM manipulation, event handling, and `$.Deferred` (being replaced by native Promise). Don't add new jQuery usage; replace it when touching existing code.
 - **Vendors are frozen.** `src/Vendors/` is excluded from ESLint. Never modify vendored files.
-- **UI has two component systems (migration in progress).** Legacy `UIComponent` uses jQuery + Light DOM + `data-*` attributes. New `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. Primary guide: `doc/UIComponent_to_GUIComponent.md` (L1). For edge cases see `doc/UIComponent_to_GUIComponent_Scars.md` (L0, archive); for quick reflex lookup `doc/UIComponent_to_GUIComponent_Firmware.md` (L2).
-- **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files. Legacy components use `data-background` HTML attributes processed by `UIComponent.parseHTML()`. New components use `<ui-button>`, `<ui-text>`, `<ui-image>` Custom Elements. CSS is structural/positional only.
+- **UI has one component system** `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. Primary guide: `doc/UIComponent_to_GUIComponent.md` (L1). For edge cases see `doc/UIComponent_to_GUIComponent_Scars.md` (L0, archive); for quick reflex lookup `doc/UIComponent_to_GUIComponent_Firmware.md` (L2).
+- **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files. Legacy components use `data-background` HTML attributes processed by `GUIComponent.parseHTML()`. New components use `<ui-button>`, `<ui-text>`, `<ui-image>` Custom Elements, both are useful. CSS is structural/positional only.
 
 ## Subsystem Reference
 
@@ -135,14 +132,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Mail.js, Rodex.js**: Messaging systems
 - **Captcha.js, PCGoldTimer.js**: Security/timer systems
 
-### UI Components (`src/UI/Components/`, 95 directories)
-
-**Two base classes coexist during migration:**
-
-| Base Class               | File                     | DOM Model                   | CSS Isolation        | Dependencies                |
-| ------------------------ | ------------------------ | --------------------------- | -------------------- | --------------------------- |
-| **UIComponent** (legacy) | `src/UI/UIComponent.js`  | Light DOM, jQuery           | Global `<style>` tag | jQuery, `data-*` attributes |
-| **GUIComponent** (new)   | `src/UI/GUIComponent.js` | Shadow DOM (`attachShadow`) | Scoped per component | Native DOM, Custom Elements |
+### GUI Components (`src/UI/Components/`, 95 directories)
 
 - GUIComponent uses `<ui-button>`, `<ui-text>`, `<ui-image>` (registered in `src/UI/Elements/Elements.js`) instead of `data-background`/`data-hover`/`data-down`/`data-text` attributes
 - `this.ui` proxy on GUIComponent provides jQuery-compatible API for UIManager interop
@@ -224,7 +214,6 @@ When touching files with legacy patterns, convert them:
 | -------------------------------------------------------- | ----------------------------------------------------- |
 | `function(a, b) { ... }` callbacks                       | `(a, b) => { ... }`                                   |
 | `'string ' + variable + ' end'`                          | `` `string ${variable} end` ``                        |
-| `jQuery.Deferred()` / `.done()` / `.fail()`              | `new Promise()` / `async`/`await`                     |
 | `function Constructor() { this.x = 1; }`                 | `class Constructor { constructor() { this.x = 1; } }` |
 | `Constructor.prototype.method = function() {}`           | `class Constructor { method() {} }`                   |
 | `const Singleton = {}; Singleton.method = function() {}` | `class Singleton { static method() {} }`              |
@@ -254,44 +243,9 @@ class FileManager {
 export default FileManager;
 ```
 
-**jQuery.Deferred → async/await:**
-
-```javascript
-// Before (found in Network, Core, Engine modules)
-function loadFile(path) {
-	const deferred = new jQuery.Deferred();
-	doSomething(
-		path,
-		function (result) {
-			deferred.resolve(result);
-		},
-		function (error) {
-			deferred.reject(error);
-		}
-	);
-	return deferred.promise();
-}
-loadFile('test.txt').done(function (data) {
-	process(data);
-});
-
-// After
-async function loadFile(path) {
-	return new Promise((resolve, reject) => {
-		doSomething(
-			path,
-			result => resolve(result),
-			error => reject(error)
-		);
-	});
-}
-const data = await loadFile('test.txt');
-```
-
 ### Globals Still in Use
 
 - **ROConfig**: Runtime configuration object
-- **$** / **jQuery**: jQuery global (legacy, being phased out)
 - **SEEK_CUR, SEEK_SET, SEEK_END**: BinaryReader constants (prefer importing from `Utils/BinaryReader.js`)
 
 ## Config System
