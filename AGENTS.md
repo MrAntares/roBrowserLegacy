@@ -320,6 +320,13 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 3. Register with EffectManager
 4. Test performance impact and object pooling
 
+### (Factory/Deduplication Task) Deduplicating JS code in multiple versions to unified shared factory pattern
+
+**Before starting, you MUST read `doc/GUIComponent_Version_Dedup_Factory.md` — it contains invariants that cannot be violated.**
+1. Create a ComponentNameCommon.js in Component Folder
+2. Move all JS code from `V0` or `V1` to new Common Factory
+3. Add each JS variation from other versions, creating a new entry on the factory function header
+
 ## Troubleshooting
 
 - **Missing assets**: Verify GRF loading in Client.js, check Remote Client response

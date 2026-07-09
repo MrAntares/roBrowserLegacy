@@ -23,7 +23,7 @@ import Renderer from 'Renderer/Renderer.js';
  * @param {string}  name      - component name
  * @param {string}  htmlText  - raw HTML
  * @param {string}  cssText   - raw CSS
- * @param {boolean} hasTraits - whether this version has trait stats (V3)
+ * @param {boolean} hasTraits - whether this version has trait stats
  */
 export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 	const Component = new GUIComponent(name, cssText);
@@ -87,7 +87,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			});
 		});
 
-		// Trait stat up buttons (V3)
+		// Trait stat up buttons
 		if (hasTraits) {
 			const tUpButtons = _root.querySelectorAll('.t_up button');
 			tUpButtons.forEach(btn => {
@@ -117,7 +117,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			});
 		}
 
-		// View traits toggle (V3)
+		// View traits toggle
 		if (hasTraits) {
 			const viewTraitsBtn = _root.querySelector('.view_traits');
 			if (viewTraitsBtn) {
@@ -264,7 +264,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 				setText('.' + type, val);
 				break;
 
-			// ── Trait points (V3) ──
+			// ── Trait points ──
 			case 'trait_point':
 				this.t_statuspoint = val;
 				_root.querySelectorAll('.t_requirements div').forEach(div => {
@@ -319,7 +319,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'int':
 			case 'dex':
 			case 'luk':
-			// ── Trait stats (V3) ──
+			// ── Trait stats ──
 			case 'pow':
 			case 'sta':
 			case 'wis':
@@ -336,7 +336,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case 'int2':
 			case 'dex2':
 			case 'luk2':
-			// ── Trait bonus (V3) ──
+			// ── Trait bonus ──
 			case 'pow2':
 			case 'sta2':
 			case 'wis2':
@@ -358,7 +358,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 				setUpVisibility('.up .' + type.replace('3', ''), val > 0 && val <= this.statuspoint);
 				break;
 
-			// ── Trait requirements (V3) ──
+			// ── Trait requirements ──
 			case 'pow3':
 			case 'sta3':
 			case 'wis3':
@@ -371,7 +371,7 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 		}
 	};
 
-	// ─── toggleTraits (V3) ─────────────────────────────
+	// ─── toggleTraits ─────────────────────────────
 
 	function toggleTraits() {
 		const traitsEl = _root.querySelector('.traits_component');
