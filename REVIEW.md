@@ -48,7 +48,7 @@ When no bugs are found, confirm explicitly that the PR was reviewed and no issue
 ## Deduplication JS into Factory Patterns Review Rules
 When reviewing JS deduplication into a `FooCommon.js` factory pattern, hunt for
 missing code, deduplication logic errors, and code injected outside of its
-original version. Full guide: `doc/GUIComponent_Version_Dedup_Factory.md`.
+original version.
 | Check                     | What to verify                                                                                     |
 | ------------------------- | -------------------------------------------------------------------------------------------------- |
 | **Component `name`**      | Each version keeps its exact original component name string — `UIManager`/`UIVersionManager` lookups depend on it. |
@@ -133,7 +133,7 @@ Both `npm test` (Vitest) and `npm run build` (custom builder) resolve imports th
 - `src/Vendors/` — frozen third-party code, excluded from lint
 - Lock files (`package-lock.json`) — unless dependencies changed intentionally
 - `window.electronAPI` in Electron files — platform requirement, not removable
-- `doc/*.md` — reference/prose docs (skip), EXCEPT agent operational memory (AGENTS.md, UIComponent_to_GUIComponent\*.md) which is reviewed for correctness, not prose.
+- `doc/*.md` — reference/prose docs (skip), EXCEPT agent operational memory (AGENTS.md, UIComponent_to_GUIComponent\*.md, GUIComponent_Version_Dedup_Factory.md) which is reviewed for correctness, not prose.
 - `window._OBJ_DRAG_` — shared drag-and-drop state across ~27 files (Inventory, Storage, Cart, Mail, SkillList, Equipment, ShortCut, etc.). The HTML5 DnD `dataTransfer` API can't read its payload during `dragover`, which is why this global exists. Don't flag it as removable global state in single-file PRs; it requires a coordinated migration (e.g. a shared `DragDropState` module).
 
 ---
