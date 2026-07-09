@@ -45,6 +45,11 @@ When no bugs are found, confirm explicitly that the PR was reviewed and no issue
 
 ---
 
+## Deduplication JS into Factory Patterns Review Rules
+
+When reviewing JavaScript code deduplication within a `common.js` Factory Pattern, hunt for missing code, issues in the deduplication logic, and code injected outside of its original versions.
+see doc/GUIComponent_Version_Dedup_Factory.md
+
 ## Testing
 
 ```bash
