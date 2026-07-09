@@ -46,9 +46,20 @@ When no bugs are found, confirm explicitly that the PR was reviewed and no issue
 ---
 
 ## Deduplication JS into Factory Patterns Review Rules
+When reviewing JS deduplication into a `FooCommon.js` factory pattern, hunt for
+missing code, deduplication logic errors, and code injected outside of its
+original version. Full guide: `doc/GUIComponent_Version_Dedup_Factory.md`.
+| Check                     | What to verify                                                                                     |
+| ------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Component `name`**      | Each version keeps its exact original component name string — `UIManager`/`UIVersionManager` lookups depend on it. |
+| **Preference keys**       | Every `Preferences.get(...)` key stays verbatim (per-version or shared, copied as-is). Renamed/merged keys reset or leak user settings. |
+| **`versionInfo` mapping** | PACKETVER→version mapping in the aggregator unchanged — a wrong map loads the wrong version for a client date. |
+| **No shared mutable state** | Per-instance state lives inside `createFoo`, never at module scope shared across versions.        |
+| **Flag minimalism**       | Each config flag maps to a real, pre-existing version difference — no invented/speculative options.|
+| **Faithful HTML/CSS**     | In-factory generated HTML matches legacy node-for-node (classes, ids, `data-*`, asset paths).      |
+| **No behavior added**     | No new tabs/buttons/options; pre-existing bugs migrated 1:1 with a `// TODO`, not "fixed" here.     |
 
-When reviewing JavaScript code deduplication within a `common.js` Factory Pattern, hunt for missing code, issues in the deduplication logic, and code injected outside of its original versions.
-see doc/GUIComponent_Version_Dedup_Factory.md
+---
 
 ## Testing
 
