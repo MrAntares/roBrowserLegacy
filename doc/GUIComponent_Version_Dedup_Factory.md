@@ -104,8 +104,8 @@ All invariants from `doc/UIComponent_to_GUIComponent.md` §1 remain in force.
 1. **Enumerate versions.** List all `FooV*/FooV*.js` files and read the family aggregator  
    (`Foo.js` → `versionInfo`) to learn the PACKETVER→version mapping. Do NOT change it.  
 2. **Diff the versions.** Produce a precise diff of the `.js` files. Classify every  
-   difference as: (a) CSS-only, (b) HTML-only, (c) structural HTML, (d) feature-gated JS,  
-   (e) attached sub-component. Anything you cannot classify → STOP, ask operator.  
+   difference as: (a) CSS-only, (b) HTML-only, (c) structural HTML, (d) feature-gated JS. 
+   Anything you cannot classify → STOP, ask operator.  
 3. **Design the config surface.** One flag/param per real difference. Nothing speculative.  
 4. **Write `FooCommon.js`.** Move shared JS in; parameterize differences via config. Follow  
    the WinLogin/PlayerViewEquip shape (NOT WinStats behavior).  
