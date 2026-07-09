@@ -197,7 +197,7 @@ InventoryV3.init = function Init() {
 	if (dealOn) dealOn.classList.toggle('hidden', !(onFavTab && _preferences.npcsalelock));
 	if (dealOff) dealOff.classList.toggle('hidden', !(onFavTab && !_preferences.npcsalelock));
 	const sortEl = root.querySelector('.sort');
-	if (sortEl) sortEl.style.display = onFavTab ? '' : 'none';
+	if (sortEl) sortEl.classList.toggle('hidden', !onFavTab);
 
 	const itemExpansion = root.querySelector('.item_expansion');
 	if (itemExpansion) itemExpansion.addEventListener('click', onInventoryExpand);
