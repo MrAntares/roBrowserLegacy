@@ -1,0 +1,141 @@
+/**
+ * Renderer/GR2/gr2Pack.js
+ *
+ * Pure (no WebGL, no wasm) helpers for the GR2 GPU-skin renderer: the roBrowser
+ * vertex interleave, pose flattening, and the 40 Hz pose-cache key. Kept free of
+ * GL / granny-ro-js imports so the headless unit tests can exercise them directly.
+ *
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
+ */
+
+/**
+ * Rag tick rate — poses are recomputed on the 40 Hz game tick, not per rAF, so
+ * same-type / same-phase mobs collapse to a single poseAt per bucket.
+ */
+export const POSE_HZ = 40;
+
+/**
+ * Max bones a GR2 skeleton may carry (mat4 uBones[48] in GR2Model.vs). The verified
+ * guildflag is 41; the client's 3dmob actors stay well under this.
+ */
+export const BONE_CAP = 48;
+
+/**
+ * packRobrowserInterleave(mesh) -> Float32Array(vcount * 16): roBrowser's model
+ * vertex layout with the grafted GPU-skin attributes. Positions come from the
+ * BIND pose (the vertex shader re-poses them from uBones).
+ *
+ *   aPosition@0(3) . aNormal@3(3) . aTextureCoord@6(2) . aBoneIndex@8(4) . aBoneWeight@12(4)
+ *   = 16 floats/vert, stride 64 bytes.
+ */
+export function packRobrowserInterleave(mesh) {
+	const n = mesh.vcount;
+	const buf = new Float32Array(n * 16);
+	for (let i = 0; i < n; i++) {
+		const o = i * 16;
+		buf[o] = mesh.bind[i * 3];
+		buf[o + 1] = mesh.bind[i * 3 + 1];
+		buf[o + 2] = mesh.bind[i * 3 + 2];
+		buf[o + 3] = mesh.nrm[i * 3];
+		buf[o + 4] = mesh.nrm[i * 3 + 1];
+		buf[o + 5] = mesh.nrm[i * 3 + 2];
+		buf[o + 6] = mesh.uv[i * 2];
+		buf[o + 7] = mesh.uv[i * 2 + 1];
+		buf[o + 8] = mesh.bidx[i * 4];
+		buf[o + 9] = mesh.bidx[i * 4 + 1];
+		buf[o + 10] = mesh.bidx[i * 4 + 2];
+		buf[o + 11] = mesh.bidx[i * 4 + 3];
+		buf[o + 12] = mesh.bw[i * 4];
+		buf[o + 13] = mesh.bw[i * 4 + 1];
+		buf[o + 14] = mesh.bw[i * 4 + 2];
+		buf[o + 15] = mesh.bw[i * 4 + 3];
+	}
+	return buf;
+}
+
+/**
+ * flattenPose(pose, boneCount) -> Float32Array(boneCount * 16): the granny skinning
+ * matrices laid out contiguously for the uBones uniform array (column-major per bone).
+ */
+export function flattenPose(pose, boneCount) {
+	const s = new Float32Array(boneCount * 16);
+	for (let i = 0; i < boneCount; i++) {
+		s.set(pose.skinningMatrices[i], i * 16);
+	}
+	return s;
+}
+
+/**
+ * identityPose(boneCount) -> Float32Array of identity mat4s (the undeformed bind pose).
+ */
+export function identityPose(boneCount) {
+	const s = new Float32Array(boneCount * 16);
+	for (let i = 0; i < boneCount; i++) {
+		const o = i * 16;
+		s[o] = s[o + 5] = s[o + 10] = s[o + 15] = 1;
+	}
+	return s;
+}
+
+/**
+ * recenterEmblem(meshes) — RENDER-only fix: guildflag90_1.gr2 bakes the emblem submesh (Plane01)
+ * ~+1.5u off the banner centre in X, but the client renders it centred (2008 + modern, verified).
+ * The granny deform alone doesn't move it (skinning == the DLL oracle), so we recentre Plane01 on
+ * the banner in the bind positions before upload. Mutates the emblem's bind array; returns the dx
+ * applied (0 when there is no emblem/banner pair). granny Z = up.
+ */
+export function recenterEmblem(meshes) {
+	const emblem = meshes.find(m => m.emblem);
+	const banner = meshes.find(m => !m.emblem && m.vcount > 50);
+	if (!emblem || !banner) {
+		return 0;
+	}
+	let ex = 0;
+	let zmin = Infinity;
+	let zmax = -Infinity;
+	for (let i = 0; i < emblem.vcount; i++) {
+		ex += emblem.bind[i * 3];
+		const z = emblem.bind[i * 3 + 2];
+		if (z < zmin) {
+			zmin = z;
+		}
+		if (z > zmax) {
+			zmax = z;
+		}
+	}
+	ex /= emblem.vcount;
+	let bx = 0;
+	let bc = 0;
+	for (let i = 0; i < banner.vcount; i++) {
+		const z = banner.bind[i * 3 + 2];
+		if (z >= zmin - 1 && z <= zmax + 1) {
+			bx += banner.bind[i * 3];
+			bc++;
+		}
+	}
+	if (!bc) {
+		return 0;
+	}
+	const dx = bx / bc - ex;
+	for (let i = 0; i < emblem.vcount; i++) {
+		emblem.bind[i * 3] += dx;
+	}
+	return dx;
+}
+
+/**
+ * quantizePoseTime(t, hz) -> integer bucket index at hz (default 40 Hz). Near-equal
+ * clip times inside one 1/40 s bucket collapse to the same bucket, so the pose cache
+ * computes one poseAt per (type, anim, bucket).
+ */
+export function quantizePoseTime(t, hz) {
+	return Math.round(t * (hz || POSE_HZ));
+}
+
+/**
+ * poseCacheKey(path, animIndex, quant) -> cache key for a posed skeleton. Distinct
+ * gr2 path, anim index, or time bucket never collide.
+ */
+export function poseCacheKey(path, animIndex, quant) {
+	return path + '|' + animIndex + '|' + quant;
+}
