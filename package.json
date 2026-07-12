@@ -61,6 +61,7 @@
 	},
 	"dependencies": {
 		"bson": "^7.2.0",
+		"granny-ro-js": "^1.4.1",
 		"lodash-es": "^4.18.1",
 		"rijndael-js": "^2.0.0",
 		"ws": "^8.18.0"
