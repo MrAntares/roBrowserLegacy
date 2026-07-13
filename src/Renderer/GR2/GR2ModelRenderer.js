@@ -58,6 +58,36 @@ const _phaseDiffuse = new Float32Array([128 / 255, 128 / 255, 128 / 255]);
 const _phaseAmbient = new Float32Array([127 / 255, 127 / 255, 127 / 255]);
 const _phaseEnv = new Float32Array([1, 1, 1]);
 
+/**
+ * Byte-decided per-model lighting (gr2-lighting-shadow-mars26.md §6): the client shades each GR2
+ * with a fixed grayscale diffuse/ambient keyed on the model, NOT the map light. Two constant sets
+ * (dispatch is exhaustive — flag vs. everything else). Values ÷255 from the client bytes; the
+ * Emperium set numerically equals the Phase-0 grays but encodes a distinct byte fact, so it is
+ * named on its own. Keyed on the .gr2 basename — dev-spawned instances have no entity, so the
+ * basename is the only universal key.
+ */
+const _gr2FlagDiffuse = new Float32Array([100 / 255, 100 / 255, 100 / 255]); // 0.392
+const _gr2EmpDiffuse = new Float32Array([128 / 255, 128 / 255, 128 / 255]); // 0.502
+const _gr2EmpAmbient = new Float32Array([127 / 255, 127 / 255, 127 / 255]); // 0.498
+const _gr2FlagAmbient = new Float32Array(3); // scratch: per-frame grayscale of the map ambient
+const _gr2EmpSet = { empelium90_0: 1, kguardian90_7: 1, aguardian90_8: 1, sguardian90_9: 1, treasurebox_2: 1 };
+
+// Lowercased .gr2 basename (no dir, no extension) — the per-model lighting key.
+function gr2Basename(path) {
+	const cut = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+	const dot = path.lastIndexOf('.');
+	return path.slice(cut + 1, dot > cut ? dot : path.length).toLowerCase();
+}
+
+// Collapse a map-light color to one grayscale scalar (Rec.601 luma), broadcast R=G=B. Stand-in for
+// the flag's runtime scene-global ambient (0xef90f4, no static byte). VISUAL-UNVERIFIED — swap to a
+// flat average if the in-engine A/B wants it flatter.
+function grayBroadcast(src, out) {
+	const g = 0.299 * src[0] + 0.587 * src[1] + 0.114 * src[2];
+	out[0] = out[1] = out[2] = g;
+	return out;
+}
+
 let _program = null;
 
 // Per-type resource cache (key = gr2 path).
@@ -451,15 +481,11 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 	// Per-frame constant uniforms.
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-	// Drive the GR2 shade from the map's own light (parity with Models.js / AnimatedModels.js
-	// — the GR2 .fs math is byte-identical). Falls back to the Phase-0 baked grays if a map
-	// somehow omits a field (dev spawn always has light; the render early-returns without it).
-	// Drive the GR2 shade from the map's own light (parity with Models.js / AnimatedModels.js
-	// — the GR2 .fs math is byte-identical). Falls back to the Phase-0 baked grays if a map
-	// omits a field (dev spawn always has light; the render early-returns without it).
+	// Opacity and env tint come from the map's own light (parity with Models.js / AnimatedModels.js
+	// — the GR2 .fs math is byte-identical). uLightDiffuse / uLightAmbient are byte-decided per model
+	// and set inside the instance loop below. Falls back to the Phase-0 baked grays if a map omits a
+	// field (dev spawn always has light; the render early-returns without it).
 	gl.uniform1f(uniform.uLightOpacity, light.opacity != null ? light.opacity : 1.0);
-	gl.uniform3fv(uniform.uLightDiffuse, light.diffuse || _phaseDiffuse);
-	gl.uniform3fv(uniform.uLightAmbient, light.ambient || _phaseAmbient);
 	gl.uniform3fv(uniform.uLightEnv, light.env || _phaseEnv);
 	gl.uniform1f(uniform.uAlphaRef, ALPHA_REF);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -539,6 +565,22 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _mv);
 			gl.uniformMatrix3fv(uniform.uNormalMat, false, _nmat);
 			gl.uniformMatrix4fv(uniform.uBones, false, bones);
+
+			// Per-model lighting constants (gr2-lighting-shadow-mars26.md §6): the client shades each
+			// GR2 by a byte-decided grayscale diffuse/ambient, not the map light. Re-issued every
+			// iteration because GL uniforms are stateful — a fixed-constant model must not leak its
+			// diffuse/ambient onto the next instance.
+			const base = gr2Basename(inst.path);
+			if (base === 'guildflag90_1') {
+				gl.uniform3fv(uniform.uLightDiffuse, _gr2FlagDiffuse);
+				gl.uniform3fv(uniform.uLightAmbient, grayBroadcast(light.ambient || _phaseAmbient, _gr2FlagAmbient));
+			} else if (_gr2EmpSet[base]) {
+				gl.uniform3fv(uniform.uLightDiffuse, _gr2EmpDiffuse);
+				gl.uniform3fv(uniform.uLightAmbient, _gr2EmpAmbient);
+			} else {
+				gl.uniform3fv(uniform.uLightDiffuse, light.diffuse || _phaseDiffuse);
+				gl.uniform3fv(uniform.uLightAmbient, light.ambient || _phaseAmbient);
+			}
 
 			// Project the model AABB to a screen-space pick box for EntityManager's hover/click
 			// test. Stashed on the instance (not entity.boundingRect) because Entity.render()
