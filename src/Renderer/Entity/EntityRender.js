@@ -268,6 +268,9 @@ const renderEntity = (function renderEntityClosure() {
 		// GR2 3D body: the model is drawn by GR2ModelRenderer in the map pass. Suppress the 2D
 		// billboard body AND the shadow blob (Phase 0: no blob under a GR2). Name / lifebar /
 		// emblem overlays render in renderGUI (called separately) and are kept.
+		// Returning here also skips attachments.renderBefore() below -- intentional: the current
+		// GR2 set (guardians/emperium/flag/treasure) carries no sprite attachments. attachments.render()
+		// (the always-behind pass, called from the map-pass entry above) still runs on the parent.
 		if (this.gr2) {
 			return;
 		}
