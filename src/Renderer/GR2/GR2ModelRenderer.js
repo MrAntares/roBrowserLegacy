@@ -90,6 +90,9 @@ function grayBroadcast(src, out) {
 
 let _program = null;
 
+// GL context cached from render() so detach() can free per-instance emblem textures off-frame.
+let _gl = null;
+
 // Per-type resource cache (key = gr2 path).
 let _types = {};
 
@@ -187,6 +190,12 @@ function free(gl) {
 			}
 		}
 	}
+	// Per-instance (per-guild) emblem textures live on the instance, not the type cache.
+	for (let i = 0; i < _instances.length; i++) {
+		if (_instances[i].emblemTex) {
+			gl.deleteTexture(_instances[i].emblemTex);
+		}
+	}
 	_types = {};
 	_instances = [];
 	_poseCache = {};
@@ -260,35 +269,50 @@ function makeTypeTextures(gl, parsed) {
 	gl.bindTexture(gl.TEXTURE_2D, grey);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([180, 180, 185, 255]));
 	byFile.__grey = grey;
-	// Emblem placeholder — a 24x24 magenta patch painted into the top-left corner of a 32x32 POT
-	// (the real guild emblem is a 24px request rounded up to the next power-of-two; UV 0..1 sample
-	// the whole 32x32 so the emblem reads at the top-left 75% of the quad). The [24..31] border is
-	// left transparent (killed by the shader's hard alpha-test). Stands in for the dynamic guild
-	// emblem (ZC_GUILD_EMBLEM_IMG, wired later); the asymmetric corner also reads out the flag
-	// orientation. NEAREST + CLAMP because a non-mip 32x32 with the default min-filter would be
-	// incomplete/black.
-	const magenta = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, magenta);
-	const mpx = new Uint8Array(32 * 32 * 4);
-	for (let y = 0; y < 32; y++) {
-		for (let x = 0; x < 32; x++) {
-			if (x < 24 && y < 24) {
-				const o = (y * 32 + x) * 4;
-				mpx[o] = 255;
-				mpx[o + 1] = 0;
-				mpx[o + 2] = 255;
-				mpx[o + 3] = 255;
-			}
-		}
-	}
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 32, 32, 0, gl.RGBA, gl.UNSIGNED_BYTE, mpx);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	byFile.__magenta = magenta;
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	return { byFile: byFile };
+}
+
+// A4R4G4B4 4-bit quantize — the client's on-load emblem format (byte-cited fcn.0054e1d0 class-1).
+function quantize4bit(px) {
+	for (let i = 0; i < px.length; i++) {
+		px[i] = (px[i] >> 4) * 0x11;
+	}
+}
+
+/**
+ * buildEmblemTexture(gl, img, prevTex) — the live per-guild emblem, POT-padded the way the client
+ * does it. The client requests the emblem 24x24 then rounds it up to the next power-of-two
+ * (32x32, fcn.00529000) with the pixels in the TOP-LEFT corner and the rest transparent, so
+ * UV 0..1 sample the whole 32x32 and the emblem reads at 75% top-left of the Plane01 quad
+ * (~centered, upper third of the banner). The placement IS the POT padding — no geometry recentre.
+ * The transparent [24..31] border is discarded by the shader's hard alpha-test (ALPHA_REF). The
+ * source already passed Texture.load (magenta keyed) in Guild.js, so only the A4R4G4B4 quantize is
+ * applied here. Reuses prevTex on a guild/version change so a re-bind never leaks. LINEAR + CLAMP
+ * = the client's sampler (byte-cited).
+ */
+function buildEmblemTexture(gl, img, prevTex) {
+	const POT = 32,
+		SRC = 24;
+	const cv = document.createElement('canvas');
+	cv.width = POT;
+	cv.height = POT;
+	const ctx = cv.getContext('2d', { willReadFrequently: true });
+	ctx.imageSmoothingEnabled = false;
+	ctx.drawImage(img, 0, 0, SRC, SRC);
+	const im = ctx.getImageData(0, 0, POT, POT);
+	quantize4bit(im.data);
+
+	const tex = prevTex || gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, tex);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.bindTexture(gl.TEXTURE_2D, null);
+	return tex;
 }
 
 /**
@@ -396,8 +420,13 @@ function buildTypeGL(gl, type) {
 			ibo: ibo,
 			count: mesh.indices.length,
 			tex: type.textures.byFile[mesh.texFile] || type.textures.byFile.__grey,
-			emblem: mesh.emblem // route the emblem submesh (Plane01) to the placeholder texture
+			emblem: mesh.emblem // the emblem submesh (Plane01) binds the live per-instance guild emblem
 		};
+	});
+	// Whether this type carries an emblem submesh (guild flag) — gates the per-instance emblem
+	// rebuild in render() so non-flag types skip it.
+	type.hasEmblem = type.submeshes.some(function (sm) {
+		return sm.emblem;
 	});
 	type.glReady = true;
 }
@@ -497,6 +526,7 @@ function normalize3(v) {
  * Camera.modelView (the view matrix); the per-instance world is composed on top.
  */
 function render(gl, modelView, projection, normalMat, fog, light, tick) {
+	_gl = gl;
 	if (_instances.length === 0 || !light) {
 		return;
 	}
@@ -554,6 +584,24 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 			// this pass runs before EntityManager.render) and prioritise its bank load.
 			if (inst.entity) {
 				syncFromEntity(inst, type, tick);
+
+				// Live guild emblem: bind the entity's fetched emblem image (Guild.requestGuildEmblem,
+				// triggered on spawn for any GUID) as a per-instance POT texture. Per-instance, not
+				// per-type — two flags of different guilds must show different emblems. Rebuild only when
+				// the image reference changes (new guild / GEmblemVer → new image object), so the identity
+				// compare is the whole per-frame cost.
+				if (type.hasEmblem) {
+					const emblemImg = inst.entity.emblem && inst.entity.emblem.emblem;
+					if (emblemImg !== inst._emblemImg) {
+						inst._emblemImg = emblemImg;
+						if (emblemImg) {
+							inst.emblemTex = buildEmblemTexture(gl, emblemImg, inst.emblemTex);
+						} else if (inst.emblemTex) {
+							gl.deleteTexture(inst.emblemTex);
+							inst.emblemTex = null;
+						}
+					}
+				}
 			}
 
 			// Frustum cull BEFORE posing — a culled instance neither poses nor draws. The anchor
@@ -655,9 +703,10 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 			for (let s = 0; s < type.submeshes.length; s++) {
 				const sm = type.submeshes[s];
-				// The emblem submesh (Plane01) draws the magenta placeholder until the dynamic guild
-				// emblem is wired; every other submesh uses its baked texture.
-				gl.bindTexture(gl.TEXTURE_2D, sm.emblem ? type.textures.byFile.__magenta : sm.tex);
+				// The emblem submesh (Plane01) binds this instance's live guild emblem; before it is
+				// fetched (or on a dev spawn with no entity) it falls back to the baked emblem.tif from
+				// the .gr2. Every other submesh uses its baked texture.
+				gl.bindTexture(gl.TEXTURE_2D, sm.emblem ? inst.emblemTex || sm.tex : sm.tex);
 				gl.bindVertexArray(sm.vao);
 				gl.drawElements(gl.TRIANGLES, sm.count, gl.UNSIGNED_SHORT, 0);
 			}
@@ -822,7 +871,10 @@ function attach(entity) {
 		t: 0,
 		_lastAction: 'stand',
 		_lastTick: 0,
-		screenRect: null
+		screenRect: null,
+		// Per-instance (per-guild) emblem texture + the image it was built from, for change detection.
+		emblemTex: null,
+		_emblemImg: null
 	};
 	_instances.push(inst);
 	return inst;
@@ -840,6 +892,11 @@ function detach(inst) {
 	const type = _types[inst.path];
 	if (type && type.refcount > 0) {
 		type.refcount--;
+	}
+	// Free this instance's per-guild emblem texture (the per-type cache is freed at map unload).
+	if (inst.emblemTex && _gl) {
+		_gl.deleteTexture(inst.emblemTex);
+		inst.emblemTex = null;
 	}
 	inst.entity = null;
 }
