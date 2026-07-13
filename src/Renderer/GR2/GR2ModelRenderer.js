@@ -335,6 +335,10 @@ function quantize4bit(px) {
 	}
 }
 
+// Module-scope scratch canvas reused across emblem uploads (guild/version changes are frequent);
+// created lazily and re-cleared per call by re-setting its size, so no per-change allocation.
+let _emblemCanvas = null;
+
 /**
  * buildEmblemTexture(gl, img, prevTex) — the live per-guild emblem, POT-padded the way the client
  * does it. The client requests the emblem 24x24 then rounds it up to the next power-of-two
@@ -349,7 +353,8 @@ function quantize4bit(px) {
 function buildEmblemTexture(gl, img, prevTex) {
 	const POT = 32,
 		SRC = 24;
-	const cv = document.createElement('canvas');
+	const cv = _emblemCanvas || (_emblemCanvas = document.createElement('canvas'));
+	// Re-setting the size clears the canvas so a smaller/transparent emblem never leaks prior pixels.
 	cv.width = POT;
 	cv.height = POT;
 	const ctx = cv.getContext('2d', { willReadFrequently: true });

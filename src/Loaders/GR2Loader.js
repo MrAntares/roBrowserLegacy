@@ -12,7 +12,7 @@
  * attribute arrays and read the model InitialPlacement transform.
  */
 
-import { parseTextured, parseAnimated, parseGR2File, loadGR2, extractModels, ready } from 'granny-ro-js/wasm';
+import { parseAll, ready } from 'granny-ro-js/wasm';
 import { mul, trans, IDENTITY_ROW } from 'Renderer/GR2/gr2Math.js';
 
 /**
@@ -69,23 +69,24 @@ class GR2Loader {
 
 	/**
 	 * Parse the .gr2 bytes into { parsed, meshes, boneCount, animIndex, duration, ipRow }.
-	 * parseTextured and parseAnimated each re-parse the same bytes; we merge the animations
-	 * onto the textured model. The InitialPlacement is only reachable through the low-level
-	 * graph (the parse* wrappers do not expose the loaded object), so we re-walk for it.
+	 * A single parseAll decompresses the buffer once and runs every extractor on that one
+	 * graph: parsed carries the textured meshes/skeletons, the animations, and models[] —
+	 * models[0].initialPlacement is the InitialPlacement transform that grounds the actor.
 	 */
 	load(buffer) {
 		const u8 = new Uint8Array(buffer);
-		this.parsed = { ...parseTextured(u8), animations: parseAnimated(u8).animations };
+		const parsed = parseAll(u8);
+		this.parsed = parsed;
 
-		const packed = GR2Loader.packModel(this.parsed);
+		const packed = GR2Loader.packModel(parsed);
 		this.meshes = packed.meshes;
 		this.boneCount = packed.boneCount;
 
 		this.animIndex = 0;
-		const anim = this.parsed.animations[0];
+		const anim = parsed.animations[0];
 		this.duration = anim ? anim.duration : 1;
 
-		const model = extractModels(loadGR2(parseGR2File(u8)))[0];
+		const model = parsed.models[0];
 		this.ipRow = model ? GR2Loader.ipRowFromTransform(model.initialPlacement) : undefined;
 	}
 
