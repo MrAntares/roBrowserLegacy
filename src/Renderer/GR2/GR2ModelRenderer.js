@@ -1066,7 +1066,13 @@ function spawnMany(path, n, opts) {
  * unload frees them via free(gl)).
  */
 function clear() {
-	_instances = [];
+	// Route every instance through detach() so per-guild emblem textures are freed and the type
+	// refcount is decremented (a bare `_instances = []` orphaned both). detach() mutates _instances,
+	// so iterate over a copy. Type GL resources stay cached for re-spawn (freed at map unload).
+	const insts = _instances.slice();
+	for (let i = 0; i < insts.length; i++) {
+		detach(insts[i]);
+	}
 	_poseCache = {};
 }
 
