@@ -27,4 +27,12 @@ describe('gr2Banks.bankPathsFor', () => {
 		expect(bankPathsFor('data/model/3dmob/dragon_5.gr2')).toEqual([]);
 		expect(bankPathsFor('nonsense.gr2')).toEqual([]);
 	});
+
+	it('resolves the bank set through the string setId key (regex captures a string)', () => {
+		// setId is captured as a string from the filename regex, and GR2_BANKS is keyed by strings
+		// to match. Guards against a future numeric-only-key or Map swap where a string lookup would
+		// miss: a declared setId ('9') must still resolve, an undeclared one ('0') must stay empty.
+		expect(bankPathsFor('data/model/3dmob/sguardian90_9.gr2').length).toBeGreaterThan(0);
+		expect(bankPathsFor('data/model/3dmob/empelium90_0.gr2')).toEqual([]);
+	});
 });

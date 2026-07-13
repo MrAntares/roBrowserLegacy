@@ -20,11 +20,13 @@
  * guardians (7/8/9) ship all four, treasure box (2) ships {dead,damage}, emperium (0)
  * and flag (1) ship none (embedded standby only).
  */
+// Keys are strings: setId is captured as a string from the filename regex below, so the
+// lookup GR2_BANKS[setId] matches on the string key directly (no JS numeric-key coercion).
 const GR2_BANKS = {
-	2: ['dead', 'damage'], // treasurebox
-	7: ['attack', 'damage', 'dead', 'move'], // kguardian
-	8: ['attack', 'damage', 'dead', 'move'], // aguardian
-	9: ['attack', 'damage', 'dead', 'move'] // sguardian
+	'2': ['dead', 'damage'], // treasurebox
+	'7': ['attack', 'damage', 'dead', 'move'], // kguardian
+	'8': ['attack', 'damage', 'dead', 'move'], // aguardian
+	'9': ['attack', 'damage', 'dead', 'move'] // sguardian
 	// 0 emperium, 1 flag -> none (embedded standby only)
 };
 
