@@ -124,6 +124,8 @@ let _types = {};
 // onError; consumed by isMissing() so the Entity path falls back to a Poring sprite instead of
 // rendering nothing. Session-lifetime on purpose -- a missing model stays missing across maps,
 // so free() deliberately does NOT clear it (no re-request, no re-attempt of the dead 3D path).
+// Bounded, not a growing leak: acquire() only ever receives ROSTERED paths (UpdateBody gates on
+// isSupported before this.gr2 is set), so this holds at most one key per roster entry.
 const _missing = {};
 
 // Live instances: { path, world, worldBuilt, actor, dir, pos, standbyIdx, animIndex, t,
@@ -250,6 +252,11 @@ function free(gl) {
 	_types = {};
 	_instances = [];
 	_poseCache = {};
+	// _program and _gl are intentionally kept (not deleted/nulled): roBrowser uses one persistent
+	// WebGL context across map loads, so the compiled program stays valid and render() reuses it via
+	// the `if (!_program)` guard -- re-init only on a genuinely fresh context. Same pattern as
+	// AnimatedModels.js free(). If context loss/restore ever recreates the GL context, both would
+	// need to reset _program here.
 }
 
 /**
