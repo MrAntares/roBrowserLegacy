@@ -315,6 +315,8 @@ function UpdateBody(job) {
 	// set is monsters/NPCs with no PC attachments. Revisit if a player-class GR2 model
 	// (e.g. a mount) is ever added.
 	if (path.match(/\.gr2$/i)) {
+		// Re-root the model under GR2_MODEL_ROOT: DB.getBodyPath always returns a directory-qualified
+		// path (data/sprite/<...>/name.gr2), so stripping to the basename and re-prefixing is safe.
 		const gr2Path = GR2_MODEL_ROOT + path.replace(/^.*\//, '');
 		// Enter the 3D path only for the supported roster whose file/decode hasn't failed. Everything
 		// else -- an unsupported model (dragon_5, Hugeling90_6, any future .gr2: rejected synchronously
