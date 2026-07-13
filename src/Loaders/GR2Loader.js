@@ -222,6 +222,14 @@ class GR2Loader {
 	 * ipRowFromTransform(t) -> row-vector mat4 for a granny Transform { flags, position,
 	 * orientation, scaleShear }, applying ONLY the flag-marked components (S.R.T order).
 	 * Identity when the transform is absent or flags is 0.
+	 *
+	 * POSITION is applied INVERTED (`-p`). The granny InitialPlacement records where the
+	 * model sat in its authoring scene; rendering at the actor's cell origin must UNDO that
+	 * placement, not re-apply it. A model authored off-origin (e.g. Kguardian90_7, whose mesh
+	 * lives entirely forward of origin with an IP `[0.045,-7.253,0]`) otherwise draws ~1.45
+	 * cells too far forward — verified against mars-26/data.grf: `-p` re-centers its world-Z
+	 * onto its identity-IP siblings. Orientation/scale stay as-authored (translation-free IPs
+	 * like the treasurebox Rx+90 are unaffected).
 	 */
 	static ipRowFromTransform(t) {
 		if (!t || !t.flags) {
@@ -238,7 +246,7 @@ class GR2Loader {
 		}
 		if (t.flags & HAS_POSITION) {
 			const p = t.position;
-			M = _mul(M, _trans(p[0], p[1], p[2]));
+			M = _mul(M, _trans(-p[0], -p[1], -p[2]));
 		}
 		return M;
 	}

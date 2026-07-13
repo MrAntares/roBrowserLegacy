@@ -141,11 +141,13 @@ describe('GR2Loader.ipRowFromTransform', () => {
         expect(Array.from(M)).toEqual(IDENTITY);
     });
 
-    it('applies HAS_POSITION as a row-vector translation', () => {
+    it('applies HAS_POSITION INVERTED (the InitialPlacement is undone to render at the actor origin)', () => {
         const M = GR2Loader.ipRowFromTransform({ flags: 1, position: [5, 6, 7] });
-        expect(M[12]).toBeCloseTo(5, 6);
-        expect(M[13]).toBeCloseTo(6, 6);
-        expect(M[14]).toBeCloseTo(7, 6);
+        // Row-vector translation carries -p: a model authored off-origin is re-centred onto
+        // its cell (Kguardian90_7 IP [0.045,-7.253,0] -> +7.253 forward, aligning it with siblings).
+        expect(M[12]).toBeCloseTo(-5, 6);
+        expect(M[13]).toBeCloseTo(-6, 6);
+        expect(M[14]).toBeCloseTo(-7, 6);
         // Linear part stays identity.
         expect(M[0]).toBeCloseTo(1, 6);
         expect(M[5]).toBeCloseTo(1, 6);
