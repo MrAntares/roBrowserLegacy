@@ -27,8 +27,8 @@ describe('gr2World.buildWorld — /5 referential (build-7 reconciliation)', () =
 		}
 	});
 
-	it('preserves chirality (det(3x3) < 0 — the flipX reflection is intact)', () => {
-		expect(det3(rb)).toBeLessThan(0);
+	it('is reflection-free (det(3x3) > 0 — no in-model flipX; the camera carries RH->LH)', () => {
+		expect(det3(rb)).toBeGreaterThan(0);
 	});
 
 	it('straddles the cell by -0.4 on X,Z with position fed unchanged', () => {

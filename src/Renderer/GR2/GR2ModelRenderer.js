@@ -28,6 +28,7 @@ import WebGL from 'Utils/WebGL.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Session from 'Engine/SessionStorage.js';
 import Altitude from 'Renderer/Map/Altitude.js';
+import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
 import GR2Loader from 'Loaders/GR2Loader.js';
 import { poseAt, parseAnimated } from 'granny-ro-js/wasm';
 import {
@@ -35,7 +36,6 @@ import {
 	flattenPose,
 	poseCacheKey,
 	quantizePoseTime,
-	recenterEmblem,
 	gr2ActionFor,
 	frustumCullClip
 } from './gr2Pack.js';
@@ -99,6 +99,15 @@ let _instances = [];
 // Pose cache — set each frame to only the poses used that frame (bounds memory, keeps the
 // 40 Hz reuse across rAF frames when the quantized bucket is unchanged).
 let _poseCache = {};
+
+// Debug aid: highlight each instance's anchor CELL with a flat tile. The tile marks the cell
+// CENTER (its shader adds +0.5); the model straddles the cell's -0.4 corner, so the offset between
+// tile and pole shows which junction the model sits on (NE/NW diagnosis). Toggle from the dev
+// console (`mod.debugCell = true`); off by default, no gameplay effect.
+const _dbgCellTile = FlatColorTile('gr2_debug_cell', { r: 0.0, g: 1.0, b: 1.0, a: 0.45 });
+const _dbgTileInst = new _dbgCellTile([0, 0, 0]);
+let _dbgCellInited = false;
+let _debugCell = false;
 
 // granny-ro-js WASM init (texture pixel decode); shared across all types.
 let _readyPromise = null;
@@ -251,6 +260,33 @@ function makeTypeTextures(gl, parsed) {
 	gl.bindTexture(gl.TEXTURE_2D, grey);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([180, 180, 185, 255]));
 	byFile.__grey = grey;
+	// Emblem placeholder — a 24x24 magenta patch painted into the top-left corner of a 32x32 POT
+	// (the real guild emblem is a 24px request rounded up to the next power-of-two; UV 0..1 sample
+	// the whole 32x32 so the emblem reads at the top-left 75% of the quad). The [24..31] border is
+	// left transparent (killed by the shader's hard alpha-test). Stands in for the dynamic guild
+	// emblem (ZC_GUILD_EMBLEM_IMG, wired later); the asymmetric corner also reads out the flag
+	// orientation. NEAREST + CLAMP because a non-mip 32x32 with the default min-filter would be
+	// incomplete/black.
+	const magenta = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, magenta);
+	const mpx = new Uint8Array(32 * 32 * 4);
+	for (let y = 0; y < 32; y++) {
+		for (let x = 0; x < 32; x++) {
+			if (x < 24 && y < 24) {
+				const o = (y * 32 + x) * 4;
+				mpx[o] = 255;
+				mpx[o + 1] = 0;
+				mpx[o + 2] = 255;
+				mpx[o + 3] = 255;
+			}
+		}
+	}
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 32, 32, 0, gl.RGBA, gl.UNSIGNED_BYTE, mpx);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	byFile.__magenta = magenta;
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	return { byFile: byFile };
 }
@@ -304,7 +340,6 @@ function acquire(path) {
 					const loader = new GR2Loader(buffer);
 					type.parsed = loader.parsed;
 					type.meshes = loader.meshes;
-					recenterEmblem(type.meshes); // render-only: centre the off-baked emblem on the banner
 					type.groundOffset = computeGroundOffset(type.meshes); // drop the base onto the terrain
 					type.aabb = computeLocalAABB(type.meshes); // local bounds for the screen-space pick box
 					type.ipRow = loader.ipRow;
@@ -360,7 +395,8 @@ function buildTypeGL(gl, type) {
 			vbo: vbo,
 			ibo: ibo,
 			count: mesh.indices.length,
-			tex: type.textures.byFile[mesh.texFile] || type.textures.byFile.__grey
+			tex: type.textures.byFile[mesh.texFile] || type.textures.byFile.__grey,
+			emblem: mesh.emblem // route the emblem submesh (Plane01) to the placeholder texture
 		};
 	});
 	type.glReady = true;
@@ -619,7 +655,9 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 			for (let s = 0; s < type.submeshes.length; s++) {
 				const sm = type.submeshes[s];
-				gl.bindTexture(gl.TEXTURE_2D, sm.tex);
+				// The emblem submesh (Plane01) draws the magenta placeholder until the dynamic guild
+				// emblem is wired; every other submesh uses its baked texture.
+				gl.bindTexture(gl.TEXTURE_2D, sm.emblem ? type.textures.byFile.__magenta : sm.tex);
 				gl.bindVertexArray(sm.vao);
 				gl.drawElements(gl.TRIANGLES, sm.count, gl.UNSIGNED_SHORT, 0);
 			}
@@ -634,6 +672,31 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 		gl.enable(gl.BLEND);
 	}
 	_poseCache = seen;
+
+	// Debug: paint the anchor cell of every instance (see _debugCell above).
+	if (_debugCell && _instances.length) {
+		if (!_dbgCellInited) {
+			_dbgCellTile.init(gl);
+			_dbgCellInited = true;
+		}
+		const dbgBlendWasEnabled = gl.isEnabled(gl.BLEND);
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		_dbgCellTile.beforeRender(gl, modelView, projection, fog, tick);
+		for (let i = 0; i < _instances.length; i++) {
+			const inst = _instances[i];
+			const type = _types[inst.path];
+			if (!type || !type.glReady) {
+				continue;
+			}
+			_dbgTileInst.position = inst.pos;
+			_dbgTileInst.render(gl, tick);
+		}
+		_dbgCellTile.afterRender(gl);
+		if (!dbgBlendWasEnabled) {
+			gl.disable(gl.BLEND);
+		}
+	}
 }
 
 // worldAnchorToClip(pos, modelView, projection, out4): project the instance ground anchor to
@@ -868,5 +931,12 @@ export default {
 	spawn: spawn,
 	spawnMany: spawnMany,
 	clear: clear,
-	FADE: FADE
+	FADE: FADE,
+	// Debug: highlight each instance's anchor cell (see _debugCell). Toggle from the dev console.
+	get debugCell() {
+		return _debugCell;
+	},
+	set debugCell(v) {
+		_debugCell = !!v;
+	}
 };

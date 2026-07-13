@@ -4,9 +4,16 @@
  * The GR2 world matrix — port of the sandbox `gr2BuilderRobrowser` (draw path
  * reconciled to roBrowser's /5 referential). Byte-cited from the client 3dmob draw
  * path (mars26 fcn.00b2ad20 / ver12 fcn.00567e70): Rx(+pi/2) . Ry((dir+180)) . S . T,
- * with the granny-RH -> render-LH X reflection (flipX) and the model's own granny
- * InitialPlacement (ipRow) applied innermost. (The sandbox used Rx(-pi/2) for its folded
- * camera; roBrowser's standard Y-up camera needs the faithful +pi/2 — see flagCore.)
+ * with the model's own granny InitialPlacement (ipRow) applied innermost.
+ *
+ * HANDEDNESS. There is deliberately NO model-space X reflection here. A granny-RH
+ * model reaches the screen correctly through exactly ONE reflection: either a Y-up
+ * camera with an in-model flipX . Rx(-pi/2), OR a Y-INVERTING camera with a clean
+ * Rx(+pi/2) and no flipX — the two are equivalent, and stacking both mirrors the
+ * model. roBrowser's camera already inverts world Y on screen (see computeGroundOffset
+ * below / Camera.js "inversed Y-Z axis"), so that inversion IS the RH->LH bridge and
+ * the world matrix stays a clean, reflection-free Rx . Ry . S . T (det +1). (The
+ * sandbox, which keeps a plain Y-up camera, carries the flipX in-model instead.)
  *
  * MATRIX CONVENTION. The chain is built row-vector (D3D, v' = v.M) with the local
  * `_mul` helper, then the flat array is handed to GL / gl-matrix as-is. A row-major
@@ -39,9 +46,6 @@ export const RB_PLACEMENT_OFS = -0.4;
 
 const IDENTITY_ROW = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
-// Model-space X reflection (row-vector) — the granny-RH -> render-LH handedness bridge.
-const FLIP_X = [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-
 // Row-vector 4x4 helpers (D3D convention v' = v.M).
 function _mul(a, b) {
 	const o = new Array(16);
@@ -72,14 +76,15 @@ const _scale = s => [s, 0, 0, 0, 0, s, 0, 0, 0, 0, s, 0, 0, 0, 0, 1];
 const _trans = (x, y, z) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1];
 
 /**
- * flagCore(dir, pos) -> the flip-free world core Rx(-pi/2) . Ry(yaw) . S . T at the
- * /5 referential (geometry x0.2, straddle -0.4). Position is fed unchanged.
+ * flagCore(dir, pos) -> the reflection-free world core Rx(rxSign*pi/2) . Ry(yaw) . S . T
+ * at the /5 referential (geometry x0.2, straddle -0.4). Position is fed unchanged.
  */
 export function flagCore(dir, pos, opts) {
 	const o = opts || {};
-	// Orientation reconciled empirically on the live map against roBrowser's Y-up camera +
-	// Camera.direction remap: rxSign +1 (pitch), yawOffsetDeg +180 on top of the asm-cited
-	// (dir+180). The opts stay exposed for re-tuning other eras/models.
+	// Orientation reconciled on the live map against roBrowser's Y-INVERTING camera (which now
+	// carries the sole granny-RH -> render-LH reflection; there is no in-model flipX). rxSign +1
+	// (pitch), yawOffsetDeg +180 on top of the asm-cited (dir+180). The opts stay exposed for
+	// re-tuning other eras/models.
 	const rxSign = o.rxSign != null ? o.rxSign : 1;
 	const yawOffset = o.yawOffsetDeg != null ? o.yawOffsetDeg : 180;
 	const yaw = ((dir + 180 + yawOffset) / 180) * Math.PI;
@@ -117,7 +122,9 @@ export function computeGroundOffset(meshes, opts) {
 
 /**
  * buildWorld(dir, pos, ipRow) -> Float32Array(16) GR2 world matrix.
- * Chain (row-vector, IP innermost): v . ipRow . flipX . flagCore(dir, pos).
+ * Chain (row-vector, IP innermost): v . ipRow . flagCore(dir, pos) — a clean,
+ * reflection-free Rx . Ry . S . T (det +1). The granny-RH -> render-LH reflection is
+ * provided by roBrowser's Y-inverting camera, not by this matrix (see HANDEDNESS above).
  * Hand the result straight to gl-matrix `mat4.multiply(out, view, world)` (see MATRIX
  * CONVENTION above) — it is already the column-major world matrix.
  *
@@ -128,8 +135,5 @@ export function computeGroundOffset(meshes, opts) {
 export function buildWorld(dir, pos, ipRow, opts) {
 	const o = opts || {};
 	const ip = ipRow || IDENTITY_ROW;
-	// flipX (default on) = the granny-RH -> render-LH X reflection. Exposed as an opt for the
-	// empirical mirror reconciliation on other eras/models.
-	const flip = o.flipX === false ? IDENTITY_ROW : FLIP_X;
-	return new Float32Array(_mul(ip, _mul(flip, flagCore(dir, pos, o))));
+	return new Float32Array(_mul(ip, flagCore(dir, pos, o)));
 }

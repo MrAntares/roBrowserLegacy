@@ -78,52 +78,6 @@ export function identityPose(boneCount) {
 }
 
 /**
- * recenterEmblem(meshes) — RENDER-only fix: guildflag90_1.gr2 bakes the emblem submesh (Plane01)
- * ~+1.5u off the banner centre in X, but the client renders it centred (2008 + modern, verified).
- * The granny deform alone doesn't move it (skinning == the DLL oracle), so we recentre Plane01 on
- * the banner in the bind positions before upload. Mutates the emblem's bind array; returns the dx
- * applied (0 when there is no emblem/banner pair). granny Z = up.
- */
-export function recenterEmblem(meshes) {
-	const emblem = meshes.find(m => m.emblem);
-	const banner = meshes.find(m => !m.emblem && m.vcount > 50);
-	if (!emblem || !banner) {
-		return 0;
-	}
-	let ex = 0;
-	let zmin = Infinity;
-	let zmax = -Infinity;
-	for (let i = 0; i < emblem.vcount; i++) {
-		ex += emblem.bind[i * 3];
-		const z = emblem.bind[i * 3 + 2];
-		if (z < zmin) {
-			zmin = z;
-		}
-		if (z > zmax) {
-			zmax = z;
-		}
-	}
-	ex /= emblem.vcount;
-	let bx = 0;
-	let bc = 0;
-	for (let i = 0; i < banner.vcount; i++) {
-		const z = banner.bind[i * 3 + 2];
-		if (z >= zmin - 1 && z <= zmax + 1) {
-			bx += banner.bind[i * 3];
-			bc++;
-		}
-	}
-	if (!bc) {
-		return 0;
-	}
-	const dx = bx / bc - ex;
-	for (let i = 0; i < emblem.vcount; i++) {
-		emblem.bind[i * 3] += dx;
-	}
-	return dx;
-}
-
-/**
  * quantizePoseTime(t, hz) -> integer bucket index at hz (default 40 Hz). Near-equal
  * clip times inside one 1/40 s bucket collapse to the same bucket, so the pose cache
  * computes one poseAt per (type, anim, bucket).
