@@ -45,6 +45,9 @@ const WALK_DIST_TO_MOTION = WALK_STEP_SIZE * 0.37 * 4 * 25; // ≈ 170.2
 function render(modelView, projection) {
 	// GR2 3D body: attach (or re-attach on a body change) an instance the renderer draws in
 	// the map pass. The billboard body + shadow are suppressed below while this.gr2 is set.
+	// `path` and `this.gr2` are both path strings; JS `!==` on strings is value equality
+	// (string interning is irrelevant), so this correctly fires only when the model file
+	// actually changed -- detach the old instance and let the block below attach the new one.
 	if (this.gr2Model && this.gr2Model.path !== this.gr2) {
 		GR2ModelRenderer.detach(this.gr2Model);
 		this.gr2Model = null;

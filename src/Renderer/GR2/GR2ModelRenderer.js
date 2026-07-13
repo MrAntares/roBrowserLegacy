@@ -43,6 +43,12 @@ import {
 import { buildWorld, computeGroundOffset } from './gr2World.js';
 import { createActor, setAction, actorPose, ACTION } from './actorAction.js';
 import { bankPathsFor } from './gr2Banks.js';
+// The `?raw` shader imports and the `granny-ro-js/wasm` subpath (line 33) resolve in
+// production too: the builder (applications/tools/builder-web.mjs) drives Vite's `build()`,
+// so it runs the same Rollup pipeline as dev -- `?raw` is a first-class transform (already
+// used pervasively for UI .css/.html) and the wasm entry is a plain ESM module with the
+// binary base64-inlined (atob + WebAssembly.instantiate, no separate .wasm / fetch). Verified
+// via `npm run build`: poseAt + WebAssembly.instantiate land in dist/Web/Online.js.
 import _vertexShader from './GR2Model.vs?raw';
 import _fragmentShader from './GR2Model.fs?raw';
 

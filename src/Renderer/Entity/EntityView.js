@@ -183,6 +183,10 @@ function UpdateBody(job) {
 	// Capture sequence number for stale callback detection
 	const transformationSeq = this._transformationSeq || 0;
 
+	// job < 0 is a "no body update" sentinel: keep the current body state untouched, including
+	// this.gr2. Intentionally not cleared here -- same as the invisible-sprite branch below
+	// (job 111/139/45), which also retains this.gr2. Only the "no body at all" path === null
+	// branch clears this.gr2, because that path means the entity genuinely has no body sprite.
 	if (job < 0) {
 		return;
 	}
