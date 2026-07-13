@@ -16,9 +16,14 @@ import AllMountTable from 'DB/Jobs/AllMountTable.js';
 import EntityAction from './EntityAction.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import JobConst from 'DB/Jobs/JobConst.js';
+import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 
 // Client directory the GR2 3D-mob models resolve against (GR2ModelRenderer fetches from here).
 const GR2_MODEL_ROOT = 'data/model/3dmob/';
+
+// Stand-in when a .gr2 model is absent from the GRF: render the Poring sprite instead of nothing
+// (job 1002). Consumed only after GR2ModelRenderer.isMissing flags the path (see UpdateBody).
+const GR2_FALLBACK_JOB = 1002;
 
 /**
  * Files to display a view
@@ -229,7 +234,7 @@ function UpdateBody(job) {
 	// form (disguise or transformation) - otherwise a GM disguised as a monster
 	// shows the headless admin sprite instead of the monster.
 	const showAdminSprite = this.isAdmin && !shouldSuppressHead.call(this);
-	const path = showAdminSprite ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
+	let path = showAdminSprite ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
 	const Entity = this.constructor;
 
 	// Define Object type based on its id
@@ -302,25 +307,40 @@ function UpdateBody(job) {
 		return;
 	}
 
-	// GR2 3D body: rendered by GR2ModelRenderer through the Entity path (EntityRender
-	// attaches an instance on this.gr2). No 2D substitute sprite -- record the model
-	// path, null the body sprite, return before the load. Returning here also skips the
+	// GR2 3D body: a supported model is rendered by GR2ModelRenderer through the Entity path
+	// (EntityRender attaches an instance on this.gr2) -- record the model path, null the body
+	// sprite, return before the load. Unsupported or failed models fall through to a 2D Poring
+	// substitute instead (see the inner branch). The supported return also skips the
 	// bodypalette/weapon/shield refresh in the load callback below -- intentional: the GR2
 	// set is monsters/NPCs with no PC attachments. Revisit if a player-class GR2 model
 	// (e.g. a mount) is ever added.
 	if (path.match(/\.gr2$/i)) {
-		// Tripwire: the current GR2 set is monsters/NPCs, so this never fires. If a player-class
-		// GR2 (e.g. a mount) is ever added, its weapon/shield/bodypalette refresh would be silently
-		// dropped by the early return -- make that loud instead of a hard-to-trace visual gap.
-		if (this.objecttype === Entity.TYPE_PC && (this._weapon || this._shield)) {
-			console.warn('[GR2] Player-class GR2 body (' + path + '): weapon/shield/bodypalette refresh is skipped -- see UpdateBody.');
+		const gr2Path = GR2_MODEL_ROOT + path.replace(/^.*\//, '');
+		// Enter the 3D path only for the supported roster whose file/decode hasn't failed. Everything
+		// else -- an unsupported model (dragon_5, Hugeling90_6, any future .gr2: rejected synchronously
+		// by isSupported, no I/O) or a supported model that later 404'd / failed to decode (isMissing) --
+		// falls through to the 2D Poring substitute below instead of rendering an invisible actor.
+		if (GR2ModelRenderer.isSupported(gr2Path) && !GR2ModelRenderer.isMissing(gr2Path)) {
+			// Tripwire: the current GR2 set is monsters/NPCs, so this never fires. If a player-class
+			// GR2 (e.g. a mount) is ever added, its weapon/shield/bodypalette refresh would be silently
+			// dropped by the early return -- make that loud instead of a hard-to-trace visual gap.
+			if (this.objecttype === Entity.TYPE_PC && (this._weapon || this._shield)) {
+				console.warn(
+					'[GR2] Player-class GR2 body (' +
+						path +
+						'): weapon/shield/bodypalette refresh is skipped -- see UpdateBody.'
+				);
+			}
+			this.gr2 = gr2Path;
+			this.files.body.spr = null;
+			this.files.body.act = null;
+			return;
 		}
-		this.gr2 = GR2_MODEL_ROOT + path.replace(/^.*\//, '');
-		this.files.body.spr = null;
-		this.files.body.act = null;
-		return;
+		this.gr2 = null;
+		path = DB.getBodyPath(GR2_FALLBACK_JOB, this._sex);
+	} else {
+		this.gr2 = null;
 	}
-	this.gr2 = null;
 
 	// Loading
 	Client.loadFile(path + '.act');

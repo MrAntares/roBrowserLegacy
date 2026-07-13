@@ -71,10 +71,26 @@ const _gr2FlagDiffuse = new Float32Array([100 / 255, 100 / 255, 100 / 255]); // 
 const _gr2EmpDiffuse = new Float32Array([128 / 255, 128 / 255, 128 / 255]); // 0.502
 const _gr2EmpAmbient = new Float32Array([127 / 255, 127 / 255, 127 / 255]); // 0.498
 const _gr2FlagAmbient = new Float32Array(3); // scratch: per-frame grayscale of the map ambient
-// Per-model lighting dispatch keys (.gr2 basenames). The guild flag runtime-tints its ambient off
-// the map light; the Emperium set uses the fixed byte-decided grays.
-const GR2_MODEL_GUILDFLAG = 'guildflag90_1';
-const GR2_EMP_MODELS = { empelium90_0: 1, kguardian90_7: 1, aguardian90_8: 1, sguardian90_9: 1, treasurebox_2: 1 };
+// ── Supported GR2 3D roster ──────────────────────────────────────────────────────────────────
+// The complete set of .gr2 models the client renders in 3D, keyed by lowercase basename. This is
+// the single source of truth: it drives BOTH isSupported() (below) and the per-model lighting
+// dispatch in render(). A monster/NPC whose body resolves to a .gr2 NOT listed here (dragon_5,
+// Hugeling90_6, or any future model) has no decode/lighting path, so the Entity layer substitutes
+// a 2D Poring sprite instead of an invisible actor (see EntityView.UpdateBody -> isSupported).
+//
+// To add a model: add ONE line below with its lighting profile. That single edit enrols it in the
+// 3D path (isSupported turns true) AND selects its shading (render() reads the profile value).
+//   'flag' -> ambient runtime-tinted off the map light (guild flag only)
+//   'emp'  -> fixed byte-decided grayscale diffuse/ambient (gr2-lighting-shadow-mars26.md §6)
+//   'map'  -> plain map light (default profile; no model uses it yet)
+const GR2_ROSTER = {
+	guildflag90_1: 'flag', // Guild flag
+	empelium90_0: 'emp', // Emperium
+	kguardian90_7: 'emp', // Knight guardian
+	aguardian90_8: 'emp', // Archer guardian
+	sguardian90_9: 'emp', // Soldier guardian
+	treasurebox_2: 'emp' // Treasure box
+};
 
 // Lowercased .gr2 basename (no dir, no extension) — the per-model lighting key.
 function gr2Basename(path) {
@@ -95,10 +111,20 @@ function grayBroadcast(src, out) {
 let _program = null;
 
 // GL context cached from render() so detach() can free per-instance emblem textures off-frame.
+// Safe to cache: roBrowser uses one persistent WebGL context, _gl is re-assigned every render()
+// (never nulled), and if the context is ever lost the engine pauses rendering (Renderer.onContextLost)
+// -- a deleteTexture on a lost context is a spec no-op and the GPU has already freed everything, so
+// a "stale" _gl can neither crash nor leak. Not a dangling-context hazard.
 let _gl = null;
 
 // Per-type resource cache (key = gr2 path).
 let _types = {};
+
+// Negative cache: gr2 paths that 404'd on fetch (absent from the GRF). Populated in acquire's
+// onError; consumed by isMissing() so the Entity path falls back to a Poring sprite instead of
+// rendering nothing. Session-lifetime on purpose -- a missing model stays missing across maps,
+// so free() deliberately does NOT clear it (no re-request, no re-attempt of the dead 3D path).
+const _missing = {};
 
 // Live instances: { path, world, worldBuilt, actor, dir, pos, standbyIdx, animIndex, t,
 // _lastAction, _lastTick, screenRect, emblemTex, _emblemImg } (+ entity, attached on bind).
@@ -397,11 +423,18 @@ function acquire(path) {
 					type.duration = loader.duration;
 					type.cpuReady = true;
 				} catch (e) {
+					// Decode threw (unexpected/corrupt buffer): same fate as a 404 -- flag missing so the
+					// Entity path reverts to a Poring sprite instead of an invisible actor, and no re-attempt.
+					// A defensive net only; the rostered models are expected to decode cleanly.
+					_missing[path] = true;
 					console.error('[GR2ModelRenderer] decode failed', path, e);
 				}
 			});
 		},
 		function () {
+			// Absent from the GRF -> flag it so the Entity path substitutes a Poring sprite
+			// (see EntityView.UpdateBody / EntityRender.render). No retry: the flag is permanent.
+			_missing[path] = true;
 			console.warn('[GR2ModelRenderer] failed to fetch', path);
 		}
 	);
@@ -728,11 +761,11 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 			// GR2 by a byte-decided grayscale diffuse/ambient, not the map light. Re-issued every
 			// iteration because GL uniforms are stateful — a fixed-constant model must not leak its
 			// diffuse/ambient onto the next instance.
-			const base = gr2Basename(inst.path);
-			if (base === GR2_MODEL_GUILDFLAG) {
+			const profile = GR2_ROSTER[gr2Basename(inst.path)];
+			if (profile === 'flag') {
 				gl.uniform3fv(uniform.uLightDiffuse, _gr2FlagDiffuse);
 				gl.uniform3fv(uniform.uLightAmbient, grayBroadcast(light.ambient || _phaseAmbient, _gr2FlagAmbient));
-			} else if (GR2_EMP_MODELS[base]) {
+			} else if (profile === 'emp') {
 				gl.uniform3fv(uniform.uLightDiffuse, _gr2EmpDiffuse);
 				gl.uniform3fv(uniform.uLightAmbient, _gr2EmpAmbient);
 			} else {
@@ -990,6 +1023,10 @@ function detach(inst) {
 		type.refcount--;
 	}
 	// Free this instance's per-guild emblem texture (the per-type cache is freed at map unload).
+	// Invariant (no leak on early detach): emblemTex is assigned ONLY inside render(), after _gl is
+	// set, and _gl is never nulled -- so emblemTex != null implies _gl != null. A spawn-then-detach
+	// before the first render leaves emblemTex null (nothing allocated), so the guard frees exactly
+	// what was created. The `&& _gl` is defensive, never the reason a real texture is skipped.
 	if (inst.emblemTex && _gl) {
 		_gl.deleteTexture(inst.emblemTex);
 		inst.emblemTex = null;
@@ -1087,6 +1124,16 @@ export default {
 	render: render,
 	attach: attach,
 	detach: detach,
+	// True once a gr2 path has 404'd on fetch or thrown on decode; the Entity path falls back to Poring.
+	isMissing: function (path) {
+		return _missing[path] === true;
+	},
+	// True only for a model in GR2_ROSTER (has a working 3D decode + lighting path). Unsupported .gr2
+	// (dragon_5, Hugeling90_6, future models) return false so the Entity path substitutes a Poring
+	// sprite synchronously -- no I/O, no invisible-actor frame.
+	isSupported: function (path) {
+		return GR2_ROSTER[gr2Basename(path)] !== undefined;
+	},
 	spawn: spawn,
 	spawnMany: spawnMany,
 	clear: clear,

@@ -52,6 +52,16 @@ function render(modelView, projection) {
 	if (this.gr2 && !this.gr2Model) {
 		this.gr2Model = GR2ModelRenderer.attach(this);
 	}
+	// A supported model whose file 404'd or decode threw is now flagged missing: drop the (invisible)
+	// 3D path and re-resolve the body, which falls back to the Poring sprite via isMissing in
+	// UpdateBody. Runs once -- UpdateBody clears this.gr2, so the guard is false next frame.
+	if (this.gr2 && GR2ModelRenderer.isMissing(this.gr2)) {
+		if (this.gr2Model) {
+			GR2ModelRenderer.detach(this.gr2Model);
+			this.gr2Model = null;
+		}
+		this.job = this._job;
+	}
 
 	// Process action
 	this.animations.process();
