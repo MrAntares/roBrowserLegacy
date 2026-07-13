@@ -950,6 +950,9 @@ function syncFromEntity(inst, type, tick) {
 	const e = inst.entity;
 	const p = e.position;
 	const dir = e.direction;
+	// Rebuild the world matrix on any pose change. p[2] IS the terrain cell height
+	// (position[2] = Altitude.getCellHeight, see attach), so a terrain-height change is
+	// already covered here -- it's part of the position tuple, not a missing trigger.
 	if (inst.pos[0] !== p[0] || inst.pos[1] !== p[1] || inst.pos[2] !== p[2] || inst.dir !== dir) {
 		inst.pos[0] = p[0];
 		inst.pos[1] = p[1];

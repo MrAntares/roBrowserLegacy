@@ -127,7 +127,8 @@ class Entity {
 		this.position = vec3.create();
 
 		// GR2 3D body: resolved model path (EntityView) + the renderer instance
-		// handle (EntityRender attaches, EntityManager detaches on removal).
+		// handle (EntityRender attaches, EntityManager detaches on removal). Set
+		// here, before the mixins below run, so every mixin method sees them defined.
 		this.gr2 = null;
 		this.gr2Model = null;
 
