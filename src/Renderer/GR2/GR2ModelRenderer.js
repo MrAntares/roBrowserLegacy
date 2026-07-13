@@ -349,6 +349,7 @@ function acquire(path) {
 		return type;
 	}
 
+	const declaredBanks = bankPathsFor(path); // [{ name, path }]
 	type = {
 		path: path,
 		refcount: 1,
@@ -364,8 +365,8 @@ function acquire(path) {
 		// External animation banks (data/model/3dmob_bone/<setId>_<suffix>.gr2) loaded
 		// lazily, prioritised by the current action (see pumpBanks). The main .gr2 gives
 		// the mesh + embedded standby; move/attack/dead/damage stream in on demand.
-		declaredBanks: bankPathsFor(path), // [{ name, path }]
-		bankQueue: bankPathsFor(path).map(b => b.name),
+		declaredBanks: declaredBanks,
+		bankQueue: declaredBanks.map(b => b.name),
 		bankState: {}, // name -> 'loading' | 'loaded'
 		bankLoading: false
 	};
@@ -763,7 +764,8 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 			// remove_tick ramp, the SAME fade a 2D body applies (EntityRender.renderLayer) — so a
 			// GR2 mob/NPC fades out on death/vanish instead of hard-popping. Opaque instances
 			// (alpha 1) stay on the no-blend fast path; only a fading instance flips blend on and
-			// back off (the outer save/restore only guards the BLEND enable bit).
+			// back off. The outer save/restore guards the BLEND enable bit; the blend func it may
+			// switch is reset to the resting default at pass end (see below).
 			let alpha = 1.0;
 			const e = inst.entity;
 			if (e) {
@@ -811,6 +813,9 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 	if (blendWasEnabled) {
 		gl.enable(gl.BLEND);
 	}
+	// House convention: leave the blend func at roBrowser's resting default (every effect
+	// restores this on exit) — a fading instance above may have switched it.
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	_poseCache = seen;
 
 	// Debug: paint the anchor cell of every instance (see _debugCell above).

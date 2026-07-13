@@ -309,6 +309,12 @@ function UpdateBody(job) {
 	// set is monsters/NPCs with no PC attachments. Revisit if a player-class GR2 model
 	// (e.g. a mount) is ever added.
 	if (path.match(/\.gr2$/i)) {
+		// Tripwire: the current GR2 set is monsters/NPCs, so this never fires. If a player-class
+		// GR2 (e.g. a mount) is ever added, its weapon/shield/bodypalette refresh would be silently
+		// dropped by the early return -- make that loud instead of a hard-to-trace visual gap.
+		if (this.objecttype === Entity.TYPE_PC && (this._weapon || this._shield)) {
+			console.warn('[GR2] Player-class GR2 body (' + path + '): weapon/shield/bodypalette refresh is skipped -- see UpdateBody.');
+		}
 		this.gr2 = GR2_MODEL_ROOT + path.replace(/^.*\//, '');
 		this.files.body.spr = null;
 		this.files.body.act = null;
