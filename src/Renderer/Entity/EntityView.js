@@ -291,11 +291,25 @@ function UpdateBody(job) {
 		return;
 	}
 
+	// getBodyPath returned null -> the entity has no body sprite at all (DBManager's
+	// "Not visible sprite" list: ANOPHELES 2337, ...). Not a GR2 case -- mirror the
+	// invisible branch above and return before the load. Keeps the .gr2 branch below
+	// strictly about genuine 3D models (no null.match() fall-through).
+	if (path === null) {
+		this.gr2 = null;
+		this.files.body.spr = null;
+		this.files.body.act = null;
+		return;
+	}
+
 	// GR2 3D body: rendered by GR2ModelRenderer through the Entity path (EntityRender
-	// attaches an instance on this.gr2). No 2D substitute sprite -- mirror the invisible
-	// branch above: record the model path, null the body sprite, return before the load.
-	if (path === null || path.match(/\.gr2$/i)) {
-		this.gr2 = path ? GR2_MODEL_ROOT + path.replace(/^.*\//, '') : null;
+	// attaches an instance on this.gr2). No 2D substitute sprite -- record the model
+	// path, null the body sprite, return before the load. Returning here also skips the
+	// bodypalette/weapon/shield refresh in the load callback below -- intentional: the GR2
+	// set is monsters/NPCs with no PC attachments. Revisit if a player-class GR2 model
+	// (e.g. a mount) is ever added.
+	if (path.match(/\.gr2$/i)) {
+		this.gr2 = GR2_MODEL_ROOT + path.replace(/^.*\//, '');
 		this.files.body.spr = null;
 		this.files.body.act = null;
 		return;
