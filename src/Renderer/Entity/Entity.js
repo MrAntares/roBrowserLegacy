@@ -126,6 +126,11 @@ class Entity {
 		this.matrix = mat4.create();
 		this.position = vec3.create();
 
+		// GR2 3D body: resolved model path (EntityView) + the renderer instance
+		// handle (EntityRender attaches, EntityManager detaches on removal).
+		this.gr2 = null;
+		this.gr2Model = null;
+
 		// Apply mixins (adds methods from each module)
 		entityControl.call(this);
 		entityAction.call(this);

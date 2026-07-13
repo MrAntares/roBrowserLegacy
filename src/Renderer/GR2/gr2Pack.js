@@ -139,3 +139,38 @@ export function quantizePoseTime(t, hz) {
 export function poseCacheKey(path, animIndex, quant) {
 	return path + '|' + animIndex + '|' + quant;
 }
+
+/**
+ * gr2ActionFor(entity) -> the GR2 action name for a mob entity's CURRENT action, read
+ * SEMANTICALLY via the entity's own ACTION enum (correct for MOB and NPC). Idle / state-0 /
+ * any unmapped action -> 'stand' (animated idx-0 standby; a missing bank falls to poseAt(-1)).
+ */
+export function gr2ActionFor(entity) {
+	const A = entity.ACTION;
+	const a = entity.action;
+	if (a === A.DIE) {
+		return 'dead';
+	}
+	if (a === A.HURT) {
+		return 'damage';
+	}
+	if (a === A.ATTACK || a === A.ATTACK1 || a === A.ATTACK2 || a === A.ATTACK3) {
+		return 'attack';
+	}
+	if (a === A.WALK) {
+		return 'move';
+	}
+	return 'stand';
+}
+
+/**
+ * frustumCullClip(x, y, w, margin) -> true when a clip-space point is off-screen (cull):
+ * behind the camera (w <= 0) or beyond the padded [-1,1] NDC box on x/y.
+ */
+export function frustumCullClip(x, y, w, margin) {
+	if (w <= 0) {
+		return true;
+	}
+	const m = (1 + margin) * w;
+	return x < -m || x > m || y < -m || y > m;
+}

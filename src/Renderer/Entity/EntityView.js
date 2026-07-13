@@ -171,7 +171,7 @@ function refreshHeadState() {
  * @param {number} job id
  */
 function UpdateBody(job) {
-	let baseJob, path;
+	let baseJob;
 	// Capture sequence number for stale callback detection
 	const transformationSeq = this._transformationSeq || 0;
 
@@ -226,7 +226,7 @@ function UpdateBody(job) {
 	// form (disguise or transformation) - otherwise a GM disguised as a monster
 	// shows the headless admin sprite instead of the monster.
 	const showAdminSprite = this.isAdmin && !shouldSuppressHead.call(this);
-	path = showAdminSprite ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
+	const path = showAdminSprite ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
 	const Entity = this.constructor;
 
 	// Define Object type based on its id
@@ -288,25 +288,16 @@ function UpdateBody(job) {
 		return;
 	}
 
-	// granny model not supported yet :(
-	// Display a poring instead
+	// GR2 3D body: rendered by GR2ModelRenderer through the Entity path (EntityRender
+	// attaches an instance on this.gr2). No 2D substitute sprite -- mirror the invisible
+	// branch above: record the model path, null the body sprite, return before the load.
 	if (path === null || path.match(/\.gr2$/i)) {
-		if (path.match(/aguardian90_8\.gr2$/i)) {
-			path = DB.getBodyPath(1276, this._sex);
-		} else if (path.match(/empelium90_0\.gr2$/i)) {
-			path = DB.getBodyPath(2080, this._sex);
-		} else if (path.match(/guildflag90_1\.gr2$/i)) {
-			path = DB.getBodyPath(1911, this._sex);
-		} else if (path.match(/kguardian90_7\.gr2$/i)) {
-			path = DB.getBodyPath(2691, this._sex);
-		} else if (path.match(/sguardian90_9\.gr2$/i)) {
-			path = DB.getBodyPath(1163, this._sex);
-		} else if (path.match(/treasurebox_2\.gr2$/i)) {
-			path = DB.getBodyPath(1191, this._sex);
-		} else {
-			path = DB.getBodyPath(1002, this._sex);
-		}
+		this.gr2 = path ? 'data/model/3dmob/' + path.replace(/^.*\//, '') : null;
+		this.files.body.spr = null;
+		this.files.body.act = null;
+		return;
 	}
+	this.gr2 = null;
 
 	// Loading
 	Client.loadFile(path + '.act');

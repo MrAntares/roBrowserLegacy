@@ -29,10 +29,19 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Session from 'Engine/SessionStorage.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import GR2Loader from 'Loaders/GR2Loader.js';
-import { poseAt } from 'granny-ro-js/wasm';
-import { packRobrowserInterleave, flattenPose, poseCacheKey, quantizePoseTime, recenterEmblem } from './gr2Pack.js';
+import { poseAt, parseAnimated } from 'granny-ro-js/wasm';
+import {
+	packRobrowserInterleave,
+	flattenPose,
+	poseCacheKey,
+	quantizePoseTime,
+	recenterEmblem,
+	gr2ActionFor,
+	frustumCullClip
+} from './gr2Pack.js';
 import { buildWorld, computeGroundOffset } from './gr2World.js';
-import { createActor, setAction, actorPose } from './actorAction.js';
+import { createActor, setAction, actorPose, ACTION } from './actorAction.js';
+import { bankPathsFor } from './gr2Banks.js';
 import _vertexShader from './GR2Model.vs?raw';
 import _fragmentShader from './GR2Model.fs?raw';
 
@@ -66,8 +75,24 @@ let _readyPromise = null;
 
 // Scratchpads to evade the GC.
 const _mv = mat4.create();
+const _mvp = mat4.create();
 const _nmat = mat3.create();
 const _lightView = new Float32Array(3);
+const _clip = new Float32Array(4);
+
+// Frustum-cull margin (NDC), padded so a model straddling the screen edge is not clipped
+// by its ground anchor alone.
+const CULL_MARGIN = 0.2;
+
+// Removal-fade toggles — both OFF by default = FAITHFUL. For a genuine 3D (.gr2) actor the
+// official mars26 client instantiates NEITHER the out-of-sight alpha fade NOR the death corpse
+// (CCorpse) — both are 2D-sprite-only; a genuine 3D actor hard-POPS on removal (verified by RE
+// on mars26; no alpha fade-in on spawn either). Our GR2 roster (guardians, Emperium, guild
+// flag, treasure box) IS that 3D set, so popping is correct. Set a toggle true to A/B a
+// roBrowser-parity fade over remove_delay instead (NON-authentic). Exported -> runtime-mutable:
+// RO.load('Renderer/GR2/GR2ModelRenderer').FADE.death.
+//   death  -> the DIE removal        vanish -> the out-of-sight removal
+const FADE = { death: false, vanish: false };
 
 /**
  * Initialize the shader program.
@@ -86,6 +111,7 @@ function init(gl) {
 		uLightDiffuse: gl.getUniformLocation(_program, 'uLightDiffuse'),
 		uLightEnv: gl.getUniformLocation(_program, 'uLightEnv'),
 		uAlphaRef: gl.getUniformLocation(_program, 'uAlphaRef'),
+		uAlpha: gl.getUniformLocation(_program, 'uAlpha'),
 		uFogUse: gl.getUniformLocation(_program, 'uFogUse'),
 		uFogNear: gl.getUniformLocation(_program, 'uFogNear'),
 		uFogFar: gl.getUniformLocation(_program, 'uFogFar'),
@@ -222,7 +248,14 @@ function acquire(path) {
 		boneCount: 0,
 		duration: 1,
 		submeshes: null,
-		textures: null
+		textures: null,
+		// External animation banks (data/model/3dmob_bone/<setId>_<suffix>.gr2) loaded
+		// lazily, prioritised by the current action (see pumpBanks). The main .gr2 gives
+		// the mesh + embedded standby; move/attack/dead/damage stream in on demand.
+		declaredBanks: bankPathsFor(path), // [{ name, path }]
+		bankQueue: bankPathsFor(path).map(b => b.name),
+		bankState: {}, // name -> 'loading' | 'loaded'
+		bankLoading: false
 	};
 	_types[path] = type;
 
@@ -237,15 +270,20 @@ function acquire(path) {
 				if (_types[path] !== type) {
 					return;
 				}
-				const loader = new GR2Loader(buffer);
-				type.parsed = loader.parsed;
-				type.meshes = loader.meshes;
-				recenterEmblem(type.meshes); // render-only: centre the off-baked emblem on the banner
-				type.groundOffset = computeGroundOffset(type.meshes); // drop the base onto the terrain
-				type.ipRow = loader.ipRow;
-				type.boneCount = loader.boneCount;
-				type.duration = loader.duration;
-				type.cpuReady = true;
+				try {
+					const loader = new GR2Loader(buffer);
+					type.parsed = loader.parsed;
+					type.meshes = loader.meshes;
+					recenterEmblem(type.meshes); // render-only: centre the off-baked emblem on the banner
+					type.groundOffset = computeGroundOffset(type.meshes); // drop the base onto the terrain
+					type.aabb = computeLocalAABB(type.meshes); // local bounds for the screen-space pick box
+					type.ipRow = loader.ipRow;
+					type.boneCount = loader.boneCount;
+					type.duration = loader.duration;
+					type.cpuReady = true;
+				} catch (e) {
+					console.error('[GR2ModelRenderer] decode failed', path, e);
+				}
 			});
 		},
 		function () {
@@ -304,6 +342,82 @@ function mat3MulVec3(m, v, out) {
 	out[2] = m[2] * v[0] + m[6] * v[1] + m[10] * v[2];
 }
 
+/**
+ * computeLocalAABB(meshes) -> the model's local bind-pose axis-aligned bounds { min, max }, or
+ * null if empty. Used to project a screen-space pick box (see computeScreenRect) — the GR2 path
+ * suppresses the 2D sprite body, which is what normally fills entity.boundingRect.
+ */
+function computeLocalAABB(meshes) {
+	let minX = Infinity,
+		minY = Infinity,
+		minZ = Infinity;
+	let maxX = -Infinity,
+		maxY = -Infinity,
+		maxZ = -Infinity;
+	for (let k = 0; k < meshes.length; k++) {
+		const bind = meshes[k].bind;
+		const vc = meshes[k].vcount;
+		for (let i = 0; i < vc; i++) {
+			const x = bind[i * 3];
+			const y = bind[i * 3 + 1];
+			const z = bind[i * 3 + 2];
+			if (x < minX) minX = x;
+			if (x > maxX) maxX = x;
+			if (y < minY) minY = y;
+			if (y > maxY) maxY = y;
+			if (z < minZ) minZ = z;
+			if (z > maxZ) maxZ = z;
+		}
+	}
+	if (minX === Infinity) {
+		return null;
+	}
+	return { min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
+}
+
+/**
+ * computeScreenRect(aabb, mvp, out) -> project the 8 AABB corners through mvp to a screen-space
+ * rect (window pixels, y-down: x1/y1 = min, x2/y2 = max), written into `out`. Returns false when
+ * every corner is behind the camera. Mirrors EntityRender.calculateBoundingRect's NDC->pixel map
+ * so the projected box lines up with EntityManager's mouse-space pick test.
+ */
+function computeScreenRect(aabb, mvp, out) {
+	const min = aabb.min;
+	const max = aabb.max;
+	const halfW = window.innerWidth * 0.5;
+	const halfH = window.innerHeight * 0.5;
+	let minX = Infinity,
+		minY = Infinity,
+		maxX = -Infinity,
+		maxY = -Infinity;
+	let any = false;
+	for (let i = 0; i < 8; i++) {
+		const x = i & 1 ? max[0] : min[0];
+		const y = i & 2 ? max[1] : min[1];
+		const z = i & 4 ? max[2] : min[2];
+		const cw = mvp[3] * x + mvp[7] * y + mvp[11] * z + mvp[15];
+		if (cw <= 1e-6) {
+			continue;
+		}
+		const inv = 1 / cw;
+		const sx = halfW * (1 + (mvp[0] * x + mvp[4] * y + mvp[8] * z + mvp[12]) * inv);
+		const sy = halfH * (1 - (mvp[1] * x + mvp[5] * y + mvp[9] * z + mvp[13]) * inv);
+		if (sx < minX) minX = sx;
+		if (sx > maxX) maxX = sx;
+		if (sy < minY) minY = sy;
+		if (sy > maxY) maxY = sy;
+		any = true;
+	}
+	if (!any) {
+		return false;
+	}
+	out.x1 = minX;
+	out.y1 = minY;
+	out.x2 = maxX;
+	out.y2 = maxY;
+	return true;
+}
+
 function normalize3(v) {
 	const len = Math.hypot(v[0], v[1], v[2]) || 1;
 	v[0] /= len;
@@ -337,10 +451,16 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 	// Per-frame constant uniforms.
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-	gl.uniform1f(uniform.uLightOpacity, 1.0);
-	gl.uniform3fv(uniform.uLightDiffuse, _phaseDiffuse);
-	gl.uniform3fv(uniform.uLightAmbient, _phaseAmbient);
-	gl.uniform3fv(uniform.uLightEnv, _phaseEnv);
+	// Drive the GR2 shade from the map's own light (parity with Models.js / AnimatedModels.js
+	// — the GR2 .fs math is byte-identical). Falls back to the Phase-0 baked grays if a map
+	// somehow omits a field (dev spawn always has light; the render early-returns without it).
+	// Drive the GR2 shade from the map's own light (parity with Models.js / AnimatedModels.js
+	// — the GR2 .fs math is byte-identical). Falls back to the Phase-0 baked grays if a map
+	// omits a field (dev spawn always has light; the render early-returns without it).
+	gl.uniform1f(uniform.uLightOpacity, light.opacity != null ? light.opacity : 1.0);
+	gl.uniform3fv(uniform.uLightDiffuse, light.diffuse || _phaseDiffuse);
+	gl.uniform3fv(uniform.uLightAmbient, light.ambient || _phaseAmbient);
+	gl.uniform3fv(uniform.uLightEnv, light.env || _phaseEnv);
 	gl.uniform1f(uniform.uAlphaRef, ALPHA_REF);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 	gl.uniform1f(uniform.uFogNear, fog.near);
@@ -368,14 +488,31 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 				continue;
 			}
 
+			// Entity-backed instance: pull pos/dir/action from the live entity (1-frame lag —
+			// this pass runs before EntityManager.render) and prioritise its bank load.
+			if (inst.entity) {
+				syncFromEntity(inst, type, tick);
+			}
+
+			// Frustum cull BEFORE posing — a culled instance neither poses nor draws. The anchor
+			// negates the height to match buildWorld's world-Y (-position[2]).
+			worldAnchorToClip(inst.pos, modelView, projection, _clip);
+			if (frustumCullClip(_clip[0], _clip[1], _clip[3], CULL_MARGIN)) {
+				// Off-screen: drop the stale pick box so the hover test can't match it (the entity
+				// falls back to EntityRender's default box, which is off-screen anyway).
+				inst.screenRect = null;
+				continue;
+			}
+
 			// Build the instance world matrix once the type (its ipRow) is known. Entity
-			// positions are [cellX, cellY, height]; roBrowser's world axes are X=cellX,
-			// Y=height (up), Z=cellY — so swap Y/Z into buildWorld's ground-plane frame (the
-			// same swap Camera.update does: _position[1]=pos[2], _position[2]=pos[1]).
+			// positions are [cellX, cellY, position[2]] where position[2] = getCellHeight (a
+			// NEGATED terrain height). roBrowser's world-Y (up) is -position[2] (see the 2D sprite
+			// Project(): `y = -pos.z`), so negate p[2] into buildWorld's up axis — else the
+			// placement error is proportional to the terrain height (flat OK, hills sink/vanish).
 			if (!inst.worldBuilt) {
 				const p = inst.pos;
 				// RO direction is an 8-way index (0-7); the world yaw wants degrees (45 deg/step).
-				inst.world = buildWorld(inst.dir * 45, [p[0], p[2], p[1]], type.ipRow, {
+				inst.world = buildWorld(inst.dir * 45, [p[0], -p[2], p[1]], type.ipRow, {
 					heightOffset: type.groundOffset
 				});
 				inst.worldBuilt = true;
@@ -403,11 +540,50 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 			gl.uniformMatrix3fv(uniform.uNormalMat, false, _nmat);
 			gl.uniformMatrix4fv(uniform.uBones, false, bones);
 
+			// Project the model AABB to a screen-space pick box for EntityManager's hover/click
+			// test. Stashed on the instance (not entity.boundingRect) because Entity.render()
+			// resets that rect after this map pass; EntityRender.calculateBoundingRect copies it.
+			if (inst.entity && type.aabb) {
+				mat4.multiply(_mvp, projection, _mv);
+				const box = inst.screenRect || (inst.screenRect = { x1: 0, y1: 0, x2: 0, y2: 0 });
+				if (!computeScreenRect(type.aabb, _mvp, box)) {
+					inst.screenRect = null;
+				}
+			}
+
+			// Removal fade: honour the entity's current alpha — effectColor[3] scaled by the
+			// remove_tick ramp, the SAME fade a 2D body applies (EntityRender.renderLayer) — so a
+			// GR2 mob/NPC fades out on death/vanish instead of hard-popping. Opaque instances
+			// (alpha 1) stay on the no-blend fast path; only a fading instance flips blend on and
+			// back off (the outer save/restore only guards the BLEND enable bit).
+			let alpha = 1.0;
+			const e = inst.entity;
+			if (e) {
+				alpha = e.effectColor[3];
+				if (e.remove_tick && e.remove_delay) {
+					const isDeath = e.action === e.ACTION.DIE;
+					if (isDeath ? FADE.death : FADE.vanish) {
+						alpha *= 1 - (Date.now() - e.remove_tick) / e.remove_delay;
+					}
+				}
+				alpha = alpha < 0 ? 0 : alpha > 1 ? 1 : alpha;
+			}
+			gl.uniform1f(uniform.uAlpha, alpha);
+			const fading = alpha < 1;
+			if (fading) {
+				gl.enable(gl.BLEND);
+				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			}
+
 			for (let s = 0; s < type.submeshes.length; s++) {
 				const sm = type.submeshes[s];
 				gl.bindTexture(gl.TEXTURE_2D, sm.tex);
 				gl.bindVertexArray(sm.vao);
 				gl.drawElements(gl.TRIANGLES, sm.count, gl.UNSIGNED_SHORT, 0);
+			}
+
+			if (fading) {
+				gl.disable(gl.BLEND);
 			}
 		}
 	});
@@ -416,6 +592,151 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 		gl.enable(gl.BLEND);
 	}
 	_poseCache = seen;
+}
+
+// worldAnchorToClip(pos, modelView, projection, out4): project the instance ground anchor to
+// clip space for the frustum cull. Mirrors buildWorld's frame: world-X = cellX, world-Y (up) =
+// -position[2] (the negated terrain height), world-Z = cellY.
+function worldAnchorToClip(pos, modelView, projection, out) {
+	const x = pos[0];
+	const y = -pos[2];
+	const z = pos[1];
+	const vx = modelView[0] * x + modelView[4] * y + modelView[8] * z + modelView[12];
+	const vy = modelView[1] * x + modelView[5] * y + modelView[9] * z + modelView[13];
+	const vz = modelView[2] * x + modelView[6] * y + modelView[10] * z + modelView[14];
+	const vw = modelView[3] * x + modelView[7] * y + modelView[11] * z + modelView[15];
+	out[0] = projection[0] * vx + projection[4] * vy + projection[8] * vz + projection[12] * vw;
+	out[1] = projection[1] * vx + projection[5] * vy + projection[9] * vz + projection[13] * vw;
+	out[2] = projection[2] * vx + projection[6] * vy + projection[10] * vz + projection[14] * vw;
+	out[3] = projection[3] * vx + projection[7] * vy + projection[11] * vz + projection[15] * vw;
+}
+
+/**
+ * pumpBanks(type, priorityName): per-type sequential loader for the external animation
+ * banks. The current action's bank (priorityName) jumps to the front of the queue; one bank
+ * is fetched at a time and grafted into the shared type.parsed.animations at its action slot
+ * (loaded once for every instance of that type). A 404 drops the name (stays bind pose).
+ */
+function pumpBanks(type, priorityName) {
+	const queue = type.bankQueue;
+
+	// Re-prioritise: the current action's bank jumps the queue ("change la priorité au besoin").
+	if (priorityName) {
+		const at = queue.indexOf(priorityName);
+		if (at > 0) {
+			queue.splice(at, 1);
+			queue.unshift(priorityName);
+		}
+	}
+
+	if (type.bankLoading || queue.length === 0) {
+		return;
+	}
+
+	const name = queue.shift();
+	const entry = type.declaredBanks.find(b => b.name === name);
+	if (!entry) {
+		return;
+	}
+	type.bankLoading = true;
+	type.bankState[name] = 'loading';
+	Client.getFile(
+		entry.path,
+		function (buffer) {
+			type.bankLoading = false;
+			// The type may have been freed during the async fetch.
+			if (_types[type.path] === type && type.parsed) {
+				const bank = parseAnimated(new Uint8Array(buffer));
+				type.parsed.animations[ACTION[name].idx] = bank.animations[0];
+				type.bankState[name] = 'loaded';
+			}
+			pumpBanks(type);
+		},
+		function () {
+			type.bankLoading = false;
+			delete type.bankState[name];
+			pumpBanks(type);
+		}
+	);
+}
+
+// syncFromEntity(inst, type, tick): pull the live entity's pos/dir/action onto the instance
+// each frame. NPC instances (standbyIdx < 0) are never action-driven (static bind pose); MOB
+// instances map their action enum to a GR2 action and priority-load that bank.
+function syncFromEntity(inst, type, tick) {
+	const e = inst.entity;
+	const p = e.position;
+	const dir = e.direction;
+	if (inst.pos[0] !== p[0] || inst.pos[1] !== p[1] || inst.pos[2] !== p[2] || inst.dir !== dir) {
+		inst.pos[0] = p[0];
+		inst.pos[1] = p[1];
+		inst.pos[2] = p[2];
+		inst.dir = dir;
+		inst.worldBuilt = false;
+	}
+
+	if (inst.standbyIdx < 0) {
+		return;
+	}
+
+	const name = gr2ActionFor(e);
+	pumpBanks(type, name);
+	// Re-cut on a name change OR a re-issued action with the same name. The client restarts the
+	// clip on every ZC_NOTIFY_ACT (SetAction = hard clock reset, no same-action dedup); a name-only
+	// guard latched one-shot actions — an immobile plant re-hit stays entity.action=HURT, so the
+	// hurt clip plays once and never replays. The entity bumps animation.tick on every setAction()
+	// (EntityAction), so a changed tick is the faithful "re-issued this frame" signal.
+	const animTick = e.animation.tick;
+	if (name !== inst._lastAction || animTick !== inst._lastTick) {
+		setAction(inst.actor, name, tick);
+		inst.actor.loop = name === 'move';
+		inst._lastAction = name;
+		inst._lastTick = animTick;
+	}
+}
+
+/**
+ * attach(entity): create a GR2 instance bound to a mob/NPC entity. standbyIdx is classified
+ * by objecttype — NPC -> -1 (static poseAt(-1); SetAction never fires) vs MOB -> 0 (animated
+ * idx-0 standby). The renderer pulls pos/dir/action from the entity each frame (syncFromEntity).
+ */
+function attach(entity) {
+	acquire(entity.gr2);
+	const p = entity.position;
+	const isNpc = entity.objecttype === entity.constructor.TYPE_NPC;
+	const inst = {
+		entity: entity,
+		path: entity.gr2,
+		world: null,
+		worldBuilt: false,
+		actor: createActor(),
+		dir: entity.direction,
+		pos: [p[0], p[1], p[2]],
+		standbyIdx: isNpc ? -1 : 0,
+		animIndex: 0,
+		t: 0,
+		_lastAction: 'stand',
+		_lastTick: 0,
+		screenRect: null
+	};
+	_instances.push(inst);
+	return inst;
+}
+
+/**
+ * detach(inst): drop an entity's GR2 instance (called from EntityManager on removal). The type
+ * GL resources stay cached until map unload (free); the type set is bounded, so no leak.
+ */
+function detach(inst) {
+	const idx = _instances.indexOf(inst);
+	if (idx !== -1) {
+		_instances.splice(idx, 1);
+	}
+	const type = _types[inst.path];
+	if (type && type.refcount > 0) {
+		type.refcount--;
+	}
+	inst.entity = null;
 }
 
 /**
@@ -500,7 +821,10 @@ export default {
 	init: init,
 	free: free,
 	render: render,
+	attach: attach,
+	detach: detach,
 	spawn: spawn,
 	spawnMany: spawnMany,
-	clear: clear
+	clear: clear,
+	FADE: FADE
 };

@@ -7,6 +7,7 @@ out vec4 fragColor;
 
 uniform sampler2D uDiffuse;
 uniform float uAlphaRef;      // client HARD alpha-test (207/255), not roBrowser's a == 0.0
+uniform float uAlpha;         // per-instance entity alpha (removal fade); 1.0 = opaque
 
 uniform bool uFogUse;
 uniform float uFogNear;
@@ -31,7 +32,9 @@ void main(void) {
 	vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);
 	textureSample.rgb *= clamp(color, 0.0, 1.0);
 	textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);
-	textureSample.a = 1.0;
+	// Kept fragments are opaque except during a removal fade, where uAlpha ramps the FINAL alpha
+	// down (the discard above already cut the texture edge). uAlpha = 1.0 -> unchanged.
+	textureSample.a = uAlpha;
 
 	fragColor = textureSample;
 

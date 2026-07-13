@@ -19,6 +19,7 @@ import Session from 'Engine/SessionStorage.js';
 import JobId from 'DB/Jobs/JobConst.js';
 import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
+import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 
 /**
  * Load dependencies
@@ -42,6 +43,16 @@ const WALK_DIST_TO_MOTION = WALK_STEP_SIZE * 0.37 * 4 * 25; // ≈ 170.2
  * @param {mat4} projection
  */
 function render(modelView, projection) {
+	// GR2 3D body: attach (or re-attach on a body change) an instance the renderer draws in
+	// the map pass. The billboard body + shadow are suppressed below while this.gr2 is set.
+	if (this.gr2Model && this.gr2Model.path !== this.gr2) {
+		GR2ModelRenderer.detach(this.gr2Model);
+		this.gr2Model = null;
+	}
+	if (this.gr2 && !this.gr2Model) {
+		this.gr2Model = GR2ModelRenderer.attach(this);
+	}
+
 	// Process action
 	this.animations.process();
 
@@ -170,6 +181,27 @@ const calculateBoundingRect = (function calculateBoundingRectClosure() {
 		const rect = entity.boundingRect;
 		const minSize = entity.objecttype === entity.constructor.TYPE_ITEM ? 30 : 60;
 
+		// GR2 3D body: renderEntity early-returns for GR2, so no sprite body accumulates a rect.
+		// Use the screen-space box the GR2 renderer projected from the model AABB this frame so the
+		// hover/click test matches the visible model instead of the tiny default sprite box.
+		const gr2Model = entity.gr2Model;
+		if (gr2Model && gr2Model.screenRect) {
+			const sr = gr2Model.screenRect;
+			rect.x1 = sr.x1;
+			rect.y1 = sr.y1;
+			rect.x2 = sr.x2;
+			rect.y2 = sr.y2;
+			if (rect.x2 - rect.x1 < minSize) {
+				rect.x1 = (rect.x1 + rect.x2) * 0.5 - minSize * 0.5;
+				rect.x2 = rect.x1 + minSize;
+			}
+			if (rect.y2 - rect.y1 < minSize) {
+				rect.y1 = (rect.y1 + rect.y2) * 0.5 - minSize * 0.5;
+				rect.y2 = rect.y1 + minSize;
+			}
+			return;
+		}
+
 		// No body ? Default picking (sprite 110 for example)
 		if (rect.x1 === Infinity || rect.x2 === -Infinity || rect.y1 === -Infinity || rect.y2 === Infinity) {
 			rect.x1 = -25;
@@ -231,6 +263,13 @@ const renderEntity = (function renderEntityClosure() {
 		// Animation change ! Get it now
 		if (animation.save && animation.delay < Date.now()) {
 			this.setAction(animation.save);
+		}
+
+		// GR2 3D body: the model is drawn by GR2ModelRenderer in the map pass. Suppress the 2D
+		// billboard body AND the shadow blob (Phase 0: no blob under a GR2). Name / lifebar /
+		// emblem overlays render in renderGUI (called separately) and are kept.
+		if (this.gr2) {
+			return;
 		}
 
 		// Avoid look up, render as IDLE all not supported frames
