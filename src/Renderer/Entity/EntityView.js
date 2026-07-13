@@ -17,6 +17,9 @@ import EntityAction from './EntityAction.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import JobConst from 'DB/Jobs/JobConst.js';
 
+// Client directory the GR2 3D-mob models resolve against (GR2ModelRenderer fetches from here).
+const GR2_MODEL_ROOT = 'data/model/3dmob/';
+
 /**
  * Files to display a view
  *
@@ -292,7 +295,7 @@ function UpdateBody(job) {
 	// attaches an instance on this.gr2). No 2D substitute sprite -- mirror the invisible
 	// branch above: record the model path, null the body sprite, return before the load.
 	if (path === null || path.match(/\.gr2$/i)) {
-		this.gr2 = path ? 'data/model/3dmob/' + path.replace(/^.*\//, '') : null;
+		this.gr2 = path ? GR2_MODEL_ROOT + path.replace(/^.*\//, '') : null;
 		this.files.body.spr = null;
 		this.files.body.act = null;
 		return;

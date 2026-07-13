@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildWorld, flagCore, computeGroundOffset, RB_UNIT_SCALE, RB_PLACEMENT_OFS } from 'Renderer/GR2/gr2World.js';
+import { buildWorld, worldCore, computeGroundOffset, RB_UNIT_SCALE, RB_PLACEMENT_OFS } from 'Renderer/GR2/gr2World.js';
 
 // Row-major flat mat4 (v.M): 3x3 linear at [0,1,2 / 4,5,6 / 8,9,10], translation at [12,13,14].
 const rowMag = (m, r) => Math.hypot(m[r * 4], m[r * 4 + 1], m[r * 4 + 2]);
@@ -53,8 +53,8 @@ describe('gr2World.buildWorld — /5 referential (build-7 reconciliation)', () =
 		}
 	});
 
-	it('flagCore leaves position unscaled (scale hits geometry, not translation)', () => {
-		const core = flagCore(90, [4, 0, 8]);
+	it('worldCore leaves position unscaled (scale hits geometry, not translation)', () => {
+		const core = worldCore(90, [4, 0, 8]);
 		expect(Math.abs(core[12] - (4 + RB_PLACEMENT_OFS))).toBeLessThan(1e-6);
 		expect(Math.abs(core[14] - (8 + RB_PLACEMENT_OFS))).toBeLessThan(1e-6);
 	});
@@ -76,7 +76,7 @@ describe('gr2World.computeGroundOffset — grounds in the model IP frame', () =>
 	it('a non-identity ipRow changes the grounding (IP is threaded, not ignored)', () => {
 		const offIdentity = computeGroundOffset([mesh], null);
 		const offRotated = computeGroundOffset([mesh], ipRotX);
-		// The IP reorients the mesh before flagCore, so the world-Y extreme differs -> different
+		// The IP reorients the mesh before worldCore, so the world-Y extreme differs -> different
 		// heightOffset. Equality here would mean the IP was dropped (the pre-fix bug).
 		expect(Math.abs(offIdentity - offRotated)).toBeGreaterThan(1e-3);
 	});

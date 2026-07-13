@@ -13,18 +13,7 @@
  */
 
 import { parseTextured, parseAnimated, parseGR2File, loadGR2, extractModels, ready } from 'granny-ro-js/wasm';
-
-/**
- * Action clip indices (mirrors the client 3dmob SetAction state machine).
- * Used to graft external animation banks at their action slot.
- */
-const ACTION = {
-	stand: 0,
-	move: 1,
-	attack: 2,
-	dead: 3,
-	damage: 4
-};
+import { mul, trans, IDENTITY_ROW } from 'Renderer/GR2/gr2Math.js';
 
 /**
  * granny TRANSFORM_FLAGS bits gating which InitialPlacement components are live.
@@ -32,26 +21,6 @@ const ACTION = {
 const HAS_POSITION = 1;
 const HAS_ORIENTATION = 2;
 const HAS_SCALESHEAR = 4;
-
-const IDENTITY_ROW = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-
-// Row-vector 4x4 multiply (D3D convention v' = v.M). granny-ro-js hands back
-// row-major matrices; the flat array goes straight to GL column-major (its transpose).
-function _mul(a, b) {
-	const o = new Array(16);
-	for (let r = 0; r < 4; r++) {
-		for (let c = 0; c < 4; c++) {
-			let s = 0;
-			for (let k = 0; k < 4; k++) {
-				s += a[r * 4 + k] * b[k * 4 + c];
-			}
-			o[r * 4 + c] = s;
-		}
-	}
-	return o;
-}
-
-const _trans = (x, y, z) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1];
 
 // Quaternion (x,y,z,w) to a row-vector rotation matrix (transpose of the column-vector form).
 function _quatToRow(x, y, z, w) {
@@ -121,22 +90,6 @@ class GR2Loader {
 	}
 
 	/**
-	 * Graft external animation banks into this.parsed.animations at their action slot.
-	 * bankBuffers is a map { dead: ArrayBuffer, damage: ArrayBuffer, ... }; a bank is
-	 * animation-only and joins the model skeleton by bone name at pose time (no index remap).
-	 */
-	graftBanks(bankBuffers) {
-		for (const name in bankBuffers) {
-			const slot = ACTION[name];
-			if (slot == null) {
-				continue;
-			}
-			const bank = parseAnimated(new Uint8Array(bankBuffers[name]));
-			this.parsed.animations[slot] = bank.animations[0];
-		}
-	}
-
-	/**
 	 * packModel(parsed) -> { meshes:[{ name, vcount, indices, bind, bidx, bw, uv, nrm, texFile, emblem }], boneCount }.
 	 * Per-vertex attribute arrays: bind pos(3), GLOBAL bone indices(4), normalized top-4 weights(4),
 	 * uv(2), bind normals(3). Matless proxy submeshes are dropped (the client binds no shader for them).
@@ -200,7 +153,8 @@ class GR2Loader {
 				}
 			}
 
-			const texFile = (m.materials && m.materials[0] && m.materials[0].textureFile) || '';
+			const mat0 = m.materials && m.materials[0];
+			const texFile = (mat0 && mat0.textureFile) || '';
 			return {
 				name: m.name,
 				vcount: N,
@@ -238,22 +192,22 @@ class GR2Loader {
 		let M = IDENTITY_ROW.slice();
 		if (t.flags & HAS_SCALESHEAR) {
 			const s = t.scaleShear;
-			M = _mul(M, [s[0], s[1], s[2], 0, s[3], s[4], s[5], 0, s[6], s[7], s[8], 0, 0, 0, 0, 1]);
+			M = mul(M, [s[0], s[1], s[2], 0, s[3], s[4], s[5], 0, s[6], s[7], s[8], 0, 0, 0, 0, 1]);
 		}
 		if (t.flags & HAS_ORIENTATION) {
 			const q = t.orientation;
-			M = _mul(M, _quatToRow(q[0], q[1], q[2], q[3]));
+			M = mul(M, _quatToRow(q[0], q[1], q[2], q[3]));
 		}
 		if (t.flags & HAS_POSITION) {
 			const p = t.position;
-			M = _mul(M, _trans(-p[0], -p[1], -p[2]));
+			M = mul(M, trans(-p[0], -p[1], -p[2]));
 		}
 		return M;
 	}
 
 	/**
 	 * Initialize the granny-ro-js WASM (texture pixel decode only). The geometry / skeleton /
-	 * animation decode is WASM-independent; call this before decoding textures (session 5).
+	 * animation decode is WASM-independent; call this before decoding textures.
 	 */
 	static ready() {
 		return ready();

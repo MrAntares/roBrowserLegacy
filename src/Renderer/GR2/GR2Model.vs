@@ -14,7 +14,8 @@ uniform mat4 uModelViewMat;   // Camera view * instance world
 uniform mat4 uProjectionMat;
 uniform mat3 uNormalMat;      // normal-matrix of (view * world) -> VIEW space
 
-uniform mat4 uBones[48];      // GPU skin, BONE_CAP = 48
+uniform mat4 uBones[48];      // GPU skin. MUST equal gr2Pack.js BONE_CAP (48) — GLSL can't import
+                              // it, so this literal is the hand-synced mirror; change both together.
 
 uniform vec3 uLightDirection; // scene light direction, VIEW space
 uniform float uLightOpacity;

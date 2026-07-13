@@ -15,9 +15,9 @@
  *   - Bones: mat4 uBones[48] uniform + one draw per submesh per instance.
  *
  * Wired at the AnimatedModels seam of MapRenderer.onRender, wrapped in
- * SpriteRenderer.runWithDepth(true, true, true). Frustum/distance culling is deferred to the
- * Entity-integration pass (needs the populated EntityManager). Drive it from the /api.html
- * console via window.RO.load('Renderer/GR2/GR2ModelRenderer'): RO.spawn(path, {pos, dir, action}).
+ * SpriteRenderer.runWithDepth(true, true, true). Each instance frustum-culls on its ground anchor
+ * before posing (see frustumCullClip in render()). Drive it from the /api.html console via
+ * window.RO.load('Renderer/GR2/GR2ModelRenderer'): RO.spawn(path, {pos, dir, action}).
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
@@ -37,7 +37,8 @@ import {
 	poseCacheKey,
 	quantizePoseTime,
 	gr2ActionFor,
-	frustumCullClip
+	frustumCullClip,
+	POSE_HZ
 } from './gr2Pack.js';
 import { buildWorld, computeGroundOffset } from './gr2World.js';
 import { createActor, setAction, actorPose, ACTION } from './actorAction.js';
@@ -70,7 +71,10 @@ const _gr2FlagDiffuse = new Float32Array([100 / 255, 100 / 255, 100 / 255]); // 
 const _gr2EmpDiffuse = new Float32Array([128 / 255, 128 / 255, 128 / 255]); // 0.502
 const _gr2EmpAmbient = new Float32Array([127 / 255, 127 / 255, 127 / 255]); // 0.498
 const _gr2FlagAmbient = new Float32Array(3); // scratch: per-frame grayscale of the map ambient
-const _gr2EmpSet = { empelium90_0: 1, kguardian90_7: 1, aguardian90_8: 1, sguardian90_9: 1, treasurebox_2: 1 };
+// Per-model lighting dispatch keys (.gr2 basenames). The guild flag runtime-tints its ambient off
+// the map light; the Emperium set uses the fixed byte-decided grays.
+const GR2_MODEL_GUILDFLAG = 'guildflag90_1';
+const GR2_EMP_MODELS = { empelium90_0: 1, kguardian90_7: 1, aguardian90_8: 1, sguardian90_9: 1, treasurebox_2: 1 };
 
 // Lowercased .gr2 basename (no dir, no extension) — the per-model lighting key.
 function gr2Basename(path) {
@@ -96,7 +100,8 @@ let _gl = null;
 // Per-type resource cache (key = gr2 path).
 let _types = {};
 
-// Live instances: { path, world, worldBuilt, actor, dir, pos, standbyIdx, animIndex, t }.
+// Live instances: { path, world, worldBuilt, actor, dir, pos, standbyIdx, animIndex, t,
+// _lastAction, _lastTick, screenRect, emblemTex, _emblemImg } (+ entity, attached on bind).
 let _instances = [];
 
 // Pose cache — set each frame to only the poses used that frame (bounds memory, keeps the
@@ -104,7 +109,7 @@ let _instances = [];
 let _poseCache = {};
 
 // Debug aid: highlight each instance's anchor CELL with a flat tile. The tile marks the cell
-// CENTER (its shader adds +0.5) — the SAME cell centre the model's origin now lands on (flagCore
+// CENTER (its shader adds +0.5) — the SAME cell centre the model's origin now lands on (worldCore
 // adds RB_PLACEMENT_OFS = +0.5), so tile and pole should COINCIDE; a visible offset between them
 // means a placement regression. Toggle from the dev console (`mod.debugCell = true`); off by
 // default, no gameplay effect.
@@ -138,6 +143,12 @@ const _clip = new Float32Array(4);
 // Frustum-cull margin (NDC), padded so a model straddling the screen edge is not clipped
 // by its ground anchor alone.
 const CULL_MARGIN = 0.2;
+
+// Clip-w floor: a projected point with w <= this is on/behind the camera plane, skip it.
+const CLIP_W_EPS = 1e-6;
+
+// RO direction is an 8-way index (0-7); the world yaw wants degrees (45 deg per step).
+const DIR_STEP_DEG = 45;
 
 // Removal-fade toggles — both OFF by default = FAITHFUL. For a genuine 3D (.gr2) actor the
 // official mars26 client instantiates NEITHER the out-of-sight alpha fade NOR the death corpse
@@ -189,9 +200,10 @@ function init(gl) {
 function free(gl) {
 	for (const path in _types) {
 		const type = _types[path];
-		if (type.submeshes) {
-			for (let s = 0; s < type.submeshes.length; s++) {
-				const sm = type.submeshes[s];
+		const submeshes = type.submeshes;
+		if (submeshes) {
+			for (let s = 0; s < submeshes.length; s++) {
+				const sm = submeshes[s];
 				gl.deleteVertexArray(sm.vao);
 				gl.deleteBuffer(sm.vbo);
 				gl.deleteBuffer(sm.ibo);
@@ -235,6 +247,11 @@ function keyGr2Magenta(px) {
 	return out;
 }
 
+// 1x1 fallback pixels. A granny texture that decoded no pixels -> a neutral grey placeholder;
+// a submesh whose texFile matches no embedded texture -> the shared __grey stand-in.
+const TEX_MISSING_PX = new Uint8Array([200, 200, 200, 255]);
+const TEX_GREY_PX = new Uint8Array([180, 180, 185, 255]);
+
 /**
  * makeTypeTextures(gl, parsed) -> { byFile:{ textureFile -> GLTexture } }. One texture per
  * embedded granny texture, keyed by its file name (the string a packed mesh carries in
@@ -260,17 +277,7 @@ function makeTypeTextures(gl, parsed) {
 				keyGr2Magenta(t.pixels)
 			);
 		} else {
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				1,
-				1,
-				0,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				new Uint8Array([200, 200, 200, 255])
-			);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, TEX_MISSING_PX);
 		}
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -280,16 +287,18 @@ function makeTypeTextures(gl, parsed) {
 	}
 	const grey = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, grey);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([180, 180, 185, 255]));
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, TEX_GREY_PX);
 	byFile.__grey = grey;
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	return { byFile: byFile };
 }
 
 // A4R4G4B4 4-bit quantize — the client's on-load emblem format (byte-cited fcn.0054e1d0 class-1).
+// Drop each channel to 4 bits then replicate the nibble across the byte (nibble ×0x11: 0..15 -> 0..255).
+const A4_NIBBLE_EXPAND = 0x11;
 function quantize4bit(px) {
 	for (let i = 0; i < px.length; i++) {
-		px[i] = (px[i] >> 4) * 0x11;
+		px[i] = (px[i] >> 4) * A4_NIBBLE_EXPAND;
 	}
 }
 
@@ -378,7 +387,7 @@ function acquire(path) {
 					type.parsed = loader.parsed;
 					type.meshes = loader.meshes;
 					// ipRow BEFORE groundOffset: grounding must run in the model's real draw frame
-					// (v . ipRow . flagCore) — a non-identity IP (treasurebox 90deg rot, guardian Y
+					// (v . ipRow . worldCore) — a non-identity IP (treasurebox 90deg rot, guardian Y
 					// translation) else grounds in the wrong frame and the model floats/sinks/lies flat.
 					type.ipRow = loader.ipRow;
 					type.groundOffset = computeGroundOffset(type.meshes, type.ipRow); // drop the base onto the terrain
@@ -398,9 +407,21 @@ function acquire(path) {
 	return type;
 }
 
+// Interleaved vertex layout — MUST mirror gr2Pack.js packRobrowserInterleave (16 floats/vertex,
+// 64-byte stride): position(3), normal(3), uv(2), boneIndex(4), boneWeight(4). Byte offsets are the
+// float offsets (0/3/6/8/12) x4.
+const GR2_VERTEX_STRIDE = 64;
+const GR2_VERTEX_LAYOUT = [
+	{ attr: 'aPosition', size: 3, offset: 0 },
+	{ attr: 'aNormal', size: 3, offset: 12 },
+	{ attr: 'aTextureCoord', size: 2, offset: 24 },
+	{ attr: 'aBoneIndex', size: 4, offset: 32 },
+	{ attr: 'aBoneWeight', size: 4, offset: 48 }
+];
+
 /**
  * buildTypeGL(gl, type) — upload the type's VBO/IBO/VAO per submesh + textures, once the
- * CPU decode is done. One VAO per submesh, 16-float interleave (stride 64).
+ * CPU decode is done. One VAO per submesh, 16-float interleave (see GR2_VERTEX_LAYOUT).
  */
 function buildTypeGL(gl, type) {
 	type.textures = makeTypeTextures(gl, type.parsed);
@@ -413,17 +434,12 @@ function buildTypeGL(gl, type) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
 		gl.bufferData(gl.ARRAY_BUFFER, packRobrowserInterleave(mesh), gl.STATIC_DRAW);
 
-		const stride = 64;
-		gl.enableVertexAttribArray(attr.aPosition);
-		gl.vertexAttribPointer(attr.aPosition, 3, gl.FLOAT, false, stride, 0);
-		gl.enableVertexAttribArray(attr.aNormal);
-		gl.vertexAttribPointer(attr.aNormal, 3, gl.FLOAT, false, stride, 12);
-		gl.enableVertexAttribArray(attr.aTextureCoord);
-		gl.vertexAttribPointer(attr.aTextureCoord, 2, gl.FLOAT, false, stride, 24);
-		gl.enableVertexAttribArray(attr.aBoneIndex);
-		gl.vertexAttribPointer(attr.aBoneIndex, 4, gl.FLOAT, false, stride, 32);
-		gl.enableVertexAttribArray(attr.aBoneWeight);
-		gl.vertexAttribPointer(attr.aBoneWeight, 4, gl.FLOAT, false, stride, 48);
+		for (let a = 0; a < GR2_VERTEX_LAYOUT.length; a++) {
+			const layout = GR2_VERTEX_LAYOUT[a];
+			const loc = attr[layout.attr];
+			gl.enableVertexAttribArray(loc);
+			gl.vertexAttribPointer(loc, layout.size, gl.FLOAT, false, GR2_VERTEX_STRIDE, layout.offset);
+		}
 
 		const ibo = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
@@ -511,7 +527,7 @@ function computeScreenRect(aabb, mvp, out) {
 		const y = i & 2 ? max[1] : min[1];
 		const z = i & 4 ? max[2] : min[2];
 		const cw = mvp[3] * x + mvp[7] * y + mvp[11] * z + mvp[15];
-		if (cw <= 1e-6) {
+		if (cw <= CLIP_W_EPS) {
 			continue;
 		}
 		const inv = 1 / cw;
@@ -552,7 +568,7 @@ function computeScreenRect(aabb, mvp, out) {
  */
 function computeBaseSphereRect(mvp, projection, out) {
 	const cw = mvp[15];
-	if (cw <= 1e-6) {
+	if (cw <= CLIP_W_EPS) {
 		return false;
 	}
 	const inv = 1 / cw;
@@ -677,8 +693,7 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 			// placement error is proportional to the terrain height (flat OK, hills sink/vanish).
 			if (!inst.worldBuilt) {
 				const p = inst.pos;
-				// RO direction is an 8-way index (0-7); the world yaw wants degrees (45 deg/step).
-				inst.world = buildWorld(inst.dir * 45, [p[0], -p[2], p[1]], type.ipRow, {
+				inst.world = buildWorld(inst.dir * DIR_STEP_DEG, [p[0], -p[2], p[1]], type.ipRow, {
 					heightOffset: type.groundOffset
 				});
 				inst.worldBuilt = true;
@@ -686,14 +701,16 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 			// Advance the action clock, then resolve/cache the pose at 40 Hz.
 			const pose = actorPose(inst.actor, type, tick, inst.standbyIdx, null);
-			inst.animIndex = pose.animIndex;
-			inst.t = pose.t;
+			const animIndex = pose.animIndex;
+			const t = pose.t;
+			inst.animIndex = animIndex;
+			inst.t = t;
 
-			const key = poseCacheKey(inst.path, pose.animIndex, quantizePoseTime(pose.t));
+			const key = poseCacheKey(inst.path, animIndex, quantizePoseTime(t));
 			let bones = seen[key] || _poseCache[key];
 			if (!bones) {
-				const idx = pose.animIndex < 0 ? -1 : pose.animIndex;
-				const sampleT = pose.animIndex < 0 ? 0 : pose.t;
+				const idx = animIndex < 0 ? -1 : animIndex;
+				const sampleT = animIndex < 0 ? 0 : t;
 				bones = flattenPose(poseAt(type.parsed, idx, sampleT), type.boneCount);
 			}
 			seen[key] = bones;
@@ -711,10 +728,10 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 			// iteration because GL uniforms are stateful — a fixed-constant model must not leak its
 			// diffuse/ambient onto the next instance.
 			const base = gr2Basename(inst.path);
-			if (base === 'guildflag90_1') {
+			if (base === GR2_MODEL_GUILDFLAG) {
 				gl.uniform3fv(uniform.uLightDiffuse, _gr2FlagDiffuse);
 				gl.uniform3fv(uniform.uLightAmbient, grayBroadcast(light.ambient || _phaseAmbient, _gr2FlagAmbient));
-			} else if (_gr2EmpSet[base]) {
+			} else if (GR2_EMP_MODELS[base]) {
 				gl.uniform3fv(uniform.uLightDiffuse, _gr2EmpDiffuse);
 				gl.uniform3fv(uniform.uLightAmbient, _gr2EmpAmbient);
 			} else {
@@ -766,12 +783,21 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			}
 
-			for (let s = 0; s < type.submeshes.length; s++) {
-				const sm = type.submeshes[s];
-				// The emblem submesh (Plane01) binds this instance's live guild emblem; before it is
-				// fetched (or on a dev spawn with no entity) it falls back to the baked emblem.tif from
-				// the .gr2. Every other submesh uses its baked texture.
-				gl.bindTexture(gl.TEXTURE_2D, sm.emblem ? inst.emblemTex || sm.tex : sm.tex);
+			const submeshes = type.submeshes;
+			for (let s = 0; s < submeshes.length; s++) {
+				const sm = submeshes[s];
+				// The emblem submesh (Plane01) stays empty until the live guild emblem loads
+				// (Guild.requestGuildEmblem): skip it when there is no per-instance emblem texture —
+				// a dev spawn with no entity, or a flag whose emblem hasn't arrived. Every other
+				// submesh uses its baked texture.
+				if (sm.emblem) {
+					if (!inst.emblemTex) {
+						continue;
+					}
+					gl.bindTexture(gl.TEXTURE_2D, inst.emblemTex);
+				} else {
+					gl.bindTexture(gl.TEXTURE_2D, sm.tex);
+				}
 				gl.bindVertexArray(sm.vao);
 				gl.drawElements(gl.TRIANGLES, sm.count, gl.UNSIGNED_SHORT, 0);
 			}
@@ -1028,7 +1054,7 @@ function spawnMany(path, n, opts) {
 		// decorrelate: phase-shift each instance by one 40 Hz tick so they land in distinct pose
 		// buckets (realistic non-synchronized load — poseAt count then caps at duration*40, not N).
 		if (o.decorrelate) {
-			inst.actor.startT = -i * 25;
+			inst.actor.startT = -i * (1000 / POSE_HZ);
 		}
 		out.push(inst);
 	}

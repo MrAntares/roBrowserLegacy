@@ -15,8 +15,8 @@
  * the world matrix stays a clean, reflection-free Rx . Ry . S . T (det +1). (The
  * sandbox, which keeps a plain Y-up camera, carries the flipX in-model instead.)
  *
- * MATRIX CONVENTION. The chain is built row-vector (D3D, v' = v.M) with the local
- * `_mul` helper, then the flat array is handed to GL / gl-matrix as-is. A row-major
+ * MATRIX CONVENTION. The chain is built row-vector (D3D, v' = v.M) with the shared
+ * `mul` helper (gr2Math.js), then the flat array is handed to GL / gl-matrix as-is. A row-major
  * array reinterpreted column-major IS its transpose, and column-vector M.v with the
  * transpose equals row-vector v.M — so `mat4.multiply(out, Camera.modelView, world)`
  * (gl-matrix is column-major) reproduces the sandbox `multiply4(view, model)` with no
@@ -33,12 +33,14 @@
  * YAW. `((dir + 180) / 180) * pi` — the +180 is asm-cited (mars26 fcn.00b2ad20.asm:160
  * addss 180.0 / ver12 fcn.00408b70). The sandbox leaves the offset vs roBrowser's own
  * Camera.direction remap (floor((angle[1]+22.5)/45)%8, rendered dir = (Camera.direction
- * + entity.direction) mod 8) UNRESOLVED by design — both sandbox halves share flagCore
+ * + entity.direction) mod 8) UNRESOLVED by design — both sandbox halves share worldCore
  * so they coincide with no offset. Here it is pinned empirically on the live map (see the
- * baked defaults in flagCore) and will thread into the Entity direction remap.
+ * baked defaults in worldCore) and will thread into the Entity direction remap.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
+
+import { mul, trans, IDENTITY_ROW } from 'Renderer/GR2/gr2Math.js';
 
 /** Geometry scale under the /5 referential (0.2 = 1.0u / 5.0u). */
 export const RB_UNIT_SCALE = 0.2;
@@ -72,24 +74,8 @@ export const RB_UNIT_SCALE = 0.2;
  */
 export const RB_PLACEMENT_OFS = 0.5;
 
-const IDENTITY_ROW = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-
-// Row-vector 4x4 helpers (D3D convention v' = v.M).
-function _mul(a, b) {
-	const o = new Array(16);
-	for (let r = 0; r < 4; r++) {
-		for (let c = 0; c < 4; c++) {
-			let s = 0;
-			for (let k = 0; k < 4; k++) {
-				s += a[r * 4 + k] * b[k * 4 + c];
-			}
-			o[r * 4 + c] = s;
-		}
-	}
-	return o;
-}
-
-// D3DXMatrixRotationX / Y (row-vector).
+// Row-vector 4x4 helpers (D3DXMatrixRotationX / Y / Scaling). `mul`, `trans` and IDENTITY_ROW
+// are shared with the loader via gr2Math.js; these three are GR2-world-only.
 const _rotX = a => {
 	const s = Math.sin(a);
 	const c = Math.cos(a);
@@ -101,24 +87,27 @@ const _rotY = a => {
 	return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1];
 };
 const _scale = s => [s, 0, 0, 0, 0, s, 0, 0, 0, 0, s, 0, 0, 0, 0, 1];
-const _trans = (x, y, z) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1];
+
+// Effective yaw offset in degrees: the asm-cited +180 (mars26 fcn.00b2ad20.asm:160 addss 180.0
+// / ver12 fcn.00408b70) plus a live-map +180 reconciliation against roBrowser's own
+// Camera.direction remap — 360 total. Exposed via opts.yawOffsetDeg for re-tuning other eras.
+const YAW_BASE_DEG = 360;
 
 /**
- * flagCore(dir, pos) -> the reflection-free world core Rx(rxSign*pi/2) . Ry(yaw) . S . T
+ * worldCore(dir, pos) -> the reflection-free world core Rx(rxSign*pi/2) . Ry(yaw) . S . T
  * at the /5 referential (geometry x0.2, +0.5 cell-centre offset). Position is fed unchanged.
  */
-export function flagCore(dir, pos, opts) {
+export function worldCore(dir, pos, opts) {
 	const o = opts || {};
 	// Orientation reconciled on the live map against roBrowser's Y-INVERTING camera (which now
 	// carries the sole granny-RH -> render-LH reflection; there is no in-model flipX). rxSign +1
-	// (pitch), yawOffsetDeg +180 on top of the asm-cited (dir+180). The opts stay exposed for
-	// re-tuning other eras/models.
+	// (pitch), yaw offset YAW_BASE_DEG. The opts stay exposed for re-tuning other eras/models.
 	const rxSign = o.rxSign != null ? o.rxSign : 1;
-	const yawOffset = o.yawOffsetDeg != null ? o.yawOffsetDeg : 180;
-	const yaw = ((dir + 180 + yawOffset) / 180) * Math.PI;
-	let m = _mul(_rotX((rxSign * Math.PI) / 2), _rotY(yaw));
-	m = _mul(m, _scale(RB_UNIT_SCALE));
-	m = _mul(m, _trans(pos[0] + RB_PLACEMENT_OFS, pos[1] + (o.heightOffset || 0), pos[2] + RB_PLACEMENT_OFS));
+	const yawOffset = o.yawOffsetDeg != null ? o.yawOffsetDeg : YAW_BASE_DEG;
+	const yaw = ((dir + yawOffset) / 180) * Math.PI;
+	let m = mul(_rotX((rxSign * Math.PI) / 2), _rotY(yaw));
+	m = mul(m, _scale(RB_UNIT_SCALE));
+	m = mul(m, trans(pos[0] + RB_PLACEMENT_OFS, pos[1] + (o.heightOffset || 0), pos[2] + RB_PLACEMENT_OFS));
 	return m;
 }
 
@@ -130,7 +119,7 @@ export function flagCore(dir, pos, opts) {
  * world Y, so nothing renders under the terrain. Yaw-independent (uses the world matrix's Y-row).
  *
  * The model's granny InitialPlacement (ipRow) MUST be threaded here so grounding runs in the SAME
- * frame the draw uses (`v . ipRow . flagCore`). A non-identity IP (e.g. the treasurebox's 90 deg X
+ * frame the draw uses (`v . ipRow . worldCore`). A non-identity IP (e.g. the treasurebox's 90 deg X
  * rotation, or the guardians' Y translation) reorients/shifts the mesh; grounding with a null IP
  * would compute the base in the wrong frame and the model floats / sinks / lies flat on the ground.
  */
@@ -155,7 +144,7 @@ export function computeGroundOffset(meshes, ipRow, opts) {
 
 /**
  * buildWorld(dir, pos, ipRow) -> Float32Array(16) GR2 world matrix.
- * Chain (row-vector, IP innermost): v . ipRow . flagCore(dir, pos) — a clean,
+ * Chain (row-vector, IP innermost): v . ipRow . worldCore(dir, pos) — a clean,
  * reflection-free Rx . Ry . S . T (det +1). The granny-RH -> render-LH reflection is
  * provided by roBrowser's Y-inverting camera, not by this matrix (see HANDEDNESS above).
  * Hand the result straight to gl-matrix `mat4.multiply(out, view, world)` (see MATRIX
@@ -168,5 +157,5 @@ export function computeGroundOffset(meshes, ipRow, opts) {
 export function buildWorld(dir, pos, ipRow, opts) {
 	const o = opts || {};
 	const ip = ipRow || IDENTITY_ROW;
-	return new Float32Array(_mul(ip, flagCore(dir, pos, o)));
+	return new Float32Array(mul(ip, worldCore(dir, pos, o)));
 }
