@@ -104,13 +104,26 @@ let _instances = [];
 let _poseCache = {};
 
 // Debug aid: highlight each instance's anchor CELL with a flat tile. The tile marks the cell
-// CENTER (its shader adds +0.5); the model straddles the cell's -0.4 corner, so the offset between
-// tile and pole shows which junction the model sits on (NE/NW diagnosis). Toggle from the dev
-// console (`mod.debugCell = true`); off by default, no gameplay effect.
+// CENTER (its shader adds +0.5) — the SAME cell centre the model's origin now lands on (flagCore
+// adds RB_PLACEMENT_OFS = +0.5), so tile and pole should COINCIDE; a visible offset between them
+// means a placement regression. Toggle from the dev console (`mod.debugCell = true`); off by
+// default, no gameplay effect.
 const _dbgCellTile = FlatColorTile('gr2_debug_cell', { r: 0.0, g: 1.0, b: 1.0, a: 0.45 });
 const _dbgTileInst = new _dbgCellTile([0, 0, 0]);
 let _dbgCellInited = false;
 let _debugCell = false;
+
+// GR2 pick-box geometry — TWO modes, switched at the call site in render() by commenting (no
+// runtime flag). The client hit-tests a base bounding-SPHERE, NOT the model AABB (fcn.006852e0):
+//   sphere centre (0,0,0) = model base, radius 10.0 client-u (fcn.006800d0.c:202-206).
+//   10 client-u ÷ 5 (roBrowser /5 referential, gr2World.RB_UNIT_SCALE) = 2.0 world-u (cells).
+//   Half-extent = √(r²·0.5) — the client's projected corner offset (fcn.006852e0.c:70-71).
+// These constants feed computeBaseSphereRect (the "sphere" mode), which is the shipped DEFAULT.
+// The alternative is the full model AABB ("tout le drapeau" — whole model hoverable, more generous
+// than the client), switched in at the pick site by commenting.
+// VISUAL-UNVERIFIED: the world-unit radius is a single-constant calibration point (visual gate).
+const BASE_SPHERE_RADIUS = 2.0;
+const BASE_SPHERE_HALF_EXTENT = Math.sqrt(BASE_SPHERE_RADIUS * BASE_SPHERE_RADIUS * 0.5);
 
 // granny-ro-js WASM init (texture pixel decode); shared across all types.
 let _readyPromise = null;
@@ -478,7 +491,11 @@ function computeLocalAABB(meshes) {
  * rect (window pixels, y-down: x1/y1 = min, x2/y2 = max), written into `out`. Returns false when
  * every corner is behind the camera. Mirrors EntityRender.calculateBoundingRect's NDC->pixel map
  * so the projected box lines up with EntityManager's mouse-space pick test.
+ *
+ * Intentionally kept even though the shipped default calls computeBaseSphereRect: it is the
+ * "tout le drapeau" mode (A) at the pick site, activated by commenting there. See render().
  */
+// eslint-disable-next-line no-unused-vars
 function computeScreenRect(aabb, mvp, out) {
 	const min = aabb.min;
 	const max = aabb.max;
@@ -513,6 +530,42 @@ function computeScreenRect(aabb, mvp, out) {
 	out.y1 = minY;
 	out.x2 = maxX;
 	out.y2 = maxY;
+	return true;
+}
+
+/**
+ * computeBaseSphereRect(mvp, projection, out) -> the client's GR2 pick box: the screen rect of a
+ * base bounding-sphere (fcn.006852e0), written into `out` (same {x1,y1,x2,y2} shape and
+ * window-pixel/y-down convention computeScreenRect produces, so EntityRender consumes it
+ * unchanged). Returns false when the base is behind the camera.
+ *
+ * Centre = the model origin (0,0,0) projected through the FULL model→clip matrix = the mvp
+ * translation column (mvp[12], mvp[13], w = mvp[15]). This is the model's base exactly as drawn —
+ * it carries the cell-centre +0.5, the groundOffset and the ipRow — matching fcn.006852e0.c:50-57,
+ * which transforms the stored centre (sub+0x394 = (0,0,0)) by the model's own matrices. Do NOT use
+ * the raw cell anchor (worldAnchorToClip): it misses the +0.5/ground and lands half a cell off.
+ *
+ * Half-extent = √(r²·0.5) world-u (BASE_SPHERE_HALF_EXTENT), projected `·focal·(1/w)` symmetrically
+ * around the centre (fcn.006852e0.c:70-71,75-81), where roBrowser's `focal` is `halfW·projection[0]`
+ * / `halfH·projection[5]` (the viewport scales). The radius is a world/view extent, independent of
+ * the model's own geometry scale — same as the client, which adds the raw radius in view space.
+ */
+function computeBaseSphereRect(mvp, projection, out) {
+	const cw = mvp[15];
+	if (cw <= 1e-6) {
+		return false;
+	}
+	const inv = 1 / cw;
+	const halfW = window.innerWidth * 0.5;
+	const halfH = window.innerHeight * 0.5;
+	const cx = halfW * (1 + mvp[12] * inv);
+	const cy = halfH * (1 - mvp[13] * inv);
+	const ex = halfW * projection[0] * BASE_SPHERE_HALF_EXTENT * inv;
+	const ey = halfH * projection[5] * BASE_SPHERE_HALF_EXTENT * inv;
+	out.x1 = cx - ex;
+	out.x2 = cx + ex;
+	out.y1 = cy - ey;
+	out.y2 = cy + ey;
 	return true;
 }
 
@@ -669,13 +722,22 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 				gl.uniform3fv(uniform.uLightAmbient, light.ambient || _phaseAmbient);
 			}
 
-			// Project the model AABB to a screen-space pick box for EntityManager's hover/click
-			// test. Stashed on the instance (not entity.boundingRect) because Entity.render()
-			// resets that rect after this map pass; EntityRender.calculateBoundingRect copies it.
+			// Project a screen-space pick box for EntityManager's hover/click test. Stashed on the
+			// instance (not entity.boundingRect) because Entity.render() resets that rect after this
+			// map pass; EntityRender.calculateBoundingRect copies it.
+			//
+			// TWO faithful-to-different-things modes — switch by commenting (no runtime flag):
+			//  (A) "tout le drapeau": the full model AABB projected. The WHOLE model is hoverable —
+			//      more generous (better UX) than the client, but a divergence.
+			//  (B) DEFAULT — "sphere", client-faithful (fcn.006852e0): a coarse square at the model
+			//      base only (computeBaseSphereRect). On the tall flag just the lower ~46% is
+			//      clickable. To use (A) instead, comment (B) and uncomment (A).
 			if (inst.entity && type.aabb) {
-				mat4.multiply(_mvp, projection, _mv);
 				const box = inst.screenRect || (inst.screenRect = { x1: 0, y1: 0, x2: 0, y2: 0 });
-				if (!computeScreenRect(type.aabb, _mvp, box)) {
+				mat4.multiply(_mvp, projection, _mv);
+				// const ok = computeScreenRect(type.aabb, _mvp, box); // (A) full model AABB
+				const ok = computeBaseSphereRect(_mvp, projection, box); // (B) client base sphere
+				if (!ok) {
 					inst.screenRect = null;
 				}
 			}
