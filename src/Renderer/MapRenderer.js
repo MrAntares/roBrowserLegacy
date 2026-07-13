@@ -27,6 +27,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Water from 'Renderer/Map/Water.js';
 import Models from 'Renderer/Map/Models.js';
 import AnimatedModels from 'Renderer/Map/AnimatedModels.js';
+import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 import Sounds from 'Renderer/Map/Sounds.js';
 import Effects from 'Renderer/Map/Effects.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
@@ -188,6 +189,7 @@ class MapRenderer {
 		Water.free(gl);
 		Models.free(gl);
 		AnimatedModels.free(gl);
+		GR2ModelRenderer.free(gl);
 		Damage.free(gl);
 		EffectManager.free(gl);
 		SignboardManager.free();
@@ -278,6 +280,10 @@ class MapRenderer {
 
 		Models.render(gl, modelView, projection, normalMat, fog, light);
 		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
+		// GR2 mobs render here with the opaque world models, before EntityManager.render below
+		// -- hence the 1-frame lag documented in GR2ModelRenderer.render (syncFromEntity reads the
+		// entity pose one frame stale). Ordering is intentional (opaque geometry pass).
+		GR2ModelRenderer.render(gl, modelView, projection, normalMat, fog, light, tick);
 
 		// Render transparent elements before ground
 		ScreenEffectManager.render(gl, modelView, projection, fog, tick, true);
