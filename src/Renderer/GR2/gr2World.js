@@ -23,10 +23,12 @@
  * extra transpose. Do NOT transpose the output.
  *
  * /5 REFERENTIAL (build-7). roBrowser lands the RO world at /5 (World/Altitude/Ground
- * divide position + scale + heights by 5). The GR2 geometry and its cell-straddle scale
- * by RB_UNIT_SCALE (0.2 = 1.0u / 5.0u) so the model reads 1.0-cell-sized; the world
- * POSITION is left in the caller's referential (co-located with the /5 ground). See
- * re-ro-clients-asm/sandbox/CORRESPONDENCE.md (build-7).
+ * divide position + scale + heights by 5). The GR2 geometry scales by RB_UNIT_SCALE
+ * (0.2 = 1.0u / 5.0u) so the model reads 1.0-cell-sized; the world POSITION is left in the
+ * caller's referential (co-located with the /5 ground) plus a +0.5 cell-CENTRE offset — the
+ * roBrowser convention every 2D visual uses to reach the cell middle from the raw corner (see
+ * RB_PLACEMENT_OFS). The model origin lands on the cell centre, co-located with roBrowser's 2D
+ * sprite/shadow. See re-ro-clients-asm/sandbox/CORRESPONDENCE.md (build-7).
  *
  * YAW. `((dir + 180) / 180) * pi` — the +180 is asm-cited (mars26 fcn.00b2ad20.asm:160
  * addss 180.0 / ver12 fcn.00408b70). The sandbox leaves the offset vs roBrowser's own
@@ -41,8 +43,34 @@
 /** Geometry scale under the /5 referential (0.2 = 1.0u / 5.0u). */
 export const RB_UNIT_SCALE = 0.2;
 
-/** Cell-straddle offset on X,Z, scaled with the geometry (0.2 * -2.0). */
-export const RB_PLACEMENT_OFS = -0.4;
+/**
+ * Horizontal cell offset on X,Z. +0.5 = the CELL CENTRE — where every roBrowser 2D visual lands.
+ * A raw integer entity position (x,y) is the cell CORNER; roBrowser reaches the cell middle by
+ * adding +0.5: the sprite body + shadow in SpriteRenderer.vs ("xyz = x(-z)y + middle of cell
+ * (0.5)"), Altitude.getCellHeight ("middle of the cell", +0.5), and the name/HP overlay
+ * (EntityRender.js:93-95, position+0.5). The GR2 draw path bypasses SpriteRenderer.vs, so it must
+ * add the +0.5 itself — otherwise the model sits half a cell off (on the corner) from the 2D
+ * shadow it is read against and from the GridSelector cell quad ([x,x+1]x[y,y+1], centre
+ * (x+0.5,y+0.5)). The flag mesh is centred at model X=0/Y=0, so +0.5
+ * drops its central pillar on the cell centre.
+ *
+ * NOT the old -0.4 straddle: that was 0.2*-2.0 from the -2.0 (0xe316c8) in the DEAD CGrannyPc
+ * draw fcn.00c03e10. The live flag draw C3dGrannyGameActor fcn.00b2ad20 reads a RAW origin
+ * [esi+0x10] -> PostMultTranslate with no draw-time offset — but that origin is ITSELF the cell
+ * CENTRE: the client anchors actors at the cell middle (confirmed against the official client
+ * reference shot — the flag sits centred on its cell) and bakes the half-cell (+2.5 world = +0.5
+ * cell) into the stored world position at cell->world conversion time. That is why the offset
+ * surfaces at NO client consumer: the draw feeds the origin raw, the 2D sprite projector
+ * (fcn.00539820/fcn.00539650) reads it raw, and the ground sampler fcn.0042c700 interpolates
+ * height by the raw sub-cell fraction (0x42c7a0) and adds no +0.5 of its own — the fraction is
+ * already 0.5. roBrowser takes the mirror approach: it stores the raw integer corner and adds
+ * +0.5 at each consumer (SpriteRenderer.vs, Altitude.getCellHeight, EntityRender overlay, and here).
+ * Same cell centre, offset applied at a different pipeline stage — so +0.5 faithfully reproduces
+ * the client's centre anchor, it is not merely a roBrowser-internal convention. (The exact +2.5
+ * immediate inside the client's cell->world conversion is a documented reverse-engineering stall:
+ * the setter is unreachable statically from both the packet dispatcher and the actor factory.)
+ */
+export const RB_PLACEMENT_OFS = 0.5;
 
 const IDENTITY_ROW = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
@@ -77,7 +105,7 @@ const _trans = (x, y, z) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1];
 
 /**
  * flagCore(dir, pos) -> the reflection-free world core Rx(rxSign*pi/2) . Ry(yaw) . S . T
- * at the /5 referential (geometry x0.2, straddle -0.4). Position is fed unchanged.
+ * at the /5 referential (geometry x0.2, +0.5 cell-centre offset). Position is fed unchanged.
  */
 export function flagCore(dir, pos, opts) {
 	const o = opts || {};
@@ -95,14 +123,19 @@ export function flagCore(dir, pos, opts) {
 }
 
 /**
- * computeGroundOffset(meshes, opts) -> the heightOffset that puts the model's base flush on the
- * terrain. roBrowser's render inverts world Y on screen (proven on the live map: a model placed at
- * world Y ABOVE the ground draws BELOW it / occluded), so the base — the part that must touch the
+ * computeGroundOffset(meshes, ipRow, opts) -> the heightOffset that puts the model's base flush on
+ * the terrain. roBrowser's render inverts world Y on screen (proven on the live map: a model placed
+ * at world Y ABOVE the ground draws BELOW it / occluded), so the base — the part that must touch the
  * ground line — is the world-Y MAX vertex. We ground that: no vertex ends up above the ground's
  * world Y, so nothing renders under the terrain. Yaw-independent (uses the world matrix's Y-row).
+ *
+ * The model's granny InitialPlacement (ipRow) MUST be threaded here so grounding runs in the SAME
+ * frame the draw uses (`v . ipRow . flagCore`). A non-identity IP (e.g. the treasurebox's 90 deg X
+ * rotation, or the guardians' Y translation) reorients/shifts the mesh; grounding with a null IP
+ * would compute the base in the wrong frame and the model floats / sinks / lies flat on the ground.
  */
-export function computeGroundOffset(meshes, opts) {
-	const m = buildWorld(0, [0, 0, 0], null, opts);
+export function computeGroundOffset(meshes, ipRow, opts) {
+	const m = buildWorld(0, [0, 0, 0], ipRow, opts);
 	const a = m[1];
 	const b = m[5];
 	const c = m[9];

@@ -364,9 +364,12 @@ function acquire(path) {
 					const loader = new GR2Loader(buffer);
 					type.parsed = loader.parsed;
 					type.meshes = loader.meshes;
-					type.groundOffset = computeGroundOffset(type.meshes); // drop the base onto the terrain
-					type.aabb = computeLocalAABB(type.meshes); // local bounds for the screen-space pick box
+					// ipRow BEFORE groundOffset: grounding must run in the model's real draw frame
+					// (v . ipRow . flagCore) — a non-identity IP (treasurebox 90deg rot, guardian Y
+					// translation) else grounds in the wrong frame and the model floats/sinks/lies flat.
 					type.ipRow = loader.ipRow;
+					type.groundOffset = computeGroundOffset(type.meshes, type.ipRow); // drop the base onto the terrain
+					type.aabb = computeLocalAABB(type.meshes); // local bounds for the screen-space pick box
 					type.boneCount = loader.boneCount;
 					type.duration = loader.duration;
 					type.cpuReady = true;
