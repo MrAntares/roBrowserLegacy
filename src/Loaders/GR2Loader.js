@@ -5,11 +5,11 @@
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
- * The legacy Loaders/GrannyModel.js hand-rolled parser is left untouched (its load()
- * bails before decompression); the actual decode is delegated to the granny-ro-js
- * package (Oodle0 + type-tree + skeleton + skinning + animation, verified vs granny2.dll).
- * This loader is the thin adapter: parse the bytes, then pack the meshes into per-vertex
- * attribute arrays and read the model InitialPlacement transform.
+ * The actual decode is delegated to the granny-ro-js package (Oodle0 + type-tree + skeleton +
+ * skinning + animation, verified vs granny2.dll). This loader is the thin adapter: parse the
+ * bytes, then pack the meshes into per-vertex attribute arrays and read the model
+ * InitialPlacement transform. (Superseded the legacy Loaders/GrannyModel.js hand-rolled parser,
+ * whose load() bailed before decompression; it has been removed.)
  */
 
 import { parseAll, ready } from 'granny-ro-js/wasm';

@@ -50,7 +50,7 @@ MapViewer.init = function Init() {
 	const q = new Queue();
 
 	// Resources sharing
-	if (Configs.get('API')) {
+	if (Configs.get('api')) {
 		q.add(function () {
 			function onAPIMessage(event) {
 				if (typeof event.data !== 'object') {
@@ -133,7 +133,7 @@ MapViewer.init = function Init() {
 		MapControl.onRequestWalk = MapViewer.onMouseDown;
 
 		// Direct access from API
-		if (Configs.get('API')) {
+		if (Configs.get('api')) {
 			ready = true;
 			maptoload = maptoload || location.hash.substr(1).replace('data/', '');
 			MapRenderer.setMap(maptoload);
@@ -174,7 +174,7 @@ MapViewer.init = function Init() {
 MapViewer.onLoad = function () {
 	BGM.stop();
 
-	if (!Configs.get('API')) {
+	if (!Configs.get('api')) {
 		document.body.appendChild(MapViewer.dropDown);
 	}
 
