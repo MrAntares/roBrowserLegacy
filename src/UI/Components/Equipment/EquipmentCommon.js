@@ -1,7 +1,12 @@
 /**
  * UI/Components/Equipment/EquipmentCommon.js
  *
- * Shared factory for the near-identical Equipment window versions (V1 / V2).
+ * Shared factory for every Equipment window version (V0 - V4).
+ *
+ * Version differences are passed as capability flags; the WinStats status
+ * window is anchored through the embed/unembed model for every version
+ * (the legacy .status_component / WinStats._host path used by V3/V4 was dead
+ * code after the WinStats refactor and is converged here).
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -12,6 +17,7 @@ import DB from 'DB/DBManager.js';
 import StatusConst from 'DB/Status/StatusState.js';
 import EquipLocation from 'DB/Items/EquipmentLocation.js';
 import Network from 'Network/NetworkManager.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import ItemType from 'DB/Items/ItemType.js';
 import Client from 'Core/Client.js';
@@ -26,7 +32,9 @@ import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
+import SwitchEquip from 'UI/Components/SwitchEquip/SwitchEquip.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
 
@@ -75,7 +83,18 @@ function getSelectorFromLocation(location) {
 	return selector.join(', ');
 }
 
-export function createEquipment({ name, htmlText, cssText }) {
+export function createEquipment({
+	name,
+	htmlText,
+	cssText,
+	entityRender = true,
+	enchantGrade = false,
+	switchEquip = false,
+	titles = false,
+	costumeConfig = false,
+	damageSkin = false,
+	statsDefault = true
+}) {
 	const Component = new GUIComponent(name, cssText);
 
 	Component.render = () => htmlText;
@@ -87,7 +106,7 @@ export function createEquipment({ name, htmlText, cssText }) {
 			y: 200,
 			show: false,
 			reduce: false,
-			stats: true
+			stats: statsDefault
 		},
 		1.0
 	);
@@ -95,11 +114,16 @@ export function createEquipment({ name, htmlText, cssText }) {
 	let _list = {};
 	const _ctx = [];
 	let _showEquip = false;
+	let _hideCostume = false;
+	let _currentTitleId = 0;
 	let _btnLevelUp;
 
 	const tabLinks = {};
 	const contentDivs = {};
 	let currentTabId = 'general';
+
+	let switchappend;
+	let switchUIopen;
 
 	Component.init = function init() {
 		const root = Component.getRoot();
@@ -190,8 +214,20 @@ export function createEquipment({ name, htmlText, cssText }) {
 		if (viewStatusBtn) viewStatusBtn.addEventListener('mousedown', toggleStatus);
 		const showEquipBtn = root.querySelector('.show_equip');
 		if (showEquipBtn) showEquipBtn.addEventListener('mousedown', toggleEquip);
+		if (costumeConfig) {
+			const showCostumeBtn = root.querySelector('.show_costume');
+			if (showCostumeBtn) showCostumeBtn.addEventListener('mousedown', toggleCostume);
+		}
 		const cartBtn = root.querySelector('.cartitems');
 		if (cartBtn) cartBtn.addEventListener('click', onCartItems);
+		if (switchEquip) {
+			const switchEquipBtn = root.querySelector('.switch_equip');
+			if (switchEquipBtn) switchEquipBtn.addEventListener('click', onSwtichEquip);
+		}
+
+		if (titles) {
+			this.loadTitles();
+		}
 
 		this._host.addEventListener('dragover', onDragOver);
 		this._host.addEventListener('dragleave', onDragLeave);
@@ -219,10 +255,63 @@ export function createEquipment({ name, htmlText, cssText }) {
 		}
 
 		this.draggable('.titlebar');
+
+		if (switchEquip) {
+			switchappend = root.querySelector('.footer');
+		}
+
+		if (costumeConfig) {
+			const costumeBtn2 = root.querySelector('.show_costume');
+			if (costumeBtn2) costumeBtn2.style.display = 'none';
+			const costumeSpan = costumeBtn2 ? costumeBtn2.nextElementSibling : null;
+			if (costumeSpan && costumeSpan.tagName === 'SPAN') costumeSpan.style.display = 'none';
+		}
+
+		if (damageSkin) {
+			// Damage Skin Settings
+			const skinButtons = root.querySelectorAll('#damageskin .skin-option');
+			skinButtons.forEach(btn => {
+				btn.setAttribute('data-background', 'showdamage/btn_damage.bmp');
+				btn.setAttribute('data-hover', 'showdamage/btn_damage_press.bmp');
+				btn.setAttribute('data-down', 'showdamage/btn_damage_pick.bmp');
+			});
+			if (this.parseHTML) {
+				skinButtons.forEach(btn => {
+					this.parseHTML.call(btn);
+				});
+			}
+			skinButtons.forEach(btn => {
+				btn.addEventListener('mousedown', function () {
+					const skinId = parseInt(this.getAttribute('data-skin'), 10);
+					Component.setDamageSkin(skinId);
+				});
+			});
+			let savedSkin = GraphicsSettings.damageSkin;
+			savedSkin = savedSkin !== undefined && savedSkin !== null ? savedSkin : 0;
+			Component.setDamageSkin(savedSkin);
+
+			// Damage Motion Settings
+			const motionChecks = root.querySelectorAll('.motion-check');
+			if (this.parseHTML) {
+				motionChecks.forEach(btn => {
+					this.parseHTML.call(btn);
+				});
+			}
+			motionChecks.forEach(btn => {
+				btn.addEventListener('mousedown', function () {
+					const motionId = parseInt(this.getAttribute('data-motion'), 10);
+					Component.setDamageMotion(motionId);
+				});
+			});
+			let savedMotion = GraphicsSettings.damageMotion;
+			savedMotion = savedMotion !== undefined && savedMotion !== null ? savedMotion : 0;
+			Component.setDamageMotion(savedMotion);
+		}
 	};
 
 	function showTab() {
 		const selectedId = getHash(this.getAttribute('href'));
+		const root = Component.getRoot();
 
 		for (const id in contentDivs) {
 			if (id === selectedId) {
@@ -235,6 +324,62 @@ export function createEquipment({ name, htmlText, cssText }) {
 		}
 
 		currentTabId = selectedId;
+
+		if (switchEquip) {
+			if (SwitchEquip.ui) {
+				SwitchEquip.showSwapTab(currentTabId);
+			}
+
+			const nonDefaultTab = costumeConfig ? currentTabId !== 'general' : currentTabId === 'title';
+			if (nonDefaultTab) {
+				if (SwitchEquip.ui) {
+					const switchHost = SwitchEquip._host || SwitchEquip.ui;
+					switchUIopen = switchHost.style ? switchHost.style.display !== 'none' : false;
+					if (switchHost.style) switchHost.style.display = 'none';
+				}
+				const switchBtn = root.querySelector('.switch_equip');
+				if (switchBtn) switchBtn.style.display = 'none';
+			} else {
+				if (SwitchEquip.ui && switchUIopen) {
+					const switchHost = SwitchEquip._host || SwitchEquip.ui;
+					if (switchHost.style) switchHost.style.display = '';
+				}
+				const switchBtn = root.querySelector('.switch_equip');
+				if (switchBtn) switchBtn.style.display = '';
+			}
+
+			if (costumeConfig) {
+				if (currentTabId !== 'general') {
+					const showEquipEl = root.querySelector('.show_equip');
+					if (showEquipEl) showEquipEl.style.display = 'none';
+					const showEquipSpan = showEquipEl ? showEquipEl.nextElementSibling : null;
+					if (showEquipSpan && showEquipSpan.tagName === 'SPAN') showEquipSpan.style.display = 'none';
+
+					if (currentTabId === 'costume') {
+						const costumeEl = root.querySelector('.show_costume');
+						if (costumeEl) costumeEl.style.display = '';
+						const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
+						if (costumeSpan && costumeSpan.tagName === 'SPAN') costumeSpan.style.display = '';
+					} else {
+						const costumeEl = root.querySelector('.show_costume');
+						if (costumeEl) costumeEl.style.display = 'none';
+						const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
+						if (costumeSpan && costumeSpan.tagName === 'SPAN') costumeSpan.style.display = 'none';
+					}
+				} else {
+					const showEquipEl = root.querySelector('.show_equip');
+					if (showEquipEl) showEquipEl.style.display = '';
+					const showEquipSpan = showEquipEl ? showEquipEl.nextElementSibling : null;
+					if (showEquipSpan && showEquipSpan.tagName === 'SPAN') showEquipSpan.style.display = '';
+
+					const costumeEl = root.querySelector('.show_costume');
+					if (costumeEl) costumeEl.style.display = 'none';
+					const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
+					if (costumeSpan && costumeSpan.tagName === 'SPAN') costumeSpan.style.display = 'none';
+				}
+			}
+		}
+
 		return false;
 	}
 
@@ -286,6 +431,14 @@ export function createEquipment({ name, htmlText, cssText }) {
 		const canvas = root.querySelector('canvas');
 		if (canvas && this._host.style.display !== 'none') {
 			Renderer.render(renderCharacter);
+		}
+
+		if (switchEquip) {
+			SwitchEquip.append(switchappend);
+			if (SwitchEquip.ui) {
+				const switchHost = SwitchEquip._host || SwitchEquip.ui;
+				if (switchHost.style) switchHost.style.display = 'none';
+			}
 		}
 	};
 
@@ -348,12 +501,33 @@ export function createEquipment({ name, htmlText, cssText }) {
 		});
 	};
 
-	Component.setCostumeConfig = function setCostumeConfig(_on) {};
+	if (costumeConfig) {
+		Component.setCostumeConfig = function setCostumeConfig(on) {
+			_hideCostume = on;
+			Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (on ? '0' : '1') + '.bmp', data => {
+				const root = Component.getRoot();
+				const btn = root.querySelector('.show_costume');
+				if (btn) btn.style.backgroundImage = `url(${data})`;
+			});
+		};
+	} else {
+		Component.setCostumeConfig = function setCostumeConfig(_on) {};
+	}
 
 	Component.equip = function equip(item, location) {
 		const it = DB.getItemInfo(item.ITID);
-		item.equipped = location;
+		if (entityRender) {
+			item.equipped = location;
+		}
 		_list[item.index] = item;
+
+		if (!entityRender && arguments.length === 1) {
+			if ('WearState' in item) {
+				location = item.WearState;
+			} else if ('location' in item) {
+				location = item.location;
+			}
+		}
 
 		function add3Dots(string, limit) {
 			function stripHTML(str) {
@@ -368,12 +542,15 @@ export function createEquipment({ name, htmlText, cssText }) {
 
 		const root = Component.getRoot();
 		const selector = getSelectorFromLocation(location);
+		const gradeInner = enchantGrade ? '<div class="grade"></div>' : '';
 		root.querySelectorAll(selector).forEach(cell => {
 			cell.innerHTML =
 				'<div class="item" data-index="' +
 				item.index +
 				'">' +
-				'<button></button>' +
+				'<button>' +
+				gradeInner +
+				'</button>' +
 				'<span class="itemName">' +
 				escapeHTML(
 					add3Dots(
@@ -392,8 +569,22 @@ export function createEquipment({ name, htmlText, cssText }) {
 			});
 		});
 
+		if (enchantGrade && item.enchantgrade) {
+			Client.loadFile(DB.INTERFACE_PATH + 'grade_enchant/grade_icon' + item.enchantgrade + '.bmp', data => {
+				root.querySelectorAll(`.item[data-index="${item.index}"] .grade`).forEach(el => {
+					el.style.backgroundImage = `url(${data})`;
+				});
+			});
+		}
+
 		if (!Inventory.getUI().equippedItems.includes(item.index)) {
 			Inventory.getUI().equippedItems.push(item.index);
+		}
+
+		if (switchEquip && PACKETVER.value >= 20170621) {
+			if (!Inventory.getUI().isInEquipSwitchList(location)) {
+				SwitchEquip.equip(item, location, false);
+			}
 		}
 	};
 
@@ -401,7 +592,9 @@ export function createEquipment({ name, htmlText, cssText }) {
 		const selector = getSelectorFromLocation(location);
 		const root = Component.getRoot();
 		const item = _list[index];
-		item.equipped = 0;
+		if (entityRender) {
+			item.equipped = 0;
+		}
 
 		root.querySelectorAll(selector).forEach(el => {
 			el.innerHTML = '';
@@ -418,8 +611,12 @@ export function createEquipment({ name, htmlText, cssText }) {
 	};
 
 	Component.checkEquipLoc = function checkEquipLoc(location) {
+		if (!entityRender) {
+			return 0;
+		}
 		for (const key in _list) {
-			if (_list[key].equipped & location) {
+			const equipMask = switchEquip ? _list[key].location : _list[key].equipped;
+			if (equipMask & location) {
 				return _list[key].wItemSpriteNumber;
 			}
 		}
@@ -455,6 +652,24 @@ export function createEquipment({ name, htmlText, cssText }) {
 
 	function toggleEquip() {
 		Component.onConfigUpdate(0, !_showEquip ? 1 : 0);
+	}
+
+	function toggleCostume() {
+		Component.onConfigUpdate(5, !_hideCostume ? 1 : 0);
+	}
+
+	function onSwtichEquip() {
+		SwitchEquip.toggle();
+
+		if (SwitchEquip.ui) {
+			const switchHost = SwitchEquip._host || SwitchEquip.ui;
+			if (switchHost.style) {
+				switchHost.style.position = 'absolute';
+				switchHost.style.top = '0';
+				switchHost.style.left = '0';
+				switchHost.style.zIndex = '100';
+			}
+		}
 	}
 
 	const renderCharacter = (function renderCharacterClosure() {
@@ -495,20 +710,7 @@ export function createEquipment({ name, htmlText, cssText }) {
 			StatusConst.EffectState.CART4 |
 			StatusConst.EffectState.CART5;
 
-		return function renderChar() {
-			const equip_character = new Entity();
-			equip_character.set({
-				GID: Session.Entity.GID + '_EQUIP',
-				objecttype: equip_character.constructor.TYPE_PC,
-				job: Session.Entity.job,
-				sex: Session.Entity.sex,
-				name: '',
-				hideShadow: true,
-				head: Session.Entity.head,
-				headpalette: Session.Entity.headpalette,
-				bodypalette: Session.Entity.bodypalette
-			});
-
+		function updateAttachmentButtons() {
 			if (Session.Entity.effectState !== _lastState || _hasCart !== Session.Entity.hasCart) {
 				_lastState = Session.Entity.effectState;
 				_hasCart = Session.Entity.hasCart;
@@ -529,6 +731,52 @@ export function createEquipment({ name, htmlText, cssText }) {
 					if (cartBtn) cartBtn.style.display = 'none';
 				}
 			}
+		}
+
+		function renderLegacy() {
+			const character = Session.Entity;
+			const direction = character.direction;
+			const headDir = character.headDir;
+			const action = character.action;
+			const animation = character.animation;
+
+			updateAttachmentButtons();
+
+			Camera.direction = 4;
+			character.direction = 4;
+			character.headDir = 0;
+			character.action = character.ACTION.IDLE;
+			character.animation = _animation;
+
+			_savedColor.set(character.effectColor);
+			character.effectColor.set(_cleanColor);
+
+			SpriteRenderer.bind2DContext(_ctx[0], 30, 130);
+			_ctx[0].clearRect(0, 0, _ctx[0].canvas.width, _ctx[0].canvas.height);
+			character.renderEntity();
+
+			character.direction = direction;
+			character.headDir = headDir;
+			character.action = action;
+			character.animation = animation;
+			character.effectColor.set(_savedColor);
+		}
+
+		function renderEntity() {
+			const equip_character = new Entity();
+			equip_character.set({
+				GID: Session.Entity.GID + '_EQUIP',
+				objecttype: equip_character.constructor.TYPE_PC,
+				job: Session.Entity.job,
+				sex: Session.Entity.sex,
+				name: '',
+				hideShadow: true,
+				head: Session.Entity.head,
+				headpalette: Session.Entity.headpalette,
+				bodypalette: Session.Entity.bodypalette
+			});
+
+			updateAttachmentButtons();
 
 			if (currentTabId === 'general') {
 				equip_character.accessory = Component.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
@@ -556,6 +804,14 @@ export function createEquipment({ name, htmlText, cssText }) {
 				SpriteRenderer.bind2DContext(ctx, 30, 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				equip_character.renderEntity(ctx);
+			}
+		}
+
+		return function renderChar() {
+			if (entityRender) {
+				renderEntity();
+			} else {
+				renderLegacy();
 			}
 		};
 	})();
@@ -703,9 +959,135 @@ export function createEquipment({ name, htmlText, cssText }) {
 		return num;
 	};
 
-	Component.isInEquipList = function () {
-		return 0;
-	};
+	if (switchEquip) {
+		Component.isInEquipList = function (data) {
+			for (const key in _list) {
+				if (_list[key].location & data) {
+					return _list[key];
+				}
+			}
+			return 0;
+		};
+
+		Component.equipItemsToSwitch = function () {
+			const equipmentKeys = Object.keys(_list);
+			for (let i = 0; i < equipmentKeys.length; i++) {
+				const key = equipmentKeys[i];
+				const equipmentItem = _list[key];
+				if (equipmentItem.location) {
+					SwitchEquip.equip(equipmentItem, equipmentItem.location, false);
+				}
+			}
+		};
+	} else {
+		Component.isInEquipList = function () {
+			return 0;
+		};
+	}
+
+	if (titles) {
+		Component.loadTitles = function () {
+			const root = Component.getRoot();
+			const titleList = root.querySelector('#title_list');
+			if (!titleList) return;
+			titleList.innerHTML = '';
+
+			const removeTitleText = DB.getMessage(2686) || 'Remove Title';
+			const removeSelectedClass = _currentTitleId === 0 ? ' selected' : '';
+			const removeEl = document.createElement('div');
+			removeEl.className = `title-option${removeSelectedClass}`;
+			removeEl.setAttribute('data-title', '0');
+			removeEl.textContent = removeTitleText;
+			titleList.appendChild(removeEl);
+
+			const allTitles = DB.getAllTitles();
+			for (const titleId in allTitles) {
+				if (allTitles.hasOwnProperty(titleId)) {
+					const titleName = allTitles[titleId];
+					const selectedClass = parseInt(titleId) === _currentTitleId ? ' selected' : '';
+					const titleEl = document.createElement('div');
+					titleEl.className = `title-option${selectedClass}`;
+					titleEl.setAttribute('data-title', titleId);
+					titleEl.textContent = titleName;
+					titleList.appendChild(titleEl);
+				}
+			}
+
+			titleList.addEventListener('click', e => {
+				const option = e.target.closest('.title-option');
+				if (option) {
+					e.preventDefault();
+					e.stopPropagation();
+					const titleId = parseInt(option.getAttribute('data-title'));
+					Component.selectTitle(titleId);
+				}
+			});
+		};
+
+		Component.selectTitle = function (titleId) {
+			const pkt = new PACKET.CZ.REQ_CHANGE_TITLE();
+			pkt.title_id = titleId;
+			Network.sendPacket(pkt);
+		};
+
+		Component.setTitle = function OnSetTitle(titleId) {
+			_currentTitleId = titleId;
+			Component.loadTitles();
+		};
+	}
+
+	if (damageSkin) {
+		Component.setDamageSkin = function setDamageSkin(skinId) {
+			const root = Component.getRoot();
+			const buttons = root.querySelectorAll('#damageskin .skin-option');
+			const buttonSelected = root.querySelector(`#damageskin .skin-option[data-skin="${skinId}"]`);
+
+			GraphicsSettings.damageSkin = skinId;
+			GraphicsSettings.save();
+
+			buttons.forEach(btn => {
+				btn.setAttribute('data-background', 'showdamage/btn_damage.bmp');
+				btn.setAttribute('data-hover', 'showdamage/btn_damage_press.bmp');
+				btn.setAttribute('data-down', 'showdamage/btn_damage_pick.bmp');
+			});
+			if (this.parseHTML) {
+				buttons.forEach(btn => {
+					this.parseHTML.call(btn);
+				});
+			}
+
+			Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage.bmp', data => {
+				buttons.forEach(btn => {
+					btn.style.backgroundImage = `url(${data})`;
+				});
+			});
+
+			if (buttonSelected) {
+				Client.loadFile(DB.INTERFACE_PATH + 'showdamage/btn_damage_pick.bmp', data => {
+					buttonSelected.style.backgroundImage = `url(${data})`;
+				});
+
+				buttonSelected.onmouseover = null;
+				buttonSelected.onmouseout = null;
+			}
+		};
+
+		Component.setDamageMotion = function setDamageMotion(motionId) {
+			GraphicsSettings.damageMotion = motionId;
+			GraphicsSettings.save();
+
+			const root = Component.getRoot();
+			const checkboxes = root.querySelectorAll('.motion-check');
+
+			checkboxes.forEach(btn => {
+				const btnId = parseInt(btn.getAttribute('data-motion'), 10);
+				const bgImage = btnId === motionId ? 'checkbox_1.bmp' : 'checkbox_0.bmp';
+				Client.loadFile(DB.INTERFACE_PATH + bgImage, data => {
+					btn.style.backgroundImage = `url(${data})`;
+				});
+			});
+		};
+	}
 
 	Component.onUnEquip = function onUnEquip(/* index */) {};
 	Component.onConfigUpdate = function onConfigUpdate(/* type, value*/) {};
