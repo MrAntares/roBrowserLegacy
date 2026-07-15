@@ -98,95 +98,18 @@
 		</style>
 
 		<script type="text/javascript" src="../api/api.js"></script>
+		<script type="text/javascript" src="../shared/config-loader.js"></script>
+		<script type="text/javascript" src="../shared/demo-config.js"></script>
 		<script type="text/javascript">
 			function initialize(gitHash) {
-				var ROConfig = {
+				// Shared demo config, deep-merged with an optional gitignored
+				// Config.local.js (window.ROConfigLocal) and this page's runtime values.
+				var ROConfig = ROConfigLoader.buildConfig(window.RODemoConfig, {
 					target: document.getElementById('robrowser'),
 					type: ROBrowser.TYPE.INLINE,
 					application: ROBrowser.APP.ONLINE,
-					development: true,
-					version: gitHash,
-					remoteClient: 'https://grf.robrowser.com/',
-					servers: [
-						{
-							display: 'Your Local Server[PRE]',
-							desc: '2013 demo server',
-							address: '127.0.0.1',
-							port: 6900,
-							version: 25,
-							langtype: 12,
-							packetver: 20130618,
-							renewal: false,
-							worldMapSettings: { episode: 12 },
-							packetKeys: false,
-							socketProxy: 'ws://localhost:5999',
-							remoteClient: '/remote-client/',
-							adminList: []
-						},
-						{
-							display: 'Your Local Server[RE]',
-							desc: '2025 demo server',
-							address: '127.0.0.1',
-							port: 6900,
-							version: 55,
-							langtype: 12,
-							packetver: 20250618,
-							renewal: true,
-							worldMapSettings: { episode: 21 },
-							packetKeys: false,
-							socketProxy: 'ws://localhost:5999',
-							remoteClient: '/remote-client/',
-							adminList: []
-						},
-						{
-							display: 'NiktoutRO Chaos',
-							desc: 'NiktoutRO Chaos [100k/100k/10%]',
-							address: 'chaos.niktoutro.com',
-							port: 6905,
-							version: 55,
-							langtype: 1,
-							packetver: 20151104,
-							renewal: true,
-							socketProxy: 'wss://classicweb.niktoutro.com:5999',
-							remoteClient: 'https://classicweb.niktoutro.com/chaosclient/',
-							registrationweb: 'https://niktoutro.com/?module=account&action=create',
-							packetKeys: true,
-							adminList: [2000002]
-						}
-						// ADD PUBLIC TEST SERVERS HERE. IF YOU DON'T ALLOW _M _F REGISTRATION BE SURE TO ADD THE registrationweb CONFIG
-					],
-					packetDump: false,
-					skipServerList: true,
-					skipIntro: false,
-					aura: {},
-					autoLogin: [],
-					BGMFileExtension: ['mp3'],
-					calculateHash: false,
-					CameraMaxZoomOut: 5,
-					charBlockSize: 0,
-					clientHash: null,
-					clientVersionMode: 'PacketVer',
-					disableConsole: false,
-					enableAchievements: true,
-					enableBank: true,
-					enableCashShop: true,
-					enableCheckAttendance: true,
-					enableDmgSuffix: true,
-					enableHomunAutoFeed: true,
-					enableMapName: true,
-					enableRoulette: true,
-					FirstPersonCamera: false,
-					grfList: null,
-					hashFiles: [],
-					loadLua: true,
-					onReady: null,
-					plugins: {},
-					registrationweb: '',
-					saveFiles: false,
-					ThirdPersonCamera: false,
-					transitionDuration: 500,
-					restoreChatFocus: false
-				};
+					version: gitHash
+				});
 				var RO = new ROBrowser(ROConfig);
 				RO.start();
 			}
@@ -213,24 +136,26 @@
 			window.addEventListener(
 				'load',
 				function () {
-					//Get latest GIT hash first then initialize
-					getJSON(
-						'https://api.github.com/repos/MrAntares/roBrowserLegacy/commits/master',
-						function (err, data) {
-							var gitHash = 'NO_INFO';
-							if (err !== null) {
-								console.warn('Error reading latest GIT hash.');
-							} else {
-								if (data && data.sha) {
-									gitHash = data.sha;
-									console.log('Latest GIT hash: ' + gitHash);
+					// Load optional gitignored overrides, then get latest GIT hash and initialize
+					ROConfigLoader.loadLocalConfig('Config.local.js', function () {
+						getJSON(
+							'https://api.github.com/repos/MrAntares/roBrowserLegacy/commits/master',
+							function (err, data) {
+								var gitHash = 'NO_INFO';
+								if (err !== null) {
+									console.warn('Error reading latest GIT hash.');
 								} else {
-									console.warn('No hash found in response');
+									if (data && data.sha) {
+										gitHash = data.sha;
+										console.log('Latest GIT hash: ' + gitHash);
+									} else {
+										console.warn('No hash found in response');
+									}
 								}
+								initialize(gitHash);
 							}
-							initialize(gitHash);
-						}
-					);
+						);
+					});
 				},
 				false
 			);

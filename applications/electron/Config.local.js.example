@@ -1,0 +1,36 @@
+/**
+ * roBrowser Local Configuration Overrides (Electron desktop)
+ *
+ * Copy this file to Config.local.js and customize as needed.
+ * Values here are deep-merged over the shared demo config
+ * (applications/shared/demo-config.js) at runtime.
+ *
+ * Config.local.js is gitignored and optional: it is silently ignored if
+ * absent, so you never have to edit git-tracked files to run your own server.
+ */
+window.ROConfigLocal = {
+	// Example: Override server settings
+	servers: [
+		{
+			display: 'My Private Server',
+			desc: 'custom server',
+			address: '127.0.0.1',
+			port: 6900,
+			version: 25,
+			langtype: 12,
+			packetver: 20130618,
+			renewal: false,
+			worldMapSettings: { episode: 12 },
+			packetKeys: false,
+			socketProxy: 'ws://localhost:5999',
+			remoteClient: '/remote-client/',
+			adminList: [2000000]
+		}
+	]
+
+	// Example: Point the Electron web server elsewhere
+	// webserverAddress: 'http://127.0.0.1:8888',
+
+	// Example: Custom remote client URL
+	// remoteClient: 'https://my-grf-server.com/',
+};

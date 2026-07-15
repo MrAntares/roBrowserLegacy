@@ -31,87 +31,26 @@ jobs:
 
       - name: Create demo Config.local.js
         run: |
-          cat > dist/Web/Config.local.js << 'EOF'  
-          window.ROConfigLocal = {  
-              development: true,  
-              remoteClient: 'https://grf.robrowser.com/',  
-              servers: [  
-                  {
-                      display: 'Your Local Server[PRE]',
-                      desc: '2013 demo server',
-                      address: '127.0.0.1',
-                      port: 6900,
-                      version: 25,
-                      langtype: 12,
-                      packetver: 20130618,
-                      renewal: false,
-                      worldMapSettings: { episode: 12 },
-                      packetKeys: false,
-                      socketProxy: 'ws://localhost:5999',
-                      remoteClient: '/remote-client/',
-                      adminList: []
-                  },
-                  {
-                      display: 'Your Local Server[RE]',
-                      desc: '2025 demo server',
-                      address: '127.0.0.1',
-                      port: 6900,
-                      version: 55,
-                      langtype: 12,
-                      packetver: 20250618,
-                      renewal: true,
-                      worldMapSettings: { episode: 21 },
-                      packetKeys: false,
-                      socketProxy: 'ws://localhost:5999',
-                      remoteClient: '/remote-client/',
-                      adminList: []
-                  }, 
-                  {  
-                      display: 'NiktoutRO Chaos',  
-                      desc: 'NiktoutRO Chaos [100k/100k/10%]',  
-                      address: 'chaos.niktoutro.com',  
-                      port: 6905,  
-                      version: 55,  
-                      langtype: 1,  
-                      packetver: 20151104,  
-                      renewal: true,  
-                      socketProxy: 'wss://classicweb.niktoutro.com:5999',  
-                      remoteClient: 'https://classicweb.niktoutro.com/chaosclient/',  
-                      registrationweb: 'https://niktoutro.com/?module=account&action=create',  
-                      packetKeys: true,  
-                      adminList: [2000002]  
-                  }  
-              ],  
-              packetDump: false,  
-              skipServerList: true,  
-              skipIntro: false,  
-              aura: {},  
-              autoLogin: [],  
-              BGMFileExtension: ['mp3'],  
-              calculateHash: false,  
-              CameraMaxZoomOut: 5,  
-              charBlockSize: 0,  
-              clientHash: null,  
-              clientVersionMode: 'PacketVer',  
-              disableConsole: false,  
+          # Source the demo servers/settings from the single shared demo config
+          # (applications/shared/demo-config.js -> window.RODemoConfig) so this
+          # deployment stays in sync with the demo.html / electron builds.
+          cp applications/shared/demo-config.js dist/Web/Config.local.js
+          cat >> dist/Web/Config.local.js << 'EOF'
+
+          // GitHub Pages public demo: trim heavy/local-only features on top of
+          // the shared demo config (window.RODemoConfig defined above).
+          window.ROConfigLocal = Object.assign({}, window.RODemoConfig, {
               enableAchievements: false,
-              enableBank: false,  
-              enableCashShop: false,  
-              enableCheckAttendance: false,  
-              enableDmgSuffix: false,  
-              enableHomunAutoFeed: false,  
-              enableMapName: false,  
-              FirstPersonCamera: false,  
-              grfList: null,  
-              hashFiles: [],  
-              loadLua: false,  
-              onReady: null,  
-              plugins: {},  
-              registrationweb: '',  
-              saveFiles: true,  
-              ThirdPersonCamera: false,  
-              transitionDuration: 500
-          };
+              enableBank: false,
+              enableCashShop: false,
+              enableCheckAttendance: false,
+              enableDmgSuffix: false,
+              enableHomunAutoFeed: false,
+              enableMapName: false,
+              enableRoulette: false,
+              loadLua: false,
+              saveFiles: true
+          });
           EOF
 
       - name: Prepare branch subfolder
