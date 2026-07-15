@@ -9,6 +9,14 @@
  * this is a thin, self-contained draw path over the SAME decode (Loaders/GR2Loader.js) and
  * the SAME shaders (GR2Model.vs/fs) + vertex layout (gr2Pack.packRobrowserInterleave).
  *
+ * NOTE (design / TODO): the RSM ModelViewer needs no such extra renderer because it reuses the
+ * shared Renderer/Map/Models.js (a clean init/render/free API used both in-game and by the
+ * viewer). The GR2 analogue, GR2ModelRenderer.js, is not yet reusable that way — its render loop
+ * is map/entity-driven. For NOW we ship this separate viewer-only renderer to keep the fix
+ * decoupled and risk-free; in the LONG RUN GR2ModelRenderer should be refactored to split its
+ * map-coupled bits from a reusable core, and this file should then be retired in favour of that
+ * single shared GR2 renderer (the "option 2" path).
+ *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
