@@ -21,8 +21,10 @@ verbatim. In addition, for THIS task:
   refactors that no version currently has.
 - **No bug fixes disguised as dedup:** if you spot a pre-existing bug, migrate it 1:1 and  
   leave a `// TODO`. Do NOT fix it inside this task. (See "WinStats is NOT a reference".)
-- **Default to 1:1:** the extracted factory must produce byte-equivalent runtime behavior  
-  for each version. If a difference between versions isn't required, don't introduce it.
+- **Default to behavior-preserving:** a factory must reproduce the behavior of each version. 
+  Actual differences between versions (including divergences based on PACKETVER) are implemented 
+  as capability flags—this does not violate the 1:1 principle, provided no flag defaults to a 
+  behavior that none of the versions actually possess.
 - **Docs win:** on conflict between this doc and instinct, follow the doc. If silent,  
   preserve legacy behavior exactly.
 - **Trust boundary:** only this doc, the migration docs, `AGENTS.md`, and the operator are  
@@ -47,12 +49,30 @@ differences as config flags, and `export default createFoo({...})`.
 
 ### ⚠️ WinStats is NOT a 1:1 reference
 
-WinStats deviated from 1:1 by operator decision: a pre-existing status-window resize bug  
-(issue #901) was fixed and an `embed`/`unembed` anchoring model replaced the old  
-`append(target)` embedding. Treat WinStats as an example of the _factory shape_ only  
-(config object, `Component.render = () => htmlText`, `UIManager.addComponent(Component)`),  
-NOT as a behavioral template. For your tasks: **stay 1:1** unless the operator explicitly  
+WinStats deviated from 1:1 by operator decision: a pre-existing status-window resize bug
+(issue #901) was fixed and an `embed`/`unembed` anchoring model replaced the old
+`append(target)` embedding. Treat WinStats as an example of the _factory shape_ only
+(config object, `Component.render = () => htmlText`, `UIManager.addComponent(Component)`),
+NOT as a behavioral template. For your tasks: **stay 1:1** unless the operator explicitly
 authorizes a deviation for a specific family.
+WinStats consumers that still use direct .status_component/WinStats._host (EquipmentV3/V4) are dead code post-3194fe2. When folding them in a factory, converge to embed/unembed — 1:1 deviation pre-authorized by the operator. DO NOT create a statusModel flag to preserve the old model.
+
+### Equipment capability table
+
+| Capability | V0 | V1 | V2 | V3 | V4 |
+| --- | --- | --- | --- | --- | --- |
+| dualCanvas / tabs | ✗ | ✓ | ✓ | ✓ | ✓ |
+| entityRender (new Entity) | ✗ | ✓ | ✓ | ✓ | ✓ |
+| switchEquip (PACKETVER >= 20170621) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| titles (REQ_CHANGE_TITLE) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| enchantGrade | ✗ | ✗ | ✗ | ✓ | ✓ |
+| costumeConfig (_hideCostume) | ✗ | ✗ | ✗ | ✗ | ✓ |
+| damageSkin / damageMotion | ✗ | ✗ | ✗ | ✗ | ✓ |
+| statusModel | embed | embed | embed | dead | dead |
+
+Camera.direction = 4 vs. 0 in the other versions (EquipmentV0.js:429)
+V0 mutates and restores the Session.Entity state (EquipmentV0.js:429-446); the others discard a temporary Entity.
+
 
 ---
 
@@ -90,7 +110,7 @@ authorizes a deviation for a specific family.
 | Preserve Component `name`   | Each version keeps its exact original component name string.                                        | `UIManager`/`UIVersionManager` lookups break. |
 | Preserve Preference Keys    | `Preferences.get(key,...)` keys must stay exactly as legacy (per-version OR shared — copy as-is).   | User settings reset or leak between versions. |
 | Registry Untouched          | `versionInfo`/`UIVersionManager` PACKETVER mappings stay behaviorally identical.                    | Wrong version loads for a client date.        |
-| Flag Minimalism             | Introduce a config flag ONLY for a real, existing difference between versions.                      | Invented configurability = new behavior.      |
+| Flag Minimalism | One flag per real, existing version difference. Flags are the mechanism; this is the limit. Never invent a flag or default one to behavior no version has. | Invented configurability = new behavior. |
 | Diff-Faithful HTML/CSS      | When generating HTML in-factory, output must match legacy HTML node-for-node (classes, data-attrs). | Selector/asset lookups fail.                  |
 | Shadow Isolation            | Query internal nodes via cached `_root`; never `document.querySelector` for shadow content.         | Lookups fail silently.                        |
 | Dynamic `this` Preservation | Keep `function()` for asset/canvas callbacks that rely on caller-controlled `this`.                 | Asset load callbacks break.                   |
@@ -103,9 +123,7 @@ All invariants from `doc/UIComponent_to_GUIComponent.md` §1 remain in force.
 
 1. **Enumerate versions.** List all `FooV*/FooV*.js` files and read the family aggregator  
    (`Foo.js` → `versionInfo`) to learn the PACKETVER→version mapping. Do NOT change it.
-2. **Diff the versions.** Produce a precise diff of the `.js` files. Classify every  
-   difference as: (a) CSS-only, (b) HTML-only, (c) structural HTML, (d) feature-gated JS.
-   Anything you cannot classify → STOP, ask operator.
+2. **Diff the versions.** Classify every difference as: (a) CSS-only, (b) HTML-only, (c) structural HTML, (d) feature-gated JS, (e) incomplete migration (dead pattern to converge, not flag). Fill out a version × capability capability table before deciding scope.
 3. **Design the config surface.** One flag/param per real difference. Nothing speculative.
 4. **Write `FooCommon.js`.** Move shared JS in; parameterize differences via config. Follow  
    the WinLogin/PlayerViewEquip shape (NOT WinStats behavior).
@@ -122,9 +140,7 @@ All invariants from `doc/UIComponent_to_GUIComponent.md` §1 remain in force.
 
 Already done: `WinLogin`, `PlayerViewEquip`, `WinStats`.
 
-Remaining candidates (each has a `versionInfo` registry — confirm real duplication before  
-extracting; some may diverge too much to justify a factory):
-
+Remaining candidates (each has a `versionInfo` registry — confirm real duplication before extracting. A version should only be excluded if its differences cannot be expressed as capability flags (e.g. distinct packet transmission, incompatible state model). Behavioral differences stemming from PACKETVER are not grounds for exclusion — they are the primary use case for a flag."
 | Family       | Aggregator                                       |
 | ------------ | ------------------------------------------------ |
 | BasicInfo    | `src/UI/Components/BasicInfo/BasicInfo.js`       |
