@@ -21,9 +21,9 @@ verbatim. In addition, for THIS task:
   refactors that no version currently has.
 - **No bug fixes disguised as dedup:** if you spot a pre-existing bug, migrate it 1:1 and  
   leave a `// TODO`. Do NOT fix it inside this task. (See "WinStats is NOT a reference".)
-- **Default to behavior-preserving:** a factory must reproduce the behavior of each version. 
-  Actual differences between versions (including divergences based on PACKETVER) are implemented 
-  as capability flags—this does not violate the 1:1 principle, provided no flag defaults to a 
+- **Default to behavior-preserving:** a factory must reproduce the behavior of each version.
+  Actual differences between versions (including divergences based on PACKETVER) are implemented
+  as capability flags—this does not violate the 1:1 principle, provided no flag defaults to a
   behavior that none of the versions actually possess.
 - **Docs win:** on conflict between this doc and instinct, follow the doc. If silent,  
   preserve legacy behavior exactly.
@@ -59,20 +59,19 @@ WinStats consumers that still use direct .status_component/WinStats._host (Equip
 
 ### Equipment capability table
 
-| Capability | V0 | V1 | V2 | V3 | V4 |
-| --- | --- | --- | --- | --- | --- |
-| dualCanvas / tabs | ✗ | ✓ | ✓ | ✓ | ✓ |
-| entityRender (new Entity) | ✗ | ✓ | ✓ | ✓ | ✓ |
-| switchEquip (PACKETVER >= 20170621) | ✗ | ✗ | ✗ | ✓ | ✓ |
-| titles (REQ_CHANGE_TITLE) | ✗ | ✗ | ✗ | ✓ | ✓ |
-| enchantGrade | ✗ | ✗ | ✗ | ✓ | ✓ |
-| costumeConfig (_hideCostume) | ✗ | ✗ | ✗ | ✗ | ✓ |
-| damageSkin / damageMotion | ✗ | ✗ | ✗ | ✗ | ✓ |
-| statusModel | embed | embed | embed | dead | dead |
+| Capability                          | V0    | V1    | V2    | V3   | V4   |
+| ----------------------------------- | ----- | ----- | ----- | ---- | ---- |
+| dualCanvas / tabs                   | ✗     | ✓     | ✓     | ✓    | ✓    |
+| entityRender (new Entity)           | ✗     | ✓     | ✓     | ✓    | ✓    |
+| switchEquip (PACKETVER >= 20170621) | ✗     | ✗     | ✗     | ✓    | ✓    |
+| titles (REQ_CHANGE_TITLE)           | ✗     | ✗     | ✗     | ✓    | ✓    |
+| enchantGrade                        | ✗     | ✗     | ✗     | ✓    | ✓    |
+| costumeConfig (_hideCostume)        | ✗     | ✗     | ✗     | ✗    | ✓    |
+| damageSkin / damageMotion           | ✗     | ✗     | ✗     | ✗    | ✓    |
+| statusModel                         | embed | embed | embed | dead | dead |
 
 Camera.direction = 4 vs. 0 in the other versions (EquipmentV0.js:429)
 V0 mutates and restores the Session.Entity state (EquipmentV0.js:429-446); the others discard a temporary Entity.
-
 
 ---
 
@@ -103,17 +102,17 @@ V0 mutates and restores the Session.Entity state (EquipmentV0.js:429-446); the o
 
 ## 3. Hard Invariants (dedup-specific)
 
-| Invariant                   | Rule                                                                                                | Violation                                     |
-| --------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Behavior Parity             | Each version's runtime behavior must be identical pre/post extraction.                              | Silent regressions across PACKETVER ranges.   |
-| No Shared Mutable State     | Per-instance state lives inside `createFoo`, never at module scope shared across versions.          | Two versions clobbering each other's state.   |
-| Preserve Component `name`   | Each version keeps its exact original component name string.                                        | `UIManager`/`UIVersionManager` lookups break. |
-| Preserve Preference Keys    | `Preferences.get(key,...)` keys must stay exactly as legacy (per-version OR shared — copy as-is).   | User settings reset or leak between versions. |
-| Registry Untouched          | `versionInfo`/`UIVersionManager` PACKETVER mappings stay behaviorally identical.                    | Wrong version loads for a client date.        |
-| Flag Minimalism | One flag per real, existing version difference. Flags are the mechanism; this is the limit. Never invent a flag or default one to behavior no version has. | Invented configurability = new behavior. |
-| Diff-Faithful HTML/CSS      | When generating HTML in-factory, output must match legacy HTML node-for-node (classes, data-attrs). | Selector/asset lookups fail.                  |
-| Shadow Isolation            | Query internal nodes via cached `_root`; never `document.querySelector` for shadow content.         | Lookups fail silently.                        |
-| Dynamic `this` Preservation | Keep `function()` for asset/canvas callbacks that rely on caller-controlled `this`.                 | Asset load callbacks break.                   |
+| Invariant                   | Rule                                                                                                                                                       | Violation                                     |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Behavior Parity             | Each version's runtime behavior must be identical pre/post extraction.                                                                                     | Silent regressions across PACKETVER ranges.   |
+| No Shared Mutable State     | Per-instance state lives inside `createFoo`, never at module scope shared across versions.                                                                 | Two versions clobbering each other's state.   |
+| Preserve Component `name`   | Each version keeps its exact original component name string.                                                                                               | `UIManager`/`UIVersionManager` lookups break. |
+| Preserve Preference Keys    | `Preferences.get(key,...)` keys must stay exactly as legacy (per-version OR shared — copy as-is).                                                          | User settings reset or leak between versions. |
+| Registry Untouched          | `versionInfo`/`UIVersionManager` PACKETVER mappings stay behaviorally identical.                                                                           | Wrong version loads for a client date.        |
+| Flag Minimalism             | One flag per real, existing version difference. Flags are the mechanism; this is the limit. Never invent a flag or default one to behavior no version has. | Invented configurability = new behavior.      |
+| Diff-Faithful HTML/CSS      | When generating HTML in-factory, output must match legacy HTML node-for-node (classes, data-attrs).                                                        | Selector/asset lookups fail.                  |
+| Shadow Isolation            | Query internal nodes via cached `_root`; never `document.querySelector` for shadow content.                                                                | Lookups fail silently.                        |
+| Dynamic `this` Preservation | Keep `function()` for asset/canvas callbacks that rely on caller-controlled `this`.                                                                        | Asset load callbacks break.                   |
 
 All invariants from `doc/UIComponent_to_GUIComponent.md` §1 remain in force.
 
@@ -141,6 +140,7 @@ All invariants from `doc/UIComponent_to_GUIComponent.md` §1 remain in force.
 Already done: `WinLogin`, `PlayerViewEquip`, `WinStats`.
 
 Remaining candidates (each has a `versionInfo` registry — confirm real duplication before extracting. A version should only be excluded if its differences cannot be expressed as capability flags (e.g. distinct packet transmission, incompatible state model). Behavioral differences stemming from PACKETVER are not grounds for exclusion — they are the primary use case for a flag."
+
 | Family       | Aggregator                                       |
 | ------------ | ------------------------------------------------ |
 | BasicInfo    | `src/UI/Components/BasicInfo/BasicInfo.js`       |
