@@ -72,12 +72,14 @@ Viewer.init = function init() {
 
 	const root = Viewer.getRoot();
 
-	if (!Configs.get('API')) {
+	if (!Configs.get('api')) {
 		initDropDown(root.querySelector('select'));
 	} else {
 		const hash = decodeURIComponent(location.hash);
 		location.hash = hash;
-		loadEffect(hash.substr(1));
+		if (hash.length > 1) {
+			loadEffect(hash.substr(1));
+		}
 	}
 };
 

@@ -40,7 +40,7 @@ export default function init() {
 	}
 
 	// Resources sharing
-	if (Configs.get('API')) {
+	if (Configs.get('api')) {
 		window.addEventListener('message', onAPIMessage, false);
 		return;
 	}
