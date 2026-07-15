@@ -1137,8 +1137,7 @@ const onGrannyClick = (() => {
 		return true;
 	}
 
-	// Ressource sharing (Currently unused, preserved for future development)
-	function _onMessage(event) {
+	function onMessage(event) {
 		if (typeof event.data !== 'object') {
 			return;
 		}
@@ -1166,22 +1165,17 @@ const onGrannyClick = (() => {
 		}
 	}
 
-	// Wait for synchronisation with frame (Currently unused, preserved for future development)
-	function _synchronise() {
+	function synchronise() {
 		if (!ready) {
 			App._APP.postMessage({ type: 'init' }, location.origin);
-			setTimeout(_synchronise, 100);
+			setTimeout(synchronise, 100);
 		}
 	}
 
-	return _iconEl => {
+	return iconEl => {
 		if (!initApp()) return;
-		alert('This module is under development.');
-		return;
-
-		/*
 		const root = Viewer.getRoot();
-		const path = _iconEl.getAttribute('data-path').replace(/\\/g, '/');
+		const path = iconEl.getAttribute('data-path').replace(/\\/g, '/');
 		const box = root.querySelector('#preview .box');
 		const preview = root.querySelector('#preview');
 
@@ -1190,14 +1184,18 @@ const onGrannyClick = (() => {
 
 		preview.style.display = 'block';
 
-		preview.addEventListener('click', () => {
-			preview.style.display = 'none';
-			element.style.display = 'none';
-			App._APP.postMessage({ type: 'stop' }, location.origin);
-			window.removeEventListener('message', _onMessage, false);
-		}, { once: true });
+		preview.addEventListener(
+			'click',
+			() => {
+				preview.style.display = 'none';
+				element.style.display = 'none';
+				App._APP.postMessage({ type: 'stop' }, location.origin);
+				window.removeEventListener('message', onMessage, false);
+			},
+			{ once: true }
+		);
 
-		window.addEventListener('message', _onMessage, false);
+		window.addEventListener('message', onMessage, false);
 
 		if (!ready) {
 			box.appendChild(element);
@@ -1206,7 +1204,7 @@ const onGrannyClick = (() => {
 			App.onReady = () => {
 				App._APP.frameElement.style.border = '1px solid grey';
 				App._APP.frameElement.style.backgroundColor = '#45484d';
-				_synchronise();
+				synchronise();
 			};
 			App.onload = () => {
 				App._APP.postMessage({ type: 'load', data: path }, location.origin);
@@ -1214,7 +1212,6 @@ const onGrannyClick = (() => {
 		} else {
 			App._APP.postMessage({ type: 'load', data: path }, location.origin);
 		}
-		*/
 	};
 })();
 
