@@ -174,7 +174,6 @@ function loadModel(filename) {
 	Client.getFile(filename, buf => {
 		_model = new Model(buf);
 
-		const data = _model.compile();
 		let i, count, j, size, offset, length;
 		const objects = [];
 		const infos = [];
@@ -184,6 +183,8 @@ function loadModel(filename) {
 
 		_GlobalParameters.filename = filename.replace('data/model/', '');
 		_model.createInstance(_GlobalParameters, 0, 0);
+
+		const data = _model.compile();
 
 		count = data.meshes.length;
 		let total = 0;
