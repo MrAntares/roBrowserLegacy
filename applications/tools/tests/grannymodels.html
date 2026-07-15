@@ -12,18 +12,14 @@
     window.ROConfig = { servers: [{ packetver: 0 }], packetver: 0 };
 
     import FileTester from './FileTester.js';
-    import GrannyModel from 'Loaders/GrannyModel.js';
+    import GR2Loader from 'Loaders/GR2Loader.js';
 
-    const param = {
-      position: new Float32Array(3),
-      scale:    new Float32Array([1, 1, 1]),
-      rotation: new Float32Array(3)
-    };
-
-    const ft = new FileTester('gr2', data => {
-      const model = new GrannyModel(data);
-      model.createInstance(param, 0, 0);
-      model.compile();
+    const ft = new FileTester('gr2', async data => {
+      await GR2Loader.ready();
+      const model = new GR2Loader(data);
+      // Touch the decoded outputs so a decode regression surfaces as a tester failure.
+      void model.meshes.length;
+      void model.boneCount;
     });
 
     ft.start();
