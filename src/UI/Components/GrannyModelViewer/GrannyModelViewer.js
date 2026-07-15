@@ -60,10 +60,12 @@ const _view = new Float32Array(4 * 4);
 let _hasModel = false;
 
 /**
- * Camera framing derived from the current model's bounds.
+ * Camera framing derived from the current model's bounds. `_radius` is the model's bounding
+ * sphere; the orbit distance is recomputed each frame from the live FOV/aspect so the model
+ * always fits the viewport (and reframes on window resize).
  */
 let _target = [0, 0, 0];
-let _distance = 10;
+let _radius = 1;
 
 /**
  * Create GrannyModelViewer component
@@ -164,8 +166,22 @@ function stop() {
  */
 function frameCamera(bounds) {
 	_target = bounds.center;
-	// Pull back far enough to fit the bounding sphere in view, with headroom.
-	_distance = Math.max(bounds.radius * 2.6, 1);
+	_radius = Math.max(bounds.radius, 0.001);
+}
+
+/**
+ * fitDistance() -> orbit distance that fits the model's bounding sphere in the current viewport.
+ * Renderer uses a narrow vertical FOV (Renderer.vFov, degrees); for a sphere of radius R the fit
+ * distance is R / sin(halfFov). The limiting axis is vertical on landscape windows and horizontal
+ * on portrait ones, so derive the horizontal half-FOV from the aspect and take the tighter one.
+ * A small margin keeps the model off the very edges.
+ */
+function fitDistance() {
+	const aspect = (Renderer.width || 1) / (Renderer.height || 1);
+	const vHalf = (Renderer.vFov / 2) * (Math.PI / 180);
+	const hHalf = Math.atan(Math.tan(vHalf) * aspect);
+	const halfFov = Math.min(vHalf, hHalf);
+	return (_radius / Math.sin(halfFov)) * 1.15;
 }
 
 /**
@@ -217,7 +233,7 @@ function render(tick, gl) {
 	// Orbit view: pull back by _distance, tilt down slightly, spin around Y, then recenter on
 	// the model. view = T(0,0,-d) . Rx(pitch) . Ry(yaw) . T(-center).
 	mat4.identity(_view);
-	mat4.translate(_view, _view, [0, 0, -_distance]);
+	mat4.translate(_view, _view, [0, 0, -fitDistance()]);
 	mat4.rotateX(_view, _view, (20 / 180) * Math.PI);
 	mat4.rotateY(_view, _view, (((tick / 1000) * 360) / 12 / 180) * Math.PI);
 	mat4.translate(_view, _view, [-_target[0], -_target[1], -_target[2]]);
