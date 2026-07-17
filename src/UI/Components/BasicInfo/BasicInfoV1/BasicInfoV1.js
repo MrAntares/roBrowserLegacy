@@ -1,5 +1,5 @@
 /**
- * UI/Components/BasicInfoV3/BasicInfoV3.js
+ * UI/Components/BasicInfo/BasicInfoV1.js
  *
  * Chararacter Basic information windows
  *
@@ -8,23 +8,22 @@
  * @author Vincent Thibault
  */
 
-import htmlText from './BasicInfoV3.html?raw';
-import cssText from './BasicInfoV3.css?raw';
+import htmlText from './BasicInfoV1.html?raw';
+import cssText from './BasicInfoV1.css?raw';
 import { createBasicInfo } from '../BasicInfoCommon.js';
 
 export default createBasicInfo({
-	name: 'BasicInfoV3',
+	name: 'BasicInfoV1',
 	htmlText,
 	cssText,
-	prefKey: 'BasicInfoV3',
+	prefKey: 'BasicInfoV1',
 	reduceDefault: true,
-	innerId: '#BasicInfoV3',
-	topbarItemSelector: '.topbar div',
+	innerId: '#BasicInfoV1',
+	topbarItemSelector: '.topbar button',
 	toggleButtonsEvent: 'mousedown',
-	buttonsSelector: '.buttons div',
+	buttonsSelector: '.buttons button',
 	buttonsEvent: 'mousedown',
-	buttonKeyBy: 'id',
-	hasToolbarToggle: true,
-	hideIds: ['battle', 'replay'],
+	buttonKeyBy: 'class',
+	infoOpensWinStats: false,
 	barScale: 1.27
 });
