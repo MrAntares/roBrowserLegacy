@@ -8,15 +8,15 @@
  */
 
 import SkillList from './SkillList/SkillList.js';
-import SkillListV0 from './SkillListV0/SkillListV0.js';
+import SkillListV2 from './SkillListV2/SkillListV2.js';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 
 const publicName = 'SkillList';
 const versionInfo = {
-	default: SkillListV0,
+	default: SkillList,
 	common: {
-		20090601: SkillList
+		20090601: SkillListV2
 	},
 	re: {},
 	prere: {}
