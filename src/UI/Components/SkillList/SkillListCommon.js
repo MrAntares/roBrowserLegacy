@@ -44,24 +44,28 @@ export function createSkillList({
 	touchDrag = false,
 	incrementalRemember = false,
 	guardMissingJob = false,
-	readdSkillOnUpdate = false
+	readdSkillOnUpdate = false,
+	listOnly = false,
+	dragFrom = null,
+	titlebarText = null,
+	containerSelector = null,
+	preferenceDefaults = {
+		x: 100,
+		y: 200,
+		width: 8,
+		height: 8,
+		show: false,
+		mini: true,
+		skillInfo: false
+	}
 }) {
 	const Component = new GUIComponent(name, cssText);
 	Component.render = () => htmlText;
 
-	const _preferences = Preferences.get(
-		name,
-		{
-			x: 100,
-			y: 200,
-			width: 8,
-			height: 8,
-			show: false,
-			mini: true,
-			skillInfo: false
-		},
-		1.0
-	);
+	const _dragFrom = dragFrom ?? name;
+	const _containerSelector = containerSelector ?? `#${name}`;
+
+	const _preferences = Preferences.get(name, preferenceDefaults, 1.0);
 
 	const _list = [];
 	let _btnIncSkill;
@@ -86,6 +90,13 @@ export function createSkillList({
 	Component.init = function init() {
 		const root = this.getRoot();
 
+		if (titlebarText) {
+			const titleEl = root.querySelector('.titlebar .text');
+			if (titleEl) {
+				titleEl.textContent = titlebarText;
+			}
+		}
+
 		root.querySelector('.titlebar .base')?.addEventListener('mousedown', e => {
 			e.stopImmediatePropagation();
 		});
@@ -102,12 +113,14 @@ export function createSkillList({
 			_preferences.skillInfo = !!this.checked;
 			_preferences.save();
 		});
-		root.querySelector('.reset')?.addEventListener('click', () => {
-			onResetChoice(this);
-		});
-		root.querySelector('.apply')?.addEventListener('click', () => {
-			onApplyChoice(this);
-		});
+		if (!listOnly) {
+			root.querySelector('.reset')?.addEventListener('click', () => {
+				onResetChoice(this);
+			});
+			root.querySelector('.apply')?.addEventListener('click', () => {
+				onApplyChoice(this);
+			});
+		}
 
 		const levelupBtn = root.querySelector('.btn.levelup');
 		if (levelupBtn) {
@@ -122,15 +135,17 @@ export function createSkillList({
 		const lvlupBtn = root.querySelector('#lvlup_job');
 		if (lvlupBtn) {
 			_btnLevelUp = lvlupBtn;
-			_btnLevelUp.style.zIndex = '51';
-			_btnLevelUp.style.position = 'absolute';
-			_btnLevelUp.style.right = '0px';
-			_btnLevelUp.style.bottom = '0px';
-			_btnLevelUp.style.width = '43px';
-			_btnLevelUp.style.height = '43px';
-			_btnLevelUp.style.border = 'none';
-			_btnLevelUp.style.backgroundColor = 'transparent';
-			_btnLevelUp.style.backgroundRepeat = 'no-repeat';
+			if (!listOnly) {
+				_btnLevelUp.style.zIndex = '51';
+				_btnLevelUp.style.position = 'absolute';
+				_btnLevelUp.style.right = '0px';
+				_btnLevelUp.style.bottom = '0px';
+				_btnLevelUp.style.width = '43px';
+				_btnLevelUp.style.height = '43px';
+				_btnLevelUp.style.border = 'none';
+				_btnLevelUp.style.backgroundColor = 'transparent';
+				_btnLevelUp.style.backgroundRepeat = 'no-repeat';
+			}
 			_btnLevelUp.remove();
 			_btnLevelUp.addEventListener('click', () => {
 				if (_btnLevelUp.parentNode) {
@@ -143,7 +158,7 @@ export function createSkillList({
 			});
 		}
 
-		const container = root.querySelector(`#${name}`) || root;
+		const container = root.querySelector(_containerSelector) || root;
 
 		container.addEventListener('dblclick', e => {
 			const target = e.target.closest('.skill .icon, .skill .name');
@@ -183,37 +198,39 @@ export function createSkillList({
 			}
 		});
 
-		container.addEventListener('mouseover', e => {
-			const target = e.target.closest('.skillCol .skill .icon, .skill .name');
-			if (target) {
-				if (_preferences.skillInfo || (showDescOnMiniHover && _preferences.mini)) {
-					const skillID = _resolveSkillID(target);
-					if (SkillDescription.uid !== skillID) {
-						SkillDescription.append();
-						SkillDescription.setSkill(skillID);
+		if (!listOnly) {
+			container.addEventListener('mouseover', e => {
+				const target = e.target.closest('.skillCol .skill .icon, .skill .name');
+				if (target) {
+					if (_preferences.skillInfo || (showDescOnMiniHover && _preferences.mini)) {
+						const skillID = _resolveSkillID(target);
+						if (SkillDescription.uid !== skillID) {
+							SkillDescription.append();
+							SkillDescription.setSkill(skillID);
+						}
 					}
+					onNecessarySkills(target, root);
 				}
-				onNecessarySkills(target, root);
-			}
-		});
+			});
 
-		container.addEventListener('mouseout', e => {
-			const target = e.target.closest('.skillCol .skill .icon, .skill .name');
-			if (target) {
-				if (_preferences.skillInfo || (showDescOnMiniHover && _preferences.mini)) {
-					SkillDescription.remove();
+			container.addEventListener('mouseout', e => {
+				const target = e.target.closest('.skillCol .skill .icon, .skill .name');
+				if (target) {
+					if (_preferences.skillInfo || (showDescOnMiniHover && _preferences.mini)) {
+						SkillDescription.remove();
+					}
+					root.querySelectorAll('.needleSkill').forEach(el => el.classList.remove('needleSkill'));
+					root.querySelectorAll('.counterSkill').forEach(el => el.remove());
 				}
-				root.querySelectorAll('.needleSkill').forEach(el => el.classList.remove('needleSkill'));
-				root.querySelectorAll('.counterSkill').forEach(el => el.remove());
-			}
-		});
+			});
 
-		container.addEventListener('click', e => {
-			const target = e.target.closest('.skillCol .skill .icon, .skill .name');
-			if (target) {
-				onRememberChoice(target, root);
-			}
-		});
+			container.addEventListener('click', e => {
+				const target = e.target.closest('.skillCol .skill .icon, .skill .name');
+				if (target) {
+					onRememberChoice(target, root);
+				}
+			});
+		}
 
 		container.addEventListener('dragstart', e => {
 			const skillEl = e.target.closest('.skill');
@@ -239,7 +256,7 @@ export function createSkillList({
 				JSON.stringify(
 					(window._OBJ_DRAG_ = {
 						type: 'skill',
-						from: name,
+						from: _dragFrom,
 						data: skill
 					})
 				)
@@ -315,8 +332,8 @@ export function createSkillList({
 		const root = this.getRoot();
 		const content = root.querySelector('.content');
 		if (content) {
-			_preferences.width = Math.floor(parseInt(content.style.width, 10) / 32) || 8;
-			_preferences.height = Math.floor(parseInt(content.style.height, 10) / 32) || 8;
+			_preferences.width = Math.floor(parseInt(content.style.width, 10) / 32) || preferenceDefaults.width;
+			_preferences.height = Math.floor(parseInt(content.style.height, 10) / 32) || preferenceDefaults.height;
 		}
 		_preferences.save();
 	};
@@ -344,6 +361,24 @@ export function createSkillList({
 
 	Component.setSkills = function setSkills(skills) {
 		const root = this.getRoot();
+
+		if (listOnly) {
+			for (let i = 0, count = _list.length; i < count; ++i) {
+				this.onUpdateSkill(_list[i].SKID, 0);
+			}
+
+			_list.length = 0;
+			const table = root.querySelector('.content table');
+			if (table) {
+				table.innerHTML = '';
+			}
+
+			for (let i = 0, count = skills.length; i < count; ++i) {
+				this.addSkill(skills[i]);
+			}
+			return;
+		}
+
 		root.querySelectorAll('.upgradable').forEach(el => el.classList.remove('upgradable'));
 
 		let skillJobId = Session.Character.job;
@@ -631,7 +666,9 @@ export function createSkillList({
 			return;
 		}
 
-		this.addSkillBig(skill);
+		if (!listOnly) {
+			this.addSkillBig(skill);
+		}
 		this.addSkillMini(skill);
 	};
 
@@ -1075,6 +1112,18 @@ export function createSkillList({
 
 	function resize(comp, width, height) {
 		const root = comp.getRoot();
+
+		if (listOnly) {
+			width = Math.min(Math.max(width, 8), 8);
+			height = Math.min(Math.max(height, 4), 10);
+			const content = root.querySelector('.content');
+			if (content) {
+				content.style.width = `${width * 32}px`;
+				content.style.height = `${height * 32}px`;
+			}
+			return;
+		}
+
 		if (_preferences.mini) {
 			width = Math.min(Math.max(width, 8), 8);
 			height = Math.min(Math.max(height, 4), 10);
@@ -1268,7 +1317,7 @@ export function createSkillList({
 
 			window._OBJ_DRAG_ = {
 				type: 'skill',
-				from: name,
+				from: _dragFrom,
 				data: skill
 			};
 		}, 300);
