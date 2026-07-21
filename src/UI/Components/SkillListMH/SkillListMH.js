@@ -8,8 +8,8 @@
 
 import KEYS from 'Controls/KeyEventHandler.js';
 import { createSkillList } from '../SkillList/SkillListCommon.js';
-import htmlText from './SkillListMH.html?raw';
-import cssText from './SkillListMH.css?raw';
+import htmlText from '../SkillList/SkillList/SkillList.html?raw';
+import cssText from '../SkillList/SkillList/SkillList.css?raw';
 
 /**
  * Build a Homunculus/Mercenary skill window on top of the shared SkillList
@@ -26,7 +26,7 @@ function createSkillListMH(type) {
 		listOnly: true,
 		dragFrom: 'SkillListMH',
 		titlebarText: type === 'homunculus' ? 'Homunculus Skills' : 'Mercenary Skills',
-		containerSelector: '.SkillListMH',
+		containerSelector: '.SkillList',
 		preferenceDefaults: {
 			x: 100,
 			y: 200,

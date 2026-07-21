@@ -1,7 +1,8 @@
 /**
  * UI/Components/SkillList/SkillListCommon.js
  *
- * Shared factory for all SkillList versions (SkillList, SkillListV0).
+ * Shared factory for all SkillList versions (SkillList, SkillListV2) and the
+ * Homunculus/Mercenary SkillListMH windows.
  *
  * Chararacter Skill Window
  *
