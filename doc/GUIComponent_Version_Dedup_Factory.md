@@ -48,18 +48,19 @@ differences as config flags, and `export default createFoo({...})`.
 | WinStats        | `src/UI/Components/WinStats/WinStatsCommon.js`               | #1075(3194fe2af86208ef287e8d4a6bdbef2f7ed71efe) | ⚠️ NO          | Operator intentionally broke 1:1 (fixed resize bug #901, added `embed`/`unembed`). Do NOT copy its architecture as a 1:1 template. |
 
 ### Already done:
-| Family | Commit | PR|
-| --- | --- | --- |
-| MiniMap | 126b3afe createMiniMap | #1370 |
-| Storage | cf780262 createStorage | #1371 |
-| SkillList | 58db2875 createSkillList (+b16db1ae/4024eaf3) | #1372 |
-| Quest | ace4dcfd createQuest/createQuestHelper | #1373 |
-| Inventory | a477beec createInventory | #1374 |
-| PartyFriends | 70a51b1b createPartyFriends | #1375 |
-| CharCreate | a25ff7e0 createCharCreate | #1368 |
-| CharSelect | c16284a1 createCharSelect | #1369 |
-| Equipment | 7c7f258b+3054e936 EquipmentCommon V1/V2→V0-V4 | #1361 |
-| BasicInfo | ab7455c8+71aa9356 createBasicInfo | #1366 |
+
+| Family       | Commit                                        | PR    |
+| ------------ | --------------------------------------------- | ----- |
+| MiniMap      | 126b3afe createMiniMap                        | #1370 |
+| Storage      | cf780262 createStorage                        | #1371 |
+| SkillList    | 58db2875 createSkillList (+b16db1ae/4024eaf3) | #1372 |
+| Quest        | ace4dcfd createQuest/createQuestHelper        | #1373 |
+| Inventory    | a477beec createInventory                      | #1374 |
+| PartyFriends | 70a51b1b createPartyFriends                   | #1375 |
+| CharCreate   | a25ff7e0 createCharCreate                     | #1368 |
+| CharSelect   | c16284a1 createCharSelect                     | #1369 |
+| Equipment    | 7c7f258b+3054e936 EquipmentCommon V1/V2→V0-V4 | #1361 |
+| BasicInfo    | ab7455c8+71aa9356 createBasicInfo             | #1366 |
 
 ### ⚠️ WinStats is NOT a 1:1 reference
 
