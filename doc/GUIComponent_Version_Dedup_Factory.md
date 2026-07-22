@@ -47,6 +47,20 @@ differences as config flags, and `export default createFoo({...})`.
 | PlayerViewEquip | `src/UI/Components/PlayerViewEquip/PlayerViewEquipCommon.js` | #1073(3ea9e147eee47baf04ab89a7ecf0f3f2296e4a67) | ✅ YES         | Best reference for HTML-diverging versions: HTML generated via `generateHTML(flags)`.                                              |
 | WinStats        | `src/UI/Components/WinStats/WinStatsCommon.js`               | #1075(3194fe2af86208ef287e8d4a6bdbef2f7ed71efe) | ⚠️ NO          | Operator intentionally broke 1:1 (fixed resize bug #901, added `embed`/`unembed`). Do NOT copy its architecture as a 1:1 template. |
 
+### Already done:
+| Family | Commit | PR|
+| --- | --- | --- |
+| MiniMap | 126b3afe createMiniMap | #1370 |
+| Storage | cf780262 createStorage | #1371 |
+| SkillList | 58db2875 createSkillList (+b16db1ae/4024eaf3) | #1372 |
+| Quest | ace4dcfd createQuest/createQuestHelper | #1373 |
+| Inventory | a477beec createInventory | #1374 |
+| PartyFriends | 70a51b1b createPartyFriends | #1375 |
+| CharCreate | a25ff7e0 createCharCreate | #1368 |
+| CharSelect | c16284a1 createCharSelect | #1369 |
+| Equipment | 7c7f258b+3054e936 EquipmentCommon V1/V2→V0-V4 | #1361 |
+| BasicInfo | ab7455c8+71aa9356 createBasicInfo | #1366 |
+
 ### ⚠️ WinStats is NOT a 1:1 reference
 
 WinStats deviated from 1:1 by operator decision: a pre-existing status-window resize bug
@@ -56,22 +70,6 @@ WinStats deviated from 1:1 by operator decision: a pre-existing status-window re
 NOT as a behavioral template. For your tasks: **stay 1:1** unless the operator explicitly
 authorizes a deviation for a specific family.
 WinStats consumers that still use direct .status_component/WinStats._host (EquipmentV3/V4) are dead code post-3194fe2. When folding them in a factory, converge to embed/unembed — 1:1 deviation pre-authorized by the operator. DO NOT create a statusModel flag to preserve the old model.
-
-### Equipment capability table
-
-| Capability                          | V0    | V1    | V2    | V3   | V4   |
-| ----------------------------------- | ----- | ----- | ----- | ---- | ---- |
-| dualCanvas / tabs                   | ✗     | ✓     | ✓     | ✓    | ✓    |
-| entityRender (new Entity)           | ✗     | ✓     | ✓     | ✓    | ✓    |
-| switchEquip (PACKETVER >= 20170621) | ✗     | ✗     | ✗     | ✓    | ✓    |
-| titles (REQ_CHANGE_TITLE)           | ✗     | ✗     | ✗     | ✓    | ✓    |
-| enchantGrade                        | ✗     | ✗     | ✗     | ✓    | ✓    |
-| costumeConfig (_hideCostume)        | ✗     | ✗     | ✗     | ✗    | ✓    |
-| damageSkin / damageMotion           | ✗     | ✗     | ✗     | ✗    | ✓    |
-| statusModel                         | embed | embed | embed | dead | dead |
-
-Camera.direction = 4 vs. 0 in the other versions (EquipmentV0.js:429)
-V0 mutates and restores the Session.Entity state (EquipmentV0.js:429-446); the others discard a temporary Entity.
 
 ---
 
@@ -137,23 +135,7 @@ All invariants from `doc/UIComponent_to_GUIComponent.md` §1 remain in force.
 
 ## 5. Candidate Families (versioned components with `versionInfo`)
 
-Already done: `WinLogin`, `PlayerViewEquip`, `WinStats`.
-
-Remaining candidates (each has a `versionInfo` registry — confirm real duplication before extracting. A version should only be excluded if its differences cannot be expressed as capability flags (e.g. distinct packet transmission, incompatible state model). Behavioral differences stemming from PACKETVER are not grounds for exclusion — they are the primary use case for a flag."
-
-| Family       | Aggregator                                       |
-| ------------ | ------------------------------------------------ |
-| BasicInfo    | `src/UI/Components/BasicInfo/BasicInfo.js`       |
-| CharCreate   | `src/UI/Components/CharCreate/CharCreate.js`     |
-| CharSelect   | `src/UI/Components/CharSelect/CharSelect.js`     |
-| Equipment    | `src/UI/Components/Equipment/Equipment.js`       |
-| Inventory    | `src/UI/Components/Inventory/Inventory.js`       |
-| MiniMap      | `src/UI/Components/MiniMap/MiniMap.js`           |
-| PartyFriends | `src/UI/Components/PartyFriends/PartyFriends.js` |
-| Quest        | `src/UI/Components/Quest/Quest.js`               |
-| SkillList    | `src/UI/Components/SkillList/SkillList.js`       |
-| Storage      | `src/UI/Components/Storage/Storage.js`           |
-
+Remaining candidates will be passed as task by operator (each has a `versionInfo` registry — confirm real duplication before extracting. A version should only be excluded if its differences cannot be expressed as capability flags (e.g. distinct packet transmission, incompatible state model). Behavioral differences stemming from PACKETVER are not grounds for exclusion — they are the primary use case for a flag."
 One family per PR. Never batch families.
 
 ---
