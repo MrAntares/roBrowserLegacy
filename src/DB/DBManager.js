@@ -4040,17 +4040,13 @@ function loadFontFromClient(fontPath) {
 						`;
 					document.head.appendChild(style);
 				},
-				function (error) {
-					console.warn('[loadFontFromClient] - Failed loading client font:', fontPath, '- Using Arial');
-					document.body.style.fontFamily = 'Arial, Helvetica, sans-serif';
-					document.body.style.fontSize = '10px';
+				function () {
+					console.warn('[loadFontFromClient] - Failed to load client font:', fontPath);
 				}
 			);
 		},
-		function (error) {
-			console.warn('[loadFontFromClient] - Failed loading client font:', fontPath, '- Using Arial');
-			document.body.style.fontFamily = 'Arial, Helvetica, sans-serif';
-			document.body.style.fontSize = '10px';
+		function () {
+			console.warn('[loadFontFromClient] - Failed to load client font:', fontPath);
 		}
 	);
 }

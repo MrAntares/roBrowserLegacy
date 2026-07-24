@@ -34,7 +34,20 @@ canvas {
 body {
 	background-color: black;
 	font-size: 12px;
-	font-family: 'SCDream', Arial, Helvetica, sans-serif;
+	/* 'SCDream' first: wins only when the server actually serves the client font (loaded via
+	   @font-face in DBManager). When it isn't served it resolves to Arial — the official client's
+	   window UI font for intl/america servicetype (Ragexe draws window text with CreateFontA on the
+	   Gulim/Arial face table). Liberation Sans / Arimo provide Arial metrics on Linux. */
+	font-family: 'SCDream', Arial, 'Liberation Sans', Arimo, sans-serif;
+	/* Normalize any resolved font's x-height to Arial's (sxHeight 1062 / unitsPerEm 2048 = 0.5186),
+	   so text keeps Arial's apparent size on every OS/font. It's inherited and crosses Shadow DOM
+	   hosts, so it also rescales elements that use a non-Arial face; those opt out with
+	   `font-size-adjust: none` on the selector declaring that font (Intro, GrfViewer, JoystickUI
+	   header). SCDream, when a server serves it, is normalized to Arial on purpose.
+	   Progressive enhancement: engines that don't support the numeric form ignore it
+	   and render at the resolved font's native x-height (no JS fallback needed — Arial
+	   / Liberation Sans already carry correct metrics, only annex fonts degrade). */
+	font-size-adjust: 0.5186;
 	overflow: hidden;
 	-webkit-user-select: none;
 	user-select: none;
