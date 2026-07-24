@@ -365,6 +365,12 @@ class ScrollBar {
 		// Start tracking content height
 		element._roScrollbarRestart();
 
+		// Sync the thumb on any scroll offset change, including programmatic
+		// scrollTop writes (keyboard navigation, auto-scroll-to-bottom, resets).
+		// An overflow:hidden element still fires 'scroll' when scrollTop changes,
+		// so this removes the up-to-300ms poller lag for driven scrolling.
+		element.addEventListener('scroll', updateThumb);
+
 		element.addEventListener('wheel', e => {
 			const h = element.clientHeight;
 			const sh = element.scrollHeight;
