@@ -29,6 +29,7 @@ const PRELOADER_CSS = `
 	}  
 	#ro-preloader .pre-text {  
 		font-family: serif;  
+		font-size-adjust: none; /* keep serif's native x-height, outside body's Arial normalization */  
 		font-size: 16px;  
 		letter-spacing: 3px;  
 		text-transform: uppercase;  
