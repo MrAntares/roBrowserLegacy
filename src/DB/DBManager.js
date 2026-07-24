@@ -4040,12 +4040,12 @@ function loadFontFromClient(fontPath) {
 						`;
 					document.head.appendChild(style);
 				},
-				function (error) {
+				function () {
 					console.warn('[loadFontFromClient] - Failed to load client font:', fontPath);
 				}
 			);
 		},
-		function (error) {
+		function () {
 			console.warn('[loadFontFromClient] - Failed to load client font:', fontPath);
 		}
 	);

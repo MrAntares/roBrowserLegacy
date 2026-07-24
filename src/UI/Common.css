@@ -40,7 +40,10 @@ body {
 	   Gulim/Arial face table). Liberation Sans / Arimo provide Arial metrics on Linux. */
 	font-family: 'SCDream', Arial, 'Liberation Sans', Arimo, sans-serif;
 	/* Normalize any resolved font's x-height to Arial's (sxHeight 1062 / unitsPerEm 2048 = 0.5186),
-	   so text keeps Arial's apparent size on every OS/font. */
+	   so text keeps Arial's apparent size on every OS/font. It's inherited and crosses Shadow DOM
+	   hosts, so it also rescales elements that use a non-Arial face; those opt out with
+	   `font-size-adjust: none` on the selector declaring that font (Intro, GrfViewer, JoystickUI
+	   header). SCDream, when a server serves it, is normalized to Arial on purpose. */
 	font-size-adjust: 0.5186;
 	overflow: hidden;
 	-webkit-user-select: none;
