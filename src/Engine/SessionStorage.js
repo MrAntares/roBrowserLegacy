@@ -45,6 +45,7 @@ export default {
 
 	hasGuild: false,
 	guildRight: 0,
+	guildName: '',
 	isGuildMaster: false,
 
 	Playing: false,
