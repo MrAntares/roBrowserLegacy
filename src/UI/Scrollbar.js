@@ -305,7 +305,10 @@ class ScrollBar {
 		let startThumbY = 0;
 
 		/**
-		 * Update thumb position relative to scroll position
+		 * Update thumb position relative to scroll position.
+		 * Reads scrollTop/scrollHeight/clientHeight and writes only the thumb,
+		 * wrapper and paddingRight styles — it never writes element.scrollTop,
+		 * so a 'scroll' listener calling this cannot trigger a re-entrant scroll.
 		 */
 		const updateThumb = () => {
 			const h = element.clientHeight;
@@ -364,6 +367,21 @@ class ScrollBar {
 
 		// Start tracking content height
 		element._roScrollbarRestart();
+
+		// Sync the thumb on any scroll offset change, including programmatic
+		// scrollTop writes (keyboard navigation, auto-scroll-to-bottom, resets).
+		// An overflow:hidden element still fires 'scroll' when scrollTop changes,
+		// so this removes the up-to-300ms poller lag for driven scrolling.
+		// A skin change re-runs this body with a fresh updateThumb closure, so
+		// drop the previous handler before re-binding — otherwise a second
+		// listener tied to the now-detached wrapper would stack up. (The sibling
+		// wheel/button listeners bound to `element` below predate this and still
+		// leak this way on skin change; left as-is to keep the fix scoped.)
+		if (element._roScrollHandler) {
+			element.removeEventListener('scroll', element._roScrollHandler);
+		}
+		element._roScrollHandler = updateThumb;
+		element.addEventListener('scroll', updateThumb);
 
 		element.addEventListener('wheel', e => {
 			const h = element.clientHeight;

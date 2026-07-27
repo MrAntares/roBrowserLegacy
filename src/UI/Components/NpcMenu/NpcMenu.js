@@ -126,34 +126,25 @@ NpcMenu.onKeyDown = function onKeyDown(event) {
 			break;
 
 		case KEYS.UP: {
-			const divs = content.querySelectorAll('div');
+			const divs = content.querySelectorAll('div[data-index]');
 			_index = Math.max(_index - 1, 0);
 
 			divs.forEach(d => d.classList.remove('selected'));
 			if (divs[_index]) {
 				divs[_index].classList.add('selected');
-			}
-
-			const top = _index * 20;
-			if (top < content.scrollTop) {
-				content.scrollTop = top;
+				divs[_index].scrollIntoView({ block: 'nearest' });
 			}
 			break;
 		}
 
 		case KEYS.DOWN: {
-			const divs = content.querySelectorAll('div');
-			const count = divs.length;
-			_index = Math.min(_index + 1, count - 1);
+			const divs = content.querySelectorAll('div[data-index]');
+			_index = Math.min(_index + 1, divs.length - 1);
 
 			divs.forEach(d => d.classList.remove('selected'));
 			if (divs[_index]) {
 				divs[_index].classList.add('selected');
-			}
-
-			const top = _index * 20;
-			if (top >= content.scrollTop + 80) {
-				content.scrollTop = top - 60;
+				divs[_index].scrollIntoView({ block: 'nearest' });
 			}
 			break;
 		}
@@ -192,7 +183,7 @@ NpcMenu.setMenu = function setMenu(menu, gid) {
 		}
 	}
 
-	const first = content.querySelector('div');
+	const first = content.querySelector('div[data-index]');
 	if (first) {
 		first.classList.add('selected');
 	}
@@ -218,7 +209,7 @@ function cancel() {
 function selectIndex(div) {
 	const root = NpcMenu.getRoot();
 	const content = root.querySelector('.content');
-	const divs = content.querySelectorAll('div');
+	const divs = content.querySelectorAll('div[data-index]');
 	divs.forEach(d => d.classList.remove('selected'));
 	div.classList.add('selected');
 
