@@ -477,7 +477,7 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 		emblemEdit.style.display = Session.isGuildMaster ? '' : 'none';
 	}
 
-	updateDisbandButton(_root(Guild), 'general');
+	updateDisbandButton(_root(Guild), 'info');
 
 	WinStats.getUI().update('guildname', info.guildname);
 
@@ -1370,7 +1370,7 @@ function updateDisbandButton(root, activeTab) {
 		return;
 	}
 
-	btn.style.display = activeTab === 'general' && Session.isGuildMaster ? 'block' : 'none';
+	btn.style.display = activeTab === 'info' && Session.isGuildMaster ? 'block' : 'none';
 
 	if (!btn.dataset.bound) {
 		btn.dataset.bound = '1';

@@ -559,11 +559,19 @@ function onGuildAccess(pkt) {
  * @param {object} pkt - PACKET.ZC.UPDATE_GDID
  */
 function onGuildOwnInfo(pkt) {
+	if (pkt.GDID === undefined) {
+		return;
+	}
+
 	GuildEngine.guild_id = pkt.GDID;
 
 	Session.hasGuild = true;
 	Session.guildRight = pkt.right;
 	Session.isGuildMaster = !!pkt.isMaster;
+
+	if (pkt.GName) {
+		Session.guildName = pkt.GName;
+	}
 
 	Session.Entity.GUID = pkt.GDID;
 	Session.Entity.GEmblemVer = pkt.emblemVersion;
