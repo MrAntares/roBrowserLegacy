@@ -223186,7 +223186,7 @@ function cancel$1() {
 * Select an index, change background color
 */
 function selectIndex(div) {
-	NpcMenu.getRoot().querySelector(".content").querySelectorAll("div").forEach((d) => d.classList.remove("selected"));
+	NpcMenu.getRoot().querySelector(".content").querySelectorAll("div[data-index]").forEach((d) => d.classList.remove("selected"));
 	div.classList.add("selected");
 	_index = parseInt(div.dataset.index, 10);
 }
@@ -223257,22 +223257,23 @@ var init_NpcMenu = __esmMin((() => {
 				cancel$1();
 				break;
 			case KEYS.UP: {
-				const divs = content.querySelectorAll("div");
+				const divs = content.querySelectorAll("div[data-index]");
 				_index = Math.max(_index - 1, 0);
 				divs.forEach((d) => d.classList.remove("selected"));
-				if (divs[_index]) divs[_index].classList.add("selected");
-				const top = _index * 20;
-				if (top < content.scrollTop) content.scrollTop = top;
+				if (divs[_index]) {
+					divs[_index].classList.add("selected");
+					divs[_index].scrollIntoView({ block: "nearest" });
+				}
 				break;
 			}
 			case KEYS.DOWN: {
-				const divs = content.querySelectorAll("div");
-				const count = divs.length;
-				_index = Math.min(_index + 1, count - 1);
+				const divs = content.querySelectorAll("div[data-index]");
+				_index = Math.min(_index + 1, divs.length - 1);
 				divs.forEach((d) => d.classList.remove("selected"));
-				if (divs[_index]) divs[_index].classList.add("selected");
-				const top = _index * 20;
-				if (top >= content.scrollTop + 80) content.scrollTop = top - 60;
+				if (divs[_index]) {
+					divs[_index].classList.add("selected");
+					divs[_index].scrollIntoView({ block: "nearest" });
+				}
 				break;
 			}
 			default: return true;
@@ -223299,7 +223300,7 @@ var init_NpcMenu = __esmMin((() => {
 			div.dataset.index = j++;
 			content.appendChild(div);
 		}
-		const first = content.querySelector("div");
+		const first = content.querySelector("div[data-index]");
 		if (first) first.classList.add("selected");
 	};
 	/**
@@ -304932,7 +304933,10 @@ var init_Scrollbar = __esmMin((() => {
 			let startY = 0;
 			let startThumbY = 0;
 			/**
-			* Update thumb position relative to scroll position
+			* Update thumb position relative to scroll position.
+			* Reads scrollTop/scrollHeight/clientHeight and writes only the thumb,
+			* wrapper and paddingRight styles — it never writes element.scrollTop,
+			* so a 'scroll' listener calling this cannot trigger a re-entrant scroll.
 			*/
 			const updateThumb = () => {
 				const h = element.clientHeight;
@@ -304974,6 +304978,9 @@ var init_Scrollbar = __esmMin((() => {
 				}, 300);
 			};
 			element._roScrollbarRestart();
+			if (element._roScrollHandler) element.removeEventListener("scroll", element._roScrollHandler);
+			element._roScrollHandler = updateThumb;
+			element.addEventListener("scroll", updateThumb);
 			element.addEventListener("wheel", (e) => {
 				const h = element.clientHeight;
 				if (element.scrollHeight <= h) return;
