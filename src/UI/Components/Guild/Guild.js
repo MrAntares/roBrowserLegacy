@@ -477,7 +477,7 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 		emblemEdit.style.display = Session.isGuildMaster ? '' : 'none';
 	}
 
-	updateDisbandButton(_root(Guild), 'info');
+	updateDisbandButton(root, getActiveTab(root));
 
 	WinStats.getUI().update('guildname', info.guildname);
 
@@ -1360,6 +1360,11 @@ function onValidate() {
 	}
 }
 
+function getActiveTab(root) {
+	const btn = root ? root.querySelector('.tabs button.active') : null;
+	return btn ? btn.className.replace(/\s*active\s*/g, '').trim() : '';
+}
+
 function updateDisbandButton(root, activeTab) {
 	if (!root) {
 		return;
@@ -1389,13 +1394,9 @@ Guild.promptDisbandGuild = function promptDisbandGuild() {
 		return;
 	}
 
-	UIManager.showMessageBox(
-		'If you are using a guild storage, all items inside it will disappear.',
-		'ok',
-		() => {
-			GuildCompanion.openDisband();
-		}
-	);
+	UIManager.showMessageBox('If you are using a guild storage, all items inside it will disappear.', 'ok', () => {
+		GuildCompanion.openDisband();
+	});
 };
 
 Guild.onGuildInfoRequest = function () {};

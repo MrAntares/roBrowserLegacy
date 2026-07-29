@@ -44,11 +44,7 @@ GuildCompanion.init = function init() {
 
 		if (_mode === 'disband') {
 			if (Session.guildName && name !== Session.guildName) {
-				UIManager.showMessageBox(
-					DB.getMessage(401, 'You have failed to disband the guild.'),
-					'ok',
-					closeAll
-				);
+				UIManager.showMessageBox(DB.getMessage(401, 'You have failed to disband the guild.'), 'ok', closeAll);
 				return;
 			}
 			GuildCompanion.onRequestBreakGuild(name);
