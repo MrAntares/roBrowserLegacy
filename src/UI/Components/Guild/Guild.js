@@ -24,6 +24,7 @@ import 'UI/Elements/Elements.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
+import GuildCompanion from 'UI/Components/GuildCompanion/GuildCompanion.js';
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js';
 import htmlText from './Guild.html?raw';
@@ -402,6 +403,7 @@ Guild.onShortCut = function onShortCut(key) {
 
 Guild.toggle = function onToggle() {
 	if (!Session.hasGuild) {
+		Guild.promptCreateGuild();
 		return;
 	}
 
@@ -474,6 +476,8 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	if (emblemEdit) {
 		emblemEdit.style.display = Session.isGuildMaster ? '' : 'none';
 	}
+
+	updateDisbandButton(root, getActiveTab(root));
 
 	WinStats.getUI().update('guildname', info.guildname);
 
@@ -597,7 +601,7 @@ Guild.setMember = function setMember(member) {
 
 	if (_positions[member.GPositionID]) {
 		const positionCell = view.querySelector('.position');
-		if (Session.isGuildMaster && member.GPositionID !== 0) {
+		if (Session.isGuildMaster) {
 			let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}">`;
 			_positions.forEach((position, key) => {
 				selectHTML +=
@@ -610,7 +614,7 @@ Guild.setMember = function setMember(member) {
 			const selectEl = positionCell.querySelector(`.member_${member.AID}_${member.GID}`);
 			if (selectEl) {
 				selectEl.addEventListener('change', evt => {
-					Guild.updateMemberPosition(member.AID, member.GID, evt.target.selectedIndex, true);
+					Guild.updateMemberPosition(member.AID, member.GID, parseInt(evt.target.value, 10), true);
 				});
 			}
 		} else {
@@ -1203,6 +1207,8 @@ function onChangeTab(event) {
 		btnOk.style.display = 'none';
 	}
 
+	updateDisbandButton(root, targetClass);
+
 	if (targetClass === 'members') {
 		Renderer.render(renderMemberFaces);
 	} else {
@@ -1354,7 +1360,48 @@ function onValidate() {
 	}
 }
 
+function getActiveTab(root) {
+	const btn = root ? root.querySelector('.tabs button.active') : null;
+	return btn ? btn.className.replace(/\s*active\s*/g, '').trim() : '';
+}
+
+function updateDisbandButton(root, activeTab) {
+	if (!root) {
+		return;
+	}
+
+	const btn = root.querySelector('.footer .btn_disband');
+	if (!btn) {
+		return;
+	}
+
+	btn.style.display = activeTab === 'info' && Session.isGuildMaster ? 'block' : 'none';
+
+	if (!btn.dataset.bound) {
+		btn.dataset.bound = '1';
+		btn.addEventListener('click', () => {
+			Guild.promptDisbandGuild();
+		});
+	}
+}
+
+Guild.promptCreateGuild = function promptCreateGuild() {
+	GuildCompanion.toggleCreate();
+};
+
+Guild.promptDisbandGuild = function promptDisbandGuild() {
+	if (!Session.isGuildMaster) {
+		return;
+	}
+
+	UIManager.showMessageBox('If you are using a guild storage, all items inside it will disappear.', 'ok', () => {
+		GuildCompanion.openDisband();
+	});
+};
+
 Guild.onGuildInfoRequest = function () {};
+Guild.onRequestCreateGuild = function () {};
+Guild.onRequestBreakGuild = function () {};
 Guild.onPositionUpdateRequest = function () {};
 Guild.onChangeMemberPosRequest = function () {};
 Guild.onNoticeUpdateRequest = function () {};
@@ -1366,6 +1413,7 @@ Guild.onRequestAccess = function () {};
 
 Guild.updateSession = function (info) {
 	Session.hasGuild = true;
+	Session.guildName = info.guildname || '';
 	Session.Entity.GUID = info.GDID;
 	Session.Entity.GEmblemVer = info.emblemVersion;
 	if (Session.Character.name === info.masterName) {

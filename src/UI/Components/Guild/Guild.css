@@ -498,6 +498,18 @@
 	padding-top: 7px;
 	margin-left: 10px;
 }
+
+#Guild .footer .btn_disband {
+	display: none;
+	position: absolute;
+	bottom: 4px;
+	right: 4px;
+	padding: 2px 10px;
+	font-family: Arial, sans-serif;
+	font-size: 11px;
+	cursor: pointer;
+}
+
 #Guild .content.skills .footer .btn {
 	position: absolute;
 	top: 5px;

@@ -6341,6 +6341,22 @@ PACKET.ZC.UPDATE_GDID = function PACKET_ZC_UPDATE_GDID(fp, end) {
 };
 PACKET.ZC.UPDATE_GDID.size = 43;
 
+// 0x2f7
+PACKET.ZC.UPDATE_GDID2 = function PACKET_ZC_UPDATE_GDID2(fp, end) {
+	if (end - fp.tell() < 45) {
+		return;
+	}
+
+	this.GDID = fp.readULong();
+	this.emblemVersion = fp.readLong();
+	this.right = fp.readLong();
+	this.isMaster = fp.readUChar();
+	this.InterSID = fp.readLong();
+	this.GName = fp.readString(NAME_LENGTH);
+	this.masterGID = fp.readULong();
+};
+PACKET.ZC.UPDATE_GDID2.size = 47;
+
 // 0x16d
 PACKET.ZC.UPDATE_CHARSTAT = function PACKET_ZC_UPDATE_CHARSTAT(fp, end) {
 	this.AID = fp.readULong();
