@@ -227553,7 +227553,10 @@ var init_GuildCompanion = __esmMin((() => {
 			}
 			if (_mode === "disband") {
 				if (SessionStorage_default.guildName && name !== SessionStorage_default.guildName) {
-					UIManager.showMessageBox(DB.getMessage(401, "You have failed to disband the guild."), "ok", closeAll);
+					UIManager.showMessageBox(DB.getMessage(401, "You have failed to disband the guild."), "ok", () => {
+						input.value = "";
+						input.focus();
+					});
 					return;
 				}
 				GuildCompanion.onRequestBreakGuild(name);
@@ -228732,13 +228735,13 @@ var init_Guild$1 = __esmMin((() => {
 		const nameValue = view?.querySelector(".name .value");
 		ChatBox_default.addText(DB.getMessage(485 + (member.status ? 0 : 1)).replace("%s", nameValue ? nameValue.textContent : ""), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.GUILD);
 	};
-	Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, validate) {
+	Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, fromDropdown) {
 		for (let i = 0, count = _members.length; i < count; ++i) if (_members[i].AID === AID && _members[i].GID === GID) {
 			_members[i].GPositionID = positionID;
-			Guild.setMember(_members[i]);
+			if (!fromDropdown) Guild.setMember(_members[i]);
 			break;
 		}
-		if (validate) onValidate();
+		if (fromDropdown) onValidate();
 	};
 	Guild.setPositions = function setPositions(positions, erase) {
 		let rank;
