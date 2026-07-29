@@ -718,16 +718,21 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 	);
 };
 
-Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, validate) {
+Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, fromDropdown) {
 	for (let i = 0, count = _members.length; i < count; ++i) {
 		if (_members[i].AID === AID && _members[i].GID === GID) {
 			_members[i].GPositionID = positionID;
-			Guild.setMember(_members[i]);
+
+			// The dropdown already displays the new position, re-rendering the row
+			// here would replace the <select> while its change event is dispatching.
+			if (!fromDropdown) {
+				Guild.setMember(_members[i]);
+			}
 			break;
 		}
 	}
 
-	if (validate) {
+	if (fromDropdown) {
 		onValidate();
 	}
 };
