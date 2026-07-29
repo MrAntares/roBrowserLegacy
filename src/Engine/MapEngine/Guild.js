@@ -791,6 +791,9 @@ function onGuildDestroy(pkt) {
 			Guild.hide();
 			Session.hasGuild = false;
 			Session.guildName = '';
+			Session.isGuildMaster = false;
+			Session.guildRight = 0;
+			Session.Entity.GUID = 0;
 			ChatBox.addText(DB.getMessage(400), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 			break;
 
