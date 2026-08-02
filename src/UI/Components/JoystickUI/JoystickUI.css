@@ -57,6 +57,9 @@
 	background: rgba(255, 255, 255, 0.1);
 	color: #e0e0e0;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	/* Opt out of Common.css's font-size-adjust: keep Segoe UI's native x-height. Scoped to this
+	   header only — the .set-btn above uses generic sans-serif and stays normalized. */
+	font-size-adjust: none;
 	font-size: 14px;
 	font-weight: bold;
 	text-align: center;

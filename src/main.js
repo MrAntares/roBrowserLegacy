@@ -6,6 +6,7 @@
 // eslint-disable-next-line
 import Online from 'App/Online.js';
 import { roInitSpinner } from 'App/PreLoader.js';
+import Configs from 'Core/Configs.js';
 
 const APP = {
 	ONLINE: 1,
@@ -74,6 +75,10 @@ if (window.ROConfig) {
 		}
 		if (event.data && (event.data.application || event.data.servers)) {
 			window.ROConfig = event.data;
+			// Configs is populated by an IIFE at import time, which runs before this
+			// config arrives via postMessage; apply the received config so options such
+			// as 'api' are available (frame/popup API mode).
+			Object.keys(window.ROConfig).forEach(key => Configs.set(key, window.ROConfig[key]));
 			launch(window.ROConfig);
 			window.removeEventListener('message', onMessage);
 		}

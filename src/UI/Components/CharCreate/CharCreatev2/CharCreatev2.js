@@ -1,5 +1,5 @@
 /**
- * UI/Components/CharCreatev2v2/CharCreatev2v2.js
+ * UI/Components/CharCreate/CharCreatev2/CharCreatev2.js
  *
  * Chararacter Creation windows
  *
@@ -8,220 +8,24 @@
  * @author Vincent Thibault
  */
 
-import Renderer from 'Renderer/Renderer.js';
-import KEYS from 'Controls/KeyEventHandler.js';
-import Entity from 'Renderer/Entity/Entity.js';
-import SpriteRenderer from 'Renderer/SpriteRenderer.js';
-import Camera from 'Renderer/Camera.js';
-import UIManager from 'UI/UIManager.js';
-import GUIComponent from 'UI/GUIComponent.js';
-import 'UI/Elements/Elements.js';
 import htmlText from './CharCreatev2.html?raw';
 import cssText from './CharCreatev2.css?raw';
+import { createCharCreate } from '../CharCreateCommon.js';
 
-/**
- * Create Chararacter Selection namespace
- */
-const CharCreatev2 = new GUIComponent('CharCreatev2', cssText);
-
-CharCreatev2.render = () => htmlText;
-
-/**
- * @var {boolean} account sex
- */
-let _accountSex = 0;
-
-/**
- * @var {object} chargen info
- */
-const _chargen = {
-	entity: new Entity(),
-	ctx: null,
-	render: false,
-	tick: 0
-};
-
-/**
- * Initialize UI
- */
-CharCreatev2.init = function init() {
-	const root = this.getRoot();
-	_chargen.ctx = root.querySelector('.content canvas').getContext('2d');
-
-	this.draggable();
-
-	// Bind Events
-	root.querySelector('.content .styleleft').addEventListener('mousedown', updateCharacterGeneric('head', -1));
-	root.querySelector('.content .styleright').addEventListener('mousedown', updateCharacterGeneric('head', +1));
-	root.querySelector('.content .colorleft').addEventListener('mousedown', updateCharacterGeneric('headpalette', -1));
-	root.querySelector('.content .colorright').addEventListener('mousedown', updateCharacterGeneric('headpalette', +1));
-
-	const input = root.querySelector('input');
-	input.addEventListener('mousedown', event => {
-		input.focus();
-		event.stopImmediatePropagation();
-	});
-
-	root.querySelector('.cancel').addEventListener('click', cancel);
-	root.querySelector('.make').addEventListener('click', create);
-};
-
-/**
- * Setter for AccountSex
- *
- * @param {number} sex
- */
-CharCreatev2.setAccountSex = function setAccountSex(sex) {
-	_accountSex = sex;
-};
-
-/**
- * Once add to HTML, start rendering
- */
-CharCreatev2.onAppend = function onAppend() {
-	this._host.style.top = `${(Renderer.height - 286) / 2}px`;
-	this._host.style.left = `${(Renderer.width - 150) / 2}px`;
-
-	_chargen.render = true;
-	_chargen.entity.set({
-		sex: _accountSex,
-		job: 0,
-		head: 2,
-		action: 0
-	});
-
-	const root = this.getRoot();
-	const input = root.querySelector('input');
-	input.value = '';
-	input.focus();
-
-	Renderer.render(render);
-};
-
-/**
- * Remove component from HTML
- * Stop rendering
- */
-CharCreatev2.onRemove = function onRemove() {
-	Renderer.stop(render);
-};
-
-/**
- * Key Handler
- *
- * @param {object} event
- * @return {boolean}
- */
-CharCreatev2.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host.style.display !== 'none') {
-		event.stopImmediatePropagation();
-		cancel();
-		return false;
-	}
-
-	return true;
-};
-
-/**
- * Generic function to get a direct proxy to updateCharacter
- *
- * @param {string} type
- * @param {number} value
- */
-function updateCharacterGeneric(type, value) {
-	return event => {
-		updateCharacter(type, value);
-		event.stopImmediatePropagation();
-		return false;
-	};
-}
-
-/**
- * Send back informations to send the packet
- */
-function create() {
-	const root = CharCreatev2.getRoot();
-
-	CharCreatev2.onCharCreationRequest(
-		root.querySelector('input').value,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		_chargen.entity.head,
-		_chargen.entity.headpalette
-	);
-}
-
-/**
- * Exit the window
- */
-function cancel() {
-	CharCreatev2.onExitRequest();
-}
-
-/**
- * Update character hairstyle and haircolor
- *
- * @param {string} type (head or headpalette)
- * @param {number} increment (-1 or +1)
- */
-function updateCharacter(type, increment) {
-	switch (type) {
-		case 'head': {
-			let head = _chargen.entity.head + increment;
-
-			if (head < 2) {
-				head = 26;
-			}
-
-			if (head > 26) {
-				head = 2;
-			}
-
-			_chargen.entity.head = head;
-			break;
-		}
-
-		case 'headpalette':
-			_chargen.entity.headpalette += increment;
-			_chargen.entity.headpalette %= 10;
-			break;
-	}
-
-	render();
-}
-
-/**
- * Rendering the Character
- */
-function render(tick) {
-	// Update direction each 500ms
-	if (_chargen.tick + 500 < tick) {
-		Camera.direction++;
-		Camera.direction %= 8;
-		_chargen.tick = tick;
-	}
-
-	// Rendering
-	SpriteRenderer.bind2DContext(_chargen.ctx, 32, 115);
-	_chargen.ctx.clearRect(0, 0, _chargen.ctx.canvas.width, _chargen.ctx.canvas.height);
-	_chargen.entity.renderEntity();
-}
-
-/**
- * Callback to define
- */
-CharCreatev2.onExitRequest = function OnExitRequest() {};
-
-/**
- * Abstract callback to define
- */
-CharCreatev2.onCharCreationRequest = function OnCharCreationRequest() {};
-
-/**
- * Create componentand export it
- */
-export default UIManager.addComponent(CharCreatev2);
+export default createCharCreate({
+	name: 'CharCreatev2',
+	htmlText,
+	cssText,
+	hostHeight: 286,
+	hostWidth: 150,
+	chargenCanvasSelector: '.content canvas',
+	hairArrows: [
+		{ selector: '.content .styleleft', type: 'head', value: -1 },
+		{ selector: '.content .styleright', type: 'head', value: 1 },
+		{ selector: '.content .colorleft', type: 'headpalette', value: -1 },
+		{ selector: '.content .colorright', type: 'headpalette', value: 1 }
+	],
+	nameInputSelector: 'input',
+	cancelSelectors: ['.cancel'],
+	makeSelector: '.make'
+});

@@ -7,6 +7,9 @@
 
 #grfviewer {
 	font-family: Times;
+	/* Opt out of Common.css's font-size-adjust: Times' x-height is smaller than Arial's, so
+	   normalizing would rescale this viewer's text (~+15%). Keep its native metrics. */
+	font-size-adjust: none;
 	margin-top: 60px;
 }
 

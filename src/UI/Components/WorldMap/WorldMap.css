@@ -190,14 +190,14 @@
 	display: none;
 	position: absolute;
 
-	top: 50%;
+	top: 85%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 
 	width: 100%;
 	text-align: center;
 	font-weight: bold;
-	color: #ff0000;
+	color: #ffffff;
 	text-shadow:
 		-1px -1px 0 #000,
 		1px -1px 0 #000,

@@ -14,7 +14,6 @@
 /**
  * Import dependencies
  */
-import jQuery from 'Utils/jquery.js';
 import Context from 'Core/Context.js';
 import Events from 'Core/Events.js';
 import Camera from 'Renderer/Camera.js';
@@ -59,9 +58,6 @@ const remoteAutoFocus = (function removeAutoFocusClosure() {
 		if (_done) {
 			return;
 		}
-
-		jQuery.fn.focus = function () {};
-		jQuery.fn.select = function () {};
 		_done = true;
 	};
 })();
@@ -162,7 +158,8 @@ const onTouchStart = (function onTouchStartClosure() {
 
 	return function (event) {
 		remoteAutoFocus();
-		_touches = event.originalEvent.touches;
+		_touches = event.touches;
+		event.preventDefault();
 		event.stopImmediatePropagation();
 
 		// Delayed click (to detect gesture)
@@ -176,7 +173,7 @@ const onTouchStart = (function onTouchStartClosure() {
 			_scale = touchDistance(_touches);
 			_angle = touchAngle(_touches);
 			_processGesture = true;
-			return false;
+			return;
 		}
 
 		Mouse.screen.x = _touches[0].pageX;
@@ -188,7 +185,6 @@ const onTouchStart = (function onTouchStartClosure() {
 		}
 
 		_timer = Events.setTimeout(delayedClick, 200);
-		return false;
 	};
 })();
 
@@ -223,7 +219,7 @@ function onTouchEnd(event) {
 function onTouchMove(event) {
 	event.stopImmediatePropagation();
 
-	const touches = event.originalEvent.touches;
+	const touches = event.touches;
 
 	Mouse.screen.x = touches[0].pageX;
 	Mouse.screen.y = touches[0].pageY;
@@ -258,7 +254,7 @@ function onTouchMove(event) {
 // Add full screen on mobile (sux to have the browser title bar)
 if (Math.max(screen.availHeight, screen.availWidth) <= 800) {
 	// Fullscreen on action
-	jQuery(window).on('touchstart', function () {
+	window.addEventListener('touchstart', () => {
 		if (!Context.isFullScreen()) {
 			Context.requestFullScreen();
 		}
@@ -266,8 +262,6 @@ if (Math.max(screen.availHeight, screen.availWidth) <= 800) {
 }
 
 //Add mobile UI on touch
-jQuery(window).one('touchstart', touchDevice);
-
 function touchDevice() {
 	Session.isTouchDevice = true;
 
@@ -276,9 +270,12 @@ function touchDevice() {
 		MobileUI.show();
 	}
 }
+window.addEventListener('touchstart', touchDevice, { once: true });
 
 // Touch controls
-jQuery(window).on('touchstart', onTouchStart).on('touchend', onTouchEnd).on('touchmove', onTouchMove);
+window.addEventListener('touchstart', onTouchStart, { passive: false });
+window.addEventListener('touchend', onTouchEnd);
+window.addEventListener('touchmove', onTouchMove);
 
 /**
  * Export

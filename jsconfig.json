@@ -2,7 +2,6 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
-			"jquery": ["src/Vendors/jquery-1.9.1.js"],
 			"App/*": ["src/App/*"],
 			"Audio/*": ["src/Audio/*"],
 			"Controls/*": ["src/Controls/*"],

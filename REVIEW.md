@@ -22,7 +22,6 @@ For architecture, conventions, and subsystem details, see [AGENTS.md](AGENTS.md)
 | **Alias sync**                | Path aliases are defined in two places: `vite.config.js` (dev/test) and `applications/tools/builder-web.mjs` (production build). Changes to one must be mirrored in the other.                                                                                                                                                                                                                                                                                                                           |
 | **Entity mixins**             | Entity uses 17 composition mixins, not inheritance. Don't convert to class hierarchy — mixins are applied dynamically at runtime.                                                                                                                                                                                                                                                                                                                                                                        |
 | **Global state**              | New `window.*` or `self.*` assignments are not allowed. Existing **file-local** globals should be removed when touching the file. **Exception:** `window._OBJ_DRAG_` is a shared cross-component drag-and-drop contract (written by ~20 source components, read by Equipment/SwitchEquip/SkillList drop targets) — do NOT remove it piecemeal. It must be migrated atomically across all producers and consumers in a dedicated PR, not as a side effect of unrelated changes. See "What NOT to Review". |
-| **jQuery usage**              | Don't add new jQuery. When touching code with `$.Deferred`, convert to `async`/`await`.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **Vendors**                   | `src/Vendors/` is frozen. Never modify vendored files.                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Shadow DOM (GUIComponent)** | Never use jQuery `.show()`/`.hide()` inside Shadow DOM. Never use `$el.closest('body')` — use `el.isConnected`. Global CSS doesn't penetrate shadow boundaries — add shared rules to `Common.css`. See `doc/UIComponent_to_GUIComponent.md`.                                                                                                                                                                                                                                                             |
 
@@ -35,14 +34,32 @@ For architecture, conventions, and subsystem details, see [AGENTS.md](AGENTS.md)
 
 ### 🟢 Nice to have — Always Suggest but don't block
 
-| Area                   | What to check                                                                                                                                                                                               |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Modernize on touch** | Legacy patterns (`constructor functions`, `var`, string concatenation, `jQuery.Deferred`) should be modernized when the file is already being changed. See [AGENTS.md](AGENTS.md) for the conversion table. |
-| **Test coverage**      | New utilities and loaders should include tests. Tests go in `tests/` mirroring `src/` structure.                                                                                                            |
+| Area                   | What to check                                                                                                                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Modernize on touch** | Legacy patterns (`constructor functions`, `var`, string concatenation, etc.) should be modernized when the file is already being changed. See [AGENTS.md](AGENTS.md) for the conversion table. |
+| **Test coverage**      | New utilities and loaders should include tests. Tests go in `tests/` mirroring `src/` structure.                                                                                               |
 
 ### ✅ No Issues Found
 
 When no bugs are found, confirm explicitly that the PR was reviewed and no issues were identified. Don't just skip the review silently.
+
+---
+
+## Deduplication JS into Factory Patterns Review Rules
+
+When reviewing JS deduplication into a `FooCommon.js` factory pattern, hunt for
+missing code, deduplication logic errors, and code injected outside of its
+original version.
+
+| Check                       | What to verify                                                                                                                          |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **Component `name`**        | Each version keeps its exact original component name string — `UIManager`/`UIVersionManager` lookups depend on it.                      |
+| **Preference keys**         | Every `Preferences.get(...)` key stays verbatim (per-version or shared, copied as-is). Renamed/merged keys reset or leak user settings. |
+| **`versionInfo` mapping**   | PACKETVER→version mapping in the aggregator unchanged — a wrong map loads the wrong version for a client date.                          |
+| **No shared mutable state** | Per-instance state lives inside `createFoo`, never at module scope shared across versions.                                              |
+| **Flag minimalism**         | Each config flag maps to a real, pre-existing version difference — no invented/speculative options.                                     |
+| **Faithful HTML/CSS**       | In-factory generated HTML matches legacy node-for-node (classes, ids, `data-*`, asset paths).                                           |
+| **No behavior added**       | No new tabs/buttons/options; pre-existing bugs migrated 1:1 with a `// TODO`, not "fixed" here.                                         |
 
 ---
 
@@ -118,7 +135,7 @@ Both `npm test` (Vitest) and `npm run build` (custom builder) resolve imports th
 - `src/Vendors/` — frozen third-party code, excluded from lint
 - Lock files (`package-lock.json`) — unless dependencies changed intentionally
 - `window.electronAPI` in Electron files — platform requirement, not removable
-- `doc/*.md` — reference/prose docs (skip), EXCEPT agent operational memory (AGENTS.md, UIComponent_to_GUIComponent\*.md) which is reviewed for correctness, not prose.
+- `doc/*.md` — reference/prose docs (skip), EXCEPT agent operational memory (AGENTS.md, UIComponent_to_GUIComponent\*.md, GUIComponent_Version_Dedup_Factory.md) which is reviewed for correctness, not prose.
 - `window._OBJ_DRAG_` — shared drag-and-drop state across ~27 files (Inventory, Storage, Cart, Mail, SkillList, Equipment, ShortCut, etc.). The HTML5 DnD `dataTransfer` API can't read its payload during `dragover`, which is why this global exists. Don't flag it as removable global state in single-file PRs; it requires a coordinated migration (e.g. a shared `DragDropState` module).
 
 ---

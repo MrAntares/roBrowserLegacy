@@ -9,7 +9,6 @@
  */
 
 import Client from 'Core/Client.js';
-import jQuery from 'Utils/jquery.js';
 import html2canvas from 'Vendors/html2canvas.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -114,14 +113,12 @@ class ScreenShot {
 /**
  * Key Listener
  */
-jQuery(window).keydown(event => {
+window.addEventListener('keydown', event => {
 	if (KEYS.ALT && event.which === KEYS.P) {
 		ScreenShot.take();
 		event.stopImmediatePropagation();
-		return false;
+		event.preventDefault();
 	}
-
-	return true;
 });
 
 /**

@@ -450,6 +450,10 @@ class EffectManager {
 					// Some effects might track an entity, updating their position is usually done in render()
 					// so we might need to run a lightweight update if we cull rendering.
 					// However, most RO effects are static or simple.
+					// Effects with a position can be distance-culled. Effects without one
+					// (e.g. standalone viewer effects) have no cullable position and must
+					// always render.
+					let culled = false;
 					if (pos) {
 						const distSq =
 							(pos[0] - center[0]) * (pos[0] - center[0]) + (pos[1] - center[1]) * (pos[1] - center[1]);
@@ -469,20 +473,23 @@ class EffectManager {
 
 							if (shouldRemove) {
 								effect.needCleanUp = true;
+								culled = true;
 							} else {
 								// Check for repeat logic even if culled
 								size += repeatEffect(effect);
 								continue; // Skip rendering
 							}
-						} else {
-							if (!effect.ready && effect.needInit) {
-								effect.init(gl);
-								effect.needInit = false;
-							}
+						}
+					}
 
-							if (effect.ready) {
-								effect.render(gl, tick);
-							}
+					if (!culled) {
+						if (!effect.ready && effect.needInit) {
+							effect.init(gl);
+							effect.needInit = false;
+						}
+
+						if (effect.ready) {
+							effect.render(gl, tick);
 						}
 					}
 

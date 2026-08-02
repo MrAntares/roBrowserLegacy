@@ -17,7 +17,20 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import PathFinding from 'Utils/PathFinding.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Altitude from 'Renderer/Map/Altitude.js';
+import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 const _list = [];
+
+/**
+ * Release an entity's GR2 model instance (if any) at the true-removal sites, so a
+ * removed mob leaves no ghost in the renderer's instance list. Idempotent.
+ * @param {Entity} entity
+ */
+function releaseGr2(entity) {
+	if (entity.gr2Model) {
+		GR2ModelRenderer.detach(entity.gr2Model);
+		entity.gr2Model = null;
+	}
+}
 
 // O(1) GID lookup map
 const _gidMap = new Map();
@@ -156,7 +169,10 @@ function addEntity(entity) {
  * Clean up entities from list
  */
 function free() {
-	_list.forEach(entity => entity.clean());
+	_list.forEach(entity => {
+		releaseGr2(entity);
+		entity.clean();
+	});
 
 	_list.length = 0;
 	_gidMap.clear();
@@ -183,6 +199,7 @@ function removeEntity(gid) {
 	const entity = _gidMap.get(gid);
 
 	if (entity) {
+		releaseGr2(entity);
 		entity.clean();
 		_gidMap.delete(gid);
 		const index = _list.indexOf(entity);
@@ -356,6 +373,7 @@ function render(gl, modelView, projection, fog, renderEffects) {
 				}
 
 				_gidMap.delete(_list[i].GID);
+				releaseGr2(_list[i]);
 				_list[i].clean();
 				_list.splice(i, 1);
 				i--;

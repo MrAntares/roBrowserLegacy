@@ -12,9 +12,9 @@
 import glMatrix from 'Utils/gl-matrix.js';
 import Configs from 'Core/Configs.js';
 import Client from 'Core/Client.js';
-import GrannyModel from 'Loaders/GrannyModel.js';
+import GR2Loader from 'Loaders/GR2Loader.js';
+import GR2ViewerRenderer from 'Renderer/GR2/GR2ViewerRenderer.js';
 import Renderer from 'Renderer/Renderer.js';
-import ModelRenderer from 'Renderer/Map/Models.js';
 import Camera from 'Renderer/Camera.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import htmlText from './GrannyModelViewer.html?raw';
@@ -24,10 +24,9 @@ import cssText from './GrannyModelViewer.css?raw';
  * Load dependencies
  */
 const mat4 = glMatrix.mat4;
-const mat3 = glMatrix.mat3;
 
 /**
- * @var {object} fog structure
+ * @var {object} fog structure (disabled — the viewer shows the bare model)
  */
 const _fog = {
 	use: false,
@@ -39,40 +38,34 @@ const _fog = {
 };
 
 /**
- * @var {object} light structure
+ * @var {object} light structure. Directional grey key light + grey ambient floor so the model
+ * reads with depth (not flat fullbright); env untinted. Matches the GR2Model.fs grayscale path.
  */
 const _light = {
 	opacity: 1.0,
-	ambient: new Float32Array([Math.PI, Math.PI, Math.PI]),
-	diffuse: new Float32Array([0, 0, 0]),
+	ambient: new Float32Array([0.5, 0.5, 0.5]),
+	diffuse: new Float32Array([0.7, 0.7, 0.7]),
 	direction: new Float32Array([0, 1, 0]),
 	env: new Float32Array([1, 1, 1])
 };
 
 /**
- * @var {object} model global parameters
+ * @var {mat4} orbit view matrix
  */
-const _GlobalParameters = {
-	position: new Float32Array(3),
-	rotation: new Float32Array(3),
-	scale: new Float32Array([-0.075, -0.075, 0.075]),
-	filename: null
-};
+const _view = new Float32Array(4 * 4);
 
 /**
- * @var {mat4} model view mat
+ * @var {boolean} whether a model is decoded and ready to render
  */
-const _modelView = new Float32Array(4 * 4);
+let _hasModel = false;
 
 /**
- * @var {mat3} normal mat
+ * Camera framing derived from the current model's bounds. `_radius` is the model's bounding
+ * sphere; the orbit distance is recomputed each frame from the live FOV/aspect so the model
+ * always fits the viewport (and reframes on window resize).
  */
-const _normalMat = new Float32Array(3 * 3);
-
-/**
- * @var {object} current model
- */
-let _model = null;
+let _target = [0, 0, 0];
+let _radius = 1;
 
 /**
  * Create GrannyModelViewer component
@@ -98,12 +91,14 @@ Viewer.init = function init() {
 
 	const root = this.getRoot();
 
-	if (!Configs.get('API')) {
+	if (!Configs.get('api')) {
 		initDropDown(root.querySelector('select'));
 	} else {
 		const hash = decodeURIComponent(location.hash);
 		location.hash = hash;
-		loadModel(hash.substr(1));
+		if (hash.length > 1) {
+			loadModel(hash.substr(1));
+		}
 	}
 };
 
@@ -142,7 +137,7 @@ function initDropDown(select) {
 		if (hash.indexOf('.gr2') !== -1) {
 			loadModel(hash.substr(1));
 			select.value = hash.substr(1);
-		} else {
+		} else if (select.value) {
 			loadModel(select.value);
 		}
 
@@ -153,97 +148,74 @@ function initDropDown(select) {
 }
 
 /**
- * Stop to render
+ * Stop rendering and drop the current model's GL resources.
  */
 function stop() {
 	const gl = Renderer.getContext();
 
 	Renderer.stop();
-	ModelRenderer.free(gl);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	_hasModel = false;
+	if (gl) {
+		GR2ViewerRenderer.free(gl);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	}
 }
 
 /**
- * Start loading a model
+ * Frame the orbit camera on the model's world-space bounds.
+ *
+ * @param {object} bounds { center:[x,y,z], radius }
+ */
+function frameCamera(bounds) {
+	_target = bounds.center;
+	_radius = Math.max(bounds.radius, 0.001);
+}
+
+/**
+ * fitDistance() -> orbit distance that fits the model's bounding sphere in the current viewport.
+ * Renderer uses a narrow vertical FOV (Renderer.vFov, degrees); for a sphere of radius R the fit
+ * distance is R / sin(halfFov). The limiting axis is vertical on landscape windows and horizontal
+ * on portrait ones, so derive the horizontal half-FOV from the aspect and take the tighter one.
+ * A small margin keeps the model off the very edges.
+ */
+function fitDistance() {
+	const aspect = (Renderer.width || 1) / (Renderer.height || 1);
+	const vHalf = (Renderer.vFov / 2) * (Math.PI / 180);
+	const hHalf = Math.atan(Math.tan(vHalf) * aspect);
+	const halfFov = Math.min(vHalf, hHalf);
+	return (_radius / Math.sin(halfFov)) * 1.15;
+}
+
+/**
+ * Start loading a model.
  *
  * @param {string} filename
  */
 function loadModel(filename) {
 	stop();
 
+	if (!filename) {
+		return;
+	}
+
 	Client.getFile(filename, buf => {
-		_model = new GrannyModel(buf);
-
-		let i, count, j, size, total, offset, length;
-		const objects = [];
-		const infos = [];
-		let meshes, index, object;
-
-		// Create model in world
-		_GlobalParameters.filename = filename.replace('data/model/', '');
-		_model.createInstance(_GlobalParameters, 0, 0);
-
-		// Compile model
-		const data = _model.compile();
-		count = data.meshes.length;
-		total = 0;
-
-		for (i = 0, count = data.meshes.length; i < count; ++i) {
-			meshes = data.meshes[i];
-			index = Object.keys(meshes);
-
-			for (j = 0, size = index.length; j < size; ++j) {
-				objects.push({
-					texture: data.textures[index[j]],
-					alpha: _model.alpha,
-					mesh: meshes[index[j]]
-				});
-
-				total += meshes[index[j]].length;
-			}
-		}
-
-		const buffer = new Float32Array(total);
-		count = objects.length;
-		offset = 0;
-
-		for (i = 0; i < count; ++i) {
-			object = objects[i];
-			length = object.mesh.length;
-
-			infos[i] = {
-				texture: `data/texture/${object.texture}`,
-				vertOffset: offset / 9,
-				vertCount: length / 9
-			};
-
-			buffer.set(object.mesh, offset);
-			offset += length;
-		}
-
-		i = -1;
-		function loadNextTexture() {
-			if (++i === count) {
-				ModelRenderer.init(Renderer.getContext(), {
-					buffer: buffer,
-					infos: infos
-				});
-
-				Renderer.render(render);
+		// granny-ro-js decodes texture pixels via WASM; make sure it is initialised first.
+		GR2Loader.ready().then(() => {
+			let loader;
+			try {
+				loader = new GR2Loader(buf);
+			} catch (e) {
+				console.error('[GrannyModelViewer] failed to decode', filename, e);
 				return;
 			}
 
-			Client.loadFile(
-				infos[i].texture,
-				binaryData => {
-					infos[i].texture = binaryData;
-					loadNextTexture();
-				},
-				loadNextTexture
-			);
-		}
+			const gl = Renderer.getContext();
+			GR2ViewerRenderer.init(gl, loader);
+			frameCamera(GR2ViewerRenderer.getBounds());
+			_hasModel = true;
 
-		loadNextTexture();
+			Renderer.render(render);
+		});
 	});
 }
 
@@ -251,23 +223,24 @@ function loadModel(filename) {
  * Rendering scene
  *
  * @param {number} tick
- * @param {object} webgl context
+ * @param {object} gl webgl context
  */
 function render(tick, gl) {
-	// Updating camera position
-	mat4.identity(_modelView);
-	mat4.translate(_modelView, _modelView, [0, -_model.box.range[1] * 0.1, -_model.box.range[1] * 0.5 - 5]);
-	mat4.rotateX(_modelView, _modelView, (15 / 180) * Math.PI);
-	mat4.rotateY(_modelView, _modelView, (((tick / 1000) * 360) / 8 / 180) * Math.PI);
-
-	// Calculate normal mat
-	mat4.toInverseMat3(_modelView, _normalMat);
-	mat3.transpose(_normalMat, _normalMat);
-
-	// Clear screen, update camera
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	ModelRenderer.render(gl, _modelView, Camera.projection, _normalMat, _fog, _light);
+	if (!_hasModel) {
+		return;
+	}
+
+	// Orbit view: pull back by _distance, tilt down slightly, spin around Y, then recenter on
+	// the model. view = T(0,0,-d) . Rx(pitch) . Ry(yaw) . T(-center).
+	mat4.identity(_view);
+	mat4.translate(_view, _view, [0, 0, -fitDistance()]);
+	mat4.rotateX(_view, _view, (20 / 180) * Math.PI);
+	mat4.rotateY(_view, _view, (((tick / 1000) * 360) / 12 / 180) * Math.PI);
+	mat4.translate(_view, _view, [-_target[0], -_target[1], -_target[2]]);
+
+	GR2ViewerRenderer.render(gl, _view, Camera.projection, _fog, _light, tick);
 }
 
 /**

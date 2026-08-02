@@ -5,31 +5,31 @@
 	left: 0px;
 }
 
-#basicinfo {
+#BasicInfoV1 {
 	position: absolute;
 	width: 220px;
 	height: 135px;
 	font-size: 11px;
 	font-weight: bold;
 }
-#basicinfo.small .large {
+#BasicInfoV1.small .large {
 	display: none;
 }
-#basicinfo.large .small {
+#BasicInfoV1.large .small {
 	display: none;
 	border-radius: 5px;
 }
-#basicinfo.small {
+#BasicInfoV1.small {
 	height: 53px;
 }
-#basicinfo.large .buttons {
+#BasicInfoV1.large .buttons {
 	top: 135px;
 }
-#basicinfo.small .buttons {
+#BasicInfoV1.small .buttons {
 	top: 53px;
 }
 
-#basicinfo .topbar .left {
+#BasicInfoV1 .topbar .left {
 	position: absolute;
 	top: 3px;
 	left: 4px;
@@ -38,7 +38,7 @@
 	border: none;
 	background: none;
 }
-#basicinfo .topbar .right {
+#BasicInfoV1 .topbar .right {
 	position: absolute;
 	top: 3px;
 	right: 2px;
@@ -49,34 +49,34 @@
 }
 
 /* LARGE */
-#basicinfo .large .title {
+#BasicInfoV1 .large .title {
 	position: absolute;
 	top: 2px;
 	left: 18px;
 	text-shadow: 1px 1px white;
 }
-#basicinfo .large .name {
+#BasicInfoV1 .large .name {
 	position: absolute;
 	left: 10px;
 	top: 20px;
 }
-#basicinfo .large .job {
+#BasicInfoV1 .large .job {
 	position: absolute;
 	left: 10px;
 	top: 33px;
 }
-#basicinfo .large .hp_title {
+#BasicInfoV1 .large .hp_title {
 	position: absolute;
 	top: 50px;
 	left: 15px;
 }
-#basicinfo .large .sp_title {
+#BasicInfoV1 .large .sp_title {
 	position: absolute;
 	top: 65px;
 	left: 15px;
 }
-#basicinfo .large .hp_bar,
-#basicinfo .large .sp_bar {
+#BasicInfoV1 .large .hp_bar,
+#BasicInfoV1 .large .sp_bar {
 	position: absolute;
 	top: 53px;
 	left: 35px;
@@ -84,44 +84,44 @@
 	height: 8px;
 	font-weight: normal;
 }
-#basicinfo .large .sp_bar {
+#BasicInfoV1 .large .sp_bar {
 	top: 68px;
 }
-#basicinfo .large .hp_bar div,
-#basicinfo .large .sp_bar div {
+#BasicInfoV1 .large .hp_bar div,
+#BasicInfoV1 .large .sp_bar div {
 	width: 4px;
 	height: 8px;
 	float: left;
 }
-#basicinfo .large div.hp_bar_perc,
-#basicinfo .large div.sp_bar_perc {
+#BasicInfoV1 .large div.hp_bar_perc,
+#BasicInfoV1 .large div.sp_bar_perc {
 	text-align: center;
 	width: 127px;
 	position: absolute;
 	top: -2px;
 }
-#basicinfo .large .hp_perc {
+#BasicInfoV1 .large .hp_perc {
 	position: absolute;
 	top: 50px;
 	right: 20px;
 }
-#basicinfo .large .sp_perc {
+#BasicInfoV1 .large .sp_perc {
 	position: absolute;
 	top: 65px;
 	right: 20px;
 }
-#basicinfo .large .blvl {
+#BasicInfoV1 .large .blvl {
 	position: absolute;
 	top: 86px;
 	left: 15px;
 }
-#basicinfo .large .jlvl {
+#BasicInfoV1 .large .jlvl {
 	position: absolute;
 	top: 97px;
 	left: 15px;
 }
-#basicinfo .large .bexp,
-#basicinfo .large .jexp {
+#BasicInfoV1 .large .bexp,
+#BasicInfoV1 .large .jexp {
 	position: absolute;
 	top: 89px;
 	left: 84px;
@@ -130,8 +130,8 @@
 	border: 1px solid #afafaf;
 	background-color: white;
 }
-#basicinfo .large .bexp div,
-#basicinfo .large .jexp div {
+#BasicInfoV1 .large .bexp div,
+#BasicInfoV1 .large .jexp div {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -139,10 +139,10 @@
 	height: 4px;
 	background-color: #4262a5;
 }
-#basicinfo .large .jexp {
+#BasicInfoV1 .large .jexp {
 	top: 101px;
 }
-#basicinfo .large .extra {
+#BasicInfoV1 .large .extra {
 	position: absolute;
 	top: 119px;
 	right: 5px;
@@ -152,16 +152,16 @@
 	text-align: right;
 	white-space: nowrap;
 }
-#basicinfo .buttons {
+#BasicInfoV1 .buttons {
 	position: absolute;
 	left: 0px;
 	width: 220px;
 	opacity: 0.5;
 }
-#basicinfo .buttons:hover {
+#BasicInfoV1 .buttons:hover {
 	opacity: 1;
 }
-#basicinfo .buttons button {
+#BasicInfoV1 .buttons button {
 	float: left;
 	width: 54px;
 	height: 18px;
@@ -169,31 +169,31 @@
 	margin: 0;
 	background-color: transparent;
 }
-#basicinfo .buttons .clear {
+#BasicInfoV1 .buttons .clear {
 	clear: both;
 }
 
 /* REDUCED */
-#basicinfo .small .line1 {
+#BasicInfoV1 .small .line1 {
 	position: absolute;
 	top: 2px;
 	left: 18px;
 	text-shadow: 1px 1px white;
 	white-space: nowrap;
 }
-#basicinfo .small .line2 {
+#BasicInfoV1 .small .line2 {
 	position: absolute;
 	top: 20px;
 	left: 10px;
 	white-space: nowrap;
 }
-#basicinfo .small .line3 {
+#BasicInfoV1 .small .line3 {
 	position: absolute;
 	top: 36px;
 	left: 10px;
 	white-space: nowrap;
 }
-#basicinfo .small .toggle_btns {
+#BasicInfoV1 .small .toggle_btns {
 	width: 9px;
 	height: 14px;
 	border: none;

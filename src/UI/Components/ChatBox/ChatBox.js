@@ -9,7 +9,6 @@
  */
 
 import DB from 'DB/DBManager.js';
-import jQuery from 'Utils/jquery.js';
 import Renderer from 'Renderer/Renderer.js';
 import Client from 'Core/Client.js';
 import Events from 'Core/Events.js';
@@ -1763,13 +1762,19 @@ ChatBox._setupItemLinkHandler = function _setupItemLinkHandler() {
 };
 
 // Also keep global handler for item links outside shadow (backwards compatibility)
-jQuery(document).on('click', '.item-link', function (event) {
-	if (jQuery(this).closest('#chatbox .input-chatbox').length) {
-		event.stopImmediatePropagation();
-		return false;
+document.addEventListener('click', event => {
+	const link = event.target.closest('.item-link');
+	if (!link) {
+		return;
 	}
 
-	const item = DB.parseItemLink(jQuery(this).data('item'));
+	if (link.closest('#chatbox .input-chatbox')) {
+		event.stopImmediatePropagation();
+		event.preventDefault();
+		return;
+	}
+
+	const item = DB.parseItemLink(link.dataset.item);
 	if (!item) {
 		return;
 	}

@@ -81,6 +81,12 @@ All credits to the original owners/creators and the new ones.
 - Join us on [Discord](https://discord.gg/8JdHwM4Kqm)
 - Or in the [GIT Discussions](https://github.com/MrAntares/roBrowserLegacy/discussions)
 
-## Star history
+## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=MrAntares/roBrowserLegacy&type=Date)](https://star-history.com/#MrAntares/roBrowserLegacy&Date)
+<a href="https://www.star-history.com/?repos=MrAntares%2FroBrowserLegacy&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=MrAntares/roBrowserLegacy&type=date&theme=dark&legend=top-left&sealed_token=n-LYAsHxuqeB0pWAcr0VyUok1yv6L_vgDU_o45SAzDD0v8KE-9l9Mqlcr0dcnX606Bg9Yf_Coue-KXc4lhBj_dwAIAVmxloWaG5KiVlETd2asCYPRWu9-RzCKESTbAwZOolsyYjnA-IS6njNlSjYzTJfSDLMmT742KWezS2E7iECIz-sCoDor0QaRlep" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=MrAntares/roBrowserLegacy&type=date&legend=top-left&sealed_token=n-LYAsHxuqeB0pWAcr0VyUok1yv6L_vgDU_o45SAzDD0v8KE-9l9Mqlcr0dcnX606Bg9Yf_Coue-KXc4lhBj_dwAIAVmxloWaG5KiVlETd2asCYPRWu9-RzCKESTbAwZOolsyYjnA-IS6njNlSjYzTJfSDLMmT742KWezS2E7iECIz-sCoDor0QaRlep" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=MrAntares/roBrowserLegacy&type=date&legend=top-left&sealed_token=n-LYAsHxuqeB0pWAcr0VyUok1yv6L_vgDU_o45SAzDD0v8KE-9l9Mqlcr0dcnX606Bg9Yf_Coue-KXc4lhBj_dwAIAVmxloWaG5KiVlETd2asCYPRWu9-RzCKESTbAwZOolsyYjnA-IS6njNlSjYzTJfSDLMmT742KWezS2E7iECIz-sCoDor0QaRlep" />
+ </picture>
+</a>

@@ -21,16 +21,13 @@ export default function uiCssHmrPlugin() {
 
 			const cssPath = match[2];
 
-			// Support both UIComponent and GUIComponent
-			const compRegex = /(?:new\s+(?:UIComponent|GUIComponent)|super)\(\s*['"](\w+)['"]/;
+			const compRegex = /(?:new\s+GUIComponent)\(\s*['"](\w+)['"]/;
 			const compMatch = compRegex.exec(code);
 			if (!compMatch) return null;
 
 			const componentName = compMatch[1];
 
-			const isGUI = code.includes('GUIComponent');
-			const hmrBlock = isGUI
-				? `
+			const hmrBlock = `
 				if (import.meta.hot) {
 					import.meta.hot.accept('${cssPath}', (newModule) => {
 						if (newModule && newModule.default) {
@@ -39,14 +36,6 @@ export default function uiCssHmrPlugin() {
 								const style = comp._shadow.querySelector('style[data-component]');
 								if (style) style.textContent = newModule.default;
 							}
-						}
-					});
-				}`
-				: `
-				if (import.meta.hot) {
-					import.meta.hot.accept('${cssPath}', (newModule) => {
-						if (newModule && newModule.default) {
-							UIComponent.reloadCSS('${componentName}', newModule.default);
 						}
 					});
 				}`;

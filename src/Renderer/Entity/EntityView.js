@@ -16,6 +16,14 @@ import AllMountTable from 'DB/Jobs/AllMountTable.js';
 import EntityAction from './EntityAction.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import JobConst from 'DB/Jobs/JobConst.js';
+import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
+
+// Client directory the GR2 3D-mob models resolve against (GR2ModelRenderer fetches from here).
+const GR2_MODEL_ROOT = 'data/model/3dmob/';
+
+// Stand-in when a .gr2 model is absent from the GRF: render the Poring sprite instead of nothing
+// (job 1002). Consumed only after GR2ModelRenderer.isMissing flags the path (see UpdateBody).
+const GR2_FALLBACK_JOB = 1002;
 
 /**
  * Files to display a view
@@ -171,10 +179,14 @@ function refreshHeadState() {
  * @param {number} job id
  */
 function UpdateBody(job) {
-	let baseJob, path;
+	let baseJob;
 	// Capture sequence number for stale callback detection
 	const transformationSeq = this._transformationSeq || 0;
 
+	// job < 0 is a "no body update" sentinel: keep the current body state untouched, including
+	// this.gr2. Intentionally not cleared here -- same as the invisible-sprite branch below
+	// (job 111/139/45), which also retains this.gr2. Only the "no body at all" path === null
+	// branch clears this.gr2, because that path means the entity genuinely has no body sprite.
 	if (job < 0) {
 		return;
 	}
@@ -226,7 +238,7 @@ function UpdateBody(job) {
 	// form (disguise or transformation) - otherwise a GM disguised as a monster
 	// shows the headless admin sprite instead of the monster.
 	const showAdminSprite = this.isAdmin && !shouldSuppressHead.call(this);
-	path = showAdminSprite ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
+	let path = showAdminSprite ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex);
 	const Entity = this.constructor;
 
 	// Define Object type based on its id
@@ -288,24 +300,52 @@ function UpdateBody(job) {
 		return;
 	}
 
-	// granny model not supported yet :(
-	// Display a poring instead
-	if (path === null || path.match(/\.gr2$/i)) {
-		if (path.match(/aguardian90_8\.gr2$/i)) {
-			path = DB.getBodyPath(1276, this._sex);
-		} else if (path.match(/empelium90_0\.gr2$/i)) {
-			path = DB.getBodyPath(2080, this._sex);
-		} else if (path.match(/guildflag90_1\.gr2$/i)) {
-			path = DB.getBodyPath(1911, this._sex);
-		} else if (path.match(/kguardian90_7\.gr2$/i)) {
-			path = DB.getBodyPath(2691, this._sex);
-		} else if (path.match(/sguardian90_9\.gr2$/i)) {
-			path = DB.getBodyPath(1163, this._sex);
-		} else if (path.match(/treasurebox_2\.gr2$/i)) {
-			path = DB.getBodyPath(1191, this._sex);
-		} else {
-			path = DB.getBodyPath(1002, this._sex);
+	// getBodyPath returned null -> the entity has no body sprite at all (DBManager's
+	// "Not visible sprite" list: ANOPHELES 2337, ...). Not a GR2 case -- mirror the
+	// invisible branch above and return before the load. Keeps the .gr2 branch below
+	// strictly about genuine 3D models (no null.match() fall-through).
+	if (path === null) {
+		this.gr2 = null;
+		this.files.body.spr = null;
+		this.files.body.act = null;
+		return;
+	}
+
+	// GR2 3D body: a supported model is rendered by GR2ModelRenderer through the Entity path
+	// (EntityRender attaches an instance on this.gr2) -- record the model path, null the body
+	// sprite, return before the load. Unsupported or failed models fall through to a 2D Poring
+	// substitute instead (see the inner branch). The supported return also skips the
+	// bodypalette/weapon/shield refresh in the load callback below -- intentional: the GR2
+	// set is monsters/NPCs with no PC attachments. Revisit if a player-class GR2 model
+	// (e.g. a mount) is ever added.
+	if (path.match(/\.gr2$/i)) {
+		// Re-root the model under GR2_MODEL_ROOT: DB.getBodyPath always returns a directory-qualified
+		// path (data/sprite/<...>/name.gr2), so stripping to the basename and re-prefixing is safe.
+		const gr2Path = GR2_MODEL_ROOT + path.replace(/^.*\//, '');
+		// Enter the 3D path only for the supported roster whose file/decode hasn't failed. Everything
+		// else -- an unsupported model (dragon_5, Hugeling90_6, any future .gr2: rejected synchronously
+		// by isSupported, no I/O) or a supported model that later 404'd / failed to decode (isMissing) --
+		// falls through to the 2D Poring substitute below instead of rendering an invisible actor.
+		if (GR2ModelRenderer.isSupported(gr2Path) && !GR2ModelRenderer.isMissing(gr2Path)) {
+			// Tripwire: the current GR2 set is monsters/NPCs, so this never fires. If a player-class
+			// GR2 (e.g. a mount) is ever added, its weapon/shield/bodypalette refresh would be silently
+			// dropped by the early return -- make that loud instead of a hard-to-trace visual gap.
+			if (this.objecttype === Entity.TYPE_PC && (this._weapon || this._shield)) {
+				console.warn(
+					'[GR2] Player-class GR2 body (' +
+						path +
+						'): weapon/shield/bodypalette refresh is skipped -- see UpdateBody.'
+				);
+			}
+			this.gr2 = gr2Path;
+			this.files.body.spr = null;
+			this.files.body.act = null;
+			return;
 		}
+		this.gr2 = null;
+		path = DB.getBodyPath(GR2_FALLBACK_JOB, this._sex);
+	} else {
+		this.gr2 = null;
 	}
 
 	// Loading

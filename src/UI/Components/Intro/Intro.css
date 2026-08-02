@@ -42,6 +42,10 @@
 	transform-origin: center center;
 	backface-visibility: hidden;
 	font-family: 'Inter', sans-serif;
+	/* Opt out of Common.css's font-size-adjust: this whole screen renders in Inter/Cinzel, whose
+	   x-height differs from Arial's — normalizing would rescale its headings (Cinzel ~+18%). All
+	   descendants inherit this reset, keeping the pre-normalization rendering. */
+	font-size-adjust: none;
 	color: var(--text-light);
 }
 

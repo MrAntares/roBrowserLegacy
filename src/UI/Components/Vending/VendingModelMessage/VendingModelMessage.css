@@ -1,19 +1,18 @@
 /* Message Model */
-#VendingModelMessage {
-	/* display: none; */
+:host {
 	position: absolute;
 	top: 100px;
 	left: 100px;
 	width: 270px;
 }
 
-#VendingModelMessage .titlebar {
+.titlebar {
 	border-radius: 3px 3px 0px 0px;
 	height: 15px;
 	align-items: center;
 	padding: 1px;
 }
-#VendingModelMessage .titlebar .base {
+.titlebar .base {
 	width: 11px;
 	height: 11px;
 	border: none;
@@ -21,7 +20,7 @@
 	background-repeat: no-repeat;
 	vertical-align: middle;
 }
-#VendingModelMessage .container {
+.container {
 	background: white;
 	width: 268px;
 	height: 114px;
@@ -30,19 +29,19 @@
 	display: grid;
 }
 
-#VendingModelMessage .text_message {
+.text_message {
 	height: 73px;
 	padding: 11px;
 }
 
 /** Buttons **/
-#VendingModelMessage .btns {
+.btns {
 	position: absolute;
 	bottom: -3px;
 	width: 100%;
 	height: 28px;
 }
-#VendingModelMessage .btn {
+.btn {
 	position: absolute;
 	border: 0;
 	width: 42px;
@@ -51,10 +50,10 @@
 	background-color: transparent;
 }
 
-#VendingModelMessage .ok,
-#VendingModelMessage .make {
+.ok,
+.make {
 	right: 6px;
 }
-#VendingModelMessage .delete {
+.delete {
 	left: 4px;
 }

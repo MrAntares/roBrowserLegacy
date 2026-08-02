@@ -12,7 +12,6 @@
  * Load dependencies
  */
 import WebGL from 'Utils/WebGL.js';
-import jQuery from 'Utils/jquery.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import Configs from 'Core/Configs.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
@@ -147,11 +146,10 @@ class Renderer {
 				console.info('Renderer using WebGL ' + (this.isWebGL2 ? '2' : '1') + ' context');
 			}
 
-			jQuery(window)
-				.resize(this.onResize.bind(this))
-				.on('contextmenu', function () {
-					return false;
-				});
+			window.addEventListener('resize', this.onResize.bind(this));
+			window.addEventListener('contextmenu', event => {
+				event.preventDefault();
+			});
 
 			// Listen for visual viewport changes (mobile input focus zoom, pinch zoom)
 			// to keep the canvas and camera in sync.

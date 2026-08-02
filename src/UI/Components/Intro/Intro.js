@@ -1,7 +1,7 @@
 /**
  * UI/Components/Intro/Intro.js
  *
- * Intro Manager — GUIComponent, no jQuery, no image assets
+ * Intro Manager — GUIComponent
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
@@ -41,7 +41,7 @@ let _resizeHandler = null;
 /**
  * Helper: query inside shadow DOM
  */
-function $(sel) {
+function querySelector(sel) {
 	return Intro._shadow.querySelector(sel);
 }
 
@@ -408,7 +408,7 @@ function processDropEvent(event) {
 function addFiles(files) {
 	if (!files.length) return;
 	Intro.files.push.apply(Intro.files, files);
-	const msgEl = $('.msg');
+	const msgEl = querySelector('.msg');
 	if (msgEl) msgEl.textContent = Intro.files.length + ' files selected';
 }
 
