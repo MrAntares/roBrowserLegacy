@@ -11227,9 +11227,7 @@ function detectEncodingByLangtype(langType, disableKorean) {
 		case 242:
 			result = "utf-16be";
 			break;
-		default:
-			result = "windows-1252";
-			break;
+		default: result = "windows-1252";
 	}
 	if (disableKorean) result = "windows-1252";
 	return result;
@@ -17133,7 +17131,6 @@ var Node = class {
 				this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
 				this.calcNormal_SMOOTH(face_normal, shadeGroupUsed, shadeGroup);
 				this.generate_mesh_SMOOTH(vert, shadeGroup, mesh);
-				break;
 		}
 		return mesh;
 	}
@@ -17207,7 +17204,6 @@ var Node = class {
 				this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
 				this.calcNormal_SMOOTH(face_normal, shadeGroupUsed, shadeGroup);
 				this.generate_mesh_SMOOTH(vert, shadeGroup, mesh);
-				break;
 		}
 		return mesh;
 	}
@@ -18358,9 +18354,7 @@ function errorHandler(e) {
 		case FileError.INVALID_STATE_ERR:
 			msg = "INVALID_STATE_ERR";
 			break;
-		default:
-			msg = "Unknown Error";
-			break;
+		default: msg = "Unknown Error";
 	}
 	trigger("onerror", msg);
 }
@@ -18920,9 +18914,7 @@ var FileManager = class FileManager {
 					case "str":
 						result = new STR(buffer, args?.texturePath ?? "");
 						break;
-					default:
-						result = buffer;
-						break;
+					default: result = buffer;
 				}
 			} catch (e) {
 				error = e.message;

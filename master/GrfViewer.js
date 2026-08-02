@@ -39,7 +39,7 @@ var __copyProps = (to, from, except, desc) => {
 	}
 	return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default") ? __defProp(target, "default", {
 	value: mod,
 	enumerable: true
 }) : target, mod));
@@ -10660,9 +10660,7 @@ function detectEncodingByLangtype(langType, disableKorean) {
 		case 242:
 			result = "utf-16be";
 			break;
-		default:
-			result = "windows-1252";
-			break;
+		default: result = "windows-1252";
 	}
 	if (disableKorean) result = "windows-1252";
 	return result;
@@ -11002,7 +11000,7 @@ function getDateSub() {
 */
 function isROExec(file) {
 	if (!file.name.match(/\.exe$/i)) return false;
-	if (file.size < 1024 * 1024 * 3 || file.size > 1024 * 1024 * 7) return false;
+	if (file.size < 3145728 || file.size > 7340032) return false;
 	return true;
 }
 var _fp, Executable_default;
@@ -11195,9 +11193,9 @@ var _memory, _rememberTime, _lastCheckTick, _cleanUpInterval, _cleaningInProgres
 var init_MemoryManager = __esmMin((() => {
 	init_MemoryItem();
 	_memory = {};
-	_rememberTime = 30 * 1e3;
+	_rememberTime = 3e4;
 	_lastCheckTick = 0;
-	_cleanUpInterval = 10 * 1e3;
+	_cleanUpInterval = 1e4;
 	_cleaningInProgress = false;
 	_cleanIndex = 0;
 	_filesToClean = [];
@@ -11327,9 +11325,7 @@ var init_MemoryManager = __esmMin((() => {
 						}
 					}
 					break;
-				default:
-					if (file.match && file.match(/^blob:/)) URL.revokeObjectURL(file);
-					break;
+				default: if (file.match && file.match(/^blob:/)) URL.revokeObjectURL(file);
 			}
 			delete _memory[filename];
 		};
@@ -82054,7 +82050,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 //#endregion
 //#region src/Utils/PathFinding.js
 function calc_index(x, y) {
-	return x + y * MAX_WALKPATH & MAX_WALKPATH * MAX_WALKPATH - 1;
+	return x + y * MAX_WALKPATH & 1023;
 }
 function calc_cost(i, x1, y1) {
 	return (Math.abs(x1 - _x[i]) + Math.abs(y1 - _y[i])) * MOVE_COST;
@@ -82291,7 +82287,7 @@ function search$1(x0, y0, x1, y1, range, out) {
 		if ((dirFlag & 12) === 12 && types[x + 1 + (y - 1) * width] & TYPE.WALKABLE) error += add_path(heap, x + 1, y - 1, dist + MOVE_DIAGONAL_COST, currentNode, x1, y1);
 		if ((dirFlag & 9) === 9 && types[x + 1 + (y + 1) * width] & TYPE.WALKABLE) error += add_path(heap, x + 1, y + 1, dist + MOVE_DIAGONAL_COST, currentNode, x1, y1);
 		_flag$1[currentNode] = 1;
-		if (error || heap[0] >= MAX_HEAP - 5) return 0;
+		if (error || heap[0] >= 145) return 0;
 	}
 	for (pathLen = 0, i = currentNode; pathLen < 100 && i !== calc_index(x0, y0); i = _before[i], pathLen++);
 	finalLen = 0;
@@ -82383,14 +82379,14 @@ var init_PathFinding = __esmMin((() => {
 	MOVE_DIAGONAL_COST = 14;
 	_heap = new Uint32Array(MAX_HEAP);
 	_heap_clean = new Uint32Array(MAX_HEAP);
-	short_clean = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	char_clean = new Uint8Array(MAX_WALKPATH * MAX_WALKPATH);
-	_x = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	_y = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	_dist = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	_cost = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	_before = new Uint16Array(MAX_WALKPATH * MAX_WALKPATH);
-	_flag$1 = new Uint8Array(MAX_WALKPATH * MAX_WALKPATH);
+	short_clean = /* @__PURE__ */ new Uint16Array(1024);
+	char_clean = /* @__PURE__ */ new Uint8Array(1024);
+	_x = /* @__PURE__ */ new Uint16Array(1024);
+	_y = /* @__PURE__ */ new Uint16Array(1024);
+	_dist = /* @__PURE__ */ new Uint16Array(1024);
+	_cost = /* @__PURE__ */ new Uint16Array(1024);
+	_before = /* @__PURE__ */ new Uint16Array(1024);
+	_flag$1 = /* @__PURE__ */ new Uint8Array(1024);
 	PathFinding_default = {
 		search: search$1,
 		searchLong,
@@ -82568,9 +82564,7 @@ var init_libgif = __esmMin((() => {
 					case "NETSCAPE":
 						parseNetscapeExt(block);
 						break;
-					default:
-						parseUnknownAppExt(block);
-						break;
+					default: parseUnknownAppExt(block);
 				}
 			};
 			var parseUnknownExt = function(block) {
@@ -82598,7 +82592,6 @@ var init_libgif = __esmMin((() => {
 				default:
 					block.extType = "unknown";
 					parseUnknownExt(block);
-					break;
 			}
 		};
 		var parseImg = function(img) {
@@ -83844,9 +83837,7 @@ var init_Altitude = __esmMin((() => {
 				case 13:
 					buffer = buffer13x13;
 					break;
-				default:
-					buffer = new Float32Array(size * size * 30);
-					break;
+				default: buffer = new Float32Array(size * size * 30);
 			}
 			for (x = -middle; x <= middle; ++x) for (y = -middle; y <= middle; ++y, i += 30) {
 				index = (pos_x + x + (pos_y + y) * Altitude.width) * 5;
@@ -145122,7 +145113,7 @@ function isDigit(value) {
 	return !isNaN(parseInt(value, 10));
 }
 function divideu128(value) {
-	const DIVISOR = Long.fromNumber(1e3 * 1e3 * 1e3);
+	const DIVISOR = Long.fromNumber(1e9);
 	let _rem = Long.fromNumber(0);
 	if (!value.parts[0] && !value.parts[1] && !value.parts[2] && !value.parts[3]) return {
 		quotient: value,
@@ -145501,9 +145492,7 @@ function deserializeObject(buffer, index, options, isArray = false) {
 				case "s":
 					optionsArray[i] = "g";
 					break;
-				case "i":
-					optionsArray[i] = "i";
-					break;
+				case "i": optionsArray[i] = "i";
 			}
 			value = new RegExp(source, optionsArray.join(""));
 		} else if (elementType === BSON_DATA_REGEXP && bsonRegExp === true) {
@@ -146590,7 +146579,8 @@ var init_bson = __esmMin((() => {
 				const byte0 = buffer[i];
 				const byte1 = buffer[i + 1];
 				const byte2 = buffer[i + 2];
-				buffer[i] = buffer[i + 3];
+				const byte3 = buffer[i + 3];
+				buffer[i] = byte3;
 				buffer[i + 1] = byte2;
 				buffer[i + 2] = byte1;
 				buffer[i + 3] = byte0;
@@ -146881,7 +146871,8 @@ var init_bson = __esmMin((() => {
 			const bits = new Int8Array(bitCount);
 			for (let bitOffset = 0; bitOffset < bits.length; bitOffset++) {
 				const byteOffset = bitOffset / 8 | 0;
-				bits[bitOffset] = this.buffer[byteOffset + 2] >> 7 - bitOffset % 8 & 1;
+				const bit = this.buffer[byteOffset + 2] >> 7 - bitOffset % 8 & 1;
+				bits[bitOffset] = bit;
 			}
 			return bits;
 		}
@@ -148847,7 +148838,7 @@ var init_bson = __esmMin((() => {
 	onDemand.ByteUtils = ByteUtils;
 	onDemand.NumberUtils = NumberUtils;
 	Object.freeze(onDemand);
-	MAXSIZE = 1024 * 1024 * 17;
+	MAXSIZE = 17825792;
 	buffer = ByteUtils.allocate(MAXSIZE);
 	bson = /*#__PURE__*/ Object.freeze({
 		__proto__: null,
@@ -206072,9 +206063,9 @@ var init_Background = __esmMin((() => {
 			_ctx$6.fillStyle = "rgb(0,255,255)";
 			_ctx$6.fillRect(x, y, width, height);
 			_ctx$6.fillStyle = "rgb(140,140,140)";
-			_ctx$6.fillRect(x + 1, y + 1, width - 2, height - 2);
+			_ctx$6.fillRect(x + 1, y + 1, 238, 13);
 			_ctx$6.fillStyle = "rgb(66,99,165)";
-			_ctx$6.fillRect(x + 2, y + 2, Math.floor(percent * (width - 4) * .01), height - 4);
+			_ctx$6.fillRect(x + 2, y + 2, Math.floor(percent * 236 * .01), 11);
 			_ctx$6.fillStyle = "rgb(255,255,0)";
 			_ctx$6.fillText(percent + "%", Math.floor((_canvas.width - _ctx$6.measureText(percent + "%").width) * .5), y + 11);
 		}
@@ -207218,7 +207209,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			scale_x = 1;
 			scale_y = 1;
 			const _x = _pos$8[0] + this.offset[0];
-			const _y = _pos$8[1] + this.offset[1] - .5 * 35;
+			const _y = _pos$8[1] + this.offset[1] - 17.5;
 			const pal = this.palette;
 			const frame = this.sprite;
 			const width = frame.width;
@@ -211233,7 +211224,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 	Qt = null;
 	q = null;
 	$t = null;
-	cn = 4096 * 4096;
+	cn = 16777216;
 	ln = 4096;
 	Q = /* @__PURE__ */ new Float32Array();
 	vn = Object.freeze({
@@ -211277,21 +211268,21 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 	$ = .707106781;
 	bn = [
 		[$ * 2, -.707106781],
-		[$ * 1, -.707106781 * .5],
-		[$ * .5, -.707106781 * .75],
-		[$ * .5, -.707106781 * .25],
+		[$ * 1, -.3535533905],
+		[$ * .5, -.53033008575],
+		[$ * .5, -.17677669525],
 		[$ * .5, $ * .25],
-		[$ * .25, -.707106781 * .25],
-		[$ * .25, -.707106781 * .125],
-		[$ * .25, $ * 0],
-		[-.707106781 * 2, $],
-		[-.707106781 * 1, $ * .5],
-		[-.707106781 * .5, $ * .75],
-		[-.707106781 * .5, $ * .25],
-		[-.707106781 * .5, -.707106781 * .25],
-		[-.707106781 * .25, $ * .25],
-		[-.707106781 * .25, $ * .125],
-		[-.707106781 * .25, -0]
+		[$ * .25, -.17677669525],
+		[$ * .25, -.088388347625],
+		[$ * .25, 0],
+		[-1.414213562, $],
+		[-.707106781, $ * .5],
+		[-.3535533905, $ * .75],
+		[-.3535533905, $ * .25],
+		[-.3535533905, -.17677669525],
+		[-.17677669525, $ * .25],
+		[-.17677669525, $ * .125],
+		[-.17677669525, -0]
 	];
 	new TextDecoder(`utf-8`, { fatal: !1 });
 	Qn = Object.freeze([
@@ -212631,7 +212622,7 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach(insts[i]);
 	_poseCache = {};
 }
-var mat3$3, mat4$18, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$20, _gl$1, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_RADIUS, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
+var mat3$3, mat4$18, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$20, _gl$1, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -212709,8 +212700,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	]);
 	_dbgCellInited = false;
 	_debugCell = false;
-	BASE_SPHERE_RADIUS = 2;
-	BASE_SPHERE_HALF_EXTENT = Math.sqrt(BASE_SPHERE_RADIUS * BASE_SPHERE_RADIUS * .5);
+	BASE_SPHERE_HALF_EXTENT = Math.sqrt(2);
 	_readyPromise = null;
 	_mv = mat4$18.create();
 	_mvp = mat4$18.create();
@@ -217021,7 +217011,7 @@ var init_Announce = __esmMin((() => {
 	*/
 	Announce.needFocus = false;
 	_timer$2 = 0;
-	_life$1 = 20 * 1e3;
+	_life$1 = 2e4;
 	Announce.render = () => Announce_default$2;
 	/**
 	* Initialize component
@@ -218663,7 +218653,7 @@ function makeResizableDiv() {
 	const fixHeight = (height) => Math.floor(height / MAGIC_NUMBER) * MAGIC_NUMBER;
 	const resize = (e) => {
 		let height = fixHeight(originalHeight - (e.pageY - originalMouseY));
-		height = Math.max(MAGIC_NUMBER, Math.min(MAGIC_NUMBER * 5, height));
+		height = Math.max(MAGIC_NUMBER, Math.min(210, height));
 		ChatBox._host.style.top = `${originalAnchorY - height}px`;
 		const contentWrapper = root.querySelector(".contentwrapper");
 		if (contentWrapper) contentWrapper.style.height = `${height}px`;
@@ -219505,10 +219495,10 @@ var init_ChatBox = __esmMin((() => {
 			0,
 			0,
 			MAGIC_NUMBER,
-			MAGIC_NUMBER * 2,
-			MAGIC_NUMBER * 3,
-			MAGIC_NUMBER * 4,
-			MAGIC_NUMBER * 5
+			84,
+			126,
+			168,
+			210
 		];
 		const content = root.querySelector(".contentwrapper");
 		const bottomBefore = getChatBottomAnchorPx(root, this.__lastBottomY);
@@ -219533,7 +219523,6 @@ var init_ChatBox = __esmMin((() => {
 				if (inputEl) inputEl.classList.remove("fix");
 				if (header) header.style.display = "";
 				if (body) body.style.display = "";
-				break;
 		}
 		if (_heightIndex !== 0 && isFinite(bottomBefore)) {
 			const bottomAfter = getChatBottomAnchorPx(root, bottomBefore);
@@ -220051,9 +220040,7 @@ function addEvent$1(item) {
 			});
 			break;
 		}
-		default:
-			if (viewBtn) viewBtn.style.display = "none";
-			break;
+		default: if (viewBtn) viewBtn.style.display = "none";
 	}
 }
 function eventsBooks$1() {
@@ -220228,14 +220215,10 @@ var init_ItemCompare = __esmMin((() => {
 			switch (item.slot["card1"]) {
 				case 255:
 				case 254:
-				case 65280:
-					hideslots = true;
-					break;
+				case 65280: hideslots = true;
 			}
 			switch (item.slot["card4"]) {
-				case 1:
-					hideslots = true;
-					break;
+				case 1: hideslots = true;
 			}
 		}
 		const cardListParent = cardList ? cardList.parentElement : null;
@@ -220257,9 +220240,7 @@ var init_ItemCompare = __esmMin((() => {
 				if (!item.IsIdentified && cardListParent) cardListParent.style.display = "none";
 				break;
 			}
-			case ItemType_default.PETEGG:
-				if (cardListParent) cardListParent.style.display = "none";
-				break;
+			case ItemType_default.PETEGG: if (cardListParent) cardListParent.style.display = "none";
 		}
 		if (descInner) resize$4(descInner.offsetHeight + 45);
 	};
@@ -220753,7 +220734,6 @@ var init_InputBox = __esmMin((() => {
 				if (textEl) textEl.textContent = DB.getItemInfo(itemId).identifiedDisplayName;
 				if (input) input.type = "text";
 				defaultVal = defaultVal || 0;
-				break;
 		}
 		if (typeof defaultVal !== "undefined" && input) {
 			input.value = defaultVal;
@@ -221063,9 +221043,7 @@ var init_SwitchEquip = __esmMin((() => {
 	*/
 	SwitchEquip.onShortCut = function onShurtCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				this.toggle();
-				break;
+			case "TOGGLE": this.toggle();
 		}
 	};
 	/**
@@ -221624,7 +221602,6 @@ function createMiniMap({ name, htmlText, cssText, worldMap = null, townInfoToggl
 			case 2:
 				_ctx.globalAlpha = 1;
 				this.ui.show();
-				break;
 		}
 	};
 	/**
@@ -221682,9 +221659,7 @@ function createMiniMap({ name, htmlText, cssText, worldMap = null, townInfoToggl
 						case 5:
 							img = _inn;
 							break;
-						case 6:
-							img = _kafra;
-							break;
+						case 6: img = _kafra;
 					}
 					if (img.complete && img.width) {
 						_ctx.save();
@@ -222096,7 +222071,6 @@ function initializePathFindingWorker() {
 							this.setLocationTitle(mapName, null);
 						}
 					}
-					break;
 			}
 		}.bind(Navigation);
 	}
@@ -223282,9 +223256,7 @@ var init_WorldMap = __esmMin((() => {
 	*/
 	WorldMap.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				this.toggle();
-				break;
+			case "TOGGLE": this.toggle();
 		}
 	};
 	/**
@@ -223622,9 +223594,7 @@ function onFriendAdded(pkt) {
 		case 2:
 			ChatBox_default.addText(DB.getMessage(819), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		case 3:
-			ChatBox_default.addText(DB.getMessage(820).replace("%s", pkt.Name), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
+		case 3: ChatBox_default.addText(DB.getMessage(820).replace("%s", pkt.Name), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 }
 /**
@@ -224322,7 +224292,6 @@ var init_PartyHelper = __esmMin((() => {
 				footerBtns.forEach((el) => {
 					el.style.display = "none";
 				});
-				break;
 		}
 		_type$6 = type;
 	};
@@ -226265,7 +226234,6 @@ function createPartyFriends(config) {
 					_showWindow();
 				}
 				if (_isVisible()) this.focus();
-				break;
 		}
 	};
 	/**
@@ -228001,7 +227969,6 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 			case "crt3":
 				setText(".t_requirements ." + type.replace("3", ""), val);
 				setUpVisibility(".t_up ." + type.replace("3", ""), val > 0 && val <= this.t_statuspoint);
-				break;
 		}
 	};
 	function toggleTraits() {
@@ -228017,9 +227984,7 @@ function createWinStats({ name, htmlText, cssText, hasTraits }) {
 	}
 	Component.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				this.toggle();
-				break;
+			case "TOGGLE": this.toggle();
 		}
 	};
 	Component.onRemove = function onRemove() {
@@ -229254,9 +229219,7 @@ var init_Bank$1 = __esmMin((() => {
 	*/
 	Bank.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				this.toggle();
-				break;
+			case "TOGGLE": this.toggle();
 		}
 	};
 	/**
@@ -230517,12 +230480,10 @@ var init_CheckAttendance = __esmMin((() => {
 	*/
 	CheckAttendance.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				if (this._host.style.display === "none") {
-					this._host.style.display = "";
-					this.focus();
-				} else this._host.style.display = "none";
-				break;
+			case "TOGGLE": if (this._host.style.display === "none") {
+				this._host.style.display = "";
+				this.focus();
+			} else this._host.style.display = "none";
 		}
 	};
 	/**
@@ -230564,7 +230525,7 @@ var init_CheckAttendance = __esmMin((() => {
 				const total_days_string = attendance_count >= 20 || already_requested ? `${attendance_count} Day attendance success` : `Click the item to claim day ${current_day} reward`;
 				const end_date = /* @__PURE__ */ new Date(`${end[1]}-${end[2]}-${end[3]}`);
 				const now_date = /* @__PURE__ */ new Date();
-				const remaining_days = Math.round(Math.abs((end_date.getTime() - now_date.getTime()) / (1e3 * 3600 * 24)));
+				const remaining_days = Math.round(Math.abs((end_date.getTime() - now_date.getTime()) / 864e5));
 				const totalDaysEl = root.querySelector(".total-days");
 				if (totalDaysEl) totalDaysEl.innerHTML = total_days_string;
 				const remainingEl = root.querySelector(".remaining-day-text");
@@ -230854,9 +230815,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, needSkillLi
 	};
 	Component.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				this.toggle();
-				break;
+			case "TOGGLE": this.toggle();
 		}
 		onResetChoice(this);
 	};
@@ -231805,13 +231764,11 @@ function createQuest(config) {
 	*/
 	Quest.onShortCut = function onShurtCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				if ((this._host ? getComputedStyle(this._host).display : "none") !== "none") this.ui.hide();
-				else {
-					this.ui.show();
-					this.focus();
-				}
-				break;
+			case "TOGGLE": if ((this._host ? getComputedStyle(this._host).display : "none") !== "none") this.ui.hide();
+			else {
+				this.ui.show();
+				this.focus();
+			}
 		}
 	};
 	/**
@@ -233846,9 +233803,7 @@ function createBasicInfo(config) {
 			case "achievment":
 				if (Configs.get("enableAchievements") && PacketVerManager_default.value >= 20150513) Achievement_default.toggle();
 				break;
-			case "repute":
-				Reputation_default.toggle();
-				break;
+			case "repute": Reputation_default.toggle();
 		}
 	}
 	/**
@@ -233962,9 +233917,7 @@ function createBasicInfo(config) {
 	*/
 	Component.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "EXTEND":
-				this.toggleMode();
-				break;
+			case "EXTEND": this.toggleMode();
 		}
 	};
 	/**
@@ -234133,7 +234086,6 @@ function createBasicInfo(config) {
 			case "ap":
 				if (!hasApBar) break;
 				updateBar(root, type, val1, val2, Math.floor(val1 * 100 / val2) === 100 ? "red" : "blue");
-				break;
 		}
 	};
 	/**
@@ -234841,9 +234793,7 @@ function showMessage$3(messageID, timeout, type) {
 		case "info":
 			messageClass = "blue";
 			break;
-		default:
-			messageClass = "red";
-			break;
+		default: messageClass = "red";
 	}
 	if (Refine.messageTimeOut) clearTimeout(Refine.messageTimeOut);
 	const infoMsg = root.querySelector(".info_msg");
@@ -234924,9 +234874,7 @@ function onAnimateResult(result, callback) {
 		case "fail":
 			runFailSequence();
 			break;
-		default:
-			if (callback) callback();
-			break;
+		default: if (callback) callback();
 	}
 }
 /**
@@ -234990,7 +234938,6 @@ function onUpdateRefineUI(result) {
 			ChatBox_default.addText(DB.getMessage(1537), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
 		}
-		default: break;
 	}
 	const refineTextCont = root.querySelector(".refine_text_cont");
 	if (refineTextCont) refineTextCont.style.display = "block";
@@ -235146,10 +235093,7 @@ function onBroadcastRefineResult(pkt) {
 			case 0:
 				messageID = 3272;
 				break;
-			case 1:
-				messageID = 3271;
-				break;
-			default: break;
+			case 1: messageID = 3271;
 		}
 		const message = DB.getMessage(messageID).replace("%s", pkt.charName).replace("%d", pkt.refineLevel).replace("%s", itemName);
 		ChatBox_default.addText(message, ChatBox_default.TYPE.ANNOUNCE, ChatBox_default.FILTER.PUBLIC_CHAT, "#FFB563");
@@ -235450,9 +235394,7 @@ var init_Refine = __esmMin((() => {
 				case 3:
 					onShowFailure(pkt.result);
 					break;
-				case 2:
-					onShowFailure(pkt.result);
-					break;
+				case 2: onShowFailure(pkt.result);
 			}
 		}
 	};
@@ -235900,12 +235842,9 @@ function onEnchantGradeResult(pkt) {
 						onRemoveItem();
 					});
 					break;
-				case 1:
-					playEffect$1(EffectConst_default.EF_NEW_FAILURE, 2e3, () => {
-						onRemoveItem();
-					});
-					break;
-				default: break;
+				case 1: playEffect$1(EffectConst_default.EF_NEW_FAILURE, 2e3, () => {
+					onRemoveItem();
+				});
 			}
 		});
 		const item = InventoryController.getUI().removeItem(pkt.index, 1);
@@ -235988,10 +235927,7 @@ function onBroadcastEnchantGradeResult(pkt) {
 			case 0:
 				messageID = 3719;
 				break;
-			case 1:
-				messageID = 3718;
-				break;
-			default: break;
+			case 1: messageID = 3718;
 		}
 		const message = DB.getMessage(messageID).replace("%s", pkt.char_name).replace("%s", GradeMapping[pkt.grade]).replace("%s", itemName);
 		ChatBox_default.addText(message, ChatBox_default.TYPE.ANNOUNCE, ChatBox_default.FILTER.PUBLIC_CHAT, "#FFB563");
@@ -236319,9 +236255,7 @@ function calculateAnimation(layer, keyIndex, result) {
 		case 3:
 			result.aniframe = (from.aniframe + to.delay * delta) % layer.texcnt;
 			break;
-		case 4:
-			result.aniframe = (from.aniframe - to.delay * delta) % layer.texcnt;
-			break;
+		case 4: result.aniframe = (from.aniframe - to.delay * delta) % layer.texcnt;
 	}
 	return true;
 }
@@ -238137,19 +238071,13 @@ function onDrop$10(event) {
 		InputBox_default.onSubmitRequest = function OnSubmitRequest(count) {
 			InputBox_default.remove();
 			switch (data.from) {
-				case "Inventory":
-					InventoryController.reqMoveItemToWriteRodex(item.index, parseInt(count, 10));
-					break;
-				default:
+				case "Inventory": InventoryController.reqMoveItemToWriteRodex(item.index, parseInt(count, 10));
 			}
 		};
 		return;
 	}
 	switch (data.from) {
-		case "Inventory":
-			InventoryController.reqMoveItemToWriteRodex(item.index, 1);
-			break;
-		default:
+		case "Inventory": InventoryController.reqMoveItemToWriteRodex(item.index, 1);
 	}
 }
 /**
@@ -238640,19 +238568,17 @@ function createInventory(config) {
 	*/
 	Component.onShortCut = function onShurtCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				if (this._host.style.display === "none") {
-					this._host.style.display = "";
-					this.focus();
-				} else {
-					this._host.dispatchEvent(new Event("mouseleave"));
-					this.clearNewItems();
-					Component.getRoot().querySelectorAll(".new_item").forEach((el) => {
-						el.style.backgroundImage = "";
-					});
-					this._host.style.display = "none";
-				}
-				break;
+			case "TOGGLE": if (this._host.style.display === "none") {
+				this._host.style.display = "";
+				this.focus();
+			} else {
+				this._host.dispatchEvent(new Event("mouseleave"));
+				this.clearNewItems();
+				Component.getRoot().querySelectorAll(".new_item").forEach((el) => {
+					el.style.backgroundImage = "";
+				});
+				this._host.style.display = "none";
+			}
 		}
 		const basicInfoUI = BasicInfoController.getUI();
 		if (basicInfoUI._host) {
@@ -238989,9 +238915,7 @@ function createInventory(config) {
 				}
 			}
 			case ItemType_default.PETARMOR:
-			case ItemType_default.AMMO:
-				if (item.IsIdentified && !item.IsDamaged) Component.onEquipItem(item.index, item.location);
-				break;
+			case ItemType_default.AMMO: if (item.IsIdentified && !item.IsDamaged) Component.onEquipItem(item.index, item.location);
 		}
 	};
 	/**
@@ -239118,9 +239042,7 @@ function createInventory(config) {
 					case "Mail":
 						Mail_default.reqRemoveItem(item.index, parseInt(count, 10));
 						break;
-					case "WriteRodex":
-						WriteRodex_default.requestRemoveItemRodex(item.index, parseInt(count, 10));
-						break;
+					case "WriteRodex": WriteRodex_default.requestRemoveItemRodex(item.index, parseInt(count, 10));
 				}
 			};
 			return false;
@@ -239135,9 +239057,7 @@ function createInventory(config) {
 			case "Mail":
 				Mail_default.reqRemoveItem(item.index, 1);
 				break;
-			case "WriteRodex":
-				WriteRodex_default.requestRemoveItemRodex(item.index, 1);
-				break;
+			case "WriteRodex": WriteRodex_default.requestRemoveItemRodex(item.index, 1);
 		}
 		return false;
 	}
@@ -239318,10 +239238,7 @@ function createInventory(config) {
 				case ItemType_default.ARMOR:
 				case ItemType_default.SHADOWGEAR:
 				case ItemType_default.PETEGG:
-				case ItemType_default.PETARMOR:
-					favoriteval = 4;
-					break;
-				default: break;
+				case ItemType_default.PETARMOR: favoriteval = 4;
 			}
 			item.PlaceETCTab = favoriteval;
 		} else item.PlaceETCTab = newValue;
@@ -239472,10 +239389,7 @@ function createInventory(config) {
 				case 3:
 					ChatBox_default.addText(DB.getMessage(3564), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 					break;
-				case 4:
-					ChatBox_default.addText(DB.getMessage(3565), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-					break;
-				default: break;
+				case 4: ChatBox_default.addText(DB.getMessage(3565), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			}
 		};
 		function InventoryExpandReq() {
@@ -239500,10 +239414,7 @@ function createInventory(config) {
 				case 3:
 					ChatBox_default.addText(DB.getMessage(3564), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 					break;
-				case 4:
-					ChatBox_default.addText(DB.getMessage(3565), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-					break;
-				default: break;
+				case 4: ChatBox_default.addText(DB.getMessage(3565), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			}
 		};
 		Network.hookPacket(PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE, onRequestInventoryExpandResult);
@@ -240574,9 +240485,7 @@ function onDrop$9(event) {
 				case "Storage":
 					StorageController.reqMoveItemToCart(item.index, parseInt(count, 10));
 					break;
-				case "Inventory":
-					InventoryController.getUI().reqMoveItemToCart(item.index, parseInt(count, 10));
-					break;
+				case "Inventory": InventoryController.getUI().reqMoveItemToCart(item.index, parseInt(count, 10));
 			}
 		};
 		return false;
@@ -240585,9 +240494,7 @@ function onDrop$9(event) {
 		case "Storage":
 			StorageController.reqMoveItemToCart(item.index, 1);
 			break;
-		case "Inventory":
-			InventoryController.getUI().reqMoveItemToCart(item.index, 1);
-			break;
+		case "Inventory": InventoryController.getUI().reqMoveItemToCart(item.index, 1);
 	}
 	return false;
 }
@@ -240838,15 +240745,13 @@ var init_CartItems = __esmMin((() => {
 	CartItems.onShortCut = function onShurtCut(key) {
 		if (SessionStorage_default.Entity.hasCart === false) return;
 		switch (key.cmd) {
-			case "TOGGLE":
-				if (this._host.style.display === "none") {
-					this._host.style.display = "";
-					this.focus();
-				} else {
-					this._host.style.display = "none";
-					this._host.dispatchEvent(new Event("mouseleave"));
-				}
-				break;
+			case "TOGGLE": if (this._host.style.display === "none") {
+				this._host.style.display = "";
+				this.focus();
+			} else {
+				this._host.style.display = "none";
+				this._host.dispatchEvent(new Event("mouseleave"));
+			}
 		}
 	};
 	CartItems.onKeyDown = function onKeyDown(event) {
@@ -241344,9 +241249,7 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 	};
 	Component.onShortCut = function onShurtCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				this.toggle();
-				break;
+			case "TOGGLE": this.toggle();
 		}
 	};
 	Component.setEquipConfig = function setEquipConfig(on) {
@@ -242084,9 +241987,7 @@ function addEvent(item) {
 			});
 			break;
 		}
-		default:
-			if (viewBtn) viewBtn.style.display = "none";
-			break;
+		default: if (viewBtn) viewBtn.style.display = "none";
 	}
 }
 function updatePreviewButton(item) {
@@ -242444,14 +242345,10 @@ var init_ItemInfo = __esmMin((() => {
 			switch (item.slot["card1"]) {
 				case 255:
 				case 254:
-				case 65280:
-					hideslots = true;
-					break;
+				case 65280: hideslots = true;
 			}
 			switch (item.slot["card4"]) {
-				case 1:
-					hideslots = true;
-					break;
+				case 1: hideslots = true;
 			}
 		}
 		const cardListParent = cardList ? cardList.parentElement : null;
@@ -242473,9 +242370,7 @@ var init_ItemInfo = __esmMin((() => {
 				if (!item.IsIdentified && cardListParent) cardListParent.style.display = "none";
 				break;
 			}
-			case ItemType_default.PETEGG:
-				if (cardListParent) cardListParent.style.display = "none";
-				break;
+			case ItemType_default.PETEGG: if (cardListParent) cardListParent.style.display = "none";
 		}
 		if (descInner) resize$3(descInner.offsetHeight + 45);
 	};
@@ -242925,9 +242820,7 @@ var init_ChatRoomCreate = __esmMin((() => {
 	*/
 	ChatRoomCreate.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				ChatRoomCreate.toggle();
-				break;
+			case "TOGGLE": ChatRoomCreate.toggle();
 		}
 	};
 	ChatRoomCreate.toggle = function toggle() {
@@ -243337,9 +243230,7 @@ function onPartyCreate(pkt) {
 		case 2:
 			ChatBox_default.addText(DB.getMessage(79), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PARTY_SETUP);
 			break;
-		case 3:
-			ChatBox_default.addText(DB.getMessage(1387), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PARTY_SETUP);
-			break;
+		case 3: ChatBox_default.addText(DB.getMessage(1387), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PARTY_SETUP);
 	}
 }
 /**
@@ -243512,9 +243403,7 @@ function onPartyInvitationAnswer(pkt) {
 		case 8:
 			id = 1388;
 			break;
-		case 9:
-			id = 1871;
-			break;
+		case 9: id = 1871;
 	}
 	ChatBox_default.addText(DB.getMessage(id).replace("%s", pkt.characterName), color, ChatBox_default.FILTER.PARTY_SETUP);
 }
@@ -244662,9 +244551,7 @@ function onGuildCreationResult(pkt) {
 		case 2:
 			createFailed(DB.getMessage(376, "That Guild Name already exists."));
 			break;
-		case 3:
-			createFailed(DB.getMessage(405, "You need the necessary item to create a Guild."));
-			break;
+		case 3: createFailed(DB.getMessage(405, "You need the necessary item to create a Guild."));
 	}
 }
 /**
@@ -244693,9 +244580,7 @@ function onGuildDestroy(pkt) {
 		case 1:
 			fail(DB.getMessage(401, "You have failed to disband the guild."));
 			break;
-		case 2:
-			fail(DB.getMessage(402, "There are still members in the guild."));
-			break;
+		case 2: fail(DB.getMessage(402, "There are still members in the guild."));
 	}
 }
 /**
@@ -244731,9 +244616,7 @@ function onGuildInviteResult(pkt) {
 		case 2:
 			ChatBox_default.addText(DB.getMessage(380), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.GUILD);
 			break;
-		case 3:
-			ChatBox_default.addText(DB.getMessage(381), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
-			break;
+		case 3: ChatBox_default.addText(DB.getMessage(381), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
 	}
 }
 /**
@@ -244833,9 +244716,7 @@ function onGuildAllianceResult(pkt) {
 		case 4:
 			ChatBox_default.addText(DB.getMessage(398), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
 			break;
-		case 5:
-			ChatBox_default.addText(DB.getMessage(1717), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
-			break;
+		case 5: ChatBox_default.addText(DB.getMessage(1717), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
 	}
 }
 /**
@@ -244854,9 +244735,7 @@ function onGuildHostilityResult(pkt) {
 		case 2:
 			ChatBox_default.addText(DB.getMessage(497), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
 			break;
-		case 3:
-			ChatBox_default.addText(DB.getMessage(1718), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
-			break;
+		case 3: ChatBox_default.addText(DB.getMessage(1718), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
 	}
 }
 function onGuildCastleInfo(pkt) {}
@@ -245262,7 +245141,7 @@ var init_Guild = __esmMin((() => {
 		}
 	};
 	onGuildEmblem = (function onGuildEmblemClosure() {
-		const data = new Uint8Array(2 * 1024);
+		const data = /* @__PURE__ */ new Uint8Array(2048);
 		return function(pkt) {
 			if (!_emblems[pkt.GDID]) _emblems[pkt.GDID] = {
 				version: -1,
@@ -245766,7 +245645,7 @@ var init_HomunInformations = __esmMin((() => {
 	init_Elements();
 	init_HomunInformations$2();
 	init_HomunInformations$1();
-	autoFeedIntervalMs = 1e3 * 60 * 1;
+	autoFeedIntervalMs = 6e4;
 	autoFeedPercent = 30;
 	HomunInformations = new GUIComponent("HomunInformations", HomunInformations_default$1);
 	HomunInformations.render = () => HomunInformations_default$2;
@@ -245872,9 +245751,7 @@ var init_HomunInformations = __esmMin((() => {
 					this._host.style.display = "none";
 				}
 				break;
-			case "AGGRESSIVE":
-				this.toggleAggressive();
-				break;
+			case "AGGRESSIVE": this.toggleAggressive();
 		}
 	};
 	/**
@@ -246040,12 +245917,11 @@ var init_HomunInformations = __esmMin((() => {
 		const canvas = root.querySelector(".block2 canvas.life.title_exp");
 		if (!canvas) return;
 		const ctx = canvas.getContext("2d");
-		const width = 60, height = 5;
 		const exp_per = exp / maxEXP;
 		ctx.fillStyle = "#424242";
-		ctx.fillRect(1, 1, width - 2, height - 2);
+		ctx.fillRect(1, 1, 58, 3);
 		ctx.fillStyle = "#205cc3";
-		ctx.fillRect(1, 1, Math.round((width - 2) * exp_per), 3);
+		ctx.fillRect(1, 1, Math.round(58 * exp_per), 3);
 		const expEl = root.querySelector(".exp");
 		if (expEl) expEl.textContent = `${exp}/${maxEXP}`;
 	};
@@ -246060,12 +245936,11 @@ var init_HomunInformations = __esmMin((() => {
 		const canvas = root.querySelector(".block2 canvas.life.title_hunger");
 		if (!canvas) return;
 		const ctx = canvas.getContext("2d");
-		const width = 60, height = 5;
 		const hunger_per = val / 100;
 		ctx.fillStyle = "#424242";
-		ctx.fillRect(1, 1, width - 2, height - 2);
+		ctx.fillRect(1, 1, 58, 3);
 		ctx.fillStyle = hunger_per < .25 ? "#ff1e00" : "#205cc3";
-		ctx.fillRect(1, 1, Math.round((width - 2) * hunger_per), 3);
+		ctx.fillRect(1, 1, Math.round(58 * hunger_per), 3);
 		const hungerEl = root.querySelector(".hunger");
 		if (hungerEl) hungerEl.textContent = `${val}/100`;
 	};
@@ -246220,9 +246095,7 @@ var init_MercenaryInformations = __esmMin((() => {
 					this._host.style.display = "none";
 				}
 				break;
-			case "AGGRESSIVE":
-				this.toggleAggressive();
-				break;
+			case "AGGRESSIVE": this.toggleAggressive();
 		}
 	};
 	/**
@@ -246262,11 +246135,10 @@ var init_MercenaryInformations = __esmMin((() => {
 		const canvas = root.querySelector("canvas.life.title_timeleft");
 		if (canvas) {
 			const ctx = canvas.getContext("2d");
-			const width = 60, height = 5;
 			ctx.fillStyle = "#424242";
-			ctx.fillRect(1, 1, width - 2, height - 2);
+			ctx.fillRect(1, 1, 58, 3);
 			ctx.fillStyle = time_per < .25 ? "#ff1e00" : "#205cc3";
-			ctx.fillRect(1, 1, Math.round((width - 2) * time_per), 3);
+			ctx.fillRect(1, 1, Math.round(58 * time_per), 3);
 		}
 	};
 	/**
@@ -246285,12 +246157,11 @@ var init_MercenaryInformations = __esmMin((() => {
 		const canvas = root.querySelector("canvas.life.title_kills");
 		if (canvas) {
 			const ctx = canvas.getContext("2d");
-			const width = 60, height = 5;
 			const kills_per = kills % 50 / 50;
 			ctx.fillStyle = "#424242";
-			ctx.fillRect(1, 1, width - 2, height - 2);
+			ctx.fillRect(1, 1, 58, 3);
 			ctx.fillStyle = "#205cc3";
-			ctx.fillRect(1, 1, Math.round((width - 2) * kills_per), 3);
+			ctx.fillRect(1, 1, Math.round(58 * kills_per), 3);
 		}
 	};
 	/**
@@ -246776,7 +246647,7 @@ function renderLayer$2(layer, spr, pal, sizeScale, pos, alpha) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.render(false);
 }
-var RAG_TICK_MS$2, FADEOUT_TAIL_MS$3, EMIT_STOP_BEFORE_END_MS$2, FLAKE_LIFE_MS, FLAKE_FADEIN_MS, FLAKE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$2, SPAWN_HEIGHT_MIN_CELLS$2, SPAWN_HEIGHT_MAX_CELLS$2, FALL_SPEED_CELLS_PER_MS, _instance$4, _mapName$5, _isStopping$2, SnowWeatherEffect;
+var RAG_TICK_MS$2, FADEOUT_TAIL_MS$3, EMIT_STOP_BEFORE_END_MS$2, FLAKE_LIFE_MS, FLAKE_FADEIN_MS, FLAKE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$2, SPAWN_HEIGHT_MIN_CELLS$2, FALL_SPEED_CELLS_PER_MS, _instance$4, _mapName$5, _isStopping$2, SnowWeatherEffect;
 var init_SnowWeather = __esmMin((() => {
 	init_Client();
 	init_Renderer();
@@ -246786,13 +246657,12 @@ var init_SnowWeather = __esmMin((() => {
 	init_SessionStorage();
 	RAG_TICK_MS$2 = 25;
 	FADEOUT_TAIL_MS$3 = 1e3 * RAG_TICK_MS$2;
-	EMIT_STOP_BEFORE_END_MS$2 = 160 * RAG_TICK_MS$2;
+	EMIT_STOP_BEFORE_END_MS$2 = 4e3;
 	FLAKE_LIFE_MS = 320 * RAG_TICK_MS$2;
-	FLAKE_FADEIN_MS = 10 * RAG_TICK_MS$2;
+	FLAKE_FADEIN_MS = 250;
 	FLAKE_FADEOUT_START_MS = FLAKE_LIFE_MS * 4 / 5;
 	SCATTER_RADIUS_CELLS$2 = 60;
 	SPAWN_HEIGHT_MIN_CELLS$2 = 18;
-	SPAWN_HEIGHT_MAX_CELLS$2 = 22;
 	FALL_SPEED_CELLS_PER_MS = .1 / RAG_TICK_MS$2;
 	_instance$4 = null;
 	_mapName$5 = "";
@@ -246899,7 +246769,7 @@ var init_SnowWeather = __esmMin((() => {
 			const oy = Math.sin(theta) * radius;
 			const x = px + ox;
 			const y = py + oy;
-			const z = Altitude.getCellHeight(x, y) + (SPAWN_HEIGHT_MIN_CELLS$2 + Math.random() * (SPAWN_HEIGHT_MAX_CELLS$2 - SPAWN_HEIGHT_MIN_CELLS$2));
+			const z = Altitude.getCellHeight(x, y) + (SPAWN_HEIGHT_MIN_CELLS$2 + Math.random() * 4);
 			this.flakes.push({
 				spawnTick,
 				x,
@@ -246949,7 +246819,7 @@ var init_SnowWeather = __esmMin((() => {
 				flake._lastTick = tick;
 				let alpha = 1;
 				if (age < FLAKE_FADEIN_MS) alpha = age / FLAKE_FADEIN_MS;
-				else if (age > FLAKE_FADEOUT_START_MS) alpha = Math.max(0, 1 - (age - FLAKE_FADEOUT_START_MS) / (FLAKE_LIFE_MS - FLAKE_FADEOUT_START_MS));
+				else if (age > FLAKE_FADEOUT_START_MS) alpha = Math.max(0, 1 - (age - FLAKE_FADEOUT_START_MS) / 1600);
 				SpriteRenderer.position[0] = flake.x;
 				SpriteRenderer.position[1] = flake.y;
 				SpriteRenderer.position[2] = flake.z;
@@ -247014,7 +246884,7 @@ function renderLayer$1(layer, spr, pal, sizeScale, pos, alpha) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.render(false);
 }
-var RAG_TICK_MS$1, FADEOUT_TAIL_MS$2, EMIT_INTERVAL_MS, EMIT_STOP_BEFORE_END_MS$1, LEAVE_LIFE_MS, LEAVE_FADEIN_MS, LEAVE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$1, SPAWN_HEIGHT_MIN_CELLS$1, SPAWN_HEIGHT_MAX_CELLS$1, EF_MAPLE, PATH_SAKURA, PATH_MAPLE, _instance$3, _mapName$4, _isStopping$1, SakuraWeatherEffect;
+var RAG_TICK_MS$1, FADEOUT_TAIL_MS$2, EMIT_INTERVAL_MS, EMIT_STOP_BEFORE_END_MS$1, LEAVE_LIFE_MS, LEAVE_FADEIN_MS, LEAVE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$1, SPAWN_HEIGHT_MIN_CELLS$1, EF_MAPLE, PATH_SAKURA, PATH_MAPLE, _instance$3, _mapName$4, _isStopping$1, SakuraWeatherEffect;
 var init_SakuraWeatherEffect = __esmMin((() => {
 	init_Client();
 	init_Renderer();
@@ -247025,13 +246895,12 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 	RAG_TICK_MS$1 = 25;
 	FADEOUT_TAIL_MS$2 = 1e3 * RAG_TICK_MS$1;
 	EMIT_INTERVAL_MS = 150;
-	EMIT_STOP_BEFORE_END_MS$1 = 160 * RAG_TICK_MS$1;
+	EMIT_STOP_BEFORE_END_MS$1 = 4e3;
 	LEAVE_LIFE_MS = 600 * RAG_TICK_MS$1;
-	LEAVE_FADEIN_MS = 20 * RAG_TICK_MS$1;
+	LEAVE_FADEIN_MS = 500;
 	LEAVE_FADEOUT_START_MS = LEAVE_LIFE_MS * 4 / 5;
 	SCATTER_RADIUS_CELLS$1 = 70;
 	SPAWN_HEIGHT_MIN_CELLS$1 = 32;
-	SPAWN_HEIGHT_MAX_CELLS$1 = 42;
 	EF_MAPLE = 333;
 	PATH_SAKURA = "data/sprite/ÀÌÆÑÆ®/sakura01";
 	PATH_MAPLE = "data/sprite/ÀÌÆÑÆ®/´ÜÇ³";
@@ -247127,7 +246996,7 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 			const radius = Math.random() * SCATTER_RADIUS_CELLS$1;
 			const x = px + Math.cos(theta) * radius;
 			const y = py + Math.sin(theta) * radius;
-			const z = Altitude.getCellHeight(x, y) + (SPAWN_HEIGHT_MIN_CELLS$1 + Math.random() * (SPAWN_HEIGHT_MAX_CELLS$1 - SPAWN_HEIGHT_MIN_CELLS$1));
+			const z = Altitude.getCellHeight(x, y) + (SPAWN_HEIGHT_MIN_CELLS$1 + Math.random() * 10);
 			const fallSpeed = (this.isMaple ? (2 + Math.random() * 4) * .03 : (2 + Math.random() * 2) * .1) * .5;
 			const swayFactorX = this.isMaple ? .12 : .24;
 			const swayFactorY = this.isMaple ? .15 : .3;
@@ -247198,7 +247067,7 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 				let alphaCap = 1;
 				if (!this.isMaple) alphaCap = .5;
 				if (age < LEAVE_FADEIN_MS) alpha = age / LEAVE_FADEIN_MS * alphaCap;
-				else if (age > LEAVE_FADEOUT_START_MS) alpha = Math.max(0, (1 - (age - LEAVE_FADEOUT_START_MS) / (LEAVE_LIFE_MS - LEAVE_FADEOUT_START_MS)) * alphaCap);
+				else if (age > LEAVE_FADEOUT_START_MS) alpha = Math.max(0, (1 - (age - LEAVE_FADEOUT_START_MS) / 3e3) * alphaCap);
 				SpriteRenderer.position[0] = leave.x;
 				SpriteRenderer.position[1] = leave.y;
 				SpriteRenderer.position[2] = leave.z;
@@ -247267,7 +247136,7 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 			canvas.height = PARTICLE_SIZE;
 			const ctx = canvas.getContext("2d");
 			const center = PARTICLE_SIZE / 2;
-			const radius = center - 1;
+			const radius = 2;
 			ctx.clearRect(0, 0, PARTICLE_SIZE, PARTICLE_SIZE);
 			const gradient = ctx.createRadialGradient(center, center, 0, center, center, radius);
 			gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
@@ -247425,7 +247294,6 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 							r = 255;
 							g = 255;
 							b = 255;
-							break;
 					}
 					this.renderParticle(p.pos, p.alpha, r, g, b, fw.size);
 				}
@@ -249423,7 +249291,6 @@ var init_Model = __esmMin((() => {
 					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
 					this.calcNormal_SMOOTH(face_normal, shadeGroupUsed, shadeGroup);
 					this.generate_mesh_SMOOTH(vert, shadeGroup, mesh);
-					break;
 			}
 			return mesh;
 		}
@@ -249497,7 +249364,6 @@ var init_Model = __esmMin((() => {
 					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
 					this.calcNormal_SMOOTH(face_normal, shadeGroupUsed, shadeGroup);
 					this.generate_mesh_SMOOTH(vert, shadeGroup, mesh);
-					break;
 			}
 			return mesh;
 		}
@@ -250184,7 +250050,6 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 			calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
 			calcNormal_SMOOTH(node, face_normal, shadeGroupUsed, shadeGroup);
 			generate_mesh_SMOOTH(node, vert, shadeGroup, mesh);
-			break;
 	}
 	return mesh;
 }
@@ -250857,7 +250722,8 @@ var init_TwoDEffect = __esmMin((() => {
 			if (this.rotate) {
 				const step = (this.toAngle - this.angle) / 100;
 				const startAngle = this.angle;
-				SpriteRenderer.angle = steps * step + startAngle;
+				const angle = steps * step + startAngle;
+				SpriteRenderer.angle = angle;
 			} else SpriteRenderer.angle = this.angle;
 			SpriteRenderer.runWithDepth(this.overlay === false, this.overlay === false, this.overlay === true, () => {
 				SpriteRenderer.render();
@@ -252153,11 +252019,9 @@ var init_EffectManager = __esmMin((() => {
 				case "QuadHorn":
 					EffectManager.add(new QuadHorn(Params.effect, Params.Inst, Params.Init), Params);
 					break;
-				case "FUNC":
-					if (Params.effect.func) if (Params.effect.attachedEntity) {
-						if (Params.Init.ownerEntity) Params.effect.func.call(this, Params);
-					} else Params.effect.func.call(this, Params);
-					break;
+				case "FUNC": if (Params.effect.func) if (Params.effect.attachedEntity) {
+					if (Params.Init.ownerEntity) Params.effect.func.call(this, Params);
+				} else Params.effect.func.call(this, Params);
 			}
 		}
 		/**
@@ -253816,7 +253680,6 @@ var init_Damage = __esmMin((() => {
 						default:
 							SpriteRenderer.position[0] = damage.entity.position[0] + perc * 4;
 							SpriteRenderer.position[1] = damage.entity.position[1] - perc * 4;
-							break;
 					}
 					SpriteRenderer.position[2] = damage.entity.position[2] + 2 + zArc;
 					if (damage.soundFile) {
@@ -254129,7 +253992,6 @@ function onDrop$8(event, target) {
 			ShortCut.removeElement(element.isSkill, element.ID, row, element.isSkill ? element.count : null);
 			ShortCut.addElement(index, element.isSkill, element.ID, element.count);
 			ShortCut.onChange(index, element.isSkill, element.ID, element.count);
-			break;
 	}
 }
 /**
@@ -254533,7 +254395,6 @@ var init_ShortCut = __esmMin((() => {
 				_preferences$19.size = (_preferences$19.size + 1) % (_rowCount + 1);
 				_preferences$19.save();
 				this._host.style.height = `${_preferences$19.size * 34}px`;
-				break;
 		}
 	};
 	ShortCut.useSkill = function useSkill(id, level) {
@@ -255335,9 +255196,7 @@ function navigateDraggableItems(direction) {
 			case "left":
 				keyCode = 37;
 				break;
-			case "right":
-				keyCode = 39;
-				break;
+			case "right": keyCode = 39;
 		}
 		_dispatchKeyEvent(document, "keydown", keyCode);
 		return;
@@ -255366,9 +255225,7 @@ function navigateDraggableItems(direction) {
 		case "left":
 			newIndex = currentIndex - 1;
 			break;
-		case "right":
-			newIndex = currentIndex + 1;
-			break;
+		case "right": newIndex = currentIndex + 1;
 	}
 	newIndex = Math.max(0, Math.min(allDraggables.length - 1, newIndex));
 	if (newIndex !== currentIndex && newIndex < allDraggables.length) {
@@ -257749,9 +257606,9 @@ function ensureDropFrame(gl) {
 	const tex = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, tex);
 	const h = 16;
-	const data = new Uint8Array(h * 4);
+	const data = /* @__PURE__ */ new Uint8Array(64);
 	for (let i = 0; i < h; i++) {
-		const t = i / (h - 1);
+		const t = i / 15;
 		let a = Math.min(1, t / .7);
 		if (t > .7) a *= 1 - (t - .7) / .3 * .35;
 		const alphaByte = Math.max(0, Math.min(255, Math.floor(a * 255)));
@@ -257799,9 +257656,9 @@ function ensureSplashFrame(gl) {
 	if (_splashFrame && _splashFrame.texture && gl.isTexture(_splashFrame.texture)) return;
 	_splashFrame = null;
 	const w = 16, h = 16;
-	const data = new Uint8Array(w * h * 4);
-	const cx = (w - 1) / 2;
-	const cy = (h - 1) / 2;
+	const data = /* @__PURE__ */ new Uint8Array(1024);
+	const cx = 15 / 2;
+	const cy = 15 / 2;
 	const maxR = Math.min(cx, cy);
 	for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
 		const dx = x - cx;
@@ -257838,9 +257695,9 @@ function ensurePuddleFrame(gl) {
 	if (_puddleFrame && _puddleFrame.texture && gl.isTexture(_puddleFrame.texture)) return;
 	_puddleFrame = null;
 	const w = 64, h = 64;
-	const data = new Uint8Array(w * h * 4);
-	const cx = (w - 1) / 2;
-	const cy = (h - 1) / 2;
+	const data = /* @__PURE__ */ new Uint8Array(16384);
+	const cx = 63 / 2;
+	const cy = 63 / 2;
 	const maxR = Math.min(cx, cy) * .85;
 	for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
 		const dx = x - cx;
@@ -257974,7 +257831,7 @@ var init_RainWeather = __esmMin((() => {
 	RAG_TICK_MS = 25;
 	FADEOUT_TAIL_MS = 1e3 * RAG_TICK_MS;
 	EMIT_PER_TICK = 10;
-	EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
+	EMIT_STOP_BEFORE_END_MS = 4e3;
 	MAX_DROPS = 1100;
 	SCATTER_RADIUS_CELLS = 70;
 	SPAWN_HEIGHT_MIN_CELLS = 22;
@@ -258575,7 +258432,7 @@ var init_SwirlingAura$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Effects/SwirlingAura.js
-var mat4$8, _program$8, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$1, STRIDE, VERTICES_PER_BAND, SwirlingAura;
+var mat4$8, _program$8, _modelMatrix, E_DIVISION, FULL_DISPLAY_ANGLE, DEG_TO_RAD$1, SwirlingAura;
 var init_SwirlingAura = __esmMin((() => {
 	init_SwirlingAura$2();
 	init_SwirlingAura$1();
@@ -258589,8 +258446,6 @@ var init_SwirlingAura = __esmMin((() => {
 	E_DIVISION = 21;
 	FULL_DISPLAY_ANGLE = 315;
 	DEG_TO_RAD$1 = Math.PI / 180;
-	STRIDE = 5;
-	VERTICES_PER_BAND = E_DIVISION * 2;
 	SwirlingAura = class {
 		constructor(position, textureName, tick, sizeType) {
 			this.position = position;
@@ -258622,8 +258477,8 @@ var init_SwirlingAura = __esmMin((() => {
 				height: new Float32Array(E_DIVISION),
 				flag1: new Uint8Array(E_DIVISION)
 			});
-			this.basicAngle = FULL_DISPLAY_ANGLE / (E_DIVISION - 1);
-			this.vertices = new Float32Array(VERTICES_PER_BAND * STRIDE);
+			this.basicAngle = FULL_DISPLAY_ANGLE / 20;
+			this.vertices = /* @__PURE__ */ new Float32Array(210);
 			this.buffers = null;
 			this.indexBuffer = null;
 			this.indexCount = 0;
@@ -258667,7 +258522,7 @@ var init_SwirlingAura = __esmMin((() => {
 				const topX = baseX + Rx * cosAngle;
 				const topY = -Ry;
 				const topZ = baseZ + Rx * sinAngle;
-				const u = k / (E_DIVISION - 1);
+				const u = k / 20;
 				verts[offset++] = baseX;
 				verts[offset++] = 0;
 				verts[offset++] = baseZ;
@@ -258685,7 +258540,7 @@ var init_SwirlingAura = __esmMin((() => {
 		*/
 		generateIndices() {
 			const indices = [];
-			for (let k = 0; k < E_DIVISION - 1; k++) {
+			for (let k = 0; k < 20; k++) {
 				const i0 = k * 2;
 				const i1 = k * 2 + 1;
 				const i2 = k * 2 + 2;
@@ -258759,8 +258614,8 @@ var init_SwirlingAura = __esmMin((() => {
 					self.fillBandMesh(band);
 					gl.bindBuffer(gl.ARRAY_BUFFER, self.buffers[ec]);
 					gl.bufferSubData(gl.ARRAY_BUFFER, 0, self.vertices);
-					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, STRIDE * 4, 0);
-					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, STRIDE * 4, 12);
+					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 					gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, self.alphaB);
 					gl.uniform1f(uniform.uZIndex, .01 + ec * .001);
 					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.indexBuffer);
@@ -264714,9 +264569,7 @@ var init_EffectTable = __esmMin((() => {
 							return false;
 						}
 						if (time < 400) {
-							const progress = (time - 200) / 200;
-							const startVal = 5 / 255;
-							const val = startVal + (1 - startVal) * progress;
+							const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
 							entity._flashColor[0] = val;
 							entity._flashColor[1] = val;
 							entity._flashColor[2] = 1;
@@ -264751,9 +264604,7 @@ var init_EffectTable = __esmMin((() => {
 							return false;
 						}
 						if (time < 400) {
-							const progress = (time - 200) / 200;
-							const startVal = 5 / 255;
-							const val = startVal + (1 - startVal) * progress;
+							const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
 							entity._flashColor[0] = val;
 							entity._flashColor[1] = val;
 							entity._flashColor[2] = 1;
@@ -267971,9 +267822,7 @@ var init_EffectTable = __esmMin((() => {
 						return false;
 					}
 					if (time < 400) {
-						const progress = (time - 200) / 200;
-						const startVal = 5 / 255;
-						const val = startVal + (1 - startVal) * progress;
+						const val = 5 / 255 + .9803921568627451 * ((time - 200) / 200);
 						entity._flashColor[0] = val;
 						entity._flashColor[1] = val;
 						entity._flashColor[2] = 1;
@@ -268130,9 +267979,7 @@ var init_EffectTable = __esmMin((() => {
 							return false;
 						}
 						if (tick < 500) {
-							const progress = (tick - 200) / 300;
-							const startVal = 5 / 255;
-							const val = startVal + (1 - startVal) * progress;
+							const val = 5 / 255 + .9803921568627451 * ((tick - 200) / 300);
 							entity._flashColor[0] = 1;
 							entity._flashColor[1] = 1;
 							entity._flashColor[2] = val;
@@ -269313,7 +269160,7 @@ var init_EffectTable = __esmMin((() => {
 				for (let i = 0; i < count; i++) {
 					let delta = 1;
 					if (i <= 15) delta = 12 * (8 / 360);
-					else if (i <= 30) delta = 18 * (8 / 360);
+					else if (i <= 30) delta = .4;
 					else if (i <= 40) delta = 24 * (8 / 360);
 					else delta = 48 * (8 / 360);
 					Events.setTimeout(function() {
@@ -275701,7 +275548,7 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				var data = this.__data__;
 				if (data instanceof ListCache) {
 					var pairs = data.__data__;
-					if (!Map || pairs.length < LARGE_ARRAY_SIZE - 1) {
+					if (!Map || pairs.length < 199) {
 						pairs.push([key, value]);
 						this.size = ++data.size;
 						return this;
@@ -278466,9 +278313,7 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 						case "take":
 							end = nativeMin(end, start + size);
 							break;
-						case "takeRight":
-							start = nativeMax(start, end - size);
-							break;
+						case "takeRight": start = nativeMax(start, end - size);
 					}
 				}
 				return {
@@ -289344,9 +289189,7 @@ var init_wasmoon_lua5_1 = __esmMin((() => {
 				case exports$1.LuaLibraries.Debug:
 					this.luaApi.luaopen_debug(this.address);
 					break;
-				case exports$1.LuaLibraries.Package:
-					this.luaApi.luaopen_package(this.address);
-					break;
+				case exports$1.LuaLibraries.Package: this.luaApi.luaopen_package(this.address);
 			}
 			this.luaApi.lua_setglobal(this.address, library);
 		}
@@ -293335,7 +293178,8 @@ function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd) {
 			const parts = isBase64 ? line.split(",") : line.split("	");
 			if (parts.length <= Math.max(keyIndex, valueIndex)) continue;
 			try {
-				targetTable[index] = isBase64 ? base64DecodeUtf8(parts[valueIndex].trim()) : parts[valueIndex].trim();
+				const value = isBase64 ? base64DecodeUtf8(parts[valueIndex].trim()) : parts[valueIndex].trim();
+				targetTable[index] = value;
 				index++;
 			} catch (e) {
 				console.error("Base64 decode failed on line", i + 1, ":", line, e);
@@ -294932,11 +294776,13 @@ function loadWeaponTable(filename, callback, onEnd) {
 			const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 			const ctx = lua.ctx;
 			ctx.AddWeaponName = (weaponID, weaponName) => {
-				WeaponName[weaponID] = weaponName && weaponName.length > 0 ? userStringDecoder.decode(weaponName) : "";
+				const decoded_weaponName = weaponName && weaponName.length > 0 ? userStringDecoder.decode(weaponName) : "";
+				WeaponName[weaponID] = decoded_weaponName;
 				return 1;
 			};
 			ctx.AddWeaponHitSound = (weaponID, soundFile) => {
-				WeaponSound[weaponID] = soundFile && soundFile.length > 0 ? userStringDecoder.decode(soundFile) : "";
+				const decoded_soundFile = soundFile && soundFile.length > 0 ? userStringDecoder.decode(soundFile) : "";
+				WeaponSound[weaponID] = decoded_soundFile;
 				return 1;
 			};
 			ctx.AddExpansionWeapon = (weaponID, expansionWeaponID) => {
@@ -296467,12 +296313,10 @@ var init_DBManager = __esmMin((() => {
 				case "4062_WUG":
 				case "4098_WUG": return "data/sprite/¸ó½ºÅÍ/¿ö±×";
 				case "4257_WUG": return "data/sprite/ÀÌÆÑÆ®/windhawk_wolf";
-				default:
-					if (typeof id === "string") {
-						if (id.includes("_FALCON")) return "data/sprite/ÀÌÆÑÆ®/¸Å";
-						else if (id.includes("_WUG")) return "data/sprite/¸ó½ºÅÍ/¿ö±×";
-					}
-					break;
+				default: if (typeof id === "string") {
+					if (id.includes("_FALCON")) return "data/sprite/ÀÌÆÑÆ®/¸Å";
+					else if (id.includes("_WUG")) return "data/sprite/¸ó½ºÅÍ/¿ö±×";
+				}
 			}
 			return "data/sprite/¸ó½ºÅÍ/" + (MonsterTable_default[id] || MonsterTable_default[1001]).toLowerCase();
 		}
@@ -296598,17 +296442,15 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.GUILLOTINE_CROSS:
 				case JobConst_default.GUILLOTINE_CROSS_H:
 				case JobConst_default.GUILLOTINE_CROSS_B:
-				case JobConst_default.SHADOW_CROSS:
-					switch (DB.getWeaponType(itemID)) {
-						case WeaponType_default.KATAR:
-						case WeaponType_default.SHORTSWORD_SHORTSWORD:
-						case WeaponType_default.SWORD_SWORD:
-						case WeaponType_default.AXE_AXE:
-						case WeaponType_default.SHORTSWORD_SWORD:
-						case WeaponType_default.SHORTSWORD_AXE:
-						case WeaponType_default.SWORD_AXE: return 3;
-					}
-					break;
+				case JobConst_default.SHADOW_CROSS: switch (DB.getWeaponType(itemID)) {
+					case WeaponType_default.KATAR:
+					case WeaponType_default.SHORTSWORD_SHORTSWORD:
+					case WeaponType_default.SWORD_SWORD:
+					case WeaponType_default.AXE_AXE:
+					case WeaponType_default.SHORTSWORD_SWORD:
+					case WeaponType_default.SHORTSWORD_AXE:
+					case WeaponType_default.SWORD_AXE: return 3;
+				}
 			}
 			return 6;
 		}
@@ -296624,9 +296466,7 @@ var init_DBManager = __esmMin((() => {
 						case WeaponType_default.GUN_RIFLE:
 						case WeaponType_default.GUN_GATLING:
 						case WeaponType_default.GUN_SHOTGUN:
-						case WeaponType_default.GUN_GRANADE:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.GUN_GRANADE: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.NINJA:
@@ -296638,9 +296478,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.OBORO_B:
 				case JobConst_default.SHIRANUI:
 					switch (weaponType) {
-						case WeaponType_default.SYURIKEN:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.SYURIKEN: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.GANGSI:
@@ -296668,9 +296506,7 @@ var init_DBManager = __esmMin((() => {
 							if (sex == 1) dualWeapon = true;
 							break;
 						case WeaponType_default.ROD:
-						case WeaponType_default.TWOHANDROD:
-							if (sex == 0) dualWeapon = true;
-							break;
+						case WeaponType_default.TWOHANDROD: if (sex == 0) dualWeapon = true;
 					}
 					break;
 				case JobConst_default.SWORDMAN:
@@ -296678,9 +296514,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.SWORDMAN_B:
 					switch (weaponType) {
 						case WeaponType_default.TWOHANDSWORD:
-						case WeaponType_default.TWOHANDSPEAR:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.TWOHANDSPEAR: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.ARCHER:
@@ -296688,36 +296522,28 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.ARCHER_B:
 					switch (weaponType) {
 						case WeaponType_default.BOW: break;
-						default:
-							dualWeapon = true;
-							break;
+						default: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.THIEF:
 				case JobConst_default.THIEF_H:
 				case JobConst_default.THIEF_B:
 					switch (weaponType) {
-						case WeaponType_default.BOW:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.BOW: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.MAGICIAN:
 				case JobConst_default.MAGICIAN_H:
 				case JobConst_default.MAGICIAN_B:
 					switch (weaponType) {
-						case WeaponType_default.TWOHANDROD:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.TWOHANDROD: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.MERCHANT:
 				case JobConst_default.MERCHANT_H:
 				case JobConst_default.MERCHANT_B:
 					switch (weaponType) {
-						case WeaponType_default.TWOHANDAXE:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.TWOHANDAXE: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.ACOLYTE:
@@ -296738,22 +296564,18 @@ var init_DBManager = __esmMin((() => {
 								case WeaponType_default.TWOHANDAXE:
 								case WeaponType_default.TWOHANDROD:
 								case WeaponType_default.TWOHANDMACE: break;
-								case WeaponType_default.SHORTSWORD:
-									dualWeapon = true;
-									break;
+								case WeaponType_default.SHORTSWORD: dualWeapon = true;
 							}
 							break;
-						case 1:
-							switch (weaponType) {
-								case WeaponType_default.TWOHANDSWORD:
-								case WeaponType_default.TWOHANDAXE:
-								case WeaponType_default.TWOHANDROD:
-								case WeaponType_default.TWOHANDMACE:
-									dualWeapon = true;
-									break;
-								case WeaponType_default.SHORTSWORD: break;
-							}
-							break;
+						case 1: switch (weaponType) {
+							case WeaponType_default.TWOHANDSWORD:
+							case WeaponType_default.TWOHANDAXE:
+							case WeaponType_default.TWOHANDROD:
+							case WeaponType_default.TWOHANDMACE:
+								dualWeapon = true;
+								break;
+							case WeaponType_default.SHORTSWORD:
+						}
 					}
 					break;
 				case JobConst_default.KNIGHT:
@@ -296775,9 +296597,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.DRAGON_KNIGHT2:
 					switch (weaponType) {
 						case WeaponType_default.TWOHANDSPEAR:
-						case WeaponAction.TWOHANDSWORD:
-							dualWeapon = true;
-							break;
+						case WeaponAction.TWOHANDSWORD: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.PRIEST:
@@ -296788,9 +296608,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.ARCHBISHOP_B:
 				case JobConst_default.CARDINAL:
 					switch (weaponType) {
-						case WeaponType_default.BOOK:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.BOOK: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.WIZARD:
@@ -296805,9 +296623,7 @@ var init_DBManager = __esmMin((() => {
 							if (sex == 1) dualWeapon = true;
 							break;
 						case WeaponType_default.ROD:
-						case WeaponType_default.TWOHANDROD:
-							if (sex == 0) dualWeapon = true;
-							break;
+						case WeaponType_default.TWOHANDROD: if (sex == 0) dualWeapon = true;
 					}
 					break;
 				case JobConst_default.BLACKSMITH:
@@ -296825,9 +296641,7 @@ var init_DBManager = __esmMin((() => {
 						case WeaponType_default.SWORD:
 						case WeaponType_default.AXE:
 						case WeaponType_default.TWOHANDAXE:
-						case WeaponType_default.MACE:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.MACE: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.ASSASSIN:
@@ -296844,9 +296658,7 @@ var init_DBManager = __esmMin((() => {
 						case WeaponType_default.SHORTSWORD_AXE:
 						case WeaponType_default.SWORD_SWORD:
 						case WeaponType_default.SWORD_AXE:
-						case WeaponType_default.AXE_AXE:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.AXE_AXE: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.HUNTER:
@@ -296861,9 +296673,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.WINDHAWK:
 				case JobConst_default.WINDHAWK2:
 					switch (weaponType) {
-						case WeaponType_default.BOW:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.BOW: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.SAGE:
@@ -296877,9 +296687,7 @@ var init_DBManager = __esmMin((() => {
 						case WeaponType_default.BOOK:
 						case WeaponType_default.ROD:
 						case WeaponType_default.TWOHANDROD:
-						case WeaponType_default.TWOHANDSPEAR:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.TWOHANDSPEAR: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.ALCHEMIST:
@@ -296893,9 +296701,7 @@ var init_DBManager = __esmMin((() => {
 						case WeaponType_default.SWORD:
 						case WeaponType_default.AXE:
 						case WeaponType_default.TWOHANDAXE:
-						case WeaponType_default.MACE:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.MACE: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.CRUSADER:
@@ -296917,9 +296723,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.IMPERIAL_GUARD2:
 					switch (weaponType) {
 						case WeaponType_default.SPEAR:
-						case WeaponType_default.TWOHANDSPEAR:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.TWOHANDSPEAR: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.MONK:
@@ -296931,9 +296735,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.INQUISITOR:
 					switch (weaponType) {
 						case WeaponType_default.KNUKLE:
-						case WeaponType_default.NONE:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.NONE: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.ROGUE:
@@ -296944,9 +296746,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.SHADOW_CHASER_B:
 				case JobConst_default.ABYSS_CHASER:
 					switch (weaponType) {
-						case WeaponType_default.BOW:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.BOW: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.BARD:
@@ -296964,14 +296764,12 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.WANDERER_B:
 				case JobConst_default.TROUVERE:
 					switch (weaponType) {
-						case WeaponType_default.BOW:
-							dualWeapon = true;
-							break;
+						case WeaponType_default.BOW: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.DO_SUMMONER1:
 				case JobConst_default.DO_SUMMONER_B1:
-				case JobConst_default.SPIRIT_HANDLER: break;
+				case JobConst_default.SPIRIT_HANDLER:
 			}
 			return dualWeapon;
 		}
@@ -297205,14 +297003,16 @@ var init_DBManager = __esmMin((() => {
 		* @param {number} weapon id
 		*/
 		static getWeaponSound(id) {
-			return WeaponSound$1[DB.getWeaponType(id, true)];
+			const type = DB.getWeaponType(id, true);
+			return WeaponSound$1[type];
 		}
 		/**
 		* @return {string} Path to eapon sound
 		* @param {number} weapon id
 		*/
 		static getWeaponHitSound(id) {
-			const hitSound = WeaponSound[DB.getWeaponType(id, true, true)];
+			const type = DB.getWeaponType(id, true, true);
+			const hitSound = WeaponSound[type];
 			if (Array.isArray(hitSound)) return hitSound[Math.floor(Math.random() * hitSound.length)];
 			return hitSound;
 		}
@@ -297274,9 +297074,7 @@ var init_DBManager = __esmMin((() => {
 				case 12:
 					weapon = WeaponType_default.AXE_AXE;
 					break;
-				default:
-					weapon = viewId;
-					break;
+				default: weapon = viewId;
 			}
 			return weapon;
 		}
@@ -297369,9 +297167,7 @@ var init_DBManager = __esmMin((() => {
 							case 4:
 								elem = MsgStringTable[453];
 								break;
-							default:
-								elem = MsgStringTable[450];
-								break;
+							default: elem = MsgStringTable[450];
 						}
 						const GID = (item.slot.card4 << 16) + item.slot.card3;
 						name = "<font color=\"red\" class=\"owner-" + GID + "\">Unknown</font>";
@@ -297434,7 +297230,6 @@ var init_DBManager = __esmMin((() => {
 					case 1:
 						showslots = false;
 						str = DB.getMessage(756) + " " + str;
-						break;
 				}
 			}
 			if (showprefix && showItemPrefix) str += prefix;
@@ -298631,10 +298426,7 @@ var init_PetInformations = __esmMin((() => {
 				case "release":
 					PetInformations.reqBackToEgg();
 					break;
-				case "unequip":
-					PetInformations.reqUnEquipPet();
-					break;
-				default:
+				case "unequip": PetInformations.reqUnEquipPet();
 			}
 			this.value = "default";
 		});
@@ -298672,12 +298464,10 @@ var init_PetInformations = __esmMin((() => {
 	*/
 	PetInformations.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				if (this._host.style.display === "none") {
-					this._host.style.display = "";
-					this.focus();
-				} else this._host.style.display = "none";
-				break;
+			case "TOGGLE": if (this._host.style.display === "none") {
+				this._host.style.display = "";
+				this.focus();
+			} else this._host.style.display = "none";
 		}
 	};
 	/**
@@ -299270,9 +299060,7 @@ var init_EntityControl = __esmMin((() => {
 				case Entity.TYPE_WARP:
 					Cursor.setType(Cursor.ACTION.WARP);
 					return;
-				case Entity.TYPE_ITEM:
-					Cursor.setType(Cursor.ACTION.PICK, true, 0);
-					break;
+				case Entity.TYPE_ITEM: Cursor.setType(Cursor.ACTION.PICK, true, 0);
 			}
 			switch (this.display.load) {
 				case this.display.TYPE.NONE: {
@@ -299289,7 +299077,6 @@ var init_EntityControl = __esmMin((() => {
 					mat4$1.multiply(_matrix, Camera.projection, this.matrix);
 					this.display.render(_matrix);
 					this.display.add();
-					break;
 			}
 		}
 		/**
@@ -299573,21 +299360,19 @@ var init_EntityControl = __esmMin((() => {
 						});
 					}
 					break;
-				case Entity.TYPE_MERC:
-					if (SessionStorage_default.mercId === this.GID) {
-						ContextMenu_default.remove();
-						ContextMenu_default.append();
-						ContextMenu_default.addElement("View Status", () => {
-							MercenaryInformations_default.ui.toggle();
-						});
-						if (localStorage.getItem("MER_AGGRESSIVE") == 0) ContextMenu_default.addElement("Assist", () => {
-							MercenaryInformations_default.toggleAggressive();
-						});
-						else ContextMenu_default.addElement("Stand By", () => {
-							MercenaryInformations_default.toggleAggressive();
-						});
-					}
-					break;
+				case Entity.TYPE_MERC: if (SessionStorage_default.mercId === this.GID) {
+					ContextMenu_default.remove();
+					ContextMenu_default.append();
+					ContextMenu_default.addElement("View Status", () => {
+						MercenaryInformations_default.ui.toggle();
+					});
+					if (localStorage.getItem("MER_AGGRESSIVE") == 0) ContextMenu_default.addElement("Assist", () => {
+						MercenaryInformations_default.toggleAggressive();
+					});
+					else ContextMenu_default.addElement("Stand By", () => {
+						MercenaryInformations_default.toggleAggressive();
+					});
+				}
 			}
 			return false;
 		}
@@ -299788,7 +299573,6 @@ function Init$10() {
 		case Entity.TYPE_FALCON:
 			this.ACTION.IDLE = 0;
 			this.ACTION.WALK = 1;
-			break;
 	}
 }
 var init_EntityAction = __esmMin((() => {
@@ -299861,9 +299645,9 @@ var init_EntityCast = __esmMin((() => {
 			ctx.fillStyle = "#10189c";
 			ctx.fillRect(0, 0, width, height);
 			ctx.fillStyle = "#424242";
-			ctx.fillRect(1, 1, width - 2, 4);
+			ctx.fillRect(1, 1, 58, 4);
 			ctx.fillStyle = this.color;
-			ctx.fillRect(1, 1, Math.round((width - 2) * perc), 4);
+			ctx.fillRect(1, 1, Math.round(58 * perc), 4);
 		}
 		/**
 		* Rendering cast
@@ -299975,29 +299759,29 @@ var init_EntityLife = __esmMin((() => {
 			ctx.fillStyle = "#10189c";
 			ctx.fillRect(0, 0, width, height);
 			ctx.fillStyle = "#424242";
-			ctx.fillRect(1, 1, width - 2, height - 2);
+			ctx.fillRect(1, 1, 58, height - 2);
 			this.canvas.style.zIndex = this.entity.objecttype === Entity.TYPE_PC ? 2 : 1;
 			if (this.entity.objecttype === Entity.TYPE_MOB || this.entity.objecttype === Entity.TYPE_NPC_ABR || this.entity.objecttype === Entity.TYPE_NPC_BIONIC) ctx.fillStyle = hp_per < .25 ? "#FFFF00" : "#FF00E7";
 			else if (this.entity.objecttype === Entity.TYPE_PET) ctx.fillStyle = hp_per < .25 ? "#FFFF00" : "#FFE7E7";
 			else ctx.fillStyle = hp_per < .25 ? "#FF0000" : "#10ef21";
-			ctx.fillRect(1, 1, Math.round((width - 2) * hp_per), 3);
+			ctx.fillRect(1, 1, Math.round(58 * hp_per), 3);
 			if (sp) {
 				ctx.fillStyle = "#10189c";
 				ctx.fillRect(0, 4, width, 1);
 				ctx.fillStyle = "#1863de";
-				ctx.fillRect(1, 5, Math.round((width - 2) * sp_per), 3);
+				ctx.fillRect(1, 5, Math.round(58 * sp_per), 3);
 			}
 			if (ap) {
 				ctx.fillStyle = "#424242";
 				ctx.fillRect(1, 9, width, 1);
 				ctx.fillStyle = "#ffc663";
-				ctx.fillRect(1, 9, Math.round((width - 2) * ap_per), 3);
+				ctx.fillRect(1, 9, Math.round(58 * ap_per), 3);
 			}
 			if (hunger) {
 				ctx.fillStyle = "#424242";
 				ctx.fillRect(1, 9, width, 1);
 				ctx.fillStyle = hunger_per < .25 ? "#FFFF00" : "#FFE7E7";
-				ctx.fillRect(1, 9, Math.round((width - 2) * hunger_per), 3);
+				ctx.fillRect(1, 9, Math.round(58 * hunger_per), 3);
 			}
 		}
 		/**
@@ -300180,9 +299964,7 @@ var init_EntityDisplay = __esmMin((() => {
 				case this.STYLE.ITEM:
 					color = "#FFEF94";
 					break;
-				case this.STYLE.ADMIN:
-					color = "#ffff00";
-					break;
+				case this.STYLE.ADMIN: color = "#ffff00";
 			}
 			ctx.font = (Map_default.showname ? "bold " : "") + fontSize + "px Arial";
 			ctx.textBaseline = "top";
@@ -301176,9 +300958,7 @@ function UpdateBody(job) {
 			case DB.isBionic(job):
 				objecttype = Entity.TYPE_NPC_BIONIC;
 				break;
-			default:
-				objecttype = Entity.TYPE_UNKNOWN;
-				break;
+			default: objecttype = Entity.TYPE_UNKNOWN;
 		}
 		if (objecttype !== this.objecttype) {
 			this.objecttype = objecttype;
@@ -301331,9 +301111,7 @@ function getBodyVal() {
 		case JobConst_default.TROUVERE_B:
 		case JobConst_default.WANDERER:
 		case JobConst_default.WANDERER_H:
-		case JobConst_default.WANDERER_B:
-			job = JobConst_default.WANDERER_2ND;
-			break;
+		case JobConst_default.WANDERER_B: job = JobConst_default.WANDERER_2ND;
 	}
 	return job || this._job;
 }
@@ -301444,9 +301222,7 @@ function UpdateGeneric(type, func, fallback) {
 			case "robe":
 				path = DB[func](val, this.job, this._sex);
 				break;
-			default:
-				path = DB[func](val, this._sex);
-				break;
+			default: path = DB[func](val, this._sex);
 		}
 		if (!path) {
 			this.files[type].spr = null;
@@ -301983,25 +301759,23 @@ function entitiesWalkProcess() {
 	const ownerCellX = this.position[0];
 	const ownerCellY = this.position[1];
 	if (this.falcon && !this.falcon.isAttacking && (!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1e3 < Date.now())) {
-		const range = 2;
-		if (Math.floor(this.distance(this, this.falcon)) < range) return;
+		if (Math.floor(this.distance(this, this.falcon)) < 2) return;
 		if (this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY) {
 			this.falcon.walk.speed = Math.max(this.walk.speed - 50, 1);
 			this.falcon._followTargetX = ownerCellX;
 			this.falcon._followTargetY = ownerCellY;
 			this.falcon.walk.lastWalkTick = Date.now();
-			this.falcon.walkToNonWalkableGround(this.falcon.position[0], this.falcon.position[1], ownerCellX, ownerCellY, range - 1, false, false, Date.now());
+			this.falcon.walkToNonWalkableGround(this.falcon.position[0], this.falcon.position[1], ownerCellX, ownerCellY, 1, false, false, Date.now());
 		}
 	}
 	if (this.wug && !this.wug.isAttacking && (!this.wug.walk.lastWalkTick || this.wug.walk.lastWalkTick + 1e3 < Date.now())) {
-		const range = 4;
-		if (Math.floor(this.distance(this, this.wug)) < range) return;
+		if (Math.floor(this.distance(this, this.wug)) < 4) return;
 		if (this.wug._followTargetX !== ownerCellX || this.wug._followTargetY !== ownerCellY) {
 			this.wug.walk.speed = Math.max(this.walk.speed - 50, 1);
 			this.wug._followTargetX = ownerCellX;
 			this.wug._followTargetY = ownerCellY;
 			this.wug.walk.lastWalkTick = Date.now();
-			this.wug.walkToNonWalkableGround(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, range - 1, false, false, Date.now());
+			this.wug.walkToNonWalkableGround(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, 3, false, false, Date.now());
 		}
 	}
 }
@@ -302405,7 +302179,7 @@ var init_EntityRender = __esmMin((() => {
 	init_DBManager();
 	init_Graphics();
 	init_GR2ModelRenderer();
-	WALK_DIST_TO_MOTION = 4.6 * .37 * 4 * 25;
+	WALK_DIST_TO_MOTION = 170.2;
 	renderGUI = (function renderGUIClosure() {
 		const mat4 = gl_matrix_default.mat4;
 		const vec4 = gl_matrix_default.vec4;
@@ -302545,9 +302319,7 @@ var init_EntityRender = __esmMin((() => {
 						const RIDING_STATUS = self.effectState & (StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER) || self.allRidingState;
 						function robeCorrection(lookingFront) {
 							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
-								const HEAD_SIZE = 64;
-								const COMPENSATION = 25;
-								if (self.robeHeight + (self.action === self.ACTION.SIT ? 0 : RIDING_STATUS && lookingFront ? COMPENSATION * 2 : COMPENSATION) > self.bodyHeight + HEAD_SIZE) {
+								if (self.robeHeight + (self.action === self.ACTION.SIT ? 0 : RIDING_STATUS && lookingFront ? 50 : 25) > self.bodyHeight + 64) {
 									if (self.action === self.ACTION.SIT) return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
 									return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
 								}
@@ -302641,7 +302413,6 @@ var init_EntityRender = __esmMin((() => {
 					SpriteRenderer.runWithDepth(true, false, false, function() {
 						renderElement(self, self.files.body, "body", _position, true);
 					});
-					break;
 			}
 			SpriteRenderer.zIndex = 1;
 		};
@@ -302698,7 +302469,6 @@ var init_EntityRender = __esmMin((() => {
 				case 7:
 					_position[0] = -30;
 					_position[1] = -10;
-					break;
 			}
 			if (type !== "shadow" && entity.getOpt3(StatusState_default.Status.BERSERK) || entity.getOpt3(StatusState_default.Status.MARIONETTE)) isBlendModeOne = true;
 			const isBUNSIN = entity.getOpt3(StatusState_default.Status.NJ_BUNSINJYUTSU);
@@ -302889,9 +302659,7 @@ var init_EntityRoom = __esmMin((() => {
 					case Room.Type.BUY_SHOP:
 						filename = "shop";
 						break;
-					case Room.Type.PRIVATE_CHAT:
-						filename = "chat_close";
-						break;
+					case Room.Type.PRIVATE_CHAT: filename = "chat_close";
 				}
 				self.type = type;
 				self.id = id;
@@ -303067,9 +302835,7 @@ function updateBodyState(value) {
 			SoundManager.playPosition("_stone_explosion.wav", this.position);
 			this.animation.play = true;
 			break;
-		case StatusState_default.BodyState.STUN:
-			this.attachments.remove("status-stun");
-			break;
+		case StatusState_default.BodyState.STUN: this.attachments.remove("status-stun");
 	}
 	switch (value) {
 		case StatusState_default.BodyState.STONE:
@@ -303119,7 +302885,6 @@ function updateBodyState(value) {
 				file: "status-stun",
 				head: true
 			});
-			break;
 	}
 	this._bodyState = value;
 	recalculateBlendingColor.call(this);
@@ -304084,9 +303849,7 @@ var init_Entity$1 = __esmMin((() => {
 				case "hideShadow":
 					this.hideShadow = unit.hideShadow;
 					break;
-				default:
-					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) this[keys[i]] = unit[keys[i]];
-					break;
+				default: if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) this[keys[i]] = unit[keys[i]];
 			}
 			if (this.life.hp > -1 && this.life.hp_max > -1) {
 				this.life.update();
@@ -304150,7 +303913,6 @@ var init_Entity$1 = __esmMin((() => {
 					this.clean();
 					this.remove_tick = Date.now();
 					this.remove_delay = 0;
-					break;
 			}
 		}
 		/**
@@ -305058,8 +304820,6 @@ var init_CursorManager = __esmMin((() => {
 						if (!Controls_default.itemsnap) break;
 						x += Math.floor(Mouse.screen.x - (entity.boundingRect.x1 + (entity.boundingRect.x2 - entity.boundingRect.x1) / 2));
 						y += Math.floor(Mouse.screen.y - (entity.boundingRect.y1 + (entity.boundingRect.y2 - entity.boundingRect.y1) / 2));
-						break;
-					default: break;
 				}
 			}
 			if (animation.compiledStyleIndex !== _lastStyleId || x !== _lastX || y !== _lastY) {
@@ -307194,9 +306954,7 @@ var init_MobileUI = __esmMin((() => {
 			case "AT":
 				toggleAutoTargeting();
 				break;
-			case "ATK":
-				attackTargeted();
-				break;
+			case "ATK": attackTargeted();
 		}
 	};
 	/**
@@ -307461,9 +307219,7 @@ var init_html2canvas = __esmMin((() => {
 					case "medium":
 						val = "0px";
 						break;
-					case "thick":
-						val = "5px";
-						break;
+					case "thick": val = "5px";
 				}
 			}
 			return val;
@@ -307560,7 +307316,6 @@ var init_html2canvas = __esmMin((() => {
 								case "left":
 									gradient.x0 = 0;
 									gradient.x1 = bounds.width;
-									break;
 							}
 						}
 						if (gradient.x0 === null && gradient.x1 === null) gradient.x0 = gradient.x1 = bounds.width / 2;
@@ -307695,14 +307450,12 @@ var init_html2canvas = __esmMin((() => {
 								}
 								break;
 							case "closest-side":
-							case "contain":
-								if (m2[0] === "circle") gradient.rx = gradient.ry = Math.min(gradient.cx, gradient.cy, gradient.x1 - gradient.cx, gradient.y1 - gradient.cy);
-								else {
-									gradient.type = m2[0];
-									gradient.rx = Math.min(gradient.cx, gradient.x1 - gradient.cx);
-									gradient.ry = Math.min(gradient.cy, gradient.y1 - gradient.cy);
-								}
-								break;
+							case "contain": if (m2[0] === "circle") gradient.rx = gradient.ry = Math.min(gradient.cx, gradient.cy, gradient.x1 - gradient.cx, gradient.y1 - gradient.cy);
+							else {
+								gradient.type = m2[0];
+								gradient.rx = Math.min(gradient.cx, gradient.x1 - gradient.cx);
+								gradient.ry = Math.min(gradient.cy, gradient.y1 - gradient.cy);
+							}
 						}
 						m2 = m1[5].match(/((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\)(?:\s\d{1,3}(?:%|px))?)+/g);
 						if (m2) {
@@ -307721,7 +307474,6 @@ var init_html2canvas = __esmMin((() => {
 								});
 							}
 						}
-						break;
 				}
 				return gradient;
 			};
@@ -307979,9 +307731,7 @@ var init_html2canvas = __esmMin((() => {
 						case 401:
 							bold = "bold";
 							break;
-						case 400:
-							bold = "normal";
-							break;
+						case 400: bold = "normal";
 					}
 					ctx.setVariable("fillStyle", color);
 					ctx.setVariable("font", font_style + " " + font_variant + " " + bold + " " + size + " " + family);
@@ -308021,9 +307771,7 @@ var init_html2canvas = __esmMin((() => {
 							case "overline":
 								renderRect(ctx, bounds.left, bounds.top, bounds.width, 1, color);
 								break;
-							case "line-through":
-								renderRect(ctx, bounds.left, Math.ceil(bounds.top + metrics.middle + metrics.lineWidth), bounds.width, 1, color);
-								break;
+							case "line-through": renderRect(ctx, bounds.left, Math.ceil(bounds.top + metrics.middle + metrics.lineWidth), bounds.width, 1, color);
 						}
 						textOffset += renderList[c].length;
 					}
@@ -308069,9 +307817,7 @@ var init_html2canvas = __esmMin((() => {
 						case "lower-alpha":
 							text = _html2canvas.Generate.ListAlpha(currentIndex).toLowerCase();
 							break;
-						case "upper-alpha":
-							text = _html2canvas.Generate.ListAlpha(currentIndex);
-							break;
+						case "upper-alpha": text = _html2canvas.Generate.ListAlpha(currentIndex);
 					}
 					text += ". ";
 					listBounds = listPosition(element, text);
@@ -308079,9 +307825,7 @@ var init_html2canvas = __esmMin((() => {
 						case 401:
 							bold = "bold";
 							break;
-						case 400:
-							bold = "normal";
-							break;
+						case 400: bold = "normal";
 					}
 					ctx.setVariable("fillStyle", getCSS(element, "color"));
 					ctx.setVariable("font", getCSS(element, "fontVariant") + " " + bold + " " + getCSS(element, "fontStyle") + " " + getCSS(element, "fontSize") + " " + getCSS(element, "fontFamily"));
@@ -308250,7 +307994,6 @@ var init_html2canvas = __esmMin((() => {
 									bx,
 									by + bh + borders[2].width
 								];
-								break;
 						}
 						borderBounds = {
 							left: bx,
@@ -308392,7 +308135,6 @@ var init_html2canvas = __esmMin((() => {
 								if (add > 0) bgp.top += add;
 								bgy = Math.floor(bgy + image.height) - add;
 							}
-							break;
 					}
 					else h2clog("html2canvas: Error loading background:" + background_image);
 				}
@@ -308461,7 +308203,6 @@ var init_html2canvas = __esmMin((() => {
 						paddingRight = getCSSInt(el, "paddingRight");
 						paddingBottom = getCSSInt(el, "paddingBottom");
 						renderImage(ctx, el, 0, 0, el.width, el.height, x + paddingLeft + borders[3].width, y + paddingTop + borders[0].width, bounds.width - (borders[1].width + borders[3].width + paddingLeft + paddingRight), bounds.height - (borders[0].width + borders[2].width + paddingTop + paddingBottom));
-						break;
 				}
 				return zindex.children[stackLength - 1];
 			}
@@ -308932,38 +308673,35 @@ var init_html2canvas = __esmMin((() => {
 							case "variable":
 								ctx[renderItem.name] = renderItem["arguments"];
 								break;
-							case "function":
-								if (renderItem.name === "fillRect") {
-									if (!usingFlashcanvas || renderItem["arguments"][0] + renderItem["arguments"][2] < flashMaxSize && renderItem["arguments"][1] + renderItem["arguments"][3] < flashMaxSize) ctx.fillRect.apply(ctx, renderItem["arguments"]);
-								} else if (renderItem.name === "drawShape") (function(args) {
-									let i, len = args.length;
-									ctx.beginPath();
-									for (i = 0; i < len; i++) ctx[args[i].name].apply(ctx, args[i]["arguments"]);
-									ctx.closePath();
-									ctx.fill();
-								})(renderItem["arguments"]);
-								else if (renderItem.name === "fillText") {
-									if (!usingFlashcanvas || renderItem["arguments"][1] < flashMaxSize && renderItem["arguments"][2] < flashMaxSize) ctx.fillText.apply(ctx, renderItem["arguments"]);
-								} else if (renderItem.name === "drawImage") {
-									if (renderItem["arguments"][8] > 0 && renderItem["arguments"][7]) {
-										if (hasCTX && options.taintTest) {
-											if (safeImages.indexOf(renderItem["arguments"][0].src) === -1) {
-												testctx.drawImage(renderItem["arguments"][0], 0, 0);
-												try {
-													testctx.getImageData(0, 0, 1, 1);
-												} catch (e) {
-													testCanvas = doc.createElement("canvas");
-													testctx = testCanvas.getContext("2d");
-													continue;
-												}
-												safeImages.push(renderItem["arguments"][0].src);
+							case "function": if (renderItem.name === "fillRect") {
+								if (!usingFlashcanvas || renderItem["arguments"][0] + renderItem["arguments"][2] < flashMaxSize && renderItem["arguments"][1] + renderItem["arguments"][3] < flashMaxSize) ctx.fillRect.apply(ctx, renderItem["arguments"]);
+							} else if (renderItem.name === "drawShape") (function(args) {
+								let i, len = args.length;
+								ctx.beginPath();
+								for (i = 0; i < len; i++) ctx[args[i].name].apply(ctx, args[i]["arguments"]);
+								ctx.closePath();
+								ctx.fill();
+							})(renderItem["arguments"]);
+							else if (renderItem.name === "fillText") {
+								if (!usingFlashcanvas || renderItem["arguments"][1] < flashMaxSize && renderItem["arguments"][2] < flashMaxSize) ctx.fillText.apply(ctx, renderItem["arguments"]);
+							} else if (renderItem.name === "drawImage") {
+								if (renderItem["arguments"][8] > 0 && renderItem["arguments"][7]) {
+									if (hasCTX && options.taintTest) {
+										if (safeImages.indexOf(renderItem["arguments"][0].src) === -1) {
+											testctx.drawImage(renderItem["arguments"][0], 0, 0);
+											try {
+												testctx.getImageData(0, 0, 1, 1);
+											} catch (e) {
+												testCanvas = doc.createElement("canvas");
+												testctx = testCanvas.getContext("2d");
+												continue;
 											}
+											safeImages.push(renderItem["arguments"][0].src);
 										}
-										ctx.drawImage.apply(ctx, renderItem["arguments"]);
 									}
+									ctx.drawImage.apply(ctx, renderItem["arguments"]);
 								}
-								break;
-							default:
+							}
 						}
 					}
 					if (storageContext.clip) ctx.restore();
@@ -309006,55 +308744,52 @@ var init_html2canvas = __esmMin((() => {
 							case "variable":
 								settings[renderItem.name] = renderItem["arguments"];
 								break;
-							case "function":
-								if (renderItem.name === "fillRect") {
-									el = doc.createElementNS(svgNS, "rect");
-									el.setAttribute("x", renderItem["arguments"][0]);
-									el.setAttribute("y", renderItem["arguments"][1]);
-									el.setAttribute("width", renderItem["arguments"][2]);
-									el.setAttribute("height", renderItem["arguments"][3]);
-									el.setAttribute("fill", settings.fillStyle);
-									svg.appendChild(el);
-								} else if (renderItem.name === "fillText") {
-									el = doc.createElementNS(svgNS, "text");
-									fontStyle = settings.font.split(" ");
-									el.style.fontVariant = fontStyle.splice(0, 1)[0];
-									el.style.fontWeight = fontStyle.splice(0, 1)[0];
-									el.style.fontStyle = fontStyle.splice(0, 1)[0];
-									el.style.fontSize = fontStyle.splice(0, 1)[0];
-									el.setAttribute("x", renderItem["arguments"][1]);
-									el.setAttribute("y", renderItem["arguments"][2] - (parseInt(el.style.fontSize, 10) + 3));
-									el.setAttribute("fill", settings.fillStyle);
-									el.style.dominantBaseline = "text-before-edge";
-									el.style.fontFamily = fontStyle.join(" ");
-									text = doc.createTextNode(renderItem["arguments"][0]);
+							case "function": if (renderItem.name === "fillRect") {
+								el = doc.createElementNS(svgNS, "rect");
+								el.setAttribute("x", renderItem["arguments"][0]);
+								el.setAttribute("y", renderItem["arguments"][1]);
+								el.setAttribute("width", renderItem["arguments"][2]);
+								el.setAttribute("height", renderItem["arguments"][3]);
+								el.setAttribute("fill", settings.fillStyle);
+								svg.appendChild(el);
+							} else if (renderItem.name === "fillText") {
+								el = doc.createElementNS(svgNS, "text");
+								fontStyle = settings.font.split(" ");
+								el.style.fontVariant = fontStyle.splice(0, 1)[0];
+								el.style.fontWeight = fontStyle.splice(0, 1)[0];
+								el.style.fontStyle = fontStyle.splice(0, 1)[0];
+								el.style.fontSize = fontStyle.splice(0, 1)[0];
+								el.setAttribute("x", renderItem["arguments"][1]);
+								el.setAttribute("y", renderItem["arguments"][2] - (parseInt(el.style.fontSize, 10) + 3));
+								el.setAttribute("fill", settings.fillStyle);
+								el.style.dominantBaseline = "text-before-edge";
+								el.style.fontFamily = fontStyle.join(" ");
+								text = doc.createTextNode(renderItem["arguments"][0]);
+								el.appendChild(text);
+								svg.appendChild(el);
+							} else if (renderItem.name === "drawImage") {
+								if (renderItem["arguments"][8] > 0 && renderItem["arguments"][7]) {
+									el = doc.createElementNS(svgNS, "clipPath");
+									el.setAttribute("id", "clipId" + clipId);
+									text = doc.createElementNS(svgNS, "rect");
+									text.setAttribute("x", renderItem["arguments"][5]);
+									text.setAttribute("y", renderItem["arguments"][6]);
+									text.setAttribute("width", renderItem["arguments"][3]);
+									text.setAttribute("height", renderItem["arguments"][4]);
 									el.appendChild(text);
+									defs.appendChild(el);
+									el = doc.createElementNS(svgNS, "image");
+									el.setAttributeNS(xlinkNS, "xlink:href", renderItem["arguments"][0].src);
+									el.setAttribute("width", renderItem["arguments"][7]);
+									el.setAttribute("height", renderItem["arguments"][8]);
+									el.setAttribute("x", renderItem["arguments"][5]);
+									el.setAttribute("y", renderItem["arguments"][6]);
+									el.setAttribute("clip-path", "url(#clipId" + clipId + ")");
+									el.setAttribute("preserveAspectRatio", "none");
 									svg.appendChild(el);
-								} else if (renderItem.name === "drawImage") {
-									if (renderItem["arguments"][8] > 0 && renderItem["arguments"][7]) {
-										el = doc.createElementNS(svgNS, "clipPath");
-										el.setAttribute("id", "clipId" + clipId);
-										text = doc.createElementNS(svgNS, "rect");
-										text.setAttribute("x", renderItem["arguments"][5]);
-										text.setAttribute("y", renderItem["arguments"][6]);
-										text.setAttribute("width", renderItem["arguments"][3]);
-										text.setAttribute("height", renderItem["arguments"][4]);
-										el.appendChild(text);
-										defs.appendChild(el);
-										el = doc.createElementNS(svgNS, "image");
-										el.setAttributeNS(xlinkNS, "xlink:href", renderItem["arguments"][0].src);
-										el.setAttribute("width", renderItem["arguments"][7]);
-										el.setAttribute("height", renderItem["arguments"][8]);
-										el.setAttribute("x", renderItem["arguments"][5]);
-										el.setAttribute("y", renderItem["arguments"][6]);
-										el.setAttribute("clip-path", "url(#clipId" + clipId + ")");
-										el.setAttribute("preserveAspectRatio", "none");
-										svg.appendChild(el);
-										clipId += 1;
-									}
+									clipId += 1;
 								}
-								break;
-							default:
+							}
 						}
 					}
 				}
@@ -309199,7 +308934,6 @@ function onMouseDown(event) {
 				Cursor.setType(Cursor.ACTION.ROTATE);
 				Camera.rotate(true);
 			}
-			break;
 	}
 }
 /**
@@ -309233,7 +308967,6 @@ function onMouseUp(event) {
 				entity = EntityManager.getOverEntity();
 				if (entity && entity !== SessionStorage_default.Entity) entity.onContextMenu();
 			}
-			break;
 	}
 }
 /**
@@ -309886,7 +309619,6 @@ var init_Vending = __esmMin((() => {
 				root.querySelector(".zenySpan").textContent = prettyZeny$3(SessionStorage_default.zeny);
 				root.querySelector(".weightSpan").textContent = `${BasicInfoController.getUI().weight}/${BasicInfoController.getUI().weight_max}`;
 				root.querySelector(".limitZeny").value = "0";
-				break;
 		}
 		_type$3 = type;
 	};
@@ -311308,12 +311040,10 @@ var init_Emoticons = __esmMin((() => {
 	*/
 	Emoticons.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
-			case "TOGGLE":
-				if (this._host.style.display === "none") {
-					this.ui.show();
-					this.focus();
-				} else this._host.style.display = "none";
-				break;
+			case "TOGGLE": if (this._host.style.display === "none") {
+				this.ui.show();
+				this.focus();
+			} else this._host.style.display = "none";
 		}
 	};
 	Emoticons.mouseMode = GUIComponent.MouseMode.STOP;
@@ -311593,9 +311323,7 @@ var init_ShortCuts = __esmMin((() => {
 			case "EXECUTE_FLAG_8":
 				executeFlag(8);
 				break;
-			case "EXECUTE_FLAG_9":
-				executeFlag(9);
-				break;
+			case "EXECUTE_FLAG_9": executeFlag(9);
 		}
 	};
 	/**
@@ -311945,7 +311673,6 @@ function onClickPagination(target) {
 			CashShop.currentPage = CashShop.totalPage;
 			CashShop.pageOffset = (CashShop.currentPage - 1) * CashShop.pageLimit;
 			CashShop.isLastPage = true;
-			break;
 	}
 	CashShop.paginationOffsetLimit();
 	const arrowsL = CashShop.isFirstPage ? "off" : "on";
@@ -312597,7 +312324,6 @@ var init_CashShop$1 = __esmMin((() => {
 				default:
 					UIManager.showMessageBox("Something went wrong while using cashshop!", "ok");
 					ChatBox_default.addText("Something went wrong while using cashshop!", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-					break;
 			}
 		}
 	};
@@ -313006,7 +312732,6 @@ function onItemReformResult(pkt) {
 			onRequestReformClose();
 			break;
 		}
-		default: break;
 	}
 }
 /**
@@ -313380,12 +313105,7 @@ function onAddMaterialItem$1(item, inventory_count, source_needcount, source_ico
 */
 function onLaphineSysResult(pkt) {
 	if (pkt) switch (pkt.result) {
-		case 0:
-			onRequestLaphineClose();
-			break;
-		case 5:
-		case 7: break;
-		default: break;
+		case 0: onRequestLaphineClose();
 	}
 }
 /**
@@ -314006,10 +313726,7 @@ function onAddMaterialItem(item, target_iconname) {
 */
 function onLaphineUpgResult(pkt) {
 	if (pkt) switch (pkt.result) {
-		case 0:
-			onRequestLaphineUpgClose();
-			break;
-		default: break;
+		case 0: onRequestLaphineUpgClose();
 	}
 }
 /**
@@ -314741,7 +314458,7 @@ var init_Roulette$1 = __esmMin((() => {
 			if (btnSpin) btnSpin.disabled = false;
 			return;
 		}
-		const targetRotation = 360 * 5 + resultIndex * (360 / (_rouletteInfo.items.length || 10));
+		const targetRotation = 1800 + resultIndex * (360 / (_rouletteInfo.items.length || 10));
 		wheelSlots.style.transform = `translate(-50%, -50%) rotate(${targetRotation}deg)`;
 		setTimeout(() => {
 			_isSpinning = false;
@@ -314873,7 +314590,7 @@ var init_PCGoldTimer$1 = __esmMin((() => {
 	PCGoldTimer.startTimer = function startTimer() {
 		const root = this.getRoot();
 		this.timer = setInterval(function() {
-			const millisecondsMissing = 3600 * 1e3 - (Date.now() - _data.startTime + _data.playedTime * 1e3);
+			const millisecondsMissing = 36e5 - (Date.now() - _data.startTime + _data.playedTime * 1e3);
 			let text = PCGoldTimer.formatTime(millisecondsMissing);
 			if (text.includes("-")) {
 				text = "00:00";
@@ -315433,7 +315150,7 @@ function renderTimer(seconds) {
 	const s = seconds % 60;
 	const text = m === 0 ? String(s).padStart(2, "0") : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 	const digitWidth = 50;
-	let x = TIMER_W - (m === 0 ? 2 * digitWidth : 5 * digitWidth) >> 1;
+	let x = TIMER_W - (m === 0 ? 100 : 250) >> 1;
 	for (let i = 0; i < text.length; i++) {
 		const a = timerCharToAction(text[i]);
 		if (!isNaN(a)) {
@@ -315608,7 +315325,7 @@ function renderRankText(text) {
 	for (i = 0; i < rankingStr.length; i++) {
 		a = rankCharToAction(rankingStr[i]);
 		if (!isNaN(a)) {
-			drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, RANK_Y - 6);
+			drawActionToCanvas(_rankCtx, _rankfontAct, _rankfontSpr, a, x, 46);
 			x += step;
 		}
 	}
@@ -316666,9 +316383,7 @@ function onStatusParameterUpdateAnswer(pkt) {
 		case StatusProperty_default.VAR_SP_CON:
 			WinStatsController.getUI().update("con", pkt.value);
 			break;
-		case StatusProperty_default.VAR_SP_CRT:
-			WinStatsController.getUI().update("crt", pkt.value);
-			break;
+		case StatusProperty_default.VAR_SP_CRT: WinStatsController.getUI().update("crt", pkt.value);
 	}
 }
 /**
@@ -316993,9 +316708,7 @@ function onActionFailure(pkt) {
 		case 2:
 			ChatBox_default.addText(DB.getMessage(244), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.ITEM);
 			break;
-		case 3:
-			ChatBox_default.addText(DB.getMessage(245), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
-			break;
+		case 3: ChatBox_default.addText(DB.getMessage(245), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
 	}
 }
 /**
@@ -317420,9 +317133,7 @@ function onDynamicNPCCreateRequest(pkt) {
 		case 3:
 			ChatBox_default.addText("[Dynamic NPC] Duplicate NPC", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		case 4:
-			ChatBox_default.addText("[Dynamic NPC] Out of time", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
+		case 4: ChatBox_default.addText("[Dynamic NPC] Out of time", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 }
 /**
@@ -317462,7 +317173,6 @@ function onInputAppear(pkt) {
 			case "number":
 				_pkt = new PACKET.CZ.INPUT_EDITDLG();
 				_pkt.value = data;
-				break;
 		}
 		_pkt.NAID = id;
 		Network.sendPacket(_pkt);
@@ -317554,7 +317264,6 @@ function onCutin(pkt) {
 				img.style.left = "50%";
 				img.style.marginLeft = "-" + Math.floor(img.width / 2) + "px";
 				img.style.marginTop = "-" + Math.floor(img.height / 2) + "px";
-				break;
 		}
 		document.body.appendChild(img);
 	});
@@ -317571,9 +317280,7 @@ function onMinimapMarker(pkt) {
 		case 1:
 			Controller$5.getUI().addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, Infinity);
 			break;
-		case 2:
-			Controller$5.getUI().removeNpcMark(pkt.id);
-			break;
+		case 2: Controller$5.getUI().removeNpcMark(pkt.id);
 	}
 }
 /**
@@ -317612,9 +317319,7 @@ function onSound(pkt) {
 		case 1:
 			SoundManager.play(pkt.fileName);
 			break;
-		case 2:
-			SoundManager.stop(pkt.fileName);
-			break;
+		case 2: SoundManager.stop(pkt.fileName);
 	}
 }
 /**
@@ -318648,16 +318353,14 @@ function onEntityAction(pkt) {
 						} else Damage.add(pkt.damage / div, target, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY, srcWeapon, type);
 						break;
 					}
-					case 11:
-						dstEntity.attachments.add({
-							frame: 3,
-							file: "msg",
-							uid: "lucky",
-							play: true,
-							head: true,
-							repeat: false
-						});
-						break;
+					case 11: dstEntity.attachments.add({
+						frame: 3,
+						file: "msg",
+						uid: "lucky",
+						play: true,
+						head: true,
+						repeat: false
+					});
 				}
 			}
 			srcEntity.attack_speed = pkt.attackMT;
@@ -318728,14 +318431,12 @@ function onEntityAction(pkt) {
 				play: true
 			});
 			break;
-		case 3:
-			srcEntity.setAction({
-				action: srcEntity.ACTION.IDLE,
-				frame: 0,
-				repeat: true,
-				play: true
-			});
-			break;
+		case 3: srcEntity.setAction({
+			action: srcEntity.ACTION.IDLE,
+			frame: 0,
+			repeat: true,
+			play: true
+		});
 	}
 	if (pkt?.damage > 0) {
 		if (srcEntity.GID === SessionStorage_default.Character.GID) ChatBox_default.addText(DB.getMessage(1607).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
@@ -319024,10 +318725,7 @@ function onEntityViewChange(pkt) {
 		case 12:
 			entity.robe = pkt.value;
 			break;
-		case 13:
-			entity.body = pkt.value;
-			break;
-		case 14: break;
+		case 13: entity.body = pkt.value;
 	}
 }
 /**
@@ -319299,9 +318997,7 @@ function onEntityCastSkill(pkt) {
 			case 8:
 				EF_Init_Par.effectId = EffectConst_default.EF_BEGINSPELL6;
 				break;
-			case 9:
-				EF_Init_Par.effectId = EffectConst_default.EF_DARKCASTING;
-				break;
+			case 9: EF_Init_Par.effectId = EffectConst_default.EF_DARKCASTING;
 		}
 		EffectManager.spam(EF_Init_Par);
 	}
@@ -319672,13 +319368,11 @@ function onEntityStatusChange(pkt) {
 			});
 			break;
 		}
-		case StatusConst_default.CLAN_INFO:
-			DB.loadClanEmblem(pkt.val[1], (image) => {
-				entity.clanId = pkt.val[1];
-				entity.setEntityGuildEmblem(image);
-				updateEntityStyle(entity);
-			});
-			break;
+		case StatusConst_default.CLAN_INFO: DB.loadClanEmblem(pkt.val[1], (image) => {
+			entity.clanId = pkt.val[1];
+			entity.setEntityGuildEmblem(image);
+			updateEntityStyle(entity);
+		});
 	}
 	processBlockStatus(entity, pkt);
 	if (entity === SessionStorage_default.Entity) StatusIcons_default.update(pkt.index, pkt.state, pkt.RemainMS);
@@ -319784,9 +319478,7 @@ function onEntityCreateRoom(pkt) {
 					break;
 				case 1: break;
 				case 2: break;
-				case 3:
-					title = pkt.title;
-					break;
+				case 3: title = pkt.title;
 			}
 			entity.room.title = pkt.title;
 			entity.room.limit = pkt.maxcount;
@@ -319859,10 +319551,8 @@ function onNotifyExp(pkt) {
 			if (pkt.varID === 1) ChatBox_default.addText(DB.getMessage(1613).replace("%d", pkt.amount), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.EXP);
 			else if (pkt.varID === 2) ChatBox_default.addText(DB.getMessage(1614).replace("%d", pkt.amount), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.EXP);
 			break;
-		case 1:
-			if (pkt.varID === 1) ChatBox_default.addText("Experience gained from Quest, Base:" + pkt.amount, null, ChatBox_default.FILTER.EXP, "#A442DC");
-			else if (pkt.varID === 2) ChatBox_default.addText("Experience gained from Quest, Job:" + pkt.amount, null, ChatBox_default.FILTER.EXP, "#A442DC");
-			break;
+		case 1: if (pkt.varID === 1) ChatBox_default.addText("Experience gained from Quest, Base:" + pkt.amount, null, ChatBox_default.FILTER.EXP, "#A442DC");
+		else if (pkt.varID === 2) ChatBox_default.addText("Experience gained from Quest, Job:" + pkt.amount, null, ChatBox_default.FILTER.EXP, "#A442DC");
 	}
 }
 /**
@@ -320302,7 +319992,7 @@ var init_ItemObtain = __esmMin((() => {
 	*/
 	ItemObtain.needFocus = false;
 	_timer = 0;
-	_life = 5 * 1e3;
+	_life = 5e3;
 	/**
 	* Initialize component
 	*/
@@ -320793,9 +320483,7 @@ var init_MakeItemSelection = __esmMin((() => {
 		if (this.material.length < 3 && (validMultipleMaterials.includes(item.ITID) || validSingleMaterials.includes(item.ITID) && !singleMatUsed)) {
 			if (this.addItemSub(item)) {
 				switch (from) {
-					case "Inventory":
-						InventoryController.getUI().removeItem(item.index, 1);
-						break;
+					case "Inventory": InventoryController.getUI().removeItem(item.index, 1);
 				}
 				this.material.push(item);
 			}
@@ -321824,7 +321512,6 @@ function onItemCompositionResult(pkt) {
 			}
 			break;
 		}
-		case 1: break;
 	}
 }
 /**
@@ -321847,9 +321534,7 @@ function onRefineResult(pkt) {
 			case 1:
 				ChatBox_default.addText(DB.getMessage(499), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
 				break;
-			case 2:
-				ChatBox_default.addText(DB.getMessage(1537), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
-				break;
+			case 2: ChatBox_default.addText(DB.getMessage(1537), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
 		}
 	}
 }
@@ -321887,9 +321572,7 @@ function onAckAddItemToCart(pkt) {
 		case 0:
 			ChatBox_default.addText(DB.getMessage(220), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.ITEM);
 			break;
-		case 1:
-			ChatBox_default.addText(DB.getMessage(221), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.ITEM);
-			break;
+		case 1: ChatBox_default.addText(DB.getMessage(221), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.ITEM);
 	}
 }
 /**
@@ -323521,9 +323204,7 @@ function onSkillResult(pkt) {
 		case SkillConst_default.TF_STEAL:
 			error = 205;
 			break;
-		case SkillConst_default.TF_POISON:
-			error = 207;
-			break;
+		case SkillConst_default.TF_POISON: error = 207;
 	}
 	if (pkt.SKID == SkillConst_default.CG_TAROTCARD) error = 204;
 	else switch (pkt.cause) {
@@ -323560,9 +323241,7 @@ function onSkillResult(pkt) {
 		case 13:
 			error = 1398;
 			break;
-		case 83:
-			error = 661;
-			break;
+		case 83: error = 661;
 	}
 	if (error) ChatBox_default.addText(DB.getMessage(error), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
 }
@@ -323642,9 +323321,7 @@ function onIdentifyResult(pkt) {
 			}
 			break;
 		}
-		case 1:
-			ChatBox_default.addText(DB.getMessage(492), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.ITEM);
-			break;
+		case 1: ChatBox_default.addText(DB.getMessage(492), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.ITEM);
 	}
 }
 /**
@@ -323734,9 +323411,7 @@ function onTeleportResult(pkt) {
 		case 0:
 			ChatBox_default.addText(DB.getMessage(500), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
 			break;
-		case 1:
-			ChatBox_default.addText(DB.getMessage(501), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
-			break;
+		case 1: ChatBox_default.addText(DB.getMessage(501), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
 	}
 }
 /**
@@ -323752,9 +323427,7 @@ function onMemoResult(pkt) {
 		case 1:
 			ChatBox_default.addText(DB.getMessage(214), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
 			break;
-		case 2:
-			ChatBox_default.addText(DB.getMessage(216), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
-			break;
+		case 2: ChatBox_default.addText(DB.getMessage(216), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
 	}
 }
 /**
@@ -324120,9 +323793,7 @@ function onCreateRoomResult(pkt) {
 		case 1:
 			ChatBox_default.addText(DB.getMessage(65), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		case 2:
-			ChatBox_default.addText(DB.getMessage(66), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
+		case 2: ChatBox_default.addText(DB.getMessage(66), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 }
 /**
@@ -324159,9 +323830,7 @@ function onEnterRoomResult(pkt) {
 		case 6:
 			error = 433;
 			break;
-		case 7:
-			error = 434;
-			break;
+		case 7: error = 434;
 	}
 	ChatBox_default.addText(DB.getMessage(error), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 }
@@ -324516,10 +324185,7 @@ function onPetEvolveResult(pkt) {
 		case 5:
 			ChatBox_default.addText(DB.getMessage(2576), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		case 6:
-			if (PetEvolution._host) PetEvolution._host.style.display = "none";
-			break;
-		default: break;
+		case 6: if (PetEvolution._host) PetEvolution._host.style.display = "none";
 	}
 }
 var PetEvolution, currentMaterials, targetEvoPetEggId, _preferences$3, PetEvolution_default;
@@ -324852,7 +324518,6 @@ function onPetInformationUpdate(pkt) {
 			});
 			break;
 		}
-		case 5:
 	}
 }
 /**
@@ -325082,7 +324747,6 @@ function onHomunInformationUpdate(pkt) {
 			entity.life.hunger = pkt.data;
 			entity.life.hunger_max = 100;
 			entity.life.update();
-			break;
 	}
 }
 /**
@@ -325290,7 +324954,6 @@ function onParameterChange(pkt) {
 			entity.life.sp_max = pkt.value;
 			entity.life.update();
 			EntityManager.storeLife(SessionStorage_default.mercId, { sp_max: pkt.value });
-			break;
 	}
 }
 /**
@@ -325960,7 +325623,6 @@ var init_NpcStore = __esmMin((() => {
 			case NpcStore.Type.CASH_SHOP:
 				_hideAll(root, ".WinSell, .WinVendingStore, .WinBuyingStore, .AvailableItemsWindow, .PurchaseResult, .total");
 				_showAll(root, ".WinBuy");
-				break;
 		}
 		_type = type;
 		const currentPref = getCurrentPref();
@@ -326436,9 +326098,7 @@ function onBuyResult(pkt) {
 		case 14:
 			ChatBox_default.addText(DB.getMessage(3556), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		default:
-			ChatBox_default.addText(DB.getMessage(57), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
+		default: ChatBox_default.addText(DB.getMessage(57), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 	if (NpcStore_default.getCurrentType() >= 4 && NpcStore_default.getCurrentType() != NpcStore_default.Type.CASH_SHOP) NpcStore_default.closeStore();
 }
@@ -326475,9 +326135,7 @@ function onBuyCashResult(pkt) {
 		case 7:
 			ChatBox_default.addText(DB.getMessage(1813), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		default:
-			ChatBox_default.addText(DB.getMessage(1814), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
+		default: ChatBox_default.addText(DB.getMessage(1814), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 	NpcStore_default.ui.find(".cashuser .cashpoints").text(pkt.KafraPoint);
 }
@@ -326494,9 +326152,7 @@ function onSellToBuyingStoreResult(pkt) {
 		case 7:
 			ChatBox_default.addText(DB.getMessage(1740), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		default:
-			ChatBox_default.addText(DB.getMessage(57), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
+		default: ChatBox_default.addText(DB.getMessage(57), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 }
 /**
@@ -326659,8 +326315,6 @@ function onMarketShopResult(pkt) {
 		case 1:
 			ChatBox_default.addText(DB.getMessage(54), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
 			NpcStore_default.onMarketShopResultUI(pkt.itemList);
-			break;
-		default: break;
 	}
 }
 /**
@@ -326764,10 +326418,7 @@ function onTradeRequestAnswer(pkt) {
 			if ("level" in pkt && "GID" in pkt) Trade_default.title += `  Lv${pkt.level} (${tradeGIDEncoding(pkt.GID)})`;
 			Trade_default.append();
 			break;
-		case 4:
-			ChatBox_default.addText(DB.getMessage(74), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
-		case 5: break;
+		case 4: ChatBox_default.addText(DB.getMessage(74), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 }
 /**
@@ -326780,9 +326431,7 @@ function onAddItemResult(pkt) {
 		case 1:
 			ChatBox_default.addText(DB.getMessage(73), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		case 2:
-			ChatBox_default.addText(DB.getMessage(74), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
+		case 2: ChatBox_default.addText(DB.getMessage(74), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 	Trade_default.addItemFromInventory(pkt.Index, pkt.result === 0);
 }
@@ -327719,9 +327368,7 @@ function onRecvRouletteItem(pkt) {
 			case 2:
 				errorMsg = "Item count exceeded";
 				break;
-			case 3:
-				errorMsg = "Overweight";
-				break;
+			case 3: errorMsg = "Overweight";
 		}
 		console.error("[Roulette]", errorMsg);
 	}
@@ -327819,9 +327466,7 @@ function onAckApply(pkt) {
 		case 2:
 			ChatBox_default.addText(DB.getMessage(2879), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
-		default:
-			ChatBox_default.addText("Unknown status: " + pkt.status, ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
+		default: ChatBox_default.addText("Unknown status: " + pkt.status, ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 }
 /**
@@ -327874,9 +327519,7 @@ function onClose(pkt) {
 	switch (pkt.status) {
 		case 0: break;
 		case 1: break;
-		case 2:
-			CaptchaAnswer_default.showSuccessMessage();
-			break;
+		case 2: CaptchaAnswer_default.showSuccessMessage();
 	}
 }
 /**
@@ -328199,8 +327842,6 @@ function onBankDepoUpdate(pkt) {
 		case 3:
 			Bank_default.setError(DB.getMessage(2783));
 			ChatBox_default.addText(DB.getMessage(2787), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
-		default: break;
 	}
 	Bank_default.clearInput();
 }
@@ -328215,9 +327856,6 @@ function onBankWithdrawUpdate(pkt) {
 		case 1:
 			Bank_default.setError(DB.getMessage(2786));
 			ChatBox_default.addText(DB.getMessage(2455), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
-		case 2: break;
-		default: break;
 	}
 }
 var BankEngine;
@@ -328675,10 +328313,7 @@ function onDisconnectAnswer(pkt) {
 			Renderer.stop();
 			onExitSuccess();
 			break;
-		case 1:
-			ChatBox_default.addText(DB.getMessage(502), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
-			break;
-		default:
+		case 1: ChatBox_default.addText(DB.getMessage(502), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 }
 /**
@@ -329377,9 +329012,7 @@ function success() {
 		case 2:
 			PincodeWindow.onPincodeReset(passEnc, newPassEnc);
 			break;
-		default:
-			PincodeWindow.onPincodeCheckRequest(passEnc);
-			break;
+		default: PincodeWindow.onPincodeCheckRequest(passEnc);
 	}
 	PincodeWindow.resetPins();
 }
@@ -329400,9 +329033,7 @@ function keyNum(num) {
 		default:
 			PincodeWindow._pass += num;
 			break;
-		case 2:
-			PincodeWindow._checkpass += num;
-			break;
+		case 2: PincodeWindow._checkpass += num;
 	}
 }
 function render() {
@@ -329452,9 +329083,7 @@ var init_PincodeWindow = __esmMin((() => {
 			default:
 				PincodeWindow._pass = "";
 				break;
-			case 2:
-				PincodeWindow._checkpass = "";
-				break;
+			case 2: PincodeWindow._checkpass = "";
 		}
 	};
 	PincodeWindow.resetPins = function resetPins() {
@@ -329570,7 +329199,6 @@ var init_PincodeWindow = __esmMin((() => {
 				newpassEl.style.backgroundColor = inactive;
 				checkpassEl.style.backgroundColor = inactive;
 				passEl.style.backgroundColor = active;
-				break;
 		}
 	};
 	/**
@@ -330054,9 +329682,7 @@ function createCharSelect(config) {
 				return;
 			}
 			default:
-			case 0:
-				UIManager.showMessageBox(DB.getMessage(301), "ok");
-				break;
+			case 0: UIManager.showMessageBox(DB.getMessage(301), "ok");
 		}
 	};
 	/**
@@ -331094,7 +330720,6 @@ function createCharCreate(config) {
 			case "headpalette":
 				_chargen.entity.headpalette += increment;
 				_chargen.entity.headpalette %= 10;
-				break;
 		}
 		render();
 	}
@@ -331339,7 +330964,6 @@ function createCharCreate(config) {
 				updateCharacterCap(TYPE.RACE, RACE.HUMAN);
 				updateCharacterCap(TYPE.GENDER, GENDER.MALE);
 				_model.entity.headpalette = 0;
-				break;
 		}
 	}
 	function initRaceGrid(root) {
@@ -331450,10 +331074,8 @@ function createCharCreate(config) {
 				if (value === 1) _gender = "male";
 				else _gender = "female";
 				break;
-			case "race":
-				if (value === 0) _race = "human";
-				else _race = "doram";
-				break;
+			case "race": if (value === 0) _race = "human";
+			else _race = "doram";
 		}
 		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_male_off.bmp`, (dataURI) => {
 			root.querySelector("#male_container").style.backgroundImage = `url(${dataURI})`;
@@ -331526,7 +331148,6 @@ function createCharCreate(config) {
 				_model.entity.job = 0;
 				_model.entity.head = 1;
 				_model.entity.headpalette = 0;
-				break;
 		}
 	}
 	/**
@@ -331879,9 +331500,7 @@ function onSelectionRefused(pkt) {
 		case 5:
 			msg_id = 1364;
 			break;
-		default:
-			msg_id = 2;
-			break;
+		default: msg_id = 2;
 	}
 	UIManager.showErrorBox(DB.getMessage(msg_id));
 }
@@ -331905,9 +331524,7 @@ function onConnectionRefused$1(pkt) {
 		case 119:
 			msg_id = 2929;
 			break;
-		default:
-			msg_id = 2;
-			break;
+		default: msg_id = 2;
 	}
 	UIManager.showErrorBox(DB.getMessage(msg_id));
 }
@@ -332131,9 +331748,7 @@ function onCreationFail(pkt) {
 			msg_id = 1355;
 			break;
 		default:
-		case 255:
-			msg_id = 11;
-			break;
+		case 255: msg_id = 11;
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id), "ok");
 }
@@ -332254,7 +331869,6 @@ function onPincodeCheckSuccess(pkt) {
 		default:
 			console.log("PINCODE: Received unknown state from server: " + pkt.State);
 			PincodeWindow_default.append();
-			break;
 	}
 }
 /**
@@ -332502,9 +332116,7 @@ var init_WinList = __esmMin((() => {
 			case KEYS.UP:
 				this.setIndex(this.index - 1);
 				break;
-			case KEYS.DOWN:
-				this.setIndex(this.index + 1);
-				break;
+			case KEYS.DOWN: this.setIndex(this.index + 1);
 		}
 		event.stopImmediatePropagation();
 	};
@@ -335149,7 +334761,6 @@ var require_rijndael_block = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 						for (let j = 0; j < blockSize; j++) ciphertext[start + j] = encrypted[j];
 						iv = encrypted.slice();
 					}
-					break;
 			}
 			return ciphertext;
 		}
@@ -335189,7 +334800,6 @@ var require_rijndael_block = /* @__PURE__ */ __commonJSMin(((exports, module) =>
 						for (let j = 0; j < blockSize; j++) plaintext[start + j] = decrypted[j] ^ iv[j];
 						iv = block.slice();
 					}
-					break;
 			}
 			return plaintext;
 		}
@@ -335662,9 +335272,7 @@ function onTarenConnectionRefused(pkt) {
 		case 9:
 			msg_id = 3911;
 			break;
-		default:
-			msg_id = 3202;
-			break;
+		default: msg_id = 3202;
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id), "ok", () => {
 		UIManager.removeComponents();
@@ -335712,9 +335320,7 @@ function onTarenConnectionRefused2(pkt) {
 		case 101:
 			msg_id = 449;
 			break;
-		default:
-			msg_id = 3202;
-			break;
+		default: msg_id = 3202;
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id).replace("%s", pkt.blockDate), "ok", () => {
 		UIManager.removeComponents();
@@ -335772,9 +335378,7 @@ function onInternationalConnectionRefused(pkt) {
 		case 5213:
 			msg_id = 3327;
 			break;
-		case 5214:
-			msg_id = 3328;
-			break;
+		case 5214: msg_id = 3328;
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id).replace("%d", pkt.blockDate), "ok", () => {
 		UIManager.removeComponents();
@@ -335974,9 +335578,7 @@ function onConnectionRefused(pkt) {
 		case 5300:
 			error = 3534;
 			break;
-		case 5301:
-			error = 3539;
-			break;
+		case 5301: error = 3539;
 	}
 	UIManager.showMessageBox(DB.getMessage(error).replace("%s", pkt.blockDate), "ok", () => {
 		UIManager.removeComponents();
@@ -336077,9 +335679,7 @@ function onServerClosed(pkt) {
 		case 109:
 			msg_id = 1583;
 			break;
-		case 110:
-			msg_id = 1589;
-			break;
+		case 110: msg_id = 1589;
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id), "ok", () => {
 		UIManager.removeComponents();
@@ -336877,8 +336477,8 @@ var init_Intro = __esmMin((() => {
 		FileSystem_default.getSize((used) => {
 			if (!used) return;
 			let msg = "";
-			if (used > 1024 * 1024 * 1024) msg = (used / 1024 / 1024 / 1024).toFixed(2) + " GiB saved";
-			else if (used > 1024 * 1024) msg = (used / 1024 / 1024).toFixed(2) + " MiB saved";
+			if (used > 1073741824) msg = (used / 1024 / 1024 / 1024).toFixed(2) + " GiB saved";
+			else if (used > 1048576) msg = (used / 1024 / 1024).toFixed(2) + " MiB saved";
 			else msg = (used / 1024).toFixed(2) + " KiB saved";
 			const msgEl = root.querySelector(".msg");
 			if (msgEl) msgEl.textContent = msg;
@@ -338426,9 +338026,7 @@ function getFileIcon(filename) {
 		case "rsw":
 			img = "map";
 			break;
-		case "str":
-			img = "fx";
-			break;
+		case "str": img = "fx";
 	}
 	return img;
 }
