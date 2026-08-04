@@ -128,6 +128,9 @@ class GUIComponent {
 	 */
 
 	getRoot() {
+		if (!this.__loaded) {
+			this.prepare();
+		}
 		return this._shadow || this._host;
 	}
 
@@ -138,6 +141,7 @@ class GUIComponent {
 	 */
 	prepare() {
 		if (this.__loaded) return;
+		this.__loaded = true;
 		_ensureDeps();
 
 		// Create host element
@@ -187,8 +191,6 @@ class GUIComponent {
 		this._setupMouseMode();
 
 		this._host.remove();
-
-		this.__loaded = true;
 	}
 
 	// ─── Lifecycle: append ─────────────────────────────────

@@ -51,6 +51,16 @@
 #WinLogin .btn.signup {
 	left: 5px;
 }
+#WinLogin .btn.replay {
+	width: 54px;
+    height: 20px;
+	right: 224px;
+	bottom: 15px;
+}
+
+#WinLogin .btn.replay:hover {
+	background: rgba(0, 0, 0, 0.6);
+}
 #WinLogin .btn.exit {
 	right: 5px;
 }

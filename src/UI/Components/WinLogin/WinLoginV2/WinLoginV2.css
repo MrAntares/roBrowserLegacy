@@ -59,6 +59,12 @@
 	right: 130px;
 	bottom: 15px;
 }
+#WinLogin .btn.replay {
+	width: 54px;
+    height: 20px;
+    right: 232px;
+    bottom: 15px;
+}
 #WinLogin .win_login .btn.exit {
 	width: 24px;
 	height: 23px;
