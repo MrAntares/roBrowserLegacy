@@ -575,11 +575,12 @@ var init_iconv_lite = __esmMin((() => {
 				let pos = 0;
 				for (i = 0; i < list.length; ++i) {
 					let buf = list[i];
-					if (isInstance(buf, Uint8Array)) if (pos + buf.length > buffer.length) {
-						if (!Buffer2.isBuffer(buf)) buf = Buffer2.from(buf);
-						buf.copy(buffer, pos);
-					} else Uint8Array.prototype.set.call(buffer, buf, pos);
-					else if (!Buffer2.isBuffer(buf)) throw new TypeError("\"list\" argument must be an Array of Buffers");
+					if (isInstance(buf, Uint8Array)) {
+						if (pos + buf.length > buffer.length) {
+							if (!Buffer2.isBuffer(buf)) buf = Buffer2.from(buf);
+							buf.copy(buffer, pos);
+						} else Uint8Array.prototype.set.call(buffer, buf, pos);
+					} else if (!Buffer2.isBuffer(buf)) throw new TypeError("\"list\" argument must be an Array of Buffers");
 					else buf.copy(buffer, pos);
 					pos += buf.length;
 				}
@@ -732,18 +733,23 @@ var init_iconv_lite = __esmMin((() => {
 				byteOffset = +byteOffset;
 				if (numberIsNaN(byteOffset)) byteOffset = dir ? 0 : buffer.length - 1;
 				if (byteOffset < 0) byteOffset = buffer.length + byteOffset;
-				if (byteOffset >= buffer.length) if (dir) return -1;
-				else byteOffset = buffer.length - 1;
-				else if (byteOffset < 0) if (dir) byteOffset = 0;
-				else return -1;
+				if (byteOffset >= buffer.length) {
+					if (dir) return -1;
+					else byteOffset = buffer.length - 1;
+				} else if (byteOffset < 0) {
+					if (dir) byteOffset = 0;
+					else return -1;
+				}
 				if (typeof val === "string") val = Buffer2.from(val, encoding);
 				if (Buffer2.isBuffer(val)) {
 					if (val.length === 0) return -1;
 					return arrayIndexOf(buffer, val, byteOffset, encoding, dir);
 				} else if (typeof val === "number") {
 					val = val & 255;
-					if (typeof Uint8Array.prototype.indexOf === "function") if (dir) return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset);
-					else return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset);
+					if (typeof Uint8Array.prototype.indexOf === "function") {
+						if (dir) return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset);
+						else return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset);
+					}
 					return arrayIndexOf(buffer, [val], byteOffset, encoding, dir);
 				}
 				throw new TypeError("val must be string, number or Buffer");
@@ -1038,8 +1044,8 @@ var init_iconv_lite = __esmMin((() => {
 				const first = this[offset];
 				const last = this[offset + 7];
 				if (first === void 0 || last === void 0) boundsError(offset, this.length - 8);
-				const lo = first + this[++offset] * 2 ** 8 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 24;
-				const hi = this[++offset] + this[++offset] * 2 ** 8 + this[++offset] * 2 ** 16 + last * 2 ** 24;
+				const lo = first + this[++offset] * 256 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 24;
+				const hi = this[++offset] + this[++offset] * 256 + this[++offset] * 2 ** 16 + last * 2 ** 24;
 				return BigInt(lo) + (BigInt(hi) << BigInt(32));
 			});
 			Buffer2.prototype.readBigUInt64BE = defineBigIntMethod(function readBigUInt64BE(offset) {
@@ -1048,8 +1054,8 @@ var init_iconv_lite = __esmMin((() => {
 				const first = this[offset];
 				const last = this[offset + 7];
 				if (first === void 0 || last === void 0) boundsError(offset, this.length - 8);
-				const hi = first * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 8 + this[++offset];
-				const lo = this[++offset] * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 8 + last;
+				const hi = first * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 256 + this[++offset];
+				const lo = this[++offset] * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 256 + last;
 				return (BigInt(hi) << BigInt(32)) + BigInt(lo);
 			});
 			Buffer2.prototype.readIntLE = function readIntLE(offset, byteLength2, noAssert) {
@@ -1110,8 +1116,8 @@ var init_iconv_lite = __esmMin((() => {
 				const first = this[offset];
 				const last = this[offset + 7];
 				if (first === void 0 || last === void 0) boundsError(offset, this.length - 8);
-				const val = this[offset + 4] + this[offset + 5] * 2 ** 8 + this[offset + 6] * 2 ** 16 + (last << 24);
-				return (BigInt(val) << BigInt(32)) + BigInt(first + this[++offset] * 2 ** 8 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 24);
+				const val = this[offset + 4] + this[offset + 5] * 256 + this[offset + 6] * 2 ** 16 + (last << 24);
+				return (BigInt(val) << BigInt(32)) + BigInt(first + this[++offset] * 256 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 24);
 			});
 			Buffer2.prototype.readBigInt64BE = defineBigIntMethod(function readBigInt64BE(offset) {
 				offset = offset >>> 0;
@@ -1119,8 +1125,8 @@ var init_iconv_lite = __esmMin((() => {
 				const first = this[offset];
 				const last = this[offset + 7];
 				if (first === void 0 || last === void 0) boundsError(offset, this.length - 8);
-				const val = (first << 24) + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 8 + this[++offset];
-				return (BigInt(val) << BigInt(32)) + BigInt(this[++offset] * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 8 + last);
+				const val = (first << 24) + this[++offset] * 2 ** 16 + this[++offset] * 256 + this[++offset];
+				return (BigInt(val) << BigInt(32)) + BigInt(this[++offset] * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 256 + last);
 			});
 			Buffer2.prototype.readFloatLE = function readFloatLE(offset, noAssert) {
 				offset = offset >>> 0;
@@ -1495,9 +1501,10 @@ var init_iconv_lite = __esmMin((() => {
 				if (value > max || value < min) {
 					const n = typeof min === "bigint" ? "n" : "";
 					let range;
-					if (byteLength2 > 3) if (min === 0 || min === BigInt(0)) range = `>= 0${n} and < 2${n} ** ${(byteLength2 + 1) * 8}${n}`;
-					else range = `>= -(2${n} ** ${(byteLength2 + 1) * 8 - 1}${n}) and < 2 ** ${(byteLength2 + 1) * 8 - 1}${n}`;
-					else range = `>= ${min}${n} and <= ${max}${n}`;
+					if (byteLength2 > 3) {
+						if (min === 0 || min === BigInt(0)) range = `>= 0${n} and < 2${n} ** ${(byteLength2 + 1) * 8}${n}`;
+						else range = `>= -(2${n} ** ${(byteLength2 + 1) * 8 - 1}${n}) and < 2 ** ${(byteLength2 + 1) * 8 - 1}${n}`;
+					} else range = `>= ${min}${n} and <= ${max}${n}`;
 					throw new errors.ERR_OUT_OF_RANGE("value", range, value);
 				}
 				checkBounds(buf, offset, byteLength2);
@@ -1728,9 +1735,10 @@ var init_iconv_lite = __esmMin((() => {
 			SafeBuffer.alloc = function(size, fill, encoding) {
 				if (typeof size !== "number") throw new TypeError("Argument must be a number");
 				var buf = Buffer2(size);
-				if (fill !== void 0) if (typeof encoding === "string") buf.fill(fill, encoding);
-				else buf.fill(fill);
-				else buf.fill(0);
+				if (fill !== void 0) {
+					if (typeof encoding === "string") buf.fill(fill, encoding);
+					else buf.fill(fill);
+				} else buf.fill(0);
 				return buf;
 			};
 			SafeBuffer.allocUnsafe = function(size) {
@@ -1863,8 +1871,10 @@ var init_iconv_lite = __esmMin((() => {
 				if (--j < i || nb === -2) return 0;
 				nb = utf8CheckByte(buf[j]);
 				if (nb >= 0) {
-					if (nb > 0) if (nb === 2) nb = 0;
-					else self.lastNeed = nb - 3;
+					if (nb > 0) {
+						if (nb === 2) nb = 0;
+						else self.lastNeed = nb - 3;
+					}
 					return nb;
 				}
 				return 0;
@@ -2084,9 +2094,11 @@ var init_iconv_lite = __esmMin((() => {
 						acc = acc << 6 | curByte & 63;
 						contBytes--;
 						accBytes++;
-						if (contBytes === 0) if (accBytes === 2 && acc < 128 && acc > 0) res += this.defaultCharUnicode;
-						else if (accBytes === 3 && acc < 2048) res += this.defaultCharUnicode;
-						else res += String.fromCharCode(acc);
+						if (contBytes === 0) {
+							if (accBytes === 2 && acc < 128 && acc > 0) res += this.defaultCharUnicode;
+							else if (accBytes === 3 && acc < 2048) res += this.defaultCharUnicode;
+							else res += String.fromCharCode(acc);
+						}
 					} else res += this.defaultCharUnicode;
 				}
 				this.acc = acc;
@@ -2158,15 +2170,17 @@ var init_iconv_lite = __esmMin((() => {
 					var code = src.readUInt16LE(i);
 					var isHighSurrogate = code >= 55296 && code < 56320;
 					var isLowSurrogate = code >= 56320 && code < 57344;
-					if (this.highSurrogate) if (isHighSurrogate || !isLowSurrogate) {
-						write32.call(dst, this.highSurrogate, offset);
-						offset += 4;
-					} else {
-						var codepoint = (this.highSurrogate - 55296 << 10 | code - 56320) + 65536;
-						write32.call(dst, codepoint, offset);
-						offset += 4;
-						this.highSurrogate = 0;
-						continue;
+					if (this.highSurrogate) {
+						if (isHighSurrogate || !isLowSurrogate) {
+							write32.call(dst, this.highSurrogate, offset);
+							offset += 4;
+						} else {
+							var codepoint = (this.highSurrogate - 55296 << 10 | code - 56320) + 65536;
+							write32.call(dst, codepoint, offset);
+							offset += 4;
+							this.highSurrogate = 0;
+							continue;
+						}
 					}
 					if (isHighSurrogate) this.highSurrogate = code;
 					else {
@@ -3457,18 +3471,20 @@ var init_iconv_lite = __esmMin((() => {
 						var uCode = nextChar;
 						nextChar = -1;
 					}
-					if (uCode >= 55296 && uCode < 57344) if (uCode < 56320) if (leadSurrogate === -1) {
-						leadSurrogate = uCode;
-						continue;
-					} else {
-						leadSurrogate = uCode;
-						uCode = UNASSIGNED;
-					}
-					else if (leadSurrogate !== -1) {
-						uCode = 65536 + (leadSurrogate - 55296) * 1024 + (uCode - 56320);
-						leadSurrogate = -1;
-					} else uCode = UNASSIGNED;
-					else if (leadSurrogate !== -1) {
+					if (uCode >= 55296 && uCode < 57344) {
+						if (uCode < 56320) {
+							if (leadSurrogate === -1) {
+								leadSurrogate = uCode;
+								continue;
+							} else {
+								leadSurrogate = uCode;
+								uCode = UNASSIGNED;
+							}
+						} else if (leadSurrogate !== -1) {
+							uCode = 65536 + (leadSurrogate - 55296) * 1024 + (uCode - 56320);
+							leadSurrogate = -1;
+						} else uCode = UNASSIGNED;
+					} else if (leadSurrogate !== -1) {
 						nextChar = uCode;
 						uCode = UNASSIGNED;
 						leadSurrogate = -1;
@@ -3536,10 +3552,12 @@ var init_iconv_lite = __esmMin((() => {
 				var j = 0;
 				if (this.seqObj) {
 					var dbcsCode = this.seqObj[DEF_CHAR];
-					if (dbcsCode !== void 0) if (dbcsCode < 256) newBuf[j++] = dbcsCode;
-					else {
-						newBuf[j++] = dbcsCode >> 8;
-						newBuf[j++] = dbcsCode & 255;
+					if (dbcsCode !== void 0) {
+						if (dbcsCode < 256) newBuf[j++] = dbcsCode;
+						else {
+							newBuf[j++] = dbcsCode >> 8;
+							newBuf[j++] = dbcsCode & 255;
+						}
 					}
 					this.seqObj = void 0;
 				}
@@ -82737,20 +82755,21 @@ var init_libgif = __esmMin((() => {
 			if (draw && showProgressBar) {
 				var height = progressBarHeight;
 				var left, mid, top, width;
-				if (options.is_vp) if (!ctx_scaled) {
-					top = options.vp_t + options.vp_h - height;
-					height = height;
-					left = options.vp_l;
-					mid = left + pos / length * options.vp_w;
-					width = canvas.width;
+				if (options.is_vp) {
+					if (!ctx_scaled) {
+						top = options.vp_t + options.vp_h - height;
+						height = height;
+						left = options.vp_l;
+						mid = left + pos / length * options.vp_w;
+						width = canvas.width;
+					} else {
+						top = (options.vp_t + options.vp_h - height) / get_canvas_scale();
+						height = height / get_canvas_scale();
+						left = options.vp_l / get_canvas_scale();
+						mid = left + pos / length * (options.vp_w / get_canvas_scale());
+						width = canvas.width / get_canvas_scale();
+					}
 				} else {
-					top = (options.vp_t + options.vp_h - height) / get_canvas_scale();
-					height = height / get_canvas_scale();
-					left = options.vp_l / get_canvas_scale();
-					mid = left + pos / length * (options.vp_w / get_canvas_scale());
-					width = canvas.width / get_canvas_scale();
-				}
-				else {
 					top = (canvas.height - height) / (ctx_scaled ? get_canvas_scale() : 1);
 					mid = pos / length * canvas.width / (ctx_scaled ? get_canvas_scale() : 1);
 					width = canvas.width / (ctx_scaled ? get_canvas_scale() : 1);
@@ -82809,9 +82828,10 @@ var init_libgif = __esmMin((() => {
 			var currIdx = frames.length;
 			var ct = img.lctFlag ? img.lct : hdr.gct;
 			if (currIdx > 0) {
-				if (lastDisposalMethod === 3) if (disposalRestoreFromIdx !== null) frame.putImageData(frames[disposalRestoreFromIdx].data, 0, 0);
-				else frame.clearRect(lastImg.leftPos, lastImg.topPos, lastImg.width, lastImg.height);
-				else disposalRestoreFromIdx = currIdx - 1;
+				if (lastDisposalMethod === 3) {
+					if (disposalRestoreFromIdx !== null) frame.putImageData(frames[disposalRestoreFromIdx].data, 0, 0);
+					else frame.clearRect(lastImg.leftPos, lastImg.topPos, lastImg.width, lastImg.height);
+				} else disposalRestoreFromIdx = currIdx - 1;
 				if (lastDisposalMethod === 2) frame.clearRect(lastImg.leftPos, lastImg.topPos, lastImg.width, lastImg.height);
 			}
 			var imgData = frame.getImageData(img.leftPos, img.topPos, img.width, img.height);
@@ -144874,19 +144894,24 @@ var init_xmlparse = __esmMin((() => {
 							for (var n = xml.firstChild; n; n = n.nextSibling) if (n.nodeType == 1) hasElementChild = true;
 							else if (n.nodeType == 3 && n.nodeValue.match(/[^ \f\n\r\t\v]/)) textChild++;
 							else if (n.nodeType == 4) cdataChild++;
-							if (hasElementChild) if (textChild < 2 && cdataChild < 2) {
-								X.removeWhite(xml);
-								for (var n = xml.firstChild; n; n = n.nextSibling) if (n.nodeType == 3) o["#text"] = X.escape(n.nodeValue);
-								else if (n.nodeType == 4) o["#cdata"] = X.escape(n.nodeValue);
-								else if (o[n.nodeName]) if (o[n.nodeName] instanceof Array) o[n.nodeName][o[n.nodeName].length] = X.toObj(n);
-								else o[n.nodeName] = [o[n.nodeName], X.toObj(n)];
-								else o[n.nodeName] = X.toObj(n);
-							} else if (!xml.attributes.length) o = X.escape(X.innerXml(xml));
-							else o["#text"] = X.escape(X.innerXml(xml));
-							else if (textChild) if (!xml.attributes.length) o = X.escape(X.innerXml(xml));
-							else o["#text"] = X.escape(X.innerXml(xml));
-							else if (cdataChild) if (cdataChild > 1) o = X.escape(X.innerXml(xml));
-							else for (var n = xml.firstChild; n; n = n.nextSibling) o["#cdata"] = X.escape(n.nodeValue);
+							if (hasElementChild) {
+								if (textChild < 2 && cdataChild < 2) {
+									X.removeWhite(xml);
+									for (var n = xml.firstChild; n; n = n.nextSibling) if (n.nodeType == 3) o["#text"] = X.escape(n.nodeValue);
+									else if (n.nodeType == 4) o["#cdata"] = X.escape(n.nodeValue);
+									else if (o[n.nodeName]) {
+										if (o[n.nodeName] instanceof Array) o[n.nodeName][o[n.nodeName].length] = X.toObj(n);
+										else o[n.nodeName] = [o[n.nodeName], X.toObj(n)];
+									} else o[n.nodeName] = X.toObj(n);
+								} else if (!xml.attributes.length) o = X.escape(X.innerXml(xml));
+								else o["#text"] = X.escape(X.innerXml(xml));
+							} else if (textChild) {
+								if (!xml.attributes.length) o = X.escape(X.innerXml(xml));
+								else o["#text"] = X.escape(X.innerXml(xml));
+							} else if (cdataChild) {
+								if (cdataChild > 1) o = X.escape(X.innerXml(xml));
+								else for (var n = xml.firstChild; n; n = n.nextSibling) o["#cdata"] = X.escape(n.nodeValue);
+							}
 						}
 						if (!xml.attributes.length && !xml.firstChild) o = null;
 					} else if (xml.nodeType == 9) o = X.toObj(xml.documentElement);
@@ -144934,12 +144959,13 @@ var init_xmlparse = __esmMin((() => {
 				},
 				removeWhite: function(e) {
 					e.normalize();
-					for (var n = e.firstChild; n;) if (n.nodeType == 3) if (!n.nodeValue.match(/[^ \f\n\r\t\v]/)) {
-						var nxt = n.nextSibling;
-						e.removeChild(n);
-						n = nxt;
-					} else n = n.nextSibling;
-					else if (n.nodeType == 1) {
+					for (var n = e.firstChild; n;) if (n.nodeType == 3) {
+						if (!n.nodeValue.match(/[^ \f\n\r\t\v]/)) {
+							var nxt = n.nextSibling;
+							e.removeChild(n);
+							n = nxt;
+						} else n = n.nextSibling;
+					} else if (n.nodeType == 1) {
 						X.removeWhite(n);
 						n = n.nextSibling;
 					} else n = n.nextSibling;
@@ -145187,9 +145213,10 @@ function calculateElementSize(name, value, serializeFunctions = false, isArray =
 	if (typeof value?.toBSON === "function") value = value.toBSON();
 	switch (typeof value) {
 		case "string": return 1 + ByteUtils.utf8ByteLength(name) + 1 + 4 + ByteUtils.utf8ByteLength(value) + 1;
-		case "number": if (Math.floor(value) === value && value >= JS_INT_MIN && value <= JS_INT_MAX) if (value >= BSON_INT32_MIN && value <= BSON_INT32_MAX) return ByteUtils.utf8ByteLength(name) + 1 + 5;
-		else return ByteUtils.utf8ByteLength(name) + 1 + 9;
-		else return ByteUtils.utf8ByteLength(name) + 1 + 9;
+		case "number": if (Math.floor(value) === value && value >= JS_INT_MIN && value <= JS_INT_MAX) {
+			if (value >= BSON_INT32_MIN && value <= BSON_INT32_MAX) return ByteUtils.utf8ByteLength(name) + 1 + 5;
+			else return ByteUtils.utf8ByteLength(name) + 1 + 9;
+		} else return ByteUtils.utf8ByteLength(name) + 1 + 9;
 		case "undefined":
 			if (isArray || !ignoreUndefined) return ByteUtils.utf8ByteLength(name) + 1 + 1;
 			return 0;
@@ -145201,14 +145228,15 @@ function calculateElementSize(name, value, serializeFunctions = false, isArray =
 		else if (ArrayBuffer.isView(value) || value instanceof ArrayBuffer || isAnyArrayBuffer(value)) return ByteUtils.utf8ByteLength(name) + 1 + 6 + value.byteLength;
 		else if (value._bsontype === "Long" || value._bsontype === "Double" || value._bsontype === "Timestamp") return ByteUtils.utf8ByteLength(name) + 1 + 9;
 		else if (value._bsontype === "Decimal128") return ByteUtils.utf8ByteLength(name) + 1 + 17;
-		else if (value._bsontype === "Code") if (value.scope != null && Object.keys(value.scope).length > 0) {
-			objectStack.push({
-				obj: value.scope,
-				ignoreUndefined
-			});
-			return ByteUtils.utf8ByteLength(name) + 1 + 1 + 4 + 4 + ByteUtils.utf8ByteLength(value.code.toString()) + 1;
-		} else return ByteUtils.utf8ByteLength(name) + 1 + 1 + 4 + ByteUtils.utf8ByteLength(value.code.toString()) + 1;
-		else if (value._bsontype === "Binary") {
+		else if (value._bsontype === "Code") {
+			if (value.scope != null && Object.keys(value.scope).length > 0) {
+				objectStack.push({
+					obj: value.scope,
+					ignoreUndefined
+				});
+				return ByteUtils.utf8ByteLength(name) + 1 + 1 + 4 + 4 + ByteUtils.utf8ByteLength(value.code.toString()) + 1;
+			} else return ByteUtils.utf8ByteLength(name) + 1 + 1 + 4 + ByteUtils.utf8ByteLength(value.code.toString()) + 1;
+		} else if (value._bsontype === "Binary") {
 			const binary = value;
 			if (binary.sub_type === Binary.SUBTYPE_BYTE_ARRAY) return ByteUtils.utf8ByteLength(name) + 1 + (binary.position + 1 + 4 + 1 + 4);
 			else return ByteUtils.utf8ByteLength(name) + 1 + (binary.position + 1 + 4 + 1);
@@ -145315,34 +145343,37 @@ function deserializeObject(buffer, index, options, isArray = false) {
 	let currentIsArray = isArray;
 	while (true) {
 		const elementType = buffer[index++];
-		if (elementType === 0) if (currentFrame) if (index === currentFrame.lastIndex) {
-			const completedFrame = currentFrame;
-			currentFrame = completedFrame.prev;
-			if (currentFrame === null) {
-				currentDest = rootObject;
-				currentIsArray = isArray;
-			} else {
-				currentDest = currentFrame.holdingDocument;
-				currentIsArray = currentFrame.isArray;
-			}
-			let result = completedFrame.holdingDocument;
-			switch (completedFrame.elementType) {
-				case BSON_DATA_OBJECT:
-					if (completedFrame.isPossibleDBRef) result = toPotentialDbRef(result);
-					break;
-				case BSON_DATA_ARRAY: break;
-				case BSON_DATA_CODE_W_SCOPE:
-					result = new Code(completedFrame.functionString, completedFrame.holdingDocument);
-					break;
-				default: throw new BSONError("Unexpected element type in frame stack");
-			}
-			assignValue(currentDest, completedFrame.propertyName, result);
-			continue;
-		} else {
-			if (currentFrame.elementType === BSON_DATA_ARRAY) throw new BSONError("corrupted array bson");
-			throw new BSONError("Bad BSON Document: object not properly terminated");
+		if (elementType === 0) {
+			if (currentFrame) {
+				if (index === currentFrame.lastIndex) {
+					const completedFrame = currentFrame;
+					currentFrame = completedFrame.prev;
+					if (currentFrame === null) {
+						currentDest = rootObject;
+						currentIsArray = isArray;
+					} else {
+						currentDest = currentFrame.holdingDocument;
+						currentIsArray = currentFrame.isArray;
+					}
+					let result = completedFrame.holdingDocument;
+					switch (completedFrame.elementType) {
+						case BSON_DATA_OBJECT:
+							if (completedFrame.isPossibleDBRef) result = toPotentialDbRef(result);
+							break;
+						case BSON_DATA_ARRAY: break;
+						case BSON_DATA_CODE_W_SCOPE:
+							result = new Code(completedFrame.functionString, completedFrame.holdingDocument);
+							break;
+						default: throw new BSONError("Unexpected element type in frame stack");
+					}
+					assignValue(currentDest, completedFrame.propertyName, result);
+					continue;
+				} else {
+					if (currentFrame.elementType === BSON_DATA_ARRAY) throw new BSONError("corrupted array bson");
+					throw new BSONError("Bad BSON Document: object not properly terminated");
+				}
+			} else break;
 		}
-		else break;
 		let i = index;
 		while (buffer[i] !== 0 && i < buffer.length) i++;
 		if (i >= buffer.byteLength) throw new BSONError("Bad BSON Document: illegal CString");
@@ -145437,18 +145468,19 @@ function deserializeObject(buffer, index, options, isArray = false) {
 			index = index + 4;
 		} else if (elementType === BSON_DATA_UNDEFINED) value = void 0;
 		else if (elementType === BSON_DATA_NULL) value = null;
-		else if (elementType === BSON_DATA_LONG) if (useBigInt64) {
-			value = NumberUtils.getBigInt64LE(buffer, index);
-			index += 8;
-		} else {
-			const lowBits = NumberUtils.getInt32LE(buffer, index);
-			const highBits = NumberUtils.getInt32LE(buffer, index + 4);
-			index += 8;
-			const long = new Long(lowBits, highBits);
-			if (promoteLongs && promoteValues === true) value = long.lessThanOrEqual(JS_INT_MAX_LONG) && long.greaterThanOrEqual(JS_INT_MIN_LONG) ? long.toNumber() : long;
-			else value = long;
-		}
-		else if (elementType === BSON_DATA_DECIMAL128) {
+		else if (elementType === BSON_DATA_LONG) {
+			if (useBigInt64) {
+				value = NumberUtils.getBigInt64LE(buffer, index);
+				index += 8;
+			} else {
+				const lowBits = NumberUtils.getInt32LE(buffer, index);
+				const highBits = NumberUtils.getInt32LE(buffer, index + 4);
+				index += 8;
+				const long = new Long(lowBits, highBits);
+				if (promoteLongs && promoteValues === true) value = long.lessThanOrEqual(JS_INT_MAX_LONG) && long.greaterThanOrEqual(JS_INT_MIN_LONG) ? long.toNumber() : long;
+				else value = long;
+			}
+		} else if (elementType === BSON_DATA_DECIMAL128) {
 			const bytes = ByteUtils.allocateUnsafe(16);
 			for (let i = 0; i < 16; i++) bytes[i] = buffer[index + i];
 			index = index + 16;
@@ -145898,21 +145930,22 @@ function serializeInto(buffer, object, checkKeys, startingIndex, serializeFuncti
 		else if (type === "number") index = serializeNumber(buffer, key, value, index);
 		else if (type === "bigint") index = serializeBigInt(buffer, key, value, index);
 		else if (type === "boolean") index = serializeBoolean(buffer, key, value, index);
-		else if (type === "object" && value._bsontype == null) if (value instanceof Date || isDate$1(value)) index = serializeDate(buffer, key, value, index);
-		else if (value instanceof Uint8Array || isUint8Array(value)) index = serializeBuffer(buffer, key, value, index);
-		else if (value instanceof RegExp || isRegExp$1(value)) index = serializeRegExp(buffer, key, value, index);
-		else {
-			if (path.has(value)) throw new BSONError("Cannot convert circular structure to BSON");
-			const nestedIsArray = Array.isArray(value);
-			buffer[index++] = nestedIsArray ? BSON_DATA_ARRAY : BSON_DATA_OBJECT;
-			index += ByteUtils.encodeUTF8Into(buffer, key, index);
-			buffer[index++] = 0;
-			const nestedStartIndex = index;
-			path.add(value);
-			currentFrame = makeFrame(value, nestedStartIndex, null, frame, frame.checkKeys, frame.ignoreUndefined);
-			index += 4;
-		}
-		else if (type === "object") {
+		else if (type === "object" && value._bsontype == null) {
+			if (value instanceof Date || isDate$1(value)) index = serializeDate(buffer, key, value, index);
+			else if (value instanceof Uint8Array || isUint8Array(value)) index = serializeBuffer(buffer, key, value, index);
+			else if (value instanceof RegExp || isRegExp$1(value)) index = serializeRegExp(buffer, key, value, index);
+			else {
+				if (path.has(value)) throw new BSONError("Cannot convert circular structure to BSON");
+				const nestedIsArray = Array.isArray(value);
+				buffer[index++] = nestedIsArray ? BSON_DATA_ARRAY : BSON_DATA_OBJECT;
+				index += ByteUtils.encodeUTF8Into(buffer, key, index);
+				buffer[index++] = 0;
+				const nestedStartIndex = index;
+				path.add(value);
+				currentFrame = makeFrame(value, nestedStartIndex, null, frame, frame.checkKeys, frame.ignoreUndefined);
+				index += 4;
+			}
+		} else if (type === "object") {
 			if (value[BSON_VERSION_SYMBOL] !== BSON_MAJOR_VERSION) throw new BSONVersionError();
 			const tag = value[bsonType];
 			if (tag === "ObjectId") index = serializeObjectId(buffer, key, value, index);
@@ -145996,11 +146029,12 @@ function deserializeValue(value, options = {}) {
 	if (value.$date != null) {
 		const d = value.$date;
 		const date = /* @__PURE__ */ new Date();
-		if (options.legacy) if (typeof d === "number") date.setTime(d);
-		else if (typeof d === "string") date.setTime(Date.parse(d));
-		else if (typeof d === "bigint") date.setTime(Number(d));
-		else throw new BSONRuntimeError(`Unrecognized type for EJSON date: ${typeof d}`);
-		else if (typeof d === "string") date.setTime(Date.parse(d));
+		if (options.legacy) {
+			if (typeof d === "number") date.setTime(d);
+			else if (typeof d === "string") date.setTime(Date.parse(d));
+			else if (typeof d === "bigint") date.setTime(Number(d));
+			else throw new BSONRuntimeError(`Unrecognized type for EJSON date: ${typeof d}`);
+		} else if (typeof d === "string") date.setTime(Date.parse(d));
 		else if (Long.isLong(d)) date.setTime(d.toNumber());
 		else if (typeof d === "number" && options.relaxed) date.setTime(d);
 		else if (typeof d === "bigint") date.setTime(Number(d));
@@ -147587,18 +147621,19 @@ var init_bson = __esmMin((() => {
 			if (this.isZero()) return this.unsigned ? Long.UZERO : Long.ZERO;
 			let approx, rem, res;
 			if (!this.unsigned) {
-				if (this.eq(Long.MIN_VALUE)) if (divisor.eq(Long.ONE) || divisor.eq(Long.NEG_ONE)) return Long.MIN_VALUE;
-				else if (divisor.eq(Long.MIN_VALUE)) return Long.ONE;
-				else {
-					approx = this.shr(1).div(divisor).shl(1);
-					if (approx.eq(Long.ZERO)) return divisor.isNegative() ? Long.ONE : Long.NEG_ONE;
+				if (this.eq(Long.MIN_VALUE)) {
+					if (divisor.eq(Long.ONE) || divisor.eq(Long.NEG_ONE)) return Long.MIN_VALUE;
+					else if (divisor.eq(Long.MIN_VALUE)) return Long.ONE;
 					else {
-						rem = this.sub(divisor.mul(approx));
-						res = approx.add(rem.div(divisor));
-						return res;
+						approx = this.shr(1).div(divisor).shl(1);
+						if (approx.eq(Long.ZERO)) return divisor.isNegative() ? Long.ONE : Long.NEG_ONE;
+						else {
+							rem = this.sub(divisor.mul(approx));
+							res = approx.add(rem.div(divisor));
+							return res;
+						}
 					}
-				}
-				else if (divisor.eq(Long.MIN_VALUE)) return this.unsigned ? Long.UZERO : Long.ZERO;
+				} else if (divisor.eq(Long.MIN_VALUE)) return this.unsigned ? Long.UZERO : Long.ZERO;
 				if (this.isNegative()) {
 					if (divisor.isNegative()) return this.neg().div(divisor.neg());
 					return this.neg().div(divisor).neg();
@@ -147724,9 +147759,10 @@ var init_bson = __esmMin((() => {
 			if (multiplier.isZero()) return Long.ZERO;
 			if (this.eq(Long.MIN_VALUE)) return multiplier.isOdd() ? Long.MIN_VALUE : Long.ZERO;
 			if (multiplier.eq(Long.MIN_VALUE)) return this.isOdd() ? Long.MIN_VALUE : Long.ZERO;
-			if (this.isNegative()) if (multiplier.isNegative()) return this.neg().mul(multiplier.neg());
-			else return this.neg().mul(multiplier).neg();
-			else if (multiplier.isNegative()) return this.mul(multiplier.neg()).neg();
+			if (this.isNegative()) {
+				if (multiplier.isNegative()) return this.neg().mul(multiplier.neg());
+				else return this.neg().mul(multiplier).neg();
+			} else if (multiplier.isNegative()) return this.mul(multiplier.neg()).neg();
 			if (this.lt(Long.TWO_PWR_24) && multiplier.lt(Long.TWO_PWR_24)) return Long.fromNumber(this.toNumber() * multiplier.toNumber(), this.unsigned);
 			const a48 = this.high >>> 16;
 			const a32 = this.high & 65535;
@@ -147876,10 +147912,12 @@ var init_bson = __esmMin((() => {
 			radix = radix || 10;
 			if (radix < 2 || 36 < radix) throw new BSONError("radix");
 			if (this.isZero()) return "0";
-			if (this.isNegative()) if (this.eq(Long.MIN_VALUE)) {
-				const radixLong = Long.fromNumber(radix), div = this.div(radixLong), rem1 = div.mul(radixLong).sub(this);
-				return div.toString(radix) + rem1.toInt().toString(radix);
-			} else return "-" + this.neg().toString(radix);
+			if (this.isNegative()) {
+				if (this.eq(Long.MIN_VALUE)) {
+					const radixLong = Long.fromNumber(radix), div = this.div(radixLong), rem1 = div.mul(radixLong).sub(this);
+					return div.toString(radix) + rem1.toInt().toString(radix);
+				} else return "-" + this.neg().toString(radix);
+			}
 			const radixToPower = Long.fromNumber(Math.pow(radix, 6), this.unsigned);
 			let rem = this;
 			let result = "";
@@ -148150,10 +148188,12 @@ var init_bson = __esmMin((() => {
 						let dIdx = lastDigit;
 						for (; dIdx >= 0; dIdx--) if (++digits[dIdx] > 9) {
 							digits[dIdx] = 0;
-							if (dIdx === 0) if (exponent < EXPONENT_MAX) {
-								exponent = exponent + 1;
-								digits[dIdx] = 1;
-							} else return new Decimal128(isNegative ? INF_NEGATIVE_BUFFER : INF_POSITIVE_BUFFER);
+							if (dIdx === 0) {
+								if (exponent < EXPONENT_MAX) {
+									exponent = exponent + 1;
+									digits[dIdx] = 1;
+								} else return new Decimal128(isNegative ? INF_NEGATIVE_BUFFER : INF_POSITIVE_BUFFER);
+							}
 						} else break;
 					}
 				}
@@ -148274,13 +148314,14 @@ var init_bson = __esmMin((() => {
 				high: new Long(midh, high)
 			}.high.lessThan(Long.ZERO)) string.push("-");
 			const combination = high >> 26 & COMBINATION_MASK;
-			if (combination >> 3 === 3) if (combination === COMBINATION_INFINITY) return string.join("") + "Infinity";
-			else if (combination === COMBINATION_NAN) return "NaN";
-			else {
-				biased_exponent = high >> 15 & EXPONENT_MASK;
-				significand_msb = 8 + (high >> 14 & 1);
-			}
-			else {
+			if (combination >> 3 === 3) {
+				if (combination === COMBINATION_INFINITY) return string.join("") + "Infinity";
+				else if (combination === COMBINATION_NAN) return "NaN";
+				else {
+					biased_exponent = high >> 15 & EXPONENT_MASK;
+					significand_msb = 8 + (high >> 14 & 1);
+				}
+			} else {
 				significand_msb = high >> 14 & 7;
 				biased_exponent = high >> 17 & EXPONENT_MASK;
 			}
@@ -148491,11 +148532,12 @@ var init_bson = __esmMin((() => {
 			} else workingId = inputId;
 			if (workingId == null) this.buffer = ObjectId.generate();
 			else if (ArrayBuffer.isView(workingId) && workingId.byteLength === 12) this.buffer = ByteUtils.toLocalBufferType(workingId);
-			else if (typeof workingId === "string") if (ObjectId.validateHexString(workingId)) {
-				this.buffer = ByteUtils.fromHex(workingId);
-				if (ObjectId.cacheHexString) __idCache.set(this, workingId);
-			} else throw new BSONError("input must be a 24 character hex string, 12 byte Uint8Array, or an integer");
-			else throw new BSONError("Argument passed in does not match the accepted types");
+			else if (typeof workingId === "string") {
+				if (ObjectId.validateHexString(workingId)) {
+					this.buffer = ByteUtils.fromHex(workingId);
+					if (ObjectId.cacheHexString) __idCache.set(this, workingId);
+				} else throw new BSONError("input must be a 24 character hex string, 12 byte Uint8Array, or an integer");
+			} else throw new BSONError("Argument passed in does not match the accepted types");
 		}
 		get id() {
 			return this.buffer;
@@ -148655,9 +148697,11 @@ var init_bson = __esmMin((() => {
 			} };
 		}
 		static fromExtendedJSON(doc) {
-			if ("$regex" in doc) if (typeof doc.$regex !== "string") {
-				if (doc.$regex._bsontype === "BSONRegExp") return doc;
-			} else return new BSONRegExp(doc.$regex, BSONRegExp.parseOptions(doc.$options));
+			if ("$regex" in doc) {
+				if (typeof doc.$regex !== "string") {
+					if (doc.$regex._bsontype === "BSONRegExp") return doc;
+				} else return new BSONRegExp(doc.$regex, BSONRegExp.parseOptions(doc.$options));
+			}
 			if ("$regularExpression" in doc) return new BSONRegExp(doc.$regularExpression.pattern, BSONRegExp.parseOptions(doc.$regularExpression.options));
 			throw new BSONError(`Unexpected BSONRegExp EJSON object form: ${JSON.stringify(doc)}`);
 		}
@@ -205771,10 +205815,12 @@ function sanitizeHtml(text) {
 	container.innerHTML = text;
 	const walk = (node) => {
 		const children = Array.from(node.childNodes);
-		for (const child of children) if (child.nodeType === 1) if (_allowedTags$1.has(child.tagName.toLowerCase())) walk(child);
-		else {
-			while (child.firstChild) node.insertBefore(child.firstChild, child);
-			node.removeChild(child);
+		for (const child of children) if (child.nodeType === 1) {
+			if (_allowedTags$1.has(child.tagName.toLowerCase())) walk(child);
+			else {
+				while (child.firstChild) node.insertBefore(child.firstChild, child);
+				node.removeChild(child);
+			}
 		}
 	};
 	walk(container);
@@ -210935,7 +210981,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 			return this.uniq_offset_and_byte >>> 9;
 		}
 		length_unique(e) {
-			let t = Math.min(e / (64 / 4) | 0, 3);
+			let t = Math.min(e / 16 | 0, 3);
 			return this.uniq_lens >>> (3 - t) * 8 & 255;
 		}
 	};
@@ -212608,7 +212654,7 @@ function spawnMany(path, n, opts) {
 			action: o.action,
 			standbyIdx: o.standbyIdx
 		});
-		if (o.decorrelate) inst.actor.startT = -i * (1e3 / 40);
+		if (o.decorrelate) inst.actor.startT = -i * 25;
 		out.push(inst);
 	}
 	return out;
@@ -220544,20 +220590,26 @@ var init_UIVersionManager = __esmMin((() => {
 			return UIController;
 		}
 		static getEquipmentVersion() {
-			if (Configs.get("clientVersionMode") === "PacketVer") if (PacketVerManager_default.value >= 20090601) return 1;
-			else return 0;
+			if (Configs.get("clientVersionMode") === "PacketVer") {
+				if (PacketVerManager_default.value >= 20090601) return 1;
+				else return 0;
+			}
 			if (Configs.get("clientVersionMode") === "PreRenewal") return 0;
 			return 1;
 		}
 		static getWinStatsVersion() {
-			if (Configs.get("clientVersionMode") === "PacketVer") if (PacketVerManager_default.value >= 20090601) return 1;
-			else return 0;
+			if (Configs.get("clientVersionMode") === "PacketVer") {
+				if (PacketVerManager_default.value >= 20090601) return 1;
+				else return 0;
+			}
 			if (Configs.get("clientVersionMode") === "PreRenewal") return 0;
 			return 1;
 		}
 		static getInventoryVersion() {
-			if (Configs.get("clientVersionMode") === "PacketVer") if (PacketVerManager_default.value >= 20090601) return 1;
-			else return 0;
+			if (Configs.get("clientVersionMode") === "PacketVer") {
+				if (PacketVerManager_default.value >= 20090601) return 1;
+				else return 0;
+			}
 			if (Configs.get("clientVersionMode") === "PreRenewal") return 0;
 			return 1;
 		}
@@ -220880,11 +220932,13 @@ function onDrop$12(event) {
 function onSwitchEquipInfo(event) {
 	const index = parseInt(this.getAttribute("data-index"), 10);
 	const item = SwitchEquip._list[index];
-	if (item) if (ItemInfo_default.uid === item.ITID) ItemInfo_default.remove();
-	else {
-		ItemInfo_default.append();
-		ItemInfo_default.uid = item.ITID;
-		ItemInfo_default.setItem(item);
+	if (item) {
+		if (ItemInfo_default.uid === item.ITID) ItemInfo_default.remove();
+		else {
+			ItemInfo_default.append();
+			ItemInfo_default.uid = item.ITID;
+			ItemInfo_default.setItem(item);
+		}
 	}
 	event.stopImmediatePropagation();
 	event.preventDefault();
@@ -221013,8 +221067,10 @@ var init_SwitchEquip = __esmMin((() => {
 			swapgeneral: root.querySelector("#swapgeneral"),
 			swapcostume: root.querySelector("#swapcostume")
 		};
-		for (const id in swapContentDivs) if (swapContentDivs[id]) if (id === swapTabId) swapContentDivs[id].classList.remove("hide");
-		else swapContentDivs[id].classList.add("hide");
+		for (const id in swapContentDivs) if (swapContentDivs[id]) {
+			if (id === swapTabId) swapContentDivs[id].classList.remove("hide");
+			else swapContentDivs[id].classList.add("hide");
+		}
 	};
 	/**
 	* Append to body
@@ -221633,8 +221689,10 @@ function createMiniMap({ name, htmlText, cssText, worldMap = null, townInfoToggl
 			start_y = (height - max) / 2 * f;
 			if (coordinates) MiniMap.updateCoordinates(pos[0], pos[1]);
 			_ctx.clearRect(0, 0, 128, 128);
-			if (_map.complete && _map.width) if (zoom === 1) _ctx.drawImage(_map, 0, 0, 128, 128);
-			else _ctx.drawImage(_map, (start_x + pos[0] * f) * 4 - ZOOM_SIZE * zoom | 0, (start_y + 128 - pos[1] * f) * 4 - ZOOM_SIZE * zoom | 0, ZOOM_SIZE * zoom * 2, ZOOM_SIZE * zoom * 2, 0, 0, 128, 128);
+			if (_map.complete && _map.width) {
+				if (zoom === 1) _ctx.drawImage(_map, 0, 0, 128, 128);
+				else _ctx.drawImage(_map, (start_x + pos[0] * f) * 4 - ZOOM_SIZE * zoom | 0, (start_y + 128 - pos[1] * f) * 4 - ZOOM_SIZE * zoom | 0, ZOOM_SIZE * zoom * 2, ZOOM_SIZE * zoom * 2, 0, 0, 128, 128);
+			}
 			if (_towninfo && (townInfoToggle ? _preferences.townInfoShow : _towninfo.length)) {
 				count = _towninfo.length;
 				for (i = 0; i < count; ++i) {
@@ -222857,8 +222915,10 @@ function onSelect() {
 * @param {string} name eg. `"worldmap_localizing1"`
 */
 function selectMap(name = null) {
-	if (!name || name === null || name === "") if (WorldMap_default$3.length > 0 && WorldMap_default$3[0].id !== null && WorldMap_default$3[0].id !== "") name = WorldMap_default$3[0].id;
-	else name = "worldmap.jpg";
+	if (!name || name === null || name === "") {
+		if (WorldMap_default$3.length > 0 && WorldMap_default$3[0].id !== null && WorldMap_default$3[0].id !== "") name = WorldMap_default$3[0].id;
+		else name = "worldmap.jpg";
+	}
 	Client.loadFile(DB.INTERFACE_PATH + name, (data) => {
 		for (const map of WorldMap_default$3) if (map.id === name) {
 			createWorldMapView(map, data);
@@ -223118,8 +223178,10 @@ function onShowLVL() {
 		if (btn) btn.style.backgroundImage = "url(" + data + ")";
 	});
 	const worldmapEl = root.querySelector(".worldmap");
-	if (worldmapEl) if (!WorldMap.showLVLMode) worldmapEl.classList.remove("show-lvls");
-	else worldmapEl.classList.add("show-lvls");
+	if (worldmapEl) {
+		if (!WorldMap.showLVLMode) worldmapEl.classList.remove("show-lvls");
+		else worldmapEl.classList.add("show-lvls");
+	}
 }
 /**
 * Stop event propagation
@@ -225238,8 +225300,10 @@ var init_PartyMemberExternal = __esmMin((() => {
 			levelEl.style.color = memberColor;
 		}
 		const innerRoot = root.querySelector("#PartyMemberExternal");
-		if (innerRoot) if (isOnline) innerRoot.classList.add("online");
-		else innerRoot.classList.remove("online");
+		if (innerRoot) {
+			if (isOnline) innerRoot.classList.add("online");
+			else innerRoot.classList.remove("online");
+		}
 	};
 	/**
 	* Update HP bar
@@ -226075,39 +226139,41 @@ function createPartyFriends(config) {
 			if (sortBtn) sortBtn.addEventListener("mousedown", sortDetachedMembers);
 		}
 		const content = root.querySelector(".content");
-		if (content) if (renewalParty) {
-			content.addEventListener("contextmenu", (event) => {
-				const node = event.target.closest(".node");
-				if (node) onRightClickInfoRenewal.call(node, event);
-			});
-			content.addEventListener("mousedown", (event) => {
-				const node = event.target.closest(".node");
-				if (node) onMemberMouseDown.call(node, event);
-			});
-			content.addEventListener("mouseover", (event) => {
-				const el = event.target.closest("[data-tooltip]");
-				if (el) onTooltipShow.call(el, event);
-			});
-			content.addEventListener("mousemove", (event) => {
-				const el = event.target.closest("[data-tooltip]");
-				if (el) onTooltipMove.call(el, event);
-			});
-			content.addEventListener("mouseout", (event) => {
-				const el = event.target.closest("[data-tooltip]");
-				if (el) onTooltipHide.call(el, event);
-			});
-		} else {
-			content.addEventListener("contextmenu", (e) => {
-				if (e.target.closest(".node")) {
-					e.preventDefault();
-					e.stopImmediatePropagation();
-					onRightClickInfoClassic();
-				}
-			});
-			content.addEventListener("mousedown", (e) => {
-				const node = e.target.closest(".node");
-				if (node) onSelectionChangeClassic(node);
-			});
+		if (content) {
+			if (renewalParty) {
+				content.addEventListener("contextmenu", (event) => {
+					const node = event.target.closest(".node");
+					if (node) onRightClickInfoRenewal.call(node, event);
+				});
+				content.addEventListener("mousedown", (event) => {
+					const node = event.target.closest(".node");
+					if (node) onMemberMouseDown.call(node, event);
+				});
+				content.addEventListener("mouseover", (event) => {
+					const el = event.target.closest("[data-tooltip]");
+					if (el) onTooltipShow.call(el, event);
+				});
+				content.addEventListener("mousemove", (event) => {
+					const el = event.target.closest("[data-tooltip]");
+					if (el) onTooltipMove.call(el, event);
+				});
+				content.addEventListener("mouseout", (event) => {
+					const el = event.target.closest("[data-tooltip]");
+					if (el) onTooltipHide.call(el, event);
+				});
+			} else {
+				content.addEventListener("contextmenu", (e) => {
+					if (e.target.closest(".node")) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						onRightClickInfoClassic();
+					}
+				});
+				content.addEventListener("mousedown", (e) => {
+					const node = e.target.closest(".node");
+					if (node) onSelectionChangeClassic(node);
+				});
+			}
 		}
 		this.draggable(".titlebar");
 		if (renewalParty) PartyMemberExternal_default.onDragEnd = function(movedComponent) {
@@ -228711,8 +228777,10 @@ var init_Guild$1 = __esmMin((() => {
 		if (i >= count) return;
 		const view = root.querySelector(`.MemberView[data-index="${i}"]`);
 		_members[i].CurrentState = member.status;
-		if (view) if (_members[i].CurrentState) view.classList.add("online");
-		else view.classList.remove("online");
+		if (view) {
+			if (_members[i].CurrentState) view.classList.add("online");
+			else view.classList.remove("online");
+		}
 		if ("sex" in member) _members[i].entity.sex = member.sex;
 		if ("head" in member) _members[i].entity.head = member.head;
 		if ("headPalette" in member) _members[i].entity.headpalette = member.headPalette;
@@ -229915,10 +229983,12 @@ function tempMatch(key) {
 		}
 	});
 	Object.keys(TempState).every(function(SC) {
-		if (TempState[SC]) if (TempState[SC].key == key && TempState[SC].alt == KEYS.ALT && TempState[SC].ctrl == KEYS.CTRL && TempState[SC].shift == KEYS.SHIFT) {
-			matchSC = SC;
-			return false;
-		} else return true;
+		if (TempState[SC]) {
+			if (TempState[SC].key == key && TempState[SC].alt == KEYS.ALT && TempState[SC].ctrl == KEYS.CTRL && TempState[SC].shift == KEYS.SHIFT) {
+				matchSC = SC;
+				return false;
+			} else return true;
+		}
 	});
 	return matchSC;
 }
@@ -229942,8 +230012,10 @@ function resetKeysToDefault() {
 		ShortCutsTemp[SC] = {};
 		ShortCutsTemp[SC].cust = false;
 		const cell = root.querySelector("td[data-button='" + SC + "']");
-		if (cell) if (ShortCuts$1[SC].cust != ShortCutsTemp[SC].cust) cell.classList.add("changed");
-		else cell.classList.remove("changed");
+		if (cell) {
+			if (ShortCuts$1[SC].cust != ShortCutsTemp[SC].cust) cell.classList.add("changed");
+			else cell.classList.remove("changed");
+		}
 	});
 	updateKeyList();
 }
@@ -230342,10 +230414,12 @@ var init_Escape = __esmMin((() => {
 	* @return {boolean}
 	*/
 	Escape.onKeyDown = function onKeyDown(event) {
-		if (event.which === KEYS.ESCAPE || event.key === "Escape") if (this._host.style.display === "none") {
-			this._host.style.display = "";
-			this.focus();
-		} else this._host.style.display = "none";
+		if (event.which === KEYS.ESCAPE || event.key === "Escape") {
+			if (this._host.style.display === "none") {
+				this._host.style.display = "";
+				this.focus();
+			} else this._host.style.display = "none";
+		}
 	};
 	/**
 	* Show death menu (called when player dies)
@@ -230870,18 +230944,19 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, needSkillLi
 			Object.entries(items).forEach(([skid, pos]) => {
 				if (!_isNumeric(skid)) return;
 				const sk = SkillInfo[skid];
-				if (hasTabs) if (sk?.MaxLv) {
-					skillDependencyTree[skid] = {
-						dependency: [],
-						position: pos,
-						list,
-						MaxLv: sk.MaxLv
-					};
-					if (sk?.[needSkillListKey] !== void 0) sk[needSkillListKey].forEach((item) => {
-						skillDependencyTree[skid]["dependency"][item[0]] = item[1];
-					});
-				} else console.error("Something wrong with this skill: %d", skid);
-				else {
+				if (hasTabs) {
+					if (sk?.MaxLv) {
+						skillDependencyTree[skid] = {
+							dependency: [],
+							position: pos,
+							list,
+							MaxLv: sk.MaxLv
+						};
+						if (sk?.[needSkillListKey] !== void 0) sk[needSkillListKey].forEach((item) => {
+							skillDependencyTree[skid]["dependency"][item[0]] = item[1];
+						});
+					} else console.error("Something wrong with this skill: %d", skid);
+				} else {
 					skillDependencyTree[skid] = {
 						dependency: [],
 						position: pos,
@@ -231189,12 +231264,14 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, needSkillLi
 	Component.updateSkill = function updateSkill(skill) {
 		let target = getSkillById(skill.SKID);
 		const root = this.getRoot();
-		if (!target) if (readdSkillOnUpdate && root.querySelector(`.skill.id${skill.SKID}`)) {
-			_list.push(skill);
-			this.onUpdateSkill(skill.SKID, 0);
-			hasSkills[skill.SKID] = skill;
-			target = skill;
-		} else return;
+		if (!target) {
+			if (readdSkillOnUpdate && root.querySelector(`.skill.id${skill.SKID}`)) {
+				_list.push(skill);
+				this.onUpdateSkill(skill.SKID, 0);
+				hasSkills[skill.SKID] = skill;
+				target = skill;
+			} else return;
+		}
 		target.level = skill.level;
 		target.spcost = skill.spcost;
 		target.attackRange = skill.attackRange;
@@ -231727,22 +231804,24 @@ function createQuest(config) {
 		_active_menu = "";
 		_questList = {};
 		const root = Quest.getRoot();
-		if (root) if (renewLayout) {
-			const activeList = root.querySelector("#active-quest-list");
-			if (activeList) activeList.style.display = "";
-			const inactiveList = root.querySelector("#inactive-quest-list");
-			if (inactiveList) inactiveList.style.display = "none";
-			const featureList = root.querySelector("#feature-quest-list");
-			if (featureList) featureList.style.display = "none";
-			const cooldownList = root.querySelector("#cooldown-quest-list");
-			if (cooldownList) cooldownList.style.display = "none";
-		} else {
-			const activeList = root.querySelector("#active-quest-list");
-			if (activeList) activeList.style.display = "none";
-			const inactiveList = root.querySelector("#inactive-quest-list");
-			if (inactiveList) inactiveList.style.display = "none";
-			const allList = root.querySelector("#all-quest-list");
-			if (allList) allList.style.display = "none";
+		if (root) {
+			if (renewLayout) {
+				const activeList = root.querySelector("#active-quest-list");
+				if (activeList) activeList.style.display = "";
+				const inactiveList = root.querySelector("#inactive-quest-list");
+				if (inactiveList) inactiveList.style.display = "none";
+				const featureList = root.querySelector("#feature-quest-list");
+				if (featureList) featureList.style.display = "none";
+				const cooldownList = root.querySelector("#cooldown-quest-list");
+				if (cooldownList) cooldownList.style.display = "none";
+			} else {
+				const activeList = root.querySelector("#active-quest-list");
+				if (activeList) activeList.style.display = "none";
+				const inactiveList = root.querySelector("#inactive-quest-list");
+				if (inactiveList) inactiveList.style.display = "none";
+				const allList = root.querySelector("#all-quest-list");
+				if (allList) allList.style.display = "none";
+			}
 		}
 		Quest.ClearQuestList();
 		questHelper.clearQuestDesc();
@@ -232880,10 +232959,12 @@ var init_Achievement$1 = __esmMin((() => {
 				});
 				let catName = "";
 				const majorObj = MAJOR_CATEGORIES.find((m) => m.id === this.currentMajor);
-				if (majorObj) if (this.currentMinor !== -1 && majorObj.minorCategories) {
-					const minorObj = majorObj.minorCategories.find((m) => m.id === this.currentMinor);
-					if (minorObj) catName = minorObj.name;
-				} else catName = majorObj.name;
+				if (majorObj) {
+					if (this.currentMinor !== -1 && majorObj.minorCategories) {
+						const minorObj = majorObj.minorCategories.find((m) => m.id === this.currentMinor);
+						if (minorObj) catName = minorObj.name;
+					} else catName = majorObj.name;
+				}
 				root.querySelector(".js-cat-name").textContent = catName;
 				root.querySelector(".js-cat-progress-text").textContent = `(${completed}/${total})`;
 				const catRatio = total > 0 ? completed / total * 100 : 0;
@@ -233033,8 +233114,10 @@ var init_Achievement$1 = __esmMin((() => {
 					const isClaimed = s && s.reward;
 					const d = /* @__PURE__ */ new Date(s.completed_at * 1e3);
 					dtStr = `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
-					if (hasReward) if (!isClaimed) rewardBoxBg = "achievement_re/list_rewardbox_not_receive.bmp";
-					else rewardBoxBg = "";
+					if (hasReward) {
+						if (!isClaimed) rewardBoxBg = "achievement_re/list_rewardbox_not_receive.bmp";
+						else rewardBoxBg = "";
+					}
 					item.innerHTML = `
 					<div class="icon" data-background="achievement_re/icon_${groupName}.bmp"></div>
 					<div class="title">${info.title || "Unknown"}</div>
@@ -233106,9 +233189,11 @@ var init_Achievement$1 = __esmMin((() => {
 				let rewardBoxBg = "";
 				const groupName = info.group ? info.group.toLowerCase() : "";
 				const isClaimed = s && s.reward;
-				if (info.reward && (Array.isArray(info.reward) ? info.reward.length > 0 : Object.keys(info.reward).length > 0)) if (!isCompleted) rewardBoxBg = "achievement_re/list_rewardbox_default.bmp";
-				else if (!isClaimed) rewardBoxBg = "achievement_re/list_rewardbox_not_receive.bmp";
-				else rewardBoxBg = "";
+				if (info.reward && (Array.isArray(info.reward) ? info.reward.length > 0 : Object.keys(info.reward).length > 0)) {
+					if (!isCompleted) rewardBoxBg = "achievement_re/list_rewardbox_default.bmp";
+					else if (!isClaimed) rewardBoxBg = "achievement_re/list_rewardbox_not_receive.bmp";
+					else rewardBoxBg = "";
+				}
 				if (isCompleted) {
 					const d = /* @__PURE__ */ new Date(s.completed_at * 1e3);
 					dtStr = `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
@@ -233337,9 +233422,11 @@ function updateGroupTotalPoints(groupId) {
 	reputeIds.forEach((reputeId) => {
 		totalPoints += Reputation.reputeState?.[reputeId] || 0;
 	});
-	if (indicator) if (totalPoints > 0) indicator.style.backgroundImage = `url(${indicator_blue})`;
-	else if (totalPoints < 0) indicator.style.backgroundImage = `url(${indicator_red})`;
-	else indicator.style.backgroundImage = `url(${indicator_empty})`;
+	if (indicator) {
+		if (totalPoints > 0) indicator.style.backgroundImage = `url(${indicator_blue})`;
+		else if (totalPoints < 0) indicator.style.backgroundImage = `url(${indicator_red})`;
+		else indicator.style.backgroundImage = `url(${indicator_empty})`;
+	}
 	if (pointsValue) pointsValue.textContent = `${totalPoints} P`;
 }
 /**
@@ -234425,10 +234512,12 @@ function controlPhase$1(phase, shouldLoop, interval, callback) {
 			const container = _root$11().querySelector(".image-container");
 			if (container) container.style.backgroundImage = `url(${data})`;
 			currentImageIndex++;
-			if (currentImageIndex >= imageArray.length) if (shouldLoop) currentImageIndex = 0;
-			else {
-				if (callback && typeof callback === "function") callback();
-				return;
+			if (currentImageIndex >= imageArray.length) {
+				if (shouldLoop) currentImageIndex = 0;
+				else {
+					if (callback && typeof callback === "function") callback();
+					return;
+				}
 			}
 			Refine.imageLoopTimeout = setTimeout(showImages, interval);
 		});
@@ -234539,8 +234628,10 @@ function onPopulateMaterials$1() {
 		});
 		const count = item ? item.count : 0;
 		const countmsg = materialDiv.querySelector(`.item[data-index="${material.itemId}"] .mat_count`);
-		if (countmsg) if (count === 0) countmsg.innerHTML = `<span style="color: #ce1029;">${count}</span>/1`;
-		else countmsg.textContent = `${count}/1`;
+		if (countmsg) {
+			if (count === 0) countmsg.innerHTML = `<span style="color: #ce1029;">${count}</span>/1`;
+			else countmsg.textContent = `${count}/1`;
+		}
 		const iconEl = materialDiv.querySelector(".icon");
 		if (iconEl) iconEl.addEventListener("click", () => {
 			const clickedItemId = material.itemId;
@@ -234590,8 +234681,10 @@ function onPopulateMaterials$1() {
 		});
 		const bsbCountOuter = item ? item.count : 0;
 		const bsbcountmsg = bsbDiv.querySelector(`.item[data-index="${BSB_ITID}"] .mat_count`);
-		if (bsbcountmsg) if (bsbCountOuter === 0) bsbcountmsg.innerHTML = `<span style="color: #ce1029;">${bsbCountOuter}</span>/${blacksmithBlessing}`;
-		else bsbcountmsg.textContent = `${bsbCountOuter}/${blacksmithBlessing}`;
+		if (bsbcountmsg) {
+			if (bsbCountOuter === 0) bsbcountmsg.innerHTML = `<span style="color: #ce1029;">${bsbCountOuter}</span>/${blacksmithBlessing}`;
+			else bsbcountmsg.textContent = `${bsbCountOuter}/${blacksmithBlessing}`;
+		}
 		const bsbIcon = bsbDiv.querySelector(".icon");
 		if (bsbIcon) bsbIcon.addEventListener("click", () => {
 			const bsbInventoryItem = InventoryController.getUI().getItemById(BSB_ITID);
@@ -235488,11 +235581,13 @@ function controlPhase(phase, shouldLoop, interval, targetdiv, callback) {
 				target.style.visibility = "visible";
 			}
 			currentImageIndex++;
-			if (currentImageIndex >= imageArray.length) if (shouldLoop) currentImageIndex = 0;
-			else {
-				EnchantGrade.imageLoopTimeout[phase] = null;
-				if (callback && typeof callback === "function") callback();
-				return;
+			if (currentImageIndex >= imageArray.length) {
+				if (shouldLoop) currentImageIndex = 0;
+				else {
+					EnchantGrade.imageLoopTimeout[phase] = null;
+					if (callback && typeof callback === "function") callback();
+					return;
+				}
 			}
 			EnchantGrade.imageLoopTimeout[phase] = setTimeout(showImages, interval);
 		});
@@ -237305,18 +237400,19 @@ function refreshActionContent() {
 						label
 					});
 				});
-				if (perfectList.length) if (EnchantState.selectedPerfect && slotData.perfect[EnchantState.selectedPerfect]) {
-					if (select) select.value = EnchantState.selectedPerfect;
-					const selected = slotData.perfect[EnchantState.selectedPerfect];
-					renderCosts(1e5, selected.zeny, selected.materials);
-					actionReady = availability.perfect && canAffordCost(selected.zeny, selected.materials);
-					selectedKey = EnchantState.selectedPerfect;
-				} else {
-					EnchantState.selectedPerfect = null;
-					if (select) select.selectedIndex = -1;
-					renderCosts(null, 0, []);
-				}
-				else renderCosts(null, 0, []);
+				if (perfectList.length) {
+					if (EnchantState.selectedPerfect && slotData.perfect[EnchantState.selectedPerfect]) {
+						if (select) select.value = EnchantState.selectedPerfect;
+						const selected = slotData.perfect[EnchantState.selectedPerfect];
+						renderCosts(1e5, selected.zeny, selected.materials);
+						actionReady = availability.perfect && canAffordCost(selected.zeny, selected.materials);
+						selectedKey = EnchantState.selectedPerfect;
+					} else {
+						EnchantState.selectedPerfect = null;
+						if (select) select.selectedIndex = -1;
+						renderCosts(null, 0, []);
+					}
+				} else renderCosts(null, 0, []);
 			} else renderCosts(null, 0, []);
 			listEntries = perfectEntries;
 		}
@@ -240434,8 +240530,10 @@ function onResize$6() {
 		CartItems.resize(w, h);
 		lastWidth = w;
 		lastHeight = h;
-		if (content && hideEl) if (content.offsetHeight === content.scrollHeight) hideEl.style.display = "block";
-		else hideEl.style.display = "none";
+		if (content && hideEl) {
+			if (content.offsetHeight === content.scrollHeight) hideEl.style.display = "block";
+			else hideEl.style.display = "none";
+		}
 	}
 	const _Interval = setInterval(resizing, 30);
 	const onMouseUp = (event) => {
@@ -240847,8 +240945,10 @@ var init_CartItems = __esmMin((() => {
 		if (!content) return true;
 		content.insertAdjacentHTML("beforeend", `<div class="item" data-index="${item.index}" draggable="true"><div class="icon"></div><div class="grade"></div><div class="amount"><span class="count">${item.count || 1}</span></div></div>`);
 		const hideEl = root.querySelector(".hide");
-		if (hideEl) if (content.offsetHeight < content.scrollHeight) hideEl.style.display = "none";
-		else hideEl.style.display = "block";
+		if (hideEl) {
+			if (content.offsetHeight < content.scrollHeight) hideEl.style.display = "none";
+			else hideEl.style.display = "block";
+		}
 		Client.loadFile(DB.INTERFACE_PATH + "item/" + (item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) + ".bmp", (data) => {
 			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
 			if (icon) icon.style.backgroundImage = `url(${data})`;
@@ -241151,31 +241251,33 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 				const switchBtn = root.querySelector(".switch_equip");
 				if (switchBtn) switchBtn.style.display = "";
 			}
-			if (costumeConfig) if (currentTabId !== "general") {
-				const showEquipEl = root.querySelector(".show_equip");
-				if (showEquipEl) showEquipEl.style.display = "none";
-				const showEquipSpan = showEquipEl ? showEquipEl.nextElementSibling : null;
-				if (showEquipSpan && showEquipSpan.tagName === "SPAN") showEquipSpan.style.display = "none";
-				if (currentTabId === "costume") {
-					const costumeEl = root.querySelector(".show_costume");
-					if (costumeEl) costumeEl.style.display = "";
-					const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
-					if (costumeSpan && costumeSpan.tagName === "SPAN") costumeSpan.style.display = "";
+			if (costumeConfig) {
+				if (currentTabId !== "general") {
+					const showEquipEl = root.querySelector(".show_equip");
+					if (showEquipEl) showEquipEl.style.display = "none";
+					const showEquipSpan = showEquipEl ? showEquipEl.nextElementSibling : null;
+					if (showEquipSpan && showEquipSpan.tagName === "SPAN") showEquipSpan.style.display = "none";
+					if (currentTabId === "costume") {
+						const costumeEl = root.querySelector(".show_costume");
+						if (costumeEl) costumeEl.style.display = "";
+						const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
+						if (costumeSpan && costumeSpan.tagName === "SPAN") costumeSpan.style.display = "";
+					} else {
+						const costumeEl = root.querySelector(".show_costume");
+						if (costumeEl) costumeEl.style.display = "none";
+						const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
+						if (costumeSpan && costumeSpan.tagName === "SPAN") costumeSpan.style.display = "none";
+					}
 				} else {
+					const showEquipEl = root.querySelector(".show_equip");
+					if (showEquipEl) showEquipEl.style.display = "";
+					const showEquipSpan = showEquipEl ? showEquipEl.nextElementSibling : null;
+					if (showEquipSpan && showEquipSpan.tagName === "SPAN") showEquipSpan.style.display = "";
 					const costumeEl = root.querySelector(".show_costume");
 					if (costumeEl) costumeEl.style.display = "none";
 					const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
 					if (costumeSpan && costumeSpan.tagName === "SPAN") costumeSpan.style.display = "none";
 				}
-			} else {
-				const showEquipEl = root.querySelector(".show_equip");
-				if (showEquipEl) showEquipEl.style.display = "";
-				const showEquipSpan = showEquipEl ? showEquipEl.nextElementSibling : null;
-				if (showEquipSpan && showEquipSpan.tagName === "SPAN") showEquipSpan.style.display = "";
-				const costumeEl = root.querySelector(".show_costume");
-				if (costumeEl) costumeEl.style.display = "none";
-				const costumeSpan = costumeEl ? costumeEl.nextElementSibling : null;
-				if (costumeSpan && costumeSpan.tagName === "SPAN") costumeSpan.style.display = "none";
 			}
 		}
 		return false;
@@ -241200,11 +241302,13 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 			const panel = Component.getRoot().querySelector(".panel");
 			if (panel) panel.style.display = "none";
 		}
-		if (UIVersionManager.getEquipmentVersion() > 0) if (_preferences.stats && _preferences.show) WinStatsController.getUI().embed(Component._host);
-		else Client.loadFile(DB.INTERFACE_PATH + "basic_interface/viewon.bmp", (data) => {
-			const btn = Component.getRoot().querySelector(".view_status");
-			if (btn) btn.style.backgroundImage = `url(${data})`;
-		});
+		if (UIVersionManager.getEquipmentVersion() > 0) {
+			if (_preferences.stats && _preferences.show) WinStatsController.getUI().embed(Component._host);
+			else Client.loadFile(DB.INTERFACE_PATH + "basic_interface/viewon.bmp", (data) => {
+				const btn = Component.getRoot().querySelector(".view_status");
+				if (btn) btn.style.backgroundImage = `url(${data})`;
+			});
+		}
 		if (Component.getRoot().querySelector("canvas") && this._host.style.display !== "none") Renderer.render(renderCharacter);
 		if (switchEquip) {
 			SwitchEquip_default.append(switchappend);
@@ -241518,11 +241622,13 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 	function onEquipmentInfo(event) {
 		const index = parseInt(this.getAttribute("data-index"), 10);
 		const item = _list[index];
-		if (item) if (ItemInfo_default.uid === item.ITID) ItemInfo_default.remove();
-		else {
-			ItemInfo_default.append();
-			ItemInfo_default.uid = item.ITID;
-			ItemInfo_default.setItem(item);
+		if (item) {
+			if (ItemInfo_default.uid === item.ITID) ItemInfo_default.remove();
+			else {
+				ItemInfo_default.append();
+				ItemInfo_default.uid = item.ITID;
+				ItemInfo_default.setItem(item);
+			}
 		}
 		event.stopImmediatePropagation();
 		return false;
@@ -245578,9 +245684,10 @@ var init_AIDriver = __esmMin((() => {
 			try {
 				if (!AIDriver.ready) return;
 				let lua;
-				if (homunculus) if (SessionStorage_default.homCustomAI) lua = AIDriver.HO_AI;
-				else lua = AIDriver.default_HO_AI;
-				else if (SessionStorage_default.merCustomAI) lua = AIDriver.MER_AI;
+				if (homunculus) {
+					if (SessionStorage_default.homCustomAI) lua = AIDriver.HO_AI;
+					else lua = AIDriver.default_HO_AI;
+				} else if (SessionStorage_default.merCustomAI) lua = AIDriver.MER_AI;
 				else lua = AIDriver.default_MER_AI;
 				lua.doStringSync(code);
 			} catch (e) {
@@ -245704,10 +245811,12 @@ var init_HomunInformations = __esmMin((() => {
 			const el = root.querySelector(".homun_auto_feed");
 			if (el) el.style.backgroundImage = `url(${data})`;
 		});
-		if (PacketVerManager_default.value < 20170920) if (Configs.get("enableHomunAutoFeed", false)) HomunInformations.startAutoFeed();
-		else {
-			const feeding = root.querySelector(".feeding");
-			if (feeding) feeding.style.display = "none";
+		if (PacketVerManager_default.value < 20170920) {
+			if (Configs.get("enableHomunAutoFeed", false)) HomunInformations.startAutoFeed();
+			else {
+				const feeding = root.querySelector(".feeding");
+				if (feeding) feeding.style.display = "none";
+			}
 		}
 		this._host.style.top = `${Math.min(Math.max(0, _preferences$23.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
 		this._host.style.left = `${Math.min(Math.max(0, _preferences$23.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
@@ -245739,14 +245848,15 @@ var init_HomunInformations = __esmMin((() => {
 	HomunInformations.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
 			case "TOGGLE":
-				if (SessionStorage_default.homunId) if (this._host.style.display === "none") {
-					this._host.style.display = "";
-					this.focus();
+				if (SessionStorage_default.homunId) {
+					if (this._host.style.display === "none") {
+						this._host.style.display = "";
+						this.focus();
+					} else {
+						this._host.style.display = "none";
+						SkillListMH_default.homunculus.ui.hide();
+					}
 				} else {
-					this._host.style.display = "none";
-					SkillListMH_default.homunculus.ui.hide();
-				}
-				else {
 					SkillListMH_default.homunculus.ui.hide();
 					this._host.style.display = "none";
 				}
@@ -246083,14 +246193,15 @@ var init_MercenaryInformations = __esmMin((() => {
 	MercenaryInformations.onShortCut = function onShortCut(key) {
 		switch (key.cmd) {
 			case "TOGGLE":
-				if (SessionStorage_default.mercId) if (this._host.style.display === "none") {
-					this._host.style.display = "";
-					this.focus();
+				if (SessionStorage_default.mercId) {
+					if (this._host.style.display === "none") {
+						this._host.style.display = "";
+						this.focus();
+					} else {
+						this._host.style.display = "none";
+						SkillListMH_default.mercenary.ui.hide();
+					}
 				} else {
-					this._host.style.display = "none";
-					SkillListMH_default.mercenary.ui.hide();
-				}
-				else {
 					SkillListMH_default.mercenary.ui.hide();
 					this._host.style.display = "none";
 				}
@@ -248681,15 +248792,17 @@ var init_Cylinder = __esmMin((() => {
 			gl.uniform1f(uniform.uBottomSize, this.bottomSize);
 			gl.uniform1f(uniform.uZindex, this.zIndex);
 			if (this.animation == 1) {
-				if (duration > 1e3) if (renderCount <= 1e3) gl.uniform1f(uniform.uHeight, renderCount / 1e3 * this.height);
-				else gl.uniform1f(uniform.uHeight, this.height);
-				else gl.uniform1f(uniform.uHeight, renderCount / duration * this.height);
+				if (duration > 1e3) {
+					if (renderCount <= 1e3) gl.uniform1f(uniform.uHeight, renderCount / 1e3 * this.height);
+					else gl.uniform1f(uniform.uHeight, this.height);
+				} else gl.uniform1f(uniform.uHeight, renderCount / duration * this.height);
 				gl.uniform1f(uniform.uTopSize, this.topSize);
 			} else if (this.animation == 2) {
 				gl.uniform1f(uniform.uHeight, this.height);
-				if (duration > 1e3) if (renderCount <= 1e3) gl.uniform1f(uniform.uTopSize, renderCount / 1e3 * this.topSize);
-				else gl.uniform1f(uniform.uTopSize, this.topSize);
-				else gl.uniform1f(uniform.uTopSize, renderCount / duration * this.topSize);
+				if (duration > 1e3) {
+					if (renderCount <= 1e3) gl.uniform1f(uniform.uTopSize, renderCount / 1e3 * this.topSize);
+					else gl.uniform1f(uniform.uTopSize, this.topSize);
+				} else gl.uniform1f(uniform.uTopSize, renderCount / duration * this.topSize);
 			} else if (this.animation == 3) {
 				gl.uniform1f(uniform.uHeight, this.height);
 				gl.uniform1f(uniform.uBottomSize, (1 - renderCount / duration) * this.bottomSize);
@@ -250611,27 +250724,29 @@ var init_TwoDEffect = __esmMin((() => {
 			SpriteRenderer.zIndex = this.zIndex;
 			const cRad = Camera.angle[1] * Math.PI / 180;
 			let currentX = 0;
-			if (this.posxSmooth) if (this.posxStart != this.posxEnd) {
-				const step = steps * .09 + 1;
-				const smoothStep = Math.log10(step);
-				const distance = this.posxEnd - this.posxStart;
-				const _start = this.posxStart;
-				currentX = smoothStep * distance + _start;
-			} else currentX = this.posxStart;
-			else if (this.posxStart != this.posxEnd) {
+			if (this.posxSmooth) {
+				if (this.posxStart != this.posxEnd) {
+					const step = steps * .09 + 1;
+					const smoothStep = Math.log10(step);
+					const distance = this.posxEnd - this.posxStart;
+					const _start = this.posxStart;
+					currentX = smoothStep * distance + _start;
+				} else currentX = this.posxStart;
+			} else if (this.posxStart != this.posxEnd) {
 				const distance = (this.posxEnd - this.posxStart) / 100;
 				const _start = this.posxStart;
 				currentX = steps * distance + _start;
 			} else currentX = this.posxStart;
 			let currentY = 0;
-			if (this.posySmooth) if (this.posyStart != this.posyEnd) {
-				const step = steps * .09 + 1;
-				const smoothStep = Math.log10(step);
-				const distance = this.posyEnd - this.posyStart;
-				const _start = this.posyStart;
-				currentY = smoothStep * distance + _start;
-			} else currentY = this.posyStart;
-			else if (this.posyStart != this.posyEnd) {
+			if (this.posySmooth) {
+				if (this.posyStart != this.posyEnd) {
+					const step = steps * .09 + 1;
+					const smoothStep = Math.log10(step);
+					const distance = this.posyEnd - this.posyStart;
+					const _start = this.posyStart;
+					currentY = smoothStep * distance + _start;
+				} else currentY = this.posyStart;
+			} else if (this.posyStart != this.posyEnd) {
 				const distance = (this.posyEnd - this.posyStart) / 100;
 				const _start = this.posyStart;
 				currentY = steps * distance + _start;
@@ -250639,41 +250754,44 @@ var init_TwoDEffect = __esmMin((() => {
 			SpriteRenderer.position[0] = this.position[0] + (currentX * Math.cos(cRad) - currentY * Math.sin(cRad));
 			SpriteRenderer.position[1] = this.position[1] + (currentY * Math.cos(cRad) + currentX * Math.sin(cRad));
 			let currentZ = 0;
-			if (this.poszSmooth) if (this.poszStart != this.poszEnd) {
-				const step = steps * .09 + 1;
-				const smoothStep = Math.log10(step);
-				const distance = this.poszEnd - this.poszStart;
-				const _start = this.poszStart;
-				currentZ = smoothStep * distance + _start;
-			} else currentZ = this.poszStart;
-			else if (this.poszStart != this.poszEnd) {
+			if (this.poszSmooth) {
+				if (this.poszStart != this.poszEnd) {
+					const step = steps * .09 + 1;
+					const smoothStep = Math.log10(step);
+					const distance = this.poszEnd - this.poszStart;
+					const _start = this.poszStart;
+					currentZ = smoothStep * distance + _start;
+				} else currentZ = this.poszStart;
+			} else if (this.poszStart != this.poszEnd) {
 				const distance = (this.poszEnd - this.poszStart) / 100;
 				const _start = this.poszStart;
 				currentZ = steps * distance + _start;
 			} else currentZ = this.poszStart;
 			SpriteRenderer.position[2] = this.position[2] + currentZ;
 			let currentOffsetX = 0;
-			if (this.offsetxSmooth) if (this.offsetxStart != this.offsetxEnd) {
-				const step = steps * .09 + 1;
-				const smoothStep = Math.log10(step);
-				const distance = this.offsetxEnd - this.offsetxStart;
-				const _start = this.offsetxStart;
-				currentOffsetX = smoothStep * distance + _start;
-			} else currentOffsetX = this.offsetxStart;
-			else if (this.offsetxStart != this.offsetxEnd) {
+			if (this.offsetxSmooth) {
+				if (this.offsetxStart != this.offsetxEnd) {
+					const step = steps * .09 + 1;
+					const smoothStep = Math.log10(step);
+					const distance = this.offsetxEnd - this.offsetxStart;
+					const _start = this.offsetxStart;
+					currentOffsetX = smoothStep * distance + _start;
+				} else currentOffsetX = this.offsetxStart;
+			} else if (this.offsetxStart != this.offsetxEnd) {
 				const distance = (this.offsetxEnd - this.offsetxStart) / 100;
 				const _start = this.offsetxStart;
 				currentOffsetX = steps * distance + _start;
 			} else currentOffsetX = this.offsetxStart;
 			let currentOffsetY = 0;
-			if (this.offsetySmooth) if (this.offsetyStart != this.offsetyEnd) {
-				const step = steps * .09 + 1;
-				const smoothStep = Math.log10(step);
-				const distance = this.offsetyEnd - this.offsetyStart;
-				const _start = this.offsetyStart;
-				currentOffsetY = smoothStep * distance + _start;
-			} else currentOffsetY = this.offsetyStart;
-			else if (this.offsetyStart != this.offsetyEnd) {
+			if (this.offsetySmooth) {
+				if (this.offsetyStart != this.offsetyEnd) {
+					const step = steps * .09 + 1;
+					const smoothStep = Math.log10(step);
+					const distance = this.offsetyEnd - this.offsetyStart;
+					const _start = this.offsetyStart;
+					currentOffsetY = smoothStep * distance + _start;
+				} else currentOffsetY = this.offsetyStart;
+			} else if (this.offsetyStart != this.offsetyEnd) {
 				const distance = (this.offsetyEnd - this.offsetyStart) / 100;
 				const _start = this.offsetyStart;
 				currentOffsetY = steps * distance + _start;
@@ -250728,10 +250846,12 @@ var init_TwoDEffect = __esmMin((() => {
 			SpriteRenderer.runWithDepth(this.overlay === false, this.overlay === false, this.overlay === true, () => {
 				SpriteRenderer.render();
 			});
-			if (this.ownerEntity) if (this.endTick < tick) this.ownerEntity.attachments.remove(this.spriteName + "-" + this.sizeStartX + "-" + this.rotateLate);
-			else {
-				const attachment = this.ownerEntity.attachments.get(this.spriteName + "-" + this.sizeStartX + "-" + this.rotateLate);
-				if (attachment) attachment.position = new Int16Array([SpriteRenderer.position[0], SpriteRenderer.position[1]]);
+			if (this.ownerEntity) {
+				if (this.endTick < tick) this.ownerEntity.attachments.remove(this.spriteName + "-" + this.sizeStartX + "-" + this.rotateLate);
+				else {
+					const attachment = this.ownerEntity.attachments.get(this.spriteName + "-" + this.sizeStartX + "-" + this.rotateLate);
+					if (attachment) attachment.position = new Int16Array([SpriteRenderer.position[0], SpriteRenderer.position[1]]);
+				}
 			}
 			this.needCleanUp = this.endTick < tick;
 		}
@@ -251112,14 +251232,15 @@ var init_ThreeDEffect = __esmMin((() => {
 			if (this.rotatePosX > 0) {
 				posDelta = this.rotatePosX * Math.cos(steps * 3.5 * this.nbOfRotation * Math.PI / 180 - this.rotateLate * Math.PI / 2);
 				if (this.rotationClockwise) posDelta = -1 * posDelta;
-			} else if (this.posxSmooth) if (this.posxStart != this.posxEnd) {
-				const csJ = steps * .09 + 1;
-				const csK = Math.log10(csJ);
-				const csL = this.posxEnd - this.posxStart;
-				const csM = this.posxStart;
-				posDelta = csK * csL + csM;
-			} else posDelta = this.posxStart;
-			else if (this.posxStart != this.posxEnd) {
+			} else if (this.posxSmooth) {
+				if (this.posxStart != this.posxEnd) {
+					const csJ = steps * .09 + 1;
+					const csK = Math.log10(csJ);
+					const csL = this.posxEnd - this.posxStart;
+					const csM = this.posxStart;
+					posDelta = csK * csL + csM;
+				} else posDelta = this.posxStart;
+			} else if (this.posxStart != this.posxEnd) {
 				const csL = (this.posxEnd - this.posxStart) / 100;
 				const csM = this.posxStart;
 				posDelta = steps * csL + csM;
@@ -251127,14 +251248,15 @@ var init_ThreeDEffect = __esmMin((() => {
 			SpriteRenderer.position[0] = this.position[0] + posDelta;
 			posDelta = 0;
 			if (this.rotatePosY > 0) posDelta = this.rotatePosY * Math.sin(steps * 3.5 * this.nbOfRotation * Math.PI / 180 - this.rotateLate * Math.PI / 2);
-			else if (this.posySmooth) if (this.posyStart != this.posyEnd) {
-				const csJ = steps * .09 + 1;
-				const csK = Math.log10(csJ);
-				const csL = this.posyEnd - this.posyStart;
-				const csM = this.posyStart;
-				posDelta = csK * csL + csM;
-			} else posDelta = this.posyStart;
-			else if (this.posyStart != this.posyEnd) {
+			else if (this.posySmooth) {
+				if (this.posyStart != this.posyEnd) {
+					const csJ = steps * .09 + 1;
+					const csK = Math.log10(csJ);
+					const csL = this.posyEnd - this.posyStart;
+					const csM = this.posyStart;
+					posDelta = csK * csL + csM;
+				} else posDelta = this.posyStart;
+			} else if (this.posyStart != this.posyEnd) {
 				const csL = (this.posyEnd - this.posyStart) / 100;
 				const csM = this.posyStart;
 				posDelta = steps * csL + csM;
@@ -251160,14 +251282,15 @@ var init_ThreeDEffect = __esmMin((() => {
 				SpriteRenderer.position[0] = this.position[0] + linearX;
 				SpriteRenderer.position[1] = this.position[1] + linearY;
 			}
-			if (this.poszSmooth) if (this.poszStart != this.poszEnd) {
-				const csJ = steps * .09 + 1;
-				const csK = Math.log10(csJ);
-				const csL = this.poszEnd - this.poszStart;
-				const csM = this.poszStart;
-				posDelta = csK * csL + csM;
-			} else posDelta = this.poszStart;
-			else if (this.poszStart != this.poszEnd) {
+			if (this.poszSmooth) {
+				if (this.poszStart != this.poszEnd) {
+					const csJ = steps * .09 + 1;
+					const csK = Math.log10(csJ);
+					const csL = this.poszEnd - this.poszStart;
+					const csM = this.poszStart;
+					posDelta = csK * csL + csM;
+				} else posDelta = this.poszStart;
+			} else if (this.poszStart != this.poszEnd) {
 				const csL = (this.poszEnd - this.poszStart) / 100;
 				const csM = this.poszStart;
 				posDelta = steps * csL + csM;
@@ -251507,11 +251630,13 @@ var init_QuadHorn = __esmMin((() => {
 				gl.uniform1f(uniform.uHeight, this.height);
 				gl.uniform1f(uniform.uOffsetZ, this.offsetZ);
 			}
-			if (this.endTick > 0 && this.endTick < tick) if (this.animationOut && this._endAnimation) {
-				const lerpZOffset = -(deltaEnd / (this.animationSpeed / 1e3) * this.height);
-				if (lerpZOffset < -(this.height + this.offsetZ)) this.needCleanUp = this.endTick < tick;
-				gl.uniform1f(uniform.uOffsetZ, lerpZOffset);
-			} else this.needCleanUp = this.endTick < tick;
+			if (this.endTick > 0 && this.endTick < tick) {
+				if (this.animationOut && this._endAnimation) {
+					const lerpZOffset = -(deltaEnd / (this.animationSpeed / 1e3) * this.height);
+					if (lerpZOffset < -(this.height + this.offsetZ)) this.needCleanUp = this.endTick < tick;
+					gl.uniform1f(uniform.uOffsetZ, lerpZOffset);
+				} else this.needCleanUp = this.endTick < tick;
+			}
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 0, 0);
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -251966,12 +252091,14 @@ var init_EffectManager = __esmMin((() => {
 				if (!Params.Init.ownerEntity) return;
 				Params.Inst.position = Params.Init.ownerEntity.position;
 			}
-			if (!Params.Inst.otherPosition) if (Params.Init.otherEntity) Params.Inst.otherPosition = Params.Init.otherEntity.position;
-			else Params.Inst.otherPosition = [
-				Params.Inst.position[0] - 5,
-				Params.Inst.position[1] + 5,
-				Params.Inst.position[2]
-			];
+			if (!Params.Inst.otherPosition) {
+				if (Params.Init.otherEntity) Params.Inst.otherPosition = Params.Init.otherEntity.position;
+				else Params.Inst.otherPosition = [
+					Params.Inst.position[0] - 5,
+					Params.Inst.position[1] + 5,
+					Params.Inst.position[2]
+				];
+			}
 			Params.Inst.position = Params.effect.attachedEntity ? Params.Inst.position : [
 				Params.Inst.position[0],
 				Params.Inst.position[1],
@@ -252019,9 +252146,11 @@ var init_EffectManager = __esmMin((() => {
 				case "QuadHorn":
 					EffectManager.add(new QuadHorn(Params.effect, Params.Inst, Params.Init), Params);
 					break;
-				case "FUNC": if (Params.effect.func) if (Params.effect.attachedEntity) {
-					if (Params.Init.ownerEntity) Params.effect.func.call(this, Params);
-				} else Params.effect.func.call(this, Params);
+				case "FUNC": if (Params.effect.func) {
+					if (Params.effect.attachedEntity) {
+						if (Params.Init.ownerEntity) Params.effect.func.call(this, Params);
+					} else Params.effect.func.call(this, Params);
+				}
 			}
 		}
 		/**
@@ -254027,12 +254156,13 @@ function onElementInfo(event, icon) {
 	const element = _list$1[index];
 	event.stopImmediatePropagation();
 	event.preventDefault();
-	if (element.isSkill) if (SkillDescription_default.uid === _list$1[index].ID) SkillDescription_default.remove();
-	else {
-		SkillDescription_default.append();
-		SkillDescription_default.setSkill(_list$1[index].ID);
-	}
-	else {
+	if (element.isSkill) {
+		if (SkillDescription_default.uid === _list$1[index].ID) SkillDescription_default.remove();
+		else {
+			SkillDescription_default.append();
+			SkillDescription_default.setSkill(_list$1[index].ID);
+		}
+	} else {
 		if (ItemInfo_default.uid === _list$1[index].ID) {
 			ItemInfo_default.remove();
 			return;
@@ -254463,8 +254593,10 @@ var init_ShortCut = __esmMin((() => {
 		}
 	};
 	ShortCut.setElement = function setElement(isSkill, ID, count) {
-		for (let i = 0, size = _list$1.length; i < size; ++i) if (_list$1[i] && _list$1[i].isSkill == isSkill && _list$1[i].ID === ID) if (isSkill && _list$1[i].count && _list$1[i].count <= count) ShortCut.addElement(i, isSkill, ID, _list$1[i].count);
-		else ShortCut.addElement(i, isSkill, ID, count);
+		for (let i = 0, size = _list$1.length; i < size; ++i) if (_list$1[i] && _list$1[i].isSkill == isSkill && _list$1[i].ID === ID) {
+			if (isSkill && _list$1[i].count && _list$1[i].count <= count) ShortCut.addElement(i, isSkill, ID, _list$1[i].count);
+			else ShortCut.addElement(i, isSkill, ID, count);
+		}
 	};
 	/**
 	* Add an element to shortcut
@@ -254482,13 +254614,14 @@ var init_ShortCut = __esmMin((() => {
 		if (!_list$1[index]) _list$1[index] = {};
 		_list$1[index].isSkill = isSkill;
 		_list$1[index].ID = ID;
-		if (isSkill) if (!count) return;
-		else {
-			_list$1[index].count = count;
-			file = SkillInfo[ID].Name;
-			name = SkillInfo[ID].SkillName;
-		}
-		else {
+		if (isSkill) {
+			if (!count) return;
+			else {
+				_list$1[index].count = count;
+				file = SkillInfo[ID].Name;
+				name = SkillInfo[ID].SkillName;
+			}
+		} else {
 			_list$1[index].count = count;
 			const item = InventoryController.getUI().getItemById(ID);
 			if (!item) return;
@@ -256809,6 +256942,7 @@ var init_MapRenderer = __esmMin((() => {
 			EntityManager.free();
 			Damage.free(gl);
 			EffectManager.free(gl);
+			JoystickUI_default.onRestore();
 			Mouse.intersect = false;
 			Background.remove(() => {
 				MapRenderer.onLoad();
@@ -257100,15 +257234,17 @@ var init_Camera = __esmMin((() => {
 		*/
 		static processQuake(tick) {
 			for (let i = 0; i < this.quakes.length; i++) if (this.quakes[i].active) {
-				if (this.quakes[i].startTick <= tick) if (this.quakes[i].startTick + this.quakes[i].duration > tick) {
-					this.position[0] += ((Math.random() * 5 - 2.5) / 10 + this.quakes[i].sideQuake) * Math.cos(this.angle[1] * (Math.PI / 180)) * C_QUAKE_MULT;
-					this.position[1] += ((Math.random() * 5 - 2.5) / 10 + this.quakes[i].sideQuake) * -Math.sin(this.angle[1] * (Math.PI / 180)) * C_QUAKE_MULT;
-					this.quakes[i].sideQuake *= -1;
-					this.zoom += ((Math.random() * 5 - 2.5) / 10 + this.quakes[i].zoomQuake) * C_QUAKE_MULT;
-					this.quakes[i].zoomQuake *= -1;
-					this.angle[0] += ((Math.random() * 5 - 2.5) / 15 + this.quakes[i].latitudeQuake) * C_QUAKE_MULT;
-					this.quakes[i].latitudeQuake *= -1;
-				} else this.quakes[i].active = false;
+				if (this.quakes[i].startTick <= tick) {
+					if (this.quakes[i].startTick + this.quakes[i].duration > tick) {
+						this.position[0] += ((Math.random() * 5 - 2.5) / 10 + this.quakes[i].sideQuake) * Math.cos(this.angle[1] * (Math.PI / 180)) * C_QUAKE_MULT;
+						this.position[1] += ((Math.random() * 5 - 2.5) / 10 + this.quakes[i].sideQuake) * -Math.sin(this.angle[1] * (Math.PI / 180)) * C_QUAKE_MULT;
+						this.quakes[i].sideQuake *= -1;
+						this.zoom += ((Math.random() * 5 - 2.5) / 10 + this.quakes[i].zoomQuake) * C_QUAKE_MULT;
+						this.quakes[i].zoomQuake *= -1;
+						this.angle[0] += ((Math.random() * 5 - 2.5) / 15 + this.quakes[i].latitudeQuake) * C_QUAKE_MULT;
+						this.quakes[i].latitudeQuake *= -1;
+					} else this.quakes[i].active = false;
+				}
 			} else this.quakes.splice(i, 1);
 		}
 		/**
@@ -257152,8 +257288,10 @@ var init_Camera = __esmMin((() => {
 				return;
 			}
 			if (action.tick + 500 > tick && Math.abs(action.x - Mouse.screen.x) < 10 && Math.abs(action.y - Mouse.screen.y) < 10) {
-				if (KEYS.SHIFT) if (DB.isIndoor(this.currentMap)) this.angleFinal[0] = +this.indoorRange;
-				else this.angleFinal[0] = +this.range;
+				if (KEYS.SHIFT) {
+					if (DB.isIndoor(this.currentMap)) this.angleFinal[0] = +this.indoorRange;
+					else this.angleFinal[0] = +this.range;
+				}
 				if (KEYS.CTRL) this.zoomFinal = 125;
 				else if (DB.isIndoor(this.currentMap)) this.angleFinal[1] = this.indoorRotationTo;
 				else this.angleFinal[1] = 0;
@@ -258206,15 +258344,16 @@ var init_RainWeather = __esmMin((() => {
 			if (this.isFlashing) {
 				const elapsed = now - this.flashStartTime;
 				let flashAlpha = 0;
-				if (this.flashMultiCount === 2) if (elapsed < 80) flashAlpha = .6 * (1 - elapsed / 80);
-				else if (elapsed < 160) flashAlpha = 0;
-				else {
-					const elapsed2 = elapsed - 160;
-					if (elapsed2 < FLASH_FADE_IN) flashAlpha = elapsed2 / FLASH_FADE_IN * .8;
-					else if (elapsed2 < 350) flashAlpha = .8 * (1 - (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT);
-					else this.isFlashing = false;
-				}
-				else if (elapsed < FLASH_FADE_IN) flashAlpha = elapsed / FLASH_FADE_IN * .8;
+				if (this.flashMultiCount === 2) {
+					if (elapsed < 80) flashAlpha = .6 * (1 - elapsed / 80);
+					else if (elapsed < 160) flashAlpha = 0;
+					else {
+						const elapsed2 = elapsed - 160;
+						if (elapsed2 < FLASH_FADE_IN) flashAlpha = elapsed2 / FLASH_FADE_IN * .8;
+						else if (elapsed2 < 350) flashAlpha = .8 * (1 - (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT);
+						else this.isFlashing = false;
+					}
+				} else if (elapsed < FLASH_FADE_IN) flashAlpha = elapsed / FLASH_FADE_IN * .8;
 				else if (elapsed < 350) flashAlpha = .8 * (1 - (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT);
 				else this.isFlashing = false;
 				if (this.isFlashing) {
@@ -258455,13 +258594,13 @@ var init_SwirlingAura = __esmMin((() => {
 			const GAME_TO_WORLD = .1 * 2.2;
 			if (this.sizeType === 7) this.color = {
 				r: 100 / 255,
-				g: 255 / 255,
+				g: 1,
 				b: 100 / 255
 			};
 			else this.color = {
 				r: 100 / 255,
 				g: 100 / 255,
-				b: 255 / 255
+				b: 1
 			};
 			this.alphaB = 120 / 255;
 			const INNER_CIRCLE_SCALE = .6;
@@ -258928,7 +259067,7 @@ function pickColor(flag1) {
 	if (flag1 === 1) return {
 		r: 80 / 255,
 		g: 80 / 255,
-		b: 255 / 255
+		b: 1
 	};
 	if (flag1 === 11 || flag1 === 3) return {
 		r: .85,
@@ -259603,9 +259742,9 @@ var init_Tiles = __esmMin((() => {
 //#region src/Renderer/Effects/Songs.js
 function AbyssEffects$1() {
 	return [FlatColorTile_default("abyss", {
-		r: 255 / 255,
-		g: 255 / 255,
-		b: 255 / 255,
+		r: 1,
+		g: 1,
+		b: 1,
 		a: .05
 	}), HoveringTexture("data/texture/effect/" + [
 		"·¹µåÁª½ºÅæ",
@@ -259625,15 +259764,15 @@ var init_Songs = __esmMin((() => {
 	init_Tiles();
 	init_FlatColorTile();
 	DissonanceEffects$1 = [FlatColorTile_default("dissonance", {
-		r: 255 / 255,
-		g: 255 / 255,
-		b: 255 / 255,
+		r: 1,
+		g: 1,
+		b: 1,
 		a: .05
 	}), HoveringTexture("data/texture/effect/lens_w.bmp", .5, .7)];
 	LullabyEffects$1 = [FlatColorTile_default("lullaby", {
 		r: 237 / 255,
 		g: 158 / 255,
-		b: 255 / 255,
+		b: 1,
 		a: .05
 	}), HoveringTexture("data/texture/effect/zz.bmp", .5, .7)];
 	MrKimEffects$1 = [FlatColorTile_default("mrkim", {
@@ -259644,7 +259783,7 @@ var init_Songs = __esmMin((() => {
 	}), HoveringTexture("data/texture/effect/pocket.bmp", .5, .7)];
 	EtChaosEffects$1 = [FlatColorTile_default("etchaos", {
 		r: 128 / 255,
-		g: 255 / 255,
+		g: 1,
 		b: 194 / 255,
 		a: .05
 	}), HoveringTexture("data/texture/effect/lens_g.bmp", .5, .7)];
@@ -259657,7 +259796,7 @@ var init_Songs = __esmMin((() => {
 	NibelungEffects$1 = [FlatColorTile_default("nibelung", {
 		r: 28 / 255,
 		g: 236 / 255,
-		b: 255 / 255,
+		b: 1,
 		a: .05
 	}), HoveringTexture("data/texture/effect/twirl.bmp", .5, .7)];
 	LokiEffects$1 = [FlatColorTile_default("loki", {
@@ -259669,17 +259808,17 @@ var init_Songs = __esmMin((() => {
 	SiegfiedEffects$1 = [FlatColorTile_default("siegfried", {
 		r: 72 / 255,
 		g: 59 / 255,
-		b: 255 / 255,
+		b: 1,
 		a: .05
 	}), HoveringTexture("data/texture/effect/lens_b.bmp", .5, .7)];
 	WhistleEffects$1 = [FlatColorTile_default("whislte", {
-		r: 255 / 255,
+		r: 1,
 		g: 192 / 255,
 		b: 203 / 255,
 		a: .05
 	}), HoveringTexture("data/texture/effect/melody_b.bmp", .5, .7)];
 	SinEffects$1 = [FlatColorTile_default("sinsun", {
-		r: 255 / 255,
+		r: 1,
 		g: .8,
 		b: .85,
 		a: .4
@@ -259695,15 +259834,15 @@ var init_Songs = __esmMin((() => {
 		};
 	})();
 	AppleEffects$1 = [FlatColorTile_default("apple", {
-		r: 255 / 255,
-		g: 255 / 255,
-		b: 0 / 255,
+		r: 1,
+		g: 1,
+		b: 0,
 		a: .05
 	}), HoveringTexture("data/texture/effect/idun_apple.bmp", 1, .7)];
 	UglyEffects$1 = [FlatColorTile_default("ugly", {
-		r: 255 / 255,
-		g: 255 / 255,
-		b: 255 / 255,
+		r: 1,
+		g: 1,
+		b: 1,
 		a: .05
 	}), HoveringTexture("data/texture/effect/lens_w.bmp", .5, .7)];
 	HummingEffects$1 = [FlatColorTile_default("humming", {
@@ -259714,7 +259853,7 @@ var init_Songs = __esmMin((() => {
 	}), HoveringTexture("data/texture/effect/melody_a.bmp", .5, .7)];
 	ForgetEffects$1 = [FlatColorTile_default("humming", {
 		r: 28 / 255,
-		g: 255 / 255,
+		g: 1,
 		b: 115 / 255,
 		a: .05
 	}), HoveringTexture("data/texture/effect/lens_g.bmp", .5, .7)];
@@ -259725,15 +259864,15 @@ var init_Songs = __esmMin((() => {
 		a: .05
 	}), HoveringTexture("data/texture/effect/heart_2.bmp", .5, .7)];
 	ServiceEffects$1 = [FlatColorTile_default("service", {
-		r: 255 / 255,
+		r: 1,
 		g: 128 / 255,
 		b: 183 / 255,
 		a: .05
 	}), HoveringTexture("data/texture/effect/safeline.bmp", .5, .7)];
 	GospelEffects$1 = [FlatColorTile_default("gospel", {
-		r: 255 / 255,
-		g: 255 / 255,
-		b: 255 / 255,
+		r: 1,
+		g: 1,
+		b: 1,
 		a: .05
 	}), HoveringTexture("data/texture/effect/cross_old.bmp", .5, .7)];
 	FogEffects$1 = [FlatColorTile_default("fog", {
@@ -259743,9 +259882,9 @@ var init_Songs = __esmMin((() => {
 		a: .6
 	}), HoveringTexture("data/texture/effect/lens_w.bmp", .5, .7)];
 	GravityEffects$1 = [FlatColorTile_default("gravity", {
-		r: 255 / 255,
-		g: 255 / 255,
-		b: 255 / 255,
+		r: 1,
+		g: 1,
+		b: 1,
 		a: .2
 	}), HoveringTexture("data/texture/effect/lens_w.bmp", .5, .7)];
 	EvillandEffects$1 = [FlatColorTile_default("gray", {
@@ -260416,9 +260555,10 @@ var init_MagicTarget = __esmMin((() => {
 		constructor(id, x, y, endTick, srcEntity) {
 			this.x = x;
 			this.y = y;
-			if (CastSize[id]) if (SessionStorage_default.Entity == srcEntity && id == SessionStorage_default.Entity.lastSKID && SessionStorage_default.Entity.lastSkLvl && CastSize[id].length >= SessionStorage_default.Entity.lastSkLvl) this.size = CastSize[id][SessionStorage_default.Entity.lastSkLvl - 1] || 1;
-			else this.size = CastSize[id][0] || 1;
-			else this.size = 1;
+			if (CastSize[id]) {
+				if (SessionStorage_default.Entity == srcEntity && id == SessionStorage_default.Entity.lastSKID && SessionStorage_default.Entity.lastSkLvl && CastSize[id].length >= SessionStorage_default.Entity.lastSkLvl) this.size = CastSize[id][SessionStorage_default.Entity.lastSkLvl - 1] || 1;
+				else this.size = CastSize[id][0] || 1;
+			} else this.size = 1;
 			this.endTick = endTick;
 		}
 		/**
@@ -267950,7 +268090,7 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: false,
 			func: function(Params) {
 				const BlueTile = FlatColorTile_default("salmon", {
-					r: 255 / 255,
+					r: 1,
 					g: 138 / 255,
 					b: 187 / 255,
 					a: .6
@@ -272737,20 +272877,21 @@ var init_EffectTable = __esmMin((() => {
 				func: function EffectBodyColor(Params) {
 					const entity = Params.Init;
 					entity.animations.add(function(tick) {
-						if (tick < 500) if (tick % 2 == 0) {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = .4;
-							entity.recalculateBlendingColor();
+						if (tick < 500) {
+							if (tick % 2 == 0) {
+								entity._flashColor[0] = 1;
+								entity._flashColor[1] = 1;
+								entity._flashColor[2] = 1;
+								entity._flashColor[3] = .4;
+								entity.recalculateBlendingColor();
+							} else {
+								entity._flashColor[0] = 1;
+								entity._flashColor[1] = 1;
+								entity._flashColor[2] = 1;
+								entity._flashColor[3] = 1;
+								entity.recalculateBlendingColor();
+							}
 						} else {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-						}
-						else {
 							entity._flashColor[0] = 1;
 							entity._flashColor[1] = 1;
 							entity._flashColor[2] = 1;
@@ -272835,20 +272976,21 @@ var init_EffectTable = __esmMin((() => {
 				func: function EffectBodyColor(Params) {
 					const entity = Params.Init.ownerEntity;
 					entity.animations.add(function(tick) {
-						if (tick < 500) if (tick % 2 == 0) {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = .1;
-							entity._flashColor[2] = .5;
-							entity._flashColor[3] = .4;
-							entity.recalculateBlendingColor();
+						if (tick < 500) {
+							if (tick % 2 == 0) {
+								entity._flashColor[0] = 1;
+								entity._flashColor[1] = .1;
+								entity._flashColor[2] = .5;
+								entity._flashColor[3] = .4;
+								entity.recalculateBlendingColor();
+							} else {
+								entity._flashColor[0] = 1;
+								entity._flashColor[1] = 1;
+								entity._flashColor[2] = 1;
+								entity._flashColor[3] = 1;
+								entity.recalculateBlendingColor();
+							}
 						} else {
-							entity._flashColor[0] = 1;
-							entity._flashColor[1] = 1;
-							entity._flashColor[2] = 1;
-							entity._flashColor[3] = 1;
-							entity.recalculateBlendingColor();
-						}
-						else {
 							entity._flashColor[0] = 1;
 							entity._flashColor[1] = 1;
 							entity._flashColor[2] = 1;
@@ -273635,7 +273777,7 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		/** Used to indicate the type of lazy iteratees. */
 		var LAZY_FILTER_FLAG = 1, LAZY_MAP_FLAG = 2, LAZY_WHILE_FLAG = 3;
 		/** Used as references for various `Number` constants. */
-		var INFINITY = Infinity, MAX_SAFE_INTEGER = 9007199254740991, MAX_INTEGER = 17976931348623157e292, NAN = NaN;
+		var INFINITY = 1 / 0, MAX_SAFE_INTEGER = 9007199254740991, MAX_INTEGER = 17976931348623157e292, NAN = NaN;
 		/** Used as references for the maximum length and index of an array. */
 		var MAX_ARRAY_LENGTH = 4294967295, MAX_ARRAY_INDEX = MAX_ARRAY_LENGTH - 1, HALF_MAX_ARRAY_LENGTH = MAX_ARRAY_LENGTH >>> 1;
 		/** Used to associate wrap methods with their bit flags. */
@@ -275152,8 +275294,10 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 					while (++iterIndex < iterLength) {
 						var data = iteratees[iterIndex], iteratee = data.iteratee, type = data.type, computed = iteratee(value);
 						if (type == LAZY_MAP_FLAG) value = computed;
-						else if (!computed) if (type == LAZY_FILTER_FLAG) continue outer;
-						else break outer;
+						else if (!computed) {
+							if (type == LAZY_FILTER_FLAG) continue outer;
+							else break outer;
+						}
 					}
 					result[resIndex++] = value;
 				}
@@ -275978,9 +276122,10 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				result || (result = []);
 				while (++index < length) {
 					var value = array[index];
-					if (depth > 0 && predicate(value)) if (depth > 1) baseFlatten(value, depth - 1, predicate, isStrict, result);
-					else arrayPush(result, value);
-					else if (!isStrict) result[result.length] = value;
+					if (depth > 0 && predicate(value)) {
+						if (depth > 1) baseFlatten(value, depth - 1, predicate, isStrict, result);
+						else arrayPush(result, value);
+					} else if (!isStrict) result[result.length] = value;
 				}
 				return result;
 			}
@@ -276513,16 +276658,17 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				if (isCommon) {
 					var isArr = isArray(srcValue), isBuff = !isArr && isBuffer(srcValue), isTyped = !isArr && !isBuff && isTypedArray(srcValue);
 					newValue = srcValue;
-					if (isArr || isBuff || isTyped) if (isArray(objValue)) newValue = objValue;
-					else if (isArrayLikeObject(objValue)) newValue = copyArray(objValue);
-					else if (isBuff) {
-						isCommon = false;
-						newValue = cloneBuffer(srcValue, true);
-					} else if (isTyped) {
-						isCommon = false;
-						newValue = cloneTypedArray(srcValue, true);
-					} else newValue = [];
-					else if (isPlainObject(srcValue) || isArguments(srcValue)) {
+					if (isArr || isBuff || isTyped) {
+						if (isArray(objValue)) newValue = objValue;
+						else if (isArrayLikeObject(objValue)) newValue = copyArray(objValue);
+						else if (isBuff) {
+							isCommon = false;
+							newValue = cloneBuffer(srcValue, true);
+						} else if (isTyped) {
+							isCommon = false;
+							newValue = cloneTypedArray(srcValue, true);
+						} else newValue = [];
+					} else if (isPlainObject(srcValue) || isArguments(srcValue)) {
 						newValue = objValue;
 						if (isArguments(objValue)) newValue = toPlainObject(objValue);
 						else if (!isObject(objValue) || isFunction(objValue)) newValue = initCloneObject(srcValue);
@@ -278237,8 +278383,10 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 					var unmasked = true;
 				} catch (e) {}
 				var result = nativeObjectToString.call(value);
-				if (unmasked) if (isOwn) value[symToStringTag] = tag;
-				else delete value[symToStringTag];
+				if (unmasked) {
+					if (isOwn) value[symToStringTag] = tag;
+					else delete value[symToStringTag];
+				}
 				return result;
 			}
 			/**
@@ -283657,7 +283805,7 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			* // => false
 			*/
 			function isSafeInteger(value) {
-				return isInteger(value) && value >= -9007199254740991 && value <= MAX_SAFE_INTEGER;
+				return isInteger(value) && value >= -MAX_SAFE_INTEGER && value <= MAX_SAFE_INTEGER;
 			}
 			/**
 			* Checks if `value` is classified as a `Set` object.
@@ -284051,7 +284199,7 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			* // => 3
 			*/
 			function toSafeInteger(value) {
-				return value ? baseClamp(toInteger(value), -9007199254740991, MAX_SAFE_INTEGER) : value === 0 ? value : 0;
+				return value ? baseClamp(toInteger(value), -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER) : value === 0 ? value : 0;
 			}
 			/**
 			* Converts `value` to a string. An empty string is returned for `null`
@@ -288268,8 +288416,10 @@ function formatValue(ctx, value, recurseTimes) {
 	if (isDate(value)) base = " " + Date.prototype.toUTCString.call(value);
 	if (isError(value)) base = " " + formatError(value);
 	if (keys.length === 0 && (!array || value.length == 0)) return braces[0] + base + braces[1];
-	if (recurseTimes < 0) if (isRegExp(value)) return ctx.stylize(RegExp.prototype.toString.call(value), "regexp");
-	else return ctx.stylize("[Object]", "special");
+	if (recurseTimes < 0) {
+		if (isRegExp(value)) return ctx.stylize(RegExp.prototype.toString.call(value), "regexp");
+		else return ctx.stylize("[Object]", "special");
+	}
 	ctx.seen.push(value);
 	var output;
 	if (array) output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
@@ -288303,20 +288453,25 @@ function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
 }
 function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
 	var name, str, desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-	if (desc.get) if (desc.set) str = ctx.stylize("[Getter/Setter]", "special");
-	else str = ctx.stylize("[Getter]", "special");
-	else if (desc.set) str = ctx.stylize("[Setter]", "special");
+	if (desc.get) {
+		if (desc.set) str = ctx.stylize("[Getter/Setter]", "special");
+		else str = ctx.stylize("[Getter]", "special");
+	} else if (desc.set) str = ctx.stylize("[Setter]", "special");
 	if (!hasOwnProperty(visibleKeys, key)) name = "[" + key + "]";
-	if (!str) if (ctx.seen.indexOf(desc.value) < 0) {
-		if (isNull(recurseTimes)) str = formatValue(ctx, desc.value, null);
-		else str = formatValue(ctx, desc.value, recurseTimes - 1);
-		if (str.indexOf("\n") > -1) if (array) str = str.split("\n").map(function(line) {
-			return "  " + line;
-		}).join("\n").substr(2);
-		else str = "\n" + str.split("\n").map(function(line) {
-			return "   " + line;
-		}).join("\n");
-	} else str = ctx.stylize("[Circular]", "special");
+	if (!str) {
+		if (ctx.seen.indexOf(desc.value) < 0) {
+			if (isNull(recurseTimes)) str = formatValue(ctx, desc.value, null);
+			else str = formatValue(ctx, desc.value, recurseTimes - 1);
+			if (str.indexOf("\n") > -1) {
+				if (array) str = str.split("\n").map(function(line) {
+					return "  " + line;
+				}).join("\n").substr(2);
+				else str = "\n" + str.split("\n").map(function(line) {
+					return "   " + line;
+				}).join("\n");
+			}
+		} else str = ctx.stylize("[Circular]", "special");
+	}
 	if (isUndefined(name)) {
 		if (array && key.match(/^\d+$/)) return str;
 		name = JSON.stringify("" + key);
@@ -288828,9 +288983,10 @@ var init_wasmoon_lua5_1 = __esmMin((() => {
 		}
 		pushBasicValue(target, options) {
 			if (target === void 0 || target === null) this.luaApi.lua_pushnil(this.address);
-			else if (typeof target === "number") if (Number.isInteger(target)) this.luaApi.lua_pushinteger(this.address, target);
-			else this.luaApi.lua_pushnumber(this.address, target);
-			else if (typeof target === "string") this.luaApi.lua_pushstring(this.address, target);
+			else if (typeof target === "number") {
+				if (Number.isInteger(target)) this.luaApi.lua_pushinteger(this.address, target);
+				else this.luaApi.lua_pushnumber(this.address, target);
+			} else if (typeof target === "string") this.luaApi.lua_pushstring(this.address, target);
 			else if (typeof target === "boolean") this.luaApi.lua_pushboolean(this.address, target ? 1 : 0);
 			else if (lodash__namespace.isPlainObject(target) || lodash__namespace.isArray(target)) this.pushTable(target, options);
 			else return false;
@@ -288838,22 +288994,23 @@ var init_wasmoon_lua5_1 = __esmMin((() => {
 		}
 		pushValue(target, options = {}) {
 			const startTop = this.getTop();
-			if (target instanceof JsType) if (target._push) target._push({
-				thread: this,
-				target: target.value,
-				options
-			});
-			else {
-				if (!this.pushBasicValue(target.value, options)) {
-					const ref = this.luaApi.ref(target.value);
-					const luaPointer = this.luaApi.lua_newuserdata(this.address, PointerSize);
-					this.luaApi.module.setValue(luaPointer, ref, "*");
+			if (target instanceof JsType) {
+				if (target._push) target._push({
+					thread: this,
+					target: target.value,
+					options
+				});
+				else {
+					if (!this.pushBasicValue(target.value, options)) {
+						const ref = this.luaApi.ref(target.value);
+						const luaPointer = this.luaApi.lua_newuserdata(this.address, PointerSize);
+						this.luaApi.module.setValue(luaPointer, ref, "*");
+					}
+					this.luaApi.lua_createtable(this.address, 0, 0);
+					target._pushMetaTable(this);
+					this.luaApi.lua_setmetatable(this.address, -2);
 				}
-				this.luaApi.lua_createtable(this.address, 0, 0);
-				target._pushMetaTable(this);
-				this.luaApi.lua_setmetatable(this.address, -2);
-			}
-			else if (target instanceof LuaThread) {
+			} else if (target instanceof LuaThread) {
 				if (!(this.luaApi.lua_pushthread(target.address) === 1)) this.luaApi.lua_xmove(target.address, this.address, 1);
 				return;
 			} else if (target && target.$istable) {
@@ -289074,11 +289231,13 @@ var init_wasmoon_lua5_1 = __esmMin((() => {
 			if (result !== exports$1.LuaReturn.Ok && result !== exports$1.LuaReturn.Yield) {
 				const resultString = exports$1.LuaReturn[result];
 				let error = /* @__PURE__ */ new Error(`Lua Error(${resultString}/${result})`);
-				if (this.getTop() > 0) if (result === exports$1.LuaReturn.ErrorMem) error.message = this.luaApi.lua_tolstring(this.address, -1, null);
-				else {
-					const luaError = this.getValue(-1);
-					if (luaError instanceof Error) error = luaError;
-					else error.message = new TextDecoder().decode(this.indexToString(-1));
+				if (this.getTop() > 0) {
+					if (result === exports$1.LuaReturn.ErrorMem) error.message = this.luaApi.lua_tolstring(this.address, -1, null);
+					else {
+						const luaError = this.getValue(-1);
+						if (luaError instanceof Error) error = luaError;
+						else error.message = new TextDecoder().decode(this.indexToString(-1));
+					}
 				}
 				if (result !== exports$1.LuaReturn.ErrorMem) {
 					const pointer = this.luaApi.module._malloc(LuaDebug.structSize);
@@ -292697,17 +292856,19 @@ var init_wasmoon_lua5_1 = __esmMin((() => {
 					if (commonType.includes(argType)) {
 						resolvedArgTypes.push(argType);
 						resolvedArgs.push(args[i]);
-					} else if (argType === "string|number") if (typeof args[i] === "number") {
-						resolvedArgTypes.push("number");
-						resolvedArgs.push(args[i]);
-					} else if (((_a = args[i]) === null || _a === void 0 ? void 0 : _a.length) > 1024) {
-						const bufferPointer = this.module.stringToNewUTF8(args[i]);
-						resolvedArgTypes.push("number");
-						resolvedArgs.push(bufferPointer);
-						pointersToBeFreed.push(bufferPointer);
-					} else {
-						resolvedArgTypes.push("string");
-						resolvedArgs.push(args[i]);
+					} else if (argType === "string|number") {
+						if (typeof args[i] === "number") {
+							resolvedArgTypes.push("number");
+							resolvedArgs.push(args[i]);
+						} else if (((_a = args[i]) === null || _a === void 0 ? void 0 : _a.length) > 1024) {
+							const bufferPointer = this.module.stringToNewUTF8(args[i]);
+							resolvedArgTypes.push("number");
+							resolvedArgs.push(bufferPointer);
+							pointersToBeFreed.push(bufferPointer);
+						} else {
+							resolvedArgTypes.push("string");
+							resolvedArgs.push(args[i]);
+						}
 					}
 				});
 				try {
@@ -295659,8 +295820,10 @@ function onUpdateOwnerName(pkt) {
 * Function to update MapTable with MapInfo values
 */
 function updateMapTable() {
-	for (const key in MapInfo) if (MapInfo.hasOwnProperty(key)) if (MapTable[key]) MapTable[key].name = MapInfo[key].displayName;
-	else MapTable[key] = { name: MapInfo[key].displayName };
+	for (const key in MapInfo) if (MapInfo.hasOwnProperty(key)) {
+		if (MapTable[key]) MapTable[key].name = MapInfo[key].displayName;
+		else MapTable[key] = { name: MapInfo[key].displayName };
+	}
 }
 var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING;
 var init_DBManager = __esmMin((() => {
@@ -299948,11 +300111,13 @@ var init_EntityDisplay = __esmMin((() => {
 			const height = fontSize * 3 * (lines[1].length ? 2 : 1) + paddingTop;
 			ctx.canvas.width = width;
 			ctx.canvas.height = height;
-			if (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) if (this.gifEmblem) {
-				const fw = this.gifEmblem.frameWidth;
-				const fh = this.gifEmblem.frameHeight;
-				ctx.drawImage(this.gifEmblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
-			} else ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
+			if (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
+				if (this.gifEmblem) {
+					const fw = this.gifEmblem.frameWidth;
+					const fh = this.gifEmblem.frameHeight;
+					ctx.drawImage(this.gifEmblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
+				} else ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
+			}
 			let color = "white";
 			switch (style) {
 				case this.STYLE.MOB:
@@ -301721,25 +301886,27 @@ function walkProcess() {
 		pos[0] = newX;
 		pos[1] = newY;
 		pos[2] = cellHeight;
-		if (index < total) if (index === 2) {
-			const remDx = nextX - newX;
-			const remDy = nextY - newY;
-			if (Math.abs(remDx) < .001 && Math.abs(remDy) < .001) {
-				const prevTileX0 = path[index - 2];
-				const prevTileY0 = path[index - 1];
-				const segDx0 = nextX - prevTileX0;
-				const segDy0 = nextY - prevTileY0;
-				const dirRow0 = DIRECTION$1[segDx0 + 1];
-				if (dirRow0 && typeof dirRow0[segDy0 + 1] !== "undefined") this.direction = dirRow0[segDy0 + 1];
+		if (index < total) {
+			if (index === 2) {
+				const remDx = nextX - newX;
+				const remDy = nextY - newY;
+				if (Math.abs(remDx) < .001 && Math.abs(remDy) < .001) {
+					const prevTileX0 = path[index - 2];
+					const prevTileY0 = path[index - 1];
+					const segDx0 = nextX - prevTileX0;
+					const segDy0 = nextY - prevTileY0;
+					const dirRow0 = DIRECTION$1[segDx0 + 1];
+					if (dirRow0 && typeof dirRow0[segDy0 + 1] !== "undefined") this.direction = dirRow0[segDy0 + 1];
+				} else {
+					const contDir = offsetToFloatDir(remDx, remDy);
+					this.direction = quantizeDir(contDir);
+				}
 			} else {
-				const contDir = offsetToFloatDir(remDx, remDy);
-				this.direction = quantizeDir(contDir);
+				const segDx = Math.round(nextX - startX);
+				const segDy = Math.round(nextY - startY);
+				const dirRow = DIRECTION$1[segDx + 1];
+				if (dirRow && typeof dirRow[segDy + 1] !== "undefined") this.direction = dirRow[segDy + 1];
 			}
-		} else {
-			const segDx = Math.round(nextX - startX);
-			const segDy = Math.round(nextY - startY);
-			const dirRow = DIRECTION$1[segDx + 1];
-			if (dirRow && typeof dirRow[segDy + 1] !== "undefined") this.direction = dirRow[segDy + 1];
 		}
 		walk.dist += traveledDist;
 		walk.index = index;
@@ -302960,29 +303127,33 @@ function updateEffectState(value) {
 	if (value & StatusState_default.EffectState.XMAS) costume = 26;
 	if (value & StatusState_default.EffectState.SUMMER) costume = 27;
 	if (value & StatusState_default.EffectState.INVISIBLE) this._effectStateColor[3] = 0;
-	else if (value & (StatusState_default.EffectState.HIDE | StatusState_default.EffectState.CLOAK | StatusState_default.EffectState.CHASEWALK)) if (SessionStorage_default.Character.intravision) {
-		this._effectStateColor[0] = 0;
-		this._effectStateColor[1] = 0;
-		this._effectStateColor[2] = 0;
-	} else this._effectStateColor[3] = 0;
-	else if (this.Camouflage || this.Stealthfield) if (SessionStorage_default.Character.intravision) {
-		this._effectStateColor[0] = 0;
-		this._effectStateColor[1] = 0;
-		this._effectStateColor[2] = 0;
-	} else {
-		this._effectStateColor[3] = .1;
-		SoundManager.play("effect/assasin_cloaking.wav");
-	}
-	else if (this.Shadowform) if (SessionStorage_default.Character.intravision) {
-		this._effectStateColor[0] = 0;
-		this._effectStateColor[1] = 0;
-		this._effectStateColor[2] = 0;
-	} else {
-		this._effectStateColor[0] = .2;
-		this._effectStateColor[1] = .2;
-		this._effectStateColor[2] = .2;
-		this._effectStateColor[3] = .2;
-		SoundManager.play("effect/assasin_cloaking.wav", this.position);
+	else if (value & (StatusState_default.EffectState.HIDE | StatusState_default.EffectState.CLOAK | StatusState_default.EffectState.CHASEWALK)) {
+		if (SessionStorage_default.Character.intravision) {
+			this._effectStateColor[0] = 0;
+			this._effectStateColor[1] = 0;
+			this._effectStateColor[2] = 0;
+		} else this._effectStateColor[3] = 0;
+	} else if (this.Camouflage || this.Stealthfield) {
+		if (SessionStorage_default.Character.intravision) {
+			this._effectStateColor[0] = 0;
+			this._effectStateColor[1] = 0;
+			this._effectStateColor[2] = 0;
+		} else {
+			this._effectStateColor[3] = .1;
+			SoundManager.play("effect/assasin_cloaking.wav");
+		}
+	} else if (this.Shadowform) {
+		if (SessionStorage_default.Character.intravision) {
+			this._effectStateColor[0] = 0;
+			this._effectStateColor[1] = 0;
+			this._effectStateColor[2] = 0;
+		} else {
+			this._effectStateColor[0] = .2;
+			this._effectStateColor[1] = .2;
+			this._effectStateColor[2] = .2;
+			this._effectStateColor[3] = .2;
+			SoundManager.play("effect/assasin_cloaking.wav", this.position);
+		}
 	}
 	if (value & StatusState_default.EffectState.ORCISH) this.isOrcish = true;
 	else this.isOrcish = false;
@@ -303429,20 +303600,21 @@ var init_EntityAura = __esmMin((() => {
 			const server = Configs.getServer();
 			/** @type {TAuraSettings} - merge server aura config with default settings */
 			const settings = server != null ? Object.assign({}, _auraSettings, server.aura) : Object.assign({}, _auraSettings);
-			if (Map_default.aura > 0 && this.entity.clevel >= settings.defaultLv) if (this.entity.isVisible()) {
-				if (this.lastAuraState !== Map_default.aura && this.isLoaded) this.remove(effectManager);
-				if (!this.isLoaded) {
-					const effects = Map_default.aura < 2 ? simpleEffects : normalEffects;
-					for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) effectManager.spam({
-						ownerAID: this.entity.GID,
-						position: this.entity.position,
-						effectId: effects[effectIndex]
-					});
-					this.isLoaded = true;
-					this.lastAuraState = Map_default.aura;
-				}
-			} else this.remove(effectManager);
-			else if (this.isLoaded) {
+			if (Map_default.aura > 0 && this.entity.clevel >= settings.defaultLv) {
+				if (this.entity.isVisible()) {
+					if (this.lastAuraState !== Map_default.aura && this.isLoaded) this.remove(effectManager);
+					if (!this.isLoaded) {
+						const effects = Map_default.aura < 2 ? simpleEffects : normalEffects;
+						for (let effectIndex = 0; effectIndex < effects.length; effectIndex++) effectManager.spam({
+							ownerAID: this.entity.GID,
+							position: this.entity.position,
+							effectId: effects[effectIndex]
+						});
+						this.isLoaded = true;
+						this.lastAuraState = Map_default.aura;
+					}
+				} else this.remove(effectManager);
+			} else if (this.isLoaded) {
 				this.remove(effectManager);
 				this.lastAuraState = Map_default.aura;
 			}
@@ -303579,7 +303751,7 @@ var init_EntityEmblem = __esmMin((() => {
 		render(matrix) {
 			const canvas = this.canvas;
 			_pos[0] = 0;
-			_pos[1] = 140 / 35;
+			_pos[1] = 4;
 			_pos[2] = 0;
 			_pos[3] = 1;
 			_size[0] = window.innerWidth / 2;
@@ -303759,11 +303931,12 @@ var init_Entity$1 = __esmMin((() => {
 				if (pending.job_transform !== void 0) this._job_transform = pending.job_transform;
 				delete pendingTrans[unit.GID];
 			}
-			if (unit.hasOwnProperty("job")) if (this._active_monster_transform || this._monster_transform || this._job_transform) {
-				this._job = unit.job;
-				this.job = this._effectiveJob;
-			} else this.job = unit.job;
-			else this.job = this._job;
+			if (unit.hasOwnProperty("job")) {
+				if (this._active_monster_transform || this._monster_transform || this._job_transform) {
+					this._job = unit.job;
+					this.job = this._effectiveJob;
+				} else this.job = unit.job;
+			} else this.job = this._job;
 			this.clothes = 0;
 			const keys = Object.keys(unit);
 			const count = keys.length;
@@ -307209,17 +307382,19 @@ var init_html2canvas = __esmMin((() => {
 					arr[1] = parseInt(arr[1], 10);
 					val = arr;
 				}
-			} else if (el.currentStyle) if (attribute === "backgroundPosition") val = [toPX(attribute + "X", el.currentStyle[attribute + "X"]), toPX(attribute + "Y", el.currentStyle[attribute + "Y"])];
-			else {
-				val = toPX(attribute, el.currentStyle[attribute]);
-				if (/^(border)/i.test(attribute) && /^(medium|thin|thick)$/i.test(val)) switch (val) {
-					case "thin":
-						val = "1px";
-						break;
-					case "medium":
-						val = "0px";
-						break;
-					case "thick": val = "5px";
+			} else if (el.currentStyle) {
+				if (attribute === "backgroundPosition") val = [toPX(attribute + "X", el.currentStyle[attribute + "X"]), toPX(attribute + "Y", el.currentStyle[attribute + "Y"])];
+				else {
+					val = toPX(attribute, el.currentStyle[attribute]);
+					if (/^(border)/i.test(attribute) && /^(medium|thin|thick)$/i.test(val)) switch (val) {
+						case "thin":
+							val = "1px";
+							break;
+						case "medium":
+							val = "0px";
+							break;
+						case "thick": val = "5px";
+					}
 				}
 			}
 			return val;
@@ -308153,15 +308328,19 @@ var init_html2canvas = __esmMin((() => {
 					cssPosition
 				};
 				if (parentStack.clip) stack.clip = _html2canvas.Util.Extend({}, parentStack.clip);
-				if (options.useOverflow === true && /(hidden|scroll|auto)/.test(getCSS(el, "overflow")) === true && /(BODY)/i.test(el.nodeName) === false) if (stack.clip) stack.clip = clipBounds(stack.clip, bounds);
-				else stack.clip = bounds;
+				if (options.useOverflow === true && /(hidden|scroll|auto)/.test(getCSS(el, "overflow")) === true && /(BODY)/i.test(el.nodeName) === false) {
+					if (stack.clip) stack.clip = clipBounds(stack.clip, bounds);
+					else stack.clip = bounds;
+				}
 				stackLength = zindex.children.push(stack);
 				ctx = zindex.children[stackLength - 1].ctx;
 				ctx.setVariable("globalAlpha", stack.opacity);
 				borders = renderBorders(el, ctx, bounds, false);
 				stack.borders = borders;
-				if (ignoreElementsRegExp.test(el.nodeName) && options.iframeDefault !== "transparent") if (options.iframeDefault === "default") bgcolor = "#efefef";
-				else bgcolor = options.iframeDefault;
+				if (ignoreElementsRegExp.test(el.nodeName) && options.iframeDefault !== "transparent") {
+					if (options.iframeDefault === "default") bgcolor = "#efefef";
+					else bgcolor = options.iframeDefault;
+				}
 				bgbounds = {
 					left: x + borders[3].width,
 					top: y + borders[0].width,
@@ -308343,20 +308522,22 @@ var init_html2canvas = __esmMin((() => {
 					} catch (e) {
 						h2clog("html2canvas: failed to get background-image - Exception: " + e.message);
 					}
-					if (background_image && background_image !== "1" && background_image !== "none") if (/^(-webkit|-o|-moz|-ms|linear)-/.test(background_image)) {
-						img = _html2canvas.Generate.Gradient(background_image, _html2canvas.Util.Bounds(el));
-						if (img !== undefined) {
-							images[background_image] = {
-								img,
-								succeeded: true
-							};
-							images.numTotal++;
-							images.numLoaded++;
-							start();
+					if (background_image && background_image !== "1" && background_image !== "none") {
+						if (/^(-webkit|-o|-moz|-ms|linear)-/.test(background_image)) {
+							img = _html2canvas.Generate.Gradient(background_image, _html2canvas.Util.Bounds(el));
+							if (img !== undefined) {
+								images[background_image] = {
+									img,
+									succeeded: true
+								};
+								images.numTotal++;
+								images.numLoaded++;
+								start();
+							}
+						} else {
+							src = _html2canvas.Util.backgroundImage(background_image.match(/data:image\/.*;base64,/i) ? background_image : background_image.split(",")[0]);
+							methods.loadImage(src);
 						}
-					} else {
-						src = _html2canvas.Util.backgroundImage(background_image.match(/data:image\/.*;base64,/i) ? background_image : background_image.split(",")[0]);
-						methods.loadImage(src);
 					}
 				}
 			}
@@ -308626,14 +308807,15 @@ var init_html2canvas = __esmMin((() => {
 				script.src = options.flashcanvas;
 				script.onload = (function(script, func) {
 					let intervalFunc;
-					if (script.onload === undefined) if (script.onreadystatechange !== undefined) {
-						intervalFunc = function() {
-							if (script.readyState !== "loaded" && script.readyState !== "complete") window.setTimeout(intervalFunc, 250);
-							else func();
-						};
-						window.setTimeout(intervalFunc, 250);
-					} else h2clog("html2canvas: Renderer: Can't track when flashcanvas is loaded");
-					else return func;
+					if (script.onload === undefined) {
+						if (script.onreadystatechange !== undefined) {
+							intervalFunc = function() {
+								if (script.readyState !== "loaded" && script.readyState !== "complete") window.setTimeout(intervalFunc, 250);
+								else func();
+							};
+							window.setTimeout(intervalFunc, 250);
+						} else h2clog("html2canvas: Renderer: Can't track when flashcanvas is loaded");
+					} else return func;
 				})(script, function() {
 					if (typeof window.FlashCanvas !== "undefined") {
 						h2clog("html2canvas: Renderer: Flashcanvas initialized");
@@ -308889,9 +309071,10 @@ function onMouseDown(event) {
 	const entityOver = EntityManager.getOverEntity();
 	switch (action) {
 		case 1:
-			if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) if (entityOver && entityOver != SessionStorage_default.Entity && entityOver.objecttype != Entity.TYPE_EFFECT && entityOver.objecttype != Entity.TYPE_TRAP) AIDriver.setmsg(SessionStorage_default.mercId, "3," + entityOver.GID);
-			else AIDriver.setmsg(SessionStorage_default.mercId, "1," + Mouse.world.x + "," + Mouse.world.y);
-			else {
+			if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
+				if (entityOver && entityOver != SessionStorage_default.Entity && entityOver.objecttype != Entity.TYPE_EFFECT && entityOver.objecttype != Entity.TYPE_TRAP) AIDriver.setmsg(SessionStorage_default.mercId, "3," + entityOver.GID);
+				else AIDriver.setmsg(SessionStorage_default.mercId, "1," + Mouse.world.x + "," + Mouse.world.y);
+			} else {
 				SessionStorage_default.moveAction = null;
 				SessionStorage_default.autoFollow = false;
 				let stop = false;
@@ -310114,8 +310297,10 @@ var init_VendingShop = __esmMin((() => {
 		itemDiv.innerHTML = `<div class="icon"></div><div class="amount"><span class="count">${item.count || 1}</span></div>`;
 		content.appendChild(itemDiv);
 		const hideEl = root.querySelector(".hide");
-		if (hideEl) if (content.clientHeight < content.scrollHeight) hideEl.style.display = "none";
-		else hideEl.style.display = "";
+		if (hideEl) {
+			if (content.clientHeight < content.scrollHeight) hideEl.style.display = "none";
+			else hideEl.style.display = "";
+		}
 		Client.loadFile(`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`, (data) => {
 			const iconEl = content.querySelector(`.item[data-index="${item.index}"] .icon`);
 			if (iconEl) iconEl.style.backgroundImage = `url(${data})`;
@@ -311604,11 +311789,13 @@ var init_StatusIcons = __esmMin((() => {
 		_status[index].start = Renderer.tick;
 		_status[index].end = Renderer.tick + life;
 		if (life === 9999) _status[index].end = Infinity;
-		if (_status[index].img) if (TKM_ICON_OVERRIDE[index]) {
-			const wantVariant = SessionStorage_default.Entity && DB.isTaeKwon(SessionStorage_default.Entity._job) && TKM_ICON_OVERRIDE[index] || null;
-			if (_status[index].tkmVariant !== wantVariant) _status[index].img = null;
-			else return;
-		} else return;
+		if (_status[index].img) {
+			if (TKM_ICON_OVERRIDE[index]) {
+				const wantVariant = SessionStorage_default.Entity && DB.isTaeKwon(SessionStorage_default.Entity._job) && TKM_ICON_OVERRIDE[index] || null;
+				if (_status[index].tkmVariant !== wantVariant) _status[index].img = null;
+				else return;
+			} else return;
+		}
 		loadStatusIcon(index);
 		ScreenEffectManager.parseStatus(index);
 	};
@@ -313154,14 +313341,15 @@ function onSubmitItem$1() {
 	if (!sourceItem) return;
 	if (this.classList && this.classList.contains("unselectable")) {
 		let message;
-		if (item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR) if (item.RefiningLevel > LaphineUIState.needRefineMax) {
-			message = DB.getMessage(3644);
-			showMessage$1(message);
+		if (item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR) {
+			if (item.RefiningLevel > LaphineUIState.needRefineMax) {
+				message = DB.getMessage(3644);
+				showMessage$1(message);
+			} else {
+				message = DB.getMessage(2899);
+				showMessage$1(message);
+			}
 		} else {
-			message = DB.getMessage(2899);
-			showMessage$1(message);
-		}
-		else {
 			message = DB.getMessage(2898).replace("%d", sourceItem.count);
 			showMessage$1(message);
 		}
@@ -315097,8 +315285,10 @@ var init_PluginManager = __esmMin((() => {
 				resolvedPath
 ).then((module) => {
 				const plugin = module.default || module;
-				if (typeof plugin === "function") if (plugin(params[i])) console.log("[PluginManager] Initialized plugin: " + pluginPath);
-				else console.error("[PluginManager] Failed to intialize plugin: " + pluginPath);
+				if (typeof plugin === "function") {
+					if (plugin(params[i])) console.log("[PluginManager] Initialized plugin: " + pluginPath);
+					else console.error("[PluginManager] Failed to intialize plugin: " + pluginPath);
+				}
 			}), [], import.meta.url).catch((err) => {
 				console.error("[PluginManager] Error loading plugin: " + pluginPath, err);
 			});
@@ -315642,11 +315832,13 @@ function createPlayerViewEquip({ name, cssText, hasTabs, costumeRows, costumeTab
 				if (!itemEl) return;
 				const index = parseInt(itemEl.getAttribute("data-index"), 10);
 				const item = _list[index];
-				if (item) if (ItemInfo_default.uid === item.ITID) ItemInfo_default.remove();
-				else {
-					ItemInfo_default.append();
-					ItemInfo_default.uid = item.ITID;
-					ItemInfo_default.setItem(item);
+				if (item) {
+					if (ItemInfo_default.uid === item.ITID) ItemInfo_default.remove();
+					else {
+						ItemInfo_default.append();
+						ItemInfo_default.uid = item.ITID;
+						ItemInfo_default.setItem(item);
+					}
 				}
 				e.stopImmediatePropagation();
 				e.preventDefault();
@@ -316773,12 +316965,13 @@ function onRank(pkt) {
 function onRankDisplay(pkt) {
 	let message = "";
 	message += "=========== ";
-	if (typeof pkt.rankType !== "undefined") if (pkt.rankType === RankingTypes_default.BLACKSMITH) message += DB.getMessage(2386);
-	else if (pkt.rankType === RankingTypes_default.ALCHEMIST) message += DB.getMessage(2387);
-	else if (pkt.rankType === RankingTypes_default.TAEKWON) message += DB.getMessage(2388);
-	else if (pkt.rankType === RankingTypes_default.KILLER) message += DB.getMessage(2389);
-	else message += "Unknown";
-	else if (pkt instanceof PACKET.ZC.BLACKSMITH_RANK) message += DB.getMessage(2386);
+	if (typeof pkt.rankType !== "undefined") {
+		if (pkt.rankType === RankingTypes_default.BLACKSMITH) message += DB.getMessage(2386);
+		else if (pkt.rankType === RankingTypes_default.ALCHEMIST) message += DB.getMessage(2387);
+		else if (pkt.rankType === RankingTypes_default.TAEKWON) message += DB.getMessage(2388);
+		else if (pkt.rankType === RankingTypes_default.KILLER) message += DB.getMessage(2389);
+		else message += "Unknown";
+	} else if (pkt instanceof PACKET.ZC.BLACKSMITH_RANK) message += DB.getMessage(2386);
 	else if (pkt instanceof PACKET.ZC.ALCHEMIST_RANK) message += DB.getMessage(2387);
 	else if (pkt instanceof PACKET.ZC.TAEKWON_RANK) message += DB.getMessage(2388);
 	else message += "Unknown";
@@ -318749,11 +318942,13 @@ function onEntityUseSkill(pkt) {
 		if (!SkillNameDisplayExclude.includes(pkt.SKID)) srcEntity.dialog.set((SkillInfo[pkt.SKID] && SkillInfo[pkt.SKID].SkillName || "Unknown Skill") + " !!", "white");
 	}
 	if (srcEntity) {
-		if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) if (pkt.SKID in SkillAction) {
-			const action = SkillAction[pkt.SKID];
-			if (action) srcEntity.setAction(action(srcEntity, Renderer.tick));
-		} else if (DB.isDoram(srcEntity.job)) srcEntity.setAction(SkillAction["DEFAULT_DORAM"](srcEntity, Renderer.tick));
-		else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick));
+		if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) {
+			if (pkt.SKID in SkillAction) {
+				const action = SkillAction[pkt.SKID];
+				if (action) srcEntity.setAction(action(srcEntity, Renderer.tick));
+			} else if (DB.isDoram(srcEntity.job)) srcEntity.setAction(SkillAction["DEFAULT_DORAM"](srcEntity, Renderer.tick));
+			else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick));
+		}
 	}
 	if (dstEntity) {
 		if (srcEntity && dstEntity !== srcEntity) srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
@@ -322432,8 +322627,10 @@ function onPrivateMessageSent(pkt) {
 	const user = ChatBox_default.PrivateMessageStorage.nick;
 	const msg = ChatBox_default.PrivateMessageStorage.msg;
 	if (pkt.result === 0) {
-		if (user && msg) if (getShouldOpenWhisperBox(user)) WhisperBox.addText(user, SessionStorage_default.Character.name + " : " + msg, "#ffff00");
-		else ChatBox_default.addText("[ To <span class=\"nickname-link\" data-nickname=\"" + user + "\" style=\"cursor:pointer; text-decoration:underline;\">" + user + "</span> ] : " + msg, ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.WHISPER);
+		if (user && msg) {
+			if (getShouldOpenWhisperBox(user)) WhisperBox.addText(user, SessionStorage_default.Character.name + " : " + msg, "#ffff00");
+			else ChatBox_default.addText("[ To <span class=\"nickname-link\" data-nickname=\"" + user + "\" style=\"cursor:pointer; text-decoration:underline;\">" + user + "</span> ] : " + msg, ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.WHISPER);
+		}
 	} else {
 		const errorMsg = "(" + user + ") : " + DB.getMessage(147 + pkt.result);
 		ChatBox_default.addText(errorMsg, ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.WHISPER);
@@ -325886,9 +326083,10 @@ var init_NpcStore = __esmMin((() => {
 		const outputWindow = root.querySelector(".OutputWindow");
 		InputBox_default.remove();
 		let pkt;
-		if (PacketVerManager_default.value < 20131223) if (type === NpcStore.Type.SELL) pkt = new PACKET.CZ.PC_SELL_ITEMLIST();
-		else pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST();
-		else switch (type) {
+		if (PacketVerManager_default.value < 20131223) {
+			if (type === NpcStore.Type.SELL) pkt = new PACKET.CZ.PC_SELL_ITEMLIST();
+			else pkt = new PACKET.CZ.PC_PURCHASE_ITEMLIST();
+		} else switch (type) {
 			case NpcStore.Type.MARKETSHOP:
 				pkt = new PACKET.CZ.NPC_MARKET_CLOSE();
 				inputWindow.style.display = "";
@@ -326698,42 +326896,43 @@ function onUpdateMissionHunt(pkt) {
 	for (let i = 0; i < pkt.questCount; i++) {
 		const local_hunt = pkt.hunt[i];
 		const ID = local_hunt.huntID ? local_hunt.huntID : local_hunt.mobGID;
-		if (local_hunt.questID !== void 0) if (Controller$3.getUI().questExists(local_hunt.questID)) Controller$3.getUI().updateMissionHunt(local_hunt, local_hunt.questID, ID);
-		else {
-			const quest_info = DB.getQuestInfo(local_hunt.questID);
-			const local_quest = {
-				questID: local_hunt.questID,
-				title: quest_info.Title ? sanitizeHtml(quest_info.Title) : "",
-				summary: quest_info.Summary ? sanitizeHtml(quest_info.Summary) : "",
-				description: quest_info.Description ? sanitizeHtml(quest_info.Description) : "",
-				icon: quest_info.IconName ? quest_info.IconName : "ico_nq.bmp",
-				npc_spr: quest_info.NpcSpr || null,
-				npc_navi: quest_info.NpcNavi || null,
-				npc_pos_x: quest_info.NpcPosX || null,
-				npc_pos_y: quest_info.NpcPosY || null,
-				reward_item_list: quest_info.RewardItemList || [],
-				reward_exp_base: quest_info.RewardEXP || 0,
-				reward_exp_job: quest_info.RewardJEXP || 0,
-				active: 1,
-				start_time: null,
-				end_time: null,
-				count: 1,
-				hunt_list: []
-			};
-			local_quest.hunt_list[ID] = {
-				huntID: local_hunt.huntID || null,
-				huntIDCount: local_hunt.huntIDCount || 0,
-				mobType: local_hunt.mobType || null,
-				mobGID: local_hunt.mobGID || null,
-				lvlMin: local_hunt.lvlMin || null,
-				lvlMax: local_hunt.lvlMax || null,
-				huntCount: local_hunt.huntCount || 0,
-				maxCount: local_hunt.maxCount || 0,
-				mobName: local_hunt.mobName || ""
-			};
-			Controller$3.getUI().addQuest(local_quest, local_quest.questID);
-		}
-		else {
+		if (local_hunt.questID !== void 0) {
+			if (Controller$3.getUI().questExists(local_hunt.questID)) Controller$3.getUI().updateMissionHunt(local_hunt, local_hunt.questID, ID);
+			else {
+				const quest_info = DB.getQuestInfo(local_hunt.questID);
+				const local_quest = {
+					questID: local_hunt.questID,
+					title: quest_info.Title ? sanitizeHtml(quest_info.Title) : "",
+					summary: quest_info.Summary ? sanitizeHtml(quest_info.Summary) : "",
+					description: quest_info.Description ? sanitizeHtml(quest_info.Description) : "",
+					icon: quest_info.IconName ? quest_info.IconName : "ico_nq.bmp",
+					npc_spr: quest_info.NpcSpr || null,
+					npc_navi: quest_info.NpcNavi || null,
+					npc_pos_x: quest_info.NpcPosX || null,
+					npc_pos_y: quest_info.NpcPosY || null,
+					reward_item_list: quest_info.RewardItemList || [],
+					reward_exp_base: quest_info.RewardEXP || 0,
+					reward_exp_job: quest_info.RewardJEXP || 0,
+					active: 1,
+					start_time: null,
+					end_time: null,
+					count: 1,
+					hunt_list: []
+				};
+				local_quest.hunt_list[ID] = {
+					huntID: local_hunt.huntID || null,
+					huntIDCount: local_hunt.huntIDCount || 0,
+					mobType: local_hunt.mobType || null,
+					mobGID: local_hunt.mobGID || null,
+					lvlMin: local_hunt.lvlMin || null,
+					lvlMax: local_hunt.lvlMax || null,
+					huntCount: local_hunt.huntCount || 0,
+					maxCount: local_hunt.maxCount || 0,
+					mobName: local_hunt.mobName || ""
+				};
+				Controller$3.getUI().addQuest(local_quest, local_quest.questID);
+			}
+		} else {
 			const quest_saved_id = Controller$3.getUI().getQuestIDByServerID(ID);
 			if (quest_saved_id > 0) Controller$3.getUI().updateMissionHunt(local_hunt, quest_saved_id, ID);
 		}
@@ -328349,14 +328548,16 @@ function onRequestTalk(user, text, target) {
 	pkt.msg = SessionStorage_default.Entity.display.name + " : " + text;
 	Network.sendPacket(pkt);
 	if (chatLines > 7 && DB.isSuperNovice(SessionStorage_default.Entity._job)) {
-		if (Math.floor(BasicInfoController.getUI().base_exp / BasicInfoController.getUI().base_exp_next * 1e3) % 100 == 0) if (text == DB.getMessage(790)) snCounter = 1;
-		else if (snCounter == 1 && text == DB.getMessage(791) + " " + SessionStorage_default.Entity.display.name + " " + DB.getMessage(792)) snCounter = 2;
-		else if (snCounter == 2 && text == DB.getMessage(793)) snCounter = 3;
-		else if (snCounter == 3) {
-			snCounter = 0;
-			pkt = new PACKET.CZ.CHOPOKGI();
-			Network.sendPacket(pkt);
-		} else snCounter = 0;
+		if (Math.floor(BasicInfoController.getUI().base_exp / BasicInfoController.getUI().base_exp_next * 1e3) % 100 == 0) {
+			if (text == DB.getMessage(790)) snCounter = 1;
+			else if (snCounter == 1 && text == DB.getMessage(791) + " " + SessionStorage_default.Entity.display.name + " " + DB.getMessage(792)) snCounter = 2;
+			else if (snCounter == 2 && text == DB.getMessage(793)) snCounter = 3;
+			else if (snCounter == 3) {
+				snCounter = 0;
+				pkt = new PACKET.CZ.CHOPOKGI();
+				Network.sendPacket(pkt);
+			} else snCounter = 0;
+		}
 	}
 }
 /**
@@ -328989,15 +329190,16 @@ function encryptPincode(pincode) {
 	let strCode = "";
 	let out = "";
 	intCode = Number.parseInt(pincode);
-	if (isNaN(intCode) === false && Number.isSafeInteger(intCode) === true) if (intCode >= 0 && intCode < 1e6 && pincode.length >= 4 && pincode.length <= 6) {
-		for (let ic = pincode.length - 1; ic > 0; ic--) if (intCode < Math.pow(10, ic)) strCode += "0";
-		strCode += intCode.toString();
-		for (let i = 0; i < strCode.length; i++) {
-			const x = Number(strCode[i]);
-			out += PincodeWindow._keypad[x].toString();
-		}
-	} else console.error("ERROR: PincodeWindow.encryptPincode(): Pincode length invalid.");
-	else console.error("ERROR: PincodeWindow.encryptPincode(): Unsafe Int.");
+	if (isNaN(intCode) === false && Number.isSafeInteger(intCode) === true) {
+		if (intCode >= 0 && intCode < 1e6 && pincode.length >= 4 && pincode.length <= 6) {
+			for (let ic = pincode.length - 1; ic > 0; ic--) if (intCode < Math.pow(10, ic)) strCode += "0";
+			strCode += intCode.toString();
+			for (let i = 0; i < strCode.length; i++) {
+				const x = Number(strCode[i]);
+				out += PincodeWindow._keypad[x].toString();
+			}
+		} else console.error("ERROR: PincodeWindow.encryptPincode(): Pincode length invalid.");
+	} else console.error("ERROR: PincodeWindow.encryptPincode(): Unsafe Int.");
 	return out;
 }
 function success() {
@@ -329214,36 +329416,39 @@ var init_PincodeWindow = __esmMin((() => {
 	PincodeWindow.onParentPincodeResetReq = function onParentPincodeResetReq() {
 		const root = PincodeWindow.getRoot();
 		if (!root) return;
-		if (PincodeWindow._resetstate === 3) if (typeof PincodeWindow.onPincodeReset === "function" && PincodeWindow._pass !== PincodeWindow._newpass && PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 && PincodeWindow._newpass === PincodeWindow._checkpass) success();
-		else UIManager.showMessageBox(DB.getMessage(1887), "ok");
-		else if (PincodeWindow._resetstate === 2) if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 && PincodeWindow._pass !== PincodeWindow._newpass) {
-			PincodeWindow.selectInput(2);
-			PincodeWindow.clearPin();
-			PincodeWindow._resetstate = 3;
-			const verifyBtn = root.querySelector(".btn2.verify");
-			const okBtn = root.querySelector(".btn2.ok");
-			if (verifyBtn) {
-				verifyBtn.disabled = true;
-				verifyBtn.style.display = "none";
+		if (PincodeWindow._resetstate === 3) {
+			if (typeof PincodeWindow.onPincodeReset === "function" && PincodeWindow._pass !== PincodeWindow._newpass && PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 && PincodeWindow._newpass === PincodeWindow._checkpass) success();
+			else UIManager.showMessageBox(DB.getMessage(1887), "ok");
+		} else if (PincodeWindow._resetstate === 2) {
+			if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 && PincodeWindow._pass !== PincodeWindow._newpass) {
+				PincodeWindow.selectInput(2);
+				PincodeWindow.clearPin();
+				PincodeWindow._resetstate = 3;
+				const verifyBtn = root.querySelector(".btn2.verify");
+				const okBtn = root.querySelector(".btn2.ok");
+				if (verifyBtn) {
+					verifyBtn.disabled = true;
+					verifyBtn.style.display = "none";
+				}
+				if (okBtn) {
+					okBtn.disabled = false;
+					okBtn.style.display = "";
+				}
+				advanceVisualSeed();
+			} else {
+				UIManager.showMessageBox(DB.getMessage(1887), "ok");
+				if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) PincodeWindow._newpass = "";
 			}
-			if (okBtn) {
-				okBtn.disabled = false;
-				okBtn.style.display = "";
+		} else if (PincodeWindow._resetstate === 1) {
+			if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
+				PincodeWindow.selectInput(1);
+				PincodeWindow._resetstate = 2;
+				advanceVisualSeed();
+			} else {
+				UIManager.showMessageBox(DB.getMessage(1887), "ok");
+				PincodeWindow.clearPin();
 			}
-			advanceVisualSeed();
 		} else {
-			UIManager.showMessageBox(DB.getMessage(1887), "ok");
-			if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) PincodeWindow._newpass = "";
-		}
-		else if (PincodeWindow._resetstate === 1) if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
-			PincodeWindow.selectInput(1);
-			PincodeWindow._resetstate = 2;
-			advanceVisualSeed();
-		} else {
-			UIManager.showMessageBox(DB.getMessage(1887), "ok");
-			PincodeWindow.clearPin();
-		}
-		else {
 			const okBtn = root.querySelector(".btn2.ok");
 			const changeBtn = root.querySelector(".btn2.change");
 			const verifyBtn = root.querySelector(".btn2.verify");
@@ -329275,35 +329480,38 @@ var init_PincodeWindow = __esmMin((() => {
 	PincodeWindow.userChangePin = function userChangePin() {
 		const root = PincodeWindow.getRoot();
 		if (!root) return;
-		if (PincodeWindow._resetstate === 3) if (typeof PincodeWindow.onPincodeReset === "function" && PincodeWindow._pass !== PincodeWindow._newpass && PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 && PincodeWindow._newpass === PincodeWindow._checkpass) success();
-		else UIManager.showMessageBox(DB.getMessage(1887), "ok");
-		else if (PincodeWindow._resetstate === 2) if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 && PincodeWindow._pass !== PincodeWindow._newpass) {
-			PincodeWindow.selectInput(2);
-			PincodeWindow._resetstate = 3;
-			const verifyBtn = root.querySelector(".btn2.verify");
-			const okBtn = root.querySelector(".btn2.ok");
-			if (verifyBtn) {
-				verifyBtn.disabled = true;
-				verifyBtn.style.display = "none";
+		if (PincodeWindow._resetstate === 3) {
+			if (typeof PincodeWindow.onPincodeReset === "function" && PincodeWindow._pass !== PincodeWindow._newpass && PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 && PincodeWindow._newpass === PincodeWindow._checkpass) success();
+			else UIManager.showMessageBox(DB.getMessage(1887), "ok");
+		} else if (PincodeWindow._resetstate === 2) {
+			if (PincodeWindow._newpass.length > 3 && PincodeWindow._newpass.length < 7 && PincodeWindow._pass !== PincodeWindow._newpass) {
+				PincodeWindow.selectInput(2);
+				PincodeWindow._resetstate = 3;
+				const verifyBtn = root.querySelector(".btn2.verify");
+				const okBtn = root.querySelector(".btn2.ok");
+				if (verifyBtn) {
+					verifyBtn.disabled = true;
+					verifyBtn.style.display = "none";
+				}
+				if (okBtn) {
+					okBtn.disabled = false;
+					okBtn.style.display = "";
+				}
+				advanceVisualSeed();
+			} else {
+				UIManager.showMessageBox(DB.getMessage(1887), "ok");
+				if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) PincodeWindow._newpass = "";
 			}
-			if (okBtn) {
-				okBtn.disabled = false;
-				okBtn.style.display = "";
+		} else if (PincodeWindow._resetstate === 1) {
+			if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
+				PincodeWindow.selectInput(1);
+				PincodeWindow._resetstate = 2;
+				advanceVisualSeed();
+			} else {
+				UIManager.showMessageBox(DB.getMessage(1887), "ok");
+				PincodeWindow.clearPin();
 			}
-			advanceVisualSeed();
 		} else {
-			UIManager.showMessageBox(DB.getMessage(1887), "ok");
-			if (PincodeWindow._newpass.length < 4 || PincodeWindow._newpass.length > 6) PincodeWindow._newpass = "";
-		}
-		else if (PincodeWindow._resetstate === 1) if (PincodeWindow._pass.length > 3 && PincodeWindow._pass.length < 7) {
-			PincodeWindow.selectInput(1);
-			PincodeWindow._resetstate = 2;
-			advanceVisualSeed();
-		} else {
-			UIManager.showMessageBox(DB.getMessage(1887), "ok");
-			PincodeWindow.clearPin();
-		}
-		else {
 			const okBtn = root.querySelector(".btn2.ok");
 			const changeBtn = root.querySelector(".btn2.change");
 			const verifyBtn = root.querySelector(".btn2.verify");
@@ -329779,15 +329987,17 @@ function createCharSelect(config) {
 	* Press "cancel" or ESCAPE key
 	*/
 	function cancel() {
-		if (_disable_UI === false) if (gridLayout) {
-			UIManager.showPromptBox(DB.getMessage(17), "ok", "cancel", () => {
+		if (_disable_UI === false) {
+			if (gridLayout) {
+				UIManager.showPromptBox(DB.getMessage(17), "ok", "cancel", () => {
+					Component.onExitRequest();
+					Component.clearAllSlots();
+				}, null);
+				stopCountdownInterval();
+			} else UIManager.showPromptBox(DB.getMessage(17), "ok", "cancel", () => {
 				Component.onExitRequest();
-				Component.clearAllSlots();
 			}, null);
-			stopCountdownInterval();
-		} else UIManager.showPromptBox(DB.getMessage(17), "ok", "cancel", () => {
-			Component.onExitRequest();
-		}, null);
+		}
 	}
 	/**
 	* Jumping to Character creation window
@@ -330028,7 +330238,7 @@ function createCharSelect(config) {
 			const pagebtn = root.querySelector(".pageinfo .pagebtn");
 			pagebtn.textContent = "";
 			for (let i = 1; i <= _maxSlots / 3; i++) drawBall(pagebtn, i, Math.floor(_index / 3) + 1 === i);
-			root.querySelector(".pageinfo").style.left = `${576 / 2 - _maxSlots / 3 * 8}px`;
+			root.querySelector(".pageinfo").style.left = `${288 - _maxSlots / 3 * 8}px`;
 			let mix = (index + 1) % 3 === 0 ? index + 1 - 3 : index + 1 - (index + 1) % 3;
 			mix = mix >= _maxSlots ? 0 : mix;
 			for (let i = 1; i <= 3; i++) {
@@ -330041,25 +330251,26 @@ function createCharSelect(config) {
 			info = _slots[tmpIndex];
 			entity = _entitySlots[tmpIndex];
 			const countdown = root.querySelector(`.timedelete.slot${tmpIndex % 3 + 1}`);
-			if (info && entity) if (info.DeleteDate && (!packetverGatedDelete || PacketVerManager_default.value >= 20100803)) {
-				countdown.dataset.datetime = info.DeleteDate;
-				countdown.textContent = formatDatetime(info.DeleteDate);
-				countdown.style.display = "block";
-				if (Math.floor(Date.now() / 1e3) > info.DeleteDate) {
-					countdown.classList.remove("waitdelete");
-					countdown.classList.add("candelete");
+			if (info && entity) {
+				if (info.DeleteDate && (!packetverGatedDelete || PacketVerManager_default.value >= 20100803)) {
+					countdown.dataset.datetime = info.DeleteDate;
+					countdown.textContent = formatDatetime(info.DeleteDate);
+					countdown.style.display = "block";
+					if (Math.floor(Date.now() / 1e3) > info.DeleteDate) {
+						countdown.classList.remove("waitdelete");
+						countdown.classList.add("candelete");
+					} else {
+						countdown.classList.remove("candelete");
+						countdown.classList.add("waitdelete");
+					}
+					entity.action = entity.ACTION.SIT;
 				} else {
-					countdown.classList.remove("candelete");
-					countdown.classList.add("waitdelete");
+					countdown.dataset.datetime = 0;
+					countdown.textContent = formatDatetime("");
+					countdown.style.display = "none";
+					entity.action = entity.ACTION.IDLE;
 				}
-				entity.action = entity.ACTION.SIT;
 			} else {
-				countdown.dataset.datetime = 0;
-				countdown.textContent = formatDatetime("");
-				countdown.style.display = "none";
-				entity.action = entity.ACTION.IDLE;
-			}
-			else {
 				countdown.dataset.datetime = 0;
 				countdown.textContent = formatDatetime("");
 				countdown.style.display = "none";
@@ -330628,12 +330839,14 @@ function createCharCreate(config) {
 		const input = this.getRoot().querySelector(nameInputSelector);
 		input.value = "";
 		input.focus();
-		if (hasRace) if (gridHairstyle) {
-			_race = "human";
-			_gender = "male";
-			updateRace();
-			cleanup();
-		} else setDefault();
+		if (hasRace) {
+			if (gridHairstyle) {
+				_race = "human";
+				_gender = "male";
+				updateRace();
+				cleanup();
+			} else setDefault();
+		}
 		Renderer.render(render);
 		if (hasStats) updateGraphic();
 	};
@@ -330698,8 +330911,10 @@ function createCharCreate(config) {
 	* Exit the window
 	*/
 	function cancel() {
-		if (hasRace) if (gridHairstyle) cleanup();
-		else setDefault();
+		if (hasRace) {
+			if (gridHairstyle) cleanup();
+			else setDefault();
+		}
 		Component.onExitRequest();
 	}
 	/**
@@ -336072,8 +336287,10 @@ function apply() {
 			}
 		}
 	}
-	if (Configs.get("_serverEditMode")) if (_preferences.serverdef === "serverlist") Configs.set("servers", _preferences.serverlist);
-	else Configs.set("servers", "data/" + _preferences.serverfile);
+	if (Configs.get("_serverEditMode")) {
+		if (_preferences.serverdef === "serverlist") Configs.set("servers", _preferences.serverlist);
+		else Configs.set("servers", "data/" + _preferences.serverfile);
+	}
 	Configs.set("saveFiles", _preferences.saveFiles);
 	Configs.set("quality", GraphicsSettings.quality);
 }

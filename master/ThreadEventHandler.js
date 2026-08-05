@@ -1093,11 +1093,12 @@ var iconv = (() => {
 			let pos = 0;
 			for (i = 0; i < list.length; ++i) {
 				let buf = list[i];
-				if (isInstance(buf, Uint8Array)) if (pos + buf.length > buffer.length) {
-					if (!Buffer2.isBuffer(buf)) buf = Buffer2.from(buf);
-					buf.copy(buffer, pos);
-				} else Uint8Array.prototype.set.call(buffer, buf, pos);
-				else if (!Buffer2.isBuffer(buf)) throw new TypeError("\"list\" argument must be an Array of Buffers");
+				if (isInstance(buf, Uint8Array)) {
+					if (pos + buf.length > buffer.length) {
+						if (!Buffer2.isBuffer(buf)) buf = Buffer2.from(buf);
+						buf.copy(buffer, pos);
+					} else Uint8Array.prototype.set.call(buffer, buf, pos);
+				} else if (!Buffer2.isBuffer(buf)) throw new TypeError("\"list\" argument must be an Array of Buffers");
 				else buf.copy(buffer, pos);
 				pos += buf.length;
 			}
@@ -1250,18 +1251,23 @@ var iconv = (() => {
 			byteOffset = +byteOffset;
 			if (numberIsNaN(byteOffset)) byteOffset = dir ? 0 : buffer.length - 1;
 			if (byteOffset < 0) byteOffset = buffer.length + byteOffset;
-			if (byteOffset >= buffer.length) if (dir) return -1;
-			else byteOffset = buffer.length - 1;
-			else if (byteOffset < 0) if (dir) byteOffset = 0;
-			else return -1;
+			if (byteOffset >= buffer.length) {
+				if (dir) return -1;
+				else byteOffset = buffer.length - 1;
+			} else if (byteOffset < 0) {
+				if (dir) byteOffset = 0;
+				else return -1;
+			}
 			if (typeof val === "string") val = Buffer2.from(val, encoding);
 			if (Buffer2.isBuffer(val)) {
 				if (val.length === 0) return -1;
 				return arrayIndexOf(buffer, val, byteOffset, encoding, dir);
 			} else if (typeof val === "number") {
 				val = val & 255;
-				if (typeof Uint8Array.prototype.indexOf === "function") if (dir) return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset);
-				else return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset);
+				if (typeof Uint8Array.prototype.indexOf === "function") {
+					if (dir) return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset);
+					else return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset);
+				}
 				return arrayIndexOf(buffer, [val], byteOffset, encoding, dir);
 			}
 			throw new TypeError("val must be string, number or Buffer");
@@ -1556,8 +1562,8 @@ var iconv = (() => {
 			const first = this[offset];
 			const last = this[offset + 7];
 			if (first === void 0 || last === void 0) boundsError(offset, this.length - 8);
-			const lo = first + this[++offset] * 2 ** 8 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 24;
-			const hi = this[++offset] + this[++offset] * 2 ** 8 + this[++offset] * 2 ** 16 + last * 2 ** 24;
+			const lo = first + this[++offset] * 256 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 24;
+			const hi = this[++offset] + this[++offset] * 256 + this[++offset] * 2 ** 16 + last * 2 ** 24;
 			return BigInt(lo) + (BigInt(hi) << BigInt(32));
 		});
 		Buffer2.prototype.readBigUInt64BE = defineBigIntMethod(function readBigUInt64BE(offset) {
@@ -1566,8 +1572,8 @@ var iconv = (() => {
 			const first = this[offset];
 			const last = this[offset + 7];
 			if (first === void 0 || last === void 0) boundsError(offset, this.length - 8);
-			const hi = first * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 8 + this[++offset];
-			const lo = this[++offset] * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 8 + last;
+			const hi = first * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 256 + this[++offset];
+			const lo = this[++offset] * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 256 + last;
 			return (BigInt(hi) << BigInt(32)) + BigInt(lo);
 		});
 		Buffer2.prototype.readIntLE = function readIntLE(offset, byteLength2, noAssert) {
@@ -1628,8 +1634,8 @@ var iconv = (() => {
 			const first = this[offset];
 			const last = this[offset + 7];
 			if (first === void 0 || last === void 0) boundsError(offset, this.length - 8);
-			const val = this[offset + 4] + this[offset + 5] * 2 ** 8 + this[offset + 6] * 2 ** 16 + (last << 24);
-			return (BigInt(val) << BigInt(32)) + BigInt(first + this[++offset] * 2 ** 8 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 24);
+			const val = this[offset + 4] + this[offset + 5] * 256 + this[offset + 6] * 2 ** 16 + (last << 24);
+			return (BigInt(val) << BigInt(32)) + BigInt(first + this[++offset] * 256 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 24);
 		});
 		Buffer2.prototype.readBigInt64BE = defineBigIntMethod(function readBigInt64BE(offset) {
 			offset = offset >>> 0;
@@ -1637,8 +1643,8 @@ var iconv = (() => {
 			const first = this[offset];
 			const last = this[offset + 7];
 			if (first === void 0 || last === void 0) boundsError(offset, this.length - 8);
-			const val = (first << 24) + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 8 + this[++offset];
-			return (BigInt(val) << BigInt(32)) + BigInt(this[++offset] * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 2 ** 8 + last);
+			const val = (first << 24) + this[++offset] * 2 ** 16 + this[++offset] * 256 + this[++offset];
+			return (BigInt(val) << BigInt(32)) + BigInt(this[++offset] * 2 ** 24 + this[++offset] * 2 ** 16 + this[++offset] * 256 + last);
 		});
 		Buffer2.prototype.readFloatLE = function readFloatLE(offset, noAssert) {
 			offset = offset >>> 0;
@@ -2013,9 +2019,10 @@ var iconv = (() => {
 			if (value > max || value < min) {
 				const n = typeof min === "bigint" ? "n" : "";
 				let range;
-				if (byteLength2 > 3) if (min === 0 || min === BigInt(0)) range = `>= 0${n} and < 2${n} ** ${(byteLength2 + 1) * 8}${n}`;
-				else range = `>= -(2${n} ** ${(byteLength2 + 1) * 8 - 1}${n}) and < 2 ** ${(byteLength2 + 1) * 8 - 1}${n}`;
-				else range = `>= ${min}${n} and <= ${max}${n}`;
+				if (byteLength2 > 3) {
+					if (min === 0 || min === BigInt(0)) range = `>= 0${n} and < 2${n} ** ${(byteLength2 + 1) * 8}${n}`;
+					else range = `>= -(2${n} ** ${(byteLength2 + 1) * 8 - 1}${n}) and < 2 ** ${(byteLength2 + 1) * 8 - 1}${n}`;
+				} else range = `>= ${min}${n} and <= ${max}${n}`;
 				throw new errors.ERR_OUT_OF_RANGE("value", range, value);
 			}
 			checkBounds(buf, offset, byteLength2);
@@ -2246,9 +2253,10 @@ var iconv = (() => {
 		SafeBuffer.alloc = function(size, fill, encoding) {
 			if (typeof size !== "number") throw new TypeError("Argument must be a number");
 			var buf = Buffer2(size);
-			if (fill !== void 0) if (typeof encoding === "string") buf.fill(fill, encoding);
-			else buf.fill(fill);
-			else buf.fill(0);
+			if (fill !== void 0) {
+				if (typeof encoding === "string") buf.fill(fill, encoding);
+				else buf.fill(fill);
+			} else buf.fill(0);
 			return buf;
 		};
 		SafeBuffer.allocUnsafe = function(size) {
@@ -2381,8 +2389,10 @@ var iconv = (() => {
 			if (--j < i || nb === -2) return 0;
 			nb = utf8CheckByte(buf[j]);
 			if (nb >= 0) {
-				if (nb > 0) if (nb === 2) nb = 0;
-				else self.lastNeed = nb - 3;
+				if (nb > 0) {
+					if (nb === 2) nb = 0;
+					else self.lastNeed = nb - 3;
+				}
 				return nb;
 			}
 			return 0;
@@ -2602,9 +2612,11 @@ var iconv = (() => {
 					acc = acc << 6 | curByte & 63;
 					contBytes--;
 					accBytes++;
-					if (contBytes === 0) if (accBytes === 2 && acc < 128 && acc > 0) res += this.defaultCharUnicode;
-					else if (accBytes === 3 && acc < 2048) res += this.defaultCharUnicode;
-					else res += String.fromCharCode(acc);
+					if (contBytes === 0) {
+						if (accBytes === 2 && acc < 128 && acc > 0) res += this.defaultCharUnicode;
+						else if (accBytes === 3 && acc < 2048) res += this.defaultCharUnicode;
+						else res += String.fromCharCode(acc);
+					}
 				} else res += this.defaultCharUnicode;
 			}
 			this.acc = acc;
@@ -2676,15 +2688,17 @@ var iconv = (() => {
 				var code = src.readUInt16LE(i);
 				var isHighSurrogate = code >= 55296 && code < 56320;
 				var isLowSurrogate = code >= 56320 && code < 57344;
-				if (this.highSurrogate) if (isHighSurrogate || !isLowSurrogate) {
-					write32.call(dst, this.highSurrogate, offset);
-					offset += 4;
-				} else {
-					var codepoint = (this.highSurrogate - 55296 << 10 | code - 56320) + 65536;
-					write32.call(dst, codepoint, offset);
-					offset += 4;
-					this.highSurrogate = 0;
-					continue;
+				if (this.highSurrogate) {
+					if (isHighSurrogate || !isLowSurrogate) {
+						write32.call(dst, this.highSurrogate, offset);
+						offset += 4;
+					} else {
+						var codepoint = (this.highSurrogate - 55296 << 10 | code - 56320) + 65536;
+						write32.call(dst, codepoint, offset);
+						offset += 4;
+						this.highSurrogate = 0;
+						continue;
+					}
 				}
 				if (isHighSurrogate) this.highSurrogate = code;
 				else {
@@ -3975,18 +3989,20 @@ var iconv = (() => {
 					var uCode = nextChar;
 					nextChar = -1;
 				}
-				if (uCode >= 55296 && uCode < 57344) if (uCode < 56320) if (leadSurrogate === -1) {
-					leadSurrogate = uCode;
-					continue;
-				} else {
-					leadSurrogate = uCode;
-					uCode = UNASSIGNED;
-				}
-				else if (leadSurrogate !== -1) {
-					uCode = 65536 + (leadSurrogate - 55296) * 1024 + (uCode - 56320);
-					leadSurrogate = -1;
-				} else uCode = UNASSIGNED;
-				else if (leadSurrogate !== -1) {
+				if (uCode >= 55296 && uCode < 57344) {
+					if (uCode < 56320) {
+						if (leadSurrogate === -1) {
+							leadSurrogate = uCode;
+							continue;
+						} else {
+							leadSurrogate = uCode;
+							uCode = UNASSIGNED;
+						}
+					} else if (leadSurrogate !== -1) {
+						uCode = 65536 + (leadSurrogate - 55296) * 1024 + (uCode - 56320);
+						leadSurrogate = -1;
+					} else uCode = UNASSIGNED;
+				} else if (leadSurrogate !== -1) {
 					nextChar = uCode;
 					uCode = UNASSIGNED;
 					leadSurrogate = -1;
@@ -4054,10 +4070,12 @@ var iconv = (() => {
 			var j = 0;
 			if (this.seqObj) {
 				var dbcsCode = this.seqObj[DEF_CHAR];
-				if (dbcsCode !== void 0) if (dbcsCode < 256) newBuf[j++] = dbcsCode;
-				else {
-					newBuf[j++] = dbcsCode >> 8;
-					newBuf[j++] = dbcsCode & 255;
+				if (dbcsCode !== void 0) {
+					if (dbcsCode < 256) newBuf[j++] = dbcsCode;
+					else {
+						newBuf[j++] = dbcsCode >> 8;
+						newBuf[j++] = dbcsCode & 255;
+					}
 				}
 				this.seqObj = void 0;
 			}
@@ -18985,8 +19003,10 @@ var Loader = class Loader {
 				this.onload(this.out, this.files);
 				return;
 			}
-			if (this.list.length) if (++Loader.count % 50 === 0) setTimeout(() => this._next(), 4);
-			else this._next();
+			if (this.list.length) {
+				if (++Loader.count % 50 === 0) setTimeout(() => this._next(), 4);
+				else this._next();
+			}
 		});
 	}
 };
