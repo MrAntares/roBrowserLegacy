@@ -255907,26 +255907,35 @@ var init_JoystickAxisInput = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/JoystickUI/JoystickInputService.js
-var hideTimeout, JoystickInputService_default;
+var hideTimeout, hideTimeoutHandle, JoystickInputService_default;
 var init_JoystickInputService = __esmMin((() => {
 	init_JoystickButtonInput();
 	init_JoystickAxisInput();
 	init_JoystickUIRenderer();
-	init_JoystickModule();
 	init_Controls();
 	hideTimeout = false;
+	hideTimeoutHandle = null;
 	JoystickInputService_default = {
 		active: false,
 		buttonStates: {},
+		_listening: false,
 		prepare: function() {
+			if (this._listening) return;
 			this._boundOnConnect = this._onConnect.bind(this);
 			this._boundOnDisconnect = this._onDisconnect.bind(this);
 			window.addEventListener("gamepadconnected", this._boundOnConnect);
 			window.addEventListener("gamepaddisconnected", this._boundOnDisconnect);
+			this._listening = true;
 		},
 		dispose: function() {
 			window.removeEventListener("gamepadconnected", this._boundOnConnect);
 			window.removeEventListener("gamepaddisconnected", this._boundOnDisconnect);
+			this._listening = false;
+			if (hideTimeoutHandle) {
+				clearTimeout(hideTimeoutHandle);
+				hideTimeoutHandle = null;
+			}
+			hideTimeout = false;
 			this.active = false;
 			this.buttonStates = {};
 		},
@@ -255981,21 +255990,21 @@ var init_JoystickInputService = __esmMin((() => {
 				hideTimeout = true;
 				const self = this;
 				this.active = false;
-				setTimeout(function() {
+				hideTimeoutHandle = setTimeout(function() {
 					hideTimeout = false;
+					hideTimeoutHandle = null;
 					if (self.active === false) JoystickUIRenderer_default.hide();
 				}, 3e4);
 			} else if (!hideTimeout) this.active = true;
 			return true;
 		},
 		_onConnect: function() {
-			JoystickModule_default.prepare();
 			this.active = true;
 			JoystickUIRenderer_default.show();
 		},
 		_onDisconnect: function() {
-			JoystickModule_default.dispose();
 			this.active = false;
+			this.buttonStates = {};
 			JoystickUIRenderer_default.hide();
 		}
 	};
