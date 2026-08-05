@@ -11,25 +11,38 @@
 import ButtonInput from './JoystickButtonInput.js';
 import AxisInput from './JoystickAxisInput.js';
 import JoystickUIRenderer from './JoystickUIRenderer.js';
-import JoystickModule from './JoystickModule.js';
 import ControlsSettings from 'Preferences/Controls.js';
 
 let hideTimeout = false;
+let hideTimeoutHandle = null;
 export default {
 	active: false,
 	buttonStates: {},
+	_listening: false,
 
 	prepare: function () {
+		if (this._listening) {
+			return;
+		}
+
 		this._boundOnConnect = this._onConnect.bind(this);
 		this._boundOnDisconnect = this._onDisconnect.bind(this);
 
 		window.addEventListener('gamepadconnected', this._boundOnConnect);
 		window.addEventListener('gamepaddisconnected', this._boundOnDisconnect);
+		this._listening = true;
 	},
 
 	dispose: function () {
 		window.removeEventListener('gamepadconnected', this._boundOnConnect);
 		window.removeEventListener('gamepaddisconnected', this._boundOnDisconnect);
+		this._listening = false;
+
+		if (hideTimeoutHandle) {
+			clearTimeout(hideTimeoutHandle);
+			hideTimeoutHandle = null;
+		}
+		hideTimeout = false;
 
 		this.active = false;
 		this.buttonStates = {};
@@ -105,8 +118,9 @@ export default {
 			hideTimeout = true;
 			const self = this;
 			this.active = false;
-			setTimeout(function () {
+			hideTimeoutHandle = setTimeout(function () {
 				hideTimeout = false;
+				hideTimeoutHandle = null;
 				if (self.active === false) {
 					JoystickUIRenderer.hide();
 				}
@@ -118,14 +132,13 @@ export default {
 	},
 
 	_onConnect: function () {
-		JoystickModule.prepare();
 		this.active = true;
 		JoystickUIRenderer.show();
 	},
 
 	_onDisconnect: function () {
-		JoystickModule.dispose();
 		this.active = false;
+		this.buttonStates = {};
 		JoystickUIRenderer.hide();
 	}
 };
