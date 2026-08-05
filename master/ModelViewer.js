@@ -254787,8 +254787,8 @@ function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 	icon.style.display = "block";
 	if (item.isSkill && item.count) {
 		const skillInfo = SkillInfo[item.ID];
-		if (skillInfo) Client.loadFile(DB.INTERFACE_PATH + "item/" + skillInfo.Name + ".bmp", function(url) {
-			img.style.backgroundImage = "url(" + url + ")";
+		if (skillInfo) Client.loadFile(`${DB.INTERFACE_PATH}item/${skillInfo.Name}.bmp`, (url) => {
+			img.style.backgroundImage = `url(${url})`;
 			amount.textContent = item.count;
 		});
 	} else {
@@ -254798,8 +254798,8 @@ function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 			const fileName = inventoryItem.IsIdentified ? itemInfo.identifiedResourceName : itemInfo.unidentifiedResourceName;
 			let count = inventoryItem.count;
 			if ((inventoryItem.type === ItemType_default.WEAPON || inventoryItem.type === ItemType_default.ARMOR || inventoryItem.type === ItemType_default.SHADOWGEAR) && count) count = 1;
-			Client.loadFile(DB.INTERFACE_PATH + "item/" + fileName + ".bmp", function(url) {
-				img.style.backgroundImage = "url(" + url + ")";
+			Client.loadFile(`${DB.INTERFACE_PATH}item/${fileName}.bmp`, (url) => {
+				img.style.backgroundImage = `url(${url})`;
 				amount.textContent = count;
 			});
 		}
@@ -254860,6 +254860,7 @@ function dispose() {
 		document.removeEventListener("mousemove", _mouseMoveHandler);
 		_mouseMoveHandler = null;
 	}
+	ui = null;
 }
 var ui, _mouseMoveHandler, JoystickUIRenderer_default;
 var init_JoystickUIRenderer = __esmMin((() => {
