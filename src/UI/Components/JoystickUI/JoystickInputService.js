@@ -14,6 +14,7 @@ import JoystickUIRenderer from './JoystickUIRenderer.js';
 import ControlsSettings from 'Preferences/Controls.js';
 
 let hideTimeout = false;
+let hideTimeoutHandle = null;
 export default {
 	active: false,
 	buttonStates: {},
@@ -36,6 +37,12 @@ export default {
 		window.removeEventListener('gamepadconnected', this._boundOnConnect);
 		window.removeEventListener('gamepaddisconnected', this._boundOnDisconnect);
 		this._listening = false;
+
+		if (hideTimeoutHandle) {
+			clearTimeout(hideTimeoutHandle);
+			hideTimeoutHandle = null;
+		}
+		hideTimeout = false;
 
 		this.active = false;
 		this.buttonStates = {};
@@ -111,8 +118,9 @@ export default {
 			hideTimeout = true;
 			const self = this;
 			this.active = false;
-			setTimeout(function () {
+			hideTimeoutHandle = setTimeout(function () {
 				hideTimeout = false;
+				hideTimeoutHandle = null;
 				if (self.active === false) {
 					JoystickUIRenderer.hide();
 				}

@@ -55,6 +55,33 @@ describe('JoystickInputService gamepad connection lifecycle', () => {
 		expect(mocks.renderer.show).toHaveBeenCalledTimes(1);
 	});
 
+	it('clears the pending hide timer on dispose', () => {
+		vi.useFakeTimers();
+		const gamepad = { buttons: [], axes: [] };
+		navigator.getGamepads = vi.fn(() => [gamepad]);
+
+		try {
+			JoystickInputService.prepare();
+
+			// Activity shows the HUD.
+			mocks.buttonInput.update.mockReturnValueOnce(true);
+			JoystickInputService.update();
+			expect(mocks.renderer.show).toHaveBeenCalledTimes(1);
+
+			// No activity schedules the 30s hide.
+			JoystickInputService.update();
+
+			// Dispose must cancel that timer so it can't hide a freshly re-prepared HUD.
+			JoystickInputService.dispose();
+			vi.advanceTimersByTime(30000);
+
+			expect(mocks.renderer.hide).not.toHaveBeenCalled();
+		} finally {
+			vi.useRealTimers();
+			delete navigator.getGamepads;
+		}
+	});
+
 	it('stops reacting to gamepad events after dispose', () => {
 		JoystickInputService.prepare();
 		JoystickInputService.dispose();
