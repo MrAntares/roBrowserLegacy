@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
 	soundManager: { stop: vi.fn() },
@@ -73,12 +73,19 @@ vi.mock('Utils/WebGL.js', () => ({ default: {} }));
 const { default: MapRenderer } = await import('Renderer/MapRenderer.js');
 
 describe('MapRenderer joystick restoration', () => {
+	let originalOnLoad;
+
 	beforeEach(() => {
 		vi.clearAllMocks();
+		originalOnLoad = MapRenderer.onLoad;
 		MapRenderer.loading = false;
 		MapRenderer.currentMap = 'prontera.gat';
 		MapRenderer.onLoad = vi.fn();
 		mocks.mouse.intersect = true;
+	});
+
+	afterEach(() => {
+		MapRenderer.onLoad = originalOnLoad;
 	});
 
 	it('restores joystick polling before re-appending UI after a same-map teleport', () => {
@@ -98,5 +105,7 @@ describe('MapRenderer joystick restoration', () => {
 		expect(mocks.background.setLoading).toHaveBeenCalledOnce();
 		expect(mocks.joystickUI.onRestore).not.toHaveBeenCalled();
 		expect(MapRenderer.onLoad).not.toHaveBeenCalled();
+		expect(MapRenderer.loading).toBe(true);
+		expect(MapRenderer.currentMap).toBe('geffen.gat');
 	});
 });

@@ -93,8 +93,8 @@ function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 	if (item.isSkill && item.count) {
 		const skillInfo = SkillInfo[item.ID];
 		if (skillInfo) {
-			Client.loadFile(DB.INTERFACE_PATH + 'item/' + skillInfo.Name + '.bmp', function (url) {
-				img.style.backgroundImage = 'url(' + url + ')';
+			Client.loadFile(`${DB.INTERFACE_PATH}item/${skillInfo.Name}.bmp`, url => {
+				img.style.backgroundImage = `url(${url})`;
 				amount.textContent = item.count;
 			});
 		}
@@ -114,8 +114,8 @@ function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 			) {
 				count = 1;
 			}
-			Client.loadFile(DB.INTERFACE_PATH + 'item/' + fileName + '.bmp', function (url) {
-				img.style.backgroundImage = 'url(' + url + ')';
+			Client.loadFile(`${DB.INTERFACE_PATH}item/${fileName}.bmp`, url => {
+				img.style.backgroundImage = `url(${url})`;
 				amount.textContent = count;
 			});
 		}
@@ -207,16 +207,17 @@ function dispose() {
 		document.removeEventListener('mousemove', _mouseMoveHandler);
 		_mouseMoveHandler = null;
 	}
+	ui = null;
 }
 
 export default {
-	attach: attach,
-	dispose: dispose,
-	sync: sync,
-	updateById: updateById,
-	updateByIndex: updateByIndex,
-	updateSetIndicator: updateSetIndicator,
-	updateVisuals: updateVisuals,
-	show: show,
-	hide: hide
+	attach,
+	dispose,
+	sync,
+	updateById,
+	updateByIndex,
+	updateSetIndicator,
+	updateVisuals,
+	show,
+	hide
 };

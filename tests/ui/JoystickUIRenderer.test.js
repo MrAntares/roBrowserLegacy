@@ -63,4 +63,20 @@ describe('JoystickUIRenderer mouse auto-hide', () => {
 		expect(restoredUI.hide).toHaveBeenCalledOnce();
 		expect(mocks.inputService.active).toBe(false);
 	});
+
+	it('ignores mousemove and show/hide after dispose', () => {
+		const firstUI = createUI();
+		JoystickUIRenderer.attach(firstUI);
+
+		JoystickUIRenderer.dispose();
+		firstUI.show.mockClear();
+		firstUI.hide.mockClear();
+
+		document.dispatchEvent(new MouseEvent('mousemove', { clientX: 10, clientY: 10 }));
+		JoystickUIRenderer.show();
+		JoystickUIRenderer.hide();
+
+		expect(firstUI.show).not.toHaveBeenCalled();
+		expect(firstUI.hide).not.toHaveBeenCalled();
+	});
 });
