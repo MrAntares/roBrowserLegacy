@@ -162,6 +162,7 @@ class MapRenderer {
 		EntityManager.free();
 		Damage.free(gl);
 		EffectManager.free(gl);
+		JoystickUI.onRestore();
 
 		// Basic TP
 		Mouse.intersect = false;
