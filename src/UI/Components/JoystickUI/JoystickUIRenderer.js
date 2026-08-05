@@ -207,6 +207,7 @@ function dispose() {
 		document.removeEventListener('mousemove', _mouseMoveHandler);
 		_mouseMoveHandler = null;
 	}
+	ui = null;
 }
 
 export default {
