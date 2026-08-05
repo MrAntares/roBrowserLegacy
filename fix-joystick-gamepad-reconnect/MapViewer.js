@@ -255907,13 +255907,14 @@ var init_JoystickAxisInput = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/JoystickUI/JoystickInputService.js
-var hideTimeout, JoystickInputService_default;
+var hideTimeout, hideTimeoutHandle, JoystickInputService_default;
 var init_JoystickInputService = __esmMin((() => {
 	init_JoystickButtonInput();
 	init_JoystickAxisInput();
 	init_JoystickUIRenderer();
 	init_Controls();
 	hideTimeout = false;
+	hideTimeoutHandle = null;
 	JoystickInputService_default = {
 		active: false,
 		buttonStates: {},
@@ -255930,6 +255931,11 @@ var init_JoystickInputService = __esmMin((() => {
 			window.removeEventListener("gamepadconnected", this._boundOnConnect);
 			window.removeEventListener("gamepaddisconnected", this._boundOnDisconnect);
 			this._listening = false;
+			if (hideTimeoutHandle) {
+				clearTimeout(hideTimeoutHandle);
+				hideTimeoutHandle = null;
+			}
+			hideTimeout = false;
 			this.active = false;
 			this.buttonStates = {};
 		},
@@ -255984,8 +255990,9 @@ var init_JoystickInputService = __esmMin((() => {
 				hideTimeout = true;
 				const self = this;
 				this.active = false;
-				setTimeout(function() {
+				hideTimeoutHandle = setTimeout(function() {
 					hideTimeout = false;
+					hideTimeoutHandle = null;
 					if (self.active === false) JoystickUIRenderer_default.hide();
 				}, 3e4);
 			} else if (!hideTimeout) this.active = true;
