@@ -131,8 +131,12 @@ class MapRenderer {
 		UIManager.removeComponents();
 		Cursor.setType(Cursor.ACTION.DEFAULT);
 
+		// remove extension
+		const oldMap = this.currentMap.split(".")[0];
+		const newMap = mapname.split(".")[0];
+
 		// Don't reload a map when it's just a local teleportation
-		if (this.currentMap !== mapname) {
+		if (oldMap !== newMap) {
 			this.loading = true;
 			BGM.stop();
 			this.currentMap = mapname;

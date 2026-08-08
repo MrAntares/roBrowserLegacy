@@ -40,11 +40,22 @@ export default class ReplaySocket {
 
 	/**
 	 * Feed data into NetworkManager
-	 * @param {Uint8Array} data
+	 * @param {Uint8Array|ArrayBuffer} data
 	 */
 	push(data) {
-		if (this.connected && this.onMessage) {
-			this.onMessage(data.slice().buffer);
+		if (!this.connected || !this.onMessage || !data) {
+			return;
 		}
+
+		let buffer;
+		if (data instanceof Uint8Array) {
+			buffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+		} else if (data instanceof ArrayBuffer) {
+			buffer = data;
+		} else {
+			return;
+		}
+
+		this.onMessage(buffer);
 	}
 }

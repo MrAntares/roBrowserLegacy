@@ -1,205 +1,76 @@
 /**
  * Engine/Replay/ReplayPlayer.js
  *
- * Replay System orchestrator
+ * Ragnarok Online Replay System â€” Orchestrator / State Machine
+ *
+ * Pipeline:
+ *   IDLE â†’ LOADING_REPLAY â†’ APPLYING_SESSION â†’ LOADING_MAP
+ *        â†’ PLAYING_INITIAL_DATA â†’ INITIAL_DATA_COMPLETE
+ *        â†’ PLAYING_PACKET_STREAM â†’ REPLAY_FINISHED
  */
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import MapRenderer from 'Renderer/MapRenderer.js';
 import Session from 'Engine/SessionStorage.js';
 import MapEngine from 'Engine/MapEngine.js';
-import ReplayParser, { ContainerType } from './ReplayParser.js';
+import { ContainerType, ReplayState } from 'Engine/Replay/ReplayTypes.js';
 import ReplaySocket from './ReplaySocket.js';
+import ReplayParser from './ReplayParser.js';
 
 export default class ReplayPlayer {
 	constructor() {
 		this.parser = null;
 		this.socket = null;
-		
+
+		// Playback controls
 		this.playing = false;
 		this.speed = 1.0;
-		
-		this.chunks = [];
-		this.currentChunkIndex = 0;
 		this.startTime = 0;
-		
-		this.onTick = this.tick.bind(this);
+		this.lastTickTime = 0;
+
+		// State machine
+		this._state = ReplayState.IDLE;
+
+		// Three independent buffers (populated by load())
+		this._sessionData = null;
+		this._initialBuffer = [];       // Array of { type, typeName, chunks: [{ time, data }] }
+		this._packetStreamBuffer = [];  // Array of { id, time, length, data }
+
+		// Playback cursors
+		this._initialGroupIndex = 0;
+		this._initialChunkIndex = 0;
+		this._streamChunkIndex = 0;
+
+		// Bound tick handler
+		this._onTick = this.tick.bind(this);
+		this._animate = false;
+
+		// DB retry counter
+		this._retryCount = 0;
 	}
 
 	async load(file) {
+		this._setState(ReplayState.LOADING_REPLAY);
+		console.log('[Replay] Loading RRF...');
+
 		const buffer = await file.arrayBuffer();
 		this.parser = new ReplayParser(buffer);
 		const result = this.parser.parse();
-		this._setupSession(result.containers);
-		this._prepareChunks(result.containers);
-	}
 
-	_setupSession(containers) {
-		// Defaults
-		this.mapName = 'prontera.rsw';
-		Session.Character = Session.Character || {};
-		Session.Character.name = 'Replay';
+		this._sessionData = result.sessionBuffer;
+		this._initialBuffer = result.initialBuffer;
+		this._packetStreamBuffer = result.packetStreamBuffer;
 
-		const sessionContainer = containers.find(c => c.type === ContainerType.Session);
-		if (sessionContainer && sessionContainer.data.length > 0) {
-			const u16 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint16(0, true);
-			const u32 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
-
-			const props = {
-				1010: ['AID', u32, Session],
-				1011: ['GID', u32, Session],
-				1014: ['job', u16, Session.Character],
-				1015: ['exp', u32, Session.Character],
-				1016: ['level', u16, Session.Character],
-				1018: ['exp_next', u32, Session.Character],
-				1019: ['joblevel', u16, Session.Character],
-				1024: ['str', u16, Session.Character],
-				1025: ['agi', u16, Session.Character],
-				1026: ['vit', u16, Session.Character],
-				1027: ['int', u16, Session.Character],
-				1028: ['dex', u16, Session.Character],
-				1029: ['luk', u16, Session.Character],
-				1051: ['money', u32, Session.Character],
-				1052: ['speed', u16, Session.Character],
-				1060: ['head', u16, Session.Character],
-				1061: ['weapon', u16, Session.Character],
-				1062: ['shield', u16, Session.Character],
-				1063: ['bodypalette', u16, Session.Character],
-				1064: ['headpalette', u16, Session.Character],
-				1065: ['accessory', u16, Session.Character],
-				1066: ['accessory2', u16, Session.Character],
-				1067: ['accessory3', u16, Session.Character],
-				1071: ['robe', u16, Session.Character]
-			};
-
-			for (const chunk of sessionContainer.data) {
-				const map = props[chunk.id];
-				if (map && chunk.data.byteLength > 0) {
-					map[2][map[0]] = map[1](chunk);
-				}
-			}
-
-			// GID and AID need to be in Session.Character as well to bind correctly to the Entity
-			if (Session.GID) {
-				Session.Character.GID = Session.GID;
-			}
-			if (Session.AID) {
-				Session.Character.AID = Session.AID;
-			}
-		}
-
-		const replayData = containers.find(c => c.type === ContainerType.ReplayData);
-		if (replayData) {
-			const sexChunk = replayData.data.find(d => d.id === 963);
-			if (sexChunk && sexChunk.data.byteLength > 0) {
-				const view = new DataView(sexChunk.data.buffer, sexChunk.data.byteOffset, sexChunk.data.byteLength);
-				Session.Sex = view.getUint8(0);
-				Session.Character.sex = Session.Sex;
-			}
-			const nameChunk = replayData.data.find(d => d.id === 964) || replayData.data[3];
-			if (nameChunk && nameChunk.data.byteLength > 0) {
-				const str = this._readString(nameChunk.data);
-				if (str) Session.Character.name = str;
-			}
-			const mapChunk = replayData.data.find(d => d.id === 965) || replayData.data[4];
-			if (mapChunk && mapChunk.data.byteLength > 0) {
-				const str = this._readString(mapChunk.data);
-				if (str) {
-					this.mapName = str;
-					if (!this.mapName.endsWith('.rsw')) {
-						this.mapName += '.rsw';
-					}
-				}
-			}
-			
-			// Parse coordinates for ACCEPT_ENTER
-			const xChunk = replayData.data.find(d => d.id === 967); // PosX
-			if (xChunk && xChunk.data.byteLength >= 2) {
-				const view = new DataView(xChunk.data.buffer, xChunk.data.byteOffset, xChunk.data.byteLength);
-				this.startX = view.getUint16(0, true);
-			}
-			const yChunk = replayData.data.find(d => d.id === 968); // PosY
-			if (yChunk && yChunk.data.byteLength >= 2) {
-				const view = new DataView(yChunk.data.buffer, yChunk.data.byteOffset, yChunk.data.byteLength);
-				this.startY = view.getUint16(0, true);
-			}
-			const dirChunk = replayData.data.find(d => d.id === 969); // Direction
-			if (dirChunk && dirChunk.data.byteLength >= 1) {
-				const view = new DataView(dirChunk.data.buffer, dirChunk.data.byteOffset, dirChunk.data.byteLength);
-				this.startDir = view.getUint8(0);
-			}
-		}
-	}
-
-	_prepareChunks(containers) {
-		this.chunks = [];
-
-		// The Replay file does not contain the ACCEPT_ENTER packet that normally
-		// transitions the client from Login to Map state. We synthesize it here and
-		// push it at the very beginning (time 0) so MapEngine correctly initializes
-		// Session.Entity and loads the map BEFORE processing the replay stream.
-		const acceptEnter = new Uint8Array(11);
-		const view = new DataView(acceptEnter.buffer);
-		view.setUint16(0, 0x0073, true); // PACKET.ZC.ACCEPT_ENTER (0x73)
-		view.setUint32(2, Date.now(), true); // startTime
-
-		// Encode 3-byte PosDir: (x << 14) | (y << 4) | (dir & 0x0f)
-		const x = this.startX || 0;
-		const y = this.startY || 0;
-		const dir = this.startDir || 0;
-		const p = (x << 14) | (y << 4) | (dir & 0x0f);
-		
-		// In JS, BinaryReader.readPos() decodes it from 3 bytes where byte[0] is the least significant
-		// but in getUint8 it reads byte[0], byte[1], byte[2]. So it's:
-		// bf_wba[2] = byte0, bf_wba[1] = byte1, bf_wba[0] = byte2.
-		view.setUint8(6, (p >> 16) & 0xff);
-		view.setUint8(7, (p >> 8) & 0xff);
-		view.setUint8(8, p & 0xff);
-
-		this.chunks.push({
-			time: 0,
-			data: acceptEnter
-		});
-		
-		// Initial packets (sent immediately)
-		const initialPackets = containers.find(c => c.type === ContainerType.InitialPackets);
-		if (initialPackets) {
-			for (const chunk of initialPackets.data) {
-				this.chunks.push({
-					time: 0,
-					data: chunk.data
-				});
-			}
-		}
-
-		// Packet stream (sent over time)
-		const packetStream = containers.find(c => c.type === ContainerType.PacketStream);
-		if (packetStream) {
-			for (const chunk of packetStream.data) {
-				this.chunks.push({
-					time: chunk.time,
-					data: chunk.data
-				});
-			}
-		}
-	}
-
-	_readString(uint8array) {
-		let length = 0;
-		while (length < uint8array.length && uint8array[length] !== 0) {
-			length++;
-		}
-		const decoder = new TextDecoder('euc-kr');
-		return decoder.decode(uint8array.subarray(0, length));
+		this._setState(ReplayState.IDLE);
 	}
 
 	start() {
-		console.log('[ReplayPlayer] start() called.');
-		if (!this.parser || !this.mapName) {
+		if (!this.parser || !this._sessionData) {
 			console.error('[ReplayPlayer] No replay loaded');
 			throw new Error('No replay loaded');
 		}
 
+		// Wait for DB to be ready
 		if (!DB.isLoaded) {
 			if (!DB.startedLazyInit) {
 				DB.lazyInit();
@@ -218,28 +89,24 @@ export default class ReplayPlayer {
 		this._retryCount = 0;
 		DB.startedLazyInit = false;
 
-		// Mock network
+		// Reset cursors
+		this._initialGroupIndex = 0;
+		this._initialChunkIndex = 0;
+		this._streamChunkIndex = 0;
+		this.playing = true;
+		this.startTime = 0;
+		this.lastTickTime = Date.now();
+
+		// Install mock socket
 		Network.setSocketFactory((host, port) => {
 			this.socket = new ReplaySocket(host, port);
 			return this.socket;
 		});
 
-		// Ensure no previous connections
 		Network.close();
 
-		this.playing = true;
-		this.startTime = Date.now();
-		this.lastTickTime = Date.now();
-		this.currentChunkIndex = 0;
-
-		// Start map engine with mock parameters
-		MapEngine.init('127.0.0.1', 6900, this.mapName);
-
-		// Hook into renderer loop
-		// We use an independent requestAnimationFrame loop instead of Renderer.renderCallbacks
-		// so it survives MapRenderer's Renderer.remove() calls during loading screens.
-		this._animate = true;
-		this.onTick();
+		// Apply session data BEFORE loading map
+		this._applySession();
 	}
 
 	pause() {
@@ -248,27 +115,142 @@ export default class ReplayPlayer {
 
 	resume() {
 		this.playing = true;
-		// Adjust start time to account for the pause duration
-		const logicalTime = this.chunks[this.currentChunkIndex]?.time || 0;
-		this.startTime = Date.now() - (logicalTime / this.speed);
+		const nextChunk = this._getCurrentStreamChunk();
+		const logicalTime = nextChunk ? nextChunk.time : 0;
+		this.startTime = Date.now() - logicalTime / this.speed;
 	}
 
 	stop() {
 		this.playing = false;
 		this._animate = false;
 		Network.setSocketFactory(null);
-		// TODO: Gracefully exit map engine and return to login/intro
+		this._setState(ReplayState.IDLE);
 	}
 
 	setSpeed(speed) {
-		const logicalTime = this.chunks[this.currentChunkIndex]?.time || 0;
+		const nextChunk = this._getCurrentStreamChunk();
+		const logicalTime = nextChunk ? nextChunk.time : 0;
 		this.speed = speed;
-		this.startTime = Date.now() - (logicalTime / this.speed);
+		this.startTime = Date.now() - logicalTime / this.speed;
+	}
+
+	_setState(newState) {
+		this._state = newState;
+	}
+
+	/**
+	 * Applies session data directly to Session/Session.Character.
+	 * Called BEFORE MapEngine.init so map name and character are available.
+	 */
+	_applySession() {
+		this._setState(ReplayState.APPLYING_SESSION);
+		console.log('[Replay] Applying session...');
+
+		const s = this._sessionData;
+
+		// Reset Session.Character completely so no stale data from previous sessions leaks in.
+		// sex MUST be 0 or 1 — HairIndexTable[undefined] crashes; default to 0 (male) if unknown.
+		Session.Character = {
+			name: s.characterName || 'Replay',
+			sex: (s.sex === 0 || s.sex === 1) ? s.sex : 0,
+			job: 0,
+			level: 1,
+			joblevel: 1,
+			exp: 0,
+			exp_next: 0,
+			str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1,
+			money: 0,
+			speed: 150,
+			head: 0,
+			weapon: 0,
+			shield: 0,
+			bodypalette: 0,
+			headpalette: 0,
+			accessory: 0,
+			accessory2: 0,
+			accessory3: 0,
+			robe: 0
+		};
+
+		// Apply AID / GID
+		if (s.AID !== undefined) {
+			Session.AID = s.AID;
+			Session.Character.AID = s.AID;
+		}
+		if (s.GID !== undefined) {
+			Session.GID = s.GID;
+			Session.Character.GID = s.GID;
+		}
+
+		// Mirror sex into Session.Sex
+		Session.Sex = Session.Character.sex;
+
+		// Apply all remaining character properties from session data
+		const charProps = ['job', 'exp', 'level', 'exp_next', 'joblevel', 'str', 'agi',
+			'vit', 'int', 'dex', 'luk', 'money', 'speed', 'head', 'weapon', 'shield',
+			'bodypalette', 'headpalette', 'accessory', 'accessory2', 'accessory3', 'robe'];
+
+		for (const prop of charProps) {
+			if (s[prop] !== undefined) {
+				Session.Character[prop] = s[prop];
+			}
+		}
+
+		console.log('[Replay] Session applied — sex:', Session.Character.sex, 'head:', Session.Character.head, 'job:', Session.Character.job, 'map:', s.mapName);
+
+		this._mapName = s.mapName || 'prontera.rsw';
+		this._startX = s.startX || 0;
+		this._startY = s.startY || 0;
+		this._startDir = s.startDir || 0;
+
+		this._loadMap();
+	}
+
+	_loadMap() {
+		this._setState(ReplayState.LOADING_MAP);
+		console.log('[Replay] Loading map...');
+
+		// ACCEPT_ENTER must be sent after socket connects so MapEngine can call
+		// MapRenderer.setMap() and start the loading sequence.
+		this._acceptEnterSent = false;
+		// Track if map loading has actually started (setMap called)
+		this._mapLoadStarted = false;
+
+		// NOTE: We do NOT hook MapRenderer.onLoad here because MapEngine.onMapChange()
+		// overwrites it. Instead we poll MapRenderer.loading in tick().
+
+		MapEngine.init('127.0.0.1', 6900, this._mapName);
+
+		// Start animation loop
+		this._animate = true;
+		this.lastTickTime = Date.now();
+		this._onTick();
+	}
+
+	/**
+	 * Synthesizes the ZC_ACCEPT_ENTER (0x0073) packet that MapEngine needs
+	 * to register the player entity and trigger the full map initialisation sequence.
+	 */
+	_sendAcceptEnter() {
+		const pkt = new Uint8Array(11);
+		const view = new DataView(pkt.buffer);
+		view.setUint16(0, 0x0073, true);
+		view.setUint32(2, Date.now(), true);
+
+		const x = this._startX;
+		const y = this._startY;
+		const dir = this._startDir;
+		const p = (x << 14) | (y << 4) | (dir & 0x0f);
+		view.setUint8(6, (p >> 16) & 0xff);
+		view.setUint8(7, (p >> 8) & 0xff);
+		view.setUint8(8, p & 0xff);
+
+		this._pushPacket(pkt);
 	}
 
 	tick() {
 		if (this._animate) {
-			requestAnimationFrame(this.onTick);
+			requestAnimationFrame(this._onTick);
 		}
 
 		if (!this.playing || !this.socket || !this.socket.connected) {
@@ -278,36 +260,113 @@ export default class ReplayPlayer {
 
 		const now = Date.now();
 
-		if (MapRenderer.loading) {
-			this.startTime += (now - this.lastTickTime);
-			this.lastTickTime = now;
-			return;
+		switch (this._state) {
+			case ReplayState.LOADING_MAP:
+				// Step 1: Send ACCEPT_ENTER as soon as the socket connects so MapEngine
+				// calls MapRenderer.setMap() and starts the asset loading sequence.
+				if (!this._acceptEnterSent) {
+					this._sendAcceptEnter();
+					this._acceptEnterSent = true;
+					this._mapLoadStarted = false;
+				}
+				// Step 2: Once MapRenderer.loading becomes true, the map started loading.
+				if (this._acceptEnterSent && MapRenderer.loading) {
+					this._mapLoadStarted = true;
+				}
+				// Step 3: Once MapRenderer.loading becomes false AFTER it was true,
+				// the map has fully loaded — transition to initial data.
+				if (this._mapLoadStarted && !MapRenderer.loading) {
+					console.log('[Replay] Map loaded');
+					this._mapLoadStarted = false;
+					this._setState(ReplayState.PLAYING_INITIAL_DATA);
+					console.log('[Replay] Playing initial packets...');
+				}
+				// Freeze stream time while map is loading
+				this.startTime += now - this.lastTickTime;
+				this.lastTickTime = now;
+				break;
+
+			case ReplayState.PLAYING_INITIAL_DATA:
+				this.lastTickTime = now;
+				this._tickInitialData();
+				break;
+
+			case ReplayState.INITIAL_DATA_COMPLETE:
+				this._setState(ReplayState.PLAYING_PACKET_STREAM);
+				this.startTime = Date.now();
+				this.lastTickTime = now;
+				this._firstStreamTime = this._packetStreamBuffer.length > 0 ? this._packetStreamBuffer[0].time : 0;
+				console.log(`[Replay] Starting packet stream: ${this._packetStreamBuffer.length} chunks (first time: ${this._firstStreamTime}ms)`);
+				break;
+
+			case ReplayState.PLAYING_PACKET_STREAM:
+				this.lastTickTime = now;
+				this._tickPacketStream(now);
+				break;
+
+			default:
+				this.lastTickTime = now;
+				break;
+		}
+	}
+
+	/**
+	 * Drains initial data (InitialPackets → InitialEntities → InitialFloorItems)
+	 * in original file order immediately without tick delays.
+	 */
+	_tickInitialData() {
+		console.log(`[Replay] Injecting initial data groups (${this._initialBuffer.length} groups)...`);
+
+		for (const group of this._initialBuffer) {
+			console.log(`[Replay] Playing ${group.typeName || 'initial group'} (${group.chunks.length} packets)...`);
+			for (const chunk of group.chunks) {
+				const data = chunk.data || chunk;
+				this._pushPacket(data);
+			}
 		}
 
-		this.lastTickTime = now;
-		const logicalTime = (now - this.startTime) * this.speed;
+		console.log('[Replay] Initial data completed');
+		this._setState(ReplayState.INITIAL_DATA_COMPLETE);
+	}
 
-		while (this.currentChunkIndex < this.chunks.length) {
-			if (MapRenderer.loading) {
-				break;
-			}
+	/**
+	 * Time-based packet injection from the PacketStream buffer.
+	 */
+	_tickPacketStream(now) {
+		const logicalTime = (now - this.startTime) * this.speed + (this._firstStreamTime || 0);
 
-			const chunk = this.chunks[this.currentChunkIndex];
+		while (this._streamChunkIndex < this._packetStreamBuffer.length) {
+			const chunk = this._packetStreamBuffer[this._streamChunkIndex];
 			if (chunk.time <= logicalTime) {
-				// Inject packet into network manager
-				try {
-					this.socket.push(chunk.data);
-				} catch (e) {
-					console.error('[Replay] Packet injection error:', e);
-				}
-				this.currentChunkIndex++;
+				this._pushPacket(chunk.data);
+				this._streamChunkIndex++;
 			} else {
 				break;
 			}
 		}
 
-		if (this.currentChunkIndex >= this.chunks.length) {
-			this.stop(); // End of replay
+		if (this._streamChunkIndex >= this._packetStreamBuffer.length) {
+			console.log('[Replay] Replay finished');
+			this._setState(ReplayState.REPLAY_FINISHED);
+			this.stop();
+		}
+	}
+
+	_getCurrentStreamChunk() {
+		return this._packetStreamBuffer[this._streamChunkIndex] || null;
+	}
+
+	/**
+	 * Injects a raw network packet buffer into the NetworkManager via the mock socket.
+	 */
+	_pushPacket(data) {
+		if (!this.socket || !this.socket.connected) {
+			return;
+		}
+		try {
+			this.socket.push(data);
+		} catch (e) {
+			console.error('[Replay] Packet injection error:', e);
 		}
 	}
 }

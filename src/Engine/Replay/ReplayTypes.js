@@ -1,7 +1,9 @@
 export const ReplayOpCodes = {
 	ZC_ROOM_NEWENTRY: 201,
 	ZC_STORE_ENTRY: 202,
+	ZC_PROGRESS: 203,
 	ZC_BUYING_STORE_ENTRY: 204,
+	ZC_ITEM_ENTRY: 207,
 	ZC_NOTIFY_MOVEENTRY8: 208,
 	ZC_NOTIFY_STANDENTRY7: 210,
 	ZC_NOTIFY_MOVEENTRY11: 214,
@@ -138,7 +140,11 @@ export const ReplayOpCodes = {
 	Begin_8000: 8000,
 	End_8000: 8001,
 
+	Begin_10000: 10000,
+	End_10000: 10001,
+
 	Begin_13000: 13000,
+	NameList: 13003, // seems to have the accid + name + ??
 	End_13000: 13001,
 
 	Begin_14000: 14000,
@@ -169,3 +175,41 @@ export const ReplayOpCodeName = {};
 for (const [name, code] of Object.entries(ReplayOpCodes)) {
 	ReplayOpCodeName[code] = name;
 }
+
+export const ContainerType = {
+	None: 0,
+	PacketStream: 1,
+	ReplayData: 2,
+	Session: 3,
+	Status: 4,
+	Quests: 6,
+	GroupAndFriends: 7,
+	Items: 8,
+	UnknownContainingPet: 9,
+	InitialPackets: 14,
+	InitialEntities: 15,
+	InitialFloorItems: 16,
+	Efst: 17,
+	EfstList: 18,
+	EntitiesInfo: 22,
+};
+
+export const ContainerTypeNames = {};
+
+for (const [name, code] of Object.entries(ContainerType)) {
+	ContainerTypeNames[code] = name;
+}
+
+/**
+ * States of the Replay playback state machine.
+ */
+export const ReplayState = {
+	IDLE: 'IDLE',
+	LOADING_REPLAY: 'LOADING_REPLAY',
+	APPLYING_SESSION: 'APPLYING_SESSION',
+	LOADING_MAP: 'LOADING_MAP',
+	PLAYING_INITIAL_DATA: 'PLAYING_INITIAL_DATA',
+	INITIAL_DATA_COMPLETE: 'INITIAL_DATA_COMPLETE',
+	PLAYING_PACKET_STREAM: 'PLAYING_PACKET_STREAM',
+	REPLAY_FINISHED: 'REPLAY_FINISHED'
+};
