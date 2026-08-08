@@ -218071,6 +218071,7 @@ var init_BattleMode = __esmMin((() => {
 		* @return {boolean} is shortcut found ?
 		*/
 		static process(keyId) {
+			if (UIManager.getComponent("ShortCutOption").isCapturing) return false;
 			const keyName = BattleMode.getKeyName(keyId);
 			const key = KeyTable[keyName];
 			if (key) {
