@@ -63,9 +63,11 @@ export const ReplayOpCodes = {
 	Money: 1051,
 	Speed: 1052,
 	Honor: 1053,
+	NextJobExp: 1054,
 	JobExp: 1055,
 	Virtue: 1056,
 	Head: 1060,
+	Weapon: 1061,
 	Shield: 1062,
 	BodyPalette: 1063,
 	HeadPalette: 1064,
@@ -191,7 +193,7 @@ export const ContainerType = {
 	InitialFloorItems: 16,
 	Efst: 17,
 	EfstList: 18,
-	EntitiesInfo: 22,
+	EntitiesInfo: 21,
 };
 
 export const ContainerTypeNames = {};
