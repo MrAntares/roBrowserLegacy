@@ -89,6 +89,8 @@ import PlayerViewEquip from 'UI/Components/PlayerViewEquip/PlayerViewEquip.js';
 import JoystickUI from 'UI/Components/JoystickUI/JoystickUI.js';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
+import TextMode from 'UI/Components/TextMode/TextMode.js';
+import AutoCombatService from 'Engine/TextMode/AutoCombatService.js';
 
 import MainEngine from './MapEngine/Main.js';
 import MapStateEngine from './MapEngine/MapState.js';
@@ -118,6 +120,8 @@ import ClanEngine from './MapEngine/Clan.js';
 import CashShopEngine from './MapEngine/CashShop.js';
 import BankEngine from './MapEngine/Bank.js';
 import AchievementEngine from './MapEngine/Achievement.js';
+
+Network.addDisconnectListener(() => AutoCombatService.pause('连接已中断，挂机已暂停。'));
 
 /**
  * @type {string} mapname
@@ -620,6 +624,8 @@ function onConnectionRefused(pkt) {
  * @param {object} pkt - PACKET.ZC.NPCACK_MAPMOVE
  */
 function onMapChange(pkt) {
+	// Text automation must never survive a map transition, even if loading fails.
+	AutoCombatService.stop('地图正在切换，挂机已停止。');
 	MapRenderer.onLoad = () => {
 		Session.Entity.set({
 			PosDir: [pkt.xPos, pkt.yPos, 0],
@@ -714,6 +720,8 @@ function onMapChange(pkt) {
 		MobileUI.append();
 		JoystickUI.append();
 		Navigation.append();
+		TextMode.append();
+		TextMode.setMap(MapRenderer.currentMap);
 		Roulette.append();
 		if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
 			Achievement.append();

@@ -18,11 +18,30 @@ const APP = {
 	EFFECTVIEWER: 7
 };
 
+const APP_NAMES = Object.freeze({
+	online: APP.ONLINE,
+	mapviewer: APP.MAPVIEWER,
+	grfviewer: APP.GRFVIEWER,
+	modelviewer: APP.MODELVIEWER,
+	strviewer: APP.STRVIEWER,
+	grannymodelviewer: APP.GRANNYMODELVIEWER,
+	effectviewer: APP.EFFECTVIEWER
+});
+
+export function normalizeApplication(value) {
+	if (typeof value === 'string') {
+		const name = value.replace(/\.js$/i, '').toLowerCase();
+		if (APP_NAMES[name]) return APP_NAMES[name];
+	}
+	const id = Number.parseInt(value, 10);
+	return Object.values(APP).includes(id) ? id : APP.ONLINE;
+}
+
 /**
  * Launch the appropriate application based on config
  */
 async function launch(config) {
-	const appId = parseInt(config.application, 10) || APP.ONLINE;
+	const appId = normalizeApplication(config.application);
 
 	switch (appId) {
 		case APP.ONLINE:
@@ -73,7 +92,7 @@ if (window.ROConfig) {
 		if (event.source !== window.parent && event.source !== window.opener) {
 			return;
 		}
-		if (event.data && (event.data.application || event.data.servers)) {
+		if (event.data && typeof event.data === 'object') {
 			window.ROConfig = event.data;
 			// Configs is populated by an IIFE at import time, which runs before this
 			// config arrives via postMessage; apply the received config so options such

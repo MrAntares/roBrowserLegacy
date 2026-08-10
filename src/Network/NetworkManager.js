@@ -66,6 +66,7 @@ let _save_buffer = null;
  * @type {function}
  */
 let _onDisconnect = null;
+const _disconnectListeners = new Set();
 
 /**
  * Defines if dump packets as hex string
@@ -357,6 +358,13 @@ function onClose() {
 
 	if (this === _socket) {
 		console.warn('[Network] Disconnect from server');
+		for (const listener of _disconnectListeners) {
+			try {
+				listener();
+			} catch (error) {
+				console.warn('[Network] Disconnect listener failed:', error);
+			}
+		}
 
 		if (_socket.ping) {
 			clearInterval(_socket.ping);
@@ -496,6 +504,10 @@ const Network = (function network() {
 		},
 		get onDisconnect() {
 			return _onDisconnect;
+		},
+		addDisconnectListener(callback) {
+			_disconnectListeners.add(callback);
+			return () => _disconnectListeners.delete(callback);
 		},
 		setSocketFactory: setSocketFactory,
 		defaultSocketFactory: defaultSocketFactory,

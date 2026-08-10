@@ -1416,6 +1416,7 @@ export function createSkillList({
 	Component.onIncreaseSkill = function onIncreaseSkill() {};
 	Component.onUpdateSkill = function onUpdateSkill() {};
 	Component.getSkillById = getSkillById;
+	Component.getSkills = () => _list.map(skill => ({ ...skill }));
 
 	return UIManager.addComponent(Component);
 }

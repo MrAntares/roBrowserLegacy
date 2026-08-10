@@ -1,0 +1,109 @@
+<section class="panel" aria-label="文字移动与自动战斗">
+	<header>
+		<strong>文字模式</strong>
+		<button id="collapse" type="button" aria-label="收起文字模式">−</button>
+	</header>
+	<div id="content">
+		<p id="position" class="position">当前位置：载入中</p>
+
+		<section aria-labelledby="movement-title">
+			<h2 id="movement-title">移动</h2>
+			<div class="row directions">
+				<button type="button" data-direction="北">北</button>
+				<button type="button" data-direction="南">南</button>
+				<button type="button" data-direction="西">西</button>
+				<button type="button" data-direction="东">东</button>
+				<label>步数 <input id="steps" type="number" min="1" max="100" value="5" /></label>
+			</div>
+			<form id="coordinate-form" class="row">
+				<label>X <input id="x" type="number" required /></label>
+				<label>Y <input id="y" type="number" required /></label>
+				<button type="submit">寻路</button>
+			</form>
+			<div class="row">
+				<label class="grow"
+					>地点
+					<select id="landmark">
+						<option value="">请选择</option>
+					</select></label
+				>
+				<button id="go-landmark" type="button">前往</button>
+				<button id="cancel-movement" type="button">取消移动</button>
+			</div>
+		</section>
+
+		<section aria-labelledby="nearby-title">
+			<h2 id="nearby-title">附近怪物</h2>
+			<div id="nearby" class="list" role="radiogroup"><p class="empty">附近没有怪物</p></div>
+			<button id="attack-target" type="button">攻击所选目标</button>
+		</section>
+
+		<section aria-labelledby="species-title">
+			<h2 id="species-title">本地图怪物</h2>
+			<div id="species" class="list"><p class="empty">载入中</p></div>
+			<div class="actions">
+				<button id="start" type="button">开始挂机</button>
+				<button id="pause" type="button">暂停</button>
+				<button id="stop" type="button">停止</button>
+				<button id="clear" type="button">清空勾选</button>
+			</div>
+		</section>
+
+		<section aria-labelledby="strategy-title">
+			<h2 id="strategy-title">战斗策略（按顺序执行）</h2>
+			<div class="row settings-row">
+				<label>低血停止 <input id="low-hp" type="number" min="1" max="99" />%</label>
+				<label><input id="loot-enabled" type="checkbox" /> 自动拾取</label>
+				<label>半径 <input id="loot-radius" type="number" min="1" max="15" /></label>
+			</div>
+			<div id="rules" class="rule-list"><p class="empty">尚未配置规则</p></div>
+			<form id="rule-form" class="rule-form">
+				<div class="row">
+					<label class="grow"
+						>类型
+						<select id="rule-kind">
+							<option value="offense">主动技能</option>
+							<option value="support">辅助技能</option>
+							<option value="escape">解围技能</option>
+							<option value="recovery">恢复物品</option>
+						</select>
+					</label>
+					<label class="grow"
+						>动作
+						<select id="rule-action" required></select
+					></label>
+				</div>
+				<div class="row rule-fields">
+					<label
+						>目标
+						<select id="rule-target">
+							<option value="current-target">当前怪物</option>
+							<option value="self">自己</option>
+							<option value="self-cell">自己脚下</option>
+							<option value="target-cell">目标位置</option>
+						</select>
+					</label>
+					<label>等级 <input id="rule-level" type="number" min="1" max="100" value="1" /></label>
+					<label>HP≤% <input id="rule-hp" type="number" min="1" max="100" placeholder="不限" /></label>
+					<label>SP≥% <input id="rule-sp" type="number" min="0" max="100" value="0" /></label>
+					<label>怪物数 <input id="rule-count" type="number" min="0" max="100" value="0" /></label>
+					<label>统计半径 <input id="rule-radius" type="number" min="1" max="30" value="8" /></label>
+					<label
+						>间隔秒 <input id="rule-interval" type="number" min="0.5" max="3600" step="0.5" value="1"
+					/></label>
+				</div>
+				<button type="submit">添加规则</button>
+			</form>
+		</section>
+
+		<form id="command-form" class="command">
+			<label for="command">文字命令</label>
+			<div class="row">
+				<input id="command" class="grow" placeholder="例如：北 5 / 攻击 @1" /><button type="submit">
+					执行
+				</button>
+			</div>
+		</form>
+		<p id="status" class="status" role="status" aria-live="polite">状态：已停止</p>
+	</div>
+</section>

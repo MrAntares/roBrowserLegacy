@@ -42,6 +42,35 @@
 		EFFECTVIEWER: 7
 	};
 
+	var APPLICATION_NAMES = {
+		1: 'Online',
+		2: 'MapViewer',
+		3: 'GrfViewer',
+		4: 'ModelViewer',
+		5: 'StrViewer',
+		6: 'GrannyModelViewer',
+		7: 'EffectViewer'
+	};
+
+	/**
+	 * Convert every supported public application value to a safe numeric enum.
+	 * Unknown and missing values deliberately fall back to Online so callers can
+	 * never make api.html request an unvalidated script name.
+	 */
+	ROBrowser.normalizeApplication = function normalizeApplication(value) {
+		if (typeof value === 'string') {
+			var normalized = value.replace(/\.js$/i, '').toLowerCase();
+			var names = Object.keys(APPLICATION_NAMES);
+			for (var i = 0; i < names.length; i++) {
+				if (APPLICATION_NAMES[names[i]].toLowerCase() === normalized) {
+					return Number(names[i]);
+				}
+			}
+		}
+		value = Number(value);
+		return APPLICATION_NAMES[value] ? value : ROBrowser.APP.ONLINE;
+	};
+
 	/**
 	 * @type {Object} ROBrowser configuration object
 	 */
@@ -338,6 +367,7 @@
 	 * Start ROBrowser Instance
 	 */
 	ROBrowser.prototype.start = function Start() {
+		this.config.application = ROBrowser.normalizeApplication(this.config.application);
 		switch (this.config.type) {
 			// Create Popup
 			case ROBrowser.TYPE.POPUP:
@@ -485,7 +515,9 @@
 	 * No onload event from external iframe/popup
 	 */
 	function WaitForInitialization() {
-		this._APP.postMessage(JSON.parse(JSON.stringify(this.config)), '*');
+		var config = JSON.parse(JSON.stringify(this.config));
+		config.application = APPLICATION_NAMES[ROBrowser.normalizeApplication(config.application)];
+		this._APP.postMessage(config, '*');
 	}
 
 	/**

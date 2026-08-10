@@ -212,14 +212,13 @@ function createHTML(includeManifest = false, buildArgs = {}, isAllBuild = false)
         ${manifest}`;
 
 	let body;
+	createApiHTML();
 
 	if (hasViewerFlags) {
 		const activeViewers = appButtonMap.filter(v => isAllBuild || buildArgs[v.flag]);
 		const buttons = activeViewers
 			.map(v => `                <button class="app-btn" onclick="launchApp('${v.app}')">${v.label}</button>`)
 			.join('\n');
-
-		createApiHTML();
 
 		body = `${commonHead}    
   
@@ -629,9 +628,9 @@ function createApiHTML() {
                 } else {    
                     window.addEventListener('message', function onMsg(event) {    
                         if (!event.data || typeof event.data !== 'object') return;    
-                        if (!event.data.application) return;    
                         window.removeEventListener('message', onMsg, false);    
-                        var name = APP_IDS[event.data.application] || 'ONLINE';    
+						var rawApplication = String(event.data.application || 'ONLINE').replace(/\\.js$/i, '').toUpperCase();
+						var name = APP_IDS[event.data.application] || (APP_SCRIPTS[rawApplication] ? rawApplication : 'ONLINE');
                         loadApp(name, event.data);    
                         if (event.source) { event.source.postMessage('ready', '*'); }    
                     }, false);    

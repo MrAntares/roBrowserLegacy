@@ -107,7 +107,8 @@
 
 					removeEventListener('message', OnMessage, false);
 
-					window.ROConfig = event.data;
+					window.ROConfig = event.data && typeof event.data === 'object' ? event.data : {};
+					if (!window.ROConfig.application) window.ROConfig.application = 'Online';
 
 					// Load the engine entry point as an ES6 module
 					import('../../src/main.js')

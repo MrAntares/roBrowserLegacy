@@ -3437,8 +3437,9 @@ class DB {
 		// Search NPCs if type is ALL or NPC
 		if (type === 'ALL' || type === 'NPC') {
 			// NaviNpcTable structure: [["map_name", npc_id, npc_type, class_id, "npc_name", "", x, y], ...]
-			for (let i = 0; i < NaviNpcTable.length; i++) {
-				const npc = NaviNpcTable[i];
+			const navigationNpcs = Object.values(NaviNpcTable);
+			for (let i = 0; i < navigationNpcs.length; i++) {
+				const npc = navigationNpcs[i];
 				const mapName = npc[0];
 				const npcId = npc[1];
 				const npcName = npc[4] || '';
@@ -3465,8 +3466,9 @@ class DB {
 		// Search MOBs if type is ALL or MOB
 		if (type === 'ALL' || type === 'MOB') {
 			// NaviMobTable structure: [["map_name", spawn_id, mob_type, mob_class, "mob_name", "sprite_name", level, mob_info], ...]
-			for (let i = 0; i < NaviMobTable.length; i++) {
-				const mob = NaviMobTable[i];
+			const navigationMobs = Object.values(NaviMobTable);
+			for (let i = 0; i < navigationMobs.length; i++) {
+				const mob = navigationMobs[i];
 				const mapName = mob[0];
 				const mobId = mob[3]; // Using mob_class as the ID
 				const mobName = mob[4] || '';
@@ -3499,6 +3501,50 @@ class DB {
 
 		// Limit to 50 results to avoid performance issues
 		return results.slice(0, 50);
+	}
+
+	/**
+	 * Return navigation monsters registered on one map.
+	 * Used by text mode to list species even when no spawn is currently visible.
+	 */
+	static getNavigationMonstersForMap(mapName) {
+		const normalized = String(mapName || '')
+			.replace(/\.gat$/i, '')
+			.toLowerCase();
+		const result = new Map();
+		const navigationMobs = Object.values(NaviMobTable);
+		for (let i = 0; i < navigationMobs.length; i++) {
+			const mob = navigationMobs[i];
+			if (
+				String(mob[0] || '')
+					.replace(/\.gat$/i, '')
+					.toLowerCase() !== normalized
+			)
+				continue;
+			const id = Number(mob[3]);
+			if (Number.isFinite(id)) result.set(id, { id, name: mob[4] || DB.getMonsterName(id) });
+		}
+		return [...result.values()];
+	}
+
+	/** Return same-map navigation NPCs for text landmark movement. */
+	static getNavigationNpcsForMap(mapName) {
+		const normalized = String(mapName || '')
+			.replace(/\.gat$/i, '')
+			.toLowerCase();
+		return Object.values(NaviNpcTable)
+			.filter(
+				npc =>
+					String(npc[0] || '')
+						.replace(/\.gat$/i, '')
+						.toLowerCase() === normalized
+			)
+			.map(npc => ({
+				id: npc[1],
+				name: npc[4] || '',
+				x: npc[6],
+				y: npc[7]
+			}));
 	}
 
 	/**
