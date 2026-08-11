@@ -64,6 +64,7 @@ const _preferences = Preferences.get(
 let showButtons = false;
 let autoTargetTimer;
 const C_AUTOTARGET_DELAY = 500;
+const C_TOUCH_CLICK_GUARD = 750;
 
 let centerX, centerY;
 let maxDistance = 0;
@@ -80,8 +81,20 @@ let _joystickThumb = null;
 function bindButton(root, selector, handler) {
 	const el = root.querySelector(selector);
 	if (el) {
-		el.addEventListener('click', handler);
-		el.addEventListener('touchstart', handler);
+		let ignoreClickUntil = 0;
+
+		el.addEventListener('click', event => {
+			if (Date.now() < ignoreClickUntil) {
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				return;
+			}
+			handler(event);
+		});
+		el.addEventListener('touchstart', event => {
+			ignoreClickUntil = Date.now() + C_TOUCH_CLICK_GUARD;
+			handler(event);
+		});
 	}
 }
 
