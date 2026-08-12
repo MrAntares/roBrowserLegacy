@@ -16,6 +16,46 @@ import Entity from 'Renderer/Entity/Entity.js';
  * Specialisation of Entity for the local player character.
  * Session.player is always an instance of this class.
  * Session.players[CharNum] holds all received character slots.
+ *
+ * @class Player
+ * @extends {Entity}
+ *
+ * @property {number} joblevel
+ * @property {number} money
+ * @property {number} weight
+ * @property {number} max_weight
+ * @property {number} base_exp
+ * @property {number} base_exp_next
+ * @property {number} job_exp
+ * @property {number} job_exp_next
+ * @property {number} statuspoint
+ * @property {number} skpoint
+ * @property {number} traitpoint
+ * @property {number} str
+ * @property {number} plusStr
+ * @property {number} agi
+ * @property {number} plusAgi
+ * @property {number} vit
+ * @property {number} plusVit
+ * @property {number} int
+ * @property {number} plusInt
+ * @property {number} dex
+ * @property {number} plusDex
+ * @property {number} luk
+ * @property {number} plusLuk
+ * @property {number} pow
+ * @property {number} plusPow
+ * @property {number} sta
+ * @property {number} plusSta
+ * @property {number} wis
+ * @property {number} plusWis
+ * @property {number} spl
+ * @property {number} plusSpl
+ * @property {number} con
+ * @property {number} plusCon
+ * @property {number} crt
+ * @property {number} plusCrt
+ * @property {boolean} intravision
  */
 class Player extends Entity {
 	constructor(data) {

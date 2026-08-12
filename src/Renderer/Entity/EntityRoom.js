@@ -20,6 +20,20 @@ const vec4 = glMatrix.vec4;
 const _pos = new Float32Array(4);
 const _size = new Float32Array(2);
 
+/**
+ * Room class — vending shop / buying store / chatroom icon & title above entity head
+ *
+ * @class Room
+ * @property {Entity} owner Owner entity reference
+ * @property {string} text Room text content
+ * @property {boolean} display Whether room sign is visible
+ * @property {HTMLElement|null} node DOM element node for the sign
+ * @property {number} type Room type (SELL_SHOP, BUY_SHOP, PUBLIC_CHAT, PRIVATE_CHAT)
+ * @property {number} id Room ID / GID
+ * @property {string} title Room title text
+ * @property {number} count Member / item count
+ * @property {number} maxcount Maximum allowed members / items
+ */
 class Room {
 	/**
 	 * Constants

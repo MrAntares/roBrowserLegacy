@@ -7,6 +7,8 @@
  * @author Vincent Thibault
  */
 
+/** @typedef {import('Renderer/Entity/Player.js').default} Player */
+
 export default {
 	isTouchDevice: false,
 	isRenewal: false,
@@ -24,8 +26,11 @@ export default {
 	ServerName: null,
 	ratesInfo: null,
 
-	characters: [], // Player instances indexed by CharNum, populated during char-select
-	player: null, // the currently controlled Player (one of the above)
+	/** @type {Array<Player>} Player instances indexed by CharNum, populated during char-select */
+	characters: [],
+
+	/** @type {Player|null} The currently controlled Player (one of the above) */
+	player: null,
 
 	AdminList: [],
 

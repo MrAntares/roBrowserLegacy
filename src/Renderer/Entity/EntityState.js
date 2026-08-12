@@ -1,9 +1,21 @@
 /**
  * Renderer/EntityState.js
  *
- * Manage Entity files (attachments) to load once a view change
+ * Entity status state & visual state manager — handles body/health/effect states,
+ * status effects (poison, freeze, stone, curse, silence, etc.), mounts, and emotion emoticons.
  *
  * @author Vincent Thibault, Antares
+ */
+
+/**
+ * EntityState mixin
+ * Adds status state setters and getters (bodyState, healthState, effectState, emotion) to Entity.
+ *
+ * @mixin EntityState
+ * @property {number} bodyState Body status state ID
+ * @property {number} healthState Health status state ID
+ * @property {number} effectState Effect state bitmask
+ * @property {function(number): void} setEmotion Play emotion icon above entity
  */
 
 import Sound from 'Audio/SoundManager.js';

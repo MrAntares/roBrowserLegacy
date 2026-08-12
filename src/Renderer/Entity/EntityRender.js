@@ -1,11 +1,23 @@
 /**
  * Renderer/EntityRender.js
  *
- * Entity class
+ * Entity rendering pipeline — WebGL sprite rendering, action animation frame
+ * calculation, picking, shadow rendering, palette binding, and 3D GR2 model attachments.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
+ */
+
+/**
+ * EntityRender mixin
+ * Adds rendering methods (render, renderEntityGUI, renderShadow, isVisible, depth) to Entity.
+ *
+ * @mixin EntityRender
+ * @property {function(mat4, mat4): void} render Render WebGL entity sprite / 3D model
+ * @property {function(mat4, mat4): void} renderEntityGUI Render entity health bar, speech bubble, and nameplate
+ * @property {function(mat4, mat4): void} renderShadow Render entity ground shadow
+ * @property {function(): boolean} isVisible Check if entity is currently visible
  */
 
 import glMatrix from 'Utils/gl-matrix.js';

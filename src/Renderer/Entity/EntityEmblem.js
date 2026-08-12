@@ -18,7 +18,14 @@ const _pos = new Float32Array(4);
 const _size = new Float32Array(2);
 
 /**
- * Emblem class
+ * Emblem class — standalone guild / siege emblem rendering
+ *
+ * @class Emblem
+ * @property {Image|null} emblem Guild emblem image element
+ * @property {boolean} display Whether emblem GUI is visible
+ * @property {HTMLCanvasElement} canvas Emblem canvas element
+ * @property {CanvasRenderingContext2D} ctx 2d context for emblem
+ * @property {Entity|null} entity Target entity
  */
 class Emblem {
 	constructor() {

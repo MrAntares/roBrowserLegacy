@@ -11,7 +11,15 @@
 import SoundManager from 'Audio/SoundManager.js';
 
 /**
- * @Constructor
+ * Sound class — spatial sound playback attached to entity actions
+ *
+ * @class Sound
+ * @property {number} _lastActionId Last played action ID
+ * @property {number} _lastAnimationId Last played animation frame ID
+ * @property {string|null} _lastFileName Last played WAV sound filename
+ * @property {number} _animCounter Sound animation counter
+ * @property {string|null} attackFile Custom weapon attack sound filename
+ * @property {Entity} entity Target entity reference
  */
 class Sound {
 	constructor() {
