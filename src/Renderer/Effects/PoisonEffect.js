@@ -27,7 +27,7 @@ function ensureFilterFrame(gl) {
 
 class PoisonEffect {
 	static render(gl, modelView, projection, fog) {
-		if (!_active || !Session.Entity) {
+		if (!_active || !Session.player) {
 			return;
 		}
 
@@ -36,9 +36,9 @@ class PoisonEffect {
 		SpriteRenderer.sprite = _filterFrame;
 		SpriteRenderer.image.texture = _filterFrame.texture;
 
-		SpriteRenderer.position[0] = Session.Entity.position[0];
-		SpriteRenderer.position[1] = Session.Entity.position[1];
-		SpriteRenderer.position[2] = Session.Entity.position[2];
+		SpriteRenderer.position[0] = Session.player.position[0];
+		SpriteRenderer.position[1] = Session.player.position[1];
+		SpriteRenderer.position[2] = Session.player.position[2];
 
 		SpriteRenderer.color[0] = 0.5;
 		SpriteRenderer.color[1] = 0.0;

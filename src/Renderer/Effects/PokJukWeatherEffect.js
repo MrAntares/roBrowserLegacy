@@ -105,10 +105,10 @@ class PokJukWeatherEffect {
 	}
 
 	init(Params) {
-		if (!Session.Entity) {
+		if (!Session.player) {
 			return;
 		}
-		const pPos = Session.Entity.position;
+		const pPos = Session.player.position;
 
 		// Spawn random number of fireworks (1 or 3)
 		const numFireworks = Math.floor(Math.random() * 3) + 1;
@@ -120,7 +120,7 @@ class PokJukWeatherEffect {
 	}
 
 	createFirework() {
-		const pPos = Session.Entity.position;
+		const pPos = Session.player.position;
 		return {
 			process: -(600 + Math.floor(Math.random() * 400)),
 			// Start near player

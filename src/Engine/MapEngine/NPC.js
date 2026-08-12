@@ -315,7 +315,7 @@ function onMinimapMarker(pkt) {
  * @param {object} pkt - PACKET_ZC_PROGRESS
  */
 function onProgressBar(pkt) {
-	Session.Entity.cast.onComplete = function () {
+	Session.player.cast.onComplete = function () {
 		const _pkt = new PACKET.CZ.PROGRESS();
 		Network.sendPacket(_pkt);
 	};
@@ -326,7 +326,7 @@ function onProgressBar(pkt) {
 		')';
 
 	// Color added only if the progressbar isn't black
-	Session.Entity.cast.set(pkt.time * 1000, pkt.color ? rgb : null);
+	Session.player.cast.set(pkt.time * 1000, pkt.color ? rgb : null);
 }
 
 /**
@@ -335,7 +335,7 @@ function onProgressBar(pkt) {
  * @param {object} pkt - PACKET.CZ.PROGRESS
  */
 function onProgressBarStop() {
-	Session.Entity.cast.clean();
+	Session.player.cast.clean();
 }
 
 /**

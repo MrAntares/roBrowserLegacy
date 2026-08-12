@@ -24,8 +24,8 @@ export default {
 	ServerName: null,
 	ratesInfo: null,
 
-	Character: null,
-	Entity: null,
+	characters: [], // Player instances indexed by CharNum, populated during char-select
+	player: null, // the currently controlled Player (one of the above)
 
 	AdminList: [],
 
@@ -33,9 +33,7 @@ export default {
 
 	moveAction: null,
 
-	zeny: 0,
-	weight: 0,
-	max_weight: 0,
+	// zeny, weight, max_weight are now on Session.player (Player.prototype)
 
 	petId: 0,
 	pet: {},

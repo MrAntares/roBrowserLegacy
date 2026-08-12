@@ -256,7 +256,7 @@ const CommandStore = {
 			} else {
 				pkt = new PACKET.CZ.REQUEST_ACT();
 			}
-			if (Session.Entity.action === Session.Entity.ACTION.SIT) {
+			if (Session.player.action === Session.player.ACTION.SIT) {
 				pkt.action = 3; // stand up
 			} else {
 				pkt.action = 2; // sit down
@@ -271,32 +271,32 @@ const CommandStore = {
 		description: "Moves your character's head from side to side",
 		callback: function () {
 			let pkt;
-			Session.Entity.headDir = Session.Entity.headDir === 1 ? 2 : 1;
+			Session.player.headDir = Session.player.headDir === 1 ? 2 : 1;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION2();
 			} else {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION();
 			}
-			pkt.headDir = Session.Entity.headDir;
-			pkt.dir = Session.Entity.direction;
+			pkt.headDir = Session.player.headDir;
+			pkt.dir = Session.player.direction;
 			Network.sendPacket(pkt);
 
 			// Doridori recovery bonus
-			if (Session.Entity.action === Session.Entity.ACTION.SIT) {
-				if (!Session.Entity.doriTime) {
-					Session.Entity.doriTime = [0, 0, 0, 0, 0];
+			if (Session.player.action === Session.player.ACTION.SIT) {
+				if (!Session.player.doriTime) {
+					Session.player.doriTime = [0, 0, 0, 0, 0];
 				}
 
-				Session.Entity.doriTime.shift();
-				Session.Entity.doriTime.push(Renderer.tick);
+				Session.player.doriTime.shift();
+				Session.player.doriTime.push(Renderer.tick);
 
-				const doriStart = Session.Entity.doriTime[0];
-				const doriEnd = Session.Entity.doriTime[4];
+				const doriStart = Session.player.doriTime[0];
+				const doriEnd = Session.player.doriTime[4];
 
 				if (doriEnd - doriStart > 1500 && doriEnd - doriStart < 3000) {
 					const doripkt = new PACKET.CZ.DORIDORI();
 					Network.sendPacket(doripkt);
-					Session.Entity.doriTime = [0, 0, 0, 0, 0];
+					Session.player.doriTime = [0, 0, 0, 0, 0];
 				}
 			}
 			return;
@@ -307,14 +307,14 @@ const CommandStore = {
 		description: 'Rotates your character clockwise',
 		callback: function () {
 			let pkt;
-			Session.Entity.direction = (Session.Entity.direction + 1) % 8;
+			Session.player.direction = (Session.player.direction + 1) % 8;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION2();
 			} else {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION();
 			}
-			pkt.headDir = Session.Entity.headDir;
-			pkt.dir = Session.Entity.direction;
+			pkt.headDir = Session.player.headDir;
+			pkt.dir = Session.player.direction;
 			Network.sendPacket(pkt);
 			return;
 		}
@@ -324,14 +324,14 @@ const CommandStore = {
 		description: 'Rotates your character counterclockwise',
 		callback: function () {
 			let pkt;
-			Session.Entity.direction = (Session.Entity.direction + 7) % 8;
+			Session.player.direction = (Session.player.direction + 7) % 8;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION2();
 			} else {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION();
 			}
-			pkt.headDir = Session.Entity.headDir;
-			pkt.dir = Session.Entity.direction;
+			pkt.headDir = Session.player.headDir;
+			pkt.dir = Session.player.direction;
 			Network.sendPacket(pkt);
 			return;
 		}
@@ -346,9 +346,9 @@ const CommandStore = {
 					'(' +
 					currentMap +
 					') : ' +
-					Math.floor(Session.Entity.position[0]) +
+					Math.floor(Session.player.position[0]) +
 					', ' +
-					Math.floor(Session.Entity.position[1]),
+					Math.floor(Session.player.position[1]),
 				this.TYPE.INFO,
 				this.FILTER.PUBLIC_LOG
 			);
@@ -530,7 +530,7 @@ const CommandStore = {
 		callback: function () {
 			const pkt = new PACKET.CZ.CONFIG();
 			pkt.Config = 1;
-			pkt.Value = !Session.Entity.call_flag ? 1 : 0;
+			pkt.Value = !Session.player.call_flag ? 1 : 0;
 			Network.sendPacket(pkt);
 			return;
 		}
@@ -542,7 +542,7 @@ const CommandStore = {
 			const pkt = new PACKET.CZ.CLAN_CHAT();
 			const matches = text.match(/(^cl)\s+(.*)/);
 			if (matches && matches[2]) {
-				pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
+				pkt.msg = Session.player.display.name + ' : ' + matches[2];
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -558,7 +558,7 @@ const CommandStore = {
 			const matches = text.match(/(^broadcast|^b)\s+(.*)/);
 			if (matches && matches[2]) {
 				const pkt = new PACKET.CZ.BROADCAST();
-				pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
+				pkt.msg = Session.player.display.name + ' : ' + matches[2];
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -583,7 +583,7 @@ const CommandStore = {
 			const matches = text.match(/(^localbroadcast|^lb)\s+(.*)/);
 			if (matches && matches[2]) {
 				const pkt = new PACKET.CZ.LOCALBROADCAST();
-				pkt.msg = Session.Entity.display.name + ' : ' + matches[2];
+				pkt.msg = Session.player.display.name + ' : ' + matches[2];
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -790,8 +790,8 @@ const CommandStore = {
 				Navigation.append();
 				Navigation.navigateTo({
 					startMap: MapRenderer.currentMap,
-					startX: Session.Entity.position[0] | 0,
-					startY: Session.Entity.position[1] | 0,
+					startX: Session.player.position[0] | 0,
+					startY: Session.player.position[1] | 0,
 					endMap: matches[1],
 					endX: parseInt(matches[2], 10),
 					endY: parseInt(matches[3], 10),
@@ -868,11 +868,11 @@ if (Configs.get('development')) {
 				return;
 			}
 
-			if (!Session.Entity) {
+			if (!Session.player) {
 				return;
 			}
 
-			const ownerAID = Session.Entity.GID || Session.GID || Session.AID;
+			const ownerAID = Session.player.GID || Session.GID || Session.AID;
 
 			if (mode === 'snow' || mode === 'on') {
 				EffectManager.spam({

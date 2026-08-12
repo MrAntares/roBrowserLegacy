@@ -186,8 +186,8 @@ function onMemberContextMenu(event) {
 	const memberName = this.dataset.name;
 	if (!memberName) return;
 
-	const isOwner = ChatRoom.owner === Session.Entity.display.name;
-	const isSelf = memberName === Session.Entity.display.name;
+	const isOwner = ChatRoom.owner === Session.player.display.name;
+	const isSelf = memberName === Session.player.display.name;
 
 	// Update mouse position for ContextMenu positioning
 	Mouse.screen.x = event.pageX || event.clientX;
@@ -330,7 +330,7 @@ ChatRoom.message = function displayMessage(message, type) {
 
 	if (type) {
 		element.className = type;
-	} else if (message.indexOf(Session.Entity.display.name + ' : ') === 0) {
+	} else if (message.indexOf(Session.player.display.name + ' : ') === 0) {
 		element.className = 'self';
 	}
 

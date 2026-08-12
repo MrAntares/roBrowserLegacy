@@ -164,7 +164,7 @@ class CloudWeatherEffect {
 	}
 
 	cloudInit(cloud, now) {
-		const pos = Session.Entity.position;
+		const pos = Session.player.position;
 		const area = this._profile.area;
 		const speed = this._profile.speed;
 

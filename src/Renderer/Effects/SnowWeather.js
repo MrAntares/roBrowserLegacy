@@ -208,12 +208,12 @@ class SnowWeatherEffect {
 	 * Spawn a single snowflake around the player.
 	 */
 	spawnFlake(spawnTick) {
-		if (!Session.Entity) {
+		if (!Session.player) {
 			return;
 		}
 
-		const px = Session.Entity.position[0];
-		const py = Session.Entity.position[1];
+		const px = Session.player.position[0];
+		const py = Session.player.position[1];
 
 		const theta = Math.random() * Math.PI * 2;
 		const radius = Math.random() * SCATTER_RADIUS_CELLS;
@@ -239,7 +239,7 @@ class SnowWeatherEffect {
 	}
 
 	render(gl, tick) {
-		if (!Session.Entity) {
+		if (!Session.player) {
 			// Don't kill effect just because entity is missing momentarily,
 			// but if map changed, we kill it via renderAll check.
 			return;

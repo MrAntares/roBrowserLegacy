@@ -34,7 +34,7 @@ function onBuyCashList(pkt) {
 	NpcStore.setType(NpcStore.Type.CASH_SHOP);
 	NpcStore.setList(pkt.itemList);
 
-	const entity = Session.Entity;
+	const entity = Session.player;
 	NpcStore.ui.find('.cashuser .buyer').text(entity ? entity.display.name : '');
 	NpcStore.ui.find('.cashuser .cashpoints').text(pkt.KafraPoint);
 

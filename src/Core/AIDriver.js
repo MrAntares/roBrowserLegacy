@@ -1,4 +1,4 @@
-import DB from 'DB/DBManager.js';
+﻿import DB from 'DB/DBManager.js';
 import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -255,9 +255,9 @@ class AIDriver {
 								const entity = EntityManager.get(item);
 								if (
 									entity &&
-									(entity.objecttype === Session.Entity.constructor.TYPE_MOB ||
-										entity.objecttype === Session.Entity.constructor.TYPE_NPC_ABR ||
-										entity.objecttype === Session.Entity.constructor.TYPE_NPC_BIONIC) &&
+									(entity.objecttype === Session.player.constructor.TYPE_MOB ||
+										entity.objecttype === Session.player.constructor.TYPE_NPC_ABR ||
+										entity.objecttype === Session.player.constructor.TYPE_NPC_BIONIC) &&
 									!entity.isDead() &&
 									entity.action !== entity.ACTION.DIE &&
 									entity.isVisible()
@@ -339,7 +339,7 @@ class AIDriver {
 								}
 								pkt.SKID = skillId;
 								pkt.selectedLevel = level;
-								pkt.targetID = targetID || Session.Entity.GID;
+								pkt.targetID = targetID || Session.player.GID;
 								Network.sendPacket(pkt);
 							}
 						}
@@ -383,9 +383,9 @@ class AIDriver {
 
 				if (
 					entity &&
-					(entity.objecttype === Session.Entity.constructor.TYPE_MOB ||
-						entity.objecttype === Session.Entity.constructor.TYPE_NPC_ABR ||
-						entity.objecttype === Session.Entity.constructor.TYPE_NPC_BIONIC) &&
+					(entity.objecttype === Session.player.constructor.TYPE_MOB ||
+						entity.objecttype === Session.player.constructor.TYPE_NPC_ABR ||
+						entity.objecttype === Session.player.constructor.TYPE_NPC_BIONIC) &&
 					!entity.isDead() &&
 					entity.action !== entity.ACTION.DIE &&
 					entity.isVisible()

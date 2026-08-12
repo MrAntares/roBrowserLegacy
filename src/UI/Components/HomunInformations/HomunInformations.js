@@ -171,7 +171,7 @@ function autoFeedCheck() {
 		return;
 	}
 
-	const player = Session.Entity;
+	const player = Session.player;
 	if (!player) {
 		return;
 	}

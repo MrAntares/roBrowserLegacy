@@ -66,9 +66,9 @@ Viewer.init = function init() {
 	Client.init([]);
 
 	// We need an entity in order to apply effect
-	Session.Entity = new Entity({ PosDir: [0, 0, 0], position: [0, 0, 0], GID: 0 });
-	EntityManager.add(Session.Entity);
-	Camera.setTarget(Session.Entity);
+	Session.player = new Entity({ PosDir: [0, 0, 0], position: [0, 0, 0], GID: 0 });
+	EntityManager.add(Session.player);
+	Camera.setTarget(Session.player);
 	Camera.init();
 
 	// Initialize the dropdown
@@ -147,12 +147,12 @@ function saveEffectId(effectId) {
  */
 function loadEffect(effectId) {
 	stop();
-	Session.Entity.renderEntity();
+	Session.player.renderEntity();
 	EffectManager.spam({
 		effectId: effectId,
-		ownerAID: Session.Entity.GID,
-		otherAID: Session.Entity.GID,
-		position: Session.Entity.position
+		ownerAID: Session.player.GID,
+		otherAID: Session.player.GID,
+		position: Session.player.position
 	});
 	Renderer.render(render);
 }

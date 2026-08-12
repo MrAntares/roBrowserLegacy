@@ -132,7 +132,7 @@ class SoundManager {
 	 * @param {optional|number} vol (volume)
 	 */
 	static playPosition(filename, srcPosition) {
-		const dist = Math.floor(glMatrix.vec2.dist(srcPosition, Session.Entity.position));
+		const dist = Math.floor(glMatrix.vec2.dist(srcPosition, Session.player.position));
 		const vol = Math.max(1 - Math.abs(((dist - 1) * (1 - 0.01)) / (25 - 1) + 0.01), 0.1);
 		SoundManager.play(filename, vol);
 	}

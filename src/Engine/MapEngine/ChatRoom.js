@@ -100,8 +100,8 @@ function onCreateRoomResult(pkt) {
 			ChatRoom.limit = ChatRoomCreate.limit;
 			ChatRoom.type = ChatRoomCreate.type;
 			ChatRoom.count = 1;
-			ChatRoom.members = [Session.Entity.display.name];
-			ChatRoom.owner = Session.Entity.display.name;
+			ChatRoom.members = [Session.player.display.name];
+			ChatRoom.owner = Session.player.display.name;
 			ChatRoom.append();
 
 			ChatBox.addText(DB.getMessage(64), ChatBox.TYPE.BLUE, ChatBox.FILTER.PUBLIC_LOG);

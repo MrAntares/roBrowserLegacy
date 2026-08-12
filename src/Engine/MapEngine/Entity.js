@@ -264,7 +264,7 @@ function onEntitySpam(pkt) {
 	if (entity.GUID) {
 		Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, (image, gif) => {
 			entity.setEntityGuildEmblem(image, gif);
-			if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
+			if (Session.mapState.isSiege && entity.GUID !== Session.player.GUID) {
 				entity.emblem.display = true;
 			}
 		});
@@ -282,7 +282,7 @@ function onEntitySpam(pkt) {
 function onEntityVanish(pkt) {
 	const entity = EntityManager.get(pkt.GID);
 	if (entity) {
-		if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.Entity.GID) {
+		if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.player.GID) {
 			//death animation only for myself
 			const EF_Init_Par = {
 				effectId: EffectConst.EF_DEVIL,
@@ -362,7 +362,7 @@ function onEntityVanish(pkt) {
 	}
 
 	// Show escape menu
-	if (pkt.GID === Session.Entity.GID && pkt.type === 1) {
+	if (pkt.GID === Session.player.GID && pkt.type === 1) {
 		Escape.showDeathMenu(haveSiegfriedItem());
 	}
 }
@@ -490,7 +490,7 @@ function onEntityResurect(pkt) {
 	}
 
 	// If it's our main character update Escape ui
-	if (entity === Session.Entity) {
+	if (entity === Session.player) {
 		Escape.resetMenu();
 	}
 }
@@ -792,7 +792,7 @@ function onEntityAction(pkt) {
 
 			// Talk sometime
 			if (
-				srcEntity.GID === Session.Entity.GID &&
+				srcEntity.GID === Session.player.GID &&
 				Session.pet.friendly > 900 &&
 				(Session.pet.lastTalk || 0) + 10000 < Date.now()
 			) {
@@ -852,14 +852,14 @@ function onEntityAction(pkt) {
 	}
 
 	if (pkt?.damage > 0) {
-		if (srcEntity.GID === Session.Character.GID) {
+		if (srcEntity.GID === Session.player.GID) {
 			// I deal damage
 			ChatBox.addText(
 				DB.getMessage(1607).replace('%s', dstEntity.display.name).replace('%d', pkt.damage),
 				ChatBox.TYPE.INFO,
 				ChatBox.FILTER.BATTLE
 			);
-		} else if (dstEntity.GID === Session.Character.GID) {
+		} else if (dstEntity.GID === Session.player.GID) {
 			// I receive damage
 			ChatBox.addText(
 				DB.getMessage(1605).replace('%s', srcEntity.display.name).replace('%d', pkt.damage),
@@ -952,7 +952,7 @@ function onEntityTalk(pkt) {
 		entity.dialog.set(pkt.msg);
 
 		// Should not happen
-		if (entity === Session.Entity) {
+		if (entity === Session.player) {
 			type |= ChatBox.TYPE.SELF;
 		} else if (entity.isAdmin) {
 			type |= ChatBox.TYPE.ADMIN;
@@ -1011,7 +1011,7 @@ function onEntityIdentity(pkt) {
 		if (entity.GUID) {
 			Guild.requestGuildEmblem(entity.GUID, entity.GEmblemVer, (image, gif) => {
 				entity.setEntityGuildEmblem(image, gif);
-				if (Session.mapState.isSiege && entity.GUID !== Session.Entity.GUID) {
+				if (Session.mapState.isSiege && entity.GUID !== Session.player.GUID) {
 					entity.emblem.display = true;
 				}
 			});
@@ -1199,20 +1199,20 @@ function onEntityViewChange(pkt) {
 				} else {
 					entity.job = pkt.value;
 				}
-				if (entity === Session.Entity) {
+				if (entity === Session.player) {
 					// Apply the job change first
-					Session.Character.job = pkt.value;
+					Session.player.job = pkt.value;
 
 					//Interchange UI depending on Job
 					if (PACKETVER.value >= 20200520) {
 						BasicInfo.getUI().remove();
-						BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Character.job));
+						BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.player.job));
 						BasicInfo.getUI().prepare();
-						BasicInfo.getUI().update('blvl', Session.Character.level);
-						BasicInfo.getUI().update('jlvl', Session.Character.joblevel);
-						BasicInfo.getUI().update('zeny', Session.Character.money);
-						BasicInfo.getUI().update('name', Session.Character.name);
-						BasicInfo.getUI().update('bexp', Session.Character.exp, BasicInfo.getUI().base_exp_next);
+						BasicInfo.getUI().update('blvl', Session.player.level);
+						BasicInfo.getUI().update('jlvl', Session.player.joblevel);
+						BasicInfo.getUI().update('zeny', Session.player.money);
+						BasicInfo.getUI().update('name', Session.player.name);
+						BasicInfo.getUI().update('bexp', Session.player.exp, BasicInfo.getUI().base_exp_next);
 						BasicInfo.getUI().append();
 					}
 					// Update UI for all client versions
@@ -1505,7 +1505,7 @@ function onEntityUseSkillToAttack(pkt) {
 
 			//Pet Talk
 			if (
-				srcEntity.GID === Session.Entity.GID &&
+				srcEntity.GID === Session.player.GID &&
 				Session.pet.friendly > 900 &&
 				(Session.pet.lastTalk || 0) + 10000 < Date.now()
 			) {
@@ -1676,8 +1676,8 @@ function onEntityCastSkill(pkt) {
 		});
 	}
 
-	Session.Entity.isCastingSkill = true;
-	Session.Entity.lastSKID = pkt.SKID;
+	Session.player.isCastingSkill = true;
+	Session.player.lastSKID = pkt.SKID;
 
 	// Hardcoded version of Auto Counter casting bar
 	// It's dont gey any delayTime so we need to handle it diffrent:
@@ -1685,7 +1685,7 @@ function onEntityCastSkill(pkt) {
 	// if not it's end by itself (on kRO Renewal you can move during AC to cancel it but it's not implemented on privates yet)
 	if (pkt.SKID == SkillId.KN_AUTOCOUNTER) {
 		srcEntity.cast.set(1000);
-		if (srcEntity === Session.Entity) {
+		if (srcEntity === Session.player) {
 			Session.underAutoCounter = true;
 		}
 	}
@@ -1815,10 +1815,10 @@ function onEntityCastCancel(pkt) {
 		EffectManager.remove(MagicTarget, entity.GID);
 		EffectManager.remove(MagicRing, entity.GID);
 
-		if (entity === Session.Entity) {
+		if (entity === Session.player) {
 			// Autocounter hardcoded animation (any better place to put this?)
 			if (Session.underAutoCounter) {
-				if (Session.Entity.life.hp > 0) {
+				if (Session.player.life.hp > 0) {
 					const EF_Init_Par = {
 						effectId: EffectConst.EF_AUTOCOUNTER,
 						ownerAID: pkt.AID
@@ -1873,8 +1873,8 @@ function onEntityStatusChange(pkt) {
 	switch (pkt.index) {
 		// Maya purple card
 		case StatusConst.CLAIRVOYANCE:
-			if (entity === Session.Entity) {
-				Session.Character.intravision = pkt.state;
+			if (entity === Session.player) {
+				Session.player.intravision = pkt.state;
 				EntityManager.forEach(_entity => {
 					/** @type {*} Intentional self-assignment to trigger effectState updates. */
 					// eslint-disable-next-line no-self-assign
@@ -1959,7 +1959,7 @@ function onEntityStatusChange(pkt) {
 			//SC_SKA
 			//SC_INCATKRATE
 			entity.toggleOpt3(pkt.index, pkt.state);
-			if (entity === Session.Entity && [StatusConst.SOULLINK, StatusConst.SKE].includes(pkt.index)) {
+			if (entity === Session.player && [StatusConst.SOULLINK, StatusConst.SKE].includes(pkt.index)) {
 				ScreenEffectManager.setNight(pkt.state === 1);
 			}
 			break;
@@ -2274,7 +2274,7 @@ function onEntityStatusChange(pkt) {
 		// Cast a skill, TODO: add progressbar in shortcut
 		case StatusConst.GROUNDMAGIC:
 		case StatusConst.POSTDELAY:
-			if (pkt.RemainMS && entity == Session.Entity) {
+			if (pkt.RemainMS && entity == Session.player) {
 				ShortCut.setGlobalSkillDelay(pkt.RemainMS);
 			}
 			break;
@@ -2315,7 +2315,7 @@ function onEntityStatusChange(pkt) {
 	processBlockStatus(entity, pkt);
 
 	// Modify icon
-	if (entity === Session.Entity) {
+	if (entity === Session.player) {
 		StatusIcons.update(pkt.index, pkt.state, pkt.RemainMS);
 	}
 }

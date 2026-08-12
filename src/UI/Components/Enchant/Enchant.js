@@ -427,8 +427,8 @@ function getEffectAnchorPosition() {
 	if (Camera && Camera.target && Camera.target.position) {
 		return Camera.target.position;
 	}
-	if (Session.Entity && Session.Entity.position) {
-		return Session.Entity.position;
+	if (Session.player && Session.player.position) {
+		return Session.player.position;
 	}
 	return EnchantEffectState.fallbackPosition;
 }

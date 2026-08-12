@@ -161,12 +161,12 @@ class MagicTarget {
 		//A hacky way to read the last skill level and ring size. The official client does the same thing, unless they add a packet that tells the skill level directly.
 		if (CastSize[id]) {
 			if (
-				Session.Entity == srcEntity &&
-				id == Session.Entity.lastSKID &&
-				Session.Entity.lastSkLvl &&
-				CastSize[id].length >= Session.Entity.lastSkLvl
+				Session.player == srcEntity &&
+				id == Session.player.lastSKID &&
+				Session.player.lastSkLvl &&
+				CastSize[id].length >= Session.player.lastSkLvl
 			) {
-				this.size = CastSize[id][Session.Entity.lastSkLvl - 1] || 1;
+				this.size = CastSize[id][Session.player.lastSkLvl - 1] || 1;
 			} else {
 				this.size = CastSize[id][0] || 1;
 			}

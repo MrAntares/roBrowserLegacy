@@ -230,11 +230,11 @@ function getCurrentMap() {
  * Get the current player position
  */
 function getPlayerPosition() {
-	if (!Session.Entity || !Session.Entity.position) {
+	if (!Session.player || !Session.player.position) {
 		return { x: 0, y: 0 };
 	}
-	const currentX = Math.ceil(Session.Entity.position[0]);
-	const currentY = Math.ceil(Session.Entity.position[1]);
+	const currentX = Math.ceil(Session.player.position[0]);
+	const currentY = Math.ceil(Session.player.position[1]);
 
 	return { x: currentX, y: currentY };
 }
@@ -902,7 +902,7 @@ Navigation.renderCanvas = function renderCanvas(tick) {
 	if (_arrow.complete && _arrow.width) {
 		ctx.save();
 		ctx.translate(startPos.x, startPos.y);
-		ctx.rotate(((Session.Entity.direction + 4) * 45 * Math.PI) / 180);
+		ctx.rotate(((Session.player.direction + 4) * 45 * Math.PI) / 180);
 		ctx.drawImage(_arrow, -_arrow.width / 2, -_arrow.height / 2);
 		ctx.restore();
 	}

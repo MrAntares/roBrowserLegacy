@@ -1419,9 +1419,9 @@ Guild.onRequestAccess = function () {};
 Guild.updateSession = function (info) {
 	Session.hasGuild = true;
 	Session.guildName = info.guildname || '';
-	Session.Entity.GUID = info.GDID;
-	Session.Entity.GEmblemVer = info.emblemVersion;
-	if (Session.Character.name === info.masterName) {
+	Session.player.GUID = info.GDID;
+	Session.player.GEmblemVer = info.emblemVersion;
+	if (Session.player.name === info.masterName) {
 		Session.isGuildMaster = true;
 	}
 };

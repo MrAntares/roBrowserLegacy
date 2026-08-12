@@ -369,7 +369,7 @@ function intersectEntity(entity) {
 		return;
 	}
 
-	if (_flag & SkillTargetSelection.TYPE.ENEMY && entity === Session.Entity) {
+	if (_flag & SkillTargetSelection.TYPE.ENEMY && entity === Session.player) {
 		return;
 	}
 
@@ -398,8 +398,8 @@ SkillTargetSelection.checkMapState = function checkMapState(entity) {
 		return true;
 	} else if (Session.mapState.isGVG) {
 		if (
-			(Session.Entity.GUID > 0 && entity.GUID !== Session.Entity.GUID) ||
-			(entity.GUID == 0 && entity !== Session.Entity)
+			(Session.player.GUID > 0 && entity.GUID !== Session.player.GUID) ||
+			(entity.GUID == 0 && entity !== Session.player)
 		) {
 			return true;
 		}

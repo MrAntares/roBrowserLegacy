@@ -474,7 +474,7 @@ export function createBasicInfo(config) {
 				break;
 			}
 			case 'job':
-				Session.Character.job = val1;
+				Session.player.job = val1;
 				root.querySelectorAll('.job_value').forEach(el => {
 					el.textContent = MonsterTable[val1];
 				});

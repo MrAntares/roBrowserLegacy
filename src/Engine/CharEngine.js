@@ -26,6 +26,7 @@ import InputBox from 'UI/Components/InputBox/InputBox.js';
 import JoystickUI from 'UI/Components/JoystickUI/JoystickUI.js';
 import CharSelect from 'UI/Components/CharSelect/CharSelect.js';
 import CharCreate from 'UI/Components/CharCreate/CharCreate.js';
+import Player from 'Renderer/Entity/Player.js';
 
 // Load modules
 // Version Dependent UIs
@@ -151,6 +152,7 @@ function onCharacterListChunk(pkt) {
 	const ChSel = CharSelect.getUI();
 	if (!ChSel) return;
 	pkt.charInfo.forEach(charInfo => {
+		Session.characters[charInfo.CharNum] = new Player(charInfo);
 		ChSel.addCharacter(charInfo);
 	});
 }
@@ -173,6 +175,10 @@ function onConnectionAccepted(pkt) {
 
 	Session.Playing = false;
 	Session.hasCart = false;
+
+	// Reset character list and active player for the new char-select session
+	Session.characters = [];
+	Session.player = null;
 
 	// Reset Announcement component
 	const Announce = UIManager.getComponent('Announce');
@@ -783,7 +789,7 @@ function onConnectRequest(entity) {
 
 	CharSelect.getUI().remove();
 	UIManager.getComponent('WinLoading').append();
-	Session.Character = entity;
+	Session.player = Session.characters[entity.CharNum];
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);

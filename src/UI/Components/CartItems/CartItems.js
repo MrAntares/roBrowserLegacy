@@ -146,7 +146,7 @@ CartItems.init = function Init() {
  * Apply preferences once append to body
  */
 CartItems.onAppend = function OnAppend() {
-	if (Session.Entity.hasCart === false) {
+	if (Session.player.hasCart === false) {
 		this._host.style.display = 'none';
 	}
 
@@ -199,7 +199,7 @@ CartItems.onRemove = function OnRemove() {
  * @param {object} key
  */
 CartItems.onShortCut = function onShurtCut(key) {
-	if (Session.Entity.hasCart === false) {
+	if (Session.player.hasCart === false) {
 		return;
 	}
 

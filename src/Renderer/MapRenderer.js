@@ -239,7 +239,7 @@ class MapRenderer {
 		Ground.render(gl, modelView, projection, normalMat, fog, light);
 
 		// Spam map effects
-		Effects.spam(Session.Entity.position, tick);
+		Effects.spam(Session.player.position, tick);
 
 		if (Mouse.intersect && Altitude.intersect(modelView, projection, _pos)) {
 			x = _pos[0];
@@ -309,7 +309,7 @@ class MapRenderer {
 		ScreenEffectManager.render(gl, modelView, projection, fog, tick);
 
 		// Play sounds
-		Sounds.render(Session.Entity.position, tick);
+		Sounds.render(Session.player.position, tick);
 
 		// Find entity over the cursor
 		if (Mouse.intersect) {

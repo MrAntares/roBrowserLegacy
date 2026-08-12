@@ -13,7 +13,6 @@ import Configs from 'Core/Configs.js';
 import Client from 'Core/Client.js';
 import Thread from 'Core/Thread.js';
 import BGM from 'Audio/BGM.js';
-import Session from 'Engine/SessionStorage.js';
 import Renderer from 'Renderer/Renderer.js';
 import MapRenderer from 'Renderer/MapRenderer.js';
 import Camera from 'Renderer/Camera.js';
@@ -31,7 +30,7 @@ const MapViewer = {};
 /**
  * @var {object} Entity to target
  */
-MapViewer.spot = Session.Entity = new Entity();
+MapViewer.spot = new Entity();
 
 /**
  * @var {HTMLElement} <select>
