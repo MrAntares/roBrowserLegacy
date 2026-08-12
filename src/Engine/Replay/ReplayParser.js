@@ -6,7 +6,7 @@
  */
 
 import BinaryReader from 'Utils/BinaryReader.js';
-import { ContainerType, ContainerTypeNames } from 'Engine/Replay/ReplayTypes.js';
+import { ContainerType, ContainerTypeNames, ReplayOpCodeName } from 'Engine/Replay/ReplayTypes.js';
 
 export default class ReplayParser {
 	constructor(fileBuffer) {
@@ -22,6 +22,7 @@ export default class ReplayParser {
 
 		if (this.header.version === 5) {
 			this.readContainersV5();
+			this.dumpContainers();
 		} else {
 			console.warn('[ReplayParser] Unsupported version: ' + this.header.version);
 		}
@@ -223,9 +224,9 @@ export default class ReplayParser {
 	buildSessionBuffer() {
 		const buf = {};
 
-		const readU8  = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint8(0);
-		const readU16 = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint16(0, true);
-		const readU32 = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
+		const readU8   = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint8(0);
+		const _readU16 = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint16(0, true);
+		const readU32  = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
 
 		const readStringById = (container, id) => {
 			const ch = container.data.find(c => c.id === id);
@@ -305,5 +306,83 @@ export default class ReplayParser {
 		}
 		const decoder = new TextDecoder('euc-kr');
 		return decoder.decode(uint8array.subarray(0, length));
+	}
+
+	dumpContainers() {
+		console.log('=== REPLAY CONTAINERS DUMP ===');
+		for (let i = 0; i < this.containers.length; i++) {
+			const container = this.containers[i];
+			const containerName = ContainerTypeNames[container.type] || `Unknown(${container.type})`;
+			
+			console.log(
+				`\n--- Container [${i}] Type: ${container.type} (${containerName}) | DeclaredLen: ${container.declaredLength} | Offset: ${container.offset} | RealLen: ${container.realLength} | Chunks: ${container.data.length} ---`
+			);
+
+			container.data.forEach((chunk, index) => {
+				const data = chunk.data;
+				const size = data ? data.byteLength : 0;
+				const opName = chunk.id !== undefined ? (ReplayOpCodeName[chunk.id] || '') : '';
+				const packetInfo = chunk.packetId !== undefined ? ` | PacketID: 0x${chunk.packetId.toString(16).padStart(4, '0')} (${chunk.packetId})` : '';
+				const chunkHeader = `Chunk [${index}] ID: ${chunk.id ?? 'N/A'}${opName ? ` (${opName})` : ''}${packetInfo}${chunk.time !== undefined ? ` | Time: ${chunk.time}` : ''} | Data Size: ${size}`;
+				
+				console.log(chunkHeader);
+
+				if (!data || size === 0) {
+					console.log('  [Empty Content]');
+					return;
+				}
+
+				if (size === 1) {
+					const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+					const val = view.getUint8(0);
+					console.log(`  Char: ${val} (0x${val.toString(16).padStart(2, '0')})`);
+				} else if (size === 2) {
+					const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+					const val = view.getUint16(0, true);
+					console.log(`  uint16: ${val} (0x${val.toString(16).padStart(4, '0')})`);
+				} else if (size === 4) {
+					const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+					const val = view.getUint32(0, true);
+					console.log(`  uint32: ${val} (0x${val.toString(16).padStart(8, '0')})`);
+				} else if (size === 8) {
+					const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+					const val = view.getBigUint64(0, true);
+					console.log(`  uint64: ${val} (0x${val.toString(16).padStart(16, '0')})`);
+				}
+
+				this.dumpHex(data);
+			});
+		}
+		console.log('=== END OF REPLAY CONTAINERS DUMP ===');
+	}
+
+	dumpHex(uint8Array) {
+		const lines = [];
+		for (let offset = 0; offset < uint8Array.length; offset += 16) {
+			const chunk = uint8Array.subarray(offset, offset + 16);
+			
+			const hexParts = [];
+			const asciiParts = [];
+
+			for (let i = 0; i < 16; i++) {
+				if (i < chunk.length) {
+					const byte = chunk[i];
+					hexParts.push(byte.toString(16).padStart(2, '0'));
+					// Print printable ASCII characters, substitute non-printable with dot
+					asciiParts.push(byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.');
+				} else {
+					hexParts.push('  ');
+					asciiParts.push(' ');
+				}
+			}
+
+			// Format hex bytes into 2 groups of 8 separated by extra space for readability
+			const hexStr = hexParts.slice(0, 8).join(' ') + '  ' + hexParts.slice(8, 16).join(' ');
+			const asciiStr = asciiParts.join('');
+			const offsetStr = offset.toString(16).padStart(4, '0');
+
+			lines.push(`  ${offsetStr}: ${hexStr}  |${asciiStr}|`);
+		}
+		console.log(lines.join('\n'));
 	}
 }
