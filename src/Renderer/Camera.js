@@ -435,8 +435,8 @@ class Camera {
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_1STPERSON;
 				this.zoomStepMult = 0.3;
 				this.state = this.states.first_person;
-				if (Session.player) {
-					Session.player.hideEntity = true;
+				if (Session.Entity) {
+					Session.Entity.hideEntity = true;
 				}
 				import('Renderer/Renderer.js').then(Renderer => {
 					Renderer.default.vFov = 50;
@@ -452,8 +452,8 @@ class Camera {
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_3RDPERSON;
 				this.zoomStepMult = 0.3;
 				this.state = this.states.third_person;
-				if (Session.player) {
-					Session.player.hideEntity = false;
+				if (Session.Entity) {
+					Session.Entity.hideEntity = false;
 				}
 				import('Renderer/Renderer.js').then(Renderer => {
 					Renderer.default.vFov = 30;
@@ -466,8 +466,8 @@ class Camera {
 				this.MAX_V_ANGLE = C_MAX_V_ANGLE_ISOMETRIC;
 				this.zoomStepMult = 1;
 				this.state = this.states.isometric;
-				if (Session.player) {
-					Session.player.hideEntity = false;
+				if (Session.Entity) {
+					Session.Entity.hideEntity = false;
 				}
 				import('Renderer/Renderer.js').then(Renderer => {
 					Renderer.default.vFov = 15;

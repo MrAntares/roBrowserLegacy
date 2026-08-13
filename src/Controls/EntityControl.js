@@ -62,7 +62,7 @@ class EntityControl {
 			case Entity.TYPE_ELEM:
 			case Entity.TYPE_HOM:
 			case Entity.TYPE_MERC: {
-				if ((KEYS.SHIFT === true || Preferences.noshift === true) && this !== Session.player) {
+				if ((KEYS.SHIFT === true || Preferences.noshift === true) && this !== Session.Entity) {
 					if (!Camera.action.active) {
 						Cursor.setType(Cursor.ACTION.ATTACK);
 					}
@@ -158,7 +158,7 @@ class EntityControl {
 
 			case Entity.TYPE_ITEM:
 				Cursor.setType(Cursor.ACTION.PICK, true, 2);
-				Session.player.lookTo(this.position[0], this.position[1]);
+				Session.Entity.lookTo(this.position[0], this.position[1]);
 				if (PACKETVER.value >= 20180307) {
 					pkt = new PACKET.CZ.ITEM_PICKUP2();
 				} else {
@@ -167,7 +167,7 @@ class EntityControl {
 				pkt.ITAID = this.GID;
 
 				// Too far, walking to it
-				if (vec2.distance(Session.player.position, this.position) > 2) {
+				if (vec2.distance(Session.Entity.position, this.position) > 2) {
 					Session.moveAction = pkt;
 
 					if (PACKETVER.value >= 20180307) {
@@ -195,14 +195,14 @@ class EntityControl {
 					Network.sendPacket(pkt);
 
 					// Update look
-					Session.player.lookTo(this.position[0], this.position[1]);
+					Session.Entity.lookTo(this.position[0], this.position[1]);
 					if (PACKETVER.value >= 20180307) {
 						pkt = new PACKET.CZ.CHANGE_DIRECTION2();
 					} else {
 						pkt = new PACKET.CZ.CHANGE_DIRECTION();
 					}
-					pkt.headDir = Session.player.headDir;
-					pkt.dir = Session.player.direction;
+					pkt.headDir = Session.Entity.headDir;
+					pkt.dir = Session.Entity.direction;
 					Network.sendPacket(pkt);
 
 					//Update Cursor
@@ -215,8 +215,8 @@ class EntityControl {
 				const out = [];
 				let j, x, y;
 				PathFinding.search(
-					Session.player.position[0] | 0,
-					Session.player.position[1] | 0,
+					Session.Entity.position[0] | 0,
+					Session.Entity.position[1] | 0,
 					this.position[0] | 0,
 					this.position[1] | 0,
 					i,
@@ -254,14 +254,14 @@ class EntityControl {
 	/**
 	 * Stop clicking on an entity
 	 */
-	static onMouseUp() {}
+	static onMouseUp() { }
 
 	/**
 	 * Focus the entity
 	 */
 	static onFocus() {
 		const Entity = this.constructor;
-		const main = Session.player;
+		const main = Session.Entity;
 		let pkt;
 
 		switch (this.objecttype) {
@@ -489,7 +489,7 @@ class EntityControl {
 						});
 					}
 
-					if (Session.isGuildMaster && this.GUID && Session.player.GUID !== this.GUID) {
+					if (Session.isGuildMaster && this.GUID && Session.Entity.GUID !== this.GUID) {
 						ContextMenu.nextGroup();
 
 						// Set this guild as an Alliance
@@ -573,7 +573,7 @@ class EntityControl {
 	}
 
 	static canAttackEntity() {
-		if (this === Session.player) {
+		if (this === Session.Entity) {
 			return false;
 		}
 		// Show attack cursor on non-party members (PvP)
@@ -586,8 +586,8 @@ class EntityControl {
 		// Show attack cursor on non-guild members (GvG)
 		else if (Session.mapState.isGVG) {
 			if (
-				(Session.player.GUID > 0 && this.GUID !== Session.player.GUID) ||
-				(this.GUID == 0 && this !== Session.player)
+				(Session.Entity.GUID > 0 && this.GUID !== Session.Entity.GUID) ||
+				(this.GUID == 0 && this !== Session.Entity)
 			) {
 				// 0 = no guild, can be attacked by anyone
 				return true;

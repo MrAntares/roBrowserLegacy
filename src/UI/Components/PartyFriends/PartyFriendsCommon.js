@@ -478,8 +478,8 @@ export function createPartyFriends(config) {
 				friendContainer.insertAdjacentHTML(
 					'beforeend',
 					`<div class="node${friends[i].State === 0 ? ' online' : ''}">` +
-						`<span class="name">${_escapeHTML(friends[i].Name)}</span>` +
-						`</div>`
+					`<span class="name">${_escapeHTML(friends[i].Name)}</span>` +
+					`</div>`
 				);
 			}
 		}
@@ -951,11 +951,11 @@ export function createPartyFriends(config) {
 		 * Save the current positions of all detached member windows to character-specific localStorage.
 		 */
 		Component.saveDetachedMembers = function () {
-			if (!Session.player || !Session.player.name) {
+			if (!Session.Entity || !Session.Entity.name) {
 				return;
 			}
 
-			const key = `PartyFriends_${Session.player.name}_Detached`;
+			const key = `PartyFriends_${Session.Entity.name}_Detached`;
 			const saved = {};
 			let count = 0;
 
@@ -969,7 +969,7 @@ export function createPartyFriends(config) {
 
 			localStorage.setItem(key, JSON.stringify(saved));
 			if (count > 0) {
-				console.log(`[PartyFriendsV1] Saved ${count} detached windows for ${Session.player.name}`);
+				console.log(`[PartyFriendsV1] Saved ${count} detached windows for ${Session.Entity.name}`);
 			}
 		};
 	} else {
@@ -1487,12 +1487,12 @@ export function createPartyFriends(config) {
 			return;
 		}
 
-		if (!Session.player || !Session.player.name) {
+		if (!Session.Entity || !Session.Entity.name) {
 			return;
 		}
 
 		if (_savedPositions === null) {
-			const key = `PartyFriends_${Session.player.name}_Detached`;
+			const key = `PartyFriends_${Session.Entity.name}_Detached`;
 			const savedStr = localStorage.getItem(key);
 			_savedPositions = {};
 			try {
@@ -1990,13 +1990,13 @@ export function createPartyFriends(config) {
 	/**
 	 * Functions to be hooked
 	 */
-	Component.onRequestPartyCreation = function onRequestPartyCreation() {};
-	Component.onRequestAddingMember = function onRequestAddingMember() {};
-	Component.onRequestLeave = function onRequestLeave() {};
-	Component.onRequestChangeLeader = function onRequestChangeLeader() {};
-	Component.onExpelMember = function onExpelMember() {};
-	Component.onRemoveFriend = function onRemoveFriend() {};
-	Component.onRequestSettingUpdate = function onRequestSettingUpdate() {};
+	Component.onRequestPartyCreation = function onRequestPartyCreation() { };
+	Component.onRequestAddingMember = function onRequestAddingMember() { };
+	Component.onRequestLeave = function onRequestLeave() { };
+	Component.onRequestChangeLeader = function onRequestChangeLeader() { };
+	Component.onExpelMember = function onExpelMember() { };
+	Component.onRemoveFriend = function onRemoveFriend() { };
+	Component.onRequestSettingUpdate = function onRequestSettingUpdate() { };
 
 	/**
 	 * Open the party info window

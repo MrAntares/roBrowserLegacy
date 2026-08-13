@@ -163,7 +163,7 @@ function onClickSend(e) {
 		return;
 	}
 	const receiver = WriteRodex.receiver;
-	const sender = Session.player.name;
+	const sender = Session.Entity.name;
 	let zeny = parseInt(root.querySelector('.value').value, 10);
 	zeny = isNaN(zeny) ? 0 : zeny;
 	zeny = zeny < 0 ? 0 : zeny;
@@ -232,9 +232,9 @@ WriteRodex.addItem = function addItem(item) {
 	content.insertAdjacentHTML(
 		'beforeend',
 		`<div class="item" data-index="${item.index}" draggable="true">` +
-			'<div class="icon"></div>' +
-			`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
-			'</div>'
+		'<div class="icon"></div>' +
+		`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
+		'</div>'
 	);
 
 	Client.loadFile(

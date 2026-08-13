@@ -154,7 +154,7 @@ function onSkillResult(pkt) {
 	}
 
 	let error = 0;
-	/*var entity = Session.player;
+	/*var entity = Session.Entity;
 		let srcEntity = EntityManager.get(entity.GID);*/
 	if (pkt.NUM) {
 		switch (pkt.SKID) {
@@ -594,7 +594,7 @@ function onIncreaseSkill(SKID) {
 Guild.onIncreaseSkill =
 	SkillListMH.homunculus.onIncreaseSkill =
 	SkillListMH.mercenary.onIncreaseSkill =
-		onIncreaseSkill;
+	onIncreaseSkill;
 
 /**
  * Cast a skill on someone
@@ -618,7 +618,7 @@ function onUseSkill(id, level, targetID) {
 	} else if (isMerc) {
 		entity = EntityManager.get(Session.mercId);
 	} else {
-		entity = Session.player;
+		entity = Session.Entity;
 		//Fixme: this check is needed, but not here, because flywing and other AUTORUN_SKILL then doesn't work
 		/*if(entity.isOverWeight){
 				ChatBox.addText( DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
@@ -660,7 +660,7 @@ function onUseSkill(id, level, targetID) {
 	}
 
 	if (id === SkillId.MC_CHANGECART) {
-		if (Session.player.hasCart == true) {
+		if (Session.Entity.hasCart == true) {
 			UIManager.getComponent('ChangeCart').onChangeCartSkill();
 		}
 	}
@@ -672,7 +672,7 @@ function onUseSkill(id, level, targetID) {
 	}
 	pkt.SKID = id;
 	pkt.selectedLevel = level;
-	pkt.targetID = targetID || Session.player.GID;
+	pkt.targetID = targetID || Session.Entity.GID;
 
 	// In range
 	if (count < 2 || target === entity) {
@@ -705,7 +705,7 @@ Guild.onUseSkill =
 	SkillListMH.homunculus.onUseSkill =
 	SkillListMH.mercenary.onUseSkill =
 	SkillTargetSelection.onUseSkillToId =
-		onUseSkill;
+	onUseSkill;
 
 /**
  * Cast a skill on the ground
@@ -724,7 +724,7 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 	if (isHomun) {
 		entity = EntityManager.get(Session.homunId);
 	} else {
-		entity = Session.player;
+		entity = Session.Entity;
 		if (entity.isOverWeight) {
 			ChatBox.addText(DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 			return true;
@@ -769,8 +769,8 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 	pkt.yPos = y;
 
 	//This is how the client knows the magic ring size for self..
-	Session.player.lastSKID = id;
-	Session.player.lastSkLvl = level;
+	Session.Entity.lastSKID = id;
+	Session.Entity.lastSkLvl = level;
 
 	// In range
 	if (count < 2) {

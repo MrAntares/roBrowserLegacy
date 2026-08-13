@@ -178,7 +178,7 @@ function onConnectionAccepted(pkt) {
 
 	// Reset character list and active player for the new char-select session
 	Session.characters = [];
-	Session.player = null;
+	Session.Entity = null;
 
 	// Reset Announcement component
 	const Announce = UIManager.getComponent('Announce');
@@ -695,8 +695,8 @@ function onPincodeCheckSuccess(pkt) {
 			if (PACKETVER.value >= 20180124) {
 				console.log(
 					'PINCODE: Received invalid state from server for configured PACKETVER: ' +
-						pkt.State +
-						'. Aborting, please fix your PACKETVER in the config.'
+					pkt.State +
+					'. Aborting, please fix your PACKETVER in the config.'
 				);
 				PincodeWindow.onExitRequest();
 			}
@@ -789,7 +789,7 @@ function onConnectRequest(entity) {
 
 	CharSelect.getUI().remove();
 	UIManager.getComponent('WinLoading').append();
-	Session.player = Session.characters[entity.CharNum];
+	Session.Entity = Session.characters[entity.CharNum];
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);

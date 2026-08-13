@@ -146,7 +146,7 @@ CartItems.init = function Init() {
  * Apply preferences once append to body
  */
 CartItems.onAppend = function OnAppend() {
-	if (Session.player.hasCart === false) {
+	if (Session.Entity.hasCart === false) {
 		this._host.style.display = 'none';
 	}
 
@@ -199,7 +199,7 @@ CartItems.onRemove = function OnRemove() {
  * @param {object} key
  */
 CartItems.onShortCut = function onShurtCut(key) {
-	if (Session.player.hasCart === false) {
+	if (Session.Entity.hasCart === false) {
 		return;
 	}
 
@@ -356,10 +356,10 @@ CartItems.addItemSub = function AddItemSub(item) {
 	content.insertAdjacentHTML(
 		'beforeend',
 		`<div class="item" data-index="${item.index}" draggable="true">` +
-			'<div class="icon"></div>' +
-			'<div class="grade"></div>' +
-			`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
-			'</div>'
+		'<div class="icon"></div>' +
+		'<div class="grade"></div>' +
+		`<div class="amount"><span class="count">${item.count || 1}</span></div>` +
+		'</div>'
 	);
 
 	const hideEl = root.querySelector('.hide');
@@ -373,9 +373,9 @@ CartItems.addItemSub = function AddItemSub(item) {
 
 	Client.loadFile(
 		DB.INTERFACE_PATH +
-			'item/' +
-			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-			'.bmp',
+		'item/' +
+		(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+		'.bmp',
 		data => {
 			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
 			if (icon) {
@@ -814,7 +814,7 @@ function onItemUsed(event) {
 	event.preventDefault();
 }
 
-CartItems.reqRemoveItem = function reqRemoveItem() {};
+CartItems.reqRemoveItem = function reqRemoveItem() { };
 
 CartItems.mouseMode = GUIComponent.MouseMode.STOP;
 

@@ -58,13 +58,13 @@ function onPrivateMessage(pkt) {
 	// Fallback to main ChatBox
 	ChatBox.addText(
 		'[ ' +
-			prefix +
-			' <span class="nickname-link" data-nickname="' +
-			pkt.sender +
-			'" style="cursor:pointer; text-decoration:underline;">' +
-			pkt.sender +
-			'</span> ] : ' +
-			msg,
+		prefix +
+		' <span class="nickname-link" data-nickname="' +
+		pkt.sender +
+		'" style="cursor:pointer; text-decoration:underline;">' +
+		pkt.sender +
+		'</span> ] : ' +
+		msg,
 		ChatBox.TYPE.PRIVATE,
 		ChatBox.FILTER.WHISPER
 	);
@@ -83,15 +83,15 @@ function onPrivateMessageSent(pkt) {
 	if (pkt.result === 0) {
 		if (user && msg) {
 			if (getShouldOpenWhisperBox(user)) {
-				WhisperBox.addText(user, Session.player.name + ' : ' + msg, '#ffff00');
+				WhisperBox.addText(user, Session.Entity.name + ' : ' + msg, '#ffff00');
 			} else {
 				ChatBox.addText(
 					'[ To <span class="nickname-link" data-nickname="' +
-						user +
-						'" style="cursor:pointer; text-decoration:underline;">' +
-						user +
-						'</span> ] : ' +
-						msg,
+					user +
+					'" style="cursor:pointer; text-decoration:underline;">' +
+					user +
+					'</span> ] : ' +
+					msg,
 					ChatBox.TYPE.PRIVATE,
 					ChatBox.FILTER.WHISPER
 				);

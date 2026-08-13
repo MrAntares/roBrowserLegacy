@@ -460,12 +460,12 @@ export function createMiniMap({
 			let i, count;
 			let dot;
 
-			if (!Session.player || !Session.player.position || !_ctx) {
+			if (!Session.Entity || !Session.Entity.position || !_ctx) {
 				return;
 			}
 
 			zoom = _zoomFactor[_preferences.zoom];
-			pos = Session.player.position;
+			pos = Session.Entity.position;
 			max = Math.max(width, height);
 			f = (1 / max) * 128;
 			start_x = ((max - width) / 2) * f;
@@ -539,7 +539,7 @@ export function createMiniMap({
 			if (_arrow.complete && _arrow.width) {
 				_ctx.save();
 				_ctx.translate(projectX(pos[0]), projectY(pos[1]));
-				_ctx.rotate(((Session.player.direction + 4) * 45 * Math.PI) / 180);
+				_ctx.rotate(((Session.Entity.direction + 4) * 45 * Math.PI) / 180);
 
 				if (arrowShadow) {
 					_ctx.shadowColor = 'rgba(0, 0, 0, 1)';

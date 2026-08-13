@@ -412,8 +412,8 @@ class EffectManager {
 		// Calculate culling bounds
 		// Simple distance check from player
 		let center = [0, 0, 0];
-		if (Session.player && Session.player.position) {
-			center = Session.player.position;
+		if (Session.Entity && Session.Entity.position) {
+			center = Session.Entity.position;
 		}
 		const area_size = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
 		const cullDistanceSq = area_size * area_size;

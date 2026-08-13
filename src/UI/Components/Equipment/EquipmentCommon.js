@@ -388,7 +388,7 @@ export function createEquipment({
 	};
 
 	function onCartItems() {
-		if (Session.player.hasCart === false) return;
+		if (Session.Entity.hasCart === false) return;
 		if (CartItems._host) {
 			CartItems._host.style.display = CartItems._host.style.display === 'none' ? '' : 'none';
 		}
@@ -511,7 +511,7 @@ export function createEquipment({
 			});
 		};
 	} else {
-		Component.setCostumeConfig = function setCostumeConfig(_on) {};
+		Component.setCostumeConfig = function setCostumeConfig(_on) { };
 	}
 
 	Component.equip = function equip(item, location) {
@@ -711,9 +711,9 @@ export function createEquipment({
 			StatusConst.EffectState.CART5;
 
 		function updateAttachmentButtons() {
-			if (Session.player.effectState !== _lastState || _hasCart !== Session.player.hasCart) {
-				_lastState = Session.player.effectState;
-				_hasCart = Session.player.hasCart;
+			if (Session.Entity.effectState !== _lastState || _hasCart !== Session.Entity.hasCart) {
+				_lastState = Session.Entity.effectState;
+				_hasCart = Session.Entity.hasCart;
 
 				const root = Component.getRoot();
 				const removeOpt = root.querySelector('.removeOption');
@@ -734,7 +734,7 @@ export function createEquipment({
 		}
 
 		function renderLegacy() {
-			const character = Session.player;
+			const character = Session.Entity;
 			const direction = character.direction;
 			const headDir = character.headDir;
 			const action = character.action;
@@ -765,15 +765,15 @@ export function createEquipment({
 		function renderEntity() {
 			const equip_character = new Entity();
 			equip_character.set({
-				GID: Session.player.GID + '_EQUIP',
+				GID: Session.Entity.GID + '_EQUIP',
 				objecttype: equip_character.constructor.TYPE_PC,
-				job: Session.player.job,
-				sex: Session.player.sex,
+				job: Session.Entity.job,
+				sex: Session.Entity.sex,
 				name: '',
 				hideShadow: true,
-				head: Session.player.head,
-				headpalette: Session.player.headpalette,
-				bodypalette: Session.player.bodypalette
+				head: Session.Entity.head,
+				headpalette: Session.Entity.headpalette,
+				bodypalette: Session.Entity.bodypalette
 			});
 
 			updateAttachmentButtons();
@@ -1089,10 +1089,10 @@ export function createEquipment({
 		};
 	}
 
-	Component.onUnEquip = function onUnEquip(/* index */) {};
-	Component.onConfigUpdate = function onConfigUpdate(/* type, value*/) {};
-	Component.onEquipItem = function onEquipItem(/* index, location */) {};
-	Component.onRemoveCart = function onRemoveCart() {};
+	Component.onUnEquip = function onUnEquip(/* index */) { };
+	Component.onConfigUpdate = function onConfigUpdate(/* type, value*/) { };
+	Component.onEquipItem = function onEquipItem(/* index, location */) { };
+	Component.onRemoveCart = function onRemoveCart() { };
 
 	return UIManager.addComponent(Component);
 }

@@ -618,15 +618,15 @@ class RainWeatherEffect {
 	}
 
 	spawnDrop(spawnTick) {
-		if (!Session.player) {
+		if (!Session.Entity) {
 			return;
 		}
 
 		const layerIndex = pickLayerIndex();
 		const layer = LAYERS[layerIndex];
 
-		const px = Session.player.position[0];
-		const py = Session.player.position[1];
+		const px = Session.Entity.position[0];
+		const py = Session.Entity.position[1];
 
 		const theta = Math.random() * Math.PI * 2;
 		const radius = Math.random() * SCATTER_RADIUS_CELLS;
@@ -761,7 +761,7 @@ class RainWeatherEffect {
 	}
 
 	render(gl, tick, puddlesOnly = false) {
-		if (!Session.player) {
+		if (!Session.Entity) {
 			return;
 		}
 
@@ -864,9 +864,9 @@ class RainWeatherEffect {
 			SpriteRenderer.image.palette = null;
 			SpriteRenderer.sprite = _filterFrame;
 			SpriteRenderer.image.texture = _filterFrame.texture;
-			SpriteRenderer.position[0] = Session.player.position[0];
-			SpriteRenderer.position[1] = Session.player.position[1];
-			SpriteRenderer.position[2] = Session.player.position[2];
+			SpriteRenderer.position[0] = Session.Entity.position[0];
+			SpriteRenderer.position[1] = Session.Entity.position[1];
+			SpriteRenderer.position[2] = Session.Entity.position[2];
 			SpriteRenderer.zIndex = -1000;
 
 			SpriteRenderer.color[0] = overlayR;

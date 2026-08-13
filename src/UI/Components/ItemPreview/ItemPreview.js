@@ -238,25 +238,25 @@ const renderPreview = (function renderPreviewClosure() {
 
 		_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
 
-		if (!_previewSpriteId || !_previewLocation || !Session.player) {
+		if (!_previewSpriteId || !_previewLocation || !Session.Entity) {
 			return;
 		}
 
 		const previewCharacter = new Entity();
 		previewCharacter.set({
-			GID: Session.player.GID + '_PREVIEW',
+			GID: Session.Entity.GID + '_PREVIEW',
 			objecttype: previewCharacter.constructor.TYPE_PC,
-			job: Session.player.job,
-			sex: Session.player.sex,
+			job: Session.Entity.job,
+			sex: Session.Entity.sex,
 			name: '',
 			hideShadow: true,
-			head: Session.player.head,
-			headpalette: Session.player.headpalette,
-			bodypalette: Session.player.bodypalette,
-			accessory: Session.player.accessory,
-			accessory2: Session.player.accessory2,
-			accessory3: Session.player.accessory3,
-			robe: Session.player.robe
+			head: Session.Entity.head,
+			headpalette: Session.Entity.headpalette,
+			bodypalette: Session.Entity.bodypalette,
+			accessory: Session.Entity.accessory,
+			accessory2: Session.Entity.accessory2,
+			accessory3: Session.Entity.accessory3,
+			robe: Session.Entity.robe
 		});
 
 		if (!_remove) {

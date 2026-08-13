@@ -1061,7 +1061,7 @@ function detach(inst) {
  */
 function spawn(path, opts) {
 	const o = opts || {};
-	const ent = Session.player;
+	const ent = Session.Entity;
 	const pos = o.pos || (ent ? [ent.position[0], ent.position[1], ent.position[2]] : [0, 0, 0]);
 	const dir = o.dir != null ? o.dir : ent ? ent.direction : 0;
 	// Ground the base on the REAL terrain height at the target cell (what a real entity carries in
@@ -1100,7 +1100,7 @@ function spawn(path, opts) {
  */
 function spawnMany(path, n, opts) {
 	const o = opts || {};
-	const ent = Session.player;
+	const ent = Session.Entity;
 	const base = o.pos || (ent ? [ent.position[0], ent.position[1], ent.position[2]] : [0, 0, 0]);
 	const spacing = o.spacing || 1.2;
 	const golden = Math.PI * (3 - Math.sqrt(5)); // ~137.5 deg — even phyllotaxis fill
