@@ -306440,9 +306440,25 @@ var init_MobileUI$1 = __esmMin((() => {
 function bindButton(root, selector, handler) {
 	const el = root.querySelector(selector);
 	if (el) {
-		let ignoreClickUntil = 0;
+		let touchHandled = false;
+		let releaseTimer = null;
+		const clearGuard = () => {
+			if (releaseTimer !== null) {
+				clearTimeout(releaseTimer);
+				releaseTimer = null;
+			}
+		};
+		const releaseGuard = () => {
+			clearGuard();
+			releaseTimer = setTimeout(() => {
+				releaseTimer = null;
+				touchHandled = false;
+			}, C_TOUCH_CLICK_GUARD);
+		};
 		el.addEventListener("click", (event) => {
-			if (Date.now() < ignoreClickUntil) {
+			if (touchHandled) {
+				touchHandled = false;
+				clearGuard();
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				return;
@@ -306450,14 +306466,12 @@ function bindButton(root, selector, handler) {
 			handler(event);
 		});
 		el.addEventListener("touchstart", (event) => {
-			ignoreClickUntil = Date.now() + C_TOUCH_CLICK_GUARD;
+			touchHandled = true;
+			clearGuard();
 			handler(event);
 		});
-		const rearmGuard = () => {
-			ignoreClickUntil = Date.now() + C_TOUCH_CLICK_GUARD;
-		};
-		el.addEventListener("touchend", rearmGuard);
-		el.addEventListener("touchcancel", rearmGuard);
+		el.addEventListener("touchend", releaseGuard);
+		el.addEventListener("touchcancel", releaseGuard);
 	}
 }
 /**
@@ -307075,7 +307089,7 @@ var init_MobileUI = __esmMin((() => {
 			["#yButton", 89],
 			["#uButton", 85],
 			["#iButton", 73],
-			["#oButton", 89],
+			["#oButton", 79],
 			["#aButton", 65],
 			["#sButton", 83],
 			["#dButton", 68],
