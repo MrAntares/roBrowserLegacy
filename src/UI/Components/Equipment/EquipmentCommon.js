@@ -388,7 +388,7 @@ export function createEquipment({
 	};
 
 	function onCartItems() {
-		if (Session.Character.hasCart === false) return;
+		if (Session.player.hasCart === false) return;
 		if (CartItems._host) {
 			CartItems._host.style.display = CartItems._host.style.display === 'none' ? '' : 'none';
 		}
@@ -511,7 +511,7 @@ export function createEquipment({
 			});
 		};
 	} else {
-		Component.setCostumeConfig = function setCostumeConfig(_on) { };
+		Component.setCostumeConfig = function setCostumeConfig(_on) {};
 	}
 
 	Component.equip = function equip(item, location) {
@@ -711,9 +711,9 @@ export function createEquipment({
 			StatusConst.EffectState.CART5;
 
 		function updateAttachmentButtons() {
-			if (Session.Character.effectState !== _lastState || _hasCart !== Session.Character.hasCart) {
-				_lastState = Session.Character.effectState;
-				_hasCart = Session.Character.hasCart;
+			if (Session.player.effectState !== _lastState || _hasCart !== Session.player.hasCart) {
+				_lastState = Session.player.effectState;
+				_hasCart = Session.player.hasCart;
 
 				const root = Component.getRoot();
 				const removeOpt = root.querySelector('.removeOption');
@@ -734,7 +734,7 @@ export function createEquipment({
 		}
 
 		function renderLegacy() {
-			const character = Session.Character;
+			const character = Session.player;
 			const direction = character.direction;
 			const headDir = character.headDir;
 			const action = character.action;
@@ -765,15 +765,15 @@ export function createEquipment({
 		function renderEntity() {
 			const equip_character = new Entity();
 			equip_character.set({
-				GID: Session.Character.GID + '_EQUIP',
+				GID: Session.player.GID + '_EQUIP',
 				objecttype: equip_character.constructor.TYPE_PC,
-				job: Session.Character.job,
-				sex: Session.Character.sex,
+				job: Session.player.job,
+				sex: Session.player.sex,
 				name: '',
 				hideShadow: true,
-				head: Session.Character.head,
-				headpalette: Session.Character.headpalette,
-				bodypalette: Session.Character.bodypalette
+				head: Session.player.head,
+				headpalette: Session.player.headpalette,
+				bodypalette: Session.player.bodypalette
 			});
 
 			updateAttachmentButtons();
@@ -1089,10 +1089,10 @@ export function createEquipment({
 		};
 	}
 
-	Component.onUnEquip = function onUnEquip(/* index */) { };
-	Component.onConfigUpdate = function onConfigUpdate(/* type, value*/) { };
-	Component.onEquipItem = function onEquipItem(/* index, location */) { };
-	Component.onRemoveCart = function onRemoveCart() { };
+	Component.onUnEquip = function onUnEquip(/* index */) {};
+	Component.onConfigUpdate = function onConfigUpdate(/* type, value*/) {};
+	Component.onEquipItem = function onEquipItem(/* index, location */) {};
+	Component.onRemoveCart = function onRemoveCart() {};
 
 	return UIManager.addComponent(Component);
 }

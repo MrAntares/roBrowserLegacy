@@ -72,13 +72,13 @@ class ScreenEffectManager {
 		}
 
 		// Status effects
-		if (Session.Character && Poison.isActive()) {
+		if (Session.player && Poison.isActive()) {
 			return true;
 		}
-		if (Session.Character && Blind.isActive()) {
+		if (Session.player && Blind.isActive()) {
 			return true;
 		}
-		if (Session.Character && VerticalFlip.isActive()) {
+		if (Session.player && VerticalFlip.isActive()) {
 			return true;
 		}
 
@@ -146,7 +146,7 @@ class ScreenEffectManager {
 	}
 
 	static renderStatusEffects(gl, modelView, projection, fog) {
-		if (!Session.Character) {
+		if (!Session.player) {
 			return;
 		}
 
@@ -156,7 +156,7 @@ class ScreenEffectManager {
 	}
 
 	static parseStatus(efstConst) {
-		if (!Session.Character) {
+		if (!Session.player) {
 			return;
 		}
 
@@ -172,7 +172,7 @@ class ScreenEffectManager {
 	}
 
 	static cleanStatusEffect(efstConst) {
-		if (!Session.Character) {
+		if (!Session.player) {
 			return;
 		}
 

@@ -46,17 +46,17 @@ class MapControl {
 	/**
 	 * Callback used when requesting to move somewhere
 	 */
-	static onRequestWalk() { }
+	static onRequestWalk() {}
 
 	/**
 	 * Callback used when request to stop move
 	 */
-	static onRequestStopWalk() { }
+	static onRequestStopWalk() {}
 
 	/**
 	 * Callback used when dropping an item to the map
 	 */
-	static onRequestDropItem() { }
+	static onRequestDropItem() {}
 
 	/**
 	 * Initializing the controller
@@ -95,7 +95,7 @@ function onMouseDown(event) {
 			if (!KEYS.SHIFT && KEYS.ALT && !KEYS.CTRL) {
 				if (
 					entityOver &&
-					entityOver != Session.Character &&
+					entityOver != Session.player &&
 					entityOver.objecttype != Entity.TYPE_EFFECT &&
 					entityOver.objecttype != Entity.TYPE_TRAP
 				) {
@@ -108,7 +108,7 @@ function onMouseDown(event) {
 				Session.autoFollow = false;
 
 				let stop = false;
-				if (entityOver != Session.Character) {
+				if (entityOver != Session.player) {
 					if (entityFocus && entityFocus != entityOver) {
 						if (!(Session.TouchTargeting && !entityOver)) {
 							entityFocus.onFocusEnd();
@@ -150,7 +150,7 @@ function onMouseDown(event) {
 
 				if (
 					entityOver &&
-					entityOver != Session.Character &&
+					entityOver != Session.player &&
 					entityOver.objecttype != Entity.TYPE_EFFECT &&
 					entityOver.objecttype != Entity.TYPE_TRAP
 				) {
@@ -161,7 +161,7 @@ function onMouseDown(event) {
 			} else {
 				if (
 					entityOver &&
-					entityOver != Session.Character &&
+					entityOver != Session.player &&
 					entityOver.objecttype != Entity.TYPE_EFFECT &&
 					entityOver.objecttype != Entity.TYPE_TRAP
 				) {
@@ -234,7 +234,7 @@ function onMouseUp(event) {
 			if (_rightClickPosition[0] === Mouse.screen.x && _rightClickPosition[1] === Mouse.screen.y && !KEYS.SHIFT) {
 				entity = EntityManager.getOverEntity();
 
-				if (entity && entity !== Session.Character) {
+				if (entity && entity !== Session.player) {
 					entity.onContextMenu();
 				}
 			}
@@ -338,7 +338,7 @@ function onDrop(event) {
  */
 function onAutoFollow() {
 	if (Session.autoFollow) {
-		const player = Session.Character;
+		const player = Session.player;
 		const target = Session.autoFollowTarget;
 
 		const dx = Math.abs(player.position[0] - target.position[0]);
@@ -375,8 +375,8 @@ function onAutoFollow() {
  */
 function checkFreeCell(x, y, range, out) {
 	let _x, _y, r;
-	const d_x = Session.Character.position[0] < x ? -1 : 1;
-	const d_y = Session.Character.position[1] < y ? -1 : 1;
+	const d_x = Session.player.position[0] < x ? -1 : 1;
+	const d_y = Session.player.position[1] < y ? -1 : 1;
 
 	// Search possible positions
 	for (r = 0; r <= range; ++r) {

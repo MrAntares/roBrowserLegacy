@@ -134,34 +134,34 @@ function onEquipementTakeOff(pkt) {
 		}
 
 		if (pkt.wearLocation & EquipLocation.HEAD_TOP) {
-			Session.Character.accessory2 = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
+			Session.player.accessory2 = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_TOP);
 		}
 		if (pkt.wearLocation & EquipLocation.HEAD_MID) {
-			Session.Character.accessory3 = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
+			Session.player.accessory3 = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_MID);
 		}
 		if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) {
-			Session.Character.accessory = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
+			Session.player.accessory = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_HEAD_BOTTOM);
 		}
 		if (pkt.wearLocation & EquipLocation.GARMENT) {
-			Session.Character.robe = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
+			Session.player.robe = Equipment.getUI().checkEquipLoc(EquipLocation.COSTUME_ROBE);
 		}
 		if (pkt.wearLocation & EquipLocation.WEAPON) {
-			Session.Character.weapon = 0;
+			Session.player.weapon = 0;
 		}
 		if (pkt.wearLocation & EquipLocation.SHIELD) {
-			Session.Character.shield = 0;
+			Session.player.shield = 0;
 		}
 		if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_TOP) {
-			Session.Character.accessory2 = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_TOP);
+			Session.player.accessory2 = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_TOP);
 		}
 		if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_MID) {
-			Session.Character.accessory3 = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_MID);
+			Session.player.accessory3 = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_MID);
 		}
 		if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_BOTTOM) {
-			Session.Character.accessory = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_BOTTOM);
+			Session.player.accessory = Equipment.getUI().checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 		}
 		if (pkt.wearLocation & EquipLocation.COSTUME_ROBE) {
-			Session.Character.robe = Equipment.getUI().checkEquipLoc(EquipLocation.GARMENT);
+			Session.player.robe = Equipment.getUI().checkEquipLoc(EquipLocation.GARMENT);
 		}
 
 		if (PACKETVER.value >= 20170208) {
@@ -192,37 +192,37 @@ function onItemEquip(pkt) {
 
 		// Display
 		if (pkt.wearLocation & EquipLocation.HEAD_TOP) {
-			Session.Character.accessory2 = CostumeCheckTop ? CostumeCheckTop : pkt.viewid;
+			Session.player.accessory2 = CostumeCheckTop ? CostumeCheckTop : pkt.viewid;
 		}
 		if (pkt.wearLocation & EquipLocation.HEAD_MID) {
-			Session.Character.accessory3 = CostumeCheckMid ? CostumeCheckMid : pkt.viewid;
+			Session.player.accessory3 = CostumeCheckMid ? CostumeCheckMid : pkt.viewid;
 		}
 		if (pkt.wearLocation & EquipLocation.HEAD_BOTTOM) {
-			Session.Character.accessory = CostumeCheckBot ? CostumeCheckBot : pkt.viewid;
+			Session.player.accessory = CostumeCheckBot ? CostumeCheckBot : pkt.viewid;
 		}
 		if (pkt.wearLocation & EquipLocation.GARMENT) {
-			Session.Character.robe = CostumeCheckRobe ? CostumeCheckRobe : pkt.viewid;
+			Session.player.robe = CostumeCheckRobe ? CostumeCheckRobe : pkt.viewid;
 		}
 
 		if (pkt.wearLocation & EquipLocation.WEAPON) {
-			Session.Character.weapon = pkt.viewid;
+			Session.player.weapon = pkt.viewid;
 		}
 		if (pkt.wearLocation & EquipLocation.SHIELD) {
-			Session.Character.shield = pkt.viewid;
+			Session.player.shield = pkt.viewid;
 		}
 
 		// costume override regular equips
 		if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_TOP) {
-			Session.Character.accessory2 = pkt.viewid;
+			Session.player.accessory2 = pkt.viewid;
 		}
 		if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_MID) {
-			Session.Character.accessory3 = pkt.viewid;
+			Session.player.accessory3 = pkt.viewid;
 		}
 		if (pkt.wearLocation & EquipLocation.COSTUME_HEAD_BOTTOM) {
-			Session.Character.accessory = pkt.viewid;
+			Session.player.accessory = pkt.viewid;
 		}
 		if (pkt.wearLocation & EquipLocation.COSTUME_ROBE) {
-			Session.Character.robe = pkt.viewid;
+			Session.player.robe = pkt.viewid;
 		}
 	}
 
@@ -237,7 +237,7 @@ function onItemEquip(pkt) {
  * @param {object} pkt - PACKET.ZC.USE_ITEM_ACK
  */
 function onItemUseAnswer(pkt) {
-	if (!pkt.hasOwnProperty('AID') || Session.Character.GID === pkt.AID) {
+	if (!pkt.hasOwnProperty('AID') || Session.player.GID === pkt.AID) {
 		if (pkt.result) {
 			Inventory.getUI().updateItem(pkt.index, pkt.count);
 		} else {
@@ -580,8 +580,8 @@ function onBodyItemSize(pkt) {
 function onRecoverPenaltyOverweight(pkt) {
 	// TODO add it as status check
 	// show percent to status, still a wip
-	if (Session.Character) {
-		Session.Character.overWeightPercent = pkt.percentage;
+	if (Session.player) {
+		Session.player.overWeightPercent = pkt.percentage;
 	}
 }
 

@@ -42,7 +42,7 @@ import RankingTypes from 'DB/Jobs/RankingTypes.js';
  * @param {object} pkt - PACKET.ZC.NOTIFY_PLAYERMOVE
  */
 function onPlayerMove(pkt) {
-	Session.Character.walkTo(
+	Session.player.walkTo(
 		pkt.MoveData[0],
 		pkt.MoveData[1],
 		pkt.MoveData[2],
@@ -65,7 +65,7 @@ function onPlayerMessage(pkt) {
 
 	ChatBox.addText(pkt.msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_CHAT, null, false);
 
-	if (Session.Character) {
+	if (Session.player) {
 		pkt.msg = pkt.msg.replace(
 			/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi,
 			function (match) {
@@ -73,7 +73,7 @@ function onPlayerMessage(pkt) {
 			}
 		);
 
-		Session.Character.dialog.set(pkt.msg);
+		Session.player.dialog.set(pkt.msg);
 	}
 }
 
@@ -95,7 +95,7 @@ function onPlayerTooFarToAttack(pkt) {
  * @param {object} pkt - PACKET.ZC.ATTACK_RANGE
  */
 function onAttackRangeUpdate(pkt) {
-	Session.Character.attack_range = pkt.currentAttRange;
+	Session.player.attack_range = pkt.currentAttRange;
 }
 
 /**
@@ -224,7 +224,7 @@ function onParameterChange(pkt) {
 
 	switch (type) {
 		case StatusProperty.SPEED:
-			Session.Character.walk.speed = amount;
+			Session.player.walk.speed = amount;
 			break;
 
 		case StatusProperty.EXP:
@@ -247,23 +247,23 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.HP:
-			Session.Character.life.hp = amount;
-			Session.Character.life.update();
+			Session.player.life.hp = amount;
+			Session.player.life.update();
 
-			if (Session.Character.life.hp_max > -1) {
-				BasicInfo.getUI().update('hp', Session.Character.life.hp, Session.Character.life.hp_max);
+			if (Session.player.life.hp_max > -1) {
+				BasicInfo.getUI().update('hp', Session.player.life.hp, Session.player.life.hp_max);
 
 				if (Session.hasParty) {
 					PartyUI.getUI().updateMemberLife(
 						Session.AID,
-						Session.Character.life.canvas,
-						Session.Character.life.hp,
-						Session.Character.life.hp_max
+						Session.player.life.canvas,
+						Session.player.life.hp,
+						Session.player.life.hp_max
 					);
 				}
 			}
 			//Danger
-			if (Session.Character.life.hp <= (25 / 100) * Session.Character.life.hp_max) {
+			if (Session.player.life.hp <= (25 / 100) * Session.player.life.hp_max) {
 				//Pet Talk
 				if (Session.pet.friendly > 900 && (Session.pet.lastTalk || 0) + 10000 < Date.now()) {
 					const hunger = DB.getPetHungryState(Session.pet.oldHungry);
@@ -276,7 +276,7 @@ function onParameterChange(pkt) {
 				}
 			}
 			//Died
-			if (Session.Character.life.hp <= 1) {
+			if (Session.player.life.hp <= 1) {
 				//Pet Talk
 				if (Session.pet.friendly > 900) {
 					const hunger = DB.getPetHungryState(Session.pet.oldHungry);
@@ -291,38 +291,38 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.MAXHP:
-			Session.Character.life.hp_max = amount;
-			Session.Character.life.update();
+			Session.player.life.hp_max = amount;
+			Session.player.life.update();
 
-			if (Session.Character.life.hp > -1) {
-				BasicInfo.getUI().update('hp', Session.Character.life.hp, Session.Character.life.hp_max);
+			if (Session.player.life.hp > -1) {
+				BasicInfo.getUI().update('hp', Session.player.life.hp, Session.player.life.hp_max);
 
 				if (Session.hasParty) {
 					PartyUI.getUI().updateMemberLife(
 						Session.AID,
-						Session.Character.life.canvas,
-						Session.Character.life.hp,
-						Session.Character.life.hp_max
+						Session.player.life.canvas,
+						Session.player.life.hp,
+						Session.player.life.hp_max
 					);
 				}
 			}
 			break;
 
 		case StatusProperty.SP:
-			Session.Character.life.sp = amount;
-			Session.Character.life.update();
+			Session.player.life.sp = amount;
+			Session.player.life.update();
 
-			if (Session.Character.life.sp_max > -1) {
-				BasicInfo.getUI().update('sp', Session.Character.life.sp, Session.Character.life.sp_max);
+			if (Session.player.life.sp_max > -1) {
+				BasicInfo.getUI().update('sp', Session.player.life.sp, Session.player.life.sp_max);
 			}
 			break;
 
 		case StatusProperty.MAXSP:
-			Session.Character.life.sp_max = amount;
-			Session.Character.life.update();
+			Session.player.life.sp_max = amount;
+			Session.player.life.update();
 
-			if (Session.Character.life.sp > -1) {
-				BasicInfo.getUI().update('sp', Session.Character.life.sp, Session.Character.life.sp_max);
+			if (Session.player.life.sp > -1) {
+				BasicInfo.getUI().update('sp', Session.player.life.sp, Session.player.life.sp_max);
 			}
 			break;
 
@@ -331,9 +331,9 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.CLEVEL:
-			Session.Character.clevel = amount;
+			Session.player.clevel = amount;
 			// load aura on levelup
-			Session.Character.aura.load(EffectManager);
+			Session.player.aura.load(EffectManager);
 			BasicInfo.getUI().update('blvl', amount);
 			Equipment.getUI().onLevelUp();
 			ChangeCart.onLevelUp(amount);
@@ -403,17 +403,17 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.WEIGHT:
-			Session.Character.weight = amount; // Save weight in Session instead of UI
+			Session.player.weight = amount; // Save weight in Session instead of UI
 			if (BasicInfo.getUI().weight_max > -1) {
-				BasicInfo.getUI().update('weight', Session.Character.weight, BasicInfo.getUI().weight_max);
+				BasicInfo.getUI().update('weight', Session.player.weight, BasicInfo.getUI().weight_max);
 			}
 			break;
 
 		case StatusProperty.MAXWEIGHT:
-			Session.Character.max_weight = amount; // Save max weight in Session instead of UI only
+			Session.player.max_weight = amount; // Save max weight in Session instead of UI only
 			BasicInfo.getUI().weight_max = amount;
 			if (BasicInfo.getUI().weight > -1) {
-				BasicInfo.getUI().update('weight', Session.Character.weight, BasicInfo.getUI().weight_max);
+				BasicInfo.getUI().update('weight', Session.player.weight, BasicInfo.getUI().weight_max);
 			}
 			break;
 
@@ -557,20 +557,20 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.VAR_SP_AP:
-			Session.Character.life.ap = amount;
-			Session.Character.life.update();
+			Session.player.life.ap = amount;
+			Session.player.life.update();
 
-			if (Session.Character.life.ap_max > -1) {
-				BasicInfo.getUI().update('ap', Session.Character.life.ap, Session.Character.life.ap_max);
+			if (Session.player.life.ap_max > -1) {
+				BasicInfo.getUI().update('ap', Session.player.life.ap, Session.player.life.ap_max);
 			}
 			break;
 
 		case StatusProperty.VAR_SP_MAXAP:
-			Session.Character.life.ap_max = amount;
-			Session.Character.life.update();
+			Session.player.life.ap_max = amount;
+			Session.player.life.update();
 
-			if (Session.Character.life.ap > -1) {
-				BasicInfo.getUI().update('ap', Session.Character.life.ap, Session.Character.life.ap_max);
+			if (Session.player.life.ap > -1) {
+				BasicInfo.getUI().update('ap', Session.player.life.ap, Session.player.life.ap_max);
 			}
 			break;
 
@@ -688,38 +688,38 @@ function onMessage(pkt) {
 function onRecovery(pkt) {
 	switch (pkt.varID) {
 		case StatusProperty.HP: {
-			Damage.add(pkt.amount, Session.Character, Renderer.tick, null, Damage.TYPE.HEAL);
+			Damage.add(pkt.amount, Session.player, Renderer.tick, null, Damage.TYPE.HEAL);
 
 			const EF_Init_Par = {
 				effectId: EffectConst.EF_HPTIME,
-				ownerAID: Session.Character.GID
+				ownerAID: Session.player.GID
 			};
 
 			EffectManager.spam(EF_Init_Par);
 
-			Session.Character.life.hp += pkt.amount;
-			Session.Character.life.update();
+			Session.player.life.hp += pkt.amount;
+			Session.player.life.update();
 
-			if (Session.Character.life.hp_max > -1) {
-				BasicInfo.getUI().update('hp', Session.Character.life.hp, Session.Character.life.hp_max);
+			if (Session.player.life.hp_max > -1) {
+				BasicInfo.getUI().update('hp', Session.player.life.hp, Session.player.life.hp_max);
 			}
 			break;
 		}
 
 		case StatusProperty.SP: {
-			Damage.add(pkt.amount, Session.Character, Renderer.tick, null, Damage.TYPE.HEAL | Damage.TYPE.SP);
+			Damage.add(pkt.amount, Session.player, Renderer.tick, null, Damage.TYPE.HEAL | Damage.TYPE.SP);
 			const EF_Init_Par = {
 				effectId: EffectConst.EF_SPTIME,
-				ownerAID: Session.Character.GID
+				ownerAID: Session.player.GID
 			};
 
 			EffectManager.spam(EF_Init_Par);
 
-			Session.Character.life.sp += pkt.amount;
-			Session.Character.life.update();
+			Session.player.life.sp += pkt.amount;
+			Session.player.life.update();
 
-			if (Session.Character.life.sp_max > -1) {
-				BasicInfo.getUI().update('sp', Session.Character.life.sp, Session.Character.life.sp_max);
+			if (Session.player.life.sp_max > -1) {
+				BasicInfo.getUI().update('sp', Session.player.life.sp, Session.player.life.sp_max);
 			}
 			break;
 		}
@@ -898,97 +898,97 @@ function onGMCheckStatus(pkt) {
 	ChatBox.addText('[ ' + targetName + ' ]', ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG, green);
 	ChatBox.addText(
 		sp(13) +
-		'STR=' +
-		pad(pkt.str) +
-		sp(6) +
-		'AGI=' +
-		pad(pkt.agi) +
-		sp(6) +
-		'VIT=' +
-		pad(pkt.vit) +
-		sp(6) +
-		'INT=' +
-		pad(pkt.Int) +
-		sp(6) +
-		'DEX=' +
-		pad(pkt.dex) +
-		sp(6) +
-		'LUK=' +
-		pkt.luk,
+			'STR=' +
+			pad(pkt.str) +
+			sp(6) +
+			'AGI=' +
+			pad(pkt.agi) +
+			sp(6) +
+			'VIT=' +
+			pad(pkt.vit) +
+			sp(6) +
+			'INT=' +
+			pad(pkt.Int) +
+			sp(6) +
+			'DEX=' +
+			pad(pkt.dex) +
+			sp(6) +
+			'LUK=' +
+			pkt.luk,
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		yellow
 	);
 	ChatBox.addText(
 		'standard STR=' +
-		pad(pkt.standardStr) +
-		sp(6) +
-		'AGI=' +
-		pad(pkt.standardAgi) +
-		sp(6) +
-		'VIT=' +
-		pad(pkt.standardVit) +
-		sp(6) +
-		'INT=' +
-		pad(pkt.standardInt) +
-		sp(6) +
-		'DEX=' +
-		pad(pkt.standardDex) +
-		sp(6) +
-		'LUK=' +
-		pad(pkt.standardLuk, 2),
+			pad(pkt.standardStr) +
+			sp(6) +
+			'AGI=' +
+			pad(pkt.standardAgi) +
+			sp(6) +
+			'VIT=' +
+			pad(pkt.standardVit) +
+			sp(6) +
+			'INT=' +
+			pad(pkt.standardInt) +
+			sp(6) +
+			'DEX=' +
+			pad(pkt.standardDex) +
+			sp(6) +
+			'LUK=' +
+			pad(pkt.standardLuk, 2),
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		green
 	);
 	ChatBox.addText(
 		sp(4) +
-		'attPower=' +
-		pad(pkt.attPower) +
-		sp(4) +
-		'refiningPow=' +
-		pad(pkt.refiningPower) +
-		sp(4) +
-		'MAXmatPow=' +
-		pad(pkt.max_mattPower) +
-		sp(4) +
-		'MINmatPower=' +
-		pad(pkt.min_mattPower) +
-		sp(7) +
-		'ASPD=' +
-		pad(pkt.ASPD),
+			'attPower=' +
+			pad(pkt.attPower) +
+			sp(4) +
+			'refiningPow=' +
+			pad(pkt.refiningPower) +
+			sp(4) +
+			'MAXmatPow=' +
+			pad(pkt.max_mattPower) +
+			sp(4) +
+			'MINmatPower=' +
+			pad(pkt.min_mattPower) +
+			sp(7) +
+			'ASPD=' +
+			pad(pkt.ASPD),
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		yellow
 	);
 	ChatBox.addText(
 		'itemdefPow=' +
-		pad(pkt.itemdefPower) +
-		sp(5) +
-		'plusdefPow=' +
-		pad(pkt.plusdefPower) +
-		sp(4) +
-		'mdefPower=' +
-		pad(pkt.mdefPower) +
-		sp(4) +
-		'plusmdefPow=' +
-		pad(pkt.plusmdefPower) +
-		sp(4) +
-		'plusASPD=' +
-		pad(pkt.plusASPD),
+			pad(pkt.itemdefPower) +
+			sp(5) +
+			'plusdefPow=' +
+			pad(pkt.plusdefPower) +
+			sp(4) +
+			'mdefPower=' +
+			pad(pkt.mdefPower) +
+			sp(4) +
+			'plusmdefPow=' +
+			pad(pkt.plusmdefPower) +
+			sp(4) +
+			'plusASPD=' +
+			pad(pkt.plusASPD),
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		green
 	);
 	ChatBox.addText(
 		'hitSuccessVal=' +
-		pad(pkt.hitSuccessValue) +
-		sp(4) +
-		'avoidSuccessVal=' +
-		pad(pkt.avoidSuccessValue) +
-		sp(4) +
-		'plusAvoidSuccessValue=' +
-		pad(pkt.plusAvoidSuccessValue),
+			pad(pkt.hitSuccessValue) +
+			sp(4) +
+			'avoidSuccessVal=' +
+			pad(pkt.avoidSuccessValue) +
+			sp(4) +
+			'plusAvoidSuccessValue=' +
+			pad(pkt.plusAvoidSuccessValue),
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		yellow

@@ -17,7 +17,7 @@ import Entity from 'Renderer/Entity/Entity.js';
  * Player class
  *
  * Marker subclass of Entity for the local player character.
- * Session.Character is always an instance of this class.
+ * Session.player is always an instance of this class.
  * Session.characters[CharNum] holds all received character slots.
  *
  * @class Player

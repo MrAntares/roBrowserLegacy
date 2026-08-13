@@ -87,7 +87,7 @@ function loadCartData() {
  * Change cart (Change cart packet IDs are not the same as global cart IDs!!)
  */
 function onCart(num) {
-	if (Session.Character.hasCart == false || num < 0 || num > 9) {
+	if (Session.player.hasCart == false || num < 0 || num > 9) {
 		return;
 	}
 
@@ -107,7 +107,7 @@ ChangeCart.onAppend = function onAppend() {
 };
 
 ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
-	if (Session.Character.hasCart == false) {
+	if (Session.player.hasCart == false) {
 		return;
 	}
 	let msg = 'Change Cart!!';
@@ -117,11 +117,11 @@ ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 		return;
 	}
 	ChatBox.addText(msg, ChatBox.TYPE.PUBLIC | ChatBox.TYPE.SELF, ChatBox.FILTER.PUBLIC_LOG);
-	if (Session.Character) {
-		Session.Character.dialog.set(msg);
+	if (Session.player) {
+		Session.player.dialog.set(msg);
 	}
 	ChangeCart.ui.show();
-	updateList(Session.Character.clevel);
+	updateList(Session.player.clevel);
 	// Avoid stacking duplicate render callbacks if invoked while already open
 	Renderer.stop(render);
 	Renderer.render(render);
@@ -132,7 +132,7 @@ ChangeCart.onLevelUp = function onLevelUp(blvl) {
 };
 
 function updateList(blvl) {
-	if (Session.Character.hasCart == false) {
+	if (Session.player.hasCart == false) {
 		return;
 	}
 

@@ -38,7 +38,7 @@ export default {
 
 	moveAction: null,
 
-	// zeny, weight, max_weight are now on Session.Character (Player.prototype)
+	// zeny, weight, max_weight are now on Session.player (Player.prototype)
 
 	petId: 0,
 	pet: {},

@@ -22,7 +22,7 @@ class AIDriver {
 	static default_MER_AI = null;
 	static ready = false;
 	// this is called in a code in someplace, left if here :u
-	static init() { }
+	static init() {}
 
 	static setmsg(homId, str) {
 		if (!msg[homId]) {
@@ -50,26 +50,26 @@ class AIDriver {
 					return res[1], res[2]
 				end
 				return res
-			end
-			function GetMsg(id)
-				local res = GetMsgJS(id)
-				local result = {}
-				local i = 0
-				while res[i] ~= nil do
-					result[i + 1] = res[i]
-					i = i + 1
-				end
-				return result
-			end
-			function GetResMsg(id)
-				local res = GetResMsgJS(id)
-				local result = {}
-				local i = 0
-				while res[i] ~= nil do
-					result[i + 1] = res[i]
-					i = i + 1
-				end
-				return result
+			end	
+			function GetMsg(id)  
+				local res = GetMsgJS(id)  
+				local result = {}  
+				local i = 0  
+				while res[i] ~= nil do  
+					result[i + 1] = res[i]  
+					i = i + 1  
+				end  
+				return result  
+			end  
+			function GetResMsg(id)  
+				local res = GetResMsgJS(id)  
+				local result = {}  
+				local i = 0  
+				while res[i] ~= nil do  
+					result[i + 1] = res[i]  
+					i = i + 1  
+				end  
+				return result  
 			end
 		`);
 
@@ -255,9 +255,9 @@ class AIDriver {
 								const entity = EntityManager.get(item);
 								if (
 									entity &&
-									(entity.objecttype === Session.Character.constructor.TYPE_MOB ||
-										entity.objecttype === Session.Character.constructor.TYPE_NPC_ABR ||
-										entity.objecttype === Session.Character.constructor.TYPE_NPC_BIONIC) &&
+									(entity.objecttype === Session.player.constructor.TYPE_MOB ||
+										entity.objecttype === Session.player.constructor.TYPE_NPC_ABR ||
+										entity.objecttype === Session.player.constructor.TYPE_NPC_BIONIC) &&
 									!entity.isDead() &&
 									entity.action !== entity.ACTION.DIE &&
 									entity.isVisible()
@@ -339,7 +339,7 @@ class AIDriver {
 								}
 								pkt.SKID = skillId;
 								pkt.selectedLevel = level;
-								pkt.targetID = targetID || Session.Character.GID;
+								pkt.targetID = targetID || Session.player.GID;
 								Network.sendPacket(pkt);
 							}
 						}
@@ -383,9 +383,9 @@ class AIDriver {
 
 				if (
 					entity &&
-					(entity.objecttype === Session.Character.constructor.TYPE_MOB ||
-						entity.objecttype === Session.Character.constructor.TYPE_NPC_ABR ||
-						entity.objecttype === Session.Character.constructor.TYPE_NPC_BIONIC) &&
+					(entity.objecttype === Session.player.constructor.TYPE_MOB ||
+						entity.objecttype === Session.player.constructor.TYPE_NPC_ABR ||
+						entity.objecttype === Session.player.constructor.TYPE_NPC_BIONIC) &&
 					!entity.isDead() &&
 					entity.action !== entity.ACTION.DIE &&
 					entity.isVisible()
@@ -645,7 +645,7 @@ class AIDriver {
 		}
 	};
 	// this is called in some place of code
-	static reset = () => { };
+	static reset = () => {};
 }
 
 export default AIDriver;

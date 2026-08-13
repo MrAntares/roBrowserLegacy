@@ -369,7 +369,7 @@ function intersectEntity(entity) {
 		return;
 	}
 
-	if (_flag & SkillTargetSelection.TYPE.ENEMY && entity === Session.Character) {
+	if (_flag & SkillTargetSelection.TYPE.ENEMY && entity === Session.player) {
 		return;
 	}
 
@@ -398,8 +398,8 @@ SkillTargetSelection.checkMapState = function checkMapState(entity) {
 		return true;
 	} else if (Session.mapState.isGVG) {
 		if (
-			(Session.Character.GUID > 0 && entity.GUID !== Session.Character.GUID) ||
-			(entity.GUID == 0 && entity !== Session.Character)
+			(Session.player.GUID > 0 && entity.GUID !== Session.player.GUID) ||
+			(entity.GUID == 0 && entity !== Session.player)
 		) {
 			return true;
 		}
@@ -410,8 +410,8 @@ SkillTargetSelection.checkMapState = function checkMapState(entity) {
 /**
  * Functions to define
  */
-SkillTargetSelection.onUseSkillToId = function onUseSkillToId(/*id, level, GID*/) { };
-SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(/*id, level, x, y*/) { };
+SkillTargetSelection.onUseSkillToId = function onUseSkillToId(/*id, level, GID*/) {};
+SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(/*id, level, x, y*/) {};
 
 /**
  * Create component and return it

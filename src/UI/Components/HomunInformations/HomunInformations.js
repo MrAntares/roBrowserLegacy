@@ -171,7 +171,7 @@ function autoFeedCheck() {
 		return;
 	}
 
-	const player = Session.Character;
+	const player = Session.player;
 	if (!player) {
 		return;
 	}
@@ -588,14 +588,14 @@ function homunToggleAutoFeed() {
 /**
  * Functions defined in Engine/MapEngine/Homun.js
  */
-HomunInformations.reqHomunFeed = function reqHomunFeed() { };
-HomunInformations.reqNameEdit = function reqNameEdit() { };
-HomunInformations.reqAttack = function reqAttack() { };
-HomunInformations.reqMoveTo = function reqMoveTo() { };
-HomunInformations.reqMoveToOwner = function reqMoveToOwner() { };
+HomunInformations.reqHomunFeed = function reqHomunFeed() {};
+HomunInformations.reqNameEdit = function reqNameEdit() {};
+HomunInformations.reqAttack = function reqAttack() {};
+HomunInformations.reqMoveTo = function reqMoveTo() {};
+HomunInformations.reqMoveToOwner = function reqMoveToOwner() {};
 
-HomunInformations.reqHomunAction = function reqHomunAction() { };
-HomunInformations.onConfigUpdate = function onConfigUpdate(/* type, value*/) { };
+HomunInformations.reqHomunAction = function reqHomunAction() {};
+HomunInformations.onConfigUpdate = function onConfigUpdate(/* type, value*/) {};
 
 /**
  * Create component and export it

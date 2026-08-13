@@ -193,7 +193,7 @@ class MapEngine {
 					// desynced the whole stream.
 					if (PACKETVER.value < 20070521) {
 						Session.AID = fp.readLong();
-						Session.Character.GID = Session.AID;
+						Session.player.GID = Session.AID;
 					}
 				});
 
@@ -488,7 +488,7 @@ function onConfig(pkt) {
 			ChatBox.addText(DB.getMessage(1358 + (pkt.Value ? 1 : 0)), ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
 			break;
 		case 1:
-			Session.Character.call_flag = pkt.Value;
+			Session.player.call_flag = pkt.Value;
 			ChatBox.addText(DB.getMessage(2978 + (pkt.Value ? 0 : 1)), ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
 			break;
 		case 2:
@@ -526,7 +526,7 @@ function onConfigNotify(pkt) {
 		);
 	}
 	if (typeof pkt.call_flag !== 'undefined') {
-		Session.Character.call_flag = pkt.call_flag;
+		Session.player.call_flag = pkt.call_flag;
 		ChatBox.addText(DB.getMessage(2978 + (pkt.call_flag ? 0 : 1)), ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
 	}
 	if (typeof pkt.homunculus_autofeeding_flag !== 'undefined') {
@@ -546,7 +546,7 @@ function onConfigNotify(pkt) {
  */
 function onReceiveAccountID(pkt) {
 	Session.AID = pkt.AID;
-	Session.Character.GID = pkt.AID;
+	Session.player.GID = pkt.AID;
 }
 
 /**
@@ -555,10 +555,10 @@ function onReceiveAccountID(pkt) {
  * @param {object} pkt - PACKET.ZC.ACCEPT_ENTER
  */
 function onConnectionAccepted(pkt) {
-	Session.Character.onWalkEnd = onWalkEnd;
+	Session.player.onWalkEnd = onWalkEnd;
 
 	if ('sex' in pkt && pkt.sex < 2) {
-		Session.Character.sex = pkt.sex;
+		Session.player.sex = pkt.sex;
 	}
 
 	// Reset
@@ -588,15 +588,15 @@ function onConnectionAccepted(pkt) {
 	};
 
 	if (PACKETVER.value >= 20200520) {
-		BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Character.job));
+		BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.player.job));
 		BasicInfo.getUI().prepare();
 	}
 
-	BasicInfo.getUI().update('blvl', Session.Character.clevel);
-	BasicInfo.getUI().update('jlvl', Session.Character.joblevel);
-	BasicInfo.getUI().update('zeny', Session.Character.money);
-	BasicInfo.getUI().update('name', Session.Character.display.name);
-	BasicInfo.getUI().update('job', Session.Character.job);
+	BasicInfo.getUI().update('blvl', Session.player.clevel);
+	BasicInfo.getUI().update('jlvl', Session.player.joblevel);
+	BasicInfo.getUI().update('zeny', Session.player.money);
+	BasicInfo.getUI().update('name', Session.player.display.name);
+	BasicInfo.getUI().update('job', Session.player.job);
 
 	// Fix http://forum.robrowser.com/?topic=32177.0
 	onMapChange({
@@ -622,55 +622,55 @@ function onConnectionRefused(pkt) {
  */
 function onMapChange(pkt) {
 	MapRenderer.onLoad = () => {
-		Session.Character.set({
+		Session.player.set({
 			PosDir: [pkt.xPos, pkt.yPos, 0],
-			// Use Session.AID rather than Session.Character.GID here:
-			// EntityManager removes Session.Character during map transition, which
+			// Use Session.AID rather than Session.player.GID here:
+			// EntityManager removes Session.player during map transition, which
 			// triggers Entity.clean() and sets this.GID = -1. Reading the GID
 			// back from the entity at this point would produce -1.
 			// Session.AID (account ID) equals the player's entity GID on the
 			// map server and is never mutated by entity cleanup.
 			GID: Session.AID
 		});
-		EntityManager.add(Session.Character);
-		if (Session.Character.effectState & StatusConst.EffectState.FALCON) {
-			if (!Session.Character.falcon) {
-				Session.Character.falcon = new Player();
+		EntityManager.add(Session.player);
+		if (Session.player.effectState & StatusConst.EffectState.FALCON) {
+			if (!Session.player.falcon) {
+				Session.player.falcon = new Player();
 			}
 
-			Session.Character.falcon.set({
-				objecttype: Session.Character.falcon.constructor.TYPE_FALCON,
-				GID: Session.Character.GID + '_FALCON',
-				PosDir: [Session.Character.position[0], Session.Character.position[1], 0],
-				job: Session.Character._job + '_FALCON',
-				speed: Math.max(Session.Character.walk.speed - 50, 1),
+			Session.player.falcon.set({
+				objecttype: Session.player.falcon.constructor.TYPE_FALCON,
+				GID: Session.player.GID + '_FALCON',
+				PosDir: [Session.player.position[0], Session.player.position[1], 0],
+				job: Session.player._job + '_FALCON',
+				speed: Math.max(Session.player.walk.speed - 50, 1),
 				name: '',
 				hp: -1,
 				maxhp: -1,
 				hideShadow: true
 			});
-			EntityManager.add(Session.Character.falcon);
+			EntityManager.add(Session.player.falcon);
 		}
-		if (Session.Character.effectState & StatusConst.EffectState.WUG) {
-			if (!Session.Character.wug) {
-				Session.Character.wug = new Player();
+		if (Session.player.effectState & StatusConst.EffectState.WUG) {
+			if (!Session.player.wug) {
+				Session.player.wug = new Player();
 			}
 
-			Session.Character.wug.set({
-				objecttype: Session.Character.wug.constructor.TYPE_WUG,
-				GID: Session.Character.GID + '_WUG',
-				PosDir: [Session.Character.position[0], Session.Character.position[1], 0],
-				job: Session.Character._job + '_WUG',
-				speed: Math.max(Session.Character.walk.speed - 50, 1),
+			Session.player.wug.set({
+				objecttype: Session.player.wug.constructor.TYPE_WUG,
+				GID: Session.player.GID + '_WUG',
+				PosDir: [Session.player.position[0], Session.player.position[1], 0],
+				job: Session.player._job + '_WUG',
+				speed: Math.max(Session.player.walk.speed - 50, 1),
 				name: '',
 				hp: -1,
 				maxhp: -1
 			});
-			EntityManager.add(Session.Character.wug);
+			EntityManager.add(Session.player.wug);
 		}
 		// free and load aura so it loads in new map
-		Session.Character.aura.free();
-		Session.Character.aura.load(EffectManager);
+		Session.player.aura.free();
+		Session.player.aura.load(EffectManager);
 
 		// Spawn all signboards for the current map
 		const mapName = MapRenderer.currentMap.replace('.gat', '').toLowerCase();
@@ -686,7 +686,7 @@ function onMapChange(pkt) {
 		}
 
 		// Initialize camera
-		Camera.setTarget(Session.Character);
+		Camera.setTarget(Session.player);
 		Camera.init();
 
 		// Add Game UI
@@ -964,17 +964,17 @@ function onRequestTalk(user, text, target) {
 	}
 
 	// send packet
-	pkt.msg = Session.Character.display.name + ' : ' + text;
+	pkt.msg = Session.player.display.name + ' : ' + text;
 	Network.sendPacket(pkt);
 
 	//Super Novice Chant
-	if (chatLines > 7 && DB.isSuperNovice(Session.Character._job)) {
+	if (chatLines > 7 && DB.isSuperNovice(Session.player._job)) {
 		if (Math.floor((BasicInfo.getUI().base_exp / BasicInfo.getUI().base_exp_next) * 1000.0) % 100 == 0) {
 			if (text == DB.getMessage(790)) {
 				snCounter = 1;
 			} else if (
 				snCounter == 1 &&
-				text == DB.getMessage(791) + ' ' + Session.Character.display.name + ' ' + DB.getMessage(792)
+				text == DB.getMessage(791) + ' ' + Session.player.display.name + ' ' + DB.getMessage(792)
 			) {
 				snCounter = 2;
 			} else if (snCounter == 2 && text == DB.getMessage(793)) {
@@ -1015,8 +1015,8 @@ function onRequestWalk() {
 	Events.clearTimeout(_walkTimer);
 
 	// If siting, update direction
-	if (Session.Character.action === Session.Character.ACTION.SIT || KEYS.SHIFT) {
-		Session.Character.lookTo(Mouse.world.x, Mouse.world.y);
+	if (Session.player.action === Session.player.ACTION.SIT || KEYS.SHIFT) {
+		Session.player.lookTo(Mouse.world.x, Mouse.world.y);
 
 		let pkt;
 		if (PACKETVER.value >= 20180307) {
@@ -1024,8 +1024,8 @@ function onRequestWalk() {
 		} else {
 			pkt = new PACKET.CZ.CHANGE_DIRECTION();
 		}
-		pkt.headDir = Session.Character.headDir;
-		pkt.dir = Session.Character.direction;
+		pkt.headDir = Session.player.headDir;
+		pkt.dir = Session.player.direction;
 		Network.sendPacket(pkt);
 		return;
 	}
@@ -1052,8 +1052,8 @@ function walkIntervalProcess() {
 
 	const isWalkable = Mouse.world.x > -1 && Mouse.world.y > -1;
 	const isCurrentPos =
-		Math.round(Session.Character.position[0]) === Mouse.world.x &&
-		Math.round(Session.Character.position[1]) === Mouse.world.y;
+		Math.round(Session.player.position[0]) === Mouse.world.x &&
+		Math.round(Session.player.position[1]) === Mouse.world.y;
 
 	if (isWalkable && !isCurrentPos) {
 		let pkt;
@@ -1085,8 +1085,8 @@ function walkIntervalProcess() {
  */
 function checkFreeCell(x, y, range, out) {
 	let _x, _y, r;
-	const d_x = Session.Character.position[0] < x ? -1 : 1;
-	const d_y = Session.Character.position[1] < y ? -1 : 1;
+	const d_x = Session.player.position[0] < x ? -1 : 1;
+	const d_y = Session.player.position[1] < y ? -1 : 1;
 
 	// Search possible positions
 	for (r = 0; r <= range; ++r) {
@@ -1212,7 +1212,7 @@ function onUseItem(index) {
 		pkt = new PACKET.CZ.USE_ITEM();
 	}
 	pkt.index = index;
-	pkt.AID = Session.Character.GID;
+	pkt.AID = Session.player.GID;
 	Network.sendPacket(pkt);
 }
 

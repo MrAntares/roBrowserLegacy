@@ -22,7 +22,7 @@ const direction = glMatrix.vec2.create();
 const rotate = glMatrix.mat2.create();
 
 function move(x, y) {
-	const player = Session.Character;
+	const player = Session.player;
 	if (!player) {
 		return;
 	}
@@ -46,7 +46,7 @@ function move(x, y) {
 }
 
 function attack() {
-	const Player = Session.Character;
+	const Player = Session.player;
 	if (!Player) {
 		return;
 	}
@@ -104,7 +104,7 @@ function attack() {
 }
 
 function pickUp() {
-	const Player = Session.Character;
+	const Player = Session.player;
 	if (!Player) {
 		return;
 	}

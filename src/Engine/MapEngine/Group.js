@@ -217,7 +217,7 @@ function onPartyCreate(pkt) {
 			// Otherwise, perform conditional initialization (e.g. on server versions where this arrives first)
 			Session.hasParty = true;
 
-			const entity = Session.Character;
+			const entity = Session.player;
 			const memberData = {
 				AID: Session.AID,
 				characterName: entity.display.name,

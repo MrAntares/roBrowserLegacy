@@ -15,19 +15,19 @@ function getEntityInContext() {
 	let target = null;
 	if (ControlsSettings.attackTargetMode === 1) {
 		// Lowest HP first
-		target = EntityManager.getLowestHpEntity(Session.Character, Session.Character.constructor.TYPE_MOB);
+		target = EntityManager.getLowestHpEntity(Session.player, Session.player.constructor.TYPE_MOB);
 		if (!target) {
-			target = EntityManager.getLowestHpEntity(Session.Character, Session.Character.constructor.TYPE_PC);
+			target = EntityManager.getLowestHpEntity(Session.player, Session.player.constructor.TYPE_PC);
 		}
 	}
 	if (!target) {
-		target = EntityManager.getClosestEntity(Session.Character, Session.Character.constructor.TYPE_MOB);
+		target = EntityManager.getClosestEntity(Session.player, Session.player.constructor.TYPE_MOB);
 	}
 	if (!target) {
-		target = EntityManager.getClosestEntity(Session.Character, Session.Character.constructor.TYPE_PC);
+		target = EntityManager.getClosestEntity(Session.player, Session.player.constructor.TYPE_PC);
 	}
 
-	return target || Session.Character;
+	return target || Session.player;
 }
 
 function focusTarget(entity) {
