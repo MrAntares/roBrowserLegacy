@@ -7,6 +7,9 @@
  * @author Vincent Thibault
  */
 
+/** @typedef {import('Renderer/Entity/Player.js').default} Player */
+/** @typedef {import('Renderer/Entity/Entity.js').default} Entity */
+
 export default {
 	isTouchDevice: false,
 	isRenewal: false,
@@ -24,7 +27,7 @@ export default {
 	ServerName: null,
 	ratesInfo: null,
 
-	Character: null,
+	/** @type {Player|Entity|null} The entity currently controlled by the client */
 	Entity: null,
 
 	AdminList: [],
@@ -33,9 +36,21 @@ export default {
 
 	moveAction: null,
 
-	zeny: 0,
-	weight: 0,
-	max_weight: 0,
+	// weight and max_weight now live on the player entity (Session.Entity)
+
+	/**
+	 * Player money, stored on the player entity.
+	 * Kept here as an accessor for the many consumers reading it from the session.
+	 */
+	get zeny() {
+		return this.Entity ? this.Entity.money : 0;
+	},
+
+	set zeny(value) {
+		if (this.Entity) {
+			this.Entity.money = value;
+		}
+	},
 
 	petId: 0,
 	pet: {},

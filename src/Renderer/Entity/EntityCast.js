@@ -18,7 +18,17 @@ const _pos = new Float32Array(4);
 const _size = new Float32Array(2);
 
 /**
- * Cast constructor
+ * Cast class — progressbar rendering when an Entity casts a skill
+ *
+ * @class Cast
+ * @property {number} tick Start tick of skill cast
+ * @property {number} delay Total cast delay in ms
+ * @property {number} percent Current progress percentage (0..1)
+ * @property {boolean} display Whether cast bar is active/visible
+ * @property {string} color Progressbar color hex string
+ * @property {function|null} onComplete Cast completion callback
+ * @property {HTMLCanvasElement} canvas Progressbar canvas element
+ * @property {CanvasRenderingContext2D} ctx Progressbar 2d rendering context
  */
 class Cast {
 	constructor() {

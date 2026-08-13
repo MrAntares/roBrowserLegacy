@@ -34,7 +34,15 @@ function roundRect(ctx, x, y, width, height, radius) {
 }
 
 /**
- * Dialog class
+ * Dialog class — chat / speech bubble rendering above entity
+ *
+ * @class Dialog
+ * @property {string} text Speech text content
+ * @property {number} tick Dialog creation tick
+ * @property {number|null} timeout Auto-hide timer ID
+ * @property {boolean} display Whether dialog is currently displayed
+ * @property {HTMLCanvasElement} canvas Dialog bubble canvas element
+ * @property {CanvasRenderingContext2D} ctx Dialog 2d context
  */
 class Dialog {
 	constructor() {

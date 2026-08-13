@@ -99,7 +99,19 @@ function computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxClamp) {
 }
 
 /**
- * Walk save structure
+ * WalkStructure — pathfinding movement controller for entity walking
+ *
+ * @class WalkStructure
+ * @property {number} speed Movement speed in ms per cell
+ * @property {number} tick Walk movement start tick
+ * @property {number} prevTick Previous tick frame
+ * @property {number} dist Walk distance accumulated in map cells
+ * @property {Int16Array} path Array of cell coordinate pairs [x0, y0, x1, y1, ...]
+ * @property {Float32Array} pos [x, y, z] target position
+ * @property {Float32Array} lastPos [x, y, z] previous position
+ * @property {function|null} onEnd Callback fired when entity reaches path end
+ * @property {number} index Current segment index in path
+ * @property {number} total Total number of coordinate values in path
  */
 function WalkStructure() {
 	this.speed = 150;

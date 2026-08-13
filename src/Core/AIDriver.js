@@ -50,26 +50,26 @@ class AIDriver {
 					return res[1], res[2]
 				end
 				return res
-			end	
-			function GetMsg(id)  
-				local res = GetMsgJS(id)  
-				local result = {}  
-				local i = 0  
-				while res[i] ~= nil do  
-					result[i + 1] = res[i]  
-					i = i + 1  
-				end  
-				return result  
-			end  
-			function GetResMsg(id)  
-				local res = GetResMsgJS(id)  
-				local result = {}  
-				local i = 0  
-				while res[i] ~= nil do  
-					result[i + 1] = res[i]  
-					i = i + 1  
-				end  
-				return result  
+			end
+			function GetMsg(id)
+				local res = GetMsgJS(id)
+				local result = {}
+				local i = 0
+				while res[i] ~= nil do
+					result[i + 1] = res[i]
+					i = i + 1
+				end
+				return result
+			end
+			function GetResMsg(id)
+				local res = GetResMsgJS(id)
+				local result = {}
+				local i = 0
+				while res[i] ~= nil do
+					result[i + 1] = res[i]
+					i = i + 1
+				end
+				return result
 			end
 		`);
 

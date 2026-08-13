@@ -1421,7 +1421,7 @@ Guild.updateSession = function (info) {
 	Session.guildName = info.guildname || '';
 	Session.Entity.GUID = info.GDID;
 	Session.Entity.GEmblemVer = info.emblemVersion;
-	if (Session.Character.name === info.masterName) {
+	if (Session.Entity.display.name === info.masterName) {
 		Session.isGuildMaster = true;
 	}
 };

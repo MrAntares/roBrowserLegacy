@@ -20,10 +20,11 @@ const dropEffects = [
 ];
 
 /**
- * drop effect class
+ * DropEffect class — item drop visual column light effect (cards, rare items)
  *
- * @constructor
- * @param {object} entity
+ * @class DropEffect
+ * @property {boolean} isLoaded Whether drop effect is currently active
+ * @property {Entity} entity Target dropped item entity
  */
 class DropEffect {
 	constructor(entity) {

@@ -19,7 +19,21 @@ const _pos = new Float32Array(4);
 const _size = new Float32Array(2);
 
 /**
- * Life class
+ * Life class — HP / SP / AP health bar rendering above entity
+ *
+ * @class Life
+ * @property {number} hp Current health points
+ * @property {number} sp Current spell points
+ * @property {number} ap Current action points
+ * @property {number} hp_max Maximum health points
+ * @property {number} sp_max Maximum spell points
+ * @property {number} ap_max Maximum action points
+ * @property {number} hunger Current companion hunger
+ * @property {number} hunger_max Max companion hunger
+ * @property {boolean} display Whether health bar is visible
+ * @property {HTMLCanvasElement} canvas Health bar canvas element
+ * @property {CanvasRenderingContext2D} ctx 2d context for health bar
+ * @property {Entity|null} entity Attached entity reference
  */
 class Life {
 	constructor() {

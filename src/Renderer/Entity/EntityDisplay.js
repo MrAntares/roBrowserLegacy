@@ -97,7 +97,21 @@ const _isUglyShadow = (function isUglyGPUShadow() {
 })();
 
 /**
- * Display structure
+/**
+ * Display class — renders entity nameplate (name, party, guild, title, emblem)
+ *
+ * @class Display
+ * @property {string} name Entity character/monster/NPC name
+ * @property {string} fakename Fake name override
+ * @property {string} party_name Party name string
+ * @property {string} guild_name Guild name string
+ * @property {string} guild_rank Guild rank title
+ * @property {string} title_name Achievement / player title
+ * @property {Image|null} emblem Static guild emblem image
+ * @property {HTMLCanvasElement|null} gifEmblem Animated guild emblem canvas
+ * @property {boolean} display Whether nameplate is currently visible
+ * @property {HTMLCanvasElement} canvas Nameplate canvas element
+ * @property {CanvasRenderingContext2D} ctx 2d context for nameplate
  */
 class Display {
 	constructor() {

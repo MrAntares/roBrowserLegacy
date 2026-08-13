@@ -1,11 +1,30 @@
 /**
  * Renderer/EntityView.js
  *
- * Manage Entity files (attachments) to load once a view change
+ * Entity view manager — resolves SPR/ACT asset paths and GR2 3D model paths
+ * for body, head, weapon, shield, headgears, garment, palettes, and mounts.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
+ */
+
+/**
+ * EntityView mixin
+ * Adds view property getters/setters (job, sex, head, weapon, shield, headpalette, bodypalette, etc.) to Entity.
+ *
+ * @mixin EntityView
+ * @property {number} job Entity job ID
+ * @property {number} sex Entity gender (0: female, 1: male)
+ * @property {number} head Entity head style
+ * @property {number} weapon Entity weapon ID
+ * @property {number} shield Entity shield ID
+ * @property {number} accessory Headgear 1 ID
+ * @property {number} accessory2 Headgear 2 ID
+ * @property {number} accessory3 Headgear 3 ID
+ * @property {number} headpalette Head palette index
+ * @property {number} bodypalette Body palette index
+ * @property {Object} files Asset paths container for sprite/action files
  */
 
 import Client from 'Core/Client.js';
