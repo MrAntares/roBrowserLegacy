@@ -307818,7 +307818,7 @@ var init_MobileUI = __esmMin((() => {
 			["#yButton", 89],
 			["#uButton", 85],
 			["#iButton", 73],
-			["#oButton", 89],
+			["#oButton", 79],
 			["#aButton", 65],
 			["#sButton", 83],
 			["#dButton", 68],
