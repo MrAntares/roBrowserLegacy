@@ -78008,14 +78008,21 @@ var init_SessionStorage = __esmMin((() => {
 		LangType: 0,
 		ServerName: null,
 		ratesInfo: null,
-		Character: null,
+		/** @type {Player|Entity|null} The entity currently controlled by the client */
 		Entity: null,
 		AdminList: [],
 		underAutoCounter: false,
 		moveAction: null,
-		zeny: 0,
-		weight: 0,
-		max_weight: 0,
+		/**
+		* Player money, stored on the player entity.
+		* Kept here as an accessor for the many consumers reading it from the session.
+		*/
+		get zeny() {
+			return this.Entity ? this.Entity.money : 0;
+		},
+		set zeny(value) {
+			if (this.Entity) this.Entity.money = value;
+		},
 		petId: 0,
 		pet: {},
 		hasParty: false,
@@ -226655,8 +226662,8 @@ function createPartyFriends(config) {
 		* Save the current positions of all detached member windows to character-specific localStorage.
 		*/
 		Component.saveDetachedMembers = function() {
-			if (!SessionStorage_default.Character || !SessionStorage_default.Character.name) return;
-			const key = `PartyFriends_${SessionStorage_default.Character.name}_Detached`;
+			if (!SessionStorage_default.Entity?.display?.name) return;
+			const key = `PartyFriends_${SessionStorage_default.Entity.display.name}_Detached`;
 			const saved = {};
 			let count = 0;
 			for (const aid in _detachedMembers) {
@@ -226670,7 +226677,7 @@ function createPartyFriends(config) {
 				}
 			}
 			localStorage.setItem(key, JSON.stringify(saved));
-			if (count > 0) console.log(`[PartyFriendsV1] Saved ${count} detached windows for ${SessionStorage_default.Character.name}`);
+			if (count > 0) console.log(`[PartyFriendsV1] Saved ${count} detached windows for ${SessionStorage_default.Entity.display.name}`);
 		};
 	} else {
 		/**
@@ -227024,9 +227031,9 @@ function createPartyFriends(config) {
 	*/
 	function restoreDetachedMember(player) {
 		if (_detachedMembers[player.AID]) return;
-		if (!SessionStorage_default.Character || !SessionStorage_default.Character.name) return;
+		if (!SessionStorage_default.Entity?.display?.name) return;
 		if (_savedPositions === null) {
-			const key = `PartyFriends_${SessionStorage_default.Character.name}_Detached`;
+			const key = `PartyFriends_${SessionStorage_default.Entity.display.name}_Detached`;
 			const savedStr = localStorage.getItem(key);
 			_savedPositions = {};
 			try {
@@ -229061,7 +229068,7 @@ var init_Guild$1 = __esmMin((() => {
 		SessionStorage_default.guildName = info.guildname || "";
 		SessionStorage_default.Entity.GUID = info.GDID;
 		SessionStorage_default.Entity.GEmblemVer = info.emblemVersion;
-		if (SessionStorage_default.Character.name === info.masterName) SessionStorage_default.isGuildMaster = true;
+		if (SessionStorage_default.Entity.display.name === info.masterName) SessionStorage_default.isGuildMaster = true;
 	};
 	Guild.onRequestGuildEmblem = function() {};
 	Guild.onSendEmblem = function() {};
@@ -230942,10 +230949,7 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, needSkillLi
 			return;
 		}
 		root.querySelectorAll(".upgradable").forEach((el) => el.classList.remove("upgradable"));
-		let skillJobId = SessionStorage_default.Character.job;
-		const originalJobId = SessionStorage_default.Entity._job;
-		if (originalJobId && originalJobId !== SessionStorage_default.Character.job) skillJobId = originalJobId;
-		skillPosition = getSkillPosition(skillJobId);
+		skillPosition = getSkillPosition(SessionStorage_default.Entity._job || SessionStorage_default.Entity.job);
 		createSkillDependencyTree();
 		for (let i = 0, count = _list.length; i < count; ++i) this.onUpdateSkill(_list[i].SKID, 0);
 		_list.length = 0;
@@ -234169,7 +234173,6 @@ function createBasicInfo(config) {
 				break;
 			}
 			case "job":
-				SessionStorage_default.Character.job = val1;
 				root.querySelectorAll(".job_value").forEach((el) => {
 					el.textContent = MonsterTable_default[val1];
 				});
@@ -238150,7 +238153,7 @@ function onClickSend(e) {
 		return;
 	}
 	const receiver = WriteRodex.receiver;
-	const sender = SessionStorage_default.Character.name;
+	const sender = SessionStorage_default.Entity.display.name;
 	let zeny = parseInt(root.querySelector(".value").value, 10);
 	zeny = isNaN(zeny) ? 0 : zeny;
 	zeny = zeny < 0 ? 0 : zeny;
@@ -245399,26 +245402,26 @@ var init_AIDriver = __esmMin((() => {
 					return res[1], res[2]
 				end
 				return res
-			end	
-			function GetMsg(id)  
-				local res = GetMsgJS(id)  
-				local result = {}  
-				local i = 0  
-				while res[i] ~= nil do  
-					result[i + 1] = res[i]  
-					i = i + 1  
-				end  
-				return result  
-			end  
-			function GetResMsg(id)  
-				local res = GetResMsgJS(id)  
-				local result = {}  
-				local i = 0  
-				while res[i] ~= nil do  
-					result[i + 1] = res[i]  
-					i = i + 1  
-				end  
-				return result  
+			end
+			function GetMsg(id)
+				local res = GetMsgJS(id)
+				local result = {}
+				local i = 0
+				while res[i] ~= nil do
+					result[i + 1] = res[i]
+					i = i + 1
+				end
+				return result
+			end
+			function GetResMsg(id)
+				local res = GetResMsgJS(id)
+				local result = {}
+				local i = 0
+				while res[i] ~= nil do
+					result[i + 1] = res[i]
+					i = i + 1
+				end
+				return result
 			end
 		`);
 				ctx.log = (logMessage) => {
@@ -301654,7 +301657,19 @@ function computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxClamp) {
 	return nowTick - elapsed;
 }
 /**
-* Walk save structure
+* WalkStructure — pathfinding movement controller for entity walking
+*
+* @class WalkStructure
+* @property {number} speed Movement speed in ms per cell
+* @property {number} tick Walk movement start tick
+* @property {number} prevTick Previous tick frame
+* @property {number} dist Walk distance accumulated in map cells
+* @property {Int16Array} path Array of cell coordinate pairs [x0, y0, x1, y1, ...]
+* @property {Float32Array} pos [x, y, z] target position
+* @property {Float32Array} lastPos [x, y, z] previous position
+* @property {function|null} onEnd Callback fired when entity reaches path end
+* @property {number} index Current segment index in path
+* @property {number} total Total number of coordinate values in path
 */
 function WalkStructure() {
 	this.speed = 150;
@@ -303176,13 +303191,13 @@ function updateEffectState(value) {
 	if (value & StatusState_default.EffectState.SUMMER) costume = 27;
 	if (value & StatusState_default.EffectState.INVISIBLE) this._effectStateColor[3] = 0;
 	else if (value & (StatusState_default.EffectState.HIDE | StatusState_default.EffectState.CLOAK | StatusState_default.EffectState.CHASEWALK)) {
-		if (SessionStorage_default.Character.intravision) {
+		if (SessionStorage_default.Entity?.intravision) {
 			this._effectStateColor[0] = 0;
 			this._effectStateColor[1] = 0;
 			this._effectStateColor[2] = 0;
 		} else this._effectStateColor[3] = 0;
 	} else if (this.Camouflage || this.Stealthfield) {
-		if (SessionStorage_default.Character.intravision) {
+		if (SessionStorage_default.Entity?.intravision) {
 			this._effectStateColor[0] = 0;
 			this._effectStateColor[1] = 0;
 			this._effectStateColor[2] = 0;
@@ -303191,7 +303206,7 @@ function updateEffectState(value) {
 			SoundManager.play("effect/assasin_cloaking.wav");
 		}
 	} else if (this.Shadowform) {
-		if (SessionStorage_default.Character.intravision) {
+		if (SessionStorage_default.Entity?.intravision) {
 			this._effectStateColor[0] = 0;
 			this._effectStateColor[1] = 0;
 			this._effectStateColor[2] = 0;
@@ -304070,6 +304085,9 @@ var init_Entity$1 = __esmMin((() => {
 				case "hideShadow":
 					this.hideShadow = unit.hideShadow;
 					break;
+				case "level":
+					this.clevel = unit.level;
+					break;
 				default: if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) this[keys[i]] = unit[keys[i]];
 			}
 			if (this.life.hp > -1 && this.life.hp_max > -1) {
@@ -304267,6 +304285,31 @@ var init_Entity$1 = __esmMin((() => {
 	Entity.prototype.wug = null;
 	Entity.prototype.hideShadow = false;
 	Entity.prototype.call_flag = 0;
+	Object.defineProperty(Entity.prototype, "level", {
+		get() {
+			return this.clevel;
+		},
+		set(val) {
+			this.clevel = val;
+		},
+		enumerable: true,
+		configurable: true
+	});
+	/**
+	* Player-specific fields — declared on Entity.prototype so Entity.set() can
+	* auto-map them from server packets (charselect, status updates, etc.).
+	*
+	* The whitelist gate in set() uses Entity.prototype.hasOwnProperty() which does
+	* NOT walk the prototype chain, so any field only on Player.prototype is
+	* invisible to it. Entity.prototype already hosts player-specific state
+	* (clevel, hasCart, falcon, call_flag, etc.), so this follows the established
+	* pattern.
+	*/
+	Entity.prototype.joblevel = 0;
+	Entity.prototype.money = 0;
+	Entity.prototype.weight = 0;
+	Entity.prototype.max_weight = 0;
+	Entity.prototype.intravision = false;
 	/**
 	* @var {integer} tick to remove
 	*/
@@ -310925,7 +310968,7 @@ var init_ChangeCart = __esmMin((() => {
 		ChatBox_default.addText(msg, ChatBox_default.TYPE.PUBLIC | ChatBox_default.TYPE.SELF, ChatBox_default.FILTER.PUBLIC_LOG);
 		if (SessionStorage_default.Entity) SessionStorage_default.Entity.dialog.set(msg);
 		ChangeCart.ui.show();
-		updateList(SessionStorage_default.Character.level);
+		updateList(SessionStorage_default.Entity.clevel);
 		Renderer.stop(render$5);
 		Renderer.render(render$5);
 	};
@@ -316788,13 +316831,13 @@ function onParameterChange$1(pkt) {
 			if (BasicInfoController.getUI().job_exp > -1) BasicInfoController.getUI().update("jexp", BasicInfoController.getUI().job_exp, BasicInfoController.getUI().job_exp_next);
 			break;
 		case StatusProperty_default.WEIGHT:
-			SessionStorage_default.Character.weight = amount;
-			if (BasicInfoController.getUI().weight_max > -1) BasicInfoController.getUI().update("weight", SessionStorage_default.Character.weight, BasicInfoController.getUI().weight_max);
+			SessionStorage_default.Entity.weight = amount;
+			if (BasicInfoController.getUI().weight_max > -1) BasicInfoController.getUI().update("weight", SessionStorage_default.Entity.weight, BasicInfoController.getUI().weight_max);
 			break;
 		case StatusProperty_default.MAXWEIGHT:
-			SessionStorage_default.Character.max_weight = amount;
+			SessionStorage_default.Entity.max_weight = amount;
 			BasicInfoController.getUI().weight_max = amount;
-			if (BasicInfoController.getUI().weight > -1) BasicInfoController.getUI().update("weight", SessionStorage_default.Character.weight, BasicInfoController.getUI().weight_max);
+			if (BasicInfoController.getUI().weight > -1) BasicInfoController.getUI().update("weight", SessionStorage_default.Entity.weight, BasicInfoController.getUI().weight_max);
 			break;
 		case StatusProperty_default.STANDARD_STR:
 			WinStatsController.getUI().update("str3", amount);
@@ -318711,8 +318754,8 @@ function onEntityAction(pkt) {
 		});
 	}
 	if (pkt?.damage > 0) {
-		if (srcEntity.GID === SessionStorage_default.Character.GID) ChatBox_default.addText(DB.getMessage(1607).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
-		else if (dstEntity.GID === SessionStorage_default.Character.GID) ChatBox_default.addText(DB.getMessage(1605).replace("%s", srcEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
+		if (srcEntity.GID === SessionStorage_default.Entity.GID) ChatBox_default.addText(DB.getMessage(1607).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
+		else if (dstEntity.GID === SessionStorage_default.Entity.GID) ChatBox_default.addText(DB.getMessage(1605).replace("%s", srcEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
 		else if (srcEntity.GID === SessionStorage_default.homunId || srcEntity.GID === SessionStorage_default.merId || srcEntity.GID === SessionStorage_default.petId || srcEntity.GID === SessionStorage_default.elemId) ChatBox_default.addText(DB.getMessage(1608).replace("%s", srcEntity.display.name).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
 		else if (dstEntity.GID === SessionStorage_default.homunId || dstEntity.GID === SessionStorage_default.merId || dstEntity.GID === SessionStorage_default.petId || dstEntity.GID === SessionStorage_default.elemId) ChatBox_default.addText(DB.getMessage(1606).replace("%s", dstEntity.display.name).replace("%s", srcEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
 		else if (controller.isGroupMember(srcEntity.display.name)) ChatBox_default.addText(DB.getMessage(1608).replace("%s", srcEntity.display.name).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PARTY_BATTLE);
@@ -318913,16 +318956,15 @@ function onEntityViewChange(pkt) {
 				if (entity._job_transform || entity._monster_transform || entity._active_monster_transform) entity._job = pkt.value;
 				else entity.job = pkt.value;
 				if (entity === SessionStorage_default.Entity) {
-					SessionStorage_default.Character.job = pkt.value;
 					if (PacketVerManager_default.value >= 20200520) {
 						BasicInfoController.getUI().remove();
-						BasicInfoController.selectUIVersionWithJob(DB.getJobClass(SessionStorage_default.Character.job));
+						BasicInfoController.selectUIVersionWithJob(DB.getJobClass(pkt.value));
 						BasicInfoController.getUI().prepare();
-						BasicInfoController.getUI().update("blvl", SessionStorage_default.Character.level);
-						BasicInfoController.getUI().update("jlvl", SessionStorage_default.Character.joblevel);
-						BasicInfoController.getUI().update("zeny", SessionStorage_default.Character.money);
-						BasicInfoController.getUI().update("name", SessionStorage_default.Character.name);
-						BasicInfoController.getUI().update("bexp", SessionStorage_default.Character.exp, BasicInfoController.getUI().base_exp_next);
+						BasicInfoController.getUI().update("blvl", SessionStorage_default.Entity.clevel);
+						BasicInfoController.getUI().update("jlvl", SessionStorage_default.Entity.joblevel);
+						BasicInfoController.getUI().update("zeny", SessionStorage_default.Entity.money);
+						BasicInfoController.getUI().update("name", SessionStorage_default.Entity.display.name);
+						BasicInfoController.getUI().update("bexp", BasicInfoController.getUI().base_exp, BasicInfoController.getUI().base_exp_next);
 						BasicInfoController.getUI().append();
 					}
 					BasicInfoController.getUI().update("job", pkt.value);
@@ -319342,7 +319384,7 @@ function onEntityStatusChange(pkt) {
 	switch (pkt.index) {
 		case StatusConst_default.CLAIRVOYANCE:
 			if (entity === SessionStorage_default.Entity) {
-				SessionStorage_default.Character.intravision = pkt.state;
+				SessionStorage_default.Entity.intravision = pkt.state;
 				EntityManager.forEach((_entity) => {
 					/** @type {*} Intentional self-assignment to trigger effectState updates. */
 					_entity.effectState = _entity.effectState;
@@ -322707,7 +322749,7 @@ function onPrivateMessageSent(pkt) {
 	const msg = ChatBox_default.PrivateMessageStorage.msg;
 	if (pkt.result === 0) {
 		if (user && msg) {
-			if (getShouldOpenWhisperBox(user)) WhisperBox.addText(user, SessionStorage_default.Character.name + " : " + msg, "#ffff00");
+			if (getShouldOpenWhisperBox(user)) WhisperBox.addText(user, SessionStorage_default.Entity.display.name + " : " + msg, "#ffff00");
 			else ChatBox_default.addText("[ To <span class=\"nickname-link\" data-nickname=\"" + user + "\" style=\"cursor:pointer; text-decoration:underline;\">" + user + "</span> ] : " + msg, ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.WHISPER);
 		}
 	} else {
@@ -326097,7 +326139,7 @@ var init_NpcStore = __esmMin((() => {
 					const currencyItemWeight = parseInt(inputCurrency.getAttribute("data-weight"), 10);
 					const currencyAmount = parseInt(inputCurrencyDiv.textContent, 10);
 					const additionalWeight = currencyItemWeight * (outputItem.count - originalCount);
-					if (SessionStorage_default.Character.weight + NpcStore.calculateWeight() + additionalWeight > SessionStorage_default.Character.max_weight) {
+					if (SessionStorage_default.Entity.weight + NpcStore.calculateWeight() + additionalWeight > SessionStorage_default.Entity.max_weight) {
 						ChatBox_default.addText(DB.getMessage(56), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 						outputItem.count -= count;
 						return;
@@ -328313,7 +328355,8 @@ function onConfigNotify(pkt) {
 * @param {object} pkt - PACKET.ZC.AID
 */
 function onReceiveAccountID(pkt) {
-	SessionStorage_default.Character.GID = pkt.AID;
+	SessionStorage_default.AID = pkt.AID;
+	SessionStorage_default.Entity.GID = pkt.AID;
 }
 /**
 * Map accept us to enter the map
@@ -328321,7 +328364,6 @@ function onReceiveAccountID(pkt) {
 * @param {object} pkt - PACKET.ZC.ACCEPT_ENTER
 */
 function onConnectionAccepted$2(pkt) {
-	SessionStorage_default.Entity = new Entity(SessionStorage_default.Character);
 	SessionStorage_default.Entity.onWalkEnd = onWalkEnd;
 	if ("sex" in pkt && pkt.sex < 2) SessionStorage_default.Entity.sex = pkt.sex;
 	SessionStorage_default.petId = 0;
@@ -328330,7 +328372,6 @@ function onConnectionAccepted$2(pkt) {
 	SessionStorage_default.hasGuild = false;
 	SessionStorage_default.guildRight = 0;
 	SessionStorage_default.homunId = 0;
-	SessionStorage_default.Entity.clevel = SessionStorage_default.Character.level;
 	SessionStorage_default.mapState = {
 		property: 0,
 		type: 0,
@@ -328346,14 +328387,14 @@ function onConnectionAccepted$2(pkt) {
 		isBattleField: false
 	};
 	if (PacketVerManager_default.value >= 20200520) {
-		BasicInfoController.selectUIVersionWithJob(DB.getJobClass(SessionStorage_default.Character.job));
+		BasicInfoController.selectUIVersionWithJob(DB.getJobClass(SessionStorage_default.Entity.job));
 		BasicInfoController.getUI().prepare();
 	}
-	BasicInfoController.getUI().update("blvl", SessionStorage_default.Character.level);
-	BasicInfoController.getUI().update("jlvl", SessionStorage_default.Character.joblevel);
-	BasicInfoController.getUI().update("zeny", SessionStorage_default.Character.money);
-	BasicInfoController.getUI().update("name", SessionStorage_default.Character.name);
-	BasicInfoController.getUI().update("job", SessionStorage_default.Character.job);
+	BasicInfoController.getUI().update("blvl", SessionStorage_default.Entity.clevel);
+	BasicInfoController.getUI().update("jlvl", SessionStorage_default.Entity.joblevel);
+	BasicInfoController.getUI().update("zeny", SessionStorage_default.Entity.money);
+	BasicInfoController.getUI().update("name", SessionStorage_default.Entity.display.name);
+	BasicInfoController.getUI().update("job", SessionStorage_default.Entity.job);
 	onMapChange({
 		xPos: pkt.PosDir[0],
 		yPos: pkt.PosDir[1],
@@ -328381,7 +328422,7 @@ function onMapChange(pkt) {
 				pkt.yPos,
 				0
 			],
-			GID: SessionStorage_default.Character.GID
+			GID: SessionStorage_default.AID
 		});
 		EntityManager.add(SessionStorage_default.Entity);
 		if (SessionStorage_default.Entity.effectState & StatusState_default.EffectState.FALCON) {
@@ -328998,7 +329039,10 @@ var init_MapEngine = __esmMin((() => {
 				pkt.Sex = SessionStorage_default.Sex;
 				Network.sendPacket(pkt);
 				Network.read((fp) => {
-					if (PacketVerManager_default.value < 20070521) SessionStorage_default.Character.GID = fp.readLong();
+					if (PacketVerManager_default.value < 20070521) {
+						SessionStorage_default.AID = fp.readLong();
+						SessionStorage_default.Entity.GID = SessionStorage_default.AID;
+					}
 				});
 				const hbt = new PACKET.CZ.HBT();
 				const is_sec_hbt = Configs.get("sec_HBT", null);
@@ -331703,6 +331747,13 @@ var init_CharCreate = __esmMin((() => {
 	Controller$1 = UIVersionManager.getUIController(publicName$1, versionInfo$1);
 }));
 //#endregion
+//#region src/Renderer/Entity/Player.js
+var Player;
+var init_Player = __esmMin((() => {
+	init_Entity$1();
+	Player = class extends Entity {};
+}));
+//#endregion
 //#region src/Engine/CharEngine.js
 var CharEngine_exports = /* @__PURE__ */ __exportAll({ default: () => CharEngine });
 /**
@@ -331738,6 +331789,7 @@ function onConnectionAccepted$1(pkt) {
 	});
 	SessionStorage_default.Playing = false;
 	SessionStorage_default.hasCart = false;
+	SessionStorage_default.Entity = null;
 	const Announce = UIManager.getComponent("Announce");
 	if (Announce) Announce.remove();
 	const MapName = UIManager.getComponent("MapName");
@@ -332174,7 +332226,7 @@ function onConnectRequest(entity) {
 	SoundManager.play("¹öÆ°¼Ò¸®.wav");
 	Controller$2.getUI().remove();
 	UIManager.getComponent("WinLoading").append();
-	SessionStorage_default.Character = entity;
+	SessionStorage_default.Entity = new Player(entity);
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);
@@ -332233,6 +332285,7 @@ var init_CharEngine = __esmMin((() => {
 	init_JoystickUI();
 	init_CharSelect();
 	init_CharCreate();
+	init_Player();
 	init_preload_helper();
 	_server$1 = null;
 	_creationSlot = 0;
