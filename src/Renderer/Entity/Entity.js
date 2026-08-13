@@ -393,6 +393,10 @@ class Entity {
 					this.hideShadow = unit.hideShadow;
 					break;
 
+				case 'level':
+					this.clevel = unit.level;
+					break;
+
 				default:
 					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) {
 						this[keys[i]] = unit[keys[i]];
@@ -638,6 +642,78 @@ Entity.prototype.falcon = null;
 Entity.prototype.wug = null;
 Entity.prototype.hideShadow = false;
 Entity.prototype.call_flag = 0;
+Object.defineProperty(Entity.prototype, 'level', {
+	get() {
+		return this.clevel;
+	},
+	set(val) {
+		this.clevel = val;
+	},
+	enumerable: true,
+	configurable: true
+});
+
+/**
+ * Player-specific fields — declared on Entity.prototype so Entity.set() can
+ * auto-map them from server packets (charselect, status updates, etc.).
+ *
+ * The whitelist gate in set() uses Entity.prototype.hasOwnProperty() which does
+ * NOT walk the prototype chain, so any field only on Player.prototype is
+ * invisible to it. Entity.prototype already hosts player-specific state
+ * (clevel, hasCart, falcon, call_flag, etc.), so this follows the established
+ * pattern.
+ */
+
+// ── Job level ────────────────────────────────────────────────────────────────
+Entity.prototype.joblevel = 0; // StatusProperty.JOBLEVEL / charselect 'joblevel'
+
+// ── Economy ───────────────────────────────────────────────────────────────────
+Entity.prototype.money = 0; // StatusProperty.MONEY (zeny) / charselect 'money'
+Entity.prototype.weight = 0; // StatusProperty.WEIGHT
+Entity.prototype.max_weight = 0; // StatusProperty.MAXWEIGHT
+
+// ── Experience ────────────────────────────────────────────────────────────────
+Entity.prototype.base_exp = 0; // StatusProperty.EXP
+Entity.prototype.base_exp_next = 0; // StatusProperty.MAXEXP
+Entity.prototype.job_exp = 0; // StatusProperty.JOBEXP
+Entity.prototype.job_exp_next = 0; // StatusProperty.MAXJOBEXP
+
+// ── Stat points ───────────────────────────────────────────────────────────────
+Entity.prototype.statuspoint = 0; // StatusProperty.POINT
+Entity.prototype.skpoint = 0; // StatusProperty.SKPOINT
+Entity.prototype.traitpoint = 0; // StatusProperty.VAR_SP_TRAITPOINT
+
+// ── Base stats ────────────────────────────────────────────────────────────────
+Entity.prototype.str = 0;
+Entity.prototype.plusStr = 0;
+Entity.prototype.agi = 0;
+Entity.prototype.plusAgi = 0;
+Entity.prototype.vit = 0;
+Entity.prototype.plusVit = 0;
+Entity.prototype.int = 0;
+Entity.prototype.plusInt = 0;
+Entity.prototype.dex = 0;
+Entity.prototype.plusDex = 0;
+Entity.prototype.luk = 0;
+Entity.prototype.plusLuk = 0;
+
+// ── 4th-job / Expanded stats ──────────────────────────────────────────────────
+Entity.prototype.pow = 0;
+Entity.prototype.plusPow = 0;
+Entity.prototype.sta = 0;
+Entity.prototype.plusSta = 0;
+Entity.prototype.wis = 0;
+Entity.prototype.plusWis = 0;
+Entity.prototype.spl = 0;
+Entity.prototype.plusSpl = 0;
+Entity.prototype.con = 0;
+Entity.prototype.plusCon = 0;
+Entity.prototype.crt = 0;
+Entity.prototype.plusCrt = 0;
+
+// ── Player-only flags ─────────────────────────────────────────────────────────
+Entity.prototype.intravision = false; // PACKET.ZC.STATE_CHANGE3 (GM invisibility)
+
 /**
  * @var {integer} tick to remove
  */

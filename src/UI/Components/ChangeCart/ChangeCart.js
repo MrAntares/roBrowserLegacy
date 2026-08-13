@@ -121,7 +121,7 @@ ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 		Session.player.dialog.set(msg);
 	}
 	ChangeCart.ui.show();
-	updateList(Session.player.level);
+	updateList(Session.player.clevel);
 	// Avoid stacking duplicate render callbacks if invoked while already open
 	Renderer.stop(render);
 	Renderer.render(render);

@@ -1208,11 +1208,11 @@ function onEntityViewChange(pkt) {
 						BasicInfo.getUI().remove();
 						BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.player.job));
 						BasicInfo.getUI().prepare();
-						BasicInfo.getUI().update('blvl', Session.player.level);
+						BasicInfo.getUI().update('blvl', Session.player.clevel);
 						BasicInfo.getUI().update('jlvl', Session.player.joblevel);
 						BasicInfo.getUI().update('zeny', Session.player.money);
-						BasicInfo.getUI().update('name', Session.player.name);
-						BasicInfo.getUI().update('bexp', Session.player.exp, BasicInfo.getUI().base_exp_next);
+						BasicInfo.getUI().update('name', Session.player.display.name);
+						BasicInfo.getUI().update('bexp', Session.player.base_exp, BasicInfo.getUI().base_exp_next);
 						BasicInfo.getUI().append();
 					}
 					// Update UI for all client versions

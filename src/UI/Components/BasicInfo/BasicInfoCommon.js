@@ -461,7 +461,7 @@ export function createBasicInfo(config) {
 				break;
 
 			case 'zeny': {
-				Session.zeny = val1;
+				Session.player.money = val1; // keep Session.player.money in sync
 				const list = val1.toString().split('');
 				const count = list.length;
 				let str = '';
