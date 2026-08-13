@@ -207,11 +207,11 @@ function onMouseUp(event) {
 				ET = entity.constructor;
 				entity.onMouseUp();
 
-				// Entity lock is only on MOB type (except when Touch Targeting is active)
+				// Touch Targeting retains any selected entity independently of /nc.
 				if (
-					Preferences.noctrl === false ||
-					(![ET.TYPE_MOB, ET.TYPE_NPC_ABR, ET.TYPE_NPC_BIONIC].includes(entity.objecttype) &&
-						!Session.TouchTargeting)
+					!Session.TouchTargeting &&
+					(Preferences.noctrl === false ||
+						![ET.TYPE_MOB, ET.TYPE_NPC_ABR, ET.TYPE_NPC_BIONIC].includes(entity.objecttype))
 				) {
 					EntityManager.setFocusEntity(null);
 					entity.onFocusEnd();
