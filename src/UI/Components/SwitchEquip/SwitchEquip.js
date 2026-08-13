@@ -270,15 +270,15 @@ const swaprender = (function swaprenderClosure() {
 	return function _renderFrame() {
 		const swap_character = new Entity();
 		swap_character.set({
-			GID: Session.player.GID + '_SWAPEQUIP',
+			GID: Session.Character.GID + '_SWAPEQUIP',
 			objecttype: swap_character.constructor.TYPE_PC,
-			job: Session.player.job,
-			sex: Session.player.sex,
+			job: Session.Character.job,
+			sex: Session.Character.sex,
 			name: '',
 			hideShadow: true,
-			head: Session.player.head,
-			headpalette: Session.player.headpalette,
-			bodypalette: Session.player.bodypalette
+			head: Session.Character.head,
+			headpalette: Session.Character.headpalette,
+			bodypalette: Session.Character.bodypalette
 		});
 
 		const currentEquipTabId = Equipment.getUI().getCurrentTabId();
@@ -582,8 +582,8 @@ SwitchEquip.RequestSwitch = function () {
 /**
  * Method to define
  */
-SwitchEquip.onRemoveSwitchEquip = function onRemoveSwitchEquip(/* index */) {};
-SwitchEquip.onAddSwitchEquip = function onAddSwitchEquip(/* index, location */) {};
+SwitchEquip.onRemoveSwitchEquip = function onRemoveSwitchEquip(/* index */) { };
+SwitchEquip.onAddSwitchEquip = function onAddSwitchEquip(/* index, location */) { };
 
 /**
  * Create component and export it

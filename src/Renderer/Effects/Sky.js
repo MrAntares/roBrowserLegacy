@@ -125,7 +125,7 @@ function setUpCloudData() {
  * Initialize cloud element
  */
 function cloudInit(cloud) {
-	const pos = Session.player.position;
+	const pos = Session.Character.position;
 
 	cloud.position[0] = pos[0] + ((Math.random() * 35) | 0) * (Math.random() > 0.5 ? 1 : -1);
 	cloud.position[1] = pos[1] + ((Math.random() * 35) | 0) * (Math.random() > 0.5 ? 1 : -1);

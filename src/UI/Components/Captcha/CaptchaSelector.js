@@ -111,7 +111,7 @@ CaptchaSelector.init = function init() {
 					() => {
 						CaptchaSelector.sendCaptchaToPlayers();
 					},
-					() => {}
+					() => { }
 				);
 			}
 		});
@@ -181,7 +181,7 @@ CaptchaSelector.setPlayers = function setPlayers(players) {
 	const root = this.getRoot();
 	const liElements = root.querySelectorAll('.player_list li');
 
-	players = players.filter(aid => Session.player.GID !== aid);
+	players = players.filter(aid => Session.Character.GID !== aid);
 
 	for (let i = 0; i < players.length && i < liElements.length; i++) {
 		const li = liElements[i];

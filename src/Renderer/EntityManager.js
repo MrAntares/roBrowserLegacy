@@ -102,8 +102,8 @@ function getEntity(gid) {
 	//   this check speed up the process.
 	// - When you load a map, the main character is not in the list yet
 	//   so we skip a lot of vital informations
-	if (Session.player.GID === gid) {
-		return Session.player;
+	if (Session.Character.GID === gid) {
+		return Session.Character;
 	}
 
 	return getEntityByGID(gid);
@@ -137,8 +137,8 @@ function storePendingTransform(aid, key, value) {
  * @returns {object} Entity
  */
 function getEntityByCID(aid) {
-	if (Session.player.AID === aid) {
-		return Session.player;
+	if (Session.Character.AID === aid) {
+		return Session.Character;
 	}
 
 	const index = getEntityIndexBy(e => e.AID, aid);
@@ -351,9 +351,9 @@ function render(gl, modelView, projection, fog, renderEffects) {
 	// Pre-compute culling values outside the loop
 	const doCulling = GraphicsSettings.performanceMode;
 	let playerX, playerY, viewAreaSq;
-	if (doCulling && Session.player && Session.player.position) {
-		playerX = Session.player.position[0];
-		playerY = Session.player.position[1];
+	if (doCulling && Session.Character && Session.Character.position) {
+		playerX = Session.Character.position[0];
+		playerY = Session.Character.position[1];
 		viewAreaSq = GraphicsSettings.viewArea * GraphicsSettings.viewArea;
 	}
 
@@ -422,9 +422,9 @@ function intersect() {
 	// Culling for picking
 	const doCulling = GraphicsSettings.performanceMode;
 	let playerX, playerY, viewAreaSq;
-	if (doCulling && Session.player && Session.player.position) {
-		playerX = Session.player.position[0];
-		playerY = Session.player.position[1];
+	if (doCulling && Session.Character && Session.Character.position) {
+		playerX = Session.Character.position[0];
+		playerY = Session.Character.position[1];
 		viewAreaSq = GraphicsSettings.viewArea * GraphicsSettings.viewArea;
 	}
 

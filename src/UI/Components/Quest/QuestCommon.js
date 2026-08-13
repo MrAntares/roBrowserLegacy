@@ -346,8 +346,8 @@ export function createQuest(config) {
 		}
 
 		ChatBox.addText(chat_quest_text, ChatBox.TYPE.ADMIN | ChatBox.TYPE.SELF, ChatBox.FILTER.QUEST);
-		if (Session.player) {
-			Session.player.dialog.set(self_msg, 'yellow');
+		if (Session.Character) {
+			Session.Character.dialog.set(self_msg, 'yellow');
 		}
 		if (questWindow) {
 			questWindow.ClearQuestList();

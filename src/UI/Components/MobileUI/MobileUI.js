@@ -479,7 +479,7 @@ function toggleAutoFollow() {
  * Attacks a targeted enemy (if present)
  */
 function attackTargeted() {
-	const main = Session.player;
+	const main = Session.Character;
 	let pkt;
 
 	let entityFocus = EntityManager.getFocusEntity();
@@ -534,11 +534,11 @@ function attackTargeted() {
  * Automatically targeting the closest enemy
  */
 function autoTarget() {
-	const Player = Session.player;
+	const Player = Session.Character;
 
 	const entityFocus = EntityManager.getFocusEntity();
 
-	const closestEntity = EntityManager.getClosestEntity(Player, Session.player.constructor.TYPE_MOB);
+	const closestEntity = EntityManager.getClosestEntity(Player, Session.Character.constructor.TYPE_MOB);
 
 	if (closestEntity) {
 		if (entityFocus && closestEntity.GID !== entityFocus.GID) {
@@ -591,7 +591,7 @@ function onAutoFollow() {
 	const root = MobileUI.getRoot();
 
 	if (Session.autoFollow) {
-		const player = Session.player;
+		const player = Session.Character;
 		const target = Session.autoFollowTarget;
 
 		const dx = Math.abs(player.position[0] - target.position[0]);
@@ -622,13 +622,13 @@ function onAutoFollow() {
  * Picks up the nearest item - MicromeX
  */
 function pickUpItem() {
-	const player = Session.player;
+	const player = Session.Character;
 
 	if (!player) {
 		return;
 	}
 
-	const closestItem = EntityManager.getClosestEntity(player, Session.player.constructor.TYPE_ITEM);
+	const closestItem = EntityManager.getClosestEntity(player, Session.Character.constructor.TYPE_ITEM);
 
 	if (!closestItem) {
 		return;
@@ -774,7 +774,7 @@ function stopMovement() {
  * @param {number} tileSize - The size of each tile in the game world
  */
 function moveCharacter(x, y, tileSize) {
-	const player = Session.player;
+	const player = Session.Character;
 
 	if (!player) {
 		return;
@@ -823,7 +823,7 @@ function setupTalkToNpcButton() {
 	const talkButton = root.querySelector('#talktonpcButton');
 
 	function findNearestNpc() {
-		const player = Session.player;
+		const player = Session.Character;
 
 		if (!player) {
 			return null;
@@ -874,8 +874,8 @@ function setupTalkToNpcButton() {
  */
 function checkFreeCell(x, y, range, out) {
 	let _x, _y, r;
-	const d_x = Session.player.position[0] < x ? -1 : 1;
-	const d_y = Session.player.position[1] < y ? -1 : 1;
+	const d_x = Session.Character.position[0] < x ? -1 : 1;
+	const d_y = Session.Character.position[1] < y ? -1 : 1;
 
 	for (r = 0; r <= range; ++r) {
 		for (_x = -r; _x <= r; ++_x) {

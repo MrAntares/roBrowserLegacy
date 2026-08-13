@@ -136,7 +136,7 @@ StatusIcons.update = function update(index, state, life) {
 	// official client behaviour.
 	if (_status[index].img) {
 		if (TKM_ICON_OVERRIDE[index]) {
-			const isTKM = Session.player && DB.isTaeKwon(Session.player._job);
+			const isTKM = Session.Character && DB.isTaeKwon(Session.Character._job);
 			const wantVariant = (isTKM && TKM_ICON_OVERRIDE[index]) || null;
 			if (_status[index].tkmVariant !== wantVariant) {
 				_status[index].img = null;
@@ -154,7 +154,7 @@ StatusIcons.update = function update(index, state, life) {
 };
 
 function loadStatusIcon(index) {
-	const isTKM = Session.player && DB.isTaeKwon(Session.player._job);
+	const isTKM = Session.Character && DB.isTaeKwon(Session.Character._job);
 	const tkmVariant = (isTKM && TKM_ICON_OVERRIDE[index]) || null;
 	const iconName = tkmVariant || StatusTable[index].icon;
 	_status[index].tkmVariant = tkmVariant;
@@ -367,7 +367,7 @@ function renderStatus(status, now) {
 			now >= end || end === Infinity
 				? ''
 				: (minutes ? `${minutes} ${DB.getMessage(1807, 'minute')} ` : '') +
-					`${seconds} ${DB.getMessage(1808, 'second')}`;
+				`${seconds} ${DB.getMessage(1808, 'second')}`;
 	}
 }
 

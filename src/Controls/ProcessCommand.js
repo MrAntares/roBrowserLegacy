@@ -256,7 +256,7 @@ const CommandStore = {
 			} else {
 				pkt = new PACKET.CZ.REQUEST_ACT();
 			}
-			if (Session.player.action === Session.player.ACTION.SIT) {
+			if (Session.Character.action === Session.Character.ACTION.SIT) {
 				pkt.action = 3; // stand up
 			} else {
 				pkt.action = 2; // sit down
@@ -271,32 +271,32 @@ const CommandStore = {
 		description: "Moves your character's head from side to side",
 		callback: function () {
 			let pkt;
-			Session.player.headDir = Session.player.headDir === 1 ? 2 : 1;
+			Session.Character.headDir = Session.Character.headDir === 1 ? 2 : 1;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION2();
 			} else {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION();
 			}
-			pkt.headDir = Session.player.headDir;
-			pkt.dir = Session.player.direction;
+			pkt.headDir = Session.Character.headDir;
+			pkt.dir = Session.Character.direction;
 			Network.sendPacket(pkt);
 
 			// Doridori recovery bonus
-			if (Session.player.action === Session.player.ACTION.SIT) {
-				if (!Session.player.doriTime) {
-					Session.player.doriTime = [0, 0, 0, 0, 0];
+			if (Session.Character.action === Session.Character.ACTION.SIT) {
+				if (!Session.Character.doriTime) {
+					Session.Character.doriTime = [0, 0, 0, 0, 0];
 				}
 
-				Session.player.doriTime.shift();
-				Session.player.doriTime.push(Renderer.tick);
+				Session.Character.doriTime.shift();
+				Session.Character.doriTime.push(Renderer.tick);
 
-				const doriStart = Session.player.doriTime[0];
-				const doriEnd = Session.player.doriTime[4];
+				const doriStart = Session.Character.doriTime[0];
+				const doriEnd = Session.Character.doriTime[4];
 
 				if (doriEnd - doriStart > 1500 && doriEnd - doriStart < 3000) {
 					const doripkt = new PACKET.CZ.DORIDORI();
 					Network.sendPacket(doripkt);
-					Session.player.doriTime = [0, 0, 0, 0, 0];
+					Session.Character.doriTime = [0, 0, 0, 0, 0];
 				}
 			}
 			return;
@@ -307,14 +307,14 @@ const CommandStore = {
 		description: 'Rotates your character clockwise',
 		callback: function () {
 			let pkt;
-			Session.player.direction = (Session.player.direction + 1) % 8;
+			Session.Character.direction = (Session.Character.direction + 1) % 8;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION2();
 			} else {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION();
 			}
-			pkt.headDir = Session.player.headDir;
-			pkt.dir = Session.player.direction;
+			pkt.headDir = Session.Character.headDir;
+			pkt.dir = Session.Character.direction;
 			Network.sendPacket(pkt);
 			return;
 		}
@@ -324,14 +324,14 @@ const CommandStore = {
 		description: 'Rotates your character counterclockwise',
 		callback: function () {
 			let pkt;
-			Session.player.direction = (Session.player.direction + 7) % 8;
+			Session.Character.direction = (Session.Character.direction + 7) % 8;
 			if (PACKETVER.value >= 20180307) {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION2();
 			} else {
 				pkt = new PACKET.CZ.CHANGE_DIRECTION();
 			}
-			pkt.headDir = Session.player.headDir;
-			pkt.dir = Session.player.direction;
+			pkt.headDir = Session.Character.headDir;
+			pkt.dir = Session.Character.direction;
 			Network.sendPacket(pkt);
 			return;
 		}
@@ -343,12 +343,12 @@ const CommandStore = {
 			const currentMap = MapRenderer.currentMap;
 			this.addText(
 				DB.getMapName(currentMap) +
-					'(' +
-					currentMap +
-					') : ' +
-					Math.floor(Session.player.position[0]) +
-					', ' +
-					Math.floor(Session.player.position[1]),
+				'(' +
+				currentMap +
+				') : ' +
+				Math.floor(Session.Character.position[0]) +
+				', ' +
+				Math.floor(Session.Character.position[1]),
 				this.TYPE.INFO,
 				this.FILTER.PUBLIC_LOG
 			);
@@ -530,7 +530,7 @@ const CommandStore = {
 		callback: function () {
 			const pkt = new PACKET.CZ.CONFIG();
 			pkt.Config = 1;
-			pkt.Value = !Session.player.call_flag ? 1 : 0;
+			pkt.Value = !Session.Character.call_flag ? 1 : 0;
 			Network.sendPacket(pkt);
 			return;
 		}
@@ -542,7 +542,7 @@ const CommandStore = {
 			const pkt = new PACKET.CZ.CLAN_CHAT();
 			const matches = text.match(/(^cl)\s+(.*)/);
 			if (matches && matches[2]) {
-				pkt.msg = Session.player.display.name + ' : ' + matches[2];
+				pkt.msg = Session.Character.display.name + ' : ' + matches[2];
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -558,7 +558,7 @@ const CommandStore = {
 			const matches = text.match(/(^broadcast|^b)\s+(.*)/);
 			if (matches && matches[2]) {
 				const pkt = new PACKET.CZ.BROADCAST();
-				pkt.msg = Session.player.display.name + ' : ' + matches[2];
+				pkt.msg = Session.Character.display.name + ' : ' + matches[2];
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -583,7 +583,7 @@ const CommandStore = {
 			const matches = text.match(/(^localbroadcast|^lb)\s+(.*)/);
 			if (matches && matches[2]) {
 				const pkt = new PACKET.CZ.LOCALBROADCAST();
-				pkt.msg = Session.player.display.name + ' : ' + matches[2];
+				pkt.msg = Session.Character.display.name + ' : ' + matches[2];
 				Network.sendPacket(pkt);
 				return;
 			}
@@ -790,8 +790,8 @@ const CommandStore = {
 				Navigation.append();
 				Navigation.navigateTo({
 					startMap: MapRenderer.currentMap,
-					startX: Session.player.position[0] | 0,
-					startY: Session.player.position[1] | 0,
+					startX: Session.Character.position[0] | 0,
+					startY: Session.Character.position[1] | 0,
 					endMap: matches[1],
 					endX: parseInt(matches[2], 10),
 					endY: parseInt(matches[3], 10),
@@ -868,11 +868,11 @@ if (Configs.get('development')) {
 				return;
 			}
 
-			if (!Session.player) {
+			if (!Session.Character) {
 				return;
 			}
 
-			const ownerAID = Session.player.GID || Session.GID || Session.AID;
+			const ownerAID = Session.Character.GID || Session.GID || Session.AID;
 
 			if (mode === 'snow' || mode === 'on') {
 				EffectManager.spam({
@@ -1027,7 +1027,7 @@ function processCommand(text) {
 /**
  * Add a command to the store
  */
-function addCommand(name, description = '', callback = () => {}, alias = [], custom = true) {
+function addCommand(name, description = '', callback = () => { }, alias = [], custom = true) {
 	callback = callback.bind(ChatBox);
 
 	CommandStore[name] = {

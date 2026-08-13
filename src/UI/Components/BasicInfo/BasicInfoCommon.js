@@ -461,7 +461,7 @@ export function createBasicInfo(config) {
 				break;
 
 			case 'zeny': {
-				Session.player.money = val1; // keep Session.player.money in sync
+				Session.Character.money = val1; // keep Session.Character.money in sync
 				const list = val1.toString().split('');
 				const count = list.length;
 				let str = '';
@@ -474,7 +474,7 @@ export function createBasicInfo(config) {
 				break;
 			}
 			case 'job':
-				Session.player.job = val1;
+				Session.Character.job = val1;
 				root.querySelectorAll('.job_value').forEach(el => {
 					el.textContent = MonsterTable[val1];
 				});

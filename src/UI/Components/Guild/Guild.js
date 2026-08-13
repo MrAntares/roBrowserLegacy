@@ -1404,33 +1404,33 @@ Guild.promptDisbandGuild = function promptDisbandGuild() {
 	});
 };
 
-Guild.onGuildInfoRequest = function () {};
-Guild.onRequestCreateGuild = function () {};
-Guild.onRequestBreakGuild = function () {};
-Guild.onPositionUpdateRequest = function () {};
-Guild.onChangeMemberPosRequest = function () {};
-Guild.onNoticeUpdateRequest = function () {};
-Guild.onRequestMemberInfo = function () {};
-Guild.onRequestLeave = function () {};
-Guild.onRequestMemberExpel = function () {};
-Guild.onRequestDeleteRelation = function () {};
-Guild.onRequestAccess = function () {};
+Guild.onGuildInfoRequest = function () { };
+Guild.onRequestCreateGuild = function () { };
+Guild.onRequestBreakGuild = function () { };
+Guild.onPositionUpdateRequest = function () { };
+Guild.onChangeMemberPosRequest = function () { };
+Guild.onNoticeUpdateRequest = function () { };
+Guild.onRequestMemberInfo = function () { };
+Guild.onRequestLeave = function () { };
+Guild.onRequestMemberExpel = function () { };
+Guild.onRequestDeleteRelation = function () { };
+Guild.onRequestAccess = function () { };
 
 Guild.updateSession = function (info) {
 	Session.hasGuild = true;
 	Session.guildName = info.guildname || '';
-	Session.player.GUID = info.GDID;
-	Session.player.GEmblemVer = info.emblemVersion;
-	if (Session.player.name === info.masterName) {
+	Session.Character.GUID = info.GDID;
+	Session.Character.GEmblemVer = info.emblemVersion;
+	if (Session.Character.name === info.masterName) {
 		Session.isGuildMaster = true;
 	}
 };
 
-Guild.onRequestGuildEmblem = function () {};
-Guild.onSendEmblem = function () {};
-Guild.onUseSkill = function onUseItem() {};
-Guild.onIncreaseSkill = function onIncreaseSkill() {};
-Guild.onUpdateSkill = function onUpdateSkill() {};
+Guild.onRequestGuildEmblem = function () { };
+Guild.onSendEmblem = function () { };
+Guild.onUseSkill = function onUseItem() { };
+Guild.onIncreaseSkill = function onIncreaseSkill() { };
+Guild.onUpdateSkill = function onUpdateSkill() { };
 Guild.getSkillById = getSkillById;
 
 export default UIManager.addComponent(Guild);

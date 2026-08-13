@@ -6245,7 +6245,7 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				if (Params.Init.ownerAID == Session.player.GID) {
+				if (Params.Init.ownerAID == Session.Character.GID) {
 					const msg = DB.getRandomJoke();
 					if (msg) {
 						ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
@@ -6261,7 +6261,7 @@ export default {
 			type: 'FUNC',
 			attachedEntity: true,
 			func: function (Params) {
-				if (Params.Init.ownerAID == Session.player.GID) {
+				if (Params.Init.ownerAID == Session.Character.GID) {
 					const msg = DB.getRandomScream();
 					if (msg) {
 						ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);

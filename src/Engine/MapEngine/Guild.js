@@ -133,7 +133,7 @@ class GuildEngine {
 			};
 		}
 
-		if (Session.player.GUID === guild_id) {
+		if (Session.Character.GUID === guild_id) {
 			GuildEngine.guild_id = guild_id;
 		}
 		const emblem = _emblems[guild_id];
@@ -446,7 +446,7 @@ class GuildEngine {
 			}
 			const fileInfo = getFileType(data);
 			const formData = new FormData();
-			formData.append('GDID', Session.player.GUID);
+			formData.append('GDID', Session.Character.GUID);
 			formData.append('WorldName', Session.ServerName);
 			formData.append('AuthToken', Session.WebToken);
 			formData.append('AID', Session.AID);
@@ -471,7 +471,7 @@ class GuildEngine {
 					const response = JSON.parse(xhr.responseText);
 					console.log('Emblem uploaded successfully, version:', response.version);
 
-					GuildEngine.requestGuildEmblem(Session.player.GUID, response.version, (image, _gif) => {
+					GuildEngine.requestGuildEmblem(Session.Character.GUID, response.version, (image, _gif) => {
 						Guild.setEmblem(image);
 					});
 				} catch (e) {
@@ -573,13 +573,13 @@ function onGuildOwnInfo(pkt) {
 		Session.guildName = pkt.GName;
 	}
 
-	Session.player.GUID = pkt.GDID;
-	Session.player.GEmblemVer = pkt.emblemVersion;
+	Session.Character.GUID = pkt.GDID;
+	Session.Character.GEmblemVer = pkt.emblemVersion;
 
 	// Request emblem for the player's own entity
 	if (pkt.GDID && pkt.emblemVersion) {
 		GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, (image, gif) => {
-			Session.player.setEntityGuildEmblem(image, gif);
+			Session.Character.setEntityGuildEmblem(image, gif);
 		});
 	}
 }
@@ -793,7 +793,7 @@ function onGuildDestroy(pkt) {
 			Session.guildName = '';
 			Session.isGuildMaster = false;
 			Session.guildRight = 0;
-			Session.player.GUID = 0;
+			Session.Character.GUID = 0;
 			ChatBox.addText(DB.getMessage(400), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 			break;
 
@@ -885,13 +885,13 @@ function onGuildMemberExpulsion(pkt) {
 
 	// Seems like the server doesn't send other informations
 	// to remove the UI
-	if (pkt.charName === Session.player.display.name) {
+	if (pkt.charName === Session.Character.display.name) {
 		Guild.hide();
 		Session.hasGuild = false;
 		Session.guildName = '';
 		Session.isGuildMaster = false;
 		Session.guildRight = 0;
-		Session.player.GUID = 0;
+		Session.Character.GUID = 0;
 	}
 }
 
@@ -918,13 +918,13 @@ function onGuildMemberLeave(pkt) {
 
 	// Seems like the server doesn't send other informations
 	// to remove the UI
-	if (pkt.charName === Session.player.display.name) {
+	if (pkt.charName === Session.Character.display.name) {
 		Guild.hide();
 		Session.hasGuild = false;
 		Session.guildName = '';
 		Session.isGuildMaster = false;
 		Session.guildRight = 0;
-		Session.player.GUID = 0;
+		Session.Character.GUID = 0;
 	}
 }
 

@@ -220,12 +220,12 @@ class SakuraWeatherEffect {
 	}
 
 	spawnLeave(spawnTick) {
-		if (!Session.player) {
+		if (!Session.Character) {
 			return;
 		}
 
-		const px = Session.player.position[0];
-		const py = Session.player.position[1];
+		const px = Session.Character.position[0];
+		const py = Session.Character.position[1];
 
 		// Random position around player
 		const theta = Math.random() * Math.PI * 2;
@@ -278,7 +278,7 @@ class SakuraWeatherEffect {
 	}
 
 	render(gl, tick) {
-		if (!Session.player) {
+		if (!Session.Character) {
 			return;
 		}
 
