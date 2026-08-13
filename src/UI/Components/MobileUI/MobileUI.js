@@ -95,6 +95,11 @@ function bindButton(root, selector, handler) {
 			ignoreClickUntil = Date.now() + C_TOUCH_CLICK_GUARD;
 			handler(event);
 		});
+		const rearmGuard = () => {
+			ignoreClickUntil = Date.now() + C_TOUCH_CLICK_GUARD;
+		};
+		el.addEventListener('touchend', rearmGuard);
+		el.addEventListener('touchcancel', rearmGuard);
 	}
 }
 
