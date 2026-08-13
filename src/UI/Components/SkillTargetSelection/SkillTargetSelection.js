@@ -410,8 +410,8 @@ SkillTargetSelection.checkMapState = function checkMapState(entity) {
 /**
  * Functions to define
  */
-SkillTargetSelection.onUseSkillToId = function onUseSkillToId(/*id, level, GID*/) { };
-SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(/*id, level, x, y*/) { };
+SkillTargetSelection.onUseSkillToId = function onUseSkillToId(/*id, level, GID*/) {};
+SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(/*id, level, x, y*/) {};
 
 /**
  * Create component and return it

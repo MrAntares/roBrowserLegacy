@@ -1200,19 +1200,16 @@ function onEntityViewChange(pkt) {
 					entity.job = pkt.value;
 				}
 				if (entity === Session.Entity) {
-					// Apply the job change first
-					Session.Entity.job = pkt.value;
-
 					//Interchange UI depending on Job
 					if (PACKETVER.value >= 20200520) {
 						BasicInfo.getUI().remove();
-						BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Entity.job));
+						BasicInfo.selectUIVersionWithJob(DB.getJobClass(pkt.value));
 						BasicInfo.getUI().prepare();
 						BasicInfo.getUI().update('blvl', Session.Entity.clevel);
 						BasicInfo.getUI().update('jlvl', Session.Entity.joblevel);
 						BasicInfo.getUI().update('zeny', Session.Entity.money);
 						BasicInfo.getUI().update('name', Session.Entity.display.name);
-						BasicInfo.getUI().update('bexp', Session.Entity.base_exp, BasicInfo.getUI().base_exp_next);
+						BasicInfo.getUI().update('bexp', BasicInfo.getUI().base_exp, BasicInfo.getUI().base_exp_next);
 						BasicInfo.getUI().append();
 					}
 					// Update UI for all client versions
@@ -1595,7 +1592,7 @@ function onEntityUseSkillToAttack(pkt) {
 						startTick,
 						srcWeapon,
 						(isBlueCombo ? Damage.TYPE.COMBO_B : Damage.TYPE.COMBO) |
-						(i + 1 === pkt.count ? Damage.TYPE.COMBO_FINAL : 0)
+							(i + 1 === pkt.count ? Damage.TYPE.COMBO_FINAL : 0)
 					);
 				}
 			};

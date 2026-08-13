@@ -152,7 +152,6 @@ function onCharacterListChunk(pkt) {
 	const ChSel = CharSelect.getUI();
 	if (!ChSel) return;
 	pkt.charInfo.forEach(charInfo => {
-		Session.characters[charInfo.CharNum] = new Player(charInfo);
 		ChSel.addCharacter(charInfo);
 	});
 }
@@ -176,8 +175,7 @@ function onConnectionAccepted(pkt) {
 	Session.Playing = false;
 	Session.hasCart = false;
 
-	// Reset character list and active player for the new char-select session
-	Session.characters = [];
+	// Reset the active player for the new char-select session
 	Session.Entity = null;
 
 	// Reset Announcement component
@@ -695,8 +693,8 @@ function onPincodeCheckSuccess(pkt) {
 			if (PACKETVER.value >= 20180124) {
 				console.log(
 					'PINCODE: Received invalid state from server for configured PACKETVER: ' +
-					pkt.State +
-					'. Aborting, please fix your PACKETVER in the config.'
+						pkt.State +
+						'. Aborting, please fix your PACKETVER in the config.'
 				);
 				PincodeWindow.onExitRequest();
 			}
@@ -789,7 +787,10 @@ function onConnectRequest(entity) {
 
 	CharSelect.getUI().remove();
 	UIManager.getComponent('WinLoading').append();
-	Session.Entity = Session.characters[entity.CharNum];
+	// The char-select list holds plain packet structures, build the player from it.
+	// Done here (instead of on char-list reception) so that characters delivered by
+	// any char-list packet, and freshly created ones, all end up with a Player.
+	Session.Entity = new Player(entity);
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);

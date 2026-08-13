@@ -382,11 +382,8 @@ export function createSkillList({
 
 		root.querySelectorAll('.upgradable').forEach(el => el.classList.remove('upgradable'));
 
-		let skillJobId = Session.Entity.job;
-		const originalJobId = Session.Entity._job;
-		if (originalJobId && originalJobId !== Session.Entity.job) {
-			skillJobId = originalJobId;
-		}
+		// The skill tree follows the real job, never a transformation/disguise
+		const skillJobId = Session.Entity._job || Session.Entity.job;
 
 		skillPosition = getSkillPosition(skillJobId);
 		createSkillDependencyTree();
@@ -961,7 +958,7 @@ export function createSkillList({
 		this.onUpdateSkill(skill.SKID, skill.level);
 	};
 
-	Component.removeSkill = function removeSkill() { };
+	Component.removeSkill = function removeSkill() {};
 
 	Component.updateSkill = function updateSkill(skill) {
 		let target = getSkillById(skill.SKID);
@@ -1412,9 +1409,9 @@ export function createSkillList({
 		}
 	}
 
-	Component.onUseSkill = function onUseItem() { };
-	Component.onIncreaseSkill = function onIncreaseSkill() { };
-	Component.onUpdateSkill = function onUpdateSkill() { };
+	Component.onUseSkill = function onUseItem() {};
+	Component.onIncreaseSkill = function onIncreaseSkill() {};
+	Component.onUpdateSkill = function onUpdateSkill() {};
 	Component.getSkillById = getSkillById;
 
 	return UIManager.addComponent(Component);

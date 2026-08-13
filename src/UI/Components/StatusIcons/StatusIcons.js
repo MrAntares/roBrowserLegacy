@@ -367,7 +367,7 @@ function renderStatus(status, now) {
 			now >= end || end === Infinity
 				? ''
 				: (minutes ? `${minutes} ${DB.getMessage(1807, 'minute')} ` : '') +
-				`${seconds} ${DB.getMessage(1808, 'second')}`;
+					`${seconds} ${DB.getMessage(1808, 'second')}`;
 	}
 }
 

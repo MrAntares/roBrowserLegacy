@@ -343,12 +343,12 @@ const CommandStore = {
 			const currentMap = MapRenderer.currentMap;
 			this.addText(
 				DB.getMapName(currentMap) +
-				'(' +
-				currentMap +
-				') : ' +
-				Math.floor(Session.Entity.position[0]) +
-				', ' +
-				Math.floor(Session.Entity.position[1]),
+					'(' +
+					currentMap +
+					') : ' +
+					Math.floor(Session.Entity.position[0]) +
+					', ' +
+					Math.floor(Session.Entity.position[1]),
 				this.TYPE.INFO,
 				this.FILTER.PUBLIC_LOG
 			);
@@ -1027,7 +1027,7 @@ function processCommand(text) {
 /**
  * Add a command to the store
  */
-function addCommand(name, description = '', callback = () => { }, alias = [], custom = true) {
+function addCommand(name, description = '', callback = () => {}, alias = [], custom = true) {
 	callback = callback.bind(ChatBox);
 
 	CommandStore[name] = {

@@ -398,10 +398,10 @@ ChatRoom.onKeyDown = function onKeyDown(event) {
 /**
  * Functions to define (overridden by Engine/MapEngine/ChatRoom.js)
  */
-ChatRoom.exitRoom = function exitRoom() { };
-ChatRoom.changeChatRoom = function changeChatRoom() { };
-ChatRoom.requestRoleChange = function requestRoleChange() { };
-ChatRoom.requestExpelMember = function requestExpelMember() { };
+ChatRoom.exitRoom = function exitRoom() {};
+ChatRoom.changeChatRoom = function changeChatRoom() {};
+ChatRoom.requestRoleChange = function requestRoleChange() {};
+ChatRoom.requestExpelMember = function requestExpelMember() {};
 /**
  * Resize ChatRoom via drag
  */

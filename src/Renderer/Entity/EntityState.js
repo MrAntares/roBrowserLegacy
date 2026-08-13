@@ -439,7 +439,7 @@ function updateEffectState(value) {
 		(StatusConst.EffectState.HIDE | StatusConst.EffectState.CLOAK | StatusConst.EffectState.CHASEWALK)
 	) {
 		// Maya purple card
-		if (Session.Entity.intravision) {
+		if (Session.Entity?.intravision) {
 			this._effectStateColor[0] = 0.0;
 			this._effectStateColor[1] = 0.0;
 			this._effectStateColor[2] = 0.0;
@@ -451,7 +451,7 @@ function updateEffectState(value) {
 	// Camouflage / Stealth Field (receiver)
 	else if (this.Camouflage || this.Stealthfield) {
 		// Maya purple card
-		if (Session.Entity.intravision) {
+		if (Session.Entity?.intravision) {
 			this._effectStateColor[0] = 0.0;
 			this._effectStateColor[1] = 0.0;
 			this._effectStateColor[2] = 0.0;
@@ -464,7 +464,7 @@ function updateEffectState(value) {
 	// Shadow form
 	else if (this.Shadowform) {
 		// Maya purple card
-		if (Session.Entity.intravision) {
+		if (Session.Entity?.intravision) {
 			this._effectStateColor[0] = 0.0;
 			this._effectStateColor[1] = 0.0;
 			this._effectStateColor[2] = 0.0;
@@ -539,10 +539,10 @@ function updateAllRidingState(value) {
 function isVisible() {
 	return !(
 		this._effectState &
-		(StatusConst.EffectState.INVISIBLE |
-			StatusConst.EffectState.HIDE |
-			StatusConst.EffectState.CLOAK |
-			StatusConst.EffectState.CHASEWALK) ||
+			(StatusConst.EffectState.INVISIBLE |
+				StatusConst.EffectState.HIDE |
+				StatusConst.EffectState.CLOAK |
+				StatusConst.EffectState.CHASEWALK) ||
 		!!this.Shadowform ||
 		!!this.Camouflage ||
 		!!this.Stealthfield

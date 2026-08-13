@@ -898,97 +898,97 @@ function onGMCheckStatus(pkt) {
 	ChatBox.addText('[ ' + targetName + ' ]', ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG, green);
 	ChatBox.addText(
 		sp(13) +
-		'STR=' +
-		pad(pkt.str) +
-		sp(6) +
-		'AGI=' +
-		pad(pkt.agi) +
-		sp(6) +
-		'VIT=' +
-		pad(pkt.vit) +
-		sp(6) +
-		'INT=' +
-		pad(pkt.Int) +
-		sp(6) +
-		'DEX=' +
-		pad(pkt.dex) +
-		sp(6) +
-		'LUK=' +
-		pkt.luk,
+			'STR=' +
+			pad(pkt.str) +
+			sp(6) +
+			'AGI=' +
+			pad(pkt.agi) +
+			sp(6) +
+			'VIT=' +
+			pad(pkt.vit) +
+			sp(6) +
+			'INT=' +
+			pad(pkt.Int) +
+			sp(6) +
+			'DEX=' +
+			pad(pkt.dex) +
+			sp(6) +
+			'LUK=' +
+			pkt.luk,
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		yellow
 	);
 	ChatBox.addText(
 		'standard STR=' +
-		pad(pkt.standardStr) +
-		sp(6) +
-		'AGI=' +
-		pad(pkt.standardAgi) +
-		sp(6) +
-		'VIT=' +
-		pad(pkt.standardVit) +
-		sp(6) +
-		'INT=' +
-		pad(pkt.standardInt) +
-		sp(6) +
-		'DEX=' +
-		pad(pkt.standardDex) +
-		sp(6) +
-		'LUK=' +
-		pad(pkt.standardLuk, 2),
+			pad(pkt.standardStr) +
+			sp(6) +
+			'AGI=' +
+			pad(pkt.standardAgi) +
+			sp(6) +
+			'VIT=' +
+			pad(pkt.standardVit) +
+			sp(6) +
+			'INT=' +
+			pad(pkt.standardInt) +
+			sp(6) +
+			'DEX=' +
+			pad(pkt.standardDex) +
+			sp(6) +
+			'LUK=' +
+			pad(pkt.standardLuk, 2),
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		green
 	);
 	ChatBox.addText(
 		sp(4) +
-		'attPower=' +
-		pad(pkt.attPower) +
-		sp(4) +
-		'refiningPow=' +
-		pad(pkt.refiningPower) +
-		sp(4) +
-		'MAXmatPow=' +
-		pad(pkt.max_mattPower) +
-		sp(4) +
-		'MINmatPower=' +
-		pad(pkt.min_mattPower) +
-		sp(7) +
-		'ASPD=' +
-		pad(pkt.ASPD),
+			'attPower=' +
+			pad(pkt.attPower) +
+			sp(4) +
+			'refiningPow=' +
+			pad(pkt.refiningPower) +
+			sp(4) +
+			'MAXmatPow=' +
+			pad(pkt.max_mattPower) +
+			sp(4) +
+			'MINmatPower=' +
+			pad(pkt.min_mattPower) +
+			sp(7) +
+			'ASPD=' +
+			pad(pkt.ASPD),
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		yellow
 	);
 	ChatBox.addText(
 		'itemdefPow=' +
-		pad(pkt.itemdefPower) +
-		sp(5) +
-		'plusdefPow=' +
-		pad(pkt.plusdefPower) +
-		sp(4) +
-		'mdefPower=' +
-		pad(pkt.mdefPower) +
-		sp(4) +
-		'plusmdefPow=' +
-		pad(pkt.plusmdefPower) +
-		sp(4) +
-		'plusASPD=' +
-		pad(pkt.plusASPD),
+			pad(pkt.itemdefPower) +
+			sp(5) +
+			'plusdefPow=' +
+			pad(pkt.plusdefPower) +
+			sp(4) +
+			'mdefPower=' +
+			pad(pkt.mdefPower) +
+			sp(4) +
+			'plusmdefPow=' +
+			pad(pkt.plusmdefPower) +
+			sp(4) +
+			'plusASPD=' +
+			pad(pkt.plusASPD),
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		green
 	);
 	ChatBox.addText(
 		'hitSuccessVal=' +
-		pad(pkt.hitSuccessValue) +
-		sp(4) +
-		'avoidSuccessVal=' +
-		pad(pkt.avoidSuccessValue) +
-		sp(4) +
-		'plusAvoidSuccessValue=' +
-		pad(pkt.plusAvoidSuccessValue),
+			pad(pkt.hitSuccessValue) +
+			sp(4) +
+			'avoidSuccessVal=' +
+			pad(pkt.avoidSuccessValue) +
+			sp(4) +
+			'plusAvoidSuccessValue=' +
+			pad(pkt.plusAvoidSuccessValue),
 		ChatBox.TYPE.INFO,
 		ChatBox.FILTER.PUBLIC_LOG,
 		yellow

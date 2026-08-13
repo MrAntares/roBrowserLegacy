@@ -1,4 +1,4 @@
-﻿import DB from 'DB/DBManager.js';
+import DB from 'DB/DBManager.js';
 import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -22,7 +22,7 @@ class AIDriver {
 	static default_MER_AI = null;
 	static ready = false;
 	// this is called in a code in someplace, left if here :u
-	static init() { }
+	static init() {}
 
 	static setmsg(homId, str) {
 		if (!msg[homId]) {
@@ -645,7 +645,7 @@ class AIDriver {
 		}
 	};
 	// this is called in some place of code
-	static reset = () => { };
+	static reset = () => {};
 }
 
 export default AIDriver;

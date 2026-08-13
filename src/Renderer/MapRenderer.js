@@ -327,7 +327,7 @@ class MapRenderer {
 	/**
 	 * Callback to execute once the map is loaded
 	 */
-	static onLoad() { }
+	static onLoad() {}
 }
 
 /**

@@ -803,9 +803,9 @@ function addItem(content, item) {
 
 	Client.loadFile(
 		DB.INTERFACE_PATH +
-		'item/' +
-		(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
-		'.bmp',
+			'item/' +
+			(item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName) +
+			'.bmp',
 		function (data) {
 			const icons = content.querySelectorAll(`.item[data-index="${item.index}"] .icon`);
 			icons.forEach(icon => {
@@ -822,9 +822,9 @@ function addItem(content, item) {
 
 	Client.loadFile(
 		DB.INTERFACE_PATH +
-		'item/' +
-		(item.IsIdentified ? currencyit.identifiedResourceName : currencyit.unidentifiedResourceName) +
-		'.bmp',
+			'item/' +
+			(item.IsIdentified ? currencyit.identifiedResourceName : currencyit.unidentifiedResourceName) +
+			'.bmp',
 		function (data) {
 			const icons = content.querySelectorAll(`.item[data-index="${item.index}"] .currency_icon`);
 			icons.forEach(icon => {
@@ -1302,7 +1302,7 @@ NpcStore.onMarketShopResultUI = function (itemList) {
 /**
  * Exports
  */
-NpcStore.onSubmit = function onSubmit(/* itemList */) { };
+NpcStore.onSubmit = function onSubmit(/* itemList */) {};
 
 NpcStore.setClosePacketSent = function (bool) {
 	_closePacketSent = bool;

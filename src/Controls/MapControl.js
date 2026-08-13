@@ -46,17 +46,17 @@ class MapControl {
 	/**
 	 * Callback used when requesting to move somewhere
 	 */
-	static onRequestWalk() { }
+	static onRequestWalk() {}
 
 	/**
 	 * Callback used when request to stop move
 	 */
-	static onRequestStopWalk() { }
+	static onRequestStopWalk() {}
 
 	/**
 	 * Callback used when dropping an item to the map
 	 */
-	static onRequestDropItem() { }
+	static onRequestDropItem() {}
 
 	/**
 	 * Initializing the controller

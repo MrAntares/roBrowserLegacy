@@ -17,17 +17,12 @@ import Entity from 'Renderer/Entity/Entity.js';
  * Player class
  *
  * Marker subclass of Entity for the local player character.
- * Session.Entity is always an instance of this class.
- * Session.characters[CharNum] holds all received character slots.
+ * Session.Entity is an instance of this class while playing.
  *
  * @class Player
  * @extends {Entity}
  */
-class Player extends Entity {
-	constructor(data) {
-		super(data);
-	}
-}
+class Player extends Entity {}
 
 /**
  * Export

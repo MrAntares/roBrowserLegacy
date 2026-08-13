@@ -254,7 +254,7 @@ class EntityControl {
 	/**
 	 * Stop clicking on an entity
 	 */
-	static onMouseUp() { }
+	static onMouseUp() {}
 
 	/**
 	 * Focus the entity

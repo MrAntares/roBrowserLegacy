@@ -22,7 +22,7 @@ import Renderer from 'Renderer/Renderer.js';
 import Camera from 'Renderer/Camera.js';
 import MapRenderer from 'Renderer/MapRenderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
-import Player from 'Renderer/Entity/Player.js';
+import Entity from 'Renderer/Entity/Entity.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import MapControl from 'Controls/MapControl.js';
 import Mouse from 'Controls/MouseEventHandler.js';
@@ -635,7 +635,7 @@ function onMapChange(pkt) {
 		EntityManager.add(Session.Entity);
 		if (Session.Entity.effectState & StatusConst.EffectState.FALCON) {
 			if (!Session.Entity.falcon) {
-				Session.Entity.falcon = new Player();
+				Session.Entity.falcon = new Entity();
 			}
 
 			Session.Entity.falcon.set({
@@ -653,7 +653,7 @@ function onMapChange(pkt) {
 		}
 		if (Session.Entity.effectState & StatusConst.EffectState.WUG) {
 			if (!Session.Entity.wug) {
-				Session.Entity.wug = new Player();
+				Session.Entity.wug = new Entity();
 			}
 
 			Session.Entity.wug.set({

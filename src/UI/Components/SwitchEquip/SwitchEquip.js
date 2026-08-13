@@ -582,8 +582,8 @@ SwitchEquip.RequestSwitch = function () {
 /**
  * Method to define
  */
-SwitchEquip.onRemoveSwitchEquip = function onRemoveSwitchEquip(/* index */) { };
-SwitchEquip.onAddSwitchEquip = function onAddSwitchEquip(/* index, location */) { };
+SwitchEquip.onRemoveSwitchEquip = function onRemoveSwitchEquip(/* index */) {};
+SwitchEquip.onAddSwitchEquip = function onAddSwitchEquip(/* index, location */) {};
 
 /**
  * Create component and export it

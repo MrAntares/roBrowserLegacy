@@ -511,7 +511,7 @@ export function createEquipment({
 			});
 		};
 	} else {
-		Component.setCostumeConfig = function setCostumeConfig(_on) { };
+		Component.setCostumeConfig = function setCostumeConfig(_on) {};
 	}
 
 	Component.equip = function equip(item, location) {
@@ -1089,10 +1089,10 @@ export function createEquipment({
 		};
 	}
 
-	Component.onUnEquip = function onUnEquip(/* index */) { };
-	Component.onConfigUpdate = function onConfigUpdate(/* type, value*/) { };
-	Component.onEquipItem = function onEquipItem(/* index, location */) { };
-	Component.onRemoveCart = function onRemoveCart() { };
+	Component.onUnEquip = function onUnEquip(/* index */) {};
+	Component.onConfigUpdate = function onConfigUpdate(/* type, value*/) {};
+	Component.onEquipItem = function onEquipItem(/* index, location */) {};
+	Component.onRemoveCart = function onRemoveCart() {};
 
 	return UIManager.addComponent(Component);
 }

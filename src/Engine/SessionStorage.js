@@ -8,6 +8,7 @@
  */
 
 /** @typedef {import('Renderer/Entity/Player.js').default} Player */
+/** @typedef {import('Renderer/Entity/Entity.js').default} Entity */
 
 export default {
 	isTouchDevice: false,
@@ -26,11 +27,8 @@ export default {
 	ServerName: null,
 	ratesInfo: null,
 
-	/** @type {Array<Player>} Player instances indexed by CharNum, populated during char-select */
-	characters: [],
-
-	/** @type {Player|null} The currently controlled Player (one of the above) */
-	player: null,
+	/** @type {Player|Entity|null} The entity currently controlled by the client */
+	Entity: null,
 
 	AdminList: [],
 
@@ -38,7 +36,21 @@ export default {
 
 	moveAction: null,
 
-	// zeny, weight, max_weight are now on Session.Entity (Player.prototype)
+	// weight and max_weight now live on the player entity (Session.Entity)
+
+	/**
+	 * Player money, stored on the player entity.
+	 * Kept here as an accessor for the many consumers reading it from the session.
+	 */
+	get zeny() {
+		return this.Entity ? this.Entity.money : 0;
+	},
+
+	set zeny(value) {
+		if (this.Entity) {
+			this.Entity.money = value;
+		}
+	},
 
 	petId: 0,
 	pet: {},

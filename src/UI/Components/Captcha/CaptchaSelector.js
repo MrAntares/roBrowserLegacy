@@ -111,7 +111,7 @@ CaptchaSelector.init = function init() {
 					() => {
 						CaptchaSelector.sendCaptchaToPlayers();
 					},
-					() => { }
+					() => {}
 				);
 			}
 		});
