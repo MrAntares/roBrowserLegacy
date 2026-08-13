@@ -192,7 +192,8 @@ class MapEngine {
 					// its own segment, otherwise the parser read the AID as an opcode and
 					// desynced the whole stream.
 					if (PACKETVER.value < 20070521) {
-						Session.player.GID = fp.readLong();
+						Session.AID = fp.readLong();
+						Session.player.GID = Session.AID;
 					}
 				});
 
@@ -544,6 +545,7 @@ function onConfigNotify(pkt) {
  * @param {object} pkt - PACKET.ZC.AID
  */
 function onReceiveAccountID(pkt) {
+	Session.AID = pkt.AID;
 	Session.player.GID = pkt.AID;
 }
 
@@ -622,7 +624,13 @@ function onMapChange(pkt) {
 	MapRenderer.onLoad = () => {
 		Session.player.set({
 			PosDir: [pkt.xPos, pkt.yPos, 0],
-			GID: Session.player.GID
+			// Use Session.AID rather than Session.player.GID here:
+			// EntityManager removes Session.player during map transition, which
+			// triggers Entity.clean() and sets this.GID = -1. Reading the GID
+			// back from the entity at this point would produce -1.
+			// Session.AID (account ID) equals the player's entity GID on the
+			// map server and is never mutated by entity cleanup.
+			GID: Session.AID
 		});
 		EntityManager.add(Session.player);
 		if (Session.player.effectState & StatusConst.EffectState.FALCON) {
