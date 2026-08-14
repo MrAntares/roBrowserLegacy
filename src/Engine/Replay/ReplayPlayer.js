@@ -139,7 +139,7 @@ export default class ReplayPlayer {
 	}
 
 	/**
-	 * Applies session data directly to Session/Session.Character.
+	 * Applies session data directly to Session/Session.Entity.
 	 * Called BEFORE MapEngine.init so map name and character are available.
 	 */
 	_applySession() {
@@ -148,9 +148,9 @@ export default class ReplayPlayer {
 
 		const s = this._sessionData;
 
-		// Reset Session.Character completely so no stale data from previous sessions leaks in.
+		// Reset Session.Entity completely so no stale data from previous sessions leaks in.
 		// sex MUST be 0 or 1 — HairIndexTable[undefined] crashes; default to 0 (male) if unknown.
-		Session.Character = {
+		Session.Entity = {
 			name: s.characterName || 'Replay',
 			sex: (s.sex === 0 || s.sex === 1) ? s.sex : 0,
 			job: 0,
@@ -175,15 +175,15 @@ export default class ReplayPlayer {
 		// Apply AID / GID
 		if (s.AID !== undefined) {
 			Session.AID = s.AID;
-			Session.Character.AID = s.AID;
+			Session.Entity.AID = s.AID;
 		}
 		if (s.GID !== undefined) {
 			Session.GID = s.GID;
-			Session.Character.GID = s.GID;
+			Session.Entity.GID = s.GID;
 		}
 
 		// Mirror sex into Session.Sex
-		Session.Sex = Session.Character.sex;
+		Session.Sex = Session.Entity.sex;
 
 		// Apply all remaining character properties from session data
 		const charProps = ['job', 'exp', 'level', 'exp_next', 'joblevel', 'str', 'agi',
@@ -192,11 +192,11 @@ export default class ReplayPlayer {
 
 		for (const prop of charProps) {
 			if (s[prop] !== undefined) {
-				Session.Character[prop] = s[prop];
+				Session.Entity[prop] = s[prop];
 			}
 		}
 
-		console.log('[Replay] Session applied — sex:', Session.Character.sex, 'head:', Session.Character.head, 'job:', Session.Character.job, 'map:', s.mapName);
+		console.log('[Replay] Session applied — sex:', Session.Entity.sex, 'head:', Session.Entity.head, 'job:', Session.Entity.job, 'map:', s.mapName);
 
 		this._mapName = s.mapName || 'prontera.rsw';
 		this._startX = s.startX || 0;

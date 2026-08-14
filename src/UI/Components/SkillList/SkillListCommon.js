@@ -383,9 +383,9 @@ export function createSkillList({
 
 		root.querySelectorAll('.upgradable').forEach(el => el.classList.remove('upgradable'));
 
-		let skillJobId = Session.Character.job;
+		let skillJobId = Session.Entity.job;
 		const originalJobId = Session.Entity ? Session.Entity._job : null;
-		if (originalJobId && originalJobId !== Session.Character.job) {
+		if (originalJobId && originalJobId !== Session.Entity.job) {
 			skillJobId = originalJobId;
 		}
 
