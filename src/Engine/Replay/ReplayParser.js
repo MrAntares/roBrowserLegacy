@@ -269,6 +269,11 @@ export default class ReplayParser {
 
 		const sessionContainer = this.containers.find(c => c.type === ContainerType.Session);
 		if (sessionContainer) {
+			if (!buf.characterName) {
+				const charName = readStringById(sessionContainer, 964);
+				if (charName) buf.characterName = charName;
+			}
+
 			const aid = readU32ById(sessionContainer, 1010);
 			if (aid !== null) {
 				buf.AID = aid;

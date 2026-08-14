@@ -13,7 +13,8 @@ import Network from 'Network/NetworkManager.js';
 import MapRenderer from 'Renderer/MapRenderer.js';
 import Session from 'Engine/SessionStorage.js';
 import MapEngine from 'Engine/MapEngine.js';
-import { ContainerType, ReplayState } from 'Engine/Replay/ReplayTypes.js';
+import Player from 'Renderer/Entity/Player.js';
+import { ReplayState } from 'Engine/Replay/ReplayTypes.js';
 import ReplaySocket from './ReplaySocket.js';
 import ReplayParser from './ReplayParser.js';
 
@@ -148,39 +149,42 @@ export default class ReplayPlayer {
 
 		const s = this._sessionData;
 
-		// Reset Session.Entity completely so no stale data from previous sessions leaks in.
-		// sex MUST be 0 or 1 — HairIndexTable[undefined] crashes; default to 0 (male) if unknown.
-		Session.Entity = {
-			name: s.characterName || 'Replay',
+		const charName = s.characterName || 'Replay';
+
+		// Reset Session.Entity completely using a new Player instance so no stale data
+		// from previous sessions leaks in, and all Entity methods (walkTo, display, etc.) exist.
+		const playerInitData = {
+			name: charName,
 			sex: (s.sex === 0 || s.sex === 1) ? s.sex : 0,
-			job: 0,
-			level: 1,
-			joblevel: 1,
-			exp: 0,
-			exp_next: 0,
-			str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1,
-			money: 0,
-			speed: 150,
-			head: 0,
-			weapon: 0,
-			shield: 0,
-			bodypalette: 0,
-			headpalette: 0,
-			accessory: 0,
-			accessory2: 0,
-			accessory3: 0,
-			robe: 0
+			job: s.job !== undefined ? s.job : 0,
+			clevel: s.level !== undefined ? s.level : 1,
+			joblevel: s.joblevel !== undefined ? s.joblevel : 1,
+			exp: s.exp || 0,
+			exp_next: s.exp_next || 0,
+			str: s.str || 1, agi: s.agi || 1, vit: s.vit || 1, int: s.int || 1, dex: s.dex || 1, luk: s.luk || 1,
+			money: s.money || 0,
+			speed: s.speed || 150,
+			head: s.head || 0,
+			weapon: s.weapon || 0,
+			shield: s.shield || 0,
+			bodypalette: s.bodypalette || 0,
+			headpalette: s.headpalette || 0,
+			accessory: s.accessory || 0,
+			accessory2: s.accessory2 || 0,
+			accessory3: s.accessory3 || 0,
+			robe: s.robe || 0
 		};
 
-		// Apply AID / GID
 		if (s.AID !== undefined) {
 			Session.AID = s.AID;
-			Session.Entity.AID = s.AID;
+			playerInitData.AID = s.AID;
 		}
 		if (s.GID !== undefined) {
 			Session.GID = s.GID;
-			Session.Entity.GID = s.GID;
+			playerInitData.GID = s.GID;
 		}
+
+		Session.Entity = new Player(playerInitData);
 
 		// Mirror sex into Session.Sex
 		Session.Sex = Session.Entity.sex;
