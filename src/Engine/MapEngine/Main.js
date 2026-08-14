@@ -403,17 +403,17 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.WEIGHT:
-			Session.Character.weight = amount; // Save weight in Session instead of UI
+			Session.Entity.weight = amount; // Save weight in Session instead of UI
 			if (BasicInfo.getUI().weight_max > -1) {
-				BasicInfo.getUI().update('weight', Session.Character.weight, BasicInfo.getUI().weight_max);
+				BasicInfo.getUI().update('weight', Session.Entity.weight, BasicInfo.getUI().weight_max);
 			}
 			break;
 
 		case StatusProperty.MAXWEIGHT:
-			Session.Character.max_weight = amount; // Save max weight in Session instead of UI only
+			Session.Entity.max_weight = amount; // Save max weight in Session instead of UI only
 			BasicInfo.getUI().weight_max = amount;
 			if (BasicInfo.getUI().weight > -1) {
-				BasicInfo.getUI().update('weight', Session.Character.weight, BasicInfo.getUI().weight_max);
+				BasicInfo.getUI().update('weight', Session.Entity.weight, BasicInfo.getUI().weight_max);
 			}
 			break;
 

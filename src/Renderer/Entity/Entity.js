@@ -36,7 +36,62 @@ import EntityManager from 'Renderer/EntityManager.js';
 const vec3 = glMatrix.vec3;
 const mat4 = glMatrix.mat4;
 
-// Base Entity class
+/**
+ * Base Entity class
+ *
+ * @class Entity
+ *
+ * Base identification & state properties:
+ * @property {number} GID Global ID of the entity
+ * @property {number} AID Account ID of the entity
+ * @property {number} objecttype Type of entity (PC, MOB, NPC, ITEM, etc.)
+ * @property {number} direction Current facing direction (0..7)
+ * @property {number} headDir Facing direction of the head
+ * @property {Float32Array} position [x, y, z] world coordinates
+ * @property {Float32Array} matrix World matrix
+ * @property {number} clevel Base level
+ * @property {number} attack_range Attack range
+ * @property {number} attack_speed Attack speed / delay (amotion)
+ * @property {boolean} isAdmin GM / Admin flag
+ * @property {boolean} hideShadow Whether to draw entity shadow
+ * @property {number} remove_tick Time when entity starts vanishing
+ * @property {number} remove_delay Delay in ms before entity removal
+ *
+ * Prototype view/state properties:
+ * @property {number} _sex Entity gender
+ * @property {number} _job Entity job / ID
+ * @property {number} _head Entity head style
+ * @property {number} _weapon Entity weapon visual
+ * @property {number} _shield Entity shield visual
+ * @property {number} _accessory Upper headgear visual
+ * @property {number} _accessory2 Middle headgear visual
+ * @property {number} _accessory3 Lower headgear visual
+ * @property {number} robe Garment / robe visual
+ * @property {number} _bodypalette Body palette index
+ * @property {number} _headpalette Head palette index
+ * @property {number} _bodyState Body status state
+ * @property {number} _healthState Health status state
+ * @property {number} _effectState Visual effect state flags
+ *
+ * Companion & Cart properties:
+ * @property {boolean} hasCart Whether entity has a cart
+ * @property {number} CartNum Cart style index
+ * @property {Entity|null} falcon Associated Falcon entity
+ * @property {Entity|null} wug Associated Warg entity
+ *
+ * Mixin Subsystems:
+ * @property {Object} walk EntityWalk mixin controller
+ * @property {Object} life EntityLife mixin controller (hp, sp, display)
+ * @property {Object} display EntityDisplay mixin controller (name, title, emblem)
+ * @property {Object} cast EntityCast mixin controller
+ * @property {Object} dialog EntityDialog mixin controller
+ * @property {Object} room EntityRoom mixin controller
+ * @property {Object} emblem EntityEmblem mixin controller
+ * @property {Object} attachments EntityAttachments controller
+ * @property {Object} animations EntityAnimations controller
+ * @property {Object} aura EntityAura controller
+ * @property {Object} dropEffect EntityDropEffect controller
+ */
 class Entity {
 	/**
 	 * Constantes
@@ -338,6 +393,10 @@ class Entity {
 					this.hideShadow = unit.hideShadow;
 					break;
 
+				case 'level':
+					this.clevel = unit.level;
+					break;
+
 				default:
 					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) {
 						this[keys[i]] = unit[keys[i]];
@@ -583,6 +642,39 @@ Entity.prototype.falcon = null;
 Entity.prototype.wug = null;
 Entity.prototype.hideShadow = false;
 Entity.prototype.call_flag = 0;
+Object.defineProperty(Entity.prototype, 'level', {
+	get() {
+		return this.clevel;
+	},
+	set(val) {
+		this.clevel = val;
+	},
+	enumerable: true,
+	configurable: true
+});
+
+/**
+ * Player-specific fields — declared on Entity.prototype so Entity.set() can
+ * auto-map them from server packets (charselect, status updates, etc.).
+ *
+ * The whitelist gate in set() uses Entity.prototype.hasOwnProperty() which does
+ * NOT walk the prototype chain, so any field only on Player.prototype is
+ * invisible to it. Entity.prototype already hosts player-specific state
+ * (clevel, hasCart, falcon, call_flag, etc.), so this follows the established
+ * pattern.
+ */
+
+// ── Job level ────────────────────────────────────────────────────────────────
+Entity.prototype.joblevel = 0; // StatusProperty.JOBLEVEL / charselect 'joblevel'
+
+// ── Economy ───────────────────────────────────────────────────────────────────
+Entity.prototype.money = 0; // StatusProperty.MONEY (zeny) / charselect 'money'
+Entity.prototype.weight = 0; // StatusProperty.WEIGHT
+Entity.prototype.max_weight = 0; // StatusProperty.MAXWEIGHT
+
+// ── Player-only flags ─────────────────────────────────────────────────────────
+Entity.prototype.intravision = false; // PACKET.ZC.STATE_CHANGE3 (GM invisibility)
+
 /**
  * @var {integer} tick to remove
  */

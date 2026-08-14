@@ -1,16 +1,32 @@
 /**
  * Renderer/EntityAction.js
  *
- * Manage entity action
- *
-/**
- * Renderer/EntityAction.js
- *
- * Manage entity action
+ * Manage entity action (animation state, action mapping, setAction).
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  *
  * @author Vincent Thibault
+ */
+
+/**
+ * @typedef {Object} EntityAnimationState
+ * @property {number} tick Animation start tick
+ * @property {number} frame Current frame index
+ * @property {boolean} repeat Loop animation
+ * @property {boolean} play Play animation flag
+ * @property {boolean} next Next frame ready flag
+ * @property {number} delay Animation frame delay
+ * @property {boolean|Object} save Saved pending action option
+ */
+
+/**
+ * EntityAction mixin
+ * Adds animation action state, action constants, and setAction method to Entity.
+ *
+ * @mixin EntityAction
+ * @property {Action} ACTION Action mapping constants (IDLE, WALK, ATTACK, etc.)
+ * @property {EntityAnimationState} animation Current animation playback state
+ * @property {function(Object): void} setAction Set entity animation action
  */
 
 import DB from 'DB/DBManager.js';

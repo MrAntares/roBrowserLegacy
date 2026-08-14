@@ -26,6 +26,7 @@ import InputBox from 'UI/Components/InputBox/InputBox.js';
 import JoystickUI from 'UI/Components/JoystickUI/JoystickUI.js';
 import CharSelect from 'UI/Components/CharSelect/CharSelect.js';
 import CharCreate from 'UI/Components/CharCreate/CharCreate.js';
+import Player from 'Renderer/Entity/Player.js';
 
 // Load modules
 // Version Dependent UIs
@@ -173,6 +174,9 @@ function onConnectionAccepted(pkt) {
 
 	Session.Playing = false;
 	Session.hasCart = false;
+
+	// Reset the active player for the new char-select session
+	Session.Entity = null;
 
 	// Reset Announcement component
 	const Announce = UIManager.getComponent('Announce');
@@ -783,7 +787,10 @@ function onConnectRequest(entity) {
 
 	CharSelect.getUI().remove();
 	UIManager.getComponent('WinLoading').append();
-	Session.Character = entity;
+	// The char-select list holds plain packet structures, build the player from it.
+	// Done here (instead of on char-list reception) so that characters delivered by
+	// any char-list packet, and freshly created ones, all end up with a Player.
+	Session.Entity = new Player(entity);
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);

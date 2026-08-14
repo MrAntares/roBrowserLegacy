@@ -192,7 +192,8 @@ class MapEngine {
 					// its own segment, otherwise the parser read the AID as an opcode and
 					// desynced the whole stream.
 					if (PACKETVER.value < 20070521) {
-						Session.Character.GID = fp.readLong();
+						Session.AID = fp.readLong();
+						Session.Entity.GID = Session.AID;
 					}
 				});
 
@@ -544,7 +545,8 @@ function onConfigNotify(pkt) {
  * @param {object} pkt - PACKET.ZC.AID
  */
 function onReceiveAccountID(pkt) {
-	Session.Character.GID = pkt.AID;
+	Session.AID = pkt.AID;
+	Session.Entity.GID = pkt.AID;
 }
 
 /**
@@ -553,7 +555,6 @@ function onReceiveAccountID(pkt) {
  * @param {object} pkt - PACKET.ZC.ACCEPT_ENTER
  */
 function onConnectionAccepted(pkt) {
-	Session.Entity = new Entity(Session.Character);
 	Session.Entity.onWalkEnd = onWalkEnd;
 
 	if ('sex' in pkt && pkt.sex < 2) {
@@ -569,7 +570,7 @@ function onConnectionAccepted(pkt) {
 
 	Session.homunId = 0;
 
-	Session.Entity.clevel = Session.Character.level;
+	// clevel is already populated by Entity.set() in the Player constructor
 
 	Session.mapState = {
 		property: 0,
@@ -587,15 +588,15 @@ function onConnectionAccepted(pkt) {
 	};
 
 	if (PACKETVER.value >= 20200520) {
-		BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Character.job));
+		BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Entity.job));
 		BasicInfo.getUI().prepare();
 	}
 
-	BasicInfo.getUI().update('blvl', Session.Character.level);
-	BasicInfo.getUI().update('jlvl', Session.Character.joblevel);
-	BasicInfo.getUI().update('zeny', Session.Character.money);
-	BasicInfo.getUI().update('name', Session.Character.name);
-	BasicInfo.getUI().update('job', Session.Character.job);
+	BasicInfo.getUI().update('blvl', Session.Entity.clevel);
+	BasicInfo.getUI().update('jlvl', Session.Entity.joblevel);
+	BasicInfo.getUI().update('zeny', Session.Entity.money);
+	BasicInfo.getUI().update('name', Session.Entity.display.name);
+	BasicInfo.getUI().update('job', Session.Entity.job);
 
 	// Fix http://forum.robrowser.com/?topic=32177.0
 	onMapChange({
@@ -623,7 +624,13 @@ function onMapChange(pkt) {
 	MapRenderer.onLoad = () => {
 		Session.Entity.set({
 			PosDir: [pkt.xPos, pkt.yPos, 0],
-			GID: Session.Character.GID
+			// Use Session.AID rather than Session.Entity.GID here:
+			// EntityManager removes Session.Entity during map transition, which
+			// triggers Entity.clean() and sets this.GID = -1. Reading the GID
+			// back from the entity at this point would produce -1.
+			// Session.AID (account ID) equals the player's entity GID on the
+			// map server and is never mutated by entity cleanup.
+			GID: Session.AID
 		});
 		EntityManager.add(Session.Entity);
 		if (Session.Entity.effectState & StatusConst.EffectState.FALCON) {

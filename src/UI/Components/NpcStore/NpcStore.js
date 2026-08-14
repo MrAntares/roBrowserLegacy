@@ -925,9 +925,9 @@ const transferItem = (function () {
 				const currencyItemWeight = parseInt(inputCurrency.getAttribute('data-weight'), 10);
 				const currencyAmount = parseInt(inputCurrencyDiv.textContent, 10);
 				const additionalWeight = currencyItemWeight * (outputItem.count - originalCount);
-				const expectedWeight = Session.Character.weight + NpcStore.calculateWeight() + additionalWeight;
+				const expectedWeight = Session.Entity.weight + NpcStore.calculateWeight() + additionalWeight;
 
-				if (expectedWeight > Session.Character.max_weight) {
+				if (expectedWeight > Session.Entity.max_weight) {
 					ChatBox.addText(DB.getMessage(56), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 					outputItem.count -= count;
 					return;

@@ -38,10 +38,12 @@ const normalEffects = [EffectConst.EF_LEVEL99, EffectConst.EF_LEVEL99_2, EffectC
 const simpleEffects = [EffectConst.EF_LEVEL99_3];
 
 /**
- * Aura class
+ * Aura class — handles level 99/max level character aura visual effects
  *
- * @constructor
- * @param {object} entity
+ * @class Aura
+ * @property {boolean} isLoaded Whether aura effect is currently loaded
+ * @property {Entity} entity Attached entity reference
+ * @property {number} lastAuraState Saved preference state to track /aura toggle changes
  */
 class Aura {
 	constructor(entity) {

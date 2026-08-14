@@ -64,6 +64,7 @@ const _preferences = Preferences.get(
 let showButtons = false;
 let autoTargetTimer;
 const C_AUTOTARGET_DELAY = 500;
+const C_TOUCH_CLICK_GUARD = 750;
 
 let centerX, centerY;
 let maxDistance = 0;
@@ -80,8 +81,41 @@ let _joystickThumb = null;
 function bindButton(root, selector, handler) {
 	const el = root.querySelector(selector);
 	if (el) {
-		el.addEventListener('click', handler);
-		el.addEventListener('touchstart', handler);
+		let touchHandled = false;
+		let releaseTimer = null;
+
+		const clearGuard = () => {
+			if (releaseTimer !== null) {
+				clearTimeout(releaseTimer);
+				releaseTimer = null;
+			}
+		};
+
+		const releaseGuard = () => {
+			clearGuard();
+			releaseTimer = setTimeout(() => {
+				releaseTimer = null;
+				touchHandled = false;
+			}, C_TOUCH_CLICK_GUARD);
+		};
+
+		el.addEventListener('click', event => {
+			if (touchHandled) {
+				touchHandled = false;
+				clearGuard();
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				return;
+			}
+			handler(event);
+		});
+		el.addEventListener('touchstart', event => {
+			touchHandled = true;
+			clearGuard();
+			handler(event);
+		});
+		el.addEventListener('touchend', releaseGuard);
+		el.addEventListener('touchcancel', releaseGuard);
 	}
 }
 
@@ -136,7 +170,7 @@ MobileUI.init = function init() {
 		['#yButton', 89],
 		['#uButton', 85],
 		['#iButton', 73],
-		['#oButton', 89],
+		['#oButton', 79],
 		['#aButton', 65],
 		['#sButton', 83],
 		['#dButton', 68],

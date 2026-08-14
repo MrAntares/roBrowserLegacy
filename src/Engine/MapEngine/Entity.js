@@ -852,14 +852,14 @@ function onEntityAction(pkt) {
 	}
 
 	if (pkt?.damage > 0) {
-		if (srcEntity.GID === Session.Character.GID) {
+		if (srcEntity.GID === Session.Entity.GID) {
 			// I deal damage
 			ChatBox.addText(
 				DB.getMessage(1607).replace('%s', dstEntity.display.name).replace('%d', pkt.damage),
 				ChatBox.TYPE.INFO,
 				ChatBox.FILTER.BATTLE
 			);
-		} else if (dstEntity.GID === Session.Character.GID) {
+		} else if (dstEntity.GID === Session.Entity.GID) {
 			// I receive damage
 			ChatBox.addText(
 				DB.getMessage(1605).replace('%s', srcEntity.display.name).replace('%d', pkt.damage),
@@ -1200,19 +1200,16 @@ function onEntityViewChange(pkt) {
 					entity.job = pkt.value;
 				}
 				if (entity === Session.Entity) {
-					// Apply the job change first
-					Session.Character.job = pkt.value;
-
 					//Interchange UI depending on Job
 					if (PACKETVER.value >= 20200520) {
 						BasicInfo.getUI().remove();
-						BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Character.job));
+						BasicInfo.selectUIVersionWithJob(DB.getJobClass(pkt.value));
 						BasicInfo.getUI().prepare();
-						BasicInfo.getUI().update('blvl', Session.Character.level);
-						BasicInfo.getUI().update('jlvl', Session.Character.joblevel);
-						BasicInfo.getUI().update('zeny', Session.Character.money);
-						BasicInfo.getUI().update('name', Session.Character.name);
-						BasicInfo.getUI().update('bexp', Session.Character.exp, BasicInfo.getUI().base_exp_next);
+						BasicInfo.getUI().update('blvl', Session.Entity.clevel);
+						BasicInfo.getUI().update('jlvl', Session.Entity.joblevel);
+						BasicInfo.getUI().update('zeny', Session.Entity.money);
+						BasicInfo.getUI().update('name', Session.Entity.display.name);
+						BasicInfo.getUI().update('bexp', BasicInfo.getUI().base_exp, BasicInfo.getUI().base_exp_next);
 						BasicInfo.getUI().append();
 					}
 					// Update UI for all client versions
@@ -1874,7 +1871,7 @@ function onEntityStatusChange(pkt) {
 		// Maya purple card
 		case StatusConst.CLAIRVOYANCE:
 			if (entity === Session.Entity) {
-				Session.Character.intravision = pkt.state;
+				Session.Entity.intravision = pkt.state;
 				EntityManager.forEach(_entity => {
 					/** @type {*} Intentional self-assignment to trigger effectState updates. */
 					// eslint-disable-next-line no-self-assign

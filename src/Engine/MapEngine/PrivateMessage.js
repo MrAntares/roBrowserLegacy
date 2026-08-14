@@ -83,7 +83,7 @@ function onPrivateMessageSent(pkt) {
 	if (pkt.result === 0) {
 		if (user && msg) {
 			if (getShouldOpenWhisperBox(user)) {
-				WhisperBox.addText(user, Session.Character.name + ' : ' + msg, '#ffff00');
+				WhisperBox.addText(user, Session.Entity.display.name + ' : ' + msg, '#ffff00');
 			} else {
 				ChatBox.addText(
 					'[ To <span class="nickname-link" data-nickname="' +

@@ -951,11 +951,11 @@ export function createPartyFriends(config) {
 		 * Save the current positions of all detached member windows to character-specific localStorage.
 		 */
 		Component.saveDetachedMembers = function () {
-			if (!Session.Character || !Session.Character.name) {
+			if (!Session.Entity?.display?.name) {
 				return;
 			}
 
-			const key = `PartyFriends_${Session.Character.name}_Detached`;
+			const key = `PartyFriends_${Session.Entity.display.name}_Detached`;
 			const saved = {};
 			let count = 0;
 
@@ -969,7 +969,7 @@ export function createPartyFriends(config) {
 
 			localStorage.setItem(key, JSON.stringify(saved));
 			if (count > 0) {
-				console.log(`[PartyFriendsV1] Saved ${count} detached windows for ${Session.Character.name}`);
+				console.log(`[PartyFriendsV1] Saved ${count} detached windows for ${Session.Entity.display.name}`);
 			}
 		};
 	} else {
@@ -1487,12 +1487,12 @@ export function createPartyFriends(config) {
 			return;
 		}
 
-		if (!Session.Character || !Session.Character.name) {
+		if (!Session.Entity?.display?.name) {
 			return;
 		}
 
 		if (_savedPositions === null) {
-			const key = `PartyFriends_${Session.Character.name}_Detached`;
+			const key = `PartyFriends_${Session.Entity.display.name}_Detached`;
 			const savedStr = localStorage.getItem(key);
 			_savedPositions = {};
 			try {

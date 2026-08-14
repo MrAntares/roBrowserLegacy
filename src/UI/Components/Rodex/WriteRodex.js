@@ -163,7 +163,7 @@ function onClickSend(e) {
 		return;
 	}
 	const receiver = WriteRodex.receiver;
-	const sender = Session.Character.name;
+	const sender = Session.Entity.display.name;
 	let zeny = parseInt(root.querySelector('.value').value, 10);
 	zeny = isNaN(zeny) ? 0 : zeny;
 	zeny = zeny < 0 ? 0 : zeny;

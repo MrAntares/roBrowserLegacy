@@ -31,6 +31,7 @@ const MapViewer = {};
 /**
  * @var {object} Entity to target
  */
+// Registered as the session entity: MapRenderer reads Session.Entity.position while rendering
 MapViewer.spot = Session.Entity = new Entity();
 
 /**

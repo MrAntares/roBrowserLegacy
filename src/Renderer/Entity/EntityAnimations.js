@@ -11,8 +11,11 @@
 import Renderer from 'Renderer/Renderer.js';
 
 /**
- * @Constructor
- * @param {object} Entity
+ * Manage entity special animations
+ *
+ * @class Animations
+ * @property {Entity} entity Target entity
+ * @property {Array<{tick: number, callback: function(number): boolean}>} list List of active animation callbacks
  */
 class Animations {
 	constructor(entity) {

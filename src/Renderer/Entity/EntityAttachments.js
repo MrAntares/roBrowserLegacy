@@ -30,8 +30,9 @@ const _position = new Int32Array(2);
 /**
  * AttachmentManager class
  *
- * @constructor
- * @param {object} entity attached
+ * @class AttachmentManager
+ * @property {Array<Object>} list List of active entity attachments (sprites, str effects)
+ * @property {Entity} entity Target attached entity
  */
 class AttachmentManager {
 	constructor(entity) {
