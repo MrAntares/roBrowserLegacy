@@ -1,3 +1,58 @@
+/**
+ * Engine/Replay/ReplayTypes.js
+ *
+ * Ragnarok Online Replay Format (.rrf) Types & Constants
+ * Specification derived from adsonpleal/rrfparser reference implementation.
+ */
+
+export const ContainerType = {
+	None: 0,
+	PacketStream: 1,
+	ReplayData: 2,
+	Session: 3,
+	Status: 4,
+	Quests: 6,
+	GroupAndFriends: 7,
+	Items: 8,
+	Companions: 9,
+	UnknownContainingPet: 9,
+	InitialPackets: 14,
+	InitialEntities: 15,
+	InitialFloorItems: 16,
+	Efst: 17,
+	EfstList: 18,
+	EntitiesInfo: 21
+};
+
+export const ContainerTypeNames = {};
+
+for (const [name, code] of Object.entries(ContainerType)) {
+	ContainerTypeNames[code] = name;
+}
+
+export const ItemChunkKind = {
+	INVENTORY: 4510,
+	CART: 4516,
+	CART_MIRROR: 4518,
+	EQUIPPED: 4601,
+	EQUIPPED_COSTUME: 4603
+};
+
+export const ItemRecordTag = {
+	START_CHAIN: 281,
+	END_CHAIN: 282,
+	POS: 285,
+	WEAR_STATE: 286,
+	QTY: 287,
+	CARDS: 290,
+	NAMEID: 291,
+	REFINE: 295,
+	SPRITE: 298,
+	GRADE: 299,
+	OPTIONS_COUNT: 300,
+	OPTIONS: 0x012d // 301
+};
+
 export const ReplayOpCodes = {
 	ZC_ROOM_NEWENTRY: 201,
 	ZC_STORE_ENTRY: 202,
@@ -146,7 +201,7 @@ export const ReplayOpCodes = {
 	End_10000: 10001,
 
 	Begin_13000: 13000,
-	NameList: 13003, // seems to have the accid + name + ??
+	NameList: 13003,
 	End_13000: 13001,
 
 	Begin_14000: 14000,
@@ -176,30 +231,6 @@ export const ReplayOpCodeName = {};
 
 for (const [name, code] of Object.entries(ReplayOpCodes)) {
 	ReplayOpCodeName[code] = name;
-}
-
-export const ContainerType = {
-	None: 0,
-	PacketStream: 1,
-	ReplayData: 2,
-	Session: 3,
-	Status: 4,
-	Quests: 6,
-	GroupAndFriends: 7,
-	Items: 8,
-	UnknownContainingPet: 9,
-	InitialPackets: 14,
-	InitialEntities: 15,
-	InitialFloorItems: 16,
-	Efst: 17,
-	EfstList: 18,
-	EntitiesInfo: 21,
-};
-
-export const ContainerTypeNames = {};
-
-for (const [name, code] of Object.entries(ContainerType)) {
-	ContainerTypeNames[code] = name;
 }
 
 /**
