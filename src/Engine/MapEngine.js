@@ -811,6 +811,17 @@ function onExitSuccess() {
 	}
 
 	WhisperBox.clearAll();
+	GuildEngine.guild_id = 0;
+	BasicInfo.getUI().remove();
+	PlayerViewEquip.getUI().remove();
+	StatusIcons.clean();
+	ChatBox.clean();
+	ShortCut.clean();
+	Quest.getUI().clean();
+	PartyFriends.getUI().clean();
+	CashShop.clean();
+	Session.Achievement = null;
+	Mouse.intersect = false;
 	UIManager.removeComponents();
 	Network.close();
 	Renderer.stop();
