@@ -30,7 +30,7 @@ export default class ReplayParser {
 
 		if (this.header.version === 5) {
 			this.readContainersV5();
-			this.dumpContainers();
+			// this.dumpContainers();
 		} else {
 			console.warn(`[ReplayParser] Unsupported version: ${this.header.version}`);
 		}
@@ -137,9 +137,6 @@ export default class ReplayParser {
 			} else {
 				this.parseGenericContainer(container, body, declaredLength);
 			}
-
-			const typeName = ContainerTypeNames[container.type] || `Unknown(${container.type})`;
-			console.log(`[ReplayParser] Container parsed: ${typeName}, chunks: ${container.data.length}`);
 		}
 	}
 
@@ -648,7 +645,6 @@ export default class ReplayParser {
 			}
 		}
 
-		console.log('[Replay] Session data loaded:', JSON.stringify(buf));
 		return buf;
 	}
 
@@ -1051,7 +1047,6 @@ export default class ReplayParser {
 			}
 		}
 
-		console.log(`[Replay] Items parsed: inventory=${out.inventory.length}, cart=${out.cart.length}, equipped=${out.equipped.length}, costume=${out.equippedCostume.length}`);
 		return out;
 	}
 

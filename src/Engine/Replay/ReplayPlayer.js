@@ -160,7 +160,6 @@ export default class ReplayPlayer {
 	 */
 	_applySession() {
 		this._setState(ReplayState.APPLYING_SESSION);
-		console.log('[Replay] Applying session...');
 
 		const s = this._sessionData;
 		const charName = s.characterName || 'Replay';
@@ -319,7 +318,6 @@ export default class ReplayPlayer {
 
 	_loadMap() {
 		this._setState(ReplayState.LOADING_MAP);
-		console.log('[Replay] Loading map...');
 
 		// ACCEPT_ENTER must be sent after socket connects so MapEngine can call
 		// MapRenderer.setMap() and start the loading sequence.
@@ -396,10 +394,8 @@ export default class ReplayPlayer {
 				// Step 3: Once MapRenderer.loading becomes false AFTER it was true,
 				// map has fully loaded — transition to initial data
 				if (this._mapLoadStarted && !MapRenderer.loading) {
-					console.log('[Replay] Map loaded');
 					this._mapLoadStarted = false;
 					this._setState(ReplayState.PLAYING_INITIAL_DATA);
-					console.log('[Replay] Playing initial packets...');
 				}
 				// Freeze stream time while map is loading
 				this.startTime += now - this.lastTickTime;
@@ -416,9 +412,6 @@ export default class ReplayPlayer {
 				this.startTime = Date.now();
 				this.lastTickTime = now;
 				this._firstStreamTime = this._packetStreamBuffer.length > 0 ? this._packetStreamBuffer[0].time : 0;
-				console.log(
-					`[Replay] Starting packet stream: ${this._packetStreamBuffer.length} chunks (first time: ${this._firstStreamTime}ms)`
-				);
 				break;
 
 			case ReplayState.PLAYING_PACKET_STREAM:
@@ -437,10 +430,8 @@ export default class ReplayPlayer {
 	 * and applies initial Efst buffs, items, and UI stat updates.
 	 */
 	_tickInitialData() {
-		console.log(`[Replay] Injecting initial data groups (${this._initialBuffer.length} groups)...`);
 
 		for (const group of this._initialBuffer) {
-			console.log(`[Replay] Playing ${group.typeName || 'initial group'} (${group.chunks.length} packets)...`);
 			for (const chunk of group.chunks) {
 				const data = chunk.data || chunk;
 				this._pushPacket(data);
@@ -449,7 +440,6 @@ export default class ReplayPlayer {
 
 		// Inject initial buffs (EfstList from Container 18)
 		if (this._efstListBuffer && this._efstListBuffer.length > 0) {
-			console.log(`[Replay] Applying initial EFST buffs (${this._efstListBuffer.length} buffs)...`);
 			for (const efstId of this._efstListBuffer) {
 				this._sendStateChange(efstId, true);
 			}
@@ -534,7 +524,6 @@ export default class ReplayPlayer {
 			}
 		}
 
-		console.log('[Replay] Initial data completed');
 		this._setState(ReplayState.INITIAL_DATA_COMPLETE);
 	}
 
