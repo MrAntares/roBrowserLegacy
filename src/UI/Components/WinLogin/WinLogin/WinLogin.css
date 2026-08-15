@@ -54,8 +54,8 @@
 #WinLogin .btn.replay {
 	width: 54px;
     height: 20px;
-	right: 224px;
-	bottom: 15px;
+	right: 175px;
+    bottom: 4px;
 }
 
 #WinLogin .btn.replay:hover {
