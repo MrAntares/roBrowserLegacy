@@ -224552,9 +224552,11 @@ function intersectEntities(event) {
 	}
 	SkillTargetSelection.remove();
 	if (!Mouse.intersect) return false;
-	if (event.which !== 1) return true;
-	event.stopImmediatePropagation();
-	event.preventDefault();
+	if (event && event.which !== 1) return true;
+	if (event) {
+		event.stopImmediatePropagation();
+		event.preventDefault();
+	}
 	if (_flag & SkillTargetSelection.TYPE.PLACE) {
 		SkillTargetSelection.onUseSkillToPos(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, Mouse.world.x, Mouse.world.y);
 		return false;
@@ -224712,11 +224714,10 @@ var init_SkillTargetSelection = __esmMin((() => {
 		_flag = target;
 		_skill = skill;
 		if (!_flag) return;
-		if (SessionStorage_default.TouchTargeting) {
+		if (SessionStorage_default.TouchTargeting && !(_flag & SkillTargetSelection.TYPE.PLACE)) {
 			const entityFocus = EntityManager.getFocusEntity();
 			if (entityFocus) {
-				if (_flag & SkillTargetSelection.TYPE.PLACE) SkillTargetSelection.onUseSkillToPos(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entityFocus.position[0], entityFocus.position[1]);
-				else SkillTargetSelection.onUseSkillToId(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entityFocus.GID);
+				SkillTargetSelection.onUseSkillToId(_skill.SKID, _skill.useLevel ? _skill.useLevel : _skill.level, entityFocus.GID);
 				SkillTargetSelection.remove();
 				return;
 			}
@@ -224737,6 +224738,9 @@ var init_SkillTargetSelection = __esmMin((() => {
 		if (_skill.useLevel < 1) _skill.useLevel = 1;
 		if (_skill.useLevel > _skill.level) _skill.useLevel = _skill.level;
 		renderLevel(_skill.useLevel, _skillLevel);
+	};
+	SkillTargetSelection.intersect = function intersect(event) {
+		return intersectEntities(event);
 	};
 	/**
 	* Intersect with an entity ID
@@ -309189,6 +309193,10 @@ var init_ScreenShot = __esmMin((() => {
 function onMouseDown(event) {
 	const action = event && event.which || 1;
 	if (!Mouse.intersect) return;
+	if (Mouse.state === Mouse.MOUSE_STATE.USESKILL) {
+		SkillTargetSelection_default.intersect(event);
+		return;
+	}
 	const entityFocus = EntityManager.getFocusEntity();
 	const entityOver = EntityManager.getOverEntity();
 	switch (action) {
