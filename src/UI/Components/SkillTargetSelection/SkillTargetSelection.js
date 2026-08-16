@@ -88,7 +88,7 @@ let _skillLevel;
 /**
  * @var {object} last position used to render the skill level indicator
  */
-const _skillLevelPosition = { x: -1, y: -1 };
+const _skillLevelPosition = { x: NaN, y: NaN };
 
 /**
  * Initialize component
