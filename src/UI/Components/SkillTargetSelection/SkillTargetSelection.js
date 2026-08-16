@@ -176,23 +176,14 @@ SkillTargetSelection.set = function set(skill, target, description) {
 		return;
 	}
 
-	if (Session.TouchTargeting) {
+	if (Session.TouchTargeting && !(_flag & SkillTargetSelection.TYPE.PLACE)) {
 		const entityFocus = EntityManager.getFocusEntity();
 		if (entityFocus) {
-			if (_flag & SkillTargetSelection.TYPE.PLACE) {
-				SkillTargetSelection.onUseSkillToPos(
-					_skill.SKID,
-					_skill.useLevel ? _skill.useLevel : _skill.level,
-					entityFocus.position[0],
-					entityFocus.position[1]
-				);
-			} else {
-				SkillTargetSelection.onUseSkillToId(
-					_skill.SKID,
-					_skill.useLevel ? _skill.useLevel : _skill.level,
-					entityFocus.GID
-				);
-			}
+			SkillTargetSelection.onUseSkillToId(
+				_skill.SKID,
+				_skill.useLevel ? _skill.useLevel : _skill.level,
+				entityFocus.GID
+			);
 			SkillTargetSelection.remove();
 			return;
 		}
@@ -297,12 +288,14 @@ function intersectEntities(event) {
 		return false;
 	}
 
-	if (event.which !== 1) {
+	if (event && event.which !== 1) {
 		return true;
 	}
 
-	event.stopImmediatePropagation();
-	event.preventDefault();
+	if (event) {
+		event.stopImmediatePropagation();
+		event.preventDefault();
+	}
 
 	if (_flag & SkillTargetSelection.TYPE.PLACE) {
 		SkillTargetSelection.onUseSkillToPos(
@@ -327,6 +320,10 @@ function intersectEntities(event) {
 	intersectEntity(entity);
 	return false;
 }
+
+SkillTargetSelection.intersect = function intersect(event) {
+	return intersectEntities(event);
+};
 
 /**
  * Intersect with an entity

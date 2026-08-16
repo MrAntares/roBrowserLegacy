@@ -86,6 +86,11 @@ function onMouseDown(event) {
 		return;
 	}
 
+	if (Mouse.state === Mouse.MOUSE_STATE.USESKILL) {
+		SkillTargetSelection.intersect(event);
+		return;
+	}
+
 	const entityFocus = EntityManager.getFocusEntity();
 	const entityOver = EntityManager.getOverEntity();
 
