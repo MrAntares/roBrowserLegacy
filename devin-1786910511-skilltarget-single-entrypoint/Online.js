@@ -224442,8 +224442,8 @@ var init_SkillTargetSelection = __esmMin((() => {
 	};
 	_flag = 0;
 	_skillLevelPosition = {
-		x: -1,
-		y: -1
+		x: NaN,
+		y: NaN
 	};
 	/**
 	* Initialize component
