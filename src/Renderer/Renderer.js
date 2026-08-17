@@ -130,6 +130,7 @@ class Renderer {
 	 */
 	static init(param) {
 		if (!this.gl) {
+			this.canvas.className = 'ro-scene';
 			this.canvas.style.position = 'absolute';
 			this.canvas.style.top = '0px';
 			this.canvas.style.left = '0px';

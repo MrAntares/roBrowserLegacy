@@ -11,6 +11,7 @@
 
 import glMatrix from 'Utils/gl-matrix.js';
 import MapPreferences from 'Preferences/Map.js';
+import EntityOverlay from 'Renderer/Entity/EntityOverlay.js';
 
 /**
  * Global methods
@@ -140,6 +141,7 @@ class Display {
 		this.gifEmblem = null;
 		this.display = false;
 		this.canvas = document.createElement('canvas');
+		this.canvas.className = 'entity-display';
 		this.ctx = this.canvas.getContext('2d');
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.zIndex = 1;
@@ -166,9 +168,7 @@ class Display {
 	 * Remove GUI from html
 	 */
 	remove() {
-		if (this.canvas.parentNode) {
-			document.body.removeChild(this.canvas);
-		}
+		this.canvas.remove();
 		this.display = false;
 	}
 
@@ -413,10 +413,8 @@ class Display {
 		canvas.style.width = canvas.width / dpr + 'px';
 		canvas.style.height = canvas.height / dpr + 'px';
 
-		// Append to body
-		if (!canvas.parentNode) {
-			document.body.appendChild(canvas);
-		}
+		// Append to the clipped overlay layer
+		EntityOverlay.append(canvas);
 	}
 }
 

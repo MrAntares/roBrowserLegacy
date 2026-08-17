@@ -10,6 +10,7 @@
 
 import glMatrix from 'Utils/gl-matrix.js';
 import Events from 'Core/Events.js';
+import EntityOverlay from 'Renderer/Entity/EntityOverlay.js';
 
 /**
  * Global methods
@@ -52,6 +53,7 @@ class Dialog {
 		this.display = false;
 
 		this.canvas = document.createElement('canvas');
+		this.canvas.className = 'entity-dialog';
 		this.ctx = this.canvas.getContext('2d');
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.zIndex = 1;
@@ -149,9 +151,7 @@ class Dialog {
 		}
 
 		// Remove element
-		if (this.canvas.parentNode) {
-			document.body.removeChild(this.canvas);
-		}
+		this.canvas.remove();
 
 		this.display = false;
 		this.text = '';
@@ -191,10 +191,8 @@ class Dialog {
 		canvas.style.top = ((_pos[1] - canvas.height - 2) | 0) + 'px';
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
-		// Append to body
-		if (!canvas.parentNode) {
-			document.body.appendChild(canvas);
-		}
+		// Append to the clipped overlay layer
+		EntityOverlay.append(canvas);
 	}
 }
 /**

@@ -10,6 +10,7 @@
 
 import glMatrix from 'Utils/gl-matrix.js';
 import DB from 'DB/DBManager.js';
+import EntityOverlay from 'Renderer/Entity/EntityOverlay.js';
 
 /**
  * Global methods
@@ -45,6 +46,7 @@ class Life {
 		this.ap_max = -1;
 		this.display = false;
 		this.canvas = document.createElement('canvas');
+		this.canvas.className = 'entity-life';
 		this.ctx = this.canvas.getContext('2d');
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.zIndex = 1;
@@ -58,9 +60,7 @@ class Life {
 	 */
 	remove() {
 		this.display = false;
-		if (this.canvas.parentNode) {
-			document.body.removeChild(this.canvas);
-		}
+		this.canvas.remove();
 	}
 
 	/**
@@ -199,10 +199,8 @@ class Life {
 		canvas.style.top = (_pos[1] | 0) + 'px';
 		canvas.style.left = ((_pos[0] - canvas.width / 2) | 0) + 'px';
 
-		// Append to body
-		if (!canvas.parentNode) {
-			document.body.appendChild(canvas);
-		}
+		// Append to the clipped overlay layer
+		EntityOverlay.append(canvas);
 	}
 }
 /**
