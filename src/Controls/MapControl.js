@@ -82,12 +82,12 @@ class MapControl {
 function onMouseDown(event) {
 	const action = (event && event.which) || 1;
 
-	if (!Mouse.intersect) {
+	// Skill target selection handles the click itself (right click just cancels it)
+	if (Mouse.state === Mouse.MOUSE_STATE.USESKILL && SkillTargetSelection.onMapMouseDown(event)) {
 		return;
 	}
 
-	if (Mouse.state === Mouse.MOUSE_STATE.USESKILL) {
-		SkillTargetSelection.intersect(event);
+	if (!Mouse.intersect) {
 		return;
 	}
 

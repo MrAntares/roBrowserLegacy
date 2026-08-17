@@ -86,9 +86,9 @@ let _description;
 let _skillLevel;
 
 /**
- * @var {Function} bound mousedown handler reference for cleanup
+ * @var {object} last position used to render the skill level indicator
  */
-let _mousedownHandler = null;
+const _skillLevelPosition = { x: NaN, y: NaN };
 
 /**
  * Initialize component
@@ -104,13 +104,24 @@ SkillTargetSelection.init = function init() {
 	_description.style.display = 'none';
 	_skillLevel.style.display = 'none';
 
-	window.addEventListener('mousemove', event => {
-		_skillLevel.style.left = `${event.pageX + 20}px`;
-		_skillLevel.style.top = `${event.pageY - 18}px`;
-	});
-
 	renderText(DB.getMessage(234), _description);
 };
+
+/**
+ * Move the skill level indicator next to the pointer.
+ * Uses Mouse.screen so it also follows the finger on touch devices.
+ */
+function updateSkillLevelPosition() {
+	if (_skillLevelPosition.x === Mouse.screen.x && _skillLevelPosition.y === Mouse.screen.y) {
+		return;
+	}
+
+	_skillLevelPosition.x = Mouse.screen.x;
+	_skillLevelPosition.y = Mouse.screen.y;
+
+	_skillLevel.style.left = `${Mouse.screen.x + 20}px`;
+	_skillLevel.style.top = `${Mouse.screen.y - 18}px`;
+}
 
 /**
  * Append to body
@@ -120,10 +131,10 @@ SkillTargetSelection.onAppend = function onAppend() {
 	_description.style.display = 'block';
 	_skillLevel.style.display = 'block';
 
-	_mousedownHandler = event => {
-		intersectEntities(event);
-	};
-	window.addEventListener('mousedown', _mousedownHandler, true);
+	updateSkillLevelPosition();
+
+	Renderer.stop(updateSkillLevelPosition);
+	Renderer.render(updateSkillLevelPosition);
 };
 
 /**
@@ -143,10 +154,7 @@ SkillTargetSelection.onKeyDown = function onKeyDown(event) {
  * Remove from body
  */
 SkillTargetSelection.onRemove = function onRemove() {
-	if (_mousedownHandler) {
-		window.removeEventListener('mousedown', _mousedownHandler, true);
-		_mousedownHandler = null;
-	}
+	Renderer.stop(updateSkillLevelPosition);
 
 	Cursor.blockMagnetism = false;
 	Cursor.freeze = false;
@@ -275,13 +283,11 @@ function renderLevel(text, canvas) {
 
 /**
  * Intersect entity when clicking
+ *
+ * @param {MouseEvent} [event] undefined on touch devices
+ * @return {boolean} true when the click still has to be processed by the map controls
  */
 function intersectEntities(event) {
-	if (_mousedownHandler) {
-		window.removeEventListener('mousedown', _mousedownHandler, true);
-		_mousedownHandler = null;
-	}
-
 	SkillTargetSelection.remove();
 
 	if (!Mouse.intersect) {
@@ -321,8 +327,15 @@ function intersectEntities(event) {
 	return false;
 }
 
-SkillTargetSelection.intersect = function intersect(event) {
-	return intersectEntities(event);
+/**
+ * Handle a click/tap on the map while selecting a target.
+ * Called from Controls/MapControl.js, the single entrypoint for mouse and touch input.
+ *
+ * @param {MouseEvent} [event] undefined on touch devices
+ * @return {boolean} true when the click was consumed by the target selection
+ */
+SkillTargetSelection.onMapMouseDown = function onMapMouseDown(event) {
+	return !intersectEntities(event);
 };
 
 /**
