@@ -336316,6 +336316,7 @@ var init_ReplayPlayer = __esmMin((() => {
 			this._packetStreamBuffer = result.packetStreamBuffer;
 			this.durationMs = result.durationMs || 0;
 			this._setState(ReplayState.IDLE);
+			if (this._packetStreamBuffer.length === 0) throw new Error("The replay contains no recorded packets, the file is truncated or corrupt.");
 		}
 		start() {
 			if (!this.parser || !this._sessionData) {
