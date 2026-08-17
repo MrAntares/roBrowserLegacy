@@ -156489,6 +156489,16 @@ var init_BinaryWriter = __esmMin((() => {
 }));
 //#endregion
 //#region src/Network/PacketStructure.js
+/**
+* Reads the trailing name field of a variable length packet, honoring NAME_LENGTH.
+*
+* @param {object} fp - BinaryReader
+* @param {number} end - packet end offset
+* @returns {string}
+*/
+function readTrailingName(fp, end) {
+	return fp.readString(NAME_LENGTH);
+}
 var NAME_LENGTH, MAP_NAME_LENGTH_EXT, PACKET, RENEWAL, CLASSIC, UNUSED_PACKET;
 var init_PacketStructure = __esmMin((() => {
 	init_BinaryWriter();
@@ -164315,6 +164325,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.job = fp.readShort();
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
+		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
 		this.accessory = fp.readShort();
 		this.moveStartTime = fp.readULong();
 		this.accessory2 = fp.readShort();
@@ -164334,7 +164345,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.ySize = fp.readUChar();
 		this.clevel = fp.readShort();
 		this.font = fp.readShort();
-		this.name = fp.readString(NAME_LENGTH);
+		this.name = readTrailingName(fp, end);
 	};
 	PACKET.ZC.NOTIFY_MOVEENTRY6.size = -1;
 	PACKET.ZC.NOTIFY_STANDENTRY6 = function PACKET_ZC_NOTIFY_STANDENTRY6(fp, end) {
@@ -164347,6 +164358,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.job = fp.readShort();
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
+		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -164378,6 +164390,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.job = fp.readShort();
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
+		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -230965,7 +230978,8 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, needSkillLi
 			return;
 		}
 		root.querySelectorAll(".upgradable").forEach((el) => el.classList.remove("upgradable"));
-		skillPosition = getSkillPosition(SessionStorage_default.Entity._job || SessionStorage_default.Entity.job);
+		const entity = SessionStorage_default.Entity;
+		skillPosition = getSkillPosition(entity ? entity._job || entity.job : 0);
 		createSkillDependencyTree();
 		for (let i = 0, count = _list.length; i < count; ++i) this.onUpdateSkill(_list[i].SKID, 0);
 		_list.length = 0;
@@ -231634,19 +231648,19 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, needSkillLi
 	return UIManager.addComponent(Component);
 }
 var init_SkillListCommon = __esmMin((() => {
-	init_DBManager();
-	init_SkillInfo();
-	init_SkillTreeView();
-	init_SessionStorage();
+	init_Elements();
 	init_Client();
+	init_DBManager();
+	init_GUIComponent();
+	init_MouseEventHandler();
 	init_Preferences$1();
 	init_Renderer();
-	init_MouseEventHandler();
-	init_UIManager();
-	init_GUIComponent();
-	init_Elements();
-	init_SkillTargetSelection();
+	init_SessionStorage();
 	init_SkillDescription();
+	init_SkillInfo();
+	init_SkillTargetSelection();
+	init_SkillTreeView();
+	init_UIManager();
 }));
 //#endregion
 //#region src/UI/Components/SkillList/SkillList/SkillList.html?raw
@@ -234178,8 +234192,9 @@ function createBasicInfo(config) {
 				});
 				break;
 			case "zeny": {
-				SessionStorage_default.zeny = val1;
-				const list = val1.toString().split("");
+				const zeny = val1 || 0;
+				SessionStorage_default.zeny = zeny;
+				const list = zeny.toString().split("");
 				const count = list.length;
 				let str = "";
 				for (let i = 0; i < count; i++) str = list[count - i - 1] + (i && i % 3 === 0 ? "," : "") + str;
@@ -256744,6 +256759,13 @@ var init_Upsampling = __esmMin((() => {
 //#region src/Renderer/MapRenderer.js
 var MapRenderer_exports = /* @__PURE__ */ __exportAll({ default: () => MapRenderer });
 /**
+* @param {string} mapname
+* @returns {string} map name without its extension
+*/
+function stripMapExtension(mapname) {
+	return (mapname || "").replace(/\.[^.]*$/, "");
+}
+/**
 * Received progress from Thread
 *
 * @param {number} percent (progress)
@@ -256987,7 +257009,7 @@ var init_MapRenderer = __esmMin((() => {
 			Renderer.stop();
 			UIManager.removeComponents();
 			Cursor.setType(Cursor.ACTION.DEFAULT);
-			if (this.currentMap !== mapname) {
+			if (stripMapExtension(this.currentMap) !== stripMapExtension(mapname)) {
 				this.loading = true;
 				BGM.stop();
 				this.currentMap = mapname;
@@ -304442,7 +304464,7 @@ function forEach(callback) {
 * @returns {object} Entity
 */
 function getEntity(gid) {
-	if (SessionStorage_default.Entity.GID === gid) return SessionStorage_default.Entity;
+	if (SessionStorage_default.Entity && SessionStorage_default.Entity.GID === gid) return SessionStorage_default.Entity;
 	return getEntityByGID(gid);
 }
 /**
@@ -304464,7 +304486,7 @@ function storePendingTransform(aid, key, value) {
 * @returns {object} Entity
 */
 function getEntityByCID(aid) {
-	if (SessionStorage_default.Entity.AID === aid) return SessionStorage_default.Entity;
+	if (SessionStorage_default.Entity && SessionStorage_default.Entity.AID === aid) return SessionStorage_default.Entity;
 	const index = getEntityIndexBy((e) => e.AID, aid);
 	return index < 0 ? null : _list[index];
 }
@@ -305660,6 +305682,7 @@ var init_GUIComponent = __esmMin((() => {
 			this.needFocus = true;
 			this.manager = null;
 			this.__loaded = false;
+			this.__preparing = false;
 			this.__active = false;
 			this.__scrollbarObserver = null;
 			this.__mouseStopBlock = null;
@@ -305681,7 +305704,16 @@ var init_GUIComponent = __esmMin((() => {
 		* Equivalent to UIComponent.prototype.prepare().
 		*/
 		prepare() {
-			if (this.__loaded) return;
+			if (this.__loaded || this.__preparing) return;
+			this.__preparing = true;
+			try {
+				this._prepare();
+				this.__loaded = true;
+			} finally {
+				this.__preparing = false;
+			}
+		}
+		_prepare() {
 			_ensureDeps();
 			this._host = document.createElement("div");
 			this._host.id = this.name;
@@ -305705,7 +305737,6 @@ var init_GUIComponent = __esmMin((() => {
 			if (this.init) this.init();
 			this._setupMouseMode();
 			this._host.remove();
-			this.__loaded = true;
 		}
 		/**
 		* Add the component to the DOM.
@@ -305834,7 +305865,7 @@ var init_GUIComponent = __esmMin((() => {
 			cloned.mouseMode = this.mouseMode;
 			cloned.needFocus = this.needFocus;
 			if (full) for (const key of Object.keys(this)) {
-				if (key === "_host" || key === "_shadow" || key === "_container" || key === "ui" || key === "__loaded" || key === "__scrollbarObserver") continue;
+				if (key === "_host" || key === "_shadow" || key === "_container" || key === "ui" || key === "__loaded" || key === "__preparing" || key === "__scrollbarObserver") continue;
 				cloned[key] = this[key];
 			}
 			return cloned;
@@ -328605,12 +328636,34 @@ function onServerChange(pkt) {
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }
 /**
+* Resets the per-character UI state shared by the exit and restart flows.
+* Components that were never prepared have no root element to clean.
+*/
+function cleanGameUI() {
+	WhisperBox.clearAll();
+	const tasks = [
+		[BasicInfoController, "remove"],
+		[PlayerViewEquipController, "remove"],
+		[StatusIcons_default, "clean"],
+		[ChatBox_default, "clean"],
+		[ShortCut_default, "clean"],
+		[Controller$3, "clean"],
+		[controller, "clean"],
+		[CashShop_default, "clean"]
+	];
+	for (const [target, method] of tasks) {
+		const component = typeof target.getUI === "function" ? target.getUI() : target;
+		if (component && component.__loaded && typeof component[method] === "function") component[method]();
+	}
+}
+/**
 * Ask the server to disconnect
 */
 function onExitRequest$2() {
 	const pkt = new PACKET.CZ.REQUEST_QUIT();
 	Network.sendPacket(pkt);
-	Events.setTimeout(() => {
+	_exitTimer = Events.setTimeout(() => {
+		_exitTimer = null;
 		onExitSuccess();
 	}, 1e3);
 }
@@ -328628,8 +328681,17 @@ function onExitFail(pkt) {
 * @param {object} pkt - PACKET.ZC.REFUSE_QUIT
 */
 function onExitSuccess() {
+	if (_exiting) return;
+	_exiting = true;
+	if (_exitTimer !== null) {
+		Events.clearTimeout(_exitTimer);
+		_exitTimer = null;
+	}
 	if (PacketVerManager_default.value >= 20170315 && SessionStorage_default.WebToken) ShortCut_default.saveToServer();
-	WhisperBox.clearAll();
+	GuildEngine.guild_id = 0;
+	cleanGameUI();
+	SessionStorage_default.Achievement = null;
+	Mouse.intersect = false;
 	UIManager.removeComponents();
 	Network.close();
 	Renderer.stop();
@@ -328669,16 +328731,8 @@ function onResurectionRequest() {
 function onRestartAnswer(pkt) {
 	if (!pkt.type) ChatBox_default.addText(DB.getMessage(502), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	else {
-		WhisperBox.clearAll();
 		GuildEngine.guild_id = 0;
-		BasicInfoController.getUI().remove();
-		PlayerViewEquipController.getUI().remove();
-		StatusIcons_default.clean();
-		ChatBox_default.clean();
-		ShortCut_default.clean();
-		Controller$3.getUI().clean();
-		controller.getUI().clean();
-		CashShop_default.clean();
+		cleanGameUI();
 		SessionStorage_default.Achievement = null;
 		Mouse.intersect = false;
 		MapRenderer.free();
@@ -328693,14 +328747,6 @@ function onRestartAnswer(pkt) {
 function onDisconnectAnswer(pkt) {
 	switch (pkt.result) {
 		case 0:
-			WhisperBox.clearAll();
-			BasicInfoController.getUI().remove();
-			PlayerViewEquipController.getUI().remove();
-			StatusIcons_default.clean();
-			ChatBox_default.clean();
-			ShortCut_default.clean();
-			Controller$3.getUI().clean();
-			controller.getUI().clean();
 			Renderer.stop();
 			onExitSuccess();
 			break;
@@ -328962,7 +329008,7 @@ function onReassemblyAuth(pkt) {
 		return;
 	}
 }
-var _mapName, _isInitialised, snCounter, chatLines, packetMap, MapEngine, _walkTimer, _walkLastTick;
+var _mapName, _isInitialised, _exiting, _exitTimer, snCounter, chatLines, packetMap, MapEngine, _walkTimer, _walkLastTick;
 var init_MapEngine = __esmMin((() => {
 	init_DBManager();
 	init_Configs();
@@ -329075,6 +329121,8 @@ var init_MapEngine = __esmMin((() => {
 	init_preload_helper();
 	_mapName = "";
 	_isInitialised = false;
+	_exiting = false;
+	_exitTimer = null;
 	snCounter = 0;
 	chatLines = 0;
 	packetMap = /* @__PURE__ */ new Map();
@@ -329092,6 +329140,8 @@ var init_MapEngine = __esmMin((() => {
 		*/
 		static init(ip, port, mapName) {
 			_mapName = mapName;
+			_exiting = false;
+			_exitTimer = null;
 			const forceAddress = Configs.get("forceUseAddress");
 			const server_info = Configs.getServer();
 			const current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
@@ -335321,6 +335371,1433 @@ var init_WinLogin$2 = __esmMin((() => {
 	WinLogin_default$1 = ":host {\r\n	width: 280px;\r\n	height: 120px;\r\n	top: 60%;\r\n	left: calc(50% - 140px);\r\n}\r\n\r\n#WinLogin {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 120px;\r\n}\r\n#WinLogin input {\r\n	position: absolute;\r\n	left: 91px;\r\n	height: 18px;\r\n	width: 127px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding-left: 2px;\r\n	outline: none;\r\n}\r\n#WinLogin input.user {\r\n	top: 29px;\r\n}\r\n#WinLogin input.pass {\r\n	top: 61px;\r\n}\r\n#WinLogin .save {\r\n	position: absolute;\r\n	top: 32px;\r\n	right: 10px;\r\n	display: block;\r\n	width: 38px;\r\n	height: 10px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#WinLogin .btn {\r\n	position: absolute;\r\n	border: 0;\r\n	width: 42px;\r\n	height: 20px;\r\n	bottom: 4px;\r\n	background-color: transparent;\r\n}\r\n#WinLogin .btn.connect {\r\n	right: 50px;\r\n}\r\n#WinLogin .btn.signup {\r\n	left: 5px;\r\n}\r\n#WinLogin .btn.exit {\r\n	right: 5px;\r\n}\r\n\r\n/* Override browser autofill styles */\r\n#WinLogin input:-webkit-autofill,\r\n#WinLogin input:-webkit-autofill:hover,\r\n#WinLogin input:-webkit-autofill:focus,\r\n#WinLogin input:-webkit-autofill:active,\r\n#WinLogin input:-internal-autofill-selected,\r\n#WinLogin input:-internal-autofill-previewed {\r\n	-webkit-background-clip: text;\r\n	transition: background-color 5000sease-in-out 0s;\r\n	box-shadow: inset 0 0 20px 20px #ffffff00;\r\n}\r\n";
 }));
 //#endregion
+//#region src/Engine/Replay/ReplayTypes.js
+/**
+* Informational replay logging, only emitted in development builds.
+* Warnings and errors are reported unconditionally.
+*
+* @param {...*} args
+*/
+function replayLog(...args) {
+	if (Configs.get("development", false)) console.log(...args);
+}
+var ContainerType, ContainerTypeNames, ItemChunkKind, ItemRecordTag, ReplayOpCodes, ReplayOpCodeName, ReplayState;
+var init_ReplayTypes = __esmMin((() => {
+	init_Configs();
+	ContainerType = {
+		None: 0,
+		PacketStream: 1,
+		ReplayData: 2,
+		Session: 3,
+		Status: 4,
+		Quests: 6,
+		GroupAndFriends: 7,
+		Items: 8,
+		Companions: 9,
+		InitialPackets: 14,
+		InitialEntities: 15,
+		InitialFloorItems: 16,
+		Efst: 17,
+		EfstList: 18,
+		EntitiesInfo: 21
+	};
+	ContainerTypeNames = {};
+	for (const [name, code] of Object.entries(ContainerType)) ContainerTypeNames[code] = name;
+	ItemChunkKind = {
+		INVENTORY: 4510,
+		CART: 4516,
+		CART_MIRROR: 4518,
+		EQUIPPED: 4601,
+		EQUIPPED_COSTUME: 4603
+	};
+	ItemRecordTag = {
+		START_CHAIN: 281,
+		END_CHAIN: 282,
+		POS: 285,
+		WEAR_STATE: 286,
+		QTY: 287,
+		CARDS: 290,
+		NAMEID: 291,
+		REFINE: 295,
+		SPRITE: 298,
+		GRADE: 299,
+		OPTIONS_COUNT: 300,
+		OPTIONS: 301
+	};
+	ReplayOpCodes = {
+		ZC_ROOM_NEWENTRY: 201,
+		ZC_STORE_ENTRY: 202,
+		ZC_PROGRESS: 203,
+		ZC_BUYING_STORE_ENTRY: 204,
+		ZC_ITEM_ENTRY: 207,
+		ZC_NOTIFY_MOVEENTRY8: 208,
+		ZC_NOTIFY_STANDENTRY7: 210,
+		ZC_NOTIFY_MOVEENTRY11: 214,
+		ZC_NOTIFY_STANDENTRY11: 217,
+		Begin_950: 950,
+		End_950: 951,
+		Region: 961,
+		Service: 962,
+		Sex: 963,
+		Charactername: 964,
+		Mapname: 965,
+		Maptype: 966,
+		PosX: 967,
+		PosY: 968,
+		Direction: 969,
+		Length: 970,
+		Begin_1000: 1e3,
+		End_1000: 1001,
+		Aid: 1010,
+		Gid: 1011,
+		Job: 1014,
+		Exp: 1015,
+		Level: 1016,
+		JobPoint: 1017,
+		NextExp: 1018,
+		JobLevel: 1019,
+		SkillPoint: 1020,
+		Str: 1024,
+		Agi: 1025,
+		Vit: 1026,
+		Int: 1027,
+		Dex: 1028,
+		Luk: 1029,
+		PlusStr: 1030,
+		PlusAgi: 1031,
+		PlusVit: 1032,
+		PlusInt: 1033,
+		PlusDex: 1034,
+		PlusLuk: 1035,
+		ASPD: 1036,
+		AttackPower: 1037,
+		MDefPower: 1038,
+		PlusASPD: 1039,
+		ItemDefPower: 1040,
+		PlusDefPower: 1041,
+		RefiningPower: 1042,
+		MaxMattPower: 1043,
+		MinMattPower: 1044,
+		PlusMDefPower: 1045,
+		HitSuccessValue: 1046,
+		AvoidSuccessValue: 1047,
+		CriticalSuccessValue: 1048,
+		PlusAvoidSuccessValue: 1049,
+		EquipArrowIndex: 1050,
+		Money: 1051,
+		Speed: 1052,
+		Honor: 1053,
+		NextJobExp: 1054,
+		JobExp: 1055,
+		Virtue: 1056,
+		Head: 1060,
+		Weapon: 1061,
+		Shield: 1062,
+		BodyPalette: 1063,
+		HeadPalette: 1064,
+		Accessory: 1065,
+		Accessory2: 1066,
+		Accessory3: 1067,
+		EffectState: 1070,
+		RobePalette: 1071,
+		CartCurCount: 1086,
+		CartMaxCount: 1087,
+		CartCurWeight: 1088,
+		CartMaxWeight: 1089,
+		Begin_2000: 2e3,
+		End_2000: 2001,
+		BonusStr: 2010,
+		BonusAgi: 2011,
+		BonusVit: 2012,
+		BonusInt: 2013,
+		BonusDex: 2014,
+		BonusLuk: 2015,
+		CurWeight: 2017,
+		MaxWeight: 2018,
+		Hp: 2029,
+		MaxHp: 2030,
+		Sp: 2031,
+		MaxSp: 2032,
+		Begin_3500: 3500,
+		End_3500: 3501,
+		QuestInfo: 3510,
+		Begin_4000: 4e3,
+		End_4000: 4001,
+		GroupName: 4014,
+		GroupInfo: 4015,
+		FriendInfo: 4016,
+		Begin_4500: 4500,
+		End_4500: 4501,
+		InventoryItems: 4510,
+		EquippedItems: 4601,
+		EquippedShadowItems: 4603,
+		CartItems: 4516,
+		Begin_5000: 5e3,
+		End_5000: 5001,
+		Begin_5300: 5300,
+		PetGid: 5301,
+		PetIsNameModified: 5302,
+		PetName: 5303,
+		PetAccessory: 5304,
+		PetJob: 5305,
+		PetLevel: 5306,
+		PetFullness: 5307,
+		PetRelation: 5308,
+		PetEggIndex: 5309,
+		PetOldFullness: 5310,
+		Begin_5500: 5500,
+		End_5500: 5501,
+		Begin_6500: 6500,
+		End_6500: 6501,
+		Begin_7000: 7e3,
+		End_7000: 7001,
+		Begin_8000: 8e3,
+		End_8000: 8001,
+		Begin_10000: 1e4,
+		End_10000: 10001,
+		Begin_13000: 13e3,
+		NameList: 13003,
+		End_13000: 13001,
+		Begin_14000: 14e3,
+		End_14000: 14001,
+		Begin_15000: 15e3,
+		End_15000: 15001,
+		Begin_17000: 17e3,
+		End_17000: 17001,
+		Begin_19000: 19e3,
+		End_19000: 19001,
+		EfstInfo: 19011,
+		Begin_20000: 2e4,
+		End_20000: 20001,
+		Begin_25000: 25e3,
+		End_25000: 25001,
+		Begin_26000: 26e3,
+		End_26000: 26001
+	};
+	ReplayOpCodeName = {};
+	for (const [name, code] of Object.entries(ReplayOpCodes)) ReplayOpCodeName[code] = name;
+	ReplayState = {
+		IDLE: "IDLE",
+		LOADING_REPLAY: "LOADING_REPLAY",
+		APPLYING_SESSION: "APPLYING_SESSION",
+		LOADING_MAP: "LOADING_MAP",
+		PLAYING_INITIAL_DATA: "PLAYING_INITIAL_DATA",
+		INITIAL_DATA_COMPLETE: "INITIAL_DATA_COMPLETE",
+		PLAYING_PACKET_STREAM: "PLAYING_PACKET_STREAM",
+		REPLAY_FINISHED: "REPLAY_FINISHED"
+	};
+}));
+//#endregion
+//#region src/Engine/Replay/ReplaySocket.js
+var ReplaySocket;
+var init_ReplaySocket = __esmMin((() => {
+	ReplaySocket = class {
+		constructor(host, port) {
+			this.host = host;
+			this.port = port;
+			this.connected = false;
+			this.onMessage = null;
+			this.onClose = null;
+			this.onError = null;
+			this.onComplete = null;
+			setTimeout(() => {
+				this.connected = true;
+				if (this.onComplete) this.onComplete(true);
+			}, 10);
+		}
+		send(buffer) {}
+		close() {
+			this.connected = false;
+			if (this.onClose) this.onClose();
+		}
+		/**
+		* Feed data into NetworkManager
+		* @param {Uint8Array|ArrayBuffer} data
+		*/
+		push(data) {
+			if (!this.connected || !this.onMessage || !data) return;
+			let buffer;
+			if (data instanceof Uint8Array) buffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+			else if (data instanceof ArrayBuffer) buffer = data;
+			else return;
+			this.onMessage(buffer);
+		}
+	};
+}));
+//#endregion
+//#region src/Engine/Replay/ReplayParser.js
+var HEADER_BYTES, DESCRIPTOR_BYTES, DESCRIPTOR_COUNT, ReplayParser;
+var init_ReplayParser = __esmMin((() => {
+	init_BinaryReader();
+	init_ItemType();
+	init_EquipmentLocation();
+	init_ReplayTypes();
+	HEADER_BYTES = 112;
+	DESCRIPTOR_BYTES = 10;
+	DESCRIPTOR_COUNT = 24;
+	ReplayParser = class {
+		constructor(fileBuffer) {
+			this.fp = new BinaryReader(fileBuffer);
+			this.header = {};
+			this.containers = [];
+			this.size = fileBuffer.byteLength;
+		}
+		parse() {
+			this.readHeader();
+			replayLog("[ReplayParser] Header parsed:", this.header);
+			if (this.header.version === 5) this.readContainersV5();
+			else console.warn(`[ReplayParser] Unsupported version: ${this.header.version}`);
+			return this.buildBuffers();
+		}
+		readHeader() {
+			if (this.size < HEADER_BYTES) throw new Error(`Replay file is truncated: ${this.size} bytes, expected at least ${HEADER_BYTES}`);
+			this.fp.seek(0, 0);
+			this.header.rawPrefix = this.fp.readBinaryString(100);
+			this.header.version = this.fp.readUByte();
+			this.header.sig = this.fp.readBinaryString(3);
+			this.header.recordedAt = {
+				year: this.fp.readShort(),
+				month: this.fp.readUByte(),
+				day: this.fp.readUByte()
+			};
+			this.header.dateUnused = this.fp.readUByte();
+			this.header.recordedAt.hour = this.fp.readUByte();
+			this.header.recordedAt.minute = this.fp.readUByte();
+			this.header.recordedAt.second = this.fp.readUByte();
+			this.header.date = this.header.recordedAt;
+			this.keys = this.deriveKeys(this.header.recordedAt);
+		}
+		deriveKeys(d) {
+			const view = /* @__PURE__ */ new DataView(/* @__PURE__ */ new ArrayBuffer(4));
+			view.setInt16(0, d.year, true);
+			view.setUint8(2, d.month);
+			view.setUint8(3, d.day);
+			const k1 = view.getInt32(0, true) >> 5;
+			view.setUint8(0, 0);
+			view.setUint8(1, d.hour);
+			view.setUint8(2, d.minute);
+			view.setUint8(3, d.second);
+			return {
+				k1,
+				k2: view.getInt32(0, true) >> 3
+			};
+		}
+		decryptChunk(data, size) {
+			const out = new Uint8Array(data.length);
+			out.set(data);
+			const view = new DataView(out.buffer, out.byteOffset, out.byteLength);
+			const wordCount = Math.floor(size / 4);
+			for (let cursor = 0; cursor < wordCount; cursor++) {
+				const old = view.getInt32(cursor * 4, true);
+				const xorVal = Math.imul(this.keys.k1 + cursor + 1, this.keys.k2);
+				view.setInt32(cursor * 4, old ^ xorVal, true);
+			}
+			return out;
+		}
+		readContainersV5() {
+			const tableOffset = HEADER_BYTES;
+			const tableEnd = 352;
+			if (this.size < tableEnd) throw new Error(`Replay descriptor table is truncated: ${this.size} bytes, expected at least ${tableEnd}`);
+			for (let i = 0; i < DESCRIPTOR_COUNT; i++) {
+				this.fp.seek(tableOffset + i * DESCRIPTOR_BYTES, 0);
+				const type = this.fp.readUShort();
+				const declaredLength = this.fp.readLong();
+				const offset = this.fp.readLong();
+				let realLength = declaredLength;
+				if (realLength === 0 && offset > 0) realLength = this.size - offset;
+				const container = {
+					type,
+					declaredLength,
+					offset,
+					realLength,
+					data: []
+				};
+				this.containers.push(container);
+				if (offset === 0 && declaredLength === 0) continue;
+				if (offset < 0 || offset >= this.size || realLength <= 0 || offset + realLength > this.size) {
+					console.warn(`[ReplayParser] Skipping out of bounds container ${ContainerTypeNames[type] || type} at ${offset} (${realLength} bytes)`);
+					continue;
+				}
+				this.fp.seek(offset, 0);
+				const body = new Uint8Array(this.fp.buffer, offset, realLength);
+				if (type === ContainerType.PacketStream) this.parsePacketStream(container, body);
+				else this.parseGenericContainer(container, body, declaredLength);
+			}
+		}
+		parsePacketStream(container, body) {
+			const view = new DataView(body.buffer, body.byteOffset, body.byteLength);
+			let ptr = 0;
+			while (ptr + 10 <= body.byteLength) {
+				const id = view.getInt32(ptr, true);
+				const time = view.getInt32(ptr + 4, true);
+				const length = view.getUint16(ptr + 8, true);
+				const dataStart = ptr + 10;
+				const dataEnd = dataStart + length;
+				if (dataEnd > body.byteLength) break;
+				const encrypted = body.subarray(dataStart, dataEnd);
+				const decrypted = this.decryptChunk(encrypted, length);
+				const packetId = decrypted.length >= 2 ? decrypted[0] | decrypted[1] << 8 : 0;
+				container.data.push({
+					id,
+					time,
+					length,
+					data: decrypted,
+					packetId
+				});
+				ptr = dataEnd;
+			}
+		}
+		parseGenericContainer(container, body, declaredLength) {
+			if (declaredLength <= 0) return;
+			const decrypted = this.decryptChunk(body, declaredLength);
+			const view = new DataView(decrypted.buffer, decrypted.byteOffset, decrypted.byteLength);
+			let ptr = 0;
+			while (ptr + 6 <= declaredLength) {
+				const id = view.getInt16(ptr, true);
+				const length = view.getInt32(ptr + 2, true);
+				const dataStart = ptr + 6;
+				const dataEnd = dataStart + length;
+				if (length < 0 || dataEnd > decrypted.byteLength) break;
+				const data = decrypted.subarray(dataStart, dataEnd);
+				container.data.push({
+					id,
+					length,
+					data
+				});
+				ptr = dataEnd;
+			}
+		}
+		buildBuffers() {
+			const sessionBuffer = this.buildSessionBuffer();
+			const itemsBuffer = this.buildItemsBuffer();
+			const petBuffer = this.buildPetBuffer();
+			const statusBuffer = this.buildStatusBuffer();
+			const efstListBuffer = this.buildEfstListBuffer();
+			Object.assign(sessionBuffer, statusBuffer);
+			if (petBuffer) sessionBuffer.pet = petBuffer;
+			const initialBuffer = [];
+			const initialTypes = [
+				ContainerType.InitialPackets,
+				ContainerType.InitialEntities,
+				ContainerType.InitialFloorItems
+			];
+			for (const container of this.containers) {
+				if (!initialTypes.includes(container.type)) continue;
+				if (container.data.length === 0) continue;
+				const typeName = ContainerTypeNames[container.type] || `Unknown(${container.type})`;
+				const chunks = container.data.filter((chunk) => chunk.data && chunk.data.byteLength > 0).map((chunk) => chunk.data);
+				if (chunks.length > 0) {
+					initialBuffer.push({
+						type: container.type,
+						typeName,
+						chunks
+					});
+					replayLog(`[Replay] Loaded ${typeName} (${container.type}): ${chunks.length} packets`);
+				}
+			}
+			const packetStreamContainer = this.containers.find((c) => c.type === ContainerType.PacketStream);
+			const packetStreamBuffer = packetStreamContainer ? packetStreamContainer.data : [];
+			replayLog(`[Replay] Packet stream loaded: ${packetStreamBuffer.length} chunks`);
+			let lastPacketTime = 0;
+			if (packetStreamBuffer.length > 0) lastPacketTime = packetStreamBuffer[packetStreamBuffer.length - 1].time || 0;
+			const durationMs = Math.max(sessionBuffer.durationMs || 0, lastPacketTime);
+			sessionBuffer.durationMs = durationMs;
+			return {
+				header: this.header,
+				sessionBuffer,
+				itemsBuffer,
+				petBuffer,
+				statusBuffer,
+				efstListBuffer,
+				initialBuffer,
+				packetStreamBuffer,
+				durationMs
+			};
+		}
+		buildSessionBuffer() {
+			const buf = {};
+			const readU8 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint8(0);
+			const readU16 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint16(0, true);
+			const readU32 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
+			const readStringById = (container, id) => {
+				const ch = container.data.find((c) => c.id === id);
+				if (!ch || ch.data.byteLength === 0) return null;
+				return this.readString(ch.data);
+			};
+			const readU32ById = (container, id) => {
+				const ch = container.data.find((c) => c.id === id);
+				if (!ch || ch.data.byteLength < 4) return null;
+				return readU32(ch);
+			};
+			const readU16ById = (container, id) => {
+				const ch = container.data.find((c) => c.id === id);
+				if (!ch || ch.data.byteLength < 2) return null;
+				return readU16(ch);
+			};
+			const readU8ById = (container, id) => {
+				const ch = container.data.find((c) => c.id === id);
+				if (!ch || ch.data.byteLength < 1) return null;
+				return readU8(ch);
+			};
+			const replayData = this.containers.find((c) => c.type === ContainerType.ReplayData);
+			if (replayData) {
+				const sexVal = readU32ById(replayData, 963) ?? readU8ById(replayData, 963);
+				if (sexVal !== null) buf.sex = sexVal === 0 || sexVal === 1 ? sexVal : 0;
+				let name = readStringById(replayData, 964);
+				if (!name && replayData.data.length > 4 && replayData.data[4].data?.byteLength > 0) name = this.readString(replayData.data[4].data);
+				if (name) buf.characterName = name;
+				let mapName = readStringById(replayData, 965);
+				if (!mapName && replayData.data.length > 5 && replayData.data[5].data?.byteLength > 0) mapName = this.readString(replayData.data[5].data);
+				if (mapName) {
+					if (!mapName.endsWith(".rsw")) mapName += ".rsw";
+					buf.mapName = mapName;
+				}
+				const gx = readU32ById(replayData, 967);
+				if (gx !== null) buf.startX = gx;
+				const gy = readU32ById(replayData, 968);
+				if (gy !== null) buf.startY = gy;
+				const dir = readU32ById(replayData, 969) ?? readU8ById(replayData, 969);
+				if (dir !== null) buf.startDir = dir;
+				const lengthMs = readU32ById(replayData, 970);
+				if (lengthMs !== null) buf.durationMs = lengthMs;
+			}
+			const sessionContainer = this.containers.find((c) => c.type === ContainerType.Session);
+			if (sessionContainer) {
+				if (!buf.characterName) {
+					const charName = readStringById(sessionContainer, 964);
+					if (charName) buf.characterName = charName;
+				}
+				const aid = readU32ById(sessionContainer, 1010);
+				if (aid !== null) {
+					buf.AID = aid;
+					buf.GID = aid;
+				}
+				const gid = readU32ById(sessionContainer, 1011);
+				if (gid !== null) buf.GID = gid;
+				const job = readU32ById(sessionContainer, 1014);
+				if (job !== null) buf.job = job;
+				const exp = readU32ById(sessionContainer, 1015);
+				if (exp !== null) buf.exp = exp;
+				const level = readU32ById(sessionContainer, 1016);
+				if (level !== null) {
+					buf.level = level;
+					buf.clevel = level;
+				}
+				const jobPoint = readU32ById(sessionContainer, 1017);
+				if (jobPoint !== null) buf.jobPoint = jobPoint;
+				const nextExp = readU32ById(sessionContainer, 1018);
+				if (nextExp !== null) buf.exp_next = nextExp;
+				const jobLevel = readU32ById(sessionContainer, 1019);
+				if (jobLevel !== null) buf.joblevel = jobLevel;
+				const skillPoint = readU32ById(sessionContainer, 1020);
+				if (skillPoint !== null) buf.skillPoint = skillPoint;
+				const str = readU32ById(sessionContainer, 1024);
+				if (str !== null) buf.str = str;
+				const agi = readU32ById(sessionContainer, 1025);
+				if (agi !== null) buf.agi = agi;
+				const vit = readU32ById(sessionContainer, 1026);
+				if (vit !== null) buf.vit = vit;
+				const intVal = readU32ById(sessionContainer, 1027);
+				if (intVal !== null) buf.int = intVal;
+				const dex = readU32ById(sessionContainer, 1028);
+				if (dex !== null) buf.dex = dex;
+				const luk = readU32ById(sessionContainer, 1029);
+				if (luk !== null) buf.luk = luk;
+				const plusStr = readU32ById(sessionContainer, 1030);
+				if (plusStr !== null) {
+					buf.plusStr = plusStr;
+					buf.str_bonus = plusStr;
+				}
+				const plusAgi = readU32ById(sessionContainer, 1031);
+				if (plusAgi !== null) {
+					buf.plusAgi = plusAgi;
+					buf.agi_bonus = plusAgi;
+				}
+				const plusVit = readU32ById(sessionContainer, 1032);
+				if (plusVit !== null) {
+					buf.plusVit = plusVit;
+					buf.vit_bonus = plusVit;
+				}
+				const plusInt = readU32ById(sessionContainer, 1033);
+				if (plusInt !== null) {
+					buf.plusInt = plusInt;
+					buf.int_bonus = plusInt;
+				}
+				const plusDex = readU32ById(sessionContainer, 1034);
+				if (plusDex !== null) {
+					buf.plusDex = plusDex;
+					buf.dex_bonus = plusDex;
+				}
+				const plusLuk = readU32ById(sessionContainer, 1035);
+				if (plusLuk !== null) {
+					buf.plusLuk = plusLuk;
+					buf.luk_bonus = plusLuk;
+				}
+				const aspd = readU32ById(sessionContainer, 1036);
+				if (aspd !== null) {
+					buf.aspd = aspd;
+					buf.attack_speed = aspd;
+				}
+				const atk = readU32ById(sessionContainer, 1037);
+				if (atk !== null) buf.atk = atk;
+				const mdef = readU32ById(sessionContainer, 1038);
+				if (mdef !== null) buf.mdef = mdef;
+				const plusAspd = readU32ById(sessionContainer, 1039);
+				if (plusAspd !== null) buf.plusAspd = plusAspd;
+				const def = readU32ById(sessionContainer, 1040);
+				if (def !== null) buf.def = def;
+				const plusDef = readU32ById(sessionContainer, 1041);
+				if (plusDef !== null) buf.plusDef = plusDef;
+				const refiningPower = readU32ById(sessionContainer, 1042);
+				if (refiningPower !== null) buf.refiningPower = refiningPower;
+				const maxMatk = readU32ById(sessionContainer, 1043);
+				if (maxMatk !== null) buf.maxMatk = maxMatk;
+				const minMatk = readU32ById(sessionContainer, 1044);
+				if (minMatk !== null) buf.minMatk = minMatk;
+				const plusMdef = readU32ById(sessionContainer, 1045);
+				if (plusMdef !== null) buf.plusMdef = plusMdef;
+				const hit = readU32ById(sessionContainer, 1046);
+				if (hit !== null) buf.hit = hit;
+				const flee = readU32ById(sessionContainer, 1047);
+				if (flee !== null) buf.flee = flee;
+				const crit = readU32ById(sessionContainer, 1048);
+				if (crit !== null) buf.crit = crit;
+				const plusFlee = readU32ById(sessionContainer, 1049);
+				if (plusFlee !== null) buf.plusFlee = plusFlee;
+				const equipArrowIndex = readU16ById(sessionContainer, 1050);
+				if (equipArrowIndex !== null) buf.equipArrowIndex = equipArrowIndex;
+				const money = readU32ById(sessionContainer, 1051);
+				if (money !== null) buf.money = money;
+				const speed = readU32ById(sessionContainer, 1052);
+				if (speed !== null) buf.speed = speed;
+				const honor = readU32ById(sessionContainer, 1053);
+				if (honor !== null) buf.honor = honor;
+				const nextJobExp = readU32ById(sessionContainer, 1054);
+				if (nextJobExp !== null) buf.job_exp_next = nextJobExp;
+				const jobExp = readU32ById(sessionContainer, 1055);
+				if (jobExp !== null) buf.job_exp = jobExp;
+				const virtue = readU32ById(sessionContainer, 1056);
+				if (virtue !== null) buf.virtue = virtue;
+				const hairStyle = readU32ById(sessionContainer, 1060);
+				if (hairStyle !== null) buf.head = hairStyle;
+				const weapon = readU32ById(sessionContainer, 1061);
+				if (weapon !== null) buf.weapon = weapon;
+				const shield = readU32ById(sessionContainer, 1062);
+				if (shield !== null) buf.shield = shield;
+				const clothesColor = readU32ById(sessionContainer, 1063);
+				if (clothesColor !== null) buf.bodypalette = clothesColor;
+				const hairColor = readU32ById(sessionContainer, 1064);
+				if (hairColor !== null) buf.headpalette = hairColor;
+				const accessory = readU32ById(sessionContainer, 1065);
+				if (accessory !== null) buf.accessory = accessory;
+				const accessory2 = readU32ById(sessionContainer, 1066);
+				if (accessory2 !== null) buf.accessory2 = accessory2;
+				const accessory3 = readU32ById(sessionContainer, 1067);
+				if (accessory3 !== null) buf.accessory3 = accessory3;
+				const option = readU32ById(sessionContainer, 1070);
+				if (option !== null) {
+					buf.effectState = option;
+					buf.option = option;
+				}
+				const robe = readU32ById(sessionContainer, 1071);
+				if (robe !== null) buf.robe = robe;
+				const cartCurCount = readU16ById(sessionContainer, 1086);
+				if (cartCurCount !== null) buf.cartCurCount = cartCurCount;
+				const cartMaxCount = readU16ById(sessionContainer, 1087);
+				if (cartMaxCount !== null) buf.cartMaxCount = cartMaxCount;
+				const cartCurWeight = readU32ById(sessionContainer, 1088);
+				if (cartCurWeight !== null) buf.cartCurWeight = cartCurWeight;
+				const cartMaxWeight = readU32ById(sessionContainer, 1089);
+				if (cartMaxWeight !== null) buf.cartMaxWeight = cartMaxWeight;
+				buf.hasCart = (buf.cartMaxCount || 0) > 0 || (buf.cartMaxWeight || 0) > 0;
+			}
+			return buf;
+		}
+		buildStatusBuffer() {
+			const buf = {};
+			const statusContainer = this.containers.find((c) => c.type === ContainerType.Status);
+			if (!statusContainer) return buf;
+			const readU32 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
+			const readU32ById = (container, id) => {
+				const ch = container.data.find((c) => c.id === id);
+				if (!ch || ch.data.byteLength < 4) return null;
+				return readU32(ch);
+			};
+			const bonusStr = readU32ById(statusContainer, 2010);
+			if (bonusStr !== null) buf.str_bonus = bonusStr;
+			const bonusAgi = readU32ById(statusContainer, 2011);
+			if (bonusAgi !== null) buf.agi_bonus = bonusAgi;
+			const bonusVit = readU32ById(statusContainer, 2012);
+			if (bonusVit !== null) buf.vit_bonus = bonusVit;
+			const bonusInt = readU32ById(statusContainer, 2013);
+			if (bonusInt !== null) buf.int_bonus = bonusInt;
+			const bonusDex = readU32ById(statusContainer, 2014);
+			if (bonusDex !== null) buf.dex_bonus = bonusDex;
+			const bonusLuk = readU32ById(statusContainer, 2015);
+			if (bonusLuk !== null) buf.luk_bonus = bonusLuk;
+			const curWeight = readU32ById(statusContainer, 2017);
+			if (curWeight !== null) buf.weight = curWeight;
+			const maxWeight = readU32ById(statusContainer, 2018);
+			if (maxWeight !== null) buf.max_weight = maxWeight;
+			const hp = readU32ById(statusContainer, 2029);
+			if (hp !== null) buf.hp = hp;
+			const maxHp = readU32ById(statusContainer, 2030);
+			if (maxHp !== null) buf.maxHp = maxHp;
+			const sp = readU32ById(statusContainer, 2031);
+			if (sp !== null) buf.sp = sp;
+			const maxSp = readU32ById(statusContainer, 2032);
+			if (maxSp !== null) buf.maxSp = maxSp;
+			return buf;
+		}
+		buildPetBuffer() {
+			const compContainer = this.containers.find((c) => c.type === ContainerType.Companions);
+			if (!compContainer) return null;
+			const readU32 = (chunk) => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
+			const readU32ById = (id) => {
+				const ch = compContainer.data.find((c) => c.id === id);
+				if (!ch || ch.data.byteLength < 4) return null;
+				return readU32(ch);
+			};
+			const readStringById = (id) => {
+				const ch = compContainer.data.find((c) => c.id === id);
+				if (!ch || ch.data.byteLength === 0) return "";
+				return this.readString(ch.data);
+			};
+			const aid = readU32ById(ReplayOpCodes.PetGid);
+			if (!aid) return null;
+			const name = readStringById(ReplayOpCodes.PetName);
+			const viewRaw = readU32ById(ReplayOpCodes.PetJob) ?? 0;
+			const level = readU32ById(ReplayOpCodes.PetLevel) ?? 1;
+			const hunger = readU32ById(ReplayOpCodes.PetFullness) ?? 0;
+			const intimacy = readU32ById(ReplayOpCodes.PetRelation) ?? 0;
+			return {
+				aid,
+				name,
+				view: viewRaw === 4294967295 ? -1 : viewRaw,
+				job: viewRaw === 4294967295 ? -1 : viewRaw,
+				level,
+				hunger,
+				intimacy
+			};
+		}
+		buildEfstListBuffer() {
+			const efstContainer = this.containers.find((c) => c.type === ContainerType.EfstList);
+			if (!efstContainer) return [];
+			const result = [];
+			for (const chunk of efstContainer.data) {
+				if (!chunk.data || chunk.data.byteLength < 4) continue;
+				const efstId = new DataView(chunk.data.buffer, chunk.data.byteOffset, 4).getUint32(0, true);
+				if (efstId > 0 && efstId <= 3e3) result.push(efstId);
+			}
+			return result;
+		}
+		buildItemsBuffer() {
+			const itemsContainer = this.containers.find((c) => c.type === ContainerType.Items);
+			if (!itemsContainer) return {
+				inventory: [],
+				cart: [],
+				equipped: [],
+				equippedCostume: []
+			};
+			const out = {
+				inventory: [],
+				cart: [],
+				equipped: [],
+				equippedCostume: []
+			};
+			const SKIP_CHUNKS = /* @__PURE__ */ new Set([
+				4602,
+				4604,
+				4605,
+				4606
+			]);
+			const RECORD_SIZES = [221, 172];
+			const NAMEID_OFFSET = 104;
+			const detectRecordSize = (view, byteLength) => {
+				const plausible = (id) => id > 0 && id < 5e6;
+				for (const size of RECORD_SIZES) {
+					if (byteLength < size || byteLength % size !== 0) continue;
+					let anyValid = false;
+					let ok = true;
+					for (let r = 0; r < byteLength / size; r++) {
+						const id = view.getInt32(r * size + NAMEID_OFFSET, true);
+						if (id === 0) continue;
+						if (!plausible(id)) {
+							ok = false;
+							break;
+						}
+						anyValid = true;
+					}
+					if (ok && anyValid) return size;
+				}
+				return 0;
+			};
+			const readTlvFields = (view, base, recordSize) => {
+				const fields = /* @__PURE__ */ new Map();
+				let o = 0;
+				while (o + 6 <= recordSize) {
+					const tag = view.getUint16(base + o, true);
+					const length = view.getUint32(base + o + 2, true);
+					if (o + 6 + length > recordSize) return null;
+					fields.set(tag, {
+						offset: o + 6,
+						length
+					});
+					o += 6 + length;
+				}
+				return o === recordSize ? fields : null;
+			};
+			const readTlvNumber = (view, base, fields, tag, fallback = 0) => {
+				const field = fields.get(tag);
+				if (!field) return fallback;
+				switch (field.length) {
+					case 1: return view.getUint8(base + field.offset);
+					case 2: return view.getUint16(base + field.offset, true);
+					case 4: return view.getInt32(base + field.offset, true);
+					default: return fallback;
+				}
+			};
+			const parseItemChunk = (chunk, targetArray) => {
+				if (!chunk.data || chunk.data.byteLength === 0) return;
+				const view = new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength);
+				const recordSize = detectRecordSize(view, chunk.data.byteLength);
+				if (recordSize === 0) {
+					console.warn(`[ReplayParser] Unrecognized item record layout in chunk ${chunk.id} (${chunk.data.byteLength} bytes), items skipped`);
+					return;
+				}
+				const recordCount = Math.floor(chunk.data.byteLength / recordSize);
+				for (let r = 0; r < recordCount; r++) {
+					const base = r * recordSize;
+					const fields = readTlvFields(view, base, recordSize);
+					let slot = 0;
+					let equipped = 0;
+					let qty = 0;
+					let itemId = 0;
+					let refine = 0;
+					let grade = 0;
+					const cards = [
+						0,
+						0,
+						0,
+						0
+					];
+					const options = [];
+					if (fields) {
+						slot = readTlvNumber(view, base, fields, ItemRecordTag.POS, 0);
+						equipped = readTlvNumber(view, base, fields, ItemRecordTag.WEAR_STATE, 0);
+						qty = readTlvNumber(view, base, fields, ItemRecordTag.QTY, 0);
+						itemId = readTlvNumber(view, base, fields, ItemRecordTag.NAMEID, 0);
+						refine = readTlvNumber(view, base, fields, ItemRecordTag.REFINE, 0);
+						grade = readTlvNumber(view, base, fields, ItemRecordTag.GRADE, 0);
+						const cardsField = fields.get(ItemRecordTag.CARDS);
+						if (cardsField && cardsField.length >= 16) for (let c = 0; c < 4; c++) cards[c] = view.getInt32(base + cardsField.offset + c * 4, true);
+						const optField = fields.get(ItemRecordTag.OPTIONS);
+						if (optField && optField.length >= 5) {
+							const optCount = Math.min(5, Math.floor(optField.length / 5));
+							for (let o = 0; o < optCount; o++) {
+								const optOffset = base + optField.offset + o * 5;
+								const optId = view.getUint16(optOffset, true);
+								if (optId > 0) {
+									const optVal = view.getInt16(optOffset + 2, true);
+									const optParam = view.getUint8(optOffset + 4);
+									options.push({
+										id: optId,
+										value: optVal,
+										param: optParam
+									});
+								}
+							}
+						}
+					} else {
+						slot = view.getInt16(base + 22, true);
+						equipped = view.getInt32(base + 42, true);
+						qty = view.getInt16(base + 52, true);
+						for (let c = 0; c < 4; c++) cards[c] = view.getInt32(base + 82 + c * 4, true);
+						itemId = view.getInt32(base + 104, true);
+						refine = view.getUint8(base + 134);
+						if (recordSize >= 221) for (let o = 0; o < 5; o++) {
+							const optOffset = base + 190 + o * 5;
+							const optId = view.getUint16(optOffset, true);
+							if (optId > 0) {
+								const optVal = view.getInt16(optOffset + 2, true);
+								const optParam = view.getUint8(optOffset + 4);
+								options.push({
+									id: optId,
+									value: optVal,
+									param: optParam
+								});
+							}
+						}
+					}
+					if (itemId > 0) {
+						let itemType = ItemType_default.ETC;
+						if (chunk.id === ItemChunkKind.EQUIPPED_COSTUME || equipped & (EquipmentLocation_default.COSTUME_HEAD_TOP | EquipmentLocation_default.COSTUME_HEAD_MID | EquipmentLocation_default.COSTUME_HEAD_BOTTOM | EquipmentLocation_default.COSTUME_ROBE | EquipmentLocation_default.COSTUME_FLOOR | EquipmentLocation_default.SHADOW_ARMOR | EquipmentLocation_default.SHADOW_WEAPON | EquipmentLocation_default.SHADOW_SHIELD | EquipmentLocation_default.SHADOW_SHOES | EquipmentLocation_default.SHADOW_R_ACCESSORY_SHADOW | EquipmentLocation_default.SHADOW_L_ACCESSORY_SHADOW)) itemType = ItemType_default.SHADOWGEAR;
+						else if (equipped & EquipmentLocation_default.WEAPON) itemType = ItemType_default.WEAPON;
+						else if (equipped & EquipmentLocation_default.AMMO) itemType = ItemType_default.AMMO;
+						else if (equipped > 0) itemType = ItemType_default.ARMOR;
+						else if (refine > 0 || grade > 0) itemType = ItemType_default.ARMOR;
+						else if (itemId >= 501 && itemId <= 600) itemType = ItemType_default.HEALING;
+						else if (itemId >= 601 && itemId <= 700) itemType = ItemType_default.USABLE;
+						else if (itemId >= 4001 && itemId <= 4700) itemType = ItemType_default.CARD;
+						else if (itemId >= 1101 && itemId <= 2100) itemType = ItemType_default.WEAPON;
+						else if (itemId >= 2101 && itemId <= 2999) itemType = ItemType_default.ARMOR;
+						targetArray.push({
+							index: slot + 2,
+							ITID: itemId,
+							count: qty > 0 ? qty : 1,
+							type: itemType,
+							IsIdentified: true,
+							IsDamaged: false,
+							PlaceETCTab: false,
+							WearState: equipped,
+							location: equipped,
+							RefiningLevel: refine,
+							enchantgrade: grade,
+							slot: {
+								card1: cards[0] || 0,
+								card2: cards[1] || 0,
+								card3: cards[2] || 0,
+								card4: cards[3] || 0
+							},
+							cards: [
+								cards[0] || 0,
+								cards[1] || 0,
+								cards[2] || 0,
+								cards[3] || 0
+							],
+							Options: options.map((opt) => ({
+								index: opt.id,
+								value: opt.value,
+								param: opt.param
+							})),
+							HireExpireDate: 0,
+							bindOnEquipType: 0,
+							wItemSpriteNumber: 0,
+							itemId,
+							qty: qty > 0 ? qty : 1,
+							slotIndex: slot,
+							refine,
+							grade,
+							options
+						});
+					}
+				}
+			};
+			for (const chunk of itemsContainer.data) {
+				if (SKIP_CHUNKS.has(chunk.id)) continue;
+				switch (chunk.id) {
+					case ItemChunkKind.INVENTORY:
+						parseItemChunk(chunk, out.inventory);
+						break;
+					case ItemChunkKind.CART:
+					case ItemChunkKind.CART_MIRROR:
+						if (out.cart.length === 0) parseItemChunk(chunk, out.cart);
+						break;
+					case ItemChunkKind.EQUIPPED:
+						parseItemChunk(chunk, out.equipped);
+						break;
+					case ItemChunkKind.EQUIPPED_COSTUME: parseItemChunk(chunk, out.equippedCostume);
+				}
+			}
+			return out;
+		}
+		toNetworkPacket(chunk) {
+			return chunk.data;
+		}
+		readString(uint8array) {
+			let length = 0;
+			while (length < uint8array.length && uint8array[length] !== 0) length++;
+			return new TextDecoder("euc-kr").decode(uint8array.subarray(0, length));
+		}
+		dumpContainers() {
+			console.log("=== REPLAY CONTAINERS DUMP ===");
+			for (let i = 0; i < this.containers.length; i++) {
+				const container = this.containers[i];
+				const containerName = ContainerTypeNames[container.type] || `Unknown(${container.type})`;
+				console.log(`\n--- Container [${i}] Type: ${container.type} (${containerName}) | DeclaredLen: ${container.declaredLength} | Offset: ${container.offset} | RealLen: ${container.realLength} | Chunks: ${container.data.length} ---`);
+				container.data.forEach((chunk, index) => {
+					const data = chunk.data;
+					const size = data ? data.byteLength : 0;
+					const opName = chunk.id !== void 0 ? ReplayOpCodeName[chunk.id] || "" : "";
+					const packetInfo = chunk.packetId !== void 0 ? ` | PacketID: 0x${chunk.packetId.toString(16).padStart(4, "0")} (${chunk.packetId})` : "";
+					const chunkHeader = `Chunk [${index}] ID: ${chunk.id ?? "N/A"}${opName ? ` (${opName})` : ""}${packetInfo}${chunk.time !== void 0 ? ` | Time: ${chunk.time}` : ""} | Data Size: ${size}`;
+					console.log(chunkHeader);
+					if (!data || size === 0) {
+						console.log("  [Empty Content]");
+						return;
+					}
+					if (size === 1) {
+						const val = new DataView(data.buffer, data.byteOffset, data.byteLength).getUint8(0);
+						console.log(`  Char: ${val} (0x${val.toString(16).padStart(2, "0")})`);
+					} else if (size === 2) {
+						const val = new DataView(data.buffer, data.byteOffset, data.byteLength).getUint16(0, true);
+						console.log(`  uint16: ${val} (0x${val.toString(16).padStart(4, "0")})`);
+					} else if (size === 4) {
+						const val = new DataView(data.buffer, data.byteOffset, data.byteLength).getUint32(0, true);
+						console.log(`  uint32: ${val} (0x${val.toString(16).padStart(8, "0")})`);
+					} else if (size === 8) {
+						const val = new DataView(data.buffer, data.byteOffset, data.byteLength).getBigUint64(0, true);
+						console.log(`  uint64: ${val} (0x${val.toString(16).padStart(16, "0")})`);
+					}
+					this.dumpHex(data);
+				});
+			}
+			console.log("=== END OF REPLAY CONTAINERS DUMP ===");
+		}
+		dumpHex(uint8Array) {
+			const lines = [];
+			for (let offset = 0; offset < uint8Array.length; offset += 16) {
+				const chunk = uint8Array.subarray(offset, offset + 16);
+				const hexParts = [];
+				const asciiParts = [];
+				for (let i = 0; i < 16; i++) if (i < chunk.length) {
+					const byte = chunk[i];
+					hexParts.push(byte.toString(16).padStart(2, "0"));
+					asciiParts.push(byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : ".");
+				} else {
+					hexParts.push("  ");
+					asciiParts.push(" ");
+				}
+				const hexStr = hexParts.slice(0, 8).join(" ") + "  " + hexParts.slice(8, 16).join(" ");
+				const asciiStr = asciiParts.join("");
+				const offsetStr = offset.toString(16).padStart(4, "0");
+				lines.push(`  ${offsetStr}: ${hexStr}  |${asciiStr}|`);
+			}
+			console.log(lines.join("\n"));
+		}
+	};
+}));
+//#endregion
+//#region src/Engine/Replay/ReplayPlayer.js
+var ReplayPlayer_exports = /* @__PURE__ */ __exportAll({ default: () => ReplayPlayer });
+var ReplayPlayer;
+var init_ReplayPlayer = __esmMin((() => {
+	init_DBManager();
+	init_NetworkManager();
+	init_MapRenderer();
+	init_SessionStorage();
+	init_MapEngine();
+	init_Player();
+	init_BasicInfo();
+	init_WinStats();
+	init_Inventory();
+	init_CartItems();
+	init_ReplayTypes();
+	init_ReplaySocket();
+	init_ReplayParser();
+	ReplayPlayer = class {
+		constructor() {
+			this.parser = null;
+			this.socket = null;
+			this.playing = false;
+			this.speed = 1;
+			this.startTime = 0;
+			this.lastTickTime = 0;
+			this.durationMs = 0;
+			this._state = ReplayState.IDLE;
+			this._sessionData = null;
+			this._itemsBuffer = null;
+			this._petBuffer = null;
+			this._statusBuffer = null;
+			this._efstListBuffer = [];
+			this._initialBuffer = [];
+			this._packetStreamBuffer = [];
+			this._initialGroupIndex = 0;
+			this._initialChunkIndex = 0;
+			this._streamChunkIndex = 0;
+			this._firstStreamTime = 0;
+			this._logicalTime = 0;
+			this._onTick = this.tick.bind(this);
+			this._animate = false;
+			this._retryCount = 0;
+		}
+		async load(file) {
+			this._setState(ReplayState.LOADING_REPLAY);
+			replayLog("[Replay] Loading RRF...");
+			const buffer = await file.arrayBuffer();
+			this.parser = new ReplayParser(buffer);
+			const result = this.parser.parse();
+			this._sessionData = result.sessionBuffer;
+			this._itemsBuffer = result.itemsBuffer;
+			this._petBuffer = result.petBuffer;
+			this._statusBuffer = result.statusBuffer;
+			this._efstListBuffer = result.efstListBuffer || [];
+			this._initialBuffer = result.initialBuffer;
+			this._packetStreamBuffer = result.packetStreamBuffer;
+			this.durationMs = result.durationMs || 0;
+			this._setState(ReplayState.IDLE);
+			if (this._packetStreamBuffer.length === 0) throw new Error("The replay contains no recorded packets, the file is truncated or corrupt.");
+		}
+		start() {
+			if (!this.parser || !this._sessionData) {
+				console.error("[ReplayPlayer] No replay loaded");
+				throw new Error("No replay loaded");
+			}
+			if (!DB.isLoaded) {
+				if (!DB.startedLazyInit) {
+					DB.lazyInit();
+					DB.startedLazyInit = true;
+				}
+				this._retryCount = (this._retryCount || 0) + 1;
+				if (this._retryCount > 600) {
+					console.error("[Replay] Failed loading databases.");
+					this._retryCount = 0;
+					DB.startedLazyInit = false;
+					return;
+				}
+				setTimeout(() => this.start(), 100);
+				return;
+			}
+			this._retryCount = 0;
+			DB.startedLazyInit = false;
+			this._initialGroupIndex = 0;
+			this._initialChunkIndex = 0;
+			this._streamChunkIndex = 0;
+			this.playing = true;
+			this.startTime = 0;
+			this.lastTickTime = Date.now();
+			Network.setSocketFactory((host, port) => {
+				this.socket = new ReplaySocket(host, port);
+				return this.socket;
+			});
+			Network.close();
+			this._applySession();
+		}
+		pause() {
+			this.playing = false;
+		}
+		resume() {
+			this.playing = true;
+			this._syncTimeOrigin();
+		}
+		stop() {
+			this.playing = false;
+			this._animate = false;
+			Network.setSocketFactory(null);
+			if (this.socket) {
+				Network.close();
+				this.socket = null;
+			}
+			if (this._state !== ReplayState.REPLAY_FINISHED) this._setState(ReplayState.IDLE);
+		}
+		setSpeed(speed) {
+			this.speed = speed;
+			this._syncTimeOrigin();
+		}
+		/**
+		* Recompute the wall clock origin so playback continues from the logical time
+		* reached so far. Inverse of the formula used in _tickPacketStream().
+		*/
+		_syncTimeOrigin() {
+			const firstStreamTime = this._firstStreamTime || 0;
+			const logicalTime = Math.max(this._logicalTime || 0, firstStreamTime);
+			this.startTime = Date.now() - (logicalTime - firstStreamTime) / this.speed;
+		}
+		_setState(newState) {
+			this._state = newState;
+		}
+		/**
+		* Applies session data directly to Session and Session.Entity.
+		* Called BEFORE MapEngine.init so map name and character are available.
+		*/
+		_applySession() {
+			this._setState(ReplayState.APPLYING_SESSION);
+			const s = this._sessionData;
+			const charName = s.characterName || "Replay";
+			const sex = s.sex === 0 || s.sex === 1 ? s.sex : 0;
+			const aid = s.AID || 0;
+			const gid = s.GID || aid;
+			const playerInitData = {
+				name: charName,
+				sex,
+				job: s.job !== void 0 ? s.job : 0,
+				clevel: s.level !== void 0 ? s.level : s.clevel || 1,
+				joblevel: s.joblevel !== void 0 ? s.joblevel : 1,
+				exp: s.exp || 0,
+				exp_next: s.exp_next || 0,
+				job_exp: s.job_exp || 0,
+				job_exp_next: s.job_exp_next || 0,
+				str: s.str || 1,
+				agi: s.agi || 1,
+				vit: s.vit || 1,
+				int: s.int || 1,
+				dex: s.dex || 1,
+				luk: s.luk || 1,
+				str_bonus: s.str_bonus || s.plusStr || 0,
+				agi_bonus: s.agi_bonus || s.plusAgi || 0,
+				vit_bonus: s.vit_bonus || s.plusVit || 0,
+				int_bonus: s.int_bonus || s.plusInt || 0,
+				dex_bonus: s.dex_bonus || s.plusDex || 0,
+				luk_bonus: s.luk_bonus || s.plusLuk || 0,
+				money: s.money || 0,
+				weight: s.weight || 0,
+				max_weight: s.max_weight || 0,
+				speed: s.speed || 150,
+				attack_speed: s.attack_speed || s.aspd || 300,
+				head: s.head || 0,
+				weapon: s.weapon || 0,
+				shield: s.shield || 0,
+				bodypalette: s.bodypalette || 0,
+				headpalette: s.headpalette || 0,
+				accessory: s.accessory || 0,
+				accessory2: s.accessory2 || 0,
+				accessory3: s.accessory3 || 0,
+				robe: s.robe || 0,
+				AID: aid,
+				GID: gid
+			};
+			SessionStorage_default.AID = aid;
+			SessionStorage_default.GID = gid;
+			SessionStorage_default.Sex = sex;
+			SessionStorage_default.zeny = s.money || 0;
+			SessionStorage_default.hasCart = s.hasCart || false;
+			SessionStorage_default.CartNum = s.CartNum || 0;
+			if (s.pet && s.pet.aid) {
+				SessionStorage_default.petId = s.pet.aid;
+				SessionStorage_default.pet = s.pet;
+			} else {
+				SessionStorage_default.petId = 0;
+				SessionStorage_default.pet = {};
+			}
+			SessionStorage_default.Entity = new Player(playerInitData);
+			SessionStorage_default.Entity.display.name = charName;
+			SessionStorage_default.Entity.sex = sex;
+			SessionStorage_default.Entity._sex = sex;
+			SessionStorage_default.Entity.job = playerInitData.job;
+			SessionStorage_default.Entity._job = playerInitData.job;
+			SessionStorage_default.Entity.clevel = playerInitData.clevel;
+			SessionStorage_default.Entity.level = playerInitData.clevel;
+			SessionStorage_default.Entity.joblevel = playerInitData.joblevel;
+			SessionStorage_default.Entity.money = playerInitData.money;
+			SessionStorage_default.Entity.weight = playerInitData.weight;
+			SessionStorage_default.Entity.max_weight = playerInitData.max_weight;
+			SessionStorage_default.Entity.speed = playerInitData.speed;
+			SessionStorage_default.Entity.attack_speed = playerInitData.attack_speed;
+			SessionStorage_default.Entity.str = playerInitData.str;
+			SessionStorage_default.Entity.agi = playerInitData.agi;
+			SessionStorage_default.Entity.vit = playerInitData.vit;
+			SessionStorage_default.Entity.int = playerInitData.int;
+			SessionStorage_default.Entity.dex = playerInitData.dex;
+			SessionStorage_default.Entity.luk = playerInitData.luk;
+			SessionStorage_default.Entity.str_bonus = playerInitData.str_bonus;
+			SessionStorage_default.Entity.agi_bonus = playerInitData.agi_bonus;
+			SessionStorage_default.Entity.vit_bonus = playerInitData.vit_bonus;
+			SessionStorage_default.Entity.int_bonus = playerInitData.int_bonus;
+			SessionStorage_default.Entity.dex_bonus = playerInitData.dex_bonus;
+			SessionStorage_default.Entity.luk_bonus = playerInitData.luk_bonus;
+			SessionStorage_default.Entity.head = playerInitData.head;
+			SessionStorage_default.Entity._head = playerInitData.head;
+			SessionStorage_default.Entity.headpalette = playerInitData.headpalette;
+			SessionStorage_default.Entity._headpalette = playerInitData.headpalette;
+			SessionStorage_default.Entity.bodypalette = playerInitData.bodypalette;
+			SessionStorage_default.Entity._bodypalette = playerInitData.bodypalette;
+			SessionStorage_default.Entity.weapon = playerInitData.weapon;
+			SessionStorage_default.Entity._weapon = playerInitData.weapon;
+			SessionStorage_default.Entity.shield = playerInitData.shield;
+			SessionStorage_default.Entity._shield = playerInitData.shield;
+			SessionStorage_default.Entity.accessory = playerInitData.accessory;
+			SessionStorage_default.Entity._accessory = playerInitData.accessory;
+			SessionStorage_default.Entity.accessory2 = playerInitData.accessory2;
+			SessionStorage_default.Entity._accessory2 = playerInitData.accessory2;
+			SessionStorage_default.Entity.accessory3 = playerInitData.accessory3;
+			SessionStorage_default.Entity._accessory3 = playerInitData.accessory3;
+			SessionStorage_default.Entity.robe = playerInitData.robe;
+			const hp = s.hp !== void 0 ? s.hp : s.maxHp !== void 0 ? s.maxHp : 100;
+			const maxHp = s.maxHp !== void 0 ? s.maxHp : hp;
+			const sp = s.sp !== void 0 ? s.sp : s.maxSp !== void 0 ? s.maxSp : 100;
+			const maxSp = s.maxSp !== void 0 ? s.maxSp : sp;
+			SessionStorage_default.Entity.life.hp = hp;
+			SessionStorage_default.Entity.life.hp_max = maxHp;
+			SessionStorage_default.Entity.life.sp = sp;
+			SessionStorage_default.Entity.life.sp_max = maxSp;
+			const option = s.effectState !== void 0 ? s.effectState : s.option || 0;
+			SessionStorage_default.Entity.effectState = option;
+			SessionStorage_default.Entity._effectState = option;
+			SessionStorage_default.Entity.option = option;
+			SessionStorage_default.Entity.hasCart = SessionStorage_default.hasCart;
+			SessionStorage_default.Entity.CartNum = SessionStorage_default.CartNum;
+			this._mapName = s.mapName || "prontera.rsw";
+			this._startX = s.startX || 0;
+			this._startY = s.startY || 0;
+			this._startDir = s.startDir !== void 0 ? s.startDir : 4;
+			SessionStorage_default.Entity.position[0] = this._startX;
+			SessionStorage_default.Entity.position[1] = this._startY;
+			SessionStorage_default.Entity.position[2] = 0;
+			SessionStorage_default.Entity.direction = this._startDir;
+			replayLog(`[Replay] Session applied — name: ${charName}, sex: ${SessionStorage_default.Entity.sex}, head: ${SessionStorage_default.Entity.head}, job: ${SessionStorage_default.Entity.job}, map: ${this._mapName}, HP: ${hp}/${maxHp}, SP: ${sp}/${maxSp}`);
+			this._loadMap();
+		}
+		_loadMap() {
+			this._setState(ReplayState.LOADING_MAP);
+			this._acceptEnterSent = false;
+			this._mapLoadStarted = false;
+			MapEngine.init("127.0.0.1", 6900, this._mapName);
+			this._animate = true;
+			this.lastTickTime = Date.now();
+			this._onTick();
+		}
+		/**
+		* Synthesizes the ZC_ACCEPT_ENTER (0x0073) packet that MapEngine needs
+		* to register the player entity and trigger the full map initialisation sequence.
+		*/
+		_sendAcceptEnter() {
+			const pkt = /* @__PURE__ */ new Uint8Array(11);
+			const view = new DataView(pkt.buffer);
+			view.setUint16(0, 115, true);
+			view.setUint32(2, Date.now(), true);
+			const x = this._startX;
+			const y = this._startY;
+			const dir = this._startDir;
+			const p = x << 14 | y << 4 | dir & 15;
+			view.setUint8(6, p >> 16 & 255);
+			view.setUint8(7, p >> 8 & 255);
+			view.setUint8(8, p & 255);
+			this._pushPacket(pkt);
+		}
+		/**
+		* Synthesizes a ZC_MSG_STATE_CHANGE (0x0196) packet for an active EFST buff.
+		*/
+		_sendStateChange(statusId, isOn = true) {
+			const pkt = /* @__PURE__ */ new Uint8Array(9);
+			const view = new DataView(pkt.buffer);
+			view.setUint16(0, 406, true);
+			view.setUint16(2, statusId, true);
+			view.setUint32(4, SessionStorage_default.AID, true);
+			view.setUint8(8, isOn ? 1 : 0);
+			this._pushPacket(pkt);
+		}
+		tick() {
+			if (this._animate) requestAnimationFrame(this._onTick);
+			if (!this.playing || !this.socket || !this.socket.connected) {
+				this.lastTickTime = Date.now();
+				return;
+			}
+			const now = Date.now();
+			switch (this._state) {
+				case ReplayState.LOADING_MAP:
+					if (!this._acceptEnterSent) {
+						MapRenderer.currentMap = "";
+						this._sendAcceptEnter();
+						this._acceptEnterSent = true;
+						this._mapLoadStarted = false;
+					}
+					if (this._acceptEnterSent && MapRenderer.loading) this._mapLoadStarted = true;
+					if (this._mapLoadStarted && !MapRenderer.loading) {
+						this._mapLoadStarted = false;
+						this._setState(ReplayState.PLAYING_INITIAL_DATA);
+					}
+					this.startTime += now - this.lastTickTime;
+					this.lastTickTime = now;
+					break;
+				case ReplayState.PLAYING_INITIAL_DATA:
+					this.lastTickTime = now;
+					this._tickInitialData();
+					break;
+				case ReplayState.INITIAL_DATA_COMPLETE:
+					this._setState(ReplayState.PLAYING_PACKET_STREAM);
+					this.startTime = Date.now();
+					this.lastTickTime = now;
+					this._firstStreamTime = this._packetStreamBuffer.length > 0 ? this._packetStreamBuffer[0].time : 0;
+					this._logicalTime = this._firstStreamTime;
+					break;
+				case ReplayState.PLAYING_PACKET_STREAM:
+					this.lastTickTime = now;
+					this._tickPacketStream(now);
+					break;
+				default: this.lastTickTime = now;
+			}
+		}
+		/**
+		* Drains initial data (InitialPackets → InitialEntities → InitialFloorItems)
+		* and applies initial Efst buffs, items, and UI stat updates.
+		*/
+		_tickInitialData() {
+			for (const group of this._initialBuffer) for (const chunk of group.chunks) {
+				const data = chunk.data || chunk;
+				this._pushPacket(data);
+			}
+			if (this._efstListBuffer && this._efstListBuffer.length > 0) for (const efstId of this._efstListBuffer) this._sendStateChange(efstId, true);
+			if (this._itemsBuffer) {
+				const inventoryUI = InventoryController?.getUI ? InventoryController.getUI() : null;
+				if (inventoryUI && typeof inventoryUI.addItem === "function") {
+					if (inventoryUI.list) inventoryUI.list.length = 0;
+					if (inventoryUI.equippedItems) inventoryUI.equippedItems.length = 0;
+					if (this._itemsBuffer.inventory?.length > 0) for (const item of this._itemsBuffer.inventory) inventoryUI.addItem(item);
+					if (this._itemsBuffer.equipped?.length > 0) for (const item of this._itemsBuffer.equipped) inventoryUI.addItem(item);
+					if (this._itemsBuffer.equippedCostume?.length > 0) for (const item of this._itemsBuffer.equippedCostume) inventoryUI.addItem(item);
+				}
+				const cartUI = CartItems_default?.getUI ? CartItems_default.getUI() : null;
+				if (cartUI && this._itemsBuffer.cart?.length > 0) {
+					if (typeof cartUI.addItem === "function") {
+						if (cartUI.list) cartUI.list.length = 0;
+						for (const item of this._itemsBuffer.cart) cartUI.addItem(item);
+					} else if (typeof cartUI.setItems === "function") cartUI.setItems(this._itemsBuffer.cart);
+				}
+			}
+			if (SessionStorage_default.Entity) {
+				if (BasicInfoController?.getUI()?.update) {
+					BasicInfoController.getUI().update("blvl", SessionStorage_default.Entity.clevel);
+					BasicInfoController.getUI().update("jlvl", SessionStorage_default.Entity.joblevel);
+					BasicInfoController.getUI().update("zeny", SessionStorage_default.Entity.money);
+					BasicInfoController.getUI().update("name", SessionStorage_default.Entity.display.name);
+					BasicInfoController.getUI().update("job", SessionStorage_default.Entity.job);
+					BasicInfoController.getUI().update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
+					BasicInfoController.getUI().update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
+					BasicInfoController.getUI().update("weight", SessionStorage_default.Entity.weight, SessionStorage_default.Entity.max_weight);
+				}
+				if (WinStatsController?.getUI()?.update) {
+					WinStatsController.getUI().update("str", SessionStorage_default.Entity.str);
+					WinStatsController.getUI().update("agi", SessionStorage_default.Entity.agi);
+					WinStatsController.getUI().update("vit", SessionStorage_default.Entity.vit);
+					WinStatsController.getUI().update("int", SessionStorage_default.Entity.int);
+					WinStatsController.getUI().update("dex", SessionStorage_default.Entity.dex);
+					WinStatsController.getUI().update("luk", SessionStorage_default.Entity.luk);
+					WinStatsController.getUI().update("str2", SessionStorage_default.Entity.str_bonus);
+					WinStatsController.getUI().update("agi2", SessionStorage_default.Entity.agi_bonus);
+					WinStatsController.getUI().update("vit2", SessionStorage_default.Entity.vit_bonus);
+					WinStatsController.getUI().update("int2", SessionStorage_default.Entity.int_bonus);
+					WinStatsController.getUI().update("dex2", SessionStorage_default.Entity.dex_bonus);
+					WinStatsController.getUI().update("luk2", SessionStorage_default.Entity.luk_bonus);
+				}
+			}
+			this._setState(ReplayState.INITIAL_DATA_COMPLETE);
+		}
+		/**
+		* Time-based packet injection from the PacketStream buffer.
+		*/
+		_tickPacketStream(now) {
+			const logicalTime = (now - this.startTime) * this.speed + (this._firstStreamTime || 0);
+			this._logicalTime = logicalTime;
+			while (this._streamChunkIndex < this._packetStreamBuffer.length) {
+				const chunk = this._packetStreamBuffer[this._streamChunkIndex];
+				if (chunk.time <= logicalTime) {
+					this._pushPacket(chunk.data);
+					this._streamChunkIndex++;
+				} else break;
+			}
+			if (this._streamChunkIndex >= this._packetStreamBuffer.length) {
+				replayLog("[Replay] Replay finished");
+				this._setState(ReplayState.REPLAY_FINISHED);
+				this.stop();
+			}
+		}
+		_getCurrentStreamChunk() {
+			return this._packetStreamBuffer[this._streamChunkIndex] || null;
+		}
+		/**
+		* Injects a raw network packet buffer into the NetworkManager via the mock socket.
+		*/
+		_pushPacket(data) {
+			if (!this.socket || !this.socket.connected) return;
+			try {
+				this.socket.push(data);
+			} catch (e) {
+				console.error("[Replay] Packet injection error:", e);
+			}
+		}
+	};
+}));
+//#endregion
 //#region src/UI/Components/WinLogin/WinLoginCommon.js
 function createWinLogin({ name, htmlText, cssText }) {
 	const Component = new GUIComponent(name, cssText);
@@ -335356,6 +336833,22 @@ function createWinLogin({ name, htmlText, cssText }) {
 		root.querySelector(".signup").addEventListener("click", signup);
 		root.querySelector(".connect").addEventListener("click", connect);
 		root.querySelector(".exit").addEventListener("click", exit);
+		const replayUpload = root.querySelector(".replay-upload");
+		const replayButton = root.querySelector(".replay");
+		if (!replayUpload || !replayButton) return;
+		replayButton.addEventListener("click", () => {
+			replayUpload.click();
+		});
+		replayUpload.addEventListener("change", function() {
+			if (!this.files || !this.files.length) return;
+			const file = this.files[0];
+			this.value = "";
+			if (!file.name || !file.name.toLowerCase().endsWith(".rrf")) {
+				UIManager.showMessageBox("Please select a Ragnarok replay file (.rrf).", "ok");
+				return;
+			}
+			loadReplay(file);
+		});
 	};
 	Component.onAppend = function onAppend() {
 		_inputUsername.value = _preferences.saveID ? _preferences.ID : "";
@@ -335412,6 +336905,21 @@ function createWinLogin({ name, htmlText, cssText }) {
 		Component.onConnectionRequest(user, pass);
 		return false;
 	}
+	async function loadReplay(file) {
+		try {
+			const { default: ReplayPlayer } = await __vitePreload(async () => {
+				const { default: ReplayPlayer } = await Promise.resolve().then(() => (init_ReplayPlayer(), ReplayPlayer_exports));
+				return { default: ReplayPlayer };
+			}, void 0, import.meta.url);
+			const replay = new ReplayPlayer();
+			await replay.load(file);
+			Component.remove();
+			replay.start();
+		} catch (err) {
+			console.error("[Replay] Error loading replay", err);
+			UIManager.showMessageBox(`Could not load the replay file.\n${err.message || err}`, "ok");
+		}
+	}
 	function signup() {
 		const url = Configs.get("registrationweb");
 		if (url) UIManager.showPromptBox(DB.getMessage(662), "ok", "cancel", () => {
@@ -335432,6 +336940,7 @@ var init_WinLoginCommon = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
 	init_Elements();
+	init_preload_helper();
 }));
 //#endregion
 //#region src/UI/Components/WinLogin/WinLogin/WinLogin.js
@@ -335450,13 +336959,13 @@ var init_WinLogin$1 = __esmMin((() => {
 //#region src/UI/Components/WinLogin/WinLoginV2/WinLoginV2.html?raw
 var WinLoginV2_default$2;
 var init_WinLoginV2$2 = __esmMin((() => {
-	WinLoginV2_default$2 = "<div id=\"WinLogin\" class=\"win_login\">\r\n	<div class=\"win_login\">\r\n		<ui-image src=\"login_interface/bg_login.tga\"></ui-image>\r\n		<!-- User Auth -->\r\n		<input id=\"user\" class=\"user\" type=\"text\" value=\"\" />\r\n		<input id=\"pass\" class=\"pass\" type=\"password\" value=\"\" />\r\n		<button\r\n			id=\"save\"\r\n			class=\"save\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/chk_saveoff.bmp\"\r\n			data-preload=\"login_interface/chk_saveon.bmp\"\r\n		></button>\r\n\r\n		<!-- Buttons -->\r\n		<button\r\n			id=\"btn_connect\"\r\n			class=\"btn connect\"\r\n			type=\"submit\"\r\n			data-background=\"login_interface/bt_start_normal.bmp\"\r\n			data-hover=\"login_interface/bt_start_over.bmp\"\r\n			data-down=\"login_interface/bt_start_press.bmp\"\r\n		></button>\r\n		<button\r\n			id=\"btn_connect\"\r\n			class=\"btn signup\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/bt_join_normal.bmp\"\r\n			data-hover=\"login_interface/bt_join_over.bmp\"\r\n			data-down=\"login_interface/bt_join_press.bmp\"\r\n		>\r\n			Sign Up\r\n		</button>\r\n		<button id=\"btn_exit\" class=\"btn exit\" type=\"button\"></button>\r\n	</div>\r\n</div>\r\n";
+	WinLoginV2_default$2 = "<div id=\"WinLogin\" class=\"win_login\">\r\n	<div class=\"win_login\">\r\n		<ui-image src=\"login_interface/bg_login.tga\"></ui-image>\r\n		<!-- User Auth -->\r\n		<input id=\"user\" class=\"user\" type=\"text\" value=\"\" />\r\n		<input id=\"pass\" class=\"pass\" type=\"password\" value=\"\" />\r\n		<button\r\n			id=\"save\"\r\n			class=\"save\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/chk_saveoff.bmp\"\r\n			data-preload=\"login_interface/chk_saveon.bmp\"\r\n		></button>\r\n\r\n		<!-- Buttons -->\r\n		<button\r\n			class=\"btn replay\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/bt_join_normal.bmp\"\r\n			data-hover=\"login_interface/bt_join_over.bmp\"\r\n			data-down=\"login_interface/bt_join_press.bmp\"\r\n		>\r\n			Replay\r\n		</button>\r\n		<input type=\"file\" class=\"replay-upload\" accept=\".rrf\" style=\"display:none;\" />\r\n		<button\r\n			id=\"btn_connect\"\r\n			class=\"btn connect\"\r\n			type=\"submit\"\r\n			data-background=\"login_interface/bt_start_normal.bmp\"\r\n			data-hover=\"login_interface/bt_start_over.bmp\"\r\n			data-down=\"login_interface/bt_start_press.bmp\"\r\n		></button>\r\n		<button\r\n			id=\"btn_connect\"\r\n			class=\"btn signup\"\r\n			type=\"button\"\r\n			data-background=\"login_interface/bt_join_normal.bmp\"\r\n			data-hover=\"login_interface/bt_join_over.bmp\"\r\n			data-down=\"login_interface/bt_join_press.bmp\"\r\n		>\r\n			Sign Up\r\n		</button>\r\n		<button id=\"btn_exit\" class=\"btn exit\" type=\"button\"></button>\r\n	</div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/WinLogin/WinLoginV2/WinLoginV2.css?raw
 var WinLoginV2_default$1;
 var init_WinLoginV2$1 = __esmMin((() => {
-	WinLoginV2_default$1 = ":host {\r\n	top: 60%;\r\n	left: calc(50% - 140px);\r\n	width: 301px;\r\n	height: 132px;\r\n}\r\n\r\n#WinLogin {\r\n	position: absolute;\r\n	width: 301px;\r\n	height: 132px;\r\n}\r\n#WinLogin .win_login {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n#WinLogin .win_login input {\r\n	position: absolute;\r\n	left: 17px;\r\n	height: 18px;\r\n	width: 127px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding-left: 2px;\r\n	outline: none;\r\n	text-align: center;\r\n}\r\n#WinLogin .win_login input.user {\r\n	top: 39px;\r\n}\r\n#WinLogin .win_login input.pass {\r\n	top: 61px;\r\n}\r\n#WinLogin .win_login .save {\r\n	position: absolute;\r\n	top: 85px;\r\n	left: 57px;\r\n	display: block;\r\n	width: 38px;\r\n	height: 10px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#WinLogin .win_login .btn {\r\n	position: absolute;\r\n	border: 0;\r\n	background-color: transparent;\r\n}\r\n#WinLogin .win_login .btn.connect {\r\n	width: 84px;\r\n	height: 84px;\r\n	right: 25px;\r\n	bottom: 15px;\r\n}\r\n#WinLogin .win_login .btn.signup {\r\n	width: 84px;\r\n	height: 21px;\r\n	right: 130px;\r\n	bottom: 15px;\r\n}\r\n#WinLogin .win_login .btn.exit {\r\n	width: 24px;\r\n	height: 23px;\r\n	right: 7px;\r\n	bottom: 96px;\r\n}\r\n\r\n/* Override browser autofill styles */\r\n#WinLogin .win_login input:-webkit-autofill,\r\n#WinLogin .win_login input:-webkit-autofill:hover,\r\n#WinLogin .win_login input:-webkit-autofill:focus,\r\n#WinLogin .win_login input:-webkit-autofill:active,\r\n#WinLogin .win_login input:-internal-autofill-selected,\r\n#WinLogin .win_login input:-internal-autofill-previewed {\r\n	-webkit-background-clip: text;\r\n	transition: background-color 5000sease-in-out 0s;\r\n	box-shadow: inset 0 0 20px 20px #ffffff00;\r\n}\r\n";
+	WinLoginV2_default$1 = ":host {\r\n	top: 60%;\r\n	left: calc(50% - 140px);\r\n	width: 301px;\r\n	height: 132px;\r\n}\r\n\r\n#WinLogin {\r\n	position: absolute;\r\n	width: 301px;\r\n	height: 132px;\r\n}\r\n#WinLogin .win_login {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n#WinLogin .win_login input {\r\n	position: absolute;\r\n	left: 17px;\r\n	height: 18px;\r\n	width: 127px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding-left: 2px;\r\n	outline: none;\r\n	text-align: center;\r\n}\r\n#WinLogin .win_login input.user {\r\n	top: 39px;\r\n}\r\n#WinLogin .win_login input.pass {\r\n	top: 61px;\r\n}\r\n#WinLogin .win_login .save {\r\n	position: absolute;\r\n	top: 85px;\r\n	left: 57px;\r\n	display: block;\r\n	width: 38px;\r\n	height: 10px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#WinLogin .win_login .btn {\r\n	position: absolute;\r\n	border: 0;\r\n	background-color: transparent;\r\n}\r\n#WinLogin .win_login .btn.connect {\r\n	width: 84px;\r\n	height: 84px;\r\n	right: 25px;\r\n	bottom: 15px;\r\n}\r\n#WinLogin .win_login .btn.signup {\r\n	width: 84px;\r\n	height: 21px;\r\n	right: 120px;\r\n	bottom: 10px;\r\n}\r\n#WinLogin .btn.replay {\r\n	width: 84px;\r\n	height: 21px;\r\n    right: 210px;\r\n    bottom: 10px;\r\n}\r\n#WinLogin .win_login .btn.exit {\r\n	width: 24px;\r\n	height: 23px;\r\n	right: 7px;\r\n	bottom: 96px;\r\n}\r\n\r\n/* Override browser autofill styles */\r\n#WinLogin .win_login input:-webkit-autofill,\r\n#WinLogin .win_login input:-webkit-autofill:hover,\r\n#WinLogin .win_login input:-webkit-autofill:focus,\r\n#WinLogin .win_login input:-webkit-autofill:active,\r\n#WinLogin .win_login input:-internal-autofill-selected,\r\n#WinLogin .win_login input:-internal-autofill-previewed {\r\n	-webkit-background-clip: text;\r\n	transition: background-color 5000sease-in-out 0s;\r\n	box-shadow: inset 0 0 20px 20px #ffffff00;\r\n}\r\n";
 }));
 //#endregion
 //#region src/UI/Components/WinLogin/WinLoginV2/WinLoginV2.js
