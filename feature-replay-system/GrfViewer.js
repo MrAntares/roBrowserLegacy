@@ -164368,7 +164368,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.ySize = fp.readUChar();
 		this.clevel = fp.readShort();
 		this.font = fp.readShort();
-		this.name = fp.readString(end - fp.tell());
+		this.name = fp.readString(Math.min(NAME_LENGTH, end - fp.tell()));
 	};
 	PACKET.ZC.NOTIFY_MOVEENTRY6.size = -1;
 	PACKET.ZC.NOTIFY_STANDENTRY6 = function PACKET_ZC_NOTIFY_STANDENTRY6(fp, end) {
@@ -304405,7 +304405,7 @@ function forEach(callback) {
 * @returns {object} Entity
 */
 function getEntity(gid) {
-	if (SessionStorage_default.Entity && (SessionStorage_default.Entity.GID === gid || SessionStorage_default.Entity.AID === gid)) return SessionStorage_default.Entity;
+	if (SessionStorage_default.Entity && SessionStorage_default.Entity.GID === gid) return SessionStorage_default.Entity;
 	return getEntityByGID(gid);
 }
 /**
@@ -305637,7 +305637,6 @@ var init_GUIComponent = __esmMin((() => {
 		* Get the root element of the component.
 		*/
 		getRoot() {
-			if (!this.__loaded && !this.__preparing) this.prepare();
 			return this._shadow || this._host;
 		}
 		/**
@@ -328577,6 +328576,27 @@ function onServerChange(pkt) {
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }
 /**
+* Resets the per-character UI state shared by the exit and restart flows.
+* Components that were never prepared have no root element to clean.
+*/
+function cleanGameUI() {
+	WhisperBox.clearAll();
+	const tasks = [
+		[BasicInfoController, "remove"],
+		[PlayerViewEquipController, "remove"],
+		[StatusIcons_default, "clean"],
+		[ChatBox_default, "clean"],
+		[ShortCut_default, "clean"],
+		[Controller$3, "clean"],
+		[controller, "clean"],
+		[CashShop_default, "clean"]
+	];
+	for (const [target, method] of tasks) {
+		const component = typeof target.getUI === "function" ? target.getUI() : target;
+		if (component && component.__loaded && typeof component[method] === "function") component[method]();
+	}
+}
+/**
 * Ask the server to disconnect
 */
 function onExitRequest$2() {
@@ -328600,17 +328620,11 @@ function onExitFail(pkt) {
 * @param {object} pkt - PACKET.ZC.REFUSE_QUIT
 */
 function onExitSuccess() {
+	if (_exiting) return;
+	_exiting = true;
 	if (PacketVerManager_default.value >= 20170315 && SessionStorage_default.WebToken) ShortCut_default.saveToServer();
-	WhisperBox.clearAll();
 	GuildEngine.guild_id = 0;
-	BasicInfoController.getUI().remove();
-	PlayerViewEquipController.getUI().remove();
-	StatusIcons_default.clean();
-	ChatBox_default.clean();
-	ShortCut_default.clean();
-	Controller$3.getUI().clean();
-	controller.getUI().clean();
-	CashShop_default.clean();
+	cleanGameUI();
 	SessionStorage_default.Achievement = null;
 	Mouse.intersect = false;
 	UIManager.removeComponents();
@@ -328652,16 +328666,8 @@ function onResurectionRequest() {
 function onRestartAnswer(pkt) {
 	if (!pkt.type) ChatBox_default.addText(DB.getMessage(502), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	else {
-		WhisperBox.clearAll();
 		GuildEngine.guild_id = 0;
-		BasicInfoController.getUI().remove();
-		PlayerViewEquipController.getUI().remove();
-		StatusIcons_default.clean();
-		ChatBox_default.clean();
-		ShortCut_default.clean();
-		Controller$3.getUI().clean();
-		controller.getUI().clean();
-		CashShop_default.clean();
+		cleanGameUI();
 		SessionStorage_default.Achievement = null;
 		Mouse.intersect = false;
 		MapRenderer.free();
@@ -328676,14 +328682,6 @@ function onRestartAnswer(pkt) {
 function onDisconnectAnswer(pkt) {
 	switch (pkt.result) {
 		case 0:
-			WhisperBox.clearAll();
-			BasicInfoController.getUI().remove();
-			PlayerViewEquipController.getUI().remove();
-			StatusIcons_default.clean();
-			ChatBox_default.clean();
-			ShortCut_default.clean();
-			Controller$3.getUI().clean();
-			controller.getUI().clean();
 			Renderer.stop();
 			onExitSuccess();
 			break;
@@ -328945,7 +328943,7 @@ function onReassemblyAuth(pkt) {
 		return;
 	}
 }
-var _mapName, _isInitialised, snCounter, chatLines, packetMap, MapEngine, _walkTimer, _walkLastTick;
+var _mapName, _isInitialised, _exiting, snCounter, chatLines, packetMap, MapEngine, _walkTimer, _walkLastTick;
 var init_MapEngine = __esmMin((() => {
 	init_DBManager();
 	init_Configs();
@@ -329058,6 +329056,7 @@ var init_MapEngine = __esmMin((() => {
 	init_preload_helper();
 	_mapName = "";
 	_isInitialised = false;
+	_exiting = false;
 	snCounter = 0;
 	chatLines = 0;
 	packetMap = /* @__PURE__ */ new Map();
@@ -329075,6 +329074,7 @@ var init_MapEngine = __esmMin((() => {
 		*/
 		static init(ip, port, mapName) {
 			_mapName = mapName;
+			_exiting = false;
 			const forceAddress = Configs.get("forceUseAddress");
 			const server_info = Configs.getServer();
 			const current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
@@ -335295,13 +335295,13 @@ var init_Rijndael = __esmMin((() => {
 //#region src/UI/Components/WinLogin/WinLogin/WinLogin.html?raw
 var WinLogin_default$2;
 var init_WinLogin$3 = __esmMin((() => {
-	WinLogin_default$2 = "<div id=\"WinLogin\">\r\n	<ui-image src=\"login_interface/win_login.bmp\"></ui-image>\r\n	<!-- User Auth -->\r\n	<input class=\"user\" type=\"text\" value=\"\" />\r\n	<input class=\"pass\" type=\"password\" value=\"\" />\r\n	<button\r\n		class=\"save\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/chk_saveoff.bmp\"\r\n		data-preload=\"login_interface/chk_saveon.bmp\"\r\n	></button>\r\n\r\n	<!-- Buttons -->\r\n	<button\r\n		class=\"btn replay\"\r\n		type=\"button\"\r\n		data-background=\"replay_interface/btn_replay.bmp\"\r\n		data-hover=\"replay_interface/btn_replay_a.bmp\"\r\n		data-down=\"replay_interface/btn_replay_b.bmp\"\r\n	></button>\r\n	<input type=\"file\" class=\"replay-upload\" accept=\".rrf\" style=\"display:none;\" />\r\n	<button\r\n		class=\"btn signup\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/btn_request.bmp\"\r\n		data-hover=\"login_interface/btn_request_a.bmp\"\r\n		data-down=\"login_interface/btn_request_b.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn connect\"\r\n		type=\"submit\"\r\n		data-background=\"login_interface/btn_connect.bmp\"\r\n		data-hover=\"login_interface/btn_connect_a.bmp\"\r\n		data-down=\"login_interface/btn_connect_b.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn exit\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/btn_exit.bmp\"\r\n		data-hover=\"login_interface/btn_exit_a.bmp\"\r\n		data-down=\"login_interface/btn_exit_b.bmp\"\r\n	></button>\r\n</div>\r\n";
+	WinLogin_default$2 = "<div id=\"WinLogin\">\r\n	<ui-image src=\"login_interface/win_login.bmp\"></ui-image>\r\n	<!-- User Auth -->\r\n	<input class=\"user\" type=\"text\" value=\"\" />\r\n	<input class=\"pass\" type=\"password\" value=\"\" />\r\n	<button\r\n		class=\"save\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/chk_saveoff.bmp\"\r\n		data-preload=\"login_interface/chk_saveon.bmp\"\r\n	></button>\r\n\r\n	<!-- Buttons -->\r\n	<button class=\"btn replay\" type=\"button\">Replay</button>\r\n	<input type=\"file\" class=\"replay-upload\" accept=\".rrf\" style=\"display: none\" />\r\n	<button\r\n		class=\"btn signup\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/btn_request.bmp\"\r\n		data-hover=\"login_interface/btn_request_a.bmp\"\r\n		data-down=\"login_interface/btn_request_b.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn connect\"\r\n		type=\"submit\"\r\n		data-background=\"login_interface/btn_connect.bmp\"\r\n		data-hover=\"login_interface/btn_connect_a.bmp\"\r\n		data-down=\"login_interface/btn_connect_b.bmp\"\r\n	></button>\r\n	<button\r\n		class=\"btn exit\"\r\n		type=\"button\"\r\n		data-background=\"login_interface/btn_exit.bmp\"\r\n		data-hover=\"login_interface/btn_exit_a.bmp\"\r\n		data-down=\"login_interface/btn_exit_b.bmp\"\r\n	></button>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/WinLogin/WinLogin/WinLogin.css?raw
 var WinLogin_default$1;
 var init_WinLogin$2 = __esmMin((() => {
-	WinLogin_default$1 = ":host {\r\n	width: 280px;\r\n	height: 120px;\r\n	top: 60%;\r\n	left: calc(50% - 140px);\r\n}\r\n\r\n#WinLogin {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 120px;\r\n}\r\n#WinLogin input {\r\n	position: absolute;\r\n	left: 91px;\r\n	height: 18px;\r\n	width: 127px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding-left: 2px;\r\n	outline: none;\r\n}\r\n#WinLogin input.user {\r\n	top: 29px;\r\n}\r\n#WinLogin input.pass {\r\n	top: 61px;\r\n}\r\n#WinLogin .save {\r\n	position: absolute;\r\n	top: 32px;\r\n	right: 10px;\r\n	display: block;\r\n	width: 38px;\r\n	height: 10px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#WinLogin .btn {\r\n	position: absolute;\r\n	border: 0;\r\n	width: 42px;\r\n	height: 20px;\r\n	bottom: 4px;\r\n	background-color: transparent;\r\n}\r\n#WinLogin .btn.connect {\r\n	right: 50px;\r\n}\r\n#WinLogin .btn.signup {\r\n	left: 5px;\r\n}\r\n#WinLogin .btn.replay {\r\n	width: 54px;\r\n    height: 20px;\r\n	right: 175px;\r\n    bottom: 4px;\r\n}\r\n\r\n#WinLogin .btn.replay:hover {\r\n	background: rgba(0, 0, 0, 0.6);\r\n}\r\n#WinLogin .btn.exit {\r\n	right: 5px;\r\n}\r\n\r\n/* Override browser autofill styles */\r\n#WinLogin input:-webkit-autofill,\r\n#WinLogin input:-webkit-autofill:hover,\r\n#WinLogin input:-webkit-autofill:focus,\r\n#WinLogin input:-webkit-autofill:active,\r\n#WinLogin input:-internal-autofill-selected,\r\n#WinLogin input:-internal-autofill-previewed {\r\n	-webkit-background-clip: text;\r\n	transition: background-color 5000sease-in-out 0s;\r\n	box-shadow: inset 0 0 20px 20px #ffffff00;\r\n}\r\n";
+	WinLogin_default$1 = ":host {\r\n	width: 280px;\r\n	height: 120px;\r\n	top: 60%;\r\n	left: calc(50% - 140px);\r\n}\r\n\r\n#WinLogin {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 120px;\r\n}\r\n#WinLogin input {\r\n	position: absolute;\r\n	left: 91px;\r\n	height: 18px;\r\n	width: 127px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding-left: 2px;\r\n	outline: none;\r\n}\r\n#WinLogin input.user {\r\n	top: 29px;\r\n}\r\n#WinLogin input.pass {\r\n	top: 61px;\r\n}\r\n#WinLogin .save {\r\n	position: absolute;\r\n	top: 32px;\r\n	right: 10px;\r\n	display: block;\r\n	width: 38px;\r\n	height: 10px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n#WinLogin .btn {\r\n	position: absolute;\r\n	border: 0;\r\n	width: 42px;\r\n	height: 20px;\r\n	bottom: 4px;\r\n	background-color: transparent;\r\n}\r\n#WinLogin .btn.connect {\r\n	right: 50px;\r\n}\r\n#WinLogin .btn.signup {\r\n	left: 5px;\r\n}\r\n/* No GRF artwork exists for this button, so it is drawn as a plain label */\r\n#WinLogin .btn.replay {\r\n	width: 54px;\r\n	height: 20px;\r\n	right: 175px;\r\n	bottom: 4px;\r\n	color: #ffffff;\r\n	font-family: Arial, sans-serif;\r\n	font-size: 11px;\r\n	text-shadow: 1px 1px 0 #000000;\r\n	background: rgba(0, 0, 0, 0.4);\r\n	cursor: pointer;\r\n}\r\n\r\n#WinLogin .btn.replay:hover {\r\n	background: rgba(0, 0, 0, 0.6);\r\n}\r\n#WinLogin .btn.exit {\r\n	right: 5px;\r\n}\r\n\r\n/* Override browser autofill styles */\r\n#WinLogin input:-webkit-autofill,\r\n#WinLogin input:-webkit-autofill:hover,\r\n#WinLogin input:-webkit-autofill:focus,\r\n#WinLogin input:-webkit-autofill:active,\r\n#WinLogin input:-internal-autofill-selected,\r\n#WinLogin input:-internal-autofill-previewed {\r\n	-webkit-background-clip: text;\r\n	transition: background-color 5000sease-in-out 0s;\r\n	box-shadow: inset 0 0 20px 20px #ffffff00;\r\n}\r\n";
 }));
 //#endregion
 //#region src/Engine/Replay/ReplayTypes.js
@@ -335925,16 +335925,14 @@ var init_ReplayParser = __esmMin((() => {
 				const robe = readU32ById(sessionContainer, 1071);
 				if (robe !== null) buf.robe = robe;
 				const cartCurCount = readU16ById(sessionContainer, 1086);
-				if (cartCurCount !== null) {
-					buf.cartCurCount = cartCurCount;
-					buf.hasCart = cartCurCount > 0;
-				}
+				if (cartCurCount !== null) buf.cartCurCount = cartCurCount;
 				const cartMaxCount = readU16ById(sessionContainer, 1087);
 				if (cartMaxCount !== null) buf.cartMaxCount = cartMaxCount;
 				const cartCurWeight = readU32ById(sessionContainer, 1088);
 				if (cartCurWeight !== null) buf.cartCurWeight = cartCurWeight;
 				const cartMaxWeight = readU32ById(sessionContainer, 1089);
 				if (cartMaxWeight !== null) buf.cartMaxWeight = cartMaxWeight;
+				buf.hasCart = (buf.cartMaxCount || 0) > 0 || (buf.cartMaxWeight || 0) > 0;
 			}
 			return buf;
 		}
@@ -336331,6 +336329,7 @@ var init_ReplayPlayer = __esmMin((() => {
 			this._initialChunkIndex = 0;
 			this._streamChunkIndex = 0;
 			this._firstStreamTime = 0;
+			this._logicalTime = 0;
 			this._onTick = this.tick.bind(this);
 			this._animate = false;
 			this._retryCount = 0;
@@ -336408,13 +336407,12 @@ var init_ReplayPlayer = __esmMin((() => {
 			this._syncTimeOrigin();
 		}
 		/**
-		* Recompute the wall clock origin so the next chunk plays at its own logical
-		* time. Inverse of the formula used in _tickPacketStream().
+		* Recompute the wall clock origin so playback continues from the logical time
+		* reached so far. Inverse of the formula used in _tickPacketStream().
 		*/
 		_syncTimeOrigin() {
 			const firstStreamTime = this._firstStreamTime || 0;
-			const nextChunk = this._getCurrentStreamChunk();
-			const logicalTime = nextChunk ? nextChunk.time : firstStreamTime;
+			const logicalTime = Math.max(this._logicalTime || 0, firstStreamTime);
 			this.startTime = Date.now() - (logicalTime - firstStreamTime) / this.speed;
 		}
 		_setState(newState) {
@@ -336600,6 +336598,7 @@ var init_ReplayPlayer = __esmMin((() => {
 			switch (this._state) {
 				case ReplayState.LOADING_MAP:
 					if (!this._acceptEnterSent) {
+						MapRenderer.currentMap = "";
 						this._sendAcceptEnter();
 						this._acceptEnterSent = true;
 						this._mapLoadStarted = false;
@@ -336621,6 +336620,7 @@ var init_ReplayPlayer = __esmMin((() => {
 					this.startTime = Date.now();
 					this.lastTickTime = now;
 					this._firstStreamTime = this._packetStreamBuffer.length > 0 ? this._packetStreamBuffer[0].time : 0;
+					this._logicalTime = this._firstStreamTime;
 					break;
 				case ReplayState.PLAYING_PACKET_STREAM:
 					this.lastTickTime = now;
@@ -336689,6 +336689,7 @@ var init_ReplayPlayer = __esmMin((() => {
 		*/
 		_tickPacketStream(now) {
 			const logicalTime = (now - this.startTime) * this.speed + (this._firstStreamTime || 0);
+			this._logicalTime = logicalTime;
 			while (this._streamChunkIndex < this._packetStreamBuffer.length) {
 				const chunk = this._packetStreamBuffer[this._streamChunkIndex];
 				if (chunk.time <= logicalTime) {
@@ -336697,7 +336698,8 @@ var init_ReplayPlayer = __esmMin((() => {
 				} else break;
 			}
 			if (this._streamChunkIndex >= this._packetStreamBuffer.length) {
-				console.log("[Replay] Replay finished");
+				if (this._packetStreamBuffer.length === 0) console.warn("[Replay] No packets recorded in the replay stream");
+				else console.log("[Replay] Replay finished");
 				this._setState(ReplayState.REPLAY_FINISHED);
 				this.stop();
 			}
