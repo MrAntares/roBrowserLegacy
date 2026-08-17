@@ -80,6 +80,12 @@ export default class ReplayPlayer {
 		this.durationMs = result.durationMs || 0;
 
 		this._setState(ReplayState.IDLE);
+
+		// Nothing to play back: report it here so the caller can tell the user,
+		// instead of loading the map and reporting a completed playback
+		if (this._packetStreamBuffer.length === 0) {
+			throw new Error('The replay contains no recorded packets, the file is truncated or corrupt.');
+		}
 	}
 
 	start() {
