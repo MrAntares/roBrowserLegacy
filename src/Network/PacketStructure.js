@@ -14,13 +14,24 @@ import PACKETVER from './PacketVerManager.js';
 import Struct from 'Utils/Struct.js';
 import Configs from 'Core/Configs.js';
 
-const NAME_LENGTH = 24; // Must be equal to same name var in mmo.h
+const NAME_LENGTH = 24; // Must be equal to same name var in mmo.h, -1 reads the rest of the packet
 const MAP_NAME_LENGTH = 11 + 1;
 const MAP_NAME_LENGTH_EXT = MAP_NAME_LENGTH + 4;
 const PACKET = {};
 const RENEWAL = Configs.get('renewal') || false;
 const CLASSIC = !RENEWAL; // For ease of reading checks
 const UNUSED_PACKET = PACKET;
+
+/**
+ * Reads the trailing name field of a variable length packet, honoring NAME_LENGTH.
+ *
+ * @param {object} fp - BinaryReader
+ * @param {number} end - packet end offset
+ * @returns {string}
+ */
+function readTrailingName(fp, end) {
+	return fp.readString(NAME_LENGTH === -1 ? end - fp.tell() : NAME_LENGTH);
+}
 
 PACKET.CA = {};
 PACKET.AC = {}; // Login
@@ -10192,7 +10203,7 @@ PACKET.ZC.NOTIFY_MOVEENTRY6 = function PACKET_ZC_NOTIFY_MOVEENTRY6(fp, end) {
 	this.ySize = fp.readUChar();
 	this.clevel = fp.readShort();
 	this.font = fp.readShort();
-	this.name = fp.readString(Math.min(NAME_LENGTH, end - fp.tell()));
+	this.name = readTrailingName(fp, end);
 };
 PACKET.ZC.NOTIFY_MOVEENTRY6.size = -1;
 
