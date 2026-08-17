@@ -19,7 +19,7 @@ import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
-import { ReplayState } from 'Engine/Replay/ReplayTypes.js';
+import { ReplayState, replayLog } from 'Engine/Replay/ReplayTypes.js';
 import ReplaySocket from './ReplaySocket.js';
 import ReplayParser from './ReplayParser.js';
 
@@ -64,7 +64,7 @@ export default class ReplayPlayer {
 
 	async load(file) {
 		this._setState(ReplayState.LOADING_REPLAY);
-		console.log('[Replay] Loading RRF...');
+		replayLog('[Replay] Loading RRF...');
 
 		const buffer = await file.arrayBuffer();
 		this.parser = new ReplayParser(buffer);
@@ -332,7 +332,7 @@ export default class ReplayPlayer {
 		Session.Entity.position[2] = 0;
 		Session.Entity.direction = this._startDir;
 
-		console.log(
+		replayLog(
 			`[Replay] Session applied — name: ${charName}, sex: ${Session.Entity.sex}, head: ${Session.Entity.head}, job: ${Session.Entity.job}, map: ${this._mapName}, HP: ${hp}/${maxHp}, SP: ${sp}/${maxSp}`
 		);
 
@@ -571,11 +571,7 @@ export default class ReplayPlayer {
 		}
 
 		if (this._streamChunkIndex >= this._packetStreamBuffer.length) {
-			if (this._packetStreamBuffer.length === 0) {
-				console.warn('[Replay] No packets recorded in the replay stream');
-			} else {
-				console.log('[Replay] Replay finished');
-			}
+			replayLog('[Replay] Replay finished');
 			this._setState(ReplayState.REPLAY_FINISHED);
 			this.stop();
 		}

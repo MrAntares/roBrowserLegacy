@@ -14,7 +14,8 @@ import {
 	ItemChunkKind,
 	ItemRecordTag,
 	ReplayOpCodes,
-	ReplayOpCodeName
+	ReplayOpCodeName,
+	replayLog
 } from 'Engine/Replay/ReplayTypes.js';
 
 // 100 byte prefix string + 12 bytes of version/signature/timestamp
@@ -32,7 +33,7 @@ export default class ReplayParser {
 
 	parse() {
 		this.readHeader();
-		console.log('[ReplayParser] Header parsed:', this.header);
+		replayLog('[ReplayParser] Header parsed:', this.header);
 
 		if (this.header.version === 5) {
 			this.readContainersV5();
@@ -238,13 +239,13 @@ export default class ReplayParser {
 
 			if (chunks.length > 0) {
 				initialBuffer.push({ type: container.type, typeName, chunks });
-				console.log(`[Replay] Loaded ${typeName} (${container.type}): ${chunks.length} packets`);
+				replayLog(`[Replay] Loaded ${typeName} (${container.type}): ${chunks.length} packets`);
 			}
 		}
 
 		const packetStreamContainer = this.containers.find(c => c.type === ContainerType.PacketStream);
 		const packetStreamBuffer = packetStreamContainer ? packetStreamContainer.data : [];
-		console.log(`[Replay] Packet stream loaded: ${packetStreamBuffer.length} chunks`);
+		replayLog(`[Replay] Packet stream loaded: ${packetStreamBuffer.length} chunks`);
 
 		// Determine true duration in ms (larger of stored length in chunk 970 and last packet timestamp)
 		let lastPacketTime = 0;

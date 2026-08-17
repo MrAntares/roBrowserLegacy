@@ -5,6 +5,20 @@
  * Specification derived from adsonpleal/rrfparser reference implementation.
  */
 
+import Configs from 'Core/Configs.js';
+
+/**
+ * Informational replay logging, only emitted in development builds.
+ * Warnings and errors are reported unconditionally.
+ *
+ * @param {...*} args
+ */
+export function replayLog(...args) {
+	if (Configs.get('development', false)) {
+		console.log(...args);
+	}
+}
+
 export const ContainerType = {
 	None: 0,
 	PacketStream: 1,
