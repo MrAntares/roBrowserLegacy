@@ -102,7 +102,7 @@ function getEntity(gid) {
 	//   this check speed up the process.
 	// - When you load a map, the main character is not in the list yet
 	//   so we skip a lot of vital informations
-	if (Session.Entity.GID === gid) {
+	if (Session.Entity && Session.Entity.GID === gid) {
 		return Session.Entity;
 	}
 
@@ -137,7 +137,7 @@ function storePendingTransform(aid, key, value) {
  * @returns {object} Entity
  */
 function getEntityByCID(aid) {
-	if (Session.Entity.AID === aid) {
+	if (Session.Entity && Session.Entity.AID === aid) {
 		return Session.Entity;
 	}
 

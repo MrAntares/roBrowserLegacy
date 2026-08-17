@@ -461,8 +461,9 @@ export function createBasicInfo(config) {
 				break;
 
 			case 'zeny': {
-				Session.zeny = val1;
-				const list = val1.toString().split('');
+				const zeny = val1 || 0;
+				Session.zeny = zeny;
+				const list = zeny.toString().split('');
 				const count = list.length;
 				let str = '';
 				for (let i = 0; i < count; i++) {

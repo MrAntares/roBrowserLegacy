@@ -57,6 +57,15 @@ import WebGL from 'Utils/WebGL.js';
 
 const mat4 = glMatrix.mat4;
 const _pos = new Uint16Array(2);
+
+/**
+ * @param {string} mapname
+ * @returns {string} map name without its extension
+ */
+function stripMapExtension(mapname) {
+	return (mapname || '').replace(/\.[^.]*$/, '');
+}
+
 /**
  * Renderer Namespace
  */
@@ -131,8 +140,12 @@ class MapRenderer {
 		UIManager.removeComponents();
 		Cursor.setType(Cursor.ACTION.DEFAULT);
 
+		// The server may address the same map with different extensions (.gat/.rsw)
+		const oldMap = stripMapExtension(this.currentMap);
+		const newMap = stripMapExtension(mapname);
+
 		// Don't reload a map when it's just a local teleportation
-		if (this.currentMap !== mapname) {
+		if (oldMap !== newMap) {
 			this.loading = true;
 			BGM.stop();
 			this.currentMap = mapname;

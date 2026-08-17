@@ -11,19 +11,20 @@
  * @author Vincent Thibault
  */
 
-import DB from 'DB/DBManager.js';
-import SkillInfo from 'DB/Skills/SkillInfo.js';
-import SkillTreeView from 'DB/Skills/SkillTreeView.js';
-import Session from 'Engine/SessionStorage.js';
+import 'UI/Elements/Elements.js';
+
 import Client from 'Core/Client.js';
+import DB from 'DB/DBManager.js';
+import GUIComponent from 'UI/GUIComponent.js';
+import Mouse from 'Controls/MouseEventHandler.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
-import Mouse from 'Controls/MouseEventHandler.js';
-import UIManager from 'UI/UIManager.js';
-import GUIComponent from 'UI/GUIComponent.js';
-import 'UI/Elements/Elements.js';
-import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
+import Session from 'Engine/SessionStorage.js';
 import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
+import SkillTreeView from 'DB/Skills/SkillTreeView.js';
+import UIManager from 'UI/UIManager.js';
 
 function _escapeHTML(text) {
 	const div = document.createElement('div');
@@ -383,7 +384,8 @@ export function createSkillList({
 		root.querySelectorAll('.upgradable').forEach(el => el.classList.remove('upgradable'));
 
 		// The skill tree follows the real job, never a transformation/disguise
-		const skillJobId = Session.Entity._job || Session.Entity.job;
+		const entity = Session.Entity;
+		const skillJobId = entity ? entity._job || entity.job : 0;
 
 		skillPosition = getSkillPosition(skillJobId);
 		createSkillDependencyTree();

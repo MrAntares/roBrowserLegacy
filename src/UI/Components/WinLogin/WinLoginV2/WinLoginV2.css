@@ -56,8 +56,14 @@
 #WinLogin .win_login .btn.signup {
 	width: 84px;
 	height: 21px;
-	right: 130px;
-	bottom: 15px;
+	right: 120px;
+	bottom: 10px;
+}
+#WinLogin .btn.replay {
+	width: 84px;
+	height: 21px;
+    right: 210px;
+    bottom: 10px;
 }
 #WinLogin .win_login .btn.exit {
 	width: 24px;

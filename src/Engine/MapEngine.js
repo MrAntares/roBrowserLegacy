@@ -129,6 +129,9 @@ let _mapName = '';
  */
 let _isInitialised = false;
 
+let _exiting = false;
+let _exitTimer = null;
+
 let snCounter = 0;
 let chatLines = 0;
 
@@ -151,6 +154,8 @@ class MapEngine {
 	 */
 	static init(ip, port, mapName) {
 		_mapName = mapName;
+		_exiting = false;
+		_exitTimer = null;
 
 		// Connect to char server
 		const forceAddress = Configs.get('forceUseAddress');
@@ -779,6 +784,33 @@ function onServerChange(pkt) {
 }
 
 /**
+ * Resets the per-character UI state shared by the exit and restart flows.
+ * Components that were never prepared have no root element to clean.
+ */
+function cleanGameUI() {
+	WhisperBox.clearAll();
+
+	const tasks = [
+		[BasicInfo, 'remove'],
+		[PlayerViewEquip, 'remove'],
+		[StatusIcons, 'clean'],
+		[ChatBox, 'clean'],
+		[ShortCut, 'clean'],
+		[Quest, 'clean'],
+		[PartyFriends, 'clean'],
+		[CashShop, 'clean']
+	];
+
+	for (const [target, method] of tasks) {
+		const component = typeof target.getUI === 'function' ? target.getUI() : target;
+
+		if (component && component.__loaded && typeof component[method] === 'function') {
+			component[method]();
+		}
+	}
+}
+
+/**
  * Ask the server to disconnect
  */
 function onExitRequest() {
@@ -786,7 +818,8 @@ function onExitRequest() {
 	Network.sendPacket(pkt);
 
 	// Wait a second, if no answer from the server, then close it.
-	Events.setTimeout(() => {
+	_exitTimer = Events.setTimeout(() => {
+		_exitTimer = null;
 		onExitSuccess();
 	}, 1000);
 }
@@ -806,11 +839,24 @@ function onExitFail(pkt) {
  * @param {object} pkt - PACKET.ZC.REFUSE_QUIT
  */
 function onExitSuccess() {
+	if (_exiting) {
+		return;
+	}
+	_exiting = true;
+
+	if (_exitTimer !== null) {
+		Events.clearTimeout(_exitTimer);
+		_exitTimer = null;
+	}
+
 	if (PACKETVER.value >= 20170315 && Session.WebToken) {
 		ShortCut.saveToServer();
 	}
 
-	WhisperBox.clearAll();
+	GuildEngine.guild_id = 0;
+	cleanGameUI();
+	Session.Achievement = null;
+	Mouse.intersect = false;
 	UIManager.removeComponents();
 	Network.close();
 	Renderer.stop();
@@ -856,16 +902,8 @@ function onRestartAnswer(pkt) {
 		// Have to wait 10sec
 		ChatBox.addText(DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 	} else {
-		WhisperBox.clearAll();
 		GuildEngine.guild_id = 0;
-		BasicInfo.getUI().remove();
-		PlayerViewEquip.getUI().remove();
-		StatusIcons.clean();
-		ChatBox.clean();
-		ShortCut.clean();
-		Quest.getUI().clean();
-		PartyFriends.getUI().clean();
-		CashShop.clean();
+		cleanGameUI();
 		Session.Achievement = null;
 		Mouse.intersect = false;
 		MapRenderer.free();
@@ -882,14 +920,6 @@ function onDisconnectAnswer(pkt) {
 	switch (pkt.result) {
 		// Disconnect
 		case 0:
-			WhisperBox.clearAll();
-			BasicInfo.getUI().remove();
-			PlayerViewEquip.getUI().remove();
-			StatusIcons.clean();
-			ChatBox.clean();
-			ShortCut.clean();
-			Quest.getUI().clean();
-			PartyFriends.getUI().clean();
 			Renderer.stop();
 			onExitSuccess();
 			break;
