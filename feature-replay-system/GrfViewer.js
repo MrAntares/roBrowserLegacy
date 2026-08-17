@@ -328602,7 +328602,8 @@ function cleanGameUI() {
 function onExitRequest$2() {
 	const pkt = new PACKET.CZ.REQUEST_QUIT();
 	Network.sendPacket(pkt);
-	Events.setTimeout(() => {
+	_exitTimer = Events.setTimeout(() => {
+		_exitTimer = null;
 		onExitSuccess();
 	}, 1e3);
 }
@@ -328622,6 +328623,10 @@ function onExitFail(pkt) {
 function onExitSuccess() {
 	if (_exiting) return;
 	_exiting = true;
+	if (_exitTimer !== null) {
+		Events.clearTimeout(_exitTimer);
+		_exitTimer = null;
+	}
 	if (PacketVerManager_default.value >= 20170315 && SessionStorage_default.WebToken) ShortCut_default.saveToServer();
 	GuildEngine.guild_id = 0;
 	cleanGameUI();
@@ -328943,7 +328948,7 @@ function onReassemblyAuth(pkt) {
 		return;
 	}
 }
-var _mapName, _isInitialised, _exiting, snCounter, chatLines, packetMap, MapEngine, _walkTimer, _walkLastTick;
+var _mapName, _isInitialised, _exiting, _exitTimer, snCounter, chatLines, packetMap, MapEngine, _walkTimer, _walkLastTick;
 var init_MapEngine = __esmMin((() => {
 	init_DBManager();
 	init_Configs();
@@ -329057,6 +329062,7 @@ var init_MapEngine = __esmMin((() => {
 	_mapName = "";
 	_isInitialised = false;
 	_exiting = false;
+	_exitTimer = null;
 	snCounter = 0;
 	chatLines = 0;
 	packetMap = /* @__PURE__ */ new Map();
@@ -329075,6 +329081,7 @@ var init_MapEngine = __esmMin((() => {
 		static init(ip, port, mapName) {
 			_mapName = mapName;
 			_exiting = false;
+			_exitTimer = null;
 			const forceAddress = Configs.get("forceUseAddress");
 			const server_info = Configs.getServer();
 			const current_ip = forceAddress ? server_info.address : Network.utils.longToIP(ip);
