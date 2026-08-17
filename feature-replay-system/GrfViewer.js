@@ -335322,8 +335322,18 @@ var init_WinLogin$2 = __esmMin((() => {
 }));
 //#endregion
 //#region src/Engine/Replay/ReplayTypes.js
+/**
+* Informational replay logging, only emitted in development builds.
+* Warnings and errors are reported unconditionally.
+*
+* @param {...*} args
+*/
+function replayLog(...args) {
+	if (Configs.get("development", false)) console.log(...args);
+}
 var ContainerType, ContainerTypeNames, ItemChunkKind, ItemRecordTag, ReplayOpCodes, ReplayOpCodeName, ReplayState;
 var init_ReplayTypes = __esmMin((() => {
+	init_Configs();
 	ContainerType = {
 		None: 0,
 		PacketStream: 1,
@@ -335584,7 +335594,7 @@ var init_ReplayParser = __esmMin((() => {
 		}
 		parse() {
 			this.readHeader();
-			console.log("[ReplayParser] Header parsed:", this.header);
+			replayLog("[ReplayParser] Header parsed:", this.header);
 			if (this.header.version === 5) this.readContainersV5();
 			else console.warn(`[ReplayParser] Unsupported version: ${this.header.version}`);
 			return this.buildBuffers();
@@ -335732,12 +335742,12 @@ var init_ReplayParser = __esmMin((() => {
 						typeName,
 						chunks
 					});
-					console.log(`[Replay] Loaded ${typeName} (${container.type}): ${chunks.length} packets`);
+					replayLog(`[Replay] Loaded ${typeName} (${container.type}): ${chunks.length} packets`);
 				}
 			}
 			const packetStreamContainer = this.containers.find((c) => c.type === ContainerType.PacketStream);
 			const packetStreamBuffer = packetStreamContainer ? packetStreamContainer.data : [];
-			console.log(`[Replay] Packet stream loaded: ${packetStreamBuffer.length} chunks`);
+			replayLog(`[Replay] Packet stream loaded: ${packetStreamBuffer.length} chunks`);
 			let lastPacketTime = 0;
 			if (packetStreamBuffer.length > 0) lastPacketTime = packetStreamBuffer[packetStreamBuffer.length - 1].time || 0;
 			const durationMs = Math.max(sessionBuffer.durationMs || 0, lastPacketTime);
@@ -336353,7 +336363,7 @@ var init_ReplayPlayer = __esmMin((() => {
 		}
 		async load(file) {
 			this._setState(ReplayState.LOADING_REPLAY);
-			console.log("[Replay] Loading RRF...");
+			replayLog("[Replay] Loading RRF...");
 			const buffer = await file.arrayBuffer();
 			this.parser = new ReplayParser(buffer);
 			const result = this.parser.parse();
@@ -336564,7 +336574,7 @@ var init_ReplayPlayer = __esmMin((() => {
 			SessionStorage_default.Entity.position[1] = this._startY;
 			SessionStorage_default.Entity.position[2] = 0;
 			SessionStorage_default.Entity.direction = this._startDir;
-			console.log(`[Replay] Session applied — name: ${charName}, sex: ${SessionStorage_default.Entity.sex}, head: ${SessionStorage_default.Entity.head}, job: ${SessionStorage_default.Entity.job}, map: ${this._mapName}, HP: ${hp}/${maxHp}, SP: ${sp}/${maxSp}`);
+			replayLog(`[Replay] Session applied — name: ${charName}, sex: ${SessionStorage_default.Entity.sex}, head: ${SessionStorage_default.Entity.head}, job: ${SessionStorage_default.Entity.job}, map: ${this._mapName}, HP: ${hp}/${maxHp}, SP: ${sp}/${maxSp}`);
 			this._loadMap();
 		}
 		_loadMap() {
@@ -336716,8 +336726,7 @@ var init_ReplayPlayer = __esmMin((() => {
 				} else break;
 			}
 			if (this._streamChunkIndex >= this._packetStreamBuffer.length) {
-				if (this._packetStreamBuffer.length === 0) console.warn("[Replay] No packets recorded in the replay stream");
-				else console.log("[Replay] Replay finished");
+				replayLog("[Replay] Replay finished");
 				this._setState(ReplayState.REPLAY_FINISHED);
 				this.stop();
 			}
