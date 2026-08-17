@@ -58,9 +58,15 @@ export function createWinLogin({ name, htmlText, cssText }) {
 		root.querySelector('.connect').addEventListener('click', connect);
 		root.querySelector('.exit').addEventListener('click', exit);
 
-		// Replay Upload
+		// Replay Upload, only present on the UI versions supporting replays
 		const replayUpload = root.querySelector('.replay-upload');
-		root.querySelector('.replay').addEventListener('click', () => {
+		const replayButton = root.querySelector('.replay');
+
+		if (!replayUpload || !replayButton) {
+			return;
+		}
+
+		replayButton.addEventListener('click', () => {
 			replayUpload.click();
 		});
 		replayUpload.addEventListener('change', function () {

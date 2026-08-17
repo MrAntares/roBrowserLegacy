@@ -51,23 +51,6 @@
 #WinLogin .btn.signup {
 	left: 5px;
 }
-/* No GRF artwork exists for this button, so it is drawn as a plain label */
-#WinLogin .btn.replay {
-	width: 54px;
-	height: 20px;
-	right: 175px;
-	bottom: 4px;
-	color: #ffffff;
-	font-family: Arial, sans-serif;
-	font-size: 11px;
-	text-shadow: 1px 1px 0 #000000;
-	background: rgba(0, 0, 0, 0.4);
-	cursor: pointer;
-}
-
-#WinLogin .btn.replay:hover {
-	background: rgba(0, 0, 0, 0.6);
-}
 #WinLogin .btn.exit {
 	right: 5px;
 }
