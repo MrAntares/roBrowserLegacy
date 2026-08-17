@@ -13,7 +13,7 @@ paths-ignore:
     - applications/tools/**
 
     # Docs
-    - doc/**
+    - docs/**
     - '**/*.md'
 
     # Editor/linter/config meta

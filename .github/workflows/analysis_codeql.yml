@@ -15,7 +15,7 @@ on:
 
             # Docs
             - '**/*.md'
-            - 'doc/**'
+            - 'docs/**'
 
             # Editor/linter/config meta
             - '.vscode/**'
@@ -32,7 +32,7 @@ on:
 
             # Docs
             - '**/*.md'
-            - 'doc/**'
+            - 'docs/**'
 
             # Editor/linter/config meta
             - '.vscode/**'

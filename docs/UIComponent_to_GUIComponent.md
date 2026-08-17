@@ -17,9 +17,9 @@ L0 is archival and should only be opened when:
 Memory Layers
 
 ```
-├── L1 = doc/UIComponent_to_GUIComponent.md
-├── L2 = doc/UIComponent_to_GUIComponent_Firmware.md
-└── L0 = doc/UIComponent_to_GUIComponent_Scars.md
+├── L1 = docs/UIComponent_to_GUIComponent.md
+├── L2 = docs/UIComponent_to_GUIComponent_Firmware.md
+└── L0 = docs/UIComponent_to_GUIComponent_Scars.md
 ```
 
 ## ⛔ PROHIBITED — Scope Discipline (read before anything else)

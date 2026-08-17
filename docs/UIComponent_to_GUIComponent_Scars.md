@@ -32,7 +32,7 @@ Use L1 first.
 - Native DOM + Shadow DOM (`attachShadow({ mode: 'open' })`)
 - CSS injected inside the Shadow DOM via a `<style>` element (Common.css + component CSS)
 - HTML returned by `render()` method as a string, inserted into `this._container.innerHTML`
-- Uses Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes (see doc/CustomElements.md) [OPTIONAL]
+- Uses Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes (see docs/CustomElements.md) [OPTIONAL]
 - `this.ui` is a jQuery-compatible proxy that exists **only** for interoperability with `UIManager` and legacy `UIComponent` instances — **new code inside a GUIComponent should always use native DOM and Shadow DOM APIs directly**
 
 ### DOM Structure
@@ -342,7 +342,7 @@ Replace `data-*` attributes with Custom Elements:
 | `<span data-text="2355">Fallback</span>`                                                   | `<ui-text msg="2355">Fallback</ui-text>`                               |
 | `<div data-background="image.bmp">`                                                        | `<ui-image src="image.bmp">`                                           |
 
-Elements that still use `data-background`, `data-hover`, `data-down`, `data-active`, `data-text`, or `data-preload` will be processed by `GUIComponent._processAllDataAttrs()` during `prepare()`. Both approaches work; Custom Elements are preferred for new code but is optional. Create new custom elements if conversion demands it (see doc/CustomElements.md).
+Elements that still use `data-background`, `data-hover`, `data-down`, `data-active`, `data-text`, or `data-preload` will be processed by `GUIComponent._processAllDataAttrs()` during `prepare()`. Both approaches work; Custom Elements are preferred for new code but is optional. Create new custom elements if conversion demands it (see docs/CustomElements.md).
 
 ### 4. Convert the CSS file — CRITICAL
 

@@ -3,9 +3,9 @@
 ## Consult order
 
 1. THIS doc (task-specific brain for factory extraction)
-2. `doc/UIComponent_to_GUIComponent.md` (L1 — GUIComponent migration invariants)
-3. `doc/UIComponent_to_GUIComponent_Firmware.md` (L2)
-4. `doc/UIComponent_to_GUIComponent_Scars.md` (L0 — historical edge cases)
+2. `docs/UIComponent_to_GUIComponent.md` (L1 — GUIComponent migration invariants)
+3. `docs/UIComponent_to_GUIComponent_Firmware.md` (L2)
+4. `docs/UIComponent_to_GUIComponent_Scars.md` (L0 — historical edge cases)
 
 This task runs AFTER the UIComponent→GUIComponent migration is complete. Every  
 component here is ALREADY a `GUIComponent`. Your job is NOT to migrate — it is to  
@@ -14,7 +14,7 @@ component here is ALREADY a `GUIComponent`. Your job is NOT to migrate — it is
 ## ⛔ PROHIBITED — Scope Discipline (read before anything else)
 
 You are performing a **mechanical, behavior-preserving extraction** — not a redesign.  
-The full Scope Discipline in `doc/UIComponent_to_GUIComponent.md` §"PROHIBITED" applies  
+The full Scope Discipline in `docs/UIComponent_to_GUIComponent.md` §"PROHIBITED" applies  
 verbatim. In addition, for THIS task:
 
 - **No new surfaces / behavior / "improvements":** do not add tabs, buttons, options, or  
@@ -113,7 +113,7 @@ WinStats consumers that still use direct .status_component/WinStats._host (Equip
 | Shadow Isolation            | Query internal nodes via cached `_root`; never `document.querySelector` for shadow content.                                                                | Lookups fail silently.                        |
 | Dynamic `this` Preservation | Keep `function()` for asset/canvas callbacks that rely on caller-controlled `this`.                                                                        | Asset load callbacks break.                   |
 
-All invariants from `doc/UIComponent_to_GUIComponent.md` §1 remain in force.
+All invariants from `docs/UIComponent_to_GUIComponent.md` §1 remain in force.
 
 ---
 

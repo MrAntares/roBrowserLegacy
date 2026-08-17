@@ -84,7 +84,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Packet versioning is date-based.** PACKETVER is auto-detected from the kRO executable's PE timestamp. `PacketVersions.js` uses date-range switches. Changing detection logic in `PacketVerManager.js` can break compatibility with 23 packet versions.
 - **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). Electron uses `NodeSocket.js` (direct TCP via preload contextBridge). Both implement the same interface for `NetworkManager`.
 - **Vendors are frozen.** `src/Vendors/` is excluded from ESLint. Never modify vendored files.
-- **UI has one component system** `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. Primary guide: `doc/UIComponent_to_GUIComponent.md` (L1). For edge cases see `doc/UIComponent_to_GUIComponent_Scars.md` (L0, archive); for quick reflex lookup `doc/UIComponent_to_GUIComponent_Firmware.md` (L2).
+- **UI has one component system** `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. Primary guide: `docs/UIComponent_to_GUIComponent.md` (L1). For edge cases see `docs/UIComponent_to_GUIComponent_Scars.md` (L0, archive); for quick reflex lookup `docs/UIComponent_to_GUIComponent_Firmware.md` (L2).
 - **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files. Legacy components use `data-background` HTML attributes processed by `GUIComponent.parseHTML()`. New components use `<ui-button>`, `<ui-text>`, `<ui-image>` Custom Elements, both are useful. CSS is structural/positional only.
 
 ## Subsystem Reference
@@ -140,10 +140,10 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
     > **Migration docs (3-layer memory):**
     >
-    > - **L1 — Primary** [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix). **Start here.**
-    > - **L2 — Reflex** [`doc/UIComponent_to_GUIComponent_Firmware.md`](doc/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup. Not for reasoning.
-    > - **L0 — Archive** [`doc/UIComponent_to_GUIComponent_Scars.md`](doc/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component reference. Consult only for edge cases / when L1 is insufficient.
-    >   **Custom Elements**: [`doc/CustomElements.md`](doc/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
+    > - **L1 — Primary** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix). **Start here.**
+    > - **L2 — Reflex** [`docs/UIComponent_to_GUIComponent_Firmware.md`](docs/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup. Not for reasoning.
+    > - **L0 — Archive** [`docs/UIComponent_to_GUIComponent_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component reference. Consult only for edge cases / when L1 is insufficient.
+    >   **Custom Elements**: [`docs/CustomElements.md`](docs/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
     >   **For Migrated & Remaining components list see:** https://github.com/MrAntares/roBrowserLegacy/issues/1140
 
 - **Intro.js**: File upload & server selection
@@ -294,8 +294,8 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 5. CSS: dimensions/position on `:host`, inner layout on `#Name`
 6. Register with `UIManager.addComponent()`
 7. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
-    > Consult **L1** [`doc/UIComponent_to_GUIComponent.md`](doc/UIComponent_to_GUIComponent.md) first; fall back to **L0** [`_Scars.md`](doc/UIComponent_to_GUIComponent_Scars.md) for the full step-by-step checklist and pitfalls.  
-    > See [`doc/CustomElements.md`](doc/CustomElements.md) for element reference
+    > Consult **L1** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md) first; fall back to **L0** [`_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md) for the full step-by-step checklist and pitfalls.  
+    > See [`docs/CustomElements.md`](docs/CustomElements.md) for element reference
     > **Migrating an existing UIComponent:** Follow the step-by-step checklist in the migration guide. Key pitfalls: jQuery `.show()`/`.hide()` inside Shadow DOM, `$el.closest('body')` → `el.isConnected`, CSS `:host` dimensions.
 
 ### Implementing a New Packet Handler
@@ -322,7 +322,7 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 
 ### (Factory/Deduplication Task) Deduplicating JS code in multiple versions to unified shared factory pattern
 
-**Before starting, you MUST read `doc/GUIComponent_Version_Dedup_Factory.md` — it contains invariants that cannot be violated.**
+**Before starting, you MUST read `docs/GUIComponent_Version_Dedup_Factory.md` — it contains invariants that cannot be violated.**
 
 1. Create a ComponentNameCommon.js in Component Folder
 2. Move all JS code from `V0` or `V1` to new Common Factory
