@@ -137,7 +137,7 @@ function storePendingTransform(aid, key, value) {
  * @returns {object} Entity
  */
 function getEntityByCID(aid) {
-	if (Session.Entity.AID === aid) {
+	if (Session.Entity && Session.Entity.AID === aid) {
 		return Session.Entity;
 	}
 

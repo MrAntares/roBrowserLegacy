@@ -104,6 +104,7 @@ class GUIComponent {
 		this.manager = null; // Set by UIManager.addComponent()
 
 		this.__loaded = false;
+		this.__preparing = false;
 		this.__active = false;
 		this.__scrollbarObserver = null;
 		this.__mouseStopBlock = null;
@@ -128,7 +129,7 @@ class GUIComponent {
 	 */
 
 	getRoot() {
-		if (!this.__loaded) {
+		if (!this.__loaded && !this.__preparing) {
 			this.prepare();
 		}
 		return this._shadow || this._host;
@@ -140,8 +141,19 @@ class GUIComponent {
 	 * Equivalent to UIComponent.prototype.prepare().
 	 */
 	prepare() {
-		if (this.__loaded) return;
-		this.__loaded = true;
+		if (this.__loaded || this.__preparing) return;
+
+		// Guards against re-entrancy: init() may call getRoot(), which prepares on demand
+		this.__preparing = true;
+		try {
+			this._prepare();
+			this.__loaded = true;
+		} finally {
+			this.__preparing = false;
+		}
+	}
+
+	_prepare() {
 		_ensureDeps();
 
 		// Create host element
@@ -395,6 +407,7 @@ class GUIComponent {
 					key === '_container' ||
 					key === 'ui' ||
 					key === '__loaded' ||
+					key === '__preparing' ||
 					key === '__scrollbarObserver'
 				) {
 					continue; // Don't copy DOM state

@@ -13,8 +13,14 @@ import {
 	ContainerTypeNames,
 	ItemChunkKind,
 	ItemRecordTag,
+	ReplayOpCodes,
 	ReplayOpCodeName
 } from 'Engine/Replay/ReplayTypes.js';
+
+// 100 byte prefix string + 12 bytes of version/signature/timestamp
+const HEADER_BYTES = 112;
+const DESCRIPTOR_BYTES = 10;
+const DESCRIPTOR_COUNT = 24;
 
 export default class ReplayParser {
 	constructor(fileBuffer) {
@@ -39,6 +45,10 @@ export default class ReplayParser {
 	}
 
 	readHeader() {
+		if (this.size < HEADER_BYTES) {
+			throw new Error(`Replay file is truncated: ${this.size} bytes, expected at least ${HEADER_BYTES}`);
+		}
+
 		this.fp.seek(0, 0);
 
 		// 100-byte header prefix string (e.g. "<< Ragnarok Replay File Version...")
@@ -97,10 +107,14 @@ export default class ReplayParser {
 	}
 
 	readContainersV5() {
-		const DESCRIPTOR_BYTES = 10;
-		const tableOffset = 112; // 100 header prefix + 12 header bytes
+		const tableOffset = HEADER_BYTES;
+		const tableEnd = tableOffset + DESCRIPTOR_COUNT * DESCRIPTOR_BYTES;
 
-		for (let i = 0; i < 24; i++) {
+		if (this.size < tableEnd) {
+			throw new Error(`Replay descriptor table is truncated: ${this.size} bytes, expected at least ${tableEnd}`);
+		}
+
+		for (let i = 0; i < DESCRIPTOR_COUNT; i++) {
 			this.fp.seek(tableOffset + i * DESCRIPTOR_BYTES, 0);
 			const type = this.fp.readUShort();
 			const declaredLength = this.fp.readLong();
@@ -125,7 +139,10 @@ export default class ReplayParser {
 				continue;
 			}
 
-			if (offset < 0 || offset >= this.size || offset + realLength > this.size) {
+			if (offset < 0 || offset >= this.size || realLength <= 0 || offset + realLength > this.size) {
+				console.warn(
+					`[ReplayParser] Skipping out of bounds container ${ContainerTypeNames[type] || type} at ${offset} (${realLength} bytes)`
+				);
 				continue;
 			}
 
@@ -253,9 +270,12 @@ export default class ReplayParser {
 	buildSessionBuffer() {
 		const buf = {};
 
-		const readU8   = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint8(0);
-		const readU16  = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint16(0, true);
-		const readU32  = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
+		const readU8 = chunk =>
+			new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint8(0);
+		const readU16 = chunk =>
+			new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint16(0, true);
+		const readU32 = chunk =>
+			new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
 
 		const readStringById = (container, id) => {
 			const ch = container.data.find(c => c.id === id);
@@ -294,7 +314,7 @@ export default class ReplayParser {
 		if (replayData) {
 			const sexVal = readU32ById(replayData, 963) ?? readU8ById(replayData, 963);
 			if (sexVal !== null) {
-				buf.sex = (sexVal === 0 || sexVal === 1) ? sexVal : 0;
+				buf.sex = sexVal === 0 || sexVal === 1 ? sexVal : 0;
 			}
 
 			// Name & Map may be id-tagged (964/965) or positional chunks [4] / [5]
@@ -655,7 +675,8 @@ export default class ReplayParser {
 			return buf;
 		}
 
-		const readU32 = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
+		const readU32 = chunk =>
+			new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
 
 		const readU32ById = (container, id) => {
 			const ch = container.data.find(c => c.id === id);
@@ -732,12 +753,13 @@ export default class ReplayParser {
 	}
 
 	buildPetBuffer() {
-		const compContainer = this.containers.find(c => c.type === ContainerType.Companions || c.type === ContainerType.UnknownContainingPet);
+		const compContainer = this.containers.find(c => c.type === ContainerType.Companions);
 		if (!compContainer) {
 			return null;
 		}
 
-		const readU32 = chunk => new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
+		const readU32 = chunk =>
+			new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength).getUint32(0, true);
 
 		const readU32ById = id => {
 			const ch = compContainer.data.find(c => c.id === id);
@@ -755,16 +777,16 @@ export default class ReplayParser {
 			return this.readString(ch.data);
 		};
 
-		const aid = readU32ById(5301);
+		const aid = readU32ById(ReplayOpCodes.PetGid);
 		if (!aid) {
 			return null; // No pet out at recording start
 		}
 
-		const name = readStringById(5303);
-		const viewRaw = readU32ById(5305) ?? 0;
-		const level = readU32ById(5306) ?? 1;
-		const hunger = readU32ById(5307) ?? 0;
-		const intimacy = readU32ById(5308) ?? 0;
+		const name = readStringById(ReplayOpCodes.PetName);
+		const viewRaw = readU32ById(ReplayOpCodes.PetJob) ?? 0;
+		const level = readU32ById(ReplayOpCodes.PetLevel) ?? 1;
+		const hunger = readU32ById(ReplayOpCodes.PetFullness) ?? 0;
+		const intimacy = readU32ById(ReplayOpCodes.PetRelation) ?? 0;
 
 		return {
 			aid,
@@ -880,6 +902,9 @@ export default class ReplayParser {
 			const view = new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength);
 			const recordSize = detectRecordSize(view, chunk.data.byteLength);
 			if (recordSize === 0) {
+				console.warn(
+					`[ReplayParser] Unrecognized item record layout in chunk ${chunk.id} (${chunk.data.byteLength} bytes), items skipped`
+				);
 				return;
 			}
 
@@ -951,19 +976,21 @@ export default class ReplayParser {
 
 				if (itemId > 0) {
 					let itemType = ItemType.ETC;
-					if (chunk.id === ItemChunkKind.EQUIPPED_COSTUME || (equipped & (
-						EquipmentLocation.COSTUME_HEAD_TOP |
-						EquipmentLocation.COSTUME_HEAD_MID |
-						EquipmentLocation.COSTUME_HEAD_BOTTOM |
-						EquipmentLocation.COSTUME_ROBE |
-						EquipmentLocation.COSTUME_FLOOR |
-						EquipmentLocation.SHADOW_ARMOR |
-						EquipmentLocation.SHADOW_WEAPON |
-						EquipmentLocation.SHADOW_SHIELD |
-						EquipmentLocation.SHADOW_SHOES |
-						EquipmentLocation.SHADOW_R_ACCESSORY_SHADOW |
-						EquipmentLocation.SHADOW_L_ACCESSORY_SHADOW
-					))) {
+					if (
+						chunk.id === ItemChunkKind.EQUIPPED_COSTUME ||
+						equipped &
+							(EquipmentLocation.COSTUME_HEAD_TOP |
+								EquipmentLocation.COSTUME_HEAD_MID |
+								EquipmentLocation.COSTUME_HEAD_BOTTOM |
+								EquipmentLocation.COSTUME_ROBE |
+								EquipmentLocation.COSTUME_FLOOR |
+								EquipmentLocation.SHADOW_ARMOR |
+								EquipmentLocation.SHADOW_WEAPON |
+								EquipmentLocation.SHADOW_SHIELD |
+								EquipmentLocation.SHADOW_SHOES |
+								EquipmentLocation.SHADOW_R_ACCESSORY_SHADOW |
+								EquipmentLocation.SHADOW_L_ACCESSORY_SHADOW)
+					) {
 						itemType = ItemType.SHADOWGEAR;
 					} else if (equipped & EquipmentLocation.WEAPON) {
 						itemType = ItemType.WEAPON;
@@ -1076,8 +1103,11 @@ export default class ReplayParser {
 			container.data.forEach((chunk, index) => {
 				const data = chunk.data;
 				const size = data ? data.byteLength : 0;
-				const opName = chunk.id !== undefined ? (ReplayOpCodeName[chunk.id] || '') : '';
-				const packetInfo = chunk.packetId !== undefined ? ` | PacketID: 0x${chunk.packetId.toString(16).padStart(4, '0')} (${chunk.packetId})` : '';
+				const opName = chunk.id !== undefined ? ReplayOpCodeName[chunk.id] || '' : '';
+				const packetInfo =
+					chunk.packetId !== undefined
+						? ` | PacketID: 0x${chunk.packetId.toString(16).padStart(4, '0')} (${chunk.packetId})`
+						: '';
 				const chunkHeader = `Chunk [${index}] ID: ${chunk.id ?? 'N/A'}${opName ? ` (${opName})` : ''}${packetInfo}${chunk.time !== undefined ? ` | Time: ${chunk.time}` : ''} | Data Size: ${size}`;
 
 				console.log(chunkHeader);

@@ -10170,7 +10170,9 @@ PACKET.ZC.NOTIFY_MOVEENTRY6 = function PACKET_ZC_NOTIFY_MOVEENTRY6(fp, end) {
 	this.job = fp.readShort();
 	this.head = fp.readShort();
 	this.weapon = fp.readLong();
-	this.shield = fp.readLong();
+	if (PACKETVER.value >= 20181121) {
+		this.shield = fp.readLong();
+	}
 	this.accessory = fp.readShort();
 	this.moveStartTime = fp.readULong();
 	this.accessory2 = fp.readShort();
@@ -10205,7 +10207,9 @@ PACKET.ZC.NOTIFY_STANDENTRY6 = function PACKET_ZC_NOTIFY_STANDENTRY6(fp, end) {
 	this.job = fp.readShort();
 	this.head = fp.readShort();
 	this.weapon = fp.readLong();
-	this.shield = fp.readLong();
+	if (PACKETVER.value >= 20181121) {
+		this.shield = fp.readLong();
+	}
 	this.accessory = fp.readShort();
 	this.accessory2 = fp.readShort();
 	this.accessory3 = fp.readShort();
@@ -10239,7 +10243,9 @@ PACKET.ZC.NOTIFY_NEWENTRY6 = function PACKET_ZC_NOTIFY_NEWENTRY6(fp, end) {
 	this.job = fp.readShort();
 	this.head = fp.readShort();
 	this.weapon = fp.readLong();
-	this.shield = fp.readLong();
+	if (PACKETVER.value >= 20181121) {
+		this.shield = fp.readLong();
+	}
 	this.accessory = fp.readShort();
 	this.accessory2 = fp.readShort();
 	this.accessory3 = fp.readShort();

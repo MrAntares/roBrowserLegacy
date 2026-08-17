@@ -51,6 +51,7 @@ export default class ReplayPlayer {
 		this._initialGroupIndex = 0;
 		this._initialChunkIndex = 0;
 		this._streamChunkIndex = 0;
+		this._firstStreamTime = 0;
 
 		// Bound tick handler
 		this._onTick = this.tick.bind(this);
@@ -131,23 +132,39 @@ export default class ReplayPlayer {
 
 	resume() {
 		this.playing = true;
-		const nextChunk = this._getCurrentStreamChunk();
-		const logicalTime = nextChunk ? nextChunk.time : 0;
-		this.startTime = Date.now() - logicalTime / this.speed;
+		this._syncTimeOrigin();
 	}
 
 	stop() {
 		this.playing = false;
 		this._animate = false;
 		Network.setSocketFactory(null);
-		this._setState(ReplayState.IDLE);
+
+		if (this.socket) {
+			// Network.close() detaches the socket first, so no disconnect dialog pops up
+			Network.close();
+			this.socket = null;
+		}
+
+		if (this._state !== ReplayState.REPLAY_FINISHED) {
+			this._setState(ReplayState.IDLE);
+		}
 	}
 
 	setSpeed(speed) {
-		const nextChunk = this._getCurrentStreamChunk();
-		const logicalTime = nextChunk ? nextChunk.time : 0;
 		this.speed = speed;
-		this.startTime = Date.now() - logicalTime / this.speed;
+		this._syncTimeOrigin();
+	}
+
+	/**
+	 * Recompute the wall clock origin so the next chunk plays at its own logical
+	 * time. Inverse of the formula used in _tickPacketStream().
+	 */
+	_syncTimeOrigin() {
+		const firstStreamTime = this._firstStreamTime || 0;
+		const nextChunk = this._getCurrentStreamChunk();
+		const logicalTime = nextChunk ? nextChunk.time : firstStreamTime;
+		this.startTime = Date.now() - (logicalTime - firstStreamTime) / this.speed;
 	}
 
 	_setState(newState) {
@@ -163,7 +180,7 @@ export default class ReplayPlayer {
 
 		const s = this._sessionData;
 		const charName = s.characterName || 'Replay';
-		const sex = (s.sex === 0 || s.sex === 1) ? s.sex : 0;
+		const sex = s.sex === 0 || s.sex === 1 ? s.sex : 0;
 		const aid = s.AID || 0;
 		const gid = s.GID || aid;
 
@@ -173,7 +190,7 @@ export default class ReplayPlayer {
 			name: charName,
 			sex,
 			job: s.job !== undefined ? s.job : 0,
-			clevel: s.level !== undefined ? s.level : (s.clevel || 1),
+			clevel: s.level !== undefined ? s.level : s.clevel || 1,
 			joblevel: s.joblevel !== undefined ? s.joblevel : 1,
 			exp: s.exp || 0,
 			exp_next: s.exp_next || 0,
@@ -278,9 +295,9 @@ export default class ReplayPlayer {
 		Session.Entity.robe = playerInitData.robe;
 
 		// Life (HP / SP)
-		const hp = s.hp !== undefined ? s.hp : (s.maxHp !== undefined ? s.maxHp : 100);
+		const hp = s.hp !== undefined ? s.hp : s.maxHp !== undefined ? s.maxHp : 100;
 		const maxHp = s.maxHp !== undefined ? s.maxHp : hp;
-		const sp = s.sp !== undefined ? s.sp : (s.maxSp !== undefined ? s.maxSp : 100);
+		const sp = s.sp !== undefined ? s.sp : s.maxSp !== undefined ? s.maxSp : 100;
 		const maxSp = s.maxSp !== undefined ? s.maxSp : sp;
 
 		Session.Entity.life.hp = hp;
@@ -289,7 +306,7 @@ export default class ReplayPlayer {
 		Session.Entity.life.sp_max = maxSp;
 
 		// EffectState & Option
-		const option = s.effectState !== undefined ? s.effectState : (s.option || 0);
+		const option = s.effectState !== undefined ? s.effectState : s.option || 0;
 		Session.Entity.effectState = option;
 		Session.Entity._effectState = option;
 		Session.Entity.option = option;
@@ -430,7 +447,6 @@ export default class ReplayPlayer {
 	 * and applies initial Efst buffs, items, and UI stat updates.
 	 */
 	_tickInitialData() {
-
 		for (const group of this._initialBuffer) {
 			for (const chunk of group.chunks) {
 				const data = chunk.data || chunk;

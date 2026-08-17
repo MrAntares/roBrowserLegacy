@@ -57,6 +57,15 @@ import WebGL from 'Utils/WebGL.js';
 
 const mat4 = glMatrix.mat4;
 const _pos = new Uint16Array(2);
+
+/**
+ * @param {string} mapname
+ * @returns {string} map name without its extension
+ */
+function stripMapExtension(mapname) {
+	return (mapname || '').replace(/\.[^.]*$/, '');
+}
+
 /**
  * Renderer Namespace
  */
@@ -122,8 +131,8 @@ class MapRenderer {
 		// Support for instance map
 		// Is it always 3 digits ?
 		mapname = mapname
-			.replace(/^(\w{3})(\d@)/, '$2') // 0061@tower   -> 1@tower
-			.replace(/^\w{3}#/, ''); // 003#prontera -> prontera
+			.replace(/^(\d{3})(\d@)/, '$2') // 0061@tower   -> 1@tower
+			.replace(/^\d{3}#/, ''); // 003#prontera -> prontera
 
 		// Clean objects
 		SoundManager.stop();
@@ -131,9 +140,9 @@ class MapRenderer {
 		UIManager.removeComponents();
 		Cursor.setType(Cursor.ACTION.DEFAULT);
 
-		// remove extension
-		const oldMap = this.currentMap.split(".")[0];
-		const newMap = mapname.split(".")[0];
+		// The server may address the same map with different extensions (.gat/.rsw)
+		const oldMap = stripMapExtension(this.currentMap);
+		const newMap = stripMapExtension(mapname);
 
 		// Don't reload a map when it's just a local teleportation
 		if (oldMap !== newMap) {

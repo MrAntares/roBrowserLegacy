@@ -15,7 +15,6 @@ export const ContainerType = {
 	GroupAndFriends: 7,
 	Items: 8,
 	Companions: 9,
-	UnknownContainingPet: 9,
 	InitialPackets: 14,
 	InitialEntities: 15,
 	InitialFloorItems: 16,
@@ -183,7 +182,6 @@ export const ReplayOpCodes = {
 	PetRelation: 5308,
 	PetEggIndex: 5309,
 	PetOldFullness: 5310,
-	End_5300: 5301,
 
 	Begin_5500: 5500,
 	End_5500: 5501,

@@ -383,11 +383,9 @@ export function createSkillList({
 
 		root.querySelectorAll('.upgradable').forEach(el => el.classList.remove('upgradable'));
 
-		let skillJobId = Session.Entity.job;
-		const originalJobId = Session.Entity ? Session.Entity._job : null;
-		if (originalJobId && originalJobId !== Session.Entity.job) {
-			skillJobId = originalJobId;
-		}
+		// The skill tree follows the real job, never a transformation/disguise
+		const entity = Session.Entity;
+		const skillJobId = entity ? entity._job || entity.job : 0;
 
 		skillPosition = getSkillPosition(skillJobId);
 		createSkillDependencyTree();

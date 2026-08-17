@@ -14,7 +14,6 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
-import ReplayPlayer from 'Engine/Replay/ReplayPlayer.js';
 
 export function createWinLogin({ name, htmlText, cssText }) {
 	const Component = new GUIComponent(name, cssText);
@@ -65,18 +64,19 @@ export function createWinLogin({ name, htmlText, cssText }) {
 			replayUpload.click();
 		});
 		replayUpload.addEventListener('change', function () {
-			if (!this.files || !this.files.length) return;
-			const file = this.files[0];
-			if (file.name && file.name.toLowerCase().endsWith('.rrf')) {
-				const replay = new ReplayPlayer();
-				replay.load(file).then(() => {
-					Component.remove();
-					replay.start();
-				}).catch(err => {
-					console.error('[Replay] Error loading replay', err);
-				});
+			if (!this.files || !this.files.length) {
+				return;
 			}
+
+			const file = this.files[0];
 			this.value = ''; // reset so we can select same file again
+
+			if (!file.name || !file.name.toLowerCase().endsWith('.rrf')) {
+				UIManager.showMessageBox('Please select a Ragnarok replay file (.rrf).', 'ok');
+				return;
+			}
+
+			loadReplay(file);
 		});
 	};
 
@@ -152,6 +152,21 @@ export function createWinLogin({ name, htmlText, cssText }) {
 		_preferences.save();
 		Component.onConnectionRequest(user, pass);
 		return false;
+	}
+
+	async function loadReplay(file) {
+		try {
+			// Loaded on demand, the replay stack pulls in the whole map engine
+			const { default: ReplayPlayer } = await import('Engine/Replay/ReplayPlayer.js');
+			const replay = new ReplayPlayer();
+
+			await replay.load(file);
+			Component.remove();
+			replay.start();
+		} catch (err) {
+			console.error('[Replay] Error loading replay', err);
+			UIManager.showMessageBox(`Could not load the replay file.\n${err.message || err}`, 'ok');
+		}
 	}
 
 	function signup() {
