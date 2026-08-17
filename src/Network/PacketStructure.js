@@ -10192,7 +10192,7 @@ PACKET.ZC.NOTIFY_MOVEENTRY6 = function PACKET_ZC_NOTIFY_MOVEENTRY6(fp, end) {
 	this.ySize = fp.readUChar();
 	this.clevel = fp.readShort();
 	this.font = fp.readShort();
-	this.name = fp.readString(end - fp.tell());
+	this.name = fp.readString(Math.min(NAME_LENGTH, end - fp.tell()));
 };
 PACKET.ZC.NOTIFY_MOVEENTRY6.size = -1;
 

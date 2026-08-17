@@ -646,7 +646,6 @@ export default class ReplayParser {
 			const cartCurCount = readU16ById(sessionContainer, 1086);
 			if (cartCurCount !== null) {
 				buf.cartCurCount = cartCurCount;
-				buf.hasCart = cartCurCount > 0;
 			}
 
 			const cartMaxCount = readU16ById(sessionContainer, 1087);
@@ -663,6 +662,9 @@ export default class ReplayParser {
 			if (cartMaxWeight !== null) {
 				buf.cartMaxWeight = cartMaxWeight;
 			}
+
+			// Cart capacity, not its content, tells whether the character owns a cart
+			buf.hasCart = (buf.cartMaxCount || 0) > 0 || (buf.cartMaxWeight || 0) > 0;
 		}
 
 		return buf;

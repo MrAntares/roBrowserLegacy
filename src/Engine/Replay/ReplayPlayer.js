@@ -52,6 +52,7 @@ export default class ReplayPlayer {
 		this._initialChunkIndex = 0;
 		this._streamChunkIndex = 0;
 		this._firstStreamTime = 0;
+		this._logicalTime = 0;
 
 		// Bound tick handler
 		this._onTick = this.tick.bind(this);
@@ -157,13 +158,12 @@ export default class ReplayPlayer {
 	}
 
 	/**
-	 * Recompute the wall clock origin so the next chunk plays at its own logical
-	 * time. Inverse of the formula used in _tickPacketStream().
+	 * Recompute the wall clock origin so playback continues from the logical time
+	 * reached so far. Inverse of the formula used in _tickPacketStream().
 	 */
 	_syncTimeOrigin() {
 		const firstStreamTime = this._firstStreamTime || 0;
-		const nextChunk = this._getCurrentStreamChunk();
-		const logicalTime = nextChunk ? nextChunk.time : firstStreamTime;
+		const logicalTime = Math.max(this._logicalTime || 0, firstStreamTime);
 		this.startTime = Date.now() - (logicalTime - firstStreamTime) / this.speed;
 	}
 
@@ -400,6 +400,9 @@ export default class ReplayPlayer {
 			case ReplayState.LOADING_MAP:
 				// Step 1: Send ACCEPT_ENTER as soon as socket connects
 				if (!this._acceptEnterSent) {
+					// Force a full map load, otherwise MapRenderer.setMap() takes the
+					// local teleport path and never toggles `loading`
+					MapRenderer.currentMap = '';
 					this._sendAcceptEnter();
 					this._acceptEnterSent = true;
 					this._mapLoadStarted = false;
@@ -429,6 +432,7 @@ export default class ReplayPlayer {
 				this.startTime = Date.now();
 				this.lastTickTime = now;
 				this._firstStreamTime = this._packetStreamBuffer.length > 0 ? this._packetStreamBuffer[0].time : 0;
+				this._logicalTime = this._firstStreamTime;
 				break;
 
 			case ReplayState.PLAYING_PACKET_STREAM:
@@ -548,6 +552,7 @@ export default class ReplayPlayer {
 	 */
 	_tickPacketStream(now) {
 		const logicalTime = (now - this.startTime) * this.speed + (this._firstStreamTime || 0);
+		this._logicalTime = logicalTime;
 
 		while (this._streamChunkIndex < this._packetStreamBuffer.length) {
 			const chunk = this._packetStreamBuffer[this._streamChunkIndex];
@@ -560,7 +565,11 @@ export default class ReplayPlayer {
 		}
 
 		if (this._streamChunkIndex >= this._packetStreamBuffer.length) {
-			console.log('[Replay] Replay finished');
+			if (this._packetStreamBuffer.length === 0) {
+				console.warn('[Replay] No packets recorded in the replay stream');
+			} else {
+				console.log('[Replay] Replay finished');
+			}
 			this._setState(ReplayState.REPLAY_FINISHED);
 			this.stop();
 		}

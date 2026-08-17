@@ -102,7 +102,7 @@ function getEntity(gid) {
 	//   this check speed up the process.
 	// - When you load a map, the main character is not in the list yet
 	//   so we skip a lot of vital informations
-	if (Session.Entity && (Session.Entity.GID === gid || Session.Entity.AID === gid)) {
+	if (Session.Entity && Session.Entity.GID === gid) {
 		return Session.Entity;
 	}
 

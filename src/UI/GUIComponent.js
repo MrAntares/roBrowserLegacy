@@ -129,9 +129,6 @@ class GUIComponent {
 	 */
 
 	getRoot() {
-		if (!this.__loaded && !this.__preparing) {
-			this.prepare();
-		}
 		return this._shadow || this._host;
 	}
 
@@ -143,7 +140,7 @@ class GUIComponent {
 	prepare() {
 		if (this.__loaded || this.__preparing) return;
 
-		// Guards against re-entrancy: init() may call getRoot(), which prepares on demand
+		// Guards against re-entrancy and leaves __loaded false when _prepare() throws
 		this.__preparing = true;
 		try {
 			this._prepare();
