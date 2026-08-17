@@ -156489,6 +156489,16 @@ var init_BinaryWriter = __esmMin((() => {
 }));
 //#endregion
 //#region src/Network/PacketStructure.js
+/**
+* Reads the trailing name field of a variable length packet, honoring NAME_LENGTH.
+*
+* @param {object} fp - BinaryReader
+* @param {number} end - packet end offset
+* @returns {string}
+*/
+function readTrailingName(fp, end) {
+	return fp.readString(NAME_LENGTH);
+}
 var NAME_LENGTH, MAP_NAME_LENGTH_EXT, PACKET, RENEWAL, CLASSIC, UNUSED_PACKET;
 var init_PacketStructure = __esmMin((() => {
 	init_BinaryWriter();
@@ -164335,7 +164345,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.ySize = fp.readUChar();
 		this.clevel = fp.readShort();
 		this.font = fp.readShort();
-		this.name = fp.readString(Math.min(NAME_LENGTH, end - fp.tell()));
+		this.name = readTrailingName(fp, end);
 	};
 	PACKET.ZC.NOTIFY_MOVEENTRY6.size = -1;
 	PACKET.ZC.NOTIFY_STANDENTRY6 = function PACKET_ZC_NOTIFY_STANDENTRY6(fp, end) {
