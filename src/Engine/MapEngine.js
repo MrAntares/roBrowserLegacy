@@ -130,6 +130,7 @@ let _mapName = '';
 let _isInitialised = false;
 
 let _exiting = false;
+let _exitTimer = null;
 
 let snCounter = 0;
 let chatLines = 0;
@@ -154,6 +155,7 @@ class MapEngine {
 	static init(ip, port, mapName) {
 		_mapName = mapName;
 		_exiting = false;
+		_exitTimer = null;
 
 		// Connect to char server
 		const forceAddress = Configs.get('forceUseAddress');
@@ -816,7 +818,8 @@ function onExitRequest() {
 	Network.sendPacket(pkt);
 
 	// Wait a second, if no answer from the server, then close it.
-	Events.setTimeout(() => {
+	_exitTimer = Events.setTimeout(() => {
+		_exitTimer = null;
 		onExitSuccess();
 	}, 1000);
 }
@@ -840,6 +843,11 @@ function onExitSuccess() {
 		return;
 	}
 	_exiting = true;
+
+	if (_exitTimer !== null) {
+		Events.clearTimeout(_exitTimer);
+		_exitTimer = null;
+	}
 
 	if (PACKETVER.value >= 20170315 && Session.WebToken) {
 		ShortCut.saveToServer();
