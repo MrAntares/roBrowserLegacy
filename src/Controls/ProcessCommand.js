@@ -429,7 +429,7 @@ const CommandStore = {
 		}
 	},
 
-		guild: {
+	guild: {
 		description: "Creates a guild named <Guild Name>. This requires an Emperium to be in the creator's inventory",
 		callback: function (text) {
 			const matches = text.match(/^guild\s+(")?([^"]+)(")?/);
