@@ -429,7 +429,7 @@ const CommandStore = {
 		}
 	},
 
-	guild: {
+		guild: {
 		description: "Creates a guild named <Guild Name>. This requires an Emperium to be in the creator's inventory",
 		callback: function (text) {
 			const matches = text.match(/^guild\s+(")?([^"]+)(")?/);
@@ -437,6 +437,19 @@ const CommandStore = {
 				Guild.createGuild(matches[2]);
 				return;
 			}
+		}
+	},
+
+	guildinvite: {
+		description: 'Invites the specified player to your guild',
+		callback: function (text) {
+			const matches = text.match(/^guildinvite\s+(.+)/);
+			if (matches && matches[1]) {
+				Guild.requestPlayerInvitationByName(matches[1]);
+				return;
+			}
+
+			this.addText('Usage: /guildinvite <Character Name>', this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 		}
 	},
 

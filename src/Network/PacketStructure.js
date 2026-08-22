@@ -1349,6 +1349,19 @@ PACKET.CZ.REQ_JOIN_GUILD.prototype.build = function () {
 	return pkt_buf;
 };
 
+// 0x916
+PACKET.CZ.REQ_JOIN_GUILD2 = function PACKET_CZ_REQ_JOIN_GUILD2() {
+	this.name = '';
+};
+PACKET.CZ.REQ_JOIN_GUILD2.prototype.build = function () {
+	const pkt_len = 2 + 24;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0x916);
+	pkt_buf.writeString(this.name, 24);
+	return pkt_buf;
+};
+
 // 0x16b
 PACKET.CZ.JOIN_GUILD = function PACKET_CZ_JOIN_GUILD() {
 	this.GDID = 0;

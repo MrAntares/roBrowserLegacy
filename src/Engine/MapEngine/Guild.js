@@ -344,6 +344,18 @@ class GuildEngine {
 	}
 
 	/**
+	 * Send an invitation to the player by name
+	 *
+	 * @param {string} target character name
+	 */
+	static requestPlayerInvitationByName(name) {
+		const pkt = new PACKET.CZ.REQ_JOIN_GUILD2();
+		pkt.name = name;
+
+		Network.sendPacket(pkt);
+	}
+
+	/**
 	 * Send a guild alliance to a target player
 	 *
 	 * @param {number} target account id
