@@ -94,6 +94,7 @@ const SkillBlueCombo = [
 ];
 
 const C_MULTIHIT_DELAY = 200; // PLUSATTACKED_MOTIONTIME
+const C_DEATH_SYNC_OFFSET = 100; // extra ms after the hit before the death animation
 const AVG_ATTACK_SPEED = 432;
 //const AVG_ATTACKED_SPEED = 288; // UNUSED
 const MAX_ATTACKMT = AVG_ATTACK_SPEED * 2;
@@ -357,13 +358,31 @@ function onEntityVanish(pkt) {
 				}
 		}
 
-		entity.remove(pkt.type);
-		EntityManager.removeGID(pkt.GID);
-	}
+		// Show escape menu
+		if (pkt.GID === Session.Entity.GID && pkt.type === 1) {
+			Escape.showDeathMenu(haveSiegfriedItem());
+		}
 
-	// Show escape menu
-	if (pkt.GID === Session.Entity.GID && pkt.type === 1) {
-		Escape.showDeathMenu(haveSiegfriedItem());
+		// Sync the death animation to the killer attack's impact tick so it
+		// lands with the hit instead of playing instantly. Only applies to
+		// non-PC entities whose death is driven by a recent damaging attack;
+		// stale/zero sync ticks fall through to an immediate death.
+		const deathDelay =
+			entity.objecttype !== Entity.TYPE_PC && entity._deathSyncTick > Renderer.tick
+				? entity._deathSyncTick - Renderer.tick + C_DEATH_SYNC_OFFSET
+				: 0;
+
+		const finalize = () => {
+			entity.remove(pkt.type);
+			EntityManager.removeGID(pkt.GID);
+		};
+
+		if (deathDelay > 0) {
+			entity._deathSyncTick = 0;
+			Events.setTimeout(finalize, deathDelay);
+		} else {
+			finalize();
+		}
 	}
 }
 
@@ -2605,6 +2624,11 @@ function onEntityWillBeHitSub(pkt, dstEntity) {
 	// only if has damage > 0 and type is not endure and not lucky
 	if ((pkt.damage > 0 || pkt.leftDamage > 0) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
 		const count = pkt.count || 1;
+
+		// Remember the impact tick of the (last) hit so a death triggered by
+		// this attack can be synced to land with the hit instead of instantly.
+		const lastHitDelay = pkt.attackMT + C_MULTIHIT_DELAY * (pkt.leftDamage ? 1.75 : 1) * (count - 1);
+		dstEntity._deathSyncTick = Math.max(dstEntity._deathSyncTick || 0, Renderer.tick + lastHitDelay);
 
 		function impendingAttack() {
 			// Get hurt when attack happens
