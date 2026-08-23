@@ -440,6 +440,19 @@ const CommandStore = {
 		}
 	},
 
+	guildinvite: {
+		description: 'Invites the specified player to your guild',
+		callback: function (text) {
+			const matches = text.match(/^guildinvite\s+(.+)/);
+			if (matches && matches[1]) {
+				Guild.requestPlayerInvitationByName(matches[1]);
+				return;
+			}
+
+			this.addText('Usage: /guildinvite <Character Name>', this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+		}
+	},
+
 	breakguild: {
 		description: 'Disbands a guild. Can only be used by the guild leader. All members must be expelled first',
 		callback: function (text) {

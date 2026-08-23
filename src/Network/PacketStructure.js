@@ -1349,6 +1349,22 @@ PACKET.CZ.REQ_JOIN_GUILD.prototype.build = function () {
 	return pkt_buf;
 };
 
+// 0x916
+// Requires PACKETVER >= 20120131 (length table defines 0x916 only from that
+// date). Sent by /guildinvite via Guild.requestPlayerInvitationByName, which
+// guards the version and reports an error on older clients.
+PACKET.CZ.REQ_JOIN_GUILD2 = function PACKET_CZ_REQ_JOIN_GUILD2() {
+	this.name = '';
+};
+PACKET.CZ.REQ_JOIN_GUILD2.prototype.build = function () {
+	const pkt_len = 2 + 24;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0x916);
+	pkt_buf.writeString(this.name, 24);
+	return pkt_buf;
+};
+
 // 0x16b
 PACKET.CZ.JOIN_GUILD = function PACKET_CZ_JOIN_GUILD() {
 	this.GDID = 0;

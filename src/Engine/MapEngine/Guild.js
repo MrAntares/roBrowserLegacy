@@ -344,6 +344,32 @@ class GuildEngine {
 	}
 
 	/**
+	 * Send an invitation to the player by name
+	 *
+	 * @param {string} target character name
+	 *
+	 * @note Sends CZ.REQ_JOIN_GUILD2 (0x916), which is only valid for
+	 *   PACKETVER >= 20120131 (length table defines 0x916 from that date).
+	 *   Older clients can't invite by name — see REVIEW.md (Packet changes /
+	 *   PACKETVER range).
+	 */
+	static requestPlayerInvitationByName(name) {
+		if (PACKETVER.value < 20120131) {
+			ChatBox.addText(
+				'Guild invite by name requires client 2012-01-31 or newer.',
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
+			return;
+		}
+
+		const pkt = new PACKET.CZ.REQ_JOIN_GUILD2();
+		pkt.name = name;
+
+		Network.sendPacket(pkt);
+	}
+
+	/**
 	 * Send a guild alliance to a target player
 	 *
 	 * @param {number} target account id
