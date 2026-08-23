@@ -246819,7 +246819,7 @@ function renderLayer$2(layer, spr, pal, sizeScale, pos, alpha) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.render(false);
 }
-var RAG_TICK_MS$2, FADEOUT_TAIL_MS$3, EMIT_STOP_BEFORE_END_MS$2, FLAKE_LIFE_MS, FLAKE_FADEIN_MS, FLAKE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$2, SPAWN_HEIGHT_MIN_CELLS$2, FALL_SPEED_CELLS_PER_MS, _instance$4, _mapName$5, _isStopping$2, SnowWeatherEffect;
+var RAG_TICK_MS$2, FADEOUT_TAIL_MS$3, EMIT_STOP_BEFORE_END_MS$2, FLAKE_LIFE_MS, FLAKE_FADEIN_MS, FLAKE_FADEOUT_START_MS, SCATTER_RADIUS_CELLS$2, SPAWN_HEIGHT_MIN_CELLS$2, FALL_SPEED_CELLS_PER_MS, SPR_PATH, _instance$4, _mapName$5, _isStopping$2, SnowWeatherEffect;
 var init_SnowWeather = __esmMin((() => {
 	init_Client();
 	init_Renderer();
@@ -246836,6 +246836,7 @@ var init_SnowWeather = __esmMin((() => {
 	SCATTER_RADIUS_CELLS$2 = 60;
 	SPAWN_HEIGHT_MIN_CELLS$2 = 18;
 	FALL_SPEED_CELLS_PER_MS = .1 / RAG_TICK_MS$2;
+	SPR_PATH = "data/sprite/ÀÌÆÑÆ®/ef_snow";
 	_instance$4 = null;
 	_mapName$5 = "";
 	_isStopping$2 = false;
@@ -246952,8 +246953,8 @@ var init_SnowWeather = __esmMin((() => {
 		}
 		render(gl, tick) {
 			if (!SessionStorage_default.Entity) return;
-			const spr = Client.loadFile("data/sprite/ÀÌÆÑÆ®/ef_snow.spr", null, null, { to_rgba: true });
-			const act = Client.loadFile("data/sprite/ÀÌÆÑÆ®/ef_snow.act");
+			const spr = Client.loadFile(SPR_PATH + ".spr", null, null, { to_rgba: true });
+			const act = Client.loadFile(SPR_PATH + ".act");
 			if (!spr || !act) return;
 			this.spr = spr;
 			this.act = act;
@@ -309275,6 +309276,15 @@ var init_ScreenShot = __esmMin((() => {
 //#endregion
 //#region src/Controls/MapControl.js
 /**
+* Stop the camera rotation when the right button is released, even if the
+* release happens over a UI element that swallows the bubbling mouseup event.
+*/
+function onMouseUpCapture(event) {
+	if (event.which !== 3 || !Camera.action.active) return;
+	Cursor.setType(Cursor.ACTION.DEFAULT);
+	Camera.rotate(false);
+}
+/**
 * What to do when clicking on the map ?
 */
 function onMouseDown(event) {
@@ -309531,6 +309541,7 @@ var init_MapControl = __esmMin((() => {
 			Renderer.canvas.addEventListener("drop", onDrop$6.bind(this));
 			window.addEventListener("mousedown", onMouseDown.bind(this));
 			window.addEventListener("mouseup", onMouseUp.bind(this));
+			window.addEventListener("mouseup", onMouseUpCapture, true);
 		}
 	};
 }));
