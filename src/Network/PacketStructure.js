@@ -1350,6 +1350,9 @@ PACKET.CZ.REQ_JOIN_GUILD.prototype.build = function () {
 };
 
 // 0x916
+// Requires PACKETVER >= 20120131 (length table defines 0x916 only from that
+// date). Sent by /guildinvite via Guild.requestPlayerInvitationByName, which
+// guards the version and reports an error on older clients.
 PACKET.CZ.REQ_JOIN_GUILD2 = function PACKET_CZ_REQ_JOIN_GUILD2() {
 	this.name = '';
 };
