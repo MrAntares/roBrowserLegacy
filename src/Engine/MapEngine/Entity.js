@@ -375,22 +375,21 @@ function onEntityVanish(pkt) {
 
 		const deathDelay = isSyncedDeath ? entity._deathSyncTick - Renderer.tick + C_DEATH_SYNC_OFFSET : 0;
 
-		const finalize = () => {
-			// The entity may have re-appeared (re-spawned with the same GID)
-			// during the deferral window; only remove if it's still the same
-			// object, otherwise leave the new entity alone.
-			if (EntityManager.get(pkt.GID) !== entity) {
-				return;
-			}
+		// Free the GID immediately so it can be reused; removeGID only drops the
+		// lookup entry and keeps the entity in the render list, so the death /
+		// fade-out animation continues independently. Deferring removeGID would
+		// leave the GID mapped to a dying entity and let a reused GID collide.
+		EntityManager.removeGID(pkt.GID);
+
+		const playDeath = () => {
 			entity.remove(pkt.type);
-			EntityManager.removeGID(pkt.GID);
 		};
 
 		if (deathDelay > 0) {
 			entity._deathSyncTick = 0;
-			Events.setTimeout(finalize, deathDelay);
+			Events.setTimeout(playDeath, deathDelay);
 		} else {
-			finalize();
+			playDeath();
 		}
 	}
 }
