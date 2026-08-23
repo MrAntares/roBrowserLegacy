@@ -73,7 +73,26 @@ class MapControl {
 
 		window.addEventListener('mousedown', onMouseDown.bind(this));
 		window.addEventListener('mouseup', onMouseUp.bind(this));
+
+		// A mouseup released over a UI element can be swallowed by the element's
+		// own handler (e.g. scrollbars call stopPropagation), so the bubbling
+		// 'mouseup' above never fires and the camera would keep rotating.
+		// Listen in the capture phase to always catch the release.
+		window.addEventListener('mouseup', onMouseUpCapture, true);
 	}
+}
+
+/**
+ * Stop the camera rotation when the right button is released, even if the
+ * release happens over a UI element that swallows the bubbling mouseup event.
+ */
+function onMouseUpCapture(event) {
+	if (event.which !== 3 || !Camera.action.active) {
+		return;
+	}
+
+	Cursor.setType(Cursor.ACTION.DEFAULT);
+	Camera.rotate(false);
 }
 
 /**
