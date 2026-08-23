@@ -195,13 +195,9 @@ function onMouseDown(event) {
 						Session.autoFollow = true;
 						onAutoFollow();
 					}
-
-					// Right click on a NPC/Mob/Unit
-					entityOver.onMouseDown();
-					entityOver.onFocus();
-					EntityManager.setFocusEntity(entityOver);
 				}
 
+				// Right click only rotates the camera here.
 				Cursor.setType(Cursor.ACTION.ROTATE);
 				Camera.rotate(true);
 			}
