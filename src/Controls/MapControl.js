@@ -163,27 +163,25 @@ function onMouseDown(event) {
 				} else {
 					AIDriver.setmsg(Session.homunId, '1,' + Mouse.world.x + ',' + Mouse.world.y);
 				}
-		} else {
-			if (
-				entityOver &&
-				entityOver != Session.Entity &&
-				entityOver.objecttype != Entity.TYPE_EFFECT &&
-				entityOver.objecttype != Entity.TYPE_TRAP
-			) {
-				if (KEYS.SHIFT) {
-					// Shift + Right click on an entity
-					Session.autoFollowTarget = entityOver;
-					Session.autoFollow = true;
-					onAutoFollow();
+			} else {
+				if (
+					entityOver &&
+					entityOver != Session.Entity &&
+					entityOver.objecttype != Entity.TYPE_EFFECT &&
+					entityOver.objecttype != Entity.TYPE_TRAP
+				) {
+					if (KEYS.SHIFT) {
+						// Shift + Right click on an entity
+						Session.autoFollowTarget = entityOver;
+						Session.autoFollow = true;
+						onAutoFollow();
+					}
 				}
-			}
 
-			// Right click only rotates the camera here. Attacks/dialogs with
-			// NPCs/Mobs are triggered on mouseup via onContextMenu() (when the
-			// cursor hasn't moved), matching the official client behavior.
-			Cursor.setType(Cursor.ACTION.ROTATE);
-			Camera.rotate(true);
-		}
+				// Right click only rotates the camera here.
+				Cursor.setType(Cursor.ACTION.ROTATE);
+				Camera.rotate(true);
+			}
 			break;
 	}
 }
