@@ -309345,9 +309345,6 @@ function onMouseDown(event) {
 						SessionStorage_default.autoFollow = true;
 						onAutoFollow();
 					}
-					entityOver.onMouseDown();
-					entityOver.onFocus();
-					EntityManager.setFocusEntity(entityOver);
 				}
 				Cursor.setType(Cursor.ACTION.ROTATE);
 				Camera.rotate(true);
