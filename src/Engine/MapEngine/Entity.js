@@ -94,7 +94,7 @@ const SkillBlueCombo = [
 ];
 
 const C_MULTIHIT_DELAY = 200; // PLUSATTACKED_MOTIONTIME
-const C_DEATH_SYNC_OFFSET = 100; // extra ms after the hit before the death animation
+const C_DEATH_SYNC_OFFSET = 200; // extra ms after the hit before the death animation
 const AVG_ATTACK_SPEED = 432;
 //const AVG_ATTACKED_SPEED = 288; // UNUSED
 const MAX_ATTACKMT = AVG_ATTACK_SPEED * 2;
@@ -364,15 +364,24 @@ function onEntityVanish(pkt) {
 		}
 
 		// Sync the death animation to the killer attack's impact tick so it
-		// lands with the hit instead of playing instantly. Only applies to
-		// non-PC entities whose death is driven by a recent damaging attack;
-		// stale/zero sync ticks fall through to an immediate death.
-		const deathDelay =
-			entity.objecttype !== Entity.TYPE_PC && entity._deathSyncTick > Renderer.tick
-				? entity._deathSyncTick - Renderer.tick + C_DEATH_SYNC_OFFSET
-				: 0;
+		// lands with the hit instead of playing instantly. Only applies to a
+		// VT.DEAD vanish for a non-PC entity whose death is driven by a recent
+		// damaging attack; all other vanish types (exit/teleport/out-of-sight)
+		// and stale/zero sync ticks fall through to an immediate removal.
+		const isSyncedDeath =
+			pkt.type === Entity.VT.DEAD &&
+			entity.objecttype !== Entity.TYPE_PC &&
+			entity._deathSyncTick > Renderer.tick;
+
+		const deathDelay = isSyncedDeath ? entity._deathSyncTick - Renderer.tick + C_DEATH_SYNC_OFFSET : 0;
 
 		const finalize = () => {
+			// The entity may have re-appeared (re-spawned with the same GID)
+			// during the deferral window; only remove if it's still the same
+			// object, otherwise leave the new entity alone.
+			if (EntityManager.get(pkt.GID) !== entity) {
+				return;
+			}
 			entity.remove(pkt.type);
 			EntityManager.removeGID(pkt.GID);
 		};
