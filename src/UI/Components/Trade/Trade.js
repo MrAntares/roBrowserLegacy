@@ -17,6 +17,7 @@ import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import { InventoryItemTransferPriority } from 'UI/Components/Inventory/InventoryItemTransfer.js';
 import htmlText from './Trade.html?raw';
 import cssText from './Trade.css?raw';
 
@@ -357,6 +358,17 @@ function onRequestAddItem(index, count) {
 	_tmpCount[index] = count;
 	Trade.reqAddItem(index, count);
 }
+
+Trade.inventoryTransferPriority = InventoryItemTransferPriority.TRADE;
+Trade.receiveInventoryItemStack = function receiveInventoryItemStack(item) {
+	const sendBox = Trade.getRoot().querySelector('.box.send');
+	if (!item || !sendBox || sendBox.classList.contains('disabled')) {
+		return false;
+	}
+
+	onRequestAddItem(item.index, item.count || 1);
+	return true;
+};
 
 /**
  * Conclude a part of the trade

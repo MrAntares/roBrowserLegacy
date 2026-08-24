@@ -25,6 +25,7 @@ import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
+import { InventoryItemTransferPriority } from 'UI/Components/Inventory/InventoryItemTransfer.js';
 import htmlText from './NpcStore.html?raw';
 import cssText from './NpcStore.css?raw';
 
@@ -999,7 +1000,7 @@ const transferItem = (function () {
 /**
  * Request move item from box to another
  */
-function requestMoveItem(index, fromContent, toContent, isAdding) {
+function requestMoveItem(index, fromContent, toContent, isAdding, transferAll = false) {
 	let count;
 	const item = isAdding ? _input[index] : _output[index];
 	const isStackable =
@@ -1020,7 +1021,7 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 		}
 	}
 
-	if (item.count === 1 || (_type === NpcStore.Type.SELL && _preferences.select_all) || !isStackable) {
+	if (transferAll || item.count === 1 || (_type === NpcStore.Type.SELL && _preferences.select_all) || !isStackable) {
 		transferItem(fromContent, toContent, isAdding, index, isFinite(item.count) ? item.count : 1);
 		return false;
 	}
@@ -1034,6 +1035,27 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 		}
 	};
 }
+
+function transferSellItemStack(index) {
+	if (_type !== NpcStore.Type.SELL || !_input[index]) {
+		return false;
+	}
+
+	const root = NpcStore.getRoot();
+	requestMoveItem(
+		index,
+		root.querySelector('.InputWindow .content'),
+		root.querySelector('.OutputWindow .content'),
+		true,
+		true
+	);
+	return true;
+}
+
+NpcStore.inventoryTransferPriority = InventoryItemTransferPriority.NPC_STORE;
+NpcStore.receiveInventoryItemStack = function receiveInventoryItemStack(item) {
+	return item ? transferSellItemStack(item.index) : false;
+};
 
 /**
  * Drop an input in the InputWindow or OutputWindow
@@ -1076,6 +1098,12 @@ function onItemInfo(event) {
 	event.stopImmediatePropagation();
 
 	if (!item) {
+		return false;
+	}
+
+	const inputWindow = NpcStore.getRoot().querySelector('.InputWindow');
+	if (_type === NpcStore.Type.SELL && event.altKey && event.which === 3 && inputWindow.contains(this)) {
+		transferSellItemStack(index);
 		return false;
 	}
 
