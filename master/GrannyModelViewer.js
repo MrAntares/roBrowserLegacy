@@ -238623,6 +238623,29 @@ var init_WriteRodex = __esmMin((() => {
 	WriteRodex_default = UIManager.addComponent(WriteRodex);
 }));
 //#endregion
+//#region src/UI/Components/Inventory/InventoryItemTransfer.js
+/**
+* Transfer an inventory item stack to the active receivers, highest priority first.
+* A receiver that declines the item lets the next one (or the caller's fallback) handle it.
+*
+* @param {object} item Inventory item
+* @param {object} components Registered UI components
+* @returns {boolean} Whether a receiver handled the request
+*/
+function transferInventoryItemStack(item, components) {
+	if (!item || !components) return false;
+	return Object.values(components).filter((component) => {
+		return component?.__active && component._host?.isConnected && component._host.style.display !== "none" && typeof component.receiveInventoryItemStack === "function";
+	}).sort((a, b) => (b.inventoryTransferPriority || 0) - (a.inventoryTransferPriority || 0)).some((receiver) => receiver.receiveInventoryItemStack(item) === true);
+}
+var InventoryItemTransferPriority;
+var init_InventoryItemTransfer = __esmMin((() => {
+	InventoryItemTransferPriority = Object.freeze({
+		TRADE: 300,
+		NPC_STORE: 400
+	});
+}));
+//#endregion
 //#region src/UI/Components/Inventory/InventoryCommon.js
 function _sanitizeHtml$7(str) {
 	const whitelist = [
@@ -239444,6 +239467,7 @@ function createInventory(config) {
 	* Alt Right Click Request Transfer
 	*/
 	function transferItemToOtherUI(item) {
+		if (transferInventoryItemStack(item, UIManager.components)) return true;
 		const storageUI = StorageController.getUI();
 		const isStorageOpen = storageUI._host ? storageUI._host.style.display !== "none" : false;
 		const isCartOpen = CartItems_default._host ? CartItems_default._host.style.display !== "none" : false;
@@ -239749,6 +239773,7 @@ var init_InventoryCommon = __esmMin((() => {
 	init_Enchant();
 	init_Mail$1();
 	init_WriteRodex();
+	init_InventoryItemTransfer();
 }));
 //#endregion
 //#region src/UI/Components/Inventory/InventoryV0/InventoryV0.js
@@ -299193,6 +299218,7 @@ var init_Trade$1 = __esmMin((() => {
 	init_ItemInfo();
 	init_Inventory();
 	init_ChatBox();
+	init_InventoryItemTransfer();
 	init_Trade$3();
 	init_Trade$2();
 	Trade = new GUIComponent("Trade", Trade_default$1);
@@ -299343,6 +299369,13 @@ var init_Trade$1 = __esmMin((() => {
 			const icon = root.querySelector(`.item[data-index="${idx}"] .icon`);
 			if (icon && icon.closest(".box.recv")) icon.style.backgroundImage = `url(${data})`;
 		});
+	};
+	Trade.inventoryTransferPriority = InventoryItemTransferPriority.TRADE;
+	Trade.receiveInventoryItemStack = function receiveInventoryItemStack(item) {
+		const sendBox = Trade.getRoot().querySelector(".box.send");
+		if (!item || !sendBox || sendBox.classList.contains("disabled")) return false;
+		onRequestAddItem(item.index, item.count || 1);
+		return true;
 	};
 	/**
 	* Conclude a part of the trade
@@ -325825,7 +325858,7 @@ function onResize(ui) {
 /**
 * Request move item from box to another
 */
-function requestMoveItem(index, fromContent, toContent, isAdding) {
+function requestMoveItem(index, fromContent, toContent, isAdding, transferAll = false) {
 	let count;
 	const item = isAdding ? _input[index] : _output[index];
 	const isStackable = item.type !== ItemType_default.WEAPON && item.type !== ItemType_default.EQUIP && item.type !== ItemType_default.PETEGG && item.type !== ItemType_default.PETEQUIP;
@@ -325834,7 +325867,7 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 	if ((_type === NpcStore.Type.BUY || _type === NpcStore.Type.VENDING_STORE) && !isStackable && isAdding) {
 		if (toContent.querySelector(`.item[data-index="${item.index}"]`)) return false;
 	}
-	if (item.count === 1 || _type === NpcStore.Type.SELL && _preferences$2.select_all || !isStackable) {
+	if (transferAll || item.count === 1 || _type === NpcStore.Type.SELL && _preferences$2.select_all || !isStackable) {
 		transferItem(fromContent, toContent, isAdding, index, isFinite(item.count) ? item.count : 1);
 		return false;
 	}
@@ -325844,6 +325877,12 @@ function requestMoveItem(index, fromContent, toContent, isAdding) {
 		InputBox_default.remove();
 		if (_count > 0) transferItem(fromContent, toContent, isAdding, index, _count);
 	};
+}
+function transferSellItemStack(index) {
+	if (_type !== NpcStore.Type.SELL || !_input[index]) return false;
+	const root = NpcStore.getRoot();
+	requestMoveItem(index, root.querySelector(".InputWindow .content"), root.querySelector(".OutputWindow .content"), true, true);
+	return true;
 }
 /**
 * Drop an input in the InputWindow or OutputWindow
@@ -325870,6 +325909,11 @@ function onItemInfo(event) {
 	const item = _input[index];
 	event.stopImmediatePropagation();
 	if (!item) return false;
+	const inputWindow = NpcStore.getRoot().querySelector(".InputWindow");
+	if (_type === NpcStore.Type.SELL && event.altKey && event.which === 3 && inputWindow.contains(this)) {
+		transferSellItemStack(index);
+		return false;
+	}
 	if (ItemInfo_default.uid === item.ITID) {
 		ItemInfo_default.remove();
 		return false;
@@ -325975,6 +326019,7 @@ var init_NpcStore = __esmMin((() => {
 	init_InputBox();
 	init_ChatBox();
 	init_Inventory();
+	init_InventoryItemTransfer();
 	init_NpcStore$2();
 	init_NpcStore$1();
 	NpcStore = new GUIComponent("NpcStore", NpcStore_default$1);
@@ -326459,6 +326504,10 @@ var init_NpcStore = __esmMin((() => {
 			NpcStore.calculateWeight();
 		};
 	})();
+	NpcStore.inventoryTransferPriority = InventoryItemTransferPriority.NPC_STORE;
+	NpcStore.receiveInventoryItemStack = function receiveInventoryItemStack(item) {
+		return item ? transferSellItemStack(item.index) : false;
+	};
 	/**
 	* Handles the packet to send to the server when closing stores
 	*/
