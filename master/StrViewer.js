@@ -318588,10 +318588,17 @@ function onEntityVanish(pkt) {
 				if (entity.objecttype !== Entity.TYPE_PC) entity.aura.remove(EffectManager);
 				if (pkt.type === Entity.VT.DEAD) EntityManager.removeLife(pkt.GID);
 		}
-		entity.remove(pkt.type);
+		if (pkt.GID === SessionStorage_default.Entity.GID && pkt.type === 1) Escape_default.showDeathMenu(haveSiegfriedItem());
+		const deathDelay = pkt.type === Entity.VT.DEAD && entity.objecttype !== Entity.TYPE_PC && entity._deathSyncTick > Renderer.tick ? entity._deathSyncTick - Renderer.tick + C_DEATH_SYNC_OFFSET : 0;
 		EntityManager.removeGID(pkt.GID);
+		const playDeath = () => {
+			entity.remove(pkt.type);
+		};
+		if (deathDelay > 0) {
+			entity._deathSyncTick = 0;
+			Events.setTimeout(playDeath, deathDelay);
+		} else playDeath();
 	}
-	if (pkt.GID === SessionStorage_default.Entity.GID && pkt.type === 1) Escape_default.showDeathMenu(haveSiegfriedItem());
 }
 /**
 * An entity start walking
@@ -320053,6 +320060,8 @@ function onEntityMvpRewardItemMessage(pkt) {
 function onEntityWillBeHitSub(pkt, dstEntity) {
 	if ((pkt.damage > 0 || pkt.leftDamage > 0) && pkt.action !== 4 && pkt.action !== 9 && pkt.action !== 11) {
 		const count = pkt.count || 1;
+		const lastHitDelay = pkt.attackMT + C_MULTIHIT_DELAY * (pkt.leftDamage ? 1.75 : 1) * (count - 1);
+		dstEntity._deathSyncTick = Math.max(dstEntity._deathSyncTick || 0, Renderer.tick + lastHitDelay);
 		function impendingAttack() {
 			if (dstEntity.action !== dstEntity.ACTION.DIE) dstEntity.setAction({
 				action: dstEntity.ACTION.HURT,
@@ -320256,7 +320265,7 @@ function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.ACK_CHANGE_TITLE, onTitleChangeAck);
 	Network.hookPacket(PACKET.ZC.HAT_EFFECT, onHatEffects);
 }
-var SkillNameDisplayExclude, SkillBlueCombo, C_MULTIHIT_DELAY, AVG_ATTACK_SPEED, MAX_ATTACKMT, clanEmblems;
+var SkillNameDisplayExclude, SkillBlueCombo, C_MULTIHIT_DELAY, C_DEATH_SYNC_OFFSET, AVG_ATTACK_SPEED, MAX_ATTACKMT, clanEmblems;
 var init_Entity = __esmMin((() => {
 	init_DBManager();
 	init_SkillConst();
@@ -320333,6 +320342,7 @@ var init_Entity = __esmMin((() => {
 		SkillConst_default.SR_RAMPAGEBLASTER
 	];
 	C_MULTIHIT_DELAY = 200;
+	C_DEATH_SYNC_OFFSET = 200;
 	AVG_ATTACK_SPEED = 432;
 	MAX_ATTACKMT = AVG_ATTACK_SPEED * 2;
 	clanEmblems = {};
