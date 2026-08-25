@@ -18,10 +18,8 @@ export default createSkillList({
 	htmlText: htmlText,
 	cssText: cssText,
 	hasTabs: true,
-	needSkillListKey: '_NeedSkillList',
 	showDescOnMiniHover: false,
 	touchDrag: true,
-	incrementalRemember: true,
 	guardMissingJob: true,
 	readdSkillOnUpdate: true,
 	dragFrom: 'SkillList'
