@@ -8,19 +8,19 @@ export const InventoryItemTransferPriority = Object.freeze({
 });
 
 /**
- * Transfer an inventory item stack to the highest-priority active receiver.
- * Once selected, the receiver owns the request even if it declines the item.
+ * Transfer an inventory item stack to the active receivers, highest priority first.
+ * A receiver that declines the item lets the next one (or the caller's fallback) handle it.
  *
  * @param {object} item Inventory item
  * @param {object} components Registered UI components
- * @returns {boolean} Whether an active receiver handled the request
+ * @returns {boolean} Whether a receiver handled the request
  */
 export function transferInventoryItemStack(item, components) {
 	if (!item || !components) {
 		return false;
 	}
 
-	const receiver = Object.values(components)
+	const receivers = Object.values(components)
 		.filter(component => {
 			return (
 				component?.__active &&
@@ -29,12 +29,7 @@ export function transferInventoryItemStack(item, components) {
 				typeof component.receiveInventoryItemStack === 'function'
 			);
 		})
-		.sort((a, b) => (b.inventoryTransferPriority || 0) - (a.inventoryTransferPriority || 0))[0];
+		.sort((a, b) => (b.inventoryTransferPriority || 0) - (a.inventoryTransferPriority || 0));
 
-	if (!receiver) {
-		return false;
-	}
-
-	receiver.receiveInventoryItemStack(item);
-	return true;
+	return receivers.some(receiver => receiver.receiveInventoryItemStack(item) === true);
 }
