@@ -45,6 +45,7 @@ import EnchantGrade from 'UI/Components/EnchantGrade/EnchantGrade.js';
 import EnchantUI from 'UI/Components/Enchant/Enchant.js';
 import Mail from 'UI/Components/Mail/Mail.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
+import { transferInventoryItemStack } from './InventoryItemTransfer.js';
 
 function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
@@ -1293,6 +1294,10 @@ export function createInventory(config) {
 	 * Alt Right Click Request Transfer
 	 */
 	function transferItemToOtherUI(item) {
+		if (transferInventoryItemStack(item, UIManager.components)) {
+			return true;
+		}
+
 		const storageUI = Storage.getUI();
 		const isStorageOpen = storageUI._host ? storageUI._host.style.display !== 'none' : false;
 		const isCartOpen = CartItems._host ? CartItems._host.style.display !== 'none' : false;
