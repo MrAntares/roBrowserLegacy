@@ -44,7 +44,7 @@ jobs:
                       const kind = (body) => {
                         if (body.includes('🔴')) { return 'severe'; }
                         if (body.includes('🟡')) { return 'bug'; }
-                        if (body.includes('🔍')) { return 'investigate'; }
+                        if (body.includes('🔍') || body.includes('🚩')) { return 'investigate'; }
                         if (/📝|\*\*Info:/.test(body)) { return 'info'; }
                         return /"id":\s*"BUG_/.test(body) ? 'bug' : 'investigate'; // unknown glyph, fall back on the id prefix
                       };
@@ -87,7 +87,7 @@ jobs:
                           await github.rest.issues.addLabels({ owner, repo, issue_number: num, labels: add });
                         }
 
-                        const summary = `<!-- devin-review-label -->\n**Devin Review:** 🔴 ${n('severe')} · 🟡 ${n('bug')} · 🔍 ${n('investigate')} · 📝 ${n('info')} unresolved` +
+                        const summary = `<!-- devin-review-label -->\n**Devin Review:** 🔴 ${n('severe')} · 🟡 ${n('bug')} · 🔍/🚩 ${n('investigate')} · 📝 ${n('info')} unresolved` +
                           (stale.length ? ` (+${stale.length} on outdated lines)` : '') +
                           ` — ${findings.length - open.length}/${findings.length} resolved → \`${want.join('`, `')}\``;
                         core.info(`#${num}: ${want.join(', ')}`);
