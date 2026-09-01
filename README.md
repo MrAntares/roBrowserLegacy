@@ -58,6 +58,7 @@ Remote Client serves game assets to roBrowser via http by extracting them from t
 Other implementations may arise and when they do we will list them here:
 
 - [roBrowserLegacy-RemoteClient-JS](https://github.com/FranciscoWallison/roBrowserLegacy-RemoteClient-JS)
+- [roBrowserLegacy-RemoteClient-Rust](https://github.com/Flux159/roBrowserLegacy-RemoteClient-Rust)
 
 ## WebSocket Proxy
 
