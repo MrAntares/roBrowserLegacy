@@ -402,10 +402,15 @@ function onEntityVanish(pkt) {
 function onEntityMove(pkt) {
 	const entity = EntityManager.get(pkt.GID);
 	if (entity) {
-		//entity.position[0] = pkt.MoveData[0];
-		//entity.position[1] = pkt.MoveData[1];
-		//entity.position[2] = Altitude.getCellHeight(  pkt.MoveData[0],  pkt.MoveData[1] );
-		entity.walkTo(pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3], undefined, pkt.moveStartTime);
+		entity.walkTo(
+			pkt.MoveData[0],
+			pkt.MoveData[1],
+			pkt.MoveData[2],
+			pkt.MoveData[3],
+			undefined,
+			pkt.moveStartTime,
+			pkt.moveServerEndTime || pkt.moveEndTime
+		);
 	}
 }
 
@@ -441,6 +446,7 @@ function onEntityStopMove(pkt) {
 function onEntityJump(pkt) {
 	const entity = EntityManager.get(pkt.AID);
 	if (entity) {
+		entity.resetRoute();
 		entity.position[0] = pkt.xPos;
 		entity.position[1] = pkt.yPos;
 		entity.position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
@@ -455,16 +461,23 @@ function onEntityJump(pkt) {
 function onEntityFastMove(pkt) {
 	const entity = EntityManager.get(pkt.AID);
 	if (entity) {
-		entity.walkTo(entity.position[0], entity.position[1], pkt.targetXpos, pkt.targetYpos);
+		entity.fastMoveTo(pkt.targetXpos, pkt.targetYpos, 15);
+	}
+}
 
-		if (entity.walk.path.length) {
-			const speed = entity.walk.speed;
-			entity.walk.speed = 10;
-			entity.walk.onEnd = function onWalkEnd() {
-				entity.walk.speed = speed;
-			};
+/**
+ * Perform Entity Action with forced position relocation (knockback / slide)
+ *
+ * @param {object} pkt - PACKET.ZC.NOTIFY_ACT_POSITION
+ */
+function onEntityActionPosition(pkt) {
+	if (typeof pkt.xPos === 'number' && typeof pkt.yPos === 'number' && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
+		const targetEntity = EntityManager.get(pkt.targetGID);
+		if (targetEntity) {
+			targetEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20);
 		}
 	}
+	onEntityAction(pkt);
 }
 
 /**
@@ -1627,6 +1640,13 @@ function onEntityUseSkillToAttack(pkt) {
 			for (let i = 0; i < pkt.count; ++i) {
 				EffectManager.spamSkillBeforeHit(pkt.SKID, pkt.targetID, Renderer.tick + C_MULTIHIT_DELAY * i, pkt.AID);
 				addDamage(i, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY * i);
+			}
+		}
+
+		if (typeof pkt.xPos === 'number' && typeof pkt.yPos === 'number' && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
+			const pushedEntity = dstEntity || srcEntity;
+			if (pushedEntity) {
+				pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20);
 			}
 		}
 	}
@@ -2842,6 +2862,7 @@ export default function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT, onEntityAction);
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT2, onEntityAction);
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT3, onEntityAction);
+	Network.hookPacket(PACKET.ZC.NOTIFY_ACT_POSITION, onEntityActionPosition);
 	Network.hookPacket(PACKET.ZC.NOTIFY_CHAT, onEntityTalk);
 	Network.hookPacket(PACKET.ZC.SHOWSCRIPT, onEntityTalk);
 	Network.hookPacket(PACKET.ZC.NPC_CHAT, onEntityTalkColor);

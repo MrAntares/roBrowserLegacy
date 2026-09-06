@@ -359,19 +359,27 @@ class Entity {
 					);
 					break;
 
-				case 'MoveData':
-					this.position[0] = unit.MoveData[0];
-					this.position[1] = unit.MoveData[1];
-					this.position[2] = Altitude.getCellHeight(unit.MoveData[0], unit.MoveData[1]);
+				case 'MoveData': {
+					const curX = this.position[0];
+					const curY = this.position[1];
+					const isUninitialized = (!curX && !curY);
+					const isTooFar = Math.hypot(curX - unit.MoveData[0], curY - unit.MoveData[1]) > 16;
+					if (isUninitialized || isTooFar) {
+						this.position[0] = unit.MoveData[0];
+						this.position[1] = unit.MoveData[1];
+						this.position[2] = Altitude.getCellHeight(unit.MoveData[0], unit.MoveData[1]);
+					}
 					this.walkTo(
 						unit.MoveData[0],
 						unit.MoveData[1],
 						unit.MoveData[2],
 						unit.MoveData[3],
 						undefined,
-						unit.moveStartTime
+						unit.moveStartTime,
+						unit.moveServerEndTime || unit.moveEndTime
 					);
 					break;
+				}
 
 				case 'accessory':
 					this.accessory = unit.accessory;
