@@ -215,7 +215,9 @@ SkillAction[SK.TF_POISON] =
 			};
 		};
 
-//ATTACK3 - Ranged attack with visible weapon
+// The attack action that shows the weapon, which is per job and per weapon.
+// Resolved in EntityAction.setAction through DB.getWeaponAction, the same way
+// the ordinary attack resolves it.
 SkillAction[SK.AC_DOUBLE] =
 	SkillAction[SK.ASC_BREAKER] =
 	SkillAction[SK.HT_PHANTASMIC] =
@@ -225,7 +227,7 @@ SkillAction[SK.AC_DOUBLE] =
 	SkillAction[SK.SC_TRIANGLESHOT] =
 		function (entity, tick) {
 			return {
-				action: entity.ACTION.ATTACK3,
+				action: entity.ACTION.ATTACK,
 				frame: 0,
 				repeat: false,
 				play: true,
