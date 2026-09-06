@@ -266,8 +266,8 @@ function expansion(src, index) {
 * @param {number} index
 */
 function substitutionBox(src, index) {
-	let i;
-	for (i = 0; i < 4; ++i) tmp[i] = substitutionBox.table[i][src[i * 2 + 0 + index]] & 240 | substitutionBox.table[i][src[i * 2 + 1 + index]] & 15;
+	let i = 0;
+	for (; i < 4; ++i) tmp[i] = substitutionBox.table[i][src[i * 2 + 0 + index]] & 240 | substitutionBox.table[i][src[i * 2 + 1 + index]] & 15;
 	src.set(tmp, index);
 	tmp.set(clean);
 }
@@ -599,8 +599,8 @@ var GameFileDecrypt = class {
 	*/
 	static decodeHeader(buf, len) {
 		const nblocks = len >> 3;
-		let i;
-		for (i = 0; i < 20 && i < nblocks; ++i) decryptBlock(buf, i * 8);
+		let i = 0;
+		for (; i < 20 && i < nblocks; ++i) decryptBlock(buf, i * 8);
 	}
 };
 /**
@@ -780,8 +780,8 @@ var iconv = (() => {
 			var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen));
 			var curByte = 0;
 			var len2 = placeHoldersLen > 0 ? validLen - 4 : validLen;
-			var i2;
-			for (i2 = 0; i2 < len2; i2 += 4) {
+			var i2 = 0;
+			for (; i2 < len2; i2 += 4) {
 				tmp = revLookup[b64.charCodeAt(i2)] << 18 | revLookup[b64.charCodeAt(i2 + 1)] << 12 | revLookup[b64.charCodeAt(i2 + 2)] << 6 | revLookup[b64.charCodeAt(i2 + 3)];
 				arr[curByte++] = tmp >> 16 & 255;
 				arr[curByte++] = tmp >> 8 & 255;
@@ -1332,8 +1332,8 @@ var iconv = (() => {
 			}
 			const strLen = string.length;
 			if (length > strLen / 2) length = strLen / 2;
-			let i;
-			for (i = 0; i < length; ++i) {
+			let i = 0;
+			for (; i < length; ++i) {
 				const parsed = parseInt(string.substr(i * 2, 2), 16);
 				if (numberIsNaN(parsed)) return i;
 				buf[offset + i] = parsed;
@@ -2114,8 +2114,8 @@ var iconv = (() => {
 			return base64.toByteArray(base64clean(str));
 		}
 		function blitBuffer(src, dst, offset, length) {
-			let i;
-			for (i = 0; i < length; ++i) {
+			let i = 0;
+			for (; i < length; ++i) {
 				if (i + offset >= dst.length || i >= src.length) break;
 				dst[i + offset] = src[i];
 			}
@@ -18115,8 +18115,8 @@ var ACT = class {
 		const layers = new Array(count);
 		let layer;
 		const version = this.version;
-		let i;
-		for (i = 0; i < count; ++i) {
+		let i = 0;
+		for (; i < count; ++i) {
 			layer = layers[i] = {
 				pos: [fp.readLong(), fp.readLong()],
 				index: fp.readLong(),

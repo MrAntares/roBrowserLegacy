@@ -309,8 +309,8 @@ var init_iconv_lite = __esmMin((() => {
 				var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen));
 				var curByte = 0;
 				var len2 = placeHoldersLen > 0 ? validLen - 4 : validLen;
-				var i2;
-				for (i2 = 0; i2 < len2; i2 += 4) {
+				var i2 = 0;
+				for (; i2 < len2; i2 += 4) {
 					tmp = revLookup[b64.charCodeAt(i2)] << 18 | revLookup[b64.charCodeAt(i2 + 1)] << 12 | revLookup[b64.charCodeAt(i2 + 2)] << 6 | revLookup[b64.charCodeAt(i2 + 3)];
 					arr[curByte++] = tmp >> 16 & 255;
 					arr[curByte++] = tmp >> 8 & 255;
@@ -861,8 +861,8 @@ var init_iconv_lite = __esmMin((() => {
 				}
 				const strLen = string.length;
 				if (length > strLen / 2) length = strLen / 2;
-				let i;
-				for (i = 0; i < length; ++i) {
+				let i = 0;
+				for (; i < length; ++i) {
 					const parsed = parseInt(string.substr(i * 2, 2), 16);
 					if (numberIsNaN(parsed)) return i;
 					buf[offset + i] = parsed;
@@ -1643,8 +1643,8 @@ var init_iconv_lite = __esmMin((() => {
 				return base64.toByteArray(base64clean(str));
 			}
 			function blitBuffer(src, dst, offset, length) {
-				let i;
-				for (i = 0; i < length; ++i) {
+				let i = 0;
+				for (; i < length; ++i) {
 					if (i + offset >= dst.length || i >= src.length) break;
 					dst[i + offset] = src[i];
 				}
@@ -78806,8 +78806,8 @@ var init_Action = __esmMin((() => {
 			const layers = new Array(count);
 			let layer;
 			const version = this.version;
-			let i;
-			for (i = 0; i < count; ++i) {
+			let i = 0;
+			for (; i < count; ++i) {
 				layer = layers[i] = {
 					pos: [fp.readLong(), fp.readLong()],
 					index: fp.readLong(),
@@ -147664,8 +147664,8 @@ var init_bson = __esmMin((() => {
 		getNumBitsAbs() {
 			if (this.isNegative()) return this.eq(Long.MIN_VALUE) ? 64 : this.neg().getNumBitsAbs();
 			const val = this.high !== 0 ? this.high : this.low;
-			let bit;
-			for (bit = 31; bit > 0; bit--) if ((val & 1 << bit) !== 0) break;
+			let bit = 31;
+			for (; bit > 0; bit--) if ((val & 1 << bit) !== 0) break;
 			return this.high !== 0 ? bit + 33 : bit + 1;
 		}
 		greaterThan(other) {
@@ -250441,8 +250441,8 @@ function rebuildMeshAtFrame(self, gl, frame) {
 	}
 	const buffer = new Float32Array(total);
 	let offset = 0;
-	let i;
-	for (i = 0; i < objects.length; i++) {
+	let i = 0;
+	for (; i < objects.length; i++) {
 		const obj = objects[i];
 		const length = obj.mesh.length;
 		infos[i] = {
@@ -253570,8 +253570,8 @@ function loadCloudTexture(gl, i) {
 * Set up cloud data
 */
 function setUpCloudData() {
-	let i;
-	for (i = 0; i < MAX_CLOUDS; i++) {
+	let i = 0;
+	for (; i < MAX_CLOUDS; i++) {
 		if (!_clouds[i]) _clouds[i] = {
 			position: vec3$7.create(),
 			direction: vec3$7.create(),
@@ -308456,8 +308456,8 @@ var init_html2canvas = __esmMin((() => {
 						"Right",
 						"Bottom",
 						"Left"
-					], s;
-					for (s = 0; s < 4; s += 1) borders.push({
+					], s = 0;
+					for (; s < 4; s += 1) borders.push({
 						width: getCSSInt(el, "border" + sides[s] + "Width"),
 						color: getCSS(el, "border" + sides[s] + "Color")
 					});
@@ -308469,8 +308469,8 @@ var init_html2canvas = __esmMin((() => {
 						"TopRight",
 						"BottomRight",
 						"BottomLeft"
-					], s;
-					for (s = 0; s < 4; s += 1) borders.push(getCSS(el, "border" + sides[s] + "Radius"));
+					], s = 0;
+					for (; s < 4; s += 1) borders.push(getCSS(el, "border" + sides[s] + "Radius"));
 					return borders;
 				})(el);
 				for (borderSide = 0; borderSide < 4; borderSide += 1) {
@@ -308813,8 +308813,8 @@ var init_html2canvas = __esmMin((() => {
 			if (support.svgRendering) (function(body) {
 				let img = new Image(), size = docSize(), html = "";
 				function parseDOM(el) {
-					let children = _html2canvas.Util.Children(el), len = children.length, attr, a, alen, elm, i;
-					for (i = 0; i < len; i += 1) {
+					let children = _html2canvas.Util.Children(el), len = children.length, attr, a, alen, elm, i = 0;
+					for (; i < len; i += 1) {
 						elm = children[i];
 						if (elm.nodeType === 3) html += elm.nodeValue.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
 						else if (elm.nodeType === 1) {
@@ -318093,7 +318093,7 @@ var init_SkillAction = __esmMin((() => {
 	};
 	SkillAction[SkillConst_default.AC_DOUBLE] = SkillAction[SkillConst_default.ASC_BREAKER] = SkillAction[SkillConst_default.HT_PHANTASMIC] = SkillAction[SkillConst_default.SN_SHARPSHOOTING] = SkillAction[SkillConst_default.RA_ARROWSTORM] = SkillAction[SkillConst_default.RA_AIMEDBOLT] = SkillAction[SkillConst_default.SC_TRIANGLESHOT] = function(entity, tick) {
 		return {
-			action: entity.ACTION.ATTACK3,
+			action: entity.ACTION.ATTACK,
 			frame: 0,
 			repeat: false,
 			play: true,
@@ -332979,13 +332979,13 @@ var init_spark_md5_min = __esmMin((() => {
 			x[3] = d + x[3] | 0;
 		}
 		function md5blk(s) {
-			var md5blks = [], i;
-			for (i = 0; i < 64; i += 4) md5blks[i >> 2] = s.charCodeAt(i) + (s.charCodeAt(i + 1) << 8) + (s.charCodeAt(i + 2) << 16) + (s.charCodeAt(i + 3) << 24);
+			var md5blks = [], i = 0;
+			for (; i < 64; i += 4) md5blks[i >> 2] = s.charCodeAt(i) + (s.charCodeAt(i + 1) << 8) + (s.charCodeAt(i + 2) << 16) + (s.charCodeAt(i + 3) << 24);
 			return md5blks;
 		}
 		function md5blk_array(a) {
-			var md5blks = [], i;
-			for (i = 0; i < 64; i += 4) md5blks[i >> 2] = a[i] + (a[i + 1] << 8) + (a[i + 2] << 16) + (a[i + 3] << 24);
+			var md5blks = [], i = 0;
+			for (; i < 64; i += 4) md5blks[i >> 2] = a[i] + (a[i + 1] << 8) + (a[i + 2] << 16) + (a[i + 3] << 24);
 			return md5blks;
 		}
 		function md51(s) {
@@ -332994,8 +332994,8 @@ var init_spark_md5_min = __esmMin((() => {
 				-271733879,
 				-1732584194,
 				271733878
-			], i, length, tail, tmp, lo, hi;
-			for (i = 64; i <= n; i += 64) md5cycle(state, md5blk(s.substring(i - 64, i)));
+			], i = 64, length, tail, tmp, lo, hi;
+			for (; i <= n; i += 64) md5cycle(state, md5blk(s.substring(i - 64, i)));
 			s = s.substring(i - 64);
 			length = s.length;
 			tail = [
@@ -333037,8 +333037,8 @@ var init_spark_md5_min = __esmMin((() => {
 				-271733879,
 				-1732584194,
 				271733878
-			], i, length, tail, tmp, lo, hi;
-			for (i = 64; i <= n; i += 64) md5cycle(state, md5blk_array(a.subarray(i - 64, i)));
+			], i = 64, length, tail, tmp, lo, hi;
+			for (; i <= n; i += 64) md5cycle(state, md5blk_array(a.subarray(i - 64, i)));
 			a = i - 64 < n ? a.subarray(i - 64) : /* @__PURE__ */ new Uint8Array(0);
 			length = a.length;
 			tail = [
@@ -333075,13 +333075,13 @@ var init_spark_md5_min = __esmMin((() => {
 			return state;
 		}
 		function rhex(n) {
-			var s = "", j;
-			for (j = 0; j < 4; j += 1) s += hex_chr[n >> j * 8 + 4 & 15] + hex_chr[n >> j * 8 & 15];
+			var s = "", j = 0;
+			for (; j < 4; j += 1) s += hex_chr[n >> j * 8 + 4 & 15] + hex_chr[n >> j * 8 & 15];
 			return s;
 		}
 		function hex(x) {
-			var i;
-			for (i = 0; i < x.length; i += 1) x[i] = rhex(x[i]);
+			var i = 0;
+			for (; i < x.length; i += 1) x[i] = rhex(x[i]);
 			return x.join("");
 		}
 		if (hex(md51("hello")) !== "5d41402abc4b2a76b9719d911017c592");
@@ -333108,8 +333108,8 @@ var init_spark_md5_min = __esmMin((() => {
 			return str;
 		}
 		function utf8Str2ArrayBuffer(str, returnUInt8Array) {
-			var length = str.length, buff = new ArrayBuffer(length), arr = new Uint8Array(buff), i;
-			for (i = 0; i < length; i += 1) arr[i] = str.charCodeAt(i);
+			var length = str.length, buff = new ArrayBuffer(length), arr = new Uint8Array(buff), i = 0;
+			for (; i < length; i += 1) arr[i] = str.charCodeAt(i);
 			return returnUInt8Array ? arr : buff;
 		}
 		function arrayBuffer2Utf8Str(buff) {
@@ -333122,8 +333122,8 @@ var init_spark_md5_min = __esmMin((() => {
 			return returnUInt8Array ? result : result.buffer;
 		}
 		function hexToBinaryString(hex) {
-			var bytes = [], length = hex.length, x;
-			for (x = 0; x < length - 1; x += 2) bytes.push(parseInt(hex.substr(x, 2), 16));
+			var bytes = [], length = hex.length, x = 0;
+			for (; x < length - 1; x += 2) bytes.push(parseInt(hex.substr(x, 2), 16));
 			return String.fromCharCode.apply(String, bytes);
 		}
 		function SparkMD5() {
@@ -333136,8 +333136,8 @@ var init_spark_md5_min = __esmMin((() => {
 		SparkMD5.prototype.appendBinary = function(contents) {
 			this._buff += contents;
 			this._length += contents.length;
-			var length = this._buff.length, i;
-			for (i = 64; i <= length; i += 64) md5cycle(this._hash, md5blk(this._buff.substring(i - 64, i)));
+			var length = this._buff.length, i = 64;
+			for (; i <= length; i += 64) md5cycle(this._hash, md5blk(this._buff.substring(i - 64, i)));
 			this._buff = this._buff.substring(i - 64);
 			return this;
 		};
@@ -333246,8 +333246,8 @@ var init_spark_md5_min = __esmMin((() => {
 				0,
 				0,
 				0
-			], i, ret;
-			for (i = 0; i < length; i += 1) tail[i >> 2] |= buff[i] << (i % 4 << 3);
+			], i = 0, ret;
+			for (; i < length; i += 1) tail[i >> 2] |= buff[i] << (i % 4 << 3);
 			this._finish(tail, length);
 			ret = hex(this._hash);
 			if (raw) ret = hexToBinaryString(ret);
