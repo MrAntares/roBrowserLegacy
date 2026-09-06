@@ -302699,7 +302699,7 @@ function Init$3() {
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
 }
-var WALK_DIST_TO_MOTION, renderGUI, calculateBoundingRect, renderEntity, renderElement;
+var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderElement;
 var init_EntityRender = __esmMin((() => {
 	init_gl_matrix();
 	init_Camera();
@@ -302718,6 +302718,7 @@ var init_EntityRender = __esmMin((() => {
 		const vec4 = gl_matrix_default.vec4;
 		const _matrix = mat4.create();
 		const _vector = vec4.create();
+		const _pickMatrix = mat4.create();
 		return function _renderGUI(entity, modelView, projection) {
 			_vector[0] = entity.position[0] + .5;
 			_vector[1] = -entity.position[2];
@@ -302733,7 +302734,23 @@ var init_EntityRender = __esmMin((() => {
 			_matrix[9] = 0;
 			_matrix[10] = 1;
 			mat4.multiply(_matrix, projection, _matrix);
-			if (entity.effectColor[3] && entity._job !== 139) calculateBoundingRect(entity, _matrix);
+			if (entity.effectColor[3] && entity._job !== 139) {
+				_vector[0] = entity.position[0] + .5;
+				_vector[1] = -(entity.position[2] + SPRITE_LIFT);
+				_vector[2] = entity.position[1] + .5;
+				mat4.translate(_pickMatrix, modelView, _vector);
+				_pickMatrix[0] = 1;
+				_pickMatrix[1] = 0;
+				_pickMatrix[2] = 0;
+				_pickMatrix[4] = 0;
+				_pickMatrix[5] = 1;
+				_pickMatrix[6] = 0;
+				_pickMatrix[8] = 0;
+				_pickMatrix[9] = 0;
+				_pickMatrix[10] = 1;
+				mat4.multiply(_pickMatrix, projection, _pickMatrix);
+				calculateBoundingRect(entity, _pickMatrix);
+			}
 			_vector[0] = 0;
 			_vector[1] = 0;
 			_vector[2] = 0;
@@ -302748,6 +302765,7 @@ var init_EntityRender = __esmMin((() => {
 			if (entity.room.display) entity.room.render(_matrix);
 		};
 	})();
+	SPRITE_LIFT = .2;
 	calculateBoundingRect = (function calculateBoundingRectClosure() {
 		const vec4 = gl_matrix_default.vec4;
 		const size = gl_matrix_default.vec2.create();
