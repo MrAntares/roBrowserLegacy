@@ -588,13 +588,14 @@ function onEntityAction(pkt) {
 				typeof pkt.attackMT === 'number' && pkt.attackMT > 0
 					? pkt.attackMT
 					: (srcEntity && srcEntity.attack_speed) || AVG_ATTACK_SPEED;
-			pkt.attackMT = Math.min(attackMT, MAX_ATTACKMT);
+			const baseAttackMT = Math.min(attackMT, MAX_ATTACKMT);
+			pkt.attackMT = baseAttackMT;
 			pkt.attackedMT =
 				typeof pkt.attackedMT === 'number' && pkt.attackedMT > 0 ? pkt.attackedMT : AVG_ATTACKED_SPEED;
 			pkt.leftDamage = typeof pkt.leftDamage === 'number' ? pkt.leftDamage : 0;
 			pkt.count = typeof pkt.count === 'number' && pkt.count > 0 ? pkt.count : 1;
 
-			srcEntity.attack_speed = pkt.attackMT;
+			srcEntity.attack_speed = baseAttackMT;
 
 			let animSpeed = 0;
 			let delayTime = pkt.attackMT;
@@ -809,8 +810,6 @@ function onEntityAction(pkt) {
 						break;
 				}
 			}
-
-			srcEntity.attack_speed = pkt.attackMT;
 
 			if (pkt.leftDamage) {
 				// KAGEROU, OBORO does not use ATTCK3 for left
