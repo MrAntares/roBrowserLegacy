@@ -376,6 +376,7 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, i
 
 	const path = this.walk.path;
 	let total = 0;
+	let usedFallback = false;
 
 	// Ground Truth / Canonical C++ behavior (GameModePacket.cpp / Pc.cpp / GameActor.cpp):
 	// When moving, the official client first attempts to find the path starting from the actor's
@@ -387,6 +388,15 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, i
 	// Fallback to server start point if path from current pos was not found
 	if (!total) {
 		total = PathFinding.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
+		if (total) {
+			usedFallback = true;
+		}
+	}
+
+	if (usedFallback) {
+		this.position[0] = from_x;
+		this.position[1] = from_y;
+		this.position[2] = Altitude.getCellHeight(from_x, from_y);
 	}
 
 	this.walk.index = 1 * 2; // skip first index
@@ -394,7 +404,7 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, i
 
 	if (total) {
 		this.walk.pos.set(this.position);
-		if (!hadRoute) {
+		if (!hadRoute || usedFallback) {
 			this.walk.dist = 0;
 		}
 		this.walk.lastPos.set(this.position);
@@ -442,8 +452,14 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, i
 			this.objecttype === this.constructor.TYPE_PET ||
 			this.objecttype === this.constructor.TYPE_HOM ||
 			this.objecttype === this.constructor.TYPE_MERC;
-		const maxFastForward = isFastMove ? 0 : (isPlayerLike ? clientDuration : Math.min(clientDuration, this.walk.speed));
-		const startTick = isFastMove ? nowTick : computeWalkStartTick(nowTick, moveStartTime, clientDuration, maxFastForward);
+		const maxFastForward = isFastMove
+			? 0
+			: isPlayerLike
+				? clientDuration
+				: Math.min(clientDuration, this.walk.speed);
+		const startTick = isFastMove
+			? nowTick
+			: computeWalkStartTick(nowTick, moveStartTime, clientDuration, maxFastForward);
 		this.walk.tick = this.walk.prevTick = startTick;
 
 		// Ground Truth / Canonical C++ FixPathTime (PathFinder.cpp line 119):
@@ -494,8 +510,8 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd) {
 	const curX = this.position[0];
 	const curY = this.position[1];
 	const hasCurrentPos = isFinite(curX) && isFinite(curY) && (curX !== 0 || curY !== 0);
-	const curCellX = hasCurrentPos ? Math.round(curX) : (to_x | 0);
-	const curCellY = hasCurrentPos ? Math.round(curY) : (to_y | 0);
+	const curCellX = hasCurrentPos ? Math.round(curX) : to_x | 0;
+	const curCellY = hasCurrentPos ? Math.round(curY) : to_y | 0;
 
 	if (curCellX === (to_x | 0) && curCellY === (to_y | 0)) {
 		if (onEnd) {
@@ -533,6 +549,16 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd) {
 		return;
 	}
 
+	// In C++ (GameActorMsgHandler.cpp line 1083), monk sets attack pose with motion frozen
+	if (this.objecttype === this.constructor.TYPE_PC) {
+		this.setAction({
+			action: this.ACTION.ATTACK,
+			frame: 0,
+			repeat: false,
+			play: false
+		});
+	}
+
 	this.walk.index = 1 * 2; // skip first index
 	this.walk.total = total * 2;
 	this.walk.pos.set(this.position);
@@ -565,16 +591,6 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd) {
 
 	if (onEnd) {
 		this.walk.onEnd = onEnd;
-	}
-
-	// In C++ (GameActorMsgHandler.cpp line 1083), monk sets attack pose with motion frozen
-	if (this.objecttype === this.constructor.TYPE_PC) {
-		this.setAction({
-			action: this.ACTION.ATTACK,
-			frame: 0,
-			repeat: false,
-			play: false
-		});
 	}
 }
 
@@ -707,9 +723,7 @@ function walkProcess() {
 		let dx = nextX - startX;
 		let dy = nextY - startY;
 		let segIdx = (index - 2) >> 1;
-		let speed =
-			(walk.segmentDurations && walk.segmentDurations[segIdx]) ||
-			getSegmentDuration(dx, dy, walk.speed);
+		let speed = (walk.segmentDurations && walk.segmentDurations[segIdx]) || getSegmentDuration(dx, dy, walk.speed);
 		let segmentStart = walk.tick || TICK;
 		let segmentEnd = segmentStart + speed;
 		let traveledDist = 0;
@@ -745,9 +759,7 @@ function walkProcess() {
 			dx = nextX - startX;
 			dy = nextY - startY;
 			segIdx = (index - 2) >> 1;
-			speed =
-				(walk.segmentDurations && walk.segmentDurations[segIdx]) ||
-				getSegmentDuration(dx, dy, walk.speed);
+			speed = (walk.segmentDurations && walk.segmentDurations[segIdx]) || getSegmentDuration(dx, dy, walk.speed);
 			segmentStart = segmentEnd;
 			segmentEnd = segmentStart + speed;
 		}

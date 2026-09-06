@@ -106,6 +106,7 @@ function setAction(option) {
 		if (
 			wasWalking &&
 			!willWalk &&
+			!this.isFastMoving &&
 			this.walk &&
 			this.walk.total > 0 &&
 			this.objecttype !== this.constructor.TYPE_FALCON &&
