@@ -144,13 +144,60 @@ function onSkillToGround(pkt) {
 	// Ground Truth / Canonical C++ (GameActorMsgHandler.cpp line 1069):
 	// Relocation skills on ground: SKID_MO_BODYRELOCATION, SKID_NJ_SHADOWJUMP, SKID_RL_FALLEN_ANGEL, SKID_SU_LOPE
 	switch (pkt.SKID) {
-		case SkillId.MO_BODYRELOCATION:
-		case SkillId.NJ_SHADOWJUMP:
-		case SkillId.RL_FALLEN_ANGEL:
+		case SkillId.MO_BODYRELOCATION: {
+			const entity = EntityManager.get(pkt.AID);
+			if (entity) {
+				entity._enableTrail = true;
+				if (entity.objecttype === entity.constructor.TYPE_PC) {
+					entity.setAction({
+						action: entity.ACTION.ATTACK,
+						frame: 0,
+						repeat: false,
+						play: false
+					});
+				}
+				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false);
+			}
+			break;
+		}
+		case SkillId.NJ_SHADOWJUMP: {
+			const entity = EntityManager.get(pkt.AID);
+			if (entity) {
+				entity._enableTrail = true;
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false);
+			}
+			break;
+		}
+		case SkillId.RL_FALLEN_ANGEL: {
+			const entity = EntityManager.get(pkt.AID);
+			if (entity) {
+				entity._enableTrail = true;
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false);
+			}
+			break;
+		}
 		case SkillId.SU_LOPE: {
 			const entity = EntityManager.get(pkt.AID);
 			if (entity) {
-				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15);
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame: 0,
+					repeat: false,
+					play: true
+				});
+				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false);
 			}
 			break;
 		}

@@ -454,14 +454,33 @@ function onEntityJump(pkt) {
 }
 
 /**
- * Body relocation packet support
+ * Fast relocation packet support (e.g. Body Relocation, Fallen Angel)
  *
  * @param {object} pkt - PACKET.ZC.FASTMOVE
  */
 function onEntityFastMove(pkt) {
 	const entity = EntityManager.get(pkt.AID);
 	if (entity) {
-		entity.fastMoveTo(pkt.targetXpos, pkt.targetYpos, 15);
+		if (entity.objecttype === entity.constructor.TYPE_PC) {
+			if (DB.isMonk(entity.job)) {
+				entity._enableTrail = true;
+				entity.setAction({
+					action: entity.ACTION.ATTACK,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			} else if (DB.isGunslinger(entity.job)) {
+				entity._enableTrail = true;
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			}
+		}
+		entity.fastMoveTo(pkt.targetXpos, pkt.targetYpos, 15, null, false);
 	}
 }
 
@@ -474,7 +493,7 @@ function onEntityActionPosition(pkt) {
 	if (typeof pkt.xPos === 'number' && typeof pkt.yPos === 'number' && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
 		const targetEntity = EntityManager.get(pkt.targetGID);
 		if (targetEntity) {
-			targetEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20);
+			targetEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
 		}
 	}
 
@@ -1668,7 +1687,7 @@ function onEntityUseSkillToAttack(pkt) {
 		if (typeof pkt.xPos === 'number' && typeof pkt.yPos === 'number' && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
 			const pushedEntity = dstEntity || srcEntity;
 			if (pushedEntity) {
-				pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20);
+				pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
 			}
 		}
 	}
