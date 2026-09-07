@@ -474,7 +474,11 @@ class SpriteRenderer {
 		gl.uniform1f(uniform.uFogFar, fog.far);
 		gl.uniform3fv(uniform.uFogColor, fog.color);
 
-		// Textures
+		// Textures. Select unit 0 explicitly: uDiffuse samples it, but a previous
+		// pass may have left the active unit elsewhere, and only the palette path
+		// below happens to reset it - so palette-less sprites (clouds) would bind
+		// their texture to whatever unit was current.
+		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
 		gl.uniform1i(uniform.uPalette, 1);
 

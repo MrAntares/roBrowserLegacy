@@ -141,6 +141,14 @@ function render(gl, modelView, projection, normalMat, fog, light) {
 	gl.disableVertexAttribArray(attribute.aTextureCoord);
 	gl.disableVertexAttribArray(attribute.aLightmapCoord);
 	gl.disableVertexAttribArray(attribute.aTileColorCoord);
+
+	// Restore the active texture unit. The lightmap and tile-color binds above
+	// leave it on TEXTURE2, and every later pass that calls bindTexture without
+	// selecting a unit first then binds to 2 while its shader samples 0 - which
+	// still holds _textureAtlas. That is why sky clouds rendered as the map's
+	// own ground textures, and why hovering walkable ground hid it: GridSelector
+	// sets TEXTURE0 itself, and only runs when the mouse hits the ground.
+	gl.activeTexture(gl.TEXTURE0);
 }
 
 /**
