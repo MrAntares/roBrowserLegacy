@@ -930,22 +930,6 @@ class DB {
 		return (jobid >= 4217 && jobid <= 4220) || jobid === 4308 || jobid === 4315;
 	}
 
-	static isMonk(jobid) {
-		switch (jobid) {
-			case JobId.MONK:
-			case JobId.MONK_H:
-			case JobId.MONK_B:
-			case JobId.SURA:
-			case JobId.SURA_H:
-			case JobId.SURA_B:
-			case JobId.SURA_2ND:
-			case JobId.INQUISITOR:
-			case JobId.INQUISITOR_RIDING:
-				return true;
-		}
-		return false;
-	}
-
 	/**
 	 * Is character id a baby ?
 	 *
@@ -1022,6 +1006,7 @@ class DB {
 		JobId.MONK_H,
 		JobId.SURA,
 		JobId.SURA_H,
+		JobId.SURA_2ND,
 		JobId.INQUISITOR,
 
 		JobId.MONK_B,

@@ -8,6 +8,7 @@
  *
  */
 
+import DB from 'DB/DBManager.js';
 import SK from './SkillConst.js';
 
 const SkillAction = {};
@@ -67,10 +68,15 @@ const makeSliceAttackAction = (actionProp = 'ATTACK', startFrame = 0, length = 0
 				: entity && entity.ACTION && entity.ACTION.READYFIGHT !== undefined
 					? entity.ACTION.READYFIGHT
 					: (entity && entity.ACTION && entity.ACTION.IDLE) || 0;
+
+		const job = entity && (typeof entity._job !== 'undefined' ? entity._job : entity.job);
+		const weapon = entity && (typeof entity.weapon !== 'undefined' ? entity.weapon : 0);
+		const hasSlice = job !== undefined ? DB.getAttackSlice(job, weapon) : true;
+
 		return {
-			action: entity.ACTION[actionProp],
-			frame: startFrame,
-			length: length > 0 ? length : false,
+			action: entity && entity.ACTION && entity.ACTION[actionProp] !== undefined ? entity.ACTION[actionProp] : 0,
+			frame: hasSlice ? startFrame : 0,
+			length: hasSlice && length > 0 ? length : false,
 			repeat: false,
 			play: true,
 			next: {
