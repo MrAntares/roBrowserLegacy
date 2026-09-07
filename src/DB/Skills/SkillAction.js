@@ -195,13 +195,15 @@ SkillAction[SK.TF_POISON] =
 // Resolved in EntityAction.setAction through DB.getWeaponAction, the same way
 // the ordinary attack resolves it.
 SkillAction[SK.AC_DOUBLE] =
-	SkillAction[SK.ASC_BREAKER] =
 	SkillAction[SK.HT_PHANTASMIC] =
 	SkillAction[SK.SN_SHARPSHOOTING] =
 	SkillAction[SK.RA_ARROWSTORM] =
 	SkillAction[SK.RA_AIMEDBOLT] =
 	SkillAction[SK.SC_TRIANGLESHOT] =
-		makeAttackSkillAction('ATTACK3');
+		makeAttackSkillAction('ATTACK');
+
+//ATTACK3 - Specific attack motion
+SkillAction[SK.ASC_BREAKER] = makeAttackSkillAction('ATTACK3');
 
 //PICKUP
 SkillAction[SK.HT_LANDMINE] =
