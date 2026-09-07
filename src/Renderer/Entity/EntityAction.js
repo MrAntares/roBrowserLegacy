@@ -105,8 +105,7 @@ function setAction(option) {
 
 	// FIX: Detect the walk animation change and reset pathfinding route
 	const wasWalking = this.action === this.ACTION.WALK;
-	const newAction =
-		option.action === -1 || typeof option.action === 'undefined' ? this.ACTION.IDLE : option.action;
+	const newAction = option.action === -1 || typeof option.action === 'undefined' ? this.ACTION.IDLE : option.action;
 	const willWalk = newAction === this.ACTION.WALK;
 
 	if (
