@@ -132,9 +132,7 @@ SkillAction[SK.AL_INCAGI] =
 		};
 
 //SKILL - Explicit invocation skill action
-SkillAction[SK.AL_BLESSING] =
-	SkillAction[SK.CASH_BLESSING] =
-		makeGenericSkillAction('SKILL');
+SkillAction[SK.AL_BLESSING] = SkillAction[SK.CASH_BLESSING] = makeGenericSkillAction('SKILL');
 
 //ATTACK - Normal attack with visible weapon
 SkillAction[SK.SM_BASH] =
