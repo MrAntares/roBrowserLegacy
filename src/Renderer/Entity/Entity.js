@@ -362,7 +362,7 @@ class Entity {
 				case 'MoveData': {
 					const curX = this.position[0];
 					const curY = this.position[1];
-					const isUninitialized = (!curX && !curY);
+					const isUninitialized = !curX && !curY;
 					const isTooFar = Math.hypot(curX - unit.MoveData[0], curY - unit.MoveData[1]) > 16;
 					if (isUninitialized || isTooFar) {
 						this.position[0] = unit.MoveData[0];
