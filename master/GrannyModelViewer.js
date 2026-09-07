@@ -83723,7 +83723,13 @@ var init_Altitude = __esmMin((() => {
 		* @return {Array} cell
 		*/
 		static getCell(x, y) {
-			const index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
+			const cx = Math.floor(x);
+			const cy = Math.floor(y);
+			if (!_cells || cx < 0 || cy < 0 || cx >= Altitude.width || cy >= Altitude.height) {
+				tmp[0] = tmp[1] = tmp[2] = tmp[3] = tmp[4] = 0;
+				return tmp;
+			}
+			const index = (cx + cy * Altitude.width) * 5;
 			tmp[0] = _cells[index + 0];
 			tmp[1] = _cells[index + 1];
 			tmp[2] = _cells[index + 2];
@@ -83739,6 +83745,7 @@ var init_Altitude = __esmMin((() => {
 		* @return {number} cell type
 		*/
 		static getCellType(x, y) {
+			if (!_types$1 || x < 0 || y < 0 || x >= Altitude.width || y >= Altitude.height) return Altitude.TYPE.NONE;
 			return _types$1[x + y * Altitude.width];
 		}
 		/**
@@ -83752,7 +83759,10 @@ var init_Altitude = __esmMin((() => {
 			if (!_cells) return 0;
 			x += .5;
 			y += .5;
-			const index = (Math.floor(x) + Math.floor(y) * Altitude.width) * 5;
+			const cx = Math.floor(x);
+			const cy = Math.floor(y);
+			if (cx < 0 || cy < 0 || cx >= Altitude.width || cy >= Altitude.height) return 0;
+			const index = (cx + cy * Altitude.width) * 5;
 			x %= 1;
 			y %= 1;
 			const x1 = _cells[index + 0] + (_cells[index + 1] - _cells[index + 0]) * x;
@@ -83794,6 +83804,7 @@ var init_Altitude = __esmMin((() => {
 				_from[0] += _unit[0];
 				_from[1] += _unit[1];
 				_from[2] += _unit[2];
+				if (_from[0] < 0 || _from[2] < 0 || _from[0] >= Altitude.width || _from[2] >= Altitude.height) continue;
 				if (Math.abs(Altitude.getCellHeight(_from[0], _from[2]) + _from[1]) < .5) {
 					out[0] = _from[0];
 					out[1] = _from[2];
@@ -83834,34 +83845,41 @@ var init_Altitude = __esmMin((() => {
 				default: buffer = new Float32Array(size * size * 30);
 			}
 			for (x = -middle; x <= middle; ++x) for (y = -middle; y <= middle; ++y, i += 30) {
-				index = (pos_x + x + (pos_y + y) * Altitude.width) * 5;
+				const gx = pos_x + x;
+				const gy = pos_y + y;
+				const oob = gx < 0 || gy < 0 || gx >= Altitude.width || gy >= Altitude.height;
+				index = oob ? -1 : (gx + gy * Altitude.width) * 5;
+				const h0 = oob ? 0 : _cells[index + 0];
+				const h1 = oob ? 0 : _cells[index + 1];
+				const h2 = oob ? 0 : _cells[index + 2];
+				const h3 = oob ? 0 : _cells[index + 3];
 				buffer[i + 0] = pos_x + x + 0;
-				buffer[i + 1] = _cells[index + 0];
+				buffer[i + 1] = h0;
 				buffer[i + 2] = pos_y + y + 0;
 				buffer[i + 3] = (x + 0 + middle) / size;
 				buffer[i + 4] = (y + 0 + middle) / size;
 				buffer[i + 5] = pos_x + x + 1;
-				buffer[i + 6] = _cells[index + 1];
+				buffer[i + 6] = h1;
 				buffer[i + 7] = pos_y + y + 0;
 				buffer[i + 8] = (x + 1 + middle) / size;
 				buffer[i + 9] = (y + 0 + middle) / size;
 				buffer[i + 10] = pos_x + x + 1;
-				buffer[i + 11] = _cells[index + 3];
+				buffer[i + 11] = h3;
 				buffer[i + 12] = pos_y + y + 1;
 				buffer[i + 13] = (x + 1 + middle) / size;
 				buffer[i + 14] = (y + 1 + middle) / size;
 				buffer[i + 15] = pos_x + x + 1;
-				buffer[i + 16] = _cells[index + 3];
+				buffer[i + 16] = h3;
 				buffer[i + 17] = pos_y + y + 1;
 				buffer[i + 18] = (x + 1 + middle) / size;
 				buffer[i + 19] = (y + 1 + middle) / size;
 				buffer[i + 20] = pos_x + x + 0;
-				buffer[i + 21] = _cells[index + 2];
+				buffer[i + 21] = h2;
 				buffer[i + 22] = pos_y + y + 1;
 				buffer[i + 23] = (x + 0 + middle) / size;
 				buffer[i + 24] = (y + 1 + middle) / size;
 				buffer[i + 25] = pos_x + x + 0;
-				buffer[i + 26] = _cells[index + 0];
+				buffer[i + 26] = h0;
 				buffer[i + 27] = pos_y + y + 0;
 				buffer[i + 28] = (x + 0 + middle) / size;
 				buffer[i + 29] = (y + 0 + middle) / size;
@@ -207022,6 +207040,7 @@ function render$14(gl, modelView, projection, normalMat, fog, light) {
 	gl.disableVertexAttribArray(attribute.aTextureCoord);
 	gl.disableVertexAttribArray(attribute.aLightmapCoord);
 	gl.disableVertexAttribArray(attribute.aTileColorCoord);
+	gl.activeTexture(gl.TEXTURE0);
 }
 /**
 * Prepare lightmap and send it to GPU
@@ -207525,6 +207544,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.activeTexture(gl.TEXTURE0);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.uniform1i(uniform.uPalette, 1);
 			gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
