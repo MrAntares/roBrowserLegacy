@@ -299874,37 +299874,42 @@ function Animation() {
 function setAction(option) {
 	const anim = this.animation;
 	if (option.delay) {
-		anim.delay = option.delay + 0;
-		option.delay = 0;
-		anim.save = option;
-	} else {
-		if (option.action === this.ACTION.ATTACK) {
-			if (this.objecttype === this.constructor.TYPE_PC) {
-				const attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
-				option.action = [
-					this.ACTION.ATTACK1,
-					this.ACTION.ATTACK2,
-					this.ACTION.ATTACK3
-				][attack];
-			}
-			if (option.action === -2) option.action = this.ACTION.ATTACK1;
+		const targetDelay = option.delay < 1e9 ? Date.now() + option.delay : option.delay;
+		if (targetDelay > Date.now()) {
+			anim.delay = targetDelay;
+			option.delay = 0;
+			anim.save = option;
+			anim.next = false;
+			return;
 		}
-		const wasWalking = this.action === this.ACTION.WALK;
-		const newAction = option.action === -1 || typeof option.action === "undefined" ? this.ACTION.IDLE : option.action;
-		const willWalk = newAction === this.ACTION.WALK;
-		if (wasWalking && !willWalk && !this.isFastMoving && this.walk && this.walk.total > 0 && this.objecttype !== this.constructor.TYPE_FALCON && this.objecttype !== this.constructor.TYPE_WUG) this.resetRoute();
-		this.action = newAction;
-		anim.tick = Date.now() + 0;
-		anim.delay = 0;
-		anim.frame = option.frame || 0;
-		anim.speed = option.speed || false;
-		anim.length = option.length || false;
-		anim.repeat = option.repeat || false;
-		anim.play = typeof option.play !== "undefined" ? option.play : true;
-		anim.next = option.next || false;
-		anim.save = false;
-		this.sound.free();
+		option.delay = 0;
 	}
+	if (option.action === this.ACTION.ATTACK) {
+		if (this.objecttype === this.constructor.TYPE_PC) {
+			const attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
+			option.action = [
+				this.ACTION.ATTACK1,
+				this.ACTION.ATTACK2,
+				this.ACTION.ATTACK3
+			][attack];
+		}
+		if (option.action === -2) option.action = this.ACTION.ATTACK1;
+	}
+	const wasWalking = this.action === this.ACTION.WALK;
+	const newAction = option.action === -1 || typeof option.action === "undefined" ? this.ACTION.IDLE : option.action;
+	const willWalk = newAction === this.ACTION.WALK;
+	if (wasWalking && !willWalk && !this.isFastMoving && this.walk && this.walk.total > 0 && this.objecttype !== this.constructor.TYPE_FALCON && this.objecttype !== this.constructor.TYPE_WUG) this.resetRoute();
+	this.action = newAction;
+	anim.tick = Date.now() + 0;
+	anim.delay = 0;
+	anim.frame = option.frame || 0;
+	anim.speed = option.speed || false;
+	anim.length = option.length || false;
+	anim.repeat = option.repeat || false;
+	anim.play = typeof option.play !== "undefined" ? option.play : true;
+	anim.next = option.next || false;
+	anim.save = false;
+	this.sound.free();
 }
 /**
 * Initialize Entity action
@@ -302683,8 +302688,12 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 */
 function getAnimationDelay(type, entity, act) {
 	if (type === "body" && entity.action === entity.ACTION.WALK) return act.delay / 150 * entity.walk.speed;
-	if (entity.action === entity.ACTION.ATTACK || entity.action === entity.ACTION.ATTACK1 || entity.action === entity.ACTION.ATTACK2 || entity.action === entity.ACTION.ATTACK3) return entity.attack_speed / act.animations.length;
-	return act.delay;
+	if (entity.action === entity.ACTION.ATTACK || entity.action === entity.ACTION.ATTACK1 || entity.action === entity.ACTION.ATTACK2 || entity.action === entity.ACTION.ATTACK3) {
+		if (act && act.delay && act.delay > 0) return act.delay;
+		if (entity.attack_speed && act && act.animations && act.animations.length > 0) return Math.max(entity.attack_speed / act.animations.length, 100);
+		return 150;
+	}
+	return act && act.delay || 150;
 }
 /**
 * Calculate animations
@@ -318186,18 +318195,21 @@ var init_NPC = __esmMin((() => {
 }));
 //#endregion
 //#region src/DB/Skills/SkillAction.js
-var SkillAction;
+var SkillAction, makeAttackSkillAction, makeGenericSkillAction;
 var init_SkillAction = __esmMin((() => {
 	init_SkillConst();
 	SkillAction = {};
-	SkillAction["DEFAULT"] = function(entity, tick) {
+	makeAttackSkillAction = (actionProp = "ATTACK") => function(entity, tick, pkt) {
+		const holdDelay = pkt && pkt.attackMT ? Math.max(pkt.attackMT, 400) : 400;
+		const nextAction = entity && entity.ACTION && entity.ACTION.READYFIGHT !== void 0 ? entity.ACTION.READYFIGHT : entity && entity.ACTION && entity.ACTION.IDLE || 0;
 		return {
-			action: entity.ACTION.SKILL,
+			action: entity.ACTION[actionProp],
 			frame: 0,
 			repeat: false,
 			play: true,
 			next: {
-				action: entity.ACTION.IDLE,
+				delay: (tick || Date.now()) + holdDelay,
+				action: nextAction,
 				frame: 0,
 				repeat: true,
 				play: true,
@@ -318205,14 +318217,17 @@ var init_SkillAction = __esmMin((() => {
 			}
 		};
 	};
-	SkillAction["DEFAULT_DORAM"] = function(entity, tick) {
+	makeGenericSkillAction = (actionProp = "SKILL", nextActionProp = "IDLE") => function(entity, tick, pkt) {
+		const holdDelay = pkt && pkt.attackMT ? Math.max(pkt.attackMT, 400) : 400;
+		const nextAction = entity && entity.ACTION && entity.ACTION[nextActionProp] !== void 0 ? entity.ACTION[nextActionProp] : entity && entity.ACTION && entity.ACTION.IDLE || 0;
 		return {
-			action: entity.ACTION.ATTACK2,
+			action: entity.ACTION[actionProp],
 			frame: 0,
 			repeat: false,
 			play: true,
 			next: {
-				action: entity.ACTION.IDLE,
+				delay: (tick || Date.now()) + holdDelay,
+				action: nextAction,
 				frame: 0,
 				repeat: true,
 				play: true,
@@ -318220,6 +318235,8 @@ var init_SkillAction = __esmMin((() => {
 			}
 		};
 	};
+	SkillAction["DEFAULT"] = makeGenericSkillAction("SKILL");
+	SkillAction["DEFAULT_DORAM"] = makeGenericSkillAction("ATTACK2");
 	SkillAction[SkillConst_default.ST_CHASEWALK] = SkillAction[SkillConst_default.CH_SOULCOLLECT] = function(entity, tick) {
 		return {
 			action: entity.ACTION.IDLE,
@@ -318229,81 +318246,12 @@ var init_SkillAction = __esmMin((() => {
 			next: false
 		};
 	};
-	SkillAction[SkillConst_default.SM_BASH] = SkillAction[SkillConst_default.SM_MAGNUM] = SkillAction[SkillConst_default.KN_PIERCE] = SkillAction[SkillConst_default.KN_BRANDISHSPEAR] = SkillAction[SkillConst_default.KN_SPEARSTAB] = SkillAction[SkillConst_default.KN_BOWLINGBASH] = SkillAction[SkillConst_default.BS_HAMMERFALL] = SkillAction[SkillConst_default.AC_CHARGEARROW] = SkillAction[SkillConst_default.RG_BACKSTAP] = SkillAction[SkillConst_default.RG_RAID] = SkillAction[SkillConst_default.RG_INTIMIDATE] = SkillAction[SkillConst_default.CR_SHIELDCHARGE] = SkillAction[SkillConst_default.CR_HOLYCROSS] = SkillAction[SkillConst_default.MO_CHAINCOMBO] = SkillAction[SkillConst_default.MO_COMBOFINISH] = SkillAction[SkillConst_default.BA_MUSICALSTRIKE] = SkillAction[SkillConst_default.DC_THROWARROW] = SkillAction[SkillConst_default.NPC_DARKCROSS] = SkillAction[SkillConst_default.CH_PALMSTRIKE] = SkillAction[SkillConst_default.CH_TIGERFIST] = SkillAction[SkillConst_default.CH_CHAINCRUSH] = SkillAction[SkillConst_default.LK_SPIRALPIERCE] = SkillAction[SkillConst_default.LK_HEADCRUSH] = SkillAction[SkillConst_default.LK_JOINTBEAT] = SkillAction[SkillConst_default.HW_MAGICPOWER] = SkillAction[SkillConst_default.PA_SACRIFICE] = SkillAction[SkillConst_default.ASC_METEORASSAULT] = SkillAction[SkillConst_default.TK_STORMKICK] = SkillAction[SkillConst_default.TK_DOWNKICK] = SkillAction[SkillConst_default.TK_TURNKICK] = SkillAction[SkillConst_default.TK_COUNTER] = SkillAction[SkillConst_default.TK_JUMPKICK] = SkillAction[SkillConst_default.CR_ACIDDEMONSTRATION] = SkillAction[SkillConst_default.GS_TRIPLEACTION] = SkillAction[SkillConst_default.GS_BULLSEYE] = SkillAction[SkillConst_default.GS_TRACKING] = SkillAction[SkillConst_default.GS_DISARM] = SkillAction[SkillConst_default.GS_PIERCINGSHOT] = SkillAction[SkillConst_default.GS_RAPIDSHOWER] = SkillAction[SkillConst_default.GS_DESPERADO] = SkillAction[SkillConst_default.GS_DUST] = SkillAction[SkillConst_default.GS_FULLBUSTER] = SkillAction[SkillConst_default.GS_SPREADATTACK] = SkillAction[SkillConst_default.GS_GROUNDDRIFT] = SkillAction[SkillConst_default.NJ_HUUMA] = SkillAction[SkillConst_default.NJ_KASUMIKIRI] = SkillAction[SkillConst_default.NJ_KIRIKAGE] = SkillAction[SkillConst_default.NJ_ISSEN] = SkillAction[SkillConst_default.RK_SONICWAVE] = SkillAction[SkillConst_default.RK_HUNDREDSPEAR] = SkillAction[SkillConst_default.RK_WINDCUTTER] = SkillAction[SkillConst_default.RK_IGNITIONBREAK] = SkillAction[SkillConst_default.RK_DRAGONBREATH] = SkillAction[SkillConst_default.GC_DARKILLUSION] = SkillAction[SkillConst_default.GC_COUNTERSLASH] = SkillAction[SkillConst_default.GC_WEAPONCRUSH] = SkillAction[SkillConst_default.GC_VENOMPRESSURE] = SkillAction[SkillConst_default.GC_PHANTOMMENACE] = SkillAction[SkillConst_default.GC_ROLLINGCUTTER] = SkillAction[SkillConst_default.GC_CROSSRIPPERSLASHER] = SkillAction[SkillConst_default.NC_PILEBUNKER] = SkillAction[SkillConst_default.NC_VULCANARM] = SkillAction[SkillConst_default.NC_FLAMELAUNCHER] = SkillAction[SkillConst_default.NC_COLDSLOWER] = SkillAction[SkillConst_default.NC_ARMSCANNON] = SkillAction[SkillConst_default.NC_POWERSWING] = SkillAction[SkillConst_default.NC_AXETORNADO] = SkillAction[SkillConst_default.SC_FATALMENACE] = SkillAction[SkillConst_default.LG_CANNONSPEAR] = SkillAction[SkillConst_default.LG_MOONSLASHER] = SkillAction[SkillConst_default.LG_BANISHINGPOINT] = SkillAction[SkillConst_default.LG_TRAMPLE] = SkillAction[SkillConst_default.LG_SHIELDPRESS] = SkillAction[SkillConst_default.LG_PINPOINTATTACK] = SkillAction[SkillConst_default.LG_RAGEBURST] = SkillAction[SkillConst_default.LG_OVERBRAND] = SkillAction[SkillConst_default.LG_RAYOFGENESIS] = SkillAction[SkillConst_default.LG_EARTHDRIVE] = SkillAction[SkillConst_default.SR_DRAGONCOMBO] = SkillAction[SkillConst_default.SR_SKYNETBLOW] = SkillAction[SkillConst_default.SR_FALLENEMPIRE] = SkillAction[SkillConst_default.SR_TIGERCANNON] = SkillAction[SkillConst_default.SR_CRESCENTELBOW] = SkillAction[SkillConst_default.SR_GATEOFHELL] = function(entity, tick) {
-		return {
-			action: entity.ACTION.ATTACK,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: {
-				action: entity.ACTION.IDLE,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: false
-			}
-		};
-	};
-	SkillAction[SkillConst_default.KN_SPEARBOOMERANG] = SkillAction[SkillConst_default.CR_SHIELDBOOMERANG] = SkillAction[SkillConst_default.AM_DEMONSTRATION] = SkillAction[SkillConst_default.AM_ACIDTERROR] = SkillAction[SkillConst_default.AM_POTIONPITCHER] = SkillAction[SkillConst_default.AM_CANNIBALIZE] = SkillAction[SkillConst_default.TF_SPRINKLESAND] = SkillAction[SkillConst_default.TF_THROWSTONE] = SkillAction[SkillConst_default.NJ_SYURIKEN] = SkillAction[SkillConst_default.NJ_KUNAI] = SkillAction[SkillConst_default.NJ_ZENYNAGE] = SkillAction[SkillConst_default.ITM_TOMAHAWK] = SkillAction[SkillConst_default.AS_VENOMKNIFE] = SkillAction[SkillConst_default.PA_SHIELDCHAIN] = SkillAction[SkillConst_default.NC_AXEBOOMERANG] = SkillAction[SkillConst_default.GN_SLINGITEM] = function(entity, tick) {
-		return {
-			action: entity.ACTION.ATTACK1,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: {
-				action: entity.ACTION.IDLE,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: false
-			}
-		};
-	};
-	SkillAction[SkillConst_default.TF_POISON] = SkillAction[SkillConst_default.MC_MAMMONITE] = SkillAction[SkillConst_default.MC_CARTREVOLUTION] = SkillAction[SkillConst_default.GN_CART_TORNADO] = function(entity, tick) {
-		return {
-			action: entity.ACTION.ATTACK2,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: {
-				action: entity.ACTION.IDLE,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: false
-			}
-		};
-	};
-	SkillAction[SkillConst_default.AC_DOUBLE] = SkillAction[SkillConst_default.ASC_BREAKER] = SkillAction[SkillConst_default.HT_PHANTASMIC] = SkillAction[SkillConst_default.SN_SHARPSHOOTING] = SkillAction[SkillConst_default.RA_ARROWSTORM] = SkillAction[SkillConst_default.RA_AIMEDBOLT] = SkillAction[SkillConst_default.SC_TRIANGLESHOT] = function(entity, tick) {
-		return {
-			action: entity.ACTION.ATTACK,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: {
-				action: entity.ACTION.IDLE,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: false
-			}
-		};
-	};
-	SkillAction[SkillConst_default.HT_LANDMINE] = SkillAction[SkillConst_default.HT_ANKLESNARE] = SkillAction[SkillConst_default.HT_SHOCKWAVE] = SkillAction[SkillConst_default.HT_SANDMAN] = SkillAction[SkillConst_default.HT_FLASHER] = SkillAction[SkillConst_default.HT_FREEZINGTRAP] = SkillAction[SkillConst_default.HT_BLASTMINE] = SkillAction[SkillConst_default.HT_CLAYMORETRAP] = SkillAction[SkillConst_default.HT_REMOVETRAP] = SkillAction[SkillConst_default.HT_TALKIEBOX] = SkillAction[SkillConst_default.TF_PICKSTONE] = SkillAction[SkillConst_default.BS_GREED] = SkillAction[SkillConst_default.RA_ELECTRICSHOCKER] = SkillAction[SkillConst_default.RA_CLUSTERBOMB] = SkillAction[SkillConst_default.RA_MAGENTATRAP] = SkillAction[SkillConst_default.RA_COBALTTRAP] = SkillAction[SkillConst_default.RA_MAIZETRAP] = SkillAction[SkillConst_default.RA_VERDURETRAP] = SkillAction[SkillConst_default.RA_FIRINGTRAP] = SkillAction[SkillConst_default.RA_ICEBOUNDTRAP] = function(entity, tick) {
-		return {
-			action: entity.ACTION.PICKUP,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: {
-				action: entity.ACTION.IDLE,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: false
-			}
-		};
-	};
+	SkillAction[SkillConst_default.SM_BASH] = SkillAction[SkillConst_default.SM_MAGNUM] = SkillAction[SkillConst_default.KN_PIERCE] = SkillAction[SkillConst_default.KN_BRANDISHSPEAR] = SkillAction[SkillConst_default.KN_SPEARSTAB] = SkillAction[SkillConst_default.KN_BOWLINGBASH] = SkillAction[SkillConst_default.BS_HAMMERFALL] = SkillAction[SkillConst_default.AC_CHARGEARROW] = SkillAction[SkillConst_default.RG_BACKSTAP] = SkillAction[SkillConst_default.RG_RAID] = SkillAction[SkillConst_default.RG_INTIMIDATE] = SkillAction[SkillConst_default.CR_SHIELDCHARGE] = SkillAction[SkillConst_default.CR_HOLYCROSS] = SkillAction[SkillConst_default.MO_CHAINCOMBO] = SkillAction[SkillConst_default.MO_COMBOFINISH] = SkillAction[SkillConst_default.BA_MUSICALSTRIKE] = SkillAction[SkillConst_default.DC_THROWARROW] = SkillAction[SkillConst_default.NPC_DARKCROSS] = SkillAction[SkillConst_default.CH_PALMSTRIKE] = SkillAction[SkillConst_default.CH_TIGERFIST] = SkillAction[SkillConst_default.CH_CHAINCRUSH] = SkillAction[SkillConst_default.LK_SPIRALPIERCE] = SkillAction[SkillConst_default.LK_HEADCRUSH] = SkillAction[SkillConst_default.LK_JOINTBEAT] = SkillAction[SkillConst_default.HW_MAGICPOWER] = SkillAction[SkillConst_default.PA_SACRIFICE] = SkillAction[SkillConst_default.ASC_METEORASSAULT] = SkillAction[SkillConst_default.TK_STORMKICK] = SkillAction[SkillConst_default.TK_DOWNKICK] = SkillAction[SkillConst_default.TK_TURNKICK] = SkillAction[SkillConst_default.TK_COUNTER] = SkillAction[SkillConst_default.TK_JUMPKICK] = SkillAction[SkillConst_default.CR_ACIDDEMONSTRATION] = SkillAction[SkillConst_default.GS_TRIPLEACTION] = SkillAction[SkillConst_default.GS_BULLSEYE] = SkillAction[SkillConst_default.GS_TRACKING] = SkillAction[SkillConst_default.GS_DISARM] = SkillAction[SkillConst_default.GS_PIERCINGSHOT] = SkillAction[SkillConst_default.GS_RAPIDSHOWER] = SkillAction[SkillConst_default.GS_DESPERADO] = SkillAction[SkillConst_default.GS_DUST] = SkillAction[SkillConst_default.GS_FULLBUSTER] = SkillAction[SkillConst_default.GS_SPREADATTACK] = SkillAction[SkillConst_default.GS_GROUNDDRIFT] = SkillAction[SkillConst_default.NJ_HUUMA] = SkillAction[SkillConst_default.NJ_KASUMIKIRI] = SkillAction[SkillConst_default.NJ_KIRIKAGE] = SkillAction[SkillConst_default.NJ_ISSEN] = SkillAction[SkillConst_default.RK_SONICWAVE] = SkillAction[SkillConst_default.RK_HUNDREDSPEAR] = SkillAction[SkillConst_default.RK_WINDCUTTER] = SkillAction[SkillConst_default.RK_IGNITIONBREAK] = SkillAction[SkillConst_default.RK_DRAGONBREATH] = SkillAction[SkillConst_default.GC_DARKILLUSION] = SkillAction[SkillConst_default.GC_COUNTERSLASH] = SkillAction[SkillConst_default.GC_WEAPONCRUSH] = SkillAction[SkillConst_default.GC_VENOMPRESSURE] = SkillAction[SkillConst_default.GC_PHANTOMMENACE] = SkillAction[SkillConst_default.GC_ROLLINGCUTTER] = SkillAction[SkillConst_default.GC_CROSSRIPPERSLASHER] = SkillAction[SkillConst_default.NC_PILEBUNKER] = SkillAction[SkillConst_default.NC_VULCANARM] = SkillAction[SkillConst_default.NC_FLAMELAUNCHER] = SkillAction[SkillConst_default.NC_COLDSLOWER] = SkillAction[SkillConst_default.NC_ARMSCANNON] = SkillAction[SkillConst_default.NC_POWERSWING] = SkillAction[SkillConst_default.NC_AXETORNADO] = SkillAction[SkillConst_default.SC_FATALMENACE] = SkillAction[SkillConst_default.LG_CANNONSPEAR] = SkillAction[SkillConst_default.LG_MOONSLASHER] = SkillAction[SkillConst_default.LG_BANISHINGPOINT] = SkillAction[SkillConst_default.LG_TRAMPLE] = SkillAction[SkillConst_default.LG_SHIELDPRESS] = SkillAction[SkillConst_default.LG_PINPOINTATTACK] = SkillAction[SkillConst_default.LG_RAGEBURST] = SkillAction[SkillConst_default.LG_OVERBRAND] = SkillAction[SkillConst_default.LG_RAYOFGENESIS] = SkillAction[SkillConst_default.LG_EARTHDRIVE] = SkillAction[SkillConst_default.SR_DRAGONCOMBO] = SkillAction[SkillConst_default.SR_SKYNETBLOW] = SkillAction[SkillConst_default.SR_FALLENEMPIRE] = SkillAction[SkillConst_default.SR_TIGERCANNON] = SkillAction[SkillConst_default.SR_CRESCENTELBOW] = SkillAction[SkillConst_default.SR_GATEOFHELL] = makeAttackSkillAction("ATTACK");
+	SkillAction[SkillConst_default.KN_SPEARBOOMERANG] = SkillAction[SkillConst_default.CR_SHIELDBOOMERANG] = SkillAction[SkillConst_default.AM_DEMONSTRATION] = SkillAction[SkillConst_default.AM_ACIDTERROR] = SkillAction[SkillConst_default.AM_POTIONPITCHER] = SkillAction[SkillConst_default.AM_CANNIBALIZE] = SkillAction[SkillConst_default.TF_SPRINKLESAND] = SkillAction[SkillConst_default.TF_THROWSTONE] = SkillAction[SkillConst_default.NJ_SYURIKEN] = SkillAction[SkillConst_default.NJ_KUNAI] = SkillAction[SkillConst_default.NJ_ZENYNAGE] = SkillAction[SkillConst_default.ITM_TOMAHAWK] = SkillAction[SkillConst_default.AS_VENOMKNIFE] = SkillAction[SkillConst_default.PA_SHIELDCHAIN] = SkillAction[SkillConst_default.NC_AXEBOOMERANG] = SkillAction[SkillConst_default.GN_SLINGITEM] = makeAttackSkillAction("ATTACK1");
+	SkillAction[SkillConst_default.TF_POISON] = SkillAction[SkillConst_default.MC_MAMMONITE] = SkillAction[SkillConst_default.MC_CARTREVOLUTION] = SkillAction[SkillConst_default.GN_CART_TORNADO] = makeAttackSkillAction("ATTACK2");
+	SkillAction[SkillConst_default.AC_DOUBLE] = SkillAction[SkillConst_default.HT_PHANTASMIC] = SkillAction[SkillConst_default.SN_SHARPSHOOTING] = SkillAction[SkillConst_default.RA_ARROWSTORM] = SkillAction[SkillConst_default.RA_AIMEDBOLT] = SkillAction[SkillConst_default.SC_TRIANGLESHOT] = makeAttackSkillAction("ATTACK");
+	SkillAction[SkillConst_default.ASC_BREAKER] = makeAttackSkillAction("ATTACK3");
+	SkillAction[SkillConst_default.HT_LANDMINE] = SkillAction[SkillConst_default.HT_ANKLESNARE] = SkillAction[SkillConst_default.HT_SHOCKWAVE] = SkillAction[SkillConst_default.HT_SANDMAN] = SkillAction[SkillConst_default.HT_FLASHER] = SkillAction[SkillConst_default.HT_FREEZINGTRAP] = SkillAction[SkillConst_default.HT_BLASTMINE] = SkillAction[SkillConst_default.HT_CLAYMORETRAP] = SkillAction[SkillConst_default.HT_REMOVETRAP] = SkillAction[SkillConst_default.HT_TALKIEBOX] = SkillAction[SkillConst_default.TF_PICKSTONE] = SkillAction[SkillConst_default.BS_GREED] = SkillAction[SkillConst_default.RA_ELECTRICSHOCKER] = SkillAction[SkillConst_default.RA_CLUSTERBOMB] = SkillAction[SkillConst_default.RA_MAGENTATRAP] = SkillAction[SkillConst_default.RA_COBALTTRAP] = SkillAction[SkillConst_default.RA_MAIZETRAP] = SkillAction[SkillConst_default.RA_VERDURETRAP] = SkillAction[SkillConst_default.RA_FIRINGTRAP] = SkillAction[SkillConst_default.RA_ICEBOUNDTRAP] = makeGenericSkillAction("PICKUP");
 	SkillAction[SkillConst_default.NJ_TATAMIGAESHI] = SkillAction[SkillConst_default.SR_EARTHSHAKER] = function(entity, tick) {
 		return {
 			action: entity.ACTION.PICKUP,
@@ -318313,21 +318261,7 @@ var init_SkillAction = __esmMin((() => {
 			next: false
 		};
 	};
-	SkillAction[SkillConst_default.SN_SIGHT] = function(entity, tick) {
-		return {
-			action: entity.ACTION.ACTION,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: {
-				action: entity.ACTION.IDLE,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: false
-			}
-		};
-	};
+	SkillAction[SkillConst_default.SN_SIGHT] = makeGenericSkillAction("ACTION");
 	SkillAction[SkillConst_default.DC_WINKCHARM] = SkillAction[SkillConst_default.DC_FORTUNEKISS] = SkillAction[SkillConst_default.DC_UGLYDANCE] = SkillAction[SkillConst_default.DC_HUMMING] = SkillAction[SkillConst_default.DC_DONTFORGETME] = SkillAction[SkillConst_default.DC_SERVICEFORYOU] = SkillAction[SkillConst_default.BA_APPLEIDUN] = SkillAction[SkillConst_default.BA_DISSONANCE] = SkillAction[SkillConst_default.BA_WHISTLE] = SkillAction[SkillConst_default.BA_ASSASSINCROSS] = SkillAction[SkillConst_default.BA_POEMBRAGI] = SkillAction[SkillConst_default.BD_LULLABY] = SkillAction[SkillConst_default.BD_RICHMANKIM] = SkillAction[SkillConst_default.BD_ETERNALCHAOS] = SkillAction[SkillConst_default.BD_DRUMBATTLEFIELD] = SkillAction[SkillConst_default.BD_SIEGFRIED] = SkillAction[SkillConst_default.CG_HERMODE] = SkillAction[SkillConst_default.BD_RINGNIBELUNGEN] = SkillAction[SkillConst_default.SKID_BD_ROKISWEIL] = SkillAction[SkillConst_default.BD_INTOABYSS] = SkillAction[SkillConst_default.CG_MOONLIT] = SkillAction[SkillConst_default.CG_MARIONETTE] = function(entity, tick) {
 		return {
 			action: entity.ACTION.SKILL,
@@ -318339,22 +318273,9 @@ var init_SkillAction = __esmMin((() => {
 			next: false
 		};
 	};
-	SkillAction[SkillConst_default.SM_ENDURE] = function(entity, tick) {
-		return {
-			action: entity.ACTION.READYFIGHT,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: {
-				action: entity.ACTION.IDLE,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: false
-			}
-		};
-	};
-	SkillAction[SkillConst_default.AC_SHOWER] = function(entity, tick) {
+	SkillAction[SkillConst_default.SM_ENDURE] = makeGenericSkillAction("READYFIGHT");
+	SkillAction[SkillConst_default.AC_SHOWER] = function(entity, tick, pkt) {
+		const holdDelay = pkt && pkt.attackMT ? Math.max(pkt.attackMT, 400) : 400;
 		return {
 			action: entity.ACTION.ATTACK,
 			frame: 0,
@@ -318362,6 +318283,7 @@ var init_SkillAction = __esmMin((() => {
 			speed: 50,
 			play: true,
 			next: {
+				delay: (tick || Date.now()) + holdDelay,
 				action: entity.ACTION.READYFIGHT,
 				frame: 0,
 				repeat: true,
@@ -319588,9 +319510,9 @@ function onEntityUseSkill(pkt) {
 		if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) {
 			if (pkt.SKID in SkillAction) {
 				const action = SkillAction[pkt.SKID];
-				if (action) srcEntity.setAction(action(srcEntity, Renderer.tick));
-			} else if (DB.isDoram(srcEntity.job)) srcEntity.setAction(SkillAction["DEFAULT_DORAM"](srcEntity, Renderer.tick));
-			else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick));
+				if (action) srcEntity.setAction(action(srcEntity, Renderer.tick, pkt));
+			} else if (DB.isDoram(srcEntity.job)) srcEntity.setAction(SkillAction["DEFAULT_DORAM"](srcEntity, Renderer.tick, pkt));
+			else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick, pkt));
 		}
 	}
 	if (dstEntity) {
@@ -319675,8 +319597,8 @@ function onEntityUseSkillToAttack(pkt) {
 		if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) {
 			if (pkt.SKID in SkillAction) {
 				const action = SkillAction[pkt.SKID];
-				if (action) srcEntity.setAction(action(srcEntity, Renderer.tick));
-			} else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick));
+				if (action) srcEntity.setAction(action(srcEntity, Renderer.tick, pkt));
+			} else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick, pkt));
 			if (srcEntity.GID === SessionStorage_default.Entity.GID && SessionStorage_default.pet.friendly > 900 && (SessionStorage_default.pet.lastTalk || 0) + 1e4 < Date.now()) {
 				if (parseInt(Math.random() * 10) < 3) {
 					const hunger = DB.getPetHungryState(SessionStorage_default.pet.oldHungry);
