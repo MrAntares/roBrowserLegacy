@@ -296344,6 +296344,7 @@ var init_DBManager = __esmMin((() => {
 			JobConst_default.MONK_H,
 			JobConst_default.SURA,
 			JobConst_default.SURA_H,
+			JobConst_default.SURA_2ND,
 			JobConst_default.INQUISITOR,
 			JobConst_default.MONK_B,
 			JobConst_default.SURA_B,
@@ -297267,6 +297268,38 @@ var init_DBManager = __esmMin((() => {
 				} else if (type in WeaponAction[job]) return WeaponAction[job][type];
 			}
 			return 0;
+		}
+		/**
+		* @return {{frame: number, length: number}|null} attack slice for jobs with combined action sheets
+		* @param {number} job
+		* @param {number} weapon
+		*/
+		static getAttackSlice(job, weapon) {
+			const type = DB.getWeaponType(weapon, true);
+			switch (job) {
+				case JobConst_default.MONK:
+				case JobConst_default.MONK_H:
+				case JobConst_default.MONK_B:
+				case JobConst_default.SURA:
+				case JobConst_default.SURA_H:
+				case JobConst_default.SURA_B:
+				case JobConst_default.SURA_2ND:
+				case JobConst_default.INQUISITOR:
+				case JobConst_default.INQUISITOR_RIDING:
+					if (type === WeaponType_default.KNUKLE || type === WeaponType_default.NONE) return {
+						frame: 0,
+						length: 5
+					};
+					break;
+				case JobConst_default.DO_SUMMONER:
+				case JobConst_default.DO_SUMMONER_B:
+				case JobConst_default.SPIRIT_HANDLER:
+				case JobConst_default.SPIRIT_HANDLER_RIDING1: return {
+					frame: 0,
+					length: 4
+				};
+			}
+			return null;
 		}
 		static mountWeapon(weaponID, shieldID) {
 			const _weapon = DB.getWeaponType(weaponID, true);
@@ -299678,6 +299711,13 @@ function setAction(option) {
 				this.ACTION.ATTACK2,
 				this.ACTION.ATTACK3
 			][attack];
+			if (!option.length) {
+				const slice = DB.getAttackSlice(this._job, this.weapon);
+				if (slice) {
+					if (typeof option.frame === "undefined" || option.frame === 0) option.frame = slice.frame;
+					option.length = slice.length;
+				}
+			}
 		}
 		if (option.action === -2) option.action = this.ACTION.ATTACK1;
 	}
@@ -302541,14 +302581,14 @@ function calcAnimation(entity, act, type, tick) {
 		anim %= animSize;
 		return anim;
 	}
-	anim = Math.min(tick / delay | 0, animCount || animCount - 1);
+	anim = Math.min(tick / delay | 0, animCount ? animCount - 1 : 0);
 	anim %= animCount;
 	anim += animCount * headDir;
 	anim += animation.frame;
 	anim %= animSize;
-	const lastFrame = animation.frame + animSize - 1;
-	if (type === "body" && anim >= lastFrame) {
-		animation.frame = anim = lastFrame;
+	const lastFrame = animation.frame + animCount - 1;
+	if (type === "body" && (tick / delay | 0) >= animCount - 1) {
+		animation.frame = anim = Math.min(lastFrame, animSize - 1);
 		animation.play = false;
 		if (animation.next) entity.setAction(animation.next);
 	}
@@ -318913,8 +318953,9 @@ var init_NPC = __esmMin((() => {
 }));
 //#endregion
 //#region src/DB/Skills/SkillAction.js
-var SkillAction, makeAttackSkillAction, makeGenericSkillAction;
+var SkillAction, makeAttackSkillAction, makeGenericSkillAction, makeSliceAttackAction;
 var init_SkillAction = __esmMin((() => {
+	init_DBManager();
 	init_SkillConst();
 	SkillAction = {};
 	makeAttackSkillAction = (actionProp = "ATTACK") => function(entity, tick, pkt) {
@@ -318953,9 +318994,32 @@ var init_SkillAction = __esmMin((() => {
 			}
 		};
 	};
+	makeSliceAttackAction = (actionProp = "ATTACK", startFrame = 0, length = 0, nextActionProp = "READYFIGHT") => function(entity, tick, pkt) {
+		const holdDelay = pkt && pkt.attackMT ? Math.max(pkt.attackMT, 400) : 400;
+		const nextAction = entity && entity.ACTION && entity.ACTION[nextActionProp] !== void 0 ? entity.ACTION[nextActionProp] : entity && entity.ACTION && entity.ACTION.READYFIGHT !== void 0 ? entity.ACTION.READYFIGHT : entity && entity.ACTION && entity.ACTION.IDLE || 0;
+		const job = entity && (typeof entity._job !== "undefined" ? entity._job : entity.job);
+		const weapon = entity && (typeof entity.weapon !== "undefined" ? entity.weapon : 0);
+		const hasSlice = job !== void 0 ? DB.getAttackSlice(job, weapon) : true;
+		return {
+			action: entity && entity.ACTION && entity.ACTION[actionProp] !== void 0 ? entity.ACTION[actionProp] : 0,
+			frame: hasSlice ? startFrame : 0,
+			length: hasSlice && length > 0 ? length : false,
+			repeat: false,
+			play: true,
+			next: {
+				delay: (tick || Date.now()) + holdDelay,
+				action: nextAction,
+				frame: 0,
+				repeat: true,
+				play: true,
+				next: false
+			}
+		};
+	};
 	SkillAction["DEFAULT"] = makeGenericSkillAction("SKILL");
+	SkillAction["DEFAULT_MONK"] = makeGenericSkillAction("IDLE", "IDLE");
 	SkillAction["DEFAULT_DORAM"] = makeGenericSkillAction("ATTACK2");
-	SkillAction[SkillConst_default.ST_CHASEWALK] = SkillAction[SkillConst_default.CH_SOULCOLLECT] = function(entity, tick) {
+	SkillAction[SkillConst_default.AL_INCAGI] = SkillAction[SkillConst_default.CASH_INCAGI] = SkillAction[SkillConst_default.ST_CHASEWALK] = SkillAction[SkillConst_default.CH_SOULCOLLECT] = SkillAction[SkillConst_default.MO_CALLSPIRITS] = SkillAction[SkillConst_default.MO_ABSORBSPIRITS] = SkillAction[SkillConst_default.MO_BODYRELOCATION] = SkillAction[SkillConst_default.MO_STEELBODY] = SkillAction[SkillConst_default.MO_EXPLOSIONSPIRITS] = SkillAction[SkillConst_default.MO_KITRANSLATION] = SkillAction[SkillConst_default.SR_CURSEDCIRCLE] = SkillAction[SkillConst_default.SR_LIGHTNINGWALK] = SkillAction[SkillConst_default.SR_RAISINGDRAGON] = SkillAction[SkillConst_default.SR_GENTLETOUCH] = SkillAction[SkillConst_default.SR_ASSIMILATEPOWER] = SkillAction[SkillConst_default.SR_POWERVELOCITY] = SkillAction[SkillConst_default.SR_GENTLETOUCH_QUIET] = SkillAction[SkillConst_default.SR_GENTLETOUCH_CURE] = SkillAction[SkillConst_default.SR_GENTLETOUCH_ENERGYGAIN] = SkillAction[SkillConst_default.SR_GENTLETOUCH_CHANGE] = SkillAction[SkillConst_default.SR_GENTLETOUCH_REVITALIZE] = function(entity, tick) {
 		return {
 			action: entity.ACTION.IDLE,
 			frame: 0,
@@ -318964,7 +319028,22 @@ var init_SkillAction = __esmMin((() => {
 			next: false
 		};
 	};
-	SkillAction[SkillConst_default.SM_BASH] = SkillAction[SkillConst_default.SM_MAGNUM] = SkillAction[SkillConst_default.KN_PIERCE] = SkillAction[SkillConst_default.KN_BRANDISHSPEAR] = SkillAction[SkillConst_default.KN_SPEARSTAB] = SkillAction[SkillConst_default.KN_BOWLINGBASH] = SkillAction[SkillConst_default.BS_HAMMERFALL] = SkillAction[SkillConst_default.AC_CHARGEARROW] = SkillAction[SkillConst_default.RG_BACKSTAP] = SkillAction[SkillConst_default.RG_RAID] = SkillAction[SkillConst_default.RG_INTIMIDATE] = SkillAction[SkillConst_default.CR_SHIELDCHARGE] = SkillAction[SkillConst_default.CR_HOLYCROSS] = SkillAction[SkillConst_default.MO_CHAINCOMBO] = SkillAction[SkillConst_default.MO_COMBOFINISH] = SkillAction[SkillConst_default.BA_MUSICALSTRIKE] = SkillAction[SkillConst_default.DC_THROWARROW] = SkillAction[SkillConst_default.NPC_DARKCROSS] = SkillAction[SkillConst_default.CH_PALMSTRIKE] = SkillAction[SkillConst_default.CH_TIGERFIST] = SkillAction[SkillConst_default.CH_CHAINCRUSH] = SkillAction[SkillConst_default.LK_SPIRALPIERCE] = SkillAction[SkillConst_default.LK_HEADCRUSH] = SkillAction[SkillConst_default.LK_JOINTBEAT] = SkillAction[SkillConst_default.HW_MAGICPOWER] = SkillAction[SkillConst_default.PA_SACRIFICE] = SkillAction[SkillConst_default.ASC_METEORASSAULT] = SkillAction[SkillConst_default.TK_STORMKICK] = SkillAction[SkillConst_default.TK_DOWNKICK] = SkillAction[SkillConst_default.TK_TURNKICK] = SkillAction[SkillConst_default.TK_COUNTER] = SkillAction[SkillConst_default.TK_JUMPKICK] = SkillAction[SkillConst_default.CR_ACIDDEMONSTRATION] = SkillAction[SkillConst_default.GS_TRIPLEACTION] = SkillAction[SkillConst_default.GS_BULLSEYE] = SkillAction[SkillConst_default.GS_TRACKING] = SkillAction[SkillConst_default.GS_DISARM] = SkillAction[SkillConst_default.GS_PIERCINGSHOT] = SkillAction[SkillConst_default.GS_RAPIDSHOWER] = SkillAction[SkillConst_default.GS_DESPERADO] = SkillAction[SkillConst_default.GS_DUST] = SkillAction[SkillConst_default.GS_FULLBUSTER] = SkillAction[SkillConst_default.GS_SPREADATTACK] = SkillAction[SkillConst_default.GS_GROUNDDRIFT] = SkillAction[SkillConst_default.NJ_HUUMA] = SkillAction[SkillConst_default.NJ_KASUMIKIRI] = SkillAction[SkillConst_default.NJ_KIRIKAGE] = SkillAction[SkillConst_default.NJ_ISSEN] = SkillAction[SkillConst_default.RK_SONICWAVE] = SkillAction[SkillConst_default.RK_HUNDREDSPEAR] = SkillAction[SkillConst_default.RK_WINDCUTTER] = SkillAction[SkillConst_default.RK_IGNITIONBREAK] = SkillAction[SkillConst_default.RK_DRAGONBREATH] = SkillAction[SkillConst_default.GC_DARKILLUSION] = SkillAction[SkillConst_default.GC_COUNTERSLASH] = SkillAction[SkillConst_default.GC_WEAPONCRUSH] = SkillAction[SkillConst_default.GC_VENOMPRESSURE] = SkillAction[SkillConst_default.GC_PHANTOMMENACE] = SkillAction[SkillConst_default.GC_ROLLINGCUTTER] = SkillAction[SkillConst_default.GC_CROSSRIPPERSLASHER] = SkillAction[SkillConst_default.NC_PILEBUNKER] = SkillAction[SkillConst_default.NC_VULCANARM] = SkillAction[SkillConst_default.NC_FLAMELAUNCHER] = SkillAction[SkillConst_default.NC_COLDSLOWER] = SkillAction[SkillConst_default.NC_ARMSCANNON] = SkillAction[SkillConst_default.NC_POWERSWING] = SkillAction[SkillConst_default.NC_AXETORNADO] = SkillAction[SkillConst_default.SC_FATALMENACE] = SkillAction[SkillConst_default.LG_CANNONSPEAR] = SkillAction[SkillConst_default.LG_MOONSLASHER] = SkillAction[SkillConst_default.LG_BANISHINGPOINT] = SkillAction[SkillConst_default.LG_TRAMPLE] = SkillAction[SkillConst_default.LG_SHIELDPRESS] = SkillAction[SkillConst_default.LG_PINPOINTATTACK] = SkillAction[SkillConst_default.LG_RAGEBURST] = SkillAction[SkillConst_default.LG_OVERBRAND] = SkillAction[SkillConst_default.LG_RAYOFGENESIS] = SkillAction[SkillConst_default.LG_EARTHDRIVE] = SkillAction[SkillConst_default.SR_DRAGONCOMBO] = SkillAction[SkillConst_default.SR_SKYNETBLOW] = SkillAction[SkillConst_default.SR_FALLENEMPIRE] = SkillAction[SkillConst_default.SR_TIGERCANNON] = SkillAction[SkillConst_default.SR_CRESCENTELBOW] = SkillAction[SkillConst_default.SR_GATEOFHELL] = makeAttackSkillAction("ATTACK");
+	SkillAction[SkillConst_default.AL_BLESSING] = SkillAction[SkillConst_default.CASH_BLESSING] = makeGenericSkillAction("SKILL");
+	SkillAction[SkillConst_default.SM_BASH] = SkillAction[SkillConst_default.SM_MAGNUM] = SkillAction[SkillConst_default.KN_PIERCE] = SkillAction[SkillConst_default.KN_BRANDISHSPEAR] = SkillAction[SkillConst_default.KN_SPEARSTAB] = SkillAction[SkillConst_default.KN_BOWLINGBASH] = SkillAction[SkillConst_default.BS_HAMMERFALL] = SkillAction[SkillConst_default.AC_CHARGEARROW] = SkillAction[SkillConst_default.RG_BACKSTAP] = SkillAction[SkillConst_default.RG_RAID] = SkillAction[SkillConst_default.RG_INTIMIDATE] = SkillAction[SkillConst_default.CR_SHIELDCHARGE] = SkillAction[SkillConst_default.CR_HOLYCROSS] = SkillAction[SkillConst_default.BA_MUSICALSTRIKE] = SkillAction[SkillConst_default.DC_THROWARROW] = SkillAction[SkillConst_default.NPC_DARKCROSS] = SkillAction[SkillConst_default.LK_SPIRALPIERCE] = SkillAction[SkillConst_default.LK_HEADCRUSH] = SkillAction[SkillConst_default.LK_JOINTBEAT] = SkillAction[SkillConst_default.HW_MAGICPOWER] = SkillAction[SkillConst_default.PA_SACRIFICE] = SkillAction[SkillConst_default.ASC_METEORASSAULT] = SkillAction[SkillConst_default.TK_STORMKICK] = SkillAction[SkillConst_default.TK_DOWNKICK] = SkillAction[SkillConst_default.TK_TURNKICK] = SkillAction[SkillConst_default.TK_COUNTER] = SkillAction[SkillConst_default.TK_JUMPKICK] = SkillAction[SkillConst_default.CR_ACIDDEMONSTRATION] = SkillAction[SkillConst_default.GS_TRIPLEACTION] = SkillAction[SkillConst_default.GS_BULLSEYE] = SkillAction[SkillConst_default.GS_TRACKING] = SkillAction[SkillConst_default.GS_DISARM] = SkillAction[SkillConst_default.GS_PIERCINGSHOT] = SkillAction[SkillConst_default.GS_RAPIDSHOWER] = SkillAction[SkillConst_default.GS_DESPERADO] = SkillAction[SkillConst_default.GS_DUST] = SkillAction[SkillConst_default.GS_FULLBUSTER] = SkillAction[SkillConst_default.GS_SPREADATTACK] = SkillAction[SkillConst_default.GS_GROUNDDRIFT] = SkillAction[SkillConst_default.NJ_HUUMA] = SkillAction[SkillConst_default.NJ_KASUMIKIRI] = SkillAction[SkillConst_default.NJ_KIRIKAGE] = SkillAction[SkillConst_default.NJ_ISSEN] = SkillAction[SkillConst_default.RK_SONICWAVE] = SkillAction[SkillConst_default.RK_HUNDREDSPEAR] = SkillAction[SkillConst_default.RK_WINDCUTTER] = SkillAction[SkillConst_default.RK_IGNITIONBREAK] = SkillAction[SkillConst_default.RK_DRAGONBREATH] = SkillAction[SkillConst_default.GC_DARKILLUSION] = SkillAction[SkillConst_default.GC_COUNTERSLASH] = SkillAction[SkillConst_default.GC_WEAPONCRUSH] = SkillAction[SkillConst_default.GC_VENOMPRESSURE] = SkillAction[SkillConst_default.GC_PHANTOMMENACE] = SkillAction[SkillConst_default.GC_ROLLINGCUTTER] = SkillAction[SkillConst_default.GC_CROSSRIPPERSLASHER] = SkillAction[SkillConst_default.NC_PILEBUNKER] = SkillAction[SkillConst_default.NC_VULCANARM] = SkillAction[SkillConst_default.NC_FLAMELAUNCHER] = SkillAction[SkillConst_default.NC_COLDSLOWER] = SkillAction[SkillConst_default.NC_ARMSCANNON] = SkillAction[SkillConst_default.NC_POWERSWING] = SkillAction[SkillConst_default.NC_AXETORNADO] = SkillAction[SkillConst_default.SC_FATALMENACE] = SkillAction[SkillConst_default.LG_CANNONSPEAR] = SkillAction[SkillConst_default.LG_MOONSLASHER] = SkillAction[SkillConst_default.LG_BANISHINGPOINT] = SkillAction[SkillConst_default.LG_TRAMPLE] = SkillAction[SkillConst_default.LG_SHIELDPRESS] = SkillAction[SkillConst_default.LG_PINPOINTATTACK] = SkillAction[SkillConst_default.LG_RAGEBURST] = SkillAction[SkillConst_default.LG_OVERBRAND] = SkillAction[SkillConst_default.LG_RAYOFGENESIS] = SkillAction[SkillConst_default.LG_EARTHDRIVE] = makeAttackSkillAction("ATTACK");
+	SkillAction[SkillConst_default.MO_TRIPLEATTACK] = makeSliceAttackAction("ATTACK", 5, 4);
+	SkillAction[SkillConst_default.MO_CHAINCOMBO] = makeSliceAttackAction("ATTACK", 9, 4);
+	SkillAction[SkillConst_default.MO_COMBOFINISH] = makeSliceAttackAction("ATTACK", 13, 2);
+	SkillAction[SkillConst_default.CH_PALMSTRIKE] = makeSliceAttackAction("ATTACK", 13, 2);
+	SkillAction[SkillConst_default.CH_TIGERFIST] = makeSliceAttackAction("ATTACK", 9, 4);
+	SkillAction[SkillConst_default.CH_CHAINCRUSH] = makeSliceAttackAction("ATTACK", 5, 8);
+	SkillAction[SkillConst_default.SR_DRAGONCOMBO] = makeSliceAttackAction("ATTACK", 5, 4);
+	SkillAction[SkillConst_default.SR_SKYNETBLOW] = makeSliceAttackAction("ATTACK", 0, 5);
+	SkillAction[SkillConst_default.SR_FALLENEMPIRE] = makeSliceAttackAction("ATTACK", 13, 2);
+	SkillAction[SkillConst_default.SR_TIGERCANNON] = makeSliceAttackAction("ATTACK", 9, 4);
+	SkillAction[SkillConst_default.SR_CRESCENTELBOW] = makeSliceAttackAction("ATTACK", 13, 2);
+	SkillAction[SkillConst_default.SR_GATEOFHELL] = makeSliceAttackAction("ATTACK", 13, 2);
+	if (SkillConst_default.SH_CHUL_HO_SONIC_CLAW) SkillAction[SkillConst_default.SH_CHUL_HO_SONIC_CLAW] = makeSliceAttackAction("ATTACK", 0, 4);
+	if (SkillConst_default.SH_HOGOGONG_STRIKE) SkillAction[SkillConst_default.SH_HOGOGONG_STRIKE] = makeSliceAttackAction("ATTACK", 0, 4);
 	SkillAction[SkillConst_default.KN_SPEARBOOMERANG] = SkillAction[SkillConst_default.CR_SHIELDBOOMERANG] = SkillAction[SkillConst_default.AM_DEMONSTRATION] = SkillAction[SkillConst_default.AM_ACIDTERROR] = SkillAction[SkillConst_default.AM_POTIONPITCHER] = SkillAction[SkillConst_default.AM_CANNIBALIZE] = SkillAction[SkillConst_default.TF_SPRINKLESAND] = SkillAction[SkillConst_default.TF_THROWSTONE] = SkillAction[SkillConst_default.NJ_SYURIKEN] = SkillAction[SkillConst_default.NJ_KUNAI] = SkillAction[SkillConst_default.NJ_ZENYNAGE] = SkillAction[SkillConst_default.ITM_TOMAHAWK] = SkillAction[SkillConst_default.AS_VENOMKNIFE] = SkillAction[SkillConst_default.PA_SHIELDCHAIN] = SkillAction[SkillConst_default.NC_AXEBOOMERANG] = SkillAction[SkillConst_default.GN_SLINGITEM] = makeAttackSkillAction("ATTACK1");
 	SkillAction[SkillConst_default.TF_POISON] = SkillAction[SkillConst_default.MC_MAMMONITE] = SkillAction[SkillConst_default.MC_CARTREVOLUTION] = SkillAction[SkillConst_default.GN_CART_TORNADO] = makeAttackSkillAction("ATTACK2");
 	SkillAction[SkillConst_default.AC_DOUBLE] = SkillAction[SkillConst_default.HT_PHANTASMIC] = SkillAction[SkillConst_default.SN_SHARPSHOOTING] = SkillAction[SkillConst_default.RA_ARROWSTORM] = SkillAction[SkillConst_default.RA_AIMEDBOLT] = SkillAction[SkillConst_default.SC_TRIANGLESHOT] = makeAttackSkillAction("ATTACK");
@@ -319044,15 +319123,7 @@ var init_SkillAction = __esmMin((() => {
 			next: false
 		};
 	};
-	SkillAction[SkillConst_default.MO_EXTREMITYFIST] = function(entity, tick) {
-		return {
-			action: entity.ACTION.ATTACK,
-			delay: tick + 100,
-			frame: 0,
-			repeat: false,
-			play: true
-		};
-	};
+	SkillAction[SkillConst_default.MO_EXTREMITYFIST] = makeSliceAttackAction("ATTACK", 13, 2);
 	SkillAction[SkillConst_default.CG_ARROWVULCAN] = function(entity, tick) {
 		return {
 			action: entity.ACTION.ATTACK,
@@ -320230,6 +320301,7 @@ function onEntityUseSkill(pkt) {
 				const action = SkillAction[pkt.SKID];
 				if (action) srcEntity.setAction(action(srcEntity, Renderer.tick, pkt));
 			} else if (DB.isDoram(srcEntity.job)) srcEntity.setAction(SkillAction["DEFAULT_DORAM"](srcEntity, Renderer.tick, pkt));
+			else if (DB.isMonk(srcEntity.job)) srcEntity.setAction(SkillAction["DEFAULT_MONK"](srcEntity, Renderer.tick, pkt));
 			else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick, pkt));
 		}
 	}
@@ -320316,7 +320388,9 @@ function onEntityUseSkillToAttack(pkt) {
 			if (pkt.SKID in SkillAction) {
 				const action = SkillAction[pkt.SKID];
 				if (action) srcEntity.setAction(action(srcEntity, Renderer.tick, pkt));
-			} else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick, pkt));
+			} else if (DB.isDoram(srcEntity.job)) srcEntity.setAction(SkillAction["DEFAULT_DORAM"](srcEntity, Renderer.tick, pkt));
+			else if (DB.isMonk(srcEntity.job)) srcEntity.setAction(SkillAction["DEFAULT_MONK"](srcEntity, Renderer.tick, pkt));
+			else srcEntity.setAction(SkillAction["DEFAULT"](srcEntity, Renderer.tick, pkt));
 			if (srcEntity.GID === SessionStorage_default.Entity.GID && SessionStorage_default.pet.friendly > 900 && (SessionStorage_default.pet.lastTalk || 0) + 1e4 < Date.now()) {
 				if (parseInt(Math.random() * 10) < 3) {
 					const hunger = DB.getPetHungryState(SessionStorage_default.pet.oldHungry);
