@@ -507,6 +507,7 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, i
  * @param {number} [speed=15] Speed in ms per cell
  * @param {function} [onEnd] Callback when relocation finishes
  * @param {boolean} [keepDirection=false] Whether to preserve current facing direction (e.g. knockback/backslide)
+ * @returns {boolean} True if fast movement started, false if already at destination (no-op)
  */
 function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 	const curX = this.position[0];
@@ -516,10 +517,21 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 	const curCellY = hasCurrentPos ? Math.round(curY) : to_y | 0;
 
 	if (curCellX === (to_x | 0) && curCellY === (to_y | 0)) {
+		this.isFastMoving = false;
+		this._enableTrail = false;
+		this._preserveDirection = false;
+		if (this.action !== this.ACTION.DIE && !this.animation.play) {
+			this.setAction({
+				action: this.ACTION.IDLE,
+				frame: 0,
+				play: true,
+				repeat: true
+			});
+		}
 		if (onEnd) {
 			onEnd();
 		}
-		return;
+		return false;
 	}
 
 	this.resetRoute();
@@ -528,6 +540,7 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 		this._normalSpeed = this.walk.speed;
 	}
 	this.isFastMoving = true;
+	this._preserveDirection = !!keepDirection;
 	this.walk.speed = speed || 15;
 
 	// If character was currently walking, transition out of WALK to avoid leg cycling
@@ -558,7 +571,7 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 	const nowTick = Date.now();
 	this.walk.tick = this.walk.prevTick = nowTick;
 
-	if (!keepDirection) {
+	if (!this._preserveDirection) {
 		const initDir = offsetToFloatDir(firstDx, firstDy);
 		this.direction = quantizeDir(initDir);
 		this.headDir = 0;
@@ -567,6 +580,8 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 	if (onEnd) {
 		this.walk.onEnd = onEnd;
 	}
+
+	return true;
 }
 
 /**
@@ -644,6 +659,7 @@ function walkProcess() {
 			if (this.isFastMoving) {
 				this.isFastMoving = false;
 				this._enableTrail = false;
+				this._preserveDirection = false;
 				if (typeof this._normalSpeed === 'number') {
 					this.walk.speed = this._normalSpeed;
 					delete this._normalSpeed;
@@ -762,7 +778,7 @@ function walkProcess() {
 		// Facing update:
 		// First segment uses continuous heading from current interpolated position to next tile.
 		// Later segments snap to discrete 8-way direction based on the segment offset.
-		if (index < total) {
+		if (!this._preserveDirection && index < total) {
 			if (index === 2) {
 				const remDx = nextX - newX;
 				const remDy = nextY - newY;
@@ -891,6 +907,7 @@ function resetRoute(keepDistance) {
 			delete this._normalSpeed;
 		}
 	}
+	this._preserveDirection = false;
 	this.walk.tick = 0;
 	this.walk.prevTick = 0;
 	if (!keepDistance) {
@@ -964,6 +981,7 @@ function distance(entity1, entity2) {
  */
 export default function Init() {
 	this.onWalkEnd = function onWalkEnd() {};
+	this._preserveDirection = false;
 	this.walk = new WalkStructure();
 	this.walkTo = walkTo;
 	this.fastMoveTo = fastMoveTo;

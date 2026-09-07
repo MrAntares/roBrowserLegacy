@@ -460,7 +460,7 @@ function onEntityJump(pkt) {
  */
 function onEntityFastMove(pkt) {
 	const entity = EntityManager.get(pkt.AID);
-	if (entity) {
+	if (entity && entity.fastMoveTo(pkt.targetXpos, pkt.targetYpos, 15, null, false)) {
 		if (entity.objecttype === entity.constructor.TYPE_PC) {
 			if (DB.isMonk(entity.job)) {
 				entity._enableTrail = true;
@@ -480,7 +480,6 @@ function onEntityFastMove(pkt) {
 				});
 			}
 		}
-		entity.fastMoveTo(pkt.targetXpos, pkt.targetYpos, 15, null, false);
 	}
 }
 

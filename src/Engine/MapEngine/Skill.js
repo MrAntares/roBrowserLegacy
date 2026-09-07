@@ -146,7 +146,7 @@ function onSkillToGround(pkt) {
 	switch (pkt.SKID) {
 		case SkillId.MO_BODYRELOCATION: {
 			const entity = EntityManager.get(pkt.AID);
-			if (entity) {
+			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
 				entity._enableTrail = true;
 				if (entity.objecttype === entity.constructor.TYPE_PC) {
 					entity.setAction({
@@ -156,13 +156,12 @@ function onSkillToGround(pkt) {
 						play: false
 					});
 				}
-				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false);
 			}
 			break;
 		}
 		case SkillId.NJ_SHADOWJUMP: {
 			const entity = EntityManager.get(pkt.AID);
-			if (entity) {
+			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
 				entity._enableTrail = true;
 				entity.setAction({
 					action: entity.ACTION.SKILL,
@@ -170,13 +169,12 @@ function onSkillToGround(pkt) {
 					repeat: false,
 					play: false
 				});
-				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false);
 			}
 			break;
 		}
 		case SkillId.RL_FALLEN_ANGEL: {
 			const entity = EntityManager.get(pkt.AID);
-			if (entity) {
+			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
 				entity._enableTrail = true;
 				entity.setAction({
 					action: entity.ACTION.SKILL,
@@ -184,20 +182,18 @@ function onSkillToGround(pkt) {
 					repeat: false,
 					play: false
 				});
-				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false);
 			}
 			break;
 		}
 		case SkillId.SU_LOPE: {
 			const entity = EntityManager.get(pkt.AID);
-			if (entity) {
+			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
 				entity.setAction({
 					action: entity.ACTION.SKILL,
 					frame: 0,
 					repeat: false,
 					play: true
 				});
-				entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false);
 			}
 			break;
 		}
