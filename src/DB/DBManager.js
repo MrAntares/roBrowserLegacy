@@ -1006,6 +1006,7 @@ class DB {
 		JobId.MONK_H,
 		JobId.SURA,
 		JobId.SURA_H,
+		JobId.SURA_2ND,
 		JobId.INQUISITOR,
 
 		JobId.MONK_B,
@@ -2221,6 +2222,36 @@ class DB {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @return {{frame: number, length: number}|null} attack slice for jobs with combined action sheets
+	 * @param {number} job
+	 * @param {number} weapon
+	 */
+	static getAttackSlice(job, weapon) {
+		const type = DB.getWeaponType(weapon, true);
+		switch (job) {
+			case JobId.MONK:
+			case JobId.MONK_H:
+			case JobId.MONK_B:
+			case JobId.SURA:
+			case JobId.SURA_H:
+			case JobId.SURA_B:
+			case JobId.SURA_2ND:
+			case JobId.INQUISITOR:
+			case JobId.INQUISITOR_RIDING:
+				if (type === WeaponType.KNUKLE || type === WeaponType.NONE) {
+					return { frame: 0, length: 5 };
+				}
+				break;
+			case JobId.DO_SUMMONER:
+			case JobId.DO_SUMMONER_B:
+			case JobId.SPIRIT_HANDLER:
+			case JobId.SPIRIT_HANDLER_RIDING1:
+				return { frame: 0, length: 4 };
+		}
+		return null;
 	}
 
 	static mountWeapon(weaponID, shieldID) {

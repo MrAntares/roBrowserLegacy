@@ -1437,6 +1437,8 @@ function onEntityUseSkill(pkt) {
 			} else {
 				if (DB.isDoram(srcEntity.job)) {
 					srcEntity.setAction(SkillActionTable['DEFAULT_DORAM'](srcEntity, Renderer.tick, pkt));
+				} else if (DB.isMonk(srcEntity.job)) {
+					srcEntity.setAction(SkillActionTable['DEFAULT_MONK'](srcEntity, Renderer.tick, pkt));
 				} else {
 					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick, pkt));
 				}
@@ -1577,7 +1579,13 @@ function onEntityUseSkillToAttack(pkt) {
 					srcEntity.setAction(action(srcEntity, Renderer.tick, pkt));
 				}
 			} else {
-				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick, pkt));
+				if (DB.isDoram(srcEntity.job)) {
+					srcEntity.setAction(SkillActionTable['DEFAULT_DORAM'](srcEntity, Renderer.tick, pkt));
+				} else if (DB.isMonk(srcEntity.job)) {
+					srcEntity.setAction(SkillActionTable['DEFAULT_MONK'](srcEntity, Renderer.tick, pkt));
+				} else {
+					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick, pkt));
+				}
 			}
 
 			//Pet Talk

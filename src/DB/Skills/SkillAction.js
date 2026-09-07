@@ -8,6 +8,7 @@
  *
  */
 
+import DB from 'DB/DBManager.js';
 import SK from './SkillConst.js';
 
 const SkillAction = {};
@@ -58,23 +59,82 @@ const makeGenericSkillAction = (actionProp = 'SKILL', nextActionProp = 'IDLE') =
 		};
 	};
 
+const makeSliceAttackAction = (actionProp = 'ATTACK', startFrame = 0, length = 0, nextActionProp = 'READYFIGHT') =>
+	function (entity, tick, pkt) {
+		const holdDelay = pkt && pkt.attackMT ? Math.max(pkt.attackMT, 400) : 400;
+		const nextAction =
+			entity && entity.ACTION && entity.ACTION[nextActionProp] !== undefined
+				? entity.ACTION[nextActionProp]
+				: entity && entity.ACTION && entity.ACTION.READYFIGHT !== undefined
+					? entity.ACTION.READYFIGHT
+					: (entity && entity.ACTION && entity.ACTION.IDLE) || 0;
+
+		const job = entity && (typeof entity._job !== 'undefined' ? entity._job : entity.job);
+		const weapon = entity && (typeof entity.weapon !== 'undefined' ? entity.weapon : 0);
+		const hasSlice = job !== undefined ? DB.getAttackSlice(job, weapon) : true;
+
+		return {
+			action: entity && entity.ACTION && entity.ACTION[actionProp] !== undefined ? entity.ACTION[actionProp] : 0,
+			frame: hasSlice ? startFrame : 0,
+			length: hasSlice && length > 0 ? length : false,
+			repeat: false,
+			play: true,
+			next: {
+				delay: (tick || Date.now()) + holdDelay,
+				action: nextAction,
+				frame: 0,
+				repeat: true,
+				play: true,
+				next: false
+			}
+		};
+	};
+
 //Default skill action
 SkillAction['DEFAULT'] = makeGenericSkillAction('SKILL');
+
+SkillAction['DEFAULT_MONK'] = makeGenericSkillAction('IDLE', 'IDLE');
 
 SkillAction['DEFAULT_DORAM'] = makeGenericSkillAction('ATTACK2');
 
 //Skill action overrides
 
-//IDLE
-SkillAction[SK.ST_CHASEWALK] = SkillAction[SK.CH_SOULCOLLECT] = function (entity, tick) {
-	return {
-		action: entity.ACTION.IDLE,
-		frame: 0,
-		repeat: true,
-		play: true,
-		next: false
-	};
-};
+//IDLE - Stance/buff skills for Monk, evolutions, and specific skills
+SkillAction[SK.AL_INCAGI] =
+	SkillAction[SK.CASH_INCAGI] =
+	SkillAction[SK.ST_CHASEWALK] =
+	SkillAction[SK.CH_SOULCOLLECT] =
+	SkillAction[SK.MO_CALLSPIRITS] =
+	SkillAction[SK.MO_ABSORBSPIRITS] =
+	SkillAction[SK.MO_BODYRELOCATION] =
+	SkillAction[SK.MO_STEELBODY] =
+	SkillAction[SK.MO_EXPLOSIONSPIRITS] =
+	SkillAction[SK.MO_KITRANSLATION] =
+	SkillAction[SK.SR_CURSEDCIRCLE] =
+	SkillAction[SK.SR_LIGHTNINGWALK] =
+	SkillAction[SK.SR_RAISINGDRAGON] =
+	SkillAction[SK.SR_GENTLETOUCH] =
+	SkillAction[SK.SR_ASSIMILATEPOWER] =
+	SkillAction[SK.SR_POWERVELOCITY] =
+	SkillAction[SK.SR_GENTLETOUCH_QUIET] =
+	SkillAction[SK.SR_GENTLETOUCH_CURE] =
+	SkillAction[SK.SR_GENTLETOUCH_ENERGYGAIN] =
+	SkillAction[SK.SR_GENTLETOUCH_CHANGE] =
+	SkillAction[SK.SR_GENTLETOUCH_REVITALIZE] =
+		function (entity, tick) {
+			return {
+				action: entity.ACTION.IDLE,
+				frame: 0,
+				repeat: true,
+				play: true,
+				next: false
+			};
+		};
+
+//SKILL - Explicit invocation skill action
+SkillAction[SK.AL_BLESSING] =
+	SkillAction[SK.CASH_BLESSING] =
+		makeGenericSkillAction('SKILL');
 
 //ATTACK - Normal attack with visible weapon
 SkillAction[SK.SM_BASH] =
@@ -92,14 +152,9 @@ SkillAction[SK.SM_BASH] =
 	SkillAction[SK.RG_INTIMIDATE] =
 	SkillAction[SK.CR_SHIELDCHARGE] =
 	SkillAction[SK.CR_HOLYCROSS] =
-	SkillAction[SK.MO_CHAINCOMBO] =
-	SkillAction[SK.MO_COMBOFINISH] =
 	SkillAction[SK.BA_MUSICALSTRIKE] =
 	SkillAction[SK.DC_THROWARROW] =
 	SkillAction[SK.NPC_DARKCROSS] =
-	SkillAction[SK.CH_PALMSTRIKE] =
-	SkillAction[SK.CH_TIGERFIST] =
-	SkillAction[SK.CH_CHAINCRUSH] =
 	SkillAction[SK.LK_SPIRALPIERCE] =
 	SkillAction[SK.LK_HEADCRUSH] =
 	SkillAction[SK.LK_JOINTBEAT] =
@@ -157,13 +212,38 @@ SkillAction[SK.SM_BASH] =
 	SkillAction[SK.LG_OVERBRAND] =
 	SkillAction[SK.LG_RAYOFGENESIS] =
 	SkillAction[SK.LG_EARTHDRIVE] =
-	SkillAction[SK.SR_DRAGONCOMBO] =
-	SkillAction[SK.SR_SKYNETBLOW] =
-	SkillAction[SK.SR_FALLENEMPIRE] =
-	SkillAction[SK.SR_TIGERCANNON] =
-	SkillAction[SK.SR_CRESCENTELBOW] =
-	SkillAction[SK.SR_GATEOFHELL] =
 		makeAttackSkillAction('ATTACK');
+
+// Monk & Evolutions (Champion, Sura) combo and attack slices
+// Triple Attack (Raging Trifecta Blow) - 3 hits
+SkillAction[SK.MO_TRIPLEATTACK] = makeSliceAttackAction('ATTACK', 5, 4);
+
+// Chain Combo (Raging Quadruple Blow) - 4 hits
+SkillAction[SK.MO_CHAINCOMBO] = makeSliceAttackAction('ATTACK', 9, 4);
+
+// Combo Finish (Raging Thrust) - finisher strike
+SkillAction[SK.MO_COMBOFINISH] = makeSliceAttackAction('ATTACK', 13, 2);
+
+// Champion combos
+SkillAction[SK.CH_PALMSTRIKE] = makeSliceAttackAction('ATTACK', 13, 2);
+SkillAction[SK.CH_TIGERFIST] = makeSliceAttackAction('ATTACK', 9, 4);
+SkillAction[SK.CH_CHAINCRUSH] = makeSliceAttackAction('ATTACK', 5, 8);
+
+// Sura combos & strike skills
+SkillAction[SK.SR_DRAGONCOMBO] = makeSliceAttackAction('ATTACK', 5, 4);
+SkillAction[SK.SR_SKYNETBLOW] = makeSliceAttackAction('ATTACK', 0, 5);
+SkillAction[SK.SR_FALLENEMPIRE] = makeSliceAttackAction('ATTACK', 13, 2);
+SkillAction[SK.SR_TIGERCANNON] = makeSliceAttackAction('ATTACK', 9, 4);
+SkillAction[SK.SR_CRESCENTELBOW] = makeSliceAttackAction('ATTACK', 13, 2);
+SkillAction[SK.SR_GATEOFHELL] = makeSliceAttackAction('ATTACK', 13, 2);
+
+// Summoner / Spirit Handler strike slices (extensible for Doram skills)
+if (SK.SH_CHUL_HO_SONIC_CLAW) {
+	SkillAction[SK.SH_CHUL_HO_SONIC_CLAW] = makeSliceAttackAction('ATTACK', 0, 4);
+}
+if (SK.SH_HOGOGONG_STRIKE) {
+	SkillAction[SK.SH_HOGOGONG_STRIKE] = makeSliceAttackAction('ATTACK', 0, 4);
+}
 
 //ATTACK1 - Throwing attack without visible weapon
 SkillAction[SK.KN_SPEARBOOMERANG] =
@@ -341,15 +421,7 @@ SkillAction[SK.MO_INVESTIGATE] = SkillAction[SK.MO_FINGEROFFENSIVE] = function (
 	};
 };
 
-SkillAction[SK.MO_EXTREMITYFIST] = function (entity, tick) {
-	return {
-		action: entity.ACTION.ATTACK,
-		delay: tick + 100,
-		frame: 0,
-		repeat: false,
-		play: true
-	};
-};
+SkillAction[SK.MO_EXTREMITYFIST] = makeSliceAttackAction('ATTACK', 13, 2);
 
 //9hit
 SkillAction[SK.CG_ARROWVULCAN] = function (entity, tick) {

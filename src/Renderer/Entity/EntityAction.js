@@ -95,6 +95,16 @@ function setAction(option) {
 		if (this.objecttype === this.constructor.TYPE_PC) {
 			const attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
 			option.action = [this.ACTION.ATTACK1, this.ACTION.ATTACK2, this.ACTION.ATTACK3][attack];
+
+			if (!option.length) {
+				const slice = DB.getAttackSlice(this._job, this.weapon);
+				if (slice) {
+					if (typeof option.frame === 'undefined' || option.frame === 0) {
+						option.frame = slice.frame;
+					}
+					option.length = slice.length;
+				}
+			}
 		}
 
 		// No action loaded yet

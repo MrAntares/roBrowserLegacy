@@ -1022,17 +1022,17 @@ function calcAnimation(entity, act, type, tick) {
 	}
 
 	// No repeat
-	anim = Math.min((tick / delay) | 0, animCount || animCount - 1); // Avoid an error if animation = 0, search for -1 :(
+	anim = Math.min((tick / delay) | 0, animCount ? animCount - 1 : 0);
 
 	anim %= animCount;
 	anim += animCount * headDir; // get rid of doridori
 	anim += animation.frame; // previous frame
 	anim %= animSize; // avoid overflow
 
-	const lastFrame = animation.frame + animSize - 1;
+	const lastFrame = animation.frame + animCount - 1;
 
-	if (type === 'body' && anim >= lastFrame) {
-		animation.frame = anim = lastFrame;
+	if (type === 'body' && ((tick / delay) | 0) >= animCount - 1) {
+		animation.frame = anim = Math.min(lastFrame, animSize - 1);
 		animation.play = false;
 		if (animation.next) {
 			entity.setAction(animation.next);
