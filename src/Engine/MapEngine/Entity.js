@@ -1432,13 +1432,13 @@ function onEntityUseSkill(pkt) {
 			if (pkt.SKID in SkillActionTable) {
 				const action = SkillActionTable[pkt.SKID];
 				if (action) {
-					srcEntity.setAction(action(srcEntity, Renderer.tick));
+					srcEntity.setAction(action(srcEntity, Renderer.tick, pkt));
 				}
 			} else {
 				if (DB.isDoram(srcEntity.job)) {
-					srcEntity.setAction(SkillActionTable['DEFAULT_DORAM'](srcEntity, Renderer.tick));
+					srcEntity.setAction(SkillActionTable['DEFAULT_DORAM'](srcEntity, Renderer.tick, pkt));
 				} else {
-					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+					srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick, pkt));
 				}
 			}
 		}
@@ -1574,10 +1574,10 @@ function onEntityUseSkillToAttack(pkt) {
 			if (pkt.SKID in SkillActionTable) {
 				const action = SkillActionTable[pkt.SKID];
 				if (action) {
-					srcEntity.setAction(action(srcEntity, Renderer.tick));
+					srcEntity.setAction(action(srcEntity, Renderer.tick, pkt));
 				}
 			} else {
-				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
+				srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick, pkt));
 			}
 
 			//Pet Talk

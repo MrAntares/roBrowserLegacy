@@ -12,38 +12,56 @@ import SK from './SkillConst.js';
 
 const SkillAction = {};
 
-//Default skill action
-SkillAction['DEFAULT'] = function (entity, tick) {
-	return {
-		action: entity.ACTION.SKILL,
-		frame: 0,
-		repeat: false,
-		play: true,
-		next: {
-			action: entity.ACTION.IDLE,
+const makeAttackSkillAction = (actionProp = 'ATTACK') =>
+	function (entity, tick, pkt) {
+		const holdDelay = pkt && pkt.attackMT ? Math.max(pkt.attackMT, 400) : 400;
+		const nextAction =
+			entity && entity.ACTION && entity.ACTION.READYFIGHT !== undefined
+				? entity.ACTION.READYFIGHT
+				: (entity && entity.ACTION && entity.ACTION.IDLE) || 0;
+		return {
+			action: entity.ACTION[actionProp],
 			frame: 0,
-			repeat: true,
+			repeat: false,
 			play: true,
-			next: false
-		}
+			next: {
+				delay: (tick || Date.now()) + holdDelay,
+				action: nextAction,
+				frame: 0,
+				repeat: true,
+				play: true,
+				next: false
+			}
+		};
 	};
-};
 
-SkillAction['DEFAULT_DORAM'] = function (entity, tick) {
-	return {
-		action: entity.ACTION.ATTACK2,
-		frame: 0,
-		repeat: false,
-		play: true,
-		next: {
-			action: entity.ACTION.IDLE,
+const makeGenericSkillAction = (actionProp = 'SKILL', nextActionProp = 'IDLE') =>
+	function (entity, tick, pkt) {
+		const holdDelay = pkt && pkt.attackMT ? Math.max(pkt.attackMT, 400) : 400;
+		const nextAction =
+			entity && entity.ACTION && entity.ACTION[nextActionProp] !== undefined
+				? entity.ACTION[nextActionProp]
+				: (entity && entity.ACTION && entity.ACTION.IDLE) || 0;
+		return {
+			action: entity.ACTION[actionProp],
 			frame: 0,
-			repeat: true,
+			repeat: false,
 			play: true,
-			next: false
-		}
+			next: {
+				delay: (tick || Date.now()) + holdDelay,
+				action: nextAction,
+				frame: 0,
+				repeat: true,
+				play: true,
+				next: false
+			}
+		};
 	};
-};
+
+//Default skill action
+SkillAction['DEFAULT'] = makeGenericSkillAction('SKILL');
+
+SkillAction['DEFAULT_DORAM'] = makeGenericSkillAction('ATTACK2');
 
 //Skill action overrides
 
@@ -145,21 +163,7 @@ SkillAction[SK.SM_BASH] =
 	SkillAction[SK.SR_TIGERCANNON] =
 	SkillAction[SK.SR_CRESCENTELBOW] =
 	SkillAction[SK.SR_GATEOFHELL] =
-		function (entity, tick) {
-			return {
-				action: entity.ACTION.ATTACK,
-				frame: 0,
-				repeat: false,
-				play: true,
-				next: {
-					action: entity.ACTION.IDLE,
-					frame: 0,
-					repeat: true,
-					play: true,
-					next: false
-				}
-			};
-		};
+		makeAttackSkillAction('ATTACK');
 
 //ATTACK1 - Throwing attack without visible weapon
 SkillAction[SK.KN_SPEARBOOMERANG] =
@@ -178,68 +182,28 @@ SkillAction[SK.KN_SPEARBOOMERANG] =
 	SkillAction[SK.PA_SHIELDCHAIN] =
 	SkillAction[SK.NC_AXEBOOMERANG] =
 	SkillAction[SK.GN_SLINGITEM] =
-		function (entity, tick) {
-			return {
-				action: entity.ACTION.ATTACK1,
-				frame: 0,
-				repeat: false,
-				play: true,
-				next: {
-					action: entity.ACTION.IDLE,
-					frame: 0,
-					repeat: true,
-					play: true,
-					next: false
-				}
-			};
-		};
+		makeAttackSkillAction('ATTACK1');
 
 //ATTACK2 - Normal attack without visible weapon
 SkillAction[SK.TF_POISON] =
 	SkillAction[SK.MC_MAMMONITE] =
 	SkillAction[SK.MC_CARTREVOLUTION] =
 	SkillAction[SK.GN_CART_TORNADO] =
-		function (entity, tick) {
-			return {
-				action: entity.ACTION.ATTACK2,
-				frame: 0,
-				repeat: false,
-				play: true,
-				next: {
-					action: entity.ACTION.IDLE,
-					frame: 0,
-					repeat: true,
-					play: true,
-					next: false
-				}
-			};
-		};
+		makeAttackSkillAction('ATTACK2');
 
 // The attack action that shows the weapon, which is per job and per weapon.
 // Resolved in EntityAction.setAction through DB.getWeaponAction, the same way
 // the ordinary attack resolves it.
 SkillAction[SK.AC_DOUBLE] =
-	SkillAction[SK.ASC_BREAKER] =
 	SkillAction[SK.HT_PHANTASMIC] =
 	SkillAction[SK.SN_SHARPSHOOTING] =
 	SkillAction[SK.RA_ARROWSTORM] =
 	SkillAction[SK.RA_AIMEDBOLT] =
 	SkillAction[SK.SC_TRIANGLESHOT] =
-		function (entity, tick) {
-			return {
-				action: entity.ACTION.ATTACK,
-				frame: 0,
-				repeat: false,
-				play: true,
-				next: {
-					action: entity.ACTION.IDLE,
-					frame: 0,
-					repeat: true,
-					play: true,
-					next: false
-				}
-			};
-		};
+		makeAttackSkillAction('ATTACK');
+
+//ATTACK3 - Specific attack motion
+SkillAction[SK.ASC_BREAKER] = makeAttackSkillAction('ATTACK3');
 
 //PICKUP
 SkillAction[SK.HT_LANDMINE] =
@@ -262,21 +226,7 @@ SkillAction[SK.HT_LANDMINE] =
 	SkillAction[SK.RA_VERDURETRAP] =
 	SkillAction[SK.RA_FIRINGTRAP] =
 	SkillAction[SK.RA_ICEBOUNDTRAP] =
-		function (entity, tick) {
-			return {
-				action: entity.ACTION.PICKUP,
-				frame: 0,
-				repeat: false,
-				play: true,
-				next: {
-					action: entity.ACTION.IDLE,
-					frame: 0,
-					repeat: true,
-					play: true,
-					next: false
-				}
-			};
-		};
+		makeGenericSkillAction('PICKUP');
 
 //Stay in PICKUP
 SkillAction[SK.NJ_TATAMIGAESHI] = SkillAction[SK.SR_EARTHSHAKER] = function (entity, tick) {
@@ -290,21 +240,7 @@ SkillAction[SK.NJ_TATAMIGAESHI] = SkillAction[SK.SR_EARTHSHAKER] = function (ent
 };
 
 //ACTION
-SkillAction[SK.SN_SIGHT] = function (entity, tick) {
-	return {
-		action: entity.ACTION.ACTION,
-		frame: 0,
-		repeat: false,
-		play: true,
-		next: {
-			action: entity.ACTION.IDLE,
-			frame: 0,
-			repeat: true,
-			play: true,
-			next: false
-		}
-	};
-};
+SkillAction[SK.SN_SIGHT] = makeGenericSkillAction('ACTION');
 
 //EXTRA
 //DANCE/PLAY
@@ -343,24 +279,11 @@ SkillAction[SK.DC_WINKCHARM] =
 		};
 
 //ENDURE
-SkillAction[SK.SM_ENDURE] = function (entity, tick) {
-	return {
-		action: entity.ACTION.READYFIGHT,
-		frame: 0,
-		repeat: false,
-		play: true,
-		next: {
-			action: entity.ACTION.IDLE,
-			frame: 0,
-			repeat: true,
-			play: true,
-			next: false
-		}
-	};
-};
+SkillAction[SK.SM_ENDURE] = makeGenericSkillAction('READYFIGHT');
 
 //ARROW SHOWER
-SkillAction[SK.AC_SHOWER] = function (entity, tick) {
+SkillAction[SK.AC_SHOWER] = function (entity, tick, pkt) {
+	const holdDelay = pkt && pkt.attackMT ? Math.max(pkt.attackMT, 400) : 400;
 	return {
 		action: entity.ACTION.ATTACK,
 		frame: 0,
@@ -368,6 +291,7 @@ SkillAction[SK.AC_SHOWER] = function (entity, tick) {
 		speed: 50,
 		play: true,
 		next: {
+			delay: (tick || Date.now()) + holdDelay,
 			action: entity.ACTION.READYFIGHT,
 			frame: 0,
 			repeat: true,
