@@ -632,7 +632,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 		const now = Date.now();
 
 		// Determine blur type: 1 (standard), 3 (10f), 4 (once), 5 (10f, attack only)
-		const interval = blurType === 3 || blurType === 5 ? 560 : 80; // 10 frames vs 5 frames
+		const interval = entity.isFastMoving ? 30 : blurType === 3 || blurType === 5 ? 560 : 80; // Fast moves capture at 30ms interval
 		const maxLen =
 			blurType === 4 ? 1 : GraphicsSettings.performanceMode ? Math.floor(trailLength / 2) : trailLength;
 
@@ -640,7 +640,8 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 
 		// Snapshot logic
 		if (blurType === 1 || blurType === 3) {
-			shouldCapture = entity.action === entity.ACTION.WALK && now - trail.lastTick > interval;
+			shouldCapture =
+				(entity.action === entity.ACTION.WALK || entity.isFastMoving) && now - trail.lastTick > interval;
 		} else if (blurType === 4) {
 			shouldCapture = trail.snapshots.length === 0;
 		} else if (blurType === 5) {
@@ -651,7 +652,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 				entity.ACTION.ATTACK3,
 				entity.ACTION.SKILL
 			].includes(entity.action);
-			shouldCapture = isCombat && now - trail.lastTick > interval;
+			shouldCapture = (isCombat || entity.isFastMoving) && now - trail.lastTick > interval;
 		}
 
 		if (shouldCapture) {
@@ -849,6 +850,7 @@ const renderElement = (function renderElementClosure() {
 				isOVERTHRUST ||
 				isEXPLOSIONSPIRITS ||
 				isBERSERK ||
+				!!entity._fastMoveTrail ||
 				!!entity._enableTrail,
 			blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
 		});

@@ -48,7 +48,8 @@ function onPlayerMove(pkt) {
 		pkt.MoveData[2],
 		pkt.MoveData[3],
 		undefined,
-		pkt.moveStartTime
+		pkt.moveStartTime,
+		pkt.moveEndTime || pkt.moveServerEndTime
 	);
 }
 

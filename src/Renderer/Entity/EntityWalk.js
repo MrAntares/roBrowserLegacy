@@ -119,6 +119,7 @@ function WalkStructure() {
 	this.prevTick = 0;
 	this.dist = 0;
 	this.path = new Int16Array(PathFinding.MAX_WALKPATH * 2);
+	this.segmentDurations = new Float32Array(PathFinding.MAX_WALKPATH);
 	this.pos = new Float32Array(3);
 	this.lastPos = new Float32Array(3);
 	this.onEnd = null;
@@ -211,6 +212,14 @@ function walkToNonWalkableGround(
 	this.walk.total = total * 2;
 	if (total > 0) {
 		this.walk.pos.set(this.position);
+		const numSegments = total - 1;
+		for (let i = 0; i < numSegments; i++) {
+			const pIdx = (i + 1) * 2;
+			const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
+			const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
+			const segDist = Math.hypot(segDx, segDy);
+			this.walk.segmentDurations[i] = segDist * this.walk.speed;
+		}
 		const nowTick = Date.now();
 		const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
 		const isPlayerLike =
@@ -324,11 +333,29 @@ function walkToNonWalkableGround(
  * @param {number} to_x
  * @param {number} to_y
  * @param {number} range optional
+ * @param {number} [moveStartTime]
+ * @param {number} [moveEndTime]
+ * @param {boolean} [isFastMove=false]
+ * @param {number} [fastSpeed]
  */
-function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime) {
+function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, isFastMove, fastSpeed) {
 	// Same position
 	if (from_x === to_x && from_y === to_y) {
 		return;
+	}
+
+	const curX = this.position[0];
+	const curY = this.position[1];
+	const hasCurrentPos = isFinite(curX) && isFinite(curY) && (curX !== 0 || curY !== 0);
+	const curCellX = Math.round(curX);
+	const curCellY = Math.round(curY);
+	const distFromStart = hasCurrentPos ? Math.hypot(curCellX - from_x, curCellY - from_y) : Infinity;
+
+	// If entity is completely uninitialized or too far (> 16 cells, e.g. warp/teleport), snap to server start
+	if (distFromStart > 16 || !hasCurrentPos) {
+		this.position[0] = from_x;
+		this.position[1] = from_y;
+		this.position[2] = Altitude.getCellHeight(from_x, from_y);
 	}
 
 	const hadRoute = this.walk && this.walk.total > 0;
@@ -336,30 +363,118 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime) {
 
 	this.resetRoute(hadRoute);
 
+	if (isFastMove) {
+		if (!this.isFastMoving) {
+			this._normalSpeed = this.walk.speed;
+		}
+		this.isFastMoving = true;
+		this._fastMoveTrail = true;
+		if (fastSpeed) {
+			this.walk.speed = fastSpeed;
+		}
+	}
+
 	const path = this.walk.path;
-	const total = PathFinding.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
+	let total = 0;
+	let usedFallback = false;
+
+	// Ground Truth / Canonical C++ behavior (GameModePacket.cpp / Pc.cpp / GameActor.cpp):
+	// When moving, the official client first attempts to find the path starting from the actor's
+	// current coordinates (curCellX, curCellY) to destination (to_x, to_y).
+	if (distFromStart <= 16 && hasCurrentPos) {
+		total = PathFinding.search(curCellX, curCellY, to_x | 0, to_y | 0, range || 0, path);
+	}
+
+	// Fallback to server start point if path from current pos was not found
+	if (!total) {
+		total = PathFinding.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
+		if (total) {
+			usedFallback = true;
+		}
+	}
+
+	if (usedFallback) {
+		this.position[0] = from_x;
+		this.position[1] = from_y;
+		this.position[2] = Altitude.getCellHeight(from_x, from_y);
+	}
 
 	this.walk.index = 1 * 2; // skip first index
 	this.walk.total = total * 2;
 
 	if (total) {
 		this.walk.pos.set(this.position);
+		if (!hadRoute || usedFallback) {
+			this.walk.dist = 0;
+		}
+		this.walk.lastPos.set(this.position);
+
+		const numSegments = total - 1;
+		let clientDuration = 0;
+
+		// First segment: based on Euclidean distance from actual entity float position to first waypoint
+		// (Matching C++ CPathFinder::GetSecondNodeArrivalTime).
+		const firstDx = path[2] - this.position[0];
+		const firstDy = path[3] - this.position[1];
+		const firstDist = Math.hypot(firstDx, firstDy);
+		const firstSegDuration = firstDist * this.walk.speed;
+		this.walk.segmentDurations[0] = firstSegDuration;
+		clientDuration += firstSegDuration;
+
+		// Subsequent segments: standard grid distance (diagonal = 1.414 * speed)
+		for (let i = 1; i < numSegments; i++) {
+			const pIdx = (i + 1) * 2;
+			const segDx = path[pIdx] - path[pIdx - 2];
+			const segDy = path[pIdx + 1] - path[pIdx - 1];
+			const segDur = segDx && segDy ? this.walk.speed * DIAGONAL_FACTOR : this.walk.speed;
+			this.walk.segmentDurations[i] = segDur;
+			clientDuration += segDur;
+		}
+
+		// Estimate expected server duration
+		let serverDuration = 0;
+		if (!isFastMove) {
+			if (moveEndTime && moveStartTime && moveEndTime > moveStartTime) {
+				serverDuration = moveEndTime - moveStartTime;
+			} else {
+				const sDx = to_x - from_x;
+				const sDy = to_y - from_y;
+				const straight = Math.abs(Math.abs(sDx) - Math.abs(sDy));
+				const diag = Math.min(Math.abs(sDx), Math.abs(sDy));
+				serverDuration = straight * this.walk.speed + diag * this.walk.speed * DIAGONAL_FACTOR;
+			}
+		}
+
 		const nowTick = Date.now();
-		const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
 		const isPlayerLike =
 			this.objecttype === this.constructor.TYPE_PC ||
 			this.objecttype === this.constructor.TYPE_DISGUISED ||
 			this.objecttype === this.constructor.TYPE_PET ||
 			this.objecttype === this.constructor.TYPE_HOM ||
 			this.objecttype === this.constructor.TYPE_MERC;
-		const maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
-		const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+		const maxFastForward = isFastMove
+			? 0
+			: isPlayerLike
+				? clientDuration
+				: Math.min(clientDuration, this.walk.speed);
+		const startTick = isFastMove
+			? nowTick
+			: computeWalkStartTick(nowTick, moveStartTime, clientDuration, maxFastForward);
 		this.walk.tick = this.walk.prevTick = startTick;
 
-		if (!hadRoute) {
-			this.walk.dist = 0;
+		// Ground Truth / Canonical C++ FixPathTime (PathFinder.cpp line 119):
+		// Proportionally adjust segment durations so that the client arrives at destination
+		// at the exact timestamp prescribed by the server, creating smooth rubberbanding without jumping.
+		// Fast movement / Body Relocation skips FixPathTime entirely.
+		if (!isFastMove && numSegments > 0 && serverDuration > 0) {
+			let sub = serverDuration - clientDuration;
+			// Clamp sub to ±2500ms to avoid speed extremes during large desyncs
+			sub = Math.max(-2500, Math.min(2500, sub));
+			const subDiv = sub / numSegments;
+			for (let i = 0; i < numSegments; i++) {
+				this.walk.segmentDurations[i] = Math.max(10, this.walk.segmentDurations[i] + subDiv);
+			}
 		}
-		this.walk.lastPos.set(this.position);
 
 		// Initialize facing for the first segment (continuous heading handled in walkProcess).
 		if (this.walk.total >= 2) {
@@ -371,7 +486,7 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime) {
 		this.headDir = 0;
 
 		// Only set action if not already walking
-		if (!wasWalkingAction) {
+		if (!wasWalkingAction && !isFastMove) {
 			this.setAction({
 				action: this.ACTION.WALK,
 				frame: 0,
@@ -380,6 +495,91 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime) {
 			});
 		}
 	}
+}
+
+/**
+ * Fast move / forced relocation to a destination cell (e.g. MO_BODYRELOCATION, knockback, slide).
+ * Bypasses regular rubberbanding, latency compensation, and walk animation cycles.
+ * Uses direct linear interpolation between current position and destination cell (no curved walking detours).
+ *
+ * @param {number} to_x Destination X cell
+ * @param {number} to_y Destination Y cell
+ * @param {number} [speed=15] Speed in ms per cell
+ * @param {function} [onEnd] Callback when relocation finishes
+ * @param {boolean} [keepDirection=false] Whether to preserve current facing direction (e.g. knockback/backslide)
+ * @returns {boolean} True if fast movement started, false if already at destination (no-op)
+ */
+function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
+	const curX = this.position[0];
+	const curY = this.position[1];
+	const hasCurrentPos = isFinite(curX) && isFinite(curY) && (curX !== 0 || curY !== 0);
+	const curCellX = hasCurrentPos ? Math.round(curX) : to_x | 0;
+	const curCellY = hasCurrentPos ? Math.round(curY) : to_y | 0;
+
+	if (curCellX === (to_x | 0) && curCellY === (to_y | 0)) {
+		this.resetRoute();
+		if (this.action !== this.ACTION.DIE && (!this.animation.play || this.action === this.ACTION.WALK)) {
+			this.setAction({
+				action: this.ACTION.IDLE,
+				frame: 0,
+				play: true,
+				repeat: true
+			});
+		}
+		if (onEnd) {
+			onEnd();
+		}
+		return false;
+	}
+
+	this.resetRoute();
+
+	if (!this.isFastMoving) {
+		this._normalSpeed = this.walk.speed;
+	}
+	this.isFastMoving = true;
+	this._preserveDirection = !!keepDirection;
+	this.walk.speed = speed || 15;
+
+	// If character was currently walking, transition out of WALK to avoid leg cycling
+	if (this.action === this.ACTION.WALK) {
+		this.setAction({
+			action: this.ACTION.IDLE
+		});
+	}
+
+	// Direct linear interpolation (straight line path, avoiding curved A* walking detours)
+	const path = this.walk.path;
+	path[0] = curCellX;
+	path[1] = curCellY;
+	path[2] = to_x | 0;
+	path[3] = to_y | 0;
+
+	const total = 2;
+	this.walk.index = 1 * 2; // skip first index (curCellX, curCellY), target is index 2
+	this.walk.total = total * 2; // 4 coordinates
+	this.walk.pos.set(this.position);
+	this.walk.lastPos.set(this.position);
+	this.walk.dist = 0;
+
+	const firstDx = path[2] - this.position[0];
+	const firstDy = path[3] - this.position[1];
+	this.walk.segmentDurations[0] = Math.max(1, Math.hypot(firstDx, firstDy) * this.walk.speed);
+
+	const nowTick = Date.now();
+	this.walk.tick = this.walk.prevTick = nowTick;
+
+	if (!this._preserveDirection) {
+		const initDir = offsetToFloatDir(firstDx, firstDy);
+		this.direction = quantizeDir(initDir);
+		this.headDir = 0;
+	}
+
+	if (onEnd) {
+		this.walk.onEnd = onEnd;
+	}
+
+	return true;
 }
 
 /**
@@ -401,6 +601,7 @@ function walkProcess() {
 
 	if (
 		total > 0 &&
+		!this.isFastMoving &&
 		this.action !== this.ACTION.WALK &&
 		this.objecttype !== this.constructor.TYPE_FALCON &&
 		this.objecttype !== this.constructor.TYPE_WUG
@@ -430,6 +631,7 @@ function walkProcess() {
 
 	if (
 		this.action === this.ACTION.WALK ||
+		this.isFastMoving ||
 		this.objecttype === this.constructor.TYPE_FALCON ||
 		this.objecttype === this.constructor.TYPE_WUG
 	) {
@@ -441,7 +643,7 @@ function walkProcess() {
 			return duration;
 		};
 
-		const finishWalk = function finishWalk() {
+		const finishWalk = () => {
 			const cellHeight =
 				this.objecttype == this.constructor.TYPE_FALCON
 					? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5
@@ -451,6 +653,16 @@ function walkProcess() {
 			pos[1] = path[total - 1];
 			pos[2] = cellHeight;
 			walk.lastPos.set(pos);
+
+			if (this.isFastMoving) {
+				this.isFastMoving = false;
+				this._fastMoveTrail = false;
+				this._preserveDirection = false;
+				if (typeof this._normalSpeed === 'number') {
+					this.walk.speed = this._normalSpeed;
+					delete this._normalSpeed;
+				}
+			}
 
 			if (this.objecttype == this.constructor.TYPE_WUG && this.isAttacking) {
 				this.setAction({
@@ -467,7 +679,7 @@ function walkProcess() {
 						next: false
 					}
 				});
-			} else {
+			} else if (this.action !== this.ACTION.DIE) {
 				this.setAction({
 					action: this.ACTION.IDLE,
 					frame: 0,
@@ -486,7 +698,7 @@ function walkProcess() {
 
 			this.resetRoute();
 			this.isAttacking = false;
-		}.bind(this);
+		};
 
 		if (index >= total) {
 			finishWalk();
@@ -499,7 +711,8 @@ function walkProcess() {
 		let nextY = path[index + 1];
 		let dx = nextX - startX;
 		let dy = nextY - startY;
-		let speed = getSegmentDuration(dx, dy, walk.speed);
+		let segIdx = (index - 2) >> 1;
+		let speed = (walk.segmentDurations && walk.segmentDurations[segIdx]) || getSegmentDuration(dx, dy, walk.speed);
 		let segmentStart = walk.tick || TICK;
 		let segmentEnd = segmentStart + speed;
 		let traveledDist = 0;
@@ -509,6 +722,7 @@ function walkProcess() {
 			walk.prevTick &&
 			walk.prevTick !== TICK &&
 			walk.prevTick > segmentStart &&
+			!this.isFastMoving &&
 			this.action !== this.ACTION.WALK &&
 			this.objecttype !== this.constructor.TYPE_FALCON
 		) {
@@ -533,7 +747,8 @@ function walkProcess() {
 			nextY = path[index + 1];
 			dx = nextX - startX;
 			dy = nextY - startY;
-			speed = getSegmentDuration(dx, dy, walk.speed);
+			segIdx = (index - 2) >> 1;
+			speed = (walk.segmentDurations && walk.segmentDurations[segIdx]) || getSegmentDuration(dx, dy, walk.speed);
 			segmentStart = segmentEnd;
 			segmentEnd = segmentStart + speed;
 		}
@@ -561,7 +776,7 @@ function walkProcess() {
 		// Facing update:
 		// First segment uses continuous heading from current interpolated position to next tile.
 		// Later segments snap to discrete 8-way direction based on the segment offset.
-		if (index < total) {
+		if (!this._preserveDirection && index < total) {
 			if (index === 2) {
 				const remDx = nextX - newX;
 				const remDy = nextY - newY;
@@ -682,12 +897,24 @@ function entitiesWalkProcess() {
 }
 
 function resetRoute(keepDistance) {
+	if (this.isFastMoving) {
+		if (typeof this._normalSpeed === 'number') {
+			this.walk.speed = this._normalSpeed;
+			delete this._normalSpeed;
+		}
+	}
+	this.isFastMoving = false;
+	this._fastMoveTrail = false;
+	this._preserveDirection = false;
 	this.walk.tick = 0;
 	this.walk.prevTick = 0;
 	if (!keepDistance) {
 		this.walk.dist = 0;
 	}
 	this.walk.path = new Int16Array(PathFinding.MAX_WALKPATH * 2);
+	if (this.walk.segmentDurations) {
+		this.walk.segmentDurations.fill(0);
+	}
 	this.walk.lastPos[0] = 0;
 	this.walk.lastPos[1] = 0;
 	this.walk.lastPos[2] = 0;
@@ -752,8 +979,13 @@ function distance(entity1, entity2) {
  */
 export default function Init() {
 	this.onWalkEnd = function onWalkEnd() {};
+	this._preserveDirection = false;
+	this.isFastMoving = false;
+	this._fastMoveTrail = false;
+	this._enableTrail = false;
 	this.walk = new WalkStructure();
 	this.walkTo = walkTo;
+	this.fastMoveTo = fastMoveTo;
 	this.walkToNonWalkableGround = walkToNonWalkableGround;
 	this.walkProcess = walkProcess;
 	this.entitiesWalkProcess = entitiesWalkProcess;

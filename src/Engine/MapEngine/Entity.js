@@ -96,7 +96,7 @@ const SkillBlueCombo = [
 const C_MULTIHIT_DELAY = 200; // PLUSATTACKED_MOTIONTIME
 const C_DEATH_SYNC_OFFSET = 200; // extra ms after the hit before the death animation
 const AVG_ATTACK_SPEED = 432;
-//const AVG_ATTACKED_SPEED = 288; // UNUSED
+const AVG_ATTACKED_SPEED = 288;
 const MAX_ATTACKMT = AVG_ATTACK_SPEED * 2;
 
 /**
@@ -402,10 +402,15 @@ function onEntityVanish(pkt) {
 function onEntityMove(pkt) {
 	const entity = EntityManager.get(pkt.GID);
 	if (entity) {
-		//entity.position[0] = pkt.MoveData[0];
-		//entity.position[1] = pkt.MoveData[1];
-		//entity.position[2] = Altitude.getCellHeight(  pkt.MoveData[0],  pkt.MoveData[1] );
-		entity.walkTo(pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3], undefined, pkt.moveStartTime);
+		entity.walkTo(
+			pkt.MoveData[0],
+			pkt.MoveData[1],
+			pkt.MoveData[2],
+			pkt.MoveData[3],
+			undefined,
+			pkt.moveStartTime,
+			pkt.moveServerEndTime || pkt.moveEndTime
+		);
 	}
 }
 
@@ -441,6 +446,7 @@ function onEntityStopMove(pkt) {
 function onEntityJump(pkt) {
 	const entity = EntityManager.get(pkt.AID);
 	if (entity) {
+		entity.resetRoute();
 		entity.position[0] = pkt.xPos;
 		entity.position[1] = pkt.yPos;
 		entity.position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
@@ -448,23 +454,63 @@ function onEntityJump(pkt) {
 }
 
 /**
- * Body relocation packet support
+ * Fast relocation packet support (e.g. Body Relocation, Fallen Angel)
  *
  * @param {object} pkt - PACKET.ZC.FASTMOVE
  */
 function onEntityFastMove(pkt) {
 	const entity = EntityManager.get(pkt.AID);
-	if (entity) {
-		entity.walkTo(entity.position[0], entity.position[1], pkt.targetXpos, pkt.targetYpos);
-
-		if (entity.walk.path.length) {
-			const speed = entity.walk.speed;
-			entity.walk.speed = 10;
-			entity.walk.onEnd = function onWalkEnd() {
-				entity.walk.speed = speed;
-			};
+	if (entity && entity.fastMoveTo(pkt.targetXpos, pkt.targetYpos, 15, null, false)) {
+		if (entity.objecttype === entity.constructor.TYPE_PC) {
+			if (DB.isMonk(entity.job)) {
+				entity._fastMoveTrail = true;
+				entity.setAction({
+					action: entity.ACTION.ATTACK,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			} else if (DB.isGunslinger(entity.job)) {
+				entity._fastMoveTrail = true;
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			}
 		}
 	}
+}
+
+/**
+ * Perform Entity Action with forced position relocation (knockback / slide)
+ *
+ * @param {object} pkt - PACKET.ZC.NOTIFY_ACT_POSITION
+ */
+function onEntityActionPosition(pkt) {
+	if (typeof pkt.xPos === 'number' && typeof pkt.yPos === 'number' && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
+		const targetEntity = EntityManager.get(pkt.targetGID);
+		if (targetEntity) {
+			targetEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
+		}
+	}
+
+	const srcEntity = EntityManager.get(pkt.GID);
+	const attackSpeed =
+		srcEntity && typeof srcEntity.attack_speed === 'number' && srcEntity.attack_speed > 0
+			? srcEntity.attack_speed
+			: AVG_ATTACK_SPEED;
+
+	const normalizedPkt = {
+		...pkt,
+		attackMT: typeof pkt.attackMT === 'number' && pkt.attackMT > 0 ? pkt.attackMT : attackSpeed,
+		attackedMT: typeof pkt.attackedMT === 'number' && pkt.attackedMT > 0 ? pkt.attackedMT : AVG_ATTACKED_SPEED,
+		leftDamage: typeof pkt.leftDamage === 'number' ? pkt.leftDamage : 0,
+		count: typeof pkt.count === 'number' && pkt.count > 0 ? pkt.count : 1
+	};
+
+	onEntityAction(normalizedPkt);
 }
 
 /**
@@ -556,11 +602,18 @@ function onEntityAction(pkt) {
 		case 10: // critital [DMG_CRITICAL]
 		case 11: // lucky
 		case 13: {
-			// multi-hit critical
-			if (pkt.attackMT > MAX_ATTACKMT) {
-				pkt.attackMT = MAX_ATTACKMT;
-			}
-			srcEntity.attack_speed = pkt.attackMT;
+			const attackMT =
+				typeof pkt.attackMT === 'number' && pkt.attackMT > 0
+					? pkt.attackMT
+					: (srcEntity && srcEntity.attack_speed) || AVG_ATTACK_SPEED;
+			const baseAttackMT = Math.min(attackMT, MAX_ATTACKMT);
+			pkt.attackMT = baseAttackMT;
+			pkt.attackedMT =
+				typeof pkt.attackedMT === 'number' && pkt.attackedMT > 0 ? pkt.attackedMT : AVG_ATTACKED_SPEED;
+			pkt.leftDamage = typeof pkt.leftDamage === 'number' ? pkt.leftDamage : 0;
+			pkt.count = typeof pkt.count === 'number' && pkt.count > 0 ? pkt.count : 1;
+
+			srcEntity.attack_speed = baseAttackMT;
 
 			let animSpeed = 0;
 			let delayTime = pkt.attackMT;
@@ -776,8 +829,6 @@ function onEntityAction(pkt) {
 				}
 			}
 
-			srcEntity.attack_speed = pkt.attackMT;
-
 			if (pkt.leftDamage) {
 				// KAGEROU, OBORO does not use ATTCK3 for left
 				const useATTACK =
@@ -819,7 +870,9 @@ function onEntityAction(pkt) {
 
 			// Talk sometime
 			if (
+				Session.Entity &&
 				srcEntity.GID === Session.Entity.GID &&
+				Session.pet &&
 				Session.pet.friendly > 900 &&
 				(Session.pet.lastTalk || 0) + 10000 < Date.now()
 			) {
@@ -879,14 +932,14 @@ function onEntityAction(pkt) {
 	}
 
 	if (pkt?.damage > 0) {
-		if (srcEntity.GID === Session.Entity.GID) {
+		if (Session.Entity && srcEntity.GID === Session.Entity.GID) {
 			// I deal damage
 			ChatBox.addText(
 				DB.getMessage(1607).replace('%s', dstEntity.display.name).replace('%d', pkt.damage),
 				ChatBox.TYPE.INFO,
 				ChatBox.FILTER.BATTLE
 			);
-		} else if (dstEntity.GID === Session.Entity.GID) {
+		} else if (Session.Entity && dstEntity.GID === Session.Entity.GID) {
 			// I receive damage
 			ChatBox.addText(
 				DB.getMessage(1605).replace('%s', srcEntity.display.name).replace('%d', pkt.damage),
@@ -923,7 +976,7 @@ function onEntityAction(pkt) {
 				ChatBox.TYPE.INFO,
 				ChatBox.FILTER.BATTLE
 			);
-		} else if (PartyFriends.isGroupMember(srcEntity.display.name)) {
+		} else if (PartyFriends.isGroupMember(srcEntity.display?.name)) {
 			// Party member deals damage
 			ChatBox.addText(
 				DB.getMessage(1608)
@@ -933,7 +986,7 @@ function onEntityAction(pkt) {
 				ChatBox.TYPE.INFO,
 				ChatBox.FILTER.PARTY_BATTLE
 			);
-		} else if (PartyFriends.isGroupMember(dstEntity.display.name)) {
+		} else if (PartyFriends.isGroupMember(dstEntity.display?.name)) {
 			// Party member receives damage
 			ChatBox.addText(
 				DB.getMessage(1606)
@@ -1627,6 +1680,13 @@ function onEntityUseSkillToAttack(pkt) {
 			for (let i = 0; i < pkt.count; ++i) {
 				EffectManager.spamSkillBeforeHit(pkt.SKID, pkt.targetID, Renderer.tick + C_MULTIHIT_DELAY * i, pkt.AID);
 				addDamage(i, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY * i);
+			}
+		}
+
+		if (typeof pkt.xPos === 'number' && typeof pkt.yPos === 'number' && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
+			const pushedEntity = dstEntity || srcEntity;
+			if (pushedEntity) {
+				pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
 			}
 		}
 	}
@@ -2842,6 +2902,7 @@ export default function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT, onEntityAction);
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT2, onEntityAction);
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT3, onEntityAction);
+	Network.hookPacket(PACKET.ZC.NOTIFY_ACT_POSITION, onEntityActionPosition);
 	Network.hookPacket(PACKET.ZC.NOTIFY_CHAT, onEntityTalk);
 	Network.hookPacket(PACKET.ZC.SHOWSCRIPT, onEntityTalk);
 	Network.hookPacket(PACKET.ZC.NPC_CHAT, onEntityTalkColor);
@@ -2897,3 +2958,5 @@ export default function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.ACK_CHANGE_TITLE, onTitleChangeAck);
 	Network.hookPacket(PACKET.ZC.HAT_EFFECT, onHatEffects);
 }
+
+export { onEntityActionPosition, onEntityAction };
