@@ -80,55 +80,60 @@ function setAction(option) {
 	const anim = this.animation;
 
 	if (option.delay) {
-		anim.delay = option.delay + 0;
+		const targetDelay = option.delay < 1000000000 ? Date.now() + option.delay : option.delay;
+		if (targetDelay > Date.now()) {
+			anim.delay = targetDelay;
+			option.delay = 0;
+			anim.save = option;
+			anim.next = false;
+			return;
+		}
 		option.delay = 0;
-		anim.save = option;
-	} else {
-		// Know attack frame based on weapon type
-		if (option.action === this.ACTION.ATTACK) {
-			if (this.objecttype === this.constructor.TYPE_PC) {
-				const attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
-				option.action = [this.ACTION.ATTACK1, this.ACTION.ATTACK2, this.ACTION.ATTACK3][attack];
-			}
-
-			// No action loaded yet
-			if (option.action === -2) {
-				option.action = this.ACTION.ATTACK1;
-			}
-		}
-
-		// FIX: Detect the walk animation change and reset pathfinding route
-		const wasWalking = this.action === this.ACTION.WALK;
-		const newAction =
-			option.action === -1 || typeof option.action === 'undefined' ? this.ACTION.IDLE : option.action;
-		const willWalk = newAction === this.ACTION.WALK;
-
-		if (
-			wasWalking &&
-			!willWalk &&
-			!this.isFastMoving &&
-			this.walk &&
-			this.walk.total > 0 &&
-			this.objecttype !== this.constructor.TYPE_FALCON &&
-			this.objecttype !== this.constructor.TYPE_WUG
-		) {
-			this.resetRoute();
-		}
-
-		this.action = newAction;
-		anim.tick = Date.now() + 0;
-		anim.delay = 0;
-		anim.frame = option.frame || 0;
-		anim.speed = option.speed || false;
-		anim.length = option.length || false;
-		anim.repeat = option.repeat || false;
-		anim.play = typeof option.play !== 'undefined' ? option.play : true;
-		anim.next = option.next || false;
-		anim.save = false;
-
-		// Reset sounds
-		this.sound.free();
 	}
+	// Know attack frame based on weapon type
+	if (option.action === this.ACTION.ATTACK) {
+		if (this.objecttype === this.constructor.TYPE_PC) {
+			const attack = DB.getWeaponAction(this.weapon, this._job, this._sex);
+			option.action = [this.ACTION.ATTACK1, this.ACTION.ATTACK2, this.ACTION.ATTACK3][attack];
+		}
+
+		// No action loaded yet
+		if (option.action === -2) {
+			option.action = this.ACTION.ATTACK1;
+		}
+	}
+
+	// FIX: Detect the walk animation change and reset pathfinding route
+	const wasWalking = this.action === this.ACTION.WALK;
+	const newAction =
+		option.action === -1 || typeof option.action === 'undefined' ? this.ACTION.IDLE : option.action;
+	const willWalk = newAction === this.ACTION.WALK;
+
+	if (
+		wasWalking &&
+		!willWalk &&
+		!this.isFastMoving &&
+		this.walk &&
+		this.walk.total > 0 &&
+		this.objecttype !== this.constructor.TYPE_FALCON &&
+		this.objecttype !== this.constructor.TYPE_WUG
+	) {
+		this.resetRoute();
+	}
+
+	this.action = newAction;
+	anim.tick = Date.now() + 0;
+	anim.delay = 0;
+	anim.frame = option.frame || 0;
+	anim.speed = option.speed || false;
+	anim.length = option.length || false;
+	anim.repeat = option.repeat || false;
+	anim.play = typeof option.play !== 'undefined' ? option.play : true;
+	anim.next = option.next || false;
+	anim.save = false;
+
+	// Reset sounds
+	this.sound.free();
 }
 
 /**
