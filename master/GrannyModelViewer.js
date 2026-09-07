@@ -213281,7 +213281,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.MO_CALLSPIRITS] = {};
 	SkillEffect[SkillConst_default.MO_ABSORBSPIRITS] = { successEffectIdOnCaster: 253 };
 	SkillEffect[SkillConst_default.MO_TRIPLEATTACK] = { effectId: 329 };
-	SkillEffect[SkillConst_default.MO_BODYRELOCATION] = {};
+	SkillEffect[SkillConst_default.MO_BODYRELOCATION] = { effectId: 166 };
 	SkillEffect[SkillConst_default.MO_INVESTIGATE] = { effectId: 267 };
 	SkillEffect[SkillConst_default.MO_FINGEROFFENSIVE] = {
 		effectId: 265,
@@ -299892,7 +299892,7 @@ function setAction(option) {
 		const wasWalking = this.action === this.ACTION.WALK;
 		const newAction = option.action === -1 || typeof option.action === "undefined" ? this.ACTION.IDLE : option.action;
 		const willWalk = newAction === this.ACTION.WALK;
-		if (wasWalking && !willWalk && this.walk && this.walk.total > 0 && this.objecttype !== this.constructor.TYPE_FALCON && this.objecttype !== this.constructor.TYPE_WUG) this.resetRoute();
+		if (wasWalking && !willWalk && !this.isFastMoving && this.walk && this.walk.total > 0 && this.objecttype !== this.constructor.TYPE_FALCON && this.objecttype !== this.constructor.TYPE_WUG) this.resetRoute();
 		this.action = newAction;
 		anim.tick = Date.now() + 0;
 		anim.delay = 0;
@@ -301954,6 +301954,7 @@ function WalkStructure() {
 	this.prevTick = 0;
 	this.dist = 0;
 	this.path = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
+	this.segmentDurations = new Float32Array(PathFinding_default.MAX_WALKPATH);
 	this.pos = /* @__PURE__ */ new Float32Array(3);
 	this.lastPos = /* @__PURE__ */ new Float32Array(3);
 	this.onEnd = null;
@@ -302005,6 +302006,14 @@ function walkToNonWalkableGround(from_x, from_y, to_x, to_y, range, isOverShoot 
 	this.walk.total = total * 2;
 	if (total > 0) {
 		this.walk.pos.set(this.position);
+		const numSegments = total - 1;
+		for (let i = 0; i < numSegments; i++) {
+			const pIdx = (i + 1) * 2;
+			const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
+			const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
+			const segDist = Math.hypot(segDx, segDy);
+			this.walk.segmentDurations[i] = segDist * this.walk.speed;
+		}
 		const nowTick = Date.now();
 		const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
 		const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, this.objecttype === this.constructor.TYPE_PC || this.objecttype === this.constructor.TYPE_DISGUISED || this.objecttype === this.constructor.TYPE_PET || this.objecttype === this.constructor.TYPE_HOM || this.objecttype === this.constructor.TYPE_MERC ? pathDuration : Math.min(pathDuration, this.walk.speed));
@@ -302078,24 +302087,89 @@ function walkToNonWalkableGround(from_x, from_y, to_x, to_y, range, isOverShoot 
 * @param {number} to_x
 * @param {number} to_y
 * @param {number} range optional
+* @param {number} [moveStartTime]
+* @param {number} [moveEndTime]
+* @param {boolean} [isFastMove=false]
+* @param {number} [fastSpeed]
 */
-function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime) {
+function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, isFastMove, fastSpeed) {
 	if (from_x === to_x && from_y === to_y) return;
+	const curX = this.position[0];
+	const curY = this.position[1];
+	const hasCurrentPos = isFinite(curX) && isFinite(curY) && (curX !== 0 || curY !== 0);
+	const curCellX = Math.round(curX);
+	const curCellY = Math.round(curY);
+	const distFromStart = hasCurrentPos ? Math.hypot(curCellX - from_x, curCellY - from_y) : Infinity;
+	if (distFromStart > 16 || !hasCurrentPos) {
+		this.position[0] = from_x;
+		this.position[1] = from_y;
+		this.position[2] = Altitude.getCellHeight(from_x, from_y);
+	}
 	const hadRoute = this.walk && this.walk.total > 0;
 	const wasWalkingAction = this.action === this.ACTION.WALK;
 	this.resetRoute(hadRoute);
+	if (isFastMove) {
+		if (!this.isFastMoving) this._normalSpeed = this.walk.speed;
+		this.isFastMoving = true;
+		this._fastMoveTrail = true;
+		if (fastSpeed) this.walk.speed = fastSpeed;
+	}
 	const path = this.walk.path;
-	const total = PathFinding_default.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
+	let total = 0;
+	let usedFallback = false;
+	if (distFromStart <= 16 && hasCurrentPos) total = PathFinding_default.search(curCellX, curCellY, to_x | 0, to_y | 0, range || 0, path);
+	if (!total) {
+		total = PathFinding_default.search(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path);
+		if (total) usedFallback = true;
+	}
+	if (usedFallback) {
+		this.position[0] = from_x;
+		this.position[1] = from_y;
+		this.position[2] = Altitude.getCellHeight(from_x, from_y);
+	}
 	this.walk.index = 2;
 	this.walk.total = total * 2;
 	if (total) {
 		this.walk.pos.set(this.position);
-		const nowTick = Date.now();
-		const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed);
-		const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, this.objecttype === this.constructor.TYPE_PC || this.objecttype === this.constructor.TYPE_DISGUISED || this.objecttype === this.constructor.TYPE_PET || this.objecttype === this.constructor.TYPE_HOM || this.objecttype === this.constructor.TYPE_MERC ? pathDuration : Math.min(pathDuration, this.walk.speed));
-		this.walk.tick = this.walk.prevTick = startTick;
-		if (!hadRoute) this.walk.dist = 0;
+		if (!hadRoute || usedFallback) this.walk.dist = 0;
 		this.walk.lastPos.set(this.position);
+		const numSegments = total - 1;
+		let clientDuration = 0;
+		const firstDx = path[2] - this.position[0];
+		const firstDy = path[3] - this.position[1];
+		const firstSegDuration = Math.hypot(firstDx, firstDy) * this.walk.speed;
+		this.walk.segmentDurations[0] = firstSegDuration;
+		clientDuration += firstSegDuration;
+		for (let i = 1; i < numSegments; i++) {
+			const pIdx = (i + 1) * 2;
+			const segDx = path[pIdx] - path[pIdx - 2];
+			const segDy = path[pIdx + 1] - path[pIdx - 1];
+			const segDur = segDx && segDy ? this.walk.speed * DIAGONAL_FACTOR : this.walk.speed;
+			this.walk.segmentDurations[i] = segDur;
+			clientDuration += segDur;
+		}
+		let serverDuration = 0;
+		if (!isFastMove) {
+			if (moveEndTime && moveStartTime && moveEndTime > moveStartTime) serverDuration = moveEndTime - moveStartTime;
+			else {
+				const sDx = to_x - from_x;
+				const sDy = to_y - from_y;
+				const straight = Math.abs(Math.abs(sDx) - Math.abs(sDy));
+				const diag = Math.min(Math.abs(sDx), Math.abs(sDy));
+				serverDuration = straight * this.walk.speed + diag * this.walk.speed * DIAGONAL_FACTOR;
+			}
+		}
+		const nowTick = Date.now();
+		const isPlayerLike = this.objecttype === this.constructor.TYPE_PC || this.objecttype === this.constructor.TYPE_DISGUISED || this.objecttype === this.constructor.TYPE_PET || this.objecttype === this.constructor.TYPE_HOM || this.objecttype === this.constructor.TYPE_MERC;
+		const maxFastForward = isFastMove ? 0 : isPlayerLike ? clientDuration : Math.min(clientDuration, this.walk.speed);
+		const startTick = isFastMove ? nowTick : computeWalkStartTick(nowTick, moveStartTime, clientDuration, maxFastForward);
+		this.walk.tick = this.walk.prevTick = startTick;
+		if (!isFastMove && numSegments > 0 && serverDuration > 0) {
+			let sub = serverDuration - clientDuration;
+			sub = Math.max(-2500, Math.min(2500, sub));
+			const subDiv = sub / numSegments;
+			for (let i = 0; i < numSegments; i++) this.walk.segmentDurations[i] = Math.max(10, this.walk.segmentDurations[i] + subDiv);
+		}
 		if (this.walk.total >= 2) {
 			const firstX1 = this.walk.path[2];
 			const firstY1 = this.walk.path[3];
@@ -302103,13 +302177,71 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime) {
 			this.direction = quantizeDir(initDir1);
 		}
 		this.headDir = 0;
-		if (!wasWalkingAction) this.setAction({
+		if (!wasWalkingAction && !isFastMove) this.setAction({
 			action: this.ACTION.WALK,
 			frame: 0,
 			repeat: true,
 			play: true
 		});
 	}
+}
+/**
+* Fast move / forced relocation to a destination cell (e.g. MO_BODYRELOCATION, knockback, slide).
+* Bypasses regular rubberbanding, latency compensation, and walk animation cycles.
+* Uses direct linear interpolation between current position and destination cell (no curved walking detours).
+*
+* @param {number} to_x Destination X cell
+* @param {number} to_y Destination Y cell
+* @param {number} [speed=15] Speed in ms per cell
+* @param {function} [onEnd] Callback when relocation finishes
+* @param {boolean} [keepDirection=false] Whether to preserve current facing direction (e.g. knockback/backslide)
+* @returns {boolean} True if fast movement started, false if already at destination (no-op)
+*/
+function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
+	const curX = this.position[0];
+	const curY = this.position[1];
+	const hasCurrentPos = isFinite(curX) && isFinite(curY) && (curX !== 0 || curY !== 0);
+	const curCellX = hasCurrentPos ? Math.round(curX) : to_x | 0;
+	const curCellY = hasCurrentPos ? Math.round(curY) : to_y | 0;
+	if (curCellX === (to_x | 0) && curCellY === (to_y | 0)) {
+		this.resetRoute();
+		if (this.action !== this.ACTION.DIE && (!this.animation.play || this.action === this.ACTION.WALK)) this.setAction({
+			action: this.ACTION.IDLE,
+			frame: 0,
+			play: true,
+			repeat: true
+		});
+		if (onEnd) onEnd();
+		return false;
+	}
+	this.resetRoute();
+	if (!this.isFastMoving) this._normalSpeed = this.walk.speed;
+	this.isFastMoving = true;
+	this._preserveDirection = !!keepDirection;
+	this.walk.speed = speed || 15;
+	if (this.action === this.ACTION.WALK) this.setAction({ action: this.ACTION.IDLE });
+	const path = this.walk.path;
+	path[0] = curCellX;
+	path[1] = curCellY;
+	path[2] = to_x | 0;
+	path[3] = to_y | 0;
+	this.walk.index = 2;
+	this.walk.total = 4;
+	this.walk.pos.set(this.position);
+	this.walk.lastPos.set(this.position);
+	this.walk.dist = 0;
+	const firstDx = path[2] - this.position[0];
+	const firstDy = path[3] - this.position[1];
+	this.walk.segmentDurations[0] = Math.max(1, Math.hypot(firstDx, firstDy) * this.walk.speed);
+	const nowTick = Date.now();
+	this.walk.tick = this.walk.prevTick = nowTick;
+	if (!this._preserveDirection) {
+		const initDir = offsetToFloatDir(firstDx, firstDy);
+		this.direction = quantizeDir(initDir);
+		this.headDir = 0;
+	}
+	if (onEnd) this.walk.onEnd = onEnd;
+	return true;
 }
 /**
 * Process walking
@@ -302123,7 +302255,7 @@ function walkProcess() {
 	const TICK = Date.now();
 	const falconGliding = 5;
 	if (total == 0) return;
-	if (total > 0 && this.action !== this.ACTION.WALK && this.objecttype !== this.constructor.TYPE_FALCON && this.objecttype !== this.constructor.TYPE_WUG) {
+	if (total > 0 && !this.isFastMoving && this.action !== this.ACTION.WALK && this.objecttype !== this.constructor.TYPE_FALCON && this.objecttype !== this.constructor.TYPE_WUG) {
 		let actionName = "UNKNOWN";
 		for (const key in this.ACTION) if (this.ACTION[key] === this.action) {
 			actionName = key;
@@ -302142,18 +302274,27 @@ function walkProcess() {
 		});
 		console.trace("Stack trace of debug:");
 	}
-	if (this.action === this.ACTION.WALK || this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) {
+	if (this.action === this.ACTION.WALK || this.isFastMoving || this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) {
 		const getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
 			let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
 			if (!duration || duration < 1) duration = 1;
 			return duration;
 		};
-		const finishWalk = function finishWalk() {
+		const finishWalk = () => {
 			const cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5 : Altitude.getCellHeight(path[total - 2], path[total - 1]);
 			pos[0] = path[total - 2];
 			pos[1] = path[total - 1];
 			pos[2] = cellHeight;
 			walk.lastPos.set(pos);
+			if (this.isFastMoving) {
+				this.isFastMoving = false;
+				this._fastMoveTrail = false;
+				this._preserveDirection = false;
+				if (typeof this._normalSpeed === "number") {
+					this.walk.speed = this._normalSpeed;
+					delete this._normalSpeed;
+				}
+			}
 			if (this.objecttype == this.constructor.TYPE_WUG && this.isAttacking) this.setAction({
 				action: this.ACTION.ATTACK,
 				frame: 0,
@@ -302168,7 +302309,7 @@ function walkProcess() {
 					next: false
 				}
 			});
-			else this.setAction({
+			else if (this.action !== this.ACTION.DIE) this.setAction({
 				action: this.ACTION.IDLE,
 				frame: 0,
 				play: true,
@@ -302181,7 +302322,7 @@ function walkProcess() {
 			}
 			this.resetRoute();
 			this.isAttacking = false;
-		}.bind(this);
+		};
 		if (index >= total) {
 			finishWalk();
 			return;
@@ -302192,11 +302333,12 @@ function walkProcess() {
 		let nextY = path[index + 1];
 		let dx = nextX - startX;
 		let dy = nextY - startY;
-		let speed = getSegmentDuration(dx, dy, walk.speed);
+		let segIdx = index - 2 >> 1;
+		let speed = walk.segmentDurations && walk.segmentDurations[segIdx] || getSegmentDuration(dx, dy, walk.speed);
 		let segmentStart = walk.tick || TICK;
 		let segmentEnd = segmentStart + speed;
 		let traveledDist = 0;
-		if (walk.prevTick && walk.prevTick !== TICK && walk.prevTick > segmentStart && this.action !== this.ACTION.WALK && this.objecttype !== this.constructor.TYPE_FALCON) {
+		if (walk.prevTick && walk.prevTick !== TICK && walk.prevTick > segmentStart && !this.isFastMoving && this.action !== this.ACTION.WALK && this.objecttype !== this.constructor.TYPE_FALCON) {
 			segmentStart += TICK - walk.prevTick;
 			segmentEnd = segmentStart + speed;
 		}
@@ -302211,7 +302353,8 @@ function walkProcess() {
 			nextY = path[index + 1];
 			dx = nextX - startX;
 			dy = nextY - startY;
-			speed = getSegmentDuration(dx, dy, walk.speed);
+			segIdx = index - 2 >> 1;
+			speed = walk.segmentDurations && walk.segmentDurations[segIdx] || getSegmentDuration(dx, dy, walk.speed);
 			segmentStart = segmentEnd;
 			segmentEnd = segmentStart + speed;
 		}
@@ -302226,7 +302369,7 @@ function walkProcess() {
 		pos[0] = newX;
 		pos[1] = newY;
 		pos[2] = cellHeight;
-		if (index < total) {
+		if (!this._preserveDirection && index < total) {
 			if (index === 2) {
 				const remDx = nextX - newX;
 				const remDy = nextY - newY;
@@ -302287,10 +302430,20 @@ function entitiesWalkProcess() {
 	}
 }
 function resetRoute(keepDistance) {
+	if (this.isFastMoving) {
+		if (typeof this._normalSpeed === "number") {
+			this.walk.speed = this._normalSpeed;
+			delete this._normalSpeed;
+		}
+	}
+	this.isFastMoving = false;
+	this._fastMoveTrail = false;
+	this._preserveDirection = false;
 	this.walk.tick = 0;
 	this.walk.prevTick = 0;
 	if (!keepDistance) this.walk.dist = 0;
 	this.walk.path = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
+	if (this.walk.segmentDurations) this.walk.segmentDurations.fill(0);
 	this.walk.lastPos[0] = 0;
 	this.walk.lastPos[1] = 0;
 	this.walk.lastPos[2] = 0;
@@ -302341,8 +302494,13 @@ function distance(entity1, entity2) {
 */
 function Init$4() {
 	this.onWalkEnd = function onWalkEnd() {};
+	this._preserveDirection = false;
+	this.isFastMoving = false;
+	this._fastMoveTrail = false;
+	this._enableTrail = false;
 	this.walk = new WalkStructure();
 	this.walkTo = walkTo;
+	this.fastMoveTo = fastMoveTo;
 	this.walkToNonWalkableGround = walkToNonWalkableGround;
 	this.walkProcess = walkProcess;
 	this.entitiesWalkProcess = entitiesWalkProcess;
@@ -302459,18 +302617,18 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 		};
 		const trail = entity._trailData[type];
 		const now = Date.now();
-		const interval = blurType === 3 || blurType === 5 ? 560 : 80;
+		const interval = entity.isFastMoving ? 30 : blurType === 3 || blurType === 5 ? 560 : 80;
 		const maxLen = blurType === 4 ? 1 : GraphicsSettings.performanceMode ? Math.floor(trailLength / 2) : trailLength;
 		let shouldCapture = false;
-		if (blurType === 1 || blurType === 3) shouldCapture = entity.action === entity.ACTION.WALK && now - trail.lastTick > interval;
+		if (blurType === 1 || blurType === 3) shouldCapture = (entity.action === entity.ACTION.WALK || entity.isFastMoving) && now - trail.lastTick > interval;
 		else if (blurType === 4) shouldCapture = trail.snapshots.length === 0;
-		else if (blurType === 5) shouldCapture = [
+		else if (blurType === 5) shouldCapture = ([
 			entity.ACTION.ATTACK,
 			entity.ACTION.ATTACK1,
 			entity.ACTION.ATTACK2,
 			entity.ACTION.ATTACK3,
 			entity.ACTION.SKILL
-		].includes(entity.action) && now - trail.lastTick > interval;
+		].includes(entity.action) || entity.isFastMoving) && now - trail.lastTick > interval;
 		if (shouldCapture) {
 			trail.snapshots.unshift({
 				position: gl_matrix_default.vec3.clone(entity.position),
@@ -303005,7 +303163,7 @@ var init_EntityRender = __esmMin((() => {
 			const isBERSERK = entity.getOpt3(StatusState_default.Status.BERSERK);
 			renderSecondBody(entity, layers, spr, pal, files, type, _position, {
 				enableHalo: entity.getOpt3(StatusState_default.Status.ASSUMPTIO) || !!entity._enableHalo,
-				enableTrail: isENERGYCOAT || isBUNSIN || isHALLUCINATIONWALK || isQUICKEN || isOVERTHRUST || isEXPLOSIONSPIRITS || isBERSERK || !!entity._enableTrail,
+				enableTrail: isENERGYCOAT || isBUNSIN || isHALLUCINATIONWALK || isQUICKEN || isOVERTHRUST || isEXPLOSIONSPIRITS || isBERSERK || !!entity._fastMoveTrail || !!entity._enableTrail,
 				blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
 			});
 			for (let i = 0, count = layers.length; i < count; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
@@ -304361,12 +304519,19 @@ var init_Entity$1 = __esmMin((() => {
 					if (this.display.name.length == 0) this.display.load = this.display.TYPE.NONE;
 					this.display.update(this.objecttype === Entity.TYPE_MOB ? this.display.STYLE.MOB : this.objecttype === Entity.TYPE_NPC_ABR ? this.display.STYLE.MOB : this.objecttype === Entity.TYPE_NPC_BIONIC ? this.display.STYLE.MOB : this.objecttype === Entity.TYPE_DISGUISED ? this.display.STYLE.MOB : this.objecttype === Entity.TYPE_NPC ? this.display.STYLE.NPC : this.objecttype === Entity.TYPE_NPC2 ? this.display.STYLE.NPC : this.display.STYLE.DEFAULT);
 					break;
-				case "MoveData":
-					this.position[0] = unit.MoveData[0];
-					this.position[1] = unit.MoveData[1];
-					this.position[2] = Altitude.getCellHeight(unit.MoveData[0], unit.MoveData[1]);
-					this.walkTo(unit.MoveData[0], unit.MoveData[1], unit.MoveData[2], unit.MoveData[3], void 0, unit.moveStartTime);
+				case "MoveData": {
+					const curX = this.position[0];
+					const curY = this.position[1];
+					const isUninitialized = !curX && !curY;
+					const isTooFar = Math.hypot(curX - unit.MoveData[0], curY - unit.MoveData[1]) > 16;
+					if (isUninitialized || isTooFar) {
+						this.position[0] = unit.MoveData[0];
+						this.position[1] = unit.MoveData[1];
+						this.position[2] = Altitude.getCellHeight(unit.MoveData[0], unit.MoveData[1]);
+					}
+					this.walkTo(unit.MoveData[0], unit.MoveData[1], unit.MoveData[2], unit.MoveData[3], void 0, unit.moveStartTime, unit.moveServerEndTime || unit.moveEndTime);
 					break;
+				}
 				case "accessory":
 					this.accessory = unit.accessory;
 					break;
@@ -316900,7 +317065,7 @@ var init_colors = __esmMin((() => {}));
 * @param {object} pkt - PACKET.ZC.NOTIFY_PLAYERMOVE
 */
 function onPlayerMove(pkt) {
-	SessionStorage_default.Entity.walkTo(pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3], void 0, pkt.moveStartTime);
+	SessionStorage_default.Entity.walkTo(pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3], void 0, pkt.moveStartTime, pkt.moveEndTime || pkt.moveServerEndTime);
 }
 /**
 * Our player just talk
@@ -318782,7 +318947,7 @@ function onEntityVanish(pkt) {
 */
 function onEntityMove(pkt) {
 	const entity = EntityManager.get(pkt.GID);
-	if (entity) entity.walkTo(pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3], void 0, pkt.moveStartTime);
+	if (entity) entity.walkTo(pkt.MoveData[0], pkt.MoveData[1], pkt.MoveData[2], pkt.MoveData[3], void 0, pkt.moveStartTime, pkt.moveServerEndTime || pkt.moveEndTime);
 }
 /**
 * Entity stop walking
@@ -318812,28 +318977,60 @@ function onEntityStopMove(pkt) {
 function onEntityJump(pkt) {
 	const entity = EntityManager.get(pkt.AID);
 	if (entity) {
+		entity.resetRoute();
 		entity.position[0] = pkt.xPos;
 		entity.position[1] = pkt.yPos;
 		entity.position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
 	}
 }
 /**
-* Body relocation packet support
+* Fast relocation packet support (e.g. Body Relocation, Fallen Angel)
 *
 * @param {object} pkt - PACKET.ZC.FASTMOVE
 */
 function onEntityFastMove(pkt) {
 	const entity = EntityManager.get(pkt.AID);
-	if (entity) {
-		entity.walkTo(entity.position[0], entity.position[1], pkt.targetXpos, pkt.targetYpos);
-		if (entity.walk.path.length) {
-			const speed = entity.walk.speed;
-			entity.walk.speed = 10;
-			entity.walk.onEnd = function onWalkEnd() {
-				entity.walk.speed = speed;
-			};
+	if (entity && entity.fastMoveTo(pkt.targetXpos, pkt.targetYpos, 15, null, false)) {
+		if (entity.objecttype === entity.constructor.TYPE_PC) {
+			if (DB.isMonk(entity.job)) {
+				entity._fastMoveTrail = true;
+				entity.setAction({
+					action: entity.ACTION.ATTACK,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			} else if (DB.isGunslinger(entity.job)) {
+				entity._fastMoveTrail = true;
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			}
 		}
 	}
+}
+/**
+* Perform Entity Action with forced position relocation (knockback / slide)
+*
+* @param {object} pkt - PACKET.ZC.NOTIFY_ACT_POSITION
+*/
+function onEntityActionPosition(pkt) {
+	if (typeof pkt.xPos === "number" && typeof pkt.yPos === "number" && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
+		const targetEntity = EntityManager.get(pkt.targetGID);
+		if (targetEntity) targetEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
+	}
+	const srcEntity = EntityManager.get(pkt.GID);
+	const attackSpeed = srcEntity && typeof srcEntity.attack_speed === "number" && srcEntity.attack_speed > 0 ? srcEntity.attack_speed : AVG_ATTACK_SPEED;
+	onEntityAction({
+		...pkt,
+		attackMT: typeof pkt.attackMT === "number" && pkt.attackMT > 0 ? pkt.attackMT : attackSpeed,
+		attackedMT: typeof pkt.attackedMT === "number" && pkt.attackedMT > 0 ? pkt.attackedMT : AVG_ATTACKED_SPEED,
+		leftDamage: typeof pkt.leftDamage === "number" ? pkt.leftDamage : 0,
+		count: typeof pkt.count === "number" && pkt.count > 0 ? pkt.count : 1
+	});
 }
 /**
 * Display entity's emotion
@@ -318893,8 +319090,13 @@ function onEntityAction(pkt) {
 		case 10:
 		case 11:
 		case 13: {
-			if (pkt.attackMT > MAX_ATTACKMT) pkt.attackMT = MAX_ATTACKMT;
-			srcEntity.attack_speed = pkt.attackMT;
+			const attackMT = typeof pkt.attackMT === "number" && pkt.attackMT > 0 ? pkt.attackMT : srcEntity && srcEntity.attack_speed || AVG_ATTACK_SPEED;
+			const baseAttackMT = Math.min(attackMT, MAX_ATTACKMT);
+			pkt.attackMT = baseAttackMT;
+			pkt.attackedMT = typeof pkt.attackedMT === "number" && pkt.attackedMT > 0 ? pkt.attackedMT : AVG_ATTACKED_SPEED;
+			pkt.leftDamage = typeof pkt.leftDamage === "number" ? pkt.leftDamage : 0;
+			pkt.count = typeof pkt.count === "number" && pkt.count > 0 ? pkt.count : 1;
+			srcEntity.attack_speed = baseAttackMT;
 			let animSpeed = 0;
 			let delayTime = pkt.attackMT;
 			DB.getWeaponSound(srcWeapon);
@@ -318999,7 +319201,6 @@ function onEntityAction(pkt) {
 					});
 				}
 			}
-			srcEntity.attack_speed = pkt.attackMT;
 			if (pkt.leftDamage) {
 				const useATTACK = srcEntity.job == JobConst_default.KAGEROU || srcEntity.job == JobConst_default.KAGEROU_B || srcEntity.job == JobConst_default.OBORO || srcEntity.job == JobConst_default.OBORO_B;
 				srcEntity.setAction({
@@ -319031,7 +319232,7 @@ function onEntityAction(pkt) {
 					next: false
 				}
 			});
-			if (srcEntity.GID === SessionStorage_default.Entity.GID && SessionStorage_default.pet.friendly > 900 && (SessionStorage_default.pet.lastTalk || 0) + 1e4 < Date.now()) {
+			if (SessionStorage_default.Entity && srcEntity.GID === SessionStorage_default.Entity.GID && SessionStorage_default.pet && SessionStorage_default.pet.friendly > 900 && (SessionStorage_default.pet.lastTalk || 0) + 1e4 < Date.now()) {
 				if (parseInt(Math.random() * 10) < 3) {
 					const hunger = DB.getPetHungryState(SessionStorage_default.pet.oldHungry);
 					const talk = DB.getPetTalkNumber(SessionStorage_default.pet.job, PetMessageConst_default.PM_HUNTING, hunger);
@@ -319075,12 +319276,12 @@ function onEntityAction(pkt) {
 		});
 	}
 	if (pkt?.damage > 0) {
-		if (srcEntity.GID === SessionStorage_default.Entity.GID) ChatBox_default.addText(DB.getMessage(1607).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
-		else if (dstEntity.GID === SessionStorage_default.Entity.GID) ChatBox_default.addText(DB.getMessage(1605).replace("%s", srcEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
+		if (SessionStorage_default.Entity && srcEntity.GID === SessionStorage_default.Entity.GID) ChatBox_default.addText(DB.getMessage(1607).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
+		else if (SessionStorage_default.Entity && dstEntity.GID === SessionStorage_default.Entity.GID) ChatBox_default.addText(DB.getMessage(1605).replace("%s", srcEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
 		else if (srcEntity.GID === SessionStorage_default.homunId || srcEntity.GID === SessionStorage_default.merId || srcEntity.GID === SessionStorage_default.petId || srcEntity.GID === SessionStorage_default.elemId) ChatBox_default.addText(DB.getMessage(1608).replace("%s", srcEntity.display.name).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
 		else if (dstEntity.GID === SessionStorage_default.homunId || dstEntity.GID === SessionStorage_default.merId || dstEntity.GID === SessionStorage_default.petId || dstEntity.GID === SessionStorage_default.elemId) ChatBox_default.addText(DB.getMessage(1606).replace("%s", dstEntity.display.name).replace("%s", srcEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.BATTLE);
-		else if (controller.isGroupMember(srcEntity.display.name)) ChatBox_default.addText(DB.getMessage(1608).replace("%s", srcEntity.display.name).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PARTY_BATTLE);
-		else if (controller.isGroupMember(dstEntity.display.name)) ChatBox_default.addText(DB.getMessage(1606).replace("%s", dstEntity.display.name).replace("%s", srcEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PARTY_BATTLE);
+		else if (controller.isGroupMember(srcEntity.display?.name)) ChatBox_default.addText(DB.getMessage(1608).replace("%s", srcEntity.display.name).replace("%s", dstEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PARTY_BATTLE);
+		else if (controller.isGroupMember(dstEntity.display?.name)) ChatBox_default.addText(DB.getMessage(1606).replace("%s", dstEntity.display.name).replace("%s", srcEntity.display.name).replace("%d", pkt.damage), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PARTY_BATTLE);
 	}
 }
 /**
@@ -319518,6 +319719,10 @@ function onEntityUseSkillToAttack(pkt) {
 				EffectManager.spamSkillBeforeHit(pkt.SKID, pkt.targetID, Renderer.tick + C_MULTIHIT_DELAY * i, pkt.AID);
 				addDamage(i, Renderer.tick + pkt.attackMT + C_MULTIHIT_DELAY * i);
 			}
+		}
+		if (typeof pkt.xPos === "number" && typeof pkt.yPos === "number" && (pkt.xPos !== 0 || pkt.yPos !== 0)) {
+			const pushedEntity = dstEntity || srcEntity;
+			if (pushedEntity) pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
 		}
 	}
 	if (srcEntity && dstEntity && pkt.action != SkillAction$1.SPLASH) EffectManager.spamSkill(pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
@@ -320385,6 +320590,7 @@ function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT, onEntityAction);
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT2, onEntityAction);
 	Network.hookPacket(PACKET.ZC.NOTIFY_ACT3, onEntityAction);
+	Network.hookPacket(PACKET.ZC.NOTIFY_ACT_POSITION, onEntityActionPosition);
 	Network.hookPacket(PACKET.ZC.NOTIFY_CHAT, onEntityTalk);
 	Network.hookPacket(PACKET.ZC.SHOWSCRIPT, onEntityTalk);
 	Network.hookPacket(PACKET.ZC.NPC_CHAT, onEntityTalkColor);
@@ -320440,7 +320646,7 @@ function EntityEngine() {
 	Network.hookPacket(PACKET.ZC.ACK_CHANGE_TITLE, onTitleChangeAck);
 	Network.hookPacket(PACKET.ZC.HAT_EFFECT, onHatEffects);
 }
-var SkillNameDisplayExclude, SkillBlueCombo, C_MULTIHIT_DELAY, C_DEATH_SYNC_OFFSET, AVG_ATTACK_SPEED, MAX_ATTACKMT, clanEmblems;
+var SkillNameDisplayExclude, SkillBlueCombo, C_MULTIHIT_DELAY, C_DEATH_SYNC_OFFSET, AVG_ATTACK_SPEED, AVG_ATTACKED_SPEED, MAX_ATTACKMT, clanEmblems;
 var init_Entity = __esmMin((() => {
 	init_DBManager();
 	init_SkillConst();
@@ -320519,6 +320725,7 @@ var init_Entity = __esmMin((() => {
 	C_MULTIHIT_DELAY = 200;
 	C_DEATH_SYNC_OFFSET = 200;
 	AVG_ATTACK_SPEED = 432;
+	AVG_ATTACKED_SPEED = 288;
 	MAX_ATTACKMT = AVG_ATTACK_SPEED * 2;
 	clanEmblems = {};
 }));
@@ -323824,6 +324031,57 @@ function onSkillToGround(pkt) {
 	position[1] = pkt.yPos;
 	position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
 	EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, pkt.AID);
+	switch (pkt.SKID) {
+		case SkillConst_default.MO_BODYRELOCATION: {
+			const entity = EntityManager.get(pkt.AID);
+			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
+				entity._fastMoveTrail = true;
+				if (entity.objecttype === entity.constructor.TYPE_PC) entity.setAction({
+					action: entity.ACTION.ATTACK,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			}
+			break;
+		}
+		case SkillConst_default.NJ_SHADOWJUMP: {
+			const entity = EntityManager.get(pkt.AID);
+			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
+				entity._fastMoveTrail = true;
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			}
+			break;
+		}
+		case SkillConst_default.RL_FALLEN_ANGEL: {
+			const entity = EntityManager.get(pkt.AID);
+			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
+				entity._fastMoveTrail = true;
+				entity.setAction({
+					action: entity.ACTION.SKILL,
+					frame: 0,
+					repeat: false,
+					play: false
+				});
+			}
+			break;
+		}
+		case SkillConst_default.SU_LOPE: {
+			const entity = EntityManager.get(pkt.AID);
+			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) entity.setAction({
+				action: entity.ACTION.SKILL,
+				frame: 0,
+				repeat: false,
+				play: true
+			});
+			break;
+		}
+	}
 }
 /**
 * Failed to cast a skill
