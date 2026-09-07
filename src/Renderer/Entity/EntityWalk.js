@@ -368,7 +368,7 @@ function walkTo(from_x, from_y, to_x, to_y, range, moveStartTime, moveEndTime, i
 			this._normalSpeed = this.walk.speed;
 		}
 		this.isFastMoving = true;
-		this._enableTrail = true;
+		this._fastMoveTrail = true;
 		if (fastSpeed) {
 			this.walk.speed = fastSpeed;
 		}
@@ -656,7 +656,7 @@ function walkProcess() {
 
 			if (this.isFastMoving) {
 				this.isFastMoving = false;
-				this._enableTrail = false;
+				this._fastMoveTrail = false;
 				this._preserveDirection = false;
 				if (typeof this._normalSpeed === 'number') {
 					this.walk.speed = this._normalSpeed;
@@ -904,7 +904,7 @@ function resetRoute(keepDistance) {
 		}
 	}
 	this.isFastMoving = false;
-	this._enableTrail = false;
+	this._fastMoveTrail = false;
 	this._preserveDirection = false;
 	this.walk.tick = 0;
 	this.walk.prevTick = 0;
@@ -980,6 +980,9 @@ function distance(entity1, entity2) {
 export default function Init() {
 	this.onWalkEnd = function onWalkEnd() {};
 	this._preserveDirection = false;
+	this.isFastMoving = false;
+	this._fastMoveTrail = false;
+	this._enableTrail = false;
 	this.walk = new WalkStructure();
 	this.walkTo = walkTo;
 	this.fastMoveTo = fastMoveTo;

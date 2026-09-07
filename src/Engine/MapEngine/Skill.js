@@ -147,7 +147,7 @@ function onSkillToGround(pkt) {
 		case SkillId.MO_BODYRELOCATION: {
 			const entity = EntityManager.get(pkt.AID);
 			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
-				entity._enableTrail = true;
+				entity._fastMoveTrail = true;
 				if (entity.objecttype === entity.constructor.TYPE_PC) {
 					entity.setAction({
 						action: entity.ACTION.ATTACK,
@@ -162,7 +162,7 @@ function onSkillToGround(pkt) {
 		case SkillId.NJ_SHADOWJUMP: {
 			const entity = EntityManager.get(pkt.AID);
 			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
-				entity._enableTrail = true;
+				entity._fastMoveTrail = true;
 				entity.setAction({
 					action: entity.ACTION.SKILL,
 					frame: 0,
@@ -175,7 +175,7 @@ function onSkillToGround(pkt) {
 		case SkillId.RL_FALLEN_ANGEL: {
 			const entity = EntityManager.get(pkt.AID);
 			if (entity && entity.fastMoveTo(pkt.xPos, pkt.yPos, 15, null, false)) {
-				entity._enableTrail = true;
+				entity._fastMoveTrail = true;
 				entity.setAction({
 					action: entity.ACTION.SKILL,
 					frame: 0,

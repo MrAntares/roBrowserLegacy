@@ -828,6 +828,7 @@ const renderElement = (function renderElementClosure() {
 				isOVERTHRUST ||
 				isEXPLOSIONSPIRITS ||
 				isBERSERK ||
+				!!entity._fastMoveTrail ||
 				!!entity._enableTrail,
 			blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
 		});

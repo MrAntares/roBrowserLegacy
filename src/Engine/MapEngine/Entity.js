@@ -463,7 +463,7 @@ function onEntityFastMove(pkt) {
 	if (entity && entity.fastMoveTo(pkt.targetXpos, pkt.targetYpos, 15, null, false)) {
 		if (entity.objecttype === entity.constructor.TYPE_PC) {
 			if (DB.isMonk(entity.job)) {
-				entity._enableTrail = true;
+				entity._fastMoveTrail = true;
 				entity.setAction({
 					action: entity.ACTION.ATTACK,
 					frame: 0,
@@ -471,7 +471,7 @@ function onEntityFastMove(pkt) {
 					play: false
 				});
 			} else if (DB.isGunslinger(entity.job)) {
-				entity._enableTrail = true;
+				entity._fastMoveTrail = true;
 				entity.setAction({
 					action: entity.ACTION.SKILL,
 					frame: 0,
