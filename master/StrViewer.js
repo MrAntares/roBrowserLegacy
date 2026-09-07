@@ -257945,7 +257945,7 @@ var init_Renderer = __esmMin((() => {
 		* Start rendering
 		*/
 		static render(fn) {
-			if (fn) this.renderCallbacks.push(fn);
+			if (fn && !this.renderCallbacks.includes(fn)) this.renderCallbacks.push(fn);
 			if (!this.rendering) {
 				this.rendering = true;
 				try {
