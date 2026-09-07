@@ -517,10 +517,8 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 	const curCellY = hasCurrentPos ? Math.round(curY) : to_y | 0;
 
 	if (curCellX === (to_x | 0) && curCellY === (to_y | 0)) {
-		this.isFastMoving = false;
-		this._enableTrail = false;
-		this._preserveDirection = false;
-		if (this.action !== this.ACTION.DIE && !this.animation.play) {
+		this.resetRoute();
+		if (this.action !== this.ACTION.DIE && (!this.animation.play || this.action === this.ACTION.WALK)) {
 			this.setAction({
 				action: this.ACTION.IDLE,
 				frame: 0,
@@ -900,13 +898,13 @@ function entitiesWalkProcess() {
 
 function resetRoute(keepDistance) {
 	if (this.isFastMoving) {
-		this.isFastMoving = false;
-		this._enableTrail = false;
 		if (typeof this._normalSpeed === 'number') {
 			this.walk.speed = this._normalSpeed;
 			delete this._normalSpeed;
 		}
 	}
+	this.isFastMoving = false;
+	this._enableTrail = false;
 	this._preserveDirection = false;
 	this.walk.tick = 0;
 	this.walk.prevTick = 0;
