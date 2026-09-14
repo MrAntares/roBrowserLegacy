@@ -8020,14 +8020,14 @@ export default {
 	],
 
 	//348: [{}],	//EF_LIGHTSPHERE	   Like 1000 Blade trepassing
-	//349: [{}],	//EF_WATERFALL	   Waterfall (Horizonatal)
-	//350: [{}],	//EF_WATERFALL_90	   Waterfall (Vertical)
-	//351: [{}],	//EF_WATERFALL_SMALL	   Small Waterfall (Horizonatal)
-	//352: [{}],	//EF_WATERFALL_SMALL_90	   Small Waterfall (Vertical)
-	//353: [{}],	//EF_WATERFALL_T2	   Dark Waterfall (Horizonatal)
-	//354: [{}],	//EF_WATERFALL_T2_90	   Dark Waterfall (Vertical)
-	//355: [{}],	//EF_WATERFALL_SMALL_T2	   Dark Small Waterfall (Horizonatal)
-	//356: [{}],	//EF_WATERFALL_SMALL_T2_90	   Dark Small Waterfall (Vertical)
+	349: [{ type: 'WATERFALL', variant: 'large', vertical: false }], // EF_WATERFALL
+	350: [{ type: 'WATERFALL', variant: 'large', vertical: true }], // EF_WATERFALL_90
+	351: [{ type: 'WATERFALL', variant: 'small', vertical: false }], // EF_WATERFALL_SMALL
+	352: [{ type: 'WATERFALL', variant: 'small', vertical: true }], // EF_WATERFALL_SMALL_90
+	353: [{ type: 'WATERFALL', variant: 'dark-large', vertical: false }], // EF_WATERFALL_T2
+	354: [{ type: 'WATERFALL', variant: 'dark-large', vertical: true }], // EF_WATERFALL_T2_90
+	355: [{ type: 'WATERFALL', variant: 'dark-small', vertical: false }], // EF_WATERFALL_SMALL_T2
+	356: [{ type: 'WATERFALL', variant: 'dark-small', vertical: true }], // EF_WATERFALL_SMALL_T2
 	//357: [{}],	//EF_MINI_TETRIS	   (Nothing)
 	//358: [{}],	//EF_GHOST	   Niflheim Ghost
 	//359: [{}],	//EF_BAT	   Niflheim Bat Slow
