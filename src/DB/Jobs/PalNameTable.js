@@ -190,6 +190,22 @@ PalNameTable[JobId.INQUISITOR] = JobNameTable[JobId.INQUISITOR];
 PalNameTable[JobId.TROUBADOUR] = JobNameTable[JobId.TROUBADOUR];
 PalNameTable[JobId.TROUVERE] = JobNameTable[JobId.TROUVERE];
 
+// 4th, riding. Each mounted sprite has palettes of its own, as the 2nd job
+// mounts do; without these a dyed 4th job on a mount had no palette at all.
+PalNameTable[JobId.DRAGON_KNIGHT_RIDING] = JobNameTable[JobId.DRAGON_KNIGHT_RIDING];
+PalNameTable[JobId.MEISTER_RIDING] = JobNameTable[JobId.MEISTER_RIDING];
+PalNameTable[JobId.SHADOW_CROSS_RIDING] = JobNameTable[JobId.SHADOW_CROSS_RIDING];
+PalNameTable[JobId.ARCH_MAGE_RIDING] = JobNameTable[JobId.ARCH_MAGE_RIDING];
+PalNameTable[JobId.CARDINAL_RIDING] = JobNameTable[JobId.CARDINAL_RIDING];
+PalNameTable[JobId.WINDHAWK_RIDING] = JobNameTable[JobId.WINDHAWK_RIDING];
+PalNameTable[JobId.IMPERIAL_GUARD_RIDING] = JobNameTable[JobId.IMPERIAL_GUARD_RIDING];
+PalNameTable[JobId.BIOLO_RIDING] = JobNameTable[JobId.BIOLO_RIDING];
+PalNameTable[JobId.ABYSS_CHASER_RIDING] = JobNameTable[JobId.ABYSS_CHASER_RIDING];
+PalNameTable[JobId.ELEMENTAL_MASTER_RIDING] = JobNameTable[JobId.ELEMENTAL_MASTER_RIDING];
+PalNameTable[JobId.INQUISITOR_RIDING] = JobNameTable[JobId.INQUISITOR_RIDING];
+PalNameTable[JobId.TROUBADOUR_RIDING] = JobNameTable[JobId.TROUBADOUR_RIDING];
+PalNameTable[JobId.TROUVERE_RIDING] = JobNameTable[JobId.TROUVERE_RIDING];
+
 PalNameTable[JobId.WINDHAWK2] = JobNameTable[JobId.WINDHAWK2];
 PalNameTable[JobId.MEISTER2] = JobNameTable[JobId.MEISTER2];
 PalNameTable[JobId.DRAGON_KNIGHT2] = JobNameTable[JobId.DRAGON_KNIGHT2];

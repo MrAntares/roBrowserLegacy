@@ -605,7 +605,12 @@ function UpdateBodyPalette(pal) {
 		return;
 	}
 
-	this.files.body.pal = DB.getBodyPalPath(this._job, this._bodypalette, this._sex);
+	// The palette has to be the one for the sprite being drawn. A mounted
+	// Knight is drawn from the Peco Knight body, and its palettes are its own
+	// files, covering the mount's colours too; the Knight's palette on that
+	// sprite paints the whole peco magenta. The same holds for every mount and
+	// for the wedding, Xmas and summer outfits, which all arrive as `costume`.
+	this.files.body.pal = DB.getBodyPalPath(getEffectiveJob.call(this), this._bodypalette, this._sex);
 }
 
 /**
