@@ -167,7 +167,7 @@ var init_Thread = __esmMin((() => {
 		static init = () => {
 			if (!_source) _source = new Worker(new URL(
 				/* @vite-ignore */
-				"" + new URL("ThreadEventHandler.js", import.meta.url).href,
+				new URL("ThreadEventHandler.js", import.meta.url).href,
 				"" + import.meta.url
 			), { type: "module" });
 			if (_source instanceof Worker) _source.addEventListener("message", Thread.receive, false);
@@ -77847,7 +77847,7 @@ var init_preload_helper = __esmMin((() => {
 					link.addEventListener("load", res);
 					link.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
 				});
-			}));
+			}).filter((p) => p !== void 0));
 		}
 		function handlePreloadError(err) {
 			const e = new Event("vite:preloadError", { cancelable: true });
@@ -78891,7 +78891,7 @@ var init_Controls = __esmMin((() => {
 }));
 //#endregion
 //#region src/Vendors/gl-matrix.js
-var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$7, vec4$8, mat2$1, mat2d, mat3$6, mat4$24, quat$2;
+var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$7, vec4$8, mat2$1, mat2d, mat3$6, mat4$25, quat$2;
 var init_gl_matrix$1 = __esmMin((() => {
 	exports$3 = {};
 	if (!GLMAT_EPSILON) GLMAT_EPSILON = 1e-6;
@@ -80890,13 +80890,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "mat3(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.mat3 = mat3$6;
-	mat4$24 = {};
+	mat4$25 = {};
 	/**
 	* Creates a new identity mat4
 	*
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$24.create = function() {
+	mat4$25.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = 1;
 		out[1] = 0;
@@ -80922,7 +80922,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a matrix to clone
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$24.clone = function(a) {
+	mat4$25.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -80949,7 +80949,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.copy = function(out, a) {
+	mat4$25.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -80974,7 +80974,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} out the receiving matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.identity = function(out) {
+	mat4$25.identity = function(out) {
 		out[0] = 1;
 		out[1] = 0;
 		out[2] = 0;
@@ -81000,7 +81000,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.transpose = function(out, a) {
+	mat4$25.transpose = function(out, a) {
 		if (out === a) {
 			var a01 = a[1], a02 = a[2], a03 = a[3], a12 = a[6], a13 = a[7], a23 = a[11];
 			out[1] = a[4];
@@ -81042,7 +81042,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.invert = function(out, a) {
+	mat4$25.invert = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32, det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 		if (!det) return null;
 		det = 1 / det;
@@ -81071,7 +81071,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.adjoint = function(out, a) {
+	mat4$25.adjoint = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		out[0] = a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22);
 		out[1] = -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22));
@@ -81097,7 +81097,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {Number} determinant of a
 	*/
-	mat4$24.determinant = function(a) {
+	mat4$25.determinant = function(a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31;
 		return b00 * (a22 * a33 - a23 * a32) - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 	};
@@ -81109,7 +81109,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} b the second operand
 	* @returns {mat4} out
 	*/
-	mat4$24.multiply = function(out, a, b) {
+	mat4$25.multiply = function(out, a, b) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
 		out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
@@ -81146,7 +81146,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link mat4.multiply}
 	* @function
 	*/
-	mat4$24.mul = mat4$24.multiply;
+	mat4$25.mul = mat4$25.multiply;
 	/**
 	* Translate a mat4 by the given vector
 	*
@@ -81155,7 +81155,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v vector to translate by
 	* @returns {mat4} out
 	*/
-	mat4$24.translate = function(out, a, v) {
+	mat4$25.translate = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2], a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23;
 		if (a === out) {
 			out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
@@ -81202,7 +81202,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v the vec3 to scale the matrix by
 	* @returns {mat4} out
 	**/
-	mat4$24.scale = function(out, a, v) {
+	mat4$25.scale = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2];
 		out[0] = a[0] * x;
 		out[1] = a[1] * x;
@@ -81231,7 +81231,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} axis the axis to rotate around
 	* @returns {mat4} out
 	*/
-	mat4$24.rotate = function(out, a, rad, axis) {
+	mat4$25.rotate = function(out, a, rad, axis) {
 		var x = axis[0], y = axis[1], z = axis[2], len = Math.sqrt(x * x + y * y + z * z), s, c, t, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
 		if (Math.abs(len) < GLMAT_EPSILON) return null;
 		len = 1 / len;
@@ -81290,7 +81290,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateX = function(out, a, rad) {
+	mat4$25.rotateX = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[0] = a[0];
@@ -81320,7 +81320,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateY = function(out, a, rad) {
+	mat4$25.rotateY = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[4] = a[4];
@@ -81350,7 +81350,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateZ = function(out, a, rad) {
+	mat4$25.rotateZ = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
 		if (a !== out) {
 			out[8] = a[8];
@@ -81387,7 +81387,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v Translation vector
 	* @returns {mat4} out
 	*/
-	mat4$24.fromRotationTranslation = function(out, q, v) {
+	mat4$25.fromRotationTranslation = function(out, q, v) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -81415,7 +81415,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	*
 	* @returns {mat4} out
 	*/
-	mat4$24.fromQuat = function(out, q) {
+	mat4$25.fromQuat = function(out, q) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -81447,7 +81447,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.frustum = function(out, left, right, bottom, top, near, far) {
+	mat4$25.frustum = function(out, left, right, bottom, top, near, far) {
 		var rl = 1 / (right - left), tb = 1 / (top - bottom), nf = 1 / (near - far);
 		out[0] = near * 2 * rl;
 		out[1] = 0;
@@ -81477,7 +81477,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.perspective = function(out, fovy, aspect, near, far) {
+	mat4$25.perspective = function(out, fovy, aspect, near, far) {
 		var f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
 		out[0] = f / aspect;
 		out[1] = 0;
@@ -81509,7 +81509,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.ortho = function(out, left, right, bottom, top, near, far) {
+	mat4$25.ortho = function(out, left, right, bottom, top, near, far) {
 		var lr = 1 / (left - right), bt = 1 / (bottom - top), nf = 1 / (near - far);
 		out[0] = -2 * lr;
 		out[1] = 0;
@@ -81538,9 +81538,9 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} up vec3 pointing up
 	* @returns {mat4} out
 	*/
-	mat4$24.lookAt = function(out, eye, center, up) {
+	mat4$25.lookAt = function(out, eye, center, up) {
 		var x0, x1, x2, y0, y1, y2, z0, z1, z2, len, eyex = eye[0], eyey = eye[1], eyez = eye[2], upx = up[0], upy = up[1], upz = up[2], centerx = center[0], centery = center[1], centerz = center[2];
-		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$24.identity(out);
+		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$25.identity(out);
 		z0 = eyex - centerx;
 		z1 = eyey - centery;
 		z2 = eyez - centerz;
@@ -81600,10 +81600,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} mat matrix to represent as a string
 	* @returns {String} string representation of the matrix
 	*/
-	mat4$24.str = function(a) {
+	mat4$25.str = function(a) {
 		return "mat4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ", " + a[9] + ", " + a[10] + ", " + a[11] + ", " + a[12] + ", " + a[13] + ", " + a[14] + ", " + a[15] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$24;
+	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$25;
 	quat$2 = {};
 	/**
 	* Creates a new identity quat
@@ -83590,7 +83590,7 @@ var init_PostProcess = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Effects/Shaders/VerticalFlip.js
-var _program$28, _buffer$21, _active$3, VerticalFlip;
+var _program$29, _buffer$21, _active$3, VerticalFlip;
 var init_VerticalFlip = __esmMin((() => {
 	init_VerticalFlip$2();
 	init_VerticalFlip$1();
@@ -83599,9 +83599,9 @@ var init_VerticalFlip = __esmMin((() => {
 	_active$3 = false;
 	VerticalFlip = class {
 		static init(gl) {
-			if (_program$28) return;
+			if (_program$29) return;
 			try {
-				_program$28 = WebGL_default.createShaderProgram(gl, VerticalFlip_default$1, VerticalFlip_default);
+				_program$29 = WebGL_default.createShaderProgram(gl, VerticalFlip_default$1, VerticalFlip_default);
 			} catch (e) {
 				console.error("Error when compiling shader VerticalFlip.", e);
 				return;
@@ -83634,19 +83634,19 @@ var init_VerticalFlip = __esmMin((() => {
 		* @param {WebGLFramebuffer} outputFbo - Target
 		*/
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$21 || !_program$28 || !_active$3) return;
+			if (!_buffer$21 || !_program$29 || !_active$3) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$28);
+			gl.useProgram(_program$29);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$21);
-			let posLoc = _program$28.attribute.aPosition;
+			let posLoc = _program$29.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 0);
-			posLoc = _program$28.attribute.aTextureCoord;
+			posLoc = _program$29.attribute.aTextureCoord;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 8);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$28.uniform.uTexture, 0);
+			gl.uniform1i(_program$29.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 			PostProcess.afterRenderPass(gl);
 		}
@@ -83654,13 +83654,13 @@ var init_VerticalFlip = __esmMin((() => {
 		* @returns {WebGLProgram} Shader program
 		*/
 		static program() {
-			return _program$28;
+			return _program$29;
 		}
 		/** Resets effect state */
 		static clean(gl) {
 			_active$3 = false;
 			if (_buffer$21) gl.deleteBuffer(_buffer$21);
-			_program$28 = _buffer$21 = null;
+			_program$29 = _buffer$21 = null;
 		}
 		/** @returns {boolean} Whether the effect is active */
 		static isActive() {
@@ -83674,7 +83674,7 @@ var init_VerticalFlip = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Map/Altitude.js
-var _cells, _types$1, mat4$23, vec3$6, vec4$7, _from, _to, _unit, _matrix$7, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
+var _cells, _types$1, mat4$24, vec3$6, vec4$7, _from, _to, _unit, _matrix$8, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
 var init_Altitude = __esmMin((() => {
 	init_gl_matrix$1();
 	init_PathFinding();
@@ -83682,11 +83682,11 @@ var init_Altitude = __esmMin((() => {
 	init_VerticalFlip();
 	_cells = null;
 	_types$1 = null;
-	({mat4: mat4$23, vec3: vec3$6, vec4: vec4$7} = exports$3);
+	({mat4: mat4$24, vec3: vec3$6, vec4: vec4$7} = exports$3);
 	_from = vec3$6.create();
 	_to = vec4$7.create();
 	_unit = vec3$6.create();
-	_matrix$7 = mat4$23.create();
+	_matrix$8 = mat4$24.create();
 	buffer1x1 = /* @__PURE__ */ new Float32Array(30);
 	buffer5x5 = /* @__PURE__ */ new Float32Array(750);
 	buffer7x7 = /* @__PURE__ */ new Float32Array(1470);
@@ -83783,18 +83783,18 @@ var init_Altitude = __esmMin((() => {
 		static intersect(modelView, projection, out) {
 			let i;
 			const count = Altitude.MAX_INTERSECT_COUNT;
-			mat4$23.invert(_matrix$7, modelView);
-			_from[0] = _matrix$7[12];
-			_from[1] = _matrix$7[13];
-			_from[2] = _matrix$7[14];
+			mat4$24.invert(_matrix$8, modelView);
+			_from[0] = _matrix$8[12];
+			_from[1] = _matrix$8[13];
+			_from[2] = _matrix$8[14];
 			_to[0] = Mouse.screen.x / Mouse.screen.width * 2 - 1;
 			_to[1] = -(Mouse.screen.y / Mouse.screen.height) * 2 + 1;
 			if (VerticalFlip.isActive()) _to[1] = -_to[1];
 			_to[2] = 1;
 			_to[3] = 1;
-			mat4$23.multiply(_matrix$7, projection, modelView);
-			mat4$23.invert(_matrix$7, _matrix$7);
-			vec4$7.transformMat4(_to, _to, _matrix$7);
+			mat4$24.multiply(_matrix$8, projection, modelView);
+			mat4$24.invert(_matrix$8, _matrix$8);
+			vec4$7.transformMat4(_to, _to, _matrix$8);
 			_to[0] /= _to[3];
 			_to[1] /= _to[3];
 			_to[2] /= _to[3];
@@ -145184,12 +145184,22 @@ function invalidErr(string, message) {
 }
 function internalCalculateObjectSize(object, serializeFunctions, ignoreUndefined) {
 	const objectStack = [{
-		obj: object,
-		ignoreUndefined: ignoreUndefined ?? false
+		object,
+		ignoreUndefined: ignoreUndefined ?? false,
+		exit: false
 	}];
+	const path = /* @__PURE__ */ new Set();
 	let total = 0;
 	while (objectStack.length > 0) {
-		const { obj, ignoreUndefined: frameIgnoreUndefined } = objectStack.pop();
+		const frame = objectStack.pop();
+		if (frame.exit) {
+			path.delete(frame.object);
+			continue;
+		}
+		const { object: obj, ignoreUndefined: frameIgnoreUndefined } = frame;
+		path.add(obj);
+		frame.exit = true;
+		objectStack.push(frame);
 		total += 5;
 		const isObjArray = Array.isArray(obj);
 		const isObjMap = !isObjArray && (obj instanceof Map || isMap(obj));
@@ -145197,13 +145207,13 @@ function internalCalculateObjectSize(object, serializeFunctions, ignoreUndefined
 		if (!isObjArray && !isObjMap && typeof obj?.toBSON === "function") target = obj.toBSON();
 		if (isObjArray) {
 			const array = target;
-			for (let i = 0; i < array.length; i++) total += calculateElementSize(i.toString(), array[i], serializeFunctions, true, frameIgnoreUndefined, objectStack);
-		} else if (isObjMap) for (const [key, value] of target) total += calculateElementSize(key, value, serializeFunctions, false, frameIgnoreUndefined, objectStack);
-		else for (const key of Object.keys(target)) total += calculateElementSize(key, target[key], serializeFunctions, false, frameIgnoreUndefined, objectStack);
+			for (let i = 0; i < array.length; i++) total += calculateElementSize(i.toString(), array[i], serializeFunctions, true, frameIgnoreUndefined, objectStack, path);
+		} else if (isObjMap) for (const [key, value] of target) total += calculateElementSize(key, value, serializeFunctions, false, frameIgnoreUndefined, objectStack, path);
+		else for (const key of Object.keys(target)) total += calculateElementSize(key, target[key], serializeFunctions, false, frameIgnoreUndefined, objectStack, path);
 	}
 	return total;
 }
-function calculateElementSize(name, value, serializeFunctions = false, isArray = false, ignoreUndefined = false, objectStack) {
+function calculateElementSize(name, value, serializeFunctions = false, isArray = false, ignoreUndefined = false, objectStack, path) {
 	if (typeof value?.toBSON === "function") value = value.toBSON();
 	switch (typeof value) {
 		case "string": return 1 + ByteUtils.utf8ByteLength(name) + 1 + 4 + ByteUtils.utf8ByteLength(value) + 1;
@@ -145225,9 +145235,11 @@ function calculateElementSize(name, value, serializeFunctions = false, isArray =
 		else if (value._bsontype === "Int32") return ByteUtils.utf8ByteLength(name) + 1 + 5;
 		else if (value._bsontype === "Code") {
 			if (value.scope != null && Object.keys(value.scope).length > 0) {
+				if (path.has(value.scope)) throw new BSONError("Cannot convert circular structure to BSON");
 				objectStack.push({
-					obj: value.scope,
-					ignoreUndefined
+					object: value.scope,
+					ignoreUndefined,
+					exit: false
 				});
 				return ByteUtils.utf8ByteLength(name) + 1 + 1 + 4 + 4 + ByteUtils.utf8ByteLength(value.code.toString()) + 1;
 			} else return ByteUtils.utf8ByteLength(name) + 1 + 1 + 4 + ByteUtils.utf8ByteLength(value.code.toString()) + 1;
@@ -145243,16 +145255,19 @@ function calculateElementSize(name, value, serializeFunctions = false, isArray =
 			}, value.fields);
 			if (value.db != null) ordered_values["$db"] = value.db;
 			objectStack.push({
-				obj: ordered_values,
-				ignoreUndefined: true
+				object: ordered_values,
+				ignoreUndefined: true,
+				exit: false
 			});
 			return ByteUtils.utf8ByteLength(name) + 1 + 1;
 		} else if (value instanceof RegExp || isRegExp$1(value)) return ByteUtils.utf8ByteLength(name) + 1 + 1 + ByteUtils.utf8ByteLength(value.source) + 1 + (value.global ? 1 : 0) + (value.ignoreCase ? 1 : 0) + (value.multiline ? 1 : 0) + 1;
 		else if (value._bsontype === "BSONRegExp") return ByteUtils.utf8ByteLength(name) + 1 + 1 + ByteUtils.utf8ByteLength(value.pattern) + 1 + ByteUtils.utf8ByteLength(value.options) + 1;
 		else {
+			if (path.has(value)) throw new BSONError("Cannot convert circular structure to BSON");
 			objectStack.push({
-				obj: value,
-				ignoreUndefined
+				object: value,
+				ignoreUndefined,
+				exit: false
 			});
 			return ByteUtils.utf8ByteLength(name) + 1 + 1;
 		}
@@ -206805,7 +206820,7 @@ function init$14(gl) {
 		});
 	});
 	_buffer$20 = gl.createBuffer();
-	_program$27 = WebGL_default.createShaderProgram(gl, GridSelector_default$2, GridSelector_default$1);
+	_program$28 = WebGL_default.createShaderProgram(gl, GridSelector_default$2, GridSelector_default$1);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
 	gl.bufferData(gl.ARRAY_BUFFER, _buffer_data.byteLength, gl.DYNAMIC_DRAW);
 }
@@ -206821,10 +206836,10 @@ function init$14(gl) {
 */
 function render$15(gl, modelView, projection, fog, x, y) {
 	if (!_texture$5) return;
-	const uniform = _program$27.uniform;
-	const attribute = _program$27.attribute;
+	const uniform = _program$28.uniform;
+	const attribute = _program$28.attribute;
 	let z;
-	gl.useProgram(_program$27);
+	gl.useProgram(_program$28);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -206870,12 +206885,12 @@ function free$9(gl) {
 		gl.deleteTexture(_texture$5);
 		_texture$5 = null;
 	}
-	if (_program$27) {
-		gl.deleteProgram(_program$27);
-		_program$27 = null;
+	if (_program$28) {
+		gl.deleteProgram(_program$28);
+		_program$28 = null;
 	}
 }
-var _program$27, _buffer$20, _texture$5, _xy, _buffer_data, GridSelector_default;
+var _program$28, _buffer$20, _texture$5, _xy, _buffer_data, GridSelector_default;
 var init_GridSelector = __esmMin((() => {
 	init_Altitude();
 	init_Client();
@@ -206884,7 +206899,7 @@ var init_GridSelector = __esmMin((() => {
 	init_Configs();
 	init_GridSelector$2();
 	init_GridSelector$1();
-	_program$27 = null;
+	_program$28 = null;
 	_buffer$20 = null;
 	_texture$5 = null;
 	_xy = null;
@@ -206997,9 +207012,9 @@ var init_Ground$1 = __esmMin((() => {
 * @param {object} light structure
 */
 function render$14(gl, modelView, projection, normalMat, fog, light) {
-	const uniform = _program$26.uniform;
-	const attribute = _program$26.attribute;
-	gl.useProgram(_program$26);
+	const uniform = _program$27.uniform;
+	const attribute = _program$27.attribute;
+	gl.useProgram(_program$27);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform3fv(uniform.uLightDirection, light.direction);
@@ -207170,7 +207185,7 @@ function init$13(gl, data) {
 	data.height;
 	_shadowMap = data.shadowMap;
 	if (!_buffer$19) _buffer$19 = gl.createBuffer();
-	if (!_program$26) _program$26 = WebGL_default.createShaderProgram(gl, Ground_default$2, Ground_default$1);
+	if (!_program$27) _program$27 = WebGL_default.createShaderProgram(gl, Ground_default$2, Ground_default$1);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$19);
 	gl.bufferData(gl.ARRAY_BUFFER, data.mesh, gl.STATIC_DRAW);
 	initLightmap(gl, data.lightmap, data.lightmapSize);
@@ -207221,7 +207236,7 @@ function getShadowFactor(x, y) {
 	for (y = -3; y < 3; ++y) for (x = -3; x < 3; ++x) factor += _shadowMap[_x + x + (_y + y) * _width * 8];
 	return factor / 36 / 255;
 }
-var procCanvas$2, procCtx$2, _program$26, _buffer$19, _lightmap, _tileColor, _textureAtlas, _shadowMap, _vertCount$1, _width, Ground_default;
+var procCanvas$2, procCtx$2, _program$27, _buffer$19, _lightmap, _tileColor, _textureAtlas, _shadowMap, _vertCount$1, _width, Ground_default;
 var init_Ground = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -207231,7 +207246,7 @@ var init_Ground = __esmMin((() => {
 	init_Ground$1();
 	procCanvas$2 = document.createElement("canvas");
 	procCtx$2 = procCanvas$2.getContext("2d", { willReadFrequently: true });
-	_program$26 = null;
+	_program$27 = null;
 	_buffer$19 = null;
 	_lightmap = null;
 	_tileColor = null;
@@ -207265,7 +207280,7 @@ var init_SpriteRenderer$1 = __esmMin((() => {
 */
 function RenderCanvas3D(isBlendModeOne) {
 	if (!this.image.texture || !this.color[3]) return;
-	const uniform = _program$25.uniform;
+	const uniform = _program$26.uniform;
 	const gl = _gl$2;
 	const use_pal = this.image.palette !== null;
 	if (isBlendModeOne) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -207288,9 +207303,9 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
 	if (this.angle !== _angle) {
 		_angle = this.angle;
-		mat4$22.identity(_matrix$6);
-		if (_angle) mat4$22.rotateZ(_matrix$6, _matrix$6, -_angle / 180 * Math.PI);
-		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$6);
+		mat4$23.identity(_matrix$7);
+		if (_angle) mat4$23.rotateZ(_matrix$7, _matrix$7, -_angle / 180 * Math.PI);
+		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$7);
 	}
 	_offset[0] = this.offset[0] / 175 * this.xSize;
 	_offset[1] = this.offset[1] / 175 * this.ySize - .5;
@@ -207306,14 +207321,14 @@ function RenderCanvas3D(isBlendModeOne) {
 	}
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
-var mat4$22, RenderCanvas2D, _program$25, _buffer$18, _ctx$5, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$23, RenderCanvas2D, _program$26, _buffer$18, _ctx$5, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_Camera();
 	init_SpriteRenderer$2();
 	init_SpriteRenderer$1();
-	mat4$22 = gl_matrix_default.mat4;
+	mat4$23 = gl_matrix_default.mat4;
 	RenderCanvas2D = (function RenderCanvas2DClosure() {
 		let imageData;
 		const canvas = document.createElement("canvas");
@@ -207412,7 +207427,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			_ctx$5.restore();
 		};
 	})();
-	_program$25 = null;
+	_program$26 = null;
 	_buffer$18 = null;
 	_ctx$5 = null;
 	_gl$2 = null;
@@ -207427,7 +207442,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_texture$4 = null;
 	_usepal = null;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
-	_matrix$6 = /* @__PURE__ */ new Float32Array(16);
+	_matrix$7 = /* @__PURE__ */ new Float32Array(16);
 	_size$7 = /* @__PURE__ */ new Float32Array(2);
 	_offset = /* @__PURE__ */ new Float32Array(2);
 	SpriteRenderer = class {
@@ -207523,7 +207538,7 @@ var init_SpriteRenderer = __esmMin((() => {
 					1
 				]), gl.STATIC_DRAW);
 			}
-			if (!_program$25) _program$25 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
+			if (!_program$26) _program$26 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
 		}
 		/**
 		* Initialize 3D Context
@@ -207534,12 +207549,12 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {object} fog structure
 		*/
 		static bind3DContext(gl, modelView, projection, fog) {
-			const attribute = _program$25.attribute;
-			const uniform = _program$25.uniform;
-			gl.useProgram(_program$25);
+			const attribute = _program$26.attribute;
+			const uniform = _program$26.uniform;
+			gl.useProgram(_program$26);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$22.invert(_matrix$6, modelView));
+			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$23.invert(_matrix$7, modelView));
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -207568,7 +207583,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static unbind(gl) {
-			const attribute = _program$25.attribute;
+			const attribute = _program$26.attribute;
 			gl.disableVertexAttribArray(attribute.aPosition);
 			gl.disableVertexAttribArray(attribute.aTextureCoord);
 		}
@@ -207662,7 +207677,7 @@ function init$12(gl, water) {
 	_wavePitch = water.wavePitch;
 	_waterOpacity = water.type !== 4 && water.type !== 6 ? .8 : 1;
 	if (!_vertCount) return;
-	if (!_program$24) _program$24 = WebGL_default.createShaderProgram(gl, Water_default$2, Water_default$1);
+	if (!_program$25) _program$25 = WebGL_default.createShaderProgram(gl, Water_default$2, Water_default$1);
 	_buffer$17 = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$17);
 	gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
@@ -207683,10 +207698,10 @@ function init$12(gl, water) {
 */
 function render$13(gl, modelView, projection, fog, light, tick) {
 	if (!_vertCount) return;
-	const uniform = _program$24.uniform;
-	const attribute = _program$24.attribute;
+	const uniform = _program$25.uniform;
+	const attribute = _program$25.attribute;
 	const frame = tick / (1e3 / 60);
-	gl.useProgram(_program$24);
+	gl.useProgram(_program$25);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -207723,22 +207738,22 @@ function free$7(gl) {
 		gl.deleteBuffer(_buffer$17);
 		_buffer$17 = null;
 	}
-	if (_program$24) {
-		gl.deleteProgram(_program$24);
-		_program$24 = null;
+	if (_program$25) {
+		gl.deleteProgram(_program$25);
+		_program$25 = null;
 	}
 	for (i = 0; i < 32; ++i) if (_textures$2[i]) {
 		gl.deleteTexture(_textures$2[i]);
 		_textures$2[i] = null;
 	}
 }
-var _program$24, _buffer$17, _vertCount, _textures$2, _waveSpeed, _waveHeight, _wavePitch, _animSpeed, _waterOpacity, Water_default;
+var _program$25, _buffer$17, _vertCount, _textures$2, _waveSpeed, _waveHeight, _wavePitch, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
 	init_Water$2();
 	init_Water$1();
-	_program$24 = null;
+	_program$25 = null;
 	_buffer$17 = null;
 	_vertCount = 0;
 	_textures$2 = new Array(32);
@@ -207801,7 +207816,7 @@ function init$11(gl, data) {
 	_batchesReady = false;
 	_pendingTextures = count;
 	if (!_buffer$16) _buffer$16 = gl.createBuffer();
-	if (!_program$23) _program$23 = WebGL_default.createShaderProgram(gl, Models_default$2, Models_default$1);
+	if (!_program$24) _program$24 = WebGL_default.createShaderProgram(gl, Models_default$2, Models_default$1);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$16);
 	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
@@ -207829,10 +207844,10 @@ function init$11(gl, data) {
 * @param {object} light structure
 */
 function render$12(gl, modelView, projection, normalMat, fog, light) {
-	const uniform = _program$23.uniform;
-	const attribute = _program$23.attribute;
+	const uniform = _program$24.uniform;
+	const attribute = _program$24.attribute;
 	let i, count;
-	gl.useProgram(_program$23);
+	gl.useProgram(_program$24);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform3fv(uniform.uLightDirection, light.direction);
@@ -207887,23 +207902,23 @@ function free$6(gl) {
 		gl.deleteBuffer(_buffer$16);
 		_buffer$16 = null;
 	}
-	if (_program$23) {
-		gl.deleteProgram(_program$23);
-		_program$23 = null;
+	if (_program$24) {
+		gl.deleteProgram(_program$24);
+		_program$24 = null;
 	}
 	for (i = 0, count = _objects.length; i < count; ++i) gl.deleteTexture(_objects[i].texture);
 	_objects.length = 0;
 	_batches.length = 0;
 	_batchesReady = false;
 }
-var _program$23, _buffer$16, _objects, _batches, _batchesReady, _pendingTextures, Models_default;
+var _program$24, _buffer$16, _objects, _batches, _batchesReady, _pendingTextures, Models_default;
 var init_Models = __esmMin((() => {
 	init_Models$2();
 	init_Models$1();
 	init_WebGL();
 	init_Map();
 	init_SpriteRenderer();
-	_program$23 = null;
+	_program$24 = null;
 	_buffer$16 = null;
 	_objects = [];
 	_batches = [];
@@ -207933,27 +207948,27 @@ var init_AnimatedModels$1 = __esmMin((() => {
 * Initialize shader program
 */
 function init$10(gl) {
-	_program$22 = WebGL_default.createShaderProgram(gl, AnimatedModels_default$2, AnimatedModels_default$1);
-	_program$22.uniform = {
-		uModelViewMat: gl.getUniformLocation(_program$22, "uModelViewMat"),
-		uProjectionMat: gl.getUniformLocation(_program$22, "uProjectionMat"),
-		uNormalMat: gl.getUniformLocation(_program$22, "uNormalMat"),
-		uLightDirection: gl.getUniformLocation(_program$22, "uLightDirection"),
-		uLightOpacity: gl.getUniformLocation(_program$22, "uLightOpacity"),
-		uLightAmbient: gl.getUniformLocation(_program$22, "uLightAmbient"),
-		uLightDiffuse: gl.getUniformLocation(_program$22, "uLightDiffuse"),
-		uLightEnv: gl.getUniformLocation(_program$22, "uLightEnv"),
-		uFogUse: gl.getUniformLocation(_program$22, "uFogUse"),
-		uFogNear: gl.getUniformLocation(_program$22, "uFogNear"),
-		uFogFar: gl.getUniformLocation(_program$22, "uFogFar"),
-		uFogColor: gl.getUniformLocation(_program$22, "uFogColor"),
-		uDiffuse: gl.getUniformLocation(_program$22, "uDiffuse")
+	_program$23 = WebGL_default.createShaderProgram(gl, AnimatedModels_default$2, AnimatedModels_default$1);
+	_program$23.uniform = {
+		uModelViewMat: gl.getUniformLocation(_program$23, "uModelViewMat"),
+		uProjectionMat: gl.getUniformLocation(_program$23, "uProjectionMat"),
+		uNormalMat: gl.getUniformLocation(_program$23, "uNormalMat"),
+		uLightDirection: gl.getUniformLocation(_program$23, "uLightDirection"),
+		uLightOpacity: gl.getUniformLocation(_program$23, "uLightOpacity"),
+		uLightAmbient: gl.getUniformLocation(_program$23, "uLightAmbient"),
+		uLightDiffuse: gl.getUniformLocation(_program$23, "uLightDiffuse"),
+		uLightEnv: gl.getUniformLocation(_program$23, "uLightEnv"),
+		uFogUse: gl.getUniformLocation(_program$23, "uFogUse"),
+		uFogNear: gl.getUniformLocation(_program$23, "uFogNear"),
+		uFogFar: gl.getUniformLocation(_program$23, "uFogFar"),
+		uFogColor: gl.getUniformLocation(_program$23, "uFogColor"),
+		uDiffuse: gl.getUniformLocation(_program$23, "uDiffuse")
 	};
-	_program$22.attribute = {
-		aPosition: gl.getAttribLocation(_program$22, "aPosition"),
-		aNormal: gl.getAttribLocation(_program$22, "aNormal"),
-		aTextureCoord: gl.getAttribLocation(_program$22, "aTextureCoord"),
-		aAlpha: gl.getAttribLocation(_program$22, "aAlpha")
+	_program$23.attribute = {
+		aPosition: gl.getAttribLocation(_program$23, "aPosition"),
+		aNormal: gl.getAttribLocation(_program$23, "aNormal"),
+		aTextureCoord: gl.getAttribLocation(_program$23, "aTextureCoord"),
+		aAlpha: gl.getAttribLocation(_program$23, "aAlpha")
 	};
 }
 /**
@@ -207976,11 +207991,11 @@ function isNodeStatic(node) {
 */
 function add$2(gl, modelData) {
 	if (!modelData || !modelData.nodes || modelData.nodes.length === 0) return;
-	if (!_program$22) init$10(gl);
+	if (!_program$23) init$10(gl);
 	const instances = [];
 	for (let i = 0; i < modelData.instances.length; i++) {
 		const instArray = modelData.instances[i];
-		const matrix = mat4$21.create();
+		const matrix = mat4$22.create();
 		for (let j = 0; j < 16; j++) matrix[j] = instArray[j];
 		instances.push(matrix);
 	}
@@ -208010,20 +208025,20 @@ function add$2(gl, modelData) {
 			_isStatic: !hasAnyAnimation,
 			_index: n,
 			_cache: {
-				local: mat4$21.create(),
-				final: mat4$21.create(),
+				local: mat4$22.create(),
+				final: mat4$22.create(),
 				instances: new Array(instances.length)
 			}
 		};
 		if (node._isStatic) {
-			const local = mat4$21.create();
-			mat4$21.identity(local);
-			mat4$21.translate(local, local, node.pos);
-			mat4$21.rotate(local, local, node.rotangle, node.rotaxis);
-			mat4$21.scale(local, local, node.scale);
+			const local = mat4$22.create();
+			mat4$22.identity(local);
+			mat4$22.translate(local, local, node.pos);
+			mat4$22.rotate(local, local, node.rotangle, node.rotaxis);
+			mat4$22.scale(local, local, node.scale);
 			node._staticLocalMatrix = local;
 		}
-		for (let k = 0; k < instances.length; k++) node._cache.instances[k] = mat4$21.create();
+		for (let k = 0; k < instances.length; k++) node._cache.instances[k] = mat4$22.create();
 		if (node.rotKeyframes) for (let rk = 0; rk < node.rotKeyframes.length; rk++) {
 			const kf = node.rotKeyframes[rk];
 			totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
@@ -208126,7 +208141,7 @@ function add$2(gl, modelData) {
 	};
 	for (let n = 0; n < nodes.length; n++) {
 		animModel._nodeMap[nodes[n].name] = nodes[n];
-		animModel._globalMatrices[n] = mat4$21.create();
+		animModel._globalMatrices[n] = mat4$22.create();
 	}
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, animModel._gpuBuffer.byteLength, gl.DYNAMIC_DRAW);
@@ -208134,7 +208149,7 @@ function add$2(gl, modelData) {
 	animModel.vao = gl.createVertexArray();
 	gl.bindVertexArray(animModel.vao);
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
-	const attribute = _program$22.attribute;
+	const attribute = _program$23.attribute;
 	const stride = 36;
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, stride, 0);
@@ -208212,9 +208227,9 @@ function getScaleAtFrame$2(keyframes, frame, out) {
 * Writes directly to the monolithic buffer
 */
 function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) {
-	const normalMat = node._cache.normalMat || mat4$21.create();
+	const normalMat = node._cache.normalMat || mat4$22.create();
 	node._cache.normalMat = normalMat;
-	mat4$21.extractRotation(normalMat, finalMatrix);
+	mat4$22.extractRotation(normalMat, finalMatrix);
 	const m = finalMatrix;
 	const n = normalMat;
 	const m0 = m[0], m1 = m[1], m2 = m[2], m4 = m[4], m5 = m[5], m6 = m[6], m8 = m[8], m9 = m[9], m10 = m[10], m12 = m[12], m13 = m[13], m14 = m[14];
@@ -208282,35 +208297,35 @@ function updateModelBuffer(gl, model, frame, force) {
 		const globalMatrix = globalMatrices[n];
 		if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name) {
 			const parentIdx = nodeMap[node.parentname]._index;
-			mat4$21.copy(globalMatrix, globalMatrices[parentIdx]);
-		} else mat4$21.identity(globalMatrix);
-		if (node._isStatic) mat4$21.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
+			mat4$22.copy(globalMatrix, globalMatrices[parentIdx]);
+		} else mat4$22.identity(globalMatrix);
+		if (node._isStatic) mat4$22.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
 		else {
 			const animPos = getPositionAtFrame$2(node.posKeyframes, frame, _tempVec3);
-			mat4$21.translate(globalMatrix, globalMatrix, animPos || node.pos);
+			mat4$22.translate(globalMatrix, globalMatrix, animPos || node.pos);
 			const animRot = getRotationAtFrame$2(node.rotKeyframes, frame, _tempQuat);
 			if (animRot) {
-				mat4$21.fromQuat(_tempMat4, animRot);
-				mat4$21.multiply(globalMatrix, globalMatrix, _tempMat4);
-			} else mat4$21.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
+				mat4$22.fromQuat(_tempMat4, animRot);
+				mat4$22.multiply(globalMatrix, globalMatrix, _tempMat4);
+			} else mat4$22.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
 			const animScale = getScaleAtFrame$2(node.scaleKeyFrames, frame, _tempVec3Scale);
-			mat4$21.scale(globalMatrix, globalMatrix, animScale || node.scale);
+			mat4$22.scale(globalMatrix, globalMatrix, animScale || node.scale);
 		}
 		const finalNodeMatrix = node._cache.final;
-		mat4$21.identity(finalNodeMatrix);
-		mat4$21.translate(finalNodeMatrix, finalNodeMatrix, [
+		mat4$22.identity(finalNodeMatrix);
+		mat4$22.translate(finalNodeMatrix, finalNodeMatrix, [
 			-box.center[0],
 			-box.max[1],
 			-box.center[2]
 		]);
-		mat4$21.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
-		if (!node.is_only) mat4$21.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
-		mat4$21.multiply(finalNodeMatrix, finalNodeMatrix, mat3$5.toMat4(node.mat3));
+		mat4$22.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
+		if (!node.is_only) mat4$22.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
+		mat4$22.multiply(finalNodeMatrix, finalNodeMatrix, mat3$5.toMat4(node.mat3));
 		node.finalMatrix = finalNodeMatrix;
 	}
 	for (let n = 0; n < model.nodes.length; n++) {
 		const node = model.nodes[n];
-		for (let i = 0; i < model.instances.length; i++) mat4$21.multiply(node._cache.instances[i], model.instances[i], node.finalMatrix);
+		for (let i = 0; i < model.instances.length; i++) mat4$22.multiply(node._cache.instances[i], model.instances[i], node.finalMatrix);
 	}
 	const buffer = model._gpuBuffer;
 	const writePlans = model.writePlans;
@@ -208332,9 +208347,9 @@ function updateModelBuffer(gl, model, frame, force) {
 */
 function render$11(gl, modelView, projection, normalMat, fog, light, tick) {
 	if (_animatedModels.length === 0) return;
-	if (!_program$22) init$10(gl);
-	const uniform = _program$22.uniform;
-	gl.useProgram(_program$22);
+	if (!_program$23) init$10(gl);
+	const uniform = _program$23.uniform;
+	gl.useProgram(_program$23);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniformMatrix3fv(uniform.uNormalMat, false, normalMat);
@@ -208373,7 +208388,7 @@ function render$11(gl, modelView, projection, normalMat, fog, light, tick) {
 function hasAnimatedModels() {
 	return _animatedModels.length > 0;
 }
-var mat3$5, mat4$21, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _program$22, _animatedModels, AnimatedModels_default;
+var mat3$5, mat4$22, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _program$23, _animatedModels, AnimatedModels_default;
 var init_AnimatedModels = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -208383,14 +208398,14 @@ var init_AnimatedModels = __esmMin((() => {
 	init_AnimatedModels$1();
 	init_SpriteRenderer();
 	mat3$5 = gl_matrix_default.mat3;
-	mat4$21 = gl_matrix_default.mat4;
+	mat4$22 = gl_matrix_default.mat4;
 	vec3$5 = gl_matrix_default.vec3;
 	quat$1 = gl_matrix_default.quat;
 	_tempVec3 = vec3$5.create();
 	_tempVec3Scale = vec3$5.create();
 	_tempQuat = quat$1.create();
-	_tempMat4 = mat4$21.create();
-	_program$22 = null;
+	_tempMat4 = mat4$22.create();
+	_program$23 = null;
 	_animatedModels = [];
 	AnimatedModels_default = {
 		init: init$10,
@@ -212101,31 +212116,31 @@ function grayBroadcast(src, out) {
 * Initialize the shader program.
 */
 function init$9(gl) {
-	_program$21 = WebGL_default.createShaderProgram(gl, GR2Model_default$1, GR2Model_default);
-	_program$21.uniform = {
-		uModelViewMat: gl.getUniformLocation(_program$21, "uModelViewMat"),
-		uProjectionMat: gl.getUniformLocation(_program$21, "uProjectionMat"),
-		uNormalMat: gl.getUniformLocation(_program$21, "uNormalMat"),
-		uBones: gl.getUniformLocation(_program$21, "uBones[0]"),
-		uLightDirection: gl.getUniformLocation(_program$21, "uLightDirection"),
-		uLightOpacity: gl.getUniformLocation(_program$21, "uLightOpacity"),
-		uLightAmbient: gl.getUniformLocation(_program$21, "uLightAmbient"),
-		uLightDiffuse: gl.getUniformLocation(_program$21, "uLightDiffuse"),
-		uLightEnv: gl.getUniformLocation(_program$21, "uLightEnv"),
-		uAlphaRef: gl.getUniformLocation(_program$21, "uAlphaRef"),
-		uAlpha: gl.getUniformLocation(_program$21, "uAlpha"),
-		uFogUse: gl.getUniformLocation(_program$21, "uFogUse"),
-		uFogNear: gl.getUniformLocation(_program$21, "uFogNear"),
-		uFogFar: gl.getUniformLocation(_program$21, "uFogFar"),
-		uFogColor: gl.getUniformLocation(_program$21, "uFogColor"),
-		uDiffuse: gl.getUniformLocation(_program$21, "uDiffuse")
+	_program$22 = WebGL_default.createShaderProgram(gl, GR2Model_default$1, GR2Model_default);
+	_program$22.uniform = {
+		uModelViewMat: gl.getUniformLocation(_program$22, "uModelViewMat"),
+		uProjectionMat: gl.getUniformLocation(_program$22, "uProjectionMat"),
+		uNormalMat: gl.getUniformLocation(_program$22, "uNormalMat"),
+		uBones: gl.getUniformLocation(_program$22, "uBones[0]"),
+		uLightDirection: gl.getUniformLocation(_program$22, "uLightDirection"),
+		uLightOpacity: gl.getUniformLocation(_program$22, "uLightOpacity"),
+		uLightAmbient: gl.getUniformLocation(_program$22, "uLightAmbient"),
+		uLightDiffuse: gl.getUniformLocation(_program$22, "uLightDiffuse"),
+		uLightEnv: gl.getUniformLocation(_program$22, "uLightEnv"),
+		uAlphaRef: gl.getUniformLocation(_program$22, "uAlphaRef"),
+		uAlpha: gl.getUniformLocation(_program$22, "uAlpha"),
+		uFogUse: gl.getUniformLocation(_program$22, "uFogUse"),
+		uFogNear: gl.getUniformLocation(_program$22, "uFogNear"),
+		uFogFar: gl.getUniformLocation(_program$22, "uFogFar"),
+		uFogColor: gl.getUniformLocation(_program$22, "uFogColor"),
+		uDiffuse: gl.getUniformLocation(_program$22, "uDiffuse")
 	};
-	_program$21.attribute = {
-		aPosition: gl.getAttribLocation(_program$21, "aPosition"),
-		aNormal: gl.getAttribLocation(_program$21, "aNormal"),
-		aTextureCoord: gl.getAttribLocation(_program$21, "aTextureCoord"),
-		aBoneIndex: gl.getAttribLocation(_program$21, "aBoneIndex"),
-		aBoneWeight: gl.getAttribLocation(_program$21, "aBoneWeight")
+	_program$22.attribute = {
+		aPosition: gl.getAttribLocation(_program$22, "aPosition"),
+		aNormal: gl.getAttribLocation(_program$22, "aNormal"),
+		aTextureCoord: gl.getAttribLocation(_program$22, "aTextureCoord"),
+		aBoneIndex: gl.getAttribLocation(_program$22, "aBoneIndex"),
+		aBoneWeight: gl.getAttribLocation(_program$22, "aBoneWeight")
 	};
 }
 /**
@@ -212283,7 +212298,7 @@ function acquire(path) {
 */
 function buildTypeGL(gl, type) {
 	type.textures = makeTypeTextures(gl, type.parsed);
-	const attr = _program$21.attribute;
+	const attr = _program$22.attribute;
 	type.submeshes = type.meshes.map(function(mesh) {
 		const vao = gl.createVertexArray();
 		gl.bindVertexArray(vao);
@@ -212403,13 +212418,13 @@ function normalize3(v) {
 function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
 	_gl$1 = gl;
 	if (_instances.length === 0 || !light) return;
-	if (!_program$21) init$9(gl);
+	if (!_program$22) init$9(gl);
 	for (const path in _types) {
 		const type = _types[path];
 		if (type.cpuReady && !type.glReady) buildTypeGL(gl, type);
 	}
-	const uniform = _program$21.uniform;
-	gl.useProgram(_program$21);
+	const uniform = _program$22.uniform;
+	gl.useProgram(_program$22);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1f(uniform.uLightOpacity, light.opacity != null ? light.opacity : 1);
 	gl.uniform3fv(uniform.uLightEnv, light.env || _phaseEnv);
@@ -212472,8 +212487,8 @@ function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
 				bones = flattenPose(_r(type.parsed, idx, sampleT), type.boneCount);
 			}
 			seen[key] = bones;
-			mat4$20.multiply(_mv$1, modelView, inst.world);
-			mat4$20.toInverseMat3(_mv$1, _nmat$1);
+			mat4$21.multiply(_mv$1, modelView, inst.world);
+			mat4$21.toInverseMat3(_mv$1, _nmat$1);
 			mat3$4.transpose(_nmat$1, _nmat$1);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _mv$1);
 			gl.uniformMatrix3fv(uniform.uNormalMat, false, _nmat$1);
@@ -212496,7 +212511,7 @@ function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
 					x2: 0,
 					y2: 0
 				});
-				mat4$20.multiply(_mvp, projection, _mv$1);
+				mat4$21.multiply(_mvp, projection, _mv$1);
 				if (!computeBaseSphereRect(_mvp, projection, box)) inst.screenRect = null;
 			}
 			let alpha = 1;
@@ -212754,7 +212769,7 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach(insts[i]);
 	_poseCache = {};
 }
-var mat3$4, mat4$20, ALPHA_REF$1, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$21, _gl$1, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv$1, _mvp, _nmat$1, _lightView$1, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX$1, TEX_GREY_PX$1, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE$1, GR2_VERTEX_LAYOUT$1, GR2ModelRenderer_default;
+var mat3$4, mat4$21, ALPHA_REF$1, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$22, _gl$1, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv$1, _mvp, _nmat$1, _lightView$1, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX$1, TEX_GREY_PX$1, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE$1, GR2_VERTEX_LAYOUT$1, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -212772,7 +212787,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	init_GR2Model$1();
 	init_GR2Model();
 	mat3$4 = gl_matrix_default.mat3;
-	mat4$20 = gl_matrix_default.mat4;
+	mat4$21 = gl_matrix_default.mat4;
 	ALPHA_REF$1 = 207 / 255;
 	_phaseDiffuse = new Float32Array([
 		128 / 255,
@@ -212813,7 +212828,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 		sguardian90_9: "emp",
 		treasurebox_2: "emp"
 	};
-	_program$21 = null;
+	_program$22 = null;
 	_gl$1 = null;
 	_types = {};
 	_missing = {};
@@ -212834,8 +212849,8 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	_debugCell = false;
 	BASE_SPHERE_HALF_EXTENT = Math.sqrt(2);
 	_readyPromise = null;
-	_mv$1 = mat4$20.create();
-	_mvp = mat4$20.create();
+	_mv$1 = mat4$21.create();
+	_mvp = mat4$21.create();
 	_nmat$1 = mat3$4.create();
 	_lightView$1 = /* @__PURE__ */ new Float32Array(3);
 	_clip = /* @__PURE__ */ new Float32Array(4);
@@ -222194,7 +222209,7 @@ function initializePathFindingWorker() {
 	if (!_pathFindingWorker) {
 		_pathFindingWorker = new Worker(new URL(
 			/* @vite-ignore */
-			"" + new URL("PathFindingWorker.js", import.meta.url).href,
+			new URL("PathFindingWorker.js", import.meta.url).href,
 			"" + import.meta.url
 		).href);
 		_pathFindingWorker.id = (/* @__PURE__ */ new Date()).getTime().toString();
@@ -236568,19 +236583,19 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var mat4$19, D3DBLEND, _program$20, _buffer$15, _bufferData, _matrix$5, _lastAngle, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var mat4$20, D3DBLEND, _program$21, _buffer$15, _bufferData, _matrix$6, _lastAngle, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
 	init_WebGL();
 	init_gl_matrix();
 	init_Client();
-	mat4$19 = gl_matrix_default.mat4;
+	mat4$20 = gl_matrix_default.mat4;
 	D3DBLEND = {};
-	_program$20 = null;
+	_program$21 = null;
 	_buffer$15 = null;
 	_bufferData = /* @__PURE__ */ new Float32Array(16);
-	_matrix$5 = mat4$19.create();
+	_matrix$6 = mat4$20.create();
 	_lastAngle = -1;
 	PIXEL_TO_WORLD_Z = 1 / 5;
 	anim = {
@@ -236673,8 +236688,8 @@ var init_StrEffect = __esmMin((() => {
 		* @param {StrAnimation} animation object
 		*/
 		renderAnimation(gl, material, animat) {
-			const uniform = _program$20.uniform;
-			const attribute = _program$20.attribute;
+			const uniform = _program$21.uniform;
+			const attribute = _program$21.attribute;
 			let sizeScale = 1;
 			if (this.ownerEntity) sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
 			_bufferData[0] = animat.xy[0] * sizeScale;
@@ -236694,8 +236709,8 @@ var init_StrEffect = __esmMin((() => {
 			_bufferData[14] = 1;
 			_bufferData[15] = 1;
 			if (animat.angle !== _lastAngle) {
-				mat4$19.identity(_matrix$5);
-				mat4$19.rotateZ(_matrix$5, _matrix$5, -animat.angle / 180 * Math.PI);
+				mat4$20.identity(_matrix$6);
+				mat4$20.rotateZ(_matrix$6, _matrix$6, -animat.angle / 180 * Math.PI);
 				_lastAngle = animat.angle;
 			}
 			const spriteOffset = /* @__PURE__ */ new Float32Array(2);
@@ -236712,7 +236727,7 @@ var init_StrEffect = __esmMin((() => {
 			gl.uniform2fv(uniform.uSpriteOffset, spriteOffset);
 			gl.uniform1f(uniform.uVerticalBase, verticalBase);
 			gl.uniform3fv(uniform.uSpritePosition, this.position);
-			gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix$5);
+			gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix$6);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$15);
 			gl.bufferSubData(gl.ARRAY_BUFFER, 0, _bufferData);
 			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
@@ -236732,7 +236747,7 @@ var init_StrEffect = __esmMin((() => {
 				gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$15);
 				gl.bufferData(gl.ARRAY_BUFFER, _bufferData.byteLength, gl.DYNAMIC_DRAW);
 			}
-			if (!_program$20) _program$20 = WebGL_default.createShaderProgram(gl, StrEffect_default$1, StrEffect_default);
+			if (!_program$21) _program$21 = WebGL_default.createShaderProgram(gl, StrEffect_default$1, StrEffect_default);
 			D3DBLEND[1] = gl.ZERO;
 			D3DBLEND[2] = gl.ONE;
 			D3DBLEND[3] = gl.SRC_COLOR;
@@ -236754,9 +236769,9 @@ var init_StrEffect = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static free(gl) {
-			if (_program$20) {
-				gl.deleteProgram(_program$20);
-				_program$20 = null;
+			if (_program$21) {
+				gl.deleteProgram(_program$21);
+				_program$21 = null;
 			}
 			if (_buffer$15) {
 				gl.deleteBuffer(_buffer$15);
@@ -236774,10 +236789,10 @@ var init_StrEffect = __esmMin((() => {
 		* @param {number} tick
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$20.uniform;
-			const attribute = _program$20.attribute;
+			const uniform = _program$21.uniform;
+			const attribute = _program$21.attribute;
 			gl.depthMask(false);
-			gl.useProgram(_program$20);
+			gl.useProgram(_program$21);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1f(uniform.uFogNear, fog.near * 100);
@@ -236795,8 +236810,8 @@ var init_StrEffect = __esmMin((() => {
 		*/
 		static afterRender(gl) {
 			gl.depthMask(true);
-			gl.disableVertexAttribArray(_program$20.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$20.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$21.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$21.attribute.aTextureCoord);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -248946,7 +248961,7 @@ function generateCylinder(totalCircleSides, circleSides, repeatTextureX) {
 	}
 	return new Float32Array(mesh);
 }
-var _program$19, blendMode$3, mat4$18, _matrix$4, Cylinder;
+var _program$20, blendMode$3, mat4$19, _matrix$5, Cylinder;
 var init_Cylinder = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -248956,8 +248971,8 @@ var init_Cylinder = __esmMin((() => {
 	init_Cylinder$2();
 	init_Cylinder$1();
 	blendMode$3 = {};
-	mat4$18 = gl_matrix_default.mat4;
-	_matrix$4 = mat4$18.create();
+	mat4$19 = gl_matrix_default.mat4;
+	_matrix$5 = mat4$19.create();
 	Cylinder = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
 			const position = EF_Inst_Par.position;
@@ -249050,8 +249065,8 @@ var init_Cylinder = __esmMin((() => {
 		render(gl, tick) {
 			const renderCount = tick - this.startTick;
 			const duration = this.endTick - this.startTick;
-			const uniform = _program$19.uniform;
-			const attribute = _program$19.attribute;
+			const uniform = _program$20.uniform;
+			const attribute = _program$20.attribute;
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
 			if (this.repeatTextureX > 1) gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 			gl.enableVertexAttribArray(attribute.aPosition);
@@ -249109,11 +249124,11 @@ var init_Cylinder = __esmMin((() => {
 				this.position[2]
 			];
 			if (this.rotate || this.angleX || this.angleY || this.angleZ || this.rotateWithCamera || this.fixedPerspective) {
-				mat4$18.identity(_matrix$4);
-				if (this.rotate) mat4$18.rotateY(_matrix$4, _matrix$4, tick / 4 / 180 * Math.PI);
-				if (this.angleX) mat4$18.rotateX(_matrix$4, _matrix$4, this.angleX / 180 * Math.PI);
-				if (this.angleY) mat4$18.rotateY(_matrix$4, _matrix$4, this.angleY / 180 * Math.PI);
-				if (this.angleZ) mat4$18.rotateZ(_matrix$4, _matrix$4, this.angleZ / 180 * Math.PI);
+				mat4$19.identity(_matrix$5);
+				if (this.rotate) mat4$19.rotateY(_matrix$5, _matrix$5, tick / 4 / 180 * Math.PI);
+				if (this.angleX) mat4$19.rotateX(_matrix$5, _matrix$5, this.angleX / 180 * Math.PI);
+				if (this.angleY) mat4$19.rotateY(_matrix$5, _matrix$5, this.angleY / 180 * Math.PI);
+				if (this.angleZ) mat4$19.rotateZ(_matrix$5, _matrix$5, this.angleZ / 180 * Math.PI);
 				if (this.rotateWithCamera || this.fixedPerspective) {
 					let magic = this.posY;
 					if (this.fixedPerspective) {
@@ -249122,21 +249137,21 @@ var init_Cylinder = __esmMin((() => {
 							currentPosition[2] += this.posZ * Math.cos(vcRad) - this.posY * Math.sin(vcRad);
 							magic = this.posY * Math.sin(vcRad) + this.posZ * Math.sin(vcRad);
 						}
-						mat4$18.rotateX(_matrix$4, _matrix$4, vcRad);
+						mat4$19.rotateX(_matrix$5, _matrix$5, vcRad);
 					}
 					const hcRad = Camera.angle[1] * Math.PI / 180;
 					if (this.posX || this.posY) {
 						currentPosition[0] += this.posX * Math.cos(hcRad) - magic * Math.sin(hcRad);
 						currentPosition[1] += magic * Math.cos(hcRad) + this.posX * Math.sin(hcRad);
 					}
-					mat4$18.rotateY(_matrix$4, _matrix$4, hcRad);
+					mat4$19.rotateY(_matrix$5, _matrix$5, hcRad);
 				} else {
 					currentPosition[0] += this.posX;
 					currentPosition[1] += this.posY;
 					currentPosition[2] += this.posZ;
 				}
 				gl.uniform1i(uniform.uRotate, true);
-				gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$4);
+				gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$5);
 			} else {
 				currentPosition[0] += this.posX;
 				currentPosition[1] += this.posY;
@@ -249171,7 +249186,7 @@ var init_Cylinder = __esmMin((() => {
 			blendMode$3[13] = gl.CONSTANT_ALPHA;
 			blendMode$3[14] = gl.ONE_MINUS_CONSTANT_ALPHA;
 			blendMode$3[15] = gl.SRC_ALPHA_SATURATE;
-			_program$19 = WebGL_default.createShaderProgram(gl, Cylinder_default$1, Cylinder_default);
+			_program$20 = WebGL_default.createShaderProgram(gl, Cylinder_default$1, Cylinder_default);
 			this.ready = true;
 			this.renderBeforeEntities = false;
 		}
@@ -249181,9 +249196,9 @@ var init_Cylinder = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static free(gl) {
-			if (_program$19) {
-				gl.deleteProgram(_program$19);
-				_program$19 = null;
+			if (_program$20) {
+				gl.deleteProgram(_program$20);
+				_program$20 = null;
 			}
 			if (this.buffer) gl.deleteBuffer(this.buffer);
 			this.ready = false;
@@ -249194,8 +249209,8 @@ var init_Cylinder = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$19.uniform;
-			gl.useProgram(_program$19);
+			const uniform = _program$20.uniform;
+			gl.useProgram(_program$20);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -249211,8 +249226,8 @@ var init_Cylinder = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$19.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$19.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$20.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$20.attribute.aTextureCoord);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
@@ -249364,13 +249379,13 @@ function getScaleAtFrame$1(keyframes, frame, animLen) {
 		prev.Scale[2] + (next.Scale[2] - prev.Scale[2]) * t
 	];
 }
-var vec3$4, mat3$3, mat4$17, Box, Node, RSM;
+var vec3$4, mat3$3, mat4$18, Box, Node, RSM;
 var init_Model = __esmMin((() => {
 	init_BinaryReader();
 	init_gl_matrix();
 	vec3$4 = gl_matrix_default.vec3;
 	mat3$3 = gl_matrix_default.mat3;
-	mat4$17 = gl_matrix_default.mat4;
+	mat4$18 = gl_matrix_default.mat4;
 	Box = class {
 		constructor() {
 			this.max = vec3$4.fromValues(-Infinity, -Infinity, -Infinity);
@@ -249567,7 +249582,7 @@ var init_Model = __esmMin((() => {
 				}
 			}
 			this.box = new RSM.Box();
-			this.matrix = mat4$17.create();
+			this.matrix = mat4$18.create();
 			this.textures = textures;
 			this.vertices = vertices;
 			this.tvertices = tvertices;
@@ -249587,18 +249602,18 @@ var init_Model = __esmMin((() => {
 			const v = vec3$4.create();
 			const box = this.box;
 			const nodes = this.main.nodes;
-			const matrix = mat4$17.create();
+			const matrix = mat4$18.create();
 			const vertices = this.vertices;
 			const max = Math.max, min = Math.min;
 			let x, y, z;
-			mat4$17.copy(this.matrix, _matrix);
-			mat4$17.translate(this.matrix, this.matrix, this.pos);
-			if (!this.rotKeyframes.length) mat4$17.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
-			else mat4$17.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
-			mat4$17.scale(this.matrix, this.matrix, this.scale);
-			mat4$17.copy(matrix, this.matrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
+			mat4$18.copy(this.matrix, _matrix);
+			mat4$18.translate(this.matrix, this.matrix, this.pos);
+			if (!this.rotKeyframes.length) mat4$18.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
+			else mat4$18.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
+			mat4$18.scale(this.matrix, this.matrix, this.scale);
+			mat4$18.copy(matrix, this.matrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
 			for (i = 0, count = vertices.length; i < count; ++i) {
 				x = vertices[i][0];
 				y = vertices[i][1];
@@ -249624,8 +249639,8 @@ var init_Model = __esmMin((() => {
 		* @param {mat4} instance_matrix
 		*/
 		compile(instance_matrix) {
-			const modelViewMat = mat4$17.create();
-			const normalMat = mat4$17.create();
+			const modelViewMat = mat4$18.create();
+			const normalMat = mat4$18.create();
 			const textures = this.textures;
 			const faces = this.faces;
 			const vertices = this.vertices;
@@ -249634,18 +249649,18 @@ var init_Model = __esmMin((() => {
 			const shadeGroup = new Array(32);
 			const shadeGroupUsed = new Array(32);
 			let i, x, y, z, count;
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
 				-this.main.box.center[0],
 				-this.main.box.max[1],
 				-this.main.box.center[2]
 			]);
-			mat4$17.multiply(matrix, matrix, this.matrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
-			mat4$17.multiply(modelViewMat, instance_matrix, matrix);
-			mat4$17.extractRotation(normalMat, modelViewMat);
+			mat4$18.multiply(matrix, matrix, this.matrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
+			mat4$18.multiply(modelViewMat, instance_matrix, matrix);
+			mat4$18.extractRotation(normalMat, modelViewMat);
 			count = vertices.length;
 			const vert = new Float32Array(count * 3);
 			for (i = 0; i < count; ++i) {
@@ -249685,8 +249700,8 @@ var init_Model = __esmMin((() => {
 		* @param {number} animLen - Total animation length
 		*/
 		compileAtFrame(instance_matrix, frame, animLen) {
-			const modelViewMat = mat4$17.create();
-			const normalMat = mat4$17.create();
+			const modelViewMat = mat4$18.create();
+			const normalMat = mat4$18.create();
 			const textures = this.textures;
 			const faces = this.faces;
 			const vertices = this.vertices;
@@ -249695,30 +249710,30 @@ var init_Model = __esmMin((() => {
 			const shadeGroup = new Array(32);
 			const shadeGroupUsed = new Array(32);
 			let i, x, y, z, count;
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
 				-this.main.box.center[0],
 				-this.main.box.max[1],
 				-this.main.box.center[2]
 			]);
-			const nodeMatrix = mat4$17.create();
-			mat4$17.identity(nodeMatrix);
+			const nodeMatrix = mat4$18.create();
+			mat4$18.identity(nodeMatrix);
 			const animPos = getPositionAtFrame$1(this.posKeyframes, frame, animLen);
-			if (animPos) mat4$17.translate(nodeMatrix, nodeMatrix, animPos);
-			else mat4$17.translate(nodeMatrix, nodeMatrix, this.pos);
+			if (animPos) mat4$18.translate(nodeMatrix, nodeMatrix, animPos);
+			else mat4$18.translate(nodeMatrix, nodeMatrix, this.pos);
 			const animRot = getRotationAtFrame$1(this.rotKeyframes, frame, animLen);
-			if (animRot) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, animRot);
-			else if (this.rotKeyframes && this.rotKeyframes.length > 0) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, this.rotKeyframes[0].q);
-			else mat4$17.rotate(nodeMatrix, nodeMatrix, this.rotangle, this.rotaxis);
+			if (animRot) mat4$18.rotateQuat(nodeMatrix, nodeMatrix, animRot);
+			else if (this.rotKeyframes && this.rotKeyframes.length > 0) mat4$18.rotateQuat(nodeMatrix, nodeMatrix, this.rotKeyframes[0].q);
+			else mat4$18.rotate(nodeMatrix, nodeMatrix, this.rotangle, this.rotaxis);
 			const animScale = getScaleAtFrame$1(this.scaleKeyFrames, frame, animLen);
-			if (animScale) mat4$17.scale(nodeMatrix, nodeMatrix, animScale);
-			else mat4$17.scale(nodeMatrix, nodeMatrix, this.scale);
-			mat4$17.multiply(matrix, matrix, nodeMatrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
-			mat4$17.multiply(modelViewMat, instance_matrix, matrix);
-			mat4$17.extractRotation(normalMat, modelViewMat);
+			if (animScale) mat4$18.scale(nodeMatrix, nodeMatrix, animScale);
+			else mat4$18.scale(nodeMatrix, nodeMatrix, this.scale);
+			mat4$18.multiply(matrix, matrix, nodeMatrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$3.toMat4(this.mat3));
+			mat4$18.multiply(modelViewMat, instance_matrix, matrix);
+			mat4$18.extractRotation(normalMat, modelViewMat);
 			count = vertices.length;
 			const vert = new Float32Array(count * 3);
 			for (i = 0; i < count; ++i) {
@@ -250017,26 +250032,26 @@ var init_Model = __esmMin((() => {
 		* @param {number} height
 		*/
 		createInstance(model, width, height) {
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
 				model.position[0] + width,
 				model.position[1],
 				model.position[2] + height
 			]);
-			mat4$17.rotateZ(matrix, matrix, model.rotation[2] / 180 * Math.PI);
-			mat4$17.rotateX(matrix, matrix, model.rotation[0] / 180 * Math.PI);
-			mat4$17.rotateY(matrix, matrix, model.rotation[1] / 180 * Math.PI);
-			mat4$17.scale(matrix, matrix, model.scale);
+			mat4$18.rotateZ(matrix, matrix, model.rotation[2] / 180 * Math.PI);
+			mat4$18.rotateX(matrix, matrix, model.rotation[0] / 180 * Math.PI);
+			mat4$18.rotateY(matrix, matrix, model.rotation[1] / 180 * Math.PI);
+			mat4$18.scale(matrix, matrix, model.scale);
 			if (this.main_node.main.version >= 2.2) {
-				mat4$17.scale(matrix, matrix, this.main_node.flip);
-				mat4$17.translate(matrix, matrix, this.main_node.offset);
-				mat4$17.translate(matrix, matrix, [
+				mat4$18.scale(matrix, matrix, this.main_node.flip);
+				mat4$18.translate(matrix, matrix, this.main_node.offset);
+				mat4$18.translate(matrix, matrix, [
 					0,
 					this.box.range[1],
 					0
 				]);
-				mat4$17.translate(matrix, matrix, this.box.offset);
+				mat4$18.translate(matrix, matrix, this.box.offset);
 			}
 			this.instances.push(matrix);
 		}
@@ -250046,11 +250061,11 @@ var init_Model = __esmMin((() => {
 		calcBoundingBox() {
 			let i, j;
 			const box = this.box;
-			const matrix = mat4$17.create();
+			const matrix = mat4$18.create();
 			const nodes = this.nodes;
 			const min = Math.min, max = Math.max;
 			const count = nodes.length;
-			mat4$17.identity(matrix);
+			mat4$18.identity(matrix);
 			this.main_node.calcBoundingBox(matrix);
 			for (i = 0; i < 3; ++i) {
 				for (j = 0; j < count; ++j) {
@@ -250371,8 +250386,8 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
 * Compile a node at a specific animation frame
 */
 function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
-	const modelViewMat = mat4$16.create();
-	const normalMat = mat4$16.create();
+	const modelViewMat = mat4$17.create();
+	const normalMat = mat4$17.create();
 	const textures = node.textures;
 	const faces = node.faces;
 	const vertices = node.vertices;
@@ -250381,30 +250396,30 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 	const shadeGroup = new Array(32);
 	const shadeGroupUsed = new Array(32);
 	let i, x, y, z, count;
-	const matrix = mat4$16.create();
-	mat4$16.identity(matrix);
-	mat4$16.translate(matrix, matrix, [
+	const matrix = mat4$17.create();
+	mat4$17.identity(matrix);
+	mat4$17.translate(matrix, matrix, [
 		-node.main.box.center[0],
 		-node.main.box.max[1],
 		-node.main.box.center[2]
 	]);
-	const nodeMatrix = mat4$16.create();
-	mat4$16.identity(nodeMatrix);
+	const nodeMatrix = mat4$17.create();
+	mat4$17.identity(nodeMatrix);
 	const animPos = getPositionAtFrame(node.posKeyframes, frame, animLen);
-	if (animPos) mat4$16.translate(nodeMatrix, nodeMatrix, animPos);
-	else mat4$16.translate(nodeMatrix, nodeMatrix, node.pos);
+	if (animPos) mat4$17.translate(nodeMatrix, nodeMatrix, animPos);
+	else mat4$17.translate(nodeMatrix, nodeMatrix, node.pos);
 	const animRot = getRotationAtFrame(node.rotKeyframes, frame, animLen);
-	if (animRot) mat4$16.rotateQuat(nodeMatrix, nodeMatrix, animRot);
-	else if (node.rotKeyframes && node.rotKeyframes.length > 0) mat4$16.rotateQuat(nodeMatrix, nodeMatrix, node.rotKeyframes[0].q);
-	else mat4$16.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
+	if (animRot) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, animRot);
+	else if (node.rotKeyframes && node.rotKeyframes.length > 0) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, node.rotKeyframes[0].q);
+	else mat4$17.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
 	const animScale = getScaleAtFrame(node.scaleKeyFrames, frame, animLen);
-	if (animScale) mat4$16.scale(nodeMatrix, nodeMatrix, animScale);
-	else mat4$16.scale(nodeMatrix, nodeMatrix, node.scale);
-	mat4$16.multiply(matrix, matrix, nodeMatrix);
-	if (!node.is_only) mat4$16.translate(matrix, matrix, node.offset);
-	mat4$16.multiply(matrix, matrix, mat3$2.toMat4(node.mat3));
-	mat4$16.multiply(modelViewMat, instanceMatrix, matrix);
-	mat4$16.extractRotation(normalMat, modelViewMat);
+	if (animScale) mat4$17.scale(nodeMatrix, nodeMatrix, animScale);
+	else mat4$17.scale(nodeMatrix, nodeMatrix, node.scale);
+	mat4$17.multiply(matrix, matrix, nodeMatrix);
+	if (!node.is_only) mat4$17.translate(matrix, matrix, node.offset);
+	mat4$17.multiply(matrix, matrix, mat3$2.toMat4(node.mat3));
+	mat4$17.multiply(modelViewMat, instanceMatrix, matrix);
+	mat4$17.extractRotation(normalMat, modelViewMat);
 	count = vertices.length;
 	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
@@ -250526,7 +250541,7 @@ function initModel(gl, data) {
 		WebGL_default.texture(gl, data.infos[i].texture, onTextureLoaded, i);
 	}
 }
-var _program$18, _normalMat, mat4$16, mat3$2, quat, vec3$3, _light$1, RsmEffect;
+var _program$19, _normalMat, mat4$17, mat3$2, quat, vec3$3, _light$1, RsmEffect;
 var init_RsmEffect = __esmMin((() => {
 	init_RsmEffect$2();
 	init_RsmEffect$1();
@@ -250534,9 +250549,9 @@ var init_RsmEffect = __esmMin((() => {
 	init_gl_matrix();
 	init_Client();
 	init_Model();
-	_program$18 = null;
+	_program$19 = null;
 	_normalMat = /* @__PURE__ */ new Float32Array(9);
-	mat4$16 = gl_matrix_default.mat4;
+	mat4$17 = gl_matrix_default.mat4;
 	mat3$2 = gl_matrix_default.mat3;
 	quat = gl_matrix_default.quat;
 	vec3$3 = gl_matrix_default.vec3;
@@ -250584,7 +250599,7 @@ var init_RsmEffect = __esmMin((() => {
 			this._Params = params;
 		}
 		static init(gl) {
-			_program$18 = WebGL_default.createShaderProgram(gl, RsmEffect_default$1, RsmEffect_default);
+			_program$19 = WebGL_default.createShaderProgram(gl, RsmEffect_default$1, RsmEffect_default);
 			this.ready = true;
 		}
 		init(gl, tick) {
@@ -250664,18 +250679,18 @@ var init_RsmEffect = __esmMin((() => {
 			this.ready = false;
 		}
 		static free(gl) {
-			if (_program$18) {
-				gl.deleteProgram(_program$18);
-				_program$18 = null;
+			if (_program$19) {
+				gl.deleteProgram(_program$19);
+				_program$19 = null;
 			}
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			mat4$16.toInverseMat3(modelView, _normalMat);
+			mat4$17.toInverseMat3(modelView, _normalMat);
 			mat3$2.transpose(_normalMat, _normalMat);
-			const uniform = _program$18.uniform;
-			const attribute = _program$18.attribute;
-			gl.useProgram(_program$18);
+			const uniform = _program$19.uniform;
+			const attribute = _program$19.attribute;
+			gl.useProgram(_program$19);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix3fv(uniform.uNormalMat, false, _normalMat);
@@ -250695,7 +250710,7 @@ var init_RsmEffect = __esmMin((() => {
 			gl.uniform1i(uniform.uDiffuse, 0);
 		}
 		render(gl, tick) {
-			const uniform = _program$18.uniform;
+			const uniform = _program$19.uniform;
 			if (this.isAnimated && this.model && this.animLen > 0) {
 				const elapsed = tick - this.startTick;
 				const frame = Math.floor(elapsed * this.fps / 1e3 % this.animLen);
@@ -250707,7 +250722,7 @@ var init_RsmEffect = __esmMin((() => {
 			gl.uniform3fv(uniform.uPosition, this.position);
 			gl.uniform1f(uniform.uSize, this.size);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-			const attribute = _program$18.attribute;
+			const attribute = _program$19.attribute;
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 36, 0);
 			gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 36, 12);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 36, 24);
@@ -250718,7 +250733,7 @@ var init_RsmEffect = __esmMin((() => {
 			}
 		}
 		static afterRender(gl) {
-			const attribute = _program$18.attribute;
+			const attribute = _program$19.attribute;
 			gl.disableVertexAttribArray(attribute.aPosition);
 			gl.disableVertexAttribArray(attribute.aVertexNormal);
 			gl.disableVertexAttribArray(attribute.aTextureCoord);
@@ -251742,14 +251757,14 @@ var init_QuadHorn$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Effects/QuadHorn.js
-var _program$17, mat4$15, blendMode, vertices, texCoords, rand, QuadHorn;
+var _program$18, mat4$16, blendMode, vertices, texCoords, rand, QuadHorn;
 var init_QuadHorn = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_Client();
 	init_QuadHorn$2();
 	init_QuadHorn$1();
-	mat4$15 = gl_matrix_default.mat4;
+	mat4$16 = gl_matrix_default.mat4;
 	blendMode = {};
 	vertices = [
 		0,
@@ -251818,9 +251833,9 @@ var init_QuadHorn = __esmMin((() => {
 	rand = (min, max) => parseFloat(Math.min(min + Math.random() * (max - min), max).toFixed(3));
 	QuadHorn = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
-			this._zRotationMatrix = mat4$15.create();
-			this._yRotationMatrix = mat4$15.create();
-			this._xRotationMatrix = mat4$15.create();
+			this._zRotationMatrix = mat4$16.create();
+			this._yRotationMatrix = mat4$16.create();
+			this._xRotationMatrix = mat4$16.create();
 			this.position = EF_Inst_Par.position;
 			this.blendMode = effect.blendMode || 1;
 			this.height = (effect.height && effect.height instanceof Array ? rand(effect.height[0], effect.height[1]) : effect.height) || 0;
@@ -251865,8 +251880,8 @@ var init_QuadHorn = __esmMin((() => {
 			this.ready = false;
 		}
 		render(gl, tick) {
-			const uniform = _program$17.uniform;
-			const attribute = _program$17.attribute;
+			const uniform = _program$18.uniform;
+			const attribute = _program$18.attribute;
 			const deltaStart = (tick - this.startTick) / 1e3;
 			const deltaEnd = (tick - this.endTick) / 1e3;
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -251918,22 +251933,22 @@ var init_QuadHorn = __esmMin((() => {
 			gl.uniform1f(uniform.uOffsetX, this.offsetX);
 			gl.uniform1f(uniform.uOffsetY, this.offsetY);
 			gl.uniform4fv(uniform.uColor, this.color);
-			mat4$15.identity(this._xRotationMatrix);
-			mat4$15.rotate(this._xRotationMatrix, this._xRotationMatrix, this.rotateX * Math.PI / 180, [
+			mat4$16.identity(this._xRotationMatrix);
+			mat4$16.rotate(this._xRotationMatrix, this._xRotationMatrix, this.rotateX * Math.PI / 180, [
 				1,
 				0,
 				0
 			]);
 			gl.uniformMatrix4fv(uniform.uXRotationMat, false, this._xRotationMatrix);
-			mat4$15.identity(this._yRotationMatrix);
-			mat4$15.rotate(this._yRotationMatrix, this._yRotationMatrix, this.rotateY * Math.PI / 180, [
+			mat4$16.identity(this._yRotationMatrix);
+			mat4$16.rotate(this._yRotationMatrix, this._yRotationMatrix, this.rotateY * Math.PI / 180, [
 				0,
 				1,
 				0
 			]);
 			gl.uniformMatrix4fv(uniform.uYRotationMat, false, this._yRotationMatrix);
-			mat4$15.identity(this._zRotationMatrix);
-			mat4$15.rotate(this._zRotationMatrix, this._zRotationMatrix, (180 + this.rotateZ) * Math.PI / 180, [
+			mat4$16.identity(this._zRotationMatrix);
+			mat4$16.rotate(this._zRotationMatrix, this._zRotationMatrix, (180 + this.rotateZ) * Math.PI / 180, [
 				0,
 				0,
 				1
@@ -251943,7 +251958,7 @@ var init_QuadHorn = __esmMin((() => {
 			gl.flush();
 		}
 		static init(gl) {
-			_program$17 = WebGL_default.createShaderProgram(gl, QuadHorn_default$1, QuadHorn_default);
+			_program$18 = WebGL_default.createShaderProgram(gl, QuadHorn_default$1, QuadHorn_default);
 			blendMode[1] = gl.ZERO;
 			blendMode[2] = gl.ONE;
 			blendMode[3] = gl.SRC_COLOR;
@@ -251963,16 +251978,16 @@ var init_QuadHorn = __esmMin((() => {
 			this.renderBeforeEntities = true;
 		}
 		static free(gl) {
-			if (_program$17) {
-				gl.deleteProgram(_program$17);
-				_program$17 = null;
+			if (_program$18) {
+				gl.deleteProgram(_program$18);
+				_program$18 = null;
 			}
 			if (this.buffer) gl.deleteBuffer(this.buffer);
 			this.ready = false;
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
-			const uniform = _program$17.uniform;
-			gl.useProgram(_program$17);
+			const uniform = _program$18.uniform;
+			gl.useProgram(_program$18);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -251983,12 +251998,258 @@ var init_QuadHorn = __esmMin((() => {
 			gl.uniform1i(uniform.uDiffuse, 0);
 		}
 		static afterRender(gl) {
-			gl.disableVertexAttribArray(_program$17.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$17.attribute.aTextureCoord);
-			gl.disableVertexAttribArray(_program$17.attribute.aColor);
+			gl.disableVertexAttribArray(_program$18.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$18.attribute.aTextureCoord);
+			gl.disableVertexAttribArray(_program$18.attribute.aColor);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
+}));
+//#endregion
+//#region src/Renderer/Effects/WaterfallEffect.vs?raw
+var WaterfallEffect_default$1;
+var init_WaterfallEffect$2 = __esmMin((() => {
+	WaterfallEffect_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uModelMat;\r\nout vec2 vTextureCoord;\r\n\r\nvoid main(void) {\r\n	vec4 worldPosition = uModelMat * vec4(aPosition.x, -aPosition.y, aPosition.z, 1.0);\r\n	gl_Position = uProjectionMat * uModelViewMat * worldPosition;\r\n	vTextureCoord = aTextureCoord;\r\n}\r\n";
+}));
+//#endregion
+//#region src/Renderer/Effects/WaterfallEffect.fs?raw
+var WaterfallEffect_default;
+var init_WaterfallEffect$1 = __esmMin((() => {
+	WaterfallEffect_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uTexture;\r\nuniform bool uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3 uFogColor;\r\nuniform float uOpacity;\r\n\r\nvoid main(void) {\r\n	fragColor = texture(uTexture, vTextureCoord);\r\n	fragColor.a *= uOpacity;\r\n	if (fragColor.a < 0.01) {\r\n		discard;\r\n	}\r\n	if (uFogUse) {\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, gl_FragCoord.z / gl_FragCoord.w);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.a), fogFactor);\r\n	}\r\n}\r\n";
+}));
+//#endregion
+//#region src/Renderer/Effects/WaterfallEffect.js
+function loadTextures(gl, textureSet, effect) {
+	let cache = _textureCache.get(textureSet);
+	if (!cache) {
+		cache = {
+			textures: new Array(TEXTURE_COUNT),
+			waiters: /* @__PURE__ */ new Set(),
+			ready: false,
+			active: true
+		};
+		_textureCache.set(textureSet, cache);
+		const texturePrefix = `waterfall${textureSet}`;
+		for (let index = 1; index <= TEXTURE_COUNT; index++) Client.loadFile(`data/texture/effect/${texturePrefix}${index}.tga`, (buffer) => {
+			WebGL_default.texture(gl, buffer, (texture) => {
+				if (!cache.active) {
+					gl.deleteTexture(texture);
+					return;
+				}
+				cache.textures[index - 1] = texture;
+				if (cache.textures.filter(Boolean).length === TEXTURE_COUNT) {
+					cache.ready = true;
+					cache.waiters.forEach((waiter) => {
+						waiter.textures = cache.textures;
+						waiter.ready = true;
+					});
+					cache.waiters.clear();
+				}
+			});
+		});
+	}
+	if (cache.ready) {
+		effect.textures = cache.textures;
+		effect.ready = true;
+	} else cache.waiters.add(effect);
+	return cache;
+}
+function getStyle(variant) {
+	return {
+		small: variant.includes("small"),
+		textureSet: variant.includes("dark") ? 3 : 1
+	};
+}
+var mat4$15, _matrix$4, SEGMENT_COUNT, TEXTURE_COUNT, SEGMENT_HEIGHT, EFFECT_TICK_MS, OPACITY, _program$17, _textureCache, WaterfallEffect;
+var init_WaterfallEffect = __esmMin((() => {
+	init_WebGL();
+	init_gl_matrix();
+	init_Client();
+	init_WaterfallEffect$2();
+	init_WaterfallEffect$1();
+	mat4$15 = gl_matrix_default.mat4;
+	_matrix$4 = mat4$15.create();
+	SEGMENT_COUNT = 5;
+	TEXTURE_COUNT = 3;
+	SEGMENT_HEIGHT = 8;
+	EFFECT_TICK_MS = 24;
+	OPACITY = 120 / 255;
+	_textureCache = /* @__PURE__ */ new Map();
+	WaterfallEffect = class {
+		constructor(effect, instance, init) {
+			const style = getStyle(effect.variant);
+			this.position = instance.position;
+			this.startTick = instance.startTick;
+			this.small = style.small;
+			this.height = effect.height;
+			this.textureSet = style.textureSet;
+			this.textures = [];
+			this.textureCache = null;
+			this.buffer = null;
+			this.vertical = effect.vertical;
+			this.ready = false;
+			this.needInit = true;
+		}
+		/**
+		* Initialize WebGL resources
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		init(gl) {
+			this.buffer = gl.createBuffer();
+			this.textureCache = loadTextures(gl, this.textureSet, this);
+		}
+		render(gl, tick) {
+			const uniform = _program$17.uniform;
+			const attribute = _program$17.attribute;
+			mat4$15.identity(_matrix$4);
+			mat4$15.translate(_matrix$4, _matrix$4, [
+				this.position[0] + .5,
+				-this.position[2],
+				this.position[1] + 2.5
+			]);
+			if (this.vertical) mat4$15.rotateY(_matrix$4, _matrix$4, Math.PI / 2);
+			gl.uniformMatrix4fv(uniform.uModelMat, false, _matrix$4);
+			const process = Math.floor((tick - this.startTick) / EFFECT_TICK_MS);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+			for (let band = 0; band < 4; band++) {
+				const cycleLength = this.height - band * (this.small ? 6 : 13);
+				const scroll = process % cycleLength * SEGMENT_HEIGHT / cycleLength;
+				const crop = scroll / SEGMENT_HEIGHT;
+				const phase = Math.floor(process % (TEXTURE_COUNT * cycleLength) / cycleLength);
+				const halfWidth = (36 + band) / 10;
+				const depth = (band * .25 - 1) / 5;
+				for (let segment = 0; segment < SEGMENT_COUNT; segment++) {
+					const top = scroll - segment * SEGMENT_HEIGHT;
+					const bottom = top - SEGMENT_HEIGHT;
+					let visibleTop = top;
+					let visibleBottom = bottom;
+					let vTop = 0;
+					let vBottom = 1;
+					if (segment === 0) {
+						visibleTop = top + (bottom - top) * crop;
+						vTop = crop;
+					} else if (segment === 4) {
+						visibleBottom = top + (bottom - top) * crop;
+						vBottom = crop;
+					}
+					const vertices = new Float32Array([
+						-halfWidth,
+						-visibleBottom,
+						depth,
+						0,
+						vBottom,
+						halfWidth,
+						-visibleBottom,
+						depth,
+						1,
+						vBottom,
+						-halfWidth,
+						-visibleTop,
+						depth,
+						0,
+						vTop,
+						halfWidth,
+						-visibleTop,
+						depth,
+						1,
+						vTop
+					]);
+					gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+					gl.bindTexture(gl.TEXTURE_2D, this.textures[(segment + phase) % TEXTURE_COUNT]);
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				}
+			}
+		}
+		/**
+		* Free WebGL resources
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		free(gl) {
+			if (this.textureCache) {
+				this.textureCache.waiters.delete(this);
+				this.textureCache = null;
+			}
+			if (this.buffer) {
+				gl.deleteBuffer(this.buffer);
+				this.buffer = null;
+			}
+			this.textures = [];
+			this.ready = false;
+		}
+		/**
+		* Called before rendering all effects of this type
+		*
+		* @param {WebGLRenderingContext} gl
+		* @param {mat4} modelView
+		* @param {mat4} projection
+		* @param {object} fog
+		* @param {number} tick
+		* @param {object} entity
+		*/
+		static beforeRender(gl, modelView, projection, fog) {
+			const uniform = _program$17.uniform;
+			const attribute = _program$17.attribute;
+			gl.useProgram(_program$17);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1f(uniform.uFogNear, fog.near);
+			gl.uniform1f(uniform.uFogFar, fog.far);
+			gl.uniform3fv(uniform.uFogColor, fog.color);
+			gl.uniform1f(uniform.uOpacity, OPACITY);
+			gl.uniform1i(uniform.uTexture, 0);
+			gl.enable(gl.DEPTH_TEST);
+			gl.enable(gl.BLEND);
+			gl.depthMask(false);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.enableVertexAttribArray(attribute.aTextureCoord);
+		}
+		/**
+		* Called after rendering all effects of this type
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		static afterRender(gl) {
+			gl.depthMask(true);
+			gl.disableVertexAttribArray(_program$17.attribute.aPosition);
+			gl.disableVertexAttribArray(_program$17.attribute.aTextureCoord);
+		}
+		/**
+		* Initialize the effect type
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		static init(gl) {
+			_program$17 = WebGL_default.createShaderProgram(gl, WaterfallEffect_default$1, WaterfallEffect_default);
+			this.ready = true;
+		}
+		/**
+		* Free resources for this effect type
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		static free(gl) {
+			_textureCache.forEach((cache) => {
+				cache.active = false;
+				cache.textures.forEach((texture) => {
+					if (texture) gl.deleteTexture(texture);
+				});
+				cache.waiters.clear();
+			});
+			_textureCache.clear();
+			if (_program$17) gl.deleteProgram(_program$17);
+			_program$17 = null;
+			this.ready = false;
+			this.needInit = true;
+		}
+	};
+	WaterfallEffect.renderBeforeEntities = false;
+	WaterfallEffect.needInit = true;
 }));
 //#endregion
 //#region src/Renderer/EffectManager.js
@@ -252146,6 +252407,7 @@ var init_EffectManager = __esmMin((() => {
 	init_SoundManager();
 	init_Map();
 	init_QuadHorn();
+	init_WaterfallEffect();
 	init_SessionStorage();
 	init_Graphics();
 	_list$4 = {};
@@ -252412,6 +252674,9 @@ var init_EffectManager = __esmMin((() => {
 				case "RSM":
 				case "RSM2":
 					EffectManager.add(new RsmEffect(Params), Params);
+					break;
+				case "WATERFALL":
+					EffectManager.add(new WaterfallEffect(Params.effect, Params.Inst, Params.Init), Params);
 					break;
 				case "QuadHorn":
 					EffectManager.add(new QuadHorn(Params.effect, Params.Inst, Params.Init), Params);
@@ -267898,6 +268163,54 @@ var init_EffectTable = __esmMin((() => {
 			}
 		],
 		347: [{ wav: "effect/wedding" }],
+		349: [{
+			type: "WATERFALL",
+			variant: "large",
+			vertical: false,
+			height: 80
+		}],
+		350: [{
+			type: "WATERFALL",
+			variant: "large",
+			vertical: true,
+			height: 80
+		}],
+		351: [{
+			type: "WATERFALL",
+			variant: "small",
+			vertical: false,
+			height: 30
+		}],
+		352: [{
+			type: "WATERFALL",
+			variant: "small",
+			vertical: true,
+			height: 30
+		}],
+		353: [{
+			type: "WATERFALL",
+			variant: "dark-large",
+			vertical: false,
+			height: 80
+		}],
+		354: [{
+			type: "WATERFALL",
+			variant: "dark-large",
+			vertical: true,
+			height: 80
+		}],
+		355: [{
+			type: "WATERFALL",
+			variant: "dark-small",
+			vertical: false,
+			height: 30
+		}],
+		356: [{
+			type: "WATERFALL",
+			variant: "dark-small",
+			vertical: true,
+			height: 30
+		}],
 		361: [{
 			type: "3D",
 			file: "effect/purpleslash.tga",
