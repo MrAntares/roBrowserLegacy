@@ -23,6 +23,51 @@ const EFFECT_TICK_MS = 24;
 const OPACITY = 120 / 255;
 
 let _program;
+const _textureCache = new Map();
+
+function loadTextures(gl, textureSet, effect) {
+	let cache = _textureCache.get(textureSet);
+	if (!cache) {
+		cache = {
+			textures: new Array(TEXTURE_COUNT),
+			waiters: new Set(),
+			ready: false,
+			active: true
+		};
+		_textureCache.set(textureSet, cache);
+
+		const texturePrefix = `waterfall${textureSet}`;
+		for (let index = 1; index <= TEXTURE_COUNT; index++) {
+			Client.loadFile(`data/texture/effect/${texturePrefix}${index}.tga`, buffer => {
+				WebGL.texture(gl, buffer, texture => {
+					if (!cache.active) {
+						gl.deleteTexture(texture);
+						return;
+					}
+
+					cache.textures[index - 1] = texture;
+					if (cache.textures.every(Boolean)) {
+						cache.ready = true;
+						cache.waiters.forEach(waiter => {
+							waiter.textures = cache.textures;
+							waiter.ready = true;
+						});
+						cache.waiters.clear();
+					}
+				});
+			});
+		}
+	}
+
+	if (cache.ready) {
+		effect.textures = cache.textures;
+		effect.ready = true;
+	} else {
+		cache.waiters.add(effect);
+	}
+
+	return cache;
+}
 
 function getStyle(variant) {
 	const small = variant.includes('small');
@@ -46,8 +91,10 @@ class WaterfallEffect {
 		this.position = instance.position;
 		this.startTick = instance.startTick;
 		this.small = style.small;
+		this.height = effect.height;
 		this.textureSet = style.textureSet;
 		this.textures = [];
+		this.textureCache = null;
 		this.buffer = null;
 		this.vertical = effect.vertical;
 		this.ready = false;
@@ -61,17 +108,7 @@ class WaterfallEffect {
 	 */
 	init(gl) {
 		this.buffer = gl.createBuffer();
-		const texturePrefix = `waterfall${this.textureSet}`;
-		for (let index = 1; index <= TEXTURE_COUNT; index++) {
-			Client.loadFile(`data/texture/effect/${texturePrefix}${index}.tga`, buffer => {
-				WebGL.texture(gl, buffer, texture => {
-					this.textures[index - 1] = texture;
-					if (this.textures.filter(Boolean).length === TEXTURE_COUNT) {
-						this.ready = true;
-					}
-				});
-			});
-		}
+		this.textureCache = loadTextures(gl, this.textureSet, this);
 	}
 
 	render(gl, tick) {
@@ -88,7 +125,7 @@ class WaterfallEffect {
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		for (let band = 0; band < 4; band++) {
-			const cycleLength = this.small ? 30 - band * 6 : 80 - band * 13;
+			const cycleLength = this.height - band * (this.small ? 6 : 13);
 			const scroll = ((process % cycleLength) * SEGMENT_HEIGHT) / cycleLength;
 			const crop = scroll / SEGMENT_HEIGHT;
 			const phase = Math.floor((process % (TEXTURE_COUNT * cycleLength)) / cycleLength);
@@ -147,9 +184,15 @@ class WaterfallEffect {
 	 * @param {WebGLRenderingContext} gl
 	 */
 	free(gl) {
+		if (this.textureCache) {
+			this.textureCache.waiters.delete(this);
+			this.textureCache = null;
+		}
 		if (this.buffer) {
 			gl.deleteBuffer(this.buffer);
+			this.buffer = null;
 		}
+		this.textures = [];
 		this.ready = false;
 	}
 
@@ -210,6 +253,17 @@ class WaterfallEffect {
 	 * @param {WebGLRenderingContext} gl
 	 */
 	static free(gl) {
+		_textureCache.forEach(cache => {
+			cache.active = false;
+			cache.textures.forEach(texture => {
+				if (texture) {
+					gl.deleteTexture(texture);
+				}
+			});
+			cache.waiters.clear();
+		});
+		_textureCache.clear();
+
 		if (_program) gl.deleteProgram(_program);
 		_program = null;
 		this.ready = false;
