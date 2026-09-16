@@ -29,6 +29,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Sound from 'Audio/SoundManager.js';
 import Preferences from 'Preferences/Map.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
+import WaterfallEffect from 'Renderer/Effects/WaterfallEffect.js';
 import Session from 'Engine/SessionStorage.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 
@@ -706,6 +707,10 @@ class EffectManager {
 			case 'RSM':
 			case 'RSM2':
 				EffectManager.add(new RsmEffect(Params), Params);
+				break;
+
+			case 'WATERFALL':
+				EffectManager.add(new WaterfallEffect(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 
 			case 'QuadHorn':
