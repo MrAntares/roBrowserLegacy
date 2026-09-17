@@ -27,6 +27,7 @@ import StatusConst from 'DB/Status/StatusState.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Ground from 'Renderer/Map/Ground.js';
 import Altitude from 'Renderer/Map/Altitude.js';
+import Water from 'Renderer/Map/Water.js';
 import Session from 'Engine/SessionStorage.js';
 import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
@@ -536,9 +537,16 @@ const renderEntity = (function renderEntityClosure() {
 				// Non-player entities:
 				// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 				// - Still use depth test for correct ordering
-				SpriteRenderer.runWithDepth(true, false, false, function () {
-					renderElement(self, self.files.body, 'body', _position, true);
-				});
+				// - Write depth while standing in water so the water pass (drawn after
+				//   entities) only covers the submerged part of the sprite
+				SpriteRenderer.runWithDepth(
+					true,
+					Water.isSubmerged(self.position[0], self.position[1]),
+					false,
+					function () {
+						renderElement(self, self.files.body, 'body', _position, true);
+					}
+				);
 				break;
 		}
 		SpriteRenderer.zIndex = 1;
