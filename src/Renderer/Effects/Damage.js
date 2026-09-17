@@ -83,6 +83,11 @@ const _msgNames = {
 const _list = [];
 
 /**
+ * @var {object} frame descriptor for the RGBA damage textures (no palette)
+ */
+const _rgbaFrame = { type: 1 };
+
+/**
  * @var previus combo time
  */
 const prevCombo = [];
@@ -527,6 +532,7 @@ class Damage {
 		SpriteRenderer.shadow = 1.0;
 		SpriteRenderer.angle = 0;
 		SpriteRenderer.image.palette = null;
+		SpriteRenderer.sprite = _rgbaFrame;
 
 		let i, count, perc;
 		let damage;
