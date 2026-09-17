@@ -207299,7 +207299,7 @@ var init_Ground = __esmMin((() => {
 //#region src/Renderer/SpriteRenderer.vs?raw
 var SpriteRenderer_default$1;
 var init_SpriteRenderer$2 = __esmMin((() => {
-	SpriteRenderer_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform float uCameraLatitude;\r\n\r\nuniform vec2 uSpriteRendererSize;\r\nuniform vec2 uSpriteRendererOffset;\r\nuniform mat4 uSpriteRendererAngle;\r\nuniform vec3 uSpriteRendererPosition;\r\nuniform float uSpriteRendererDepth;\r\nuniform float uSpriteRendererZindex;\r\nuniform bool  uDisableDepthCorrection;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Calculate position base on angle and sprite offset/size\r\n    vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );\r\n    position.x   += uSpriteRendererOffset.x;\r\n    position.y   -= uSpriteRendererOffset.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // Vertical billboard depth correction (per-vertex), plane anchored at sprite center.\r\n        // Plane normal uses camera forward (flattened Y) for stability.\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n}";
+	SpriteRenderer_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform float uCameraLatitude;\r\n\r\nuniform vec2 uSpriteRendererSize;\r\nuniform vec2 uSpriteRendererOffset;\r\nuniform mat4 uSpriteRendererAngle;\r\nuniform vec3 uSpriteRendererPosition;\r\nuniform float uSpriteRendererDepth;\r\nuniform float uSpriteRendererZindex;\r\nuniform bool  uDisableDepthCorrection;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Calculate position base on angle and sprite offset/size\r\n    vec4 position = uSpriteRendererAngle * vec4( aPosition.x * uSpriteRendererSize.x, aPosition.y * uSpriteRendererSize.y, 0.0, 1.0 );\r\n    position.x   += uSpriteRendererOffset.x;\r\n    position.y   -= uSpriteRendererOffset.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, uSpriteRendererPosition);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // Vertical billboard depth correction (per-vertex), plane anchored at sprite center.\r\n        // Plane normal uses camera forward (flattened Y) for stability.\r\n        // The whole quad takes the vertical plane depth so the part of the sprite below\r\n        // the water surface sorts behind the (later drawn) water pass.\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = correctedZBase;\r\n    }\r\n    gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n}";
 }));
 //#endregion
 //#region src/Renderer/SpriteRenderer.fs?raw
@@ -207709,7 +207709,7 @@ function init$12(gl, water) {
 	_vertCount = water.vertCount;
 	_waveHeight = water.waveHeight;
 	_waveSpeed = water.waveSpeed;
-	water.level;
+	_waterLevel = water.level;
 	_animSpeed = water.animSpeed;
 	_wavePitch = water.wavePitch;
 	_waterOpacity = water.type !== 4 && water.type !== 6 ? .8 : 1;
@@ -207783,11 +207783,33 @@ function free$6(gl) {
 		gl.deleteTexture(_textures$1[i]);
 		_textures$1[i] = null;
 	}
+	_vertCount = 0;
 }
-var _program$24, _buffer$17, _vertCount, _textures$1, _waveSpeed, _waveHeight, _wavePitch, _animSpeed, _waterOpacity, Water_default;
+/**
+* Is the ground at this cell under the water surface ?
+* (world Y points down: ground is submerged when -altitude is above the wave crest)
+*
+* @param {number} x
+* @param {number} y
+* @return {boolean}
+*/
+function isSubmerged(x, y) {
+	if (!_vertCount) return false;
+	return -Altitude.getCellHeight(x, y) > _waterLevel - _waveHeight;
+}
+/**
+* Does the current map have any water surface ?
+*
+* @return {boolean}
+*/
+function hasWater() {
+	return _vertCount > 0;
+}
+var _program$24, _buffer$17, _vertCount, _textures$1, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
+	init_Altitude();
 	init_Water$2();
 	init_Water$1();
 	_program$24 = null;
@@ -207797,12 +207819,15 @@ var init_Water = __esmMin((() => {
 	_waveSpeed = 0;
 	_waveHeight = 0;
 	_wavePitch = 0;
+	_waterLevel = 0;
 	_animSpeed = 0;
 	_waterOpacity = .9;
 	Water_default = {
 		init: init$12,
 		free: free$6,
-		render: render$11
+		render: render$11,
+		isSubmerged,
+		hasWater
 	};
 }));
 //#endregion
@@ -257713,6 +257738,7 @@ var init_MapRenderer = __esmMin((() => {
 			ScreenEffectManager.render(gl, modelView, projection, fog, tick, true);
 			EffectManager.render(gl, modelView, projection, fog, tick, true);
 			EntityManager.render(gl, modelView, projection, fog, false);
+			EntityManager.renderWaterDepth(gl, modelView, projection, fog);
 			Water_default.render(gl, modelView, projection, fog, light, tick);
 			EffectManager.render(gl, modelView, projection, fog, tick, false);
 			EntityManager.render(gl, modelView, projection, fog, true);
@@ -303070,6 +303096,28 @@ function render$5(modelView, projection) {
 	renderGUI(this, modelView, projection);
 }
 /**
+* Depth-only redraw of the body for entities standing in water, so the water
+* pass (drawn after entities, depth tested) covers only the submerged part.
+* Runs after every entity has been drawn, with colour writes disabled by the
+* caller, so the written depth cannot hide other sprites. Replays the exact
+* layers the colour pass drew this frame (`waterDepthFrame`), so no animation,
+* sound or trail state is touched. Only set for the non-player body pass;
+* entity types that already write depth never get a frame.
+*/
+function renderWaterDepth$1() {
+	const frame = this.waterDepthFrame;
+	if (!frame || this.hideEntity || !this.effectColor[3]) return;
+	if (!Water_default.isSubmerged(this.position[0], this.position[1])) return;
+	const self = this;
+	SpriteRenderer.position.set(this.position);
+	SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
+	SpriteRenderer.zIndex = 150;
+	SpriteRenderer.runWithDepth(true, true, false, function() {
+		for (let i = 0, count = frame.layers.length; i < count; ++i) self.renderLayer(frame.layers[i], frame.spr, frame.pal, frame.size, frame.position, "body", false);
+	});
+	SpriteRenderer.zIndex = 1;
+}
+/**
 * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
 * @param {Entity} entity
 * @param {Array} layers
@@ -303338,6 +303386,9 @@ function Init$3() {
 	this.render = render$5;
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
+	this.renderWaterDepth = renderWaterDepth$1;
+	this.waterDepthFrame = void 0;
+	this._waterDepthFrameBuffer = null;
 }
 var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderElement;
 var init_EntityRender = __esmMin((() => {
@@ -303348,6 +303399,7 @@ var init_EntityRender = __esmMin((() => {
 	init_SpriteRenderer();
 	init_Ground();
 	init_Altitude();
+	init_Water();
 	init_SessionStorage();
 	init_DBManager();
 	init_Graphics();
@@ -303601,6 +303653,7 @@ var init_EntityRender = __esmMin((() => {
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 					SpriteRenderer.zIndex = 150;
+					self.waterDepthFrame = null;
 					SpriteRenderer.runWithDepth(true, false, false, function() {
 						renderElement(self, self.files.body, "body", _position, true);
 					});
@@ -303675,6 +303728,15 @@ var init_EntityRender = __esmMin((() => {
 				blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
 			});
 			for (let i = 0, count = layers.length; i < count; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
+			if (is_main && type === "body" && entity.waterDepthFrame === null) {
+				const frame = entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: /* @__PURE__ */ new Int32Array(2) });
+				frame.layers = layers;
+				frame.spr = spr;
+				frame.pal = pal;
+				frame.size = files.size;
+				frame.position.set(_position);
+				entity.waterDepthFrame = frame;
+			}
 			if (is_main && animation.pos.length) {
 				position[0] = animation.pos[0].x;
 				position[1] = animation.pos[0].y;
@@ -305493,6 +305555,30 @@ function sortByPriority(a, b) {
 	return aDepth - bDepth;
 }
 /**
+* Player-relative view-area culling parameters (performance mode only)
+*
+* @returns {object|null} { x, y, viewAreaSq } or null when culling is off
+*/
+function getCulling() {
+	if (!GraphicsSettings.performanceMode || !SessionStorage_default.Entity || !SessionStorage_default.Entity.position) return null;
+	return {
+		x: SessionStorage_default.Entity.position[0],
+		y: SessionStorage_default.Entity.position[1],
+		viewAreaSq: GraphicsSettings.viewArea * GraphicsSettings.viewArea
+	};
+}
+/**
+* @param {object|null} culling from getCulling()
+* @param {Entity} entity
+* @returns {boolean} true when the entity is outside the view area
+*/
+function isCulled(culling, entity) {
+	if (!culling) return false;
+	const dx = entity.position[0] - culling.x;
+	const dy = entity.position[1] - culling.y;
+	return dx * dx + dy * dy > culling.viewAreaSq;
+}
+/**
 * Render all entities (picking or not)
 *
 * @param {object} gl webgl context
@@ -305515,13 +305601,7 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 		_pickSortDirty = true;
 	}
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-	const doCulling = GraphicsSettings.performanceMode;
-	let playerX, playerY, viewAreaSq;
-	if (doCulling && SessionStorage_default.Entity && SessionStorage_default.Entity.position) {
-		playerX = SessionStorage_default.Entity.position[0];
-		playerY = SessionStorage_default.Entity.position[1];
-		viewAreaSq = GraphicsSettings.viewArea * GraphicsSettings.viewArea;
-	}
+	const culling = getCulling();
 	for (i = 0, count = _list.length; i < count; ++i) if (_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects || _list[i].objecttype == _list[i].constructor.TYPE_EFFECT && renderEffects) {
 		if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
 			const entityFocus = getFocusEntity();
@@ -305538,13 +305618,28 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 			_pickSortDirty = true;
 			continue;
 		}
-		if (doCulling) {
-			const dx = _list[i].position[0] - playerX;
-			const dy = _list[i].position[1] - playerY;
-			if (dx * dx + dy * dy > viewAreaSq) continue;
-		}
+		if (isCulled(culling, _list[i])) continue;
 		_list[i].render(modelView, projection);
 	}
+	SpriteRenderer.unbind(gl);
+}
+/**
+* Depth-only pass for entities standing in water, run after all entities
+* are drawn and right before the water so it can hide their submerged part
+* without occluding other sprites.
+*
+* @param {object} gl context
+* @param {mat4} modelView
+* @param {mat4} projection
+* @param {object} fog
+*/
+function renderWaterDepth(gl, modelView, projection, fog) {
+	if (!_list.length || !Water_default.hasWater()) return;
+	const culling = getCulling();
+	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+	gl.colorMask(false, false, false, false);
+	for (let i = 0, count = _list.length; i < count; ++i) if (!isCulled(culling, _list[i])) _list[i].renderWaterDepth();
+	gl.colorMask(true, true, true, true);
 	SpriteRenderer.unbind(gl);
 }
 /**
@@ -305685,6 +305780,7 @@ var init_EntityManager = __esmMin((() => {
 	init_PathFinding();
 	init_Graphics();
 	init_Altitude();
+	init_Water();
 	init_GR2ModelRenderer();
 	_list = [];
 	_gidMap = /* @__PURE__ */ new Map();
@@ -305718,6 +305814,7 @@ var init_EntityManager = __esmMin((() => {
 		removeLife,
 		clearLifeCache,
 		render: render$4,
+		renderWaterDepth,
 		intersect,
 		setSupportPicking,
 		pendingTransformations,
