@@ -24,17 +24,20 @@ const float OCCLUDER_FADE_BAYER[16] = float[16](
 );
 
 // The faded region is a cylinder of constant radius from the eye to the focus,
-// closing over this distance (cells) before the focus; nothing behind the focus.
+// cut by a vertical plane through the focus (so a raised camera never fades
+// anything behind the player); it closes over this distance (cells) before it.
 const float OCCLUDER_FADE_END = 0.5;
 
-// x: distance to the eye->focus axis, y: signed distance past the focus along it
+// x: distance to the eye->focus axis,
+// y: signed horizontal distance past the focus, along the view direction
 vec2 occluderFadeCylinder(vec3 worldPos) {
 	vec3 axis = uOccluderFadeFocus - uOccluderFadeEye;
 	vec3 rel  = worldPos - uOccluderFadeEye;
 	float len  = max(length(axis), 0.01);
-	float proj = dot(rel, axis) / len;
-	float t    = clamp(proj / len, 0.0, 1.0);
-	return vec2(length(rel - axis * t), proj - len);
+	float t    = clamp(dot(rel, axis) / (len * len), 0.0, 1.0);
+	vec3 flat  = vec3(axis.x, 0.0, axis.z);
+	vec3 hdir  = flat / max(length(flat), 0.01);
+	return vec2(length(rel - axis * t), dot(worldPos - uOccluderFadeFocus, hdir));
 }
 
 // 0.0 = untouched, 1.0 = fully inside the cylinder between eye and focus
