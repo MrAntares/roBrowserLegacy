@@ -10,6 +10,7 @@
 
 import WebGL from 'Utils/WebGL.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import Altitude from 'Renderer/Map/Altitude.js';
 import _vertexShader from './Water.vs?raw';
 import _fragmentShader from './Water.fs?raw';
 
@@ -194,6 +195,33 @@ function free(gl) {
 			_textures[i] = null;
 		}
 	}
+
+	_vertCount = 0;
+}
+
+/**
+ * Is the ground at this cell under the water surface ?
+ * (world Y points down: ground is submerged when -altitude is above the wave crest)
+ *
+ * @param {number} x
+ * @param {number} y
+ * @return {boolean}
+ */
+function isSubmerged(x, y) {
+	if (!_vertCount) {
+		return false;
+	}
+
+	return -Altitude.getCellHeight(x, y) > _waterLevel - _waveHeight;
+}
+
+/**
+ * Does the current map have any water surface ?
+ *
+ * @return {boolean}
+ */
+function hasWater() {
+	return _vertCount > 0;
 }
 
 /**
@@ -202,5 +230,7 @@ function free(gl) {
 export default {
 	init: init,
 	free: free,
-	render: render
+	render: render,
+	isSubmerged: isSubmerged,
+	hasWater: hasWater
 };

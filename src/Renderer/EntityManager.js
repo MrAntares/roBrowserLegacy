@@ -17,6 +17,7 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import PathFinding from 'Utils/PathFinding.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Altitude from 'Renderer/Map/Altitude.js';
+import Water from 'Renderer/Map/Water.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 const _list = [];
 
@@ -317,6 +318,38 @@ function sortByPriority(a, b) {
 }
 
 /**
+ * Player-relative view-area culling parameters (performance mode only)
+ *
+ * @returns {object|null} { x, y, viewAreaSq } or null when culling is off
+ */
+function getCulling() {
+	if (!GraphicsSettings.performanceMode || !Session.Entity || !Session.Entity.position) {
+		return null;
+	}
+
+	return {
+		x: Session.Entity.position[0],
+		y: Session.Entity.position[1],
+		viewAreaSq: GraphicsSettings.viewArea * GraphicsSettings.viewArea
+	};
+}
+
+/**
+ * @param {object|null} culling from getCulling()
+ * @param {Entity} entity
+ * @returns {boolean} true when the entity is outside the view area
+ */
+function isCulled(culling, entity) {
+	if (!culling) {
+		return false;
+	}
+
+	const dx = entity.position[0] - culling.x;
+	const dy = entity.position[1] - culling.y;
+	return dx * dx + dy * dy > culling.viewAreaSq;
+}
+
+/**
  * Render all entities (picking or not)
  *
  * @param {object} gl webgl context
@@ -348,14 +381,7 @@ function render(gl, modelView, projection, fog, renderEffects) {
 	// Use program
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 
-	// Pre-compute culling values outside the loop
-	const doCulling = GraphicsSettings.performanceMode;
-	let playerX, playerY, viewAreaSq;
-	if (doCulling && Session.Entity && Session.Entity.position) {
-		playerX = Session.Entity.position[0];
-		playerY = Session.Entity.position[1];
-		viewAreaSq = GraphicsSettings.viewArea * GraphicsSettings.viewArea;
-	}
+	const culling = getCulling();
 
 	// Rendering
 	for (i = 0, count = _list.length; i < count; ++i) {
@@ -381,18 +407,44 @@ function render(gl, modelView, projection, fog, renderEffects) {
 				_pickSortDirty = true;
 				continue;
 			}
-			if (doCulling) {
-				const dx = _list[i].position[0] - playerX;
-				const dy = _list[i].position[1] - playerY;
-				if (dx * dx + dy * dy > viewAreaSq) {
-					continue;
-				}
+			if (isCulled(culling, _list[i])) {
+				continue;
 			}
 			_list[i].render(modelView, projection);
 		}
 	}
 
 	// Clean program
+	SpriteRenderer.unbind(gl);
+}
+
+/**
+ * Depth-only pass for entities standing in water, run after all entities
+ * are drawn and right before the water so it can hide their submerged part
+ * without occluding other sprites.
+ *
+ * @param {object} gl context
+ * @param {mat4} modelView
+ * @param {mat4} projection
+ * @param {object} fog
+ */
+function renderWaterDepth(gl, modelView, projection, fog) {
+	if (!_list.length || !Water.hasWater()) {
+		return;
+	}
+
+	const culling = getCulling();
+
+	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+	gl.colorMask(false, false, false, false);
+
+	for (let i = 0, count = _list.length; i < count; ++i) {
+		if (!isCulled(culling, _list[i])) {
+			_list[i].renderWaterDepth();
+		}
+	}
+
+	gl.colorMask(true, true, true, true);
 	SpriteRenderer.unbind(gl);
 }
 
@@ -618,6 +670,7 @@ const EntityManager = {
 	clearLifeCache: clearLifeCache,
 
 	render: render,
+	renderWaterDepth: renderWaterDepth,
 	intersect: intersect,
 	setSupportPicking: setSupportPicking,
 

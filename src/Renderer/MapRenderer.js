@@ -307,6 +307,9 @@ class MapRenderer {
 		//Render Entities (no effects)
 		EntityManager.render(gl, modelView, projection, fog, false);
 
+		// Depth-only pass so the water covers the submerged part of entities standing in it
+		EntityManager.renderWaterDepth(gl, modelView, projection, fog);
+
 		// Rendering water (after sprites, billboard projection pushes it to back)
 		Water.render(gl, modelView, projection, fog, light, tick);
 
