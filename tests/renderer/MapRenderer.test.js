@@ -44,6 +44,7 @@ vi.mock('Renderer/Map/Altitude.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Water.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Models.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/AnimatedModels.js', () => ({ default: {} }));
+vi.mock('Renderer/Map/OccluderFade.js', () => ({ default: {} }));
 vi.mock('Renderer/GR2/GR2ModelRenderer.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Sounds.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Effects.js', () => ({ default: {} }));

@@ -27,6 +27,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Water from 'Renderer/Map/Water.js';
 import Models from 'Renderer/Map/Models.js';
 import AnimatedModels from 'Renderer/Map/AnimatedModels.js';
+import OccluderFade from 'Renderer/Map/OccluderFade.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 import Sounds from 'Renderer/Map/Sounds.js';
 import Effects from 'Renderer/Map/Effects.js';
@@ -203,6 +204,7 @@ class MapRenderer {
 		Water.free(gl);
 		Models.free(gl);
 		AnimatedModels.free(gl);
+		OccluderFade.free(gl);
 		GR2ModelRenderer.free(gl);
 		Damage.free(gl);
 		EffectManager.free(gl);
@@ -292,6 +294,7 @@ class MapRenderer {
 		// Display zone effects and entities
 		Sky.render(gl, modelView, projection, fog, tick);
 
+		OccluderFade.beginFrame(gl, modelView, tick);
 		Models.render(gl, modelView, projection, normalMat, fog, light);
 		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
 		// GR2 mobs render here with the opaque world models, before EntityManager.render below

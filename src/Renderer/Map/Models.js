@@ -209,7 +209,6 @@ function bind(gl, modelView, projection, fog, light) {
 	// Textures
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	OccluderFade.update(modelView);
 }
 
 /**
@@ -240,6 +239,7 @@ function unbind(gl) {
 function render(gl, modelView, projection, normalMat, fog, light) {
 	bind(gl, modelView, projection, fog, light);
 	OccluderFade.renderOpaque(gl, _program.uniform, () => drawMeshes(gl));
+	OccluderFade.renderQuery(gl, _program.uniform, () => drawMeshes(gl), OccluderFade.QUERY.MODELS);
 	unbind(gl);
 }
 

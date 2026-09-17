@@ -26,15 +26,35 @@ const uniform = {
 	uOccluderFadeOpacity: 'opacity'
 };
 
-function makeGl() {
+const IDENTITY = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+
+function makeGl(queryResult = true) {
 	return {
 		SRC_ALPHA: 770,
 		ONE_MINUS_SRC_ALPHA: 771,
+		QUERY_RESULT_AVAILABLE: 1,
+		QUERY_RESULT: 2,
+		ANY_SAMPLES_PASSED_CONSERVATIVE: 3,
 		uniform1i: vi.fn(),
 		uniform1f: vi.fn(),
 		uniform3fv: vi.fn(),
-		blendFunc: vi.fn()
+		blendFunc: vi.fn(),
+		colorMask: vi.fn(),
+		createQuery: vi.fn(() => ({})),
+		deleteQuery: vi.fn(),
+		beginQuery: vi.fn(),
+		endQuery: vi.fn(),
+		getQueryParameter: vi.fn((_q, p) => (p === 1 ? true : queryResult))
 	};
+}
+
+/**
+ * Run the query pass for both slots and collect the result on the next frame
+ */
+function frame(gl, tick) {
+	OccluderFade.beginFrame(gl, IDENTITY, tick);
+	OccluderFade.renderQuery(gl, uniform, vi.fn(), OccluderFade.QUERY.MODELS);
+	OccluderFade.renderQuery(gl, uniform, vi.fn(), OccluderFade.QUERY.ANIMATED);
 }
 
 describe('Renderer/Map/OccluderFade', () => {
@@ -43,6 +63,7 @@ describe('Renderer/Map/OccluderFade', () => {
 		camera.state = camera.states.third_person;
 		graphics.occluderFade = 'dither';
 		runWithDepth.mockClear();
+		OccluderFade.free(makeGl());
 	});
 
 	it('splices the shared GLSL at the include marker', () => {
@@ -68,7 +89,15 @@ describe('Renderer/Map/OccluderFade', () => {
 		expect(OccluderFade.isActive()).toBe(false);
 	});
 
-	it('picks the opaque shader mode from the setting', () => {
+	it('picks the opaque shader mode from the setting once the view is blocked', () => {
+		expect(OccluderFade.opaqueMode()).toBe(OccluderFade.MODE.OFF);
+
+		const gl = makeGl(true);
+		frame(gl, 1000);
+		frame(gl, 1100);
+		frame(gl, 1200);
+		expect(OccluderFade.getStrength()).toBe(1);
+
 		expect(OccluderFade.opaqueMode()).toBe(OccluderFade.MODE.DITHER);
 		expect(OccluderFade.needsBlendPass()).toBe(false);
 
@@ -79,6 +108,46 @@ describe('Renderer/Map/OccluderFade', () => {
 		camera.state = camera.states.isometric;
 		expect(OccluderFade.opaqueMode()).toBe(OccluderFade.MODE.OFF);
 		expect(OccluderFade.needsBlendPass()).toBe(false);
+	});
+
+	it('eases the fade in while occluded and out once the view clears', () => {
+		const blocked = makeGl(true);
+		frame(blocked, 1000);
+		expect(OccluderFade.getStrength()).toBe(0);
+		frame(blocked, 1075);
+		expect(OccluderFade.getStrength()).toBeCloseTo(0.5);
+		frame(blocked, 1150);
+		expect(OccluderFade.getStrength()).toBe(1);
+
+		const clear = makeGl(false);
+		frame(clear, 1250);
+		expect(OccluderFade.getStrength()).toBeCloseTo(2 / 3);
+		frame(clear, 1350);
+		expect(OccluderFade.getStrength()).toBeCloseTo(1 / 3);
+		frame(clear, 1450);
+		expect(OccluderFade.getStrength()).toBeCloseTo(0);
+	});
+
+	it('runs the line of sight pass without color/depth writes and one query in flight per slot', () => {
+		const gl = makeGl(true);
+		const draw = vi.fn();
+
+		OccluderFade.beginFrame(gl, IDENTITY, 1000);
+		OccluderFade.renderQuery(gl, uniform, draw, OccluderFade.QUERY.MODELS);
+		expect(gl.beginQuery).toHaveBeenCalledWith(3, expect.anything());
+		expect(gl.colorMask).toHaveBeenNthCalledWith(1, false, false, false, false);
+		expect(gl.colorMask).toHaveBeenLastCalledWith(true, true, true, true);
+		expect(runWithDepth).toHaveBeenLastCalledWith(false, false, true, expect.any(Function));
+		expect(gl.uniform1i).toHaveBeenLastCalledWith('mode', OccluderFade.MODE.QUERY);
+		expect(draw).toHaveBeenCalledTimes(1);
+
+		OccluderFade.renderQuery(gl, uniform, draw, OccluderFade.QUERY.MODELS);
+		expect(draw).toHaveBeenCalledTimes(1);
+
+		camera.state = camera.states.isometric;
+		OccluderFade.beginFrame(gl, IDENTITY, 1100);
+		OccluderFade.renderQuery(gl, uniform, draw, OccluderFade.QUERY.MODELS);
+		expect(draw).toHaveBeenCalledTimes(1);
 	});
 
 	it('uploads only the mode when off', () => {
@@ -93,7 +162,7 @@ describe('Renderer/Map/OccluderFade', () => {
 		const gl = makeGl();
 		// translation by (-4, -5, -6): the eye sits at (4, 5, 6)
 		const modelView = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -4, -5, -6, 1]);
-		OccluderFade.update(modelView);
+		OccluderFade.beginFrame(gl, modelView, 1000);
 		OccluderFade.setUniforms(gl, uniform, OccluderFade.MODE.DITHER);
 
 		const eye = gl.uniform3fv.mock.calls.find((c) => c[0] === 'eye')[1];
@@ -103,8 +172,12 @@ describe('Renderer/Map/OccluderFade', () => {
 	});
 
 	it('draws the opaque pass with depth writes and the blend pass without', () => {
-		const gl = makeGl();
+		const gl = makeGl(true);
 		const draw = vi.fn();
+		frame(gl, 1000);
+		frame(gl, 1100);
+		frame(gl, 1200);
+		runWithDepth.mockClear();
 
 		OccluderFade.renderOpaque(gl, uniform, draw);
 		expect(runWithDepth).toHaveBeenLastCalledWith(true, true, true, expect.any(Function));

@@ -62,7 +62,8 @@ function init(gl) {
 		uOccluderFadeEye: gl.getUniformLocation(_program, 'uOccluderFadeEye'),
 		uOccluderFadeFocus: gl.getUniformLocation(_program, 'uOccluderFadeFocus'),
 		uOccluderFadeRadius: gl.getUniformLocation(_program, 'uOccluderFadeRadius'),
-		uOccluderFadeOpacity: gl.getUniformLocation(_program, 'uOccluderFadeOpacity')
+		uOccluderFadeOpacity: gl.getUniformLocation(_program, 'uOccluderFadeOpacity'),
+		uOccluderFadeStrength: gl.getUniformLocation(_program, 'uOccluderFadeStrength')
 	};
 
 	_program.attribute = {
@@ -721,7 +722,6 @@ function bind(gl, modelView, projection, normalMat, fog, light) {
 
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	OccluderFade.update(modelView);
 }
 
 /**
@@ -769,6 +769,7 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 	}
 
 	OccluderFade.renderOpaque(gl, _program.uniform, () => drawModels(gl));
+	OccluderFade.renderQuery(gl, _program.uniform, () => drawModels(gl), OccluderFade.QUERY.ANIMATED);
 	// Disable attributes
 	gl.bindVertexArray(null);
 }
