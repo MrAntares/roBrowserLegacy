@@ -35,9 +35,13 @@ vec2 occluderFadeCylinder(vec3 worldPos) {
 	vec3 rel  = worldPos - uOccluderFadeEye;
 	float len  = max(length(axis), 0.01);
 	float t    = clamp(dot(rel, axis) / (len * len), 0.0, 1.0);
+	// cut plane normal: horizontal view direction, tilting back to the view
+	// axis as the camera gets steep (a vertical plane is meaningless top-down)
 	vec3 level = vec3(axis.x, 0.0, axis.z);
+	float flatness = length(level) / len;
 	vec3 hdir  = level / max(length(level), 0.01);
-	return vec2(length(rel - axis * t), dot(worldPos - uOccluderFadeFocus, hdir));
+	vec3 cut   = normalize(mix(axis / len, hdir, smoothstep(0.3, 0.6, flatness)));
+	return vec2(length(rel - axis * t), dot(worldPos - uOccluderFadeFocus, cut));
 }
 
 // 0.0 = untouched, 1.0 = fully inside the cylinder between eye and focus
