@@ -8220,18 +8220,21 @@ PACKET.ZC.PC_CASH_POINT_ITEMLIST = function PACKET_ZC_PC_CASH_POINT_ITEMLIST(fp,
 	this.KafraPoint = fp.readULong();
 	this.CashPoint = fp.readULong();
 	this.itemList = (function () {
-		const div = PACKETVER.value >= 20181121 ? 13 : 11;
+		// base: price(4) + discountprice(4) + type(1) + ITID(2|4)
+		// ext:  base + viewSprite(2) + location(4) + unused(1)
+		const base = PACKETVER.value >= 20181121 ? 13 : 11;
+		const ext = base + 7;
 		const itemListLen = end - fp.tell();
-		const itemLen = itemListLen % 20 === 0 ? 20 : itemListLen % 18 == 0 ? 18 : div;
-		const count = ((end - fp.tell()) / itemLen) | 0;
+		const itemLen = itemListLen % base !== 0 && itemListLen % ext === 0 ? ext : base;
+		const count = (itemListLen / itemLen) | 0;
 		const out = new Array(count);
-		for (let i = 0; i < count; ++i) {
+		for (let i = 0; i < count && fp.tell() + itemLen <= end; ++i) {
 			out[i] = {};
 			out[i].price = fp.readLong();
 			out[i].discountprice = fp.readLong();
 			out[i].type = fp.readUChar();
 			out[i].ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
-			if (itemLen >= 18) {
+			if (itemLen === ext) {
 				out[i].viewSprite = fp.readUShort();
 				out[i].location = fp.readLong();
 				out[i].unused = fp.readUChar();
