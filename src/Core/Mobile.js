@@ -224,8 +224,10 @@ const onTouchStart = event => {
 	// Let the browser deliver the tap to the UI element as mouse events
 	// (mouseenter/mousedown/click), exactly like a mouse would do.
 	// Extra fingers landing during a UI touch stay with the UI too.
-	if (_touches.length === 1) {
-		_uiTouch = _pageZoomed || isUITouch(event);
+	if (_pageZoomed) {
+		_uiTouch = true;
+	} else if (_touches.length === 1) {
+		_uiTouch = isUITouch(event);
 	}
 	if (_uiTouch) {
 		if (_timer > -1) {
