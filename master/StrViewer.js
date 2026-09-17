@@ -78426,7 +78426,14 @@ var init_Graphics = __esmMin((() => {
 		cartoonEdgeSlope: 1.5,
 		casEnabled: false,
 		casContrast: 0,
-		casSharpening: 1
+		casSharpening: 1,
+		/**
+		* Fade map geometry blocking the view of the player (not in first person)
+		* 'off' | 'dither' | 'alpha'
+		*/
+		occluderFade: "off",
+		occluderFadeOpacity: .25,
+		occluderFadeRadius: 5
 	};
 	cleanDefaults = JSON.parse(JSON.stringify(defaultGraphicsSettings));
 	GraphicsSettings = Preferences.get("Graphics", defaultGraphicsSettings, 1.1);
@@ -78891,7 +78898,7 @@ var init_Controls = __esmMin((() => {
 }));
 //#endregion
 //#region src/Vendors/gl-matrix.js
-var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$7, vec4$8, mat2$1, mat2d, mat3$5, mat4$24, quat$2;
+var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$8, mat2$1, mat2d, mat3$5, mat4$25, quat$2;
 var init_gl_matrix$1 = __esmMin((() => {
 	exports$3 = {};
 	if (!GLMAT_EPSILON) GLMAT_EPSILON = 1e-6;
@@ -79333,13 +79340,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "vec2(" + a[0] + ", " + a[1] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.vec2 = vec2$4;
-	vec3$7 = {};
+	vec3$8 = {};
 	/**
 	* Creates a new, empty vec3
 	*
 	* @returns {vec3} a new 3D vector
 	*/
-	vec3$7.create = function() {
+	vec3$8.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(3);
 		out[0] = 0;
 		out[1] = 0;
@@ -79352,7 +79359,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} a vector to clone
 	* @returns {vec3} a new 3D vector
 	*/
-	vec3$7.clone = function(a) {
+	vec3$8.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(3);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -79367,7 +79374,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} z Z component
 	* @returns {vec3} a new 3D vector
 	*/
-	vec3$7.fromValues = function(x, y, z) {
+	vec3$8.fromValues = function(x, y, z) {
 		var out = new GLMAT_ARRAY_TYPE(3);
 		out[0] = x;
 		out[1] = y;
@@ -79381,7 +79388,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} a the source vector
 	* @returns {vec3} out
 	*/
-	vec3$7.copy = function(out, a) {
+	vec3$8.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -79396,7 +79403,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} z Z component
 	* @returns {vec3} out
 	*/
-	vec3$7.set = function(out, x, y, z) {
+	vec3$8.set = function(out, x, y, z) {
 		out[0] = x;
 		out[1] = y;
 		out[2] = z;
@@ -79410,7 +79417,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$7.add = function(out, a, b) {
+	vec3$8.add = function(out, a, b) {
 		out[0] = a[0] + b[0];
 		out[1] = a[1] + b[1];
 		out[2] = a[2] + b[2];
@@ -79424,7 +79431,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$7.subtract = function(out, a, b) {
+	vec3$8.subtract = function(out, a, b) {
 		out[0] = a[0] - b[0];
 		out[1] = a[1] - b[1];
 		out[2] = a[2] - b[2];
@@ -79434,7 +79441,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.subtract}
 	* @function
 	*/
-	vec3$7.sub = vec3$7.subtract;
+	vec3$8.sub = vec3$8.subtract;
 	/**
 	* Multiplies two vec3's
 	*
@@ -79443,7 +79450,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$7.multiply = function(out, a, b) {
+	vec3$8.multiply = function(out, a, b) {
 		out[0] = a[0] * b[0];
 		out[1] = a[1] * b[1];
 		out[2] = a[2] * b[2];
@@ -79453,7 +79460,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.multiply}
 	* @function
 	*/
-	vec3$7.mul = vec3$7.multiply;
+	vec3$8.mul = vec3$8.multiply;
 	/**
 	* Divides two vec3's
 	*
@@ -79462,7 +79469,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$7.divide = function(out, a, b) {
+	vec3$8.divide = function(out, a, b) {
 		out[0] = a[0] / b[0];
 		out[1] = a[1] / b[1];
 		out[2] = a[2] / b[2];
@@ -79472,7 +79479,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.divide}
 	* @function
 	*/
-	vec3$7.div = vec3$7.divide;
+	vec3$8.div = vec3$8.divide;
 	/**
 	* Returns the minimum of two vec3's
 	*
@@ -79481,7 +79488,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$7.min = function(out, a, b) {
+	vec3$8.min = function(out, a, b) {
 		out[0] = Math.min(a[0], b[0]);
 		out[1] = Math.min(a[1], b[1]);
 		out[2] = Math.min(a[2], b[2]);
@@ -79495,7 +79502,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$7.max = function(out, a, b) {
+	vec3$8.max = function(out, a, b) {
 		out[0] = Math.max(a[0], b[0]);
 		out[1] = Math.max(a[1], b[1]);
 		out[2] = Math.max(a[2], b[2]);
@@ -79509,7 +79516,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} b amount to scale the vector by
 	* @returns {vec3} out
 	*/
-	vec3$7.scale = function(out, a, b) {
+	vec3$8.scale = function(out, a, b) {
 		out[0] = a[0] * b;
 		out[1] = a[1] * b;
 		out[2] = a[2] * b;
@@ -79524,7 +79531,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} scale the amount to scale b by before adding
 	* @returns {vec3} out
 	*/
-	vec3$7.scaleAndAdd = function(out, a, b, scale) {
+	vec3$8.scaleAndAdd = function(out, a, b, scale) {
 		out[0] = a[0] + b[0] * scale;
 		out[1] = a[1] + b[1] * scale;
 		out[2] = a[2] + b[2] * scale;
@@ -79537,7 +79544,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {Number} distance between a and b
 	*/
-	vec3$7.distance = function(a, b) {
+	vec3$8.distance = function(a, b) {
 		var x = b[0] - a[0], y = b[1] - a[1], z = b[2] - a[2];
 		return Math.sqrt(x * x + y * y + z * z);
 	};
@@ -79545,7 +79552,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.distance}
 	* @function
 	*/
-	vec3$7.dist = vec3$7.distance;
+	vec3$8.dist = vec3$8.distance;
 	/**
 	* Calculates the squared euclidian distance between two vec3's
 	*
@@ -79553,7 +79560,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {Number} squared distance between a and b
 	*/
-	vec3$7.squaredDistance = function(a, b) {
+	vec3$8.squaredDistance = function(a, b) {
 		var x = b[0] - a[0], y = b[1] - a[1], z = b[2] - a[2];
 		return x * x + y * y + z * z;
 	};
@@ -79561,14 +79568,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.squaredDistance}
 	* @function
 	*/
-	vec3$7.sqrDist = vec3$7.squaredDistance;
+	vec3$8.sqrDist = vec3$8.squaredDistance;
 	/**
 	* Calculates the length of a vec3
 	*
 	* @param {vec3} a vector to calculate length of
 	* @returns {Number} length of a
 	*/
-	vec3$7.length = function(a) {
+	vec3$8.length = function(a) {
 		var x = a[0], y = a[1], z = a[2];
 		return Math.sqrt(x * x + y * y + z * z);
 	};
@@ -79576,14 +79583,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.length}
 	* @function
 	*/
-	vec3$7.len = vec3$7.length;
+	vec3$8.len = vec3$8.length;
 	/**
 	* Calculates the squared length of a vec3
 	*
 	* @param {vec3} a vector to calculate squared length of
 	* @returns {Number} squared length of a
 	*/
-	vec3$7.squaredLength = function(a) {
+	vec3$8.squaredLength = function(a) {
 		var x = a[0], y = a[1], z = a[2];
 		return x * x + y * y + z * z;
 	};
@@ -79591,7 +79598,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.squaredLength}
 	* @function
 	*/
-	vec3$7.sqrLen = vec3$7.squaredLength;
+	vec3$8.sqrLen = vec3$8.squaredLength;
 	/**
 	* Negates the components of a vec3
 	*
@@ -79599,7 +79606,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} a vector to negate
 	* @returns {vec3} out
 	*/
-	vec3$7.negate = function(out, a) {
+	vec3$8.negate = function(out, a) {
 		out[0] = -a[0];
 		out[1] = -a[1];
 		out[2] = -a[2];
@@ -79612,7 +79619,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} a vector to normalize
 	* @returns {vec3} out
 	*/
-	vec3$7.normalize = function(out, a) {
+	vec3$8.normalize = function(out, a) {
 		var x = a[0], y = a[1], z = a[2];
 		var len = x * x + y * y + z * z;
 		if (len > 0) {
@@ -79630,7 +79637,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {Number} dot product of a and b
 	*/
-	vec3$7.dot = function(a, b) {
+	vec3$8.dot = function(a, b) {
 		return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 	};
 	/**
@@ -79641,7 +79648,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$7.cross = function(out, a, b) {
+	vec3$8.cross = function(out, a, b) {
 		var ax = a[0], ay = a[1], az = a[2], bx = b[0], by = b[1], bz = b[2];
 		out[0] = ay * bz - az * by;
 		out[1] = az * bx - ax * bz;
@@ -79657,7 +79664,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} t interpolation amount between the two inputs
 	* @returns {vec3} out
 	*/
-	vec3$7.lerp = function(out, a, b, t) {
+	vec3$8.lerp = function(out, a, b, t) {
 		var ax = a[0], ay = a[1], az = a[2];
 		out[0] = ax + t * (b[0] - ax);
 		out[1] = ay + t * (b[1] - ay);
@@ -79671,7 +79678,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
 	* @returns {vec3} out
 	*/
-	vec3$7.random = function(out, scale) {
+	vec3$8.random = function(out, scale) {
 		scale = scale || 1;
 		var r = GLMAT_RANDOM() * 2 * Math.PI;
 		var z = GLMAT_RANDOM() * 2 - 1;
@@ -79690,7 +79697,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} m matrix to transform with
 	* @returns {vec3} out
 	*/
-	vec3$7.transformMat4 = function(out, a, m) {
+	vec3$8.transformMat4 = function(out, a, m) {
 		var x = a[0], y = a[1], z = a[2];
 		out[0] = m[0] * x + m[4] * y + m[8] * z + m[12];
 		out[1] = m[1] * x + m[5] * y + m[9] * z + m[13];
@@ -79705,7 +79712,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} m the 3x3 matrix to transform with
 	* @returns {vec3} out
 	*/
-	vec3$7.transformMat3 = function(out, a, m) {
+	vec3$8.transformMat3 = function(out, a, m) {
 		var x = a[0], y = a[1], z = a[2];
 		out[0] = x * m[0] + y * m[3] + z * m[6];
 		out[1] = x * m[1] + y * m[4] + z * m[7];
@@ -79720,7 +79727,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {quat} q quaternion to transform with
 	* @returns {vec3} out
 	*/
-	vec3$7.transformQuat = function(out, a, q) {
+	vec3$8.transformQuat = function(out, a, q) {
 		var x = a[0], y = a[1], z = a[2], qx = q[0], qy = q[1], qz = q[2], qw = q[3], ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
 		out[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
 		out[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
@@ -79739,8 +79746,8 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Array} a
 	* @function
 	*/
-	vec3$7.forEach = (function() {
-		var vec = vec3$7.create();
+	vec3$8.forEach = (function() {
+		var vec = vec3$8.create();
 		return function(a, stride, offset, count, fn, arg) {
 			var i, l;
 			if (!stride) stride = 3;
@@ -79765,10 +79772,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} vec vector to represent as a string
 	* @returns {String} string representation of the vector
 	*/
-	vec3$7.str = function(a) {
+	vec3$8.str = function(a) {
 		return "vec3(" + a[0] + ", " + a[1] + ", " + a[2] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.vec3 = vec3$7;
+	if (typeof exports$3 !== "undefined") exports$3.vec3 = vec3$8;
 	vec4$8 = {};
 	/**
 	* Creates a new, empty vec4
@@ -80890,13 +80897,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "mat3(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.mat3 = mat3$5;
-	mat4$24 = {};
+	mat4$25 = {};
 	/**
 	* Creates a new identity mat4
 	*
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$24.create = function() {
+	mat4$25.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = 1;
 		out[1] = 0;
@@ -80922,7 +80929,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a matrix to clone
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$24.clone = function(a) {
+	mat4$25.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -80949,7 +80956,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.copy = function(out, a) {
+	mat4$25.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -80974,7 +80981,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} out the receiving matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.identity = function(out) {
+	mat4$25.identity = function(out) {
 		out[0] = 1;
 		out[1] = 0;
 		out[2] = 0;
@@ -81000,7 +81007,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.transpose = function(out, a) {
+	mat4$25.transpose = function(out, a) {
 		if (out === a) {
 			var a01 = a[1], a02 = a[2], a03 = a[3], a12 = a[6], a13 = a[7], a23 = a[11];
 			out[1] = a[4];
@@ -81042,7 +81049,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.invert = function(out, a) {
+	mat4$25.invert = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32, det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 		if (!det) return null;
 		det = 1 / det;
@@ -81071,7 +81078,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.adjoint = function(out, a) {
+	mat4$25.adjoint = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		out[0] = a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22);
 		out[1] = -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22));
@@ -81097,7 +81104,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {Number} determinant of a
 	*/
-	mat4$24.determinant = function(a) {
+	mat4$25.determinant = function(a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31;
 		return b00 * (a22 * a33 - a23 * a32) - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 	};
@@ -81109,7 +81116,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} b the second operand
 	* @returns {mat4} out
 	*/
-	mat4$24.multiply = function(out, a, b) {
+	mat4$25.multiply = function(out, a, b) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
 		out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
@@ -81146,7 +81153,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link mat4.multiply}
 	* @function
 	*/
-	mat4$24.mul = mat4$24.multiply;
+	mat4$25.mul = mat4$25.multiply;
 	/**
 	* Translate a mat4 by the given vector
 	*
@@ -81155,7 +81162,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v vector to translate by
 	* @returns {mat4} out
 	*/
-	mat4$24.translate = function(out, a, v) {
+	mat4$25.translate = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2], a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23;
 		if (a === out) {
 			out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
@@ -81202,7 +81209,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v the vec3 to scale the matrix by
 	* @returns {mat4} out
 	**/
-	mat4$24.scale = function(out, a, v) {
+	mat4$25.scale = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2];
 		out[0] = a[0] * x;
 		out[1] = a[1] * x;
@@ -81231,7 +81238,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} axis the axis to rotate around
 	* @returns {mat4} out
 	*/
-	mat4$24.rotate = function(out, a, rad, axis) {
+	mat4$25.rotate = function(out, a, rad, axis) {
 		var x = axis[0], y = axis[1], z = axis[2], len = Math.sqrt(x * x + y * y + z * z), s, c, t, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
 		if (Math.abs(len) < GLMAT_EPSILON) return null;
 		len = 1 / len;
@@ -81290,7 +81297,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateX = function(out, a, rad) {
+	mat4$25.rotateX = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[0] = a[0];
@@ -81320,7 +81327,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateY = function(out, a, rad) {
+	mat4$25.rotateY = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[4] = a[4];
@@ -81350,7 +81357,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateZ = function(out, a, rad) {
+	mat4$25.rotateZ = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
 		if (a !== out) {
 			out[8] = a[8];
@@ -81387,7 +81394,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v Translation vector
 	* @returns {mat4} out
 	*/
-	mat4$24.fromRotationTranslation = function(out, q, v) {
+	mat4$25.fromRotationTranslation = function(out, q, v) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -81415,7 +81422,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	*
 	* @returns {mat4} out
 	*/
-	mat4$24.fromQuat = function(out, q) {
+	mat4$25.fromQuat = function(out, q) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -81447,7 +81454,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.frustum = function(out, left, right, bottom, top, near, far) {
+	mat4$25.frustum = function(out, left, right, bottom, top, near, far) {
 		var rl = 1 / (right - left), tb = 1 / (top - bottom), nf = 1 / (near - far);
 		out[0] = near * 2 * rl;
 		out[1] = 0;
@@ -81477,7 +81484,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.perspective = function(out, fovy, aspect, near, far) {
+	mat4$25.perspective = function(out, fovy, aspect, near, far) {
 		var f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
 		out[0] = f / aspect;
 		out[1] = 0;
@@ -81509,7 +81516,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.ortho = function(out, left, right, bottom, top, near, far) {
+	mat4$25.ortho = function(out, left, right, bottom, top, near, far) {
 		var lr = 1 / (left - right), bt = 1 / (bottom - top), nf = 1 / (near - far);
 		out[0] = -2 * lr;
 		out[1] = 0;
@@ -81538,9 +81545,9 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} up vec3 pointing up
 	* @returns {mat4} out
 	*/
-	mat4$24.lookAt = function(out, eye, center, up) {
+	mat4$25.lookAt = function(out, eye, center, up) {
 		var x0, x1, x2, y0, y1, y2, z0, z1, z2, len, eyex = eye[0], eyey = eye[1], eyez = eye[2], upx = up[0], upy = up[1], upz = up[2], centerx = center[0], centery = center[1], centerz = center[2];
-		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$24.identity(out);
+		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$25.identity(out);
 		z0 = eyex - centerx;
 		z1 = eyey - centery;
 		z2 = eyez - centerz;
@@ -81600,10 +81607,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} mat matrix to represent as a string
 	* @returns {String} string representation of the matrix
 	*/
-	mat4$24.str = function(a) {
+	mat4$25.str = function(a) {
 		return "mat4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ", " + a[9] + ", " + a[10] + ", " + a[11] + ", " + a[12] + ", " + a[13] + ", " + a[14] + ", " + a[15] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$24;
+	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$25;
 	quat$2 = {};
 	/**
 	* Creates a new identity quat
@@ -81630,15 +81637,15 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	*/
 	quat$2.rotationTo = (function() {
-		var tmpvec3 = vec3$7.create();
-		var xUnitVec3 = vec3$7.fromValues(1, 0, 0);
-		var yUnitVec3 = vec3$7.fromValues(0, 1, 0);
+		var tmpvec3 = vec3$8.create();
+		var xUnitVec3 = vec3$8.fromValues(1, 0, 0);
+		var yUnitVec3 = vec3$8.fromValues(0, 1, 0);
 		return function(out, a, b) {
-			var dot = vec3$7.dot(a, b);
+			var dot = vec3$8.dot(a, b);
 			if (dot < -.999999) {
-				vec3$7.cross(tmpvec3, xUnitVec3, a);
-				if (vec3$7.length(tmpvec3) < 1e-6) vec3$7.cross(tmpvec3, yUnitVec3, a);
-				vec3$7.normalize(tmpvec3, tmpvec3);
+				vec3$8.cross(tmpvec3, xUnitVec3, a);
+				if (vec3$8.length(tmpvec3) < 1e-6) vec3$8.cross(tmpvec3, yUnitVec3, a);
+				vec3$8.normalize(tmpvec3, tmpvec3);
 				quat$2.setAxisAngle(out, tmpvec3, Math.PI);
 				return out;
 			} else if (dot > .999999) {
@@ -81648,7 +81655,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 				out[3] = 1;
 				return out;
 			} else {
-				vec3$7.cross(tmpvec3, a, b);
+				vec3$8.cross(tmpvec3, a, b);
 				out[0] = tmpvec3[0];
 				out[1] = tmpvec3[1];
 				out[2] = tmpvec3[2];
@@ -83674,7 +83681,7 @@ var init_VerticalFlip = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Map/Altitude.js
-var _cells, _types$1, mat4$23, vec3$6, vec4$7, _from, _to, _unit, _matrix$8, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
+var _cells, _types$1, mat4$24, vec3$7, vec4$7, _from, _to, _unit, _matrix$8, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
 var init_Altitude = __esmMin((() => {
 	init_gl_matrix$1();
 	init_PathFinding();
@@ -83682,11 +83689,11 @@ var init_Altitude = __esmMin((() => {
 	init_VerticalFlip();
 	_cells = null;
 	_types$1 = null;
-	({mat4: mat4$23, vec3: vec3$6, vec4: vec4$7} = exports$3);
-	_from = vec3$6.create();
+	({mat4: mat4$24, vec3: vec3$7, vec4: vec4$7} = exports$3);
+	_from = vec3$7.create();
 	_to = vec4$7.create();
-	_unit = vec3$6.create();
-	_matrix$8 = mat4$23.create();
+	_unit = vec3$7.create();
+	_matrix$8 = mat4$24.create();
 	buffer1x1 = /* @__PURE__ */ new Float32Array(30);
 	buffer5x5 = /* @__PURE__ */ new Float32Array(750);
 	buffer7x7 = /* @__PURE__ */ new Float32Array(1470);
@@ -83783,7 +83790,7 @@ var init_Altitude = __esmMin((() => {
 		static intersect(modelView, projection, out) {
 			let i;
 			const count = Altitude.MAX_INTERSECT_COUNT;
-			mat4$23.invert(_matrix$8, modelView);
+			mat4$24.invert(_matrix$8, modelView);
 			_from[0] = _matrix$8[12];
 			_from[1] = _matrix$8[13];
 			_from[2] = _matrix$8[14];
@@ -83792,14 +83799,14 @@ var init_Altitude = __esmMin((() => {
 			if (VerticalFlip.isActive()) _to[1] = -_to[1];
 			_to[2] = 1;
 			_to[3] = 1;
-			mat4$23.multiply(_matrix$8, projection, modelView);
-			mat4$23.invert(_matrix$8, _matrix$8);
+			mat4$24.multiply(_matrix$8, projection, modelView);
+			mat4$24.invert(_matrix$8, _matrix$8);
 			vec4$7.transformMat4(_to, _to, _matrix$8);
 			_to[0] /= _to[3];
 			_to[1] /= _to[3];
 			_to[2] /= _to[3];
-			vec3$6.sub(_unit, _to, _from);
-			vec3$6.normalize(_unit, _unit);
+			vec3$7.sub(_unit, _to, _from);
+			vec3$7.normalize(_unit, _unit);
 			for (i = 0; i < count; ++i) {
 				_from[0] += _unit[0];
 				_from[1] += _unit[1];
@@ -207304,8 +207311,8 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
 	if (this.angle !== _angle) {
 		_angle = this.angle;
-		mat4$22.identity(_matrix$7);
-		if (_angle) mat4$22.rotateZ(_matrix$7, _matrix$7, -_angle / 180 * Math.PI);
+		mat4$23.identity(_matrix$7);
+		if (_angle) mat4$23.rotateZ(_matrix$7, _matrix$7, -_angle / 180 * Math.PI);
 		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$7);
 	}
 	_offset[0] = this.offset[0] / 175 * this.xSize;
@@ -207322,14 +207329,14 @@ function RenderCanvas3D(isBlendModeOne) {
 	}
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
-var mat4$22, RenderCanvas2D, _program$25, _buffer$18, _ctx$5, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
+var mat4$23, RenderCanvas2D, _program$25, _buffer$18, _ctx$5, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_Camera();
 	init_SpriteRenderer$2();
 	init_SpriteRenderer$1();
-	mat4$22 = gl_matrix_default.mat4;
+	mat4$23 = gl_matrix_default.mat4;
 	RenderCanvas2D = (function RenderCanvas2DClosure() {
 		let imageData;
 		const canvas = document.createElement("canvas");
@@ -207555,7 +207562,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.useProgram(_program$25);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$22.invert(_matrix$7, modelView));
+			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$23.invert(_matrix$7, modelView));
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -207801,13 +207808,237 @@ var init_Water = __esmMin((() => {
 //#region src/Renderer/Effects/Shaders/GLSL/Models.vs?raw
 var Models_default$2;
 var init_Models$2 = __esmMin((() => {
-	Models_default$2 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec3 aVertexNormal;\r\nin vec2 aTextureCoord;\r\nin float aAlpha;\r\n\r\nout vec2 vTextureCoord;\r\nout float vLightWeighting;\r\nout float vAlpha;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform vec3 uLightDirection;\r\n\r\nvoid main(void) {\r\n	gl_Position     = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);\r\n\r\n	vTextureCoord   = aTextureCoord;\r\n	vAlpha          = aAlpha;\r\n\r\n	float dotProduct = dot(aVertexNormal, uLightDirection );\r\n	vLightWeighting = max(dotProduct, 0.0);\r\n}";
+	Models_default$2 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec3 aVertexNormal;\r\nin vec2 aTextureCoord;\r\nin float aAlpha;\r\n\r\nout vec2 vTextureCoord;\r\nout float vLightWeighting;\r\nout float vAlpha;\r\nout vec3 vWorldPos;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform vec3 uLightDirection;\r\n\r\nvoid main(void) {\r\n	gl_Position     = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);\r\n\r\n	vTextureCoord   = aTextureCoord;\r\n	vAlpha          = aAlpha;\r\n	vWorldPos       = aPosition;\r\n\r\n	float dotProduct = dot(aVertexNormal, uLightDirection );\r\n	vLightWeighting = max(dotProduct, 0.0);\r\n}";
 }));
 //#endregion
 //#region src/Renderer/Effects/Shaders/GLSL/Models.fs?raw
 var Models_default$1;
 var init_Models$1 = __esmMin((() => {
-	Models_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nin float vLightWeighting;\r\nin float vAlpha;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform vec3  uLightAmbient;\r\nuniform vec3  uLightDiffuse;\r\nuniform float uLightOpacity;\r\nuniform bool uLightMapUse;\r\nuniform vec3 uLightEnv;\r\n\r\nvoid main(void) {\r\n	vec4 textureSample  = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n	if (textureSample.a == 0.0) {\r\n		discard;\r\n	}\r\n\r\n	vec3 color = ((uLightMapUse ? vLightWeighting : 1.0) * uLightDiffuse + uLightAmbient);\r\n	textureSample.rgb *= clamp(color, 0.0, 1.0);\r\n	textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);\r\n	textureSample.a *= vAlpha;\r\n\r\n	fragColor = textureSample;\r\n	\r\n	if (uFogUse) {\r\n		float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n		fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n	}\r\n\r\n}";
+	Models_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nin float vLightWeighting;\r\nin float vAlpha;\r\nin vec3 vWorldPos;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform vec3  uLightAmbient;\r\nuniform vec3  uLightDiffuse;\r\nuniform float uLightOpacity;\r\nuniform bool uLightMapUse;\r\nuniform vec3 uLightEnv;\r\n\r\n// #include OccluderFade.glsl\r\n\r\nvoid main(void) {\r\n	vec4 textureSample  = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n	if (textureSample.a == 0.0) {\r\n		discard;\r\n	}\r\n\r\n	if (!occluderFade(vWorldPos, textureSample.a)) {\r\n		discard;\r\n	}\r\n\r\n	vec3 color = ((uLightMapUse ? vLightWeighting : 1.0) * uLightDiffuse + uLightAmbient);\r\n	textureSample.rgb *= clamp(color, 0.0, 1.0);\r\n	textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);\r\n	textureSample.a *= vAlpha;\r\n\r\n	fragColor = textureSample;\r\n	\r\n	if (uFogUse) {\r\n		float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n		fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n	}\r\n\r\n}";
+}));
+//#endregion
+//#region src/Renderer/Effects/Shaders/GLSL/OccluderFade.glsl?raw
+var OccluderFade_default;
+var init_OccluderFade$1 = __esmMin((() => {
+	OccluderFade_default = "// Fades world geometry lying between the camera and the followed entity\r\n// (third person camera). Included by the model fragment shaders.\r\n//\r\n// uOccluderFadeMode:\r\n//   0 - disabled\r\n//   1 - dither (screen-door, single opaque pass)\r\n//   2 - alpha, opaque pass: discard fragments inside the fade capsule\r\n//   3 - alpha, blend pass: draw only fragments inside the fade capsule, translucent\r\n//   4 - line of sight query: keep only fragments inside the (narrow) capsule,\r\n//       used with an occlusion query to detect geometry covering the entity\r\n\r\nuniform int   uOccluderFadeMode;\r\nuniform vec3  uOccluderFadeEye;\r\nuniform vec3  uOccluderFadeFocus;\r\nuniform float uOccluderFadeRadius;\r\nuniform float uOccluderFadeOpacity;\r\nuniform float uOccluderFadeStrength;\r\n\r\nconst float OCCLUDER_FADE_BAYER[16] = float[16](\r\n	 0.0,  8.0,  2.0, 10.0,\r\n	12.0,  4.0, 14.0,  6.0,\r\n	 3.0, 11.0,  1.0,  9.0,\r\n	15.0,  7.0, 13.0,  5.0\r\n);\r\n\r\n// The faded region is a cylinder of constant radius from the eye to the focus,\r\n// cut by a vertical plane through the focus (so a raised camera never fades\r\n// anything behind the player); it closes over this distance (cells) before it.\r\nconst float OCCLUDER_FADE_END = 0.5;\r\n\r\n// x: distance to the eye->focus axis,\r\n// y: signed horizontal distance past the focus, along the view direction\r\nvec2 occluderFadeCylinder(vec3 worldPos) {\r\n	vec3 axis = uOccluderFadeFocus - uOccluderFadeEye;\r\n	vec3 rel  = worldPos - uOccluderFadeEye;\r\n	float len  = max(length(axis), 0.01);\r\n	float t    = clamp(dot(rel, axis) / (len * len), 0.0, 1.0);\r\n	// cut plane normal: horizontal view direction, tilting back to the view\r\n	// axis as the camera gets steep (a vertical plane is meaningless top-down)\r\n	vec3 level = vec3(axis.x, 0.0, axis.z);\r\n	float flatness = length(level) / len;\r\n	vec3 hdir  = level / max(length(level), 0.01);\r\n	vec3 cut   = normalize(mix(axis / len, hdir, smoothstep(0.3, 0.6, flatness)));\r\n	return vec2(length(rel - axis * t), dot(worldPos - uOccluderFadeFocus, cut));\r\n}\r\n\r\n// 0.0 = untouched, 1.0 = fully inside the cylinder between eye and focus\r\nfloat occluderFadeAmount(vec3 worldPos) {\r\n	vec2 c = occluderFadeCylinder(worldPos);\r\n	float radial = 1.0 - smoothstep(uOccluderFadeRadius * 0.5, uOccluderFadeRadius, c.x);\r\n	float along  = 1.0 - smoothstep(-OCCLUDER_FADE_END, 0.0, c.y);\r\n	return radial * along * uOccluderFadeStrength;\r\n}\r\n\r\n// Applies the fade to the fragment alpha. Returns false when the fragment must be discarded.\r\nbool occluderFade(vec3 worldPos, inout float alpha) {\r\n	if (uOccluderFadeMode == 0) {\r\n		return true;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 4) {\r\n		vec2 c = occluderFadeCylinder(worldPos);\r\n		// stop short of the focus so the floor under the entity does not count\r\n		return c.x < uOccluderFadeRadius && c.y < -0.5;\r\n	}\r\n\r\n	float fade = occluderFadeAmount(worldPos);\r\n	float visibility = 1.0 - fade * (1.0 - uOccluderFadeOpacity);\r\n\r\n	if (uOccluderFadeMode == 1) {\r\n		ivec2 p = ivec2(gl_FragCoord.xy) & 3;\r\n		float threshold = (OCCLUDER_FADE_BAYER[p.x + p.y * 4] + 0.5) / 16.0;\r\n		return visibility > threshold;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 2) {\r\n		return fade < 0.01;\r\n	}\r\n\r\n	if (fade < 0.01) {\r\n		return false;\r\n	}\r\n	alpha *= visibility;\r\n	return true;\r\n}\r\n";
+}));
+//#endregion
+//#region src/Renderer/Map/OccluderFade.js
+var mat4$22, vec3$6, SHADER_INCLUDE, MODE, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick, OccluderFade;
+var init_OccluderFade = __esmMin((() => {
+	init_OccluderFade$1();
+	init_Camera();
+	init_Graphics();
+	init_SpriteRenderer();
+	init_gl_matrix();
+	({mat4: mat4$22, vec3: vec3$6} = gl_matrix_default);
+	SHADER_INCLUDE = "// #include OccluderFade.glsl";
+	MODE = {
+		OFF: 0,
+		DITHER: 1,
+		ALPHA_OPAQUE: 2,
+		ALPHA_BLEND: 3,
+		QUERY: 4
+	};
+	SETTING = {
+		OFF: "off",
+		DITHER: "dither",
+		ALPHA: "alpha"
+	};
+	QUERY = {
+		MODELS: 0,
+		ANIMATED: 1
+	};
+	QUERY_RADIUS = .7;
+	FADE_IN_MS = 150;
+	FADE_OUT_MS = 300;
+	_inverse = mat4$22.create();
+	_eye = vec3$6.create();
+	_queries = [null, null];
+	_queryPending = [false, false];
+	_queryHit = [false, false];
+	_strength = 0;
+	_lastTick = 0;
+	OccluderFade = class OccluderFade {
+		static MODE = MODE;
+		static SETTING = SETTING;
+		static QUERY = QUERY;
+		/**
+		* Inline the shared GLSL into a fragment shader source
+		*
+		* @param {string} source fragment shader
+		* @return {string}
+		*/
+		static injectShader(source) {
+			return source.replace(SHADER_INCLUDE, OccluderFade_default);
+		}
+		/**
+		* Whether the effect can run: enabled in the graphics options and not in
+		* first person camera.
+		*
+		* @return {boolean}
+		*/
+		static isActive() {
+			return GraphicsSettings.occluderFade !== SETTING.OFF && Camera.state !== Camera.states.first_person;
+		}
+		/**
+		* Whether the alpha (two pass) variant is selected
+		*
+		* @return {boolean}
+		*/
+		static useAlpha() {
+			return GraphicsSettings.occluderFade === SETTING.ALPHA;
+		}
+		/**
+		* Current fade strength, 0 (view clear) .. 1 (view blocked)
+		*
+		* @return {number}
+		*/
+		static getStrength() {
+			return _strength;
+		}
+		/**
+		* Whether the fade is visible this frame
+		*
+		* @return {boolean}
+		*/
+		static isFading() {
+			return OccluderFade.isActive() && _strength > .001;
+		}
+		/**
+		* Per frame update: collect last frame's occlusion query results, ease
+		* the fade strength and refresh the camera eye position.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {mat4} modelView
+		* @param {number} tick
+		*/
+		static beginFrame(gl, modelView, tick) {
+			mat4$22.invert(_inverse, modelView);
+			_eye[0] = _inverse[12];
+			_eye[1] = _inverse[13];
+			_eye[2] = _inverse[14];
+			const dt = _lastTick ? Math.min(tick - _lastTick, 100) : 0;
+			_lastTick = tick;
+			if (!OccluderFade.isActive()) {
+				_strength = 0;
+				return;
+			}
+			for (let i = 0; i < _queries.length; ++i) OccluderFade.pollQuery(gl, i);
+			if (_queryHit[QUERY.MODELS] || _queryHit[QUERY.ANIMATED]) _strength = Math.min(1, _strength + dt / FADE_IN_MS);
+			else _strength = Math.max(0, _strength - dt / FADE_OUT_MS);
+		}
+		/**
+		* Read back an occlusion query when its result is available
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {number} slot one of QUERY
+		*/
+		static pollQuery(gl, slot) {
+			if (!_queryPending[slot]) return;
+			const query = _queries[slot];
+			if (!gl.getQueryParameter(query, gl.QUERY_RESULT_AVAILABLE)) return;
+			_queryHit[slot] = !!gl.getQueryParameter(query, gl.QUERY_RESULT);
+			_queryPending[slot] = false;
+		}
+		/**
+		* Upload the fade uniforms for a program
+		*
+		* @param {WebGLRenderingContext} gl
+		* @param {object} uniform program uniform locations
+		* @param {number} mode one of MODE
+		*/
+		static setUniforms(gl, uniform, mode) {
+			gl.uniform1i(uniform.uOccluderFadeMode, mode);
+			if (mode === MODE.OFF) return;
+			gl.uniform3fv(uniform.uOccluderFadeEye, _eye);
+			gl.uniform3fv(uniform.uOccluderFadeFocus, Camera.focus);
+			gl.uniform1f(uniform.uOccluderFadeRadius, mode === MODE.QUERY ? QUERY_RADIUS : GraphicsSettings.occluderFadeRadius);
+			gl.uniform1f(uniform.uOccluderFadeOpacity, GraphicsSettings.occluderFadeOpacity);
+			gl.uniform1f(uniform.uOccluderFadeStrength, _strength);
+		}
+		/**
+		* Whether a deferred translucent pass is required this frame
+		* (alpha variant selected and fade visible).
+		*
+		* @return {boolean}
+		*/
+		static needsBlendPass() {
+			return OccluderFade.isFading() && OccluderFade.useAlpha();
+		}
+		/**
+		* Shader mode for the opaque geometry pass
+		*
+		* @return {number} one of MODE
+		*/
+		static opaqueMode() {
+			if (!OccluderFade.isFading()) return MODE.OFF;
+			return OccluderFade.useAlpha() ? MODE.ALPHA_OPAQUE : MODE.DITHER;
+		}
+		/**
+		* Opaque model pass: untouched, dithered, or with the fade capsule cut out.
+		*
+		* @param {WebGLRenderingContext} gl
+		* @param {object} uniform program uniform locations
+		* @param {function} draw issues the draw calls
+		*/
+		static renderOpaque(gl, uniform, draw) {
+			OccluderFade.setUniforms(gl, uniform, OccluderFade.opaqueMode());
+			SpriteRenderer.runWithDepth(true, true, true, draw);
+		}
+		/**
+		* Line of sight pass: re-draw the models without color/depth writes inside
+		* an occlusion query, keeping only fragments between the eye and the player.
+		* Skipped while the previous query of this slot is still in flight.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {object} uniform program uniform locations
+		* @param {function} draw issues the draw calls
+		* @param {number} slot one of QUERY
+		*/
+		static renderQuery(gl, uniform, draw, slot) {
+			if (!OccluderFade.isActive() || _queryPending[slot]) return;
+			if (!_queries[slot]) _queries[slot] = gl.createQuery();
+			OccluderFade.setUniforms(gl, uniform, MODE.QUERY);
+			gl.colorMask(false, false, false, false);
+			gl.beginQuery(gl.ANY_SAMPLES_PASSED_CONSERVATIVE, _queries[slot]);
+			SpriteRenderer.runWithDepth(false, false, true, draw);
+			gl.endQuery(gl.ANY_SAMPLES_PASSED_CONSERVATIVE);
+			gl.colorMask(true, true, true, true);
+			_queryPending[slot] = true;
+		}
+		/**
+		* Translucent model pass (alpha variant): draws only the fade capsule,
+		* depth tested but not depth written. Runs after opaque scene elements
+		* (entities included) so they show through the faded geometry.
+		*
+		* @param {WebGLRenderingContext} gl
+		* @param {object} uniform program uniform locations
+		* @param {function} draw issues the draw calls
+		*/
+		static renderBlend(gl, uniform, draw) {
+			OccluderFade.setUniforms(gl, uniform, MODE.ALPHA_BLEND);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			SpriteRenderer.runWithDepth(true, false, true, draw);
+		}
+		/**
+		* Release GPU queries (map change / context loss)
+		*
+		* @param {WebGL2RenderingContext} gl
+		*/
+		static free(gl) {
+			for (let i = 0; i < _queries.length; ++i) {
+				if (_queries[i]) {
+					gl.deleteQuery(_queries[i]);
+					_queries[i] = null;
+				}
+				_queryPending[i] = false;
+				_queryHit[i] = false;
+			}
+			_strength = 0;
+			_lastTick = 0;
+		}
+	};
 }));
 //#endregion
 //#region src/Renderer/Map/Models.js
@@ -207845,7 +208076,7 @@ function init$10(gl, data) {
 	_batchesReady = false;
 	_pendingTextures = count;
 	if (!_buffer$16) _buffer$16 = gl.createBuffer();
-	if (!_program$23) _program$23 = WebGL_default.createShaderProgram(gl, Models_default$2, Models_default$1);
+	if (!_program$23) _program$23 = WebGL_default.createShaderProgram(gl, Models_default$2, OccluderFade.injectShader(Models_default$1));
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$16);
 	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
@@ -207863,19 +208094,38 @@ function init$10(gl, data) {
 	}
 }
 /**
-* Render models
+* Issue the draw calls for every loaded mesh
+*
+* @param {object} gl context
+*/
+function drawMeshes(gl) {
+	let i, count;
+	if (_batchesReady) {
+		let lastTexture = null;
+		for (i = 0, count = _batches.length; i < count; ++i) {
+			if (_batches[i].texture !== lastTexture) {
+				gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
+				lastTexture = _batches[i].texture;
+			}
+			gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
+		}
+	} else for (i = 0, count = _objects.length; i < count; ++i) if (_objects[i].complete) {
+		gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
+		gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
+	}
+}
+/**
+* Bind program, uniforms and vertex layout shared by both model passes
 *
 * @param {object} gl context
 * @param {mat4} modelView
 * @param {mat4} projection
-* @param {mat3} normalMat
 * @param {object} fog structure
 * @param {object} light structure
 */
-function render$11(gl, modelView, projection, normalMat, fog, light) {
+function bind$1(gl, modelView, projection, fog, light) {
 	const uniform = _program$23.uniform;
 	const attribute = _program$23.attribute;
-	let i, count;
 	gl.useProgram(_program$23);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
@@ -207900,25 +208150,51 @@ function render$11(gl, modelView, projection, normalMat, fog, light) {
 	gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 36, 32);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	SpriteRenderer.runWithDepth(true, true, true, function() {
-		if (_batchesReady) {
-			let lastTexture = null;
-			for (i = 0, count = _batches.length; i < count; ++i) {
-				if (_batches[i].texture !== lastTexture) {
-					gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
-					lastTexture = _batches[i].texture;
-				}
-				gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
-			}
-		} else for (i = 0, count = _objects.length; i < count; ++i) if (_objects[i].complete) {
-			gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
-			gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
-		}
-	});
+}
+/**
+* Release the vertex layout
+*
+* @param {object} gl context
+*/
+function unbind(gl) {
+	const attribute = _program$23.attribute;
 	gl.disableVertexAttribArray(attribute.aPosition);
 	gl.disableVertexAttribArray(attribute.aVertexNormal);
 	gl.disableVertexAttribArray(attribute.aTextureCoord);
 	gl.disableVertexAttribArray(attribute.aAlpha);
+}
+/**
+* Render models (opaque pass)
+*
+* @param {object} gl context
+* @param {mat4} modelView
+* @param {mat4} projection
+* @param {mat3} normalMat
+* @param {object} fog structure
+* @param {object} light structure
+*/
+function render$11(gl, modelView, projection, normalMat, fog, light) {
+	bind$1(gl, modelView, projection, fog, light);
+	OccluderFade.renderOpaque(gl, _program$23.uniform, () => drawMeshes(gl));
+	OccluderFade.renderQuery(gl, _program$23.uniform, () => drawMeshes(gl), OccluderFade.QUERY.MODELS);
+	unbind(gl);
+}
+/**
+* Render the faded (see-through) part of the models, translucent.
+* Call after opaque scene elements so they remain visible behind it.
+*
+* @param {object} gl context
+* @param {mat4} modelView
+* @param {mat4} projection
+* @param {mat3} normalMat
+* @param {object} fog structure
+* @param {object} light structure
+*/
+function renderFaded$1(gl, modelView, projection, normalMat, fog, light) {
+	if (!OccluderFade.needsBlendPass()) return;
+	bind$1(gl, modelView, projection, fog, light);
+	OccluderFade.renderBlend(gl, _program$23.uniform, () => drawMeshes(gl));
+	unbind(gl);
 }
 /**
 * Clean textures/buffer from memory
@@ -207946,7 +208222,7 @@ var init_Models = __esmMin((() => {
 	init_Models$1();
 	init_WebGL();
 	init_Map();
-	init_SpriteRenderer();
+	init_OccluderFade();
 	_program$23 = null;
 	_buffer$16 = null;
 	_objects = [];
@@ -207956,6 +208232,7 @@ var init_Models = __esmMin((() => {
 	Models_default = {
 		init: init$10,
 		render: render$11,
+		renderFaded: renderFaded$1,
 		free: free$5
 	};
 }));
@@ -207963,13 +208240,13 @@ var init_Models = __esmMin((() => {
 //#region src/Renderer/Map/AnimatedModels.vs?raw
 var AnimatedModels_default$2;
 var init_AnimatedModels$2 = __esmMin((() => {
-	AnimatedModels_default$2 = "#version 300 es  \r\nprecision highp float;  \r\n  \r\nin vec3 aPosition;  \r\nin vec3 aNormal;  \r\nin vec2 aTextureCoord;  \r\nin float aAlpha;  \r\n  \r\nout vec2 vTextureCoord;  \r\nout float vLightWeighting;  \r\nout float vAlpha;  \r\nout float vFogFactor;  \r\n  \r\nuniform mat4 uModelViewMat;  \r\nuniform mat4 uProjectionMat;  \r\nuniform mat3 uNormalMat;  \r\n  \r\nuniform vec3 uLightDirection;  \r\nuniform float uLightOpacity;  \r\nuniform vec3 uLightAmbient;  \r\nuniform vec3 uLightDiffuse;  \r\n  \r\nuniform bool uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\n  \r\nvoid main(void) {  \r\n    vec4 position = uModelViewMat * vec4(aPosition, 1.0);  \r\n    gl_Position = uProjectionMat * position;  \r\n  \r\n    vTextureCoord = aTextureCoord;  \r\n    vAlpha = aAlpha;  \r\n  \r\n    vec3 normal = normalize(aNormal);  \r\n    float lightWeight = max(dot(normal, uLightDirection), 0.0);  \r\n    vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth = length(position.xyz);  \r\n        vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);  \r\n    } else {  \r\n        vFogFactor = 1.0;  \r\n    }  \r\n}";
+	AnimatedModels_default$2 = "#version 300 es  \r\nprecision highp float;  \r\n  \r\nin vec3 aPosition;  \r\nin vec3 aNormal;  \r\nin vec2 aTextureCoord;  \r\nin float aAlpha;  \r\n  \r\nout vec2 vTextureCoord;  \r\nout float vLightWeighting;  \r\nout float vAlpha;  \r\nout float vFogFactor;  \r\nout vec3 vWorldPos;\r\n  \r\nuniform mat4 uModelViewMat;  \r\nuniform mat4 uProjectionMat;  \r\nuniform mat3 uNormalMat;  \r\n  \r\nuniform vec3 uLightDirection;  \r\nuniform float uLightOpacity;  \r\nuniform vec3 uLightAmbient;  \r\nuniform vec3 uLightDiffuse;  \r\n  \r\nuniform bool uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\n  \r\nvoid main(void) {  \r\n    vec4 position = uModelViewMat * vec4(aPosition, 1.0);  \r\n    gl_Position = uProjectionMat * position;  \r\n  \r\n    vTextureCoord = aTextureCoord;  \r\n    vAlpha = aAlpha;  \r\n    vWorldPos = aPosition;\r\n  \r\n    vec3 normal = normalize(aNormal);  \r\n    float lightWeight = max(dot(normal, uLightDirection), 0.0);  \r\n    vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth = length(position.xyz);  \r\n        vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);  \r\n    } else {  \r\n        vFogFactor = 1.0;  \r\n    }  \r\n}";
 }));
 //#endregion
 //#region src/Renderer/Map/AnimatedModels.fs?raw
 var AnimatedModels_default$1;
 var init_AnimatedModels$1 = __esmMin((() => {
-	AnimatedModels_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;  \r\nin float vLightWeighting;  \r\nin float vAlpha;  \r\nout vec4 fragColor;  \r\n  \r\nuniform sampler2D uDiffuse;  \r\n  \r\nuniform bool  uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\nuniform vec3  uFogColor;  \r\n  \r\nuniform vec3  uLightAmbient;  \r\nuniform vec3  uLightDiffuse;  \r\nuniform float uLightOpacity;  \r\nuniform vec3  uLightEnv;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture(uDiffuse, vTextureCoord.st);  \r\n    if (textureSample.a == 0.0) {  \r\n        discard;  \r\n    }  \r\n  \r\n    vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);  \r\n    textureSample.rgb *= clamp(color, 0.0, 1.0);  \r\n    textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);  \r\n    textureSample.a *= vAlpha;  \r\n  \r\n    fragColor = textureSample;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;  \r\n        float fogFactor = smoothstep(uFogNear, uFogFar, depth);  \r\n        fragColor    = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);  \r\n    } \r\n}";
+	AnimatedModels_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;  \r\nin float vLightWeighting;  \r\nin float vAlpha;  \r\nin vec3 vWorldPos;\r\nout vec4 fragColor;  \r\n  \r\nuniform sampler2D uDiffuse;  \r\n  \r\nuniform bool  uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\nuniform vec3  uFogColor;  \r\n  \r\nuniform vec3  uLightAmbient;  \r\nuniform vec3  uLightDiffuse;  \r\nuniform float uLightOpacity;  \r\nuniform vec3  uLightEnv;\r\n\r\n// #include OccluderFade.glsl\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture(uDiffuse, vTextureCoord.st);  \r\n    if (textureSample.a == 0.0) {  \r\n        discard;  \r\n    }  \r\n\r\n    if (!occluderFade(vWorldPos, textureSample.a)) {\r\n        discard;\r\n    }\r\n  \r\n    vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);  \r\n    textureSample.rgb *= clamp(color, 0.0, 1.0);  \r\n    textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);  \r\n    textureSample.a *= vAlpha;  \r\n  \r\n    fragColor = textureSample;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;  \r\n        float fogFactor = smoothstep(uFogNear, uFogFar, depth);  \r\n        fragColor    = mix(fragColor, vec4(uFogColor, fragColor.w), fogFactor);  \r\n    } \r\n}";
 }));
 //#endregion
 //#region src/Renderer/Map/AnimatedModels.js
@@ -207977,7 +208254,7 @@ var init_AnimatedModels$1 = __esmMin((() => {
 * Initialize shader program
 */
 function init$9(gl) {
-	_program$22 = WebGL_default.createShaderProgram(gl, AnimatedModels_default$2, AnimatedModels_default$1);
+	_program$22 = WebGL_default.createShaderProgram(gl, AnimatedModels_default$2, OccluderFade.injectShader(AnimatedModels_default$1));
 	_program$22.uniform = {
 		uModelViewMat: gl.getUniformLocation(_program$22, "uModelViewMat"),
 		uProjectionMat: gl.getUniformLocation(_program$22, "uProjectionMat"),
@@ -207991,7 +208268,13 @@ function init$9(gl) {
 		uFogNear: gl.getUniformLocation(_program$22, "uFogNear"),
 		uFogFar: gl.getUniformLocation(_program$22, "uFogFar"),
 		uFogColor: gl.getUniformLocation(_program$22, "uFogColor"),
-		uDiffuse: gl.getUniformLocation(_program$22, "uDiffuse")
+		uDiffuse: gl.getUniformLocation(_program$22, "uDiffuse"),
+		uOccluderFadeMode: gl.getUniformLocation(_program$22, "uOccluderFadeMode"),
+		uOccluderFadeEye: gl.getUniformLocation(_program$22, "uOccluderFadeEye"),
+		uOccluderFadeFocus: gl.getUniformLocation(_program$22, "uOccluderFadeFocus"),
+		uOccluderFadeRadius: gl.getUniformLocation(_program$22, "uOccluderFadeRadius"),
+		uOccluderFadeOpacity: gl.getUniformLocation(_program$22, "uOccluderFadeOpacity"),
+		uOccluderFadeStrength: gl.getUniformLocation(_program$22, "uOccluderFadeStrength")
 	};
 	_program$22.attribute = {
 		aPosition: gl.getAttribLocation(_program$22, "aPosition"),
@@ -208372,11 +208655,9 @@ function updateModelBuffer(gl, model, frame, force) {
 	gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
 }
 /**
-* Render animated models
+* Bind program and per-frame uniforms shared by both model passes
 */
-function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
-	if (_animatedModels.length === 0) return;
-	if (!_program$22) init$9(gl);
+function bind(gl, modelView, projection, normalMat, fog, light) {
 	const uniform = _program$22.uniform;
 	gl.useProgram(_program$22);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
@@ -208393,22 +208674,48 @@ function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
 	gl.uniform3fv(uniform.uFogColor, fog.color);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	SpriteRenderer.runWithDepth(true, true, true, function() {
-		for (let m = 0; m < _animatedModels.length; m++) {
-			const model = _animatedModels[m];
-			updateModelBuffer(gl, model, tick % (model.animLen || 1), false);
-			if (!model.buffer || model.meshInfos.length === 0) continue;
-			gl.bindVertexArray(model.vao);
-			for (let i = 0; i < model.meshInfos.length; i++) {
-				const info = model.meshInfos[i];
-				const texture = model.textureObjects[info.textureIdx];
-				if (texture) {
-					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
-				}
+}
+/**
+* Issue the draw calls for every animated model
+*/
+function drawModels(gl) {
+	for (let m = 0; m < _animatedModels.length; m++) {
+		const model = _animatedModels[m];
+		if (!model.buffer || model.meshInfos.length === 0) continue;
+		gl.bindVertexArray(model.vao);
+		for (let i = 0; i < model.meshInfos.length; i++) {
+			const info = model.meshInfos[i];
+			const texture = model.textureObjects[info.textureIdx];
+			if (texture) {
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
 			}
 		}
-	});
+	}
+}
+/**
+* Render animated models (opaque pass)
+*/
+function render$10(gl, modelView, projection, normalMat, fog, light, tick) {
+	if (_animatedModels.length === 0) return;
+	if (!_program$22) init$9(gl);
+	bind(gl, modelView, projection, normalMat, fog, light);
+	for (let m = 0; m < _animatedModels.length; m++) {
+		const model = _animatedModels[m];
+		updateModelBuffer(gl, model, tick % (model.animLen || 1), false);
+	}
+	OccluderFade.renderOpaque(gl, _program$22.uniform, () => drawModels(gl));
+	OccluderFade.renderQuery(gl, _program$22.uniform, () => drawModels(gl), OccluderFade.QUERY.ANIMATED);
+	gl.bindVertexArray(null);
+}
+/**
+* Render the faded (see-through) part of the animated models, translucent.
+* Reuses the vertex data uploaded by render() this frame.
+*/
+function renderFaded(gl, modelView, projection, normalMat, fog, light) {
+	if (_animatedModels.length === 0 || !_program$22 || !OccluderFade.needsBlendPass()) return;
+	bind(gl, modelView, projection, normalMat, fog, light);
+	OccluderFade.renderBlend(gl, _program$22.uniform, () => drawModels(gl));
 	gl.bindVertexArray(null);
 }
 /**
@@ -208425,7 +208732,7 @@ var init_AnimatedModels = __esmMin((() => {
 	init_Graphics();
 	init_AnimatedModels$2();
 	init_AnimatedModels$1();
-	init_SpriteRenderer();
+	init_OccluderFade();
 	mat3$4 = gl_matrix_default.mat3;
 	mat4$21 = gl_matrix_default.mat4;
 	vec3$5 = gl_matrix_default.vec3;
@@ -208441,6 +208748,7 @@ var init_AnimatedModels = __esmMin((() => {
 		free: free$4,
 		add: add$2,
 		render: render$10,
+		renderFaded,
 		hasAnimatedModels
 	};
 }));
@@ -229769,7 +230077,7 @@ var init_Context = __esmMin((() => {
 //#region src/UI/Components/GraphicsOption/GraphicsOption.html?raw
 var GraphicsOption_default$2;
 var init_GraphicsOption$2 = __esmMin((() => {
-	GraphicsOption_default$2 = "<div id=\"GraphicsOption\">\r\n	<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n		<div class=\"left\">\r\n			<button\r\n				class=\"base\"\r\n				data-background=\"basic_interface/sys_base_off.bmp\"\r\n				data-hover=\"basic_interface/sys_base_on.bmp\"\r\n			></button>\r\n			<span class=\"text\" data-text=\"1484\">Graphics Settings</span>\r\n		</div>\r\n		<div class=\"right\">\r\n			<button\r\n				class=\"base close\"\r\n				data-background=\"basic_interface/sys_close_off.bmp\"\r\n				data-hover=\"basic_interface/sys_close_on.bmp\"\r\n			></button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"tabs-container\">\r\n		<div class=\"tabs\">\r\n			<button class=\"tab-button selected\" data-tab=\"basic\">Basic</button>\r\n			<button class=\"tab-button\" data-tab=\"advanced\">Advanced</button>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"panel\">\r\n		<div class=\"tab-content selected\" id=\"basic\">\r\n			<table>\r\n				<tr>\r\n					<td>Details</td>\r\n					<td style=\"display: inline-block; width: 260px\">\r\n						<input\r\n							class=\"details\"\r\n							type=\"range\"\r\n							value=\"100\"\r\n							max=\"100\"\r\n							min=\"25\"\r\n							step=\"5\"\r\n							style=\"width: 90%\"\r\n						/>\r\n					</td>\r\n				</tr>\r\n				<tr class=\"resolution\">\r\n					<td>Resolution</td>\r\n					<td>\r\n						<select class=\"screensize\">\r\n							<option value=\"650x480\">640 x 480</option>\r\n							<option value=\"800x600\">800 x 600</option>\r\n							<option value=\"1024x768\">1024 x 768</option>\r\n							<option value=\"1280x800\">1280 x 800</option>\r\n							<option value=\"1400x900\">1400 x 900</option>\r\n							<option value=\"1680x1050\">1680 x 1050</option>\r\n							<option value=\"full\">Full Screen</option>\r\n						</select>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>Cursor</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"cursor-option\" type=\"checkbox\" />\r\n							Show official cursor\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>FPS Limit</td>\r\n					<td>\r\n						<select class=\"fpslimit\">\r\n							<option value=\"-1\">Unlimited</option>\r\n							<option value=\"30\">30</option>\r\n							<option value=\"60\">60</option>\r\n							<option value=\"90\">90</option>\r\n							<option value=\"120\">120</option>\r\n						</select>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>FPS Display</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"fps\" type=\"checkbox\" />\r\n						</label>\r\n					</td>\r\n				</tr>\r\n			</table>\r\n		</div>\r\n\r\n		<div class=\"tab-content\" id=\"advanced\">\r\n			<table>\r\n				<tr>\r\n					<td title=\"Force nearest neighbor filtering for pixel-perfect sprite rendering\">\r\n						Pixel Perfect Sprites\r\n					</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"pixel-perfect\" type=\"checkbox\" />\r\n							Force nearest neighbor filtering\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Add a glowing bloom effect to bright areas\">Bloom</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"bloom\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Intensity:\r\n							<input\r\n								class=\"bloom-intensity\"\r\n								type=\"range\"\r\n								value=\"0.5\"\r\n								min=\"0.1\"\r\n								max=\"3.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Apply a blur effect to the screen\">Blur</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"blur\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Intensity:\r\n							<input\r\n								class=\"blur-intensity\"\r\n								type=\"range\"\r\n								value=\"3.0\"\r\n								min=\"2.0\"\r\n								max=\"10.0\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Area:\r\n							<input\r\n								class=\"blur-area\"\r\n								type=\"range\"\r\n								value=\"14.0\"\r\n								min=\"3.0\"\r\n								max=\"20.0\"\r\n								step=\"1.0\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Contrast Adaptive Sharpening for enhanced details\">Contr. Adapt. Sharp. (CAS)</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"casEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Contrast:\r\n							<input\r\n								class=\"casContrast\"\r\n								type=\"range\"\r\n								value=\"0.0\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Sharpening:\r\n							<input\r\n								class=\"casSharpening\"\r\n								type=\"range\"\r\n								value=\"1.0\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Fast Approximate Anti-Aliasing for smoother edges\">FXAA</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"fxaaEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Subpix:\r\n							<input\r\n								class=\"fxaaSubpix\"\r\n								type=\"range\"\r\n								value=\"0.25\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Edge Threshold:\r\n							<input\r\n								class=\"fxaaEdgeThreshold\"\r\n								type=\"range\"\r\n								value=\"0.125\"\r\n								min=\"0.063\"\r\n								max=\"0.333\"\r\n								step=\"0.03\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Cartoon rendering effect for stylized visuals\">Cartoon</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"cartoonEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Power:\r\n							<input\r\n								class=\"cartoonPower\"\r\n								type=\"range\"\r\n								value=\"1.5\"\r\n								min=\"0.1\"\r\n								max=\"9.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Edge Slope:\r\n							<input\r\n								class=\"cartoonEdgeSlope\"\r\n								type=\"range\"\r\n								value=\"1.5\"\r\n								min=\"1.5\"\r\n								max=\"5.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Increase color intensity and saturation\">Vibrance</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"vibranceEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Intensity:\r\n							<input\r\n								class=\"vibrance\"\r\n								type=\"range\"\r\n								value=\"0.15\"\r\n								min=\"-0.9\"\r\n								max=\"0.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td\r\n						title=\"Hide objects outside the viewing area, enable downsampling rendering and others to improve performance\"\r\n					>\r\n						Performance Mode\r\n					</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"performanceMode\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Culling Area:\r\n							<input\r\n								class=\"view-area\"\r\n								type=\"range\"\r\n								value=\"14.0\"\r\n								min=\"4.0\"\r\n								max=\"20.0\"\r\n								step=\"1.0\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n			</table>\r\n\r\n			<div class=\"reset-section\">\r\n				<button class=\"reset-button\">Reset to Default Values</button>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
+	GraphicsOption_default$2 = "<div id=\"GraphicsOption\">\r\n	<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n		<div class=\"left\">\r\n			<button\r\n				class=\"base\"\r\n				data-background=\"basic_interface/sys_base_off.bmp\"\r\n				data-hover=\"basic_interface/sys_base_on.bmp\"\r\n			></button>\r\n			<span class=\"text\" data-text=\"1484\">Graphics Settings</span>\r\n		</div>\r\n		<div class=\"right\">\r\n			<button\r\n				class=\"base close\"\r\n				data-background=\"basic_interface/sys_close_off.bmp\"\r\n				data-hover=\"basic_interface/sys_close_on.bmp\"\r\n			></button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"tabs-container\">\r\n		<div class=\"tabs\">\r\n			<button class=\"tab-button selected\" data-tab=\"basic\">Basic</button>\r\n			<button class=\"tab-button\" data-tab=\"advanced\">Advanced</button>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"panel\">\r\n		<div class=\"tab-content selected\" id=\"basic\">\r\n			<table>\r\n				<tr>\r\n					<td>Details</td>\r\n					<td style=\"display: inline-block; width: 260px\">\r\n						<input\r\n							class=\"details\"\r\n							type=\"range\"\r\n							value=\"100\"\r\n							max=\"100\"\r\n							min=\"25\"\r\n							step=\"5\"\r\n							style=\"width: 90%\"\r\n						/>\r\n					</td>\r\n				</tr>\r\n				<tr class=\"resolution\">\r\n					<td>Resolution</td>\r\n					<td>\r\n						<select class=\"screensize\">\r\n							<option value=\"650x480\">640 x 480</option>\r\n							<option value=\"800x600\">800 x 600</option>\r\n							<option value=\"1024x768\">1024 x 768</option>\r\n							<option value=\"1280x800\">1280 x 800</option>\r\n							<option value=\"1400x900\">1400 x 900</option>\r\n							<option value=\"1680x1050\">1680 x 1050</option>\r\n							<option value=\"full\">Full Screen</option>\r\n						</select>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>Cursor</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"cursor-option\" type=\"checkbox\" />\r\n							Show official cursor\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>FPS Limit</td>\r\n					<td>\r\n						<select class=\"fpslimit\">\r\n							<option value=\"-1\">Unlimited</option>\r\n							<option value=\"30\">30</option>\r\n							<option value=\"60\">60</option>\r\n							<option value=\"90\">90</option>\r\n							<option value=\"120\">120</option>\r\n						</select>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>FPS Display</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"fps\" type=\"checkbox\" />\r\n						</label>\r\n					</td>\r\n				</tr>\r\n			</table>\r\n		</div>\r\n\r\n		<div class=\"tab-content\" id=\"advanced\">\r\n			<table>\r\n				<tr>\r\n					<td title=\"Force nearest neighbor filtering for pixel-perfect sprite rendering\">\r\n						Pixel Perfect Sprites\r\n					</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"pixel-perfect\" type=\"checkbox\" />\r\n							Force nearest neighbor filtering\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Add a glowing bloom effect to bright areas\">Bloom</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"bloom\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Intensity:\r\n							<input\r\n								class=\"bloom-intensity\"\r\n								type=\"range\"\r\n								value=\"0.5\"\r\n								min=\"0.1\"\r\n								max=\"3.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Apply a blur effect to the screen\">Blur</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"blur\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Intensity:\r\n							<input\r\n								class=\"blur-intensity\"\r\n								type=\"range\"\r\n								value=\"3.0\"\r\n								min=\"2.0\"\r\n								max=\"10.0\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Area:\r\n							<input\r\n								class=\"blur-area\"\r\n								type=\"range\"\r\n								value=\"14.0\"\r\n								min=\"3.0\"\r\n								max=\"20.0\"\r\n								step=\"1.0\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Contrast Adaptive Sharpening for enhanced details\">Contr. Adapt. Sharp. (CAS)</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"casEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Contrast:\r\n							<input\r\n								class=\"casContrast\"\r\n								type=\"range\"\r\n								value=\"0.0\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Sharpening:\r\n							<input\r\n								class=\"casSharpening\"\r\n								type=\"range\"\r\n								value=\"1.0\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Fast Approximate Anti-Aliasing for smoother edges\">FXAA</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"fxaaEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Subpix:\r\n							<input\r\n								class=\"fxaaSubpix\"\r\n								type=\"range\"\r\n								value=\"0.25\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Edge Threshold:\r\n							<input\r\n								class=\"fxaaEdgeThreshold\"\r\n								type=\"range\"\r\n								value=\"0.125\"\r\n								min=\"0.063\"\r\n								max=\"0.333\"\r\n								step=\"0.03\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Cartoon rendering effect for stylized visuals\">Cartoon</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"cartoonEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Power:\r\n							<input\r\n								class=\"cartoonPower\"\r\n								type=\"range\"\r\n								value=\"1.5\"\r\n								min=\"0.1\"\r\n								max=\"9.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Edge Slope:\r\n							<input\r\n								class=\"cartoonEdgeSlope\"\r\n								type=\"range\"\r\n								value=\"1.5\"\r\n								min=\"1.5\"\r\n								max=\"5.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Increase color intensity and saturation\">Vibrance</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"vibranceEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Intensity:\r\n							<input\r\n								class=\"vibrance\"\r\n								type=\"range\"\r\n								value=\"0.15\"\r\n								min=\"-0.9\"\r\n								max=\"0.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td\r\n						title=\"Hide objects outside the viewing area, enable downsampling rendering and others to improve performance\"\r\n					>\r\n						Performance Mode\r\n					</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"performanceMode\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Culling Area:\r\n							<input\r\n								class=\"view-area\"\r\n								type=\"range\"\r\n								value=\"14.0\"\r\n								min=\"4.0\"\r\n								max=\"20.0\"\r\n								step=\"1.0\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td\r\n						title=\"Make buildings and trees blocking the view of your character see-through (not in first person). Dither is cheaper, Alpha looks smoother.\"\r\n					>\r\n						See-through Occluders\r\n					</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<select class=\"occluderFade\">\r\n								<option value=\"off\">Off</option>\r\n								<option value=\"dither\">Dither (fast)</option>\r\n								<option value=\"alpha\">Alpha (smooth)</option>\r\n							</select>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 120px\">\r\n							Opacity:\r\n							<input\r\n								class=\"occluderFadeOpacity\"\r\n								type=\"range\"\r\n								value=\"0.25\"\r\n								min=\"0.0\"\r\n								max=\"0.8\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 120px\">\r\n							Area:\r\n							<input\r\n								class=\"occluderFadeRadius\"\r\n								type=\"range\"\r\n								value=\"5.0\"\r\n								min=\"1.5\"\r\n								max=\"12.5\"\r\n								step=\"0.5\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n			</table>\r\n\r\n			<div class=\"reset-section\">\r\n				<button class=\"reset-button\">Reset to Default Values</button>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/GraphicsOption/GraphicsOption.css?raw
@@ -229938,6 +230246,27 @@ function onTabSwitch(event) {
 	const targetTab = root.querySelector("#" + tabName);
 	if (targetTab) targetTab.classList.add("selected");
 }
+/**
+* Select how geometry blocking the view of the player is faded
+*/
+function onUpdateOccluderFade() {
+	GraphicsSettings.occluderFade = this.value;
+	GraphicsSettings.save();
+}
+/**
+* Remaining opacity of faded geometry
+*/
+function onUpdateOccluderFadeOpacity() {
+	GraphicsSettings.occluderFadeOpacity = parseFloat(this.value);
+	GraphicsSettings.save();
+}
+/**
+* Size (cells) of the faded area around the line of sight
+*/
+function onUpdateOccluderFadeRadius() {
+	GraphicsSettings.occluderFadeRadius = parseFloat(this.value);
+	GraphicsSettings.save();
+}
 function onResetToDefaults() {
 	const defaultSettings = GraphicsSettings.defaults;
 	Object.keys(defaultSettings).forEach((key) => {
@@ -230021,6 +230350,9 @@ var init_GraphicsOption = __esmMin((() => {
 		bindChange(".cartoonEdgeSlope", oncartoonEdgeSlope);
 		bindChange(".performanceMode", onTogglePerformanceMode);
 		bindChange(".view-area", onUpdateAreaView);
+		bindChange(".occluderFade", onUpdateOccluderFade);
+		bindChange(".occluderFadeOpacity", onUpdateOccluderFadeOpacity);
+		bindChange(".occluderFadeRadius", onUpdateOccluderFadeRadius);
 		this.draggable(".titlebar");
 	};
 	/**
@@ -230054,6 +230386,9 @@ var init_GraphicsOption = __esmMin((() => {
 		root.querySelector(".cartoonPower").value = GraphicsSettings.cartoonPower;
 		root.querySelector(".performanceMode").checked = GraphicsSettings.performanceMode;
 		root.querySelector(".view-area").value = GraphicsSettings.viewArea;
+		root.querySelector(".occluderFade").value = GraphicsSettings.occluderFade;
+		root.querySelector(".occluderFadeOpacity").value = GraphicsSettings.occluderFadeOpacity;
+		root.querySelector(".occluderFadeRadius").value = GraphicsSettings.occluderFadeRadius;
 	};
 	/**
 	* Once remove, save preferences
@@ -247941,8 +248276,8 @@ var init_CloudWeatherEffect = __esmMin((() => {
 		setUpCloudData(now) {
 			for (let i = 0; i < this._profile.maxClouds; i++) {
 				if (!this._clouds[i]) this._clouds[i] = {
-					position: vec3$7.create(),
-					direction: vec3$7.create(),
+					position: vec3$8.create(),
+					direction: vec3$8.create(),
 					born_tick: 0,
 					death_tick: 0
 				};
@@ -247998,7 +248333,7 @@ var init_CloudWeatherEffect = __esmMin((() => {
 				SpriteRenderer.zIndex = zindex;
 				SpriteRenderer.color[3] = opacity;
 				SpriteRenderer.image.texture = this._textures[cloud.sprite];
-				vec3$7.add(cloud.position, cloud.position, cloud.direction);
+				vec3$8.add(cloud.position, cloud.position, cloud.direction);
 				SpriteRenderer.position.set(cloud.position);
 				SpriteRenderer.runWithDepth(!overlay, false, !overlay, () => {
 					SpriteRenderer.render();
@@ -253982,8 +254317,8 @@ function setUpCloudData() {
 	let i = 0;
 	for (; i < MAX_CLOUDS; i++) {
 		if (!_clouds[i]) _clouds[i] = {
-			position: vec3$7.create(),
-			direction: vec3$7.create(),
+			position: vec3$8.create(),
+			direction: vec3$8.create(),
 			born_tick: 0,
 			death_tick: 0
 		};
@@ -254043,7 +254378,7 @@ function render$7(gl, modelView, projection, fog, tick) {
 		SpriteRenderer.zIndex = 0;
 		SpriteRenderer.color[3] = opacity;
 		SpriteRenderer.image.texture = _textures[cloud.sprite];
-		vec3$7.add(cloud.position, cloud.position, cloud.direction);
+		vec3$8.add(cloud.position, cloud.position, cloud.direction);
 		SpriteRenderer.position.set(cloud.position);
 		SpriteRenderer.runWithDepth(true, false, true, function() {
 			SpriteRenderer.render();
@@ -257515,6 +257850,7 @@ var init_MapRenderer = __esmMin((() => {
 	init_Water();
 	init_Models();
 	init_AnimatedModels();
+	init_OccluderFade();
 	init_GR2ModelRenderer();
 	init_Sounds();
 	init_Effects();
@@ -257643,6 +257979,7 @@ var init_MapRenderer = __esmMin((() => {
 			Water_default.free(gl);
 			Models_default.free(gl);
 			AnimatedModels_default.free(gl);
+			OccluderFade.free(gl);
 			GR2ModelRenderer_default.free(gl);
 			Damage.free(gl);
 			EffectManager.free(gl);
@@ -257699,6 +258036,7 @@ var init_MapRenderer = __esmMin((() => {
 				}
 			}
 			Sky_default.render(gl, modelView, projection, fog, tick);
+			OccluderFade.beginFrame(gl, modelView, tick);
 			Models_default.render(gl, modelView, projection, normalMat, fog, light);
 			AnimatedModels_default.render(gl, modelView, projection, normalMat, fog, light, tick);
 			GR2ModelRenderer_default.render(gl, modelView, projection, normalMat, fog, light, tick);
@@ -257707,6 +258045,8 @@ var init_MapRenderer = __esmMin((() => {
 			EntityManager.render(gl, modelView, projection, fog, false);
 			EntityManager.renderWaterDepth(gl, modelView, projection, fog);
 			Water_default.render(gl, modelView, projection, fog, light, tick);
+			Models_default.renderFaded(gl, modelView, projection, normalMat, fog, light);
+			AnimatedModels_default.renderFaded(gl, modelView, projection, normalMat, fog, light);
 			EffectManager.render(gl, modelView, projection, fog, tick, false);
 			EntityManager.render(gl, modelView, projection, fog, true);
 			Damage.render(gl, modelView, projection, fog, tick);
@@ -257794,6 +258134,10 @@ var init_Camera = __esmMin((() => {
 		* @type {vec3}
 		*/
 		static position = vec3$1.create();
+		/**
+		* @type {vec3} point the camera orbits around, in world (mesh) space
+		*/
+		static focus = vec3$1.create();
 		/**
 		* @type {Entity} Entity currently attached by the camera
 		*/
@@ -258114,6 +258458,7 @@ var init_Camera = __esmMin((() => {
 			_position$1[1] = this.position[2] + zOffset;
 			_position$1[2] = this.position[1] - .5;
 			mat4$11.translate(matrix, matrix, _position$1);
+			vec3$1.negate(this.focus, _position$1);
 			mat4$11.toInverseMat3(matrix, this.normalMat);
 			mat3.transpose(this.normalMat, this.normalMat);
 		}
