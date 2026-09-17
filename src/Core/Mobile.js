@@ -124,21 +124,6 @@ class Mobile {
 }
 
 /**
- * Remove autofocus on mobile.
- * Let the user decide to focus an input/textarea by himself
- */
-const remoteAutoFocus = (function removeAutoFocusClosure() {
-	let _done = false;
-
-	return function removeAutoFocus() {
-		if (_done) {
-			return;
-		}
-		_done = true;
-	};
-})();
-
-/**
  * Return distance between touches
  *
  * @param {TouchList} touches
@@ -209,75 +194,74 @@ function touchTranslationY(oldTouches, touches) {
 }
 
 /**
+ * Delayed tap on the map: only dispatched when no gesture started meanwhile
+ */
+const delayedClick = () => {
+	if (_processGesture) {
+		return;
+	}
+
+	_timer = -1;
+
+	if (Mobile.onTouchStart) {
+		Mobile.onTouchStart();
+	}
+
+	if (!_intersect && Mobile.onTouchEnd) {
+		Mobile.onTouchEnd();
+	}
+
+	Mouse.intersect = _intersect;
+};
+
+/**
  * Start touching the screen
  * Process gesture, or action
  */
-const onTouchStart = (function onTouchStartClosure() {
-	function delayedClick() {
-		// Only process mousedown if not doing a gesture
-		if (!_processGesture) {
-			_timer = -1;
+const onTouchStart = event => {
+	_touches = event.touches;
 
-			if (Mobile.onTouchStart) {
-				Mobile.onTouchStart();
-			}
-
-			if (!_intersect) {
-				if (Mobile.onTouchEnd) {
-					Mobile.onTouchEnd();
-				}
-			}
-
-			Mouse.intersect = _intersect;
-		}
+	// Let the browser deliver the tap to the UI element as mouse events
+	// (mouseenter/mousedown/click), exactly like a mouse would do.
+	// Extra fingers landing during a UI touch stay with the UI too.
+	if (_touches.length === 1) {
+		_uiTouch = _pageZoomed || isUITouch(event);
 	}
-
-	return function (event) {
-		remoteAutoFocus();
-		_touches = event.touches;
-
-		// Let the browser deliver the tap to the UI element as mouse events
-		// (mouseenter/mousedown/click), exactly like a mouse would do.
-		// Extra fingers landing during a UI touch stay with the UI too.
-		if (_touches.length === 1) {
-			_uiTouch = _pageZoomed || isUITouch(event);
-		}
-		if (_uiTouch) {
-			if (_timer > -1) {
-				Events.clearTimeout(_timer);
-				_timer = -1;
-			}
-			return;
-		}
-
-		event.preventDefault();
-		event.stopImmediatePropagation();
-
-		// Delayed click (to detect gesture)
+	if (_uiTouch) {
 		if (_timer > -1) {
 			Events.clearTimeout(_timer);
 			_timer = -1;
 		}
+		return;
+	}
 
-		// Gesture
-		if (_touches.length > 1) {
-			_scale = touchDistance(_touches);
-			_angle = touchAngle(_touches);
-			_processGesture = true;
-			return;
-		}
+	event.preventDefault();
+	event.stopImmediatePropagation();
 
-		Mouse.screen.x = _touches[0].pageX;
-		Mouse.screen.y = _touches[0].pageY;
+	// Delayed click (to detect gesture)
+	if (_timer > -1) {
+		Events.clearTimeout(_timer);
+		_timer = -1;
+	}
 
-		if (!Session.FreezeUI) {
-			Mouse.intersect = true;
-			_intersect = true;
-		}
+	// Gesture
+	if (_touches.length > 1) {
+		_scale = touchDistance(_touches);
+		_angle = touchAngle(_touches);
+		_processGesture = true;
+		return;
+	}
 
-		_timer = Events.setTimeout(delayedClick, 200);
-	};
-})();
+	Mouse.screen.x = _touches[0].pageX;
+	Mouse.screen.y = _touches[0].pageY;
+
+	if (!Session.FreezeUI) {
+		Mouse.intersect = true;
+		_intersect = true;
+	}
+
+	_timer = Events.setTimeout(delayedClick, 200);
+};
 
 /**
  * Hook touch end to know when a gesture end
