@@ -8226,19 +8226,19 @@ PACKET.ZC.PC_CASH_POINT_ITEMLIST = function PACKET_ZC_PC_CASH_POINT_ITEMLIST(fp,
 		const ext = base + 7;
 		const itemListLen = end - fp.tell();
 		const itemLen = itemListLen % base !== 0 && itemListLen % ext === 0 ? ext : base;
-		const count = (itemListLen / itemLen) | 0;
-		const out = new Array(count);
-		for (let i = 0; i < count && fp.tell() + itemLen <= end; ++i) {
-			out[i] = {};
-			out[i].price = fp.readLong();
-			out[i].discountprice = fp.readLong();
-			out[i].type = fp.readUChar();
-			out[i].ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
+		const out = [];
+		while (fp.tell() + itemLen <= end) {
+			const item = {};
+			item.price = fp.readLong();
+			item.discountprice = fp.readLong();
+			item.type = fp.readUChar();
+			item.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 			if (itemLen === ext) {
-				out[i].viewSprite = fp.readUShort();
-				out[i].location = fp.readLong();
-				out[i].unused = fp.readUChar();
+				item.viewSprite = fp.readUShort();
+				item.location = fp.readLong();
+				item.unused = fp.readUChar();
 			}
+			out.push(item);
 		}
 		return out;
 	})();
