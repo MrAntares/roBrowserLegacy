@@ -24,7 +24,7 @@ import htmlText from './MobileUI.html?raw';
 import cssText from './MobileUI.css?raw';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
-import _KEYS from 'Controls/KeyEventHandler.js'; // Currently unused, preserved for future development
+import BattleMode from 'Controls/BattleMode.js';
 
 const vec2 = glMatrix.vec2;
 const mat2 = glMatrix.mat2;
@@ -184,7 +184,7 @@ MobileUI.init = function init() {
 
 	[...fKeyMap, ...nKeyMap, ...letterKeyMap].forEach(([selector, keyCode]) => {
 		bindButton(root, selector, e => {
-			logKeyPress(keyCode);
+			skillKeyPress(keyCode);
 			stopPropagation(e);
 		});
 	});
@@ -261,6 +261,18 @@ MobileUI.init = function init() {
  */
 function logKeyPress(keyCode) {
 	keyPress(keyCode);
+}
+
+/**
+ * Skill bar button: run the hotkey directly, the number/letter rows are only
+ * hotkeys for the keyboard while Battle Mode is on.
+ *
+ * @param {number} keyCode
+ */
+function skillKeyPress(keyCode) {
+	if (!BattleMode.process(keyCode)) {
+		keyPress(keyCode);
+	}
 }
 
 /**
