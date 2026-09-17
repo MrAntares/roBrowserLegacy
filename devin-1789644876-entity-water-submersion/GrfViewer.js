@@ -303096,6 +303096,28 @@ function render$5(modelView, projection) {
 	renderGUI(this, modelView, projection);
 }
 /**
+* Depth-only redraw of the body for entities standing in water, so the water
+* pass (drawn after entities, depth tested) covers only the submerged part.
+* Runs after every entity has been drawn, with colour writes disabled by the
+* caller, so the written depth cannot hide other sprites. Replays the exact
+* layers the colour pass drew this frame (`waterDepthFrame`), so no animation,
+* sound or trail state is touched. Only set for the non-player body pass;
+* entity types that already write depth never get a frame.
+*/
+function renderWaterDepth$1() {
+	const frame = this.waterDepthFrame;
+	if (!frame || this.hideEntity || !this.effectColor[3]) return;
+	if (!Water_default.isSubmerged(this.position[0], this.position[1])) return;
+	const self = this;
+	SpriteRenderer.position.set(this.position);
+	SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
+	SpriteRenderer.zIndex = 150;
+	SpriteRenderer.runWithDepth(true, true, false, function() {
+		for (let i = 0, count = frame.layers.length; i < count; ++i) self.renderLayer(frame.layers[i], frame.spr, frame.pal, frame.size, frame.position, "body", false);
+	});
+	SpriteRenderer.zIndex = 1;
+}
+/**
 * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
 * @param {Entity} entity
 * @param {Array} layers
@@ -303365,8 +303387,10 @@ function Init$3() {
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
 	this.renderWaterDepth = renderWaterDepth$1;
+	this.waterDepthFrame = void 0;
+	this._waterDepthFrameBuffer = null;
 }
-var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderWaterDepth$1, renderElement;
+var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderElement;
 var init_EntityRender = __esmMin((() => {
 	init_gl_matrix();
 	init_Camera();
@@ -303629,33 +303653,11 @@ var init_EntityRender = __esmMin((() => {
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 					SpriteRenderer.zIndex = 150;
+					self.waterDepthFrame = null;
 					SpriteRenderer.runWithDepth(true, false, false, function() {
 						renderElement(self, self.files.body, "body", _position, true);
 					});
 			}
-			SpriteRenderer.zIndex = 1;
-		};
-	})();
-	renderWaterDepth$1 = (function renderWaterDepthClosure() {
-		const _position = /* @__PURE__ */ new Int32Array(2);
-		return function _renderWaterDepth() {
-			const Entity = this.constructor;
-			switch (this.objecttype) {
-				case Entity.TYPE_PC:
-				case Entity.TYPE_MERC:
-				case Entity.TYPE_HOM:
-				case Entity.TYPE_FALCON:
-				case Entity.TYPE_EFFECT: return;
-			}
-			if (this.hideEntity || this.gr2 || !this.effectColor[3]) return;
-			if (!Water_default.isSubmerged(this.position[0], this.position[1])) return;
-			const self = this;
-			SpriteRenderer.position.set(this.position);
-			SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
-			SpriteRenderer.zIndex = 150;
-			SpriteRenderer.runWithDepth(true, true, false, function() {
-				renderElement(self, self.files.body, "body", _position, true);
-			});
 			SpriteRenderer.zIndex = 1;
 		};
 	})();
@@ -303726,6 +303728,15 @@ var init_EntityRender = __esmMin((() => {
 				blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
 			});
 			for (let i = 0, count = layers.length; i < count; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
+			if (is_main && type === "body" && entity.waterDepthFrame === null) {
+				const frame = entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: /* @__PURE__ */ new Int32Array(2) });
+				frame.layers = layers;
+				frame.spr = spr;
+				frame.pal = pal;
+				frame.size = files.size;
+				frame.position.set(_position);
+				entity.waterDepthFrame = frame;
+			}
 			if (is_main && animation.pos.length) {
 				position[0] = animation.pos[0].x;
 				position[1] = animation.pos[0].y;
@@ -305544,6 +305555,30 @@ function sortByPriority(a, b) {
 	return aDepth - bDepth;
 }
 /**
+* Player-relative view-area culling parameters (performance mode only)
+*
+* @returns {object|null} { x, y, viewAreaSq } or null when culling is off
+*/
+function getCulling() {
+	if (!GraphicsSettings.performanceMode || !SessionStorage_default.Entity || !SessionStorage_default.Entity.position) return null;
+	return {
+		x: SessionStorage_default.Entity.position[0],
+		y: SessionStorage_default.Entity.position[1],
+		viewAreaSq: GraphicsSettings.viewArea * GraphicsSettings.viewArea
+	};
+}
+/**
+* @param {object|null} culling from getCulling()
+* @param {Entity} entity
+* @returns {boolean} true when the entity is outside the view area
+*/
+function isCulled(culling, entity) {
+	if (!culling) return false;
+	const dx = entity.position[0] - culling.x;
+	const dy = entity.position[1] - culling.y;
+	return dx * dx + dy * dy > culling.viewAreaSq;
+}
+/**
 * Render all entities (picking or not)
 *
 * @param {object} gl webgl context
@@ -305566,13 +305601,7 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 		_pickSortDirty = true;
 	}
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-	const doCulling = GraphicsSettings.performanceMode;
-	let playerX, playerY, viewAreaSq;
-	if (doCulling && SessionStorage_default.Entity && SessionStorage_default.Entity.position) {
-		playerX = SessionStorage_default.Entity.position[0];
-		playerY = SessionStorage_default.Entity.position[1];
-		viewAreaSq = GraphicsSettings.viewArea * GraphicsSettings.viewArea;
-	}
+	const culling = getCulling();
 	for (i = 0, count = _list.length; i < count; ++i) if (_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects || _list[i].objecttype == _list[i].constructor.TYPE_EFFECT && renderEffects) {
 		if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
 			const entityFocus = getFocusEntity();
@@ -305589,11 +305618,7 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 			_pickSortDirty = true;
 			continue;
 		}
-		if (doCulling) {
-			const dx = _list[i].position[0] - playerX;
-			const dy = _list[i].position[1] - playerY;
-			if (dx * dx + dy * dy > viewAreaSq) continue;
-		}
+		if (isCulled(culling, _list[i])) continue;
 		_list[i].render(modelView, projection);
 	}
 	SpriteRenderer.unbind(gl);
@@ -305610,9 +305635,10 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 */
 function renderWaterDepth(gl, modelView, projection, fog) {
 	if (!_list.length || !Water_default.hasWater()) return;
+	const culling = getCulling();
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 	gl.colorMask(false, false, false, false);
-	for (let i = 0, count = _list.length; i < count; ++i) _list[i].renderWaterDepth();
+	for (let i = 0, count = _list.length; i < count; ++i) if (!isCulled(culling, _list[i])) _list[i].renderWaterDepth();
 	gl.colorMask(true, true, true, true);
 	SpriteRenderer.unbind(gl);
 }
