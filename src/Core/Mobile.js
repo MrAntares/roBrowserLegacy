@@ -282,17 +282,18 @@ function onTouchCancel(event) {
 		return;
 	}
 
-	_uiTouch = false;
-
-	if (_timer > -1) {
-		Events.clearTimeout(_timer);
-		_timer = -1;
-	}
-
-	if (_processGesture) {
+	if (_uiTouch) {
+		_uiTouch = false;
+	} else if (_processGesture) {
 		_processGesture = false;
 		KEYS.SHIFT = false;
 		Camera.rotate(false);
+	} else if (_timer > -1) {
+		Events.clearTimeout(_timer);
+		_timer = -1;
+	} else if (Mobile.onTouchEnd) {
+		// Map press already dispatched: release it so walking stops
+		Mobile.onTouchEnd();
 	}
 
 	_intersect = false;
