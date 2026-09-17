@@ -112,30 +112,51 @@ class OccluderFade {
 	}
 
 	/**
-	 * Run a model draw with the fade applied: one opaque pass (dither or
-	 * capsule-discard), plus a translucent depth-read-only pass in alpha mode.
+	 * Whether a deferred translucent pass is required this frame
+	 * (alpha variant selected and effect active).
+	 *
+	 * @return {boolean}
+	 */
+	static needsBlendPass() {
+		return OccluderFade.isActive() && OccluderFade.useAlpha();
+	}
+
+	/**
+	 * Shader mode for the opaque geometry pass
+	 *
+	 * @return {number} one of MODE
+	 */
+	static opaqueMode() {
+		if (!OccluderFade.isActive()) {
+			return MODE.OFF;
+		}
+		return OccluderFade.useAlpha() ? MODE.ALPHA_OPAQUE : MODE.DITHER;
+	}
+
+	/**
+	 * Opaque model pass: untouched, dithered, or with the fade capsule cut out.
 	 *
 	 * @param {WebGLRenderingContext} gl
 	 * @param {object} uniform program uniform locations
 	 * @param {function} draw issues the draw calls
 	 */
-	static renderPasses(gl, uniform, draw) {
-		if (!OccluderFade.isActive()) {
-			OccluderFade.setUniforms(gl, uniform, MODE.OFF);
-			SpriteRenderer.runWithDepth(true, true, true, draw);
-			return;
-		}
-
-		if (!OccluderFade.useAlpha()) {
-			OccluderFade.setUniforms(gl, uniform, MODE.DITHER);
-			SpriteRenderer.runWithDepth(true, true, true, draw);
-			return;
-		}
-
-		OccluderFade.setUniforms(gl, uniform, MODE.ALPHA_OPAQUE);
+	static renderOpaque(gl, uniform, draw) {
+		OccluderFade.setUniforms(gl, uniform, OccluderFade.opaqueMode());
 		SpriteRenderer.runWithDepth(true, true, true, draw);
+	}
 
-		gl.uniform1i(uniform.uOccluderFadeMode, MODE.ALPHA_BLEND);
+	/**
+	 * Translucent model pass (alpha variant): draws only the fade capsule,
+	 * depth tested but not depth written. Runs after opaque scene elements
+	 * (entities included) so they show through the faded geometry.
+	 *
+	 * @param {WebGLRenderingContext} gl
+	 * @param {object} uniform program uniform locations
+	 * @param {function} draw issues the draw calls
+	 */
+	static renderBlend(gl, uniform, draw) {
+		OccluderFade.setUniforms(gl, uniform, MODE.ALPHA_BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		SpriteRenderer.runWithDepth(true, false, true, draw);
 	}
 }

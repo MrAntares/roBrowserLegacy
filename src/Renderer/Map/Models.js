@@ -158,16 +158,15 @@ function drawMeshes(gl) {
 }
 
 /**
- * Render models
+ * Bind program, uniforms and vertex layout shared by both model passes
  *
  * @param {object} gl context
  * @param {mat4} modelView
  * @param {mat4} projection
- * @param {mat3} normalMat
  * @param {object} fog structure
  * @param {object} light structure
  */
-function render(gl, modelView, projection, normalMat, fog, light) {
+function bind(gl, modelView, projection, fog, light) {
 	const uniform = _program.uniform;
 	const attribute = _program.attribute;
 
@@ -211,13 +210,58 @@ function render(gl, modelView, projection, normalMat, fog, light) {
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
 	OccluderFade.update(modelView);
-	OccluderFade.renderPasses(gl, uniform, () => drawMeshes(gl));
+}
+
+/**
+ * Release the vertex layout
+ *
+ * @param {object} gl context
+ */
+function unbind(gl) {
+	const attribute = _program.attribute;
 
 	// Is it needed ?
 	gl.disableVertexAttribArray(attribute.aPosition);
 	gl.disableVertexAttribArray(attribute.aVertexNormal);
 	gl.disableVertexAttribArray(attribute.aTextureCoord);
 	gl.disableVertexAttribArray(attribute.aAlpha);
+}
+
+/**
+ * Render models (opaque pass)
+ *
+ * @param {object} gl context
+ * @param {mat4} modelView
+ * @param {mat4} projection
+ * @param {mat3} normalMat
+ * @param {object} fog structure
+ * @param {object} light structure
+ */
+function render(gl, modelView, projection, normalMat, fog, light) {
+	bind(gl, modelView, projection, fog, light);
+	OccluderFade.renderOpaque(gl, _program.uniform, () => drawMeshes(gl));
+	unbind(gl);
+}
+
+/**
+ * Render the faded (see-through) part of the models, translucent.
+ * Call after opaque scene elements so they remain visible behind it.
+ *
+ * @param {object} gl context
+ * @param {mat4} modelView
+ * @param {mat4} projection
+ * @param {mat3} normalMat
+ * @param {object} fog structure
+ * @param {object} light structure
+ */
+function renderFaded(gl, modelView, projection, normalMat, fog, light) {
+	if (!OccluderFade.needsBlendPass()) {
+		return;
+	}
+
+	bind(gl, modelView, projection, fog, light);
+	OccluderFade.renderBlend(gl, _program.uniform, () => drawMeshes(gl));
+	unbind(gl);
 }
 
 /**
@@ -253,5 +297,6 @@ function free(gl) {
 export default {
 	init: init,
 	render: render,
+	renderFaded: renderFaded,
 	free: free
 };

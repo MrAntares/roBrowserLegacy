@@ -310,6 +310,11 @@ class MapRenderer {
 		// Rendering water (after sprites, billboard projection pushes it to back)
 		Water.render(gl, modelView, projection, fog, light, tick);
 
+		// Third person see-through: translucent part of the models blocking
+		// the player, drawn over the entities so they stay visible through it
+		Models.renderFaded(gl, modelView, projection, normalMat, fog, light);
+		AnimatedModels.renderFaded(gl, modelView, projection, normalMat, fog, light);
+
 		EffectManager.render(gl, modelView, projection, fog, tick, false);
 		EntityManager.render(gl, modelView, projection, fog, true);
 
