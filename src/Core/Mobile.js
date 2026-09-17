@@ -38,6 +38,44 @@ let _scale, _angle, _touches, _intersect;
 let _timer = -1;
 
 /**
+ * @var {boolean} current touch started on an interactive UI element
+ */
+let _uiTouch = false;
+
+/**
+ * Elements that must receive the tap themselves (as synthesized mouse
+ * events) instead of being treated as a click on the map.
+ */
+const UI_TOUCH_SELECTOR =
+	'input, textarea, select, button, a, label, ui-button, [data-background], [data-hover], [data-down], .event_add_cursor, td.tab, .draggable';
+
+/**
+ * Does the touch land on an interactive UI element (walking through Shadow DOM) ?
+ *
+ * @param {TouchEvent} event
+ * @return {boolean}
+ */
+function isUITouch(event) {
+	const path = event.composedPath ? event.composedPath() : [event.target];
+
+	for (const node of path) {
+		if (!(node instanceof Element)) {
+			continue;
+		}
+
+		if (node instanceof HTMLCanvasElement) {
+			return false;
+		}
+
+		if (node.matches(UI_TOUCH_SELECTOR)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * @namespace Mobile
  */
 class Mobile {
@@ -159,6 +197,18 @@ const onTouchStart = (function onTouchStartClosure() {
 	return function (event) {
 		remoteAutoFocus();
 		_touches = event.touches;
+
+		// Let the browser deliver the tap to the UI element as mouse events
+		// (mouseenter/mousedown/click), exactly like a mouse would do.
+		_uiTouch = _touches.length === 1 && isUITouch(event);
+		if (_uiTouch) {
+			if (_timer > -1) {
+				Events.clearTimeout(_timer);
+				_timer = -1;
+			}
+			return;
+		}
+
 		event.preventDefault();
 		event.stopImmediatePropagation();
 
@@ -193,6 +243,11 @@ const onTouchStart = (function onTouchStartClosure() {
  * process OnMouseUp if no gesture detected
  */
 function onTouchEnd(event) {
+	if (_uiTouch) {
+		_uiTouch = false;
+		return;
+	}
+
 	if (_processGesture) {
 		_processGesture = false;
 		KEYS.SHIFT = false;
