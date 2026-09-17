@@ -1,9 +1,11 @@
 name: Devin Review Labeler
 on:
-    pull_request_review:
-        types: [submitted, edited, dismissed]
-    pull_request_review_comment:
-        types: [created, edited, deleted]
+    # Review events on fork PRs only get a read-only GITHUB_TOKEN, so they are
+    # observed by devin_review_labeler_trigger.yml and relayed here via workflow_run,
+    # which always runs in the base repo context with write access.
+    workflow_run:
+        workflows: [Devin Review Labeler Trigger]
+        types: [completed]
     pull_request_target:
         types: [opened, synchronize, reopened, ready_for_review]
     # Resolving/unresolving a review thread is a webhook event but NOT an Actions
@@ -18,7 +20,7 @@ on:
 permissions:
     pull-requests: write
 concurrency:
-    group: devin-label-${{ github.event.pull_request.number || inputs.pr || github.event_name }}
+    group: devin-label-${{ github.event.pull_request.number || inputs.pr || (github.event.workflow_run && format('{0}:{1}', github.event.workflow_run.head_repository.full_name, github.event.workflow_run.head_branch)) || github.event_name }}
     cancel-in-progress: true
 jobs:
     label:
@@ -103,9 +105,20 @@ jobs:
                       }
 
                       const single = Number(context.payload.pull_request?.number ?? context.payload.inputs?.pr ?? 0);
-                      const numbers = single
-                        ? [single]
-                        : (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', per_page: 100 })).map(pr => pr.number);
+                      const run = context.payload.workflow_run;
+                      let numbers;
+                      if (single) {
+                        numbers = [single];
+                      } else if (run) {
+                        // workflow_run.pull_requests is empty for fork PRs; relabel every open PR from that head ref
+                        // (one branch may target several bases), falling back to a full rescan if none is found
+                        const head = `${run.head_repository?.owner?.login ?? owner}:${run.head_branch}`;
+                        numbers = (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', head, per_page: 100 })).map(pr => pr.number);
+                        if (!numbers.length) { core.info(`no open PR for ${head}, rescanning all`); }
+                      }
+                      if (!numbers?.length) {
+                        numbers = (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', per_page: 100 })).map(pr => pr.number);
+                      }
                       for (const num of numbers) {
                         await relabel(num);
                       }
