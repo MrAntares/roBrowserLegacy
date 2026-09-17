@@ -35,8 +35,8 @@ vec2 occluderFadeCylinder(vec3 worldPos) {
 	vec3 rel  = worldPos - uOccluderFadeEye;
 	float len  = max(length(axis), 0.01);
 	float t    = clamp(dot(rel, axis) / (len * len), 0.0, 1.0);
-	vec3 flat  = vec3(axis.x, 0.0, axis.z);
-	vec3 hdir  = flat / max(length(flat), 0.01);
+	vec3 level = vec3(axis.x, 0.0, axis.z);
+	vec3 hdir  = level / max(length(level), 0.01);
 	return vec2(length(rel - axis * t), dot(worldPos - uOccluderFadeFocus, hdir));
 }
 
