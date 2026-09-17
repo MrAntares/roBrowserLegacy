@@ -252048,7 +252048,7 @@ var init_WaterfallEffect$1 = __esmMin((() => {
 //#region src/Renderer/Effects/WaterfallParticle.vs?raw
 var WaterfallParticle_default$1;
 var init_WaterfallParticle$1 = __esmMin((() => {
-	WaterfallParticle_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aCorner;\r\nin vec4 aSeed; // x offset, z offset, phase, drift angle\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uModelMat;\r\nuniform float uTime;\r\nuniform float uSize;\r\n\r\nout vec2 vTextureCoord;\r\nout float vAlpha;\r\n\r\n// Spray puffs rise from the pool for RISE units after waiting below it.\r\nconst float CYCLE = 38.0;\r\nconst float RISE = 8.0;\r\nconst float DELAY = CYCLE - RISE;\r\n\r\nvoid main(void) {\r\n	float life = fract(aSeed.z + uTime);\r\n	float t = life * CYCLE - DELAY;\r\n\r\n	if (t <= 0.0) {\r\n		gl_Position = vec4(2.0, 2.0, 2.0, 1.0);\r\n		vTextureCoord = vec2(0.0);\r\n		vAlpha = 0.0;\r\n		return;\r\n	}\r\n\r\n	float progress = t / RISE;\r\n	float drift = sin(aSeed.w + progress * 3.0) * 0.3;\r\n	vec3 local = vec3(aSeed.x + drift, -t * 0.2, aSeed.y);\r\n	vec4 viewPosition = uModelViewMat * uModelMat * vec4(local, 1.0);\r\n	viewPosition.xy += aCorner * uSize;\r\n\r\n	gl_Position = uProjectionMat * viewPosition;\r\n	vTextureCoord = aCorner * 0.5 + 0.5;\r\n	vAlpha = 0.12 * min(1.0, progress * 8.0) * (1.0 - smoothstep(0.5, 1.0, progress));\r\n}\r\n";
+	WaterfallParticle_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aCorner;\r\nin vec4 aSeed; // x offset, z offset, phase, drift angle\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uModelMat;\r\nuniform float uTime;\r\nuniform float uSize;\r\n\r\nout vec2 vTextureCoord;\r\nout float vAlpha;\r\n\r\n// Spray puffs rise from the pool for RISE units after waiting below it.\r\nconst float CYCLE = 38.0;\r\nconst float RISE = 8.0;\r\nconst float DELAY = CYCLE - RISE;\r\n\r\nvoid main(void) {\r\n	float life = fract(aSeed.z + uTime);\r\n	float t = life * CYCLE - DELAY;\r\n\r\n	if (t <= 0.0) {\r\n		gl_Position = vec4(2.0, 2.0, 2.0, 1.0);\r\n		vTextureCoord = vec2(0.0);\r\n		vAlpha = 0.0;\r\n		return;\r\n	}\r\n\r\n	float progress = t / RISE;\r\n	float drift = sin(aSeed.w + progress * 3.0) * 0.3;\r\n	vec3 local = vec3(aSeed.x + drift, -t * 0.2, aSeed.y);\r\n	vec4 viewPosition = uModelViewMat * uModelMat * vec4(local, 1.0);\r\n	viewPosition.xy += aCorner * uSize;\r\n\r\n	gl_Position = uProjectionMat * viewPosition;\r\n	vTextureCoord = aCorner * 0.5 + 0.5;\r\n	vAlpha = 0.08 * min(1.0, progress * 8.0) * (1.0 - smoothstep(0.5, 1.0, progress));\r\n}\r\n";
 }));
 //#endregion
 //#region src/Renderer/Effects/WaterfallParticle.fs?raw
@@ -252151,9 +252151,9 @@ var init_WaterfallEffect = __esmMin((() => {
 	PARTICLE_CYCLE_MS = 760 * EFFECT_TICK_MS;
 	PARTICLE_SIZE = 6 * Math.SQRT1_2 * UNIT;
 	PARTICLE_COLOR = [
-		.75,
+		.65,
 		1,
-		.8
+		.75
 	];
 	PARTICLE_FLOATS = 4;
 	PARTICLE_CORNERS = new Float32Array([
