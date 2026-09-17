@@ -9,6 +9,7 @@ in float aAlpha;
 out vec2 vTextureCoord;
 out float vLightWeighting;
 out float vAlpha;
+out vec3 vWorldPos;
 
 uniform mat4 uModelViewMat;
 uniform mat4 uProjectionMat;
@@ -20,6 +21,7 @@ void main(void) {
 
 	vTextureCoord   = aTextureCoord;
 	vAlpha          = aAlpha;
+	vWorldPos       = aPosition;
 
 	float dotProduct = dot(aVertexNormal, uLightDirection );
 	vLightWeighting = max(dotProduct, 0.0);

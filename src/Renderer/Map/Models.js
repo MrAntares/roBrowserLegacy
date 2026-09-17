@@ -12,7 +12,7 @@ import _vertexShader from 'Renderer/Effects/Shaders/GLSL/Models.vs?raw';
 import _fragmentShader from 'Renderer/Effects/Shaders/GLSL/Models.fs?raw';
 import WebGL from 'Utils/WebGL.js';
 import Preferences from 'Preferences/Map.js';
-import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import OccluderFade from 'Renderer/Map/OccluderFade.js';
 
 /**
  * @let {WebGLProgram}
@@ -97,7 +97,7 @@ function init(gl, data) {
 	}
 
 	if (!_program) {
-		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		_program = WebGL.createShaderProgram(gl, _vertexShader, OccluderFade.injectShader(_fragmentShader));
 	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
@@ -129,19 +129,46 @@ function init(gl, data) {
 }
 
 /**
- * Render models
+ * Issue the draw calls for every loaded mesh
+ *
+ * @param {object} gl context
+ */
+function drawMeshes(gl) {
+	let i, count;
+
+	if (_batchesReady) {
+		// Optimized path: use pre-built batches with conditional texture binding
+		let lastTexture = null;
+		for (i = 0, count = _batches.length; i < count; ++i) {
+			if (_batches[i].texture !== lastTexture) {
+				gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
+				lastTexture = _batches[i].texture;
+			}
+			gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
+		}
+	} else {
+		// Fallback: render individually while textures are still loading
+		for (i = 0, count = _objects.length; i < count; ++i) {
+			if (_objects[i].complete) {
+				gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
+				gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
+			}
+		}
+	}
+}
+
+/**
+ * Bind program, uniforms and vertex layout shared by both model passes
  *
  * @param {object} gl context
  * @param {mat4} modelView
  * @param {mat4} projection
- * @param {mat3} normalMat
  * @param {object} fog structure
  * @param {object} light structure
  */
-function render(gl, modelView, projection, normalMat, fog, light) {
+function bind(gl, modelView, projection, fog, light) {
 	const uniform = _program.uniform;
 	const attribute = _program.attribute;
-	let i, count;
 
 	gl.useProgram(_program);
 
@@ -182,33 +209,59 @@ function render(gl, modelView, projection, normalMat, fog, light) {
 	// Textures
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	SpriteRenderer.runWithDepth(true, true, true, function () {
-		if (_batchesReady) {
-			// Optimized path: use pre-built batches with conditional texture binding
-			let lastTexture = null;
-			for (i = 0, count = _batches.length; i < count; ++i) {
-				if (_batches[i].texture !== lastTexture) {
-					gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
-					lastTexture = _batches[i].texture;
-				}
-				gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
-			}
-		} else {
-			// Fallback: render individually while textures are still loading
-			for (i = 0, count = _objects.length; i < count; ++i) {
-				if (_objects[i].complete) {
-					gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
-					gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
-				}
-			}
-		}
-	});
+}
+
+/**
+ * Release the vertex layout
+ *
+ * @param {object} gl context
+ */
+function unbind(gl) {
+	const attribute = _program.attribute;
 
 	// Is it needed ?
 	gl.disableVertexAttribArray(attribute.aPosition);
 	gl.disableVertexAttribArray(attribute.aVertexNormal);
 	gl.disableVertexAttribArray(attribute.aTextureCoord);
 	gl.disableVertexAttribArray(attribute.aAlpha);
+}
+
+/**
+ * Render models (opaque pass)
+ *
+ * @param {object} gl context
+ * @param {mat4} modelView
+ * @param {mat4} projection
+ * @param {mat3} normalMat
+ * @param {object} fog structure
+ * @param {object} light structure
+ */
+function render(gl, modelView, projection, normalMat, fog, light) {
+	bind(gl, modelView, projection, fog, light);
+	OccluderFade.renderOpaque(gl, _program.uniform, () => drawMeshes(gl));
+	OccluderFade.renderQuery(gl, _program.uniform, () => drawMeshes(gl), OccluderFade.QUERY.MODELS);
+	unbind(gl);
+}
+
+/**
+ * Render the faded (see-through) part of the models, translucent.
+ * Call after opaque scene elements so they remain visible behind it.
+ *
+ * @param {object} gl context
+ * @param {mat4} modelView
+ * @param {mat4} projection
+ * @param {mat3} normalMat
+ * @param {object} fog structure
+ * @param {object} light structure
+ */
+function renderFaded(gl, modelView, projection, normalMat, fog, light) {
+	if (!OccluderFade.needsBlendPass()) {
+		return;
+	}
+
+	bind(gl, modelView, projection, fog, light);
+	OccluderFade.renderBlend(gl, _program.uniform, () => drawMeshes(gl));
+	unbind(gl);
 }
 
 /**
@@ -244,5 +297,6 @@ function free(gl) {
 export default {
 	init: init,
 	render: render,
+	renderFaded: renderFaded,
 	free: free
 };

@@ -111,6 +111,11 @@ GraphicsOption.init = function init() {
 	bindChange('.performanceMode', onTogglePerformanceMode);
 	bindChange('.view-area', onUpdateAreaView);
 
+	// See-through occluders
+	bindChange('.occluderFade', onUpdateOccluderFade);
+	bindChange('.occluderFadeOpacity', onUpdateOccluderFadeOpacity);
+	bindChange('.occluderFadeRadius', onUpdateOccluderFadeRadius);
+
 	this.draggable('.titlebar');
 };
 
@@ -151,6 +156,11 @@ GraphicsOption.onAppend = function onAppend() {
 	// Performance Mode
 	root.querySelector('.performanceMode').checked = GraphicsSettings.performanceMode;
 	root.querySelector('.view-area').value = GraphicsSettings.viewArea;
+
+	// See-through occluders
+	root.querySelector('.occluderFade').value = GraphicsSettings.occluderFade;
+	root.querySelector('.occluderFadeOpacity').value = GraphicsSettings.occluderFadeOpacity;
+	root.querySelector('.occluderFadeRadius').value = GraphicsSettings.occluderFadeRadius;
 };
 
 /**
@@ -373,6 +383,30 @@ function onTabSwitch(event) {
 	});
 	const targetTab = root.querySelector('#' + tabName);
 	if (targetTab) targetTab.classList.add('selected');
+}
+
+/**
+ * Select how geometry blocking the view of the player is faded
+ */
+function onUpdateOccluderFade() {
+	GraphicsSettings.occluderFade = this.value;
+	GraphicsSettings.save();
+}
+
+/**
+ * Remaining opacity of faded geometry
+ */
+function onUpdateOccluderFadeOpacity() {
+	GraphicsSettings.occluderFadeOpacity = parseFloat(this.value);
+	GraphicsSettings.save();
+}
+
+/**
+ * Size (cells) of the faded area around the line of sight
+ */
+function onUpdateOccluderFadeRadius() {
+	GraphicsSettings.occluderFadeRadius = parseFloat(this.value);
+	GraphicsSettings.save();
 }
 
 function onResetToDefaults() {

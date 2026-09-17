@@ -4,6 +4,7 @@ precision highp float;
 in vec2 vTextureCoord;  
 in float vLightWeighting;  
 in float vAlpha;  
+in vec3 vWorldPos;
 out vec4 fragColor;  
   
 uniform sampler2D uDiffuse;  
@@ -18,11 +19,17 @@ uniform vec3  uLightDiffuse;
 uniform float uLightOpacity;  
 uniform vec3  uLightEnv;
 
+// #include OccluderFade.glsl
+
 void main(void) {
     vec4 textureSample = texture(uDiffuse, vTextureCoord.st);  
     if (textureSample.a == 0.0) {  
         discard;  
     }  
+
+    if (!occluderFade(vWorldPos, textureSample.a)) {
+        discard;
+    }
   
     vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);  
     textureSample.rgb *= clamp(color, 0.0, 1.0);  

@@ -13,7 +13,7 @@ import WebGL from 'Utils/WebGL.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import _vertexShader from './AnimatedModels.vs?raw';
 import _fragmentShader from './AnimatedModels.fs?raw';
-import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import OccluderFade from 'Renderer/Map/OccluderFade.js';
 
 const mat3 = glMatrix.mat3;
 const mat4 = glMatrix.mat4;
@@ -42,7 +42,7 @@ let _animatedModels = [];
  * Initialize shader program
  */
 function init(gl) {
-	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+	_program = WebGL.createShaderProgram(gl, _vertexShader, OccluderFade.injectShader(_fragmentShader));
 
 	_program.uniform = {
 		uModelViewMat: gl.getUniformLocation(_program, 'uModelViewMat'),
@@ -57,7 +57,13 @@ function init(gl) {
 		uFogNear: gl.getUniformLocation(_program, 'uFogNear'),
 		uFogFar: gl.getUniformLocation(_program, 'uFogFar'),
 		uFogColor: gl.getUniformLocation(_program, 'uFogColor'),
-		uDiffuse: gl.getUniformLocation(_program, 'uDiffuse')
+		uDiffuse: gl.getUniformLocation(_program, 'uDiffuse'),
+		uOccluderFadeMode: gl.getUniformLocation(_program, 'uOccluderFadeMode'),
+		uOccluderFadeEye: gl.getUniformLocation(_program, 'uOccluderFadeEye'),
+		uOccluderFadeFocus: gl.getUniformLocation(_program, 'uOccluderFadeFocus'),
+		uOccluderFadeRadius: gl.getUniformLocation(_program, 'uOccluderFadeRadius'),
+		uOccluderFadeOpacity: gl.getUniformLocation(_program, 'uOccluderFadeOpacity'),
+		uOccluderFadeStrength: gl.getUniformLocation(_program, 'uOccluderFadeStrength')
 	};
 
 	_program.attribute = {
@@ -689,17 +695,9 @@ function updateModelBuffer(gl, model, frame, force) {
 }
 
 /**
- * Render animated models
+ * Bind program and per-frame uniforms shared by both model passes
  */
-function render(gl, modelView, projection, normalMat, fog, light, tick) {
-	if (_animatedModels.length === 0) {
-		return;
-	}
-
-	if (!_program) {
-		init(gl);
-	}
-
+function bind(gl, modelView, projection, normalMat, fog, light) {
 	const uniform = _program.uniform;
 
 	gl.useProgram(_program);
@@ -724,32 +722,69 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	SpriteRenderer.runWithDepth(true, true, true, function () {
-		// Render each animated model
-		for (let m = 0; m < _animatedModels.length; m++) {
-			const model = _animatedModels[m];
-			const frame = tick % (model.animLen || 1);
+}
 
-			updateModelBuffer(gl, model, frame, false);
+/**
+ * Issue the draw calls for every animated model
+ */
+function drawModels(gl) {
+	for (let m = 0; m < _animatedModels.length; m++) {
+		const model = _animatedModels[m];
 
-			if (!model.buffer || model.meshInfos.length === 0) {
-				continue;
-			}
+		if (!model.buffer || model.meshInfos.length === 0) {
+			continue;
+		}
 
-			gl.bindVertexArray(model.vao);
+		gl.bindVertexArray(model.vao);
 
-			for (let i = 0; i < model.meshInfos.length; i++) {
-				const info = model.meshInfos[i];
-				const texture = model.textureObjects[info.textureIdx];
+		for (let i = 0; i < model.meshInfos.length; i++) {
+			const info = model.meshInfos[i];
+			const texture = model.textureObjects[info.textureIdx];
 
-				if (texture) {
-					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
-				}
+			if (texture) {
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
 			}
 		}
-	});
+	}
+}
+
+/**
+ * Render animated models (opaque pass)
+ */
+function render(gl, modelView, projection, normalMat, fog, light, tick) {
+	if (_animatedModels.length === 0) {
+		return;
+	}
+
+	if (!_program) {
+		init(gl);
+	}
+
+	bind(gl, modelView, projection, normalMat, fog, light);
+
+	for (let m = 0; m < _animatedModels.length; m++) {
+		const model = _animatedModels[m];
+		updateModelBuffer(gl, model, tick % (model.animLen || 1), false);
+	}
+
+	OccluderFade.renderOpaque(gl, _program.uniform, () => drawModels(gl));
+	OccluderFade.renderQuery(gl, _program.uniform, () => drawModels(gl), OccluderFade.QUERY.ANIMATED);
 	// Disable attributes
+	gl.bindVertexArray(null);
+}
+
+/**
+ * Render the faded (see-through) part of the animated models, translucent.
+ * Reuses the vertex data uploaded by render() this frame.
+ */
+function renderFaded(gl, modelView, projection, normalMat, fog, light) {
+	if (_animatedModels.length === 0 || !_program || !OccluderFade.needsBlendPass()) {
+		return;
+	}
+
+	bind(gl, modelView, projection, normalMat, fog, light);
+	OccluderFade.renderBlend(gl, _program.uniform, () => drawModels(gl));
 	gl.bindVertexArray(null);
 }
 
@@ -768,5 +803,6 @@ export default {
 	free: free,
 	add: add,
 	render: render,
+	renderFaded: renderFaded,
 	hasAnimatedModels: hasAnimatedModels
 };

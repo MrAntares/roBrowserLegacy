@@ -293,6 +293,46 @@
 						</label>
 					</td>
 				</tr>
+				<tr>
+					<td
+						title="Make buildings and trees blocking the view of your character see-through (not in first person). Dither is cheaper, Alpha looks smoother."
+					>
+						See-through Occluders
+					</td>
+					<td>
+						<label style="display: inline-block; margin-right: 20px">
+							<select class="occluderFade">
+								<option value="off">Off</option>
+								<option value="dither">Dither (fast)</option>
+								<option value="alpha">Alpha (smooth)</option>
+							</select>
+						</label>
+						<label style="display: inline-block; width: 120px">
+							Opacity:
+							<input
+								class="occluderFadeOpacity"
+								type="range"
+								value="0.25"
+								min="0.0"
+								max="0.8"
+								step="0.05"
+								style="width: 90%; vertical-align: middle"
+							/>
+						</label>
+						<label style="display: inline-block; width: 120px">
+							Area:
+							<input
+								class="occluderFadeRadius"
+								type="range"
+								value="5.0"
+								min="1.5"
+								max="12.5"
+								step="0.5"
+								style="width: 90%; vertical-align: middle"
+							/>
+						</label>
+					</td>
+				</tr>
 			</table>
 
 			<div class="reset-section">
