@@ -207794,11 +207794,11 @@ var init_Models$1 = __esmMin((() => {
 //#region src/Renderer/Effects/Shaders/GLSL/OccluderFade.glsl?raw
 var OccluderFade_default;
 var init_OccluderFade$1 = __esmMin((() => {
-	OccluderFade_default = "// Fades world geometry lying between the camera and the followed entity\r\n// (third person camera). Included by the model fragment shaders.\r\n//\r\n// uOccluderFadeMode:\r\n//   0 - disabled\r\n//   1 - dither (screen-door, single opaque pass)\r\n//   2 - alpha, opaque pass: discard fragments inside the fade capsule\r\n//   3 - alpha, blend pass: draw only fragments inside the fade capsule, translucent\r\n\r\nuniform int   uOccluderFadeMode;\r\nuniform vec3  uOccluderFadeEye;\r\nuniform vec3  uOccluderFadeFocus;\r\nuniform float uOccluderFadeRadius;\r\nuniform float uOccluderFadeOpacity;\r\n\r\nconst float OCCLUDER_FADE_BAYER[16] = float[16](\r\n	 0.0,  8.0,  2.0, 10.0,\r\n	12.0,  4.0, 14.0,  6.0,\r\n	 3.0, 11.0,  1.0,  9.0,\r\n	15.0,  7.0, 13.0,  5.0\r\n);\r\n\r\n// 0.0 = untouched, 1.0 = fully inside the capsule between eye and focus\r\nfloat occluderFadeAmount(vec3 worldPos) {\r\n	vec3 axis = uOccluderFadeFocus - uOccluderFadeEye;\r\n	vec3 rel  = worldPos - uOccluderFadeEye;\r\n	float len2 = max(dot(axis, axis), 0.0001);\r\n	float t    = clamp(dot(rel, axis) / len2, 0.0, 1.0);\r\n	float dist = length(rel - axis * t);\r\n\r\n	float radial = 1.0 - smoothstep(uOccluderFadeRadius * 0.5, uOccluderFadeRadius, dist);\r\n	float along  = 1.0 - smoothstep(0.85, 1.0, t);\r\n	return radial * along;\r\n}\r\n\r\n// Applies the fade to the fragment alpha. Returns false when the fragment must be discarded.\r\nbool occluderFade(vec3 worldPos, inout float alpha) {\r\n	if (uOccluderFadeMode == 0) {\r\n		return true;\r\n	}\r\n\r\n	float fade = occluderFadeAmount(worldPos);\r\n	float visibility = 1.0 - fade * (1.0 - uOccluderFadeOpacity);\r\n\r\n	if (uOccluderFadeMode == 1) {\r\n		ivec2 p = ivec2(gl_FragCoord.xy) & 3;\r\n		float threshold = (OCCLUDER_FADE_BAYER[p.x + p.y * 4] + 0.5) / 16.0;\r\n		return visibility > threshold;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 2) {\r\n		return fade < 0.01;\r\n	}\r\n\r\n	if (fade < 0.01) {\r\n		return false;\r\n	}\r\n	alpha *= visibility;\r\n	return true;\r\n}\r\n";
+	OccluderFade_default = "// Fades world geometry lying between the camera and the followed entity\r\n// (third person camera). Included by the model fragment shaders.\r\n//\r\n// uOccluderFadeMode:\r\n//   0 - disabled\r\n//   1 - dither (screen-door, single opaque pass)\r\n//   2 - alpha, opaque pass: discard fragments inside the fade capsule\r\n//   3 - alpha, blend pass: draw only fragments inside the fade capsule, translucent\r\n//   4 - line of sight query: keep only fragments inside the (narrow) capsule,\r\n//       used with an occlusion query to detect geometry covering the entity\r\n\r\nuniform int   uOccluderFadeMode;\r\nuniform vec3  uOccluderFadeEye;\r\nuniform vec3  uOccluderFadeFocus;\r\nuniform float uOccluderFadeRadius;\r\nuniform float uOccluderFadeOpacity;\r\nuniform float uOccluderFadeStrength;\r\n\r\nconst float OCCLUDER_FADE_BAYER[16] = float[16](\r\n	 0.0,  8.0,  2.0, 10.0,\r\n	12.0,  4.0, 14.0,  6.0,\r\n	 3.0, 11.0,  1.0,  9.0,\r\n	15.0,  7.0, 13.0,  5.0\r\n);\r\n\r\n// Distance to the eye->focus segment (x) and normalized position along it (y)\r\nvec2 occluderFadeCapsule(vec3 worldPos) {\r\n	vec3 axis = uOccluderFadeFocus - uOccluderFadeEye;\r\n	vec3 rel  = worldPos - uOccluderFadeEye;\r\n	float len2 = max(dot(axis, axis), 0.0001);\r\n	float t    = clamp(dot(rel, axis) / len2, 0.0, 1.0);\r\n	return vec2(length(rel - axis * t), t);\r\n}\r\n\r\n// 0.0 = untouched, 1.0 = fully inside the capsule between eye and focus\r\nfloat occluderFadeAmount(vec3 worldPos) {\r\n	vec2 c = occluderFadeCapsule(worldPos);\r\n	float radial = 1.0 - smoothstep(uOccluderFadeRadius * 0.5, uOccluderFadeRadius, c.x);\r\n	float along  = 1.0 - smoothstep(0.85, 1.0, c.y);\r\n	return radial * along * uOccluderFadeStrength;\r\n}\r\n\r\n// Applies the fade to the fragment alpha. Returns false when the fragment must be discarded.\r\nbool occluderFade(vec3 worldPos, inout float alpha) {\r\n	if (uOccluderFadeMode == 0) {\r\n		return true;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 4) {\r\n		vec2 c = occluderFadeCapsule(worldPos);\r\n		return c.x < uOccluderFadeRadius && c.y < 0.97;\r\n	}\r\n\r\n	float fade = occluderFadeAmount(worldPos);\r\n	float visibility = 1.0 - fade * (1.0 - uOccluderFadeOpacity);\r\n\r\n	if (uOccluderFadeMode == 1) {\r\n		ivec2 p = ivec2(gl_FragCoord.xy) & 3;\r\n		float threshold = (OCCLUDER_FADE_BAYER[p.x + p.y * 4] + 0.5) / 16.0;\r\n		return visibility > threshold;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 2) {\r\n		return fade < 0.01;\r\n	}\r\n\r\n	if (fade < 0.01) {\r\n		return false;\r\n	}\r\n	alpha *= visibility;\r\n	return true;\r\n}\r\n";
 }));
 //#endregion
 //#region src/Renderer/Map/OccluderFade.js
-var mat4$23, vec3$6, SHADER_INCLUDE, MODE, SETTING, FADE_RADIUS, _inverse, _eye, OccluderFade;
+var mat4$23, vec3$6, SHADER_INCLUDE, MODE, SETTING, QUERY, FADE_RADIUS, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick, OccluderFade;
 var init_OccluderFade = __esmMin((() => {
 	init_OccluderFade$1();
 	init_Camera();
@@ -207811,19 +207811,33 @@ var init_OccluderFade = __esmMin((() => {
 		OFF: 0,
 		DITHER: 1,
 		ALPHA_OPAQUE: 2,
-		ALPHA_BLEND: 3
+		ALPHA_BLEND: 3,
+		QUERY: 4
 	};
 	SETTING = {
 		OFF: "off",
 		DITHER: "dither",
 		ALPHA: "alpha"
 	};
-	FADE_RADIUS = 2.5;
+	QUERY = {
+		MODELS: 0,
+		ANIMATED: 1
+	};
+	FADE_RADIUS = 5;
+	QUERY_RADIUS = .7;
+	FADE_IN_MS = 150;
+	FADE_OUT_MS = 300;
 	_inverse = mat4$23.create();
 	_eye = vec3$6.create();
+	_queries = [null, null];
+	_queryPending = [false, false];
+	_queryHit = [false, false];
+	_strength = 0;
+	_lastTick = 0;
 	OccluderFade = class OccluderFade {
 		static MODE = MODE;
 		static SETTING = SETTING;
+		static QUERY = QUERY;
 		/**
 		* Inline the shared GLSL into a fragment shader source
 		*
@@ -207851,15 +207865,56 @@ var init_OccluderFade = __esmMin((() => {
 			return GraphicsSettings.occluderFade === SETTING.ALPHA;
 		}
 		/**
-		* Refresh the camera eye position from the current modelView
+		* Current fade strength, 0 (view clear) .. 1 (view blocked)
 		*
-		* @param {mat4} modelView
+		* @return {number}
 		*/
-		static update(modelView) {
+		static getStrength() {
+			return _strength;
+		}
+		/**
+		* Whether the fade is visible this frame
+		*
+		* @return {boolean}
+		*/
+		static isFading() {
+			return OccluderFade.isActive() && _strength > .001;
+		}
+		/**
+		* Per frame update: collect last frame's occlusion query results, ease
+		* the fade strength and refresh the camera eye position.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {mat4} modelView
+		* @param {number} tick
+		*/
+		static beginFrame(gl, modelView, tick) {
 			mat4$23.invert(_inverse, modelView);
 			_eye[0] = _inverse[12];
 			_eye[1] = _inverse[13];
 			_eye[2] = _inverse[14];
+			const dt = _lastTick ? Math.min(tick - _lastTick, 100) : 0;
+			_lastTick = tick;
+			if (!OccluderFade.isActive()) {
+				_strength = 0;
+				return;
+			}
+			for (let i = 0; i < _queries.length; ++i) OccluderFade.pollQuery(gl, i);
+			if (_queryHit[QUERY.MODELS] || _queryHit[QUERY.ANIMATED]) _strength = Math.min(1, _strength + dt / FADE_IN_MS);
+			else _strength = Math.max(0, _strength - dt / FADE_OUT_MS);
+		}
+		/**
+		* Read back an occlusion query when its result is available
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {number} slot one of QUERY
+		*/
+		static pollQuery(gl, slot) {
+			if (!_queryPending[slot]) return;
+			const query = _queries[slot];
+			if (!gl.getQueryParameter(query, gl.QUERY_RESULT_AVAILABLE)) return;
+			_queryHit[slot] = !!gl.getQueryParameter(query, gl.QUERY_RESULT);
+			_queryPending[slot] = false;
 		}
 		/**
 		* Upload the fade uniforms for a program
@@ -207873,17 +207928,18 @@ var init_OccluderFade = __esmMin((() => {
 			if (mode === MODE.OFF) return;
 			gl.uniform3fv(uniform.uOccluderFadeEye, _eye);
 			gl.uniform3fv(uniform.uOccluderFadeFocus, Camera.focus);
-			gl.uniform1f(uniform.uOccluderFadeRadius, FADE_RADIUS);
+			gl.uniform1f(uniform.uOccluderFadeRadius, mode === MODE.QUERY ? QUERY_RADIUS : FADE_RADIUS);
 			gl.uniform1f(uniform.uOccluderFadeOpacity, GraphicsSettings.occluderFadeOpacity);
+			gl.uniform1f(uniform.uOccluderFadeStrength, _strength);
 		}
 		/**
 		* Whether a deferred translucent pass is required this frame
-		* (alpha variant selected and effect active).
+		* (alpha variant selected and fade visible).
 		*
 		* @return {boolean}
 		*/
 		static needsBlendPass() {
-			return OccluderFade.isActive() && OccluderFade.useAlpha();
+			return OccluderFade.isFading() && OccluderFade.useAlpha();
 		}
 		/**
 		* Shader mode for the opaque geometry pass
@@ -207891,7 +207947,7 @@ var init_OccluderFade = __esmMin((() => {
 		* @return {number} one of MODE
 		*/
 		static opaqueMode() {
-			if (!OccluderFade.isActive()) return MODE.OFF;
+			if (!OccluderFade.isFading()) return MODE.OFF;
 			return OccluderFade.useAlpha() ? MODE.ALPHA_OPAQUE : MODE.DITHER;
 		}
 		/**
@@ -207906,6 +207962,27 @@ var init_OccluderFade = __esmMin((() => {
 			SpriteRenderer.runWithDepth(true, true, true, draw);
 		}
 		/**
+		* Line of sight pass: re-draw the models without color/depth writes inside
+		* an occlusion query, keeping only fragments between the eye and the player.
+		* Skipped while the previous query of this slot is still in flight.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {object} uniform program uniform locations
+		* @param {function} draw issues the draw calls
+		* @param {number} slot one of QUERY
+		*/
+		static renderQuery(gl, uniform, draw, slot) {
+			if (!OccluderFade.isActive() || _queryPending[slot]) return;
+			if (!_queries[slot]) _queries[slot] = gl.createQuery();
+			OccluderFade.setUniforms(gl, uniform, MODE.QUERY);
+			gl.colorMask(false, false, false, false);
+			gl.beginQuery(gl.ANY_SAMPLES_PASSED_CONSERVATIVE, _queries[slot]);
+			SpriteRenderer.runWithDepth(false, false, true, draw);
+			gl.endQuery(gl.ANY_SAMPLES_PASSED_CONSERVATIVE);
+			gl.colorMask(true, true, true, true);
+			_queryPending[slot] = true;
+		}
+		/**
 		* Translucent model pass (alpha variant): draws only the fade capsule,
 		* depth tested but not depth written. Runs after opaque scene elements
 		* (entities included) so they show through the faded geometry.
@@ -207918,6 +207995,23 @@ var init_OccluderFade = __esmMin((() => {
 			OccluderFade.setUniforms(gl, uniform, MODE.ALPHA_BLEND);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			SpriteRenderer.runWithDepth(true, false, true, draw);
+		}
+		/**
+		* Release GPU queries (map change / context loss)
+		*
+		* @param {WebGL2RenderingContext} gl
+		*/
+		static free(gl) {
+			for (let i = 0; i < _queries.length; ++i) {
+				if (_queries[i]) {
+					gl.deleteQuery(_queries[i]);
+					_queries[i] = null;
+				}
+				_queryPending[i] = false;
+				_queryHit[i] = false;
+			}
+			_strength = 0;
+			_lastTick = 0;
 		}
 	};
 }));
@@ -208031,7 +208125,6 @@ function bind$1(gl, modelView, projection, fog, light) {
 	gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 36, 32);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	OccluderFade.update(modelView);
 }
 /**
 * Release the vertex layout
@@ -208058,6 +208151,7 @@ function unbind(gl) {
 function render$12(gl, modelView, projection, normalMat, fog, light) {
 	bind$1(gl, modelView, projection, fog, light);
 	OccluderFade.renderOpaque(gl, _program$24.uniform, () => drawMeshes(gl));
+	OccluderFade.renderQuery(gl, _program$24.uniform, () => drawMeshes(gl), OccluderFade.QUERY.MODELS);
 	unbind(gl);
 }
 /**
@@ -208154,7 +208248,8 @@ function init$10(gl) {
 		uOccluderFadeEye: gl.getUniformLocation(_program$23, "uOccluderFadeEye"),
 		uOccluderFadeFocus: gl.getUniformLocation(_program$23, "uOccluderFadeFocus"),
 		uOccluderFadeRadius: gl.getUniformLocation(_program$23, "uOccluderFadeRadius"),
-		uOccluderFadeOpacity: gl.getUniformLocation(_program$23, "uOccluderFadeOpacity")
+		uOccluderFadeOpacity: gl.getUniformLocation(_program$23, "uOccluderFadeOpacity"),
+		uOccluderFadeStrength: gl.getUniformLocation(_program$23, "uOccluderFadeStrength")
 	};
 	_program$23.attribute = {
 		aPosition: gl.getAttribLocation(_program$23, "aPosition"),
@@ -208554,7 +208649,6 @@ function bind(gl, modelView, projection, normalMat, fog, light) {
 	gl.uniform3fv(uniform.uFogColor, fog.color);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	OccluderFade.update(modelView);
 }
 /**
 * Issue the draw calls for every animated model
@@ -208586,6 +208680,7 @@ function render$11(gl, modelView, projection, normalMat, fog, light, tick) {
 		updateModelBuffer(gl, model, tick % (model.animLen || 1), false);
 	}
 	OccluderFade.renderOpaque(gl, _program$23.uniform, () => drawModels(gl));
+	OccluderFade.renderQuery(gl, _program$23.uniform, () => drawModels(gl), OccluderFade.QUERY.ANIMATED);
 	gl.bindVertexArray(null);
 }
 /**
@@ -257733,6 +257828,7 @@ var init_MapRenderer = __esmMin((() => {
 	init_Water();
 	init_Models();
 	init_AnimatedModels();
+	init_OccluderFade();
 	init_GR2ModelRenderer();
 	init_Sounds();
 	init_Effects();
@@ -257861,6 +257957,7 @@ var init_MapRenderer = __esmMin((() => {
 			Water_default.free(gl);
 			Models_default.free(gl);
 			AnimatedModels_default.free(gl);
+			OccluderFade.free(gl);
 			GR2ModelRenderer_default.free(gl);
 			Damage.free(gl);
 			EffectManager.free(gl);
@@ -257917,6 +258014,7 @@ var init_MapRenderer = __esmMin((() => {
 				}
 			}
 			Sky_default.render(gl, modelView, projection, fog, tick);
+			OccluderFade.beginFrame(gl, modelView, tick);
 			Models_default.render(gl, modelView, projection, normalMat, fog, light);
 			AnimatedModels_default.render(gl, modelView, projection, normalMat, fog, light, tick);
 			GR2ModelRenderer_default.render(gl, modelView, projection, normalMat, fog, light, tick);
