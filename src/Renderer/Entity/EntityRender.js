@@ -538,6 +538,7 @@ const renderEntity = (function renderEntityClosure() {
 				// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 				// - Still use depth test for correct ordering
 				// (submerged bodies get their depth from renderWaterDepth, just before the water pass)
+				self.waterDepthFrame = null;
 				SpriteRenderer.runWithDepth(true, false, false, function () {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
@@ -551,41 +552,33 @@ const renderEntity = (function renderEntityClosure() {
  * Depth-only redraw of the body for entities standing in water, so the water
  * pass (drawn after entities, depth tested) covers only the submerged part.
  * Runs after every entity has been drawn, with colour writes disabled by the
- * caller, so the written depth cannot hide other sprites. Entity types that
- * already write depth in renderEntity are skipped.
+ * caller, so the written depth cannot hide other sprites. Replays the exact
+ * layers the colour pass drew this frame (`waterDepthFrame`), so no animation,
+ * sound or trail state is touched. Only set for the non-player body pass;
+ * entity types that already write depth never get a frame.
  */
-const renderWaterDepth = (function renderWaterDepthClosure() {
-	const _position = new Int32Array(2);
+function renderWaterDepth() {
+	const frame = this.waterDepthFrame;
 
-	return function _renderWaterDepth() {
-		const Entity = this.constructor;
-		switch (this.objecttype) {
-			case Entity.TYPE_PC:
-			case Entity.TYPE_MERC:
-			case Entity.TYPE_HOM:
-			case Entity.TYPE_FALCON:
-			case Entity.TYPE_EFFECT:
-				return;
+	if (!frame || this.hideEntity || !this.effectColor[3]) {
+		return;
+	}
+
+	if (!Water.isSubmerged(this.position[0], this.position[1])) {
+		return;
+	}
+
+	const self = this;
+	SpriteRenderer.position.set(this.position);
+	SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+	SpriteRenderer.zIndex = 150;
+	SpriteRenderer.runWithDepth(true, true, false, function () {
+		for (let i = 0, count = frame.layers.length; i < count; ++i) {
+			self.renderLayer(frame.layers[i], frame.spr, frame.pal, frame.size, frame.position, 'body', false);
 		}
-
-		if (this.hideEntity || this.gr2 || !this.effectColor[3]) {
-			return;
-		}
-
-		if (!Water.isSubmerged(this.position[0], this.position[1])) {
-			return;
-		}
-
-		const self = this;
-		SpriteRenderer.position.set(this.position);
-		SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
-		SpriteRenderer.zIndex = 150;
-		SpriteRenderer.runWithDepth(true, true, false, function () {
-			renderElement(self, self.files.body, 'body', _position, true);
-		});
-		SpriteRenderer.zIndex = 1;
-	};
-})();
+	});
+	SpriteRenderer.zIndex = 1;
+}
 
 /**
  * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
@@ -901,6 +894,17 @@ const renderElement = (function renderElementClosure() {
 			entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 		}
 
+		if (is_main && type === 'body' && entity.waterDepthFrame === null) {
+			const frame =
+				entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: new Int32Array(2) });
+			frame.layers = layers;
+			frame.spr = spr;
+			frame.pal = pal;
+			frame.size = files.size;
+			frame.position.set(_position);
+			entity.waterDepthFrame = frame;
+		}
+
 		// Save reference
 		if (is_main && animation.pos.length) {
 			position[0] = animation.pos[0].x;
@@ -1193,4 +1197,6 @@ export default function Init() {
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
 	this.renderWaterDepth = renderWaterDepth;
+	this.waterDepthFrame = undefined;
+	this._waterDepthFrameBuffer = null;
 }
