@@ -308729,7 +308729,7 @@ function touchTranslationY(oldTouches, touches) {
 */
 function onTouchEnd(event) {
 	if (_uiTouch) {
-		_uiTouch = false;
+		if (event.touches.length === 0) _uiTouch = false;
 		return;
 	}
 	if (_processGesture) {
@@ -308785,7 +308785,7 @@ var init_Mobile = __esmMin((() => {
 	_processGesture = false;
 	_timer$1 = -1;
 	_uiTouch = false;
-	UI_TOUCH_SELECTOR = "input, textarea, select, button, a, label, ui-button, [data-background], [data-hover], [data-down], .event_add_cursor, td.tab, .draggable";
+	UI_TOUCH_SELECTOR = "input, textarea, select, button, a, label, [contenteditable], ui-button, [data-background], [data-hover], [data-down], .event_add_cursor, td.tab, .draggable";
 	Mobile = class {
 		/**
 		* Initialize
@@ -308813,7 +308813,7 @@ var init_Mobile = __esmMin((() => {
 		return function(event) {
 			remoteAutoFocus();
 			_touches = event.touches;
-			_uiTouch = _touches.length === 1 && isUITouch(event);
+			if (_touches.length === 1) _uiTouch = isUITouch(event);
 			if (_uiTouch) {
 				if (_timer$1 > -1) {
 					Events.clearTimeout(_timer$1);
@@ -308848,6 +308848,7 @@ var init_Mobile = __esmMin((() => {
 	window.addEventListener("touchstart", touchDevice, { once: true });
 	window.addEventListener("touchstart", onTouchStart, { passive: false });
 	window.addEventListener("touchend", onTouchEnd);
+	window.addEventListener("touchcancel", onTouchEnd);
 	window.addEventListener("touchmove", onTouchMove);
 }));
 //#endregion
