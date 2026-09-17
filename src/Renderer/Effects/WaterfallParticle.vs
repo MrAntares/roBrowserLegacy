@@ -37,5 +37,5 @@ void main(void) {
 
 	gl_Position = uProjectionMat * viewPosition;
 	vTextureCoord = aCorner * 0.5 + 0.5;
-	vAlpha = 0.12 * min(1.0, progress * 8.0) * (1.0 - smoothstep(0.5, 1.0, progress));
+	vAlpha = 0.08 * min(1.0, progress * 8.0) * (1.0 - smoothstep(0.5, 1.0, progress));
 }

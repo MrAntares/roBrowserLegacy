@@ -32,7 +32,7 @@ const OPACITY = 80 / 255;
 const PARTICLE_TEXTURE = 'data/texture/effect/freeze_a_small.bmp';
 const PARTICLE_CYCLE_MS = (38 / 0.05) * EFFECT_TICK_MS;
 const PARTICLE_SIZE = 6 * Math.SQRT1_2 * UNIT;
-const PARTICLE_COLOR = [0.75, 1.0, 0.8];
+const PARTICLE_COLOR = [0.65, 1.0, 0.75];
 const PARTICLE_FLOATS = 4;
 const PARTICLE_CORNERS = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
 
