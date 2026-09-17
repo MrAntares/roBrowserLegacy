@@ -44,6 +44,19 @@ let _timer = -1;
 let _uiTouch = false;
 
 /**
+ * @var {boolean} the page itself is zoomed in (browser pinch or input focus zoom):
+ * touches are left to the browser so the user can pinch the page back out
+ */
+let _pageZoomed = false;
+
+/**
+ * Viewport meta applied when the host page doesn't define one: `width=device-width` keeps
+ * mobile browsers from laying the page out at desktop width (and zooming into focused
+ * inputs to compensate), `maximum-scale=1` suppresses the input focus zoom on iOS WebKit.
+ */
+const VIEWPORT_META = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+
+/**
  * Elements that must receive the tap themselves (as synthesized mouse
  * events) instead of being treated as a click on the map.
  */
@@ -77,6 +90,30 @@ function isUITouch(event) {
 }
 
 /**
+ * Make sure the document has a viewport meta (see VIEWPORT_META).
+ */
+function ensureViewportMeta() {
+	if (!document.head || document.head.querySelector('meta[name="viewport"]')) {
+		return;
+	}
+
+	const meta = document.createElement('meta');
+	meta.name = 'viewport';
+	meta.content = VIEWPORT_META;
+	document.head.appendChild(meta);
+}
+
+/**
+ * Track the browser page zoom (visual viewport smaller than the layout viewport).
+ * While zoomed, the canvas gets back its native touch handling (see `body.ro-page-zoomed`
+ * in UI/Common.css) and our touch controls step aside.
+ */
+function onVisualViewportResize() {
+	_pageZoomed = window.visualViewport.scale > 1.01;
+	document.body.classList.toggle('ro-page-zoomed', _pageZoomed);
+}
+
+/**
  * @namespace Mobile
  */
 class Mobile {
@@ -85,21 +122,6 @@ class Mobile {
 	 */
 	static init() {}
 }
-
-/**
- * Remove autofocus on mobile.
- * Let the user decide to focus an input/textarea by himself
- */
-const remoteAutoFocus = (function removeAutoFocusClosure() {
-	let _done = false;
-
-	return function removeAutoFocus() {
-		if (_done) {
-			return;
-		}
-		_done = true;
-	};
-})();
 
 /**
  * Return distance between touches
@@ -172,75 +194,76 @@ function touchTranslationY(oldTouches, touches) {
 }
 
 /**
+ * Delayed tap on the map: only dispatched when no gesture started meanwhile
+ */
+const delayedClick = () => {
+	if (_processGesture) {
+		return;
+	}
+
+	_timer = -1;
+
+	if (Mobile.onTouchStart) {
+		Mobile.onTouchStart();
+	}
+
+	if (!_intersect && Mobile.onTouchEnd) {
+		Mobile.onTouchEnd();
+	}
+
+	Mouse.intersect = _intersect;
+};
+
+/**
  * Start touching the screen
  * Process gesture, or action
  */
-const onTouchStart = (function onTouchStartClosure() {
-	function delayedClick() {
-		// Only process mousedown if not doing a gesture
-		if (!_processGesture) {
-			_timer = -1;
+const onTouchStart = event => {
+	_touches = event.touches;
 
-			if (Mobile.onTouchStart) {
-				Mobile.onTouchStart();
-			}
-
-			if (!_intersect) {
-				if (Mobile.onTouchEnd) {
-					Mobile.onTouchEnd();
-				}
-			}
-
-			Mouse.intersect = _intersect;
-		}
+	// Let the browser deliver the tap to the UI element as mouse events
+	// (mouseenter/mousedown/click), exactly like a mouse would do.
+	// Extra fingers landing during a UI touch stay with the UI too.
+	if (_pageZoomed) {
+		_uiTouch = true;
+	} else if (_touches.length === 1) {
+		_uiTouch = isUITouch(event);
 	}
-
-	return function (event) {
-		remoteAutoFocus();
-		_touches = event.touches;
-
-		// Let the browser deliver the tap to the UI element as mouse events
-		// (mouseenter/mousedown/click), exactly like a mouse would do.
-		// Extra fingers landing during a UI touch stay with the UI too.
-		if (_touches.length === 1) {
-			_uiTouch = isUITouch(event);
-		}
-		if (_uiTouch) {
-			if (_timer > -1) {
-				Events.clearTimeout(_timer);
-				_timer = -1;
-			}
-			return;
-		}
-
-		event.preventDefault();
-		event.stopImmediatePropagation();
-
-		// Delayed click (to detect gesture)
+	if (_uiTouch) {
 		if (_timer > -1) {
 			Events.clearTimeout(_timer);
 			_timer = -1;
 		}
+		return;
+	}
 
-		// Gesture
-		if (_touches.length > 1) {
-			_scale = touchDistance(_touches);
-			_angle = touchAngle(_touches);
-			_processGesture = true;
-			return;
-		}
+	event.preventDefault();
+	event.stopImmediatePropagation();
 
-		Mouse.screen.x = _touches[0].pageX;
-		Mouse.screen.y = _touches[0].pageY;
+	// Delayed click (to detect gesture)
+	if (_timer > -1) {
+		Events.clearTimeout(_timer);
+		_timer = -1;
+	}
 
-		if (!Session.FreezeUI) {
-			Mouse.intersect = true;
-			_intersect = true;
-		}
+	// Gesture
+	if (_touches.length > 1) {
+		_scale = touchDistance(_touches);
+		_angle = touchAngle(_touches);
+		_processGesture = true;
+		return;
+	}
 
-		_timer = Events.setTimeout(delayedClick, 200);
-	};
-})();
+	Mouse.screen.x = _touches[0].pageX;
+	Mouse.screen.y = _touches[0].pageY;
+
+	if (!Session.FreezeUI) {
+		Mouse.intersect = true;
+		_intersect = true;
+	}
+
+	_timer = Events.setTimeout(delayedClick, 200);
+};
 
 /**
  * Hook touch end to know when a gesture end
@@ -360,6 +383,13 @@ function touchDevice() {
 	}
 }
 window.addEventListener('touchstart', touchDevice, { once: true });
+
+ensureViewportMeta();
+
+if (window.visualViewport) {
+	window.visualViewport.addEventListener('resize', onVisualViewportResize);
+	onVisualViewportResize();
+}
 
 // Touch controls
 window.addEventListener('touchstart', onTouchStart, { passive: false });
