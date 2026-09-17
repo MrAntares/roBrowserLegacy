@@ -207783,6 +207783,7 @@ function free$6(gl) {
 		gl.deleteTexture(_textures$1[i]);
 		_textures$1[i] = null;
 	}
+	_vertCount = 0;
 }
 /**
 * Is the ground at this cell under the water surface ?
@@ -207795,6 +207796,14 @@ function free$6(gl) {
 function isSubmerged(x, y) {
 	if (!_vertCount) return false;
 	return -Altitude.getCellHeight(x, y) > _waterLevel - _waveHeight;
+}
+/**
+* Does the current map have any water surface ?
+*
+* @return {boolean}
+*/
+function hasWater() {
+	return _vertCount > 0;
 }
 var _program$24, _buffer$17, _vertCount, _textures$1, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
@@ -207817,7 +207826,8 @@ var init_Water = __esmMin((() => {
 		init: init$12,
 		free: free$6,
 		render: render$11,
-		isSubmerged
+		isSubmerged,
+		hasWater
 	};
 }));
 //#endregion
@@ -257728,6 +257738,7 @@ var init_MapRenderer = __esmMin((() => {
 			ScreenEffectManager.render(gl, modelView, projection, fog, tick, true);
 			EffectManager.render(gl, modelView, projection, fog, tick, true);
 			EntityManager.render(gl, modelView, projection, fog, false);
+			EntityManager.renderWaterDepth(gl, modelView, projection, fog);
 			Water_default.render(gl, modelView, projection, fog, light, tick);
 			EffectManager.render(gl, modelView, projection, fog, tick, false);
 			EntityManager.render(gl, modelView, projection, fog, true);
@@ -303353,8 +303364,9 @@ function Init$3() {
 	this.render = render$5;
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
+	this.renderWaterDepth = renderWaterDepth$1;
 }
-var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderElement;
+var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderWaterDepth$1, renderElement;
 var init_EntityRender = __esmMin((() => {
 	init_gl_matrix();
 	init_Camera();
@@ -303617,10 +303629,33 @@ var init_EntityRender = __esmMin((() => {
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 					SpriteRenderer.zIndex = 150;
-					SpriteRenderer.runWithDepth(true, Water_default.isSubmerged(self.position[0], self.position[1]), false, function() {
+					SpriteRenderer.runWithDepth(true, false, false, function() {
 						renderElement(self, self.files.body, "body", _position, true);
 					});
 			}
+			SpriteRenderer.zIndex = 1;
+		};
+	})();
+	renderWaterDepth$1 = (function renderWaterDepthClosure() {
+		const _position = /* @__PURE__ */ new Int32Array(2);
+		return function _renderWaterDepth() {
+			const Entity = this.constructor;
+			switch (this.objecttype) {
+				case Entity.TYPE_PC:
+				case Entity.TYPE_MERC:
+				case Entity.TYPE_HOM:
+				case Entity.TYPE_FALCON:
+				case Entity.TYPE_EFFECT: return;
+			}
+			if (this.hideEntity || this.gr2 || !this.effectColor[3]) return;
+			if (!Water_default.isSubmerged(this.position[0], this.position[1])) return;
+			const self = this;
+			SpriteRenderer.position.set(this.position);
+			SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
+			SpriteRenderer.zIndex = 150;
+			SpriteRenderer.runWithDepth(true, true, false, function() {
+				renderElement(self, self.files.body, "body", _position, true);
+			});
 			SpriteRenderer.zIndex = 1;
 		};
 	})();
@@ -305564,6 +305599,24 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 	SpriteRenderer.unbind(gl);
 }
 /**
+* Depth-only pass for entities standing in water, run after all entities
+* are drawn and right before the water so it can hide their submerged part
+* without occluding other sprites.
+*
+* @param {object} gl context
+* @param {mat4} modelView
+* @param {mat4} projection
+* @param {object} fog
+*/
+function renderWaterDepth(gl, modelView, projection, fog) {
+	if (!_list.length || !Water_default.hasWater()) return;
+	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+	gl.colorMask(false, false, false, false);
+	for (let i = 0, count = _list.length; i < count; ++i) _list[i].renderWaterDepth();
+	gl.colorMask(true, true, true, true);
+	SpriteRenderer.unbind(gl);
+}
+/**
 * Intersect Entities
 */
 function intersect() {
@@ -305701,6 +305754,7 @@ var init_EntityManager = __esmMin((() => {
 	init_PathFinding();
 	init_Graphics();
 	init_Altitude();
+	init_Water();
 	init_GR2ModelRenderer();
 	_list = [];
 	_gidMap = /* @__PURE__ */ new Map();
@@ -305734,6 +305788,7 @@ var init_EntityManager = __esmMin((() => {
 		removeLife,
 		clearLifeCache,
 		render: render$4,
+		renderWaterDepth,
 		intersect,
 		setSupportPicking,
 		pendingTransformations,
