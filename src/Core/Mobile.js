@@ -278,7 +278,8 @@ function onTouchEnd(event) {
  * without acting on the map.
  */
 function onTouchCancel(event) {
-	if (event.touches.length > 0) {
+	// A cancelled gesture must end even if a finger remains on screen
+	if (event.touches.length > 0 && !_processGesture) {
 		return;
 	}
 
