@@ -247476,7 +247476,7 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Effects/PokJukWeatherEffect.js
-var _instance$2, _mapName$3, _whiteTexture, EXPLOSION_ALTITUDE, PARTICLE_SIZE, FIRE_LIFE_MS, EXPLOSION_LIFE_MS, PokJukWeatherEffect;
+var _instance$2, _mapName$3, _whiteTexture, EXPLOSION_ALTITUDE, PARTICLE_SIZE$1, FIRE_LIFE_MS, EXPLOSION_LIFE_MS, PokJukWeatherEffect;
 var init_PokJukWeatherEffect = __esmMin((() => {
 	init_MapRenderer();
 	init_SpriteRenderer();
@@ -247486,7 +247486,7 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 	_mapName$3 = "";
 	_whiteTexture = null;
 	EXPLOSION_ALTITUDE = 8;
-	PARTICLE_SIZE = 6;
+	PARTICLE_SIZE$1 = 6;
 	FIRE_LIFE_MS = 50;
 	EXPLOSION_LIFE_MS = 1e3;
 	PokJukWeatherEffect = class PokJukWeatherEffect {
@@ -247521,12 +247521,12 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 		createInternalTexture(gl) {
 			if (_whiteTexture) return;
 			const canvas = document.createElement("canvas");
-			canvas.width = PARTICLE_SIZE;
-			canvas.height = PARTICLE_SIZE;
+			canvas.width = PARTICLE_SIZE$1;
+			canvas.height = PARTICLE_SIZE$1;
 			const ctx = canvas.getContext("2d");
-			const center = PARTICLE_SIZE / 2;
+			const center = PARTICLE_SIZE$1 / 2;
 			const radius = 2;
-			ctx.clearRect(0, 0, PARTICLE_SIZE, PARTICLE_SIZE);
+			ctx.clearRect(0, 0, PARTICLE_SIZE$1, PARTICLE_SIZE$1);
 			const gradient = ctx.createRadialGradient(center, center, 0, center, center, radius);
 			gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
 			gradient.addColorStop(.7, "rgba(255, 255, 255, 0.8)");
@@ -247566,7 +247566,7 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 				colorType: Math.floor(Math.random() * 5),
 				state: 0,
 				particles: [],
-				size: PARTICLE_SIZE,
+				size: PARTICLE_SIZE$1,
 				arcDirection: Math.random() > .5 ? 1 : -1,
 				arcAmplitude: 3 + Math.random() * 2,
 				arcPhase: 0,
@@ -252022,33 +252022,53 @@ var init_WaterfallEffect$1 = __esmMin((() => {
 	WaterfallEffect_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uTexture;\r\nuniform bool uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3 uFogColor;\r\nuniform float uOpacity;\r\n\r\nvoid main(void) {\r\n	fragColor = texture(uTexture, vTextureCoord);\r\n	fragColor.a *= uOpacity;\r\n	if (fragColor.a < 0.01) {\r\n		discard;\r\n	}\r\n	if (uFogUse) {\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, gl_FragCoord.z / gl_FragCoord.w);\r\n		fragColor = mix(fragColor, vec4(uFogColor, fragColor.a), fogFactor);\r\n	}\r\n}\r\n";
 }));
 //#endregion
+//#region src/Renderer/Effects/WaterfallParticle.vs?raw
+var WaterfallParticle_default$1;
+var init_WaterfallParticle$1 = __esmMin((() => {
+	WaterfallParticle_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aCorner;\r\nin vec4 aSeed; // x offset, z offset, phase, drift angle\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform mat4 uModelMat;\r\nuniform float uTime;\r\nuniform float uSize;\r\n\r\nout vec2 vTextureCoord;\r\nout float vAlpha;\r\n\r\n// Spray puffs rise from the pool for RISE units after waiting below it.\r\nconst float CYCLE = 38.0;\r\nconst float RISE = 8.0;\r\nconst float DELAY = CYCLE - RISE;\r\n\r\nvoid main(void) {\r\n	float life = fract(aSeed.z + uTime);\r\n	float t = life * CYCLE - DELAY;\r\n\r\n	if (t <= 0.0) {\r\n		gl_Position = vec4(2.0, 2.0, 2.0, 1.0);\r\n		vTextureCoord = vec2(0.0);\r\n		vAlpha = 0.0;\r\n		return;\r\n	}\r\n\r\n	float progress = t / RISE;\r\n	float drift = sin(aSeed.w + progress * 3.0) * 0.3;\r\n	vec3 local = vec3(aSeed.x + drift, -t * 0.2, aSeed.y);\r\n	vec4 viewPosition = uModelViewMat * uModelMat * vec4(local, 1.0);\r\n	viewPosition.xy += aCorner * uSize;\r\n\r\n	gl_Position = uProjectionMat * viewPosition;\r\n	vTextureCoord = aCorner * 0.5 + 0.5;\r\n	vAlpha = 0.08 * min(1.0, progress * 8.0) * (1.0 - smoothstep(0.5, 1.0, progress));\r\n}\r\n";
+}));
+//#endregion
+//#region src/Renderer/Effects/WaterfallParticle.fs?raw
+var WaterfallParticle_default;
+var init_WaterfallParticle = __esmMin((() => {
+	WaterfallParticle_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nin float vAlpha;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uTexture;\r\nuniform vec3 uColor;\r\nuniform bool uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\n\r\nvoid main(void) {\r\n	fragColor = texture(uTexture, vTextureCoord);\r\n	fragColor.rgb *= uColor;\r\n	fragColor.a *= vAlpha;\r\n	if (uFogUse) {\r\n		float fogFactor = smoothstep(uFogNear, uFogFar, gl_FragCoord.z / gl_FragCoord.w);\r\n		fragColor.a *= 1.0 - fogFactor;\r\n	}\r\n	if (fragColor.a < 0.01) {\r\n		discard;\r\n	}\r\n}\r\n";
+}));
+//#endregion
 //#region src/Renderer/Effects/WaterfallEffect.js
+function textureFiles(textureSet) {
+	const files = [];
+	for (let index = 1; index <= TEXTURE_COUNT; index++) files.push(`data/texture/effect/waterfall${textureSet}${index}.tga`);
+	files.push(PARTICLE_TEXTURE);
+	return files;
+}
 function loadTextures(gl, textureSet, effect) {
 	let cache = _textureCache.get(textureSet);
 	if (!cache) {
+		const files = textureFiles(textureSet);
 		cache = {
-			textures: new Array(TEXTURE_COUNT),
+			textures: new Array(files.length),
 			waiters: /* @__PURE__ */ new Set(),
 			ready: false,
 			active: true
 		};
 		_textureCache.set(textureSet, cache);
-		const texturePrefix = `waterfall${textureSet}`;
-		for (let index = 1; index <= TEXTURE_COUNT; index++) Client.loadFile(`data/texture/effect/${texturePrefix}${index}.tga`, (buffer) => {
-			WebGL_default.texture(gl, buffer, (texture) => {
-				if (!cache.active) {
-					gl.deleteTexture(texture);
-					return;
-				}
-				cache.textures[index - 1] = texture;
-				if (cache.textures.filter(Boolean).length === TEXTURE_COUNT) {
-					cache.ready = true;
-					cache.waiters.forEach((waiter) => {
-						waiter.textures = cache.textures;
-						waiter.ready = true;
-					});
-					cache.waiters.clear();
-				}
+		files.forEach((file, index) => {
+			Client.loadFile(file, (buffer) => {
+				WebGL_default.texture(gl, buffer, (texture) => {
+					if (!cache.active) {
+						gl.deleteTexture(texture);
+						return;
+					}
+					cache.textures[index] = texture;
+					if (cache.textures.filter(Boolean).length === files.length) {
+						cache.ready = true;
+						cache.waiters.forEach((waiter) => {
+							waiter.textures = cache.textures;
+							waiter.ready = true;
+						});
+						cache.waiters.clear();
+					}
+				});
 			});
 		});
 	}
@@ -252059,37 +252079,86 @@ function loadTextures(gl, textureSet, effect) {
 	return cache;
 }
 function getStyle(variant) {
+	const small = variant.includes("small");
+	const dark = variant.includes("dark");
 	return {
-		small: variant.includes("small"),
-		textureSet: variant.includes("dark") ? 3 : 1
+		width: (small ? 18 : 36) * UNIT,
+		particleCount: small ? 320 : 640,
+		particleSpread: (small ? 12 : 22) * UNIT,
+		textureSet: dark ? 3 : 1
 	};
 }
-var mat4$15, _matrix$4, SEGMENT_COUNT, TEXTURE_COUNT, SEGMENT_HEIGHT, EFFECT_TICK_MS, OPACITY, _program$17, _textureCache, WaterfallEffect;
+function buildParticleSeeds(count, spread) {
+	const seeds = new Float32Array(count * PARTICLE_FLOATS);
+	for (let i = 0; i < count; i++) {
+		seeds[i * PARTICLE_FLOATS] = (Math.random() * 2 - 1) * spread;
+		seeds[i * PARTICLE_FLOATS + 1] = (Math.random() * 2 - 1) * 5 * UNIT;
+		seeds[i * PARTICLE_FLOATS + 2] = Math.random();
+		seeds[i * PARTICLE_FLOATS + 3] = Math.random() * Math.PI * 2;
+	}
+	return seeds;
+}
+function setVertex(index, x, y, z, u, v) {
+	const offset = index * 5;
+	_vertices[offset] = x;
+	_vertices[offset + 1] = y;
+	_vertices[offset + 2] = z;
+	_vertices[offset + 3] = u;
+	_vertices[offset + 4] = v;
+}
+var mat4$15, _matrix$4, UNIT, LAYER_COUNT, SEGMENT_COUNT, TEXTURE_COUNT, SEGMENT_HEIGHT, EFFECT_TICK_MS, OPACITY, PARTICLE_TEXTURE, PARTICLE_CYCLE_MS, PARTICLE_SIZE, PARTICLE_COLOR, PARTICLE_FLOATS, PARTICLE_CORNERS, _program$17, _particleProgram, _textureCache, _vertices, WaterfallEffect;
 var init_WaterfallEffect = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_Client();
 	init_WaterfallEffect$2();
 	init_WaterfallEffect$1();
+	init_WaterfallParticle$1();
+	init_WaterfallParticle();
 	mat4$15 = gl_matrix_default.mat4;
 	_matrix$4 = mat4$15.create();
+	UNIT = 1 / 5;
+	LAYER_COUNT = 4;
 	SEGMENT_COUNT = 5;
 	TEXTURE_COUNT = 3;
-	SEGMENT_HEIGHT = 8;
+	SEGMENT_HEIGHT = 40 * UNIT;
 	EFFECT_TICK_MS = 24;
-	OPACITY = 120 / 255;
+	OPACITY = 80 / 255;
+	PARTICLE_TEXTURE = "data/texture/effect/freeze_a_small.bmp";
+	PARTICLE_CYCLE_MS = 760 * EFFECT_TICK_MS;
+	PARTICLE_SIZE = 6 * Math.SQRT1_2 * UNIT;
+	PARTICLE_COLOR = [
+		.65,
+		1,
+		.75
+	];
+	PARTICLE_FLOATS = 4;
+	PARTICLE_CORNERS = new Float32Array([
+		-1,
+		-1,
+		1,
+		-1,
+		-1,
+		1,
+		1,
+		1
+	]);
 	_textureCache = /* @__PURE__ */ new Map();
+	_vertices = /* @__PURE__ */ new Float32Array(20);
 	WaterfallEffect = class {
 		constructor(effect, instance, init) {
 			const style = getStyle(effect.variant);
 			this.position = instance.position;
 			this.startTick = instance.startTick;
-			this.small = style.small;
-			this.height = effect.height;
+			this.width = style.width;
+			this.particleCount = style.particleCount;
+			this.particleSpread = style.particleSpread;
 			this.textureSet = style.textureSet;
 			this.textures = [];
 			this.textureCache = null;
 			this.buffer = null;
+			this.cornerBuffer = null;
+			this.seedBuffer = null;
 			this.vertical = effect.vertical;
 			this.ready = false;
 			this.needInit = true;
@@ -252101,6 +252170,12 @@ var init_WaterfallEffect = __esmMin((() => {
 		*/
 		init(gl) {
 			this.buffer = gl.createBuffer();
+			this.cornerBuffer = gl.createBuffer();
+			this.seedBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.cornerBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, PARTICLE_CORNERS, gl.STATIC_DRAW);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.seedBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, buildParticleSeeds(this.particleCount, this.particleSpread), gl.STATIC_DRAW);
 			this.textureCache = loadTextures(gl, this.textureSet, this);
 		}
 		render(gl, tick) {
@@ -252109,20 +252184,23 @@ var init_WaterfallEffect = __esmMin((() => {
 			mat4$15.identity(_matrix$4);
 			mat4$15.translate(_matrix$4, _matrix$4, [
 				this.position[0] + .5,
-				-this.position[2],
-				this.position[1] + 2.5
+				1 - this.position[2],
+				this.position[1] + .5
 			]);
 			if (this.vertical) mat4$15.rotateY(_matrix$4, _matrix$4, Math.PI / 2);
 			gl.uniformMatrix4fv(uniform.uModelMat, false, _matrix$4);
-			const process = Math.floor((tick - this.startTick) / EFFECT_TICK_MS);
+			const elapsed = tick - this.startTick;
+			const process = Math.floor(elapsed / EFFECT_TICK_MS);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-			for (let band = 0; band < 4; band++) {
-				const cycleLength = this.height - band * (this.small ? 6 : 13);
-				const scroll = process % cycleLength * SEGMENT_HEIGHT / cycleLength;
+			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
+			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+			for (let layer = 0; layer < LAYER_COUNT; layer++) {
+				const speed = 80 - layer * 13;
+				const scroll = process % speed * SEGMENT_HEIGHT / speed;
 				const crop = scroll / SEGMENT_HEIGHT;
-				const phase = Math.floor(process % (TEXTURE_COUNT * cycleLength) / cycleLength);
-				const halfWidth = (36 + band) / 10;
-				const depth = (band * .25 - 1) / 5;
+				const phase = Math.floor(process % (TEXTURE_COUNT * speed) / speed);
+				const halfWidth = (this.width + layer * UNIT) / 2;
+				const depth = (layer - 1) * UNIT;
 				for (let segment = 0; segment < SEGMENT_COUNT; segment++) {
 					const top = scroll - segment * SEGMENT_HEIGHT;
 					const bottom = top - SEGMENT_HEIGHT;
@@ -252137,35 +252215,45 @@ var init_WaterfallEffect = __esmMin((() => {
 						visibleBottom = top + (bottom - top) * crop;
 						vBottom = crop;
 					}
-					const vertices = new Float32Array([
-						-halfWidth,
-						-visibleBottom,
-						depth,
-						0,
-						vBottom,
-						halfWidth,
-						-visibleBottom,
-						depth,
-						1,
-						vBottom,
-						-halfWidth,
-						-visibleTop,
-						depth,
-						0,
-						vTop,
-						halfWidth,
-						-visibleTop,
-						depth,
-						1,
-						vTop
-					]);
-					gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
-					gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
-					gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
+					setVertex(0, -halfWidth, -visibleBottom, depth, 0, vBottom);
+					setVertex(1, halfWidth, -visibleBottom, depth, 1, vBottom);
+					setVertex(2, -halfWidth, -visibleTop, depth, 0, vTop);
+					setVertex(3, halfWidth, -visibleTop, depth, 1, vTop);
+					gl.bufferData(gl.ARRAY_BUFFER, _vertices, gl.DYNAMIC_DRAW);
 					gl.bindTexture(gl.TEXTURE_2D, this.textures[(segment + phase) % TEXTURE_COUNT]);
 					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 				}
 			}
+			this.renderParticles(gl, elapsed);
+		}
+		/**
+		* Additive spray puffs rising from the pool at the base of the fall,
+		* drawn as camera-facing instanced quads.
+		*/
+		renderParticles(gl, elapsed) {
+			const uniform = _particleProgram.uniform;
+			const attribute = _particleProgram.attribute;
+			gl.useProgram(_particleProgram);
+			gl.uniformMatrix4fv(uniform.uModelMat, false, _matrix$4);
+			gl.uniform1f(uniform.uTime, elapsed / PARTICLE_CYCLE_MS);
+			gl.uniform1f(uniform.uSize, PARTICLE_SIZE);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+			gl.enableVertexAttribArray(attribute.aCorner);
+			gl.enableVertexAttribArray(attribute.aSeed);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.cornerBuffer);
+			gl.vertexAttribPointer(attribute.aCorner, 2, gl.FLOAT, false, 0, 0);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.seedBuffer);
+			gl.vertexAttribPointer(attribute.aSeed, PARTICLE_FLOATS, gl.FLOAT, false, 0, 0);
+			gl.vertexAttribDivisor(attribute.aSeed, 1);
+			gl.bindTexture(gl.TEXTURE_2D, this.textures[TEXTURE_COUNT]);
+			gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, this.particleCount);
+			gl.vertexAttribDivisor(attribute.aSeed, 0);
+			gl.disableVertexAttribArray(attribute.aCorner);
+			gl.disableVertexAttribArray(attribute.aSeed);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			gl.useProgram(_program$17);
+			gl.enableVertexAttribArray(_program$17.attribute.aPosition);
+			gl.enableVertexAttribArray(_program$17.attribute.aTextureCoord);
 		}
 		/**
 		* Free WebGL resources
@@ -252177,10 +252265,16 @@ var init_WaterfallEffect = __esmMin((() => {
 				this.textureCache.waiters.delete(this);
 				this.textureCache = null;
 			}
-			if (this.buffer) {
-				gl.deleteBuffer(this.buffer);
-				this.buffer = null;
-			}
+			[
+				this.buffer,
+				this.cornerBuffer,
+				this.seedBuffer
+			].forEach((buffer) => {
+				if (buffer) gl.deleteBuffer(buffer);
+			});
+			this.buffer = null;
+			this.cornerBuffer = null;
+			this.seedBuffer = null;
 			this.textures = [];
 			this.ready = false;
 		}
@@ -252195,12 +252289,21 @@ var init_WaterfallEffect = __esmMin((() => {
 		* @param {object} entity
 		*/
 		static beforeRender(gl, modelView, projection, fog) {
+			const fogUse = fog.use && fog.exist;
+			gl.useProgram(_particleProgram);
+			gl.uniformMatrix4fv(_particleProgram.uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(_particleProgram.uniform.uProjectionMat, false, projection);
+			gl.uniform1i(_particleProgram.uniform.uFogUse, fogUse);
+			gl.uniform1f(_particleProgram.uniform.uFogNear, fog.near);
+			gl.uniform1f(_particleProgram.uniform.uFogFar, fog.far);
+			gl.uniform1i(_particleProgram.uniform.uTexture, 0);
+			gl.uniform3fv(_particleProgram.uniform.uColor, PARTICLE_COLOR);
 			const uniform = _program$17.uniform;
 			const attribute = _program$17.attribute;
 			gl.useProgram(_program$17);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
+			gl.uniform1i(uniform.uFogUse, fogUse);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
 			gl.uniform3fv(uniform.uFogColor, fog.color);
@@ -252230,6 +252333,7 @@ var init_WaterfallEffect = __esmMin((() => {
 		*/
 		static init(gl) {
 			_program$17 = WebGL_default.createShaderProgram(gl, WaterfallEffect_default$1, WaterfallEffect_default);
+			_particleProgram = WebGL_default.createShaderProgram(gl, WaterfallParticle_default$1, WaterfallParticle_default);
 			this.ready = true;
 		}
 		/**
@@ -252247,7 +252351,9 @@ var init_WaterfallEffect = __esmMin((() => {
 			});
 			_textureCache.clear();
 			if (_program$17) gl.deleteProgram(_program$17);
+			if (_particleProgram) gl.deleteProgram(_particleProgram);
 			_program$17 = null;
+			_particleProgram = null;
 			this.ready = false;
 			this.needInit = true;
 		}
@@ -268172,50 +268278,42 @@ var init_EffectTable = __esmMin((() => {
 		349: [{
 			type: "WATERFALL",
 			variant: "large",
-			vertical: false,
-			height: 80
+			vertical: false
 		}],
 		350: [{
 			type: "WATERFALL",
 			variant: "large",
-			vertical: true,
-			height: 80
+			vertical: true
 		}],
 		351: [{
 			type: "WATERFALL",
 			variant: "small",
-			vertical: false,
-			height: 30
+			vertical: false
 		}],
 		352: [{
 			type: "WATERFALL",
 			variant: "small",
-			vertical: true,
-			height: 30
+			vertical: true
 		}],
 		353: [{
 			type: "WATERFALL",
 			variant: "dark-large",
-			vertical: false,
-			height: 80
+			vertical: false
 		}],
 		354: [{
 			type: "WATERFALL",
 			variant: "dark-large",
-			vertical: true,
-			height: 80
+			vertical: true
 		}],
 		355: [{
 			type: "WATERFALL",
 			variant: "dark-small",
-			vertical: false,
-			height: 30
+			vertical: false
 		}],
 		356: [{
 			type: "WATERFALL",
 			variant: "dark-small",
-			vertical: true,
-			height: 30
+			vertical: true
 		}],
 		361: [{
 			type: "3D",
