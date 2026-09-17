@@ -252275,6 +252275,8 @@ var init_WaterfallEffect = __esmMin((() => {
 			gl.disableVertexAttribArray(attribute.aSeed);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.useProgram(_program$16);
+			gl.enableVertexAttribArray(_program$16.attribute.aPosition);
+			gl.enableVertexAttribArray(_program$16.attribute.aTextureCoord);
 		}
 		/**
 		* Free WebGL resources
