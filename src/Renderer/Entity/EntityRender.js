@@ -537,18 +537,52 @@ const renderEntity = (function renderEntityClosure() {
 				// Non-player entities:
 				// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 				// - Still use depth test for correct ordering
-				// - Write depth while standing in water so the water pass (drawn after
-				//   entities) only covers the submerged part of the sprite
-				SpriteRenderer.runWithDepth(
-					true,
-					Water.isSubmerged(self.position[0], self.position[1]),
-					false,
-					function () {
-						renderElement(self, self.files.body, 'body', _position, true);
-					}
-				);
+				// (submerged bodies get their depth from renderWaterDepth, just before the water pass)
+				SpriteRenderer.runWithDepth(true, false, false, function () {
+					renderElement(self, self.files.body, 'body', _position, true);
+				});
 				break;
 		}
+		SpriteRenderer.zIndex = 1;
+	};
+})();
+
+/**
+ * Depth-only redraw of the body for entities standing in water, so the water
+ * pass (drawn after entities, depth tested) covers only the submerged part.
+ * Runs after every entity has been drawn, with colour writes disabled by the
+ * caller, so the written depth cannot hide other sprites. Entity types that
+ * already write depth in renderEntity are skipped.
+ */
+const renderWaterDepth = (function renderWaterDepthClosure() {
+	const _position = new Int32Array(2);
+
+	return function _renderWaterDepth() {
+		const Entity = this.constructor;
+		switch (this.objecttype) {
+			case Entity.TYPE_PC:
+			case Entity.TYPE_MERC:
+			case Entity.TYPE_HOM:
+			case Entity.TYPE_FALCON:
+			case Entity.TYPE_EFFECT:
+				return;
+		}
+
+		if (this.hideEntity || this.gr2 || !this.effectColor[3]) {
+			return;
+		}
+
+		if (!Water.isSubmerged(this.position[0], this.position[1])) {
+			return;
+		}
+
+		const self = this;
+		SpriteRenderer.position.set(this.position);
+		SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+		SpriteRenderer.zIndex = 150;
+		SpriteRenderer.runWithDepth(true, true, false, function () {
+			renderElement(self, self.files.body, 'body', _position, true);
+		});
 		SpriteRenderer.zIndex = 1;
 	};
 })();
@@ -1158,4 +1192,5 @@ export default function Init() {
 	this.render = render;
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
+	this.renderWaterDepth = renderWaterDepth;
 }

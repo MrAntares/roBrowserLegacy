@@ -17,6 +17,7 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import PathFinding from 'Utils/PathFinding.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Altitude from 'Renderer/Map/Altitude.js';
+import Water from 'Renderer/Map/Water.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
 const _list = [];
 
@@ -397,6 +398,32 @@ function render(gl, modelView, projection, fog, renderEffects) {
 }
 
 /**
+ * Depth-only pass for entities standing in water, run after all entities
+ * are drawn and right before the water so it can hide their submerged part
+ * without occluding other sprites.
+ *
+ * @param {object} gl context
+ * @param {mat4} modelView
+ * @param {mat4} projection
+ * @param {object} fog
+ */
+function renderWaterDepth(gl, modelView, projection, fog) {
+	if (!_list.length || !Water.hasWater()) {
+		return;
+	}
+
+	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+	gl.colorMask(false, false, false, false);
+
+	for (let i = 0, count = _list.length; i < count; ++i) {
+		_list[i].renderWaterDepth();
+	}
+
+	gl.colorMask(true, true, true, true);
+	SpriteRenderer.unbind(gl);
+}
+
+/**
  * Intersect Entities
  */
 function intersect() {
@@ -618,6 +645,7 @@ const EntityManager = {
 	clearLifeCache: clearLifeCache,
 
 	render: render,
+	renderWaterDepth: renderWaterDepth,
 	intersect: intersect,
 	setSupportPicking: setSupportPicking,
 

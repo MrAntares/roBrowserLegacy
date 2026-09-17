@@ -195,6 +195,8 @@ function free(gl) {
 			_textures[i] = null;
 		}
 	}
+
+	_vertCount = 0;
 }
 
 /**
@@ -214,11 +216,21 @@ function isSubmerged(x, y) {
 }
 
 /**
+ * Does the current map have any water surface ?
+ *
+ * @return {boolean}
+ */
+function hasWater() {
+	return _vertCount > 0;
+}
+
+/**
  * Export
  */
 export default {
 	init: init,
 	free: free,
 	render: render,
-	isSubmerged: isSubmerged
+	isSubmerged: isSubmerged,
+	hasWater: hasWater
 };
