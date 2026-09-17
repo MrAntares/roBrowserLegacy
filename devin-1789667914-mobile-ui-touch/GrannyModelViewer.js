@@ -308762,16 +308762,15 @@ function onTouchEnd(event) {
 */
 function onTouchCancel(event) {
 	if (event.touches.length > 0) return;
-	_uiTouch = false;
-	if (_timer$1 > -1) {
-		Events.clearTimeout(_timer$1);
-		_timer$1 = -1;
-	}
-	if (_processGesture) {
+	if (_uiTouch) _uiTouch = false;
+	else if (_processGesture) {
 		_processGesture = false;
 		KEYS.SHIFT = false;
 		Camera.rotate(false);
-	}
+	} else if (_timer$1 > -1) {
+		Events.clearTimeout(_timer$1);
+		_timer$1 = -1;
+	} else if (Mobile.onTouchEnd) Mobile.onTouchEnd();
 	_intersect = false;
 	Mouse.intersect = false;
 }
