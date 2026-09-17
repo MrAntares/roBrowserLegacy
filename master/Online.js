@@ -77905,7 +77905,7 @@ var init_preload_helper = __esmMin((() => {
 //#region src/UI/Common.css?raw
 var Common_default$1;
 var init_Common$1 = __esmMin((() => {
-	Common_default$1 = "/* Avoid input focus border */\r\n:focus {\r\n	outline: none;\r\n}\r\n::-moz-focus-inner {\r\n	border: 0;\r\n}\r\n\r\n* {\r\n	-moz-user-select: none;\r\n}\r\n\r\nhtml,\r\nbody {\r\n	touch-action: manipulation;\r\n	margin: 0;\r\n}\r\n\r\n/* Reference for the viewport sized body below */\r\nhtml {\r\n	height: 100%;\r\n}\r\n\r\n/* Prevent mobile browser auto-zoom on input focus and double-tap */\r\n:host {\r\n	touch-action: manipulation;\r\n}\r\n\r\ninput,\r\ntextarea,\r\nselect {\r\n	touch-action: manipulation;\r\n}\r\n\r\ncanvas {\r\n	touch-action: none;\r\n}\r\n\r\nbody {\r\n	background-color: black;\r\n	font-size: 12px;\r\n	/* 'SCDream' first: wins only when the server actually serves the client font (loaded via\r\n	   @font-face in DBManager). When it isn't served it resolves to Arial — the official client's\r\n	   window UI font for intl/america servicetype (Ragexe draws window text with CreateFontA on the\r\n	   Gulim/Arial face table). Liberation Sans / Arimo provide Arial metrics on Linux. */\r\n	font-family: 'SCDream', Arial, 'Liberation Sans', Arimo, sans-serif;\r\n	/* Normalize any resolved font's x-height to Arial's (sxHeight 1062 / unitsPerEm 2048 = 0.5186),\r\n	   so text keeps Arial's apparent size on every OS/font. It's inherited and crosses Shadow DOM\r\n	   hosts, so it also rescales elements that use a non-Arial face; those opt out with\r\n	   `font-size-adjust: none` on the selector declaring that font (Intro, GrfViewer, JoystickUI\r\n	   header). SCDream, when a server serves it, is normalized to Arial on purpose.\r\n	   Progressive enhancement: engines that don't support the numeric form ignore it\r\n	   and render at the resolved font's native x-height (no JS fallback needed — Arial\r\n	   / Liberation Sans already carry correct metrics, only annex fonts degrade). */\r\n	font-size-adjust: 0.5186;\r\n	overflow: hidden;\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n	min-width: 100vw;\r\n	min-height: 100vh;\r\n	letter-spacing: 0;\r\n	line-height: 1.2;\r\n}\r\n\r\n/* Apps owning the 3D viewport (set by Renderer.init) are a fixed viewport: size the body to it and\r\n   contain it. `overflow: hidden` alone doesn't clip the body box — it propagates to the viewport —\r\n   so content positioned off screen (entity overlays, signboards, dragged windows) still extends the\r\n   document's scrollable area, and the browser scrolls, or on mobile lays the page out at its\r\n   fallback width and scales it down, to reveal it. Paint containment clips the box for real. */\r\nbody.ro-viewport {\r\n	width: 100%;\r\n	height: 100%;\r\n	min-width: 0;\r\n	min-height: 0;\r\n	contain: paint;\r\n}\r\n\r\n.title {\r\n	font-size: 12px;\r\n}\r\n\r\nbutton,\r\nui-button {\r\n	padding: 0;\r\n}\r\n\r\nui-button {\r\n	display: inline-block;\r\n}\r\n\r\n.ui-btn {\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n\r\n	height: 20px;\r\n	min-width: 52px;\r\n	padding: 0 10px;\r\n\r\n	font-size: 12px;\r\n	line-height: 1;\r\n	color: #3f3f3f;\r\n	text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.85);\r\n\r\n	border-radius: 4px;\r\n	border: 1px solid;\r\n\r\n	/* 3D border: top right bottom left */\r\n	border-color: #cfcfcf #a9a9a9 #5f5f5f #bdbdbd;\r\n\r\n	/* glossy + subtle depth */\r\n	background: linear-gradient(to bottom, #ffffff 0%, #f2f2f2 35%, #dcdcdc 55%, #f9f9f9 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.95),\r\n		/* top highlight */ inset 0 -1px 0 rgba(0, 0, 0, 0.12),\r\n		/* bottom inner edge */ 0 1px 0 rgba(0, 0, 0, 0.12); /* outer bottom shadow */\r\n\r\n	cursor: pointer;\r\n}\r\n\r\n/* Hover: hơi xanh nhẹ giống button Reset */\r\n.ui-btn:hover {\r\n	border-color: #c9d1dd #8ea2c4 #4d5f86 #b1bfd5;\r\n	background: linear-gradient(to bottom, #f7fbff 0%, #dfe8f6 35%, #c0d0ee 55%, #f0f6ff 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.95),\r\n		inset 0 -1px 0 rgba(0, 0, 0, 0.12),\r\n		0 1px 0 rgba(0, 0, 0, 0.12);\r\n}\r\n\r\n/* Active: giống \"ấn xuống\" */\r\n.ui-btn:active {\r\n	border-color: #9fb0c9 #6f86a6 #3b4b67 #7f96b6;\r\n\r\n	background: linear-gradient(to bottom, #cdd8eb 0%, #b7c8e5 45%, #dfe9fb 100%);\r\n\r\n	box-shadow:\r\n		inset 0 2px 3px rgba(0, 0, 0, 0.18),\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.35);\r\n\r\n	transform: translateY(1px); /* cảm giác bị nhấn */\r\n}\r\n\r\n/* Disabled */\r\n.ui-btn:disabled,\r\n.ui-btn.is-disabled {\r\n	cursor: default;\r\n	color: #8f8f8f;\r\n	text-shadow: none;\r\n\r\n	border-color: #d3d3d3 #bdbdbd #9b9b9b #c9c9c9;\r\n\r\n	background: linear-gradient(to bottom, #f6f6f6 0%, #e7e7e7 55%, #fafafa 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.9),\r\n		inset 0 -1px 0 rgba(0, 0, 0, 0.08),\r\n		0 1px 0 rgba(0, 0, 0, 0.08);\r\n\r\n	transform: none;\r\n}\r\n\r\n/* Hide native cursor inside Shadow DOM when custom cursor is active */\r\n:host-context(.custom-cursor) * {\r\n	cursor: none !important;\r\n}\r\n";
+	Common_default$1 = "/* Avoid input focus border */\r\n:focus {\r\n	outline: none;\r\n}\r\n::-moz-focus-inner {\r\n	border: 0;\r\n}\r\n\r\n* {\r\n	-moz-user-select: none;\r\n}\r\n\r\nhtml,\r\nbody {\r\n	touch-action: manipulation;\r\n	margin: 0;\r\n}\r\n\r\n/* Reference for the viewport sized body below */\r\nhtml {\r\n	height: 100%;\r\n}\r\n\r\n/* Prevent mobile browser auto-zoom on input focus and double-tap */\r\n:host {\r\n	touch-action: manipulation;\r\n}\r\n\r\ninput,\r\ntextarea,\r\nselect {\r\n	touch-action: manipulation;\r\n}\r\n\r\ncanvas {\r\n	touch-action: none;\r\n}\r\n\r\n/* Page zoomed in (browser pinch / input focus zoom, tracked by Core/Mobile.js): hand the\r\n   touches back to the browser so the user can pan and pinch the page back out */\r\nbody.ro-page-zoomed canvas {\r\n	touch-action: auto;\r\n}\r\n\r\nbody {\r\n	background-color: black;\r\n	font-size: 12px;\r\n	/* 'SCDream' first: wins only when the server actually serves the client font (loaded via\r\n	   @font-face in DBManager). When it isn't served it resolves to Arial — the official client's\r\n	   window UI font for intl/america servicetype (Ragexe draws window text with CreateFontA on the\r\n	   Gulim/Arial face table). Liberation Sans / Arimo provide Arial metrics on Linux. */\r\n	font-family: 'SCDream', Arial, 'Liberation Sans', Arimo, sans-serif;\r\n	/* Normalize any resolved font's x-height to Arial's (sxHeight 1062 / unitsPerEm 2048 = 0.5186),\r\n	   so text keeps Arial's apparent size on every OS/font. It's inherited and crosses Shadow DOM\r\n	   hosts, so it also rescales elements that use a non-Arial face; those opt out with\r\n	   `font-size-adjust: none` on the selector declaring that font (Intro, GrfViewer, JoystickUI\r\n	   header). SCDream, when a server serves it, is normalized to Arial on purpose.\r\n	   Progressive enhancement: engines that don't support the numeric form ignore it\r\n	   and render at the resolved font's native x-height (no JS fallback needed — Arial\r\n	   / Liberation Sans already carry correct metrics, only annex fonts degrade). */\r\n	font-size-adjust: 0.5186;\r\n	overflow: hidden;\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n	min-width: 100vw;\r\n	min-height: 100vh;\r\n	letter-spacing: 0;\r\n	line-height: 1.2;\r\n}\r\n\r\n/* Apps owning the 3D viewport (set by Renderer.init) are a fixed viewport: size the body to it and\r\n   contain it. `overflow: hidden` alone doesn't clip the body box — it propagates to the viewport —\r\n   so content positioned off screen (entity overlays, signboards, dragged windows) still extends the\r\n   document's scrollable area, and the browser scrolls, or on mobile lays the page out at its\r\n   fallback width and scales it down, to reveal it. Paint containment clips the box for real. */\r\nbody.ro-viewport {\r\n	width: 100%;\r\n	height: 100%;\r\n	min-width: 0;\r\n	min-height: 0;\r\n	contain: paint;\r\n}\r\n\r\n.title {\r\n	font-size: 12px;\r\n}\r\n\r\nbutton,\r\nui-button {\r\n	padding: 0;\r\n}\r\n\r\nui-button {\r\n	display: inline-block;\r\n}\r\n\r\n.ui-btn {\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n\r\n	height: 20px;\r\n	min-width: 52px;\r\n	padding: 0 10px;\r\n\r\n	font-size: 12px;\r\n	line-height: 1;\r\n	color: #3f3f3f;\r\n	text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.85);\r\n\r\n	border-radius: 4px;\r\n	border: 1px solid;\r\n\r\n	/* 3D border: top right bottom left */\r\n	border-color: #cfcfcf #a9a9a9 #5f5f5f #bdbdbd;\r\n\r\n	/* glossy + subtle depth */\r\n	background: linear-gradient(to bottom, #ffffff 0%, #f2f2f2 35%, #dcdcdc 55%, #f9f9f9 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.95),\r\n		/* top highlight */ inset 0 -1px 0 rgba(0, 0, 0, 0.12),\r\n		/* bottom inner edge */ 0 1px 0 rgba(0, 0, 0, 0.12); /* outer bottom shadow */\r\n\r\n	cursor: pointer;\r\n}\r\n\r\n/* Hover: hơi xanh nhẹ giống button Reset */\r\n.ui-btn:hover {\r\n	border-color: #c9d1dd #8ea2c4 #4d5f86 #b1bfd5;\r\n	background: linear-gradient(to bottom, #f7fbff 0%, #dfe8f6 35%, #c0d0ee 55%, #f0f6ff 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.95),\r\n		inset 0 -1px 0 rgba(0, 0, 0, 0.12),\r\n		0 1px 0 rgba(0, 0, 0, 0.12);\r\n}\r\n\r\n/* Active: giống \"ấn xuống\" */\r\n.ui-btn:active {\r\n	border-color: #9fb0c9 #6f86a6 #3b4b67 #7f96b6;\r\n\r\n	background: linear-gradient(to bottom, #cdd8eb 0%, #b7c8e5 45%, #dfe9fb 100%);\r\n\r\n	box-shadow:\r\n		inset 0 2px 3px rgba(0, 0, 0, 0.18),\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.35);\r\n\r\n	transform: translateY(1px); /* cảm giác bị nhấn */\r\n}\r\n\r\n/* Disabled */\r\n.ui-btn:disabled,\r\n.ui-btn.is-disabled {\r\n	cursor: default;\r\n	color: #8f8f8f;\r\n	text-shadow: none;\r\n\r\n	border-color: #d3d3d3 #bdbdbd #9b9b9b #c9c9c9;\r\n\r\n	background: linear-gradient(to bottom, #f6f6f6 0%, #e7e7e7 55%, #fafafa 100%);\r\n\r\n	box-shadow:\r\n		inset 0 1px 0 rgba(255, 255, 255, 0.9),\r\n		inset 0 -1px 0 rgba(0, 0, 0, 0.08),\r\n		0 1px 0 rgba(0, 0, 0, 0.08);\r\n\r\n	transform: none;\r\n}\r\n\r\n/* Hide native cursor inside Shadow DOM when custom cursor is active */\r\n:host-context(.custom-cursor) * {\r\n	cursor: none !important;\r\n}\r\n";
 }));
 //#endregion
 //#region src/Controls/MouseEventHandler.js
@@ -309407,6 +309407,25 @@ function isUITouch(event) {
 	return false;
 }
 /**
+* Make sure the document has a viewport meta (see VIEWPORT_META).
+*/
+function ensureViewportMeta() {
+	if (!document.head || document.head.querySelector("meta[name=\"viewport\"]")) return;
+	const meta = document.createElement("meta");
+	meta.name = "viewport";
+	meta.content = VIEWPORT_META;
+	document.head.appendChild(meta);
+}
+/**
+* Track the browser page zoom (visual viewport smaller than the layout viewport).
+* While zoomed, the canvas gets back its native touch handling (see `body.ro-page-zoomed`
+* in UI/Common.css) and our touch controls step aside.
+*/
+function onVisualViewportResize() {
+	_pageZoomed = window.visualViewport.scale > 1.01;
+	document.body.classList.toggle("ro-page-zoomed", _pageZoomed);
+}
+/**
 * Return distance between touches
 *
 * @param {TouchList} touches
@@ -309520,7 +309539,7 @@ function touchDevice() {
 	SessionStorage_default.isTouchDevice = true;
 	if (SessionStorage_default.Playing) MobileUI_default.show();
 }
-var _processGesture, _scale, _touches, _intersect, _timer$1, _uiTouch, UI_TOUCH_SELECTOR, Mobile, remoteAutoFocus, onTouchStart;
+var _processGesture, _scale, _touches, _intersect, _timer$1, _uiTouch, _pageZoomed, VIEWPORT_META, UI_TOUCH_SELECTOR, Mobile, delayedClick, onTouchStart;
 var init_Mobile = __esmMin((() => {
 	init_Context();
 	init_Events();
@@ -309532,6 +309551,8 @@ var init_Mobile = __esmMin((() => {
 	_processGesture = false;
 	_timer$1 = -1;
 	_uiTouch = false;
+	_pageZoomed = false;
+	VIEWPORT_META = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
 	UI_TOUCH_SELECTOR = "input, textarea, select, button, a, label, [contenteditable], ui-button, [data-background], [data-hover], [data-down], .event_add_cursor, td.tab, .draggable";
 	Mobile = class {
 		/**
@@ -309539,60 +309560,53 @@ var init_Mobile = __esmMin((() => {
 		*/
 		static init() {}
 	};
-	remoteAutoFocus = (function removeAutoFocusClosure() {
-		let _done = false;
-		return function removeAutoFocus() {
-			if (_done) return;
-			_done = true;
-		};
-	})();
-	onTouchStart = (function onTouchStartClosure() {
-		function delayedClick() {
-			if (!_processGesture) {
-				_timer$1 = -1;
-				if (Mobile.onTouchStart) Mobile.onTouchStart();
-				if (!_intersect) {
-					if (Mobile.onTouchEnd) Mobile.onTouchEnd();
-				}
-				Mouse.intersect = _intersect;
-			}
-		}
-		return function(event) {
-			remoteAutoFocus();
-			_touches = event.touches;
-			if (_touches.length === 1) _uiTouch = isUITouch(event);
-			if (_uiTouch) {
-				if (_timer$1 > -1) {
-					Events.clearTimeout(_timer$1);
-					_timer$1 = -1;
-				}
-				return;
-			}
-			event.preventDefault();
-			event.stopImmediatePropagation();
+	delayedClick = () => {
+		if (_processGesture) return;
+		_timer$1 = -1;
+		if (Mobile.onTouchStart) Mobile.onTouchStart();
+		if (!_intersect && Mobile.onTouchEnd) Mobile.onTouchEnd();
+		Mouse.intersect = _intersect;
+	};
+	onTouchStart = (event) => {
+		_touches = event.touches;
+		if (_pageZoomed) _uiTouch = true;
+		else if (_touches.length === 1) _uiTouch = isUITouch(event);
+		if (_uiTouch) {
 			if (_timer$1 > -1) {
 				Events.clearTimeout(_timer$1);
 				_timer$1 = -1;
 			}
-			if (_touches.length > 1) {
-				_scale = touchDistance(_touches);
-				touchAngle(_touches);
-				_processGesture = true;
-				return;
-			}
-			Mouse.screen.x = _touches[0].pageX;
-			Mouse.screen.y = _touches[0].pageY;
-			if (!SessionStorage_default.FreezeUI) {
-				Mouse.intersect = true;
-				_intersect = true;
-			}
-			_timer$1 = Events.setTimeout(delayedClick, 200);
-		};
-	})();
+			return;
+		}
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		if (_timer$1 > -1) {
+			Events.clearTimeout(_timer$1);
+			_timer$1 = -1;
+		}
+		if (_touches.length > 1) {
+			_scale = touchDistance(_touches);
+			touchAngle(_touches);
+			_processGesture = true;
+			return;
+		}
+		Mouse.screen.x = _touches[0].pageX;
+		Mouse.screen.y = _touches[0].pageY;
+		if (!SessionStorage_default.FreezeUI) {
+			Mouse.intersect = true;
+			_intersect = true;
+		}
+		_timer$1 = Events.setTimeout(delayedClick, 200);
+	};
 	if (Math.max(screen.availHeight, screen.availWidth) <= 800) window.addEventListener("touchstart", () => {
 		if (!Context.isFullScreen()) Context.requestFullScreen();
 	});
 	window.addEventListener("touchstart", touchDevice, { once: true });
+	ensureViewportMeta();
+	if (window.visualViewport) {
+		window.visualViewport.addEventListener("resize", onVisualViewportResize);
+		onVisualViewportResize();
+	}
 	window.addEventListener("touchstart", onTouchStart, { passive: false });
 	window.addEventListener("touchend", onTouchEnd);
 	window.addEventListener("touchcancel", onTouchCancel);
