@@ -44,6 +44,19 @@ let _timer = -1;
 let _uiTouch = false;
 
 /**
+ * @var {boolean} the page itself is zoomed in (browser pinch or input focus zoom):
+ * touches are left to the browser so the user can pinch the page back out
+ */
+let _pageZoomed = false;
+
+/**
+ * Viewport meta applied when the host page doesn't define one: `width=device-width` keeps
+ * mobile browsers from laying the page out at desktop width (and zooming into focused
+ * inputs to compensate), `maximum-scale=1` suppresses the input focus zoom on iOS WebKit.
+ */
+const VIEWPORT_META = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+
+/**
  * Elements that must receive the tap themselves (as synthesized mouse
  * events) instead of being treated as a click on the map.
  */
@@ -74,6 +87,30 @@ function isUITouch(event) {
 	}
 
 	return false;
+}
+
+/**
+ * Make sure the document has a viewport meta (see VIEWPORT_META).
+ */
+function ensureViewportMeta() {
+	if (!document.head || document.head.querySelector('meta[name="viewport"]')) {
+		return;
+	}
+
+	const meta = document.createElement('meta');
+	meta.name = 'viewport';
+	meta.content = VIEWPORT_META;
+	document.head.appendChild(meta);
+}
+
+/**
+ * Track the browser page zoom (visual viewport smaller than the layout viewport).
+ * While zoomed, the canvas gets back its native touch handling (see `body.ro-page-zoomed`
+ * in UI/Common.css) and our touch controls step aside.
+ */
+function onVisualViewportResize() {
+	_pageZoomed = window.visualViewport.scale > 1.01;
+	document.body.classList.toggle('ro-page-zoomed', _pageZoomed);
 }
 
 /**
@@ -203,7 +240,7 @@ const onTouchStart = (function onTouchStartClosure() {
 		// (mouseenter/mousedown/click), exactly like a mouse would do.
 		// Extra fingers landing during a UI touch stay with the UI too.
 		if (_touches.length === 1) {
-			_uiTouch = isUITouch(event);
+			_uiTouch = _pageZoomed || isUITouch(event);
 		}
 		if (_uiTouch) {
 			if (_timer > -1) {
@@ -360,6 +397,13 @@ function touchDevice() {
 	}
 }
 window.addEventListener('touchstart', touchDevice, { once: true });
+
+ensureViewportMeta();
+
+if (window.visualViewport) {
+	window.visualViewport.addEventListener('resize', onVisualViewportResize);
+	onVisualViewportResize();
+}
 
 // Touch controls
 window.addEventListener('touchstart', onTouchStart, { passive: false });

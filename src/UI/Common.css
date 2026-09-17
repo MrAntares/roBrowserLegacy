@@ -36,6 +36,12 @@ canvas {
 	touch-action: none;
 }
 
+/* Page zoomed in (browser pinch / input focus zoom, tracked by Core/Mobile.js): hand the
+   touches back to the browser so the user can pan and pinch the page back out */
+body.ro-page-zoomed canvas {
+	touch-action: auto;
+}
+
 body {
 	background-color: black;
 	font-size: 12px;
