@@ -308821,7 +308821,7 @@ function touchDevice() {
 	SessionStorage_default.isTouchDevice = true;
 	if (SessionStorage_default.Playing) MobileUI_default.show();
 }
-var _processGesture, _scale, _touches, _intersect, _timer$1, _uiTouch, _pageZoomed, VIEWPORT_META, UI_TOUCH_SELECTOR, Mobile, remoteAutoFocus, onTouchStart;
+var _processGesture, _scale, _touches, _intersect, _timer$1, _uiTouch, _pageZoomed, VIEWPORT_META, UI_TOUCH_SELECTOR, Mobile, delayedClick, onTouchStart;
 var init_Mobile = __esmMin((() => {
 	init_Context();
 	init_Events();
@@ -308842,56 +308842,43 @@ var init_Mobile = __esmMin((() => {
 		*/
 		static init() {}
 	};
-	remoteAutoFocus = (function removeAutoFocusClosure() {
-		let _done = false;
-		return function removeAutoFocus() {
-			if (_done) return;
-			_done = true;
-		};
-	})();
-	onTouchStart = (function onTouchStartClosure() {
-		function delayedClick() {
-			if (!_processGesture) {
-				_timer$1 = -1;
-				if (Mobile.onTouchStart) Mobile.onTouchStart();
-				if (!_intersect) {
-					if (Mobile.onTouchEnd) Mobile.onTouchEnd();
-				}
-				Mouse.intersect = _intersect;
-			}
-		}
-		return function(event) {
-			remoteAutoFocus();
-			_touches = event.touches;
-			if (_touches.length === 1) _uiTouch = _pageZoomed || isUITouch(event);
-			if (_uiTouch) {
-				if (_timer$1 > -1) {
-					Events.clearTimeout(_timer$1);
-					_timer$1 = -1;
-				}
-				return;
-			}
-			event.preventDefault();
-			event.stopImmediatePropagation();
+	delayedClick = () => {
+		if (_processGesture) return;
+		_timer$1 = -1;
+		if (Mobile.onTouchStart) Mobile.onTouchStart();
+		if (!_intersect && Mobile.onTouchEnd) Mobile.onTouchEnd();
+		Mouse.intersect = _intersect;
+	};
+	onTouchStart = (event) => {
+		_touches = event.touches;
+		if (_touches.length === 1) _uiTouch = _pageZoomed || isUITouch(event);
+		if (_uiTouch) {
 			if (_timer$1 > -1) {
 				Events.clearTimeout(_timer$1);
 				_timer$1 = -1;
 			}
-			if (_touches.length > 1) {
-				_scale = touchDistance(_touches);
-				touchAngle(_touches);
-				_processGesture = true;
-				return;
-			}
-			Mouse.screen.x = _touches[0].pageX;
-			Mouse.screen.y = _touches[0].pageY;
-			if (!SessionStorage_default.FreezeUI) {
-				Mouse.intersect = true;
-				_intersect = true;
-			}
-			_timer$1 = Events.setTimeout(delayedClick, 200);
-		};
-	})();
+			return;
+		}
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		if (_timer$1 > -1) {
+			Events.clearTimeout(_timer$1);
+			_timer$1 = -1;
+		}
+		if (_touches.length > 1) {
+			_scale = touchDistance(_touches);
+			touchAngle(_touches);
+			_processGesture = true;
+			return;
+		}
+		Mouse.screen.x = _touches[0].pageX;
+		Mouse.screen.y = _touches[0].pageY;
+		if (!SessionStorage_default.FreezeUI) {
+			Mouse.intersect = true;
+			_intersect = true;
+		}
+		_timer$1 = Events.setTimeout(delayedClick, 200);
+	};
 	if (Math.max(screen.availHeight, screen.availWidth) <= 800) window.addEventListener("touchstart", () => {
 		if (!Context.isFullScreen()) Context.requestFullScreen();
 	});
