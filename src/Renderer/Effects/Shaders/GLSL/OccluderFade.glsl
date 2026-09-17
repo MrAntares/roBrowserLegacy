@@ -23,20 +23,24 @@ const float OCCLUDER_FADE_BAYER[16] = float[16](
 	15.0,  7.0, 13.0,  5.0
 );
 
-// Distance to the eye->focus segment (x) and normalized position along it (y)
+// Distance (cells) the faded region extends behind the focus before tapering off
+const float OCCLUDER_FADE_BEHIND = 1.5;
+
+// Distance to the eye->focus segment (x) and signed distance past the focus along it (y)
 vec2 occluderFadeCapsule(vec3 worldPos) {
 	vec3 axis = uOccluderFadeFocus - uOccluderFadeEye;
 	vec3 rel  = worldPos - uOccluderFadeEye;
-	float len2 = max(dot(axis, axis), 0.0001);
-	float t    = clamp(dot(rel, axis) / len2, 0.0, 1.0);
-	return vec2(length(rel - axis * t), t);
+	float len  = max(length(axis), 0.01);
+	float proj = dot(rel, axis) / len;
+	float t    = clamp(proj / len, 0.0, 1.0);
+	return vec2(length(rel - axis * t), proj - len);
 }
 
 // 0.0 = untouched, 1.0 = fully inside the capsule between eye and focus
 float occluderFadeAmount(vec3 worldPos) {
 	vec2 c = occluderFadeCapsule(worldPos);
 	float radial = 1.0 - smoothstep(uOccluderFadeRadius * 0.5, uOccluderFadeRadius, c.x);
-	float along  = 1.0 - smoothstep(0.85, 1.0, c.y);
+	float along  = 1.0 - smoothstep(0.0, OCCLUDER_FADE_BEHIND, c.y);
 	return radial * along * uOccluderFadeStrength;
 }
 
@@ -48,7 +52,8 @@ bool occluderFade(vec3 worldPos, inout float alpha) {
 
 	if (uOccluderFadeMode == 4) {
 		vec2 c = occluderFadeCapsule(worldPos);
-		return c.x < uOccluderFadeRadius && c.y < 0.97;
+		// stop short of the focus so the floor under the entity does not count
+		return c.x < uOccluderFadeRadius && c.y < -0.5;
 	}
 
 	float fade = occluderFadeAmount(worldPos);
