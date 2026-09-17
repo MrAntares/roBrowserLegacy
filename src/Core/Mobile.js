@@ -38,7 +38,8 @@ let _scale, _angle, _touches, _intersect;
 let _timer = -1;
 
 /**
- * @var {boolean} current touch started on an interactive UI element
+ * @var {boolean} current touch sequence started on an interactive UI element
+ * (owned by the UI until every finger is lifted)
  */
 let _uiTouch = false;
 
@@ -47,7 +48,7 @@ let _uiTouch = false;
  * events) instead of being treated as a click on the map.
  */
 const UI_TOUCH_SELECTOR =
-	'input, textarea, select, button, a, label, ui-button, [data-background], [data-hover], [data-down], .event_add_cursor, td.tab, .draggable';
+	'input, textarea, select, button, a, label, [contenteditable], ui-button, [data-background], [data-hover], [data-down], .event_add_cursor, td.tab, .draggable';
 
 /**
  * Does the touch land on an interactive UI element (walking through Shadow DOM) ?
@@ -200,7 +201,10 @@ const onTouchStart = (function onTouchStartClosure() {
 
 		// Let the browser deliver the tap to the UI element as mouse events
 		// (mouseenter/mousedown/click), exactly like a mouse would do.
-		_uiTouch = _touches.length === 1 && isUITouch(event);
+		// Extra fingers landing during a UI touch stay with the UI too.
+		if (_touches.length === 1) {
+			_uiTouch = isUITouch(event);
+		}
 		if (_uiTouch) {
 			if (_timer > -1) {
 				Events.clearTimeout(_timer);
@@ -244,7 +248,9 @@ const onTouchStart = (function onTouchStartClosure() {
  */
 function onTouchEnd(event) {
 	if (_uiTouch) {
-		_uiTouch = false;
+		if (event.touches.length === 0) {
+			_uiTouch = false;
+		}
 		return;
 	}
 
@@ -330,6 +336,7 @@ window.addEventListener('touchstart', touchDevice, { once: true });
 // Touch controls
 window.addEventListener('touchstart', onTouchStart, { passive: false });
 window.addEventListener('touchend', onTouchEnd);
+window.addEventListener('touchcancel', onTouchEnd);
 window.addEventListener('touchmove', onTouchMove);
 
 /**
