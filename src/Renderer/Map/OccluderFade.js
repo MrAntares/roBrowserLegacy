@@ -1,9 +1,9 @@
 /**
  * @module Renderer/Map/OccluderFade
  *
- * Fades map geometry standing between the third person camera and the player,
- * so tight interiors and dense forests stay readable. Shared by the static and
- * animated model renderers.
+ * Fades map geometry standing between the camera and the player, so tight
+ * interiors and dense forests stay readable. Shared by the static and animated
+ * model renderers. Skipped in first person (nothing can stand in front of the eye).
  *
  * The fade only engages while something actually covers the player: each frame
  * the models are re-drawn (color and depth writes off) inside a GPU occlusion
@@ -53,11 +53,6 @@ const QUERY = {
 };
 
 /**
- * Radius (cells) of the faded capsule
- */
-const FADE_RADIUS = 5.0;
-
-/**
  * Radius (cells) of the line of sight capsule used to detect occluders
  */
 const QUERY_RADIUS = 0.7;
@@ -94,17 +89,13 @@ class OccluderFade {
 	}
 
 	/**
-	 * Whether the effect can run: third person camera allowed by config,
-	 * currently active, and not disabled in the graphics options.
+	 * Whether the effect can run: enabled in the graphics options and not in
+	 * first person camera.
 	 *
 	 * @return {boolean}
 	 */
 	static isActive() {
-		return (
-			Camera.enable3RDPerson &&
-			Camera.state === Camera.states.third_person &&
-			GraphicsSettings.occluderFade !== SETTING.OFF
-		);
+		return GraphicsSettings.occluderFade !== SETTING.OFF && Camera.state !== Camera.states.first_person;
 	}
 
 	/**
@@ -204,7 +195,10 @@ class OccluderFade {
 
 		gl.uniform3fv(uniform.uOccluderFadeEye, _eye);
 		gl.uniform3fv(uniform.uOccluderFadeFocus, Camera.focus);
-		gl.uniform1f(uniform.uOccluderFadeRadius, mode === MODE.QUERY ? QUERY_RADIUS : FADE_RADIUS);
+		gl.uniform1f(
+			uniform.uOccluderFadeRadius,
+			mode === MODE.QUERY ? QUERY_RADIUS : GraphicsSettings.occluderFadeRadius
+		);
 		gl.uniform1f(uniform.uOccluderFadeOpacity, GraphicsSettings.occluderFadeOpacity);
 		gl.uniform1f(uniform.uOccluderFadeStrength, _strength);
 	}

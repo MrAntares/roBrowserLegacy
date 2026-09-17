@@ -1,12 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const camera = {
-	enable3RDPerson: true,
 	state: 1,
 	states: { isometric: 0, third_person: 1, first_person: 2 },
 	focus: new Float32Array([1, 2, 3])
 };
-const graphics = { occluderFade: 'dither', occluderFadeOpacity: 0.25 };
+const graphics = { occluderFade: 'dither', occluderFadeOpacity: 0.25, occluderFadeRadius: 5 };
 const runWithDepth = vi.fn((_test, _mask, _corr, fn) => fn());
 
 vi.mock('Renderer/Effects/Shaders/GLSL/OccluderFade.glsl?raw', () => ({
@@ -59,7 +58,6 @@ function frame(gl, tick) {
 
 describe('Renderer/Map/OccluderFade', () => {
 	beforeEach(() => {
-		camera.enable3RDPerson = true;
 		camera.state = camera.states.third_person;
 		graphics.occluderFade = 'dither';
 		runWithDepth.mockClear();
@@ -71,20 +69,16 @@ describe('Renderer/Map/OccluderFade', () => {
 		expect(out).toBe('a\nuniform int uOccluderFadeMode;\nb');
 	});
 
-	it('is only active in third person with the camera allowed and setting on', () => {
+	it('is active with the setting on, except in first person', () => {
 		expect(OccluderFade.isActive()).toBe(true);
 
 		camera.state = camera.states.isometric;
-		expect(OccluderFade.isActive()).toBe(false);
+		expect(OccluderFade.isActive()).toBe(true);
 
 		camera.state = camera.states.first_person;
 		expect(OccluderFade.isActive()).toBe(false);
 
 		camera.state = camera.states.third_person;
-		camera.enable3RDPerson = false;
-		expect(OccluderFade.isActive()).toBe(false);
-
-		camera.enable3RDPerson = true;
 		graphics.occluderFade = 'off';
 		expect(OccluderFade.isActive()).toBe(false);
 	});
@@ -105,7 +99,7 @@ describe('Renderer/Map/OccluderFade', () => {
 		expect(OccluderFade.opaqueMode()).toBe(OccluderFade.MODE.ALPHA_OPAQUE);
 		expect(OccluderFade.needsBlendPass()).toBe(true);
 
-		camera.state = camera.states.isometric;
+		camera.state = camera.states.first_person;
 		expect(OccluderFade.opaqueMode()).toBe(OccluderFade.MODE.OFF);
 		expect(OccluderFade.needsBlendPass()).toBe(false);
 	});
@@ -144,7 +138,7 @@ describe('Renderer/Map/OccluderFade', () => {
 		OccluderFade.renderQuery(gl, uniform, draw, OccluderFade.QUERY.MODELS);
 		expect(draw).toHaveBeenCalledTimes(1);
 
-		camera.state = camera.states.isometric;
+		camera.state = camera.states.first_person;
 		OccluderFade.beginFrame(gl, IDENTITY, 1100);
 		OccluderFade.renderQuery(gl, uniform, draw, OccluderFade.QUERY.MODELS);
 		expect(draw).toHaveBeenCalledTimes(1);
@@ -169,6 +163,7 @@ describe('Renderer/Map/OccluderFade', () => {
 		expect(Array.from(eye)).toEqual([4, 5, 6]);
 		expect(gl.uniform3fv).toHaveBeenCalledWith('focus', camera.focus);
 		expect(gl.uniform1f).toHaveBeenCalledWith('opacity', 0.25);
+		expect(gl.uniform1f).toHaveBeenCalledWith('radius', 5);
 	});
 
 	it('draws the opaque pass with depth writes and the blend pass without', () => {
