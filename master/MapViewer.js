@@ -307924,6 +307924,15 @@ function logKeyPress(keyCode) {
 	keyPress(keyCode);
 }
 /**
+* Skill bar button: run the hotkey directly, the number/letter rows are only
+* hotkeys for the keyboard while Battle Mode is on.
+*
+* @param {number} keyCode
+*/
+function skillKeyPress(keyCode) {
+	if (!BattleMode.process(keyCode)) keyPress(keyCode);
+}
+/**
 * Toggles full screen display
 */
 function toggleFullScreen() {
@@ -308462,7 +308471,7 @@ var init_MobileUI = __esmMin((() => {
 	init_MobileUI$1();
 	init_gl_matrix$1();
 	init_Camera();
-	init_KeyEventHandler();
+	init_BattleMode();
 	vec2 = exports$3.vec2;
 	mat2 = exports$3.mat2;
 	direction = vec2.create();
@@ -308548,7 +308557,7 @@ var init_MobileUI = __esmMin((() => {
 			...letterKeyMap
 		].forEach(([selector, keyCode]) => {
 			bindButton(root, selector, (e) => {
-				logKeyPress(keyCode);
+				skillKeyPress(keyCode);
 				stopPropagation$7(e);
 			});
 		});
