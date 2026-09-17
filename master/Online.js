@@ -309392,6 +309392,21 @@ var init_MobileUI = __esmMin((() => {
 //#endregion
 //#region src/Core/Mobile.js
 /**
+* Does the touch land on an interactive UI element (walking through Shadow DOM) ?
+*
+* @param {TouchEvent} event
+* @return {boolean}
+*/
+function isUITouch(event) {
+	const path = event.composedPath ? event.composedPath() : [event.target];
+	for (const node of path) {
+		if (!(node instanceof Element)) continue;
+		if (node instanceof HTMLCanvasElement) return false;
+		if (node.matches(UI_TOUCH_SELECTOR)) return true;
+	}
+	return false;
+}
+/**
 * Return distance between touches
 *
 * @param {TouchList} touches
@@ -309442,6 +309457,10 @@ function touchTranslationY(oldTouches, touches) {
 * process OnMouseUp if no gesture detected
 */
 function onTouchEnd(event) {
+	if (_uiTouch) {
+		if (event.touches.length === 0) _uiTouch = false;
+		return;
+	}
 	if (_processGesture) {
 		_processGesture = false;
 		KEYS.SHIFT = false;
@@ -309453,6 +309472,24 @@ function onTouchEnd(event) {
 		return;
 	}
 	if (Mobile.onTouchEnd) Mobile.onTouchEnd();
+	Mouse.intersect = false;
+}
+/**
+* The browser aborted the touch sequence: drop any pending tap or gesture
+* without acting on the map.
+*/
+function onTouchCancel(event) {
+	if (event.touches.length > 0 && !_processGesture) return;
+	if (_uiTouch) _uiTouch = false;
+	else if (_processGesture) {
+		_processGesture = false;
+		KEYS.SHIFT = false;
+		Camera.rotate(false);
+	} else if (_timer$1 > -1) {
+		Events.clearTimeout(_timer$1);
+		_timer$1 = -1;
+	} else if (Mobile.onTouchEnd) Mobile.onTouchEnd();
+	_intersect = false;
 	Mouse.intersect = false;
 }
 /**
@@ -309483,7 +309520,7 @@ function touchDevice() {
 	SessionStorage_default.isTouchDevice = true;
 	if (SessionStorage_default.Playing) MobileUI_default.show();
 }
-var _processGesture, _scale, _touches, _intersect, _timer$1, Mobile, remoteAutoFocus, onTouchStart;
+var _processGesture, _scale, _touches, _intersect, _timer$1, _uiTouch, UI_TOUCH_SELECTOR, Mobile, remoteAutoFocus, onTouchStart;
 var init_Mobile = __esmMin((() => {
 	init_Context();
 	init_Events();
@@ -309494,6 +309531,8 @@ var init_Mobile = __esmMin((() => {
 	init_MobileUI();
 	_processGesture = false;
 	_timer$1 = -1;
+	_uiTouch = false;
+	UI_TOUCH_SELECTOR = "input, textarea, select, button, a, label, [contenteditable], ui-button, [data-background], [data-hover], [data-down], .event_add_cursor, td.tab, .draggable";
 	Mobile = class {
 		/**
 		* Initialize
@@ -309521,6 +309560,14 @@ var init_Mobile = __esmMin((() => {
 		return function(event) {
 			remoteAutoFocus();
 			_touches = event.touches;
+			if (_touches.length === 1) _uiTouch = isUITouch(event);
+			if (_uiTouch) {
+				if (_timer$1 > -1) {
+					Events.clearTimeout(_timer$1);
+					_timer$1 = -1;
+				}
+				return;
+			}
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			if (_timer$1 > -1) {
@@ -309548,6 +309595,7 @@ var init_Mobile = __esmMin((() => {
 	window.addEventListener("touchstart", touchDevice, { once: true });
 	window.addEventListener("touchstart", onTouchStart, { passive: false });
 	window.addEventListener("touchend", onTouchEnd);
+	window.addEventListener("touchcancel", onTouchCancel);
 	window.addEventListener("touchmove", onTouchMove);
 }));
 //#endregion
