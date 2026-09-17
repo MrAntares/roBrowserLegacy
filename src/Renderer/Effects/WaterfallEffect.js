@@ -253,6 +253,8 @@ class WaterfallEffect {
 		gl.disableVertexAttribArray(attribute.aSeed);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.useProgram(_program);
+		gl.enableVertexAttribArray(_program.attribute.aPosition);
+		gl.enableVertexAttribArray(_program.attribute.aTextureCoord);
 	}
 
 	/**
