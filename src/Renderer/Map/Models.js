@@ -12,7 +12,7 @@ import _vertexShader from 'Renderer/Effects/Shaders/GLSL/Models.vs?raw';
 import _fragmentShader from 'Renderer/Effects/Shaders/GLSL/Models.fs?raw';
 import WebGL from 'Utils/WebGL.js';
 import Preferences from 'Preferences/Map.js';
-import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import OccluderFade from 'Renderer/Map/OccluderFade.js';
 
 /**
  * @let {WebGLProgram}
@@ -97,7 +97,7 @@ function init(gl, data) {
 	}
 
 	if (!_program) {
-		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		_program = WebGL.createShaderProgram(gl, _vertexShader, OccluderFade.injectShader(_fragmentShader));
 	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
@@ -129,6 +129,35 @@ function init(gl, data) {
 }
 
 /**
+ * Issue the draw calls for every loaded mesh
+ *
+ * @param {object} gl context
+ */
+function drawMeshes(gl) {
+	let i, count;
+
+	if (_batchesReady) {
+		// Optimized path: use pre-built batches with conditional texture binding
+		let lastTexture = null;
+		for (i = 0, count = _batches.length; i < count; ++i) {
+			if (_batches[i].texture !== lastTexture) {
+				gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
+				lastTexture = _batches[i].texture;
+			}
+			gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
+		}
+	} else {
+		// Fallback: render individually while textures are still loading
+		for (i = 0, count = _objects.length; i < count; ++i) {
+			if (_objects[i].complete) {
+				gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
+				gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
+			}
+		}
+	}
+}
+
+/**
  * Render models
  *
  * @param {object} gl context
@@ -141,7 +170,6 @@ function init(gl, data) {
 function render(gl, modelView, projection, normalMat, fog, light) {
 	const uniform = _program.uniform;
 	const attribute = _program.attribute;
-	let i, count;
 
 	gl.useProgram(_program);
 
@@ -182,27 +210,8 @@ function render(gl, modelView, projection, normalMat, fog, light) {
 	// Textures
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	SpriteRenderer.runWithDepth(true, true, true, function () {
-		if (_batchesReady) {
-			// Optimized path: use pre-built batches with conditional texture binding
-			let lastTexture = null;
-			for (i = 0, count = _batches.length; i < count; ++i) {
-				if (_batches[i].texture !== lastTexture) {
-					gl.bindTexture(gl.TEXTURE_2D, _batches[i].texture);
-					lastTexture = _batches[i].texture;
-				}
-				gl.drawArrays(gl.TRIANGLES, _batches[i].vertOffset, _batches[i].vertCount);
-			}
-		} else {
-			// Fallback: render individually while textures are still loading
-			for (i = 0, count = _objects.length; i < count; ++i) {
-				if (_objects[i].complete) {
-					gl.bindTexture(gl.TEXTURE_2D, _objects[i].texture);
-					gl.drawArrays(gl.TRIANGLES, _objects[i].vertOffset, _objects[i].vertCount);
-				}
-			}
-		}
-	});
+	OccluderFade.update(modelView);
+	OccluderFade.renderPasses(gl, uniform, () => drawMeshes(gl));
 
 	// Is it needed ?
 	gl.disableVertexAttribArray(attribute.aPosition);

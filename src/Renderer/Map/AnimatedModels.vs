@@ -10,6 +10,7 @@ out vec2 vTextureCoord;
 out float vLightWeighting;  
 out float vAlpha;  
 out float vFogFactor;  
+out vec3 vWorldPos;
   
 uniform mat4 uModelViewMat;  
 uniform mat4 uProjectionMat;  
@@ -30,6 +31,7 @@ void main(void) {
   
     vTextureCoord = aTextureCoord;  
     vAlpha = aAlpha;  
+    vWorldPos = aPosition;
   
     vec3 normal = normalize(aNormal);  
     float lightWeight = max(dot(normal, uLightDirection), 0.0);  

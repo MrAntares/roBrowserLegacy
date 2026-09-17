@@ -293,6 +293,34 @@
 						</label>
 					</td>
 				</tr>
+				<tr class="occluder-fade-row">
+					<td
+						title="Third person camera: make buildings and trees between the camera and your character see-through. Dither is cheaper, Alpha looks smoother."
+					>
+						See-through Occluders
+					</td>
+					<td>
+						<label style="display: inline-block; margin-right: 20px">
+							<select class="occluderFade">
+								<option value="off">Off</option>
+								<option value="dither">Dither (fast)</option>
+								<option value="alpha">Alpha (smooth)</option>
+							</select>
+						</label>
+						<label style="display: inline-block; width: 200px">
+							Opacity:
+							<input
+								class="occluderFadeOpacity"
+								type="range"
+								value="0.25"
+								min="0.0"
+								max="0.8"
+								step="0.05"
+								style="width: 90%; vertical-align: middle"
+							/>
+						</label>
+					</td>
+				</tr>
 			</table>
 
 			<div class="reset-section">

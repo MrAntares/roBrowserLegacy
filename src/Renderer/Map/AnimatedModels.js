@@ -13,7 +13,7 @@ import WebGL from 'Utils/WebGL.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import _vertexShader from './AnimatedModels.vs?raw';
 import _fragmentShader from './AnimatedModels.fs?raw';
-import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import OccluderFade from 'Renderer/Map/OccluderFade.js';
 
 const mat3 = glMatrix.mat3;
 const mat4 = glMatrix.mat4;
@@ -42,7 +42,7 @@ let _animatedModels = [];
  * Initialize shader program
  */
 function init(gl) {
-	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+	_program = WebGL.createShaderProgram(gl, _vertexShader, OccluderFade.injectShader(_fragmentShader));
 
 	_program.uniform = {
 		uModelViewMat: gl.getUniformLocation(_program, 'uModelViewMat'),
@@ -57,7 +57,12 @@ function init(gl) {
 		uFogNear: gl.getUniformLocation(_program, 'uFogNear'),
 		uFogFar: gl.getUniformLocation(_program, 'uFogFar'),
 		uFogColor: gl.getUniformLocation(_program, 'uFogColor'),
-		uDiffuse: gl.getUniformLocation(_program, 'uDiffuse')
+		uDiffuse: gl.getUniformLocation(_program, 'uDiffuse'),
+		uOccluderFadeMode: gl.getUniformLocation(_program, 'uOccluderFadeMode'),
+		uOccluderFadeEye: gl.getUniformLocation(_program, 'uOccluderFadeEye'),
+		uOccluderFadeFocus: gl.getUniformLocation(_program, 'uOccluderFadeFocus'),
+		uOccluderFadeRadius: gl.getUniformLocation(_program, 'uOccluderFadeRadius'),
+		uOccluderFadeOpacity: gl.getUniformLocation(_program, 'uOccluderFadeOpacity')
 	};
 
 	_program.attribute = {
@@ -724,13 +729,15 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
-	SpriteRenderer.runWithDepth(true, true, true, function () {
-		// Render each animated model
+	for (let m = 0; m < _animatedModels.length; m++) {
+		const model = _animatedModels[m];
+		updateModelBuffer(gl, model, tick % (model.animLen || 1), false);
+	}
+
+	OccluderFade.update(modelView);
+	OccluderFade.renderPasses(gl, uniform, () => {
 		for (let m = 0; m < _animatedModels.length; m++) {
 			const model = _animatedModels[m];
-			const frame = tick % (model.animLen || 1);
-
-			updateModelBuffer(gl, model, frame, false);
 
 			if (!model.buffer || model.meshInfos.length === 0) {
 				continue;

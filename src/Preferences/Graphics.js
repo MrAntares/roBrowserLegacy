@@ -73,7 +73,14 @@ const defaultGraphicsSettings = {
 
 	casEnabled: false,
 	casContrast: 0.0,
-	casSharpening: 1.0
+	casSharpening: 1.0,
+
+	/**
+	 * Third person camera: fade map geometry blocking the view of the player
+	 * 'off' | 'dither' | 'alpha'
+	 */
+	occluderFade: 'dither',
+	occluderFadeOpacity: 0.25
 };
 
 /**

@@ -88,6 +88,11 @@ class Camera {
 	static position = vec3.create();
 
 	/**
+	 * @type {vec3} point the camera orbits around, in world (mesh) space
+	 */
+	static focus = vec3.create();
+
+	/**
 	 * @type {Entity} Entity currently attached by the camera
 	 */
 	static target = null;
@@ -539,6 +544,7 @@ class Camera {
 		_position[1] = this.position[2] + zOffset;
 		_position[2] = this.position[1] - 0.5;
 		mat4.translate(matrix, matrix, _position);
+		vec3.negate(this.focus, _position);
 
 		mat4.toInverseMat3(matrix, this.normalMat);
 		mat3.transpose(this.normalMat, this.normalMat);

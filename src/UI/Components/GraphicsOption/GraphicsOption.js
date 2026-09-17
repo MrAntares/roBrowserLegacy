@@ -111,6 +111,10 @@ GraphicsOption.init = function init() {
 	bindChange('.performanceMode', onTogglePerformanceMode);
 	bindChange('.view-area', onUpdateAreaView);
 
+	// Third person camera occluder fade
+	bindChange('.occluderFade', onUpdateOccluderFade);
+	bindChange('.occluderFadeOpacity', onUpdateOccluderFadeOpacity);
+
 	this.draggable('.titlebar');
 };
 
@@ -151,6 +155,11 @@ GraphicsOption.onAppend = function onAppend() {
 	// Performance Mode
 	root.querySelector('.performanceMode').checked = GraphicsSettings.performanceMode;
 	root.querySelector('.view-area').value = GraphicsSettings.viewArea;
+
+	// Third person camera occluder fade (only meaningful when the config allows the camera mode)
+	root.querySelector('.occluder-fade-row').style.display = Configs.get('ThirdPersonCamera', false) ? '' : 'none';
+	root.querySelector('.occluderFade').value = GraphicsSettings.occluderFade;
+	root.querySelector('.occluderFadeOpacity').value = GraphicsSettings.occluderFadeOpacity;
 };
 
 /**
@@ -373,6 +382,22 @@ function onTabSwitch(event) {
 	});
 	const targetTab = root.querySelector('#' + tabName);
 	if (targetTab) targetTab.classList.add('selected');
+}
+
+/**
+ * Select how geometry between the third person camera and the player is faded
+ */
+function onUpdateOccluderFade() {
+	GraphicsSettings.occluderFade = this.value;
+	GraphicsSettings.save();
+}
+
+/**
+ * Remaining opacity of faded geometry
+ */
+function onUpdateOccluderFadeOpacity() {
+	GraphicsSettings.occluderFadeOpacity = parseFloat(this.value);
+	GraphicsSettings.save();
 }
 
 function onResetToDefaults() {
