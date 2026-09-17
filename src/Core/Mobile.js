@@ -274,6 +274,32 @@ function onTouchEnd(event) {
 }
 
 /**
+ * The browser aborted the touch sequence: drop any pending tap or gesture
+ * without acting on the map.
+ */
+function onTouchCancel(event) {
+	if (event.touches.length > 0) {
+		return;
+	}
+
+	_uiTouch = false;
+
+	if (_timer > -1) {
+		Events.clearTimeout(_timer);
+		_timer = -1;
+	}
+
+	if (_processGesture) {
+		_processGesture = false;
+		KEYS.SHIFT = false;
+		Camera.rotate(false);
+	}
+
+	_intersect = false;
+	Mouse.intersect = false;
+}
+
+/**
  * Process gesture (scale, rotate)
  * Else move.
  */
@@ -336,7 +362,7 @@ window.addEventListener('touchstart', touchDevice, { once: true });
 // Touch controls
 window.addEventListener('touchstart', onTouchStart, { passive: false });
 window.addEventListener('touchend', onTouchEnd);
-window.addEventListener('touchcancel', onTouchEnd);
+window.addEventListener('touchcancel', onTouchCancel);
 window.addEventListener('touchmove', onTouchMove);
 
 /**
