@@ -308750,7 +308750,7 @@ function onTouchEnd(event) {
 * without acting on the map.
 */
 function onTouchCancel(event) {
-	if (event.touches.length > 0) return;
+	if (event.touches.length > 0 && !_processGesture) return;
 	if (_uiTouch) _uiTouch = false;
 	else if (_processGesture) {
 		_processGesture = false;
