@@ -89,7 +89,7 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform4fv(uniform.uSpriteRendererColor, this.color);
 	gl.uniform2fv(uniform.uSpriteRendererSize, _size);
 	gl.uniform2fv(uniform.uSpriteRendererOffset, _offset);
-	gl.uniform1i(uniform.uIsRGBA, this.sprite.type);
+	gl.uniform1i(uniform.uIsRGBA, this.sprite ? this.sprite.type : 1);
 
 	// Avoid binding the new texture 150 times if it's the same.
 	if (_groupId !== _lastGroupId || _texture !== this.image.texture) {
@@ -578,25 +578,27 @@ class SpriteRenderer {
 			this.disableDepthCorrection = depthCorrection;
 		}
 
-		fn();
+		try {
+			fn();
+		} finally {
+			if (_depthTest !== prevDepthTest) {
+				_depthTest = prevDepthTest;
 
-		if (_depthTest !== prevDepthTest) {
-			_depthTest = prevDepthTest;
-
-			if (prevDepthTest) {
-				_gl.enable(_gl.DEPTH_TEST);
-			} else {
-				_gl.disable(_gl.DEPTH_TEST);
+				if (prevDepthTest) {
+					_gl.enable(_gl.DEPTH_TEST);
+				} else {
+					_gl.disable(_gl.DEPTH_TEST);
+				}
 			}
-		}
 
-		if (_depthMask !== prevDepthMask) {
-			_depthMask = prevDepthMask;
-			_gl.depthMask(prevDepthMask);
-		}
+			if (_depthMask !== prevDepthMask) {
+				_depthMask = prevDepthMask;
+				_gl.depthMask(prevDepthMask);
+			}
 
-		if (this.disableDepthCorrection !== prevDepthCorrection) {
-			this.disableDepthCorrection = prevDepthCorrection;
+			if (this.disableDepthCorrection !== prevDepthCorrection) {
+				this.disableDepthCorrection = prevDepthCorrection;
+			}
 		}
 	}
 }
