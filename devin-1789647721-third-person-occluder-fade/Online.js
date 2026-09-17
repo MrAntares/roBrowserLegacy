@@ -207674,27 +207674,46 @@ var init_OccluderFade = __esmMin((() => {
 			gl.uniform1f(uniform.uOccluderFadeOpacity, GraphicsSettings.occluderFadeOpacity);
 		}
 		/**
-		* Run a model draw with the fade applied: one opaque pass (dither or
-		* capsule-discard), plus a translucent depth-read-only pass in alpha mode.
+		* Whether a deferred translucent pass is required this frame
+		* (alpha variant selected and effect active).
+		*
+		* @return {boolean}
+		*/
+		static needsBlendPass() {
+			return OccluderFade.isActive() && OccluderFade.useAlpha();
+		}
+		/**
+		* Shader mode for the opaque geometry pass
+		*
+		* @return {number} one of MODE
+		*/
+		static opaqueMode() {
+			if (!OccluderFade.isActive()) return MODE.OFF;
+			return OccluderFade.useAlpha() ? MODE.ALPHA_OPAQUE : MODE.DITHER;
+		}
+		/**
+		* Opaque model pass: untouched, dithered, or with the fade capsule cut out.
 		*
 		* @param {WebGLRenderingContext} gl
 		* @param {object} uniform program uniform locations
 		* @param {function} draw issues the draw calls
 		*/
-		static renderPasses(gl, uniform, draw) {
-			if (!OccluderFade.isActive()) {
-				OccluderFade.setUniforms(gl, uniform, MODE.OFF);
-				SpriteRenderer.runWithDepth(true, true, true, draw);
-				return;
-			}
-			if (!OccluderFade.useAlpha()) {
-				OccluderFade.setUniforms(gl, uniform, MODE.DITHER);
-				SpriteRenderer.runWithDepth(true, true, true, draw);
-				return;
-			}
-			OccluderFade.setUniforms(gl, uniform, MODE.ALPHA_OPAQUE);
+		static renderOpaque(gl, uniform, draw) {
+			OccluderFade.setUniforms(gl, uniform, OccluderFade.opaqueMode());
 			SpriteRenderer.runWithDepth(true, true, true, draw);
-			gl.uniform1i(uniform.uOccluderFadeMode, MODE.ALPHA_BLEND);
+		}
+		/**
+		* Translucent model pass (alpha variant): draws only the fade capsule,
+		* depth tested but not depth written. Runs after opaque scene elements
+		* (entities included) so they show through the faded geometry.
+		*
+		* @param {WebGLRenderingContext} gl
+		* @param {object} uniform program uniform locations
+		* @param {function} draw issues the draw calls
+		*/
+		static renderBlend(gl, uniform, draw) {
+			OccluderFade.setUniforms(gl, uniform, MODE.ALPHA_BLEND);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			SpriteRenderer.runWithDepth(true, false, true, draw);
 		}
 	};
@@ -207774,16 +207793,15 @@ function drawMeshes(gl) {
 	}
 }
 /**
-* Render models
+* Bind program, uniforms and vertex layout shared by both model passes
 *
 * @param {object} gl context
 * @param {mat4} modelView
 * @param {mat4} projection
-* @param {mat3} normalMat
 * @param {object} fog structure
 * @param {object} light structure
 */
-function render$10(gl, modelView, projection, normalMat, fog, light) {
+function bind$1(gl, modelView, projection, fog, light) {
 	const uniform = _program$23.uniform;
 	const attribute = _program$23.attribute;
 	gl.useProgram(_program$23);
@@ -207811,11 +207829,50 @@ function render$10(gl, modelView, projection, normalMat, fog, light) {
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
 	OccluderFade.update(modelView);
-	OccluderFade.renderPasses(gl, uniform, () => drawMeshes(gl));
+}
+/**
+* Release the vertex layout
+*
+* @param {object} gl context
+*/
+function unbind(gl) {
+	const attribute = _program$23.attribute;
 	gl.disableVertexAttribArray(attribute.aPosition);
 	gl.disableVertexAttribArray(attribute.aVertexNormal);
 	gl.disableVertexAttribArray(attribute.aTextureCoord);
 	gl.disableVertexAttribArray(attribute.aAlpha);
+}
+/**
+* Render models (opaque pass)
+*
+* @param {object} gl context
+* @param {mat4} modelView
+* @param {mat4} projection
+* @param {mat3} normalMat
+* @param {object} fog structure
+* @param {object} light structure
+*/
+function render$10(gl, modelView, projection, normalMat, fog, light) {
+	bind$1(gl, modelView, projection, fog, light);
+	OccluderFade.renderOpaque(gl, _program$23.uniform, () => drawMeshes(gl));
+	unbind(gl);
+}
+/**
+* Render the faded (see-through) part of the models, translucent.
+* Call after opaque scene elements so they remain visible behind it.
+*
+* @param {object} gl context
+* @param {mat4} modelView
+* @param {mat4} projection
+* @param {mat3} normalMat
+* @param {object} fog structure
+* @param {object} light structure
+*/
+function renderFaded$1(gl, modelView, projection, normalMat, fog, light) {
+	if (!OccluderFade.needsBlendPass()) return;
+	bind$1(gl, modelView, projection, fog, light);
+	OccluderFade.renderBlend(gl, _program$23.uniform, () => drawMeshes(gl));
+	unbind(gl);
 }
 /**
 * Clean textures/buffer from memory
@@ -207853,6 +207910,7 @@ var init_Models = __esmMin((() => {
 	Models_default = {
 		init: init$10,
 		render: render$10,
+		renderFaded: renderFaded$1,
 		free: free$5
 	};
 }));
@@ -208274,11 +208332,9 @@ function updateModelBuffer(gl, model, frame, force) {
 	gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
 }
 /**
-* Render animated models
+* Bind program and per-frame uniforms shared by both model passes
 */
-function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
-	if (_animatedModels.length === 0) return;
-	if (!_program$22) init$9(gl);
+function bind(gl, modelView, projection, normalMat, fog, light) {
 	const uniform = _program$22.uniform;
 	gl.useProgram(_program$22);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
@@ -208295,26 +208351,48 @@ function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
 	gl.uniform3fv(uniform.uFogColor, fog.color);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
+	OccluderFade.update(modelView);
+}
+/**
+* Issue the draw calls for every animated model
+*/
+function drawModels(gl) {
+	for (let m = 0; m < _animatedModels.length; m++) {
+		const model = _animatedModels[m];
+		if (!model.buffer || model.meshInfos.length === 0) continue;
+		gl.bindVertexArray(model.vao);
+		for (let i = 0; i < model.meshInfos.length; i++) {
+			const info = model.meshInfos[i];
+			const texture = model.textureObjects[info.textureIdx];
+			if (texture) {
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
+			}
+		}
+	}
+}
+/**
+* Render animated models (opaque pass)
+*/
+function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
+	if (_animatedModels.length === 0) return;
+	if (!_program$22) init$9(gl);
+	bind(gl, modelView, projection, normalMat, fog, light);
 	for (let m = 0; m < _animatedModels.length; m++) {
 		const model = _animatedModels[m];
 		updateModelBuffer(gl, model, tick % (model.animLen || 1), false);
 	}
-	OccluderFade.update(modelView);
-	OccluderFade.renderPasses(gl, uniform, () => {
-		for (let m = 0; m < _animatedModels.length; m++) {
-			const model = _animatedModels[m];
-			if (!model.buffer || model.meshInfos.length === 0) continue;
-			gl.bindVertexArray(model.vao);
-			for (let i = 0; i < model.meshInfos.length; i++) {
-				const info = model.meshInfos[i];
-				const texture = model.textureObjects[info.textureIdx];
-				if (texture) {
-					gl.bindTexture(gl.TEXTURE_2D, texture);
-					gl.drawArrays(gl.TRIANGLES, info.vertOffset, info.vertCount);
-				}
-			}
-		}
-	});
+	OccluderFade.renderOpaque(gl, _program$22.uniform, () => drawModels(gl));
+	gl.bindVertexArray(null);
+}
+/**
+* Render the faded (see-through) part of the animated models, translucent.
+* Reuses the vertex data uploaded by render() this frame.
+*/
+function renderFaded(gl, modelView, projection, normalMat, fog, light) {
+	if (_animatedModels.length === 0 || !_program$22 || !OccluderFade.needsBlendPass()) return;
+	bind(gl, modelView, projection, normalMat, fog, light);
+	OccluderFade.renderBlend(gl, _program$22.uniform, () => drawModels(gl));
 	gl.bindVertexArray(null);
 }
 /**
@@ -208347,6 +208425,7 @@ var init_AnimatedModels = __esmMin((() => {
 		free: free$4,
 		add: add$2,
 		render: render$9,
+		renderFaded,
 		hasAnimatedModels
 	};
 }));
@@ -257631,6 +257710,8 @@ var init_MapRenderer = __esmMin((() => {
 			EffectManager.render(gl, modelView, projection, fog, tick, true);
 			EntityManager.render(gl, modelView, projection, fog, false);
 			Water_default.render(gl, modelView, projection, fog, light, tick);
+			Models_default.renderFaded(gl, modelView, projection, normalMat, fog, light);
+			AnimatedModels_default.renderFaded(gl, modelView, projection, normalMat, fog, light);
 			EffectManager.render(gl, modelView, projection, fog, tick, false);
 			EntityManager.render(gl, modelView, projection, fog, true);
 			Damage.render(gl, modelView, projection, fog, tick);
