@@ -207348,7 +207348,7 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform4fv(uniform.uSpriteRendererColor, this.color);
 	gl.uniform2fv(uniform.uSpriteRendererSize, _size$7);
 	gl.uniform2fv(uniform.uSpriteRendererOffset, _offset);
-	gl.uniform1i(uniform.uIsRGBA, this.sprite.type);
+	gl.uniform1i(uniform.uIsRGBA, this.sprite ? this.sprite.type : 1);
 	if (_groupId !== _lastGroupId || _texture$4 !== this.image.texture) {
 		_lastGroupId = _groupId;
 		gl.bindTexture(gl.TEXTURE_2D, _texture$4 = this.image.texture);
@@ -207668,17 +207668,20 @@ var init_SpriteRenderer = __esmMin((() => {
 				_gl$2.depthMask(depthMask);
 			}
 			if (this.disableDepthCorrection !== depthCorrection) this.disableDepthCorrection = depthCorrection;
-			fn();
-			if (_depthTest !== prevDepthTest) {
-				_depthTest = prevDepthTest;
-				if (prevDepthTest) _gl$2.enable(_gl$2.DEPTH_TEST);
-				else _gl$2.disable(_gl$2.DEPTH_TEST);
+			try {
+				fn();
+			} finally {
+				if (_depthTest !== prevDepthTest) {
+					_depthTest = prevDepthTest;
+					if (prevDepthTest) _gl$2.enable(_gl$2.DEPTH_TEST);
+					else _gl$2.disable(_gl$2.DEPTH_TEST);
+				}
+				if (_depthMask !== prevDepthMask) {
+					_depthMask = prevDepthMask;
+					_gl$2.depthMask(prevDepthMask);
+				}
+				if (this.disableDepthCorrection !== prevDepthCorrection) this.disableDepthCorrection = prevDepthCorrection;
 			}
-			if (_depthMask !== prevDepthMask) {
-				_depthMask = prevDepthMask;
-				_gl$2.depthMask(prevDepthMask);
-			}
-			if (this.disableDepthCorrection !== prevDepthCorrection) this.disableDepthCorrection = prevDepthCorrection;
 		}
 	};
 }));
@@ -253971,7 +253974,7 @@ var init_Sky = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Effects/Damage.js
-var EndureSound, dpr$1, procCanvas$1, procCtx$1, _skin, _damageSkins, _loadedSkinsData, _enableSuffix, _msgNames, _list$2, prevCombo, Damage;
+var EndureSound, dpr$1, procCanvas$1, procCtx$1, _skin, _damageSkins, _loadedSkinsData, _enableSuffix, _msgNames, _list$2, _rgbaFrame, prevCombo, Damage;
 var init_Damage = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -254026,6 +254029,7 @@ var init_Damage = __esmMin((() => {
 		5: "lucky"
 	};
 	_list$2 = [];
+	_rgbaFrame = { type: 1 };
 	prevCombo = [];
 	Damage = class Damage {
 		constructor() {
@@ -254324,6 +254328,7 @@ var init_Damage = __esmMin((() => {
 			SpriteRenderer.shadow = 1;
 			SpriteRenderer.angle = 0;
 			SpriteRenderer.image.palette = null;
+			SpriteRenderer.sprite = _rgbaFrame;
 			let i, count, perc;
 			let damage;
 			let size;
