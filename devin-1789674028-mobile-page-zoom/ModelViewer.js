@@ -308840,7 +308840,8 @@ var init_Mobile = __esmMin((() => {
 	};
 	onTouchStart = (event) => {
 		_touches = event.touches;
-		if (_touches.length === 1) _uiTouch = _pageZoomed || isUITouch(event);
+		if (_pageZoomed) _uiTouch = true;
+		else if (_touches.length === 1) _uiTouch = isUITouch(event);
 		if (_uiTouch) {
 			if (_timer$1 > -1) {
 				Events.clearTimeout(_timer$1);
