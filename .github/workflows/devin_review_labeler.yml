@@ -20,7 +20,7 @@ on:
 permissions:
     pull-requests: write
 concurrency:
-    group: devin-label-${{ github.event.pull_request.number || inputs.pr || github.event.workflow_run.head_branch || github.event_name }}
+    group: devin-label-${{ github.event.pull_request.number || inputs.pr || (github.event.workflow_run && format('{0}:{1}', github.event.workflow_run.head_repository.full_name, github.event.workflow_run.head_branch)) || github.event_name }}
     cancel-in-progress: true
 jobs:
     label:
@@ -104,19 +104,21 @@ jobs:
                         }
                       }
 
-                      let single = Number(context.payload.pull_request?.number ?? context.payload.inputs?.pr ?? 0);
+                      const single = Number(context.payload.pull_request?.number ?? context.payload.inputs?.pr ?? 0);
                       const run = context.payload.workflow_run;
-                      if (run) {
-                        // workflow_run.pull_requests is empty for fork PRs; look the PR up by head ref instead
+                      let numbers;
+                      if (single) {
+                        numbers = [single];
+                      } else if (run) {
+                        // workflow_run.pull_requests is empty for fork PRs; relabel every open PR from that head ref
+                        // (one branch may target several bases), falling back to a full rescan if none is found
                         const head = `${run.head_repository?.owner?.login ?? owner}:${run.head_branch}`;
-                        const found = run.pull_requests?.[0]?.number
-                          ?? (await github.rest.pulls.list({ owner, repo, state: 'open', head, per_page: 1 })).data[0]?.number;
-                        single = Number(found ?? 0);
-                        if (!single) { core.info(`no open PR for ${head}, rescanning all`); }
+                        numbers = (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', head, per_page: 100 })).map(pr => pr.number);
+                        if (!numbers.length) { core.info(`no open PR for ${head}, rescanning all`); }
                       }
-                      const numbers = single
-                        ? [single]
-                        : (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', per_page: 100 })).map(pr => pr.number);
+                      if (!numbers?.length) {
+                        numbers = (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', per_page: 100 })).map(pr => pr.number);
+                      }
                       for (const num of numbers) {
                         await relabel(num);
                       }

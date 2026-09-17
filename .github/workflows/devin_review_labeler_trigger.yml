@@ -15,4 +15,4 @@ jobs:
     trigger:
         runs-on: ubuntu-latest
         steps:
-            - run: echo "relabel PR #${{ github.event.pull_request.number }}"
+            - run: echo "relabel PR ${{ github.event.pull_request.number }}"
