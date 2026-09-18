@@ -45,6 +45,7 @@ import EnchantGrade from 'UI/Components/EnchantGrade/EnchantGrade.js';
 import EnchantUI from 'UI/Components/Enchant/Enchant.js';
 import Mail from 'UI/Components/Mail/Mail.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
+import { attachTouchDrag } from 'UI/TouchDrag.js';
 import { transferInventoryItemStack } from './InventoryItemTransfer.js';
 
 function _sanitizeHtml(str) {
@@ -257,6 +258,38 @@ export function createInventory(config) {
 				const item = e.target.closest('.item');
 				if (item) {
 					onItemClick.call(item, e);
+				}
+			});
+			attachTouchDrag(content, {
+				itemSelector: '.item',
+				getPayload: itemEl => {
+					const item = Component.getItemByIndex(parseInt(itemEl.getAttribute('data-index'), 10));
+					return item
+						? {
+								type: 'item',
+								from: 'Inventory',
+								data: item
+							}
+						: null;
+				},
+				createGhost: itemEl => {
+					const icon = itemEl.querySelector('.icon');
+					if (icon?.tagName === 'IMG') {
+						return icon.cloneNode(true);
+					}
+
+					const iconImage = icon?.querySelector('img');
+					if (iconImage) {
+						return iconImage.cloneNode(true);
+					}
+
+					const ghost = document.createElement('div');
+					ghost.style.width = '24px';
+					ghost.style.height = '24px';
+					ghost.style.backgroundImage = icon ? icon.style.backgroundImage : '';
+					ghost.style.backgroundRepeat = 'no-repeat';
+					ghost.style.backgroundPosition = 'center';
+					return ghost;
 				}
 			});
 		}

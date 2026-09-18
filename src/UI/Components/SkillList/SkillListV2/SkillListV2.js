@@ -19,7 +19,6 @@ export default createSkillList({
 	cssText: cssText,
 	hasTabs: true,
 	showDescOnMiniHover: false,
-	touchDrag: true,
 	guardMissingJob: true,
 	readdSkillOnUpdate: true,
 	dragFrom: 'SkillList'
