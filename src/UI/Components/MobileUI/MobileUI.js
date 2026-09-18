@@ -44,6 +44,7 @@ let movementTimer = null; // Timer for continuous joystick movement
 const MobileUI = new GUIComponent('MobileUI', cssText);
 
 MobileUI.render = () => htmlText;
+MobileUI.needFocus = false;
 
 /**
  * @var {Preferences} window preferences

@@ -371,7 +371,7 @@ class GUIComponent {
 
 		for (const name in components) {
 			const other = components[name];
-			if (other === this || !other.__active) continue;
+			if (other === this || !other.__active || !other.needFocus) continue;
 			zList.push(parseInt(this._getZIndex(other), 10));
 		}
 
