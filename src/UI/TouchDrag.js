@@ -1,4 +1,8 @@
 function resetState(state) {
+	if (state.windowTouchStart) {
+		window.removeEventListener('touchstart', state.windowTouchStart, true);
+		state.windowTouchStart = null;
+	}
 	state.active = false;
 	state.dragging = false;
 	state.moved = false;
@@ -8,6 +12,7 @@ function resetState(state) {
 	state.startY = 0;
 	state.startClientX = 0;
 	state.startClientY = 0;
+	state.touchId = null;
 	state.timer = null;
 	state.ghost = null;
 }
@@ -40,8 +45,10 @@ export function attachTouchDrag(
 		startY: 0,
 		startClientX: 0,
 		startClientY: 0,
+		touchId: null,
 		timer: null,
-		ghost: null
+		ghost: null,
+		windowTouchStart: null
 	};
 
 	const removeGhost = () => {
@@ -79,6 +86,13 @@ export function attachTouchDrag(
 	};
 
 	const onTouchStart = event => {
+		if (state.active) {
+			if (Array.from(event.touches).some(candidate => candidate.identifier !== state.touchId)) {
+				cancel();
+			}
+			return;
+		}
+
 		if (event.touches.length !== 1) {
 			return;
 		}
@@ -103,7 +117,14 @@ export function attachTouchDrag(
 		state.startY = touch.pageY;
 		state.startClientX = touch.clientX;
 		state.startClientY = touch.clientY;
+		state.touchId = touch.identifier;
 		state.timer = setTimeout(startDrag, holdDelay);
+		state.windowTouchStart = secondTouchEvent => {
+			if (secondTouchEvent.touches.length > 1) {
+				cancel();
+			}
+		};
+		window.addEventListener('touchstart', state.windowTouchStart, true);
 	};
 
 	const onTouchMove = event => {
@@ -111,7 +132,16 @@ export function attachTouchDrag(
 			return;
 		}
 
-		const touch = event.touches[0];
+		if (Array.from(event.touches).some(candidate => candidate.identifier !== state.touchId)) {
+			cancel();
+			return;
+		}
+
+		const touch = Array.from(event.touches).find(candidate => candidate.identifier === state.touchId);
+		if (!touch) {
+			return;
+		}
+
 		const dx = touch.pageX - state.startX;
 		const dy = touch.pageY - state.startY;
 		if (Math.sqrt(dx * dx + dy * dy) > moveThreshold) {
@@ -133,13 +163,22 @@ export function attachTouchDrag(
 			return;
 		}
 
+		if (Array.from(event.touches).some(candidate => candidate.identifier !== state.touchId)) {
+			cancel();
+			return;
+		}
+
+		const touch = Array.from(event.changedTouches).find(candidate => candidate.identifier === state.touchId);
+		if (!touch) {
+			return;
+		}
+
 		if (state.timer !== null) {
 			clearTimeout(state.timer);
 		}
 
 		if (state.dragging) {
 			removeGhost();
-			const touch = event.changedTouches[0];
 			const target = deepElementFromPoint(touch.clientX, touch.clientY);
 
 			if (target) {
