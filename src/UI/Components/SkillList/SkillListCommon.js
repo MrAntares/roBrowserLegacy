@@ -24,6 +24,7 @@ import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import SkillTreeView from 'DB/Skills/SkillTreeView.js';
+import { attachTouchDrag } from 'UI/TouchDrag.js';
 import {
 	createSkillUpgradeOrder,
 	resolveSkillRequirements,
@@ -47,7 +48,6 @@ export function createSkillList({
 	cssText,
 	hasTabs = false,
 	showDescOnMiniHover = false,
-	touchDrag = false,
 	guardMissingJob = false,
 	readdSkillOnUpdate = false,
 	listOnly = false,
@@ -84,14 +84,6 @@ export function createSkillList({
 	let rememberChoice = new Map();
 	const hasSkills = [];
 	let _justDragged = false;
-
-	const _touchDrag = {
-		timer: null,
-		dragging: false,
-		ghost: null,
-		startX: 0,
-		startY: 0
-	};
 
 	Component.init = function init() {
 		const root = this.getRoot();
@@ -278,28 +270,20 @@ export function createSkillList({
 			}, 0);
 		});
 
-		if (touchDrag) {
-			container.addEventListener('touchstart', e => {
-				const iconTarget = e.target.closest('.skill .icon');
-				if (iconTarget) {
-					onSkillTouchStart(e, iconTarget);
-				}
-			});
-
-			container.addEventListener('touchmove', e => {
-				const iconTarget = e.target.closest('.skill .icon');
-				if (iconTarget) {
-					onSkillTouchMove(e);
-				}
-			});
-
-			container.addEventListener('touchend', e => {
-				const iconTarget = e.target.closest('.skill .icon');
-				if (iconTarget) {
-					onSkillTouchEnd(e);
-				}
-			});
-		}
+		attachTouchDrag(container, {
+			itemSelector: '.skill .icon',
+			getPayload: iconEl => {
+				const skillDiv = iconEl.closest('.skill');
+				const skill = getSkillById(parseInt(skillDiv.getAttribute('data-index'), 10));
+				return skill && skill.level && skill.type
+					? {
+							type: 'skill',
+							from: _dragFrom,
+							data: skill
+						}
+					: null;
+			}
+		});
 
 		this.draggable('.titlebar');
 
@@ -1220,103 +1204,6 @@ export function createSkillList({
 		const id = parseInt(main.getAttribute('data-index'), 10);
 		const skill = getSkillById(id);
 		return skill?.SKID ?? id;
-	}
-
-	function onSkillTouchStart(event, iconEl) {
-		const touch = event.touches[0];
-		const skillDiv = iconEl.closest('.skill');
-		const index = parseInt(skillDiv.getAttribute('data-index'), 10);
-		const skill = getSkillById(index);
-
-		if (!skill || !skill.level || !skill.type) {
-			return;
-		}
-
-		_touchDrag.startX = touch.pageX;
-		_touchDrag.startY = touch.pageY;
-		_touchDrag.ghost = null;
-		_touchDrag.dragging = false;
-
-		_touchDrag.timer = setTimeout(() => {
-			_touchDrag.dragging = true;
-
-			const ghost = iconEl.cloneNode(true);
-			ghost.classList.add('drag-ghost');
-			ghost.style.position = 'absolute';
-			ghost.style.zIndex = '10000';
-			ghost.style.left = `${touch.pageX - 12}px`;
-			ghost.style.top = `${touch.pageY - 12}px`;
-			ghost.style.opacity = '0.8';
-			ghost.style.pointerEvents = 'none';
-			document.body.appendChild(ghost);
-			_touchDrag.ghost = ghost;
-
-			window._OBJ_DRAG_ = {
-				type: 'skill',
-				from: _dragFrom,
-				data: skill
-			};
-		}, 300);
-	}
-
-	function onSkillTouchMove(event) {
-		if (!_touchDrag.timer && !_touchDrag.dragging) {
-			return;
-		}
-
-		const touch = event.touches[0];
-
-		if (_touchDrag.dragging) {
-			event.preventDefault();
-			if (_touchDrag.ghost) {
-				_touchDrag.ghost.style.left = `${touch.pageX - 12}px`;
-				_touchDrag.ghost.style.top = `${touch.pageY - 12}px`;
-			}
-		} else {
-			const dx = touch.pageX - _touchDrag.startX;
-			const dy = touch.pageY - _touchDrag.startY;
-			if (dx * dx + dy * dy > 100) {
-				clearTimeout(_touchDrag.timer);
-				_touchDrag.timer = null;
-			}
-		}
-	}
-
-	function onSkillTouchEnd(event) {
-		if (_touchDrag.timer) {
-			clearTimeout(_touchDrag.timer);
-			_touchDrag.timer = null;
-		}
-
-		if (_touchDrag.dragging) {
-			_touchDrag.dragging = false;
-
-			if (_touchDrag.ghost) {
-				_touchDrag.ghost.remove();
-				_touchDrag.ghost = null;
-			}
-
-			const touch = event.changedTouches[0];
-			const target = document.elementFromPoint(touch.clientX, touch.clientY);
-
-			if (target) {
-				const dropTarget = target.closest('.container');
-				if (dropTarget) {
-					const dropEvent = new Event('drop', { bubbles: true });
-					dropEvent.dataTransfer = {
-						getData(type) {
-							if (type === 'Text') {
-								return JSON.stringify(window._OBJ_DRAG_);
-							}
-							return '';
-						}
-					};
-					dropTarget.dispatchEvent(dropEvent);
-				}
-			}
-
-			delete window._OBJ_DRAG_;
-		}
 	}
 
 	function skillLevelSelectUp(skill, root) {

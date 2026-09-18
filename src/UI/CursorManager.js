@@ -302,6 +302,7 @@ function bindMouseEvents() {
 	const cursorCSS = `
 		.custom-cursor * { cursor: none!important; }
 		.custom-cursor .cursor { display: block; }
+		.ro-touch-input .cursor { display: none !important; }
 		.cursor { pointer-events: none; z-index: 9999; position: fixed; width: 50px; height: 50px; overflow: hidden; display: none; }
 		.cursor__sprite { position: absolute; top: 0; left: 0; }
 	`;

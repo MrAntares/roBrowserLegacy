@@ -396,6 +396,21 @@ window.addEventListener('touchstart', onTouchStart, { passive: false });
 window.addEventListener('touchend', onTouchEnd);
 window.addEventListener('touchcancel', onTouchCancel);
 window.addEventListener('touchmove', onTouchMove);
+window.addEventListener(
+	'touchstart',
+	() => {
+		document.body.classList.add('ro-touch-input');
+	},
+	{ capture: true }
+);
+
+const onPointerInput = event => {
+	if (event.pointerType === 'mouse') {
+		document.body.classList.remove('ro-touch-input');
+	}
+};
+window.addEventListener('pointermove', onPointerInput);
+window.addEventListener('pointerdown', onPointerInput);
 
 /**
  * Export
