@@ -230921,6 +230921,183 @@ var init_CheckAttendance = __esmMin((() => {
 	CheckAttendance_default = UIManager.addComponent(CheckAttendance);
 }));
 //#endregion
+//#region src/UI/TouchDrag.js
+function resetState(state) {
+	if (state.windowTouchStart) {
+		window.removeEventListener("touchstart", state.windowTouchStart, true);
+		state.windowTouchStart = null;
+	}
+	state.active = false;
+	state.dragging = false;
+	state.moved = false;
+	state.item = null;
+	state.payload = null;
+	state.startX = 0;
+	state.startY = 0;
+	state.startClientX = 0;
+	state.startClientY = 0;
+	state.touchId = null;
+	state.timer = null;
+	state.ghost = null;
+}
+function deepElementFromPoint(x, y) {
+	let el = document.elementFromPoint(x, y);
+	while (el?.shadowRoot) {
+		const inner = el.shadowRoot.elementFromPoint(x, y);
+		if (!inner || inner === el) break;
+		el = inner;
+	}
+	return el;
+}
+function attachTouchDrag(container, { itemSelector, getPayload, createGhost = null, holdDelay = 300, moveThreshold = 10 }) {
+	const state = {
+		active: false,
+		dragging: false,
+		moved: false,
+		item: null,
+		payload: null,
+		startX: 0,
+		startY: 0,
+		startClientX: 0,
+		startClientY: 0,
+		touchId: null,
+		timer: null,
+		ghost: null,
+		windowTouchStart: null
+	};
+	const removeGhost = () => {
+		if (state.ghost) {
+			state.ghost.remove();
+			state.ghost = null;
+		}
+	};
+	const cancel = () => {
+		if (state.timer !== null) clearTimeout(state.timer);
+		removeGhost();
+		delete window._OBJ_DRAG_;
+		resetState(state);
+	};
+	const startDrag = () => {
+		if (!state.active || !state.item || !state.payload) return;
+		state.timer = null;
+		state.dragging = true;
+		state.ghost = createGhost ? createGhost(state.item) : state.item.cloneNode(true);
+		state.ghost.style.position = "fixed";
+		state.ghost.style.zIndex = "10000";
+		state.ghost.style.opacity = "0.8";
+		state.ghost.style.pointerEvents = "none";
+		state.ghost.style.left = `${state.startClientX - 12}px`;
+		state.ghost.style.top = `${state.startClientY - 12}px`;
+		document.body.appendChild(state.ghost);
+		window._OBJ_DRAG_ = state.payload;
+	};
+	const onTouchStart = (event) => {
+		if (state.active) {
+			if (Array.from(event.touches).some((candidate) => candidate.identifier !== state.touchId)) cancel();
+			return;
+		}
+		if (event.touches.length !== 1) return;
+		const item = event.target.closest(itemSelector);
+		if (!item || !container.contains(item)) return;
+		const payload = getPayload(item);
+		if (payload === null || payload === void 0) return;
+		const touch = event.touches[0];
+		state.active = true;
+		state.dragging = false;
+		state.moved = false;
+		state.item = item;
+		state.payload = payload;
+		state.startX = touch.pageX;
+		state.startY = touch.pageY;
+		state.startClientX = touch.clientX;
+		state.startClientY = touch.clientY;
+		state.touchId = touch.identifier;
+		state.timer = setTimeout(startDrag, holdDelay);
+		state.windowTouchStart = (secondTouchEvent) => {
+			if (secondTouchEvent.touches.length > 1) cancel();
+		};
+		window.addEventListener("touchstart", state.windowTouchStart, true);
+	};
+	const onTouchMove = (event) => {
+		if (!state.active || !event.touches.length) return;
+		if (Array.from(event.touches).some((candidate) => candidate.identifier !== state.touchId)) {
+			cancel();
+			return;
+		}
+		const touch = Array.from(event.touches).find((candidate) => candidate.identifier === state.touchId);
+		if (!touch) return;
+		const dx = touch.pageX - state.startX;
+		const dy = touch.pageY - state.startY;
+		if (Math.sqrt(dx * dx + dy * dy) > moveThreshold) state.moved = true;
+		if (state.dragging) {
+			event.preventDefault();
+			state.ghost.style.left = `${touch.clientX - 12}px`;
+			state.ghost.style.top = `${touch.clientY - 12}px`;
+		} else if (state.moved && state.timer !== null) {
+			clearTimeout(state.timer);
+			resetState(state);
+		}
+	};
+	const onTouchEnd = (event) => {
+		if (!state.active) return;
+		if (Array.from(event.touches).some((candidate) => candidate.identifier !== state.touchId)) {
+			cancel();
+			return;
+		}
+		const touch = Array.from(event.changedTouches).find((candidate) => candidate.identifier === state.touchId);
+		if (!touch) return;
+		if (state.timer !== null) clearTimeout(state.timer);
+		if (state.dragging) {
+			removeGhost();
+			const target = deepElementFromPoint(touch.clientX, touch.clientY);
+			if (target) {
+				const dropEvent = new Event("drop", {
+					bubbles: true,
+					composed: true
+				});
+				dropEvent.dataTransfer = { getData: (type) => type === "Text" ? JSON.stringify(state.payload) : "" };
+				target.dispatchEvent(dropEvent);
+			}
+			delete window._OBJ_DRAG_;
+		}
+		resetState(state);
+	};
+	const onTouchCancel = () => {
+		if (state.active) cancel();
+	};
+	const onDragStart = (event) => {
+		if (state.active) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		}
+	};
+	const onContextMenu = (event) => {
+		if (!state.active) return;
+		if (state.dragging && state.moved) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			return;
+		}
+		cancel();
+	};
+	container.addEventListener("touchstart", onTouchStart);
+	container.addEventListener("touchmove", onTouchMove, { passive: false });
+	container.addEventListener("touchend", onTouchEnd);
+	container.addEventListener("touchcancel", onTouchCancel);
+	container.addEventListener("dragstart", onDragStart, true);
+	container.addEventListener("contextmenu", onContextMenu, true);
+	return () => {
+		container.removeEventListener("touchstart", onTouchStart);
+		container.removeEventListener("touchmove", onTouchMove);
+		container.removeEventListener("touchend", onTouchEnd);
+		container.removeEventListener("touchcancel", onTouchCancel);
+		container.removeEventListener("dragstart", onDragStart, true);
+		container.removeEventListener("contextmenu", onContextMenu, true);
+		cancel();
+	};
+}
+var init_TouchDrag = __esmMin((() => {}));
+//#endregion
 //#region src/UI/Components/SkillList/SkillRequirements.js
 function getOwnedSkill(ownedSkills, skillId) {
 	return ownedSkills?.get?.(skillId) ?? ownedSkills?.[skillId] ?? null;
@@ -231060,7 +231237,7 @@ function _escapeHTML$2(text) {
 function _isNumeric(val) {
 	return !isNaN(parseFloat(val)) && isFinite(val);
 }
-function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnMiniHover = false, touchDrag = false, guardMissingJob = false, readdSkillOnUpdate = false, listOnly = false, dragFrom = null, titlebarText = null, containerSelector = null, preferenceDefaults = {
+function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnMiniHover = false, guardMissingJob = false, readdSkillOnUpdate = false, listOnly = false, dragFrom = null, titlebarText = null, containerSelector = null, preferenceDefaults = {
 	x: 100,
 	y: 200,
 	width: 8,
@@ -231086,13 +231263,6 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 	let rememberChoice = /* @__PURE__ */ new Map();
 	const hasSkills = [];
 	let _justDragged = false;
-	const _touchDrag = {
-		timer: null,
-		dragging: false,
-		ghost: null,
-		startX: 0,
-		startY: 0
-	};
 	Component.init = function init() {
 		const root = this.getRoot();
 		if (titlebarText) {
@@ -231238,18 +231408,18 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 				_justDragged = false;
 			}, 0);
 		});
-		if (touchDrag) {
-			container.addEventListener("touchstart", (e) => {
-				const iconTarget = e.target.closest(".skill .icon");
-				if (iconTarget) onSkillTouchStart(e, iconTarget);
-			});
-			container.addEventListener("touchmove", (e) => {
-				if (e.target.closest(".skill .icon")) onSkillTouchMove(e);
-			});
-			container.addEventListener("touchend", (e) => {
-				if (e.target.closest(".skill .icon")) onSkillTouchEnd(e);
-			});
-		}
+		attachTouchDrag(container, {
+			itemSelector: ".skill .icon",
+			getPayload: (iconEl) => {
+				const skillDiv = iconEl.closest(".skill");
+				const skill = getSkillById(parseInt(skillDiv.getAttribute("data-index"), 10));
+				return skill && skill.level && skill.type ? {
+					type: "skill",
+					from: _dragFrom,
+					data: skill
+				} : null;
+			}
+		});
 		this.draggable(".titlebar");
 		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, (data) => {
 			_rArrow = `url(${data})`;
@@ -231856,79 +232026,6 @@ function createSkillList({ name, htmlText, cssText, hasTabs = false, showDescOnM
 		const id = parseInt(main.getAttribute("data-index"), 10);
 		return getSkillById(id)?.SKID ?? id;
 	}
-	function onSkillTouchStart(event, iconEl) {
-		const touch = event.touches[0];
-		const skillDiv = iconEl.closest(".skill");
-		const skill = getSkillById(parseInt(skillDiv.getAttribute("data-index"), 10));
-		if (!skill || !skill.level || !skill.type) return;
-		_touchDrag.startX = touch.pageX;
-		_touchDrag.startY = touch.pageY;
-		_touchDrag.ghost = null;
-		_touchDrag.dragging = false;
-		_touchDrag.timer = setTimeout(() => {
-			_touchDrag.dragging = true;
-			const ghost = iconEl.cloneNode(true);
-			ghost.classList.add("drag-ghost");
-			ghost.style.position = "absolute";
-			ghost.style.zIndex = "10000";
-			ghost.style.left = `${touch.pageX - 12}px`;
-			ghost.style.top = `${touch.pageY - 12}px`;
-			ghost.style.opacity = "0.8";
-			ghost.style.pointerEvents = "none";
-			document.body.appendChild(ghost);
-			_touchDrag.ghost = ghost;
-			window._OBJ_DRAG_ = {
-				type: "skill",
-				from: _dragFrom,
-				data: skill
-			};
-		}, 300);
-	}
-	function onSkillTouchMove(event) {
-		if (!_touchDrag.timer && !_touchDrag.dragging) return;
-		const touch = event.touches[0];
-		if (_touchDrag.dragging) {
-			event.preventDefault();
-			if (_touchDrag.ghost) {
-				_touchDrag.ghost.style.left = `${touch.pageX - 12}px`;
-				_touchDrag.ghost.style.top = `${touch.pageY - 12}px`;
-			}
-		} else {
-			const dx = touch.pageX - _touchDrag.startX;
-			const dy = touch.pageY - _touchDrag.startY;
-			if (dx * dx + dy * dy > 100) {
-				clearTimeout(_touchDrag.timer);
-				_touchDrag.timer = null;
-			}
-		}
-	}
-	function onSkillTouchEnd(event) {
-		if (_touchDrag.timer) {
-			clearTimeout(_touchDrag.timer);
-			_touchDrag.timer = null;
-		}
-		if (_touchDrag.dragging) {
-			_touchDrag.dragging = false;
-			if (_touchDrag.ghost) {
-				_touchDrag.ghost.remove();
-				_touchDrag.ghost = null;
-			}
-			const touch = event.changedTouches[0];
-			const target = document.elementFromPoint(touch.clientX, touch.clientY);
-			if (target) {
-				const dropTarget = target.closest(".container");
-				if (dropTarget) {
-					const dropEvent = new Event("drop", { bubbles: true });
-					dropEvent.dataTransfer = { getData(type) {
-						if (type === "Text") return JSON.stringify(window._OBJ_DRAG_);
-						return "";
-					} };
-					dropTarget.dispatchEvent(dropEvent);
-				}
-			}
-			delete window._OBJ_DRAG_;
-		}
-	}
 	function skillLevelSelectUp(skill, root) {
 		const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
 		if (level < skill.level) {
@@ -231968,6 +232065,7 @@ var init_SkillListCommon = __esmMin((() => {
 	init_SkillInfo();
 	init_SkillTargetSelection();
 	init_SkillTreeView();
+	init_TouchDrag();
 	init_SkillRequirements();
 	init_UIManager();
 }));
@@ -232030,7 +232128,6 @@ var init_SkillListV2 = __esmMin((() => {
 		cssText: SkillListV2_default$1,
 		hasTabs: true,
 		showDescOnMiniHover: false,
-		touchDrag: true,
 		guardMissingJob: true,
 		readdSkillOnUpdate: true,
 		dragFrom: "SkillList"
@@ -238968,6 +239065,30 @@ function createInventory(config) {
 				const item = e.target.closest(".item");
 				if (item) onItemClick.call(item, e);
 			});
+			attachTouchDrag(content, {
+				itemSelector: ".item",
+				getPayload: (itemEl) => {
+					const item = Component.getItemByIndex(parseInt(itemEl.getAttribute("data-index"), 10));
+					return item ? {
+						type: "item",
+						from: "Inventory",
+						data: item
+					} : null;
+				},
+				createGhost: (itemEl) => {
+					const icon = itemEl.querySelector(".icon");
+					if (icon?.tagName === "IMG") return icon.cloneNode(true);
+					const iconImage = icon?.querySelector("img");
+					if (iconImage) return iconImage.cloneNode(true);
+					const ghost = document.createElement("div");
+					ghost.style.width = "24px";
+					ghost.style.height = "24px";
+					ghost.style.backgroundImage = icon ? icon.style.backgroundImage : "";
+					ghost.style.backgroundRepeat = "no-repeat";
+					ghost.style.backgroundPosition = "center";
+					return ghost;
+				}
+			});
 		}
 		const ncnt = root.querySelector(".ncnt");
 		if (ncnt) ncnt.textContent = favoriteTab ? "0 / " : "0";
@@ -239958,6 +240079,7 @@ var init_InventoryCommon = __esmMin((() => {
 	init_Enchant();
 	init_Mail$1();
 	init_WriteRodex();
+	init_TouchDrag();
 	init_InventoryItemTransfer();
 }));
 //#endregion
@@ -305944,6 +306066,7 @@ function bindMouseEvents() {
 	const cursorCSS = `
 		.custom-cursor * { cursor: none!important; }
 		.custom-cursor .cursor { display: block; }
+		.ro-touch-input .cursor { display: none !important; }
 		.cursor { pointer-events: none; z-index: 9999; position: fixed; width: 50px; height: 50px; overflow: hidden; display: none; }
 		.cursor__sprite { position: absolute; top: 0; left: 0; }
 	`;
@@ -309548,7 +309671,7 @@ function touchDevice() {
 	SessionStorage_default.isTouchDevice = true;
 	if (SessionStorage_default.Playing) MobileUI_default.show();
 }
-var _processGesture, _scale, _touches, _intersect, _timer$1, _uiTouch, _pageZoomed, VIEWPORT_META, UI_TOUCH_SELECTOR, Mobile, delayedClick, onTouchStart;
+var _processGesture, _scale, _touches, _intersect, _timer$1, _uiTouch, _pageZoomed, VIEWPORT_META, UI_TOUCH_SELECTOR, Mobile, delayedClick, onTouchStart, onPointerInput;
 var init_Mobile = __esmMin((() => {
 	init_Context();
 	init_Events();
@@ -309620,6 +309743,14 @@ var init_Mobile = __esmMin((() => {
 	window.addEventListener("touchend", onTouchEnd);
 	window.addEventListener("touchcancel", onTouchCancel);
 	window.addEventListener("touchmove", onTouchMove);
+	window.addEventListener("touchstart", () => {
+		document.body.classList.add("ro-touch-input");
+	}, { capture: true });
+	onPointerInput = (event) => {
+		if (event.pointerType === "mouse") document.body.classList.remove("ro-touch-input");
+	};
+	window.addEventListener("pointermove", onPointerInput);
+	window.addEventListener("pointerdown", onPointerInput);
 }));
 //#endregion
 //#region src/Vendors/html2canvas.js
