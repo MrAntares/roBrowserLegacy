@@ -307292,7 +307292,7 @@ var init_GUIComponent = __esmMin((() => {
 			const zList = [];
 			for (const name in components) {
 				const other = components[name];
-				if (other === this || !other.__active) continue;
+				if (other === this || !other.__active || !other.needFocus) continue;
 				zList.push(parseInt(this._getZIndex(other), 10));
 			}
 			this._setZIndex(this, Math.max(50, ...zList) + 1);
@@ -308603,6 +308603,7 @@ var init_MobileUI = __esmMin((() => {
 	movementTimer = null;
 	MobileUI = new GUIComponent("MobileUI", MobileUI_default$1);
 	MobileUI.render = () => MobileUI_default$2;
+	MobileUI.needFocus = false;
 	_preferences$17 = Preferences.get("MobileUI", {
 		x: 0,
 		y: 0,
