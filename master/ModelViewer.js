@@ -307989,24 +307989,330 @@ var init_Queue = __esmMin((() => {
 //#region src/UI/Components/MobileUI/MobileUI.html?raw
 var MobileUI_default$2;
 var init_MobileUI$2 = __esmMin((() => {
-	MobileUI_default$2 = "<div id=\"MobileUI\">\r\n	<button id=\"toggleUIButton\" class=\"buttons\">🛠️</button>\r\n\r\n	<div id=\"topBar\" class=\"buttonBar disabled\">\r\n		<button id=\"fullscreenButton\" class=\"buttons mobileKeys secondary horizontal\">⛶</button>\r\n	</div>\r\n\r\n	<!-- Joystick -MicromeX -->\r\n	<div id=\"joystickContainer\" class=\"joystick-container disabled\">\r\n		<div id=\"joystickBase\" class=\"joystick-base\">\r\n			<div id=\"joystickThumb\" class=\"joystick-thumb\"></div>\r\n		</div>\r\n	</div>\r\n\r\n	<!-- Functional Buttons -MicromeX -->\r\n	<div id=\"buttonContainer\" class=\"buttonContainer disabled\">\r\n		<!-- Functional Buttons -->\r\n		<button id=\"f1Button\" class=\"FButton mobileKeys vertical secondary disabled\">F1</button>\r\n		<button id=\"f2Button\" class=\"FButton mobileKeys vertical secondary disabled\">F2</button>\r\n		<button id=\"f3Button\" class=\"FButton mobileKeys vertical secondary disabled\">F3</button>\r\n		<button id=\"f4Button\" class=\"FButton mobileKeys vertical secondary disabled\">F4</button>\r\n		<button id=\"f5Button\" class=\"FButton mobileKeys vertical secondary disabled\">F5</button>\r\n		<button id=\"f6Button\" class=\"FButton mobileKeys vertical secondary disabled\">F6</button>\r\n		<button id=\"f7Button\" class=\"FButton mobileKeys vertical secondary disabled\">F7</button>\r\n		<button id=\"f8Button\" class=\"FButton mobileKeys vertical secondary disabled\">F8</button>\r\n		<button id=\"f9Button\" class=\"FButton mobileKeys vertical secondary disabled\">F9</button>\r\n\r\n		<button id=\"n1Button\" class=\"FButton mobileKeys vertical secondary disabled\">1</button>\r\n		<button id=\"n2Button\" class=\"FButton mobileKeys vertical secondary disabled\">2</button>\r\n		<button id=\"n3Button\" class=\"FButton mobileKeys vertical secondary disabled\">3</button>\r\n		<button id=\"n4Button\" class=\"FButton mobileKeys vertical secondary disabled\">4</button>\r\n		<button id=\"n5Button\" class=\"FButton mobileKeys vertical secondary disabled\">5</button>\r\n		<button id=\"n6Button\" class=\"FButton mobileKeys vertical secondary disabled\">6</button>\r\n		<button id=\"n7Button\" class=\"FButton mobileKeys vertical secondary disabled\">7</button>\r\n		<button id=\"n8Button\" class=\"FButton mobileKeys vertical secondary disabled\">8</button>\r\n		<button id=\"n9Button\" class=\"FButton mobileKeys vertical secondary disabled\">9</button>\r\n\r\n		<button id=\"qButton\" class=\"FButton mobileKeys vertical secondary disabled\">Q</button>\r\n		<button id=\"wButton\" class=\"FButton mobileKeys vertical secondary disabled\">W</button>\r\n		<button id=\"eButton\" class=\"FButton mobileKeys vertical secondary disabled\">E</button>\r\n		<button id=\"rButton\" class=\"FButton mobileKeys vertical secondary disabled\">R</button>\r\n		<button id=\"tButton\" class=\"FButton mobileKeys vertical secondary disabled\">T</button>\r\n		<button id=\"yButton\" class=\"FButton mobileKeys vertical secondary disabled\">Y</button>\r\n		<button id=\"uButton\" class=\"FButton mobileKeys vertical secondary disabled\">U</button>\r\n		<button id=\"iButton\" class=\"FButton mobileKeys vertical secondary disabled\">I</button>\r\n		<button id=\"oButton\" class=\"FButton mobileKeys vertical secondary disabled\">O</button>\r\n\r\n		<button id=\"aButton\" class=\"FButton mobileKeys vertical secondary disabled\">A</button>\r\n		<button id=\"sButton\" class=\"FButton mobileKeys vertical secondary disabled\">S</button>\r\n		<button id=\"dButton\" class=\"FButton mobileKeys vertical secondary disabled\">D</button>\r\n		<button id=\"fButton\" class=\"FButton mobileKeys vertical secondary disabled\">F</button>\r\n		<button id=\"gButton\" class=\"FButton mobileKeys vertical secondary disabled\">G</button>\r\n		<button id=\"hButton\" class=\"FButton mobileKeys vertical secondary disabled\">H</button>\r\n		<button id=\"jButton\" class=\"FButton mobileKeys vertical secondary disabled\">J</button>\r\n		<button id=\"kButton\" class=\"FButton mobileKeys vertical secondary disabled\">K</button>\r\n		<button id=\"lButton\" class=\"FButton mobileKeys vertical secondary disabled\">L</button>\r\n\r\n		<button id=\"pickupButton\" class=\"pickupButton mobileKeys vertical secondary disabled\">🖐</button>\r\n		<!-- Pick Up Button -MicromeX -->\r\n		<button id=\"talktonpcButton\" class=\"talktonpcButton mobileKeys vertical secondary disabled\">💬</button>\r\n		<!-- Talk to NPC Button -MicromeX -->\r\n		<button id=\"switchshorcutButton\" class=\"switchshorcutButton mobileKeys vertical secondary disabled\">🔄</button>\r\n		<!-- Auto Skill Button -MicromeX -->\r\n\r\n		<!-- Attack Button -MicromeX -->\r\n		<button id=\"attackButton\" class=\"atkButton mobileKeys vertical secondary disabled\">⚔️</button>\r\n	</div>\r\n\r\n	<div id=\"leftBar\" class=\"buttonBar disabled\">\r\n		<button id=\"f10Button\" class=\"buttons mobileKeys secondary vertical\">F10</button><br />\r\n		<button id=\"f12Button\" class=\"buttons mobileKeys secondary vertical\">F12</button><br />\r\n		<button id=\"insButton\" class=\"buttons mobileKeys secondary vertical\">🧎</button><br />\r\n	</div>\r\n\r\n	<div id=\"rightBar\" class=\"buttonBar disabled\">\r\n		<button id=\"toggleStatusButton\" class=\"buttons mobileKeys secondary vertical\">👀</button><br />\r\n		<button id=\"toggleTargetingButton\" class=\"buttons mobileKeys secondary vertical\">⚙️</button><br />\r\n		<button id=\"toggleAutoFollowButton\" class=\"buttons mobileKeys vertical secondary disabled\">👥</button><br />\r\n		<button id=\"toggleAutoTargetButton\" class=\"buttons mobileKeys vertical secondary disabled\">🎯</button><br />\r\n	</div>\r\n</div>\r\n";
+	MobileUI_default$2 = "<div id=\"MobileUI\">\r\n	<div id=\"buttonTip\" class=\"buttonTip disabled\"></div>\r\n	<button id=\"toggleUIButton\" data-tip=\"Show / hide the mobile controls\" class=\"buttons\">🛠️</button>\r\n\r\n	<div id=\"topBar\" class=\"buttonBar disabled\">\r\n		<button id=\"fullscreenButton\" data-tip=\"Toggle full screen\" class=\"buttons mobileKeys secondary horizontal\">\r\n			⛶\r\n		</button>\r\n	</div>\r\n\r\n	<!-- Joystick -MicromeX -->\r\n	<div id=\"joystickContainer\" class=\"joystick-container disabled\">\r\n		<div id=\"joystickBase\" class=\"joystick-base\">\r\n			<div id=\"joystickThumb\" class=\"joystick-thumb\"></div>\r\n		</div>\r\n	</div>\r\n\r\n	<!-- Functional Buttons -MicromeX -->\r\n	<div id=\"buttonContainer\" class=\"buttonContainer disabled\">\r\n		<!-- Functional Buttons -->\r\n		<button id=\"f1Button\" data-tip=\"Skill bar hotkey F1\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F1\r\n		</button>\r\n		<button id=\"f2Button\" data-tip=\"Skill bar hotkey F2\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F2\r\n		</button>\r\n		<button id=\"f3Button\" data-tip=\"Skill bar hotkey F3\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F3\r\n		</button>\r\n		<button id=\"f4Button\" data-tip=\"Skill bar hotkey F4\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F4\r\n		</button>\r\n		<button id=\"f5Button\" data-tip=\"Skill bar hotkey F5\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F5\r\n		</button>\r\n		<button id=\"f6Button\" data-tip=\"Skill bar hotkey F6\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F6\r\n		</button>\r\n		<button id=\"f7Button\" data-tip=\"Skill bar hotkey F7\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F7\r\n		</button>\r\n		<button id=\"f8Button\" data-tip=\"Skill bar hotkey F8\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F8\r\n		</button>\r\n		<button id=\"f9Button\" data-tip=\"Skill bar hotkey F9\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F9\r\n		</button>\r\n\r\n		<button id=\"n1Button\" data-tip=\"Skill bar hotkey 1\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			1\r\n		</button>\r\n		<button id=\"n2Button\" data-tip=\"Skill bar hotkey 2\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			2\r\n		</button>\r\n		<button id=\"n3Button\" data-tip=\"Skill bar hotkey 3\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			3\r\n		</button>\r\n		<button id=\"n4Button\" data-tip=\"Skill bar hotkey 4\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			4\r\n		</button>\r\n		<button id=\"n5Button\" data-tip=\"Skill bar hotkey 5\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			5\r\n		</button>\r\n		<button id=\"n6Button\" data-tip=\"Skill bar hotkey 6\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			6\r\n		</button>\r\n		<button id=\"n7Button\" data-tip=\"Skill bar hotkey 7\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			7\r\n		</button>\r\n		<button id=\"n8Button\" data-tip=\"Skill bar hotkey 8\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			8\r\n		</button>\r\n		<button id=\"n9Button\" data-tip=\"Skill bar hotkey 9\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			9\r\n		</button>\r\n\r\n		<button id=\"qButton\" data-tip=\"Skill bar hotkey Q\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			Q\r\n		</button>\r\n		<button id=\"wButton\" data-tip=\"Skill bar hotkey W\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			W\r\n		</button>\r\n		<button id=\"eButton\" data-tip=\"Skill bar hotkey E\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			E\r\n		</button>\r\n		<button id=\"rButton\" data-tip=\"Skill bar hotkey R\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			R\r\n		</button>\r\n		<button id=\"tButton\" data-tip=\"Skill bar hotkey T\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			T\r\n		</button>\r\n		<button id=\"yButton\" data-tip=\"Skill bar hotkey Y\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			Y\r\n		</button>\r\n		<button id=\"uButton\" data-tip=\"Skill bar hotkey U\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			U\r\n		</button>\r\n		<button id=\"iButton\" data-tip=\"Skill bar hotkey I\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			I\r\n		</button>\r\n		<button id=\"oButton\" data-tip=\"Skill bar hotkey O\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			O\r\n		</button>\r\n\r\n		<button id=\"aButton\" data-tip=\"Skill bar hotkey A\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			A\r\n		</button>\r\n		<button id=\"sButton\" data-tip=\"Skill bar hotkey S\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			S\r\n		</button>\r\n		<button id=\"dButton\" data-tip=\"Skill bar hotkey D\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			D\r\n		</button>\r\n		<button id=\"fButton\" data-tip=\"Skill bar hotkey F\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F\r\n		</button>\r\n		<button id=\"gButton\" data-tip=\"Skill bar hotkey G\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			G\r\n		</button>\r\n		<button id=\"hButton\" data-tip=\"Skill bar hotkey H\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			H\r\n		</button>\r\n		<button id=\"jButton\" data-tip=\"Skill bar hotkey J\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			J\r\n		</button>\r\n		<button id=\"kButton\" data-tip=\"Skill bar hotkey K\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			K\r\n		</button>\r\n		<button id=\"lButton\" data-tip=\"Skill bar hotkey L\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			L\r\n		</button>\r\n\r\n		<button\r\n			id=\"pickupButton\"\r\n			data-tip=\"Pick up the nearest item\"\r\n			class=\"pickupButton mobileKeys vertical secondary disabled\"\r\n		>\r\n			🖐\r\n		</button>\r\n		<!-- Pick Up Button -MicromeX -->\r\n		<button\r\n			id=\"talktonpcButton\"\r\n			data-tip=\"Talk to the nearest NPC\"\r\n			class=\"talktonpcButton mobileKeys vertical secondary disabled\"\r\n		>\r\n			💬\r\n		</button>\r\n		<!-- Talk to NPC Button -MicromeX -->\r\n		<button\r\n			id=\"switchshorcutButton\"\r\n			data-tip=\"Switch skill bar row (F1-F9 / 1-9 / Q-O / A-L)\"\r\n			class=\"switchshorcutButton mobileKeys vertical secondary disabled\"\r\n		>\r\n			🔄\r\n		</button>\r\n		<!-- Auto Skill Button -MicromeX -->\r\n\r\n		<!-- Attack Button -MicromeX -->\r\n		<button\r\n			id=\"attackButton\"\r\n			data-tip=\"Attack the selected target\"\r\n			class=\"atkButton mobileKeys vertical secondary disabled\"\r\n		>\r\n			⚔️\r\n		</button>\r\n	</div>\r\n\r\n	<div id=\"leftBar\" class=\"buttonBar disabled\">\r\n		<button id=\"f10Button\" data-tip=\"Change chat box size (F10)\" class=\"buttons mobileKeys secondary vertical\">\r\n			⏫</button\r\n		><br />\r\n		<button id=\"f12Button\" data-tip=\"Change skill bar size (F12)\" class=\"buttons mobileKeys secondary vertical\">\r\n			🔢</button\r\n		><br />\r\n		<button id=\"insButton\" data-tip=\"Sit down / stand up\" class=\"buttons mobileKeys secondary vertical\">🧎</button\r\n		><br />\r\n	</div>\r\n\r\n	<div id=\"rightBar\" class=\"buttonBar disabled\">\r\n		<button\r\n			id=\"toggleStatusButton\"\r\n			data-tip=\"Show / hide status icons\"\r\n			class=\"buttons mobileKeys secondary vertical active\"\r\n		>\r\n			👀</button\r\n		><br />\r\n		<button\r\n			id=\"toggleTargetingButton\"\r\n			data-tip=\"Toggle touch targeting\"\r\n			class=\"buttons mobileKeys secondary vertical\"\r\n		>\r\n			⚙️</button\r\n		><br />\r\n		<button\r\n			id=\"toggleAutoFollowButton\"\r\n			data-tip=\"Auto follow the selected target\"\r\n			class=\"buttons mobileKeys vertical secondary disabled\"\r\n		>\r\n			👥</button\r\n		><br />\r\n		<button\r\n			id=\"toggleAutoTargetButton\"\r\n			data-tip=\"Auto target the nearest monster\"\r\n			class=\"buttons mobileKeys vertical secondary disabled\"\r\n		>\r\n			🎯</button\r\n		><br />\r\n	</div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/MobileUI/MobileUI.css?raw
 var MobileUI_default$1;
 var init_MobileUI$1 = __esmMin((() => {
-	MobileUI_default$1 = ":host {\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI button,\r\n#MobileUI .joystick-base {\r\n	pointer-events: auto;\r\n}\r\n\r\n#MobileUI * {\r\n	z-index: 1000;\r\n}\r\n\r\n#MobileUI .buttonBar,\r\n#MobileUI #toggleUIButton {\r\n	position: absolute;\r\n}\r\n\r\n#MobileUI #toggleUIButton {\r\n	top: 1%;\r\n	left: 1%;\r\n	width: 6.5vmin;\r\n	height: 6.5vmin;\r\n}\r\n\r\n#MobileUI .buttons {\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border-radius: 6px;\r\n	border: 1px solid grey;\r\n	font-size: 4vmin;\r\n	font-weight: bold;\r\n}\r\n\r\n#MobileUI .mobileKeys {\r\n	visibility: inherit;\r\n}\r\n\r\n#MobileUI .horizontal {\r\n	margin: 0 3.5vmin;\r\n}\r\n\r\n#MobileUI .vertical {\r\n	margin: 3.5vmin 0;\r\n}\r\n\r\n#MobileUI .disabled {\r\n	visibility: hidden;\r\n}\r\n\r\n#MobileUI #topBar {\r\n	left: 50%;\r\n	top: 1%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n#MobileUI #leftBar {\r\n	left: 1%;\r\n	bottom: 35%;\r\n	transform: translate(0, 50%);\r\n}\r\n\r\n#MobileUI #rightBar {\r\n	right: 1%;\r\n	bottom: 35%;\r\n	transform: translate(0, 50%);\r\n}\r\n\r\n#MobileUI #rightBar .buttons {\r\n	float: right;\r\n}\r\n\r\n#MobileUI .active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 8px;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #toggleUIButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 8px;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n@keyframes pulse {\r\n	0% {\r\n		box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	}\r\n	50% {\r\n		box-shadow: 0px 6px 12px rgba(144, 238, 144, 0.6);\r\n	}\r\n	100% {\r\n		box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	}\r\n}\r\n\r\n#MobileUI .pressed {\r\n	background: rgba(193, 255, 255, 0.33);\r\n}\r\n\r\n#MobileUI .primary {\r\n	width: 11vmin;\r\n	height: 11vmin;\r\n}\r\n\r\n#MobileUI .secondary {\r\n	width: 7.5vmin;\r\n	height: 7.5vmin;\r\n}\r\n\r\n/* Container for all buttons -MicromeX */\r\n#MobileUI #buttonContainer {\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	position: absolute;\r\n	bottom: 10%;\r\n	right: 10%;\r\n	width: 37.5vmin;\r\n	height: 37.5vmin;\r\n	z-index: 1000;\r\n}\r\n\r\n/* Attack Button (center and larger) -MicromeX */\r\n#MobileUI .atkButton {\r\n	position: absolute;\r\n	width: 17.5vmin;\r\n	height: 17.5vmin;\r\n	background-color: #f44336;\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 7vmin;\r\n	color: white;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Functional Buttons (around the attack button) -MicromeX */\r\n#MobileUI .pickupButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .talktonpcButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .switchshorcutButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	font-weight: bold;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Functional Buttons (smaller and proportional) -MicromeX */\r\n#MobileUI .FButton {\r\n	position: absolute;\r\n	width: 7.5vmin;\r\n	height: 7.5vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 3.75vmin;\r\n	font-weight: bold;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #f1Button {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f2Button {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f3Button {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f4Button {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f5Button {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f6Button {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f7Button {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f8Button {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f9Button {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #n1Button {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n2Button {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n3Button {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n4Button {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n5Button {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n6Button {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n7Button {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n8Button {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n9Button {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #qButton {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #wButton {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #eButton {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #rButton {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #tButton {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #yButton {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #uButton {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #iButton {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #oButton {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #aButton {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #sButton {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #dButton {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #fButton {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #gButton {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #hButton {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #jButton {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #kButton {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #lButton {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Pickup Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #attackButton {\r\n	bottom: -10%;\r\n	left: 60%;\r\n	transform: translate(-50%, 0);\r\n}\r\n/* Pickup Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #pickupButton {\r\n	bottom: 10%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n/* TalkToNpc Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #talktonpcButton {\r\n	bottom: -23%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n/* TalkToNpc Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #switchshorcutButton {\r\n	bottom: 43%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n/* Hover Effect for Buttons -MicromeX */\r\n#MobileUI #f1Button:active,\r\n#MobileUI #f2Button:active,\r\n#MobileUI #f3Button:active,\r\n#MobileUI #f4Button:active,\r\n#MobileUI #f5Button:active,\r\n#MobileUI #f6Button:active,\r\n#MobileUI #f7Button:active,\r\n#MobileUI #f8Button:active,\r\n#MobileUI #f9Button:active,\r\n#MobileUI #n1Button:active,\r\n#MobileUI #n2Button:active,\r\n#MobileUI #n3Button:active,\r\n#MobileUI #n4Button:active,\r\n#MobileUI #n5Button:active,\r\n#MobileUI #n6Button:active,\r\n#MobileUI #n7Button:active,\r\n#MobileUI #n8Button:active,\r\n#MobileUI #n9Button:active,\r\n#MobileUI #qButton:active,\r\n#MobileUI #wButton:active,\r\n#MobileUI #eButton:active,\r\n#MobileUI #rButton:active,\r\n#MobileUI #tButton:active,\r\n#MobileUI #yButton:active,\r\n#MobileUI #uButton:active,\r\n#MobileUI #iButton:active,\r\n#MobileUI #oButton:active,\r\n#MobileUI #aButton:active,\r\n#MobileUI #sButton:active,\r\n#MobileUI #dButton:active,\r\n#MobileUI #fButton:active,\r\n#MobileUI #gButton:active,\r\n#MobileUI #hButton:active,\r\n#MobileUI #jButton:active,\r\n#MobileUI #kButton:active,\r\n#MobileUI #lButton:active,\r\n#MobileUI #switchshorcutButton:active,\r\n#MobileUI #pickupButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 50%;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #talktonpcButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 50%;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #attackButton:active {\r\n	background-color: #4caf50;\r\n	box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.4);\r\n	border: 2px solid #388e3c;\r\n	transition:\r\n		transform 0.2s ease,\r\n		background-color 0.2s ease,\r\n		box-shadow 0.2s ease,\r\n		border 0.2s ease;\r\n}\r\n\r\n/* Joystick container -MicromeX */\r\n#MobileUI .joystick-container {\r\n	position: absolute;\r\n	bottom: 7%;\r\n	left: 10%;\r\n	width: 25vmin;\r\n	height: 25vmin;\r\n	z-index: 1000;\r\n}\r\n\r\n/* Joystick base -MicromeX */\r\n#MobileUI .joystick-base {\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border-radius: 50%;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n/* Joystick thumb -MicromeX */\r\n#MobileUI .joystick-thumb {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: radial-gradient(circle, rgba(236, 240, 241, 1) 70%, rgba(189, 195, 199, 1) 100%);\r\n	border-radius: 50%;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);\r\n	touch-action: none;\r\n	cursor: grab;\r\n}\r\n";
+	MobileUI_default$1 = ":host {\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI button,\r\n#MobileUI .joystick-base {\r\n	pointer-events: auto;\r\n}\r\n\r\n#MobileUI * {\r\n	z-index: 1000;\r\n}\r\n\r\n#MobileUI .buttonBar,\r\n#MobileUI #toggleUIButton {\r\n	position: absolute;\r\n}\r\n\r\n#MobileUI #toggleUIButton {\r\n	top: 1%;\r\n	left: 1%;\r\n	width: 6.5vmin;\r\n	height: 6.5vmin;\r\n}\r\n\r\n#MobileUI .buttons {\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border-radius: 6px;\r\n	border: 1px solid grey;\r\n	font-size: 4vmin;\r\n	font-weight: bold;\r\n}\r\n\r\n#MobileUI .mobileKeys {\r\n	visibility: inherit;\r\n}\r\n\r\n#MobileUI .horizontal {\r\n	margin: 0 3.5vmin;\r\n}\r\n\r\n#MobileUI .vertical {\r\n	margin: 3.5vmin 0;\r\n}\r\n\r\n#MobileUI .disabled {\r\n	visibility: hidden;\r\n}\r\n\r\n#MobileUI #topBar {\r\n	left: 50%;\r\n	top: 1%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n#MobileUI #leftBar {\r\n	left: 1%;\r\n	bottom: 35%;\r\n	transform: translate(0, 50%);\r\n}\r\n\r\n#MobileUI #rightBar {\r\n	right: 1%;\r\n	bottom: 35%;\r\n	transform: translate(0, 50%);\r\n}\r\n\r\n#MobileUI #rightBar .buttons {\r\n	float: right;\r\n}\r\n\r\n#MobileUI .active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 8px;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #toggleUIButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 8px;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n@keyframes pulse {\r\n	0% {\r\n		box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	}\r\n	50% {\r\n		box-shadow: 0px 6px 12px rgba(144, 238, 144, 0.6);\r\n	}\r\n	100% {\r\n		box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	}\r\n}\r\n\r\n#MobileUI .pressed {\r\n	background: rgba(193, 255, 255, 0.33);\r\n}\r\n\r\n#MobileUI .buttonTip {\r\n	position: fixed;\r\n	z-index: 1001;\r\n	max-width: 70vw;\r\n	padding: 1.2vmin 2vmin;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	border: 1px solid #c6c6c6;\r\n	border-radius: 6px;\r\n	color: white;\r\n	font-size: 3.5vmin;\r\n	text-align: center;\r\n	text-shadow: 1px 1px black;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI .primary {\r\n	width: 11vmin;\r\n	height: 11vmin;\r\n}\r\n\r\n#MobileUI .secondary {\r\n	width: 7.5vmin;\r\n	height: 7.5vmin;\r\n}\r\n\r\n/* Container for all buttons -MicromeX */\r\n#MobileUI #buttonContainer {\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	position: absolute;\r\n	bottom: 10%;\r\n	right: 10%;\r\n	width: 37.5vmin;\r\n	height: 37.5vmin;\r\n	z-index: 1000;\r\n}\r\n\r\n/* Attack Button (center and larger) -MicromeX */\r\n#MobileUI .atkButton {\r\n	position: absolute;\r\n	width: 17.5vmin;\r\n	height: 17.5vmin;\r\n	background-color: #f44336;\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 7vmin;\r\n	color: white;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Functional Buttons (around the attack button) -MicromeX */\r\n#MobileUI .pickupButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .talktonpcButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .switchshorcutButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	font-weight: bold;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Functional Buttons (smaller and proportional) -MicromeX */\r\n#MobileUI .FButton {\r\n	position: absolute;\r\n	width: 7.5vmin;\r\n	height: 7.5vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 3.75vmin;\r\n	font-weight: bold;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #f1Button {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f2Button {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f3Button {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f4Button {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f5Button {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f6Button {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f7Button {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f8Button {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f9Button {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #n1Button {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n2Button {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n3Button {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n4Button {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n5Button {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n6Button {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n7Button {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n8Button {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n9Button {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #qButton {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #wButton {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #eButton {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #rButton {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #tButton {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #yButton {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #uButton {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #iButton {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #oButton {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #aButton {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #sButton {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #dButton {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #fButton {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #gButton {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #hButton {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #jButton {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #kButton {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #lButton {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Pickup Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #attackButton {\r\n	bottom: -10%;\r\n	left: 60%;\r\n	transform: translate(-50%, 0);\r\n}\r\n/* Pickup Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #pickupButton {\r\n	bottom: 10%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n/* TalkToNpc Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #talktonpcButton {\r\n	bottom: -23%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n/* TalkToNpc Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #switchshorcutButton {\r\n	bottom: 43%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n/* Hover Effect for Buttons -MicromeX */\r\n#MobileUI #f1Button:active,\r\n#MobileUI #f2Button:active,\r\n#MobileUI #f3Button:active,\r\n#MobileUI #f4Button:active,\r\n#MobileUI #f5Button:active,\r\n#MobileUI #f6Button:active,\r\n#MobileUI #f7Button:active,\r\n#MobileUI #f8Button:active,\r\n#MobileUI #f9Button:active,\r\n#MobileUI #n1Button:active,\r\n#MobileUI #n2Button:active,\r\n#MobileUI #n3Button:active,\r\n#MobileUI #n4Button:active,\r\n#MobileUI #n5Button:active,\r\n#MobileUI #n6Button:active,\r\n#MobileUI #n7Button:active,\r\n#MobileUI #n8Button:active,\r\n#MobileUI #n9Button:active,\r\n#MobileUI #qButton:active,\r\n#MobileUI #wButton:active,\r\n#MobileUI #eButton:active,\r\n#MobileUI #rButton:active,\r\n#MobileUI #tButton:active,\r\n#MobileUI #yButton:active,\r\n#MobileUI #uButton:active,\r\n#MobileUI #iButton:active,\r\n#MobileUI #oButton:active,\r\n#MobileUI #aButton:active,\r\n#MobileUI #sButton:active,\r\n#MobileUI #dButton:active,\r\n#MobileUI #fButton:active,\r\n#MobileUI #gButton:active,\r\n#MobileUI #hButton:active,\r\n#MobileUI #jButton:active,\r\n#MobileUI #kButton:active,\r\n#MobileUI #lButton:active,\r\n#MobileUI #switchshorcutButton:active,\r\n#MobileUI #pickupButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 50%;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #talktonpcButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 50%;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #attackButton:active {\r\n	background-color: #4caf50;\r\n	box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.4);\r\n	border: 2px solid #388e3c;\r\n	transition:\r\n		transform 0.2s ease,\r\n		background-color 0.2s ease,\r\n		box-shadow 0.2s ease,\r\n		border 0.2s ease;\r\n}\r\n\r\n/* Joystick container -MicromeX */\r\n#MobileUI .joystick-container {\r\n	position: absolute;\r\n	bottom: 7%;\r\n	left: 10%;\r\n	width: 25vmin;\r\n	height: 25vmin;\r\n	z-index: 1000;\r\n}\r\n\r\n/* Joystick base -MicromeX */\r\n#MobileUI .joystick-base {\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border-radius: 50%;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n/* Joystick thumb -MicromeX */\r\n#MobileUI .joystick-thumb {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: radial-gradient(circle, rgba(236, 240, 241, 1) 70%, rgba(189, 195, 199, 1) 100%);\r\n	border-radius: 50%;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);\r\n	touch-action: none;\r\n	cursor: grab;\r\n}\r\n";
+}));
+//#endregion
+//#region src/UI/Components/StatusIcons/StatusIcons.html?raw
+var StatusIcons_default$2;
+var init_StatusIcons$2 = __esmMin((() => {
+	StatusIcons_default$2 = "<div id=\"StatusIcons\"></div>\r\n";
+}));
+//#endregion
+//#region src/UI/Components/StatusIcons/StatusIcons.css?raw
+var StatusIcons_default$1;
+var init_StatusIcons$1 = __esmMin((() => {
+	StatusIcons_default$1 = ":host {\r\n	top: 166px;\r\n	right: 20px;\r\n	overflow: visible;\r\n}\r\n\r\n#StatusIcons {\r\n	display: block;\r\n}\r\n\r\n#StatusIcons .state {\r\n	position: absolute;\r\n}\r\n\r\n#StatusIcons .state .description {\r\n	display: none;\r\n	z-index: 51;\r\n	position: absolute;\r\n	right: 33px;\r\n	top: 0px;\r\n	padding: 0px 5px 0px 5px;\r\n	background-color: rgba(0, 0, 0, 0.5);\r\n	border: 1px solid #c6c6c6;\r\n	border-radius: 3px;\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n	white-space: nowrap;\r\n	line-height: 16px;\r\n}\r\n\r\n#StatusIcons .state:hover .description {\r\n	display: block;\r\n}\r\n\r\n#StatusIcons .state canvas {\r\n	width: 32px;\r\n	height: 32px;\r\n}\r\n";
+}));
+//#endregion
+//#region src/UI/Components/StatusIcons/StatusIcons.js
+function loadStatusIcon(index) {
+	const tkmVariant = SessionStorage_default.Entity && DB.isTaeKwon(SessionStorage_default.Entity._job) && TKM_ICON_OVERRIDE[index] || null;
+	const iconName = tkmVariant || StatusInfo[index].icon;
+	_status[index].tkmVariant = tkmVariant;
+	Client.loadFile(`data/texture/effect/${iconName}`, (data) => {
+		Texture.load(data, function() {
+			if (_status[index] && !_status[index].img) addResizedStatusIcon(this, index);
+		});
+	});
+}
+function addResizedStatusIcon(img, index) {
+	if (img.width < 33 && img.height < 33) {
+		_status[index].img = img;
+		addElement$4(_status[index].element);
+		return;
+	}
+	const canvas = document.createElement("canvas");
+	canvas.width = 32;
+	canvas.height = 32;
+	const ctx = canvas.getContext("2d");
+	ctx.save();
+	ctx.translate(0, 32);
+	ctx.scale(1, -1);
+	const scale = Math.min(32 / img.width, 32 / img.height);
+	const width = img.width * scale;
+	const height = img.height * scale;
+	const x = (32 - width) / 2;
+	const y = (32 - height) / 2;
+	ctx.drawImage(img, x, y, width, height);
+	ctx.restore();
+	const resizedImg = new Image();
+	resizedImg.src = canvas.toDataURL();
+	resizedImg.onload = () => {
+		_status[index].img = resizedImg;
+		addElement$4(_status[index].element);
+	};
+}
+/**
+* Reset elements position.
+*
+* Used when one element is removed.
+*/
+function resetElementsPosition() {
+	const elements = StatusIcons.getRoot().querySelectorAll(".state");
+	const count = elements.length;
+	let x = 0;
+	let y = 0;
+	for (let i = 0; i < count; ++i, y += 36) {
+		if (y > Renderer.height - 166) {
+			y = 0;
+			x += 45;
+		}
+		const element = elements[i];
+		element.style.top = `${y}px`;
+		element.style.right = `${x}px`;
+	}
+}
+/**
+* Remove an element from list and DOM
+*
+* @param {number} index
+*/
+function removeElementIndex(index) {
+	if (!(index in _status)) return;
+	const element = _status[index].element;
+	if (element && element.parentNode) element.parentNode.removeChild(element);
+	ScreenEffectManager.cleanStatusEffect(index);
+	delete _status[index];
+}
+/**
+* Create an element
+*
+* @param {number} index
+*/
+function createElement(index) {
+	const state = document.createElement("div");
+	state.className = "state";
+	const canvas = document.createElement("canvas");
+	canvas.width = 32;
+	canvas.height = 32;
+	state.appendChild(canvas);
+	_status[index] = {};
+	_status[index].element = state;
+	_status[index].ctx = canvas.getContext("2d");
+	if (StatusInfo[index].descript) {
+		const info = document.createElement("div");
+		info.className = "description";
+		const lines = StatusInfo[index].descript;
+		const count = lines.length;
+		for (let i = 0; i < count; ++i) {
+			const line = document.createElement("div");
+			line.textContent = lines[i][0];
+			if (lines[i][1]) line.style.color = lines[i][1];
+			line.innerHTML = line.innerHTML.replace("%s", "<span class=\"time\">0</span>");
+			info.appendChild(line);
+		}
+		const time = info.getElementsByClassName("time");
+		if (time.length) {
+			_status[index].time = time[0];
+			_status[index].timeTick = 0;
+		}
+		state.appendChild(info);
+	}
+}
+/**
+* Add element to the list, helper for multi-column
+*
+* @param {CanvasElement}
+*/
+function addElement$4(element) {
+	const root = StatusIcons.getRoot();
+	const elements = root.querySelectorAll(".state");
+	const max = (Renderer.height - 166) / 36 | 0;
+	const count = elements.length;
+	const x = (count / max | 0) * 45;
+	const y = count % max * 36;
+	element.style.top = `${y}px`;
+	element.style.right = `${x}px`;
+	const container = root.querySelector("#StatusIcons");
+	if (container) container.appendChild(element);
+}
+/**
+* Rendering a status icon
+*
+* @param {object} status
+* @param {number} tick
+*/
+function renderStatus(status, now) {
+	if (!status.img) return;
+	const ctx = status.ctx;
+	const start = status.start;
+	let end = status.end;
+	let color, perc;
+	if (now > end) end = now;
+	if (end < now + 6e4) {
+		color = "rgba(255,150,50,0.65)";
+		perc = 1 - (end - now) / 6e4;
+	} else {
+		color = "rgba(255,255,255,0.65)";
+		perc = (now - start) / (end - 6e4 - start);
+	}
+	ctx.clearRect(0, 0, 32, 32);
+	ctx.drawImage(status.img, 0, 0);
+	ctx.fillStyle = color;
+	ctx.beginPath();
+	ctx.arc(16, 16, 24, 1.5 * Math.PI, (1.5 + perc * 2) % 2 * Math.PI);
+	ctx.lineTo(16, 16);
+	ctx.fill();
+	if (status.time && status.timeTick + 1e3 < now) {
+		status.timeTick = now;
+		const tick = (end - now) / 1e3 | 0;
+		const seconds = tick % 60;
+		const minutes = tick / 60 | 0;
+		status.time.textContent = now >= end || end === Infinity ? "" : (minutes ? `${minutes} ${DB.getMessage(1807, "minute")} ` : "") + `${seconds} ${DB.getMessage(1808, "second")}`;
+	}
+}
+/**
+* Rendering status icons progressbar
+*
+* @param {number} tick
+*/
+function rendering$1(tick) {
+	const indexes = Object.keys(_status);
+	const count = indexes.length;
+	const time_now = Date.now();
+	if (time_now - _last_updated_time > _render_time) {
+		_last_updated_time = time_now;
+		for (let i = 0; i < count; ++i) renderStatus(_status[indexes[i]], tick);
+	}
+}
+var StatusIcons, _status, _last_updated_time, _render_time, TKM_ICON_OVERRIDE, StatusIcons_default;
+var init_StatusIcons = __esmMin((() => {
+	init_StatusInfo();
+	init_StatusConst();
+	init_DBManager();
+	init_Texture();
+	init_Client();
+	init_Renderer();
+	init_UIManager();
+	init_GUIComponent();
+	init_ScreenEffectManager();
+	init_SessionStorage();
+	init_StatusIcons$2();
+	init_StatusIcons$1();
+	StatusIcons = new GUIComponent("StatusIcons", StatusIcons_default$1);
+	StatusIcons.render = () => StatusIcons_default$2;
+	/**
+	* Mouse can cross this UI
+	*/
+	StatusIcons.mouseMode = GUIComponent.MouseMode.CROSS;
+	/**
+	* @var {boolean} do not focus this UI
+	*/
+	StatusIcons.needFocus = false;
+	_status = {};
+	_last_updated_time = Date.now();
+	_render_time = 500;
+	TKM_ICON_OVERRIDE = {
+		[StatusConst_default.ASPERSIO]: "i_p_SAINT.tga",
+		[StatusConst_default.PROPERTYFIRE]: "i_p_FIRE.tga",
+		[StatusConst_default.PROPERTYWATER]: "i_p_WATER.tga",
+		[StatusConst_default.PROPERTYWIND]: "i_p_WIND.tga",
+		[StatusConst_default.PROPERTYGROUND]: "i_p_EARTH.tga",
+		[StatusConst_default.PROPERTYDARK]: "i_p_DARK.tga",
+		[StatusConst_default.PROPERTYTELEKINESIS]: "i_p_TELE.tga"
+	};
+	/**
+	* Start rendering icons
+	*/
+	StatusIcons.onAppend = function onAppend() {
+		Renderer.render(rendering$1);
+	};
+	/**
+	* Stop rendering icons
+	*/
+	StatusIcons.onRemove = function onRemove() {
+		Renderer.stop(rendering$1);
+	};
+	/**
+	* Clean up component
+	*/
+	StatusIcons.clean = function clean() {
+		const container = StatusIcons.getRoot().querySelector("#StatusIcons");
+		if (container) container.innerHTML = "";
+		_status = {};
+		ScreenEffectManager.clean();
+	};
+	/**
+	* Update icon on screen
+	*
+	* @param {number} status id
+	* @param {number} enable/disable
+	* @param {number} life time
+	*/
+	StatusIcons.update = function update(index, state, life) {
+		if (!(index in StatusInfo) || !StatusInfo[index].icon) return;
+		if (!state && (!life || life <= 0)) {
+			removeElementIndex(index);
+			resetElementsPosition();
+			return;
+		}
+		if (!(index in _status)) createElement(index);
+		_status[index].start = Renderer.tick;
+		_status[index].end = Renderer.tick + life;
+		if (life === 9999) _status[index].end = Infinity;
+		if (_status[index].img) {
+			if (TKM_ICON_OVERRIDE[index]) {
+				const wantVariant = SessionStorage_default.Entity && DB.isTaeKwon(SessionStorage_default.Entity._job) && TKM_ICON_OVERRIDE[index] || null;
+				if (_status[index].tkmVariant !== wantVariant) _status[index].img = null;
+				else return;
+			} else return;
+		}
+		loadStatusIcon(index);
+		ScreenEffectManager.parseStatus(index);
+	};
+	StatusIcons_default = UIManager.addComponent(StatusIcons);
 }));
 //#endregion
 //#region src/UI/Components/MobileUI/MobileUI.js
 /**
-* Helper to bind click+touchstart on an element
+* Show the long-press help tip above a button
+*
+* @param {HTMLElement} button
+*/
+function showTip(button) {
+	const tip = MobileUI.getRoot().querySelector("#buttonTip");
+	const text = button.dataset.tip;
+	if (!tip || !text) return;
+	tip.textContent = text;
+	tip.classList.remove("disabled");
+	const rect = button.getBoundingClientRect();
+	const width = tip.offsetWidth;
+	const height = tip.offsetHeight;
+	const margin = 8;
+	let left = rect.left + rect.width / 2 - width / 2;
+	left = Math.max(margin, Math.min(left, window.innerWidth - width - margin));
+	let top = rect.top - height - margin;
+	if (top < margin) top = rect.bottom + margin;
+	tip.style.left = `${left}px`;
+	tip.style.top = `${top}px`;
+}
+/**
+* Hide the long-press help tip
+*/
+function hideTip() {
+	const tip = MobileUI.getRoot().querySelector("#buttonTip");
+	if (tip) tip.classList.add("disabled");
+}
+/**
+* Helper to bind click+touch on an element.
+* A tap runs the handler on release; holding for C_LONG_PRESS_DELAY shows
+* the button's help tip instead and suppresses the handler.
 */
 function bindButton(root, selector, handler) {
 	const el = root.querySelector(selector);
 	if (el) {
 		let touchHandled = false;
 		let releaseTimer = null;
+		let longPressTimer = null;
+		let longPressed = false;
+		let startX = 0;
+		let startY = 0;
 		const clearGuard = () => {
 			if (releaseTimer !== null) {
 				clearTimeout(releaseTimer);
@@ -308020,6 +308326,21 @@ function bindButton(root, selector, handler) {
 				touchHandled = false;
 			}, C_TOUCH_CLICK_GUARD);
 		};
+		const clearLongPress = () => {
+			if (longPressTimer !== null) {
+				clearTimeout(longPressTimer);
+				longPressTimer = null;
+			}
+		};
+		const endTouch = (event) => {
+			const pending = longPressTimer !== null;
+			clearLongPress();
+			if (longPressed) {
+				longPressed = false;
+				hideTip();
+			} else if (pending && event.type === "touchend") handler(event);
+			releaseGuard();
+		};
 		el.addEventListener("click", (event) => {
 			if (touchHandled) {
 				touchHandled = false;
@@ -308031,12 +308352,26 @@ function bindButton(root, selector, handler) {
 			handler(event);
 		});
 		el.addEventListener("touchstart", (event) => {
+			const touch = event.changedTouches[0];
+			startX = touch.clientX;
+			startY = touch.clientY;
 			touchHandled = true;
+			longPressed = false;
 			clearGuard();
-			handler(event);
+			clearLongPress();
+			longPressTimer = setTimeout(() => {
+				longPressTimer = null;
+				longPressed = true;
+				showTip(el);
+			}, C_LONG_PRESS_DELAY);
+			stopPropagation$7(event);
 		});
-		el.addEventListener("touchend", releaseGuard);
-		el.addEventListener("touchcancel", releaseGuard);
+		el.addEventListener("touchmove", (event) => {
+			const touch = event.changedTouches[0];
+			if (Math.hypot(touch.clientX - startX, touch.clientY - startY) > C_TOUCH_MOVE_TOLERANCE) clearLongPress();
+		});
+		el.addEventListener("touchend", endTouch);
+		el.addEventListener("touchcancel", endTouch);
 	}
 }
 /**
@@ -308240,8 +308575,11 @@ function switchSkillButtons() {
 * Toggles status view
 */
 function toggleStatus() {
-	const statusIcons = document.querySelector("#StatusIcons");
-	if (statusIcons) statusIcons.style.display = statusIcons.style.display === "none" ? "" : "none";
+	const button = MobileUI.getRoot().querySelector("#toggleStatusButton");
+	const host = StatusIcons_default.getRoot().host;
+	const show = host.style.display === "none";
+	host.style.display = show ? "" : "none";
+	button.classList.toggle("active", show);
 }
 /**
 * Toggles touch targeting
@@ -308509,7 +308847,7 @@ function moveCharacter(x, y, tileSize) {
 * Talk to NPC Button Function - MicromeX
 */
 function setupTalkToNpcButton() {
-	const talkButton = MobileUI.getRoot().querySelector("#talktonpcButton");
+	const root = MobileUI.getRoot();
 	function findNearestNpc() {
 		const player = SessionStorage_default.Entity;
 		if (!player) return null;
@@ -308535,7 +308873,10 @@ function setupTalkToNpcButton() {
 		talkPacket.NAID = nearestNpc.GID;
 		Network.sendPacket(talkPacket);
 	}
-	talkButton.addEventListener("click", talkToNearestNpc);
+	bindButton(root, "#talktonpcButton", (e) => {
+		talkToNearestNpc();
+		stopPropagation$7(e);
+	});
 }
 /**
 * Search free cells around a position
@@ -308575,7 +308916,7 @@ function isFreeCell$2(x, y) {
 	});
 	return free;
 }
-var vec2, mat2, direction, rotate, targetPos, movementTimer, MobileUI, _preferences$17, showButtons, C_AUTOTARGET_DELAY, C_TOUCH_CLICK_GUARD, centerX, centerY, maxDistance, normalizedX, normalizedY, _joystickBase, _joystickThumb, MobileUI_default;
+var vec2, mat2, direction, rotate, targetPos, movementTimer, MobileUI, _preferences$17, showButtons, C_AUTOTARGET_DELAY, C_TOUCH_CLICK_GUARD, C_LONG_PRESS_DELAY, C_TOUCH_MOVE_TOLERANCE, centerX, centerY, maxDistance, normalizedX, normalizedY, _joystickBase, _joystickThumb, MobileUI_default;
 var init_MobileUI = __esmMin((() => {
 	init_Context();
 	init_UIManager();
@@ -308595,6 +308936,8 @@ var init_MobileUI = __esmMin((() => {
 	init_gl_matrix$1();
 	init_Camera();
 	init_BattleMode();
+	init_ProcessCommand();
+	init_StatusIcons();
 	vec2 = exports$3.vec2;
 	mat2 = exports$3.mat2;
 	direction = vec2.create();
@@ -308615,6 +308958,8 @@ var init_MobileUI = __esmMin((() => {
 	showButtons = false;
 	C_AUTOTARGET_DELAY = 500;
 	C_TOUCH_CLICK_GUARD = 750;
+	C_LONG_PRESS_DELAY = 1e3;
+	C_TOUCH_MOVE_TOLERANCE = 10;
 	maxDistance = 0;
 	normalizedX = 0;
 	normalizedY = 0;
@@ -308694,7 +309039,7 @@ var init_MobileUI = __esmMin((() => {
 			stopPropagation$7(e);
 		});
 		bindButton(root, "#insButton", (e) => {
-			logKeyPress(45);
+			ProcessCommand_default.processCommand("sit");
 			stopPropagation$7(e);
 		});
 		bindButton(root, "#toggleStatusButton", (e) => {
@@ -313250,277 +313595,6 @@ var init_ShortCuts = __esmMin((() => {
 		this._host.style.height = `${50 + height * 32}px`;
 	};
 	ShortCuts_default = UIManager.addComponent(ShortCuts);
-}));
-//#endregion
-//#region src/UI/Components/StatusIcons/StatusIcons.html?raw
-var StatusIcons_default$2;
-var init_StatusIcons$2 = __esmMin((() => {
-	StatusIcons_default$2 = "<div id=\"StatusIcons\"></div>\r\n";
-}));
-//#endregion
-//#region src/UI/Components/StatusIcons/StatusIcons.css?raw
-var StatusIcons_default$1;
-var init_StatusIcons$1 = __esmMin((() => {
-	StatusIcons_default$1 = ":host {\r\n	top: 166px;\r\n	right: 20px;\r\n	overflow: visible;\r\n}\r\n\r\n#StatusIcons {\r\n	display: block;\r\n}\r\n\r\n#StatusIcons .state {\r\n	position: absolute;\r\n}\r\n\r\n#StatusIcons .state .description {\r\n	display: none;\r\n	z-index: 51;\r\n	position: absolute;\r\n	right: 33px;\r\n	top: 0px;\r\n	padding: 0px 5px 0px 5px;\r\n	background-color: rgba(0, 0, 0, 0.5);\r\n	border: 1px solid #c6c6c6;\r\n	border-radius: 3px;\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n	white-space: nowrap;\r\n	line-height: 16px;\r\n}\r\n\r\n#StatusIcons .state:hover .description {\r\n	display: block;\r\n}\r\n\r\n#StatusIcons .state canvas {\r\n	width: 32px;\r\n	height: 32px;\r\n}\r\n";
-}));
-//#endregion
-//#region src/UI/Components/StatusIcons/StatusIcons.js
-function loadStatusIcon(index) {
-	const tkmVariant = SessionStorage_default.Entity && DB.isTaeKwon(SessionStorage_default.Entity._job) && TKM_ICON_OVERRIDE[index] || null;
-	const iconName = tkmVariant || StatusInfo[index].icon;
-	_status[index].tkmVariant = tkmVariant;
-	Client.loadFile(`data/texture/effect/${iconName}`, (data) => {
-		Texture.load(data, function() {
-			if (_status[index] && !_status[index].img) addResizedStatusIcon(this, index);
-		});
-	});
-}
-function addResizedStatusIcon(img, index) {
-	if (img.width < 33 && img.height < 33) {
-		_status[index].img = img;
-		addElement$4(_status[index].element);
-		return;
-	}
-	const canvas = document.createElement("canvas");
-	canvas.width = 32;
-	canvas.height = 32;
-	const ctx = canvas.getContext("2d");
-	ctx.save();
-	ctx.translate(0, 32);
-	ctx.scale(1, -1);
-	const scale = Math.min(32 / img.width, 32 / img.height);
-	const width = img.width * scale;
-	const height = img.height * scale;
-	const x = (32 - width) / 2;
-	const y = (32 - height) / 2;
-	ctx.drawImage(img, x, y, width, height);
-	ctx.restore();
-	const resizedImg = new Image();
-	resizedImg.src = canvas.toDataURL();
-	resizedImg.onload = () => {
-		_status[index].img = resizedImg;
-		addElement$4(_status[index].element);
-	};
-}
-/**
-* Reset elements position.
-*
-* Used when one element is removed.
-*/
-function resetElementsPosition() {
-	const elements = StatusIcons.getRoot().querySelectorAll(".state");
-	const count = elements.length;
-	let x = 0;
-	let y = 0;
-	for (let i = 0; i < count; ++i, y += 36) {
-		if (y > Renderer.height - 166) {
-			y = 0;
-			x += 45;
-		}
-		const element = elements[i];
-		element.style.top = `${y}px`;
-		element.style.right = `${x}px`;
-	}
-}
-/**
-* Remove an element from list and DOM
-*
-* @param {number} index
-*/
-function removeElementIndex(index) {
-	if (!(index in _status)) return;
-	const element = _status[index].element;
-	if (element && element.parentNode) element.parentNode.removeChild(element);
-	ScreenEffectManager.cleanStatusEffect(index);
-	delete _status[index];
-}
-/**
-* Create an element
-*
-* @param {number} index
-*/
-function createElement(index) {
-	const state = document.createElement("div");
-	state.className = "state";
-	const canvas = document.createElement("canvas");
-	canvas.width = 32;
-	canvas.height = 32;
-	state.appendChild(canvas);
-	_status[index] = {};
-	_status[index].element = state;
-	_status[index].ctx = canvas.getContext("2d");
-	if (StatusInfo[index].descript) {
-		const info = document.createElement("div");
-		info.className = "description";
-		const lines = StatusInfo[index].descript;
-		const count = lines.length;
-		for (let i = 0; i < count; ++i) {
-			const line = document.createElement("div");
-			line.textContent = lines[i][0];
-			if (lines[i][1]) line.style.color = lines[i][1];
-			line.innerHTML = line.innerHTML.replace("%s", "<span class=\"time\">0</span>");
-			info.appendChild(line);
-		}
-		const time = info.getElementsByClassName("time");
-		if (time.length) {
-			_status[index].time = time[0];
-			_status[index].timeTick = 0;
-		}
-		state.appendChild(info);
-	}
-}
-/**
-* Add element to the list, helper for multi-column
-*
-* @param {CanvasElement}
-*/
-function addElement$4(element) {
-	const root = StatusIcons.getRoot();
-	const elements = root.querySelectorAll(".state");
-	const max = (Renderer.height - 166) / 36 | 0;
-	const count = elements.length;
-	const x = (count / max | 0) * 45;
-	const y = count % max * 36;
-	element.style.top = `${y}px`;
-	element.style.right = `${x}px`;
-	const container = root.querySelector("#StatusIcons");
-	if (container) container.appendChild(element);
-}
-/**
-* Rendering a status icon
-*
-* @param {object} status
-* @param {number} tick
-*/
-function renderStatus(status, now) {
-	if (!status.img) return;
-	const ctx = status.ctx;
-	const start = status.start;
-	let end = status.end;
-	let color, perc;
-	if (now > end) end = now;
-	if (end < now + 6e4) {
-		color = "rgba(255,150,50,0.65)";
-		perc = 1 - (end - now) / 6e4;
-	} else {
-		color = "rgba(255,255,255,0.65)";
-		perc = (now - start) / (end - 6e4 - start);
-	}
-	ctx.clearRect(0, 0, 32, 32);
-	ctx.drawImage(status.img, 0, 0);
-	ctx.fillStyle = color;
-	ctx.beginPath();
-	ctx.arc(16, 16, 24, 1.5 * Math.PI, (1.5 + perc * 2) % 2 * Math.PI);
-	ctx.lineTo(16, 16);
-	ctx.fill();
-	if (status.time && status.timeTick + 1e3 < now) {
-		status.timeTick = now;
-		const tick = (end - now) / 1e3 | 0;
-		const seconds = tick % 60;
-		const minutes = tick / 60 | 0;
-		status.time.textContent = now >= end || end === Infinity ? "" : (minutes ? `${minutes} ${DB.getMessage(1807, "minute")} ` : "") + `${seconds} ${DB.getMessage(1808, "second")}`;
-	}
-}
-/**
-* Rendering status icons progressbar
-*
-* @param {number} tick
-*/
-function rendering$1(tick) {
-	const indexes = Object.keys(_status);
-	const count = indexes.length;
-	const time_now = Date.now();
-	if (time_now - _last_updated_time > _render_time) {
-		_last_updated_time = time_now;
-		for (let i = 0; i < count; ++i) renderStatus(_status[indexes[i]], tick);
-	}
-}
-var StatusIcons, _status, _last_updated_time, _render_time, TKM_ICON_OVERRIDE, StatusIcons_default;
-var init_StatusIcons = __esmMin((() => {
-	init_StatusInfo();
-	init_StatusConst();
-	init_DBManager();
-	init_Texture();
-	init_Client();
-	init_Renderer();
-	init_UIManager();
-	init_GUIComponent();
-	init_ScreenEffectManager();
-	init_SessionStorage();
-	init_StatusIcons$2();
-	init_StatusIcons$1();
-	StatusIcons = new GUIComponent("StatusIcons", StatusIcons_default$1);
-	StatusIcons.render = () => StatusIcons_default$2;
-	/**
-	* Mouse can cross this UI
-	*/
-	StatusIcons.mouseMode = GUIComponent.MouseMode.CROSS;
-	/**
-	* @var {boolean} do not focus this UI
-	*/
-	StatusIcons.needFocus = false;
-	_status = {};
-	_last_updated_time = Date.now();
-	_render_time = 500;
-	TKM_ICON_OVERRIDE = {
-		[StatusConst_default.ASPERSIO]: "i_p_SAINT.tga",
-		[StatusConst_default.PROPERTYFIRE]: "i_p_FIRE.tga",
-		[StatusConst_default.PROPERTYWATER]: "i_p_WATER.tga",
-		[StatusConst_default.PROPERTYWIND]: "i_p_WIND.tga",
-		[StatusConst_default.PROPERTYGROUND]: "i_p_EARTH.tga",
-		[StatusConst_default.PROPERTYDARK]: "i_p_DARK.tga",
-		[StatusConst_default.PROPERTYTELEKINESIS]: "i_p_TELE.tga"
-	};
-	/**
-	* Start rendering icons
-	*/
-	StatusIcons.onAppend = function onAppend() {
-		Renderer.render(rendering$1);
-	};
-	/**
-	* Stop rendering icons
-	*/
-	StatusIcons.onRemove = function onRemove() {
-		Renderer.stop(rendering$1);
-	};
-	/**
-	* Clean up component
-	*/
-	StatusIcons.clean = function clean() {
-		const container = StatusIcons.getRoot().querySelector("#StatusIcons");
-		if (container) container.innerHTML = "";
-		_status = {};
-		ScreenEffectManager.clean();
-	};
-	/**
-	* Update icon on screen
-	*
-	* @param {number} status id
-	* @param {number} enable/disable
-	* @param {number} life time
-	*/
-	StatusIcons.update = function update(index, state, life) {
-		if (!(index in StatusInfo) || !StatusInfo[index].icon) return;
-		if (!state && (!life || life <= 0)) {
-			removeElementIndex(index);
-			resetElementsPosition();
-			return;
-		}
-		if (!(index in _status)) createElement(index);
-		_status[index].start = Renderer.tick;
-		_status[index].end = Renderer.tick + life;
-		if (life === 9999) _status[index].end = Infinity;
-		if (_status[index].img) {
-			if (TKM_ICON_OVERRIDE[index]) {
-				const wantVariant = SessionStorage_default.Entity && DB.isTaeKwon(SessionStorage_default.Entity._job) && TKM_ICON_OVERRIDE[index] || null;
-				if (_status[index].tkmVariant !== wantVariant) _status[index].img = null;
-				else return;
-			} else return;
-		}
-		loadStatusIcon(index);
-		ScreenEffectManager.parseStatus(index);
-	};
-	StatusIcons_default = UIManager.addComponent(StatusIcons);
 }));
 //#endregion
 //#region src/UI/Components/CashShop/CashShop.html?raw
