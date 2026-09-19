@@ -120,6 +120,21 @@
 	background: rgba(193, 255, 255, 0.33);
 }
 
+#MobileUI .buttonTip {
+	position: fixed;
+	z-index: 1001;
+	max-width: 70vw;
+	padding: 1.2vmin 2vmin;
+	background: rgba(0, 0, 0, 0.8);
+	border: 1px solid #c6c6c6;
+	border-radius: 6px;
+	color: white;
+	font-size: 3.5vmin;
+	text-align: center;
+	text-shadow: 1px 1px black;
+	pointer-events: none;
+}
+
 #MobileUI .primary {
 	width: 11vmin;
 	height: 11vmin;

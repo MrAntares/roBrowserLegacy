@@ -25,6 +25,8 @@ import cssText from './MobileUI.css?raw';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
 import BattleMode from 'Controls/BattleMode.js';
+import ProcessCommand from 'Controls/ProcessCommand.js';
+import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
 
 const vec2 = glMatrix.vec2;
 const mat2 = glMatrix.mat2;
@@ -66,6 +68,8 @@ let showButtons = false;
 let autoTargetTimer;
 const C_AUTOTARGET_DELAY = 500;
 const C_TOUCH_CLICK_GUARD = 750;
+const C_LONG_PRESS_DELAY = 1000;
+const C_TOUCH_MOVE_TOLERANCE = 10;
 
 let centerX, centerY;
 let maxDistance = 0;
@@ -77,13 +81,63 @@ let _joystickBase = null;
 let _joystickThumb = null;
 
 /**
- * Helper to bind click+touchstart on an element
+ * Show the long-press help tip above a button
+ *
+ * @param {HTMLElement} button
+ */
+function showTip(button) {
+	const root = MobileUI.getRoot();
+	const tip = root.querySelector('#buttonTip');
+	const text = button.dataset.tip;
+
+	if (!tip || !text) {
+		return;
+	}
+
+	tip.textContent = text;
+	tip.classList.remove('disabled');
+
+	const rect = button.getBoundingClientRect();
+	const width = tip.offsetWidth;
+	const height = tip.offsetHeight;
+	const margin = 8;
+
+	let left = rect.left + rect.width / 2 - width / 2;
+	left = Math.max(margin, Math.min(left, window.innerWidth - width - margin));
+
+	let top = rect.top - height - margin;
+	if (top < margin) {
+		top = rect.bottom + margin;
+	}
+
+	tip.style.left = `${left}px`;
+	tip.style.top = `${top}px`;
+}
+
+/**
+ * Hide the long-press help tip
+ */
+function hideTip() {
+	const tip = MobileUI.getRoot().querySelector('#buttonTip');
+	if (tip) {
+		tip.classList.add('disabled');
+	}
+}
+
+/**
+ * Helper to bind click+touch on an element.
+ * A tap runs the handler on release; holding for C_LONG_PRESS_DELAY shows
+ * the button's help tip instead and suppresses the handler.
  */
 function bindButton(root, selector, handler) {
 	const el = root.querySelector(selector);
 	if (el) {
 		let touchHandled = false;
 		let releaseTimer = null;
+		let longPressTimer = null;
+		let longPressed = false;
+		let startX = 0;
+		let startY = 0;
 
 		const clearGuard = () => {
 			if (releaseTimer !== null) {
@@ -100,6 +154,27 @@ function bindButton(root, selector, handler) {
 			}, C_TOUCH_CLICK_GUARD);
 		};
 
+		const clearLongPress = () => {
+			if (longPressTimer !== null) {
+				clearTimeout(longPressTimer);
+				longPressTimer = null;
+			}
+		};
+
+		const endTouch = event => {
+			const pending = longPressTimer !== null;
+			clearLongPress();
+
+			if (longPressed) {
+				longPressed = false;
+				hideTip();
+			} else if (pending && event.type === 'touchend') {
+				handler(event);
+			}
+
+			releaseGuard();
+		};
+
 		el.addEventListener('click', event => {
 			if (touchHandled) {
 				touchHandled = false;
@@ -111,12 +186,28 @@ function bindButton(root, selector, handler) {
 			handler(event);
 		});
 		el.addEventListener('touchstart', event => {
+			const touch = event.changedTouches[0];
+			startX = touch.clientX;
+			startY = touch.clientY;
 			touchHandled = true;
+			longPressed = false;
 			clearGuard();
-			handler(event);
+			clearLongPress();
+			longPressTimer = setTimeout(() => {
+				longPressTimer = null;
+				longPressed = true;
+				showTip(el);
+			}, C_LONG_PRESS_DELAY);
+			stopPropagation(event);
 		});
-		el.addEventListener('touchend', releaseGuard);
-		el.addEventListener('touchcancel', releaseGuard);
+		el.addEventListener('touchmove', event => {
+			const touch = event.changedTouches[0];
+			if (Math.hypot(touch.clientX - startX, touch.clientY - startY) > C_TOUCH_MOVE_TOLERANCE) {
+				clearLongPress();
+			}
+		});
+		el.addEventListener('touchend', endTouch);
+		el.addEventListener('touchcancel', endTouch);
 	}
 }
 
@@ -199,7 +290,7 @@ MobileUI.init = function init() {
 		stopPropagation(e);
 	});
 	bindButton(root, '#insButton', e => {
-		logKeyPress(45);
+		ProcessCommand.processCommand('sit');
 		stopPropagation(e);
 	});
 
@@ -454,11 +545,12 @@ function switchSkillButtons() {
  * Toggles status view
  */
 function toggleStatus() {
-	// StatusIcons is a separate component outside this shadow DOM
-	const statusIcons = document.querySelector('#StatusIcons');
-	if (statusIcons) {
-		statusIcons.style.display = statusIcons.style.display === 'none' ? '' : 'none';
-	}
+	const button = MobileUI.getRoot().querySelector('#toggleStatusButton');
+	const host = StatusIcons.getRoot().host;
+	const show = host.style.display === 'none';
+
+	host.style.display = show ? '' : 'none';
+	button.classList.toggle('active', show);
 }
 
 /**
@@ -867,7 +959,6 @@ function moveCharacter(x, y, tileSize) {
  */
 function setupTalkToNpcButton() {
 	const root = MobileUI.getRoot();
-	const talkButton = root.querySelector('#talktonpcButton');
 
 	function findNearestNpc() {
 		const player = Session.Entity;
@@ -908,7 +999,10 @@ function setupTalkToNpcButton() {
 		Network.sendPacket(talkPacket);
 	}
 
-	talkButton.addEventListener('click', talkToNearestNpc);
+	bindButton(root, '#talktonpcButton', e => {
+		talkToNearestNpc();
+		stopPropagation(e);
+	});
 }
 
 /**

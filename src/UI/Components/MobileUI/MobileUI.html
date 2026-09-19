@@ -1,8 +1,11 @@
 <div id="MobileUI">
-	<button id="toggleUIButton" class="buttons">🛠️</button>
+	<div id="buttonTip" class="buttonTip disabled"></div>
+	<button id="toggleUIButton" data-tip="Show / hide the mobile controls" class="buttons">🛠️</button>
 
 	<div id="topBar" class="buttonBar disabled">
-		<button id="fullscreenButton" class="buttons mobileKeys secondary horizontal">⛶</button>
+		<button id="fullscreenButton" data-tip="Toggle full screen" class="buttons mobileKeys secondary horizontal">
+			⛶
+		</button>
 	</div>
 
 	<!-- Joystick -MicromeX -->
@@ -15,67 +18,192 @@
 	<!-- Functional Buttons -MicromeX -->
 	<div id="buttonContainer" class="buttonContainer disabled">
 		<!-- Functional Buttons -->
-		<button id="f1Button" class="FButton mobileKeys vertical secondary disabled">F1</button>
-		<button id="f2Button" class="FButton mobileKeys vertical secondary disabled">F2</button>
-		<button id="f3Button" class="FButton mobileKeys vertical secondary disabled">F3</button>
-		<button id="f4Button" class="FButton mobileKeys vertical secondary disabled">F4</button>
-		<button id="f5Button" class="FButton mobileKeys vertical secondary disabled">F5</button>
-		<button id="f6Button" class="FButton mobileKeys vertical secondary disabled">F6</button>
-		<button id="f7Button" class="FButton mobileKeys vertical secondary disabled">F7</button>
-		<button id="f8Button" class="FButton mobileKeys vertical secondary disabled">F8</button>
-		<button id="f9Button" class="FButton mobileKeys vertical secondary disabled">F9</button>
+		<button id="f1Button" data-tip="Skill bar hotkey F1" class="FButton mobileKeys vertical secondary disabled">
+			F1
+		</button>
+		<button id="f2Button" data-tip="Skill bar hotkey F2" class="FButton mobileKeys vertical secondary disabled">
+			F2
+		</button>
+		<button id="f3Button" data-tip="Skill bar hotkey F3" class="FButton mobileKeys vertical secondary disabled">
+			F3
+		</button>
+		<button id="f4Button" data-tip="Skill bar hotkey F4" class="FButton mobileKeys vertical secondary disabled">
+			F4
+		</button>
+		<button id="f5Button" data-tip="Skill bar hotkey F5" class="FButton mobileKeys vertical secondary disabled">
+			F5
+		</button>
+		<button id="f6Button" data-tip="Skill bar hotkey F6" class="FButton mobileKeys vertical secondary disabled">
+			F6
+		</button>
+		<button id="f7Button" data-tip="Skill bar hotkey F7" class="FButton mobileKeys vertical secondary disabled">
+			F7
+		</button>
+		<button id="f8Button" data-tip="Skill bar hotkey F8" class="FButton mobileKeys vertical secondary disabled">
+			F8
+		</button>
+		<button id="f9Button" data-tip="Skill bar hotkey F9" class="FButton mobileKeys vertical secondary disabled">
+			F9
+		</button>
 
-		<button id="n1Button" class="FButton mobileKeys vertical secondary disabled">1</button>
-		<button id="n2Button" class="FButton mobileKeys vertical secondary disabled">2</button>
-		<button id="n3Button" class="FButton mobileKeys vertical secondary disabled">3</button>
-		<button id="n4Button" class="FButton mobileKeys vertical secondary disabled">4</button>
-		<button id="n5Button" class="FButton mobileKeys vertical secondary disabled">5</button>
-		<button id="n6Button" class="FButton mobileKeys vertical secondary disabled">6</button>
-		<button id="n7Button" class="FButton mobileKeys vertical secondary disabled">7</button>
-		<button id="n8Button" class="FButton mobileKeys vertical secondary disabled">8</button>
-		<button id="n9Button" class="FButton mobileKeys vertical secondary disabled">9</button>
+		<button id="n1Button" data-tip="Skill bar hotkey 1" class="FButton mobileKeys vertical secondary disabled">
+			1
+		</button>
+		<button id="n2Button" data-tip="Skill bar hotkey 2" class="FButton mobileKeys vertical secondary disabled">
+			2
+		</button>
+		<button id="n3Button" data-tip="Skill bar hotkey 3" class="FButton mobileKeys vertical secondary disabled">
+			3
+		</button>
+		<button id="n4Button" data-tip="Skill bar hotkey 4" class="FButton mobileKeys vertical secondary disabled">
+			4
+		</button>
+		<button id="n5Button" data-tip="Skill bar hotkey 5" class="FButton mobileKeys vertical secondary disabled">
+			5
+		</button>
+		<button id="n6Button" data-tip="Skill bar hotkey 6" class="FButton mobileKeys vertical secondary disabled">
+			6
+		</button>
+		<button id="n7Button" data-tip="Skill bar hotkey 7" class="FButton mobileKeys vertical secondary disabled">
+			7
+		</button>
+		<button id="n8Button" data-tip="Skill bar hotkey 8" class="FButton mobileKeys vertical secondary disabled">
+			8
+		</button>
+		<button id="n9Button" data-tip="Skill bar hotkey 9" class="FButton mobileKeys vertical secondary disabled">
+			9
+		</button>
 
-		<button id="qButton" class="FButton mobileKeys vertical secondary disabled">Q</button>
-		<button id="wButton" class="FButton mobileKeys vertical secondary disabled">W</button>
-		<button id="eButton" class="FButton mobileKeys vertical secondary disabled">E</button>
-		<button id="rButton" class="FButton mobileKeys vertical secondary disabled">R</button>
-		<button id="tButton" class="FButton mobileKeys vertical secondary disabled">T</button>
-		<button id="yButton" class="FButton mobileKeys vertical secondary disabled">Y</button>
-		<button id="uButton" class="FButton mobileKeys vertical secondary disabled">U</button>
-		<button id="iButton" class="FButton mobileKeys vertical secondary disabled">I</button>
-		<button id="oButton" class="FButton mobileKeys vertical secondary disabled">O</button>
+		<button id="qButton" data-tip="Skill bar hotkey Q" class="FButton mobileKeys vertical secondary disabled">
+			Q
+		</button>
+		<button id="wButton" data-tip="Skill bar hotkey W" class="FButton mobileKeys vertical secondary disabled">
+			W
+		</button>
+		<button id="eButton" data-tip="Skill bar hotkey E" class="FButton mobileKeys vertical secondary disabled">
+			E
+		</button>
+		<button id="rButton" data-tip="Skill bar hotkey R" class="FButton mobileKeys vertical secondary disabled">
+			R
+		</button>
+		<button id="tButton" data-tip="Skill bar hotkey T" class="FButton mobileKeys vertical secondary disabled">
+			T
+		</button>
+		<button id="yButton" data-tip="Skill bar hotkey Y" class="FButton mobileKeys vertical secondary disabled">
+			Y
+		</button>
+		<button id="uButton" data-tip="Skill bar hotkey U" class="FButton mobileKeys vertical secondary disabled">
+			U
+		</button>
+		<button id="iButton" data-tip="Skill bar hotkey I" class="FButton mobileKeys vertical secondary disabled">
+			I
+		</button>
+		<button id="oButton" data-tip="Skill bar hotkey O" class="FButton mobileKeys vertical secondary disabled">
+			O
+		</button>
 
-		<button id="aButton" class="FButton mobileKeys vertical secondary disabled">A</button>
-		<button id="sButton" class="FButton mobileKeys vertical secondary disabled">S</button>
-		<button id="dButton" class="FButton mobileKeys vertical secondary disabled">D</button>
-		<button id="fButton" class="FButton mobileKeys vertical secondary disabled">F</button>
-		<button id="gButton" class="FButton mobileKeys vertical secondary disabled">G</button>
-		<button id="hButton" class="FButton mobileKeys vertical secondary disabled">H</button>
-		<button id="jButton" class="FButton mobileKeys vertical secondary disabled">J</button>
-		<button id="kButton" class="FButton mobileKeys vertical secondary disabled">K</button>
-		<button id="lButton" class="FButton mobileKeys vertical secondary disabled">L</button>
+		<button id="aButton" data-tip="Skill bar hotkey A" class="FButton mobileKeys vertical secondary disabled">
+			A
+		</button>
+		<button id="sButton" data-tip="Skill bar hotkey S" class="FButton mobileKeys vertical secondary disabled">
+			S
+		</button>
+		<button id="dButton" data-tip="Skill bar hotkey D" class="FButton mobileKeys vertical secondary disabled">
+			D
+		</button>
+		<button id="fButton" data-tip="Skill bar hotkey F" class="FButton mobileKeys vertical secondary disabled">
+			F
+		</button>
+		<button id="gButton" data-tip="Skill bar hotkey G" class="FButton mobileKeys vertical secondary disabled">
+			G
+		</button>
+		<button id="hButton" data-tip="Skill bar hotkey H" class="FButton mobileKeys vertical secondary disabled">
+			H
+		</button>
+		<button id="jButton" data-tip="Skill bar hotkey J" class="FButton mobileKeys vertical secondary disabled">
+			J
+		</button>
+		<button id="kButton" data-tip="Skill bar hotkey K" class="FButton mobileKeys vertical secondary disabled">
+			K
+		</button>
+		<button id="lButton" data-tip="Skill bar hotkey L" class="FButton mobileKeys vertical secondary disabled">
+			L
+		</button>
 
-		<button id="pickupButton" class="pickupButton mobileKeys vertical secondary disabled">🖐</button>
+		<button
+			id="pickupButton"
+			data-tip="Pick up the nearest item"
+			class="pickupButton mobileKeys vertical secondary disabled"
+		>
+			🖐
+		</button>
 		<!-- Pick Up Button -MicromeX -->
-		<button id="talktonpcButton" class="talktonpcButton mobileKeys vertical secondary disabled">💬</button>
+		<button
+			id="talktonpcButton"
+			data-tip="Talk to the nearest NPC"
+			class="talktonpcButton mobileKeys vertical secondary disabled"
+		>
+			💬
+		</button>
 		<!-- Talk to NPC Button -MicromeX -->
-		<button id="switchshorcutButton" class="switchshorcutButton mobileKeys vertical secondary disabled">🔄</button>
+		<button
+			id="switchshorcutButton"
+			data-tip="Switch skill bar row (F1-F9 / 1-9 / Q-O / A-L)"
+			class="switchshorcutButton mobileKeys vertical secondary disabled"
+		>
+			🔄
+		</button>
 		<!-- Auto Skill Button -MicromeX -->
 
 		<!-- Attack Button -MicromeX -->
-		<button id="attackButton" class="atkButton mobileKeys vertical secondary disabled">⚔️</button>
+		<button
+			id="attackButton"
+			data-tip="Attack the selected target"
+			class="atkButton mobileKeys vertical secondary disabled"
+		>
+			⚔️
+		</button>
 	</div>
 
 	<div id="leftBar" class="buttonBar disabled">
-		<button id="f10Button" class="buttons mobileKeys secondary vertical">F10</button><br />
-		<button id="f12Button" class="buttons mobileKeys secondary vertical">F12</button><br />
-		<button id="insButton" class="buttons mobileKeys secondary vertical">🧎</button><br />
+		<button id="f10Button" data-tip="Change chat box size (F10)" class="buttons mobileKeys secondary vertical">
+			⏫</button
+		><br />
+		<button id="f12Button" data-tip="Change skill bar size (F12)" class="buttons mobileKeys secondary vertical">
+			🔢</button
+		><br />
+		<button id="insButton" data-tip="Sit down / stand up" class="buttons mobileKeys secondary vertical">🧎</button
+		><br />
 	</div>
 
 	<div id="rightBar" class="buttonBar disabled">
-		<button id="toggleStatusButton" class="buttons mobileKeys secondary vertical">👀</button><br />
-		<button id="toggleTargetingButton" class="buttons mobileKeys secondary vertical">⚙️</button><br />
-		<button id="toggleAutoFollowButton" class="buttons mobileKeys vertical secondary disabled">👥</button><br />
-		<button id="toggleAutoTargetButton" class="buttons mobileKeys vertical secondary disabled">🎯</button><br />
+		<button
+			id="toggleStatusButton"
+			data-tip="Show / hide status icons"
+			class="buttons mobileKeys secondary vertical active"
+		>
+			👀</button
+		><br />
+		<button
+			id="toggleTargetingButton"
+			data-tip="Toggle touch targeting"
+			class="buttons mobileKeys secondary vertical"
+		>
+			⚙️</button
+		><br />
+		<button
+			id="toggleAutoFollowButton"
+			data-tip="Auto follow the selected target"
+			class="buttons mobileKeys vertical secondary disabled"
+		>
+			👥</button
+		><br />
+		<button
+			id="toggleAutoTargetButton"
+			data-tip="Auto target the nearest monster"
+			class="buttons mobileKeys vertical secondary disabled"
+		>
+			🎯</button
+		><br />
 	</div>
 </div>
