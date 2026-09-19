@@ -25,6 +25,8 @@ import cssText from './MobileUI.css?raw';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
 import BattleMode from 'Controls/BattleMode.js';
+import ProcessCommand from 'Controls/ProcessCommand.js';
+import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
 
 const vec2 = glMatrix.vec2;
 const mat2 = glMatrix.mat2;
@@ -199,7 +201,7 @@ MobileUI.init = function init() {
 		stopPropagation(e);
 	});
 	bindButton(root, '#insButton', e => {
-		logKeyPress(45);
+		ProcessCommand.processCommand('sit');
 		stopPropagation(e);
 	});
 
@@ -454,10 +456,14 @@ function switchSkillButtons() {
  * Toggles status view
  */
 function toggleStatus() {
-	// StatusIcons is a separate component outside this shadow DOM
-	const statusIcons = document.querySelector('#StatusIcons');
-	if (statusIcons) {
-		statusIcons.style.display = statusIcons.style.display === 'none' ? '' : 'none';
+	const button = MobileUI.getRoot().querySelector('#toggleStatusButton');
+
+	if (StatusIcons.ui.is(':visible')) {
+		StatusIcons.ui.hide();
+		button.classList.remove('active');
+	} else {
+		StatusIcons.ui.show();
+		button.classList.add('active');
 	}
 }
 
