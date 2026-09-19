@@ -152,7 +152,7 @@
 	align-items: center;
 	position: absolute;
 	bottom: 10%;
-	right: 10%;
+	right: max(10%, 80px);
 	width: 37.5vmin;
 	height: 37.5vmin;
 	z-index: 1000;
