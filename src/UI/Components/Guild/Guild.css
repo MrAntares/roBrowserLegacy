@@ -62,7 +62,9 @@
 #Guild .panel {
 	background-color: white;
 	padding-right: 2px;
-	box-shadow: inset 1px 0 #c8c8c8, inset -1px 0 #c8c8c8;
+	box-shadow:
+		inset 1px 0 #c8c8c8,
+		inset -1px 0 #c8c8c8;
 }
 #Guild .content {
 	position: relative;
@@ -672,21 +674,37 @@
 #Guild .content.skills .skill_list {
 	box-sizing: border-box;
 	overflow-y: auto;
-	padding: 5px;
+	padding: 0;
 	width: 398px;
 	height: 247px;
 }
-#Guild .content.skills .skill_list table {
-	border: none;
-	border-spacing: 0px;
-	padding-top: 5px;
-	width: 100%;
-}
-#Guild .content.skills .skill_list td,
-#Guild .content.skills .skill_list .name {
-	padding: 0px;
-}
 
+/* The client has no grid here - it paints each row straight onto the window at
+ * fixed offsets, so every x below is a gap or a box size rather than a
+ * coordinate, and the row itself stays in flow. Reading the row left to right:
+ * icon at 44, level-up + at 78, and the selection highlight at 104 by 164x28
+ * with the name, Lv and Sp all drawn inside it. */
+#Guild .content.skills .skill {
+	display: flex;
+	box-sizing: border-box;
+	/* Row pitch 34 on 2022 and mars26 (ver12 uses 32). The 2px is the
+	 * highlight's own y: the client draws it at 34i+43 and the pane starts at
+	 * 41, so it sits two below the row's top. */
+	height: 34px;
+	padding: 2px 0 0 44px;
+}
+#Guild .content.skills .skill .icon,
+#Guild .content.skills .skill .levelupcontainer {
+	flex: none;
+	width: 24px;
+	height: 24px;
+	/* the icon and the + are at 34i+45, two below the highlight */
+	margin-top: 2px;
+}
+/* 44 + 24 + 10 = 78 */
+#Guild .content.skills .skill .levelupcontainer {
+	margin-left: 10px;
+}
 #Guild .content.skills .levelup {
 	border: 0;
 	width: 24px;
@@ -695,43 +713,42 @@
 	background-repeat: no-repeat;
 	background-color: transparent;
 }
-#Guild .content.skills td.type {
-	vertical-align: bottom;
+/* The highlight rect itself, so the .selected rules below can just colour it.
+ * 78 + 24 + 2 = 104, and the 8px inset puts the name on the client's 112. */
+#Guild .content.skills .skill .selectable {
+	flex: none;
+	box-sizing: border-box;
+	width: 164px;
+	height: 28px;
+	margin-left: 2px;
+	padding: 3px 0 0 8px;
 }
-
-#Guild .content.skills .skill_list .icon {
-	padding-left: 15px;
-}
-#Guild .content.skills .skill_list .levelupcontainer {
-	padding-left: 5px;
-	padding-right: 5px;
-	width: 24px;
-}
-#Guild .content.skills .skill_list div.name {
+#Guild .content.skills .skill .name,
+#Guild .content.skills .skill .level,
+#Guild .content.skills .skill .consume {
+	height: 12px;
 	line-height: 12px;
 	white-space: nowrap;
-	padding-left: 5px;
-	white-space: nowrap;
-	width: 120px;
-	padding-top: 4px;
-	height: 28px;
 }
-#Guild .content.skills .disabled .icon,
+/* The second line, which the client draws 12 below the name at 34i+58 */
+#Guild .content.skills .skill .levelline {
+	display: flex;
+}
+#Guild .content.skills .skill .level {
+	box-sizing: border-box;
+	/* 112 + 100 = 212, where Sp starts */
+	width: 100px;
+	/* Lv is drawn at 113, one right of the name's 112 */
+	padding-left: 1px;
+}
+/* The client greys the name at level 0 and leaves the icon alone; it also skips
+ * the Lv and Sp lines entirely rather than drawing them empty. */
 #Guild .content.skills .disabled .name {
-	opacity: 0.5;
+	color: #787878;
 }
 #Guild .content.skills .disabled .consume,
 #Guild .content.skills .disabled .level {
 	display: none;
-}
-#Guild .content.skills .currentDown,
-#Guild .content.skills .currentUp {
-	width: 11px;
-	height: 11px;
-	border: none;
-	background-color: transparent;
-	background-repeat: no-repeat;
-	vertical-align: middle;
 }
 
 #Guild .content.skills .selected.disabled .selectable {
@@ -803,11 +820,13 @@
 	background-color: transparent;
 	display: none;
 }
-#Guild .footer .apply {
+/* The client puts two controls here, at y = H - 24 = 293: btn_use at 46, which
+ * casts the selected skill, and btn_close at 92, which dismisses the window.
+ * btn_close is in the client and is not ported, on purpose - it is assigned the
+ * same command id as the titlebar's close button, so it is a duplicate of a
+ * control this window already draws. See the note in Guild.js. */
+#Guild .footer .btn_use {
 	left: 46px;
-}
-#Guild .footer .reset {
-	left: 92px;
 }
 
 /*

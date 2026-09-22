@@ -113,7 +113,6 @@ function _drawsLegacyInfo() {
 let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
-let lArrow, rArrow;
 let _totalExp = 0;
 let _guildAccess = 0;
 let _checkbox_off, _checkbox_on;
@@ -468,8 +467,10 @@ Guild.init = function init() {
 			onRequestSkillInfo.call(target);
 		}
 	});
+	// The client's hit band for the selection is the whole row, not the
+	// highlight rect - it rejects x < 40 and has no right bound at all.
 	container.addEventListener('mousedown', e => {
-		const target = e.target.closest('.selectable');
+		const target = e.target.closest('.skill');
 		if (target && target.closest('.content.skills')) {
 			onSkillFocus.call(target);
 		}
@@ -538,15 +539,28 @@ Guild.init = function init() {
 		footerOk.addEventListener('click', () => onValidate());
 	}
 
+	// The Skills tab's cast button, which is all the client's own handler does
+	// once it has a selected row: send the skill at its level.
+	//
+	// The client officially has a second button next to it - btn_close at x=92,
+	// built unconditionally and never hidden, and the only close button across
+	// the six guild tabs. It is deliberately not reproduced here, and its
+	// absence is a choice rather than an omission: the titlebar's own close
+	// button is assigned the same command id, so both buttons dispatch to the
+	// same handler and do the same thing. Rendering it would duplicate a
+	// control this window already has, on one tab out of six.
+	const footerUse = root.querySelector('.footer .btn_use');
+	if (footerUse) {
+		footerUse.addEventListener('click', () => {
+			const selected = root.querySelector('.content.skills .skill.selected');
+			if (selected) {
+				Guild.useSkillID(parseInt(selected.getAttribute('data-index'), 10));
+			}
+		});
+	}
+
 	this.draggable('.titlebar');
 	this.ui.hide();
-
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, data => {
-		rArrow = `url(${data})`;
-	});
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, data => {
-		lArrow = `url(${data})`;
-	});
 
 	renderTendency(0, 0);
 };
@@ -643,7 +657,7 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	}
 
 	updateDisbandButton(root, getActiveTab(root));
-	updateSkillPoints(root, getActiveTab(root));
+	updateSkillFooter(root, getActiveTab(root));
 	updateMemberSort(root, getActiveTab(root));
 
 	WinStats.getUI().update('guildname', info.guildname);
@@ -1167,9 +1181,9 @@ Guild.setSkills = function setSkills(skills) {
 	}
 
 	_skills.length = 0;
-	const table = root.querySelector('.content.skills .skill_list table');
-	if (table) {
-		table.innerHTML = '';
+	const list = root.querySelector('.content.skills .skill_list');
+	if (list) {
+		list.innerHTML = '';
 	}
 
 	for (let i = 0, count = skills.length; i < count; ++i) {
@@ -1196,52 +1210,31 @@ Guild.addSkill = function addSkill(skill) {
 	});
 	const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 
-	const tr = document.createElement('tr');
+	// The client draws the highlight as one 164x28 rect with the name, Lv and Sp
+	// inside it, so .selectable is that rect rather than a pair of cells.
+	const tr = document.createElement('div');
 	tr.className = `skill id${skill.SKID} ${className}`;
 	tr.setAttribute('data-index', skill.SKID);
 	tr.setAttribute('draggable', 'true');
 	tr.innerHTML =
-		'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
-		'<td class="levelupcontainer"></td>' +
-		'<td class=selectable>' +
-		`<div class="name">${_escapeHTML(sk.SkillName)}<br/>` +
-		'<span class="level">' +
-		(sk.bSeperateLv
-			? `<button class="currentDown"></button>Lv : <span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>`
-			: `Lv : <span class="current">${skill.level}</span>`) +
-		'</span></div></td>' +
-		'<td class="selectable type">' +
+		'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
+		'<div class="levelupcontainer"></div>' +
+		'<div class="selectable">' +
+		`<div class="name">${_escapeHTML(sk.SkillName)}</div>` +
+		'<div class="levelline">' +
+		`<div class="level">Lv : <span class="current">${skill.level}</span></div>` +
 		`<div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : 'Passive'}</div>` +
-		'</td>';
+		'</div></div>';
 
-	if (!skill.upgradable || !_skpoints) {
+	if (!skill.upgradable || !_skpoints || !Session.isGuildMaster) {
 		levelup.style.display = 'none';
 	}
 
 	tr.querySelector('.levelupcontainer').appendChild(levelup);
 
-	const currentUp = tr.querySelector('.level .currentUp');
-	if (currentUp) {
-		if (rArrow) {
-			currentUp.style.backgroundImage = rArrow;
-		}
-		currentUp.addEventListener('click', () => {
-			skillLevelSelectUp(skill);
-		});
-	}
-	const currentDown = tr.querySelector('.level .currentDown');
-	if (currentDown) {
-		if (lArrow) {
-			currentDown.style.backgroundImage = lArrow;
-		}
-		currentDown.addEventListener('click', () => {
-			skillLevelSelectDown(skill);
-		});
-	}
-
-	const table = root.querySelector('.content.skills .skill_list table');
-	if (table) {
-		table.appendChild(tr);
+	const list = root.querySelector('.content.skills .skill_list');
+	if (list) {
+		list.appendChild(tr);
 	}
 
 	// Process data attributes on the levelup button for GUIComponent
@@ -1283,14 +1276,8 @@ Guild.updateSkill = function updateSkill(skill) {
 		return;
 	}
 
-	for (const el of element.querySelectorAll('.level .current, .level .max')) {
+	for (const el of element.querySelectorAll('.level .current')) {
 		el.textContent = skill.level;
-	}
-	if (skill.selectedLevel) {
-		const current = element.querySelector('.level .current');
-		if (current) {
-			current.textContent = skill.selectedLevel;
-		}
 	}
 	const spcost = element.querySelector('.spcost');
 	if (spcost) {
@@ -1302,7 +1289,7 @@ Guild.updateSkill = function updateSkill(skill) {
 
 	const levelupEl = element.querySelector('.levelup');
 	if (levelupEl) {
-		levelupEl.style.display = skill.upgradable && _skpoints ? '' : 'none';
+		levelupEl.style.display = skill.upgradable && _skpoints && Session.isGuildMaster ? '' : 'none';
 	}
 
 	this.onUpdateSkill(skill.SKID, skill.level);
@@ -1314,7 +1301,7 @@ Guild.useSkillID = function useSkillID(id, level) {
 		return;
 	}
 
-	Guild.useSkill(skill, level ? level : skill.selectedLevel);
+	Guild.useSkill(skill, level ? level : skill.level);
 };
 
 Guild.useSkill = function useSkill(skill, level) {
@@ -1348,7 +1335,7 @@ Guild.setPoints = function setPoints(amount) {
 	for (let i = 0; i < count; ++i) {
 		const levelupEl = root.querySelector(`.skill.id${_skills[i].SKID} .levelup`);
 		if (levelupEl) {
-			levelupEl.style.display = _skills[i].upgradable && amount ? '' : 'none';
+			levelupEl.style.display = _skills[i].upgradable && amount && Session.isGuildMaster ? '' : 'none';
 		}
 	}
 };
@@ -1404,17 +1391,11 @@ function onRequestSkillInfo() {
 }
 
 function onSkillFocus() {
-	let main = this.parentElement;
-
-	if (!main.classList.contains('skill')) {
-		main = main.parentElement;
-	}
-
 	const root = _root(Guild);
 	for (const el of root.querySelectorAll('.skill')) {
 		el.classList.remove('selected');
 	}
-	main.classList.add('selected');
+	this.classList.add('selected');
 }
 
 function onSkillDragStart(event) {
@@ -1445,36 +1426,6 @@ function onSkillDragStart(event) {
 
 function onSkillDragEnd() {
 	delete window._OBJ_DRAG_;
-}
-
-function skillLevelSelectUp(skill) {
-	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
-	if (level < skill.level) {
-		skill.selectedLevel = level + 1;
-		const root = _root(Guild);
-		const element = root.querySelector(`.skill.id${skill.SKID}`);
-		if (element) {
-			const current = element.querySelector('.level .current');
-			if (current) {
-				current.textContent = skill.selectedLevel;
-			}
-		}
-	}
-}
-
-function skillLevelSelectDown(skill) {
-	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
-	if (level > 1) {
-		skill.selectedLevel = level - 1;
-		const root = _root(Guild);
-		const element = root.querySelector(`.skill.id${skill.SKID}`);
-		if (element) {
-			const current = element.querySelector('.level .current');
-			if (current) {
-				current.textContent = skill.selectedLevel;
-			}
-		}
-	}
 }
 
 Guild.setNotice = function setNotice(subject, notice) {
@@ -1552,7 +1503,7 @@ function onChangeTab(event) {
 	}
 
 	updateDisbandButton(root, targetClass);
-	updateSkillPoints(root, targetClass);
+	updateSkillFooter(root, targetClass);
 	updateMemberSort(root, targetClass);
 
 	if (targetClass === 'members') {
@@ -1761,17 +1712,18 @@ function updateDisbandButton(root, activeTab) {
 	}
 }
 
-// The client draws the skill point readout at window coordinates that land on
-// the bottom bar, not inside the skill list, so it lives in the frame's footer
-// and follows the tab instead of the pane.
-function updateSkillPoints(root, activeTab) {
+// The client has no inner footer on this tab: it draws the readout and its
+// buttons at window coordinates that land on the bottom bar, so they live in
+// the frame's footer and follow the tab instead of the pane.
+function updateSkillFooter(root, activeTab) {
 	if (!root) {
 		return;
 	}
 
-	const el = root.querySelector('.footer .skpoints');
-	if (el) {
-		el.style.display = activeTab === 'skills' ? 'block' : 'none';
+	const onSkills = activeTab === 'skills';
+
+	for (const el of root.querySelectorAll('.footer .skpoints, .footer .btn_use')) {
+		el.style.display = onSkills ? 'block' : 'none';
 	}
 }
 
