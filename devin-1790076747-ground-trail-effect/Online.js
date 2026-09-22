@@ -213943,7 +213943,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WL_SOULEXPANSION] = {};
 	SkillEffect[SkillConst_default.WL_FROSTMISTY] = { effectId: 726 };
 	SkillEffect[SkillConst_default.WL_JACKFROST] = {
-		releaseEffectId: "ef_jackfrost",
+		successEffectIdOnCaster: "ef_jackfrost",
 		hitEffectId: 28
 	};
 	SkillEffect[SkillConst_default.WL_MARSHOFABYSS] = { effectId: 729 };
