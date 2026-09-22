@@ -74,6 +74,13 @@ let _pendingPositions = {};
 let _positionsDirty = false;
 
 /**
+ * Which row carries the highlight. The client writes this from its own mouse
+ * hit-tests and from building the window, never from a packet, so a refresh
+ * leaves the bar where the guild master put it.
+ */
+let _positionsSelected = 0;
+
+/**
  * GUILD_PERM_STORAGE exists from PACKETVER 20140205 on, and only then does the
  * tab draw a column for it. Below that the bit is preserved but never touched.
  */
@@ -203,10 +210,12 @@ Guild.init = function init() {
 
 			const tr = e.target.closest('tr');
 			if (tr) {
-				for (const row of posBody.querySelectorAll('tr')) {
+				const rows = [...posBody.querySelectorAll('tr')];
+				for (const row of rows) {
 					row.classList.remove('active');
 				}
 				tr.classList.add('active');
+				_positionsSelected = rows.indexOf(tr);
 			}
 		});
 
@@ -482,6 +491,7 @@ Guild.init = function init() {
 Guild.onRemove = function onRemove() {
 	Renderer.stop(renderMemberFaces);
 	_positionsDirty = false;
+	_positionsSelected = 0;
 };
 
 Guild.onShortCut = function onShortCut(key) {
@@ -980,7 +990,7 @@ Guild.updatePositionView = function updatePositionView() {
 		const view = _positionViewTemplate.cloneNode(true);
 		const rank = _positions[i];
 
-		if (i === 0) {
+		if (i === _positionsSelected) {
 			view.classList.add('active');
 		}
 

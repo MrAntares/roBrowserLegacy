@@ -647,6 +647,32 @@ describe('Guild position tab', () => {
 			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(true);
 		});
 
+		it('leaves the highlight where the guild master put it', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			positionRows()[2].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+			expect(positionRows()[2].classList.contains('active')).toBe(true);
+
+			// A refresh must not drag the bar back to the guild master's row. The
+			// client only moves it from a click or from building the window.
+			Guild.setPositions(POSITIONS, true);
+
+			expect(positionRows()[2].classList.contains('active')).toBe(true);
+			expect(positionRows()[0].classList.contains('active')).toBe(false);
+		});
+
+		it('starts on the first row, and goes back there with the window', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+			positionRows()[2].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+			Guild.onRemove();
+			Guild.setPositions(POSITIONS, true);
+
+			expect(positionRows()[0].classList.contains('active')).toBe(true);
+		});
+
 		it('takes no edit from a member who is not the guild master', () => {
 			Guild.setPositions(POSITIONS, true);
 			showPositionsTab();
