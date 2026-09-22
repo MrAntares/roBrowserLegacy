@@ -709,6 +709,34 @@ describe('Guild position tab', () => {
 			expect(sentPositions[0][0]).toMatchObject({ positionID: 2, payRate: 42, posName: 'Veteran' });
 		});
 
+		it('keeps the tax inside the range the server can store', () => {
+			// rathena caps to guild_exp_limit, per-server, ceiling 99. The native
+			// edit takes two characters, which is that same ceiling.
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const input = positionRows()[1].querySelector('.tax input');
+			expect(input.getAttribute('maxlength')).toBe('2');
+
+			input.dispatchEvent(new Event('focus'));
+			input.value = '900';
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, payRate: 99 });
+		});
+
+		it('does not send a tax of NaN when the field is not a number', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const input = positionRows()[1].querySelector('.tax input');
+			input.dispatchEvent(new Event('focus'));
+			input.value = 'ab';
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, payRate: 0 });
+		});
+
 		it('sends nothing when nothing was edited', () => {
 			Guild.setPositions(POSITIONS, true);
 			showPositionsTab();

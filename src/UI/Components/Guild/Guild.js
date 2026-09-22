@@ -1533,7 +1533,13 @@ function onValidate() {
 				}
 
 				const posName = position.querySelector('.title input')?.value || '';
-				const payRate = parseInt(position.querySelector('.tax input')?.value || '0', 10);
+
+				// The client's edit takes two characters, so 0-99, and that is
+				// also rathena's ceiling for guild_exp_limit. The limit itself is
+				// per-server config, so it is not ours to second-guess any
+				// further - the server caps what it will accept.
+				const typed = parseInt(position.querySelector('.tax input')?.value, 10) || 0;
+				const payRate = Math.min(99, Math.max(0, typed));
 
 				// Keep every bit the tab has no column for. Rebuilding the mode
 				// from zero is what used to drop the guild storage right on a
