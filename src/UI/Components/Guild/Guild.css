@@ -5,8 +5,15 @@
 	height: 317px;
 }
 
+/* The size the client gives this window: UIWindow::SetSize(400, 317), from a
+ * pair of read-only globals shared by all six tabs. Without a width here the
+ * frame is shrink-to-fit, so anything that widens a pane - a scrollbar's
+ * gutter, a longer list, a different tab - moves the frame and drags the
+ * floated close button with it. */
 #Guild {
 	position: absolute;
+	width: 400px;
+	height: 317px;
 }
 
 #Guild .titlebar {
