@@ -558,9 +558,10 @@
 /* ver12's five-column layout - 50/142/60/60/60, a band of x 5..381 - rather
  * than the modern one. 2022 and mars26 split this into six columns by adding
  * Storage and cutting Title from 142 to 100, and their band then runs to x=400,
- * under the scrollbar that starts at 385. We render five columns because no
- * Storage flag reaches us on the wire, so ver12's widths are the ones that both
- * fit our column set and keep the band clear of the bar. Each width carries
+ * under the scrollbar that starts at 385. We render five columns because the
+ * tab has no Storage control yet - not for want of data: 0x160 and 0x174 both
+ * carry the whole mode mask, 0x100 included. ver12's widths are the ones that
+ * fit the five we do draw and keep the band clear of the bar. Each width carries
  * +1px for its own separator; the last closes against the frame. */
 #Guild .content.positions .id {
 	width: 50px;
