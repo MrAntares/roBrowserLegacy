@@ -338,13 +338,13 @@
  * positioning context for the line above, which has to overflow it. */
 #Guild .content.members .name {
 	position: relative;
-	width: 105px;
-	max-width: 105px;
+	width: 98px;
+	max-width: 98px;
 	overflow: visible;
 }
 #Guild .content.members .name .value {
 	display: inline-block;
-	max-width: 70px;
+	max-width: 63px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -354,35 +354,44 @@
 	vertical-align: -11px;
 }
 #Guild .content.members .position {
-	width: 76px;
-	max-width: 76px;
+	width: 65px;
+	max-width: 65px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
 #Guild .content.members .position select {
-	width: 72px;
-	max-width: 72px;
+	width: 61px;
+	max-width: 61px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
 #Guild .content.members .job {
-	width: 60px;
-	max-width: 60px;
+	width: 53px;
+	max-width: 53px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
 #Guild .content.members .level {
-	width: 32px;
+	width: 39px;
 }
 #Guild .content.members .note {
 	width: 41px;
 }
 #Guild .content.members .devotion {
-	width: 38px;
+	width: 39px;
 }
+/*
+ * The client gives this column 76px, on a row band that starts at x=6. Our band
+ * starts at x=2 instead (the pane's own padding), so 76px would stop 8px short
+ * of the client's right edge and leave a visible notch. The 8px go here, to the
+ * last column, which is also the one whose value overflows soonest. Widening
+ * any further would push the pane wider than the window: the custom scrollbar
+ * paints as an overlay, but it still reserves a 13px gutter by writing
+ * padding-right on the pane it scrolls.
+ */
 #Guild .content.members .tax {
-	width: 63px;
-	max-width: 63px;
+	width: 84px;
+	max-width: 84px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
