@@ -62,7 +62,7 @@
  * through the 2px gutters between them. */
 #Guild .tabs {
 	height: 24px;
-	background-color: #b5b6b5;
+	background-color: #b4b4b4;
 	white-space: nowrap;
 }
 #Guild .tabs button.active {
@@ -88,7 +88,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	background-color: #cecece;
+	background-color: #c8c8c8;
 	border: 0px;
 	font-family: inherit;
 	font-size: 12px;
@@ -249,7 +249,7 @@
 	white-space: pre;
 	width: 168px;
 	height: 48px;
-	background: #cecece;
+	background: #c8c8c8;
 }
 #Guild .content.info .hostile {
 	position: absolute;
@@ -263,7 +263,7 @@
 	white-space: pre;
 	width: 168px;
 	height: 48px;
-	background: #cecece;
+	background: #c8c8c8;
 }
 
 #Guild .content.info .ally_list div,
@@ -272,7 +272,7 @@
 }
 #Guild .content.info .ally_list div.active,
 #Guild .content.info .hostile_list div.active {
-	background-color: #739eef;
+	background-color: #709fed;
 	padding: 2px;
 }
 
@@ -286,8 +286,12 @@
 	position: absolute;
 	top: 24px;
 	left: 300px;
-	background-color: #709ce7;
+	background-color: #709fed;
 	background-repeat: no-repeat;
+	/* The client fills a 26x26 frame at (299, 64) before blitting the 24x24
+	 * emblem at (300, 65), so the fill shows as a 1px ring. A shadow rather than
+	 * a border, to leave the box at the emblem's own size. */
+	box-shadow: 0 0 0 1px #709fed;
 }
 #Guild .content.info .emblem_edit {
 	position: absolute;
@@ -339,7 +343,7 @@
 	border-bottom: 1px solid #c2c2c2;
 }
 #Guild .content.members tr.active td {
-	background-color: #739eef !important;
+	background-color: #709fed !important;
 }
 #Guild .content.members th {
 	border: 1px solid #c2c2c2;
@@ -519,7 +523,7 @@
 	border: none;
 }
 #Guild .content.positions tr.active td {
-	background-color: #739eef;
+	background-color: #709fed;
 }
 #Guild .content.positions th,
 #Guild .content.positions td {
