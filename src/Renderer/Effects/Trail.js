@@ -36,6 +36,11 @@ class Trail {
 		const target = effect.sourceIsOwner ? other : owner;
 
 		this.source = [source[0], source[1]];
+		// Distance culling uses Inst.position: anchor the spawner on the middle of its path
+		// (or on the source for radial trails) instead of the far end
+		EF_Inst_Par.position = effect.angles
+			? [source[0], source[1], source[2]]
+			: [(source[0] + target[0]) / 2, (source[1] + target[1]) / 2, source[2]];
 		this.position = EF_Inst_Par.position;
 
 		if (effect.angles) {
