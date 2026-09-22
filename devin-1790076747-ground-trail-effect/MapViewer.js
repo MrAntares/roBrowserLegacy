@@ -252382,16 +252382,26 @@ var init_QuadHorn = __esmMin((() => {
 			this.texCoordBuffer = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoordBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
-			const self = this;
-			Client.loadFile("data/texture/" + this.textureFile, function(buffer) {
-				WebGL_default.texture(gl, buffer, function(texture) {
-					self.texture = texture;
-					self.ready = true;
+			this.freed = false;
+			Client.loadFile(`data/texture/${this.textureFile}`, (buffer) => {
+				WebGL_default.texture(gl, buffer, (texture) => {
+					if (this.freed) {
+						gl.deleteTexture(texture);
+						return;
+					}
+					this.texture = texture;
+					this.ready = true;
 				});
 			});
 		}
 		free(gl) {
 			gl.deleteBuffer(this.buffer);
+			gl.deleteBuffer(this.texCoordBuffer);
+			if (this.texture) {
+				gl.deleteTexture(this.texture);
+				this.texture = null;
+			}
+			this.freed = true;
 			this.ready = false;
 		}
 		render(gl, tick) {
@@ -252545,6 +252555,15 @@ var init_Trail = __esmMin((() => {
 			const source = effect.angles || effect.sourceIsOwner ? owner : other;
 			const target = effect.sourceIsOwner ? other : owner;
 			this.source = [source[0], source[1]];
+			EF_Inst_Par.position = effect.angles ? [
+				source[0],
+				source[1],
+				source[2]
+			] : [
+				(source[0] + target[0]) / 2,
+				(source[1] + target[1]) / 2,
+				source[2]
+			];
 			this.position = EF_Inst_Par.position;
 			if (effect.angles) {
 				this.targetDistance = Infinity;
