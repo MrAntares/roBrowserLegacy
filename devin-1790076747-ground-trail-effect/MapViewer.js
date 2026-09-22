@@ -213369,7 +213369,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 51
 	};
 	SkillEffect[SkillConst_default.MG_FROSTDIVER] = {
-		effectId: 27,
+		releaseEffectId: 27,
 		hitEffectId: 28
 	};
 	SkillEffect[SkillConst_default.MG_STONECURSE] = { effectId: 23 };
@@ -213551,7 +213551,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 122
 	};
 	SkillEffect[SkillConst_default.AS_GRIMTOOTH] = {
-		effectId: 123,
+		releaseEffectId: 123,
 		hitEffectId: 132
 	};
 	SkillEffect[SkillConst_default.AS_ENCHANTPOISON] = { effectId: 20 };
@@ -253597,6 +253597,25 @@ var init_EffectManager = __esmMin((() => {
 			}
 		}
 		/**
+		* Spam skill effect when the skill is released on its target (hit or miss)
+		*
+		* @param {number} skill id
+		* @param {number} target aid
+		* @param {number} tick
+		* @param {number} source aid
+		*/
+		static spamSkillRelease(skillId, destAID, tick, srcAID) {
+			if (!(skillId in SkillEffect) || !SkillEffect[skillId].releaseEffectId) return;
+			(Array.isArray(SkillEffect[skillId].releaseEffectId) ? SkillEffect[skillId].releaseEffectId : [SkillEffect[skillId].releaseEffectId]).forEach((effectId) => {
+				EffectManager.spam({
+					effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				});
+			});
+		}
+		/**
 		* Spam skill before the hit lands (regardless of damage)
 		*
 		* @param {number} skill id
@@ -263644,11 +263663,11 @@ var init_EffectTable = __esmMin((() => {
 				textureFile: "effect/ice.tga",
 				attachedEntity: false,
 				duration: 670,
-				height: [2.5, 3.2],
+				height: [1.5, 2.5],
 				offsetX: 0,
 				offsetY: 0,
 				offsetZ: 0,
-				bottomSize: [.25, .4],
+				bottomSize: [.06, .12],
 				blendMode: 8,
 				rotateX: [-15, 15],
 				rotateY: [0, 360],
@@ -265409,11 +265428,11 @@ var init_EffectTable = __esmMin((() => {
 				textureFile: "effect/stone.bmp",
 				attachedEntity: false,
 				duration: 670,
-				height: 2,
+				height: [.6, 1],
 				offsetX: 0,
 				offsetY: 0,
 				offsetZ: 0,
-				bottomSize: [.25, .4],
+				bottomSize: [.05, .1],
 				blendMode: 8,
 				rotateX: [-15, 15],
 				rotateY: [0, 360],
@@ -265425,7 +265444,7 @@ var init_EffectTable = __esmMin((() => {
 				],
 				animation: 4,
 				animationSpeed: 330,
-				riseDistance: 1.5,
+				riseDistance: .8,
 				fadeOut: 170
 			}]
 		}],
@@ -274621,11 +274640,11 @@ var init_EffectTable = __esmMin((() => {
 				textureFile: "effect/ice.tga",
 				attachedEntity: false,
 				duration: 670,
-				height: [2.5, 3.2],
+				height: [1.5, 2.5],
 				offsetX: 0,
 				offsetY: 0,
 				offsetZ: 0,
-				bottomSize: [.25, .4],
+				bottomSize: [.06, .12],
 				blendMode: 8,
 				rotateX: [-15, 15],
 				rotateY: [0, 360],
@@ -321110,7 +321129,10 @@ function onEntityUseSkillToAttack(pkt) {
 			if (pushedEntity) pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
 		}
 	}
-	if (srcEntity && dstEntity && pkt.action != SkillAction$1.SPLASH) EffectManager.spamSkill(pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
+	if (srcEntity && dstEntity && pkt.action != SkillAction$1.SPLASH) {
+		EffectManager.spamSkillRelease(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
+		EffectManager.spamSkill(pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
+	}
 }
 /**
 * Cast a skill to someone
