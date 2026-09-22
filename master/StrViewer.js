@@ -213332,7 +213332,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 51
 	};
 	SkillEffect[SkillConst_default.MG_FROSTDIVER] = {
-		effectId: 27,
+		releaseEffectId: 27,
 		hitEffectId: 28
 	};
 	SkillEffect[SkillConst_default.MG_STONECURSE] = { effectId: 23 };
@@ -213514,7 +213514,7 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: 122
 	};
 	SkillEffect[SkillConst_default.AS_GRIMTOOTH] = {
-		effectId: 123,
+		releaseEffectId: 123,
 		hitEffectId: 132
 	};
 	SkillEffect[SkillConst_default.AS_ENCHANTPOISON] = { effectId: 20 };
@@ -214146,8 +214146,8 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WL_SOULEXPANSION] = {};
 	SkillEffect[SkillConst_default.WL_FROSTMISTY] = { effectId: 726 };
 	SkillEffect[SkillConst_default.WL_JACKFROST] = {
-		effectId: "ef_jackfrost",
-		groundEffectId: 801
+		successEffectIdOnCaster: "ef_jackfrost",
+		hitEffectId: 28
 	};
 	SkillEffect[SkillConst_default.WL_MARSHOFABYSS] = { effectId: 729 };
 	SkillEffect[SkillConst_default.WL_RECOGNIZEDSPELL] = { effectId: 803 };
@@ -252232,7 +252232,7 @@ var init_QuadHorn$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Effects/QuadHorn.js
-var _program$17, mat4$15, blendMode, vertices, texCoords, rand, QuadHorn;
+var _program$17, mat4$15, blendMode, vertices, texCoords, rand$1, QuadHorn;
 var init_QuadHorn = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -252305,7 +252305,7 @@ var init_QuadHorn = __esmMin((() => {
 		0,
 		0
 	];
-	rand = (min, max) => parseFloat(Math.min(min + Math.random() * (max - min), max).toFixed(3));
+	rand$1 = (min, max) => parseFloat(Math.min(min + Math.random() * (max - min), max).toFixed(3));
 	QuadHorn = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
 			this._zRotationMatrix = mat4$15.create();
@@ -252313,23 +252313,26 @@ var init_QuadHorn = __esmMin((() => {
 			this._xRotationMatrix = mat4$15.create();
 			this.position = EF_Inst_Par.position;
 			this.blendMode = effect.blendMode || 1;
-			this.height = (effect.height && effect.height instanceof Array ? rand(effect.height[0], effect.height[1]) : effect.height) || 0;
-			this.rotateX = (effect.rotateX && effect.rotateX instanceof Array ? rand(effect.rotateX[0], effect.rotateX[1]) : effect.rotateX) || 0;
-			this.rotateY = (effect.rotateY && effect.rotateY instanceof Array ? rand(effect.rotateY[0], effect.rotateY[1]) : effect.rotateY) || 0;
-			this.rotateZ = (effect.rotateZ && effect.rotateZ instanceof Array ? rand(effect.rotateZ[0], effect.rotateZ[1]) : effect.rotateZ) || 0;
-			this.offsetX = (effect.offsetX && effect.offsetX instanceof Array ? rand(effect.offsetX[0], effect.offsetX[1]) : effect.offsetX) || .5;
-			this.offsetY = (effect.offsetY && effect.offsetY instanceof Array ? rand(effect.offsetY[0], effect.offsetY[1]) : effect.offsetY) || .5;
-			this.offsetZ = (effect.offsetZ && effect.offsetZ instanceof Array ? rand(effect.offsetZ[0], effect.offsetZ[1]) : effect.offsetZ) || .5;
-			this.bottomSize = (effect.bottomSize && effect.bottomSize instanceof Array ? rand(effect.bottomSize[0], effect.bottomSize[1]) : effect.bottomSize) || 0;
-			this.color = effect.color || [
+			this.height = (effect.height && effect.height instanceof Array ? rand$1(effect.height[0], effect.height[1]) : effect.height) || 0;
+			this.rotateX = (effect.rotateX && effect.rotateX instanceof Array ? rand$1(effect.rotateX[0], effect.rotateX[1]) : effect.rotateX) || 0;
+			this.rotateY = (effect.rotateY && effect.rotateY instanceof Array ? rand$1(effect.rotateY[0], effect.rotateY[1]) : effect.rotateY) || 0;
+			this.rotateZ = (effect.rotateZ && effect.rotateZ instanceof Array ? rand$1(effect.rotateZ[0], effect.rotateZ[1]) : effect.rotateZ) || 0;
+			this.offsetX = (effect.offsetX && effect.offsetX instanceof Array ? rand$1(effect.offsetX[0], effect.offsetX[1]) : effect.offsetX) ?? .5;
+			this.offsetY = (effect.offsetY && effect.offsetY instanceof Array ? rand$1(effect.offsetY[0], effect.offsetY[1]) : effect.offsetY) ?? .5;
+			this.offsetZ = (effect.offsetZ && effect.offsetZ instanceof Array ? rand$1(effect.offsetZ[0], effect.offsetZ[1]) : effect.offsetZ) || .5;
+			this.bottomSize = (effect.bottomSize && effect.bottomSize instanceof Array ? rand$1(effect.bottomSize[0], effect.bottomSize[1]) : effect.bottomSize) || 0;
+			this.color = effect.color ? effect.color.slice() : [
 				1,
 				1,
 				1,
 				1
 			];
+			this.baseAlpha = this.color[3];
 			this.animation = effect.animation || 0;
 			this.animationSpeed = effect.animationSpeed || 100;
 			this.animationOut = effect.animationOut || false;
+			this.riseDistance = (effect.riseDistance && effect.riseDistance instanceof Array ? rand$1(effect.riseDistance[0], effect.riseDistance[1]) : effect.riseDistance) || 0;
+			this.fadeOut = effect.fadeOut || 0;
 			this.textureFile = effect.textureFile;
 			this.startTick = EF_Inst_Par.startTick;
 			this.endTick = EF_Inst_Par.endTick;
@@ -252342,16 +252345,26 @@ var init_QuadHorn = __esmMin((() => {
 			this.texCoordBuffer = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoordBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
-			const self = this;
-			Client.loadFile("data/texture/" + this.textureFile, function(buffer) {
-				WebGL_default.texture(gl, buffer, function(texture) {
-					self.texture = texture;
-					self.ready = true;
+			this.freed = false;
+			Client.loadFile(`data/texture/${this.textureFile}`, (buffer) => {
+				WebGL_default.texture(gl, buffer, (texture) => {
+					if (this.freed) {
+						gl.deleteTexture(texture);
+						return;
+					}
+					this.texture = texture;
+					this.ready = true;
 				});
 			});
 		}
 		free(gl) {
 			gl.deleteBuffer(this.buffer);
+			gl.deleteBuffer(this.texCoordBuffer);
+			if (this.texture) {
+				gl.deleteTexture(this.texture);
+				this.texture = null;
+			}
+			this.freed = true;
 			this.ready = false;
 		}
 		render(gl, tick) {
@@ -252379,6 +252392,12 @@ var init_QuadHorn = __esmMin((() => {
 					gl.uniform1f(uniform.uOffsetZ, this.offsetZ);
 				} else gl.uniform1f(uniform.uOffsetZ, lerpZOffset);
 				gl.uniform1f(uniform.uHeight, this.height);
+			} else if (this.animation === 4 && !this._endAnimation) {
+				const progress = Math.min(deltaStart / (this.animationSpeed / 1e3), 1);
+				const eased = 1 - (1 - progress) * (1 - progress);
+				if (progress >= 1) this._endAnimation = true;
+				gl.uniform1f(uniform.uOffsetZ, this.offsetZ - this.riseDistance * (1 - eased));
+				gl.uniform1f(uniform.uHeight, this.height);
 			} else if (this.animation === 3 && !this._endAnimation) {
 				const lerpZOffset = deltaStart / (this.animationSpeed / 1e3);
 				if (lerpZOffset > this.height / 2) {
@@ -252389,6 +252408,10 @@ var init_QuadHorn = __esmMin((() => {
 			} else {
 				gl.uniform1f(uniform.uHeight, this.height);
 				gl.uniform1f(uniform.uOffsetZ, this.offsetZ);
+			}
+			if (this.fadeOut > 0 && this.endTick > 0) {
+				const remaining = this.endTick - tick;
+				this.color[3] = this.baseAlpha * Math.max(0, Math.min(1, remaining / this.fadeOut));
 			}
 			if (this.endTick > 0 && this.endTick < tick) {
 				if (this.animationOut && this._endAnimation) {
@@ -252478,6 +252501,119 @@ var init_QuadHorn = __esmMin((() => {
 			gl.disableVertexAttribArray(_program$17.attribute.aColor);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
+	};
+}));
+//#endregion
+//#region src/Renderer/Effects/Trail.js
+var rand, Trail;
+var init_Trail = __esmMin((() => {
+	init_EffectManager();
+	init_Altitude();
+	init_Map();
+	rand = (min, max) => min + Math.random() * (max - min);
+	Trail = class {
+		constructor(effect, EF_Inst_Par, EF_Init_Par) {
+			const owner = EF_Inst_Par.position;
+			const other = EF_Inst_Par.otherPosition || owner;
+			const source = effect.angles || effect.sourceIsOwner ? owner : other;
+			const target = effect.sourceIsOwner ? other : owner;
+			this.source = [source[0], source[1]];
+			EF_Inst_Par.position = effect.angles ? [
+				source[0],
+				source[1],
+				source[2]
+			] : [
+				(source[0] + target[0]) / 2,
+				(source[1] + target[1]) / 2,
+				source[2]
+			];
+			this.position = EF_Inst_Par.position;
+			if (effect.angles) {
+				this.targetDistance = Infinity;
+				this.directions = effect.angles.map((angle) => {
+					const rad = angle * Math.PI / 180;
+					return [Math.cos(rad), Math.sin(rad)];
+				});
+			} else {
+				const dx = target[0] - this.source[0];
+				const dy = target[1] - this.source[1];
+				this.targetDistance = Math.sqrt(dx * dx + dy * dy);
+				this.directions = [this.targetDistance > 0 ? [dx / this.targetDistance, dy / this.targetDistance] : [0, -1]];
+			}
+			this.spawn = effect.spawn || [];
+			this.speed = effect.speed || 24;
+			this.interval = effect.interval || 17;
+			this.startOffset = effect.startOffset || 0;
+			this.stopAtTarget = !!effect.stopAtTarget;
+			this.overshoot = effect.overshoot || 0;
+			this.spread = effect.spread || 0;
+			this.startTick = EF_Inst_Par.startTick;
+			this.endTick = EF_Inst_Par.endTick > 0 ? EF_Inst_Par.endTick : this.startTick + 2500;
+			this.nextSpawnTick = this.startTick;
+			this.Init = EF_Init_Par;
+			this.ready = true;
+		}
+		init() {}
+		free() {}
+		render(gl, tick) {
+			if (Map_default.mineffect || tick >= this.endTick) {
+				this.needCleanUp = true;
+				return;
+			}
+			const maxDistance = this.stopAtTarget ? this.targetDistance + this.overshoot : Infinity;
+			const cellsPerMs = this.speed / 1e3;
+			while (this.nextSpawnTick <= tick) {
+				const distance = this.startOffset + (this.nextSpawnTick - this.startTick) * cellsPerMs;
+				if (distance > maxDistance || this.nextSpawnTick >= this.endTick) {
+					this.needCleanUp = true;
+					return;
+				}
+				this.spawnAt(distance, this.nextSpawnTick);
+				this.nextSpawnTick += this.interval;
+			}
+		}
+		spawnAt(distance, startTick) {
+			for (const direction of this.directions) {
+				const angle = Math.random() * Math.PI * 2;
+				const radius = Array.isArray(this.spread) ? rand(this.spread[0], this.spread[1]) : Math.random() * this.spread;
+				const x = this.source[0] + direction[0] * distance + Math.cos(angle) * radius;
+				const y = this.source[1] + direction[1] * distance + Math.sin(angle) * radius;
+				this.spawnDefinitions([
+					x,
+					y,
+					Altitude.getCellHeight(x, y)
+				], startTick);
+			}
+		}
+		spawnDefinitions(position, startTick) {
+			for (const definition of this.spawn) EffectManager.spamEffect({
+				effect: definition,
+				Inst: {
+					effectID: this.Init.effectId,
+					duplicateID: 0,
+					startTick
+				},
+				Init: {
+					effectId: this.Init.effectId,
+					ownerAID: this.Init.ownerAID,
+					ownerEntity: this.Init.ownerEntity,
+					otherAID: this.Init.otherAID,
+					otherEntity: this.Init.otherEntity,
+					position,
+					otherPosition: this.Init.otherPosition,
+					startTick
+				}
+			});
+		}
+		static init() {
+			this.ready = true;
+			this.renderBeforeEntities = true;
+		}
+		static free() {
+			this.ready = false;
+		}
+		static beforeRender() {}
+		static afterRender() {}
 	};
 }));
 //#endregion
@@ -252988,6 +253124,7 @@ var init_EffectManager = __esmMin((() => {
 	init_SoundManager();
 	init_Map();
 	init_QuadHorn();
+	init_Trail();
 	init_WaterfallEffect();
 	init_SessionStorage();
 	init_Graphics();
@@ -253262,6 +253399,9 @@ var init_EffectManager = __esmMin((() => {
 				case "QuadHorn":
 					EffectManager.add(new QuadHorn(Params.effect, Params.Inst, Params.Init), Params);
 					break;
+				case "TRAIL":
+					EffectManager.add(new Trail(Params.effect, Params.Inst, Params.Init), Params);
+					break;
 				case "FUNC": if (Params.effect.func) {
 					if (Params.effect.attachedEntity) {
 						if (Params.Init.ownerEntity) Params.effect.func.call(this, Params);
@@ -253418,6 +253558,25 @@ var init_EffectManager = __esmMin((() => {
 					EffectManager.spam(EF_Init_Par);
 				});
 			}
+		}
+		/**
+		* Spam skill effect when the skill is released on its target (hit or miss)
+		*
+		* @param {number} skill id
+		* @param {number} target aid
+		* @param {number} tick
+		* @param {number} source aid
+		*/
+		static spamSkillRelease(skillId, destAID, tick, srcAID) {
+			if (!(skillId in SkillEffect) || !SkillEffect[skillId].releaseEffectId) return;
+			(Array.isArray(SkillEffect[skillId].releaseEffectId) ? SkillEffect[skillId].releaseEffectId : [SkillEffect[skillId].releaseEffectId]).forEach((effectId) => {
+				EffectManager.spam({
+					effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				});
+			});
 		}
 		/**
 		* Spam skill before the hit lands (regardless of damage)
@@ -263454,8 +263613,38 @@ var init_EffectTable = __esmMin((() => {
 			attachedEntity: false
 		}],
 		27: [{
-			file: "effect/ice",
-			attachedEntity: false
+			type: "TRAIL",
+			attachedEntity: false,
+			duration: 2500,
+			speed: 24,
+			interval: 17,
+			stopAtTarget: true,
+			overshoot: 2,
+			spread: [.1, .3],
+			spawn: [{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				duration: 670,
+				height: [.2, 1.8],
+				offsetX: 0,
+				offsetY: 0,
+				offsetZ: 0,
+				bottomSize: [.06, .22],
+				blendMode: 8,
+				rotateX: [-15, 15],
+				rotateY: [0, 360],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 4,
+				animationSpeed: 330,
+				riseDistance: 2,
+				fadeOut: 170
+			}]
 		}],
 		28: [{
 			attachedEntity: true,
@@ -265189,6 +265378,38 @@ var init_EffectTable = __esmMin((() => {
 		123: [{
 			wav: "effect/ef_frostdiver",
 			attachedEntity: true
+		}, {
+			type: "TRAIL",
+			attachedEntity: false,
+			duration: 2500,
+			speed: 24,
+			interval: 50,
+			stopAtTarget: true,
+			overshoot: 3,
+			spawn: [{
+				type: "QuadHorn",
+				textureFile: "effect/stone.bmp",
+				attachedEntity: false,
+				duration: 670,
+				height: [.6, 1],
+				offsetX: 0,
+				offsetY: 0,
+				offsetZ: 0,
+				bottomSize: [.05, .1],
+				blendMode: 8,
+				rotateX: [-15, 15],
+				rotateY: [0, 360],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 4,
+				animationSpeed: 330,
+				riseDistance: .8,
+				fadeOut: 170
+			}]
 		}],
 		124: [{
 			type: "STR",
@@ -265238,7 +265459,7 @@ var init_EffectTable = __esmMin((() => {
 				attachedEntity: false,
 				duration: 15e3,
 				height: 2.5,
-				offsetX: 0,
+				offsetX: .5,
 				offsetY: .4,
 				offsetZ: -.2,
 				bottomSize: .15,
@@ -265284,7 +265505,7 @@ var init_EffectTable = __esmMin((() => {
 				attachedEntity: false,
 				duration: 15e3,
 				height: 2.5,
-				offsetX: 0,
+				offsetX: .5,
 				offsetY: .5,
 				offsetZ: 0,
 				bottomSize: .15,
@@ -274359,6 +274580,48 @@ var init_EffectTable = __esmMin((() => {
 		ef_jackfrost: [{
 			wav: "effect/wl_jackfrost",
 			attachedEntity: true
+		}, {
+			type: "TRAIL",
+			attachedEntity: false,
+			duration: 1e3,
+			speed: 24,
+			interval: 34,
+			startOffset: 1,
+			angles: [
+				0,
+				45,
+				90,
+				135,
+				180,
+				225,
+				270,
+				315
+			],
+			spread: [.1, .4],
+			spawn: [{
+				type: "QuadHorn",
+				textureFile: "effect/ice.tga",
+				attachedEntity: false,
+				duration: 670,
+				height: [.2, 1.8],
+				offsetX: 0,
+				offsetY: 0,
+				offsetZ: 0,
+				bottomSize: [.06, .22],
+				blendMode: 8,
+				rotateX: [-15, 15],
+				rotateY: [0, 360],
+				color: [
+					1,
+					1,
+					1,
+					1
+				],
+				animation: 4,
+				animationSpeed: 330,
+				riseDistance: 2,
+				fadeOut: 170
+			}]
 		}],
 		ef_siennaexecrate: [{
 			wav: "effect/wl_siennaexecrate",
@@ -320866,7 +321129,10 @@ function onEntityUseSkillToAttack(pkt) {
 			if (pushedEntity) pushedEntity.fastMoveTo(pkt.xPos, pkt.yPos, 20, null, true);
 		}
 	}
-	if (srcEntity && dstEntity && pkt.action != SkillAction$1.SPLASH) EffectManager.spamSkill(pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
+	if (srcEntity && dstEntity && pkt.action != SkillAction$1.SPLASH) {
+		EffectManager.spamSkillRelease(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
+		EffectManager.spamSkill(pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
+	}
 }
 /**
 * Cast a skill to someone
