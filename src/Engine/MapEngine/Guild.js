@@ -464,13 +464,15 @@ class GuildEngine {
 
 		Network.sendPacket(pkt);
 
-		// Not every server answers this one - rAthena declares the packet but
-		// has no handler for it as of 2026-09. Say so rather than leave the
-		// click looking like nothing happened.
+		// Not every server answers this one - rAthena registers 0x157 with a null
+		// handler (clif_packetdb.hpp, `packet(0x0157,6)` rather than
+		// `parseable_packet`), so the request is read off the wire and dropped,
+		// and 0x158 never comes back. Name the reason rather than leave the click
+		// looking like nothing happened.
 		clearTimeout(_memberInfoTimer);
 		_memberInfoTimer = setTimeout(() => {
 			ChatBox.addText(
-				`${DB.getMessage(129)} : the server did not answer.`,
+				`${DB.getMessage(129)} : the server did not answer (rAthena does not implement this packet).`,
 				ChatBox.TYPE.ERROR,
 				ChatBox.FILTER.GUILD
 			);
