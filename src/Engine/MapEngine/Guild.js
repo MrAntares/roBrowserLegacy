@@ -709,7 +709,9 @@ const onGuildEmblem = (function onGuildEmblemClosure() {
  * @param {object} pkt - PACKET.ZC.MEMBERMGR_INFO
  */
 function onGuildMembers(pkt) {
-	Guild.setMembers(pkt.memberInfo);
+	// Only the oldest list carries a note, and only the later ones a last
+	// login. The column shown follows the packet.
+	Guild.setMembers(pkt.memberInfo, pkt instanceof PACKET.ZC.MEMBERMGR_INFO);
 }
 
 /**

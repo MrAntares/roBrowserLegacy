@@ -571,7 +571,7 @@ Guild.removeRelation = function removeRelation(guildId, relation) {
 	}
 };
 
-Guild.setMembers = function setMembers(members) {
+Guild.setMembers = function setMembers(members, hasMemo) {
 	let online = 0;
 	const count = members.length;
 	_members.length = 0;
@@ -580,6 +580,15 @@ Guild.setMembers = function setMembers(members) {
 	_clearPendingPositions();
 
 	const root = _root(this);
+
+	// The 0x0154 list carries a note and no last login, the later ones the
+	// other way round. Show the column the wire actually feeds, which is what
+	// the client of each era does.
+	const membersContent = root.querySelector('.content.members');
+	if (membersContent) {
+		membersContent.classList.toggle('has-memo', !!hasMemo);
+	}
+
 	const tbody = root.querySelector('.content.members tbody');
 	if (tbody) {
 		tbody.innerHTML = '';
