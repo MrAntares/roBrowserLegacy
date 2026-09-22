@@ -778,6 +778,9 @@ Guild.setPositionsName = function setPositionsName(positions) {
 			_positions[rank.positionID] = {};
 		}
 
+		// The grade dropdown carries this as its option value, and this packet
+		// can be the only one to ever feed a grade.
+		_positions[rank.positionID].positionID = rank.positionID;
 		_positions[rank.positionID].posName = rank.posName;
 	}
 
