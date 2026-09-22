@@ -134,6 +134,14 @@
 /*
  * Guild Info CSS
  */
+/* The client's Info tab is a fixed layout drawn at literal coordinates and it
+ * never scrolls - its lowest element is the antagonist box at 229..277, well
+ * clear of the bar at 288. Ours overflowed it by 2px through the tendency
+ * chart's bottom label, which was enough to raise a scrollbar for two pixels.
+ * The chart is ver12-era and has no counterpart in 2022 or mars26 at all. */
+#Guild .content.info {
+	overflow-y: hidden;
+}
 #Guild .content.info .exp,
 #Guild .content.info .emblem,
 #Guild .content.info .tax,
@@ -176,10 +184,13 @@
 	left: 8px;
 	top: 88px;
 }
+/* 3px higher than it was, so the chart's bottom label stops 2px short of the
+ * pane instead of 2px past it. The whole block is a ver12 reproduction - 2022
+ * and mars26 draw no tendency chart - so it has no client rect to hold to. */
 #Guild .content.info .tendency {
 	position: absolute;
 	left: 8px;
-	top: 114px;
+	top: 111px;
 }
 /* The .tendency box is absolutely positioned with no width and only absolutely
  * positioned children, so it shrink-to-fits to zero and the label wraps after
