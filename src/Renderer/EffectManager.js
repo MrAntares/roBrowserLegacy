@@ -29,6 +29,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Sound from 'Audio/SoundManager.js';
 import Preferences from 'Preferences/Map.js';
 import QuadHorn from 'Renderer/Effects/QuadHorn.js';
+import Trail from 'Renderer/Effects/Trail.js';
 import WaterfallEffect from 'Renderer/Effects/WaterfallEffect.js';
 import Session from 'Engine/SessionStorage.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
@@ -715,6 +716,10 @@ class EffectManager {
 
 			case 'QuadHorn':
 				EffectManager.add(new QuadHorn(Params.effect, Params.Inst, Params.Init), Params);
+				break;
+
+			case 'TRAIL':
+				EffectManager.add(new Trail(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 
 			case 'FUNC':
