@@ -86,6 +86,10 @@
 	border: 0px;
 	font-family: inherit;
 	font-size: 12px;
+	/* The client draws the label at the top-left of the box with no alignment
+	 * flag. A button centres by default, which makes each label start at a
+	 * different x depending on how long it is. */
+	text-align: left;
 }
 #Guild .footer {
 	width: 100%;
