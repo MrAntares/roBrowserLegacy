@@ -37,6 +37,7 @@ const mocks = vi.hoisted(() => {
 		// Stands in for msgstringtable: what a server actually ships wins over
 		// the fallback baked into the call.
 		messages: {},
+		chat: [],
 		// The guild storage right, and its column, start at 20140205.
 		packetver: { value: 20211103 },
 		contextMenu: { remove: vi.fn(), append: vi.fn(), addElement: vi.fn() },
@@ -100,7 +101,11 @@ vi.mock('UI/UIManager.js', () => ({
 vi.mock('UI/Elements/Elements.js', () => ({}));
 vi.mock('UI/Components/ContextMenu/ContextMenu.js', () => ({ default: mocks.contextMenu }));
 vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
-	default: { addText: vi.fn(), TYPE: { BLUE: 1 }, FILTER: { GUILD: 1 } }
+	default: {
+		addText: text => mocks.chat.push(text),
+		TYPE: { BLUE: 1, ERROR: 64 },
+		FILTER: { GUILD: 1 }
+	}
 }));
 vi.mock('UI/Components/InputBox/InputBox.js', () => ({
 	default: { append: vi.fn(), setType: vi.fn(), remove: vi.fn(), ui: { find: () => ({ text: vi.fn() }) } }
@@ -232,10 +237,13 @@ function wireEntries(memberInfo) {
 
 let sent;
 let sentPositions;
+const chat = [];
 
 beforeEach(() => {
 	sent = [];
 	sentPositions = [];
+	chat.length = 0;
+	mocks.chat = chat;
 	mocks.packetver.value = 20211103;
 	// Closing the window drops whatever the positions tab had queued, so every
 	// case starts on a table the server is still allowed to repaint.
@@ -763,6 +771,41 @@ describe('Guild position tab', () => {
 			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, payRate: 0 });
 		});
 
+		it('says so when the server keeps a different tax', () => {
+			// rathena caps to guild_exp_limit and answers with what it stored.
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const input = positionRows()[1].querySelector('.tax input');
+			input.dispatchEvent(new Event('focus'));
+			input.value = '99';
+			clickApply();
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, payRate: 99 });
+
+			chat.length = 0;
+			Guild.setPositions([{ ...POSITIONS[1], payRate: 50 }], false);
+
+			expect(chat).toHaveLength(1);
+			// The number shown is the server's, not the one baked into the string.
+			expect(chat[0]).toContain('50');
+			expect(chat[0]).not.toContain('%d');
+		});
+
+		it('stays quiet when the server kept what was sent', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const input = positionRows()[1].querySelector('.tax input');
+			input.dispatchEvent(new Event('focus'));
+			input.value = '40';
+			clickApply();
+
+			chat.length = 0;
+			Guild.setPositions([{ ...POSITIONS[1], payRate: 40 }], false);
+
+			expect(chat).toHaveLength(0);
+		});
+
 		it('sends nothing when nothing was edited', () => {
 			Guild.setPositions(POSITIONS, true);
 			showPositionsTab();
@@ -806,6 +849,32 @@ describe('Guild position tab', () => {
 			clickApply();
 
 			expect(sentPositions[0][0]).toMatchObject({ positionID: 0, right: 0x110 });
+		});
+
+		it('survives a list the server sent with a gap in it', () => {
+			// setPositions truncates the store's length to the entry count while
+			// keying it by positionID, so a skipped id leaves a hole inside the
+			// range. Rendering used to dereference it and throw.
+			const sparse = [
+				{ positionID: 0, right: 0x111, ranking: 0, payRate: 50, posName: 'Guild Master' },
+				{ positionID: 1, right: 0x001, ranking: 1, payRate: 10, posName: 'Member' },
+				{ positionID: 4, right: 0x011, ranking: 4, payRate: 20, posName: 'Position 4' }
+			];
+
+			Guild.setPositions([], true);
+			expect(() => Guild.setPositions(sparse, true)).not.toThrow();
+			showPositionsTab();
+
+			// Ids 2 and 3 are holes: erase truncates the length to the entry
+			// count, then writing index 4 grows it back past them. Only the ids
+			// the server sent get a row, and Apply must pair each row with its
+			// own entry rather than with row N.
+			expect([...positionRows()].map(r => r.dataset.positionId)).toEqual(['0', '1', '4']);
+
+			clickCheckbox(1, 'punish');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, right: 0x011 });
 		});
 
 		it('does not push a mode it never received', () => {

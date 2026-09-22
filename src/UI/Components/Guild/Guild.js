@@ -985,14 +985,25 @@ Guild.updatePositionView = function updatePositionView() {
 
 	container.innerHTML = '';
 
+	// _positions is keyed by positionID and the server is free to skip one, so
+	// it can have holes - and setPositions truncates its length to the entry
+	// count, which leaves them inside the range. Rows carry the id they render
+	// rather than relying on their place in the table matching it.
 	const count = _positions.length;
+	let rendered = 0;
 	for (let i = 0; i < count; ++i) {
-		const view = _positionViewTemplate.cloneNode(true);
 		const rank = _positions[i];
+		if (!rank) {
+			continue;
+		}
 
-		if (i === _positionsSelected) {
+		const view = _positionViewTemplate.cloneNode(true);
+		view.dataset.positionId = rank.positionID;
+
+		if (rendered === _positionsSelected) {
 			view.classList.add('active');
 		}
+		++rendered;
 
 		const idCell = view.querySelector('.id');
 		if (idCell) {
@@ -1529,16 +1540,15 @@ function onValidate() {
 			const positionList = [];
 			const positions = root.querySelectorAll('.PositionView');
 
-			for (let i = 0, count = _positions.length; i < count; ++i) {
-				const position = positions[i];
-				if (!position) {
-					continue;
-				}
+			for (const position of positions) {
+				// The row says which position it renders. Pairing it with the store by
+				// its place in the table breaks the moment the server skips an id.
+				const rank = _positions[parseInt(position.dataset.positionId, 10)];
 
 				// 0x160 carries the mode and nothing else does. Until it lands there
 				// is nothing to preserve and nothing to compare against, and sending
 				// would push a zeroed mode over the server's own.
-				if (_positions[i].right === undefined) {
+				if (!rank || rank.right === undefined) {
 					continue;
 				}
 
@@ -1555,7 +1565,7 @@ function onValidate() {
 				// from zero is what used to drop the guild storage right on a
 				// packetver too old to draw it.
 				const owned = _hasStorageColumn() ? 0x01 | 0x10 | GUILD_PERM_STORAGE : 0x01 | 0x10;
-				let right = _positions[i].right & ~owned;
+				let right = rank.right & ~owned;
 
 				const inviteBox = position.querySelector('.invite .checkbox');
 				if (inviteBox && inviteBox.classList.contains('on')) {
@@ -1572,14 +1582,10 @@ function onValidate() {
 					right |= GUILD_PERM_STORAGE;
 				}
 
-				if (
-					_positions[i].right !== right ||
-					_positions[i].posName !== posName ||
-					_positions[i].payRate !== payRate
-				) {
+				if (rank.right !== right || rank.posName !== posName || rank.payRate !== payRate) {
 					positionList.push({
-						positionID: _positions[i].positionID,
-						ranking: _positions[i].ranking,
+						positionID: rank.positionID,
+						ranking: rank.ranking,
 						right: right,
 						posName: posName,
 						payRate: payRate
