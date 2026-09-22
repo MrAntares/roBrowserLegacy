@@ -579,6 +579,10 @@ Guild.setMember = function setMember(member) {
 
 	if (i < count) {
 		view = root.querySelector(`.MemberView[data-index="${i}"]`);
+
+		// The row is rendered from this object and read back from the list, by
+		// the grade guard and by the context menu. Keep the two in step.
+		_members[i] = member;
 	} else {
 		view = _memberViewTemplate.cloneNode(true);
 		const tbody = root.querySelector('.content.members tbody');
