@@ -27,6 +27,9 @@
  *								Can be used to create pre-damage effects like flying balls and others.
  *								Note: Effect duration in EffectTable has to be equal to the damage display delay to make the effect look like it reaches the target right before the damage. Now it is fixed 200ms.
  *
+ *	- releaseEffectId: 			Triggers once when the skill is released on a target (after the cast, before the hit lands), even if the skill misses.
+ *								Can be used for effects traveling from the caster toward the target.
+ *
  *	- beginCastEffectId: 		Triggers once right after the skill is released, before the cast ends.
  *								Can be used to create casting effects.
  *
@@ -69,7 +72,7 @@ SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
 SkillEffect[SK.MG_SAFETYWALL] = {/*not here*/}; //Safety Wall
 SkillEffect[SK.MG_SOULSTRIKE] = { beforeHitEffectId: 15, hitEffectId: 1 }; //Soul Strike
 SkillEffect[SK.MG_COLDBOLT] = { beforeHitEffectId: 'ef_coldbolt', hitEffectId: 51 }; //Cold Bolt
-SkillEffect[SK.MG_FROSTDIVER] = { effectId: 27, hitEffectId: 28 }; //Frost Diver
+SkillEffect[SK.MG_FROSTDIVER] = { releaseEffectId: 27, hitEffectId: 28 }; //Frost Diver
 SkillEffect[SK.MG_STONECURSE] = { effectId: 23 }; //Stone Curse
 SkillEffect[SK.MG_FIREBALL] = { beforeHitEffectId: 24, hitEffectId: 49 }; //Fire Ball
 SkillEffect[SK.MG_FIREWALL] = { hitEffectId: 49, groundEffectId: 25 }; //Fire Wall
@@ -172,7 +175,7 @@ SkillEffect[SK.HT_SPRINGTRAP] = { effectId: 111 }; //Spring Trap
 // Assassin
 SkillEffect[SK.AS_CLOAKING] = { effectId: 120 }; //Cloaking
 SkillEffect[SK.AS_SONICBLOW] = { effectIdOnCaster: 121, effectId: 143, hitEffectId: 122 }; //Sonic Blow
-SkillEffect[SK.AS_GRIMTOOTH] = { effectId: 123, hitEffectId: 132 }; //Grimtooth
+SkillEffect[SK.AS_GRIMTOOTH] = { releaseEffectId: 123, hitEffectId: 132 }; //Grimtooth
 SkillEffect[SK.AS_ENCHANTPOISON] = { effectId: 20 }; //Enchant Poison
 SkillEffect[SK.AS_POISONREACT] = { effectId: 126, hitEffectId: 127 }; //Poison React
 SkillEffect[SK.AS_VENOMDUST] = { effectId: 124, groundEffectId: 171 }; //Venom Dust
@@ -676,7 +679,7 @@ SkillEffect[SK.RK_PHANTOMTHRUST] = {}; //Phantom Thrust
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
 SkillEffect[SK.WL_SOULEXPANSION] = {}; //Soul Expansion
 SkillEffect[SK.WL_FROSTMISTY] = { effectId: 726 }; //Frosty Misty
-SkillEffect[SK.WL_JACKFROST] = { effectId: 'ef_jackfrost', groundEffectId: 801 }; //Jack Frost
+SkillEffect[SK.WL_JACKFROST] = { successEffectIdOnCaster: 'ef_jackfrost', hitEffectId: 28 }; //Jack Frost
 SkillEffect[SK.WL_MARSHOFABYSS] = { effectId: 729 }; //Marsh of Abyss
 SkillEffect[SK.WL_RECOGNIZEDSPELL] = { effectId: 803 }; //Recognized Spell
 SkillEffect[SK.WL_SIENNAEXECRATE] = { effectId: 'ef_siennaexecrate' }; //Sienna Execrate

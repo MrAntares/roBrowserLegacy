@@ -66,11 +66,11 @@ class QuadHorn {
 		this.offsetX =
 			(effect.offsetX && effect.offsetX instanceof Array
 				? rand(effect.offsetX[0], effect.offsetX[1])
-				: effect.offsetX) || 0.5;
+				: effect.offsetX) ?? 0.5;
 		this.offsetY =
 			(effect.offsetY && effect.offsetY instanceof Array
 				? rand(effect.offsetY[0], effect.offsetY[1])
-				: effect.offsetY) || 0.5;
+				: effect.offsetY) ?? 0.5;
 		this.offsetZ =
 			(effect.offsetZ && effect.offsetZ instanceof Array
 				? rand(effect.offsetZ[0], effect.offsetZ[1])
@@ -79,10 +79,16 @@ class QuadHorn {
 			(effect.bottomSize && effect.bottomSize instanceof Array
 				? rand(effect.bottomSize[0], effect.bottomSize[1])
 				: effect.bottomSize) || 0.0;
-		this.color = effect.color || [1.0, 1.0, 1.0, 1.0];
+		this.color = effect.color ? effect.color.slice() : [1.0, 1.0, 1.0, 1.0];
+		this.baseAlpha = this.color[3];
 		this.animation = effect.animation || 0;
 		this.animationSpeed = effect.animationSpeed || 100;
 		this.animationOut = effect.animationOut || false;
+		this.riseDistance =
+			(effect.riseDistance && effect.riseDistance instanceof Array
+				? rand(effect.riseDistance[0], effect.riseDistance[1])
+				: effect.riseDistance) || 0.0;
+		this.fadeOut = effect.fadeOut || 0;
 		this.textureFile = effect.textureFile;
 		this.startTick = EF_Inst_Par.startTick;
 		this.endTick = EF_Inst_Par.endTick;
@@ -98,17 +104,27 @@ class QuadHorn {
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.texCoordBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
 
-		const self = this;
-		Client.loadFile('data/texture/' + this.textureFile, function (buffer) {
-			WebGL.texture(gl, buffer, function (texture) {
-				self.texture = texture;
-				self.ready = true;
+		this.freed = false;
+		Client.loadFile(`data/texture/${this.textureFile}`, buffer => {
+			WebGL.texture(gl, buffer, texture => {
+				if (this.freed) {
+					gl.deleteTexture(texture);
+					return;
+				}
+				this.texture = texture;
+				this.ready = true;
 			});
 		});
 	}
 
 	free(gl) {
 		gl.deleteBuffer(this.buffer);
+		gl.deleteBuffer(this.texCoordBuffer);
+		if (this.texture) {
+			gl.deleteTexture(this.texture);
+			this.texture = null;
+		}
+		this.freed = true;
 		this.ready = false;
 	}
 
@@ -150,6 +166,15 @@ class QuadHorn {
 				gl.uniform1f(uniform.uOffsetZ, lerpZOffset);
 			}
 			gl.uniform1f(uniform.uHeight, this.height);
+		} else if (this.animation === 4 && !this._endAnimation) {
+			//Emerge from riseDistance below offsetZ, decelerating to a stop over animationSpeed ms
+			const progress = Math.min(deltaStart / (this.animationSpeed / 1000), 1.0);
+			const eased = 1.0 - (1.0 - progress) * (1.0 - progress);
+			if (progress >= 1.0) {
+				this._endAnimation = true;
+			}
+			gl.uniform1f(uniform.uOffsetZ, this.offsetZ - this.riseDistance * (1.0 - eased));
+			gl.uniform1f(uniform.uHeight, this.height);
 		} else if (this.animation === 3 && !this._endAnimation) {
 			//Move up and over the ground a bit to make it feel more attack power
 			const lerpZOffset = deltaStart / (this.animationSpeed / 1000);
@@ -163,6 +188,11 @@ class QuadHorn {
 		} else {
 			gl.uniform1f(uniform.uHeight, this.height);
 			gl.uniform1f(uniform.uOffsetZ, this.offsetZ);
+		}
+
+		if (this.fadeOut > 0 && this.endTick > 0) {
+			const remaining = this.endTick - tick;
+			this.color[3] = this.baseAlpha * Math.max(0, Math.min(1, remaining / this.fadeOut));
 		}
 
 		if (this.endTick > 0 && this.endTick < tick) {

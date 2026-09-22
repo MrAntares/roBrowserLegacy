@@ -1416,11 +1416,36 @@ export default {
 
 	27: [
 		{
-			//Frost diver caster (ice traveling to target)	//EF_FROSTDIVER	Frost Diver (Traveling to Target)
-			//type: 'FUNC',
-			file: 'effect/ice',
-			//wav: 'effect/ef_frostdiver1',
-			attachedEntity: false
+			//EF_FROSTDIVER	Frost Diver (ice spikes traveling from caster to target)
+			type: 'TRAIL',
+			attachedEntity: false,
+			duration: 2500,
+			speed: 24,
+			interval: 17,
+			stopAtTarget: true,
+			overshoot: 2,
+			spread: [0.1, 0.3],
+			spawn: [
+				{
+					type: 'QuadHorn',
+					textureFile: 'effect/ice.tga',
+					attachedEntity: false,
+					duration: 670,
+					height: [0.2, 1.8],
+					offsetX: 0,
+					offsetY: 0,
+					offsetZ: 0,
+					bottomSize: [0.06, 0.22],
+					blendMode: 8,
+					rotateX: [-15, 15],
+					rotateY: [0, 360],
+					color: [1.0, 1.0, 1.0, 1.0],
+					animation: 4,
+					animationSpeed: 330,
+					riseDistance: 2.0,
+					fadeOut: 170
+				}
+			]
 		}
 	],
 
@@ -3524,6 +3549,37 @@ export default {
 			//grimtooth caster	//EF_GRIMTOOTH	Grimtooth Cast
 			wav: 'effect/ef_frostdiver',
 			attachedEntity: true
+		},
+		{
+			//EF_GRIMTOOTH	stone spikes traveling from caster past the target
+			type: 'TRAIL',
+			attachedEntity: false,
+			duration: 2500,
+			speed: 24,
+			interval: 50,
+			stopAtTarget: true,
+			overshoot: 3,
+			spawn: [
+				{
+					type: 'QuadHorn',
+					textureFile: 'effect/stone.bmp',
+					attachedEntity: false,
+					duration: 670,
+					height: [0.6, 1.0],
+					offsetX: 0,
+					offsetY: 0,
+					offsetZ: 0,
+					bottomSize: [0.05, 0.1],
+					blendMode: 8,
+					rotateX: [-15, 15],
+					rotateY: [0, 360],
+					color: [1.0, 1.0, 1.0, 1.0],
+					animation: 4,
+					animationSpeed: 330,
+					riseDistance: 0.8,
+					fadeOut: 170
+				}
+			]
 		}
 	],
 
@@ -3604,7 +3660,7 @@ export default {
 			attachedEntity: false,
 			duration: 15000,
 			height: 2.5,
-			offsetX: 0,
+			offsetX: 0.5,
 			offsetY: 0.4,
 			offsetZ: -0.2,
 			bottomSize: 0.15,
@@ -3640,7 +3696,7 @@ export default {
 			attachedEntity: false,
 			duration: 15000,
 			height: 2.5,
-			offsetX: 0,
+			offsetX: 0.5,
 			offsetY: 0.5,
 			offsetZ: 0,
 			bottomSize: 0.15,
@@ -15572,6 +15628,38 @@ export default {
 		{
 			wav: 'effect/wl_jackfrost',
 			attachedEntity: true
+		},
+		{
+			//ice spikes traveling outward from the caster in all 8 directions
+			type: 'TRAIL',
+			attachedEntity: false,
+			duration: 1000,
+			speed: 24,
+			interval: 34,
+			startOffset: 1,
+			angles: [0, 45, 90, 135, 180, 225, 270, 315],
+			spread: [0.1, 0.4],
+			spawn: [
+				{
+					type: 'QuadHorn',
+					textureFile: 'effect/ice.tga',
+					attachedEntity: false,
+					duration: 670,
+					height: [0.2, 1.8],
+					offsetX: 0,
+					offsetY: 0,
+					offsetZ: 0,
+					bottomSize: [0.06, 0.22],
+					blendMode: 8,
+					rotateX: [-15, 15],
+					rotateY: [0, 360],
+					color: [1.0, 1.0, 1.0, 1.0],
+					animation: 4,
+					animationSpeed: 330,
+					riseDistance: 2.0,
+					fadeOut: 170
+				}
+			]
 		}
 	],
 
