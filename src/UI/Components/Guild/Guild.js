@@ -81,6 +81,12 @@ let _positionsDirty = false;
 let _positionsSelected = 0;
 
 /**
+ * Tax rates sent by the last Apply, keyed by positionID, so the ack can be
+ * compared against them. rathena silently caps the rate to guild_exp_limit.
+ */
+let _sentPayRates = {};
+
+/**
  * GUILD_PERM_STORAGE exists from PACKETVER 20140205 on, and only then does the
  * tab draw a column for it. Below that the bit is preserved but never touched.
  */
@@ -958,6 +964,21 @@ Guild.setPositions = function setPositions(positions, erase) {
 		if (rank.posName) {
 			_positions[rank.positionID].posName = rank.posName;
 		}
+
+		// rathena caps the rate to guild_exp_limit and says nothing. The native
+		// client guesses at the limit instead - msgstring 3486 has 50 written
+		// into the text - where the ack carries the number the server kept.
+		const sent = _sentPayRates[rank.positionID];
+		if (sent !== undefined && rank.payRate !== undefined && sent !== rank.payRate) {
+			ChatBox.addText(
+				// The table's own text has the cap written into it rather than a
+				// placeholder, so take either form and put the real number in.
+				DB.getMessage(3486, "You can't enter value more than 50%.").replace(/%[ds]|\d+/, rank.payRate),
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.GUILD
+			);
+		}
+		delete _sentPayRates[rank.positionID];
 	}
 
 	Guild.updatePositionView();
@@ -1611,6 +1632,10 @@ function onValidate() {
 
 			// Applied or not, the rows go back to being the server's to repaint.
 			if (positionList.length) {
+				_sentPayRates = {};
+				for (const entry of positionList) {
+					_sentPayRates[entry.positionID] = entry.payRate;
+				}
 				Guild.onPositionUpdateRequest(positionList);
 			}
 			_positionsDirty = false;
