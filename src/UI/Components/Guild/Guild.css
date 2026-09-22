@@ -92,6 +92,10 @@
 	border: 0px;
 	font-family: inherit;
 	font-size: 12px;
+	/* The UA's `font` shorthand on form controls resets font-size-adjust, so a
+	 * button opts out of the x-height normalisation every other element in the
+	 * window runs under and its labels end up a different apparent size. */
+	font-size-adjust: inherit;
 	/* The client draws the label at the top-left of the box with no alignment
 	 * flag. A button centres by default, which makes each label start at a
 	 * different x depending on how long it is. */
@@ -589,9 +593,12 @@
  * lands on .skill_list's right edge. Dropping the pane's right padding and
  * widening the list to 396 puts that edge at 398, which is where the bar has to
  * start from to sit at the client's x=385. */
+/* No padding, so .skill_list can be the pane: the client's skill area runs from
+ * y=41 down to the bar at 288 with nothing between them, and its scrollbar is
+ * SetPos(385, 41) by 247 tall - which is that same span. */
 #Guild .content.skills {
 	overflow-y: hidden;
-	padding-right: 0;
+	padding: 0;
 }
 /* border-box, so the 5px padding stays inside the 394. Without it this box is
  * 404 wide and overflows the pane, which is what pushed the Skills tab to the
@@ -602,9 +609,8 @@
 	box-sizing: border-box;
 	overflow-y: auto;
 	padding: 5px;
-	border-top: 1px solid #c6c6c6;
-	width: 396px;
-	height: 215px;
+	width: 398px;
+	height: 247px;
 }
 #Guild .content.skills .skill_list table {
 	border: none;
