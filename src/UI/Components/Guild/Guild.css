@@ -289,6 +289,9 @@
 }
 #Guild .content.members td,
 #Guild .content.members th {
+	/* The widths below are the client's own column widths, so they have to
+	 * cover the padding too rather than sit on top of it. */
+	box-sizing: border-box;
 	text-align: left;
 	font-weight: normal;
 	padding-left: 2px;
@@ -313,8 +316,26 @@
 #Guild .content.members.has-memo .note {
 	display: table-cell;
 }
+/* The last login is a second line of the row, not a cell: the client draws it
+ * at x=8, across the row, under everything. Escaping the name column means the
+ * column keeps its own width while the line gets the full row. */
+#Guild .content.members .name {
+	position: relative;
+	overflow: visible;
+}
+#Guild .content.members .name .value {
+	display: inline-block;
+	max-width: 62px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	vertical-align: middle;
+}
 #Guild .content.members .name .lastlogin {
-	display: block;
+	position: absolute;
+	left: 6px;
+	top: 26px;
+	width: 360px;
 	font-size: 11px;
 	color: #404040;
 }
