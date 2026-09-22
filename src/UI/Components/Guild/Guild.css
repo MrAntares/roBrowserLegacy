@@ -62,19 +62,30 @@
 #Guild .tabs button.active {
 	background-color: #fff;
 }
+/* The client paints a 64x23 cell at x = 1 + 66k and puts a 62x15 label box
+ * inside it at (3 + 66k, 22) - so the label is inset 2px left and 4px top, and
+ * is 62 wide, not 58. The margins below already reproduce the 66px pitch; the
+ * asymmetric padding is what lands the text box on the client's own rect.
+ *
+ * Font size 12 is the client's too. A label that does not fit gets ellipsised
+ * rather than widened, which is also what the client does - it measures the
+ * string and appends a literal "..." while it exceeds 62px - so the clipped
+ * "Guild Notice" is faithful behaviour, not a layout bug. Widening the button
+ * would be the bug: it feeds straight back into the frame's width. */
 #Guild .tabs button {
 	width: 64px;
 	height: 23px;
 	margin-left: 1px;
 	margin-right: 1px;
 	margin-top: 1px;
-	padding: 0;
+	padding: 4px 0 0 2px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	background-color: #cecece;
 	border: 0px;
-	padding: 3px;
+	font-family: inherit;
+	font-size: 12px;
 }
 #Guild .footer {
 	width: 100%;
@@ -115,7 +126,8 @@
 #Guild .content.info .hostile,
 #Guild .content.info .hostile_list {
 	position: absolute;
-	left: 201px;
+	/* The client's right column is at x=200, not 201. */
+	left: 200px;
 }
 
 #Guild .content.info .name {
@@ -198,27 +210,27 @@
 
 #Guild .content.info .exp {
 	position: absolute;
-	left: 201px;
+	left: 200px;
 	top: 13px;
 }
 #Guild .content.info .emblem {
 	position: absolute;
-	left: 201px;
+	left: 200px;
 	top: 37px;
 }
 #Guild .content.info .tax {
 	position: absolute;
-	left: 201px;
+	left: 200px;
 	top: 61px;
 }
 #Guild .content.info .ally {
 	position: absolute;
-	left: 201px;
+	left: 200px;
 	top: 103px;
 }
 #Guild .content.info .ally_list {
 	position: absolute;
-	left: 201px;
+	left: 200px;
 	top: 118px;
 	white-space: pre;
 	width: 168px;
@@ -227,12 +239,12 @@
 }
 #Guild .content.info .hostile {
 	position: absolute;
-	left: 201px;
+	left: 200px;
 	top: 177px;
 }
 #Guild .content.info .hostile_list {
 	position: absolute;
-	left: 201px;
+	left: 200px;
 	top: 193px;
 	white-space: pre;
 	width: 168px;
@@ -270,16 +282,36 @@
 	background-repeat: no-repeat;
 	overflow: hidden;
 }
+/* Web override, and a forced one. The client does not open a file dialog here:
+ * it enumerates <dir>\emblem\*.bmp and *.gif with FindFirstFileA and shows an
+ * in-game list. A browser cannot read a directory, so a file input is the only
+ * way to get the same 24x24 bitmap in.
+ *
+ * The native control is ~253px wide and only its own button opens the picker,
+ * so inside a 42x20 clip the clickable part may not be the part on screen.
+ * Filling the button and over-scaling the font blows the UA's internal button
+ * up until it covers the whole clip, which makes the visible 42x20 the hit
+ * target. The element is out of flow, so none of this can reach the frame. */
 #Guild .content.info .emblem_edit input {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	font-size: 100px;
+	cursor: pointer;
 	opacity: 0;
 }
 
 /*
  * Guild Members
  */
+/* The client's list frame starts at x=5 and its row band at x=6; the pane's own
+ * 2px padding puts us at 2, so 3px of margin makes up the difference. */
 #Guild .content.members table {
 	border-spacing: 0;
 	border-collapse: collapse;
+	margin-left: 3px;
 }
 #Guild .content.members tbody tr {
 	border-left: 1px solid #c2c2c2;
@@ -297,8 +329,12 @@
 #Guild .content.members td,
 #Guild .content.members th {
 	/* The widths below are the client's own column widths, so they have to
-	 * cover the padding too rather than sit on top of it. */
+	 * cover the padding too rather than sit on top of it - and, since each
+	 * carries its own separator, the 1px border as well. The client draws five
+	 * 1px lines down the full height of the list at x = 104/170/224/264/304,
+	 * which is what makes its 375px band hold six columns summing to 370. */
 	box-sizing: border-box;
+	border-right: 1px solid #c2c2c2;
 	text-align: left;
 	font-weight: normal;
 	padding-left: 2px;
@@ -345,8 +381,8 @@
  * positioning context for the line above, which has to overflow it. */
 #Guild .content.members .name {
 	position: relative;
-	width: 98px;
-	max-width: 98px;
+	width: 99px;
+	max-width: 99px;
 	overflow: visible;
 }
 #Guild .content.members .name .value {
@@ -361,8 +397,8 @@
 	vertical-align: -11px;
 }
 #Guild .content.members .position {
-	width: 65px;
-	max-width: 65px;
+	width: 66px;
+	max-width: 66px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
@@ -373,32 +409,27 @@
 	overflow: hidden;
 }
 #Guild .content.members .job {
-	width: 53px;
-	max-width: 53px;
+	width: 54px;
+	max-width: 54px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
 #Guild .content.members .level {
-	width: 39px;
+	width: 40px;
 }
 #Guild .content.members .note {
 	width: 41px;
 }
 #Guild .content.members .devotion {
-	width: 39px;
+	width: 40px;
 }
-/*
- * The client gives this column 76px, on a row band that starts at x=6. Our band
- * starts at x=2 instead (the pane's own padding), so 76px would stop 8px short
- * of the client's right edge and leave a visible notch. The 8px go here, to the
- * last column, which is also the one whose value overflows soonest. Widening
- * any further would push the pane wider than the window: the custom scrollbar
- * paints as an overlay, but it still reserves a 13px gutter by writing
- * padding-right on the pane it scrolls.
- */
+/* The client's own 76, plus 1px for the list frame's right border - the last
+ * column has no separator of its own, it closes against the frame at x=381.
+ * This column used to carry 8 extra pixels to make up for a band that started
+ * at x=2; the band starts at 6 now, so the compensation is gone. */
 #Guild .content.members .tax {
-	width: 84px;
-	max-width: 84px;
+	width: 77px;
+	max-width: 77px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
@@ -452,9 +483,19 @@
 /*
  * Guild Positions
  */
+/* Same band as the member list: the client's list frame starts at x=5, and the
+ * pane's own 2px padding puts us at 2. */
 #Guild .content.positions table {
 	border-spacing: 0;
 	border-collapse: collapse;
+	margin-left: 3px;
+	/* Fixed plus an explicit width, so the column widths below are the ones that
+	 * get used. `table-layout: fixed` on its own does nothing here - with
+	 * `width: auto` the fixed algorithm has no width to distribute and browsers
+	 * fall back to the auto one, which let the title input's intrinsic width
+	 * push every column wider and run the band past the client's right edge. */
+	table-layout: fixed;
+	width: 376px;
 }
 #Guild .content.positions tr.active {
 	border: none;
@@ -464,27 +505,35 @@
 }
 #Guild .content.positions th,
 #Guild .content.positions td {
+	box-sizing: border-box;
 	height: 20px;
 	font-weight: normal;
 	text-align: left;
 	padding: 2px 2px 0px 3px;
 	border: 1px solid #c2c2c2;
 }
+/* ver12's five-column layout - 50/142/60/60/60, a band of x 5..381 - rather
+ * than the modern one. 2022 and mars26 split this into six columns by adding
+ * Storage and cutting Title from 142 to 100, and their band then runs to x=400,
+ * under the scrollbar that starts at 385. We render five columns because no
+ * Storage flag reaches us on the wire, so ver12's widths are the ones that both
+ * fit our column set and keep the band clear of the bar. Each width carries
+ * +1px for its own separator; the last closes against the frame. */
 #Guild .content.positions .id {
-	width: 57px;
+	width: 50px;
 }
 #Guild .content.positions .title {
-	width: 158px;
+	width: 143px;
 	padding: 0px;
 }
 #Guild .content.positions .invite {
-	width: 68px;
+	width: 61px;
 }
 #Guild .content.positions .punish {
-	width: 68px;
+	width: 61px;
 }
 #Guild .content.positions .tax {
-	width: 68px;
+	width: 61px;
 	padding: 0;
 }
 #Guild .content.positions input {
@@ -495,7 +544,7 @@
 }
 #Guild .content.positions .title input {
 	padding-left: 2px;
-	width: 140px;
+	width: 136px;
 	margin-left: 4px;
 }
 #Guild .content.positions .tax input {
@@ -517,7 +566,13 @@
 #Guild .content.skills {
 	overflow-y: hidden;
 }
+/* border-box, so the 5px padding stays inside the 394. Without it this box is
+ * 404 wide and overflows the pane, which is what pushed the Skills tab to the
+ * frame's 400px ceiling before the frame was pinned. The custom scrollbar
+ * happens to set box-sizing itself when it attaches, so the overflow only
+ * showed between first paint and that attach. */
 #Guild .content.skills .skill_list {
+	box-sizing: border-box;
 	overflow-y: auto;
 	padding: 5px;
 	border-top: 1px solid #c6c6c6;
