@@ -939,6 +939,33 @@ class EffectManager {
 	}
 
 	/**
+	 * Spam skill effect when the skill is released on its target (hit or miss)
+	 *
+	 * @param {number} skill id
+	 * @param {number} target aid
+	 * @param {number} tick
+	 * @param {number} source aid
+	 */
+	static spamSkillRelease(skillId, destAID, tick, srcAID) {
+		if (!(skillId in SkillEffect) || !SkillEffect[skillId].releaseEffectId) {
+			return;
+		}
+
+		const effects = Array.isArray(SkillEffect[skillId].releaseEffectId)
+			? SkillEffect[skillId].releaseEffectId
+			: [SkillEffect[skillId].releaseEffectId];
+
+		effects.forEach(effectId => {
+			EffectManager.spam({
+				effectId: effectId,
+				ownerAID: destAID,
+				startTick: tick,
+				otherAID: srcAID
+			});
+		});
+	}
+
+	/**
 	 * Spam skill before the hit lands (regardless of damage)
 	 *
 	 * @param {number} skill id

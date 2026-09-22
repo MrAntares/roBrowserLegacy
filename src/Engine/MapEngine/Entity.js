@@ -1701,6 +1701,7 @@ function onEntityUseSkillToAttack(pkt) {
 
 	if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
 		// && pkt.action != SkillAction.MULTI_HIT
+		EffectManager.spamSkillRelease(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
 		EffectManager.spamSkill(pkt.SKID, pkt.targetID, null, Renderer.tick + pkt.attackMT, pkt.AID);
 	}
 }
