@@ -39,6 +39,11 @@ const _emblems = {};
 let _pendingGuildSkillRequest = false;
 
 /**
+ * @var {number} timer waiting on the answer to a member info request
+ */
+let _memberInfoTimer = 0;
+
+/**
  * Engine namespace
  */
 class GuildEngine {
@@ -62,6 +67,7 @@ class GuildEngine {
 		Network.hookPacket(PACKET.ZC.MEMBERMGR_INFO2, onGuildMembers);
 		Network.hookPacket(PACKET.ZC.MEMBERMGR_INFO3, onGuildMembers);
 		Network.hookPacket(PACKET.ZC.ACK_GUILD_MEMBER_INFO, onGuildMemberUpdate);
+		Network.hookPacket(PACKET.ZC.ACK_OPEN_MEMBER_INFO, onGuildMemberInfo);
 		Network.hookPacket(PACKET.ZC.POSITION_INFO, onGuildPositions);
 		Network.hookPacket(PACKET.ZC.POSITION_ID_NAME_INFO, onGuildPositionsName);
 		Network.hookPacket(PACKET.ZC.ACK_CHANGE_GUILD_POSITIONINFO, onGuildPositions);
@@ -457,6 +463,18 @@ class GuildEngine {
 		pkt.AID = AID;
 
 		Network.sendPacket(pkt);
+
+		// Not every server answers this one - rAthena declares the packet but
+		// has no handler for it as of 2026-09. Say so rather than leave the
+		// click looking like nothing happened.
+		clearTimeout(_memberInfoTimer);
+		_memberInfoTimer = setTimeout(() => {
+			ChatBox.addText(
+				`${DB.getMessage(129)} : the server did not answer.`,
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.GUILD
+			);
+		}, 3000);
 	}
 
 	/**
@@ -740,6 +758,18 @@ function onGuildPositions(pkt) {
  */
 function onGuildPositionsName(pkt) {
 	Guild.setPositionsName(pkt.memberList);
+}
+
+/**
+ * A server did answer the member info request
+ *
+ * There is no window to show it in yet, but the answer is what tells us the
+ * request is supported, so the timer waiting on it has to be called off.
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_OPEN_MEMBER_INFO
+ */
+function onGuildMemberInfo() {
+	clearTimeout(_memberInfoTimer);
 }
 
 /**
