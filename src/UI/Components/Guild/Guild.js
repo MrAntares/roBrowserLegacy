@@ -66,6 +66,12 @@ const _skills = [];
  */
 let _pendingPositions = {};
 
+/**
+ * The position rows are their own edit buffer - Apply reads them back out of
+ * the DOM. Once an edit is in them, a server update must not repaint over it.
+ */
+let _positionsDirty = false;
+
 let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
@@ -195,6 +201,7 @@ Guild.init = function init() {
 			'focus',
 			e => {
 				if (e.target.matches('input')) {
+					_positionsDirty = true;
 					const btnOk = root.querySelector('.footer .btn_ok');
 					if (btnOk) {
 						btnOk.style.display = 'block';
@@ -206,12 +213,15 @@ Guild.init = function init() {
 		);
 
 		posBody.addEventListener('click', e => {
-			const btn = e.target.closest('ui-button');
-			if (btn && Session.isGuildMaster) {
-				btn.className = btn.className.replace(/\b(on|off)\b/g, '').trim();
-				const isOn = !btn.classList.contains('on');
-				btn.classList.add(isOn ? 'on' : 'off');
-				btn.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
+			const box = e.target.closest('.checkbox');
+			if (box && Session.isGuildMaster) {
+				// Read the state before clearing it, or the test below never sees
+				// an `on` and the box only ever ticks.
+				const isOn = !box.classList.contains('on');
+				box.className = box.className.replace(/\b(on|off)\b/g, '').trim();
+				box.classList.add(isOn ? 'on' : 'off');
+				box.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
+				_positionsDirty = true;
 				const btnOk = root.querySelector('.footer .btn_ok');
 				if (btnOk) {
 					btnOk.style.display = 'block';
@@ -458,6 +468,7 @@ Guild.init = function init() {
  */
 Guild.onRemove = function onRemove() {
 	Renderer.stop(renderMemberFaces);
+	_positionsDirty = false;
 };
 
 Guild.onShortCut = function onShortCut(key) {
@@ -940,6 +951,13 @@ Guild.updatePositionView = function updatePositionView() {
 	if (!container) {
 		return;
 	}
+
+	// 0x166 rides in with every member list, and rebuilding here would drop the
+	// edits the rows are holding. The guild master's changes stand until Apply.
+	if (_positionsDirty) {
+		return;
+	}
+
 	container.innerHTML = '';
 
 	const count = _positions.length;
@@ -964,18 +982,18 @@ Guild.updatePositionView = function updatePositionView() {
 			taxInput.value = rank.payRate;
 		}
 
-		const inviteBtn = view.querySelector('.invite ui-button');
-		if (inviteBtn) {
-			inviteBtn.style.backgroundImage = `url(${rank.right & 0x01 ? _checkbox_on : _checkbox_off})`;
-			inviteBtn.className = inviteBtn.className.replace(/\b(on|off)\b/g, '').trim();
-			inviteBtn.classList.add(rank.right & 0x01 ? 'on' : 'off');
+		const inviteBox = view.querySelector('.invite .checkbox');
+		if (inviteBox) {
+			inviteBox.style.backgroundImage = `url(${rank.right & 0x01 ? _checkbox_on : _checkbox_off})`;
+			inviteBox.className = inviteBox.className.replace(/\b(on|off)\b/g, '').trim();
+			inviteBox.classList.add(rank.right & 0x01 ? 'on' : 'off');
 		}
 
-		const punishBtn = view.querySelector('.punish ui-button');
-		if (punishBtn) {
-			punishBtn.style.backgroundImage = `url(${rank.right & 0x10 ? _checkbox_on : _checkbox_off})`;
-			punishBtn.className = punishBtn.className.replace(/\b(on|off)\b/g, '').trim();
-			punishBtn.classList.add(rank.right & 0x10 ? 'on' : 'off');
+		const punishBox = view.querySelector('.punish .checkbox');
+		if (punishBox) {
+			punishBox.style.backgroundImage = `url(${rank.right & 0x10 ? _checkbox_on : _checkbox_off})`;
+			punishBox.className = punishBox.className.replace(/\b(on|off)\b/g, '').trim();
+			punishBox.classList.add(rank.right & 0x10 ? 'on' : 'off');
 		}
 
 		container.appendChild(view);
@@ -1366,6 +1384,12 @@ function onChangeTab(event) {
 		btnOk.style.display = 'none';
 	}
 
+	// The positions tab holds its edits in its rows, so coming back to an edited
+	// one has to bring the way to apply them back too.
+	if (targetClass === 'positions' && _positionsDirty) {
+		_showApplyButton();
+	}
+
 	updateDisbandButton(root, targetClass);
 	updateSkillPoints(root, targetClass);
 
@@ -1478,17 +1502,28 @@ function onValidate() {
 					continue;
 				}
 
+				// 0x160 carries the mode and nothing else does. Until it lands there
+				// is nothing to preserve and nothing to compare against, and sending
+				// would push a zeroed mode over the server's own.
+				if (_positions[i].right === undefined) {
+					continue;
+				}
+
 				const posName = position.querySelector('.title input')?.value || '';
 				const payRate = parseInt(position.querySelector('.tax input')?.value || '0', 10);
-				let right = 0;
 
-				const inviteBtn = position.querySelector('.invite ui-button');
-				if (inviteBtn && inviteBtn.classList.contains('on')) {
+				// Invitation and punishment are the only bits with a column here.
+				// Rebuilding the mode from zero drops the rest - guild storage
+				// (0x100) above all, which every default position holds.
+				let right = _positions[i].right & ~(0x01 | 0x10);
+
+				const inviteBox = position.querySelector('.invite .checkbox');
+				if (inviteBox && inviteBox.classList.contains('on')) {
 					right |= 0x01;
 				}
 
-				const punishBtn = position.querySelector('.punish ui-button');
-				if (punishBtn && punishBtn.classList.contains('on')) {
+				const punishBox = position.querySelector('.punish .checkbox');
+				if (punishBox && punishBox.classList.contains('on')) {
 					right |= 0x10;
 				}
 
@@ -1507,7 +1542,11 @@ function onValidate() {
 				}
 			}
 
-			Guild.onPositionUpdateRequest(positionList);
+			// Applied or not, the rows go back to being the server's to repaint.
+			if (positionList.length) {
+				Guild.onPositionUpdateRequest(positionList);
+			}
+			_positionsDirty = false;
 			break;
 		}
 		case 'notice': {

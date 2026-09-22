@@ -595,10 +595,14 @@
 	padding-left: 2px;
 	margin-left: 3px;
 }
-#Guild .content.positions ui-button {
+/* A plain element rather than a ui-button: that one reloads its `bg` on every
+ * hover and press, which paints the unticked image back over a ticked box. The
+ * client's checkbox is 12x12 at x 160 / 221, y 66 + 19r. */
+#Guild .content.positions .checkbox {
+	display: inline-block;
 	border: none;
-	width: 10px;
-	height: 10px;
+	width: 12px;
+	height: 12px;
 	background-repeat: no-repeat;
 	background-color: transparent;
 }
