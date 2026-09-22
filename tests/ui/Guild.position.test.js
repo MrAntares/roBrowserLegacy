@@ -34,6 +34,9 @@ const mocks = vi.hoisted(() => {
 	return {
 		MockGUIComponent,
 		MockEntity,
+		// Stands in for msgstringtable: what a server actually ships wins over
+		// the fallback baked into the call.
+		messages: {},
 		contextMenu: { remove: vi.fn(), append: vi.fn(), addElement: vi.fn() },
 		promptBox: vi.fn(),
 		session: {
@@ -52,7 +55,8 @@ const mocks = vi.hoisted(() => {
 vi.mock('DB/DBManager.js', () => ({
 	default: {
 		INTERFACE_PATH: '',
-		getMessage: (id, defaultText) => (defaultText !== undefined ? defaultText : `NO MSG ${id}`)
+		getMessage: (id, defaultText) =>
+			id in mocks.messages ? mocks.messages[id] : defaultText !== undefined ? defaultText : `NO MSG ${id}`
 	}
 }));
 vi.mock('DB/Skills/SkillInfo.js', () => ({ default: {} }));
@@ -201,6 +205,9 @@ beforeEach(() => {
 	mocks.session.guildRight = 0;
 	mocks.contextMenu.addElement.mockClear();
 	mocks.promptBox.mockClear();
+	for (const id in mocks.messages) {
+		delete mocks.messages[id];
+	}
 
 	Guild.onChangeMemberPosRequest = list => sent.push(list);
 
@@ -392,6 +399,16 @@ describe('Guild member position', () => {
 			Guild.setMembers([member(MASTER), { ...member(ALICE), LastLogin: 1758499200 }]);
 
 			expect(lastLoginOf(ALICE).textContent).toContain('2025.09.22');
+		});
+
+		it('follows the format the server asks for, two-digit year included', () => {
+			// The compiled default is %Y.%m.%d but the iRO table ships %y.%m.%d,
+			// and the client hands whichever it has to strftime.
+			mocks.messages[3011] = '%y.%m.%d';
+			Guild.setMembers([member(MASTER), { ...member(ALICE), LastLogin: 1758499200 }]);
+
+			expect(lastLoginOf(ALICE).textContent).toContain('25.09.22');
+			expect(lastLoginOf(ALICE).textContent).not.toContain('2025.09.22');
 		});
 
 		it('leaves the last login empty when the list does not', () => {

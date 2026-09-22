@@ -99,14 +99,25 @@ function _showApplyButton() {
 }
 
 /**
- * Helper: the last login date, in the format the official client uses
+ * Helper: the last login date, built from the client's own format string
+ *
+ * The client hands msgstring 3011 to strftime, and the tables do not all ask
+ * for the same thing - the compiled default is %Y.%m.%d, the iRO table ships
+ * %y.%m.%d. Only the fields those use are substituted; anything else is left
+ * as it is rather than guessed at.
+ *
+ * @param {number} timestamp - seconds since epoch, as the member list sends it
+ * @return {string} the date, localtime, like the client shows it
  */
 function _formatLastLogin(timestamp) {
 	const date = new Date(timestamp * 1000);
-	const month = `${date.getMonth() + 1}`.padStart(2, '0');
-	const day = `${date.getDate()}`.padStart(2, '0');
+	const pad = value => `${value}`.padStart(2, '0');
 
-	return `${date.getFullYear()}.${month}.${day}`;
+	return DB.getMessage(3011, '%Y.%m.%d')
+		.replace('%Y', date.getFullYear())
+		.replace('%y', pad(date.getFullYear() % 100))
+		.replace('%m', pad(date.getMonth() + 1))
+		.replace('%d', pad(date.getDate()));
 }
 
 /**
