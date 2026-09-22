@@ -658,10 +658,14 @@ Guild.setMember = function setMember(member) {
 	}
 
 	view.setAttribute('data-index', i);
+	// The 0x0aa5 list carries no character name at all, and the client falls
+	// back to a placeholder rather than leaving the column blank.
+	const displayName = member.CharName || DB.getMessage(581, 'Nameless');
+
 	const nameValue = view.querySelector('.name .value');
 	if (nameValue) {
-		nameValue.textContent = member.CharName;
-		nameValue.title = member.CharName;
+		nameValue.textContent = displayName;
+		nameValue.title = displayName;
 	}
 
 	const lastLogin = view.querySelector('.name .lastlogin');
