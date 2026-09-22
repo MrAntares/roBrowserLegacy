@@ -45,17 +45,23 @@
 	background-color: white;
 	padding-right: 2px;
 }
+/* The client's content pane is (1, 41, 398, 276) painted over (0, 41, 400, 276),
+ * so the only edges it leaves are the 1px verticals at x=0 and x=399 - there is
+ * no horizontal rule under the tabs. 249 here plus the 27px button bar is that
+ * same 276. */
 #Guild .content {
 	position: relative;
 	box-sizing: border-box;
 	overflow-y: auto;
 	padding: 2px;
-	border-top: 1px solid #c6c6c6;
-	height: 250px;
+	height: 249px;
 }
 
+/* The client's tab band is 24px, y 17..41, with the 23px cells sitting 1px
+ * inside it. At 23 the cells overhang the band and the panel's white shows
+ * through the 2px gutters between them. */
 #Guild .tabs {
-	height: 23px;
+	height: 24px;
 	background-color: #b5b6b5;
 	white-space: nowrap;
 }
@@ -136,37 +142,37 @@
 
 #Guild .content.info .name {
 	position: absolute;
-	left: 9px;
-	top: 13px;
+	left: 8px;
+	top: 8px;
 }
 #Guild .content.info .level {
 	position: absolute;
-	left: 9px;
-	top: 28px;
+	left: 8px;
+	top: 24px;
 }
 #Guild .content.info .master {
 	position: absolute;
-	left: 9px;
-	top: 45px;
+	left: 8px;
+	top: 40px;
 }
 #Guild .content.info .members {
 	position: absolute;
-	left: 9px;
-	top: 61px;
+	left: 8px;
+	top: 56px;
 }
 #Guild .content.info .avglevel {
 	position: absolute;
-	left: 9px;
-	top: 77px;
+	left: 8px;
+	top: 72px;
 }
 #Guild .content.info .territory {
 	position: absolute;
-	left: 9px;
-	top: 93px;
+	left: 8px;
+	top: 88px;
 }
 #Guild .content.info .tendency {
 	position: absolute;
-	left: 9px;
+	left: 8px;
 	top: 114px;
 }
 #Guild .content.info .tendency .title {
@@ -215,12 +221,12 @@
 #Guild .content.info .exp {
 	position: absolute;
 	left: 200px;
-	top: 13px;
+	top: 8px;
 }
 #Guild .content.info .emblem {
 	position: absolute;
 	left: 200px;
-	top: 37px;
+	top: 32px;
 }
 #Guild .content.info .tax {
 	position: absolute;
@@ -230,12 +236,12 @@
 #Guild .content.info .ally {
 	position: absolute;
 	left: 200px;
-	top: 103px;
+	top: 98px;
 }
 #Guild .content.info .ally_list {
 	position: absolute;
 	left: 200px;
-	top: 118px;
+	top: 114px;
 	white-space: pre;
 	width: 168px;
 	height: 48px;
@@ -244,12 +250,12 @@
 #Guild .content.info .hostile {
 	position: absolute;
 	left: 200px;
-	top: 177px;
+	top: 172px;
 }
 #Guild .content.info .hostile_list {
 	position: absolute;
 	left: 200px;
-	top: 193px;
+	top: 188px;
 	white-space: pre;
 	width: 168px;
 	height: 48px;
