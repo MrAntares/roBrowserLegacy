@@ -262,19 +262,23 @@
 	padding: 2px;
 }
 
+/* The client draws the emblem at (300, 65) in a 26x26 frame at (299, 64), and
+ * puts the edit button at (W - w - 8, 69) = (350, 69) - w being btn_edit.bmp's
+ * own 42x20. The pane's padding box starts at y=41, so these tops are the
+ * client's y minus 41. */
 #Guild .content.info .emblem_container {
 	width: 24px;
 	height: 24px;
 	position: absolute;
-	top: 29px;
+	top: 24px;
 	left: 300px;
 	background-color: #709ce7;
 	background-repeat: no-repeat;
 }
 #Guild .content.info .emblem_edit {
 	position: absolute;
-	top: 30px;
-	left: 330px;
+	top: 28px;
+	left: 350px;
 	width: 42px;
 	height: 20px;
 	border: none;
@@ -659,11 +663,17 @@
 	margin-left: 10px;
 }
 
+/* The client's own rect: SetPos(W - w - 15, H - h - 5) with btn_disBand.bmp at
+ * 64x20, so (321, 292). We draw a text button rather than the bitmap, so the
+ * box is pinned explicitly instead of being sized by its label. */
 #Guild .footer .btn_disband {
 	display: none;
 	position: absolute;
-	bottom: 4px;
-	right: 4px;
+	box-sizing: border-box;
+	width: 64px;
+	height: 20px;
+	bottom: 5px;
+	right: 15px;
 	padding: 2px 10px;
 	font-family: Arial, sans-serif;
 	font-size: 11px;
