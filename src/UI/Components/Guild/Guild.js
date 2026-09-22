@@ -284,13 +284,17 @@ Guild.init = function init() {
 			}
 
 			if (Session.isGuildMaster && !isSelf) {
-				ContextMenu.addElement(DB.getMessage(2923, 'Delegate guild master'), () => {
-					// 0x0aa5 member lists carry no character name, so the confirmation
-					// has to stand on its own when the name is empty.
-					const named = DB.getMessage(2924, 'Do you really want to delegate the guild master to %s?');
-					const text = member.CharName
-						? named.replace('%s', member.CharName)
-						: 'Do you really want to delegate the guild master to this member?';
+				ContextMenu.addElement(DB.getMessage(2923, 'Assign Guild Leader'), () => {
+					// The message takes two placeholders: the member taking over,
+					// and the grade we are left with. The server swaps the two
+					// rows, so that is the grade the member holds right now.
+					const grade = _positions[member.GPositionID];
+					const text = DB.getMessage(
+						2924,
+						'Are you sure you want to assign %s as guild leader? After assigning your position will become %s'
+					)
+						.replace('%s', member.CharName || DB.getMessage(581, 'Nameless'))
+						.replace('%s', grade && grade.posName ? grade.posName : '');
 
 					UIManager.showPromptBox(text, 'ok', 'cancel', () => {
 						Guild.onChangeMemberPosRequest([{ AID: member.AID, GID: member.GID, positionID: 0 }]);

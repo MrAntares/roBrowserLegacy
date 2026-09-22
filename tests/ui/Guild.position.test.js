@@ -440,7 +440,7 @@ describe('Guild member position', () => {
 		it('offers the entry to the guild master on someone else', () => {
 			openMenuOn(ALICE_ROW);
 
-			expect(entryLabelled('Delegate guild master')).not.toBeNull();
+			expect(entryLabelled('Assign Guild Leader')).not.toBeNull();
 		});
 
 		it('hides the entry from a member who is not the guild master', () => {
@@ -448,12 +448,12 @@ describe('Guild member position', () => {
 			Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
 			openMenuOn(ALICE_ROW);
 
-			expect(entryLabelled('Delegate guild master')).toBeNull();
+			expect(entryLabelled('Assign Guild Leader')).toBeNull();
 		});
 
 		it('sends a single grade 0 entry once confirmed', () => {
 			openMenuOn(ALICE_ROW);
-			entryLabelled('Delegate guild master')();
+			entryLabelled('Assign Guild Leader')();
 
 			expect(sent).toHaveLength(0);
 
@@ -465,7 +465,7 @@ describe('Guild member position', () => {
 
 		it('names the member in the confirmation', () => {
 			openMenuOn(ALICE_ROW);
-			entryLabelled('Delegate guild master')();
+			entryLabelled('Assign Guild Leader')();
 
 			expect(mocks.promptBox.mock.calls[0][0]).toContain('Alice');
 		});
@@ -474,15 +474,28 @@ describe('Guild member position', () => {
 			// 0x0aa5 member lists carry no CharName at all.
 			Guild.setMembers([member(MASTER), { ...member(ALICE), CharName: '' }]);
 			openMenuOn(ALICE_ROW);
-			entryLabelled('Delegate guild master')();
+			entryLabelled('Assign Guild Leader')();
 
 			expect(mocks.promptBox.mock.calls[0][0]).not.toContain('%s');
-			expect(mocks.promptBox.mock.calls[0][0]).not.toContain(' to ?');
+			expect(mocks.promptBox.mock.calls[0][0]).toContain('Nameless');
+		});
+
+		it('fills both placeholders, the member and the grade we are left with', () => {
+			// The server swaps the two rows, so the outgoing master takes the
+			// grade the member holds right now.
+			openMenuOn(ALICE_ROW);
+			entryLabelled('Assign Guild Leader')();
+
+			const text = mocks.promptBox.mock.calls[0][0];
+
+			expect(text).not.toContain('%s');
+			expect(text).toContain('Alice');
+			expect(text).toContain('Member');
 		});
 
 		it('does not queue itself as a pending edit', () => {
 			openMenuOn(ALICE_ROW);
-			entryLabelled('Delegate guild master')();
+			entryLabelled('Assign Guild Leader')();
 			mocks.promptBox.mock.calls[0][3]();
 			sent.length = 0;
 
