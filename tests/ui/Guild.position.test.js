@@ -366,6 +366,41 @@ describe('Guild member position', () => {
 		expect(wireEntries(sent[0])[0].positionID).toBe(2);
 	});
 
+	describe('columns follow the packet', () => {
+		function membersContent() {
+			return root().querySelector('.content.members');
+		}
+
+		function lastLoginOf(fixture) {
+			const index = fixture === ALICE ? 1 : 2;
+			return root().querySelector(`.MemberView[data-index="${index}"] .name .lastlogin`);
+		}
+
+		it('hides the note column on a list that carries no note', () => {
+			// 0x0aa5 / 0x0b7d: no memo on the wire, and the official client
+			// dropped the column along with the field.
+			expect(membersContent().classList.contains('has-memo')).toBe(false);
+		});
+
+		it('shows the note column on the list that does carry one', () => {
+			Guild.setMembers([member(MASTER), member(ALICE)], true);
+
+			expect(membersContent().classList.contains('has-memo')).toBe(true);
+		});
+
+		it('renders the last login when the list carries it', () => {
+			Guild.setMembers([member(MASTER), { ...member(ALICE), LastLogin: 1758499200 }]);
+
+			expect(lastLoginOf(ALICE).textContent).toContain('2025.09.22');
+		});
+
+		it('leaves the last login empty when the list does not', () => {
+			Guild.setMembers([member(MASTER), member(ALICE)]);
+
+			expect(lastLoginOf(ALICE).textContent).toBe('');
+		});
+	});
+
 	describe('acknowledgement', () => {
 		it('applies the grades the server confirms', () => {
 			Guild.setMemberPositions([{ AID: ALICE.AID, GID: ALICE.GID, positionID: 2 }]);
