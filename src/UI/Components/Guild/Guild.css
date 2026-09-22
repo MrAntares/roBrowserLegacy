@@ -31,11 +31,17 @@
 	border: none;
 	background-color: transparent;
 	background-repeat: no-repeat;
-	vertical-align: middle;
+	/* Top, not middle: the client puts this at a literal y, and a baseline
+	 * alignment lands it on a fraction of a pixel instead. */
+	vertical-align: top;
 }
+/* SetPos(W - 14, 3) with sys_close_off.bmp at 11x11 - so (386, 3). The 3px
+ * right margin puts the 11px button's left edge on 386 in a 400 frame. */
 #Guild .titlebar .right {
 	float: right;
 	margin-right: 3px;
+	margin-top: 3px;
+	line-height: 0;
 }
 #Guild .titlebar .clear {
 	clear: both;
