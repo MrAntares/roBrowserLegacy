@@ -75,7 +75,8 @@ vi.mock('Core/Client.js', () => ({
 			callback?.('');
 		},
 		loadFiles(_paths, callback) {
-			callback?.('', '');
+			// Distinguishable, so the painted checkbox can be told from the class.
+			callback?.('checkbox_0.bmp', 'checkbox_1.bmp');
 		}
 	}
 }));
@@ -155,6 +156,35 @@ function showMembersTab() {
 	root().querySelector('.content.members').style.display = 'block';
 }
 
+/**
+ * onValidate reads the visible tab, so only the positions one may be displayed.
+ */
+function showPositionsTab() {
+	for (const content of root().querySelectorAll('.content')) {
+		content.style.display = 'none';
+	}
+	root().querySelector('.content.positions').style.display = 'block';
+}
+
+function positionRows() {
+	return root().querySelectorAll('.content.positions tbody .PositionView');
+}
+
+/**
+ * The `ui-button` half of the selector is what lets the behavioural cases below
+ * run against the tree before the checkbox stopped being a button, so they fail
+ * on the logic they are about rather than on a missing element.
+ */
+function checkboxOf(positionID, column) {
+	return positionRows()[positionID].querySelector(`.${column} .checkbox, .${column} ui-button`);
+}
+
+function clickCheckbox(positionID, column) {
+	const box = checkboxOf(positionID, column);
+	box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+	return box;
+}
+
 function selectOf(fixture) {
 	return root().querySelector(`.member_${fixture.AID}_${fixture.GID}`);
 }
@@ -198,9 +228,14 @@ function wireEntries(memberInfo) {
 }
 
 let sent;
+let sentPositions;
 
 beforeEach(() => {
 	sent = [];
+	sentPositions = [];
+	// Closing the window drops whatever the positions tab had queued, so every
+	// case starts on a table the server is still allowed to repaint.
+	Guild.onRemove();
 	mocks.session.isGuildMaster = true;
 	mocks.session.guildRight = 0;
 	mocks.contextMenu.addElement.mockClear();
@@ -210,6 +245,7 @@ beforeEach(() => {
 	}
 
 	Guild.onChangeMemberPosRequest = list => sent.push(list);
+	Guild.onPositionUpdateRequest = list => sentPositions.push(list);
 
 	// Only 0x166 feeds the grade list here: 0x160 never arrives unless the
 	// position tab was opened, and the dropdown has to work regardless.
@@ -520,6 +556,154 @@ describe('Guild member position', () => {
 			clickApply();
 
 			expect(sent).toHaveLength(0);
+		});
+	});
+});
+
+// 0x111 is rathena's GUILD_PERM_DEFAULT - invite | expel | storage. Storage is
+// the bit this tab has no column for, and must not destroy.
+const POSITIONS = [
+	{ positionID: 0, right: 0x111, ranking: 0, payRate: 50, posName: 'Guild Master' },
+	{ positionID: 1, right: 0x001, ranking: 1, payRate: 10, posName: 'Member' },
+	{ positionID: 2, right: 0x011, ranking: 2, payRate: 20, posName: 'Officer' }
+];
+
+const POSITION_NAMES = [
+	{ positionID: 0, posName: 'Guild Master' },
+	{ positionID: 1, posName: 'Member' },
+	{ positionID: 2, posName: 'Officer' }
+];
+
+describe('Guild position tab', () => {
+	describe('the permission checkbox', () => {
+		it('is not a button, which would repaint over its own state', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			for (const column of ['invite', 'punish']) {
+				expect(positionRows()[0].querySelector(`.${column} ui-button`)).toBeNull();
+				expect(positionRows()[0].querySelector(`.${column} .checkbox`)).not.toBeNull();
+			}
+		});
+
+		it('paints the permissions the packet carried', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			expect(checkboxOf(0, 'invite').classList.contains('on')).toBe(true);
+			expect(checkboxOf(0, 'punish').classList.contains('on')).toBe(true);
+			expect(checkboxOf(1, 'invite').classList.contains('on')).toBe(true);
+			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(false);
+
+			expect(checkboxOf(0, 'invite').style.backgroundImage).toContain('checkbox_1.bmp');
+			expect(checkboxOf(1, 'punish').style.backgroundImage).toContain('checkbox_0.bmp');
+		});
+
+		it('unticks as readily as it ticks', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(0, 'invite');
+			expect(checkboxOf(0, 'invite').classList.contains('on')).toBe(false);
+			expect(checkboxOf(0, 'invite').style.backgroundImage).toContain('checkbox_0.bmp');
+
+			clickCheckbox(0, 'invite');
+			expect(checkboxOf(0, 'invite').classList.contains('on')).toBe(true);
+			expect(checkboxOf(0, 'invite').style.backgroundImage).toContain('checkbox_1.bmp');
+		});
+
+		it('stays where the guild master left it when the name list arrives', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+			clickCheckbox(1, 'punish');
+
+			// 0x166 rides in with the member list on every Members tab opening.
+			Guild.setPositionsName(POSITION_NAMES);
+
+			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(true);
+		});
+
+		it('takes no edit from a member who is not the guild master', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+			mocks.session.isGuildMaster = false;
+
+			clickCheckbox(1, 'punish');
+
+			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(false);
+		});
+	});
+
+	describe('the tax and title fields', () => {
+		it('keep an unsaved edit when the name list arrives', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const tax = positionRows()[1].querySelector('.tax input');
+			tax.dispatchEvent(new Event('focus'));
+			tax.value = '42';
+
+			Guild.setPositionsName(POSITION_NAMES);
+
+			expect(positionRows()[1].querySelector('.tax input').value).toBe('42');
+		});
+	});
+
+	describe('applying', () => {
+		it('leaves the bits the tab has no column for alone', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(0, 'invite');
+			clickApply();
+
+			expect(sentPositions).toHaveLength(1);
+			expect(sentPositions[0]).toHaveLength(1);
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 0, right: 0x110 });
+		});
+
+		it('sends the whole mode a grant rebuilds, storage included', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(1, 'punish');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, right: 0x011 });
+		});
+
+		it('carries the edited tax and title', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const row = positionRows()[2];
+			row.querySelector('.tax input').dispatchEvent(new Event('focus'));
+			row.querySelector('.tax input').value = '42';
+			row.querySelector('.title input').value = 'Veteran';
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 2, payRate: 42, posName: 'Veteran' });
+		});
+
+		it('sends nothing when nothing was edited', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickApply();
+
+			expect(sentPositions).toHaveLength(0);
+		});
+
+		it('does not push a mode it never received', () => {
+			// Only 0x166 has landed: the names are known, the rights are not, and
+			// rebuilding a mode from zero here would revoke every permission.
+			Guild.setPositions([], true);
+			Guild.setPositionsName(POSITION_NAMES);
+			showPositionsTab();
+			clickCheckbox(1, 'invite');
+			clickApply();
+
+			expect(sentPositions).toHaveLength(0);
 		});
 	});
 });
